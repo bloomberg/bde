@@ -38,19 +38,19 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'bdlb::CStringHash' provides a stateless type and thus very little to test.
+// `bdlb::CStringHash` provides a stateless type and thus very little to test.
 // The primary concern is that function call operator correctly generates hash
 // codes based on the contents of C-strings.  CREATORS can be tested only for
 // mechanical functioning.  And BSL traits presence should be checked as we
-// declare that 'bdlb::CStringHash' is an empty POD.
+// declare that `bdlb::CStringHash` is an empty POD.
 //
 // The tests for this component are table based, i.e., testing actual results
 // against a table of expected results.
 //
 // Global Concerns:
-//: o No memory is ever allocated from the global allocator.
-//: o No memory is ever allocated from the default allocator.
-//: o Precondition violations are detected in appropriate build modes.
+//  - No memory is ever allocated from the global allocator.
+//  - No memory is ever allocated from the default allocator.
+//  - Precondition violations are detected in appropriate build modes.
 // ----------------------------------------------------------------------------
 // [ 3] operator()(const char *) const
 // [ 2] CStringHash()
@@ -139,19 +139,20 @@ BSLMF_ASSERT(bsl::is_trivially_default_constructible<Obj>::value);
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'bdlb::CStringHash'
+///Example 1: Basic Use of `bdlb::CStringHash`
 /// - - - - - - - - - - - - - - - - - - - - -
 // Suppose we need an associative container to store some objects, uniquely
 // identified by C-strings.   The following code illustrates how to use
-// 'bdlb::CStringHash' as a hash function for the standard container
-// 'unordered_map' taking C-string as a key.
+// `bdlb::CStringHash` as a hash function for the standard container
+// `unordered_map` taking C-string as a key.
 //
 // First, let us define our mapped type class:
-//..
+// ```
+
+    /// This class implements a value semantic type that represents
+    /// ownership of a security.
     class Security
     {
-        // This class implements a value semantic type that represents
-        // ownership of a security.
 
         // DATA
         char         *d_name_p;      // Security name
@@ -159,32 +160,35 @@ BSLMF_ASSERT(bsl::is_trivially_default_constructible<Obj>::value);
 
       public:
         // CREATORS
+
+        /// Create a `Security` object having the specified `name` and
+        /// `sharesOwned`.
         Security(const char *name, unsigned int sharesOwned);
-            // Create a 'Security' object having the specified 'name' and
-            // 'sharesOwned'.
 
+        /// Create a `Security` object having the value of the specified
+        /// `original` security.
         Security(const Security& original);
-            // Create a 'Security' object having the value of the specified
-            // 'original' security.
 
+        /// Destroy this security object.
         ~Security();
-            // Destroy this security object.
 
 
         // ACCESSORS
+
+        /// Return the value of the `sharesOwned` attribute of this security
+        /// object.
         unsigned int sharesOwned() const;
-            // Return the value of the 'sharesOwned' attribute of this security
-            // object.
 
         // MANIPULATORS
-        Security& operator=(Security other);
-            // Assign to this security object the value of the specified
-            // 'other' object, and return a reference providing modifiable
-            // access to this object.
 
+        /// Assign to this security object the value of the specified
+        /// `other` object, and return a reference providing modifiable
+        /// access to this object.
+        Security& operator=(Security other);
+
+        /// Efficiently exchange the value of this security with the value
+        /// of the specified `other` security.
         void swap(Security& other);
-            // Efficiently exchange the value of this security with the value
-            // of the specified 'other' security.
     };
 
     // CREATORS
@@ -240,16 +244,16 @@ BSLMF_ASSERT(bsl::is_trivially_default_constructible<Obj>::value);
         d_sharesOwned = other.d_sharesOwned;
         other.d_sharesOwned = tempInt;
     }
-//..
-// Next, we define container type using 'bdlb::CStringHash' as a hash function
-// and 'bdlb::CstringEqualTo' as a comparator:
-//..
+// ```
+// Next, we define container type using `bdlb::CStringHash` as a hash function
+// and `bdlb::CstringEqualTo` as a comparator:
+// ```
     typedef unordered_map<const char *,
                           Security,
                           bdlb::CStringHash,
                           bdlb::CStringEqualTo> SecuritiesUM;
-//..
-// This container stores objects of 'Security' class and allow access to them
+// ```
+// This container stores objects of `Security` class and allow access to them
 // by their names.
 
 // ============================================================================
@@ -270,7 +274,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -285,13 +289,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -302,50 +306,50 @@ int main(int argc, char *argv[])
                           << "=============" << endl;
 
 // Then, we create several C-strings with security names:
-//..
+// ```
     const char *ibm  = "IBM";
     const char *msft = "Microsoft";
     const char *goog = "Google";
-//..
+// ```
 // Now, we create a container for securities and fill it:
-//..
+// ```
     SecuritiesUM securities;
 
     securities.insert(std::make_pair(ibm, Security(ibm, 616)));
     securities.insert(std::make_pair(msft, Security(msft, 6150000)));
-//..
+// ```
 // Finally, we make sure, that we able to access securities by their names:
-//..
+// ```
     SecuritiesUM::iterator it = securities.find(ibm);
     ASSERT(616 == it->second.sharesOwned());
     it = securities.find(msft);
     ASSERT(6150000 == it->second.sharesOwned());
     it = securities.find(goog);
     ASSERT(securities.end() == it);
-//..
+// ```
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING QOI: 'CStringHash' IS AN EMPTY TYPE
+        // TESTING QOI: `CStringHash` IS AN EMPTY TYPE
         //   As a quality of implementation issue, the class has no state and
         //   should support the use of the empty base class optimization on
         //   compilers that support it.
         //
         // Concerns:
-        //: 1 Class 'bdlb::CStringHash' does not increase the size of an object
-        //:   when used as a base class.
-        //:
-        //: 2 Object of 'bdlb::CStringHash' class increases size of an object
-        //:   when used as a class member.
+        // 1. Class `bdlb::CStringHash` does not increase the size of an object
+        //    when used as a base class.
+        //
+        // 2. Object of `bdlb::CStringHash` class increases size of an object
+        //    when used as a class member.
         //
         // Plan:
-        //: 1 Define two identical non-empty classes with no padding, but
-        //:   derive one of them from 'bdlb::CStringHash', then assert that
-        //:   both classes have the same size. (C-1)
-        //:
-        //: 2 Create a non-empty class with an 'bdlb::CStringHash' additional
-        //:   data member, assert that class size is larger than sum of other
-        //:   data member's sizes. (C-2)
+        // 1. Define two identical non-empty classes with no padding, but
+        //    derive one of them from `bdlb::CStringHash`, then assert that
+        //    both classes have the same size. (C-1)
+        //
+        // 2. Create a non-empty class with an `bdlb::CStringHash` additional
+        //    data member, assert that class size is larger than sum of other
+        //    data member's sizes. (C-2)
         //
         // Testing:
         //   QoI: Support for empty base optimization
@@ -353,7 +357,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout
                       << endl
-                      << "TESTING QOI: 'CStringHash' IS AN EMPTY TYPE" << endl
+                      << "TESTING QOI: `CStringHash` IS AN EMPTY TYPE" << endl
                       << "===========================================" << endl;
 
         struct TwoInts {
@@ -382,12 +386,12 @@ int main(int argc, char *argv[])
         //   type traits to reflect this.
         //
         // Concerns:
-        //: 1 The class is trivially copyable.
-        //:
-        //: 2 The class has the trivial default constructor trait.
+        // 1. The class is trivially copyable.
+        //
+        // 2. The class has the trivial default constructor trait.
         //
         // Plan:
-        //: 1 ASSERT the presence of each trait required by the type. (C-1..2)
+        // 1. ASSERT the presence of each trait required by the type. (C-1..2)
         //
         // Testing:
         //   BSL Traits
@@ -407,15 +411,15 @@ int main(int argc, char *argv[])
         //   standard adaptable unary function.
         //
         // Concerns:
-        //: 1 The typedef 'argument_type' is publicly accessible and an alias
-        //:   for 'const char *'.
-        //:
-        //: 2 The typedef 'result_type' is publicly accessible and an alias for
-        //:   'bsl::size_t'.
+        // 1. The typedef `argument_type` is publicly accessible and an alias
+        //    for `const char *`.
+        //
+        // 2. The typedef `result_type` is publicly accessible and an alias for
+        //    `bsl::size_t`.
         //
         // Plan:
-        //: 1 ASSERT each of the typedefs has accessibly aliases the correct
-        //:   type using 'bsl::is_same'. (C-1..2)
+        // 1. ASSERT each of the typedefs has accessibly aliases the correct
+        //    type using `bsl::is_same`. (C-1..2)
         //
         // Testing:
         //  Standard typedefs
@@ -435,51 +439,51 @@ int main(int argc, char *argv[])
         //   Verify that the class offers an operator()
         //
         // Concerns:
-        //: 1 Objects of 'bdlb::CStringHash' type can be invoked as a predicate
-        //:   function returning 'bsl::size_t' and taking a 'const char *'
-        //:   argument.
-        //:
-        //: 2 The function call operator can be invoked on constant objects.
-        //:
-        //: 3 The function call returns the same result as a
-        //:   usage of 'bslh::SpookyHashAlgorithm' passing the argument string
-        //:   and its length.
-        //:
-        //: 4 The function call operator returns the same value for two
-        //:   differently valued pointers that point to equal null-terminated
-        //:   character sequences.
-        //:
-        //: 5 The hash computed by the objects of 'bdlb::CStringHash' type does
-        //:   not account for any characters past null-terminated character
-        //:   sequence.
-        //:
-        //: 6 Asserted precondition violations are detected when enabled.
-        //:
-        //: 7 No memory is allocated from the default or global allocators.
+        // 1. Objects of `bdlb::CStringHash` type can be invoked as a predicate
+        //    function returning `bsl::size_t` and taking a `const char *`
+        //    argument.
+        //
+        // 2. The function call operator can be invoked on constant objects.
+        //
+        // 3. The function call returns the same result as a
+        //    usage of `bslh::SpookyHashAlgorithm` passing the argument string
+        //    and its length.
+        //
+        // 4. The function call operator returns the same value for two
+        //    differently valued pointers that point to equal null-terminated
+        //    character sequences.
+        //
+        // 5. The hash computed by the objects of `bdlb::CStringHash` type does
+        //    not account for any characters past null-terminated character
+        //    sequence.
+        //
+        // 6. Asserted precondition violations are detected when enabled.
+        //
+        // 7. No memory is allocated from the default or global allocators.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of c-string for
-        //:   hash values calculating.
-        //:
-        //: 2 For each row 'R' in the table of P-1 verify that the function
-        //:   call operator, when invoked on c-string values from 'R', returns
-        //:   the same value as 'bslh::SpookyHashAlgorithm' does.  (C-1..3)
-        //:
-        //: 3 Invoke function call operator on two differently valued pointers
-        //:   that point to the equal null-terminated character sequences and
-        //:   verify that the return hash values are the same.  (C-4)
-        //:
-        //: 4 Invoke function call operator on a pointer that points to the
-        //:   c-string with embedded null character and verify that the hash
-        //:   is equal to the substring that ends at the null character.  (C-5)
+        // 1. Using the table-driven technique, specify a set of c-string for
+        //    hash values calculating.
         //
-        //: 5 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-5)
-        //:
-        //: 6 Verify that no memory have been allocated from the default
-        //:   allocator.  (C-7)
+        // 2. For each row `R` in the table of P-1 verify that the function
+        //    call operator, when invoked on c-string values from `R`, returns
+        //    the same value as `bslh::SpookyHashAlgorithm` does.  (C-1..3)
+        //
+        // 3. Invoke function call operator on two differently valued pointers
+        //    that point to the equal null-terminated character sequences and
+        //    verify that the return hash values are the same.  (C-4)
+        //
+        // 4. Invoke function call operator on a pointer that points to the
+        //    c-string with embedded null character and verify that the hash
+        //    is equal to the substring that ends at the null character.  (C-5)
+        //
+        // 5. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-5)
+        //
+        // 6. Verify that no memory have been allocated from the default
+        //    allocator.  (C-7)
         //
         // Testing:
         //   operator()(const char *) const
@@ -576,40 +580,40 @@ int main(int argc, char *argv[])
         //   expected expressions all compile, and
         //
         // Concerns:
-        //: 1 Objects can be created using the default constructor.
-        //:
-        //: 2 Objects can be created using the copy constructor.
-        //:
-        //: 3 The copy constructor is not declared as explicit.
-        //:
-        //: 4 Objects can be assigned to from constant objects.
-        //:
-        //: 5 Assignments operations can be chained.
-        //:
-        //: 6 Objects can be destroyed.
-        //:
-        //: 7 No memory is allocated by the default allocator.
+        // 1. Objects can be created using the default constructor.
+        //
+        // 2. Objects can be created using the copy constructor.
+        //
+        // 3. The copy constructor is not declared as explicit.
+        //
+        // 4. Objects can be assigned to from constant objects.
+        //
+        // 5. Assignments operations can be chained.
+        //
+        // 6. Objects can be destroyed.
+        //
+        // 7. No memory is allocated by the default allocator.
         //
         // Plan:
-        //: 1 Verify the default constructor exists and is publicly accessible
-        //:   by default-constructing a 'const bdlb::CStringHash' object. (C-1)
-        //:
-        //: 2 Verify the copy constructor is publicly accessible and not
-        //:   'explicit' by using the copy-initialization syntax to create a
-        //:   second 'bdlb::CStringHash' from the first. (C-2..3)
-        //:
-        //: 3 Assign the value of the first ('const') object to the second.
-        //:   (C-4)
-        //:
-        //: 4 Chain the assignment of the value of the first ('const') object
-        //:   to the second, into a self-assignment of the second object to
-        //:   itself. (C-5)
-        //:
-        //: 5 Verify the destructor is publicly accessible by allowing the two
-        //:   'bdlb::CStringHash' object to leave scope and be destroyed. (C-6)
-        //:
-        //: 6 Verify that no memory have been allocated from the default
-        //:   allocator.  (C-7)
+        // 1. Verify the default constructor exists and is publicly accessible
+        //    by default-constructing a `const bdlb::CStringHash` object. (C-1)
+        //
+        // 2. Verify the copy constructor is publicly accessible and not
+        //    `explicit` by using the copy-initialization syntax to create a
+        //    second `bdlb::CStringHash` from the first. (C-2..3)
+        //
+        // 3. Assign the value of the first (`const`) object to the second.
+        //    (C-4)
+        //
+        // 4. Chain the assignment of the value of the first (`const`) object
+        //    to the second, into a self-assignment of the second object to
+        //    itself. (C-5)
+        //
+        // 5. Verify the destructor is publicly accessible by allowing the two
+        //    `bdlb::CStringHash` object to leave scope and be destroyed. (C-6)
+        //
+        // 6. Verify that no memory have been allocated from the default
+        //    allocator.  (C-7)
         //
         // Testing:
         //   CStringHash()
@@ -649,11 +653,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Developer test sandbox.  (C-1)
+        // 1. Developer test sandbox.  (C-1)
         //
         // Testing:
         //   BREATHING TEST

@@ -3,8 +3,8 @@
 #include <bsls_asserttest_macroreset.h>
 
 #include <bsls_bsltestutil.h>
-#include <cstdio>    // 'fprintf'
-#include <cstdlib>   // 'atoi'
+#include <cstdio>    // `fprintf`
+#include <cstdlib>   // `atoi`
 
 using namespace BloombergLP;
 using namespace std;
@@ -14,8 +14,8 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// This component undefines macros from 'bsls_asserttest.h', 'bsls_assert.h',
-// and 'bsls_review.h'.  We will validate that those macros are not defined,
+// This component undefines macros from `bsls_asserttest.h`, `bsls_assert.h`,
+// and `bsls_review.h`.  We will validate that those macros are not defined,
 // then define them, then include the header and validate again that they are
 // not defined.
 //-----------------------------------------------------------------------------
@@ -73,11 +73,12 @@ bool globalVerbose         = false;
 bool globalVeryVerbose     = false;
 bool globalVeryVeryVerbose = false;
 
-// Forward declaration of function that appears after 'main' to minimize macro
+// Forward declaration of function that appears after `main` to minimize macro
 // and header re-inclusion impact on code.
+
+/// Assert test failures if any component macros are defined or if any do
+/// not get undefined by including `bsls_asserttest_macroreset.h`.
 void testMacroHandling();
-    // Assert test failures if any component macros are defined or if any do
-    // not get undefined by including 'bsls_asserttest_macroreset.h'.
 
 int main(int argc, char *argv[])
 {
@@ -98,29 +99,29 @@ int main(int argc, char *argv[])
         // MACRO TEST
         //
         // Concerns:
-        //: 1 The macros that 'bsls_asserttest_macroreset.h' purports to
-        //:   undefine are indeed undefined immediately following its
-        //:   inclusion.
+        // 1. The macros that `bsls_asserttest_macroreset.h` purports to
+        //    undefine are indeed undefined immediately following its
+        //    inclusion.
         //
-        //: 2 These macros should include all macros that are defined and leak
-        //:   out of 'bsls_asserttest.h', 'bsls_review.h' and 'bsls_assert.h'.
+        // 2. These macros should include all macros that are defined and leak
+        //    out of `bsls_asserttest.h`, `bsls_review.h` and `bsls_assert.h`.
         //
         // Plan:
-        //: 1 Use a script to generate the list of macros that either leak out
-        //:   of 'bsls_asserttest.h', 'bsls_review.h', and 'bsls_assert.h' or
-        //:   that are undefined by 'bsls_asserttest.h',
-        //:   'bsls_review_macroreset.h', or 'bsls_assert_macroreset.h'.
-        //:
-        //: 2 Call a function defined at the end of this file that contains the
-        //:   generated code to do the remaining steps of this plan.
-        //:
-        //: 3 Check that all component macros are not defined.
-        //:
-        //: 4 Define all component macros with a fixed value.
-        //:
-        //: 5 *Re*-include 'bsls_asserttest_macroreset.h'.
-        //:
-        //: 6 Check that all component macros are not defined again.
+        // 1. Use a script to generate the list of macros that either leak out
+        //    of `bsls_asserttest.h`, `bsls_review.h`, and `bsls_assert.h` or
+        //    that are undefined by `bsls_asserttest.h`,
+        //    `bsls_review_macroreset.h`, or `bsls_assert_macroreset.h`.
+        //
+        // 2. Call a function defined at the end of this file that contains the
+        //    generated code to do the remaining steps of this plan.
+        //
+        // 3. Check that all component macros are not defined.
+        //
+        // 4. Define all component macros with a fixed value.
+        //
+        // 5. *Re*-include `bsls_asserttest_macroreset.h`.
+        //
+        // 6. Check that all component macros are not defined again.
         //
         // Testing:
         //   bsls_asserttest_macroreset.h
@@ -147,11 +148,11 @@ int main(int argc, char *argv[])
 
 
 //--------------------------------------------------------------------GENERATOR
-// The following 'bash' script generates all of the checks for the macros that
-// are defined in 'bsls_asserttest.h', 'bsls_assert.h', and 'bsls_review.h' or
-// undefined in 'bsls_asserttest_macroreset.h', 'bsls_assert_macroreset.h', and
-// 'bsls_review_macroreset.h'.
-//..
+// The following `bash` script generates all of the checks for the macros that
+// are defined in `bsls_asserttest.h`, `bsls_assert.h`, and `bsls_review.h` or
+// undefined in `bsls_asserttest_macroreset.h`, `bsls_assert_macroreset.h`, and
+// `bsls_review_macroreset.h`.
+// ```
 //  #!/bin/bash
 //
 //  HEADERS=( bsls_asserttest.h bsls_assert.h bsls_review.h )
@@ -198,7 +199,7 @@ int main(int argc, char *argv[])
 //      #endif
 //  EOF
 //  done
-//..
+// ```
 //----------------------------------------------------------------END GENERATOR
 
 void testMacroHandling()

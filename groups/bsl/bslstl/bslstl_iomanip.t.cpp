@@ -11,10 +11,10 @@
 #include <bsls_compilerfeatures.h>
 #include <bsls_nameof.h>
 
-#include <cstdlib>   // 'atoi'
-#include <stddef.h>  // 'size_t'
-#include <stdio.h>   // 'stderr'
-#include <string.h>  // 'strlen'
+#include <cstdlib>   // `atoi`
+#include <stddef.h>  // `size_t`
+#include <stdio.h>   // `stderr`
+#include <string.h>  // `strlen`
 
 using namespace BloombergLP;
 using bsls::NameOf;
@@ -29,8 +29,8 @@ using bsls::NameOf;
 // functions per test case, and test those functions thoroughly.  This
 // component, however, provides only one function, and that function is a
 // template function with a potentially wide range of inputs.  That function
-// returns objects of special private types ('IoManip_QuotedStringFormatter'
-// and 'IoManip_QuotedStringViewFormatter').  So test cases here check methods
+// returns objects of special private types (`IoManip_QuotedStringFormatter`
+// and `IoManip_QuotedStringViewFormatter`).  So test cases here check methods
 // of these classes and that one function in different ways.
 // ----------------------------------------------------------------------------
 // [ 2] IoManip_QuotedStringViewFormatter(basic_string *s,t_TYPE,t_TYPE);
@@ -172,14 +172,14 @@ const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 //-----------------------------------------------------------------------------
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+/// Return `true` if the specified `lhs` object has the same value as the
+/// specified `rhs` object, and `false` otherwise.
 template <class t_CHAR_TYPE, class t_CHAR_TRAITS>
 bool operator==(
            const bslstl::IoManip_QuotedStringViewFormatter<t_CHAR_TYPE,
                                                            t_CHAR_TRAITS>& lhs,
            const bslstl::IoManip_QuotedStringViewFormatter<t_CHAR_TYPE,
                                                            t_CHAR_TRAITS>& rhs)
-    // Return 'true' if the specified 'lhs' object has the same value as the
-    // specified 'rhs' object, and 'false' otherwise.
 {
     return (
       lhs.delim() == rhs.delim() &&
@@ -190,6 +190,8 @@ bool operator==(
                                 t_CHAR_TRAITS::length(lhs.data())));
 }
 
+/// Return `true` if the specified `lhs` object has the same value as the
+/// specified `rhs` object, and `false` otherwise.
 template <class t_CHAR_TYPE, class t_CHAR_TRAITS, class t_ALLOC>
 bool operator==(const bslstl::IoManip_QuotedStringFormatter<t_CHAR_TYPE,
                                                             t_CHAR_TRAITS,
@@ -197,8 +199,6 @@ bool operator==(const bslstl::IoManip_QuotedStringFormatter<t_CHAR_TYPE,
                 const bslstl::IoManip_QuotedStringFormatter<t_CHAR_TYPE,
                                                             t_CHAR_TRAITS,
                                                             t_ALLOC>& rhs)
-    // Return 'true' if the specified 'lhs' object has the same value as the
-    // specified 'rhs' object, and 'false' otherwise.
 {
     return (lhs.delim() == rhs.delim() &&
             lhs.escape() == rhs.escape() &&
@@ -210,31 +210,32 @@ bool operator==(const bslstl::IoManip_QuotedStringFormatter<t_CHAR_TYPE,
 //                       TEST DRIVER TEMPLATE
 //-----------------------------------------------------------------------------
 
+/// This templatized struct provide a namespace for testing the functions
+/// declared in the `bslstl_iomanip` header.  The parameterized `t_TYPE`,
+/// `t_TRAITS`, and `t_ALLOC` specify the character type, the type traits
+/// and allocator type respectively.  Every test case should be invoked with
+/// various parameterized type to fully test the functions.
 template <class t_TYPE,
           class t_TRAITS = bsl::char_traits<t_TYPE>,
           class t_ALLOC  = bsl::allocator<t_TYPE> >
 struct TestDriver {
-    // This templatized struct provide a namespace for testing the functions
-    // declared in the 'bslstl_iomanip' header.  The parameterized 't_TYPE',
-    // 't_TRAITS', and 't_ALLOC' specify the character type, the type traits
-    // and allocator type respectively.  Every test case should be invoked with
-    // various parameterized type to fully test the functions.
 
     // TEST CASES
+
+    /// Test `IoManip_QuotedStringFormatter`.
     static void testCase2_string();
-        // Test 'IoManip_QuotedStringFormatter'.
 
+    /// Test `IoManip_QuotedStringViewFormatter`.
     static void testCase2_stringView();
-        // Test 'IoManip_QuotedStringViewFormatter'.
 
+    /// Test `IoManip_QuotedStringFormatter` input and output operators.
     static void testCase3_string();
-        // Test 'IoManip_QuotedStringFormatter' input and output operators.
 
+    /// Test `IoManip_QuotedStringViewFormatter` output operator.
     static void testCase3_stringView();
-        // Test 'IoManip_QuotedStringViewFormatter' output operator.
 
+    /// Test `bsl::quoted`.
     static void testCase4();
-        // Test 'bsl::quoted'.
 };
 
                                // --------------
@@ -245,20 +246,20 @@ template <class t_TYPE, class t_TRAITS, class t_ALLOC>
 void TestDriver<t_TYPE,t_TRAITS,t_ALLOC>::testCase2_string()
 {
     // ------------------------------------------------------------------------
-    // 'IoManip_QuotedStringFormatter' PRIMARY MANIPULATORS/BASIC ACCESSORS
+    // `IoManip_QuotedStringFormatter` PRIMARY MANIPULATORS/BASIC ACCESSORS
     //
     // Concerns:
-    //: 1 Any string (including empty) can be used to create an
-    //:   'IoManip_QuotedStringFormatter' object.
-    //:
-    //: 2 No additional memory is allocated upon
-    //:   'IoManip_QuotedStringFormatter' object construction.
-    //:
-    //: 3 Default parameters assume expected values.
+    // 1. Any string (including empty) can be used to create an
+    //    `IoManip_QuotedStringFormatter` object.
+    //
+    // 2. No additional memory is allocated upon
+    //    `IoManip_QuotedStringFormatter` object construction.
+    //
+    // 3. Default parameters assume expected values.
     //
     // Plan:
-    //: 1 Create several different objects and verify their values using
-    //:   accessors.  (C-1..3)
+    // 1. Create several different objects and verify their values using
+    //    accessors.  (C-1..3)
     //
     // Testing:
     //   IoManip_QuotedStringFormatter(basic_string *str, t_TYPE d, t_TYPE e);
@@ -269,7 +270,7 @@ void TestDriver<t_TYPE,t_TRAITS,t_ALLOC>::testCase2_string()
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     if (verbose)
-        printf("Testing 'IoManip_QuotedStringFormatter<%s>'\n",
+        printf("Testing `IoManip_QuotedStringFormatter<%s>`\n",
                NameOf<t_TYPE>().name());
 
     typedef bsl::basic_string<t_TYPE, t_TRAITS, t_ALLOC>                String;
@@ -304,7 +305,7 @@ void TestDriver<t_TYPE,t_TRAITS,t_ALLOC>::testCase2_string()
     ASSERT(dam.isTotalSame());
 #else
     if (verbose)
-        printf("'IoManip_QuotedStringFormatter<%s>' is not supported\n",
+        printf("`IoManip_QuotedStringFormatter<%s>` is not supported\n",
                NameOf<t_TYPE>().name());
 #endif
 }
@@ -313,21 +314,21 @@ template <class t_TYPE, class t_TRAITS, class t_ALLOC>
 void TestDriver<t_TYPE,t_TRAITS,t_ALLOC>::testCase2_stringView()
 {
     // ------------------------------------------------------------------------
-    // 'IoManip_QuotedStringViewFormatter' PRIMARY MANIPULATORS/BASIC ACCESSORS
+    // `IoManip_QuotedStringViewFormatter` PRIMARY MANIPULATORS/BASIC ACCESSORS
     //
     // Concerns:
-    //: 1 Any 'bsl::string_view' object (including empty) can be used to create
-    //:   an 'IoManip_QuotedStringViewFormatter' object.
-    //:
-    //: 2 The default allocator is used to supply memory for
-    //:   'IoManip_QuotedStringViewFormatter' object construction.
-    //:
-    //: 3 Default parameters assume expected values.
+    // 1. Any `bsl::string_view` object (including empty) can be used to create
+    //    an `IoManip_QuotedStringViewFormatter` object.
+    //
+    // 2. The default allocator is used to supply memory for
+    //    `IoManip_QuotedStringViewFormatter` object construction.
+    //
+    // 3. Default parameters assume expected values.
     //
     // Plan:
-    //: 1 Create several different objects and verify their values using
-    //:   accessors.  Verify memory is allocated from the default allocator
-    //:   (C-1..3)
+    // 1. Create several different objects and verify their values using
+    //    accessors.  Verify memory is allocated from the default allocator
+    //    (C-1..3)
     //
     // Testing:
     //   IoManip_QuotedStringViewFormatter(basic_string *s, t_TYPE d,t_TYPE e);
@@ -338,7 +339,7 @@ void TestDriver<t_TYPE,t_TRAITS,t_ALLOC>::testCase2_stringView()
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     if (verbose)
-        printf("Testing 'IoManip_QuotedStringViewFormatter<%s>'\n",
+        printf("Testing `IoManip_QuotedStringViewFormatter<%s>`\n",
                NameOf<t_TYPE>().name());
 
     typedef bslstl::IoManip_QuotedStringViewFormatter<t_TYPE, t_TRAITS>
@@ -382,7 +383,7 @@ void TestDriver<t_TYPE,t_TRAITS,t_ALLOC>::testCase2_stringView()
     ASSERT(dam.isInUseSame());
 #else
     if (verbose)
-        printf("'IoManip_QuotedStringViewFormatter<%s>' is not supported\n",
+        printf("`IoManip_QuotedStringViewFormatter<%s>` is not supported\n",
                NameOf<t_TYPE>().name());
 #endif
 }
@@ -391,28 +392,28 @@ template <class t_TYPE, class t_TRAITS, class t_ALLOC>
 void TestDriver<t_TYPE,t_TRAITS,t_ALLOC>::testCase3_string()
 {
     // ------------------------------------------------------------------------
-    // TESTING I/O OPERATORS FOR 'IoManip_QuotedStringFormatter'
+    // TESTING I/O OPERATORS FOR `IoManip_QuotedStringFormatter`
     //
     // Concerns:
-    //: 1 Delimeter and escape character passed on object construction are
-    //:   taken into account during input/output operations.
-    //:
-    //: 2 The output operator signature and return type are standard.
-    //:
-    //: 3 The input operator signature is not standard according to design.
-    //:
-    //: 4 The I/O operators return references to the source/destination
-    //:   streams.
+    // 1. Delimeter and escape character passed on object construction are
+    //    taken into account during input/output operations.
+    //
+    // 2. The output operator signature and return type are standard.
+    //
+    // 3. The input operator signature is not standard according to design.
+    //
+    // 4. The I/O operators return references to the source/destination
+    //    streams.
     //
     // Plan:
-    //: 1 Use the addresses of the 'operator>>' and 'operator<<' free functions
-    //:   defined in this component to initialize, respectively free-function
-    //:   pointers having the appropriate signatures and return types.
-    //:   (C-2..3)
-    //:
-    //: 2 Create several different objects and write their values to some
-    //:   stream.  Verify the stream content.  Read data from the stream to
-    //:   some objects.  Verify their values.  (C-1, 4)
+    // 1. Use the addresses of the `operator>>` and `operator<<` free functions
+    //    defined in this component to initialize, respectively free-function
+    //    pointers having the appropriate signatures and return types.
+    //    (C-2..3)
+    //
+    // 2. Create several different objects and write their values to some
+    //    stream.  Verify the stream content.  Read data from the stream to
+    //    some objects.  Verify their values.  (C-1, 4)
     //
     // Testing:
     //   istream& operator>>(istream&, const IoManip_QuotedStringFormatter&);
@@ -506,7 +507,7 @@ void TestDriver<t_TYPE,t_TRAITS,t_ALLOC>::testCase3_string()
     }
 #else
     if (verbose)
-        printf("'IoManip_QuotedStringFormatter<%s>' is not supported\n",
+        printf("`IoManip_QuotedStringFormatter<%s>` is not supported\n",
                NameOf<t_TYPE>().name());
 #endif
 }
@@ -515,23 +516,23 @@ template <class t_TYPE, class t_TRAITS, class t_ALLOC>
 void TestDriver<t_TYPE,t_TRAITS,t_ALLOC>::testCase3_stringView()
 {
     // ------------------------------------------------------------------------
-    // TESTING OUTPUT OPERATOR FOR 'IoManip_QuotedStringViewFormatter'
+    // TESTING OUTPUT OPERATOR FOR `IoManip_QuotedStringViewFormatter`
     //
     // Concerns:
-    //: 1 Delimeter and escape character passed on object construction are
-    //:   taken into account during output operation.
-    //:
-    //: 2 The output operator signature and return type is standard.
-    //:
-    //: 3 The output operator returns reference to the destination stream.
+    // 1. Delimeter and escape character passed on object construction are
+    //    taken into account during output operation.
+    //
+    // 2. The output operator signature and return type is standard.
+    //
+    // 3. The output operator returns reference to the destination stream.
     //
     // Plan:
-    //: 1 Use the address of the 'operator<<' free function defined in this
-    //:   component to initialize free-function pointer having the appropriate
-    //:   signature and return type.  (C-2)
-    //:
-    //: 2 Create several different objects and write their values to some
-    //:   stream.  Verify the stream content.  (C-1, 3)
+    // 1. Use the address of the `operator<<` free function defined in this
+    //    component to initialize free-function pointer having the appropriate
+    //    signature and return type.  (C-2)
+    //
+    // 2. Create several different objects and write their values to some
+    //    stream.  Verify the stream content.  (C-1, 3)
     //
     // Testing:
     //   ostream& operator<<(ostream&,const IoManip_QuotedStringViewFormatter&)
@@ -617,30 +618,30 @@ template <class t_TYPE, class t_TRAITS, class t_ALLOC>
 void TestDriver<t_TYPE,t_TRAITS,t_ALLOC>::testCase4()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'bsl::quoted'
-    //   Since 'bsl::quoted' just calls 'IoManip_Quoted*Formatter' constructors
-    //   or 'std::quoted' function, we want to make sure that incoming
+    // TESTING `bsl::quoted`
+    //   Since `bsl::quoted` just calls `IoManip_Quoted*Formatter` constructors
+    //   or `std::quoted` function, we want to make sure that incoming
     //   parameters are correctly passed to these functions.
     //
     // Concerns:
-    //: 1 Incoming parameters are correctly passed to the corresponding
-    //:   'IoManip_Quoted*Formatter' constructors for non-constant
-    //:   'bsl::string' objects and for 'bsl::string_view' objects.
-    //:
-    //: 2 Incoming parameters are correctly passed to the 'std::quoted'
-    //:   function for constant 'bsl::string' objects.
+    // 1. Incoming parameters are correctly passed to the corresponding
+    //    `IoManip_Quoted*Formatter` constructors for non-constant
+    //    `bsl::string` objects and for `bsl::string_view` objects.
+    //
+    // 2. Incoming parameters are correctly passed to the `std::quoted`
+    //    function for constant `bsl::string` objects.
     //
     // Plan:
-    //: 1 Create several 'bsl::string' ans 'bsl::string_view' objects.  Create
-    //:   corresponding 'IoManip_Quoted*Formatter' model objects, passing
-    //:   various delimeters and escape characters.  Call 'bsl::quoted'
-    //:   function for the original 'string' and 'string_view' objects, passing
-    //:   the same delimeters and escape characterS and verify the results by
-    //:   comparing them with the model objects.  (C-1)
-    //:
-    //: 2 Create several 'bsl::string' constant objects and print the result of
-    //:   'bsl::quoted' function call to some stream.  Verify the content of
-    //:   the stream.  (C-2)
+    // 1. Create several `bsl::string` ans `bsl::string_view` objects.  Create
+    //    corresponding `IoManip_Quoted*Formatter` model objects, passing
+    //    various delimeters and escape characters.  Call `bsl::quoted`
+    //    function for the original `string` and `string_view` objects, passing
+    //    the same delimeters and escape characterS and verify the results by
+    //    comparing them with the model objects.  (C-1)
+    //
+    // 2. Create several `bsl::string` constant objects and print the result of
+    //    `bsl::quoted` function call to some stream.  Verify the content of
+    //    the stream.  (C-2)
     //
     // Testing:
     //   decltype(auto) quoted(basic_string& value, t_TYPE del, t_TYPE esc);
@@ -726,7 +727,7 @@ void TestDriver<t_TYPE,t_TRAITS,t_ALLOC>::testCase4()
                 expectedCustom  == customStream.str() );
     }
 #else
-    if (verbose) printf("'bsl::quoted' is not supported\n");
+    if (verbose) printf("`bsl::quoted` is not supported\n");
 #endif
 }
 
@@ -751,13 +752,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -770,28 +771,28 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'bsl::quoted'
+///Example 1: Basic Use of `bsl::quoted`
 ///- - - - - - - - - - - - - - - - - - -
 // Suppose we want to serialize some data into JSON.
 //
-// First, we define a struct, 'Employee', to contain the data:
-//..
+// First, we define a struct, `Employee`, to contain the data:
+// ```
     struct Employee {
         bsl::string d_firstName;
         bsl::string d_lastName;
         int         d_age;
     };
-//..
-// Then, we create an 'Employee' object and populate it with data:
-//..
+// ```
+// Then, we create an `Employee` object and populate it with data:
+// ```
     Employee john;
     john.d_firstName = "John";
     john.d_lastName  = "Doe";
     john.d_age       = 20;
-//..
+// ```
 //  Now, we create an output stream and manually construct the JSON string
-//  using 'bsl::quoted':
-//..
+//  using `bsl::quoted`:
+// ```
     bsl::stringstream ss;
     ss << '{' << '\n';
     ss << bsl::quoted("firstName");
@@ -806,55 +807,55 @@ int main(int argc, char *argv[])
     ss << ':';
     ss << john.d_age;
     ss << '\n' << '}';
-//..
+// ```
 //  Finally, we check out the JSON string:
-//..
+// ```
     bsl::string expected = "{\n"
                            "\"firstName\":\"John\",\n"
                            "\"lastName\":\"Doe\",\n"
                            "\"age\":20\n"
                            "}";
     ASSERT(expected == ss.str());
-//..
+// ```
 //  The output should look like:
-//..
+// ```
 //  {
 //  "firstName":"John",
 //  "lastName":"Doe",
 //  "age":20
 //  }
-//..
+// ```
 #else
         if (verbose) printf("Feature is not supported prior to CPP14");
 #endif
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'bsl::quoted'
-        //   Since 'bsl::quoted' just calls 'IoManip_Quoted*Formatter'
-        //   constructors or 'std::quoted' function, we want to make sure that
+        // TESTING `bsl::quoted`
+        //   Since `bsl::quoted` just calls `IoManip_Quoted*Formatter`
+        //   constructors or `std::quoted` function, we want to make sure that
         //   incoming parameters are correctly passed to these functions.
         //
         // Concerns:
-        //: 1 Incoming parameters are correctly passed to the corresponding
-        //:   'IoManip_Quoted*Formatter' constructors for non-constant
-        //:   'bsl::string' objects and for 'bsl::string_view' objects.
-        //:
-        //: 2 Incoming parameters are correctly passed to the 'std::quoted'
-        //:   function for constant 'bsl::string' objects.
+        // 1. Incoming parameters are correctly passed to the corresponding
+        //    `IoManip_Quoted*Formatter` constructors for non-constant
+        //    `bsl::string` objects and for `bsl::string_view` objects.
+        //
+        // 2. Incoming parameters are correctly passed to the `std::quoted`
+        //    function for constant `bsl::string` objects.
         //
         // Plan:
-        //: 1 Create several 'bsl::string' ans 'bsl::string_view' objects.
-        //:   Create corresponding 'IoManip_Quoted*Formatter' model objects,
-        //:   passing various delimeters and escape characters.  Call
-        //:   'bsl::quoted' function for the original 'string' and
-        //:   'string_view' objects, passing the same delimeters and escape
-        //:   characters and verify the results by comparing them with the
+        // 1. Create several `bsl::string` ans `bsl::string_view` objects.
+        //    Create corresponding `IoManip_Quoted*Formatter` model objects,
+        //    passing various delimeters and escape characters.  Call
+        //    `bsl::quoted` function for the original `string` and
+        //    `string_view` objects, passing the same delimeters and escape
+        //    characters and verify the results by comparing them with the
         //    model objects.  (C-1)
-        //:
-        //: 2 Create several 'bsl::string' constant objects and print the
-        //:   result of 'bsl::quoted' function call to some stream.  Verify the
-        //:   content of the stream.  (C-2)
+        //
+        // 2. Create several `bsl::string` constant objects and print the
+        //    result of `bsl::quoted` function call to some stream.  Verify the
+        //    content of the stream.  (C-2)
         //
         // Testing:
         //   decltype(auto) quoted(basic_string& value, t_TYPE d, t_TYPE e);
@@ -862,7 +863,7 @@ int main(int argc, char *argv[])
         //   QuotedStringViewFormatter quoted(basic_string_view&,t_TYPE, TYPE);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'bsl::quoted'"
+        if (verbose) printf("\nTESTING `bsl::quoted`"
                             "\n=====================\n");
 
         TestDriver<char   >::testCase4();
@@ -871,28 +872,28 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING I/O OPERATORS FOR 'IoManip_Quoted*Formatter'
+        // TESTING I/O OPERATORS FOR `IoManip_Quoted*Formatter`
         //
         // Concerns:
-        //: 1 Delimeter and escape character passed on object construction are
-        //:   taken into account during input/output operations.
-        //:
-        //: 2 The output operator signatures and return types are standard.
-        //:
-        //: 3 The input operator signature is not standard according to design.
-        //:
-        //: 4 The I/O operators return references to the source/destination
-        //:   streams.
+        // 1. Delimeter and escape character passed on object construction are
+        //    taken into account during input/output operations.
+        //
+        // 2. The output operator signatures and return types are standard.
+        //
+        // 3. The input operator signature is not standard according to design.
+        //
+        // 4. The I/O operators return references to the source/destination
+        //    streams.
         //
         // Plan:
-        //: 1 Use the addresses of the 'operator>>' and 'operator<<' free
-        //:   functions defined in this component to initialize, respectively
-        //:   free-function pointers having the appropriate signatures and
-        //:   return types.  (C-2..3)
-        //:
-        //: 2 Create several different objects and write their values to some
-        //:   stream.  Verify the stream content.  Read data from the stream to
-        //:   some objects.  Verify their values.  (C-1, 4)
+        // 1. Use the addresses of the `operator>>` and `operator<<` free
+        //    functions defined in this component to initialize, respectively
+        //    free-function pointers having the appropriate signatures and
+        //    return types.  (C-2..3)
+        //
+        // 2. Create several different objects and write their values to some
+        //    stream.  Verify the stream content.  Read data from the stream to
+        //    some objects.  Verify their values.  (C-1, 4)
         //
         // Testing:
         //   operator>>(istream&, const IoManip_QuotedStringFormatter&);
@@ -901,7 +902,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                   "\nTESTING I/O OPERATORS FOR 'IoManip_Quoted*Formatter'"
+                   "\nTESTING I/O OPERATORS FOR `IoManip_Quoted*Formatter`"
                    "\n====================================================\n");
 
         TestDriver<char   >::testCase3_string();
@@ -913,27 +914,27 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'IoManip_Quoted*Formatter' PRIMARY MANIPULATORS/BASIC ACCESSORS
+        // `IoManip_Quoted*Formatter` PRIMARY MANIPULATORS/BASIC ACCESSORS
         //
         // Concerns:
-        //: 1 Any string (including empty) can be used to create an
-        //:   'IoManip_QuotedStringFormatter' object.
-        //:
-        //: 2 No additional memory is allocated upon
-        //:   'IoManip_QuotedStringFormatter' object construction.
-        //:
-        //: 3 Any 'bsl::string_view' object (including empty) can be used to
-        //:   create an 'IoManip_QuotedtringViewFormatter' object.
-        //:
-        //: 4 The default allocator is used to supply memory for
-        //:   'IoManip_QuotedStringViewFormatter' object construction.
-        //:
-        //: 5 Default parameters assume expected values.
+        // 1. Any string (including empty) can be used to create an
+        //    `IoManip_QuotedStringFormatter` object.
+        //
+        // 2. No additional memory is allocated upon
+        //    `IoManip_QuotedStringFormatter` object construction.
+        //
+        // 3. Any `bsl::string_view` object (including empty) can be used to
+        //    create an `IoManip_QuotedtringViewFormatter` object.
+        //
+        // 4. The default allocator is used to supply memory for
+        //    `IoManip_QuotedStringViewFormatter` object construction.
+        //
+        // 5. Default parameters assume expected values.
         //
         // Plan:
-        //: 1 Create several different objects and verify their values using
-        //:   accessors.  Verify memory is allocated from the default allocator
-        //:   (C-1..5)
+        // 1. Create several different objects and verify their values using
+        //    accessors.  Verify memory is allocated from the default allocator
+        //    (C-1..5)
         //
         // Testing:
         //   IoManip_QuotedStringViewFormatter(basic_string *s,t_TYPE,t_TYPE);
@@ -947,7 +948,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-          "'IoManip_Quoted*Formatter' PRIMARY MANIPULATORS/BASIC ACCESSORS\n"
+          "`IoManip_Quoted*Formatter` PRIMARY MANIPULATORS/BASIC ACCESSORS\n"
           "===============================================================\n");
 
         TestDriver<char   >::testCase2_string();
@@ -963,11 +964,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
+        // 1. Perform and ad-hoc test of the primary modifiers and accessors.
         //
         // Testing:
         //   BREATHING TEST
@@ -978,7 +979,7 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
-        // Testing with 'bsl::string' and default delimiters
+        // Testing with `bsl::string` and default delimiters
         {
             bsl::string       strIn("test \"default\" delimiters");
             bsl::stringstream stream;
@@ -992,7 +993,7 @@ int main(int argc, char *argv[])
             ASSERTV(strOut.c_str(), strIn == strOut);
         }
 
-        // Testing with 'bsl::string' and custom delimiters
+        // Testing with `bsl::string` and custom delimiters
         {
             const char        delimiter = '$';
             const char        escape    = '%';
@@ -1008,7 +1009,7 @@ int main(int argc, char *argv[])
             ASSERTV(strOut.c_str(), strIn == strOut);
         }
 
-        // Testing with 'bsl::string_view' and default delimiters
+        // Testing with `bsl::string_view` and default delimiters
         {
             const char        *str = "test \"default\" delimiters//garbage//";
             bsl::string_view   strView(str, 25);
@@ -1019,7 +1020,7 @@ int main(int argc, char *argv[])
                     "\"test \\\"default\\\" delimiters\"" == stream.str());
         }
 
-        // Testing with 'bsl::string' and custom delimiters
+        // Testing with `bsl::string` and custom delimiters
         {
             const char       *str = "test $custom$ delimiters//garbage//";
             const char        delimiter = '$';

@@ -358,12 +358,12 @@ using namespace BloombergLP;
 
             // DEFENSIVE CHECKS FOR 'Format' ENUMERATOR VALUES
 
+/// Macro to ensure no collision between supported `base` values for
+/// integral types and any of the `Format` enumerators for floating point
+/// types.
 #define U_FORMAT_AND_BASE_VALUE_DIFFERS(enumerator)                           \
     BSLMF_ASSERT(bslalg::NumericFormatterUtil::enumerator <  2                \
               || bslalg::NumericFormatterUtil::enumerator > 36)
-    // Macro to ensure no collision between supported 'base' values for
-    // integral types and any of the 'Format' enumerators for floating point
-    // types.
 
 U_FORMAT_AND_BASE_VALUE_DIFFERS(e_FIXED);
 U_FORMAT_AND_BASE_VALUE_DIFFERS(e_SCIENTIFIC);
@@ -440,12 +440,12 @@ BSLMF_ASSERT(sizeof(twoDigitStrings) == 201);
 
                   // INTEGRAL CONVERSION HELPER METHODS
 
+/// Translate the specified `digit` which is a number in the range
+/// `[ 0 .. 36 )` to an ASCII char (`0` + digit) for `digit < 10` and (`a` -
+/// 10 + digit) for values higher than that.  The behavior is undefined
+/// unless `digit < 36`.
 inline
 char digitToAscii(unsigned digit) BSLS_KEYWORD_NOEXCEPT
-    // Translate the specified 'digit' which is a number in the range
-    // '[ 0 .. 36 )' to an ASCII char ('0' + digit) for 'digit < 10' and ('a' -
-    // 10 + digit) for values higher than that.  The behavior is undefined
-    // unless 'digit < 36'.
 {
     BSLS_ASSERT_SAFE(digit < 36);
 
@@ -458,15 +458,15 @@ char digitToAscii(unsigned digit) BSLS_KEYWORD_NOEXCEPT
     return static_cast<char>(offset + digit);
 }
 
+/// On success, render the specified `value`, in decimal ASCII form, to the
+/// beginning of the memory specified by `[ first .. last )` and return the
+/// address one past the lowest order digit written.  If the range
+/// `[ first .. last )` is not large enough to contain the result, fail and
+/// return 0 without rendering any digits.
 inline
 char *toCharsBase10Uint32(char           *first,
                           char           *last,
                           unsigned        value) BSLS_KEYWORD_NOEXCEPT
-    // On success, render the specified 'value', in decimal ASCII form, to the
-    // beginning of the memory specified by '[ first .. last )' and return the
-    // address one past the lowest order digit written.  If the range
-    // '[ first .. last )' is not large enough to contain the result, fail and
-    // return 0 without rendering any digits.
 {
     // The following computes 'length', one less than the length in bytes
     // required to render the result.
@@ -530,15 +530,15 @@ char *toCharsBase10Uint32(char           *first,
     return last;
 }
 
+/// On success, render the specified `value`, in decimal ASCII form, to the
+/// beginning of the memory specified by `[ first .. last )` and return the
+/// address one past the lowest order digit written.  If the range
+/// `[ first .. last )` is not large enough to contain the result, fail and
+/// return 0 without rendering any digits.
 inline
 char *toCharsBase10Uint64(char          *first,
                           char          *last,
                           Uint64         value) BSLS_KEYWORD_NOEXCEPT
-    // On success, render the specified 'value', in decimal ASCII form, to the
-    // beginning of the memory specified by '[ first .. last )' and return the
-    // address one past the lowest order digit written.  If the range
-    // '[ first .. last )' is not large enough to contain the result, fail and
-    // return 0 without rendering any digits.
 {
     // The following computes 'length', one less than the length in bytes
     // required to render the result.
@@ -630,16 +630,16 @@ char *toCharsBase10Uint64(char          *first,
     return last;
 }
 
+/// On success, render the specified `value` in the specified `base` to the
+/// beginning of the buffer specified by `[ first .. last )` and return the
+/// address one past the lowest order digit rendered.  If the specified
+/// buffer is not large enough to accommodate the result, return 0 without
+/// writing to the buffer.
 inline
 char *toCharsArbitraryBaseUint32(char     *first,
                                  char     *last,
                                  unsigned  value,
                                  unsigned  base) BSLS_KEYWORD_NOEXCEPT
-    // On success, render the specified 'value' in the specified 'base' to the
-    // beginning of the buffer specified by '[ first .. last )' and return the
-    // address one past the lowest order digit rendered.  If the specified
-    // buffer is not large enough to accommodate the result, return 0 without
-    // writing to the buffer.
 {
     BSLS_ASSERT_SAFE(0 != (base & (base - 1)));    // not a power of 2
     BSLS_ASSERT_SAFE(10 != base);
@@ -674,16 +674,16 @@ char *toCharsArbitraryBaseUint32(char     *first,
     return first + length;
 }
 
+/// On success, render the specified `value` in the specified `base` to the
+/// beginning of the buffer specified by `[ first .. last )` and return the
+/// address one past the lowest order digit rendered.  If the specified
+/// buffer is not large enough to accommodate the result, return 0 without
+/// writing to the buffer.
 inline
 char *toCharsArbitraryBaseUint64(char     *first,
                                  char     *last,
                                  Uint64    value,
                                  unsigned  base) BSLS_KEYWORD_NOEXCEPT
-    // On success, render the specified 'value' in the specified 'base' to the
-    // beginning of the buffer specified by '[ first .. last )' and return the
-    // address one past the lowest order digit rendered.  If the specified
-    // buffer is not large enough to accommodate the result, return 0 without
-    // writing to the buffer.
 {
     BSLS_ASSERT_SAFE(0 != (base & (base - 1)));    // not a power of 2
     BSLS_ASSERT_SAFE(10 != base);
@@ -727,23 +727,23 @@ char *toCharsArbitraryBaseUint64(char     *first,
     return first + length;
 }
 
+/// On success, render the specified `value` in the specified `base`, which
+/// is known to be a power of 2, to the beginning of the buffer specified by
+/// `[ first .. last )` and return one past the address of the lowest order
+/// digit rendered.  Specify `shift` which is the log in base 2 of `base`.
+/// If the buffer is not large enough to accommodate the result, return 0
+/// without writing to the buffer.  The behavior is undefined unless `shift`
+/// is in the range `[ 1 .. 5 ]`, unless `base == (1 << shift)`.
+///
+/// Note that we don't have a separate 32-bit version of this function,
+/// because there are no divides or mods, and masks and shifts are very
+/// fast, even on a 64 bit value.
 inline
 char *toCharsPowerOf2Base(char          *first,
                           char          *last,
                           Uint64         value,
                           unsigned       base,
                           unsigned char  shift) BSLS_KEYWORD_NOEXCEPT
-    // On success, render the specified 'value' in the specified 'base', which
-    // is known to be a power of 2, to the beginning of the buffer specified by
-    // '[ first .. last )' and return one past the address of the lowest order
-    // digit rendered.  Specify 'shift' which is the log in base 2 of 'base'.
-    // If the buffer is not large enough to accommodate the result, return 0
-    // without writing to the buffer.  The behavior is undefined unless 'shift'
-    // is in the range '[ 1 .. 5 ]', unless 'base == (1 << shift)'.
-    //
-    // Note that we don't have a separate 32-bit version of this function,
-    // because there are no divides or mods, and masks and shifts are very
-    // fast, even on a 64 bit value.
 {
     BSLS_ASSERT_SAFE(base == (1U << shift));
     BSLS_ASSERT_SAFE(1 <= shift);
@@ -1034,6 +1034,8 @@ char *NumericFormatterUtil::toChars(char   *first,
 
     BSLS_ASSERT(first <= last);
 
+    // Notice that if scientific form is shorter that is the one that will
+    // be used, so essentially its maximum length determines the maximum.
     static const std::ptrdiff_t k_BUFLEN =
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         lim::max_digits10 +
@@ -1045,8 +1047,6 @@ char *NumericFormatterUtil::toChars(char   *first,
         1 + // optional radix mark (decimal point)                // + 1 ==> 22
         1 + // 'e' of the scientific format                       // + 1 ==> 23
         1;  // sign for the scientific form exponent              // + 1 ==> 24
-        // Notice that if scientific form is shorter that is the one that will
-        // be used, so essentially its maximum length determines the maximum.
 
     if (last - first >= k_BUFLEN) {
         // Surely fits into the output area
@@ -1085,6 +1085,8 @@ char *NumericFormatterUtil::toChars(char  *first,
 
     BSLS_ASSERT(first <= last);
 
+    // Notice that if scientific form is shorter that is the one that will
+    // be used, so essentially its maximum length determines the maximum.
     static const std::ptrdiff_t k_BUFLEN =
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         lim::max_digits10 +
@@ -1096,8 +1098,6 @@ char *NumericFormatterUtil::toChars(char  *first,
         1 + // optional radix mark (decimal point)                 // +1 ==> 13
         1 + // 'e' of the scientific format                        // +1 ==> 14
         1;  // sign for the scientific form exponent               // +1 ==> 15
-        // Notice that if scientific form is shorter that is the one that will
-        // be used, so essentially its maximum length determines the maximum.
 
     if (last - first >= k_BUFLEN) {
         // Surely fits into the output area

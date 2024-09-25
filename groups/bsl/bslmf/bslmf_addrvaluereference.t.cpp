@@ -6,8 +6,8 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 
@@ -16,9 +16,9 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines meta-functions, 'bsl::add_rvalue_reference'
-// and 'bsl::add_rvalue_reference_t', that transform a template parameter
-// 'TYPE' to its rvalue reference type.  Thus, we need to ensure that the
+// The component under test defines meta-functions, `bsl::add_rvalue_reference`
+// and `bsl::add_rvalue_reference_t`, that transform a template parameter
+// `TYPE` to its rvalue reference type.  Thus, we need to ensure that the
 // values returned by this meta-function are correct for each possible category
 // of types.
 //
@@ -95,57 +95,62 @@ void aSsErT(bool condition, const char *message, int line)
 namespace {
 
 enum   EnumTestType {
-    // This user-defined 'enum' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of
-    // 'bsl::add_rvalue_reference'.
+    // This user-defined `enum` type is intended to be used during testing as
+    // an argument for the template parameter `TYPE` of
+    // `bsl::add_rvalue_reference`.
 };
 
+/// This user-defined `struct` type is intended to be used during testing as
+/// an argument for the template parameter `TYPE` of
+/// `bsl::add_rvalue_reference`.
 struct StructTestType {
-    // This user-defined 'struct' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of
-    // 'bsl::add_rvalue_reference'.
 };
 
+/// This user-defined `union` type is intended to be used during testing as
+/// an argument for the template parameter `TYPE` of
+/// `bsl::add_rvalue_reference`.
 union  UnionTestType {
-    // This user-defined 'union' type is intended to be used during testing as
-    // an argument for the template parameter 'TYPE' of
-    // 'bsl::add_rvalue_reference'.
 };
 
+/// This user-defined base class type is intended to be used during testing
+/// as an argument for the template parameter `TYPE` of
+/// `bsl::add_rvalue_reference`.
 class  BaseClassTestType {
-    // This user-defined base class type is intended to be used during testing
-    // as an argument for the template parameter 'TYPE' of
-    // 'bsl::add_rvalue_reference'.
 };
 
+/// This user-defined derived class type is intended to be used during
+/// testing as an argument for the template parameter `TYPE` of
+/// `bsl::add_rvalue_reference`.
 class  DerivedClassTestType : public BaseClassTestType {
-    // This user-defined derived class type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::add_rvalue_reference'.
 };
 
+/// This non-static function member type is intended to be used during
+/// testing as an argument for the template parameter `TYPE` of
+/// `bsl::add_rvalue_reference`.
 typedef int (StructTestType::*MethodPtrTestType) ();
-    // This non-static function member type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::add_rvalue_reference'.
 
+/// This function pointer type is intended to be used during testing as an
+/// argument as an argument for the template parameter `TYPE` of
+/// `bsl::add_rvalue_reference`.
 typedef void (*FunctionPtrTestType) ();
-    // This function pointer type is intended to be used during testing as an
-    // argument as an argument for the template parameter 'TYPE' of
-    // 'bsl::add_rvalue_reference'.
 
+/// This class public data member pointer type is intended to be used during
+/// testing as an argument as an argument for the template parameter `TYPE`
+/// of `bsl::add_rvalue_reference`.
 typedef int StructTestType::* PMD;
-    // This class public data member pointer type is intended to be used during
-    // testing as an argument as an argument for the template parameter 'TYPE'
-    // of 'bsl::add_rvalue_reference'.
 
 struct Incomplete;
-    // This incomplete 'struct' type is intended to be used during testing as
-    // an argument as an argument for the template parameter 'TYPE' of
-    // 'bsl::add_rvalue_reference'.
+    // This incomplete `struct` type is intended to be used during testing as
+    // an argument as an argument for the template parameter `TYPE` of
+    // `bsl::add_rvalue_reference`.
 
 }  // close unnamed namespace
 
+/// Test all cv-qualified combination on the specified `TYPE` and confirm
+/// that the result type of the `bsl::add_rvalue_reference` meta-function
+/// and same cv-qualified rvalue reference to `TYPE` are the same.  Also
+/// test any kind of reference to `TYPE` and ensure that the meta-function
+/// returns the same reference to that `TYPE`.
 #define ASSERT_RVALUE_REF_TRUE(TYPE)                                          \
     ASSERT(true == (bsl::is_same<                                             \
               bsl::add_rvalue_reference<               TYPE>::type,           \
@@ -169,12 +174,10 @@ struct Incomplete;
     ASSERT(true == (bsl::is_same<bsl::add_rvalue_reference<TYPE&&>::type,     \
                                                            TYPE&&             \
               >::value));
-    // Test all cv-qualified combination on the specified 'TYPE' and confirm
-    // that the result type of the 'bsl::add_rvalue_reference' meta-function
-    // and same cv-qualified rvalue reference to 'TYPE' are the same.  Also
-    // test any kind of reference to 'TYPE' and ensure that the meta-function
-    // returns the same reference to that 'TYPE'.
 
+/// Test all cv-qualified combination on the specified `TYPE` and confirm
+/// that the result type of the `bsl::add_rvalue_reference` meta-function
+/// and `TYPE` are not the same.
 #define ASSERT_RVALUE_REF_FALSE(TYPE)                                         \
     ASSERT(false == (bsl::is_same<                                            \
               bsl::add_rvalue_reference<               TYPE>::type,           \
@@ -192,10 +195,10 @@ struct Incomplete;
               bsl::add_rvalue_reference<const volatile TYPE>::type,           \
                                         const volatile TYPE                   \
               >::value));
-    // Test all cv-qualified combination on the specified 'TYPE' and confirm
-    // that the result type of the 'bsl::add_rvalue_reference' meta-function
-    // and 'TYPE' are not the same.
 
+/// Test all cv-qualified combination on the specified `TYPE` and confirm
+/// that the result of the `bsl::add_rvalue_reference` meta-function and
+/// same cv-qualified `TYPE` are the same.
 #define ASSERT_RVALUE_REF_SAME(TYPE)                                          \
     ASSERT(true == (bsl::is_same<                                             \
               bsl::add_rvalue_reference<               TYPE>::type,           \
@@ -213,10 +216,10 @@ struct Incomplete;
               bsl::add_rvalue_reference<const volatile TYPE>::type,           \
               const volatile TYPE                                             \
               >::value));
-    // Test all cv-qualified combination on the specified 'TYPE' and confirm
-    // that the result of the 'bsl::add_rvalue_reference' meta-function and
-    // same cv-qualified 'TYPE' are the same.
 
+/// Test that the result types of the `bsl::add_rvalue_reference` and
+/// `bsl::add_rvalue_reference_t` meta-functions are the same for all
+/// cv-qualified combination on the specified `TYPE`.
 #define ASSERT_RVALUE_REF_T_SAME(TYPE)                                        \
     ASSERT(true == (bsl::is_same<                                             \
               bsl::add_rvalue_reference<                 TYPE>::type,         \
@@ -234,9 +237,6 @@ struct Incomplete;
               bsl::add_rvalue_reference  <const volatile TYPE>::type,         \
               bsl::add_rvalue_reference_t<const volatile TYPE>                \
               >::value));
-    // Test that the result types of the 'bsl::add_rvalue_reference' and
-    // 'bsl::add_rvalue_reference_t' meta-functions are the same for all
-    // cv-qualified combination on the specified 'TYPE'.
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -264,13 +264,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -289,8 +289,8 @@ int main(int argc, char *argv[])
 // types.
 //
 // Now, for a set of types, we transform each type to the corresponding rvalue
-// reference of that type using 'bsl::remove_reference' and verify the result:
-//..
+// reference of that type using `bsl::remove_reference` and verify the result:
+// ```
   #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     ASSERT(true  ==
          (bsl::is_same<bsl::add_rvalue_reference<int>::type,   int&&>::value));
@@ -300,12 +300,12 @@ int main(int argc, char *argv[])
          (bsl::is_same<bsl::add_rvalue_reference<int&>::type,  int&>::value));
     ASSERT(true  ==
          (bsl::is_same<bsl::add_rvalue_reference<int&&>::type, int&&>::value));
-//..
+// ```
 // Finally, if the current compiler supports alias templates C++11 feature, we
-// instantiate the 'bsl::add_rvalue_reference_t' template for the same set of
-// types, and use the 'bsl::is_same' meta-function to assert the resultant type
+// instantiate the `bsl::add_rvalue_reference_t` template for the same set of
+// types, and use the `bsl::is_same` meta-function to assert the resultant type
 // of each instantiation:
-//..
+// ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
     ASSERT(true  ==
              (bsl::is_same<bsl::add_rvalue_reference_t<int>,   int&&>::value));
@@ -317,34 +317,34 @@ int main(int argc, char *argv[])
              (bsl::is_same<bsl::add_rvalue_reference_t<int&&>, int&&>::value));
 #endif
 #endif
-//..
+// ```
 // Note that rvalue is introduced in C++11 and may not be supported by all
-// compilers.  Note also that according to 'reference collapsing' semantics
-// [8.3.2], 'add_rvalue_reference' does not transform 'TYPE' to rvalue
-// reference type if 'TYPE' is a lvalue reference type.
+// compilers.  Note also that according to `reference collapsing` semantics
+// [8.3.2], `add_rvalue_reference` does not transform `TYPE` to rvalue
+// reference type if `TYPE` is a lvalue reference type.
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::add_rvalue_reference::type'
-        //   Ensure that the 'typedef' 'type' of 'bsl::add_rvalue_reference'
-        //   instantiations having various (template parameter) 'TYPE's has the
+        // `bsl::add_rvalue_reference::type`
+        //   Ensure that the `typedef` `type` of `bsl::add_rvalue_reference`
+        //   instantiations having various (template parameter) `TYPE`s has the
         //   correct value.
         //
         // Concerns:
-        //: 1 'add_rvalue_reference' correctly transforms 'TYPE' to its
-        //:   rvalue reference type when 'TYPE' is an object or a function.
-        //:
-        //: 2 'add_rvalue_reference' does not transform 'TYPE' when 'TYPE' is
-        //:   neither an object nor a function.
-        //:
-        //: 3 'bsl::add_rvalue_reference_t' represents the return type of
-        //:   'bsl::add_rvalue_reference' meta-function for a variety of
-        //:   template parameter types.
+        // 1. `add_rvalue_reference` correctly transforms `TYPE` to its
+        //    rvalue reference type when `TYPE` is an object or a function.
+        //
+        // 2. `add_rvalue_reference` does not transform `TYPE` when `TYPE` is
+        //    neither an object nor a function.
+        //
+        // 3. `bsl::add_rvalue_reference_t` represents the return type of
+        //    `bsl::add_rvalue_reference` meta-function for a variety of
+        //    template parameter types.
         //
         // Plan:
-        //   Instantiate 'bsl::add_rvalue_reference' with various types and
-        //   verify that the 'type' member is initialized properly.
+        //   Instantiate `bsl::add_rvalue_reference` with various types and
+        //   verify that the `type` member is initialized properly.
         //
         // Testing:
         //   bsl::add_rvalue_reference::type
@@ -577,7 +577,7 @@ int main(int argc, char *argv[])
 #endif
 
 #else
-        ASSERT(true);   // resolve unused function 'aSsErT' warning
+        ASSERT(true);   // resolve unused function `aSsErT` warning
 #endif
 
       } break;

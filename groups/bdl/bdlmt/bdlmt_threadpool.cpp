@@ -49,20 +49,20 @@ namespace bdlmt {
                          // ThreadPoolWaitNode
                          // ==================
 
+/// This structure is used to implement the linked list of threads that are
+/// waiting for a request to process.  Each thread has its own instance of
+/// this structure (a local variable in the ThreadPool::workerThread).
+/// When a thread finishes executing a job, if there are no pending jobs, it
+/// will add itself to the head of the wait list.  This logic behaves the
+/// same as a condition variable with the exception that it implements a
+/// LIFO instead of a FIFO wait list logic.  This ensures that threads that
+/// are truly idle will not wake until they have timed out.  When a new job
+/// arrives, the thread will be signaled to process by using the `d_jobCond`
+/// condition variable.  Whether the thread really has a job or the
+/// condition variable timed out on its wait is stored in the `d_hasJob`
+/// state value.  A thread that takes on a new job removes itself from the
+/// wait list (not necessarily at the head of the list).
 struct ThreadPoolWaitNode {
-    // This structure is used to implement the linked list of threads that are
-    // waiting for a request to process.  Each thread has its own instance of
-    // this structure (a local variable in the ThreadPool::workerThread).
-    // When a thread finishes executing a job, if there are no pending jobs, it
-    // will add itself to the head of the wait list.  This logic behaves the
-    // same as a condition variable with the exception that it implements a
-    // LIFO instead of a FIFO wait list logic.  This ensures that threads that
-    // are truly idle will not wake until they have timed out.  When a new job
-    // arrives, the thread will be signaled to process by using the 'd_jobCond'
-    // condition variable.  Whether the thread really has a job or the
-    // condition variable timed out on its wait is stored in the 'd_hasJob'
-    // state value.  A thread that takes on a new job removes itself from the
-    // wait list (not necessarily at the head of the list).
 
     bslmt::Condition             d_jobCond; // signaled when 'd_hasJob' is set
 
@@ -78,15 +78,16 @@ struct ThreadPoolWaitNode {
                                             // otherwise
 
     // CREATORS
+
+    /// Default constructor.
     ThreadPoolWaitNode();
-        // Default constructor.
 };
                             // ===============
                             // ThreadPoolEntry
                             // ===============
 
+/// Entry point for processing threads.
 extern "C" void *ThreadPoolEntry(void *aThis)
-    // Entry point for processing threads.
 {
     ((bdlmt::ThreadPool*)aThis)->workerThread();
     return 0;

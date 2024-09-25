@@ -9,7 +9,7 @@
 
 #include <bslim_testutil.h>
 
-#include <bslma_default.h>  // 'bslma::Default::globalAllocator'
+#include <bslma_default.h>  // `bslma::Default::globalAllocator`
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
@@ -17,16 +17,16 @@
 #include <bslmf_assert.h>
 
 #include <bsls_assert.h>
-#include <bsls_platform.h>  // 'BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC'
+#include <bsls_platform.h>  // `BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC`
 
-#include <bsl_cstddef.h>    // 'bsl::size_t'
-#include <bsl_cstdlib.h>    // 'bsl::atoi'
-#include <bsl_cstring.h>    // 'bsl::strspn'
+#include <bsl_cstddef.h>    // `bsl::size_t`
+#include <bsl_cstdlib.h>    // `bsl::atoi`
+#include <bsl_cstring.h>    // `bsl::strspn`
 #include <bsl_iostream.h>
-#include <bsl_memory.h>     // 'bsl::shared_ptr'
-#include <bsl_ostream.h>    // 'operator<<'
-#include <bsl_sstream.h>    // 'bsl::ostringstream'
-#include <bsl_string.h>     // 'bsl::string', 'bslstl::StringRef'
+#include <bsl_memory.h>     // `bsl::shared_ptr`
+#include <bsl_ostream.h>    // `operator<<`
+#include <bsl_sstream.h>    // `bsl::ostringstream`
+#include <bsl_string.h>     // `bsl::string`, `bslstl::StringRef`
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -36,8 +36,8 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                                   Overview
 //                                   --------
-// This component defines a 'struct' that is used as a POD having no
-// user-defined methods.  Thus, our concerns are that the 'struct' has all of
+// This component defines a `struct` that is used as a POD having no
+// user-defined methods.  Thus, our concerns are that the `struct` has all of
 // the expected methods and that the several free operators work as expected.
 //
 // ----------------------------------------------------------------------------
@@ -46,7 +46,7 @@ using namespace bsl;
 // [ 3] bool operator!=(const OptionInfo& lhs, rhs);
 // [ 4] ostream& operator<<(ostream& stream, const OptionInfo& rhs);
 // ----------------------------------------------------------------------------
-// [ 2] CONCERN: The 'struct' has the expected members and enumerators.
+// [ 2] CONCERN: The `struct` has the expected members and enumerators.
 // [ 1] BREATHING TEST
 
 // ============================================================================
@@ -97,9 +97,9 @@ void aSsErT(bool condition, const char *message, int line)
 //                      GLOBAL MACROS FOR TESTING
 // ----------------------------------------------------------------------------
 
-// In MSVC C++20, there is a compiler warning if a 'bsl::string' is passed to
-// one argument of an 'OptionInfo' constructor and a quoted string to another,
-// since both are being implicitly cast to 'bsl::string_view's in different
+// In MSVC C++20, there is a compiler warning if a `bsl::string` is passed to
+// one argument of an `OptionInfo` constructor and a quoted string to another,
+// since both are being implicitly cast to `bsl::string_view`s in different
 // ways.  Shut up that warning.
 
 #if 202002L <= BSLS_COMPILERFEATURES_CPLUSPLUS &&                            \
@@ -107,7 +107,7 @@ void aSsErT(bool condition, const char *message, int line)
 # pragma warning(disable:4927)
 #endif
 
-// Passing '{}' to a non-trivial default constructor in an aggregate
+// Passing `{}` to a non-trivial default constructor in an aggregate
 // initialization is supported in C++11 and later, but is technically not
 // supported in C++03.  However, the Sun compilers support this, and there is
 // production code that relies on this behavior, so we test it here for
@@ -166,7 +166,7 @@ static const Obj specTable[] = {
                       balcl::TypeInfo(&linkedFlag)           // linked variable
                     }
 
-// Passing '{}' to a non-trivial default constructor is not, technically, part
+// Passing `{}` to a non-trivial default constructor is not, technically, part
 // of the C++03 language, but some compilers take it.
 
 #if U_TAKE_CURLY_BRACE_TO_DEFAULT_CTOR
@@ -378,14 +378,14 @@ BSLMF_ASSERT(k_NUM_SPEC_TABLE == k_NUM_EXPECT);
 namespace {
 namespace u {
 
+/// Return `true` if the specified `actual` string matches the specified
+/// `expect` string, and `false` otherwise.  The two strings must be
+/// byte-for-byte identical, including whitespace, except for the
+/// (process-specific address) fields following the fields `CONSTRAINT` and
+/// `VARIABLE`, if present.  When a field is expected to contain an address
+/// the placeholder field in `expect` is ignored and the expected field is
+/// calculated from the specified `obj`.
 bool isMatch(const char *expect, const char *actual, const Obj& obj)
-    // Return 'true' if the specified 'actual' string matches the specified
-    // 'expect' string, and 'false' otherwise.  The two strings must be
-    // byte-for-byte identical, including whitespace, except for the
-    // (process-specific address) fields following the fields 'CONSTRAINT' and
-    // 'VARIABLE', if present.  When a field is expected to contain an address
-    // the placeholder field in 'expect' is ignored and the expected field is
-    // calculated from the specified 'obj'.
 {
     BSLS_ASSERT(expect);
     BSLS_ASSERT(actual);
@@ -625,40 +625,40 @@ int main(int argc, const char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'operator<<'
+        // TESTING `operator<<`
         //
         // Concerns:
-        //: 1 The 'operator<<' output matches the expected output except for
-        //:   the process-specific fields (addresses) following 'CONSTRAINT'
-        //:   and 'VARIABLE', if present.
-        //:
-        //: 2 The generated string is *not* terminated by a newline.
-        //:
-        //: 3 The 'operator<<' has the expected signature and return value.
-        //:
-        //: 4 The 'operator<<' returns a reference to the given 'stream'.
+        // 1. The `operator<<` output matches the expected output except for
+        //    the process-specific fields (addresses) following `CONSTRAINT`
+        //    and `VARIABLE`, if present.
+        //
+        // 2. The generated string is *not* terminated by a newline.
+        //
+        // 3. The `operator<<` has the expected signature and return value.
+        //
+        // 4. The `operator<<` returns a reference to the given `stream`.
         //
         // Plan:
-        //: 1 Use the function-address idiom to confirm the signature and
-        //:   return type.  (C-3)
-        //:
-        //: 2 Compare the output to the expected result for a representative
-        //:   set of 'OptionInfo' objects.
-        //:
-        //:   1 Use the 'u::isMatch' helper function that provides special
-        //:     handling for the process-specific address fields.  (C-1)
-        //:
-        //:   2 Check that no expected result is newline-terminated.  (C-2)
-        //:
-        //:   3 Compare the address returned by 'operator<<' to the address of
-        //:     its 'stream' argument.  (C-4)
+        // 1. Use the function-address idiom to confirm the signature and
+        //    return type.  (C-3)
+        //
+        // 2. Compare the output to the expected result for a representative
+        //    set of `OptionInfo` objects.
+        //
+        //   1. Use the `u::isMatch` helper function that provides special
+        //      handling for the process-specific address fields.  (C-1)
+        //
+        //   2. Check that no expected result is newline-terminated.  (C-2)
+        //
+        //   3. Compare the address returned by `operator<<` to the address of
+        //      its `stream` argument.  (C-4)
         //
         // Testing:
         //   ostream& operator<<(ostream& stream, const OptionInfo& rhs);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'operator<<'" << endl
+                          << "TESTING `operator<<`" << endl
                           << "====================" << endl;
 
         if (veryVerbose) cout
@@ -697,63 +697,63 @@ int main(int argc, const char *argv[])
         // EQUALITY-COMPARISON OPERATORS
         //
         // Concerns:
-        //: 1 Salient Members:
-        //:
-        //:   1 Two objects, 'X' and 'Y', compare equal if and only if each of
-        //:     their corresponding salient attributes respectively compare
-        //:     equal.
-        //:
-        //:   2 All salient attributes participate in the comparison.
-        //:     Note that this 'struct' has no non-salient members.
-        //:
-        //: 2 Mathematical Properties:
-        //:
-        //:   1 The operators provide the property of identity:
-        //:     o 'true  == (X == X)'
-        //:     o 'false == (X != X)'
-        //:
-        //:   2 The operators provide the property of commutativity:
-        //:     o 'X == Y' if and only if 'Y == X'
-        //:     o 'X != Y' if and only if 'Y != X'
-        //:
-        //:   3 Each of these two operators is the inverse of the other:
-        //:     o 'X != Y' if and only if '!(X == Y)'
-        //:
-        //: 3 Non-modifiable objects can be compared (i.e., 'const' objects and
-        //:   'const' references).
-        //:
-        //: 4 The two operators have standard signatures and return types.
+        // 1. Salient Members:
         //
-        //: 5 No memory allocation occurs as a result of comparison (e.g., the
-        //:   arguments are not passed by value).
+        //   1. Two objects, `X` and `Y`, compare equal if and only if each of
+        //      their corresponding salient attributes respectively compare
+        //      equal.
+        //
+        //   2. All salient attributes participate in the comparison.
+        //      Note that this `struct` has no non-salient members.
+        //
+        // 2. Mathematical Properties:
+        //
+        //   1. The operators provide the property of identity:
+        //      - `true  == (X == X)`
+        //      - `false == (X != X)`
+        //
+        //   2. The operators provide the property of commutativity:
+        //      - `X == Y` if and only if `Y == X`
+        //      - `X != Y` if and only if `Y != X`
+        //
+        //   3. Each of these two operators is the inverse of the other:
+        //      - `X != Y` if and only if `!(X == Y)`
+        //
+        // 3. Non-modifiable objects can be compared (i.e., `const` objects and
+        //    `const` references).
+        //
+        // 4. The two operators have standard signatures and return types.
+        //
+        // 5. No memory allocation occurs as a result of comparison (e.g., the
+        //    arguments are not passed by value).
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the two homogeneous, free
-        //:   equality-comparison operators defined in this component.
-        //:   (C-3..4)
-        //:
-        //: 2 Using the table-driven technique, specify a set of unique object
-        //:   values (one per row) in terms of their individual salient
-        //:   attributes such that each row differs from the others with
-        //:   respect to *one* salient value.  Thus, objects created from
-        //:   different rows of salient values compare unequal.  By taking the
-        //:   cross product of these objects, we demonstrate that a difference
-        //:   in *any* individual salient value results in inequality, thus
-        //:   demonstrating that each salient value contributes to the equality
-        //:   comparison.  Note that objects compare equal for only those cases
-        //:   of the cross product when both rows are the same.  (C-1)
-        //:
-        //: 3 For each test of equality, create a parallel test that checks
-        //:   inequality (the inverse operator), and (when the two arguments
-        //:   are different) also create a test case where the two arguments
-        //:   are switched (showing commutativity).  (C-2)
-        //:
-        //: 4 Install a test allocator as the default allocator.  Create a test
-        //:   allocator monitor object before each group of operator tests and
-        //:   confirm afterwards that the 'isTotalSame' returns 'true' (showing
-        //:   that no allocations occurred when exercising the operators).
+        // 1. Use the respective addresses of `operator==` and `operator!=` to
+        //    initialize function pointers having the appropriate signatures
+        //    and return types for the two homogeneous, free
+        //    equality-comparison operators defined in this component.
+        //    (C-3..4)
+        //
+        // 2. Using the table-driven technique, specify a set of unique object
+        //    values (one per row) in terms of their individual salient
+        //    attributes such that each row differs from the others with
+        //    respect to *one* salient value.  Thus, objects created from
+        //    different rows of salient values compare unequal.  By taking the
+        //    cross product of these objects, we demonstrate that a difference
+        //    in *any* individual salient value results in inequality, thus
+        //    demonstrating that each salient value contributes to the equality
+        //    comparison.  Note that objects compare equal for only those cases
+        //    of the cross product when both rows are the same.  (C-1)
+        //
+        // 3. For each test of equality, create a parallel test that checks
+        //    inequality (the inverse operator), and (when the two arguments
+        //    are different) also create a test case where the two arguments
+        //    are switched (showing commutativity).  (C-2)
+        //
+        // 4. Install a test allocator as the default allocator.  Create a test
+        //    allocator monitor object before each group of operator tests and
+        //    confirm afterwards that the `isTotalSame` returns `true` (showing
+        //    that no allocations occurred when exercising the operators).
         //
         // Testing:
         //   bool operator==(const OptionInfo& lhs, rhs);
@@ -920,36 +920,36 @@ int main(int argc, const char *argv[])
         // STRUCTURE TEST
         //
         // Concerns:
-        //: 1 The 'OptionInfo' 'struct' has each of the expected data members,
-        //:   and each of those data members is non-'const' and is publicly
-        //:   accessible.
-        //:
-        //: 2 The 'OptionInfo' 'struct' has each of the expected enumerators
-        //:   and each has the expected value and each has type
-        //:   'OptionInfo::ArgType'.
-        //:
-        //: 3 An 'OptionInfo' object can be statically initialized from a
-        //:   comma-separated, brace-enclosed list of member
-        //:   initializers.  Initializers are matched to data members in
-        //:   order of their declaration in the 'struct' and members that are
-        //:   omitted from the end of that list are default initialized.
+        // 1. The `OptionInfo` `struct` has each of the expected data members,
+        //    and each of those data members is non-`const` and is publicly
+        //    accessible.
+        //
+        // 2. The `OptionInfo` `struct` has each of the expected enumerators
+        //    and each has the expected value and each has type
+        //    `OptionInfo::ArgType`.
+        //
+        // 3. An `OptionInfo` object can be statically initialized from a
+        //    comma-separated, brace-enclosed list of member
+        //    initializers.  Initializers are matched to data members in
+        //    order of their declaration in the `struct` and members that are
+        //    omitted from the end of that list are default initialized.
         //
         // Plan:
-        //: 1 Explicitly assign a value to each of the expected data members.
-        //:   (C-1)
-        //:
-        //: 2 Compare each of the expected enumerators to its expected value
-        //:   and assign each of those values to a variable of
-        //:   'OptionInfo::ArgType'.  (C-2)
-        //:
-        //: 3 Statically initialize a set of objects, each explicitly
-        //:   specifying one or more of the object's attributes.  If
-        //:   disallowed, the code does not compile.  Note that compilation may
-        //:   be accompanied by warning messages.  Confirm that each object
-        //:   created has the expected value.  (C-3)
+        // 1. Explicitly assign a value to each of the expected data members.
+        //    (C-1)
+        //
+        // 2. Compare each of the expected enumerators to its expected value
+        //    and assign each of those values to a variable of
+        //    `OptionInfo::ArgType`.  (C-2)
+        //
+        // 3. Statically initialize a set of objects, each explicitly
+        //    specifying one or more of the object's attributes.  If
+        //    disallowed, the code does not compile.  Note that compilation may
+        //    be accompanied by warning messages.  Confirm that each object
+        //    created has the expected value.  (C-3)
         //
         // Testing:
-        //   CONCERN: The 'struct' has the expected members and enumerators.
+        //   CONCERN: The `struct` has the expected members and enumerators.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1107,11 +1107,11 @@ int main(int argc, const char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Ad-hoc testing.  (C-1)
+        // 1. Ad-hoc testing.  (C-1)
         //
         // Testing:
         //   BREATHING TEST

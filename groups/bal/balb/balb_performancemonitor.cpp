@@ -118,17 +118,17 @@ MeasureData s_measureData[PM::e_NUM_MEASURES] = {
             "VIRTUAL_SIZE",    "Virtual Size",    "Mb", true  }
 };
 
+/// Return `true` if the absolute value of the difference between the
+/// specified `lhs` and `rhs` is less than
+/// `bsl::numeric_limits<double>::episilon`.
 bool nearlyEqual(double lhs, double rhs)
-    // Return 'true' if the absolute value of the difference between the
-    // specified 'lhs' and 'rhs' is less than
-    // 'bsl::numeric_limits<double>::episilon'.
 {
     return bsl::fabs(lhs - rhs) < bsl::numeric_limits<double>::epsilon();
 }
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
+/// Return an integer identifying the current process
 int currentProcessPid()
-    // Return an integer identifying the current process
 {
     return static_cast<int>(getpid());
 }
@@ -327,14 +327,14 @@ int PerformanceMonitor_LinuxProcStatistics::parseProcStatString(
     return -1;
 }
 
+/// Provide a specialization of the `Collector` class template for the Linux
+/// platform.  SunOS, AIX, and Linux all support the /proc filesystem, from
+/// which we extract the performance measures for the monitored pid.  On
+/// Linux, the layout and content of this file system differs from the
+/// layout and content of the file system on SunOS or AIX, hence this
+/// `Collector` class template specialization.
 template <>
 class PerformanceMonitor::Collector<bsls::Platform::OsLinux> {
-    // Provide a specialization of the 'Collector' class template for the Linux
-    // platform.  SunOS, AIX, and Linux all support the /proc filesystem, from
-    // which we extract the performance measures for the monitored pid.  On
-    // Linux, the layout and content of this file system differs from the
-    // layout and content of the file system on SunOS or AIX, hence this
-    // 'Collector' class template specialization.
 
     // Note that the Linux implementation is stateless.  However, the
     // 'Collector' template requires a constructor accepting a single
@@ -349,31 +349,34 @@ class PerformanceMonitor::Collector<bsls::Platform::OsLinux> {
     Collector& operator=(const Collector &);  // = deleted
 
     // PRIVATE CLASS METHODS
+
+    /// Load into the specified `stats` result the fields present for the
+    /// specified `pid` in the `/proc/<pid>/stat` virtual file.  Return 0 on
+    /// success or a non-zero value otherwise.
     static int readProcStat(ProcStatistics *stats, int pid);
-        // Load into the specified 'stats' result the fields present for the
-        // specified 'pid' in the '/proc/<pid>/stat' virtual file.  Return 0 on
-        // success or a non-zero value otherwise.
 
   public:
     // CREATORS
+
+    /// Create an instance of this class.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.
     explicit
     Collector(bslma::Allocator *basicAllocator = 0);
-        // Create an instance of this class.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
 
     // MANIPULATORS
+
+    /// Initialize the specified `stats` to represent the specified `pid`
+    /// having the specified user-defined `description`.  Return 0 on
+    /// success or a non-zero value otherwise.
     int initialize(PerformanceMonitor::Statistics *stats,
                    int                             pid,
                    const bsl::string_view&         description);
-        // Initialize the specified 'stats' to represent the specified 'pid'
-        // having the specified user-defined 'description'.  Return 0 on
-        // success or a non-zero value otherwise.
 
+    /// Load into the specified `stats` the performance statistics collected
+    /// for the pid associated with `stats`.  Return 0 on success or a
+    /// non-zero value otherwise.
     int collect(PerformanceMonitor::Statistics *stats);
-        // Load into the specified 'stats' the performance statistics collected
-        // for the pid associated with 'stats'.  Return 0 on success or a
-        // non-zero value otherwise.
 };
 
 int PerformanceMonitor::Collector<bsls::Platform::OsLinux>

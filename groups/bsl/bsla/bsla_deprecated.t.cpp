@@ -3,10 +3,10 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <limits.h>  // 'INT_MIN', 'INT_MAX'
+#include <limits.h>  // `INT_MIN`, `INT_MAX`
 #include <stdio.h>
-#include <stdlib.h>  // 'atoi'
-#include <string.h>  // 'memset'
+#include <stdlib.h>  // `atoi`
+#include <string.h>  // `memset`
 
 // Set this preprocessor macro to 1 to enable compile warnings being generated,
 // 0 to disable them.
@@ -21,22 +21,22 @@
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
 // test driver using a compliant compiler, each time defining different values
-// of the boolean 'U_TRIGGER_WARNINGS' preprocessor macro.  In each case, the
+// of the boolean `U_TRIGGER_WARNINGS` preprocessor macro.  In each case, the
 // concerns are:
 //
-//: o Did the build succeed or not?
-//:
-//: o Was the expected warning observed or not?
-//:
-//: o Was the expected suppression of some warning suppressed or not?
-//:
-//: o For annotations taking arguments, do the results show if the arguments
-//:   were properly passed to the underlying compiler directives?
+//  - Did the build succeed or not?
+//
+//  - Was the expected warning observed or not?
+//
+//  - Was the expected suppression of some warning suppressed or not?
+//
+//  - For annotations taking arguments, do the results show if the arguments
+//    were properly passed to the underlying compiler directives?
 //
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
 // does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor macro is 'U_TRIGGER_WARNINGS', which, if set to
+// The controlling preprocessor macro is `U_TRIGGER_WARNINGS`, which, if set to
 // 1, provokes all the compiler warnings caused by the macros under test.  If
 // set to 0, prevents any warnings from happening.
 //
@@ -47,11 +47,11 @@
 // right-most column appear as comments throughout this test driver.  They can
 // be used as an aid to navigation to the test code for each annotation, and an
 // aid to assuring test coverage.
-//..
+// ```
 //  Annotation                            Result
 //  ------------------------------------  -------
 //  BSLA_DEPRECATED                       Warning
-//..
+// ```
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 // [ 1] BREATHING TEST
@@ -116,44 +116,44 @@ void aSsErT(bool condition, const char *message, int line)
 //
 ///Example 1: Various Deprecations
 ///- - - - - - - - - - - - - - - -
-// First, we define a deprecated type 'UsageType':
-//..
+// First, we define a deprecated type `UsageType`:
+// ```
     struct BSLA_DEPRECATED UsageType {
         int d_int;
     };
-//..
-// Then, we define a function 'usageFunc' that is deprecated:
-//..
+// ```
+// Then, we define a function `usageFunc` that is deprecated:
+// ```
     BSLA_DEPRECATED
     void usageFunc();
     void usageFunc()
     {
         printf("Don't call me.\n");
     }
-//..
-// Next, we define a variable 'usageVar' that is deprecated:
-//..
+// ```
+// Next, we define a variable `usageVar` that is deprecated:
+// ```
     BSLA_DEPRECATED extern int usageVar;
     int usageVar = 5;
-//..
-// Then, we define a typedef 'UsageTypedef' that is deprecated:
-//..
+// ```
+// Then, we define a typedef `UsageTypedef` that is deprecated:
+// ```
     BSLA_DEPRECATED typedef int UsageTypedef;
-//..
-// Next, we define a 'struct' with a member 'd_y' that is deprecated:
-//..
+// ```
+// Next, we define a `struct` with a member `d_y` that is deprecated:
+// ```
     struct UsageStruct {
         double                 d_x;
         BSLA_DEPRECATED double d_y;
     };
-//..
-// Then, we define an 'enum' 'UsageEnum' that is deprecated:
-//..
+// ```
+// Then, we define an `enum` `UsageEnum` that is deprecated:
+// ```
     enum BSLA_DEPRECATED UsageEnum { e_FALSE, e_TRUE };
-//..
+// ```
 // Next, we define a template this is only deprecated in the case where it is
-// specialized with the 'int' type as a template parameter:
-//..
+// specialized with the `int` type as a template parameter:
+// ```
     template <class TYPE>
     TYPE usageAbs(TYPE x)
     {
@@ -161,13 +161,13 @@ void aSsErT(bool condition, const char *message, int line)
     }
 //
     template <>
-    BSLA_DEPRECATED_MESSAGE("'int' specialization not allowed")
+    BSLA_DEPRECATED_MESSAGE("`int` specialization not allowed")
     int usageAbs<int>(int x)
     {
         int ret = x < 0 ? -x : x;
         return ret < 0 ? ~ret : ret;
     }
-//..
+// ```
 // Then, as long as we don't use them, no warnings will be issued.
 //
 
@@ -175,10 +175,10 @@ void aSsErT(bool condition, const char *message, int line)
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// Provide a test function which, if called, will result in a deprecated
+/// compiler warning.
 BSLA_DEPRECATED
 void test_DEPRECATED_function();
-    // Provide a test function which, if called, will result in a deprecated
-    // compiler warning.
 
 void test_DEPRECATED_function()
 {
@@ -188,17 +188,17 @@ void test_DEPRECATED_function()
 //                  DEFINITION OF ANNOTATED VARIABLES
 // ----------------------------------------------------------------------------
 
+/// Provide a test variable which, if used, will result in a deprecated
+/// compiler warning.
 BSLA_DEPRECATED int test_DEPRECATED_variable;
-    // Provide a test variable which, if used, will result in a deprecated
-    // compiler warning.
 
 // ============================================================================
 //                  DEFINITION OF ANNOTATED TYPES
 // ----------------------------------------------------------------------------
 
+/// This `struct` is a test type which, if used, will result in a deprecated
+/// compiler warning.
 struct BSLA_DEPRECATED Test_DEPRECATED_type {
-    // This 'struct' is a test type which, if used, will result in a deprecated
-    // compiler warning.
 
     int d_d;
 };
@@ -214,13 +214,13 @@ struct BSLA_DEPRECATED Test_DEPRECATED_type {
 #if U_TRIGGER_WARNINGS
 
 void use_with_warning_message_DEPRECATED_function()
-    // Call 'test_DEPRECATED_function', provoking a compiler warning.
+    // Call `test_DEPRECATED_function`, provoking a compiler warning.
 {
     test_DEPRECATED_function();
 }
 
 int use_with_warning_message_DEPRECATED_type()
-    // Use 'Test_DEPRECATED_type', provoking a compiler warning.
+    // Use `Test_DEPRECATED_type`, provoking a compiler warning.
 {
     Test_DEPRECATED_type instance_of_DEPRECATED_TYPE;
     instance_of_DEPRECATED_TYPE.d_d = 0;
@@ -228,7 +228,7 @@ int use_with_warning_message_DEPRECATED_type()
 }
 
 void use_with_warning_message_DEPRECATED_variable()
-    // Use 'test_DEPRECATED_variable', provoking a compiler warning.
+    // Use `test_DEPRECATED_variable`, provoking a compiler warning.
 {
     (void) test_DEPRECATED_variable;
 }
@@ -243,11 +243,11 @@ void use_with_warning_message_DEPRECATED_variable()
 //                              HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// Print a diagnostic message to standard output if any of the preprocessor
+/// flags of interest are defined, and their value if a value had been set.
+/// An "Enter" and "Leave" message is printed unconditionally so there is
+/// some report even if all of the flags are undefined.
 static void printFlags()
-    // Print a diagnostic message to standard output if any of the preprocessor
-    // flags of interest are defined, and their value if a value had been set.
-    // An "Enter" and "Leave" message is printed unconditionally so there is
-    // some report even if all of the flags are undefined.
 {
     printf("printFlags: Enter\n");
 
@@ -316,10 +316,10 @@ int main(int argc, char **argv)
         // USAGE EXAMPLE
         //
         // Concern:
-        //: 1 That the usage example builds and performs as expected.
+        // 1. That the usage example builds and performs as expected.
         //
         // Plan:
-        //: 1 Build and test the usage example.
+        // 1. Build and test the usage example.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -329,123 +329,123 @@ int main(int argc, char **argv)
                             "=============\n");
 #if U_TRIGGER_WARNINGS
 
-// Next, we use 'UsageType':
-//..
+// Next, we use `UsageType`:
+// ```
     UsageType ut;
     ut.d_int = 5;
     (void) ut.d_int;
-//..
+// ```
 // which results in the following warnings:
-//..
-//  .../bsla_deprecated.t.cpp:287:5: warning: 'UsageType' is deprecated
+// ```
+//  .../bsla_deprecated.t.cpp:287:5: warning: `UsageType` is deprecated
 //  [-Wdeprecated-declarations]
 //      UsageType ut;
 //      ^
-//  .../bsla/bsla_deprecated.t.cpp:113:7: note: 'UsageType' has been explicitly
+//  .../bsla/bsla_deprecated.t.cpp:113:7: note: `UsageType` has been explicitly
 //   marked deprecated here
 //      } BSLA_DEPRECATED;
 //        ^
-//..
-// Then, we call 'usageFunc':
-//..
+// ```
+// Then, we call `usageFunc`:
+// ```
     usageFunc();
-//..
+// ```
 // which results in the following warnings:
-//..
-//  .../bsla_deprecated.t.cpp:309:5: warning: 'usageFunc' is deprecated
+// ```
+//  .../bsla_deprecated.t.cpp:309:5: warning: `usageFunc` is deprecated
 //  [-Wdeprecated-declarations]
 //      usageFunc();
 //      ^
-//  .../bsla_deprecated.t.cpp:117:22: note: 'usageFunc' has been explicitly
+//  .../bsla_deprecated.t.cpp:117:22: note: `usageFunc` has been explicitly
 //  marked deprecated here
 //      void usageFunc() BSLA_DEPRECATED;
 //                       ^
-//..
-// Next, we access 'usageVar':
-//..
+// ```
+// Next, we access `usageVar`:
+// ```
     printf("%d\n", usageVar);
-//..
+// ```
 // which results in the following warnings:
-//..
-//  .../bsla_deprecated.t.cpp:326:20: warning: 'usageVar' is deprecated
+// ```
+//  .../bsla_deprecated.t.cpp:326:20: warning: `usageVar` is deprecated
 //  [-Wdeprecated-declarations]
 //      printf("%d\n", usageVar);
 //                     ^
-//  .../bsla_deprecated.t.cpp:134:25: note: 'usageVar' has been explicitly
+//  .../bsla_deprecated.t.cpp:134:25: note: `usageVar` has been explicitly
 //  marked deprecated here
 //      extern int usageVar BSLA_DEPRECATED;
 //                          ^
-//  .../bsla_deprecated.h:119:32: note: expanded from macro 'BSLA_DEPRECATED'
+//  .../bsla_deprecated.h:119:32: note: expanded from macro `BSLA_DEPRECATED`
 //  #     define BSLA_DEPRECATED [[deprecated]]
-//..
-// Then, we use 'UsageTypedef':
-//..
+// ```
+// Then, we use `UsageTypedef`:
+// ```
     UsageTypedef jjj = 32;
     (void) jjj;
-//..
+// ```
 // which results in the following warnings:
-//..
-//  .../bsla_deprecated.t.cpp:379:5: warning: 'UsageTypedef' is deprecated
+// ```
+//  .../bsla_deprecated.t.cpp:379:5: warning: `UsageTypedef` is deprecated
 //  [-Wdeprecated-declarations]
 //      UsageTypedef jjj = 32;
 //      ^
-//  .../bsla_deprecated.t.cpp:140:5: note: 'UsageTypedef' has been explicitly
+//  .../bsla_deprecated.t.cpp:140:5: note: `UsageTypedef` has been explicitly
 //  marked deprecated here
 //      BSLA_DEPRECATED typedef int UsageTypedef;
 //      ^
-//..
-// Next, we access the deprecated member of 'UsageStruct':
-//..
+// ```
+// Next, we access the deprecated member of `UsageStruct`:
+// ```
     UsageStruct us;
     ::memset(&us, 0, sizeof(us));
     ASSERT(0 == us.d_x);    // no warning
-    ASSERT(0 == us.d_y);    // 'd_y' is deprecated -- issues warning.
-//..
+    ASSERT(0 == us.d_y);    // `d_y` is deprecated -- issues warning.
+// ```
 // which results in the following warnings:
-//..
-//  .../bsla_deprecated.t.cpp:387:20: warning: 'd_y' is deprecated
+// ```
+//  .../bsla_deprecated.t.cpp:387:20: warning: `d_y` is deprecated
 //  [-Wdeprecated-declarations]
-//      assert(0 == us.d_y);    // 'd_y' is deprecated -- issues warning.
+//      assert(0 == us.d_y);    // `d_y` is deprecated -- issues warning.
 //                     ^
-//  .../bsla_deprecated.t.cpp:146:9: note: 'd_y' has been explicitly marked
+//  .../bsla_deprecated.t.cpp:146:9: note: `d_y` has been explicitly marked
 //  deprecated here
 //          BSLA_DEPRECATED double d_y;
 //          ^
-//..
-// Now, we use the deprecated 'UsageEnum':
-//..
+// ```
+// Now, we use the deprecated `UsageEnum`:
+// ```
     UsageEnum ue;
     ue = e_TRUE;
     (void) ue;
-//..
+// ```
 // which results in the following warnings:
-//..
-//  .../bsla_deprecated.t.cpp:411:15: warning: 'UsageEnum' is deprecated
+// ```
+//  .../bsla_deprecated.t.cpp:411:15: warning: `UsageEnum` is deprecated
 //  [-Wdeprecated-declarations]
 //       UsageEnum ue;
 //                 ^
 //  .../bsla_deprecated.t.cpp:152:26: note: declared here
 //       enum BSLA_DEPRECATED UsageEnum { e_FALSE, e_TRUE };
 //                            ^
-//..
-// Finally, we access the deprecated specialization of 'usageAbs':
-//..
-    ASSERT(2.0 == usageAbs(-2.0));            // no warning, 'usageAbs<double>'
+// ```
+// Finally, we access the deprecated specialization of `usageAbs`:
+// ```
+    ASSERT(2.0 == usageAbs(-2.0));            // no warning, `usageAbs<double>`
                                               // not deprecated
-    ASSERT(INT_MAX == usageAbs(INT_MIN));     // warning, 'usageAbs<int>' is
+    ASSERT(INT_MAX == usageAbs(INT_MIN));     // warning, `usageAbs<int>` is
                                               // deprecated
-//..
+// ```
 // which results in the following warnings:
-//..
+// ```
 //  .../bsla_deprecated.t.cpp:441:39: warning: 'TYPE usageAbs(TYPE) [with TYPE
-//  = int]' is deprecated: 'int' specialization not allowed
+//  = int]` is deprecated: `int' specialization not allowed
 //  [-Wdeprecated-declarations]
-//       assert(INT_MAX == usageAbs(INT_MIN));     // warning, 'usageAbs<int>'
+//       assert(INT_MAX == usageAbs(INT_MIN));     // warning, `usageAbs<int>`
 //                                         ^
 //  .../bsla_deprecated.t.cpp:168:9: note: declared here
 //       int usageAbs<int>(int x)
 //           ^~~~~~~~~~~~~
-//..
+// ```
 
 #endif
       } break;
@@ -454,22 +454,22 @@ int main(int argc, char **argv)
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 This test driver builds with all expected compiler warning
-        //:   messages and no unexpected warnings when the 'U_TRIGGER_WARNINGS'
-        //:   preprocessor variable is defined to 1.
-        //:
-        //: 2 When 'U_TRIGGER_WARNINGS' is defined to 0, the compile is
-        //:   successful and with no warnings.
+        // 1. This test driver builds with all expected compiler warning
+        //    messages and no unexpected warnings when the `U_TRIGGER_WARNINGS`
+        //    preprocessor variable is defined to 1.
+        //
+        // 2. When `U_TRIGGER_WARNINGS` is defined to 0, the compile is
+        //    successful and with no warnings.
         //
         // Plan:
-        //: 1 Build with 'U_TRIGGER_WARNINGS' defined to and externally examine
-        //:   compiler output for expected warnings and the absence of warnings
-        //:   expected to be suppressed.  (C-1)
-        //:
-        //: 2 Build with 'U_TRIGGER_WARNINGS' defined to 0 and observe that the
-        //:   compile is successful with no warnings.
-        //:
-        //: 3 Run with 'verbose' to get a listing of macro expansions.
+        // 1. Build with `U_TRIGGER_WARNINGS` defined to and externally examine
+        //    compiler output for expected warnings and the absence of warnings
+        //    expected to be suppressed.  (C-1)
+        //
+        // 2. Build with `U_TRIGGER_WARNINGS` defined to 0 and observe that the
+        //    compile is successful with no warnings.
+        //
+        // 3. Run with `verbose` to get a listing of macro expansions.
         //
         // Testing:
         //   BREATHING TEST
@@ -485,7 +485,7 @@ int main(int argc, char **argv)
 
             if (!veryVeryVerbose) printFlags();
 
-            ASSERT(true); // remove unused warning for 'aSsErT'
+            ASSERT(true); // remove unused warning for `aSsErT`
         }
 
       } break;

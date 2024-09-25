@@ -24,11 +24,11 @@ namespace BloombergLP {
 
 namespace {
 
+/// For each index position in the specified `userData` containing a
+/// non-null value, load that value into the same index position in the
+/// specified `result`.
 void combineUserData(bsl::vector<const void *>        *result,
                      const bsl::vector<const void *>&  userData)
-    // For each index position in the specified 'userData' containing a
-    // non-null value, load that value into the same index position in the
-    // specified 'result'.
 {
     if (result->size() < userData.size()) {
         result->resize(userData.size());
@@ -44,9 +44,9 @@ void combineUserData(bsl::vector<const void *>        *result,
     }
 }
 
+/// Return `true` if the specified `candidatePrefix` is a prefix of the
+/// specified `string`, and `false` otherwise.
 bool isPrefix(const char *candidatePrefix, const char *string)
-    // Return 'true' if the specified 'candidatePrefix' is a prefix of the
-    // specified 'string', and 'false' otherwise.
 {
     while (*candidatePrefix == *string && *candidatePrefix) {
         ++candidatePrefix;

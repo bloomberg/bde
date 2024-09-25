@@ -7,10 +7,10 @@
 // ----------------------------------------------------------------------------
 //                                   Overview
 //                                   --------
-// This component has been renamed to 'bslma_bslallocator'.  The only test is
-// to ensure that '#include'ing this component header will make the
-// 'bsl::allocator' and 'bsl::allocator_traits<bsl::allocator<T>>' class
-// templates available as though 'bslma_bslallocator.h' were '#included'
+// This component has been renamed to `bslma_bslallocator`.  The only test is
+// to ensure that `#include`ing this component header will make the
+// `bsl::allocator` and `bsl::allocator_traits<bsl::allocator<T>>` class
+// templates available as though `bslma_bslallocator.h` were `#included`
 // directly.
 // ----------------------------------------------------------------------------
 // [ 1] bsl::allocator<T>
@@ -42,21 +42,21 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TEST CLASS TEMPLATES
         //   This case exercises verifies that the class templates defined in
-        //   the 'bslma_bslallocator' component are available to clients of
+        //   the `bslma_bslallocator` component are available to clients of
         //   this component.  This is a compile-only test;
         //
         // Concerns:
-        //: 1 The 'bsl::allocator' template can be instantiated and an object
-        //:   created.
-        //: 2 The 'bsl::allocator_traits<bsl::allocator<T>>' template can be
-        //:   instantiated for an arbitrary 'T'.
+        // 1. The `bsl::allocator` template can be instantiated and an object
+        //    created.
+        // 2. The `bsl::allocator_traits<bsl::allocator<T>>` template can be
+        //    instantiated for an arbitrary `T`.
         //
         // Plan:
-        //: 1 Define an object of type 'bsl::allocator<int>'.  Verify that the
-        //:   definition compiles.
-        //: 2 Define an object of type
-        //:   'bsl::allocator_traits<bsl::allocator<short>>::allocator_type'.
-        //:   Verify that the definition compiles.
+        // 1. Define an object of type `bsl::allocator<int>`.  Verify that the
+        //    definition compiles.
+        // 2. Define an object of type
+        //    `bsl::allocator_traits<bsl::allocator<short>>::allocator_type`.
+        //    Verify that the definition compiles.
         //
         // Testing:
         //      TEST CLASS TEMPLATES

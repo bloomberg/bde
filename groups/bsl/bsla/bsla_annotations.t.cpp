@@ -6,8 +6,8 @@
 #include <bsls_platform.h>
 
 #include <stdio.h>
-#include <stdlib.h>  // 'calloc', 'realloc', 'atoi'
-#include <string.h>  // 'strcmp'
+#include <stdlib.h>  // `calloc`, `realloc`, `atoi`
+#include <string.h>  // `strcmp`
 
 // Set this preprocessor variable to 1 to enable compile warnings being
 // generated, 0 to disable them.
@@ -27,53 +27,53 @@
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
 // task using a compliant compiler, each time defining different values of the
-// boolean 'U_TRIGGER_WARNINGS' and 'U_TRIGGER_ERRORS' preprocessor variables.
+// boolean `U_TRIGGER_WARNINGS` and `U_TRIGGER_ERRORS` preprocessor variables.
 // In each case, the concerns are:
 //
-//: o Did the build succeed or not?
-//:
-//: o Was the expected warning observed, or not?
-//:
-//: o Was the expected suppression of some warning, suppressed or not?
-//:
-//: o For annotations taking arguments, do the results show if the arguments
-//:   were properly passed to the underlying compiler directives?
+//  - Did the build succeed or not?
+//
+//  - Was the expected warning observed, or not?
+//
+//  - Was the expected suppression of some warning, suppressed or not?
+//
+//  - For annotations taking arguments, do the results show if the arguments
+//    were properly passed to the underlying compiler directives?
 //
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
 // does nothing.
 //
 // The controlling preprocessor variables are:
 //
-//: o 'U_TRIGGER_ERRORS': if defined, use the 'BSLA_ERROR(message)' annotation.
-//:   Note that the task should *not* build and the compiler output should show
-//:   the specified 'message'.
-//:
-//:   o Maintenance note: This is the only test that causes compiler failure.
-//:     If others are added, each will require an individual controlling
-//:     preprocessor variable.
-//:
-//: o 'U_TRIGGER_WARNINGS', if defined, use all the annotations defined in this
-//:   component, except those expected to cause compile-time failure.
+//  - `U_TRIGGER_ERRORS`: if defined, use the `BSLA_ERROR(message)` annotation.
+//    Note that the task should *not* build and the compiler output should show
+//    the specified `message`.
 //
-// For each annotation, 'BSLA_XXXX', we create a function named 'test_XXXX' to
-// which annotation 'BSLA_XXXX' is applied.  For the two annotations that are
+//    - Maintenance note: This is the only test that causes compiler failure.
+//      If others are added, each will require an individual controlling
+//      preprocessor variable.
+//
+//  - `U_TRIGGER_WARNINGS`, if defined, use all the annotations defined in this
+//    component, except those expected to cause compile-time failure.
+//
+// For each annotation, `BSLA_XXXX`, we create a function named `test_XXXX` to
+// which annotation `BSLA_XXXX` is applied.  For the two annotations that are
 // also applicable to variables and types, we additionally create
-// 'test_XXXX_variable' and 'test_XXXX_type'.  These entities are exercised in
+// `test_XXXX_variable` and `test_XXXX_type`.  These entities are exercised in
 // several ways:
 //
-//: o Some are just declared and, if appropriate, defined, with no other usage.
-//:   For example, the 'BSLA_UNUSED' macro silences compiler warnings.  For
-//:   that annotation there must be no other usage to check if the usual
-//:   compiler warning message is suppressed.
-//:
-//: o For other test functions, variables, and types, a function, variable, or
-//:   type (as appropriated) named 'use_with_warning_message_XXXX' is defined
-//:   such that a warning message should be generated.
-//:
-//: o Finally, for some 'use_with_warning_message_XXXX' entities, there is a
-//:   corresponding 'use_without_diagnostic_message_XXXX' is defined to create
-//:   a context where annotation 'BSLA_XXXX' must *not* result in a compiler
-//:   message.
+//  - Some are just declared and, if appropriate, defined, with no other usage.
+//    For example, the `BSLA_UNUSED` macro silences compiler warnings.  For
+//    that annotation there must be no other usage to check if the usual
+//    compiler warning message is suppressed.
+//
+//  - For other test functions, variables, and types, a function, variable, or
+//    type (as appropriated) named `use_with_warning_message_XXXX` is defined
+//    such that a warning message should be generated.
+//
+//  - Finally, for some `use_with_warning_message_XXXX` entities, there is a
+//    corresponding `use_without_diagnostic_message_XXXX` is defined to create
+//    a context where annotation `BSLA_XXXX` must *not* result in a compiler
+//    message.
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
@@ -140,7 +140,7 @@ void test_DEPRECATED_function()
 {
 }
 
-int test_ERROR() BSLA_ERROR("myError: Do not call 'test_ERROR'");
+int test_ERROR() BSLA_ERROR("myError: Do not call `test_ERROR`");
 int test_ERROR()
 {
     return 1;
@@ -263,7 +263,7 @@ void test_UNUSED_function_warning()
 {
 }
 
-int test_WARNING() BSLA_WARNING("myWarning: Do not call 'test_WARNING'");
+int test_WARNING() BSLA_WARNING("myWarning: Do not call `test_WARNING`");
 int test_WARNING()
 {
     return 1;
@@ -615,11 +615,11 @@ void use_with_error_message_Error()
 //                              HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// Print a diagnostic message to standard output if any of the preprocessor
+/// flags of interest are defined, and their value if a value had been set.
+/// An "Enter" and "Leave" message is printed unconditionally so there is
+/// some report even if all of the flags are undefined.
 static void printFlags()
-    // Print a diagnostic message to standard output if any of the preprocessor
-    // flags of interest are defined, and their value if a value had been set.
-    // An "Enter" and "Leave" message is printed unconditionally so there is
-    // some report even if all of the flags are undefined.
 {
     printf("printFlags: Enter\n");
 
@@ -984,29 +984,29 @@ int main(int argc, char **argv)
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 This test driver does *not* build when the 'U_TRIGGER_ERRORS'
-        //:   preprocessor variable is defined to 1 and all expected output
-        //:   appears.
-        //:
-        //: 2 This test driver builds with all expected compiler warning
-        //:   messages and no unexpected warnings when the 'U_TRIGGER_WARNINGS'
-        //:   preprocessor variable is defined to 1.
-        //:
-        //: 3 When 'U_TRIGGER_WARNINGS' and 'U_TRIGGER_ERRORS' are both defined
-        //:   to 0, the compile is successful and with no warnings.
+        // 1. This test driver does *not* build when the `U_TRIGGER_ERRORS`
+        //    preprocessor variable is defined to 1 and all expected output
+        //    appears.
+        //
+        // 2. This test driver builds with all expected compiler warning
+        //    messages and no unexpected warnings when the `U_TRIGGER_WARNINGS`
+        //    preprocessor variable is defined to 1.
+        //
+        // 3. When `U_TRIGGER_WARNINGS` and `U_TRIGGER_ERRORS` are both defined
+        //    to 0, the compile is successful and with no warnings.
         //
         // Plan:
-        //: 1 Build with 'U_TRIGGER_ERRORS' defined to and externally confirm
-        //:   that compilation of this task failed and the compiler output
-        //:   shows the expected message.  (C-1)
-        //:
-        //: 2 Build with 'U_TRIGGER_WARNINGS' defined to and externally examine
-        //:   compiler output for expected warnings and the absence of warnings
-        //:   expected to be suppressed.  (C-2)
-        //:
-        //: 3 Build with 'U_TRIGGER_ERRORS' and 'U_TRIGGER_WARNINGS' both
-        //:   defined to 0 and observe that the compile is successful with no
-        //:   warnings.
+        // 1. Build with `U_TRIGGER_ERRORS` defined to and externally confirm
+        //    that compilation of this task failed and the compiler output
+        //    shows the expected message.  (C-1)
+        //
+        // 2. Build with `U_TRIGGER_WARNINGS` defined to and externally examine
+        //    compiler output for expected warnings and the absence of warnings
+        //    expected to be suppressed.  (C-2)
+        //
+        // 3. Build with `U_TRIGGER_ERRORS` and `U_TRIGGER_WARNINGS` both
+        //    defined to 0 and observe that the compile is successful with no
+        //    warnings.
         //
         // Testing:
         //   BREATHING TEST
@@ -1022,7 +1022,7 @@ int main(int argc, char **argv)
 
             if (!veryVeryVerbose) printFlags();
 
-            ASSERT(true); // remove unused warning for 'aSsErT'
+            ASSERT(true); // remove unused warning for `aSsErT`
         }
 
       } break;

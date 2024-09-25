@@ -108,33 +108,37 @@ class Figure {
     };
 
     enum {
+        /// index for `Circle` selection
         SELECTION_INDEX_CIRCLE = 0,
-            // index for 'Circle' selection
+
+        /// index for `Polygon` selection
         SELECTION_INDEX_POLYGON = 1
-            // index for 'Polygon' selection
     };
 
     enum {
         SELECTION_ID_UNDEFINED = 0,
 
+        /// id for `Circle` selection
         SELECTION_ID_CIRCLE = 1,
-            // id for 'Circle' selection
+
+        /// id for `Polygon` selection
         SELECTION_ID_POLYGON = 2
-            // id for 'Polygon' selection
     };
 
   public:
     // CONSTANTS
+
+    /// the name of this class (i.e., "Figure")
     static const char CLASS_NAME[];
-        // the name of this class (i.e., "Figure")
 
+    /// default value of `X` selection
     static const double DEFAULT_X;
-        // default value of 'X' selection
-    static const double DEFAULT_Y;
-        // default value of 'Y' selection
 
+    /// default value of `Y` selection
+    static const double DEFAULT_Y;
+
+    /// selection info for each selection
     static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
-        // selection info for each selection
 
   public:
     // TYPE TRAITS
@@ -146,41 +150,44 @@ class Figure {
 
   public:
     // CLASS METHODS
-    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
-        // Return selection information for the selection indicated by the
-        // specified 'id' if the selection exists, and 0 otherwise.
 
+    /// Return selection information for the selection indicated by the
+    /// specified `id` if the selection exists, and 0 otherwise.
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
+
+    /// Return selection information for the selection indicated by the
+    /// specified `name` of the specified `nameLength` if the selection
+    /// exists, and 0 otherwise.
     static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                     const char *name,
                                                     int         nameLength);
-        // Return selection information for the selection indicated by the
-        // specified 'name' of the specified 'nameLength' if the selection
-        // exists, and 0 otherwise.
 
     // CREATORS
+
+    /// Create an instance having default values, when appropriate.
     Figure()
-        // Create an instance having default values, when appropriate.
     : d_x(0)
     , d_y(0)
     {
     }
 
+    /// Create an instance having the value of the specified `original`
+    /// object.
     Figure(const Figure& original)
-        // Create an instance having the value of the specified 'original'
-        // object.
     : d_x(original.d_x)
     , d_y(original.d_y)
     {
     }
 
+    /// Destroy this object.
     ~Figure()
-        // Destroy this object.
     {
     }
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     Figure& operator=(const Figure& rhs)
-        // Assign to this object the value of the specified 'rhs' object.
     {
         if (this != &rhs) {
             d_x = rhs.d_x;
@@ -201,30 +208,31 @@ class Figure {
         return globalFlag;
     }
 
+    /// visits modifiable selection
     template<class MANIPULATOR>
     int manipulateSelection(MANIPULATOR&)
-        // visits modifiable selection
     {
         globalFlag = 3;
         return globalFlag;
     }
 
+    /// Return a reference to the modifiable x coordinate
     double& x()
-        // Return a reference to the modifiable x coordinate
     {
         return d_x;
     }
 
+    /// Return a reference to the modifiable y coordinate
     double& y()
-        // Return a reference to the modifiable y coordinate
     {
         return d_y;
     }
 
     // ACCESSORS
+
+    /// visits non-modifiable selection
     template<class ACCESSOR>
     int accessSelection(ACCESSOR&) const
-        // visits non-modifiable selection
     {
         globalFlag = 4;
         return globalFlag;
@@ -299,18 +307,18 @@ const bdlat_SelectionInfo *Figure::lookupSelectionInfo(int id)
 
 ///Usage
 ///-----
-// Suppose you had a 'union' embedded inside a 'struct'.  The 'struct' also
-// contains a 'd_selectionId' member that specifies which member of the 'union'
-// is selected.  The default constructor of the 'struct' makes the selection
+// Suppose you had a `union` embedded inside a `struct`.  The `struct` also
+// contains a `d_selectionId` member that specifies which member of the `union`
+// is selected.  The default constructor of the `struct` makes the selection
 // undefined:
-//..
+// ```
     namespace BloombergLP {
 
     namespace mine {
 
+    /// This struct represents a choice between a `char` value, an `int`
+    /// value, and a `float` value.
     struct MyChoice {
-        // This struct represents a choice between a 'char' value, an 'int'
-        // value, and a 'float' value.
 
         // CONSTANTS
         enum {
@@ -334,53 +342,55 @@ const bdlat_SelectionInfo *Figure::lookupSelectionInfo(int id)
         {
         }
     };
-//..
-// We can now make 'MyChoice' expose "choice" behavior by implementing
-// 'bdlat_ChoiceFunctions' for 'MyChoice'.  First, we should forward declare
-// all the functions that we will implement inside the 'mine' namespace:
-//..
+// ```
+// We can now make `MyChoice` expose "choice" behavior by implementing
+// `bdlat_ChoiceFunctions` for `MyChoice`.  First, we should forward declare
+// all the functions that we will implement inside the `mine` namespace:
+// ```
     // MANIPULATORS
-    int bdlat_choiceMakeSelection(MyChoice *object, int selectionId);
-        // Set the value of the specified 'object' to be the default for the
-        // selection indicated by the specified 'selectionId'.  Return 0 on
-        // success, and non-zero value otherwise (i.e., the selection is not
-        // found).
 
+    /// Set the value of the specified `object` to be the default for the
+    /// selection indicated by the specified `selectionId`.  Return 0 on
+    /// success, and non-zero value otherwise (i.e., the selection is not
+    /// found).
+    int bdlat_choiceMakeSelection(MyChoice *object, int selectionId);
+
+    /// Set the value of the specified `object` to be the default for the
+    /// selection indicated by the specified `selectionName` of the
+    /// specified `selectionNameLength`.  Return 0 on success, and non-zero
+    /// value otherwise (i.e., the selection is not found).
     int bdlat_choiceMakeSelection(MyChoice   *object,
                                   const char *selectionName,
                                   int         selectionNameLength);
-        // Set the value of the specified 'object' to be the default for the
-        // selection indicated by the specified 'selectionName' of the
-        // specified 'selectionNameLength'.  Return 0 on success, and non-zero
-        // value otherwise (i.e., the selection is not found).
 
+    /// Invoke the specified `manipulator` on the address of the
+    /// (modifiable) selection of the specified `object`, supplying
+    /// `manipulator` with the corresponding selection information
+    /// structure.  Return -1 if the selection is undefined, and the value
+    /// returned from the invocation of `manipulator` otherwise.
     template <class MANIPULATOR>
     int bdlat_choiceManipulateSelection(MyChoice     *object,
                                         MANIPULATOR&  manipulator);
-        // Invoke the specified 'manipulator' on the address of the
-        // (modifiable) selection of the specified 'object', supplying
-        // 'manipulator' with the corresponding selection information
-        // structure.  Return -1 if the selection is undefined, and the value
-        // returned from the invocation of 'manipulator' otherwise.
 
     // ACCESSORS
+
+    /// Invoke the specified `accessor` on the (non-modifiable) selection of
+    /// the specified `object`, supplying `accessor` with the corresponding
+    /// selection information structure.  Return -1 if the selection is
+    /// undefined, and the value returned from the invocation of `accessor`
+    /// otherwise.
     template <class ACCESSOR>
     int bdlat_choiceAccessSelection(const MyChoice& object,
                                     ACCESSOR&       accessor);
-        // Invoke the specified 'accessor' on the (non-modifiable) selection of
-        // the specified 'object', supplying 'accessor' with the corresponding
-        // selection information structure.  Return -1 if the selection is
-        // undefined, and the value returned from the invocation of 'accessor'
-        // otherwise.
 
+    /// Return the id of the current selection if the selection is defined,
+    /// and 0 otherwise.
     int bdlat_choiceSelectionId(const MyChoice& object);
-        // Return the id of the current selection if the selection is defined,
-        // and 0 otherwise.
 
     }  // close namespace mine
-//..
+// ```
 // Now, we provide the definitions for each of these functions:
-//..
+// ```
     // MANIPULATORS
     int mine::bdlat_choiceMakeSelection(MyChoice *object,
                                         int       selectionId)
@@ -449,13 +459,13 @@ const bdlat_SelectionInfo *Figure::lookupSelectionInfo(int id)
 
         return NOT_FOUND;
     }
-//..
-// For the 'manipulateSelection' and 'accessSelection' functions, we need to
-// create a temporary 'bdlat_SelectionInfo' object and pass it along when
-// invoking the manipulator or accessor.  See the {'bdlat_selectioninfo'}
+// ```
+// For the `manipulateSelection` and `accessSelection` functions, we need to
+// create a temporary `bdlat_SelectionInfo` object and pass it along when
+// invoking the manipulator or accessor.  See the {`bdlat_selectioninfo`}
 // component-level documentation for more information.  The implementation of
 // the remaining functions are as follows:
-//..
+// ```
     template <class MANIPULATOR>
     int mine::bdlat_choiceManipulateSelection(MyChoice     *object,
                                               MANIPULATOR&  manipulator)
@@ -550,12 +560,12 @@ const bdlat_SelectionInfo *Figure::lookupSelectionInfo(int id)
     {
         return object.d_selectionId;
     }
-//..
-// Finally, we need to specialize the 'IsChoice' meta-function in the
-// 'bdlat_ChoiceFunctions' namespace for the 'mine::MyChoice' type.  This makes
-// the 'bdlat' infrastructure recognize 'mine::MyChoice' as a choice
+// ```
+// Finally, we need to specialize the `IsChoice` meta-function in the
+// `bdlat_ChoiceFunctions` namespace for the `mine::MyChoice` type.  This makes
+// the `bdlat` infrastructure recognize `mine::MyChoice` as a choice
 // abstraction:
-//..
+// ```
     namespace bdlat_ChoiceFunctions {
 
     template <>
@@ -564,19 +574,19 @@ const bdlat_SelectionInfo *Figure::lookupSelectionInfo(int id)
 
     }  // close namespace bdlat_ChoiceFunctions
     }  // close enterprise namespace
-//..
-// The 'bdlat' infrastructure (and any component that uses this infrastructure)
-// will now recognize 'MyChoice' as a "choice" type.  For example, suppose we
+// ```
+// The `bdlat` infrastructure (and any component that uses this infrastructure)
+// will now recognize `MyChoice` as a "choice" type.  For example, suppose we
 // have the following XML data:
-//..
+// ```
 //  <?xml version='1.0' encoding='UTF-8' ?>
 //  <MyChoice>
 //      <intValue>321</intValue>
 //  </MyChoice>
-//..
-// Using the 'balxml_decoder' component, we can load this XML data into a
-// 'MyChoice' object:
-//..
+// ```
+// Using the `balxml_decoder` component, we can load this XML data into a
+// `MyChoice` object:
+// ```
 //  void usageExample(bsl::istream& inputData)
 //  {
 //    using namespace BloombergLP;
@@ -596,15 +606,16 @@ const bdlat_SelectionInfo *Figure::lookupSelectionInfo(int id)
 //    assert(MyChoice::INT_SELECTION_ID  == object.d_selectionId);
 //    assert(321                         == object.d_intValue);
 //  }
-//..
-// Note that the 'bdlat' framework can be used for functionality other than
-// encoding/decoding into XML.  When 'mine::MyChoice' is plugged into the
+// ```
+// Note that the `bdlat` framework can be used for functionality other than
+// encoding/decoding into XML.  When `mine::MyChoice` is plugged into the
 // framework, then it will be automatically usable within the framework.  For
 // example, the following snippets of code will print out the selection value
 // of a choice object:
-//..
+// ```
+
+    /// Print each visited object to the bound `d_stream_p` object.
     struct PrintSelection {
-        // Print each visited object to the bound 'd_stream_p' object.
 
         // DATA MEMBERS
         bsl::ostream *d_stream_p;
@@ -627,11 +638,11 @@ const bdlat_SelectionInfo *Figure::lookupSelectionInfo(int id)
 
         bdlat_choiceAccessSelection(object, accessor);
     }
-//..
+// ```
 // Now we have a generic function that takes an output stream and a choice
 // object, and prints out each choice selection with its name and value.  We
 // can use this generic function as follows:
-//..
+// ```
     void printMyChoice(bsl::ostream& stream)
     {
         using namespace BloombergLP;
@@ -643,11 +654,11 @@ const bdlat_SelectionInfo *Figure::lookupSelectionInfo(int id)
 
         printChoiceSelection(stream, object);
     }
-//..
+// ```
 // The function above will print the following to provided stream:
-//..
+// ```
 //  intValue: 321
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -694,19 +705,19 @@ int main(int argc, char *argv[])
         // TEST ENUMERATORS
         //
         // Concerns
-        //: 1 When BDE_OMIT_INTERNAL_DEPRECATED is not defined, the BDEAT_...
-        //:   enumeration literals should exist and evaluate to their e_...
-        //:   equivalents.
-        //:
-        //: 2 When BDE_OMIT_INTERNAL_DEPRECATED is defined, the BDEAT_...
-        //:   enumeration literals should not exist.
+        // 1. When BDE_OMIT_INTERNAL_DEPRECATED is not defined, the BDEAT_...
+        //    enumeration literals should exist and evaluate to their e_...
+        //    equivalents.
+        //
+        // 2. When BDE_OMIT_INTERNAL_DEPRECATED is defined, the BDEAT_...
+        //    enumeration literals should not exist.
         //
         // Plan
-        //: 1 When BDE_OMIT_INTERNAL_DEPRECATED is not defined, check that the
-        //:   BDEAT_... enumeration literals evaluate to their e_...
-        //:   equivalents.  (C-1)
-        //:
-        //: 2 We cannot check for (C-2), so hope for the best.
+        // 1. When BDE_OMIT_INTERNAL_DEPRECATED is not defined, check that the
+        //    BDEAT_... enumeration literals evaluate to their e_...
+        //    equivalents.  (C-1)
+        //
+        // 2. We cannot check for (C-2), so hope for the best.
         //
         // Testing:
         //   ENUMERATORS

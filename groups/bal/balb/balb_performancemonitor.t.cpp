@@ -167,7 +167,7 @@ static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 static int veryVeryVeryVerbose = 0;
 
-// Define 'bsl::string' value long enough to ensure dynamic memory allocation.
+// Define `bsl::string` value long enough to ensure dynamic memory allocation.
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
 #define SUFFICIENTLY_LONG_STRING "123456789012345678901234567890123"
@@ -185,9 +185,9 @@ const char *const LONG_STRING    = "a_"   SUFFICIENTLY_LONG_STRING;
 // ----------------------------------------------------------------------------
 namespace {
 
+/// The structure to store values accessible via public interfaces of
+/// `balb::PerformanceMonitor::Statistics` class.
 struct StatisticsStorage
-    // The structure to store values accessible via public interfaces of
-    // 'balb::PerformanceMonitor::Statistics' class.
 {
     int            d_pid;                           // process identifier
 
@@ -214,10 +214,10 @@ namespace processSupport {
 
 typedef int ProcessHandle;
 
+/// Execute in a child process the program located at the specified
+/// `command` path, with the specified `arguments`.  Return a
+/// `ProcessHandle` object identifying the child process.
 ProcessHandle exec(bsl::string command, bsl::vector<bsl::string> arguments)
-    // Execute in a child process the program located at the specified
-    // 'command' path, with the specified 'arguments'.  Return a
-    // 'ProcessHandle' object identifying the child process.
 {
     typedef bsl::vector<bsl::string> Args;
 
@@ -229,7 +229,7 @@ ProcessHandle exec(bsl::string command, bsl::vector<bsl::string> arguments)
 
         bsl::vector<char *>  argvec;
 
-        argvec.push_back(&command[0]);     // N.B. Assumes that 'bsl::string'
+        argvec.push_back(&command[0]);     // N.B. Assumes that `bsl::string`
                                            // contents are always
                                            // null-terminated.
                                            //
@@ -248,16 +248,16 @@ ProcessHandle exec(bsl::string command, bsl::vector<bsl::string> arguments)
     return handle;
 }
 
+/// Return the integer value of the process ID associated with the process
+/// identified by the specified `handle`.
 int getId(const ProcessHandle& handle)
-    // Return the integer value of the process ID associated with the process
-    // identified by the specified 'handle'.
 {
     return handle;
 }
 
+/// Terminate the process identified by the specified `handle`.  Return `0`
+/// on success and a non-zero value on failure.
 int terminateProcess(const ProcessHandle& handle)
-    // Terminate the process identified by the specified 'handle'.  Return '0'
-    // on success and a non-zero value on failure.
 {
     if (kill(handle, SIGTERM)) {
         return errno;                                                 // RETURN
@@ -270,10 +270,10 @@ int terminateProcess(const ProcessHandle& handle)
 
 typedef PROCESS_INFORMATION ProcessHandle;
 
+// Execute in a child process the program located at the specified
+// `command` path, with the specified `arguments`.  Return a
+// `ProcessHandle` object identifying the child process.
 ProcessHandle exec(bsl::string command, bsl::vector<bsl::string> arguments)
-    // Execute in a child process the program located at the specified
-    // 'command' path, with the specified 'arguments'.  Return a
-    // 'ProcessHandle' object identifying the child process.
 {
     BSLMF_ASSERT(sizeof(DWORD) == sizeof(int));
 
@@ -282,8 +282,8 @@ ProcessHandle exec(bsl::string command, bsl::vector<bsl::string> arguments)
     STARTUPINFO sui;
     GetStartupInfo(&sui);
 
-    // Need to have 'PROCESS_QUERY_INFORMATION' for 'GetExitCodeProcess'
-    // and 'PROCESS_TERMINATE' for 'TerminateProcess'.
+    // Need to have `PROCESS_QUERY_INFORMATION` for `GetExitCodeProcess`
+    // and `PROCESS_TERMINATE` for `TerminateProcess`.
     //
     // Empirically, these permissions seem to be granted for child processes.
 
@@ -298,9 +298,9 @@ ProcessHandle exec(bsl::string command, bsl::vector<bsl::string> arguments)
         commandLine.append(*i);
     }
 
-    // N.B. The 'lpCommandLine' argument of 'CreateProcess' must be mutable,
-    // per requirements of 'CreateProcessEx' (cited in documentation for
-    // 'CreateProcess').
+    // N.B. The `lpCommandLine` argument of `CreateProcess` must be mutable,
+    // per requirements of `CreateProcessEx` (cited in documentation for
+    // `CreateProcess`).
     //
     // https://msdn.microsoft.com/en-us/library/ms682425.aspx
 
@@ -318,8 +318,8 @@ ProcessHandle exec(bsl::string command, bsl::vector<bsl::string> arguments)
                               &handle);  // lpProcessInformation - out
 
     if (!rc) {
-        // Following the behavior of UNIX 'fork', failure to create process is
-        // indicated by '-1 == getId(handle)',
+        // Following the behavior of UNIX `fork`, failure to create process is
+        // indicated by `-1 == getId(handle)`,
 
         handle.dwProcessId = static_cast<DWORD>(-1);
     }
@@ -327,18 +327,18 @@ ProcessHandle exec(bsl::string command, bsl::vector<bsl::string> arguments)
     return handle;
 }
 
+// Return the integer value of the process ID associated with the process
+// identified by the specified `handle`.
 int getId(const ProcessHandle& handle)
-    // Return the integer value of the process ID associated with the process
-    // identified by the specified 'handle'.
 {
     BSLMF_ASSERT(sizeof(DWORD) == sizeof(int));
 
     return static_cast<int>(handle.dwProcessId);
 }
 
+// Terminate the process identified by the specified `handle`.  Return `0` on
+// success and a non-zero value on failure.
 int terminateProcess(const ProcessHandle& handle)
-    // Terminate the process identified by the specified 'handle'.  Return '0'
-    // on success and a non-zero value on failure.
 {
     BSLMF_ASSERT(sizeof(DWORD) == sizeof(int));
 
@@ -393,7 +393,7 @@ class MmapAllocator : public bslma::Allocator {
     void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE
     {
 #if defined(BSLS_PLATFORM_OS_SOLARIS)
-        // Run 'pmap -xs <pid>' to see a tabular description of the memory
+        // Run `pmap -xs <pid>` to see a tabular description of the memory
         // layout of a process.
 
         void *result = mmap(0,
@@ -509,9 +509,9 @@ void report(bsl::size_t        bufferSize,
 }
 #endif
 
+/// Just take up a measurable amount of cpu time.  Try 100 clock ticks (1.0
+/// seconds or less).
 double wasteCpuTime()
-    // Just take up a measurable amount of cpu time.  Try 100 clock ticks (1.0
-    // seconds or less).
 {
 #ifdef BSLS_PLATFORM_OS_UNIX
     struct tms tmsBuffer;
@@ -553,9 +553,9 @@ bsls::Types::Int64 controlledCpuBurn()
     return factorial;
 }
 
+/// Return a copy of the specified `begin`, incremented by the specified `n`
+/// elements.
 ObjIterator advanceIt(const ObjIterator& begin, int n)
-    // Return a copy of the specified 'begin', incremented by the specified 'n'
-    // elements.
 {
     ObjIterator ret = begin;
     for (int i = 0; i < n; ++i) {
@@ -573,15 +573,15 @@ namespace BetterParsingTest {
 
 typedef balb::PerformanceMonitor_LinuxProcStatistics ProcStats;
 
+/// Test parsing the specified `procStatStr`, expected to have a process id
+/// matching the specified `pid`, expected to have a `comm` field matching
+/// the optionally specified `expComm`, and where the return value of the
+/// parse match 0 or not depending upon the optionally specified
+/// `expRcZero`.
 void testParseProcStatStr(const bsl::string&  procStatStr,
                           int                 pid,
                           const char         *expComm = 0,
                           bool                expRcZero = true)
-    // Test parsing the specified 'procStatStr', expected to have a process id
-    // matching the specified 'pid', expected to have a 'comm' field matching
-    // the optionally specified 'expComm', and where the return value of the
-    // parse match 0 or not depending upon the optionally specified
-    // 'expRcZero'.
 {
     static const long clockTicksPerSec = sysconf(_SC_CLK_TCK);
     static const long pageSize         = sysconf(_SC_PAGESIZE);
@@ -646,13 +646,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -664,7 +664,7 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'balb::PerformanceMonitor'
+///Example 1: Basic Use of `balb::PerformanceMonitor`
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following example shows how to monitor the currently executing process
 // and produce a formatted report of the collected measures after a certain
@@ -672,27 +672,27 @@ int main(int argc, char *argv[])
 //
 // First, we instantiate a scheduler used by the performance monitor to
 // schedule collection events.
-//..
+// ```
     bdlmt::TimerEventScheduler scheduler;
     scheduler.start();
-//..
+// ```
 // Then, we create the performance monitor, monitoring the current process and
 // auto-collecting statistics every second.
-//..
+// ```
     balb::PerformanceMonitor perfmon(&scheduler, 1.0);
     int                      rc  = perfmon.registerPid(0, "perfmon");
     const int                pid = bdls::ProcessUtil::getProcessId();
 
     ASSERT(0 == rc);
     ASSERT(1 == perfmon.numRegisteredPids());
-//..
+// ```
 // Next, we print a formatted report of the performance statistics collected
-// for each pid every 5 seconds for half a minute.  Note, that 'Statistics'
+// for each pid every 5 seconds for half a minute.  Note, that `Statistics`
 // object can be simultaneously modified by scheduler callback and accessed via
-// a 'ConstIterator'.  To ensure that the call to 'Statistics::print' outputs
+// a `ConstIterator`.  To ensure that the call to `Statistics::print` outputs
 // consistent data from a single update of the statistics for this process, we
 // create a local copy (copy construction is guaranteed to be thread-safe).
-//..
+// ```
     for (int i = 0; i < 6; ++i) {
         bslmt::ThreadUtil::microSleep(0, 5);
 
@@ -704,63 +704,63 @@ int main(int argc, char *argv[])
         bsl::cout << "PID = " << stats.pid() << ":\n";
         stats.print(bsl::cout);
     }
-//..
+// ```
 // Finally, we unregister the process and stop the scheduler to cease
-// collecting statistics for this process.  It is safe to call 'unregisterPid'
-// here, because we don't have any 'ConstIterators' objects or references to
-// 'Statistics' objects.
-//..
+// collecting statistics for this process.  It is safe to call `unregisterPid`
+// here, because we don't have any `ConstIterators` objects or references to
+// `Statistics` objects.
+// ```
     rc  = perfmon.unregisterPid(pid);
 
     ASSERT(0 == rc);
     ASSERT(0 == perfmon.numRegisteredPids());
 
     scheduler.stop();
-//..
+// ```
       } break;
       case 11: {
         // --------------------------------------------------------------------
         // TESTING COMM CONTAINING SPACES
         //
-        // The 'comm' field normally reflects the filename of the executable,
+        // The `comm` field normally reflects the filename of the executable,
         // but it can be changed by the client to anything up to 16 bytes long.
         // One way is for a child process to set a thread name in the current
         // thread (this doesn't work for a non-child process).  It is
-        // conceivable but highly unlikely that the 'comm' field may be over 16
-        // bytes in the future.  According to 'man proc', the 'comm' field was
-        // parsable with '%s' (meaning that it could not contain spaces) but
+        // conceivable but highly unlikely that the `comm` field may be over 16
+        // bytes in the future.  According to `man proc`, the `comm` field was
+        // parsable with `%s` (meaning that it could not contain spaces) but
         // this turned out not to be the case -- a client was configuring the
-        // the 'comm' field to contain spaces, which was interfering with the
+        // the `comm` field to contain spaces, which was interfering with the
         // the correct functioning of this component.
         //
         // Concern:
-        //: 1 Spaces occurring in the 'comm' field on Linux caused the parsing
-        //:   of '/proc/<pid>/stat' to fail.  Ensure that our parsing can
-        //:   cope with this.
-        //:
-        //: 2 Future versions of Linux may have more fields appended to the
-        //:   '/proc/<pid>/stat' file, and we want to ensure that our parser
-        //:   will be able to cope.
+        // 1. Spaces occurring in the `comm` field on Linux caused the parsing
+        //    of `/proc/<pid>/stat` to fail.  Ensure that our parsing can
+        //    cope with this.
+        //
+        // 2. Future versions of Linux may have more fields appended to the
+        //    `/proc/<pid>/stat` file, and we want to ensure that our parser
+        //    will be able to cope.
         //
         // Plan:
-        //: 1 Call 'ProcStat::readProcStatString' to read the
-        //:   '/proc/<pid>/stat' file into a string.
-        //:
-        //: 2 Parse that string  with 'ProcStat::parseProcStatString' and
-        //:   observe that the results are reasonable.
-        //:
-        //: 3 Separate out the 'front' and 'back' seconds of the string before
-        //:   and after the 'comm' field.
-        //:
-        //: 4 Initialize an array of various strings.
-        //:
-        //: 5 Nest two loops, each iterating through the array of strings.
-        //:   Have the outer loop dictate the string to be inserted into the
-        //:   'comm' field, and have the inner loop dictate the string to be
-        //:   appended to the assembled string.
-        //:
-        //: 6 Parse that string  with 'ProcStat::parseProcStatString' and
-        //:   observe that the results are reasonable.
+        // 1. Call `ProcStat::readProcStatString` to read the
+        //    `/proc/<pid>/stat` file into a string.
+        //
+        // 2. Parse that string  with `ProcStat::parseProcStatString` and
+        //    observe that the results are reasonable.
+        //
+        // 3. Separate out the `front` and `back` seconds of the string before
+        //    and after the `comm` field.
+        //
+        // 4. Initialize an array of various strings.
+        //
+        // 5. Nest two loops, each iterating through the array of strings.
+        //    Have the outer loop dictate the string to be inserted into the
+        //    `comm` field, and have the inner loop dictate the string to be
+        //    appended to the assembled string.
+        //
+        // 6. Parse that string  with `ProcStat::parseProcStatString` and
+        //    observe that the results are reasonable.
         // --------------------------------------------------------------------
 
 #if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
@@ -822,7 +822,7 @@ int main(int argc, char *argv[])
         }
 #else
         if (verbose) bsl::cout <<
-            "There is no 'comm' field parsed on any platform other than\n"
+            "There is no `comm` field parsed on any platform other than\n"
             "Linux, so the bug cannot occur on other platforms.\n"
             "Test skipped.\n";
 #endif
@@ -832,46 +832,46 @@ int main(int argc, char *argv[])
         // TESTING STATISTICS COPY CONSTRUCTOR
         //
         // Concerns:
-        //: 1 The new object aggregates the same values as the original object.
-        //:
-        //: 2 The value of the original object is left unaffected.
-        //:
-        //: 3 Subsequent changes in or destruction of the source object have no
-        //:   effect on the copy-constructed object.
-        //:
-        //: 4 The object has its internal memory management system hooked up
-        //:   properly so that *all* internally allocated memory draws from a
-        //:   user-supplied allocator whenever one is specified.
+        // 1. The new object aggregates the same values as the original object.
+        //
+        // 2. The value of the original object is left unaffected.
+        //
+        // 3. Subsequent changes in or destruction of the source object have no
+        //    effect on the copy-constructed object.
+        //
+        // 4. The object has its internal memory management system hooked up
+        //    properly so that *all* internally allocated memory draws from a
+        //    user-supplied allocator whenever one is specified.
         //
         // Plan:
-        //: 1 Create a 'PerformanceMonitor' object, 'mX', and register current
-        //:   process for statistics collection.
-        //:
-        //: 2 Obtain iterator, 'mXIt', pointing the first element in the
-        //:   underlying map.  Create a const reference, 'XIt', to the
-        //:   iterator.
-        //:
-        //: 3 Store current statistics values using accessors of the
-        //:   'Statistics' class.
-        //:
-        //: 4 Make a copy of origin object and verify its value using accessors
-        //:   of the 'Statistics' class.  (C-1)
-        //:
-        //: 5 Compare origin object fields with stored values from P-3.  (C-2)
-        //:
-        //: 6 Collect latest statistics to update origin object and verify that
-        //:   the copy isn't affected.
-        //:
-        //: 7 Unregister current process to destroy origin object and verify
-        //:   that the copy isn't affected.  (C-3)
-        //:
-        //: 8 Register current process for statistics collection again.  Obtain
-        //:   an iterator, 'mXIt', pointing the first element in the underlying
-        //:   map.  Create a const reference, 'XIt', to the iterator.
-        //:
-        //: 9 Create several copies of the current process statistics, passing
-        //:   different allocators to the copy constructor, and verify that all
-        //:   memory is allocated by user-supplied allocator.  (C-4)
+        // 1. Create a `PerformanceMonitor` object, `mX`, and register current
+        //    process for statistics collection.
+        //
+        // 2. Obtain iterator, `mXIt`, pointing the first element in the
+        //    underlying map.  Create a const reference, `XIt`, to the
+        //    iterator.
+        //
+        // 3. Store current statistics values using accessors of the
+        //    `Statistics` class.
+        //
+        // 4. Make a copy of origin object and verify its value using accessors
+        //    of the `Statistics` class.  (C-1)
+        //
+        // 5. Compare origin object fields with stored values from P-3.  (C-2)
+        //
+        // 6. Collect latest statistics to update origin object and verify that
+        //    the copy isn't affected.
+        //
+        // 7. Unregister current process to destroy origin object and verify
+        //    that the copy isn't affected.  (C-3)
+        //
+        // 8. Register current process for statistics collection again.  Obtain
+        //    an iterator, `mXIt`, pointing the first element in the underlying
+        //    map.  Create a const reference, `XIt`, to the iterator.
+        //
+        // 9. Create several copies of the current process statistics, passing
+        //    different allocators to the copy constructor, and verify that all
+        //    memory is allocated by user-supplied allocator.  (C-4)
         //
         // Testing:
         //   Statistics(const Statistics& orig, Allocator *basicAllocator);
@@ -1036,37 +1036,37 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'find'
+        // TESTING `find`
         //
         // Concerns:
-        //: 1 The 'find()' returns an iterator, referring to the value with
-        //:    process id, passed as a parameter, only if this process is
-        //:    watched by monitor.
-        //:
-        //: 2 The 'find()' returns an iterator, referring to the address,
-        //:   following the last value in the underlying  map, if process with
-        //:   id, passed as a parameter, isn't watched by this monitor.
+        // 1. The `find()` returns an iterator, referring to the value with
+        //     process id, passed as a parameter, only if this process is
+        //     watched by monitor.
+        //
+        // 2. The `find()` returns an iterator, referring to the address,
+        //    following the last value in the underlying  map, if process with
+        //    id, passed as a parameter, isn't watched by this monitor.
         //
         // Plan:
-        //: 1 Spawn several processes, create a 'PerformanceMonitor' object,
-        //:   'mX', and register these processes for statistics collection.
-        //:
-        //: 2 Using the loop-based approach:
-        //:
-        //:   1 Use ids of registered process to call the 'find' method and
-        //:   verify results, by comparing them with the results of iteration
-        //:   from the beginning.  (C-1)
-        //:
-        //: 3 Call the 'find' method with some dummy value, passed as a
-        //:   parameter, and verify that it returns an iterator, that
-        //:   represents the end of the sequence of sets of collected
-        //:   performance statistics. (C-2)
+        // 1. Spawn several processes, create a `PerformanceMonitor` object,
+        //    `mX`, and register these processes for statistics collection.
+        //
+        // 2. Using the loop-based approach:
+        //
+        //   1. Use ids of registered process to call the `find` method and
+        //    verify results, by comparing them with the results of iteration
+        //    from the beginning.  (C-1)
+        //
+        // 3. Call the `find` method with some dummy value, passed as a
+        //    parameter, and verify that it returns an iterator, that
+        //    represents the end of the sequence of sets of collected
+        //    performance statistics. (C-2)
         //
         // Testing:
         //   ConstIterator end() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'find'\n"
+        if (verbose) cout << "TESTING `find`\n"
                           << "==============\n";
 
         typedef bsl::set<int> Pids;
@@ -1136,34 +1136,34 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'end'
+        // TESTING `end`
         //
         // Concerns:
-        //: 1 The 'end()' returns an  iterator, referring to the address,
-        //:   following the last value in the underlying  map.
+        // 1. The `end()` returns an  iterator, referring to the address,
+        //    following the last value in the underlying  map.
         //
         // Plan:
-        //: 1 Spawn several processes and store their ids to separate map.
-        //:
-        //: 2 Create a 'PerformanceMonitor' object, 'mX'.
-        //:
-        //: 3 Using the loop-based approach:
-        //:
-        //:   1 Register processes one by one (so the number of elements in the
-        //:     underlying map should change).
-        //:
-        //:   2 Obtain an iterator, pointing to the first element and advance
-        //:     it to the position, following the last element in underlying
-        //:     map.
-        //:
-        //:   3 Verify return value of the 'end' method by comparing it with
-        //:     the iterator from P-3.2. (C-1)
+        // 1. Spawn several processes and store their ids to separate map.
+        //
+        // 2. Create a `PerformanceMonitor` object, `mX`.
+        //
+        // 3. Using the loop-based approach:
+        //
+        //   1. Register processes one by one (so the number of elements in the
+        //      underlying map should change).
+        //
+        //   2. Obtain an iterator, pointing to the first element and advance
+        //      it to the position, following the last element in underlying
+        //      map.
+        //
+        //   3. Verify return value of the `end` method by comparing it with
+        //      the iterator from P-3.2. (C-1)
         //
         // Testing:
         //   ConstIterator end() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'end'\n"
+        if (verbose) cout << "TESTING `end`\n"
                           << "=============\n";
 
         typedef bsl::set<int> Pids;
@@ -1226,44 +1226,44 @@ int main(int argc, char *argv[])
         // ITERATOR EQUALITY-COMPARISON OPERATORS
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if they point
-        //:   to the same value in the same map.
-        //:
-        //: 2 'true  == (X == X)'  (i.e., identity)
-        //:
-        //: 3 'false == (X != X)'  (i.e., identity)
-        //:
-        //: 4 'X == Y' if and only if 'Y == X'  (i.e., commutativity)
-        //:
-        //: 5 'X != Y' if and only if 'Y != X'  (i.e., commutativity)
-        //:
-        //: 6 'X != Y' if and only if '!(X == Y)'
-        //:
-        //: 7 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //: 8 The equality operator's signature and return type are standard.
-        //:
-        //: 9 The inequality operator's signature and return type are standard.
+        // 1. Two objects, `X` and `Y`, compare equal if and only if they point
+        //    to the same value in the same map.
+        //
+        // 2. `true  == (X == X)`  (i.e., identity)
+        //
+        // 3. `false == (X != X)`  (i.e., identity)
+        //
+        // 4. `X == Y` if and only if `Y == X`  (i.e., commutativity)
+        //
+        // 5. `X != Y` if and only if `Y != X`  (i.e., commutativity)
+        //
+        // 6. `X != Y` if and only if `!(X == Y)`
+        //
+        // 7. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        // 8. The equality operator's signature and return type are standard.
+        //
+        // 9. The inequality operator's signature and return type are standard.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator==' and
-        //:  'operator!=' to initialize function pointers having the
-        //:   appropriate signatures and return types for those methods.
-        //:   (C-8..9)
-        //:
-        //: 2 Spawn several processes, create a 'PerformanceMonitor' object,
-        //:   'mX', and register these processes for statistics collection.
-        //:
-        //: 3 For each value '(x, y)' in the cross product S x S, where S is a
-        //:   set of successive indexes from 0 till the number of registered
-        //:   processes from P-2:
-        //:
-        //:  1 Use the 'begin' accessor to obtain iterators, 'mXIt1' and
-        //:    'mXIt2', pointing the first element in the underlying map.
-        //:
-        //:  2 Advance them x and y times accordingly, compare and verify
-        //:    comparison results.  (C-1..7)
+        // 1. Use the respective addresses of `operator==` and
+        //   `operator!=` to initialize function pointers having the
+        //    appropriate signatures and return types for those methods.
+        //    (C-8..9)
+        //
+        // 2. Spawn several processes, create a `PerformanceMonitor` object,
+        //    `mX`, and register these processes for statistics collection.
+        //
+        // 3. For each value `(x, y)` in the cross product S x S, where S is a
+        //    set of successive indexes from 0 till the number of registered
+        //    processes from P-2:
+        //
+        //  1. Use the `begin` accessor to obtain iterators, `mXIt1` and
+        //     `mXIt2`, pointing the first element in the underlying map.
+        //
+        //  2. Advance them x and y times accordingly, compare and verify
+        //     comparison results.  (C-1..7)
         //
         // Testing:
         //   bool operator==(const ConstIterator& rhs) const;
@@ -1357,38 +1357,38 @@ int main(int argc, char *argv[])
         // TESTING INCRERMENT OPERATORS
         //
         // Concerns:
-        //: 1 The increment operators change the value of the object to refer
-        //:   to the next element in the map.
-        //:
-        //: 2 The signatures and return types are standard.
-        //:
-        //: 3 The value returned by the post-increment operator is the value of
-        //:   the object prior to the operator call.
-        //:
-        //: 4 The reference returned by the pre-increment operator refers to
-        //:   the object on which the operator was invoked.
-        //:
-        //: 5 Advancing iterator, referring to the last element in the map,
-        //:   sets this iterator equal to 'end()'
+        // 1. The increment operators change the value of the object to refer
+        //    to the next element in the map.
+        //
+        // 2. The signatures and return types are standard.
+        //
+        // 3. The value returned by the post-increment operator is the value of
+        //    the object prior to the operator call.
+        //
+        // 4. The reference returned by the pre-increment operator refers to
+        //    the object on which the operator was invoked.
+        //
+        // 5. Advancing iterator, referring to the last element in the map,
+        //    sets this iterator equal to `end()`
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator++()' and
-        //:   'operator++(int)' to initialize function pointers having the
-        //:   appropriate signatures and return types for those methods.  (C-2)
-        //:
-        //: 2 Spawn several processes, create a 'PerformanceMonitor' object,
-        //:   'mX', and register these processes for statistics collection.
-        //:
-        //: 3 Use the 'begin' accessor to obtain iterators, 'preXIt' and
-        //:   'postXIt', pointing the first element in the underlying map.
-        //:
-        //: 4 Iterate through the underlying map using the 'operator++()' and
-        //:   'operator++(int)' manipulators respectively and verify return
-        //:   values and values of the iterators, using dereference operator
-        //:   and 'pid' accessor of 'Statistics' class.  (C-1,3..4)
-        //:
-        //: 5 Advance iterators once more and use (as yet unproven) 'end'
-        //:   accessor to verify positions of the iterators.  (C-5)
+        // 1. Use the respective addresses of `operator++()` and
+        //    `operator++(int)` to initialize function pointers having the
+        //    appropriate signatures and return types for those methods.  (C-2)
+        //
+        // 2. Spawn several processes, create a `PerformanceMonitor` object,
+        //    `mX`, and register these processes for statistics collection.
+        //
+        // 3. Use the `begin` accessor to obtain iterators, `preXIt` and
+        //    `postXIt`, pointing the first element in the underlying map.
+        //
+        // 4. Iterate through the underlying map using the `operator++()` and
+        //    `operator++(int)` manipulators respectively and verify return
+        //    values and values of the iterators, using dereference operator
+        //    and `pid` accessor of `Statistics` class.  (C-1,3..4)
+        //
+        // 5. Advance iterators once more and use (as yet unproven) `end`
+        //    accessor to verify positions of the iterators.  (C-5)
         //
         // Testing:
         //   ConstIterator& operator++();
@@ -1495,15 +1495,15 @@ int main(int argc, char *argv[])
         // CONCERN: Statistics are Reset Correctly
         //
         // Concerns:
-        //:  1 That CPU statics are reset to zero after calling
-        //:    'resetStatistics'.
+        //  1. That CPU statics are reset to zero after calling
+        //     `resetStatistics`.
         //
         // Plan:
-        //:  1 Create a performance monitor, collect statistics, reset the
-        //:    statics, and verify that the returned statistics after the reset
-        //:    are plausible (Note that drqs 49280976, reset statistics lead to
-        //:    incorrectly determining the time since the last reset, and
-        //:    wildly incorrect statics after a reset).
+        //  1. Create a performance monitor, collect statistics, reset the
+        //     statics, and verify that the returned statistics after the reset
+        //     are plausible (Note that drqs 49280976, reset statistics lead to
+        //     incorrectly determining the time since the last reset, and
+        //     wildly incorrect statics after a reset).
         //
         // Testing:
         //   CONCERN: Statistics are Reset Correctly (DRQS 49280976)
@@ -1581,53 +1581,53 @@ int main(int argc, char *argv[])
         // TESTING ACCESSORS
         //
         // Concerns:
-        //: 1 The 'begin()' accessor of 'PerformanceMonitor' class returns an
-        //:   iterator, referring to the first value in the underlying map.
-        //:
-        //: 2 The 'operator*' of 'ConstIterator' class returns the reference to
-        //:   the value of the element, this object refers to.
-        //:
-        //: 3 The 'operator->' of 'ConstIterator' class returns the address of
-        //:   of the element, this object refers to.
-        //:
-        //: 4 The operators return references to actual 'Statistics' object,
-        //:   belonging to 'PerformanceMonitor', and not to some cached copy.
-        //:
-        //: 5 All methods are declared 'const'.
-        //:
-        //: 6 The signatures and return types of operators are standard.
+        // 1. The `begin()` accessor of `PerformanceMonitor` class returns an
+        //    iterator, referring to the first value in the underlying map.
+        //
+        // 2. The `operator*` of `ConstIterator` class returns the reference to
+        //    the value of the element, this object refers to.
+        //
+        // 3. The `operator->` of `ConstIterator` class returns the address of
+        //    of the element, this object refers to.
+        //
+        // 4. The operators return references to actual `Statistics` object,
+        //    belonging to `PerformanceMonitor`, and not to some cached copy.
+        //
+        // 5. All methods are declared `const`.
+        //
+        // 6. The signatures and return types of operators are standard.
         //
         // Plan:
-        //: 1 Use the addresses of 'operator*' and 'operator->' to initialize
-        //:   member-function pointers having the appropriate signatures and
-        //:   return types for the operators defined in this component.  (C-6)
-        //:
-        //: 2 Spawn several processes and store their ids to separate map.
-        //:
-        //: 3 Create a 'PerformanceMonitor' object, 'mX' and const reference to
-        //:   'mX', named 'X'.
-        //:
-        //: 4 Using the loop-based approach:
-        //:
-        //:   1 Register processes one by one in back order (so the 'begin'
-        //:     accessor should return different values on each iteration).
-        //:
-        //:   2 Use the 'begin' accessor to obtain iterator, 'mXIt' and
-        //:     create a const reference to 'mXIt', named 'XIt'.  (C-5)
-        //:
-        //:   3 Using 'operator*', 'operator->' and 'pid' accessor of the
-        //:     'Statistics' class verify return values of 'begin' accessor.
-        //:     (C-1..3)
-        //:
-        //: 4 Use the 'begin' accessor to obtain iterator, 'mXIt' and create a
-        //:   const reference to 'mXIt', named 'XIt'.  Get and store some value
-        //:   from the 'Statistics' object, this iterator pointing to.
-        //:
-        //: 5 Use the 'collect' manipulator to change 'Statistics' object,
-        //:   stored in 'PerformanceMonitor'.
-        //:
-        //: 6 Verify that value of the object, iterator pointing to, is
-        //:   changed.  (C-4)
+        // 1. Use the addresses of `operator*` and `operator->` to initialize
+        //    member-function pointers having the appropriate signatures and
+        //    return types for the operators defined in this component.  (C-6)
+        //
+        // 2. Spawn several processes and store their ids to separate map.
+        //
+        // 3. Create a `PerformanceMonitor` object, `mX` and const reference to
+        //    `mX`, named `X`.
+        //
+        // 4. Using the loop-based approach:
+        //
+        //   1. Register processes one by one in back order (so the `begin`
+        //      accessor should return different values on each iteration).
+        //
+        //   2. Use the `begin` accessor to obtain iterator, `mXIt` and
+        //      create a const reference to `mXIt`, named `XIt`.  (C-5)
+        //
+        //   3. Using `operator*`, `operator->` and `pid` accessor of the
+        //      `Statistics` class verify return values of `begin` accessor.
+        //      (C-1..3)
+        //
+        // 4. Use the `begin` accessor to obtain iterator, `mXIt` and create a
+        //    const reference to `mXIt`, named `XIt`.  Get and store some value
+        //    from the `Statistics` object, this iterator pointing to.
+        //
+        // 5. Use the `collect` manipulator to change `Statistics` object,
+        //    stored in `PerformanceMonitor`.
+        //
+        // 6. Verify that value of the object, iterator pointing to, is
+        //    changed.  (C-4)
         //
         // Testing:
         //   ConstIterator begin() const;
@@ -1710,8 +1710,8 @@ int main(int argc, char *argv[])
                 ++rPidsIt;
             }
 
-            // Check that accessors return reference to actual 'Statistics'
-            // object belonging to 'PerformanceMonitor', and not to some cached
+            // Check that accessors return reference to actual `Statistics`
+            // object belonging to `PerformanceMonitor`, and not to some cached
             // copy.
 
             ObjIterator        mXIt    = X.begin();
@@ -1733,10 +1733,10 @@ int main(int argc, char *argv[])
         // PROCESS START TIME SANITY
         //
         // Concerns:
-        //:  1 It appears that for some versions of Linux, either different
-        //:    kernels or different distros, our estimation of process start
-        //:    time will be wildly inaccurate.  Determine whether this is the
-        //:    case.
+        //  1. It appears that for some versions of Linux, either different
+        //     kernels or different distros, our estimation of process start
+        //     time will be wildly inaccurate.  Determine whether this is the
+        //     case.
         //
         // Testing:
         //   CONCERN: The Process Start Time is Reasonable
@@ -1766,34 +1766,34 @@ int main(int argc, char *argv[])
       }  break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'numRegisteredPids'
+        // TESTING `numRegisteredPids`
         //
         // Concerns:
-        //:  1 'numRegisteredPids' reports the correct number of registered
-        //:    processes.
-        //:
-        //:  2 'numRegisterPids' reports 0 before any processes are registered.
-        //:
-        //:  3 'numRegisterPids' increments by 1 every time a process is
-        //:    registered.
-        //:
-        //:  4 'numRegisterPids' decrements by 1 every time a process is
-        //:    un-registered.
+        //  1. `numRegisteredPids` reports the correct number of registered
+        //     processes.
+        //
+        //  2. `numRegisterPids` reports 0 before any processes are registered.
+        //
+        //  3. `numRegisterPids` increments by 1 every time a process is
+        //     registered.
+        //
+        //  4. `numRegisterPids` decrements by 1 every time a process is
+        //     un-registered.
         //
         // Plan:
-        //:  1 Using the ad-doc approach, monitor this test driver process, and
-        //:    one or more child processes, spawned as necessary, and check the
-        //:    value returned by 'numRegisteredPids' before and after each
-        //:    process is registered.  (C-1..3)
-        //:
-        //:  2 Un-register processes registered in step 1, and check the value
-        //:    returned by 'numRegisteredPids'.  (C-1,4)
+        //  1. Using the ad-doc approach, monitor this test driver process, and
+        //     one or more child processes, spawned as necessary, and check the
+        //     value returned by `numRegisteredPids` before and after each
+        //     process is registered.  (C-1..3)
+        //
+        //  2. Un-register processes registered in step 1, and check the value
+        //     returned by `numRegisteredPids`.  (C-1,4)
         //
         // Testing:
         //   int numRegisteredPids()
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'numRegisteredPids'\n"
+        if (verbose) cout << "TESTING `numRegisteredPids`\n"
                           << "===========================\n";
 
         bdlmt::TimerEventScheduler scheduler;
@@ -1858,8 +1858,8 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //:  1 The class is sufficiently functional to enable comprehensive
-        //:    testing in subsequent test cases.
+        //  1. The class is sufficiently functional to enable comprehensive
+        //     testing in subsequent test cases.
         //
         // Testing:
         //   BREATHING TEST
@@ -2064,10 +2064,10 @@ int main(int argc, char *argv[])
         //   test case 2.
         //
         // Concerns:
-        //:  1 Test runs for at least 30 seconds.
+        //  1. Test runs for at least 30 seconds.
         //
         // Plan:
-        //:  1 Confirm empirically by observing a test run.  (C-1)
+        //  1. Confirm empirically by observing a test run.  (C-1)
         //
         // Testing:
         //   DUMMY TEST CASE

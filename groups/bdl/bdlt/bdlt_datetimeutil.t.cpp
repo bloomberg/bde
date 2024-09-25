@@ -7,11 +7,11 @@
 
 #include <bsls_review.h>
 
-#include <bsl_algorithm.h> // 'min'
+#include <bsl_algorithm.h> // `min`
 #include <bsl_climits.h>
-#include <bsl_cstdio.h>    // 'sprintf'
-#include <bsl_cstdlib.h>   // 'atoi'
-#include <bsl_cstring.h>   // 'memset'
+#include <bsl_cstdio.h>    // `sprintf`
+#include <bsl_cstdlib.h>   // `atoi`
+#include <bsl_cstring.h>   // `memset`
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
@@ -39,8 +39,8 @@ using namespace bsl;
 // [ 3] void convertToTm(tm *result, const Datetime& datetime);
 // [ 3] int convertFromTm(Datetime *result, const tm& timeStruct);
 //-----------------------------------------------------------------------------
-// [ 1] BOOTSTRAP: 'convertToTm'
-// [ 2] BOOTSTRAP: 'convertFromTm'
+// [ 1] BOOTSTRAP: `convertToTm`
+// [ 2] BOOTSTRAP: `convertFromTm`
 // [ 4] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
@@ -103,14 +103,14 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //                SEMI-STANDARD HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Create a visual display for a computation of the specified `length` and
+/// emit updates to `cerr` as appropriate for each specified `index`.
+/// Optionally specify the `size` of the display.  The behavior is undefined
+/// unless 0 <= index, 0 <= length, 0 < size, and index <= length.  Note
+/// that it is expected that indices will be presented in order from 0 to
+/// `length`, inclusive, without intervening output to `stderr`; however,
+/// intervening output to `stdout` may be redirected productively.
 void loopMeter(unsigned index, unsigned length, unsigned size = 50)
-    // Create a visual display for a computation of the specified 'length' and
-    // emit updates to 'cerr' as appropriate for each specified 'index'.
-    // Optionally specify the 'size' of the display.  The behavior is undefined
-    // unless 0 <= index, 0 <= length, 0 < size, and index <= length.  Note
-    // that it is expected that indices will be presented in order from 0 to
-    // 'length', inclusive, without intervening output to 'stderr'; however,
-    // intervening output to 'stdout' may be redirected productively.
 {
     ASSERT(0 < size);
     ASSERT(index <= length);
@@ -138,17 +138,17 @@ void loopMeter(unsigned index, unsigned length, unsigned size = 50)
     }
 }
 
+/// Provide a namespace for functions reading configuration values from a
+/// string.
 template <class INTEGER_TYPE = int>
 struct ConfigParser {
-    // Provide a namespace for functions reading configuration values from a
-    // string.
 
+    /// Load into the specified `*result` the comma- and/or
+    /// whitespace-separated integer values, if any, of (template parameter)
+    /// type `INTEGER_TYPE` found at the beginning of the specified `config`
+    /// string.  Any part of `config` that cannot be parsed as such a list
+    /// of integer values, and any following contents are ignored.
     static void parse(vector<INTEGER_TYPE> *result, const string& config);
-        // Load into the specified '*result' the comma- and/or
-        // whitespace-separated integer values, if any, of (template parameter)
-        // type 'INTEGER_TYPE' found at the beginning of the specified 'config'
-        // string.  Any part of 'config' that cannot be parsed as such a list
-        // of integer values, and any following contents are ignored.
 };
 
 template <class INTEGER_TYPE>
@@ -179,9 +179,9 @@ void ConfigParser<INTEGER_TYPE>::parse(vector<INTEGER_TYPE> *result,
                                  // struct tm
                                  // =========
 
+/// Output to the specified `stream` a multi-line textual representation of
+/// the specified `time`.  Return `stream`.
 ostream& dump(ostream& stream, const tm& time)
-    // Output to the specified 'stream' a multi-line textual representation of
-    // the specified 'time'.  Return 'stream'.
 {
     return stream <<
         "tm = {\t\t\t// " << asctime(&time) <<
@@ -197,9 +197,9 @@ ostream& dump(ostream& stream, const tm& time)
         "\n};" << endl;
 }
 
+/// Output to the specified `stream` a single-line textual representation of
+/// the specified `time`.  Returns `stream`.
 ostream& operator<<(ostream& stream, const tm& time)
-    // Output to the specified 'stream' a single-line textual representation of
-    // the specified 'time'.  Returns 'stream'.
 {
     char buffer[100];
     sprintf(buffer,
@@ -222,23 +222,24 @@ ostream& operator<<(ostream& stream, const tm& time)
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Converting Between 'bsl::tm' and 'bdlt::Datetime'
+///Example 1: Converting Between `bsl::tm` and `bdlt::Datetime`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // When interfacing with legacy systems, we may encounter calls that represent
-// date/time information using the standard 'bsl::tm'. In such cases, we have
-// to be able to convert that information to/from a 'bdlt::Datetime' object in
+// date/time information using the standard `bsl::tm`. In such cases, we have
+// to be able to convert that information to/from a `bdlt::Datetime` object in
 // order to interface with the rest of our systems.
 //
 // Suppose we have a legacy system that tracks last-access times in terms of
-// 'bsl::tm'. We can use the 'convertToTm' and 'convertFromTm' routines from
+// `bsl::tm`. We can use the `convertToTm` and `convertFromTm` routines from
 // this component to convert that information.
 //
-// First, we define a class, 'MyAccessTracker', that the legacy system uses to
+// First, we define a class, `MyAccessTracker`, that the legacy system uses to
 // manage last-access times (eliding the implementation for brevity):
-//..
+// ```
+
+    /// This class provides a facility for tracking last access times
+    /// associated with usernames.
     class MyAccessTracker {
-        // This class provides a facility for tracking last access times
-        // associated with usernames.
 
         // LOCAL TYPE
         typedef bsl::map<bsl::string, bsl::tm>  TStringTmMap;
@@ -253,48 +254,51 @@ ostream& operator<<(ostream& stream, const tm& time)
                                        bslma::UsesBslmaAllocator);
 
         // CREATORS
+
+        /// Create an object which will track the last access time ...
         explicit MyAccessTracker(bslma::Allocator *basicAllocator = 0);
-            // Create an object which will track the last access time ...
 
         // MANIPULATORS
+
+        /// Update the last access time for the specified `username` with
+        /// the specified `accessTime`.
         void updateLastAccess(const bsl::string&  username,
                               const bsl::tm&      accessTime);
-            // Update the last access time for the specified 'username' with
-            // the specified 'accessTime'.
 
         // ACCESSORS
+
+        /// Load into the specified `result` the last access time associated
+        /// with the specified `username`, if any.  Return 0 on success, and
+        /// non-0 (with no effect on `result`) if there's no access time
+        /// associated with `username`.
         int getLastAccess(bsl::tm *result, const bsl::string& username) const;
-            // Load into the specified 'result' the last access time associated
-            // with the specified 'username', if any.  Return 0 on success, and
-            // non-0 (with no effect on 'result') if there's no access time
-            // associated with 'username'.
     };
-//..
-// Next, we define a utility to allow us to use 'bdlt::Datetime' with our
+// ```
+// Next, we define a utility to allow us to use `bdlt::Datetime` with our
 // legacy access tracker:
-//..
+// ```
     class MyAccessTrackerUtil {
       public:
+        /// Load into the specified `result` the last access time associated
+        /// with the specified `username` in the specified `tracker`, if
+        /// any.  Returns 0 on success, and non-0 (with no effect on
+        /// `result`) if there's no access time associated with `username`
+        /// or the associated access time cannot be converted to
+        /// `bdlt::Datetime`.
         static int getLastAccess(bdlt::Datetime         *result,
                                  const MyAccessTracker&  tracker,
                                  const bsl::string&      username);
-            // Load into the specified 'result' the last access time associated
-            // with the specified 'username' in the specified 'tracker', if
-            // any.  Returns 0 on success, and non-0 (with no effect on
-            // 'result') if there's no access time associated with 'username'
-            // or the associated access time cannot be converted to
-            // 'bdlt::Datetime'.
 
+        /// Update the instance pointed to by the specified `tracker` by
+        /// adding the specified `username` with its associated specified
+        /// `accessTime`.
         static void updateLastAccess(MyAccessTracker       *tracker,
                                      const bsl::string&     username,
                                      const bdlt::Datetime&  accessTime);
-            // Update the instance pointed to by the specified 'tracker' by
-            // adding the specified 'username' with its associated specified
-            // 'accessTime'.
     };
-//..
-// Then, we implement 'getLastAccess':
-//..
+// ```
+// Then, we implement `getLastAccess`:
+// ```
                             // -------------------------
                             // class MyAccessTrackerUtil
                             // -------------------------
@@ -315,9 +319,9 @@ ostream& operator<<(ostream& stream, const tm& time)
 
         return bdlt::DatetimeUtil::convertFromTm(result, legacyAccessTime);
     }
-//..
-// Next, we implement 'updateLastAccess':
-//..
+// ```
+// Next, we implement `updateLastAccess`:
+// ```
     void MyAccessTrackerUtil::updateLastAccess(
                                              MyAccessTracker       *tracker,
                                              const bsl::string&     username,
@@ -331,12 +335,13 @@ ostream& operator<<(ostream& stream, const tm& time)
 
         tracker->updateLastAccess(username, legacyAccessTime);
     }
-//..
+// ```
 // Finally, we create an access tracker then interact with it using
-// 'bdlt::Datetime' times.
-//..
+// `bdlt::Datetime` times.
+// ```
+
+    /// Exercise `MyAccessTracker` for pedagogical purposes.
     void exerciseTracker()
-        // Exercise 'MyAccessTracker' for pedagogical purposes.
     {
         MyAccessTracker accessTracker; // Datetime each user last accessed a
                                        // resource.
@@ -358,9 +363,9 @@ ostream& operator<<(ostream& stream, const tm& time)
 
         // Do something with the retrieved date...
     }
-//..
+// ```
 
-// The 'MyAccessTracker' implementation for usage example, elided from
+// The `MyAccessTracker` implementation for usage example, elided from
 // component header.
 
                         // ---------------------
@@ -418,7 +423,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -428,13 +433,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -452,23 +457,23 @@ int main(int argc, char *argv[])
         // CONVERT DATETIME TO TM THEN BACK TO DATETIME
         //
         // Concerns:
-        //: 1 Round-trip conversion from Datetime to 'struct tm' then back
-        //:   is idempotent.
+        // 1. Round-trip conversion from Datetime to `struct tm` then back
+        //    is idempotent.
         //
         // Plan:
-        //: 1 Use a loop-based approach to verify that pseudo-randomly
-        //:   selected, non-repeating datetime values that can be converted to
-        //:   and then from struct 'tm' objects result in exactly the same
-        //:   object.  Note that the intermediate 'tm' instance is initialized
-        //:   to a different "garbage" value on each iteration.
-        //:
-        //:   Note that the number of iterations and the seed for the
-        //:   pseudo-random selection can optionally be controlled by
-        //:   specifying those values, separated by commas, as the first
-        //:   argument on the command line after the test case number, e.g.
-        //:   'bdlt_datetimeutil.t 3 1000,7' would run this test case 3 with
-        //:   1000 iterations and a seed of 7.  If the iterations are
-        //:   specified, the seed is optional.
+        // 1. Use a loop-based approach to verify that pseudo-randomly
+        //    selected, non-repeating datetime values that can be converted to
+        //    and then from struct `tm` objects result in exactly the same
+        //    object.  Note that the intermediate `tm` instance is initialized
+        //    to a different "garbage" value on each iteration.
+        //
+        //    Note that the number of iterations and the seed for the
+        //    pseudo-random selection can optionally be controlled by
+        //    specifying those values, separated by commas, as the first
+        //    argument on the command line after the test case number, e.g.
+        //    `bdlt_datetimeutil.t 3 1000,7` would run this test case 3 with
+        //   1000. iterations and a seed of 7.  If the iterations are
+        //    specified, the seed is optional.
         //
         // Testing:
         //   tm convertToTm(const Datetime& datetime);
@@ -502,18 +507,18 @@ int main(int argc, char *argv[])
 
         const Uint64 RELATIVE_PRIME = Z * Z ;
 
-        // http://www.wolframalpha.com/ lists the factors of 'SIZE' as:
-        //..
+        // http://www.wolframalpha.com/ lists the factors of `SIZE` as:
+        // ```
         //              1
         //           2689
         //      119515009
         //   321375859201
-        //..
+        // ```
         // (computed with Factor[9999 * 12 *31 * 24 * 60 * 60 + 1]).
         //
         // http://www.wolframalpha.com/input/?i=Factor[1234567*1234567] lists
-        // the factors of 'RELATIVE_PRIME' as:
-        //..
+        // the factors of `RELATIVE_PRIME` as:
+        // ```
         //             1
         //           127
         //          9721
@@ -523,11 +528,11 @@ int main(int argc, char *argv[])
         //     156790009
         //   12001225807
         // 1524155677489
-        //..
+        // ```
         //
-        // Therefore, 'SIZE' and 'RELATIVE_PRIME' are relatively prime (they
+        // Therefore, `SIZE` and `RELATIVE_PRIME` are relatively prime (they
         // have no common factors other than 1), and our pseudo-random walk
-        // through the search space will not repeat until the 'SIZE'-eth
+        // through the search space will not repeat until the `SIZE`-eth
         // iteration.
 
         double percentCovered = 100.0 * numTrials / SIZE;
@@ -638,44 +643,44 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // BOOTSTRAP: 'convertFromTm'
+        // BOOTSTRAP: `convertFromTm`
         //
         // Concerns:
-        //: 1 All relevant fields are converted properly.
-        //: 2 Irrelevant fields are ignored.
-        //: 3 The millisecond field is always set to 0.
-        //: 4 Illegal dates are detected.
-        //: 5 Out-of-range dates are detected.
-        //: 6 Leap seconds at the end of the year are treated as failures.
-        //: 7 Bad status implies no change to result.
-        //: 8 Time = 24:00:00 converts to 24:00:00.000, but only for 1/1/1.
+        // 1. All relevant fields are converted properly.
+        // 2. Irrelevant fields are ignored.
+        // 3. The millisecond field is always set to 0.
+        // 4. Illegal dates are detected.
+        // 5. Out-of-range dates are detected.
+        // 6. Leap seconds at the end of the year are treated as failures.
+        // 7. Bad status implies no change to result.
+        // 8. Time = 24:00:00 converts to 24:00:00.000, but only for 1/1/1.
         //
         // Plan:
-        //: 1 Approach:
-        //:     o Table-Based Implementation
-        //:     o Category Partitioning Data Selection
-        //:     o Orthogonal Perturbation:
-        //:         o Irrelevant Input Fields
-        //:         o Unaltered Initial Values
-        //:
-        //:   Construct a table in which each relevant input field, status, and
-        //:   each output field that can differ from its corresponding input
-        //:   are represented in separate columns.  A failure status implies
-        //:   that the result is not changed, which is verified within the body
-        //:   of the loop on two separate initial values.  Irrelevant fields
-        //:   are modified orthogonally within the loop.  Note that
-        //:   'millisecond' is necessarily 0 and is tested directly within the
-        //:   main loop.
-        //:
-        //:   Note that the 24:00:00 special case is tested outside of the
-        //:   table-based implementation.
+        // 1. Approach:
+        //      - Table-Based Implementation
+        //      - Category Partitioning Data Selection
+        //      - Orthogonal Perturbation:
+        //          o Irrelevant Input Fields
+        //          o Unaltered Initial Values
+        //
+        //    Construct a table in which each relevant input field, status, and
+        //    each output field that can differ from its corresponding input
+        //    are represented in separate columns.  A failure status implies
+        //    that the result is not changed, which is verified within the body
+        //    of the loop on two separate initial values.  Irrelevant fields
+        //    are modified orthogonally within the loop.  Note that
+        //    `millisecond` is necessarily 0 and is tested directly within the
+        //    main loop.
+        //
+        //    Note that the 24:00:00 special case is tested outside of the
+        //    table-based implementation.
         //
         // Testing:
-        //   BOOTSTRAP: 'convertFromTm'
+        //   BOOTSTRAP: `convertFromTm`
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "BOOTSTRAP: 'convertFromTm'" << endl
+                          << "BOOTSTRAP: `convertFromTm`" << endl
                           << "==========================" << endl;
 
         if (verbose) cout << "\nstruct tm => Datetime." << endl;
@@ -851,7 +856,7 @@ int main(int argc, char *argv[])
         const int NUM_IGNORED_FIELDS = tmp;
 
         // PERTURBATION 2: Arbitrary initial datetime values in order to
-        //                 verify "No Change" to 'result' on FAIL.
+        //                 verify "No Change" to `result` on FAIL.
 
         const bdlt::Date D_1(1234, 11, 13);
         const bdlt::Date D_2(5678, 12, 14);
@@ -1030,31 +1035,31 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // BOOTSTRAP: 'convertToTm'
+        // BOOTSTRAP: `convertToTm`
         //
         // Concerns:
-        //: 1 All fields are converted properly.
-        //: 2 The millisecond field is ignored.
-        //: 3 tm_isdst is always set to -1.
-        //: 4 Time = 24:00:00.000 converts to 00:00:00, not to 24:00:00.
-        //: 5 The operation never fails.
+        // 1. All fields are converted properly.
+        // 2. The millisecond field is ignored.
+        // 3. tm_isdst is always set to -1.
+        // 4. Time = 24:00:00.000 converts to 00:00:00, not to 24:00:00.
+        // 5. The operation never fails.
         //
         // Plan:
-        //: 1 Test convertToTm
-        //:   o Table-Based Implementation
-        //:   o Category Partitioning Data Selection
-        //:
-        //:   Construct a table in which each input field, and each output
-        //:   field that can differ from its corresponding input are
-        //:   represented in separate columns.  Note that 'tm_isdst' is
-        //:   necessarily -1 and is tested directly within the loop.
+        // 1. Test convertToTm
+        //    - Table-Based Implementation
+        //    - Category Partitioning Data Selection
+        //
+        //    Construct a table in which each input field, and each output
+        //    field that can differ from its corresponding input are
+        //    represented in separate columns.  Note that `tm_isdst` is
+        //    necessarily -1 and is tested directly within the loop.
         //
         // Testing:
-        //   BOOTSTRAP: 'convertToTm'
+        //   BOOTSTRAP: `convertToTm`
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "BOOTSTRAP: 'convertToTm'" << endl
+                          << "BOOTSTRAP: `convertToTm`" << endl
                           << "========================" << endl;
 
         if (verbose) cout << "\nDatetime => struct tm." << endl;

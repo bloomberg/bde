@@ -24,9 +24,9 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines a meta-function, 'bsl::is_volatile' and a
-// template variable 'bsl::is_volatile_t', that determine whether a template
-// parameter type is a 'volatile'-qualified type.  Thus, we need to ensure that
+// The component under test defines a meta-function, `bsl::is_volatile` and a
+// template variable `bsl::is_volatile_t`, that determine whether a template
+// parameter type is a `volatile`-qualified type.  Thus, we need to ensure that
 // the value returned by the meta-function is correct for each possible
 // category of types.
 //
@@ -92,28 +92,28 @@ void aSsErT(bool condition, const char *message, int line)
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900
 // The xlC and Sun CC compilers mistakenly detect function types with trailing
 // cv-qualifiers as being cv-qualified themselves.  However, in such cases the
-// cv-qualifier applies to the (hidden) 'this' pointer, as these function types
+// cv-qualifier applies to the (hidden) `this` pointer, as these function types
 // exist only to be the result-type of a pointer-to-member type.  By definition
 // no function type can ever be cv-qualified.  The Microsoft compiler cannot
 // parse such types at all.
 //
-// Note that we could obtain the correct answer by deriving 'is_volatile' from
-// (the negation of) 'is_function', but that simply exposes that our current
-// implementation of 'is_function' does not detect such types either.
+// Note that we could obtain the correct answer by deriving `is_volatile` from
+// (the negation of) `is_function`, but that simply exposes that our current
+// implementation of `is_function` does not detect such types either.
 #   define BSLMF_ISVOLATILE_COMPILER_CANNOT_PARSE_ABOMINABLE_FUNCTION_TYPES
 # endif
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
 // The xlC and Sun CC compilers mistakenly detect function types with trailing
 // cv-qualifiers as being cv-qualified themselves.  However, in such cases the
-// cv-qualifier applies to the (hidden) 'this' pointer, as these function types
+// cv-qualifier applies to the (hidden) `this` pointer, as these function types
 // exist only to be the result-type of a pointer-to-member type.  By definition
 // no function type can ever be cv-qualified.  The Microsoft compiler cannot
 // parse such types at all.
 //
-// Note that we could obtain the correct answer by deriving 'is_volatile' from
-// (the negation of) 'is_function', but that simply exposes that our current
-// implementation of 'is_function' does not detect such types either.
+// Note that we could obtain the correct answer by deriving `is_volatile` from
+// (the negation of) `is_function`, but that simply exposes that our current
+// implementation of `is_function` does not detect such types either.
 #   define BSLMF_ISVOLATILE_COMPILER_CANNOT_QUALIFY_ABOMINABLE_FUNCTION_TYPES
 #   if BSLS_PLATFORM_CMP_VERSION == 0x1001 // 0x1001 is xlc version 16.01
 //    The xlC 12 compiler can correctly parse abominable function types, but
@@ -136,9 +136,9 @@ void aSsErT(bool condition, const char *message, int line)
 
 # if defined(BSLS_PLATFORM_CMP_IBM)                                           \
   || defined(BSLMF_ISVOLATILE_COMPILER_DEDUCES_BAD_CV_QUAL_FOR_ARRAYS)
-// The IBM xlC compiler correctly matches an array of 'const volatile' elements
-// to a function template taking 'volatile T&', but incorrectly deduces 'T' to
-// be 'const volatile X[N]' rather than simply 'const X[N]'.  The trait is
+// The IBM xlC compiler correctly matches an array of `const volatile` elements
+// to a function template taking `volatile T&`, but incorrectly deduces `T` to
+// be `const volatile X[N]` rather than simply `const X[N]`.  The trait is
 // manually tested to confirm that it gives the correct result, so we define
 // a macro allowing us to disable the affected tests on this platform.
 #   define BSLMF_ISVOLATILE_COMPILER_DEDUCES_BAD_TYPE_FOR_CV_ARRAY
@@ -179,41 +179,41 @@ struct TestType {
 //                      FUNCTIONS TO SUPPORT TESTING
 //-----------------------------------------------------------------------------
 
+/// Return `TRAIT::value`, and `ASSERT` that the deduced type `TRAIT` has
+/// the same `value` and `type` as the `bsl::true_type` trait.
 template <class TRAIT>
 bool eval_dispatch(TRAIT, bsl::true_type)
-    // Return 'TRAIT::value', and 'ASSERT' that the deduced type 'TRAIT' has
-    // the same 'value' and 'type' as the 'bsl::true_type' trait.
 {
     ASSERT((bsl::is_same<typename TRAIT::type, bsl::true_type>::value));
     ASSERT(true == TRAIT::value);
     return TRAIT::value;
 }
 
+/// Return `TRAIT::value`, and `ASSERT` that the deduced type `TRAIT` has
+/// the same `value` and `type` as the `bsl::false_type` trait.
 template <class TRAIT>
 bool eval_dispatch(TRAIT, bsl::false_type)
-    // Return 'TRAIT::value', and 'ASSERT' that the deduced type 'TRAIT' has
-    // the same 'value' and 'type' as the 'bsl::false_type' trait.
 {
     ASSERT((bsl::is_same<typename TRAIT::type, bsl::false_type>::value));
     ASSERT(false == TRAIT::value);
     return TRAIT::value;
 }
 
+/// Return `TRAIT::value`, and confirm that the deduced type `TRAIT` has the
+/// base-characteristics of either `bsl::true_type` or `bsl::false_type`.
 template <class TRAIT>
 bool eval(const TRAIT& value)
-    // Return 'TRAIT::value', and confirm that the deduced type 'TRAIT' has the
-    // base-characteristics of either 'bsl::true_type' or 'bsl::false_type'.
 {
     return eval_dispatch(value, value);
 }
 
+/// `ASSERT` that `is_volatile_v<TYPE>` has the same value as
+/// `is_volatile<TYPE>::value` and confirm that the deduced
+/// `is_volatile<TYPE>::type` has the base-characteristics of either
+/// `bsl::true_type` or `bsl::false_type`.  Return
+/// `is_volatile<TYPE>::value`.
 template <class TYPE>
 bool eval()
-    // 'ASSERT' that 'is_volatile_v<TYPE>' has the same value as
-    // 'is_volatile<TYPE>::value' and confirm that the deduced
-    // 'is_volatile<TYPE>::type' has the base-characteristics of either
-    // 'bsl::true_type' or 'bsl::false_type'.  Return
-    // 'is_volatile<TYPE>::value'.
 {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
     ASSERT(bsl::is_volatile<TYPE>::value == bsl::is_volatile_v<TYPE>);
@@ -256,13 +256,13 @@ bool testIsNotvolatileable()
 }
 
 
+/// Call this function with a pointer-to-member pointing specifically to a
+/// cv-qualified member function.  This will allow validation that a
+/// cv-qualified "abominable" function does not carry a `volatile`
+/// qualifier, even on platforms that do not allow us to enter the type
+/// directly.
 template <class MEMBER, class HOST>
 void testNovolatileOnMemberFunction(MEMBER HOST::*)
-    // Call this function with a pointer-to-member pointing specifically to a
-    // cv-qualified member function.  This will allow validation that a
-    // cv-qualified "abominable" function does not carry a 'volatile'
-    // qualifier, even on platforms that do not allow us to enter the type
-    // directly.
 {
     ASSERT(!testIsvolatile<MEMBER>());
 }
@@ -298,13 +298,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -317,30 +317,30 @@ int main(int argc, char *argv[])
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Verify 'volatile' Types
+///Example 1: Verify `volatile` Types
 ///- - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a particular type is
-// 'volatile'-qualified.
+// `volatile`-qualified.
 //
-// First, we create two 'typedef's -- a 'volatile'-qualified type and an
+// First, we create two `typedef`s -- a `volatile`-qualified type and an
 // unqualified type:
-//..
+// ```
     typedef int           MyType;
     typedef volatile int  MyVolatileType;
-//..
-// Now, we instantiate the 'bsl::is_volatile' template for each of the
-// 'typedef's and assert the 'value' static data member of each instantiation:
-//..
+// ```
+// Now, we instantiate the `bsl::is_volatile` template for each of the
+// `typedef`s and assert the `value` static data member of each instantiation:
+// ```
     ASSERT(false == bsl::is_volatile<MyType>::value);
     ASSERT(true  == bsl::is_volatile<MyVolatileType>::value);
-//..
+// ```
 // Note that if the current compiler the supports variable templates C++14
 // feature, then we can re-write the snippet of code above as follows:
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
     ASSERT(false == bsl::is_volatile_v<MyType>);
     ASSERT(true  == bsl::is_volatile_v<MyVolatileType>);
 #endif
-//..
+// ```
 
       } break;
       case 3: {
@@ -353,24 +353,24 @@ int main(int argc, char *argv[])
         //   such a type.
         //
         // Concerns:
-        //: 1 'is_volatile<TYPE>::value' has the value expected for the type
-        //:   deduced for a single function template, with no overloads, that
-        //:   deduces the complete type, including cv-qualifiers, from its
-        //:   argument passed by reference.
-        //:
-        //: 2 'is_volatile<TYPE>::value' is always 'false' for a type deduced
-        //:   from a pair of function template overloads taking their arguments
-        //:   by reference, and by volatile-reference.
-        //:
-        //: 3 Given the specific information that some platforms require a
-        //:   special implementation for arrays, multidimensional arrays should
-        //:   have the same result as this trait applied to an array of a
-        //:   single dimension with the same (potentially cv-qualified) element
-        //:   type.
+        // 1. `is_volatile<TYPE>::value` has the value expected for the type
+        //    deduced for a single function template, with no overloads, that
+        //    deduces the complete type, including cv-qualifiers, from its
+        //    argument passed by reference.
+        //
+        // 2. `is_volatile<TYPE>::value` is always `false` for a type deduced
+        //    from a pair of function template overloads taking their arguments
+        //    by reference, and by volatile-reference.
+        //
+        // 3. Given the specific information that some platforms require a
+        //    special implementation for arrays, multidimensional arrays should
+        //    have the same result as this trait applied to an array of a
+        //    single dimension with the same (potentially cv-qualified) element
+        //    type.
         //
         // Plan:
-        //: 1 Verify that 'bsl::is_volatile<TYPE>::value' has the correct value
-        //:   for each concern.
+        // 1. Verify that `bsl::is_volatile<TYPE>::value` has the correct value
+        //    for each concern.
         //
         // Testing:
         //   CONCERN: not all types support cv-qualifiers
@@ -446,24 +446,24 @@ int main(int argc, char *argv[])
         //   types deduced by the compiler in generic code.
         //
         // Concerns:
-        //: 1 'is_volatile<TYPE>::value' has the value expected for the type
-        //:   deduced for a single function template, with no overloads, that
-        //:   deduces the complete type, including cv-qualifiers, from its
-        //:   argument passed by reference.
-        //:
-        //: 2 'is_volatile<TYPE>::value' is always 'false' for a type deduced
-        //:   from a pair of function template overloads taking their arguments
-        //:   by reference, and by volatile-reference.
-        //:
-        //: 3 Given the specific information that some platforms require a
-        //:   special implementation for arrays, multidimensional arrays should
-        //:   have the same result as this trait applied to an array of a
-        //:   single dimension with the same (potentially cv-qualified) element
-        //:   type.
+        // 1. `is_volatile<TYPE>::value` has the value expected for the type
+        //    deduced for a single function template, with no overloads, that
+        //    deduces the complete type, including cv-qualifiers, from its
+        //    argument passed by reference.
+        //
+        // 2. `is_volatile<TYPE>::value` is always `false` for a type deduced
+        //    from a pair of function template overloads taking their arguments
+        //    by reference, and by volatile-reference.
+        //
+        // 3. Given the specific information that some platforms require a
+        //    special implementation for arrays, multidimensional arrays should
+        //    have the same result as this trait applied to an array of a
+        //    single dimension with the same (potentially cv-qualified) element
+        //    type.
         //
         // Plan:
-        //: 1 Verify that 'bsl::is_volatile<TYPE>::value' has the correct value
-        //:   for each concern.
+        // 1. Verify that `bsl::is_volatile<TYPE>::value` has the correct value
+        //    for each concern.
         //
         // Testing:
         //   Function-overload consistency
@@ -523,8 +523,8 @@ int main(int argc, char *argv[])
         ASSERT( true == testCVDeduction(volatileArrayUB2D));
         ASSERT( true == testCVDeduction(constVolatileArrayUB2D));
 
-        // Overload match should implicitly strip off 'volatile', so the
-        // following test functions should always return 'false'.
+        // Overload match should implicitly strip off `volatile`, so the
+        // following test functions should always return `false`.
 
         ASSERT(false == testCVOverload(data));
         ASSERT(false == testCVOverload(constData));
@@ -557,43 +557,43 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'bsl::is_volatile<TYPE>' and 'bsl::is_volatile_v<TYPE>'
-        //   Ensure that 'bsl::is_volatile' has the correct
+        // TESTING `bsl::is_volatile<TYPE>` and `bsl::is_volatile_v<TYPE>`
+        //   Ensure that `bsl::is_volatile` has the correct
         //   base-characteristics for a variety of template parameter types,
         //   and neither hides nor makes ambiguous the salient elements of the
-        //   'integral_constant' interface.
+        //   `integral_constant` interface.
         //
         // Concerns:
-        //: 1 'is_volatile<T>::value' is 'false' when 'T' is a (possibly
-        //:   'const'-qualified) type.
-        //:
-        //: 2 'is_volatile<T>::value' is 'true' when 'T' is a 'volatile'
-        //:   qualified or cv-qualified type.
-        //:
-        //: 3 'is_volatile_v<T>' has the same value as 'is_volatile<T>::value'.
-        //:
-        //: 4 'is_volatile<T>' is publicly and unambiguously derived from
-        //:   either 'true_type' or 'false_type', according to concerns 1 and
-        //:   2.
-        //:
-        //: 5 Objects of type 'is_volatile<T>' can be default constructed and
-        //:   copied, for use in tag-dispatch schemes.
+        // 1. `is_volatile<T>::value` is `false` when `T` is a (possibly
+        //    `const`-qualified) type.
+        //
+        // 2. `is_volatile<T>::value` is `true` when `T` is a `volatile`
+        //    qualified or cv-qualified type.
+        //
+        // 3. `is_volatile_v<T>` has the same value as `is_volatile<T>::value`.
+        //
+        // 4. `is_volatile<T>` is publicly and unambiguously derived from
+        //    either `true_type` or `false_type`, according to concerns 1 and
+        //    2.
+        //
+        // 5. Objects of type `is_volatile<T>` can be default constructed and
+        //    copied, for use in tag-dispatch schemes.
         //
         // Plan:
-        //: 1 Call a test function template with a value-initialized object of
-        //:   type 'is_volatile<T>' for a 'T' of each possible value category
-        //:
-        //:  1a) That function shall dispatch to a further overload set that
-        //:      tag-dispatches on 'true_type' and 'false_type'.
-        //:  1b) Return 'value' to compare with the expected result for the
-        //:      template argument 'T'.
+        // 1. Call a test function template with a value-initialized object of
+        //    type `is_volatile<T>` for a `T` of each possible value category
+        //
+        //   1a) That function shall dispatch to a further overload set that
+        //       tag-dispatches on `true_type` and `false_type`.
+        //   1b) Return `value` to compare with the expected result for the
+        //       template argument `T`.
         //
         // Testing:
         //   bsl::is_volatile<TYPE>
         //   bsl::is_volatile_v<TYPE>
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'bsl::is_volatile<TYPE>'"
+        if (verbose) printf("\nTESTING `bsl::is_volatile<TYPE>`"
                             "\n=============================\n");
 
         // C-1

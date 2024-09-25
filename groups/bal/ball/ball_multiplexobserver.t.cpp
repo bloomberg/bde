@@ -26,7 +26,7 @@
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strlen(), memset(), memcpy(), memcmp()
 #include <bsl_ctime.h>       // time()
-#include <bsl_new.h>         // placement 'new' syntax
+#include <bsl_new.h>         // placement `new` syntax
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -140,7 +140,7 @@ void my_OstreamObserver::publish(const ball::Record&  record,
         d_stream << "Single Passthrough Message:" << endl;
       } break;
       case ball::Transmission::e_TRIGGER_ALL: {
-        d_stream << "Remotely ";      // no 'break'; concatenated output
+        d_stream << "Remotely ";      // no `break`; concatenated output
       } BSLS_ANNOTATION_FALLTHROUGH;
       case ball::Transmission::e_TRIGGER: {
         d_stream << "Triggered Publication Sequence: Message ";
@@ -175,12 +175,12 @@ const int SEQUENCE_LENGTH = 99;
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-// The following three helper functions are used to test 'publish' (case 4).
+// The following three helper functions are used to test `publish` (case 4).
 
+/// Modify the specified `record` to have a value distinct from any other
+/// record transmitted so far in the publication sequence and return the
+/// 0-based sequence number of `record`.
 static int nextRecord(ball::Record& record)
-    // Modify the specified 'record' to have a value distinct from any other
-    // record transmitted so far in the publication sequence and return the
-    // 0-based sequence number of 'record'.
 {
     static int sequenceNumber = 0;
 
@@ -194,9 +194,9 @@ static int nextRecord(ball::Record& record)
     return sequenceNumber++;
 }
 
+/// Return 1 if the specified `record` is the specified `nth` in the
+/// publication sequence, and 0 otherwise.
 static int isNthRecord(const ball::Record& record, int nth)
-    // Return 1 if the specified 'record' is the specified 'nth' in the
-    // publication sequence, and 0 otherwise.
 {
     const ball::RecordAttributes& attr = record.fixedFields();
 
@@ -211,9 +211,9 @@ static int isNthRecord(const ball::Record& record, int nth)
     }
 }
 
+/// Return 1 if the specified `context` is the specified `nth` in the
+/// publication sequence, and 0 otherwise.
 static int isNthContext(const ball::Context& context, int nth)
-    // Return 1 if the specified 'context' is the specified 'nth' in the
-    // publication sequence, and 0 otherwise.
 {
     if (ball::Transmission::e_TRIGGER == context.transmissionCause()
         &&                     nth == context.recordIndex()
@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -278,7 +278,7 @@ int main(int argc, char *argv[])
 
             // Do *not* do this.  It significantly increases the level # of
             // this component.  This is also deprecated API of
-            // 'ball::LoggerManager'.
+            // `ball::LoggerManager`.
             //
             // ball::LoggerManager::initSingleton(&multiplexor);
 
@@ -300,20 +300,20 @@ int main(int argc, char *argv[])
         //               const ball::Context&)'
         //      correctly forwards records and their corresponding publication
         //      contexts to all registered observers that should received them.
-        //   b. the 'clear' method correctly calls the 'clear' method of all
+        //   b. the `clear` method correctly calls the `clear` method of all
         //      registered observers.
         //
         // Plan:
         //   Construct a pair of multiplex observers x and y, and a trio of
-        //   'TestObserver' o1, o2, and o3.  Arrange x, y, o1, o2, and o3 into
+        //   `TestObserver` o1, o2, and o3.  Arrange x, y, o1, o2, and o3 into
         //   various configurations with o1, o2, and o3 registered with at most
         //   one of the multiplex observers.  Also register y with x for a
         //   portion of the test.  Publish several distinct records to x and
         //   y and verify that all registered observers correctly receive the
-        //   records and corresponding publication contexts.  Invoke 'clear'
+        //   records and corresponding publication contexts.  Invoke `clear`
         //   method of x and y and verify that all registered observers
-        //   correctly have their 'clear' methods called.  The helper functions
-        //   'nextRecord', 'isNthRecord', and 'isNthContext' are used to
+        //   correctly have their `clear` methods called.  The helper functions
+        //   `nextRecord`, `isNthRecord`, and `isNthContext` are used to
         //   verify that the records and contexts are properly transmitted.
         //
         // Testing:
@@ -322,7 +322,7 @@ int main(int argc, char *argv[])
         //   void releaseRecords();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "Testing asynchronous 'publish'" << endl
+        if (verbose) cout << endl << "Testing asynchronous `publish`" << endl
                                   << "==============================" << endl;
 
         {
@@ -650,7 +650,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   The primary concern is that the sync publish method
-        //   'publish(const ball::Record&, const ball::Context&)' correctly
+        //   `publish(const ball::Record&, const ball::Context&)` correctly
         //   forwards records and their corresponding publication contexts
         //   to all registered observers that should received them.
         //
@@ -662,7 +662,7 @@ int main(int argc, char *argv[])
         //   portion of the test.  Publish several distinct records to x and
         //   y and verify that all registered observers correctly receive the
         //   records and corresponding publication contexts.  The helper
-        //   functions 'nextRecord', 'isNthRecord', and 'isNthContext' are
+        //   functions `nextRecord`, `isNthRecord`, and `isNthContext` are
         //   used to verify that the records and contexts are properly
         //   transmitted.
         //
@@ -670,7 +670,7 @@ int main(int argc, char *argv[])
         //   void publish(const ball::Record& rec, const ball::Context& ctxt);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "Testing synchronous 'publish'" << endl
+        if (verbose) cout << endl << "Testing synchronous `publish`" << endl
                                   << "=============================" << endl;
 
         {
@@ -946,9 +946,9 @@ int main(int argc, char *argv[])
         // TESTING OBSERVER REGISTRATION
         //
         // Concerns:
-        //   Our concerns are that 'registerObserver' and 'deregisterObserver'
+        //   Our concerns are that `registerObserver` and `deregisterObserver`
         //   produce the expected side-effects on the container of observers
-        //   and that 'numRegisteredObservers' returns the current number of
+        //   and that `numRegisteredObservers` returns the current number of
         //   registered observers.
         //
         // Plan:
@@ -1124,19 +1124,19 @@ int main(int argc, char *argv[])
         //   To address concerns 1a & 1b, create an object:
         //     - With and without passing in an allocator to the constructor.
         //     - Where the object is constructed entirely in static memory
-        //       (using a 'bdlma::BufferedSequentialAllocator') and never
+        //       (using a `bdlma::BufferedSequentialAllocator`) and never
         //       destroyed.
         //
         //   To address concern 2, allow each object to leave scope, so that
         //   the destructor asserts internal object invariants appropriately.
-        //   Use a 'bslma::TestAllocator' to verify memory usage.
+        //   Use a `bslma::TestAllocator` to verify memory usage.
         //
         // Testing:
         //   ball::MultiplexObserver(bslma::Allocator *ba = 0);
         //   ~ball::MultiplexObserver();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "Testing 'ctor' and 'dtor'" << endl
+        if (verbose) cout << endl << "Testing `ctor` and `dtor`" << endl
                                   << "=========================" << endl;
 
         if (verbose) cout << "\tWithout passing in an allocator." << endl;
@@ -1179,7 +1179,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == mX.registerObserver(&mO2));
             ASSERT(2 == X.numRegisteredObservers());
 
-            // White-box test: 'publish' does not utilize the supplied
+            // White-box test: `publish` does not utilize the supplied
             // allocator.
 
             const bsls::Types::Int64 NUM_BLOCKS_TOTAL =
@@ -1342,15 +1342,15 @@ int main(int argc, char *argv[])
         // TESTING: Warning about destroyed observer.
         //
         // Concerns:
-        //  1 Verify that we log a message to 'stderr' if a registered
+        //  1 Verify that we log a message to `stderr` if a registered
         //    observer is destroyed before the multiplex observer is destroyed.
         //
-        //  2 Verify that we log a message to 'stderr' if a registered
-        //    observer is destroyed before a call to 'releaseRecords'.
+        //  2 Verify that we log a message to `stderr` if a registered
+        //    observer is destroyed before a call to `releaseRecords`.
         //
         // Plan:
         //  1 Create an observer, and supply it multiplex observer, then
-        //    destroy the observer prior to calling 'releaseRecords' and the
+        //    destroy the observer prior to calling `releaseRecords` and the
         //    destructor of the multiplex observer.  Visually verify that
         //    output is written to stderr.
         //

@@ -26,10 +26,10 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // The component under test is an in-core value-semantic component in that it
-// supports all value-semantic operations except 'bdex' streaming.  We choose
-// the default constructor, the 'addAttribute' and the 'removeAttribute'
-// methods as the primary manipulators, and 'hasValue' as the basic accessor.
-// The modified 10-step test procedure without the testing for 'bdex' streaming
+// supports all value-semantic operations except `bdex` streaming.  We choose
+// the default constructor, the `addAttribute` and the `removeAttribute`
+// methods as the primary manipulators, and `hasValue` as the basic accessor.
+// The modified 10-step test procedure without the testing for `bdex` streaming
 // is then performed.
 //-----------------------------------------------------------------------------
 // CREATORS
@@ -171,15 +171,15 @@ enum { NUM_NAMES = sizeof NAMES / sizeof *NAMES };
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Return `true` if the specified `lhs` has the same value as the
+/// specified' rhs' and `false` otherwise.  Optionally specify a
+/// `errorStream`, on which, if `lhs` and `rhs` are not the same', a
+/// description of how the two strings differ will be written.  If
+/// `errorStream` is not supplied, `stdout` will be used to report an error
+/// description.
 bool compareText(const bsl::string_view& lhs,
                  const bsl::string_view& rhs,
                  bsl::ostream&           errorStream = bsl::cout)
-    // Return 'true' if the specified 'lhs' has the same value as the
-    // specified' rhs' and 'false' otherwise.  Optionally specify a
-    // 'errorStream', on which, if 'lhs' and 'rhs' are not the same', a
-    // description of how the two strings differ will be written.  If
-    // 'errorStream' is not supplied, 'stdout' will be used to report an error
-    // description.
 {
 
     for (unsigned int i = 0; i < lhs.length() && i < rhs.length(); ++i) {
@@ -220,10 +220,10 @@ bool compareText(const bsl::string_view& lhs,
 }
 
 //=============================================================================
-//       GENERATOR FUNCTIONS 'g', 'gg', AND 'ggg' FOR TESTING LISTS
+//       GENERATOR FUNCTIONS `g`, `gg`, AND `ggg` FOR TESTING LISTS
 //-----------------------------------------------------------------------------
-// The 'g' family of functions generate a 'ball::DefaultAttributeContainer'
-// object for testing.  They interpret a given 'spec' (from left to right) to
+// The `g` family of functions generate a `ball::DefaultAttributeContainer`
+// object for testing.  They interpret a given `spec` (from left to right) to
 // configure the attribute set according to a custom language.
 //
 // To simplify these generator functions, an attribute is represented by two
@@ -294,9 +294,9 @@ static Obj& gg(Obj *obj, const char *spec)
     return *obj;
 }
 
+/// Append the value of the specified `attribute` to the specified `result`.
 void testVisitor(bsl::vector<ball::Attribute>  *result,
                  const ball::Attribute&         attribute)
-    // Append the value of the specified 'attribute' to the specified 'result'.
 {
     result->push_back(attribute);
 }
@@ -324,13 +324,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -351,7 +351,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == attributeContainer.addAttribute(a3));
         ASSERT(1 == attributeContainer.addAttribute(a4));
 
-        ball::Attribute a5("uuid", 1111);                 // same as 'a1'
+        ball::Attribute a5("uuid", 1111);                 // same as `a1`
         ASSERT(0 == attributeContainer.addAttribute(a5));
 
         ball::Attribute a6("UUID", 1111);
@@ -395,18 +395,18 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING 'visitAttributes'
+        // TESTING `visitAttributes`
         // Concerns:
-        //: 1 All attributes in the container are visited.
+        // 1. All attributes in the container are visited.
         //
         // Plan:
-        //: 1 Create container, populate it with attributes and call
-        //:   'visitAttributes' method.
+        // 1. Create container, populate it with attributes and call
+        //    `visitAttributes` method.
         //
         // Testing:
         //   void visitAttributes(const bsl::func<void(const Attr&)>&) const;
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTESTING 'visitAttributes'"
+        if (verbose) cout << "\nTESTING `visitAttributes`"
                           << "\n=========================" << endl;
 
         Obj mX; const Obj& X = mX;
@@ -479,24 +479,24 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'removeAllAttributes'
-        //   The 'removeAllAttributes' should effectively empty the
-        //   'ball::DefaultAttributeContainer' object.
+        // TESTING `removeAllAttributes`
+        //   The `removeAllAttributes` should effectively empty the
+        //   `ball::DefaultAttributeContainer` object.
         //
         // Plan:
         //   Specify a set S of test vectors.  For each element in S,
-        //   construct the corresponding 'ball::DefaultAttributeContainer'
-        //   object x using the 'gg' function.  Copy x into another object y.
-        //   After calling 'removeAllAttributes' on x, verify that the length
+        //   construct the corresponding `ball::DefaultAttributeContainer`
+        //   object x using the `gg` function.  Copy x into another object y.
+        //   After calling `removeAllAttributes` on x, verify that the length
         //   of x is zero, none of attributes in y can be found in x.  Then
-        //   reconstruct x using the 'gg' function again, and verify that
+        //   reconstruct x using the `gg` function again, and verify that
         //   x == y.
         //
         // Testing:
         //   void removeAllAttributes();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'removeAllAttributes'"
+        if (verbose) cout << "\nTesting `removeAllAttributes`"
                           << "\n============================="
                           << endl;
 
@@ -551,18 +551,18 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'begin()' and 'end'
-        //   This will test the 'begin()' and 'end()' methods.
+        // TESTING `begin()` and `end`
+        //   This will test the `begin()` and `end()` methods.
         //
         // Concerns:
-        //   The 'begin() and 'end()' methods should return a range where each
+        //   The `begin() and `end()' methods should return a range where each
         //   attribute in the attribute set appears exactly once.
         //
         // Plan:
-        //   Construct an array consisting of 'ball::Attribute' objects having
+        //   Construct an array consisting of `ball::Attribute` objects having
         //   distinct values.  For each n in [0 .. N] where N is the maximum
         //   number of attributes tested, create an empty
-        //   'ball::DefaultAttributeContainer' object and add the first n
+        //   `ball::DefaultAttributeContainer` object and add the first n
         //   attributes to the set.  Verify that every added attributes appear
         //   in the set exactly once.
         //
@@ -571,7 +571,7 @@ int main(int argc, char *argv[])
         //   const_iterator end() const;
         //   int numAttributes() const;
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTesting 'begin()' and 'end()'"
+        if (verbose) cout << "\nTesting `begin()` and `end()`"
                           << "\n=============================" << endl;
 
         const ball::Attribute* ATTRS[] = { &A0, &A1, &A2, &A3, &A4,
@@ -613,8 +613,8 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'bdex' STREAMING FUNCTIONALITY
-        //   Void for 'ball::DefaultAttributeContainer'.
+        // TESTING `bdex` STREAMING FUNCTIONALITY
+        //   Void for `ball::DefaultAttributeContainer`.
         // --------------------------------------------------------------------
 
       } break;
@@ -642,7 +642,7 @@ int main(int argc, char *argv[])
 
         static const struct {
             int         d_line;  // source line number
-            const char *d_spec;  // input 'spec' string for 'gg'
+            const char *d_spec;  // input `spec` string for `gg`
         } DATA[] = {
             // line  spec
             // ----  ------------------
@@ -725,7 +725,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Specify a set S whose elements have substantial and varied
         //   differences in value.  For each element in S, construct and
-        //   initialize identically valued objects w and x using 'gg'.  Then
+        //   initialize identically valued objects w and x using `gg`.  Then
         //   copy construct an object y from x, and use the equality operator
         //   to assert that both x and y have the same value as w.
         //
@@ -737,7 +737,7 @@ int main(int argc, char *argv[])
 
         static const struct {
             int         d_line;  // source line number
-            const char *d_spec;  // input 'spec' string for 'gg'
+            const char *d_spec;  // input `spec` string for `gg`
         } DATA[] = {
             // line  spec
             // ----  ------------------
@@ -821,13 +821,13 @@ int main(int argc, char *argv[])
         // Plan:
         //   First, specify a set S of unique object values that may have
         //   various minor or subtle differences.  Verify the correctness of
-        //   'operator==' and 'operator!=' using all elements (u, v) of the
+        //   `operator==` and `operator!=` using all elements (u, v) of the
         //   cross product S X S.
         //
         //   Next, specify another set T where each element is a pair of
         //   different specifications having the same value (the same
         //   attributes were added in different orders).  For each element (u,
-        //   v) in T, verify that 'operator==' and 'operator!=' return the
+        //   v) in T, verify that `operator==` and `operator!=` return the
         //   correct value.
 
         // Testing:
@@ -837,7 +837,7 @@ int main(int argc, char *argv[])
 
         static const struct {
             int         d_line;      // source line number
-            const char *d_spec;      // input 'spec' string for 'gg'
+            const char *d_spec;      // input `spec` string for `gg`
         } DATA[] = {
             // line  spec
             // ----  ------------------
@@ -937,8 +937,8 @@ int main(int argc, char *argv[])
 
         static const struct {
             int         d_line;   // source line number
-            const char *d_spec1;  // input 'spec' string for 'gg'
-            const char *d_spec2;  // input 'spec' string for 'gg'
+            const char *d_spec1;  // input `spec` string for `gg`
+            const char *d_spec2;  // input `spec` string for `gg`
         } TDATA[] = {
             // line  spec1                spec2
             // ----  -------------------  ------------------
@@ -1015,13 +1015,13 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'operator<<' AND 'print'
-        //   The output operator and 'print' method should print out the value
+        // TESTING `operator<<` AND `print`
+        //   The output operator and `print` method should print out the value
         //   of objects in the expected format.
         //
         // Plan:
         //   For each of a small representative set of object values, use
-        //   'ostrstream' to write that object's value to a character buffer
+        //   `ostrstream` to write that object's value to a character buffer
         //   and then compare the contents of that buffer with the expected
         //   output format.
         //
@@ -1031,10 +1031,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing 'operator<<' and 'print'" << endl
+                          << "Testing `operator<<` and `print`" << endl
                           << "================================" << endl;
 
-        if (verbose) cout << "\nTesting 'operator<<' (ostream)." << endl;
+        if (verbose) cout << "\nTesting `operator<<` (ostream)." << endl;
 
         static const struct {
             int         d_line;    // line number
@@ -1067,7 +1067,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'print'." << endl;
+        if (verbose) cout << "\nTesting `print`." << endl;
 
         static const struct {
             int         d_line;            // line number
@@ -1105,7 +1105,7 @@ int main(int argc, char *argv[])
       case 4: {
         // --------------------------------------------------------------------
         // TESTING BASIC ACCESSORS
-        //   Every attribute added must be verified by 'hasValue'.
+        //   Every attribute added must be verified by `hasValue`.
         //
         // Plan:
         //   Mechanically generate a series of specifications whose contain
@@ -1165,8 +1165,8 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING GENERATOR FUNCTIONS 'GG'
-        //   The 'gg' function must create objects having the expected values.
+        // TESTING GENERATOR FUNCTIONS `GG`
+        //   The `gg` function must create objects having the expected values.
         //
         // Plan:
         //   Mechanically generate a series of specifications whose contain
@@ -1182,7 +1182,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
          if (verbose) cout << endl
-            << "Testing 'gg' generator function" << endl
+            << "Testing `gg` generator function" << endl
             << "===============================" << endl;
 
         for (int n = 0; n < NUM_NAMES; ++n) {
@@ -1447,9 +1447,9 @@ int main(int argc, char *argv[])
         //   manipulator [3, 6], copy constructor [2, 8], and assignment
         //   operator without [9, 10] and with [11, 12] aliasing.  Use the
         //   direct accessors to verify the expected results.  Display object
-        //   values frequently in verbose mode.  Note that 'VA', 'VB', and
-        //   'VC' denote unique, but otherwise arbitrary, object values, while
-        //   '0' denotes the default object value.
+        //   values frequently in verbose mode.  Note that `VA`, `VB`, and
+        //   `VC` denote unique, but otherwise arbitrary, object values, while
+        //   `0` denotes the default object value.
         //
         // 1.  Create an default object x1.         { x1:0 }
         // 2.  Create an object x2 (copy from x1).  { x1:0  x2:0 }

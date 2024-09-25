@@ -698,7 +698,7 @@ class EventScheduler {
                           d_clockType;          // clock type used
 
     const bsl::string     d_eventSchedulerName; // name of this scheduler
-    
+
     bdlm::MetricsRegistryRegistrationHandle
                           d_startLagHandle;     // start lag metric handle
 

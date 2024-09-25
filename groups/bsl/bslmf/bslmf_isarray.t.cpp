@@ -15,8 +15,8 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines two meta-functions, 'bsl::is_array' and
-// 'bslmf::IsArray' and a template variable 'bsl::is_array_v', that determine
+// The component under test defines two meta-functions, `bsl::is_array` and
+// `bslmf::IsArray` and a template variable `bsl::is_array_v`, that determine
 // whether a template parameter type is an array type.  Thus, we need to ensure
 // that the values returned by these meta-functions are correct for each
 // possible category of types.  Since the two meta-functions are functionally
@@ -93,9 +93,9 @@ union Union {
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+/// `ASSERT` that `metaFunc_v` has the same value as `metaFunc::value`.
 #   define TYPE_ASSERT_V_SAME(metaFunc,  type)                                \
         ASSERT(metaFunc<type>::value == metaFunc##_v<type>)
-    // 'ASSERT' that 'metaFunc_v' has the same value as 'metaFunc::value'.
 #else
 #   define TYPE_ASSERT_V_SAME(metaFunc, type)
 #endif
@@ -126,13 +126,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -149,16 +149,16 @@ int main(int argc, char *argv[])
 ///- - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a particular type is an array type.
 //
-// First, we create three 'typedef's -- a non-array type, an array type with a
+// First, we create three `typedef`s -- a non-array type, an array type with a
 // known bound, and an array type and an array type with an unknown bound:
-//..
+// ```
     typedef int MyNonArrayType;
     typedef int MySizedArrayType[12];
     typedef int MyUnsizedArrayType[];
-//..
+// ```
 // Now, we instantiate each of the the meta-functions for each of the
-// 'typedef's and assert the 'value' static data member of each instantiation:
-//..
+// `typedef`s and assert the `value` static data member of each instantiation:
+// ```
     ASSERT(false == bsl::is_array<MyNonArrayType>::value);
     ASSERT(true  == bsl::is_array<MySizedArrayType>::value);
     ASSERT(true  == bsl::is_array<MyUnsizedArrayType>::value);
@@ -170,11 +170,11 @@ int main(int argc, char *argv[])
     ASSERT(false == bsl::is_unbounded_array<MyNonArrayType>::value);
     ASSERT(false == bsl::is_unbounded_array<MySizedArrayType>::value);
     ASSERT(true  == bsl::is_unbounded_array<MyUnsizedArrayType>::value);
-//..
+// ```
 // Note that if the current compiler supports the variable templates C++14
 // feature then we can re-write the snippet of code above using the
-// 'bsl::is_array_v' variable as follows:
-//..
+// `bsl::is_array_v` variable as follows:
+// ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
     ASSERT(false == bsl::is_array_v<MyNonArrayType>);
     ASSERT(true  == bsl::is_array_v<MySizedArrayType>);
@@ -188,38 +188,38 @@ int main(int argc, char *argv[])
     ASSERT(false == bsl::is_unbounded_array_v<MySizedArrayType>);
     ASSERT(true  == bsl::is_unbounded_array_v<MyUnsizedArrayType>);
 #endif
-//..
+// ```
 
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'bsl::is_unbounded_array'
-        //   Ensure that 'bslmf::is_unbounded_array' returns the correct values
+        // TESTING `bsl::is_unbounded_array`
+        //   Ensure that `bslmf::is_unbounded_array` returns the correct values
         //   for a variety of template parameter types.
         //
         // Concerns:
-        //: 1 'is_unbounded_array' returns 'false' for a bounded array type.
-        //:
-        //: 2 'is_unbounded_array' returns 'true' for an unbounded array type.
-        //:
-        //: 3 'is_unbounded_array' returns 'false' for a reference to an array
-        //:   type.
-        //:
-        //: 4 'is_unbounded_array' returns 'false' for non-array types.
-        //:
-        //: 5 That 'is_unbounded_array_v' equals to 'is_unbounded_array::value'
-        //:   for a variety of template parameter types.
+        // 1. `is_unbounded_array` returns `false` for a bounded array type.
+        //
+        // 2. `is_unbounded_array` returns `true` for an unbounded array type.
+        //
+        // 3. `is_unbounded_array` returns `false` for a reference to an array
+        //    type.
+        //
+        // 4. `is_unbounded_array` returns `false` for non-array types.
+        //
+        // 5. That `is_unbounded_array_v` equals to `is_unbounded_array::value`
+        //    for a variety of template parameter types.
         //
         // Plan:
-        //: 1 Verify that 'is_bounded_array' returns the correct value for each
-        //:   concern. (C-1..4)
+        // 1. Verify that `is_bounded_array` returns the correct value for each
+        //    concern. (C-1..4)
         //
         // Testing:
         //   bsl::is_unbounded_array
         //   bsl::is_unbounded_array_v
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'bsl::is_unbounded_array'"
+        if (verbose) printf("\nTESTING `bsl::is_unbounded_array`"
                             "\n=================================\n");
 
         ASSERT(0 == bsl::is_unbounded_array<char          [1]>::value);
@@ -382,33 +382,33 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'bslmf::is_bounded_array'
-        //   Ensure that 'bslmf::is_bounded_array' returns the correct values
+        // TESTING `bslmf::is_bounded_array`
+        //   Ensure that `bslmf::is_bounded_array` returns the correct values
         //   for a variety of template parameter types.
         //
         // Concerns:
-        //: 1 'is_bounded_array' returns 'true' for a bounded array type.
-        //:
-        //: 2 'is_bounded_array' returns 'false' for an unbounded array type.
-        //:
-        //: 3 'is_bounded_array' returns 'false' for a reference to an array
-        //:   type.
-        //:
-        //: 4 'is_bounded_array' returns 'false' for non-array types.
-        //:
-        //: 5 That 'is_bounded_array_v' equals to 'is_bounded_array::value' for
-        //:   a variety of template parameter types.
+        // 1. `is_bounded_array` returns `true` for a bounded array type.
+        //
+        // 2. `is_bounded_array` returns `false` for an unbounded array type.
+        //
+        // 3. `is_bounded_array` returns `false` for a reference to an array
+        //    type.
+        //
+        // 4. `is_bounded_array` returns `false` for non-array types.
+        //
+        // 5. That `is_bounded_array_v` equals to `is_bounded_array::value` for
+        //    a variety of template parameter types.
         //
         // Plan:
-        //: 1 Verify that 'is_bounded_array' returns the correct value for each
-        //:   concern. (C-1..4)
+        // 1. Verify that `is_bounded_array` returns the correct value for each
+        //    concern. (C-1..4)
         //
         // Testing:
         //   bsl::is_bounded_array
         //   bsl::is_bounded_array_v
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'bslmf::is_bounded_array'"
+        if (verbose) printf("\nTESTING `bslmf::is_bounded_array`"
                             "\n=================================\n");
 
         ASSERT(1 == bsl::is_bounded_array<char          [1]>::value);
@@ -569,28 +569,28 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'bslmf::IsArray::value'
-        //   Ensure that 'bslmf::IsArray' returns the correct values for a
+        // TESTING `bslmf::IsArray::value`
+        //   Ensure that `bslmf::IsArray` returns the correct values for a
         //   variety of template parameter types.
         //
         // Concerns:
-        //: 1 'IsArray' returns 'true' for a bounded array type.
-        //:
-        //: 2 'IsArray' returns 'true' for an unbounded array type.
-        //:
-        //: 3 'IsArray' returns 'false' for a reference to an array type.
-        //:
-        //: 4 'IsArray' returns 'false' for non-array types.
+        // 1. `IsArray` returns `true` for a bounded array type.
+        //
+        // 2. `IsArray` returns `true` for an unbounded array type.
+        //
+        // 3. `IsArray` returns `false` for a reference to an array type.
+        //
+        // 4. `IsArray` returns `false` for non-array types.
         //
         // Plan:
-        //: 1 Verify that 'bslmf::IsArray' returns the correct value for each
-        //:   concern.
+        // 1. Verify that `bslmf::IsArray` returns the correct value for each
+        //    concern.
         //
         // Testing:
         //   BloombergLP::bslmf::IsArray::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'bslmf::IsArray::value'"
+        if (verbose) printf("\nTESTING `bslmf::IsArray::value`"
                             "\n===============================\n");
 
         ASSERT(1 == bslmf::IsArray<char          [1]>::value);
@@ -703,32 +703,32 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'bsl::is_array::value'
-        //   Ensure that 'bsl::is_array' returns the correct values for a
+        // TESTING `bsl::is_array::value`
+        //   Ensure that `bsl::is_array` returns the correct values for a
         //   variety of template parameter types.
         //
         // Concerns:
-        //: 1 'is_array' returns 'true' for a bounded array type.
-        //:
-        //: 2 'is_array' returns 'true' for an unbounded array type.
-        //:
-        //: 3 'is_array' returns 'false' for a reference to an array type.
-        //:
-        //: 4 'is_array' returns 'false' for non-array types.
-        //:
-        //: 5 That 'is_array_v' equals to 'is_array::value' for a variety of
-        //:   template parameter types.
+        // 1. `is_array` returns `true` for a bounded array type.
+        //
+        // 2. `is_array` returns `true` for an unbounded array type.
+        //
+        // 3. `is_array` returns `false` for a reference to an array type.
+        //
+        // 4. `is_array` returns `false` for non-array types.
+        //
+        // 5. That `is_array_v` equals to `is_array::value` for a variety of
+        //    template parameter types.
         //
         // Plan:
-        //: 1 Verify that 'bsl::is_array' returns the correct value for each
-        //:   concern.
+        // 1. Verify that `bsl::is_array` returns the correct value for each
+        //    concern.
         //
         // Testing:
         //   bsl::is_array::value
         //   bsl::is_array_v
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'bsl::is_array::value'"
+        if (verbose) printf("\nTESTING `bsl::is_array::value`"
                             "\n==============================\n");
 
         ASSERT(1 == bsl::is_array<char          [1]>::value);

@@ -20,8 +20,8 @@
 //                                 Overview
 //                                 --------
 // The component under test defines a boolean metafunction,
-// 'bslmf::IsReferenceWrapper', that is intended to determine whether a
-// template parameter type is a specialization of 'bsl::reference_wrapper'.
+// `bslmf::IsReferenceWrapper`, that is intended to determine whether a
+// template parameter type is a specialization of `bsl::reference_wrapper`.
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
 // [ 1] bslmf::IsReferenceWrapper
@@ -74,7 +74,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 #define Q              BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
 #define P              BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_             BSLS_BSLTESTUTIL_P_  // P(X) without '\n.'
+#define P_             BSLS_BSLTESTUTIL_P_  // P(X) without `\n.`
 #define T_             BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_             BSLS_BSLTESTUTIL_L_  // current Line number
 
@@ -90,13 +90,13 @@ namespace u {
                           // class ReferenceWrapper
                           // ======================
 
+/// This class template provides an emulation of the minimal part of
+/// `bsl::reference_wrapper` needed for testing.
 template <class TYPE>
 class ReferenceWrapper {
-    // This class template provides an emulation of the minimal part of
-    // 'bsl::reference_wrapper' needed for testing.
 
-    // This class template specializes 'BloombergLP::bslmf::IsReferenceWrapper'
-    // to inherit from 'bsl::true_type' for any specified 'TYPE'.
+    // This class template specializes `BloombergLP::bslmf::IsReferenceWrapper`
+    // to inherit from `bsl::true_type` for any specified `TYPE`.
 
   public:
     // TYPES
@@ -116,13 +116,13 @@ class ClassType;
 namespace BloombergLP {
 namespace bslmf {
 
+/// This partial `IsReferenceWrapper` specialization publicly inherits from
+/// inherits from `bsl::true_type` for any specialization of
+/// `u::ReferenceWrapper`.  Note that this specialization is provided to
+/// test that the `IsReferenceWrapper` trait is specializable for user
+/// class templates.
 template <class TYPE>
 struct IsReferenceWrapper<u::ReferenceWrapper<TYPE> > : bsl::true_type {
-    // This partial 'IsReferenceWrapper' specialization publicly inherits from
-    // inherits from 'bsl::true_type' for any specialization of
-    // 'u::ReferenceWrapper'.  Note that this specialization is provided to
-    // test that the 'IsReferenceWrapper' trait is specializable for user
-    // class templates.
 };
 
 }  // close namespace bslmf
@@ -142,17 +142,17 @@ using namespace BloombergLP;
 ///Example: Reference Access
 ///- - - - - - - - - - - - -
 // In this example, we suppose that we would like to provide a software
-// component that treats specializations of 'bsl::reference_wrapper' and
+// component that treats specializations of `bsl::reference_wrapper` and
 // true reference qualified types in the same way.
 //
 // Suppose that we would like to do this by having a utility function that
 // returns an lvalue reference to an object given either an lvalue-reference
-// qualified type or a 'bsl::reference_wrapper'.
+// qualified type or a `bsl::reference_wrapper`.
 //
-// First, we define a utility 'struct' that contains the overload of this
-// utility function for 'const' and non-'const' lvalue-reference qualified
+// First, we define a utility `struct` that contains the overload of this
+// utility function for `const` and non-`const` lvalue-reference qualified
 // types:
-//..
+// ```
     struct MyLvalueReferenceUtil {
         // CLASS METHODS
         template <class TYPE>
@@ -166,11 +166,11 @@ using namespace BloombergLP;
         {
             return reference;
         }
-//..
+// ```
 // Then, we define the overload of this utility function for reference
 // wrappers, taking care to define it such that it does not participate in
 // overload resolution unless it is passed a reference wrapper:
-//..
+// ```
         template <class TYPE>
         static typename bsl::enable_if<
             bslmf::IsReferenceWrapper<TYPE>::value,
@@ -181,10 +181,10 @@ using namespace BloombergLP;
             return referenceWrapper.get();
         }
     };
-//..
+// ```
 // Finally, we can verify that this utility allows us to transparently access
 // lvalue references:
-//..
+// ```
     void example()
     {
         int x = 1;
@@ -193,23 +193,23 @@ using namespace BloombergLP;
         const int y = 2;
         ASSERT(2 == MyLvalueReferenceUtil::access(y));
 
-        // Note that even though the following invokes 'access' with the
+        // Note that even though the following invokes `access` with the
         // literal 3, which is a prvalue expression, the call expression is
-        // an lvalue with type 'const int&'.
+        // an lvalue with type `const int&`.
         ASSERT(3 == MyLvalueReferenceUtil::access(3));
 
         // Further, note that the levelization of the
-        // 'bslmf_isreferencewrapper' component prohibits showing the
-        // application of 'MyLvalueReferenceUtil' to a reference wrapper.
+        // `bslmf_isreferencewrapper` component prohibits showing the
+        // application of `MyLvalueReferenceUtil` to a reference wrapper.
         // The following commented-out code would be valid given a suitable
-        // 'bsl::reference_wrapper' type that acts like a reference wrapper
-        // and specializes the 'bslmf::IsReferenceWrapper' trait accordingly.
-        //..
+        // `bsl::reference_wrapper` type that acts like a reference wrapper
+        // and specializes the `bslmf::IsReferenceWrapper` trait accordingly.
+        // ```
         //  assert(x == MyLvalueReferenceUtil::access(
         //                                    bsl::reference_wrapper<int>(x)));
-        //..
+        // ```
     }
-//..
+// ```
 
 }  // close unnamed namespace
 
@@ -229,7 +229,7 @@ int main(int argc, char *argv[]) {
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
@@ -239,12 +239,12 @@ int main(int argc, char *argv[]) {
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -260,36 +260,36 @@ int main(int argc, char *argv[]) {
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TEST 'bslmf::IsReferenceWrapper'
-        //   Ensure that 'bslmf::IsReferenceWrapper' implements a
-        //   user-specializable boolean metafunction that is 'false' by
+        // TEST `bslmf::IsReferenceWrapper`
+        //   Ensure that `bslmf::IsReferenceWrapper` implements a
+        //   user-specializable boolean metafunction that is `false` by
         //   default.
         //
         // Concerns:
-        //: 1 The primary 'bslmf::IsReferenceWrapper' template inherits from
-        //:   'bsl::false_type'.
-        //:
-        //: 2 Specializations of 'bslmf::IsReferenceWrapper' can inherit from
-        //:   'bsl::true_type'.
-        //:
-        //: 3 Reference-qualified types are not considered reference wrappers
-        //:   by default.
+        // 1. The primary `bslmf::IsReferenceWrapper` template inherits from
+        //    `bsl::false_type`.
+        //
+        // 2. Specializations of `bslmf::IsReferenceWrapper` can inherit from
+        //    `bsl::true_type`.
+        //
+        // 3. Reference-qualified types are not considered reference wrappers
+        //    by default.
         //
         // Plan:
-        //: 1 Instantiate 'bslmf::IsReferenceWrapper' with an arbitrary class
-        //:   type, and verify that it is convertible to 'bsl::false_type'.
-        //:
-        //: 2 Specialize 'bslmf::IsReferenceWrapper' for any specialization of
-        //:   a class template, 'u::ReferenceWrapper', to inherit from
-        //:   'bsl::true_type'.
-        //:
-        //: 3 Instantiate 'bslmf::IsReferenceWrapper' with an arbitrary
-        //:   'bslmf::IsReferenceWrapper' specialization and verify that it
-        //:   is convertible to 'bsl::true_type'.
-        //:
-        //: 4 Instantiate 'bslmf::IsReferenceWrapper' with some reference-
-        //:   qualified types and verify that they are not convertible to
-        //:   'bsl::false_type'.
+        // 1. Instantiate `bslmf::IsReferenceWrapper` with an arbitrary class
+        //    type, and verify that it is convertible to `bsl::false_type`.
+        //
+        // 2. Specialize `bslmf::IsReferenceWrapper` for any specialization of
+        //    a class template, `u::ReferenceWrapper`, to inherit from
+        //    `bsl::true_type`.
+        //
+        // 3. Instantiate `bslmf::IsReferenceWrapper` with an arbitrary
+        //    `bslmf::IsReferenceWrapper` specialization and verify that it
+        //    is convertible to `bsl::true_type`.
+        //
+        // 4. Instantiate `bslmf::IsReferenceWrapper` with some reference-
+        //    qualified types and verify that they are not convertible to
+        //    `bsl::false_type`.
         //
         // Testing:
         //   bslmf::IsReferenceWrapper

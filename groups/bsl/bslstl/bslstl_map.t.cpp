@@ -2,7 +2,7 @@
 
 #include <bsls_platform.h>
 
-// the following suppresses warnings from '#include' inlined functions
+// the following suppresses warnings from `#include` inlined functions
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
@@ -81,8 +81,8 @@
 #include <random>
 #endif
 
-#include <ctype.h>   // 'isalpha', 'tolower', 'toupper'
-#include <limits.h>  // 'INT_MIN', 'INT_MAX'
+#include <ctype.h>   // `isalpha`, `tolower`, `toupper`
+#include <limits.h>  // `INT_MIN`, `INT_MAX`
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -91,7 +91,7 @@
 #ifndef BDE_OPENSOURCE_PUBLICATION
 // TBD Alisdair gave considerable feedback on this test driver (see Phabricator
 // https://all.phab.dev.bloomberg.com/D512209) that still needs to be
-// addressed.  The feedback applies to other 'bslstl' containers, as well.
+// addressed.  The feedback applies to other `bslstl` containers, as well.
 // "TBD" comments distilling the feedback that still needs attention is
 // sprinkled throughout this test driver.
 //
@@ -101,7 +101,7 @@
 //
 // o There is a general concern that any method that inserts elements into the
 // map should not have to allocate new nodes if there are free nodes in the
-// pool, such as after an 'erase' or 'clear'.  This concern might be scattered
+// pool, such as after an `erase` or `clear`.  This concern might be scattered
 // through each appropriate test case, or handled as a specific below-the-line
 // concern that tests each insert/emplace overload with a type making
 // appopriate use of memory (no need to test for every imaginable type).
@@ -112,11 +112,11 @@
 // ----------------------------------------------------------------------------
 // NOTICE: To reduce the compilation time (as well as enable the tests to build
 // with certain compilers), this test driver has been broken into 4 parts:
-//:
-//: * 'bslstl_map.t.cpp' (cases 1-8, usage example, future test items (TBD))
-//: * 'bslstl_map_test1.cpp' (cases 9-27)
-//: * 'bslstl_map_test2.cpp' (case 28)
-//: * 'bslstl_map_test3.cpp' (cases 29 and higher).
+//
+//  * `bslstl_map.t.cpp` (cases 1-8, usage example, future test items (TBD))
+//  * `bslstl_map_test1.cpp` (cases 9-27)
+//  * `bslstl_map_test2.cpp` (case 28)
+//  * `bslstl_map_test3.cpp` (cases 29 and higher).
 //
 //                                  Overview
 //                                  --------
@@ -125,34 +125,34 @@
 // exception safety, and proper dispatching (for member function templates such
 // as insert).  This container is implemented in the form of a class template,
 // and thus its proper instantiation for several types is a concern.  Regarding
-// the allocator template argument, we use mostly a 'bsl::allocator' together
-// with a 'bslma::TestAllocator' mechanism, but we also verify the C++
+// the allocator template argument, we use mostly a `bsl::allocator` together
+// with a `bslma::TestAllocator` mechanism, but we also verify the C++
 // standard.
 //
 // Primary Manipulators:
-//: o 'insert(value_type&&)'  (via helper function 'primaryManipulator')
-//: o 'clear'
+//  - `insert(value_type&&)`  (via helper function `primaryManipulator`)
+//  - `clear`
 //
 // Basic Accessors:
-//: o 'cbegin'
-//: o 'cend'
-//: o 'size'
-//: o 'get_allocator'
+//  - `cbegin`
+//  - `cend`
+//  - `size`
+//  - `get_allocator`
 //
 // This test plan follows the standard approach for components implementing
 // value-semantic containers.  We have chosen as *primary* *manipulators* the
-// 'insert(value_type&&)'[*] and 'clear' methods, where the former is used by
-// the generator function 'ggg'.  Note that some manipulators must support
+// `insert(value_type&&)`[*] and `clear` methods, where the former is used by
+// the generator function `ggg`.  Note that some manipulators must support
 // aliasing, and those that perform memory allocation must be tested for
-// exception neutrality via the 'bslma_testallocator' component.  After the
+// exception neutrality via the `bslma_testallocator` component.  After the
 // mandatory sequence of cases (1-10) for value-semantic types (cases 5 and 10
-// are not implemented as there is no output or BDEX streaming below 'bslstl'),
+// are not implemented as there is no output or BDEX streaming below `bslstl`),
 // we test each individual constructor, manipulator, and accessor in subsequent
 // cases.
 //
-// [*] 'insert(value_type&&)' was chosen as our primary manipulator rather than
-// 'emplace' with a single parameter since: 1) 'insert' is more primitive than
-// 'emplace' as the latter requires that a key object be constructed before
+// [*] `insert(value_type&&)` was chosen as our primary manipulator rather than
+// `emplace` with a single parameter since: 1) `insert` is more primitive than
+// `emplace` as the latter requires that a key object be constructed before
 // searching the tree, and 2) move-only objects cannot be emplaced.
 // ----------------------------------------------------------------------------
 // 23.4.6.2, construct/copy/destroy:
@@ -253,22 +253,22 @@
 // TEST APPARATUS
 // [ 3] int ggg(map *object, const char *spec, bool verbose = true);
 // [ 3] map& gg(map *object, const char *spec);
-// [ 5] 'debugprint' functions (TBD not yet tested)
+// [ 5] `debugprint` functions (TBD not yet tested)
 //
-// [22] CONCERN: 'map' is compatible with standard allocators.
-// [23] CONCERN: 'map' has the necessary type traits.
+// [22] CONCERN: `map` is compatible with standard allocators.
+// [23] CONCERN: `map` has the necessary type traits.
 // [26] CONCERN: The type provides the full interface defined by the standard.
-// [35] CONCERN: 'map' supports incomplete types.
-// [  ] CONCERN: 'map' object size is commensurate with that of 'C' and 'A'.
-// [36] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
-// [37] CONCERN: 'bslmf::MovableRef<T>' does not escape (in C++03 mode).
-// [38] CONCERN: 'erase' overload is deduced correctly.
-// [39] CONCERN: 'find'        properly handles transparent comparators.
-// [39] CONCERN: 'count'       properly handles transparent comparators.
-// [39] CONCERN: 'lower_bound' properly handles transparent comparators.
-// [39] CONCERN: 'upper_bound' properly handles transparent comparators.
-// [39] CONCERN: 'equal_range' properly handles transparent comparators.
-// [44] CONCERN: 'map' IS A C++20 RANGE
+// [35] CONCERN: `map` supports incomplete types.
+// [  ] CONCERN: `map` object size is commensurate with that of `C` and `A`.
+// [36] CONCERN: Methods qualifed `noexcept` in standard are so implemented.
+// [37] CONCERN: `bslmf::MovableRef<T>` does not escape (in C++03 mode).
+// [38] CONCERN: `erase` overload is deduced correctly.
+// [39] CONCERN: `find`        properly handles transparent comparators.
+// [39] CONCERN: `count`       properly handles transparent comparators.
+// [39] CONCERN: `lower_bound` properly handles transparent comparators.
+// [39] CONCERN: `upper_bound` properly handles transparent comparators.
+// [39] CONCERN: `equal_range` properly handles transparent comparators.
+// [44] CONCERN: `map` IS A C++20 RANGE
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -336,45 +336,45 @@ void aSsErT(bool b, const char *s, int i)
 
 namespace incorrect {
 
+/// Fail.  In a successful test, this `swap` should never be called.  It is
+/// set up to be called (and fail) in the case where ADL fails to choose the
+/// right `swap` in `invokeAdlSwap` below.
 template <class TYPE>
 void swap(TYPE&, TYPE&)
-    // Fail.  In a successful test, this 'swap' should never be called.  It is
-    // set up to be called (and fail) in the case where ADL fails to choose the
-    // right 'swap' in 'invokeAdlSwap' below.
 {
     ASSERT(0 && "incorrect swap called");
 }
 
 }  // close namespace incorrect
 
+/// Exchange the values of the specified `*a` and `*b` objects using the
+/// `swap` method found by ADL (Argument Dependent Lookup).
 template <class TYPE>
 void invokeAdlSwap(TYPE *a, TYPE *b)
-    // Exchange the values of the specified '*a' and '*b' objects using the
-    // 'swap' method found by ADL (Argument Dependent Lookup).
 {
     using incorrect::swap;
 
-    // A correct ADL will key off the types of '*a' and '*b', which will be of
-    // our 'bsl' container type, to find the right 'bsl::swap' and not
-    // 'incorrect::swap'.
+    // A correct ADL will key off the types of `*a` and `*b`, which will be of
+    // our `bsl` container type, to find the right `bsl::swap` and not
+    // `incorrect::swap`.
 
     swap(*a, *b);
 }
 
+/// Exchange the values of the specified `*a` and `*b` objects using the
+/// `swap` method found by the recommended pattern for calling `swap`.
 template <class TYPE>
 void invokePatternSwap(TYPE *a, TYPE *b)
-    // Exchange the values of the specified '*a' and '*b' objects using the
-    // 'swap' method found by the recommended pattern for calling 'swap'.
 {
-    // Invoke 'swap' using the recommended pattern for 'bsl' clients.
+    // Invoke `swap` using the recommended pattern for `bsl` clients.
 
     using bsl::swap;
 
     swap(*a, *b);
 }
 
-// The following 'using' directives must come *after* the definition of
-// 'invokeAdlSwap' and 'invokePatternSwap' (above).
+// The following `using` directives must come *after* the definition of
+// `invokeAdlSwap` and `invokePatternSwap` (above).
 
 using namespace BloombergLP;
 using bsl::pair;
@@ -401,7 +401,7 @@ typedef bsls::Types::Int64 Int64;
 struct DefaultDataRow {
     int         d_line;       // source line number
     int         d_index;      // lexical order
-    const char *d_spec_p;     // specification string, for input to 'gg'
+    const char *d_spec_p;     // specification string, for input to `gg`
     const char *d_results_p;  // expected element values
 };
 
@@ -483,11 +483,11 @@ const DefaultDataRow DEFAULT_DATA[] = {
 enum { DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA };
 
 // TBD There is a fundamental flaw when testing operations involving two maps,
-// such as operator== and operator<, that the 'DEFAULT_DATA' table does not
+// such as operator== and operator<, that the `DEFAULT_DATA` table does not
 // produce maps that have the same keys, but different values.  It is possible
-// that we are not comparing 'value' (as opposed to 'key') in the tests and we
+// that we are not comparing `value` (as opposed to `key`) in the tests and we
 // would never know.  This is a pretty serious omission.  In fact, it extends
-// to 'ggg', 'primaryManipulator', 'createInplace', etc.
+// to `ggg`, `primaryManipulator`, `createInplace`, etc.
 
 typedef bsltf::NonDefaultConstructibleTestType TestKeyType;
 typedef bsltf::NonTypicalOverloadsTestType     TestValueType;
@@ -530,24 +530,24 @@ void debugprint(const bsl::map<KEY, VALUE, COMP, ALLOC>& s)
 
 }  // close namespace bsl
 
+/// Return `true` if the container is expected to allocate memory on the
+/// specified `n`th element, and `false` otherwise.
 bool expectToAllocate(size_t n)
-    // Return 'true' if the container is expected to allocate memory on the
-    // specified 'n'th element, and 'false' otherwise.
 {
     if (n > 32) {
         return 0 == n % 32;                                           // RETURN
     }
-    return 0 == ((n - 1) & n);  // Allocate when 'n' is a power of 2.
+    return 0 == ((n - 1) & n);  // Allocate when `n` is a power of 2.
 }
 
+/// Verify the specified `container` has the specified `expectedSize` and
+/// contains the same values as the array in the specified `expectedValues`.
+/// Return 0 if `container` has the expected values, and a non-zero value
+/// otherwise.
 template <class CONTAINER, class VALUES>
 int verifyContainer(const CONTAINER& container,
                     const VALUES&    expectedValues,
                     size_t           expectedSize)
-    // Verify the specified 'container' has the specified 'expectedSize' and
-    // contains the same values as the array in the specified 'expectedValues'.
-    // Return 0 if 'container' has the expected values, and a non-zero value
-    // otherwise.
 {
     ASSERTV(expectedSize, container.size(), expectedSize == container.size());
 
@@ -573,62 +573,66 @@ int verifyContainer(const CONTAINER& container,
                             // class StatefulStlAllocator
                             // ==========================
 
+/// This class implements a standard compliant allocator that has an
+/// attribute, `id`.
 template <class VALUE>
 class StatefulStlAllocator : public bsltf::StdTestAllocator<VALUE>
-    // This class implements a standard compliant allocator that has an
-    // attribute, 'id'.
 {
     // DATA
     int d_id;  // identifier
 
   private:
     // TYPES
+
+    /// Alias for the base class.
     typedef bsltf::StdTestAllocator<VALUE> StlAlloc;
-        // Alias for the base class.
 
   public:
+    /// This nested `struct` template, parameterized by some
+    /// `BDE_OTHER_TYPE`, provides a namespace for an `other` type alias,
+    /// which is an allocator type following the same template as this one
+    /// but that allocates elements of `BDE_OTHER_TYPE`.  Note that this
+    /// allocator type is convertible to and from `other` for any
+    /// `BDE_OTHER_TYPE` including `void`.
     template <class BDE_OTHER_TYPE>
     struct rebind {
-        // This nested 'struct' template, parameterized by some
-        // 'BDE_OTHER_TYPE', provides a namespace for an 'other' type alias,
-        // which is an allocator type following the same template as this one
-        // but that allocates elements of 'BDE_OTHER_TYPE'.  Note that this
-        // allocator type is convertible to and from 'other' for any
-        // 'BDE_OTHER_TYPE' including 'void'.
 
         typedef StatefulStlAllocator<BDE_OTHER_TYPE> other;
     };
 
     // CREATORS
+
+    /// Create a `StatefulStlAllocator` object.
     StatefulStlAllocator()
-        // Create a 'StatefulStlAllocator' object.
     : StlAlloc()
     {
     }
 
     //! StatefulStlAllocator(const StatefulStlAllocator& original) = default;
-        // Create a 'StatefulStlAllocator' object having the same id as the
-        // specified 'original'.
+        // Create a `StatefulStlAllocator` object having the same id as the
+        // specified `original`.
 
+    /// Create a `StatefulStlAllocator` object having the same id as the
+    /// specified `original` with a different template type.
     template <class BDE_OTHER_TYPE>
     StatefulStlAllocator(const StatefulStlAllocator<BDE_OTHER_TYPE>& original)
-        // Create a 'StatefulStlAllocator' object having the same id as the
-        // specified 'original' with a different template type.
     : StlAlloc(original)
     , d_id(original.id())
     {
     }
 
     // MANIPULATORS
+
+    /// Set the `id` attribute of this object to the specified `value`.
     void setId(int value)
-        // Set the 'id' attribute of this object to the specified 'value'.
     {
         d_id = value;
     }
 
     // ACCESSORS
+
+    /// Return the value of the `id` attribute of this object.
     int id() const
-        // Return the value of the 'id' attribute of this object.
     {
         return d_id;
     }
@@ -638,15 +642,15 @@ class StatefulStlAllocator : public bsltf::StdTestAllocator<VALUE>
                             // class ExceptionProctor
                             // ======================
 
+/// This class provides a mechanism to verify the strong exception guarantee
+/// in exception-throwing code.  On construction, this class stores a copy
+/// of an object of the (template parameter) type `OBJECT` and the address
+/// of that object.  On destruction, if `release` was not invoked, it will
+/// verify the value of the object is the same as the value of the copy
+/// created on construction.  This class requires that the copy constructor
+/// and `operator ==` be tested before use.
 template <class OBJECT>
 struct ExceptionProctor {
-    // This class provides a mechanism to verify the strong exception guarantee
-    // in exception-throwing code.  On construction, this class stores a copy
-    // of an object of the (template parameter) type 'OBJECT' and the address
-    // of that object.  On destruction, if 'release' was not invoked, it will
-    // verify the value of the object is the same as the value of the copy
-    // created on construction.  This class requires that the copy constructor
-    // and 'operator ==' be tested before use.
 
     // DATA
     int           d_line;      // line number at construction
@@ -660,34 +664,35 @@ struct ExceptionProctor {
 
   public:
     // CREATORS
+
+    /// Create an exception proctor for the specified `object` at the
+    /// specified `line` number.  Optionally specify a `basicAllocator` used
+    /// to supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     ExceptionProctor(const OBJECT     *object,
                      int               line,
                      bslma::Allocator *basicAllocator = 0)
     : d_line(line)
     , d_control(*object, basicAllocator)
     , d_object_p(object)
-        // Create an exception proctor for the specified 'object' at the
-        // specified 'line' number.  Optionally specify a 'basicAllocator' used
-        // to supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
     {
     }
 
+    /// Create an exception proctor for the specified `object` at the
+    /// specified `line` number using the specified `control` object.
     ExceptionProctor(const OBJECT              *object,
                      int                        line,
                      bslmf::MovableRef<OBJECT>  control)
     : d_line(line)
     , d_control(bslmf::MovableRefUtil::move(control))
     , d_object_p(object)
-        // Create an exception proctor for the specified 'object' at the
-        // specified 'line' number using the specified 'control' object.
     {
     }
 
+    /// Destroy this exception proctor.  If the proctor was not released,
+    /// verify that the state of the object supplied at construction has not
+    /// changed.
     ~ExceptionProctor()
-        // Destroy this exception proctor.  If the proctor was not released,
-        // verify that the state of the object supplied at construction has not
-        // changed.
     {
         if (d_object_p) {
             const int LINE = d_line;
@@ -696,9 +701,10 @@ struct ExceptionProctor {
     }
 
     // MANIPULATORS
+
+    /// Release this proctor from verifying the state of the object
+    /// supplied at construction.
     void release()
-        // Release this proctor from verifying the state of the object
-        // supplied at construction.
     {
         d_object_p = 0;
     }
@@ -720,44 +726,45 @@ bool g_enableLessThanFunctorFlag = true;
                        // class TestComparator
                        // ====================
 
+/// This test class provides a mechanism that defines a function-call
+/// operator that compares two objects of the template parameter `TYPE`.
+/// The function-call operator is implemented with integer comparison using
+/// integers converted from objects of `TYPE` by the class method
+/// `TemplateTestFacility::getIdentifier`.  The function-call operator also
+/// increments a global counter used to keep track the method call count.
+/// Object of this class can be identified by an id passed on construction.
 template <class TYPE>
 class TestComparator {
-    // This test class provides a mechanism that defines a function-call
-    // operator that compares two objects of the template parameter 'TYPE'.
-    // The function-call operator is implemented with integer comparison using
-    // integers converted from objects of 'TYPE' by the class method
-    // 'TemplateTestFacility::getIdentifier'.  The function-call operator also
-    // increments a global counter used to keep track the method call count.
-    // Object of this class can be identified by an id passed on construction.
 
     // DATA
     int         d_id;           // identifier for the functor
     bool        d_compareLess;  // indicate whether this object use '<' or '>'
-    mutable int d_count;        // number of times 'operator()' is called
+    mutable int d_count;        // number of times `operator()` is called
 
   public:
     // CLASS METHOD
+
+    /// Disable all objects of `TestComparator` such that an `ASSERT` will
+    /// be triggered if `operator()` is invoked.
     static void disableFunctor()
-        // Disable all objects of 'TestComparator' such that an 'ASSERT' will
-        // be triggered if 'operator()' is invoked.
     {
         g_enableLessThanFunctorFlag = false;
     }
 
+    /// Enable all objects of `TestComparator` such that `operator()` may be
+    /// invoked.
     static void enableFunctor()
-        // Enable all objects of 'TestComparator' such that 'operator()' may be
-        // invoked.
     {
         g_enableLessThanFunctorFlag = true;
     }
 
     // CREATORS
     //! TestComparator(const TestComparator& original) = default;
-        // Create a copy of the specified 'original'.
+        // Create a copy of the specified `original`.
 
+    /// Create a `TestComparator`.  Optionally, specify `id` that can be
+    /// used to identify the object.
     explicit TestComparator(int id = 0, bool compareLess = true)
-        // Create a 'TestComparator'.  Optionally, specify 'id' that can be
-        // used to identify the object.
     : d_id(id)
     , d_compareLess(compareLess)
     , d_count(0)
@@ -765,14 +772,15 @@ class TestComparator {
     }
 
     // ACCESSORS
+
+    /// Increment a counter that records the number of times this method is
+    /// called.   Return `true` if the integer representation of the
+    /// specified `lhs` is less than integer representation of the specified
+    /// `rhs`.
     bool operator() (const TYPE& lhs, const TYPE& rhs) const
-        // Increment a counter that records the number of times this method is
-        // called.   Return 'true' if the integer representation of the
-        // specified 'lhs' is less than integer representation of the specified
-        // 'rhs'.
     {
         if (!g_enableLessThanFunctorFlag) {
-            ASSERTV("'TestComparator' was invoked when disabled", false);
+            ASSERTV("`TestComparator` was invoked when disabled", false);
         }
 
         ++d_count;
@@ -792,14 +800,14 @@ class TestComparator {
         return (id() == rhs.id() && d_compareLess == rhs.d_compareLess);
     }
 
+    /// Return the `id` of this object.
     int id() const
-        // Return the 'id' of this object.
     {
         return d_id;
     }
 
+    /// Return the number of times `operator()` is called.
     size_t count() const
-        // Return the number of times 'operator()' is called.
     {
         return d_count;
     }
@@ -809,24 +817,26 @@ class TestComparator {
                             // struct ThrowingSwapComparator
                             // =============================
 
+/// Comparator with throwing `swap`.
 template <class TYPE>
 struct ThrowingSwapComparator : public std::less<TYPE> {
-    // Comparator with throwing 'swap'.
 
     // MANIPULATORS
+
+    /// Exchange the value of this object with that of the specified `other`
+    /// object.
     void swap(
       ThrowingSwapComparator& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
-        // Exchange the value of this object with that of the specified 'other'
-        // object.
     {
         (void)other;
     }
 
     // FREE FUNCTIONS
+
+    /// Exchange the values of the specified `a` and `b` objects.
     friend void swap(
           ThrowingSwapComparator& a,
           ThrowingSwapComparator& b) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
-        // Exchange the values of the specified 'a' and 'b' objects.
     {
         (void)a;
         (void)b;
@@ -837,12 +847,12 @@ struct ThrowingSwapComparator : public std::less<TYPE> {
                        // class TemplateWrapper
                        // =====================
 
+/// This class wraps the container, but does nothing otherwise.  A compiler
+/// bug on AIX (xlC) prevents the compiler from finding the definitions of
+/// the default arguments for the default constructor.  This class was
+/// created to test this scenario.
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 class TemplateWrapper {
-    // This class wraps the container, but does nothing otherwise.  A compiler
-    // bug on AIX (xlC) prevents the compiler from finding the definitions of
-    // the default arguments for the default constructor.  This class was
-    // created to test this scenario.
 
     // DATA
     bsl::map<KEY, VALUE, COMPARATOR, ALLOCATOR> d_member;
@@ -867,18 +877,19 @@ class TemplateWrapper {
                        // class IntToPairConverter
                        // ========================
 
+/// Convert an `int` identifier to a `bsl::pair` of the template parameter
+/// `KEY` and `VALUE` types.
 template <class KEY, class VALUE, class ALLOC>
 struct IntToPairConverter {
-    // Convert an 'int' identifier to a 'bsl::pair' of the template parameter
-    // 'KEY' and 'VALUE' types.
 
     // CLASS METHODS
+
+    /// Create a new `pair<KEY, VALUE>` object at the specified `address`,
+    /// passing values derived from the specified `id` to the `KEY` and
+    /// `VALUE` constructors and using the specified `allocator` to supply
+    /// memory.  The behavior is undefined unless `0 < id < 128`.
     static void
     createInplace(pair<KEY, VALUE> *address, int id, ALLOC allocator)
-        // Create a new 'pair<KEY, VALUE>' object at the specified 'address',
-        // passing values derived from the specified 'id' to the 'KEY' and
-        // 'VALUE' constructors and using the specified 'allocator' to supply
-        // memory.  The behavior is undefined unless '0 < id < 128'.
     {
         BSLS_ASSERT(address);
         BSLS_ASSERT( 0 < id);
@@ -886,9 +897,9 @@ struct IntToPairConverter {
 
         typedef typename bsl::remove_const<KEY>::type VarKey;
 
-        // Support generation of pairs '(K, V1)', '(K, V2)' where
-        // 'V1 != V2'.  E.g., 'A' and 'a' map to the same 'KEY' but
-        // distinct 'VALUE's.
+        // Support generation of pairs `(K, V1)`, `(K, V2)` where
+        // `V1 != V2`.  E.g., `A` and `a` map to the same `KEY` but
+        // distinct `VALUE`s.
 
         int key, value;
 
@@ -903,7 +914,7 @@ struct IntToPairConverter {
 
         // Tests have been written that exactly calculate the number of
         // expected allocations and we don't want to rewrite those tests.  This
-        // code was originally written only supporting the 'bsl::allocator'
+        // code was originally written only supporting the `bsl::allocator`
         // allocator type, but we want to expand it to support other allocator
         // types.  The tests were assuming the allocator used here was a
         // scratch allocator, so allocations in this routine weren't counted
@@ -913,12 +924,12 @@ struct IntToPairConverter {
         // used in that case.
 
         // Then we wanted to expand the range of this function to be able to
-        // handle other types for 'ALLOC', including std stateful allocators.
+        // handle other types for `ALLOC`, including std stateful allocators.
         // The problem then is that for that type of the allocator the move and
         // copy c'tors aren't passed an allocator, so in the case of movable
         // allocating types, the allocator we use here will be the allocator
         // the object has within the container.  So, in the case of movable
-        // allocating types, we use the 'allocator' passed in as an arg,
+        // allocating types, we use the `allocator` passed in as an arg,
         // otherwise we use the scratch singleton.
 
         bslma::TestAllocator *pss = scratchSingleton();
@@ -928,11 +939,11 @@ struct IntToPairConverter {
                   && !bsl::is_same<VALUE,
                                bsltf::WellBehavedMoveOnlyAllocTestType>::value;
 
-        // Note that 'allocator' and 'pss' are of different types, and
-        // sometimes this function is called with 'ALLOC' being a type that has
-        // no c'tor that takes an 'bslma::Allocator *' arg, so we can't use a
-        // ternary on 'useSingleton' to choose which allocator to pass to the
-        // 'emplace' methods.
+        // Note that `allocator` and `pss` are of different types, and
+        // sometimes this function is called with `ALLOC` being a type that has
+        // no c'tor that takes an `bslma::Allocator *` arg, so we can't use a
+        // ternary on `useSingleton` to choose which allocator to pass to the
+        // `emplace` methods.
 
         bsls::ObjectBuffer<VarKey> tempKey;
         if (useSingleton) {
@@ -966,18 +977,18 @@ struct IntToPairConverter {
 // TBD Comparator-related concerns that are not noted elsewhere or tested:
 //
 // 1) Testing a comparator that uses a sort order other than the default.
-//  'GreaterThanFunctor' is defined (below) to support this, but is not used.
+//  `GreaterThanFunctor` is defined (below) to support this, but is not used.
 //
 // 2) Comparator functions that throw--especially w.r.t. exception neutrality.
 //
 // 3) Confirm that the allocator for the map does NOT propagate to the
-//  comparator; e.g., a comparator with a 'bsl::string' ID that defines the
-//  'UsesBslmaAllocator' trait will always use the default allocator and never
+//  comparator; e.g., a comparator with a `bsl::string` ID that defines the
+//  `UsesBslmaAllocator` trait will always use the default allocator and never
 //  the object allocator [which is now the standard requirement].
 //
 // Additional comparator-related review comments:
 //
-// Function-pointers as comparators, comparators with 'operator()' templates
+// Function-pointers as comparators, comparators with `operator()` templates
 // (deducing arguments), comparators that copy their arguments (a likely
 // throwing-comparator), comparators with
 // conversion-to-function-pointer/reference operators, evil comparators that
@@ -990,28 +1001,29 @@ struct IntToPairConverter {
 // there is a serious omission of testing stateful comparators, which would be
 // observable changing through the assignment operators and swap.  For a
 // full-scale test, I suggest we need a stateful comparator whose state affects
-// the sort order.  Two possible examples: both use an 'int' for ID, so we can
+// the sort order.  Two possible examples: both use an `int` for ID, so we can
 // validate state.  The ID should affect sorting; one way would be to use
 // operator< or operator> depending on whether the ID is odd or even (e.g.,
-// see 'TestComparatorNonConst' (above); an alternative would be to have a
+// see `TestComparatorNonConst` (above); an alternative would be to have a
 // struct as key, and the ID says which element of the struct should be used
 // for sorting.  The latter would be more helpful for testing the comparison
 // operators highlighted above.
 
+/// This test class provides a mechanism that defines a function-call
+/// operator that compares two objects of the template parameter `TYPE`.
+/// The function-call operator is implemented with integer comparison using
+/// integers converted from objects of `TYPE` by the class method
+/// `TemplateTestFacility::getIdentifier`.
 template <class TYPE>
 class GreaterThanFunctor {
-    // This test class provides a mechanism that defines a function-call
-    // operator that compares two objects of the template parameter 'TYPE'.
-    // The function-call operator is implemented with integer comparison using
-    // integers converted from objects of 'TYPE' by the class method
-    // 'TemplateTestFacility::getIdentifier'.
 
   public:
     // ACCESSORS
+
+    /// Return `true` if the integer representation of the specified `lhs`
+    /// is greater than the integer representation of the specified `rhs`,
+    /// and `false` otherwise.
     bool operator() (const TYPE& lhs, const TYPE& rhs) const
-        // Return 'true' if the integer representation of the specified 'lhs'
-        // is greater than the integer representation of the specified 'rhs',
-        // and 'false' otherwise.
     {
         return bsltf::TemplateTestFacility::getIdentifier(lhs)
              > bsltf::TemplateTestFacility::getIdentifier(rhs);
@@ -1019,10 +1031,11 @@ class GreaterThanFunctor {
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the integer representation of the specified `lhs` is
+/// less than integer representation of the specified `rhs`.
 template <class TYPE>
 bool lessThanFunction(const TYPE& lhs, const TYPE& rhs)
-    // Return 'true' if the integer representation of the specified 'lhs' is
-    // less than integer representation of the specified 'rhs'.
 {
     return bsltf::TemplateTestFacility::getIdentifier(lhs)
          < bsltf::TemplateTestFacility::getIdentifier(rhs);
@@ -1088,40 +1101,41 @@ namespace {
                        // =========================
 
 struct IncompleteType;
+
+/// This `struct` provides a simple compile-time test to verify that
+/// incomplete types can be used in container definitions.  Currently,
+/// definitions of `bsl::map` can contain incomplete types on all supported
+/// platforms.
+///
+/// The text below captures the original (now obsolete) rationale for
+/// creating this test:
+/// ```
+/// struct Recursive {
+///     bsl::map<int, Recursive> d_data;
+/// };
+/// ```
+/// This `struct` provides a simple compile-time test that exposes a bug in
+/// the Sun compiler when parsing member-function templates that make use of
+/// `enable_if` to trigger SFINAE effects.  While the `enable_if` template
+/// should not be instantiated until parsing client code calling that
+/// function, by which time any incomplete types must have become complete,
+/// the Sun CC compiler is parsing the whole `enable_if` metafunction as
+/// soon as it sees it, while instantiating any use of the `map`.  This
+/// causes a request to instantiate `is_convertible` with incomplete types,
+/// which is undefined behavior.  A recent update to the `is_convertible`
+/// trait added a static assertion precisely to catch such misuse.
+///
+/// To provide a simple example that will fail to compile (thanks to the
+/// static assertion above) unless the problem is worked around, we create a
+/// recursive data structure using a map, as the struct `Recursive` is an
+/// incomplete type within its own definition.  Note that there are no test
+/// cases exercising `Recursive`, it is sufficient just to define the class.
+///
+/// We decided to note the above, but allow the use of the `is_convertible`
+/// meta-function on Sun since it is so important to the new features added
+/// as part of the C++11 project.  Now the check is done on every platform
+/// *except* for Sun, where we know that a problem exists.
 struct TestIncompleteType {
-    // This 'struct' provides a simple compile-time test to verify that
-    // incomplete types can be used in container definitions.  Currently,
-    // definitions of 'bsl::map' can contain incomplete types on all supported
-    // platforms.
-    //
-    // The text below captures the original (now obsolete) rationale for
-    // creating this test:
-    //..
-    //  struct Recursive {
-    //      bsl::map<int, Recursive> d_data;
-    //  };
-    //..
-    // This 'struct' provides a simple compile-time test that exposes a bug in
-    // the Sun compiler when parsing member-function templates that make use of
-    // 'enable_if' to trigger SFINAE effects.  While the 'enable_if' template
-    // should not be instantiated until parsing client code calling that
-    // function, by which time any incomplete types must have become complete,
-    // the Sun CC compiler is parsing the whole 'enable_if' metafunction as
-    // soon as it sees it, while instantiating any use of the 'map'.  This
-    // causes a request to instantiate 'is_convertible' with incomplete types,
-    // which is undefined behavior.  A recent update to the 'is_convertible'
-    // trait added a static assertion precisely to catch such misuse.
-    //
-    // To provide a simple example that will fail to compile (thanks to the
-    // static assertion above) unless the problem is worked around, we create a
-    // recursive data structure using a map, as the struct 'Recursive' is an
-    // incomplete type within its own definition.  Note that there are no test
-    // cases exercising 'Recursive', it is sufficient just to define the class.
-    //
-    // We decided to note the above, but allow the use of the 'is_convertible'
-    // meta-function on Sun since it is so important to the new features added
-    // as part of the C++11 project.  Now the check is done on every platform
-    // *except* for Sun, where we know that a problem exists.
 
     // PUBLIC TYPES
     typedef bsl::map<int, IncompleteType>::iterator            Iter1;
@@ -1144,24 +1158,25 @@ struct IncompleteType {
 //                          TEST DRIVER TEMPLATE
 // ----------------------------------------------------------------------------
 
+/// This class template provides a namespace for testing the `map`
+/// container.  The template parameter types `KEY`/`VALUE`, `COMP`, and
+/// `ALLOC` specify the value type, comparator type, and allocator type,
+/// respectively.  Each "testCase*" method tests a specific aspect of
+/// `map<KEY, VALUE, COMP, ALLOC>`.  Every test case should be invoked with
+/// various type arguments to fully test the container.  Note that the
+/// (template parameter) `VALUE` type must be defaulted (to `KEY`) for the
+/// benefit of `RUN_EACH_TYPE`-style testing.
 template <class KEY,
           class VALUE = KEY,
           class COMP  = TestComparator<KEY>,
           class ALLOC = bsl::allocator<bsl::pair<const KEY, VALUE> > >
 class TestDriver {
-    // This class template provides a namespace for testing the 'map'
-    // container.  The template parameter types 'KEY'/'VALUE', 'COMP', and
-    // 'ALLOC' specify the value type, comparator type, and allocator type,
-    // respectively.  Each "testCase*" method tests a specific aspect of
-    // 'map<KEY, VALUE, COMP, ALLOC>'.  Every test case should be invoked with
-    // various type arguments to fully test the container.  Note that the
-    // (template parameter) 'VALUE' type must be defaulted (to 'KEY') for the
-    // benefit of 'RUN_EACH_TYPE'-style testing.
 
   private:
     // TYPES
+
+    /// Type under test.
     typedef bsl::map<KEY, VALUE, COMP, ALLOC>     Obj;
-        // Type under test.
 
     // Shorthands
 
@@ -1202,10 +1217,10 @@ class TestDriver {
   private:
     // TEST APPARATUS
     //-------------------------------------------------------------------------
-    // The generating functions interpret a given 'spec' in order from left to
+    // The generating functions interpret a given `spec` in order from left to
     // right to configure a given object according to a custom language.  ASCII
-    // letters [A..Za..z] correspond to arbitrary (but unique) 'pair' values to
-    // be appended to the 'map<KEY, VALUE, COMP, ALLOC>' object.
+    // letters [A..Za..z] correspond to arbitrary (but unique) `pair` values to
+    // be appended to the `map<KEY, VALUE, COMP, ALLOC>` object.
     //
     // LANGUAGE SPECIFICATION
     // ----------------------
@@ -1257,46 +1272,46 @@ class TestDriver {
                                           : "<INVALID>";
     }
 
+    /// Configure the specified `object` according to the specified `spec`,
+    /// using only the primary manipulator function `insert`.  Optionally
+    /// specify a `false` `verbose` to suppress `spec` syntax error
+    /// messages.  Return the index of the first invalid character, and a
+    /// negative value otherwise.  Note that this function is used to
+    /// implement `gg` as well as allow for verification of syntax error
+    /// detection.
     static int ggg(Obj *object, const char *spec, bool verbose = true);
-        // Configure the specified 'object' according to the specified 'spec',
-        // using only the primary manipulator function 'insert'.  Optionally
-        // specify a 'false' 'verbose' to suppress 'spec' syntax error
-        // messages.  Return the index of the first invalid character, and a
-        // negative value otherwise.  Note that this function is used to
-        // implement 'gg' as well as allow for verification of syntax error
-        // detection.
 
+    /// Return, by reference, the specified `object` with its value adjusted
+    /// according to the specified `spec`.
     static Obj& gg(Obj *object, const char *spec);
-        // Return, by reference, the specified 'object' with its value adjusted
-        // according to the specified 'spec'.
 
+    /// Load into the specified `pointers` array, in order, the addresses
+    /// that provide non-modifiable access to the specified initial `n`
+    /// elements in the ordered sequence of `value_type` values held by the
+    /// specified `object`.  The behavior is undefined unless the length of
+    /// `pointers` is at least `n`.
     static void storeFirstNElemAddr(const typename Obj::value_type *pointers[],
                                     const Obj&                      object,
                                     size_t                          n);
-        // Load into the specified 'pointers' array, in order, the addresses
-        // that provide non-modifiable access to the specified initial 'n'
-        // elements in the ordered sequence of 'value_type' values held by the
-        // specified 'object'.  The behavior is undefined unless the length of
-        // 'pointers' is at least 'n'.
 
+    /// Return the number of items in the specified `pointers` array whose
+    /// values, in order, are not the same as the addresses that provide
+    /// non-modifiable access to the specified initial `n` elements in the
+    /// ordered sequence of `value_type` values held by the specified
+    /// `object`.  The behavior is undefined unless the length of `pointers`
+    /// is at least `n`.
     static int checkFirstNElemAddr(const typename Obj::value_type *pointers[],
                                    const Obj&                      object,
                                    size_t                          n);
-        // Return the number of items in the specified 'pointers' array whose
-        // values, in order, are not the same as the addresses that provide
-        // non-modifiable access to the specified initial 'n' elements in the
-        // ordered sequence of 'value_type' values held by the specified
-        // 'object'.  The behavior is undefined unless the length of 'pointers'
-        // is at least 'n'.
 
+    /// Insert into the specified `container` the `pair` object indicated by
+    /// the specified `identifier`, ensuring that the overload of the
+    /// primary manipulator taking a modifiable rvalue is invoked (rather
+    /// than the one taking an lvalue).  Return the result of invoking the
+    /// primary manipulator.
     static pair<Iter, bool> primaryManipulator(Obj   *container,
                                                int    identifier,
                                                ALLOC  allocator);
-        // Insert into the specified 'container' the 'pair' object indicated by
-        // the specified 'identifier', ensuring that the overload of the
-        // primary manipulator taking a modifiable rvalue is invoked (rather
-        // than the one taking an lvalue).  Return the result of invoking the
-        // primary manipulator.
 
     template <class T>
     static bslmf::MovableRef<T> testArg(T& t, bsl::true_type)
@@ -1313,42 +1328,44 @@ class TestDriver {
 
   public:
     // TEST CASES
-    static void testCase8_dispatch();
-        // Test 'swap' member and free functions.
 
+    /// Test `swap` member and free functions.
+    static void testCase8_dispatch();
+
+    /// Test `swap` noexcept.
     static void testCase8_noexcept();
-        // Test 'swap' noexcept.
 
     template <bool SELECT_ON_CONTAINER_COPY_CONSTRUCTION_FLAG,
               bool OTHER_FLAGS>
     static void testCase7_select_on_container_copy_construction_dispatch();
+
+    /// Test `select_on_container_copy_construction`.
     static void testCase7_select_on_container_copy_construction();
-        // Test 'select_on_container_copy_construction'.
 
+    /// Test copy constructor.
     static void testCase7();
-        // Test copy constructor.
 
+    /// Test equality operator (`operator==`).
     static void testCase6();
-        // Test equality operator ('operator==').
 
     // static void testCase5();
         // Reserved for (<<) operator.
 
+    /// Test basic accessors (`size`, `cbegin`, `cend`, `get_allocator`).
     static void testCase4();
-        // Test basic accessors ('size', 'cbegin', 'cend', 'get_allocator').
 
+    /// Test generator functions `ggg`, and `gg`.
     static void testCase3();
-        // Test generator functions 'ggg', and 'gg'.
 
+    /// Test primary manipulators (`insert` and `clear`).
     static void testCase2();
-        // Test primary manipulators ('insert' and 'clear').
 
+    /// Breathing test.  This test *exercises* basic functionality but
+    /// *test* nothing.
     static void testCase1(const COMP&  comparator,
                           KEY         *testKeys,
                           VALUE       *testValues,
                           size_t       numValues);
-        // Breathing test.  This test *exercises* basic functionality but
-        // *test* nothing.
 };
 
 template <class KEY, class VALUE = KEY>
@@ -1445,10 +1462,10 @@ TestDriver<KEY, VALUE, COMP, ALLOC>::primaryManipulator(Obj   *container,
 {
     typedef pair<KEY, VALUE> TValueType;
 
-    // If the 'VALUE' type is a move-enabled allocating type, use the
+    // If the `VALUE` type is a move-enabled allocating type, use the
     // container allocator, in which case the memory the object allocates will
     // be moved into the object inserted into the container.  Otherwise, the
-    // 'move' will wind up doing a 'copy', in which case we will have done
+    // `move` will wind up doing a `copy`, in which case we will have done
     // extra allocations using the container's allocator, which would throw
     // off some test cases which are carefully counting allocations done by
     // that allocator in the ggg function.
@@ -1474,165 +1491,165 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8_dispatch()
 {
     // ------------------------------------------------------------------------
     // SWAP MEMBER AND FREE FUNCTIONS
-    //   Ensure that, when member and free 'swap' are implemented, we can
+    //   Ensure that, when member and free `swap` are implemented, we can
     //   exchange the values of any two objects that use the same
     //   allocator.
     //
     // Concerns:
-    //: 1 Both functions exchange the values of the (two) supplied objects.
-    //:
-    //: 2 Both functions have standard signatures and return types.
-    //:
-    //: 3 Using either function to swap an object with itself does not
-    //:   affect the value of the object (alias-safety).
-    //:
-    //: 4 If the two objects being swapped uses the same allocator, neither
-    //:   function allocates memory from any allocator and the allocator
-    //:   address held by both objects is unchanged.
-    //:
-    //: 5 If the two objects being swapped uses different allocators and
-    //:   'AllocatorTraits::propagate_on_container_swap' is an alias to
-    //:   'false_type', then both function may allocate memory and the
-    //:   allocator address held by both object is unchanged.
-    //:
-    //: 6 If the two objects being swapped uses different allocators and
-    //:   'AllocatorTraits::propagate_on_container_swap' is an alias to
-    //:   'true_type', then no memory will be allocated and the allocators will
-    //:   also be swapped.
-    //:
-    //: 7 The free 'swap' function is discoverable through ADL (Argument
-    //:   Dependent Lookup).
+    // 1. Both functions exchange the values of the (two) supplied objects.
+    //
+    // 2. Both functions have standard signatures and return types.
+    //
+    // 3. Using either function to swap an object with itself does not
+    //    affect the value of the object (alias-safety).
+    //
+    // 4. If the two objects being swapped uses the same allocator, neither
+    //    function allocates memory from any allocator and the allocator
+    //    address held by both objects is unchanged.
+    //
+    // 5. If the two objects being swapped uses different allocators and
+    //    `AllocatorTraits::propagate_on_container_swap` is an alias to
+    //    `false_type`, then both function may allocate memory and the
+    //    allocator address held by both object is unchanged.
+    //
+    // 6. If the two objects being swapped uses different allocators and
+    //    `AllocatorTraits::propagate_on_container_swap` is an alias to
+    //    `true_type`, then no memory will be allocated and the allocators will
+    //    also be swapped.
+    //
+    // 7. The free `swap` function is discoverable through ADL (Argument
+    //    Dependent Lookup).
     //
     // Plan:
-    //: 1 Use the addresses of the 'swap' member and free functions defined
-    //:   in this component to initialize, respectively, member-function
-    //:   and free-function pointers having the appropriate signatures and
-    //:   return types.  (C-2)
-    //:
-    //: 2 Create a 'bslma::TestAllocator' object, and install it as the
-    //:   default allocator (note that a ubiquitous test allocator is
-    //:   already installed as the global allocator).
-    //:
-    //: 3 Using the table-driven technique:
-    //:
-    //:   1 Specify a set of (unique) valid object values (one per row) in
-    //:     terms of their individual attributes, including (a) first, the
-    //:     default value, (b) boundary values corresponding to every range
-    //:     of values that each individual attribute can independently
-    //:     attain, and (c) values that should require allocation from each
-    //:     individual attribute that can independently allocate memory.
-    //:
-    //:   2 Additionally, provide a (tri-valued) column, 'MEM', indicating
-    //:     the expectation of memory allocation for all typical
-    //:     implementations of individual attribute types: ('Y') "Yes",
-    //:     ('N') "No", or ('?') "implementation-dependent".
-    //:
-    //: 4 For each row 'R1' in the table of P-3:  (C-1, 3..7)
-    //:
-    //:   1 Create two 'bslma::TestAllocator' objects, 'oa' and 'ob'.
-    //:
-    //:   2 Use the value constructor and 'oa' to create a modifiable
-    //:     'Obj', 'mW', having the value described by 'R1'; also use the
-    //:     copy constructor and a "scratch" allocator to create a 'const'
-    //:     'Obj' 'XX' from 'mW'.
-    //:
-    //:   3 Use the member and free 'swap' functions to swap the value of
-    //:     'mW' with itself; verify, after each swap, that:  (C-3..4)
-    //:
-    //:     1 The value is unchanged.  (C-3)
-    //:
-    //:     2 The allocator address held by the object is unchanged.  (C-4)
-    //:
-    //:     3 There was no additional object memory allocation.  (C-4)
-    //:
-    //:   4 For each row 'R2' in the table of P-3:  (C-1, 4)
-    //:
-    //:     1 Use the copy constructor and 'oa' to create a modifiable
-    //:       'Obj', 'mX', from 'XX'.  (P-4.2).
-    //:
-    //:     2 Use the value constructor and 'oa' to create a modifiable
-    //:       'Obj', 'mY', and having the value described by 'R2'; also use
-    //:       the copy constructor to create, using a "scratch" allocator,
-    //:       a 'const' 'Obj', 'YY', from 'Y'.
-    //:
-    //:     3 Use, in turn, the member and free 'swap' functions to swap
-    //:       the values of 'mX' and 'mY'; verify, after each swap, that:
-    //:       (C-1, 4)
-    //:
-    //:       1 The values have been exchanged.  (C-1)
-    //:
-    //:       2 The common object allocator address held by 'mX' and 'mY'
-    //:         is unchanged in both objects.  (C-4)
-    //:
-    //:       3 There was no additional object memory allocation.  (C-4)
-    //:
-    //:     4 Create a new object allocator, 'oaz'.
-    //:
-    //:     5 Use the value constructor and 'oaz' to a create a modifiable
-    //:       'Obj' 'mZ', having the value described by 'R2'; also use the copy
-    //:       constructor to create, using a "scratch" allocator, a const
-    //:       'Obj', 'ZZ', from 'Z'.
-    //:
-    //:     6 Use the member and free 'swap' functions to swap the values of
-    //:       'mX' and 'mZ' respectively (when
-    //:       AllocatorTraits::propagate_on_container_swap is an alias to
-    //:       false_type) verify, after each swap, that:  (C-1, 5)
-    //:
-    //:       1 The values have been exchanged. (C-1)
-    //:
-    //:       2 The common object allocator address held by 'mX' and 'mZ' is
-    //:         unchanged in both objects.  (C-5)
-    //:
-    //:       3 Temporary memory were allocated from 'oa' if 'mZ' is not empty,
-    //:         and temporary memory were allocated from 'oaz' if 'mX' is not
-    //:         empty.  (C-5)
-    //:
-    //:     7 Create a new object allocator, 'oap'.
-    //:
-    //:     8 Use the value constructor and 'oap' to create a modifiable 'Obj'
-    //:       'mP', having the value described by 'R2'; also use the copy
-    //:       constructor to create, using a "scratch" allocator, a const
-    //:       'Obj', 'PP', from 'P.
-    //:
-    //:     9 Manually change 'AllocatorTraits::propagate_on_container_swap' to
-    //:       be an alias to 'true_type' (Instead of this manual step, use an
-    //:       allocator that enables propagate_on_container_swap when
-    //:       AllocatorTraits supports it) and use the member and free 'swap'
-    //:       functions to swap the values 'mX' and 'mZ' respectively; verify,
-    //:       after each swap, that: (C-1, 6)
-    //:
-    //:       1 The values have been exchanged.  (C-1)
-    //:
-    //:       2 The allocators addresses have been exchanged.  (C-6)
-    //:
-    //:       3 There was no additional object memory allocation.  (C-6)
-    //:
-    //: 5 Verify that the free 'swap' function is discoverable through ADL:
-    //:   (C-7)
-    //:
-    //:   1 Create a set of attribute values, 'A', distinct from the values
-    //:     corresponding to the default-constructed object, choosing
-    //:     values that allocate memory if possible.
-    //:
-    //:   2 Create a 'bslma::TestAllocator' object, 'oa'.
-    //:
-    //:   3 Use the default constructor and 'oa' to create a modifiable
-    //:     'Obj' 'mX' (having default attribute values); also use the copy
-    //:     constructor and a "scratch" allocator to create a 'const' 'Obj'
-    //:     'XX' from 'mX'.
-    //:
-    //:   4 Use the value constructor and 'oa' to create a modifiable 'Obj'
-    //:     'mY' having the value described by the 'Ai' attributes; also
-    //:     use the copy constructor and a "scratch" allocator to create a
-    //:     'const' 'Obj' 'YY' from 'mY'.
-    //:
-    //:   5 Use the 'invokeAdlSwap' helper function template to swap the
-    //:     values of 'mX' and 'mY', using the free 'swap' function defined
-    //:     in this component, then verify that:  (C-7)
-    //:
-    //:     1 The values have been exchanged.  (C-1)
-    //:
-    //:     2 There was no additional object memory allocation.  (C-4)
+    // 1. Use the addresses of the `swap` member and free functions defined
+    //    in this component to initialize, respectively, member-function
+    //    and free-function pointers having the appropriate signatures and
+    //    return types.  (C-2)
+    //
+    // 2. Create a `bslma::TestAllocator` object, and install it as the
+    //    default allocator (note that a ubiquitous test allocator is
+    //    already installed as the global allocator).
+    //
+    // 3. Using the table-driven technique:
+    //
+    //   1. Specify a set of (unique) valid object values (one per row) in
+    //      terms of their individual attributes, including (a) first, the
+    //      default value, (b) boundary values corresponding to every range
+    //      of values that each individual attribute can independently
+    //      attain, and (c) values that should require allocation from each
+    //      individual attribute that can independently allocate memory.
+    //
+    //   2. Additionally, provide a (tri-valued) column, `MEM`, indicating
+    //      the expectation of memory allocation for all typical
+    //      implementations of individual attribute types: ('Y') "Yes",
+    //      ('N') "No", or ('?') "implementation-dependent".
+    //
+    // 4. For each row `R1` in the table of P-3:  (C-1, 3..7)
+    //
+    //   1. Create two `bslma::TestAllocator` objects, `oa` and `ob`.
+    //
+    //   2. Use the value constructor and `oa` to create a modifiable
+    //      `Obj`, `mW`, having the value described by `R1`; also use the
+    //      copy constructor and a "scratch" allocator to create a `const`
+    //      `Obj` `XX` from `mW`.
+    //
+    //   3. Use the member and free `swap` functions to swap the value of
+    //      `mW` with itself; verify, after each swap, that:  (C-3..4)
+    //
+    //     1. The value is unchanged.  (C-3)
+    //
+    //     2. The allocator address held by the object is unchanged.  (C-4)
+    //
+    //     3. There was no additional object memory allocation.  (C-4)
+    //
+    //   4. For each row `R2` in the table of P-3:  (C-1, 4)
+    //
+    //     1. Use the copy constructor and `oa` to create a modifiable
+    //        `Obj`, `mX`, from `XX`.  (P-4.2).
+    //
+    //     2. Use the value constructor and `oa` to create a modifiable
+    //        `Obj`, `mY`, and having the value described by `R2`; also use
+    //        the copy constructor to create, using a "scratch" allocator,
+    //        a `const` `Obj`, `YY`, from `Y`.
+    //
+    //     3. Use, in turn, the member and free `swap` functions to swap
+    //        the values of `mX` and `mY`; verify, after each swap, that:
+    //        (C-1, 4)
+    //
+    //       1. The values have been exchanged.  (C-1)
+    //
+    //       2. The common object allocator address held by `mX` and `mY`
+    //          is unchanged in both objects.  (C-4)
+    //
+    //       3. There was no additional object memory allocation.  (C-4)
+    //
+    //     4. Create a new object allocator, `oaz`.
+    //
+    //     5. Use the value constructor and `oaz` to a create a modifiable
+    //        `Obj` `mZ`, having the value described by `R2`; also use the copy
+    //        constructor to create, using a "scratch" allocator, a const
+    //        `Obj`, `ZZ`, from `Z`.
+    //
+    //     6. Use the member and free `swap` functions to swap the values of
+    //        `mX` and `mZ` respectively (when
+    //        AllocatorTraits::propagate_on_container_swap is an alias to
+    //        false_type) verify, after each swap, that:  (C-1, 5)
+    //
+    //       1. The values have been exchanged. (C-1)
+    //
+    //       2. The common object allocator address held by `mX` and `mZ` is
+    //          unchanged in both objects.  (C-5)
+    //
+    //       3. Temporary memory were allocated from `oa` if `mZ` is not empty,
+    //          and temporary memory were allocated from `oaz` if `mX` is not
+    //          empty.  (C-5)
+    //
+    //     7. Create a new object allocator, `oap`.
+    //
+    //     8. Use the value constructor and `oap` to create a modifiable `Obj`
+    //        `mP`, having the value described by `R2`; also use the copy
+    //        constructor to create, using a "scratch" allocator, a const
+    //        `Obj`, `PP`, from 'P.
+    //
+    //     9. Manually change `AllocatorTraits::propagate_on_container_swap` to
+    //        be an alias to `true_type` (Instead of this manual step, use an
+    //        allocator that enables propagate_on_container_swap when
+    //        AllocatorTraits supports it) and use the member and free `swap`
+    //        functions to swap the values `mX` and `mZ` respectively; verify,
+    //        after each swap, that: (C-1, 6)
+    //
+    //       1. The values have been exchanged.  (C-1)
+    //
+    //       2. The allocators addresses have been exchanged.  (C-6)
+    //
+    //       3. There was no additional object memory allocation.  (C-6)
+    //
+    // 5. Verify that the free `swap` function is discoverable through ADL:
+    //    (C-7)
+    //
+    //   1. Create a set of attribute values, `A`, distinct from the values
+    //      corresponding to the default-constructed object, choosing
+    //      values that allocate memory if possible.
+    //
+    //   2. Create a `bslma::TestAllocator` object, `oa`.
+    //
+    //   3. Use the default constructor and `oa` to create a modifiable
+    //      `Obj` `mX` (having default attribute values); also use the copy
+    //      constructor and a "scratch" allocator to create a `const` `Obj`
+    //      `XX` from `mX`.
+    //
+    //   4. Use the value constructor and `oa` to create a modifiable `Obj`
+    //      `mY` having the value described by the `Ai` attributes; also
+    //      use the copy constructor and a "scratch" allocator to create a
+    //      `const` `Obj` `YY` from `mY`.
+    //
+    //   5. Use the `invokeAdlSwap` helper function template to swap the
+    //      values of `mX` and `mY`, using the free `swap` function defined
+    //      in this component, then verify that:  (C-7)
+    //
+    //     1. The values have been exchanged.  (C-1)
+    //
+    //     2. There was no additional object memory allocation.  (C-4)
     //
     // Testing:
     //   void swap(map& other);
@@ -1650,7 +1667,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8_dispatch()
 
     // We can print the banner now:
 
-    if (verbose) printf("%sTESTING SWAP '%s' OTHER:%c PROP:%c ALLOC: %s\n",
+    if (verbose) printf("%sTESTING SWAP `%s` OTHER:%c PROP:%c ALLOC: %s\n",
                         veryVerbose ? "\n" : "",
                         NameOf<VALUE>().name(), otherTraitsSet ? 'T' : 'F',
                         isPropagate ? 'T' : 'F',
@@ -1687,7 +1704,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8_dispatch()
     ALLOC                        za(&zoa);
 
     // Check remaining properties of allocator to make sure they all match
-    // 'otherTraitsSet'.
+    // `otherTraitsSet`.
 
     BSLMF_ASSERT(otherTraitsSet ==
                AllocatorTraits::propagate_on_container_move_assignment::value);
@@ -1816,9 +1833,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8_dispatch()
     }
 
     if (veryVerbose) printf(
-            "Invoke free 'swap' function in a context where ADL is used.\n");
+            "Invoke free `swap` function in a context where ADL is used.\n");
     {
-        // 'A' values: Should cause memory allocation if possible.
+        // `A` values: Should cause memory allocation if possible.
 
         Obj mX(oa);          const Obj& X  = gg(&mX,  "DE");
         Obj mXX(sa);         const Obj& XX = gg(&mXX, "DE");
@@ -1827,7 +1844,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8_dispatch()
         Obj mYY(sa);         const Obj& YY = gg(&mYY, "ABC");
 
         if (veryVerbose) printf(
-            "Invoke free 'swap' function in a context where ADL is used.\n");
+            "Invoke free `swap` function in a context where ADL is used.\n");
 
         if (veryVerbose) { T_ P_(X) P(Y) }
 
@@ -1842,7 +1859,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8_dispatch()
         if (veryVerbose) { T_ P_(X) P(Y) }
 
         if (veryVerbose) printf(
-               "Invoke free 'swap' function via that standard BDE pattern.\n");
+               "Invoke free `swap` function via that standard BDE pattern.\n");
 
         invokePatternSwap(&mX, &mY);
 
@@ -1856,10 +1873,10 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8_dispatch()
     ASSERTV(e_STATEFUL == s_allocCategory || 0 == doa.numBlocksTotal());
 }
 
+/// Verify that noexcept specification of the member `swap` function is
+/// correct.
 template <class KEY, class VALUE, class COMP, class ALLOC>
 void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase8_noexcept()
-    // Verify that noexcept specification of the member 'swap' function is
-    // correct.
 {
     Obj a;
     Obj b;
@@ -1881,8 +1898,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     const int TYPE_ALLOC = bslma::UsesBslmaAllocator<KEY>::value +
                            bslma::UsesBslmaAllocator<VALUE>::value;
 
-    // Set the three properties of 'bsltf::StdStatefulAllocator' that are not
-    // under test in this test case to 'false'.
+    // Set the three properties of `bsltf::StdStatefulAllocator` that are not
+    // under test in this test case to `false`.
 
     typedef bsltf::StdStatefulAllocator<
                                     KEY,
@@ -1961,44 +1978,44 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     // COPY CONSTRUCTOR: ALLOCATOR PROPAGATION
     //
     // Concerns:
-    //: 1 The allocator of a source object using a standard allocator is
-    //:   propagated to the newly constructed object according to the
-    //:   'select_on_container_copy_construction' method of the allocator.
-    //:
-    //: 2 In the absence of a 'select_on_container_copy_construction' method,
-    //:   the allocator of a source object using a standard allocator is always
-    //:   propagated to the newly constructed object (C++03 semantics).
-    //:
-    //: 3 The effect of the 'select_on_container_copy_construction' trait is
-    //:   independent of the other three allocator propagation traits.
+    // 1. The allocator of a source object using a standard allocator is
+    //    propagated to the newly constructed object according to the
+    //    `select_on_container_copy_construction` method of the allocator.
+    //
+    // 2. In the absence of a `select_on_container_copy_construction` method,
+    //    the allocator of a source object using a standard allocator is always
+    //    propagated to the newly constructed object (C++03 semantics).
+    //
+    // 3. The effect of the `select_on_container_copy_construction` trait is
+    //    independent of the other three allocator propagation traits.
     //
     // Plan:
-    //: 1 Specify a set S of object values with varied differences, ordered by
-    //:   increasing length, to be used in the following tests.
-    //:
-    //: 2 Create a 'bsltf::StdStatefulAllocator' with its
-    //:   'select_on_container_copy_construction' property configured to
-    //:   'false'.  In two successive iterations of P-3..5, first configure the
-    //:   three properties not under test to be 'false', then confgiure them
-    //:   all to be 'true'.
-    //:
-    //: 3 For each value in S, initialize objects 'W' (a control) and 'X' using
-    //:   the allocator from P-2.
-    //:
-    //: 4 Copy construct 'Y' from 'X' and use 'operator==' to verify that both
-    //:   'X' and 'Y' subsequently have the same value as 'W'.
-    //:
-    //: 5 Use the 'get_allocator' method to verify that the allocator of 'X'
-    //:   is *not* propagated to 'Y'.
-    //:
-    //: 6 Repeat P-2..5 except that this time configure the allocator property
-    //:   under test to 'true' and verify that the allocator of 'X' *is*
-    //:   propagated to 'Y'.  (C-1)
-    //:
-    //: 7 Repeat P-2..5 except that this time use a 'StatefulStlAllocator',
-    //:   which does not define a 'select_on_container_copy_construction'
-    //:   method, and verify that the allocator of 'X' is *always* propagated
-    //:   to 'Y'.  (C-2..3)
+    // 1. Specify a set S of object values with varied differences, ordered by
+    //    increasing length, to be used in the following tests.
+    //
+    // 2. Create a `bsltf::StdStatefulAllocator` with its
+    //    `select_on_container_copy_construction` property configured to
+    //    `false`.  In two successive iterations of P-3..5, first configure the
+    //    three properties not under test to be `false`, then confgiure them
+    //    all to be `true`.
+    //
+    // 3. For each value in S, initialize objects `W` (a control) and `X` using
+    //    the allocator from P-2.
+    //
+    // 4. Copy construct `Y` from `X` and use `operator==` to verify that both
+    //    `X` and `Y` subsequently have the same value as `W`.
+    //
+    // 5. Use the `get_allocator` method to verify that the allocator of `X`
+    //    is *not* propagated to `Y`.
+    //
+    // 6. Repeat P-2..5 except that this time configure the allocator property
+    //    under test to `true` and verify that the allocator of `X` *is*
+    //    propagated to `Y`.  (C-1)
+    //
+    // 7. Repeat P-2..5 except that this time use a `StatefulStlAllocator`,
+    //    which does not define a `select_on_container_copy_construction`
+    //    method, and verify that the allocator of `X` is *always* propagated
+    //    to `Y`.  (C-2..3)
     //
     // Testing:
     //   select_on_container_copy_construction
@@ -2019,7 +2036,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     if (verbose) printf("\nVerify C++03 semantics (allocator has no "
-                        "'select_on_container_copy_construction' method).\n");
+                        "`select_on_container_copy_construction` method).\n");
 
     typedef StatefulStlAllocator<KEY>             Allocator;
     typedef bsl::map<KEY, VALUE, COMP, Allocator> Obj;
@@ -2069,53 +2086,53 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase7()
     // COPY CONSTRUCTOR
     //
     // Concerns:
-    //: 1 The new object's value is the same as that of the original object
-    //:   (relying on the equality operator) and created with the correct
-    //:   capacity.
-    //:
-    //: 2 All internal representations of a given value can be used to create a
-    //:   new object of equivalent value.
-    //:
-    //: 3 The value of the original object is left unaffected.
-    //:
-    //: 4 Subsequent changes in or destruction of the source object have no
-    //:   effect on the copy-constructed object.
-    //:
-    //: 5 Subsequent changes ('insert's) on the created object have no
-    //:   effect on the original and change the capacity of the new object
-    //:   correctly.
-    //:
-    //: 6 The object has its internal memory management system hooked up
-    //:   properly so that *all* internally allocated memory draws from a
-    //:   user-supplied allocator whenever one is specified.
-    //:
-    //: 7 The function is exception neutral w.r.t. memory allocation.
+    // 1. The new object's value is the same as that of the original object
+    //    (relying on the equality operator) and created with the correct
+    //    capacity.
+    //
+    // 2. All internal representations of a given value can be used to create a
+    //    new object of equivalent value.
+    //
+    // 3. The value of the original object is left unaffected.
+    //
+    // 4. Subsequent changes in or destruction of the source object have no
+    //    effect on the copy-constructed object.
+    //
+    // 5. Subsequent changes (`insert`s) on the created object have no
+    //    effect on the original and change the capacity of the new object
+    //    correctly.
+    //
+    // 6. The object has its internal memory management system hooked up
+    //    properly so that *all* internally allocated memory draws from a
+    //    user-supplied allocator whenever one is specified.
+    //
+    // 7. The function is exception neutral w.r.t. memory allocation.
     //
     // Plan:
-    //: 1 Specify a set S of object values with substantial and varied
-    //:   differences, ordered by increasing length, to be used in the
-    //:   following tests.
-    //:
-    //: 2 For each value in S, initialize objects w and x, copy construct y
-    //:   from x and use 'operator==' to verify that both x and y subsequently
-    //:   have the same value as w.  Let x go out of scope and again verify
-    //:   that w == y.  (C-1..4)
-    //:
-    //: 3 For each value in S initialize objects w and x, and copy construct y
-    //:   from x.  Change the state of y, by using the *primary* *manipulator*
-    //:   'push_back'.  Using the 'operator!=' verify that y differs from x and
-    //:   w, and verify that the capacity of y changes correctly.  (C-5)
-    //:
-    //: 4 Perform tests performed as P-2:  (C-6)
-    //:   1 While passing a testAllocator as a parameter to the new object and
-    //:     ascertaining that the new object gets its memory from the provided
-    //:     testAllocator.
-    //:   2 Verify neither of global and default allocator is used to supply
-    //:     memory.  (C-6)
-    //:
-    //: 5 Perform tests as P-2 in the presence of exceptions during memory
-    //:   allocations using a 'bslma::TestAllocator' and varying its
-    //:   *allocation* *limit*.  (C-7)
+    // 1. Specify a set S of object values with substantial and varied
+    //    differences, ordered by increasing length, to be used in the
+    //    following tests.
+    //
+    // 2. For each value in S, initialize objects w and x, copy construct y
+    //    from x and use `operator==` to verify that both x and y subsequently
+    //    have the same value as w.  Let x go out of scope and again verify
+    //    that w == y.  (C-1..4)
+    //
+    // 3. For each value in S initialize objects w and x, and copy construct y
+    //    from x.  Change the state of y, by using the *primary* *manipulator*
+    //    `push_back`.  Using the `operator!=` verify that y differs from x and
+    //    w, and verify that the capacity of y changes correctly.  (C-5)
+    //
+    // 4. Perform tests performed as P-2:  (C-6)
+    //   1. While passing a testAllocator as a parameter to the new object and
+    //      ascertaining that the new object gets its memory from the provided
+    //      testAllocator.
+    //   2. Verify neither of global and default allocator is used to supply
+    //      memory.  (C-6)
+    //
+    // 5. Perform tests as P-2 in the presence of exceptions during memory
+    //    allocations using a `bslma::TestAllocator` and varying its
+    //    *allocation* *limit*.  (C-7)
     //
     // Testing:
     //   map(const map& original);
@@ -2310,81 +2327,81 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase6()
     // TESTING EQUALITY OPERATORS
     //
     // Concerns:
-    //: 1 Two objects, 'X' and 'Y', compare equal if and only if they contain
-    //:   the same values.
-    //:
-    //: 2 No non-salient attributes (i.e., 'allocator') participate.
-    //:
-    //: 3 'true  == (X == X)' (i.e., identity)
-    //:
-    //: 4 'false == (X != X)' (i.e., identity)
-    //:
-    //: 5 'X == Y' if and only if 'Y == X' (i.e., commutativity)
-    //:
-    //: 6 'X != Y' if and only if 'Y != X' (i.e., commutativity)
-    //:
-    //: 7 'X != Y' if and only if '!(X == Y)'
-    //:
-    //: 8 Comparison is symmetric with respect to user-defined conversion
-    //:   (i.e., both comparison operators are free functions).
-    //:
-    //: 9 Non-modifiable objects can be compared (i.e., objects or references
-    //:   providing only non-modifiable access).
-    //:
-    //:10 'operator==' is defined in terms of 'operator==(KEY)' instead of the
-    //:   supplied comparator function.
-    //:
-    //:11 No memory allocation occurs as a result of comparison (e.g., the
-    //:   arguments are not passed by value).
-    //:
-    //:12 The equality operator's signature and return type are standard.
-    //:
-    //:13 The inequality operator's signature and return type are standard.
+    // 1. Two objects, `X` and `Y`, compare equal if and only if they contain
+    //    the same values.
+    //
+    // 2. No non-salient attributes (i.e., `allocator`) participate.
+    //
+    // 3. `true  == (X == X)` (i.e., identity)
+    //
+    // 4. `false == (X != X)` (i.e., identity)
+    //
+    // 5. `X == Y` if and only if `Y == X` (i.e., commutativity)
+    //
+    // 6. `X != Y` if and only if `Y != X` (i.e., commutativity)
+    //
+    // 7. `X != Y` if and only if `!(X == Y)`
+    //
+    // 8. Comparison is symmetric with respect to user-defined conversion
+    //    (i.e., both comparison operators are free functions).
+    //
+    // 9. Non-modifiable objects can be compared (i.e., objects or references
+    //    providing only non-modifiable access).
+    //
+    // 10. `operator==` is defined in terms of `operator==(KEY)` instead of the
+    //    supplied comparator function.
+    //
+    // 11. No memory allocation occurs as a result of comparison (e.g., the
+    //    arguments are not passed by value).
+    //
+    // 12. The equality operator's signature and return type are standard.
+    //
+    // 13. The inequality operator's signature and return type are standard.
     //
     // Plan:
-    //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-    //:   initialize function pointers having the appropriate signatures and
-    //:   return types for the two homogeneous, free equality- comparison
-    //:   operators defined in this component.  (C-8..9, 12..13)
-    //:
-    //: 2 Create a 'bslma::TestAllocator' object, and install it as the default
-    //:   allocator (note that a ubiquitous test allocator is already installed
-    //:   as the global allocator).
-    //:
-    //: 3 Using the table-driven technique, specify a set of distinct
-    //:   specifications for the 'gg' function.
-    //:
-    //: 4 For each row 'R1' in the table of P-3: (C-1..7)
-    //:
-    //:   1 Create a single object, using a comparator that can be disabled and
-    //:     a"scratch" allocator, and use it to verify the reflexive
-    //:     (anti-reflexive) property of equality (inequality) in the presence
-    //:     of aliasing.  (C-3..4)
-    //:
-    //:   2 For each row 'R2' in the table of P-3: (C-1..2, 5..7)
-    //:
-    //:     1 Record, in 'EXP', whether or not distinct objects created from
-    //:       'R1' and 'R2', respectively, are expected to have the same value.
-    //:
-    //:     2 For each of two configurations, 'a' and 'b': (C-1..2, 5..7)
-    //:
-    //:       1 Create two (object) allocators, 'oax' and 'oay'.
-    //:
-    //:       2 Create an object 'X', using 'oax', having the value 'R1'.
-    //:
-    //:       3 Create an object 'Y', using 'oax' in configuration 'a' and
-    //:         'oay' in configuration 'b', having the value 'R2'.
-    //:
-    //:       4 Disable the comparator so that it will cause an error if it is
-    //:         used.
-    //:
-    //:       5 Verify the commutativity property and expected return value for
-    //:         both '==' and '!=', while monitoring both 'oax' and 'oay' to
-    //:         ensure that no object memory is ever allocated by either
-    //:         operator.  (C-1..2, 5..7, 10)
-    //:
-    //: 5 Use the test allocator from P-2 to verify that no memory is ever
-    //:   allocated from the default allocator.  (C-11)
+    // 1. Use the respective addresses of `operator==` and `operator!=` to
+    //    initialize function pointers having the appropriate signatures and
+    //    return types for the two homogeneous, free equality- comparison
+    //    operators defined in this component.  (C-8..9, 12..13)
+    //
+    // 2. Create a `bslma::TestAllocator` object, and install it as the default
+    //    allocator (note that a ubiquitous test allocator is already installed
+    //    as the global allocator).
+    //
+    // 3. Using the table-driven technique, specify a set of distinct
+    //    specifications for the `gg` function.
+    //
+    // 4. For each row `R1` in the table of P-3: (C-1..7)
+    //
+    //   1. Create a single object, using a comparator that can be disabled and
+    //      a"scratch" allocator, and use it to verify the reflexive
+    //      (anti-reflexive) property of equality (inequality) in the presence
+    //      of aliasing.  (C-3..4)
+    //
+    //   2. For each row `R2` in the table of P-3: (C-1..2, 5..7)
+    //
+    //     1. Record, in `EXP`, whether or not distinct objects created from
+    //        `R1` and `R2`, respectively, are expected to have the same value.
+    //
+    //     2. For each of two configurations, `a` and `b`: (C-1..2, 5..7)
+    //
+    //       1. Create two (object) allocators, `oax` and `oay`.
+    //
+    //       2. Create an object `X`, using `oax`, having the value `R1`.
+    //
+    //       3. Create an object `Y`, using `oax` in configuration `a` and
+    //          `oay` in configuration `b`, having the value `R2`.
+    //
+    //       4. Disable the comparator so that it will cause an error if it is
+    //          used.
+    //
+    //       5. Verify the commutativity property and expected return value for
+    //          both `==` and `!=`, while monitoring both `oax` and `oay` to
+    //          ensure that no object memory is ever allocated by either
+    //          operator.  (C-1..2, 5..7, 10)
+    //
+    // 5. Use the test allocator from P-2 to verify that no memory is ever
+    //    allocated from the default allocator.  (C-11)
     //
     // Testing:
     //   bool operator==(const map& lhs, const map& rhs);
@@ -2392,7 +2409,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase6()
     // ------------------------------------------------------------------------
 
 // TBD lacks interesting test data, such as:
-//  o equivalent keys (per 'COMP') that do not compare equal (per '==')
+//  o equivalent keys (per `COMP`) that do not compare equal (per `==`)
 //  o equal values with unequal keys
 
     if (verbose) printf("\nEQUALITY-COMPARISON OPERATORS"
@@ -2456,14 +2473,14 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase6()
                 const bool EXP = INDEX1 == INDEX2;  // expected result
 
                 for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
-                    const char CONFIG = cfg;  // Determines 'Y's allocator.
+                    const char CONFIG = cfg;  // Determines `Y`s allocator.
 
-                    // Create two distinct test allocators, 'oax' and 'oay'.
+                    // Create two distinct test allocators, `oax` and `oay`.
 
                     bslma::TestAllocator oax("objectx", veryVeryVeryVerbose);
                     bslma::TestAllocator oay("objecty", veryVeryVeryVerbose);
 
-                    // Map allocators above to objects 'X' and 'Y' below.
+                    // Map allocators above to objects `X` and `Y` below.
 
                     bslma::TestAllocator& xa = oax;
                     bslma::TestAllocator& ya = 'a' == CONFIG ? oax : oay;
@@ -2504,38 +2521,38 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase4()
 {
     // ------------------------------------------------------------------------
     // BASIC ACCESSORS
-    //   Ensure each basic accessor ('cbegin', 'cend', 'size', 'get_allocator')
+    //   Ensure each basic accessor (`cbegin`, `cend`, `size`, `get_allocator`)
     //   properly interprets object state.
     //
     // Concerns:
-    //: 1 Each accessor returns the value of the correct property of the
-    //:   object.
-    //:
-    //: 2 Each accessor method is declared 'const'.
-    //:
-    //: 3 No accessor allocates any memory.
-    //:
-    //: 4 The range '[cbegin(), cend())' contains inserted elements the sorted
-    //:   order.
+    // 1. Each accessor returns the value of the correct property of the
+    //    object.
+    //
+    // 2. Each accessor method is declared `const`.
+    //
+    // 3. No accessor allocates any memory.
+    //
+    // 4. The range `[cbegin(), cend())` contains inserted elements the sorted
+    //    order.
     //
     // Plan:
-    //: 1 For each set of 'SPEC' of different length:
-    //:
-    //:   1 Default construct the object with various configuration:
-    //:
-    //:     1 Use the 'gg' function to populate the object based on the SPEC.
-    //:
-    //:     2 Verify the correct allocator is installed with the
-    //:       'get_allocator' method.
-    //:
-    //:     3 Verify the object contains the expected number of elements.
-    //:
-    //:     4 Use 'cbegin' and 'cend' to iterate through all elements and
-    //:       verify the values are as expected.  (C-1..2, 4)
-    //:
-    //:     5 Monitor the memory allocated from both the default and object
-    //:       allocators before and after calling the accessor; verify that
-    //:       there is no change in total memory allocation.  (C-3)
+    // 1. For each set of `SPEC` of different length:
+    //
+    //   1. Default construct the object with various configuration:
+    //
+    //     1. Use the `gg` function to populate the object based on the SPEC.
+    //
+    //     2. Verify the correct allocator is installed with the
+    //        `get_allocator` method.
+    //
+    //     3. Verify the object contains the expected number of elements.
+    //
+    //     4. Use `cbegin` and `cend` to iterate through all elements and
+    //        verify the values are as expected.  (C-1..2, 4)
+    //
+    //     5. Monitor the memory allocated from both the default and object
+    //        allocators before and after calling the accessor; verify that
+    //        there is no change in total memory allocation.  (C-3)
     //
     // Testing:
     //   allocator_type get_allocator() const;
@@ -2660,32 +2677,32 @@ template <class KEY, class VALUE, class COMP, class ALLOC>
 void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase3()
 {
     // ------------------------------------------------------------------------
-    // TESTING PRIMITIVE GENERATOR FUNCTIONS 'gg' AND 'ggg'
+    // TESTING PRIMITIVE GENERATOR FUNCTIONS `gg` AND `ggg`
     //
     // Concerns:
-    //: 1 Valid generator syntax produces expected results
-    //:
-    //: 2 Invalid syntax is detected and reported.
+    // 1. Valid generator syntax produces expected results
+    //
+    // 2. Invalid syntax is detected and reported.
     //
     // Plan:
-    //: 1 For each of an enumerated sequence of 'spec' values, ordered by
-    //:   increasing 'spec' length:
-    //:
-    //:   1 Use the primitive generator function 'gg' to set the state of a
-    //:     newly created object.
-    //:
-    //:   2 Verify that 'gg' returns a valid reference to the modified argument
-    //:     object.
-    //:
-    //:   3 Use the basic accessors to verify that the value of the object is
-    //:     as expected.  (C-1)
-    //:
-    //: 2 For each of an enumerated sequence of 'spec' values, ordered by
-    //:   increasing 'spec' length, use the primitive generator function 'ggg'
-    //:   to set the state of a newly created object.
-    //:
-    //:   1 Verify that 'ggg' returns the expected value corresponding to the
-    //:     location of the first invalid value of the 'spec'.  (C-2)
+    // 1. For each of an enumerated sequence of `spec` values, ordered by
+    //    increasing `spec` length:
+    //
+    //   1. Use the primitive generator function `gg` to set the state of a
+    //      newly created object.
+    //
+    //   2. Verify that `gg` returns a valid reference to the modified argument
+    //      object.
+    //
+    //   3. Use the basic accessors to verify that the value of the object is
+    //      as expected.  (C-1)
+    //
+    // 2. For each of an enumerated sequence of `spec` values, ordered by
+    //    increasing `spec` length, use the primitive generator function `ggg`
+    //    to set the state of a newly created object.
+    //
+    //   1. Verify that `ggg` returns the expected value corresponding to the
+    //      location of the first invalid value of the `spec`.  (C-2)
     //
     // Testing:
     //   int ggg(map *object, const char *spec, bool verbose = true);
@@ -2818,49 +2835,49 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase2()
     //   The basic concern is that the default constructor, the destructor,
     //   and, under normal conditions (i.e., no aliasing), the primary
     //   manipulators:
-    //     - insert(value_type&&) (via helper function 'primaryManipulator')
+    //     - insert(value_type&&) (via helper function `primaryManipulator`)
     //     - clear
     //
     // Concerns:
-    //: 1 An object created with the default constructor (with or without a
-    //:   supplied allocator) has the contractually specified default value.
-    //:
-    //: 2 If an allocator is NOT supplied to the default constructor, the
-    //:   default allocator in effect at the time of construction becomes the
-    //:   object allocator for the resulting object.
-    //:
-    //: 3 If an allocator IS supplied to the default constructor, that
-    //:   allocator becomes the object allocator for the resulting object.
-    //:
-    //: 4 Supplying a null allocator address has the same effect as not
-    //:   supplying an allocator.
-    //:
-    //: 5 Supplying an allocator to the default constructor has no effect on
-    //:   subsequent object values.
-    //:
-    //: 6 Any memory allocation is from the object allocator.
-    //:
-    //: 7 There is no temporary allocation from any allocator.
-    //:
-    //: 8 Every object releases any allocated memory at destruction.
-    //:
-    //: 9 QoI: The default constructor allocates no memory.
-    //:
-    //:10 'insert' adds an additional element to the object if the element
-    //:   being inserted does not already exist.
-    //:
-    //:11 'insert' returns a pair with an iterator of the element that was just
-    //:   inserted or the element that already exist in the object, and a
-    //:   boolean indicating whether element being inserted already exist in
-    //:   the object.
-    //:
-    //:12 'clear' properly destroys each contained element value.
-    //:
-    //:13 'clear' does not allocate memory.
-    //:
-    //:14 Any argument can be 'const'.
-    //:
-    //:15 Any memory allocation is exception neutral.
+    // 1. An object created with the default constructor (with or without a
+    //    supplied allocator) has the contractually specified default value.
+    //
+    // 2. If an allocator is NOT supplied to the default constructor, the
+    //    default allocator in effect at the time of construction becomes the
+    //    object allocator for the resulting object.
+    //
+    // 3. If an allocator IS supplied to the default constructor, that
+    //    allocator becomes the object allocator for the resulting object.
+    //
+    // 4. Supplying a null allocator address has the same effect as not
+    //    supplying an allocator.
+    //
+    // 5. Supplying an allocator to the default constructor has no effect on
+    //    subsequent object values.
+    //
+    // 6. Any memory allocation is from the object allocator.
+    //
+    // 7. There is no temporary allocation from any allocator.
+    //
+    // 8. Every object releases any allocated memory at destruction.
+    //
+    // 9. QoI: The default constructor allocates no memory.
+    //
+    // 10. `insert` adds an additional element to the object if the element
+    //    being inserted does not already exist.
+    //
+    // 11. `insert` returns a pair with an iterator of the element that was just
+    //    inserted or the element that already exist in the object, and a
+    //    boolean indicating whether element being inserted already exist in
+    //    the object.
+    //
+    // 12. `clear` properly destroys each contained element value.
+    //
+    // 13. `clear` does not allocate memory.
+    //
+    // 14. Any argument can be `const`.
+    //
+    // 15. Any memory allocation is exception neutral.
     //
     // TBD Missing concerns that the correct comparator is used.  We should be
     // testing with a stateful comparator (testing two states) and the default
@@ -2868,47 +2885,47 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase2()
     // good enough.  (also test cases 12 & 33).
     //
     // Plan:
-    //: 1 For each value of increasing length, 'L':
-    //:
-    //:   2 Using a loop-based approach, default-construct three distinct
-    //:     objects, in turn, but configured differently: (a) without passing
-    //:     an allocator, (b) passing a null allocator address explicitly,
-    //:     and (c) passing the address of a test allocator distinct from the
-    //:     default.  For each of these three iterations:  (C-1..14)
-    //:
-    //:     1 Create three 'bslma::TestAllocator' objects, and install one as
-    //:       the current default allocator (note that a ubiquitous test
-    //:       allocator is already installed as the global allocator).
-    //:
-    //:     2 Use the default constructor to dynamically create an object
-    //:       'X', with its object allocator configured appropriately (see
-    //:       P-2); use a distinct test allocator for the object's footprint.
-    //:
-    //:     3 Use the (as yet unproven) 'get_allocator' to ensure that its
-    //:       object allocator is properly installed.  (C-2..4)
-    //:
-    //:     4 Use the appropriate test allocators to verify that no memory is
-    //:       allocated by the default constructor.  (C-9)
-    //:
-    //:     5 Use the individual (as yet unproven) salient attribute accessors
-    //:       to verify the default-constructed value.  (C-1)
-    //:
-    //:     6 Insert 'L - 1' elements in order of increasing value into the
-    //:       container.
-    //:
-    //:     7 Insert the 'L'th value in the presence of exceptions and use the
-    //:       (as yet unproven) basic accessors to verify the container has the
-    //:       expected values.  Verify the number of allocation is as expected.
-    //:       (C-5..6, 13..14)
-    //:
-    //:     8 Verify that no temporary memory is allocated from the object
-    //:       allocator.  (C-7)
-    //:
-    //:     9 Invoke 'clear' and verify that the container is empty.  Verify
-    //:       that no memory is allocated.  (C-11..12)
-    //:
-    //:    10 Verify that all object memory is released when the object is
-    //:       destroyed.  (C-8)
+    // 1. For each value of increasing length, `L`:
+    //
+    //   2. Using a loop-based approach, default-construct three distinct
+    //      objects, in turn, but configured differently: (a) without passing
+    //      an allocator, (b) passing a null allocator address explicitly,
+    //      and (c) passing the address of a test allocator distinct from the
+    //      default.  For each of these three iterations:  (C-1..14)
+    //
+    //     1. Create three `bslma::TestAllocator` objects, and install one as
+    //        the current default allocator (note that a ubiquitous test
+    //        allocator is already installed as the global allocator).
+    //
+    //     2. Use the default constructor to dynamically create an object
+    //        `X`, with its object allocator configured appropriately (see
+    //        P-2); use a distinct test allocator for the object's footprint.
+    //
+    //     3. Use the (as yet unproven) `get_allocator` to ensure that its
+    //        object allocator is properly installed.  (C-2..4)
+    //
+    //     4. Use the appropriate test allocators to verify that no memory is
+    //        allocated by the default constructor.  (C-9)
+    //
+    //     5. Use the individual (as yet unproven) salient attribute accessors
+    //        to verify the default-constructed value.  (C-1)
+    //
+    //     6. Insert `L - 1` elements in order of increasing value into the
+    //        container.
+    //
+    //     7. Insert the `L`th value in the presence of exceptions and use the
+    //        (as yet unproven) basic accessors to verify the container has the
+    //        expected values.  Verify the number of allocation is as expected.
+    //        (C-5..6, 13..14)
+    //
+    //     8. Verify that no temporary memory is allocated from the object
+    //        allocator.  (C-7)
+    //
+    //     9. Invoke `clear` and verify that the container is empty.  Verify
+    //        that no memory is allocated.  (C-11..12)
+    //
+    //    10. Verify that all object memory is released when the object is
+    //        destroyed.  (C-8)
     //
     // Testing:
     //   map(const C& comparator, const A& allocator);
@@ -2993,7 +3010,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase2()
 
             // ----------------------------------------------------------------
 
-            if (veryVerbose) { printf("\n\tTesting 'insert' (bootstrap).\n"); }
+            if (veryVerbose) { printf("\n\tTesting `insert` (bootstrap).\n"); }
 
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
@@ -3041,7 +3058,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase2()
 
             // ----------------------------------------------------------------
 
-            if (veryVerbose) printf("\n\tTesting 'clear'.\n");
+            if (veryVerbose) printf("\n\tTesting `clear`.\n");
             {
                 const bsls::Types::Int64 BB = oa.numBlocksTotal();
                 const bsls::Types::Int64 B  = oa.numBlocksInUse();
@@ -3100,11 +3117,11 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase1(const COMP&  comparator,
     //   This case exercises (but does not fully test) basic functionality.
     //
     // Concerns:
-    //: 1 The class is sufficiently functional to enable comprehensive
-    //:   testing in subsequent test cases.
+    // 1. The class is sufficiently functional to enable comprehensive
+    //    testing in subsequent test cases.
     //
     // Plan:
-    //: 1 Execute each methods to verify functionality for simple case.
+    // 1. Execute each methods to verify functionality for simple case.
     //
     // Testing:
     //   BREATHING TEST
@@ -3232,7 +3249,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase1(const COMP&  comparator,
 
             ASSERTV(i, X.end() == X.find(testKeys[i]));
 
-            // Test 'insert'.
+            // Test `insert`.
             Value value(testKeys[i], testValues[i]);
             InsertResult result = x.insert(value);
             ASSERTV(X.end()       != result.first);
@@ -3368,7 +3385,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase1(const COMP&  comparator,
 
     std::sort(testKeys, testKeys + numValues, comparator);
     if (veryVerbose) {
-        printf("Test 'lower_bound' and 'upper_bound'.\n");
+        printf("Test `lower_bound` and `upper_bound`.\n");
     }
     {
         Obj x(comparator, &objectAllocator);  const Obj& X = x;
@@ -3390,8 +3407,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase1(const COMP&  comparator,
             ASSERTV(li == LI);
             ASSERTV(ui == UI);
 
-            // If test value 'i' was inserted in the map then 'lower_bound'
-            // will return an iterator to that value; otherwise, 'lower_bound'
+            // If test value `i` was inserted in the map then `lower_bound`
+            // will return an iterator to that value; otherwise, `lower_bound`
             // will return an iterator to the subsequent inserted value if one
             // exists, and the end iterator otherwise.
             const_iterator EXP_LOWER = i % 2
@@ -3400,9 +3417,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase1(const COMP&  comparator,
                                              ? X.find(testKeys[i+1])
                                              : X.end();
 
-            // If test value 'i' was inserted in the map, then 'upper_bound'
+            // If test value `i` was inserted in the map, then `upper_bound`
             // should return an iterator to the subsequent value as
-            // 'lower_bound', and the same iterator otherwise.
+            // `lower_bound`, and the same iterator otherwise.
             const_iterator EXP_UPPER = EXP_LOWER;
             if (i % 2) {
                 ++EXP_UPPER;
@@ -3425,7 +3442,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase1(const COMP&  comparator,
     std::random_shuffle(testKeys, testKeys + numValues);
 #endif
     if (veryVerbose) {
-        printf("Test 'erase(const key_type&)'.\n");
+        printf("Test `erase(const key_type&)`.\n");
     }
     {
         Obj x(comparator, &objectAllocator);  const Obj& X = x;
@@ -3445,7 +3462,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase1(const COMP&  comparator,
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     if (veryVerbose) {
-        printf("Test 'erase(const_iterator, const_iterator )'.\n");
+        printf("Test `erase(const_iterator, const_iterator )`.\n");
     }
     {
         for (size_t i = 0; i < numValues; ++i) {
@@ -3485,7 +3502,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase1(const COMP&  comparator,
             }
         }
 
-        // Test 'erase(const_iterator, const_iterator )' for end of range.
+        // Test `erase(const_iterator, const_iterator )` for end of range.
         for (size_t i = 0; i < numValues; ++i) {
             Obj x(comparator, &objectAllocator);  const Obj& X = x;
             for (size_t k = 0; k < numValues - 1; ++k) {
@@ -3546,7 +3563,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase1(const COMP&  comparator,
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     if (veryVerbose) {
-        printf("Test 'equal_range'.\n");
+        printf("Test `equal_range`.\n");
     }
     {
         Obj x(comparator, &objectAllocator);  const Obj& X = x;
@@ -3589,13 +3606,13 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase1(const COMP&  comparator,
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     if (veryVerbose) {
-        printf("Test 'operator<', 'operator>', 'operator<=', 'operator>='.\n");
+        printf("Test `operator<`, `operator>`, `operator<=`, `operator>=`.\n");
     }
     {
         // Iterate over possible selections of elements to add to two
-        // containers, 'X' and 'Y' then compare the results of the comparison
+        // containers, `X` and `Y` then compare the results of the comparison
         // operators to an "oracle" result from
-        // 'bslalg::RangeCompare::lexicographical' over the same range.
+        // `bslalg::RangeCompare::lexicographical` over the same range.
 
         for (size_t i = 0; i < numValues; ++i) {
             for (size_t j = 0; j < numValues; ++j) {
@@ -3629,7 +3646,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase1(const COMP&  comparator,
 
     std::sort(testKeys, testKeys + numValues, comparator);
     if (veryVerbose) {
-        printf("Test 'key_comp' and 'value_comp'.\n");
+        printf("Test `key_comp` and `value_comp`.\n");
     }
     {
         Obj x(comparator, &objectAllocator);  const Obj& X = x;
@@ -3643,23 +3660,23 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase1(const COMP&  comparator,
     }
 }
 
+/// This `struct` is to be call by the `RUN_EACH_TYPE` macro, and the
+/// functions within it dispatch to functions in `TestDriver` instantiated
+/// with different types of allocator.
 template <class KEY,
           class VALUE = KEY,
           class COMP  = TestComparator<KEY> >
 struct MetaTestDriver {
-    // This 'struct' is to be call by the 'RUN_EACH_TYPE' macro, and the
-    // functions within it dispatch to functions in 'TestDriver' instantiated
-    // with different types of allocator.
 
     typedef bsl::pair<const KEY, VALUE>     Pair;
     typedef bsl::allocator<Pair>            BAP;
     typedef bsltf::StdAllocatorAdaptor<BAP> SAA;
 
+    /// Test move-sassign.
     static void testCase28();
-        // Test move-sassign.
 
+    /// Test member and free `swap`.
     static void testCase8();
-        // Test member and free 'swap'.
 };
 
 template <class KEY, class VALUE, class COMP>
@@ -3723,40 +3740,42 @@ namespace UsageExample {
 //
 ///Example 1: Creating a Trade Matching System
 ///- - - - - - - - - - - - - - - - - - - - - -
-// In this example, we will utilize 'bsl::map' to define and implement a class,
-// 'TradeMatcher', that provides a simple trade matching system for a single
-// stock.  The manipulators of 'TradeMatcher' will allow clients to place buy
-// orders and sell orders, and the accessors of 'TradeMatcher' will allow
+// In this example, we will utilize `bsl::map` to define and implement a class,
+// `TradeMatcher`, that provides a simple trade matching system for a single
+// stock.  The manipulators of `TradeMatcher` will allow clients to place buy
+// orders and sell orders, and the accessors of `TradeMatcher` will allow
 // clients to retrieve active orders and past executions.
 //
-// First, we define the public interface for 'TradeMatcher':
-//..
+// First, we define the public interface for `TradeMatcher`:
+// ```
+
+/// This class provides a mechanism that characterizes a simple trade
+/// matching system for one stock.  An object of this class allows clients
+/// to place orders and view the active orders.
 class TradeMatcher {
-    // This class provides a mechanism that characterizes a simple trade
-    // matching system for one stock.  An object of this class allows clients
-    // to place orders and view the active orders.
-//..
-// Here, we create two type aliases, 'SellOrdersMap' and 'BuyOrdersMap', for
-// two 'bsl::map' instantiations that maps the price of an order (type
-// 'double') to the quantity of the order (type 'int').  'SellOrdersMap' uses
-// the default 'bsl::less' comparator to store the sequence of sell orders in
-// ascending price order.  'BuyOrdersMap' uses the 'bsl::greater' comparator to
+// ```
+// Here, we create two type aliases, `SellOrdersMap` and `BuyOrdersMap`, for
+// two `bsl::map` instantiations that maps the price of an order (type
+// `double`) to the quantity of the order (type `int`).  `SellOrdersMap` uses
+// the default `bsl::less` comparator to store the sequence of sell orders in
+// ascending price order.  `BuyOrdersMap` uses the `bsl::greater` comparator to
 // store the sequence of buy orders in descending price order.  Also note that
-// we use the default 'ALLOCATOR' template parameter for both aliases as we
-// intend to provide memory with 'bslma' style allocators:
-//..
+// we use the default `ALLOCATOR` template parameter for both aliases as we
+// intend to provide memory with `bslma` style allocators:
+// ```
     // PRIVATE TYPES
+
+    /// This `typedef` is an alias for a mapping between the price and
+    /// quantity of an order in ascending price order.
     typedef bsl::map<double, int> SellOrdersMap;
-        // This 'typedef' is an alias for a mapping between the price and
-        // quantity of an order in ascending price order.
 
+    /// This `typedef` is an alias for a mapping between the price and
+    /// quantity of an order in descending price order.
     typedef bsl::map<double, int, std::greater<double> > BuyOrdersMap;
-        // This 'typedef' is an alias for a mapping between the price and
-        // quantity of an order in descending price order.
 
+    /// This `typedef` is an alias for a `vector` of executions, each of
+    /// which comprises the execution price and quantity.
     typedef bsl::vector<bsl::pair<double, int> > ExecutionVector;
-        // This 'typedef' is an alias for a 'vector' of executions, each of
-        // which comprises the execution price and quantity.
 
     // DATA
     SellOrdersMap   d_sellOrders;  // current sell orders
@@ -3769,72 +3788,76 @@ class TradeMatcher {
 
   public:
     // PUBLIC TYPES
-    typedef SellOrdersMap::const_iterator SellOrdersConstIterator;
-        // This 'typedef' provides an alias for the type of an iterator
-        // providing non-modifiable access to sell orders in a 'TradeMatcher'.
 
+    /// This `typedef` provides an alias for the type of an iterator
+    /// providing non-modifiable access to sell orders in a `TradeMatcher`.
+    typedef SellOrdersMap::const_iterator SellOrdersConstIterator;
+
+    /// This `typedef` provides an alias for the type of an iterator
+    /// providing non-modifiable access to buy orders in a `TradeMatcher`.
     typedef BuyOrdersMap::const_iterator BuyOrdersConstIterator;
-        // This 'typedef' provides an alias for the type of an iterator
-        // providing non-modifiable access to buy orders in a 'TradeMatcher'.
 
     // CREATORS
+
+    /// Create an empty `TradeMatcher` object.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.
     explicit
     TradeMatcher(bslma::Allocator *basicAllocator = 0);
-        // Create an empty 'TradeMatcher' object.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
 
     //! ~TradeMatcher() = default;
         // Destroy this object.
 
     // MANIPULATORS
-    void placeBuyOrder(double price, int numShares);
-        // Place an order to buy the specified 'numShares' at the specified
-        // 'price'.  The placed buy order will (possibly partially) execute
-        // when active sale orders exist in the system at or below 'price'.
-        // The behavior is undefined unless '0 < price' and '0 < numShares'.
 
+    /// Place an order to buy the specified `numShares` at the specified
+    /// `price`.  The placed buy order will (possibly partially) execute
+    /// when active sale orders exist in the system at or below `price`.
+    /// The behavior is undefined unless `0 < price` and `0 < numShares`.
+    void placeBuyOrder(double price, int numShares);
+
+    /// Place an order to sell the specified `numShares` at the specified
+    /// `price`.  The placed sell order will (possibly partially) execute
+    /// when active buy orders exist in the system at or above `price`.  The
+    /// behavior is undefined unless `0 < price` and `0 < numShares`.
     void placeSellOrder(double price, int numShares);
-        // Place an order to sell the specified 'numShares' at the specified
-        // 'price'.  The placed sell order will (possibly partially) execute
-        // when active buy orders exist in the system at or above 'price'.  The
-        // behavior is undefined unless '0 < price' and '0 < numShares'.
 
     // ACCESSORS
+
+    /// Return an iterator providing non-modifiable access to the active
+    /// sell order at the lowest price in the ordered sequence (from low
+    /// price to high price) of sell orders maintained by this object.
     SellOrdersConstIterator beginSellOrders() const;
-        // Return an iterator providing non-modifiable access to the active
-        // sell order at the lowest price in the ordered sequence (from low
-        // price to high price) of sell orders maintained by this object.
 
+    /// Return an iterator providing non-modifiable access to the
+    /// past-the-end sell order in the ordered sequence (from low price to
+    /// high price) of sell orders maintained by this object.
     SellOrdersConstIterator endSellOrders() const;
-        // Return an iterator providing non-modifiable access to the
-        // past-the-end sell order in the ordered sequence (from low price to
-        // high price) of sell orders maintained by this object.
 
+    /// Return an iterator providing non-modifiable access to the active buy
+    /// order at the highest price in the ordered sequence (from high price
+    /// to low price) of buy orders maintained by this object.
     BuyOrdersConstIterator beginBuyOrders() const;
-        // Return an iterator providing non-modifiable access to the active buy
-        // order at the highest price in the ordered sequence (from high price
-        // to low price) of buy orders maintained by this object.
 
+    /// Return an iterator providing non-modifiable access to the
+    /// past-the-end buy order in the ordered sequence (from high price to
+    /// low price) of buy orders maintained by this object.
     BuyOrdersConstIterator endBuyOrders() const;
-        // Return an iterator providing non-modifiable access to the
-        // past-the-end buy order in the ordered sequence (from high price to
-        // low price) of buy orders maintained by this object.
 };
 
-//..
-// Now, we define the implementations methods of the 'TradeMatcher' class:
-//..
+// ```
+// Now, we define the implementations methods of the `TradeMatcher` class:
+// ```
 // CREATORS
 TradeMatcher::TradeMatcher(bslma::Allocator *basicAllocator)
 : d_sellOrders(basicAllocator)
 , d_buyOrders(basicAllocator)
 {
 }
-//..
-// Notice that, on construction, we pass the contained 'bsl::map' objects the
-// 'bsl::Allocator' supplied at construction'.
-//..
+// ```
+// Notice that, on construction, we pass the contained `bsl::map` objects the
+// `bsl::Allocator` supplied at construction'.
+// ```
 // MANIPULATORS
 void TradeMatcher::placeBuyOrder(double price, int numShares)
 {
@@ -3843,7 +3866,7 @@ void TradeMatcher::placeBuyOrder(double price, int numShares)
 
     // Buy shares from sellers from the one with the lowest price up to but not
     // including the first seller with a price greater than the specified
-    // 'price'.
+    // `price`.
 
     SellOrdersMap::iterator itr = d_sellOrders.begin();
 
@@ -3870,7 +3893,7 @@ void TradeMatcher::placeSellOrder(double price, int numShares)
 
     // Sell shares to buyers from the one with the highest price up to but not
     // including the first buyer with a price smaller than the specified
-    // 'price'.
+    // `price`.
 
     BuyOrdersMap::iterator itr = d_buyOrders.begin();
 
@@ -3910,7 +3933,7 @@ TradeMatcher::BuyOrdersConstIterator TradeMatcher::endBuyOrders() const
 {
     return d_buyOrders.end();
 }
-//..
+// ```
 
 }  // close namespace UsageExample
 
@@ -3944,13 +3967,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -4000,13 +4023,13 @@ int main(int argc, char *argv[])
       case 30: // falls through
       case 29: {
         if (verbose) printf(
-                   "\nTEST CASE %d IS DELEGATED TO 'bslstl_map_test3.t.cpp'"
+                   "\nTEST CASE %d IS DELEGATED TO `bslstl_map_test3.t.cpp`"
                    "\n=====================================================\n",
                    test);
       } break;
       case 28: {
         if (verbose) printf(
-                   "\nTEST CASE %d IS DELEGATED TO 'bslstl_map_test2.t.cpp'"
+                   "\nTEST CASE %d IS DELEGATED TO `bslstl_map_test2.t.cpp`"
                    "\n=====================================================\n",
                    test);
       } break;
@@ -4030,16 +4053,16 @@ int main(int argc, char *argv[])
       case 10: // falls through
       case  9: {
         if (verbose) printf(
-                   "\nTEST CASE %d IS DELEGATED TO 'bslstl_map_test1.t.cpp'"
+                   "\nTEST CASE %d IS DELEGATED TO `bslstl_map_test1.t.cpp`"
                    "\n=====================================================\n",
                    test);
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // MANIPULATOR AND FREE FUNCTION 'swap'
+        // MANIPULATOR AND FREE FUNCTION `swap`
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nMANIPULATOR AND FREE FUNCTION 'swap'"
+        if (verbose) printf("\nMANIPULATOR AND FREE FUNCTION `swap`"
                             "\n====================================\n");
 
         RUN_EACH_TYPE(MetaTestDriver,
@@ -4048,9 +4071,9 @@ int main(int argc, char *argv[])
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
 
-        // Because the 'KEY' type in the pair is 'const', the move c'tor for
-        // 'bsl::map' calls the copy c'tor of 'KEY'.  So we can't swap a
-        // container with a move-only 'KEY'.
+        // Because the `KEY` type in the pair is `const`, the move c'tor for
+        // `bsl::map` calls the copy c'tor of `KEY`.  So we can't swap a
+        // container with a move-only `KEY`.
 
         MetaTestDriver<int,
                        bsltf::MoveOnlyAllocTestType>::testCase8();
@@ -4132,7 +4155,7 @@ int main(int argc, char *argv[])
 
         TestDriver<TestKeyType, TestValueType>::testCase7();
 
-        // 'select_on_container_copy_construction' testing
+        // `select_on_container_copy_construction` testing
 
         if (verbose) printf("\nCOPY CONSTRUCTOR: ALLOCATOR PROPAGATION"
                             "\n=======================================\n");
@@ -4203,10 +4226,10 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // GENERATOR FUNCTIONS 'gg' and 'ggg'
+        // GENERATOR FUNCTIONS `gg` and `ggg`
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting 'gg'"
+        if (verbose) printf("\nTesting `gg`"
                             "\n============\n");
 
         RUN_EACH_TYPE(TestDriver,
@@ -4251,12 +4274,12 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Run each method with arbitrary inputs and verify the behavior is
-        //:   as expected.
+        // 1. Run each method with arbitrary inputs and verify the behavior is
+        //    as expected.
         //
         // Testing:
         //   BREATHING TEST
@@ -4281,7 +4304,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            // verify integrity of 'DEFAULT_DATA'
+            // verify integrity of `DEFAULT_DATA`
 
             const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
             const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;

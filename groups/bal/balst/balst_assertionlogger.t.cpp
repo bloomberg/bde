@@ -31,8 +31,8 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// We will use a 'balst::TestObserver' to see whether the
-// 'balst::AssertionLogger' system reports assertion failures at various
+// We will use a `balst::TestObserver` to see whether the
+// `balst::AssertionLogger` system reports assertion failures at various
 // severity levels.
 //-----------------------------------------------------------------------------
 //CLASS METHODS
@@ -118,7 +118,7 @@ class SeverityCB
                                           const char *,
                                           const char *,
                                           int);
-        // Indirect to the specified 'severityCB' class object, ignoring the
+        // Indirect to the specified `severityCB` class object, ignoring the
         // available text, file, and line information.
 };
 
@@ -150,9 +150,9 @@ AlwaysAssert::~AlwaysAssert()
 }
 
 struct NumReturnReports {
-    // This 'struct' anticipates the number of reports that will be generated
-    // from 'BSLS_ASSERT_OPT' complaining about it having been returned from.
-    // 'BSLS_ASSERT_OPT' will publish two reports to ball every time it returns
+    // This `struct` anticipates the number of reports that will be generated
+    // from `BSLS_ASSERT_OPT` complaining about it having been returned from.
+    // `BSLS_ASSERT_OPT` will publish two reports to ball every time it returns
     // when the count of returns (including the current return) was a power of
     // 2.
 
@@ -162,12 +162,12 @@ struct NumReturnReports {
     NumReturnReports()
     : d_numReturns(0)
     , d_numPublished(0)
-        // Create a 'ReturnNumReports' object.
+        // Create a `ReturnNumReports` object.
     {}
 
     void operator++()
-        // Update 'd_numPublished', if appropriate, and increment
-        // 'd_numReturns'.
+        // Update `d_numPublished`, if appropriate, and increment
+        // `d_numReturns`.
     {
         ++d_numReturns;
         if (0 == (d_numReturns & (d_numReturns - 1))) {
@@ -201,14 +201,14 @@ struct NumReturnReports {
 // want to avoid causing crashes in production applications, since we expect
 // that frequently the overflow in "working" legacy code is only overwriting
 // the null terminating byte and is otherwise harmless.  We can use the
-// 'balst::AssertionLogger::failTrace' assertion-failure callback to replace
+// `balst::AssertionLogger::failTrace` assertion-failure callback to replace
 // the default callback, which aborts the task, with one that will log the
 // failure and the call-stack at which it occurred.
 //
 // First, we write a dubious legacy date routine:
-//..
+// ```
 void getDayAndDate(char *buf, const struct tm *datetime)
-    // Format the specified 'datetime' into the specified 'buf' as
+    // Format the specified `datetime` into the specified `buf` as
     // "Weekday, Month N", e.g., "Monday, May 6".
 {
     static const char *const months[] = {
@@ -229,10 +229,10 @@ void getDayAndDate(char *buf, const struct tm *datetime)
     }
     strcat(buf, digits[datetime->tm_mday % 10]);
 }
-//..
+// ```
 // Then, we write a buggy function that will inadvertently over-write the null
-// terminator in a 'bsl::string':
-//..
+// terminator in a `bsl::string`:
+// ```
 void getLateSummerDate(bsl::string *date)
     // "Try to remember a time in ..."
 {
@@ -249,11 +249,11 @@ void getLateSummerDate(bsl::string *date)
     date->resize(22);  // Surely this is long enough...
     getDayAndDate(const_cast<char *>(date->c_str()), &datetime);
 }
-//..
+// ```
 // Next, we embed this code deep in the heart of a large system, compile it
 // with optimization, and have it run, apparently successfully, for several
 // years.
-//..
+// ```
 void big_important_highly_visible_subsystem()
     // If this crashes, you're fired!
 {
@@ -262,11 +262,11 @@ void big_important_highly_visible_subsystem()
     getLateSummerDate(&s);
     // lots more code...
 }
-//..
+// ```
 // Now, someone comes along and insists that all assertions must be turned on
 // due to heightened auditing requirements.  He is prevailed upon to agree that
 // logging the assertions is preferable to crashing.  We do so:
-//..
+// ```
 void protect_the_subsystem()
     // Protect your job, too!
 {
@@ -274,19 +274,19 @@ void protect_the_subsystem()
                               balst::AssertionLogger::assertionFailureHandler);
     big_important_highly_visible_subsystem();
 }
-//..
+// ```
 // Finally, we activate the logging handler and find logged errors similar to
 // the following, indicating bugs that must be fixed.  The hexadecimal stack
 // trace can be merged against the executable program to determine the location
 // of the error.
-//..
+// ```
     // [ [ ... balst_assertionlogger.cpp 55 Assertion.Failure 32
     // Assertion failed: (*this)[this->d_length] == CHAR_TYPE(),
     // file .../bslstl_string.h, line 3407
     // For stack trace, run 'showfunc.tsk <your_program_binary>
     //    0x805d831 0x804f8cc 0x804e3f9 ...
     // ]  { } ]
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -320,14 +320,14 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
-        //:
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
+        //
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -353,33 +353,33 @@ int main(int argc, char *argv[])
         // ASSERT TRACING
         //
         // Concerns:
-        //: 1 Verify that 'balst::AssertionLogger' respects the severity level
-        //:   at which it is asked to report assertions.
-        //:
-        //: 2 Verify that the log message contains a stack trace.
-        //:
-        //: 3 Verify that an established severity callback is used to obtain
-        //:   the severity level to be used.
-        //:
-        //: 4 Verify that no logging (attempt) occurs for severity OFF.
+        // 1. Verify that `balst::AssertionLogger` respects the severity level
+        //    at which it is asked to report assertions.
+        //
+        // 2. Verify that the log message contains a stack trace.
+        //
+        // 3. Verify that an established severity callback is used to obtain
+        //    the severity level to be used.
+        //
+        // 4. Verify that no logging (attempt) occurs for severity OFF.
         //
         // Plan:
-        //: 1 Set the severity level for reporting to various levels, some
-        //:   which report by default and some which are silenced.  Verify that
-        //:   when assertions are triggered, they are reported or not as the
-        //:   severity specifies. (C-1)
-        //:
-        //: 2 When a log record is produced, examine it to verify that it
-        //:   contains a method name expected to be in the stack trace. (C-2)
-        //:
-        //: 3 Set up a callback that returns 'e_FATAL' and verify that a record
-        //:   is logged on assertion failure.  Set up a callback that returns
-        //:   'e_WARN' and verify that a record is not logged on assertion
-        //:   failure. (C-3)
-        //:
-        //: 4 Set the 'ball::LoggerManager' pass threshold to 255 (meaning
-        //:   all), set the defualt log severity to 'e_OFF', trigger an
-        //:   assertion, and verify that a record is not logged.  (C-4)
+        // 1. Set the severity level for reporting to various levels, some
+        //    which report by default and some which are silenced.  Verify that
+        //    when assertions are triggered, they are reported or not as the
+        //    severity specifies. (C-1)
+        //
+        // 2. When a log record is produced, examine it to verify that it
+        //    contains a method name expected to be in the stack trace. (C-2)
+        //
+        // 3. Set up a callback that returns `e_FATAL` and verify that a record
+        //    is logged on assertion failure.  Set up a callback that returns
+        //    `e_WARN` and verify that a record is not logged on assertion
+        //    failure. (C-3)
+        //
+        // 4. Set the `ball::LoggerManager` pass threshold to 255 (meaning
+        //    all), set the defualt log severity to `e_OFF`, trigger an
+        //    assertion, and verify that a record is not logged.  (C-4)
         //
         // Testing:
         // [ 1] void assertionFailureHandler(*text, *file, int line);

@@ -15,7 +15,7 @@
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strlen(), memset(), memcpy(), memcmp()
 
-#include <bsl_new.h>         // placement 'new' syntax
+#include <bsl_new.h>         // placement `new` syntax
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -27,8 +27,8 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // The component under test is a utility consisting of three functions,
-// 'addCategoryHierarchically', 'setThresholdLevelsHierarchically', and
-// 'setThresholdLevels' (deprecated).  These methods are tested using a
+// `addCategoryHierarchically`, `setThresholdLevelsHierarchically`, and
+// `setThresholdLevels` (deprecated).  These methods are tested using a
 // table-based approach where the following test data consisting of valid and
 // invalid threshold level values, category names, and patterns are populated.
 //
@@ -117,24 +117,24 @@ void printAllCategories()
     lm.visitCategories(bdlf::BindUtil::bind(printCategory,  _1));
 }
 
-// The function 'dtlCallbackRaw' below sets the values returned through the
+// The function `dtlCallbackRaw` below sets the values returned through the
 // first four arguments of its parameter list to the values of the four fields
-// of this 'struct', respectively.
+// of this `struct`, respectively.
 
 ball::ThresholdAggregate callbackLevels;
 
+/// Callback to be used by the logger manager to obtain new logging
+/// threshold levels for a new category that is about to be created.  For
+/// the purposes of this test, return values through the specified
+/// `recordLevel`, `passLevel`, `triggerLevel`, and `triggerAllLevel`.
+/// Verify that no category with the specified `categoryName` exists.  The
+/// behavior is undefined if this method is called when the logger manager
+/// singleton is not initialized.
 void dtlCallbackRaw(int        *recordLevel,
                     int        *passLevel,
                     int        *triggerLevel,
                     int        *triggerAllLevel,
                     const char *categoryName)
-    // Callback to be used by the logger manager to obtain new logging
-    // threshold levels for a new category that is about to be created.  For
-    // the purposes of this test, return values through the specified
-    // 'recordLevel', 'passLevel', 'triggerLevel', and 'triggerAllLevel'.
-    // Verify that no category with the specified 'categoryName' exists.  The
-    // behavior is undefined if this method is called when the logger manager
-    // singleton is not initialized.
 {
     ASSERT(0 == ball::LoggerManager::singleton().lookupCategory(categoryName));
 
@@ -144,10 +144,10 @@ void dtlCallbackRaw(int        *recordLevel,
     *triggerAllLevel = callbackLevels.triggerAllLevel();
 }
 
+/// The method `setDefaultThresholdLevelsCallback` won't take just a
+/// function ptr, it needs a pointer to this `bsl::function` type.
 ball::LoggerManager::DefaultThresholdLevelsCallback dtlCallback(
                                                               &dtlCallbackRaw);
-    // The method 'setDefaultThresholdLevelsCallback' won't take just a
-    // function ptr, it needs a pointer to this 'bsl::function' type.
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -214,19 +214,19 @@ int main(int argc, char *argv[])
         // TESTING SETTHRESHOLDLEVELS
         //
         // Concerns:
-        //   Our concern is that 'setThresholdLevels' behaves correctly with
+        //   Our concern is that `setThresholdLevels` behaves correctly with
         //   representative threshold level values (both valid and invalid) and
         //   patterns.
         //
         // Plan:
         //   Initialize the logger manager singleton and populate its category
         //   registry from a tabulated set of names.  First verify that
-        //   'setThresholdLevels' has no effect on existing categories when
+        //   `setThresholdLevels` has no effect on existing categories when
         //   invalid threshold level values are passed as arguments.  Next
-        //   test 'setThresholdLevels' with the cross product of a tabulated
+        //   test `setThresholdLevels` with the cross product of a tabulated
         //   set of patterns and a tabulated set of valid threshold level
         //   values.  Verify using appropriate asserts that the categories that
-        //   match a given pattern are indeed modified by 'setThresholdLevels'
+        //   match a given pattern are indeed modified by `setThresholdLevels`
         //   whereas the categories that fail to match the pattern are
         //   unaffected.
         //
@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
         //   static int setThresholdLevels(*lm, *pat, int, int, int, int);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "Testing 'setThresholdLevels'" << endl
+        if (verbose) cout << endl << "Testing `setThresholdLevels`" << endl
                                   << "============================" << endl;
 
         // Initialize Logger Manager.
@@ -466,7 +466,7 @@ int main(int argc, char *argv[])
         // TESTING SETTHRESHOLDLEVELSHIERARCHICALLY
         //
         // Concerns:
-        //   Our concern is that 'setThresholdLevelsHierarchically' behaves
+        //   Our concern is that `setThresholdLevelsHierarchically` behaves
         //   correctly with representative threshold level values (both valid
         //   and invalid) and should adjust threshold levels only for those
         //   prefix-matching categories without affecting others.
@@ -474,13 +474,13 @@ int main(int argc, char *argv[])
         // Plan:
         //   Initialize the logger manager singleton and populate its category
         //   registry from a tabulated set of names.  First verify that
-        //   'setThresholdLevelsHierarchically' has no effect on existing
+        //   `setThresholdLevelsHierarchically` has no effect on existing
         //   categories when invalid threshold level values are passed as
-        //   arguments.  Next test 'setThresholdLevelsHierarchically' with the
+        //   arguments.  Next test `setThresholdLevelsHierarchically` with the
         //   cross product of a tabulated set of category names and a
         //   tabulated set of valid threshold level values.  Verify using
         //   appropriate asserts that the categories that match a given name
-        //   prefix are indeed modified by 'setThresholdLevels' whereas the
+        //   prefix are indeed modified by `setThresholdLevels` whereas the
         //   categories that fail to match the name prefix are unaffected.
         //
         // Testing:
@@ -488,7 +488,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing 'setThresholdLevelsHierarchically'"
+                          << "Testing `setThresholdLevelsHierarchically`"
                           << endl
                           << "=========================================="
                           << endl;
@@ -728,7 +728,7 @@ int main(int argc, char *argv[])
         // TESTING ADDCATEGORYHIERARCHICALLY
         //
         // Concerns:
-        //   Our concern is that 'addCategoryHierarchically' behaves correctly
+        //   Our concern is that `addCategoryHierarchically` behaves correctly
         //   with representative threshold level values (both valid and
         //   invalid), adds the category with the correct threshold levels or
         //   has no effect if the specified category already exists.
@@ -737,9 +737,9 @@ int main(int argc, char *argv[])
         // Initialize the logger manager singleton and populate its category
         // registry with the cross product of a tabulated set of category
         // names and a tabulated set of different but valid threshold levels.
-        // First verify that 'addCategoryHierarchically' has no effect on
+        // First verify that `addCategoryHierarchically` has no effect on
         // existing categories when the category with the specified name
-        // already exists.  Next test 'addCategoryHierarchically' by adding one
+        // already exists.  Next test `addCategoryHierarchically` by adding one
         // by one a tabulated set of category names that are not present in
         // the logger manager.  Verify using appropriate asserts that the
         // categories being added always inherit threshold levels from the
@@ -751,7 +751,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing 'addCategoryHierarchically'"
+                          << "Testing `addCategoryHierarchically`"
                           << endl
                           << "==================================="
                           << endl;
@@ -804,11 +804,11 @@ int main(int argc, char *argv[])
                 int         d_baseIdx;          // index of base category (-1
                                                 // for none)
             } DATA[] = {                                             // ADJUST
-                //..
+                // ```
                 // line  cat      record pass  trigger    tAll
                 // no.   name     level  level  level    level pop base
                 // ----  -----    ------ ------ ------   ----- --- ----
-                //..
+                // ```
                 {  L_,      "",    DRL,    DPL,    DTL,   DTAL,  1,  -1 },// 0
                 {  L_,     "x",      5,      6,      7,      8,  1,  -1 },// 1
                 {  L_,    "x*",      9,     10,     11,     12,  1,  -1 },// 2
@@ -821,7 +821,7 @@ int main(int argc, char *argv[])
                 // Entries above will be used to populate the registry.
 
                 // Entries below will be added using
-                // 'addCategoryHierarchically'.
+                // `addCategoryHierarchically`.
                 {  L_,   "xyz",     -1,     -1,     -1,     -1,  0,   3 },// 8
                 {  L_,    "yy",     -1,     -1,     -1,     -1,  0,   4 },// 9
                 {  L_,     "z",  CBDRL,  CBDPL,  CBDTL, CBDTAL,  0,  -1 },//10

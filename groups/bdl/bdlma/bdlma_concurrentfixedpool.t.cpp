@@ -27,8 +27,8 @@
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
-#include <bsl_cstdlib.h>     // 'atoi'
-#include <bsl_cstring.h>     // 'memcpy'
+#include <bsl_cstdlib.h>     // `atoi`
+#include <bsl_cstring.h>     // `memcpy`
 #include <bsl_deque.h>
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
@@ -130,20 +130,20 @@ struct MostDerived : LeftChild, MiddleChild, RightChild {
 
 ///Usage
 ///-----
-// 'bdlma::ConcurrentFixedPool' is intended to implement *out-of-place*
+// `bdlma::ConcurrentFixedPool` is intended to implement *out-of-place*
 // container classes that hold up to a fixed number of elements, all of uniform
 // size.  Suppose we wish to implement a simple thread pool.  We want the
-// equivalent of a 'bsl::deque<bsl::function<void(void)> >'.  However, to
+// equivalent of a `bsl::deque<bsl::function<void(void)> >`.  However, to
 // minimize the time spent performing operations on this deque - which must be
 // carried out under a lock - we instead store just pointers in the deque, and
-// manage memory efficiently using 'bdlma::ConcurrentFixedPool'.
-// 'bdlma::ConcurrentFixedPool' is fully thread-safe and does not require any
+// manage memory efficiently using `bdlma::ConcurrentFixedPool`.
+// `bdlma::ConcurrentFixedPool` is fully thread-safe and does not require any
 // additional synchronization.
 //
 // The example below is just for the container portion of our simple thread
 // pool.  The implementation of the worker thread, and the requisite
 // synchronization, are omitted for clarity.
-//..
+// ```
     class my_JobQueue {
 
       public:
@@ -212,12 +212,12 @@ struct MostDerived : LeftChild, MiddleChild, RightChild {
         d_pool.deleteObject(jobPtr);
         return 0;
     }
-//..
+// ```
 // Note that in the destructor, there is no need to deallocate the individual
-// job objects - the destructor of 'bdlma::ConcurrentFixedPool' will release
+// job objects - the destructor of `bdlma::ConcurrentFixedPool` will release
 // any remaining allocated memory.  However, it *is* necessary to invoke the
 // destructors of all these objects, as the destructor of
-// 'bdlma::ConcurrentFixedPool' will not do so.
+// `bdlma::ConcurrentFixedPool` will not do so.
 
 void sum5(double* result,
           double  op1,
@@ -230,7 +230,7 @@ void sum5(double* result,
 }
 
 //=============================================================================
-//                CONCRETE OBJECTS FOR TESTING 'deleteObject'
+//                CONCRETE OBJECTS FOR TESTING `deleteObject`
 //-----------------------------------------------------------------------------
 
 static int my_ClassCode = 0;
@@ -522,16 +522,16 @@ int main(int argc, char *argv[]) {
         // ALLOCATOR ACCESSOR TEST
         //
         // Concerns:
-        //: 1. 'allocator()' accessor returns the expected value.
-        //:
-        //: 2. 'allocator()' accessor is declared const.
+        //  1. `allocator()` accessor returns the expected value.
+        //
+        //  2. `allocator()` accessor is declared const.
         //
         // Plan:
-        //: 1 To test 'allocator', create object with various allocators and
-        //:   ensure the returned value matches the supplied allocator.  (C-1)
-        //:
-        //: 2 Directly test that 'allocator()', invoked on a 'const' object,
-        //:   returns the expected value.  (C-1..2)
+        // 1. To test `allocator`, create object with various allocators and
+        //    ensure the returned value matches the supplied allocator.  (C-1)
+        //
+        // 2. Directly test that `allocator()`, invoked on a `const` object,
+        //    returns the expected value.  (C-1..2)
         //
         // Testing:
         //   bslma::Allocator *allocator() const;
@@ -543,7 +543,7 @@ int main(int argc, char *argv[]) {
         const int BLOCK_SIZE = 5;
         const int POOL_SIZE  = 100;
 
-        if (verbose) cout << "\nTesting 'allocator'." << endl;
+        if (verbose) cout << "\nTesting `allocator`." << endl;
         {
             Obj mX(BLOCK_SIZE, POOL_SIZE);  const Obj& X = mX;
             ASSERT(&defaultAllocator == X.allocator());
@@ -568,15 +568,15 @@ int main(int argc, char *argv[]) {
         // TESTING deleteObject AND deleteObjectRaw
         //
         // Concerns:
-        //   That 'deleteObject' and 'deleteObjectRaw' properly destroy and
+        //   That `deleteObject` and `deleteObjectRaw` properly destroy and
         //   deallocate managed objects.
         //
         // Plan:
         //   Iterate where at the beginning of the loop, we create an object
-        //   of type 'mostDerived' that multiply inherits from two types with
+        //   of type `mostDerived` that multiply inherits from two types with
         //   virtual destructors.  Then in the middle of the loop we switch
         //   into several ways of destroying and deallocating the object with
-        //   various forms of 'deleteObjectRaw' and 'deleteObject', after
+        //   various forms of `deleteObjectRaw` and `deleteObject`, after
         //   which we verify that the destructors have been run.  Each
         //   iteration we verify that the memory we got was the same as for
         //   the previous iteration, which shows that memory is being
@@ -721,24 +721,24 @@ int main(int argc, char *argv[]) {
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // MEMBER TEMPLATE METHOD 'deleteObject' TEST:
-        //   We want to make sure that when 'deleteObject' is used both
-        //   destructor and 'deallocate' are invoked.
+        // MEMBER TEMPLATE METHOD `deleteObject` TEST:
+        //   We want to make sure that when `deleteObject` is used both
+        //   destructor and `deallocate` are invoked.
         //
         // Plan:
         //   Using a pool and placement new operator construct objects of
-        //   two different classes.  Invoke 'deleteObject' to delete
+        //   two different classes.  Invoke `deleteObject` to delete
         //   constructed objects and check that both destructor and
-        //   'deallocate' have been called.
+        //   `deallocate` have been called.
         //
         // Testing:
         //   template<typename TYPE> void deleteObject(TYPE *object)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "'deleteObject' TEST" << endl
+        if (verbose) cout << endl << "`deleteObject` TEST" << endl
                                   << "===================" << endl;
 
-        if (verbose) cout << "\nTesting 'deleteObject':" << endl;
+        if (verbose) cout << "\nTesting `deleteObject`:" << endl;
         {
             bslma::TestAllocator a(veryVeryVerbose);
 
@@ -765,7 +765,7 @@ int main(int argc, char *argv[]) {
             //ASSERT(A.numAllocations() == 1);
                   // By observing that the number of allocations stays at one
                   // we confirm that the memory obtained from the pool has been
-                  // returned by 'deleteObject'.  Had it not been returned, the
+                  // returned by `deleteObject`.  Had it not been returned, the
                   // call to allocate would have required another allocation
                   // from the allocator.
 
@@ -785,7 +785,7 @@ int main(int argc, char *argv[]) {
             //ASSERT(A.numAllocations() == 1);
         }
 
-        if (verbose) cout << "\nTesting 'deleteObject' on polymorphic types:"
+        if (verbose) cout << "\nTesting `deleteObject` on polymorphic types:"
                           << endl;
         {
             bslma::TestAllocator a(veryVeryVerbose);
@@ -887,7 +887,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << endl << "RESERVECAPACITY TEST" << endl
                                   << "====================" << endl;
 
-        if (verbose) cout << "\nTesting 'reserveCapacity'." << endl;
+        if (verbose) cout << "\nTesting `reserveCapacity`." << endl;
 
         bslma::TestAllocator a;    const bslma::TestAllocator& A = a;
         {
@@ -954,7 +954,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << endl << "USAGE EXAMPLE TEST" << endl
                                   << "==================" << endl;
 
-        if (verbose) cout << "\nTesting 'my_JobQueue'." << endl;
+        if (verbose) cout << "\nTesting `my_JobQueue`." << endl;
 
         bslma::TestAllocator a;
         {
@@ -980,9 +980,9 @@ int main(int argc, char *argv[]) {
       case 3: {
         // --------------------------------------------------------------------
         // RELEASE TEST
-        //   Initialize two pools with varying object sizes and 'numObjects',
-        //   and supply each with its own test allocator.  Invoke 'allocate'
-        //   repeatedly.  Invoke 'release' on one pool, and allow the other
+        //   Initialize two pools with varying object sizes and `numObjects`,
+        //   and supply each with its own test allocator.  Invoke `allocate`
+        //   repeatedly.  Invoke `release` on one pool, and allow the other
         //   pool to go out of scope.  Verify that both allocators indicate all
         //   memory has been released by the pools.
         //
@@ -994,7 +994,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << endl << "RELEASE TEST" << endl
                                   << "============" << endl;
 
-        if (verbose) cout << "\nTesting 'release' and destructor." << endl;
+        if (verbose) cout << "\nTesting `release` and destructor." << endl;
 
         struct {
             int d_line;
@@ -1031,7 +1031,7 @@ int main(int argc, char *argv[]) {
                 if (veryVerbose) { T_; P(TAX.numBytesInUse()); }
 
                 if (veryVerbose) { T_; P_(TAY.numBytesInUse()); }
-                // Let 'mY' go out of scope.
+                // Let `mY` go out of scope.
             }
             if (veryVerbose) { T_; P(TAY.numBytesInUse()); }
 
@@ -1050,7 +1050,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << endl << "RELEASE TEST" << endl
                                   << "============" << endl;
 
-        if (verbose) cout << "\nTesting 'release' and destructor." << endl;
+        if (verbose) cout << "\nTesting `release` and destructor." << endl;
 
         bslma::TestAllocator a;    const bslma::TestAllocator& A = a;
         {
@@ -1142,7 +1142,7 @@ int main(int argc, char *argv[]) {
                                   << "=============" << endl;
 
         if (verbose) cout <<
-                  "\nTesting 'addressFromIndex()/indexFromAddress()'." << endl;
+                  "\nTesting `addressFromIndex()/indexFromAddress()`." << endl;
 
         bslma::TestAllocator a;    const bslma::TestAllocator& A = a;
         {

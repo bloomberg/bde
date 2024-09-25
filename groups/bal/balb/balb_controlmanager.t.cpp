@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove
-        //   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //   leading comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -235,39 +235,39 @@ int main(int argc, char *argv[])
       }  break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'registerUsageHandler' METHOD
+        // TESTING `registerUsageHandler` METHOD
         //
         // Concerns:
-        //: 1 There is no default "HELP" message handler.
-        //: 2 The "HELP" message handler lists "HELP".
-        //: 3 The "HELP" message handler can be reinstalled without effect.
-        //: 4 The "HELP" message handler lists all registered messages.
-        //: 5 The "HELP" message prefix is case insensitive and any additional
-        //:   arguments are ignored.
+        // 1. There is no default "HELP" message handler.
+        // 2. The "HELP" message handler lists "HELP".
+        // 3. The "HELP" message handler can be reinstalled without effect.
+        // 4. The "HELP" message handler lists all registered messages.
+        // 5. The "HELP" message prefix is case insensitive and any additional
+        //    arguments are ignored.
         //
         // Plan:
-        //: 1 A series of ad hoc tests using a default constructed
-        //:   'ControlManager' object.
-        //:
-        //: 2 Check response before the HELP message handler is installed
-        //:   ('dispatchMesage' fails so no default handler), after
-        //:   installation, and after a second invocation of
-        //:   'registerUsageHandler'.
-        //:
-        //: 3 Incrementally register additional message handlers.  Confirm that
-        //:   the HELP message handler s shows all currently installed
-        //:   handlers in alphabetical order.
-        //:
-        //: 4 The HELP message handler shows the expected result irrespective
-        //:   of the case of the prefix and irrespective of additional text
-        //:   after the prefix.
+        // 1. A series of ad hoc tests using a default constructed
+        //    `ControlManager` object.
+        //
+        // 2. Check response before the HELP message handler is installed
+        //    (`dispatchMesage` fails so no default handler), after
+        //    installation, and after a second invocation of
+        //    `registerUsageHandler`.
+        //
+        // 3. Incrementally register additional message handlers.  Confirm that
+        //    the HELP message handler s shows all currently installed
+        //    handlers in alphabetical order.
+        //
+        // 4. The HELP message handler shows the expected result irrespective
+        //    of the case of the prefix and irrespective of additional text
+        //    after the prefix.
         //
         // Testing:
         //   registerUsageHandler(bsl::ostream& stream);
         // --------------------------------------------------------------------
 
         if (verbose) {
-           cout << "TESTING 'registerUsageHandler' METHOD" << endl
+           cout << "TESTING `registerUsageHandler` METHOD" << endl
                 << "=====================================" << endl;
         }
 
@@ -364,11 +364,11 @@ int main(int argc, char *argv[])
         // TESTING CONCERN: Dispatching and Thread Safety
         //
         // Concerns:
-        //   The 'dispatchMessage' function may be run in high contention with
+        //   The `dispatchMessage` function may be run in high contention with
         //   another thread that is registering message handlers.
         //
         // Plan:
-        //   Invoke the 'dispatchMessage' function repeatedly in a background
+        //   Invoke the `dispatchMessage` function repeatedly in a background
         //   thread while registering handlers in the main thread.
         //
         // Testing:
@@ -509,7 +509,7 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   Exercise the basic functionality of the 'balb::ControlManager'
+        //   Exercise the basic functionality of the `balb::ControlManager`
         //   class.  We want to exercise each class accessor and manipulator.
         //
         // Plan:

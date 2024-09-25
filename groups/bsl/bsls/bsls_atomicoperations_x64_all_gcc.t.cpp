@@ -41,12 +41,12 @@ struct thread_args
     bsls::Types::Int64  d_runtimeMs;
 };
 
+/// It'd be nice to use TimeUtil here, but that would be a dependency
+/// cycle.  Duplicating all the portable support for high-resolution
+/// timing is more complication than is needed here.  We'll run enough
+/// iterations that the basic portable lower-resolution timers will give
+/// good results.
 bsls::Types::Int64 getTimerMs() {
-    // It'd be nice to use TimeUtil here, but that would be a dependency
-    // cycle.  Duplicating all the portable support for high-resolution
-    // timing is more complication than is needed here.  We'll run enough
-    // iterations that the basic portable lower-resolution timers will give
-    // good results.
 #if defined(BSLS_PLATFORM_OS_UNIX)
     timeval native;
     gettimeofday(&native, 0);

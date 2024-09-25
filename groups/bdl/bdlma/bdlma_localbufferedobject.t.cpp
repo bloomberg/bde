@@ -44,12 +44,12 @@ using bsl::size_t;
 //                                  Overview
 //                                  --------
 // The goals of this test suite are to verify 1) that
-// 'bdlma::LocalBufferedObject' correctly utilizes its arena memory allocator
+// `bdlma::LocalBufferedObject` correctly utilizes its arena memory allocator
 // until it's exhausted, after which it uses the allocator passed at
 // construction.
 //
-// All testing of C++11 'initializer_list's is done in TC 5.  Other than that
-// constructors are exhaustively testing in TC 2, and 'emplace' is tested in
+// All testing of C++11 `initializer_list`s is done in TC 5.  Other than that
+// constructors are exhaustively testing in TC 2, and `emplace` is tested in
 // TC 3.
 //
 //-----------------------------------------------------------------------------
@@ -145,20 +145,20 @@ namespace Usage {
 //
 ///Example 1: Configuring an Object to Allocate From Stack Memory
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we have an array of 'bsl::string_view's containing names, with a
+// Suppose we have an array of `bsl::string_view`s containing names, with a
 // large number of redundant entries, and we want to count how many unique
-// names exist in the array.  We write a function 'countUniqueNames' which
-// stores the names in an unordered set, and yields the 'size' accessor as the
+// names exist in the array.  We write a function `countUniqueNames` which
+// stores the names in an unordered set, and yields the `size` accessor as the
 // total count of unique names.
 //
-// The function will be called many times, and 'bsl::unordered_set' does a
+// The function will be called many times, and `bsl::unordered_set` does a
 // large number of small memory allocations.  These allocations would be faster
 // if they came from a non-freeing allocator that gets its memory from a buffer
 // on the stack.
 //
-// We can use a 'LocalBufferedObject' to create an 'unordered_set' with an
+// We can use a `LocalBufferedObject` to create an `unordered_set` with an
 // 8192-byte stack buffer from which it is to allocate memory.
-//..
+// ```
     size_t countUniqueNames(const bsl::string_view *rawNames,
                             size_t                  numRawNames)
     {
@@ -171,16 +171,16 @@ namespace Usage {
 
         return uset->size();
     }
-//..
+// ```
 // Notice that this syntactic convenience equivalent to supplying a local
-// 'LocalSequentialAllocator' to the 'bsl::unordered_set'.
+// `LocalSequentialAllocator` to the `bsl::unordered_set`.
 //
 // Below we show the allocation behavior of this function as the number of
-// items in the 'unordered_set' increases.  Note that when the memory in the
+// items in the `unordered_set` increases.  Note that when the memory in the
 // 8192-byte stack buffer is exhausted, further memory comes from the default
 // allocator:
-//..
-//  'countUniqueNames':
+// ```
+//  `countUniqueNames`:
 //  Names: (raw:   25, unique:  23), used default allocator: 0
 //  Names: (raw:   50, unique:  42), used default allocator: 0
 //  Names: (raw:  100, unique:  70), used default allocator: 0
@@ -188,27 +188,27 @@ namespace Usage {
 //  Names: (raw:  400, unique: 130), used default allocator: 1
 //  Names: (raw:  800, unique: 143), used default allocator: 1
 //  Names: (raw: 1600, unique: 144), used default allocator: 1
-//..
+// ```
 //
 ///Example 2: Eliding the Destructor
 ///- - - - - - - - - - - - - - - - -
-// Because the only resource managed by the 'unordered_set' is memory, we can
+// Because the only resource managed by the `unordered_set` is memory, we can
 // improve the performance of the previous example using the template's boolean
-// 't_DISABLE_DESTRUCTOR' parameter.
+// `t_DISABLE_DESTRUCTOR` parameter.
 //
-// 'unordered_set' allocates a lot of small nodes, and when the container is
+// `unordered_set` allocates a lot of small nodes, and when the container is
 // destroyed, unordered set's destructor traverses the whole data structure,
-// visting every node and calling 'bslma::Allocator::deallocate' on each one,
+// visting every node and calling `bslma::Allocator::deallocate` on each one,
 // which is a non-inline virtual function call eventually handled by the
-// sequential allocator's 'deallocate' function, which does nothing.
+// sequential allocator's `deallocate` function, which does nothing.
 //
-// If we set the 3rd template parameter of 'LocalBufferedObject', which is
-// 't_DISABLE_DESTRUCTION' of type 'bool', to the non-default value of 'true',
-// the 'LocalBufferedObject' will not call the destructor of the held
-// 'unordered_set'.  This isn't a problem because unordered set manages no
+// If we set the 3rd template parameter of `LocalBufferedObject`, which is
+// `t_DISABLE_DESTRUCTION` of type `bool`, to the non-default value of `true`,
+// the `LocalBufferedObject` will not call the destructor of the held
+// `unordered_set`.  This isn't a problem because unordered set manages no
 // resource other than memory, and all the memory it uses is managed by the
 // local sequential allocator contained in the local buffered object.
-//..
+// ```
     size_t countUniqueNamesFaster(const bsl::string_view *rawNames,
                                   size_t                  numRawNames)
     {
@@ -222,10 +222,10 @@ namespace Usage {
 
         return uset->size();
     }
-//..
+// ```
 // And we see the calculations are exactly the same:
-//..
-//  'countUniqueNamesFaster': destructor disabled:
+// ```
+//  `countUniqueNamesFaster`: destructor disabled:
 //  Names: (raw:   25, unique:  23), used default allocator: 0
 //  Names: (raw:   50, unique:  42), used default allocator: 0
 //  Names: (raw:  100, unique:  70), used default allocator: 0
@@ -233,7 +233,7 @@ namespace Usage {
 //  Names: (raw:  400, unique: 130), used default allocator: 1
 //  Names: (raw:  800, unique: 143), used default allocator: 1
 //  Names: (raw: 1600, unique: 144), used default allocator: 1
-//..
+// ```
 
 // The following code calls the functions shown in the usage example in the .h
 // file, but its code is not shown in the .h file.  Its output is.
@@ -378,31 +378,31 @@ struct A {
     int value() const { return d_ii; }
 };
 
+/// The constant `t_DESTRUCTOR_BLOWS_UP`, if true, determines that the
+/// destructor of `u::B<t_SUPPRESS_DTOR>` will fail an assert if called.
+///
+/// This `class` has a class data member we use to count the number of times
+/// the destructor is called, whether the destructor is to blow up or not.
+///
+/// This `class` contains 10 `MATT` objects which each allocate a 1-byte
+/// memory segment, are movable, and track moves.  They can be independently
+/// accessed via `operator[]`.  In constructors, each can be initialized by
+/// copy or move by a separate argument.  This is to test that contructors
+/// can be passed some arguments by const ref while simultaneously passing
+/// moved object to others.
+///
+/// This `class` also has copy and move c'tors.
+///
+/// This `class` also has a c'tor that takes an allocator and an
+/// `initializer_list`.
+///
+/// This `class` also has a vector data member which c'tors (other than copy
+/// or move c'tors) initialize to empty, but which can allocate large
+/// amoounts of memory through the `useMemory` accessor.  This will exhaust
+/// the arena memory of a local buffered object containing it and cause the
+/// other memory alloctor to be used, useful for testing.
 template <bool t_DESTRUCTOR_BLOWS_UP = false>
 class B {
-    // The constant 't_DESTRUCTOR_BLOWS_UP', if true, determines that the
-    // destructor of 'u::B<t_SUPPRESS_DTOR>' will fail an assert if called.
-    //
-    // This 'class' has a class data member we use to count the number of times
-    // the destructor is called, whether the destructor is to blow up or not.
-    //
-    // This 'class' contains 10 'MATT' objects which each allocate a 1-byte
-    // memory segment, are movable, and track moves.  They can be independently
-    // accessed via 'operator[]'.  In constructors, each can be initialized by
-    // copy or move by a separate argument.  This is to test that contructors
-    // can be passed some arguments by const ref while simultaneously passing
-    // moved object to others.
-    //
-    // This 'class' also has copy and move c'tors.
-    //
-    // This 'class' also has a c'tor that takes an allocator and an
-    // 'initializer_list'.
-    //
-    // This 'class' also has a vector data member which c'tors (other than copy
-    // or move c'tors) initialize to empty, but which can allocate large
-    // amoounts of memory through the 'useMemory' accessor.  This will exhaust
-    // the arena memory of a local buffered object containing it and cause the
-    // other memory alloctor to be used, useful for testing.
 
   public:
     // PUBLIC TYPES
@@ -773,48 +773,48 @@ void testCase5_initializerLists()
     // TESTING INITIALIZER_LISTS
     //
     // Concerns:
-    //: 1 If the local buffered object contains a type with a constructor that
-    //:   takes an initializer list, that the constructor of the local buffered
-    //:   objecct will properly propagate the initailizer list to the contained
-    //:   type.
-    //:
-    //: 2 This works whether or not an alloctaor is also passed to the
-    //:   constructor.
-    //:
-    //: 3 Test with & without destructor suppression.  This function takes a
-    //:   'bool' template parameter to drive that, and is called with either
-    //:   value of that 'bool'.
-    //:
-    //; 4 That calling 'emplace' with an initializer list functions properly.
+    // 1. If the local buffered object contains a type with a constructor that
+    //    takes an initializer list, that the constructor of the local buffered
+    //    objecct will properly propagate the initailizer list to the contained
+    //    type.
+    //
+    // 2. This works whether or not an alloctaor is also passed to the
+    //    constructor.
+    //
+    // 3. Test with & without destructor suppression.  This function takes a
+    //    `bool` template parameter to drive that, and is called with either
+    //    value of that `bool`.
+    //
+    //  4 That calling `emplace` with an initializer list functions properly.
     //
     // Plan:
-    //: 1 The constant 't_SUPPRESS_DTOR' determines two things:
-    //:   o If true, determines that the destructor of 'u::B<t_SUPPRESS_DTOR>'
-    //:     will fail an assert if called.
-    //:
-    //:   o If true, determines that the local buffered object container will
-    //:     suppress calling the destructor of 'B' in the destructor of the
-    //:     container, and in the 'emplace' call.
-    //:
-    //:   o The test is run with both values of 'T_SUPPRESS_DTOR',
-    //:
-    //:   o Type 'u::B' has a class data member we use to count how many times
-    //:     the number of times the destructor is called, whether the
-    //:     destructor is to blow up or not.
-    //:
-    //:   o Type 'u::B' == 'TestB' contains 10 'MATT' objects which each
-    //:     allocate a 1-byte memory segment, are movable, and track moves.
-    //:     They can be independently accessed via 'operator[]'.  In
-    //:     constructors, each can be initialized by copy or move by a separate
-    //:     argument.
-    //:
-    //: 2 We test various 2 constructors of 'u::B':
-    //:   o With an 'initializer_list' alone.
-    //:
-    //:   o With an allocator and an 'initializer_list'.
-    //:
-    //: 3 We test one overload of 'emplace', taking an 'initializer_list'
-    //:   alone.
+    // 1. The constant `t_SUPPRESS_DTOR` determines two things:
+    //    - If true, determines that the destructor of `u::B<t_SUPPRESS_DTOR>`
+    //      will fail an assert if called.
+    //
+    //    - If true, determines that the local buffered object container will
+    //      suppress calling the destructor of `B` in the destructor of the
+    //      container, and in the `emplace` call.
+    //
+    //    - The test is run with both values of `T_SUPPRESS_DTOR`,
+    //
+    //    - Type `u::B` has a class data member we use to count how many times
+    //      the number of times the destructor is called, whether the
+    //      destructor is to blow up or not.
+    //
+    //    - Type `u::B` == `TestB` contains 10 `MATT` objects which each
+    //      allocate a 1-byte memory segment, are movable, and track moves.
+    //      They can be independently accessed via `operator[]`.  In
+    //      constructors, each can be initialized by copy or move by a separate
+    //      argument.
+    //
+    // 2. We test various 2 constructors of `u::B`:
+    //    - With an `initializer_list` alone.
+    //
+    //    - With an allocator and an `initializer_list`.
+    //
+    // 3. We test one overload of `emplace`, taking an `initializer_list`
+    //    alone.
     //
     // Testing:
     //   constructor(initializer_list);
@@ -847,9 +847,9 @@ void testCase5_initializerLists()
     mS->setToMultiple(multiple);
     u::setMATTVector(&v, multiple);
 
-    // If we just pass '{ V[0], V[1], ...' etc to the initializer list, they
+    // If we just pass `{ V[0], V[1], ...` etc to the initializer list, they
     // are all copied into it by value using the default allocator, so we
-    // explicitly construct the objects using 'sa' to avoid that.
+    // explicitly construct the objects using `sa` to avoid that.
 
     if (veryVerbose) cout << "10 const objects\n";
     {
@@ -971,38 +971,38 @@ void testCase4_assignment()
     // TESTING ASSIGNMENT
     //
     // Concerns:
-    //: 1 That an object can be assigned to when contained in
-    //:   'LocalBufferedObject'.
-    //:
-    //: 2 That the contained object can be assigned to from either a const
-    //:   object or a moved object, with the correct semantics in each case.
-    //:
-    //: 3 That we can assign an object of the same type of the contained type.
-    //:
-    //: 4 That we can assign an object of a different type than the contained
-    //:   type if it is convertible to the contained type.  We want this tested
-    //:   for both a const object and a moved object.
-    //:
-    //: 5 That destruction can be suppressed, or not, while all this goes on.
+    // 1. That an object can be assigned to when contained in
+    //    `LocalBufferedObject`.
+    //
+    // 2. That the contained object can be assigned to from either a const
+    //    object or a moved object, with the correct semantics in each case.
+    //
+    // 3. That we can assign an object of the same type of the contained type.
+    //
+    // 4. That we can assign an object of a different type than the contained
+    //    type if it is convertible to the contained type.  We want this tested
+    //    for both a const object and a moved object.
+    //
+    // 5. That destruction can be suppressed, or not, while all this goes on.
     //
     // Plan:
-    //: 1 We use types 'u::A' and 'u::B', where 'u::A' has an 'int' value, and
-    //:   'u::B' contains a 'bsltf' move-aware type.
-    //:   o 'const u::A' can be assigned to 'u::B'
-    //:
-    //:   o 'u::A&&' can also be assigned to 'u::B', and the move-aware type
-    //:     will then be set to "moved into".
-    //:
-    //: 2 We have type 'LBOB' which is a local buffered objected containing a
-    //:   'u::B'.
-    //:
-    //: 3 Assign a 'const u::B' and a 'u::B&&' to type 'LBOB'.
-    //:
-    //: 4 Assign a 'const u::A' and a 'u::A&&' to type 'LBOB'.
-    //:
-    //: 5 Repeat the experiment with 't_DISABLE_DESTRUCTION' template parameter
-    //:   of the local buffered object set to both possible values, and verify
-    //:   that the expected number of destructions occur.
+    // 1. We use types `u::A` and `u::B`, where `u::A` has an `int` value, and
+    //    `u::B` contains a `bsltf` move-aware type.
+    //    - `const u::A` can be assigned to `u::B`
+    //
+    //    - `u::A&&` can also be assigned to `u::B`, and the move-aware type
+    //      will then be set to "moved into".
+    //
+    // 2. We have type `LBOB` which is a local buffered objected containing a
+    //    `u::B`.
+    //
+    // 3. Assign a `const u::B` and a `u::B&&` to type `LBOB`.
+    //
+    // 4. Assign a `const u::A` and a `u::A&&` to type `LBOB`.
+    //
+    // 5. Repeat the experiment with `t_DISABLE_DESTRUCTION` template parameter
+    //    of the local buffered object set to both possible values, and verify
+    //    that the expected number of destructions occur.
     //
     // Testing:
     //   ASSIGNMENT
@@ -1029,7 +1029,7 @@ void testCase4_assignment()
     mS->setToMultiple(multiple);
     mY->setToMultiple(multiple);
 
-    if (veryVerbose) cout << "Assign from 'const t_TYPE&'\n";
+    if (veryVerbose) cout << "Assign from `const t_TYPE&`\n";
     {
         const Int64 numAllocs = ta.numAllocations();
 
@@ -1058,7 +1058,7 @@ void testCase4_assignment()
     mS->setToMultiple(multiple);
     mY->setToMultiple(multiple);
 
-    if (veryVerbose) cout << "Assign from 't_TYPE&&'\n";
+    if (veryVerbose) cout << "Assign from `t_TYPE&&`\n";
     {
         const Int64 numAllocs = ta.numAllocations();
 
@@ -1086,7 +1086,7 @@ void testCase4_assignment()
     ++multiple;
     mS->setToMultiple(multiple);
 
-    if (veryVerbose) cout << "Assign from 'const t_ANY_TYPE != t_TYPE&'\n";
+    if (veryVerbose) cout << "Assign from `const t_ANY_TYPE != t_TYPE&`\n";
     {
         const Int64 numAllocs = ta.numAllocations();
 
@@ -1114,7 +1114,7 @@ void testCase4_assignment()
     ++multiple;
     mS->setToMultiple(multiple);
 
-    if (veryVerbose) cout << "Assign from 't_ANY_TYPE&& != t_TYPE&&'\n";
+    if (veryVerbose) cout << "Assign from `t_ANY_TYPE&& != t_TYPE&&`\n";
     {
         const Int64 numAllocs = ta.numAllocations();
 
@@ -1149,60 +1149,60 @@ void testCase3_emplace()
     // TESTING EMPLACE
     //
     // Concerns:
-    //: 1 That the 'emplace' manipulator can support a type with a complex
-    //:   constructor.
-    //:
-    //: 2 That 'emplace' can handle some arguments being passed const
-    //:   references while others are passed rvalue references.
-    //:
-    //: 3 That 'emplace' can handle a whole contained object passed in via
-    //:   const reference.
-    //:
-    //: 3 That 'emplace' can handle a whole contained object passed in via
-    //:   rvalue reference.
-    //:
-    //: 4 That, when small amounts of memory are used by the contained object,
-    //:   it all comes from the arena.
-    //:
-    //: 5 That 'emplace()' will call the constructor with just the memory
-    //:   allocator argument.
-    //:
-    //: 6 That 'emplace' calls the destructor only when 't_DISABLE_DESTRUCTION'
-    //:   is 'false'.
+    // 1. That the `emplace` manipulator can support a type with a complex
+    //    constructor.
+    //
+    // 2. That `emplace` can handle some arguments being passed const
+    //    references while others are passed rvalue references.
+    //
+    // 3. That `emplace` can handle a whole contained object passed in via
+    //    const reference.
+    //
+    // 3. That `emplace` can handle a whole contained object passed in via
+    //    rvalue reference.
+    //
+    // 4. That, when small amounts of memory are used by the contained object,
+    //    it all comes from the arena.
+    //
+    // 5. That `emplace()` will call the constructor with just the memory
+    //    allocator argument.
+    //
+    // 6. That `emplace` calls the destructor only when `t_DISABLE_DESTRUCTION`
+    //    is `false`.
     //
     // Plan:
     // For each of the subtests in this test case we perform the following
     // operations:
-    //: o when the vector 'v' is the source, set local buffered
-    //:   object and 'mS' to have corresponding values.
-    //:
-    //: o set 'mX' to some different value
-    //:
-    //: o perform the emplace
-    //:
-    //: o check that '*S == *X'
-    //:
-    //: o verify the move state of the members of '*mX' and the source
-    //:
-    //: o use 'mX->useMemory' to observe the memory allocation behavior of the
-    //: 'mX'.
+    //  - when the vector `v` is the source, set local buffered
+    //    object and `mS` to have corresponding values.
+    //
+    //  - set `mX` to some different value
+    //
+    //  - perform the emplace
+    //
+    //  - check that `*S == *X`
+    //
+    //  - verify the move state of the members of `*mX` and the source
+    //
+    //  - use `mX->useMemory` to observe the memory allocation behavior of the
+    //  `mX`.
     //
     // The test case consists of the following numbered subtests:
-    //: 1 Default state -- call 'emplace()'
-    //:
-    //: 2 10 const refs -- pass the 10 elements of the vector 'v' to the 10
-    //:   arguments as const refs.
-    //:
-    //: 3 10 rvalue refs -- move the 10 elements of the vector 'v' to the 10
-    //:   arguments as rvalue refs.
-    //:
-    //: 4 5 const refs, 5 rvalue refs -- pass the 10 elements of the vector 'v'
-    //:   to the 10 arguments, with every other argument being a const ref and
-    //:   the others being moved as rvalue refs.
-    //:
-    //: 5 emplace a single 'u::B' const ref
-    //:
-    //: 6 emplace a single 'u::B' rvalue ref
+    // 1. Default state -- call `emplace()`
+    //
+    // 2. 10 const refs -- pass the 10 elements of the vector `v` to the 10
+    //    arguments as const refs.
+    //
+    // 3. 10 rvalue refs -- move the 10 elements of the vector `v` to the 10
+    //    arguments as rvalue refs.
+    //
+    // 4. 5 const refs, 5 rvalue refs -- pass the 10 elements of the vector `v`
+    //    to the 10 arguments, with every other argument being a const ref and
+    //    the others being moved as rvalue refs.
+    //
+    // 5. emplace a single `u::B` const ref
+    //
+    // 6. emplace a single `u::B` rvalue ref
     //
     // Testing:
     //   EMPLACE
@@ -1346,7 +1346,7 @@ void testCase3_emplace()
     mS->setToMultiple(multiple);
     u::setMATTVector(&v, multiple);
 
-    if (veryVerbose) cout << "emplace with 'const u::B&'\n";
+    if (veryVerbose) cout << "emplace with `const u::B&`\n";
     {
         const Int64 numAllocs = ta.numAllocations();
 
@@ -1370,7 +1370,7 @@ void testCase3_emplace()
     mS->setToMultiple(multiple);
     u::setMATTVector(&v, multiple);
 
-    if (veryVerbose) cout << "emplace with moved 'u::B'\n";
+    if (veryVerbose) cout << "emplace with moved `u::B`\n";
     {
         const Int64 numAllocs = ta.numAllocations();
 
@@ -1403,74 +1403,74 @@ void testCase2_creators()
     // TESTING CONSTRUCTORS, BASIC MANIPULATORS & ACCESSORS
     //
     // Concerns:
-    //: 1 That the constructor for a local buffered object can fully support a
-    //:   type with a complex constructor.
-    //:
-    //: 2 That the constructor can handle some arguments being passed const
-    //:   references while others are passed rvalue references.
-    //:
-    //: 3 That the constructor can handle a whole contained object passed in
-    //:   via const reference.
-    //:
-    //: 3 That the constructor can handle a whole contained object passed in
-    //:   via rvalue reference.
-    //:
-    //: 4 That, when small amounts of memory are used by the contained object,
-    //:   it all comes from the arena.
-    //:
-    //: 5 That the allocator passed (or the default allocator if none is
-    //:   passed) is used for allocation beyond the arena allocator.
-    //:
-    //: 6 That when the local buffered object is destroyed, the contained
-    //:   object is not destroyed unless 't_DISABLE_DESTRUCTOR' is 'false'.
+    // 1. That the constructor for a local buffered object can fully support a
+    //    type with a complex constructor.
+    //
+    // 2. That the constructor can handle some arguments being passed const
+    //    references while others are passed rvalue references.
+    //
+    // 3. That the constructor can handle a whole contained object passed in
+    //    via const reference.
+    //
+    // 3. That the constructor can handle a whole contained object passed in
+    //    via rvalue reference.
+    //
+    // 4. That, when small amounts of memory are used by the contained object,
+    //    it all comes from the arena.
+    //
+    // 5. That the allocator passed (or the default allocator if none is
+    //    passed) is used for allocation beyond the arena allocator.
+    //
+    // 6. That when the local buffered object is destroyed, the contained
+    //    object is not destroyed unless `t_DISABLE_DESTRUCTOR` is `false`.
     //
     // Plan:
     // For each of the subtests in this test case we perform the following
     // operations:
-    //: o have the local buffered object 'mS' which is set the desired
-    //:   post-construction value
-    //:
-    //: o construct 'mX'
-    //:
-    //: o observe the salient value is as expected
-    //:
-    //: o observe that no memory was allocated outside the arena
-    //:
-    //: o use 'mX->useMemory' to observe that once the arena is exhausted,
-    //:   memory is allocated from the allocator passed at construction
+    //  - have the local buffered object `mS` which is set the desired
+    //    post-construction value
+    //
+    //  - construct `mX`
+    //
+    //  - observe the salient value is as expected
+    //
+    //  - observe that no memory was allocated outside the arena
+    //
+    //  - use `mX->useMemory` to observe that once the arena is exhausted,
+    //    memory is allocated from the allocator passed at construction
     //
     // The test case consists of the following numbered subtests:
-    //: 1 constructor with just the allocator
-    //:
-    //: 2 default constructor (using default allocator)
-    //:
-    //: 3 constructor with 10 values passed to the arguments as const refs and
-    //:   an allocator
-    //:
-    //: 4 constructor with 10 values passed to the arguments as const refs and
-    //:   no allocator (using default allocator.
-    //:
-    //: 5 constructor with 10 values moved to the arguments as rvalue refs and
-    //:   an allocator
-    //:
-    //: 6 constructor with 10 values moved to the arguments as rvlaue refs and
-    //:   no allocator (using default allocator.
-    //:
-    //: 7 constructor with 10 values moved to the arguments, every other arg as
-    //:   a const ref and the other args moved as rvalue refs and an allocator
-    //:
-    //: 8 constructor with 10 values moved to the arguments, every other arg as
-    //:   a const ref and the other args moved as rvalue refs and no allocator
-    //:   (using default allocator)
-    //:
-    //: 9 copy constructor pass 'const u::B&' and allocator
-    //:
-    //: 10 copy constructor with 'const u::B&' and no allocator (using default
-    //:    allocator)
-    //:
-    //: 11 move constructor with 'u::B&&' and allocator
-    //:
-    //: 12 move constructor with 'u::B&&' and no allocator (using default
+    // 1. constructor with just the allocator
+    //
+    // 2. default constructor (using default allocator)
+    //
+    // 3. constructor with 10 values passed to the arguments as const refs and
+    //    an allocator
+    //
+    // 4. constructor with 10 values passed to the arguments as const refs and
+    //    no allocator (using default allocator.
+    //
+    // 5. constructor with 10 values moved to the arguments as rvalue refs and
+    //    an allocator
+    //
+    // 6. constructor with 10 values moved to the arguments as rvlaue refs and
+    //    no allocator (using default allocator.
+    //
+    // 7. constructor with 10 values moved to the arguments, every other arg as
+    //    a const ref and the other args moved as rvalue refs and an allocator
+    //
+    // 8. constructor with 10 values moved to the arguments, every other arg as
+    //    a const ref and the other args moved as rvalue refs and no allocator
+    //    (using default allocator)
+    //
+    // 9. copy constructor pass `const u::B&` and allocator
+    //
+    // 10. copy constructor with `const u::B&` and no allocator (using default
+    //     allocator)
+    //
+    // 11. move constructor with `u::B&&` and allocator
+    //
+    // 12. move constructor with `u::B&&` and no allocator (using default
     //     allocator)
     //
     // Testing:
@@ -1874,7 +1874,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING INITIALIZER LIST
         //
-        // See 'TC::testCase' for test documentation.
+        // See `TC::testCase` for test documentation.
         // --------------------------------------------------------------------
 
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
@@ -1896,7 +1896,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING ASSIGNMENT
         //
-        // See 'TC::testCase' for test documentation.
+        // See `TC::testCase` for test documentation.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Testing Assignment\n"
@@ -1913,7 +1913,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING EMPLACE
         //
-        // See 'TC::testCase' for test documentation.
+        // See `TC::testCase` for test documentation.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Testing Emplace\n"
@@ -1930,7 +1930,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING CREATORS
         //
-        // See 'TC::testCase' for test documentation.
+        // See `TC::testCase` for test documentation.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Testing Constructors\n"

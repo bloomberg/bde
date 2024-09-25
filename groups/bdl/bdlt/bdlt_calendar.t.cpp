@@ -53,7 +53,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// A 'bdlt::Calendar' is a value-semantic type that represents a collection of
+// A `bdlt::Calendar` is a value-semantic type that represents a collection of
 // weekend days and holidays over a given range of dates, and with each holiday
 // associated with a possibly empty list of unique (integer) holiday codes.
 // Two calendars have the same value if they (1) designate the same set of days
@@ -61,14 +61,14 @@ using namespace bsl;
 // within that range designated as holidays, and (4) for each holiday, have the
 // same set of associated integer codes.
 //
-// We have chosen the primary manipulators for 'bdlt::Calendar' to be
-// 'addDay', 'addHoliday', 'addHolidayCode', 'addWeekendDay',
-// 'addWeekendDaysTransition', and 'removeAll'.
+// We have chosen the primary manipulators for `bdlt::Calendar` to be
+// `addDay`, `addHoliday`, `addHolidayCode`, `addWeekendDay`,
+// `addWeekendDaysTransition`, and `removeAll`.
 //
-// We have chosen the basic accessors for 'bdlt::Calendar' to be 'allocator',
-// 'firstDate', 'holiday', 'holidayCode', 'packedCalendar', 'isHoliday',
-// 'isInRange', 'isWeekendDay', 'lastDate', 'numHolidayCodes', 'numHolidays',
-// 'numWeekendDaysTransitions', and 'weekendDaysTransition'.
+// We have chosen the basic accessors for `bdlt::Calendar` to be `allocator`,
+// `firstDate`, `holiday`, `holidayCode`, `packedCalendar`, `isHoliday`,
+// `isInRange`, `isWeekendDay`, `lastDate`, `numHolidayCodes`, `numHolidays`,
+// `numWeekendDaysTransitions`, and `weekendDaysTransition`.
 // ----------------------------------------------------------------------------
 // ITERATORS
 // [23] BusinessDayConstIterator
@@ -299,11 +299,11 @@ static const char *DEFAULT_SPECS[] = {
 
 namespace {
 
+/// Return the number of weekend days in the weekend-days transition of the
+/// specified `calendar` at January 1, 0001, if the transition exists;
+/// otherwise, return 0.
 template <class CALENDAR>
 int numWeekendDaysInFirstTransition(const CALENDAR& calendar)
-    // Return the number of weekend days in the weekend-days transition of the
-    // specified 'calendar' at January 1, 0001, if the transition exists;
-    // otherwise, return 0.
 {
 
     if (1 <= calendar.numWeekendDaysTransitions() &&
@@ -314,15 +314,15 @@ int numWeekendDaysInFirstTransition(const CALENDAR& calendar)
     return 0;
 }
 
+/// Return `true` if the specified weekend-days `transition` has a starting
+/// date the same as the specified `date` and has the same set of weekend
+/// days in the specified `weekendDays` string, which represents each day of
+/// the week as a lowercase character ({u, m, t, w, r, f, a} ==
+/// {Sunday..Saturday}).  Return `false` if the said condition is not true
+/// or if `weekendDays` is not valid.
 bool sameWeekendDaysTransition(const Obj::WeekendDaysTransition&  transition,
                                const bdlt::Date&                  date,
                                const char                        *weekendDays)
-    // Return 'true' if the specified weekend-days 'transition' has a starting
-    // date the same as the specified 'date' and has the same set of weekend
-    // days in the specified 'weekendDays' string, which represents each day of
-    // the week as a lowercase character ({u, m, t, w, r, f, a} ==
-    // {Sunday..Saturday}).  Return 'false' if the said condition is not true
-    // or if 'weekendDays' is not valid.
 {
 
     bdlt::DayOfWeekSet wdSet;
@@ -351,9 +351,9 @@ bool sameWeekendDaysTransition(const Obj::WeekendDaysTransition&  transition,
 int VA = 0, VB = 1, VC = 2, VD = 100, VE = 1000; // Holiday codes.
 
 // ============================================================================
-//                FLEXIBLE GENERATOR FUNCTION 'gg' FOR TESTING
+//                FLEXIBLE GENERATOR FUNCTION `gg` FOR TESTING
 // ----------------------------------------------------------------------------
-// The function 'gg' interprets a specified 'spec' in order from left to right
+// The function `gg` interprets a specified `spec` in order from left to right
 // according to a complex custom language to bring the calendar to a range of
 // possible states relevant for testing.
 //
@@ -382,9 +382,9 @@ int VA = 0, VB = 1, VC = 2, VD = 100, VE = 1000; // Holiday codes.
 //                      // weekend-days transitions.
 //
 // <DATEM>      ::= <DATE>[<DATE_EMBEL>|<EMPTY>]
-//                      // Represents either a holiday if 'DATE' is
+//                      // Represents either a holiday if `DATE` is
 //                      // unembellished or is followed by a list of holiday
-//                      // codes, or a weekend-days transition if 'DATE' is
+//                      // codes, or a weekend-days transition if `DATE` is
 //                      // followed by a list of days of the week.
 //
 // <EMPTY>      ::=
@@ -417,7 +417,7 @@ int VA = 0, VB = 1, VC = 2, VD = 100, VE = 1000; // Holiday codes.
 //
 // The first date in a spec represents one end of the range and must be
 // absolute.  If the first date is embellished by weekend-day identifiers, use
-// the legacy 'addWeekendDay' method to add the corresponding weekend days to
+// the legacy `addWeekendDay` method to add the corresponding weekend days to
 // the calendar.  The second date, if present, represents the other end of the
 // range.  A subsequent date represents either a holiday or a weekend-days
 // transition -- if the date is followed by holiday codes or is unembellished,
@@ -446,7 +446,7 @@ int VA = 0, VB = 1, VC = 2, VD = 100, VE = 1000; // Holiday codes.
 //
 //   "u@2000/1/1a"        [ SUN SAT ]; range is 2001/1/1..2000/1/1.
 //
-//   "@2000/1/1sa"        Ill-formed: unrecognized character 's' at position 9.
+//   "@2000/1/1sa"        Ill-formed: unrecognized character `s` at position 9.
 //
 //   "u@2000/1/1 @2000/1/10 @2000/1/1mt"
 //                        Range: 2000/1/1..2000/1/10
@@ -470,10 +470,10 @@ enum { SUCCESS = 0, FAILURE = 1 };
 
 // Utility macros to make the code more readable.
 
+/// Load into the specified `endPos` the first position that is `!isspace`,
+/// or the end of the string if no such position is found, starting from
+/// the specified `input`.
 void skipOptionalWhitespace(const char **endPos, const char *input)
-    // Load into the specified 'endPos' the first position that is '!isspace',
-    // or the end of the string if no such position is found, starting from
-    // the specified 'input'.
 {
     ASSERT(endPos);
     ASSERT(input);
@@ -485,10 +485,10 @@ void skipOptionalWhitespace(const char **endPos, const char *input)
     *endPos = input;
 }
 
+/// If the value at the specified `input` is equal to the specified `token`,
+/// load into the specified `endPos` the first position after `input` and
+/// return 0.  Otherwise, return a non-zero value.
 int skipRequiredChar(const char **endPos, const char *input, char token)
-    // If the value at the specified 'input' is equal to the specified 'token',
-    // load into the specified 'endPos' the first position after 'input' and
-    // return 0.  Otherwise, return a non-zero value.
 {
     ASSERT(endPos);
     ASSERT(input);
@@ -504,11 +504,11 @@ int skipRequiredChar(const char **endPos, const char *input, char token)
     return SUCCESS;
 }
 
+/// Load into the specified `result` the value of the unsigned integer
+/// starting at the specified `input` position.  Load into the specified
+/// `endPos` the first position that is after the parsed value.  Return 0
+/// if the parse succeeds, and a non-zero value otherwise.
 int parseUint(const char **endPos, int *result, const char *input)
-    // Load into the specified 'result' the value of the unsigned integer
-    // starting at the specified 'input' position.  Load into the specified
-    // 'endPos' the first position that is after the parsed value.  Return 0
-    // if the parse succeeds, and a non-zero value otherwise.
 {
     ASSERT(endPos);
     ASSERT(result);
@@ -531,13 +531,13 @@ int parseUint(const char **endPos, int *result, const char *input)
     return SUCCESS;
 }
 
+/// Load into the specified `result` the value of the `bdlt::Date` starting
+/// at the specified `input` position.  Load into the specified `endPos` the
+/// first position that is after the parsed value.  Return 0 if the parse
+/// succeeds, and a non-zero value otherwise.
 int parseAbsoluteDate(const char **endPos,
                       bdlt::Date  *result,
                       const char  *input)
-    // Load into the specified 'result' the value of the 'bdlt::Date' starting
-    // at the specified 'input' position.  Load into the specified 'endPos' the
-    // first position that is after the parsed value.  Return 0 if the parse
-    // succeeds, and a non-zero value otherwise.
 {
     ASSERT(endPos);
     ASSERT(result);
@@ -614,15 +614,15 @@ int parseAbsoluteDate(const char **endPos,
     return SUCCESS;
 }
 
+/// Load into the specified `result` the `bdlt::Date` equivalent to the
+/// result of adding the value of the unsigned integer starting at the
+/// specified `input` position to the specified `base` date.  Load into the
+/// specified `endPos` the first position that is after the parsed value.
+/// Return 0 if the parse succeeds, and a non-zero value otherwise.
 int parseRelativeDate(const char        **endPos,
                       bdlt::Date         *result,
                       const char         *input,
                       const bdlt::Date&   base)
-    // Load into the specified 'result' the 'bdlt::Date' equivalent to the
-    // result of adding the value of the unsigned integer starting at the
-    // specified 'input' position to the specified 'base' date.  Load into the
-    // specified 'endPos' the first position that is after the parsed value.
-    // Return 0 if the parse succeeds, and a non-zero value otherwise.
 {
     ASSERT(endPos);
     ASSERT(result);
@@ -646,15 +646,15 @@ int parseRelativeDate(const char        **endPos,
     return SUCCESS;
 }
 
+/// Modify the specified `result` to include the value implied by the
+/// specified `dayOfWeek` as a weekend day.  Return a non-zero value if the
+/// `dayOfWeek` is not a valid value or if the implied `dayOfWeek` is
+/// already a weekend day in `result`, and return 0 and increment the
+/// specified `endPosAddr` otherwise.
 template <class CALENDAR>
 int loadWeekendDay(const char **endPosAddr,
                    CALENDAR    *result,
                    char         dayOfWeek)
-    // Modify the specified 'result' to include the value implied by the
-    // specified 'dayOfWeek' as a weekend day.  Return a non-zero value if the
-    // 'dayOfWeek' is not a valid value or if the implied 'dayOfWeek' is
-    // already a weekend day in 'result', and return 0 and increment the
-    // specified 'endPosAddr' otherwise.
 {
     ASSERT(result);
 
@@ -682,16 +682,16 @@ int loadWeekendDay(const char **endPosAddr,
     return SUCCESS;
 }
 
+/// Parse the characters from the specified `endPosAddr` to produce a
+/// `bdlt::DayOfWeekSet`.  If the parse is successful, return 0, modify the
+/// specified `result` to include this `bdlt::DayOfWeekSet` as a
+/// weekend-days transition on the specified `transitionDate`, and load the
+/// position past the last parsed character into `endPosAddr`; otherwise,
+/// return a non-zero value.
 template <class CALENDAR>
 int loadWeekendDaysTransition(const char        **endPosAddr,
                               CALENDAR           *result,
                               const bdlt::Date&   transitionDate)
-    // Parse the characters from the specified 'endPosAddr' to produce a
-    // 'bdlt::DayOfWeekSet'.  If the parse is successful, return 0, modify the
-    // specified 'result' to include this 'bdlt::DayOfWeekSet' as a
-    // weekend-days transition on the specified 'transitionDate', and load the
-    // position past the last parsed character into 'endPosAddr'; otherwise,
-    // return a non-zero value.
 {
     ASSERT(result);
 
@@ -731,16 +731,16 @@ int loadWeekendDaysTransition(const char        **endPosAddr,
     return SUCCESS;
 }
 
+/// Modify the specified `result` to include the value implied by the
+/// specified `holidayCode` as a holiday code for the specified `holiday`.
+/// Return a non-zero value if the `holidayCode` is not a valid value or if
+/// the implied `holidayCode` is already present for the `holiday`, and
+/// return 0 and increment the specified `endPosAddr` otherwise.
 template <class CALENDAR>
 int loadHolidayCode(const char        **endPosAddr,
                     CALENDAR           *result,
                     const bdlt::Date&   holiday,
                     char                holidayCode)
-    // Modify the specified 'result' to include the value implied by the
-    // specified 'holidayCode' as a holiday code for the specified 'holiday'.
-    // Return a non-zero value if the 'holidayCode' is not a valid value or if
-    // the implied 'holidayCode' is already present for the 'holiday', and
-    // return 0 and increment the specified 'endPosAddr' otherwise.
 {
     ASSERT(result);
     ASSERT(0 != result->length());
@@ -767,17 +767,17 @@ int loadHolidayCode(const char        **endPosAddr,
     return SUCCESS;
 }
 
+/// Configure the specified `object` according to the specified `spec`,
+/// using only the primary manipulators `addDay`, `addHoliday`,
+/// `addHolidayCode`, `addWeekendDay`, and `addWeekendDaysTransition`.
+/// Optionally specify a `false` `verboseFlag` to suppress `spec` syntax
+/// error messages.  Return the index of the first invalid character, and a
+/// negative value otherwise.  Note that this function is used to implement
+/// `gg` as well as allowing for verification of syntax error detection.
 template <class CALENDAR>
 int ggg(CALENDAR   *object,
         const char *spec,
         bool        verboseFlag = true)
-    // Configure the specified 'object' according to the specified 'spec',
-    // using only the primary manipulators 'addDay', 'addHoliday',
-    // 'addHolidayCode', 'addWeekendDay', and 'addWeekendDaysTransition'.
-    // Optionally specify a 'false' 'verboseFlag' to suppress 'spec' syntax
-    // error messages.  Return the index of the first invalid character, and a
-    // negative value otherwise.  Note that this function is used to implement
-    // 'gg' as well as allowing for verification of syntax error detection.
 {
     ASSERT(object);
     ASSERT(spec);
@@ -787,12 +787,12 @@ int ggg(CALENDAR   *object,
     const char *input = spec;
 
     bdlt::Date lastDate;  // Reference date for holiday codes; initially
-                          // assigned the default 'bdlt::Date' value.
+                          // assigned the default `bdlt::Date` value.
 
     bool lastDateIsSet = false;
 
     bdlt::Date lastAbsDate;  // Reference date for relative dates; initially
-                             // assigned the default 'bdlt::Date' value.
+                             // assigned the default `bdlt::Date` value.
 
     int         numDays = 0;
     const char *endPos = input;
@@ -860,7 +860,7 @@ int ggg(CALENDAR   *object,
                 }
                 lastDate = date;      // Set reference date for holiday codes.
 
-                // 'lastDateIsSet' is already 'true' if we are here.
+                // `lastDateIsSet` is already `true` if we are here.
             }
 
             if (numDays < 2) {
@@ -913,11 +913,11 @@ int ggg(CALENDAR   *object,
     return -1;
 }
 
+/// Return, by reference, the specified `object` with its value adjusted
+/// according to the specified `spec` according to the custom language
+/// described above.
 template <class CALENDAR>
 CALENDAR& gg(CALENDAR *object, const char *spec)
-    // Return, by reference, the specified 'object' with its value adjusted
-    // according to the specified 'spec' according to the custom language
-    // described above.
 {
     ASSERT(object);
     ASSERT(spec);
@@ -937,23 +937,24 @@ CALENDAR& gg(CALENDAR *object, const char *spec)
 //
 ///Example 1: Populating Calendars
 ///- - - - - - - - - - - - - - - -
-// 'bdlt::Calendars' can be populated directly, but are often more efficiently
-// created by first creating a corresponding 'bdlt::PackedCalendar', and then
+// `bdlt::Calendars` can be populated directly, but are often more efficiently
+// created by first creating a corresponding `bdlt::PackedCalendar`, and then
 // using that object to construct the calendar.  As an example, suppose we
-// want to provide efficient access to a (high-performance) 'bdlt::Calendar'
+// want to provide efficient access to a (high-performance) `bdlt::Calendar`
 // for a variety of locales, whose raw information comes from, say, a database.
 // The latency associated with fetching data for individual calendars on
 // demand from a typical database can be prohibitively expensive, so it may
 // make sense to acquire data for all calendars in a single query at start-up.
 //
-// First, we declare a 'MyPackedCalendarCache' that, internally, is just a
+// First, we declare a `MyPackedCalendarCache` that, internally, is just a
 // mapping from (typically short) character string names (such as "NYB",
-// representing New York Bank settlement days) to 'bdlt::PackedCalendar'
+// representing New York Bank settlement days) to `bdlt::PackedCalendar`
 // objects, containing densely packed calendar data:
-//..
+// ```
+
+    /// This class maintains a space-efficient repository of calendar data
+    /// associated with a (typically short) name.
     class MyPackedCalendarCache {
-        // This class maintains a space-efficient repository of calendar data
-        // associated with a (typically short) name.
 
         // DATA
         bsl::unordered_map<bsl::string, bdlt::PackedCalendar>  d_map;
@@ -961,21 +962,24 @@ CALENDAR& gg(CALENDAR *object, const char *spec)
 
       public:
         // CREATORS
+
+        /// Create an empty `MyPackedCalendarCache`.  Optionally specify a
+        /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+        /// 0, the currently installed default allocator is used.
         MyPackedCalendarCache(bslma::Allocator *basicAllocator = 0);
-            // Create an empty 'MyPackedCalendarCache'.  Optionally specify a
-            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-            // 0, the currently installed default allocator is used.
 
         // MANIPULATORS
+
+        /// Associate the value of the specified `calendar` with the
+        /// specified `name`.
         void assign(const bsl::string&          name,
                     const bdlt::PackedCalendar& calendar);
-            // Associate the value of the specified 'calendar' with the
-            // specified 'name'.
 
         // ACCESSORS
+
+        /// Return the address of calendar data associated with the
+        /// specified `name`, or 0 if no such association exists.
         const bdlt::PackedCalendar *lookup(const bsl::string& name) const;
-            // Return the address of calendar data associated with the
-            // specified 'name', or 0 if no such association exists.
     };
 
     // CREATORS
@@ -1004,16 +1008,17 @@ CALENDAR& gg(CALENDAR *object, const char *spec)
         }
         return &iter->second;
     }
-//..
-// Then, we define an application function, 'loadMyPackedCalendarCache', that
-// takes the address of a 'MyPackedCalendarCache' and populates it with
+// ```
+// Then, we define an application function, `loadMyPackedCalendarCache`, that
+// takes the address of a `MyPackedCalendarCache` and populates it with
 // up-to-date calendar data for all known locales (which, in the future, will
 // be from a well-known database location):
-//..
+// ```
+
+    /// Load into the specified `result`, up-to-date calendar information
+    /// for every known locale.  Return 0 on success, and a non-zero value
+    /// otherwise.
     int loadMyPackedCalendarCache(MyPackedCalendarCache *result)
-        // Load into the specified 'result', up-to-date calendar information
-        // for every known locale.  Return 0 on success, and a non-zero value
-        // otherwise.
     {
         bdlt::PackedCalendar calendar;
         calendar.setValidRange(bdlt::Date(2000,  1,  1),
@@ -1021,22 +1026,23 @@ CALENDAR& gg(CALENDAR *object, const char *spec)
         result->assign("NYB", calendar);
         return 0;
     }
-//..
+// ```
 // We can imagine that there might be dozens, even hundreds of different
 // locales, and that most applications will not need efficient access to
 // calendar data from many, let alone every locale; however, many long-running
 // applications may well need to obtain efficient access to the same calendar
 // data repeatedly.
 //
-// Next, we create a second-level of cache, 'MyCalendarCache', that maintains
+// Next, we create a second-level of cache, `MyCalendarCache`, that maintains
 // a repository of the more runtime-efficient, but also more space-intensive,
-// 'bdlt::Calendar' objects, which are instantiated on demand from a
+// `bdlt::Calendar` objects, which are instantiated on demand from a
 // packed-calendar-based data source:
-//..
+// ```
+
+    /// This class maintains a cache of runtime-efficient calendar objects
+    /// created on demand from a compact packed-calendar-based data source,
+    /// whose address is supplied at construction.
     class MyCalendarCache {
-        // This class maintains a cache of runtime-efficient calendar objects
-        // created on demand from a compact packed-calendar-based data source,
-        // whose address is supplied at construction.
 
         // DATA
         MyPackedCalendarCache                           *d_datasource_p;
@@ -1044,20 +1050,22 @@ CALENDAR& gg(CALENDAR *object, const char *spec)
 
       public:
         // CREATORS
+
+        /// Create an empty `MyCalendarCache` associated with the specified
+        /// `dataSource`.  Optionally specify a `basicAllocator` used to
+        /// supply memory.  If `basicAllocator` is 0, the currently
+        /// installed default allocator is used.
         MyCalendarCache(MyPackedCalendarCache *dataSource,
                         bslma::Allocator      *basicAllocator = 0);
-            // Create an empty 'MyCalendarCache' associated with the specified
-            // 'dataSource'.  Optionally specify a 'basicAllocator' used to
-            // supply memory.  If 'basicAllocator' is 0, the currently
-            // installed default allocator is used.
 
         // MANIPULATORS
+
+        /// Return the address of calendar data associated with the
+        /// specified `name`, or 0 if no such association exists in the data
+        /// source whose address was supplied at construction.  Note that
+        /// this method may alter the physical state of this object (and is
+        /// therefore deliberately declared non-`const`).
         const bdlt::Calendar *lookup(const bsl::string& name);
-            // Return the address of calendar data associated with the
-            // specified 'name', or 0 if no such association exists in the data
-            // source whose address was supplied at construction.  Note that
-            // this method may alter the physical state of this object (and is
-            // therefore deliberately declared non-'const').
     };
 
     MyCalendarCache::MyCalendarCache(MyPackedCalendarCache *dataSource,
@@ -1089,14 +1097,14 @@ CALENDAR& gg(CALENDAR *object, const char *spec)
 
         return &iter->second;
      }
-//..
+// ```
 
 // ***--- moved into Case 30 ---***
 
 ///Example 2: Using Calendars
 ///- - - - - - - - - - - - -
-// What makes a 'bdlt::Calendar' substantially different from a
-// 'bdlt::PackedCalendar' is the speed with which the 'bdlt::Calendar' can
+// What makes a `bdlt::Calendar` substantially different from a
+// `bdlt::PackedCalendar` is the speed with which the `bdlt::Calendar` can
 // report whether a given date is or is not a business day.  An important use
 // of high-performance calendar objects in financial applications is to quickly
 // determine the settlement date of a financial instrument.  In some
@@ -1114,30 +1122,30 @@ CALENDAR& gg(CALENDAR *object, const char *spec)
 // then the settlement date is the closest valid business day before the target
 // day in that month.
 //
-// First, we create a 'struct', 'MyCalendarUtil', that provides the
-// 'modifiedFollowing' method:
-//..
+// First, we create a `struct`, `MyCalendarUtil`, that provides the
+// `modifiedFollowing` method:
+// ```
     struct MyCalendarUtil {
 
+        /// Return the date of the first business day at or after the
+        /// specified `targetDay` in the specified `month` and `year`
+        /// according to the specified `calendar`, unless the resulting
+        /// date would not fall within `month`, in which case return
+        /// instead the date of the first business day before `targetDay`
+        /// in `month`.  The behavior is undefined unless all candidate
+        /// dates applied to `calendar` are within its valid range and
+        /// there exists at least one business day within `month`.
         static bdlt::Date modifiedFollowing(int                   targetDay,
                                             int                   month,
                                             int                   year,
                                             const bdlt::Calendar& calendar)
-            // Return the date of the first business day at or after the
-            // specified 'targetDay' in the specified 'month' and 'year'
-            // according to the specified 'calendar', unless the resulting
-            // date would not fall within 'month', in which case return
-            // instead the date of the first business day before 'targetDay'
-            // in 'month'.  The behavior is undefined unless all candidate
-            // dates applied to 'calendar' are within its valid range and
-            // there exists at least one business day within 'month'.
         {
             BSLS_ASSERT(bdlt::Date::isValidYearMonthDay(year,
                                                         month,
                                                         targetDay));
 
             // Efficiency is important so we will minimize the number of
-            // conversions between year/month/day and 'bdlt::Date' objects.
+            // conversions between year/month/day and `bdlt::Date` objects.
 
             bdlt::Date date(year, month, targetDay);
 
@@ -1149,7 +1157,7 @@ CALENDAR& gg(CALENDAR *object, const char *spec)
             return date;
         }
    };
-//..
+// ```
 
 // ***--- moved into Case 30 ---***
 
@@ -1158,7 +1166,7 @@ CALENDAR& gg(CALENDAR *object, const char *spec)
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-//'LLVMFuzzerTestOneInput' is the entry point for the clang fuzz testing
+//`LLVMFuzzerTestOneInput` is the entry point for the clang fuzz testing
 // facility.  See {http://bburl/BDEFuzzTesting} for details on how to build and
 // run with fuzz testing enabled.
 //-----------------------------------------------------------------------------
@@ -1167,8 +1175,8 @@ CALENDAR& gg(CALENDAR *object, const char *spec)
 #define main test_driver_main
 #endif
 
+/// Reinitialize the specified `calendar` object with the specified `fdv`.
 void resetCalendar(Obj *calendar, bslim::FuzzDataView *fdv)
-    // Reinitialize the specified 'calendar' object with the specified 'fdv'.
 {
     bsls::FuzzTestHandlerGuard hG;
     calendar->removeAll();
@@ -1180,12 +1188,12 @@ void resetCalendar(Obj *calendar, bslim::FuzzDataView *fdv)
 }
 
 extern "C"
+/// Use the specified `data` array of `size` bytes as input to methods of
+/// this component and return zero.
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
-    // Use the specified 'data' array of 'size' bytes as input to methods of
-    // this component and return zero.
 {
-    // Because 'Calendar::~Calendar' is time consuming due to its invocation of
-    // 'Calendar::isCacheSynchronized', employ a 'static' object.
+    // Because `Calendar::~Calendar` is time consuming due to its invocation of
+    // `Calendar::isCacheSynchronized`, employ a `static` object.
     static Obj calendar;
 
     bslim::FuzzDataView fdv(data, size);
@@ -1195,24 +1203,24 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     switch (test) { case 0:  // Zero is always the leading case.
       case 10: {
         // --------------------------------------------------------------------
-        // FUZZ TESTING 'Calendar::isWeekendDay'
+        // FUZZ TESTING `Calendar::isWeekendDay`
         //
         // Concern:
-        //: 1 That invoking 'isWeekendDay' after weekend-days transitions were
-        //:   added via the 'addWeekendDaysTransition' method results in a
-        //:   precondition violation.
+        // 1. That invoking `isWeekendDay` after weekend-days transitions were
+        //    added via the `addWeekendDaysTransition` method results in a
+        //    precondition violation.
         //
         // Plan:
-        //: 1 Reset the global 'Calendar' object.
-        //:
-        //: 2 Create 'Date' and 'DayOfWeekSet' objects from fuzz data.
-        //:
-        //: 3 Invoke 'addWeekendDaysTransition' with the created 'Date' and
-        //:   'DayOfWeekSet' objects.
-        //:
-        //: 4 Create a 'DayOfWeek' 'enum' from fuzz data and invoke
-        //:   'isWeekendDay' with the created 'enum' inside the
-        //:   'ASSERT_FAIL_RAW' macro.
+        // 1. Reset the global `Calendar` object.
+        //
+        // 2. Create `Date` and `DayOfWeekSet` objects from fuzz data.
+        //
+        // 3. Invoke `addWeekendDaysTransition` with the created `Date` and
+        //    `DayOfWeekSet` objects.
+        //
+        // 4. Create a `DayOfWeek` `enum` from fuzz data and invoke
+        //    `isWeekendDay` with the created `enum` inside the
+        //    `ASSERT_FAIL_RAW` macro.
         //
         // Testing:
         //   bool Calendar::isWeekendDay(DayOfWeek::Enum weekendDay);
@@ -1221,9 +1229,9 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         resetCalendar(&calendar, &fdv);
         bsls::AssertTestHandlerGuard g;
 
-        // Note that 'consumeDateInRange' is used to avoid invoking
-        // 'addWeekendDaysTransition' with date (1, 1, 1) to ensure
-        // 'isWeekendDay' fails.
+        // Note that `consumeDateInRange` is used to avoid invoking
+        // `addWeekendDaysTransition` with date (1, 1, 1) to ensure
+        // `isWeekendDay` fails.
         bdlt::Date begin(1, 1, 2);
         bdlt::Date end(9999, 12, 31);
         bdlt::Date startDate = bdlt::FuzzUtil::consumeDateInRange(&fdv, begin,
@@ -1242,24 +1250,24 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // FUZZ TESTING 'Calendar::addWeekendDay'
+        // FUZZ TESTING `Calendar::addWeekendDay`
         //
         // Concerns:
-        //: 1 That invoking 'addWeekendDay' after weekend-days transitions were
-        //:   added via the 'addWeekendDaysTransition' method results in a
-        //:   precondition violation.
-        //:
+        // 1. That invoking `addWeekendDay` after weekend-days transitions were
+        //    added via the `addWeekendDaysTransition` method results in a
+        //    precondition violation.
+        //
         // Plan:
-        //: 1 Reset the global 'Calendar' object.
-        //:
-        //: 2 Create 'Date' and 'DayOfWeekSet' objects from fuzz data.
-        //:
-        //: 3 Invoke 'addWeekendDaysTransition' with the created 'Date' and
-        //:   'DayOfWeekSet' objects.
-        //:
-        //: 4 Create a 'DayOfWeek' 'enum' from fuzz data and invoke
-        //:   'addWeekendDay' with the created 'enum' inside the
-        //:   'ASSERT_FAIL_RAW' macro.
+        // 1. Reset the global `Calendar` object.
+        //
+        // 2. Create `Date` and `DayOfWeekSet` objects from fuzz data.
+        //
+        // 3. Invoke `addWeekendDaysTransition` with the created `Date` and
+        //    `DayOfWeekSet` objects.
+        //
+        // 4. Create a `DayOfWeek` `enum` from fuzz data and invoke
+        //    `addWeekendDay` with the created `enum` inside the
+        //    `ASSERT_FAIL_RAW` macro.
         //
         // Testing:
         //   void Calendar::addWeekendDay(DayOfWeek::Enum weekendDay);
@@ -1268,9 +1276,9 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         resetCalendar(&calendar, &fdv);
         bsls::AssertTestHandlerGuard g;
 
-        // Note that 'consumeDateInRange' is used to avoid invoking
-        // 'addWeekendDaysTransition' with date (1, 1, 1) to ensure
-        // 'addWeekendDay' fails.
+        // Note that `consumeDateInRange` is used to avoid invoking
+        // `addWeekendDaysTransition` with date (1, 1, 1) to ensure
+        // `addWeekendDay` fails.
         bdlt::Date begin(1, 1, 2);
         bdlt::Date end(9999, 12, 31);
         bdlt::Date startDate = bdlt::FuzzUtil::consumeDateInRange(&fdv, begin,
@@ -1289,19 +1297,19 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // FUZZ TESTING 'Calendar::numBusinessDays'
+        // FUZZ TESTING `Calendar::numBusinessDays`
         //
         // Concerns:
-        //: 1 That in-contract invocation of 'numBusinessDays' with two 'Date'
-        //:   objects created from fuzz data succeeds.
+        // 1. That in-contract invocation of `numBusinessDays` with two `Date`
+        //    objects created from fuzz data succeeds.
         //
         // Plan:
-        //: 1 Reset the 'calendar' object.
-        //:
-        //: 2 Create two 'Date' objects from fuzz data.
-        //:
-        //: 3 Invoke 'numBusinessDays' with the 'Date' objects inside the
-        //:   'BSLS_FUZZTEST_EVALUATE' macro.
+        // 1. Reset the `calendar` object.
+        //
+        // 2. Create two `Date` objects from fuzz data.
+        //
+        // 3. Invoke `numBusinessDays` with the `Date` objects inside the
+        //    `BSLS_FUZZTEST_EVALUATE` macro.
         //
         // Testing:
         //   int Calendar::numBusinessDays(const Date&, const Date&) const;
@@ -1315,19 +1323,19 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // FUZZ TESTING 'Calendar::isNonBusinessDay'
+        // FUZZ TESTING `Calendar::isNonBusinessDay`
         //
         // Concerns:
-        //: 1 That in-contract invocation of 'isNonBusinessDay' with a 'Date'
-        //:   object created from fuzz data succeeds.
+        // 1. That in-contract invocation of `isNonBusinessDay` with a `Date`
+        //    object created from fuzz data succeeds.
         //
         // Plan:
-        //: 1 Reset the 'calendar' object.
-        //:
-        //: 2 Create a 'Date' object from fuzz data.
-        //:
-        //: 3 Invoke 'isNonBusinessDay' with the 'Date' object inside the
-        //:   'BSLS_FUZZTEST_EVALUATE' macro.
+        // 1. Reset the `calendar` object.
+        //
+        // 2. Create a `Date` object from fuzz data.
+        //
+        // 3. Invoke `isNonBusinessDay` with the `Date` object inside the
+        //    `BSLS_FUZZTEST_EVALUATE` macro.
         //
         // Testing:
         //   bool Calendar::isNonBusinessDay(const Date& date) const;
@@ -1340,20 +1348,20 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // FUZZ TESTING 'Calendar::getNextBusinessDay'
+        // FUZZ TESTING `Calendar::getNextBusinessDay`
         //
         // Concerns:
-        //: 1 That in-contract invocation of 'getNextBusinessDay' with a 'Date'
-        //:   object created from fuzz data succeeds.
+        // 1. That in-contract invocation of `getNextBusinessDay` with a `Date`
+        //    object created from fuzz data succeeds.
         //
         // Plan:
-        //: 1 Reset the 'calendar' object.
-        //:
-        //: 2 Create a 'Date' object from fuzz data, and another to hold the
-        //:   returned 'Date'.
-        //:
-        //: 3 Invoke 'getNextBusinessDay' with the 'Date' objects inside the
-        //:   'BSLS_FUZZTEST_EVALUATE' macro.
+        // 1. Reset the `calendar` object.
+        //
+        // 2. Create a `Date` object from fuzz data, and another to hold the
+        //    returned `Date`.
+        //
+        // 3. Invoke `getNextBusinessDay` with the `Date` objects inside the
+        //    `BSLS_FUZZTEST_EVALUATE` macro.
         //
         // Testing:
         //   int Calendar::getNextBusinessDay(Date *nd, const Date& date) const
@@ -1367,19 +1375,19 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // FUZZ TESTING 'Calendar::endBusinessDays'
+        // FUZZ TESTING `Calendar::endBusinessDays`
         //
         // Concerns:
-        //: 1 That in-contract invocation of 'endBusinessDays' with a 'Date'
-        //:   object created from fuzz data succeeds.
+        // 1. That in-contract invocation of `endBusinessDays` with a `Date`
+        //    object created from fuzz data succeeds.
         //
         // Plan:
-        //: 1 Reset the 'calendar' object.
-        //:
-        //: 2 Create a 'Date' object from fuzz data.
-        //:
-        //: 3 Invoke 'endBusinessDays' with the 'Date' object inside the
-        //:   'BSLS_FUZZTEST_EVALUATE' macro.
+        // 1. Reset the `calendar` object.
+        //
+        // 2. Create a `Date` object from fuzz data.
+        //
+        // 3. Invoke `endBusinessDays` with the `Date` object inside the
+        //    `BSLS_FUZZTEST_EVALUATE` macro.
         //
         // Testing:
         //   BusinessDayConstIterator endBusinessDays(const Date& date) const
@@ -1392,19 +1400,19 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // FUZZ TESTING 'Calendar::beginBusinessDays'
+        // FUZZ TESTING `Calendar::beginBusinessDays`
         //
         // Concerns:
-        //: 1 That in-contract invocation of 'beginBusinessDays' with a 'Date'
-        //:   object created from fuzz data succeeds.
+        // 1. That in-contract invocation of `beginBusinessDays` with a `Date`
+        //    object created from fuzz data succeeds.
         //
         // Plan:
-        //: 1 Reset the 'calendar' object.
-        //:
-        //: 2 Create a 'Date' object from fuzz data.
-        //:
-        //: 3 Invoke 'beginBusinessDays' with the 'Date' object inside the
-        //:   'BSLS_FUZZTEST_EVALUATE' macro.
+        // 1. Reset the `calendar` object.
+        //
+        // 2. Create a `Date` object from fuzz data.
+        //
+        // 3. Invoke `beginBusinessDays` with the `Date` object inside the
+        //    `BSLS_FUZZTEST_EVALUATE` macro.
         //
         // Testing:
         //   BusinessDayConstIterator beginBusinessDays(const Date& date) const
@@ -1417,19 +1425,19 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // FUZZ TESTING 'Calendar::setValidRange'
+        // FUZZ TESTING `Calendar::setValidRange`
         //
         // Concerns:
-        //: 1 That in-contract invocation of 'setValidRange' with two 'Date'
-        //:   objects created from fuzz data succeeds.
+        // 1. That in-contract invocation of `setValidRange` with two `Date`
+        //    objects created from fuzz data succeeds.
         //
         // Plan:
-        //: 1 Clear the 'calendar' object.
-        //:
-        //: 2 Create two 'Date' objects from fuzz data.
-        //:
-        //: 3 Invoke 'setValidRange' with the 'Date' objects inside the
-        //:   'BSLS_FUZZTEST_EVALUATE' macro.
+        // 1. Clear the `calendar` object.
+        //
+        // 2. Create two `Date` objects from fuzz data.
+        //
+        // 3. Invoke `setValidRange` with the `Date` objects inside the
+        //    `BSLS_FUZZTEST_EVALUATE` macro.
         //
         // Testing:
         //   void Calendar::setValidRange(const Date& date1, const Date& date2)
@@ -1443,23 +1451,23 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // FUZZ TESTING 'Calendar::swap'
+        // FUZZ TESTING `Calendar::swap`
         //
         // Concerns:
-        //: 1 That in-contract invocation of 'swap' on 'Calendar' objects
-        //:   created with the same allocator succeeds.
-        //:
-        //: 2 That in-contract invocation of 'swap' on 'Calendar' objects
-        //:   created with different allocators succeeds.
+        // 1. That in-contract invocation of `swap` on `Calendar` objects
+        //    created with the same allocator succeeds.
+        //
+        // 2. That in-contract invocation of `swap` on `Calendar` objects
+        //    created with different allocators succeeds.
         //
         // Plan:
-        //: 1 Create two 'Calendar' objects with the same allocator.
-        //:
-        //: 2 Swap the calendars inside the 'BSLS_FUZZTEST_EVALUATE' macro.
-        //:
-        //: 3 Create two 'Calendar' objects with different allocators.
-        //:
-        //: 4 Swap the calendars inside the 'BSLS_FUZZTEST_EVALUATE' macro.
+        // 1. Create two `Calendar` objects with the same allocator.
+        //
+        // 2. Swap the calendars inside the `BSLS_FUZZTEST_EVALUATE` macro.
+        //
+        // 3. Create two `Calendar` objects with different allocators.
+        //
+        // 4. Swap the calendars inside the `BSLS_FUZZTEST_EVALUATE` macro.
         //
         // Testing:
         //   void Calendar::swap(const Date& date1, const Date& date2)
@@ -1489,17 +1497,17 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // FUZZ TESTING 'Calendar::~Calendar'
+        // FUZZ TESTING `Calendar::~Calendar`
         //
         // Concerns:
-        //: 1 That upon destruction, no precondition violation occur other than
-        //:   from this function's preconditions (i.e., one explicitly checked
-        //:   in the function implementation).
+        // 1. That upon destruction, no precondition violation occur other than
+        //    from this function's preconditions (i.e., one explicitly checked
+        //    in the function implementation).
         //
         // Plan:
-        //: 1 Create a 'Calendar' object employing each of the three
-        //:   constructors inside the 'BSLS_FUZZTEST_EVALUATE' and
-        //:   'BSLS_FUZZTEST_EVALUATE_RAW' macros.
+        // 1. Create a `Calendar` object employing each of the three
+        //    constructors inside the `BSLS_FUZZTEST_EVALUATE` and
+        //    `BSLS_FUZZTEST_EVALUATE_RAW` macros.
         //
         // Testing:
         //   Calendar::~Calendar
@@ -1552,7 +1560,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -1570,13 +1578,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -1589,25 +1597,25 @@ int main(int argc, char *argv[])
 // Example 1
 
 // Now, we can create and populate the cache:
-//..
+// ```
     MyPackedCalendarCache packedCalendarCache;
     MyCalendarCache       calendarCache(&packedCalendarCache);
 
     loadMyPackedCalendarCache(&packedCalendarCache);
-//..
+// ```
 // Finally, we request the "NYB" calendar and verify the returned value:
-//..
+// ```
     const bdlt::Calendar *pCalendar = calendarCache.lookup("NYB");
 
     ASSERT(pCalendar->firstDate() == bdlt::Date(2000,  1,  1));
     ASSERT(pCalendar->lastDate()  == bdlt::Date(2020, 12, 31));
-//..
+// ```
 
 // Example 2
 
-// Then, we create and populate two calendars, 'cal1' and 'cal2', for testing
-// the 'modifiedFollowing' method:
-//..
+// Then, we create and populate two calendars, `cal1` and `cal2`, for testing
+// the `modifiedFollowing` method:
+// ```
     bdlt::Calendar cal1(bdlt::Date(2015, 1, 1), bdlt::Date(2015,12, 31));
     cal1.addWeekendDay(bdlt::DayOfWeek::e_SUN);
     cal1.addWeekendDay(bdlt::DayOfWeek::e_SAT);
@@ -1615,9 +1623,9 @@ int main(int argc, char *argv[])
 
     bdlt::Calendar cal2(cal1);
     cal2.addHoliday(bdlt::Date(2015, 7, 31));
-//..
-// Finally, we verify the 'modifiedFollowing' functionality:
-//..
+// ```
+// Finally, we verify the `modifiedFollowing` functionality:
+// ```
     ASSERT(bdlt::Date(2015, 7,  2) ==
                          MyCalendarUtil::modifiedFollowing( 2, 7, 2015, cal1));
     ASSERT(bdlt::Date(2015, 7,  6) ==
@@ -1631,26 +1639,26 @@ int main(int argc, char *argv[])
                          MyCalendarUtil::modifiedFollowing( 3, 7, 2015, cal2));
     ASSERT(bdlt::Date(2015, 7, 30) ==
                          MyCalendarUtil::modifiedFollowing(31, 7, 2015, cal2));
-//..
+// ```
       } break;
       case 30: {
         // --------------------------------------------------------------------
         // TESTING: hashAppend
         //
         // Concerns:
-        //: 1 Hope that different inputs hash differently
-        //: 2 Verify that equal inputs hash identically
-        //: 3 Works for 'const' and non-'const' values
+        // 1. Hope that different inputs hash differently
+        // 2. Verify that equal inputs hash identically
+        // 3. Works for `const` and non-`const` values
         //
         // Plan:
-        //: 1 Use a table specifying a set of distinct objects, verify that
-        //:   hashes of equivalent objects match and hashes on unequal objects
-        //:   do not.
+        // 1. Use a table specifying a set of distinct objects, verify that
+        //    hashes of equivalent objects match and hashes on unequal objects
+        //    do not.
         //
         // Testing:
         //    void hashAppend(HASHALG& hashAlg, const Calendar&);
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTESTING 'hashAppend'"
+        if (verbose) cout << "\nTESTING `hashAppend`"
                           << "\n====================\n";
 
         typedef ::BloombergLP::bslh::Hash<>   Hasher;
@@ -1678,29 +1686,29 @@ int main(int argc, char *argv[])
       } break;
       case 29: {
         // -------------------------------------------------------------------
-        // TESTING 'numBusinessDays(beginDate, endDate)'
+        // TESTING `numBusinessDays(beginDate, endDate)`
         //   Ensure the non-basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 The non-basic accessor returns the expected value.
-        //:
-        //: 2 The non-basic accessor method is declared 'const'.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The non-basic accessor returns the expected value.
+        //
+        // 2. The non-basic accessor method is declared `const`.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Directly test that the non-basic accessor, invoked on a set of
-        //:   'const' objects created with the generator function, returns the
-        //:   expected value using the table-driven technique.  (C-1..2)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Directly test that the non-basic accessor, invoked on a set of
+        //    `const` objects created with the generator function, returns the
+        //    expected value using the table-driven technique.  (C-1..2)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   int numBusinessDays(beginDate, endDate) const;
         // -------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'numBusinessDays(beginDate, endDate)'"
+                          << "TESTING `numBusinessDays(beginDate, endDate)`"
                           << endl
                           << "============================================="
                           << endl;
@@ -1774,25 +1782,25 @@ int main(int argc, char *argv[])
       } break;
       case 28: {
         // -------------------------------------------------------------------
-        // 'nextBusinessDay' ACCESSORS
+        // `nextBusinessDay` ACCESSORS
         //   Ensure both of these non-basic accessors properly interpret
         //   object state.
         //
         // Concerns:
-        //: 1 Both of these non-basic accessors returns the expected value and
-        //:   correctly loads the supplied 'nextBusinessDay'.
-        //:
-        //: 2 Each non-basic accessor method is declared 'const'.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Both of these non-basic accessors returns the expected value and
+        //    correctly loads the supplied `nextBusinessDay`.
+        //
+        // 2. Each non-basic accessor method is declared `const`.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For a set of 'const' objects created with the generator function,
-        //:   compute and store all business days for the calendar.
-        //:   Exhaustively verify the return value and loaded 'nextBusinessDay'
-        //:   using the stored business days.  (C-1..2)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. For a set of `const` objects created with the generator function,
+        //    compute and store all business days for the calendar.
+        //    Exhaustively verify the return value and loaded `nextBusinessDay`
+        //    using the stored business days.  (C-1..2)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   int getNextBusinessDay(Date *nextBusinessDay, const Date& date);
@@ -1804,7 +1812,7 @@ int main(int argc, char *argv[])
         // -------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "'nextBusinessDay' ACCESSORS" << endl
+                          << "`nextBusinessDay` ACCESSORS" << endl
                           << "===========================" << endl;
 
         const char **SPECS = DEFAULT_SPECS;
@@ -1818,7 +1826,7 @@ int main(int argc, char *argv[])
                 bsl::vector<bdlt::Date> businessDay;
 
                 // Note that the below avoids incrementing
-                // 'bdlt::Date(9999, 12, 31)'.
+                // `bdlt::Date(9999, 12, 31)`.
 
                 for (bdlt::Date date = X.firstDate();
                      date < X.lastDate();
@@ -1937,7 +1945,7 @@ int main(int argc, char *argv[])
         };
         enum { NUM_DATA = sizeof(DATA) / sizeof(*DATA) };
 
-        // Testing 'getNextBusinessDay(const Date&)'.
+        // Testing `getNextBusinessDay(const Date&)`.
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const char *SPEC = DATA[i].d_spec;
@@ -1979,7 +1987,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        // Testing 'getNextBusinessDay(const Date&, int)'.
+        // Testing `getNextBusinessDay(const Date&, int)`.
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const char *SPEC = DATA[i].d_spec;
@@ -2009,9 +2017,9 @@ int main(int argc, char *argv[])
                 for (int n = 2; n <= 8; ++n) {
                     bdlt::Date result(tempDate);
 
-                    // Call 'getNextBusinessDay(const& Date)' 'n' times
+                    // Call `getNextBusinessDay(const& Date)` `n` times
                     // and use the result to verify
-                    // 'getNextBusinessDay(const& Date, int)'.
+                    // `getNextBusinessDay(const& Date, int)`.
 
                     for (int nn = 0; nn < n; ++nn) {
                         result = X.getNextBusinessDay(result);
@@ -2032,19 +2040,19 @@ int main(int argc, char *argv[])
         //   Ensure the value constructor operates as expected.
         //
         // Concerns:
-        //: 1 The value constructor creates an object with the expected value.
-        //:
-        //: 2 The value constructor properly wires the optionally-specified
-        //:   allocator.
+        // 1. The value constructor creates an object with the expected value.
+        //
+        // 2. The value constructor properly wires the optionally-specified
+        //    allocator.
         //
         // Plan:
-        //: 1 Use the generator function to create a set of
-        //:   'bdlt::PackedCalendar' values.  For each of these values, create
-        //:   objects using the value constructor with and without
-        //:   passing in an allocator.  Verify the value by comparing the
-        //:   result of the 'packedCalendar' accessor with the initial
-        //:   'bdlt::PackedCalendar' object and verify the allocator is stored
-        //:   using the 'allocator' accessor.  (C-1)
+        // 1. Use the generator function to create a set of
+        //    `bdlt::PackedCalendar` values.  For each of these values, create
+        //    objects using the value constructor with and without
+        //    passing in an allocator.  Verify the value by comparing the
+        //    result of the `packedCalendar` accessor with the initial
+        //    `bdlt::PackedCalendar` object and verify the allocator is stored
+        //    using the `allocator` accessor.  (C-1)
         //
         // Testing:
         //   Calendar(const bdlt::PackedCalendar& packedCalendar, ba = 0);
@@ -2106,42 +2114,42 @@ int main(int argc, char *argv[])
       } break;
       case 26: {
         // -------------------------------------------------------------------
-        // TESTING 'WeekendDaysTransitionConstReverseIterator'
-        //   Ensure that this iterator and the associated 'rbegin' and 'rend'
+        // TESTING `WeekendDaysTransitionConstReverseIterator`
+        //   Ensure that this iterator and the associated `rbegin` and `rend`
         //   methods behave as expected.
         //
         // Concerns:
-        //: 1 The iterator's type traits are appropriately defined.
-        //:
-        //: 2 The iterator can be used to iterate from 'rbegin' to 'rend' using
-        //:   'operator++'.
-        //:
-        //: 3 The iterator can be used to iterate from 'rend' to 'rbegin' using
-        //:   'operator--'.
-        //:
-        //: 4 The methods 'operator*' and 'operator->' work as expected.
-        //:
-        //: 5 The equality operators work as expected.
-        //:
-        //: 6 The constructors and assignment operator work as expected.
+        // 1. The iterator's type traits are appropriately defined.
+        //
+        // 2. The iterator can be used to iterate from `rbegin` to `rend` using
+        //    `operator++`.
+        //
+        // 3. The iterator can be used to iterate from `rend` to `rbegin` using
+        //    `operator--`.
+        //
+        // 4. The methods `operator*` and `operator->` work as expected.
+        //
+        // 5. The equality operators work as expected.
+        //
+        // 6. The constructors and assignment operator work as expected.
         //
         // Plan:
-        //: 1 Directly verify the type traits of the iterator.  (C-1)
-        //:
-        //: 2 For a set of 'bdlt::Calendar' values, iterate from the
-        //:   'rbegin' to the 'rend' of each calendar and verify the value
-        //:   referenced by the iterator with the 'weekendDaysTransition'
-        //:   accessor from 'bdlt::Calendar'.  (C-2)
-        //:
-        //: 3 For a set of 'bdlt::Calendar' values, iterate from the
-        //:   'rend' to the 'rbegin' of each calendar and verify the value
-        //:   referenced by the iterator with the 'weekendDaysTransition'
-        //:   accessor from 'bdlt::Calendar'.  (C-3..4)
-        //:
-        //: 4 For a set of 'bdlt::Calendar' values, test the equality
-        //:   operators with all possible pairs of iterator values from each
-        //:   calendar value.  Also test the constructors and assignment
-        //:   operator.  (C-5..6)
+        // 1. Directly verify the type traits of the iterator.  (C-1)
+        //
+        // 2. For a set of `bdlt::Calendar` values, iterate from the
+        //    `rbegin` to the `rend` of each calendar and verify the value
+        //    referenced by the iterator with the `weekendDaysTransition`
+        //    accessor from `bdlt::Calendar`.  (C-2)
+        //
+        // 3. For a set of `bdlt::Calendar` values, iterate from the
+        //    `rend` to the `rbegin` of each calendar and verify the value
+        //    referenced by the iterator with the `weekendDaysTransition`
+        //    accessor from `bdlt::Calendar`.  (C-3..4)
+        //
+        // 4. For a set of `bdlt::Calendar` values, test the equality
+        //    operators with all possible pairs of iterator values from each
+        //    calendar value.  Also test the constructors and assignment
+        //    operator.  (C-5..6)
         //
         // Testing:
         //   WeekendDaysTransitionConstReverseIterator
@@ -2151,7 +2159,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'WeekendDaysTransitionConstReverseIterator'"
+                 << "TESTING `WeekendDaysTransitionConstReverseIterator`"
                  << endl
                  << "==================================================="
                  << endl;
@@ -2214,8 +2222,8 @@ int main(int argc, char *argv[])
                 }
             }
 
-            // Test iterating in the forward direction, 'operator*' and
-            // 'operator->'.
+            // Test iterating in the forward direction, `operator*` and
+            // `operator->`.
 
             {
                 Iterator        mA = X.rbeginWeekendDaysTransitions();
@@ -2254,8 +2262,8 @@ int main(int argc, char *argv[])
                 ASSERTV(ti, X, -1 == index);
             }
 
-            // Test iterating in the reverse direction, 'operator*' and
-            // 'operator->'.
+            // Test iterating in the reverse direction, `operator*` and
+            // `operator->`.
 
             if (X.numWeekendDaysTransitions()) {
                 Iterator        mA = X.rbeginWeekendDaysTransitions();
@@ -2330,42 +2338,42 @@ int main(int argc, char *argv[])
       } break;
       case 25: {
         // -------------------------------------------------------------------
-        // TESTING 'WeekendDaysTransitionConstIterator'
-        //   Ensure that this iterator and the associated 'begin' and 'end'
+        // TESTING `WeekendDaysTransitionConstIterator`
+        //   Ensure that this iterator and the associated `begin` and `end`
         //   methods behave as expected.
         //
         // Concerns:
-        //: 1 The iterator's type traits are appropriately defined.
-        //:
-        //: 2 The iterator can be used to iterate from 'begin' to 'end' using
-        //:   'operator++'.
-        //:
-        //: 3 The iterator can be used to iterate from 'end' to 'begin' using
-        //:   'operator--'.
-        //:
-        //: 4 The methods 'operator*' and 'operator->' work as expected.
-        //:
-        //: 5 The equality operators work as expected.
-        //:
-        //: 6 The constructors and assignment operator work as expected.
+        // 1. The iterator's type traits are appropriately defined.
+        //
+        // 2. The iterator can be used to iterate from `begin` to `end` using
+        //    `operator++`.
+        //
+        // 3. The iterator can be used to iterate from `end` to `begin` using
+        //    `operator--`.
+        //
+        // 4. The methods `operator*` and `operator->` work as expected.
+        //
+        // 5. The equality operators work as expected.
+        //
+        // 6. The constructors and assignment operator work as expected.
         //
         // Plan:
-        //: 1 Directly verify the type traits of the iterator.  (C-1)
-        //:
-        //: 2 For a set of 'bdlt::Calendar' values, iterate from the
-        //:   'begin' to the 'end' of each calendar and verify the value
-        //:   referenced by the iterator with the 'weekendDaysTransition'
-        //:   accessor from 'bdlt::Calendar'.  (C-2)
-        //:
-        //: 3 For a set of 'bdlt::Calendar' values, iterate from the
-        //:   'end' to the 'begin' of each calendar and verify the value
-        //:   referenced by the iterator with the 'weekendDaysTransition'
-        //:   accessor from 'bdlt::Calendar'.  (C-3..4)
-        //:
-        //: 4 For a set of 'bdlt::Calendar' values, test the equality
-        //:   operators with all possible pairs of iterator values from each
-        //:   calendar value.  Also test the constructors and assignment
-        //:   operator.  (C-5..6)
+        // 1. Directly verify the type traits of the iterator.  (C-1)
+        //
+        // 2. For a set of `bdlt::Calendar` values, iterate from the
+        //    `begin` to the `end` of each calendar and verify the value
+        //    referenced by the iterator with the `weekendDaysTransition`
+        //    accessor from `bdlt::Calendar`.  (C-2)
+        //
+        // 3. For a set of `bdlt::Calendar` values, iterate from the
+        //    `end` to the `begin` of each calendar and verify the value
+        //    referenced by the iterator with the `weekendDaysTransition`
+        //    accessor from `bdlt::Calendar`.  (C-3..4)
+        //
+        // 4. For a set of `bdlt::Calendar` values, test the equality
+        //    operators with all possible pairs of iterator values from each
+        //    calendar value.  Also test the constructors and assignment
+        //    operator.  (C-5..6)
         //
         // Testing:
         //   WeekendDaysTransitionConstIterator
@@ -2375,7 +2383,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'WeekendDaysTransitionConstIterator'" << endl
+                 << "TESTING `WeekendDaysTransitionConstIterator`" << endl
                  << "============================================" << endl;
         }
 
@@ -2434,8 +2442,8 @@ int main(int argc, char *argv[])
                 }
             }
 
-            // Test iterating in the forward direction, 'operator*' and
-            // 'operator->'.
+            // Test iterating in the forward direction, `operator*` and
+            // `operator->`.
 
             {
                 Iterator        mA = X.beginWeekendDaysTransitions();
@@ -2474,8 +2482,8 @@ int main(int argc, char *argv[])
                 ASSERTV(ti, X, X.numWeekendDaysTransitions() == index);
             }
 
-            // Test iterating in the reverse direction, 'operator*' and
-            // 'operator->'.
+            // Test iterating in the reverse direction, `operator*` and
+            // `operator->`.
 
             if (X.numWeekendDaysTransitions()) {
                 Iterator        mA = X.beginWeekendDaysTransitions();
@@ -2549,53 +2557,53 @@ int main(int argc, char *argv[])
       } break;
       case 24: {
         // -------------------------------------------------------------------
-        // TESTING 'BusinessDayConstReverseIterator'
-        //   Ensure that this iterator and the associated 'rbegin' and 'rend'
+        // TESTING `BusinessDayConstReverseIterator`
+        //   Ensure that this iterator and the associated `rbegin` and `rend`
         //   methods behave as expected.
         //
         // Concerns:
-        //: 1 The iterator's type traits are appropriately defined.
-        //:
-        //: 2 The iterator can be used to iterate from 'rbegin' to 'rend' using
-        //:   'operator++'.
-        //:
-        //: 3 The iterator can be used to iterate from 'rend' to 'rbegin' using
-        //:   'operator--'.
-        //:
-        //: 4 The methods 'operator*' and 'operator->' work as expected.
-        //:
-        //: 5 The equality operators work as expected.
-        //:
-        //: 6 The constructors and assignment operator work as expected.
-        //:
-        //: 7 The methods 'rbeginBusinessDays(date)' and
-        //:   'rendBusinessDays(date)' work as expected.
-        //:
-        //: 8 QoI: asserted precondition violations are detected when enabled.
+        // 1. The iterator's type traits are appropriately defined.
+        //
+        // 2. The iterator can be used to iterate from `rbegin` to `rend` using
+        //    `operator++`.
+        //
+        // 3. The iterator can be used to iterate from `rend` to `rbegin` using
+        //    `operator--`.
+        //
+        // 4. The methods `operator*` and `operator->` work as expected.
+        //
+        // 5. The equality operators work as expected.
+        //
+        // 6. The constructors and assignment operator work as expected.
+        //
+        // 7. The methods `rbeginBusinessDays(date)` and
+        //    `rendBusinessDays(date)` work as expected.
+        //
+        // 8. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Directly verify the type traits of the iterator.  (C-1)
-        //:
-        //: 2 For a set of 'bdlt::Calendar' values, iterate from the
-        //:   'rbegin' to the 'rend' of each calendar and verify the value
-        //:   referenced by the iterator with the 'isBusinessDay' accessor from
-        //:   'bdlt::Calendar'.  (C-2)
-        //:
-        //: 3 For a set of 'bdlt::Calendar' values, iterate from the
-        //:   'rend' to the 'rbegin' of each calendar and verify the value
-        //:   referenced by the iterator with the 'isBusinessDay' accessor from
-        //:   'bdlt::Calendar'.  (C-3..4)
-        //:
-        //: 4 For a set of 'bdlt::Calendar' values, test the equality
-        //:   operators with all possible pairs of iterator values from each
-        //:   calendar value.  Also test the constructors and assignment
-        //:   operator.  (C-5..6)
-        //:
-        //: 5 For a set of 'bdlt::Calendar' values, for all dates within
-        //:   the range of the calendar verify the return values of
-        //:   'rbeginBusinessDays(date)' and 'rendBusinessDays(date)'.  (C-7)
-        //:
-        //: 6 Verify defensive checks are triggered for invalid values.  (C-8)
+        // 1. Directly verify the type traits of the iterator.  (C-1)
+        //
+        // 2. For a set of `bdlt::Calendar` values, iterate from the
+        //    `rbegin` to the `rend` of each calendar and verify the value
+        //    referenced by the iterator with the `isBusinessDay` accessor from
+        //    `bdlt::Calendar`.  (C-2)
+        //
+        // 3. For a set of `bdlt::Calendar` values, iterate from the
+        //    `rend` to the `rbegin` of each calendar and verify the value
+        //    referenced by the iterator with the `isBusinessDay` accessor from
+        //    `bdlt::Calendar`.  (C-3..4)
+        //
+        // 4. For a set of `bdlt::Calendar` values, test the equality
+        //    operators with all possible pairs of iterator values from each
+        //    calendar value.  Also test the constructors and assignment
+        //    operator.  (C-5..6)
+        //
+        // 5. For a set of `bdlt::Calendar` values, for all dates within
+        //    the range of the calendar verify the return values of
+        //    `rbeginBusinessDays(date)` and `rendBusinessDays(date)`.  (C-7)
+        //
+        // 6. Verify defensive checks are triggered for invalid values.  (C-8)
         //
         // Testing:
         //   BusinessDayConstReverseIterator
@@ -2607,7 +2615,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'BusinessDayConstReverseIterator'" << endl
+                 << "TESTING `BusinessDayConstReverseIterator`" << endl
                  << "=========================================" << endl;
         }
 
@@ -2645,8 +2653,8 @@ int main(int argc, char *argv[])
                 ASSERTV(ti, X, (0 == X.numBusinessDays()) == (A == B));
             }
 
-            // Test iterating in the forward direction, 'operator*' and
-            // 'operator->'.
+            // Test iterating in the forward direction, `operator*` and
+            // `operator->`.
 
             {
                 Iterator mA = X.rbeginBusinessDays();  const Iterator& A = mA;
@@ -2697,8 +2705,8 @@ int main(int argc, char *argv[])
                 ASSERTV(ti, X, X.numBusinessDays() == count);
             }
 
-            // Test iterating in the reverse direction, 'operator*' and
-            // 'operator->'.
+            // Test iterating in the reverse direction, `operator*` and
+            // `operator->`.
 
             if (X.numBusinessDays()) {
                 Iterator mA = X.rbeginBusinessDays();  const Iterator& A = mA;
@@ -2778,7 +2786,7 @@ int main(int argc, char *argv[])
             ASSERTV(X,
                     false == (X.rendBusinessDays() != X.rendBusinessDays()));
 
-            // Testing 'rbeginBusinessDays(date)' and 'rendBusinessDays(date)'.
+            // Testing `rbeginBusinessDays(date)` and `rendBusinessDays(date)`.
 
             for (int offset = 0; offset < X.length(); ++offset) {
                 bdlt::Date date = X.lastDate() - offset;
@@ -2839,53 +2847,53 @@ int main(int argc, char *argv[])
       } break;
       case 23: {
         // -------------------------------------------------------------------
-        // TESTING 'BusinessDayConstIterator'
-        //   Ensure that this iterator and the associated 'begin' and 'end'
+        // TESTING `BusinessDayConstIterator`
+        //   Ensure that this iterator and the associated `begin` and `end`
         //   methods behave as expected.
         //
         // Concerns:
-        //: 1 The iterator's type traits are appropriately defined.
-        //:
-        //: 2 The iterator can be used to iterate from 'begin' to 'end' using
-        //:   'operator++'.
-        //:
-        //: 3 The iterator can be used to iterate from 'end' to 'begin' using
-        //:   'operator--'.
-        //:
-        //: 4 The methods 'operator*' and 'operator->' work as expected.
-        //:
-        //: 5 The equality operators work as expected.
-        //:
-        //: 6 The constructors and assignment operator work as expected.
-        //:
-        //: 7 The methods 'beginBusinessDays(date)' and 'endBusinessDays(date)'
-        //:   work as expected.
-        //:
-        //: 8 QoI: asserted precondition violations are detected when enabled.
+        // 1. The iterator's type traits are appropriately defined.
+        //
+        // 2. The iterator can be used to iterate from `begin` to `end` using
+        //    `operator++`.
+        //
+        // 3. The iterator can be used to iterate from `end` to `begin` using
+        //    `operator--`.
+        //
+        // 4. The methods `operator*` and `operator->` work as expected.
+        //
+        // 5. The equality operators work as expected.
+        //
+        // 6. The constructors and assignment operator work as expected.
+        //
+        // 7. The methods `beginBusinessDays(date)` and `endBusinessDays(date)`
+        //    work as expected.
+        //
+        // 8. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Directly verify the type traits of the iterator.  (C-1)
-        //:
-        //: 2 For a set of 'bdlt::Calendar' values, iterate from the
-        //:   'begin' to the 'end' of each calendar and verify the value
-        //:   referenced by the iterator with the 'isBusinessDay' accessor from
-        //:   'bdlt::Calendar'.  (C-2)
-        //:
-        //: 3 For a set of 'bdlt::Calendar' values, iterate from the
-        //:   'end' to the 'begin' of each calendar and verify the value
-        //:   referenced by the iterator with the 'isBusinessDay' accessor from
-        //:   'bdlt::Calendar'.  (C-3..4)
-        //:
-        //: 4 For a set of 'bdlt::Calendar' values, test the equality
-        //:   operators with all possible pairs of iterator values from each
-        //:   calendar value.  Also test the constructors and assignment
-        //:   operator.  (C-5..6)
-        //:
-        //: 5 For a set of 'bdlt::Calendar' values, for all dates within
-        //:   the range of the calendar verify the return values of
-        //:   'beginBusinessDays(date)' and 'endBusinessDays(date)'.  (C-7)
-        //:
-        //: 6 Verify defensive checks are triggered for invalid values.  (C-8)
+        // 1. Directly verify the type traits of the iterator.  (C-1)
+        //
+        // 2. For a set of `bdlt::Calendar` values, iterate from the
+        //    `begin` to the `end` of each calendar and verify the value
+        //    referenced by the iterator with the `isBusinessDay` accessor from
+        //    `bdlt::Calendar`.  (C-2)
+        //
+        // 3. For a set of `bdlt::Calendar` values, iterate from the
+        //    `end` to the `begin` of each calendar and verify the value
+        //    referenced by the iterator with the `isBusinessDay` accessor from
+        //    `bdlt::Calendar`.  (C-3..4)
+        //
+        // 4. For a set of `bdlt::Calendar` values, test the equality
+        //    operators with all possible pairs of iterator values from each
+        //    calendar value.  Also test the constructors and assignment
+        //    operator.  (C-5..6)
+        //
+        // 5. For a set of `bdlt::Calendar` values, for all dates within
+        //    the range of the calendar verify the return values of
+        //    `beginBusinessDays(date)` and `endBusinessDays(date)`.  (C-7)
+        //
+        // 6. Verify defensive checks are triggered for invalid values.  (C-8)
         //
         // Testing:
         //   BusinessDayConstIterator
@@ -2896,7 +2904,7 @@ int main(int argc, char *argv[])
         // -------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'BusinessDayConstIterator'" << endl
+                          << "TESTING `BusinessDayConstIterator`" << endl
                           << "==================================" << endl;
 
         typedef bdlt::Calendar::BusinessDayConstIterator Iterator;
@@ -2933,8 +2941,8 @@ int main(int argc, char *argv[])
                 ASSERTV(ti, X, (0 == X.numBusinessDays()) == (A == B));
             }
 
-            // Test iterating in the forward direction, 'operator*' and
-            // 'operator->'.
+            // Test iterating in the forward direction, `operator*` and
+            // `operator->`.
 
             {
                 Iterator mA = X.beginBusinessDays();  const Iterator& A = mA;
@@ -2985,8 +2993,8 @@ int main(int argc, char *argv[])
                 ASSERTV(ti, X, X.numBusinessDays() == count);
             }
 
-            // Test iterating in the reverse direction, 'operator*' and
-            // 'operator->'.
+            // Test iterating in the reverse direction, `operator*` and
+            // `operator->`.
 
             if (X.numBusinessDays()) {
                 Iterator mA = X.beginBusinessDays();  const Iterator& A = mA;
@@ -3064,7 +3072,7 @@ int main(int argc, char *argv[])
             ASSERTV(X, true  == (X.endBusinessDays() == X.endBusinessDays()));
             ASSERTV(X, false == (X.endBusinessDays() != X.endBusinessDays()));
 
-            // Testing 'beginBusinessDays(date)' and 'endBusinessDays(date)'.
+            // Testing `beginBusinessDays(date)` and `endBusinessDays(date)`.
 
             for (int offset = 0; offset < X.length(); ++offset) {
                 bdlt::Date date = X.firstDate() + offset;
@@ -3127,46 +3135,46 @@ int main(int argc, char *argv[])
       } break;
       case 22: {
         // -------------------------------------------------------------------
-        // TESTING 'HolidayCodeConstReverseIterator'
-        //   Ensure that this iterator and the associated 'rbegin' and 'rend'
+        // TESTING `HolidayCodeConstReverseIterator`
+        //   Ensure that this iterator and the associated `rbegin` and `rend`
         //   methods behave as expected.
         //
         // Concerns:
-        //: 1 The iterator's type traits are appropriately defined.
-        //:
-        //: 2 The iterator can be used to iterate from 'rbegin' to 'rend' using
-        //:   'operator++'.
-        //:
-        //: 3 The iterator can be used to iterate from 'rend' to 'rbegin' using
-        //:   'operator--'.
-        //:
-        //: 4 The method 'operator*' works as expected.
-        //:
-        //: 5 The equality operators work as expected.
-        //:
-        //: 6 The constructors and assignment operator work as expected.
-        //:
-        //: 7 QoI: asserted precondition violations are detected when enabled.
+        // 1. The iterator's type traits are appropriately defined.
+        //
+        // 2. The iterator can be used to iterate from `rbegin` to `rend` using
+        //    `operator++`.
+        //
+        // 3. The iterator can be used to iterate from `rend` to `rbegin` using
+        //    `operator--`.
+        //
+        // 4. The method `operator*` works as expected.
+        //
+        // 5. The equality operators work as expected.
+        //
+        // 6. The constructors and assignment operator work as expected.
+        //
+        // 7. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Directly verify the type traits of the iterator.  (C-1)
-        //:
-        //: 2 For a set of 'bdlt::Calendar' values, iterate from the
-        //:   'rbegin' to the 'rend' of each calendar and verify the value
-        //:   referenced by the iterator with the 'holidayCode' accessor from
-        //:   'bdlt::Calendar'.  (C-2)
-        //:
-        //: 3 For a set of 'bdlt::Calendar' values, iterate from the
-        //:   'rend' to the 'rbegin' of each calendar and verify the value
-        //:   referenced by the iterator with the 'holidayCode' accessor from
-        //:   'bdlt::Calendar'.  (C-3..4)
-        //:
-        //: 4 For a set of 'bdlt::Calendar' values, test the equality
-        //:   operators with all possible pairs of iterator values from each
-        //:   calendar value.  Also test the constructors and assignment
-        //:   operator.  (C-5..6)
-        //:
-        //: 5 Verify defensive checks are triggered for invalid values.  (C-7)
+        // 1. Directly verify the type traits of the iterator.  (C-1)
+        //
+        // 2. For a set of `bdlt::Calendar` values, iterate from the
+        //    `rbegin` to the `rend` of each calendar and verify the value
+        //    referenced by the iterator with the `holidayCode` accessor from
+        //    `bdlt::Calendar`.  (C-2)
+        //
+        // 3. For a set of `bdlt::Calendar` values, iterate from the
+        //    `rend` to the `rbegin` of each calendar and verify the value
+        //    referenced by the iterator with the `holidayCode` accessor from
+        //    `bdlt::Calendar`.  (C-3..4)
+        //
+        // 4. For a set of `bdlt::Calendar` values, test the equality
+        //    operators with all possible pairs of iterator values from each
+        //    calendar value.  Also test the constructors and assignment
+        //    operator.  (C-5..6)
+        //
+        // 5. Verify defensive checks are triggered for invalid values.  (C-7)
         //
         // Testing:
         //   HolidayCodeConstReverseIterator
@@ -3178,7 +3186,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'HolidayCodeConstReverseIterator'" << endl
+                 << "TESTING `HolidayCodeConstReverseIterator`" << endl
                  << "=========================================" << endl;
         }
 
@@ -3245,7 +3253,7 @@ int main(int argc, char *argv[])
                     }
 
                     // Test iterating in the forward direction, and
-                    // 'operator*'.
+                    // `operator*`.
 
                     {
                         Iterator        mA = X.rbeginHolidayCodes(date);
@@ -3273,7 +3281,7 @@ int main(int argc, char *argv[])
                     }
 
                     // Test iterating in the reverse direction, and
-                    // 'operator*'.
+                    // `operator*`.
 
                     if (X.numHolidayCodes(date)) {
                         Iterator        mA = X.rbeginHolidayCodes(date);
@@ -3381,46 +3389,46 @@ int main(int argc, char *argv[])
       } break;
       case 21: {
         // -------------------------------------------------------------------
-        // TESTING 'HolidayCodeConstIterator'
-        //   Ensure that this iterator and the associated 'begin' and 'end'
+        // TESTING `HolidayCodeConstIterator`
+        //   Ensure that this iterator and the associated `begin` and `end`
         //   methods behave as expected.
         //
         // Concerns:
-        //: 1 The iterator's type traits are appropriately defined.
-        //:
-        //: 2 The iterator can be used to iterate from 'begin' to 'end' using
-        //:   'operator++'.
-        //:
-        //: 3 The iterator can be used to iterate from 'end' to 'begin' using
-        //:   'operator--'.
-        //:
-        //: 4 The method 'operator*' works as expected.
-        //:
-        //: 5 The equality operators work as expected.
-        //:
-        //: 6 The constructors and assignment operator work as expected.
-        //:
-        //: 7 QoI: asserted precondition violations are detected when enabled.
+        // 1. The iterator's type traits are appropriately defined.
+        //
+        // 2. The iterator can be used to iterate from `begin` to `end` using
+        //    `operator++`.
+        //
+        // 3. The iterator can be used to iterate from `end` to `begin` using
+        //    `operator--`.
+        //
+        // 4. The method `operator*` works as expected.
+        //
+        // 5. The equality operators work as expected.
+        //
+        // 6. The constructors and assignment operator work as expected.
+        //
+        // 7. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Directly verify the type traits of the iterator.  (C-1)
-        //:
-        //: 2 For a set of 'bdlt::Calendar' values, iterate from the
-        //:   'begin' to the 'end' of each calendar holiday and verify the
-        //:   value referenced by the iterator with the 'holidayCode' accessor
-        //:   from 'bdlt::Calendar'.  (C-2)
-        //:
-        //: 3 For a set of 'bdlt::Calendar' values, iterate from the
-        //:   'end' to the 'begin' of each calendar holiday and verify the
-        //:   value referenced by the iterator with the 'holidayCode' accessor
-        //:   from 'bdlt::Calendar'.  (C-3..4)
-        //:
-        //: 4 For a set of 'bdlt::Calendar' values, test the equality
-        //:   operators with all possible pairs of iterator values from each
-        //:   calendar value.  Also test the constructors and assignment
-        //:   operator.  (C-5..6)
-        //:
-        //: 5 Verify defensive checks are triggered for invalid values.  (C-7)
+        // 1. Directly verify the type traits of the iterator.  (C-1)
+        //
+        // 2. For a set of `bdlt::Calendar` values, iterate from the
+        //    `begin` to the `end` of each calendar holiday and verify the
+        //    value referenced by the iterator with the `holidayCode` accessor
+        //    from `bdlt::Calendar`.  (C-2)
+        //
+        // 3. For a set of `bdlt::Calendar` values, iterate from the
+        //    `end` to the `begin` of each calendar holiday and verify the
+        //    value referenced by the iterator with the `holidayCode` accessor
+        //    from `bdlt::Calendar`.  (C-3..4)
+        //
+        // 4. For a set of `bdlt::Calendar` values, test the equality
+        //    operators with all possible pairs of iterator values from each
+        //    calendar value.  Also test the constructors and assignment
+        //    operator.  (C-5..6)
+        //
+        // 5. Verify defensive checks are triggered for invalid values.  (C-7)
         //
         // Testing:
         //   HolidayCodeConstIterator
@@ -3431,7 +3439,7 @@ int main(int argc, char *argv[])
         // -------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'HolidayCodeConstIterator'" << endl
+                          << "TESTING `HolidayCodeConstIterator`" << endl
                           << "==================================" << endl;
 
         typedef bdlt::Calendar::HolidayCodeConstIterator Iterator;
@@ -3496,8 +3504,8 @@ int main(int argc, char *argv[])
                         ASSERTV(ti, X, B != D);
                     }
 
-                    // Test iterating in the forward direction, 'operator*',
-                    // and 'operator-'.
+                    // Test iterating in the forward direction, `operator*`,
+                    // and `operator-`.
 
                     {
                         Iterator        mA = X.beginHolidayCodes(date);
@@ -3531,7 +3539,7 @@ int main(int argc, char *argv[])
                     }
 
                     // Test iterating in the reverse direction, and
-                    // 'operator*'.
+                    // `operator*`.
 
                     if (X.numHolidayCodes(date)) {
                         Iterator        mA = X.beginHolidayCodes(date);
@@ -3637,53 +3645,53 @@ int main(int argc, char *argv[])
       } break;
       case 20: {
         // -------------------------------------------------------------------
-        // TESTING 'HolidayConstReverseIterator'
-        //   Ensure that this iterator and the associated 'rbegin' and 'rend'
+        // TESTING `HolidayConstReverseIterator`
+        //   Ensure that this iterator and the associated `rbegin` and `rend`
         //   methods behave as expected.
         //
         // Concerns:
-        //: 1 The iterator's type traits are appropriately defined.
-        //:
-        //: 2 The iterator can be used to iterate from 'rbegin' to 'rend' using
-        //:   'operator++'.
-        //:
-        //: 3 The iterator can be used to iterate from 'rend' to 'rbegin' using
-        //:   'operator--'.
-        //:
-        //: 4 The methods 'operator*' and 'operator->' work as expected.
-        //:
-        //: 5 The equality operators work as expected.
-        //:
-        //: 6 The constructors and assignment operator work as expected.
-        //:
-        //: 7 The methods 'beginHolidays(date)' and 'endHolidays(date)' work as
-        //:   expected.
-        //:
-        //: 8 QoI: asserted precondition violations are detected when enabled.
+        // 1. The iterator's type traits are appropriately defined.
+        //
+        // 2. The iterator can be used to iterate from `rbegin` to `rend` using
+        //    `operator++`.
+        //
+        // 3. The iterator can be used to iterate from `rend` to `rbegin` using
+        //    `operator--`.
+        //
+        // 4. The methods `operator*` and `operator->` work as expected.
+        //
+        // 5. The equality operators work as expected.
+        //
+        // 6. The constructors and assignment operator work as expected.
+        //
+        // 7. The methods `beginHolidays(date)` and `endHolidays(date)` work as
+        //    expected.
+        //
+        // 8. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Directly verify the type traits of the iterator.  (C-1)
-        //:
-        //: 2 For a set of 'bdlt::Calendar' values, iterate from the
-        //:   'rbegin' to the 'rend' of each calendar and verify the value
-        //:   referenced by the iterator with the 'holiday' accessor from
-        //:   'bdlt::Calendar'.  (C-2)
-        //:
-        //: 3 For a set of 'bdlt::Calendar' values, iterate from the
-        //:   'rend' to the 'rbegin' of each calendar and verify the value
-        //:   referenced by the iterator with the 'holiday' accessor from
-        //:   'bdlt::Calendar'.  (C-3..4)
-        //:
-        //: 4 For a set of 'bdlt::Calendar' values, test the equality
-        //:   operators with all possible pairs of iterator values from each
-        //:   calendar value.  Also test the constructors and assignment
-        //:   operator.  (C-5..6)
-        //:
-        //: 5 For a set of 'bdlt::Calendar' values, for all dates within
-        //:   the range of the calendar verify the return values of
-        //:   'beginHolidays(date)' and 'endHolidays(date)'.  (C-7)
-        //:
-        //: 6 Verify defensive checks are triggered for invalid values.  (C-8)
+        // 1. Directly verify the type traits of the iterator.  (C-1)
+        //
+        // 2. For a set of `bdlt::Calendar` values, iterate from the
+        //    `rbegin` to the `rend` of each calendar and verify the value
+        //    referenced by the iterator with the `holiday` accessor from
+        //    `bdlt::Calendar`.  (C-2)
+        //
+        // 3. For a set of `bdlt::Calendar` values, iterate from the
+        //    `rend` to the `rbegin` of each calendar and verify the value
+        //    referenced by the iterator with the `holiday` accessor from
+        //    `bdlt::Calendar`.  (C-3..4)
+        //
+        // 4. For a set of `bdlt::Calendar` values, test the equality
+        //    operators with all possible pairs of iterator values from each
+        //    calendar value.  Also test the constructors and assignment
+        //    operator.  (C-5..6)
+        //
+        // 5. For a set of `bdlt::Calendar` values, for all dates within
+        //    the range of the calendar verify the return values of
+        //    `beginHolidays(date)` and `endHolidays(date)`.  (C-7)
+        //
+        // 6. Verify defensive checks are triggered for invalid values.  (C-8)
         //
         // Testing:
         //   HolidayConstReverseIterator
@@ -3694,7 +3702,7 @@ int main(int argc, char *argv[])
         // -------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'HolidayConstReverseIterator'" << endl
+                          << "TESTING `HolidayConstReverseIterator`" << endl
                           << "=====================================" << endl;
 
         typedef bdlt::Calendar::HolidayConstReverseIterator Iterator;
@@ -3741,8 +3749,8 @@ int main(int argc, char *argv[])
                 ASSERTV(ti, X, B != D);
             }
 
-            // Test iterating in the forward direction, 'operator*' and
-            // 'operator->'.
+            // Test iterating in the forward direction, `operator*` and
+            // `operator->`.
 
             {
                 Iterator mA = X.rbeginHolidays();  const Iterator& A = mA;
@@ -3772,8 +3780,8 @@ int main(int argc, char *argv[])
                 ASSERTV(ti, X, -1 == index);
             }
 
-            // Test iterating in the reverse direction, 'operator*' and
-            // 'operator->'.
+            // Test iterating in the reverse direction, `operator*` and
+            // `operator->`.
 
             if (X.numHolidays()) {
                 Iterator mA = X.rbeginHolidays();  const Iterator& A = mA;
@@ -3832,7 +3840,7 @@ int main(int argc, char *argv[])
             ASSERTV(X, true  == (X.rendHolidays() == X.rendHolidays()));
             ASSERTV(X, false == (X.rendHolidays() != X.rendHolidays()));
 
-            // Testing 'rbeginHolidays(date)' and 'rendHolidays(date)'.
+            // Testing `rbeginHolidays(date)` and `rendHolidays(date)`.
 
             for (int offset = 0; offset < X.length(); ++offset) {
                 bdlt::Date date = X.firstDate() + offset;
@@ -3886,53 +3894,53 @@ int main(int argc, char *argv[])
       } break;
       case 19: {
         // -------------------------------------------------------------------
-        // TESTING 'HolidayConstIterator'
-        //   Ensure that this iterator and the associated 'begin' and 'end'
+        // TESTING `HolidayConstIterator`
+        //   Ensure that this iterator and the associated `begin` and `end`
         //   methods behave as expected.
         //
         // Concerns:
-        //: 1 The iterator's type traits are appropriately defined.
-        //:
-        //: 2 The iterator can be used to iterate from 'begin' to 'end' using
-        //:   'operator++'.
-        //:
-        //: 3 The iterator can be used to iterate from 'end' to 'begin' using
-        //:   'operator--'.
-        //:
-        //: 4 The methods 'operator*' and 'operator->' work as expected.
-        //:
-        //: 5 The equality operators work as expected.
-        //:
-        //: 6 The constructors and assignment operator work as expected.
-        //:
-        //: 7 The methods 'beginHolidays(date)' and 'endHolidays(date)' work as
-        //:   expected.
-        //:
-        //: 8 QoI: asserted precondition violations are detected when enabled.
+        // 1. The iterator's type traits are appropriately defined.
+        //
+        // 2. The iterator can be used to iterate from `begin` to `end` using
+        //    `operator++`.
+        //
+        // 3. The iterator can be used to iterate from `end` to `begin` using
+        //    `operator--`.
+        //
+        // 4. The methods `operator*` and `operator->` work as expected.
+        //
+        // 5. The equality operators work as expected.
+        //
+        // 6. The constructors and assignment operator work as expected.
+        //
+        // 7. The methods `beginHolidays(date)` and `endHolidays(date)` work as
+        //    expected.
+        //
+        // 8. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Directly verify the type traits of the iterator.  (C-1)
-        //:
-        //: 2 For a set of 'bdlt::Calendar' values, iterate from the
-        //:   'begin' to the 'end' of each calendar and verify the value
-        //:   referenced by the iterator with the 'holiday' accessor from
-        //:   'bdlt::Calendar'.  (C-2)
-        //:
-        //: 3 For a set of 'bdlt::Calendar' values, iterate from the
-        //:   'end' to the 'begin' of each calendar and verify the value
-        //:   referenced by the iterator with the 'holiday' accessor from
-        //:   'bdlt::Calendar'.  (C-3..4)
-        //:
-        //: 4 For a set of 'bdlt::Calendar' values, test the equality
-        //:   operators with all possible pairs of iterator values from each
-        //:   calendar value.  Also test the constructors and assignment
-        //:   operator.  (C-5..6)
-        //:
-        //: 5 For a set of 'bdlt::Calendar' values, for all dates within
-        //:   the range of the calendar verify the return values of
-        //:   'beginHolidays(date)' and 'endHolidays(date)'.  (C-7)
-        //:
-        //: 6 Verify defensive checks are triggered for invalid values.  (C-8)
+        // 1. Directly verify the type traits of the iterator.  (C-1)
+        //
+        // 2. For a set of `bdlt::Calendar` values, iterate from the
+        //    `begin` to the `end` of each calendar and verify the value
+        //    referenced by the iterator with the `holiday` accessor from
+        //    `bdlt::Calendar`.  (C-2)
+        //
+        // 3. For a set of `bdlt::Calendar` values, iterate from the
+        //    `end` to the `begin` of each calendar and verify the value
+        //    referenced by the iterator with the `holiday` accessor from
+        //    `bdlt::Calendar`.  (C-3..4)
+        //
+        // 4. For a set of `bdlt::Calendar` values, test the equality
+        //    operators with all possible pairs of iterator values from each
+        //    calendar value.  Also test the constructors and assignment
+        //    operator.  (C-5..6)
+        //
+        // 5. For a set of `bdlt::Calendar` values, for all dates within
+        //    the range of the calendar verify the return values of
+        //    `beginHolidays(date)` and `endHolidays(date)`.  (C-7)
+        //
+        // 6. Verify defensive checks are triggered for invalid values.  (C-8)
         //
         // Testing:
         //   HolidayConstIterator
@@ -3943,7 +3951,7 @@ int main(int argc, char *argv[])
         // -------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'HolidayConstIterator'" << endl
+                          << "TESTING `HolidayConstIterator`" << endl
                           << "==============================" << endl;
 
         typedef bdlt::Calendar::HolidayConstIterator Iterator;
@@ -3989,8 +3997,8 @@ int main(int argc, char *argv[])
                 ASSERTV(ti, X, B != D);
             }
 
-            // Test iterating in the forward direction, 'operator*' and
-            // 'operator->'.
+            // Test iterating in the forward direction, `operator*` and
+            // `operator->`.
 
             {
                 Iterator mA = X.beginHolidays();  const Iterator& A = mA;
@@ -4020,8 +4028,8 @@ int main(int argc, char *argv[])
                 ASSERTV(ti, X, X.numHolidays() == index);
             }
 
-            // Test iterating in the reverse direction, 'operator*' and
-            // 'operator->'.
+            // Test iterating in the reverse direction, `operator*` and
+            // `operator->`.
 
             if (X.numHolidays()) {
                 Iterator mA = X.beginHolidays();  const Iterator& A = mA;
@@ -4080,7 +4088,7 @@ int main(int argc, char *argv[])
             ASSERTV(X, true  == (X.endHolidays() == X.endHolidays()));
             ASSERTV(X, false == (X.endHolidays() != X.endHolidays()));
 
-            // Testing 'beginHolidays(date)' and 'endHolidays(date)'.
+            // Testing `beginHolidays(date)` and `endHolidays(date)`.
 
             for (int offset = 0; offset < X.length(); ++offset) {
                 bdlt::Date date = X.firstDate() + offset;
@@ -4140,35 +4148,35 @@ int main(int argc, char *argv[])
         //   Ensure that these manipulators produce the expected results.
         //
         // Concerns:
-        //: 1 That 'intersectBusinessDays', 'intersectNonBusinessDays',
-        //:   'unionBusinessDays', and 'unionNonBusinessDays' correctly modify
-        //:   the value of the object.
-        //:
-        //: 2 That the values of the object and the method parameter can be
-        //:   reversed ('X.foo(Y)' to 'Y.foo(X)') without changing the
-        //:   resultant value.
-        //:
-        //: 3 Any memory allocation is from the specified allocator.
-        //:
-        //: 4 Any memory allocation is exception neutral.
+        // 1. That `intersectBusinessDays`, `intersectNonBusinessDays`,
+        //    `unionBusinessDays`, and `unionNonBusinessDays` correctly modify
+        //    the value of the object.
+        //
+        // 2. That the values of the object and the method parameter can be
+        //    reversed (`X.foo(Y)` to `Y.foo(X)`) without changing the
+        //    resultant value.
+        //
+        // 3. Any memory allocation is from the specified allocator.
+        //
+        // 4. Any memory allocation is exception neutral.
         //
         // Plan:
-        //: 1 The table-driven technique is used to test each manipulator
-        //:   independently.  For each row in a table of test vectors, three
-        //:   specifications are provided; one for the object, 'X', that will
-        //:   be used to invoke the method, one for the object, 'Y', that will
-        //:   be the parameter to the method, and one for the expected result
-        //:   object 'EXP'.  (C-1)
-        //:
-        //: 2 The values for 'X' and 'Y' are reversed and the method tested
-        //:   again.  (C-2)
-        //:
-        //: 3 In all cases, confirm the allocator used and exception
-        //:   neutrality by using the specially instrumented
-        //:   'bslma::TestAllocator', its accessor methods, and a pair of
-        //:   standard macros, 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' and
-        //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END', which configure the
-        //:   'bslma::TestAllocator' object appropriately in a loop.  (C-3..4)
+        // 1. The table-driven technique is used to test each manipulator
+        //    independently.  For each row in a table of test vectors, three
+        //    specifications are provided; one for the object, `X`, that will
+        //    be used to invoke the method, one for the object, `Y`, that will
+        //    be the parameter to the method, and one for the expected result
+        //    object `EXP`.  (C-1)
+        //
+        // 2. The values for `X` and `Y` are reversed and the method tested
+        //    again.  (C-2)
+        //
+        // 3. In all cases, confirm the allocator used and exception
+        //    neutrality by using the specially instrumented
+        //    `bslma::TestAllocator`, its accessor methods, and a pair of
+        //    standard macros, `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN` and
+        //    `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END`, which configure the
+        //    `bslma::TestAllocator` object appropriately in a loop.  (C-3..4)
         //
         // Testing:
         //   void intersectBusinessDays(const Calendar& calendar);
@@ -4185,7 +4193,7 @@ int main(int argc, char *argv[])
                           << "TESTING UNION AND INTERSECTION METHODS" << endl
                           << "======================================" << endl;
 
-        if (verbose) cout << "\nTesting 'intersectBusinessDays'." << endl;
+        if (verbose) cout << "\nTesting `intersectBusinessDays`." << endl;
         {
             static const struct {
                 int         d_line;     // source line number
@@ -4303,7 +4311,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'intersectNonBusinessDays'." << endl;
+        if (verbose) cout << "\nTesting `intersectNonBusinessDays`." << endl;
         {
             static const struct {
                 int         d_line;     // source line number
@@ -4420,7 +4428,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'unionBusinessDays'." << endl;
+        if (verbose) cout << "\nTesting `unionBusinessDays`." << endl;
         {
             static const struct {
                 int         d_line;     // source line number
@@ -4539,7 +4547,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'unionNonBusinessDays'." << endl;
+        if (verbose) cout << "\nTesting `unionNonBusinessDays`." << endl;
         {
             static const struct {
                 int         d_line;     // source line number
@@ -4662,34 +4670,34 @@ int main(int argc, char *argv[])
       case 17: {
         // --------------------------------------------------------------------
         // TESTING RESERVE CAPACITY METHODS
-        //   The 'reserveHolidayCapacity' and 'reserveHolidayCodeCapacity'
+        //   The `reserveHolidayCapacity` and `reserveHolidayCodeCapacity`
         //   methods operate as expected.
         //
         // Concerns:
-        //: 1 The methods are exception neutral with respect to memory
-        //:   allocation.
-        //:
-        //: 2 Any memory allocation is from the specified allocator.
-        //:
-        //: 3 The methods produce the expected state without affecting the
-        //:   value.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods are exception neutral with respect to memory
+        //    allocation.
+        //
+        // 2. Any memory allocation is from the specified allocator.
+        //
+        // 3. The methods produce the expected state without affecting the
+        //    value.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 In all cases, confirm the allocator used and exception
-        //:   neutrality by using the specially instrumented
-        //:   'bslma::TestAllocator', its accessor methods, and a pair of
-        //:   standard macros, 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' and
-        //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END', which configure the
-        //:   'bslma::TestAllocator' object appropriately in a loop.  (C-1..2)
-        //:
-        //: 2 Directly verify the methods by using the method, verifying the
-        //:   value has not changed, and then adding elements to ensure no
-        //:   allocations are performed until the reserved capacity is
-        //:   exhausted.  (C-3)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. In all cases, confirm the allocator used and exception
+        //    neutrality by using the specially instrumented
+        //    `bslma::TestAllocator`, its accessor methods, and a pair of
+        //    standard macros, `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN` and
+        //    `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END`, which configure the
+        //    `bslma::TestAllocator` object appropriately in a loop.  (C-1..2)
+        //
+        // 2. Directly verify the methods by using the method, verifying the
+        //    value has not changed, and then adding elements to ensure no
+        //    allocations are performed until the reserved capacity is
+        //    exhausted.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   void reserveHolidayCapacity(int numHolidays);
@@ -4764,21 +4772,21 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING 'removeHoliday' AND 'removeHolidayCode'
+        // TESTING `removeHoliday` AND `removeHolidayCode`
         //   The manipulators operate as expected.
         //
         // Concerns:
-        //: 1 That 'removeHoliday' and 'removeHolidayCode' correctly modify
-        //:   the value of the object.
+        // 1. That `removeHoliday` and `removeHolidayCode` correctly modify
+        //    the value of the object.
         //
         // Plan:
-        //: 1 For each row in a table, create two objects using the generator
-        //:   function; 'X' representing the initial value and 'Z' the
-        //:   expected value after modifying 'X' with the method under test
-        //:   and the parameters specified in the row.  Modify 'X' with the
-        //:   method under test and parameters from the row and verify the
-        //:   result and return value against the expected return value
-        //:   supplied in the row.  (C-1)
+        // 1. For each row in a table, create two objects using the generator
+        //    function; `X` representing the initial value and `Z` the
+        //    expected value after modifying `X` with the method under test
+        //    and the parameters specified in the row.  Modify `X` with the
+        //    method under test and parameters from the row and verify the
+        //    result and return value against the expected return value
+        //    supplied in the row.  (C-1)
         //
         // Testing:
         //   void removeHoliday(const Date& date);
@@ -4787,11 +4795,11 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'removeHoliday' AND 'removeHolidayCode'" << endl
+                 << "TESTING `removeHoliday` AND `removeHolidayCode`" << endl
                  << "===============================================" << endl;
         }
 
-        if (verbose) cout << "\nTesting 'removeHoliday'." << endl;
+        if (verbose) cout << "\nTesting `removeHoliday`." << endl;
         {
             static const struct {
                 int         d_line;    // source line number
@@ -4846,7 +4854,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'removeHolidayCode'." << endl;
+        if (verbose) cout << "\nTesting `removeHolidayCode`." << endl;
         {
             static const struct {
                 int         d_line;    // source line number
@@ -4917,33 +4925,33 @@ int main(int argc, char *argv[])
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // TESTING 'setValidRange'
+        // TESTING `setValidRange`
         //   The manipulator operates as expected.
         //
         // Concerns:
-        //: 1 That 'setValidRange' correctly modifies the value of the object.
-        //:
-        //: 2 Any memory allocation is exception neutral.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. That `setValidRange` correctly modifies the value of the object.
+        //
+        // 2. Any memory allocation is exception neutral.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For each row in a table, create two objects using the generator
-        //:   function; 'X' representing the initial value and 'Z' the
-        //:   expected value after modifying 'X' with the method under test
-        //:   and the parameters specified in the row.  Modify 'X' with the
-        //:   method under test, in the presence of injected exceptions (using
-        //:   the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros), and
-        //:   parameters from the row and verify the result.  (C-1..2)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. For each row in a table, create two objects using the generator
+        //    function; `X` representing the initial value and `Z` the
+        //    expected value after modifying `X` with the method under test
+        //    and the parameters specified in the row.  Modify `X` with the
+        //    method under test, in the presence of injected exceptions (using
+        //    the `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*` macros), and
+        //    parameters from the row and verify the result.  (C-1..2)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //  void setValidRange(const Date& fd, const Date& ld);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'setValidRange'" << endl
+                          << "TESTING `setValidRange`" << endl
                           << "=======================" << endl;
 
         static const struct {
@@ -5042,28 +5050,28 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING 'addWeekendDays'
+        // TESTING `addWeekendDays`
         //   The manipulator operates as expected.
         //
         // Concerns:
-        //: 1 That 'addWeekendDays' correctly modifies the value of the object.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        // 1. That `addWeekendDays` correctly modifies the value of the object.
+        //
+        // 2. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Directly test the method works as expected.  (C-1)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
+        // 1. Directly test the method works as expected.  (C-1)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //  void addWeekendDays(const DayOfWeekSet& weekendDays);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'addWeekendDays'" << endl
+                          << "TESTING `addWeekendDays`" << endl
                           << "========================" << endl;
 
-        if (verbose) cout << "\nTesting 'addWeekendDays'." << endl;
+        if (verbose) cout << "\nTesting `addWeekendDays`." << endl;
         {
             Obj mX;  const Obj& X = mX;
 
@@ -5154,23 +5162,23 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'addHolidayIfInRange' & 'addHolidayCodeIfInRange'
+        // TESTING `addHolidayIfInRange` & `addHolidayCodeIfInRange`
         //   The manipulators operate as expected.
         //
         // Concerns:
-        //: 1 That 'addHolidayIfInRange' and 'addHolidayCodeIfInRange'
-        //:   correctly check whether the supplied date 'isInRange', forward
-        //:   to 'addHoliday' and 'addHolidayCode' as appropriate, and return
-        //:   the correct value.
+        // 1. That `addHolidayIfInRange` and `addHolidayCodeIfInRange`
+        //    correctly check whether the supplied date `isInRange`, forward
+        //    to `addHoliday` and `addHolidayCode` as appropriate, and return
+        //    the correct value.
         //
         // Plan:
-        //: 1 For each row in a table, create two objects using the generator
-        //:   function; 'X' representing the initial value and 'Z' the
-        //:   expected value after modifying 'X' with the method under test
-        //:   and the parameters specified in the row.  Modify 'X' with the
-        //:   method under test and parameters from the row and verify the
-        //:   result and return value against the expected return value
-        //:   supplied in the row.  (C-1)
+        // 1. For each row in a table, create two objects using the generator
+        //    function; `X` representing the initial value and `Z` the
+        //    expected value after modifying `X` with the method under test
+        //    and the parameters specified in the row.  Modify `X` with the
+        //    method under test and parameters from the row and verify the
+        //    result and return value against the expected return value
+        //    supplied in the row.  (C-1)
         //
         // Testing:
         //   int addHolidayIfInRange(const Date& date);
@@ -5179,13 +5187,13 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'addHolidayIfInRange' & 'addHolidayCodeIfInRange'"
+                 << "TESTING `addHolidayIfInRange` & `addHolidayCodeIfInRange`"
                  << endl
                  << "========================================================="
                  << endl;
         }
 
-        if (verbose) cout << "\nTesting 'addHolidayIfInRange'." << endl;
+        if (verbose) cout << "\nTesting `addHolidayIfInRange`." << endl;
         {
             static const struct {
                 int         d_line;    // source line number
@@ -5239,7 +5247,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'addHolidayCodeIfInRange'." << endl;
+        if (verbose) cout << "\nTesting `addHolidayCodeIfInRange`." << endl;
         {
             static const struct {
                 int         d_line;    // source line number
@@ -5305,20 +5313,20 @@ int main(int argc, char *argv[])
         //   The constructor operates as expected.
         //
         // Concerns:
-        //: 1 The range constructor creates the correct initial value and has
-        //:   the internal memory management system hooked up properly so that
-        //:   *all* internally allocated memory draws from the same
-        //:   user-supplied allocator whenever one is specified.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The range constructor creates the correct initial value and has
+        //    the internal memory management system hooked up properly so that
+        //    *all* internally allocated memory draws from the same
+        //    user-supplied allocator whenever one is specified.
+        //
+        // 2. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For each row in a table of initial values, create an object
-        //:   using the range constructor with and without passing in an
-        //:   allocator, verify the 'firstDate' and 'lastDate', and verify the
-        //:   allocator is stored using the 'allocator' accessor.
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
+        // 1. For each row in a table of initial values, create an object
+        //    using the range constructor with and without passing in an
+        //    allocator, verify the `firstDate` and `lastDate`, and verify the
+        //    allocator is stored using the `allocator` accessor.
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //   Calendar(const Date& firstDate, lastDate, ba = 0);
@@ -5438,19 +5446,19 @@ int main(int argc, char *argv[])
         //   Ensure each non-basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 Each of the non-basic accessors returns the expected value.
-        //:
-        //: 2 Each non-basic accessor method is declared 'const'.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Each of the non-basic accessors returns the expected value.
+        //
+        // 2. Each non-basic accessor method is declared `const`.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Directly test that each non-basic accessor, invoked on a set of
-        //:   'const' objects created with the generator function, returns the
-        //:   expected value as determined by an oracle implementation using
-        //:   the basic accessors.  (C-1..2)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Directly test that each non-basic accessor, invoked on a set of
+        //    `const` objects created with the generator function, returns the
+        //    expected value as determined by an oracle implementation using
+        //    the basic accessors.  (C-1..2)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   bool isBusinessDay(const Date& date) const;
@@ -5534,83 +5542,83 @@ int main(int argc, char *argv[])
         //   neutrality.
         //
         // Concerns:
-        //: 1 The class method 'maxSupportedBdexVersion' returns the correct
-        //:   version to be used for the specified 'versionSelector'.
-        //:
-        //: 2 The 'bdexStreamOut' method is callable on a reference providing
-        //:   only non-modifiable access.
-        //:
-        //: 3 For valid streams, externalization and unexternalization are
-        //:   inverse operations.
-        //:
-        //: 4 For invalid streams, externalization leaves the stream invalid
-        //:   and unexternalization does not alter the value of the object and
-        //:   leaves the stream invalid.
-        //:
-        //: 5 Unexternalizing of incomplete, invalid, or corrupted data results
-        //:   in a valid object of unspecified value and an invalidated stream.
-        //:
-        //: 6 The wire format of the object is as expected.
-        //:
-        //: 7 All methods are exception neutral.
-        //:
-        //: 8 The 'bdexStreamIn' and 'bdexStreamOut' methods return a reference
-        //:   to the provided stream in all situations.
-        //:
-        //: 9 The initial value of the object has no affect on
-        //:   unexternalization.
+        // 1. The class method `maxSupportedBdexVersion` returns the correct
+        //    version to be used for the specified `versionSelector`.
+        //
+        // 2. The `bdexStreamOut` method is callable on a reference providing
+        //    only non-modifiable access.
+        //
+        // 3. For valid streams, externalization and unexternalization are
+        //    inverse operations.
+        //
+        // 4. For invalid streams, externalization leaves the stream invalid
+        //    and unexternalization does not alter the value of the object and
+        //    leaves the stream invalid.
+        //
+        // 5. Unexternalizing of incomplete, invalid, or corrupted data results
+        //    in a valid object of unspecified value and an invalidated stream.
+        //
+        // 6. The wire format of the object is as expected.
+        //
+        // 7. All methods are exception neutral.
+        //
+        // 8. The `bdexStreamIn` and `bdexStreamOut` methods return a reference
+        //    to the provided stream in all situations.
+        //
+        // 9. The initial value of the object has no affect on
+        //    unexternalization.
         //
         // Plan:
-        //: 1 Test 'maxSupportedBdexVersion' explicitly.  (C-1)
-        //:
-        //: 2 All calls to the 'bdexStreamOut' accessor are done from a 'const'
-        //:   object or reference and all calls to the 'bdexStreamOut' free
-        //:   function (provided by 'bslx') are supplied a 'const' object or
-        //:   reference.  (C-2)
-        //:
-        //: 3 Perform a direct test of the 'bdexStreamOut' and 'bdexStreamIn'
-        //:   methods (the rest of the testing will use the free functions
-        //:   'bslx::OutStreamFunctions::bdexStreamOut' and
-        //:   'bslx::InStreamFunctions::bdexStreamIn').
-        //:
-        //: 4 Define a set 'S' of test values to be used throughout the test
-        //:   case.
-        //:
-        //: 5 For all '(u, v)' in the cross product 'S X S', stream the value
-        //:   of 'u' into (a temporary copy of) 'v', 'T', and assert 'T == u'.
-        //:   (C-3, 9)
-        //:
-        //: 6 For all 'u' in 'S', create a copy of 'u' and attempt to stream
-        //:   into it from an invalid stream.  Verify after each attempt that
-        //:   the object is unchanged and that the stream is invalid.  (C-4)
-        //:
-        //: 7 Write 3 distinct objects to an output stream buffer of total
-        //:   length 'N'.  For each partial stream length from 0 to 'N - 1',
-        //:   construct an input stream and attempt to read into objects
-        //:   initialized with distinct values.  Verify values of objects
-        //:   that are either successfully modified or left entirely
-        //:   unmodified, and that the stream became invalid immediately after
-        //:   the first incomplete read.  Finally, ensure that each object
-        //:   streamed into is in some valid state.
-        //:
-        //: 8 Use the underlying stream package to simulate a typical valid
-        //:   (control) stream and verify that it can be streamed in
-        //:   successfully.  Then for each data field in the stream (beginning
-        //:   with the version number), provide one or more similar tests with
-        //:   that data field corrupted.  After each test, verify that the
-        //:   object is in some valid state after streaming, and that the
-        //:   input stream has become invalid.  (C-5)
-        //:
-        //: 9 Explicitly test the wire format.  (C-6)
-        //:
-        //:10 In all cases, confirm exception neutrality using the specially
-        //:   instrumented 'bslx::TestInStream' and a pair of standard macros,
-        //:   'BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN' and
-        //:   'BSLX_TESTINSTREAM_EXCEPTION_TEST_END', which configure the
-        //:   'bslx::TestInStream' object appropriately in a loop.  (C-7)
-        //:
-        //:11 In all cases, verify the return value of the tested method.
-        //:   (C-8)
+        // 1. Test `maxSupportedBdexVersion` explicitly.  (C-1)
+        //
+        // 2. All calls to the `bdexStreamOut` accessor are done from a `const`
+        //    object or reference and all calls to the `bdexStreamOut` free
+        //    function (provided by `bslx`) are supplied a `const` object or
+        //    reference.  (C-2)
+        //
+        // 3. Perform a direct test of the `bdexStreamOut` and `bdexStreamIn`
+        //    methods (the rest of the testing will use the free functions
+        //    `bslx::OutStreamFunctions::bdexStreamOut` and
+        //    `bslx::InStreamFunctions::bdexStreamIn`).
+        //
+        // 4. Define a set `S` of test values to be used throughout the test
+        //    case.
+        //
+        // 5. For all `(u, v)` in the cross product `S X S`, stream the value
+        //    of `u` into (a temporary copy of) `v`, `T`, and assert `T == u`.
+        //    (C-3, 9)
+        //
+        // 6. For all `u` in `S`, create a copy of `u` and attempt to stream
+        //    into it from an invalid stream.  Verify after each attempt that
+        //    the object is unchanged and that the stream is invalid.  (C-4)
+        //
+        // 7. Write 3 distinct objects to an output stream buffer of total
+        //    length `N`.  For each partial stream length from 0 to `N - 1`,
+        //    construct an input stream and attempt to read into objects
+        //    initialized with distinct values.  Verify values of objects
+        //    that are either successfully modified or left entirely
+        //    unmodified, and that the stream became invalid immediately after
+        //    the first incomplete read.  Finally, ensure that each object
+        //    streamed into is in some valid state.
+        //
+        // 8. Use the underlying stream package to simulate a typical valid
+        //    (control) stream and verify that it can be streamed in
+        //    successfully.  Then for each data field in the stream (beginning
+        //    with the version number), provide one or more similar tests with
+        //    that data field corrupted.  After each test, verify that the
+        //    object is in some valid state after streaming, and that the
+        //    input stream has become invalid.  (C-5)
+        //
+        // 9. Explicitly test the wire format.  (C-6)
+        //
+        // 10. In all cases, confirm exception neutrality using the specially
+        //    instrumented `bslx::TestInStream` and a pair of standard macros,
+        //    `BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN` and
+        //    `BSLX_TESTINSTREAM_EXCEPTION_TEST_END`, which configure the
+        //    `bslx::TestInStream` object appropriately in a loop.  (C-7)
+        //
+        // 11. In all cases, verify the return value of the tested method.
+        //    (C-8)
         //
         // Testing:
         //   static int maxSupportedBdexVersion(int versionSelector);
@@ -5637,7 +5645,7 @@ int main(int argc, char *argv[])
         static const char **SPECS = DEFAULT_SPECS;
 
         if (verbose) {
-            cout << "\nTesting 'maxSupportedBdexVersion'." << endl;
+            cout << "\nTesting `maxSupportedBdexVersion`." << endl;
         }
         {
             ASSERT(2 == Obj::maxSupportedBdexVersion(0));
@@ -5672,8 +5680,8 @@ int main(int argc, char *argv[])
             }
 
             if (verbose) {
-                cout << "\tDirect initial trial of 'bdexStreamOut' and "
-                     << "(valid) 'bdexStreamIn'." << endl;
+                cout << "\tDirect initial trial of `bdexStreamOut` and "
+                     << "(valid) `bdexStreamIn`." << endl;
             }
             {
                 const Obj X(VC);
@@ -5700,13 +5708,13 @@ int main(int argc, char *argv[])
                 ASSERT(in.isEmpty());
             }
 
-            // We will use the stream free functions provided by 'bslx', as
-            // opposed to the class member functions, since the 'bslx'
+            // We will use the stream free functions provided by `bslx`, as
+            // opposed to the class member functions, since the `bslx`
             // implementation gives priority to the free function
             // implementations; we want to test what will be used.
             // Furthermore, toward making this test case more reusable in other
-            // components, from here on we generally use the 'bdexStreamIn' and
-            // 'bdexStreamOut' free functions that are defined in the 'bslx'
+            // components, from here on we generally use the `bdexStreamIn` and
+            // `bdexStreamOut` free functions that are defined in the `bslx`
             // package rather than call the like-named member functions
             // directly.
 
@@ -5919,7 +5927,7 @@ int main(int argc, char *argv[])
                             LOOP_ASSERT(i, !in);
                             LOOP_ASSERT(i, W3 == T3);
                         }
-                        else {  // 'LOD2 <= i < LOD3'
+                        else {  // `LOD2 <= i < LOD3`
                             In& rvIn1 = bdexStreamIn(in, mT1, VERSION);
                             LOOP_ASSERT(i, &in == &rvIn1);
                             LOOP_ASSERT(i,  in);
@@ -6163,7 +6171,7 @@ int main(int argc, char *argv[])
             cout << "\tBad version." << endl;
         }
         {
-            const char version = 0; // too small ('version' must be >= 1)
+            const char version = 0; // too small (`version` must be >= 1)
 
             Out out(VERSION_SELECTOR, &allocator);
 
@@ -6265,7 +6273,7 @@ int main(int argc, char *argv[])
                           "\x0b\x24\x2a\x02\x00\x00\x01\x82\x0b\x24\x14\x54"
                           "\x01\x02\x09\x0f\x01\x02\x00\x02\x01\x02\x00\x01" },
 
-                // 'lastDate > firstDate' with invalid values
+                // `lastDate > firstDate` with invalid values
 
                 { L_,  false,  1,  33,
                           "\x0b\x24\x2a\x0b\x24\x0a\x82\x02\x02"
@@ -6281,12 +6289,12 @@ int main(int argc, char *argv[])
                           "\x0b\x24\x0a\x02\x00\x00\x01\x82\x0b\x24\x14\x54"
                           "\x01\x02\x09\x0f\x01\x02\x00\x02\x01\x02\x00\x01" },
 
-                // invalid 'DayOfWeekSet'
+                // invalid `DayOfWeekSet`
 
                 { L_,  false,  1,   9,
                                       "\x0b\x24\x0a\x0b\x24\x2a\xff\x00\x00" },
 
-                // non-zero 'offsetsLength' for empty calendar
+                // non-zero `offsetsLength` for empty calendar
 
                 { L_,  false,  1,   9,
                                       "\x37\xb9\xdd\x00\x00\x01\x00\x01\x00" },
@@ -6295,7 +6303,7 @@ int main(int argc, char *argv[])
                 { L_,  false,  3,  14,
                   "\x37\xb9\xdd\x00\x00\x01\x00\x01\x01\x00\x01\x00\x01\x00" },
 
-                // '0 == offsetsLength && codesLength != 0'
+                // `0 == offsetsLength && codesLength != 0`
 
                 { L_,  false,  1,   9,
                                       "\x37\xb9\xdd\x00\x00\x01\x00\x00\x01" },
@@ -6404,130 +6412,130 @@ int main(int argc, char *argv[])
         //   have the same value.
         //
         // Concerns:
-        //: 1 The assignment operator can change the value of any target object
-        //:   to that of any source object.
-        //:
-        //: 2 The address of the target object's allocator is unchanged.
-        //:
-        //: 3 Any memory allocation is from the target object's allocator.
-        //:
-        //: 4 The signature and return type are standard.
-        //:
-        //: 5 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 6 The value of the source object is not modified.
-        //:
-        //: 7 The allocator of the source object is not modified.
-        //:
-        //: 8 Any memory allocation is exception neutral.
-        //:
-        //: 9 Assigning an object to itself behaves as expected (alias-safety).
+        // 1. The assignment operator can change the value of any target object
+        //    to that of any source object.
+        //
+        // 2. The address of the target object's allocator is unchanged.
+        //
+        // 3. Any memory allocation is from the target object's allocator.
+        //
+        // 4. The signature and return type are standard.
+        //
+        // 5. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 6. The value of the source object is not modified.
+        //
+        // 7. The allocator of the source object is not modified.
+        //
+        // 8. Any memory allocation is exception neutral.
+        //
+        // 9. Assigning an object to itself behaves as expected (alias-safety).
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a function pointer
-        //:   having the appropriate structure for the copy-assignment operator
-        //:   defined in this component.  (C-4)
-        //:
-        //: 2 Construct a 'bslma::TestAllocator' object and install it as the
-        //:   default allocator (note that a ubiquitous test allocator is
-        //:   already installed as the global allocator).
-        //:
-        //: 3 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of valid object values (one per row) in terms of
-        //:     their individual attributes, including (a) first, the default
-        //:     value, (b) boundary values corresponding to every range of
-        //:     values that each individual attribute can independently attain,
-        //:     and (c) values that should require allocation from each
-        //:     individual attribute that can independently allocate memory.
-        //:
-        //: 4 For each row 'R1' (representing a distinct object value, 'V') in
-        //:   the table described in P-3: (C-1..3, 5..9)
-        //:
-        //:   1 Use the value constructor to create two 'const' 'Obj', 'Z' and
-        //:     'ZZ', each having the value 'V' and using a "scratch"
-        //:     allocator.
-        //:
-        //:   2 Execute an inner loop that iterates over each row 'R2'
-        //:     (representing a distinct object value, 'W') in the table
-        //:     described in P-3:
-        //:
-        //:   3 For each of the iterations (P-4.2):
-        //:
-        //:     1 Construct a 'bslma::TestAllocator' object, 'oa'.
-        //:
-        //:     2 Use the value constructor to create a modifiable 'Obj', 'mX',
-        //:       using 'oa' and having the value 'W'.
-        //:
-        //:     3 Use the equality comparison operators to verify that the two
-        //:       objects, 'mX' and 'Z', are initially equal if and only if the
-        //:       table indices from P-4 and P-4.2 are the same.
-        //:
-        //:     4 Assign 'mX' from 'Z' in the presence of injected exceptions
-        //:       (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).
-        //:
-        //:     5 Verify that the address of the return value is the same as
-        //:       that of 'mX'.  (C-5)
-        //:
-        //:     6 Use the equality comparison operators to verify that: (C-1,
-        //:       6)
-        //:
-        //:       1 The target object, 'mX', now has the same value as 'Z'.
-        //:
-        //:       2 'Z' still has the same value as 'ZZ'.
-        //:
-        //:     7 Use the 'allocator' accessor of both 'mX' and 'Z' to verify
-        //:       that both object allocators are unchanged.  (C-2, 7)
-        //:
-        //:     8 Use appropriate test allocators to verify that: (C-3, 8)
-        //:
-        //:       1 No additional memory is allocated by the source object.
-        //:
-        //:       2 All object memory is released when the object is destroyed.
-        //:
-        //: 5 Repeat steps similar to those described in P-2 except that, this
-        //:   time, there is no inner loop (as in P-4.2); instead, the source
-        //:   object, 'Z', is a reference to the target object, 'mX', and both
-        //:   'mX' and 'ZZ' are initialized to have the value 'V'.  For each
-        //:   row (representing a distinct object value, 'V') in the table
-        //:   described in P-3: (C-1..3, 5..10)
-        //:
-        //:   1 Construct a 'bslma::TestAllocator' object, 'oa'.
-        //:
-        //:   2 Use the value constructor to create a modifiable 'Obj' 'mX'
-        //:     using 'oa' and a 'const' 'Obj' 'ZZ' (using a distinct "scratch"
-        //:     allocator).
-        //:
-        //:   3 Let 'Z' be a reference providing only 'const' access to 'mX'.
-        //:
-        //:   4 Use the equality comparison operators to verify that the target
-        //:     object, 'mX', has the same value as 'ZZ'.
-        //:
-        //:   5 Assign 'mX' from 'Z' in the presence of injected exceptions
-        //:     (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).
-        //:     (C-9)
-        //:
-        //:   6 Verify that the address of the return value is the same as that
-        //:     of 'mX'.  (C-5)
-        //:
-        //:   7 Use the equality comparison operators to verify that the target
-        //:     object, 'mX', still has the same value as 'ZZ'.  (C-10)
-        //:
-        //:   8 Use the 'allocator' accessor of 'mX' to verify that it is still
-        //:     the object allocator.  (C-2)
-        //:
-        //:   9 Use appropriate test allocators to verify that: (C-3, 8)
-        //:
-        //:     1 Any memory that is allocated is from the object allocator.
-        //:
-        //:     2 No additional (e.g., temporary) object memory is allocated
-        //:       when assigning an object value that did NOT initially require
-        //:       allocated memory.
-        //:
-        //:     3 All object memory is released when the object is destroyed.
-        //:
-        //: 6 Use the test allocator from P-2 to verify that no memory is ever
-        //:   allocated from the default allocator.  (C-3)
+        // 1. Use the address of `operator=` to initialize a function pointer
+        //    having the appropriate structure for the copy-assignment operator
+        //    defined in this component.  (C-4)
+        //
+        // 2. Construct a `bslma::TestAllocator` object and install it as the
+        //    default allocator (note that a ubiquitous test allocator is
+        //    already installed as the global allocator).
+        //
+        // 3. Using the table-driven technique:
+        //
+        //   1. Specify a set of valid object values (one per row) in terms of
+        //      their individual attributes, including (a) first, the default
+        //      value, (b) boundary values corresponding to every range of
+        //      values that each individual attribute can independently attain,
+        //      and (c) values that should require allocation from each
+        //      individual attribute that can independently allocate memory.
+        //
+        // 4. For each row `R1` (representing a distinct object value, `V`) in
+        //    the table described in P-3: (C-1..3, 5..9)
+        //
+        //   1. Use the value constructor to create two `const` `Obj`, `Z` and
+        //      `ZZ`, each having the value `V` and using a "scratch"
+        //      allocator.
+        //
+        //   2. Execute an inner loop that iterates over each row `R2`
+        //      (representing a distinct object value, `W`) in the table
+        //      described in P-3:
+        //
+        //   3. For each of the iterations (P-4.2):
+        //
+        //     1. Construct a `bslma::TestAllocator` object, `oa`.
+        //
+        //     2. Use the value constructor to create a modifiable `Obj`, `mX`,
+        //        using `oa` and having the value `W`.
+        //
+        //     3. Use the equality comparison operators to verify that the two
+        //        objects, `mX` and `Z`, are initially equal if and only if the
+        //        table indices from P-4 and P-4.2 are the same.
+        //
+        //     4. Assign `mX` from `Z` in the presence of injected exceptions
+        //        (using the `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*` macros).
+        //
+        //     5. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-5)
+        //
+        //     6. Use the equality comparison operators to verify that: (C-1,
+        //        6)
+        //
+        //       1. The target object, `mX`, now has the same value as `Z`.
+        //
+        //       2. `Z` still has the same value as `ZZ`.
+        //
+        //     7. Use the `allocator` accessor of both `mX` and `Z` to verify
+        //        that both object allocators are unchanged.  (C-2, 7)
+        //
+        //     8. Use appropriate test allocators to verify that: (C-3, 8)
+        //
+        //       1. No additional memory is allocated by the source object.
+        //
+        //       2. All object memory is released when the object is destroyed.
+        //
+        // 5. Repeat steps similar to those described in P-2 except that, this
+        //    time, there is no inner loop (as in P-4.2); instead, the source
+        //    object, `Z`, is a reference to the target object, `mX`, and both
+        //    `mX` and `ZZ` are initialized to have the value `V`.  For each
+        //    row (representing a distinct object value, `V`) in the table
+        //    described in P-3: (C-1..3, 5..10)
+        //
+        //   1. Construct a `bslma::TestAllocator` object, `oa`.
+        //
+        //   2. Use the value constructor to create a modifiable `Obj` `mX`
+        //      using `oa` and a `const` `Obj` `ZZ` (using a distinct "scratch"
+        //      allocator).
+        //
+        //   3. Let `Z` be a reference providing only `const` access to `mX`.
+        //
+        //   4. Use the equality comparison operators to verify that the target
+        //      object, `mX`, has the same value as `ZZ`.
+        //
+        //   5. Assign `mX` from `Z` in the presence of injected exceptions
+        //      (using the `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*` macros).
+        //      (C-9)
+        //
+        //   6. Verify that the address of the return value is the same as that
+        //      of `mX`.  (C-5)
+        //
+        //   7. Use the equality comparison operators to verify that the target
+        //      object, `mX`, still has the same value as `ZZ`.  (C-10)
+        //
+        //   8. Use the `allocator` accessor of `mX` to verify that it is still
+        //      the object allocator.  (C-2)
+        //
+        //   9. Use appropriate test allocators to verify that: (C-3, 8)
+        //
+        //     1. Any memory that is allocated is from the object allocator.
+        //
+        //     2. No additional (e.g., temporary) object memory is allocated
+        //        when assigning an object value that did NOT initially require
+        //        allocated memory.
+        //
+        //     3. All object memory is released when the object is destroyed.
+        //
+        // 6. Use the test allocator from P-2 to verify that no memory is ever
+        //    allocated from the default allocator.  (C-3)
         //
         // Testing:
         //   Calendar& operator=(const Calendar& rhs);
@@ -6587,7 +6595,7 @@ int main(int argc, char *argv[])
                 firstFlag = false;
             }
 
-            // Test assignment from 'bdlt::Calendar'.
+            // Test assignment from `bdlt::Calendar`.
 
             for (int tj = 0; SPECS[tj]; ++tj) {
                 const char *const SPEC2 = SPECS[tj];
@@ -6636,7 +6644,7 @@ int main(int argc, char *argv[])
                              0 == oa.numBlocksInUse());
             }
 
-            // Test assignment from 'bdlt::PackedCalendar'.
+            // Test assignment from `bdlt::PackedCalendar`.
 
             PackedObj mPZ(&scratch);   const PackedObj& PZ  = gg(&mPZ,  SPEC1);
 
@@ -6741,134 +6749,134 @@ int main(int argc, char *argv[])
       case 8: {
         // --------------------------------------------------------------------
         // SWAP MEMBER AND FREE FUNCTION
-        //   Ensure that, when member and free 'swap' are implemented, we can
+        //   Ensure that, when member and free `swap` are implemented, we can
         //   exchange the values of any two objects that use the same
         //   allocator.
         //
         // Concerns:
-        //: 1 Both functions exchange the values of the (two) supplied objects.
-        //:
-        //: 2 The common object allocator address held by both objects is
-        //:   unchanged.
-        //:
-        //: 3 The member function does not allocate memory from any allocator;
-        //:   nor does the free function when the two objects being swapped use
-        //:   the same allocator.
-        //:
-        //: 4 The free function can be called with two objects that use
-        //:   different allocators.
-        //:
-        //: 5 Both functions have standard signatures and return types.
-        //:
-        //: 6 Using either function to swap an object with itself does not
-        //:   affect the value of the object (alias-safety).
-        //:
-        //: 7 The free 'swap' function is discoverable through ADL (Argument
-        //:   Dependent Lookup).
-        //:
-        //: 8 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Both functions exchange the values of the (two) supplied objects.
+        //
+        // 2. The common object allocator address held by both objects is
+        //    unchanged.
+        //
+        // 3. The member function does not allocate memory from any allocator;
+        //    nor does the free function when the two objects being swapped use
+        //    the same allocator.
+        //
+        // 4. The free function can be called with two objects that use
+        //    different allocators.
+        //
+        // 5. Both functions have standard signatures and return types.
+        //
+        // 6. Using either function to swap an object with itself does not
+        //    affect the value of the object (alias-safety).
+        //
+        // 7. The free `swap` function is discoverable through ADL (Argument
+        //    Dependent Lookup).
+        //
+        // 8. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use the addresses of the 'swap' member and free functions defined
-        //:   in this component to initialize, respectively, member-function
-        //:   and free-function pointers having the appropriate signatures and
-        //:   return types.  (C-5)
-        //:
-        //: 2 Create a 'bslma::TestAllocator' object, and install it as the
-        //:   default allocator (note that a ubiquitous test allocator is
-        //:   already installed as the global allocator).
-        //:
-        //: 3 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of (unique) valid object values (one per row) in
-        //:     terms of their individual attributes, including (a) first, the
-        //:     default value, (b) boundary values corresponding to every range
-        //:     of values that each individual attribute can independently
-        //:     attain, and (c) values that should require allocation from each
-        //:     individual attribute that can independently allocate memory.
-        //:
-        //:   2 Additionally, provide a (tri-valued) column, 'MEM', indicating
-        //:     the expectation of memory allocation for all typical
-        //:     implementations of individual attribute types: ('Y') "Yes",
-        //:     ('N') "No", or ('?') "implementation-dependent".
-        //:
-        //: 4 For each row 'R1' in the table of P-3:  (C-1..2, 6)
-        //:
-        //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
-        //:
-        //:   2 Use the value constructor and 'oa' to create a modifiable
-        //:     'Obj', 'mW', having the value described by 'R1'; also use the
-        //:     copy constructor and a "scratch" allocator to create a 'const'
-        //:     'Obj' 'XX' from 'mW'.
-        //:
-        //:   3 Use the member and free 'swap' functions to swap the value of
-        //:     'mW' with itself; verify, after each swap, that:  (C-6)
-        //:
-        //:     1 The value is unchanged.  (C-6)
-        //:
-        //:     2 The allocator address held by the object is unchanged.
-        //:
-        //:     3 There was no additional object memory allocation.
-        //:
-        //:   4 For each row 'R2' in the table of P-3:  (C-1..2)
-        //:
-        //:     1 Use the copy constructor and 'oa' to create a modifiable
-        //:       'Obj', 'mX', from 'XX' (P-4.2).
-        //:
-        //:     2 Use the value constructor and 'oa' to create a modifiable
-        //:       'Obj', 'mY', and having the value described by 'R2'; also use
-        //:       the copy constructor to create, using a "scratch" allocator,
-        //:       a 'const' 'Obj', 'YY', from 'Y'.
-        //:
-        //:     3 Use, in turn, the member and free 'swap' functions to swap
-        //:       the values of 'mX' and 'mY'; verify, after each swap, that:
-        //:       (C-1..2)
-        //:
-        //:       1 The values have been exchanged.  (C-1)
-        //:
-        //:       2 The common object allocator address held by 'mX' and 'mY'
-        //:         is unchanged in both objects.  (C-2)
-        //:
-        //:       3 There was no additional object memory allocation.
-        //:
-        //: 5 Verify that the free 'swap' function is discoverable through ADL:
-        //:   (C-7)
-        //:
-        //:   1 Create a set of attribute values, 'A', distinct from the values
-        //:     corresponding to the default-constructed object, choosing
-        //:     values that allocate memory if possible.
-        //:
-        //:   2 Create a 'bslma::TestAllocator' object, 'oa'.
-        //:
-        //:   3 Use the default constructor and 'oa' to create a modifiable
-        //:     'Obj' 'mX' (having default attribute values); also use the copy
-        //:     constructor and a "scratch" allocator to create a 'const' 'Obj'
-        //:     'XX' from 'mX'.
-        //:
-        //:   4 Use the value constructor and 'oa' to create a modifiable 'Obj'
-        //:     'mY' having the value described by the 'Ai' attributes; also
-        //:     use the copy constructor and a "scratch" allocator to create a
-        //:     'const' 'Obj' 'YY' from 'mY'.
-        //:
-        //:   5 Use the 'bslalg::SwapUtil' helper function template to swap the
-        //:     values of 'mX' and 'mY', using the free 'swap' function defined
-        //:     in this component, then verify that:  (C-7)
-        //:
-        //:     1 The values have been exchanged.
-        //:
-        //:     2 There was no additional object memory allocation.  (C-7)
-        //:
-        //: 6 Use the test allocator from P-2 to verify that no memory was
-        //:   allocated from the default allocator.  (C-3)
-        //:
-        //: 7 Verify that free 'swap' exchanges the values of any two objects
-        //:   that use different allocators.  (C-4)
-        //:
-        //: 8 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when, using the member 'swap' function, an attempt is
-        //:   made to swap objects that do not refer to the same allocator, but
-        //:   not when the allocators are the same (using the
-        //:   'BSLS_ASSERTTEST_*' macros).  (C-8)
+        // 1. Use the addresses of the `swap` member and free functions defined
+        //    in this component to initialize, respectively, member-function
+        //    and free-function pointers having the appropriate signatures and
+        //    return types.  (C-5)
+        //
+        // 2. Create a `bslma::TestAllocator` object, and install it as the
+        //    default allocator (note that a ubiquitous test allocator is
+        //    already installed as the global allocator).
+        //
+        // 3. Using the table-driven technique:
+        //
+        //   1. Specify a set of (unique) valid object values (one per row) in
+        //      terms of their individual attributes, including (a) first, the
+        //      default value, (b) boundary values corresponding to every range
+        //      of values that each individual attribute can independently
+        //      attain, and (c) values that should require allocation from each
+        //      individual attribute that can independently allocate memory.
+        //
+        //   2. Additionally, provide a (tri-valued) column, `MEM`, indicating
+        //      the expectation of memory allocation for all typical
+        //      implementations of individual attribute types: ('Y') "Yes",
+        //      ('N') "No", or ('?') "implementation-dependent".
+        //
+        // 4. For each row `R1` in the table of P-3:  (C-1..2, 6)
+        //
+        //   1. Create a `bslma::TestAllocator` object, `oa`.
+        //
+        //   2. Use the value constructor and `oa` to create a modifiable
+        //      `Obj`, `mW`, having the value described by `R1`; also use the
+        //      copy constructor and a "scratch" allocator to create a `const`
+        //      `Obj` `XX` from `mW`.
+        //
+        //   3. Use the member and free `swap` functions to swap the value of
+        //      `mW` with itself; verify, after each swap, that:  (C-6)
+        //
+        //     1. The value is unchanged.  (C-6)
+        //
+        //     2. The allocator address held by the object is unchanged.
+        //
+        //     3. There was no additional object memory allocation.
+        //
+        //   4. For each row `R2` in the table of P-3:  (C-1..2)
+        //
+        //     1. Use the copy constructor and `oa` to create a modifiable
+        //        `Obj`, `mX`, from `XX` (P-4.2).
+        //
+        //     2. Use the value constructor and `oa` to create a modifiable
+        //        `Obj`, `mY`, and having the value described by `R2`; also use
+        //        the copy constructor to create, using a "scratch" allocator,
+        //        a `const` `Obj`, `YY`, from `Y`.
+        //
+        //     3. Use, in turn, the member and free `swap` functions to swap
+        //        the values of `mX` and `mY`; verify, after each swap, that:
+        //        (C-1..2)
+        //
+        //       1. The values have been exchanged.  (C-1)
+        //
+        //       2. The common object allocator address held by `mX` and `mY`
+        //          is unchanged in both objects.  (C-2)
+        //
+        //       3. There was no additional object memory allocation.
+        //
+        // 5. Verify that the free `swap` function is discoverable through ADL:
+        //    (C-7)
+        //
+        //   1. Create a set of attribute values, `A`, distinct from the values
+        //      corresponding to the default-constructed object, choosing
+        //      values that allocate memory if possible.
+        //
+        //   2. Create a `bslma::TestAllocator` object, `oa`.
+        //
+        //   3. Use the default constructor and `oa` to create a modifiable
+        //      `Obj` `mX` (having default attribute values); also use the copy
+        //      constructor and a "scratch" allocator to create a `const` `Obj`
+        //      `XX` from `mX`.
+        //
+        //   4. Use the value constructor and `oa` to create a modifiable `Obj`
+        //      `mY` having the value described by the `Ai` attributes; also
+        //      use the copy constructor and a "scratch" allocator to create a
+        //      `const` `Obj` `YY` from `mY`.
+        //
+        //   5. Use the `bslalg::SwapUtil` helper function template to swap the
+        //      values of `mX` and `mY`, using the free `swap` function defined
+        //      in this component, then verify that:  (C-7)
+        //
+        //     1. The values have been exchanged.
+        //
+        //     2. There was no additional object memory allocation.  (C-7)
+        //
+        // 6. Use the test allocator from P-2 to verify that no memory was
+        //    allocated from the default allocator.  (C-3)
+        //
+        // 7. Verify that free `swap` exchanges the values of any two objects
+        //    that use different allocators.  (C-4)
+        //
+        // 8. Verify that, in appropriate build modes, defensive checks are
+        //    triggered when, using the member `swap` function, an attempt is
+        //    made to swap objects that do not refer to the same allocator, but
+        //    not when the allocators are the same (using the
+        //    `BSLS_ASSERTTEST_*` macros).  (C-8)
         //
         // Testing:
         //   void swap(Calendar& other);
@@ -6934,7 +6942,7 @@ int main(int argc, char *argv[])
                 firstFlag = false;
             }
 
-            // member 'swap'
+            // member `swap`
             {
                 bslma::TestAllocatorMonitor oam(&oa);
 
@@ -6946,7 +6954,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(ti, oam.isTotalSame());
             }
 
-            // free function 'swap'
+            // free function `swap`
             {
                 bslma::TestAllocatorMonitor oam(&oa);
 
@@ -6970,7 +6978,7 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ P_(tj) P_(X) P_(Y) P_(YY) }
 
-                // member 'swap'
+                // member `swap`
                 {
                     bslma::TestAllocatorMonitor oam(&oa);
 
@@ -6983,7 +6991,7 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(ti, tj, oam.isTotalSame());
                 }
 
-                // free function 'swap', same allocator
+                // free function `swap`, same allocator
                 {
                     bslma::TestAllocatorMonitor oam(&oa);
 
@@ -6999,7 +7007,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-                "\nInvoke free 'swap' function in a context where ADL is used."
+                "\nInvoke free `swap` function in a context where ADL is used."
                                                                        << endl;
         {
             bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
@@ -7029,7 +7037,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(da.numBlocksTotal(), !da.numBlocksTotal());
 
         if (verbose) cout <<
-                   "\nFree 'swap' function with different allocators." << endl;
+                   "\nFree `swap` function with different allocators." << endl;
         for (int ti = 0; SPECS[ti]; ++ti) {
             const char *const SPEC1 = SPECS[ti];
 
@@ -7051,7 +7059,7 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ P_(X) P_(Y) P(YY) }
 
-                // free function 'swap', different allocators
+                // free function `swap`, different allocators
                 {
                     swap(mX, mY);
 
@@ -7090,110 +7098,110 @@ int main(int argc, char *argv[])
         //   other one, such that the two objects have the same value.
         //
         // Concerns:
-        //: 1 The copy constructor (with or without a supplied allocator)
-        //:   creates an object having the same value as the supplied original
-        //:   object.
-        //:
-        //: 2 If an allocator is *not* supplied to the copy constructor, the
-        //:   default allocator in effect at the time of construction becomes
-        //:   the object allocator for the resulting object (i.e., the
-        //:   allocator of the original object is never copied).
-        //:
-        //: 3 If an allocator is supplied to the copy constructor, that
-        //:   allocator becomes the object allocator for the resulting object.
-        //:
-        //: 4 Supplying a null allocator address has the same effect as not
-        //:   supplying an allocator.
-        //:
-        //: 5 Supplying an allocator to the copy constructor has no effect on
-        //:   subsequent object values.
-        //:
-        //: 6 Any memory allocation is from the object allocator, which is
-        //:   returned by the 'allocator' accessor method.
-        //:
-        //: 7 There is no temporary memory allocation from any allocator.
-        //:
-        //: 8 Every object releases any allocated memory at destruction.
-        //:
-        //: 9 The original object is passed as a reference providing
-        //:   non-modifiable access to the object.
-        //:
-        //:10 The value of the original object is unchanged.
-        //:
-        //:11 The allocator address of the original object is unchanged.
-        //:
-        //:12 Any memory allocation is exception neutral.
+        // 1. The copy constructor (with or without a supplied allocator)
+        //    creates an object having the same value as the supplied original
+        //    object.
+        //
+        // 2. If an allocator is *not* supplied to the copy constructor, the
+        //    default allocator in effect at the time of construction becomes
+        //    the object allocator for the resulting object (i.e., the
+        //    allocator of the original object is never copied).
+        //
+        // 3. If an allocator is supplied to the copy constructor, that
+        //    allocator becomes the object allocator for the resulting object.
+        //
+        // 4. Supplying a null allocator address has the same effect as not
+        //    supplying an allocator.
+        //
+        // 5. Supplying an allocator to the copy constructor has no effect on
+        //    subsequent object values.
+        //
+        // 6. Any memory allocation is from the object allocator, which is
+        //    returned by the `allocator` accessor method.
+        //
+        // 7. There is no temporary memory allocation from any allocator.
+        //
+        // 8. Every object releases any allocated memory at destruction.
+        //
+        // 9. The original object is passed as a reference providing
+        //    non-modifiable access to the object.
+        //
+        // 10. The value of the original object is unchanged.
+        //
+        // 11. The allocator address of the original object is unchanged.
+        //
+        // 12. Any memory allocation is exception neutral.
         //
         // Plan:
-        //: 1 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of widely varying object values (one per row) in
-        //:     terms of their individual attributes, including (a) first, the
-        //:     default value, (b) boundary values corresponding to every
-        //:     range of values that each individual attribute can
-        //:     independently attain, and (c) values that should require
-        //:     allocation from each individual attribute that can
-        //:     independently allocate memory.
-        //:
-        //: 2 For each row (representing a distinct object value, 'V') in the
-        //:   table described in P-1: (C-1..12)
-        //:
-        //:   1 Use the value constructor to create two 'const' 'Obj', 'Z' and
-        //:     'ZZ', each having the value 'V' and using a "scratch"
-        //:     allocator.
-        //:
-        //:   2 Execute an inner loop creating three distinct objects in turn,
-        //:     each using the copy constructor on 'Z' from P-2.1, but
-        //:     configured differently: (a) without passing an allocator, (b)
-        //:     passing a null allocator address explicitly, and (c) passing
-        //:     the address of a test allocator distinct from the default.
-        //:
-        //:   3 For each of these three iterations (P-2.2): (C-1..12)
-        //:
-        //:     1 Construct three 'bslma::TestAllocator' objects and install
-        //:       one as the current default allocator (note that a ubiquitous
-        //:       test allocator is already installed as the global
-        //:       allocator).
-        //:
-        //:     2 Use the copy constructor to dynamically create an object
-        //:       'X', supplying it the 'const' object 'Z' (see P-2.1),
-        //:       configured appropriately (see P-2.2) using a distinct test
-        //:       allocator for the object's footprint.  (C-9)
-        //:
-        //:     3 Use the equality comparison operators to verify that:
-        //:
-        //:       1 The newly constructed object, 'X', has the same value as
-        //:         'Z'.  (C-1, 5)
-        //:
-        //:       2 'Z' still has the same value as 'ZZ'.  (C-10)
-        //:
-        //:     4 Use the 'allocator' accessor of each underlying attribute
-        //:       capable of allocating memory to ensure that its object
-        //:       allocator is properly installed; also apply the object's
-        //:       'allocator' accessor, as well as that of 'Z'.  (C-6, 11)
-        //:
-        //:     5 Use appropriate test allocators to verify that: (C-2..4, 7,
-        //:       8, 12)
-        //:
-        //:       1 Memory is always allocated, and comes from the object
-        //:         allocator only (irrespective of the specific number of
-        //:         allocations or the total amount of memory allocated).
-        //:         (C-2, 4)
-        //:
-        //:       2 If an allocator was supplied at construction (P-2.1c), the
-        //:         current default allocator doesn't allocate any memory.
-        //:         (C-3)
-        //:
-        //:       3 No temporary memory is allocated from the object
-        //:         allocator.  (C-7)
-        //:
-        //:       4 All object memory is released when the object is
-        //:         destroyed. (C-8)
-        //:
-        //: 3 Create an object as an automatic variable in the presence of
-        //:   injected exceptions (using the
-        //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros) and verify that
-        //:   no memory is leaked.  (C-12)
+        // 1. Using the table-driven technique:
+        //
+        //   1. Specify a set of widely varying object values (one per row) in
+        //      terms of their individual attributes, including (a) first, the
+        //      default value, (b) boundary values corresponding to every
+        //      range of values that each individual attribute can
+        //      independently attain, and (c) values that should require
+        //      allocation from each individual attribute that can
+        //      independently allocate memory.
+        //
+        // 2. For each row (representing a distinct object value, `V`) in the
+        //    table described in P-1: (C-1..12)
+        //
+        //   1. Use the value constructor to create two `const` `Obj`, `Z` and
+        //      `ZZ`, each having the value `V` and using a "scratch"
+        //      allocator.
+        //
+        //   2. Execute an inner loop creating three distinct objects in turn,
+        //      each using the copy constructor on `Z` from P-2.1, but
+        //      configured differently: (a) without passing an allocator, (b)
+        //      passing a null allocator address explicitly, and (c) passing
+        //      the address of a test allocator distinct from the default.
+        //
+        //   3. For each of these three iterations (P-2.2): (C-1..12)
+        //
+        //     1. Construct three `bslma::TestAllocator` objects and install
+        //        one as the current default allocator (note that a ubiquitous
+        //        test allocator is already installed as the global
+        //        allocator).
+        //
+        //     2. Use the copy constructor to dynamically create an object
+        //        `X`, supplying it the `const` object `Z` (see P-2.1),
+        //        configured appropriately (see P-2.2) using a distinct test
+        //        allocator for the object's footprint.  (C-9)
+        //
+        //     3. Use the equality comparison operators to verify that:
+        //
+        //       1. The newly constructed object, `X`, has the same value as
+        //          `Z`.  (C-1, 5)
+        //
+        //       2. `Z` still has the same value as `ZZ`.  (C-10)
+        //
+        //     4. Use the `allocator` accessor of each underlying attribute
+        //        capable of allocating memory to ensure that its object
+        //        allocator is properly installed; also apply the object's
+        //        `allocator` accessor, as well as that of `Z`.  (C-6, 11)
+        //
+        //     5. Use appropriate test allocators to verify that: (C-2..4, 7,
+        //        8, 12)
+        //
+        //       1. Memory is always allocated, and comes from the object
+        //          allocator only (irrespective of the specific number of
+        //          allocations or the total amount of memory allocated).
+        //          (C-2, 4)
+        //
+        //       2. If an allocator was supplied at construction (P-2.1c), the
+        //          current default allocator doesn't allocate any memory.
+        //          (C-3)
+        //
+        //       3. No temporary memory is allocated from the object
+        //          allocator.  (C-7)
+        //
+        //       4. All object memory is released when the object is
+        //          destroyed. (C-8)
+        //
+        // 3. Create an object as an automatic variable in the presence of
+        //    injected exceptions (using the
+        //    `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*` macros) and verify that
+        //    no memory is leaked.  (C-12)
         //
         // Testing:
         //   Calendar(const Calendar& original, ba = 0);
@@ -7275,12 +7283,12 @@ int main(int argc, char *argv[])
 
                     LOOP4_ASSERT(ti, CONFIG,  X, Z,  X == Z);
 
-                    // Verify that the value of 'Z' has not changed.
+                    // Verify that the value of `Z` has not changed.
 
                     LOOP4_ASSERT(ti, CONFIG, ZZ, Z, ZZ == Z);
 
-                    // Also apply the object's 'allocator' accessor, as well
-                    // as that of 'Z'.
+                    // Also apply the object's `allocator` accessor, as well
+                    // as that of `Z`.
 
                     LOOP4_ASSERT(ti, CONFIG, &oa, X.allocator(),
                                  &oa == X.allocator());
@@ -7353,61 +7361,61 @@ int main(int argc, char *argv[])
       case 6: {
         // -------------------------------------------------------------------
         // EQUALITY-COMPARISON OPERATORS
-        //   Ensure that '==' and '!=' are the operational definition of
+        //   Ensure that `==` and `!=` are the operational definition of
         //   value.
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if their
-        //:   corresponding year/month/day representations compare equal.
-        //:
-        //: 2 'true  == (X == X)' (i.e., identity).
-        //:
-        //: 3 'false == (X != X)' (i.e., identity).
-        //:
-        //: 4 'X == Y' if and only if 'Y == X' (i.e., commutativity).
-        //:
-        //: 5 'X != Y' if and only if 'Y != X' (i.e., commutativity).
-        //:
-        //: 6 'X != Y' if and only if '!(X == Y)'.
-        //:
-        //: 7 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., both comparison operators are free functions).
-        //:
-        //: 8 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //: 9 The equality-comparison operators' signatures and return types
-        //:   are standard.
+        // 1. Two objects, `X` and `Y`, compare equal if and only if their
+        //    corresponding year/month/day representations compare equal.
+        //
+        // 2. `true  == (X == X)` (i.e., identity).
+        //
+        // 3. `false == (X != X)` (i.e., identity).
+        //
+        // 4. `X == Y` if and only if `Y == X` (i.e., commutativity).
+        //
+        // 5. `X != Y` if and only if `Y != X` (i.e., commutativity).
+        //
+        // 6. `X != Y` if and only if `!(X == Y)`.
+        //
+        // 7. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., both comparison operators are free functions).
+        //
+        // 8. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        // 9. The equality-comparison operators' signatures and return types
+        //    are standard.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the two homogeneous, free equality-
-        //:   comparison operators defined in this component.  (C-7..9)
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row).
-        //:
-        //: 3 For each row 'R1' in the table of P-2:  (C-1..6)
-        //:
-        //:   1 Use the generator function to create a 'const' object, 'W',
-        //:     having the value from 'R1'.
-        //:
-        //:   2 Using 'W', verify the reflexive (anti-reflexive) property of
-        //:     equality (inequality) in the presence of aliasing.  (C-2..3)
-        //:
-        //:   3 For each row 'R2' in the table of P-2:  (C-1, 4..6)
-        //:
-        //:     1 Record, in 'EXP', whether or not distinct objects set to
-        //:       values from 'R1' and 'R2', respectively, are expected to
-        //:       have the same value.
-        //:
-        //:     2 Use the generator function to create a 'const' object, 'X',
-        //:       having the value from 'R1', and a second 'const' object,
-        //:       'Y', having the value from 'R2'.
-        //:
-        //:     3 Using 'X' and 'Y', verify the commutativity property and
-        //:       expected return value for both '==' and '!='.  (C-1, 4..6)
+        // 1. Use the respective addresses of `operator==` and `operator!=` to
+        //    initialize function pointers having the appropriate signatures
+        //    and return types for the two homogeneous, free equality-
+        //    comparison operators defined in this component.  (C-7..9)
+        //
+        // 2. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row).
+        //
+        // 3. For each row `R1` in the table of P-2:  (C-1..6)
+        //
+        //   1. Use the generator function to create a `const` object, `W`,
+        //      having the value from `R1`.
+        //
+        //   2. Using `W`, verify the reflexive (anti-reflexive) property of
+        //      equality (inequality) in the presence of aliasing.  (C-2..3)
+        //
+        //   3. For each row `R2` in the table of P-2:  (C-1, 4..6)
+        //
+        //     1. Record, in `EXP`, whether or not distinct objects set to
+        //        values from `R1` and `R2`, respectively, are expected to
+        //        have the same value.
+        //
+        //     2. Use the generator function to create a `const` object, `X`,
+        //        having the value from `R1`, and a second `const` object,
+        //        `Y`, having the value from `R2`.
+        //
+        //     3. Using `X` and `Y`, verify the commutativity property and
+        //        expected return value for both `==` and `!=`.  (C-1, 4..6)
         //
         // Testing:
         //   bool operator==(lhs, rhs);
@@ -7478,60 +7486,60 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // PRINT AND OUTPUT OPERATOR (<<)
         //   Ensure that the value of the object can be formatted appropriately
-        //   on an 'ostream' in some standard, human-readable form.
+        //   on an `ostream` in some standard, human-readable form.
         //
         // Concerns:
-        //: 1 The 'print' method writes the value to the specified 'ostream'.
-        //:
-        //: 2 The 'print' method writes the value in the intended format.
-        //:
-        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)'.
-        //:
-        //: 4 The 'print' method's signature and return type are standard.
-        //:
-        //: 5 The 'print' method returns the supplied 'ostream'.
-        //:
-        //: 6 The optional 'level' and 'spacesPerLevel' parameters have the
-        //:   correct default values (0 and 4, respectively).
-        //:
-        //: 7 The output 'operator<<'s signature and return type are standard.
-        //:
-        //: 8 The output 'operator<<' returns the destination 'ostream'.
+        // 1. The `print` method writes the value to the specified `ostream`.
+        //
+        // 2. The `print` method writes the value in the intended format.
+        //
+        // 3. The output using `s << obj` is the same as `obj.print(s, 0, -1)`.
+        //
+        // 4. The `print` method's signature and return type are standard.
+        //
+        // 5. The `print` method returns the supplied `ostream`.
+        //
+        // 6. The optional `level` and `spacesPerLevel` parameters have the
+        //    correct default values (0 and 4, respectively).
+        //
+        // 7. The output `operator<<`s signature and return type are standard.
+        //
+        // 8. The output `operator<<` returns the destination `ostream`.
         //
         // Plan:
-        //: 1 Use the addresses of the 'print' member function and 'operator<<'
-        //:   free function defined in this component to initialize,
-        //:   respectively, member-function and free-function pointers having
-        //:   the appropriate signatures and return types.  (C-4, 7)
-        //:
-        //: 2 Using the table-driven technique:  (C-1..3, 5..6, 8)
-        //:
-        //:   1 Define fourteen carefully selected combinations of (two) object
-        //:     values ('A' and 'B') and various values for the two formatting
-        //:     parameters, along with the expected output.
-        //:
-        //:     ( 'value' x  'level'   x 'spacesPerLevel' ):
-        //:     1 { A   } x {  0     } x {  0, 1, -1, -8 } --> 3 expected o/ps
-        //:     2 { A   } x {  3, -3 } x {  0, 2, -2, -8 } --> 6 expected o/ps
-        //:     3 { B   } x {  2     } x {  3            } --> 1 expected o/p
-        //:     4 { A B } x { -8     } x { -8            } --> 2 expected o/ps
-        //:     5 { A B } x { -9     } x { -9            } --> 2 expected o/ps
-        //:
-        //:   2 For each row in the table defined in P-2.1:  (C-1..3, 5..6, 8)
-        //:
-        //:     1 Using a 'const' 'Obj', supply each object value and pair of
-        //:       formatting parameters to 'print', omitting the 'level' or
-        //:       'spacesPerLevel' parameter if the value of that argument is
-        //:       '-8'.  If the parameters are, arbitrarily, '(-9, -9)', then
-        //:       invoke the 'operator<<' instead.
-        //:
-        //:     2 Use a standard 'ostringstream' to capture the actual output.
-        //:
-        //:     3 Verify the address of what is returned is that of the
-        //:       supplied stream.  (C-5, 8)
-        //:
-        //:     4 Compare the contents captured in P-2.2.2 with what is
-        //:       expected.  (C-1..3, 6)
+        // 1. Use the addresses of the `print` member function and `operator<<`
+        //    free function defined in this component to initialize,
+        //    respectively, member-function and free-function pointers having
+        //    the appropriate signatures and return types.  (C-4, 7)
+        //
+        // 2. Using the table-driven technique:  (C-1..3, 5..6, 8)
+        //
+        //   1. Define fourteen carefully selected combinations of (two) object
+        //      values (`A` and `B`) and various values for the two formatting
+        //      parameters, along with the expected output.
+        //
+        //      ( `value` x  `level`   x `spacesPerLevel` ):
+        //     1. { A   } x {  0     } x {  0, 1, -1, -8 } --> 3 expected o/ps
+        //     2. { A   } x {  3, -3 } x {  0, 2, -2, -8 } --> 6 expected o/ps
+        //     3. { B   } x {  2     } x {  3            } --> 1 expected o/p
+        //     4. { A B } x { -8     } x { -8            } --> 2 expected o/ps
+        //     5. { A B } x { -9     } x { -9            } --> 2 expected o/ps
+        //
+        //   2. For each row in the table defined in P-2.1:  (C-1..3, 5..6, 8)
+        //
+        //     1. Using a `const` `Obj`, supply each object value and pair of
+        //        formatting parameters to `print`, omitting the `level` or
+        //        `spacesPerLevel` parameter if the value of that argument is
+        //        `-8`.  If the parameters are, arbitrarily, `(-9, -9)`, then
+        //        invoke the `operator<<` instead.
+        //
+        //     2. Use a standard `ostringstream` to capture the actual output.
+        //
+        //     3. Verify the address of what is returned is that of the
+        //        supplied stream.  (C-5, 8)
+        //
+        //     4. Compare the contents captured in P-2.2.2 with what is
+        //        expected.  (C-1..3, 6)
         //
         // Testing:
         //   ostream& print(ostream& stream, int level = 0, int sPL = 4) const;
@@ -7543,8 +7551,8 @@ int main(int argc, char *argv[])
                           << "==============================" << endl;
 
 
-        if (verbose) cout << "\nAssign the addresses of 'print' and "
-                             "the output 'operator<<' to variables." << endl;
+        if (verbose) cout << "\nAssign the addresses of `print` and "
+                             "the output `operator<<` to variables." << endl;
         {
             typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
             typedef ostream& (*operatorPtr)(ostream&, const Obj&);
@@ -7758,7 +7766,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        // Verify behavior when the stream is initially 'bad()'.
+        // Verify behavior when the stream is initially `bad()`.
 
         {
             Obj mX;
@@ -7934,21 +7942,21 @@ int main(int argc, char *argv[])
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 Each of the basic accessors returns the expected value.
-        //:
-        //: 2 Each basic accessor method is declared 'const'.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Each of the basic accessors returns the expected value.
+        //
+        // 2. Each basic accessor method is declared `const`.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 To test 'allocator', create object with various allocators and
-        //:   ensure the returned value matches the supplied allocator.
-        //:
-        //: 2 Directly test that each basic accessor, invoked on a set of
-        //:   'const' objects created with the generator function, returns the
-        //:   expected value.  (C-1..2)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. To test `allocator`, create object with various allocators and
+        //    ensure the returned value matches the supplied allocator.
+        //
+        // 2. Directly test that each basic accessor, invoked on a set of
+        //    `const` objects created with the generator function, returns the
+        //    expected value.  (C-1..2)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   bslma::Allocator *allocator() const;
@@ -7971,7 +7979,7 @@ int main(int argc, char *argv[])
                           << "BASIC ACCESSORS" << endl
                           << "===============" << endl;
 
-        if (verbose) cout << "\nTesting 'allocator'." << endl;
+        if (verbose) cout << "\nTesting `allocator`." << endl;
         {
             Obj mX;  const Obj& X = mX;
             ASSERT(&defaultAllocator == X.allocator());
@@ -7988,7 +7996,7 @@ int main(int argc, char *argv[])
             ASSERT(&sa == X.allocator());
         }
 
-        if (verbose) cout << "\nTesting 'packedCalendar'." << endl;
+        if (verbose) cout << "\nTesting `packedCalendar`." << endl;
         {
             static const char **SPECS = DEFAULT_SPECS;
 
@@ -8265,17 +8273,17 @@ int main(int argc, char *argv[])
         //   an object in any state.
         //
         // Concerns:
-        //: 1 Valid syntax produces the expected results.
-        //:
-        //: 2 Invalid syntax is detected and reported.
+        // 1. Valid syntax produces the expected results.
+        //
+        // 2. Invalid syntax is detected and reported.
         //
         // Plan:
-        //: 1 Evaluate a series of test strings of increasing complexity to
-        //:   set the state of a newly created object and verify the returned
-        //:   object using basic accessors.  (C-1)
-        //:
-        //: 2 Evaluate the 'ggg' function with a series of test strings of
-        //:   increasing complexity and verify its return value.  (C-2)
+        // 1. Evaluate a series of test strings of increasing complexity to
+        //    set the state of a newly created object and verify the returned
+        //    object using basic accessors.  (C-1)
+        //
+        // 2. Evaluate the `ggg` function with a series of test strings of
+        //    increasing complexity and verify its return value.  (C-2)
         //
         // Testing:
         //   CALENDAR& gg(CALENDAR *o, const char *s);
@@ -8497,7 +8505,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE, 0 == Y.numHolidays());
             }
 
-            // Test 'gg'.
+            // Test `gg`.
 
             if (retCode == -1) {
                 Obj mY; const Obj& Y = mY;
@@ -8535,7 +8543,7 @@ int main(int argc, char *argv[])
         {
             if (verbose)
                 cout <<
-                    endl << "\tTesting 'gg' for Weekend-Days Transitions" <<
+                    endl << "\tTesting `gg` for Weekend-Days Transitions" <<
                     endl << "\t=========================================" <<
                     endl;
 
@@ -8645,66 +8653,66 @@ int main(int argc, char *argv[])
         //   operate as expected.
         //
         // Concerns:
-        //: 1 Default constructor
-        //:     a. creates an object with the expected value
-        //:     b. properly wires the optionally-specified allocator
-        //:
-        //: 2 That 'addDay'
-        //:     a. properly extends the object range if needed
-        //:     b. properly handles duplicates
-        //:     c. is exception-neutral
-        //:
-        //: 3 That 'addWeekendDay'
-        //:     a. properly sets the day as a weekend day to the transition at
-        //:        1/1/1
-        //:     b. properly handles duplicates
-        //:     c. is exception-neutral
-        //:
-        //: 4 That 'addHoliday'
-        //:     a. increases the object range if needed
-        //:     b. properly sets the specified day as a holiday
-        //:     c. properly handles duplicates
-        //:     d. is exception-neutral
-        //:
-        //: 5 That 'addHolidayCode'
-        //:     a. increases the object range if needed
-        //:     b. sets the specified date as a holiday if needed
-        //:     c. properly sets a code for the specified holiday
-        //:     d. properly handles multiple codes for one holiday
-        //:     e. properly handles duplicates
-        //:     f. is exception-neutral
-        //:
-        //: 6 That 'addWeekendDaysTransition'
-        //:     a. properly adds a weekend-days transition
-        //:     b. properly handles duplicates
-        //:     c. is exception-neutral
-        //:
-        //: 7 That 'removeAll'
-        //:     a. produces the expected value (empty)
-        //:     b. leaves the object in a consistent state
-        //:
-        //: 8 Memory is not leaked by any method and the destructor properly
-        //:   deallocates the residual allocated memory.
-        //:
-        //: 9 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Default constructor
+        //      a. creates an object with the expected value
+        //      b. properly wires the optionally-specified allocator
+        //
+        // 2. That `addDay`
+        //      a. properly extends the object range if needed
+        //      b. properly handles duplicates
+        //      c. is exception-neutral
+        //
+        // 3. That `addWeekendDay`
+        //      a. properly sets the day as a weekend day to the transition at
+        //         1/1/1
+        //      b. properly handles duplicates
+        //      c. is exception-neutral
+        //
+        // 4. That `addHoliday`
+        //      a. increases the object range if needed
+        //      b. properly sets the specified day as a holiday
+        //      c. properly handles duplicates
+        //      d. is exception-neutral
+        //
+        // 5. That `addHolidayCode`
+        //      a. increases the object range if needed
+        //      b. sets the specified date as a holiday if needed
+        //      c. properly sets a code for the specified holiday
+        //      d. properly handles multiple codes for one holiday
+        //      e. properly handles duplicates
+        //      f. is exception-neutral
+        //
+        // 6. That `addWeekendDaysTransition`
+        //      a. properly adds a weekend-days transition
+        //      b. properly handles duplicates
+        //      c. is exception-neutral
+        //
+        // 7. That `removeAll`
+        //      a. produces the expected value (empty)
+        //      b. leaves the object in a consistent state
+        //
+        // 8. Memory is not leaked by any method and the destructor properly
+        //    deallocates the residual allocated memory.
+        //
+        // 9. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create an object using the default constructor with and without
-        //:   passing in an allocator, verify the allocator is stored using the
-        //:   (untested) 'allocator' accessor, and verifying all allocations
-        //:   are done from the allocator in future tests.  (C-1)
-        //:
-        //: 2 Create objects using the 'bslma::TestAllocator', use the primary
-        //:   manipulator method with various values, and the (untested)
-        //:   accessors to verify the value of the object.  Also vary the test
-        //:   allocator's allocation limit to verify behavior in the presence
-        //:   of exceptions.  (C-2..7)
-        //:
-        //: 3 Use a supplied 'bslma::TestAllocator' that goes out-of-scope
-        //:   at the conclusion of each test to ensure all memory is returned
-        //:   to the allocator.  (C-8)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-9)
+        // 1. Create an object using the default constructor with and without
+        //    passing in an allocator, verify the allocator is stored using the
+        //    (untested) `allocator` accessor, and verifying all allocations
+        //    are done from the allocator in future tests.  (C-1)
+        //
+        // 2. Create objects using the `bslma::TestAllocator`, use the primary
+        //    manipulator method with various values, and the (untested)
+        //    accessors to verify the value of the object.  Also vary the test
+        //    allocator's allocation limit to verify behavior in the presence
+        //    of exceptions.  (C-2..7)
+        //
+        // 3. Use a supplied `bslma::TestAllocator` that goes out-of-scope
+        //    at the conclusion of each test to ensure all memory is returned
+        //    to the allocator.  (C-8)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-9)
         //
         // Testing:
         //   Calendar(bslma::Allocator *basicAllocator = 0);
@@ -8779,7 +8787,7 @@ int main(int argc, char *argv[])
             ASSERT(suppliedAllocations < sa.numAllocations());
         }
 
-        if (verbose) cout << "\nTesting 'addDay'." << endl;
+        if (verbose) cout << "\nTesting `addDay`." << endl;
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
 
@@ -8837,7 +8845,7 @@ int main(int argc, char *argv[])
             ASSERT(allocations == defaultAllocator.numAllocations());
         }
 
-        if (verbose) cout << "\nTesting 'addWeekendDay'." << endl;
+        if (verbose) cout << "\nTesting `addWeekendDay`." << endl;
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
 
@@ -8873,7 +8881,7 @@ int main(int argc, char *argv[])
             ASSERT(allocations == defaultAllocator.numAllocations());
         }
 
-        if (verbose) cout << "\nTesting 'addWeekendDaysTransition'." << endl;
+        if (verbose) cout << "\nTesting `addWeekendDaysTransition`." << endl;
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
 
@@ -8956,7 +8964,7 @@ int main(int argc, char *argv[])
             ASSERT(allocations == defaultAllocator.numAllocations());
         }
 
-        if (verbose) cout << "\nTesting 'addHoliday'." << endl;
+        if (verbose) cout << "\nTesting `addHoliday`." << endl;
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
 
@@ -9051,7 +9059,7 @@ int main(int argc, char *argv[])
             ASSERT(allocations == defaultAllocator.numAllocations());
         }
 
-        if (verbose) cout << "\nTesting 'addHolidayCode'." << endl;
+        if (verbose) cout << "\nTesting `addHolidayCode`." << endl;
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
 
@@ -9162,7 +9170,7 @@ int main(int argc, char *argv[])
             ASSERT(allocations == defaultAllocator.numAllocations());
         }
 
-        if (verbose) cout << "\nTesting 'removeAll'." << endl;
+        if (verbose) cout << "\nTesting `removeAll`." << endl;
         {
             Obj mX;  const Obj& X = mX;
             ASSERT(0 == X.isInRange(bdlt::Date(2000,1, 1)));
@@ -9331,16 +9339,16 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create four objects using both the default and copy constructors.
-        //:
-        //: 2 Exercise these objects using primary manipulators, basic
-        //:   accessors, equality operators, and the assignment operator.
-        //:
-        //: 3 Verify expected values throughout.  (C-1)
+        // 1. Create four objects using both the default and copy constructors.
+        //
+        // 2. Exercise these objects using primary manipulators, basic
+        //    accessors, equality operators, and the assignment operator.
+        //
+        // 3. Verify expected values throughout.  (C-1)
         //
         // Testing:
         //   BREATHING TEST

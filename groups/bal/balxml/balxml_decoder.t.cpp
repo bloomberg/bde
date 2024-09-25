@@ -6,8 +6,8 @@
 // This test driver requires much system memory to build on IBM/AIX using xlC.
 // If you get an out of memory error during the compilation of this file please
 // search for COMPILER_RESOURCE_LIMITATIONS in this source file, and uncomment
-// the '#define' you find, and remove the comment text right above it.  Then
-// search for the '#undef' for the same macro and uncomment that, too.  Finally
+// the `#define` you find, and remove the comment text right above it.  Then
+// search for the `#undef` for the same macro and uncomment that, too.  Finally
 // remove this comment block as well.
 // ----------------------------------------------------------------------------
 
@@ -136,42 +136,42 @@ namespace Test = s_baltst;
 //                                  Overview
 //                                  --------
 // The component under test is a decoder that decodes XML input to produce a
-// value for a parameterized 'TYPE'.  Each 'TYPE' is represented by a context
-// class that implements the 'Decoder_ElementContext' protocol.  This
+// value for a parameterized `TYPE`.  Each `TYPE` is represented by a context
+// class that implements the `Decoder_ElementContext` protocol.  This
 // component provides context classes for the following types:
 //
-//     - 'bsl::string' (parsed as UTF8).
-//     - 'bsl::vector<char>' (parsed as Base64).
-//     - other 'bsl::vector's.
-//     - types that support 'bdlat_SequenceFunctions'.
-//     - types that support 'bdlat_ChoiceFunctions'.
-//     - simple types that can be parsed by 'balxml_typesparserutil'.
+//     - `bsl::string` (parsed as UTF8).
+//     - `bsl::vector<char>` (parsed as Base64).
+//     - other `bsl::vector`s.
+//     - types that support `bdlat_SequenceFunctions`.
+//     - types that support `bdlat_ChoiceFunctions`.
+//     - simple types that can be parsed by `balxml_typesparserutil`.
 //
-// After breathing the component [1], we will first test the internal 'Parser'
-// class through the 'Decoder' interface [2].  The purpose of this test will be
-// to establish that the parser uses the 'Decoder_ElementContext' protocol
-// correctly.  A customized 'TestContext' will be used for this purpose.  Then
-// we will test the 'Decoder_SelectContext' meta-function [3] to check that,
-// given a particular 'TYPE', the meta-function returns an appropriate context
-// type that can be used by the parser to parse that 'TYPE'.
+// After breathing the component [1], we will first test the internal `Parser`
+// class through the `Decoder` interface [2].  The purpose of this test will be
+// to establish that the parser uses the `Decoder_ElementContext` protocol
+// correctly.  A customized `TestContext` will be used for this purpose.  Then
+// we will test the `Decoder_SelectContext` meta-function [3] to check that,
+// given a particular `TYPE`, the meta-function returns an appropriate context
+// type that can be used by the parser to parse that `TYPE`.
 //
 // Once we have established that the parser is working correctly, we can start
 // testing the context types defined in this component.  The
-// 'Decoder_UTF8Context' [4] and 'Decoder_Base64Context' [5] context types are
+// `Decoder_UTF8Context` [4] and `Decoder_Base64Context` [5] context types are
 // tested first, because they are simple and non-templated.  Next, the
-// 'Decoder_SimpleContext<TYPE>' [6] template is tested.
+// `Decoder_SimpleContext<TYPE>` [6] template is tested.
 //
-// The 'Decoder_SequenceContext<TYPE>' [8] and the
-// 'Decoder_ChoiceContext<TYPE>' [9] templates make use of the
-// 'Decoder_PrepareSubContext' [7] function class.  Therefore, this function
+// The `Decoder_SequenceContext<TYPE>` [8] and the
+// `Decoder_ChoiceContext<TYPE>` [9] templates make use of the
+// `Decoder_PrepareSubContext` [7] function class.  Therefore, this function
 // class must be tested prior to these two class templates.
 //
-// The 'Decoder_VectorContext<TYPE>' [10] test makes use of the
-// 'Decoder_SequenceContext<TYPE>' template, so it must be tested after the
+// The `Decoder_VectorContext<TYPE>` [10] test makes use of the
+// `Decoder_SequenceContext<TYPE>` template, so it must be tested after the
 // sequence test.
 //
 // At this point, the main functionality of this component has been thoroughly
-// tested.  Now we need to test the 4 'decode' functions [11] in the 'Decoder'
+// tested.  Now we need to test the 4 `decode` functions [11] in the `Decoder`
 // namespace.  These tests are trivial and only involve testing that the
 // arguments and return values are passed correctly and that the input streams
 // are invalidated if there is an error.
@@ -179,7 +179,7 @@ namespace Test = s_baltst;
 // Finally, we will test the usage example from the component-level
 // documentation to check that it compiles and runs as expected.
 //
-// Note that the 'Decoder_ErrorReporter' and 'Decoder_ElementContext' protocol
+// Note that the `Decoder_ErrorReporter` and `Decoder_ElementContext` protocol
 // classes are tested implicitly in all test cases.
 // ----------------------------------------------------------------------------
 // [11] int balxml::Decoder::decode(sbuf*, TYPE, b_A*);
@@ -265,10 +265,10 @@ void printValue(bsl::ostream& out, const T& value)
     bdlb::PrintMethods::print(out, value, 0, -1);
 }
 
+/// Output the specified container `value` to the specified stream `out` and
+/// return that stream.
 template <class T>
 bsl::ostream& operator<<(bsl::ostream& out, const bsl::vector<T>& value)
-    // Output the specified container 'value' to the specified stream 'out' and
-    // return that stream.
 {
     printValue(out, value);
     return out;
@@ -534,9 +534,9 @@ static const char *printableCharacters[256]=
     "\\xff"   // 255  ff
 };
 
+/// Specialize for char*.  Need to expand \r, \n, \t and surround with
+/// DQUOTE characters.
 void printValue(bsl::ostream& out, const char *value)
-    // Specialize for char*.  Need to expand \r, \n, \t and surround with
-    // DQUOTE characters.
 {
     out << '"';
 
@@ -548,8 +548,8 @@ void printValue(bsl::ostream& out, const char *value)
     out << '"';
 }
 
+/// Need to expand \r, \n, \t and surround with DQUOTE characters.
 void printValue(bsl::ostream& out, const bsl::string& value)
-    // Need to expand \r, \n, \t and surround with DQUOTE characters.
 {
     printValue(out, value.c_str());
 }
@@ -615,8 +615,8 @@ namespace baexml_Decoder_TestNamespace {
                             // struct TestSequence0
                             // ====================
 
+/// A test sequence with 0 attributes.
 struct TestSequence0 {
-    // A test sequence with 0 attributes.
 };
 
             // ===================================================
@@ -708,8 +708,8 @@ namespace bdlat_SequenceFunctions {
 
 namespace baexml_Decoder_TestNamespace {
 
+/// A test sequence with 1 attributes.
 struct TestSequence1 {
-    // A test sequence with 1 attributes.
 
     static bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
@@ -870,13 +870,13 @@ namespace bdlat_SequenceFunctions {
 
 namespace baexml_Decoder_TestNamespace {
 
+/// A test sequence with 2 attributes.
 struct TestSequence2 {
-    // A test sequence with 2 attributes.
 
     static bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
-    // We need default values for elements in 'TestSequence2' because this
-    // class is used when testing the 'Decoder::decode' functions and we need
+    // We need default values for elements in `TestSequence2` because this
+    // class is used when testing the `Decoder::decode` functions and we need
     // to test that elements are reset when these functions are called.
 
     static const int         DEFAULT_ELEMENT1;
@@ -1075,8 +1075,8 @@ struct IsSequence<TestSequence2>
 
 namespace baexml_Decoder_TestNamespace {
 
+/// A test choice with 0 selections.
 struct TestChoice0 {
-    // A test choice with 0 selections.
 };
 
               // ===============================================
@@ -1148,8 +1148,8 @@ namespace bdlat_ChoiceFunctions {
 
 namespace baexml_Decoder_TestNamespace {
 
+/// A test choice with 1 selection.
 struct TestChoice1 {
-    // A test choice with 1 selection.
 
     static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
 
@@ -1302,8 +1302,8 @@ namespace bdlat_ChoiceFunctions {
 
 namespace baexml_Decoder_TestNamespace {
 
+/// A test choice with 2 selections.
 struct TestChoice2 {
-    // A test choice with 2 selections.
 
     static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
 
@@ -1495,9 +1495,9 @@ namespace bdlat_ChoiceFunctions {
 
 namespace baexml_Decoder_TestNamespace {
 
+/// This class will be used as the element type for the vector inside
+/// `TestSequenceWithVector` (see below).
 class TestVectorElemType {
-    // This class will be used as the element type for the vector inside
-    // 'TestSequenceWithVector' (see below).
 
     // PRIVATE DATA MEMBERS
     bsl::string d_callSequence;  // log of call sequence for this element
@@ -1515,22 +1515,24 @@ class TestVectorElemType {
     // Generated by compiler:
     //  TestVectorElemType& operator=(TestVectorElemType&);
 
+    /// Add the specified `call` to the call sequence for this element.
     void addCall(const bsl::string& call);
-        // Add the specified 'call' to the call sequence for this element.
 
     // ACCESSORS
+
+    /// Return a reference to the non-modifiable call sequence string for
+    /// this element.
     const bsl::string& callSequence() const;
-        // Return a reference to the non-modifiable call sequence string for
-        // this element.
 };
 
 // FREE OPERATORS
-bool operator==(const TestVectorElemType& lhs, const TestVectorElemType& rhs);
-    // Return 'true' if the specified 'lhs' has the same call sequence as the
-    // specified 'rhs'.
 
+/// Return `true` if the specified `lhs` has the same call sequence as the
+/// specified `rhs`.
+bool operator==(const TestVectorElemType& lhs, const TestVectorElemType& rhs);
+
+/// Output the specified `rhs` to the specified `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const TestVectorElemType& rhs);
-    // Output the specified 'rhs' to the specified 'stream'.
 
                           // ------------------------
                           // class TestVectorElemType
@@ -1573,8 +1575,8 @@ using baexml_Decoder_TestNamespace::TestVectorElemType;
 
 namespace baexml_Decoder_TestNamespace {
 
+/// A test sequence with 1 vector attribute.
 struct TestSequenceWithVector {
-    // A test sequence with 1 vector attribute.
 
     static bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
@@ -1708,21 +1710,21 @@ namespace baexml_Decoder_TestNamespace {
                              // class TestContext
                              // =================
 
+/// This class implements the `Decoder_ElementContext` protocol and is used
+/// to test the correct usage of this protocol by the parser.  When a method
+/// from the protocol is called, the method call is recorded by appending
+/// the method's name to the `d_callSequence` member, along with the
+/// arguments passed (if any).  This test context also checks that the error
+/// stream and warning stream returned by the `Decoder_ErrorReporter` object
+/// is the same error stream and warning stream that was passed to the
+/// `Decoder_ParserUtil::parse` function.
 class TestContext : public balxml::Decoder_ElementContext {
-    // This class implements the 'Decoder_ElementContext' protocol and is used
-    // to test the correct usage of this protocol by the parser.  When a method
-    // from the protocol is called, the method call is recorded by appending
-    // the method's name to the 'd_callSequence' member, along with the
-    // arguments passed (if any).  This test context also checks that the error
-    // stream and warning stream returned by the 'Decoder_ErrorReporter' object
-    // is the same error stream and warning stream that was passed to the
-    // 'Decoder_ParserUtil::parse' function.
 
     // PRIVATE DATA MEMBERS
     bsl::ostream&     d_callSequence;     // log of the call sequence
     bsl::string       d_elementName;      // element name
     bool              d_isInsideElement;  // true if we are inside
-                                          // 'startElement' and 'endElement'
+                                          // `startElement` and `endElement`
                                           // pair
     bslma::Allocator *d_allocator_p;      // allocator for supplying memory
 
@@ -1733,46 +1735,48 @@ class TestContext : public balxml::Decoder_ElementContext {
 
   public:
     // CREATORS
+
+    /// TBD: doc
     TestContext(bsl::ostream&     callSequence,
                 const char       *elementName,
                 bslma::Allocator *basicAllocator = 0);
-        // TBD: doc
 
+    /// TBD: doc
     ~TestContext() BSLS_KEYWORD_OVERRIDE;
-        // TBD: doc
 
     // CALLBACKS
+
+    /// Behavior is undefined if a previous successful call to
+    /// `startElement` was not ended with a successful call to `endElement`.
     int startElement(balxml::Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
-        // Behavior is undefined if a previous successful call to
-        // 'startElement' was not ended with a successful call to 'endElement'.
 
+    /// Behavior is undefined unless the most recent call to `startElement`
+    /// was successful and it was not already ended with a successful call
+    /// to `endElement`.
     int endElement(balxml::Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
-        // Behavior is undefined unless the most recent call to 'startElement'
-        // was successful and it was not already ended with a successful call
-        // to 'endElement'.
 
+    /// TBD: doc
+    ///
+    /// Behavior is undefined unless the most recent call to `startElement`
+    /// was successful and it was not already ended with a successful call
+    /// to `endElement`.
     int addCharacters(const char      *chars,
                       size_t           length,
                       balxml::Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
-        // TBD: doc
-        //
-        // Behavior is undefined unless the most recent call to 'startElement'
-        // was successful and it was not already ended with a successful call
-        // to 'endElement'.
 
+    /// TBD: doc
     int parseAttribute(const char      *name,
                        const char      *value,
                        size_t           lenValue,
                        balxml::Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
-        // TBD: doc
 
+    /// TBD: doc
+    ///
+    /// Behavior is undefined unless the most recent call to `startElement`
+    /// was successful and it was not already ended with a successful call
+    /// to `endElement`.
     int parseSubElement(const char      *elementName,
                         balxml::Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
-        // TBD: doc
-        //
-        // Behavior is undefined unless the most recent call to 'startElement'
-        // was successful and it was not already ended with a successful call
-        // to 'endElement'.
 };
 
                              // -----------------
@@ -1891,15 +1895,15 @@ namespace baexml_Decoder_TestNamespace {
                       // class TestVectorElemTypeContext
                       // ===============================
 
+/// This class implements the `Decoder_ElementContext` protocol and is used
+/// as the context for the `TestVectorElemType` class.  Each call back is
+/// recorded in the element object using the object's `addCall` method.
 class TestVectorElemTypeContext : public balxml::Decoder_ElementContext {
-    // This class implements the 'Decoder_ElementContext' protocol and is used
-    // as the context for the 'TestVectorElemType' class.  Each call back is
-    // recorded in the element object using the object's 'addCall' method.
 
     // PRIVATE DATA MEMBERS
     int                 d_currentDepth;  // used to keep track of depth so that
                                          // we can trigger an error inside
-                                         // 'startElement' and 'endElement'
+                                         // `startElement` and `endElement`
     TestVectorElemType *d_object_p;
 
   private:
@@ -1913,26 +1917,29 @@ class TestVectorElemTypeContext : public balxml::Decoder_ElementContext {
                                            // passed correctly
 
     // CREATORS
+
+    /// TBD: doc
     TestVectorElemTypeContext(TestVectorElemType *object,
                               bslma::Allocator   *basicAllocator = 0);
-        // TBD: doc
 
+    /// TBD: doc
     ~TestVectorElemTypeContext() BSLS_KEYWORD_OVERRIDE;
-        // TBD: doc
 
     // MANIPULATORS
+
+    /// Reassociate this context with the specified `object`.
     void reassociate(TestVectorElemType *object);
-        // Reassociate this context with the specified 'object'.
 
     // CALLBACKS
-    int startElement(balxml::Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
-        // Behavior is undefined if a previous successful call to
-        // 'startElement' was not ended with a successful call to 'endElement'.
 
+    /// Behavior is undefined if a previous successful call to
+    /// `startElement` was not ended with a successful call to `endElement`.
+    int startElement(balxml::Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
+
+    /// Behavior is undefined unless the most recent call to `startElement`
+    /// was successful and it was not already ended with a successful call
+    /// to `endElement`.
     int endElement(balxml::Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
-        // Behavior is undefined unless the most recent call to 'startElement'
-        // was successful and it was not already ended with a successful call
-        // to 'endElement'.
 
     int addCharacters(const char      *chars,
                       size_t           length,
@@ -1943,22 +1950,22 @@ class TestVectorElemTypeContext : public balxml::Decoder_ElementContext {
                        size_t           lenValue,
                        balxml::Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
 
+    /// TBD: doc
+    ///
+    /// Behavior is undefined unless the most recent call to `startElement`
+    /// was successful and it was not already ended with a successful call
+    /// to `endElement`.
     int parseSubElement(const char      *elementName,
                         balxml::Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
-        // TBD: doc
-        //
-        // Behavior is undefined unless the most recent call to 'startElement'
-        // was successful and it was not already ended with a successful call
-        // to 'endElement'.
 
+    /// TBD: doc
+    ///
+    /// Behavior is undefined unless the most recent call to `startElement`
+    /// was successful and it was not already ended with a successful call
+    /// to `endElement`.
     balxml::Decoder_ElementContext *createSubContext(
                                                   const char      *elementName,
                                                   balxml::Decoder *decoder);
-        // TBD: doc
-        //
-        // Behavior is undefined unless the most recent call to 'startElement'
-        // was successful and it was not already ended with a successful call
-        // to 'endElement'.
 };
 
                       // -------------------------------
@@ -2084,7 +2091,7 @@ balxml::Decoder_ElementContext *TestVectorElemTypeContext::createSubContext(
 using baexml_Decoder_TestNamespace::TestVectorElemTypeContext;
 
       // ===============================================================
-      // Associate 'TestVectorElemType' With 'TestVectorElemTypeContext'
+      // Associate `TestVectorElemType` With `TestVectorElemTypeContext`
       // ===============================================================
 
 namespace BloombergLP {
@@ -2155,10 +2162,10 @@ namespace s_baltst {
                                // class Messages
                                // ==============
 
+/// This class serves as a place holder to reserve a type having the same
+/// name as this component.  Doing so ensures that such a type cannot be
+/// defined outside of this component in the current namespace.
 struct Messages {
-    // This class serves as a place holder to reserve a type having the same
-    // name as this component.  Doing so ensures that such a type cannot be
-    // defined outside of this component in the current namespace.
 };
 
 }  // close namespace s_baltst
@@ -2199,11 +2206,11 @@ ostream& operator<<(ostream& stream, const vector<int>& object)
                             // class TestXmlElement
                             // ====================
 
+/// This in-core value-semantic type provides a structural representation of
+/// a subset of valid XML.  This class is intended to be used as an
+/// intermediate representation for generating (potentially large) XML texts
+/// using a set of factory functions.
 class TestXmlElement {
-    // This in-core value-semantic type provides a structural representation of
-    // a subset of valid XML.  This class is intended to be used as an
-    // intermediate representation for generating (potentially large) XML texts
-    // using a set of factory functions.
 
   public:
     // TYPES
@@ -2289,9 +2296,10 @@ class TestXmlElement {
     }
 
     // ACCESSORS
+
+    /// Write the value of this object to the specified output `stream` in
+    /// the XML format and return a reference to `stream`.
     bsl::ostream& print(bsl::ostream& stream) const
-        // Write the value of this object to the specified output 'stream' in
-        // the XML format and return a reference to 'stream'.
     {
         stream << "<" << d_name;
 
@@ -2340,9 +2348,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestXmlElement& object)
                              // struct TestXmlUtil
                              // ==================
 
+/// This utility `struct` provides a namespace for a suite of functions that
+/// construct `TestXmlElement` objects.
 struct TestXmlUtil {
-    // This utility 'struct' provides a namespace for a suite of functions that
-    // construct 'TestXmlElement' objects.
 
     // TYPES
     typedef TestXmlElement::Attribute Attribute;
@@ -2459,9 +2467,9 @@ struct TestXmlUtil {
                           // class GenerateXmlElement
                           // ========================
 
+/// This in-core value-semantic class provides a function object whose
+/// function call operator can be used to generate `TestXmlElement` objects.
 class GenerateXmlElement {
-    // This in-core value-semantic class provides a function object whose
-    // function call operator can be used to generate 'TestXmlElement' objects.
 
   public:
     // TYPES
@@ -2715,22 +2723,22 @@ class TestCase19Row {
 
 ///Implementation Note
 ///-------------------
-// The following tag type and 'bdlat' customization point function overloads
-// allow one to conditionally cause the associated 'bdlat' operations of
-// 'TestTaggedType' specializations having a 'TAG_TYPE' of
-// 'FailToManipulateSequenceTag' to return non-zero status codes.
+// The following tag type and `bdlat` customization point function overloads
+// allow one to conditionally cause the associated `bdlat` operations of
+// `TestTaggedType` specializations having a `TAG_TYPE` of
+// `FailToManipulateSequenceTag` to return non-zero status codes.
 
+/// This tag type may be used as the `TAG_TYPE` of a `TestTaggedType` in
+/// order to indicate that no `bdlat` operations of its underlying
+/// `VALUE_TYPE` are to be overloaded.
 struct DefaultTag {
-    // This tag type may be used as the 'TAG_TYPE' of a 'TestTaggedType' in
-    // order to indicate that no 'bdlat' operations of its underlying
-    // 'VALUE_TYPE' are to be overloaded.
 };
 
+/// This tag type may be used as the `TAG_TYPE` of a `TestTaggedType` in
+/// order to overload the `sequenceManipulateAttribute` and
+/// `typeCategoryManipulateSequence` operations of its underlying
+/// `VALUE_TYPE` with implementations that return non-zero.
 struct FailToManipulateSequenceTag {
-    // This tag type may be used as the 'TAG_TYPE' of a 'TestTaggedType' in
-    // order to overload the 'sequenceManipulateAttribute' and
-    // 'typeCategoryManipulateSequence' operations of its underlying
-    // 'VALUE_TYPE' with implementations that return non-zero.
 };
 
 template <class VALUE_TYPE, class MANIPULATOR>
@@ -2756,61 +2764,64 @@ int bdlat_typeCategoryManipulateSequence(
                         // class TestCase20RowProtocol
                         // ===========================
 
+/// This pure abstract base class provides a protocol for running test case
+/// 20, which tests that errors returned from `bdlat` operations of
+/// `DynamicType` objects having `Sequence` dynamic categories cause the
+/// whole decoding operation to fail.
 class TestCase20RowProtocol {
-    // This pure abstract base class provides a protocol for running test case
-    // 20, which tests that errors returned from 'bdlat' operations of
-    // 'DynamicType' objects having 'Sequence' dynamic categories cause the
-    // whole decoding operation to fail.
 
   public:
     // CREATORS
+
+    /// Destroy this object.
     virtual ~TestCase20RowProtocol()
-        // Destroy this object.
     {
     }
 
     // ACCESSORS
+
+    /// Return a managed pointer that manages a copy of the value of this
+    /// object.  Optionally specify a `basicAllocator` used to supply memory
+    /// to the resultant copy.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
     virtual bslma::ManagedPtr<TestCase20RowProtocol> clone(
                                bslma::Allocator *basicAllocator = 0) const = 0;
-        // Return a managed pointer that manages a copy of the value of this
-        // object.  Optionally specify a 'basicAllocator' used to supply memory
-        // to the resultant copy.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
 
+    /// Check some correctness properties of `balxml::Decoder` and increment
+    /// the global `testStatus` variable for each failed correctness check,
+    /// if any, and write relevant testing information to `bsl::cout` and/or
+    /// `bsl::cerr`.  Note that if no checks fail, the value of `testStatus`
+    /// is left unmodified.
     virtual void runTest() const = 0;
-        // Check some correctness properties of 'balxml::Decoder' and increment
-        // the global 'testStatus' variable for each failed correctness check,
-        // if any, and write relevant testing information to 'bsl::cout' and/or
-        // 'bsl::cerr'.  Note that if no checks fail, the value of 'testStatus'
-        // is left unmodified.
 };
 
                        // ==============================
                        // class TestCase20RowProtocolImp
                        // ==============================
 
+/// This concrete class provides an implementation of the
+/// `TestCase20RowProtocol` to verify some correctness properties of the
+/// `balxml::Decoder::decode` operation when applied to `VALUE_TYPE`
+/// objects.  See test case 20 for documentation for what specific checks
+/// are performed by this test.
 template <class VALUE_TYPE>
 class TestCase20RowProtocolImp : public TestCase20RowProtocol {
-    // This concrete class provides an implementation of the
-    // 'TestCase20RowProtocol' to verify some correctness properties of the
-    // 'balxml::Decoder::decode' operation when applied to 'VALUE_TYPE'
-    // objects.  See test case 20 for documentation for what specific checks
-    // are performed by this test.
 
   public:
     // TYPES
+
+    /// Alias to the `bdlat` value type for which this
+    /// `TestCase20RowProtocol` implementation supplies to
+    /// `balxml::Decoder::decode` in order to check some correctness
+    /// properties of the `decode` operation.
     typedef VALUE_TYPE Value;
-        // Alias to the 'bdlat' value type for which this
-        // 'TestCase20RowProtocol' implementation supplies to
-        // 'balxml::Decoder::decode' in order to check some correctness
-        // properties of the 'decode' operation.
 
   private:
     // DATA
     int            d_line;         // line number
     TestXmlElement d_xml;          // specification for xml to decode from
     bool d_decodeSuccessStatus;    // whether or not decoding should succeed
-    bsl::string d_loggedMessages;  // expected 'loggedMessages' after decode
+    bsl::string d_loggedMessages;  // expected `loggedMessages` after decode
 
     // NOT IMPLEMENTED
     TestCase20RowProtocolImp(const TestCase20RowProtocolImp&)
@@ -2832,18 +2843,19 @@ class TestCase20RowProtocolImp : public TestCase20RowProtocol {
     {
     }
 
+    /// Destroy this object.
     ~TestCase20RowProtocolImp() BSLS_KEYWORD_OVERRIDE
-        // Destroy this object.
     {
     }
 
     // ACCESSORS
+
+    /// Return a managed pointer that manages a copy of the value of this
+    /// object.  Optionally specify a `basicAllocator` used to supply memory
+    /// to the resultant copy.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
     bslma::ManagedPtr<TestCase20RowProtocol> clone(
               bslma::Allocator *basicAllocator = 0) const BSLS_KEYWORD_OVERRIDE
-        // Return a managed pointer that manages a copy of the value of this
-        // object.  Optionally specify a 'basicAllocator' used to supply memory
-        // to the resultant copy.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
     {
         bslma::Allocator *const allocator = bslma::Default::allocator(
                                                                 basicAllocator);
@@ -2858,13 +2870,13 @@ class TestCase20RowProtocolImp : public TestCase20RowProtocol {
             allocator);
     }
 
+    /// Check some correctness properties of `balxml::Decoder` and increment
+    /// the global `testStatus` variable for each failed correctness check,
+    /// if any, and write relevant testing information to `bsl::cout` and/or
+    /// `bsl::cerr`.  Note that if no checks fail, the value of `testStatus`
+    /// is left unmodified.   See test case 20 for documentation for what
+    /// specific checks are performed by this test.
     void runTest() const BSLS_KEYWORD_OVERRIDE
-        // Check some correctness properties of 'balxml::Decoder' and increment
-        // the global 'testStatus' variable for each failed correctness check,
-        // if any, and write relevant testing information to 'bsl::cout' and/or
-        // 'bsl::cerr'.  Note that if no checks fail, the value of 'testStatus'
-        // is left unmodified.   See test case 20 for documentation for what
-        // specific checks are performed by this test.
     {
         const int             LINE                  = d_line;
         const TestXmlElement& XML                   = d_xml;
@@ -2923,12 +2935,12 @@ class TestCase20RowProtocolImp : public TestCase20RowProtocol {
                             // class TestCase20Row
                             // ===================
 
+/// This class provides a wrapper around a specialization of
+/// `TestCase20RowProtocolImp` supplied on construction, and erases the
+/// associated `VALUE_TYPE`, so that multiple `TestCase20RowProtocolImp`
+/// specializations for different `VALUE_TYPE` types may be stored in an
+/// array of `TestCase20Row` in order to create a "test table".
 class TestCase20Row {
-    // This class provides a wrapper around a specialization of
-    // 'TestCase20RowProtocolImp' supplied on construction, and erases the
-    // associated 'VALUE_TYPE', so that multiple 'TestCase20RowProtocolImp'
-    // specializations for different 'VALUE_TYPE' types may be stored in an
-    // array of 'TestCase20Row' in order to create a "test table".
 
     // PRIVATE
     bslma::ManagedPtr<TestCase20RowProtocol>  d_imp;          // managed imp
@@ -2961,13 +2973,13 @@ class TestCase20Row {
     {
     }
 
+    /// Check some correctness properties of `balxml::Decoder` and increment
+    /// the global `testStatus` variable for each failed correctness check,
+    /// if any, and write relevant testing information to `bsl::cout` and/or
+    /// `bsl::cerr`.  Note that if no checks fail, the value of `testStatus`
+    /// is left unmodified.   See test case 20 for documentation for what
+    /// specific checks are performed by this test.
     void runTest() const
-        // Check some correctness properties of 'balxml::Decoder' and increment
-        // the global 'testStatus' variable for each failed correctness check,
-        // if any, and write relevant testing information to 'bsl::cout' and/or
-        // 'bsl::cerr'.  Note that if no checks fail, the value of 'testStatus'
-        // is left unmodified.   See test case 20 for documentation for what
-        // specific checks are performed by this test.
     {
         d_imp->runTest();
     }
@@ -2985,7 +2997,7 @@ class TestCase20Row {
 ///-------------------
 // The below set of string variables use constant-initialization, have external
 // linkage, and have static storage duration so that they may be used as
-// arguments for non-type template parameters (of 'const char *' type).
+// arguments for non-type template parameters (of `const char *` type).
 
 // DATA
 extern const char attribute0Name[] = "attribute0";
@@ -3003,19 +3015,19 @@ namespace Utf8Test {
                                 // class RandGen
                                 // =============
 
+/// Random number generator using the high-order 32 bits of Donald Knuth's
+/// MMIX algorithm.
 class RandGen {
-    // Random number generator using the high-order 32 bits of Donald Knuth's
-    // MMIX algorithm.
 
     bsls::Types::Uint64 d_seed;
 
   public:
+    /// Initialize the generator with the specified `startSeed`.
     explicit
     RandGen(int startSeed = 0);
-        // Initialize the generator with the specified 'startSeed'.
 
+    /// Return the next random number in the series;
     unsigned operator()();
-        // Return the next random number in the series;
 };
 
 // CREATOR
@@ -3160,79 +3172,79 @@ void validAndInvalidUtf8Test(Mode mode, bool exhaustive = false)
     // TESTING VALID & INVALID UTF-8
     //
     // Run tests on valid and invalid UTF-8 injected into an XML message, where
-    // the specified 'mode' determines whether the information passed to the
+    // the specified `mode` determines whether the information passed to the
     // decoder is:
-    //: o In string form.
-    //:
-    //: o In a file.
-    //:
-    //: o In a 'bsl::istream'.
-    //:
-    //: o In a 'bsl::streambuf'.
+    //  - In string form.
+    //
+    //  - In a file.
+    //
+    //  - In a `bsl::istream`.
+    //
+    //  - In a `bsl::streambuf`.
     //
     // Concerns:
-    //: 1 The decoder successfully parses XML data having non-ASCII UTF-8
-    //:   content when UTF-8 checking is enabled.
-    //:
-    //: 2 The decoder fails to parse invalid UTF-8 data, reports the line
-    //:   number and column number of the location of the start of the invalid
-    //:   UTF-8, and reports the type of error when UTF-8 checking is enabled
+    // 1. The decoder successfully parses XML data having non-ASCII UTF-8
+    //    content when UTF-8 checking is enabled.
+    //
+    // 2. The decoder fails to parse invalid UTF-8 data, reports the line
+    //    number and column number of the location of the start of the invalid
+    //    UTF-8, and reports the type of error when UTF-8 checking is enabled
     //
     // Plan:
-    //: 1 Start with 'xmlRaw', a string containing a sequence of syntactically
-    //:   correct XML describing a valid 'SimpleRequest'.
-    //:   o 'xmlRaw' begins with 'header', another string.  When the decoder is
-    //:     opened, it will immediately read all of header without being called
-    //:     to decode anything.  So if the test expects errors, in some cases
-    //:     those errors will be reported by the 'open' function, before
-    //:     'decode' is called.
-    //:
-    //: 2 The 'mode' argument determines what form the data is read in.  The
-    //:   data can come as a string, the contents of a file, via a
-    //:   'bsl::istream', or in a 'bsl::streambuf'.  The rest of the test is
-    //:   identical, except that we do things in the case where the mode is
-    //:   'e_FILE' to do fewer tests and speed up the test, because creating
-    //:   the file and reading from it are orders of magnitude slower than the
-    //:   other means of providing the data to the decoder.
-    //:
-    //: 3 Do a loop to test valid non-ascii UTF-8 sequences.
-    //:   o Inject random correct UTF-8 sequences into a copy of 'xmlRaw' into
-    //:     places where the resulting string will be syntactically correct
-    //:     XML.
-    //:
-    //:   o The only places where random valid UTF-8 can be inserted into
-    //:     'xmlRaw' without causing a syntax error is in the payload of the
-    //:     'data' field, which starts out as "Woof".  Iterate twice, inserting
-    //:     the random valid UTF-8 string before and after "Woof", and observe
-    //:     that when we examing[examining] the 'data' field of the decoded
-    //:     'SimpleRequest', that the exact UTF-8 we injected is where we
-    //:     expect it.
-    //:
-    //: 4 Do a loop test with invalid non-ascii UTF-8 sequences.
-    //:   o Inject random incorrect non-ascii UTF-8 sequences at random
-    //:     positions into a copy of 'xmlRaw'.  (Note that we don't inject them
-    //:     at location 0 -- this just results in an 'open' failure without a
-    //:     UTF-8 information as the minireader thinks it hit EOF on the first
-    //:     byte).
-    //:
-    //:   o Open the decoder in one of 4 ways according to 'mode'.
-    //:
-    //:   o If the position of the bad UTF-8 was before the end of 'header', we
-    //:     expect the open to have failed, otherwise not.  Check this.
-    //:
-    //:   o If the open failed, attempt to decode a 'SimpleRequest'.
-    //:
-    //:   o Observe that now we have an error rcode , either from 'open' or
-    //:     from 'decode'.  Examine the results:
-    //:     1 Call 'TC::findLoc' to determine the expected line # and column #
-    //:       where the error occurred.
-    //:
-    //:     2 Check the line # in 'errorInfo'.
-    //:
-    //:     3 Check the column # in 'errorInfo'.
-    //:
-    //:     4 Check that 'errorInfo.msg()' contains the string description of
-    //:       the UTF-8 error as given by 'bdlde::Utf8Util::toAscii'.
+    // 1. Start with `xmlRaw`, a string containing a sequence of syntactically
+    //    correct XML describing a valid `SimpleRequest`.
+    //    - `xmlRaw` begins with `header`, another string.  When the decoder is
+    //      opened, it will immediately read all of header without being called
+    //      to decode anything.  So if the test expects errors, in some cases
+    //      those errors will be reported by the `open` function, before
+    //      `decode` is called.
+    //
+    // 2. The `mode` argument determines what form the data is read in.  The
+    //    data can come as a string, the contents of a file, via a
+    //    `bsl::istream`, or in a `bsl::streambuf`.  The rest of the test is
+    //    identical, except that we do things in the case where the mode is
+    //    `e_FILE` to do fewer tests and speed up the test, because creating
+    //    the file and reading from it are orders of magnitude slower than the
+    //    other means of providing the data to the decoder.
+    //
+    // 3. Do a loop to test valid non-ascii UTF-8 sequences.
+    //    - Inject random correct UTF-8 sequences into a copy of `xmlRaw` into
+    //      places where the resulting string will be syntactically correct
+    //      XML.
+    //
+    //    - The only places where random valid UTF-8 can be inserted into
+    //      `xmlRaw` without causing a syntax error is in the payload of the
+    //      `data` field, which starts out as "Woof".  Iterate twice, inserting
+    //      the random valid UTF-8 string before and after "Woof", and observe
+    //      that when we examing[examining] the `data` field of the decoded
+    //      `SimpleRequest`, that the exact UTF-8 we injected is where we
+    //      expect it.
+    //
+    // 4. Do a loop test with invalid non-ascii UTF-8 sequences.
+    //    - Inject random incorrect non-ascii UTF-8 sequences at random
+    //      positions into a copy of `xmlRaw`.  (Note that we don't inject them
+    //      at location 0 -- this just results in an `open` failure without a
+    //      UTF-8 information as the minireader thinks it hit EOF on the first
+    //      byte).
+    //
+    //    - Open the decoder in one of 4 ways according to `mode`.
+    //
+    //    - If the position of the bad UTF-8 was before the end of `header`, we
+    //      expect the open to have failed, otherwise not.  Check this.
+    //
+    //    - If the open failed, attempt to decode a `SimpleRequest`.
+    //
+    //    - Observe that now we have an error rcode , either from `open` or
+    //      from `decode`.  Examine the results:
+    //     1. Call `TC::findLoc` to determine the expected line # and column #
+    //        where the error occurred.
+    //
+    //     2. Check the line # in `errorInfo`.
+    //
+    //     3. Check the column # in `errorInfo`.
+    //
+    //     4. Check that `errorInfo.msg()` contains the string description of
+    //        the UTF-8 error as given by `bdlde::Utf8Util::toAscii`.
     //------------------------------------------------------------------------
 {
     namespace TC = Utf8Test;
@@ -3440,8 +3452,8 @@ void validAndInvalidUtf8Test(Mode mode, bool exhaustive = false)
         BSLS_ASSERT(bsl::strlen(fileName) < sizeof(fileName));
     }
 
-    // Try to set 'mod' so that the tests are done in less that about 7
-    // seconds.  Higher values of 'mod' result in less of the randomized
+    // Try to set `mod` so that the tests are done in less that about 7
+    // seconds.  Higher values of `mod` result in less of the randomized
     // testing, and hence faster run times.
 
     const int mod = TC::e_FILE != mode || exhaustive
@@ -3535,7 +3547,7 @@ void validAndInvalidUtf8Test(Mode mode, bool exhaustive = false)
               } break;
               case TC::e_END: BSLA_FALLTHROUGH;
               default: {
-                BSLS_ASSERT_INVOKE_NORETURN("invalid mode in 'open'");
+                BSLS_ASSERT_INVOKE_NORETURN("invalid mode in `open`");
               }
             }
 
@@ -3603,9 +3615,9 @@ void validAndInvalidUtf8Test(Mode mode, bool exhaustive = false)
                 }
             }
 
-            // Modes 'e_FILE' and 'e_ISTREAM' read from a file and need
+            // Modes `e_FILE` and `e_ISTREAM` read from a file and need
             // a file to be created for them.  The modes are adjacent
-            // in the 'enum', so save time by creating the file once
+            // in the `enum`, so save time by creating the file once
             // and using it in both modes.
 
             if (veryVeryVerbose) { T2_   T2_   P_(mode);   P(badPos); }
@@ -3713,67 +3725,67 @@ void runTestCase19()
     // TEST CASE DOCUMENTATION IS REPEATED HERE SO IT IS WITH THE CODE.  It is
     // indented wrong so it does not have to be reformatted here if it needs a
     // change.  Make sure that anything you change here is also changed in
-    // 'main' and vice versa.
+    // `main` and vice versa.
     //---+
         // --------------------------------------------------------------------
         // TESTING NILLABLE ELEMENT DECODING
-        //   This case tests the 'balxml::Decoder::decode' operation when
+        //   This case tests the `balxml::Decoder::decode` operation when
         //   decoding objects that may or may not be "nullable", and may or may
         //   not have the "nillable" formatting mode applied.  In general, it
         //   is expected that absent XML tags decode to null values, and
-        //   self-closing tags with the attribute 'xsi:nil="true"' decode
+        //   self-closing tags with the attribute `xsi:nil="true"` decode
         //   to null values only if the corresponding attribute is marked
         //   nillable.  For backwards compatibility, it is expected that
         //   self-closing tags with no attributes also decode to null values
         //   only if the corresponding attribute is marked nillable.
         //
         // Concerns:
-        //: 1 Attributes of sequence types and selections of choice types that
-        //:   do not have the "nillable" formatting mode decode non-null values
-        //:   from XML representations of their value.
-        //:
-        //: 2 Attributes of sequence types and selections of choice types that
-        //:   do not have the "nillable" formatting mode decode null values
-        //:   absent XML tags.
-        //:
-        //: 3 Attributes of sequence types and selections of choice types
-        //:   that have the "nillable" formatting mode decode non-null values
-        //:   from XML representations of their value.
-        //:
-        //: 4 Attributes of sequence types and selections of choice types
-        //:   that have the "nillable" formatting mode decode null values from
-        //:   absent XML tags, self-closing tags with no attributes, and
-        //:   self-closing tags with the attribute 'xsi:nil="true"'.
-        //:
-        //: 5 Nullable types decode XML representations of their underlying
-        //:   value as non-null values.
-        //:
-        //: 6 Nullable types decode absent tags as the null value.
-        //:
-        //: 7 The above 6 properties hold for arbitrary nesting and
-        //:   permutation of 'bdlat' concept implementations.  For example,
-        //:   these properties should not only hold for a sequence of two
-        //:   integers, but also a sequence of an enumeration and a choice
-        //:   between an integer and a string.
+        // 1. Attributes of sequence types and selections of choice types that
+        //    do not have the "nillable" formatting mode decode non-null values
+        //    from XML representations of their value.
+        //
+        // 2. Attributes of sequence types and selections of choice types that
+        //    do not have the "nillable" formatting mode decode null values
+        //    absent XML tags.
+        //
+        // 3. Attributes of sequence types and selections of choice types
+        //    that have the "nillable" formatting mode decode non-null values
+        //    from XML representations of their value.
+        //
+        // 4. Attributes of sequence types and selections of choice types
+        //    that have the "nillable" formatting mode decode null values from
+        //    absent XML tags, self-closing tags with no attributes, and
+        //    self-closing tags with the attribute `xsi:nil="true"`.
+        //
+        // 5. Nullable types decode XML representations of their underlying
+        //    value as non-null values.
+        //
+        // 6. Nullable types decode absent tags as the null value.
+        //
+        // 7. The above 6 properties hold for arbitrary nesting and
+        //    permutation of `bdlat` concept implementations.  For example,
+        //    these properties should not only hold for a sequence of two
+        //    integers, but also a sequence of an enumeration and a choice
+        //    between an integer and a string.
         //
         // Plan:
-        //: 1 Create objects enumerating all 8 'bdlat' attribute type concepts,
-        //:   and where applicable, recursively up to a depth of 2.
-        //:
-        //: 2 For each of the above objects, create a variant that is non-null
-        //:   but not nillable, a variant that is null but not nillable, a
-        //:   variant that is non-null and nillable, and a variant that is null
-        //:   and nillable.
-        //:
-        //: 3 For each of the above objects, verify that their XML decoded
-        //:   values created by 'balxml::Decoder::decode' satisfy the 6
-        //:   properties defined in the "Concerns".
+        // 1. Create objects enumerating all 8 `bdlat` attribute type concepts,
+        //    and where applicable, recursively up to a depth of 2.
+        //
+        // 2. For each of the above objects, create a variant that is non-null
+        //    but not nillable, a variant that is null but not nillable, a
+        //    variant that is non-null and nillable, and a variant that is null
+        //    and nillable.
+        //
+        // 3. For each of the above objects, verify that their XML decoded
+        //    values created by `balxml::Decoder::decode` satisfy the 6
+        //    properties defined in the "Concerns".
         //
         // Testing:
         //   int decode(bsl::streambuf *buffer, TYPE *object);
         // --------------------------------------------------------------------
 
-    // Abbreviations for the names of 'bdlat' concept test implementations,
+    // Abbreviations for the names of `bdlat` concept test implementations,
     // which will become the tag names of the XML they generate.
     const bsl::string_view S = "MySequence";
     const bsl::string_view C = "MyChoice";
@@ -3800,7 +3812,7 @@ void runTestCase19()
     const bsl::string_view D0 = "1.5";
 
     // Abbreviations for function objects used to generate objects that
-    // implement various 'bdlat' attribute type concepts.
+    // implement various `bdlat` attribute type concepts.
     const s_baltst::GenerateTestArray          a;
     const s_baltst::GenerateTestChoice         c;
     const s_baltst::GenerateTestCustomizedType ct;
@@ -3903,14 +3915,14 @@ void runTestCase19()
 // Code restructuring made it possible to build this test driver on AIX/IBM xlC
 // again.  Should out of memory errors start happening again while compiling
 // this file on IBM/AIX using xlC please uncomment the following line, and the
-// '#undef' at the end of this function.
+// `#undef` at the end of this function.
 #define U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
 #endif
 
     ///Implementation Note
     ///-------------------
     // The following test table shares its structure with the table in case 14
-    // of the 'balxml_encoder' component test driver.  These two test cases
+    // of the `balxml_encoder` component test driver.  These two test cases
     // share an identical test table structure in order to verify that,
     // abstractly, the encoding and decoding operations they perform are
     // "consistent".  Note that the "encoding result" is unused in this test
@@ -3922,7 +3934,7 @@ void runTestCase19()
     // lines with a "1" after the asterisk verify the nullness of decoded
     // values of omitted tags, lines with a "2" verify the nullness of decoded
     // values of self-closing tags, and lines with a "3" verify the nullness of
-    // decoded values of self-closing tags with  an 'xsi:nil="true"' attribute.
+    // decoded values of self-closing tags with  an `xsi:nil="true"` attribute.
 
     static const TestCase19Row DATA[] = {
 //v----------------^                ENCODING RESULT
@@ -4246,17 +4258,17 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
 //      <xs:element name='Employee' type='test:Employee'/>
 //
 //  </xs:schema>
-//..
-// Using the 'bde_xsdcc.pl' tool, we can generate C++ classes for this schema:
-//..
+// ```
+// Using the `bde_xsdcc.pl` tool, we can generate C++ classes for this schema:
+// ```
 //  $ bde_xsdcc.pl -g h -g cpp -p test xsdfile.xsd
-//..
+// ```
 // This tool will generate the header and implementation files for the
-// 'test_address' and 'test_employee' components in the current directory.
+// `test_address` and `test_employee` components in the current directory.
 //
-// The following function decodes an XML string into a 'Test::Employee' object
+// The following function decodes an XML string into a `Test::Employee` object
 // and verifies the results:
-//..
+// ```
 //  #include <test_employee.h>
 
     using namespace BloombergLP;
@@ -4295,16 +4307,16 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
 
         return 0;
     }
-//..
+// ```
 //
 ///Usage Example 2
 ///---------------
 // The following snippets of code illustrate how to pass an error stream and
-// warning stream to the 'decode' function.  We will use the same
-// 'test_employee' component from the previous usage example.  Note that the
-// input XML string contains an error.  (The 'homeAddress' object has an
-// element called 'country', which does not exist in the schema.):
-//..
+// warning stream to the `decode` function.  We will use the same
+// `test_employee` component from the previous usage example.  Note that the
+// input XML string contains an error.  (The `homeAddress` object has an
+// element called `country`, which does not exist in the schema.):
+// ```
 //  #include <test_employee.h>
 
     using namespace BloombergLP;
@@ -4343,17 +4355,17 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
 
         return 0;
     }
-//..
+// ```
 // Note that the input stream is invalidated to indicate that an error
 // occurred.  Also note that the following error message will be printed on
-// 'bsl::cerr':
-//..
+// `bsl::cerr`:
+// ```
 //  employee.xml:8.18: Error: Unable to decode sub-element 'country'.\n"
 //  employee.xml:8.18: Error: Unable to decode sub-element 'homeAddress'.\n";
-//..
+// ```
 // The following snippets of code illustrate how to open decoder and read the
-// first node before calling 'decode':
-//..
+// first node before calling `decode`:
+// ```
     int usageExample3()
     {
         const char INPUT[] =
@@ -4379,16 +4391,16 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
                                 &bsl::cerr,
                                 &bsl::cerr);
 
-//..
+// ```
 // Now we open the document, but we don't begin decoding yet:
-//..
+// ```
         int rc = decoder.open(INPUT, sizeof(INPUT) - 1);
         ASSERT(0 == rc);
-//..
+// ```
 // Depending on the value of the first node, we can now determine whether the
-// document is an 'Address' object or an 'Employee' object, and construct the
+// document is an `Address` object or an `Employee` object, and construct the
 // target object accordingly:
-//..
+// ```
         if (0 == bsl::strcmp(reader.nodeLocalName(), "Address")) {
             Test::Address addr;
             rc = decoder.decode(&addr);
@@ -4401,13 +4413,13 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
         }
 
         ASSERT(0 == rc);
-//..
+// ```
 // When decoding is complete, we must close the decoder object:
-//..
+// ```
         decoder.close();
         return 0;
     }
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -4423,7 +4435,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -4431,27 +4443,27 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // DECODING CUSTOMIZED HEX AND BASE64 BINARY DATA
         //   This case tests that the decoder can decode elements that are
-        //   restrictions of 'xs:hexBinary' and 'xs:base64Binary' types.  These
-        //   types are represented as 'bdlat' customized types having
-        //   'bsl::vector<char>' as a base type, and are distinguished by their
+        //   restrictions of `xs:hexBinary` and `xs:base64Binary` types.  These
+        //   types are represented as `bdlat` customized types having
+        //   `bsl::vector<char>` as a base type, and are distinguished by their
         //   formatting mode.  The former type has the "hex" mode, and the
         //   latter has the "base64" mode.
         //
         // Concerns:
-        //: 1 Customized types having a 'bsl::vector<char>' base types are
-        //:   decodable if they have the hex or base64 formatting mode.
+        // 1. Customized types having a `bsl::vector<char>` base types are
+        //    decodable if they have the hex or base64 formatting mode.
         //
         // Plan:
-        //: 1 Decode a test sequence type that contains an attribute having a
-        //:   customized 'bsl::vector<char>' type with the base64 formatting
-        //:   mode from input that is valid according to the XSD specification
-        //:   for a restriction on a 'xs:base64Binary' and verify success.
-        //:   (C-1)
-        //:
-        //: 2 Decode a test sequence type that contains an attribute having a
-        //:   customized 'bsl::vector<char>' type with the hex formatting
-        //:   mode from input that is valid according to the XSD specification
-        //:   for a restriction on a 'xs:hexBinary' and verify success. (C-1)
+        // 1. Decode a test sequence type that contains an attribute having a
+        //    customized `bsl::vector<char>` type with the base64 formatting
+        //    mode from input that is valid according to the XSD specification
+        //    for a restriction on a `xs:base64Binary` and verify success.
+        //    (C-1)
+        //
+        // 2. Decode a test sequence type that contains an attribute having a
+        //    customized `bsl::vector<char>` type with the hex formatting
+        //    mode from input that is valid according to the XSD specification
+        //    for a restriction on a `xs:hexBinary` and verify success. (C-1)
         //
         // Testing:
         //   DECODING CUSTOMIZED HEX AND BASE64 BINARY DATA
@@ -4592,14 +4604,14 @@ int main(int argc, char *argv[])
         // REPRODUCE SCENARIO FROM DRQS 171405619
         //
         // Concerns:
-        //: 1 Decoding a XML input that does not match the type of the class
-        //:   being decoded should cause an error.
-        //:
+        // 1. Decoding a XML input that does not match the type of the class
+        //    being decoded should cause an error.
+        //
         //
         // Plan:
-        //: 1 Attempt to decode some XML that contains a structure named
-        //:   'ErrorEmployee1' into a 'Employee'.   Verify that an error is
-        //:   reported. (C-1)
+        // 1. Attempt to decode some XML that contains a structure named
+        //    `ErrorEmployee1` into a `Employee`.   Verify that an error is
+        //    reported. (C-1)
         //
         // Testing:
         //   DRQS 171405619
@@ -4676,21 +4688,21 @@ int main(int argc, char *argv[])
         // REPRODUCE SCENARIO FROM DRQS 169438741
         //
         // Concerns:
-        //: 1 Encoded 'bdlt::Date' and 'bdlt::DateTz' values can be decoded to
-        //:   'bdlb::Variant2<bdlt::Date, bdlt::DateTz>' object.
-        //:
-        //: 2 Encoded 'bdlt::Time' and 'bdlt::TimeTz' values can be decoded to
-        //:   'bdlb::Variant2<bdlt::Time, bdlt::TimeTz>' object.
-        //:
-        //: 3 Encoded 'bdlt::Datetime' and 'bdlt::DatetimeTz' values can be
-        //:   decoded to 'bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>'
-        //:   object.
+        // 1. Encoded `bdlt::Date` and `bdlt::DateTz` values can be decoded to
+        //    `bdlb::Variant2<bdlt::Date, bdlt::DateTz>` object.
+        //
+        // 2. Encoded `bdlt::Time` and `bdlt::TimeTz` values can be decoded to
+        //    `bdlb::Variant2<bdlt::Time, bdlt::TimeTz>` object.
+        //
+        // 3. Encoded `bdlt::Datetime` and `bdlt::DatetimeTz` values can be
+        //    decoded to `bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>`
+        //    object.
         //
         // Plan:
-        //: 1 For a number of different XML date-and-time representations,
-        //:   enumerate XML arrays of such elements and verify that the XML
-        //:   array decodes into the corresponding 'bsl::vector' value.
-        //:   (C-1..3)
+        // 1. For a number of different XML date-and-time representations,
+        //    enumerate XML arrays of such elements and verify that the XML
+        //    array decodes into the corresponding `bsl::vector` value.
+        //    (C-1..3)
         //
         // Testing:
         //   DRQS 169438741
@@ -4715,7 +4727,7 @@ int main(int argc, char *argv[])
                                     &bsl::cerr,
                                     &bsl::cerr);
 
-            // Testing 'bdlt::Date' and 'bdltDateTz'.
+            // Testing `bdlt::Date` and `bdltDateTz`.
             {
                 const bsl::string_view INPUT =
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
@@ -4762,7 +4774,7 @@ int main(int argc, char *argv[])
                         EXP_DATE3 == dateVector[3].the<bdlt::DateTz>());
             }
 
-            // Testing 'bdlt::Time' and 'bdltTimeTz'.
+            // Testing `bdlt::Time` and `bdltTimeTz`.
             {
                 const bsl::string_view INPUT =
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
@@ -4809,7 +4821,7 @@ int main(int argc, char *argv[])
                         EXP_TIME3 == timeVector[3].the<bdlt::TimeTz>());
             }
 
-            // Testing 'bdlt::Datetime' and 'bdltDatetimeTz'.
+            // Testing `bdlt::Datetime` and `bdltDatetimeTz`.
             {
                 const bsl::string_view INPUT =
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
@@ -4862,11 +4874,11 @@ int main(int argc, char *argv[])
         // Testing Decimal64
         //
         // Concerns:
-        //: 1 That the decoder can encoder a field of type 'Decimal64'.
+        // 1. That the decoder can encoder a field of type `Decimal64`.
         //
         // Plan:
-        //: 1 Copy the style of translation done in the breathing test to
-        //:   translate a single object of 'bdldfp::Decimal64' type.
+        // 1. Copy the style of translation done in the breathing test to
+        //    translate a single object of `bdldfp::Decimal64` type.
         //
         // Testing:
         //   Type Decimal64
@@ -4939,49 +4951,49 @@ int main(int argc, char *argv[])
       case 20: {
         // --------------------------------------------------------------------
         // TESTING ERROR CODE PROPOGATION FOR DYNAMIC TYPES
-        //   This case tests that the 'balxml::Decoder::decode' operation
-        //   returns a non-zero value when it invokes a 'bdlat' manipulation
+        //   This case tests that the `balxml::Decoder::decode` operation
+        //   returns a non-zero value when it invokes a `bdlat` manipulation
         //   operation of a dynamic type that returns a non-zero value.
         //
         // Concerns:
-        //: 1 Attempting to decode XML into a 'bdlat' 'Sequence' object that
-        //:   returns a non-zero value when its 'manipulatAttribute' operation
-        //:   is invoked causes the whole decoding operation to fail, and
-        //:   thereby also return non-zero.  Note that the decoder invokes
-        //:   'manipulateAttribute' on any 'Sequence' object in order to load
-        //:   values into its attribute(s).
-        //:
-        //: 2 Attempting to decode XML into a 'bdlat' 'Sequence' object that
-        //:   returns zero for all 'bdlat' operations causes the whole decode
-        //:   operation to succeed, and thereby also return zero.
-        //:
-        //: 3 Attempting to decode XML into a 'bdlat' 'DynamicType' object
-        //:   that has a dynamic category of 'Sequence' and that returns a
-        //:   non-zero value when its 'typeCategoryManipulateSequence'
-        //:   operation is invoked causes the whole decoding operation to fail,
-        //:   and thereby also return non-zero.  Note that the decoder invokes
-        //:   'typeCategoryManipulateSequence' in order to load a value into
-        //:   any 'DynamicType' object having a 'Sequence' dynamic category.
-        //:
-        //: 4 Attempting to decode XML into a 'bdlat' 'DynamicType' object
-        //:   that has a dynamic category of 'Sequence' and that returns
-        //:   zero for all 'bdlat' operations causes the whole decode
-        //:   operation to succeed, and thereby also return zero.
+        // 1. Attempting to decode XML into a `bdlat` `Sequence` object that
+        //    returns a non-zero value when its `manipulatAttribute` operation
+        //    is invoked causes the whole decoding operation to fail, and
+        //    thereby also return non-zero.  Note that the decoder invokes
+        //    `manipulateAttribute` on any `Sequence` object in order to load
+        //    values into its attribute(s).
+        //
+        // 2. Attempting to decode XML into a `bdlat` `Sequence` object that
+        //    returns zero for all `bdlat` operations causes the whole decode
+        //    operation to succeed, and thereby also return zero.
+        //
+        // 3. Attempting to decode XML into a `bdlat` `DynamicType` object
+        //    that has a dynamic category of `Sequence` and that returns a
+        //    non-zero value when its `typeCategoryManipulateSequence`
+        //    operation is invoked causes the whole decoding operation to fail,
+        //    and thereby also return non-zero.  Note that the decoder invokes
+        //    `typeCategoryManipulateSequence` in order to load a value into
+        //    any `DynamicType` object having a `Sequence` dynamic category.
+        //
+        // 4. Attempting to decode XML into a `bdlat` `DynamicType` object
+        //    that has a dynamic category of `Sequence` and that returns
+        //    zero for all `bdlat` operations causes the whole decode
+        //    operation to succeed, and thereby also return zero.
         //
         // Plan:
-        //: 1 Verify that decoding suitable XML into a 'Sequence' object that
-        //:   returns zero for all 'bdlat' operations succeeds.
-        //:
-        //: 2 Verify the same property for such a 'Sequence' wrapped in a
-        //:   'TestTaggedValue' that overrides no operations of the
-        //:   underlying 'Sequence'.
-        //:
-        //: 3 Verify that wrapping such a 'Sequence' in a 'TestTaggedValue'
-        //:   that causes some 'bdlat' operations to fail during decoding
-        //:   causes the decoding operation to fail.
-        //:
-        //: 4 Verify the above 3 properties for a 'Sequence' object that is
-        //:   wrapped in a 'TestDynamicType'.
+        // 1. Verify that decoding suitable XML into a `Sequence` object that
+        //    returns zero for all `bdlat` operations succeeds.
+        //
+        // 2. Verify the same property for such a `Sequence` wrapped in a
+        //    `TestTaggedValue` that overrides no operations of the
+        //    underlying `Sequence`.
+        //
+        // 3. Verify that wrapping such a `Sequence` in a `TestTaggedValue`
+        //    that causes some `bdlat` operations to fail during decoding
+        //    causes the decoding operation to fail.
+        //
+        // 4. Verify the above 3 properties for a `Sequence` object that is
+        //    wrapped in a `TestDynamicType`.
         //
         // Testing:
         //   int decode(bsl::streambuf *buffer, TYPE *object);
@@ -4989,42 +5001,46 @@ int main(int argc, char *argv[])
 
         const bsl::string_view D = "MyDynamicType";
         const bsl::string_view S = "MySequence";
+
+        // Abbreviations for the names of `bdlat` concept test
+        // implementations, which will become the tag names of the XML they
+        // generate.
         const bsl::string_view T = "MyTaggedValue";
-            // Abbreviations for the names of 'bdlat' concept test
-            // implementations, which will become the tag names of the XML they
-            // generate.
 
+        // Abbreviation for an attribute name.
         const bsl::string_view A0 = "attribute0";
-            // Abbreviation for an attribute name.
 
+        // Abbreviation for a test value.
         const bsl::string_view I1 = "1";
-            // Abbreviation for a test value.
 
         typedef s_baltst::TestAttribute<0, attribute0Name> Attribute0;
+
+        // Abbreviation for a sequence attribute.
         const Attribute0                         a0;
-            // Abbreviation for a sequence attribute.
 
         const s_baltst::TestPlaceHolder<int>                   i_;
         const s_baltst::GenerateTestDynamicPlaceHolder     d_;
         const s_baltst::GenerateTestSequencePlaceHolder    s_;
+
+        // Abbreviations for function objects used to generate
+        // placeholders.
         const s_baltst::GenerateTestTaggedValuePlaceHolder t_;
-            // Abbreviations for function objects used to generate
-            // placeholders.
 
         const s_baltst::TestPlaceHolder<DefaultTag>                  td_;
+
+        // Abbreviations for tag type place holders used to control the
+        // overload resolution for `bdlat` customization point functions
+        // for `TestTaggedValue` specializations with the corresponding
+        // tag.
         const s_baltst::TestPlaceHolder<FailToManipulateSequenceTag> tf_;
-            // Abbreviations for tag type place holders used to control the
-            // overload resolution for 'bdlat' customization point functions
-            // for 'TestTaggedValue' specializations with the corresponding
-            // tag.
 
+        // Abbreviation for a function object used to generate XML document
+        // structures for printing.
         const GenerateXmlElement x;
-            // Abbreviation for a function object used to generate XML document
-            // structures for printing.
 
+        /// Abbreviation for the type used to implement each row of this
+        /// table-based test.
         typedef TestCase20Row R;
-            // Abbreviation for the type used to implement each row of this
-            // table-based test.
 
         enum {
             // Abbreviations for boolean values.
@@ -5033,81 +5049,81 @@ int main(int argc, char *argv[])
             yes = true
         };
 
+        /// `IntAttribute0` is an alias for a type that specifies an
+        /// attribute of a sequence having the type `int`, Id `0`, and name
+        /// `attribute0`.
         typedef s_baltst::TypedTestAttribute<int, Attribute0> IntAttribute0;
-            // 'IntAttribute0' is an alias for a type that specifies an
-            // attribute of a sequence having the type 'int', Id '0', and name
-            // 'attribute0'.
 
+        /// `ObjType` is an alias for a type that specifies a sequence
+        /// having one attribute, where that attribute is specified by
+        /// `IntAttribute0`.  This type is prefixed with `Obj` because it is
+        /// the "object" of the test, or more specifically, as an invariant
+        /// in the structure of the output parameter of the decoding
+        /// operation.
         typedef s_baltst::TestSequence<IntAttribute0> ObjType;
-            // 'ObjType' is an alias for a type that specifies a sequence
-            // having one attribute, where that attribute is specified by
-            // 'IntAttribute0'.  This type is prefixed with 'Obj' because it is
-            // the "object" of the test, or more specifically, as an invariant
-            // in the structure of the output parameter of the decoding
-            // operation.
 
+        // `obj` is a placeholder for an object of `ObjType`, used to
+        // specify the type of the object to be used as the output
+        // parameter of a decoding operation.
         const s_baltst::TestPlaceHolder<ObjType> obj;
-            // 'obj' is a placeholder for an object of 'ObjType', used to
-            // specify the type of the object to be used as the output
-            // parameter of a decoding operation.
 
+        // `OBJ` is an abbreviation for an XML structure that always
+        // successfully decodes into an object of type `ObjType`.  This
+        // object is labeled "OBJ" because it is the input-side dual to
+        // "Obj".  It also characterizes the "object" of the test, meaning
+        // that it is an invariant part of the structure of the input to
+        // the decoding operation performed in this test.
         const TestXmlElement       OBJ = x(A0, I1);
-            // 'OBJ' is an abbreviation for an XML structure that always
-            // successfully decodes into an object of type 'ObjType'.  This
-            // object is labeled "OBJ" because it is the input-side dual to
-            // "Obj".  It also characterizes the "object" of the test, meaning
-            // that it is an invariant part of the structure of the input to
-            // the decoding operation performed in this test.
 
+        // `SuccessMsg` is an abbreviation for the value of the
+        // `loggedMessages` attribute of a `balxml::Decoder` after a
+        // successful decoding operation.
         const bsl::string_view SuccessMsg = "";
-            // 'SuccessMsg' is an abbreviation for the value of the
-            // 'loggedMessages' attribute of a 'balxml::Decoder' after a
-            // successful decoding operation.
 
+        // `TagFailMsg` is an abbreviation for the value of the
+        // `loggedMessages` attribute of a `balxml::Decoder` after failing
+        // to decode an `attribute0` element.
         const bsl::string_view TagFailMsg =
                 "STREAM.xml:1.28: Error: Unable to decode sub-element "
                 "'attribute0'.\n";
-            // 'TagFailMsg' is an abbreviation for the value of the
-            // 'loggedMessages' attribute of a 'balxml::Decoder' after failing
-            // to decode an 'attribute0' element.
 
+        // `DynTagFailMsg` is an abbreviation for the value of the
+        // `loggedMessages` attribute of a `balxml::Decoder` after failing
+        // to decode an object with the `Dynamic` `bdlat` type category
+        // due to a failure in the `bdlat_typeCategoryManipulateSequence`
+        // function.
         const bsl::string_view DynTagFailMsg =
                 "STREAM.xml:1.16: Error: The object being decoded is a "
                 "'DynamicType', and attempting to manipulate the object by "
                 "its dynamic category returned a non-zero status.\n";
-            // 'DynTagFailMsg' is an abbreviation for the value of the
-            // 'loggedMessages' attribute of a 'balxml::Decoder' after failing
-            // to decode an object with the 'Dynamic' 'bdlat' type category
-            // due to a failure in the 'bdlat_typeCategoryManipulateSequence'
-            // function.
 
         static const TestCase20Row DATA[] = {
             //LINE VALUE PLACEHOLDER    XML     DECODING SUCCESS STATUS
             //---- ----------------- ---------- -----------------------
             R(L_  ,            obj  , x(S, OBJ), yes, SuccessMsg   ),
-                // Verify that decoding into a 'Sequence' that returns zero for
-                // all 'bdlat' operations succeeds.
+                // Verify that decoding into a `Sequence` that returns zero for
+                // all `bdlat` operations succeeds.
 
             R(L_  , t_(td_,    obj ), x(T, OBJ), yes, SuccessMsg   ),
-                // Verify the same property for a 'Sequence' wrapped in a
-                // 'TestTaggedValue' that does not change the behavior of the
+                // Verify the same property for a `Sequence` wrapped in a
+                // `TestTaggedValue` that does not change the behavior of the
                 // underlying sequence.
 
             R(L_  , t_(tf_,    obj ), x(T, OBJ), no , TagFailMsg   ),
                 // Verify that, for the same sequence value, wrapping it in a
-                // 'TestTaggedValue' that overrides the 'manipulateAttribute'
+                // `TestTaggedValue` that overrides the `manipulateAttribute`
                 // operation to return non-zero causes the decode operation to
                 // fail.
 
             R(L_  ,         d_(obj) , x(D, OBJ), yes, SuccessMsg   ),
             R(L_  , t_(td_, d_(obj)), x(T, OBJ), yes, SuccessMsg   ),
-                // Verify the above first two properties for 'DynamicType'
-                // objects having a dynamic type wrapping the above 'Sequence'.
+                // Verify the above first two properties for `DynamicType`
+                // objects having a dynamic type wrapping the above `Sequence`.
 
             R(L_  , t_(tf_, d_(obj)), x(T, OBJ), no , DynTagFailMsg),
-                // And note that this 'TestTaggedValue' overrides the
-                // 'typeCategoryManipulateSequence' operation of the
-                // 'DynamicType' to return non-zero, which should also cause
+                // And note that this `TestTaggedValue` overrides the
+                // `typeCategoryManipulateSequence` operation of the
+                // `DynamicType` to return non-zero, which should also cause
                 // the decode operation to fail.
         };
 
@@ -5122,63 +5138,63 @@ int main(int argc, char *argv[])
       } break;
       case 19: {
         //---------------------------------------------------------------------
-        // TEST CASE DOCUMENTATION IS REPEATED IN THE 'runTestCase19()'
+        // TEST CASE DOCUMENTATION IS REPEATED IN THE `runTestCase19()`
         // function so it is also near the actual test code.  Make sure that
-        // anything you change here, you also changed in 'runTestCase19()' and
+        // anything you change here, you also changed in `runTestCase19()` and
         // vice versa.
         // --------------------------------------------------------------------
         // TESTING NILLABLE ELEMENT DECODING
-        //   This case tests the 'balxml::Decoder::decode' operation when
+        //   This case tests the `balxml::Decoder::decode` operation when
         //   decoding objects that may or may not be "nullable", and may or may
         //   not have the "nillable" formatting mode applied.  In general, it
         //   is expected that absent XML tags decode to null values, and
-        //   self-closing tags with the attribute 'xsi:nil="true"' decode
+        //   self-closing tags with the attribute `xsi:nil="true"` decode
         //   to null values only if the corresponding attribute is marked
         //   nillable.  For backwards compatibility, it is expected that
         //   self-closing tags with no attributes also decode to null values
         //   only if the corresponding attribute is marked nillable.
         //
         // Concerns:
-        //: 1 Attributes of sequence types and selections of choice types that
-        //:   do not have the "nillable" formatting mode decode non-null values
-        //:   from XML representations of their value.
-        //:
-        //: 2 Attributes of sequence types and selections of choice types that
-        //:   do not have the "nillable" formatting mode decode null values
-        //:   absent XML tags.
-        //:
-        //: 3 Attributes of sequence types and selections of choice types
-        //:   that have the "nillable" formatting mode decode non-null values
-        //:   from XML representations of their value.
-        //:
-        //: 4 Attributes of sequence types and selections of choice types
-        //:   that have the "nillable" formatting mode decode null values from
-        //:   absent XML tags, self-closing tags with no attributes, and
-        //:   self-closing tags with the attribute 'xsi:nil="true"'.
-        //:
-        //: 5 Nullable types decode XML representations of their underlying
-        //:   value as non-null values.
-        //:
-        //: 6 Nullable types decode absent tags as the null value.
-        //:
-        //: 7 The above 6 properties hold for arbitrary nesting and
-        //:   permutation of 'bdlat' concept implementations.  For example,
-        //:   these properties should not only hold for a sequence of two
-        //:   integers, but also a sequence of an enumeration and a choice
-        //:   between an integer and a string.
+        // 1. Attributes of sequence types and selections of choice types that
+        //    do not have the "nillable" formatting mode decode non-null values
+        //    from XML representations of their value.
+        //
+        // 2. Attributes of sequence types and selections of choice types that
+        //    do not have the "nillable" formatting mode decode null values
+        //    absent XML tags.
+        //
+        // 3. Attributes of sequence types and selections of choice types
+        //    that have the "nillable" formatting mode decode non-null values
+        //    from XML representations of their value.
+        //
+        // 4. Attributes of sequence types and selections of choice types
+        //    that have the "nillable" formatting mode decode null values from
+        //    absent XML tags, self-closing tags with no attributes, and
+        //    self-closing tags with the attribute `xsi:nil="true"`.
+        //
+        // 5. Nullable types decode XML representations of their underlying
+        //    value as non-null values.
+        //
+        // 6. Nullable types decode absent tags as the null value.
+        //
+        // 7. The above 6 properties hold for arbitrary nesting and
+        //    permutation of `bdlat` concept implementations.  For example,
+        //    these properties should not only hold for a sequence of two
+        //    integers, but also a sequence of an enumeration and a choice
+        //    between an integer and a string.
         //
         // Plan:
-        //: 1 Create objects enumerating all 8 'bdlat' attribute type concepts,
-        //:   and where applicable, recursively up to a depth of 2.
-        //:
-        //: 2 For each of the above objects, create a variant that is non-null
-        //:   but not nillable, a variant that is null but not nillable, a
-        //:   variant that is non-null and nillable, and a variant that is null
-        //:   and nillable.
-        //:
-        //: 3 For each of the above objects, verify that their XML decoded
-        //:   values created by 'balxml::Decoder::decode' satisfy the 6
-        //:   properties defined in the "Concerns".
+        // 1. Create objects enumerating all 8 `bdlat` attribute type concepts,
+        //    and where applicable, recursively up to a depth of 2.
+        //
+        // 2. For each of the above objects, create a variant that is non-null
+        //    but not nillable, a variant that is null but not nillable, a
+        //    variant that is non-null and nillable, and a variant that is null
+        //    and nillable.
+        //
+        // 3. For each of the above objects, verify that their XML decoded
+        //    values created by `balxml::Decoder::decode` satisfy the 6
+        //    properties defined in the "Concerns".
         //
         // Testing:
         //   int decode(bsl::streambuf *buffer, TYPE *object);
@@ -5193,37 +5209,37 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING THE 'TestXmlElement' TEST FACILITY
-        //   The subsequent test case uses the 'TestXmlElement' class in order
+        // TESTING THE `TestXmlElement` TEST FACILITY
+        //   The subsequent test case uses the `TestXmlElement` class in order
         //   to provide a concise notation for describing XML documents.  This
-        //   case tests the printing operations of 'TestXmlElement'.
+        //   case tests the printing operations of `TestXmlElement`.
         //
         // Concerns:
-        //: 1 Elements having no attributes nor any content print as
-        //:   self-closing elements with no attributes.
-        //:
-        //: 2 Elements having content but no attributes print as an opening
-        //:   element, the content, and a closing element.
-        //:
-        //: 3 Content may be text or zero or more child elements.
-        //:
-        //: 4 When printed, each attribute is separated from the previous token
-        //:   by 1 space character.
-        //:
-        //: 5 Printing supports arbitrary levels of nesting of attributes,
-        //:   child elements, and content.
+        // 1. Elements having no attributes nor any content print as
+        //    self-closing elements with no attributes.
+        //
+        // 2. Elements having content but no attributes print as an opening
+        //    element, the content, and a closing element.
+        //
+        // 3. Content may be text or zero or more child elements.
+        //
+        // 4. When printed, each attribute is separated from the previous token
+        //    by 1 space character.
+        //
+        // 5. Printing supports arbitrary levels of nesting of attributes,
+        //    child elements, and content.
         //
         // Plan:
-        //: 1 Given a set of attribute sequences and a set of content, create
-        //:   a simple XML element object given each element of the cartesian
-        //:   product of those sets.
-        //:
-        //: 2 Print each of the resulting simple XML element objects, and
-        //:   verify that the resulting text is valid XML and that it
-        //:   represents the same value as the object.
-        //:
-        //: 3 Our test points explore the space of 0 to 3 attributes, elements,
-        //:   and nesting.  Deeper tests would not be qualitatively different.
+        // 1. Given a set of attribute sequences and a set of content, create
+        //    a simple XML element object given each element of the cartesian
+        //    product of those sets.
+        //
+        // 2. Print each of the resulting simple XML element objects, and
+        //    verify that the resulting text is valid XML and that it
+        //    represents the same value as the object.
+        //
+        // 3. Our test points explore the space of 0 to 3 attributes, elements,
+        //    and nesting.  Deeper tests would not be qualitatively different.
         //
         // Testing:
         //   TestXmlElement(*bA = 0);
@@ -5237,14 +5253,14 @@ int main(int argc, char *argv[])
         // abbreviation for the type under test
         typedef TestXmlElement X;
 
-        // abbreviation for a 'bsl::pair<bsl::string, bsl::string>', used as
+        // abbreviation for a `bsl::pair<bsl::string, bsl::string>`, used as
         // a key-value pair
         typedef X::Attribute  Attribute;
-        // abbreviation for a 'bsl::vector<Attribute>'
+        // abbreviation for a `bsl::vector<Attribute>`
         typedef X::Attributes Attributes;
-        // abbreviation for a 'bsl::vector<X>'
+        // abbreviation for a `bsl::vector<X>`
         typedef X::Elements   Elements;
-        // abbreviation for a 'bdlb::Variant<Elements, bsl::string>'
+        // abbreviation for a `bdlb::Variant<Elements, bsl::string>`
         typedef X::Content    Content;
 
         // attribute 0
@@ -5327,7 +5343,7 @@ int main(int argc, char *argv[])
         static const struct {
             int             d_line;    // line number
             TestXmlElement  d_xml;     // XML object representation
-            const char     *d_string;  // expected printout of 'd_xml'
+            const char     *d_string;  // expected printout of `d_xml`
         } DATA[] = {
             //  LINE
             // /      XML OBJECT         EXPECTED PRINTOUT OF XML OBJECT
@@ -5518,7 +5534,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Copy the usage examples from the component-level documentation,
-        //   replace 'assert' with 'ASSERT', and check that they compile and
+        //   replace `assert` with `ASSERT`, and check that they compile and
         //   run as expected.
         //
         // Testing:
@@ -5535,7 +5551,7 @@ int main(int argc, char *argv[])
          "employee.xml:8.18: Error: Unable to decode sub-element"
             " 'homeAddress'.\n";
 
-        // Redirect standard error to 'errorStream'.
+        // Redirect standard error to `errorStream`.
         bsl::stringstream errorStream;
         bsl::streambuf *cerrBuf = bsl::cerr.rdbuf();
         bsl::cerr.rdbuf(errorStream.rdbuf());
@@ -5544,8 +5560,8 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(errorStream.str(), USAGE2_ERRORS == errorStream.str());
         if (verbose) bsl::cout << errorStream.str();
 
-        // Redirect standard output to 'outStream' and standard error to
-        // 'errorStream'.
+        // Redirect standard output to `outStream` and standard error to
+        // `errorStream`.
         bsl::stringstream outStream;
         bsl::streambuf *coutBuf = bsl::cout.rdbuf();
         errorStream.str("");
@@ -5568,7 +5584,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Decode an XML element using a binding adaptor with
-        //   'balxml::Decoder'.
+        //   `balxml::Decoder`.
         //
         // Testing:
         //   static bsl::istream& decode(istream&,
@@ -13405,8 +13421,8 @@ int main(int argc, char *argv[])
     };
     const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-    // The 'SCHEMA' string is not used, but is provided for reference, so that
-    // 'DATA' can be externally validated.
+    // The `SCHEMA` string is not used, but is provided for reference, so that
+    // `DATA` can be externally validated.
 
     const char SCHEMA[] =
         "<?xml version='1.0' encoding='UTF-8'?>\n"
@@ -14093,8 +14109,8 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING 'decode' FUNCTIONS
-        //   This will test the 'decode' functions in the 'Decoder'
+        // TESTING `decode` FUNCTIONS
+        //   This will test the `decode` functions in the `Decoder`
         //   namespace.
         //
         // Concerns:
@@ -14102,18 +14118,18 @@ int main(int argc, char *argv[])
         //   cases.  In this test, we only have the following concerns:
         //
         //       - the value passed in is reset before parsing.
-        //       - the 'Decoder_SelectContext' meta-function is used
+        //       - the `Decoder_SelectContext` meta-function is used
         //         correctly.
         //       - the XML name for the object is correctly passed to the
-        //         'Decoder_ParserUtil::parse' function.
-        //       - the versions that use 'istream' instead of 'streambuf' for
+        //         `Decoder_ParserUtil::parse` function.
+        //       - the versions that use `istream` instead of `streambuf` for
         //         input should invalidate the stream if there is an error.
         //
         // Plan:
-        //   Use 'TestSequence2' for the 'TYPE' parameter.  Exercise each
+        //   Use `TestSequence2` for the `TYPE` parameter.  Exercise each
         //   function with valid and invalid input.  Check that the return
         //   value is as expected and, if successful, check that the object
-        //   contains the expected value.  For the versions that use 'istream',
+        //   contains the expected value.  For the versions that use `istream`,
         //   check that the input stream is invalidated if there is an error.
         //
         // Testing:
@@ -14123,7 +14139,7 @@ int main(int argc, char *argv[])
         //   int balxml::Decoder::decode(istrm&, TYPE, ostrm&, ostrm&, b_A*);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'decode' Functions"
+        if (verbose) cout << "\nTesting `decode` Functions"
                           << "\n==========================" << endl;
 
         typedef TestSequence2 TS;  // shorthand
@@ -14246,7 +14262,7 @@ int main(int argc, char *argv[])
             options.setSkipUnknownElements(false);
             options.setValidateInputIsUtf8(CHECK_UTF8);
 
-            // display error messages on 'bsl::cerr' only if errors are not
+            // display error messages on `bsl::cerr` only if errors are not
             // expected or if very very very verbose
             bsl::ostream& outStream
                               = (0 == EXPECTED_RET_CODE || veryVeryVeryVerbose)
@@ -14347,7 +14363,7 @@ int main(int argc, char *argv[])
             options.setSkipUnknownElements(false);
             options.setValidateInputIsUtf8(CHECK_UTF8);
 
-            // display error messages on 'bsl::cerr' only if errors are not
+            // display error messages on `bsl::cerr` only if errors are not
             // expected or if very very very verbose
             bsl::ostream& outStream
                               = (0 == EXPECTED_RET_CODE || veryVeryVeryVerbose)
@@ -14376,7 +14392,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nEnd of 'decode' Functions Test." << endl;
+        if (verbose) cout << "\nEnd of `decode` Functions Test." << endl;
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -14393,7 +14409,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Decoding of Simple Content"
                           << "\n==================================" << endl;
 
-        if (verbose) cout << "\nUsing 'MySimpleContent'." << endl;
+        if (verbose) cout << "\nUsing `MySimpleContent`." << endl;
         {
             typedef Test::MySimpleContent Type;
 
@@ -14468,7 +14484,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'MySimpleIntContent'." << endl;
+        if (verbose) cout << "\nUsing `MySimpleIntContent`." << endl;
         {
             typedef Test::MySimpleIntContent Type;
 
@@ -14550,7 +14566,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Decoding of XML Attributes"
                           << "\n==================================" << endl;
 
-        if (verbose) cout << "\nUsing 'MySequenceWithAttributes'." << endl;
+        if (verbose) cout << "\nUsing `MySequenceWithAttributes`." << endl;
         {
             typedef Test::MySequenceWithAttributes Type;
 
@@ -14665,7 +14681,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Decoding of Anonymous Choice"
                           << "\n====================================" << endl;
 
-        if (verbose) cout << "\nUsing 'MySequenceWithAnonymousChoice'."
+        if (verbose) cout << "\nUsing `MySequenceWithAnonymousChoice`."
                           << endl;
         {
             typedef Test::MySequenceWithAnonymousChoice Type;
@@ -14763,7 +14779,7 @@ int main(int argc, char *argv[])
       case 10: {
         // --------------------------------------------------------------------
         // TESTING balxml::Decoder_StdVectorCharContext
-        //   This will test the 'Decoder_StdVectorCharContext' class
+        //   This will test the `Decoder_StdVectorCharContext` class
         //   template.
         //
         // Concerns:
@@ -14774,11 +14790,11 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   For each item in a set of test data, create an instance of the
-        //   'Decoder_StdVectorCharContext' class and associate it with an
-        //   'bsl::vector<char>' object that has been set to some arbitrary
+        //   `Decoder_StdVectorCharContext` class and associate it with an
+        //   `bsl::vector<char>` object that has been set to some arbitrary
         //   initial value, and a formatting mode from the test vector.  Call
-        //   the 'Decoder_ParserUtil::parse' function using the context and
-        //   ensure that the associated 'bsl::vector<char>' has the expected
+        //   the `Decoder_ParserUtil::parse` function using the context and
+        //   ensure that the associated `bsl::vector<char>` has the expected
         //   value.
         //
         // Testing:
@@ -14847,7 +14863,7 @@ int main(int argc, char *argv[])
                                       INIT_VALUE.data() + INIT_VALUE.size());
             bsl::ostream      nullStream(0);
 
-            // display error messages on 'bsl::cerr' only if errors are not
+            // display error messages on `bsl::cerr` only if errors are not
             // expected or if very very very verbose
             bsl::ostream& outStream = (veryVeryVeryVerbose)
                                       ? bsl::cerr
@@ -14887,7 +14903,7 @@ int main(int argc, char *argv[])
       case 9: {
         // --------------------------------------------------------------------
         // TESTING balxml::Decoder_StdStringContext
-        //   This will test the 'Decoder_StdStringContext' class template.
+        //   This will test the `Decoder_StdStringContext` class template.
         //
         // Concerns:
         //   This context must be able to select and initialize an appropriate
@@ -14897,11 +14913,11 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   For each item in a set of test data, create an instance of the
-        //   'Decoder_StdStringContext' class and associate it with an
-        //   'bsl::string' object that has been set to some arbitrary initial
+        //   `Decoder_StdStringContext` class and associate it with an
+        //   `bsl::string` object that has been set to some arbitrary initial
         //   value, and a formatting mode from the test vector.  Call the
-        //   'Decoder_ParserUtil::parse' function using the context and
-        //   ensure that the associated 'bsl::string' has the expected value.
+        //   `Decoder_ParserUtil::parse` function using the context and
+        //   ensure that the associated `bsl::string` has the expected value.
         //
         // Testing:
         //   balxml::Decoder_StdStringContext
@@ -14961,7 +14977,7 @@ int main(int argc, char *argv[])
             bsl::string                result1 = INIT_VALUE;
             bsl::ostream               nullStream(0);
 
-            // display error messages on 'bsl::cerr' only if errors are not
+            // display error messages on `bsl::cerr` only if errors are not
             // expected or if very very very verbose
             bsl::ostream& outStream = (veryVeryVeryVerbose)
                                       ? bsl::cerr
@@ -14996,7 +15012,7 @@ int main(int argc, char *argv[])
       case 8: {
         // --------------------------------------------------------------------
         // TESTING balxml::Decoder_ChoiceContext<TYPE>
-        //   This will test the 'Decoder_ChoiceContext' class template.
+        //   This will test the `Decoder_ChoiceContext` class template.
         //
         // Concerns:
         //   This context must be able to handle choice types with varying
@@ -15008,21 +15024,21 @@ int main(int argc, char *argv[])
         //   can successfully parse the selected choice.
         //
         // Plan:
-        //   Use the following types for the 'TYPE' template parameter:
+        //   Use the following types for the `TYPE` template parameter:
         //       - TestChoice0
         //       - TestChoice1
         //       - TestChoice2
         //   Each of these types (defined above) represents a struct that
-        //   supports the 'bdlat_ChoiceFunctions'.  The number at the end of
+        //   supports the `bdlat_ChoiceFunctions`.  The number at the end of
         //   the struct name indicates the number of selections in the
         //   sequence.
         //
         //   For each choice type, create a set of XML test input data.  For
         //   each item in this set of test data, create an instance of the
-        //   corresponding 'Decoder_ChoiceContext<TYPE>' class and
+        //   corresponding `Decoder_ChoiceContext<TYPE>` class and
         //   associate it with a choice object that has been set to some
         //   arbitrary initial value.  Call the
-        //   'Decoder_ParserUtil::parse' function using the context and
+        //   `Decoder_ParserUtil::parse` function using the context and
         //   ensure that the associated choice object has the expected value.
         //
         // Testing:
@@ -15035,16 +15051,16 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing TestChoice0." << endl;
         {
-            // Here we will test the 'Decoder_ChoiceContext' class template
+            // Here we will test the `Decoder_ChoiceContext` class template
             // using a choice with 0 selections.  We cannot really test much
             // here.  We can only test the following errors:
             //     - invalid characters (i.e., non-whitespace).
             //     - invalid selections.
             // Note that this is a very trivial test.  We cannot test the value
             // of the decoded object (since there are no selections).  Our
-            // primary concern in this test is that the 'NUM_SELECTION_RECORDS'
+            // primary concern in this test is that the `NUM_SELECTION_RECORDS`
             // constant inside the context class is set correctly to 1 instead
-            // of 0 so that the declaration of the 'd_selectionRecords' array
+            // of 0 so that the declaration of the `d_selectionRecords` array
             // does not fail to compile.
 
             static const struct Data {
@@ -15102,7 +15118,7 @@ int main(int argc, char *argv[])
 
                 bsl::ostream nullStream(0);
 
-                // display error messages on 'bsl::cerr' only if errors are not
+                // display error messages on `bsl::cerr` only if errors are not
                 // expected or if very very very verbose
                 bsl::ostream& outStream
                               = (0 == EXPECTED_RET_CODE || veryVeryVeryVerbose)
@@ -15132,7 +15148,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing TestChoice1." << endl;
         {
-            // Here we will test the 'Decoder_ChoiceContext' class template
+            // Here we will test the `Decoder_ChoiceContext` class template
             // using a choice with 1 selection.  We will test the following
             // errors:
             //     - no choices made
@@ -15239,7 +15255,7 @@ int main(int argc, char *argv[])
 
                 bsl::ostream nullStream(0);
 
-                // display error messages on 'bsl::cerr' only if errors are not
+                // display error messages on `bsl::cerr` only if errors are not
                 // expected or if very very very verbose
                 bsl::ostream& outStream
                               = (0 == EXPECTED_RET_CODE || veryVeryVeryVerbose)
@@ -15274,7 +15290,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing TestChoice2." << endl;
         {
-            // Here we will test the 'Decoder_ChoiceContext' class template
+            // Here we will test the `Decoder_ChoiceContext` class template
             // using a choice with 2 selections.  We will test the following
             // errors:
             //     - no choices made
@@ -15430,7 +15446,7 @@ int main(int argc, char *argv[])
 
                 bsl::ostream nullStream(0);
 
-                // display error messages on 'bsl::cerr' only if errors are not
+                // display error messages on `bsl::cerr` only if errors are not
                 // expected or if very very very verbose
                 bsl::ostream& outStream
                               = (0 == EXPECTED_RET_CODE || veryVeryVeryVerbose)
@@ -15469,7 +15485,7 @@ int main(int argc, char *argv[])
       case 7: {
         // --------------------------------------------------------------------
         // TESTING balxml::Decoder_SequenceContext<TYPE>
-        //   This will test the 'Decoder_SequenceContext' class
+        //   This will test the `Decoder_SequenceContext` class
         //   template.
         //
         // Concerns:
@@ -15482,21 +15498,21 @@ int main(int argc, char *argv[])
         //   underlying parser can successfully parse these sub-elements.
         //
         // Plan:
-        //   Use the following types for the 'TYPE' template parameter:
+        //   Use the following types for the `TYPE` template parameter:
         //       - TestSequence0
         //       - TestSequence1
         //       - TestSequence2
         //   Each of these types (defined above) represents a struct that
-        //   supports the 'bdlat_SequenceFunctions'.  The number at the end of
+        //   supports the `bdlat_SequenceFunctions`.  The number at the end of
         //   the struct name indicates the number of attributes in the
         //   sequence.
         //
         //   For each sequence type, create a set of XML test input data.  For
         //   each item in this set of test data, create an instance of the
-        //   corresponding 'Decoder_SequenceContext<TYPE>' class and
+        //   corresponding `Decoder_SequenceContext<TYPE>` class and
         //   associate it with a sequence object that has been set to some
         //   arbitrary initial value.  Call the
-        //   'Decoder_ParserUtil::parse' function using the context and
+        //   `Decoder_ParserUtil::parse` function using the context and
         //   ensure that the associated sequence object has the expected value.
         //
         // Testing:
@@ -15509,7 +15525,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing TestSequence0." << endl;
         {
-            // Here we will test the 'Decoder_SequenceContext' class template
+            // Here we will test the `Decoder_SequenceContext` class template
             // using a sequence with 0 attributes.  We cannot really test
             // min/max occurrences here.  We can only test the following
             // errors:
@@ -15517,9 +15533,9 @@ int main(int argc, char *argv[])
             //     - invalid sub-elements.
             // Note that this is a very trivial test.  We cannot test the value
             // of the decoded object (since there are no sub-elements).  Our
-            // primary concern in this test is that the 'NUM_ATTRIBUTE_RECORDS'
+            // primary concern in this test is that the `NUM_ATTRIBUTE_RECORDS`
             // constant inside the context class is set correctly to 1 instead
-            // of 0 so that the declaration of the 'd_attributeRecords' array
+            // of 0 so that the declaration of the `d_attributeRecords` array
             // does not fail to compile.
 
             static const struct Data {
@@ -15577,7 +15593,7 @@ int main(int argc, char *argv[])
 
                 bsl::ostream nullStream(0);
 
-                // display error messages on 'bsl::cerr' only if errors are not
+                // display error messages on `bsl::cerr` only if errors are not
                 // expected or if very very very verbose
                 bsl::ostream& outStream
                               = (0 == EXPECTED_RET_CODE || veryVeryVeryVerbose)
@@ -15607,7 +15623,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing TestSequence1." << endl;
         {
-            // Here we will test the 'Decoder_SequenceContext' class template
+            // Here we will test the `Decoder_SequenceContext` class template
             // using a sequence with 1 attribute.  We will test the following
             // errors:
             //     - insufficient occurrences
@@ -15721,7 +15737,7 @@ int main(int argc, char *argv[])
 
                 bsl::ostream nullStream(0);
 
-                // display error messages on 'bsl::cerr' only if errors are not
+                // display error messages on `bsl::cerr` only if errors are not
                 // expected or if very very very verbose
                 bsl::ostream& outStream
                               = (0 == EXPECTED_RET_CODE || veryVeryVeryVerbose)
@@ -15756,7 +15772,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing TestSequence2." << endl;
         {
-            // Here we will test the 'Decoder_SequenceContext' class template
+            // Here we will test the `Decoder_SequenceContext` class template
             // using a sequence with 2 attributes.  We will test the following
             // errors:
             //     - insufficient occurrences
@@ -15772,7 +15788,7 @@ int main(int argc, char *argv[])
             // object has the expected value.  Note that this test is very
             // similar to the test using a sequence with 1 attribute.  Our main
             // concern in this test is that the context indexes the
-            // 'd_attributeRecords' array correctly.
+            // `d_attributeRecords` array correctly.
 
             typedef TestSequence2 TS;  // shorthand for test sequence type
 
@@ -15945,7 +15961,7 @@ int main(int argc, char *argv[])
 
                 bsl::ostream nullStream(0);
 
-                // display error messages on 'bsl::cerr' only if errors are not
+                // display error messages on `bsl::cerr` only if errors are not
                 // expected or if very very very verbose
                 bsl::ostream& outStream
                               = (0 == EXPECTED_RET_CODE || veryVeryVeryVerbose)
@@ -15978,7 +15994,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'MySequenceWithNullables'." << endl;
+        if (verbose) cout << "\nUsing `MySequenceWithNullables`." << endl;
         {
             typedef Test::MySequenceWithNullables Type;
 
@@ -16064,7 +16080,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'MySequenceWithNillables'." << endl;
+        if (verbose) cout << "\nUsing `MySequenceWithNillables`." << endl;
         {
             typedef Test::MySequenceWithNillables Type;
 
@@ -16159,40 +16175,40 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // TESTING balxml::Decoder_ParseObject
-        //   This will test the 'Decoder_ParseObject' function class.
+        //   This will test the `Decoder_ParseObject` function class.
         //
         // Concerns:
-        //   When the function object is called, the correct 'execute' method
-        //   must be called (i.e., for 'TYPE's that fall into the
-        //   'bdlat_ArrayCategory' (except 'bsl::vector<char>'), the object
+        //   When the function object is called, the correct `execute` method
+        //   must be called (i.e., for `TYPE`s that fall into the
+        //   `bdlat_ArrayCategory` (except `bsl::vector<char>`), the object
         //   must grow by one and the function object must be called
-        //   recursively for the newly added element.  For other 'TYPE's, the
-        //   'execute' method must create an appropriate context for the
-        //   element and call the 'parse' method for the parser).
+        //   recursively for the newly added element.  For other `TYPE`s, the
+        //   `execute` method must create an appropriate context for the
+        //   element and call the `parse` method for the parser).
         //
         // Plan:
-        //   Construct a 'Decoder_ParseObject' function object using a
-        //   pointer to a 'TestParser' object.  Execute the function object
-        //   using 'int' and 'bsl::vector<char>' for the parameterized 'TYPE'.
+        //   Construct a `Decoder_ParseObject` function object using a
+        //   pointer to a `TestParser` object.  Execute the function object
+        //   using `int` and `bsl::vector<char>` for the parameterized `TYPE`.
         //   These types are used because they use the
-        //   'Decoder_SimpleContext' and the
-        //   'Decoder_Base64Context' contexts, which have already been
+        //   `Decoder_SimpleContext` and the
+        //   `Decoder_Base64Context` contexts, which have already been
         //   tested thoroughly.  After executing the function object, check
         //   that the values stored in the objects are as expected.
         //
-        //   Next, exercise the function object using a 'bsl::vector<int>'
+        //   Next, exercise the function object using a `bsl::vector<int>`
         //   object.  Check that each time the function object is executed, the
         //   vector grows by one and the element at the end has the expected
         //   value.
         //
-        //   Since the 'INFO_TYPE' parameter is ignored, we can just use a
+        //   Since the `INFO_TYPE` parameter is ignored, we can just use a
         //   dummy.
         //
         // Testing:
         //   balxml::Decoder_ParseObject
         // --------------------------------------------------------------------
 
-        //if (verbose) cout << "\nTesting 'Decoder_ParseObject'"
+        //if (verbose) cout << "\nTesting `Decoder_ParseObject`"
         //                  << "\n=================================" << endl;
 
         //bsl::ostream            nullStream(0);
@@ -16208,7 +16224,7 @@ int main(int argc, char *argv[])
         //                                    nullElementName.c_str(),
         //                                    nullElementName.length());
 
-        //if (verbose) cout << "\nUsing 'int'." << endl;
+        //if (verbose) cout << "\nUsing `int`." << endl;
         //{
         //    int object = 987;
 
@@ -16219,7 +16235,7 @@ int main(int argc, char *argv[])
         //    LOOP_ASSERT(object, 123 == object);
         //}
 
-        //if (verbose) cout << "\nUsing 'bdlb::NullableValue<int>'." << endl;
+        //if (verbose) cout << "\nUsing `bdlb::NullableValue<int>`." << endl;
         //{
         //    bdlb::NullableValue<int> object;
 
@@ -16241,7 +16257,7 @@ int main(int argc, char *argv[])
         //    LOOP_ASSERT(object, 123 == object.value());
         //}
 
-        //if (verbose) cout << "\nUsing 'bsl::vector<char>'." << endl;
+        //if (verbose) cout << "\nUsing `bsl::vector<char>`." << endl;
         //{
         //    const char INIT[] = "InIt VaLuE";
 
@@ -16256,7 +16272,7 @@ int main(int argc, char *argv[])
         //    LOOP_ASSERT(object, "abcd" == value);
         //}
 
-        //if (verbose) cout << "\nUsing 'bsl::vector<int>'." << endl;
+        //if (verbose) cout << "\nUsing `bsl::vector<int>`." << endl;
         //{
         //    bsl::vector<int> object;
 
@@ -16282,7 +16298,7 @@ int main(int argc, char *argv[])
         //    LOOP_ASSERT(object[2],     789 == object[2]);
         //}
 
-        //if (verbose) cout << "\nUsing 'bsl::vector<int>' (list)." << endl;
+        //if (verbose) cout << "\nUsing `bsl::vector<int>` (list)." << endl;
         //{
         //    bsl::vector<int> object;
 
@@ -16295,13 +16311,13 @@ int main(int argc, char *argv[])
         //    LOOP_ASSERT(object[2],     789 == object[2]);
         //}
 
-        //if (verbose) cout << "\nEnd of 'Decoder_ParseObject' Test."
+        //if (verbose) cout << "\nEnd of `Decoder_ParseObject` Test."
         //                  << endl;
       } break;
       case 5: {
         // --------------------------------------------------------------------
         // TESTING balxml::Decoder_SimpleContext<TYPE>
-        //   This will test the 'Decoder_SimpleContext' class template.
+        //   This will test the `Decoder_SimpleContext` class template.
         //
         // Concerns:
         //   This context must clear the accumulated characters at the start of
@@ -16310,12 +16326,12 @@ int main(int argc, char *argv[])
         //   parsed to set the value of the associated object.
         //
         // Plan:
-        //   Use 'int' for the 'TYPE' template parameter.  For each item in a
+        //   Use `int` for the `TYPE` template parameter.  For each item in a
         //   set of test data, create an instance of the
-        //   'Decoder_SimpleContext<int>' class and associate it with
-        //   an 'int' object that has been set to some arbitrary initial value.
-        //   Call the 'Decoder_ParserUtil::parse' function using the
-        //   context and ensure that the associated 'int' has the expected
+        //   `Decoder_SimpleContext<int>` class and associate it with
+        //   an `int` object that has been set to some arbitrary initial value.
+        //   Call the `Decoder_ParserUtil::parse` function using the
+        //   context and ensure that the associated `int` has the expected
         //   value.
         //
         // Testing:
@@ -16400,7 +16416,7 @@ int main(int argc, char *argv[])
             int                        result1 = INIT_VALUE;
             bsl::ostream               nullStream(0);
 
-            // display error messages on 'bsl::cerr' only if errors are not
+            // display error messages on `bsl::cerr` only if errors are not
             // expected or if very very very verbose
             bsl::ostream& outStream
                               = (0 == EXPECTED_RET_CODE || veryVeryVeryVerbose)
@@ -16442,7 +16458,7 @@ int main(int argc, char *argv[])
       case 4: {
         // --------------------------------------------------------------------
         // TESTING balxml::Decoder_UTF8Context
-        //   This will test the 'Decoder_UTF8Context' class.
+        //   This will test the `Decoder_UTF8Context` class.
         //
         // Concerns:
         //   This context class must clear the string at the start of the
@@ -16450,9 +16466,9 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   For each item in a set of test data, create an instance of the
-        //   'Decoder_UTF8Context' class and associate it with a string
+        //   `Decoder_UTF8Context` class and associate it with a string
         //   object that has been set to some arbitrary initial value.  Call
-        //   the 'Decoder_ParserUtil::parse' function using the context
+        //   the `Decoder_ParserUtil::parse` function using the context
         //   and ensure that the associated string has the expected value.
         //
         // Testing:
@@ -16544,7 +16560,7 @@ int main(int argc, char *argv[])
                 balxml::DecoderOptions options;
                 options.setMaxDepth(MAX_DEPTH);
 
-                // display error messages on 'bsl::cerr' only if errors are not
+                // display error messages on `bsl::cerr` only if errors are not
                 // expected or if very very very verbose
                 bsl::ostream& outStream
                               = (0 == EXPECTED_RET_CODE || veryVeryVeryVerbose)
@@ -16595,7 +16611,7 @@ int main(int argc, char *argv[])
                                                INIT_VALUE + INIT_VALUE_LENGTH);
                 bsl::ostream               nullStream(0);
 
-                // display error messages on 'bsl::cerr' only if errors are not
+                // display error messages on `bsl::cerr` only if errors are not
                 // expected or if very very very verbose
                 bsl::ostream& outStream
                               = (0 == EXPECTED_RET_CODE || veryVeryVeryVerbose)
@@ -16646,14 +16662,14 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TESTING balxml::Decoder_SelectContext
-        //   This will test the 'Decoder_SelectContext' meta-function.
+        //   This will test the `Decoder_SelectContext` meta-function.
         //
         // Concerns:
         //   This meta-function should give the correct context type.
         //
         // Plan:
-        //   For a set of types, exercise the 'Decoder_SelectContext'
-        //   meta-function and check that the returned 'Type' is as expected.
+        //   For a set of types, exercise the `Decoder_SelectContext`
+        //   meta-function and check that the returned `Type` is as expected.
         //
         // Testing:
         //   balxml::Decoder_SelectContext
@@ -16828,7 +16844,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsl::string'." << endl;
+        if (verbose) cout << "\nUsing `bsl::string`." << endl;
         {
             {
                 typedef bsl::string                           TestType;
@@ -16840,7 +16856,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsl::vector<char>'." << endl;
+        if (verbose) cout << "\nUsing `bsl::vector<char>`." << endl;
         {
             {
                 typedef bsl::vector<char>                     TestType;
@@ -16858,33 +16874,33 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // TESTING PARSER UTIL
-        //   This will test the 'Decoder_ParserUtil' struct and also
-        //   the underlying 'Parser' class in the .cpp file.
+        //   This will test the `Decoder_ParserUtil` struct and also
+        //   the underlying `Parser` class in the .cpp file.
         //
         // Concerns:
-        //   The parser should use the 'Decoder_ElementContext'
+        //   The parser should use the `Decoder_ElementContext`
         //   protocol correctly.  Note that we are not testing the classes that
-        //   derive from 'Decoder_ElementContext' in the header file.
+        //   derive from `Decoder_ElementContext` in the header file.
         //   We are only concerned that, given a particular input, the parser
         //   will call the appropriate methods in the
-        //   'Decoder_ElementContext' protocol with the correct
+        //   `Decoder_ElementContext` protocol with the correct
         //   arguments and in the correct order.  Once we have established that
         //   the parser is using the protocol correctly, we can then thoroughly
         //   test the classes that derive from the
-        //   'Decoder_ElementContext' protocol in subsequent test
+        //   `Decoder_ElementContext` protocol in subsequent test
         //   cases.
         //
         // Plan:
-        //   The 'TestContext' class will be used as a test implementation of
-        //   the 'Decoder_ElementContext' protocol.
+        //   The `TestContext` class will be used as a test implementation of
+        //   the `Decoder_ElementContext` protocol.
         //
         //   For each string in a set of input strings, create an independent
-        //   'TestContext' object.  Also prepare the appropriate 'input',
-        //   'errorStream', and 'warningStream' arguments.  Use these arguments
-        //   to call the 'Decoder_ParserUtil::parse' function.
+        //   `TestContext` object.  Also prepare the appropriate `input`,
+        //   `errorStream`, and `warningStream` arguments.  Use these arguments
+        //   to call the `Decoder_ParserUtil::parse` function.
         //
         //   When the function returns, check that the correct methods in the
-        //   'TestContext' object were called - in the correct order and with
+        //   `TestContext` object were called - in the correct order and with
         //   the correct arguments.
         //
         // Testing:
@@ -17002,9 +17018,9 @@ int main(int argc, char *argv[])
                                              "RE:addCharacters(def, ...)"
                                              "RE:endElement(...)"            },
 
-            // If the element name is 'failOnStart', then the 'TestContext'
+            // If the element name is `failOnStart`, then the `TestContext`
             // class will return a failure code when it receives the
-            // 'startElement' callback.  We need to check that this error is
+            // `startElement` callback.  We need to check that this error is
             // propagated back to the parser correctly.
 
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
@@ -17034,8 +17050,8 @@ int main(int argc, char *argv[])
                                              "E1:endElement(...)"
                                              "RE:endElement(...)"            },
 
-            // If the element name is 'failOnEnd', then the 'TestContext' class
-            // will return a failure code when it receives the 'endElement'
+            // If the element name is `failOnEnd`, then the `TestContext` class
+            // will return a failure code when it receives the `endElement`
             // callback.  We need to check that this error is propagated back
             // to the parser correctly.
 
@@ -17066,8 +17082,8 @@ int main(int argc, char *argv[])
                                              "E1:endElement(...)"
                                              "RE:endElement(...)"            },
 
-            // If 'addCharacters(failHere, ...)' is called, then the
-            // 'TestContext' class will return a failure code.  We need to
+            // If `addCharacters(failHere, ...)` is called, then the
+            // `TestContext` class will return a failure code.  We need to
             // check that this error is propagated back to the parser
             // correctly.
 
@@ -17091,8 +17107,8 @@ int main(int argc, char *argv[])
                                              // "RE:addCharacters(def, ...)"
                                              "RE:endElement(...)"            },
 
-            // If 'createSubContext(failHere, ...)' is called, then the
-            // 'TestContext' class will return a failure code.  We need to
+            // If `createSubContext(failHere, ...)` is called, then the
+            // `TestContext` class will return a failure code.  We need to
             // check that this error is propagated back to the parser
             // correctly.
 
@@ -17172,7 +17188,7 @@ int main(int argc, char *argv[])
         //   The interface should work as expected.
         //
         // Plan:
-        //   Exercise the 'decode' functions using the following types:
+        //   Exercise the `decode` functions using the following types:
         //
         //       - int.
         //       - bsl::string.
@@ -17181,7 +17197,7 @@ int main(int argc, char *argv[])
         //
         //   For each type, check that the value of the object when decoded is
         //   as expected.  For each type, use a different version of the
-        //   'decode' function.
+        //   `decode` function.
         //
         // Testing:
         //   This exercises basic functionality, but tests nothing.
@@ -17332,20 +17348,20 @@ int main(int argc, char *argv[])
         // EXHAUSTIVE TESTING VALID & INVALID UTF-8: e_FILE
         //
         // Concern:
-        //: 1 We test valid and invalid UTF-8 injected into an XML string that
-        //:   we decode.  In this test case we handle the situation where the
-        //:   data is in a file.  We break this out of the previous test case
-        //:   because it's much slower than the other media of transmitting the
-        //:   data, which are all memory-only.
-        //:
-        //: 2 In this test, since it is a negative test case, we run the test
-        //:   exhaustively, which will take more time than is acceptable in a
-        //:   nightly build.
+        // 1. We test valid and invalid UTF-8 injected into an XML string that
+        //    we decode.  In this test case we handle the situation where the
+        //    data is in a file.  We break this out of the previous test case
+        //    because it's much slower than the other media of transmitting the
+        //    data, which are all memory-only.
+        //
+        // 2. In this test, since it is a negative test case, we run the test
+        //    exhaustively, which will take more time than is acceptable in a
+        //    nightly build.
         //
         // Plan:
-        //: 1 Call Utf8Test::validAndInvalidUtf8Test(e_FILE);
-        //:
-        //: 2 Further details in the doc of 'validAndInvalidUtf8Test'.
+        // 1. Call Utf8Test::validAndInvalidUtf8Test(e_FILE);
+        //
+        // 2. Further details in the doc of `validAndInvalidUtf8Test`.
         //
         // Tesing:
         //   TESTING VALID & INVALID UTF-8: e_FILE

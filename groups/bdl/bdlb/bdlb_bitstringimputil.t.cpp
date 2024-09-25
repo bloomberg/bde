@@ -10,9 +10,9 @@
 #include <bsl_algorithm.h>
 #include <bsl_iostream.h>
 
-#include <bsl_cctype.h>      // 'isspace'
-#include <bsl_climits.h>     // 'INT_MIN', 'INT_MAX'
-#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cctype.h>      // `isspace`
+#include <bsl_climits.h>     // `INT_MIN`, `INT_MAX`
+#include <bsl_cstdlib.h>     // `atoi`
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -25,15 +25,15 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-//: o The '*EqBits' functions are extensively tested with table-driven code
-//:   and using the 'g' generator function.
-//: o The testing of the 'find1At(Max,Min)Index' functions is done using
-//:   table-driven code splicing together 64-bit words out of two 32-bit words
-//:   created by calls to the 'g' function, and the results are double-checked
-//:   against oracle functions.
-//: o The '*EqWord' functions are tested against explicit calculations made
-//:   inline in the test loops, that iterate over all combinations of the
-//:   low-order 8 bits, repeated over a 64-bit word.
+//  - The `*EqBits` functions are extensively tested with table-driven code
+//    and using the `g` generator function.
+//  - The testing of the `find1At(Max,Min)Index` functions is done using
+//    table-driven code splicing together 64-bit words out of two 32-bit words
+//    created by calls to the `g` function, and the results are double-checked
+//    against oracle functions.
+//  - The `*EqWord` functions are tested against explicit calculations made
+//    inline in the test loops, that iterate over all combinations of the
+//    low-order 8 bits, repeated over a 64-bit word.
 //-----------------------------------------------------------------------------
 // [ 2] k_BITS_PER_UINT64
 // [ 3] void andEqBits(U64 *dstValue, int dIdx, U64 sValue, int nBits);
@@ -172,15 +172,15 @@ enum { BITS_PER_WORD   = 8 * sizeof(int),
 #define SW_1 FW_1 FW_1
 
 //=============================================================================
-//        GENERATOR FUNCTION 'uint64_t g(const char *spec)' FOR TESTING
+//        GENERATOR FUNCTION `uint64_t g(const char *spec)` FOR TESTING
 //-----------------------------------------------------------------------------
-// The following function interprets the given 'spec' in order from left to
+// The following function interprets the given `spec` in order from left to
 // right to configure an integer according to a custom language.  Valid
 // meaningful characters are the binary digits ('0' and '1') and a period
 // ('.') used to indicate a sequence (e.g., "0..0" or "1..1").  At most one
 // sequence may appear in a single spec.  Space characters are ignored; all
 // other characters are invalid.
-//..
+// ```
 // LANGUAGE SPECIFICATION:
 // -----------------------
 //
@@ -222,15 +222,15 @@ enum { BITS_PER_WORD   = 8 * sizeof(int),
 // "..1"                error   missing left fill value
 // "0.."                error   missing right fill value
 // "1..11..1"           error   at most one fill item per spec
-// "11111111..1111111"  error   if number of digits exceeds 'BITS_PER_UINT64'
-//..
+// "11111111..1111111"  error   if number of digits exceeds `BITS_PER_UINT64`
+// ```
 
 //-----------------------------------------------------------------------------
-//                      Helper Functions for 'g'
+//                      Helper Functions for `g`
 //-----------------------------------------------------------------------------
 
-static int G_OFF = 0;   // Set to 1 only to disable asserts in 'g', thus
-                        // enabling testing of 'g' function errors.
+static int G_OFF = 0;   // Set to 1 only to disable asserts in `g`, thus
+                        // enabling testing of `g` function errors.
 
 enum {
     G_ILLEGAL_CHARACTER     = 1001,
@@ -242,10 +242,10 @@ enum {
     G_TOO_MANY_BITS         = 1007
 };
 
+/// Set each bit in the specified `integer` at positions corresponding
+/// to '1'-bits in the specified `mask` to the specified `booleanValue`.
 inline
 void setBits64(uint64_t *integer, uint64_t mask, int booleanValue)
-    // Set each bit in the specified 'integer' at positions corresponding
-    // to '1'-bits in the specified 'mask' to the specified 'booleanValue'.
 {
     if (booleanValue) {
         *integer |= mask;
@@ -255,14 +255,14 @@ void setBits64(uint64_t *integer, uint64_t mask, int booleanValue)
     }
 }
 
+/// Set the specified `charCount` least-significant bits in the specified
+/// `integer` to the bit pattern corresponding to `0` and `1` characters in
+/// the `charCount` characters *preceding* the specified `endOfSpec`,
+/// leaving all other bits of `integer` unaffected.  The behavior is
+/// undefined unless `0 <= charCount <= BITS_PER_UINT64`.  Note that
+/// `endOfSpec[-1]` corresponds to the least-significant bit of `integer`.
 inline
 void setLSB64(uint64_t *integer, const char *endOfSpec, int charCount)
-    // Set the specified 'charCount' least-significant bits in the specified
-    // 'integer' to the bit pattern corresponding to '0' and '1' characters in
-    // the 'charCount' characters *preceding* the specified 'endOfSpec',
-    // leaving all other bits of 'integer' unaffected.  The behavior is
-    // undefined unless '0 <= charCount <= BITS_PER_UINT64'.  Note that
-    // 'endOfSpec[-1]' corresponds to the least-significant bit of 'integer'.
 {
     BSLS_ASSERT(0 <= charCount);
     BSLS_ASSERT(     charCount <= BITS_PER_UINT64);
@@ -281,14 +281,14 @@ void setLSB64(uint64_t *integer, const char *endOfSpec, int charCount)
     }
 }
 
+/// Set the specified `charCount` most-significant bits in the specified
+/// `integer` to the bit pattern corresponding to `0` and `1` characters in
+/// the `charCount` characters starting at the specified `startOfSpec`,
+/// leaving all other bits of `integer` unaffected.  The behavior is
+/// undefined unless `0 <= charCount <= BITS_PER_UINT64`.  Note that
+/// `startOfSpec[0]` corresponds to the most-significant bit of `integer`.
 inline
 void setMSB64(uint64_t *integer, const char *startOfSpec, int charCount)
-    // Set the specified 'charCount' most-significant bits in the specified
-    // 'integer' to the bit pattern corresponding to '0' and '1' characters in
-    // the 'charCount' characters starting at the specified 'startOfSpec',
-    // leaving all other bits of 'integer' unaffected.  The behavior is
-    // undefined unless '0 <= charCount <= BITS_PER_UINT64'.  Note that
-    // 'startOfSpec[0]' corresponds to the most-significant bit of 'integer'.
 {
     BSLS_ASSERT(0 <= charCount);
     BSLS_ASSERT(     charCount <= BITS_PER_UINT64);
@@ -310,9 +310,9 @@ void setMSB64(uint64_t *integer, const char *startOfSpec, int charCount)
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+/// Return an integer value corresponding to the specified `spec` as defined
+/// above using none of the functions defined in the component under test.
 static uint64_t g(const char *spec)
-    // Return an integer value corresponding to the specified 'spec' as defined
-    // above using none of the functions defined in the component under test.
 {
     int bitCount = 0;           // total number of bits encountered
     int lastBitIndex = -1;      // index of last bit encountered
@@ -390,10 +390,10 @@ static uint64_t g(const char *spec)
     return result;
 }
 
+/// Return a `uint64_t` filled with 8 repetitions of the low-order 8 bits of
+/// the specified `x`.  The behavior is undefined unless `x < 256`.
 static
 uint64_t x8(unsigned int x)
-    // Return a 'uint64_t' filled with 8 repetitions of the low-order 8 bits of
-    // the specified 'x'.  The behavior is undefined unless 'x < 256'.
 {
     BSLS_ASSERT(x < 256);
 
@@ -403,9 +403,9 @@ uint64_t x8(unsigned int x)
     return x | ((uint64_t) x << 32);
 }
 
+/// Return the index of the highest-order set bit in the specified `value`.
+/// The behavior is undefined unless `0 != value`.
 int find1AtMaxOracle(uint64_t value)
-    // Return the index of the highest-order set bit in the specified 'value'.
-    // The behavior is undefined unless '0 != value'.
 {
     BSLS_ASSERT(0 != value);
 
@@ -419,9 +419,9 @@ int find1AtMaxOracle(uint64_t value)
     return -1;
 }
 
+/// Return the index of the lowest-order set bit in the specified `value`.
+/// The behavior is undefined unless `0 != value`.
 int find1AtMinOracle(uint64_t value)
-    // Return the index of the lowest-order set bit in the specified 'value'.
-    // The behavior is undefined unless '0 != value'.
 {
     BSLS_ASSERT(0 != value);
 
@@ -455,7 +455,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -465,14 +465,14 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -491,25 +491,25 @@ int main(int argc, char *argv[])
 ///Example 1: Manipulators
 ///- - - - - - - - - - - -
 // This example demonstrates the "manipulator" static functions defined in this
-// component, which can change the state of a 'uint64_t'.
+// component, which can change the state of a `uint64_t`.
 //
-// The '*EqBits' functions ('andEqBits', 'minusEqBits', 'orEqBits', and
-// 'xorEqBits'), have the following signature:
-//..
+// The `*EqBits` functions (`andEqBits`, `minusEqBits`, `orEqBits`, and
+// `xorEqBits`), have the following signature:
+// ```
 //    void function(uint64_t *dstValue,
 //                  int       dstIndex,
 //                  uint64_t  srcValue,
 //                  int       numBits);
-//..
-// First, we demonstrate the 'andEqBits' function:
-//..
+// ```
+// First, we demonstrate the `andEqBits` function:
+// ```
 // +--------------------------------------------------------------------------+
-// | 'bdlb::BitStringImpUtil::andEqBits(&dstValue, 8, 0, 8)' in binary:       |
+// | `bdlb::BitStringImpUtil::andEqBits(&dstValue, 8, 0, 8)` in binary:       |
 // |                                                                          |
-// | 'dstValue' before in binary:       0..00000000000000000011001100110011   |
-// | 'srcValue == 0' in binary:         0..00000000000000000000000000000000   |
-// | 'srcValue', 0x00, at index 8:                         00000000           |
-// | 'dstValue' after in binary:        0..00000000000000000000000000110011   |
+// | `dstValue` before in binary:       0..00000000000000000011001100110011   |
+// | `srcValue == 0` in binary:         0..00000000000000000000000000000000   |
+// | `srcValue`, 0x00, at index 8:                         00000000           |
+// | `dstValue` after in binary:        0..00000000000000000000000000110011   |
 // +--------------------------------------------------------------------------+
 
     uint64_t dstValue;
@@ -517,145 +517,145 @@ int main(int argc, char *argv[])
     dstValue = 0x3333;
     bdlb::BitStringImpUtil::andEqBits(&dstValue, 8, 0, 8);
     ASSERT(static_cast<uint64_t>(0x33) == dstValue);
-//..
-// Then, we apply 'andEqBits' with all bits set in the relevant part of
+// ```
+// Then, we apply `andEqBits` with all bits set in the relevant part of
 // 'srcValue, which has no effect:
-//..
+// ```
 // +--------------------------------------------------------------------------+
-// | 'bdlb::BitStringImpUtil::andEqBits(&dstValue, 8, 0, 8)' in binary:       |
+// | `bdlb::BitStringImpUtil::andEqBits(&dstValue, 8, 0, 8)` in binary:       |
 // |                                                                          |
-// | 'dstValue' before in binary:       0..00000000000000000011001100110011   |
-// | 'srcValue == 0xffff' in binary:    0..00000000000000001111111111111111   |
-// | 'srcValue', 0xff, at index 8:                         11111111           |
-// | 'dstValue' after in binary:        0..00000000000000000011001100110011   |
+// | `dstValue` before in binary:       0..00000000000000000011001100110011   |
+// | `srcValue == 0xffff` in binary:    0..00000000000000001111111111111111   |
+// | `srcValue`, 0xff, at index 8:                         11111111           |
+// | `dstValue` after in binary:        0..00000000000000000011001100110011   |
 // +--------------------------------------------------------------------------+
 
     dstValue = 0x3333;
     bdlb::BitStringImpUtil::andEqBits(&dstValue, 8, 0xffff, 8);
     ASSERT(static_cast<uint64_t>(0x3333) == dstValue);
-//..
-// Next, we demonstrate 'orEqBits', which takes low-order bits of a 'srcValue'
-// and bitwise ORs it with 'dstValue':
-//..
+// ```
+// Next, we demonstrate `orEqBits`, which takes low-order bits of a `srcValue`
+// and bitwise ORs it with `dstValue`:
+// ```
 // +--------------------------------------------------------------------------+
-// | 'bdlb::BitStringImpUtil::orEqBits(&dstValue, 16, 0xffff, 8)' in binary:  |
+// | `bdlb::BitStringImpUtil::orEqBits(&dstValue, 16, 0xffff, 8)` in binary:  |
 // |                                                                          |
-// | 'dstValue' before in binary:       0..00110011001100110011001100110011   |
-// | 'srcValue == 0xffff' in binary:    0..00000000000000001111111111111111   |
-// | 'srcValue', 0xff, at index 16:                11111111                   |
-// | 'dstValue' after in binary:        0..00110011111111110011001100110011   |
+// | `dstValue` before in binary:       0..00110011001100110011001100110011   |
+// | `srcValue == 0xffff` in binary:    0..00000000000000001111111111111111   |
+// | `srcValue`, 0xff, at index 16:                11111111                   |
+// | `dstValue` after in binary:        0..00110011111111110011001100110011   |
 // +--------------------------------------------------------------------------+
 
     dstValue = 0x33333333;
     bdlb::BitStringImpUtil::orEqBits(&dstValue, 16, 0xffff, 8);
     ASSERT(static_cast<uint64_t>(0x33ff3333) == dstValue);
-//..
-// Then, we demonstrate applying the same operation where '*dstValue' is
+// ```
+// Then, we demonstrate applying the same operation where `*dstValue` is
 // initially 0:
-//..
+// ```
 // +--------------------------------------------------------------------------+
-// | 'bdlb::BitStringImpUtil::orEqBits(&dstValue, 16, 0xffff, 8)' in binary:  |
+// | `bdlb::BitStringImpUtil::orEqBits(&dstValue, 16, 0xffff, 8)` in binary:  |
 // |                                                                          |
-// | 'dstValue' before in binary:       0..00000000000000000000000000000000   |
-// | 'srcValue == 0xffff' in binary:    0..00000000000000001111111111111111   |
-// | 'srcValue', 0xff, at index 16:                11111111                   |
-// | 'dstValue' after in binary:        0..00000000111111110000000000000000   |
+// | `dstValue` before in binary:       0..00000000000000000000000000000000   |
+// | `srcValue == 0xffff` in binary:    0..00000000000000001111111111111111   |
+// | `srcValue`, 0xff, at index 16:                11111111                   |
+// | `dstValue` after in binary:        0..00000000111111110000000000000000   |
 // +--------------------------------------------------------------------------+
 
     dstValue = 0;
     bdlb::BitStringImpUtil::orEqBits(&dstValue, 16, 0xffff, 8);
     ASSERT(static_cast<uint64_t>(0x00ff0000) == dstValue);
-//..
-// Now, we apply another function, 'xorEqBits', that takes the low-order bits
-// of 'srcValue' and bitwise XORs them with 'dstValue':
-//..
+// ```
+// Now, we apply another function, `xorEqBits`, that takes the low-order bits
+// of `srcValue` and bitwise XORs them with `dstValue`:
+// ```
 // +--------------------------------------------------------------------------+
-// | 'bdlb::BitStringImpUtil::xorEqBits(&dstValue, 16, 0xffff, 8)' in binary: |
+// | `bdlb::BitStringImpUtil::xorEqBits(&dstValue, 16, 0xffff, 8)` in binary: |
 // |                                                                          |
-// | 'dstValue' before in binary:       0..01110111011101110111011101110111   |
-// | 'srcValue', 0xff, at index 16:                11111111                   |
-// | 'dstValue' after in binary:        0..01110111100010000111011101110111   |
+// | `dstValue` before in binary:       0..01110111011101110111011101110111   |
+// | `srcValue`, 0xff, at index 16:                11111111                   |
+// | `dstValue` after in binary:        0..01110111100010000111011101110111   |
 // ----------------------------------------------------------------------------
 
     dstValue = 0x77777777;
     bdlb::BitStringImpUtil::xorEqBits(&dstValue, 16, 0xffff, 8);
     ASSERT(static_cast<uint64_t>(0x77887777) == dstValue);
-//..
-// Finally, we apply the same function with a different value of 'srcValue'
+// ```
+// Finally, we apply the same function with a different value of `srcValue`
 // and observe the result:
-//..
+// ```
 // +--------------------------------------------------------------------------+
-// | 'bdlb::BitStringImpUtil::xorEqBits(&dstValue, 16, 0x5555, 8)' in binary: |
+// | `bdlb::BitStringImpUtil::xorEqBits(&dstValue, 16, 0x5555, 8)` in binary: |
 // |                                                                          |
-// | 'dstValue' before in binary:       0..01110111011101110111011101110111   |
-// | 'srcValue', 0x55, at index 16:                01010101                   |
-// | 'dstValue' after in binary:        0..01110111001000100111011101110111   |
+// | `dstValue` before in binary:       0..01110111011101110111011101110111   |
+// | `srcValue`, 0x55, at index 16:                01010101                   |
+// | `dstValue` after in binary:        0..01110111001000100111011101110111   |
 // +--------------------------------------------------------------------------+
 
     dstValue = 0x77777777;
     bdlb::BitStringImpUtil::xorEqBits(&dstValue, 16, 0x5555, 8);
     ASSERT(static_cast<uint64_t>(0x77227777) == dstValue);
-//..
+// ```
 ///Accessors
 ///- - - - -
 // This example demonstrates the "accessor" static functions, which read, but
-// do not modify, the state of a 'uint64_t'.
+// do not modify, the state of a `uint64_t`.
 //
-// The 'find1At(Max,Min)IndexRaw' routines are used for finding the
-// highest-order (or lowest-order) set bit in a 'uint64_t'.  These functions
-// are 'raw' because the behavior is undefined if they are passed 0.
+// The `find1At(Max,Min)IndexRaw` routines are used for finding the
+// highest-order (or lowest-order) set bit in a `uint64_t`.  These functions
+// are `raw` because the behavior is undefined if they are passed 0.
 //
-// First, we apply 'find1AtMaxIndexRaw':
-//..
+// First, we apply `find1AtMaxIndexRaw`:
+// ```
 // +--------------------------------------------------------------------------+
-// | 'bdlb::BitStringImpUtil::find1AtMaxIndexRaw(0x10a)' in binary:           |
+// | `bdlb::BitStringImpUtil::find1AtMaxIndexRaw(0x10a)` in binary:           |
 // |                                                                          |
 // | input:                             0..000000000000000000000000100001010  |
 // | bit 8, highest bit set:                                       1          |
 // +--------------------------------------------------------------------------+
 
     ASSERT(8 == bdlb::BitStringImpUtil::find1AtMaxIndexRaw(0x10a));
-//..
-// Finally, we apply 'find1AtMinIndexRaw':
-//..
+// ```
+// Finally, we apply `find1AtMinIndexRaw`:
+// ```
 // +--------------------------------------------------------------------------+
-// | 'bdlb::BitStringImpUtil::find1AtMinIndexRaw(0xffff0180)' in binary:      |
+// | `bdlb::BitStringImpUtil::find1AtMinIndexRaw(0xffff0180)` in binary:      |
 // |                                                                          |
 // | input:                             0..011111111111111110000000110000000  |
 // | bit 7, lowest bit set:                                         1         |
 // +--------------------------------------------------------------------------+
 
     ASSERT(7 == bdlb::BitStringImpUtil::find1AtMinIndexRaw(0xffff0180));
-//..
+// ```
       } break;
       case 13: {
         // --------------------------------------------------------------------
         // TESTING XOREQWORD
-        //   Ensure the method has the expected effect on 'dstValue'.
+        //   Ensure the method has the expected effect on `dstValue`.
         //
         // Concerns:
-        //: 1 That the behavior of 'xorEqWord' matches the bitwise C++
-        //:   expression '*dstValue ^= srcValue'.
+        // 1. That the behavior of `xorEqWord` matches the bitwise C++
+        //    expression `*dstValue ^= srcValue`.
         //
         // Plan:
-        //   Since bit 'N' of the result is never affected in any way by bit
-        //   'M' of the operands, unless 'N == M', we can just exhaustively
+        //   Since bit `N` of the result is never affected in any way by bit
+        //   `M` of the operands, unless `N == M`, we can just exhaustively
         //   test for all combinations of the first 8 bits, repeated over the
-        //   word using the 'x8' function.
-        //: 1 Iterate 'x' over all combinations of the low-order 8 bits.
-        //:
-        //: 2 Create 'xx' by repeating the low-order 8 bits of 'x' 8 times
-        //:   across the 64-bit word.
-        //:
-        //: 3 In a nested loop, iterate 'y' over all combinations of the
-        //:   low-order 8 bits.
-        //:
-        //: 4 Create 'yy' by repeating the low-order 8 bits of 'y' 8 times
-        //:   across the 64-bit word.
-        //:
-        //: 5 Evaluate 'xx ^= yy' twice, once using the function under test,
-        //:   once using the corresponding bitwise C++ operator, and verify
-        //:   that they match.  (C-1)
+        //   word using the `x8` function.
+        // 1. Iterate `x` over all combinations of the low-order 8 bits.
+        //
+        // 2. Create `xx` by repeating the low-order 8 bits of `x` 8 times
+        //    across the 64-bit word.
+        //
+        // 3. In a nested loop, iterate `y` over all combinations of the
+        //    low-order 8 bits.
+        //
+        // 4. Create `yy` by repeating the low-order 8 bits of `y` 8 times
+        //    across the 64-bit word.
+        //
+        // 5. Evaluate `xx ^= yy` twice, once using the function under test,
+        //    once using the corresponding bitwise C++ operator, and verify
+        //    that they match.  (C-1)
         //
         // Testing:
         //   void xorEqWord(uint64_t *dstValue, uint64_t srcValue);
@@ -684,31 +684,31 @@ int main(int argc, char *argv[])
       case 12: {
         // --------------------------------------------------------------------
         // TESTING SETEQWORD
-        //   Ensure the method has the expected effect on 'dstValue'.
+        //   Ensure the method has the expected effect on `dstValue`.
         //
         // Concerns:
-        //: 1 That the behavior of 'setEqWord' matches the bitwise C++
-        //:   expression '*dstValue = srcValue'.
+        // 1. That the behavior of `setEqWord` matches the bitwise C++
+        //    expression `*dstValue = srcValue`.
         //
         // Plan:
-        //   Since bit 'N' of the result is never affected in any way by bit
-        //   'M' of the operands, unless 'N == M', we can just exhaustively
+        //   Since bit `N` of the result is never affected in any way by bit
+        //   `M` of the operands, unless `N == M`, we can just exhaustively
         //   test for all combinations of the first 8 bits, repeated over the
-        //   word using the 'x8' function.
-        //: 1 Iterate 'x' over all combinations of the low-order 8 bits.
-        //:
-        //: 2 Create 'xx' by repeating the low-order 8 bits of 'x' 8 times
-        //:   across the 64-bit word.
-        //:
-        //: 3 In a nested loop, iterate 'y' over all combinations of the
-        //:   low-order 8 bits.
-        //:
-        //: 4 Create 'yy' by repeating the low-order 8 bits of 'y' 8 times
-        //:   across the 64-bit word.
-        //:
-        //: 5 Evaluate 'xx = yy' twice, once using the function under test,
-        //:   once using the corresponding bitwise C++ operator, and verify
-        //:   that they match.  (C-1)
+        //   word using the `x8` function.
+        // 1. Iterate `x` over all combinations of the low-order 8 bits.
+        //
+        // 2. Create `xx` by repeating the low-order 8 bits of `x` 8 times
+        //    across the 64-bit word.
+        //
+        // 3. In a nested loop, iterate `y` over all combinations of the
+        //    low-order 8 bits.
+        //
+        // 4. Create `yy` by repeating the low-order 8 bits of `y` 8 times
+        //    across the 64-bit word.
+        //
+        // 5. Evaluate `xx = yy` twice, once using the function under test,
+        //    once using the corresponding bitwise C++ operator, and verify
+        //    that they match.  (C-1)
         //
         // Testing:
         //   void setEqWord(uint64_t *dstValue, uint64_t srcValue);
@@ -737,31 +737,31 @@ int main(int argc, char *argv[])
       case 11: {
         // --------------------------------------------------------------------
         // TESTING OREQWORD
-        //   Ensure the method has the expected effect on 'dstValue'.
+        //   Ensure the method has the expected effect on `dstValue`.
         //
         // Concerns:
-        //: 1 That the behavior of 'orEqWord' matches the bitwise C++
-        //:   expression '*dstValue |= srcValue'.
+        // 1. That the behavior of `orEqWord` matches the bitwise C++
+        //    expression `*dstValue |= srcValue`.
         //
         // Plan:
-        //   Since bit 'N' of the result is never affected in any way by bit
-        //   'M' of the operands, unless 'N == M', we can just exhaustively
+        //   Since bit `N` of the result is never affected in any way by bit
+        //   `M` of the operands, unless `N == M`, we can just exhaustively
         //   test for all combinations of the first 8 bits, repeated over the
-        //   word using the 'x8' function.
-        //: 1 Iterate 'x' over all combinations of the low-order 8 bits.
-        //:
-        //: 2 Create 'xx' by repeating the low-order 8 bits of 'x' 8 times
-        //:   across the 64-bit word.
-        //:
-        //: 3 In a nested loop, iterate 'y' over all combinations of the
-        //:   low-order 8 bits.
-        //:
-        //: 4 Create 'yy' by repeating the low-order 8 bits of 'y' 8 times
-        //:   across the 64-bit word.
-        //:
-        //: 5 Evaluate 'xx |= yy' twice, once using the function under test,
-        //:   once using the corresponding bitwise C++ operator, and verify
-        //:   that they match.  (C-1)
+        //   word using the `x8` function.
+        // 1. Iterate `x` over all combinations of the low-order 8 bits.
+        //
+        // 2. Create `xx` by repeating the low-order 8 bits of `x` 8 times
+        //    across the 64-bit word.
+        //
+        // 3. In a nested loop, iterate `y` over all combinations of the
+        //    low-order 8 bits.
+        //
+        // 4. Create `yy` by repeating the low-order 8 bits of `y` 8 times
+        //    across the 64-bit word.
+        //
+        // 5. Evaluate `xx |= yy` twice, once using the function under test,
+        //    once using the corresponding bitwise C++ operator, and verify
+        //    that they match.  (C-1)
         //
         // Testing:
         //   void orEqWord(uint64_t *dstValue, uint64_t srcValue);
@@ -792,28 +792,28 @@ int main(int argc, char *argv[])
         // TESTING MINUSEQWORD
         //
         // Concerns:
-        //: 1 That the behavior of 'minusEqWord' matches the bitwise C++
-        //:   expression '*dstValue -= srcValue'.
+        // 1. That the behavior of `minusEqWord` matches the bitwise C++
+        //    expression `*dstValue -= srcValue`.
         //
         // Plan:
-        //   Since bit 'N' of the result is never affected in any way by bit
-        //   'M' of the operands, unless 'N == M', we can just exhaustively
+        //   Since bit `N` of the result is never affected in any way by bit
+        //   `M` of the operands, unless `N == M`, we can just exhaustively
         //   test for all combinations of the first 8 bits, repeated over the
-        //   word using the 'x8' function.
-        //: 1 Iterate 'x' over all combinations of the low-order 8 bits.
-        //:
-        //: 2 Create 'xx' by repeating the low-order 8 bits of 'x' 8 times
-        //:   across the 64-bit word.
-        //:
-        //: 3 In a nested loop, iterate 'y' over all combinations of the
-        //:   low-order 8 bits.
-        //:
-        //: 4 Create 'yy' by repeating the low-order 8 bits of 'y' 8 times
-        //:   across the 64-bit word.
-        //:
-        //: 5 Evaluate 'xx -= yy' twice, once using the function under test,
-        //:   once using the corresponding bitwise C++ operator, and verify
-        //:   that they match.  (C-1)
+        //   word using the `x8` function.
+        // 1. Iterate `x` over all combinations of the low-order 8 bits.
+        //
+        // 2. Create `xx` by repeating the low-order 8 bits of `x` 8 times
+        //    across the 64-bit word.
+        //
+        // 3. In a nested loop, iterate `y` over all combinations of the
+        //    low-order 8 bits.
+        //
+        // 4. Create `yy` by repeating the low-order 8 bits of `y` 8 times
+        //    across the 64-bit word.
+        //
+        // 5. Evaluate `xx -= yy` twice, once using the function under test,
+        //    once using the corresponding bitwise C++ operator, and verify
+        //    that they match.  (C-1)
         //
         // Testing:
         //   void minusEqWord(uint64_t *dstValue, uint64_t srcValue);
@@ -844,28 +844,28 @@ int main(int argc, char *argv[])
         // TESTING ANDEQWORD
         //
         // Concerns:
-        //: 1 That the behavior of 'andEqWord' matches the bitwise C++
-        //:   expression '*dstValue &= srcValue'.
+        // 1. That the behavior of `andEqWord` matches the bitwise C++
+        //    expression `*dstValue &= srcValue`.
         //
         // Plan:
-        //   Since bit 'N' of the result is never affected in any way by bit
-        //   'M' of the operands, unless 'N == M', we can just exhaustively
+        //   Since bit `N` of the result is never affected in any way by bit
+        //   `M` of the operands, unless `N == M`, we can just exhaustively
         //   test for all combinations of the first 8 bits, repeated over the
-        //   word using the 'x8' function.
-        //: 1 Iterate 'x' over all combinations of the low-order 8 bits.
-        //:
-        //: 2 Create 'xx' by repeating the low-order 8 bits of 'x' 8 times
-        //:   across the 64-bit word.
-        //:
-        //: 3 In a nested loop, iterate 'y' over all combinations of the
-        //:   low-order 8 bits.
-        //:
-        //: 4 Create 'yy' by repeating the low-order 8 bits of 'y' 8 times
-        //:   across the 64-bit word.
-        //:
-        //: 5 Evaluate 'xx &= yy' twice, once using the function under test,
-        //:   once using the corresponding bitwise C++ operator, and verify
-        //:   that they match.  (C-1)
+        //   word using the `x8` function.
+        // 1. Iterate `x` over all combinations of the low-order 8 bits.
+        //
+        // 2. Create `xx` by repeating the low-order 8 bits of `x` 8 times
+        //    across the 64-bit word.
+        //
+        // 3. In a nested loop, iterate `y` over all combinations of the
+        //    low-order 8 bits.
+        //
+        // 4. Create `yy` by repeating the low-order 8 bits of `y` 8 times
+        //    across the 64-bit word.
+        //
+        // 5. Evaluate `xx &= yy` twice, once using the function under test,
+        //    once using the corresponding bitwise C++ operator, and verify
+        //    that they match.  (C-1)
         //
         // Testing:
         //   void andEqWord(uint64_t *dstValue, uint64_t srcValue);
@@ -896,19 +896,19 @@ int main(int argc, char *argv[])
         // TESTING SEARCH FUNCTIONS
         //
         // Concerns:
-        //: 1 That the search functions return correct values.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. That the search functions return correct values.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Do table-driven testing.
-        //:
-        //: 2 During table-driven testing, apply 'find1AtMaxOracle' and
-        //:   'find1AtMinOracle', which are very reliable, brute-force, but
-        //:   inefficient functions, to verify that the tables are indeed
-        //:   correct.  (C-1)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-2)
+        // 1. Do table-driven testing.
+        //
+        // 2. During table-driven testing, apply `find1AtMaxOracle` and
+        //    `find1AtMinOracle`, which are very reliable, brute-force, but
+        //    inefficient functions, to verify that the tables are indeed
+        //    correct.  (C-1)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //   int find1AtMaxIndexRaw(uint64_t srcInteger);
@@ -1095,15 +1095,15 @@ int main(int argc, char *argv[])
         // TESTING XOREQBITS FUNCTION
         //
         // Concerns:
-        //: 1 That the function has the correct effect on the '*dstValue'
-        //:   output.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. That the function has the correct effect on the `*dstValue`
+        //    output.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Do table-driven testing.  (C-1)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
+        // 1. Do table-driven testing.  (C-1)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //   void xorEqBits(U64 *dstValue, int dIdx, U64 sValue, int nBits);
@@ -1907,18 +1907,18 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // TESTING SETEQBITS FUNCTION
-        //   Ensure the method has the expected effect on 'dstValue'.
+        //   Ensure the method has the expected effect on `dstValue`.
         //
         // Concerns:
-        //: 1 That the function has the correct effect on the '*dstValue'
-        //:   output.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. That the function has the correct effect on the `*dstValue`
+        //    output.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Do table-driven testing.  (C-1)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
+        // 1. Do table-driven testing.  (C-1)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //   void setEqBits(U64 *dstValue, int dIdx, U64 sValue, int nBits);
@@ -2271,18 +2271,18 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // TESTING OREQBITS FUNCTION
-        //   Ensure the method has the expected effect on 'dstValue'.
+        //   Ensure the method has the expected effect on `dstValue`.
         //
         // Concerns:
-        //: 1 That the function has the correct effect on the '*dstValue'
-        //:   output.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. That the function has the correct effect on the `*dstValue`
+        //    output.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Do table-driven testing.  (C-1)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
+        // 1. Do table-driven testing.  (C-1)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //   void orEqBits(U64 *dstValue, int dIdx, U64 sValue, int nBits);
@@ -3113,15 +3113,15 @@ int main(int argc, char *argv[])
         // TESTING MINUSEQBITS FUNCTION
         //
         // Concerns:
-        //: 1 That the function has the correct effect on the '*dstValue'
-        //:   output.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. That the function has the correct effect on the `*dstValue`
+        //    output.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Do table-driven testing.  (C-1)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
+        // 1. Do table-driven testing.  (C-1)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //   void minusEqBits(U64 *dstValue, int dIdx, U64 sValue, int nBits);
@@ -3927,18 +3927,18 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TESTING ANDEQBITS FUNCTION
-        //   Ensure the method has the expected effect on 'dstValue'.
+        //   Ensure the method has the expected effect on `dstValue`.
         //
         // Concerns:
-        //: 1 That the function has the correct effect on the '*dstValue'
-        //:   output.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. That the function has the correct effect on the `*dstValue`
+        //    output.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Do table-driven testing.  (C-1)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
+        // 1. Do table-driven testing.  (C-1)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //   void andEqBits(U64 *dstValue, int dIdx, U64 sValue, int nBits);
@@ -4683,13 +4683,13 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // ENUM TEST
-        //   Ensure the 'enum' constant is correct.
+        //   Ensure the `enum` constant is correct.
         //
         // Concerns
-        //: 1 That the 'enum' constant defined by the class is as expected.
+        // 1. That the `enum` constant defined by the class is as expected.
         //
         // Plan
-        //: 1 Test the 'enum' constant.  (C-1)
+        // 1. Test the `enum` constant.  (C-1)
         //
         // Testing:
         //   k_BITS_PER_UINT64
@@ -4707,20 +4707,20 @@ int main(int argc, char *argv[])
         //   Ensure the generator function is correct.
         //
         // Concerns:
-        //: 1 'g' must correctly parse 'spec' according to its specific
-        //:   language, and return the corresponding 'uint64_t' if 'spec' is
-        //:   valid.
-        //:
-        //: 2 'g' must also correctly diagnose and report an invalid 'spec'.
+        // 1. `g` must correctly parse `spec` according to its specific
+        //    language, and return the corresponding `uint64_t` if `spec` is
+        //    valid.
+        //
+        // 2. `g` must also correctly diagnose and report an invalid `spec`.
         //
         // Plan:
-        //: 1 For a sequence of valid 'spec's, verify that 'g' returns the
-        //:   correct value.  (C-1)
-        //:
-        //: 2 For a sequence of invalid 'spec's, verify that 'g' returns the
-        //:   correct diagnosis.  Note that 'g's error-report-suppression flag
-        //:   must be set before testing invalid 'spec's, and must be
-        //:   explicitly unset after testing.  (C-2)
+        // 1. For a sequence of valid `spec`s, verify that `g` returns the
+        //    correct value.  (C-1)
+        //
+        // 2. For a sequence of invalid `spec`s, verify that `g` returns the
+        //    correct diagnosis.  Note that `g`s error-report-suppression flag
+        //    must be set before testing invalid `spec`s, and must be
+        //    explicitly unset after testing.  (C-2)
         //
         // Testing:
         //   GENERATOR FUNCTION: uint64_t g(const char *spec);

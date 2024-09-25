@@ -3,7 +3,7 @@
 
 #include <baljsn_decoderoptions.h>
 
-// These header are for testing only and the hierarchy level of 'baljsn' was
+// These header are for testing only and the hierarchy level of `baljsn` was
 // increase because of them.  They should be remove when possible.
 #include <balb_testmessages.h>
 
@@ -102,8 +102,8 @@ namespace test = BloombergLP::s_baltst;
 //                             Overview
 //                             --------
 // The component under test implements an decoder for decoding into
-// 'bdlat'-compatible objects in the JSON format.  The object types that can be
-// decoded include 'bdlat' sequence, choice, array, enumeration, customized,
+// `bdlat`-compatible objects in the JSON format.  The object types that can be
+// decoded include `bdlat` sequence, choice, array, enumeration, customized,
 // simple, and dynamic types.  In addition, the decoder supports options to
 // specify the max depth and whether unknown elements should be skipped.
 //
@@ -128,7 +128,7 @@ namespace test = BloombergLP::s_baltst;
 // [ 3] TESTING SKIPPING UNKNOWN ELEMENTS
 // [ 4] TESTING INVALID JSON RETURNS AN ERROR
 // [ 5] MULTI-THREADING TEST CASE                           {DRQS 41660550<GO>}
-// [ 6] TESTING DECODING OF 'hexBinary' CUSTOMIZED TYPE     {DRQS 43702912<GO>}
+// [ 6] TESTING DECODING OF `hexBinary` CUSTOMIZED TYPE     {DRQS 43702912<GO>}
 // [ 7] TESTING DECODING OF ENUM TYPES WITH ESCAPED CHARS
 // [ 8] TESTING CLEARING OF LOGGED MESSAGES ON DECODE CALLS
 // [ 9] TESTING UTF-8 DETECTION
@@ -138,7 +138,7 @@ namespace test = BloombergLP::s_baltst;
 // [13] FALLBACK ENUMERATORS
 // [14] DECODING INTS AS ENUMS AND VICE VERSA              {DRQS 166048981<GO>}
 // [15] ARRAY HAVING NULLABLE COMPLEX ELEMENTS             {DRQS 167908706<GO>}
-// [16] 'DecoderOptions' CAN BE CONFIGURED FOR STRICT CONFORMANCE
+// [16] `DecoderOptions` CAN BE CONFIGURED FOR STRICT CONFORMANCE
 // [17] USAGE EXAMPLE
 
 // ============================================================================
@@ -33815,42 +33815,44 @@ struct Colors {
     static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
 
     // CLASS METHODS
-    static const char *toString(Value value);
-        // Return the string representation exactly matching the enumerator
-        // name corresponding to the specified enumeration 'value'.
 
+    /// Return the string representation exactly matching the enumerator
+    /// name corresponding to the specified enumeration `value`.
+    static const char *toString(Value value);
+
+    /// Load into the specified `result` the enumerator matching the
+    /// specified `string` of the specified `stringLength`.  Return 0 on
+    /// success, and a non-zero value with no effect on `result` otherwise
+    /// (i.e., `string` does not match any enumerator).
     static int fromString(Value        *result,
                           const char   *string,
                           int           stringLength);
-        // Load into the specified 'result' the enumerator matching the
-        // specified 'string' of the specified 'stringLength'.  Return 0 on
-        // success, and a non-zero value with no effect on 'result' otherwise
-        // (i.e., 'string' does not match any enumerator).
 
+    /// Load into the specified `result` the enumerator matching the
+    /// specified `string`.  Return 0 on success, and a non-zero value with
+    /// no effect on `result` otherwise (i.e., `string` does not match any
+    /// enumerator).
     static int fromString(Value              *result,
                           const bsl::string&  string);
-        // Load into the specified 'result' the enumerator matching the
-        // specified 'string'.  Return 0 on success, and a non-zero value with
-        // no effect on 'result' otherwise (i.e., 'string' does not match any
-        // enumerator).
 
+    /// Load into the specified `result` the enumerator matching the
+    /// specified `number`.  Return 0 on success, and a non-zero value with
+    /// no effect on `result` otherwise (i.e., `number` does not match any
+    /// enumerator).
     static int fromInt(Value *result, int number);
-        // Load into the specified 'result' the enumerator matching the
-        // specified 'number'.  Return 0 on success, and a non-zero value with
-        // no effect on 'result' otherwise (i.e., 'number' does not match any
-        // enumerator).
 
+    /// Write to the specified `stream` the string representation of
+    /// the specified enumeration `value`.  Return a reference to
+    /// the modifiable `stream`.
     static bsl::ostream& print(bsl::ostream& stream, Value value);
-        // Write to the specified 'stream' the string representation of
-        // the specified enumeration 'value'.  Return a reference to
-        // the modifiable 'stream'.
 };
 
 // FREE OPERATORS
+
+/// Format the specified `rhs` to the specified output `stream` and
+/// return a reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, Colors::Value rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
 
 }  // close namespace s_baltst
 
@@ -33894,150 +33896,155 @@ class Palette {
 
   public:
     // CLASS METHODS
-    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
-        // Return attribute information for the attribute indicated by the
-        // specified 'id' if the attribute exists, and 0 otherwise.
 
+    /// Return attribute information for the attribute indicated by the
+    /// specified `id` if the attribute exists, and 0 otherwise.
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+
+    /// Return attribute information for the attribute indicated by the
+    /// specified `name` of the specified `nameLength` if the attribute
+    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
-        // Return attribute information for the attribute indicated by the
-        // specified 'name' of the specified 'nameLength' if the attribute
-        // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Palette(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Palette' having the default value.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Create an object of type `Palette` having the default value.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
+    explicit Palette(bslma::Allocator *basicAllocator = 0);
+
+    /// Create an object of type `Palette` having the value of the specified
+    /// `original` object.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     Palette(const Palette& original,
             bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Palette' having the value of the specified
-        // 'original' object.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Destroy this object.
     ~Palette();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     Palette& operator=(const Palette& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
+    /// Reset this object to the default value (i.e., its value upon
+    /// default construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
 
+    /// Invoke the specified `manipulator` sequentially on the address of
+    /// each (modifiable) attribute of this object, supplying `manipulator`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `manipulator` (i.e., the invocation that
+    /// terminated the sequence).
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
-        // Invoke the specified 'manipulator' sequentially on the address of
-        // each (modifiable) attribute of this object, supplying 'manipulator'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `id`,
+    /// supplying `manipulator` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `manipulator` if `id` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `name` of the
+    /// specified `nameLength`, supplying `manipulator` with the
+    /// corresponding attribute information structure.  Return the value
+    /// returned from the invocation of `manipulator` if `name` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
-        // specified 'nameLength', supplying 'manipulator' with the
-        // corresponding attribute information structure.  Return the value
-        // returned from the invocation of 'manipulator' if 'name' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Return a reference to the modifiable "Color" attribute of this
+    /// object.
     Colors::Value& color();
-        // Return a reference to the modifiable "Color" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Colors" attribute of this
+    /// object.
     bsl::vector<Colors::Value>& colors();
-        // Return a reference to the modifiable "Colors" attribute of this
-        // object.
 
     // ACCESSORS
+
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.  Note that a trailing newline is provided
+    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
 
+    /// Invoke the specified `accessor` sequentially on each
+    /// (non-modifiable) attribute of this object, supplying `accessor`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `accessor` (i.e., the invocation that terminated
+    /// the sequence).
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
-        // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `id`, supplying `accessor`
+    /// with the corresponding attribute information structure.  Return the
+    /// value returned from the invocation of `accessor` if `id` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
-        // with the corresponding attribute information structure.  Return the
-        // value returned from the invocation of 'accessor' if 'id' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `name` of the specified
+    /// `nameLength`, supplying `accessor` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `accessor` if `name` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
-        // 'nameLength', supplying 'accessor' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'accessor' if 'name' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Return a reference to the non-modifiable "Color" attribute of this
+    /// object.
     Colors::Value color() const;
-        // Return a reference to the non-modifiable "Color" attribute of this
-        // object.
 
+    /// Return a reference to the non-modifiable "Colors" attribute of this
+    /// object.
     const bsl::vector<Colors::Value>& colors() const;
-        // Return a reference to the non-modifiable "Colors" attribute of this
-        // object.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have
+/// the same value, and `false` otherwise.  Two attribute objects have the
+/// same value if each respective attribute has the same value.
 inline
 bool operator==(const Palette& lhs, const Palette& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
+/// have the same value, and `false` otherwise.  Two attribute objects do
+/// not have the same value if one or more respective attributes differ in
+/// values.
 inline
 bool operator!=(const Palette& lhs, const Palette& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
 
+/// Format the specified `rhs` to the specified output `stream` and
+/// return a reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Palette& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
 
 }  // close package namespace
 
@@ -34608,42 +34615,44 @@ struct Color {
     static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
 
     // CLASS METHODS
-    static const char *toString(Value value);
-        // Return the string representation exactly matching the enumerator
-        // name corresponding to the specified enumeration 'value'.
 
+    /// Return the string representation exactly matching the enumerator
+    /// name corresponding to the specified enumeration `value`.
+    static const char *toString(Value value);
+
+    /// Load into the specified `result` the enumerator matching the
+    /// specified `string` of the specified `stringLength`.  Return 0 on
+    /// success, and a non-zero value with no effect on `result` otherwise
+    /// (i.e., `string` does not match any enumerator).
     static int fromString(Value        *result,
                           const char   *string,
                           int           stringLength);
-        // Load into the specified 'result' the enumerator matching the
-        // specified 'string' of the specified 'stringLength'.  Return 0 on
-        // success, and a non-zero value with no effect on 'result' otherwise
-        // (i.e., 'string' does not match any enumerator).
 
+    /// Load into the specified `result` the enumerator matching the
+    /// specified `string`.  Return 0 on success, and a non-zero value with
+    /// no effect on `result` otherwise (i.e., `string` does not match any
+    /// enumerator).
     static int fromString(Value              *result,
                           const bsl::string&  string);
-        // Load into the specified 'result' the enumerator matching the
-        // specified 'string'.  Return 0 on success, and a non-zero value with
-        // no effect on 'result' otherwise (i.e., 'string' does not match any
-        // enumerator).
 
+    /// Load into the specified `result` the enumerator matching the
+    /// specified `number`.  Return 0 on success, and a non-zero value with
+    /// no effect on `result` otherwise (i.e., `number` does not match any
+    /// enumerator).
     static int fromInt(Value *result, int number);
-        // Load into the specified 'result' the enumerator matching the
-        // specified 'number'.  Return 0 on success, and a non-zero value with
-        // no effect on 'result' otherwise (i.e., 'number' does not match any
-        // enumerator).
 
+    /// Write to the specified `stream` the string representation of the
+    /// specified enumeration `value`.  Return a reference to the modifiable
+    /// `stream`.
     static bsl::ostream& print(bsl::ostream& stream, Value value);
-        // Write to the specified 'stream' the string representation of the
-        // specified enumeration 'value'.  Return a reference to the modifiable
-        // 'stream'.
 };
 
 // FREE OPERATORS
+
+/// Format the specified `rhs` to the specified output `stream` and return a
+/// reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, Color::Value rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and return a
-    // reference to the modifiable 'stream'.
 
 }  // close namespace case4
 
@@ -34686,128 +34695,133 @@ class FullName {
 
   public:
     // CLASS METHODS
-    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
-        // Return attribute information for the attribute indicated by the
-        // specified 'id' if the attribute exists, and 0 otherwise.
 
+    /// Return attribute information for the attribute indicated by the
+    /// specified `id` if the attribute exists, and 0 otherwise.
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+
+    /// Return attribute information for the attribute indicated by the
+    /// specified `name` of the specified `nameLength` if the attribute
+    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
-        // Return attribute information for the attribute indicated by the
-        // specified 'name' of the specified 'nameLength' if the attribute
-        // exists, and 0 otherwise.
 
     // CREATORS
+
+    /// Create an object of type `FullName` having the default value.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     explicit FullName(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'FullName' having the default value.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Create an object of type `FullName` having the value of the
+    /// specified `original` object.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
     FullName(const FullName& original, bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'FullName' having the value of the
-        // specified 'original' object.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
 
+    /// Destroy this object.
     ~FullName();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     FullName& operator=(const FullName& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
+    /// Reset this object to the default value (i.e., its value upon default
+    /// construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon default
-        // construction).
 
+    /// Invoke the specified `manipulator` sequentially on the address of
+    /// each (modifiable) attribute of this object, supplying `manipulator`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the last
+    /// invocation of `manipulator` (i.e., the invocation that terminated
+    /// the sequence).
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
-        // Invoke the specified 'manipulator' sequentially on the address of
-        // each (modifiable) attribute of this object, supplying 'manipulator'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the last
-        // invocation of 'manipulator' (i.e., the invocation that terminated
-        // the sequence).
 
+    /// Invoke the specified `manipulator` on the address of the
+    /// (modifiable) attribute indicated by the specified `id`, supplying
+    /// `manipulator` with the corresponding attribute information
+    /// structure.  Return the value returned from the invocation of
+    /// `manipulator` if `id` identifies an attribute of this class, and -1
+    /// otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of the
-        // (modifiable) attribute indicated by the specified 'id', supplying
-        // 'manipulator' with the corresponding attribute information
-        // structure.  Return the value returned from the invocation of
-        // 'manipulator' if 'id' identifies an attribute of this class, and -1
-        // otherwise.
 
+    /// Invoke the specified `manipulator` on the address of the
+    /// (modifiable) attribute indicated by the specified `name` of the
+    /// specified `nameLength`, supplying `manipulator` with the
+    /// corresponding attribute information structure.  Return the value
+    /// returned from the invocation of `manipulator` if `name` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of the
-        // (modifiable) attribute indicated by the specified 'name' of the
-        // specified 'nameLength', supplying 'manipulator' with the
-        // corresponding attribute information structure.  Return the value
-        // returned from the invocation of 'manipulator' if 'name' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Return a reference to the modifiable "Name" attribute of this
+    /// object.
     bsl::string& name();
-        // Return a reference to the modifiable "Name" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Ids" attribute of this object.
     bsl::vector<int>& ids();
-        // Return a reference to the modifiable "Ids" attribute of this object.
 
     // ACCESSORS
+
+    /// Invoke the specified `accessor` sequentially on each
+    /// (non-modifiable) attribute of this object, supplying `accessor` with
+    /// the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the last
+    /// invocation of `accessor` (i.e., the invocation that terminated the
+    /// sequence).
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
-        // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor' with
-        // the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the last
-        // invocation of 'accessor' (i.e., the invocation that terminated the
-        // sequence).
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute of
+    /// this object indicated by the specified `id`, supplying `accessor`
+    /// with the corresponding attribute information structure.  Return the
+    /// value returned from the invocation of `accessor` if `id` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
-        // this object indicated by the specified 'id', supplying 'accessor'
-        // with the corresponding attribute information structure.  Return the
-        // value returned from the invocation of 'accessor' if 'id' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute of
+    /// this object indicated by the specified `name` of the specified
+    /// `nameLength`, supplying `accessor` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `accessor` if `name` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
-        // this object indicated by the specified 'name' of the specified
-        // 'nameLength', supplying 'accessor' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'accessor' if 'name' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Return a reference to the non-modifiable "Name" attribute of this
+    /// object.
     const bsl::string& name() const;
-        // Return a reference to the non-modifiable "Name" attribute of this
-        // object.
 
+    /// Return a reference to the non-modifiable "Ids" attribute of this
+    /// object.
     const bsl::vector<int>& ids() const;
-        // Return a reference to the non-modifiable "Ids" attribute of this
-        // object.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have
+/// the same value, and `false` otherwise.  Two attribute objects have the
+/// same value if each respective attribute has the same value.
 inline
 bool operator==(const FullName& lhs, const FullName& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
+/// have the same value, and `false` otherwise.  Two attribute objects do
+/// not have the same value if one or more respective attributes differ in
+/// values.
 inline
 bool operator!=(const FullName& lhs, const FullName& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
 
 }  // close namespace case4
 
@@ -34862,159 +34876,164 @@ class Employee {
 
   public:
     // CLASS METHODS
-    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
-        // Return attribute information for the attribute indicated by the
-        // specified 'id' if the attribute exists, and 0 otherwise.
 
+    /// Return attribute information for the attribute indicated by the
+    /// specified `id` if the attribute exists, and 0 otherwise.
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+
+    /// Return attribute information for the attribute indicated by the
+    /// specified `name` of the specified `nameLength` if the attribute
+    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
-        // Return attribute information for the attribute indicated by the
-        // specified 'name' of the specified 'nameLength' if the attribute
-        // exists, and 0 otherwise.
 
     // CREATORS
+
+    /// Create an object of type `Employee` having the default value.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     explicit Employee(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Employee' having the default value.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Create an object of type `Employee` having the value of the
+    /// specified `original` object.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
     Employee(const Employee& original, bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Employee' having the value of the
-        // specified 'original' object.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
 
+    /// Destroy this object.
     ~Employee();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     Employee& operator=(const Employee& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
+    /// Reset this object to the default value (i.e., its value upon default
+    /// construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon default
-        // construction).
 
+    /// Invoke the specified `manipulator` sequentially on the address of
+    /// each (modifiable) attribute of this object, supplying `manipulator`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the last
+    /// invocation of `manipulator` (i.e., the invocation that terminated
+    /// the sequence).
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
-        // Invoke the specified 'manipulator' sequentially on the address of
-        // each (modifiable) attribute of this object, supplying 'manipulator'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the last
-        // invocation of 'manipulator' (i.e., the invocation that terminated
-        // the sequence).
 
+    /// Invoke the specified `manipulator` on the address of the
+    /// (modifiable) attribute indicated by the specified `id`, supplying
+    /// `manipulator` with the corresponding attribute information
+    /// structure.  Return the value returned from the invocation of
+    /// `manipulator` if `id` identifies an attribute of this class, and -1
+    /// otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of the
-        // (modifiable) attribute indicated by the specified 'id', supplying
-        // 'manipulator' with the corresponding attribute information
-        // structure.  Return the value returned from the invocation of
-        // 'manipulator' if 'id' identifies an attribute of this class, and -1
-        // otherwise.
 
+    /// Invoke the specified `manipulator` on the address of the
+    /// (modifiable) attribute indicated by the specified `name` of the
+    /// specified `nameLength`, supplying `manipulator` with the
+    /// corresponding attribute information structure.  Return the value
+    /// returned from the invocation of `manipulator` if `name` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of the
-        // (modifiable) attribute indicated by the specified 'name' of the
-        // specified 'nameLength', supplying 'manipulator' with the
-        // corresponding attribute information structure.  Return the value
-        // returned from the invocation of 'manipulator' if 'name' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Return a reference to the modifiable "Name" attribute of this
+    /// object.
     bsl::string& name();
-        // Return a reference to the modifiable "Name" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Age" attribute of this object.
     int& age();
-        // Return a reference to the modifiable "Age" attribute of this object.
 
+    /// Return a reference to the modifiable "Ids" attribute of this object.
     bsl::vector<int>& ids();
-        // Return a reference to the modifiable "Ids" attribute of this object.
 
+    /// Return a reference to the modifiable "Fullname" attribute of this
+    /// object.
     FullName& fullname();
-        // Return a reference to the modifiable "Fullname" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "CarColor" attribute of this
+    /// object.
     Color::Value& carColor();
-        // Return a reference to the modifiable "CarColor" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Friends" attribute of this
+    /// object.
     bsl::vector<FullName>& friends();
-        // Return a reference to the modifiable "Friends" attribute of this
-        // object.
 
     // ACCESSORS
+
+    /// Invoke the specified `accessor` sequentially on each
+    /// (non-modifiable) attribute of this object, supplying `accessor` with
+    /// the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the last
+    /// invocation of `accessor` (i.e., the invocation that terminated the
+    /// sequence).
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
-        // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor' with
-        // the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the last
-        // invocation of 'accessor' (i.e., the invocation that terminated the
-        // sequence).
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute of
+    /// this object indicated by the specified `id`, supplying `accessor`
+    /// with the corresponding attribute information structure.  Return the
+    /// value returned from the invocation of `accessor` if `id` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
-        // this object indicated by the specified 'id', supplying 'accessor'
-        // with the corresponding attribute information structure.  Return the
-        // value returned from the invocation of 'accessor' if 'id' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute of
+    /// this object indicated by the specified `name` of the specified
+    /// `nameLength`, supplying `accessor` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `accessor` if `name` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
-        // this object indicated by the specified 'name' of the specified
-        // 'nameLength', supplying 'accessor' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'accessor' if 'name' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Return a reference to the non-modifiable "Name" attribute of this
+    /// object.
     const bsl::string& name() const;
-        // Return a reference to the non-modifiable "Name" attribute of this
-        // object.
 
+    /// Return a reference to the non-modifiable "Age" attribute of this
+    /// object.
     int age() const;
-        // Return a reference to the non-modifiable "Age" attribute of this
-        // object.
 
+    /// Return a reference to the non-modifiable "Ids" attribute of this
+    /// object.
     const bsl::vector<int>& ids() const;
-        // Return a reference to the non-modifiable "Ids" attribute of this
-        // object.
 
+    /// Return a reference to the non-modifiable "Fullname" attribute of
+    /// this object.
     const FullName& fullname() const;
-        // Return a reference to the non-modifiable "Fullname" attribute of
-        // this object.
 
+    /// Return a reference to the non-modifiable "CarColor" attribute of
+    /// this object.
     Color::Value carColor() const;
-        // Return a reference to the non-modifiable "CarColor" attribute of
-        // this object.
 
+    /// Return a reference to the non-modifiable "Friends" attribute of this
+    /// object.
     const bsl::vector<FullName>& friends() const;
-        // Return a reference to the non-modifiable "Friends" attribute of this
-        // object.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have
+/// the same value, and `false` otherwise.  Two attribute objects have the
+/// same value if each respective attribute has the same value.
 inline
 bool operator==(const Employee& lhs, const Employee& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
+/// have the same value, and `false` otherwise.  Two attribute objects do
+/// not have the same value if one or more respective attributes differ in
+/// values.
 inline
 bool operator!=(const Employee& lhs, const Employee& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
 
 }  // close namespace case4
 
@@ -35836,15 +35855,16 @@ class HexBinaryCustomizedType {
     bsl::vector<char> d_value;
 
     // PRIVATE CLASS METHODS
-    static int checkRestrictions(const char *value, int size);
-        // Check if the specified 'value' having the specified 'size' satisfies
-        // the restrictions of this class.  Return 0 if successful (i.e., the
-        // restrictions are satisfied) and non-zero otherwise.
 
+    /// Check if the specified `value` having the specified `size` satisfies
+    /// the restrictions of this class.  Return 0 if successful (i.e., the
+    /// restrictions are satisfied) and non-zero otherwise.
+    static int checkRestrictions(const char *value, int size);
+
+    /// Check if the specified `value` satisfies the restrictions of this
+    /// class.  Return 0 if successful (i.e., the restrictions are
+    /// satisfied) and non-zero otherwise.
     static int checkRestrictions(const bsl::vector<char>& value);
-        // Check if the specified 'value' satisfies the restrictions of this
-        // class.  Return 0 if successful (i.e., the restrictions are
-        // satisfied) and non-zero otherwise.
 
   public:
     // TYPES
@@ -35854,79 +35874,83 @@ class HexBinaryCustomizedType {
     static const char CLASS_NAME[];
 
     // CREATORS
-    explicit HexBinaryCustomizedType(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'HexBinaryCustomizedType' having the
-        // default value.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create an object of type `HexBinaryCustomizedType` having the
+    /// default value.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
+    explicit HexBinaryCustomizedType(bslma::Allocator *basicAllocator = 0);
+
+    /// Create an object of type `HexBinaryCustomizedType` having the value
+    /// of the specified `original` object.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.
     HexBinaryCustomizedType(
                            const HexBinaryCustomizedType&  original,
                            bslma::Allocator               *basicAllocator = 0);
-        // Create an object of type 'HexBinaryCustomizedType' having the value
-        // of the specified 'original' object.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
 
+    /// Destroy this object.
     ~HexBinaryCustomizedType();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     HexBinaryCustomizedType& operator=(const HexBinaryCustomizedType& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
+    /// Convert from the specified `value` to this type.  Return 0 if
+    /// successful and non-zero otherwise.
     int fromVector(const bsl::vector<char>& value);
-        // Convert from the specified 'value' to this type.  Return 0 if
-        // successful and non-zero otherwise.
 
+    /// Reset this object to the default value (i.e., its value upon default
+    /// construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon default
-        // construction).
 
+    /// Return the array encapsulated by this object.
     bsl::vector<char>& array();
-        // Return the array encapsulated by this object.
 
     // ACCESSORS
+
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.  Note that a trailing newline is provided
+    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
 
+    /// Return the array encapsulated by this object.
     const bsl::vector<char>& array() const;
-        // Return the array encapsulated by this object.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have
+/// the same value, and `false` otherwise.  Two attribute objects have the
+/// same value if each respective attribute has the same value.
 inline
 bool operator==(const HexBinaryCustomizedType& lhs,
                 const HexBinaryCustomizedType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
+/// have the same value, and `false` otherwise.  Two attribute objects do
+/// not have the same value if one or more respective attributes differ in
+/// values.
 inline
 bool operator!=(const HexBinaryCustomizedType& lhs,
                 const HexBinaryCustomizedType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
 
+/// Format the specified `rhs` to the specified output `stream` and return a
+/// reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream&                  stream,
                          const HexBinaryCustomizedType& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and return a
-    // reference to the modifiable 'stream'.
 
 }  // close namespace s_baltst
 
@@ -36101,139 +36125,144 @@ class HexBinarySequence {
 
   public:
     // CLASS METHODS
-    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
-        // Return attribute information for the attribute indicated by the
-        // specified 'id' if the attribute exists, and 0 otherwise.
 
+    /// Return attribute information for the attribute indicated by the
+    /// specified `id` if the attribute exists, and 0 otherwise.
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+
+    /// Return attribute information for the attribute indicated by the
+    /// specified `name` of the specified `nameLength` if the attribute
+    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
-        // Return attribute information for the attribute indicated by the
-        // specified 'name' of the specified 'nameLength' if the attribute
-        // exists, and 0 otherwise.
 
     // CREATORS
-    explicit HexBinarySequence(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'HexBinarySequence' having the default
-        // value.
 
+    /// Create an object of type `HexBinarySequence` having the default
+    /// value.
+    explicit HexBinarySequence(bslma::Allocator *basicAllocator = 0);
+
+    /// Create an object of type `HexBinarySequence` having the value of the
+    /// specified `original` object.
     HexBinarySequence(const HexBinarySequence&  original,
                       bslma::Allocator         *basicAllocator = 0);
-        // Create an object of type 'HexBinarySequence' having the value of the
-        // specified 'original' object.
 
+    /// Destroy this object.
     ~HexBinarySequence();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     HexBinarySequence& operator=(const HexBinarySequence& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
+    /// Reset this object to the default value (i.e., its value upon default
+    /// construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon default
-        // construction).
 
+    /// Invoke the specified `manipulator` sequentially on the address of
+    /// each (modifiable) attribute of this object, supplying `manipulator`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the last
+    /// invocation of `manipulator` (i.e., the invocation that terminated
+    /// the sequence).
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
-        // Invoke the specified 'manipulator' sequentially on the address of
-        // each (modifiable) attribute of this object, supplying 'manipulator'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the last
-        // invocation of 'manipulator' (i.e., the invocation that terminated
-        // the sequence).
 
+    /// Invoke the specified `manipulator` on the address of the
+    /// (modifiable) attribute indicated by the specified `id`, supplying
+    /// `manipulator` with the corresponding attribute information
+    /// structure.  Return the value returned from the invocation of
+    /// `manipulator` if `id` identifies an attribute of this class, and -1
+    /// otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of the
-        // (modifiable) attribute indicated by the specified 'id', supplying
-        // 'manipulator' with the corresponding attribute information
-        // structure.  Return the value returned from the invocation of
-        // 'manipulator' if 'id' identifies an attribute of this class, and -1
-        // otherwise.
 
+    /// Invoke the specified `manipulator` on the address of the
+    /// (modifiable) attribute indicated by the specified `name` of the
+    /// specified `nameLength`, supplying `manipulator` with the
+    /// corresponding attribute information structure.  Return the value
+    /// returned from the invocation of `manipulator` if `name` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of the
-        // (modifiable) attribute indicated by the specified 'name' of the
-        // specified 'nameLength', supplying 'manipulator' with the
-        // corresponding attribute information structure.  Return the value
-        // returned from the invocation of 'manipulator' if 'name' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Return a reference to the modifiable "Element1" attribute of this
+    /// object.
     HexBinaryCustomizedType& element1();
-        // Return a reference to the modifiable "Element1" attribute of this
-        // object.
 
     // ACCESSORS
+
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.  Note that a trailing newline is provided
+    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
 
+    /// Invoke the specified `accessor` sequentially on each
+    /// (non-modifiable) attribute of this object, supplying `accessor` with
+    /// the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the last
+    /// invocation of `accessor` (i.e., the invocation that terminated the
+    /// sequence).
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
-        // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor' with
-        // the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the last
-        // invocation of 'accessor' (i.e., the invocation that terminated the
-        // sequence).
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute of
+    /// this object indicated by the specified `id`, supplying `accessor`
+    /// with the corresponding attribute information structure.  Return the
+    /// value returned from the invocation of `accessor` if `id` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
-        // this object indicated by the specified 'id', supplying 'accessor'
-        // with the corresponding attribute information structure.  Return the
-        // value returned from the invocation of 'accessor' if 'id' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute of
+    /// this object indicated by the specified `name` of the specified
+    /// `nameLength`, supplying `accessor` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `accessor` if `name` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute of
-        // this object indicated by the specified 'name' of the specified
-        // 'nameLength', supplying 'accessor' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'accessor' if 'name' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Return a reference to the modifiable "Element1" attribute of this
+    /// object.
     const HexBinaryCustomizedType& element1() const;
-        // Return a reference to the modifiable "Element1" attribute of this
-        // object.
 
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have
+/// the same value, and `false` otherwise.  Two attribute objects have the
+/// same value if each respective attribute has the same value.
 inline
 bool operator==(const HexBinarySequence& lhs, const HexBinarySequence& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
+/// have the same value, and `false` otherwise.  Two attribute objects do
+/// not have the same value if one or more respective attributes differ in
+/// values.
 inline
 bool operator!=(const HexBinarySequence& lhs, const HexBinarySequence& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
 
+/// Format the specified `rhs` to the specified output `stream` and return a
+/// reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const HexBinarySequence& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and return a
-    // reference to the modifiable 'stream'.
 
 }  // close namespace s_baltst
 
@@ -36645,14 +36674,15 @@ namespace u {
 
 struct TestUtil {
     // CLASS METHODS
+
+    /// Assert that decoding the specified `JSON` using `baljsn::Decoder`
+    /// with a default set of options yields the specified `VALUE` if
+    /// `IS_VALID` is `true`, and fails otherwise.
     template <class VALUE_TYPE>
     static void assertDecodedValueIsEqual(int                     LINE,
                                           const bsl::string_view& JSON,
                                           bool                    IS_VALID,
                                           const VALUE_TYPE&       VALUE)
-        // Assert that decoding the specified 'JSON' using 'baljsn::Decoder'
-        // with a default set of options yields the specified 'VALUE' if
-        // 'IS_VALID' is 'true', and fails otherwise.
     {
         typedef baljsn::Decoder Obj;
         Obj mX;
@@ -36683,12 +36713,13 @@ class Replace {
     Replace() { }
 
     // ACCESSORS
+
+    /// Return the result of replacing each occurrence of the specified
+    /// `subject` with the specified `replacement` in the specified
+    /// `original` string.
     bsl::string operator()(const bsl::string_view& original,
                            const bsl::string_view& subject,
                            const bsl::string_view& replacement) const
-        // Return the result of replacing each occurrence of the specified
-        // 'subject' with the specified 'replacement' in the specified
-        // 'original' string.
     {
         bdlpcre::RegEx regex;
         bsl::string    prepareErrorMessage;
@@ -36734,24 +36765,25 @@ class AssertDecodedValueIsEqualFunction {
     }
 
     // ACCESSORS
+
+    /// Assert that decoding the specified `JSON` using `baljsn::Decoder`
+    /// with a default set of options yields the specified `VALUE`.
     template <class VALUE_TYPE>
     void operator()(int                     LINE,
                     const bsl::string_view& JSON,
                     const VALUE_TYPE&       VALUE) const
-        // Assert that decoding the specified 'JSON' using 'baljsn::Decoder'
-        // with a default set of options yields the specified 'VALUE'.
     {
         TestUtil::assertDecodedValueIsEqual(LINE, JSON, true, VALUE);
     }
 
+    /// Assert that decoding the specified `JSON` using `baljsn::Decoder`
+    /// with a default set of options yields the specified `VALUE` if
+    /// `IS_VALID` is `true`, and fails otherwise.
     template <class VALUE_TYPE>
     void operator()(int                     LINE,
                     const bsl::string_view& JSON,
                     bool                    IS_VALID,
                     const VALUE_TYPE&       VALUE) const
-        // Assert that decoding the specified 'JSON' using 'baljsn::Decoder'
-        // with a default set of options yields the specified 'VALUE' if
-        // 'IS_VALID' is 'true', and fails otherwise.
     {
         TestUtil::assertDecodedValueIsEqual(LINE, JSON, IS_VALID, VALUE);
     }
@@ -36766,15 +36798,16 @@ class AssertDecodedArrayOfValuesIsEqualFunction {
     }
 
     // ACCESSORS
+
+    /// Assert that decoding various nested and non-nested JSON arrays
+    /// having the specified `ELEMENT_JSON` as terminal element(s) using
+    /// `baljsn::Decoder` with a default set of options yields an
+    /// equivalently-structured `bsl::vector` specialization having the
+    /// zero or more copies of the specified terminal `EXPECTED_ELEMENT`.
     template <class ELEMENT_TYPE>
     void operator()(int                    LINE,
                     const bsl::string_view ELEMENT_JSON,
                     const ELEMENT_TYPE&    EXPECTED_ELEMENT) const
-        // Assert that decoding various nested and non-nested JSON arrays
-        // having the specified 'ELEMENT_JSON' as terminal element(s) using
-        // 'baljsn::Decoder' with a default set of options yields an
-        // equivalently-structured 'bsl::vector' specialization having the
-        // zero or more copies of the specified terminal 'EXPECTED_ELEMENT'.
     {
         const AssertDecodedValueIsEqualFunction       TEST;
         const s_baltst::TestPlaceHolder<ELEMENT_TYPE> e;
@@ -36919,7 +36952,7 @@ void roundTripTestNonNumericValues()
         else {
             ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
         }
-        // We also use 'memcmp' to ensure that we really get back the
+        // We also use `memcmp` to ensure that we really get back the
         // same binary IEEE-754.
         ASSERTV(LINE, encoded, VALUE, DECODED,
                 0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
@@ -36947,13 +36980,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -36966,16 +36999,16 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Decoding into a 'bas_codegen.pl'-generated from data in JSON
+///Example 1: Decoding into a `bas_codegen.pl`-generated from data in JSON
 ///-----------------------------------------------------------------------
 // Consider that we want to exchange an employee's information between two
 // processes.  To allow this information exchange we will define the XML schema
-// representation for that class, use 'bas_codegen.pl' to create the 'Employee'
-// 'class' for storing that information, and decode into that object using the
-// 'baljsn' decoder.
+// representation for that class, use `bas_codegen.pl` to create the `Employee`
+// `class` for storing that information, and decode into that object using the
+// `baljsn` decoder.
 //
-// First, we will define the XML schema inside a file called 'employee.xsd':
-//..
+// First, we will define the XML schema inside a file called `employee.xsd`:
+// ```
 //  <?xml version='1.0' encoding='UTF-8'?>
 //  <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
 //             xmlns:test='http://bloomberg.com/schemas/test'
@@ -37001,114 +37034,114 @@ int main(int argc, char *argv[])
 //      <xs:element name='Employee' type='test:Employee'/>
 //
 //  </xs:schema>
-//..
-// Then, we will use the 'bas_codegen.pl' tool, to generate the C++ classes for
+// ```
+// Then, we will use the `bas_codegen.pl` tool, to generate the C++ classes for
 // this schema.  The following command will generate the header and
-// implementation files for the all the classes in the 'test_messages'
+// implementation files for the all the classes in the `test_messages`
 // components in the current directory:
-//..
+// ```
 //  $ bas_codegen.pl -m msg -p test xsdfile.xsd
-//..
-// Next, we will create a 'test::Employee' object:
-//..
+// ```
+// Next, we will create a `test::Employee` object:
+// ```
     test::Employee employee;
-//..
-// Then, we will create a 'baljsn::Decoder' object:
-//..
+// ```
+// Then, we will create a `baljsn::Decoder` object:
+// ```
     baljsn::Decoder decoder;
-//..
+// ```
 // Next, we will specify the input data provided to the decoder:
-//..
+// ```
     const char INPUT[] = "{\"name\":\"Bob\",\"homeAddress\":{\"street\":"
                          "\"Lexington Ave\",\"city\":\"New York City\","
                          "\"state\":\"New York\"},\"age\":21}";
 
     bsl::istringstream is(INPUT);
-//..
-// Now, we will decode this object using the 'decode' function of the baljsn
-// decoder by providing it a 'baljsn::DecoderOptions' object.  The decoder
+// ```
+// Now, we will decode this object using the `decode` function of the baljsn
+// decoder by providing it a `baljsn::DecoderOptions` object.  The decoder
 // options allow us to specify that unknown elements should *not* be skipped.
-// Setting this option to 'false' will result in the decoder returning an error
+// Setting this option to `false` will result in the decoder returning an error
 // on encountering an unknown element:
-//..
+// ```
     baljsn::DecoderOptions options;
     options.setSkipUnknownElements(false);
 
     const int rc = decoder.decode(is, &employee, options);
     ASSERT(!rc);
     ASSERT(is);
-//..
+// ```
 // Finally, we will verify that the decoded object is as expected:
-//..
+// ```
     ASSERT("Bob"           == employee.name());
     ASSERT("Lexington Ave" == employee.homeAddress().street());
     ASSERT("New York City" == employee.homeAddress().city());
     ASSERT("New York"      == employee.homeAddress().state());
     ASSERT(21              == employee.age());
-//..
+// ```
       } break;
       case 16: {
         // --------------------------------------------------------------------
         // STRICT CONFORMANCE
         //
         // Concerns:
-        //: 1 Invoking 'decode' with 'DecoderOptions' configured for strict
-        //:   compliance detects violations fails when any of the strict
-        //:   requirements is violated.  Specifically:
-        //:
-        //:   o 'setValidateInputIsUtf8(true)'
-        //:   o 'setAllowConsecutiveSeparators(false)'
-        //:   o 'setAllowFormFeedAsWhitespace(false)'
-        //:   o 'setAllowUnescapedControlCharacters(false)'
-        //:
-        //: 1 On failure, the log message correctly describes the nature of the
-        //:   failure.
-        //:
-        //: 2 Given either a default configured or a strictly configured
-        //:   'DecoderOptions' object, 'decode' ignores arbitrary text
-        //:   following a valid JSON document.
-        //:
-        //: 3 Given either a default configured or a strictly configured
-        //:   'DecoderOptions' object, two valid JSON documents in a stream can
-        //:   correctly parsed, by successive calls to 'decode', if and only if
-        //:   the two documents are separated by zero or more whitespace
-        //:   characters.
+        // 1. Invoking `decode` with `DecoderOptions` configured for strict
+        //    compliance detects violations fails when any of the strict
+        //    requirements is violated.  Specifically:
+        //
+        //    - `setValidateInputIsUtf8(true)`
+        //    - `setAllowConsecutiveSeparators(false)`
+        //    - `setAllowFormFeedAsWhitespace(false)`
+        //    - `setAllowUnescapedControlCharacters(false)`
+        //
+        // 1. On failure, the log message correctly describes the nature of the
+        //    failure.
+        //
+        // 2. Given either a default configured or a strictly configured
+        //    `DecoderOptions` object, `decode` ignores arbitrary text
+        //    following a valid JSON document.
+        //
+        // 3. Given either a default configured or a strictly configured
+        //    `DecoderOptions` object, two valid JSON documents in a stream can
+        //    correctly parsed, by successive calls to `decode`, if and only if
+        //    the two documents are separated by zero or more whitespace
+        //    characters.
         //
         // Plan:
-        //: 1 Attempt to initialize a 'test::Employee' object from a series of
-        //:   JSON documents in which each document has a single violation of
-        //:   the requirements of strictness.  'decode' calls using the default
-        //:   'DecoderOptions' are expected to succeed but those using a
-        //:   strictly configured 'DecoderOptions' options are expected to
-        //:   fail.  (C-1)
-        //:
-        //:   1 Compare the log message to the expected value.  (C-1.1)
-        //:
-        //:   2 Note that TC 9 (TESTING UTF-8 DETECTION) provides a more
-        //:     comprehensive test of the 'setValidateInputIsUtf8' option.
-        //:
-        //: 2 Append to a valid JSON document additional text consisting of
-        //:   different combinations of whitespace and non-whitespace
-        //:   characters.  Confirm that the all-whitespace suffices do not
-        //:   interfere with the 'decode' of the JSON document for either
-        //:   default or strictly-configures 'DecoderOptions'; however, if any
-        //:   non-whitespace characters are appended, 'decode' fails.  (C-2)
-        //:
-        //: 3 Given a valid JSON document describing a 'test::Employee' object,
-        //:   append a second version of that document having different values.
-        //:   Confirm that 'decode' of the combined text fails when using a
-        //:   strictly-configured 'DecoderOptions' but the second JSON document
-        //:   is ignored when a default 'DecoderOptions' is used.  (C-3)
-        //:
-        //:   1 Repeat with various combinations of whitespace (including no
-        //:     whitespace separating the two JSON documents.
-        //:
-        //:   2 Confirm that when 'decode' is successful, the values in the
-        //:     resulting 'test::Employee' object correspond to the first JSON
-        //:     document in the text.
+        // 1. Attempt to initialize a `test::Employee` object from a series of
+        //    JSON documents in which each document has a single violation of
+        //    the requirements of strictness.  `decode` calls using the default
+        //    `DecoderOptions` are expected to succeed but those using a
+        //    strictly configured `DecoderOptions` options are expected to
+        //    fail.  (C-1)
+        //
+        //   1. Compare the log message to the expected value.  (C-1.1)
+        //
+        //   2. Note that TC 9 (TESTING UTF-8 DETECTION) provides a more
+        //      comprehensive test of the `setValidateInputIsUtf8` option.
+        //
+        // 2. Append to a valid JSON document additional text consisting of
+        //    different combinations of whitespace and non-whitespace
+        //    characters.  Confirm that the all-whitespace suffices do not
+        //    interfere with the `decode` of the JSON document for either
+        //    default or strictly-configures `DecoderOptions`; however, if any
+        //    non-whitespace characters are appended, `decode` fails.  (C-2)
+        //
+        // 3. Given a valid JSON document describing a `test::Employee` object,
+        //    append a second version of that document having different values.
+        //    Confirm that `decode` of the combined text fails when using a
+        //    strictly-configured `DecoderOptions` but the second JSON document
+        //    is ignored when a default `DecoderOptions` is used.  (C-3)
+        //
+        //   1. Repeat with various combinations of whitespace (including no
+        //      whitespace separating the two JSON documents.
+        //
+        //   2. Confirm that when `decode` is successful, the values in the
+        //      resulting `test::Employee` object correspond to the first JSON
+        //      document in the text.
         //
         // Testing:
-        //   'DecoderOptions' CAN BE CONFIGURED FOR STRICT CONFORMANCE
+        //   `DecoderOptions` CAN BE CONFIGURED FOR STRICT CONFORMANCE
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -37507,50 +37540,50 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // ARRAY HAVING NULLABLE COMPLEX ELEMENTS
         //   Ticket {DRQS 167908706} reports a failure to decode a JSON
-        //   document to an array of nillable types when 'null' appears in the
+        //   document to an array of nillable types when `null` appears in the
         //   document.  This test case reproduces that problem and tests the
         //   fix.  Note that investigation showed that the failure did occured
-        //   when the nillable type was a 'ComplexType' but not a 'SimpleType'.
+        //   when the nillable type was a `ComplexType` but not a `SimpleType`.
         //
         // Concerns:
-        //: 1 The fix enables the successful decoding of 'null' for arrays
-        //:   nillable 'ComplexType's.
-        //:
-        //: 2 The successful decoding of 'null' for arrays nillable
-        //:   'SimpleType's continues to work correctly.
-        //:
-        //: 3 The (incorrect) use of 'null' in an array of non-nillalble types
-        //:   continues to fail provide a meaningful error message.
-        //:
-        //: 4 The JSON 'null' token is decoded irrespective of its position in
-        //:   the array.
+        // 1. The fix enables the successful decoding of `null` for arrays
+        //    nillable `ComplexType`s.
+        //
+        // 2. The successful decoding of `null` for arrays nillable
+        //    `SimpleType`s continues to work correctly.
+        //
+        // 3. The (incorrect) use of `null` in an array of non-nillalble types
+        //    continues to fail provide a meaningful error message.
+        //
+        // 4. The JSON `null` token is decoded irrespective of its position in
+        //    the array.
         //
         // Plan:
-        //: 1 Use three test types:
-        //:
-        //:   1 's_baltst::MySequenceWithNillableIntArray', a
-        //:      nillable array of a simple type
-        //:
-        //:   2 's_baltst::MySequenceWithNillableIntSequenceArray', a
-        //:     nillable array of a complex type
-        //:
-        //:   3 's_baltst::BigRecord TestObj': features a non-nillable array
-        //:     of a complex type (and a few other non-relevant fields).
-        //:
-        //: 2 For the first two test types, P1-1 and P1-2:
-        //:   1 Create a test object
-        //:   2 Call 'reset' on one of the elements of the array to generate
-        //:     a 'null' in the corresponding position in the JSON document.
-        //:   3 Encode the object into a JSON document.
-        //:   4 Decode the JSON document into a second object.
-        //:   5 Compare the first and second objects for equality.
-        //:   6 Repeat 1-5 for each position in the array.
-        //:
-        //: 3 The third test type, P1-3, that provides no 'reset' method (it is
-        //:   *not* nillable), create a series of JSON documents with a 'null'
-        //:   successively in each array position.  Check that each of these
-        //:   data points fail and provides an error message that reports the
-        //:   position of the 'null'.
+        // 1. Use three test types:
+        //
+        //   1. `s_baltst::MySequenceWithNillableIntArray`, a
+        //       nillable array of a simple type
+        //
+        //   2. `s_baltst::MySequenceWithNillableIntSequenceArray`, a
+        //      nillable array of a complex type
+        //
+        //   3. `s_baltst::BigRecord TestObj`: features a non-nillable array
+        //      of a complex type (and a few other non-relevant fields).
+        //
+        // 2. For the first two test types, P1-1 and P1-2:
+        //   1. Create a test object
+        //   2. Call `reset` on one of the elements of the array to generate
+        //      a `null` in the corresponding position in the JSON document.
+        //   3. Encode the object into a JSON document.
+        //   4. Decode the JSON document into a second object.
+        //   5. Compare the first and second objects for equality.
+        //   6. Repeat 1-5 for each position in the array.
+        //
+        // 3. The third test type, P1-3, that provides no `reset` method (it is
+        //    *not* nillable), create a series of JSON documents with a `null`
+        //    successively in each array position.  Check that each of these
+        //    data points fail and provides an error message that reports the
+        //    position of the `null`.
         //
         // Testing:
         //   DRQS 167908706
@@ -37880,32 +37913,32 @@ int main(int argc, char *argv[])
         // DECODING INTS AS ENUMS AND VICE VERSA
         //
         // Concerns:
-        //: 1 The encoding produced by 'baljsn_encoder' when encoding an
-        //:   integer enumeration can be decoded into either a plain integral
-        //:   type or a customized type (as produced by bas_codegen) whose base
-        //:   type is integral.
-        //:
-        //: 2 The encoding produced by 'baljsn_encoder' when encoding either a
-        //:   plain integral type or a customized type (as produced by
-        //:   bas_codegen) whose base type is integral can be decoded into an
-        //:   integer enumeration type.
+        // 1. The encoding produced by `baljsn_encoder` when encoding an
+        //    integer enumeration can be decoded into either a plain integral
+        //    type or a customized type (as produced by bas_codegen) whose base
+        //    type is integral.
+        //
+        // 2. The encoding produced by `baljsn_encoder` when encoding either a
+        //    plain integral type or a customized type (as produced by
+        //    bas_codegen) whose base type is integral can be decoded into an
+        //    integer enumeration type.
         //
         // Plan:
-        //: 1 Define a type, 'Enumeration1', that is a 'bdlat' enumeration, can
-        //:   hold an integer value of either 0 or 1, and whose string
-        //:   representation is just the decimal form of its value (as with
-        //:   'bcem_Aggregate').
-        //:
-        //: 2 Using 'baljsn_encoder', encode objects of type 'Enumeration1'
-        //:   having values of 0 and 1, and decode them into plain 'int's.
-        //:   Verify that the resulting values are the same as the original
-        //:   values.  Then, repeat using the generated type
-        //:   'test::MyIntEnumeration'.  (C-1)
-        //:
-        //: 3 Using 'baljsn_encoder', encode plain 'int's having values of 0
-        //:   and 1, decode them into 'Enumeration1', and verify that the
-        //:   resulting values are the same as the original values.  Then,
-        //:   repeat using the generated type 'test::MyIntEnumeration'.  (C-2)
+        // 1. Define a type, `Enumeration1`, that is a `bdlat` enumeration, can
+        //    hold an integer value of either 0 or 1, and whose string
+        //    representation is just the decimal form of its value (as with
+        //    `bcem_Aggregate`).
+        //
+        // 2. Using `baljsn_encoder`, encode objects of type `Enumeration1`
+        //    having values of 0 and 1, and decode them into plain `int`s.
+        //    Verify that the resulting values are the same as the original
+        //    values.  Then, repeat using the generated type
+        //    `test::MyIntEnumeration`.  (C-1)
+        //
+        // 3. Using `baljsn_encoder`, encode plain `int`s having values of 0
+        //    and 1, decode them into `Enumeration1`, and verify that the
+        //    resulting values are the same as the original values.  Then,
+        //    repeat using the generated type `test::MyIntEnumeration`.  (C-2)
         //
         // Testing:
         //   DECODING INTS AS ENUMS AND VICE VERSA
@@ -37956,32 +37989,32 @@ int main(int argc, char *argv[])
         // FALLBACK ENUMERATORS
         //
         // Concerns:
-        //: 1 When decoding into an enumeration type with a fallback
-        //:   enumerator, if the encoded value corresponds to a known
-        //:   enumerator, that enumerator is the result of the decoding.
-        //: 2 When decoding into an enumeration type with a fallback
-        //:   enumerator, if the encoded value does not correspond to any known
-        //:   enumerator, the decoding still succeeds and produces the fallback
-        //:   enumerator value.
+        // 1. When decoding into an enumeration type with a fallback
+        //    enumerator, if the encoded value corresponds to a known
+        //    enumerator, that enumerator is the result of the decoding.
+        // 2. When decoding into an enumeration type with a fallback
+        //    enumerator, if the encoded value does not correspond to any known
+        //    enumerator, the decoding still succeeds and produces the fallback
+        //    enumerator value.
         //
         // Plan:
-        //: 1 Use the table-driven technique, specify a set of valid encoded
-        //:   values of the enumeration 'test:MyEnumerationWithFallback',
-        //:   including ones that correspond to both known and unknown
-        //:   enumerators, together with the expected result of decoding that
-        //:   value (either the corresponding enumerator value or the fallback
-        //:   enumerator value, respectively).
-        //: 2 Generate a JSON input string representing an array of encoded
-        //:   values by concatenating the encoded values specified in P-1,
-        //:   separated by commas, and delimited by '[' and ']'.
-        //:   Simultaneously, generate a vector of expected values, which
-        //:   consists of the enumerator values specified in P-1.
-        //: 3 Verify that the result of decoding the JSON input string created
-        //:   in P-2 equals the vector of expected values created in P-2
-        //:   (C-1..2).
+        // 1. Use the table-driven technique, specify a set of valid encoded
+        //    values of the enumeration `test:MyEnumerationWithFallback`,
+        //    including ones that correspond to both known and unknown
+        //    enumerators, together with the expected result of decoding that
+        //    value (either the corresponding enumerator value or the fallback
+        //    enumerator value, respectively).
+        // 2. Generate a JSON input string representing an array of encoded
+        //    values by concatenating the encoded values specified in P-1,
+        //    separated by commas, and delimited by '[' and ']'.
+        //    Simultaneously, generate a vector of expected values, which
+        //    consists of the enumerator values specified in P-1.
+        // 3. Verify that the result of decoding the JSON input string created
+        //    in P-2 equals the vector of expected values created in P-2
+        //    (C-1..2).
         //
         // Note: The reason why this is a separate test case is to avoid
-        // further increasing the size of {'balb_testmessages'}, which would
+        // further increasing the size of {`balb_testmessages`}, which would
         // affect every component that depends on it.
         //
         // Testing:
@@ -38043,21 +38076,21 @@ int main(int argc, char *argv[])
         // REPRODUCE SCENARIO FROM DRQS 169438741
         //
         // Concerns:
-        //: 1 Encoded 'bdlt::Date' and 'bdlt::DateTz' values can be decoded to
-        //:   'bdlb::Variant2<bdlt::Date, bdlt::DateTz>' object.
-        //:
-        //: 2 Encoded 'bdlt::Time' and 'bdlt::TimeTz' values can be decoded to
-        //:   'bdlb::Variant2<bdlt::Time, bdlt::TimeTz>' object.
-        //:
-        //: 3 Encoded 'bdlt::Datetime' and 'bdlt::DatetimeTz' values can be
-        //:   decoded to 'bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>'
-        //:   object.
+        // 1. Encoded `bdlt::Date` and `bdlt::DateTz` values can be decoded to
+        //    `bdlb::Variant2<bdlt::Date, bdlt::DateTz>` object.
+        //
+        // 2. Encoded `bdlt::Time` and `bdlt::TimeTz` values can be decoded to
+        //    `bdlb::Variant2<bdlt::Time, bdlt::TimeTz>` object.
+        //
+        // 3. Encoded `bdlt::Datetime` and `bdlt::DatetimeTz` values can be
+        //    decoded to `bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>`
+        //    object.
         //
         // Plan:
-        //: 1 For a number of different JSON date-and-time representations,
-        //:   enumerate JSON arrays of such elements and verify that the JSON
-        //:   array decodes into the corresponding 'bsl::vector' value.
-        //:   (C-1..3)
+        // 1. For a number of different JSON date-and-time representations,
+        //    enumerate JSON arrays of such elements and verify that the JSON
+        //    array decodes into the corresponding `bsl::vector` value.
+        //    (C-1..3)
         //
         // Testing:
         //   DRQS 169438741
@@ -38075,7 +38108,7 @@ int main(int argc, char *argv[])
             baljsn::Decoder        mX;
             baljsn::DecoderOptions options;
 
-            // Testing 'bdlt::Date' and 'bdltDateTz'.
+            // Testing `bdlt::Date` and `bdltDateTz`.
             {
                 const char *ENCODED_DATES = "[\"0002-02-02\","
                                             " \"9999-12-31\","
@@ -38113,7 +38146,7 @@ int main(int argc, char *argv[])
                         EXP_DATE3 == dateVector[3].the<bdlt::DateTz>());
             }
 
-            // Testing 'bdlt::Time' and 'bdltTimeTz'.
+            // Testing `bdlt::Time` and `bdltTimeTz`.
             {
                 const char *ENCODED_TIMES = "[\"01:01:01\","
                                             " \"23:59:59.999999\","
@@ -38151,7 +38184,7 @@ int main(int argc, char *argv[])
                         EXP_TIME3 == timeVector[3].the<bdlt::TimeTz>());
             }
 
-            // Testing 'bdlt::Datetime' and 'bdltDatetimeTz'.
+            // Testing `bdlt::Datetime` and `bdltDatetimeTz`.
             {
                 const char *ENCODED_DATETIMES =
                                      "[\"0001-01-01T00:00:00.000000\","
@@ -38196,21 +38229,21 @@ int main(int argc, char *argv[])
         // FLOATING-POINT VALUES ROUND-TRIP
         //
         // Concerns:
-        //: 1 Numbers encoded without precision restrictions decode back to the
-        //:   same number (round-trip).
-        //:
-        //: 2 Providing no options or default options does not change behavior.
+        // 1. Numbers encoded without precision restrictions decode back to the
+        //    same number (round-trip).
+        //
+        // 2. Providing no options or default options does not change behavior.
         //
         // Plan:
-        //: 1 Use the table-driven technique:
-        //:
-        //:   1 Specify a set of valid values, including those that will test
-        //:     the precision of the output.
-        //:
-        //:   2 Encode, then decode each value and verify that the decoded
-        //:     value is as expected.
-        //:
-        //: 2 Do those for 'float' as well as 'double' values.
+        // 1. Use the table-driven technique:
+        //
+        //   1. Specify a set of valid values, including those that will test
+        //      the precision of the output.
+        //
+        //   2. Encode, then decode each value and verify that the decoded
+        //      value is as expected.
+        //
+        // 2. Do those for `float` as well as `double` values.
         //
         // Testing:
         //  FLOATING-POINT VALUES ROUND-TRIP
@@ -38219,7 +38252,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nFLOATING-POINT VALUES ROUND-TRIP"
                           << "\n================================" << endl;
 
-        if (verbose) cout << "Round-trip 'float'" << endl;
+        if (verbose) cout << "Round-trip `float`" << endl;
         {
             typedef bsl::numeric_limits<float> Limits;
 
@@ -38261,7 +38294,7 @@ int main(int argc, char *argv[])
                 // Full Mantissa Integers
                 { L_, 1.0f * 0xFFFFFF },
                 { L_, 1.0f * 0xFFFFFF     // this happens to be also
-                       * (1ull << 63)     // 'NumLimits::max()'
+                       * (1ull << 63)     // `NumLimits::max()`
                        * (1ull << 41) },
 
                 // Boundary Values
@@ -38295,7 +38328,7 @@ int main(int argc, char *argv[])
                 float DECODED = decoded.value();
                 bsl::string encoded(ss.str());
                 ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
-                // We also use 'memcmp' to ensure that we really get back the
+                // We also use `memcmp` to ensure that we really get back the
                 // exact same binary IEEE-754, bit-by-bit.
                 ASSERTV(LINE, encoded, VALUE, DECODED,
                         0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
@@ -38312,7 +38345,7 @@ int main(int argc, char *argv[])
                 DECODED = decoded.value();
                 encoded = ss.str();
                 ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
-                // We also use 'memcmp' to ensure that we really get back the
+                // We also use `memcmp` to ensure that we really get back the
                 // exact same binary IEEE-754, bit-by-bit.
                 ASSERTV(LINE, encoded, VALUE, DECODED,
                         0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
@@ -38329,7 +38362,7 @@ int main(int argc, char *argv[])
                 DECODED = decoded.value();
                 encoded = ss.str();
                 ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
-                // We also use 'memcmp' to ensure that we really get back the
+                // We also use `memcmp` to ensure that we really get back the
                 // exact same binary IEEE-754, bit-by-bit.
                 ASSERTV(LINE, encoded, VALUE, DECODED,
                         0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
@@ -38347,7 +38380,7 @@ int main(int argc, char *argv[])
                 DECODED = decoded.value();
                 encoded = ss.str();
                 ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
-                // We also use 'memcmp' to ensure that we really get back the
+                // We also use `memcmp` to ensure that we really get back the
                 // exact same binary IEEE-754, bit-by-bit.
                 ASSERTV(LINE, encoded, VALUE, DECODED,
                         0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
@@ -38365,13 +38398,13 @@ int main(int argc, char *argv[])
                 DECODED = decoded.value();
                 encoded = ss.str();
                 ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
-                // We also use 'memcmp' to ensure that we really get back the
+                // We also use `memcmp` to ensure that we really get back the
                 // exact same binary IEEE-754, bit-by-bit.
                 ASSERTV(LINE, encoded, VALUE, DECODED,
                         0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
 
-                // Encoder options set 'maxDoublePrecision', no decoder options
-                // (NULL).  Since we are encoding 'float', there should be no
+                // Encoder options set `maxDoublePrecision`, no decoder options
+                // (NULL).  Since we are encoding `float`, there should be no
                 // effect.
                 ss.str(""); ss.clear();
                 encoderOptions.reset();
@@ -38385,12 +38418,12 @@ int main(int argc, char *argv[])
                 DECODED = decoded.value();
                 encoded = ss.str();
                 ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
-                // We also use 'memcmp' to ensure that we really get back the
+                // We also use `memcmp` to ensure that we really get back the
                 // exact same binary IEEE-754, bit-by-bit.
                 ASSERTV(LINE, encoded, VALUE, DECODED,
                         0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
 
-                // Encoder options set 'maxFloatPrecision', no decoder options
+                // Encoder options set `maxFloatPrecision`, no decoder options
                 // (NULL).  We should get the same number back.
                 ss.str(""); ss.clear();
                 encoderOptions.reset();
@@ -38404,12 +38437,12 @@ int main(int argc, char *argv[])
                 DECODED = decoded.value();
                 encoded = ss.str();
                 ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
-                // We also use 'memcmp' to ensure that we really get back the
+                // We also use `memcmp` to ensure that we really get back the
                 // exact same binary IEEE-754, bit-by-bit.
                 ASSERTV(LINE, encoded, VALUE, DECODED,
                         0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
 
-                // Encoder options set 'maxFloatPrecision' to maximum necessary
+                // Encoder options set `maxFloatPrecision` to maximum necessary
                 // for round trip, no decoder options (NULL).  We should get
                 // the same number back.
                 ss.str(""); ss.clear();
@@ -38430,7 +38463,7 @@ int main(int argc, char *argv[])
                 DECODED = decoded.value();
                 encoded = ss.str();
                 ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
-                // We also use 'memcmp' to ensure that we really get back the
+                // We also use `memcmp` to ensure that we really get back the
                 // exact same binary IEEE-754, bit-by-bit.
                 ASSERTV(LINE, encoded, VALUE, DECODED,
                         0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
@@ -38438,18 +38471,18 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "Round-trip 'float' with 'maxFloatPrecision' option"
+            cout << "Round-trip `float` with `maxFloatPrecision` option"
                  << endl;
         {
             float neg0 = copysignf(0.0f, -1.0f);
 
             typedef bsl::numeric_limits<float> Limits;
 
+            // We use infinity to indicate that with the specified encoder
+            // options the exact same binary numeric value must be parsed
+            // back, as `printValue`/`getValue` do not normally allow it as
+            // input.
             const float ROUND_TRIPS = Limits::infinity();
-                // We use infinity to indicate that with the specified encoder
-                // options the exact same binary numeric value must be parsed
-                // back, as 'printValue'/'getValue' do not normally allow it as
-                // input.
 
             const struct {
                 int   d_line;
@@ -38512,7 +38545,7 @@ int main(int argc, char *argv[])
                 bsl::string encoded(ss.str());
                 if (EXPECTED == ROUND_TRIPS) {
                     ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
-                    // We also use 'memcmp' to ensure that we really get back
+                    // We also use `memcmp` to ensure that we really get back
                     // the same binary IEEE-754.
                     ASSERTV(LINE, encoded, VALUE, DECODED,
                             0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
@@ -38524,12 +38557,12 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "Round-trip 'float' Inf and NaN" << endl;
+        if (verbose) cout << "Round-trip `float` Inf and NaN" << endl;
         {
             roundTripTestNonNumericValues<float>();
         }
 
-        if (verbose) cout << "Round-trip 'double'" << endl;
+        if (verbose) cout << "Round-trip `double`" << endl;
         {
             typedef bsl::numeric_limits<double> Limits;
 
@@ -38614,7 +38647,7 @@ int main(int argc, char *argv[])
                 double DECODED = decoded.value();
                 bsl::string encoded(ss.str());
                 ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
-                // We also use 'memcmp' to ensure that we really get back the
+                // We also use `memcmp` to ensure that we really get back the
                 // exact same binary IEEE-754, bit-by-bit.
                 ASSERTV(LINE, encoded, VALUE, DECODED,
                         0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
@@ -38631,7 +38664,7 @@ int main(int argc, char *argv[])
                 DECODED = decoded.value();
                 encoded = ss.str();
                 ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
-                // We also use 'memcmp' to ensure that we really get back the
+                // We also use `memcmp` to ensure that we really get back the
                 // exact same binary IEEE-754, bit-by-bit.
                 ASSERTV(LINE, encoded, VALUE, DECODED,
                         0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
@@ -38648,7 +38681,7 @@ int main(int argc, char *argv[])
                 DECODED = decoded.value();
                 encoded = ss.str();
                 ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
-                // We also use 'memcmp' to ensure that we really get back the
+                // We also use `memcmp` to ensure that we really get back the
                 // exact same binary IEEE-754, bit-by-bit.
                 ASSERTV(LINE, encoded, VALUE, DECODED,
                         0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
@@ -38666,7 +38699,7 @@ int main(int argc, char *argv[])
                 DECODED = decoded.value();
                 encoded = ss.str();
                 ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
-                // We also use 'memcmp' to ensure that we really get back the
+                // We also use `memcmp` to ensure that we really get back the
                 // exact same binary IEEE-754, bit-by-bit.
                 ASSERTV(LINE, encoded, VALUE, DECODED,
                         0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
@@ -38684,13 +38717,13 @@ int main(int argc, char *argv[])
                 DECODED = decoded.value();
                 encoded = ss.str();
                 ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
-                // We also use 'memcmp' to ensure that we really get back the
+                // We also use `memcmp` to ensure that we really get back the
                 // exact same binary IEEE-754, bit-by-bit.
                 ASSERTV(LINE, encoded, VALUE, DECODED,
                         0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
 
-                // Encoder options set 'maxFloatPrecision', no decoder options
-                // (NULL).  Since we are encoding 'double', there should be no
+                // Encoder options set `maxFloatPrecision`, no decoder options
+                // (NULL).  Since we are encoding `double`, there should be no
                 // effect.
                 ss.str(""); ss.clear();
                 encoderOptions.reset();
@@ -38704,12 +38737,12 @@ int main(int argc, char *argv[])
                 DECODED = decoded.value();
                 encoded = ss.str();
                 ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
-                // We also use 'memcmp' to ensure that we really get back the
+                // We also use `memcmp` to ensure that we really get back the
                 // exact same binary IEEE-754, bit-by-bit.
                 ASSERTV(LINE, encoded, VALUE, DECODED,
                         0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
 
-                // Encoder options set 'maxDoublePrecision', no decoder options
+                // Encoder options set `maxDoublePrecision`, no decoder options
                 // (NULL).  We should get the same number back.
                 ss.str(""); ss.clear();
                 encoderOptions.reset();
@@ -38723,12 +38756,12 @@ int main(int argc, char *argv[])
                 DECODED = decoded.value();
                 encoded = ss.str();
                 ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
-                // We also use 'memcmp' to ensure that we really get back the
+                // We also use `memcmp` to ensure that we really get back the
                 // exact same binary IEEE-754, bit-by-bit.
                 ASSERTV(LINE, encoded, VALUE, DECODED,
                         0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
 
-                // Encoder options set 'maxDoublePrecision' to maximum
+                // Encoder options set `maxDoublePrecision` to maximum
                 // necessary for round trip, no decoder options (NULL).  We
                 // should get the same number back.
                 ss.str(""); ss.clear();
@@ -38749,7 +38782,7 @@ int main(int argc, char *argv[])
                 DECODED = decoded.value();
                 encoded = ss.str();
                 ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
-                // We also use 'memcmp' to ensure that we really get back the
+                // We also use `memcmp` to ensure that we really get back the
                 // exact same binary IEEE-754, bit-by-bit.
                 ASSERTV(LINE, encoded, VALUE, DECODED,
                         0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
@@ -38757,18 +38790,18 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "Round-trip 'double' with 'maxDoublePrecision' option"
+            cout << "Round-trip `double` with `maxDoublePrecision` option"
                  << endl;
         {
             typedef bsl::numeric_limits<double> Limits;
 
             double neg0 = copysign(0.0, -1.0);
 
+            // We use infinity to indicate that with the specified encoder
+            // options the exact same binary numeric value must be parsed
+            // back, as `printValue`/`getValue` do not normally allow it as
+            // input.
             const double ROUND_TRIPS = Limits::infinity();
-                // We use infinity to indicate that with the specified encoder
-                // options the exact same binary numeric value must be parsed
-                // back, as 'printValue'/'getValue' do not normally allow it as
-                // input.
 
             const struct {
                 int    d_line;
@@ -38842,7 +38875,7 @@ int main(int argc, char *argv[])
                 bsl::string encoded(ss.str());
                 if (EXPECTED == ROUND_TRIPS) {
                     ASSERTV(LINE, encoded, VALUE, DECODED, VALUE == DECODED);
-                    // We also use 'memcmp' to ensure that we really get back
+                    // We also use `memcmp` to ensure that we really get back
                     // the same binary IEEE-754.
                     ASSERTV(LINE, encoded, VALUE, DECODED,
                             0 == bsl::memcmp(&VALUE, &DECODED, sizeof VALUE));
@@ -38854,7 +38887,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "Round-trip 'double' Inf and NaN" << endl;
+        if (verbose) cout << "Round-trip `double` Inf and NaN" << endl;
         {
             roundTripTestNonNumericValues<double>();
         }
@@ -38866,22 +38899,22 @@ int main(int argc, char *argv[])
         //   of vectors
         //
         // Concerns:
-        //: 1 The decoder can decode nested JSON arrays into nested
-        //:   'bsl::vector' objects having arbitrary 'bdlat'-compatible
-        //:   elements.
+        // 1. The decoder can decode nested JSON arrays into nested
+        //    `bsl::vector` objects having arbitrary `bdlat`-compatible
+        //    elements.
         //
         // Plan:
-        //: 1 Perform depth-ordered enumeration of all JSON representation of
-        //:   an array of arrays of integers up to depth 2 and length 2, and
-        //:   verify that such a string successfully decodes into the
-        //:   corresponding vector of vector of integers.  Longer arrays
-        //:   are tested in the next step of the plan.
-        //:
-        //: 2 For a large number of different JSON value representations and
-        //:   compatible 'bdlat' element types, enumerate a large number of
-        //:   different nested and non-nested JSON arrays of these elements and
-        //:   verify that the JSON array decodes into the corresponding nested
-        //:   or non-nested 'bsl::vector' value.
+        // 1. Perform depth-ordered enumeration of all JSON representation of
+        //    an array of arrays of integers up to depth 2 and length 2, and
+        //    verify that such a string successfully decodes into the
+        //    corresponding vector of vector of integers.  Longer arrays
+        //    are tested in the next step of the plan.
+        //
+        // 2. For a large number of different JSON value representations and
+        //    compatible `bdlat` element types, enumerate a large number of
+        //    different nested and non-nested JSON arrays of these elements and
+        //    verify that the JSON array decodes into the corresponding nested
+        //    or non-nested `bsl::vector` value.
         // --------------------------------------------------------------------
 
 
@@ -39145,70 +39178,70 @@ int main(int argc, char *argv[])
         // ------------------------------------------------------------------
         // TESTING UTF-8 DETECTION
         //
-        // The 'Decoder' type is able to do UTF-8 checking of input, which is
-        // enabled or disabled by a field in the 'DecoderOptions' object.
+        // The `Decoder` type is able to do UTF-8 checking of input, which is
+        // enabled or disabled by a field in the `DecoderOptions` object.
         //
         // Concerns:
-        //: 1 When UTF-8 validation is enabled, the decoder can detect invalid
-        //:   UTF-8.
-        //:
-        //: 2 The message logged when UTF-8 occurs correctly describes the
-        //:   nature of the UTF-8 error.
-        //:
-        //: 3 The message logged contains the offset of the UTF-8 error in the
-        //:   'streambuf'.
-        //:
-        //: 4 The message accurately describes the context in which the
-        //:   offending invalid UTF-8 sequences occurred (this was especially a
-        //:   worry, because the tokenizer reads data 8K at a time, and we
-        //:   didn't want to be giving decoder messages describing a context at
-        //:   the start of the buffer when in fact the invalid UTF-8 was
-        //:   several kilobytes later).
+        // 1. When UTF-8 validation is enabled, the decoder can detect invalid
+        //    UTF-8.
+        //
+        // 2. The message logged when UTF-8 occurs correctly describes the
+        //    nature of the UTF-8 error.
+        //
+        // 3. The message logged contains the offset of the UTF-8 error in the
+        //    `streambuf`.
+        //
+        // 4. The message accurately describes the context in which the
+        //    offending invalid UTF-8 sequences occurred (this was especially a
+        //    worry, because the tokenizer reads data 8K at a time, and we
+        //    didn't want to be giving decoder messages describing a context at
+        //    the start of the buffer when in fact the invalid UTF-8 was
+        //    several kilobytes later).
         //
         // Plan:
-        //: 1 Start out with 'pattern', a valid UTF-8 string of JSON input for
-        //:   an object of type 'test::Employee".
-        //:
-        //: 2 Create a table 'UTF8_DATA', where every row of the table has
-        //:   either 'Tokenizer::k_EOF', or an 'enum' from
-        //:   'bdlde::Utf8Util::ErrorStatus' indicating a type of invalid
-        //:   UTF-8, and a string with a sequence of that type of bad UTF-8.
-        //:
-        //: 3 Create a table 'FIND_DATA' consisting of strings to search for,
-        //:   in sequence, through 'pattern', and for each string, some
-        //:   context-appropriate strings (separated by '\t') that we expect to
-        //:   be logged if an error were to be encountered at that point in
-        //:   'pattern'.
-        //:
-        //: 4 Iterate through 'FIND_DATA' forwarding to each point in 'pattern'
-        //:   identified by the string in 'FIND_DATA'.  Each field in the
-        //:   'FIND_DATA' table is visited twice in a row, the first time with
-        //:   the boolean 'AFTER' 'false', meaning that the good UTF-8 is
-        //:   truncated before the string from 'FIND_DATA', and then the next
-        //:   iteration with 'AFTER' 'true', in which case the good UTF-8 is
-        //:   trucated immediately after the found string.  Note that we only
-        //:   search for the tab-separated strings in the case where 'AFTER'
-        //:   was 'false'.
-        //:
-        //: 5 In a nested loop, iterate through 'UTF-8' data
-        //:   o splice the invalid UTF-8 sequence right at the point indicated
-        //:     by 'FIND_DATA' into the string
-        //:
-        //:   o attempt to decode the string
-        //:
-        //:   o observe that this failed, and that the message logged by the
-        //:     decoder includes
-        //:     1 the appropriate message describing the type of UTF-8 error or
-        //:       end of file
-        //:
-        //:     2 the offset at which the problem occurs
-        //:
-        //:     3 a description of the context appropriate to the location of
-        //:       the problematic input in 'pattern'.
-        //:
-        //: 6 In the last iteration, the bool 'FINAL' is set, and the
-        //:   problematic input (or EOF) is after the closing '}' of input, and
-        //:   we observe that there was no error, and no error was logged.
+        // 1. Start out with `pattern`, a valid UTF-8 string of JSON input for
+        //    an object of type 'test::Employee".
+        //
+        // 2. Create a table `UTF8_DATA`, where every row of the table has
+        //    either `Tokenizer::k_EOF`, or an `enum` from
+        //    `bdlde::Utf8Util::ErrorStatus` indicating a type of invalid
+        //    UTF-8, and a string with a sequence of that type of bad UTF-8.
+        //
+        // 3. Create a table `FIND_DATA` consisting of strings to search for,
+        //    in sequence, through `pattern`, and for each string, some
+        //    context-appropriate strings (separated by '\t') that we expect to
+        //    be logged if an error were to be encountered at that point in
+        //    `pattern`.
+        //
+        // 4. Iterate through `FIND_DATA` forwarding to each point in `pattern`
+        //    identified by the string in `FIND_DATA`.  Each field in the
+        //    `FIND_DATA` table is visited twice in a row, the first time with
+        //    the boolean `AFTER` `false`, meaning that the good UTF-8 is
+        //    truncated before the string from `FIND_DATA`, and then the next
+        //    iteration with `AFTER` `true`, in which case the good UTF-8 is
+        //    trucated immediately after the found string.  Note that we only
+        //    search for the tab-separated strings in the case where `AFTER`
+        //    was `false`.
+        //
+        // 5. In a nested loop, iterate through `UTF-8` data
+        //    - splice the invalid UTF-8 sequence right at the point indicated
+        //      by `FIND_DATA` into the string
+        //
+        //    - attempt to decode the string
+        //
+        //    - observe that this failed, and that the message logged by the
+        //      decoder includes
+        //     1. the appropriate message describing the type of UTF-8 error or
+        //        end of file
+        //
+        //     2. the offset at which the problem occurs
+        //
+        //     3. a description of the context appropriate to the location of
+        //        the problematic input in `pattern`.
+        //
+        // 6. In the last iteration, the bool `FINAL` is set, and the
+        //    problematic input (or EOF) is after the closing '}' of input, and
+        //    we observe that there was no error, and no error was logged.
         // ------------------------------------------------------------------
 
         const char *pattern =
@@ -39349,40 +39382,40 @@ int main(int argc, char *argv[])
         // ------------------------------------------------------------------
         // TESTING CLEARING OF LOGGED MESSAGES ON DECODE CALLS
         //   This case tests that the log buffer is reset on each call to
-        //   'decode'.
+        //   `decode`.
         //
         // Concerns:
-        //: 1 The string returned from 'loggedMessages' resets each time
-        //:   'decode' is invoked, such that the contents of the logged
-        //:   messages refer to only the most recent invocation of 'decode'.
-        //:
-        //: 2 That when the input contains no invalid UTF-8, enabling or
-        //:   disabling UTF-8 checking has no influence on behavior.
+        // 1. The string returned from `loggedMessages` resets each time
+        //    `decode` is invoked, such that the contents of the logged
+        //    messages refer to only the most recent invocation of `decode`.
+        //
+        // 2. That when the input contains no invalid UTF-8, enabling or
+        //    disabling UTF-8 checking has no influence on behavior.
         //
         // Plan:
-        //: 1 Define a type, 'SOType', that 'baljsn::Decoder' is able to
-        //:   successfully decode into given well-formed input.
-        //:
-        //: 2 Define a type, 'FOType', that 'baljsn::Decoder' is unable to
-        //:   successfully decode into given any input.
-        //:
-        //: 3 Create a string that successfully decodes into a 'SOType'.
-        //:
-        //: 4 Create a string that does not decode into a 'SOType'.
-        //:
-        //: 5 Create a string that does not decode into a 'FOType'.  Note that
-        //:   this can be any string, because 'FOType' can never be
-        //:   successfully decoded-into.
-        //:
-        //: 6 Verify that, after performing various sequences of decoding
-        //:   operations using combinations of the above types and strings,
-        //:   where some/all succeed/fail, the 'loggedMessages' are empty if
-        //:   the last operation succeeds, and contain an expected message
-        //:   if and only if the last operation fails.
-        //:
-        //: 7 Have a boolean 'UTF8' variable that enables / disables UTF-8
-        //:   checking, and run ALL of the tests in the case with it 'true' and
-        //:   'false' and observe that this has no influence on test outcomes.
+        // 1. Define a type, `SOType`, that `baljsn::Decoder` is able to
+        //    successfully decode into given well-formed input.
+        //
+        // 2. Define a type, `FOType`, that `baljsn::Decoder` is unable to
+        //    successfully decode into given any input.
+        //
+        // 3. Create a string that successfully decodes into a `SOType`.
+        //
+        // 4. Create a string that does not decode into a `SOType`.
+        //
+        // 5. Create a string that does not decode into a `FOType`.  Note that
+        //    this can be any string, because `FOType` can never be
+        //    successfully decoded-into.
+        //
+        // 6. Verify that, after performing various sequences of decoding
+        //    operations using combinations of the above types and strings,
+        //    where some/all succeed/fail, the `loggedMessages` are empty if
+        //    the last operation succeeds, and contain an expected message
+        //    if and only if the last operation fails.
+        //
+        // 7. Have a boolean `UTF8` variable that enables / disables UTF-8
+        //    checking, and run ALL of the tests in the case with it `true` and
+        //    `false` and observe that this has no influence on test outcomes.
         //
         // Testing:
         //   int decode(bsl::streambuf *streamBuf, TYPE *y, options);
@@ -39392,72 +39425,72 @@ int main(int argc, char *argv[])
             << "\nTESTING CLEARING OF LOGGED MESSAGES ON DECODE CALLS"
             << "\n===================================================" << endl;
 
+        /// `SOType` is the type of an object for which
+        /// `baljsn::Decoder::decode` will succeed for some input.
         typedef test::Address SOType;
-            // 'SOType' is the type of an object for which
-            // 'baljsn::Decoder::decode' will succeed for some input.
 
+        /// `FOType` is the type of an object or which
+        /// `baljsn::Decoder::deocde` will fail for all input.
         typedef test::Enumeration0 FOType;
-            // 'FOType' is the type of an object or which
-            // 'baljsn::Decoder::deocde' will fail for all input.
 
+        // `SOSStr` is a string that will successfully decode into an
+        // object of `SOType`.
         static const char SOSStr[] =
                 "{"
                 "    \"street\": \"1st\","
                 "    \"city\": \"New York\","
                 "    \"state\": \"New York\""
                 "}";
-            // 'SOSStr' is a string that will successfully decode into an
-            // object of 'SOType'.
 
+        // `SOFStr` is a string that will fail to decode into an object of
+        // `SOType`.
         static const char SOFStr[] =
                 "\"Address\" : {}";
-            // 'SOFStr' is a string that will fail to decode into an object of
-            // 'SOType'.
 
+        // `FOFStr` is a string that will fail to decode into an object of
+        // `FOType`.
         static const char FOFStr[] =
                 "\"zero\"";
-            // 'FOFStr' is a string that will fail to decode into an object of
-            // 'FOType'.
 
+        // `SMsg` is a string that is equivalent to the `loggedMessages` of
+        // a `baljsn::Decoder` after a successful decoding operation.
         static const char SMsg[] = "";
-            // 'SMsg' is a string that is equivalent to the 'loggedMessages' of
-            // a 'baljsn::Decoder' after a successful decoding operation.
 
+        // `FMsg1` is a string that is equivalent to the `loggedMessages`
+        // of a `baljsn::Decoder` after an decoding operation that fails
+        // due to the type of the target object having an unsupported
+        // `bdlat` category.
         static const char FMsg1[] =
                 "The object being decoded must be a Sequence, Choice,"
                 " or Array type\n";
-            // 'FMsg1' is a string that is equivalent to the 'loggedMessages'
-            // of a 'baljsn::Decoder' after an decoding operation that fails
-            // due to the type of the target object having an unsupported
-            // 'bdlat' category.
 
+        // `FMsg2` is a string that is equivalent to the `loggedMessages`
+        // of the `baljsn::Decoder` after a decoding operation that fails
+        // due to the contents of the JSON string not being a valid
+        // representation of an object of the target type.
         static const char FMsg2[] =
                 "Error advancing to the first token. Expecting a '{' or '['"
                 " as the first character\n";
-            // 'FMsg2' is a string that is equivalent to the 'loggedMessages'
-            // of the 'baljsn::Decoder' after a decoding operation that fails
-            // due to the contents of the JSON string not being a valid
-            // representation of an object of the target type.
 
         enum ObjId {
             // This enumeration provides a set of integer constants that serve
             // as identifiers for different target objects for decoding.
 
             NONE = 0, // indicates to decode into no object (to not decode)
-            SOId,     // indicates to decode into an object of 'SOType'
-            FOId      // indicates to decode into an object of 'FOType'
+            SOId,     // indicates to decode into an object of `SOType`
+            FOId      // indicates to decode into an object of `FOType`
         };
 
+        /// This `struct` provides a pair that defines the input to a
+        /// decoding operation: the object to decode into, and the string
+        /// containing the encoded JSON.
         struct Instruction {
-            // This 'struct' provides a pair that defines the input to a
-            // decoding operation: the object to decode into, and the string
-            // containing the encoded JSON.
 
+            /// Id of an object to decode into
             ObjId       d_objId;
-                // Id of an object to decode into
 
+            /// the JSON to decode from
             const char *d_string;
-                // the JSON to decode from
         };
 
         enum {
@@ -39474,18 +39507,18 @@ int main(int argc, char *argv[])
             success
         };
 
+        /// line number
         static const struct {
             int           d_line;
-                // line number
 
+            /// instructions for test apparatus
             Instruction   d_instructions[k_MAX_INSTRUCTIONS];
-                // instructions for test apparatus
 
+            /// whether all operations succeed
             SuccessStatus d_decodeSuccessStatus;
-                // whether all operations succeed
 
+            /// messages from final operation
             const char   *d_loggedMessages;
-                // messages from final operation
 
         } DATA[] = {
             //                                         LOGGED MESSAGES
@@ -39495,16 +39528,16 @@ int main(int argc, char *argv[])
             //LINE             INSTRUCTIONS                   |       |
             //---- --------------------------------------- -------- ------
             {   L_, {                                    }, success, SMsg  },
-                // Verify that the 'loggedMessages' are empty if no decoding
+                // Verify that the `loggedMessages` are empty if no decoding
                 // operations are performed.
 
             {   L_, { {SOId, SOSStr}                     }, success, SMsg  },
-                // Verify that the 'loggedMessages' are empty if one encoding
+                // Verify that the `loggedMessages` are empty if one encoding
                 // operation is performed, and that operation succeeds.
 
             {   L_, { {SOId, SOFStr}                     }, failure, FMsg2 },
             {   L_, { {FOId, FOFStr}                     }, failure, FMsg1 },
-                // Verify that the 'loggedMessages' have an expected error
+                // Verify that the `loggedMessages` have an expected error
                 // message if one encoding operation is performed, and that
                 // operation fails.
 
@@ -39517,7 +39550,7 @@ int main(int argc, char *argv[])
             {   L_, { {FOId, FOFStr}, {SOId, SOSStr}     }, failure, SMsg  },
             {   L_, { {FOId, FOFStr}, {SOId, SOFStr}     }, failure, FMsg2 },
             {   L_, { {FOId, FOFStr}, {FOId, FOFStr}     }, failure, FMsg1 },
-                // Verify that the 'loggedMessages' have an expected message
+                // Verify that the `loggedMessages` have an expected message
                 // when, after performing 2 decoding operations, the second
                 // operation fails, and otherwise are empty.
         };
@@ -39584,23 +39617,23 @@ int main(int argc, char *argv[])
         // TESTING DECODING OF ENUM TYPES WITH ESCAPED CHARS
         //
         // Concerns:
-        //: 1 Decoding of an enum type with escaped characters works as
-        //:   expected.
+        // 1. Decoding of an enum type with escaped characters works as
+        //    expected.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a table with JSON text
-        //:   that contains an enum string with escaped chars.
-        //:
-        //: 2 For each row in the tables of P-1:
-        //:
-        //:   1 Create a 'baljsn_Decoder' object.
-        //:
-        //:   2 Create a 'bsl::istringstream' object with the JSON text.
-        //:
-        //:   3 Decode that JSON into a 'test::Palette' object.
-        //:
-        //:   4 Verify that the return code from 'decode' and the decoded
-        //:     object is as expected.
+        // 1. Using the table-driven technique, specify a table with JSON text
+        //    that contains an enum string with escaped chars.
+        //
+        // 2. For each row in the tables of P-1:
+        //
+        //   1. Create a `baljsn_Decoder` object.
+        //
+        //   2. Create a `bsl::istringstream` object with the JSON text.
+        //
+        //   3. Decode that JSON into a `test::Palette` object.
+        //
+        //   4. Verify that the return code from `decode` and the decoded
+        //      object is as expected.
         //
         // Testing:
         // ------------------------------------------------------------------
@@ -39694,34 +39727,34 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING DECODING OF 'hexBinary' CUSTOMIZED TYPE
+        // TESTING DECODING OF `hexBinary` CUSTOMIZED TYPE
         //
         // Concerns:
-        //: 1 Decoding of a customized type of type 'hexBinary' works as
-        //:   expected.
+        // 1. Decoding of a customized type of type `hexBinary` works as
+        //    expected.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a table with JSON text
-        //:   that contains a 'hexBinary' customized type element.
-        //:
-        //: 2 For each row in the tables of P-1:
-        //:
-        //:   1 Construct a 'HexBinarySequence' object.
-        //:
-        //:   2 Create a 'baljsn::Decoder' object.
-        //:
-        //:   3 Create a 'bsl::istringstream' object with the JSON text.
-        //:
-        //:   4 Decode that JSON into a 'HexBinarySequence' object.
-        //:
-        //:   5 Verify that the return code from 'decode' is as expected.
+        // 1. Using the table-driven technique, specify a table with JSON text
+        //    that contains a `hexBinary` customized type element.
+        //
+        // 2. For each row in the tables of P-1:
+        //
+        //   1. Construct a `HexBinarySequence` object.
+        //
+        //   2. Create a `baljsn::Decoder` object.
+        //
+        //   3. Create a `bsl::istringstream` object with the JSON text.
+        //
+        //   4. Decode that JSON into a `HexBinarySequence` object.
+        //
+        //   5. Verify that the return code from `decode` is as expected.
         //
         // Testing:
         //   DRQS 43702912
         // --------------------------------------------------------------------
 
         if (verbose) cout
-               << "\nTESTING DECODING OF 'hexBinary' CUSTOMIZED TYPE"
+               << "\nTESTING DECODING OF `hexBinary` CUSTOMIZED TYPE"
                << "\n===============================================" << endl;
 
         static const struct {
@@ -39811,32 +39844,32 @@ int main(int argc, char *argv[])
         // TESTING DECODING FROM MULTIPLE DECODERS IN SEPARATE THREADS
         //
         // Concerns:
-        //: 1 Multiple decoders in separate threads decode correctly.
+        // 1. Multiple decoders in separate threads decode correctly.
         //
         // Plan:
-        //: 1 Create multiple threads.
-        //:
-        //: 2 Using the table-driven technique, specify three tables: one with
-        //:   a set of distinct rows of XML string value corresponding to a
-        //:   'balb::FeatureTestMessage' object, the second with JSON in pretty
-        //:   format, and third with the JSON in the compact format.
-        //:
-        //: 3 For each thread created, for each row in the tables of P-2:
-        //:
-        //:   1 Construct a 'balb::FeatureTestMessage' object from the XML
-        //:     string using the XML decoder.
-        //:
-        //:   2 Create a 'baljsn::Decoder' object.
-        //:
-        //:   3 Create a 'bdlsb::FixedMemInStreamBuf' object with the pretty
-        //:     JSON text.
-        //:
-        //:   4 Decode that JSON into a 'balb::FeatureTestMessage' object.
-        //:
-        //:   5 Verify that the decoded object matches the original object
-        //:     from step 1.
-        //:
-        //:   6 Repeat steps 1 - 5 using JSON in the compact format.
+        // 1. Create multiple threads.
+        //
+        // 2. Using the table-driven technique, specify three tables: one with
+        //    a set of distinct rows of XML string value corresponding to a
+        //    `balb::FeatureTestMessage` object, the second with JSON in pretty
+        //    format, and third with the JSON in the compact format.
+        //
+        // 3. For each thread created, for each row in the tables of P-2:
+        //
+        //   1. Construct a `balb::FeatureTestMessage` object from the XML
+        //      string using the XML decoder.
+        //
+        //   2. Create a `baljsn::Decoder` object.
+        //
+        //   3. Create a `bdlsb::FixedMemInStreamBuf` object with the pretty
+        //      JSON text.
+        //
+        //   4. Decode that JSON into a `balb::FeatureTestMessage` object.
+        //
+        //   5. Verify that the decoded object matches the original object
+        //      from step 1.
+        //
+        //   6. Repeat steps 1 - 5 using JSON in the compact format.
         //
         // Testing:
         //   DRQS 41660550
@@ -39879,22 +39912,22 @@ int main(int argc, char *argv[])
         // TESTING INVALID JSON RETURNS AN ERROR
         //
         // Concerns:
-        //: 1 The decoder returns an error on encountering invalid JSON text.
+        // 1. The decoder returns an error on encountering invalid JSON text.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a table with JSON text.
-        //:
-        //: 2 For each row in the tables of P-1:
-        //:
-        //:   1 Construct a test object.
-        //:
-        //:   2 Create a 'baljsn::Decoder' object.
-        //:
-        //:   3 Create a 'bsl::istringstream' object with the JSON text.
-        //:
-        //:   4 Decode that JSON into a test object.
-        //:
-        //:   5 Verify that the return code from 'decode' is *not* 0.
+        // 1. Using the table-driven technique, specify a table with JSON text.
+        //
+        // 2. For each row in the tables of P-1:
+        //
+        //   1. Construct a test object.
+        //
+        //   2. Create a `baljsn::Decoder` object.
+        //
+        //   3. Create a `bsl::istringstream` object with the JSON text.
+        //
+        //   4. Decode that JSON into a test object.
+        //
+        //   5. Verify that the return code from `decode` is *not* 0.
         //
         // Testing:
         //   int decode(bsl::streambuf *streamBuf, TYPE *v, options);
@@ -39923,7 +39956,7 @@ int main(int argc, char *argv[])
                 {   L_,   "1   {}"    },
                 {   L_,   "*   {}"    },
                 {   L_,   "A   {}"    },
-                {   L_,   "{\"elem\":[\\}}}}\n" },  // '{DRQS 162368278}'
+                {   L_,   "{\"elem\":[\\}}}}\n" },  // `{DRQS 162368278}`
             };
             const int NUM_DATA = sizeof DATA/ sizeof *DATA;
 
@@ -41064,56 +41097,56 @@ int main(int argc, char *argv[])
         // TESTING SKIPPING UNKNOWN ELEMENTS
         //
         // Concerns:
-        //: 1 The decoder correctly skips unknown elements if the
-        //:   'skipUnknownElement' decoder option is specified.
-        //:
-        //: 2 The decoder returns an error on encountering unknown elements if
-        //:   the 'skipUnknownElement' decoder option is *not* specified.
-        //:
-        //: 3 The decoder returns an error on encountering malformed unknown
-        //:   element regardless of the 'skipUnknownElement' decoder option
-        //:   value.
+        // 1. The decoder correctly skips unknown elements if the
+        //    `skipUnknownElement` decoder option is specified.
+        //
+        // 2. The decoder returns an error on encountering unknown elements if
+        //    the `skipUnknownElement` decoder option is *not* specified.
+        //
+        // 3. The decoder returns an error on encountering malformed unknown
+        //    element regardless of the `skipUnknownElement` decoder option
+        //    value.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a table with JSON text.
-        //:
-        //: 2 For each row in the tables of P-1:
-        //:
-        //:   1 Construct a test object.
-        //:
-        //:   2 Create a 'baljsn::Decoder' object.
-        //:
-        //:   3 Create a 'bsl::istringstream' object with the JSON text.
-        //:
-        //:   4 Decode that JSON into a test object specifying
-        //:     that unknown elements be skipped.
-        //:
-        //:   5 Verify that the decoded object has the expected data.
-        //:
-        //:   6 Verify that the return code from 'decode' is 0.  (C-1)
-        //:
-        //:   7 Repeat steps 1 - 6 with the 'skipUnknownElements' option set
-        //:     to 'false'.  Verify that an error code is returned by 'decode'.
-        //:     (C-2)
-        //:
-        //: 3 Using the table-driven technique, specify a table with malformed
-        //:   JSON texts.
-        //:
-        //: 4 For each row in the tables of P-3:
-        //:
-        //:   1 Construct a test object.
-        //:
-        //:   2 Create a 'baljsn::Decoder' object.
-        //:
-        //:   3 Create a 'bsl::istringstream' object with the JSON text.
-        //:
-        //:   4 Decode that JSON into a test object specifying
-        //:     that unknown elements be skipped.
-        //:
-        //:   5 Verify that an error code is returned by 'decode'.
-        //:
-        //:   6 Repeat steps 1 - 5 with the 'skipUnknownElements' option set
-        //:     to 'false'.  (C-3)
+        // 1. Using the table-driven technique, specify a table with JSON text.
+        //
+        // 2. For each row in the tables of P-1:
+        //
+        //   1. Construct a test object.
+        //
+        //   2. Create a `baljsn::Decoder` object.
+        //
+        //   3. Create a `bsl::istringstream` object with the JSON text.
+        //
+        //   4. Decode that JSON into a test object specifying
+        //      that unknown elements be skipped.
+        //
+        //   5. Verify that the decoded object has the expected data.
+        //
+        //   6. Verify that the return code from `decode` is 0.  (C-1)
+        //
+        //   7. Repeat steps 1 - 6 with the `skipUnknownElements` option set
+        //      to `false`.  Verify that an error code is returned by `decode`.
+        //      (C-2)
+        //
+        // 3. Using the table-driven technique, specify a table with malformed
+        //    JSON texts.
+        //
+        // 4. For each row in the tables of P-3:
+        //
+        //   1. Construct a test object.
+        //
+        //   2. Create a `baljsn::Decoder` object.
+        //
+        //   3. Create a `bsl::istringstream` object with the JSON text.
+        //
+        //   4. Decode that JSON into a test object specifying
+        //      that unknown elements be skipped.
+        //
+        //   5. Verify that an error code is returned by `decode`.
+        //
+        //   6. Repeat steps 1 - 5 with the `skipUnknownElements` option set
+        //      to `false`.  (C-3)
         //
         // Testing:
         //   int decode(bsl::streambuf *streamBuf, TYPE *v, options);
@@ -41624,7 +41657,7 @@ int main(int argc, char *argv[])
                 "       \"age\" : 21\n"
                 "}"
             },
-            // 'baljsn::Decoder' fails to decode heterogeneous arrays, but
+            // `baljsn::Decoder` fails to decode heterogeneous arrays, but
             // since we skip an unknown element it is allowed to contain such
             // arrays.  See {DRQS 171296111} for more details.
             {
@@ -41784,34 +41817,34 @@ int main(int argc, char *argv[])
         // TESTING COMPLEX MESSAGES
         //
         // Concerns:
-        //: 1 The decoder correctly decodes a variety of complex JSON data into
-        //:   'bas-codegen' generated objects.
-        //:
-        //: 2 The decoder correctly parses the input in both pretty and compact
-        //:   style.
+        // 1. The decoder correctly decodes a variety of complex JSON data into
+        //    `bas-codegen` generated objects.
+        //
+        // 2. The decoder correctly parses the input in both pretty and compact
+        //    style.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify three tables: one with
-        //:   a set of distinct rows of XML string value corresponding to a
-        //:   'balb::FeatureTestMessage' object, the second with JSON in pretty
-        //:   format, and third with the JSON in the compact format.
-        //:
-        //: 2 For each row in the tables of P-1:
-        //:
-        //:   1 Construct a 'balb::FeatureTestMessage' object from the XML
-        //:     string using the XML decoder.
-        //:
-        //:   2 Create a 'baljsn::Decoder' object.
-        //:
-        //:   3 Create a 'bdlsb::FixedMemInStreamBuf' object with the pretty
-        //:     JSON text.
-        //:
-        //:   4 Decode that JSON into a 'balb::FeatureTestMessage' object.
-        //:
-        //:   5 Verify that the decoded object matches the original object
-        //:     from step 1.
-        //:
-        //:   6 Repeat steps 1 - 5 using JSON in the compact format.
+        // 1. Using the table-driven technique, specify three tables: one with
+        //    a set of distinct rows of XML string value corresponding to a
+        //    `balb::FeatureTestMessage` object, the second with JSON in pretty
+        //    format, and third with the JSON in the compact format.
+        //
+        // 2. For each row in the tables of P-1:
+        //
+        //   1. Construct a `balb::FeatureTestMessage` object from the XML
+        //      string using the XML decoder.
+        //
+        //   2. Create a `baljsn::Decoder` object.
+        //
+        //   3. Create a `bdlsb::FixedMemInStreamBuf` object with the pretty
+        //      JSON text.
+        //
+        //   4. Decode that JSON into a `balb::FeatureTestMessage` object.
+        //
+        //   5. Verify that the decoded object matches the original object
+        //      from step 1.
+        //
+        //   6. Repeat steps 1 - 5 using JSON in the compact format.
         //
         // Testing:
         //   baljsn::Decoder(bslma::Allocator *basicAllocator = 0);
@@ -41910,8 +41943,8 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
         //

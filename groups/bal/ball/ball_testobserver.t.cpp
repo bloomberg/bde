@@ -21,7 +21,7 @@
 #include <bsl_cstring.h>     // strlen(), memset(), memcpy(), memcmp()
 #include <bsl_ctime.h>       // time()
 #include <bsl_iostream.h>
-#include <bsl_new.h>         // placement 'new' syntax
+#include <bsl_new.h>         // placement `new` syntax
 #include <bsl_string.h>
 
 using namespace BloombergLP;
@@ -32,8 +32,8 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test defines a test observer ('ball::TestObserver') that
-// is intended for use in other 'ball' test drivers.  It is sufficient to
+// The component under test defines a test observer (`ball::TestObserver`) that
+// is intended for use in other `ball` test drivers.  It is sufficient to
 // verify the functionality of the test observer in a single test case (case 2)
 // using ad hoc testing.
 //-----------------------------------------------------------------------------
@@ -131,13 +131,13 @@ static bool veryVeryVeryVerbose;
 //-----------------------------------------------------------------------------
 
 namespace {
-    // The following helper functions are used to test the 'publish' method.
+    // The following helper functions are used to test the `publish` method.
 
+/// Modify the specified `record` to have a value distinct from any other
+/// record transmitted so far in the publication sequence and return the
+/// 0-based sequence number of `record`.
 static
 int nextRecord(ball::Record& record)
-    // Modify the specified 'record' to have a value distinct from any other
-    // record transmitted so far in the publication sequence and return the
-    // 0-based sequence number of 'record'.
 {
     static int sequenceNumber = 0;
 
@@ -157,10 +157,10 @@ int nextRecord(ball::Record& record)
     return sequenceNumber++;
 }
 
+/// Return `true` if the specified `record` is the specified `nth` in the
+/// publication sequence, and `false` otherwise.
 static
 bool isNthRecord(const ball::Record& record, int nth)
-    // Return 'true' if the specified 'record' is the specified 'nth' in the
-    // publication sequence, and 'false' otherwise.
 {
     const ball::RecordAttributes& attr = record.fixedFields();
 
@@ -172,10 +172,10 @@ bool isNthRecord(const ball::Record& record, int nth)
     return false;
 }
 
+/// Return `true` if the specified `context` is the specified `nth` in the
+/// publication sequence, and `false` otherwise.
 static
 bool isNthContext(const ball::Context& context, int nth)
-    // Return 'true' if the specified 'context' is the specified 'nth' in the
-    // publication sequence, and 'false' otherwise.
 {
     if (ball::Transmission::e_TRIGGER == context.transmissionCause()
         &&                        nth == context.recordIndex()
@@ -189,7 +189,7 @@ bool isNthContext(const ball::Context& context, int nth)
 }  // close unnamed namespace
 
 //=============================================================================
-//              GENERATOR FUNCTIONS 'g' AND 'gg' FOR TESTING
+//              GENERATOR FUNCTIONS `g` AND `gg` FOR TESTING
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -221,13 +221,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -265,7 +265,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == to2.numPublishedRecords());
             ASSERT(0 == to3.numPublishedRecords());
 
-            to1.setVerbose(verbose);  // silences 'publish' in production
+            to1.setVerbose(verbose);  // silences `publish` in production
             to1.publish(record, context);
             ASSERT(1 == to1.numPublishedRecords());
 
@@ -279,27 +279,27 @@ int main(int argc, char *argv[])
         // METHODS TEST
         //
         // Concerns:
-        //: 1 All 'virtual' methods in the 'ball::Observer' protocol are
-        //:   implemented.
-        //:
-        //: 2 The 'publish' and 'releaseRecords' methods have the expected
-        //:   effect.
-        //:
-        //: 3 All accessors return the expected values.
-        //:
-        //: 4 Each object is given a unique id.
-        //:
-        //: 5 All memory comes from the allocator supplied (explicitly or
-        //:   implicitly) at construction.
-        //:
-        //: 6 QoI: Asserted precondition violations are detected when enabled.
+        // 1. All `virtual` methods in the `ball::Observer` protocol are
+        //    implemented.
+        //
+        // 2. The `publish` and `releaseRecords` methods have the expected
+        //    effect.
+        //
+        // 3. All accessors return the expected values.
+        //
+        // 4. Each object is given a unique id.
+        //
+        // 5. All memory comes from the allocator supplied (explicitly or
+        //    implicitly) at construction.
+        //
+        // 6. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use ad hoc testing to verify the correct operation of all methods
-        //:   of the type under test.  (C-1..5)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
+        // 1. Use ad hoc testing to verify the correct operation of all methods
+        //    of the type under test.  (C-1..5)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered (using the `BSLS_ASSERTTEST_*` macros).  (C-6)
         //
         // Testing:
         //   static int numInstances();
@@ -322,7 +322,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == Obj::numInstances());
 
-        if (verbose) cout << "\t'publish' method taking 'shared_ptr'." << endl;
+        if (verbose) cout << "\t'publish' method taking `shared_ptr`." << endl;
         {
             bslma::TestAllocator da("default", veryVeryVeryVerbose);
 
@@ -351,7 +351,7 @@ int main(int argc, char *argv[])
             const int I1 = nextRecord(*mR);  ASSERT(1 == isNthRecord(*R, I1));
             mC.setRecordIndexRaw(I1);        ASSERT(1 == isNthContext(C, I1));
 
-            ball::Observer& mB = mX; // call 'virtual' methods through protocol
+            ball::Observer& mB = mX; // call `virtual` methods through protocol
 
             mB.publish(R, C);
 
@@ -398,7 +398,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == Obj::numInstances());
 
-        if (verbose) cout << "\tDEPRECATED 'publish' method." << endl;
+        if (verbose) cout << "\tDEPRECATED `publish` method." << endl;
         {
             bslma::TestAllocator da("default", veryVeryVeryVerbose);
             bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
@@ -428,7 +428,7 @@ int main(int argc, char *argv[])
             const int I1 = nextRecord(mR);  ASSERT(1 == isNthRecord(R, I1));
             mC.setRecordIndexRaw(I1);       ASSERT(1 == isNthContext(C, I1));
 
-            ball::Observer& mB = mX; // call 'virtual' methods through protocol
+            ball::Observer& mB = mX; // call `virtual` methods through protocol
 
             mB.publish(R, C);
 
@@ -520,12 +520,12 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create two test observers and exercise them such that sufficient
-        //:   confidence is gained that they function correctly.  (C-1)
+        // 1. Create two test observers and exercise them such that sufficient
+        //    confidence is gained that they function correctly.  (C-1)
         //
         // Testing:
         //   BREATHING TEST
@@ -543,7 +543,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == Obj::numInstances());
 
             if (verbose)
-                cout << "\nInstantiate a test observer 'mX1':" << endl;
+                cout << "\nInstantiate a test observer `mX1`:" << endl;
 
             Obj mX1(&bsl::cout);  const Obj& X1 = mX1;
             ASSERT(1 == Obj::numInstances());
@@ -552,7 +552,7 @@ int main(int argc, char *argv[])
             if (verbose) { T_; P_(X1.id());  P(X1.numPublishedRecords()); }
 
             if (verbose)
-                cout << "\nInstantiate a test observer 'mX2':" << endl;
+                cout << "\nInstantiate a test observer `mX2`:" << endl;
 
             Obj mX2(&bsl::cout);  const Obj& X2 = mX2;
             ASSERT(2 == Obj::numInstances());
@@ -560,7 +560,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == X2.numPublishedRecords());
             if (verbose) { T_; P_(X2.id());  P(X2.numPublishedRecords()); }
 
-            if (verbose) cout << "\nPublish a record on 'mX1':" << endl;
+            if (verbose) cout << "\nPublish a record on `mX1`:" << endl;
 
             mX1.setVerbose(veryVerbose);
             mX1.publish(record, context);
@@ -580,7 +580,7 @@ int main(int argc, char *argv[])
             ASSERT(X1.lastPublishedContext() == context);
             if (verbose) { T_; P_(X1.id());  P(X1.numPublishedRecords()); }
 
-            if (verbose) cout << "\nPublish a record on 'mX2':" << endl;
+            if (verbose) cout << "\nPublish a record on `mX2`:" << endl;
 
             mX2.setVerbose(veryVerbose);
             mX2.publish(record, context);

@@ -32,27 +32,27 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// A 'bdlma::BufferedSequentialPool' is a mechanism (i.e., having state but no
+// A `bdlma::BufferedSequentialPool` is a mechanism (i.e., having state but no
 // value) that is used as a memory manager to manage an external buffer and
 // dynamically allocated memory (if the external buffer is full).  The primary
-// concern is that 'bdlma::BufferedSequentialPool' returns memory from an
+// concern is that `bdlma::BufferedSequentialPool` returns memory from an
 // appropriate source (the external buffer supplied at construction, or a
 // dynamically allocated buffer if the external buffer is full), and respects
 // the appropriate alignment strategy (also specified at construction).
 //
-// Because 'bdlma::BufferedSequentialPool' does not have any accessors, this
+// Because `bdlma::BufferedSequentialPool` does not have any accessors, this
 // test driver verifies the correctness of the pool's allocations *indirectly*
 // through the use of two consecutive allocations -- where the first allocation
-// tests for the correctness of 'allocate', and the second verifies the size of
+// tests for the correctness of `allocate`, and the second verifies the size of
 // the first allocation and its memory alignment.
 //
-// Finally, we make heavy use of the 'bslma::TestAllocator' to ensure that:
+// Finally, we make heavy use of the `bslma::TestAllocator` to ensure that:
 //
 // (1) When the external buffer supplied at construction is full, memory
 //     allocation is satisfied using a dynamic buffer allocated by the
 //     allocator supplied at the pool's construction.
 //
-// (2) When 'release' is invoked, all memory managed by the pool is
+// (2) When `release` is invoked, all memory managed by the pool is
 //     deallocated.
 //
 // (3) When the pool is destroyed, all managed memory is deallocated.
@@ -82,7 +82,7 @@ using namespace bsl;
 // [ 8] operator new(size_t, bdlma::BufferedSequentialPool&);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] HELPER FUNCTION: 'int blockSize(numBytes)'
+// [ 2] HELPER FUNCTION: `int blockSize(numBytes)`
 // [11] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
@@ -174,13 +174,13 @@ enum { k_FOOTPRINT = sizeof(bdlma::SequentialPool) };
 
 bool globalDestructorInvoked = false;
 
+/// This object indicates when its destructor is called by setting
+/// `globalDestructorInvoked` to `true`.
 class my_Class {
-    // This object indicates when its destructor is called by setting
-    // 'globalDestructorInvoked' to 'true'.
 
   public:
+    /// Destroy this object and set `globalDestructorInvoked` to `true`.
     ~my_Class()
-        // Destroy this object and set 'globalDestructorInvoked' to 'true'.
     {
         globalDestructorInvoked = true;
     }
@@ -188,9 +188,9 @@ class my_Class {
 
 //-----------------------------------------------------------------------------
 
+/// This type was copied from `bdlma_infrequentdeleteblocklist.h` for
+/// testing purposes.
 struct Block {
-    // This type was copied from 'bdlma_infrequentdeleteblocklist.h' for
-    // testing purposes.
 
     Block                               *d_next_p;
     bsls::AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
@@ -200,10 +200,10 @@ struct Block {
 //                        STATIC FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Return the adjusted block size based on the specified `numBytes` using
+/// the calculation performed by the
+/// `bdlma::InfrequentDeleteBlockList::allocate` method.
 static int blockSize(int numBytes)
-    // Return the adjusted block size based on the specified 'numBytes' using
-    // the calculation performed by the
-    // 'bdlma::InfrequentDeleteBlockList::allocate' method.
 {
     ASSERT(0 <= numBytes);
 
@@ -226,25 +226,25 @@ static int blockSize(int numBytes)
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using 'bdlma::BufferedSequentialPool' for Efficient Allocations
+///Example 1: Using `bdlma::BufferedSequentialPool` for Efficient Allocations
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we define a container class, 'my_BufferedIntDoubleArray', that holds
-// both 'int' and 'double' values.  The class can be implemented using two
+// Suppose we define a container class, `my_BufferedIntDoubleArray`, that holds
+// both `int` and `double` values.  The class can be implemented using two
 // parallel arrays: one storing the type information, and the other storing
-// pointers to the 'int' and 'double' values.  Furthermore, if we can
+// pointers to the `int` and `double` values.  Furthermore, if we can
 // approximate the amount of memory needed, we can use a
-// 'bdlma::BufferedSequentialPool' for memory allocation for maximum
+// `bdlma::BufferedSequentialPool` for memory allocation for maximum
 // efficiency:
-//..
+// ```
     // my_bufferedintdoublearray.h
 
+    /// This class implements an efficient container for an array that
+    /// stores both `int` and `double` values.
     class my_BufferedIntDoubleArray {
-        // This class implements an efficient container for an array that
-        // stores both 'int' and 'double' values.
 
         // DATA
         char  *d_typeArray_p;   // array indicating the type of corresponding
-                                // values stored in 'd_valueArray_p'
+                                // values stored in `d_valueArray_p`
 
         void **d_valueArray_p;  // array of pointers to the values stored
 
@@ -263,62 +263,65 @@ static int blockSize(int numBytes)
 
       private:
         // PRIVATE MANIPULATORS
+
+        /// Increase the capacity of the internal arrays used to store
+        /// elements added to this array by at least one element.
         void increaseCapacity();
-            // Increase the capacity of the internal arrays used to store
-            // elements added to this array by at least one element.
 
       public:
         // TYPES
         enum Type { k_MY_INT, k_MY_DOUBLE };
 
         // CREATORS
+
+        /// Create a fast `int`-`double` array that initially allocates
+        /// memory sequentially from the specified `buffer` having the
+        /// specified `size` (in bytes).  Optionally specify a
+        /// `basicAllocator` used to supply memory if `buffer` capacity is
+        /// exceeded.  If `basicAllocator` is 0, the currently installed
+        /// default allocator is used.
         my_BufferedIntDoubleArray(char             *buffer,
                                   int               size,
                                   bslma::Allocator *basicAllocator = 0);
-            // Create a fast 'int'-'double' array that initially allocates
-            // memory sequentially from the specified 'buffer' having the
-            // specified 'size' (in bytes).  Optionally specify a
-            // 'basicAllocator' used to supply memory if 'buffer' capacity is
-            // exceeded.  If 'basicAllocator' is 0, the currently installed
-            // default allocator is used.
 
+        /// Destroy this array and all elements held by it.
         ~my_BufferedIntDoubleArray();
-            // Destroy this array and all elements held by it.
 
         // ...
 
         // MANIPULATORS
+
+        /// Append the specified `int` `value` to this array.
         void appendInt(int value);
-            // Append the specified 'int' 'value' to this array.
 
+        /// Append the specified `double` `value` to this array.
         void appendDouble(double value);
-            // Append the specified 'double' 'value' to this array.
 
+        /// Remove all elements from this array.
         void removeAll();
-            // Remove all elements from this array.
 
         // ...
     };
-//..
-// The use of a buffered sequential pool and the 'release' method allows the
-// 'removeAll' method to quickly deallocate memory of all elements:
-//..
+// ```
+// The use of a buffered sequential pool and the `release` method allows the
+// `removeAll` method to quickly deallocate memory of all elements:
+// ```
     // MANIPULATORS
     inline
     void my_BufferedIntDoubleArray::removeAll()
     {
-        d_pool.release();  // *very* efficient if 'd_pool' has not exhausted
+        d_pool.release();  // *very* efficient if `d_pool` has not exhausted
                            // the buffer supplied at construction
 
         d_length = 0;
     }
-//..
+// ```
 // The buffered sequential pool optimizes the allocation of memory by using a
 // buffer supplied at construction.  As described in the "DESCRIPTION" section,
 // the need for *all* dynamic memory allocations are eliminated provided that
 // the buffer is not exhausted.  The pool provides maximal memory allocation
 // efficiency:
-//..
+// ```
     // my_bufferedintdoublearray.cpp
 
     enum { k_INITIAL_SIZE = 1 };
@@ -344,10 +347,10 @@ static int blockSize(int numBytes)
         d_valueArray_p = static_cast<void **>(
                          d_pool.allocate(d_capacity * sizeof *d_valueArray_p));
     }
-//..
+// ```
 // Note that in the destructor, all outstanding memory blocks are deallocated
-// automatically when 'd_pool' is destroyed:
-//..
+// automatically when `d_pool` is destroyed:
+// ```
     my_BufferedIntDoubleArray::~my_BufferedIntDoubleArray()
     {
         ASSERT(0 <= d_length);
@@ -385,55 +388,58 @@ static int blockSize(int numBytes)
 
         ++d_length;
     }
-//..
+// ```
 //
-///Example 2: Implementing an Allocator Using 'bdlma::BufferedSequentialPool'
+///Example 2: Implementing an Allocator Using `bdlma::BufferedSequentialPool`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// 'bslma::Allocator' is used throughout the interfaces of BDE components.
-// Suppose we would like to create a fast allocator, 'my_FastAllocator', that
+// `bslma::Allocator` is used throughout the interfaces of BDE components.
+// Suppose we would like to create a fast allocator, `my_FastAllocator`, that
 // allocates memory from a buffer in a similar fashion to
-// 'bdlma::BufferedSequentialPool'.  'bdlma::BufferedSequentialPool' can be
+// `bdlma::BufferedSequentialPool`.  `bdlma::BufferedSequentialPool` can be
 // used directly to implement such an allocator.
 //
 // Note that the documentation for this class is simplified for this usage
-// example.  Please see 'bdlma_bufferedsequentialallocator' for full
+// example.  Please see `bdlma_bufferedsequentialallocator` for full
 // documentation of a similar class.
-//..
+// ```
+
+    /// This class implements the `bslma::Allocator` protocol to provide a
+    /// fast allocator of heterogeneous blocks of memory (of varying,
+    /// user-specified sizes) from an external buffer whose address and size
+    /// are supplied at construction.
     class my_FastAllocator : public bslma::Allocator {
-        // This class implements the 'bslma::Allocator' protocol to provide a
-        // fast allocator of heterogeneous blocks of memory (of varying,
-        // user-specified sizes) from an external buffer whose address and size
-        // are supplied at construction.
 
         // DATA
         bdlma::BufferedSequentialPool d_pool;  // memory manager for allocated
                                                // memory blocks
 
         // CREATORS
+
+        /// Create an allocator for allocating memory blocks from the
+        /// specified external `buffer` of the specified `size` (in bytes).
+        /// Optionally specify a `basicAllocator` used to supply memory
+        /// should the capacity of `buffer` be exhausted.  If
+        /// `basicAllocator` is 0, the currently installed default allocator
+        /// is used.
         my_FastAllocator(char             *buffer,
                          int               size,
                          bslma::Allocator *basicAllocator = 0);
-            // Create an allocator for allocating memory blocks from the
-            // specified external 'buffer' of the specified 'size' (in bytes).
-            // Optionally specify a 'basicAllocator' used to supply memory
-            // should the capacity of 'buffer' be exhausted.  If
-            // 'basicAllocator' is 0, the currently installed default allocator
-            // is used.
 
+        /// Destroy this allocator.  All memory allocated from this
+        /// allocator is released.
         ~my_FastAllocator() BSLS_KEYWORD_OVERRIDE;
-            // Destroy this allocator.  All memory allocated from this
-            // allocator is released.
 
         // MANIPULATORS
-        void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
-            // Return the address of a contiguous block of memory of the
-            // specified 'size' (in bytes).
 
+        /// Return the address of a contiguous block of memory of the
+        /// specified `size` (in bytes).
+        void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
+
+        /// This method has no effect on the memory block at the specified
+        /// `address` as all memory allocated by this allocator is managed.
+        /// The behavior is undefined unless `address` was allocated by this
+        /// allocator, and has not already been deallocated.
         void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
-            // This method has no effect on the memory block at the specified
-            // 'address' as all memory allocated by this allocator is managed.
-            // The behavior is undefined unless 'address' was allocated by this
-            // allocator, and has not already been deallocated.
     };
 
     // CREATORS
@@ -462,7 +468,7 @@ static int blockSize(int numBytes)
     void my_FastAllocator::deallocate(void *)
     {
     }
-//..
+// ```
 
 //=============================================================================
 //                                MAIN PROGRAM
@@ -502,13 +508,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -524,16 +530,16 @@ int main(int argc, char *argv[])
         // ALLOCATOR ACCESSOR TEST
         //
         // Concerns:
-        //: 1 'allocator()' accessor returns the expected value.
-        //:
-        //: 2 'allocator()' accessor is declared const.
+        // 1. `allocator()` accessor returns the expected value.
+        //
+        // 2. `allocator()` accessor is declared const.
         //
         // Plan:
-        //: 1 To test 'allocator', create object with various allocators and
-        //:   ensure the returned value matches the supplied allocator.  (C-1)
-        //:
-        //: 2 Directly test that 'allocator()', invoked on a 'const' object,
-        //:   returns the expected value.  (C-1..2)
+        // 1. To test `allocator`, create object with various allocators and
+        //    ensure the returned value matches the supplied allocator.  (C-1)
+        //
+        // 2. Directly test that `allocator()`, invoked on a `const` object,
+        //    returns the expected value.  (C-1..2)
         //
         // Testing:
         //   bslma::Allocator *allocator() const;
@@ -546,7 +552,7 @@ int main(int argc, char *argv[])
         const int BLOCK_SIZE = 5;
         const int MAX_SIZE = 100;
 
-        if (verbose) cout << "\nTesting 'allocator'." << endl;
+        if (verbose) cout << "\nTesting `allocator`." << endl;
         {
             Obj mX(buf, BLOCK_SIZE, MAX_SIZE);  const Obj& X = mX;
             ASSERT(&defaultAllocator == X.allocator());
@@ -569,37 +575,37 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // -------------------------------------------------------------------
-        // TESTING 'rewind'
+        // TESTING `rewind`
         //   Ensure this manipulator appropriately allows memory reuse.
         //
         // Concerns:
-        //: 1 The method allows reuse of allocated memory.
-        //:
-        //: 2 The method does not release any memory back to the underlying
-        //:   allocator.  While the contract allows memory to be released, this
-        //:   implementation does not release any memory.
-        //:
-        //: 3 The method does not violate any invariants for the class.
+        // 1. The method allows reuse of allocated memory.
+        //
+        // 2. The method does not release any memory back to the underlying
+        //    allocator.  While the contract allows memory to be released, this
+        //    implementation does not release any memory.
+        //
+        // 3. The method does not violate any invariants for the class.
         //
         // Plan:
-        //: 1 For all growth and allocation strategies, perform a set of
-        //:   allocations, perform the 'rewind', and then re-allocate the
-        //:   identical set of sizes and ensure the returned addresses match
-        //:   the addresses returned during the initial allocations.  (C-1)
-        //:
-        //: 2 Through use of a 'bslma::TestAllocator' provided during
-        //:   construction, directly verify no memory is returned during
-        //:   'rewind'.  (C-2)
-        //:
-        //: 3 Allow the object to go out-of-scope and verify all memory has
-        //:   been returned to the underlying allocator.  (C-3)
+        // 1. For all growth and allocation strategies, perform a set of
+        //    allocations, perform the `rewind`, and then re-allocate the
+        //    identical set of sizes and ensure the returned addresses match
+        //    the addresses returned during the initial allocations.  (C-1)
+        //
+        // 2. Through use of a `bslma::TestAllocator` provided during
+        //    construction, directly verify no memory is returned during
+        //    `rewind`.  (C-2)
+        //
+        // 3. Allow the object to go out-of-scope and verify all memory has
+        //    been returned to the underlying allocator.  (C-3)
         //
         // Testing:
         //   void rewind();
         // -------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'rewind'" << endl
+                          << "TESTING `rewind`" << endl
                           << "================" << endl;
 
         bsls::BlockGrowth::Strategy growthStrategy[] = {
@@ -702,13 +708,13 @@ int main(int argc, char *argv[])
         // GLOBAL OPERATOR NEW TEST
         //
         // Concerns:
-        //: 1 That a 'bdlma::BufferedSequentialPool' can be used directly with
-        //    'operator new'.
+        // 1. That a `bdlma::BufferedSequentialPool` can be used directly with
+        //    `operator new`.
         //
         // Plan:
-        //: 1 Since 'bdlma::BufferedSequentialPool' is thoroughly tested at
-        //:   this point, we just need to make sure that 'new' forwards the
-        //:   memory request directly.
+        // 1. Since `bdlma::BufferedSequentialPool` is thoroughly tested at
+        //    this point, we just need to make sure that `new` forwards the
+        //    memory request directly.
         //
         // Testing:
         //   operator new(size_t, bdlma::BufferedSequentialPool&);
@@ -732,24 +738,24 @@ int main(int argc, char *argv[])
         // DTOR TEST
         //
         // Concerns:
-        //: 1 That the previously managed buffer is not changed in any way
-        //:   after destruction of the pool.
+        // 1. That the previously managed buffer is not changed in any way
+        //    after destruction of the pool.
         //
-        //: 2 That all memory allocated from the allocator supplied at
-        //:   construction is deallocated after destruction of the pool.
+        // 2. That all memory allocated from the allocator supplied at
+        //    construction is deallocated after destruction of the pool.
         //
         // Plan:
-        //: 1 Dynamically allocate a buffer using a test allocator.  Then, set
-        //:   all bytes in the buffer to '0xA', and initialize a buffered
-        //:   sequential pool using the buffer and the same test allocator.
-        //:   Finally, destroy the pool, and verify that the bytes in the first
-        //:   buffer remain '0xA' and the buffer is not deallocated (C-1).
-        //:
-        //: 2 Construct a buffered sequential pool using a
-        //:   'bslma::TestAllocator', then allocate sufficient memory such that
-        //:   the buffer runs out and the allocator is used.  Finally, destroy
-        //:   the pool, and verify, using the test allocator, that there is no
-        //:   outstanding memory allocated.
+        // 1. Dynamically allocate a buffer using a test allocator.  Then, set
+        //    all bytes in the buffer to `0xA`, and initialize a buffered
+        //    sequential pool using the buffer and the same test allocator.
+        //    Finally, destroy the pool, and verify that the bytes in the first
+        //    buffer remain `0xA` and the buffer is not deallocated (C-1).
+        //
+        // 2. Construct a buffered sequential pool using a
+        //    `bslma::TestAllocator`, then allocate sufficient memory such that
+        //    the buffer runs out and the allocator is used.  Finally, destroy
+        //    the pool, and verify, using the test allocator, that there is no
+        //    outstanding memory allocated.
         //
         // Testing:
         //   ~BufferedSequentialPool();
@@ -815,13 +821,13 @@ int main(int argc, char *argv[])
         // DELETEOBJECT TEST
         //
         // Concerns:
-        //: 1 That both the 'deleteObject' and 'deleteObjectRaw' methods invoke
-        //:   the destructor of the object passed in.
+        // 1. That both the `deleteObject` and `deleteObjectRaw` methods invoke
+        //    the destructor of the object passed in.
         //
         // Plan:
-        //: 1 Since 'deleteObject' and 'deleteObjectRaw' do not deallocate
-        //:   memory, we just need to ensure that the destructor of the object
-        //:   passed in is invoked.
+        // 1. Since `deleteObject` and `deleteObjectRaw` do not deallocate
+        //    memory, we just need to ensure that the destructor of the object
+        //    passed in is invoked.
         //
         // Testing:
         //   void deleteObjectRaw(const TYPE *object);
@@ -833,7 +839,7 @@ int main(int argc, char *argv[])
 
         char *buffer = u::bufferStorage.buffer();
 
-        if (verbose) cout << "\nTesting 'deleteObject'." << endl;
+        if (verbose) cout << "\nTesting `deleteObject`." << endl;
         {
             Obj mX(buffer, u::k_BUFFER_SIZE);
 
@@ -846,7 +852,7 @@ int main(int argc, char *argv[])
             ASSERT(true == u::globalDestructorInvoked);
         }
 
-        if (verbose) cout << "\nTesting 'deleteObjectRaw'." << endl;
+        if (verbose) cout << "\nTesting `deleteObjectRaw`." << endl;
         {
             Obj mX(buffer, u::k_BUFFER_SIZE);
 
@@ -861,42 +867,42 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // 'release' TEST
+        // `release` TEST
         //
         // Concerns:
-        //: 1 That 'release' has no effect on the previously managed buffer.
-        //:
-        //: 2 That all memory allocated from the allocator supplied at
-        //:   construction is deallocated after 'release'.
-        //:
-        //: 3 That subsequent allocation requests after invocation of the
-        //:   'release' method are satisfied by the buffer supplied at
-        //:   construction.
+        // 1. That `release` has no effect on the previously managed buffer.
+        //
+        // 2. That all memory allocated from the allocator supplied at
+        //    construction is deallocated after `release`.
+        //
+        // 3. That subsequent allocation requests after invocation of the
+        //    `release` method are satisfied by the buffer supplied at
+        //    construction.
         //
         // Plan:
-        //: 1 For concern 1, dynamically allocate a buffer using a test
-        //:   allocator.  Then, set all bytes in the buffer to '0xA', and
-        //:   initialize a buffered sequential pool using the buffer and the
-        //:   same test allocator.  Finally, invoke 'release' and verify that
-        //:   the bytes in the first buffer remain '0xA' and the buffer is not
-        //:   deallocated.
-        //:
-        //: 2 For concerns 2 and 3, construct a buffered sequential pool using
-        //:   a 'bslma::TestAllocator', then allocate sufficient memory such
-        //:   that the buffer runs out and the allocator is used.  Finally,
-        //:   invoke 'release' and verify, using the test allocator, that there
-        //:   is no outstanding memory allocated.  Then, allocate memory again
-        //:   and verify memory comes from the buffer.
+        // 1. For concern 1, dynamically allocate a buffer using a test
+        //    allocator.  Then, set all bytes in the buffer to `0xA`, and
+        //    initialize a buffered sequential pool using the buffer and the
+        //    same test allocator.  Finally, invoke `release` and verify that
+        //    the bytes in the first buffer remain `0xA` and the buffer is not
+        //    deallocated.
+        //
+        // 2. For concerns 2 and 3, construct a buffered sequential pool using
+        //    a `bslma::TestAllocator`, then allocate sufficient memory such
+        //    that the buffer runs out and the allocator is used.  Finally,
+        //    invoke `release` and verify, using the test allocator, that there
+        //    is no outstanding memory allocated.  Then, allocate memory again
+        //    and verify memory comes from the buffer.
         //
         // Testing:
         //   void release();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "'release' TEST" << endl
+        if (verbose) cout << endl << "`release` TEST" << endl
                                   << "==============" << endl;
 
         if (verbose) cout << "\nTesting managed buffer is not affected after "
-                             "'release'." << endl;
+                             "`release`." << endl;
 
         {
             ASSERT(0 == objectAllocator.numBlocksInUse());
@@ -930,7 +936,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == objectAllocator.numBlocksInUse());
 
         if (verbose) cout << "\nTesting allocated memory is deallocated after"
-                             " 'release'." << endl;
+                             " `release`." << endl;
         {
             char buffer[u::k_BUFFER_SIZE];
 
@@ -965,58 +971,58 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // 'allocate' TEST
+        // `allocate` TEST
         //   Note that this test alone is insufficient to thoroughly test the
-        //   the 'allocate' method, as the constructors, which are not
+        //   the `allocate` method, as the constructors, which are not
         //   thoroughly tested yet, are used in this test.  However, a
         //   combination of both this test and test case 3 provides complete
-        //   test coverage for both the constructors and the 'allocate' method.
+        //   test coverage for both the constructors and the `allocate` method.
         //
         // Concerns:
-        //: 1 A 'bdlma::BufferedSequentialPool' takes an external buffer
-        //:   supplied at construction.  This buffer is used for allocations
-        //:   until it runs out of memory.  Further allocations use the
-        //:   internal block list.
-        //:
-        //: 2 Due to the need to return aligned memory, the user supplied
-        //:   buffer may have sufficient additional memory to fulfill the
-        //:   request, but be unable to do so.  In these cases, the rest of the
-        //:   memory in the static buffer should be discarded and new memory
-        //:   supplied from the internal block list.
-        //:
-        //: 3 If the requested memory exceeds the amount of free memory in the
-        //:   static buffer, memory should be supplied from the internal block
-        //:   list.  Additional free memory in the buffer is no longer used.
-        //:
-        //: 4 The 'maxBufferSize' constructor argument caps the internal buffer
-        //:   growth during allocation.
+        // 1. A `bdlma::BufferedSequentialPool` takes an external buffer
+        //    supplied at construction.  This buffer is used for allocations
+        //    until it runs out of memory.  Further allocations use the
+        //    internal block list.
+        //
+        // 2. Due to the need to return aligned memory, the user supplied
+        //    buffer may have sufficient additional memory to fulfill the
+        //    request, but be unable to do so.  In these cases, the rest of the
+        //    memory in the static buffer should be discarded and new memory
+        //    supplied from the internal block list.
+        //
+        // 3. If the requested memory exceeds the amount of free memory in the
+        //    static buffer, memory should be supplied from the internal block
+        //    list.  Additional free memory in the buffer is no longer used.
+        //
+        // 4. The `maxBufferSize` constructor argument caps the internal buffer
+        //    growth during allocation.
         //
         // Plan:
-        //: 1 Supply an aligned static buffer with a constant amount of memory
-        //:   (64 bytes).  Any memory requests that do not exceed 64 bytes
-        //:   should be allocated from the static buffer.  All values near to
-        //:   64 are tested.  Memory allocations less than or equal to 64 bytes
-        //:   will not cause the internal block list to supply memory.  All
-        //:   values above 64 will.
-        //:
-        //: 2 Memory is requested such that there is still free memory in the
-        //:   static buffer, but when memory is aligned correctly there is not
-        //:   enough memory to supply the requested amount of memory.  Thus,
-        //:   this allocation should cause memory to be supplied from the
-        //:   internal block list.
-        //:
-        //: 3 An allocation is requested that is larger than the static buffer
-        //:   size.  This allocation should request memory from the internal
-        //:   block list.
-        //:
-        //: 4 Using the test allocator, verify the memory used no longer
-        //:   increases geometrically once the maximum buffer size is used.
+        // 1. Supply an aligned static buffer with a constant amount of memory
+        //    (64 bytes).  Any memory requests that do not exceed 64 bytes
+        //    should be allocated from the static buffer.  All values near to
+        //   64. are tested.  Memory allocations less than or equal to 64 bytes
+        //    will not cause the internal block list to supply memory.  All
+        //    values above 64 will.
+        //
+        // 2. Memory is requested such that there is still free memory in the
+        //    static buffer, but when memory is aligned correctly there is not
+        //    enough memory to supply the requested amount of memory.  Thus,
+        //    this allocation should cause memory to be supplied from the
+        //    internal block list.
+        //
+        // 3. An allocation is requested that is larger than the static buffer
+        //    size.  This allocation should request memory from the internal
+        //    block list.
+        //
+        // 4. Using the test allocator, verify the memory used no longer
+        //    increases geometrically once the maximum buffer size is used.
         //
         // Testing:
         //   void *allocate(size_type size);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "'allocate' TEST" << endl
+        if (verbose) cout << endl << "`allocate` TEST" << endl
                                   << "===============" << endl;
 
         enum {
@@ -1024,7 +1030,7 @@ int main(int argc, char *argv[])
             k_STATIC_BUFFER_SIZE =   64
         };
 
-        // Align buffer to 'MaxAlignedType'.
+        // Align buffer to `MaxAlignedType`.
         static union {
             char                                d_majorBuffer[
                                                           k_MAJOR_BUFFER_SIZE];
@@ -1365,7 +1371,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'maxBufferSize'." << endl;
+        if (verbose) cout << "\nTesting `maxBufferSize`." << endl;
         {
 
             const int DATA[]   = { bufferSize,
@@ -1530,51 +1536,51 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // CTOR TEST
         //   Note that this test alone is insufficient to thoroughly test the
-        //   the constructors, as the untested 'allocate' method is used to
+        //   the constructors, as the untested `allocate` method is used to
         //   verify that the buffer, alignment strategy, and allocator are
         //   properly passed to the pool at construction.  However, we cannot
-        //   test 'allocate' first - as it requires the constructors.  Hence,
+        //   test `allocate` first - as it requires the constructors.  Hence,
         //   it is a combination of both this test and test case 4 that
         //   provides complete test coverage for the constructors and the
-        //   'allocate' method.
+        //   `allocate` method.
         //
         // Concerns:
-        //: 1 That the external buffer supplied at construction is used to
-        //:   allocate memory.
-        //:
-        //: 2 That the allocator supplied at construction is used to supply
-        //:   memory when the external buffer is full.
-        //:
-        //: 3 That the allocator used, when not specified at construction, is
-        //:   defaulted to the currently installed default allocator.
-        //:
-        //: 4 That the alignment strategy, when specified, is respected during
-        //:   memory allocation.
-        //:
-        //: 5 That the alignment strategy, when not specified at construction,
-        //:   defaults to natural alignment.
-        //:
-        //: 6 QoI: Asserted precondition violations are detected when enabled.
+        // 1. That the external buffer supplied at construction is used to
+        //    allocate memory.
+        //
+        // 2. That the allocator supplied at construction is used to supply
+        //    memory when the external buffer is full.
+        //
+        // 3. That the allocator used, when not specified at construction, is
+        //    defaulted to the currently installed default allocator.
+        //
+        // 4. That the alignment strategy, when specified, is respected during
+        //    memory allocation.
+        //
+        // 5. That the alignment strategy, when not specified at construction,
+        //    defaults to natural alignment.
+        //
+        // 6. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For concerns 1 and 2, first create a 'bslma::TestAllocator' and a
-        //:   buffer on the stack.  Then create a buffered sequential pool
-        //:   object using the allocator and the buffer.  Verify that memory
-        //:   allocated from the pool first comes from the buffer, and when the
-        //:   buffer cannot satisfy the request, comes from the allocator.
-        //:
-        //: 2 For concern 3, install a 'bslma::TestAllocator' as the default
-        //:   allocator using a 'bslma::DefaultAllocatorGuard' object.  Then
-        //:   verify that when an allocator is not specified at construction,
-        //:   the currently installed default allocator is used.
-        //:
-        //: 3 For concerns 4 and 5, allocate memory twice from both a buffered
-        //:   sequential pool and the 'bdlma::BufferImpUtil::allocate' method,
-        //:   and verify the alignment strategy of the buffered sequential pool
-        //:   by comparing the address of the second allocation.
-        //:
-        //: 4 For concern 6, verify that, in appropriate build modes, defensive
-        //:   checks are triggered.
+        // 1. For concerns 1 and 2, first create a `bslma::TestAllocator` and a
+        //    buffer on the stack.  Then create a buffered sequential pool
+        //    object using the allocator and the buffer.  Verify that memory
+        //    allocated from the pool first comes from the buffer, and when the
+        //    buffer cannot satisfy the request, comes from the allocator.
+        //
+        // 2. For concern 3, install a `bslma::TestAllocator` as the default
+        //    allocator using a `bslma::DefaultAllocatorGuard` object.  Then
+        //    verify that when an allocator is not specified at construction,
+        //    the currently installed default allocator is used.
+        //
+        // 3. For concerns 4 and 5, allocate memory twice from both a buffered
+        //    sequential pool and the `bdlma::BufferImpUtil::allocate` method,
+        //    and verify the alignment strategy of the buffered sequential pool
+        //    by comparing the address of the second allocation.
+        //
+        // 4. For concern 6, verify that, in appropriate build modes, defensive
+        //    checks are triggered.
         //
         // Testing:
         //   BufferedSequentialPool(*buf, sz, *a = 0);
@@ -1931,26 +1937,26 @@ int main(int argc, char *argv[])
         // HELPER FUNCTION TEST
         //
         // Concerns:
-        //: 1 That the size returned by 'blockSize' matches the amount of bytes
-        //:   allocated by the 'bdlma::InfrequentDeleteBlockList::allocate'
-        //:   method.
+        // 1. That the size returned by `blockSize` matches the amount of bytes
+        //    allocated by the `bdlma::InfrequentDeleteBlockList::allocate`
+        //    method.
         //
         // Plan:
-        //: 1 Create a 'bdlma::InfrequentDeleteBlockList' object initialized
-        //:   with a test allocator.  Invoke both the 'blockSize' function and
-        //:   the 'bdlma::InfrequentDeleteBlockList::allocate' method with
-        //:   varying memory sizes, and verify that the sizes returned by
-        //:   'blockSize' are equal to the memory request sizes recorded by the
-        //:   allocator.
+        // 1. Create a `bdlma::InfrequentDeleteBlockList` object initialized
+        //    with a test allocator.  Invoke both the `blockSize` function and
+        //    the `bdlma::InfrequentDeleteBlockList::allocate` method with
+        //    varying memory sizes, and verify that the sizes returned by
+        //    `blockSize` are equal to the memory request sizes recorded by the
+        //    allocator.
         //
         // Testing:
-        //   HELPER FUNCTION: 'int blockSize(numBytes)'
+        //   HELPER FUNCTION: `int blockSize(numBytes)`
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "HELPER FUNCTION TEST" << endl
                                   << "====================" << endl;
 
-        if (verbose) cout << "\nTesting 'blockSize'." << endl;
+        if (verbose) cout << "\nTesting `blockSize`." << endl;
 
         const int DATA[] = { 0, 1, 5, 12, 24, 64, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1963,8 +1969,8 @@ int main(int argc, char *argv[])
             int blkSize = u::blockSize(SIZE);
             bl.allocate(SIZE);
 
-            // If the first 'SIZE' is 0, the allocator's 'allocate' is never
-            // called; thus, 'lastAllocatedSize' will return -1 instead of 0.
+            // If the first `SIZE` is 0, the allocator's `allocate` is never
+            // called; thus, `lastAllocatedSize` will return -1 instead of 0.
 
             const int EXP = i || SIZE
                     ? static_cast<int>(a.lastAllocatedNumBytes())
@@ -1979,42 +1985,42 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 That a 'bdlma::BufferedSequentialPool' can be created and
-        //:   destroyed.
-        //:
-        //: 2 That 'allocate' returns a block of memory having the specified
-        //:   size and expected alignment.
-        //:
-        //: 3 That 'allocate' returns a block of memory from the external
-        //:   buffer supplied at construction.
-        //:
-        //: 4 That 'allocate' returns a block of memory even when the
-        //:   allocation request exceeds the remaining free space in the
-        //:   external buffer.
-        //:
-        //: 5 Destruction of the pool releases all managed memory, including
-        //:   memory that comes from dynamic allocation.
+        // 1. That a `bdlma::BufferedSequentialPool` can be created and
+        //    destroyed.
+        //
+        // 2. That `allocate` returns a block of memory having the specified
+        //    size and expected alignment.
+        //
+        // 3. That `allocate` returns a block of memory from the external
+        //    buffer supplied at construction.
+        //
+        // 4. That `allocate` returns a block of memory even when the
+        //    allocation request exceeds the remaining free space in the
+        //    external buffer.
+        //
+        // 5. Destruction of the pool releases all managed memory, including
+        //    memory that comes from dynamic allocation.
         //
         // Plan:
-        //: 1 First, create a 'bdlma::BufferedSequentialPool' with an aligned
-        //:   static buffer.  Next, allocate a block of memory from the pool
-        //:   and verify that it comes from the external buffer.  Then,
-        //:   allocate another block of memory from the pool, and verify that
-        //:   the first allocation returned a block of memory of sufficient
-        //:   size by checking that 'addr2 >= addr1 + k_ALLOC_SIZE1'.  Also
-        //:   verify that the alignment strategy indicated at construction is
-        //:   followed by checking the address of the second allocation (C-1)
-        //:   (C-2) (C-3).
-        //:
-        //: 2 Initialize a 'bdlma::BufferedSequentialPool' with a
-        //:   'bslma::TestAllocator'.  Then allocate a block of memory that is
-        //:   larger than the buffer supplied at construction of the buffered
-        //:   sequential pool.  Verify that memory is allocated from the test
-        //:   allocator (C-4).
-        //:
-        //: 3 Let the pool created with the test allocator go out of scope, and
-        //:   verify, through the test allocator, that all allocated memory is
-        //:   deallocated (C-5).
+        // 1. First, create a `bdlma::BufferedSequentialPool` with an aligned
+        //    static buffer.  Next, allocate a block of memory from the pool
+        //    and verify that it comes from the external buffer.  Then,
+        //    allocate another block of memory from the pool, and verify that
+        //    the first allocation returned a block of memory of sufficient
+        //    size by checking that `addr2 >= addr1 + k_ALLOC_SIZE1`.  Also
+        //    verify that the alignment strategy indicated at construction is
+        //    followed by checking the address of the second allocation (C-1)
+        //    (C-2) (C-3).
+        //
+        // 2. Initialize a `bdlma::BufferedSequentialPool` with a
+        //    `bslma::TestAllocator`.  Then allocate a block of memory that is
+        //    larger than the buffer supplied at construction of the buffered
+        //    sequential pool.  Verify that memory is allocated from the test
+        //    allocator (C-4).
+        //
+        // 3. Let the pool created with the test allocator go out of scope, and
+        //    verify, through the test allocator, that all allocated memory is
+        //    deallocated (C-5).
         //
         // Testing:
         //   BREATHING TEST

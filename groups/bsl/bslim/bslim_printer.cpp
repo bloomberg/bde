@@ -17,10 +17,10 @@ namespace BloombergLP {
 
 namespace {
 
+/// Efficiently insert the specified `numSpaces` spaces into the specified
+/// `stream`.  This function has no effect on `stream` if `numSpaces < 0`.
 static
 void putSpaces(bsl::ostream& stream, int numSpaces)
-    // Efficiently insert the specified 'numSpaces' spaces into the specified
-    // 'stream'.  This function has no effect on 'stream' if 'numSpaces < 0'.
 {
     // Algorithm: Write spaces in chunks.  The chunk size is large enough so
     // that most times only a single call to the 'write' method is needed.

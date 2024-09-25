@@ -5,8 +5,8 @@
 
 #include <stdarg.h>
 #include <stdio.h>
-#include <stdlib.h>  // 'atoi'
-#include <string.h>  // 'strcmp'
+#include <stdlib.h>  // `atoi`
+#include <string.h>  // `strcmp`
 
 // Set this preprocessor macro to 1 to enable compile warnings being generated,
 // 0 to disable them.
@@ -21,22 +21,22 @@
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
 // test driver using a compliant compiler, each time defining different values
-// of the boolean 'U_TRIGGER_WARNINGS' preprocessor macro.  In each case, the
+// of the boolean `U_TRIGGER_WARNINGS` preprocessor macro.  In each case, the
 // concerns are:
 //
-//: o Did the build succeed or not?
-//:
-//: o Was the expected warning observed or not?
-//:
-//: o Was the expected suppression of some warning suppressed or not?
-//:
-//: o For annotations taking arguments, do the results show if the arguments
-//:   were properly passed to the underlying compiler directives?
+//  - Did the build succeed or not?
+//
+//  - Was the expected warning observed or not?
+//
+//  - Was the expected suppression of some warning suppressed or not?
+//
+//  - For annotations taking arguments, do the results show if the arguments
+//    were properly passed to the underlying compiler directives?
 //
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
 // does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor macro is 'U_TRIGGER_WARNINGS', which, if set to
+// The controlling preprocessor macro is `U_TRIGGER_WARNINGS`, which, if set to
 // 1, provokes all the compiler warnings caused by the macros under test.  If
 // set to 0, prevents any warnings from happening.
 //
@@ -47,12 +47,12 @@
 // right-most column appear as comments throughout this test driver.  They can
 // be used as an aid to navigation to the test code for each annotation, and an
 // aid to assuring test coverage.
-//..
+// ```
 //  Annotation                            Result
 //  ------------------------------------  -------
 //  BSLA_NULLTERMINATED                   Warning
 //  BSLA_NULLTERMINATEDAT(ARG_IDX)        Warning
-//..
+// ```
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 // [ 1] BREATHING TEST
@@ -125,23 +125,24 @@ bool veryVeryVeryVerbose;
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: 'catStrings' Function
+///Example 1: `catStrings` Function
 /// - - - - - - - - - - - - - - - -
 // Suppose we want to have a function that, passed a variable length argument
-// list of 'const char *' strings terminated by 'NULL', concatenates the
+// list of `const char *` strings terminated by `NULL`, concatenates the
 // strings, separated by spaces, into a buffer.
 //
 // First, we declare and define the function, annotated with
-// 'BSLA_NULL_TERMINATED':
-//..
+// `BSLA_NULL_TERMINATED`:
+// ```
+
+    /// The specified `outputBuffer` is a buffer where the output of this
+    /// function is placed.  The specified `...` is a `NULL`-terminated list
+    /// of `const char *` strings, which are to be copied into
+    /// `outputBuffer`, concatenated together and separated by spaces.  The
+    /// behavior is undefined unless the `...` is a `NULL`-terminated list
+    /// of `const char *` arguments.
     void catStrings(char *outputBuffer, ...) BSLA_NULLTERMINATED;
     void catStrings(char *outputBuffer, ...)
-        // The specified 'outputBuffer' is a buffer where the output of this
-        // function is placed.  The specified '...' is a 'NULL'-terminated list
-        // of 'const char *' strings, which are to be copied into
-        // 'outputBuffer', concatenated together and separated by spaces.  The
-        // behavior is undefined unless the '...' is a 'NULL'-terminated list
-        // of 'const char *' arguments.
     {
         *outputBuffer = 0;
 
@@ -154,31 +155,32 @@ bool veryVeryVeryVerbose;
         }
         va_end(ap);
     }
-//..
+// ```
 
 //
-///Example 2: 'catVerdict' Function
+///Example 2: `catVerdict` Function
 /// - - - - - - - - - - - - - - - -
 // Suppose we want to have a function that, passed a variable length argument
-// list of 'const char *' strings terminated by 'NULL', concatenates the
+// list of `const char *` strings terminated by `NULL`, concatenates the
 // strings, separated by spaces, into a buffer, and then there's an additional
 // integer argument, interpreted as a boolean, that determines what is to be
 // appended to the end of the buffer.
 //
 // First, we declare and define the function, annotated with
-// 'BSLA_NULL_TERMINATEDAT(1)':
-//..
+// `BSLA_NULL_TERMINATEDAT(1)`:
+// ```
+
+    /// The specified `outputBuffer` is a buffer where output is to be
+    /// placed.  All but the last 2 of the specified `...` arguments are
+    /// `const char *` strings to be concatenated together into
+    /// `outputBuffer`, separated by spaces.  The second-to-last argument is
+    /// to be `NULL`, and the last argument is an `int` interpreted as a
+    /// boolean to determine whether the buffer is to end with a verdict of
+    /// "guilty" or "not guilty".  The behavior is undefined unless the
+    /// types of all the arguments are correct and the second to last
+    /// argument is `NULL`.
     void catVerdict(char *outputBuffer, ...) BSLA_NULLTERMINATEDAT(1);
     void catVerdict(char *outputBuffer, ...)
-        // The specified 'outputBuffer' is a buffer where output is to be
-        // placed.  All but the last 2 of the specified '...' arguments are
-        // 'const char *' strings to be concatenated together into
-        // 'outputBuffer', separated by spaces.  The second-to-last argument is
-        // to be 'NULL', and the last argument is an 'int' interpreted as a
-        // boolean to determine whether the buffer is to end with a verdict of
-        // "guilty" or "not guilty".  The behavior is undefined unless the
-        // types of all the arguments are correct and the second to last
-        // argument is 'NULL'.
     {
         *outputBuffer = 0;
 
@@ -194,27 +196,27 @@ bool veryVeryVeryVerbose;
         ::strcat(outputBuffer, guilty ? ": guilty" : ": not guilty");
         va_end(ap);
     }
-//..
+// ```
 
 // ============================================================================
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// Do things.
 void test_NULL_TERMINATED(void *, ...) BSLA_NULLTERMINATED;
 void test_NULL_TERMINATED(void *, ...)
-    // Do things.
 {
 }
 
+/// Do things.
 void test_NULL_TERMINATED_AT2(void *, ...) BSLA_NULLTERMINATEDAT(2);
 void test_NULL_TERMINATED_AT2(void *, ...)
-    // Do things.
 {
 }
 
+/// Do things.
 void test_NULL_TERMINATED_AT3(void *, ...) BSLA_NULLTERMINATEDAT(3);
 void test_NULL_TERMINATED_AT3(void *, ...)
-    // Do things.
 {
 }
 
@@ -230,9 +232,9 @@ void test_NULL_TERMINATED_AT3(void *, ...)
 //                  USAGE WITH NO EXPECTED COMPILER WARNINGS
 // ----------------------------------------------------------------------------
 
+/// Call `test_NULL_TERMINATED` with a properly null-terminated list of
+/// pointers.
 void use_without_diagnostic_message_NULL_TERMINATED()
-    // Call 'test_NULL_TERMINATED' with a properly null-terminated list of
-    // pointers.
 {
     char buffer1[2];
     char buffer2[2];
@@ -241,9 +243,9 @@ void use_without_diagnostic_message_NULL_TERMINATED()
     test_NULL_TERMINATED(buffer1, buffer2, buffer3, buffer4, NULL);
 }
 
+/// Call `test_NULL_TERMINATED_AT2` with a properly null-terminated list of
+/// pointers.
 void use_without_diagnostic_message_NULL_TERMINATED_AT2()
-    // Call 'test_NULL_TERMINATED_AT2' with a properly null-terminated list of
-    // pointers.
 {
     char buffer1[2];
     char buffer2[2];
@@ -252,9 +254,9 @@ void use_without_diagnostic_message_NULL_TERMINATED_AT2()
     test_NULL_TERMINATED_AT2(buffer1, buffer2, NULL, buffer4, buffer5);
 }
 
+/// Call `test_NULL_TERMINATED_AT3` with a properly null-terminated list of
+/// pointers.
 void use_without_diagnostic_message_NULL_TERMINATED_AT3()
-    // Call 'test_NULL_TERMINATED_AT3' with a properly null-terminated list of
-    // pointers.
 {
     char buffer1[2];
     char buffer3[2];
@@ -305,11 +307,11 @@ void use_with_warning_message_NULL_TERMINATED_AT3()
 //                              HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// Print a diagnostic message to standard output if any of the preprocessor
+/// flags of interest are defined, and their value if a value had been set.
+/// An "Enter" and "Leave" message is printed unconditionally so there is
+/// some report even if all of the flags are undefined.
 static void printFlags()
-    // Print a diagnostic message to standard output if any of the preprocessor
-    // flags of interest are defined, and their value if a value had been set.
-    // An "Enter" and "Leave" message is printed unconditionally so there is
-    // some report even if all of the flags are undefined.
 {
     printf("printFlags: Enter\n");
 
@@ -393,10 +395,10 @@ int main(int argc, char **argv)
         // USAGE EXAMPLE
         //
         // Concern:
-        //: 1 That the usage example builds and performs as expected.
+        // 1. That the usage example builds and performs as expected.
         //
         // Plan:
-        //: 1 Build and test the usage example.
+        // 1. Build and test the usage example.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -406,27 +408,27 @@ int main(int argc, char **argv)
                             "=============\n");
 
 {
-// Then, in 'main', we call 'catStrings' correctly:
-//..
+// Then, in `main`, we call `catStrings` correctly:
+// ```
         char buf[1000];
         catStrings(buf, "Now", "you", "see", "it.", NULL);
         printf("%s\n", buf);
-//..
+// ```
 // which compiles without a warning and produces the output:
-//..
+// ```
 //  Now you see it.
-//..
-// Now, we call 'catStrings" again and forget to add the terminating 'NULL':
-//..
+// ```
+// Now, we call `catStrings" again and forget to add the terminating `NULL':
+// ```
 #if U_TRIGGER_WARNINGS
 if (veryVeryVeryVerbose) {
         catStrings(buf, "Now", "you", "don't.");
         printf("%s\n", buf);
 }
 #endif
-//..
+// ```
 // Finally, we get the compiler warning:
-//..
+// ```
 //  .../bsla_nullterminated.t.cpp:412:47: warning: missing sentinel in function
 //  call [-Wsentinel]
 //      catStrings(buf, "Now", "you", "don't.");
@@ -436,32 +438,32 @@ if (veryVeryVeryVerbose) {
 //  marked sentinel here
 //  void catStrings(char *outputBuffer, ...)
 //       ^
-//..
+// ```
 }
 
 {
-// Then, in 'main', we call 'catVerdict' correctly:
-//..
+// Then, in `main`, we call `catVerdict` correctly:
+// ```
         char buf[1000];
         catVerdict(buf, "We find the", "defendant,", "Bugs Bunny", NULL, 0);
         printf("%s\n", buf);
-//..
+// ```
 // which compiles without a warning and produces the output:
-//..
+// ```
 //  We find the defendant, Bugs Bunny: not guilty
-//..
-// Next, we call 'catVerdict' with no 'NULL' passed, and get a warning (and
+// ```
+// Next, we call `catVerdict` with no `NULL` passed, and get a warning (and
 // probably a core dump if we ran it):
-//..
+// ```
 #if U_TRIGGER_WARNINGS
 if (veryVeryVeryVerbose) {
         catVerdict(buf, "We find the", "defendant,", "Wile E. Coyote", 1);
         printf("%s\n", buf);
 }
 #endif
-//..
+// ```
 // And we get the following compiler warning:
-//..
+// ```
 //  .../bsla_nullterminated.t.cpp:447:70: warning: missing sentinel in function
 //  call [-Wsentinel]
 //      catVerdict(buf, "We find the", "defendant,", "Wile E. Coyote", 1);
@@ -471,20 +473,20 @@ if (veryVeryVeryVerbose) {
 //  marked sentinel here
 //  void catVerdict(char *outputBuffer, ...)
 //       ^
-//..
-// Now, we call 'catVerdict' and forget to put the integer that indicates guilt
-// or innocence after the 'NULL'.  This means that 'NULL' is happening at index
+// ```
+// Now, we call `catVerdict` and forget to put the integer that indicates guilt
+// or innocence after the `NULL`.  This means that `NULL` is happening at index
 // 0, not index 1, which violates the requirement imposed by the annotation:
-//..
+// ```
 #if U_TRIGGER_WARNINGS
 if (veryVeryVeryVerbose) {
         catVerdict(buf, "We find the", "defendant,", "Road Runner", NULL);
         printf("%s\n", buf);
 }
 #endif
-//..
+// ```
 // Finally, we get the compiler warning:
-//..
+// ```
 //  .../bsla_nullterminated.t.cpp:471:67: warning: missing sentinel in function
 //  call [-Wsentinel]
 //      catVerdict(buf, "We find the", "defendant,", "Road Runner", NULL);
@@ -494,7 +496,7 @@ if (veryVeryVeryVerbose) {
 //   marked sentinel here
 //  void catVerdict(char *outputBuffer, ...)
 //       ^
-//..
+// ```
 }
       } break;
       case 1: {
@@ -502,20 +504,20 @@ if (veryVeryVeryVerbose) {
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 This test driver builds with all expected compiler warning
-        //:   messages and no unexpected warnings when the 'U_TRIGGER_WARNINGS'
-        //:   preprocessor variable is defined to 1.
-        //:
-        //: 2 When 'U_TRIGGER_WARNINGS' is defined to 0, the compile is
-        //:   successful and with no warnings.
+        // 1. This test driver builds with all expected compiler warning
+        //    messages and no unexpected warnings when the `U_TRIGGER_WARNINGS`
+        //    preprocessor variable is defined to 1.
+        //
+        // 2. When `U_TRIGGER_WARNINGS` is defined to 0, the compile is
+        //    successful and with no warnings.
         //
         // Plan:
-        //: 1 Build with 'U_TRIGGER_WARNINGS' defined to 1 and externally
-        //:   examine compiler output for expected warnings and the absence of
-        //:   warnings expected to be suppressed.  (C-1)
-        //:
-        //: 2 Build with 'U_TRIGGER_WARNINGS' defined to 0 and observe that the
-        //:   compile is successful with no warnings.  (C-2)
+        // 1. Build with `U_TRIGGER_WARNINGS` defined to 1 and externally
+        //    examine compiler output for expected warnings and the absence of
+        //    warnings expected to be suppressed.  (C-1)
+        //
+        // 2. Build with `U_TRIGGER_WARNINGS` defined to 0 and observe that the
+        //    compile is successful with no warnings.  (C-2)
         //
         // Testing:
         //   BREATHING TEST
@@ -531,7 +533,7 @@ if (veryVeryVeryVerbose) {
 
             if (!veryVeryVerbose) printFlags();
 
-            ASSERT(true); // remove unused warning for 'aSsErT'
+            ASSERT(true); // remove unused warning for `aSsErT`
         }
       } break;
       default: {

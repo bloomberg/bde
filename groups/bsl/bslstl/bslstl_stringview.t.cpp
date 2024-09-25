@@ -18,22 +18,22 @@
 #include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 
-#include <cstddef>     // 'std::ptrdiff'
-#include <cstdlib>     // 'std::atoi'
-#include <cstring>     // 'std::memcpy', 'std::memcmp'
+#include <cstddef>     // `std::ptrdiff`
+#include <cstdlib>     // `std::atoi`
+#include <cstring>     // `std::memcpy`, `std::memcmp`
 #include <iostream>
 #include <iterator>
 #include <sstream>
-#include <stdexcept>   // 'std::out_of_range'
+#include <stdexcept>   // `std::out_of_range`
 #include <string>
 
 #ifdef BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
-#include <string_view>     // 'std::string_view'
+#include <string_view>     // `std::string_view`
 #endif // BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-#include <type_traits> // 'std::is_convertible', 'std::is_pointer',
-                       // 'std::is_same'
+#include <type_traits> // `std::is_convertible`, `std::is_pointer`,
+                       // `std::is_same`
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
@@ -55,7 +55,7 @@
 // together in case 2 and additional operators, accessors, and manipulators
 // tested above case 7 (tests for the test apparatus and streaming are not
 // applicable).  We have chosen as a *primary* *manipulator* the value
-// constructor.  And *basic* *accessors* are the methods 'data' and 'length'.
+// constructor.  And *basic* *accessors* are the methods `data` and `length`.
 // ----------------------------------------------------------------------------
 // CREATORS
 // [ 2] basic_string_view(const CHAR_TYPE *str, size_type numChars);
@@ -218,46 +218,47 @@ void aSsErT(bool condition, const char *message, int line)
 namespace incorrect {
 
 // We use a variadic function here rather than a function template with two
-// arguments to avoid ambiguity with 'std::swap' when 'bsl::string_view' is an
-// alias for 'std::string_view'.
+// arguments to avoid ambiguity with `std::swap` when `bsl::string_view` is an
+// alias for `std::string_view`.
+
+/// Fail.  In a successful test, this `swap` should never be called.  It is
+/// set up to be called (and fail) in the case where ADL fails to choose the
+/// right `swap` in `invokeAdlSwap` below.
 void swap(...)
-    // Fail.  In a successful test, this 'swap' should never be called.  It is
-    // set up to be called (and fail) in the case where ADL fails to choose the
-    // right 'swap' in 'invokeAdlSwap' below.
 {
     ASSERT(0 && "incorrect swap called");
 }
 
 }  // close namespace incorrect
 
+/// Exchange the values of the specified `*a` and `*b` objects using the
+/// `swap` method found by ADL (Argument Dependent Lookup).
 template <class TYPE>
 void invokeAdlSwap(TYPE *a, TYPE *b)
-    // Exchange the values of the specified '*a' and '*b' objects using the
-    // 'swap' method found by ADL (Argument Dependent Lookup).
 {
     using incorrect::swap;
 
-    // A correct ADL will key off the types of '*a' and '*b', which will be of
-    // our 'bsl' container type, to find the right 'bsl::swap' and not
-    // 'incorrect::swap'.
+    // A correct ADL will key off the types of `*a` and `*b`, which will be of
+    // our `bsl` container type, to find the right `bsl::swap` and not
+    // `incorrect::swap`.
 
     swap(*a, *b);
 }
 
+/// Exchange the values of the specified `*a` and `*b` objects using the
+/// `swap` method found by the recommended pattern for calling `swap`.
 template <class TYPE>
 void invokePatternSwap(TYPE *a, TYPE *b)
-    // Exchange the values of the specified '*a' and '*b' objects using the
-    // 'swap' method found by the recommended pattern for calling 'swap'.
 {
-    // Invoke 'swap' using the recommended pattern for 'bsl' clients.
+    // Invoke `swap` using the recommended pattern for `bsl` clients.
 
     using bsl::swap;
 
     swap(*a, *b);
 }
 
-// The following 'using' directives must come *after* the definition of
-// 'invokeAdlSwap' and 'invokePatternSwap' (above).
+// The following `using` directives must come *after* the definition of
+// `invokeAdlSwap` and `invokePatternSwap` (above).
 
 using namespace BloombergLP;
 using bsls::NameOf;
@@ -277,26 +278,27 @@ static bslma::TestAllocator *globalAllocator_p;
 static bslma::TestAllocator *defaultAllocator_p;
 static bslma::TestAllocator *objectAllocator_p;
 
+/// This class is used to simulate `invalid length of string` scenario.  We
+/// juggle the calculated length of string instead of allocating enormous
+/// amount of memory, filling it and passing it's address to the
+/// `string_view` constructor.
 template <class TYPE>
 class DummyTrait : public std::char_traits<TYPE>
-    // This class is used to simulate 'invalid length of string' scenario.  We
-    // juggle the calculated length of string instead of allocating enormous
-    // amount of memory, filling it and passing it's address to the
-    // 'string_view' constructor.
 {
   public:
     // TYPES
     typedef typename bsl::basic_string_view<TYPE>::size_type size_type;
 
     // CLASS METHODS
+
+    /// Unconditionally return the "not-a-position" value.
     static size_type length(const TYPE*)
-        // Unconditionally return the "not-a-position" value.
     {
         return bsl::basic_string_view<TYPE>::npos;
     }
 
+    /// Do nothing.
     static int compare(const TYPE*, const TYPE*, std::size_t)
-        // Do nothing.
     {
         return 0;
     }
@@ -397,16 +399,16 @@ size_t myRFind(const CHAR_TYPE *str,
 }  // close namespace u
 }  // close unnamed namespace
 
+/// Return the position of the *first* occurrence of a character belonging
+/// to the specified `characterString` of the specified `numChars` length,
+/// if such a string can be found in the specified `stringView` (on or
+/// *after* the specified `position`), and return `npos` otherwise.
 template <class CHAR_TYPE>
 typename bsl::basic_string_view<CHAR_TYPE>::size_type findFirstOf(
         const bsl::basic_string_view<CHAR_TYPE>&               stringView,
         const CHAR_TYPE                                       *characterString,
         typename bsl::basic_string_view<CHAR_TYPE>::size_type  position,
         typename bsl::basic_string_view<CHAR_TYPE>::size_type  numChars)
-    // Return the position of the *first* occurrence of a character belonging
-    // to the specified 'characterString' of the specified 'numChars' length,
-    // if such a string can be found in the specified 'stringView' (on or
-    // *after* the specified 'position'), and return 'npos' otherwise.
 {
     typedef typename bsl::basic_string_view<CHAR_TYPE> VIEW;
     typedef typename VIEW::size_type                   size_type;
@@ -420,29 +422,29 @@ typename bsl::basic_string_view<CHAR_TYPE>::size_type findFirstOf(
     return min;
 }
 
+/// Return the position of the *first* occurrence of a character belonging
+/// to the specified `subview`, if such an occurrence can be found in the
+/// specified `stringView` (on or *after* the optionally specified
+/// `position` if such a `position` is specified), and return `npos`
+/// otherwise.
 template <class CHAR_TYPE>
 typename bsl::basic_string_view<CHAR_TYPE>::size_type findFirstOf(
               const bsl::basic_string_view<CHAR_TYPE>&              stringView,
               const bsl::basic_string_view<CHAR_TYPE>&              subview,
               typename bsl::basic_string_view<CHAR_TYPE>::size_type position)
-    // Return the position of the *first* occurrence of a character belonging
-    // to the specified 'subview', if such an occurrence can be found in the
-    // specified 'stringView' (on or *after* the optionally specified
-    // 'position' if such a 'position' is specified), and return 'npos'
-    // otherwise.
 {
     return findFirstOf(stringView, subview.data(), position, subview.length());
 }
 
+/// Return the position of the *first* occurrence of a character belonging
+/// to the specified `characterString`, if such an occurrence can be found
+/// in the specified `stringView` (on or *after* the optionally specified
+/// `position`), and return `npos` otherwise.
 template <class CHAR_TYPE>
 typename bsl::basic_string_view<CHAR_TYPE>::size_type findFirstOf(
         const bsl::basic_string_view<CHAR_TYPE>&               stringView,
         const CHAR_TYPE                                       *characterString,
         typename bsl::basic_string_view<CHAR_TYPE>::size_type  position)
-    // Return the position of the *first* occurrence of a character belonging
-    // to the specified 'characterString', if such an occurrence can be found
-    // in the specified 'stringView' (on or *after* the optionally specified
-    // 'position'), and return 'npos' otherwise.
 {
     typedef typename bsl::basic_string_view<CHAR_TYPE>::traits_type TRAITS;
     return findFirstOf(stringView,
@@ -451,29 +453,29 @@ typename bsl::basic_string_view<CHAR_TYPE>::size_type findFirstOf(
                        TRAITS::length(characterString));
 }
 
+/// Return the position of the *first* occurrence of the specified
+/// `character`, if such an occurrence can be found in the specified
+/// `stringView` (on or *after* the optionally specified `position` if such
+/// a `position` is specified), and return `npos` otherwise.
 template <class CHAR_TYPE>
 typename bsl::basic_string_view<CHAR_TYPE>::size_type findFirstOf(
               const bsl::basic_string_view<CHAR_TYPE>&              stringView,
               CHAR_TYPE                                             character,
               typename bsl::basic_string_view<CHAR_TYPE>::size_type position)
-    // Return the position of the *first* occurrence of the specified
-    // 'character', if such an occurrence can be found in the specified
-    // 'stringView' (on or *after* the optionally specified 'position' if such
-    // a 'position' is specified), and return 'npos' otherwise.
 {
     return stringView.find(character, position);
 }
 
+/// Return the position of the *last* occurrence of a character belonging to
+/// the specified `characterString` of the specified `numChars` length, if
+/// such a string can be found in the specified `stringView` (on or *after*
+/// the specified `position`), and return `npos` otherwise.
 template <class CHAR_TYPE>
 typename bsl::basic_string_view<CHAR_TYPE>::size_type findLastOf(
         const bsl::basic_string_view<CHAR_TYPE>&               stringView,
         const CHAR_TYPE                                       *characterString,
         typename bsl::basic_string_view<CHAR_TYPE>::size_type  position,
         typename bsl::basic_string_view<CHAR_TYPE>::size_type  numChars)
-    // Return the position of the *last* occurrence of a character belonging to
-    // the specified 'characterString' of the specified 'numChars' length, if
-    // such a string can be found in the specified 'stringView' (on or *after*
-    // the specified 'position'), and return 'npos' otherwise.
 {
     typedef typename bsl::basic_string_view<CHAR_TYPE> VIEW;
     typedef typename VIEW::size_type                   size_type;
@@ -481,16 +483,16 @@ typename bsl::basic_string_view<CHAR_TYPE>::size_type findLastOf(
     size_type max = VIEW::npos;
     size_type i   = 0;
 
-    // 'npos' is greater than any possible non-'npos' return value of the
-    // 'rfind', so we try to find any symbol belonging to the specified
-    // 'stringView', no matter what position it stays.
+    // `npos` is greater than any possible non-`npos` return value of the
+    // `rfind`, so we try to find any symbol belonging to the specified
+    // `stringView`, no matter what position it stays.
 
     while (VIEW::npos == max && i < numChars) {
         max = stringView.rfind(characterString[i], position);
         ++i;
     }
 
-    // And now we can compare current non-'npos' maximum with the next result.
+    // And now we can compare current non-`npos` maximum with the next result.
 
     for (; i < numChars; ++i) {
         size_type result = stringView.rfind(characterString[i], position);
@@ -502,29 +504,29 @@ typename bsl::basic_string_view<CHAR_TYPE>::size_type findLastOf(
     return max;
 }
 
+/// Return the position of the *last* occurrence of a character belonging to
+/// the specified `subview`, if such an occurrence can be found in the
+/// specified `stringView` (on or *before* the optionally specified
+/// `position` if such a `position` is specified), and return `npos`
+/// otherwise.
 template <class CHAR_TYPE>
 typename bsl::basic_string_view<CHAR_TYPE>::size_type findLastOf(
               const bsl::basic_string_view<CHAR_TYPE>&              stringView,
               const bsl::basic_string_view<CHAR_TYPE>&              subview,
               typename bsl::basic_string_view<CHAR_TYPE>::size_type position)
-    // Return the position of the *last* occurrence of a character belonging to
-    // the specified 'subview', if such an occurrence can be found in the
-    // specified 'stringView' (on or *before* the optionally specified
-    // 'position' if such a 'position' is specified), and return 'npos'
-    // otherwise.
 {
     return findLastOf(stringView, subview.data(), position, subview.length());
 }
 
+/// Return the position of the *last* occurrence of a character belonging to
+/// the specified `characterString`, if such an occurrence can be found in
+/// the specified `stringView` (on or *after* the optionally specified
+/// `position`), and return `npos` otherwise.
 template <class CHAR_TYPE>
 typename bsl::basic_string_view<CHAR_TYPE>::size_type findLastOf(
         const bsl::basic_string_view<CHAR_TYPE>&               stringView,
         const CHAR_TYPE                                       *characterString,
         typename bsl::basic_string_view<CHAR_TYPE>::size_type  position)
-    // Return the position of the *last* occurrence of a character belonging to
-    // the specified 'characterString', if such an occurrence can be found in
-    // the specified 'stringView' (on or *after* the optionally specified
-    // 'position'), and return 'npos' otherwise.
 {
     typedef typename bsl::basic_string_view<CHAR_TYPE>::traits_type TRAITS;
     return findLastOf(stringView,
@@ -533,33 +535,33 @@ typename bsl::basic_string_view<CHAR_TYPE>::size_type findLastOf(
                       TRAITS::length(characterString));
 }
 
+/// Return the position of the *last* occurrence of the specified
+/// `character`, if such an occurrence can be found in the specified
+/// `stringView` (on or *before* the optionally specified `position` if such
+/// a `position` is specified), and return `npos` otherwise.
 template <class CHAR_TYPE>
 typename bsl::basic_string_view<CHAR_TYPE>::size_type findLastOf(
               const bsl::basic_string_view<CHAR_TYPE>&              stringView,
               CHAR_TYPE                                             character,
               typename bsl::basic_string_view<CHAR_TYPE>::size_type position)
-    // Return the position of the *last* occurrence of the specified
-    // 'character', if such an occurrence can be found in the specified
-    // 'stringView' (on or *before* the optionally specified 'position' if such
-    // a 'position' is specified), and return 'npos' otherwise.
 {
     return stringView.rfind(character, position);
 }
 
+/// Return the position of the *first* occurrence of a character *not*
+/// belonging to the specified `characterString` of the specified `numChars`
+/// length, if such an occurrence can be found in the specified `stringView`
+/// (on or *after* the specified `position`), and return `npos` otherwise.
 template <class CHAR_TYPE>
 typename bsl::basic_string_view<CHAR_TYPE>::size_type findFirstNotOf(
         const bsl::basic_string_view<CHAR_TYPE>&               stringView,
         const CHAR_TYPE                                       *characterString,
         typename bsl::basic_string_view<CHAR_TYPE>::size_type  position,
         typename bsl::basic_string_view<CHAR_TYPE>::size_type  numChars)
-    // Return the position of the *first* occurrence of a character *not*
-    // belonging to the specified 'characterString' of the specified 'numChars'
-    // length, if such an occurrence can be found in the specified 'stringView'
-    // (on or *after* the specified 'position'), and return 'npos' otherwise.
 {
     // The idea is to find the position of the first occurrence of each
-    // possible symbol of the 'CHAR_TYPE', not belonging to the specified
-    // 'characterString'.  But it can take too much time to iterate through all
+    // possible symbol of the `CHAR_TYPE`, not belonging to the specified
+    // `characterString`.  But it can take too much time to iterate through all
     // characters.  So, as this function is used for test purposes only and we
     // definitely know the content of the test strings and views, we can reduce
     // the number of characters being checked to 128 ([0..127]).
@@ -594,16 +596,16 @@ typename bsl::basic_string_view<CHAR_TYPE>::size_type findFirstNotOf(
                        numCharactersForSearch);
 }
 
+/// Return the position of the *first* occurrence of a character *not*
+/// belonging to the specified `subview`, if such an occurrence can be found
+/// in the specified `stringView` (on or *after* the optionally specified
+/// `position` if such a `position` is specified), and return `npos`
+/// otherwise.
 template <class CHAR_TYPE>
 typename bsl::basic_string_view<CHAR_TYPE>::size_type findFirstNotOf(
               const bsl::basic_string_view<CHAR_TYPE>&              stringView,
               const bsl::basic_string_view<CHAR_TYPE>&              subview,
               typename bsl::basic_string_view<CHAR_TYPE>::size_type position)
-    // Return the position of the *first* occurrence of a character *not*
-    // belonging to the specified 'subview', if such an occurrence can be found
-    // in the specified 'stringView' (on or *after* the optionally specified
-    // 'position' if such a 'position' is specified), and return 'npos'
-    // otherwise.
 {
     return findFirstNotOf(stringView,
                           subview.data(),
@@ -611,15 +613,15 @@ typename bsl::basic_string_view<CHAR_TYPE>::size_type findFirstNotOf(
                           subview.length());
 }
 
+/// Return the position of the *first* occurrence of a character *not*
+/// belonging to the specified `characterString`, if such an occurrence can
+/// be found in the specified `stringView` (on or *after* the optionally
+/// specified `position`), and return `npos` otherwise.
 template <class CHAR_TYPE>
 typename bsl::basic_string_view<CHAR_TYPE>::size_type findFirstNotOf(
         const bsl::basic_string_view<CHAR_TYPE>&               stringView,
         const CHAR_TYPE                                       *characterString,
         typename bsl::basic_string_view<CHAR_TYPE>::size_type  position)
-    // Return the position of the *first* occurrence of a character *not*
-    // belonging to the specified 'characterString', if such an occurrence can
-    // be found in the specified 'stringView' (on or *after* the optionally
-    // specified 'position'), and return 'npos' otherwise.
 {
     typedef typename bsl::basic_string_view<CHAR_TYPE>::traits_type TRAITS;
     return findFirstNotOf(stringView,
@@ -628,35 +630,35 @@ typename bsl::basic_string_view<CHAR_TYPE>::size_type findFirstNotOf(
                           TRAITS::length(characterString));
 }
 
+/// Return the position of the *first* occurrence of a character
+/// *different* from the specified `character`, if such an occurrence can
+/// be found in  the specified `stringView` (on or *after* the optionally
+/// specified `position` if such a `position` is specified), and return
+/// `npos` otherwise.
 template <class CHAR_TYPE>
 typename bsl::basic_string_view<CHAR_TYPE>::size_type findFirstNotOf(
               const bsl::basic_string_view<CHAR_TYPE>&              stringView,
               CHAR_TYPE                                             character,
               typename bsl::basic_string_view<CHAR_TYPE>::size_type position)
-    // Return the position of the *first* occurrence of a character
-    // *different* from the specified 'character', if such an occurrence can
-    // be found in  the specified 'stringView' (on or *after* the optionally
-    // specified 'position' if such a 'position' is specified), and return
-    // 'npos' otherwise.
 {
     return findFirstNotOf(stringView, &character, position, 1);
 }
 
+/// Return the position of the *last* occurrence of a character *not*
+/// belonging to the specified `characterString` of the specified `numChars`
+/// length, if such an occurrence can be found in  the specified
+/// `stringView` (on or *after* the specified `position`), and return `npos`
+/// otherwise.
 template <class CHAR_TYPE>
 typename bsl::basic_string_view<CHAR_TYPE>::size_type findLastNotOf(
         const bsl::basic_string_view<CHAR_TYPE>&               stringView,
         const CHAR_TYPE                                       *characterString,
         typename bsl::basic_string_view<CHAR_TYPE>::size_type  position,
         typename bsl::basic_string_view<CHAR_TYPE>::size_type  numChars)
-    // Return the position of the *last* occurrence of a character *not*
-    // belonging to the specified 'characterString' of the specified 'numChars'
-    // length, if such an occurrence can be found in  the specified
-    // 'stringView' (on or *after* the specified 'position'), and return 'npos'
-    // otherwise.
 {
     // The idea is to find the position of the first occurrence of each
-    // possible symbol of the 'CHAR_TYPE', not belonging to the specified
-    // 'characterString'.  But it takes too much time to iterate through all
+    // possible symbol of the `CHAR_TYPE`, not belonging to the specified
+    // `characterString`.  But it takes too much time to iterate through all
     // characters.  So, as this function is used for test purposes only and we
     // definitely know the content of the test strings and views, we can reduce
     // the number of characters being checked to 128 ([0..127]).
@@ -691,16 +693,16 @@ typename bsl::basic_string_view<CHAR_TYPE>::size_type findLastNotOf(
                       numCharactersForSearch);
 }
 
+/// Return the position of the *last* occurrence of a character *not*
+/// belonging to the specified `subview`, if such an occurrence can be found
+/// in  the specified `stringView` (on or *before* the optionally specified
+/// `position` if such a `position` is specified), and return `npos`
+/// otherwise.
 template <class CHAR_TYPE>
 typename bsl::basic_string_view<CHAR_TYPE>::size_type findLastNotOf(
               const bsl::basic_string_view<CHAR_TYPE>&              stringView,
               const bsl::basic_string_view<CHAR_TYPE>&              subview,
               typename bsl::basic_string_view<CHAR_TYPE>::size_type position)
-    // Return the position of the *last* occurrence of a character *not*
-    // belonging to the specified 'subview', if such an occurrence can be found
-    // in  the specified 'stringView' (on or *before* the optionally specified
-    // 'position' if such a 'position' is specified), and return 'npos'
-    // otherwise.
 {
     return findLastNotOf(stringView,
                          subview.data(),
@@ -708,15 +710,15 @@ typename bsl::basic_string_view<CHAR_TYPE>::size_type findLastNotOf(
                          subview.length());
 }
 
+/// Return the position of the *last* occurrence of a character *not*
+/// belonging to the specified `characterString`, if such an occurrence can
+/// be found in  the specified `stringView` (on or *after* the optionally
+/// specified `position`), and return `npos` otherwise.
 template <class CHAR_TYPE>
 typename bsl::basic_string_view<CHAR_TYPE>::size_type findLastNotOf(
         const bsl::basic_string_view<CHAR_TYPE>&               stringView,
         const CHAR_TYPE                                       *characterString,
         typename bsl::basic_string_view<CHAR_TYPE>::size_type  position)
-    // Return the position of the *last* occurrence of a character *not*
-    // belonging to the specified 'characterString', if such an occurrence can
-    // be found in  the specified 'stringView' (on or *after* the optionally
-    // specified 'position'), and return 'npos' otherwise.
 {
     typedef typename bsl::basic_string_view<CHAR_TYPE>::traits_type TRAITS;
     return findLastNotOf(stringView,
@@ -725,16 +727,16 @@ typename bsl::basic_string_view<CHAR_TYPE>::size_type findLastNotOf(
                          TRAITS::length(characterString));
 }
 
+/// Return the position of the *last* occurrence of a character *different*
+/// from the specified `character`, if such an occurrence can be found in
+/// the specified `stringView` (on or *before* the optionally specified
+/// `position` if such a `position` is specified), and return `npos`
+/// otherwise.
 template <class CHAR_TYPE>
 typename bsl::basic_string_view<CHAR_TYPE>::size_type findLastNotOf(
               const bsl::basic_string_view<CHAR_TYPE>&              stringView,
               CHAR_TYPE                                             character,
               typename bsl::basic_string_view<CHAR_TYPE>::size_type position)
-    // Return the position of the *last* occurrence of a character *different*
-    // from the specified 'character', if such an occurrence can be found in
-    // the specified 'stringView' (on or *before* the optionally specified
-    // 'position' if such a 'position' is specified), and return 'npos'
-    // otherwise.
 {
     return findLastNotOf(stringView, &character, position, 1);
 }
@@ -770,13 +772,13 @@ class TestIterator {
   public:
     // CREATORS
     TestIterator(const CHAR_TYPE *position);
-        // Create a 'TestIterator' object that refers to the specified
-        // 'position' (address) of a 'CHAR_TYPE'.
+        // Create a `TestIterator` object that refers to the specified
+        // `position` (address) of a `CHAR_TYPE`.
 
     // MANIPULATORS
     void operator++();
         // Increment the position of this object to refer to the next higher
-        // position (address) of a 'CHAR_TYPE'.
+        // position (address) of a `CHAR_TYPE`.
 
     // ACCESSORS
     const CHAR_TYPE& operator*() const;
@@ -838,9 +840,9 @@ class TestSentinel {
   public:
     // CREATORS
     TestSentinel(const CHAR_TYPE *end);
-        // Create a 'TestSentinel' object that refers the specified 'end'
+        // Create a `TestSentinel` object that refers the specified `end`
         // position (address).  Note that no facility is provided to change
-        // the position of a 'TestSentinel' object.
+        // the position of a `TestSentinel` object.
 
     // ACCESSORS
     const CHAR_TYPE *addr() const;
@@ -869,7 +871,7 @@ const CHAR_TYPE *TestSentinel<CHAR_TYPE>::addr() const
 template <class CHAR_TYPE>
 std::ptrdiff_t operator-(const TestSentinel<CHAR_TYPE>& lhs,
                          const TestIterator<CHAR_TYPE>& rhs)
-    // Return the difference between the specified 'lhs' and 'rhs'.  Note that
+    // Return the difference between the specified `lhs` and `rhs`.  Note that
     // the two operands have different types.
 {
     return lhs.addr() - rhs.addr();
@@ -878,7 +880,7 @@ std::ptrdiff_t operator-(const TestSentinel<CHAR_TYPE>& lhs,
 template <class CHAR_TYPE>
 std::ptrdiff_t operator-(const TestIterator<CHAR_TYPE>& lhs,
                          const TestSentinel<CHAR_TYPE>& rhs)
-    // Return the difference between the specified 'lhs' and 'rhs'.  Note that
+    // Return the difference between the specified `lhs` and `rhs`.  Note that
     // the two operands have different types.
 {
     return lhs.addr() - rhs.addr();
@@ -887,8 +889,8 @@ std::ptrdiff_t operator-(const TestIterator<CHAR_TYPE>& lhs,
 template <class CHAR_TYPE>
 bool operator==(const TestSentinel<CHAR_TYPE>& lhs,
                 const TestIterator<CHAR_TYPE>& rhs)
-    // Return 'true' if the specified 'lhs' and 'rhs' refer to the same
-    // position (address), and 'false' otherwise.  Note that the two operands
+    // Return `true` if the specified `lhs` and `rhs` refer to the same
+    // position (address), and `false` otherwise.  Note that the two operands
     // have different types.
 {
     return lhs.addr() == rhs.addr();
@@ -897,8 +899,8 @@ bool operator==(const TestSentinel<CHAR_TYPE>& lhs,
 template <class CHAR_TYPE>
 bool operator==(const TestIterator<CHAR_TYPE>& lhs,
                 const TestSentinel<CHAR_TYPE>& rhs)
-    // Return 'true' if the specified 'lhs' and 'rhs' refer to the same
-    // position (address), and 'false' otherwise.  Note that the two operands
+    // Return `true` if the specified `lhs` and `rhs` refer to the same
+    // position (address), and `false` otherwise.  Note that the two operands
 {
     return lhs.addr() == rhs.addr();
 }
@@ -917,8 +919,9 @@ bool operator==(const TestIterator<CHAR_TYPE>& lhs,
 template <class TYPE, class TRAITS = std::char_traits<TYPE> >
 struct TestDriver {
     // TYPES
+
+    /// Type under testing.
     typedef bsl::basic_string_view<TYPE, TRAITS> Obj;
-        // Type under testing.
 
     typedef typename Obj::size_type              size_type;
     typedef typename Obj::iterator               iterator;
@@ -934,12 +937,12 @@ struct TestDriver {
 
     // CLASS DATA
 
-    // We have to define 's_testStringLength' constant inside of the class
+    // We have to define `s_testStringLength` constant inside of the class
     // declaration to avoid MSVC build error "C2131: expression did not
     // evaluate to a constant".  And we have to initialize it with the literal
-    // instead of using 'sizeof', because MSVC doesn't allow to use 'sizeof'
+    // instead of using `sizeof`, because MSVC doesn't allow to use `sizeof`
     // for constant static arrays, defined outside of the class declaration:
-    // "C2070: 'const char []': illegal sizeof operand".
+    // "C2070: `const char []`: illegal sizeof operand".
 
 #define TYPE_ARRAY_49   {                                      \
                        /*  0   1   2   3   4   5   6 */        \
@@ -975,68 +978,68 @@ struct TestDriver {
     // TEST CASES
 #ifdef BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
     static void testCase25();
-        // Test compatibility with 'std::string_view'.
+        // Test compatibility with `std::string_view`.
 #endif // BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
 
+    /// Test `operator ""_sv`.
     static void testCase22();
-        // Test 'operator ""_sv'.
 
+    /// Test `starts_with` and `ends_with`.
     static void testCase21();
-        // Test 'starts_with' and 'ends_with'.
 
+    /// Test comparison operators.
     static void testCase20();
-        // Test comparison operators.
 
+    /// Test `hashAppend`.
     static void testCase19();
-        // Test 'hashAppend'.
 
+    /// Test `compare`.
     static void testCase18();
-        // Test 'compare'.
 
+    /// Test `substr`.
     static void testCase17();
-        // Test 'substr'.
 
+    /// Test `find_first_not_of` and `find_last_not_of`.
     static void testCase16();
-        // Test 'find_first_not_of' and 'find_last_not_of'.
 
+    /// Test `find_first_of` and `find_last_of`.
     static void testCase15();
-        // Test 'find_first_of' and 'find_last_of'.
 
+    /// Test `find` and `rfind`.
     static void testCase14();
-        // Test 'find' and 'rfind'.
 
+    /// Test `copy`.
     static void testCase13();
-        // Test 'copy'.
 
+    /// Test cutting methods (`remove_prefix` and `remove_suffix`).
     static void testCase12();
-        // Test cutting methods ('remove_prefix' and 'remove_suffix').
 
+    /// Test iterator accessors.
     static void testCase11();
-        // Test iterator accessors.
 
+    /// Test element accessors.
     static void testCase10();
-        // Test element accessors.
 
+    /// Test size accessors.
     static void testCase9();
-        // Test size accessors.
 
+    /// Test constructors.
     static void testCase8();
-        // Test constructors.
 
+    /// Test copy-assignment operator.
     static void testCase7();
-        // Test copy-assignment operator.
 
+    /// Test swap.
     static void testCase6();
-        // Test swap.
 
+    /// Test copy constructor.
     static void testCase5();
-        // Test copy constructor.
 
+    /// Test equality comparison.
     static void testCase4();
-        // Test equality comparison.
 
+    /// Test primary manipulators.
     static void testCase2();
-        // Test primary manipulators.
 
 };
 
@@ -1129,39 +1132,39 @@ template <class TYPE, class TRAITS>
 void TestDriver<TYPE,TRAITS>::testCase25()
 {
     // ------------------------------------------------------------------------
-    // COEXISTING 'std::string_view'
+    // COEXISTING `std::string_view`
     //
     // Concerns:
-    //: 1 A 'std::string_view' can be used to construct a 'bsl::string_view'
-    //:   that refers to the same span of memory (initial address and length)
-    //:   as the original 'std::string_view'.
-    //:
-    //: 2 A 'std::string_view' can be assigned to an existing
-    //:   'bsl::string_view' that will refer to the same span of memory as the
-    //:   original 'std::string_view'.
-    //:
-    //: 3 A 'bsl::string_view' can be created from a 'std::string' and the
-    //:   resulting 'bsl::string_view' can be cast to 'std::string' having the
-    //:   same value as the original.
+    // 1. A `std::string_view` can be used to construct a `bsl::string_view`
+    //    that refers to the same span of memory (initial address and length)
+    //    as the original `std::string_view`.
+    //
+    // 2. A `std::string_view` can be assigned to an existing
+    //    `bsl::string_view` that will refer to the same span of memory as the
+    //    original `std::string_view`.
+    //
+    // 3. A `bsl::string_view` can be created from a `std::string` and the
+    //    resulting `bsl::string_view` can be cast to `std::string` having the
+    //    same value as the original.
     //
     // Plan:
-    //: 1 Given an original 'std::string_view' object, use the copy constructor
-    //:   to create a 'bsl::string_view' object.  Also assign a
-    //:   'std::string_view' object another existing, 'bsl::string_view'
-    //:   object.  Confirm that the created (assigned to) object has the
-    //:   expected starting address and length of the original
-    //:   'std::string_view' object.
-    //:
-    //: 2 Perform P-1 for original 'std::string_view' objects that are
-    //:   empty and non-empty.  Create the non-empty 'std::string_view' object
-    //:   from 's_testString' and 's_testStringLength' as is done on the test
-    //:   of 'bsl::string_view's copy constructor (see TC 5).
-    //:
-    //: 3 Construct 'bsl::string_view' objects from 'std::string' objects and
-    //:   confirm that they have the same starting address and length as the
-    //:   original string.  Cast the created 'bsl::string_view' to a
-    //:   'std::string' and confirm that the contents match that of the
-    //:   original string.
+    // 1. Given an original `std::string_view` object, use the copy constructor
+    //    to create a `bsl::string_view` object.  Also assign a
+    //    `std::string_view` object another existing, `bsl::string_view`
+    //    object.  Confirm that the created (assigned to) object has the
+    //    expected starting address and length of the original
+    //    `std::string_view` object.
+    //
+    // 2. Perform P-1 for original `std::string_view` objects that are
+    //    empty and non-empty.  Create the non-empty `std::string_view` object
+    //    from `s_testString` and `s_testStringLength` as is done on the test
+    //    of `bsl::string_view`s copy constructor (see TC 5).
+    //
+    // 3. Construct `bsl::string_view` objects from `std::string` objects and
+    //    confirm that they have the same starting address and length as the
+    //    original string.  Cast the created `bsl::string_view` to a
+    //    `std::string` and confirm that the contents match that of the
+    //    original string.
     //
     // Testing:
     //   basic_string_view(const std::string_view& view);
@@ -1178,7 +1181,7 @@ void TestDriver<TYPE,TRAITS>::testCase25()
     BSLS_KEYWORD_CONSTEXPR
     const size_type        STRING_LENGTH = s_testStringLength;
 
-    if (verbose) printf("Check 'constexpr' construction.\n");
+    if (verbose) printf("Check `constexpr` construction.\n");
     {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14) \
 &&  defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
@@ -1234,10 +1237,10 @@ void TestDriver<TYPE,TRAITS>::testCase25()
     }
 
     if (veryVerbose) printf(
-          "Testing compatibility with 'std::string'.\n");
+          "Testing compatibility with `std::string`.\n");
 
     {
-        // Confirm baseline behavior and replicate using 'bsl::string_view'.
+        // Confirm baseline behavior and replicate using `bsl::string_view`.
 
         StdString stdString;
         Obj       bslStringViewFromStdString(stdString);                // TEST
@@ -1254,7 +1257,7 @@ void TestDriver<TYPE,TRAITS>::testCase25()
         ASSERT(bslStringViewFromStdString.length()
                              == stdString.length());
 
-        // Test Conversion to 'std::string'.
+        // Test Conversion to `std::string`.
 
         const Obj& BslStringViewFromStdString =
                    bslStringViewFromStdString;
@@ -1272,41 +1275,41 @@ void TestDriver<TYPE,TRAITS>::testCase22()
     // TESTING LITERALS
     //
     // Concerns:
-    //: 1 That the 'operator ""_sv' correctly forwards arguments to the
-    //:   constructor arguments to the constructor of the 'basic_string_view'
-    //:   type.
-    //:
-    //: 2 That the length of the resultant string_view is determined by the
-    //:   specified 'length' argument and does not depend on character values
-    //:   of the input character array, for example null character.
-    //:
-    //: 3 That an access to 'operator ""_sv' can be gained using either
-    //:   'bsl::literals', 'bsl::string_view_literals' or
-    //:   'bsl::literals::string_view_literals' namespaces.
-    //:
-    //: 4 The 'operator ""_sv' allocates no memory.
-    //:
-    //: 5 QoI: Asserted precondition violations are detected when enabled.
+    // 1. That the `operator ""_sv` correctly forwards arguments to the
+    //    constructor arguments to the constructor of the `basic_string_view`
+    //    type.
+    //
+    // 2. That the length of the resultant string_view is determined by the
+    //    specified `length` argument and does not depend on character values
+    //    of the input character array, for example null character.
+    //
+    // 3. That an access to `operator ""_sv` can be gained using either
+    //    `bsl::literals`, `bsl::string_view_literals` or
+    //    `bsl::literals::string_view_literals` namespaces.
+    //
+    // 4. The `operator ""_sv` allocates no memory.
+    //
+    // 5. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Create a 'bslma::TestAllocator' object, and install it as the default
-    //:   allocator (note that a ubiquitous test allocator is already installed
-    //:   as the global allocator).
-    //:
-    //: 2 For a variety of strings of different sizes and different values
-    //:   including embedded null character test that the resultant
-    //:   string_views have expected values and lengths by comparing them with
-    //:   the objects, created via explicit constructor calling.  (c-1..2)
-    //:
-    //: 3 Invoke the operator within the scope of different namespaces.  (C-3)
-    //:
-    //: 4 Use the test allocator from P-1 to verify that no memory is ever
-    //:   allocated from the default allocator.  (C-4)
-    //:
-    //: 5 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered for invalid attribute values, but not triggered for
-    //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-    //:   (C-5)
+    // 1. Create a `bslma::TestAllocator` object, and install it as the default
+    //    allocator (note that a ubiquitous test allocator is already installed
+    //    as the global allocator).
+    //
+    // 2. For a variety of strings of different sizes and different values
+    //    including embedded null character test that the resultant
+    //    string_views have expected values and lengths by comparing them with
+    //    the objects, created via explicit constructor calling.  (c-1..2)
+    //
+    // 3. Invoke the operator within the scope of different namespaces.  (C-3)
+    //
+    // 4. Use the test allocator from P-1 to verify that no memory is ever
+    //    allocated from the default allocator.  (C-4)
+    //
+    // 5. Verify that, in appropriate build modes, defensive checks are
+    //    triggered for invalid attribute values, but not triggered for
+    //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+    //    (C-5)
     //
     // Testing:
     //    string_view operator ""_sv(const char*    str, std::size_t len);
@@ -1506,44 +1509,44 @@ void TestDriver<TYPE,TRAITS>::testCase22()
 template <class TYPE, class TRAITS>
 void TestDriver<TYPE, TRAITS>::testCase21() {
     // ------------------------------------------------------------------------
-    // TESTING 'STARTS_WITH' AND 'ENDS_WITH'
-    //   We are going to use fully tested 'find' and 'rfind' methods as a
+    // TESTING `STARTS_WITH` AND `ENDS_WITH`
+    //   We are going to use fully tested `find` and `rfind` methods as a
     //   control functions.
     //
     // Concerns:
-    //: 1 An empty or zero-length object can be used as a parameter for search.
-    //:
-    //: 2 Search operations can be called for an empty or zero-length object.
-    //:
-    //: 3 The null symbol ('/0') is correctly handled whether it belongs to the
-    //:   object or to the requested value for search.
-    //:
-    //: 4 The length of the value for search can exceed the length of the
-    //:   object.
-    //:
-    //: 5 QoI: Asserted precondition violations are detected when enabled.
+    // 1. An empty or zero-length object can be used as a parameter for search.
+    //
+    // 2. Search operations can be called for an empty or zero-length object.
+    //
+    // 3. The null symbol ('\0') is correctly handled whether it belongs to the
+    //    object or to the requested value for search.
+    //
+    // 4. The length of the value for search can exceed the length of the
+    //    object.
+    //
+    // 5. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Create an empty and a zero-length objects.  For each object call
-    //:   each tested method, passing in turn an empty object, a zero-length
-    //:   object, a null pointer as a parameter and verify the results.
-    //:
-    //: 2 Specify a set S of unique non-empty object values.  For each value
-    //:   'x' in 'S' call each tested method, passing in turn an empty object,
-    //:    a zero-length object, a null pointer as a parameter and verify the
-    //:    results.  Call each tested method for an empty object and for a
-    //:    zero-length object, passing 'x' as a parameter and verify the
-    //:    results.  (C-1..2)
-    //:
-    //: 3 Specify a set S of unique non-empty object values both containing
-    //:   null symbols and not.  For each value 'x' in 'S" call each tested
-    //:   method, passing in turn each value 'y' in 'S', or underlying string
-    //:   of 'y', or the first character of 'y' and verify the results using
-    //:   'find' or 'rfind' methods accordingly.  (C-3..4)
-    //:
-    //: 4 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered for invalid attribute values, but not triggered for
-    //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
+    // 1. Create an empty and a zero-length objects.  For each object call
+    //    each tested method, passing in turn an empty object, a zero-length
+    //    object, a null pointer as a parameter and verify the results.
+    //
+    // 2. Specify a set S of unique non-empty object values.  For each value
+    //    `x` in `S` call each tested method, passing in turn an empty object,
+    //     a zero-length object, a null pointer as a parameter and verify the
+    //     results.  Call each tested method for an empty object and for a
+    //     zero-length object, passing `x` as a parameter and verify the
+    //     results.  (C-1..2)
+    //
+    // 3. Specify a set S of unique non-empty object values both containing
+    //    null symbols and not.  For each value `x` in 'S" call each tested
+    //    method, passing in turn each value `y` in `S`, or underlying string
+    //    of `y`, or the first character of `y` and verify the results using
+    //    `find` or `rfind` methods accordingly.  (C-3..4)
+    //
+    // 4. Verify that, in appropriate build modes, defensive checks are
+    //    triggered for invalid attribute values, but not triggered for
+    //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).  (C-5)
     //
     // Testing:
     //   bool starts_with(basic_string_view subview) const;
@@ -1560,8 +1563,8 @@ void TestDriver<TYPE, TRAITS>::testCase21() {
                               std::basic_string_view<TYPE, TRAITS> >::value));
 #elif defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
 
-        // 'std::string_view' exists but, since it lacks '*_with' methods,
-        // we do not alias 'bsl::string_view' to it.
+        // `std::string_view` exists but, since it lacks `*_with` methods,
+        // we do not alias `bsl::string_view` to it.
 
         ASSERT((!bsl::is_same<Obj,
                               std::basic_string_view<TYPE, TRAITS> >::value));
@@ -1577,7 +1580,7 @@ void TestDriver<TYPE, TRAITS>::testCase21() {
     const size_type  NPOS       = Obj::npos;
     const size_type  MAX_LENGTH = 5;
 
-    if (verbose) printf("Check 'constexpr' accessors.\n");
+    if (verbose) printf("Check `constexpr` accessors.\n");
     {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
         {
@@ -1840,34 +1843,34 @@ void TestDriver<TYPE,TRAITS>::testCase20()
 {
     // ------------------------------------------------------------------------
     // TESTING COMPARISON OPERATORS
-    //   We are going to use fully tested 'compare' method as a control
-    //   function for the 'operator<'.  Other operators are expected to be
-    //   bound with the 'operator<', so the expected results for them can be
+    //   We are going to use fully tested `compare` method as a control
+    //   function for the `operator<`.  Other operators are expected to be
+    //   bound with the `operator<`, so the expected results for them can be
     //   logically evaluated from its result.
     //
     // Concerns:
-    //: 1 The 'operator<' returns the correct result of lexicographic
-    //:   comparison of two objects.
-    //:
-    //: 2 The 'operator>', 'operator<=', and 'operator>=' are correctly tied to
-    //:   the 'operator<'.
-    //:
-    //: 3 The empty object is comparable.
-    //:
-    //: 4 The zero-length object is comparable.
+    // 1. The `operator<` returns the correct result of lexicographic
+    //    comparison of two objects.
+    //
+    // 2. The `operator>`, `operator<=`, and `operator>=` are correctly tied to
+    //    the `operator<`.
+    //
+    // 3. The empty object is comparable.
+    //
+    // 4. The zero-length object is comparable.
     //
     // Plan:
-    //: 1 Create an empty object, a zero-length object and compare them.
-    //:
-    //: 2 Specify a set 'S' of unique object values having various
-    //:   minor or subtle differences.
-    //:
-    //: 3 Compare each element in the 'S' with empty and zero-length objects
-    //:   and verify the results.  (C-3..4)
-    //:
-    //: 4 Using the 'compare' method verify the correctness of comparison
-    //:   operators behavior using all elements of the cross product S X S.
-    //:   (C-1..2)
+    // 1. Create an empty object, a zero-length object and compare them.
+    //
+    // 2. Specify a set `S` of unique object values having various
+    //    minor or subtle differences.
+    //
+    // 3. Compare each element in the `S` with empty and zero-length objects
+    //    and verify the results.  (C-3..4)
+    //
+    // 4. Using the `compare` method verify the correctness of comparison
+    //    operators behavior using all elements of the cross product S X S.
+    //    (C-1..2)
     //
     // Testing:
     //   bool operator<(basic_string_view lhs, basic_string_view rhs);
@@ -1901,7 +1904,7 @@ void TestDriver<TYPE,TRAITS>::testCase20()
     BSLS_KEYWORD_CONSTEXPR
     const TYPE *      NULL_PTR      = 0;
 
-    if (verbose) printf("Check 'constexpr' operators.\n");
+    if (verbose) printf("Check `constexpr` operators.\n");
     {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
         {
@@ -2053,34 +2056,34 @@ void TestDriver<TYPE, TRAITS>::testCase19()
     // ------------------------------------------------------------------------
     // TESTING HASHAPPEND
     //   Verify that the hashAppend function works properly and is picked up by
-    //   'bslh::Hash'
+    //   `bslh::Hash`
     //
     // Concerns:
-    //: 1 Objects constructed with the same values hash as equal.
-    //:
-    //: 2 Objects, having different internal presentations, but considered to
-    //:   be equal, hash as equal.
-    //:
-    //: 3 Unequal objects hash as unequal (not required, but we can hope).
-    //:
-    //: 4 Empty objects can be hashed.
-    //:
-    //: 5 Zero-length objects can be hashed.
+    // 1. Objects constructed with the same values hash as equal.
+    //
+    // 2. Objects, having different internal presentations, but considered to
+    //    be equal, hash as equal.
+    //
+    // 3. Unequal objects hash as unequal (not required, but we can hope).
+    //
+    // 4. Empty objects can be hashed.
+    //
+    // 5. Zero-length objects can be hashed.
     //
     // Plan:
-    //: 1 Create an empty object, a zero-length object and hash them.
-    //:
-    //: 2 Specify a set S of unique object values.
-    //:
-    //: 3 Verify the correctness of hash values matching using all elements of
-    //:   the cross product S X S.  (C-1..3)
-    //:
-    //: 4 Compare hashes of objects from S with hashes from P-1 and verify the
-    //:   results.  (C-4..5)
-    //:
-    //: 5 Create two objects, having the same lengths and referring to the
-    //:   different strings, having the same values.  Hash them and verify that
-    //:   hashes are equal.  (C-3)
+    // 1. Create an empty object, a zero-length object and hash them.
+    //
+    // 2. Specify a set S of unique object values.
+    //
+    // 3. Verify the correctness of hash values matching using all elements of
+    //    the cross product S X S.  (C-1..3)
+    //
+    // 4. Compare hashes of objects from S with hashes from P-1 and verify the
+    //    results.  (C-4..5)
+    //
+    // 5. Create two objects, having the same lengths and referring to the
+    //    different strings, having the same values.  Hash them and verify that
+    //    hashes are equal.  (C-3)
     //
     // Testing:
     //   void hashAppend(HASHALG& hashAlg, const basic_string_view& str);
@@ -2225,72 +2228,72 @@ void TestDriver<TYPE, TRAITS>::testCase18()
     //   The idea is to test some method's overload thoroughly and then use it
     //   as a control function for other overloads. For non-empty objects this
     //   function is
-    //   'compare(size_type, size_type, const CHAR_TYPE *, size_type)', whereas
-    //   its behavior is checked with the similar 'std::basic_string::compare'
+    //   `compare(size_type, size_type, const CHAR_TYPE *, size_type)`, whereas
+    //   its behavior is checked with the similar `std::basic_string::compare`
     //   method. For empty objects such function is
-    //   'compare(basic_string_view other)', because all possible combinations
-    //   of parameters for other overloads can be represented as 'string_view'
+    //   `compare(basic_string_view other)`, because all possible combinations
+    //   of parameters for other overloads can be represented as `string_view`
     //   object.
     //
     // Concerns:
-    //: 1 Empty and zero-length objects can be passed for comparison.
-    //:
-    //: 2 The "compare" methods stick to the borders of the compared objects
-    //:   (e.g. they check only the available number of characters, even if
-    //:   user requests more).
-    //:
-    //: 3 The null symbol ('/0') is correctly handled whether it belongs to the
-    //:   objects or to the strings for comparison.
-    //:
-    //: 4 The default parameter values are exactly as expected.
-    //:
-    //: 5 The 'compare' throws 'std::out_of_range' exception when passed an
-    //:   out-of-bound position (e.g. 'position > length()').
-    //:
-    //: 6 QoI: Asserted precondition violations are detected when enabled.
+    // 1. Empty and zero-length objects can be passed for comparison.
+    //
+    // 2. The "compare" methods stick to the borders of the compared objects
+    //    (e.g. they check only the available number of characters, even if
+    //    user requests more).
+    //
+    // 3. The null symbol ('\0') is correctly handled whether it belongs to the
+    //    objects or to the strings for comparison.
+    //
+    // 4. The default parameter values are exactly as expected.
+    //
+    // 5. The `compare` throws `std::out_of_range` exception when passed an
+    //    out-of-bound position (e.g. `position > length()`).
+    //
+    // 6. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Create an empty object, a zero-length object.
-    //:
-    //: 2 Using each 'compare' interface, compare empty object with itself (or
-    //:   with the null pointer) and verify the results.
-    //:
-    //: 3 Specify a set S of unique non-empty object values.
-    //:
-    //: 4 Using 'compare(basic_string_view other)' interface, compare each
-    //:   value in 'S' with empty and zero-length objects. Verify the
-    //:   results.
-    //:
-    //: 5 Using interface tested in P-4 as a control function, verify the
-    //:   return values of other interfaces comparing values in 'S' and
-    //:   empty/zero-length objects.  (C-1)
-    //:
-    //: 6 For each object in 'S' create the 'bsl::basic_string' object 'str'
-    //:   passing the same parameters on construction, that for object in 'S'
-    //:   were passed earlier.
-    //:
-    //: 7 Using 'compare(size_type, size_type, const CHAR_TYPE *, size_type)'
-    //:   interface, compare each pair (s1, s2) in the cross product S X S and
-    //:   verify the results by calling the 'std::basic_string::compare' method
-    //:   for the 'str' object with the same parameters.
-    //:
-    //: 8 Using interface tested in P-7 as a control function, verify the
-    //:   return values of other interfaces comparing each pair (s1, s2) in the
-    //:   cross product S X S.  (C-2..3)
-    //:
-    //: 9 Compare each pair (s1, s2) in the cross product S X S using interface
-    //:   'compare(size_t, size_t, basic_string_view, size_t, size_t)', but
-    //:   passing only first four parameters.  Verify the results by calling
-    //:   the same interface with the same parameters and explicitly passing
-    //:   'npos' value as the last parameter.  (C-4)
-    //:
-    //:10 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered for invalid attribute values, but not triggered for
-    //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
-    //:
-    //:11 Using 'try-catch' block, verify for each appropriate interface that
-    //:   'std::out_of_range' exception is thrown by the 'copy' when
-    //:   'position > length()'.  (C-5)
+    // 1. Create an empty object, a zero-length object.
+    //
+    // 2. Using each `compare` interface, compare empty object with itself (or
+    //    with the null pointer) and verify the results.
+    //
+    // 3. Specify a set S of unique non-empty object values.
+    //
+    // 4. Using `compare(basic_string_view other)` interface, compare each
+    //    value in `S` with empty and zero-length objects. Verify the
+    //    results.
+    //
+    // 5. Using interface tested in P-4 as a control function, verify the
+    //    return values of other interfaces comparing values in `S` and
+    //    empty/zero-length objects.  (C-1)
+    //
+    // 6. For each object in `S` create the `bsl::basic_string` object `str`
+    //    passing the same parameters on construction, that for object in `S`
+    //    were passed earlier.
+    //
+    // 7. Using `compare(size_type, size_type, const CHAR_TYPE *, size_type)`
+    //    interface, compare each pair (s1, s2) in the cross product S X S and
+    //    verify the results by calling the `std::basic_string::compare` method
+    //    for the `str` object with the same parameters.
+    //
+    // 8. Using interface tested in P-7 as a control function, verify the
+    //    return values of other interfaces comparing each pair (s1, s2) in the
+    //    cross product S X S.  (C-2..3)
+    //
+    // 9. Compare each pair (s1, s2) in the cross product S X S using interface
+    //    `compare(size_t, size_t, basic_string_view, size_t, size_t)`, but
+    //    passing only first four parameters.  Verify the results by calling
+    //    the same interface with the same parameters and explicitly passing
+    //    `npos` value as the last parameter.  (C-4)
+    //
+    // 10. Verify that, in appropriate build modes, defensive checks are
+    //    triggered for invalid attribute values, but not triggered for
+    //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).  (C-6)
+    //
+    // 11. Using `try-catch` block, verify for each appropriate interface that
+    //    `std::out_of_range` exception is thrown by the `copy` when
+    //    `position > length()`.  (C-5)
     //
     // Testing:
     //   int compare(basic_string_view other) const;
@@ -2309,7 +2312,7 @@ void TestDriver<TYPE, TRAITS>::testCase18()
     const size_type  NPOS          = Obj::npos;
     const size_type  MAX_LENGTH    = 5;
 
-    if (verbose) printf("Check 'constexpr' accesors.\n");
+    if (verbose) printf("Check `constexpr` accesors.\n");
     {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
         {
@@ -2409,7 +2412,7 @@ void TestDriver<TYPE, TRAITS>::testCase18()
 
     if (verbose) printf("\tTesting basic usage.\n");
 
-    // Testing empty object.  Note that we cannot have the value of 'position'
+    // Testing empty object.  Note that we cannot have the value of `position`
     // parameter greater than the length of the object (zero for an empty
     // object).  Otherwise we will get an exception.
 
@@ -2445,7 +2448,7 @@ void TestDriver<TYPE, TRAITS>::testCase18()
             // ASSERTV( 0 == XEmpty.compare(0, 0, NULL_PTR));             // UB
         }
 
-        // Testing control interface 'compare(basic_string_view other)'.  All
+        // Testing control interface `compare(basic_string_view other)`.  All
         // other interfaces can be tested further using previously tested
         // interfaces to verify return values.
 
@@ -2480,7 +2483,7 @@ void TestDriver<TYPE, TRAITS>::testCase18()
             Obj        mXZero(STRING, 0);
             const Obj& XZero = mXZero;
 
-            // We can only use null values for 'position' and 'numChars',
+            // We can only use null values for `position` and `numChars`,
             // because length of empty object is equal to zero.
 
             ASSERTV(LINE, 0 > XEmpty.compare(0, 0, X));
@@ -2651,7 +2654,7 @@ void TestDriver<TYPE, TRAITS>::testCase18()
                     //              const CHAR_TYPE *,
                     //              size_type)'
                     // interface as a control function for other interfaces, we
-                    // need to iterate through the 'NUM_DATA' table to test it
+                    // need to iterate through the `NUM_DATA` table to test it
                     // with all variants of string and through the available
                     // lengths for these strings.
 
@@ -2674,9 +2677,9 @@ void TestDriver<TYPE, TRAITS>::testCase18()
                                                          RHS_STRING,
                                                          RHS_NUM_CHARS);
 
-                            // Note, that we cannot directly compare 'EXP' and
-                            // 'RESULT', because the contract of the
-                            // 'bsl::string::compare' does not specify the
+                            // Note, that we cannot directly compare `EXP` and
+                            // `RESULT`, because the contract of the
+                            // `bsl::string::compare` does not specify the
                             // returned value strictly.
 
                             if (0 >EXP) {
@@ -2701,7 +2704,7 @@ void TestDriver<TYPE, TRAITS>::testCase18()
             }
 
             // Now we can use fully tested interface to check return values of
-            // other interfaces.  We need to iterate through the 'NUM_DATA'
+            // other interfaces.  We need to iterate through the `NUM_DATA`
             // table to get RHS string/string_view.
 
             for (size_type j = 0; j < NUM_DATA; ++j) {
@@ -2783,10 +2786,10 @@ void TestDriver<TYPE, TRAITS>::testCase18()
                                 //                  size_type,
                                 //                  const CHAR_TYPE *,
                                 //                  size_type)'
-                                // does not limit the 'otherNumChars'
+                                // does not limit the `otherNumChars`
                                 // parameter.  Whereas tested method limits its
                                 // value to the number of available characters
-                                // of the 'other' object.  So we have to
+                                // of the `other` object.  So we have to
                                 // evaluate the last parameter of the control
                                 // method explicitly.
 
@@ -2813,7 +2816,7 @@ void TestDriver<TYPE, TRAITS>::testCase18()
                                         EXP == RESULT);
                             }
 
-                            // Additionally we want to check 'npos' value to
+                            // Additionally we want to check `npos` value to
                             // test default values further.
 
                             {
@@ -2963,36 +2966,36 @@ void TestDriver<TYPE, TRAITS>::testCase17()
     // TESTING SUBSTR
     //
     // Concerns:
-    //: 1 The requested length of substring exceeding the length of object is
-    //:   correctly handled.
-    //:
-    //: 2 Calling the 'substr' method for an empty object leads to undefined
-    //:   behavior.
-    //:
-    //: 3 The default parameter values are exactly as expected.
-    //:
-    //: 4 QoI: Asserted precondition violations are detected when enabled.
+    // 1. The requested length of substring exceeding the length of object is
+    //    correctly handled.
+    //
+    // 2. Calling the `substr` method for an empty object leads to undefined
+    //    behavior.
+    //
+    // 3. The default parameter values are exactly as expected.
+    //
+    // 4. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Using a loop-based approach, construct a set of objects, 'O', on the
-    //:   constant string 'S' (that can include null symbol), referring to the
-    //:   each address in the range '[S, S + N]', where the 'N' is some
-    //:   non-negative integer constant, and having each length in the range
-    //:   '[0, N - position]', where the 'position' is the size of the indent
-    //:   of the address from the beginning of 'S'.  For each object 'o' in the
-    //:   set 'O':
-    //:
-    //:   1 Iterate through the range of positions and the range of the lengths
-    //:     and call the 'substr' method for 'o'.  Verify the returned value
-    //:     using basic accessors.  (C-1)
-    //:
-    //:   2 Call the 'substr' method omitting the last parameter and both
-    //:     parameters.  Verify the returned values using basic accessors.
-    //:     (C-3)
-    //:
-    //: 2 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered for invalid attribute values, but not triggered for
-    //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-2,4)
+    // 1. Using a loop-based approach, construct a set of objects, `O`, on the
+    //    constant string `S` (that can include null symbol), referring to the
+    //    each address in the range `[S, S + N]`, where the `N` is some
+    //    non-negative integer constant, and having each length in the range
+    //    `[0, N - position]`, where the `position` is the size of the indent
+    //    of the address from the beginning of `S`.  For each object `o` in the
+    //    set `O`:
+    //
+    //   1. Iterate through the range of positions and the range of the lengths
+    //      and call the `substr` method for `o`.  Verify the returned value
+    //      using basic accessors.  (C-1)
+    //
+    //   2. Call the `substr` method omitting the last parameter and both
+    //      parameters.  Verify the returned values using basic accessors.
+    //      (C-3)
+    //
+    // 2. Verify that, in appropriate build modes, defensive checks are
+    //    triggered for invalid attribute values, but not triggered for
+    //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).  (C-2,4)
     //
     // Testing:
     //   basic_string_view substr(size_type p = 0, size_type n = npos) const;
@@ -3005,7 +3008,7 @@ void TestDriver<TYPE, TRAITS>::testCase17()
     BSLS_KEYWORD_CONSTEXPR
     const size_type        STRING_LENGTH = s_testStringLength;
 
-    if (verbose) printf("Check 'constexpr' accesors.\n");
+    if (verbose) printf("Check `constexpr` accesors.\n");
     {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
         constexpr Obj ctv1(STRING, STRING_LENGTH);
@@ -3028,12 +3031,12 @@ void TestDriver<TYPE, TRAITS>::testCase17()
             Obj        mX(START, LENGTH);
             const Obj& X = mX;
 
-            // 'position' should be less than the length of the object.
+            // `position` should be less than the length of the object.
 
             for (size_type l = 0; l <= LENGTH; ++l) {
                 const size_type POSITION = l;
 
-                // But for the 'numChars' we do not have such restrictions, so
+                // But for the `numChars` we do not have such restrictions, so
                 // we have to check values equal and greater than length of the
                 // object.
 
@@ -3052,7 +3055,7 @@ void TestDriver<TYPE, TRAITS>::testCase17()
                             EXPECTED_LENGTH == RESULT.length());
                 }
 
-                // Testing default 'numChars' value.
+                // Testing default `numChars` value.
                 {
                     const TYPE      *EXPECTED_DATA   = START + POSITION;
                     const size_type  EXPECTED_LENGTH = LENGTH - POSITION;
@@ -3070,7 +3073,7 @@ void TestDriver<TYPE, TRAITS>::testCase17()
     (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 900000)
     // Earlier versions of the library do not default the first parameter.
 
-            // Testing default 'position' value.  We can not test method for a
+            // Testing default `position` value.  We can not test method for a
             // zero-length object, because it unconditionally leads to the
             // undefined behavior.
 
@@ -3149,94 +3152,94 @@ void TestDriver<TYPE, TRAITS>::testCase16()
 {
     // ------------------------------------------------------------------------
     // TESTING FIND_FIRST_NOT_OF AND FIND_LAST_NOT_OF
-    //   Fully tested 'find()' and 'rfind()' methods are used as a control
+    //   Fully tested `find()` and `rfind()` methods are used as a control
     //   functions.
     //
     // Concerns:
-    //: 1 An empty object can be used as a parameter for search.
-    //:
-    //: 2 Search operations can be called for an empty object.
-    //:
-    //: 3 The null pointer can be used as a parameter for search.
-    //:
-    //: 4 The 'npos' requested position is accepted and correctly handled by
-    //:   the 'find_first_not_of' and 'find_last_not_of'.
-    //:
-    //: 5 The null symbol ('/0') is correctly handled whether it belongs to the
-    //:   object or to the requested value for search.
-    //:
-    //: 6 The default parameter values are exactly as expected.
-    //:
-    //: 7 QoI: Asserted precondition violations are detected when enabled.
+    // 1. An empty object can be used as a parameter for search.
+    //
+    // 2. Search operations can be called for an empty object.
+    //
+    // 3. The null pointer can be used as a parameter for search.
+    //
+    // 4. The `npos` requested position is accepted and correctly handled by
+    //    the `find_first_not_of` and `find_last_not_of`.
+    //
+    // 5. The null symbol ('\0') is correctly handled whether it belongs to the
+    //    object or to the requested value for search.
+    //
+    // 6. The default parameter values are exactly as expected.
+    //
+    // 7. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Create an object with null parameters.  For this object:
-    //:
-    //:   1 Iterate positions in the range [0, M], where the 'M' is some
-    //:     non-negative integer constant.  For each position:
-    //:
-    //:     1 Look for an empty object and verify the result.
-    //:
-    //:     2 Pass a null pointer as a parameter and verify the result.
-    //:
-    //:   2 Using a loop-based approach, construct a set of the pairs 'P1'
-    //:     '(ADDR, LENGTH)', where
-    //:     ADDR   is an address in the range '[S, S + N]', where 'S' is a
-    //:            some string constant and 'N' is some non-negative integer
-    //:            constant
-    //:     LENGTH is an integer constant in the range '[0, N - position]',
-    //:            where the 'position' is the size of the indent of the ADDR
-    //:            from the beginning of 'S'
-    //:     For each element 'p' in the set use 'ADDR1' and 'LENGTH1' as a
-    //:     parameters to create a non-empty object 'o' and then call each
-    //:     "find" method for the empty object from P-1, passing 'o' (or ADDR)
-    //:     as a first parameter and iterating through the range of positions
-    //:     and the range of the lengths.  Verify the results.  (C-2)
-    //:
-    //: 2 Construct another set of the pairs 'P2' '(ADDR, LENGTH)', where
-    //:     ADDR   is an address referring to some string constant
-    //:     LENGTH is an integer constant defining the length of the string
-    //:            referred by the 'ADDR'
-    //:   Each string referred by 'ADDR' from the 'P2' can contain null
-    //:   symbols.  Various strings can contain the same symbols (or even
-    //:   sequences of symbols).  Some strings contain the set of unique
-    //:   symbols.  For each element 'p1' in the 'P2', containing 'ADDR1' and
-    //:   'LENGTH1' values:
-    //:
-    //:   1 Create an object 'o1' referring to the 'ADDR1' and having 'LENGTH1'
-    //:     symbols.
-    //:
-    //:   2 Call the appropriate overloads of 'find_first_not_of' and
-    //:     'find_last_not_of' methods  for the 'o1' looking for a null pointer
-    //:     and for an empty object.  Verify the results.  (C-1,3)
-    //:
-    //:   3 Iterate through the set 'P2' and for each element 'p2', containing
-    //:     'ADDR2' and 'LENGTH2' values, create an object 'o2'  referring to
-    //:     the 'ADDR2' and having 'LENGTH2' symbols.
-    //:
-    //:   4 Iterate through the range of positions and the range of the lengths
-    //:     and call each of the 'find_first_not_of' and 'find_last_not_of'
-    //:     overloads for 'o1', passing 'o2' (or ADDR2) as the first parameter.
-    //:     Verify  the results using the control functions 'findFirstNotOf'
-    //:     and 'findLastNotOf', based on fully tested 'find' and 'rfind'
-    //:     methods.  (C-5)
-    //:
-    //:   6 Iterate through the range of positions and the range of the lengths
-    //:     and call each of the 'find_first_not_of' and 'find_last_not_of'
-    //:     overloads for 'o1' passing 'o2' (or ADDR2) as the first parameter
-    //:     and the 'npos' value for the position parameter.  Verify the
-    //:     results using the control functions 'findFirstNotOf' and
-    //:     'findLastNotOf'.  (C-4)
-    //:
-    //:   7 Call each of the 'find_first_not_of' and 'find_last_not_of'
-    //:     overloads for 'o1' passing 'o2' (or ADDR2) as the first parameter
-    //:     and omitting default parameters.  Verify the results by calling the
-    //:     same overloads with the explicitly passed parameters having the
-    //:     appropriate values.  (C-6)
-    //:
-    //: 3 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered for invalid attribute values, but not triggered for
-    //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-7)
+    // 1. Create an object with null parameters.  For this object:
+    //
+    //   1. Iterate positions in the range [0, M], where the `M` is some
+    //      non-negative integer constant.  For each position:
+    //
+    //     1. Look for an empty object and verify the result.
+    //
+    //     2. Pass a null pointer as a parameter and verify the result.
+    //
+    //   2. Using a loop-based approach, construct a set of the pairs `P1`
+    //      `(ADDR, LENGTH)`, where
+    //      ADDR   is an address in the range `[S, S + N]`, where `S` is a
+    //             some string constant and `N` is some non-negative integer
+    //             constant
+    //      LENGTH is an integer constant in the range `[0, N - position]`,
+    //             where the `position` is the size of the indent of the ADDR
+    //             from the beginning of `S`
+    //      For each element `p` in the set use `ADDR1` and `LENGTH1` as a
+    //      parameters to create a non-empty object `o` and then call each
+    //      "find" method for the empty object from P-1, passing `o` (or ADDR)
+    //      as a first parameter and iterating through the range of positions
+    //      and the range of the lengths.  Verify the results.  (C-2)
+    //
+    // 2. Construct another set of the pairs `P2` `(ADDR, LENGTH)`, where
+    //      ADDR   is an address referring to some string constant
+    //      LENGTH is an integer constant defining the length of the string
+    //             referred by the `ADDR`
+    //    Each string referred by `ADDR` from the `P2` can contain null
+    //    symbols.  Various strings can contain the same symbols (or even
+    //    sequences of symbols).  Some strings contain the set of unique
+    //    symbols.  For each element `p1` in the `P2`, containing `ADDR1` and
+    //    `LENGTH1` values:
+    //
+    //   1. Create an object `o1` referring to the `ADDR1` and having `LENGTH1`
+    //      symbols.
+    //
+    //   2. Call the appropriate overloads of `find_first_not_of` and
+    //      `find_last_not_of` methods  for the `o1` looking for a null pointer
+    //      and for an empty object.  Verify the results.  (C-1,3)
+    //
+    //   3. Iterate through the set `P2` and for each element `p2`, containing
+    //      `ADDR2` and `LENGTH2` values, create an object `o2`  referring to
+    //      the `ADDR2` and having `LENGTH2` symbols.
+    //
+    //   4. Iterate through the range of positions and the range of the lengths
+    //      and call each of the `find_first_not_of` and `find_last_not_of`
+    //      overloads for `o1`, passing `o2` (or ADDR2) as the first parameter.
+    //      Verify  the results using the control functions `findFirstNotOf`
+    //      and `findLastNotOf`, based on fully tested `find` and `rfind`
+    //      methods.  (C-5)
+    //
+    //   6. Iterate through the range of positions and the range of the lengths
+    //      and call each of the `find_first_not_of` and `find_last_not_of`
+    //      overloads for `o1` passing `o2` (or ADDR2) as the first parameter
+    //      and the `npos` value for the position parameter.  Verify the
+    //      results using the control functions `findFirstNotOf` and
+    //      `findLastNotOf`.  (C-4)
+    //
+    //   7. Call each of the `find_first_not_of` and `find_last_not_of`
+    //      overloads for `o1` passing `o2` (or ADDR2) as the first parameter
+    //      and omitting default parameters.  Verify the results by calling the
+    //      same overloads with the explicitly passed parameters having the
+    //      appropriate values.  (C-6)
+    //
+    // 3. Verify that, in appropriate build modes, defensive checks are
+    //    triggered for invalid attribute values, but not triggered for
+    //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).  (C-7)
     //
     // Testing:
     //   size_type find_first_not_of(basic_string_view, size_type) const;
@@ -3255,7 +3258,7 @@ void TestDriver<TYPE, TRAITS>::testCase16()
     BSLS_KEYWORD_CONSTEXPR const TYPE      *const NULL_PTR = 0;
     BSLS_KEYWORD_CONSTEXPR const size_type        NPOS     = Obj::npos;
 
-    if (verbose) printf("Check 'constexpr' accessor.\n");
+    if (verbose) printf("Check `constexpr` accessor.\n");
     {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
         constexpr Obj   ctv;
@@ -3309,7 +3312,7 @@ void TestDriver<TYPE, TRAITS>::testCase16()
             ASSERTV(POSITION, RESULT_L, NPOS == RESULT_L);
         }
 
-        // Test null pointer.  'numChars' can only be equal to 0, otherwise it
+        // Test null pointer.  `numChars` can only be equal to 0, otherwise it
         // will be undefined behavior.
 
         for (size_type i = 0; i < MAX_INDEX; ++i) {
@@ -3387,7 +3390,7 @@ void TestDriver<TYPE, TRAITS>::testCase16()
                                                                  NUM_CHARS));
                     }
 
-                    // 'find_X_not_of(basic_string_view, size_type)'
+                    // `find_X_not_of(basic_string_view, size_type)`
                     {
                         ASSERTV(OFFSET, LENGTH, POSITION,
                                 NPOS == XEmpty.find_first_not_of(X, POSITION));
@@ -3395,7 +3398,7 @@ void TestDriver<TYPE, TRAITS>::testCase16()
                                 NPOS == XEmpty.find_last_not_of( X, POSITION));
                     }
 
-                    // 'find_X_not_of(const CHAR_TYPE *, size_type)'
+                    // `find_X_not_of(const CHAR_TYPE *, size_type)`
                     {
                         ASSERTV(OFFSET, LENGTH, POSITION,
                                 NPOS == XEmpty.find_first_not_of(START,
@@ -3405,7 +3408,7 @@ void TestDriver<TYPE, TRAITS>::testCase16()
                                                                  POSITION));
                     }
 
-                    // 'find_X_not_of(CHAR_TYPE, size_type)'
+                    // `find_X_not_of(CHAR_TYPE, size_type)`
                     {
                         ASSERTV(OFFSET, LENGTH, POSITION,
                                 NPOS == XEmpty.find_first_not_of(*START,
@@ -3528,9 +3531,9 @@ void TestDriver<TYPE, TRAITS>::testCase16()
                                 EXP_L == RESULT_L);
                     }
 
-                    // Interfaces without 'numChars'.
+                    // Interfaces without `numChars`.
 
-                    // 'find_X_not_of(basic_string_view, size_type)'
+                    // `find_X_not_of(basic_string_view, size_type)`
                     {
                         const size_type EXP_F = findFirstNotOf(X,
                                                                PATTERN,
@@ -3552,7 +3555,7 @@ void TestDriver<TYPE, TRAITS>::testCase16()
                                 EXP_L == RESULT_L);
                     }
 
-                    // 'find_X_not_of(const CHAR_TYPE *, size_type)'
+                    // `find_X_not_of(const CHAR_TYPE *, size_type)`
                     {
                         const size_type EXP_F = findFirstNotOf(X,
                                                                STRING_P,
@@ -3574,7 +3577,7 @@ void TestDriver<TYPE, TRAITS>::testCase16()
                                 EXP_L == RESULT_L);
                     }
 
-                    // 'find_X_not_of(CHAR_TYPE, size_type)'
+                    // `find_X_not_of(CHAR_TYPE, size_type)`
                     {
                         const size_type EXP_F = findFirstNotOf(X,
                                                                SYMBOL,
@@ -3597,8 +3600,8 @@ void TestDriver<TYPE, TRAITS>::testCase16()
                     }
                 }
 
-                // Also we want to check the scenarios, when the 'POSITION' is
-                // equal to the 'npos' value (mostly for the further testing of
+                // Also we want to check the scenarios, when the `POSITION` is
+                // equal to the `npos` value (mostly for the further testing of
                 // the default values).
                 {
                     for (size_type l = 0; l <= MAX_LENGTH; ++l) {
@@ -3629,9 +3632,9 @@ void TestDriver<TYPE, TRAITS>::testCase16()
                                 EXP_L == RESULT_L);
                     }
 
-                    // Interfaces without 'numChars'.
+                    // Interfaces without `numChars`.
 
-                    // 'find_X_not_of(basic_string_view, size_type)'
+                    // `find_X_not_of(basic_string_view, size_type)`
                     {
                         const size_type EXP_F = findFirstNotOf(X,
                                                                PATTERN,
@@ -3651,7 +3654,7 @@ void TestDriver<TYPE, TRAITS>::testCase16()
                                 EXP_L == RESULT_L);
                     }
 
-                    // 'find_X_not_of(const CHAR_TYPE *, size_type)'
+                    // `find_X_not_of(const CHAR_TYPE *, size_type)`
                     {
                         const size_type EXP_F = findFirstNotOf(X,
                                                                STRING_P,
@@ -3672,7 +3675,7 @@ void TestDriver<TYPE, TRAITS>::testCase16()
                                 EXP_L == RESULT_L);
                     }
 
-                    // 'find_X_not_of(CHAR_TYPE, size_type)'
+                    // `find_X_not_of(CHAR_TYPE, size_type)`
                     {
                         const size_type EXP_F = findFirstNotOf(X,
                                                                SYMBOL,
@@ -3695,7 +3698,7 @@ void TestDriver<TYPE, TRAITS>::testCase16()
 
                 // Now we can check the correctness of the default values.
 
-                // 'find_first_not_of(basic_string_view, size_type)'
+                // `find_first_not_of(basic_string_view, size_type)`
                 {
                     const size_type EXP_F    = X.find_first_not_of(PATTERN, 0);
                     const size_type RESULT_F = X.find_first_not_of(PATTERN   );
@@ -3708,7 +3711,7 @@ void TestDriver<TYPE, TRAITS>::testCase16()
                     ASSERTV(LINE, LINE_P, EXP_L, RESULT_L, EXP_L == RESULT_L);
                 }
 
-                // 'find_first_not_of(const CHAR_TYPE *, size_type)'
+                // `find_first_not_of(const CHAR_TYPE *, size_type)`
                 {
                     const size_type EXP_F    = X.find_first_not_of(STRING_P,
                                                                    0);
@@ -3722,7 +3725,7 @@ void TestDriver<TYPE, TRAITS>::testCase16()
                     ASSERTV(LINE, LINE_P, EXP_L, RESULT_L, EXP_L == RESULT_L);
                 }
 
-                // 'find_first_not_of(CHAR_TYPE, size_type)'
+                // `find_first_not_of(CHAR_TYPE, size_type)`
                 {
                     const size_type EXP_F    = X.find_first_not_of(SYMBOL, 0);
                     const size_type RESULT_F = X.find_first_not_of(SYMBOL   );
@@ -3777,93 +3780,93 @@ void TestDriver<TYPE, TRAITS>::testCase15()
 {
     // ------------------------------------------------------------------------
     // TESTING FIND_FIRST_OF AND FIND_LAST_OF
-    //   Fully tested 'find()' and 'rfind()' methods are used as a control
+    //   Fully tested `find()` and `rfind()` methods are used as a control
     //   functions.
     //
     // Concerns:
-    //: 1 An empty object can be used as a parameter for search.
-    //:
-    //: 2 Search operations can be called for an empty object.
-    //:
-    //: 3 The null pointer can be used as a parameter for search.
-    //:
-    //: 4 The 'npos' requested position is accepted and correctly handled by
-    //:   the 'find_first_of' and 'find_last_of'.
-    //:
-    //: 5 The null symbol ('/0') is correctly handled whether it belongs to the
-    //:   object or to the requested value for search.
-    //:
-    //: 6 The default parameter values are exactly as expected.
-    //:
-    //: 7 QoI: Asserted precondition violations are detected when enabled.
+    // 1. An empty object can be used as a parameter for search.
+    //
+    // 2. Search operations can be called for an empty object.
+    //
+    // 3. The null pointer can be used as a parameter for search.
+    //
+    // 4. The `npos` requested position is accepted and correctly handled by
+    //    the `find_first_of` and `find_last_of`.
+    //
+    // 5. The null symbol ('\0') is correctly handled whether it belongs to the
+    //    object or to the requested value for search.
+    //
+    // 6. The default parameter values are exactly as expected.
+    //
+    // 7. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Create an object with null parameters.  For this object:
-    //:
-    //:   1 Iterate positions in the range [0, M], where the 'M' is some
-    //:     non-negative integer constant.  For each position:
-    //:
-    //:     1 Look for an empty object and verify the result.
-    //:
-    //:     2 Pass a null pointer as a parameter and verify the result.
-    //:
-    //:   2 Using a loop-based approach, construct a set of the pairs 'P1'
-    //:     '(ADDR, LENGTH)', where
-    //:     ADDR   is an address in the range '[S, S + N]', where 'S' is a
-    //:            some string constant and 'N' is some non-negative integer
-    //:            constant
-    //:     LENGTH is an integer constant in the range '[0, N - position]',
-    //:            where the 'position' is the size of the indent of the ADDR
-    //:            from the beginning of 'S'
-    //:     For each element 'p' in the set use 'ADDR1' and 'LENGTH1' as a
-    //:     parameters to create a non-empty object 'o' and then call each
-    //:     "find" method for the empty object from P-1, passing 'o' (or ADDR)
-    //:     as a first parameter and iterating through the range of positions
-    //:     and the range of the lengths.  Verify the results.  (C-2)
-    //:
-    //: 2 Construct another set of the pairs 'P2' '(ADDR, LENGTH)', where
-    //:     ADDR   is an address referring to some string constant
-    //:     LENGTH is an integer constant defining the length of the string
-    //:            referred by the 'ADDR'
-    //:   Each string referred by 'ADDR' from the 'P2' can contain null
-    //:   symbols.  Various strings can contain the same symbols (or even
-    //:   sequences of symbols).  Some strings contain the set of unique
-    //:   symbols.  For each element 'p1' in the 'P2', containing 'ADDR1' and
-    //:   'LENGTH1' values:
-    //:
-    //:   1 Create an object 'o1' referring to the 'ADDR1' and having 'LENGTH1'
-    //:     symbols.
-    //:
-    //:   2 Call the appropriate overloads of 'find_first_of' and
-    //:     'find_last_of' methods  for the 'o1' looking for a null pointer
-    //:     and for an empty object.  Verify the results.  (C-1,3)
-    //:
-    //:   3 Iterate through the set 'P2' and for each element 'p2', containing
-    //:     'ADDR2' and 'LENGTH2' values, create an object 'o2'  referring to
-    //:     the 'ADDR2' and having 'LENGTH2' symbols.
-    //:
-    //:   4 Iterate through the range of positions and the range of the lengths
-    //:     and call each of the 'find_first_of' and 'find_last_of' overloads
-    //:     for 'o1', passing 'o2' (or ADDR2) as the first parameter.  Verify
-    //:     the results using the control functions 'findFirstOf' and
-    //:     'findLastOf', based on fully tested 'find' and 'rfind' methods.
-    //:     (C-5)
-    //:
-    //:   6 Iterate through the range of positions and the range of the lengths
-    //:     and call each of the 'find_first_of' and 'find_last_of' overloads
-    //:     for 'o1' passing 'o2' (or ADDR2) as the first parameter and the
-    //:     'npos' value for the position parameter.  Verify the results using
-    //:     the control functions 'findFirstOf' and 'findLastOf'. (C-4)
-    //:
-    //:   7 Call each of the 'find_first_of' and 'find_last_of' overloads for
-    //:     'o1' passing 'o2' (or ADDR2) as the first parameter and omitting
-    //:     default parameters.  Verify the results by calling the same
-    //:     overloads with the explicitly passed parameters having the
-    //:     appropriate values.  (C-6)
-    //:
-    //: 3 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered for invalid attribute values, but not triggered for
-    //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-7)
+    // 1. Create an object with null parameters.  For this object:
+    //
+    //   1. Iterate positions in the range [0, M], where the `M` is some
+    //      non-negative integer constant.  For each position:
+    //
+    //     1. Look for an empty object and verify the result.
+    //
+    //     2. Pass a null pointer as a parameter and verify the result.
+    //
+    //   2. Using a loop-based approach, construct a set of the pairs `P1`
+    //      `(ADDR, LENGTH)`, where
+    //      ADDR   is an address in the range `[S, S + N]`, where `S` is a
+    //             some string constant and `N` is some non-negative integer
+    //             constant
+    //      LENGTH is an integer constant in the range `[0, N - position]`,
+    //             where the `position` is the size of the indent of the ADDR
+    //             from the beginning of `S`
+    //      For each element `p` in the set use `ADDR1` and `LENGTH1` as a
+    //      parameters to create a non-empty object `o` and then call each
+    //      "find" method for the empty object from P-1, passing `o` (or ADDR)
+    //      as a first parameter and iterating through the range of positions
+    //      and the range of the lengths.  Verify the results.  (C-2)
+    //
+    // 2. Construct another set of the pairs `P2` `(ADDR, LENGTH)`, where
+    //      ADDR   is an address referring to some string constant
+    //      LENGTH is an integer constant defining the length of the string
+    //             referred by the `ADDR`
+    //    Each string referred by `ADDR` from the `P2` can contain null
+    //    symbols.  Various strings can contain the same symbols (or even
+    //    sequences of symbols).  Some strings contain the set of unique
+    //    symbols.  For each element `p1` in the `P2`, containing `ADDR1` and
+    //    `LENGTH1` values:
+    //
+    //   1. Create an object `o1` referring to the `ADDR1` and having `LENGTH1`
+    //      symbols.
+    //
+    //   2. Call the appropriate overloads of `find_first_of` and
+    //      `find_last_of` methods  for the `o1` looking for a null pointer
+    //      and for an empty object.  Verify the results.  (C-1,3)
+    //
+    //   3. Iterate through the set `P2` and for each element `p2`, containing
+    //      `ADDR2` and `LENGTH2` values, create an object `o2`  referring to
+    //      the `ADDR2` and having `LENGTH2` symbols.
+    //
+    //   4. Iterate through the range of positions and the range of the lengths
+    //      and call each of the `find_first_of` and `find_last_of` overloads
+    //      for `o1`, passing `o2` (or ADDR2) as the first parameter.  Verify
+    //      the results using the control functions `findFirstOf` and
+    //      `findLastOf`, based on fully tested `find` and `rfind` methods.
+    //      (C-5)
+    //
+    //   6. Iterate through the range of positions and the range of the lengths
+    //      and call each of the `find_first_of` and `find_last_of` overloads
+    //      for `o1` passing `o2` (or ADDR2) as the first parameter and the
+    //      `npos` value for the position parameter.  Verify the results using
+    //      the control functions `findFirstOf` and `findLastOf`. (C-4)
+    //
+    //   7. Call each of the `find_first_of` and `find_last_of` overloads for
+    //      `o1` passing `o2` (or ADDR2) as the first parameter and omitting
+    //      default parameters.  Verify the results by calling the same
+    //      overloads with the explicitly passed parameters having the
+    //      appropriate values.  (C-6)
+    //
+    // 3. Verify that, in appropriate build modes, defensive checks are
+    //    triggered for invalid attribute values, but not triggered for
+    //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).  (C-7)
     //
     // Testing:
     //   size_type find_first_of(basic_string_view, size_type) const;
@@ -3882,7 +3885,7 @@ void TestDriver<TYPE, TRAITS>::testCase15()
     BSLS_KEYWORD_CONSTEXPR const TYPE      *const NULL_PTR = 0;
     BSLS_KEYWORD_CONSTEXPR const size_type        NPOS     = Obj::npos;
 
-    if (verbose) printf("Check 'constexpr' accessor.\n");
+    if (verbose) printf("Check `constexpr` accessor.\n");
     {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
         constexpr Obj   ctv;
@@ -3935,7 +3938,7 @@ void TestDriver<TYPE, TRAITS>::testCase15()
             ASSERTV(POSITION, RESULT_L, NPOS == RESULT_L);
         }
 
-        // Test null pointer.  'numChars' can only be equal to 0, otherwise it
+        // Test null pointer.  `numChars` can only be equal to 0, otherwise it
         // will be undefined behavior.
 
         for (size_type i = 0; i < MAX_INDEX; ++i) {
@@ -3991,7 +3994,7 @@ void TestDriver<TYPE, TRAITS>::testCase15()
                                                              NUM_CHARS));
                     }
 
-                    // 'find_X_of(basic_string_view, size_type)'
+                    // `find_X_of(basic_string_view, size_type)`
                     {
                         ASSERTV(OFFSET, LENGTH, POSITION,
                                 NPOS == XEmpty.find_first_of(X, POSITION));
@@ -3999,7 +4002,7 @@ void TestDriver<TYPE, TRAITS>::testCase15()
                                 NPOS == XEmpty.find_last_of( X, POSITION));
                     }
 
-                    // 'find_X_of(const CHAR_TYPE *, size_type)'
+                    // `find_X_of(const CHAR_TYPE *, size_type)`
                     {
                         ASSERTV(OFFSET, LENGTH, POSITION,
                                 NPOS == XEmpty.find_first_of(START, POSITION));
@@ -4007,7 +4010,7 @@ void TestDriver<TYPE, TRAITS>::testCase15()
                                 NPOS == XEmpty.find_last_of( START, POSITION));
                     }
 
-                    // 'find_X_of(CHAR_TYPE, size_type)'
+                    // `find_X_of(CHAR_TYPE, size_type)`
                     {
                         ASSERTV(OFFSET, LENGTH, POSITION,
                                 NPOS == XEmpty.find_first_of(*START,
@@ -4128,9 +4131,9 @@ void TestDriver<TYPE, TRAITS>::testCase15()
                                 EXP_L == RESULT_L);
                     }
 
-                    // Interfaces without 'numChars'.
+                    // Interfaces without `numChars`.
 
-                    // 'find_X_of(basic_string_view, size_type)'
+                    // `find_X_of(basic_string_view, size_type)`
                     {
                         const size_type EXP_F = findFirstOf(X,
                                                             PATTERN,
@@ -4150,7 +4153,7 @@ void TestDriver<TYPE, TRAITS>::testCase15()
                                 EXP_L == RESULT_L);
                     }
 
-                    // 'find_X_of(const CHAR_TYPE *, size_type)'
+                    // `find_X_of(const CHAR_TYPE *, size_type)`
                     {
                         const size_type EXP_F = findFirstOf(X,
                                                             STRING_P,
@@ -4170,7 +4173,7 @@ void TestDriver<TYPE, TRAITS>::testCase15()
                                 EXP_L == RESULT_L);
                     }
 
-                    // 'find_X_of(CHAR_TYPE, size_type)'
+                    // `find_X_of(CHAR_TYPE, size_type)`
                     {
                         const size_type EXP_F = findFirstOf(X,
                                                             SYMBOL,
@@ -4191,8 +4194,8 @@ void TestDriver<TYPE, TRAITS>::testCase15()
                     }
                 }
 
-                // Also we want to check the scenarios, when the 'POSITION' is
-                // equal to the 'npos' value (mostly for the further testing of
+                // Also we want to check the scenarios, when the `POSITION` is
+                // equal to the `npos` value (mostly for the further testing of
                 // the default values).
                 {
                     for (size_type l = 0; l <= MAX_LENGTH; ++l) {
@@ -4223,9 +4226,9 @@ void TestDriver<TYPE, TRAITS>::testCase15()
                                 EXP_L == RESULT_L);
                     }
 
-                    // Interfaces without 'numChars'.
+                    // Interfaces without `numChars`.
 
-                    // 'find_X_of(basic_string_view, size_type)'
+                    // `find_X_of(basic_string_view, size_type)`
                     {
                         const size_type EXP_F = findFirstOf(X,
                                                             PATTERN,
@@ -4245,7 +4248,7 @@ void TestDriver<TYPE, TRAITS>::testCase15()
                                 EXP_L == RESULT_L);
                     }
 
-                    // 'find_X_of(const CHAR_TYPE *, size_type)'
+                    // `find_X_of(const CHAR_TYPE *, size_type)`
                     {
                         const size_type EXP_F = findFirstOf(X,
                                                             STRING_P,
@@ -4265,7 +4268,7 @@ void TestDriver<TYPE, TRAITS>::testCase15()
                                 EXP_L == RESULT_L);
                     }
 
-                    // 'find_X_of(CHAR_TYPE, size_type)'
+                    // `find_X_of(CHAR_TYPE, size_type)`
                     {
                         const size_type EXP_F = findFirstOf(X,
                                                             SYMBOL,
@@ -4288,7 +4291,7 @@ void TestDriver<TYPE, TRAITS>::testCase15()
 
                 // Now we can check the correctness of the default values.
 
-                // 'find_first_of(basic_string_view, size_type)'
+                // `find_first_of(basic_string_view, size_type)`
                 {
                     const size_type EXP_F    = X.find_first_of(PATTERN, 0   );
                     const size_type RESULT_F = X.find_first_of(PATTERN      );
@@ -4300,7 +4303,7 @@ void TestDriver<TYPE, TRAITS>::testCase15()
                     ASSERTV(LINE, LINE_P, EXP_L, RESULT_L, EXP_L == RESULT_L);
                 }
 
-                // 'find_first_of(const CHAR_TYPE *, size_type)'
+                // `find_first_of(const CHAR_TYPE *, size_type)`
                 {
                     const size_type EXP_F    = X.find_first_of(STRING_P, 0   );
                     const size_type RESULT_F = X.find_first_of(STRING_P      );
@@ -4312,7 +4315,7 @@ void TestDriver<TYPE, TRAITS>::testCase15()
                     ASSERTV(LINE, LINE_P, EXP_L, RESULT_L, EXP_L == RESULT_L);
                 }
 
-                // 'find_first_of(CHAR_TYPE, size_type)'
+                // `find_first_of(CHAR_TYPE, size_type)`
                 {
                     const size_type EXP_F    = X.find_first_of(SYMBOL, 0   );
                     const size_type RESULT_F = X.find_first_of(SYMBOL      );
@@ -4367,115 +4370,115 @@ void TestDriver<TYPE, TRAITS>::testCase14()
     // ------------------------------------------------------------------------
     // TESTING FIND AND RFIND
     //   To avoid filling/reading of enormously large tables we are going to
-    //   use 'bsl::basic_string::find()' and 'bsl::basic_string::rfind()'
+    //   use `bsl::basic_string::find()` and `bsl::basic_string::rfind()`
     //   methods as a test functions, as they do completely the same work.
     //
     // Concerns:
-    //: 1 An empty object can be used as a parameter for search.
-    //:
-    //: 2 Search operations can be called for an empty object.
-    //:
-    //: 3 The null pointer can be used as a parameter for search.
-    //:
-    //: 4 The 'find' returns 'npos' if the position does not belong to the
-    //:   object.
-    //:
-    //: 5 The 'find' returns only the valid range matches (e.g. the returned
-    //:   value that is not equal to the 'npos', points to the first of
-    //:   'numChars' symbols (or to the whole string/string_view/character),
-    //:   that are undoubtedly belong to the object.
-    //:
-    //: 6 The 'find' accepts the request for a zero-length string/string_view
-    //:   or zero characters (if the requested 'position' lies in the valid
-    //:   range) and returns this 'position'.
-    //:
-    //: 7 The 'rfind' accepts the request for a zero-length string/string_view
-    //:   or zero characters (even if the requested 'position' does not lie in
-    //:   the valid range) and returns length of the object or the 'position'
-    //:   whichever is less.
-    //:
-    //: 8 The 'npos' requested position is accepted and correctly handled by
-    //:   the 'find' and 'rfind'.
-    //:
-    //: 9 The null symbol ('/0') is correctly handled whether it belongs to the
-    //:   object or to the requested value for search.
-    //:
-    //:10 The default parameter values are exactly as expected.
-    //:
-    //:11 QoI: Asserted precondition violations are detected when enabled.
+    // 1. An empty object can be used as a parameter for search.
+    //
+    // 2. Search operations can be called for an empty object.
+    //
+    // 3. The null pointer can be used as a parameter for search.
+    //
+    // 4. The `find` returns `npos` if the position does not belong to the
+    //    object.
+    //
+    // 5. The `find` returns only the valid range matches (e.g. the returned
+    //    value that is not equal to the `npos`, points to the first of
+    //    `numChars` symbols (or to the whole string/string_view/character),
+    //    that are undoubtedly belong to the object.
+    //
+    // 6. The `find` accepts the request for a zero-length string/string_view
+    //    or zero characters (if the requested `position` lies in the valid
+    //    range) and returns this `position`.
+    //
+    // 7. The `rfind` accepts the request for a zero-length string/string_view
+    //    or zero characters (even if the requested `position` does not lie in
+    //    the valid range) and returns length of the object or the `position`
+    //    whichever is less.
+    //
+    // 8. The `npos` requested position is accepted and correctly handled by
+    //    the `find` and `rfind`.
+    //
+    // 9. The null symbol ('\0') is correctly handled whether it belongs to the
+    //    object or to the requested value for search.
+    //
+    // 10. The default parameter values are exactly as expected.
+    //
+    // 11. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Create an object with null parameters.  For this object:
-    //:
-    //:   1 Iterate positions in the range [0, M], where the 'M' is some
-    //:     non-negative integer constant.  For each position:
-    //:
-    //:     1 Look for an empty object and verify the result.
-    //:
-    //:     2 Look for a null pointer and verify the result.
-    //:
-    //:   2 Using a loop-based approach, construct a set of the pairs 'P1'
-    //:     '(ADDR, LENGTH)', where
-    //:     ADDR   is an address in the range '[S, S + N]', where 'S' is some
-    //:            string constant and 'N' is some non-negative integer
-    //:            constant
-    //:     LENGTH is an integer constant in the range '[0, N - position]',
-    //:            where the 'position' is the size of the indent of the ADDR
-    //:            from the beginning of 'S'
-    //:     For each element 'p1' in the set use 'ADDR1' and 'LENGTH1' as
-    //:     parameters to create a non-empty object and then call each 'find'
-    //:     and 'rfind' overload for the empty object from P-1 iterating
-    //:     through the range of positions and the range of the lengths. Verify
-    //:     the results.  (C-2)
-    //:
-    //: 2 Construct another set of the pairs 'P2' '(ADDR, LENGTH)', where
-    //:     ADDR   is an address referring to some string constant
-    //:     LENGTH is a non-negative integer constant defining the length of
-    //:            the string referred by the 'ADDR'
-    //:   Each string referred by 'ADDR' from 'P2' can contain null symbols.
-    //:   Various strings can contain the same symbols (or even sequences of
-    //:   symbols).  Some strings contain the set of unique symbols.  For each
-    //:   element 'p1' in 'P2', containing 'ADDR1' and 'LENGTH1' values:
-    //:
-    //:   1 Create an object 'o1' referring to the 'ADDR1' and having 'LENGTH1'
-    //:     symbols.  Also create a 'bsl::basic_string' object, 's1', passing
-    //:     the 'ADDR1' and the 'LENGTH2' as a parameters.  So informally we
-    //:     can say, that 'o1' and 's1' have the same values.
-    //:
-    //:   2 Call the appropriate overloads of the 'find' and 'rfind' methods
-    //:     for the 'o1' looking for the null pointer and empty object.  Verify
-    //:     the results. (C-1,3)
-    //:
-    //:   3 Iterate through the 'P2' set and for each element 'p2', containing
-    //:     'ADDR2' and 'LENGTH2' values, create an object 'o2' referring to
-    //:     the 'ADDR2' and having 'LENGTH2' symbols.
-    //:
-    //:   4 Iterate through the range of positions and the range of the lengths
-    //:     and call the 'find' and 'rfind' methods for 'o1'.  Here we need to
-    //:     call only overloads, that take three parameters (string, position
-    //:     and the number of characters) and pass 'ADDR2' as the first
-    //:     parameter.  These overloads are the base ones and we are going to
-    //:     use them to verify the return values of other overloads.  For now
-    //:     verify the results using the corresponding methods of 's1' and
-    //:     passing the same parameters.
-    //:
-    //:   5 Iterate through the range of positions and call remaining
-    //:     overloads of the 'find' and 'rfind' methods using the 'ADDR2' as a
-    //:     parameter and verifying the returned values by the results of calls
-    //:     of overloads from the P-2-4.  (C-4..7, 9)
-    //:
-    //:   6 Iterate through the range of positions and the range of the lengths
-    //:     and call the 'find' and 'rfind' methods for 'o1' passing 'npos'
-    //:     value as the position parameter and verify the results.  (C-8)
-    //:
-    //:   7 Call the 'find' and 'rfind' methods for 'o1' using default
-    //:     parameters and verify the results by calling the same overload
-    //:     with the explicitly passed parameters having the appropriate
-    //:     values.  (C-10)
-    //:
-    //: 3 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered for invalid attribute values, but not triggered for
-    //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-11)
+    // 1. Create an object with null parameters.  For this object:
+    //
+    //   1. Iterate positions in the range [0, M], where the `M` is some
+    //      non-negative integer constant.  For each position:
+    //
+    //     1. Look for an empty object and verify the result.
+    //
+    //     2. Look for a null pointer and verify the result.
+    //
+    //   2. Using a loop-based approach, construct a set of the pairs `P1`
+    //      `(ADDR, LENGTH)`, where
+    //      ADDR   is an address in the range `[S, S + N]`, where `S` is some
+    //             string constant and `N` is some non-negative integer
+    //             constant
+    //      LENGTH is an integer constant in the range `[0, N - position]`,
+    //             where the `position` is the size of the indent of the ADDR
+    //             from the beginning of `S`
+    //      For each element `p1` in the set use `ADDR1` and `LENGTH1` as
+    //      parameters to create a non-empty object and then call each `find`
+    //      and `rfind` overload for the empty object from P-1 iterating
+    //      through the range of positions and the range of the lengths. Verify
+    //      the results.  (C-2)
+    //
+    // 2. Construct another set of the pairs `P2` `(ADDR, LENGTH)`, where
+    //      ADDR   is an address referring to some string constant
+    //      LENGTH is a non-negative integer constant defining the length of
+    //             the string referred by the `ADDR`
+    //    Each string referred by `ADDR` from `P2` can contain null symbols.
+    //    Various strings can contain the same symbols (or even sequences of
+    //    symbols).  Some strings contain the set of unique symbols.  For each
+    //    element `p1` in `P2`, containing `ADDR1` and `LENGTH1` values:
+    //
+    //   1. Create an object `o1` referring to the `ADDR1` and having `LENGTH1`
+    //      symbols.  Also create a `bsl::basic_string` object, `s1`, passing
+    //      the `ADDR1` and the `LENGTH2` as a parameters.  So informally we
+    //      can say, that `o1` and `s1` have the same values.
+    //
+    //   2. Call the appropriate overloads of the `find` and `rfind` methods
+    //      for the `o1` looking for the null pointer and empty object.  Verify
+    //      the results. (C-1,3)
+    //
+    //   3. Iterate through the `P2` set and for each element `p2`, containing
+    //      `ADDR2` and `LENGTH2` values, create an object `o2` referring to
+    //      the `ADDR2` and having `LENGTH2` symbols.
+    //
+    //   4. Iterate through the range of positions and the range of the lengths
+    //      and call the `find` and `rfind` methods for `o1`.  Here we need to
+    //      call only overloads, that take three parameters (string, position
+    //      and the number of characters) and pass `ADDR2` as the first
+    //      parameter.  These overloads are the base ones and we are going to
+    //      use them to verify the return values of other overloads.  For now
+    //      verify the results using the corresponding methods of `s1` and
+    //      passing the same parameters.
+    //
+    //   5. Iterate through the range of positions and call remaining
+    //      overloads of the `find` and `rfind` methods using the `ADDR2` as a
+    //      parameter and verifying the returned values by the results of calls
+    //      of overloads from the P-2-4.  (C-4..7, 9)
+    //
+    //   6. Iterate through the range of positions and the range of the lengths
+    //      and call the `find` and `rfind` methods for `o1` passing `npos`
+    //      value as the position parameter and verify the results.  (C-8)
+    //
+    //   7. Call the `find` and `rfind` methods for `o1` using default
+    //      parameters and verify the results by calling the same overload
+    //      with the explicitly passed parameters having the appropriate
+    //      values.  (C-10)
+    //
+    // 3. Verify that, in appropriate build modes, defensive checks are
+    //    triggered for invalid attribute values, but not triggered for
+    //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).  (C-11)
     //
     // Testing:
     //   size_type find(basic_string_view sv, size_type pos) const;
@@ -4494,7 +4497,7 @@ void TestDriver<TYPE, TRAITS>::testCase14()
     BSLS_KEYWORD_CONSTEXPR const TYPE      *NULL_PTR = 0;
     BSLS_KEYWORD_CONSTEXPR const size_type  NPOS     = Obj::npos;
 
-    if (verbose) printf("Check 'constexpr' accessor.\n");
+    if (verbose) printf("Check `constexpr` accessor.\n");
     {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
         constexpr Obj   ctv;
@@ -4537,7 +4540,7 @@ void TestDriver<TYPE, TRAITS>::testCase14()
             ASSERTV(POSITION, EXP_R, RESULT_R, EXP_R == RESULT_R);
         }
 
-        // Test null pointer.  'numChars' can only be equal to 0, otherwise it
+        // Test null pointer.  `numChars` can only be equal to 0, otherwise it
         // will be undefined behavior.
 
         for (size_type i = 0; i < MAX_INDEX; ++i) {
@@ -4603,7 +4606,7 @@ void TestDriver<TYPE, TRAITS>::testCase14()
                                 EXP_R == RESULT_R);
                     }
 
-                    // '[r]find(basic_string_view, size_type)'
+                    // `[r]find(basic_string_view, size_type)`
                     {
                         const size_type NUM_CHARS = X.length();
                         const size_type EXP =
@@ -4620,7 +4623,7 @@ void TestDriver<TYPE, TRAITS>::testCase14()
 
                     }
 
-                    // '[r]find(const CHAR_TYPE *, size_type)'
+                    // `[r]find(const CHAR_TYPE *, size_type)`
                     {
                         const size_type NUM_CHARS = TRAITS::length(START);
                         const size_type EXP =
@@ -4639,7 +4642,7 @@ void TestDriver<TYPE, TRAITS>::testCase14()
 
                     }
 
-                    // '[r]find(CHAR_TYPE, size_type)'
+                    // `[r]find(CHAR_TYPE, size_type)`
                     {
                         const size_type EXP   = NPOS;
                         const size_type EXP_R = NPOS;
@@ -4768,7 +4771,7 @@ void TestDriver<TYPE, TRAITS>::testCase14()
                         // To be sure, we want to explicitly check some
                         // concerns, even if it will be some excessive testing.
 
-                        // 'find'
+                        // `find`
                         if (POSITION > LENGTH) {                       // (C-4)
                             ASSERTV(LINE, LINE_P, POSITION, NUM_CHARS, RESULT,
                                     NPOS == RESULT);
@@ -4782,7 +4785,7 @@ void TestDriver<TYPE, TRAITS>::testCase14()
                                     POSITION == RESULT);
                         }
 
-                        // 'rfind'
+                        // `rfind`
                         if (0 == NUM_CHARS) {                          // (C-7)
                             const size_type MIN = POSITION > LENGTH
                                                 ? LENGTH
@@ -4795,11 +4798,11 @@ void TestDriver<TYPE, TRAITS>::testCase14()
                     }
 
                     // Now we can use fully tested
-                    // 'find(const TYPE *, size_type, size_type)' and
-                    // 'rfind(const TYPE *, size_type, size_type)'to verify
+                    // `find(const TYPE *, size_type, size_type)` and
+                    // `rfind(const TYPE *, size_type, size_type)`to verify
                     // values returned by other overloads.
 
-                    // '[r]find(basic_string_view, size_type)'
+                    // `[r]find(basic_string_view, size_type)`
                     {
                         const size_type EXP   = X.find( STRING_P,
                                                         POSITION,
@@ -4819,7 +4822,7 @@ void TestDriver<TYPE, TRAITS>::testCase14()
                                 EXP_R == RESULT_R);
                     }
 
-                    // '[r]find(const CHAR_TYPE *, size_type)'
+                    // `[r]find(const CHAR_TYPE *, size_type)`
                     {
                         const size_type EXP   = X.find(
                                                      STRING_P,
@@ -4841,7 +4844,7 @@ void TestDriver<TYPE, TRAITS>::testCase14()
                                 EXP_R == RESULT_R);
                     }
 
-                    // '[r]find(CHAR_TYPE, size_type)'
+                    // `[r]find(CHAR_TYPE, size_type)`
                     {
                         const size_type EXP   = X.find( STRING_P,
                                                         POSITION,
@@ -4862,8 +4865,8 @@ void TestDriver<TYPE, TRAITS>::testCase14()
                     }
                 }
 
-                // Also we want to check the scenarios, when the 'POSITION' is
-                // equal to the 'npos' value (mostly for the further testing of
+                // Also we want to check the scenarios, when the `POSITION` is
+                // equal to the `npos` value (mostly for the further testing of
                 // the default values).
                 {
                     for (size_type l = 0; l <= MAX_LENGTH; ++l) {
@@ -4898,11 +4901,11 @@ void TestDriver<TYPE, TRAITS>::testCase14()
                     }
 
                     // Now we can use fully tested
-                    // 'find(const TYPE *, npos, size_type)' and
-                    // 'rfind(const TYPE *, npos, size_type)'to verify values
+                    // `find(const TYPE *, npos, size_type)` and
+                    // `rfind(const TYPE *, npos, size_type)`to verify values
                     // returned by other overloads.
 
-                    // '[r]find(basic_string_view, size_type)'
+                    // `[r]find(basic_string_view, size_type)`
                     {
                         const size_type EXP   = X.find( STRING_P,
                                                         NPOS,
@@ -4922,7 +4925,7 @@ void TestDriver<TYPE, TRAITS>::testCase14()
                                 EXP_R == RESULT_R);
                     }
 
-                    // '[r]find(const CHAR_TYPE *, size_type)'
+                    // `[r]find(const CHAR_TYPE *, size_type)`
                     {
                         const size_type EXP   = X.find(
                                                      STRING_P,
@@ -4944,7 +4947,7 @@ void TestDriver<TYPE, TRAITS>::testCase14()
                                 EXP_R == RESULT_R);
                     }
 
-                    // '[r]find(CHAR_TYPE, size_type)'
+                    // `[r]find(CHAR_TYPE, size_type)`
                     {
                         const size_type EXP   = X.find( STRING_P,
                                                         NPOS,
@@ -4967,7 +4970,7 @@ void TestDriver<TYPE, TRAITS>::testCase14()
 
                 // Now we can check the correctness of the default values.
 
-                // 'find(basic_string_view, size_type)'
+                // `find(basic_string_view, size_type)`
                 {
                     const size_type EXP      = X.find( PATTERN, 0   );
                     const size_type RESULT   = X.find( PATTERN      );
@@ -4979,7 +4982,7 @@ void TestDriver<TYPE, TRAITS>::testCase14()
                     ASSERTV(LINE, LINE_P, EXP_R, RESULT_R, EXP_R == RESULT_R);
                 }
 
-                // 'find(const CHAR_TYPE *, size_type)'
+                // `find(const CHAR_TYPE *, size_type)`
                 {
                     const size_type EXP      = X.find( STRING_P, 0   );
                     const size_type RESULT   = X.find( STRING_P      );
@@ -4991,7 +4994,7 @@ void TestDriver<TYPE, TRAITS>::testCase14()
                     ASSERTV(LINE, LINE_P, EXP_R, RESULT_R, EXP_R == RESULT_R);
                 }
 
-                // 'find(CHAR_TYPE, size_type)'
+                // `find(CHAR_TYPE, size_type)`
                 {
                     const size_type EXP      = X.find( SYMBOL, 0   );
                     const size_type RESULT   = X.find( SYMBOL      );
@@ -5047,74 +5050,74 @@ void TestDriver<TYPE, TRAITS>::testCase13()
     // TESTING COPY
     //
     // Concerns:
-    //: 1 The 'copy' returns the number of copied characters.
-    //:
-    //: 2 The 'copy' sticks to the borders of the underlying string (e.g. it
-    //:   copies only the available number of characters, even if user requests
-    //:   more).
-    //:
-    //: 3 The 'copy' can be called for an empty object.
-    //:
-    //: 4 Default parameters assume expected values.
-    //:
-    //: 5 The position of the symbol next to the last one
-    //:   ('position == length()') is valid and correctly handled.
-    //:
-    //: 6 The 'copy' throws 'std::out_of_range' exception when passed an
-    //:   out-of-bound position (e.g. 'position > length()').
-    //:
-    //: 7 No additional memory is allocated.
-    //:
-    //: 8 QoI: Asserted precondition violations are detected when enabled.
+    // 1. The `copy` returns the number of copied characters.
+    //
+    // 2. The `copy` sticks to the borders of the underlying string (e.g. it
+    //    copies only the available number of characters, even if user requests
+    //    more).
+    //
+    // 3. The `copy` can be called for an empty object.
+    //
+    // 4. Default parameters assume expected values.
+    //
+    // 5. The position of the symbol next to the last one
+    //    (`position == length()`) is valid and correctly handled.
+    //
+    // 6. The `copy` throws `std::out_of_range` exception when passed an
+    //    out-of-bound position (e.g. `position > length()`).
+    //
+    // 7. No additional memory is allocated.
+    //
+    // 8. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Create a 'bslma::TestAllocator' object, and install it as the default
-    //:   allocator (note that a ubiquitous test allocator is already installed
-    //:   as the global allocator).
-    //:
-    //: 2 Create some destination buffer.
-    //:
-    //: 3 Create an object with null parameters, copy zero symbols and non-zero
-    //:   symbols from it and verify that the destination buffer and the object
-    //:   itself remain unchanged.  (C-3)
-    //:
-    //: 4 Using a loop-based approach, construct a set of objects, 'O', on the
-    //:   constant string 'S' (that can include null symbol), referring to the
-    //:   each address in the range '[S, S + N]', where the 'N' is some
-    //:   non-negative integer constant, and having each length in the range
-    //:   '[0, N - position]', where the 'position' is the size of the indent
-    //:   of the address from the beginning of 'S'.  For each object 'o' in the
-    //:   set 'O'
-    //:
-    //:   1 Construct a set 'C' of numbers of characters to copy in the range
-    //:     '[0, N]' (so they are less, equal or greater than length of 'o'.
-    //:     For each element 'c' of the 'C':
-    //:
-    //:     1 Construct a set 'P' of numbers of positions to start copying in
-    //:       the range '[0, o.length()]' (so 'copy' should not throw an
-    //:       exception).  For each element 'p' of the 'P'
-    //:
-    //:       1 Fill destination buffer with symbols not belonging to 'S'.
-    //:
-    //:       2 Call 'copy' for the 'o', passing destination buffer address,
-    //:         'c' and 'p' as a parameters.  Verify the returned value and the
-    //:         contents of the destination buffer.  (C-1..2)
-    //:
-    //:     2 Fill destination buffer with symbols not belonging to 'S' again.
-    //:
-    //:     3 Call 'copy' for the 'o', passing destination buffer address and
-    //:       'c' as a parameters (default value is used for 'p').  Verify the
-    //:       returned value and the contents of the destination buffer.  (C-4)
-    //:
-    //: 4 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered for invalid attribute values, but not triggered for
-    //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-8)
-    //:
-    //: 5 Using 'try-catch' block, verify that 'std::out_of_range' exception is
-    //:   thrown by the 'copy' when 'position > length()'.  (C-6)
-    //:
-    //: 6 Use the test allocator from P-1 to verify that no memory is ever
-    //:   allocated from the default allocator.  (C-7)
+    // 1. Create a `bslma::TestAllocator` object, and install it as the default
+    //    allocator (note that a ubiquitous test allocator is already installed
+    //    as the global allocator).
+    //
+    // 2. Create some destination buffer.
+    //
+    // 3. Create an object with null parameters, copy zero symbols and non-zero
+    //    symbols from it and verify that the destination buffer and the object
+    //    itself remain unchanged.  (C-3)
+    //
+    // 4. Using a loop-based approach, construct a set of objects, `O`, on the
+    //    constant string `S` (that can include null symbol), referring to the
+    //    each address in the range `[S, S + N]`, where the `N` is some
+    //    non-negative integer constant, and having each length in the range
+    //    `[0, N - position]`, where the `position` is the size of the indent
+    //    of the address from the beginning of `S`.  For each object `o` in the
+    //    set `O`
+    //
+    //   1. Construct a set `C` of numbers of characters to copy in the range
+    //      `[0, N]` (so they are less, equal or greater than length of `o`.
+    //      For each element `c` of the `C`:
+    //
+    //     1. Construct a set `P` of numbers of positions to start copying in
+    //        the range `[0, o.length()]` (so `copy` should not throw an
+    //        exception).  For each element `p` of the `P`
+    //
+    //       1. Fill destination buffer with symbols not belonging to `S`.
+    //
+    //       2. Call `copy` for the `o`, passing destination buffer address,
+    //          `c` and `p` as a parameters.  Verify the returned value and the
+    //          contents of the destination buffer.  (C-1..2)
+    //
+    //     2. Fill destination buffer with symbols not belonging to `S` again.
+    //
+    //     3. Call `copy` for the `o`, passing destination buffer address and
+    //        `c` as a parameters (default value is used for `p`).  Verify the
+    //        returned value and the contents of the destination buffer.  (C-4)
+    //
+    // 4. Verify that, in appropriate build modes, defensive checks are
+    //    triggered for invalid attribute values, but not triggered for
+    //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).  (C-8)
+    //
+    // 5. Using `try-catch` block, verify that `std::out_of_range` exception is
+    //    thrown by the `copy` when `position > length()`.  (C-6)
+    //
+    // 6. Use the test allocator from P-1 to verify that no memory is ever
+    //    allocated from the default allocator.  (C-7)
     //
     // Testing:
     //   size_type copy(CHAR_TYPE *str, size_type numCh, size_type pos) const;
@@ -5317,59 +5320,59 @@ void TestDriver<TYPE, TRAITS>::testCase12()
     // TESTING CUTTING METHODS
     //
     // Concerns:
-    //: 1 Empty suffix and prefix can be removed from an empty object.
-    //:
-    //: 2 The 'remove_prefix' method shifts the beginning of the underlying
-    //:   string and decreases the size of the 'string_view' by the length of
-    //:   removed prefix.
-    //:
-    //: 3 The 'remove_suffix' method leaves the beginning of the underlying
-    //:   string unaffected, but decreases the size of the 'string_view' by the
-    //:   length of removed suffix.
-    //:
-    //: 4 No additional memory is allocated.
-    //:
-    //: 5 QoI: Asserted precondition violations are detected when enabled.
+    // 1. Empty suffix and prefix can be removed from an empty object.
+    //
+    // 2. The `remove_prefix` method shifts the beginning of the underlying
+    //    string and decreases the size of the `string_view` by the length of
+    //    removed prefix.
+    //
+    // 3. The `remove_suffix` method leaves the beginning of the underlying
+    //    string unaffected, but decreases the size of the `string_view` by the
+    //    length of removed suffix.
+    //
+    // 4. No additional memory is allocated.
+    //
+    // 5. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Create a 'bslma::TestAllocator' object, and install it as the default
-    //:   allocator (note that a ubiquitous test allocator is already installed
-    //:   as the global allocator).
-    //:
-    //: 2 Create an object with null parameters, remove empty suffix and prefix
-    //:   and verify object's value by accessors.  (C-1)
-    //:
-    //: 3 Using a loop-based approach, construct a set of the pairs 'P'
-    //:   '(ADDR, LENGTH)', where
-    //:   ADDR   is an address in the range '[S, S + N]', where 'S' is a
-    //:           some string constant and 'N' is some non-negative integer
-    //:           constant
-    //:   LENGTH is an integer constant in the range '[0, N - position]', where
-    //:          the 'position' is the size of the indent of the ADDR from the
-    //:          beginning of 'S'
-    //:   For each element 'p' in the set:
-    //:
-    //:   1 Construct a set 'S' of sizes of prefixes/suffixes in the range
-    //:     '[0, LENGTH]'.  For each element 's' in the 'S':
-    //:
-    //:     1 Construct a pair of objects (o1, o2), referring to the ADDR and
-    //:       having LENGTH symbols.
-    //:
-    //:     2 Call 'remove_prefix' for the 'o1', passing 's' as a
-    //:       parameter.  Verify the value of 'o1' using basic accessors.
-    //:       (C-2)
-    //:
-    //:     3 Call 'remove_suffix' for the 'o2', passing 's' as a
-    //:       parameter.  Verify the value of 'o2' using basic accessors.
-    //:       (C-3)
-    //:
-    //: 4 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered for invalid attribute values, but not triggered for
-    //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-    //:   (C-5)
-    //:
-    //: 5 Use the test allocator from P-1 to verify that no memory is ever
-    //:   allocated from the default allocator.  (C-4)
+    // 1. Create a `bslma::TestAllocator` object, and install it as the default
+    //    allocator (note that a ubiquitous test allocator is already installed
+    //    as the global allocator).
+    //
+    // 2. Create an object with null parameters, remove empty suffix and prefix
+    //    and verify object's value by accessors.  (C-1)
+    //
+    // 3. Using a loop-based approach, construct a set of the pairs `P`
+    //    `(ADDR, LENGTH)`, where
+    //    ADDR   is an address in the range `[S, S + N]`, where `S` is a
+    //            some string constant and `N` is some non-negative integer
+    //            constant
+    //    LENGTH is an integer constant in the range `[0, N - position]`, where
+    //           the `position` is the size of the indent of the ADDR from the
+    //           beginning of `S`
+    //    For each element `p` in the set:
+    //
+    //   1. Construct a set `S` of sizes of prefixes/suffixes in the range
+    //      `[0, LENGTH]`.  For each element `s` in the `S`:
+    //
+    //     1. Construct a pair of objects (o1, o2), referring to the ADDR and
+    //        having LENGTH symbols.
+    //
+    //     2. Call `remove_prefix` for the `o1`, passing `s` as a
+    //        parameter.  Verify the value of `o1` using basic accessors.
+    //        (C-2)
+    //
+    //     3. Call `remove_suffix` for the `o2`, passing `s` as a
+    //        parameter.  Verify the value of `o2` using basic accessors.
+    //        (C-3)
+    //
+    // 4. Verify that, in appropriate build modes, defensive checks are
+    //    triggered for invalid attribute values, but not triggered for
+    //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+    //    (C-5)
+    //
+    // 5. Use the test allocator from P-1 to verify that no memory is ever
+    //    allocated from the default allocator.  (C-4)
     //
     // Testing:
     //   void remove_prefix(size_type numChars);
@@ -5384,7 +5387,7 @@ void TestDriver<TYPE, TRAITS>::testCase12()
     const TYPE      *const STRING        = s_testString;
     const size_type        STRING_LENGTH = s_testStringLength;
 
-    if (verbose) printf("Check 'constexpr' construction.\n");
+    if (verbose) printf("Check `constexpr` construction.\n");
     {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
         constexpr Obj ctv = TestDriver<TYPE, TRAITS>::useManipulators();
@@ -5456,7 +5459,7 @@ void TestDriver<TYPE, TRAITS>::testCase12()
 
         const TYPE *NULL_PTR = 0;
 
-        // Testing 'remove_prefix()'.
+        // Testing `remove_prefix()`.
         Obj mXEmpty(NULL_PTR, 0);
 
         ASSERT_SAFE_PASS(mXEmpty.remove_prefix(0));
@@ -5470,7 +5473,7 @@ void TestDriver<TYPE, TRAITS>::testCase12()
         ASSERT_SAFE_PASS(mXP2.remove_prefix(1));
         ASSERT_SAFE_FAIL(mXP3.remove_prefix(2));
 
-        // Testing 'remove_suffix()'.
+        // Testing `remove_suffix()`.
 
         ASSERT_SAFE_PASS(mXEmpty.remove_suffix(0));
         ASSERT_SAFE_FAIL(mXEmpty.remove_suffix(1));
@@ -5496,38 +5499,38 @@ void TestDriver<TYPE, TRAITS>::testCase11()
     // TESTING ITERATOR ACCESSORS
     //
     // Concerns:
-    //: 1 Each accessor returns the expected type of iterator.
-    //:
-    //: 2 Each accessor method is declared 'const'.
-    //:
-    //: 3 No accessor allocates any memory.
-    //:
-    //: 4 The range '[[c,r]begin(), [c,r]end())' contains all elements of the
-    //:   underlying string.
-    //:
-    //: 5 Each accessor returns the past-the-end iterator for an empty object.
+    // 1. Each accessor returns the expected type of iterator.
+    //
+    // 2. Each accessor method is declared `const`.
+    //
+    // 3. No accessor allocates any memory.
+    //
+    // 4. The range `[[c,r]begin(), [c,r]end())` contains all elements of the
+    //    underlying string.
+    //
+    // 5. Each accessor returns the past-the-end iterator for an empty object.
     //
     // Plan:
-    //: 1 Create a 'bslma::TestAllocator' object, and install it as the default
-    //:   allocator (note that a ubiquitous test allocator is already installed
-    //:   as the global allocator).
-    //:
-    //: 2 Create an empty object.  Verify the values, returned by accessors.
-    //:   As we are not able to dereference past-the-end iterators,  we can
-    //:   only compare them each other.  (C-5)
-    //:
-    //: 3 Using a loop-based approach, construct a set of objects, 'O', on the
-    //:   constant string 'S' (that can include null symbol), referring to the
-    //:   addresses in the range '[S, S + N]', where the 'N' is some
-    //:   non-negative integer constant, and having lengths in the range
-    //:   '[0, N - position]', where the 'position' is the size of the indent
-    //:   of the address from the beginning of 'S'.  For each object 'o' in the
-    //:   'O' set iterate through all elements in 'o' from the '[c,r]begin' to
-    //:   the '[c,r]end' and verify values, iterators referring to.
-    //:   (C-1..2, 4)
-    //:
-    //: 4 Use the test allocator from P-1 to verify that no memory is ever
-    //:   allocated from the default allocator.  (C-3)
+    // 1. Create a `bslma::TestAllocator` object, and install it as the default
+    //    allocator (note that a ubiquitous test allocator is already installed
+    //    as the global allocator).
+    //
+    // 2. Create an empty object.  Verify the values, returned by accessors.
+    //    As we are not able to dereference past-the-end iterators,  we can
+    //    only compare them each other.  (C-5)
+    //
+    // 3. Using a loop-based approach, construct a set of objects, `O`, on the
+    //    constant string `S` (that can include null symbol), referring to the
+    //    addresses in the range `[S, S + N]`, where the `N` is some
+    //    non-negative integer constant, and having lengths in the range
+    //    `[0, N - position]`, where the `position` is the size of the indent
+    //    of the address from the beginning of `S`.  For each object `o` in the
+    //    `O` set iterate through all elements in `o` from the `[c,r]begin` to
+    //    the `[c,r]end` and verify values, iterators referring to.
+    //    (C-1..2, 4)
+    //
+    // 4. Use the test allocator from P-1 to verify that no memory is ever
+    //    allocated from the default allocator.  (C-3)
     //
     // Testing:
     //   const_iterator  begin() const;
@@ -5551,7 +5554,7 @@ void TestDriver<TYPE, TRAITS>::testCase11()
     typedef typename Obj::const_iterator         CIter;
     typedef typename Obj::const_reverse_iterator CRIter;
 
-    if (verbose) printf("Check 'constexpr' construction.\n");
+    if (verbose) printf("Check `constexpr` construction.\n");
     {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
         constexpr Obj obj;
@@ -5651,46 +5654,46 @@ void TestDriver<TYPE, TRAITS>::testCase10()
     // TESTING ELEMENT ACCESSORS
     //
     // Concerns:
-    //: 1 Each accessor returns the value of the correct property of the
-    //:   object.
-    //:
-    //: 2 Each accessor method is declared 'const'.
-    //:
-    //: 3 No accessor allocates any memory.
-    //:
-    //: 4 QoI: Asserted precondition violations are detected when enabled.
-    //:
-    //: 5 The 'at' throws 'std::out_of_range' exception when passed an
-    //:   out-of-bound position (e.g. 'position >= length()').
+    // 1. Each accessor returns the value of the correct property of the
+    //    object.
+    //
+    // 2. Each accessor method is declared `const`.
+    //
+    // 3. No accessor allocates any memory.
+    //
+    // 4. QoI: Asserted precondition violations are detected when enabled.
+    //
+    // 5. The `at` throws `std::out_of_range` exception when passed an
+    //    out-of-bound position (e.g. `position >= length()`).
     //
     // Plan:
-    //: 1 Create a 'bslma::TestAllocator' object, and install it as the default
-    //:   allocator (note that a ubiquitous test allocator is already installed
-    //:   as the global allocator).
-    //:
-    //: 2 Using a loop-based approach, dynamically construct a set of objects
-    //:   on the constant string 'S' (that can include null symbol), pointing
-    //:   to the addresses in the range '[S, S + N]', where the 'N' is some
-    //:   non-negative integer constant, and having lengths in the range
-    //:   '[0, N - position]', where the 'position' is the size of the indent
-    //:   of the address from the beginning of 'S'.  For each object 'o' in the
-    //:   set:
-    //:
-    //:   1 Call 'front' and 'back' accessors and verify returned values.
-    //:
-    //:   2 For each position in the range '[0, o.length()]' call 'operator[]'
-    //:     and 'at' accessors and verify returned values.  (C-1..2)
-    //:
-    //: 3 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered for invalid attribute values, but not triggered for
-    //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-    //:   (C-4)
-    //:
-    //: 4 Using 'try-catch' block, verify that 'std::out_of_range' exception is
-    //:   thrown by the 'at' when 'position >= length()'.  (C-5)
-    //:
-    //: 5 Use the test allocator from P-1 to verify that no memory is ever
-    //:   allocated from the default allocator.  (C-3)
+    // 1. Create a `bslma::TestAllocator` object, and install it as the default
+    //    allocator (note that a ubiquitous test allocator is already installed
+    //    as the global allocator).
+    //
+    // 2. Using a loop-based approach, dynamically construct a set of objects
+    //    on the constant string `S` (that can include null symbol), pointing
+    //    to the addresses in the range `[S, S + N]`, where the `N` is some
+    //    non-negative integer constant, and having lengths in the range
+    //    `[0, N - position]`, where the `position` is the size of the indent
+    //    of the address from the beginning of `S`.  For each object `o` in the
+    //    set:
+    //
+    //   1. Call `front` and `back` accessors and verify returned values.
+    //
+    //   2. For each position in the range `[0, o.length()]` call `operator[]`
+    //      and `at` accessors and verify returned values.  (C-1..2)
+    //
+    // 3. Verify that, in appropriate build modes, defensive checks are
+    //    triggered for invalid attribute values, but not triggered for
+    //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+    //    (C-4)
+    //
+    // 4. Using `try-catch` block, verify that `std::out_of_range` exception is
+    //    thrown by the `at` when `position >= length()`.  (C-5)
+    //
+    // 5. Use the test allocator from P-1 to verify that no memory is ever
+    //    allocated from the default allocator.  (C-3)
     //
     // Testing:
     //   const_reference operator[](size_type position) const;
@@ -5709,7 +5712,7 @@ void TestDriver<TYPE, TRAITS>::testCase10()
     BSLS_KEYWORD_CONSTEXPR
     const size_type        STRING_LENGTH = s_testStringLength;
 
-    if (verbose) printf("Check 'constexpr' accesors.\n");
+    if (verbose) printf("Check `constexpr` accesors.\n");
     {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
         constexpr Obj                           ctv(STRING, STRING_LENGTH);
@@ -5762,14 +5765,14 @@ void TestDriver<TYPE, TRAITS>::testCase10()
         Obj           mXNonEmpty(STRING, LENGTH);
         const Obj&    XNonEmpty = mXNonEmpty;
 
-        // Testing 'front()' and 'back()'.
+        // Testing `front()` and `back()`.
 
         ASSERT_SAFE_PASS(XNonEmpty.front());
         ASSERT_SAFE_PASS(XNonEmpty.back());
         ASSERT_SAFE_FAIL(XEmpty.front());
         ASSERT_SAFE_FAIL(XEmpty.back());
 
-        // Testing 'operator[]'.
+        // Testing `operator[]`.
 
         ASSERT_SAFE_PASS(XNonEmpty[1]);
         ASSERT_SAFE_PASS(XNonEmpty[2]);
@@ -5810,33 +5813,33 @@ void TestDriver<TYPE, TRAITS>::testCase9()
     // TESTING SIZE ACCESSORS
     //
     // Concerns:
-    //: 1 Each accessor returns the value of the correct property of the
-    //:   object.
-    //:
-    //: 2 Each accessor method is declared 'const'.
-    //:
-    //: 3 No accessor allocates any memory.
-    //:
-    //: 4 The accessors correctly return values for an empty object.
+    // 1. Each accessor returns the value of the correct property of the
+    //    object.
+    //
+    // 2. Each accessor method is declared `const`.
+    //
+    // 3. No accessor allocates any memory.
+    //
+    // 4. The accessors correctly return values for an empty object.
     //
     // Plan:
-    //: 1 Create a 'bslma::TestAllocator' object, and install it as the default
-    //:   allocator (note that a ubiquitous test allocator is already installed
-    //:   as the global allocator).
-    //:
-    //: 2 Create an empty object.  Verify the values, returned by accessors.
-    //:   (C-4)
-    //:
-    //: 3 Using a loop-based approach, construct a set of objects, 'O', on the
-    //:   constant string 'S' (that can include null symbol), referring to the
-    //:   addresses in the range '[S, S + N]', where the 'N' is some
-    //:   non-negative integer constant, and having lengths in the range
-    //:   '[0, N - position]', where the 'position' is the size of the indent
-    //:   of the address from the beginning of 'S'.  For each object 'o' in the
-    //:   set 'O' call accessors and verify return values.  (C-1..2)
-    //:
-    //: 4 Use the test allocator from P-1 to verify that no memory is ever
-    //:   allocated from the default allocator.  (C-3)
+    // 1. Create a `bslma::TestAllocator` object, and install it as the default
+    //    allocator (note that a ubiquitous test allocator is already installed
+    //    as the global allocator).
+    //
+    // 2. Create an empty object.  Verify the values, returned by accessors.
+    //    (C-4)
+    //
+    // 3. Using a loop-based approach, construct a set of objects, `O`, on the
+    //    constant string `S` (that can include null symbol), referring to the
+    //    addresses in the range `[S, S + N]`, where the `N` is some
+    //    non-negative integer constant, and having lengths in the range
+    //    `[0, N - position]`, where the `position` is the size of the indent
+    //    of the address from the beginning of `S`.  For each object `o` in the
+    //    set `O` call accessors and verify return values.  (C-1..2)
+    //
+    // 4. Use the test allocator from P-1 to verify that no memory is ever
+    //    allocated from the default allocator.  (C-3)
     //
     // Testing:
     //   size_type size() const;
@@ -5852,7 +5855,7 @@ void TestDriver<TYPE, TRAITS>::testCase9()
     const TYPE      *STRING        = s_testString;
     const size_type  STRING_LENGTH = s_testStringLength;
 
-    if (verbose) printf("Check 'constexpr' accesors.\n");
+    if (verbose) printf("Check `constexpr` accesors.\n");
     {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
         constexpr Obj                     ctv;
@@ -5915,38 +5918,38 @@ void TestDriver<TYPE, TRAITS>::testCase8()
     // TESTING CONSTRUCTORS
     //
     // Concerns:
-    //: 1 The default constructor setup null values for all fields.
-    //:
-    //: 2 The value constructor correctly handles null symbols in the passed
-    //:   string.
-    //:
-    //: 3 QoI: Asserted precondition violations are detected when enabled.
-    //:
-    //: 4 The constructors allocate no memory from any allocator.
+    // 1. The default constructor setup null values for all fields.
+    //
+    // 2. The value constructor correctly handles null symbols in the passed
+    //    string.
+    //
+    // 3. QoI: Asserted precondition violations are detected when enabled.
+    //
+    // 4. The constructors allocate no memory from any allocator.
     //
     // Plan:
-    //: 1 Create a 'bslma::TestAllocator' object, and install it as the default
-    //:   allocator (note that a ubiquitous test allocator is already installed
-    //:   as the global allocator).
-    //:
-    //: 2 Create an object using default constructor and verify its value by
-    //:   accessors.  (C-1)
-    //:
-    //: 3 Create an object using value constructor.  Verify object's value by
-    //:   accessors.
-    //:
-    //: 4 Using a loop-based approach, construct a set of objects on the
-    //:   constant string 'S' (that can include null symbol), referring to the
-    //:   addresses in the range '[S, S + N]', where the 'N' is some
-    //:   non-negative integer constant and verify their values by accessors.
-    //:   (C-2)
-    //:
-    //: 5 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered for invalid attribute values, but not triggered for
-    //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-3)
-    //:
-    //: 6 Use the test allocator from P-1 to verify that no memory is ever
-    //:   allocated from the default allocator.  (C-4)
+    // 1. Create a `bslma::TestAllocator` object, and install it as the default
+    //    allocator (note that a ubiquitous test allocator is already installed
+    //    as the global allocator).
+    //
+    // 2. Create an object using default constructor and verify its value by
+    //    accessors.  (C-1)
+    //
+    // 3. Create an object using value constructor.  Verify object's value by
+    //    accessors.
+    //
+    // 4. Using a loop-based approach, construct a set of objects on the
+    //    constant string `S` (that can include null symbol), referring to the
+    //    addresses in the range `[S, S + N]`, where the `N` is some
+    //    non-negative integer constant and verify their values by accessors.
+    //    (C-2)
+    //
+    // 5. Verify that, in appropriate build modes, defensive checks are
+    //    triggered for invalid attribute values, but not triggered for
+    //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).  (C-3)
+    //
+    // 6. Use the test allocator from P-1 to verify that no memory is ever
+    //    allocated from the default allocator.  (C-4)
     //
     // Testing:
     //   basic_string_view();
@@ -5960,7 +5963,7 @@ void TestDriver<TYPE, TRAITS>::testCase8()
     BSLS_KEYWORD_CONSTEXPR
     const size_type        STRING_LENGTH = s_testStringLength;
 
-    if (verbose) printf("Check 'constexpr' construction.\n");
+    if (verbose) printf("Check `constexpr` construction.\n");
     {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
         constexpr Obj ctv1;         (void)ctv1;
@@ -6043,55 +6046,55 @@ void TestDriver<TYPE, TRAITS>::testCase7()
     // TESTING COPY-ASSIGNMENT OPERATOR
     //
     // Concerns:
-    //: 1 The assignment operator can change the value of any modifiable
-    //:   target object to that of any source object.
-    //:
-    //: 2 The signature and return type are standard.
-    //:
-    //: 3 The reference returned is to the target object (i.e., '*this').
-    //:
-    //: 4 The value of the source object is not modified.
-    //:
-    //: 5 Assigning an object to itself behaves as expected (alias-safety).
-    //:
-    //: 6 Empty objects can be assigned/modified by copy-assignment operator.
+    // 1. The assignment operator can change the value of any modifiable
+    //    target object to that of any source object.
+    //
+    // 2. The signature and return type are standard.
+    //
+    // 3. The reference returned is to the target object (i.e., `*this`).
+    //
+    // 4. The value of the source object is not modified.
+    //
+    // 5. Assigning an object to itself behaves as expected (alias-safety).
+    //
+    // 6. Empty objects can be assigned/modified by copy-assignment operator.
     //
     // Plan:
-    //: 1 Use the address of 'operator=' to initialize a member-function
-    //:   pointer having the appropriate signature and return type for the
-    //:   copy-assignment operator defined in this component.  (C-2)
-    //:
-    //: 2 Create an empty object.  Assign this object to itself using
-    //:   copy-assignment operator.  Verify object's value using basic
-    //:   accessors ('data' and 'length').  (C-4)
-    //:
-    //: 3 Using a loop-based approach, construct a set of objects, 'O1', on the
-    //:   constant string 'S1' (that can include null symbol), referring to the
-    //:   addresses in the range '[S1, S1 + N]', where the 'N' is some
-    //:   non-negative integer constant, and having lengths in the range
-    //:   '[0, N - position1]', where the 'position1' is the size of the indent
-    //:   of the address from the beginning of 'S1'.  For each object 'o1' in
-    //:   the 'O1' set:
-    //:
-    //:   1 Using a loop-based approach, construct a set of objects, 'O2' on
-    //:     the constant string 'S2' (that can include null symbol), pointing
-    //:     to the addresses in the range '[S2, S2 + N]', where the 'N' is the
-    //:     integer constant from P-3, and having lengths in the range
-    //:     '[0, N - position2]', where the 'position2' is the size of the
-    //:     indent of the address from the beginning of 'S2'.  For each object
-    //:     'o2' in the 'O2' set:
-    //:
-    //:     1 Assign the 'o1' to itself and verify the RESULTs using basic
-    //:       accessors.  (C-5)
-    //:
-    //:     1 Assign the 'o2' to the 'o1' and verify the results using basic
-    //:       accessors.
-    //:
-    //:     2 Assign empty object to the 'o1' and verify the results using
-    //:       basic accessors.
-    //:
-    //:     3 Assign the 'o2' to the empty object and verify the results using
-    //:       basic accessors.  (C-1, 3, 6)
+    // 1. Use the address of `operator=` to initialize a member-function
+    //    pointer having the appropriate signature and return type for the
+    //    copy-assignment operator defined in this component.  (C-2)
+    //
+    // 2. Create an empty object.  Assign this object to itself using
+    //    copy-assignment operator.  Verify object's value using basic
+    //    accessors (`data` and `length`).  (C-4)
+    //
+    // 3. Using a loop-based approach, construct a set of objects, `O1`, on the
+    //    constant string `S1` (that can include null symbol), referring to the
+    //    addresses in the range `[S1, S1 + N]`, where the `N` is some
+    //    non-negative integer constant, and having lengths in the range
+    //    `[0, N - position1]`, where the `position1` is the size of the indent
+    //    of the address from the beginning of `S1`.  For each object `o1` in
+    //    the `O1` set:
+    //
+    //   1. Using a loop-based approach, construct a set of objects, `O2` on
+    //      the constant string `S2` (that can include null symbol), pointing
+    //      to the addresses in the range `[S2, S2 + N]`, where the `N` is the
+    //      integer constant from P-3, and having lengths in the range
+    //      `[0, N - position2]`, where the `position2` is the size of the
+    //      indent of the address from the beginning of `S2`.  For each object
+    //      `o2` in the `O2` set:
+    //
+    //     1. Assign the `o1` to itself and verify the RESULTs using basic
+    //        accessors.  (C-5)
+    //
+    //     1. Assign the `o2` to the `o1` and verify the results using basic
+    //        accessors.
+    //
+    //     2. Assign empty object to the `o1` and verify the results using
+    //        basic accessors.
+    //
+    //     3. Assign the `o2` to the empty object and verify the results using
+    //        basic accessors.  (C-1, 3, 6)
     //
     // Testing:
     //   basic_string_view& operator=(basic_string_view rhs);
@@ -6107,7 +6110,7 @@ void TestDriver<TYPE, TRAITS>::testCase7()
         (void)operatorAssignment;  // quash potential compiler warning
     }
 
-    if (verbose) printf("Check 'constexpr' operator.\n");
+    if (verbose) printf("Check `constexpr` operator.\n");
     {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14) \
 &&  defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
@@ -6224,68 +6227,68 @@ void TestDriver<TYPE, TRAITS>::testCase6()
     // TESTING SWAP
     //
     // Concerns:
-    //: 1 Both functions exchange the values of the (two) supplied objects.
-    //:
-    //: 2 Both functions have standard signatures and return types.
-    //:
-    //: 3 Using either function to swap an object with itself does not affect
-    //:   the value of the object (alias-safety).
-    //:
-    //: 4 Empty objects can be swapped.
-    //:
-    //: 5 The free 'swap' function is discoverable through ADL (Argument
-    //:   Dependent Lookup).
-    //:
-    //: 6 No memory allocation occurs as a result of swap operation (e.g.,
-    //:   there is no dynamically created temporary strings).
+    // 1. Both functions exchange the values of the (two) supplied objects.
+    //
+    // 2. Both functions have standard signatures and return types.
+    //
+    // 3. Using either function to swap an object with itself does not affect
+    //    the value of the object (alias-safety).
+    //
+    // 4. Empty objects can be swapped.
+    //
+    // 5. The free `swap` function is discoverable through ADL (Argument
+    //    Dependent Lookup).
+    //
+    // 6. No memory allocation occurs as a result of swap operation (e.g.,
+    //    there is no dynamically created temporary strings).
     //
     // Plan:
-    //: 1 Use the respective addresses of 'swap' member and 'swap' free
-    //:   function to initialize function pointers having the appropriate
-    //:   signatures and return types.
-    //:
-    //: 2 Create a 'bslma::TestAllocator' object, and install it as the default
-    //:   allocator (note that a ubiquitous test allocator is already installed
-    //:   as the global allocator).
-    //:
-    //: 3 Create an empty object.  Swap this object with itself using both
-    //:   member function and free function.  Verify object's value using basic
-    //:   accessors ('data' and 'length').  (C-4)
-    //:
-    //: 4 Using a loop-based approach, construct a set of objects, 'O1', on the
-    //:   constant string 'S1' (that can include null symbol), referring to the
-    //:   addresses in the range '[S1, S1 + N]', where the 'N' is some
-    //:   non-negative integer constant, and having lengths in the range
-    //:   '[0, N - position1]', where the 'position1' is the size of the indent
-    //:   of the address from the beginning of 'S1'.  For each object 'o1' in
-    //:   the 'O1' set:
-    //:
-    //:   1 Swap the 'o1' with itself using both member function and free
-    //:     function and verify it's value using basic accessors ('data' and
-    //:     'length').  (C-3)
-    //:
-    //:   2 Using a loop-based approach, construct a set of objects, 'O2' on
-    //:     the constant string 'S2' (that can include null symbol), pointing
-    //:     to the addresses in the range '[S2, S2 + N]', where the 'N' is the
-    //:     integer constant from P-4, and having lengths in the range
-    //:     '[0, N - position2]', where the 'position2' is the size of the
-    //:     indent of the address from the beginning of 'S2'.  For each object
-    //:     'o2' in the 'O2' set:
-    //:
-    //:     1 Swap the 'o1' with the 'o2' using both member function and free
-    //:       function and verify their values using basic accessors ('data'
-    //:       and 'length').  (C-1)
-    //:
-    //:   1 Swap the 'o1' with empty object using both member function and free
-    //:     function and verify theirs values using basic accessors ('data' and
-    //:     'length').  (C-4)
-    //:
-    //: 5 Create two objects having different values, swap them using the
-    //:   'invokeAdlSwap' helper function template and verify that the values
-    //:   have been exchanged.  (C-5)
-    //:
-    //: 6 Use the test allocator from P-2 to verify that no memory is ever
-    //:   allocated from the default allocator.  (C-6)
+    // 1. Use the respective addresses of `swap` member and `swap` free
+    //    function to initialize function pointers having the appropriate
+    //    signatures and return types.
+    //
+    // 2. Create a `bslma::TestAllocator` object, and install it as the default
+    //    allocator (note that a ubiquitous test allocator is already installed
+    //    as the global allocator).
+    //
+    // 3. Create an empty object.  Swap this object with itself using both
+    //    member function and free function.  Verify object's value using basic
+    //    accessors (`data` and `length`).  (C-4)
+    //
+    // 4. Using a loop-based approach, construct a set of objects, `O1`, on the
+    //    constant string `S1` (that can include null symbol), referring to the
+    //    addresses in the range `[S1, S1 + N]`, where the `N` is some
+    //    non-negative integer constant, and having lengths in the range
+    //    `[0, N - position1]`, where the `position1` is the size of the indent
+    //    of the address from the beginning of `S1`.  For each object `o1` in
+    //    the `O1` set:
+    //
+    //   1. Swap the `o1` with itself using both member function and free
+    //      function and verify it's value using basic accessors (`data` and
+    //      `length`).  (C-3)
+    //
+    //   2. Using a loop-based approach, construct a set of objects, `O2` on
+    //      the constant string `S2` (that can include null symbol), pointing
+    //      to the addresses in the range `[S2, S2 + N]`, where the `N` is the
+    //      integer constant from P-4, and having lengths in the range
+    //      `[0, N - position2]`, where the `position2` is the size of the
+    //      indent of the address from the beginning of `S2`.  For each object
+    //      `o2` in the `O2` set:
+    //
+    //     1. Swap the `o1` with the `o2` using both member function and free
+    //        function and verify their values using basic accessors (`data`
+    //        and `length`).  (C-1)
+    //
+    //   1. Swap the `o1` with empty object using both member function and free
+    //      function and verify theirs values using basic accessors (`data` and
+    //      `length`).  (C-4)
+    //
+    // 5. Create two objects having different values, swap them using the
+    //    `invokeAdlSwap` helper function template and verify that the values
+    //    have been exchanged.  (C-5)
+    //
+    // 6. Use the test allocator from P-2 to verify that no memory is ever
+    //    allocated from the default allocator.  (C-6)
     //
     // Testing:
     //   swap(basic_string_view& rhs);                         // method
@@ -6402,7 +6405,7 @@ void TestDriver<TYPE, TRAITS>::testCase6()
     }
 
     if (verbose) printf(
-         "\tTesting that free 'swap' function is discoverable through ADL.\n");
+         "\tTesting that free `swap` function is discoverable through ADL.\n");
     {
         Obj        mX1(STRING1, STRING_LENGTH);
         const Obj& X1 = mX1;
@@ -6440,73 +6443,73 @@ void TestDriver<TYPE, TRAITS>::testCase5()
     // TESTING COPY CONSTRUCTOR
     //
     // Concerns:
-    //: 1 The new object's value is the same as that of the original object
-    //:   (relying on the basic accessors).
-    //:
-    //: 2 All internal representations of a given value can be used to create a
-    //:   new object of equivalent value.
-    //:
-    //: 3 The value of the original object is left unaffected.
-    //:
-    //: 4 Destruction of the source object has no effect on the
-    //:  copy-constructed object.
-    //:
-    //: 5 Destruction of the created object has no effect on the original one.
-    //:
-    //: 6 Empty object can be copy-constructed.
-    //:
-    //: 7 No memory allocation occurs as a result of copy construction (e.g.,
-    //:   there is no new dynamically created string).
+    // 1. The new object's value is the same as that of the original object
+    //    (relying on the basic accessors).
+    //
+    // 2. All internal representations of a given value can be used to create a
+    //    new object of equivalent value.
+    //
+    // 3. The value of the original object is left unaffected.
+    //
+    // 4. Destruction of the source object has no effect on the
+    //   copy-constructed object.
+    //
+    // 5. Destruction of the created object has no effect on the original one.
+    //
+    // 6. Empty object can be copy-constructed.
+    //
+    // 7. No memory allocation occurs as a result of copy construction (e.g.,
+    //    there is no new dynamically created string).
     //
     // Plan:
-    //: 1 Create a 'bslma::TestAllocator' object, and install it as the default
-    //:   allocator (note that a ubiquitous test allocator is already installed
-    //:   as the global allocator).
-    //:
-    //: 2 Create an empty object.  Create another empty object using copy
-    //:   constructor and passing the first object as a parameter.  Verify the
-    //:   target object using basic accessors('data()' and 'length()'.  (C-6)
-    //:
-    //: 3 Using a loop-based approach, construct a set of objects, 'O1', on the
-    //:   constant string 'S' (that can include null symbol), referring to the
-    //:   addresses in the range '[S, S + N]', where the 'N' is some
-    //:   non-negative integer constant, and having lengths in the range
-    //:   '[0, N - position1]', where the 'position1' is the size of the indent
-    //:   of the address from the beginning of 'S'.  For each object 'os1'
-    //:   (object source 1) in the 'O1' set:
-    //:
-    //:   1 In scope using copy constructor and passing 'os1' as a parameter
-    //:     create an object 'ot1' (object target 1).
-    //:
-    //:   2 Using the basic accessors verify the value of 'os1'.
-    //:
-    //:   3 Using the basic accessors verify the value of 'ot1'. (C-1..2)
-    //:
-    //:   4 Let 'ot1' go out of scope and verify, that 'os1' remains unchanged.
-    //:     (C-5)
-    //:
-    //: 4 Using a loop-based approach, in scope construct a set of objects,
-    //:   'O2', on the constant string 'S' (that can include null symbol),
-    //:   referring to the addresses in the range '[S, S + N]', where the 'N'
-    //:   is some non-negative integer constant, and having lengths in the
-    //:   range '[0, N - position2]', where the 'position2' is the size of the
-    //:   indent of the address from the beginning of 'S'.  For each object
-    //:   'os2' in the 'O2' set:
-    //:
-    //:   1 Using copy constructor and passing 'os1' as a parameter dynamically
-    //:     create an object 'ot2'.
-    //:
-    //:   2 Using the basic accessors verify the value of 'os2'.  (C-3)
-    //:
-    //:   3 Using the basic accessors verify the value of 'ot2'.
-    //:
-    //:   4 Let 'os2' go out of scope and verify, that 'ot2' remains unchanged.
-    //:     (C-4)
-    //:
-    //:   5 Destroy object 'ot2'
-    //:
-    //: 5 Use the test allocator from P-1 to verify that no memory is ever
-    //:   allocated from the default allocator.  (C-7)
+    // 1. Create a `bslma::TestAllocator` object, and install it as the default
+    //    allocator (note that a ubiquitous test allocator is already installed
+    //    as the global allocator).
+    //
+    // 2. Create an empty object.  Create another empty object using copy
+    //    constructor and passing the first object as a parameter.  Verify the
+    //    target object using basic accessors(`data()` and `length()`.  (C-6)
+    //
+    // 3. Using a loop-based approach, construct a set of objects, `O1`, on the
+    //    constant string `S` (that can include null symbol), referring to the
+    //    addresses in the range `[S, S + N]`, where the `N` is some
+    //    non-negative integer constant, and having lengths in the range
+    //    `[0, N - position1]`, where the `position1` is the size of the indent
+    //    of the address from the beginning of `S`.  For each object `os1`
+    //    (object source 1) in the `O1` set:
+    //
+    //   1. In scope using copy constructor and passing `os1` as a parameter
+    //      create an object `ot1` (object target 1).
+    //
+    //   2. Using the basic accessors verify the value of `os1`.
+    //
+    //   3. Using the basic accessors verify the value of `ot1`. (C-1..2)
+    //
+    //   4. Let `ot1` go out of scope and verify, that `os1` remains unchanged.
+    //      (C-5)
+    //
+    // 4. Using a loop-based approach, in scope construct a set of objects,
+    //    `O2`, on the constant string `S` (that can include null symbol),
+    //    referring to the addresses in the range `[S, S + N]`, where the `N`
+    //    is some non-negative integer constant, and having lengths in the
+    //    range `[0, N - position2]`, where the `position2` is the size of the
+    //    indent of the address from the beginning of `S`.  For each object
+    //    `os2` in the `O2` set:
+    //
+    //   1. Using copy constructor and passing `os1` as a parameter dynamically
+    //      create an object `ot2`.
+    //
+    //   2. Using the basic accessors verify the value of `os2`.  (C-3)
+    //
+    //   3. Using the basic accessors verify the value of `ot2`.
+    //
+    //   4. Let `os2` go out of scope and verify, that `ot2` remains unchanged.
+    //      (C-4)
+    //
+    //   5. Destroy object `ot2`
+    //
+    // 5. Use the test allocator from P-1 to verify that no memory is ever
+    //    allocated from the default allocator.  (C-7)
     //
     // Testing:
     //   basic_string_view(basic_string_view original);
@@ -6602,7 +6605,7 @@ void TestDriver<TYPE, TRAITS>::testCase5()
     // Check that no additional memory has been allocated.
     ASSERTV(da.numBytesTotal(), 0 == da.numBytesTotal());
 
-    if (verbose) printf("Check 'constexpr' construction.\n");
+    if (verbose) printf("Check `constexpr` construction.\n");
     {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
         constexpr Obj ctv1(STRING, STRING_LENGTH);
@@ -6618,75 +6621,75 @@ void TestDriver<TYPE, TRAITS>::testCase4()
     // TESTING EQUALITY COMPARISON
     //
     // Concerns:
-    //: 1 Two objects, 'X' and 'Y', compare equal if and only if they contain
-    //:   the same values.  Two views have the same value if they have the same
-    //:   length, and the characters at each respective position have the same
-    //:   value according to 'CHAR_TRAITS::eq'.
-    //:
-    //: 2 'true  == (X == X)' (i.e., identity)
-    //:
-    //: 3 'false == (X != X)' (i.e., identity)
-    //:
-    //: 4 'X == Y' if and only if 'Y == X' (i.e., commutativity)
-    //:
-    //: 5 'X != Y' if and only if 'Y != X' (i.e., commutativity)
-    //:
-    //: 6 'X != Y' if and only if '!(X == Y)'
-    //:
-    //: 7 Comparison is symmetric with respect to user-defined conversion
-    //:   (i.e., both comparison operators are free functions).
-    //:
-    //: 8 Non-modifiable objects can be compared (i.e., objects or references
-    //:   providing only non-modifiable access).
-    //:
-    //: 9 No memory allocation occurs as a result of comparison (e.g., there is
-    //:   no new dynamically created string).
-    //:
-    //:10 The equality operator's signature and return type are standard.
-    //:
-    //:11 The inequality operator's signature and return type are standard.
-    //:
-    //:12 The empty objects can be compared.
+    // 1. Two objects, `X` and `Y`, compare equal if and only if they contain
+    //    the same values.  Two views have the same value if they have the same
+    //    length, and the characters at each respective position have the same
+    //    value according to `CHAR_TRAITS::eq`.
+    //
+    // 2. `true  == (X == X)` (i.e., identity)
+    //
+    // 3. `false == (X != X)` (i.e., identity)
+    //
+    // 4. `X == Y` if and only if `Y == X` (i.e., commutativity)
+    //
+    // 5. `X != Y` if and only if `Y != X` (i.e., commutativity)
+    //
+    // 6. `X != Y` if and only if `!(X == Y)`
+    //
+    // 7. Comparison is symmetric with respect to user-defined conversion
+    //    (i.e., both comparison operators are free functions).
+    //
+    // 8. Non-modifiable objects can be compared (i.e., objects or references
+    //    providing only non-modifiable access).
+    //
+    // 9. No memory allocation occurs as a result of comparison (e.g., there is
+    //    no new dynamically created string).
+    //
+    // 10. The equality operator's signature and return type are standard.
+    //
+    // 11. The inequality operator's signature and return type are standard.
+    //
+    // 12. The empty objects can be compared.
     //
     // Plan:
-    //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-    //:   initialize function pointers having the appropriate signatures and
-    //:   return types for the two homogeneous, free equality-comparison
-    //:   operators defined in this component.  (C-7..8, 10..11)
-    //:
-    //: 2 Create a 'bslma::TestAllocator' object, and install it as the default
-    //:   allocator (note that a ubiquitous test allocator is already installed
-    //:   as the global allocator).
-    //:
-    //: 3 Create a pair of empty objects, compare them and verify the results.
-    //:
-    //: 4 Using a loop-based approach, construct a set of objects, 'O1', on the
-    //:   constant string 'S1' (that can include null symbol), referring to the
-    //:   addresses in the range '[S1, S1 + N]', where the 'N' is some
-    //:   non-negative integer constant, and having lengths in the range
-    //:   '[0, N - position1]', where the 'position1' is the size of the indent
-    //:   of the address from the beginning of 'S1'.  For each object 'o1' in
-    //:   the 'O1' set:
-    //:
-    //:   1 Compare 'o1' and 'o1' and verify the expected return value for both
-    //:     '==' and '!='.  (C-2..3)
-    //:
-    //:   2 Create an empty object, compare 'o1' with it and verify the
-    //:     expected return value for both '==' and '!='.  (C-12)
-    //:
-    //:   2 Using a loop-based approach, construct a set of objects, 'O2' on
-    //:     the constant string 'S2' (that can include null symbol), pointing
-    //:     to the addresses in the range '[S2, S2 + N]', where the 'N' is the
-    //:     integer constant from P-4, and having lengths in the range
-    //:     '[0, N - position2]', where the 'position2' is the size of the
-    //:     indent of the address from the beginning of 'S2'.  For each object
-    //:     'o2' in the 'O2' set:
-    //:
-    //:     1 Compare 'o1' and 'o2' and verify the expected return value for
-    //:       both '==' and '!='.  (C-1, 4..6)
-    //:
-    //: 5 Use the test allocator from P-2 to verify that no memory is ever
-    //:   allocated from the default allocator.  (C-9)
+    // 1. Use the respective addresses of `operator==` and `operator!=` to
+    //    initialize function pointers having the appropriate signatures and
+    //    return types for the two homogeneous, free equality-comparison
+    //    operators defined in this component.  (C-7..8, 10..11)
+    //
+    // 2. Create a `bslma::TestAllocator` object, and install it as the default
+    //    allocator (note that a ubiquitous test allocator is already installed
+    //    as the global allocator).
+    //
+    // 3. Create a pair of empty objects, compare them and verify the results.
+    //
+    // 4. Using a loop-based approach, construct a set of objects, `O1`, on the
+    //    constant string `S1` (that can include null symbol), referring to the
+    //    addresses in the range `[S1, S1 + N]`, where the `N` is some
+    //    non-negative integer constant, and having lengths in the range
+    //    `[0, N - position1]`, where the `position1` is the size of the indent
+    //    of the address from the beginning of `S1`.  For each object `o1` in
+    //    the `O1` set:
+    //
+    //   1. Compare `o1` and `o1` and verify the expected return value for both
+    //      `==` and `!=`.  (C-2..3)
+    //
+    //   2. Create an empty object, compare `o1` with it and verify the
+    //      expected return value for both `==` and `!=`.  (C-12)
+    //
+    //   2. Using a loop-based approach, construct a set of objects, `O2` on
+    //      the constant string `S2` (that can include null symbol), pointing
+    //      to the addresses in the range `[S2, S2 + N]`, where the `N` is the
+    //      integer constant from P-4, and having lengths in the range
+    //      `[0, N - position2]`, where the `position2` is the size of the
+    //      indent of the address from the beginning of `S2`.  For each object
+    //      `o2` in the `O2` set:
+    //
+    //     1. Compare `o1` and `o2` and verify the expected return value for
+    //        both `==` and `!=`.  (C-1, 4..6)
+    //
+    // 5. Use the test allocator from P-2 to verify that no memory is ever
+    //    allocated from the default allocator.  (C-9)
     //
     // Testing:
     //   bool operator==(basic_string_view, basic_string_view);
@@ -6713,7 +6716,7 @@ void TestDriver<TYPE, TRAITS>::testCase4()
     const TYPE      *const STRING1       = s_testString;
     const size_type        STRING_LENGTH = s_testStringLength;
 
-    if (verbose) printf("Check 'constexpr' operators.\n");
+    if (verbose) printf("Check `constexpr` operators.\n");
     {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_17
         constexpr Obj  ctvLhs(STRING1, STRING_LENGTH);
@@ -6808,61 +6811,61 @@ void TestDriver<TYPE, TRAITS>::testCase2()
     //   these methods are tested simultaneously.
     //
     // Concerns:
-    //: 1 The constructor correctly handle null values, passed as parameters.
-    //:
-    //: 2 The null symbol ('\0') in the passed string is correctly handled by
-    //:   the constructor.
-    //:
-    //: 3 Neither constructor nor accessors allocate memory from any allocator.
-    //:
-    //: 4 Each accessor returns the value of the correct property of the
-    //:   object.
-    //:
-    //: 5 Each accessor method is declared 'const'.
-    //:
-    //: 6 The constructor that takes a pair of iterators creates objects that
-    //:   are equivalent to the constructor that takes an address and length.
-    //:
-    //: 7 QoI: Asserted precondition violations are detected when enabled.
-    //:
-    //: 8 The helper classes 'TestIterator' and 'TestSentinel' have the
-    //:   features required for testing the "iterator" constructor.
+    // 1. The constructor correctly handle null values, passed as parameters.
+    //
+    // 2. The null symbol ('\0') in the passed string is correctly handled by
+    //    the constructor.
+    //
+    // 3. Neither constructor nor accessors allocate memory from any allocator.
+    //
+    // 4. Each accessor returns the value of the correct property of the
+    //    object.
+    //
+    // 5. Each accessor method is declared `const`.
+    //
+    // 6. The constructor that takes a pair of iterators creates objects that
+    //    are equivalent to the constructor that takes an address and length.
+    //
+    // 7. QoI: Asserted precondition violations are detected when enabled.
+    //
+    // 8. The helper classes `TestIterator` and `TestSentinel` have the
+    //    features required for testing the "iterator" constructor.
     //
     // Plan:
-    //: 1 Create a 'bslma::TestAllocator' object, and install it as the default
-    //:   allocator (note that a ubiquitous test allocator is already installed
-    //:   as the global allocator).
-    //:
-    //: 2 Create an object with null parameters and verify its value by
-    //:   accessors.  (C-1)
-    //:
-    //: 3 Using a loop-based approach, dynamically construct a set of objects
-    //:   on the constant string 'S' (that can include null symbol), pointing
-    //:   to the addresses in the range '[S, S + N]', where the 'N' is some
-    //:   non-negative integer constant, and having lengths in the range
-    //:   '[0, N - position]', where the 'position' is the size of the indent
-    //:   of the address from the beginning of 'S'.  For each object in the
-    //:   set:
-    //:
-    //:   1 Use attribute accessors to verify object's value.  (C-2, 4..5)
-    //:
-    //:   2 Verify that no additional memory is allocated from the allocator
-    //:     used for object construction.
-    //:
-    //: 4 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered for invalid attribute values, but not triggered for
-    //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-    //:   (C-7)
-    //:
-    //: 5 For each object created using an address and length create a second
-    //:   object using the constructor that takes a pair of iterators.  Confirm
-    //;   that each second object passes the same test as the first.  (C-6)
-    //:
-    //: 6 Use the test allocator from P-1 to verify that no memory is ever
-    //:   allocated from the default allocator.  (C-3)
-    //:
-    //: 7 Create 'TestIterator' and 'TestSentinel' objects and confirm the
-    //:   required features in a series of ad hoc tests.  (C-8)
+    // 1. Create a `bslma::TestAllocator` object, and install it as the default
+    //    allocator (note that a ubiquitous test allocator is already installed
+    //    as the global allocator).
+    //
+    // 2. Create an object with null parameters and verify its value by
+    //    accessors.  (C-1)
+    //
+    // 3. Using a loop-based approach, dynamically construct a set of objects
+    //    on the constant string `S` (that can include null symbol), pointing
+    //    to the addresses in the range `[S, S + N]`, where the `N` is some
+    //    non-negative integer constant, and having lengths in the range
+    //    `[0, N - position]`, where the `position` is the size of the indent
+    //    of the address from the beginning of `S`.  For each object in the
+    //    set:
+    //
+    //   1. Use attribute accessors to verify object's value.  (C-2, 4..5)
+    //
+    //   2. Verify that no additional memory is allocated from the allocator
+    //      used for object construction.
+    //
+    // 4. Verify that, in appropriate build modes, defensive checks are
+    //    triggered for invalid attribute values, but not triggered for
+    //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+    //    (C-7)
+    //
+    // 5. For each object created using an address and length create a second
+    //    object using the constructor that takes a pair of iterators.  Confirm
+    //    that each second object passes the same test as the first.  (C-6)
+    //
+    // 6. Use the test allocator from P-1 to verify that no memory is ever
+    //    allocated from the default allocator.  (C-3)
+    //
+    // 7. Create `TestIterator` and `TestSentinel` objects and confirm the
+    //    required features in a series of ad hoc tests.  (C-8)
     //
     // Testing:
     //   basic_string_view(const CHAR_TYPE *str, size_type numChars);
@@ -6882,7 +6885,7 @@ void TestDriver<TYPE, TRAITS>::testCase2()
     BSLS_KEYWORD_CONSTEXPR
     const size_type        STRING_LENGTH = s_testStringLength;
 
-    if (verbose) printf("Check 'constexpr' accesors.\n");
+    if (verbose) printf("Check `constexpr` accesors.\n");
     {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
         constexpr Obj                         ctv;
@@ -6899,7 +6902,7 @@ void TestDriver<TYPE, TRAITS>::testCase2()
 #endif
     }
 
-    if (verbose) printf("Validate 'TestIterator' and 'TestSentinel'.\n");
+    if (verbose) printf("Validate `TestIterator` and `TestSentinel`.\n");
 
     {
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
@@ -7062,7 +7065,7 @@ void TestDriver<TYPE, TRAITS>::testCase2()
         }
         }
 
-        if (verbose) printf("Check 'constexpr' construction.\n");
+        if (verbose) printf("Check `constexpr` construction.\n");
         {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
             constexpr Obj ctv2(STRING, STRING_LENGTH/2);
@@ -7119,19 +7122,19 @@ void TestDriver<TYPE, TRAITS>::testCase2()
 // BDE_VERIFY pragma: +FABC01  // not in alphanumeric order
 
 //=============================================================================
-//                   FAKE 'bsl::string' FOR USAGE EXAMPLE
+//                   FAKE `bsl::string` FOR USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 namespace bsl {
 
+/// The usage example uses `bsl::string`, which we can't access here because
+/// it would cause a cycle.  So this `class` simulates the minimum necessary
+/// exact function of `bsl::string` to make the usage example work.
+///
+/// Note that most of the functionality of the real `bsl::string` is not
+/// needed here -- this `class` doesn't even have to be modifiable after
+/// construction.
 class string {
-    // The usage example uses 'bsl::string', which we can't access here because
-    // it would cause a cycle.  So this 'class' simulates the minimum necessary
-    // exact function of 'bsl::string' to make the usage example work.
-    //
-    // Note that most of the functionality of the real 'bsl::string' is not
-    // needed here -- this 'class' doesn't even have to be modifiable after
-    // construction.
 
     // DATA
     char                          *d_str;
@@ -7255,13 +7258,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -7275,10 +7278,10 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -
-// The 'bsl::string_view' can be used as a lightweight replacement of the
-// 'bsl::string', unless you need to modify the content.  It takes up no more
+// The `bsl::string_view` can be used as a lightweight replacement of the
+// `bsl::string`, unless you need to modify the content.  It takes up no more
 // space and doesn't allocate memory:
-//..
+// ```
         bslma::TestAllocator         da("Default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);
 
@@ -7295,10 +7298,10 @@ int main(int argc, char *argv[])
         ASSERT(sfa.numBytesInUse() >= svfa.numBytesInUse());
         ASSERT(0                   <   ssa.numBytesInUse());
         ASSERT(0                   ==   da.numBytesInUse());
-//..
-// At the same time it supports all most used 'access' operations of the
-// 'bsl::string', using the overloads, accepting the same parameters:
-//..
+// ```
+// At the same time it supports all most used `access` operations of the
+// `bsl::string`, using the overloads, accepting the same parameters:
+// ```
         const bsl::string&      STR = *sPtr;
         const bsl::string_view& SV  = *svPtr;
 
@@ -7309,30 +7312,30 @@ int main(int argc, char *argv[])
         ASSERT(STR.find("345")             == SV.find("345"));
         ASSERT(STR.find_last_not_of("578") == SV.find_last_not_of("578"));
         ASSERT(STR.compare(0, 3, "012")    == SV.compare(0, 3, "012"));
-//..
-// However, using the 'bsl::string_view', you need to be especially attentive
+// ```
+// However, using the `bsl::string_view`, you need to be especially attentive
 // to the lifetime of the source character string, since the component
 // explicitly refers to it:
-//..
+// ```
         ASSERT(LONG_STRING != STR.data());
         ASSERT(LONG_STRING == SV.data());
 
         sfa.deleteObject(sPtr);
         svfa.deleteObject(svPtr);
-//..
+// ```
       } break;
       case 25: {
         // --------------------------------------------------------------------
-        // COEXISTING 'std::string_view'
-        //   Prior to C++17 there is no native 'std::string_view' so the
-        //   'bsl::string_view' uses the BDE implementation.  As of C++20,
-        //   'bsl::string_view' is aliased to the 'std::string_view' (they are
-        //   the same class).  However, for C++17 'bsl::string_view' uses the
-        //   BDE implementation although 'std::string_view' *also* exists
-        //   (albeit lacking the '*_with' methods [see TC 21] and the iterator
-        //   CTOR [see TC 2]).  Thus, in C++17 exactly, 'bsl::string_view' must
+        // COEXISTING `std::string_view`
+        //   Prior to C++17 there is no native `std::string_view` so the
+        //   `bsl::string_view` uses the BDE implementation.  As of C++20,
+        //   `bsl::string_view` is aliased to the `std::string_view` (they are
+        //   the same class).  However, for C++17 `bsl::string_view` uses the
+        //   BDE implementation although `std::string_view` *also* exists
+        //   (albeit lacking the `*_with` methods [see TC 21] and the iterator
+        //   CTOR [see TC 2]).  Thus, in C++17 exactly, `bsl::string_view` must
         //   be convertible to and from, and assignable from
-        //   'std::string_view'.
+        //   `std::string_view`.
         //
         // Concerns:
         //
@@ -7345,7 +7348,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nCOEXISTING 'std::string_view'"
+            printf("\nCOEXISTING `std::string_view`"
                    "\n=============================\n");
 
 #if defined(BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST)
@@ -7365,10 +7368,10 @@ int main(int argc, char *argv[])
 #elif defined(BSLSTL_STRING_VIEW_IS_ALIASED)
         if (veryVerbose)
             printf(
-                  "SKIP: 'bsl::string_view' ALIASED to 'std::string_view'.\n");
+                  "SKIP: `bsl::string_view` ALIASED to `std::string_view`.\n");
 #else
         if (veryVerbose)
-            printf("SKIP: 'std::string_view' is not available.\n");
+            printf("SKIP: `std::string_view` is not available.\n");
 #endif
       } break;
       case 24: {
@@ -7378,14 +7381,14 @@ int main(int argc, char *argv[])
         //   appropriate bsl type traits to reflect this.
         //
         // Concerns:
-        //: 1 The class has the bsl::is_trivially_copyable trait.
-        //:
-        //: 2 The class has the bslmf::IsBitwiseCopyable trait.
-        //:
-        //: 3 The class has the bslmf::IsBitwiseMoveable trait.
+        // 1. The class has the bsl::is_trivially_copyable trait.
+        //
+        // 2. The class has the bslmf::IsBitwiseCopyable trait.
+        //
+        // 3. The class has the bslmf::IsBitwiseMoveable trait.
         //
         // Plan:
-        //: 1 ASSERT the presence of each trait required by the type.  (C-1..2)
+        // 1. ASSERT the presence of each trait required by the type.  (C-1..2)
         //
         // Testing:
         //   TYPE TRAITS
@@ -7400,11 +7403,11 @@ int main(int argc, char *argv[])
       } break;
       case 23: {
         // --------------------------------------------------------------------
-        // CONSTRUCTION FROM 'std::basic_string'
+        // CONSTRUCTION FROM `std::basic_string`
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nCONSTRUCTION FROM 'std::basic_string'"
+            printf("\nCONSTRUCTION FROM `std::basic_string`"
                    "\n=====================================\n");
 
         if (verbose) printf("This test has been moved to\n"
@@ -7419,7 +7422,7 @@ int main(int argc, char *argv[])
         // Due to special initialization of objects, there is no unified test
         // for both template specializations (char and wchar_t).  So test has
         // two sections and both types are tested.  But we need to run it only
-        // once and template parameter of the 'TestDriver' is valueless for
+        // once and template parameter of the `TestDriver` is valueless for
         // this test case.
 
         TestDriver<char>::testCase22();
@@ -7427,7 +7430,7 @@ int main(int argc, char *argv[])
       } break;
       case 21: {
 
-        if (verbose) printf ("\nTESTING 'STARTS_WITH' AND 'ENDS_WITH'"
+        if (verbose) printf ("\nTESTING `STARTS_WITH` AND `ENDS_WITH`"
                              "\n=====================================\n");
 
         TestDriver<char>::testCase21();
@@ -7762,11 +7765,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Execute each methods to verify functionality for simple case.
+        // 1. Execute each methods to verify functionality for simple case.
         //
         // Testing:
         //   BREATHING TEST

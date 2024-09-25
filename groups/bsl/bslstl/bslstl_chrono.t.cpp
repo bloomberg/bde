@@ -15,9 +15,9 @@
 #include <chrono>
 #endif
 
-#include <stdio.h>     // 'sprintf', 'snprintf' [NOT '<cstdio>', which does not
-                       // include 'snprintf']
-#include <stdlib.h>    // 'atoi'
+#include <stdio.h>     // `sprintf`, `snprintf` [NOT `<cstdio>`, which does not
+                       // include `snprintf`]
+#include <stdlib.h>    // `atoi`
 
 using namespace BloombergLP;
 
@@ -45,7 +45,7 @@ using namespace BloombergLP;
 // [1] bsl::chrono::duration     operator "" _ns (long double);
 // ----------------------------------------------------------------------------
 // [5] USAGE EXAMPLE
-// [2] CONCERN: clocks match those in 'bsls::SystemTime'
+// [2] CONCERN: clocks match those in `bsls::SystemTime`
 // [3] bsl::chrono::abs(std::chrono::duration)
 // [3] bsl::chrono::ceil(std::chrono::duration)
 // [3] bsl::chrono::floor(std::chrono::duration)
@@ -155,12 +155,12 @@ int main(int argc, char *argv[])
         // TESTING USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters.
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -176,21 +176,21 @@ int main(int argc, char *argv[])
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Basic 'bsl'-chrono's UDLs Usage
+///Example 1: Basic `bsl`-chrono's UDLs Usage
 /// - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates basic use of user-defined literal operators.
 //
-// First, we provide an access to 'bsl'-chrono's UDLs.
+// First, we provide an access to `bsl`-chrono's UDLs.
 
         using namespace bsl::chrono_literals;
 
 // Then, we construct two duration objects that represent a 24-hours and a half
-// an hour time intervals using 'operator "" _h'.
+// an hour time intervals using `operator "" _h`.
 
         auto hours_in_a_day = 24_h;
         auto halfhour       = 0.5_h;
 
-// Finally, stream the two objects to 'stdout':
+// Finally, stream the two objects to `stdout`:
 
         printf("one day is %lld hours\n",
                static_cast<long long>(hours_in_a_day.count()));
@@ -208,14 +208,14 @@ int main(int argc, char *argv[])
         // TESTING C++20 HEADER ADDITIONS
         //
         // Concerns:
-        //: 1 The definitions from '<chrono>' defined by the C++20 Standard are
-        //:   available in C++20 mode in the 'bsl::chrono' namespace to users
-        //:   who include 'bslstl_chrono.h'.
+        // 1. The definitions from `<chrono>` defined by the C++20 Standard are
+        //    available in C++20 mode in the `bsl::chrono` namespace to users
+        //    who include `bslstl_chrono.h`.
         //
         // Plan:
-        //: 1 For every identifier aliased from the 'std::chrono' namespace,
-        //:   verify that the identifier exists and is usable with the
-        //:   'bsl::chrono' namespace prefix.
+        // 1. For every identifier aliased from the `std::chrono` namespace,
+        //    verify that the identifier exists and is usable with the
+        //    `bsl::chrono` namespace prefix.
         //
         // Testing:
         //   C++20 HEADER ADDITIONS
@@ -350,7 +350,7 @@ int main(int argc, char *argv[])
                             bsl::chrono::utc_seconds{bsl::chrono::seconds{1}});
 #endif
 
-        using std::istream; // 'bsl::istream' is unavailable in this package
+        using std::istream; // `bsl::istream` is unavailable in this package
         (void) [](istream &is) {
             bsl::chrono::sys_seconds result;
             bsl::chrono::from_stream(is, "", result);
@@ -366,12 +366,12 @@ int main(int argc, char *argv[])
       // TESTING C++17 MATH ADDITIONS TO <CHRONO>
       //
       // Concerns:
-      //: 1 That the functions 'chrono::abs', chrono::ceil, chrono::floor and
-      //:   chrono::round have been imported into the 'bsl::chrono' namespace.
+      // 1. That the functions `chrono::abs`, chrono::ceil, chrono::floor and
+      //    chrono::round have been imported into the `bsl::chrono` namespace.
       //
       // Plan:
-      //: 1 Verify that simple calls to these functions successfully compile
-      //:   and that they return sane results.
+      // 1. Verify that simple calls to these functions successfully compile
+      //    and that they return sane results.
       //
       // Testing:
       //   bsl::chrono::abs(std::chrono::duration)
@@ -410,24 +410,24 @@ int main(int argc, char *argv[])
     case 2: {
         // --------------------------------------------------------------------
         // CLOCK TESTS
-        //   Ensure 'bsl::realtime_clock' matches
-        //   'bsls::SystemTime::nowRealtimeClock' and 'bsl::monotonic_clock'
-        //   matches 'bsls::SystemTime::nowMonotonicClock'.
+        //   Ensure `bsl::realtime_clock` matches
+        //   `bsls::SystemTime::nowRealtimeClock` and `bsl::monotonic_clock`
+        //   matches `bsls::SystemTime::nowMonotonicClock`.
         //
         // Concerns:
-        //: 1 The epoch of 'bsl::realtime_clock' matches the epoch of
-        //:   'bsls::SystemTime::nowRealtimeClock'.
-        //:
-        //: 2 The epoch of 'bsl::monotonic_clock' matches the epoch of
-        //:   'bsls::SystemTime::nowMonotonicClock'.
+        // 1. The epoch of `bsl::realtime_clock` matches the epoch of
+        //    `bsls::SystemTime::nowRealtimeClock`.
+        //
+        // 2. The epoch of `bsl::monotonic_clock` matches the epoch of
+        //    `bsls::SystemTime::nowMonotonicClock`.
         //
         // Plan:
-        //: 1 For each clock, repeatedly measure the number of nanoseconds
-        //:   since the epoch and verify the 90% percentile of these
-        //:   differences is small.  (C-1,2)
+        // 1. For each clock, repeatedly measure the number of nanoseconds
+        //    since the epoch and verify the 90% percentile of these
+        //    differences is small.  (C-1,2)
         //
         // Testing:
-        //   CONCERN: clocks match those in 'bsls::SystemTime'
+        //   CONCERN: clocks match those in `bsls::SystemTime`
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nCLOCK TESTS"
@@ -440,7 +440,7 @@ int main(int argc, char *argv[])
         const int k_ITERATIONS = 50;
 
         if (verbose) {
-            printf("'bsl::chrono::system_clock' matches 'nowRealtimeClock'\n");
+            printf("`bsl::chrono::system_clock` matches `nowRealtimeClock`\n");
         }
         {
             int numSuccessCoarse = 0;
@@ -463,7 +463,7 @@ int main(int argc, char *argv[])
                     if (-k_THRESHOLD <= diff && k_THRESHOLD >= diff) {
 #else
                     if (-1050 <= diff && 950 >= diff) {
-                        // biased 50ns to account for duration of 'now' call
+                        // biased 50ns to account for duration of `now` call
 #endif
 
                         ++numSuccessFine;
@@ -479,7 +479,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             printf(
-                  "'bsl::chrono::steady_clock' matches 'nowMonotonicClock'\n");
+                  "`bsl::chrono::steady_clock` matches `nowMonotonicClock`\n");
         }
         {
             int numSuccessCoarse = 0;
@@ -496,7 +496,7 @@ int main(int argc, char *argv[])
                     &&  10 * k_NANOSECONDS_PER_SECOND >= diff) {
                     ++numSuccessCoarse;
                     if (-1050 <= diff && 950 >= diff) {
-                        // biased 50ns to account for duration of 'now' call
+                        // biased 50ns to account for duration of `now` call
 
                         ++numSuccessFine;
                     }
@@ -512,8 +512,8 @@ int main(int argc, char *argv[])
         if (false == (bsl::is_same<std::chrono::system_clock,
                                    bsl::chrono::system_clock>::value)) {
             if (verbose) {
-                printf("'std::chrono::system_clock' is not "
-                       "'bsl::chrono::system_clock'\n");
+                printf("`std::chrono::system_clock` is not "
+                       "`bsl::chrono::system_clock`\n");
             }
 
             int numSuccess = 0;
@@ -538,8 +538,8 @@ int main(int argc, char *argv[])
         if (false == (bsl::is_same<std::chrono::steady_clock,
                                    bsl::chrono::steady_clock>::value)) {
             if (verbose) {
-                printf("'std::chrono::steady_clock' is not "
-                       "'bsl::chrono::steady_clock'\n");
+                printf("`std::chrono::steady_clock` is not "
+                       "`bsl::chrono::steady_clock`\n");
             }
 
             int numSuccess = 0;
@@ -570,16 +570,16 @@ int main(int argc, char *argv[])
       // TESTING User-defined literal operators
       //
       // Concerns:
-      //: 1 That UDL operators correctly forward arguments to corresponding
-      //:   constructors of 'bsl::chrono::duration' objects.
-      //:
-      //: 2 That an access to UDL operators can be gained using either
-      //:   'bsl::literals', 'bsl::chrono_literals' or
-      //:   'bsl::literals::chrono_literals' namespaces.
+      // 1. That UDL operators correctly forward arguments to corresponding
+      //    constructors of `bsl::chrono::duration` objects.
+      //
+      // 2. That an access to UDL operators can be gained using either
+      //    `bsl::literals`, `bsl::chrono_literals` or
+      //    `bsl::literals::chrono_literals` namespaces.
       //
       // Plan:
-      //: 1 Verify that all UDL operators create expected chrono type objects
-      //:   having the expected values.
+      // 1. Verify that all UDL operators create expected chrono type objects
+      //    having the expected values.
       //
       // Testing:
       //   bsl::chrono::hours        operator "" _h  (unsigned long long);

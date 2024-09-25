@@ -24,12 +24,12 @@ namespace bsls {
 
 namespace {
 
+/// Print a formatted error message to `stderr` using the specified
+/// expression `text`, `file` name, and `line` number.  If either `text` or
+/// `file` is empty (""), or null (0), replace it with some informative,
+/// "human-readable" text, before formatting.
 static
 void printError(const char *text, const char *file, int line)
-    // Print a formatted error message to 'stderr' using the specified
-    // expression 'text', 'file' name, and 'line' number.  If either 'text' or
-    // 'file' is empty (""), or null (0), replace it with some informative,
-    // "human-readable" text, before formatting.
 {
     // Note that we deliberately use 'stdio' rather than 'iostream' to avoid
     // issues pertaining to memory allocation for file-scope 'static' objects
@@ -58,11 +58,11 @@ void printError(const char *text, const char *file, int line)
         text);
 }
 
+/// A minimalistic reference type to a non-null terminated string determined
+/// by a pointer and a length.  It is used to store the component name that
+/// is "parsed out" of a source file name (without copying it).  This
+/// reference type makes `areTheSameComponent` easier to understand.
 class ComponentName {
-    // A minimalistic reference type to a non-null terminated string determined
-    // by a pointer and a length.  It is used to store the component name that
-    // is "parsed out" of a source file name (without copying it).  This
-    // reference type makes 'areTheSameComponent' easier to understand.
 
   private:
     // DATA
@@ -71,42 +71,44 @@ class ComponentName {
 
   public:
     // CREATORS
+
+    /// Create an empty `ComponentName` object and fill it from the
+    /// specified `sourceFilename`.  If `sourceFilename` is 0 or points to
+    /// an empty string set this object to the empty state.  Otherwise if
+    /// parsing of `sourceFilename` succeeds fill this object to refer to
+    /// the resulting component name.  If parsing fails set this object to
+    /// the error state state, and print a brief error message to `stdout`.
+    /// The parsing expect `sourceFilename` to conform to Lakos Large Scale
+    /// C++ Design source file naming rules does not fully validate, so:
+    /// The resulting component name referred by this object may be a valid,
+    /// but unspecified string.
     explicit ComponentName(const char* sourceFilename);
-        // Create an empty 'ComponentName' object and fill it from the
-        // specified 'sourceFilename'.  If 'sourceFilename' is 0 or points to
-        // an empty string set this object to the empty state.  Otherwise if
-        // parsing of 'sourceFilename' succeeds fill this object to refer to
-        // the resulting component name.  If parsing fails set this object to
-        // the error state state, and print a brief error message to 'stdout'.
-        // The parsing expect 'sourceFilename' to conform to Lakos Large Scale
-        // C++ Design source file naming rules does not fully validate, so:
-        // The resulting component name referred by this object may be a valid,
-        // but unspecified string.
 
 
     // ACCESSORS
+
+    /// We use this method to indicate a null pointer source name string, as
+    /// well as empty source name strings, because there is no difference in
+    /// handling those two cases.
     bool isEmpty() const;
-        // We use this method to indicate a null pointer source name string, as
-        // well as empty source name strings, because there is no difference in
-        // handling those two cases.
 
+    /// For brevity we store errors as a non-zero `d_length` with a zero
+    /// `d_str_p` pointer.
     bool isError() const;
-        // For brevity we store errors as a non-zero 'd_length' with a zero
-        // 'd_str_p' pointer.
 
+    /// Return the number of characters of the component name referred by
+    /// this object.  Note that this function may return 0 if this object
+    /// is in the empty state, or an unspecified error code if this object
+    /// is in an error state, therefore is it not advised to use this
+    /// accessor if `isEmpty() || isError()`.
     size_t length() const;
-        // Return the number of characters of the component name referred by
-        // this object.  Note that this function may return 0 if this object
-        // is in the empty state, or an unspecified error code if this object
-        // is in an error state, therefore is it not advised to use this
-        // accessor if 'isEmpty() || isError()'.
 
+    /// Return the pointer to the first character of the component name.
+    /// Note that this function may return 0 (null pointer) if this object
+    /// is in the empty state or in an error state, therefore is it not
+    /// advised to use this accessor if `isEmpty() || isError()`.  Note that
+    /// the returned component name will not be null terminated.
     const char *str() const;
-        // Return the pointer to the first character of the component name.
-        // Note that this function may return 0 (null pointer) if this object
-        // is in the empty state or in an error state, therefore is it not
-        // advised to use this accessor if 'isEmpty() || isError()'.  Note that
-        // the returned component name will not be null terminated.
 };
 
 // CREATORS
@@ -151,25 +153,26 @@ const char* ComponentName::str() const
 }
 
 // FREE FUNCTIONS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `ComponentName` objects have the same
+/// value if their `length` is the same, and their `str` points to `length`
+/// characters that compare equal.  Since the compare operation dereferences
+/// this type, and this type has two non-reference values (empty and error):
+/// The behavior is undefined if either `lhs` or `rhs` is empty or an error.
 bool operator==(const ComponentName& lhs, const ComponentName& rhs)
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'ComponentName' objects have the same
-    // value if their 'length' is the same, and their 'str' points to 'length'
-    // characters that compare equal.  Since the compare operation dereferences
-    // this type, and this type has two non-reference values (empty and error):
-    // The behavior is undefined if either 'lhs' or 'rhs' is empty or an error.
 {
     return lhs.length() == rhs.length() &&
            0 == memcmp(lhs.str(), rhs.str(), lhs.length());
 }
 
+/// Return `true` if the specified `throwName` and `testName` component
+/// names are considered the same in testing:
+/// * If either of the names was missing, we assume they are the same.
+/// * If both component names are provided they must match, including case.
 static
 bool areTheSameComponent(const ComponentName& throwName,
                          const ComponentName& testName)
-    // Return 'true' if the specified 'throwName' and 'testName' component
-    // names are considered the same in testing:
-    //: o If either of the names was missing, we assume they are the same.
-    //: o If both component names are provided they must match, including case.
 {
     // For backwards compatibility reasons we do not verify if 'testName' is
     // actually a test driver, or if either is not the name of a subordinate

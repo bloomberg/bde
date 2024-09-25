@@ -14,8 +14,8 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 #include <string.h>
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
@@ -101,8 +101,8 @@ void aSsErT(bool condition, const char *message, int line)
 typedef BidirectionalLink         Link;
 typedef BidirectionalLinkListUtil Obj;
 
-// First, since 'Link' neither has a constructor nor is a POD (which would make
-// aggregate initialization possible), we create a function 'makeLink' to
+// First, since `Link` neither has a constructor nor is a POD (which would make
+// aggregate initialization possible), we create a function `makeLink` to
 // assemble a link from two pointers:
 
 Link makeLink(Link *prev, Link *next)
@@ -115,7 +115,7 @@ Link makeLink(Link *prev, Link *next)
 }
 
 // Then, we create a function that will, passed two links that are endpoints
-// of a linked list from the specified 'first' to 'last' though the 'nextLink'
+// of a linked list from the specified `first` to `last` though the `nextLink`
 // pointers, count the number of nodes in the list including both endpoints.
 
 int length(Link *first, Link *last)
@@ -135,21 +135,23 @@ struct Bucket {
     Link *d_last;
 
     // MANIPULATORS
-    void clone(const Bucket& bucket, bslma::Allocator *alloc = 0);
-        // Make a copy of the specified 'bucket' using the specified allocator
-        // 'alloc'.  Note that all links are copied, with new copies being
-        // allocated with the specified 'alloc'.
 
+    /// Make a copy of the specified `bucket` using the specified allocator
+    /// `alloc`.  Note that all links are copied, with new copies being
+    /// allocated with the specified `alloc`.
+    void clone(const Bucket& bucket, bslma::Allocator *alloc = 0);
+
+    /// Destroy the nodes in the list ranging from `this->d_first` to
+    /// `this->d_last`.  Note that if any surviving nodes are pointing at
+    /// either of those nodes, they will be left dangling.
     void destroy(bslma::Allocator *alloc = 0);
-        // Destroy the nodes in the list ranging from 'this->d_first' to
-        // 'this->d_last'.  Note that if any surviving nodes are pointing at
-        // either of those nodes, they will be left dangling.
 
     // ACCESSORS
+
+    /// Returns the number of nodes in the range `[ d_first, d_last ]`.  If
+    /// the bucket is not well-formed, and return a negative value.  This
+    /// should work for any bucket that is well-formed.
     int length() const;
-        // Returns the number of nodes in the range '[ d_first, d_last ]'.  If
-        // the bucket is not well-formed, and return a negative value.  This
-        // should work for any bucket that is well-formed.
 };
 
 void Bucket::clone(const Bucket& bucket, bslma::Allocator *alloc)
@@ -275,14 +277,14 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-// Next, in our 'main', we declare a 'typedef' for the component name and a
-// a constant 'invalid' garbage pointer we use when we want data to be garbage.
+// Next, in our `main`, we declare a `typedef` for the component name and a
+// a constant `invalid` garbage pointer we use when we want data to be garbage.
 
         typedef BidirectionalLinkListUtil Util;
         Link * const invalid = (Link *) 0XBADDEED5;
 
-// Then, we create a linked list of links and use 'isWellFormed' to verify
-// that it is well formed, and call the 'length' method we just created to
+// Then, we create a linked list of links and use `isWellFormed` to verify
+// that it is well formed, and call the `length` method we just created to
 // verify its length.
 
         Link usageData[] = {
@@ -294,15 +296,15 @@ int main(int argc, char *argv[])
         ASSERT(Util::isWellFormed(      &usageData[0], &usageData[3]));
         ASSERT(4 == length(&usageData[0], &usageData[3]));
 
-// Next, we create two new links 'front' and 'back', and initialize them with
+// Next, we create two new links `front` and `back`, and initialize them with
 // garbage:
 
         Link front = makeLink(invalid, invalid);
         Link back  = makeLink(invalid, invalid);
 
-// Then, we use our component's 'insertLinkBeforeTarget' and
-// 'insertLinkAfterTarget' to concatenate 'front' to the front of the list and
-// 'back' to its rear:
+// Then, we use our component's `insertLinkBeforeTarget` and
+// `insertLinkAfterTarget` to concatenate `front` to the front of the list and
+// `back` to its rear:
 
         Util::insertLinkBeforeTarget(&front, &usageData[0]);
         Util::insertLinkAfterTarget( &back,  &usageData[3]);
@@ -315,7 +317,7 @@ int main(int argc, char *argv[])
         ASSERT(Util::isWellFormed(          &front, &back));
         ASSERT(6 == length(&front, &back));
 
-// Then, we use our component's 'unlink' method to remove two nodes from our
+// Then, we use our component's `unlink` method to remove two nodes from our
 // list.  Note that the state of the removed nodes is undefined:
 
         Util::unlink(&usageData[1]);
@@ -328,14 +330,14 @@ int main(int argc, char *argv[])
         ASSERT(4 == length(&front, &back));
 
 // Then, we weave the two discarded nodes into a new, second list of two nodes,
-// and use 'isWellFormed' and 'length' to verify it is as we expect:
+// and use `isWellFormed` and `length` to verify it is as we expect:
 
         usageData[1] = makeLink(0, &usageData[3]);
         usageData[3] = makeLink(&usageData[1], 0);
         ASSERT(Util::isWellFormed(&usageData[1], &usageData[3]));
         ASSERT(2 ==        length(&usageData[1], &usageData[3]));
 
-// Next, we use our component's 'spliceListBeforeTarget' method to remove the
+// Next, we use our component's `spliceListBeforeTarget` method to remove the
 // middle nodes from the longer list and append them to the end of shorter
 // list.  Note that the splicing function not only adds the sequence to the new
 // list, it also splices the list the sequence is removed from so that both are
@@ -345,7 +347,7 @@ int main(int argc, char *argv[])
                                      &usageData[2],
                                      &usageData[3]);
 
-// Then, we use 'isWellFormed' and 'length' to verify the state of our two
+// Then, we use `isWellFormed` and `length` to verify the state of our two
 // lists:
 
         ASSERT(Util::isWellFormed(&usageData[1], &usageData[3]));
@@ -354,13 +356,13 @@ int main(int argc, char *argv[])
         ASSERT(Util::isWellFormed(&front, &back));
         ASSERT(2 ==        length(&front, &back));
 
-// Next, we call 'spliceListBeforeTarget' again to join our two lists into one:
+// Next, we call `spliceListBeforeTarget` again to join our two lists into one:
 
         Util::spliceListBeforeTarget(&usageData[1],
                                      &usageData[3],
                                      &back);
 
-// Now, we use 'isWellFormed' and 'length' to verify the state of our one
+// Now, we use `isWellFormed` and `length` to verify the state of our one
 // remaining list:
 
         ASSERT(Util::isWellFormed(&front, &back));
@@ -399,25 +401,25 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'spliceListBeforeTarget'
+        // TESTING `spliceListBeforeTarget`
         //
         // Concerns:
-        //: That the 'spliceListBeforeTarget' works correctly
+        //  That the `spliceListBeforeTarget` works correctly
         //
         // Plan:
         // Test all combinations of the following:
-        //: 1 Target is:
-        //:   o Zero.
-        //:   o The beginning of a list.
-        //:   o The last node of a list.
-        //: 2 Inserted is (A: a single node, B: a list of nodes)
-        //:   o By itself.
-        //:   o At the beginning of a list.
-        //:   o At the end of a list.
-        //:   o In the middle of a list.
+        // 1. Target is:
+        //    - Zero.
+        //    - The beginning of a list.
+        //    - The last node of a list.
+        // 2. Inserted is (A: a single node, B: a list of nodes)
+        //    - By itself.
+        //    - At the beginning of a list.
+        //    - At the end of a list.
+        //    - In the middle of a list.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'spliceListBeforeTarget'"
+        if (verbose) printf("\nTESTING `spliceListBeforeTarget`"
                             "\n================================\n");
 
         if (verbose) printf("insert single link, target == 0\n");
@@ -878,18 +880,18 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'insertLinkAfterTarget'
+        // TESTING `insertLinkAfterTarget`
         //
         // Concerns:
-        //: 1 That the function works correctly when 'target' is at the
-        //:   end of the list.
-        //: 2 That the function works correctly when 'target' is the only
-        //:   element in a list.
-        //: 3 That the function works correctly when 'target' is in the middle
-        //:   of a list.
+        // 1. That the function works correctly when `target` is at the
+        //    end of the list.
+        // 2. That the function works correctly when `target` is the only
+        //    element in a list.
+        // 3. That the function works correctly when `target` is in the middle
+        //    of a list.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'insertLinkAfterTarget'"
+        if (verbose) printf("\nTESTING `insertLinkAfterTarget`"
                             "\n===============================\n");
 
         Link bogusLink;
@@ -960,19 +962,19 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'insertLinkBeforeTarget'
+        // TESTING `insertLinkBeforeTarget`
         //
         // Concerns:
-        //: 1 That the function works correctly when '0 == target'.
-        //: 2 That the function works correctly when 'target' is at the
-        //:   beginning of the list.
-        //: 3 That the function works correctly when 'target' is the only
-        //:   element in a list.
-        //: 4 That the function works correctly when 'target' is in the middle
-        //:   of a list.
+        // 1. That the function works correctly when `0 == target`.
+        // 2. That the function works correctly when `target` is at the
+        //    beginning of the list.
+        // 3. That the function works correctly when `target` is the only
+        //    element in a list.
+        // 4. That the function works correctly when `target` is in the middle
+        //    of a list.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'insertLinkBeforeTarget'"
+        if (verbose) printf("\nTESTING `insertLinkBeforeTarget`"
                             "\n================================\n");
 
         Link bogusLink;
@@ -1052,18 +1054,18 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'unlink'
+        // TESTING `unlink`
         //
         // Concerns:
-        //: 1 'unlink' successfully removes a node in the middle of a list.
-        //: 2 'unlink' successfully removes a node at either end of the list.
+        // 1. `unlink` successfully removes a node in the middle of a list.
+        // 2. `unlink` successfully removes a node at either end of the list.
         //
         // Plan:
-        //: Clone 'linksBucket' and operate on cloned strings, being sure to
-        //: explicitly delete the 'unlinked' nodes.
+        //  Clone `linksBucket` and operate on cloned strings, being sure to
+        //  explicitly delete the `unlinked` nodes.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING 'unlink'\n"
+        if (verbose) printf("TESTING `unlink`\n"
                             "================\n");
 
         if (verbose) printf("unlink in middle of list\n");
@@ -1136,26 +1138,26 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING BUCKET: 'clone', 'destroy', AND 'length'
+        // TESTING BUCKET: `clone`, `destroy`, AND `length`
         //
         // Concern:
-        //: 1 That 'clone' accurately copies a bucket, and 'destroy'
-        //:   effectively destroys it.
-        //: 2 That 'length' accurately measures the length of a bucket.
+        // 1. That `clone` accurately copies a bucket, and `destroy`
+        //    effectively destroys it.
+        // 2. That `length` accurately measures the length of a bucket.
         //
         // Plan:
-        //: 1 Call 'length' on each bucket in the test data and verify we are
-        //:   getting the proper results.
-        //: 2 Clone a copy of the bucket using a test allocator, verify that
-        //:   'isWellFormed' and 'length' return the same values as they
-        //:   returned for the original bucket.
-        //: 3 Verify the ends of the list in the cloned bucket are 0.
-        //: 4 Call 'destroy'.  The test allocator will inform us of any
-        //:   redundant frees or leaked memory.
+        // 1. Call `length` on each bucket in the test data and verify we are
+        //    getting the proper results.
+        // 2. Clone a copy of the bucket using a test allocator, verify that
+        //    `isWellFormed` and `length` return the same values as they
+        //    returned for the original bucket.
+        // 3. Verify the ends of the list in the cloned bucket are 0.
+        // 4. Call `destroy`.  The test allocator will inform us of any
+        //    redundant frees or leaked memory.
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                       "\nTESTING BUCKET: 'clone', 'destroy', AND 'length'"
+                       "\nTESTING BUCKET: `clone`, `destroy`, AND `length`"
                        "\n================================================\n");
 
         enum { NUM_DATA                        = NUM_DEFAULT_DATA };
@@ -1199,13 +1201,13 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'isWellFormed'
+        // TESTING `isWellFormed`
         //
         // Concern:
-        //: 1 'isWellFormed' correctly assesses the state of ranges of links.
+        // 1. `isWellFormed` correctly assesses the state of ranges of links.
         //
         // Plan:
-        //: 1 Feed all combinations of ranges of links to 'isWellFormed
+        // 1. Feed all combinations of ranges of links to 'isWellFormed
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING i'isWellFormed'"
@@ -1230,11 +1232,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
+        // 1. Perform and ad-hoc test of the primary modifiers and accessors.
         //
         // Testing:
         //   BREATHING TEST
@@ -1257,8 +1259,8 @@ int main(int argc, char *argv[])
 // [  ] void insertLinkAfterTarget(Link *newNode, Link *target);
 // [  ] bool isWellFormed(Link *head, Link *tail);
 // [  ] void spliceListBeforeTarget(Link *first, Link *last, Link *target);
-        if(veryVerbose) printf("Testing 'insertLinkBeforeTarget'"
-                               " and 'unlink'\n");
+        if(veryVerbose) printf("Testing `insertLinkBeforeTarget`"
+                               " and `unlink`\n");
         {
             if(veryVeryVerbose) printf("Create H\n");
             Link head; Link *H = &head;
@@ -1365,8 +1367,8 @@ int main(int argc, char *argv[])
         ASSERTV(dm.isTotalSame());
         ASSERTV(om.isTotalSame());
 
-        if(veryVerbose) printf("Testing 'insertLinkAfterLink'"
-                               " and 'unlink'\n");
+        if(veryVerbose) printf("Testing `insertLinkAfterLink`"
+                               " and `unlink`\n");
         {
             if(veryVeryVerbose) printf("Create H\n");
             Link head; Link *H = &head;
@@ -1471,8 +1473,8 @@ int main(int argc, char *argv[])
         ASSERTV(dm.isTotalSame());
         ASSERTV(om.isTotalSame());
 
-        if(veryVerbose) printf("Testing 'insertLinkAfterLink'"
-                               " and 'unlink'\n");
+        if(veryVerbose) printf("Testing `insertLinkAfterLink`"
+                               " and `unlink`\n");
         {
 
             Link head1; Link *H1 = &head1;

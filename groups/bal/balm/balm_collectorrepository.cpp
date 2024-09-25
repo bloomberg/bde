@@ -55,29 +55,30 @@ namespace balm {
                     // class CollectorRepository_Collectors
                     // ====================================
 
+/// This implementation class provides a container mechanism for managing a
+/// set of objects of templatized type `COLLECTOR` that are all associated
+/// with a single metric.  The behavior is undefined unless the templatized
+/// type `COLLECTOR` is either `Collector` or
+/// `IntegerCollector`.  A `CollectorRepository_Collectors`
+/// object is supplied a `MetricId` at construction, and provides a
+/// default `COLLECTOR` as well as a set of additional `COLLECTOR` objects
+/// for the identified metric.  Additional `COLLECTOR` objects (beyond the
+/// default) can be added using the `addCollector` method.  A
+/// `collectAndReset` method is provided to obtain the aggregate value of
+/// all the owned collectors and reset those collectors to their default
+/// state.
 template <class COLLECTOR>
 class CollectorRepository_Collectors {
-    // This implementation class provides a container mechanism for managing a
-    // set of objects of templatized type 'COLLECTOR' that are all associated
-    // with a single metric.  The behavior is undefined unless the templatized
-    // type 'COLLECTOR' is either 'Collector' or
-    // 'IntegerCollector'.  A 'CollectorRepository_Collectors'
-    // object is supplied a 'MetricId' at construction, and provides a
-    // default 'COLLECTOR' as well as a set of additional 'COLLECTOR' objects
-    // for the identified metric.  Additional 'COLLECTOR' objects (beyond the
-    // default) can be added using the 'addCollector' method.  A
-    // 'collectAndReset' method is provided to obtain the aggregate value of
-    // all the owned collectors and reset those collectors to their default
-    // state.
 
     // PRIVATE TYPES
-    typedef bsl::shared_ptr<COLLECTOR>               Collector;
-        // A 'Collector' object is a shared pointer to an object of the
-        // templatized type 'COLLECTOR'.
 
+    /// A `Collector` object is a shared pointer to an object of the
+    /// templatized type `COLLECTOR`.
+    typedef bsl::shared_ptr<COLLECTOR>               Collector;
+
+    /// A `CollectorSet` is a set of shared pointers to objects of the
+    /// templatized type `COLLECTOR`.
     typedef bsl::set<Collector>                      CollectorSet;
-        // A 'CollectorSet' is a set of shared pointers to objects of the
-        // templatized type 'COLLECTOR'.
 
     // DATA
     COLLECTOR         d_defaultCollector;  // default collector
@@ -95,63 +96,66 @@ class CollectorRepository_Collectors {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create a `CollectorRepository_Collectors` object to hold
+    /// objects of the templatized type `COLLECTOR` for the specified
+    /// `metricId`.   Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The behavior is undefined unless the
+    /// templatized type `COLLECTOR` is either `Collector` or
+    /// `IntegerCollector`, and `metricId.isValid()` is `true`.
     CollectorRepository_Collectors(const MetricId&   metricId,
                                    bslma::Allocator *basicAllocator = 0);
-        // Create a 'CollectorRepository_Collectors' object to hold
-        // objects of the templatized type 'COLLECTOR' for the specified
-        // 'metricId'.   Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The behavior is undefined unless the
-        // templatized type 'COLLECTOR' is either 'Collector' or
-        // 'IntegerCollector', and 'metricId.isValid()' is 'true'.
 
+    /// Destroy this object.
     ~CollectorRepository_Collectors();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Return a pointer to the default collector.  Note that this method
+    /// will return a valid address.
     COLLECTOR *defaultCollector();
-        // Return a pointer to the default collector.  Note that this method
-        // will return a valid address.
 
+    /// Add a new collector to the set of additional collectors and return
+    /// a shared pointer to the newly-added collector.  Note that this
+    /// method will return a valid pointer.
     bsl::shared_ptr<COLLECTOR> addCollector();
-        // Add a new collector to the set of additional collectors and return
-        // a shared pointer to the newly-added collector.  Note that this
-        // method will return a valid pointer.
 
+    /// Remove the specified `collector` from this container.  Return 0 on
+    /// success or a non-zero value if `collector` was not returned from a
+    /// call to `addCollector` on this object, or has previously been
+    /// removed.
     int removeCollector(COLLECTOR *collector);
-        // Remove the specified 'collector' from this container.  Return 0 on
-        // success or a non-zero value if 'collector' was not returned from a
-        // call to 'addCollector' on this object, or has previously been
-        // removed.
 
+    /// Load into the specified `record` the aggregate value of all the
+    /// records collected by the collectors owned by this object; then
+    /// reset those collectors to their default values.  Note that all
+    /// collectors within this object record values for the same metric id,
+    /// so they can be aggregated into a single record.
     void collectAndReset(MetricRecord *record);
-        // Load into the specified 'record' the aggregate value of all the
-        // records collected by the collectors owned by this object; then
-        // reset those collectors to their default values.  Note that all
-        // collectors within this object record values for the same metric id,
-        // so they can be aggregated into a single record.
 
+    /// Load into the specified `record` the aggregate value of all the
+    /// records collected by the collectors owned by this object.  Note
+    /// that all collectors within this object record values for the same
+    /// metric id, so they can be aggregated into a single record.  Also
+    /// note that because this operation does not reset the collectors,
+    /// subsequent `collect` invocations will effectively re-collect the
+    /// current values.
     void collect(MetricRecord *record);
-        // Load into the specified 'record' the aggregate value of all the
-        // records collected by the collectors owned by this object.  Note
-        // that all collectors within this object record values for the same
-        // metric id, so they can be aggregated into a single record.  Also
-        // note that because this operation does not reset the collectors,
-        // subsequent 'collect' invocations will effectively re-collect the
-        // current values.
 
     // ACCESSORS
+
+    /// Append to the specified `collectors` all the collectors that have
+    /// been added to this object (via the `addCollector` method)  and not
+    /// subsequently removed.  Return the number of collectors that were
+    /// found.
     template <class VECTOR>
     int getAddedCollectors(VECTOR *collectors) const;
-        // Append to the specified 'collectors' all the collectors that have
-        // been added to this object (via the 'addCollector' method)  and not
-        // subsequently removed.  Return the number of collectors that were
-        // found.
 
+    /// Return a reference to the non-modifiable `MetricId` object
+    /// identifying the metric for which the collectors in this container
+    /// are collecting values.
     const MetricId& metricId() const;
-        // Return a reference to the non-modifiable 'MetricId' object
-        // identifying the metric for which the collectors in this container
-        // are collecting values.
 };
 
                 // --------------------------------------------
@@ -259,15 +263,15 @@ CollectorRepository_Collectors<COLLECTOR>::metricId() const
                  // class CollectorRepository_MetricCollectors
                  // ==========================================
 
+/// This implementation class provides a container mechanism for managing
+/// the `Collector` and `IntegerCollector` objects associated with a single
+/// metric.  The `collector` and `intCollector` methods are provided to
+/// access the individual containers for `Collector` objects and
+/// `IntegerCollector` objects, respectively.   The `collectAndReset` method
+/// obtains the aggregate value of all the owned collectors and integer
+/// collectors, and then resets those collectors and integer collectors to
+/// their default state.
 class CollectorRepository_MetricCollectors {
-    // This implementation class provides a container mechanism for managing
-    // the 'Collector' and 'IntegerCollector' objects associated with a single
-    // metric.  The 'collector' and 'intCollector' methods are provided to
-    // access the individual containers for 'Collector' objects and
-    // 'IntegerCollector' objects, respectively.   The 'collectAndReset' method
-    // obtains the aggregate value of all the owned collectors and integer
-    // collectors, and then resets those collectors and integer collectors to
-    // their default state.
 
     // PRIVATE TYPES
     typedef CollectorRepository_Collectors<Collector>
@@ -290,57 +294,60 @@ class CollectorRepository_MetricCollectors {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create a `CollectorRepository_MetricCollectors` object to hold
+    /// collector and integer collector objects for the specified
+    /// `metricId`.   Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The behavior is undefined unless
+    /// `metricId.isValid()` is `true`.
     CollectorRepository_MetricCollectors(const MetricId&   id,
                                          bslma::Allocator *basicAllocator = 0);
-        // Create a 'CollectorRepository_MetricCollectors' object to hold
-        // collector and integer collector objects for the specified
-        // 'metricId'.   Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  The behavior is undefined unless
-        // 'metricId.isValid()' is 'true'.
 
+    /// Destroy this object.
     ~CollectorRepository_MetricCollectors();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Return a reference to the modifiable container of `Collector`
+    /// objects.
     CollectorRepository_Collectors<Collector>& collectors();
-        // Return a reference to the modifiable container of 'Collector'
-        // objects.
 
+    /// Return a reference to the modifiable container of
+    /// `IntegerCollector` objects.
     CollectorRepository_Collectors<IntegerCollector>& intCollectors();
-        // Return a reference to the modifiable container of
-        // 'IntegerCollector' objects.
 
+    /// Load into the specified `record` the aggregate value of all the
+    /// records collected by the collectors owned by this object; then
+    /// reset those collectors to their default values.  Note that all
+    /// collectors within this object record values for the same metric id,
+    /// so they can be aggregated into a single record.
     void collectAndReset(MetricRecord *record);
-        // Load into the specified 'record' the aggregate value of all the
-        // records collected by the collectors owned by this object; then
-        // reset those collectors to their default values.  Note that all
-        // collectors within this object record values for the same metric id,
-        // so they can be aggregated into a single record.
 
+    /// Load into the specified `record` the aggregate value of all the
+    /// records collected by the collectors owned by this object.  Note
+    /// that all collectors within this object record values for the same
+    /// metric id, so they can be aggregated into a single record.  Also
+    /// note that because this operation does not reset the collectors,
+    /// subsequent `collect` invocations will effectively re-collect the
+    /// current values.
     void collect(MetricRecord *record);
-        // Load into the specified 'record' the aggregate value of all the
-        // records collected by the collectors owned by this object.  Note
-        // that all collectors within this object record values for the same
-        // metric id, so they can be aggregated into a single record.  Also
-        // note that because this operation does not reset the collectors,
-        // subsequent 'collect' invocations will effectively re-collect the
-        // current values.
 
     // ACCESSORS
-    const CollectorRepository_Collectors<Collector>& collectors() const;
-        // Return a reference to the non-modifiable container of 'Collector'
-        // objects.
 
+    /// Return a reference to the non-modifiable container of `Collector`
+    /// objects.
+    const CollectorRepository_Collectors<Collector>& collectors() const;
+
+    /// Return a reference to the non-modifiable container of
+    /// `IntegerCollector` objects.
     const CollectorRepository_Collectors<IntegerCollector>&
                                                          intCollectors() const;
-        // Return a reference to the non-modifiable container of
-        // 'IntegerCollector' objects.
 
+    /// Return a reference to the non-modifiable `MetricId` object
+    /// identifying the metric for which the collectors in this container
+    /// are collecting values.
     const MetricId& metricId() const;
-        // Return a reference to the non-modifiable 'MetricId' object
-        // identifying the metric for which the collectors in this container
-        // are collecting values.
 };
 
                  // ------------------------------------------

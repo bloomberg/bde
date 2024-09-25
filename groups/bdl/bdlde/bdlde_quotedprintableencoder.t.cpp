@@ -3,9 +3,9 @@
 
 #include <bslim_testutil.h>
 
-#include <bsl_cctype.h>    // 'isprint', 'toupper', etc.
-#include <bsl_cstdlib.h>   // 'atoi'
-#include <bsl_cstring.h>   // 'memset'
+#include <bsl_cctype.h>    // `isprint`, `toupper`, etc.
+#include <bsl_cstdlib.h>   // `atoi`
+#include <bsl_cstring.h>   // `memset`
 #include <bsl_iostream.h>
 #include <bsl_limits.h>    // INT_MAX
 #include <bsl_sstream.h>
@@ -20,39 +20,39 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// This encoder is a kind of 'mechanism' that can be customized at
+// This encoder is a kind of `mechanism` that can be customized at
 // construction.  Since there is currently no prevision to change this
 // customization after construction, the choice for primary constructor must
 // permit permits this customization:
-//..
+// ```
 //  bdlde_quotedprintableencoder(int maxLineLength);
-//..
+// ```
 // The primary manipulators are those needed to reach every attainable state.
-// Clearly 'convert' is one, but 'endConvert' is also needed in order to reach
-// the 'DONE' state.  Hence, the primary manipulators are
-//..
+// Clearly `convert` is one, but `endConvert` is also needed in order to reach
+// the `DONE` state.  Hence, the primary manipulators are
+// ```
 //  int convert(char *out, int *numOut, int *ni, const char *b, const char *e);
 //  int endConvert(char *out, int *numOut);
-//..
-// Though not strictly primary, the 'reset' method resets the object to its
+// ```
+// Though not strictly primary, the `reset` method resets the object to its
 // initial state (i.e., to that immediately following construction).  It will
-// turn out to be convenient to test 'reset' along with all the other state
-// transitions imposed by 'convert' and 'endConvert' early in the testing
+// turn out to be convenient to test `reset` along with all the other state
+// transitions imposed by `convert` and `endConvert` early in the testing
 // process.
 //
 // The basic accessers for the encoder are all the functions that return
 // information about the customization and/or execution state:
-//..
+// ```
 //  bool isAccepting() const;
 //  bool isError() const;
 //  bool isInitialState() const;
 //  int maxLineLength() const;
 //  char* lineBreakMode const;
 //  int outputLength() const;
-//..
+// ```
 // The following table illustrates major state transitions for all three of the
 // processing manipulators:
-//..
+// ```
 //                      convert (1)     endConvert      reset
 //                      -----------     ----------      ----------
 //      INITIAL_STATE:  State 1         DONE_STATE      INITIAL_STATE
@@ -61,20 +61,20 @@ using namespace bsl;  // automatically added by script
 //      State 3:        State 1         DONE_STATE      INITIAL_STATE
 //      DONE_STATE:     ERROR_STATE     ERROR_STATE     INITIAL_STATE
 //      ERROR_STATE:    ERROR_STATE     ERROR_STATE     INITIAL_STATE
-//..
+// ```
 // Our first step will be to ensure that each of these states can be reached
-// ('::setState'), that an anticipated state can be verified ('::isState'), and
-// that each of the above state transitions (including 'reset') is verified.
+// (`::setState`), that an anticipated state can be verified (`::isState`), and
+// that each of the above state transitions (including `reset`) is verified.
 // Next, we will ensure that each internal table is correct.  Finally, using
 // category partitioning, we enumerate a representative collection of inputs
 // ordered by length (plus MaxLineLength) that will be sufficient to prove that
 // the logic associated with the state machine is performing as desired.
 //
-// Note that Because the 'convert' and 'endConvert' methods are parametrized
+// Note that Because the `convert` and `endConvert` methods are parametrized
 // based on iterator types, we will want to ensure (at compile time) that their
 // respective implementations do not depend on more than minimal iterator
 // functionality.  We will accomplish this goal by supplying, as template
-// arguments, 'bdeut::InputIterator' for 'convert' and 'bdeut::OutputIterator'
+// arguments, `bdeut::InputIterator` for `convert` and `bdeut::OutputIterator`
 // for both of these template methods.
 //
 // ----------------------------------------------------------------------------
@@ -96,8 +96,8 @@ using namespace bsl;  // automatically added by script
 // [  ] USAGE EXAMPLE
 // [ ?] That the input iterator can have *minimal* functionality.
 // [ ?] That the output iterator can have *minimal* functionality.
-// [ 5] BOOTSTRAP: 'convert' - transitions
-// [ 4] BOOTSTRAP: 'endConvert'- transitions
+// [ 5] BOOTSTRAP: `convert` - transitions
+// [ 4] BOOTSTRAP: `endConvert`- transitions
 // [ 3] That we can reach each of the major processing states.
 // [ 1] ::myMin(const T& a, const T& b);
 // [ 1] ::printCharN(ostream& output, const char* sequence, int length)
@@ -212,40 +212,40 @@ class StateAccessor {
     bdlde::QuotedPrintableEncoder *d_object_p;
 
   public:
+    /// Construct an instance of `StateAccessor` which sets and examine the
+    /// internal states of the specified `object`.  Note that the `object`
+    /// must be newly constructed and remain in its initial state if the
+    /// initial state needs to be one of the accessible states.
     explicit
     StateAccessor(bdlde::QuotedPrintableEncoder *object)
-        // Construct an instance of 'StateAccessor' which sets and examine the
-        // internal states of the specified 'object'.  Note that the 'object'
-        // must be newly constructed and remain in its initial state if the
-        // initial state needs to be one of the accessible states.
     : d_object_p(object)
     { }
 
+    /// Make a state transition by passing the specified `input` character
+    /// to the encapsulated encoder.
     void makeStateTransitionOnInput(char input);
-        // Make a state transition by passing the specified 'input' character
-        // to the encapsulated encoder.
 
+    /// Make a state transition by passing the end of input signal to the
+    /// encapsulated encoder.
     void makeStateTransitionOnEndInput();
-        // Make a state transition by passing the end of input signal to the
-        // encapsulated encoder.
 
+    /// Move the specified `object` from its initial (i.e., newly
+    /// constructed) state to the specified `state` using '\0' characters
+    /// for input as needed.  The behavior is undefined if `object` is not
+    /// in its newly-constructed initial state.  Note that when this
+    /// function is invoked on a newly constructed object, it is presumed
+    /// that `isInitialState` has been sufficiently tested to ensure that it
+    /// returns `true`.
     void setState(State state);
-        // Move the specified 'object' from its initial (i.e., newly
-        // constructed) state to the specified 'state' using '\0' characters
-        // for input as needed.  The behavior is undefined if 'object' is not
-        // in its newly-constructed initial state.  Note that when this
-        // function is invoked on a newly constructed object, it is presumed
-        // that 'isInitialState' has been sufficiently tested to ensure that it
-        // returns 'true'.
 
+    /// Return `true` if the specified `object` was initially in the
+    /// specified `state`, and `false` otherwise.  Setting the global
+    /// variable `globalAssertsEnabled` to `true` enables individual
+    /// sub-conditions to be ASSERTed, which can be used to facilitate test
+    /// driver debugging.  Note that the final state of `object` may (and
+    /// probably will) be modified arbitrarily from its initial state in
+    /// order to distinguish similar states.
     bool isState(State state) const;
-        // Return 'true' if the specified 'object' was initially in the
-        // specified 'state', and 'false' otherwise.  Setting the global
-        // variable 'globalAssertsEnabled' to 'true' enables individual
-        // sub-conditions to be ASSERTed, which can be used to facilitate test
-        // driver debugging.  Note that the final state of 'object' may (and
-        // probably will) be modified arbitrarily from its initial state in
-        // order to distinguish similar states.
 
     static int numState()
     {
@@ -287,11 +287,11 @@ void StateAccessor::setState(State state)
     ASSERT(state < NUM_STATES);
 
     if (!d_object_p->isInitialState()) { cout
-     << "You must not call 'setState' from other than 'INITIAL_STATE'!" << endl
-     << "\tNote that '::isState' *will* alter from the initial state." << endl;
+     << "You must not call `setState` from other than `INITIAL_STATE`!" << endl
+     << "\tNote that `::isState` *will* alter from the initial state." << endl;
     }
 
-    // If 'd_object_p' is "just created" then this assertion should be true!
+    // If `d_object_p` is "just created" then this assertion should be true!
     ASSERT(d_object_p->isInitialState());
 
     char b[4];
@@ -374,22 +374,22 @@ void StateAccessor::setState(State state)
                         // Function isState
                         // ================
 
+/// If set to true, will enable ASSERTs in `::isState` (for debugging).
 static bool globalAssertsEnabled = false;
-    // If set to true, will enable ASSERTs in '::isState' (for debugging).
 
+/// Enable/Disable `::isState` ASSERTs for current scope; restore status at
+/// end.  Note that guards can be nested.
 class EnabledGuard {
-    // Enable/Disable '::isState' ASSERTs for current scope; restore status at
-    // end.  Note that guards can be nested.
 
     bool d_state;
 
   public:
+    /// Create a guard to control the activation of individual assertions in
+    /// the `::isState` test helper function using the specified enable
+    /// `flag` value.  If `flag` is `true` individual false values we be
+    /// reported as assertion errors.
     explicit
     EnabledGuard(bool flag)
-        // Create a guard to control the activation of individual assertions in
-        // the '::isState' test helper function using the specified enable
-        // 'flag' value.  If 'flag' is 'true' individual false values we be
-        // reported as assertion errors.
     : d_state(globalAssertsEnabled) { globalAssertsEnabled = flag; }
 
     ~EnabledGuard() { globalAssertsEnabled = d_state; }
@@ -630,15 +630,15 @@ bool StateAccessor::isState(State state) const
                    // Equivalence-Class Related Data Types
                    // ====================================
 
+/// Range is made inclusive to support a point.
 struct Range {
-    // Range is made inclusive to support a point.
 
     unsigned char start;
     unsigned char end;
 };
 
+///
 struct EquivalenceClass {
-    //
 
     string        d_name;
     vector<Range> d_ranges;
@@ -747,8 +747,8 @@ class StateTransitionMatrix {
                       // Function findEquivalenceClass
                       // =============================
 
+/// Find the equivalence class to which the specified `ch` belongs.
 const EquivalenceClass& findEquivalenceClass(char ch)
-    // Find the equivalence class to which the specified 'ch' belongs.
 {
     if (ch == '\t' || ch == ' ') {
         return whitespace;                                            // RETURN
@@ -782,11 +782,11 @@ T myMin(const T& a, const T& b)
                               // Function isHex
                               // ==============
 
+/// Return `true` is the specified `ch` is a hexadecimal digit.  Note that
+/// only uppercase letters are allowed since this function is only used to
+/// check output from the converter being tested.
 inline
 bool isHex(char ch)
-    // Return 'true' is the specified 'ch' is a hexadecimal digit.  Note that
-    // only uppercase letters are allowed since this function is only used to
-    // check output from the converter being tested.
 {
     return ('0' <= ch && ch <= '9') || ('A' <= ch && ch <= 'F');
 }
@@ -795,12 +795,12 @@ bool isHex(char ch)
                            // Function printCharN
                            // ===================
 
+/// Print the specified character `sequence` of specified `length` to the
+/// specified `stream` and return a reference to the modifiable `stream` (if
+/// a character is not printable, its hexadecimal code is printed instead).
+/// The behavior is undefined unless 0 <= `length` and sequence refers to a
+/// valid area of memory of size at least `length`.
 ostream& printCharN(ostream& output, const char* sequence, int length)
-    // Print the specified character 'sequence' of specified 'length' to the
-    // specified 'stream' and return a reference to the modifiable 'stream' (if
-    // a character is not printable, its hexadecimal code is printed instead).
-    // The behavior is undefined unless 0 <= 'length' and sequence refers to a
-    // valid area of memory of size at least 'length'.
 {
     static char HEX[] = "0123456789ABCDEF";
 
@@ -817,12 +817,12 @@ ostream& printCharN(ostream& output, const char* sequence, int length)
     return output << flush;
 }
 
+/// Print the specified character `sequence` of specified `length` to the
+/// specified `stream` and return a reference to the modifiable `stream` (if
+/// a character is not printable, its hexadecimal code is printed instead).
+/// The behavior is undefined unless 0 <= `length` and sequence refers to a
+/// valid area of memory of size at least `length`.
 string printHex(const char* sequence, int length)
-    // Print the specified character 'sequence' of specified 'length' to the
-    // specified 'stream' and return a reference to the modifiable 'stream' (if
-    // a character is not printable, its hexadecimal code is printed instead).
-    // The behavior is undefined unless 0 <= 'length' and sequence refers to a
-    // valid area of memory of size at least 'length'.
 {
     static char HEX[] = "0123456789ABCDEF";
     string str;
@@ -843,10 +843,10 @@ string printHex(const char* sequence, int length)
     return str;
 }
 
+/// Place in the specified `hex` the hexadecimal representation of the
+/// specified `ch` of the `unsigned char` type, up to the specified `numOut`
+/// characters.
 void charToHex(char* hex, unsigned char ch, int numOut)
-    // Place in the specified 'hex' the hexadecimal representation of the
-    // specified 'ch' of the 'unsigned char' type, up to the specified 'numOut'
-    // characters.
 {
     static char HEX[] = "0123456789ABCDEF";
 
@@ -865,23 +865,23 @@ void charToHex(char* hex, unsigned char ch, int numOut)
                         // Function setState
                         // =================
 
+/// Move the specified `object` from its initial (i.e., newly constructed)
+/// state to the specified `state` using '\0' characters for input as
+/// needed.  The behavior is undefined if `object` is not in its
+/// newly-constructed initial state.  Note that when this function is
+/// invoked on a newly constructed object, it is presumed that
+/// `isInitialState` has been sufficiently tested to ensure that it returns
+/// `true`.
 void setState(bdlde::QuotedPrintableEncoder *object, int state)
-    // Move the specified 'object' from its initial (i.e., newly constructed)
-    // state to the specified 'state' using '\0' characters for input as
-    // needed.  The behavior is undefined if 'object' is not in its
-    // newly-constructed initial state.  Note that when this function is
-    // invoked on a newly constructed object, it is presumed that
-    // 'isInitialState' has been sufficiently tested to ensure that it returns
-    // 'true'.
 {
     ASSERT(object); ASSERT(0 <= state); ASSERT(state < NUM_STATES);
 
     if (!object->isInitialState()) { cout
-     << "You must not call 'setState' from other than 'INITIAL_STATE'!" << endl
-     << "\tNote that '::isState' *will* alter from the initial state." << endl;
+     << "You must not call `setState` from other than `INITIAL_STATE`!" << endl
+     << "\tNote that `::isState` *will* alter from the initial state." << endl;
     }
 
-    ASSERT(object->isInitialState()); // If 'object' is "just created" then
+    ASSERT(object->isInitialState()); // If `object` is "just created" then
                                       // this assertion should be true!
 
     char b[4];
@@ -964,14 +964,14 @@ void setState(bdlde::QuotedPrintableEncoder *object, int state)
                         // Function isState
                         // ================
 
+/// Return `true` if the specified `object` was initially in the specified
+/// `state`, and `false` otherwise.  Setting the global variable
+/// `globalAssertsEnabled` to `true` enables individual sub-conditions to be
+/// ASSERTed, which can be used to facilitate test driver debugging.  Note
+/// that the final state of `object` may (and probably will) be modified
+/// arbitrarily from its initial state in order to distinguish similar
+/// states.
 bool isState(bdlde::QuotedPrintableEncoder *object, int state)
-    // Return 'true' if the specified 'object' was initially in the specified
-    // 'state', and 'false' otherwise.  Setting the global variable
-    // 'globalAssertsEnabled' to 'true' enables individual sub-conditions to be
-    // ASSERTed, which can be used to facilitate test driver debugging.  Note
-    // that the final state of 'object' may (and probably will) be modified
-    // arbitrarily from its initial state in order to distinguish similar
-    // states.
 {
     ASSERT(object); ASSERT(0 <= state); ASSERT(state < NUM_STATES);
 
@@ -1268,11 +1268,11 @@ const char* getStateInText(bdlde::QuotedPrintableEncoder *object)
                            // class InputIterator
                            // ===================
 
+/// This class provides an minimal iterator-like interface that can be used
+/// to test encoding/decoding automata that cannot rely on input iterators
+/// having random-access semantics.  The postfix increment operator is
+/// deliberately omitted (but may be added locally where desired).
 class InputIterator {
-    // This class provides an minimal iterator-like interface that can be used
-    // to test encoding/decoding automata that cannot rely on input iterators
-    // having random-access semantics.  The postfix increment operator is
-    // deliberately omitted (but may be added locally where desired).
 
     const char *d_pointer_p;
 
@@ -1280,41 +1280,44 @@ class InputIterator {
 
   public:
     // CREATORS
+
+    /// Create an iterator referring the specified `source` character.
     explicit
     InputIterator(const char *source);
-        // Create an iterator referring the specified 'source' character.
 
+    /// Crate an iterator having the same value as that of the specified
+    /// `original` iterator.
     InputIterator(const InputIterator& original);
-        // Crate an iterator having the same value as that of the specified
-        // 'original' iterator.
 
     // MANIPULATORS
-    InputIterator& operator=(const InputIterator& rhs);
-        // Assign the value of the specified 'rhs' iterator to this one.
 
+    /// Assign the value of the specified `rhs` iterator to this one.
+    InputIterator& operator=(const InputIterator& rhs);
+
+    /// Advance this iterator to refer to the next position in the sequence;
+    /// the behavior is undefined if this iterator does not refer initially
+    /// to a valid element position.
     void operator++();
-        // Advance this iterator to refer to the next position in the sequence;
-        // the behavior is undefined if this iterator does not refer initially
-        // to a valid element position.
 
     // ACCESSORS
+
+    /// Return the character at the current position; the behavior is
+    /// undefined if this iterator does not refer initially to a valid
+    /// element position.
     char operator*() const;
-        // Return the character at the current position; the behavior is
-        // undefined if this iterator does not refer initially to a valid
-        // element position.
 };
 
 // FREE OPERATORS
 
+/// Return `true` if the specified `lhs` and `rhs` iterators refer to the
+/// same element, and `false` otherwise.
 inline
 bool operator==(const InputIterator& lhs, const InputIterator& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' iterators refer to the
-    // same element, and 'false' otherwise.
 
+/// Return `true` if the specified `lhs` and `rhs` iterators do note refer
+/// to same element, and `false` otherwise.
 inline
 bool operator!=(const InputIterator& lhs, const InputIterator& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' iterators do note refer
-    // to same element, and 'false' otherwise.
 
 InputIterator::InputIterator(const char *source)
 : d_pointer_p(source)
@@ -1355,11 +1358,11 @@ bool operator!=(const InputIterator& lhs, const InputIterator& rhs)
                            // class OutputIterator
                            // ====================
 
+/// This class provides an minimal iterator-like interface that can be used
+/// to test encoding/decoding automata that cannot rely on output iterators
+/// having random-access semantics.  The postfix increment operator is
+/// deliberately omitted (but may be added locally where desired).
 class OutputIterator {
-    // This class provides an minimal iterator-like interface that can be used
-    // to test encoding/decoding automata that cannot rely on output iterators
-    // having random-access semantics.  The postfix increment operator is
-    // deliberately omitted (but may be added locally where desired).
 
     char *d_pointer_p;
 
@@ -1367,41 +1370,44 @@ class OutputIterator {
 
   public:
     // CREATORS
+
+    /// Create an iterator referring the specified `source` character.
     explicit
     OutputIterator(char *source);
-        // Create an iterator referring the specified 'source' character.
 
+    /// Crate an iterator having the same value as that of the specified
+    /// `original` iterator.
     OutputIterator(const OutputIterator& original);
-        // Crate an iterator having the same value as that of the specified
-        // 'original' iterator.
 
     // MANIPULATORS
-    OutputIterator& operator=(const OutputIterator& rhs);
-        // Assign the value of the specified 'rhs' iterator to this one.
 
+    /// Assign the value of the specified `rhs` iterator to this one.
+    OutputIterator& operator=(const OutputIterator& rhs);
+
+    /// Advance this iterator to refer to the next position in the sequence;
+    /// the behavior is undefined if this iterator does not refer initially
+    /// to a valid element position.
     void operator++();
-        // Advance this iterator to refer to the next position in the sequence;
-        // the behavior is undefined if this iterator does not refer initially
-        // to a valid element position.
 
     // ACCESSORS
+
+    /// Return a reference to the modifiable character at the current
+    /// position; the behavior is undefined if this iterator does not refer
+    /// initially to a valid element position.
     char& operator*() const;
-        // Return a reference to the modifiable character at the current
-        // position; the behavior is undefined if this iterator does not refer
-        // initially to a valid element position.
 };
 
 // FREE OPERATORS
 
+/// Return `true` if the specified `lhs` and `rhs` iterators refer to the
+/// same element, and `false` otherwise.
 inline
 bool operator==(const OutputIterator& lhs, const OutputIterator& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' iterators refer to the
-    // same element, and 'false' otherwise.
 
+/// Return `true` if the specified `lhs` and `rhs` iterators do note refer
+/// to same element, and `false` otherwise.
 inline
 bool operator!=(const OutputIterator& lhs, const OutputIterator& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' iterators do note refer
-    // to same element, and 'false' otherwise.
 
 OutputIterator::OutputIterator(char *source)
 : d_pointer_p(source)
@@ -1460,21 +1466,21 @@ int main(int argc, char *argv[])
       case 9: {
         // --------------------------------------------------------------------
         // RESET
-        //   Verify the 'reset' method.
+        //   Verify the `reset` method.
         //
         // Concerns:
-        //   - That 'reset' method returns the object to its initial state
+        //   - That `reset` method returns the object to its initial state
         //     (i.e., the same as it was immediately after construction).
         //   - That the initial configuration is not altered.
         //
         // Plan:
         //   - Use put the object in each state and verify the expected
         //      state is not/is in the initial state before/after the call to
-        //      'reset'.
+        //      `reset`.
         //   - Verify that the initial configuration has not changed.
         //   - Repeat the above with a different configuration.
         //   - Verify that if there are characters specified to be encoded,
-        //     they have not changed after 'reset' until the 3-parameter
+        //     they have not changed after `reset` until the 3-parameter
         //     constructor is verified (in case 7).
         //
         // Tactics:
@@ -1489,9 +1495,9 @@ int main(int argc, char *argv[])
                           << "RESET" << endl
                           << "=====" << endl;
 
-        if (verbose) cout << "\nVerify 'reset'." << endl;
+        if (verbose) cout << "\nVerify `reset`." << endl;
 
-        V("In CRLF_MODE and 'maxLineLength' = 0 (actually INT_MAX)");
+        V("In CRLF_MODE and `maxLineLength` = 0 (actually INT_MAX)");
         {
             for (int i = 0; i < NUM_STATES; ++i) {
                 Obj obj(Obj::e_CRLF_MODE);
@@ -1508,7 +1514,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        V("In MIXED_MODE and with 'maxLineLength' = 5.");
+        V("In MIXED_MODE and with `maxLineLength` = 5.");
         {
             for (int i = 0; i < NUM_STATES; ++i) {
                 Obj obj(Obj::e_MIXED_MODE, 5);
@@ -1528,7 +1534,7 @@ int main(int argc, char *argv[])
       case 8: {
         // --------------------------------------------------------------------
         // PRIMARY MANIPULATORS.
-        //   Complete the testing of 'convert' and 'endConvert'.
+        //   Complete the testing of `convert` and `endConvert`.
         //
         // Concerns:
         //   - That the return status is correct.
@@ -1544,15 +1550,15 @@ int main(int argc, char *argv[])
         //      first output limit; the second input and output limit will
         //      be chosen ad hoc.
         //      + Not supplying an output limit has the value -1.
-        //      + Not supplying an input (implying 'endConvert') is also valued
-        //         at -1 (hence, an unlimited 'endConvert' will value to -2).
+        //      + Not supplying an input (implying `endConvert`) is also valued
+        //         at -1 (hence, an unlimited `endConvert` will value to -2).
         //
         //  - Treat special cases "ad hoc" following the regular sequences
         //     for each depth category:
         //     + terminal sequence involving = and ==.
-        //     + sequences where 'convert' follows 'convert'
-        //     + sequences where 'convert' must first emit delayed output.
-        //     + sequences where 'endConvert' has a limit with delayed output.
+        //     + sequences where `convert` follows `convert`
+        //     + sequences where `convert` must first emit delayed output.
+        //     + sequences where `endConvert` has a limit with delayed output.
         //
         // Tactics:
         //   - Category Partitioning, Depth-Ordered Enumeration, and Ad Hoc
@@ -1573,9 +1579,9 @@ int main(int argc, char *argv[])
         const int D = DONE_STATE;
         const int E = ERROR_STATE;
 
-        const char *const END_INPUT = 0;  // Used to indicate 'endConvert'
+        const char *const END_INPUT = 0;  // Used to indicate `endConvert`
                                           // should be called instead of
-                                          // 'convert'.
+                                          // `convert`.
         const int _ = -1;
 
         const char *N = END_INPUT;        // alias
@@ -1587,7 +1593,7 @@ int main(int argc, char *argv[])
                 int d_lineNum;          // source line number
 
                 const char *d_input1_p; // input characters (null terminated)
-                                        // Note: 0 implies call to 'endConvert'
+                                        // Note: 0 implies call to `endConvert`
                 int d_limit1;           // output limit 1
                 int d_return1;          // status after call to first function
                 int d_state1;           // state after call to first function
@@ -1595,7 +1601,7 @@ int main(int argc, char *argv[])
                 int d_numIn1;           // # bytes read by first function.
 
                 const char *d_input2_p; // input characters (null terminated)
-                                        // Note: 0 implies call to 'endConvert'
+                                        // Note: 0 implies call to `endConvert`
                 int d_limit2;           // output limit 2
                 int d_return2;          // status after call to second function
                 int d_state2;           // state after call to second function
@@ -1633,7 +1639,7 @@ int main(int argc, char *argv[])
 { L_, "AB",      -1, 0, 3, 2, 2, N,         -1, 0, D, 0, _,"AB"              },
 { L_, "\r\n",    -1, 0, 3, 2, 2, N,         -1, 0, D, 0, _,"\r\n"            },
 
-// *** Testing 'convert' following 'convert'.
+// *** Testing `convert` following `convert`.
 { L_, "A",        0, 0, 0, 0, 0, "",        -1, 0, 0, 0, 0,""                },
 
 { L_, "A",        0, 0, 0, 0, 0, "",         0, 0, 0, 0, 0,""                },
@@ -1688,12 +1694,12 @@ int main(int argc, char *argv[])
 { L_, "AAAQ",     0, 3, 4, 0, 4, N,         -1, 0, D, 3, _,"\x00\x00\x10"    },
 { L_, "AAAgQ",   -1, 0, 1, 3, 5, N,         -1,-1, E, 0, _,"\x00\x00\x20"    },
 
-// *** Verify '=' and '==' variants.
+// *** Verify '=' and `==` variants.
                                                                         // 4.-2
 { L_, "AAE=",     0, 2, S, 0, 4, N,         -1, 0, D, 2, _,"\x00\x01"        },
 { L_, "AQ==",     0, 1, S, 0, 4, N,         -1, 0, D, 1, _,"\x01"            },
 
-// *** Testing 'endConvert' following 'convert' with delayed output.
+// *** Testing `endConvert` following `convert` with delayed output.
                                                                         // 4.-1
 { L_, "AAAg",     0, 3, 4, 0, 4, N,          0, 3, S, 0, _,""                },
 { L_, "AAE=",     0, 2, S, 0, 4, N,          0, 2, S, 0, _,""                },
@@ -1714,7 +1720,7 @@ int main(int argc, char *argv[])
 { L_, "AAE=",     0, 2, S, 0, 4, N,          3, 0, D, 2, _,"\x00\x01"        },
 { L_, "AQ==",     0, 1, S, 0, 4, N,          3, 0, D, 1, _,"\x01"            },
 
-// *** Testing 'convert' following 'convert' with delayed output.
+// *** Testing `convert` following `convert` with delayed output.
                                                                         // 4.-1
 { L_, "AAAg",     0, 3, 4, 0, 4, "",        -1, 0, 4, 3, 0,"\x00\x00\x20"    },
 
@@ -1849,12 +1855,12 @@ int main(int argc, char *argv[])
 { L_, "AAAgQ",    0, 3, 4, 0, 4, N,         -1, 0, D, 3, _,"\x00\x00\x20"    },
 { L_, "AAAgAQ",  -1, 0, 2, 4, 6, N,         -1,-1, E, 0, _,"\x00\x00\x20\x01"},
 
-// *** Verify '=' and '==' variants.
+// *** Verify '=' and `==` variants.
                                                                         // 5.-2
 { L_, "AAE=",     1, 1, S, 1, 4, N,         -1, 0, D, 1, _,"\x00\x01"        },
 { L_, "AQ==",     1, 0, S, 1, 4, N,         -1, 0, D, 0, _,"\x01"            },
 
-// *** Testing 'endConvert' following 'convert' with delayed output.
+// *** Testing `endConvert` following `convert` with delayed output.
                                                                         // 5.-1
 { L_, "AAAg",     1, 2, 4, 1, 4, N,          0, 2, S, 0, _,"\x00"            },
 { L_, "AAE=",     1, 1, S, 1, 4, N,          0, 1, S, 0, _,""                },
@@ -1875,7 +1881,7 @@ int main(int argc, char *argv[])
 { L_, "AAE=",     1, 1, S, 1, 4, N,          3, 0, D, 1, _,"\x00\x01"        },
 { L_, "AQ==",     1, 0, S, 1, 4, N,          3, 0, D, 0, _,"\x01"            },
 
-// *** Testing 'convert' following 'convert' with delayed output.
+// *** Testing `convert` following `convert` with delayed output.
                                                                         // 5.-1
 { L_, "AAAg",     1, 2, 4, 1, 4, "",        -1, 0, 4, 2, 0,"\x00\x00\x20"    },
 
@@ -2015,12 +2021,12 @@ int main(int argc, char *argv[])
 { L_, "AAAgAAQ", -1, 0, 3, 5, 7, N,         -1,-1, E, 0, _,"\x00\x00\x20"
                                                            "\x00\x04"        },
 
-// *** Verify '=' and '==' variants.
+// *** Verify '=' and `==` variants.
                                                                         // 6.-2
 { L_, "AAE=",     2, 0, S, 2, 4, N,         -1, 0, D, 0, _,"\x00\x01"        },
 { L_, "AQ==",     2, 0, S, 1, 4, N,         -1, 0, D, 0, _,"\x01"            },
 
-// *** Testing 'endConvert' following 'convert' with delayed output.
+// *** Testing `endConvert` following `convert` with delayed output.
                                                                         // 6.-1
 { L_, "AAAg",     2, 1, 4, 2, 4, N,          0, 1, S, 0, _,"\x00\x00"        },
 { L_, "AAE=",     2, 0, S, 2, 4, N,          0, 0, D, 0, _,"\x00\x01"        },
@@ -2041,7 +2047,7 @@ int main(int argc, char *argv[])
 { L_, "AAE=",     2, 0, S, 2, 4, N,          3, 0, D, 0, _,"\x00\x01"        },
 { L_, "AQ==",     2, 0, S, 1, 4, N,          3, 0, D, 0, _,"\x01"            },
 
-// *** Testing 'convert' following 'convert' with delayed output.
+// *** Testing `convert` following `convert` with delayed output.
                                                                         // 6.-1
 { L_, "AAAg",     2, 1, 4, 2, 4, "",        -1, 0, 4, 1, 0,"\x00\x00\x20"    },
 
@@ -2185,13 +2191,13 @@ int main(int argc, char *argv[])
 { L_, "AAAgAAQ",  0, 3, 4, 0, 4, N,         -1, 0, D, 3, _,"\x00\x00\x20"    },
 { L_, "AAAgAAAQ",-1, 0, 4, 6, 8, N,         -1, 0, D, 0, _,"\x00\x00\x20"
                                                            "\x00\x00\x10"    },
-// *** Verify '=' and '==' variants.
+// *** Verify '=' and `==` variants.
                                                                         // 7.-2
 { L_, "AAAgAAE=",-1, 0, S, 5, 8, N,         -1, 0, D, 0, _,"\x00\x00\x20"
                                                            "\x00\x01"        },
 { L_, "AAAgAQ==",-1, 0, S, 4, 8, N,         -1, 0, D, 0, _,"\x00\x00\x20\x01"},
 
-// *** Testing 'endConvert' following 'convert' with delayed output.
+// *** Testing `endConvert` following `convert` with delayed output.
 
                                                                         // 7.-1
 { L_, "AAAg",     3, 0, 4, 3, 4, N,          0, 0, D, 0, _,"\x00\x00\x20"    },
@@ -2213,7 +2219,7 @@ int main(int argc, char *argv[])
 { L_, "AAE=",     3, 0, S, 2, 4, N,          3, 0, D, 0, _,"\x00\x01"        },
 { L_, "AQ==",     3, 0, S, 1, 4, N,          3, 0, D, 0, _,"\x01"            },
 
-// *** Testing 'convert' following 'convert' with delayed output.
+// *** Testing `convert` following `convert` with delayed output.
                                                                         // 7.-1
 { L_, "AAAg",     3, 0, 4, 3, 4, "",        -1, 0, 4, 0, 0,"\x00\x00\x20"    },
 
@@ -2362,7 +2368,7 @@ int main(int argc, char *argv[])
 { L_, "AAAgAAAQ", 0, 3, 4, 0, 4, N,         -1, 0, D, 3, _,"\x00\x00\x20"    },
 { L_, "AAAgAAAwQ",-1,0, 1, 6, 9, N,         -1,-1, E, 0, _,"\x00\x00\x20"
                                                            "\x00\x00\x30"    },
-// *** Verify '=' and '==' variants.
+// *** Verify '=' and `==` variants.
                                                                         // 8.-2
 { L_, "AAAgAAE=", 0, 3, 4, 0, 4, N,         -1, 0, D, 3, _,"\x00\x00\x20"    },
 { L_, "AAAgAQ==", 0, 3, 4, 0, 4, N,         -1, 0, D, 3, _,"\x00\x00\x20"    },
@@ -2380,7 +2386,7 @@ int main(int argc, char *argv[])
 { L_, "AAAgAAAQ", 1, 2, 1, 1, 5, N,         -1,-1, E, 0, _,"\x00"            },
 { L_, "AAAgAAAwQ",0, 3, 4, 0, 4, N,         -1, 0, D, 3, _,"\x00\x00\x20"    },
 
-// *** Verify '=' and '==' variants.
+// *** Verify '=' and `==` variants.
                                                                         // 9.-2
 { L_, "AAAgAAE=", 1, 2, 1, 1, 5, N,         -1,-1, E, 0, _,"\x00"            },
 { L_, "AAAgAQ==", 1, 2, 1, 1, 5, N,         -1,-1, E, 0, _,"\x00"            },
@@ -2397,7 +2403,7 @@ int main(int argc, char *argv[])
 { L_, "AAAgAAAQ", 2, 2, 2, 2, 6, N,         -1,-1, E, 0, _,"\x00\x00"        },
 { L_, "AAAgAAAwQ",1, 2, 1, 1, 5, N,         -1,-1, E, 0, _,"\x00"            },
 
-// *** Verify '=' and '==' variants.
+// *** Verify '=' and `==` variants.
                                                                        // 10.-2
 { L_, "AAAgAAE=", 2, 2, 2, 2, 6, N,         -1,-1, E, 0, _,"\x00\x00"        },
 { L_, "AAAgAQ==", 2, 2, 2, 2, 6, N,         -1,-1, E, 0, _,"\x00\x00"        },
@@ -2414,7 +2420,7 @@ int main(int argc, char *argv[])
                                                            "\x00\x00\x10"    },
 { L_, "AAAgAAAwQ",2, 2, 2, 2, 6, N,         -1,-1, E, 0, _,"\x00\x00"        },
 
-// *** Verify '=' and '==' variants.
+// *** Verify '=' and `==` variants.
                                                                        // 11.-2
 { L_, "AAAgAAE=", 3, 2, S, 3, 8, N,         -1, 0, D, 2, _,"\x00\x00\x20"
                                                            "\x00\x01"        },
@@ -2432,7 +2438,7 @@ int main(int argc, char *argv[])
                                                            "\x00\x00\x10"    },
 { L_, "AAAgAAAwQ",3, 3, 4, 3, 8, N,         -1, 0, D, 3, _,"\x00\x00\x20"
                                                            "\x00\x00\x30"    },
-// *** Verify '=' and '==' variants.
+// *** Verify '=' and `==` variants.
                                                                        // 12.-2
 { L_, "AAAgAAE=", 4, 1, S, 4, 8, N,         -1, 0, D, 1, _,"\x00\x00\x20"
                                                            "\x00\x01"        },
@@ -2449,7 +2455,7 @@ int main(int argc, char *argv[])
                                                            "\x00\x00\x10"    },
 { L_, "AAAgAAAwQ",4, 2, 1, 4, 9, N,         -1,-1, E, 0, _,"\x00\x00\x20\x00"},
 
-// *** Verify '=' and '==' variants.
+// *** Verify '=' and `==` variants.
                                                                        // 13.-2
 { L_, "AAAgAAE=", 5, 0, S, 5, 8, N,         -1, 0, D, 0, _,"\x00\x00\x20"
                                                            "\x00\x01"        },
@@ -2581,7 +2587,7 @@ int main(int argc, char *argv[])
                 char outputBuffer[OUTPUT_BUFFER_SIZE];
                 memset(outputBuffer, '?', sizeof outputBuffer);
 
-                // *** Prepare to process first 'convert' or 'endConvert'. ***
+                // *** Prepare to process first `convert` or `endConvert`. ***
 
                 int totalOut = 0;
                 int totalIn = 0;  (void)totalIn;
@@ -2625,7 +2631,7 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(LINE, N_OUT1, nOut1, N_OUT1 == nOut1);
                 LOOP3_ASSERT(LINE, N_IN1, nIn1, N_IN1 == nIn1);
 
-                // *** Prepare to process second 'convert' or 'endConvert'. ***
+                // *** Prepare to process second `convert` or `endConvert`. ***
 
                 b += totalOut;
 
@@ -2703,7 +2709,7 @@ int main(int argc, char *argv[])
       case 7: {
         // --------------------------------------------------------------------
         // PRIMARY MANIPULATORS WITH DEFAULT ARGUMENTS.
-        //   Continue testing 'convert' and 'endConvert' with defaults
+        //   Continue testing `convert` and `endConvert` with defaults
         //   arguments.
         //
         // Concerns:
@@ -3971,7 +3977,7 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(LINE, IN_LEN == nIn);
 
-                // Prepare to call 'endConvert'.
+                // Prepare to call `endConvert`.
                 int totalOut = nOut;
                 b += nOut;
                 LOOP_ASSERT(LINE, 0 == obj.endConvert(b, &nOut));
@@ -4049,7 +4055,7 @@ int main(int argc, char *argv[])
                         LOOP2_ASSERT(LINE, index, 0 == res1);
                     }
 
-                    // Prepare for second call to 'convert'.
+                    // Prepare for second call to `convert`.
                     int localTotalIn = localNumIn;
                     int localTotalOut = localNumOut;
                     lb += localNumOut;
@@ -4072,7 +4078,7 @@ int main(int argc, char *argv[])
                         LOOP2_ASSERT(LINE, index, 0 == res2);
                     }
 
-                    // Prepare to call 'endConvert'.
+                    // Prepare to call `endConvert`.
                     localTotalIn  += localNumIn;
                     localTotalOut += localNumOut;
                     lb += localNumOut;
@@ -4453,7 +4459,7 @@ encoded.");
                     if (veryVerbose) { T_ T_ P(i) }
                     input = static_cast<char>(i);
 
-                    VVV("Verify '\\r' is encoded in LF_MODE.");
+                    VVV("Verify `\\r` is encoded in LF_MODE.");
                     {
                         char b[4] = { IV, IV, IV, IV };
                         Obj obj(Obj::e_LF_MODE);
@@ -4474,7 +4480,7 @@ encoded.");
                         LOOP_ASSERT(i, IV     == b[3]);
                     }
 
-                    VVV("Verify delayed encoding of a stand-alone '\\r'");
+                    VVV("Verify delayed encoding of a stand-alone `\\r`");
                     VVV("in CRLF_MODE.");
                     {
                         char b[4] = { IV, IV, IV, IV };
@@ -4491,7 +4497,7 @@ encoded.");
                         LOOP_ASSERT(i, IV     == b[3]);
                     }
 
-                    VVV("Verify delayed encoding of a stand-alone '\\r'");
+                    VVV("Verify delayed encoding of a stand-alone `\\r`");
                     VVV("in MIXED_MODE.");
                     {
                         char b[4] = { IV, IV, IV, IV };
@@ -4518,13 +4524,13 @@ encoded.");
                     // construction.
 
                     VVV("Repeat all 3 tests above to verify there is no");
-                    VVV("effect of specifying '\\n' to be encoded at");
+                    VVV("effect of specifying `\\n` to be encoded at");
                     VVV("construction.");
 
                     encode[0] = static_cast<char>(i);
                     encode[1] = 0;
 
-                    VVV("Verify '\\r' is encoded in LF_MODE.");
+                    VVV("Verify `\\r` is encoded in LF_MODE.");
                     {
                         char b[4] = { IV, IV, IV, IV };
                         Obj obj(encode, Obj::e_LF_MODE);
@@ -4545,7 +4551,7 @@ encoded.");
                         LOOP_ASSERT(i, IV     == b[3]);
                     }
 
-                    VVV("Verify delayed encoding of a stand-alone '\\r'");
+                    VVV("Verify delayed encoding of a stand-alone `\\r`");
                     VVV("in CRLF_MODE.");
                     {
                         char b[4] = { IV, IV, IV, IV };
@@ -4562,7 +4568,7 @@ encoded.");
                         LOOP_ASSERT(i, IV     == b[3]);
                     }
 
-                    VVV("Verify delayed encoding of a stand-alone '\\r'");
+                    VVV("Verify delayed encoding of a stand-alone `\\r`");
                     VVV("in MIXED_MODE.");
                     {
                         char b[4] = { IV, IV, IV, IV };
@@ -4595,7 +4601,7 @@ encoded.");
                     if (veryVerbose) { T_ T_ P(i) }
                     input = static_cast<char>(i);
 
-                    VVV("Verify a stand-alone '\\n' is encoded in CRLF_MODE.");
+                    VVV("Verify a stand-alone `\\n` is encoded in CRLF_MODE.");
                     {
                         char b[4] = { IV, IV, IV, IV };
                         Obj obj(Obj::e_CRLF_MODE);
@@ -4644,7 +4650,7 @@ encoded.");
                         LOOP_ASSERT(i, IV   == b[3]);
                     }
 
-                    VVV("Verify '\\n' is output as CRLF in LF_MODE.");
+                    VVV("Verify `\\n` is output as CRLF in LF_MODE.");
                     {
                         char b[4] = { IV, IV, IV, IV };
                         Obj obj(Obj::e_LF_MODE);
@@ -4663,7 +4669,7 @@ encoded.");
                         LOOP_ASSERT(i, IV   == b[3]);
                     }
 
-                    VVV("Verify '\\n' is output as CRLF in MIXED_MODE.");
+                    VVV("Verify `\\n` is output as CRLF in MIXED_MODE.");
                     {
                         char b[4] = { IV, IV, IV, IV };
                         Obj obj(Obj::e_MIXED_MODE);
@@ -4683,13 +4689,13 @@ encoded.");
                     }
 
                     VVV("Repeat all 4 tests above to verify there is no");
-                    VVV("effect of specifying '\\n' to be encoded at");
+                    VVV("effect of specifying `\\n` to be encoded at");
                     VVV("construction.");
 
                     encode[0] = static_cast<char>(i);
                     encode[1] = 0;
 
-                    VVV("Verify a stand-alone '\\n' is encoded in CRLF_MODE.");
+                    VVV("Verify a stand-alone `\\n` is encoded in CRLF_MODE.");
                     {
                         char b[4] = { IV, IV, IV, IV };
                         Obj obj(encode, Obj::e_CRLF_MODE);
@@ -4737,7 +4743,7 @@ encoded.");
                         LOOP_ASSERT(i, IV   == b[3]);
                     }
 
-                    VVV("Verify '\\n' is output as CRLF in LF_MODE.");
+                    VVV("Verify `\\n` is output as CRLF in LF_MODE.");
                     {
                         char b[4] = { IV, IV, IV, IV };
                         Obj obj(encode, Obj::e_LF_MODE);
@@ -4756,7 +4762,7 @@ encoded.");
                         LOOP_ASSERT(i, IV   == b[3]);
                     }
 
-                    VVV("Verify '\\n' is output as CRLF in MIXED_MODE.");
+                    VVV("Verify `\\n` is output as CRLF in MIXED_MODE.");
                     {
                         char b[4] = { IV, IV, IV, IV };
                         Obj obj(encode, Obj::e_MIXED_MODE);
@@ -4840,11 +4846,11 @@ encoded.");
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // BOOTSTRAP: 'convert' - transitions
-        //   Verify 'convert' transitions for all states.
+        // BOOTSTRAP: `convert` - transitions
+        //   Verify `convert` transitions for all states.
         //
         // Concerns:
-        //   - That we reach the correct final state after calling 'convert'.
+        //   - That we reach the correct final state after calling `convert`.
         //   - That convert with empty input does not change state.
         //   - That convert with multiple inputs is identical to multiple
         //      calls with the same input.
@@ -4855,7 +4861,7 @@ encoded.");
         // Plan:
         //   For inputs counts of increasing value starting with 0, put the
         //   object in each of the possible states, supply an input of the
-        //   current length and, after calling 'convert', verify that the
+        //   current length and, after calling `convert`, verify that the
         //   return code and state are as expected, and that all of the input
         //   was consumed.
         //
@@ -4864,14 +4870,14 @@ encoded.");
         //   - Table-Based Implementation Technique
         //
         // Testing:
-        //  BOOTSTRAP: 'convert' - transitions
+        //  BOOTSTRAP: `convert` - transitions
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "BOOTSTRAP: 'convert' - transitions" << endl
+                          << "BOOTSTRAP: `convert` - transitions" << endl
                           << "===================================" << endl;
 
-        if (verbose) cout << "\nVerify 'convert' - transitions." << endl;
+        if (verbose) cout << "\nVerify `convert` - transitions." << endl;
         {
             static const struct {
                 int d_lineNum;          // source line number
@@ -4964,30 +4970,30 @@ encoded.");
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // BOOTSTRAP: 'endConvert' - transitions
-        //   Verify 'endConvert' transitions for all states.
+        // BOOTSTRAP: `endConvert` - transitions
+        //   Verify `endConvert` transitions for all states.
         //
         // Concerns:
         //   - That we reach the correct final state after calling
-        //     'endConvert'.
+        //     `endConvert`.
         //
         // Plan:
         //   Put the object in each state and verify the expected state is
-        //   correct after the call to 'endConvert'.
+        //   correct after the call to `endConvert`.
         //
         // Tactics:
         //   - Area Data Selection Method
         //   - Table-Based Implementation Technique
         //
         // Testing:
-        //  BOOTSTRAP: 'endConvert' - transitions
+        //  BOOTSTRAP: `endConvert` - transitions
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "BOOTSTRAP: 'endConvert' - transitions" << endl
+                          << "BOOTSTRAP: `endConvert` - transitions" << endl
                           << "=====================================" << endl;
 
-        if (verbose) cout << "\nVerify 'endConvert' - transitions." << endl;
+        if (verbose) cout << "\nVerify `endConvert` - transitions." << endl;
         {
             static const struct {
                 int d_lineNum;          // source line number
@@ -5045,20 +5051,20 @@ encoded.");
         //
         // Plan:
         //   First make sure that when we are in the initial (i.e., newly
-        //   constructed) state, 'isInitialState()' returns 'true' (so that
-        //   the assertion that 'isInitialState()' does not fail before we have
+        //   constructed) state, `isInitialState()` returns `true` (so that
+        //   the assertion that `isInitialState()` does not fail before we have
         //   had an opportunity to test it explicitly).
         //
         //   Second, using the Brute-Force approach, reach each of the major
         //   states from a newly constructed object as simply as possible
-        //   (i.e., by processing one character at a time) via the '::setState'
+        //   (i.e., by processing one character at a time) via the `::setState`
         //   test helper function.  Then use all of the (as yet untested)
         //   processing accessors to help verify the new state.  Additionally,
         //   call one or more manipulators to change the state (thereby
         //   creating a partial *Distinguishing* *Sequence*) in order to
         //   further verify that the targeted state was reached.
         //
-        //   Third, prove that the '::isState' helper function (implemented
+        //   Third, prove that the `::isState` helper function (implemented
         //   using the above strategy) correctly confirms the indicated state
         //   by showing that, for each state, only the corresponding state
         //   setting returns true.
@@ -5339,7 +5345,7 @@ encoded.");
                     const bool SAME = i == j;
                     if (veryVeryVerbose) { T_ T_ T_ P(SAME) }
 
-                    EnabledGuard Guard(SAME); // Enable individual '::isState'
+                    EnabledGuard Guard(SAME); // Enable individual `::isState`
                                               // ASSERTs in order to facilitate
                                               // debugging.
 
@@ -5554,7 +5560,7 @@ encoded.");
             P_(int('=')); P((void*)'=');
         }
 
-        if (verbose) cout << "\nTry 'printCharN' test helper function." <<endl;
+        if (verbose) cout << "\nTry `printCharN` test helper function." <<endl;
         {
             ostringstream out;
 

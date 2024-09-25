@@ -33,18 +33,18 @@ using namespace bsl;
 // TBD
 //
 // Primary Manipulators:
-//: o TBD
+//  - TBD
 //
 // Basic Accessors:
-//: o TBD
+//  - TBD
 //
 // Global Concerns:
-//: o The test driver is robust w.r.t. reuse in other, similar components.
-//: o ACCESSOR methods are declared 'const'.
-//: o CREATOR/MANIPULATOR/OPERATOR ptr./ref. parameters are declared 'const'.
-//: o No memory is ever allocated from the global allocator.
-//: o No memory is ever allocated from the default allocator.
-//: o Precondition violations are detected in appropriate build modes.
+//  - The test driver is robust w.r.t. reuse in other, similar components.
+//  - ACCESSOR methods are declared `const`.
+//  - CREATOR/MANIPULATOR/OPERATOR ptr./ref. parameters are declared `const`.
+//  - No memory is ever allocated from the global allocator.
+//  - No memory is ever allocated from the default allocator.
+//  - Precondition violations are detected in appropriate build modes.
 // ----------------------------------------------------------------------------
 // CREATORS
 // [  ] UserFields(Allocator *ba = 0);
@@ -167,44 +167,45 @@ BSLMF_ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'ball::UserFields'
+///Example 1: Basic Use of `ball::UserFields`
 /// - - - - - - - - - - - - - - - - - - - - -
-// In the following example we demonstrate populating a 'ball::UserFields'
+// In the following example we demonstrate populating a `ball::UserFields`
 // object with a sequence of field values.
 //
-// First, we define the signature for a callback, 'populateUserFields'.  Most
-// often 'ball::UserFields' objects are populated by a callback, such as the
-// one described by the 'ball::LoggerManagerConfiguration'
-// 'UserFieldsPopulatorCallback'.
-//..
+// First, we define the signature for a callback, `populateUserFields`.  Most
+// often `ball::UserFields` objects are populated by a callback, such as the
+// one described by the `ball::LoggerManagerConfiguration`
+// `UserFieldsPopulatorCallback`.
+// ```
+
+    /// Populate the specified `fields` with the username and current task
+    /// identifier.  The behavior is undefined unless `fields` is empty.
     void populateLoggingFields(ball::UserFields *fields)
-        // Populate the specified 'fields' with the username and current task
-        // identifier.  The behavior is undefined unless 'fields' is empty.
     {
-//..
-// Next, we assert the precondition that 'fields' is empty:
-//..
+// ```
+// Next, we assert the precondition that `fields` is empty:
+// ```
       BSLS_ASSERT(0 == fields->length());
-//..
-// Now, we populate the 'fields' object with the username and current task
+// ```
+// Now, we populate the `fields` object with the username and current task
 // identifier (for the purpose of illustration, these are simply constants):
-//..
+// ```
       static const char               *TEST_USER = "testUser";
       static const bsls::Types::Int64  TEST_TASK = 4315;
 //
       fields->appendString(TEST_USER);
       fields->appendInt64(TEST_TASK);
-//..
-// Finally, for the purposes of illustration, we verify that 'fields' has been
+// ```
+// Finally, for the purposes of illustration, we verify that `fields` has been
 // set correctly:
-//..
+// ```
       ASSERT(2              == fields->length());
       ASSERT(Type::e_STRING == fields->value(0).type());
       ASSERT(TEST_USER      == fields->value(0).theString());
       ASSERT(Type::e_INT64  == fields->value(1).type());
       ASSERT(TEST_TASK      == fields->value(1).theInt64());
     }
-//..
+// ```
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -222,7 +223,7 @@ int main(int argc, char *argv[])
 
     // CONCERN: This test driver is reusable w/other, similar components.
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -242,13 +243,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -276,61 +277,61 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // PRINT AND OUTPUT OPERATOR (<<)
         //   Ensure that the value of the object can be formatted appropriately
-        //   on an 'ostream' in some standard, human-readable form.
+        //   on an `ostream` in some standard, human-readable form.
         //
         // Concerns:
-        //: 1 The 'print' method writes the value to the specified 'ostream'.
-        //:
-        //: 2 The 'print' method writes the value in the intended format.
-        //:
-        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)'.
-        //:
-        //: 4 The 'print' method's signature and return type are standard.
-        //:
-        //: 5 The 'print' method returns the supplied 'ostream'.
-        //:
-        //: 6 The optional 'level' and 'spacesPerLevel' parameters have the
-        //:   correct default values (0 and 4, respectively).
-        //:
-        //: 7 The output 'operator<<'s signature and return type are standard.
-        //:
-        //: 8 The output 'operator<<' returns the destination 'ostream'.
+        // 1. The `print` method writes the value to the specified `ostream`.
+        //
+        // 2. The `print` method writes the value in the intended format.
+        //
+        // 3. The output using `s << obj` is the same as `obj.print(s, 0, -1)`.
+        //
+        // 4. The `print` method's signature and return type are standard.
+        //
+        // 5. The `print` method returns the supplied `ostream`.
+        //
+        // 6. The optional `level` and `spacesPerLevel` parameters have the
+        //    correct default values (0 and 4, respectively).
+        //
+        // 7. The output `operator<<`s signature and return type are standard.
+        //
+        // 8. The output `operator<<` returns the destination `ostream`.
         //
         // Plan:
-        //: 1 Use the addresses of the 'print' member function and 'operator<<'
-        //:   free function defined in this component to initialize,
-        //:   respectively, member-function and free-function pointers having
-        //:   the appropriate signatures and return types.  (C-4, 7)
-        //:
-        //: 2 Using the table-driven technique:  (C-1..3, 5..6, 8)
-        //:
-        //:   1 Define fourteen carefully selected combinations of (two) object
-        //:     values ('A' and 'B'), having distinct values, and various
-        //:     values for the two formatting parameters, along with the
-        //:     expected output.
-        //:
-        //:     ( 'value' x  'level'   x 'spacesPerLevel' ):
-        //:     1 { A   } x {  0     } x {  0, 1, -1, -8 } --> 3 expected o/ps
-        //:     2 { A   } x {  3, -3 } x {  0, 2, -2, -8 } --> 6 expected o/ps
-        //:     3 { B   } x {  2     } x {  3            } --> 1 expected o/p
-        //:     4 { A B } x { -8     } x { -8            } --> 2 expected o/ps
-        //:     5 { A B } x { -9     } x { -9            } --> 2 expected o/ps
-        //:
-        //:   2 For each row in the table defined in P-2.1:  (C-1..3, 5..6, 8)
-        //:
-        //:     1 Using a 'const' 'Obj', supply each object value and pair of
-        //:       formatting parameters to 'print', omitting the 'level' or
-        //:       'spacesPerLevel' parameter if the value of that argument is
-        //:       '-8'.  If the parameters are, arbitrarily, '(-9, -9)', then
-        //:       invoke the 'operator<<' instead.
-        //:
-        //:     2 Use a standard 'ostringstream' to capture the actual output.
-        //:
-        //:     3 Verify the address of what is returned is that of the
-        //:       supplied stream.  (C-5, 8)
-        //:
-        //:     4 Compare the contents captured in P-2.2.2 with what is
-        //:       expected.  (C-1..3, 6)
+        // 1. Use the addresses of the `print` member function and `operator<<`
+        //    free function defined in this component to initialize,
+        //    respectively, member-function and free-function pointers having
+        //    the appropriate signatures and return types.  (C-4, 7)
+        //
+        // 2. Using the table-driven technique:  (C-1..3, 5..6, 8)
+        //
+        //   1. Define fourteen carefully selected combinations of (two) object
+        //      values (`A` and `B`), having distinct values, and various
+        //      values for the two formatting parameters, along with the
+        //      expected output.
+        //
+        //      ( `value` x  `level`   x `spacesPerLevel` ):
+        //     1. { A   } x {  0     } x {  0, 1, -1, -8 } --> 3 expected o/ps
+        //     2. { A   } x {  3, -3 } x {  0, 2, -2, -8 } --> 6 expected o/ps
+        //     3. { B   } x {  2     } x {  3            } --> 1 expected o/p
+        //     4. { A B } x { -8     } x { -8            } --> 2 expected o/ps
+        //     5. { A B } x { -9     } x { -9            } --> 2 expected o/ps
+        //
+        //   2. For each row in the table defined in P-2.1:  (C-1..3, 5..6, 8)
+        //
+        //     1. Using a `const` `Obj`, supply each object value and pair of
+        //        formatting parameters to `print`, omitting the `level` or
+        //        `spacesPerLevel` parameter if the value of that argument is
+        //        `-8`.  If the parameters are, arbitrarily, `(-9, -9)`, then
+        //        invoke the `operator<<` instead.
+        //
+        //     2. Use a standard `ostringstream` to capture the actual output.
+        //
+        //     3. Verify the address of what is returned is that of the
+        //        supplied stream.  (C-5, 8)
+        //
+        //     4. Compare the contents captured in P-2.2.2 with what is
+        //        expected.  (C-1..3, 6)
         //
         // Testing:
         //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
@@ -341,8 +342,8 @@ int main(int argc, char *argv[])
                           << "PRINT AND OUTPUT OPERATOR (<<)" << endl
                           << "==============================" << endl;
 
-        if (verbose) cout << "\nAssign the addresses of 'print' and "
-                             "the output 'operator<<' to variables." << endl;
+        if (verbose) cout << "\nAssign the addresses of `print` and "
+                             "the output `operator<<` to variables." << endl;
         {
             typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
             typedef ostream& (*operatorPtr)(ostream&, const Obj&);
@@ -551,10 +552,10 @@ int main(int argc, char *argv[])
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 TBD
+        // 1. TBD
         //
         // Plan:
-        //: 1 TBD
+        // 1. TBD
         //
         // Testing:
         //   TBD
@@ -569,18 +570,18 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // GENERATOR FUNCTION 'gg'
-        //   There is no 'gg' function for this component.
+        // GENERATOR FUNCTION `gg`
+        //   There is no `gg` function for this component.
         //
         // Testing:
-        //   Reserved for 'gg' generator function.
+        //   Reserved for `gg` generator function.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "GENERATOR FUNCTION 'gg'" << endl
+                          << "GENERATOR FUNCTION `gg`" << endl
                           << "=======================" << endl;
 
-        if (verbose) cout << "No 'gg' function for 'ball::UserFields'."
+        if (verbose) cout << "No `gg` function for `ball::UserFields`."
                           << endl;
 
       } break;
@@ -589,20 +590,20 @@ int main(int argc, char *argv[])
         // PRIMARY MANIPULATORS & DTOR
         //
         // Concerns:
-        //: 1 The 'append*' functions append a new element with the given
-        //:   values.
-        //:
-        //: 2 'removeAll' clears all elements.
-        //:
+        // 1. The `append*` functions append a new element with the given
+        //    values.
+        //
+        // 2. `removeAll` clears all elements.
+        //
         // Plan:
-        //: 1 Create two modifiable objects.
-        //: 2 Append to one the 'A' set of values using the typed appenders.
-        //: 3 Verify size and values.
-        //: 4 Append to object2 using the 'const UserField&' appender.
-        //: 5 Verify size and values.
-        //: 6 Verify that they are equal.
-        //: 7 Repeat using the B values, but use the opposite object.
-        //: 8 Use 'removeAll' on both objects and verify.
+        // 1. Create two modifiable objects.
+        // 2. Append to one the `A` set of values using the typed appenders.
+        // 3. Verify size and values.
+        // 4. Append to object2 using the `const UserField&` appender.
+        // 5. Verify size and values.
+        // 6. Verify that they are equal.
+        // 7. Repeat using the B values, but use the opposite object.
+        // 8. Use `removeAll` on both objects and verify.
         //
         // Testing:
         //   void append(const UserFieldValue& value);
@@ -793,19 +794,19 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an object 'w' (default ctor).      { w:0             }
-        //: 2 Create an object 'x' (copy from 'w').     { w:0 x:0         }
-        //: 3 Set 'x' to 'A' (value distinct from 0).   { w:0 x:A         }
-        //: 4 Create an object 'y' (init. to 'A').      { w:0 x:A y:A     }
-        //: 5 Create an object 'z' (copy from 'y').     { w:0 x:A y:A z:A }
-        //: 6 Set 'z' to 0 (the default value).         { w:0 x:A y:A z:0 }
-        //: 7 Assign 'w' from 'x'.                      { w:A x:A y:A z:0 }
-        //: 8 Assign 'w' from 'z'.                      { w:0 x:A y:A z:0 }
-        //: 9 Assign 'x' from 'x' (aliasing).           { w:0 x:A y:A z:0 }
+        // 1. Create an object `w` (default ctor).      { w:0             }
+        // 2. Create an object `x` (copy from `w`).     { w:0 x:0         }
+        // 3. Set `x` to `A` (value distinct from 0).   { w:0 x:A         }
+        // 4. Create an object `y` (init. to `A`).      { w:0 x:A y:A     }
+        // 5. Create an object `z` (copy from `y`).     { w:0 x:A y:A z:A }
+        // 6. Set `z` to 0 (the default value).         { w:0 x:A y:A z:0 }
+        // 7. Assign `w` from `x`.                      { w:A x:A y:A z:0 }
+        // 8. Assign `w` from `z`.                      { w:0 x:A y:A z:0 }
+        // 9. Assign `x` from `x` (aliasing).           { w:0 x:A y:A z:0 }
         //
         // Testing:
         //   BREATHING TEST
@@ -831,43 +832,43 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 1. Create an object 'w' (default ctor)."
+        if (verbose) cout << "\n 1. Create an object `w` (default ctor)."
                              "\t\t{ w:0             }" << endl;
 
         Obj mW;  const Obj& W = mW;
 
-        if (veryVerbose) cout << "\ta. Check initial value of 'w'." << endl;
+        if (veryVerbose) cout << "\ta. Check initial value of `w`." << endl;
         if (veryVeryVerbose) { T_ P(W) }
 
         ASSERT(0 == W.length());
 
         if (veryVerbose) cout <<
-                          "\tb. Try equality operators: 'w' <op> 'w'." << endl;
+                          "\tb. Try equality operators: `w` <op> `w`." << endl;
 
         ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 2. Create an object 'x' (copy from 'w')."
+        if (verbose) cout << "\n 2. Create an object `x` (copy from `w`)."
                              "\t\t{ w:0 x:0         }" << endl;
 
         Obj mX(W);  const Obj& X = mX;
 
         if (veryVerbose) cout <<
-                                "\ta. Check the initial value of 'x'." << endl;
+                                "\ta. Check the initial value of `x`." << endl;
         if (veryVeryVerbose) { T_ P(X) }
 
         ASSERT(0 == X.length());
 
         if (veryVerbose) cout <<
-                     "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
+                     "\tb. Try equality operators: `x` <op> `w`, `x`." << endl;
 
         ASSERT(1 == (X == W));        ASSERT(0 == (X != W));
         ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 3. Set 'x' to 'A' (value distinct from 0)."
+        if (verbose) cout << "\n 3. Set `x` to `A` (value distinct from 0)."
                              "\t\t{ w:0 x:A         }" << endl;
 
         mX.appendInt64(A_INT);
@@ -876,7 +877,7 @@ int main(int argc, char *argv[])
         mX.appendDouble(A_DOUBLE);
         mX.appendCharArray(A_CHAR_ARRAY);
 
-        if (veryVerbose) cout << "\ta. Check new value of 'x'." << endl;
+        if (veryVerbose) cout << "\ta. Check new value of `x`." << endl;
         if (veryVeryVerbose) { T_ P(X) }
 
         ASSERT(5            == X.length());
@@ -887,14 +888,14 @@ int main(int argc, char *argv[])
         ASSERT(A_CHAR_ARRAY == X.value(4).theCharArray());
 
         if (veryVerbose) cout <<
-                     "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
+                     "\tb. Try equality operators: `x` <op> `w`, `x`." << endl;
 
         ASSERT(0 == (X == W));        ASSERT(1 == (X != W));
         ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 4. Create an object 'y' and set to 'A'."
+        if (verbose) cout << "\n 4. Create an object `y` and set to `A`."
                              "\t\t{ w:0 x:A y:A     }" << endl;
 
         Obj mY;  const Obj& Y = mY;
@@ -905,7 +906,7 @@ int main(int argc, char *argv[])
         mY.appendDouble(A_DOUBLE);
         mY.appendCharArray(A_CHAR_ARRAY);
 
-        if (veryVerbose) cout << "\ta. Check initial value of 'y'." << endl;
+        if (veryVerbose) cout << "\ta. Check initial value of `y`." << endl;
         if (veryVeryVerbose) { T_ P(Y) }
 
         ASSERT(5            == Y.length());
@@ -916,7 +917,7 @@ int main(int argc, char *argv[])
         ASSERT(A_CHAR_ARRAY == X.value(4).theCharArray());
 
         if (veryVerbose) cout <<
-                "\tb. Try equality operators: 'y' <op> 'w', 'x', 'y'." << endl;
+                "\tb. Try equality operators: `y` <op> `w`, `x`, `y`." << endl;
 
         ASSERT(0 == (Y == W));        ASSERT(1 == (Y != W));
         ASSERT(1 == (Y == X));        ASSERT(0 == (Y != X));
@@ -924,12 +925,12 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 5. Create an object 'z' (copy from 'y')."
+        if (verbose) cout << "\n 5. Create an object `z` (copy from `y`)."
                              "\t\t{ w:0 x:A y:A z:A }" << endl;
 
         Obj mZ(Y);  const Obj& Z = mZ;
 
-        if (veryVerbose) cout << "\ta. Check initial value of 'z'." << endl;
+        if (veryVerbose) cout << "\ta. Check initial value of `z`." << endl;
         if (veryVeryVerbose) { T_ P(Z) }
 
         ASSERT(5            == Z.length());
@@ -940,7 +941,7 @@ int main(int argc, char *argv[])
         ASSERT(A_CHAR_ARRAY == Z.value(4).theCharArray());
 
         if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `z` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(0 == (Z == W));        ASSERT(1 == (Z != W));
         ASSERT(1 == (Z == X));        ASSERT(0 == (Z != X));
@@ -949,18 +950,18 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 6. Set 'z' to 0 (the default value)."
+        if (verbose) cout << "\n 6. Set `z` to 0 (the default value)."
                              "\t\t\t{ w:0 x:A y:A z:0 }" << endl;
 
         mZ.removeAll();
 
-        if (veryVerbose) cout << "\ta. Check new value of 'z'." << endl;
+        if (veryVerbose) cout << "\ta. Check new value of `z`." << endl;
         if (veryVeryVerbose) { T_ P(Z) }
 
         ASSERT(0 == Z.length());
 
         if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `z` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(1 == (Z == W));        ASSERT(0 == (Z != W));
         ASSERT(0 == (Z == X));        ASSERT(1 == (Z != X));
@@ -969,12 +970,12 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 7. Assign 'w' from 'x'."
+        if (verbose) cout << "\n 7. Assign `w` from `x`."
                              "\t\t\t\t{ w:A x:A y:A z:0 }" << endl;
 
         mW = X;
 
-        if (veryVerbose) cout << "\ta. Check new value of 'w'." << endl;
+        if (veryVerbose) cout << "\ta. Check new value of `w`." << endl;
         if (veryVeryVerbose) { T_ P(W) }
 
         ASSERT(5            == W.length());
@@ -985,7 +986,7 @@ int main(int argc, char *argv[])
         ASSERT(A_CHAR_ARRAY == W.value(4).theCharArray());
 
         if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `w` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
         ASSERT(1 == (W == X));        ASSERT(0 == (W != X));
@@ -994,18 +995,18 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 8. Assign 'w' from 'z'."
+        if (verbose) cout << "\n 8. Assign `w` from `z`."
                              "\t\t\t\t{ w:0 x:A y:A z:0 }" << endl;
 
         mW = Z;
 
-        if (veryVerbose) cout << "\ta. Check new value of 'w'." << endl;
+        if (veryVerbose) cout << "\ta. Check new value of `w`." << endl;
         if (veryVeryVerbose) { T_ P(W) }
 
         ASSERT(0 == W.length());
 
         if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `w` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
         ASSERT(0 == (W == X));        ASSERT(1 == (W != X));
@@ -1014,12 +1015,12 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 9. Assign 'x' from 'x' (aliasing)."
+        if (verbose) cout << "\n 9. Assign `x` from `x` (aliasing)."
                              "\t\t\t{ w:0 x:A y:A z:0 }" << endl;
 
         mX = X;
 
-        if (veryVerbose) cout << "\ta. Check (same) value of 'x'." << endl;
+        if (veryVerbose) cout << "\ta. Check (same) value of `x`." << endl;
         if (veryVeryVerbose) { T_ P(X) }
 
         ASSERT(5            == X.length());
@@ -1030,7 +1031,7 @@ int main(int argc, char *argv[])
         ASSERT(A_CHAR_ARRAY == X.value(4).theCharArray());
 
         if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `x` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(0 == (X == W));        ASSERT(1 == (X != W));
         ASSERT(1 == (X == X));        ASSERT(0 == (X != X));

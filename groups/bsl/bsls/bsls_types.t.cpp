@@ -10,7 +10,7 @@
 #include <iostream>
 #include <limits>
 #include <stdio.h>     // sprintf(), snprintf() [NOT <cstdio>, which does not
-                       // include 'snprintf']
+                       // include `snprintf`]
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf
@@ -33,14 +33,14 @@ using namespace std;
 // This component implements several types for a platform.  A platform is
 // defined as the unique combination of compiler, operating system, and
 // processor (CPU).  We will test each of the types, verifying that their
-// 'typedef' has been properly implemented for a given platform.
+// `typedef` has been properly implemented for a given platform.
 //-----------------------------------------------------------------------------
 // [ 1] Int64
 // [ 1] Uint64
 // [ 2] size_type
 //-----------------------------------------------------------------------------
-// [ 3] 'snprintf' with const bsls::Types::Int64&
-// [ 4] 'snprintf' with const bsls::Types::Uint64&
+// [ 3] `snprintf` with const bsls::Types::Int64&
+// [ 4] `snprintf` with const bsls::Types::Uint64&
 //-----------------------------------------------------------------------------
 // [ 5] USAGE EXAMPLE
 //=============================================================================
@@ -84,8 +84,8 @@ static void aSsErT(int c, const char *s, int i)
 #define INT64_FMT_STR  "0x%llX"
 #endif
 
+/// Convert the specified 64-bit `value` to a hexadecimal string.
 char *hex64(char *buffer, bsls::Types::Uint64 value)
-    // Convert the specified 64-bit 'value' to a hexadecimal string.
 {
     sprintf(buffer, INT64_FMT_STR, value);
     return buffer;
@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Simple example illustrating how one might use the types in
-        //   'bsls::Types'.
+        //   `bsls::Types`.
         //
         // Concerns:
         //   The usage example provided in the component header file must
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -143,15 +143,15 @@ int main(int argc, char *argv[])
 // The following illustrates how some of the types supplied by this component
 // might be used.
 //
-// 'bsls::Types::Int64' and 'bsls::Types::Uint64' identify the preferred
+// `bsls::Types::Int64` and `bsls::Types::Uint64` identify the preferred
 // fundamental types denoting signed and unsigned 64-bit integers,
 // respectively:
-//..
+// ```
     bsls::Types::Uint64 stimulus = 787000000000ULL;
-//..
-// Clients can use these types in the same way as an 'int'.  Clients can also
+// ```
+// Clients can use these types in the same way as an `int`.  Clients can also
 // mix usage with other fundamental integral types:
-//..
+// ```
     bsls::Types::Uint64 nationalDebt = 1000000000000ULL;
     nationalDebt += stimulus;
 
@@ -160,12 +160,12 @@ int main(int argc, char *argv[])
 
     if (veryVerbose)
         std::cout << "National Debt Level: " << nationalDebt << std::endl;
-//..
-// 'bsls::Types::size_type' identifies the preferred integral type
+// ```
+// `bsls::Types::size_type` identifies the preferred integral type
 // denoting the number of elements in a container, and the number of bytes in a
 // single block of memory supplied by an allocator.  For example, a typical use
-// is as a 'typedef' in an STL container:
-//..
+// is as a `typedef` in an STL container:
+// ```
     class vector {
 
         // ...
@@ -177,29 +177,29 @@ int main(int argc, char *argv[])
 
         size_type size() const;
     };
-//..
-// Since 'bsls::Types' are integers, the Standard Library facilities that work
-// with numeric types can be used with 'bsls::Types' as well.  For example, the
-// following code finds out some facts about 'bsls::Types::Int64' in a
+// ```
+// Since `bsls::Types` are integers, the Standard Library facilities that work
+// with numeric types can be used with `bsls::Types` as well.  For example, the
+// following code finds out some facts about `bsls::Types::Int64` in a
 // platform-independent way:
-//..
+// ```
     if (veryVerbose)
        std::cout << "Min Int64 value: "
                  << std::numeric_limits<bsls::Types::Int64>::min() << std::endl
                  << "Max Int64 value: "
                 << std::numeric_limits<bsls::Types::Int64>::max() << std::endl;
-//..
+// ```
 
       } break;
       case 4: {
         // --------------------------------------------------------------------
         // TESTING OUTPUT OPERATOR FOR UNSIGNED INT64 TYPE:
-        //   The test is performed to insure that the 'typedef'd Uint64 behaves
+        //   The test is performed to insure that the `typedef`d Uint64 behaves
         //   properly.
         //
         // Plan:
         //   For each of a small representative set of object values, ordered
-        //   by increasing length, use 'snprintf' to write that object's value
+        //   by increasing length, use `snprintf` to write that object's value
         //   to two separate character buffers each with different initial
         //   values.  Compare the contents of these buffers with the literal
         //   expected output format and verify that the characters beyond the
@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
         //   combining two 32-bit constants and test those as well.
         //
         // Testing:
-        //   'snprintf' with const bsls::Types::Uint64&
+        //   `snprintf` with const bsls::Types::Uint64&
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -370,12 +370,12 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TESTING OUTPUT OPERATOR FOR SIGNED INT64 TYPE:
-        //   The test is performed to insure that the 'typedef'd Int64 behaves
+        //   The test is performed to insure that the `typedef`d Int64 behaves
         //   properly.
         //
         // Plan:
         //   For each of a small representative set of object values, ordered
-        //   by increasing length, use 'snprintf' to write that object's value
+        //   by increasing length, use `snprintf` to write that object's value
         //   to two separate character buffers each with different initial
         //   values.  Compare the contents of these buffers with the literal
         //   expected output format and verify that the characters beyond the
@@ -385,7 +385,7 @@ int main(int argc, char *argv[])
         //   combining two 32-bit constants and test those as well.
         //
         // Testing:
-        //   'snprintf' with const bsls::Types::Int64&
+        //   `snprintf` with const bsls::Types::Int64&
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -544,7 +544,7 @@ int main(int argc, char *argv[])
         //     typedef statements concerned for those types were wrong.  We
         //     must ensure that:
         //     - a size_type is at least as wide as an int.
-        //     - 'size_type' is an unsigned integer type.
+        //     - `size_type` is an unsigned integer type.
         //
         // Plan:
         //   First measure the size of the size type, ensuring that it is at
@@ -561,8 +561,8 @@ int main(int argc, char *argv[])
 
         typedef bsls::Types Types;
 
-        // Must be at least as wide as a 'long int' on 64 bit architectures,
-        // as an 'int' otherwise.
+        // Must be at least as wide as a `long int` on 64 bit architectures,
+        // as an `int` otherwise.
 
 #ifdef BSLS_PLATFORM_CPU_64_BIT
         ASSERT(sizeof(Types::size_type) >= sizeof(long int));

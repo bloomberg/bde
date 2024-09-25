@@ -22,7 +22,7 @@
 //                                 Overview
 //                                 --------
 // This test driver tests each utility operation provided by
-// 'NullableValueUtil' in its own case.
+// `NullableValueUtil` in its own case.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 2] static int accessValueByCategory(const TYPE&, ACCESSOR&);
@@ -118,9 +118,9 @@ namespace usage {
 // value held by a nullable value is an array.
 //
 // First, we need to define an accessor functor per
-// {'bdlat_typecategory'|'ACCESSOR' Functors} that will be used to detect
+// {`bdlat_typecategory`|`ACCESSOR` Functors} that will be used to detect
 // whether the held value is an array:
-//..
+// ```
     class MyArrayDetector {
         // DATA
         bool d_didVisitArray;
@@ -153,22 +153,23 @@ namespace usage {
             return d_didVisitArray;
         }
     };
-//..
-// Then, we can define a utility 'struct', 'MyNullableValueUtil', that provides
+// ```
+// Then, we can define a utility `struct`, `MyNullableValueUtil`, that provides
 // a function for detecting whether or not the held value of a nullable value
 // is an array:
-//..
+// ```
     struct MyNullableValueUtil {
 
         // CLASS METHODS
+
+        /// Load the value `true` to the specified `isArray` if the value
+        /// stored in the specified `object` has the "array" type category,
+        /// and load the value `false` otherwise.  Return 0 on success,
+        /// and a non-zero value otherwise.  If a non-zero value is
+        /// returned, the value loaded to `isArray` is unspecified.  The
+        /// behavior is undefined if `object` contains a null value.
         template <class TYPE>
         static int isValueAnArray(bool *isArray, const TYPE& object)
-            // Load the value 'true' to the specified 'isArray' if the value
-            // stored in the specified 'object' has the "array" type category,
-            // and load the value 'false' otherwise.  Return 0 on success,
-            // and a non-zero value otherwise.  If a non-zero value is
-            // returned, the value loaded to 'isArray' is unspecified.  The
-            // behavior is undefined if 'object' contains a null value.
         {
             BSLS_ASSERT(bdlat_TypeCategoryFunctions::select(object) ==
                         bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY);
@@ -185,10 +186,10 @@ namespace usage {
             return 0;
         }
     };
-//..
+// ```
 // Finally, we can use this utility to detect whether nullable values are
 // arrays:
-//..
+// ```
     void example()
     {
         bdlb::NullableValue<int> valueA(42);
@@ -207,7 +208,7 @@ namespace usage {
         ASSERT(0 == rc);
         ASSERT(isArray);
     }
-//..
+// ```
 
 }  // close namespace usage
 }  // close unnamed namespace
@@ -792,7 +793,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -807,13 +808,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -832,39 +833,39 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'manipulateValueByCategory'
-        //   This case tests the 'manipulateValueByCategory' function.
+        // TESTING `manipulateValueByCategory`
+        //   This case tests the `manipulateValueByCategory` function.
         //
         // Concerns:
-        //: 1 The type category supplied to the manipulator functor corresponds
-        //:   is the dynamic type category of the element.
-        //:
-        //: 2 The element pointer supplied to the manipulator functor addresses
-        //:   the held value.
-        //:
-        //: 3 If the manipulator functor returns 0 then 0 is returned,
-        //:   otherwise a non-zero value is returned.
-        //:
-        //: 4 Passing a non-nullable-value violates an assertion.
-        //:
-        //: 5 Passing a null value violates an assertion.
+        // 1. The type category supplied to the manipulator functor corresponds
+        //    is the dynamic type category of the element.
+        //
+        // 2. The element pointer supplied to the manipulator functor addresses
+        //    the held value.
+        //
+        // 3. If the manipulator functor returns 0 then 0 is returned,
+        //    otherwise a non-zero value is returned.
+        //
+        // 4. Passing a non-nullable-value violates an assertion.
+        //
+        // 5. Passing a null value violates an assertion.
         //
         // Plan:
-        //: 1 For each type category, create a 'bdlb::NullableValue' object
-        //:   holding an object with that type category, and verify that a
-        //:   manipultor functor is invoked with that category.
-        //:
-        //: 2 Similarly, verify that a manipulator functor is invoked with
-        //:   the correct address.
-        //:
-        //: 3 Configure manipulator functors to return a non-zero value, and
-        //:   verify that the same value is returned.
-        //:
-        //: 4 Pass objects with a dynamic, non-nullable-value type category and
-        //:   verify that an assertion is violated.
-        //:
-        //: 5 Attempt to manipulate a null value and verify that an assertion
-        //:   is violated.
+        // 1. For each type category, create a `bdlb::NullableValue` object
+        //    holding an object with that type category, and verify that a
+        //    manipultor functor is invoked with that category.
+        //
+        // 2. Similarly, verify that a manipulator functor is invoked with
+        //    the correct address.
+        //
+        // 3. Configure manipulator functors to return a non-zero value, and
+        //    verify that the same value is returned.
+        //
+        // 4. Pass objects with a dynamic, non-nullable-value type category and
+        //    verify that an assertion is violated.
+        //
+        // 5. Attempt to manipulate a null value and verify that an assertion
+        //    is violated.
         //
         // Testing
         //   manipulateValueByCategory(const TYPE&, MANIPULATOR&, int);
@@ -1007,39 +1008,39 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'accessValueByCategory'
-        //   This case tests the 'accessValueByCategory' function.
+        // TESTING `accessValueByCategory`
+        //   This case tests the `accessValueByCategory` function.
         //
         // Concerns:
-        //: 1 The type category supplied to the accessor functor corresponds
-        //:   is the dynamic type category of the element.
-        //:
-        //: 2 The element reference supplied to the accessor functor is a
-        //:   reference to the held value.
-        //:
-        //: 3 If the accessor functor returns 0 then 0 is returned, otherwise
-        //:   a non-zero value is returned.
-        //:
-        //: 4 Passing a non-nullable-value violates an assertion.
-        //:
-        //: 5 Passing a null value violates an assertion.
+        // 1. The type category supplied to the accessor functor corresponds
+        //    is the dynamic type category of the element.
+        //
+        // 2. The element reference supplied to the accessor functor is a
+        //    reference to the held value.
+        //
+        // 3. If the accessor functor returns 0 then 0 is returned, otherwise
+        //    a non-zero value is returned.
+        //
+        // 4. Passing a non-nullable-value violates an assertion.
+        //
+        // 5. Passing a null value violates an assertion.
         //
         // Plan:
-        //: 1 For each type category, create a 'bdlb::NullableValue' object
-        //:   holding an object with that type category, and verify that an
-        //:   accessor functor is invoked with that category.
-        //:
-        //: 2 Similarly, verify that an accessor functor is invoked with
-        //:   the correct address.
-        //:
-        //: 3 Configure accessor functors to return a non-zero value, and
-        //:   verify that the same value is returned.
-        //:
-        //: 4 Pass objects with a dynamic, non-nullable-value type category and
-        //:   verify that an assertion is violated.
-        //:
-        //: 5 Attempt to access a null value and verify that an assertion is
-        //:   violated.
+        // 1. For each type category, create a `bdlb::NullableValue` object
+        //    holding an object with that type category, and verify that an
+        //    accessor functor is invoked with that category.
+        //
+        // 2. Similarly, verify that an accessor functor is invoked with
+        //    the correct address.
+        //
+        // 3. Configure accessor functors to return a non-zero value, and
+        //    verify that the same value is returned.
+        //
+        // 4. Pass objects with a dynamic, non-nullable-value type category and
+        //    verify that an assertion is violated.
+        //
+        // 5. Attempt to access a null value and verify that an assertion is
+        //    violated.
         //
         // Testing
         //   accessValueByCategory(const TYPE&, ACCESSOR&, int);
@@ -1176,20 +1177,20 @@ int main(int argc, char *argv[])
         //   This case tests the testing apparatus.
         //
         // Concerns:
-        //: 1 The 'u::Test*' types have the static and dynamic type category
-        //:   of their namesake.
-        //:
-        //: 2 Objects of 'u::TestDyanmicType' type have 'dynamic type'
-        //:   static type category, and the dynamic type category matching
-        //:   the category enumerator supplied on construction.
+        // 1. The `u::Test*` types have the static and dynamic type category
+        //    of their namesake.
+        //
+        // 2. Objects of `u::TestDyanmicType` type have `dynamic type`
+        //    static type category, and the dynamic type category matching
+        //    the category enumerator supplied on construction.
         //
         // Plan:
-        //: 1 For all 'u::Test*' types, verify their type category matches
-        //:   their namesake.
-        //:
-        //: 2 Instantiate 'u::TestDynamicType' objects with each category
-        //:   enumerator and verify that the type categories of the objects
-        //:   match the enumerator with which they were constructed.
+        // 1. For all `u::Test*` types, verify their type category matches
+        //    their namesake.
+        //
+        // 2. Instantiate `u::TestDynamicType` objects with each category
+        //    enumerator and verify that the type categories of the objects
+        //    match the enumerator with which they were constructed.
         //
         // Testing:
         //   TEST APPARATUS

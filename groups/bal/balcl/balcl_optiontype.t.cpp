@@ -10,19 +10,19 @@
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 
-#include <bslmf_issame.h>    // 'bsl::is_same' (see 'bsl_type_traits.h' below)
+#include <bslmf_issame.h>    // `bsl::is_same` (see `bsl_type_traits.h` below)
 
-#include <bsls_platform.h>   // 'BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC'
-#include <bsls_types.h>      // 'bsls::Types::Int64'
+#include <bsls_platform.h>   // `BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC`
+#include <bsls_types.h>      // `bsls::Types::Int64`
 
-#include <bsl_cstddef.h>     // 'bsl::size_t'
-#include <bsl_cstdlib.h>     // 'bsl::atoi'
-#include <bsl_cstring.h>     // 'bsl::strcmp'
+#include <bsl_cstddef.h>     // `bsl::size_t`
+#include <bsl_cstdlib.h>     // `bsl::atoi`
+#include <bsl_cstring.h>     // `bsl::strcmp`
 #include <bsl_iostream.h>
-#include <bsl_ostream.h>     // 'operator<<'
+#include <bsl_ostream.h>     // `operator<<`
 #include <bsl_sstream.h>
 #include <bsl_string.h>
-//#include <bsl_type_traits.h> // 'bsl::is_same' (disallowed pre-C++11)
+//#include <bsl_type_traits.h> // `bsl::is_same` (disallowed pre-C++11)
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
@@ -33,21 +33,21 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The class under test, 'balcl::OptionType', has several different kinds of
+// The class under test, `balcl::OptionType`, has several different kinds of
 // facilities.  It is a namespace for:
-//: o A set of 'typedef's.
-//: o An enumeration (that defines an enumerator for each 'typedef').
-//: o A statically-initialized null pointer for each of those types.
-//: o Utility functions.
+//  - A set of `typedef`s.
+//  - An enumeration (that defines an enumerator for each `typedef`).
+//  - A statically-initialized null pointer for each of those types.
+//  - Utility functions.
 //
 // We use standard test techniques for an enumeration, a utility, etc.,
 // respectively.
 //
 // Global Concerns:
-//: o No methods or free operators allocate memory.
+//  - No methods or free operators allocate memory.
 //
 // Global Assumptions:
-//: o All CLASS METHODS and the '<<' free operator are 'const' thread-safe.
+//  - All CLASS METHODS and the `<<` free operator are `const` thread-safe.
 // ----------------------------------------------------------------------------
 // TYPES
 // [ 1] enum Enum { ... };
@@ -63,8 +63,8 @@ using namespace bsl;
 // [ 3] operator<<(ostream& s, OptionType::Enum val);
 // ----------------------------------------------------------------------------
 // [ 6] CONCERN: Type aliases are defined as expected.
-// [ 6] CONCERN: 'OptionType::EnumToType' types
-// [ 6] CONCERN: 'OptionType::TypeToEnum' enumerators
+// [ 6] CONCERN: `OptionType::EnumToType` types
+// [ 6] CONCERN: `OptionType::TypeToEnum` enumerators
 // [ 5] CONCERN: static data
 // [ 7] CONCERN: HISTORIC TEST
 // [ 8] USAGE EXAMPLE
@@ -136,25 +136,29 @@ const int NUM_ENUMERATORS = 18;
                      // function template checkOptionType
                      // =================================
 
+/// This general definition of the `CheckOptionType` class template provides
+/// a boolean functor that returns `false`.
 template <int ELEM_TYPE, class TYPE>
 struct CheckOptionType {
-    // This general definition of the 'CheckOptionType' class template provides
-    // a boolean functor that returns 'false'.
 
+    /// Return `false`.
     bool operator()() const
-        // Return 'false'.
     { return false; }
 };
 
+/// This macro defines a specialization of the `CheckOptionType` class
+/// template whose boolean functor returns `true` for the parameterized
+/// `ELEM_TYPE` matching the parameterized `TYPE`.
 #define MATCH_OPTION_TYPE(ELEM_TYPE, TYPE)                                    \
     template <>                                                               \
     struct CheckOptionType<(int)ELEM_TYPE, TYPE> {                            \
         bool operator()() const { return true; }                              \
     };                                                                        \
-    // This macro defines a specialization of the 'CheckOptionType' class
-    // template whose boolean functor returns 'true' for the parameterized
-    // 'ELEM_TYPE' matching the parameterized 'TYPE'.
 
+/// This macro defines *two* specializations of the `CheckOptionType` class
+/// template whose boolean functor returns `true`, the first for the
+/// parameterized `ELEM_TYPE` matching the parameterized `TYPE`, and the
+/// second for the corresponding array type.
 #define MATCH_OPTION_TYPE_PAIR(ELEM_TYPE, TYPE)                               \
                                                                               \
     MATCH_OPTION_TYPE(ELEM_TYPE, TYPE)                                        \
@@ -163,10 +167,6 @@ struct CheckOptionType {
     struct CheckOptionType<(int)ELEM_TYPE##_ARRAY, bsl::vector<TYPE> > {      \
         bool operator()() const { return true; }                              \
     };
-    // This macro defines *two* specializations of the 'CheckOptionType' class
-    // template whose boolean functor returns 'true', the first for the
-    // parameterized 'ELEM_TYPE' matching the parameterized 'TYPE', and the
-    // second for the corresponding array type.
 
 MATCH_OPTION_TYPE(Obj::e_BOOL,     bool)
 
@@ -182,13 +182,13 @@ MATCH_OPTION_TYPE_PAIR(Obj::e_TIME,     bdlt::Time)
 #undef MATCH_OPTION_TYPE
 #undef MATCH_OPTION_TYPE_PAIR
 
+/// Return `true` if the specified `ELEM_TYPE` corresponds to the specified
+/// `TYPE` (as defined by the `MATCH_OPTION_TYPE_*` macro invocations above)
+/// and if the specified `optionTypeValue` is a null pointer whose (template
+/// parameter) `TYPE` matches the `balcl::OptionType` described by the
+/// (template parameter) `ELEM_TYPE` enumerator.
 template <int ELEM_TYPE, class TYPE>
 bool checkOptionType(const TYPE *optionTypeValue)
-    // Return 'true' if the specified 'ELEM_TYPE' corresponds to the specified
-    // 'TYPE' (as defined by the 'MATCH_OPTION_TYPE_*' macro invocations above)
-    // and if the specified 'optionTypeValue' is a null pointer whose (template
-    // parameter) 'TYPE' matches the 'balcl::OptionType' described by the
-    // (template parameter) 'ELEM_TYPE' enumerator.
 {
     CheckOptionType<ELEM_TYPE, TYPE> checker;
     return checker() && (TYPE *)0 == optionTypeValue;
@@ -207,21 +207,23 @@ class MyMultitypeValue {
 
   public:
     // CREATORS
-    MyMultitypeValue();
-        // Create a 'MyMultitypeValue' object having type 'e_VOID'.
 
+    /// Create a `MyMultitypeValue` object having type `e_VOID`.
+    MyMultitypeValue();
+
+    /// Create a `MyMultitypeValue` object having the specified `type` and
+    /// the default constructed value of that type.
     explicit MyMultitypeValue(Enum type);
-        // Create a 'MyMultitypeValue' object having the specified 'type' and
-        // the default constructed value of that type.
 
     // MANIPULATORS
-    void append(const MyMultitypeValue& element);
-        // Append the specified 'element' to this object.  The behavior is
-        // undefined unless this object is an "array" type.
 
+    /// Append the specified `element` to this object.  The behavior is
+    /// undefined unless this object is an "array" type.
+    void append(const MyMultitypeValue& element);
+
+    /// Set the type of this object to the specified `type` and the value
+    /// to the default construction value of that type.
     void setType(Enum type);
-        // Set the type of this object to the specified 'type' and the value
-        // to the default construction value of that type.
 };
 
                         // ----------------------
@@ -252,20 +254,20 @@ void MyMultitypeValue::setType(Enum)
 
 struct MyMultitypeValueUtil {
 
+    /// Load into the specified `result` the value represented in the
+    /// specified `input` that is formatted according to the specified
+    /// `type`.
     static int parse(MyMultitypeValue        *result,
                      bsl::ostream&            input,
                      balcl::OptionType::Enum  type);
-        // Load into the specified 'result' the value represented in the
-        // specified 'input' that is formatted according to the specified
-        // 'type'.
 
+    /// Load into the specified `result` the value represented in the
+    /// specified `input` that is formatted according to the specified
+    /// `type`.  The behavior is undefined unless `type` is one of the
+    /// scalar (i.e., non-array) types.
     static int parseScalar(MyMultitypeValue        *result,
                            bsl::ostream&            input,
                            balcl::OptionType::Enum  type);
-        // Load into the specified 'result' the value represented in the
-        // specified 'input' that is formatted according to the specified
-        // 'type'.  The behavior is undefined unless 'type' is one of the
-        // scalar (i.e., non-array) types.
 };
 
                         // ---------------------------
@@ -284,16 +286,16 @@ int MyMultitypeValueUtil::parseScalar(MyMultitypeValue                  *,
 /// - - - - - - - - - - - - -
 // In a software system devoted to assembling option values of various types,
 // the code is often governed in terms of the enumerated values
-// ('balcl::OptionType::Enum') corresponding to the various types.  In
+// (`balcl::OptionType::Enum`) corresponding to the various types.  In
 // particular, in order to assemble an option value of one of the array types
-// (e.g., 'balcl::OptionType::e_STRING_ARRAY'), one must first construct the
+// (e.g., `balcl::OptionType::e_STRING_ARRAY`), one must first construct the
 // constitute elements.
 //
-// Suppose we have a class, 'MyMultitypeValue', that can, at runtime, be set to
-// contain a value of one of the types named by 'balcl::OptionType'.  We may
-// want to initialize a 'MyMultitypeValue' object from an input stream using a
-// utility function 'MyMultitypeValueUtil::parse':
-//..
+// Suppose we have a class, `MyMultitypeValue`, that can, at runtime, be set to
+// contain a value of one of the types named by `balcl::OptionType`.  We may
+// want to initialize a `MyMultitypeValue` object from an input stream using a
+// utility function `MyMultitypeValueUtil::parse`:
+// ```
     int MyMultitypeValueUtil::parse(MyMultitypeValue        *result,
                                     bsl::ostream&            input,
                                     balcl::OptionType::Enum  type)
@@ -301,21 +303,21 @@ int MyMultitypeValueUtil::parseScalar(MyMultitypeValue                  *,
         BSLS_ASSERT(result);
 
         result->setType(type);
-//..
-// If 'type' is not one of the array types, as determined by the
-// 'balcl::OptionType::isArrayType' method, one calls
-// 'MyMultitypeValueUtil::parseScalar':
-//..
+// ```
+// If `type` is not one of the array types, as determined by the
+// `balcl::OptionType::isArrayType` method, one calls
+// `MyMultitypeValueUtil::parseScalar`:
+// ```
         if (!balcl::OptionType::isArrayType(type)) {
             return MyMultitypeValueUtil::parseScalar(result, input, type);
                                                                       // RETURN
         } else {
-//..
-// Otherwise, we have an array type.  In this case, we must call 'parseScalar'
+// ```
+// Otherwise, we have an array type.  In this case, we must call `parseScalar`
 // repeatedly and build a vector of those scalar values.  The scalar type can
 // be calculated from the given array type by the
-// 'balcl::OptionType::fromArrayType' method:
-//..
+// `balcl::OptionType::fromArrayType` method:
+// ```
             balcl::OptionType::Enum scalarType =
                                         balcl::OptionType::fromArrayType(type);
 
@@ -330,7 +332,7 @@ int MyMultitypeValueUtil::parseScalar(MyMultitypeValue                  *,
             return rc;                                                // RETURN
         }
     }
-//..
+// ```
 }  // close namespace Example2
 
 // ============================================================================
@@ -358,14 +360,14 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -381,28 +383,28 @@ int main(int argc, char *argv[])
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -
 // The following snippets of code provide a simple illustration of
-// 'balcl::OptionType' usage.
+// `balcl::OptionType` usage.
 //
-// First, we create a variable 'value' of type 'balcl::OptionType::Enum' and
-// initialize it to the value 'balcl::OptionType::e_STRING':
-//..
+// First, we create a variable `value` of type `balcl::OptionType::Enum` and
+// initialize it to the value `balcl::OptionType::e_STRING`:
+// ```
     balcl::OptionType::Enum value = balcl::OptionType::e_STRING;
-//..
+// ```
 // Next, we store a pointer to its ASCII representation in a variable
-// 'asciiValue' of type 'const char *':
-//..
+// `asciiValue` of type `const char *`:
+// ```
     const char *asciiValue = balcl::OptionType::toAscii(value);
     ASSERT(0 == bsl::strcmp(asciiValue, "STRING"));
-//..
-// Finally, we print the value to 'bsl::cout':
-//..
+// ```
+// Finally, we print the value to `bsl::cout`:
+// ```
 if (veryVerbose)
     bsl::cout << value << bsl::endl;
-//..
-// This statement produces the following output on 'stdout':
-//..
+// ```
+// This statement produces the following output on `stdout`:
+// ```
 //  STRING
-//..
+// ```
 
         // Need not show next lines in header file.
 
@@ -417,26 +419,26 @@ if (veryVerbose)
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'balcl::OptionType'
+        // TESTING `balcl::OptionType`
         //   This class was formerly defined in another component.  This test
         //   case was preserved from that component to confirm compatibility.
         //
         // Concerns:
-        //: 1 That the class data members have well-defined names that match
-        //:   the 'balcl::OptionType' element type enumeration names,
-        //:   and that their types match the expected
-        //:   'balcl::OptionType' type.
+        // 1. That the class data members have well-defined names that match
+        //    the `balcl::OptionType` element type enumeration names,
+        //    and that their types match the expected
+        //    `balcl::OptionType` type.
         //
         // Plan:
-        //: 1 Simply test the names of the class data members and (although it
-        //:   is not documented), assert that their value is 0.
+        // 1. Simply test the names of the class data members and (although it
+        //    is not documented), assert that their value is 0.
         //
         // Testing:
         //   CONCERN: HISTORIC TEST
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'balcl::OptionType'" << endl
+                          << "TESTING `balcl::OptionType`" << endl
                           << "===========================" << endl;
        //v--^
          ASSERT(checkOptionType<Obj::e_BOOL>          (Obj::k_BOOL));
@@ -465,16 +467,16 @@ if (veryVerbose)
         // TESTING ALIASES AND ENUM-TO-TYPE MAPPINGS
         //
         // Concerns:
-        //: 1 The type aliases are defined as expected.
-        //: 2 The metafunctions produce the expected values.
+        // 1. The type aliases are defined as expected.
+        // 2. The metafunctions produce the expected values.
         //
         // Plan:
-        //: 1 Individually test each case.
+        // 1. Individually test each case.
         //
         // Testing:
         //   CONCERN: Type aliases are defined as expected.
-        //   CONCERN: 'OptionType::EnumToType' types
-        //   CONCERN: 'OptionType::TypeToEnum' enumerators
+        //   CONCERN: `OptionType::EnumToType` types
+        //   CONCERN: `OptionType::TypeToEnum` enumerators
         // --------------------------------------------------------------------
 
         if (verbose) cout
@@ -509,7 +511,7 @@ if (veryVerbose)
 //^-----v
 #undef IS_TDEF
 
-        if (veryVerbose) cout <<  "Testing 'OptionType::TypeToEnum'" << endl;
+        if (veryVerbose) cout <<  "Testing `OptionType::TypeToEnum`" << endl;
 
 #define IS_ENUM_OK(ENUM, TYPE) ENUM == Obj::TypeToEnum<TYPE>::value
         ASSERT(IS_ENUM_OK(Obj::e_VOID          , void              )); //00
@@ -531,7 +533,7 @@ if (veryVerbose)
         ASSERT(IS_ENUM_OK(Obj::e_DATE_ARRAY    , Obj::DateArray    )); //16
         ASSERT(IS_ENUM_OK(Obj::e_TIME_ARRAY    , Obj::TimeArray    )); //17
 
-        if (veryVerbose) cout << "Testing 'OptionType::EnumToType'"
+        if (veryVerbose) cout << "Testing `OptionType::EnumToType`"
                               << endl;
 
 #define IS_CLASS_OK(TYPE, ENUM)                                               \
@@ -587,10 +589,10 @@ if (veryVerbose)
         // TESTING STATIC DATA
         //
         // Concerns:
-        //: 1 The static data members (all pointers) are all 0-initialized.
+        // 1. The static data members (all pointers) are all 0-initialized.
         //
         // Plan:
-        //: 1 Examine each data member.
+        // 1. Examine each data member.
         //
         // Testing:
         //   CONCERN: static data
@@ -620,14 +622,14 @@ if (veryVerbose)
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING '*ArrayType' METHODS
+        // TESTING `*ArrayType` METHODS
         //
         // Concerns:
-        //: 1 Each of these class methods returns the expected value for all
-        //:   possible inputs.
+        // 1. Each of these class methods returns the expected value for all
+        //    possible inputs.
         //
         // Plan:
-        //: 1 Compare output to expected results for all possible inputs.
+        // 1. Compare output to expected results for all possible inputs.
         //
         // Testing:
         //   Enum fromArrayType(Enum arrayType);
@@ -635,10 +637,10 @@ if (veryVerbose)
         //   Enum toArrayType(Enum type);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING '*ArrayType' METHODS" << endl
+        if (verbose) cout << endl << "TESTING `*ArrayType` METHODS" << endl
                                   << "============================" << endl;
 
-        if (veryVerbose) cout << "Testing 'fromArrayType'" << endl;
+        if (veryVerbose) cout << "Testing `fromArrayType`" << endl;
 
         static const struct {
             int  d_lineNum;
@@ -681,7 +683,7 @@ if (veryVerbose)
             ASSERT(FROM_TYPE == Obj::fromArrayType(TYPE));
         }
 
-        if (veryVerbose) cout << "Testing 'isArrayType'" << endl;
+        if (veryVerbose) cout << "Testing `isArrayType`" << endl;
 
         static const struct {
             int  d_lineNum;
@@ -724,7 +726,7 @@ if (veryVerbose)
             ASSERT(IS_ARRAY  == Obj::isArrayType(TYPE));
         }
 
-        if (veryVerbose) cout << "Testing 'toArrayType'" << endl;
+        if (veryVerbose) cout << "Testing `toArrayType`" << endl;
 
         static const struct {
             int  d_lineNum;
@@ -772,52 +774,52 @@ if (veryVerbose)
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING OUTPUT ('<<') OPERATOR
+        // TESTING OUTPUT (`<<`) OPERATOR
         //
         // Concerns:
-        //: 1 The '<<' operator writes the output to the specified stream.
-        //:
-        //: 2 The '<<' operator writes the string representation of each
-        //:   enumerator in the intended format.
-        //:
-        //: 3 The '<<' operator writes a distinguished string when passed an
-        //:   out-of-band value.
-        //:
-        //: 4 The output produced by 'stream << value' is the same as that
-        //:   produced by 'Obj::print(stream, value, 0, -1)'.
-        //:
-        //: 5 There is no output when the stream is invalid.
-        //:
-        //: 6 The '<<' operator has the expected signature.
-        //:
-        //: 7 The '<<' operator returns the supplied 'ostream'.
+        // 1. The `<<` operator writes the output to the specified stream.
+        //
+        // 2. The `<<` operator writes the string representation of each
+        //    enumerator in the intended format.
+        //
+        // 3. The `<<` operator writes a distinguished string when passed an
+        //    out-of-band value.
+        //
+        // 4. The output produced by `stream << value` is the same as that
+        //    produced by `Obj::print(stream, value, 0, -1)`.
+        //
+        // 5. There is no output when the stream is invalid.
+        //
+        // 6. The `<<` operator has the expected signature.
+        //
+        // 7. The `<<` operator returns the supplied `ostream`.
         //
         // Plan:
-        //: 1 Verify that the '<<' operator produces the expected results for
-        //:   each enumerator.  (C-1..2)
-        //:
-        //: 2 Verify that the '<<' operator writes a distinguished string when
-        //:   passed an out-of-band value.  (C-3)
-        //:
-        //: 3 Verify that 'stream << value' writes the same output as
-        //:   'Obj::print(stream, value, 0, -1)'.  (C-4)
-        //:
-        //: 4 Verify that the address of the returned 'stream' is the same as
-        //:   the supplied 'stream'.  (C-7)
-        //:
-        //: 5 Verify that there is no output when the stream is invalid.  (C-5)
-        //:
-        //: 6 Take the address of the '<<' (free) operator and use the result
-        //:   to initialize a variable of the appropriate type.  (C-6)
+        // 1. Verify that the `<<` operator produces the expected results for
+        //    each enumerator.  (C-1..2)
+        //
+        // 2. Verify that the `<<` operator writes a distinguished string when
+        //    passed an out-of-band value.  (C-3)
+        //
+        // 3. Verify that `stream << value` writes the same output as
+        //    `Obj::print(stream, value, 0, -1)`.  (C-4)
+        //
+        // 4. Verify that the address of the returned `stream` is the same as
+        //    the supplied `stream`.  (C-7)
+        //
+        // 5. Verify that there is no output when the stream is invalid.  (C-5)
+        //
+        // 6. Take the address of the `<<` (free) operator and use the result
+        //    to initialize a variable of the appropriate type.  (C-6)
         //
         // Testing:
         //   operator<<(ostream& s, OptionType::Enum val);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING OUTPUT ('<<') OPERATOR" << endl
+        if (verbose) cout << endl << "TESTING OUTPUT (`<<`) OPERATOR" << endl
                                   << "==============================" << endl;
 
-// Suppress outside 'enum' range warnings.
+// Suppress outside `enum` range warnings.
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push
@@ -865,7 +867,7 @@ if (veryVerbose)
 
         const int   NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout << "\nTesting '<<' operator." << endl;
+        if (verbose) cout << "\nTesting `<<` operator." << endl;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int    LINE  = DATA[ti].d_lineNum;
@@ -913,7 +915,7 @@ if (veryVerbose)
             ASSERTV(LINE, ti, os.str(), os.str().empty());
         }
 
-        if (verbose) cout << "\nVerify '<<' operator signature." << endl;
+        if (verbose) cout << "\nVerify `<<` operator signature." << endl;
 
         {
             using namespace balcl;
@@ -927,50 +929,50 @@ if (veryVerbose)
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'print'
+        // TESTING `print`
         //
         // Concerns:
-        //: 1 The 'print' method writes the output to the specified stream.
-        //:
-        //: 2 The 'print' method writes the string representation of each
-        //:   enumerator in the intended format taking the 'level' and
-        //:   'spacesPerLevel' parameter values into account.
-        //:
-        //: 3 The optional 'level' and 'spacesPerLevel' parameters have the
-        //:   correct default values.
-        //:
-        //: 4 The 'print' method writes a distinguished string when passed an
-        //:   out-of-band value.
-        //:
-        //: 5 There is no output when the stream is invalid.
-        //:
-        //: 6 The 'print' method has the expected signature.
-        //:
-        //: 7 The 'print' method returns the supplied 'ostream'.
+        // 1. The `print` method writes the output to the specified stream.
+        //
+        // 2. The `print` method writes the string representation of each
+        //    enumerator in the intended format taking the `level` and
+        //    `spacesPerLevel` parameter values into account.
+        //
+        // 3. The optional `level` and `spacesPerLevel` parameters have the
+        //    correct default values.
+        //
+        // 4. The `print` method writes a distinguished string when passed an
+        //    out-of-band value.
+        //
+        // 5. There is no output when the stream is invalid.
+        //
+        // 6. The `print` method has the expected signature.
+        //
+        // 7. The `print` method returns the supplied `ostream`.
         //
         // Plan:
-        //: 1 Verify that the 'print' method produces the expected results for
-        //:   each enumerator.  (C-1..3)
-        //:
-        //: 2 Verify that the 'print' method writes a distinguished string when
-        //:   passed an out-of-band value.  (C-4)
-        //:
-        //: 3 Verify that the address of the returned 'stream' is the same as
-        //:   the supplied 'stream'.  (C-7)
-        //:
-        //: 4 Verify that there is no output when the stream is invalid.  (C-5)
-        //:
-        //: 5 Take the address of the 'print' (class) method and use the
-        //:   result to initialize a variable of the appropriate type.  (C-6)
+        // 1. Verify that the `print` method produces the expected results for
+        //    each enumerator.  (C-1..3)
+        //
+        // 2. Verify that the `print` method writes a distinguished string when
+        //    passed an out-of-band value.  (C-4)
+        //
+        // 3. Verify that the address of the returned `stream` is the same as
+        //    the supplied `stream`.  (C-7)
+        //
+        // 4. Verify that there is no output when the stream is invalid.  (C-5)
+        //
+        // 5. Take the address of the `print` (class) method and use the
+        //    result to initialize a variable of the appropriate type.  (C-6)
         //
         // Testing:
         //   ostream& print(ostream& s, Enum val, int level = 0, int sPL = 4);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING 'print'" << endl
+        if (verbose) cout << endl << "TESTING `print`" << endl
                                   << "===============" << endl;
 
-// suppress outside 'enum' range warnings
+// suppress outside `enum` range warnings
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push
@@ -1020,7 +1022,7 @@ if (veryVerbose)
 
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout << "\nTesting 'print'." << endl;
+        if (verbose) cout << "\nTesting `print`." << endl;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int    LINE  = DATA[ti].d_lineNum;
@@ -1042,7 +1044,7 @@ if (veryVerbose)
 
             if (0 == LEVEL && 4 == SPL) {
                 if (veryVerbose)
-                    cout << "\tRepeat for 'print' default arguments." << endl;
+                    cout << "\tRepeat for `print` default arguments." << endl;
 
                 bslma::TestAllocator scratch("scratch", veryVeryVerbose);
                 ostringstream        os(&scratch);
@@ -1073,7 +1075,7 @@ if (veryVerbose)
             ASSERTV(LINE, ti, os.str(), os.str().empty());
         }
 
-        if (verbose) cout << "\nVerify 'print' signature." << endl;
+        if (verbose) cout << "\nVerify `print` signature." << endl;
 
         {
             typedef bsl::ostream& (*FuncPtr)(bsl::ostream&, Enum, int, int);
@@ -1085,44 +1087,44 @@ if (veryVerbose)
       } break;
       case 1: {
         // -------------------------------------------------------------------
-        // TESTING 'enum' AND 'toAscii'
+        // TESTING `enum` AND `toAscii`
         //
         // Concerns:
-        //: 1 The enumerator values are sequential, starting from 0.
-        //:
-        //: 2 The 'toAscii' method returns the expected string representation
-        //:   for each enumerator.
-        //:
-        //: 3 The 'toAscii' method returns a distinguished string when passed
-        //:   an out-of-band value.
-        //:
-        //: 4 The string returned by 'toAscii' is non-modifiable.
-        //:
-        //: 5 The 'toAscii' method has the expected signature.
+        // 1. The enumerator values are sequential, starting from 0.
+        //
+        // 2. The `toAscii` method returns the expected string representation
+        //    for each enumerator.
+        //
+        // 3. The `toAscii` method returns a distinguished string when passed
+        //    an out-of-band value.
+        //
+        // 4. The string returned by `toAscii` is non-modifiable.
+        //
+        // 5. The `toAscii` method has the expected signature.
         //
         // Plan:
-        //: 1 Verify that the enumerator values are sequential, starting from
-        //:   0.  (C-1)
-        //:
-        //: 2 Verify that the 'toAscii' method returns the expected string
-        //:   representation for each enumerator.  (C-2)
-        //:
-        //: 3 Verify that the 'toAscii' method returns a distinguished string
-        //:   when passed an out-of-band value.  (C-3)
-        //:
-        //: 4 Take the address of the 'toAscii' (class) method and use the
-        //:   result to initialize a variable of the appropriate type.
-        //:   (C-4..5)
+        // 1. Verify that the enumerator values are sequential, starting from
+        //    0.  (C-1)
+        //
+        // 2. Verify that the `toAscii` method returns the expected string
+        //    representation for each enumerator.  (C-2)
+        //
+        // 3. Verify that the `toAscii` method returns a distinguished string
+        //    when passed an out-of-band value.  (C-3)
+        //
+        // 4. Take the address of the `toAscii` (class) method and use the
+        //    result to initialize a variable of the appropriate type.
+        //    (C-4..5)
         //
         // Testing:
         //   enum Enum { ... };
         //   const char *toAscii(OptionType::Enum val);
         // -------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING 'enum' AND 'toAscii'" << endl
+        if (verbose) cout << endl << "TESTING `enum` AND `toAscii`" << endl
                                   << "============================" << endl;
 
-// suppress outside 'enum' range warnings
+// suppress outside `enum` range warnings
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push
@@ -1180,7 +1182,7 @@ if (veryVerbose)
             ASSERTV(ti, VALUE, ti == static_cast<int>(VALUE));
         }
 
-        if (verbose) cout << "\nTesting 'toAscii'." << endl;
+        if (verbose) cout << "\nTesting `toAscii`." << endl;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE  = DATA[ti].d_lineNum;
@@ -1195,7 +1197,7 @@ if (veryVerbose)
             ASSERTV(LINE, ti,           0 == strcmp(EXP, result));
         }
 
-        if (verbose) cout << "\nVerify 'toAscii' signature." << endl;
+        if (verbose) cout << "\nVerify `toAscii` signature." << endl;
 
         {
             typedef const char *(*FuncPtr)(Enum);

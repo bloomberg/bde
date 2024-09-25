@@ -16,7 +16,7 @@ using namespace std;
 //                             Overview
 //                             --------
 // This component implements a standard enumeration that, in addition to its
-// enumeration values, provide a count of enumeration values and a 'toAscii'
+// enumeration values, provide a count of enumeration values and a `toAscii`
 // method.
 //-----------------------------------------------------------------------------
 // [1] enum Strategy { ... };
@@ -90,19 +90,21 @@ typedef bsls::BlockGrowth           Class;
 //-----------------------------------------------------------------------------
 // Memory block growth strategies are often used in memory managers and
 // containers to control memory usage.  First of all, suppose we have a
-// 'my_BlockList' class that manages a link list of memory blocks:
-//..
+// `my_BlockList` class that manages a link list of memory blocks:
+// ```
+
+    /// ...
     class my_BlockList {
-        // ...
     };
-//..
-// We can then create a memory manager class 'my_SequentialPool' that manages a
+// ```
+// We can then create a memory manager class `my_SequentialPool` that manages a
 // pool of memory:
-//..
+// ```
+
+    /// This class implements a memory pool that dispenses (heterogeneous)
+    /// blocks of memory (of varying, user-specified-sized) from a sequence
+    /// of dynamically allocated buffers.
     class my_SequentialPool {
-        // This class implements a memory pool that dispenses (heterogeneous)
-        // blocks of memory (of varying, user-specified-sized) from a sequence
-        // of dynamically allocated buffers.
 
         // DATA
         char         *d_currentBuffer_p;    // pointer to current buffer
@@ -121,55 +123,58 @@ typedef bsls::BlockGrowth           Class;
 
       private:
         // PRIVATE MANIPULATORS
+
+        /// Return the next buffer size sufficient to satisfy a memory
+        /// allocation request of the specified `size` (in bytes).
         int calculateNextSize(int size);
-            // Return the next buffer size sufficient to satisfy a memory
-            // allocation request of the specified 'size' (in bytes).
 
       public:
         // CREATORS
+
+        /// Create a pool with the specified memory block growth `strategy`.
         my_SequentialPool(bsls::BlockGrowth::Strategy  strategy);
-            // Create a pool with the specified memory block growth 'strategy'.
 
         // ...
 
         // MANIPULATORS
+
+        /// Return the address of a contiguous block of memory of the
+        /// specified `size` (in bytes).  If the pool cannot return the
+        /// requested number of bytes, `std::bad_alloc` will be thrown in an
+        /// exception-enabled build, or the program will be aborted.  The
+        /// behavior is undefined unless `size > 0`.
         void *allocate(int size);
-            // Return the address of a contiguous block of memory of the
-            // specified 'size' (in bytes).  If the pool cannot return the
-            // requested number of bytes, 'std::bad_alloc' will be thrown in an
-            // exception-enabled build, or the program will be aborted.  The
-            // behavior is undefined unless 'size > 0'.
     };
-//..
+// ```
 // The implementation for the rest of the class is elided as the function
-// 'calculateNextSize' alone is sufficient to illustrate the use of this
+// `calculateNextSize` alone is sufficient to illustrate the use of this
 // component:
-//..
+// ```
     // PRIVATE MANIPULATORS
     int my_SequentialPool::calculateNextSize(int size)
     {
         if (bsls::BlockGrowth::BSLS_CONSTANT == d_growthStrategy) {
             return d_currentBufferSize;                               // RETURN
         }
-//..
+// ```
 // Note that, if the growth strategy in effect is constant growth
-// ('BSLS_CONSTANT'), the size of the internal buffers will always be the same.
-// If 'size' is greater than the buffer size, the implementation of 'allocate'
-// will return a block having the exact 'size' from the internal block list:
-//..
+// (`BSLS_CONSTANT`), the size of the internal buffers will always be the same.
+// If `size` is greater than the buffer size, the implementation of `allocate`
+// will return a block having the exact `size` from the internal block list:
+// ```
         int nextSize = d_currentBufferSize;
 
         do {
             nextSize *= 2;  // growth factor of 2
         } while (nextSize < size);
-//..
+// ```
 // Note that, if the growth strategy in effect is geometric growth
-// ('BSLS_GEOMETRIC'), the size of the internal buffer grows geometrically by a
+// (`BSLS_GEOMETRIC`), the size of the internal buffer grows geometrically by a
 // factor of 2:
-//..
+// ```
         return nextSize;
     }
-//..
+// ```
 
 //=============================================================================
 //                                MAIN PROGRAM
@@ -199,7 +204,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Copy usage example from the header file, uncomment the code and
-        //   change all 'assert' to 'ASSERT'.
+        //   change all `assert` to `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -215,7 +220,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   1) Enumerators hold expected values.
-        //   2) 'toAscii' returns the correct ascii representation of the
+        //   2) `toAscii` returns the correct ascii representation of the
         //      enumerators.
         //
         // Plan:
@@ -232,7 +237,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "VALUE TEST" << endl
                                   << "==========" << endl;
 
-        if (verbose) cout << "\nTesting enumerator value and 'toAscii'."
+        if (verbose) cout << "\nTesting enumerator value and `toAscii`."
                           << endl;
 
         static const struct {

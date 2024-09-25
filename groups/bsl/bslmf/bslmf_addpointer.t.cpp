@@ -7,8 +7,8 @@
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 using namespace bsl;
 using namespace BloombergLP;
@@ -18,8 +18,8 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines meta-functions, 'bsl::add_pointer' and
-// 'bsl::add_pointer_t', that transform a type to a pointer type to that type.
+// The component under test defines meta-functions, `bsl::add_pointer` and
+// `bsl::add_pointer_t`, that transform a type to a pointer type to that type.
 // We need to ensure that the values returned by the meta-function are correct
 // for each possible category of types.
 //
@@ -102,15 +102,15 @@ struct TestType {
    // argument for a template parameter.
 };
 
+/// This non-static function member type is intended to be used during
+/// testing as an argument for the template parameter `TYPE` of
+/// `bsl::add_pointer`.
 typedef void (TestType::*MethodPtrTestType) ();
-    // This non-static function member type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::add_pointer'.
 
+/// This class public data member pointer type is intended to be used during
+/// testing as an argument as an argument for the template parameter `TYPE`
+/// of `bsl::add_pointer`.
 typedef int TestType::* PMD;
-    // This class public data member pointer type is intended to be used during
-    // testing as an argument as an argument for the template parameter 'TYPE'
-    // of 'bsl::add_pointer'.
 
 }  // close unnamed namespace
 
@@ -140,13 +140,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -163,60 +163,60 @@ int main(int argc, char *argv[])
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to transform a type to a pointer type to that type.
 //
-// First, we create two 'typedef's -- a pointer type ('MyPtrType') and the type
-// pointed to by the pointer type ('MyType'):
-//..
+// First, we create two `typedef`s -- a pointer type (`MyPtrType`) and the type
+// pointed to by the pointer type (`MyType`):
+// ```
     typedef int   MyType;
     typedef int * MyPtrType;
-//..
-// Now, we transform 'MyType' to a pointer type to 'MyType' using
-// 'bsl::add_pointer' and verify that the resulting type is the same as
-// 'MyPtrType':
-//..
+// ```
+// Now, we transform `MyType` to a pointer type to `MyType` using
+// `bsl::add_pointer` and verify that the resulting type is the same as
+// `MyPtrType`:
+// ```
     ASSERT((bsl::is_same<bsl::add_pointer<MyType>::type,
                          MyPtrType>::value));
-//..
+// ```
 // Finally, if the current compiler supports alias templates C++11 feature, we
-// transform 'MyType' to a pointer type using 'bsl::add_pointer_t' and verify
-// that the resulting type is the same as 'MyPtrType':
-//..
+// transform `MyType` to a pointer type using `bsl::add_pointer_t` and verify
+// that the resulting type is the same as `MyPtrType`:
+// ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
     ASSERT((bsl::is_same<bsl::add_pointer_t<MyType>, MyPtrType>::value));
 #endif
-//..
+// ```
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::add_pointer::type'
-        //   Ensure that the 'typedef' 'type' of 'bsl::add_pointer' has the
+        // `bsl::add_pointer::type`
+        //   Ensure that the `typedef` `type` of `bsl::add_pointer` has the
         //   correct type for a variety of template parameter types.
         //
         // Concerns:
-        //: 1 'bsl::add_pointer' transforms a non-reference type to a pointer
-        //:   type pointing to the original type.
-        //:
-        //: 2 'bsl::add_pointer' transforms a reference type to a pointer
-        //:   type pointing to the type referred to by the reference type.
-        //:
-        //: 3 'bsl::add_pointer' does not decay arrays.
-        //:
-        //: 4 'bsl::add_pointer' produces function-pointers from function types
-        //:   and function-reference-types.
-        //:
-        //: 5 'bsl::add_pointer' does not change the type of an "abominable"
-        //:   function type (with a trailing cv-qualifier) as there is no legal
-        //:   pointer type to transform into.  Note that some compilers are
-        //:   known to have bugs, and we should test that this trait produces
-        //:   the corresponding (illegal) type on such compilers, rather than
-        //:   failing to compile at all.
-        //:
-        //: 6 'bsl::add_pointer_t' represents the return type of
-        //:   'bsl::add_pointer' meta-function for a variety of template
-        //:   parameter types.
+        // 1. `bsl::add_pointer` transforms a non-reference type to a pointer
+        //    type pointing to the original type.
+        //
+        // 2. `bsl::add_pointer` transforms a reference type to a pointer
+        //    type pointing to the type referred to by the reference type.
+        //
+        // 3. `bsl::add_pointer` does not decay arrays.
+        //
+        // 4. `bsl::add_pointer` produces function-pointers from function types
+        //    and function-reference-types.
+        //
+        // 5. `bsl::add_pointer` does not change the type of an "abominable"
+        //    function type (with a trailing cv-qualifier) as there is no legal
+        //    pointer type to transform into.  Note that some compilers are
+        //    known to have bugs, and we should test that this trait produces
+        //    the corresponding (illegal) type on such compilers, rather than
+        //    failing to compile at all.
+        //
+        // 6. `bsl::add_pointer_t` represents the return type of
+        //    `bsl::add_pointer` meta-function for a variety of template
+        //    parameter types.
         //
         // Plan:
-        //   Verify that 'bsl::add_pointer::type' has the correct type for
+        //   Verify that `bsl::add_pointer::type` has the correct type for
         //   each concern.
         //
         // Testing:

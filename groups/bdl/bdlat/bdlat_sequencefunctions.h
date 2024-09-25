@@ -122,7 +122,7 @@ BSLS_IDENT("$Id: $")
 //     // Return true if the specified 'object' has an attribute with the
 //     // specified 'attributeId', and false otherwise.
 //
-// }  // close namespace 'mine'
+// }  // close namespace mine
 // ```
 // Also, the `IsSequence` meta-function must be specialized for the
 // `mine::MySequence` type in the `bdlat_SequenceFunctions` namespace.

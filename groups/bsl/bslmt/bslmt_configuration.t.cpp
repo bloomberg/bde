@@ -19,11 +19,11 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              OVERVIEW
 //                              --------
-// This program tests the functionality of the 'bslmt::Configuration' class.
+// This program tests the functionality of the `bslmt::Configuration` class.
 //
-// Note that since this component is below 'bslmt::ThreadUtil', we cannot
+// Note that since this component is below `bslmt::ThreadUtil`, we cannot
 // actually create any threads and verify stack sizes, so some testing of this
-// component is done in 'bslmt_threadutil.t.cpp'.
+// component is done in `bslmt_threadutil.t.cpp`.
 //
 //-----------------------------------------------------------------------------
 // [1] Breathing Test
@@ -105,40 +105,40 @@ int main(int argc, char *argv[])
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we demonstrate how to access both the platform's native and
 // BCE configured default stack sizes, and then to set the default stack size
-// used by BCE.  Note that the value returned by 'defaultThreadStackSize' may
+// used by BCE.  Note that the value returned by `defaultThreadStackSize` may
 // be adjusted from that provided by the underlying operating system to reflect
 // the actual amount of stack memory available to a created thread.  Note that
 // operations creating a thread should perform a similar inverse adjustment
-// when configuring the new thread's stack size (see 'bslmt_threadutil').
+// when configuring the new thread's stack size (see `bslmt_threadutil`).
 //
 // First, we examine the platform's native thread stack size:
-//..
+// ```
     const int nativeDefault =
                           bslmt::Configuration::nativeDefaultThreadStackSize();
 
     ASSERT(nativeDefault > 0);
-//..
-// Then, we verify that 'defaultThreadStackSize' is unset.
-//..
+// ```
+// Then, we verify that `defaultThreadStackSize` is unset.
+// ```
     ASSERT(bslmt::ThreadAttributes::e_UNSET_STACK_SIZE ==
                                bslmt::Configuration::defaultThreadStackSize());
-//..
-// Next, we define 'newDefaultStackSize' to some size other than the platform's
+// ```
+// Next, we define `newDefaultStackSize` to some size other than the platform's
 // native default stack size:
-//..
+// ```
     const int newDefaultStackSize = nativeDefault * 2;
-//..
+// ```
 // Now, we set the default size for BCE to the new size:
-//..
+// ```
     bslmt::Configuration::setDefaultThreadStackSize(newDefaultStackSize);
-//..
+// ```
 // Finally, we verify that BCE's default thread stack size has been set to the
 // value we specified:
-//..
+// ```
     ASSERT(bslmt::Configuration::defaultThreadStackSize() ==
                                                           newDefaultStackSize);
     ASSERT(bslmt::Configuration::defaultThreadStackSize() != nativeDefault);
-//..
+// ```
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -183,13 +183,13 @@ int main(int argc, char *argv[])
         // SETTING THE THREAD STACK SIZE / USAGE
         //
         // Concern:
-        //   That 'setDefaultThreadStackSize' is able to set the default thread
+        //   That `setDefaultThreadStackSize` is able to set the default thread
         //   stack size.
         //
         // Plan:
-        //   Call 'setDefaultThreadStackSize' with a value that is not equal to
-        //   'nativeDefaultThreadStackSize' and then verify that the result of
-        //   'defaultThreadStackSize' has been set to the new value.
+        //   Call `setDefaultThreadStackSize` with a value that is not equal to
+        //   `nativeDefaultThreadStackSize` and then verify that the result of
+        //   `defaultThreadStackSize` has been set to the new value.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "SETTING THE THREAD STACK SIZE\n"
@@ -201,12 +201,12 @@ int main(int argc, char *argv[])
                           bslmt::Configuration::nativeDefaultThreadStackSize();
         ASSERT(nativeDefault > 0);
 
-        // Then, we verify that 'defaultThreadStackSize' is unset.
+        // Then, we verify that `defaultThreadStackSize` is unset.
 
         ASSERT(bslmt::ThreadAttributes::e_UNSET_STACK_SIZE ==
                                bslmt::Configuration::defaultThreadStackSize());
 
-        // Next, we define 'newDefaultStackSize' to some size other than the
+        // Next, we define `newDefaultStackSize` to some size other than the
         // native default size:
 
         const int newDefaultStackSize = nativeDefault * 2;
@@ -228,11 +228,11 @@ int main(int argc, char *argv[])
         // RECOMMENDED THREAD STACK SIZE
         //
         // Concern:
-        //   That 'recommendedThreadStackSize' returns a reasonable value and
+        //   That `recommendedThreadStackSize` returns a reasonable value and
         //   that the stack size can be set to that value on all platforms.
         //
         // Plan:
-        //   Call 'recommendedDefaultThreadStackSize' and verify that the value
+        //   Call `recommendedDefaultThreadStackSize` and verify that the value
         //   is non-negative.
         // --------------------------------------------------------------------
 
@@ -252,12 +252,12 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concern:
-        //   That, if 'setDefaultThreadStackSize' hasn't been called, that
-        //   'defaultThreadStackSize' equals 'nativeThreadStackSize'.o
+        //   That, if `setDefaultThreadStackSize` hasn't been called, that
+        //   `defaultThreadStackSize` equals `nativeThreadStackSize`.o
         //
         // Plan:
-        //   Call 'defaultThreadStackSize' and 'nativeThreadStackSize' without
-        //   having called  'setDefaultThreadStackSize', and verify that they
+        //   Call `defaultThreadStackSize` and `nativeThreadStackSize` without
+        //   having called  `setDefaultThreadStackSize`, and verify that they
         //   return the same value.
         //
         // Observed Results:

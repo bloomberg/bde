@@ -84,31 +84,32 @@ enum {
                         // class RegEx_ImpUtil
                         // ===================
 
+/// This `struct` provides a namespace for `RegEx` implementation utilities.
 struct RegEx_ImpUtil {
-    // This 'struct' provides a namespace for 'RegEx' implementation utilities.
 
     // CLASS METHODS
+
+    /// Assign a newly created pair of the specified `offset` and
+    /// `length` to the specified `value`.  Note that the specified
+    /// `subject` is unused in this overload.
     static
     void assign(bsl::pair<size_t, size_t> *value,
                 const char                *subject,
                 size_t                     offset,
                 size_t                     length)
-        // Assign a newly created pair of the specified 'offset' and
-        // 'length' to the specified 'value'.  Note that the specified
-        // 'subject' is unused in this overload.
     {
         (void)subject;
         *value =  bsl::make_pair(offset, length);
     }
 
+    /// Assign a newly created `bsl::string_view` object having the
+    /// specified `subject`, `offset`, and `length` to the specified
+    /// `value`.
     static
     void assign(bsl::string_view *value,
                 const char       *subject,
                 size_t            offset,
                 size_t            length)
-        // Assign a newly created 'bsl::string_view' object having the
-        // specified 'subject', 'offset', and 'length' to the specified
-        // 'value'.
     {
         *value = (length != 0) ? bsl::string_view(subject + offset, length)
                                : bsl::string_view();
@@ -119,8 +120,8 @@ struct RegEx_ImpUtil {
                         // struct NOP
                         // ==========
 
+/// NOP functor for `RegEx::match` that does not return the result of match.
 struct NOP {
-    // NOP functor for 'RegEx::match' that does not return the result of match.
 
     // ACCESSORS
     void operator()(const char *, PCRE2_SIZE *, unsigned int) const
@@ -132,10 +133,10 @@ struct NOP {
                         // class DataExtractor
                         // ===================
 
+/// This functor extracts the result of a match and assigns it to a
+/// variable of the DATA (template parameter) type.
 template <class DATA>
 class DataExtractor {
-    // This functor extracts the result of a match and assigns it to a
-    // variable of the DATA (template parameter) type.
 
     // DATA
     DATA *d_data_p;
@@ -168,10 +169,10 @@ class DataExtractor {
                         // class VectorExtractor
                         // =====================
 
+/// This functor extracts the result of a match and assigns it to a variable
+/// of the VECTOR (template parameter) type.
 template <class VECTOR>
 class VectorExtractor {
-    // This functor extracts the result of a match and assigns it to a variable
-    // of the VECTOR (template parameter) type.
 
     // DATA
     VECTOR *d_vector_p;
@@ -207,9 +208,9 @@ class VectorExtractor {
                         // struct RegEx_MatchContextData
                         // =============================
 
+/// This is a component-local POD `struct` that holds the pointers to the
+/// buffers used by the PCRE2 match API.
 struct RegEx_MatchContextData {
-    // This is a component-local POD 'struct' that holds the pointers to the
-    // buffers used by the PCRE2 match API.
 
   public:
     // DATA
@@ -222,8 +223,8 @@ struct RegEx_MatchContextData {
                         // class RegEx_MatchContext
                         // ========================
 
+/// This class manages opaque buffers used by PCRE2 match API.
 class RegEx_MatchContext {
-    // This class manages opaque buffers used by PCRE2 match API.
 
     // PRIVATE TYPES
     typedef bslmt::ThreadUtil::Handle  ThreadHandle;
@@ -239,48 +240,52 @@ class RegEx_MatchContext {
 
   private:
     // PRIVATE ACCESSORS
-    int allocateMatchContext(RegEx_MatchContextData *matchContextData) const;
-        // Allocate PCRE2 match data buffers and load them into the specified
-        // 'matchContextData'.
 
+    /// Allocate PCRE2 match data buffers and load them into the specified
+    /// `matchContextData`.
+    int allocateMatchContext(RegEx_MatchContextData *matchContextData) const;
+
+    /// Deallocate PCRE2 match data buffers pointed to by the specified
+    /// `matchContextData`.
     void deallocateMatchContext(RegEx_MatchContextData *matchContextData)
                                                                          const;
-        // Deallocate PCRE2 match data buffers pointed to by the specified
-        // 'matchContextData'.
 
   public:
     // CREATORS
-    RegEx_MatchContext();
-        // Create a 'RegEx_MatchContext' object.
 
+    /// Create a `RegEx_MatchContext` object.
+    RegEx_MatchContext();
+
+    /// Destroy this object.
     ~RegEx_MatchContext();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Initialize the object to provide data buffers for the PCRE2 match
+    /// API for the specified `pcre2Context`, `patternCode, `depthLimit',
+    /// and `jitStackSize`. Return 0 on success and non-zero value if the
+    /// data buffers cannot be allocated.
     int initialize(pcre2_general_context *pcre2Context,
                    pcre2_code            *patternCode,
                    int                    depthLimit,
                    size_t                 jitStackSize);
-        // Initialize the object to provide data buffers for the PCRE2 match
-        // API for the specified 'pcre2Context', 'patternCode, 'depthLimit',
-        // and 'jitStackSize'. Return 0 on success and non-zero value if the
-        // data buffers cannot be allocated.
 
+    /// Change the match depth limit in the match data buffers to the
+    /// specified `depthLimit`.
     void setDepthLimit(int depthLimit);
-        // Change the match depth limit in the match data buffers to the
-        // specified 'depthLimit'.
 
     // ACCESSORS
-    int acquireMatchContext(RegEx_MatchContextData *matchContextData) const;
-        // Acquire the match data buffers for the current thread and load the
-        // specified 'matchContextData' with the pointers to the match data
-        // buffers.  The behavior is undefined unless 'matchContextData' is a
-        // valid pointer.
 
+    /// Acquire the match data buffers for the current thread and load the
+    /// specified `matchContextData` with the pointers to the match data
+    /// buffers.  The behavior is undefined unless `matchContextData` is a
+    /// valid pointer.
+    int acquireMatchContext(RegEx_MatchContextData *matchContextData) const;
+
+    /// Release the match data buffers pointed to by the specified
+    /// `matchContextData`.  The behavior is undefined unless
+    /// `matchContextData` is a valid pointer.
     void releaseMatchContext(RegEx_MatchContextData *matchContextData) const;
-        // Release the match data buffers pointed to by the specified
-        // 'matchContextData'.  The behavior is undefined unless
-        // 'matchContextData' is a valid pointer.
 };
 
                         // ------------------

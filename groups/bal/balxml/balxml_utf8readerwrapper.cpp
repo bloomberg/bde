@@ -48,9 +48,9 @@ BSLS_IDENT_RCSID(balxml_reader_cpp,"$Id$ $CSID$")
 namespace {
 namespace u {
 
+/// Return the specified `str` is `str != 0`, and "" otherwise.
 inline
 const char *nonNullStr(const char *str)
-    // Return the specified 'str' is 'str != 0', and "" otherwise.
 {
     return str ? str : "";
 }

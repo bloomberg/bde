@@ -91,14 +91,14 @@ void aSsErT(bool condition, const char *message, int line)
 namespace BloombergLP {
 namespace bsls {
 
+/// Print a descriptive form of the specified `error` bracketed by the
+/// specified `leadingString` and `trailingString`.
 template <>
 void BslTestUtil::callDebugprint(const bsl::system_error&  object,
                                  const char               *leadingString,
                                  const char               *trailingString)
-    // Print a descriptive form of the specified 'error' bracketed by the
-    // specified 'leadingString' and 'trailingString'.
 {
-    printf("%ssystem_error<%d, '%s', %s>%s",
+    printf("%ssystem_error<%d, `%s`, %s>%s",
            leadingString,
            object.code().value(),
            object.what(),
@@ -132,13 +132,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -151,42 +151,42 @@ int main(int argc, char *argv[])
 /// - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to add an informative message when a system error occurs and
 // include that as part of an exception that we throw when reporting the error.
-// We can use 'bsl::system_error' to do that.
+// We can use `bsl::system_error` to do that.
 //
-// First, reset 'errno' to avoid detecting old problems.
-//..
+// First, reset `errno` to avoid detecting old problems.
+// ```
     errno = 0;
-//..
-// Then, do something that will fail and set 'errno'.
-//..
+// ```
+// Then, do something that will fail and set `errno`.
+// ```
     strtod("1e2000", 0);
-//..
-// Next, check that 'errno' was actually set.
-//..
+// ```
+// Next, check that `errno` was actually set.
+// ```
     ASSERTV(errno, ERANGE, ERANGE == errno);
-//..
+// ```
 //  Finally, prepare an annotated exception and verify the annotaion and the
 //  error code stored within it.
-//..
+// ```
     bsl::system_error annotated(errno, generic_category(), "1e2000");
     ASSERT(strstr(annotated.what(), "1e2000"));
     ASSERT(static_cast<int>(bsl::errc::result_out_of_range) ==
            annotated.code().value());
     ASSERT(&generic_category() == &annotated.code().category());
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
         // TESTING SYSTEM ERROR METHODS
-        //   Test the methods of the 'bsl::system_error' class.
+        //   Test the methods of the `bsl::system_error` class.
         //
         // Concerns:
-        //: 1 The constructors build an object with the correct code.
-        //: 2 The optional 'what' parameter can be observed.
+        // 1. The constructors build an object with the correct code.
+        // 2. The optional `what` parameter can be observed.
         //
         // Plan:
-        //: 1 Construct objects with each of the constructors.  (C-1)
-        //: 2 Retrieve the code and message to verify preservation.  (C-2)
+        // 1. Construct objects with each of the constructors.  (C-1)
+        // 2. Retrieve the code and message to verify preservation.  (C-2)
         //
         // Testing:
         //   system_error(error_code, const std::string&)
@@ -266,20 +266,20 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create four test objects by using the default, initializing, and
-        //:   copy constructors.
-        //:
-        //: 2 Exercise the basic value-semantic methods and the equality
-        //:   operators using these test objects.
-        //:
-        //: 3 Invoke the primary manipulator, copy constructor, and assignment
-        //:   operator without and with aliasing.
-        //:
-        //: 4 Use the basic accessors to verify the expected results.  (C-1)
+        // 1. Create four test objects by using the default, initializing, and
+        //    copy constructors.
+        //
+        // 2. Exercise the basic value-semantic methods and the equality
+        //    operators using these test objects.
+        //
+        // 3. Invoke the primary manipulator, copy constructor, and assignment
+        //    operator without and with aliasing.
+        //
+        // 4. Use the basic accessors to verify the expected results.  (C-1)
         //
         // Testing:
         //   BREATHING TEST

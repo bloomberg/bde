@@ -13,23 +13,23 @@
 
 #include <bslstl_referencewrapper.h>
 
-#include <limits.h> // 'INT_MAX'
-#include <stddef.h> // 'size_t'
-#include <stdint.h> // 'uintptr_t'
-#include <stdio.h>  // 'printf', 'FILE', etc.
-#include <stdlib.h> // 'atoi'
-#include <string.h> // 'strncpy'
+#include <limits.h> // `INT_MAX`
+#include <stddef.h> // `size_t`
+#include <stdint.h> // `uintptr_t`
+#include <stdio.h>  // `printf`, `FILE`, etc.
+#include <stdlib.h> // `atoi`
+#include <string.h> // `strncpy`
 
 // ============================================================================
 //                                 TEST PLAN
 // ----------------------------------------------------------------------------
 // This subordinate component provides a namespace for a suite of utility
 // types, type traits, and constants used in the implementation of
-// 'bslstl_function'.  This test driver verifies each utility type, type trait,
+// `bslstl_function`.  This test driver verifies each utility type, type trait,
 // and constant independently in its own test case.
 //
-// Throughout this test plan, the type 'Obj' refers to
-// 'bslstl::Function_SmallObjectOptimization'.
+// Throughout this test plan, the type `Obj` refers to
+// `bslstl::Function_SmallObjectOptimization`.
 // ----------------------------------------------------------------------------
 // TYPES
 // [ 3] Obj::InplaceBuffer
@@ -124,13 +124,13 @@ using namespace BloombergLP;
                             // ====================
 
 class IncompleteType;
-    // 'IncompleteType' provides a declaration an incomplete class type, which
+    // `IncompleteType` provides a declaration an incomplete class type, which
     // this test driver uses to construct other types for the purposes of
     // testing.
 
 #if MSVC_2013
-    // However MSVC 2013 requires 'IncompleteType' to be complete when
-    // calculating the size of 'bsl::reference_wrapper<IncompleteType>' below.
+    // However MSVC 2013 requires `IncompleteType` to be complete when
+    // calculating the size of `bsl::reference_wrapper<IncompleteType>` below.
 
 class IncompleteType {
 };
@@ -141,30 +141,31 @@ class IncompleteType {
                                // class TypeTag
                                // =============
 
+/// This class provides a default-constructible and copyable type that other
+/// functions in this test driver use for the purpose of function template
+/// argument deduction.
 template <class TYPE>
 class TypeTag {
-    // This class provides a default-constructible and copyable type that other
-    // functions in this test driver use for the purpose of function template
-    // argument deduction.
 
   public:
     // CREATORS
+
+    /// Create a `TypeTag<TYPE>` object.
     TypeTag();
-        // Create a 'TypeTag<TYPE>' object.
 };
 
                          // =========================
                          // class SmallObjectTestType
                          // =========================
 
+/// This class template provides a test type that has the specified `SIZE`,
+/// for which the `value` of `bsl::is_nothrow_move_constructible` is equal
+/// to the value of the specified `NOTHROW_MOVE_CONSTRUCTIBLE` parameter,
+/// and the `value` of `bslmf::IsBitwiseMoveable` is equal to the specified
+/// `BITWISE_MOVEABLE` parameter.  The behavior is undefined unless
+/// `SIZE != 0`, and `BITWISE_MOVEABLE == true` if `SIZE == 1`.
 template <size_t SIZE, bool NOTHROW_MOVE_CONSTRUCTIBLE, bool BITWISE_MOVEABLE>
 class SmallObjectTestType {
-    // This class template provides a test type that has the specified 'SIZE',
-    // for which the 'value' of 'bsl::is_nothrow_move_constructible' is equal
-    // to the value of the specified 'NOTHROW_MOVE_CONSTRUCTIBLE' parameter,
-    // and the 'value' of 'bslmf::IsBitwiseMoveable' is equal to the specified
-    // 'BITWISE_MOVEABLE' parameter.  The behavior is undefined unless
-    // 'SIZE != 0', and 'BITWISE_MOVEABLE == true' if 'SIZE == 1'.
 
     BSLMF_ASSERT(SIZE > 0);
     BSLMF_ASSERT(SIZE > 1 || BITWISE_MOVEABLE);
@@ -185,29 +186,35 @@ class SmallObjectTestType {
                                       BITWISE_MOVEABLE);
 
     // CREATORS
+
+    /// Default constructor.
     SmallObjectTestType();
-        // Default constructor.
 
+    /// Copy constructor (would be suppressed by move constructor if not
+    /// present).
     SmallObjectTestType(const SmallObjectTestType&);
-        // Copy constructor (would be suppressed by move constructor if not
-        // present).
 
+    /// Move constructor that is declared non-throwing if
+    /// `NOTHROW_MOVE_CONSTRUCTIBLE` is true.
     SmallObjectTestType(bslmf::MovableRef<SmallObjectTestType>)
             BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(NOTHROW_MOVE_CONSTRUCTIBLE);
-        // Move constructor that is declared non-throwing if
-        // 'NOTHROW_MOVE_CONSTRUCTIBLE' is true.
 };
 
                        // ==============================
                        // struct SmallObjectTestTypeUtil
                        // ==============================
 
+/// This utility `struct` provides a `static` member function for obtaining
+/// tag types for `SmallObjectTestType` specializations, which this test
+/// driver uses for function template argument deduction.
 struct SmallObjectTestTypeUtil {
-    // This utility 'struct' provides a 'static' member function for obtaining
-    // tag types for 'SmallObjectTestType' specializations, which this test
-    // driver uses for function template argument deduction.
 
     // CLASS METHODS
+
+    /// Return `TypeTag<T>()`, where `T` is `SmallObjectTestType<S, N, B>`,
+    /// `S` is the specified `SIZE` parameter, `N` is the specified
+    /// `NOTHROW_MOVE_CONSTRUCTIBLE` parameter, and `B` is the specified
+    /// `BITWISE_MOVEABLE` parameter.
     template <size_t SIZE,
               bool   NOTHROW_MOVE_CONSTRUCTIBLE,
               bool   BITWISE_MOVEABLE>
@@ -215,39 +222,41 @@ struct SmallObjectTestTypeUtil {
                                        NOTHROW_MOVE_CONSTRUCTIBLE,
                                        BITWISE_MOVEABLE> >
     tag();
-        // Return 'TypeTag<T>()', where 'T' is 'SmallObjectTestType<S, N, B>',
-        // 'S' is the specified 'SIZE' parameter, 'N' is the specified
-        // 'NOTHROW_MOVE_CONSTRUCTIBLE' parameter, and 'B' is the specified
-        // 'BITWISE_MOVEABLE' parameter.
 };
 
                         // ===========================
                         // struct ReferenceWrapperUtil
                         // ===========================
 
+/// This utility `struct` provides a `static` member function for obtaining
+/// tag types for `bsl::reference_wrapper` specializations, which this test
+/// driver uses for function template argument deduction.
 struct ReferenceWrapperUtil {
-    // This utility 'struct' provides a 'static' member function for obtaining
-    // tag types for 'bsl::reference_wrapper' specializations, which this test
-    // driver uses for function template argument deduction.
 
     // CLASS METHODS
+
+    /// Return `TypeTag<T>()`, where `T` is `bsl::reference_wrapper<R>`,
+    /// and `R` is the specified `REFERENCED_TYPE` parameter.
     template <class REFERENCED_TYPE>
     static TypeTag<bsl::reference_wrapper<REFERENCED_TYPE> > tag();
-        // Return 'TypeTag<T>()', where 'T' is 'bsl::reference_wrapper<R>',
-        // and 'R' is the specified 'REFERENCED_TYPE' parameter.
 };
 
                    // ======================================
                    // struct SmallObjectReferenceWrapperUtil
                    // ======================================
 
+/// This utility `struct` provides a `static` member function for obtaining
+/// tag types for `bsl::reference_wrapper` specializations with a `T`
+/// parameter of a `SmallObjectTestType` specialization, which this test
+/// driver uses for function template argument deduction.
 struct SmallObjectReferenceWrapperUtil {
-    // This utility 'struct' provides a 'static' member function for obtaining
-    // tag types for 'bsl::reference_wrapper' specializations with a 'T'
-    // parameter of a 'SmallObjectTestType' specialization, which this test
-    // driver uses for function template argument deduction.
 
     // CLASS METHODS
+
+    /// Return `TypeTag<bsl::reference_wrapper<T> >()`, where `T` is
+    /// `SmallObjectTestType<S, N, B>`, `S` is the specified `SIZE`
+    /// parameter, `N` is the specified `NOTHROW_MOVE_CONSTRUCTIBLE`
+    /// parameter, and `B` is the specified `BITWISE_MOVEABLE` parameter.
     template <size_t SIZE,
               bool   NOTHROW_MOVE_CONSTRUCTIBLE,
               bool   BITWISE_MOVEABLE>
@@ -256,26 +265,30 @@ struct SmallObjectReferenceWrapperUtil {
                                                    NOTHROW_MOVE_CONSTRUCTIBLE,
                                                    BITWISE_MOVEABLE> > >
     tag();
-        // Return 'TypeTag<bsl::reference_wrapper<T> >()', where 'T' is
-        // 'SmallObjectTestType<S, N, B>', 'S' is the specified 'SIZE'
-        // parameter, 'N' is the specified 'NOTHROW_MOVE_CONSTRUCTIBLE'
-        // parameter, and 'B' is the specified 'BITWISE_MOVEABLE' parameter.
 };
 
                        // =============================
                        // class SmallObjectTestTypeTest
                        // =============================
 
+/// This class provides a function object that verifies
+/// `SmallObjectTestType` satisfies its contract.
 class SmallObjectTestTypeTest {
-    // This class provides a function object that verifies
-    // 'SmallObjectTestType' satisfies its contract.
 
   public:
     // CREATORS
+
+    /// Create a `SmallObjectTestTypeTest` object.
     SmallObjectTestTypeTest();
-        // Create a 'SmallObjectTestTypeTest' object.
 
     // ACCESSORS
+
+    /// Verify that the size of the specified `T` is `expectedSize`, that
+    /// the `value` of `bsl::is_nothrow_move_constructible<T>` is
+    /// `expectedNothrowMoveConstructibility`, and the `value` of
+    /// `bslmf::IsBitwiseMoveable<T>` is `expectedBitwiseMoveability`, where
+    /// `T` is the type of `obj`, and to report an error with the specified
+    /// `line` number otherwise.
     template <size_t SIZE,
               bool   NOTHROW_MOVE_CONSTRUCTIBLE,
               bool   BITWISE_MOVEABLE>
@@ -286,59 +299,57 @@ class SmallObjectTestTypeTest {
         size_t expectedSize,
         bool   expectedNothrowMoveConstructability,
         bool   expectedBitwiseMovability) const;
-        // Verify that the size of the specified 'T' is 'expectedSize', that
-        // the 'value' of 'bsl::is_nothrow_move_constructible<T>' is
-        // 'expectedNothrowMoveConstructibility', and the 'value' of
-        // 'bslmf::IsBitwiseMoveable<T>' is 'expectedBitwiseMoveability', where
-        // 'T' is the type of 'obj', and to report an error with the specified
-        // 'line' number otherwise.
 };
 
                           // =======================
                           // class IsInplaceFuncTest
                           // =======================
 
+/// This class provides a function object that verifies `Obj::IsInplaceFunc`
+/// satisfies its contract, where `Obj` is
+/// `::BloombergLP::bslstl::Function_SmallObjectOptimization`.
 class IsInplaceFuncTest {
-    // This class provides a function object that verifies 'Obj::IsInplaceFunc'
-    // satisfies its contract, where 'Obj' is
-    // '::BloombergLP::bslstl::Function_SmallObjectOptimization'.
 
   public:
     // CREATORS
+
+    /// Create a `IsInplaceFuncTest` object.
     IsInplaceFuncTest();
-        // Create a 'IsInplaceFuncTest' object.
 
     // ACCESSORS
+
+    /// Verify that the `value` of `Obj::IsInplaceFunc<OBJECT_TYPE>` is
+    /// `expectedIsInplaceFuncValue`, and report an error with the specified
+    /// `line` number otherwise.
     template <class OBJECT_TYPE>
     void operator()(int                  line,
                     TypeTag<OBJECT_TYPE>,
                     bool                 expectedIsInplaceFuncValue) const;
-        // Verify that the 'value' of 'Obj::IsInplaceFunc<OBJECT_TYPE>' is
-        // 'expectedIsInplaceFuncValue', and report an error with the specified
-        // 'line' number otherwise.
 };
 
                            // =====================
                            // class SooFuncSizeTest
                            // =====================
 
+/// This class provides a function object that verifies `Obj::SooFuncSize`
+/// satisfies its contract, where `Obj` is
+/// `::BloombergLP::bslstl::Function_SmallObjectOptimization`.
 struct SooFuncSizeTest {
-    // This class provides a function object that verifies 'Obj::SooFuncSize'
-    // satisfies its contract, where 'Obj' is
-    // '::BloombergLP::bslstl::Function_SmallObjectOptimization'.
 
     // CREATORS
+
+    /// Create a `SooFuncSizeTest` object.
     SooFuncSizeTest();
-        // Create a 'SooFuncSizeTest' object.
 
     // ACCESSORS
+
+    /// Verify that the `value` of `Obj::SooFuncSize<OBJECT_TYPE>` is
+    /// `expectedSooFuncSize`, and report an error with the specified `line`
+    /// number otherwise.
     template <class OBJECT_TYPE>
     void operator()(int                  line,
                     TypeTag<OBJECT_TYPE>,
                     size_t               expectedSooFuncSize) const;
-        // Verify that the 'value' of 'Obj::SooFuncSize<OBJECT_TYPE>' is
-        // 'expectedSooFuncSize', and report an error with the specified 'line'
-        // number otherwise.
 };
 
 // ============================================================================
@@ -538,45 +549,45 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'IsInplaceFunc'
-        //   This case verifies that 'IsInplaceFunc' is 'true' for all functor
-        //   types that are small enough to fit in an 'InplaceBuffer', and are
+        // TESTING `IsInplaceFunc`
+        //   This case verifies that `IsInplaceFunc` is `true` for all functor
+        //   types that are small enough to fit in an `InplaceBuffer`, and are
         //   either nothrow-move constructible or bit-wise moveable.
         //
         // Concerns:
-        //: 1 'IsInplaceFunc' is 'true' for 'bsl::nullptr_t', function pointer,
-        //:   member-function pointer, and member-data pointer types.
-        //:
-        //: 2 'IsInplaceFunc' is 'true' for all functor types that are small
-        //:   enough to fit in an 'InplaceBuffer', and are either nothrow-move
-        //:   constructible or bit-wise moveable.
-        //:
-        //: 3 'IsInplaceFunc' is 'false' for all functor types that are too big
-        //:   to fit in an 'InplaceBuffer', or are neither nothrow-move
-        //:   constructible nor bit-wise moveable.
-        //:
-        //: 4 'IsInplaceFunc' for any 'bsl::reference_wrapper' specialization
-        //:   is always 'true'.
+        // 1. `IsInplaceFunc` is `true` for `bsl::nullptr_t`, function pointer,
+        //    member-function pointer, and member-data pointer types.
+        //
+        // 2. `IsInplaceFunc` is `true` for all functor types that are small
+        //    enough to fit in an `InplaceBuffer`, and are either nothrow-move
+        //    constructible or bit-wise moveable.
+        //
+        // 3. `IsInplaceFunc` is `false` for all functor types that are too big
+        //    to fit in an `InplaceBuffer`, or are neither nothrow-move
+        //    constructible nor bit-wise moveable.
+        //
+        // 4. `IsInplaceFunc` for any `bsl::reference_wrapper` specialization
+        //    is always `true`.
         //
         // Plan:
-        //: 1 Verify that 'IsInplaceFunc' is 'true' for 'bsl::nullptr_t', as
-        //:   well as one function-pointer type, one member-function-pointer
-        //:   type, and one data-member-pointer type.
-        //:
-        //: 2 For each type 'T' in a set of types that provide a large number
-        //:   of permutations of size, nothrow-move-constructibility, and
-        //:   bitwise-moveability, verify that 'IsInplaceFunc<T>' satisfies
-        //:   concerns 2 and 3.
-        //:
-        //: 3 For several specializations of 'bsl::reference_wrapper', 'R',
-        //:   verify that 'IsInplaceFunc<R>' satisfies concern 4.
+        // 1. Verify that `IsInplaceFunc` is `true` for `bsl::nullptr_t`, as
+        //    well as one function-pointer type, one member-function-pointer
+        //    type, and one data-member-pointer type.
+        //
+        // 2. For each type `T` in a set of types that provide a large number
+        //    of permutations of size, nothrow-move-constructibility, and
+        //    bitwise-moveability, verify that `IsInplaceFunc<T>` satisfies
+        //    concerns 2 and 3.
+        //
+        // 3. For several specializations of `bsl::reference_wrapper`, `R`,
+        //    verify that `IsInplaceFunc<R>` satisfies concern 4.
         //
         // Testing:
         //   Obj::IsInplaceFunc
         // --------------------------------------------------------------------
 
         if (verbose) {
-            printf("\nTESTING 'IsInplaceFunc'"
+            printf("\nTESTING `IsInplaceFunc`"
                    "\n=======================\n");
         }
 
@@ -595,7 +606,7 @@ int main(int argc, char *argv[])
         typedef bslstl::Function_SmallObjectOptimization Obj;
         static const size_t SOO_SIZE = sizeof(Obj::InplaceBuffer);
 
-        //   LINE                    TYPE           'IsInplaceFunc<TYPE>'
+        //   LINE                    TYPE           `IsInplaceFunc<TYPE>`
         //   ----             ------------------    ---------------------
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
         TEST(L_ , u::TypeTag<bsl::nullptr_t    >(), T                   );
@@ -648,47 +659,47 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'SooFuncSize'
-        //   This case verifies that 'SooFuncSize' is equal to the size of its
-        //   parameter 'T' if 'T' is small enough to fit in an 'InplaceBuffer',
+        // TESTING `SooFuncSize`
+        //   This case verifies that `SooFuncSize` is equal to the size of its
+        //   parameter `T` if `T` is small enough to fit in an `InplaceBuffer`,
         //   and is either nothrow-move-constructible or bit-wise movable, and
-        //   is equal to 'Obj::k_NON_SOO_SMALL_SIZE + sizeof(T)' otherwise.
+        //   is equal to `Obj::k_NON_SOO_SMALL_SIZE + sizeof(T)` otherwise.
         //
         // Concerns:
-        //: 1 'SooFuncSize' is 'sizeof(T)' when 'T' is 'bsl::nullptr_t', a
-        //:   function-pointer type, a member-function-pointer type, or a
-        //:   member-data-pointer type.
-        //:
-        //: 2 'SooFuncSize' is 'sizeof(T)' for all functor types 'T' that are
-        //:   small enough to fit in an 'InplaceBuffer', and are either
-        //:   nothrow-move constructible or bit-wise moveable.
-        //:
-        //: 3 'SooFuncSize' is 'Obj::k_NON_SOO_SMALL_SIZE + sizeof(T)' for all
-        //:   functor types 'T' that are too big to fit in an 'InplaceBuffer',
-        //:   or are neither nothrow-move constructible nor bit-wise moveable.
-        //:
-        //: 4 'SooFuncSize' is 'sizeof(void *)' for any
-        //:   'bsl::reference_wrapper' specialization.
+        // 1. `SooFuncSize` is `sizeof(T)` when `T` is `bsl::nullptr_t`, a
+        //    function-pointer type, a member-function-pointer type, or a
+        //    member-data-pointer type.
+        //
+        // 2. `SooFuncSize` is `sizeof(T)` for all functor types `T` that are
+        //    small enough to fit in an `InplaceBuffer`, and are either
+        //    nothrow-move constructible or bit-wise moveable.
+        //
+        // 3. `SooFuncSize` is `Obj::k_NON_SOO_SMALL_SIZE + sizeof(T)` for all
+        //    functor types `T` that are too big to fit in an `InplaceBuffer`,
+        //    or are neither nothrow-move constructible nor bit-wise moveable.
+        //
+        // 4. `SooFuncSize` is `sizeof(void *)` for any
+        //    `bsl::reference_wrapper` specialization.
         //
         // Plan:
-        //: 1 Verify that 'SooFuncSize' is 'sizeof(T)' when 'T' is
-        //:   'bsl::nullptr_t', as well as one function-pointer type, one
-        //:   member-function-pointer type, and one data-member-pointer type.
-        //:
-        //: 2 For each type 'T' in a set of types that provide a large number
-        //:   of permutations of size, nothrow-move-constructibility, and
-        //:   bitwise-moveability, verify that 'SooFuncSize' satisfies
-        //:   concerns 2 and 3.
-        //:
-        //: 3 For several specializations of 'bsl::reference_wrapper', 'R',
-        //:   verify that 'SooFuncSize<R>' satisfies concern 4.
+        // 1. Verify that `SooFuncSize` is `sizeof(T)` when `T` is
+        //    `bsl::nullptr_t`, as well as one function-pointer type, one
+        //    member-function-pointer type, and one data-member-pointer type.
+        //
+        // 2. For each type `T` in a set of types that provide a large number
+        //    of permutations of size, nothrow-move-constructibility, and
+        //    bitwise-moveability, verify that `SooFuncSize` satisfies
+        //    concerns 2 and 3.
+        //
+        // 3. For several specializations of `bsl::reference_wrapper`, `R`,
+        //    verify that `SooFuncSize<R>` satisfies concern 4.
         //
         // Testing:
         //   Obj::SooFuncSize
         // --------------------------------------------------------------------
 
         if (verbose) {
-            printf("\nTESTING 'SooFuncSize'"
+            printf("\nTESTING `SooFuncSize`"
                    "\n=====================\n");
         }
 
@@ -708,7 +719,7 @@ int main(int argc, char *argv[])
         static const size_t SOO_SZ = sizeof(Obj::InplaceBuffer);
         static const size_t MAX_SZ = SIZE_MAX;
 
-        //   LINE                    TYPE           'SooFuncSize<TYPE>'
+        //   LINE                    TYPE           `SooFuncSize<TYPE>`
         //   ----             -----------------    ---------------------
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
         TEST(L_ , u::TypeTag<bsl::nullptr_t  >(), sizeof(bsl::nullptr_t));
@@ -763,27 +774,27 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'k_NON_SOO_SMALL_SIZE'
-        //   This case verifies that 'k_NON_SOO_SMALL_SIZE' is a positive
+        // TESTING `k_NON_SOO_SMALL_SIZE`
+        //   This case verifies that `k_NON_SOO_SMALL_SIZE` is a positive
         //   integral constant that satisfies the criteria that
-        //   'S + k_NON_SOO_SMALL_SIZE > sizeof(InplaceBuffer)' for all
-        //   positive, integral object sizes 'S <= sizeof(InplaceBuffer)'.
+        //   `S + k_NON_SOO_SMALL_SIZE > sizeof(InplaceBuffer)` for all
+        //   positive, integral object sizes `S <= sizeof(InplaceBuffer)`.
         //
         // Concerns:
-        //: 1 'k_NON_SOO_SMALL_SIZE' is an integral value greater than 0.
-        //:
-        //: 2 'k_NON_SOO_SMALL_SIZE' is equal to
-        //:   'SIZE_MAX - sizeof(Obj::InplaceBuffer)'.
+        // 1. `k_NON_SOO_SMALL_SIZE` is an integral value greater than 0.
+        //
+        // 2. `k_NON_SOO_SMALL_SIZE` is equal to
+        //    `SIZE_MAX - sizeof(Obj::InplaceBuffer)`.
         //
         // Plan:
-        //: 1 Directly verify both concerns.
+        // 1. Directly verify both concerns.
         //
         // Testing:
         //   Obj::k_NON_SOO_SMALL_SIZE
         // --------------------------------------------------------------------
 
         if (verbose) {
-            printf("\nTESTING 'k_NON_SOO_SMALL_SIZE'"
+            printf("\nTESTING `k_NON_SOO_SMALL_SIZE`"
                    "\n==============================\n");
         }
 
@@ -796,39 +807,39 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'InplaceBuffer'
-        //   This case verifies that 'InplaceBuffer' is large enough to hold
+        // TESTING `InplaceBuffer`
+        //   This case verifies that `InplaceBuffer` is large enough to hold
         //   common small-functor types, and that it has the maximum possible
         //   alignment for the platform.
         //
         // Concerns:
-        //: 1 'InplaceBuffer' is no smaller than a pointer, function pointer,
-        //:   member-function pointer, member-data pointer, or reference
-        //:   wrapper.
-        //:
-        //: 2 'InplaceBuffer' is 6 pointers in size.
-        //:
-        //: 3 'InplaceBuffer' has the maximum possible alignment for the
-        //:   platform.
+        // 1. `InplaceBuffer` is no smaller than a pointer, function pointer,
+        //    member-function pointer, member-data pointer, or reference
+        //    wrapper.
+        //
+        // 2. `InplaceBuffer` is 6 pointers in size.
+        //
+        // 3. `InplaceBuffer` has the maximum possible alignment for the
+        //    platform.
         //
         // Plan:
-        //: 1 Verify that the size of an 'InplaceBuffer' is greater than or
-        //:   equal to the size of a void pointer, one function pointer type,
-        //:   one member-function-pointer type, one member-data-pointer type,
-        //:   and one reference-wrapper specialization.
-        //:
-        //: 2 Verify that the size of an 'InplaceBuffer' is equal to the size
-        //:   of 6 void pointers.
-        //:
-        //: 3 Verify that 'InplaceBuffer' has the maximum alignment for the
-        //:   platform using the value calculated by 'bsls::AlignmentFromType'.
+        // 1. Verify that the size of an `InplaceBuffer` is greater than or
+        //    equal to the size of a void pointer, one function pointer type,
+        //    one member-function-pointer type, one member-data-pointer type,
+        //    and one reference-wrapper specialization.
+        //
+        // 2. Verify that the size of an `InplaceBuffer` is equal to the size
+        //    of 6 void pointers.
+        //
+        // 3. Verify that `InplaceBuffer` has the maximum alignment for the
+        //    platform using the value calculated by `bsls::AlignmentFromType`.
         //
         // Testing:
         //   Obj::InplaceBuffer
         // --------------------------------------------------------------------
 
         if (verbose) {
-            printf("\nTESTING 'InplaceBuffer'"
+            printf("\nTESTING `InplaceBuffer`"
                    "\n=======================\n");
         }
 
@@ -858,37 +869,37 @@ int main(int argc, char *argv[])
         //   driver conform to their respective contracts.
         //
         // Concerns:
-        //: 1 The type trait 'bsl::is_nothrow_move_constructible' has the
-        //:   'value' 'true' for 'u::SmallObjectTestType' specializations with
-        //:   a 'NOTHROW_MOVE_CONSTRUCTIBLE' parameter of 'true'.
-        //:
-        //: 2 The type trait 'bsl::is_nothrow_move_constructible' has the
-        //:   'value' 'false' for 'u::SmallObjectTestType' specializations with
-        //:   a 'NOTHROW_MOVE_CONSTRUCTIBLE' parameter of 'false'.
-        //:
-        //: 3 The type trait 'bslmf::IsBitwiseMoveable' has the 'value' 'true'
-        //:   for 'u::SmallObjectTestType' specializations with a
-        //:   'BITWISE_MOVEABLE' parameter of 'true' or a 'SIZE' parameter of
-        //:   1.
-        //:
-        //: 4 The type trait 'bslmf::IsBitwiseMoveable' has the 'value' 'false'
-        //:   for 'u::SmallObjectTestType' specializations with a
-        //:   'BITWISE_MOVEABLE' parameter of 'false'.
-        //:
-        //: 5 The size of a 'u::SmallObjectTestType' specialization is equal to
-        //:   its 'SIZE' parameter.
-        //:
-        //: 6 The numeric limits provided by 'SIZE_MAX' are accurate.
+        // 1. The type trait `bsl::is_nothrow_move_constructible` has the
+        //    `value` `true` for `u::SmallObjectTestType` specializations with
+        //    a `NOTHROW_MOVE_CONSTRUCTIBLE` parameter of `true`.
+        //
+        // 2. The type trait `bsl::is_nothrow_move_constructible` has the
+        //    `value` `false` for `u::SmallObjectTestType` specializations with
+        //    a `NOTHROW_MOVE_CONSTRUCTIBLE` parameter of `false`.
+        //
+        // 3. The type trait `bslmf::IsBitwiseMoveable` has the `value` `true`
+        //    for `u::SmallObjectTestType` specializations with a
+        //    `BITWISE_MOVEABLE` parameter of `true` or a `SIZE` parameter of
+        //    1.
+        //
+        // 4. The type trait `bslmf::IsBitwiseMoveable` has the `value` `false`
+        //    for `u::SmallObjectTestType` specializations with a
+        //    `BITWISE_MOVEABLE` parameter of `false`.
+        //
+        // 5. The size of a `u::SmallObjectTestType` specialization is equal to
+        //    its `SIZE` parameter.
+        //
+        // 6. The numeric limits provided by `SIZE_MAX` are accurate.
         //
         // Plan:
-        //: 1 Instantiate a 'u::SmallObjectTestType' with template parameters
-        //:   that enumerate several permutations of object size, nothrow-move
-        //:   constructibility, and bitwise-movability, and verify that the
-        //:   type does indeed have the corresponding traits.
-        //:
-        //: 2 Verify that the value of 'SIZE_MAX' is the maximum unsigned
-        //:   32-bit number in 32-bit builds, and the maximum unsigned 64-bit
-        //:   number in 64-bit builds.
+        // 1. Instantiate a `u::SmallObjectTestType` with template parameters
+        //    that enumerate several permutations of object size, nothrow-move
+        //    constructibility, and bitwise-movability, and verify that the
+        //    type does indeed have the corresponding traits.
+        //
+        // 2. Verify that the value of `SIZE_MAX` is the maximum unsigned
+        //    32-bit number in 32-bit builds, and the maximum unsigned 64-bit
+        //    number in 64-bit builds.
         //
         // Testing:
         //   TEST MACHINERY
@@ -901,7 +912,7 @@ int main(int argc, char *argv[])
 
         {
             if (veryVerbose) {
-                printf("\nTESTING 'u::SmallObjectTestType'"
+                printf("\nTESTING `u::SmallObjectTestType`"
                        "\n--------------------------------\n");
             }
 
@@ -938,7 +949,7 @@ int main(int argc, char *argv[])
 
         {
             if (veryVerbose) {
-                printf("\nTESTING 'SIZE_MAX'"
+                printf("\nTESTING `SIZE_MAX`"
                        "\n------------------\n");
             }
 
@@ -947,7 +958,7 @@ int main(int argc, char *argv[])
 #elif defined(BSLS_PLATFORM_CPU_64_BIT)
             ASSERT_EQ(0xFFFFFFFFFFFFFFFFULL, SIZE_MAX);
 #else
-#error "'bslstl_function_smallobjectoptimization.t.cpp' does not support " \
+#error "`bslstl_function_smallobjectoptimization.t.cpp` does not support " \
        "this platform."
 #endif
         }
@@ -958,22 +969,22 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 'Obj::InplaceBuffer' is an object type.
-        //:
-        //: 2 'Obj::k_NON_SOO_SMALL_SIZE' is a non-zero integral constant.
-        //:
-        //: 3 'Obj::SooFuncSize' is a class template with 1 parameter.
-        //:
-        //: 4 'Obj::IsInplaceFunc' is a class template with 1 parameter.
+        // 1. `Obj::InplaceBuffer` is an object type.
+        //
+        // 2. `Obj::k_NON_SOO_SMALL_SIZE` is a non-zero integral constant.
+        //
+        // 3. `Obj::SooFuncSize` is a class template with 1 parameter.
+        //
+        // 4. `Obj::IsInplaceFunc` is a class template with 1 parameter.
         //
         // Plan:
-        //: 1 Create an object of 'Obj::InplaceBuffer' type.
-        //:
-        //: 2 Verify that 'Obj::k_NON_SOO_SMALL_SIZE' is greater than 0.
-        //:
-        //: 3 Verify that 'Obj::SooFuncSize<void *>' is instantiable.
-        //:
-        //: 4 Verify that 'Obj::IsInplaceFunc<void *>' is instantiable.
+        // 1. Create an object of `Obj::InplaceBuffer` type.
+        //
+        // 2. Verify that `Obj::k_NON_SOO_SMALL_SIZE` is greater than 0.
+        //
+        // 3. Verify that `Obj::SooFuncSize<void *>` is instantiable.
+        //
+        // 4. Verify that `Obj::IsInplaceFunc<void *>` is instantiable.
         //
         // Testing:
         //   BREATHING TEST

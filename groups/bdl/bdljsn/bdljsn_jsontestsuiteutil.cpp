@@ -26,9 +26,9 @@ using namespace BloombergLP;
 namespace {
 namespace u {
 
+/// Return the address of a null-terminated string containing the input of
+/// the `n_structure_100000_opening_arrays.json` test point.
 static const char *getLeftBrackets100000()
-    // Return the address of a null-terminated string containing the input of
-    // the 'n_structure_100000_opening_arrays.json' test point.
 {
     static bsl::string leftBrackets100000(bslma::Default::globalAllocator());
 
@@ -44,9 +44,9 @@ static const char *getLeftBrackets100000()
 static const char *const    leftBrackets100000 = getLeftBrackets100000();
 static const bsl::size_t lenLeftBrackets100000 = 100000;
 
+/// Return the address of a null-terminated string containing the input of
+/// the `n_structure_open_array_object.json` test point.
 static const char *getOpenArrayObject50000()
-    // Return the address of a null-terminated string containing the input of
-    // the 'n_structure_open_array_object.json' test point.
 {
     static char              openArrayObjectSubsequence[] = "[{\"\":";
     static const bsl::size_t lenOpenArrayObjectSubsequence

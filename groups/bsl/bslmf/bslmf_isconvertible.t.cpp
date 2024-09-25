@@ -6,9 +6,9 @@
 #include <bsls_keyword.h>
 #include <bsls_platform.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
-#include <string.h>     // 'strcmp'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
+#include <string.h>     // `strcmp`
 
 #if defined(BSLS_PLATFORM_CMP_SUN)
 # pragma error_messages(off, functypequal, refarray0)
@@ -29,16 +29,16 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines two meta-functions, 'bsl::is_convertible'
-// and 'bslmf::IsConvertible' and a template variable 'bsl::is_convertible_v',
+// The component under test defines two meta-functions, `bsl::is_convertible`
+// and `bslmf::IsConvertible` and a template variable `bsl::is_convertible_v`,
 // that determine whether a conversion exists from one template parameter type
 // to the other template parameter type.  Thus, we need to ensure that the
 // values returned by these meta-functions are correct for each possible pair
 // of categorized types.  The two meta-functions are functionally equivalent
-// except 'bsl::is_convertible' only allows complete template parameter types.
-// We will use the same set of complete types for 'bslmf::IsConvertible' as
-// that for 'bsl::is_convertible', and an additional set of incomplete types
-// for testing 'bslmf::IsConvertible' alone.
+// except `bsl::is_convertible` only allows complete template parameter types.
+// We will use the same set of complete types for `bslmf::IsConvertible` as
+// that for `bsl::is_convertible`, and an additional set of incomplete types
+// for testing `bslmf::IsConvertible` alone.
 //
 //-----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
@@ -99,7 +99,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
 # define BSLMF_ISCONVERTIBLE_NO_ARRAY_REF_OF_UNKNOWN_BOUND
-    // This macro signifies that this compiler rejects 'Type[]' as incomplete,
+    // This macro signifies that this compiler rejects `Type[]` as incomplete,
     // even in contexts where it should be valid, such as where it will pass by
     // reference or pointer.
 #endif
@@ -111,7 +111,7 @@ void aSsErT(bool condition, const char *message, int line)
 #endif
 
 #ifdef BSLMF_ISCONVERTIBLE_USE_NATIVE_TRAITS
-    // The 'NOT_NATIVE' macro is used to track tests that report different
+    // The `NOT_NATIVE` macro is used to track tests that report different
     // results when computed using the portable C++98 algorithm vs. a built-in
     // type trait.  The C++11 version can give correct the result when trying
     // to convert a non-copyable type to itself, and when trying to convert to
@@ -126,19 +126,19 @@ void aSsErT(bool condition, const char *message, int line)
 
 //# define BSLMF_ISCONVERTIBLE_TEST_COMPILE_ERROR_WITH_INCOMPLETE_TYPES
     // Uncomment this macro definition to test the correct diagnosis of errors
-    // when 'is_convertible' is instantiated with incomplete class types.
+    // when `is_convertible` is instantiated with incomplete class types.
 
 #define  _(TYPE) TYPE
 #define C_(TYPE) const TYPE
 #define V_(TYPE) volatile TYPE
+/// Macros to provide simple cv-qualifier decorations for types, enabling a
+/// more table-like presentation of a sequence of test cases.
 #define CV(TYPE) const volatile TYPE
-    // Macros to provide simple cv-qualifier decorations for types, enabling a
-    // more table-like presentation of a sequence of test cases.
 
 #if BSLS_PLATFORM_CMP_VERSION >= 1910 && BSLS_PLATFORM_CMP_VERSION <= 1914
 # define BSLMF_ISCONVERTIBLE_MSVC_VOLATILE_BUG
-    // Microsoft Visual Studio 2017 has a bug in its 'is_convertible'
-    // implementation when it is used with 'volatile' qualified non-fundamental
+    // Microsoft Visual Studio 2017 has a bug in its `is_convertible`
+    // implementation when it is used with `volatile` qualified non-fundamental
     // types.  This macro is defined when that bug is present.
 #endif
 
@@ -146,9 +146,9 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// This class is convertible to `TYPE`.
 template <class TYPE>
 class ConvertibleToObj {
-    // This class is convertible to 'TYPE'.
 
     // DATA
     TYPE d_value;
@@ -160,9 +160,9 @@ class ConvertibleToObj {
     operator TYPE() const { return d_value; }
 };
 
+/// This class is convertible to a reference to `TYPE`.
 template <class TYPE>
 class ConvertibleToRef {
-    // This class is convertible to a reference to 'TYPE'.
 
     // DATA
     TYPE d_value;
@@ -174,9 +174,9 @@ class ConvertibleToRef {
     operator TYPE&() { return d_value; }
 };
 
+/// This class is convertible to a const reference to `TYPE`.
 template <class TYPE>
 class ConvertibleToConstRef {
-    // This class is convertible to a const reference to 'TYPE'.
 
     // DATA
     TYPE d_value;
@@ -188,9 +188,9 @@ class ConvertibleToConstRef {
     operator TYPE const&() const { return d_value; }
 };
 
+/// This class is convertible from `TYPE`.
 template <class TYPE>
 class ConvertibleFrom {
-    // This class is convertible from 'TYPE'.
 
     // DATA
     TYPE d_value;
@@ -201,9 +201,9 @@ class ConvertibleFrom {
     ConvertibleFrom(TYPE value) : d_value(value) { }                // IMPLICIT
 };
 
+/// This class is CopyConstructible, not DefaultConstructible, and
+/// convertible from `int`.
 class my_Class {
-    // This class is CopyConstructible, not DefaultConstructible, and
-    // convertible from 'int'.
 
     // DATA
     int d_i;
@@ -213,22 +213,22 @@ class my_Class {
     my_Class(int i) : d_i(i) {}                                     // IMPLICIT
 };
 
+/// This trivial empty class is convertible to `my_Class`.
 class my_OtherClass {
-    // This trivial empty class is convertible to 'my_Class'.
 
   public:
     operator my_Class&();
 };
 
+/// This trivial empty class is convertible from `my_Class`.
 class my_ThirdClass {
-    // This trivial empty class is convertible from 'my_Class'.
 
   public:
     my_ThirdClass(const my_Class&);                                 // IMPLICIT
 };
 
+/// This is an abstract class.
 class my_AbstractClass {
-    // This is an abstract class.
 
   public:
     // CREATORS
@@ -239,8 +239,8 @@ class my_AbstractClass {
     int func1(int);
 };
 
+/// This is a derived class.
 class my_DerivedClass : public my_AbstractClass {
-    // This is a derived class.
 
   public:
     // CREATORS
@@ -251,8 +251,8 @@ class my_DerivedClass : public my_AbstractClass {
     int func2(int);
 };
 
+/// Objects of this class type cannot be copied.
 class my_NotCopyableClass {
-    // Objects of this class type cannot be copied.
 
   private:
     // NOT IMPLEMENTED
@@ -269,8 +269,8 @@ class my_IncompleteClass2;  // incomplete class
 
 enum my_Enum { MY_VAL0, MY_VAL1 };
 
+/// This class defines a nested `enum` type.
 class my_EnumClass {
-    // This class defines a nested 'enum' type.
 
   public:
     enum Type { VAL0, VAL1 };
@@ -278,17 +278,17 @@ class my_EnumClass {
 
 class my_BslmaAllocator;
 
+/// This class is convertible from `my_BslmaAllocator*`.
 template <class TYPE>
 class my_StlAllocator {
-    // This class is convertible from 'my_BslmaAllocator*'.
 
   public:
     // CREATORS
     my_StlAllocator(my_BslmaAllocator*);                            // IMPLICIT
 };
 
+/// This class is convertible from `void*`.
 struct my_PlacementNew {
-    // This class is convertible from 'void*'.
 
     // DATA
     void *d_p;
@@ -302,14 +302,14 @@ void *operator new(size_t, my_PlacementNew p)
     return p.d_p;
 }
 
-// Verify that the 'bsl::is_convertible::value' is evaluated at compile-time.
+// Verify that the `bsl::is_convertible::value` is evaluated at compile-time.
 
 static char C00[1 + bsl::is_convertible<int,   int  >::value];     // sz=2
 static char C01[1 + bsl::is_convertible<int,   char >::value];     // sz=2
 static char C02[1 + bsl::is_convertible<void*, int  >::value];     // sz=1
 static char C03[1 + bsl::is_convertible<int,   int *>::value];     // sz=1
 
-// Verify that the 'bslmf::IsConvertible::value' is evaluated at compile-time.
+// Verify that the `bslmf::IsConvertible::value` is evaluated at compile-time.
 
 static char C10[1 + bslmf::IsConvertible<int,   int  >::value];    // sz=2
 static char C11[1 + bslmf::IsConvertible<int,   char >::value];    // sz=2
@@ -333,9 +333,9 @@ template <class TYPE>
 using Mover = TYPE&&;
 #endif
 
+/// This `struct` is both copyable and movable, in both C++11, and through
+/// move-semantic emulation in C++03.
 struct Movable {
-    // This 'struct' is both copyable and movable, in both C++11, and through
-    // move-semantic emulation in C++03.
 
     Movable();                                                      // IMPLICIT
     Movable(const Movable&);
@@ -355,14 +355,14 @@ struct Movable {
 //
 ///Example 1: Select Function Based on Type Convertibility
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// The 'bsl::is_convertible' meta-function can be used to select an appropriate
+// The `bsl::is_convertible` meta-function can be used to select an appropriate
 // function (at compile time) based on the convertibility of one type to
 // another without causing a compiler error by actually trying the conversion.
 //
-// First, we define two classes, 'Foo' and 'Bar'.  The 'Foo' class has an
-// explict constructor from 'int', an implicit conversion operator that returns
-// an integer value while the 'Bar' class does neither:
-//..
+// First, we define two classes, `Foo` and `Bar`.  The `Foo` class has an
+// explict constructor from `int`, an implicit conversion operator that returns
+// an integer value while the `Bar` class does neither:
+// ```
     class Foo {
         // DATA
         int d_value;
@@ -376,9 +376,9 @@ struct Movable {
     };
 
     class Bar {};
-//..
+// ```
 // Then, we run:
-//..
+// ```
 void usage1a()
 {
     ASSERT(false == (bsl::is_convertible<int, Foo>::value));
@@ -387,34 +387,34 @@ void usage1a()
     ASSERT(true  == (bsl::is_convertible<Foo, int>::value));
     ASSERT(false == (bsl::is_convertible<Bar, int>::value));
 }
-//..
-// Note that 'int' to 'Foo' is false, even though 'Foo' has a constructor that
-// takes an 'int'.  This is because that constructor is explicit, and
-// 'is_converitble' ignores explicit constructors.
+// ```
+// Note that `int` to `Foo` is false, even though `Foo` has a constructor that
+// takes an `int`.  This is because that constructor is explicit, and
+// `is_converitble` ignores explicit constructors.
 //
 // Next, we go on to demonstrate how this could be used.  Suppose we are
-// implementing a 'convertToInt' template method that converts a given object
-// of the (template parameter) 'TYPE' to 'int' type, and returns the integer
-// value.  If the given object can not convert to 'int', return 0.  The method
-// calls an overloaded function, 'getIntValue', to get the converted integer
-// value.  The idea is to invoke one version of 'getIntValue' if the type
+// implementing a `convertToInt` template method that converts a given object
+// of the (template parameter) `TYPE` to `int` type, and returns the integer
+// value.  If the given object can not convert to `int`, return 0.  The method
+// calls an overloaded function, `getIntValue`, to get the converted integer
+// value.  The idea is to invoke one version of `getIntValue` if the type
 // provides a conversion operator that returns an integer value, and another
 // version if the type does not provide such an operator.
 //
-// We define the first 'getIntValue' function that takes a 'bsl::false_type' as
-// its last argument, whereas the second 'getIntValue' function takes a
-// 'bsl::true_type' object.  The result of the 'bsl::is_convertible'
-// meta-function (i.e., its 'type' member) is used to create the last argument
-// passed to 'getIntValue'.  Neither version of 'getIntValue' makes use of this
+// We define the first `getIntValue` function that takes a `bsl::false_type` as
+// its last argument, whereas the second `getIntValue` function takes a
+// `bsl::true_type` object.  The result of the `bsl::is_convertible`
+// meta-function (i.e., its `type` member) is used to create the last argument
+// passed to `getIntValue`.  Neither version of `getIntValue` makes use of this
 // argument -- it is used only to differentiate the argument list so we can
 // overload the function.
-//..
+// ```
     template <class TYPE>
     inline
     int getIntValue(TYPE *, bsl::false_type)
     {
-        // Return 0 because the specified 'TYPE' is not convertible to the
-        // 'int' type.
+        // Return 0 because the specified `TYPE` is not convertible to the
+        // `int` type.
 
         return 0;
     }
@@ -423,14 +423,14 @@ void usage1a()
     inline
     int getIntValue(TYPE *object, bsl::true_type)
     {
-        // Return the integer value converted from the specified 'object' of
-        // the (template parameter) 'TYPE'.
+        // Return the integer value converted from the specified `object` of
+        // the (template parameter) `TYPE`.
 
         return int(*object);
     }
-//..
-// Now, we define our 'convertToInt' method:
-//..
+// ```
+// Now, we define our `convertToInt` method:
+// ```
     template <class TYPE>
     inline
     int convertToInt(TYPE *object)
@@ -438,13 +438,13 @@ void usage1a()
         typedef typename bsl::is_convertible<TYPE, int>::type CanConvertToInt;
         return getIntValue(object, CanConvertToInt());
     }
-//..
-// Notice that we use 'bsl::is_convertible' to get a 'bsl::false_type' or
-// 'bsl::true_type', and then call the corresponding overloaded 'getIntValue'
+// ```
+// Notice that we use `bsl::is_convertible` to get a `bsl::false_type` or
+// `bsl::true_type`, and then call the corresponding overloaded `getIntValue`
 // method.
 //
 // Finally, we call our finished product and observe the return values:
-//..
+// ```
 void usage1b()
 {
     Foo foo(99);
@@ -453,7 +453,7 @@ void usage1b()
     ASSERT(99 == convertToInt(&foo));
     ASSERT(0  == convertToInt(&bar));
 }
-//..
+// ```
 
 // BDE_VERIFY pragma : pop
 
@@ -494,13 +494,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -517,21 +517,21 @@ int main(int argc, char *argv[])
         // TESTING CONCERN: WARNING-FREE ON USER-DEFINED CONVERSIONS
         //
         // Concerns:
-        //: 1 GCC should not generate a warning for integral to floating-point
-        //:   type conversions via a user-defined class.
+        // 1. GCC should not generate a warning for integral to floating-point
+        //    type conversions via a user-defined class.
         //
         // Plan:
-        //: 1 Instantiate 'bsl::is_convertible' with combinations of a
-        //:   user-defined class that is convertible to a fundamental type,
-        //:   'T1', and another fundamental type, 'T2', to which 'T1' is
-        //:   implicitly convertible.  Verify that the 'value' member is
-        //:   initialized properly, and (manually) verify that no warning is
-        //:   generated for conversions between floating-point types and
-        //:   integral types.  For each combination of 'T1', use three
-        //:   different user-defined classes: one that provides conversion to
-        //:   an object of type 'T1', one that provides conversion to a
-        //:   reference to 'T1' and one that provides conversion to a const
-        //:   reference to 'T1'.  (C-1)
+        // 1. Instantiate `bsl::is_convertible` with combinations of a
+        //    user-defined class that is convertible to a fundamental type,
+        //    `T1`, and another fundamental type, `T2`, to which `T1` is
+        //    implicitly convertible.  Verify that the `value` member is
+        //    initialized properly, and (manually) verify that no warning is
+        //    generated for conversions between floating-point types and
+        //    integral types.  For each combination of `T1`, use three
+        //    different user-defined classes: one that provides conversion to
+        //    an object of type `T1`, one that provides conversion to a
+        //    reference to `T1` and one that provides conversion to a const
+        //    reference to `T1`.  (C-1)
         //
         // Testing:
         //   CONCERN: Warning-free on user-defined conversions
@@ -545,10 +545,10 @@ int main(int argc, char *argv[])
 #define ASSERT_IS_CONVERTIBLE(RESULT, FROM_TYPE, TO_TYPE)                     \
         ASSERT(RESULT == (bsl::is_convertible  <FROM_TYPE, TO_TYPE>::value))
 
-        // Providing conversions from 'T' to 'T':
+        // Providing conversions from `T` to `T`:
 
         // Conversion of basic types via two user-defined classes returns
-        // 'false'.
+        // `false`.
 
         ASSERT_IS_CONVERTIBLE(false, ConvertibleFrom<int>,
                                      ConvertibleToObj<int> );
@@ -560,7 +560,7 @@ int main(int argc, char *argv[])
         ASSERT_IS_CONVERTIBLE(true,  int,   ConvertibleFrom<float> );
         ASSERT_IS_CONVERTIBLE(true,  float, ConvertibleFrom<int  > );
 
-        // Test 'const' type conversions via a user-defined class.
+        // Test `const` type conversions via a user-defined class.
 
         ASSERT_IS_CONVERTIBLE(true,  ConvertibleToObj<   int   >, C_(float));
         ASSERT_IS_CONVERTIBLE(true,  ConvertibleToObj<   float >, C_(int)  );
@@ -571,7 +571,7 @@ int main(int argc, char *argv[])
         ASSERT_IS_CONVERTIBLE(true,  C_(int),   ConvertibleFrom<   float > );
         ASSERT_IS_CONVERTIBLE(true,  C_(float), ConvertibleFrom<   int   > );
 
-        // Test 'volatile' type conversions via a user-defined class.
+        // Test `volatile` type conversions via a user-defined class.
 
         ASSERT_IS_CONVERTIBLE(true,  ConvertibleToObj<   int   >, V_(float));
         ASSERT_IS_CONVERTIBLE(true,  ConvertibleToObj<   float >, V_(int)  );
@@ -582,10 +582,10 @@ int main(int argc, char *argv[])
         ASSERT_IS_CONVERTIBLE(true,  V_(int),   ConvertibleFrom<   float > );
         ASSERT_IS_CONVERTIBLE(true,  V_(float), ConvertibleFrom<   int   > );
 
-        // Providing conversions from 'T' to 'T&':
+        // Providing conversions from `T` to `T&`:
 
         // // Conversion of basic types via two user-defined classes returns
-        // 'false'.
+        // `false`.
 
         ASSERT_IS_CONVERTIBLE(false, ConvertibleFrom<int>,
                                      ConvertibleToRef<int> );
@@ -597,7 +597,7 @@ int main(int argc, char *argv[])
         ASSERT_IS_CONVERTIBLE(true,  int,   ConvertibleFrom<float> );
         ASSERT_IS_CONVERTIBLE(true,  float, ConvertibleFrom<int  > );
 
-        // Test 'const' type conversions via a user-defined class.
+        // Test `const` type conversions via a user-defined class.
 
         ASSERT_IS_CONVERTIBLE(true,  ConvertibleToRef<   int   >, C_(float));
         ASSERT_IS_CONVERTIBLE(true,  ConvertibleToRef<   float >, C_(int  ));
@@ -608,7 +608,7 @@ int main(int argc, char *argv[])
         ASSERT_IS_CONVERTIBLE(true,  C_(int),   ConvertibleFrom<   float > );
         ASSERT_IS_CONVERTIBLE(true,  C_(float), ConvertibleFrom<   int   > );
 
-        // Test 'volatile' type conversions via a user-defined class.
+        // Test `volatile` type conversions via a user-defined class.
 
         ASSERT_IS_CONVERTIBLE(true,  ConvertibleToRef<   int   >, V_(float));
         ASSERT_IS_CONVERTIBLE(true,  ConvertibleToRef<   float >, V_(int  ));
@@ -619,10 +619,10 @@ int main(int argc, char *argv[])
         ASSERT_IS_CONVERTIBLE(true,  V_(int),   ConvertibleFrom<   float > );
         ASSERT_IS_CONVERTIBLE(true,  V_(float), ConvertibleFrom<   int   > );
 
-        // Providing conversions from 'T' to 'const T&':
+        // Providing conversions from `T` to `const T&`:
 
         // Conversion of basic types via two user-defined classes returns
-        // 'false'.
+        // `false`.
 
         ASSERT_IS_CONVERTIBLE(false, ConvertibleFrom<int>,
                                      ConvertibleToConstRef<int> );
@@ -634,7 +634,7 @@ int main(int argc, char *argv[])
         ASSERT_IS_CONVERTIBLE(true, int,   ConvertibleFrom<float> );
         ASSERT_IS_CONVERTIBLE(true, float, ConvertibleFrom<int  > );
 
-        // Test 'const' type conversions via a user-defined class.
+        // Test `const` type conversions via a user-defined class.
 
         ASSERT_IS_CONVERTIBLE(true, ConvertibleToConstRef<int  >, C_(float));
         ASSERT_IS_CONVERTIBLE(true, ConvertibleToConstRef<float>, C_(int  ));
@@ -645,7 +645,7 @@ int main(int argc, char *argv[])
         ASSERT_IS_CONVERTIBLE(true, C_(int  ), ConvertibleFrom<   float >  );
         ASSERT_IS_CONVERTIBLE(true, C_(float), ConvertibleFrom<   int   >  );
 
-        // Test 'volatile' type conversions via a user-defined class.
+        // Test `volatile` type conversions via a user-defined class.
 
         ASSERT_IS_CONVERTIBLE(true, ConvertibleToConstRef<int  >, V_(float));
         ASSERT_IS_CONVERTIBLE(true, ConvertibleToConstRef<float>, V_(int  ));
@@ -674,15 +674,15 @@ int main(int argc, char *argv[])
         // TESTING CONCERN: WARNING-FREE ON IMPLICIT CONVERSIONS
         //
         // Concerns:
-        //: 1  GCC should not generate a warning for implicit integral to
-        //:    floating-point type conversions.
+        // 1.  GCC should not generate a warning for implicit integral to
+        //     floating-point type conversions.
         //
         // Plan:
-        //: 1 Instantiate 'bsl::is_convertible' with various fundamental type
-        //:   combinations and verify that the 'value' member is initialized
-        //:   properly, and (manually) verify no warning is generated for
-        //:   conversions between floating-point types and integral types.
-        //:   (C-1)
+        // 1. Instantiate `bsl::is_convertible` with various fundamental type
+        //    combinations and verify that the `value` member is initialized
+        //    properly, and (manually) verify no warning is generated for
+        //    conversions between floating-point types and integral types.
+        //    (C-1)
         //
         // Testing:
         //   CONCERN: Warning-free on implicit conversions
@@ -700,21 +700,21 @@ int main(int argc, char *argv[])
         ASSERT_IS_CONVERTIBLE(true, int,   float);
         ASSERT_IS_CONVERTIBLE(true, float, int  );
 
-        // Test 'const' type conversions.
+        // Test `const` type conversions.
 
         ASSERT_IS_CONVERTIBLE(true,    int   , C_(float));
         ASSERT_IS_CONVERTIBLE(true,    float , C_(int  ));
         ASSERT_IS_CONVERTIBLE(true, C_(float),    int   );
         ASSERT_IS_CONVERTIBLE(true, C_(int  ),    float );
 
-        // Test 'volatile' type conversions.
+        // Test `volatile` type conversions.
 
         ASSERT_IS_CONVERTIBLE(true,    int,    V_(float));
         ASSERT_IS_CONVERTIBLE(true,    float,  V_(int)  );
         ASSERT_IS_CONVERTIBLE(true, V_(int  ),    float );
         ASSERT_IS_CONVERTIBLE(true, V_(float),    int   );
 
-        // Test 'volatile' pointer and reference conversions from integral to
+        // Test `volatile` pointer and reference conversions from integral to
         // floating-point.
 
         ASSERT_IS_CONVERTIBLE(false,    int *, V_(float)*);
@@ -916,7 +916,7 @@ int main(int argc, char *argv[])
         ASSERT_IS_CONVERTIBLE(false, CV(float*)&, CV(int*)&);
 
 
-        // test conversion from 'void *'
+        // test conversion from `void *`
 
         ASSERT_IS_CONVERTIBLE(false,    void*  ,    int*  );
         ASSERT_IS_CONVERTIBLE(false,    void*  , C_(int*) );
@@ -1000,7 +1000,7 @@ int main(int argc, char *argv[])
         ASSERT_IS_CONVERTIBLE(false, CV(void*)&, CV(int*)&);
 
 
-        // test conversion to 'void *'
+        // test conversion to `void *`
 
         ASSERT_IS_CONVERTIBLE(true,     float*  ,    void*  );
         ASSERT_IS_CONVERTIBLE(true,     float*  , C_(void*) );
@@ -1101,67 +1101,67 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'bslmf::IsConvertible::value'
+        // `bslmf::IsConvertible::value`
         //
         // Concerns:
-        //: 1 'IsConvertible::value' returns the correct value when both
-        //:   'FROM_TYPE' and 'TO_TYPE' are basic types.
-        //:
-        //: 2 'IsConvertible::value' returns the correct value when one of
-        //:   'FROM_TYPE' and 'TO_TYPE' is a 'const' type.
-        //:
-        //: 3 'IsConvertible::value' returns the correct value when one of
-        //:   'FROM_TYPE' and 'TO_TYPE' is a 'const' pointer or 'const'
-        //:   reference type.
-        //:
-        //: 4 'IsConvertible::value' returns the correct value when one of
-        //:   'FROM_TYPE' and 'TO_TYPE' is a 'volatile' type.
-        //:
-        //: 5 'IsConvertible::value' returns the correct value when 'FROM_TYPE'
-        //:   and 'TO_TYPE' are various combinations of (possibly cv-qualified)
-        //:   types.
-        //:
-        //: 6 'IsConvertible::value' returns the correct value when one of
-        //:   'FROM_TYPE' and 'TO_TYPE' is a 'volatile' pointer or 'volatile'
-        //:   reference type.
-        //:
-        //: 7 'IsConvertible::value' returns the correct value when 'FROM_TYPE'
-        //:   and 'TO_TYPE' are various combinations of different (possibly
-        //:   cv-qualified) user-defined types, pointer to user-defined types,
-        //:   and reference to user-defined types.
-        //:
-        //: 8 'IsConvertible::value' returns the correct value when one or both
-        //:   of 'FROM_TYPE' and 'TO_TYPE' are 'void' types.
-        //:
-        //: 9 'IsConvertible::value' returns the correct value when conversion
-        //:   happens between a base class type and a derived class type.
-        //:
-        //: 10 'IsConvertible::value' returns the correct value when conversion
-        //:    happens between pointer to base class member object type and
-        //:    pointer to derived class member object type.
-        //:
-        //: 11 'IsConvertible::value' returns the correct value when conversion
-        //:    happens between pointer to base class member function type and
-        //:    pointer to derived class member function type.
-        //:
-        //: 12 'IsConvertible::value' returns the correct value when conversion
-        //:    happens between arrays of unknown bound, and other types.
-        //:
-        //: 13 'IsConvertible::value' returns the correct value when conversion
-        //:    happens between incomplete types and other types.
-        //:
-        //: 14 Test function references decay to function pointers
+        // 1. `IsConvertible::value` returns the correct value when both
+        //    `FROM_TYPE` and `TO_TYPE` are basic types.
+        //
+        // 2. `IsConvertible::value` returns the correct value when one of
+        //    `FROM_TYPE` and `TO_TYPE` is a `const` type.
+        //
+        // 3. `IsConvertible::value` returns the correct value when one of
+        //    `FROM_TYPE` and `TO_TYPE` is a `const` pointer or `const`
+        //    reference type.
+        //
+        // 4. `IsConvertible::value` returns the correct value when one of
+        //    `FROM_TYPE` and `TO_TYPE` is a `volatile` type.
+        //
+        // 5. `IsConvertible::value` returns the correct value when `FROM_TYPE`
+        //    and `TO_TYPE` are various combinations of (possibly cv-qualified)
+        //    types.
+        //
+        // 6. `IsConvertible::value` returns the correct value when one of
+        //    `FROM_TYPE` and `TO_TYPE` is a `volatile` pointer or `volatile`
+        //    reference type.
+        //
+        // 7. `IsConvertible::value` returns the correct value when `FROM_TYPE`
+        //    and `TO_TYPE` are various combinations of different (possibly
+        //    cv-qualified) user-defined types, pointer to user-defined types,
+        //    and reference to user-defined types.
+        //
+        // 8. `IsConvertible::value` returns the correct value when one or both
+        //    of `FROM_TYPE` and `TO_TYPE` are `void` types.
+        //
+        // 9. `IsConvertible::value` returns the correct value when conversion
+        //    happens between a base class type and a derived class type.
+        //
+        // 10. `IsConvertible::value` returns the correct value when conversion
+        //     happens between pointer to base class member object type and
+        //     pointer to derived class member object type.
+        //
+        // 11. `IsConvertible::value` returns the correct value when conversion
+        //     happens between pointer to base class member function type and
+        //     pointer to derived class member function type.
+        //
+        // 12. `IsConvertible::value` returns the correct value when conversion
+        //     happens between arrays of unknown bound, and other types.
+        //
+        // 13. `IsConvertible::value` returns the correct value when conversion
+        //     happens between incomplete types and other types.
+        //
+        // 14. Test function references decay to function pointers
         //
         // Plan:
-        //: 1 Instantiate 'bslmf::IsConvertible' with various type combinations
-        //:   and verify that the 'value' member is initialized properly.
-        //:   (C-1..14)
+        // 1. Instantiate `bslmf::IsConvertible` with various type combinations
+        //    and verify that the `value` member is initialized properly.
+        //    (C-1..14)
         //
         // Testing:
         //   bslmf::IsConvertible::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("'bslmf::IsConvertible::value'\n"
+        if (verbose) printf("`bslmf::IsConvertible::value`\n"
                             "=============================\n");
 
         ASSERT(2 == sizeof(C10));
@@ -1506,7 +1506,7 @@ int main(int argc, char *argv[])
                                  my_StlAllocator<my_EnumClass::Type> );
         ASSERT_IS_CONVERTIBLE(0, void*, my_StlAllocator<my_EnumClass::Type>);
 
-        // C-8: Test conversion between 'void' type and other types.
+        // C-8: Test conversion between `void` type and other types.
 
         ASSERT_IS_CONVERTIBLE(1, void, void);
         ASSERT_IS_CONVERTIBLE(0, void, int );
@@ -1652,68 +1652,68 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::is_convertible::value'
+        // `bsl::is_convertible::value`
         //
         // Concerns:
-        //: 1 'is_convertible::value' returns the correct value when both
-        //:   'FROM_TYPE' and 'TO_TYPE' are basic types.
-        //:
-        //: 2 'is_convertible::value' returns the correct value when one of
-        //:   'FROM_TYPE' and 'TO_TYPE' is a 'const' type.
-        //:
-        //: 3 'is_convertible::value' returns the correct value when one of
-        //:   'FROM_TYPE' and 'TO_TYPE' is  a 'const' pointer or 'const'
-        //:   reference type.
-        //:
-        //: 4 'is_convertible::value' returns the correct value when one of
-        //:   'FROM_TYPE' and 'TO_TYPE' is a 'volatile' type.
-        //:
-        //: 5 'is_convertible::value' returns the correct value when
-        //:   'FROM_TYPE' and 'TO_TYPE' are various combinations of (possibly
-        //:   cv-qualified) types.
-        //:
-        //: 6 'is_convertible::value' returns the correct value when one of
-        //:   'FROM_TYPE' and 'TO_TYPE' is a 'volatile' pointer or 'volatile'
-        //:   reference type.
-        //:
-        //: 7 'is_convertible::value' returns the correct value when
-        //:   'FROM_TYPE' and 'TO_TYPE' are various combinations of different
-        //:   (possibly cv-qualified) user-defined types, pointer to
-        //:   user-defined types, and reference to user-defined types.
-        //:
-        //: 8 'is_convertible::value' returns the correct value when one or
-        //:    both of 'FROM_TYPE' and 'TO_TYPE' are 'void' types.
-        //:
-        //: 9 'is_convertible::value' returns the correct value when conversion
-        //:   happens between a base class type and a derived class type.
-        //:
-        //: 10 'is_convertible::value' returns the correct value when
-        //:    conversion happens between pointer to base class member object
-        //:    type and pointer to derived class member object type.
-        //:
-        //: 11 'is_convertible::value' returns the correct value when
-        //:    conversion happens between pointer to base class member function
-        //:    type and pointer to derived class member function type.
-        //:
-        //: 12 'is_convertible::value' returns the correct value when
-        //:    conversion happens between arrays of unknown bound, and other
-        //:    types.
-        //:
-        //: 13 That 'is_convertible_v<T>' has the same value as
-        //:    'is_convertible<T>::value' for a variety of template parameter
-        //:    types.
+        // 1. `is_convertible::value` returns the correct value when both
+        //    `FROM_TYPE` and `TO_TYPE` are basic types.
+        //
+        // 2. `is_convertible::value` returns the correct value when one of
+        //    `FROM_TYPE` and `TO_TYPE` is a `const` type.
+        //
+        // 3. `is_convertible::value` returns the correct value when one of
+        //    `FROM_TYPE` and `TO_TYPE` is  a `const` pointer or `const`
+        //    reference type.
+        //
+        // 4. `is_convertible::value` returns the correct value when one of
+        //    `FROM_TYPE` and `TO_TYPE` is a `volatile` type.
+        //
+        // 5. `is_convertible::value` returns the correct value when
+        //    `FROM_TYPE` and `TO_TYPE` are various combinations of (possibly
+        //    cv-qualified) types.
+        //
+        // 6. `is_convertible::value` returns the correct value when one of
+        //    `FROM_TYPE` and `TO_TYPE` is a `volatile` pointer or `volatile`
+        //    reference type.
+        //
+        // 7. `is_convertible::value` returns the correct value when
+        //    `FROM_TYPE` and `TO_TYPE` are various combinations of different
+        //    (possibly cv-qualified) user-defined types, pointer to
+        //    user-defined types, and reference to user-defined types.
+        //
+        // 8. `is_convertible::value` returns the correct value when one or
+        //     both of `FROM_TYPE` and `TO_TYPE` are `void` types.
+        //
+        // 9. `is_convertible::value` returns the correct value when conversion
+        //    happens between a base class type and a derived class type.
+        //
+        // 10. `is_convertible::value` returns the correct value when
+        //     conversion happens between pointer to base class member object
+        //     type and pointer to derived class member object type.
+        //
+        // 11. `is_convertible::value` returns the correct value when
+        //     conversion happens between pointer to base class member function
+        //     type and pointer to derived class member function type.
+        //
+        // 12. `is_convertible::value` returns the correct value when
+        //     conversion happens between arrays of unknown bound, and other
+        //     types.
+        //
+        // 13. That `is_convertible_v<T>` has the same value as
+        //     `is_convertible<T>::value` for a variety of template parameter
+        //     types.
         //
         // Plan:
-        //: 1 Instantiate 'bsl::is_convertible' with various type combinations
-        //:   and verify that the 'value' member is initialized properly.
-        //:   (C-1..11)
+        // 1. Instantiate `bsl::is_convertible` with various type combinations
+        //    and verify that the `value` member is initialized properly.
+        //    (C-1..11)
         //
         // Testing:
         //   bsl::is_convertible::value
         //   bsl::is_convertible_v
         // --------------------------------------------------------------------
 
-        if (verbose) printf("'bsl::is_convertible::value'\n"
+        if (verbose) printf("`bsl::is_convertible::value`\n"
                             "============================\n");
 
         ASSERT(2 == sizeof(C00));
@@ -2003,7 +2003,7 @@ int main(int argc, char *argv[])
 
         // C-3: Test const pointer and reference conversions.
 
-        // Can bind a temporary to a 'const &'
+        // Can bind a temporary to a `const &`
         ASSERT_IS_CONVERTIBLE(true,  char,   const int&);
         ASSERT_IS_CONVERTIBLE(true,  double, const int&);
 
@@ -2086,7 +2086,7 @@ int main(int argc, char *argv[])
                                      my_PlacementNew);
 
 
-        // C-8: Test conversion between 'void' type and other types.
+        // C-8: Test conversion between `void` type and other types.
 
 
         ASSERT_IS_CONVERTIBLE(true,                void,                void);

@@ -1,7 +1,7 @@
 // bslstl_string_test.t.cpp                                           -*-C++-*-
 #include <bslstl_string_test.h>
 
-#include <bslstl_algorithm.h>    // 'count', 'sort'
+#include <bslstl_algorithm.h>    // `count`, `sort`
 #include <bslstl_forwarditerator.h>
 #include <bslstl_string.h>
 
@@ -37,10 +37,10 @@
 
 #include <bsltf_stdstatefulallocator.h>
 
-#include <cstring>      // 'memcmp'
-#include <cctype>       // 'isprint'
+#include <cstring>      // `memcmp`
+#include <cctype>       // `isprint`
 #include <iomanip>
-#include <ios>          // 'hex'
+#include <ios>          // `hex`
 #include <iostream>
 #include <istream>
 #include <limits>
@@ -48,12 +48,12 @@
 #include <sstream>
 #include <stdexcept>
 #include <typeinfo>
-#include <utility>      // 'move'
+#include <utility>      // `move`
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
 #include <ranges>
 #endif
 
-#include <limits.h>     // 'CHAR_MAX'
+#include <limits.h>     // `CHAR_MAX`
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -63,9 +63,9 @@
 #if defined(std)
 // This is a workaround for the way test drivers are built in an IDE-friendly
 // manner in Visual Studio.  A "normal" test driver built from the command line
-// will not have 'std' defined as a macro, and so will not need this
-// workaround.  This workaround simply undoes the illusion that namespace 'std'
-// is namespace 'bsl', so returning this test driver to its expected view.
+// will not have `std` defined as a macro, and so will not need this
+// workaround.  This workaround simply undoes the illusion that namespace `std`
+// is namespace `bsl`, so returning this test driver to its expected view.
 #undef std
 #endif
 
@@ -90,32 +90,32 @@ using bsls::nameOfType;
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
 // NOTICE: To reduce the compilation time, this test driver has been broken
-// into 2 parts, 'bslstl_string.t.cpp' (cases 1-11, plus the usage example),
-// and 'bslstl_string_test.cpp' (cases 12 and higher).
+// into 2 parts, `bslstl_string.t.cpp` (cases 1-11, plus the usage example),
+// and `bslstl_string_test.cpp` (cases 12 and higher).
 //
 //                              Overview
 //                              --------
 // The object under testing is a container whose interface and contract is
 // dictated by the C++ standard.  In particular, the standard mandates "strong"
 // exception safety (with full guarantee of rollback) along with throwing
-// 'std::length_error' if about to request memory for more than 'max_size()'
-// elements.  (Note: 'max_size' depends on the parameterized 'VALUE_TYPE'.)
+// `std::length_error` if about to request memory for more than `max_size()`
+// elements.  (Note: `max_size` depends on the parameterized `VALUE_TYPE`.)
 // The general concerns are compliance, exception safety, and proper
 // dispatching (for member function templates such as assign and insert).  In
 // addition, it is a value-semantic type whose salient attributes are size and
 // value of each element in sequence.  This container is implemented in the
 // form of a class template, and thus its proper instantiation for several
 // types is a concern.  Regarding the allocator template argument, we use
-// mostly a 'bsl::allocator' together with a 'bslma::TestAllocator' mechanism,
+// mostly a `bsl::allocator` together with a `bslma::TestAllocator` mechanism,
 // but we also verify the C++ standard.
 //
 // This test plan follows the standard approach for components implementing
 // value-semantic containers.  We have chosen as *primary* *manipulators* the
-// 'push_back' and 'clear' methods to be used by the generator functions 'g'
-// and 'gg'.  Additional helper functions are provided to facilitate
+// `push_back` and `clear` methods to be used by the generator functions `g`
+// and `gg`.  Additional helper functions are provided to facilitate
 // perturbation of internal state (e.g., capacity).  Note that some
 // manipulators must support aliasing, and those that perform memory allocation
-// must be tested for exception neutrality via the 'bslma_testallocator'
+// must be tested for exception neutrality via the `bslma_testallocator`
 // component.  After the mandatory sequence of cases (1--10) for value-semantic
 // types (cases 5 and 10 are not implemented, as there is not output or
 // streaming below bslstl), we test each individual constructor, manipulator,
@@ -126,25 +126,25 @@ using bsls::nameOfType;
 // optimization, static null string, etc.)  However, some testing is necessary
 // to make sure we don't overallocate capacity, and for this, knowledge of the
 // internal allocation model of the implementation under test is necessary, of
-// course.  This is done by the 'DEFAULT_CAPACITY' and
-// 'INITIAL_CAPACITY_FOR_NON_EMPTY_OBJECT' constants, as well as the
-// 'NUM_ALLOCS' array of constants, which would need to be adjusted if the
+// course.  This is done by the `DEFAULT_CAPACITY` and
+// `INITIAL_CAPACITY_FOR_NON_EMPTY_OBJECT` constants, as well as the
+// `NUM_ALLOCS` array of constants, which would need to be adjusted if the
 // allocation strategy were changed.  Since this version provides access to the
-// new capacity computation (in the 'Imp' class method 'computeNewCapacity'),
-// we reuse that but abstract it in the test facility 'computeNewCapacity'.
+// new capacity computation (in the `Imp` class method `computeNewCapacity`),
+// we reuse that but abstract it in the test facility `computeNewCapacity`.
 //`
 // Abbreviations:
 // --------------
 // Throughout this test driver, we use
-//..
+// ```
 //     C               VALUE_TYPE (template argument, no default)
 //     A               ALLOC (template argument, dflt: bsl::allocator<T>)
 //     basic_string    basic_string<C,CT,A> if template arguments not specified
 //     string<C,CT,A>  basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
-//..
-// In the signatures, to keep one-liners, the arguments 'pos', 'pos1', pos'2',
-// 'n', 'n1', and 'n2', are always of 'size_type', and 'a' is always of type
-// 'const A&'.
+// ```
+// In the signatures, to keep one-liners, the arguments `pos`, `pos1`, pos'2',
+// `n`, `n1`, and `n2`, are always of `size_type`, and `a` is always of type
+// `const A&`.
 //-----------------------------------------------------------------------------
 // class string<C,CT,A> (string)
 // =============================
@@ -413,14 +413,14 @@ using bsls::nameOfType;
 // [ 1] BREATHING TEST
 // [47] USAGE EXAMPLE
 // [11] CONCERN: The object has the necessary type traits
-// [26] 'npos' VALUE
-// [25] CONCERN: 'std::length_error' is used properly
+// [26] `npos` VALUE
+// [25] CONCERN: `std::length_error` is used properly
 // [27] DRQS 16870796
 // [ 9] basic_string& operator=(const CHAR_TYPE *s); [NEGATIVE ONLY]
-// [36] CONCERN: Methods qualified 'noexcept' in standard are so implemented.
+// [36] CONCERN: Methods qualified `noexcept` in standard are so implemented.
 // [38] CLASS TEMPLATE DEDUCTION GUIDES
-// [43] CONCERN: 'string' IS A C++20 RANGE
-// [46] Testing 'operator<<(ostream&, const basic_string_view&)'\n
+// [43] CONCERN: `string` IS A C++20 RANGE
+// [46] Testing `operator<<(ostream&, const basic_string_view&)`\n
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int TestDriver:ggg(Obj *object, const char *spec, int vF = 1);
@@ -504,20 +504,20 @@ void aSsErT(bool condition, const char *message, int line)
     // MSVC 2017 has an optimizer bug for 64-bit builds that will hoist a
     // potentially throwing function ahead of the check to see whether that
     // function can be safely called without throwing.  This causes exceptions
-    // to be thrown that are NOT caught in test case 31, testing the 'strtod'
-    // family of functions, and consequently calling 'terminate'.
+    // to be thrown that are NOT caught in test case 31, testing the `strtod`
+    // family of functions, and consequently calling `terminate`.
 #endif
 
 #if defined(BSLS_PLATFORM_OS_SOLARIS) ||                                      \
    !(defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 800000)
+/// The Solaris platform has a function-like `_S` macro that conflicts with
+/// the BDE `_S` literal operator on gcc, at least for early versions of the
+/// compiler that do not correctly parse `""_S` as a single token, which
+/// would avoid the problem of being parsed as a macro.  This is the same
+/// trick that allows `""if` for complex floats, but appears to persist into
+/// later compiler versions as the interaction with the preprocessor occurs
+/// earlier in the parsing.
 # define BSLS_STRING_DISABLE_S_LITERALS 1
-    // The Solaris platform has a function-like '_S' macro that conflicts with
-    // the BDE '_S' literal operator on gcc, at least for early versions of the
-    // compiler that do not correctly parse '""_S' as a single token, which
-    // would avoid the problem of being parsed as a macro.  This is the same
-    // trick that allows '""if' for complex floats, but appears to persist into
-    // later compiler versions as the interaction with the preprocessor occurs
-    // earlier in the parsing.
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_SUN) &&                                         \
@@ -554,24 +554,25 @@ const char VH = 'H';
 const char VI = 'I';
 const char VJ = 'J';
 const char VK = 'K';
-const char VL = 'L';
-    // All test types have character value type.
 
+/// All test types have character value type.
+const char VL = 'L';
+
+/// The size of the short string buffer, according to our implementation (20
+/// bytes rounded to the word boundary - 1).  Appending one more than this
+/// number of characters to a default object causes a reallocation.
 const size_t SHORT_STRING_BUFFER_BYTES
                            = (20 + sizeof(size_t) - 1) & ~(sizeof(size_t) - 1);
-    // The size of the short string buffer, according to our implementation (20
-    // bytes rounded to the word boundary - 1).  Appending one more than this
-    // number of characters to a default object causes a reallocation.
 
 
 BSLA_MAYBE_UNUSED const size_t INITIAL_CAPACITY_FOR_NON_EMPTY_OBJECT = 1;
                                 // bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1;
     // The capacity of a default constructed object after the first
-    // 'push_back', according to our implementation.
+    // `push_back`, according to our implementation.
 
 BSLA_MAYBE_UNUSED const int NUM_ALLOCS[] = {
     // Number of allocations (blocks) to create a string of the following size
-    // by using 'push_back' repeatedly (without initial reserve):
+    // by using `push_back` repeatedly (without initial reserve):
 #if BSLS_PLATFORM_CPU_64_BIT
     // 0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16
     // --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
@@ -592,7 +593,7 @@ BSLA_MAYBE_UNUSED const int NUM_ALLOCS[] = {
 };
 
 // Provide expected values for short string buffer capacity.  Note that we
-// clearly call out the expected values on Windows and Unix (2/4-btye 'wchar_t'
+// clearly call out the expected values on Windows and Unix (2/4-btye `wchar_t`
 // representations) as these are the overwhelmingly common cases, and for a
 // test driver the clarity of seeing exact numbers is more important than the
 // redundancy involved in the manual evaluation of the formula below.
@@ -735,36 +736,37 @@ void dbg_print(const char *s, const TYPE& val, const char *nl)
 }
 
 // String utilities
+
+/// Return the larger of the specified `lhs` and `rhs`.
 inline
 size_t max(size_t lhs, size_t rhs)
-    // Return the larger of the specified 'lhs' and 'rhs'.
 {
     return lhs < rhs ? rhs : lhs;
 }
 
+/// Return the smaller of the specified `lhs` and `rhs`.
 inline
 size_t min(size_t lhs, size_t rhs)
-    // Return the smaller of the specified 'lhs' and 'rhs'.
 {
     return lhs < rhs ? lhs : rhs;
 }
 
+/// Compute the expected capacity of a string constructed with the specified
+/// `newLength` and `capacity` as in by:
+/// ```
+/// Obj mX(newLength, ' ', allocator);
+/// mX.reserve(capacity);
+/// ```
+/// and later modified to the `newLength` by inserting characters (either by
+/// `insert` or `push_back`, it should not matter), assignment (using
+/// `assign), or replacement (using `replace').  We assume that none of the
+/// intermediate quantities can overflow the range of `size_t`, although we
+/// accept the specified `maxSize` as a ceiling for the new capacity.  Note
+/// that `newLength` is not necessarily larger than `initLength`.
 size_t computeNewCapacity(size_t newLength,
                           size_t /* initLength */,
                           size_t capacity,
                           size_t maxSize)
-    // Compute the expected capacity of a string constructed with the specified
-    // 'newLength' and 'capacity' as in by:
-    //..
-    //  Obj mX(newLength, ' ', allocator);
-    //  mX.reserve(capacity);
-    //..
-    // and later modified to the 'newLength' by inserting characters (either by
-    // 'insert' or 'push_back', it should not matter), assignment (using
-    // 'assign), or replacement (using 'replace').  We assume that none of the
-    // intermediate quantities can overflow the range of 'size_t', although we
-    // accept the specified 'maxSize' as a ceiling for the new capacity.  Note
-    // that 'newLength' is not necessarily larger than 'initLength'.
 {
     // This implementation conforms to the one in the header, and is verified
     // to provide constant amortized time per character for all manipulators
@@ -861,10 +863,10 @@ static bslma::TestAllocator *globalAllocator_p,
                             // class ExceptionGuard
                             // ====================
 
+/// This scoped guard helps to verify the full guarantee of rollback in
+/// exception-throwing code.
 template <class VALUE_TYPE>
 struct ExceptionGuard {
-    // This scoped guard helps to verify the full guarantee of rollback in
-    // exception-throwing code.
 
     // DATA
     int               d_lineNum;
@@ -901,9 +903,9 @@ struct ExceptionGuard {
                           // class AllocatorUseGuard
                           // =======================
 
+/// This scoped guard helps to verify that no allocations or deallocations
+/// were triggered for a specific allocator.
 struct AllocatorUseGuard {
-    // This scoped guard helps to verify that no allocations or deallocations
-    // were triggered for a specific allocator.
 
     // DATA
     const bslma::TestAllocator *d_allocator_p;
@@ -931,14 +933,14 @@ struct AllocatorUseGuard {
                                // class CharList
                                // ==============
 
+/// This array class is a simple wrapper on a `char` array offering an input
+/// iterator access via the `begin` and `end` accessors.  The iterator is
+/// specifically an *input* iterator and its value type is the parameterized
+/// `TYPE`.
 template <class TYPE,
           class TRAITS = bsl::char_traits<TYPE>,
           class ALLOC = bsl::allocator<TYPE> >
 class CharList {
-    // This array class is a simple wrapper on a 'char' array offering an input
-    // iterator access via the 'begin' and 'end' accessors.  The iterator is
-    // specifically an *input* iterator and its value type is the parameterized
-    // 'TYPE'.
 
     typedef bsl::basic_string<TYPE,TRAITS,ALLOC> Obj;
 
@@ -947,8 +949,9 @@ class CharList {
 
   public:
     // TYPES
+
+    /// Input iterator.
     typedef bslstl::ForwardIterator<const TYPE, const TYPE*> const_iterator;
-        // Input iterator.
 
     // CREATORS
     CharList() {}
@@ -989,14 +992,14 @@ CharList<TYPE,TRAITS,ALLOC>::end() const {
                               // class CharArray
                               // ===============
 
+/// This array class is a simple wrapper on a string offering an input
+/// iterator access via the `begin` and `end` accessors.  The iterator is
+/// specifically a *random-access* iterator and its value type is the
+/// parameterized `TYPE`.
 template <class TYPE,
           class TRAITS = bsl::char_traits<TYPE>,
           class ALLOC = bsl::allocator<TYPE> >
 class CharArray {
-    // This array class is a simple wrapper on a string offering an input
-    // iterator access via the 'begin' and 'end' accessors.  The iterator is
-    // specifically a *random-access* iterator and its value type is the
-    // parameterized 'TYPE'.
 
     typedef bsl::basic_string<TYPE,TRAITS,ALLOC> Obj;
 
@@ -1005,8 +1008,9 @@ class CharArray {
 
   public:
     // TYPES
+
+    /// Random-access iterator.
     typedef const TYPE *const_iterator;
-        // Random-access iterator.
 
     // CREATORS
     CharArray() {}
@@ -1061,10 +1065,10 @@ class LimitAllocator : public ALLOC {
     // TYPES
     typedef typename TraitsBase::size_type         size_type;
 
+    /// It is better not to inherit the `rebind` template, or else
+    /// `rebind<X>::other` would be `ALLOC::rebind<BDE_OTHER_TYPE>::other`
+    /// instead of `LimitAlloc<ALLOC::rebind<BDE_OTHER_TYPE>::otherX>`.
     template <class BDE_OTHER_TYPE> struct rebind {
-        // It is better not to inherit the 'rebind' template, or else
-        // 'rebind<X>::other' would be 'ALLOC::rebind<BDE_OTHER_TYPE>::other'
-        // instead of 'LimitAlloc<ALLOC::rebind<BDE_OTHER_TYPE>::otherX>'.
 
         typedef typename TraitsBase::template rebind_traits<BDE_OTHER_TYPE>
                                                               RebindTraitsBase;
@@ -1112,8 +1116,8 @@ bool isNativeString(const std::basic_string<TYPE,TRAITS,ALLOC>&)
 
 namespace BloombergLP {
 namespace bslma {
-// Specialize trait to clarify for bde_verify that 'LimitAllocator' does not
-// require satisfy the 'UsesBslmaAllocator' trait.
+// Specialize trait to clarify for bde_verify that `LimitAllocator` does not
+// require satisfy the `UsesBslmaAllocator` trait.
 template <class ALLOC>
 struct UsesBslmaAllocator<LimitAllocator<ALLOC> > : bsl::false_type {};
 
@@ -1124,40 +1128,42 @@ struct UsesBslmaAllocator<LimitAllocator<ALLOC> > : bsl::false_type {};
                  // class ConvertibleToStringViewAndCStrType
                  // ========================================
 
+/// This test class provides conversion operators to
+/// `bsl::basic_string_view` object and c-string.  It is used for testing
+/// methods that accept `StringViewLike` types.
 template <class TYPE,
           class TRAITS = bsl::char_traits<TYPE> >
 class ConvertibleToStringViewAndCStrType
-    // This test class provides conversion operators to
-    // 'bsl::basic_string_view' object and c-string.  It is used for testing
-    // methods that accept 'StringViewLike' types.
 {
     // DATA
     const TYPE *d_value_p;  // value (held, not owned)
 
   public:
     // CREATORS
+
+    /// Create an object that has the specified `value`.
     explicit ConvertibleToStringViewAndCStrType(const TYPE *value);
-        // Create an object that has the specified 'value'.
 
     // ACCESSORS
+
+    /// Convert this object to a `bsl::basic_string_view` object,
+    /// instantiated with the same character type and traits type.  The
+    /// return string will contain the same sequence of characters as this
+    /// object.  Note that this conversion operator can be invoked
+    /// implicitly (e.g., during argument passing).
     operator bsl::basic_string_view<TYPE, TRAITS>() const;
-        // Convert this object to a 'bsl::basic_string_view' object,
-        // instantiated with the same character type and traits type.  The
-        // return string will contain the same sequence of characters as this
-        // object.  Note that this conversion operator can be invoked
-        // implicitly (e.g., during argument passing).
 
+    /// Convert this object to a null-terminated character string.  The
+    /// return string will contain the same sequence of characters as this
+    /// object.  Note that this conversion operator can be invoked
+    /// implicitly (e.g., during argument passing).
     operator const TYPE *() const;
-        // Convert this object to a null-terminated character string.  The
-        // return string will contain the same sequence of characters as this
-        // object.  Note that this conversion operator can be invoked
-        // implicitly (e.g., during argument passing).
 
+    /// Return the value of this object.
     const TYPE *data() const;
-        // Return the value of this object.
 
+    /// Return the length of the underlying string.
     size_t length() const;
-        // Return the length of the underlying string.
 };
 
                  // ----------------------------------------
@@ -1207,34 +1213,36 @@ size_t ConvertibleToStringViewAndCStrType<TYPE, TRAITS>::length() const
                  // class ConvertibleToStringViewOnlyType
                  // =====================================
 
+/// This test class provides conversion operators to
+/// `bsl::basic_string_view` object.  It is used for testing methods that
+/// accept `StringViewLike` types.
 template <class TYPE,
           class TRAITS = bsl::char_traits<TYPE> >
 class ConvertibleToStringViewOnlyType
-    // This test class provides conversion operators to
-    // 'bsl::basic_string_view' object.  It is used for testing methods that
-    // accept 'StringViewLike' types.
 {
     // DATA
     const TYPE *d_value_p;  // value (held, not owned)
 
   public:
     // CREATORS
+
+    /// Create an object that has the specified `value`.
     explicit ConvertibleToStringViewOnlyType(const TYPE *value);
-        // Create an object that has the specified 'value'.
 
     // ACCESSORS
+
+    /// Convert this object to a `bsl::basic_string_view` object,
+    /// instantiated with the same character type and traits type.  The
+    /// return string will contain the same sequence of characters as this
+    /// object.  Note that this conversion operator can be invoked
+    /// implicitly (e.g., during argument passing).
     operator bsl::basic_string_view<TYPE, TRAITS>() const;
-        // Convert this object to a 'bsl::basic_string_view' object,
-        // instantiated with the same character type and traits type.  The
-        // return string will contain the same sequence of characters as this
-        // object.  Note that this conversion operator can be invoked
-        // implicitly (e.g., during argument passing).
 
+    /// Return the value of this object.
     const TYPE *data() const;
-        // Return the value of this object.
 
+    /// Return the length of the underlying string.
     size_t length() const;
-        // Return the length of the underlying string.
 };
 
                  // -------------------------------------
@@ -1277,24 +1285,26 @@ size_t ConvertibleToStringViewOnlyType<TYPE, TRAITS>::length() const
                  // class CharacterSearchPredicate
                  // ------------------------------
 
+/// This predicate matches the character passed in at construction.
 template <class TYPE>
 class CharacterSearchPredicate
-    // This predicate matches the character passed in at construction.
 {
     TYPE d_chr;
 
   public:
     // CREATORS
+
+    /// Create an object whose `operator()` matches the specified `chr`.
     CharacterSearchPredicate(const TYPE chr)                        // IMPLICIT
-        // Create an object whose 'operator()' matches the specified 'chr'.
     : d_chr(chr)
     {
     }
 
     // ACCESSORS
+
+    /// Return `true` if the specified `chr` matches the character passed to
+    /// this object's constructor.
     bool operator()(const TYPE chr) const { return d_chr == chr; }
-        // Return 'true' if the specified 'chr' matches the character passed to
-        // this object's constructor.
 };
 
 template <class TYPE>
@@ -1350,47 +1360,47 @@ public:
 //                       TEST DRIVER TEMPLATE
 //-----------------------------------------------------------------------------
 
+/// The generating functions interpret the given `spec` in order from left
+/// to right to configure the object according to a custom language.
+/// Uppercase letters [A..E] correspond to arbitrary (but unique) `char`
+/// values to be appended to the `string` object.  A tilde ('~') indicates
+/// that the logical (but not necessarily physical) state of the object is
+/// to be set to its initial, empty state (via the `clear` method).
+/// ```
+/// LANGUAGE SPECIFICATION:
+/// -----------------------
+///
+/// <SPEC>       ::= <EMPTY>   | <LIST>
+///
+/// <EMPTY>      ::=
+///
+/// <LIST>       ::= <ITEM>    | <ITEM><LIST>
+///
+/// <ITEM>       ::= <ELEMENT> | <CLEAR>
+///
+/// <ELEMENT>    ::= 'A' | 'B' | 'C' | 'D' | 'E' | ... | 'H'
+///                                      // unique but otherwise arbitrary
+/// <CLEAR>      ::= '~'
+///
+/// Spec String  Description
+/// -----------  -----------------------------------------------------------
+/// ""           Has no effect; leaves the object empty.
+/// "A"          Append the value corresponding to A.
+/// "AA"         Append two values both corresponding to A.
+/// "ABC"        Append three values corresponding to A, B and C.
+/// "ABC~"       Append three values corresponding to A, B and C and then
+///              remove all the elements (set array length to 0).  Note that
+///              this spec yields an object that is logically equivalent
+///              (but not necessarily identical internally) to one
+///              yielded by ("").
+/// "ABC~DE"     Append three values corresponding to A, B, and C; empty
+///              the object; and append values corresponding to D and E.
+/// -------------------------------------------------------------------------
+/// ```
 template <class TYPE,
           class TRAITS = bsl::char_traits<TYPE>,
           class ALLOC  = bsl::allocator<TYPE> >
 struct TestDriver {
-    // The generating functions interpret the given 'spec' in order from left
-    // to right to configure the object according to a custom language.
-    // Uppercase letters [A..E] correspond to arbitrary (but unique) 'char'
-    // values to be appended to the 'string' object.  A tilde ('~') indicates
-    // that the logical (but not necessarily physical) state of the object is
-    // to be set to its initial, empty state (via the 'clear' method).
-    //..
-    // LANGUAGE SPECIFICATION:
-    // -----------------------
-    //
-    // <SPEC>       ::= <EMPTY>   | <LIST>
-    //
-    // <EMPTY>      ::=
-    //
-    // <LIST>       ::= <ITEM>    | <ITEM><LIST>
-    //
-    // <ITEM>       ::= <ELEMENT> | <CLEAR>
-    //
-    // <ELEMENT>    ::= 'A' | 'B' | 'C' | 'D' | 'E' | ... | 'H'
-    //                                      // unique but otherwise arbitrary
-    // <CLEAR>      ::= '~'
-    //
-    // Spec String  Description
-    // -----------  -----------------------------------------------------------
-    // ""           Has no effect; leaves the object empty.
-    // "A"          Append the value corresponding to A.
-    // "AA"         Append two values both corresponding to A.
-    // "ABC"        Append three values corresponding to A, B and C.
-    // "ABC~"       Append three values corresponding to A, B and C and then
-    //              remove all the elements (set array length to 0).  Note that
-    //              this spec yields an object that is logically equivalent
-    //              (but not necessarily identical internally) to one
-    //              yielded by ("").
-    // "ABC~DE"     Append three values corresponding to A, B, and C; empty
-    //              the object; and append values corresponding to D and E.
-    //-------------------------------------------------------------------------
-    //..
 
     // CONSTANTS
     enum {
@@ -1400,14 +1410,15 @@ struct TestDriver {
     };
 
     // TYPES
+
+    /// Type under testing.
     typedef bsl::basic_string<TYPE, TRAITS, ALLOC> Obj;
-        // Type under testing.
 
+    /// And its allocator (may be different from `ALLOC` via rebind).
     typedef typename Obj::allocator_type           Allocator;
-        // And its allocator (may be different from 'ALLOC' via rebind).
 
+    /// Utility typedef for xlC10 silliness.
     typedef ALLOC AllocType;
-        // Utility typedef for xlC10 silliness.
 
     typedef typename Obj::size_type                size_type;
     typedef typename Obj::iterator                 iterator;
@@ -1421,8 +1432,8 @@ struct TestDriver {
                     size_type,
                     typename bsl::basic_string_view<TYPE>::size_type>::value));
 
+    /// Input iterator type to test functions that take input iterators.
     struct InputIterator {
-        // Input iterator type to test functions that take input iterators.
 
         const TYPE *d_data;
 
@@ -1432,15 +1443,16 @@ struct TestDriver {
         typedef TYPE                    *pointer;
         typedef TYPE&                    reference;
 
+        /// Create an input iterator pointing to the specified `*initVal`
+        /// (or after `initVal[-1]`).
         explicit InputIterator(const TYPE *initVal)
         : d_data(initVal)
-            // Create an input iterator pointing to the specified '*initVal'
-            // (or after 'initVal[-1]').
         {}
 
         // MANIPULATORS
+
+        /// Increment this iterator and return the new value.
         InputIterator& operator++()
-            // Increment this iterator and return the new value.
         {
             ++d_data;
 
@@ -1448,240 +1460,244 @@ struct TestDriver {
         }
 
         // ACCESSORS
+
+        /// Dereference this iterator and return a reference to the object
+        /// it refers to.
         const TYPE& operator*() const
-            // Dereference this iterator and return a reference to the object
-            // it refers to.
         {
             return *d_data;
         }
 
+        /// Return `true` if this iterator is equal to the specified `rhs`
+        /// and `false` otherwise.
         bool operator==(const InputIterator& rhs) const
-            // Return 'true' if this iterator is equal to the specified 'rhs'
-            // and 'false' otherwise.
         {
             return d_data == rhs.d_data;
         }
 
+        /// Return `true` if this iterator is not equal to the specified
+        /// `rhs` and `false` otherwise.
         bool operator!=(const InputIterator& rhs) const
-            // Return 'true' if this iterator is not equal to the specified
-            // 'rhs' and 'false' otherwise.
         {
             return d_data != rhs.d_data;
         }
     };
 
     // CLASS DATA
-    // We have to define 's_testStringLength' constant inside of the class
+    // We have to define `s_testStringLength` constant inside of the class
     // declaration to avoid MSVC build error "C2131: expression did not
     // evaluate to a constant".  And we have to initialize it with the literal
-    // instead of using 'sizeof', because MSVC doesn't allow to use 'sizeof'
+    // instead of using `sizeof`, because MSVC doesn't allow to use `sizeof`
     // for constant static arrays, defined outside  of the class declaration:
-    // "C2070: 'const char []': illegal sizeof operand".
+    // "C2070: `const char []`: illegal sizeof operand".
 
     static const TYPE s_testString[];           // common test string
     static const int  s_testStringLength = 49;  // length of test string
 
     // TEST APPARATUS
+
+    /// Load the specified `values` with the address of an array containing
+    /// initialized values of the parameterized `TYPE` and return the length
+    /// of that array.
     static int getValues(const TYPE **values);
-        // Load the specified 'values' with the address of an array containing
-        // initialized values of the parameterized 'TYPE' and return the length
-        // of that array.
 
+    /// Configure the specified `object` according to the specified `spec`,
+    /// using only the primary manipulator function `push_back` and
+    /// white-box manipulator `clear`.  Optionally specify a zero
+    /// `verboseFlag` to suppress `spec` syntax error messages.  Return the
+    /// index of the first invalid character, and a negative value
+    /// otherwise.  Note that this function is used to implement `gg` as
+    /// well as allow for verification of syntax error detection.
     static int ggg(Obj *object, const char *spec, int verboseFlag = 1);
-        // Configure the specified 'object' according to the specified 'spec',
-        // using only the primary manipulator function 'push_back' and
-        // white-box manipulator 'clear'.  Optionally specify a zero
-        // 'verboseFlag' to suppress 'spec' syntax error messages.  Return the
-        // index of the first invalid character, and a negative value
-        // otherwise.  Note that this function is used to implement 'gg' as
-        // well as allow for verification of syntax error detection.
 
+    /// Return, by reference, the specified `object` with its value adjusted
+    /// according to the specified `spec`.
     static Obj& gg(Obj *object, const char *spec);
-        // Return, by reference, the specified 'object' with its value adjusted
-        // according to the specified 'spec'.
 
+    /// Return, by value, a new object corresponding to the specified
+    /// `spec`.
     static Obj g(const char *spec);
-        // Return, by value, a new object corresponding to the specified
-        // 'spec'.
 
+    /// Return, by value, a new string object with the specified `length`
+    /// and the specified `seed` character.  The actual content of the
+    /// string is not important, only the string length and the fact that
+    /// two different `seeds` produce two different results.
     static Obj g(size_t length, TYPE seed);
-        // Return, by value, a new string object with the specified 'length'
-        // and the specified 'seed' character.  The actual content of the
-        // string is not important, only the string length and the fact that
-        // two different 'seeds' produce two different results.
 
+    /// Using only primary manipulators, extend the length of the specified
+    /// `object` by the specified `size` by adding copies of the optionally
+    /// specified `value`, or with the null character for the (template
+    /// parameter) `TYPE` if `value` is not specified.  The resulting value
+    /// is not specified.
     static void stretch(Obj *object, size_t size, const TYPE& value = TYPE());
-        // Using only primary manipulators, extend the length of the specified
-        // 'object' by the specified 'size' by adding copies of the optionally
-        // specified 'value', or with the null character for the (template
-        // parameter) 'TYPE' if 'value' is not specified.  The resulting value
-        // is not specified.
 
+    /// Using only primary manipulators, extend the capacity of the
+    /// specified `object` to (at least) the specified `size` by adding
+    /// copies of the optionally specified `value` or with the null
+    /// character for the (template parameter) `TYPE` if `value` is not
+    /// specified; then remove all elements leaving `object` empty.
     static void stretchRemoveAll(Obj         *object,
                                  size_t       size,
                                  const TYPE&  value = TYPE());
-        // Using only primary manipulators, extend the capacity of the
-        // specified 'object' to (at least) the specified 'size' by adding
-        // copies of the optionally specified 'value' or with the null
-        // character for the (template parameter) 'TYPE' if 'value' is not
-        // specified; then remove all elements leaving 'object' empty.
 
+    /// Compare the specified `X` and `Y` strings according to the
+    /// specifications, and check that the specified `result` agrees.
     static void checkCompare(const Obj& X, const Obj& Y, int result);
-        // Compare the specified 'X' and 'Y' strings according to the
-        // specifications, and check that the specified 'result' agrees.
 
     // TEST CASES
+
+    /// Testing `operator<<(ostream&, const basic_string_view&)`
     static void testCase46();
-        // Testing 'operator<<(ostream&, const basic_string_view&)'
 
+    /// Test `resize_and_overwrite`.
     static void testCase44();
-        // Test 'resize_and_overwrite'.
 
+    /// Test whether `string` is a C++20 range.
     static void testCase43_isRange();
-        // Test whether 'string' is a C++20 range.
 
+    /// Test `erase` and `erase_if`.
     static void testCase42();
-        // Test 'erase' and 'erase_if'.
 
+    /// Test `starts_with` and `ends_with`.
     static void testCase41();
-        // Test 'starts_with' and 'ends_with'.
 
+    /// Test `shrink_to_fit`.
     static void testCase39();
-        // Test 'shrink_to_fit'.
 
+    /// Test `+` operator.
     template <bool PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION>
     static void testCase37();
-        // Test '+' operator.
 
+    /// Test `data` manipulator.
     static void testCase36();
-        // Test 'data' manipulator.
 
+    /// Test `noexcept` specifications.
     static void testCase35();
-        // Test 'noexcept' specifications.
 
+    /// Test the `initializer_list` functions where supported.
     static void testCase33();
-        // Test the 'initializer_list' functions where supported.
 
+    /// Test the hash append specialization.
     static void testCase29();
-        // Test the hash append specialization.
 
+    /// Test the short string optimization.
     static void testCase28();
-        // Test the short string optimization.
 
+    /// Test conversions to/from native strings.
     static void testCase26();
-        // Test conversions to/from native strings.
 
+    /// Test proper use of `std::length_error`.
     static void testCase25();
-        // Test proper use of 'std::length_error'.
 
+    /// Test comparison free operators.
     static void testCase24();
-        // Test comparison free operators.
 
+    /// Negative test `compare` and comparison free operators.
     static void testCase24Negative();
-        // Negative test 'compare' and comparison free operators.
 
+    /// Test `copy` and `substr` methods.
     static void testCase23();
-        // Test 'copy' and 'substr' methods.
 
+    /// Negative test for `copy`.
     static void testCase23Negative();
-        // Negative test for 'copy'.
 
+    /// Test `find...` methods.
     static void testCase22();
-        // Test 'find...' methods.
 
+    /// Negative test for `find...` methods.
     static void testCase22Negative();
-        // Negative test for 'find...' methods.
 
     template <bool PROPAGATE_ON_CONTAINER_SWAP_FLAG,
               bool OTHER_FLAGS>
     static void testCase21_propagate_on_container_swap_dispatch();
+
+    /// Test `propagate_on_container_swap`.
     static void testCase21_propagate_on_container_swap();
-        // Test 'propagate_on_container_swap'.
 
+    /// Test `swap` member.
     static void testCase21();
-        // Test 'swap' member.
 
+    /// Test `replace`.
     static void testCase20();
-        // Test 'replace'.
 
+    /// Test `replace` where the types of `NUM_ELEMENTS` and `VALUE` match.
     static void testCase20MatchTypes();
-        // Test 'replace' where the types of 'NUM_ELEMENTS' and 'VALUE' match.
 
+    /// Test `replace` member template.
     template <class CONTAINER>
     static void testCase20Range(const CONTAINER&);
-        // Test 'replace' member template.
 
+    /// Negative test for `replace`.
     static void testCase20Negative();
-        // Negative test for 'replace'.
 
+    /// Test `erase` and `pop_back`.
     static void testCase19();
-        // Test 'erase' and 'pop_back'.
 
+    /// Negative test for `erase` and `pop_back`.
     static void testCase19Negative();
-        // Negative test for 'erase' and 'pop_back'.
 
+    /// Test `insert` and move `push_back`.
     static void testCase18();
-        // Test 'insert' and move 'push_back'.
 
+    /// Test `insert` member template.
     template <class CONTAINER>
     static void testCase18Range(const CONTAINER&);
-        // Test 'insert' member template.
 
+    /// Negative test for `insert`.
     static void testCase18Negative();
-        // Negative test for 'insert'.
 
+    /// Test `append`.
     static void testCase17();
-        // Test 'append'.
 
+    /// Test `append` member template.
     template <class CONTAINER>
     static void testCase17Range(const CONTAINER&);
-        // Test 'append' member template.
 
+    /// Negative test for `append`.
     static void testCase17Negative();
-        // Negative test for 'append'.
 
+    /// Test iterators.
     static void testCase16();
-        // Test iterators.
 
+    /// Test element access.
     static void testCase15();
-        // Test element access.
 
+    /// Negative test for element access.
     static void testCase15Negative();
-        // Negative test for element access.
 
+    /// Test `reserve` and capacity-related methods.
     static void testCase14();
-        // Test 'reserve' and capacity-related methods.
 
+    /// Test `assign` members.
     static void testCase13();
-        // Test 'assign' members.
 
+    /// Test `assign` member template.
     template <class CONTAINER>
     static void testCase13Range(const CONTAINER&);
-        // Test 'assign' member template.
 
+    /// Test `assign` member template from `StrViewLike` type.
     static void testCase13StrViewLike();
-        // Test 'assign' member template from 'StrViewLike' type.
 
+    /// Test `assign` member template from a pair of input iterators.
     static void testCase13InputIterator();
-        // Test 'assign' member template from a pair of input iterators.
 
+    /// Negative test for `assign` members.
     static void testCase13Negative();
-        // Negative test for 'assign' members.
 
+    /// Test user-supplied constructors.
     static void testCase12();
-        // Test user-supplied constructors.
 
+    /// Negative test for user-supplied constructors.
     static void testCase12Negative();
-        // Negative test for user-supplied constructors.
 
+    /// Test user-supplied constructor templates.
     template <class CONTAINER>
     static void testCase12Range(const CONTAINER&);
-        // Test user-supplied constructor templates.
 
+    /// Performance regression test, performing the specified `NITER`
+    /// iterations, and using the specified `RANDOM_SEED` to vary the test
+    /// conditions.
     static void testCaseM1(const int NITER, const int RANDOM_SEED);
-        // Performance regression test, performing the specified 'NITER'
-        // iterations, and using the specified 'RANDOM_SEED' to vary the test
-        // conditions.
 };
 
                                 // ----------
@@ -1851,43 +1867,43 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase46()
     //   value, but on the stream's settings (width and adjustment).  This is
     //   taken into account when writing test.
     //
-    // (This test was moved here from 'bslstl_stringview.t.cpp' TC 3 to prevent
-    // cycles because the test requires 'basic_string').
+    // (This test was moved here from `bslstl_stringview.t.cpp` TC 3 to prevent
+    // cycles because the test requires `basic_string`).
     //
     // Concerns:
-    //: 1 Empty object is correctly streamed.
-    //:
-    //: 2 The operator takes into account the state of the passed stream (its
-    //:   width and adjustment).
-    //:
-    //: 3 Null symbols in the object are correctly streamed.
-    //:
-    //: 4 The operator sets width of the passed stream to zero.
-    //:
-    //: 5 The operator returns a reference to the passed stream.
-    //:
+    // 1. Empty object is correctly streamed.
+    //
+    // 2. The operator takes into account the state of the passed stream (its
+    //    width and adjustment).
+    //
+    // 3. Null symbols in the object are correctly streamed.
+    //
+    // 4. The operator sets width of the passed stream to zero.
+    //
+    // 5. The operator returns a reference to the passed stream.
+    //
     //
     // Plan:
-    //: 1 Create an empty object, stream it using the 'operator<<' and verify
-    //:   the results.  (C-1)
-    //:
-    //: 2 Construct a couple of 'std::ostringstream' objects having different
-    //:   adjustments (left and right).  For each object:
-    //:
-    //:   1 Using a loop-based approach, construct a set of 'string_view'
-    //:     objects 'O' on the constant string 'S' (that can include null
-    //:     symbol) having lengths in the range '[0, N]', where the 'N' is some
-    //:     non-negative integer constant.  For each object in the set 'O':
-    //:
-    //:     1 Adjust width of the stream objects from the P-1.  The width has
-    //:       the same value for all 'string_view' objects, but due to the
-    //:       different lengths of these objects it can be less, equal or
-    //:       greater than they.
-    //:
-    //:     2 Use 'operator<<' to stream objects from the P-2.1 and verify the
-    //:       results.  (C-2..5)
-    //:
-    //:     3 Return stream objects to the original state.
+    // 1. Create an empty object, stream it using the `operator<<` and verify
+    //    the results.  (C-1)
+    //
+    // 2. Construct a couple of `std::ostringstream` objects having different
+    //    adjustments (left and right).  For each object:
+    //
+    //   1. Using a loop-based approach, construct a set of `string_view`
+    //      objects `O` on the constant string `S` (that can include null
+    //      symbol) having lengths in the range `[0, N]`, where the `N` is some
+    //      non-negative integer constant.  For each object in the set `O`:
+    //
+    //     1. Adjust width of the stream objects from the P-1.  The width has
+    //        the same value for all `string_view` objects, but due to the
+    //        different lengths of these objects it can be less, equal or
+    //        greater than they.
+    //
+    //     2. Use `operator<<` to stream objects from the P-2.1 and verify the
+    //        results.  (C-2..5)
+    //
+    //     3. Return stream objects to the original state.
     //
     // Testing:
     //   operator<<(std::basic_ostream& stream, basic_string_view view);
@@ -2021,42 +2037,42 @@ template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase44()
 {
     // --------------------------------------------------------------------
-    // TESTING 'resize_and_overwrite'
+    // TESTING `resize_and_overwrite`
     //
     // Concerns:
-    //: 1 The 'resize_and_overwrite' method can be invoked for object of
-    //:   any size and capacity.
-    //:
-    //: 2 The 'resize_and_overwrite' method correctly handles 'count'
-    //:   argument that is less than object's size.
-    //:
-    //: 3 The 'resize_and_overwrite' method correctly handles 'count'
-    //:   argument that exceeds object's size.
-    //:
-    //: 4 The 'resize_and_overwrite' method shrink the object in accordance
-    //:   with the value returned from the 'operation'.
-    //:
-    //: 5 Additional memory is allocated only if the requested size exceeds
-    //:   current capacity.
-    //:
-    //: 6 Memory allocation comes from the allocator supplied on object
-    //:   construction.
-    //:
-    //: 7 QoI: Asserted precondition violations are detected when enabled.
+    // 1. The `resize_and_overwrite` method can be invoked for object of
+    //    any size and capacity.
+    //
+    // 2. The `resize_and_overwrite` method correctly handles `count`
+    //    argument that is less than object's size.
+    //
+    // 3. The `resize_and_overwrite` method correctly handles `count`
+    //    argument that exceeds object's size.
+    //
+    // 4. The `resize_and_overwrite` method shrink the object in accordance
+    //    with the value returned from the `operation`.
+    //
+    // 5. Additional memory is allocated only if the requested size exceeds
+    //    current capacity.
+    //
+    // 6. Memory allocation comes from the allocator supplied on object
+    //    construction.
+    //
+    // 7. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Call 'resize_and_overwrite' with a variety of sizes, both larger
-    //:   and smaller than the initial size. (C-1, 2, 3, 5, 6)
-    //:
-    //: 2 Call 'resize_and_overwrite' with an 'op' returning a variety of
-    //:   sizes, both smaller and larger than the initial size. (C-4)
-    //:
-    //: 3 Verify value passed to 'op' versus the resulting string. (C-1)
-    //:
-    //: 4 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered when an attempt is made to perform operations that
-    //:   would return a value greater than the resize length (using the
-    //:   'BSLS_ASSERTTEST_*' macros).  (C-7)
+    // 1. Call `resize_and_overwrite` with a variety of sizes, both larger
+    //    and smaller than the initial size. (C-1, 2, 3, 5, 6)
+    //
+    // 2. Call `resize_and_overwrite` with an `op` returning a variety of
+    //    sizes, both smaller and larger than the initial size. (C-4)
+    //
+    // 3. Verify value passed to `op` versus the resulting string. (C-1)
+    //
+    // 4. Verify that, in appropriate build modes, defensive checks are
+    //    triggered when an attempt is made to perform operations that
+    //    would return a value greater than the resize length (using the
+    //    `BSLS_ASSERTTEST_*` macros).  (C-7)
     //
     // Testing:
     //   void resize_and_overwrite(size_type n, OPERATION op);
@@ -2079,7 +2095,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase44()
     };
     enum { NUM_NEW_SIZE = sizeof NEW_SIZE / sizeof *NEW_SIZE };
 
-    if (verbose) printf("\tTesting 'resize_and_overwrite'.\n");
+    if (verbose) printf("\tTesting `resize_and_overwrite`.\n");
 
     if (veryVerbose) printf("\t... with non-cutting operation.\n");
 
@@ -2226,31 +2242,31 @@ template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE, TRAITS, ALLOC>::testCase42()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'erase' AND 'erase_if'
+    // TESTING `erase` AND `erase_if`
     //
     // Concerns:
-    //: 1 The 'erase' and 'erase_if' free functions work correctly for objects
-    //:   of any size and content.
-    //:
-    //: 2 The NUL character is handled correctly regardless of whether it
-    //:   belongs to the object or is the character being erased.
-    //:
-    //: 3 An empty string is handled correctly.
-    //:
-    //: 4 No additional memory allocation occurs.
+    // 1. The `erase` and `erase_if` free functions work correctly for objects
+    //    of any size and content.
+    //
+    // 2. The NUL character is handled correctly regardless of whether it
+    //    belongs to the object or is the character being erased.
+    //
+    // 3. An empty string is handled correctly.
+    //
+    // 4. No additional memory allocation occurs.
     //
     // Plan:
-    //: 1 Call 'erase' and 'erase_if' on an empty string and make sure there's
-    //:   no effect. (C-1)
-    //:
-    //: 2 Construct an object with a variety of elements, including the NUL
-    //:   character.
-    //:
-    //: 3 Call 'erase' and 'erase_if' methods and verify the results.
-    //:   (C-1, 2, 3)
-    //:
-    //: 4 Verify that no additional memory allocation occurs during erasure.
-    //:   (C-4)
+    // 1. Call `erase` and `erase_if` on an empty string and make sure there's
+    //    no effect. (C-1)
+    //
+    // 2. Construct an object with a variety of elements, including the NUL
+    //    character.
+    //
+    // 3. Call `erase` and `erase_if` methods and verify the results.
+    //    (C-1, 2, 3)
+    //
+    // 4. Verify that no additional memory allocation occurs during erasure.
+    //    (C-4)
     //
     // Testing:
     //   size_type erase(basic_string& str, const C& c);
@@ -2266,7 +2282,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase42()
 
             ASSERTV(mX.length(), 0 == mX.length());
 
-            const TYPE chr = '\0';  // not present in 'mX'
+            const TYPE chr = '\0';  // not present in `mX`
 
             const size_t count = bsl::count(mX.begin(), mX.end(), chr);
             ASSERTV(count, 0 == count);
@@ -2298,7 +2314,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase42()
         data.push_back(TYPE('\0'));
         data.push_back(TYPE('\0'));
 
-        // Make sure 'data' is too large for small-string optimization.
+        // Make sure `data` is too large for small-string optimization.
         data += data;
         data += data;
 
@@ -2318,7 +2334,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase42()
                 Obj mX(DATA);  // object to (not) erase from
                 Tam dam(defaultAllocator_p);
 
-                const TYPE chr = 'Z';  // not present in 'mX'
+                const TYPE chr = 'Z';  // not present in `mX`
 
                 const size_t count = bsl::count(mX.begin(), mX.end(), chr);
                 ASSERTV(count, 0 == count);
@@ -2344,7 +2360,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase42()
                 Obj mX(DATA);  // object to erase from
                 Tam dam(defaultAllocator_p);
 
-                // Use 'uniqueDataElements' to skip redundant elements.
+                // Use `uniqueDataElements` to skip redundant elements.
                 const TYPE chr = uniqueDataElements[i];
 
                 if (veryVeryVerbose)
@@ -2390,52 +2406,52 @@ template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE, TRAITS, ALLOC>::testCase41()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'starts_with' AND 'ends_with'
+    // TESTING `starts_with` AND `ends_with`
     //
     // Concerns:
-    //: 1 The 'starts_with' and 'ends_with' methods work correctly for objects
-    //:   of any size and content.
-    //:
-    //: 2 The null character is handled correctly regardless of whether it
-    //:   belongs to the object or to the string for search.
-    //:
-    //: 3 An empty string is handled correctly regardless of whether it
-    //:   is an empty object or an empty string for search.
-    //:
-    //: 4 No additional memory allocation occurs.
-    //:
-    //: 5 QoI: Asserted precondition violations are detected when enabled.
+    // 1. The `starts_with` and `ends_with` methods work correctly for objects
+    //    of any size and content.
+    //
+    // 2. The null character is handled correctly regardless of whether it
+    //    belongs to the object or to the string for search.
+    //
+    // 3. An empty string is handled correctly regardless of whether it
+    //    is an empty object or an empty string for search.
+    //
+    // 4. No additional memory allocation occurs.
+    //
+    // 5. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Using a loop-based approach, construct a set of objects and a set
-    //:   of strings for search having different sizes and content.
-    //:
-    //: 2 Call every overload of the 'starts_with' and 'ends_with' methods and
-    //:   verify the results.  Verify that no memory was allocated by the
-    //:   default allocator.  (C-1, 3)
-    //:
-    //: 3 Using a table-based approach, construct a set of objects and a set
-    //:   of strings for search having different sizes and content and
-    //:   containing the null character.
-    //:
-    //: 4 Call 'string_view' and single characters overloads of the
-    //:   'starts_with' and 'ends_with' methods and verify the results.
-    //:   Verify that no memory was allocated by the default allocator.
-    //:
-    //: 5 Using a table-based approach, construct a set of objects containing
-    //:   the null character and a set of strings for search having different
-    //:   sizes.  Due to the c-strings peculiarity when the first null
-    //:   character encountered is considered the end of the string, we have to
-    //:   create a separate table, different from the table from P-3.  In this
-    //:   table only object specifications contain null characters.
-    //:
-    //: 6 Call c-string overloads of the 'starts_with' and 'ends_with'
-    //:   methods and verify the results.  Verify that no memory was allocated
-    //:   by the default allocator.  (C-2, 4)
-    //:
-    //: 7 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered for invalid attribute values, but not triggered for
-    //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
+    // 1. Using a loop-based approach, construct a set of objects and a set
+    //    of strings for search having different sizes and content.
+    //
+    // 2. Call every overload of the `starts_with` and `ends_with` methods and
+    //    verify the results.  Verify that no memory was allocated by the
+    //    default allocator.  (C-1, 3)
+    //
+    // 3. Using a table-based approach, construct a set of objects and a set
+    //    of strings for search having different sizes and content and
+    //    containing the null character.
+    //
+    // 4. Call `string_view` and single characters overloads of the
+    //    `starts_with` and `ends_with` methods and verify the results.
+    //    Verify that no memory was allocated by the default allocator.
+    //
+    // 5. Using a table-based approach, construct a set of objects containing
+    //    the null character and a set of strings for search having different
+    //    sizes.  Due to the c-strings peculiarity when the first null
+    //    character encountered is considered the end of the string, we have to
+    //    create a separate table, different from the table from P-3.  In this
+    //    table only object specifications contain null characters.
+    //
+    // 6. Call c-string overloads of the `starts_with` and `ends_with`
+    //    methods and verify the results.  Verify that no memory was allocated
+    //    by the default allocator.  (C-2, 4)
+    //
+    // 7. Verify that, in appropriate build modes, defensive checks are
+    //    triggered for invalid attribute values, but not triggered for
+    //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).  (C-5)
     //
     // Testing:
     //   bool starts_with(basic_string_view characterString) const;
@@ -2456,7 +2472,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase41()
         const Obj     DATA(g(SPEC));
         const size_t  LENGTH = DATA.length();
 
-        // Despite there is no overload that accepts 'basic_string' object, we
+        // Despite there is no overload that accepts `basic_string` object, we
         // are going to use such object as a basis for parameters.
 
         Obj        mX;          // object to search in
@@ -2557,7 +2573,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase41()
     // Note that since we use c-strings for specifications we have to replace
     // null characters with zero symbols in the table.
     {
-        // Testing 'string_view' and single character overloads.
+        // Testing `string_view` and single character overloads.
         {
             static const struct {
                 int         d_lineNum;     // source line number
@@ -2567,10 +2583,10 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase41()
                 const char *d_strSpec_p;   // specification for search string
 
                 bool        d_startsWith;  // expected result of the
-                                           // 'starts_with'
+                                           // `starts_with`
 
                 bool        d_endsWith;    // expected result of the
-                                           // 'ends_with'
+                                           // `ends_with`
             } DATA[] = {
                 //LINE  OBJ_SPEC STR_SPEC STARTS_WITH ENDS_WITH
                 //----  -------- -------- ----------- ---------
@@ -2708,7 +2724,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase41()
                         EXP_0_E == X.ends_with(TYPE(0)));
                 ASSERTV(LINE, OBJ_SPEC, EXP_A_E, EXP_A_E == X.ends_with('A'));
 
-                // Testing 'string_view' overload.
+                // Testing `string_view` overload.
 
                 ASSERTV(LINE, OBJ_SPEC, STR_SPEC, EXP_S_RES,
                         EXP_S_RES == X.starts_with(SV));
@@ -2728,10 +2744,10 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase41()
                 const char *d_strSpec_p;   // specification for search string
 
                 bool        d_startsWith;  // expected result of the
-                                           // 'starts_with'
+                                           // `starts_with`
 
                 bool        d_endsWith;    // expected result of the
-                                           // 'ends_with'
+                                           // `ends_with`
             } DATA[] = {
                 //LINE  OBJ_SPEC STR_SPEC STARTS_WITH ENDS_WITH
                 //----  -------- -------- ----------- ---------
@@ -2836,33 +2852,33 @@ template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE, TRAITS, ALLOC>::testCase39()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'shrink_to_fit'
+    // TESTING `shrink_to_fit`
     //
     // Concerns:
-    //: 1 The 'shrink_to_fit' method works correctly for objects of any size
-    //:   and any capacity.
-    //:
-    //: 2 The contained value remains unaffected.
-    //:
-    //: 3 The null termination is preserved by the shrinkage operation.
-    //:
-    //: 4 If the object's capacity is equal to its size, the method does
-    //:   nothing.
-    //:
-    //: 5 The object allocator is used to supply memory.
-    //:
-    //: 6 Allocation occurs only is the size of the object exceeds the size of
-    //:   the short string buffer.
-    //:
+    // 1. The `shrink_to_fit` method works correctly for objects of any size
+    //    and any capacity.
+    //
+    // 2. The contained value remains unaffected.
+    //
+    // 3. The null termination is preserved by the shrinkage operation.
+    //
+    // 4. If the object's capacity is equal to its size, the method does
+    //    nothing.
+    //
+    // 5. The object allocator is used to supply memory.
+    //
+    // 6. Allocation occurs only is the size of the object exceeds the size of
+    //    the short string buffer.
+    //
     //
     // Plan:
-    //: 1 Using a loop-based approach, construct a set of objects having
-    //:   different sizes and capacity.
-    //:
-    //: 2 Call the 'shrink_to_fit' method and verify that the value and the
-    //:   size of the object remain unaffected, that subsequent capacity is
-    //:   equal to the expected value and that the expected number of bytes
-    //:   were allocated by the object allocator.  (C-1..6)
+    // 1. Using a loop-based approach, construct a set of objects having
+    //    different sizes and capacity.
+    //
+    // 2. Call the `shrink_to_fit` method and verify that the value and the
+    //    size of the object remain unaffected, that subsequent capacity is
+    //    equal to the expected value and that the expected number of bytes
+    //    were allocated by the object allocator.  (C-1..6)
     //
     // Testing:
     //   void shrink_to_fit();
@@ -2873,15 +2889,15 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase39()
     const TYPE *VALUES;
     const int   NUM_VALUES = getValues(&VALUES);
 
-    // Since we know the strategy of memory allocation for 'bsl::string', we
+    // Since we know the strategy of memory allocation for `bsl::string`, we
     // can accurately determine the expected values for capacity.  If the size
     // of the object is less or equal than the size of the short string buffer
-    // than the capacity after the 'shrink_to_fit' method call is equal to the
-    // size of the short string buffer ('k_DEFAULT_CAPACITY') and no additional
+    // than the capacity after the `shrink_to_fit` method call is equal to the
+    // size of the short string buffer (`k_DEFAULT_CAPACITY`) and no additional
     // memory allocation occurs.  The next edge value is the buffer size
     // multiplied by one and a half, because we have 1.5 growth factor for
-    // memory ('k_PROPOSED_CAPACITY').  Finally, if the length of the string
-    // exceeds 'k_PROPOSED_CAPACITY', then we expect the capacity to be equal
+    // memory (`k_PROPOSED_CAPACITY`).  Finally, if the length of the string
+    // exceeds `k_PROPOSED_CAPACITY`, then we expect the capacity to be equal
     // to the size of the object.
 
     const size_t k_DEFAULT_CAPACITY  =
@@ -2980,47 +2996,47 @@ template <bool PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION>
 void TestDriver<TYPE, TRAITS, ALLOC>::testCase37()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'operator+'
+    // TESTING `operator+`
     //
     // Concerns:
-    //: 1 The operator correctly handles empty strings.
-    //:
-    //: 2 Strings of any length and content can be concatenated.
-    //:
-    //: 3 Input parameters are correctly positioned in the result string.
-    //:
-    //: 4 Expected allocator is used to supply memory.
-    //:
-    //: 5 QoI: Asserted precondition violations are detected when enabled.
+    // 1. The operator correctly handles empty strings.
+    //
+    // 2. Strings of any length and content can be concatenated.
+    //
+    // 3. Input parameters are correctly positioned in the result string.
+    //
+    // 4. Expected allocator is used to supply memory.
+    //
+    // 5. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Use the table-based approach to specify a set of test values.
-    //:
-    //: 2 Iterate through the 'I' loop, and create various input variants
-    //:   ('bsl::string', 'std::string', 'const TYPE *' and 'TYPE') to be used
-    //:   as the 'left-hand-side' non-moveable parameters for the operator.
-    //:   For each 'lhs' value:
-    //:
-    //:   1 Iterate through the 'J' loop, and create various input variants
-    //:     ('bsl::string', 'std::string', 'const TYPE *' and 'TYPE') to be
-    //:     used as the 'right-hand-side' non-moveable  parameters for the
-    //:     operator.  For each pair '(lhs, rhs)':
-    //:
-    //:     1 Call the operator and verify that the result string contains the
-    //:       expected value.
-    //:
-    //:     2 Verify that the expected allocator is used to supply memory.
-    //:
-    //:     3 Create several moveable objects having 'lhs' and 'rhs' values and
-    //:       various capacity.  Call the operator and verify that the result
-    //:       string contains the expected value.  (C-1..3)
-    //:
-    //:     4 Verify that the expected allocator is used to supply memory.
-    //:       (C-4)
-    //:
-    //: 3 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered for invalid attribute values, but not triggered for
-    //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
+    // 1. Use the table-based approach to specify a set of test values.
+    //
+    // 2. Iterate through the `I` loop, and create various input variants
+    //    (`bsl::string`, `std::string`, `const TYPE *` and `TYPE`) to be used
+    //    as the `left-hand-side` non-moveable parameters for the operator.
+    //    For each `lhs` value:
+    //
+    //   1. Iterate through the `J` loop, and create various input variants
+    //      (`bsl::string`, `std::string`, `const TYPE *` and `TYPE`) to be
+    //      used as the `right-hand-side` non-moveable  parameters for the
+    //      operator.  For each pair `(lhs, rhs)`:
+    //
+    //     1. Call the operator and verify that the result string contains the
+    //        expected value.
+    //
+    //     2. Verify that the expected allocator is used to supply memory.
+    //
+    //     3. Create several moveable objects having `lhs` and `rhs` values and
+    //        various capacity.  Call the operator and verify that the result
+    //        string contains the expected value.  (C-1..3)
+    //
+    //     4. Verify that the expected allocator is used to supply memory.
+    //        (C-4)
+    //
+    // 3. Verify that, in appropriate build modes, defensive checks are
+    //    triggered for invalid attribute values, but not triggered for
+    //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).  (C-5)
     //
     // Testing:
     //   string operator+(const string&,      const string&);
@@ -3098,15 +3114,15 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase37()
     bslma::TestAllocator *ua  = 0;  //     used allocator
     bslma::TestAllocator *nua = 0;  // not used allocator
 
-    // Since we know the strategy of memory allocation for 'bsl::string', we
+    // Since we know the strategy of memory allocation for `bsl::string`, we
     // can accurately determine the expected number of bytes allocated for the
     // result string.  If the size of the concatenated string is less than or
     // equal to the size of the short string buffer then the expected capacity
-    // is equal to the size of the short string buffer ('DEFAULT_CAPACITY') and
+    // is equal to the size of the short string buffer (`DEFAULT_CAPACITY`) and
     // no additional memory allocation occurs.  The next edge value is the
     // buffer size multiplied by one and a half, because we have 1.5 growth
-    // factor for memory ('DFLT_PROPOSED_CAPACITY').  Finally, if the length of
-    // the string exceeds 'DFLT_PROPOSED_CAPACITY', we expect the capacity to
+    // factor for memory (`DFLT_PROPOSED_CAPACITY`).  Finally, if the length of
+    // the string exceeds `DFLT_PROPOSED_CAPACITY`, we expect the capacity to
     // be equal to the size of the concatenated string.
 
     const size_t DFLT_CAPACITY          =
@@ -3159,13 +3175,13 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase37()
             const Obj EXPECTED(SPEC_EXP);
 
             // According to LEWG's paper (
-            // 'www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1165r1.html')
+            // `www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1165r1.html`)
             // used allocator is determined depending on the
-            // 'select_on_container_copy_construction' trait of the allocator
+            // `select_on_container_copy_construction` trait of the allocator
             // of the object passed as a parameter to the operator.
 
-            // Reference providing non-modifiable access to 'bsl::string'
-            // object is passed as 'lhs', therefore we monitor the 'la'
+            // Reference providing non-modifiable access to `bsl::string`
+            // object is passed as `lhs`, therefore we monitor the `la`
             // allocator.
 
             if (PROPAGATE) {
@@ -3272,8 +3288,8 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase37()
                         ua == (XL + CR).get_allocator().allocator());
             }
 
-            // Reference providing non-modifiable access to 'bsl::string'
-            // object is passed as 'rhs', therefore we monitor the 'ra'
+            // Reference providing non-modifiable access to `bsl::string`
+            // object is passed as `rhs`, therefore we monitor the `ra`
             // allocator.
 
             if (PROPAGATE) {
@@ -3342,7 +3358,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase37()
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
             // According to the paper mentioned above, moveable object
             // allocator must be used to supply memory.  Rvalue reference
-            // points to the 'lhs' parameter, therefore the 'la' allocator is
+            // points to the `lhs` parameter, therefore the `la` allocator is
             // expected to be used.
 
             ua  = &la;
@@ -3524,8 +3540,8 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase37()
                 }
             }
 
-            // Rvalue reference points to the 'rhs' parameter, therefore the
-            // 'ra' allocator is expected to be used.
+            // Rvalue reference points to the `rhs` parameter, therefore the
+            // `ra` allocator is expected to be used.
 
             ua  = &ra;
 
@@ -3701,46 +3717,46 @@ template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE, TRAITS, ALLOC>::testCase36()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'data' MANIPULATOR
+    // TESTING `data` MANIPULATOR
     //
     // Concerns:
-    //: 1 The 'data()' method returns the address of a buffer containing all
-    //:   the characters of this string object.
-    //:
-    //: 2 The 'data()' method returns the address of a buffer containing the
-    //:   null character at the last (equal to the length of the object)
-    //:   position, even for an empty object.
-    //:
-    //: 3 Changing the buffer contents (via the returned address) changes the
-    //:   value of the string object.
-    //:
-    //: 4 The method works for string lengths that are less than and greater
-    //:   than the small string optimization limit.
-    //:
-    //: 5 QoI: The address returned by this 'data()' method is the same as the
-    //:   address returned by the 'const'-qualified 'data()' method.
+    // 1. The `data()` method returns the address of a buffer containing all
+    //    the characters of this string object.
+    //
+    // 2. The `data()` method returns the address of a buffer containing the
+    //    null character at the last (equal to the length of the object)
+    //    position, even for an empty object.
+    //
+    // 3. Changing the buffer contents (via the returned address) changes the
+    //    value of the string object.
+    //
+    // 4. The method works for string lengths that are less than and greater
+    //    than the small string optimization limit.
+    //
+    // 5. QoI: The address returned by this `data()` method is the same as the
+    //    address returned by the `const`-qualified `data()` method.
     //
     // Plan:
-    //: 1 Specify a set S of representative object values ordered by increasing
-    //:   length.  For each value w in S, initialize a newly constructed object
-    //:   x with w.
-    //:
-    //: 2 For each x from P-1:
-    //:
-    //:   1 Call 'data()' method and iterate through the obtained buffer and
-    //:     compare its value with the symbols, returned by the 'operator[]'.
-    //:     (C-1)
-    //:
-    //:   2 Modify each buffer's character and verify, that object's value is
-    //:     modified accordingly.  (C-3)
-    //:
-    //:   3 Verify, that the null character encloses the character sequence.
-    //:     (C-2)
-    //:
-    //:   4 Compare the address returned by 'data()' method with the result of
-    //:     the 'const'-qualified 'data()' method invocation.  (C-5)
-    //:
-    //: 3 Construct long string and repeat the steps from P-2.  (C-4)
+    // 1. Specify a set S of representative object values ordered by increasing
+    //    length.  For each value w in S, initialize a newly constructed object
+    //    x with w.
+    //
+    // 2. For each x from P-1:
+    //
+    //   1. Call `data()` method and iterate through the obtained buffer and
+    //      compare its value with the symbols, returned by the `operator[]`.
+    //      (C-1)
+    //
+    //   2. Modify each buffer's character and verify, that object's value is
+    //      modified accordingly.  (C-3)
+    //
+    //   3. Verify, that the null character encloses the character sequence.
+    //      (C-2)
+    //
+    //   4. Compare the address returned by `data()` method with the result of
+    //      the `const`-qualified `data()` method invocation.  (C-5)
+    //
+    // 3. Construct long string and repeat the steps from P-2.  (C-4)
     //
     // Testing:
     //   CHAR_TYPE *data();
@@ -3831,23 +3847,23 @@ template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
 {
     // ------------------------------------------------------------------------
-    // 'noexcept' SPECIFICATION
+    // `noexcept` SPECIFICATION
     //
     // Concerns:
-    //: 1 The 'noexcept' specification has been applied to all class interfaces
-    //:   required by the standard.
+    // 1. The `noexcept` specification has been applied to all class interfaces
+    //    required by the standard.
     //
     // Plan:
-    //: 1 Apply the unary 'noexcept' operator to expressions that mimic those
-    //:   appearing in the standard and confirm that calculated boolean value
-    //:   matches the expected value.
-    //:
-    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
-    //:   of the container, we need test for just one general type and any
-    //:   'TYPE' specializations.
+    // 1. Apply the unary `noexcept` operator to expressions that mimic those
+    //    appearing in the standard and confirm that calculated boolean value
+    //    matches the expected value.
+    //
+    // 2. Since the `noexcept` specification does not vary with the `TYPE`
+    //    of the container, we need test for just one general type and any
+    //    `TYPE` specializations.
     //
     // Testing:
-    //   CONCERN: Methods qualified 'noexcept' in standard are so implemented.
+    //   CONCERN: Methods qualified `noexcept` in standard are so implemented.
     // ------------------------------------------------------------------------
 
     if (verbose) {
@@ -3870,7 +3886,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
     // N4594: page 699: String classes
 
     // page 704
-    //..
+    // ```
     //  // 21.3.1.2, construct/copy/destroy:
     //  basic_string() noexcept(noexcept(Allocator())) :
     //                      basic_string(Allocator()) { }
@@ -3880,10 +3896,10 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
     //      allocator_traits<Allocator>::
     //                         propagate_on_container_move_assignment::value ||
     //      allocator_traits<Allocator>::is_always_equal::value);
-    //..
+    // ```
 
     {
-        // Not implemented: 'basic_string()'
+        // Not implemented: `basic_string()`
 
         ALLOC a;
         ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
@@ -3899,7 +3915,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
     }
 
     // page 704
-    //..
+    // ```
     //  // 21.3.1.3, iterators:
     //  iterator begin() noexcept;
     //  const_iterator begin() const noexcept;
@@ -3913,7 +3929,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
     //  const_iterator cend() const noexcept;
     //  const_reverse_iterator crbegin() const noexcept;
     //  const_reverse_iterator crend() const noexcept;
-    //..
+    // ```
 
     {
         Obj s;  const Obj& S = s;  (void)S;
@@ -3950,7 +3966,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
     }
 
     // page 704 - 705
-    //..
+    // ```
     //  // 21.3.1.4, capacity:
     //  size_type size() const noexcept;
     //  size_type length() const noexcept;
@@ -3958,7 +3974,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
     //  size_type capacity() const noexcept;
     //  void clear() noexcept;
     //  bool empty() const noexcept;
-    //..
+    // ```
 
     {
         Obj s;  const Obj& S = s;  (void)S;
@@ -3978,7 +3994,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
     }
 
     // page 705 - 706
-    //..
+    // ```
     //  // 21.3.1.6, modifiers:
     //  basic_string& assign(basic_string&& str) noexcept(
     //      allocator_traits<Allocator>::
@@ -3987,7 +4003,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
     //  void swap(basic_string& str) noexcept(
     //       allocator_traits<Allocator>::propagate_on_container_swap::value ||
     //       allocator_traits<Allocator>::is_always_equal::value);
-    //..
+    // ```
 
     {
         Obj str1;
@@ -3998,7 +4014,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
     }
 
     // page 706 - 707
-    //..
+    // ```
     //  // 21.3.1.7, string operations:
     //  const charT* c_str() const noexcept;
     //  const charT* data() const noexcept;
@@ -4018,7 +4034,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
     //  size_type find_last_not_of (const basic_string& str,
     //                              size_type pos = npos) const noexcept;
     //  int compare(const basic_string& str) const noexcept;
-    //..
+    // ```
 
     {
         Obj s;  const Obj& S = s;  (void)S;
@@ -4052,7 +4068,7 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase35()
     }
 
     // page 725
-    //..
+    // ```
     //  21.3.2.2 operator== [string::operator==]
     //  template<class charT, class traits, class Allocator>
     //  bool operator==(const basic_string<charT,traits,Allocator>& lhs,
@@ -4117,155 +4133,155 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
 {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     // --------------------------------------------------------------------
-    // TESTING 'initializer_list' FUNCTIONS
+    // TESTING `initializer_list` FUNCTIONS
     //   Throughout this test, there are three categories of string lengths
     //   to be considered:
     //
-    //: o Zero length
-    //: o A length below the maximum length for short string optimization
-    //: o A length above the short-string optimization limit (i.e., a string
-    //:   that requires allocated memory)
+    //  - Zero length
+    //  - A length below the maximum length for short string optimization
+    //  - A length above the short-string optimization limit (i.e., a string
+    //    that requires allocated memory)
     //
     // Concerns:
-    //: 1 Construction
-    //:
-    //:   1 The created string has the specified value and uses the specified
-    //:     allocator.
-    //:
-    //:   2 There is no allocation when the initial string is less than or
-    //:     equal to the short-string optimization limit.
-    //:
-    //:   3 The created strings can be of any of the three length categories
-    //:
-    //:   4 The constructor is exception-safe.
-    //:
-    //: 2 Assignment
-    //:
-    //:   1 The 'assign' and 'operator=' methods behave identically.
-    //:
-    //:   2 The 'lhs' value is set to the 'rhs' value.
-    //:
-    //:   3 The 'lhs' and 'rhs' can each be in any of the three string length
-    //:     categories.
-    //:
-    //:   4 The assignment methods are exception-safe.
-    //:
-    //: 3 Insertion
-    //:
-    //:   1 The insertion point can be at the beginning, middle, or end of the
-    //:     target string.
-    //:
-    //:   2 The insertion argument must be 'const'.
-    //:
-    //:   3 The target string and source initializer list can be of any of the
-    //:     three string length categories.
-    //:
-    //:   4 The target string is set to the expected value.
-    //:
-    //:   5 The returned iterator has the expected value.
-    //:
-    //:   6 The returned iterator provided modifiable access to the string.
-    //:
-    //:   7 The insertion method is exception-safe.
-    //:
-    //: 4 Appending
-    //:
-    //:   1 The initializer list elements are inserted at the end of the target
-    //:     string.
-    //:
-    //:   2 The target string and source initializer list can be of any of the
-    //:     three string length categories.
-    //:
-    //:   3 The target string is set to the expected value.
-    //:
-    //:   4 The reference returned is to the target object (i.e., '*this').
-    //:
-    //:   5 The reference returned provides modifiable access to the string.
-    //:
-    //:   6 The 'append' method is exception-safe.
+    // 1. Construction
+    //
+    //   1. The created string has the specified value and uses the specified
+    //      allocator.
+    //
+    //   2. There is no allocation when the initial string is less than or
+    //      equal to the short-string optimization limit.
+    //
+    //   3. The created strings can be of any of the three length categories
+    //
+    //   4. The constructor is exception-safe.
+    //
+    // 2. Assignment
+    //
+    //   1. The `assign` and `operator=` methods behave identically.
+    //
+    //   2. The `lhs` value is set to the `rhs` value.
+    //
+    //   3. The `lhs` and `rhs` can each be in any of the three string length
+    //      categories.
+    //
+    //   4. The assignment methods are exception-safe.
+    //
+    // 3. Insertion
+    //
+    //   1. The insertion point can be at the beginning, middle, or end of the
+    //      target string.
+    //
+    //   2. The insertion argument must be `const`.
+    //
+    //   3. The target string and source initializer list can be of any of the
+    //      three string length categories.
+    //
+    //   4. The target string is set to the expected value.
+    //
+    //   5. The returned iterator has the expected value.
+    //
+    //   6. The returned iterator provided modifiable access to the string.
+    //
+    //   7. The insertion method is exception-safe.
+    //
+    // 4. Appending
+    //
+    //   1. The initializer list elements are inserted at the end of the target
+    //      string.
+    //
+    //   2. The target string and source initializer list can be of any of the
+    //      three string length categories.
+    //
+    //   3. The target string is set to the expected value.
+    //
+    //   4. The reference returned is to the target object (i.e., `*this`).
+    //
+    //   5. The reference returned provides modifiable access to the string.
+    //
+    //   6. The `append` method is exception-safe.
     //
     // Plan:
-    //: 1 Construction (C-1.1..4)
-    //:
-    //:   1 For an initializer list at the boundaries between the three string
-    //:     length categories, create a test object (string) that uses a test
-    //:     allocator.
-    //:
-    //:   2 Confirm that the created object has the expected value.
-    //:
-    //:   3 Confirm that the object's expected allocator is reported the
-    //:     accessor and shows allocation when expected and the default
-    //:     allocator shows no use.
-    //:
-    //:   4 Wrap the construction with 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*'
-    //:     macros so that each allocation experiences an injected exception at
-    //:     some point.
-    //:
-    //:   5 Repeat P-1.1 to P-1.4 for an object created to use the currently
-    //:     installed default constructor and tests adjusted to expect use of
-    //:     the default constructor.
-    //:
-    //: 2 Assignment (C-2.1..4)
-    //:
-    //:   1 Using a table-drive approach, create a lhs object (a string) and a
-    //:     rhs object (an initializer list) so that we at least one data point
-    //:     in the cross product of the boundaries between the three string
-    //:     length categories.
-    //:
-    //:   2 Confirm that the 'lhs' is set to the expected value.
-    //:
-    //:   3 Confirm that the 'lhs' allocator shows use when expected.
-    //:
-    //:   4 Wrap the assignments with 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*'
-    //:     macros so that each allocation experiences an injected exception at
-    //:     some point.
-    //:
-    //:   5 For each step P-2.1 to P-2.4, shadow each use of the 'assign'
-    //:     method with an analogous use of 'operator=' on an equivalent 'lhs'
-    //:     object.
-    //:
-    //: 3 Insertion (C-3.1..7)
-    //:
-    //:   1 Using a table-drive approach, create a target object (a string) and
-    //:     a source object (an initializer list) so that we have at least one
-    //:     data point in the cross product of the boundaries between the three
-    //:     string length categories.  The table also defines insertion points
-    //:     corresponding to the beginning, middle, and end of the target
-    //:     string.
-    //:
-    //:   2 Supply the position argument to the 'insert' method as a
-    //:     'const_iterator' object.
-    //:
-    //:   3 Confirm that the target string is set to the expected value.
-    //:
-    //:   4 Confirm that the allocator of the target string shows use when
-    //:     expected.
-    //:
-    //:   5 Confirm that the return value can be assigned to a (non-'const')
-    //:     'iterator' object.
-    //:
-    //:   6 Wrap the insertions with 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*'
-    //:     macros so that each allocation experiences an injected exception at
-    //:     some point.
-    //:
-    //: 4 Appending (C-4.1..6)
-    //:
-    //:   1 Using a table-drive approach, create a target object (a string) and
-    //:     a source object (an initializer list) so that we have at least one
-    //:     data point in the cross product of the boundaries between the three
-    //:     string length categories.
-    //:
-    //:   2 Call 'append' and confirm that the target string is set to the
-    //:     expected value.
-    //:
-    //:   3 Confirm that the allocator of the target string shows use when
-    //:     expected.
-    //:
-    //:   4 Confirm that the return value has the expected type and value.
-    //:
-    //:   5 Wrap the append call with 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*'
-    //:     macros so that each allocation experiences an injected exception at
-    //:     some point.
+    // 1. Construction (C-1.1..4)
+    //
+    //   1. For an initializer list at the boundaries between the three string
+    //      length categories, create a test object (string) that uses a test
+    //      allocator.
+    //
+    //   2. Confirm that the created object has the expected value.
+    //
+    //   3. Confirm that the object's expected allocator is reported the
+    //      accessor and shows allocation when expected and the default
+    //      allocator shows no use.
+    //
+    //   4. Wrap the construction with `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*`
+    //      macros so that each allocation experiences an injected exception at
+    //      some point.
+    //
+    //   5. Repeat P-1.1 to P-1.4 for an object created to use the currently
+    //      installed default constructor and tests adjusted to expect use of
+    //      the default constructor.
+    //
+    // 2. Assignment (C-2.1..4)
+    //
+    //   1. Using a table-drive approach, create a lhs object (a string) and a
+    //      rhs object (an initializer list) so that we at least one data point
+    //      in the cross product of the boundaries between the three string
+    //      length categories.
+    //
+    //   2. Confirm that the `lhs` is set to the expected value.
+    //
+    //   3. Confirm that the `lhs` allocator shows use when expected.
+    //
+    //   4. Wrap the assignments with `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*`
+    //      macros so that each allocation experiences an injected exception at
+    //      some point.
+    //
+    //   5. For each step P-2.1 to P-2.4, shadow each use of the `assign`
+    //      method with an analogous use of `operator=` on an equivalent `lhs`
+    //      object.
+    //
+    // 3. Insertion (C-3.1..7)
+    //
+    //   1. Using a table-drive approach, create a target object (a string) and
+    //      a source object (an initializer list) so that we have at least one
+    //      data point in the cross product of the boundaries between the three
+    //      string length categories.  The table also defines insertion points
+    //      corresponding to the beginning, middle, and end of the target
+    //      string.
+    //
+    //   2. Supply the position argument to the `insert` method as a
+    //      `const_iterator` object.
+    //
+    //   3. Confirm that the target string is set to the expected value.
+    //
+    //   4. Confirm that the allocator of the target string shows use when
+    //      expected.
+    //
+    //   5. Confirm that the return value can be assigned to a (non-`const`)
+    //      `iterator` object.
+    //
+    //   6. Wrap the insertions with `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*`
+    //      macros so that each allocation experiences an injected exception at
+    //      some point.
+    //
+    // 4. Appending (C-4.1..6)
+    //
+    //   1. Using a table-drive approach, create a target object (a string) and
+    //      a source object (an initializer list) so that we have at least one
+    //      data point in the cross product of the boundaries between the three
+    //      string length categories.
+    //
+    //   2. Call `append` and confirm that the target string is set to the
+    //      expected value.
+    //
+    //   3. Confirm that the allocator of the target string shows use when
+    //      expected.
+    //
+    //   4. Confirm that the return value has the expected type and value.
+    //
+    //   5. Wrap the append call with `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*`
+    //      macros so that each allocation experiences an injected exception at
+    //      some point.
     //
     // Testing:
     //   basic_string(initializer_list<CHAR_TYPE> values, basicAllocator);
@@ -4659,7 +4675,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
     }
 
     if (verbose)
-        printf("\nTesting 'assign' and 'operator=' with initializer lists\n");
+        printf("\nTesting `assign` and `operator=` with initializer lists\n");
     {
         const struct {
             int                         d_line;        // source line number
@@ -4735,7 +4751,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
     }
 
     if (verbose)
-        printf("\nTesting 'assign' and 'operator=': exception-safety\n");
+        printf("\nTesting `assign` and `operator=`: exception-safety\n");
     {
         const size_t LENGTHS[] = {                  0,
                                        maxShortStrLen,
@@ -4794,10 +4810,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
                                          }
                     Tam oem(objectAllocator_p);
 
-                    mYmethod.assign(LIST);  // test 'assign'    method
+                    mYmethod.assign(LIST);  // test `assign`    method
                     if (allocationExpected) ++allocationCount;
 
-                    mYoperator = LIST;      // test 'operator=' method
+                    mYoperator = LIST;      // test `operator=` method
                     if (allocationExpected) ++allocationCount;
 
                     ASSERTV(X == Ymethod);
@@ -4822,7 +4838,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
         ASSERT(oam.isTotalSame());
     }
 
-    if (verbose) printf("\nTesting 'insert' with initializer lists\n");
+    if (verbose) printf("\nTesting `insert` with initializer lists\n");
     {
         const char * const            maxShortStrSpec2 = iSpecBySize[
                                                            2 * maxShortStrLen];
@@ -4940,7 +4956,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
         ASSERT(dam.isTotalSame());
     }
 
-    if (verbose) printf("\nTesting 'insert': exception-safety\n");
+    if (verbose) printf("\nTesting `insert`: exception-safety\n");
     {
         const size_t LENGTHS[] = {                  0,
                                        maxShortStrLen,
@@ -4988,7 +5004,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
                                              P(exceptionLoopCount) }
 
                 mY.insert(Y.size(), LIST);
-                ++allocationCount;  // 'LIST' calculated to allocate.
+                ++allocationCount;  // `LIST` calculated to allocate.
 
                 ASSERTV(srcLength, X == Y);
                 ASSERTV(srcLength, oem.isInUseUp());
@@ -5005,7 +5021,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
         ASSERT(oam.isInUseSame());
     }
 
-    if (verbose) printf("\nTesting 'append' with initializer lists\n");
+    if (verbose) printf("\nTesting `append` with initializer lists\n");
     {
         const char * const            maxShortStrSpec2 = iSpecBySize[
                                                            2 * maxShortStrLen];
@@ -5086,7 +5102,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
         ASSERT(dam.isTotalSame());
     }
 
-    if (verbose) printf("\nTesting 'append': exception-safety\n");
+    if (verbose) printf("\nTesting `append`: exception-safety\n");
     {
         const size_t LENGTHS[] = {                  0,
                                        maxShortStrLen,
@@ -5135,7 +5151,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
                                              P(exceptionLoopCount) }
 
                 mY.append(LIST);
-                ++allocationCount;  // 'LIST' calculated to allocate.
+                ++allocationCount;  // `LIST` calculated to allocate.
 
                 ASSERTV(srcLength, X == Y);
                 ASSERTV(srcLength, oem.isInUseUp());
@@ -5153,35 +5169,35 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
     }
 #else
     // Empty test.
-#endif // 'BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS'
+#endif // `BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS`
 }
 
 template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
 {
     // --------------------------------------------------------------------
-    // TESTING 'hashAppend'
+    // TESTING `hashAppend`
     //   Verify that the hashAppend function works properly and is picked
-    //   up by 'bslh::Hash'
+    //   up by `bslh::Hash`
     //
     // Concerns:
-    //: 1 'bslh::Hash' picks up 'hashAppend(string)' and can hash strings
-    //:
-    //: 2 'hashAppend' hashes the entire string, regardless of 'char' or
-    //:   'wchar'
-    //:
-    //: 3 Empty strings can be hashed
-    //:
-    //: 4 Hash is not computed on data beyond the end of very short strings
+    // 1. `bslh::Hash` picks up `hashAppend(string)` and can hash strings
+    //
+    // 2. `hashAppend` hashes the entire string, regardless of `char` or
+    //    `wchar`
+    //
+    // 3. Empty strings can be hashed
+    //
+    // 4. Hash is not computed on data beyond the end of very short strings
     //
     // Plan:
-    //: 1 Use 'bslh::Hash' to hash a few values of strings with each char type.
-    //:   (C-1,2)
-    //:
-    //: 2 Hash an empty string. (C-3)
-    //:
-    //: 3 Hash two very short strings with the same value and assert that they
-    //:   produce equal hashes. (C-4)
+    // 1. Use `bslh::Hash` to hash a few values of strings with each char type.
+    //    (C-1,2)
+    //
+    // 2. Hash an empty string. (C-3)
+    //
+    // 3. Hash two very short strings with the same value and assert that they
+    //    produce equal hashes. (C-4)
     //
     // Testing:
     //   hashAppend(HASHALG& hashAlg, const basic_string& str);
@@ -5207,7 +5223,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
     size_t    prevHash                = 0;
     HashType  hash                    = 0;
 
-    if (verbose) printf("Use 'bslh::Hash' to hash a few values of strings with"
+    if (verbose) printf("Use `bslh::Hash` to hash a few values of strings with"
                         " each char type. (C-1,2)\n");
     {
 #ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
@@ -5273,7 +5289,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
         }
     }
 
-    if (verbose) printf("Use 'bslh::Hash' to hash a few values of 'std'"
+    if (verbose) printf("Use `bslh::Hash` to hash a few values of `std`"
                         " strings with each char type. (C-1,2)\n");
     {
 #ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
@@ -5340,7 +5356,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
     }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
-    if (verbose) printf("Use 'bslh::Hash' to hash a few values of 'std::pmr'"
+    if (verbose) printf("Use `bslh::Hash` to hash a few values of `std::pmr`"
                         " strings with each char type. (C-1,2)\n");
     {
 #ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
@@ -5522,7 +5538,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase28()
                 // remove some characters from the string to shorten it
                 strLong.erase(0, strLong.size() - DEFAULT_CAPACITY);
 
-                // check that 'erase' did not change the capacity
+                // check that `erase` did not change the capacity
                 ASSERT(strLong.capacity() == oldCapacity);
 
                 // check that copying produces a short string now and that it
@@ -5534,7 +5550,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase28()
                 ASSERT(testAllocatorShort.numBlocksTotal() == 0);
             }
 
-            // check that the string is terminated properly with 'TYPE()' value
+            // check that the string is terminated properly with `TYPE()` value
             // rather than just '\0'
             ASSERT(*(str.c_str() + str.size()) == TYPE());
         }
@@ -5623,11 +5639,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase26()
             ASSERT(Obj(V.c_str()) == Obj(U2.c_str()));
             ASSERT(U2 == U);
 
-            // 'operator=='
+            // `operator==`
             ASSERT(V == U);
             ASSERT(U == V);
 
-            // 'operator!='
+            // `operator!=`
             ASSERT(!(V != U));
             ASSERT(!(U != V));
 
@@ -5640,9 +5656,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase26()
                 }
 
                 // Since free operators for the case when both arguments are
-                // 'bsl::string' is thoroughly tested already, we can compare
-                // the results of 'std::string < bsl::string' against
-                // 'bsl::string < bsl::string', etc...
+                // `bsl::string` is thoroughly tested already, we can compare
+                // the results of `std::string < bsl::string` against
+                // `bsl::string < bsl::string`, etc...
 
                 ASSERT((U < X) == (V < X));
                 ASSERT((X < U) == (X < V));
@@ -5696,7 +5712,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase26()
             ASSERT(Obj(V.c_str()) == Obj(U2.c_str()));
             ASSERT(U2 == U);
 
-            // 'operator=='
+            // `operator==`
             ASSERT(V == U);
             ASSERT(U == V);
         }
@@ -5715,38 +5731,38 @@ template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
 {
     // --------------------------------------------------------------------
-    // TESTING 'std::length_error'
+    // TESTING `std::length_error`
     //
     // Concerns:
-    //   1) That any call to a constructor, 'append', 'assign', 'insert',
-    //      'operator+=', 'replace', 'resize', or 'resize_and_overwrite'
-    //      which would result in a value exceeding 'max_size()' throws
-    //      'std::length_error'.
-    //   2) That the 'max_size()' taken into consideration is that of the
+    //   1) That any call to a constructor, `append`, `assign`, `insert`,
+    //      `operator+=`, `replace`, `resize`, or `resize_and_overwrite`
+    //      which would result in a value exceeding `max_size()` throws
+    //      `std::length_error`.
+    //   2) That the `max_size()` taken into consideration is that of the
     //      allocator, and not an absolute constant.
     //   3) That the value of the string is unchanged if an exception is
     //      thrown.
     //   4) That integer overflows are correctly handled when length_error
-    //      exceeds 'Obj::max_size()' (which is the largest representable
+    //      exceeds `Obj::max_size()` (which is the largest representable
     //      size_type).
     //
     // Plan:
     //   For concern 2, we use an allocator wrapper that provides the same
-    //   functionality as 'ALLOC' but changes the return value of 'max_size()'
-    //   to a 'limit' value settable at runtime.  Note that the allocator
-    //   'max_size()' includes the null-terminating char, and so the string
-    //   'max_size()' is one less than the allocator; in other words, the
-    //   operations throw unless 'length <= limit - 1', i.e., they throw if
-    //   'limit <= length'.
+    //   functionality as `ALLOC` but changes the return value of `max_size()`
+    //   to a `limit` value settable at runtime.  Note that the allocator
+    //   `max_size()` includes the null-terminating char, and so the string
+    //   `max_size()` is one less than the allocator; in other words, the
+    //   operations throw unless `length <= limit - 1`, i.e., they throw if
+    //   `limit <= length`.
     //
     //   Construct objects with value large enough that the constructor throws.
-    //   For 'append', 'assign', 'insert', 'operator+=', 'resize',
-    //   'resize_and_overwrite', or 'replace', we construct a small (non-empty)
+    //   For `append`, `assign`, `insert`, `operator+=`, `resize`,
+    //   `resize_and_overwrite`, or `replace`, we construct a small (non-empty)
     //   object, and use the corresponding function to request an increase in
-    //   size that is guaranteed to result in a value exceeding 'max_size()'.
+    //   size that is guaranteed to result in a value exceeding `max_size()`.
     //
     // Testing:
-    //   Proper use of 'std::length_error'
+    //   Proper use of `std::length_error`
     // ------------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -5773,7 +5789,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     const StringView             SV( Y.data(), Y.length());
     const StringViewOnlyLikeType SVL(Y.data());
 
-    if (verbose) printf("\nConstructor 'string(str, pos, n, a = A())'.\n");
+    if (verbose) printf("\nConstructor `string(str, pos, n, a = A())`.\n");
 
     for (size_t limit = LENGTH - 2; limit <= LENGTH + 2; ++limit) {
         bool exceptionCaught = false;
@@ -5808,7 +5824,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
 
-    if (verbose) printf("\nConstructor 'string(C *s, n, a = A())'.\n");
+    if (verbose) printf("\nConstructor `string(C *s, n, a = A())`.\n");
 
     for (size_t limit = LENGTH - 2; limit <= LENGTH + 2; ++limit) {
         bool exceptionCaught = false;
@@ -5845,7 +5861,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
 
-    if (verbose) printf("\nConstructor 'string(C *s, a = A())'.\n");
+    if (verbose) printf("\nConstructor `string(C *s, a = A())`.\n");
 
     for (size_t limit = LENGTH - 2; limit <= LENGTH + 2; ++limit) {
         bool exceptionCaught = false;
@@ -5882,7 +5898,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
 
-    if (verbose) printf("\nConstructor 'string(n, c, a = A())'.\n");
+    if (verbose) printf("\nConstructor `string(n, c, a = A())`.\n");
 
     for (size_t limit = LENGTH - 2; limit <= LENGTH + 2; ++limit) {
         bool exceptionCaught = false;
@@ -5919,7 +5935,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
 
-    if (verbose) printf("\nConstructor 'string<Iter>(f, l, a = A())'.\n");
+    if (verbose) printf("\nConstructor `string<Iter>(f, l, a = A())`.\n");
 
     for (size_t limit = LENGTH - 2; limit <= LENGTH + 2; ++limit) {
         bool exceptionCaught = false;
@@ -5956,7 +5972,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
 
-    if (verbose) printf("\nWith 'resize'.\n");
+    if (verbose) printf("\nWith `resize`.\n");
     {
         for (size_t limit = LENGTH - 2; limit <= LENGTH + 2; ++limit) {
             bool exceptionCaught = false;
@@ -5997,7 +6013,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
 
-    if (verbose) printf("\nWith 'resize_and_overwrite'.\n");
+    if (verbose) printf("\nWith `resize_and_overwrite`.\n");
     {
         for (size_t limit = LENGTH - 2; limit <= LENGTH + 2; ++limit) {
             bool exceptionCaught = false;
@@ -6038,7 +6054,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
 
-    if (verbose) printf("\nWith 'assign'.\n");
+    if (verbose) printf("\nWith `assign`.\n");
 
     for (int assignMethod = 0; assignMethod <= 10; ++assignMethod) {
 
@@ -6114,7 +6130,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
 
-    if (verbose) printf("\nWith 'operator+='.\n");
+    if (verbose) printf("\nWith `operator+=`.\n");
 
     for (int operatorMethod = 0; operatorMethod <= 4; ++operatorMethod) {
 
@@ -6192,7 +6208,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
 
-    if (verbose) printf("\nWith 'append'.\n");
+    if (verbose) printf("\nWith `append`.\n");
 
     for (int appendMethod = 0; appendMethod <= 5; ++appendMethod) {
 
@@ -6297,7 +6313,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
 
-    if (verbose) printf("\nWith 'insert'.\n");
+    if (verbose) printf("\nWith `insert`.\n");
 
     for (int insertMethod = 0; insertMethod <= 8; ++insertMethod) {
 
@@ -6414,7 +6430,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
 
-    if (verbose) printf("\nWith 'replace'.\n");
+    if (verbose) printf("\nWith `replace`.\n");
 
     for (int replaceMethod = 1; replaceMethod < 16; ++replaceMethod) {
 
@@ -6590,14 +6606,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
         0  // must be the last value
     };
 
-    if (verbose) printf("\nConstructor 'string(n, c, a = A())'"
-                        " and 'max_size()' equal to " ZU ".\n", EXP_MAX_SIZE);
+    if (verbose) printf("\nConstructor `string(n, c, a = A())`"
+                        " and `max_size()` equal to " ZU ".\n", EXP_MAX_SIZE);
 
     for (int i = 0; DATA[i]; ++i)
     {
         bool exceptionCaught = false;
 
-        if (veryVerbose) printf("\tWith 'n' = " ZU "\n", DATA[i]);
+        if (veryVerbose) printf("\tWith `n` = " ZU "\n", DATA[i]);
 
         try {
             Obj mX(DATA[i], DEFAULT_VALUE);  // test here
@@ -6625,8 +6641,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
 
-    if (verbose) printf("\nWith 'reserve/resize' and"
-                        " 'max_size()' equal to " ZU ".\n", EXP_MAX_SIZE);
+    if (verbose) printf("\nWith `reserve/resize` and"
+                        " `max_size()` equal to " ZU ".\n", EXP_MAX_SIZE);
 
     for (int capacityMethod = 0; capacityMethod < 4; ++capacityMethod)
     {
@@ -6644,7 +6660,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
         {
             bool exceptionCaught = false;
 
-            if (veryVerbose) printf("\t\tWith 'n' = " ZU "\n", DATA[i]);
+            if (veryVerbose) printf("\t\tWith `n` = " ZU "\n", DATA[i]);
 
             try {
                 Obj mX;
@@ -6684,7 +6700,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
 
-    if (verbose) printf("\nWith 'append' and 'max_size()' equal to " ZU ".\n",
+    if (verbose) printf("\nWith `append` and `max_size()` equal to " ZU ".\n",
                         EXP_MAX_SIZE);
 
     for (int appendMethod = 4; appendMethod <= 4; ++appendMethod) {
@@ -6732,7 +6748,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
 
-    if (verbose) printf("\nWith 'insert' and 'max_size()' equal to " ZU ".\n",
+    if (verbose) printf("\nWith `insert` and `max_size()` equal to " ZU ".\n",
                         EXP_MAX_SIZE);
 
     for (int insertMethod = 5; insertMethod <= 7; insertMethod += 2) {
@@ -6792,7 +6808,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBytesInUse());
 
-    if (verbose) printf("\nWith 'replace' and 'max_size()' equal to " ZU ".\n",
+    if (verbose) printf("\nWith `replace` and `max_size()` equal to " ZU ".\n",
                         EXP_MAX_SIZE);
 
     for (int replaceMethod = 5; replaceMethod <= 8; replaceMethod += 3) {
@@ -6861,19 +6877,19 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase24()
     // TESTING COMPARISONS
     //
     // Concerns:
-    //   1) 'operator<' returns the lexicographic comparison on two arrays.
-    //   2) 'operator>', 'operator<=', and 'operator>=' are correctly tied to
-    //      'operator<'.
-    //   3) 'compare' returns the correct result.
-    //   4) 'operator<=>' is consistent with '<', '>', '<=', '>='.
+    //   1) `operator<` returns the lexicographic comparison on two arrays.
+    //   2) `operator>`, `operator<=`, and `operator>=` are correctly tied to
+    //      `operator<`.
+    //   3) `compare` returns the correct result.
+    //   4) `operator<=>` is consistent with `<`, `>`, `<=`, `>=`.
     //   5) That traits get selected properly.
     //
     // Plan:
     //   For a variety of strings of different sizes and different values, test
     //   that the comparison returns as expected.  Note that capacity is not of
-    //   concern here, the implementation specifically uses only 'begin()',
-    //   'end()', and 'size()'.  For concern 4, use 'TRAITS::compare()'
-    //   explicitly in the 'check_compare' helper function, and check that the
+    //   concern here, the implementation specifically uses only `begin()`,
+    //   `end()`, and `size()`.  For concern 4, use `TRAITS::compare()`
+    //   explicitly in the `check_compare` helper function, and check that the
     //   return value has not only the correct sign, but the same value as
     //   well.
     //
@@ -6999,7 +7015,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase24()
                     T_; T_; P_(V_SPEC); P(V);
                 }
 
-                // First comparisons with 'string' objects
+                // First comparisons with `string` objects
                 const bool isLess = si < sj;
                 const bool isLessEq = !(sj < si);
                 LOOP2_ASSERT(si, sj,  isLess   == (U < V));
@@ -7044,7 +7060,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase24()
                 }
 #endif
 
-                // Finally test comparisons with 'std::string' objects
+                // Finally test comparisons with `std::string` objects
                 const std::basic_string<TYPE,TRAITS> stdU(U), stdV(V);
 
                 LOOP2_ASSERT(si, sj,  isLess   == (U < stdV));
@@ -7076,7 +7092,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase24()
         }
     }
 
-    if (verbose) printf("\tTesting 'compare'.\n");
+    if (verbose) printf("\tTesting `compare`.\n");
 
     if (veryVerbose) printf("\tCompare each substring previous.\n");
     {
@@ -7196,17 +7212,17 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase24Negative()
     // NEGATIVE TESTING COMPARISONS
     //
     // Concerns:
-    //   1 'compare' asserts on undefined behavior when it's passed a NULL
+    //   1 `compare` asserts on undefined behavior when it's passed a NULL
     //   C-string pointer.
     //   2 comparison free operator overloads assert on undefined behavior when
     //   they are passed a NULL C-string pointer.
     //
     // Plan:
-    //   For each 'compare' method overload, create a non-empty string and test
-    //   'compare' with a NULL C-string pointer parameter.
+    //   For each `compare` method overload, create a non-empty string and test
+    //   `compare` with a NULL C-string pointer parameter.
     //
     //   For each comparison free-function overload, do the same as for
-    //   'compare' method.
+    //   `compare` method.
     //
     // Testing:
     //   int  compare(const C* s) const;
@@ -7308,20 +7324,20 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase23()
     // TESTING SUBSTRING
     //
     // Concerns:
-    //   1) That the 'substr' and 'copy' operations have the correct behavior
-    //      and return value, cases where 'n' is smaller than, equal to, or
-    //      larger than 'length() - pos'.
-    //   2. That 'substr' and 'copy' throw 'std::out_of_range' when passed an
+    //   1) That the `substr` and `copy` operations have the correct behavior
+    //      and return value, cases where `n` is smaller than, equal to, or
+    //      larger than `length() - pos`.
+    //   2. That `substr` and `copy` throw `std::out_of_range` when passed an
     //      out-of-bound position.
-    //   3) That 'copy' does not overwrite beyond the buffer boundaries.
+    //   3) That `copy` does not overwrite beyond the buffer boundaries.
     //
     // Plan:
     //   For a set of string values, create the substring using the already
     //   tested constructors, and compare the results to those constructed
-    //   substrings, with 'n' being either 0, 1 (smaller than 'length() - pos'
-    //   whenever there are remaining characters), 'length() - pos' exactly,
-    //   and 'length() + 1' and 'npos'.  Leave padding on both ends for the
-    //   'copy' buffer and verify that padding has not been written into.
+    //   substrings, with `n` being either 0, 1 (smaller than `length() - pos`
+    //   whenever there are remaining characters), `length() - pos` exactly,
+    //   and `length() + 1` and `npos`.  Leave padding on both ends for the
+    //   `copy` buffer and verify that padding has not been written into.
     //
     // Testing:
     //   string substr(pos, n) const;
@@ -7494,11 +7510,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase23Negative()
     // NEGATIVE TESTING COPY:
     //
     // Concerns:
-    //   1 'copy' asserts on undefined behavior when it's passed a NULL
+    //   1 `copy` asserts on undefined behavior when it's passed a NULL
     //   C-string pointer.
     //
     // Plan:
-    //   Create a non-empty string and test 'copy' with a NULL C-string pointer
+    //   Create a non-empty string and test `copy` with a NULL C-string pointer
     //   parameter.
     //
     // Testing:
@@ -7537,20 +7553,20 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
     // Concerns:
     //   1) That the return value is correct, even in the presence of no or
     //      multiple occurrences of the search pattern.
-    //   2) That passing a 'pos' argument that is out-of-bounds is not an
+    //   2) That passing a `pos` argument that is out-of-bounds is not an
     //      error, and does not throw.
     //
     // Plan:
     //   For a set of carefully selected set of string and search pattern
-    //   values, compare the value of 'find' and 'rfind' against expected
+    //   values, compare the value of `find` and `rfind` against expected
     //   return values.  For each string, exercise the special case of an empty
     //   pattern (the find operations always return the current position,
-    //   except for 'find' when out-of-bounds: npos is returned instead).  Also
+    //   except for `find` when out-of-bounds: npos is returned instead).  Also
     //   exercise the special case of a single character (different signature),
     //   and verify that return value equals that of a brute-force
     //   computation.
     //
-    //   For 'find_first_...' and 'find_last_...', use the Cartesian product of
+    //   For `find_first_...` and `find_last_...`, use the Cartesian product of
     //   a set of strings and a set of search patterns, and compare the results
     //   to those of a brute-force computation.  Also exercise the special
     //   cases of a single-character pattern (different signature) and of an
@@ -7601,7 +7617,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
 
     const size_t npos = Obj::npos;  // note: NPOS is a system macro
 
-    if (verbose) printf("\nTesting 'find' and 'rfind'.\n");
+    if (verbose) printf("\nTesting `find` and `rfind`.\n");
     {
         static const struct {
             int         d_lineNum;
@@ -7648,7 +7664,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
                        " and empty pattern.\n",
                        SPEC,
                        LENGTH);
-                printf("\t\tExpecting 'find' and 'rfind' at each position.\n");
+                printf("\t\tExpecting `find` and `rfind` at each position.\n");
             }
 
             const Obj Z;
@@ -7713,7 +7729,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
 
             if (veryVerbose) {
                 printf("\tWith SPEC: \"%s\" of length " ZU
-                       " and every 'char'.\n",
+                       " and every `char`.\n",
                        SPEC,
                        LENGTH);
                 printf("\t\tComparing with values computed ad hoc.\n");
@@ -7771,8 +7787,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
                        SPEC,
                        LENGTH,
                        PATTERN);
-                printf("\t\tExpecting 'find' at " ZU
-                       " and 'rfind' at " ZU ".\n",
+                printf("\t\tExpecting `find` at " ZU
+                       " and `rfind` at " ZU ".\n",
                        EXP,
                        REXP);
             }
@@ -7903,7 +7919,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
         }
     }
 
-    if (verbose) printf("\nTesting 'find_first_...' and 'find_last_...'.\n");
+    if (verbose) printf("\nTesting `find_first_...` and `find_last_...`.\n");
     {
         static const struct {
             int         d_lineNum;
@@ -7957,7 +7973,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
 
             if (veryVerbose) {
                 printf("\t\tWith empty pattern.\n");
-                printf("\t\t\tExpecting 'find_.._not_of' at each position.\n");
+                printf("\t\t\tExpecting `find_.._not_of` at each position.\n");
             }
 
             const Obj Z;
@@ -8068,7 +8084,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
                     LENGTH - 1 == X.find_last_not_of(Z.c_str(), npos, 0));
 
             if (veryVerbose) {
-                printf("\t\tWith 'char' pattern.\n");
+                printf("\t\tWith `char` pattern.\n");
                 printf("\t\t\tComparing with values computed ad hoc.\n");
             }
 
@@ -8143,7 +8159,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
                 if (veryVerbose) {
                     printf("\t\tWith pattern \"%s\".\n", PATTERN);
                     printf("\t\t\tComparing with values computed ad hoc.\n");
-                    printf("\t\t\tFor 'find_{first,last}_of'.\n");
+                    printf("\t\t\tFor `find_{first,last}_of`.\n");
                 }
 
                 size_t *exp  = new size_t[LENGTH + 1];
@@ -8260,7 +8276,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
                         REXP[LENGTH] == X.find_last_of(Y.c_str(), npos, N));
 
                 if (veryVerbose)
-                    printf("\t\t\tFor 'find_{first,last}_not_of'.\n");
+                    printf("\t\t\tFor `find_{first,last}_not_of`.\n");
 
                 for (size_t j = 0; j <= LENGTH; ++j) {
                     size_t lastJ = j < LENGTH ? j : j - 1;
@@ -8384,12 +8400,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22Negative()
     // NEGATIVE TESTING COPY:
     //
     // Concerns:
-    //   'find' asserts on undefined behavior when it's passed a NULL C-string
+    //   `find` asserts on undefined behavior when it's passed a NULL C-string
     //   pointer.
     //
     // Plan:
-    //   For each variant of the 'find...' method, create a non-empty string
-    //   and test the 'find' method with a NULL C-string pointer parameter.
+    //   For each variant of the `find...` method, create a non-empty string
+    //   and test the `find` method with a NULL C-string pointer parameter.
     //
     // Testing:
     //   size_type find(const C *s, pos, n) const;
@@ -8506,8 +8522,8 @@ template <bool PROPAGATE_ON_CONTAINER_SWAP_FLAG,
 void TestDriver<TYPE, TRAITS, ALLOC>::
                               testCase21_propagate_on_container_swap_dispatch()
 {
-    // Set the three properties of 'bsltf::StdStatefulAllocator' that are not
-    // under test in this test case to 'false'.
+    // Set the three properties of `bsltf::StdStatefulAllocator` that are not
+    // under test in this test case to `false`.
 
     typedef bsltf::StdStatefulAllocator<
                                    TYPE,
@@ -8596,54 +8612,54 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase21_propagate_on_container_swap()
     // SWAP MEMBER AND FREE FUNCTIONS: ALLOCATOR PROPAGATION
     //
     // Concerns:
-    //: 1 If the 'propagate_on_container_swap' trait is 'false', the
-    //:   allocators used by the source and target objects remain unchanged
-    //:   (i.e., the allocators are *not* exchanged).
-    //:
-    //: 2 If the 'propagate_on_container_swap' trait is 'true', the
-    //:   allocator used by the target (source) object is updated to be a copy
-    //:   of that used by the source (target) object (i.e., the allocators
-    //:   *are* exchanged).
-    //:
-    //: 3 If the allocators are propagated (i.e., exchanged), there is no
-    //:   additional allocation from any allocator.
-    //:
-    //: 4 The effect of the 'propagate_on_container_swap' trait is independent
-    //:   of the other three allocator propagation traits.
-    //:
-    //: 5 Following the swap operation, neither object holds on to memory
-    //:   allocated from the other object's allocator.
+    // 1. If the `propagate_on_container_swap` trait is `false`, the
+    //    allocators used by the source and target objects remain unchanged
+    //    (i.e., the allocators are *not* exchanged).
+    //
+    // 2. If the `propagate_on_container_swap` trait is `true`, the
+    //    allocator used by the target (source) object is updated to be a copy
+    //    of that used by the source (target) object (i.e., the allocators
+    //    *are* exchanged).
+    //
+    // 3. If the allocators are propagated (i.e., exchanged), there is no
+    //    additional allocation from any allocator.
+    //
+    // 4. The effect of the `propagate_on_container_swap` trait is independent
+    //    of the other three allocator propagation traits.
+    //
+    // 5. Following the swap operation, neither object holds on to memory
+    //    allocated from the other object's allocator.
     //
     // Plan:
-    //: 1 Specify a set S of object values with distinct values, ordered by
-    //:   increasing length, to be used in the following tests.
-    //:
-    //: 2 Create two 'bsltf::StdStatefulAllocator' objects with their
-    //:   'propagate_on_container_swap' property configured to 'false'.  In two
-    //:   successive iterations of P-3, first configure the three properties
-    //:   not under test to be 'false', then configure them all to be 'true'.
-    //:
-    //: 3 For each value '(x, y)' in the cross product S x S:  (C-1)
-    //:
-    //:   1 Initialize two objects from 'x', a control object 'Z' using a
-    //:     scratch allocator and an object 'X' using one of the allocators
-    //:     from P-2.
-    //:
-    //:   2 Initialize two objects from 'y', a control object 'W' using a
-    //:     scratch allocator and an object 'Y' using the other allocator from
-    //:     P-2.
-    //:
-    //:   3 Using both member 'swap' and free function 'swap', swap 'X' with
-    //:     'Y' and use 'operator==' to verify that 'X' and 'Y' have the
-    //:     expected values.
-    //:
-    //:   4 Use the 'get_allocator' method to verify that the allocators of 'X'
-    //:     and 'Y' are *not* exchanged.  (C-1)
-    //:
-    //: 4 Repeat P-2..3 except that this time configure the allocator property
-    //:   under test to 'true' and verify that the allocators of 'X' and 'Y'
-    //:   *are* exchanged.  Also verify that there is no additional allocation
-    //:   from any allocator.  (C-2..5)
+    // 1. Specify a set S of object values with distinct values, ordered by
+    //    increasing length, to be used in the following tests.
+    //
+    // 2. Create two `bsltf::StdStatefulAllocator` objects with their
+    //    `propagate_on_container_swap` property configured to `false`.  In two
+    //    successive iterations of P-3, first configure the three properties
+    //    not under test to be `false`, then configure them all to be `true`.
+    //
+    // 3. For each value `(x, y)` in the cross product S x S:  (C-1)
+    //
+    //   1. Initialize two objects from `x`, a control object `Z` using a
+    //      scratch allocator and an object `X` using one of the allocators
+    //      from P-2.
+    //
+    //   2. Initialize two objects from `y`, a control object `W` using a
+    //      scratch allocator and an object `Y` using the other allocator from
+    //      P-2.
+    //
+    //   3. Using both member `swap` and free function `swap`, swap `X` with
+    //      `Y` and use `operator==` to verify that `X` and `Y` have the
+    //      expected values.
+    //
+    //   4. Use the `get_allocator` method to verify that the allocators of `X`
+    //      and `Y` are *not* exchanged.  (C-1)
+    //
+    // 4. Repeat P-2..3 except that this time configure the allocator property
+    //    under test to `true` and verify that the allocators of `X` and `Y`
+    //    *are* exchanged.  Also verify that there is no additional allocation
+    //    from any allocator.  (C-2..5)
     //
     // Testing:
     //   propagate_on_container_swap
@@ -8672,22 +8688,22 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase21()
     //      or deallocation operations.
     //   3) Swapping containers with different allocators does result in
     //      allocation and deallocation operations.
-    //   4) Swap free function works the same way as the 'swap' method.
+    //   4) Swap free function works the same way as the `swap` method.
     //   5) Swap works correctly for the short string optimization (swapping
     //      short and long strings).
     //
     // Plan:
-    //   Construct 'str1' and 'str2' with different test allocators.
-    //   Add data to 'str1'.  Remember allocation statistics.
-    //   Swap 'str1' and 'str2'.
+    //   Construct `str1` and `str2` with different test allocators.
+    //   Add data to `str1`.  Remember allocation statistics.
+    //   Swap `str1` and `str2`.
     //   Verify that contents were swapped.
     //   Verify that allocators for each are unchanged.
     //   Verify that allocation statistics changed for each test allocator.
-    //   Create a 'str3' with same allocator as 'str2'.
-    //   Swap 'str2' and 'str3'
+    //   Create a `str3` with same allocator as `str2`.
+    //   Swap `str2` and `str3`
     //   Verify that contents were swapped.
     //   Verify that allocation statistics did not change.
-    //   Let 'str3' got out of scope.
+    //   Let `str3` got out of scope.
     //   Verify that memory was returned to allocator.
     //   Construct two strings, apply a free function swap to them and verify
     //   the result.
@@ -8830,7 +8846,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20()
     //
     // Concerns:
     //   1) That the resulting string value is correct.
-    //   2) That the 'replace' return value is a reference to self.
+    //   2) That the `replace` return value is a reference to self.
     //   3) That the resulting capacity is correctly set up.
     //   4) That existing elements are moved via Traits::move.
     //   5) That insertion is exception neutral w.r.t. memory allocation.
@@ -8839,11 +8855,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20()
     //      user-supplied allocator whenever one is specified.
     //
     // Plan:
-    //   The plan is similar to 'insert' (case 18) with two nested loops for
+    //   The plan is similar to `insert` (case 18) with two nested loops for
     //   the beginning and end of the replace range (instead of only one for
-    //   the insert position).  Since both 'erase' and 'insert' have been
-    //   tested, and conceptually replace is equivalent to 'erase' followed by
-    //   'insert', is suffices to perform 'replace' using this alternate method
+    //   the insert position).  Since both `erase` and `insert` have been
+    //   tested, and conceptually replace is equivalent to `erase` followed by
+    //   `insert`, is suffices to perform `replace` using this alternate method
     //   and compare the resulting strings.
     //
     // Testing:
@@ -8886,14 +8902,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20()
     };
     enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-    if (verbose) printf("\nTesting 'replace'.\n");
+    if (verbose) printf("\nTesting `replace`.\n");
 
     for (int replaceMode  = REPLACE_CHAR_MODE_FIRST;
              replaceMode <= REPLACE_CHAR_MODE_LAST;
              ++replaceMode)
     {
         if (verbose)
-            printf("\tUsing 'n' copies of 'value', replaceMode = %d.\n",
+            printf("\tUsing `n` copies of `value`, replaceMode = %d.\n",
                    replaceMode);
 
         for (int i = 0; i < NUM_DATA; ++i) {
@@ -9119,7 +9135,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20MatchTypes()
     // TESTING REPLACE:
     // We have the following concerns:
     //   1) That the resulting string value is correct.
-    //   2) That the 'replace' return value is a reference to self.
+    //   2) That the `replace` return value is a reference to self.
     //   3) That the resulting capacity is correctly set up.
     //   4) That existing elements are moved via Traits::move.
     //   5) That insertion is exception neutral w.r.t. memory allocation.
@@ -9128,11 +9144,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20MatchTypes()
     //      user-supplied allocator whenever one is specified.
     //
     // Plan:
-    //   The plan is similar to 'insert' (case 18) with two nested loops
+    //   The plan is similar to `insert` (case 18) with two nested loops
     //   for the beginning and end of the replace range (instead of only one
-    //   for the insert position).  Since both 'erase' and 'insert' have been
-    //   tested, and conceptually replace is equivalent to 'erase' followed by
-    //   'insert', is suffices to perform 'replace' using this alternate method
+    //   for the insert position).  Since both `erase` and `insert` have been
+    //   tested, and conceptually replace is equivalent to `erase` followed by
+    //   `insert`, is suffices to perform `replace` using this alternate method
     //   and compare the resulting strings.
     //
     // Testing:
@@ -9182,14 +9198,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20MatchTypes()
     };
     enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-    if (verbose) printf("\nTesting 'replace'.\n");
+    if (verbose) printf("\nTesting `replace`.\n");
 
     for (int replaceMode  = REPLACE_CHAR_MODE_FIRST;
              replaceMode <= REPLACE_CHAR_MODE_LAST;
              ++replaceMode)
     {
         if (verbose)
-            printf("\tUsing 'n' copies of 'value', replaceMode = %d.\n",
+            printf("\tUsing `n` copies of `value`, replaceMode = %d.\n",
                    replaceMode);
 
         for (int i = 0; i < NUM_DATA; ++i) {
@@ -9419,14 +9435,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
     //   1) That the resulting string value is correct.
     //   2) That the return value is a reference to self.
     //   3) That the resulting capacity is correctly set up if the initial
-    //      'FWD_ITER' is a random-access iterator.
+    //      `FWD_ITER` is a random-access iterator.
     //   5) That insertion is exception neutral w.r.t. memory allocation.
     //   6) The internal memory management system is hooked up properly so that
     //      *all* internally allocated memory draws from a user-supplied
     //      allocator whenever one is specified.
     //
     // Plan:
-    //   See 'testCase20'.
+    //   See `testCase20`.
     //
     // Testing:
     //   string& replace(pos1, n1, const string& str);
@@ -10067,7 +10083,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                                                          SIZE,
                                                          Y,
                                                          0);
-                                                         // 'npos' dflt. arg.
+                                                         // `npos` dflt. arg.
                                 ASSERT(&result == &mX);
                               } break;
                               case REPLACE_SUBSTRINGREF_AT_INDEX_NPOS: {
@@ -10078,7 +10094,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                                                          SIZE,
                                                          SR,
                                                          0);
-                                                         // 'npos' dflt. arg.
+                                                         // `npos` dflt. arg.
                                 ASSERT(&result == &mX);
                               } break;
                               case REPLACE_SUBSTRINGVIEW_AT_INDEX_NPOS: {
@@ -10089,7 +10105,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                                                          SIZE,
                                                          SV,
                                                          0);
-                                                         // 'npos' dflt. arg.
+                                                         // `npos` dflt. arg.
                                 ASSERT(&result == &mX);
                               } break;
                               case REPLACE_SUBSTRINGVIEWLIKE_AT_INDEX_NPOS: {
@@ -10100,7 +10116,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                                                          SIZE,
                                                          SVL,
                                                          0);
-                                                         // 'npos' dflt. arg.
+                                                         // `npos` dflt. arg.
                                 ASSERT(&result == &mX);
                               } break;
                               case REPLACE_CSTRING_N_AT_INDEX: {
@@ -10214,7 +10230,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
 
 
 #ifdef BDE_BUILD_TARGET_EXC
-    if (verbose) printf("\tWith 'std::out_of_range' exceptions.\n");
+    if (verbose) printf("\tWith `std::out_of_range` exceptions.\n");
     {
         enum {
             REPLACE_MODE_FIRST                          =  0,
@@ -10466,28 +10482,28 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                           case REPLACE_SUBSTRING_AT_INDEX_NPOS: {
                             // string& replace(pos1, n1, const string& str,
                             //                 pos2, n);
-                            mY.replace(BEGIN, SIZE, X, 0);  // 'npos' default
-                            mX.replace(BEGIN, SIZE, X, 0);  // 'npos' default
+                            mY.replace(BEGIN, SIZE, X, 0);  // `npos` default
+                            mX.replace(BEGIN, SIZE, X, 0);  // `npos` default
                           } break;
                           case REPLACE_SUBSTRINGREF_AT_INDEX_NPOS: {
                             // string& replace(pos1, n1, const StringRef& str,
                             //                 pos2, n);
-                            mY.replace(BEGIN, SIZE, SR, 0);  // 'npos' default
-                            mX.replace(BEGIN, SIZE, SR, 0);  // 'npos' default
+                            mY.replace(BEGIN, SIZE, SR, 0);  // `npos` default
+                            mX.replace(BEGIN, SIZE, SR, 0);  // `npos` default
                           } break;
                           case REPLACE_SUBSTRINGVIEW_AT_INDEX_NPOS: {
                             // string& replace(pos1, n1,
                             //                 const string_view& str,
                             //                 pos2, n);
-                            mY.replace(BEGIN, SIZE, SV, 0);  // 'npos' default
-                            mX.replace(BEGIN, SIZE, SV, 0);  // 'npos' default
+                            mY.replace(BEGIN, SIZE, SV, 0);  // `npos` default
+                            mX.replace(BEGIN, SIZE, SV, 0);  // `npos` default
                           } break;
                           case REPLACE_SUBSTRINGVIEWLIKE_AT_INDEX_NPOS: {
                             // string& replace(pos1, n1,
                             //                 const StringViewLike& str,
                             //                 pos2, n);
-                            mY.replace(BEGIN, SIZE, SVL, 0);  // 'npos' default
-                            mX.replace(BEGIN, SIZE, SVL, 0);  // 'npos' default
+                            mY.replace(BEGIN, SIZE, SVL, 0);  // `npos` default
+                            mX.replace(BEGIN, SIZE, SVL, 0);  // `npos` default
                           } break;
                           case REPLACE_STRING_AT_ITERATOR: {
                             // string& replace(iterator p,
@@ -10645,7 +10661,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                                 switch (MODE) {
                                   case REPLACE_SUBSTRING_AT_INDEX: {
                                     if (INDEX + NUM_ELEMENTS >= X.length()) {
-                                        // 'npos' default argument
+                                        // `npos` default argument
                                         mY.replace(BEGIN, SIZE, X, INDEX);
                                         mX.replace(BEGIN, SIZE, X, INDEX);
                                     }
@@ -10664,7 +10680,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                                   } break;
                                   case REPLACE_SUBSTRINGREF_AT_INDEX: {
                                     if (INDEX + NUM_ELEMENTS >= X.length()) {
-                                        // 'npos' default argument
+                                        // `npos` default argument
                                         mY.replace(BEGIN, SIZE, SR, INDEX);
                                         mX.replace(BEGIN, SIZE, SR, INDEX);
                                     }
@@ -10683,7 +10699,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                                   } break;
                                   case REPLACE_SUBSTRINGVIEW_AT_INDEX: {
                                     if (INDEX + NUM_ELEMENTS >= X.length()) {
-                                        // 'npos' default argument
+                                        // `npos` default argument
                                         mY.replace(BEGIN, SIZE, SV, INDEX);
                                         mX.replace(BEGIN, SIZE, SV, INDEX);
                                     }
@@ -10702,7 +10718,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                                   } break;
                                   case REPLACE_SUBSTRINGVIEWLIKE_AT_INDEX: {
                                     if (INDEX + NUM_ELEMENTS >= X.length()) {
-                                        // 'npos' default argument
+                                        // `npos` default argument
                                         mY.replace(BEGIN, SIZE, SVL, INDEX);
                                         mX.replace(BEGIN, SIZE, SVL, INDEX);
                                     }
@@ -10755,12 +10771,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Negative()
     // NEGATIVE TESTING REPLACE:
     //
     // Concerns:
-    //   1 'replace' asserts on undefined behavior when it's passed either a
+    //   1 `replace` asserts on undefined behavior when it's passed either a
     //   NULL C-string pointer, invalid iterators, or invalid iterator ranges.
     //
     // Plan:
-    //   For each 'replace' overload create a non-empty string and test
-    //   'replace' with different combinations of invalid parameters.
+    //   For each `replace` overload create a non-empty string and test
+    //   `replace` with different combinations of invalid parameters.
     //
     // Testing:
     //   replace(const_iterator first, const_iterator last, size_type n2, C c);
@@ -10948,7 +10964,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Negative()
         ASSERT_SAFE_FAIL(mX.replace(X.begin() + 1, X.begin(),
                                     mY.begin(), mY.end()));
 
-        // stringFirst > stringLast (non-'const' iterators)
+        // stringFirst > stringLast (non-`const` iterators)
         ASSERT_SAFE_FAIL(mX.replace(X.begin(), X.end(),
                                     mY.end(), mY.begin()));
 
@@ -10956,7 +10972,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Negative()
         ASSERT_SAFE_FAIL(mX.replace(X.begin(), X.end(),
                                     Y.end(), Y.begin()));
 
-        // pass (non-'const' iterators)
+        // pass (non-`const` iterators)
         ASSERT_SAFE_PASS(mX.replace(X.begin(), X.end(),
                                     mY.begin(), mY.end()));
 
@@ -11074,21 +11090,21 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase19()
     // Concerns:
     //   1) That the resulting value is correct.
     //   2) That erasing a suffix of the array never allocates, and thus never
-    //      throws.  In particular, 'pop_back()' and 'erase(..., X.end())' do
+    //      throws.  In particular, `pop_back()` and `erase(..., X.end())` do
     //      not throw.
     //   3) That erasing is exception neutral w.r.t. memory allocation.
     //   4) That erasing does not modify the capacity (i.e., shrink).
     //   5) That no memory is leaked.
     //
     // Plan:
-    //   For the 'erase' methods, the concerns are simply to cover the full
+    //   For the `erase` methods, the concerns are simply to cover the full
     //   range of possible indices and numbers of elements.  We build a string
     //   with a variable size and capacity, and remove a variable element or
     //   number of elements from it, and verify that size, capacity, and value
     //   are as expected:
     //      - Without exceptions, and computing the number of allocations.
     //      - In the presence of exceptions during memory allocations using
-    //        a 'bslma::TestAllocator' and varying its *allocation* *limit*,
+    //        a `bslma::TestAllocator` and varying its *allocation* *limit*,
     //        but not computing the number of allocations or checking on the
     //        value in case an exception is thrown (it is enough to verify that
     //        all the elements have been destroyed indirectly by making sure
@@ -11096,7 +11112,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase19()
     //   For concern 2, we verify that the number of allocations is as
     //   expected:
     //      - length of the tail (last element erased to last element) if the
-    //        type uses a 'bslma' allocator, and is not moveable.
+    //        type uses a `bslma` allocator, and is not moveable.
     //      - 0 otherwise.
     //
     // Testing:
@@ -11138,7 +11154,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase19()
     };
     enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-    if (verbose) printf("\nTesting 'pop_back' on non-empty strings.\n");
+    if (verbose) printf("\nTesting `pop_back` on non-empty strings.\n");
     {
         for (int i = 1; i < NUM_DATA; ++i) {
             const int    INIT_LINE   = DATA[i].d_lineNum;
@@ -11231,7 +11247,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase19()
     ASSERT(0 == testAllocator.numBlocksInUse());
 #endif
 
-    if (verbose) printf("\nTesting 'erase(pos, n)'.\n");
+    if (verbose) printf("\nTesting `erase(pos, n)`.\n");
     {
         for (int i = 0; i < NUM_DATA; ++i) {
             const int    INIT_LINE   = DATA[i].d_lineNum;
@@ -11389,7 +11405,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase19()
     }
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBlocksInUse());
-    if (verbose) printf("\nTesting 'erase(pos)' on non-empty strings.\n");
+    if (verbose) printf("\nTesting `erase(pos)` on non-empty strings.\n");
     {
         for (int i = 1; i < NUM_DATA; ++i) {
             const int    INIT_LINE   = DATA[i].d_lineNum;
@@ -11526,7 +11542,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase19()
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBlocksInUse());
 
-    if (verbose) printf("\nTesting 'erase(first, last)'.\n");
+    if (verbose) printf("\nTesting `erase(first, last)`.\n");
     {
         for (int i = 0; i < NUM_DATA; ++i) {
             const int    INIT_LINE   = DATA[i].d_lineNum;
@@ -11690,14 +11706,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase19Negative()
     // NEGATIVE TESTING ERASE
     //
     // Concerns:
-    //   1 'pop_back' asserts on undefined behavior when the string is empty,
-    //   2 'erase' asserts on undefined behavior when iterators are not valid
+    //   1 `pop_back` asserts on undefined behavior when the string is empty,
+    //   2 `erase` asserts on undefined behavior when iterators are not valid
     //   on the string being tested or they don't make a valid range.
     //
     // Plan:
-    //   For concern (1), create an empty string and call 'pop_back' which
+    //   For concern (1), create an empty string and call `pop_back` which
     //   should assert.  For concern (2), create a non-empty string and test
-    //   'erase' with different combinations of invalid iterators and iterator
+    //   `erase` with different combinations of invalid iterators and iterator
     //   ranges.
     //
     // Testing:
@@ -11773,7 +11789,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18()
     //
     // Concerns:
     //   1) That the resulting string value is correct.
-    //   2) That the 'insert' return (if any) value is a reference to self,
+    //   2) That the `insert` return (if any) value is a reference to self,
     //      or a valid iterator, even when the string underwent a reallocation.
     //   3) That the resulting capacity is correctly set up.
     //   4) That existing elements are moved via Traits::move.
@@ -11784,12 +11800,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18()
     //
     // Plan:
     //   For insertion we will create objects of varying sizes and capacities
-    //   containing default values, and insert a distinct 'value' at various
+    //   containing default values, and insert a distinct `value` at various
     //   positions, or a variable number of copies of this value.  Perform the
     //   above tests:
     //      - Without exceptions, and compute the number of allocations.
     //      - In the presence of exceptions during memory allocations using
-    //        a 'bslma::TestAllocator' and varying its *allocation* *limit*,
+    //        a `bslma::TestAllocator` and varying its *allocation* *limit*,
     //        but do not compute the number of allocations.
     //   and use basic accessors to verify the resulting
     //      - size
@@ -11851,9 +11867,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18()
     };
     enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-    if (verbose) printf("\nTesting 'insert'.\n");
+    if (verbose) printf("\nTesting `insert`.\n");
 
-    if (verbose) printf("\tUsing a single 'value'.\n");
+    if (verbose) printf("\tUsing a single `value`.\n");
 
     for (int insertMode  = INSERT_CHAR_AT_ITERATOR;
              insertMode <= INSERT_CHAR_MODE_LAST;
@@ -11965,7 +11981,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18()
          ++insertMode)
     {
         if (verbose)
-            printf("\tUsing 'n' copies of 'value', insertMode = %d.\n",
+            printf("\tUsing `n` copies of `value`, insertMode = %d.\n",
                    insertMode);
 
         for (int i = 0; i < NUM_DATA; ++i) {
@@ -12217,9 +12233,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
     // Concerns:
     //   1) That the resulting string value is correct.
     //   2) That the initial range is correctly imported and then moved if the
-    //      initial 'FWD_ITER' is an input iterator.
+    //      initial `FWD_ITER` is an input iterator.
     //   3) That the resulting capacity is correctly set up if the initial
-    //      'FWD_ITER' is a random-access iterator.
+    //      `FWD_ITER` is a random-access iterator.
     //   4) That existing elements are moved without copy-construction if the
     //      bitwise-moveable trait is present.
     //   5) That insertion is exception neutral w.r.t. memory allocation.
@@ -12229,11 +12245,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
     //
     // Plan:
     //   For insertion we will create objects of varying sizes with different
-    //   'value' as argument.  Perform the above tests:
-    //      - From the parameterized 'CONTAINER::const_iterator'.
+    //   `value` as argument.  Perform the above tests:
+    //      - From the parameterized `CONTAINER::const_iterator`.
     //      - Without exceptions, and compute the number of allocations.
     //      - In the presence of exceptions during memory allocations using
-    //        a 'bslma::TestAllocator' and varying its *allocation* *limit*,
+    //        a `bslma::TestAllocator` and varying its *allocation* *limit*,
     //        but do not compute the number of allocations.
     //   and use basic accessors to verify
     //      - size
@@ -12604,7 +12620,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                                 // string& insert(p1, const string& s, p2, n);
                                 Obj &result = mX.insert(POS,
                                                         Y,
-                                                        POS2);  // 'npos'
+                                                        POS2);  // `npos`
                                 ASSERT(&result == &mX);
                               } break;
                               case INSERT_SUBSTRINGREF_AT_INDEX: {
@@ -12646,7 +12662,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                                  //                pos2);
                                  Obj &result = mX.insert(POS,
                                                          SR,
-                                                         POS2);  // 'npos'
+                                                         POS2);  // `npos`
                                  ASSERT(&result == &mX);
                                } break;
                                 case INSERT_SUBSTRINGVIEW_AT_INDEX_NPOS: {
@@ -12655,7 +12671,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                                  //                pos2);
                                  Obj &result = mX.insert(POS,
                                                          SV,
-                                                         POS2);  // 'npos'
+                                                         POS2);  // `npos`
                                  ASSERT(&result == &mX);
                                } break;
                                case INSERT_SUBSTRINGVIEWLIKE_AT_INDEX_NPOS: {
@@ -12665,7 +12681,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                                  //                n);
                                  Obj &result = mX.insert(POS,
                                                          SVL,
-                                                         POS2);  // 'npos'
+                                                         POS2);  // `npos`
                                  ASSERT(&result == &mX);
                                } break;
                                default: {
@@ -12793,7 +12809,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                               case INSERT_SUBSTRING_AT_INDEX_NPOS: {
                             // string& insert(pos1, const string<C,CT,A>& str,
                             //                pos2, n);
-                                Obj &result = mX.insert(POS, Y, 0);  // 'npos'
+                                Obj &result = mX.insert(POS, Y, 0);  // `npos`
                                 ASSERT(&result == &mX);
                               } break;
                               case INSERT_SUBSTRINGREF_AT_INDEX: {
@@ -12826,19 +12842,19 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                               case INSERT_SUBSTRINGREF_AT_INDEX_NPOS: {
                             // string& insert(pos1, const StringRef& s,
                             //                pos2, n);
-                                Obj &result = mX.insert(POS, SR, 0);  // 'npos'
+                                Obj &result = mX.insert(POS, SR, 0);  // `npos`
                                 ASSERT(&result == &mX);
                               } break;
                               case INSERT_SUBSTRINGVIEW_AT_INDEX_NPOS: {
                             // string& insert(pos1, const string_view& s,
                             //                pos2, n);
-                                Obj &result = mX.insert(POS, SV, 0);  // 'npos'
+                                Obj &result = mX.insert(POS, SV, 0);  // `npos`
                                 ASSERT(&result == &mX);
                               } break;
                               case INSERT_SUBSTRINGVIEWLIKE_AT_INDEX_NPOS: {
                             // string& insert(pos1, const StrViewLike& s,
                             //                pos2, n);
-                                Obj &result = mX.insert(POS, SVL, 0); // 'npos'
+                                Obj &result = mX.insert(POS, SVL, 0); // `npos`
                                 ASSERT(&result == &mX);
                               } break;
                               case INSERT_STRING_AT_INDEX: {
@@ -12929,7 +12945,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
     ASSERT(0 == testAllocator.numBlocksInUse());
 
 #ifdef BDE_BUILD_TARGET_EXC
-    if (verbose) printf("\tWith 'std::out_of_range' exceptions.\n");
+    if (verbose) printf("\tWith `std::out_of_range` exceptions.\n");
     {
         enum {
             INSERT_MODE_FIRST                          =  0,
@@ -13121,7 +13137,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                       } break;
                       case INSERT_SUBSTRING_AT_INDEX_NPOS: {
                     // string& insert(pos1, const string<C,CT,A>& str, pos2, n)
-                        mX.insert(POS, Y, 0);  // 'npos' default arg.
+                        mX.insert(POS, Y, 0);  // `npos` default arg.
                         mY.insert(POS, Y, 0);
                       } break;
                       case INSERT_SUBSTRINGREF_AT_INDEX: {
@@ -13141,17 +13157,17 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                       } break;
                       case INSERT_SUBSTRINGREF_AT_INDEX_NPOS: {
                     // string& insert(pos1, const StringRef& s, pos2, n)
-                        mX.insert(POS, SR, 0);  // 'npos' default arg.
+                        mX.insert(POS, SR, 0);  // `npos` default arg.
                         mY.insert(POS, SR, 0);
                       } break;
                       case INSERT_SUBSTRINGVIEW_AT_INDEX_NPOS: {
                     // string& insert(pos1, const string_view& s, pos2, n)
-                        mX.insert(POS, SV, 0);  // 'npos' default arg.
+                        mX.insert(POS, SV, 0);  // `npos` default arg.
                         mY.insert(POS, SV, 0);
                       } break;
                       case INSERT_SUBSTRINGVIEWLIKE_AT_INDEX_NPOS: {
                     // string& insert(pos1, const StrViewLike& s, pos2, n)
-                        mX.insert(POS, SVL, 0);  // 'npos' default arg.
+                        mX.insert(POS, SVL, 0);  // `npos` default arg.
                         mY.insert(POS, SVL, 0);
                       } break;
                       case INSERT_STRING_AT_INDEX: {
@@ -13362,9 +13378,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
 
     {
         if (verbose) printf("\tAmbiguity test.\n");
-        // Since 'std::string' can be implicitly converted either to
-        // 'bsl::string' or to 'bsl::string_view', call of overloaded
-        // 'insert(size_type, std::string&, ...)' can be ambiguous.  We need to
+        // Since `std::string` can be implicitly converted either to
+        // `bsl::string` or to `bsl::string_view`, call of overloaded
+        // `insert(size_type, std::string&, ...)` can be ambiguous.  We need to
         // test this scenario.
 
         bsl::string bslString("bsl");
@@ -13385,14 +13401,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Negative()
     // NEGATIVE TESTING INSERTION:
     //
     // Concerns:
-    //   1 'insert' methods assert on undefined behavior when either a NULL
+    //   1 `insert` methods assert on undefined behavior when either a NULL
     //     C-string pointer is passed or invalid iterators are passed.  Other
-    //     valid parameters do not change the ability of 'insert' to assert on
+    //     valid parameters do not change the ability of `insert` to assert on
     //     invalid parameters.
     //
     // Plan:
-    //   Construct a string object with some string data, call 'insert' with a
-    //   NULL C-string pointer and verify that it asserts.  Then call 'insert'
+    //   Construct a string object with some string data, call `insert` with a
+    //   NULL C-string pointer and verify that it asserts.  Then call `insert`
     //   with invalid iterators and verify that it asserts.
     //
     // Testing:
@@ -13496,20 +13512,20 @@ template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase17()
 {
     // --------------------------------------------------------------------
-    // TESTING 'append'
+    // TESTING `append`
     //
     // Plan:
     //   For appending, we will create objects of varying sizes containing
-    //   default values for type T, and then append different 'value'.  Perform
+    //   default values for type T, and then append different `value`.  Perform
     //   the above tests:
-    //    - With various initial values before the 'append'.
+    //    - With various initial values before the `append`.
     //    - In the presence of exceptions during memory allocations using
-    //        a 'bslma::TestAllocator' and varying its *allocation* *limit*.
+    //        a `bslma::TestAllocator` and varying its *allocation* *limit*.
     //   and use basic accessors to verify
     //      - size
     //      - capacity
     //      - element value at each index position { 0 .. length - 1 }.
-    //   In addition, check QoI of 'append' in that it does not internally
+    //   In addition, check QoI of `append` in that it does not internally
     //   allocate a temporary string.
     //
     // Testing:
@@ -13555,9 +13571,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17()
     };
     enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-    if (verbose) printf("\nTesting 'append'.\n");
+    if (verbose) printf("\nTesting `append`.\n");
 
-    if (verbose) printf("\tUsing multiple copies of 'value'.\n");
+    if (verbose) printf("\tUsing multiple copies of `value`.\n");
     {
         for (int i = 0; i < NUM_DATA; ++i) {
             const int    INIT_LINE   = DATA[i].d_lineNum;
@@ -13624,8 +13640,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17()
                     }
 
                     // TBD: Accurately determine the capacity/allocator
-                    //      behavior of repeated '+=' operators with a single
-                    //      character, equivalent to repeated 'push_back' calls
+                    //      behavior of repeated `+=` operators with a single
+                    //      character, equivalent to repeated `push_back` calls
 
                     LOOP2_ASSERT(INIT_LINE, LINE, LENGTH == X.size());
 //                    LOOP2_ASSERT(INIT_LINE, LINE, CAP == X.capacity());
@@ -13655,7 +13671,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17()
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBlocksInUse());
 
-    if (verbose) printf("\tUsing multiple copies of 'value'.\n");
+    if (verbose) printf("\tUsing multiple copies of `value`.\n");
     {
         for (int i = 0; i < NUM_DATA; ++i) {
             const int    INIT_LINE   = DATA[i].d_lineNum;
@@ -13819,9 +13835,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17()
     if (verbose) printf("\tTesting incomplete char array.\n");
     {
         // IBM compilers have a problem with coversion of incomplete char
-        // arrays to 'bsl:string_view'.  See {DRQS 162627462 42 <GO>} for
+        // arrays to `bsl:string_view`.  See {DRQS 162627462 42 <GO>} for
         // detailed description.  This section is added to test patch for this
-        // problem for 'append' method.
+        // problem for `append` method.
 
         bsl::string mX("123");
         mX.append(BSLSTL_STRING_TEST_ONLY_INCOMPLETE_CHAR_ARRAY);
@@ -13834,20 +13850,20 @@ template <class CONTAINER>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
 {
     // --------------------------------------------------------------------
-    // TESTING 'append'
+    // TESTING `append`
     //
     // Plan:
     //   For appending we will create objects of varying sizes containing
-    //   default values for type T, and then append different 'value' as
+    //   default values for type T, and then append different `value` as
     //   argument.  Perform the above tests:
-    //    - From the parameterized 'CONTAINER::const_iterator'.
+    //    - From the parameterized `CONTAINER::const_iterator`.
     //    - In the presence of exceptions during memory allocations using
-    //        a 'bslma::TestAllocator' and varying its *allocation* *limit*.
+    //        a `bslma::TestAllocator` and varying its *allocation* *limit*.
     //   and use basic accessors to verify
     //      - size
     //      - capacity
     //      - element value at each index position { 0 .. length - 1 }.
-    //   In addition, check QoI of 'append' in that it does not internally
+    //   In addition, check QoI of `append` in that it does not internally
     //   allocate a temporary string.
     //
     // Testing:
@@ -14520,7 +14536,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                           } break;
                           case APPEND_SUBSTRING_NPOS: {
                         // string& append(const string<C,CT,A>& str, pos, n);
-                            Obj &result = mX.append(Y, 0); // 'npos' dflt. arg.
+                            Obj &result = mX.append(Y, 0); // `npos` dflt. arg.
                             ASSERT(&result == &mX);
                           } break;
                           case APPEND_SUBSTRINGREF: {
@@ -14540,17 +14556,17 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                           } break;
                           case APPEND_SUBSTRINGREF_NPOS: {
                         // string& append(const StringRef& strRef, pos);
-                            Obj &result = mX.append(SR, 0); // 'npos' dflt arg
+                            Obj &result = mX.append(SR, 0); // `npos` dflt arg
                             ASSERT(&result == &mX);
                           } break;
                           case APPEND_SUBSTRINGVIEW_NPOS: {
                         // string& append(const string_view& strView, pos);
-                            Obj &result = mX.append(SV, 0); // 'npos' dflt arg
+                            Obj &result = mX.append(SV, 0); // `npos` dflt arg
                             ASSERT(&result == &mX);
                           } break;
                           case APPEND_SUBSTRINGVIEWLIKE_NPOS: {
                         // string& append(const StringViewLike&, pos);
-                            Obj &result = mX.append(SVL, 0); // 'npos' dflt arg
+                            Obj &result = mX.append(SVL, 0); // `npos` dflt arg
                             ASSERT(&result == &mX);
                           } break;
                           case APPEND_STRING: {
@@ -14584,7 +14600,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                             ASSERT(&result == &mX);
                           } break;
                           case APPEND_CSTRING_NULL_0: {
-                        // string& append(const C *s, n); 's = 0';
+                        // string& append(const C *s, n); `s = 0`;
                             Obj &result = mX.append(NULL_PTR, NUM_ELEMENTS);
                             ASSERT(&result == &mX);
                           } break;
@@ -14660,7 +14676,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
     ASSERT(0 == testAllocator.numBlocksInUse());
 
 #ifdef BDE_BUILD_TARGET_EXC
-    if (verbose) printf("\tWith 'std::out_of_range' exceptions.\n");
+    if (verbose) printf("\tWith `std::out_of_range` exceptions.\n");
     {
         for (int appendMode  = APPEND_STRING;
                  appendMode <= APPEND_STRINGVIEWLIKE;
@@ -14787,7 +14803,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                       } break;
                       case APPEND_SUBSTRING_NPOS: {
                     // string& append(const string<C,CT,A>& str, pos, n);
-                        mX.append(Y, 0);  // 'npos' default argument
+                        mX.append(Y, 0);  // `npos` default argument
                         mY.append(Y, 0);
                       } break;
                       case APPEND_SUBSTRINGREF: {
@@ -14807,17 +14823,17 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                       } break;
                       case APPEND_SUBSTRINGREF_NPOS: {
                     // string& append(const StringRef&, pos, n);
-                        mX.append(SR, 0);  // 'npos' default argument
+                        mX.append(SR, 0);  // `npos` default argument
                         mY.append(SR, 0);
                       } break;
                       case APPEND_SUBSTRINGVIEW_NPOS: {
                     // string& append(const string_view&, pos, n);
-                        mX.append(SV, 0);  // 'npos' default argument
+                        mX.append(SV, 0);  // `npos` default argument
                         mY.append(SV, 0);
                       } break;
                       case APPEND_SUBSTRINGVIEWLIKE_NPOS: {
                     // string& append(const StringViewLike&, pos, n);
-                        mX.append(SVL, 0);  // 'npos' default argument
+                        mX.append(SVL, 0);  // `npos` default argument
                         mY.append(SVL, 0);
                       } break;
                       case APPEND_STRING: {
@@ -14969,7 +14985,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                                 AllocatorUseGuard guardD(defaultAllocator_p);
 
                                 if (INDEX + NUM_ELEMENTS >= Y.length()) {
-                                    mX.append(Y, INDEX);  // 'npos' is default
+                                    mX.append(Y, INDEX);  // `npos` is default
                                     mY.append(Y, INDEX);
                                 }
                                 else {
@@ -14986,7 +15002,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                                 AllocatorUseGuard guardD(defaultAllocator_p);
 
                                 if (INDEX + NUM_ELEMENTS >= Y.length()) {
-                                    mX.append(SR, INDEX);  // 'npos' is dflt
+                                    mX.append(SR, INDEX);  // `npos` is dflt
                                     mY.append(SR, INDEX);
                                 }
                                 else {
@@ -15003,7 +15019,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                                 AllocatorUseGuard guardD(defaultAllocator_p);
 
                                 if (INDEX + NUM_ELEMENTS >= Y.length()) {
-                                    mX.append(SV, INDEX);  // 'npos' is dflt
+                                    mX.append(SV, INDEX);  // `npos` is dflt
                                     mY.append(SV, INDEX);
                                 }
                                 else {
@@ -15020,7 +15036,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                                 AllocatorUseGuard guardD(defaultAllocator_p);
 
                                 if (INDEX + NUM_ELEMENTS >= Y.length()) {
-                                    mX.append(SVL, INDEX);  // 'npos' is dflt
+                                    mX.append(SVL, INDEX);  // `npos` is dflt
                                     mY.append(SVL, INDEX);
                                 }
                                 else {
@@ -15051,9 +15067,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
 
     {
         if (verbose) printf("\tAmbiguity test.\n");
-        // Since 'std::string' can be implicitly converted either to
-        // 'bsl::string' or to 'bsl::string_view', call of overloaded
-        // 'append(std::string&, ...)' can be ambiguous.  We need to test this
+        // Since `std::string` can be implicitly converted either to
+        // `bsl::string` or to `bsl::string_view`, call of overloaded
+        // `append(std::string&, ...)` can be ambiguous.  We need to test this
         // scenario.
 
         bsl::string bslString("bsl");
@@ -15071,21 +15087,21 @@ template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Negative()
 {
     // --------------------------------------------------------------------
-    // NEGATIVE TESTING 'append'
+    // NEGATIVE TESTING `append`
     //
     // Concerns:
-    //   'append', 'operator+=', and 'operator+' assert on undefined behavior:
+    //   `append`, `operator+=`, and `operator+` assert on undefined behavior:
     //   1 when a character string pointer parameter is NULL,
-    //   2 when the 'first'/'last' parameters do not specify a valid iterator
+    //   2 when the `first`/`last` parameters do not specify a valid iterator
     //     range
     //
     // Plan:
     //   1 Create a string object and then test the following things that
     //     should produce an assert for undefined behavior:
-    //     o call 'append' with a NULL pointer,
-    //     o call 'operator+=' with a NULL pointer,
-    //     o call 'operator+' with a NULL pointer,
-    //     o call 'append' with various invalid iterator ranges.
+    //     o call `append` with a NULL pointer,
+    //     o call `operator+=` with a NULL pointer,
+    //     o call `operator+` with a NULL pointer,
+    //     o call `append` with various invalid iterator ranges.
     //   2 After that, call those methods with valid parameters and verify that
     //     they don't assert.
     //
@@ -15156,20 +15172,20 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase16()
     // TESTING ITERATORS
     //
     // Concerns:
-    //   1) That 'begin' and 'end' return mutable iterators for a
+    //   1) That `begin` and `end` return mutable iterators for a
     //      reference to a modifiable string, and non-mutable iterators
     //      otherwise.
-    //   2) That the range '[begin(), end())' equals the value of the string.
-    //   3) Same concerns with 'rbegin' and 'rend'.
+    //   2) That the range `[begin(), end())` equals the value of the string.
+    //   3) Same concerns with `rbegin` and `rend`.
     // In addition:
-    //   4) That 'iterator' is a pointer to 'TYPE'.
-    //   5) That 'const_iterator' is a pointer to 'const TYPE'.
-    //   6) That 'reverse_iterator' and 'const_reverse_iterator' are
-    //      implemented by the (fully-tested) 'bslstl::ReverseIterator' over a
-    //      pointer to 'TYPE' or 'const TYPE'.
-    //   6. That 'reverse_iterator' and 'const_reverse_iterator' are
-    //      implemented by the (fully-tested) 'bsl::reverse_iterator' over a
-    //      pointer to 'TYPE' or 'const TYPE'.
+    //   4) That `iterator` is a pointer to `TYPE`.
+    //   5) That `const_iterator` is a pointer to `const TYPE`.
+    //   6) That `reverse_iterator` and `const_reverse_iterator` are
+    //      implemented by the (fully-tested) `bslstl::ReverseIterator` over a
+    //      pointer to `TYPE` or `const TYPE`.
+    //   6. That `reverse_iterator` and `const_reverse_iterator` are
+    //      implemented by the (fully-tested) `bsl::reverse_iterator` over a
+    //      pointer to `TYPE` or `const TYPE`.
     //
     // Plan:
     //   For 1--3, for each value given by variety of specifications of
@@ -15179,12 +15195,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase16()
     //   to its original value, and as a reference offering non-modifiable
     //   access.
     //
-    // For 4--6, use 'bsl::is_same' to assert the identity of iterator types.
+    // For 4--6, use `bsl::is_same` to assert the identity of iterator types.
     // Note that these concerns let us get away with other concerns such as
-    // testing that 'iter[i]' and 'iter + i' advance 'iter' by the correct
-    // number 'i' of positions, and other concern about traits, because
-    // 'bsl::iterator_traits' and 'bsl::reverse_iterator' have already been
-    // fully tested in the 'bslstl_iterator' component.
+    // testing that `iter[i]` and `iter + i` advance `iter` by the correct
+    // number `i` of positions, and other concern about traits, because
+    // `bsl::iterator_traits` and `bsl::reverse_iterator` have already been
+    // fully tested in the `bslstl_iterator` component.
     //
     // Testing:
     //   iterator begin();
@@ -15228,8 +15244,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase16()
     };
     enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-    if (verbose) printf("Testing 'iterator', 'begin', and 'end',"
-                        " and 'const' variants.\n");
+    if (verbose) printf("Testing `iterator`, `begin`, and `end`,"
+                        " and `const` variants.\n");
     {
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int     LINE   = DATA[ti].d_lineNum;
@@ -15262,8 +15278,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase16()
         }
     }
 
-    if (verbose) printf("Testing 'reverse_iterator', 'rbegin', and 'rend',"
-                        " and 'const' variants.\n");
+    if (verbose) printf("Testing `reverse_iterator`, `rbegin`, and `rend`,"
+                        " and `const` variants.\n");
     {
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE   = DATA[ti].d_lineNum;
@@ -15305,12 +15321,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase15()
     // TESTING ELEMENT ACCESS
     //
     // Concerns:
-    //   1) That 'v[x]', as well as 'v.front()' and 'v.back()', allow to modify
-    //      its indexed element when 'v' is an lvalue, but must not modify its
+    //   1) That `v[x]`, as well as `v.front()` and `v.back()`, allow to modify
+    //      its indexed element when `v` is an lvalue, but must not modify its
     //      indexed element when it is an rvalue.
-    //   2) That 'v.at(pos)' returns 'v[x]' or throws if 'pos == v.size())'.
-    //   3) That 'v.front()' is identical to 'v[0]' and 'v.back()' the same as
-    //      'v[v.size() - 1]'.
+    //   2) That `v.at(pos)` returns `v[x]` or throws if `pos == v.size())`.
+    //   3) That `v.front()` is identical to `v[0]` and `v.back()` the same as
+    //      `v[v.size() - 1]`.
     //
     // Plan:
     //   For each value given by variety of specifications of different
@@ -15318,7 +15334,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase15()
     //   (front, back, at each position) both as a reference offering
     //   modifiable access (setting it to a default value, then back to its
     //   original value, and as a reference offering non-modifiable access.
-    //   Verify that 'at' throws 'std::out_of_range' when accessing the
+    //   Verify that `at` throws `std::out_of_range` when accessing the
     //   past-the-end element.
     //
     // Testing:
@@ -15426,22 +15442,22 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase15Negative()
     // NEGATIVE TESTING ELEMENT ACCESS
     //
     // Concerns:
-    //   For a string 's', the following const and non-'const' operations
+    //   For a string `s`, the following const and non-`const` operations
     //   assert on undefined behavior:
-    //   1 s[x] - when the index 'x' is out of range
-    //   2 s.front() - when 's' is empty
-    //   3 s.back() - when 's' is empty
+    //   1 s[x] - when the index `x` is out of range
+    //   2 s.front() - when `s` is empty
+    //   3 s.back() - when `s` is empty
     //
     // Plan:
     //   To test concerns (2) and (3), create an empty string and verify that
-    //   'front'/'back' methods assert correctly.  Then insert a single
+    //   `front`/`back` methods assert correctly.  Then insert a single
     //   character into the string and verify that the methods don't assert any
     //   more.  Then remove the character to make the string empty again, and
     //   verify that the methods start asserting again.
     //
     //   To test concern (1), create a string using a variety of specifications
     //   of different lengths, then scan the range of negative and positive
-    //   indices for 'operator[]' and verify that 'operator[]' asserts when the
+    //   indices for `operator[]` and verify that `operator[]` asserts when the
     //   index is out of range.
     //
     // Testing:
@@ -15544,24 +15560,24 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase14()
     // TESTING CAPACITY
     //
     // Concerns:
-    //   1) That 'v.reserve(n)' reserves sufficient capacity in 'v' to hold
-    //      'n' elements without reallocation, but does not change value.
-    //      In addition, if 'v.reserve(n)' allocates, it must allocate for a
-    //      capacity of exactly 'n' bytes.
-    //   2) That 'v.resize(n, val)' brings the new size to 'n', adding elements
-    //      equal to 'val' if 'n' is larger than the current size.
+    //   1) That `v.reserve(n)` reserves sufficient capacity in `v` to hold
+    //      `n` elements without reallocation, but does not change value.
+    //      In addition, if `v.reserve(n)` allocates, it must allocate for a
+    //      capacity of exactly `n` bytes.
+    //   2) That `v.resize(n, val)` brings the new size to `n`, adding elements
+    //      equal to `val` if `n` is larger than the current size.
     //   3) That existing elements are moved without copy-construction if the
     //      bitwise-moveable trait is present.
-    //   4) That 'reserve' and 'resize' are exception-neutral with full
+    //   4) That `reserve` and `resize` are exception-neutral with full
     //      guarantee of rollback.
-    //   5) That the accessors such as 'capacity', 'empty', return the correct
+    //   5) That the accessors such as `capacity`, `empty`, return the correct
     //      value.
     //
     // Plan:
-    //   For string 'v' having various initial capacities, call 'v.reserve(n)'
-    //   for various values of 'n'.  Verify that sufficient capacity is
-    //   allocated by filling 'v' with 'n' elements.  Perform each test in the
-    //   standard 'bslma' exception-testing macro block.
+    //   For string `v` having various initial capacities, call `v.reserve(n)`
+    //   for various values of `n`.  Verify that sufficient capacity is
+    //   allocated by filling `v` with `n` elements.  Perform each test in the
+    //   standard `bslma` exception-testing macro block.
     //
     // Testing:
     //   void reserve(size_type n);
@@ -15590,7 +15606,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase14()
     };
     enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-    if (verbose) printf("\tTesting 'max_size'.\n");
+    if (verbose) printf("\tTesting `max_size`.\n");
     {
         // This is the maximum value.  Any larger value would be cause for
         // potential bugs.  Any reasonable value must be 2^31 -1 at least.
@@ -15600,7 +15616,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase14()
         ASSERT(~(unsigned)0 / sizeof(TYPE) / 2  - 1 <= X.max_size());
     }
 
-    if (verbose) printf("\tTesting 'reserve', 'capacity' and 'empty'.\n");
+    if (verbose) printf("\tTesting `reserve`, `capacity` and `empty`.\n");
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const size_t NE = DATA[ti];
@@ -15712,7 +15728,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase14()
         }
     }
 
-    if (verbose) printf("\tTesting 'resize'.\n");
+    if (verbose) printf("\tTesting `resize`.\n");
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const size_t NE = DATA[ti];
@@ -15830,7 +15846,7 @@ template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
 {
     // --------------------------------------------------------------------
-    // TESTING 'assign'
+    // TESTING `assign`
     //
     // Concerns:
     //   The concerns are similar to those of the constructor with the same
@@ -15838,26 +15854,26 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
     //   in addition the previous value of the string being assigned to must be
     //   freed properly.  There is a further concern about aliasing (although
     //   assigning a portion of oneself is not subject to aliasing in most
-    //   implementations), QoI concern that 'assign' does not internally
+    //   implementations), QoI concern that `assign` does not internally
     //   allocate a temporary string, and an additional concern that allocators
     //   are not propagated (until we support the C++11 allocator propagation
-    //   traits).  Finally, all 'assign' functions must return a reference to
+    //   traits).  Finally, all `assign` functions must return a reference to
     //   the string that has just been assigned to, just like the assignment
     //   operators.
     //
     // Plan:
     //   For the assignment we will create objects of varying sizes containing
-    //   default values for type T, and then assign different 'value'.  Perform
+    //   default values for type T, and then assign different `value`.  Perform
     //   the above tests:
     //    - With various initial values before the assignment.
     //    - In the presence of exceptions during memory allocations using
-    //        a 'bslma::TestAllocator' and varying its *allocation* *limit*.
+    //        a `bslma::TestAllocator` and varying its *allocation* *limit*.
     //   and use basic accessors to verify
     //      - size
     //      - capacity
     //      - element value at each index position { 0 .. length - 1 }.
     //   Note that we relax the concerns about memory consumption, since this
-    //   is implemented as 'copy' followed by 'erase + append', and append will
+    //   is implemented as `copy` followed by `erase + append`, and append will
     //   be tested more completely in test case 25.
     //
     // Testing:
@@ -15913,7 +15929,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
         };
         enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-        if (verbose) printf("\tUsing 'n' copies of 'value'.\n");
+        if (verbose) printf("\tUsing `n` copies of `value`.\n");
         {
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int    INIT_LINE   = DATA[i].d_lineNum;
@@ -16360,47 +16376,47 @@ template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase13StrViewLike()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'assign' FROM 'STRING_VIEW_LIKE' TYPE
+    // TESTING `assign` FROM `STRING_VIEW_LIKE` TYPE
     //
     // Concerns:
-    //: 1 The 'assign' method operator can change the value of any modifiable
-    //:   target object to that of any source object.
-    //:
-    //: 2 The reference returned is to the target object (i.e., '*this').
-    //:
-    //: 3 Memory allocation occurs only when necessary.
-    //:
-    //: 4 Assigning an object to itself behaves as expected (alias-safety).
-    //:
-    //: 5 The 'assign' throws 'std::out_of_range' exception when passed an
-    //:   out-of-bound position (e.g. 'position > length()').
+    // 1. The `assign` method operator can change the value of any modifiable
+    //    target object to that of any source object.
+    //
+    // 2. The reference returned is to the target object (i.e., `*this`).
+    //
+    // 3. Memory allocation occurs only when necessary.
+    //
+    // 4. Assigning an object to itself behaves as expected (alias-safety).
+    //
+    // 5. The `assign` throws `std::out_of_range` exception when passed an
+    //    out-of-bound position (e.g. `position > length()`).
     //
     // Plan:
-    //: 1 Using a loop-based approach, construct a set 'S1' of objects, with
-    //:   substantial and varied differences in value.
-    //:
-    //: 2 For each object 's1' in the 'S1' set create a 'string_view'-like
-    //:   object 'sv' pointing to the underlying character sequence of 's1'.
-    //:
-    //: 3 Using the 'assign' method assign the 'sv' to the 's1'.  Verify that
-    //:   the value of the 's' remains the same and there is no additional
-    //:   memory allocation.  (C-4)
-    //:
-    //: 4 Using the table-driven technique, specify a set 'SVL' of (unique)
-    //:   'string_view'-like objects with substantial and varied differences in
-    //:   value.
-    //:
-    //: 5 Using the table-driven technique, for each object 'svl' in the 'SVL'
-    //:   set specify a set 'S2' of objects, with substantial and varied
-    //:   differences in value.
-    //:
-    //: 6 Using the 'assign' method assign the 'svl' object to each object 's2'
-    //:   in the 'S2' set.  Verify that the 's2' object gets the expected value
-    //:   and that memory allocation occurs only if the previous capacity of
-    //:   the 's2' is not enough to store the new value.  (C-1..3)
-    //:
-    //: 7 Using 'try-catch' block, verify that 'std::out_of_range' exception is
-    //:   thrown by the 'copy' when 'position > length()'.  (C-5)
+    // 1. Using a loop-based approach, construct a set `S1` of objects, with
+    //    substantial and varied differences in value.
+    //
+    // 2. For each object `s1` in the `S1` set create a `string_view`-like
+    //    object `sv` pointing to the underlying character sequence of `s1`.
+    //
+    // 3. Using the `assign` method assign the `sv` to the `s1`.  Verify that
+    //    the value of the `s` remains the same and there is no additional
+    //    memory allocation.  (C-4)
+    //
+    // 4. Using the table-driven technique, specify a set `SVL` of (unique)
+    //    `string_view`-like objects with substantial and varied differences in
+    //    value.
+    //
+    // 5. Using the table-driven technique, for each object `svl` in the `SVL`
+    //    set specify a set `S2` of objects, with substantial and varied
+    //    differences in value.
+    //
+    // 6. Using the `assign` method assign the `svl` object to each object `s2`
+    //    in the `S2` set.  Verify that the `s2` object gets the expected value
+    //    and that memory allocation occurs only if the previous capacity of
+    //    the `s2` is not enough to store the new value.  (C-1..3)
+    //
+    // 7. Using `try-catch` block, verify that `std::out_of_range` exception is
+    //    thrown by the `copy` when `position > length()`.  (C-5)
     //
     // Testing:
     //   basic_string& assign(const STRING_VIEW_LIKE_TYPE& s);
@@ -16928,7 +16944,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13StrViewLike()
         ta.setAllocationLimit(oldLimit);
     }
 
-    if (verbose) printf("\tWith 'std::out_of_range' exceptions.\n");
+    if (verbose) printf("\tWith `std::out_of_range` exceptions.\n");
     {
         for (int i = 0; i < NUM_DATA; ++i) {
             const size_t INIT_LENGTH = DATA[i].d_length;
@@ -17020,24 +17036,24 @@ template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase13InputIterator()
 {
     // --------------------------------------------------------------------
-    // TESTING 'assign' FROM STRING REF
+    // TESTING `assign` FROM STRING REF
     //   The concerns are the same as for the constructor with the same
     //   signature (case 12), except that the implementation is different,
     //   and in addition the previous value must be freed properly.
     //
     // Plan:
     //   For the assignment we will create objects of varying sizes containing
-    //   default values for type T, and then assign different 'value' as
+    //   default values for type T, and then assign different `value` as
     //   argument.  Perform the above tests:
-    //    - From the 'bslstl::StringRefData' object.
+    //    - From the `bslstl::StringRefData` object.
     //    - In the presence of exceptions during memory allocations using
-    //        a 'bslma::TestAllocator' and varying its *allocation* *limit*.
+    //        a `bslma::TestAllocator` and varying its *allocation* *limit*.
     //   and use basic accessors to verify
     //      - size
     //      - capacity
     //      - element value at each index position { 0 .. length - 1 }.
     //   Note that we relax the concerns about memory consumption, since this
-    //   is implemented as 'erase + insert', and insert will be tested more
+    //   is implemented as `erase + insert`, and insert will be tested more
     //   completely in test case 18.
     //
     // Testing:
@@ -17096,7 +17112,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13InputIterator()
         ASSERT(dummy.capacity() < (size_t)DATA[NUM_DATA - 1].d_length);
     }
 
-    if (verbose) printf("\tUsing 'bslstl::StringRefData'.\n");
+    if (verbose) printf("\tUsing `bslstl::StringRefData`.\n");
     {
         for (int i = 0; i < NUM_DATA; ++i) {
             const int    INIT_LINE   = DATA[i].d_lineNum;
@@ -17153,7 +17169,7 @@ template <class CONTAINER>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
 {
     // --------------------------------------------------------------------
-    // TESTING 'assign'
+    // TESTING `assign`
     //
     // Concerns:
     //   The concerns are the same as for the constructor with the same
@@ -17162,17 +17178,17 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
     //
     // Plan:
     //   For the assignment we will create objects of varying sizes containing
-    //   default values for type T, and then assign different 'value' as
+    //   default values for type T, and then assign different `value` as
     //   argument.  Perform the above tests:
-    //    - From the parameterized 'CONTAINER::const_iterator'.
+    //    - From the parameterized `CONTAINER::const_iterator`.
     //    - In the presence of exceptions during memory allocations using
-    //        a 'bslma::TestAllocator' and varying its *allocation* *limit*.
+    //        a `bslma::TestAllocator` and varying its *allocation* *limit*.
     //   and use basic accessors to verify
     //      - size
     //      - capacity
     //      - element value at each index position { 0 .. length - 1 }.
     //   Note that we relax the concerns about memory consumption, since this
-    //   is implemented as 'erase + insert', and insert will be tested more
+    //   is implemented as `erase + insert`, and insert will be tested more
     //   completely in test case 18.
     //
     // Testing:
@@ -17250,7 +17266,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
         ASSERT(dummy.capacity() < (size_t)(DATA[NUM_DATA - 1].d_length));
     }
 
-    if (verbose) printf("\tUsing 'CONTAINER::const_iterator'.\n");
+    if (verbose) printf("\tUsing `CONTAINER::const_iterator`.\n");
     {
         for (int i = 0; i < NUM_DATA; ++i) {
             const int    INIT_LINE   = DATA[i].d_lineNum;
@@ -17681,7 +17697,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
                           } break;
                           case ASSIGN_SUBSTRING_NPOS: {
                             // string& assign(const string& str, pos, n);
-                            Obj& result = mX.assign(Y, 0);  // 'npos' dflt. arg
+                            Obj& result = mX.assign(Y, 0);  // `npos` dflt. arg
                             ASSERT(&result == &mX);
                           } break;
                           case ASSIGN_CSTRING_N: {
@@ -17791,7 +17807,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
                   } break;
                   case ASSIGN_SUBSTRING_NPOS: {
                     // string& assign(const string& str, pos, n);
-                    mX.assign(Y, 0);  // 'npos' default arg.
+                    mX.assign(Y, 0);  // `npos` default arg.
                     mY.assign(Y, 0);
                   } break;
                   case ASSIGN_STRING_FROM_ITERATOR: {
@@ -17827,18 +17843,18 @@ template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Negative()
 {
     // --------------------------------------------------------------------
-    // NEGATIVE TESTING 'assign'
+    // NEGATIVE TESTING `assign`
     //
     // Concerns:
-    //   'assign' methods asserts on undefined behavior when:
+    //   `assign` methods asserts on undefined behavior when:
     //   1 C-string pointer parameter is NULL
-    //   2 'first' and 'last' iterators do not make a valid range
+    //   2 `first` and `last` iterators do not make a valid range
     //      (i.e., first > last).
     //
     // Plan:
-    //   For concern (1), create a string and call 'assign' methods with NULL
+    //   For concern (1), create a string and call `assign` methods with NULL
     //   pointer.
-    //   For concern (2), create a string and call 'assign' with two iterators
+    //   For concern (2), create a string and call `assign` with two iterators
     //   that do not make a valid range.
     //
     // Testing:
@@ -17896,12 +17912,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
     //
     // Plan:
     //   For the constructor we will create objects of varying sizes with
-    //   different 'value' as argument.  Test first with the default value
+    //   different `value` as argument.  Test first with the default value
     //   for type T, and then test with different values.  Perform the above
     //   tests:
     //    - With and without passing in an allocator.
     //    - In the presence of exceptions during memory allocations using
-    //        a 'bslma::TestAllocator' and varying its *allocation* *limit*.
+    //        a `bslma::TestAllocator` and varying its *allocation* *limit*.
     //    - Where the object is constructed with an object allocator, and
     //        neither of global and default allocator is used to supply memory.
     //   and use basic accessors to verify
@@ -19570,9 +19586,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12Range(const CONTAINER&)
     //   Concerns:
     //    1) That the initial value is correct.
     //    2) That the initial range is correctly imported and then moved if the
-    //       initial 'FWD_ITER' is an input iterator.
+    //       initial `FWD_ITER` is an input iterator.
     //    3) That the initial capacity is correctly set up if the initial
-    //       'FWD_ITER' is a random-access iterator.
+    //       `FWD_ITER` is a random-access iterator.
     //    4) That the constructor is exception neutral w.r.t. memory
     //       allocation.
     //    5) That the internal memory management system is hooked up properly
@@ -19583,10 +19599,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12Range(const CONTAINER&)
     //   We will create objects of varying sizes and capacities containing
     //   default values, and insert a range containing distinct values as
     //   argument.  Perform the above tests:
-    //    - From the parameterized 'CONTAINER::const_iterator'.
+    //    - From the parameterized `CONTAINER::const_iterator`.
     //    - With and without passing in an allocator.
     //    - In the presence of exceptions during memory allocations using
-    //        a 'bslma::TestAllocator' and varying its *allocation* *limit*.
+    //        a `bslma::TestAllocator` and varying its *allocation* *limit*.
     //   and use basic accessors to verify
     //      - size
     //      - capacity
@@ -19784,7 +19800,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12Negative()
     //
     // Concerns:
     //   1 Constructing a string with a NULL pointer, or integral NULL value
-    //   including 'false' is undefined behavior and it asserts.
+    //   including `false` is undefined behavior and it asserts.
     //   2 Constructing a string with an invalid iterator range asserts on
     //   undefined behavior.
     //
@@ -19793,7 +19809,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12Negative()
     //   it asserts.  Then call the same constructor with a valid C-string
     //   pointer and verify that it doesn't assert.
     //   For (2), construct a string with the constructor taking an invalid
-    //   iterator range ('first > last') and verify that it asserts.
+    //   iterator range (`first > last`) and verify that it asserts.
     //
     // Testing:
     //   string<C,CT,A>(const C *s, n, a = A());
@@ -19843,17 +19859,17 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCaseM1(const int /* NITER */,
     //     C1) The various constructors.
     //     C2) The copy constructor.
     //     A1) The copy assignment.
-    //     A2) The 'assign' operations.
-    //     P1) The 'append' operation in its various forms (including
-    //         'push_back').
-    //     I1) The 'insert' operation in its various forms, at the end (should
-    //         be compared to the corresponding 'append' sequence).
-    //     B1) The 'insert' operation in its various forms.
-    //     M3) The 'replace' operation in its various forms.
-    //     S1) The 'swap' operation in its various forms.
-    //     F1) The 'find' and 'rfind' operations.
-    //     F2) The 'find_first_of' and 'find_last_of' operations.
-    //     F3) The 'find_first_not_of' and 'find_last_not_of' operations.
+    //     A2) The `assign` operations.
+    //     P1) The `append` operation in its various forms (including
+    //         `push_back`).
+    //     I1) The `insert` operation in its various forms, at the end (should
+    //         be compared to the corresponding `append` sequence).
+    //     B1) The `insert` operation in its various forms.
+    //     M3) The `replace` operation in its various forms.
+    //     S1) The `swap` operation in its various forms.
+    //     F1) The `find` and `rfind` operations.
+    //     F2) The `find_first_of` and `find_last_of` operations.
+    //     F3) The `find_first_not_of` and `find_last_not_of` operations.
     //   Also we wish to record the size of the various string
     //   instantiations.
     //
@@ -19893,10 +19909,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCaseM1(const int /* NITER */,
     //                          -----           ----            -----
     //  Constructors:
     //      C1  Default ctor:   0.003849s       0.000098s       0.003947s
-    //      C2  From 'char*':   0.01829s        0.00043s        0.018722s
+    //      C2  From `char*`:   0.01829s        0.00043s        0.018722s
     //      C3  Copy ctor:      0.02700s        0.00044s        0.027436s
     //  Assignment (no reallocation):
-    //      A1  'operator=':    0.02696s        0.00051s        0.027473s
+    //      A1  `operator=`:    0.02696s        0.00051s        0.027473s
     //      A2  Assign string:  0.10399s        0.00984s        0.113824s
     //      A3  Assign range:   0.11826s        0.01286s        0.131116s
     //  Append (with reallocations):
@@ -19939,10 +19955,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCaseM1(const int /* NITER */,
     //                          -----           ----            -----
     //  Constructors:
     //      C1  Default ctor:   0.007775s       0.000244s       0.008019s
-    //      C2  From 'char*':   0.06390s        0.00924s        0.073137s
+    //      C2  From `char*`:   0.06390s        0.00924s        0.073137s
     //      C3  Copy ctor:      0.06638s        0.00931s        0.075684s
     //  Assignment (no reallocation):
-    //      A1  'operator=':    0.02828s        0.01366s        0.041943s
+    //      A1  `operator=`:    0.02828s        0.01366s        0.041943s
     //      A2  Assign string:  0.02685s        0.01311s        0.039953s
     //      A3  Assign range:   0.02439s        0.01429s        0.038676s
     //  Append (with reallocations):
@@ -19981,10 +19997,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCaseM1(const int /* NITER */,
     //                          -----           ----            -----
     //  Constructors:
     //      C1  Default ctor:   0.001821s       0.000066s       0.001887s
-    //      C2  From 'char*':   0.01383s        0.00048s        0.014304s
+    //      C2  From `char*`:   0.01383s        0.00048s        0.014304s
     //      C3  Copy ctor:      0.01726s        0.00019s        0.017452s
     //  Assignment (no reallocation):
-    //      A1  'operator=':    0.00372s        0.00007s        0.003786s
+    //      A1  `operator=`:    0.00372s        0.00007s        0.003786s
     //      A2  Assign string:  0.00128s        0.00003s        0.001310s
     //      A3  Assign range:   0.11978s        0.01919s        0.138965s
     //  Append (with reallocations):
@@ -20023,10 +20039,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCaseM1(const int /* NITER */,
     //                          -----           ----            -----
     //  Constructors:
     //      C1  Default ctor:   0.001741s       0.000031s       0.001772s
-    //      C2  From 'char*':   0.02315s        0.00278s        0.025921s
+    //      C2  From `char*`:   0.02315s        0.00278s        0.025921s
     //      C3  Copy ctor:      0.02373s        0.00277s        0.026501s
     //  Assignment (no reallocation):
-    //      A1  'operator=':    0.00253s        0.00071s        0.003236s
+    //      A1  `operator=`:    0.00253s        0.00071s        0.003236s
     //      A2  Assign string:  0.00672s        0.00098s        0.007693s
     //      A3  Assign range:   0.00788s        0.00042s        0.008292s
     //  Append (with reallocations):
@@ -20154,7 +20170,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCaseM1(const int /* NITER */,
             longStringLength[i] = longStrings[i].length();
         }
 
-        printf("\t    C2\tFrom 'char*':\t%1.5fs\t%1.5fs\t%1.6fs\n",
+        printf("\t    C2\tFrom `char*`:\t%1.5fs\t%1.5fs\t%1.6fs\n",
                timeC2short, timeC2long, timeC2 = timeC2short + timeC2long);
 
         // C3) COPY CONSTRUCTOR (with allocations)
@@ -20241,11 +20257,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCaseM1(const int /* NITER */,
                timeA3short, timeA3long, timeA3 = timeA3short + timeA3long);
     // }
 
+/// When comparing performance with the native Sunpro STL (based on Rogue
+/// Wave), a bug causes the native STL to reallocate every time after
+/// push_back, instead of doubling the capacity.  This prohibits the testing
+/// of P1, I1, and B1.
 #define COMPARE_WITH_NATIVE_SUNPRO_STL 1
-    // When comparing performance with the native Sunpro STL (based on Rogue
-    // Wave), a bug causes the native STL to reallocate every time after
-    // push_back, instead of doubling the capacity.  This prohibits the testing
-    // of P1, I1, and B1.
 
     printf("\tAppend (with reallocations):\n");
     // {
@@ -20863,28 +20879,29 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCaseM1(const int /* NITER */,
 }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+/// This struct provides a namespace for functions testing deduction guides.
+/// The tests are compile-time only; it is not necessary that these routines
+/// be called at run-time.  Note that the following constructors do not have
+/// associated deduction guides because the template parameters for
+/// `bsl::basic_string` cannot be deduced from the constructor parameters.
+/// ```
+/// basic_string()
+/// basic_string(size_t)
+/// basic_string(ALLOC)
+/// basic_string(size_t, ALLOC)
+/// ```
 struct TestDeductionGuides {
-    // This struct provides a namespace for functions testing deduction guides.
-    // The tests are compile-time only; it is not necessary that these routines
-    // be called at run-time.  Note that the following constructors do not have
-    // associated deduction guides because the template parameters for
-    // 'bsl::basic_string' cannot be deduced from the constructor parameters.
-    //..
-    // basic_string()
-    // basic_string(size_t)
-    // basic_string(ALLOC)
-    // basic_string(size_t, ALLOC)
-    //..
 
-    // Also, we choose not to deduce from 'basic_string(StringRefData<T>)'
+    // Also, we choose not to deduce from `basic_string(StringRefData<T>)`
 
+    /// A non-templated traits class used to test template argument
+    /// deduction of narrow strings.
     struct NarrowTraits : public bsl::char_traits<char> {
-        // A non-templated traits class used to test template argument
-        // deduction of narrow strings.
     };
+
+    /// A non-templated traits class used to test template argument
+    /// deduction of wide strings.
     struct WideTraits : public bsl::char_traits<wchar_t> {
-        // A non-templated traits class used to test template argument
-        // deduction of wide strings.
     };
 
 #define ASSERT_SAME_TYPE(...) \
@@ -20892,7 +20909,7 @@ struct TestDeductionGuides {
 
     // We test that basic_string can be deduced from the following sets of
     // construction parameters:
-    //..
+    // ```
     // basic_string(const basic_string<CHAR_TYPE, Traits, Alloc>&  s)
     //                                                           -> decltype(s)
     // basic_string(const basic_string<CHAR_TYPE, Traits, Alloc>&  s, ALLOC)
@@ -20934,11 +20951,11 @@ struct TestDeductionGuides {
     //                                       -> basic_string<CHAR_TYPE, Traits>
     // explicit basic_string(basic_string_view<CHAR_TYPE, Traits>, ALLOC)
     //                                -> basic_string<CHAR_TYPE, Traits, ALLOC>
-    //..
+    // ```
 
+    /// Test that constructing a `bsl::basic_string<char>` from various
+    /// combinations of arguments deduces the correct type.
     void NarrowStrings()
-        // Test that constructing a 'bsl::basic_string<char>' from various
-        // combinations of arguments deduces the correct type.
     {
         typedef char                 CT;
         typedef bsl::char_traits<CT> Traits;
@@ -21121,9 +21138,9 @@ struct TestDeductionGuides {
                                        bsl::basic_string<CT, OtherTraits, SA>);
     }
 
+    /// Test that constructing a `bsl::basic_string<wchar_t>` from various
+    /// combinations of arguments deduces the correct type.
     void WideStrings()
-        // Test that constructing a 'bsl::basic_string<wchar_t>' from various
-        // combinations of arguments deduces the correct type.
     {
         typedef wchar_t              CT;
         typedef bsl::char_traits<CT> Traits;
@@ -21349,26 +21366,26 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 47: {
         if (verbose) printf(
-                 "USAGE EXAMPLE TC %d IS DELEGATED TO 'bslstl_string.t.cpp'"
+                 "USAGE EXAMPLE TC %d IS DELEGATED TO `bslstl_string.t.cpp`"
                  "=========================================================\n",
                  test);
       } break;
       case 46: {
         // --------------------------------------------------------------------
-        // TESTING '<<'
+        // TESTING `<<`
         //
-        // This test was migrated here from 'bslstl_stringview.t.cpp' TC 3 to
+        // This test was migrated here from `bslstl_stringview.t.cpp` TC 3 to
         // avoid dependency cycles.
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                 "Testing 'operator<<(ostream&, const basic_string_view&)'\n"
+                 "Testing `operator<<(ostream&, const basic_string_view&)`\n"
                  "========================================================\n");
 
         TestDriver<char>::testCase46();
         TestDriver<wchar_t>::testCase46();
 
-        // The facets of 'char8_t', 'char16_t' and 'char32_t' are such that
+        // The facets of `char8_t`, `char16_t` and `char32_t` are such that
         // they throw on this test.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
@@ -21382,53 +21399,53 @@ int main(int argc, char *argv[])
       } break;
       case 45: {
         if (verbose) printf(
-                 "\nTEST CASE %d IS DELEGATED TO 'bslstl_string.t.cpp'"
+                 "\nTEST CASE %d IS DELEGATED TO `bslstl_string.t.cpp`"
                  "\n=======================================================\n",
                  test);
 
       } break;
       case 44: {
         // --------------------------------------------------------------------
-        // TESTING 'resize_and_overwrite'
+        // TESTING `resize_and_overwrite`
         //
         // Concerns:
-        //: 1 The 'resize_and_overwrite' method can be invoked for object of
-        //:   any size and capacity.
-        //:
-        //: 2 The 'resize_and_overwrite' method correctly handles 'count'
-        //:   argument that is less than object's size.
-        //:
-        //: 3 The 'resize_and_overwrite' method correctly handles 'count'
-        //:   argument that exceeds object's size.
-        //:
-        //: 4 The 'resize_and_overwrite' method shrink the object in accordance
-        //:   with the value returned from the 'operation'.
-        //:
-        //: 5 Additional memory is allocated only if the requested size exceeds
-        //:   current capacity.
-        //:
-        //: 6 Memory allocation comes from the allocator supplied on object
-        //:   construction.
-        //:
-        //: 7 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The `resize_and_overwrite` method can be invoked for object of
+        //    any size and capacity.
+        //
+        // 2. The `resize_and_overwrite` method correctly handles `count`
+        //    argument that is less than object's size.
+        //
+        // 3. The `resize_and_overwrite` method correctly handles `count`
+        //    argument that exceeds object's size.
+        //
+        // 4. The `resize_and_overwrite` method shrink the object in accordance
+        //    with the value returned from the `operation`.
+        //
+        // 5. Additional memory is allocated only if the requested size exceeds
+        //    current capacity.
+        //
+        // 6. Memory allocation comes from the allocator supplied on object
+        //    construction.
+        //
+        // 7. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Call 'resize_and_overwrite' with a variety of sizes, both larger
-        //:   and smaller than the initial size. (C-1, 2, 3, 5, 6)
-        //:
-        //: 2 Call 'resize_and_overwrite' with an 'op' returning a variety of
-        //:   sizes, both smaller and larger than the initial size. (C-4)
-        //:
-        //: 3 Verify value passed to 'op' versus the resulting string. (C-1)
-        //:
-        //: 4 Call 'resize_and_overwrite' with an 'op' which returns a length
-        //:   greater than the resize length. (C-7)
+        // 1. Call `resize_and_overwrite` with a variety of sizes, both larger
+        //    and smaller than the initial size. (C-1, 2, 3, 5, 6)
+        //
+        // 2. Call `resize_and_overwrite` with an `op` returning a variety of
+        //    sizes, both smaller and larger than the initial size. (C-4)
+        //
+        // 3. Verify value passed to `op` versus the resulting string. (C-1)
+        //
+        // 4. Call `resize_and_overwrite` with an `op` which returns a length
+        //    greater than the resize length. (C-7)
         //
         // Testing:
         //   void resize_and_overwrite(size_type n, OPERATION op);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'resize_and_overwrite'"
+        if (verbose) printf("\nTESTING `resize_and_overwrite`"
                             "\n==============================\n");
 
         TestDriver< char  >::testCase44();
@@ -21436,30 +21453,30 @@ int main(int argc, char *argv[])
       } break;
       case 43: {
         // --------------------------------------------------------------------
-        // CONCERN: 'string' IS A C++20 RANGE
+        // CONCERN: `string` IS A C++20 RANGE
         //
         // Concerns:
-        //: 1 'string' models 'ranges::common_range' concept.
-        //:
-        //: 2 'string' models 'ranges::contiguous_range' concept.
-        //:
-        //: 3 'string' models 'ranges::sized_range' concept.
-        //:
-        //: 4 'string' models 'ranges::viewable_range' concept.
-        //:
-        //: 5 'string' doesn't model 'ranges::view' concept.
-        //:
-        //: 6 'string' doesn't model 'ranges::borrowed_range' concept.
+        // 1. `string` models `ranges::common_range` concept.
+        //
+        // 2. `string` models `ranges::contiguous_range` concept.
+        //
+        // 3. `string` models `ranges::sized_range` concept.
+        //
+        // 4. `string` models `ranges::viewable_range` concept.
+        //
+        // 5. `string` doesn't model `ranges::view` concept.
+        //
+        // 6. `string` doesn't model `ranges::borrowed_range` concept.
         //
         // Plan:
-        //: 1 'static_assert' every above-mentioned concept for 'char' and
-        //:   'wchar_t'.
+        // 1. `static_assert` every above-mentioned concept for `char` and
+        //    `wchar_t`.
         //
         // Testing:
-        //   CONCERN: 'string' IS A C++20 RANGE
+        //   CONCERN: `string` IS A C++20 RANGE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nCONCERN: 'string' IS A C++20 RANGE"
+        if (verbose) printf("\nCONCERN: `string` IS A C++20 RANGE"
                             "\n==================================\n");
 
         TestDriver< char  >::testCase43_isRange();
@@ -21467,96 +21484,96 @@ int main(int argc, char *argv[])
       } break;
       case 42: {
         // -------------------------------------------------------------------
-        // TESTING 'erase' AND 'erase_if'
+        // TESTING `erase` AND `erase_if`
         //
         // Concerns:
-        //: 1 The 'erase' and 'erase_if' free functions work correctly for
-        //:   objects of any size and content.
-        //:
-        //: 2 The NUL character is handled correctly regardless of whether it
-        //:   belongs to the object or is the character being erased.
-        //:
-        //: 3 An empty string is handled correctly.
-        //:
-        //: 4 No additional memory allocation occurs.
+        // 1. The `erase` and `erase_if` free functions work correctly for
+        //    objects of any size and content.
+        //
+        // 2. The NUL character is handled correctly regardless of whether it
+        //    belongs to the object or is the character being erased.
+        //
+        // 3. An empty string is handled correctly.
+        //
+        // 4. No additional memory allocation occurs.
         //
         // Plan:
-        //: 1 Call 'erase' and 'erase_if' on an empty string and make sure
-        //:   there is no effect. (C-1)
-        //:
-        //: 2 Construct an object with a variety of elements, including the NUL
-        //:   character.
-        //:
-        //: 3 Call 'erase' and 'erase_if' methods and verify the results.
-        //:   (C-1, 2, 3)
-        //:
-        //: 4 Verify that no additional memory allocation occurs during
-        //:   erasure. (C-4)
+        // 1. Call `erase` and `erase_if` on an empty string and make sure
+        //    there is no effect. (C-1)
+        //
+        // 2. Construct an object with a variety of elements, including the NUL
+        //    character.
+        //
+        // 3. Call `erase` and `erase_if` methods and verify the results.
+        //    (C-1, 2, 3)
+        //
+        // 4. Verify that no additional memory allocation occurs during
+        //    erasure. (C-4)
         //
         // Testing:
         //   size_type erase(basic_string& str, const C& c);
         //   size_type erase_if(basic_string& str, const UNARY_PRED& pred);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n" "TESTING 'erase' AND 'erase_if'\n"
+        if (verbose) printf("\n" "TESTING `erase` AND `erase_if`\n"
                                  "==============================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase42();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase42();
       } break;
       case 41: {
         // --------------------------------------------------------------------
-        // TESTING 'starts_with' AND 'ends_with'
+        // TESTING `starts_with` AND `ends_with`
         //
         // Concerns:
-        //: 1 The 'starts_with' and 'ends_with' methods work correctly for
-        //:   objects of any size and content.
-        //:
-        //: 2 The null character is handled correctly regardless of whether it
-        //:   belongs to the object or to the string for search.
-        //:
-        //: 3 An empty string is handled correctly regardless of whether it
-        //:   is an empty object or an empty string for search.
-        //:
-        //: 4 No additional memory allocation occurs.
-        //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The `starts_with` and `ends_with` methods work correctly for
+        //    objects of any size and content.
+        //
+        // 2. The null character is handled correctly regardless of whether it
+        //    belongs to the object or to the string for search.
+        //
+        // 3. An empty string is handled correctly regardless of whether it
+        //    is an empty object or an empty string for search.
+        //
+        // 4. No additional memory allocation occurs.
+        //
+        // 5. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using a loop-based approach, construct a set of objects and a set
-        //:   of strings for search having different sizes and content.
-        //:
-        //: 2 Call every overload of the 'starts_with' and 'ends_with' methods
-        //:   and verify the results.  Verify that no memory was allocated by
-        //:   the default allocator.  (C-1, 3)
-        //:
-        //: 3 Using a table-based approach, construct a set of objects and a
-        //:   set of strings for search having different sizes and content and
-        //:   containing the null character.
-        //:
-        //: 4 Call 'string_view' and single characters overloads of the
-        //:   'starts_with' and 'ends_with' methods and verify the results.
-        //:   Verify that no memory was allocated by the default allocator.
-        //:
-        //: 5 Using a table-based approach, construct a set of objects
-        //:   containing the null character and a set of strings for search
-        //:   having different sizes.  Due to the c-strings peculiarity when
-        //:   the first null character encountered is considered the end of the
-        //:   string, we have to create a separate table, different from the
-        //:   table from P-3.  In this table only object specifications contain
-        //:   null characters.
-        //:
-        //: 6 Call c-string overloads of the 'starts_with' and 'ends_with'
-        //:   methods and verify the results.  Verify that no memory was
-        //:   allocated by the default allocator.  (C-2, 4)
-        //:
-        //: 7 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-5)
+        // 1. Using a loop-based approach, construct a set of objects and a set
+        //    of strings for search having different sizes and content.
+        //
+        // 2. Call every overload of the `starts_with` and `ends_with` methods
+        //    and verify the results.  Verify that no memory was allocated by
+        //    the default allocator.  (C-1, 3)
+        //
+        // 3. Using a table-based approach, construct a set of objects and a
+        //    set of strings for search having different sizes and content and
+        //    containing the null character.
+        //
+        // 4. Call `string_view` and single characters overloads of the
+        //    `starts_with` and `ends_with` methods and verify the results.
+        //    Verify that no memory was allocated by the default allocator.
+        //
+        // 5. Using a table-based approach, construct a set of objects
+        //    containing the null character and a set of strings for search
+        //    having different sizes.  Due to the c-strings peculiarity when
+        //    the first null character encountered is considered the end of the
+        //    string, we have to create a separate table, different from the
+        //    table from P-3.  In this table only object specifications contain
+        //    null characters.
+        //
+        // 6. Call c-string overloads of the `starts_with` and `ends_with`
+        //    methods and verify the results.  Verify that no memory was
+        //    allocated by the default allocator.  (C-2, 4)
+        //
+        // 7. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-5)
         //
         // Testing:
         //   bool starts_with(basic_string_view characterString) const;
@@ -21567,13 +21584,13 @@ int main(int argc, char *argv[])
         //   bool ends_with(const CHAR_TYPE *characterString) const;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n" "TESTING 'starts_with' AND 'ends_with'\n"
+        if (verbose) printf("\n" "TESTING `starts_with` AND `ends_with`\n"
                                  "=====================================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase41();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase41();
       } break;
       case 40: {
@@ -21581,14 +21598,14 @@ int main(int argc, char *argv[])
         // TESTING C++11 WIDE STRINGS
         //
         // Concerns:
-        //: 1 That 'u16string' and 'u32string' exist on all C++ versions at and
-        //:   after C++11.
-        //:
-        //: 2 That 'u8string' exists on and after C++20.
+        // 1. That `u16string` and `u32string` exist on all C++ versions at and
+        //    after C++11.
+        //
+        // 2. That `u8string` exists on and after C++20.
         //
         // Plan:
-        //: 1 On or after the required versions of C++, create some strings of
-        //:   the types under test, compare them, and assign between them.
+        // 1. On or after the required versions of C++, create some strings of
+        //    the types under test, compare them, and assign between them.
         //
         // Testing;
         //   bsl::u8string
@@ -21647,57 +21664,57 @@ int main(int argc, char *argv[])
       } break;
       case 39: {
         // --------------------------------------------------------------------
-        // TESTING 'shrink_to_fit'
+        // TESTING `shrink_to_fit`
         //
         // Concerns:
-        //: 1 The 'shrink_to_fit' method works correctly for objects of any
-        //:   size and any capacity.
-        //:
-        //: 2 The contained value remains unaffected.
-        //:
-        //: 3 The null termination is preserved by the shrinkage operation.
-        //:
-        //: 4 If the object's capacity is equal to its size, the method does
-        //:   nothing.
-        //:
-        //: 5 The object allocator is used to supply memory.
-        //:
-        //: 6 Allocation occurs only is the size of the object exceeds the size
-        //:   of the short string buffer.
-        //:
+        // 1. The `shrink_to_fit` method works correctly for objects of any
+        //    size and any capacity.
+        //
+        // 2. The contained value remains unaffected.
+        //
+        // 3. The null termination is preserved by the shrinkage operation.
+        //
+        // 4. If the object's capacity is equal to its size, the method does
+        //    nothing.
+        //
+        // 5. The object allocator is used to supply memory.
+        //
+        // 6. Allocation occurs only is the size of the object exceeds the size
+        //    of the short string buffer.
+        //
         //
         // Plan:
-        //: 1 Using a loop-based approach, construct a set of objects having
-        //:   different sizes and capacity.
-        //:
-        //: 2 Call the 'shrink_to_fit' method and verify that the value and the
-        //:   size of the object remain unaffected, that subsequent capacity is
-        //:   equal to the expected value and that the expected number of bytes
-        //:   were allocated by the object allocator.  (C-1..6)
+        // 1. Using a loop-based approach, construct a set of objects having
+        //    different sizes and capacity.
+        //
+        // 2. Call the `shrink_to_fit` method and verify that the value and the
+        //    size of the object remain unaffected, that subsequent capacity is
+        //    equal to the expected value and that the expected number of bytes
+        //    were allocated by the object allocator.  (C-1..6)
         //
         // Testing:
         //   void shrink_to_fit();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n" "TESTING 'shrink_to_fit'\n"
+        if (verbose) printf("\n" "TESTING `shrink_to_fit`\n"
                                  "=======================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase39();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase39();
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase39();
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase39();
 
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase39();
 #endif
       } break;
@@ -21709,17 +21726,17 @@ int main(int argc, char *argv[])
         //   constructors.
         //
         // Concerns:
-        //: 1 Construction from iterators deduces the value type from the value
-        //:   type of the iterator.
+        // 1. Construction from iterators deduces the value type from the value
+        //    type of the iterator.
         //
-        //: 2 Construction a 'bslma::Allocator *' deduces the correct
-        //:   specialization of 'bsl::allocator' for the type of the allocator.
+        // 2. Construction a `bslma::Allocator *` deduces the correct
+        //    specialization of `bsl::allocator` for the type of the allocator.
         //
         // Plan:
-        //: 1 Create a list by invoking the constructor without supplying the
-        //:   template arguments explicitly.
-        //:
-        //: 2 Verify that the deduced type is correct.
+        // 1. Create a list by invoking the constructor without supplying the
+        //    template arguments explicitly.
+        //
+        // 2. Verify that the deduced type is correct.
         //
         // Testing:
         //   CLASS TEMPLATE DEDUCTION GUIDES
@@ -21737,48 +21754,48 @@ int main(int argc, char *argv[])
       } break;
       case 37: {
         // --------------------------------------------------------------------
-        // TESTING 'operator+'
+        // TESTING `operator+`
         //
         // Concerns:
-        //: 1 The operator correctly handles empty strings.
-        //:
-        //: 2 Strings of any length and content can be concatenated.
-        //:
-        //: 3 Input parameters are correctly positioned in the result string.
-        //:
-        //: 4 Expected allocator is used to supply memory.
-        //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The operator correctly handles empty strings.
+        //
+        // 2. Strings of any length and content can be concatenated.
+        //
+        // 3. Input parameters are correctly positioned in the result string.
+        //
+        // 4. Expected allocator is used to supply memory.
+        //
+        // 5. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use the table-based approach to specify a set of test values.
-        //:
-        //: 2 Iterate through the 'I' loop, and create various input variants
-        //:   ('bsl::string', 'std::string', 'const TYPE *' and 'TYPE') to be
-        //:   used as the 'left-hand-side' non-moveable parameters for the
-        //:   operator.  For each 'lhs' value:
-        //:
-        //:   1 Iterate through the 'J' loop, and create various input
-        //:     variants ('bsl::string', 'std::string', 'const TYPE *' and
-        //:     'TYPE') to be used as the 'right-hand-side' non-moveable
-        //:     parameters for the operator.  For each pair '(lhs, rhs)':
-        //:
-        //:     1 Call the operator and verify that the result string contains
-        //:       the expected value.
-        //:
-        //:     2 Verify that the expected allocator is used to supply memory.
-        //:
-        //:     3 Create several moveable objects having 'lhs' and 'rhs' values
-        //:       and various capacity.  Call the operator and verify that the
-        //:       result string contains the expected value.  (C-1..3)
-        //:
-        //:     4 Verify that the expected allocator is used to supply memory.
-        //:       (C-4)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-5)
+        // 1. Use the table-based approach to specify a set of test values.
+        //
+        // 2. Iterate through the `I` loop, and create various input variants
+        //    (`bsl::string`, `std::string`, `const TYPE *` and `TYPE`) to be
+        //    used as the `left-hand-side` non-moveable parameters for the
+        //    operator.  For each `lhs` value:
+        //
+        //   1. Iterate through the `J` loop, and create various input
+        //      variants (`bsl::string`, `std::string`, `const TYPE *` and
+        //      `TYPE`) to be used as the `right-hand-side` non-moveable
+        //      parameters for the operator.  For each pair `(lhs, rhs)`:
+        //
+        //     1. Call the operator and verify that the result string contains
+        //        the expected value.
+        //
+        //     2. Verify that the expected allocator is used to supply memory.
+        //
+        //     3. Create several moveable objects having `lhs` and `rhs` values
+        //        and various capacity.  Call the operator and verify that the
+        //        result string contains the expected value.  (C-1..3)
+        //
+        //     4. Verify that the expected allocator is used to supply memory.
+        //        (C-4)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-5)
         //
         // Testing:
         //   string operator+(const string&,      const string&);
@@ -21799,52 +21816,52 @@ int main(int argc, char *argv[])
         //   string operator+(CHAR,               const string&&);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n" "TESTING 'operator+'\n"
+        if (verbose) printf("\n" "TESTING `operator+`\n"
                                  "===================\n");
 
-        if (verbose) printf("\n... with 'char' and allocator copy.\n");
+        if (verbose) printf("\n... with `char` and allocator copy.\n");
         TestDriver<char>::testCase37<true> ();
-        if (verbose) printf("\n... with 'char' and default allocator.\n");
+        if (verbose) printf("\n... with `char` and default allocator.\n");
         TestDriver<char>::testCase37<false>();
 
-        if (verbose) printf("\n... with 'wchar_t' and allocator copy.\n");
+        if (verbose) printf("\n... with `wchar_t` and allocator copy.\n");
         TestDriver<wchar_t>::testCase37<true> ();
-        if (verbose) printf("\n... with 'wchar_t' and default allocator.\n");
+        if (verbose) printf("\n... with `wchar_t` and default allocator.\n");
         TestDriver<wchar_t>::testCase37<false>();
       } break;
       case 36: {
         // --------------------------------------------------------------------
-        // TESTING 'data' MANIPULATOR
+        // TESTING `data` MANIPULATOR
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n" "TESTING 'data' MANIPULATOR" "\n"
+        if (verbose) printf("\n" "TESTING `data` MANIPULATOR" "\n"
                                  "==========================" "\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase36();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase36();
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase36();
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase36();
 
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase36();
 #endif
       } break;
       case 35: {
         // --------------------------------------------------------------------
-        // 'noexcept' SPECIFICATION
+        // `noexcept` SPECIFICATION
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+        if (verbose) printf("\n" "`noexcept` SPECIFICATION" "\n"
                                  "========================" "\n");
 
         typedef bsltf::StdStatefulAllocator
@@ -21901,59 +21918,59 @@ int main(int argc, char *argv[])
                             true    // IS_ALWAYS_EQUAL
                            > ContainerMoveAlwaysEqualAllocator;
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase35();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase35();
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase35();
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase35();
 
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase35();
 #endif
 
         if (verbose)
-            printf("\n... with 'false' allocator propagation properties.\n");
+            printf("\n... with `false` allocator propagation properties.\n");
         TestDriver<char,
                    bsl::char_traits<char>,
                    AllFalseAllocator>::testCase35();
 
         if (verbose)
-            printf("\n... with and 'container swap' propagation property.\n");
+            printf("\n... with and `container swap` propagation property.\n");
         TestDriver<char,
                    bsl::char_traits<char>,
                    ContainerSwapAllocator>::testCase35();
 
         if (verbose)
-            printf("\n... with and 'container move assignment' propagation"
+            printf("\n... with and `container move assignment` propagation"
                    " property.\n");
         TestDriver<char,
                    bsl::char_traits<char>,
                    ContainerMoveAllocator>::testCase35();
 
         if (verbose)
-            printf("\n... with and 'always equal' propagation property.\n");
+            printf("\n... with and `always equal` propagation property.\n");
         TestDriver<char,
                    bsl::char_traits<char>,
                    AlwaysEqualAllocator>::testCase35();
 
         if (verbose)
-            printf("\n... with 'container swap' and 'always equal' propagation"
+            printf("\n... with `container swap` and `always equal` propagation"
                    " properties.\n");
         TestDriver<char,
                    bsl::char_traits<char>,
                    ContainerSwapAlwaysEqualAllocator>::testCase35();
 
         if (verbose)
-            printf("\n... with 'container move assignment' and 'always equal'"
+            printf("\n... with `container move assignment` and `always equal`"
                    " propagation properties.\n");
         TestDriver<char,
                    bsl::char_traits<char>,
@@ -21961,37 +21978,37 @@ int main(int argc, char *argv[])
       } break;
       case 34: {
         // --------------------------------------------------------------------
-        // TESTING 'operator ""_s' and 'operator ""_S'
+        // TESTING `operator ""_s` and `operator ""_S`
         //
         // Concerns:
-        //: 1 That the 'operator ""_s' and operator ""_S correctly forwards
-        //:   arguments to the constructor of the 'basic_string' type.
-        //:
-        //: 2 That the length of the resultant string is determined by the
-        //:   specified 'length' argument and does not depend on character
-        //:   values of the input character array, for example null character.
-        //:
-        //: 3 That the 'operator ""_s' uses the default allocator to supply
-        //:   memory.
-        //:
-        //: 4 That the 'operator ""_S' uses the global allocator to supply
-        //:   memory.
-        //:
-        //: 5 That an access to 'operator ""_s' and 'operator ""_S' can be
-        //:   gained using either 'bsl::literals', 'bsl::string_literals' or
-        //:   'bsl::literals::string_literals' namespaces.
-        //:
-        //: 6 QoI: Asserted precondition violations are detected when enabled.
+        // 1. That the `operator ""_s` and operator ""_S correctly forwards
+        //    arguments to the constructor of the `basic_string` type.
+        //
+        // 2. That the length of the resultant string is determined by the
+        //    specified `length` argument and does not depend on character
+        //    values of the input character array, for example null character.
+        //
+        // 3. That the `operator ""_s` uses the default allocator to supply
+        //    memory.
+        //
+        // 4. That the `operator ""_S` uses the global allocator to supply
+        //    memory.
+        //
+        // 5. That an access to `operator ""_s` and `operator ""_S` can be
+        //    gained using either `bsl::literals`, `bsl::string_literals` or
+        //    `bsl::literals::string_literals` namespaces.
+        //
+        // 6. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Verify that the argument values were passed correctly.
-        //:
-        //: 2 For a variety of strings of different sizes and different values
-        //:   including embedded null character test that the resultant strings
-        //:   have expected values and lengths.
-        //:
-        //: 3 Confirm that no memory being allocated except of the object's
-        //:   allocator.
+        // 1. Verify that the argument values were passed correctly.
+        //
+        // 2. For a variety of strings of different sizes and different values
+        //    including embedded null character test that the resultant strings
+        //    have expected values and lengths.
+        //
+        // 3. Confirm that no memory being allocated except of the object's
+        //    allocator.
         //
         // Testing:
         //    string operator ""_s(const char*    str, std::size_t len);
@@ -22266,10 +22283,10 @@ int main(int argc, char *argv[])
       } break;
       case 33: {
         // --------------------------------------------------------------------
-        // TESTING 'initializer_list' FUNCTIONS
+        // TESTING `initializer_list` FUNCTIONS
         //
         // Plan:
-        //: See 'TestDriver<CHAR_TYPE>::testCase33' for details.
+        //  See `TestDriver<CHAR_TYPE>::testCase33` for details.
         //
         // Testing:
         //   basic_string(initializer_list<CHAR_TYPE> values, basicAllocator);
@@ -22279,7 +22296,7 @@ int main(int argc, char *argv[])
         //   iterator insert(const_iterator pos, initializer_list<CHAR_TYPE>);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'initializer_list' FUNCTIONS"
+        if (verbose) printf("\nTESTING `initializer_list` FUNCTIONS"
                             "\n====================================\n");
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
@@ -22301,28 +22318,28 @@ int main(int argc, char *argv[])
       } break;
       case 32: {
         // --------------------------------------------------------------------
-        // TESTING 'to_string' AND 'to_wstring'
+        // TESTING `to_string` AND `to_wstring`
         //
         // Concerns:
-        //: 1  The 'to_string' function has sufficient overloads to create a
-        //:    'string' for any arithmetic type.
-        //: 2  The 'to_wstring' function has sufficient overloads to create a
-        //:    'wstring' for any arithmetic type.
-        //: 3  The numeric -> string conversion functions return an
-        //:    appropriately formatted (short) string containing the correct
-        //:    value.
+        // 1.  The `to_string` function has sufficient overloads to create a
+        //     `string` for any arithmetic type.
+        // 2.  The `to_wstring` function has sufficient overloads to create a
+        //     `wstring` for any arithmetic type.
+        // 3.  The numeric -> string conversion functions return an
+        //     appropriately formatted (short) string containing the correct
+        //     value.
         //
         // Plan:
-        //: 1 use 'snprintf' and 'swprintf' with an arbitrarily large buffer,
-        //:   (in this test case the buffer size will be 384) and compare it to
-        //:   the output of 'to_string' and 'to_wstring'.  The buffer must be
-        //:   at least as large as the largest floating point value that might
-        //:   print, which is roughly 308 decimal digits.
-        //:
-        //: 2 Using table-driven testing, test a suitable range of numbers that
-        //:   are, each in turn, cast to every integer type that can hold each
-        //:   value in order to check every overload is called and handled
-        //:   correctly.
+        // 1. use `snprintf` and `swprintf` with an arbitrarily large buffer,
+        //    (in this test case the buffer size will be 384) and compare it to
+        //    the output of `to_string` and `to_wstring`.  The buffer must be
+        //    at least as large as the largest floating point value that might
+        //    print, which is roughly 308 decimal digits.
+        //
+        // 2. Using table-driven testing, test a suitable range of numbers that
+        //    are, each in turn, cast to every integer type that can hold each
+        //    value in order to check every overload is called and handled
+        //    correctly.
         //
         // Testing:
         //   string to_string(int value);
@@ -22345,12 +22362,12 @@ int main(int argc, char *argv[])
         //   wstring to_wstring(long double value);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'to_string' AND 'to_wstring'"
+        if (verbose) printf("\nTESTING `to_string` AND `to_wstring`"
                             "\n====================================\n");
 
         static const size_t BUF_LEN = 384;
-        char    tempBuf[BUF_LEN];  // 'char' buffer for largest number
-        wchar_t wTempBuf[BUF_LEN]; // 'wchar_t' buffer for largest number
+        char    tempBuf[BUF_LEN];  // `char` buffer for largest number
+        wchar_t wTempBuf[BUF_LEN]; // `wchar_t` buffer for largest number
 
         static const struct {
             int         d_lineNum;
@@ -22359,7 +22376,7 @@ int main(int argc, char *argv[])
             bool        d_isShortWchar;
         } DATA[] = {
           //                             string is short:
-          // LINE                VALUE   'char' 'wchar_t'
+          // LINE                VALUE   `char` `wchar_t`
             { L_,                    0,   true,  true                },
             { L_,                    1,   true,  true                },
             { L_,                   -1,   true,  true                },
@@ -22404,7 +22421,7 @@ int main(int argc, char *argv[])
         };
         enum { NUM_DOUBLE_DATA = sizeof DOUBLE_DATA / sizeof *DOUBLE_DATA };
 
-        if (verbose) printf("\nTesting 'to_string' with integrals.\n");
+        if (verbose) printf("\nTesting `to_string` with integrals.\n");
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int                LINE           = DATA[ti].d_lineNum;
@@ -22416,7 +22433,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose){
                 printf("\tConverting ");P_(VALUE);
-                printf("to a 'string'.\n");
+                printf("to a `string`.\n");
             }
 
             const Int64 BB = defaultAllocator.numBlocksTotal();
@@ -22427,10 +22444,10 @@ int main(int argc, char *argv[])
                 printf("\t\tBefore: ");P_(BB);P(B);
             }
 
-            // Set up the oracle results for signed integers, using 'long long'
-            // versions of the corresponding C library 'snprintf' functions.
+            // Set up the oracle results for signed integers, using `long long`
+            // versions of the corresponding C library `snprintf` functions.
 
-            // On some platforms, where 'long' and 'long long' are the same
+            // On some platforms, where `long` and `long long` are the same
             // size (like x86_64 Linux), these comparisons generate compiler
             // warnings, which we disable here.
 #ifdef BSLS_PLATFORM_CMP_CLANG
@@ -22472,8 +22489,8 @@ int main(int argc, char *argv[])
             }
 
             // Set up the oracle results for unsigned integers, using the
-            // 'unsigned long long' versions of the corresponding C library
-            // 'snprintf' functions.
+            // `unsigned long long` versions of the corresponding C library
+            // `snprintf` functions.
 
             snprintf(tempBuf, sizeof(tempBuf), "%llu", U_VALUE);
 
@@ -22516,7 +22533,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == defaultAllocator.numMismatches());
         ASSERT(0 == defaultAllocator.numBlocksInUse());
 
-        if (verbose) printf("\nTesting 'to_wstring' with integrals.\n");
+        if (verbose) printf("\nTesting `to_wstring` with integrals.\n");
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int                LINE    = DATA[ti].d_lineNum;
@@ -22526,7 +22543,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose){
                 printf("\tConverting ");P_(VALUE);
-                printf("to a 'wstring'.\n");
+                printf("to a `wstring`.\n");
             }
 
             const Int64 BB = defaultAllocator.numBlocksTotal();
@@ -22537,8 +22554,8 @@ int main(int argc, char *argv[])
                 printf("\t\tBefore: ");P_(BB);P(B);
             }
 
-            // Set up the oracle results for signed integers, using 'long long'
-            // versions of the corresponding C library 'snprintf' functions.
+            // Set up the oracle results for signed integers, using `long long`
+            // versions of the corresponding C library `snprintf` functions.
 
             swprintf(wTempBuf, BUF_LEN, L"%lld", VALUE);
 
@@ -22567,8 +22584,8 @@ int main(int argc, char *argv[])
             }
 
             // Set up the oracle results for unsigned integers, using the
-            // 'unsigned long long' versions of the corresponding C library
-            // 'snprintf' functions.
+            // `unsigned long long` versions of the corresponding C library
+            // `snprintf` functions.
 
             snprintf(tempBuf, sizeof(tempBuf), "%llu", U_VALUE);
             swprintf(wTempBuf, BUF_LEN, L"%llu", U_VALUE);
@@ -22626,7 +22643,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("\nTesting 'to_string' with floating points.\n");
+        if (verbose) printf("\nTesting `to_string` with floating points.\n");
 
         for (int ti = 0; ti < NUM_DOUBLE_DATA; ++ti){
             const int                LINE  = DOUBLE_DATA[ti].d_lineNum;
@@ -22634,7 +22651,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose){
                 printf("\tConverting ");P_(VALUE);
-                printf("to a 'string'.\n");
+                printf("to a `string`.\n");
             }
 
             const Int64 BB = defaultAllocator.numBlocksTotal();
@@ -22682,7 +22699,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == defaultAllocator.numMismatches());
         ASSERT(0 == defaultAllocator.numBlocksInUse());
 
-        if (verbose) printf("\nTesting 'to_wstring' with floating points.\n");
+        if (verbose) printf("\nTesting `to_wstring` with floating points.\n");
 
         for (int ti = 0; ti < NUM_DOUBLE_DATA; ++ti){
             const int    LINE  = DOUBLE_DATA[ti].d_lineNum;
@@ -22690,7 +22707,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose){
                 printf("\tConverting ");P_(VALUE);
-                printf("to a 'wstring'.\n");
+                printf("to a `wstring`.\n");
             }
 
             const Int64 BB = defaultAllocator.numBlocksTotal();
@@ -22744,33 +22761,33 @@ int main(int argc, char *argv[])
         // TESTING STRING TO FLOATING POINT NUMBER CONVERSIONS
         //
         // Concerns:
-        //: 1 'stof', 'stod', and 'stold' parse the string correctly into a
-        //:   floating point number of the requested size.
-        //:
-        //: 2 The methods discard leading white space characters and create a
-        //:   valid floating point number by consuming the longest sequence of
-        //:   characters that can represent a floating point number..
-        //:
-        //: 3 Detects the correct base with leading 0X or 0x.
-        //:
-        //: 4 The methods detect exponents correctly.
-        //:
-        //: 5 The methods correctly identify INF/INFINITY as appropriate.
-        //:
-        //: 6 Malformed strings report errors correctly.
-        //:
-        //: 7 The functions are overloaded to convert from 'bsl::string' and
-        //:   'bsl::wstring' objects.
+        // 1. `stof`, `stod`, and `stold` parse the string correctly into a
+        //    floating point number of the requested size.
+        //
+        // 2. The methods discard leading white space characters and create a
+        //    valid floating point number by consuming the longest sequence of
+        //    characters that can represent a floating point number..
+        //
+        // 3. Detects the correct base with leading 0X or 0x.
+        //
+        // 4. The methods detect exponents correctly.
+        //
+        // 5. The methods correctly identify INF/INFINITY as appropriate.
+        //
+        // 6. Malformed strings report errors correctly.
+        //
+        // 7. The functions are overloaded to convert from `bsl::string` and
+        //    `bsl::wstring` objects.
         //
         // Plan:
-        //: 1 Use 'stof', 'stod', and 'stold' on a variety of valid values to
-        //:   ensure that the methods parse correctly (C-1)
-        //:
-        //: 2 Try to convert partially valid strings, ie strings that contain
-        //:   characters that are not valid in the base of the number.
-        //:
-        //: 3 Test a variety of numbers in base 0 to check if they detect the
-        //:   correct base
+        // 1. Use `stof`, `stod`, and `stold` on a variety of valid values to
+        //    ensure that the methods parse correctly (C-1)
+        //
+        // 2. Try to convert partially valid strings, ie strings that contain
+        //    characters that are not valid in the base of the number.
+        //
+        // 3. Test a variety of numbers in base 0 to check if they detect the
+        //    correct base
         //
         // Testing:
         //   float stof(const string& str, std::size_t *pos =0);
@@ -22818,7 +22835,7 @@ int main(int argc, char *argv[])
                 { L_,   "+InF",             4,    std::numeric_limits
                                                         <double>::infinity() },
 #endif
-                // Awkward - fails only for 'float'
+                // Awkward - fails only for `float`
                 { L_,   "   9e99",          7,    9e99 },
 
                 // Range errors
@@ -22871,20 +22888,20 @@ int main(int argc, char *argv[])
                         ASSERTV(LINE, INPUT, value, SPEC, "Did not throw",
                                                                         false);
                     }
+                    // Expected code path
                     catch(const std::out_of_range&) {
-                        // Expected code path
                         ASSERTV(SPEC, POS, -1 == SPEC || 7 == POS);
                         ASSERTV(LINE, position,
                                 k_DEFAULT_POSITION == position);
                     }
+                    // Expected code path
                     catch(const std::invalid_argument&) {
-                        // Expected code path
                         ASSERTV(SPEC, -2 == SPEC);
                         ASSERTV(LINE, position,
                                 k_DEFAULT_POSITION == position);
                     }
                     catch(const std::exception&) {
-                        ASSERTV(LINE, INPUT, SPEC, "Unknown 'std' exception",
+                        ASSERTV(LINE, INPUT, SPEC, "Unknown `std` exception",
                                                                         false);
                     }
                     catch(...) {
@@ -22933,20 +22950,20 @@ int main(int argc, char *argv[])
                         ASSERTV(LINE, INPUT, value, SPEC, "Did not throw",
                                                                         false);
                     }
+                    // Expected code path
                     catch(const std::out_of_range&) {
-                        // Expected code path
                         ASSERTV(LINE, SPEC, -1 == SPEC);
                         ASSERTV(LINE, position,
                                 k_DEFAULT_POSITION == position);
                     }
+                    // Expected code path
                     catch(const std::invalid_argument&) {
-                        // Expected code path
                         ASSERTV(LINE, SPEC, -2 == SPEC);
                         ASSERTV(LINE, position,
                                 k_DEFAULT_POSITION == position);
                     }
                     catch(const std::exception&) {
-                        ASSERTV(LINE, INPUT, SPEC, "Unknown 'std' exception",
+                        ASSERTV(LINE, INPUT, SPEC, "Unknown `std` exception",
                                                                         false);
                     }
                     catch(...) {
@@ -22993,20 +23010,20 @@ int main(int argc, char *argv[])
                         ASSERTV(LINE, INPUT, value, SPEC, "Did not throw",
                                                                         false);
                     }
+                    // Expected code path
                     catch(const std::out_of_range&) {
-                        // Expected code path
                         ASSERTV(LINE, SPEC, -1 == SPEC);
                         ASSERTV(LINE, position,
                                 k_DEFAULT_POSITION == position);
                     }
+                    // Expected code path
                     catch(const std::invalid_argument&) {
-                        // Expected code path
                         ASSERTV(LINE, SPEC, -2 == SPEC);
                         ASSERTV(LINE, position,
                                 k_DEFAULT_POSITION == position);
                     }
                     catch(const std::exception&) {
-                        ASSERTV(LINE, INPUT, SPEC, "Unknown 'std' exception",
+                        ASSERTV(LINE, INPUT, SPEC, "Unknown `std` exception",
                                                                         false);
                     }
                     catch(...) {
@@ -23049,7 +23066,7 @@ int main(int argc, char *argv[])
                 { L_,   L"+InF",            4,    std::numeric_limits
                                                         <double>::infinity() },
 #endif
-                // Awkward - fails only for 'float'
+                // Awkward - fails only for `float`
                 { L_,   L" 8.5e99",         7,    8.5e99 },
 
                 // Range errors
@@ -23102,18 +23119,18 @@ int main(int argc, char *argv[])
                         ASSERTV(LINE, inV, value, SPEC, "Did not throw",
                                                                         false);
                     }
+                    // Expected code path
                     catch(const std::out_of_range&) {
-                        // Expected code path
                         ASSERTV(LINE, inV, SPEC, POS, -1 == SPEC || 7 == POS);
                         ASSERTV(position, k_DEFAULT_POSITION == position);
                     }
+                    // Expected code path
                     catch(const std::invalid_argument&) {
-                        // Expected code path
                         ASSERTV(LINE, inV, SPEC, -2 == SPEC);
                         ASSERTV(position, k_DEFAULT_POSITION == position);
                     }
                     catch(const std::exception&) {
-                        ASSERTV(LINE, INPUT, SPEC, "Unknown 'std' exception",
+                        ASSERTV(LINE, INPUT, SPEC, "Unknown `std` exception",
                                                                         false);
                     }
                     catch(...) {
@@ -23151,18 +23168,18 @@ int main(int argc, char *argv[])
                         ASSERTV(LINE, INPUT, value, SPEC, "Did not throw",
                                                                         false);
                     }
+                    // Expected code path
                     catch(const std::out_of_range&) {
-                        // Expected code path
                         ASSERTV(LINE, inV, SPEC, -1 == SPEC);
                         ASSERTV(position, k_DEFAULT_POSITION == position);
                     }
+                    // Expected code path
                     catch(const std::invalid_argument&) {
-                        // Expected code path
                         ASSERTV(LINE, inV, SPEC, -2 == SPEC);
                         ASSERTV(position, k_DEFAULT_POSITION == position);
                     }
                     catch(const std::exception&) {
-                        ASSERTV(LINE, INPUT, SPEC, "Unknown 'std' exception",
+                        ASSERTV(LINE, INPUT, SPEC, "Unknown `std` exception",
                                                                         false);
                     }
                     catch(...) {
@@ -23202,18 +23219,18 @@ int main(int argc, char *argv[])
                         ASSERTV(LINE, INPUT, value, SPEC, "Did not throw",
                                                                         false);
                     }
+                    // Expected code path
                     catch(const std::out_of_range&) {
-                        // Expected code path
                         ASSERTV(SPEC, -1 == SPEC);
                         ASSERTV(position, k_DEFAULT_POSITION == position);
                     }
+                    // Expected code path
                     catch(const std::invalid_argument&) {
-                        // Expected code path
                         ASSERTV(SPEC, -2 == SPEC);
                         ASSERTV(position, k_DEFAULT_POSITION == position);
                     }
                     catch(const std::exception&) {
-                        ASSERTV(LINE, INPUT, SPEC, "Unknown 'std' exception",
+                        ASSERTV(LINE, INPUT, SPEC, "Unknown `std` exception",
                                                                         false);
                     }
                     catch(...) {
@@ -23230,29 +23247,29 @@ int main(int argc, char *argv[])
         // TESTING STRING TO INTEGER CONVERSIONS
         //
         // Concerns:
-        //: 1 'stoi', 'stol', and 'stoll' parse the string properly into the
-        //:   correct signed integer value.
-        //:
-        //: 2 'stoul', and 'stoull' parse the string properly into the
-        //:   correct unsigned integer value, even when the input is a string
-        //:   denoting a negative number.
-        //:
-        //: 3 The methods discard leading white space characters and create
-        //:   largest valid integral number.
-        //:
-        //: 4 The correct base if deduced if '0 == base'.
-        //:
-        //: 5 The 'stoX' functions handle null pointers to 'pos' correctly.
+        // 1. `stoi`, `stol`, and `stoll` parse the string properly into the
+        //    correct signed integer value.
+        //
+        // 2. `stoul`, and `stoull` parse the string properly into the
+        //    correct unsigned integer value, even when the input is a string
+        //    denoting a negative number.
+        //
+        // 3. The methods discard leading white space characters and create
+        //    largest valid integral number.
+        //
+        // 4. The correct base if deduced if `0 == base`.
+        //
+        // 5. The `stoX` functions handle null pointers to `pos` correctly.
         //
         // Plan:
-        //: 1 Use 'stoi', 'stol', 'stoll', 'stoul', and 'stoull' on a variety
-        //:   of valid values to ensure that the methods parse correctly (C-1)
-        //:
-        //: 2 Try to convert partially valid strings, ie strings that contain
-        //:   characters that are not valid in the base of the number.
-        //:
-        //: 3 Test a variety of numbers in base 0 to check if they detect the
-        //:   correct base.
+        // 1. Use `stoi`, `stol`, `stoll`, `stoul`, and `stoull` on a variety
+        //    of valid values to ensure that the methods parse correctly (C-1)
+        //
+        // 2. Try to convert partially valid strings, ie strings that contain
+        //    characters that are not valid in the base of the number.
+        //
+        // 3. Test a variety of numbers in base 0 to check if they detect the
+        //    correct base.
         //
         // Testing:
         //   int stoi(const string& str, std::size_t *pos = 0, int base = 10);
@@ -23350,7 +23367,7 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         if (verbose) printf("Testing stoi, stol, stoll, stoul and stoull with"
-                            " 'char' strings.\n");
+                            " `char` strings.\n");
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int          LINE   = DATA[ti].d_lineNum;
@@ -23391,8 +23408,8 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, STRING_VALUE, value, SPEC, "Did not throw",
                                                                         false);
                 }
+                // Expected code path
                 catch(const std::out_of_range&) {
-                    // Expected code path
                     ASSERTV(position, k_DEFAULT_POSITION == position);
                 }
 #endif
@@ -23428,8 +23445,8 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, STRING_VALUE, value, SPEC, "Did not throw",
                                                                         false);
                 }
+                // Expected code path
                 catch(const std::out_of_range&) {
-                    // Expected code path
                     ASSERTV(position, k_DEFAULT_POSITION == position);
                 }
 #endif
@@ -23467,8 +23484,8 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, STRING_VALUE, value, SPEC, "Did not throw",
                                                                         false);
                 }
+                // Expected code path
                 catch(const std::out_of_range&) {
-                    // Expected code path
                     ASSERTV(position, k_DEFAULT_POSITION == position);
                 }
 #endif
@@ -23500,8 +23517,8 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, STRING_VALUE, value, SPEC, "Did not throw",
                                                                         false);
                 }
+                // Expected code path
                 catch(const std::out_of_range&) {
-                    // Expected code path
                     ASSERTV(position, k_DEFAULT_POSITION == position);
                 }
 # endif
@@ -23537,8 +23554,8 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, STRING_VALUE, value, SPEC, "Did not throw",
                                                                         false);
                 }
+                // Expected code path
                 catch(const std::out_of_range&) {
-                    // Expected code path
                     ASSERTV(position, k_DEFAULT_POSITION == position);
                 }
 # endif
@@ -23609,7 +23626,7 @@ int main(int argc, char *argv[])
         const int NUM_WDATA = sizeof WDATA / sizeof *WDATA;
 
         if (verbose) printf("Testing stoi, stol, stoll, stoul and stoull with"
-                            " 'wstring'.\n");
+                            " `wstring`.\n");
 
         for (int ti = 0; ti < NUM_WDATA; ++ti) {
             const int           LINE   = WDATA[ti].d_lineNum;
@@ -23649,8 +23666,8 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, STRING_VALUE, value, SPEC, "Did not throw",
                                                                         false);
                 }
+                // Expected code path
                 catch(const std::out_of_range&) {
-                    // Expected code path
                     ASSERTV(position, k_DEFAULT_POSITION == position);
                 }
 #endif
@@ -23685,8 +23702,8 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, STRING_VALUE, value, SPEC, "Did not throw",
                                                                         false);
                 }
+                // Expected code path
                 catch(const std::out_of_range&) {
-                    // Expected code path
                     ASSERTV(position, k_DEFAULT_POSITION == position);
                 }
 #endif
@@ -23723,8 +23740,8 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, STRING_VALUE, value, SPEC, "Did not throw",
                                                                         false);
                 }
+                // Expected code path
                 catch(const std::out_of_range&) {
-                    // Expected code path
                     ASSERTV(position, k_DEFAULT_POSITION == position);
                 }
 #endif
@@ -23756,8 +23773,8 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, STRING_VALUE, value, SPEC, "Did not throw",
                                                                         false);
                 }
+                // Expected code path
                 catch(const std::out_of_range&) {
-                    // Expected code path
                     ASSERTV(position, k_DEFAULT_POSITION == position);
                 }
 # endif
@@ -23792,8 +23809,8 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, STRING_VALUE, value, SPEC, "Did not throw",
                                                                         false);
                 }
+                // Expected code path
                 catch(const std::out_of_range&) {
-                    // Expected code path
                     ASSERTV(position, k_DEFAULT_POSITION == position);
                 }
 # endif
@@ -23803,10 +23820,10 @@ int main(int argc, char *argv[])
 
 #if defined(BDE_BUILD_TARGET_EXC)
         // Testing error handling requires catching exceptions thrown from the
-        // 'bsl' function as the standard-mandated error-reporting technique.
+        // `bsl` function as the standard-mandated error-reporting technique.
 
         if (verbose) printf("Testing error handling for stoi, stol, stoll,"
-                            "  stoul and stoull with 'char' strings.\n");
+                            "  stoul and stoull with `char` strings.\n");
         {
             static const struct {
                 int         d_lineNum;          // source line number
@@ -24007,7 +24024,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Testing error handling for stoi, stol, stoll,"
-                            "  stoul and stoull with 'wchar_t' strings.\n");
+                            "  stoul and stoull with `wchar_t` strings.\n");
         {
             static const struct {
                 int            d_lineNum;          // source line number
@@ -24210,42 +24227,42 @@ int main(int argc, char *argv[])
       } break;
       case 29: {
         // --------------------------------------------------------------------
-        // TESTING 'hashAppend'
+        // TESTING `hashAppend`
         //   Verify that the hashAppend function works properly and is picked
-        //   up by 'bslh::Hash'
+        //   up by `bslh::Hash`
         //
         // Concerns:
-        //: 1 'bslh::Hash' picks up 'hashAppend(string)' and can hash strings
-        //: 2 'hashAppend' hashes the entire string, regardless of 'char' or
-        //:   'wchar'
+        // 1. `bslh::Hash` picks up `hashAppend(string)` and can hash strings
+        // 2. `hashAppend` hashes the entire string, regardless of `char` or
+        //    `wchar`
         //
         // Plan:
-        //: 1 Use 'bslh::Hash' to hash a few values of strings with each char
-        //:   type. (C-1,2)
+        // 1. Use `bslh::Hash` to hash a few values of strings with each char
+        //    type. (C-1,2)
         //
         // Testing:
         //   hashAppend(HASHALG& hashAlg, const basic_string& str);
         //   hashAppend(HASHALG& hashAlg, const std::basic_string& str);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'hashAppend'"
+        if (verbose) printf("\nTESTING `hashAppend`"
                             "\n====================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase29();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase29();
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase29();
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase29();
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase29();
 #endif
       } break;
@@ -24264,22 +24281,22 @@ int main(int argc, char *argv[])
         //    constructor to terminate the string rather than a null literal.
         //
         // Plan:
-        //: See 'TestDriver<CHAR_TYPE>::testCase28' for details.
+        //  See `TestDriver<CHAR_TYPE>::testCase28` for details.
         //
         // Testing:
         // --------------------------------------------------------------------
         if (verbose) printf("\nTESTING THE SHORT STRING OPTIMIZATION"
                             "\n=====================================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase28();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase28();
       } break;
       case 27: {
         // --------------------------------------------------------------------
-        // REPRODUCING KNOWN BUG CAUSING SEGFAULT IN 'find'
+        // REPRODUCING KNOWN BUG CAUSING SEGFAULT IN `find`
         //   This is a problem with the native library, being pursued in DRQS
         //   16870796.  This test will do nothing unless run in verbose mode.
         //
@@ -24294,7 +24311,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-                printf("\nREPRODUCING KNOWN BUG CAUSING SEGFAULT IN 'find'"
+                printf("\nREPRODUCING KNOWN BUG CAUSING SEGFAULT IN `find`"
                        "\n================================================\n");
 
         if (verbose) printf("\nReproducing known segfault in string::find"
@@ -24320,20 +24337,20 @@ int main(int argc, char *argv[])
         // TESTING CONVERSIONS WITH NATIVE STRINGS
         //
         // Concerns:
-        //: 1 A bsl::basic_string is implicitly convertible to a
-        //:     std::basic_string with the same CHAR_TYPE and
-        //: 2   CHAR_TRAITS.
-        //:     A std::basic_string is implicitly convertible to a
-        //:     bsl::basic_string with the same CHAR_TYPE and
-        //: 3   CHAR_TRAITS.
-        //:     A bsl::basic_string and a std::basic_string with the
-        //:     same template parameters will have the same npos value.
+        // 1. A bsl::basic_string is implicitly convertible to a
+        //      std::basic_string with the same CHAR_TYPE and
+        // 2.   CHAR_TRAITS.
+        //      A std::basic_string is implicitly convertible to a
+        //      bsl::basic_string with the same CHAR_TYPE and
+        // 3.   CHAR_TRAITS.
+        //      A bsl::basic_string and a std::basic_string with the
+        //      same template parameters will have the same npos value.
         //
         // Plan:
-        //: See 'TestDriver<CHAR_TYPE>::testCase26' for details.
+        //  See `TestDriver<CHAR_TYPE>::testCase26` for details.
         //
         // Testing:
-        //   'npos' VALUE
+        //   `npos` VALUE
         //   operator std::basic_string<CHAR, TRAITS, A2>() const;
         //   basic_string(const std::basic_string<CHAR, TRAITS, A2>&);
         // --------------------------------------------------------------------
@@ -24341,22 +24358,22 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING CONVERSIONS WITH NATIVE STRINGS"
                             "\n=======================================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase26();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase26();
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase26();
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase26();
 
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase26();
 #endif
       } break;
@@ -24365,38 +24382,38 @@ int main(int argc, char *argv[])
         // TESTING EXCEPTIONS
         //
         // Concerns:
-        //: 1 The expect 'logic_error' derived exceptions are thrown where
-        //:   mandated by the C++ standard.
+        // 1. The expect `logic_error` derived exceptions are thrown where
+        //    mandated by the C++ standard.
         //
         // Plan:
-        //: See 'TestDriver<CHAR_TYPE>::testCase25' for details.
+        //  See `TestDriver<CHAR_TYPE>::testCase25` for details.
         //
         // Testing:
-        //   CONCERN: 'std::length_error' is used properly
+        //   CONCERN: `std::length_error` is used properly
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING EXCEPTIONS"
                             "\n==================\n");
 
-        if (verbose) printf("\nTesting use of 'std::length_error'"
+        if (verbose) printf("\nTesting use of `std::length_error`"
                             "\n=================================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase25();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase25();
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase25();
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase25();
 
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase25();
 #endif
       } break;
@@ -24405,11 +24422,11 @@ int main(int argc, char *argv[])
         // TESTING COMPARISONS
         //
         // Concerns:
-        //: 1 The 'compare' member function and comparison operators return the
-        //:   canonical ordering of two string values.
+        // 1. The `compare` member function and comparison operators return the
+        //    canonical ordering of two string values.
         //
         // Plan:
-        //: See 'TestDriver<CHAR_TYPE>::testCase24' for details.
+        //  See `TestDriver<CHAR_TYPE>::testCase24` for details.
         //
         // Testing:
         //   int compare(const string& str) const;
@@ -24449,22 +24466,22 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING COMPARISONS"
                             "\n===================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase24();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase24();
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase24();
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase24();
 
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase24();
 #endif
 
@@ -24472,22 +24489,22 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nNegative testing comparisons"
                             "\n============================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase24Negative();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase24Negative();
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase24Negative();
 # endif
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase24Negative();
 
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase24Negative();
 # endif
 #endif
@@ -24497,7 +24514,7 @@ int main(int argc, char *argv[])
         // TESTING SUBSTRING OPERATIONS
         //
         // Plan:
-        //: See 'TestDriver<CHAR_TYPE>::testCase23' for details.
+        //  See `TestDriver<CHAR_TYPE>::testCase23` for details.
         //
         // Testing:
         //   string substr(pos, n) const;
@@ -24507,55 +24524,55 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING SUBSTRING OPERATIONS"
                             "\n============================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase23();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase23();
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase23();
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase23();
 
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase23();
 #endif
 
 #ifdef BDE_BUILD_TARGET_EXC
-        if (verbose) printf("\nNegative Testing 'copy'"
+        if (verbose) printf("\nNegative Testing `copy`"
                             "\n==========================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase23Negative();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase23Negative();
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase23Negative();
 # endif
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase23Negative();
 
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase23Negative();
 # endif
 #endif
       } break;
       case 22: {
         // --------------------------------------------------------------------
-        // TESTING 'find...' VARIANTS
+        // TESTING `find...` VARIANTS
         //
         // Plan:
-        //: See 'TestDriver<CHAR_TYPE>::testCase22' for details.
+        //  See `TestDriver<CHAR_TYPE>::testCase22` for details.
         //
         // Testing:
         //   size_type find(const string& str, pos = 0) const;
@@ -24590,48 +24607,48 @@ int main(int argc, char *argv[])
         //   size_type find_last_not_of(C c, pos = npos) const;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'find...' VARIANTS"
+        if (verbose) printf("\nTESTING `find...` VARIANTS"
                             "\n==========================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase22();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase22();
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase22();
 # endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase22();
 
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase22();
 #endif
 
 #ifdef BDE_BUILD_TARGET_EXC
-        if (verbose) printf("\nNegative testing 'find...' methods."
+        if (verbose) printf("\nNegative testing `find...` methods."
                             "\n===================================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase22Negative();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase22Negative();
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase22Negative();
 # endif
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase22Negative();
 
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase22Negative();
 # endif
 #endif
@@ -24639,35 +24656,35 @@ int main(int argc, char *argv[])
       } break;
       case 21: {
         // --------------------------------------------------------------------
-        // TESTING 'swap'
+        // TESTING `swap`
         //
         // Plan:
-        //: See 'TestDriver<CHAR_TYPE>::testCase21' for details.
+        //  See `TestDriver<CHAR_TYPE>::testCase21` for details.
         //
         // Testing:
         //   void swap(basic_string& other);
         //   void swap(basic_string& lhs, basic_string& rhs);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'swap'"
+        if (verbose) printf("\nTESTING `swap`"
                             "\n==============\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase21();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase21();
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase21();
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase21();
 
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase21();
 #endif
 
@@ -24678,10 +24695,10 @@ int main(int argc, char *argv[])
       } break;
       case 20: {
         // --------------------------------------------------------------------
-        // TESTING 'replace'
+        // TESTING `replace`
         //
         // Plan:
-        //: See 'TestDriver<CHAR_TYPE>::testCase20' for details.
+        //  See `TestDriver<CHAR_TYPE>::testCase20` for details.
         //
         //  This test case was taking 6 times too long on C++11 and beyond, so
         //  we are disabling most of the testing except in verbose mode.
@@ -24702,137 +24719,137 @@ int main(int argc, char *argv[])
         //   template <It> basic_string& replace(const_iterator p, q, It f, l);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'replace'"
+        if (verbose) printf("\nTESTING `replace`"
                             "\n=================\n");
 
-        if (verbose) printf("\nTesting 'replace' with value"
+        if (verbose) printf("\nTesting `replace` with value"
                             "\n============================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase20();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase20();
 
         if (verbose) {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-            if (verbose) printf("\n... with 'char8_t'.\n");
+            if (verbose) printf("\n... with `char8_t`.\n");
             TestDriver<char8_t>::testCase20();
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-            if (verbose) printf("\n... with 'char16_t'.\n");
+            if (verbose) printf("\n... with `char16_t`.\n");
             TestDriver<char16_t>::testCase20();
 
-            if (verbose) printf("\n... with 'char32_t'.\n");
+            if (verbose) printf("\n... with `char32_t`.\n");
             TestDriver<char32_t>::testCase20();
 #endif
         }
 
 
-        if (verbose) printf("\n... with 'char' & matching integral types.\n");
+        if (verbose) printf("\n... with `char` & matching integral types.\n");
         TestDriver<char>::testCase20MatchTypes();
 
-        if (verbose) printf("\n... with 'wchar_t' & matching integ types.\n");
+        if (verbose) printf("\n... with `wchar_t` & matching integ types.\n");
         TestDriver<wchar_t>::testCase20MatchTypes();
 
         if (verbose) {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
             if (verbose) printf(
-                          "\n... with 'char8_t' & matching integral types.\n");
+                          "\n... with `char8_t` & matching integral types.\n");
             TestDriver<char8_t>::testCase20MatchTypes();
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
             if (verbose) printf(
-                         "\n... with 'char16_t' & matching integral types.\n");
+                         "\n... with `char16_t` & matching integral types.\n");
             TestDriver<char16_t>::testCase20MatchTypes();
 
             if (verbose) printf(
-                         "\n... with 'char32_t' & matching integral types.\n");
+                         "\n... with `char32_t` & matching integral types.\n");
             TestDriver<char32_t>::testCase20MatchTypes();
 #endif
         }
 
-        if (verbose) printf("\nTesting 'replace' with range"
+        if (verbose) printf("\nTesting `replace` with range"
                             "\n============================\n");
 
-        if (verbose) printf("\n... with 'char' "
+        if (verbose) printf("\n... with `char` "
                             "and arbitrary input iterator.\n");
         TestDriver<char>::testCase20Range(CharList<char>());
 
-        if (verbose) printf("\n... with 'char' "
+        if (verbose) printf("\n... with `char` "
                             "and arbitrary random-access iterator.\n");
         TestDriver<char>::testCase20Range(CharArray<char>());
 
-        if (verbose) printf("\n... with 'wchar_t' "
+        if (verbose) printf("\n... with `wchar_t` "
                             "and arbitrary input iterator.\n");
         TestDriver<wchar_t>::testCase20Range(CharList<wchar_t>());
 
-        if (verbose) printf("\n... with 'wchar_t' "
+        if (verbose) printf("\n... with `wchar_t` "
                             "and arbitrary random-access iterator.\n");
         TestDriver<wchar_t>::testCase20Range(CharArray<wchar_t>());
 
         if (verbose) {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-            if (verbose) printf("\n... with 'char8_t' "
+            if (verbose) printf("\n... with `char8_t` "
                                 "and arbitrary input iterator.\n");
             TestDriver<char8_t>::testCase20Range(CharList<char8_t>());
 
-            if (verbose) printf("\n... with 'char8_t' "
+            if (verbose) printf("\n... with `char8_t` "
                                 "and arbitrary random-access iterator.\n");
             TestDriver<char8_t>::testCase20Range(CharArray<char8_t>());
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-            if (verbose) printf("\n... with 'char16_t' "
+            if (verbose) printf("\n... with `char16_t` "
                                 "and arbitrary input iterator.\n");
             TestDriver<char16_t>::testCase20Range(CharList<char16_t>());
 
-            if (verbose) printf("\n... with 'char16_t' "
+            if (verbose) printf("\n... with `char16_t` "
                                 "and arbitrary random-access iterator.\n");
             TestDriver<char16_t>::testCase20Range(CharArray<char16_t>());
 
-            if (verbose) printf("\n... with 'char32_t' "
+            if (verbose) printf("\n... with `char32_t` "
                                 "and arbitrary input iterator.\n");
             TestDriver<char32_t>::testCase20Range(CharList<char32_t>());
 
-            if (verbose) printf("\n... with 'char32_t' "
+            if (verbose) printf("\n... with `char32_t` "
                                 "and arbitrary random-access iterator.\n");
             TestDriver<char32_t>::testCase20Range(CharArray<char32_t>());
 #endif
         }
 
 #ifdef BDE_BUILD_TARGET_EXC
-        if (verbose) printf("\nNegative Testing 'replace'"
+        if (verbose) printf("\nNegative Testing `replace`"
                             "\n==========================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase20Negative();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase20Negative();
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase20Negative();
 # endif
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase20Negative();
 
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase20Negative();
 # endif
 #endif
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // TESTING 'erase' AND 'pop_back'
+        // TESTING `erase` AND `pop_back`
         //
         // Plan:
-        //: See 'TestDriver<CHAR_TYPE>::testCase19' for details.
+        //  See `TestDriver<CHAR_TYPE>::testCase19` for details.
         //
         // Testing:
         //   iterator erase(size_type pos = 0, size_type n = npos);
@@ -24841,48 +24858,48 @@ int main(int argc, char *argv[])
         //   void pop_back();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'erase' AND 'pop_back'"
+        if (verbose) printf("\nTESTING `erase` AND `pop_back`"
                             "\n==============================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase19();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase19();
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase19();
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase19();
 
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase19();
 #endif
 
 #ifdef BDE_BUILD_TARGET_EXC
-        if (verbose) printf("\nNegative Testing for 'erase' and 'pop_back'"
+        if (verbose) printf("\nNegative Testing for `erase` and `pop_back`"
                             "\n===========================================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase19Negative();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase19Negative();
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase19Negative();
 # endif
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase19Negative();
 
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase19Negative();
 # endif
 #endif
@@ -24893,7 +24910,7 @@ int main(int argc, char *argv[])
         // TESTING INSERTION
         //
         // Plan:
-        //: See 'TestDriver<CHAR_TYPE>::testCase18' for details.
+        //  See `TestDriver<CHAR_TYPE>::testCase18` for details.
         //
         // Testing:
         //   basic_string& insert(size_type pos, const CHAR_TYPE *s, n);
@@ -24912,68 +24929,68 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Value Insertion"
                             "\n=======================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase18();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase18();
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase18();
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase18();
 
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase18();
 #endif
 
         if (verbose) printf("\nTesting Range Insertion"
                             "\n=======================\n");
 
-        if (verbose) printf("\n... with 'char' "
+        if (verbose) printf("\n... with `char` "
                             "and arbitrary input iterator.\n");
         TestDriver<char>::testCase18Range(CharList<char>());
 
-        if (verbose) printf("\n... with 'char' "
+        if (verbose) printf("\n... with `char` "
                             "and arbitrary random-access iterator.\n");
         TestDriver<char>::testCase18Range(CharArray<char>());
 
-        if (verbose) printf("\n... with 'wchar_t' "
+        if (verbose) printf("\n... with `wchar_t` "
                             "and arbitrary input iterator.\n");
         TestDriver<wchar_t>::testCase18Range(CharList<wchar_t>());
 
-        if (verbose) printf("\n... with 'wchar_t' "
+        if (verbose) printf("\n... with `wchar_t` "
                             "and arbitrary random-access iterator.\n");
         TestDriver<wchar_t>::testCase18Range(CharArray<wchar_t>());
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t' "
+        if (verbose) printf("\n... with `char8_t` "
                             "and arbitrary input iterator.\n");
         TestDriver<char8_t>::testCase18Range(CharList<char8_t>());
 
-        if (verbose) printf("\n... with 'char8_t' "
+        if (verbose) printf("\n... with `char8_t` "
                             "and arbitrary random-access iterator.\n");
         TestDriver<char8_t>::testCase18Range(CharArray<char8_t>());
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t' "
+        if (verbose) printf("\n... with `char16_t` "
                             "and arbitrary input iterator.\n");
         TestDriver<char16_t>::testCase18Range(CharList<char16_t>());
 
-        if (verbose) printf("\n... with 'char16_t' "
+        if (verbose) printf("\n... with `char16_t` "
                             "and arbitrary random-access iterator.\n");
         TestDriver<char16_t>::testCase18Range(CharArray<char16_t>());
 
-        if (verbose) printf("\n... with 'char32_t' "
+        if (verbose) printf("\n... with `char32_t` "
                             "and arbitrary input iterator.\n");
         TestDriver<char32_t>::testCase18Range(CharList<char32_t>());
 
-        if (verbose) printf("\n... with 'char32_t' "
+        if (verbose) printf("\n... with `char32_t` "
                             "and arbitrary random-access iterator.\n");
         TestDriver<char32_t>::testCase18Range(CharArray<char32_t>());
 #endif
@@ -24983,32 +25000,32 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nNegative Testing Insertion"
                             "\n==========================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase18Negative();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase18Negative();
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase18Negative();
 # endif
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase18Negative();
 
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase18Negative();
 # endif
 #endif
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING 'append'
+        // TESTING `append`
         //
         // Plan:
-        //: See 'TestDriver<CHAR_TYPE>::testCase17' for details.
+        //  See `TestDriver<CHAR_TYPE>::testCase17` for details.
         //
         // Testing:
         //   basic_string& operator+=(const basic_string& rhs);
@@ -25025,74 +25042,74 @@ int main(int argc, char *argv[])
         //   template <class Iter> basic_string& append(Iter first, Iter last);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'append'"
+        if (verbose) printf("\nTESTING `append`"
                             "\n================\n");
 
         if (verbose) printf("\nTesting Value Append"
                             "\n====================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase17();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase17();
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase17();
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase17();
 
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase17();
 #endif
 
         if (verbose) printf("\nTesting Range Append"
                             "\n====================\n");
 
-        if (verbose) printf("\n... with 'char' "
+        if (verbose) printf("\n... with `char` "
                             "and arbitrary input iterator.\n");
         TestDriver<char>::testCase17Range(CharList<char>());
 
-        if (verbose) printf("\n... with 'char' "
+        if (verbose) printf("\n... with `char` "
                             "and arbitrary random-access iterator.\n");
         TestDriver<char>::testCase17Range(CharArray<char>());
 
-        if (verbose) printf("\n... with 'wchar_t' "
+        if (verbose) printf("\n... with `wchar_t` "
                             "and arbitrary input iterator.\n");
         TestDriver<wchar_t>::testCase17Range(CharList<wchar_t>());
 
-        if (verbose) printf("\n... with 'wchar_t' "
+        if (verbose) printf("\n... with `wchar_t` "
                             "and arbitrary random-access iterator.\n");
         TestDriver<wchar_t>::testCase17Range(CharArray<wchar_t>());
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t' "
+        if (verbose) printf("\n... with `char8_t` "
                             "and arbitrary input iterator.\n");
         TestDriver<char8_t>::testCase17Range(CharList<char8_t>());
 
-        if (verbose) printf("\n... with 'char8_t' "
+        if (verbose) printf("\n... with `char8_t` "
                             "and arbitrary random-access iterator.\n");
         TestDriver<char8_t>::testCase17Range(CharArray<char8_t>());
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t' "
+        if (verbose) printf("\n... with `char16_t` "
                             "and arbitrary input iterator.\n");
         TestDriver<char16_t>::testCase17Range(CharList<char16_t>());
 
-        if (verbose) printf("\n... with 'char16_t' "
+        if (verbose) printf("\n... with `char16_t` "
                             "and arbitrary random-access iterator.\n");
         TestDriver<char16_t>::testCase17Range(CharArray<char16_t>());
 
-        if (verbose) printf("\n... with 'char32_t' "
+        if (verbose) printf("\n... with `char32_t` "
                             "and arbitrary input iterator.\n");
         TestDriver<char32_t>::testCase17Range(CharList<char32_t>());
 
-        if (verbose) printf("\n... with 'char32_t' "
+        if (verbose) printf("\n... with `char32_t` "
                             "and arbitrary random-access iterator.\n");
         TestDriver<char32_t>::testCase17Range(CharArray<char32_t>());
 #endif
@@ -25101,22 +25118,22 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nNegative Testing Range Append"
                             "\n=============================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase17Negative();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase17Negative();
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase17Negative();
 # endif
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase17Negative();
 
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase17Negative();
 # endif
 #endif
@@ -25127,7 +25144,7 @@ int main(int argc, char *argv[])
         // TESTING ITERATORS
         //
         // Plan:
-        //: See 'TestDriver<CHAR_TYPE>::testCase16' for details.
+        //  See `TestDriver<CHAR_TYPE>::testCase16` for details.
         //
         // Testing:
         //   iterator begin();
@@ -25143,22 +25160,22 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING ITERATORS"
                             "\n=================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase16();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase16();
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase16();
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase16();
 
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase16();
 #endif
       } break;
@@ -25167,7 +25184,7 @@ int main(int argc, char *argv[])
         // TESTING ELEMENT ACCESS
         //
         // Plan:
-        //: See 'TestDriver<CHAR_TYPE>::testCase15' for details.
+        //  See `TestDriver<CHAR_TYPE>::testCase15` for details.
         //
         // Testing:
         //   reference operator[](size_type pos);
@@ -25181,22 +25198,22 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING ELEMENT ACCESS"
                             "\n======================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase15();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase15();
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase15();
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase15();
 
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase15();
 #endif
 
@@ -25204,22 +25221,22 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nNegative Testing Element Access"
                             "\n===============================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase15Negative();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase15Negative();
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase15Negative();
 # endif
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase15Negative();
 
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase15Negative();
 # endif
 #endif
@@ -25227,10 +25244,10 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING 'reserve' AND 'capacity'
+        // TESTING `reserve` AND `capacity`
         //
         // Plan:
-        //: See 'TestDriver<CHAR_TYPE>::testCase14' for details.
+        //  See `TestDriver<CHAR_TYPE>::testCase14` for details.
         //
         // Testing:
         //   void reserve(size_type n);
@@ -25241,25 +25258,25 @@ int main(int argc, char *argv[])
         //   bool empty() const;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'reserve' AND 'capacity'"
+        if (verbose) printf("\nTESTING `reserve` AND `capacity`"
                             "\n===============================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase14();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase14();
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase14();
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase14();
 
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase14();
 #endif
       } break;
@@ -25268,7 +25285,7 @@ int main(int argc, char *argv[])
         // TESTING ASSIGNMENT
         //
         // Plan:
-        //: See 'TestDriver<CHAR_TYPE>::testCase13' for details.
+        //  See `TestDriver<CHAR_TYPE>::testCase13` for details.
         //
         // Testing:
         //   basic_string& assign(const basic_string& str);
@@ -25288,22 +25305,22 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Initial-Length Assignment"
                             "\n=================================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase13();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase13();
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase13();
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase13();
 
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase13();
 #endif
 
@@ -25311,88 +25328,88 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Initial-Range Assignment"
                             "\n================================\n");
 
-        if (verbose) printf("\n... with 'char' "
+        if (verbose) printf("\n... with `char` "
                             "and arbitrary input iterator.\n");
         TestDriver<char>::testCase13InputIterator();
 
-        if (verbose) printf("\n... with 'char' "
+        if (verbose) printf("\n... with `char` "
                             "and arbitrary forward iterator.\n");
         TestDriver<char>::testCase13Range(CharList<char>());
 
-        if (verbose) printf("\n... with 'char' "
+        if (verbose) printf("\n... with `char` "
                             "and arbitrary random-access iterator.\n");
         TestDriver<char>::testCase13Range(CharArray<char>());
 
-        if (verbose) printf("\n... with 'char' "
-                            "and 'StringViewLike' object.\n");
+        if (verbose) printf("\n... with `char` "
+                            "and `StringViewLike` object.\n");
         TestDriver<char>::testCase13StrViewLike();
 
-        if (verbose) printf("\n... with 'wchar_t' "
+        if (verbose) printf("\n... with `wchar_t` "
                             "and arbitrary input iterator.\n");
         TestDriver<wchar_t>::testCase13InputIterator();
 
-        if (verbose) printf("\n... with 'wchar_t' "
+        if (verbose) printf("\n... with `wchar_t` "
                             "and arbitrary forward iterator.\n");
         TestDriver<wchar_t>::testCase13Range(CharList<wchar_t>());
 
-        if (verbose) printf("\n... with 'wchar_t' "
+        if (verbose) printf("\n... with `wchar_t` "
                             "and arbitrary random-access iterator.\n");
         TestDriver<wchar_t>::testCase13Range(CharArray<wchar_t>());
 
-        if (verbose) printf("\n... with 'wchar_t' "
-                            "and 'StringViewLike' object.\n");
+        if (verbose) printf("\n... with `wchar_t` "
+                            "and `StringViewLike` object.\n");
         TestDriver<wchar_t>::testCase13StrViewLike();
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t' "
+        if (verbose) printf("\n... with `char8_t` "
                             "and arbitrary input iterator.\n");
         TestDriver<char8_t>::testCase13InputIterator();
 
-        if (verbose) printf("\n... with 'char8_t' "
+        if (verbose) printf("\n... with `char8_t` "
                             "and arbitrary forward iterator.\n");
         TestDriver<char8_t>::testCase13Range(CharList<char8_t>());
 
-        if (verbose) printf("\n... with 'char8_t' "
+        if (verbose) printf("\n... with `char8_t` "
                             "and arbitrary random-access iterator.\n");
         TestDriver<char8_t>::testCase13Range(CharArray<char8_t>());
 
-        if (verbose) printf("\n... with 'char8_t' "
-                            "and 'StringViewLike' object.\n");
+        if (verbose) printf("\n... with `char8_t` "
+                            "and `StringViewLike` object.\n");
         TestDriver<char8_t>::testCase13StrViewLike();
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t' "
+        if (verbose) printf("\n... with `char16_t` "
                             "and arbitrary input iterator.\n");
         TestDriver<char16_t>::testCase13InputIterator();
 
-        if (verbose) printf("\n... with 'char16_t' "
+        if (verbose) printf("\n... with `char16_t` "
                             "and arbitrary forward iterator.\n");
         TestDriver<char16_t>::testCase13Range(CharList<char16_t>());
 
-        if (verbose) printf("\n... with 'char16_t' "
+        if (verbose) printf("\n... with `char16_t` "
                             "and arbitrary random-access iterator.\n");
         TestDriver<char16_t>::testCase13Range(CharArray<char16_t>());
 
-        if (verbose) printf("\n... with 'char16_t' "
-                            "and 'StringViewLike' object.\n");
+        if (verbose) printf("\n... with `char16_t` "
+                            "and `StringViewLike` object.\n");
         TestDriver<char16_t>::testCase13StrViewLike();
 
 
-        if (verbose) printf("\n... with 'char32_t' "
+        if (verbose) printf("\n... with `char32_t` "
                             "and arbitrary input iterator.\n");
         TestDriver<char32_t>::testCase13InputIterator();
 
-        if (verbose) printf("\n... with 'char32_t' "
+        if (verbose) printf("\n... with `char32_t` "
                             "and arbitrary forward iterator.\n");
         TestDriver<char32_t>::testCase13Range(CharList<char32_t>());
 
-        if (verbose) printf("\n... with 'char32_t' "
+        if (verbose) printf("\n... with `char32_t` "
                             "and arbitrary random-access iterator.\n");
         TestDriver<char32_t>::testCase13Range(CharArray<char32_t>());
 
-        if (verbose) printf("\n... with 'char32_t' "
-                            "and 'StringViewLike' object.\n");
+        if (verbose) printf("\n... with `char32_t` "
+                            "and `StringViewLike` object.\n");
         TestDriver<char32_t>::testCase13StrViewLike();
 #endif
 
@@ -25400,22 +25417,22 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nNegative Testing Assignment"
                             "\n===========================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase13Negative();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase13Negative();
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase13Negative();
 # endif
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase13Negative();
 
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase13Negative();
 # endif
 #endif
@@ -25425,7 +25442,7 @@ int main(int argc, char *argv[])
         // TESTING CONSTRUCTORS
         //
         // Plan:
-        //: See 'TestDriver<CHAR_TYPE>::testCase12' for details.
+        //  See `TestDriver<CHAR_TYPE>::testCase12` for details.
         //
         // Testing:
         //   basic_string(const basic_string& str, pos, n = npos, a = A());
@@ -25441,22 +25458,22 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Initial-Length Constructor"
                             "\n==================================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase12();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase12();
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase12();
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase12();
 
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase12();
 #endif
 
@@ -25465,46 +25482,46 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Initial-Range Constructor"
                             "\n=================================\n");
 
-        if (verbose) printf("\n... with 'char' "
+        if (verbose) printf("\n... with `char` "
                             "and arbitrary input iterator.\n");
         TestDriver<char>::testCase12Range(CharList<char>());
 
-        if (verbose) printf("\n... with 'char' "
+        if (verbose) printf("\n... with `char` "
                             "and arbitrary random-access iterator.\n");
         TestDriver<char>::testCase12Range(CharArray<char>());
 
-        if (verbose) printf("\n... with 'wchar_t' "
+        if (verbose) printf("\n... with `wchar_t` "
                             "and arbitrary input iterator.\n");
         TestDriver<wchar_t>::testCase12Range(CharList<wchar_t>());
 
-        if (verbose) printf("\n... with 'wchar_t' "
+        if (verbose) printf("\n... with `wchar_t` "
                             "and arbitrary random-access iterator.\n");
         TestDriver<wchar_t>::testCase12Range(CharArray<wchar_t>());
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t' "
+        if (verbose) printf("\n... with `char8_t` "
                             "and arbitrary input iterator.\n");
         TestDriver<char8_t>::testCase12Range(CharList<char8_t>());
 
-        if (verbose) printf("\n... with 'char8_t' "
+        if (verbose) printf("\n... with `char8_t` "
                             "and arbitrary random-access iterator.\n");
         TestDriver<char8_t>::testCase12Range(CharArray<char8_t>());
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t' "
+        if (verbose) printf("\n... with `char16_t` "
                             "and arbitrary input iterator.\n");
         TestDriver<char16_t>::testCase12Range(CharList<char16_t>());
 
-        if (verbose) printf("\n... with 'char16_t' "
+        if (verbose) printf("\n... with `char16_t` "
                             "and arbitrary random-access iterator.\n");
         TestDriver<char16_t>::testCase12Range(CharArray<char16_t>());
 
-        if (verbose) printf("\n... with 'char32_t' "
+        if (verbose) printf("\n... with `char32_t` "
                             "and arbitrary input iterator.\n");
         TestDriver<char32_t>::testCase12Range(CharList<char32_t>());
 
-        if (verbose) printf("\n... with 'char32_t' "
+        if (verbose) printf("\n... with `char32_t` "
                             "and arbitrary random-access iterator.\n");
         TestDriver<char32_t>::testCase12Range(CharArray<char32_t>());
 #endif
@@ -25515,22 +25532,22 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nNegative testing of Constructors"
                             "\n================================\n");
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCase12Negative();
 
-        if (verbose) printf("\n... with 'wchar_t'.\n");
+        if (verbose) printf("\n... with `wchar_t`.\n");
         TestDriver<wchar_t>::testCase12Negative();
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
-        if (verbose) printf("\n... with 'char8_t'.\n");
+        if (verbose) printf("\n... with `char8_t`.\n");
         TestDriver<char8_t>::testCase12Negative();
 # endif
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose) printf("\n... with 'char16_t'.\n");
+        if (verbose) printf("\n... with `char16_t`.\n");
         TestDriver<char16_t>::testCase12Negative();
 
-        if (verbose) printf("\n... with 'char32_t'.\n");
+        if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase12Negative();
 # endif
 
@@ -25571,15 +25588,15 @@ int main(int argc, char *argv[])
         //     C1) The various constructors.
         //     C2) The copy constructor.
         //     A1) The copy assignment.
-        //     A2) The 'assign' operations.
-        //     M1) The 'append' operation in its various forms (including
-        //         'push_back').
-        //     M2) The 'insert' operation in its various forms.
-        //     M3) The 'replace' operation in its various forms.
-        //     S1) The 'swap' operation in its various forms.
-        //     F1) The 'find' and 'rfind' operations.
-        //     F2) The 'find_first_of' and 'find_last_of' operations.
-        //     F3) The 'find_first_not_of' and 'find_last_not_of' operations.
+        //     A2) The `assign` operations.
+        //     M1) The `append` operation in its various forms (including
+        //         `push_back`).
+        //     M2) The `insert` operation in its various forms.
+        //     M3) The `replace` operation in its various forms.
+        //     S1) The `swap` operation in its various forms.
+        //     F1) The `find` and `rfind` operations.
+        //     F2) The `find_first_of` and `find_last_of` operations.
+        //     F3) The `find_first_not_of` and `find_last_not_of` operations.
         //   Also we wish to record the size of the various string
         //   instantiations.
         //
@@ -25608,7 +25625,7 @@ int main(int argc, char *argv[])
 
         srand(RANDOM_SEED);
 
-        if (verbose) printf("\n... with 'char'.\n");
+        if (verbose) printf("\n... with `char`.\n");
         TestDriver<char>::testCaseM1(NITER, RANDOM_SEED);
 
       } break;

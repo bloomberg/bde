@@ -24,18 +24,18 @@ using namespace BloombergLP;
 //                              --------
 // We are testing a mutually exclusive locking primitive ("mutex") that wraps
 // a suitable platform-specific mechanism, and a guard for that mutex type.
-// The operations on the mutex type, 'bsls::BslLock', are 'lock' and 'unlock',
-// and the lone operation on the guard is 'release'.  In each test we use two
-// concurrent threads, verifying that the 'lock', 'unlock', and 'release'
+// The operations on the mutex type, `bsls::BslLock`, are `lock` and `unlock`,
+// and the lone operation on the guard is `release`.  In each test we use two
+// concurrent threads, verifying that the `lock`, `unlock`, and `release`
 // methods invoked by the respective threads occur in the expected order.
 // ----------------------------------------------------------------------------
-// 'BslLock' class:
+// `BslLock` class:
 // [ 1] BslLock::BslLock();
 // [ 1] BslLock::~BslLock();
 // [ 1] void BslLock::lock();
 // [ 1] void BslLock::unlock();
 //
-// 'BslLockGuard' class:
+// `BslLockGuard` class:
 // [ 2] BslLockGuard::BslLockGuard(BslLock *lock);
 // [ 2] BslLockGuard::~BslLockGuard();
 // [ 2] void BslLockGuard::release();
@@ -136,10 +136,10 @@ void sleepSeconds(int seconds)
 
 enum { MAX_SLEEP_CYCLES = 2 };
 
+/// Pause the current thread until the specified `*value` is non-zero, or
+/// a sufficient number of sleep cycles have elapsed.
 static
 void pause(bsls::AtomicInt *value)
-    // Pause the current thread until the specified '*value' is non-zero, or
-    // a sufficient number of sleep cycles have elapsed.
 {
     for (int i = 0; 0 == *value && i < MAX_SLEEP_CYCLES; ++i) {
         sleepSeconds(1);
@@ -180,21 +180,22 @@ extern "C" void *threadFunction(void *arg)
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Using 'bsls::BslLock' to Make a 'class' Thread-Safe
+///Example 1: Using `bsls::BslLock` to Make a `class` Thread-Safe
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example we illustrate the use of 'bsls::BslLock' and
-// 'bsls::BslLockGuard' to write a thread-safe class.
+// In this example we illustrate the use of `bsls::BslLock` and
+// `bsls::BslLockGuard` to write a thread-safe class.
 //
-// First, we provide an elided definition of the 'my_Account' class.  Note the
-// 'd_lock' data member of type 'bsls::BslLock':
-//..
+// First, we provide an elided definition of the `my_Account` class.  Note the
+// `d_lock` data member of type `bsls::BslLock`:
+// ```
+
+    /// This `class` implements a very simplistic bank account.  It is meant
+    /// for illustrative purposes only.
     class my_Account {
-        // This 'class' implements a very simplistic bank account.  It is meant
-        // for illustrative purposes only.
 
         // DATA
         double                d_money;  // amount of money in the account
-        mutable bsls::BslLock d_lock;   // ensure exclusive access to 'd_money'
+        mutable bsls::BslLock d_lock;   // ensure exclusive access to `d_money`
 
       // ...
 
@@ -211,55 +212,58 @@ extern "C" void *threadFunction(void *arg)
 
 // Begin Usage augmentation.
         // CREATORS
-        my_Account();
-            // Create an account with an initial balance of $0.00.
 
+        /// Create an account with an initial balance of $0.00.
+        my_Account();
+
+        /// Destroy this account.
         ~my_Account();
-            // Destroy this account.
 // End Usage augmentation.
 
         // MANIPULATORS
-        void deposit(double amount);
-            // Atomically deposit the specified 'amount' of money into this
-            // account.  The behavior is undefined unless 'amount >= 0.0'.
 
+        /// Atomically deposit the specified `amount` of money into this
+        /// account.  The behavior is undefined unless `amount >= 0.0`.
+        void deposit(double amount);
+
+        /// Atomically withdraw the specified `amount` of money from this
+        /// account.  Return 0 on success, and a non-zero value otherwise.
+        /// The behavior is undefined unless `amount >= 0.0`.
         int withdraw(double amount);
-            // Atomically withdraw the specified 'amount' of money from this
-            // account.  Return 0 on success, and a non-zero value otherwise.
-            // The behavior is undefined unless 'amount >= 0.0'.
 
         // ...
 
 // Begin Usage augmentation.
         // ACCESSORS
+
+        /// Atomically return the amount of money that is available for
+        /// withdrawal from this account.
         double balance() const;
-            // Atomically return the amount of money that is available for
-            // withdrawal from this account.
 // End Usage augmentation.
     };
-//..
-// Next, we show the implementation of the two 'my_Account' manipulators
-// show-casing the use of 'bsls::BslLock' and 'bsls::BslLockGuard':
-//..
+// ```
+// Next, we show the implementation of the two `my_Account` manipulators
+// show-casing the use of `bsls::BslLock` and `bsls::BslLockGuard`:
+// ```
     // MANIPULATORS
     void my_Account::deposit(double amount)
     {
-//..
-// Here, we use the interface of 'bsls::BslLock' directly.  However, wherever
-// appropriate, a 'bsls::BslLockGuard' object should be used instead to ensure
+// ```
+// Here, we use the interface of `bsls::BslLock` directly.  However, wherever
+// appropriate, a `bsls::BslLockGuard` object should be used instead to ensure
 // that an acquired lock is always properly released, even if an exception is
 // thrown:
-//..
-        d_lock.lock();  // consider using 'bsls::BslLockGuard' (see 'withdraw')
+// ```
+        d_lock.lock();  // consider using `bsls::BslLockGuard` (see `withdraw`)
         d_money += amount;
         d_lock.unlock();
     }
-//..
-// In contrast, 'withdraw' uses a 'bsls::BslLockGuard' to automatically acquire
+// ```
+// In contrast, `withdraw` uses a `bsls::BslLockGuard` to automatically acquire
 // and release the lock.  The lock is acquired as a side-effect of the
-// construction of 'guard', and released when 'guard' is destroyed upon
+// construction of `guard`, and released when `guard` is destroyed upon
 // returning from the function:
-//..
+// ```
     int my_Account::withdraw(double amount)
     {
         bsls::BslLockGuard guard(&d_lock);  // a very good practice
@@ -272,7 +276,7 @@ extern "C" void *threadFunction(void *arg)
             return -1;                                                // RETURN
         }
     }
-//..
+// ```
 
 // ============================================================================
 //         Additional Functionality Needed to Complete Usage Test Case
@@ -315,13 +319,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -342,35 +346,35 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // GUARD TEST
-        //   Ensure that 'BslLockGuard' works as expected.
+        //   Ensure that `BslLockGuard` works as expected.
         //
         // Concerns:
-        //: 1 Following construction, the associated lock is in the locked
-        //:   state.
-        //:
-        //: 2 Following destruction with no prior call to 'release', the
-        //:   associated lock is in the unlocked state.
-        //:
-        //: 3 'release' releases the associated lock from management and
-        //:   leaves the lock locked.
-        //:
-        //: 4 Destruction following a call to 'release' has no effect on the
-        //:   state of the associated lock.
+        // 1. Following construction, the associated lock is in the locked
+        //    state.
+        //
+        // 2. Following destruction with no prior call to `release`, the
+        //    associated lock is in the unlocked state.
+        //
+        // 3. `release` releases the associated lock from management and
+        //    leaves the lock locked.
+        //
+        // 4. Destruction following a call to `release` has no effect on the
+        //    state of the associated lock.
         //
         // Plan:
-        //: 1 Create a lock, 'mX', in the main thread.  Then, within a nested
-        //:   block, create a guard for 'mX', 'mG', and create a child thread
-        //:   that has access to 'mX'.  The child thread, upon acquiring the
-        //:   lock on 'mX', atomically updates a shared "first in" variable if
-        //:   and only if it still has its initial value (0).  Allow the child
-        //:   thread to run for a brief time before letting 'mG' go out of
-        //:   scope.  Verify, at appropriate points, that the "first in"
-        //:   variable has the expected result.  (C-1..2)
-        //:
-        //: 2 Repeat P-1, except call 'release' on 'mG' before allowing it to
-        //:   go out of scope.  Verify that the child thread cannot update the
-        //:   "first in" variable until 'unlock' is called on 'mX' in the main
-        //:   thread.  (C-3..4)
+        // 1. Create a lock, `mX`, in the main thread.  Then, within a nested
+        //    block, create a guard for `mX`, `mG`, and create a child thread
+        //    that has access to `mX`.  The child thread, upon acquiring the
+        //    lock on `mX`, atomically updates a shared "first in" variable if
+        //    and only if it still has its initial value (0).  Allow the child
+        //    thread to run for a brief time before letting `mG` go out of
+        //    scope.  Verify, at appropriate points, that the "first in"
+        //    variable has the expected result.  (C-1..2)
+        //
+        // 2. Repeat P-1, except call `release` on `mG` before allowing it to
+        //    go out of scope.  Verify that the child thread cannot update the
+        //    "first in" variable until `unlock` is called on `mX` in the main
+        //    thread.  (C-3..4)
         //
         // Testing:
         //   BslLockGuard::BslLockGuard(BslLock *lock);
@@ -441,26 +445,26 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BASIC TEST
-        //   Ensure that 'BslLock' works as expected.
+        //   Ensure that `BslLock` works as expected.
         //
         // Concerns:
-        //: 1 Following construction, the lock is in the unlocked state.
-        //:
-        //: 2 'lock' acquires the lock for exclusive access by the calling
-        //:    thread.
-        //:
-        //: 3 'unlock' releases the lock making it available to other threads.
-        //:
+        // 1. Following construction, the lock is in the unlocked state.
+        //
+        // 2. `lock` acquires the lock for exclusive access by the calling
+        //     thread.
+        //
+        // 3. `unlock` releases the lock making it available to other threads.
+        //
         // Plan:
-        //: 1 Create a lock, 'mX', in the main thread, then create a child
-        //:   thread that has access to 'mX'.  Each of the threads, upon
-        //:   acquiring the lock on 'mX', atomically update a shared "first in"
-        //:   variable if and only if it still has its initial value (0); both
-        //:   threads use the 'lock' method.  Allow the child thread to run for
-        //:   a brief time before locking in the main thread.  After joining
-        //:   with the child thread, verify the "first in" variable has the
-        //:   expected result.  Repeat, except this time lock 'mX' in the main
-        //:   thread *before* creating the child thread.  (C-1..3)
+        // 1. Create a lock, `mX`, in the main thread, then create a child
+        //    thread that has access to `mX`.  Each of the threads, upon
+        //    acquiring the lock on `mX`, atomically update a shared "first in"
+        //    variable if and only if it still has its initial value (0); both
+        //    threads use the `lock` method.  Allow the child thread to run for
+        //    a brief time before locking in the main thread.  After joining
+        //    with the child thread, verify the "first in" variable has the
+        //    expected result.  Repeat, except this time lock `mX` in the main
+        //    thread *before* creating the child thread.  (C-1..3)
         //
         // Testing:
         //   BslLock::BslLock();

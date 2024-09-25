@@ -6,28 +6,28 @@
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>
-#include <stdlib.h>  // 'calloc', 'realloc', 'atoi'
-#include <string.h>  // 'strcmp'
+#include <stdlib.h>  // `calloc`, `realloc`, `atoi`
+#include <string.h>  // `strcmp`
 
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// Build and run test case '1' with 'verbose' to see if 'BSLA_USED_IS_ACTIVE'
-// and 'BSLA_UNUSED_IS_ACTIVE' are set.  If both are set, build and run in the
-// debugger and observe that the unused static variable marked 'BSLA_USED' is
-// accessible from within 'main', and that a breakpoint can be put in the
-// unused static function marked 'BSLA_USED'.
+// Build and run test case '1' with `verbose` to see if `BSLA_USED_IS_ACTIVE`
+// and `BSLA_UNUSED_IS_ACTIVE` are set.  If both are set, build and run in the
+// debugger and observe that the unused static variable marked `BSLA_USED` is
+// accessible from within `main`, and that a breakpoint can be put in the
+// unused static function marked `BSLA_USED`.
 //
 // At this time, g++ always emits unused static functions and variables whether
-// they are marked 'BSLA_USED' or not.  Clang, however, will omit unused static
-// variables and functions unless they are marked 'BSLA_USED'.
-//..
+// they are marked `BSLA_USED` or not.  Clang, however, will omit unused static
+// variables and functions unless they are marked `BSLA_USED`.
+// ```
 //  Annotation                            Result
 //  ------------------------------------  --------------------
 //  BSLA_USED                             Emission of entities
-//..
+// ```
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // ----------------------------------------------------------------------------
@@ -105,47 +105,48 @@ void aSsErT(bool condition, const char *message, int line)
 //
 ///Example 1: Unused Variables
 ///- - - - - - - - - - - - - -
-// First, we declare two unused static variables, one marked 'BSLA_UNUSED'
-// and the other marked 'BSLA_USED':
-//..
+// First, we declare two unused static variables, one marked `BSLA_UNUSED`
+// and the other marked `BSLA_USED`:
+// ```
     static
     int usage_UNUSED_variable_no_warning BSLA_UNUSED;
 
     static
     int usage_USED_variable_no_warning BSLA_USED;
-//..
+// ```
 // Finally, if we compile with clang and go into the debugger and stop in
-// 'main', which is in the same file and from which both variables are visible,
-// we observe that the variable marked 'BSLA_UNUSED' cannot be accessed, but
-// the variable marked 'BSLA_USED' can.
-//..
+// `main`, which is in the same file and from which both variables are visible,
+// we observe that the variable marked `BSLA_UNUSED` cannot be accessed, but
+// the variable marked `BSLA_USED` can.
+// ```
 //
 ///Example 2: Unused Functions
 ///- - - - - - - - - - - - - -
-// First, declare two unused static functions, one marked 'BSLA_UNUSED' and one
-// marked 'BSLA_USED':
-//..
+// First, declare two unused static functions, one marked `BSLA_UNUSED` and one
+// marked `BSLA_USED`:
+// ```
+
+    /// Print the specified `woof`.
     static
     void usage_UNUSED_function_no_warning(int woof) BSLA_UNUSED;
-        // Print the specified 'woof'.
     static
     void usage_UNUSED_function_no_warning(int woof)
     {
         printf("%d\n", woof);
     }
 
+    /// Print the specified `woof`.
     static
     void usage_USED_function_no_warning(int woof) BSLA_USED;
-        // Print the specified 'woof'.
     static
     void usage_USED_function_no_warning(int woof)
     {
         printf("%d\n", woof);
     }
-//..
+// ```
 // Finally, if we compile with clang and go into the debugger, we find that
-// we can put a breakpoint in the function marked 'BSLA_USED', but not in
-// the function marked 'BSLA_UNUSED'.
+// we can put a breakpoint in the function marked `BSLA_USED`, but not in
+// the function marked `BSLA_UNUSED`.
 
 #endif
 
@@ -161,11 +162,11 @@ void aSsErT(bool condition, const char *message, int line)
 //                              HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// Print a diagnostic message to standard output if any of the preprocessor
+/// flags of interest are defined, and their value if a value had been set.
+/// An "Enter" and "Leave" message is printed unconditionally so there is
+/// some report even if all of the flags are undefined.
 static void printFlags()
-    // Print a diagnostic message to standard output if any of the preprocessor
-    // flags of interest are defined, and their value if a value had been set.
-    // An "Enter" and "Leave" message is printed unconditionally so there is
-    // some report even if all of the flags are undefined.
 {
     printf("printFlags: Enter\n");
 
@@ -241,29 +242,29 @@ int main(int argc, char **argv)
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 This test driver does *not* build when the 'U_TRIGGER_ERRORS'
-        //:   preprocessor variable is defined to 1 and all expected output
-        //:   appears.
-        //:
-        //: 2 This test driver builds with all expected compiler warning
-        //:   messages and no unexpected warnings when the 'U_TRIGGER_WARNINGS'
-        //:   preprocessor variable is defined to 1.
-        //:
-        //: 3 When 'U_TRIGGER_WARNINGS' and 'U_TRIGGER_ERRORS' are both defined
-        //:   to 0, the compile is successful and with no warnings.
+        // 1. This test driver does *not* build when the `U_TRIGGER_ERRORS`
+        //    preprocessor variable is defined to 1 and all expected output
+        //    appears.
+        //
+        // 2. This test driver builds with all expected compiler warning
+        //    messages and no unexpected warnings when the `U_TRIGGER_WARNINGS`
+        //    preprocessor variable is defined to 1.
+        //
+        // 3. When `U_TRIGGER_WARNINGS` and `U_TRIGGER_ERRORS` are both defined
+        //    to 0, the compile is successful and with no warnings.
         //
         // Plan:
-        //: 1 Build with 'U_TRIGGER_ERRORS' defined to and externally confirm
-        //:   that compilation of this task failed and the compiler output
-        //:   shows the expected message.  (C-1)
-        //:
-        //: 2 Build with 'U_TRIGGER_WARNINGS' defined to and externally examine
-        //:   compiler output for expected warnings and the absence of warnings
-        //:   expected to be suppressed.  (C-2)
-        //:
-        //: 3 Build with 'U_TRIGGER_ERRORS' and 'U_TRIGGER_WARNINGS' both
-        //:   defined to 0 and observe that the compile is successful with no
-        //:   warnings.
+        // 1. Build with `U_TRIGGER_ERRORS` defined to and externally confirm
+        //    that compilation of this task failed and the compiler output
+        //    shows the expected message.  (C-1)
+        //
+        // 2. Build with `U_TRIGGER_WARNINGS` defined to and externally examine
+        //    compiler output for expected warnings and the absence of warnings
+        //    expected to be suppressed.  (C-2)
+        //
+        // 3. Build with `U_TRIGGER_ERRORS` and `U_TRIGGER_WARNINGS` both
+        //    defined to 0 and observe that the compile is successful with no
+        //    warnings.
         //
         // Testing:
         //   BREATHING TEST
@@ -279,7 +280,7 @@ int main(int argc, char **argv)
 
             if (!veryVeryVerbose) printFlags();
 
-            ASSERT(true); // remove unused warning for 'aSsErT'
+            ASSERT(true); // remove unused warning for `aSsErT`
         }
 
       } break;

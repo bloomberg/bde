@@ -18,7 +18,7 @@
 
 #include <bsl_cstdlib.h>            // atoi()
 #include <bsl_iostream.h>
-#include <bsl_new.h>                // placement 'new' syntax
+#include <bsl_new.h>                // placement `new` syntax
 #include <bsl_vector.h>
 
 // Note: on Windows -> WinGDI.h:#define ERROR 0
@@ -127,9 +127,9 @@ class RecordAttributes {
     int severity() const { return d_severity; }
 };
 
+/// This `class` is a trivial implementation of the `Record` type that is
+/// used (*in* *name* *only*) in the protocol under test.
 class Record {
-    // This 'class' is a trivial implementation of the 'Record' type that is
-    // used (*in* *name* *only*) in the protocol under test.
 
     // DATA
     RecordAttributes d_fields;
@@ -167,8 +167,8 @@ bsl::ostream& ball::operator<<(bsl::ostream& stream, const Record& rhs)
 
 typedef bsl::shared_ptr<ball::Record> Handle;
 
+/// A dummy deleter that does nothing in `deleteObject`.
 class my_DummyDeleter : public bdlma::Deleter<ball::Record> {
-    // A dummy deleter that does nothing in 'deleteObject'.
 
   public:
     // CREATORS
@@ -202,24 +202,25 @@ void my_DummyDeleter::deleteObject(ball::Record *)
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Defining a Concrete 'RecordBuffer' Type
+///Example 1: Defining a Concrete `RecordBuffer` Type
 ///- - - - - - - - - - - - - - - - - -- - - - - - - -
 // This example shows the definition of a simple concrete record buffer.  The
 // requisite steps are:
 //
-//: 1 Define a concrete class derived from 'ball::RecordBuffer'.
-//: 2 Implement all pure virtual functions.
+// 1. Define a concrete class derived from `ball::RecordBuffer`.
+// 2. Implement all pure virtual functions.
 //
-// The concrete thread-safe 'my_RecordBuffer' class in this example implements
-// the 'ball::RecordBuffer' protocol by delegating to an instance of
-// 'bsl::vector<bsl::shared_ptr<ball::Record> > ':
-//..
+// The concrete thread-safe `my_RecordBuffer` class in this example implements
+// the `ball::RecordBuffer` protocol by delegating to an instance of
+// `bsl::vector<bsl::shared_ptr<ball::Record> > `:
+// ```
 // my_recordbuffer.h
 //
+
+    /// This class provides a thread-safe implementation of the
+    /// `ball::RecordBuffer` protocol.  This implementation employs a
+    /// vector to hold an unlimited number of record handles.
     class my_RecordBuffer : public ball::RecordBuffer {
-        // This class provides a thread-safe implementation of the
-        // 'ball::RecordBuffer' protocol.  This implementation employs a
-        // vector to hold an unlimited number of record handles.
 
         mutable bslmt::RecursiveMutex d_mutex; // thread safety provider (see
                                 // the implementation notes for the
@@ -257,16 +258,16 @@ void my_DummyDeleter::deleteObject(ball::Record *)
                                                          BSLS_KEYWORD_OVERRIDE;
         int length() const BSLS_KEYWORD_OVERRIDE;
     };
-//..
+// ```
 //
 ///Implementation Notes
 ///- - - - - - - - - - -
 // Recursive mutex (rather than plain mutex) is chosen to provide thread
 // safety.  This allows the manipulation of the record buffer between the call
-// to 'beginSequence' and 'endSequence'.  If we had used plain mutex, calling
-// any method on the record buffer between the calls to 'beginSequence' and
-// 'endSequence' would result in a deadlock.
-//..
+// to `beginSequence` and `endSequence`.  If we had used plain mutex, calling
+// any method on the record buffer between the calls to `beginSequence` and
+// `endSequence` would result in a deadlock.
+// ```
     // CREATORS
     inline
     my_RecordBuffer::my_RecordBuffer() { }
@@ -344,36 +345,37 @@ void my_DummyDeleter::deleteObject(ball::Record *)
         bslmt::LockGuard<bslmt::RecursiveMutex> guard(&d_mutex);
         return static_cast<int>(d_buffer.size());
     }
-//..
+// ```
 // Note that we always implement a virtual destructor (non-inline) in the .cpp
 // file (to indicate the *unique* location of the class's virtual table):
-//..
+// ```
     // my_recordbuffer.cpp
 //
     my_RecordBuffer::~my_RecordBuffer() { }
-//..
+// ```
 //
-///Example 2: Using a 'ball::RecordBuffer'
+///Example 2: Using a `ball::RecordBuffer`
 ///- - - - - - - - - - - - - - - - - - - -
-// This example demonstrates working with the 'ball::RecordBuffer' protocol.
-// We implement a function 'processRecord' that processes a specified record
+// This example demonstrates working with the `ball::RecordBuffer` protocol.
+// We implement a function `processRecord` that processes a specified record
 // handle based on its severity.
-//..
+// ```
+
+    /// Process the specified `handle`, based on it's severity.  Records
+    /// (encapsulated in `handle`) with severity equal to or *greater*
+    /// severe than (i.e., with *numerical* value *less* than or equal to)
+    /// `ball::Severity::e_WARN` are pushed back into the specified
+    /// `buffer`.  Records with a severity equal to or more severe than
+    /// `ball::Severity::e_ERROR` are (in addition to get pushed back
+    /// into the `buffer`) printed to `stdout`, and then each record
+    /// contained in `buffer` is in turn printed to `stdout` and then
+    /// removed from `buffer`.  That is, any severity level equal to or
+    /// more severe than `ball::Severity::e_ERROR` triggers a trace-back
+    /// of all records accumulated in the buffer and flushes the buffer.
+    /// The function is thread safe and thus allows multiple concurrent
+    /// invocations of this function with the same record buffer.
     void processRecord(const bsl::shared_ptr<ball::Record>& handle,
                              ball::RecordBuffer&            buffer)
-        // Process the specified 'handle', based on it's severity.  Records
-        // (encapsulated in 'handle') with severity equal to or *greater*
-        // severe than (i.e., with *numerical* value *less* than or equal to)
-        // 'ball::Severity::e_WARN' are pushed back into the specified
-        // 'buffer'.  Records with a severity equal to or more severe than
-        // 'ball::Severity::e_ERROR' are (in addition to get pushed back
-        // into the 'buffer') printed to 'stdout', and then each record
-        // contained in 'buffer' is in turn printed to 'stdout' and then
-        // removed from 'buffer'.  That is, any severity level equal to or
-        // more severe than 'ball::Severity::e_ERROR' triggers a trace-back
-        // of all records accumulated in the buffer and flushes the buffer.
-        // The function is thread safe and thus allows multiple concurrent
-        // invocations of this function with the same record buffer.
     {
         int severity = handle->fixedFields().severity();
 //
@@ -391,7 +393,7 @@ void my_DummyDeleter::deleteObject(ball::Record *)
             buffer.endSequence();   // unlock the buffer after traversing
         }
     }
-//..
+// ```
 
 //=============================================================================
 //                       CONCRETE DERIVED TYPES
@@ -438,7 +440,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage examples from header into driver, remove
-        //   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //   leading comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLES
@@ -474,16 +476,16 @@ int main(int argc, char *argv[])
         // PROTOCOL TEST:
         //
         // Concerns:
-        //   We must ensure that (1) a subclass of the 'ball::RecordBuffer'
+        //   We must ensure that (1) a subclass of the `ball::RecordBuffer`
         //   class compiles and links when all virtual functions are defined,
         //   and (2) the functions are in fact virtual.
         //
         // Plan:
-        //   Construct an object of a class derived from 'ball::RecordBuffer'
-        //   and bind a 'ball::RecordBuffer' reference to the object.  Using
-        //   the base class reference, invoke the 'beginSequence',
-        //   'endSequence', 'popBack', 'popFront', 'pushBack', 'pushFront',
-        //   'removeAll', 'back', 'front' and 'length' methods.  Verify that
+        //   Construct an object of a class derived from `ball::RecordBuffer`
+        //   and bind a `ball::RecordBuffer` reference to the object.  Using
+        //   the base class reference, invoke the `beginSequence`,
+        //   `endSequence`, `popBack`, `popFront`, `pushBack`, `pushFront`,
+        //   `removeAll`, `back`, `front` and `length` methods.  Verify that
         //   the correct implementations of the methods are called.
         //
         // Testing:

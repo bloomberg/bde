@@ -82,18 +82,19 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //                              USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
-// The 'allocateFromBuffer' function below uses an aligned buffer as a small
-// heap from which objects can be allocated.  We choose 'int' alignment
+// The `allocateFromBuffer` function below uses an aligned buffer as a small
+// heap from which objects can be allocated.  We choose `int` alignment
 // (4-byte alignment) for our buffer because the objects we are allocating
-// are composed of 'char', 'short', and 'int' values only.  If no alignment
+// are composed of `char`, `short`, and `int` values only.  If no alignment
 // were specified, the buffer would be maximally aligned, which could be
 // wasteful on some platforms.
-//..
+// ```
     const int MY_ALIGNMENT = bsls::AlignmentFromType<int>::VALUE;
     bsls::AlignedBuffer<1000, MY_ALIGNMENT> my_AllocBuffer;
     const char* my_AllocEnd = my_AllocBuffer.buffer() + 1000;
+
+    /// Invariant: my_AllocPtr is always aligned on a multiple of 4 bytes
     char *my_AllocPtr = my_AllocBuffer.buffer();
-        // Invariant: my_AllocPtr is always aligned on a multiple of 4 bytes
 
     static void *allocateFromBuffer(int size)
     {
@@ -111,12 +112,12 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
         return result;
     }
-//..
-// Below, we use our allocation function to allocate arrays of 'char',
-// 'short', and user-defined 'Object' types from the static buffer.  Note that
-// our 'Object' structure is composed of members that have alignment
-// requirements less than or equal to 'int's alignment requirements.
-//..
+// ```
+// Below, we use our allocation function to allocate arrays of `char`,
+// `short`, and user-defined `Object` types from the static buffer.  Note that
+// our `Object` structure is composed of members that have alignment
+// requirements less than or equal to `int`s alignment requirements.
+// ```
     struct Object {
         char  d_c;
         short d_s;
@@ -125,15 +126,15 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
     int usageExample()
     {
-        // Allocate three 'char's from the buffer.
+        // Allocate three `char`s from the buffer.
         char *charPtr   = (char *)   allocateFromBuffer(3 * sizeof(char));
         ASSERT(0 == size_t(charPtr) % MY_ALIGNMENT);
 
-        // Allocate three 'short's from the buffer.
+        // Allocate three `short`s from the buffer.
         short *shortPtr = (short *)  allocateFromBuffer(3 * sizeof(short));
         ASSERT(0 == size_t(shortPtr) % MY_ALIGNMENT);
 
-        // Allocate three 'Object's from the buffer
+        // Allocate three `Object`s from the buffer
         Object *objPtr = (Object *)  allocateFromBuffer(3 * sizeof(Object));
         ASSERT(0 == size_t(objPtr) % MY_ALIGNMENT);
 
@@ -146,7 +147,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
         return 0;
     }
-//..
+// ```
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -188,7 +189,7 @@ int main(int argc, char *argv[])
         //   - buffer() returns the address of the first byte of the buffer
         //
         // Plan:
-        //   - Create 'bsls::AlignedBuffer' objects with different sizes and
+        //   - Create `bsls::AlignedBuffer` objects with different sizes and
         //     alignments.
         //   - For each object, verify that buffer() returns the address of
         //     the object.

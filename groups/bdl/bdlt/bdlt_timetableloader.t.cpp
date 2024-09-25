@@ -10,10 +10,10 @@
 #include <bsls_keyword.h>
 #include <bsls_protocoltest.h>
 
-#include <bsl_cstdlib.h>        // 'atoi'
+#include <bsl_cstdlib.h>        // `atoi`
 #include <bsl_iostream.h>
 #include <bsl_string.h>
-#include <bsl_utility.h>        // 'bsl::pair'
+#include <bsl_utility.h>        // `bsl::pair`
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
@@ -28,8 +28,8 @@ using namespace bsl;
 // provide an interface for loading timetables.
 //
 // Global Concerns:
-//: o The test driver is robust w.r.t. reuse in other, similar components.
-//: o It is possible to create a concrete implementation the protocol.
+//  - The test driver is robust w.r.t. reuse in other, similar components.
+//  - It is possible to create a concrete implementation the protocol.
 // ----------------------------------------------------------------------------
 // CREATORS
 // [ 1] virtual ~TimetableLoader();
@@ -69,18 +69,18 @@ void aSsErT(bool condition, const char *message, int line)
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Implementing the 'bdlt::TimetableLoader' Protocol
+///Example 1: Implementing the `bdlt::TimetableLoader` Protocol
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates an elided concrete implementation of the
-// 'bdlt::TimetableLoader' protocol that interprets timetable information
+// `bdlt::TimetableLoader` protocol that interprets timetable information
 // contained in ASCII strings that are formatted using JSON.  Note that, in
-// general, an implementation of 'bdlt::TimetableLoader' must obtain timetable
+// general, an implementation of `bdlt::TimetableLoader` must obtain timetable
 // information from *some* data source.  Our elided implementation leaves it
 // unspecified as to where the JSON strings are obtained (i.e., whether from a
 // file system, a database, a local or remote service, etc.).
 //
 // First, we show the JSON format that our timetable loader accepts:
-//..
+// ```
 //  {
 //      "firstDate":             "YYYY-MM-DD",
 //      "lastDate":              "YYYY-MM-DD",
@@ -93,49 +93,51 @@ void aSsErT(bool condition, const char *message, int line)
 //          }
 //        ]
 //  }
-//..
+// ```
 // Note that "YYYY-MM-DD" is an ISO 8601 representation for the value of a
-// 'bdlt::Date' object, "YYYY-MM-DDThh:mm:ss" is an ISO 8601 representation for
-// the value of a 'bdlt::Datetime' object, and 'code' is an integer greater
+// `bdlt::Date` object, "YYYY-MM-DDThh:mm:ss" is an ISO 8601 representation for
+// the value of a `bdlt::Datetime` object, and `code` is an integer greater
 // than or equal to -1 (with -1 used to specify
-// 'bdlt::Timetable::k_UNSET_TRANSITION_CODE').  We assume that the four JSON
+// `bdlt::Timetable::k_UNSET_TRANSITION_CODE`).  We assume that the four JSON
 // attributes, "firstDate", "lastDate", "initialTransitionCode", and
 // "transitions", must occur in the JSON string in the order in which they
 // appear in the above display, but only "firstDate" and "lastDate" are
 // *required* attributes.
 //
 // Then, we define the interface of our implementation:
-//..
+// ```
+
+    /// This class provides a concrete implementation of the
+    /// `bdlt::TimetableLoader` protocol (an abstract interface) for loading
+    /// a timetable.  This elided implementation obtains timetable
+    /// information from ASCII strings formatted using JSON.  The source of
+    /// the strings is unspecified.
     class MyTimetableLoader : public bdlt::TimetableLoader {
-        // This class provides a concrete implementation of the
-        // 'bdlt::TimetableLoader' protocol (an abstract interface) for loading
-        // a timetable.  This elided implementation obtains timetable
-        // information from ASCII strings formatted using JSON.  The source of
-        // the strings is unspecified.
 
       public:
         // CREATORS
-        MyTimetableLoader();
-            // Create a 'MyTimetableLoader' object.
 
+        /// Create a `MyTimetableLoader` object.
+        MyTimetableLoader();
+
+        /// Destroy this object.
         ~MyTimetableLoader() BSLS_KEYWORD_OVERRIDE;
-            // Destroy this object.
 
         // MANIPULATORS
         int load(bdlt::Timetable *result, const char *timetableName)
                                                          BSLS_KEYWORD_OVERRIDE;
-            // Load, into the specified 'result', the timetable identified by
-            // the specified 'timetableName'.  Return 0 on success, and a
+            // Load, into the specified `result`, the timetable identified by
+            // the specified `timetableName`.  Return 0 on success, and a
             // non-zero value otherwise.  If the timetable corresponding to
-            // 'timetableName' is not found, 1 is returned with no effect on
-            // '*result'.  If a non-zero value other than 1 is returned
-            // (indicating a different error), '*result' is valid, but its
+            // `timetableName` is not found, 1 is returned with no effect on
+            // `*result`.  If a non-zero value other than 1 is returned
+            // (indicating a different error), `*result` is valid, but its
             // value is undefined.
     };
-//..
-// Next, we implement the creators, trivially, as 'MyTimetableLoader' does not
+// ```
+// Next, we implement the creators, trivially, as `MyTimetableLoader` does not
 // contain any instance data members:
-//..
+// ```
     // CREATORS
     inline
     MyTimetableLoader::MyTimetableLoader()
@@ -146,28 +148,28 @@ void aSsErT(bool condition, const char *message, int line)
     MyTimetableLoader::~MyTimetableLoader()
     {
     }
-//..
-// Then, we implement the 'load' function:
-//..
+// ```
+// Then, we implement the `load` function:
+// ```
     // MANIPULATORS
     int MyTimetableLoader::load(bdlt::Timetable *result,
                                 const char      * /* timetableName */)
     {
-//..
-// Next, we look up the timetable identified by 'timetableName' and load the
-// corresponding text into a 'bsl::string' object, 'json' (as stated earlier,
+// ```
+// Next, we look up the timetable identified by `timetableName` and load the
+// corresponding text into a `bsl::string` object, `json` (as stated earlier,
 // we do not specify in this example from where the timetable information is
 // obtained):
-//..
+// ```
         // Obtain the information for the timetable identified by
-        // 'timetableName' from an unspecified data source and load it into the
-        // 'json' string.
+        // `timetableName` from an unspecified data source and load it into the
+        // `json` string.
 
         bsl::string json;
 
-        // Since a JSON parser is not available to 'bdlt', this example assumes
-        // that 'json' is populated with the following specific data:
-        //..
+        // Since a JSON parser is not available to `bdlt`, this example assumes
+        // that `json` is populated with the following specific data:
+        // ```
         //  {
         //      "firstDate":             "2018-01-01",
         //      "lastDate":              "2018-12-31",
@@ -184,8 +186,8 @@ void aSsErT(bool condition, const char *message, int line)
         //          }
         //        ]
         //  }
-        //..
-        // Similarly, we hard-wire the value of a status flag, 'rc', to
+        // ```
+        // Similarly, we hard-wire the value of a status flag, `rc`, to
         // indicate that this string was successfully retrieved from the data
         // source.
 
@@ -194,16 +196,16 @@ void aSsErT(bool condition, const char *message, int line)
         if (rc != 0) {
             return 1;                                                 // RETURN
         }
-//..
+// ```
 // Note that the non-zero value 1 is returned only in the case where the
-// timetable information corresponding to 'timetableName' cannot be found (per
-// the contract for the 'load' method).
+// timetable information corresponding to `timetableName` cannot be found (per
+// the contract for the `load` method).
 //
-// Then, we parse the "firstDate" and "lastDate" attributes from the 'json'
+// Then, we parse the "firstDate" and "lastDate" attributes from the `json`
 // string, loading the results into like-named variables:
-//..
+// ```
         // Parse the "firstDate" and "lastDate" JSON attributes and load the
-        // results into 'firstDate' and 'lastDate', respectively.  It is an
+        // results into `firstDate` and `lastDate`, respectively.  It is an
         // error if either of the "firstDate" or "lastDate" attributes are
         // missing, or if they are out of order.
 
@@ -211,8 +213,8 @@ void aSsErT(bool condition, const char *message, int line)
         bdlt::Date lastDate;
 
         // For the purposes of this Usage, we hard-wire the first and last
-        // dates that are hypothetically parsed from the 'json' string, and
-        // set the 'rc' status flag indicating that parsing succeeded.
+        // dates that are hypothetically parsed from the `json` string, and
+        // set the `rc` status flag indicating that parsing succeeded.
 
         firstDate.setYearMonthDay(2018,  1,  1);
         lastDate.setYearMonthDay( 2018, 12, 31);
@@ -225,20 +227,20 @@ void aSsErT(bool condition, const char *message, int line)
         result->reset();
 
         result->setValidRange(firstDate, lastDate);
-//..
-// Next, we parse the "initialTransitionCode" attribute from 'json':
-//..
+// ```
+// Next, we parse the "initialTransitionCode" attribute from `json`:
+// ```
         // For the purposes of this Usage, we hard-wire a boolean flag
         // indicating that the "initialTransitionCode" attribute was
-        // hypothetically detected in the 'json' string.
+        // hypothetically detected in the `json` string.
 
         bool isInitialTransitionCodePresent = true;
 
         if (isInitialTransitionCodePresent) {
 
             // For the purposes of this Usage, we hard-wire the initial
-            // transition code that is hypothetically parsed from the 'json'
-            // string, and set the 'rc' status flag indicating that parsing
+            // transition code that is hypothetically parsed from the `json`
+            // string, and set the `rc` status flag indicating that parsing
             // succeeded.
 
             int code = 1;
@@ -251,26 +253,26 @@ void aSsErT(bool condition, const char *message, int line)
 
             result->setInitialTransitionCode(code);
         }
-//..
-// Now, we parse the "transitions" attribute from 'json' and load the result
-// into a 'bsl::vector<bsl::pair<bdlt::Datetime, int> >' object, 'transitions':
-//..
+// ```
+// Now, we parse the "transitions" attribute from `json` and load the result
+// into a `bsl::vector<bsl::pair<bdlt::Datetime, int> >` object, `transitions`:
+// ```
         // For the purposes of this Usage, we hard-wire a boolean flag
         // indicating that the "transitions" attribute was hypothetically
-        // detected in the 'json' string.
+        // detected in the `json` string.
 
         bool isTransitionsPresent = true;
 
         if (isTransitionsPresent) {
 
-            // Parse the "transitions" JSON attribute and load 'transitions'
+            // Parse the "transitions" JSON attribute and load `transitions`
             // with the result.
 
             bsl::vector<bsl::pair<bdlt::Datetime, int> > transitions;
 
             // For the purposes of this Usage, we hard-wire the transitions
-            // that are hypothetically parsed from the 'json' string, and set
-            // the 'rc' status flag indicating that parsing succeeded.
+            // that are hypothetically parsed from the `json` string, and set
+            // the `rc` status flag indicating that parsing succeeded.
 
             transitions.push_back(bsl::pair<bdlt::Datetime, int>(
                                           bdlt::Datetime(2018, 5, 28,  9), 2));
@@ -302,17 +304,17 @@ void aSsErT(bool condition, const char *message, int line)
                 ++it;
             }
         }
-//..
+// ```
 // Our timetable loader imposes the requirement that the dates specified in the
 // "transitions" JSON attribute must be within the range
-// '[firstDate .. lastDate]' and the transition codes are non-negative or
+// `[firstDate .. lastDate]` and the transition codes are non-negative or
 // unset.
 //
 // Finally, we return 0 indicating success:
-//..
+// ```
         return 0;
     }
-//..
+// ```
 
 // ============================================================================
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
@@ -372,14 +374,14 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -411,36 +413,36 @@ int main(int argc, char *argv[])
         //   Ensure this class is a properly defined protocol.
         //
         // Concerns:
-        //: 1 The protocol is abstract: no objects of it can be created.
-        //:
-        //: 2 The protocol has no data members.
-        //:
-        //: 3 The protocol has a virtual destructor.
-        //:
-        //: 4 All methods of the protocol are pure virtual.
-        //:
-        //: 5 All methods of the protocol are publicly accessible.
+        // 1. The protocol is abstract: no objects of it can be created.
+        //
+        // 2. The protocol has no data members.
+        //
+        // 3. The protocol has a virtual destructor.
+        //
+        // 4. All methods of the protocol are pure virtual.
+        //
+        // 5. All methods of the protocol are publicly accessible.
         //
         // Plan:
-        //: 1 Define a concrete derived implementation, 'ProtocolClassTestImp',
-        //:   of the protocol.
-        //:
-        //: 2 Create an object of the 'bsls::ProtocolTest' class template
-        //:   parameterized by 'ProtocolClassTestImp', and use it to verify
-        //:   that:
-        //:
-        //:   1 The protocol is abstract. (C-1)
-        //:
-        //:   2 The protocol has no data members. (C-2)
-        //:
-        //:   3 The protocol has a virtual destructor. (C-3)
-        //:
-        //: 3 Use the 'BSLS_PROTOCOLTEST_ASSERT' macro to verify that
-        //:   non-creator methods of the protocol are:
-        //:
-        //:   1 virtual, (C-4)
-        //:
-        //:   2 publicly accessible. (C-5)
+        // 1. Define a concrete derived implementation, `ProtocolClassTestImp`,
+        //    of the protocol.
+        //
+        // 2. Create an object of the `bsls::ProtocolTest` class template
+        //    parameterized by `ProtocolClassTestImp`, and use it to verify
+        //    that:
+        //
+        //   1. The protocol is abstract. (C-1)
+        //
+        //   2. The protocol has no data members. (C-2)
+        //
+        //   3. The protocol has a virtual destructor. (C-3)
+        //
+        // 3. Use the `BSLS_PROTOCOLTEST_ASSERT` macro to verify that
+        //    non-creator methods of the protocol are:
+        //
+        //   1. virtual, (C-4)
+        //
+        //   2. publicly accessible. (C-5)
         //
         // Testing:
         //   virtual ~TimetableLoader();

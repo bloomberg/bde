@@ -147,10 +147,10 @@ void printValue(bsl::ostream& out, const T& value)
     bdlb::PrintMethods::print(out, value, 0, -1);
 }
 
+/// Output the specified container `value` to the specified stream `out` and
+/// return that stream.
 template <class T>
 bsl::ostream& operator<<(bsl::ostream& out, const bsl::vector<T>& value)
-    // Output the specified container 'value' to the specified stream 'out' and
-    // return that stream.
 {
     printValue(out, value);
     return out;
@@ -416,9 +416,9 @@ static const char *printableCharacters[256]=
     "\\xff"   // 255  ff
 };
 
+/// Specialize for char*.  Need to expand \r, \n, \t and surround with
+/// DQUOTE characters.
 void printValue(bsl::ostream& out, const char* value)
-    // Specialize for char*.  Need to expand \r, \n, \t and surround with
-    // DQUOTE characters.
 {
     out << '"';
 
@@ -430,8 +430,8 @@ void printValue(bsl::ostream& out, const char* value)
     out << '"';
 }
 
+/// Need to expand \r, \n, \t and surround with DQUOTE characters.
 void printValue(bsl::ostream& out, const bsl::string& value)
-    // Need to expand \r, \n, \t and surround with DQUOTE characters.
 {
     printValue(out, value.c_str());
 }
@@ -451,23 +451,23 @@ typedef balxml::TypesPrintUtil  Print;
 
 namespace TestMachinery {
 #if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
+/// On 64 bit systems `long` may be 32 or 64 bits.
 #define U_LONG_IS_64_BITS
-    // On 64 bit systems 'long' may be 32 or 64 bits.
 #endif
 
+/// Meta-function to chose a type we parse/decode into.  For most types we
+/// just use the type we encoded from.
 template <class ENCODED_TYPE>
 struct GetDecodeType {
-    // Meta-function to chose a type we parse/decode into.  For most types we
-    // just use the type we encoded from.
 
     typedef ENCODED_TYPE Type;
 
 };
 
+/// `signed long int` is not supported to parse/decode into, as it may have
+/// a differing size on different 64 bit platforms.
 template <>
 struct GetDecodeType<signed long int> {
-    // 'signed long int' is not supported to parse/decode into, as it may have
-    // a differing size on different 64 bit platforms.
 
 #ifdef U_LONG_IS_64_BITS
     typedef long long int          Type;
@@ -476,10 +476,10 @@ struct GetDecodeType<signed long int> {
 #endif
 };
 
+/// `unsigned long int` is not supported to parse/decode into, as it may
+/// have a differing size on different 64 bit platforms.
 template <>
 struct GetDecodeType<unsigned long int> {
-    // 'unsigned long int' is not supported to parse/decode into, as it may
-    // have a differing size on different 64 bit platforms.
 
 #ifdef U_LONG_IS_64_BITS
     typedef unsigned long long int Type;
@@ -488,21 +488,21 @@ struct GetDecodeType<unsigned long int> {
 #endif
 };
 
+/// Can't parse into a `const char *`, but can into a `bsl::string`.
 template <>
 struct GetDecodeType<const char *> {
-    // Can't parse into a 'const char *', but can into a 'bsl::string'.
     typedef bsl::string Type;
 };
 
+/// Can't parse into a string reference, but can into a `bsl::string`.
 template <>
 struct GetDecodeType<bslstl::StringRef> {
-    // Can't parse into a string reference, but can into a 'bsl::string'.
     typedef bsl::string Type;
 };
 
+/// Return the length of `s` as an `int` after verifying it fits in `int`.
+/// The verifying part is more for show, we don't expect 2 gigabyte strings.
 int intLength(const bsl::string_view& s)
-    // Return the length of 's' as an 'int' after verifying it fits in 'int'.
-    // The verifying part is more for show, we don't expect 2 gigabyte strings.
 {
     ASSERTV(s.length(),
             s.length() <=
@@ -511,19 +511,19 @@ int intLength(const bsl::string_view& s)
     return static_cast<int>(s.length());
 }
 
+/// Verify round trip of `printDecimal`/`parseDecimal` for the values in the
+/// specified `DATA` array of the deduced `NUM_DATA` length.  The deduced
+/// `TEST_DATA` must provide a member `Type` that will be printed from, and
+/// parsed into.
 template <class       TEST_DATA,
           bsl::size_t NUM_DATA>
 void printDecimalRoundTripTester(const TEST_DATA (&DATA)[NUM_DATA])
-    // Verify round trip of 'printDecimal'/'parseDecimal' for the values in the
-    // specified 'DATA' array of the deduced 'NUM_DATA' length.  The deduced
-    // 'TEST_DATA' must provide a member 'Type' that will be printed from, and
-    // parsed into.
 {
     typedef typename TEST_DATA::Type Type;
 
+    /// Some types we can print/encode from, but cannot parse/decode into.
+    /// `GetDecodeType` is the level of indirection that solves that issue.
     typedef typename GetDecodeType<Type>::Type DecodeType;
-        // Some types we can print/encode from, but cannot parse/decode into.
-        // 'GetDecodeType' is the level of indirection that solves that issue.
 
     for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
         const int   LINE  = DATA[i].d_line;
@@ -540,25 +540,25 @@ void printDecimalRoundTripTester(const TEST_DATA (&DATA)[NUM_DATA])
                                                     ENCODED.data(),
                                                     intLength(ENCODED))));
         if (0 == rc) {
-            // To avoid a "reading uninitialized 'decode'" warning
+            // To avoid a "reading uninitialized `decode`" warning
             ASSERTV(LINE, ENCODED, decoded, INPUT, INPUT == decoded);
         }
     }
 }
 
+/// Replace select XML character references in the specified `withEntities`
+/// with the corresponding ASCII character and return the result.
+///
+/// The following pre-defined character entities are recognized only:
+/// ```
+/// Entity  Char    Name
+/// ======  ====    ====
+/// &lt;    <       Less-than
+/// &gt;    >       Greater-than
+/// &amp;   &       Ampersand
+/// &apos;  '       Apostrophe
+/// &quot;  "       Quote
 bsl::string replaceCharEntities(const bsl::string& withEntities)
-    // Replace select XML character references in the specified 'withEntities'
-    // with the corresponding ASCII character and return the result.
-    //
-    // The following pre-defined character entities are recognized only:
-    //..
-    //  Entity  Char    Name
-    //  ======  ====    ====
-    //  &lt;    <       Less-than
-    //  &gt;    >       Greater-than
-    //  &amp;   &       Ampersand
-    //  &apos;  '       Apostrophe
-    //  &quot;  "       Quote
 {
     // This code is neither fast, nor clever, and it is only correct within the
     // confines of the round trip testing in this test driver.
@@ -593,19 +593,19 @@ bsl::string replaceCharEntities(const bsl::string& withEntities)
     return rv;
 }
 
+/// Verify round trip of `printDecimal`/`parseDecimal` for the values in the
+/// specified `DATA` array of the deduced `NUM_DATA` length.  The deduced
+/// `TEST_DATA` must provide a member scalar `Type` that will be printed
+/// from, and parsed into.
 template <class       TEST_DATA,
           bsl::size_t NUM_DATA>
 void printTextRoundTripScalarTester(const TEST_DATA (&DATA)[NUM_DATA])
-    // Verify round trip of 'printDecimal'/'parseDecimal' for the values in the
-    // specified 'DATA' array of the deduced 'NUM_DATA' length.  The deduced
-    // 'TEST_DATA' must provide a member scalar 'Type' that will be printed
-    // from, and parsed into.
 {
     typedef typename TEST_DATA::Type Type;
 
+    /// Some types we can print/encode from, but cannot parse/decode into.
+    /// `GetDecodeType` is the level of indirection that solves that issue.
     typedef typename GetDecodeType<Type>::Type DecodeType;
-        // Some types we can print/encode from, but cannot parse/decode into.
-        // 'GetDecodeType' is the level of indirection that solves that issue.
 
     for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
         const int  LINE  = DATA[i].d_line;
@@ -622,18 +622,18 @@ void printTextRoundTripScalarTester(const TEST_DATA (&DATA)[NUM_DATA])
                                                  ENCODED.data(),
                                                  intLength(ENCODED))));
         if (0 == rc) {
-            // To avoid a "reading uninitialized 'decode'" warning
+            // To avoid a "reading uninitialized `decode`" warning
             ASSERTV(LINE, ENCODED, decoded, INPUT, INPUT == decoded);
         }
     }
 }
 
+/// Build, and return a `printText` input by concatenating the specified
+/// `HEADER`, `INPUT`, and ` TRAILER`.
 template <class OBJECT_TYPE>
 OBJECT_TYPE buildPrintTextInput(const bsl::string_view&  HEADER,
                                 const OBJECT_TYPE&       INPUT,
                                 const bsl::string_view&  TRAILER)
-    // Build, and return a 'printText' input by concatenating the specified
-    // 'HEADER', 'INPUT', and ' TRAILER'.
 {
     OBJECT_TYPE rv(HEADER.begin(), HEADER.end());
 
@@ -644,19 +644,19 @@ OBJECT_TYPE buildPrintTextInput(const bsl::string_view&  HEADER,
     return rv;
 }
 
+/// Verify round trip of `printDefault`/`parseDefault` for the values in the
+/// specified `DATA` array of the deduced `NUM_DATA` length.  The deduced
+/// `TEST_DATA` must provide a member `Type` that will be printed from, and
+/// parsed into.
 template <class       TEST_DATA,
           bsl::size_t NUM_DATA>
 void printDefaultRoundTripTester(const TEST_DATA (&DATA)[NUM_DATA])
-    // Verify round trip of 'printDefault'/'parseDefault' for the values in the
-    // specified 'DATA' array of the deduced 'NUM_DATA' length.  The deduced
-    // 'TEST_DATA' must provide a member 'Type' that will be printed from, and
-    // parsed into.
 {
     typedef typename TEST_DATA::Type Type;
 
+    /// Some types we can print/encode from, but cannot parse/decode into.
+    /// `GetDecodeType` is the level of indirection that solves that issue.
     typedef typename GetDecodeType<Type>::Type DecodeType;
-        // Some types we can print/encode from, but cannot parse/decode into.
-        // 'GetDecodeType' is the level of indirection that solves that issue.
 
     for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
         const int   LINE  = DATA[i].d_line;
@@ -673,16 +673,16 @@ void printDefaultRoundTripTester(const TEST_DATA (&DATA)[NUM_DATA])
                                                     ENCODED.data(),
                                                     intLength(ENCODED))));
         if (0 == rc) {
-            // To avoid a "reading uninitialized 'decode'" warning
+            // To avoid a "reading uninitialized `decode`" warning
             ASSERTV(LINE, ENCODED, decoded, INPUT, INPUT == decoded);
         }
     }
 }
 
+/// The non-local test data type that is required for test helper function
+/// templates to compile in C++03.
 template <class INPUT_TYPE>
 struct RoundTripTestData {
-    // The non-local test data type that is required for test helper function
-    // templates to compile in C++03.
 
     typedef INPUT_TYPE Type;
 
@@ -789,7 +789,7 @@ namespace bdlat_EnumFunctions {
 //  CustomizedInt: a customized integer
 //
 //@DESCRIPTION:
-//  todo: provide annotation for 'CustomizedInt'
+//  todo: provide annotation for `CustomizedInt`
 
 namespace BloombergLP {
 namespace s_baltst {
@@ -809,74 +809,79 @@ class CustomizedInt {
     typedef int BaseType;
 
     // CONSTANTS
+
+    /// the name of this class (i.e., "CustomizedInt")
     static const char CLASS_NAME[];
-        // the name of this class (i.e., "CustomizedInt")
 
     // CREATORS
+
+    /// Create an object of type `CustomizedInt` having the default value.
     CustomizedInt();
-        // Create an object of type 'CustomizedInt' having the default value.
 
+    /// Create an object of type `CustomizedInt` having the value of the
+    /// specified `original` object.
     CustomizedInt(const CustomizedInt& original);
-        // Create an object of type 'CustomizedInt' having the value of the
-        // specified 'original' object.
 
+    /// Create an object of type `CustomizedInt` having the specified
+    /// `value`.
     explicit CustomizedInt(int value);
-        // Create an object of type 'CustomizedInt' having the specified
-        // 'value'.
 
+    /// Destroy this object.
     ~CustomizedInt();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     CustomizedInt& operator=(const CustomizedInt& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
+    /// Reset this object to the default value (i.e., its value upon
+    /// default construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
 
+    /// Convert from the specified `value` to this type.  Return 0 if
+    /// successful and non-zero otherwise.
     int fromInt(int value);
-        // Convert from the specified 'value' to this type.  Return 0 if
-        // successful and non-zero otherwise.
 
     // ACCESSORS
+
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.  Note that a trailing newline is provided
+    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
 
+    /// Convert this value to `int`.
     const int& toInt() const;
-        // Convert this value to 'int'.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have
+/// the same value, and `false` otherwise.  Two attribute objects have the
+/// same value if each respective attribute has the same value.
 inline
 bool operator==(const CustomizedInt& lhs, const CustomizedInt& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
+/// have the same value, and `false` otherwise.  Two attribute objects do
+/// not have the same value if one or more respective attributes differ in
+/// values.
 inline
 bool operator!=(const CustomizedInt& lhs, const CustomizedInt& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
 
+/// Format the specified `rhs` to the specified output `stream` and return a
+/// reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedInt& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and return a
-    // reference to the modifiable 'stream'.
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -992,8 +997,8 @@ namespace s_baltst {
                                // CONSTANTS
                                // ---------
 
+/// the name of this class
 const char CustomizedInt::CLASS_NAME[] = "CustomizedInt";
-    // the name of this class
 
                                 // -------------
                                 // CLASS METHODS
@@ -1023,8 +1028,8 @@ const char CustomizedInt::CLASS_NAME[] = "CustomizedInt";
 // ----------------------------------------------------------------------------
 
 // The following snippets of code illustrate the usage of this component.  It
-// parses a Base64 string into an 'bsl::vector<char>':
-//..
+// parses a Base64 string into an `bsl::vector<char>`:
+// ```
 //  #include <balxml_typesparserutil.h>
 //
 //  #include <cassert>
@@ -1050,7 +1055,7 @@ void usageExample()
     ASSERT('c' == vec[2]);
     ASSERT('d' == vec[3]);
 }
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -1089,33 +1094,33 @@ int main(int argc, char *argv[])
         //   nullable simple type.
         //
         // Concerns:
-        //: 1 Whitespace-separated representations of simple types can be
-        //:   decoded into arrays of the corresponding nullable simple type
-        //:   if the array has the list formatting mode.
-        //:
-        //: 2 The amount of whitespace between elements is insignificant.
-        //:
-        //: 3 The resulting array has no null elements.  Note that this
-        //:   property results from the fact that the encoded representation
-        //:   of null elements is the empty string.
+        // 1. Whitespace-separated representations of simple types can be
+        //    decoded into arrays of the corresponding nullable simple type
+        //    if the array has the list formatting mode.
+        //
+        // 2. The amount of whitespace between elements is insignificant.
+        //
+        // 3. The resulting array has no null elements.  Note that this
+        //    property results from the fact that the encoded representation
+        //    of null elements is the empty string.
         //
         // Plan:
-        //: 1 Given two simple types, 'int' and 'bsl::string', do the
-        //:   following:
-        //:
-        //:   1 Enumerate all possible textual representations of lists of
-        //:     simple values up to length 3, parse these representations into
-        //:     arrays of the corresponding simple types, and verify parsing
-        //:     succeeds.
-        //:
-        //:   2 Enumerate all possible textual representations of lists of
-        //:     simple values up to length 3, parse these representations into
-        //:     arrays of the corresponding nullable simple types, and verify
-        //:     parsing succeeds and that no elements of the resulting arrays
-        //:     are null.
-        //:
-        //: 2 Repeat the above for textual representations that contain
-        //:   insignificant whitespace.
+        // 1. Given two simple types, `int` and `bsl::string`, do the
+        //    following:
+        //
+        //   1. Enumerate all possible textual representations of lists of
+        //      simple values up to length 3, parse these representations into
+        //      arrays of the corresponding simple types, and verify parsing
+        //      succeeds.
+        //
+        //   2. Enumerate all possible textual representations of lists of
+        //      simple values up to length 3, parse these representations into
+        //      arrays of the corresponding nullable simple types, and verify
+        //      parsing succeeds and that no elements of the resulting arrays
+        //      are null.
+        //
+        // 2. Repeat the above for textual representations that contain
+        //    insignificant whitespace.
         //
         // Testing:
         //   PARSING LISTS OF NULLABLE SIMPLE TYPES
@@ -1204,20 +1209,20 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING 'printDefault' ROUND TRIP
+        // TESTING `printDefault` ROUND TRIP
         //
         // Concerns:
         //
         // Plan:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'printDefault' ROUND TRIP"
+        if (verbose) cout << "\nTESTING `printDefault` ROUND TRIP"
                           << "\n=================================" << endl;
 
         using TestMachinery::RoundTripTestData;
         using TestMachinery::printDefaultRoundTripTester;
 
-        if (verbose) cout << "\nTesting 'bool'." << endl;
+        if (verbose) cout << "\nTesting `bool`." << endl;
         {
             static const RoundTripTestData<bool> DATA[] =
             {
@@ -1229,7 +1234,7 @@ int main(int argc, char *argv[])
             printDefaultRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'char'." << endl;
+        if (verbose) cout << "\nTesting `char`." << endl;
         {
             static const RoundTripTestData<char> DATA[] =
             {
@@ -1246,7 +1251,7 @@ int main(int argc, char *argv[])
             printDefaultRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'short'." << endl;
+        if (verbose) cout << "\nTesting `short`." << endl;
         {
             static const RoundTripTestData<short> DATA[] =
             {
@@ -1263,7 +1268,7 @@ int main(int argc, char *argv[])
             printDefaultRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'int'." << endl;
+        if (verbose) cout << "\nTesting `int`." << endl;
         {
             static const RoundTripTestData<int> DATA[] =
             {
@@ -1280,7 +1285,7 @@ int main(int argc, char *argv[])
             printDefaultRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'long'." << endl;
+        if (verbose) cout << "\nTesting `long`." << endl;
         {
             static const RoundTripTestData<long> DATA[] =
             {
@@ -1303,7 +1308,7 @@ int main(int argc, char *argv[])
             printDefaultRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'bsls::Types::Int64'." << endl;
+        if (verbose) cout << "\nTesting `bsls::Types::Int64`." << endl;
         {
             static const RoundTripTestData<bsls::Types::Int64> DATA[] =
             {
@@ -1320,7 +1325,7 @@ int main(int argc, char *argv[])
             printDefaultRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'unsigned char'." << endl;
+        if (verbose) cout << "\nTesting `unsigned char`." << endl;
         {
             static const RoundTripTestData<unsigned char> DATA[] =
             {
@@ -1334,7 +1339,7 @@ int main(int argc, char *argv[])
             printDefaultRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'unsigned short'." << endl;
+        if (verbose) cout << "\nTesting `unsigned short`." << endl;
         {
 
             static const RoundTripTestData<unsigned short> DATA[] =
@@ -1349,7 +1354,7 @@ int main(int argc, char *argv[])
             printDefaultRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'unsigned int'." << endl;
+        if (verbose) cout << "\nTesting `unsigned int`." << endl;
         {
             static const RoundTripTestData<unsigned int> DATA[] =
             {
@@ -1363,7 +1368,7 @@ int main(int argc, char *argv[])
             printDefaultRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'bsls::Types::Uint64'." << endl;
+        if (verbose) cout << "\nTesting `bsls::Types::Uint64`." << endl;
         {
             static const RoundTripTestData<bsls::Types::Uint64> DATA[] =
             {
@@ -1377,7 +1382,7 @@ int main(int argc, char *argv[])
             printDefaultRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'float'." << endl;
+        if (verbose) cout << "\nTesting `float`." << endl;
         {
             typedef bsl::numeric_limits<float> NumLimits;
 
@@ -1403,7 +1408,7 @@ int main(int argc, char *argv[])
                 { L_,    1.234567e35f        },
                 { L_,    1.234567e-35f       },
 
-                // Values from 'balxml_encoder.t.cpp' 'runTestCase17'
+                // Values from `balxml_encoder.t.cpp` `runTestCase17`
                 { L_,   1.1920928e-07f       },
                 { L_,   2.3841856e-07f       },
                 { L_,   1.5258789e-05f       },
@@ -1423,7 +1428,7 @@ int main(int argc, char *argv[])
 
                 // Full Mantissa Integers
                 { L_, 1.0f * 0xFFFFFF   // this is also
-                       * (1ull << 63)  // 'NumLimits::max()'
+                       * (1ull << 63)  // `NumLimits::max()`
                        * (1ull << 41)        },
                 // Boundary Values
                 { L_,  NumLimits::min()      },
@@ -1434,7 +1439,7 @@ int main(int argc, char *argv[])
             printDefaultRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'double'." << endl;
+        if (verbose) cout << "\nTesting `double`." << endl;
         {
             typedef bsl::numeric_limits<double> NumLimits;
 
@@ -1457,7 +1462,7 @@ int main(int argc, char *argv[])
                 { L_,                  1.23456789012345e105  },
                 { L_,                 123.4567               },
 
-                // Values from 'balxml_encoder.t.cpp' 'runTestCase17'
+                // Values from `balxml_encoder.t.cpp` `runTestCase17`
                 { L_,                   1.0                  },
                 { L_,                1024.0                  },
                 { L_,            16777216.0                  },
@@ -1480,7 +1485,7 @@ int main(int argc, char *argv[])
                 // Full Mantissa Integers
                 { L_, 1.0 * 0x1FFFFFFFFFFFFFull              },
                 { L_, 1.0 * 0x1FFFFFFFFFFFFFull       // This number is also
-                      * (1ull << 63) * (1ull << 63)   // 'NumLimits::max()'
+                      * (1ull << 63) * (1ull << 63)   // `NumLimits::max()`
                       * (1ull << 63) * (1ull << 63)
                       * (1ull << 63) * (1ull << 63)
                       * (1ull << 63) * (1ull << 63)
@@ -1498,7 +1503,7 @@ int main(int argc, char *argv[])
             printDefaultRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'Decimal64'." << endl;
+        if (verbose) cout << "\nTesting `Decimal64`." << endl;
         {
             typedef bdldfp::Decimal64         Type;
             typedef bsl::numeric_limits<Type> Limits;
@@ -1655,7 +1660,7 @@ int main(int argc, char *argv[])
         }
 
 
-        if (verbose) cout << "\nTesting 'char *'." << endl;
+        if (verbose) cout << "\nTesting `char *`." << endl;
         {
             static const RoundTripTestData<const char *> DATA[] =
             {
@@ -1668,7 +1673,7 @@ int main(int argc, char *argv[])
             printDefaultRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'bsl::string'." << endl;
+        if (verbose) cout << "\nTesting `bsl::string`." << endl;
         {
             static const RoundTripTestData<bsl::string> DATA[] =
             {
@@ -1699,7 +1704,7 @@ int main(int argc, char *argv[])
             printDefaultRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'bslstl::StringRef'." << endl;
+        if (verbose) cout << "\nTesting `bslstl::StringRef`." << endl;
         {
             static const RoundTripTestData<bslstl::StringRef> DATA[] =
             {
@@ -1730,7 +1735,7 @@ int main(int argc, char *argv[])
             printDefaultRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'MyEnumeration::Value'." << endl;
+        if (verbose) cout << "\nTesting `MyEnumeration::Value`." << endl;
         {
             static const RoundTripTestData<test::MyEnumeration::Value> DATA[] =
             {
@@ -1742,7 +1747,7 @@ int main(int argc, char *argv[])
             printDefaultRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'MyEnumerationWithFallback::Value'."
+        if (verbose) cout << "\nTesting `MyEnumerationWithFallback::Value`."
                           << endl;
         {
             typedef test::MyEnumerationWithFallback::Value Obj;
@@ -1757,7 +1762,7 @@ int main(int argc, char *argv[])
             printDefaultRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'CustomizedString'." << endl;
+        if (verbose) cout << "\nTesting `CustomizedString`." << endl;
         {
             typedef test::CustomizedString Type;
 
@@ -1775,7 +1780,7 @@ int main(int argc, char *argv[])
             printDefaultRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'CustomizedInt'." << endl;
+        if (verbose) cout << "\nTesting `CustomizedInt`." << endl;
         {
             typedef test::CustomizedInt Type;
 
@@ -2163,39 +2168,39 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'printText' ROUND TRIP
+        // TESTING `printText` ROUND TRIP
         //
         // Concerns:
-        //: 1 That booleans and enumerations are printed as text properly.
-        //:
-        //: 2 That types that have the CustomizedString trait are printed
-        //:   correctly.
-        //:
-        //: 3 That invalid characters (single- and multi-bytes) are not
-        //:   printed.
-        //:
-        //: 4 That valid input are printed correctly, and strings with
-        //:   invalid characters printed until the first invalid character.
+        // 1. That booleans and enumerations are printed as text properly.
+        //
+        // 2. That types that have the CustomizedString trait are printed
+        //    correctly.
+        //
+        // 3. That invalid characters (single- and multi-bytes) are not
+        //    printed.
+        //
+        // 4. That valid input are printed correctly, and strings with
+        //    invalid characters printed until the first invalid character.
         //
         // Plan:
-        //   Exercise 'printText' with typical data to ascertain that it prints
+        //   Exercise `printText` with typical data to ascertain that it prints
         //   as expected for concerns 1 and 2.  For concerns 3 and 4, select
         //   test data with the boundary and area testing methods, and verify
         //   that output is as expected.  Note that since we are in effect
-        //   testing the internal method 'printTextReplacingXMLEscapes', there
+        //   testing the internal method `printTextReplacingXMLEscapes`, there
         //   is no need to test it for several types, since it is called on the
-        //   internal text buffer.  For this reason, we test only with 'char*'
-        //   data thoroughly, and trust that the forwarding for 'bsl::string'
+        //   internal text buffer.  For this reason, we test only with `char*`
+        //   data thoroughly, and trust that the forwarding for `bsl::string`
         //   and other string types will call the same method.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'printText' ROUND TRIP"
+        if (verbose) cout << "\nTESTING `printText` ROUND TRIP"
                           << "\n==============================" << endl;
 
         using TestMachinery::RoundTripTestData;
         using TestMachinery::printTextRoundTripScalarTester;
 
-        if (verbose) cout << "\nTesting 'bool'." << endl;
+        if (verbose) cout << "\nTesting `bool`." << endl;
         {
             static const RoundTripTestData<bool> DATA[] =
             {
@@ -2207,7 +2212,7 @@ int main(int argc, char *argv[])
             printTextRoundTripScalarTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'char'." << endl;
+        if (verbose) cout << "\nTesting `char`." << endl;
         {
             static const RoundTripTestData<char> DATA[] =
             {
@@ -2567,7 +2572,7 @@ int main(int argc, char *argv[])
 
             using TestMachinery::intLength;
 
-            if (verbose) cout << "\nTesting 'bsl::string'." << endl;
+            if (verbose) cout << "\nTesting `bsl::string`." << endl;
             {
                 typedef bsl::string Type;
 
@@ -2622,7 +2627,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) cout << "\nUsing 'vector<char>'." << endl;
+            if (verbose) cout << "\nUsing `vector<char>`." << endl;
             {
                 typedef bsl::vector<char> Type;
 
@@ -2679,7 +2684,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) cout << "\nUsing 'CustomizedString'." << endl;
+            if (verbose) cout << "\nUsing `CustomizedString`." << endl;
             {
                 typedef test::CustomizedString Type;
 
@@ -2745,7 +2750,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'MyEnumeration::Value'." << endl;
+        if (verbose) cout << "\nTesting `MyEnumeration::Value`." << endl;
         {
             static const RoundTripTestData<test::MyEnumeration::Value> DATA[] =
             {
@@ -2757,7 +2762,7 @@ int main(int argc, char *argv[])
             printTextRoundTripScalarTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'MyEnumerationWithFallback::Value'."
+        if (verbose) cout << "\nTesting `MyEnumerationWithFallback::Value`."
                           << endl;
         {
             typedef test::MyEnumerationWithFallback::Value Obj;
@@ -2774,14 +2779,14 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING 'printList' ROUND TRIP
+        // TESTING `printList` ROUND TRIP
         //
         // Concerns:
         //
         // Plan:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'printList' ROUND TRIP"
+        if (verbose) cout << "\nTESTING `printList` ROUND TRIP"
                           << "\n==============================" << endl;
 
         typedef int                   ElemType;
@@ -2828,14 +2833,14 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'printHex' ROUND TRIP
+        // TESTING `printHex` ROUND TRIP
         //
         // Concerns:
         //
         // Plan:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'printHex' ROUND TRIP"
+        if (verbose) cout << "\nTESTING `printHex` ROUND TRIP"
                           << "\n=============================" << endl;
 
         static const struct TestData {
@@ -2914,20 +2919,20 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'printDecimal' ROUND TRIP
+        // TESTING `printDecimal` ROUND TRIP
         //
         // Concerns:
         //
         // Plan:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'printDecimal' ROUND TRIP"
+        if (verbose) cout << "\nTESTING `printDecimal` ROUND TRIP"
                           << "\n=================================" << endl;
 
         using TestMachinery::RoundTripTestData;
         using TestMachinery::printDecimalRoundTripTester;
 
-        if (verbose) cout << "\nTesting 'bool'." << endl;
+        if (verbose) cout << "\nTesting `bool`." << endl;
         {
             static const RoundTripTestData<bool> DATA[] =
             {
@@ -2940,7 +2945,7 @@ int main(int argc, char *argv[])
         }
 
 
-        if (verbose) cout << "\nTesting 'char'." << endl;
+        if (verbose) cout << "\nTesting `char`." << endl;
         {
             static const RoundTripTestData<char> DATA[] =
             {
@@ -2957,7 +2962,7 @@ int main(int argc, char *argv[])
             printDecimalRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'short'." << endl;
+        if (verbose) cout << "\nTesting `short`." << endl;
         {
             static const RoundTripTestData<short> DATA[] =
             {
@@ -2974,7 +2979,7 @@ int main(int argc, char *argv[])
             printDecimalRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'int'." << endl;
+        if (verbose) cout << "\nTesting `int`." << endl;
         {
             static const RoundTripTestData<int> DATA[] =
             {
@@ -2991,7 +2996,7 @@ int main(int argc, char *argv[])
             printDecimalRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nUsing 'long'." << endl;
+        if (verbose) cout << "\nUsing `long`." << endl;
         {
             static const RoundTripTestData<long> DATA[] =
             {
@@ -3014,7 +3019,7 @@ int main(int argc, char *argv[])
             printDecimalRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'bsls::Types::Int64'." << endl;
+        if (verbose) cout << "\nTesting `bsls::Types::Int64`." << endl;
         {
             static const RoundTripTestData<bsls::Types::Int64> DATA[] =
             {
@@ -3031,7 +3036,7 @@ int main(int argc, char *argv[])
             printDecimalRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'unsigned char'." << endl;
+        if (verbose) cout << "\nTesting `unsigned char`." << endl;
         {
             static const RoundTripTestData<unsigned char> DATA[] =
             {
@@ -3045,7 +3050,7 @@ int main(int argc, char *argv[])
             printDecimalRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'unsigned short'." << endl;
+        if (verbose) cout << "\nTesting `unsigned short`." << endl;
         {
             static const RoundTripTestData<unsigned short> DATA[] =
             {
@@ -3059,7 +3064,7 @@ int main(int argc, char *argv[])
             printDecimalRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'unsigned int'." << endl;
+        if (verbose) cout << "\nTesting `unsigned int`." << endl;
         {
             static const RoundTripTestData<unsigned int> DATA[] =
             {
@@ -3073,7 +3078,7 @@ int main(int argc, char *argv[])
             printDecimalRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'unsigned long'." << endl;
+        if (verbose) cout << "\nTesting `unsigned long`." << endl;
         {
             static const RoundTripTestData<unsigned long> DATA[] =
             {
@@ -3091,7 +3096,7 @@ int main(int argc, char *argv[])
             printDecimalRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'bsls::Types::Uint64'." << endl;
+        if (verbose) cout << "\nTesting `bsls::Types::Uint64`." << endl;
         {
             static const RoundTripTestData<bsls::Types::Uint64> DATA[] =
             {
@@ -3105,7 +3110,7 @@ int main(int argc, char *argv[])
             printDecimalRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'MyEnumeration::Value'." << endl;
+        if (verbose) cout << "\nTesting `MyEnumeration::Value`." << endl;
         {
             static const RoundTripTestData<test::MyEnumeration::Value> DATA[] =
             {
@@ -3117,7 +3122,7 @@ int main(int argc, char *argv[])
             printDecimalRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'MyEnumerationWithFallback::Value'."
+        if (verbose) cout << "\nTesting `MyEnumerationWithFallback::Value`."
                           << endl;
         {
             typedef test::MyEnumerationWithFallback::Value Obj;
@@ -3132,7 +3137,7 @@ int main(int argc, char *argv[])
             printDecimalRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'CustomizedInt'." << endl;
+        if (verbose) cout << "\nTesting `CustomizedInt`." << endl;
         {
             typedef test::CustomizedInt Type;
 
@@ -3140,7 +3145,7 @@ int main(int argc, char *argv[])
             {
                 //line    input
                 //----    -----
-                { L_,     Type(5)               },  // 'CustomizedInt' fails
+                { L_,     Type(5)               },  // `CustomizedInt` fails
                 { L_,     Type(4)               },  // to convert back from
                 { L_,     Type(3)               },  // integer for values not
                 { L_,     Type(2)               },  // less than 5.
@@ -3154,7 +3159,7 @@ int main(int argc, char *argv[])
             printDecimalRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'float'." << endl;
+        if (verbose) cout << "\nTesting `float`." << endl;
         {
             typedef bsl::numeric_limits<float> NumLimits;
 
@@ -3170,7 +3175,7 @@ int main(int argc, char *argv[])
                 { L_,     1.0f       },
                 { L_,   123.4567f    },
 
-                // Values from 'balxml_encoder.t.cpp' 'runTestCase17'
+                // Values from `balxml_encoder.t.cpp` `runTestCase17`
                 { L_, 1.5258789e-05f       },
                 { L_, 3.0517578e-05f       },
                 { L_, 6.1035156e-05f       },
@@ -3222,7 +3227,7 @@ int main(int argc, char *argv[])
                 // Full Mantissa Integers
                 { L_, 1.0f * 0xFFFFFF      },
                 { L_, 1.0f * 0xFFFFFF * (1ull << 63) * (1ull << 41) },
-                    // the above is 'bsl::numeric_limits<float>::max()'
+                    // the above is `bsl::numeric_limits<float>::max()`
 
                 // Boundary Values
                 { L_,  NumLimits::min()    },
@@ -3233,7 +3238,7 @@ int main(int argc, char *argv[])
             printDecimalRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'double'." << endl;
+        if (verbose) cout << "\nTesting `double`." << endl;
         {
             typedef bsl::numeric_limits<double> NumLimits;
 
@@ -3249,7 +3254,7 @@ int main(int argc, char *argv[])
                 { L_,    1.0               },
                 { L_,    123.4567          },
 
-                // Values from 'balxml_encoder.t.cpp' 'runTestCase17'
+                // Values from `balxml_encoder.t.cpp` `runTestCase17`
                 { L_, 1.52587890625e-05    },
                 { L_, 3.0517578125e-05     },
                 { L_, 6.103515625e-05      },
@@ -3301,7 +3306,7 @@ int main(int argc, char *argv[])
                       * (1ull << 63) * (1ull << 63) * (1ull << 63)
                       * (1ull << 63) * (1ull << 63) * (1ull << 63)
                       * (1ull << 26)                               },
-                      // The above is the value of 'NumLimits::max()'
+                      // The above is the value of `NumLimits::max()`
 
                 // Boundary Values
                 { L_,  NumLimits::min() },
@@ -3312,20 +3317,20 @@ int main(int argc, char *argv[])
             printDecimalRoundTripTester(DATA);
         }
 
-        if (verbose) cout << "\nTesting 'double' with encoder options" << endl;
+        if (verbose) cout << "\nTesting `double` with encoder options" << endl;
         {
             typedef double Type;
 
             typedef bsl::numeric_limits<Type> Limits;
 
+            // We use infinity to indicate that with the specified encoder
+            // options the exact same binary numeric value must be parsed
+            // back, as `printDecimal`/`parseDecimal` do not allow it as
+            // input/output.
             const Type ROUND_TRIPS = Limits::infinity();
-                // We use infinity to indicate that with the specified encoder
-                // options the exact same binary numeric value must be parsed
-                // back, as 'printDecimal'/'parseDecimal' do not allow it as
-                // input/output.
 
+            // `N` indicates an option not set.
             const int N = -42;
-                // 'N' indicates an option not set.
 
             static const struct TestData {
                 int  d_line;
@@ -3480,7 +3485,7 @@ int main(int argc, char *argv[])
                 // Large integer parts writing more digits than asked for
                 D(  123456.001,          4,   N,              123456.0      ),
 
-                // Values from 'balxml_encoder.t.cpp' 'runTestCase17' (no opts)
+                // Values from `balxml_encoder.t.cpp` `runTestCase17` (no opts)
                 D(1.52587890625e-05  ,   N,   N,          ROUND_TRIPS       ),
                 D(3.0517578125e-05   ,   N,   N,          ROUND_TRIPS       ),
                 D(6.103515625e-05    ,   N,   N,          ROUND_TRIPS       ),
@@ -3517,7 +3522,7 @@ int main(int argc, char *argv[])
                 D( 18014398509481984.,   N,   N,          ROUND_TRIPS       ),
                 D(144115188075855870.,   N,   N,          ROUND_TRIPS       ),
 
-                // More from 'balxml_encoder.t.cpp' 'runTestCase17' (with opts)
+                // More from `balxml_encoder.t.cpp` `runTestCase17` (with opts)
                 D(1.52587890625e-05   ,   N,   0,                  0.0      ),
                 D(3.0517578125e-05    ,   N,   0,                  0.0      ),
                 D(6.103515625e-05     ,   N,   0,                  0.0      ),
@@ -3533,13 +3538,13 @@ int main(int argc, char *argv[])
                 D(6.25e-02            ,   N,   0,                  0.1      ),
                 D(1.25e-01            ,   N,   0,                  0.1      ),
 //               D(2.5e-1              ,   N,   0,                  0.2      ),
-// The above line may trigger a bug in  Microsoft's 'sprintf' implementation
+// The above line may trigger a bug in  Microsoft's `sprintf` implementation
 // depending on what version of their C library ends up being used.  That
 // unfortunately may depends on the actual machine where the code runs, not
-// where it is built.  Since this value with the 0 'maxFractionDigits' (that
+// where it is built.  Since this value with the 0 `maxFractionDigits` (that
 // becomes the minim allowed 1) does not round-trip anyway, this line does
 // not add value to the round-trip test.  So instead of adding exra code to
-// accepting 0.3 as well as 0.2 (when using Microsoft 'sprintf') we just skip
+// accepting 0.3 as well as 0.2 (when using Microsoft `sprintf`) we just skip
 // this test line.
 
                 D(5e-1                ,   N,   0,         ROUND_TRIPS       ),
@@ -3686,14 +3691,14 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'printBase64' ROUND TRIP
+        // TESTING `printBase64` ROUND TRIP
         //
         // Concerns:
         //
         // Plan:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'printBase64' ROUND TRIP"
+        if (verbose) cout << "\nTESTING `printBase64` ROUND TRIP"
                           << "\n================================" << endl;
 
         static const struct TestData {
@@ -3772,17 +3777,17 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'parse' FUNCTION
+        // TESTING `parse` FUNCTION
         //
         // Concerns:
         //
         // Plan:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'parse' Function"
+        if (verbose) cout << "\nTesting `parse` Function"
                           << "\n========================" << endl;
 
-        if (verbose) cout << "\nUsing 'BASE64'." << endl;
+        if (verbose) cout << "\nUsing `BASE64`." << endl;
         {
             typedef bsl::vector<char> Type;
 
@@ -3823,7 +3828,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'DEC'." << endl;
+        if (verbose) cout << "\nUsing `DEC`." << endl;
         {
             typedef bool Type;
 
@@ -3858,7 +3863,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'DEFAULT' (bool->TEXT)." << endl;
+        if (verbose) cout << "\nUsing `DEFAULT` (bool->TEXT)." << endl;
         {
             typedef bool Type;
 
@@ -3893,7 +3898,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'DEFAULT' (char->DEC)." << endl;
+        if (verbose) cout << "\nUsing `DEFAULT` (char->DEC)." << endl;
         {
             typedef char Type;
 
@@ -3933,7 +3938,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'HEX'." << endl;
+        if (verbose) cout << "\nUsing `HEX`." << endl;
         {
             typedef bsl::vector<char> Type;
 
@@ -3974,7 +3979,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'IS_LIST'." << endl;
+        if (verbose) cout << "\nUsing `IS_LIST`." << endl;
         {
             typedef int                   ElemType;
             typedef bsl::vector<ElemType> Type;
@@ -4028,7 +4033,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'TEXT'." << endl;
+        if (verbose) cout << "\nUsing `TEXT`." << endl;
         {
             typedef bool Type;
 
@@ -4065,17 +4070,17 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'parseDefault' FUNCTIONS
+        // TESTING `parseDefault` FUNCTIONS
         //
         // Concerns:
         //
         // Plan:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'parseDefault' Functions"
+        if (verbose) cout << "\nTesting `parseDefault` Functions"
                           << "\n================================" << endl;
 
-        if (verbose) cout << "\nUsing 'bool'." << endl;
+        if (verbose) cout << "\nUsing `bool`." << endl;
         {
             typedef bool Type;
 
@@ -4107,7 +4112,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'char'." << endl;
+        if (verbose) cout << "\nUsing `char`." << endl;
         {
             typedef char Type;
 
@@ -4144,7 +4149,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'short'." << endl;
+        if (verbose) cout << "\nUsing `short`." << endl;
         {
             typedef short Type;
 
@@ -4181,7 +4186,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'int'." << endl;
+        if (verbose) cout << "\nUsing `int`." << endl;
         {
             typedef int Type;
 
@@ -4218,7 +4223,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsls::Types::Int64'." << endl;
+        if (verbose) cout << "\nUsing `bsls::Types::Int64`." << endl;
         {
             typedef bsls::Types::Int64 Type;
 
@@ -4256,7 +4261,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'unsigned char'." << endl;
+        if (verbose) cout << "\nUsing `unsigned char`." << endl;
         {
             typedef unsigned char Type;
 
@@ -4290,7 +4295,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'unsigned short'." << endl;
+        if (verbose) cout << "\nUsing `unsigned short`." << endl;
         {
             typedef unsigned short Type;
 
@@ -4324,7 +4329,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'unsigned int'." << endl;
+        if (verbose) cout << "\nUsing `unsigned int`." << endl;
         {
             typedef unsigned int Type;
 
@@ -4358,7 +4363,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsls::Types::Uint64'." << endl;
+        if (verbose) cout << "\nUsing `bsls::Types::Uint64`." << endl;
         {
             typedef bsls::Types::Uint64 Type;
 
@@ -4392,7 +4397,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'float'." << endl;
+        if (verbose) cout << "\nUsing `float`." << endl;
         {
             typedef float Type;
 
@@ -4442,7 +4447,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'double'." << endl;
+        if (verbose) cout << "\nUsing `double`." << endl;
         {
             typedef double Type;
 
@@ -4492,7 +4497,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'Decimal64'." << endl;
+        if (verbose) cout << "\nUsing `Decimal64`." << endl;
         {
             typedef bdldfp::Decimal64 Type;
 
@@ -4551,7 +4556,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsl::string'." << endl;
+        if (verbose) cout << "\nUsing `bsl::string`." << endl;
         {
             typedef bsl::string Type;
 
@@ -4584,7 +4589,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsl::vector<char>'." << endl;
+        if (verbose) cout << "\nUsing `bsl::vector<char>`." << endl;
         {
             typedef bsl::vector<char> Type;
 
@@ -4622,7 +4627,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'MyEnumeration::Value'." << endl;
+        if (verbose) cout << "\nUsing `MyEnumeration::Value`." << endl;
         {
             typedef test::MyEnumeration::Value Type;
 
@@ -4653,8 +4658,8 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LINE, X,       EXPECTED_RESULT == X);
             }
         }
-        // Failure case for 'MyEnumeration::Value', where the enumerator is
-        // unknown. (In contrast, 'MyEnumerationWithFallback::Value', below,
+        // Failure case for `MyEnumeration::Value`, where the enumerator is
+        // unknown. (In contrast, `MyEnumerationWithFallback::Value`, below,
         // always succeeds in this case.)
         {
             typedef test::MyEnumeration::Value Type;
@@ -4669,7 +4674,7 @@ int main(int argc, char *argv[])
             ASSERTV(retCode, 0 != retCode);
         }
 
-        if (verbose) cout << "\nUsing 'MyEnumerationWithFallback::Value'."
+        if (verbose) cout << "\nUsing `MyEnumerationWithFallback::Value`."
                           << endl;
         {
             typedef test::MyEnumerationWithFallback::Value Type;
@@ -4704,7 +4709,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'CustomizedString'." << endl;
+        if (verbose) cout << "\nUsing `CustomizedString`." << endl;
         {
             typedef test::CustomizedString Type;
 
@@ -4740,7 +4745,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'CustomizedInt'." << endl;
+        if (verbose) cout << "\nUsing `CustomizedInt`." << endl;
         {
             typedef test::CustomizedInt Type;
 
@@ -4779,7 +4784,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'Date'." << endl;
+        if (verbose) cout << "\nUsing `Date`." << endl;
         {
             static const struct {
                 int         d_line;      // source line number
@@ -4840,7 +4845,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'DateTz'." << endl;
+        if (verbose) cout << "\nUsing `DateTz`." << endl;
         {
             static const struct {
                 int         d_line;      // source line number
@@ -4900,7 +4905,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'Time'." << endl;
+        if (verbose) cout << "\nUsing `Time`." << endl;
         {
             static const struct {
                 int         d_line;      // source line number
@@ -4968,7 +4973,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'TimeTz'." << endl;
+        if (verbose) cout << "\nUsing `TimeTz`." << endl;
         {
             static const struct {
                 int         d_line;      // source line number
@@ -5035,7 +5040,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'Datetime'." << endl;
+        if (verbose) cout << "\nUsing `Datetime`." << endl;
         {
             static const struct {
                 int         d_line;      // source line number
@@ -5371,7 +5376,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'DatetimeTz'." << endl;
+        if (verbose) cout << "\nUsing `DatetimeTz`." << endl;
         {
             static const struct {
                 int         d_line;      // source line number
@@ -5757,7 +5762,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'DateOrDateTz'." << endl;
+        if (verbose) cout << "\nUsing `DateOrDateTz`." << endl;
         {
             static const struct {
                 int         d_line;      // source line number
@@ -5776,7 +5781,7 @@ int main(int argc, char *argv[])
 
                 bool        d_isDateTz;  // flag indicating whether the result
                                          // object is expected to contain
-                                         // 'DateTz' or 'Date' object
+                                         // `DateTz` or `Date` object
             } DATA[] = {
             //line  input                year  month   day   off valid DateTz
             //----  --------------       ----  -----   --- ----- ----- ------
@@ -5855,7 +5860,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'TimeOrTimeTz'." << endl;
+        if (verbose) cout << "\nUsing `TimeOrTimeTz`." << endl;
         {
             static const struct {
                 int         d_line;      // source line number
@@ -5878,7 +5883,7 @@ int main(int argc, char *argv[])
 
                 bool        d_isTimeTz;  // flag indicating whether the result
                                          // object is expected to contain
-                                         // 'TimeTz' or 'Time' object
+                                         // `TimeTz` or `Time` object
             } DATA[] = {
   //LINE INPUT                     H   M   S   MS   US   OFF    VALID  TIMETZ
   //---- -----------------         --  --  --  ---  ---  -----  -----  ------
@@ -5961,7 +5966,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'DatetimeTz'." << endl;
+        if (verbose) cout << "\nUsing `DatetimeTz`." << endl;
         {
             static const struct {
                 int         d_line;          // source line number
@@ -5990,8 +5995,8 @@ int main(int argc, char *argv[])
 
                 bool        d_isDatetimeTz;  // flag indicating whether the
                                              // result object is expected to
-                                             // contain 'DatetimeTz' or
-                                             // 'Datetime' object
+                                             // contain `DatetimeTz` or
+                                             // `Datetime` object
             } DATA[] = {
 //line  input
 //----  ---------------------------------------
@@ -6093,17 +6098,17 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'parseText' FUNCTIONS
+        // TESTING `parseText` FUNCTIONS
         //
         // Concerns:
         //
         // Plan:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'parseText' Functions"
+        if (verbose) cout << "\nTesting `parseText` Functions"
                           << "\n=============================" << endl;
 
-        if (verbose) cout << "\nUsing 'bool'." << endl;
+        if (verbose) cout << "\nUsing `bool`." << endl;
         {
             typedef bool Type;
 
@@ -6135,7 +6140,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'char'." << endl;
+        if (verbose) cout << "\nUsing `char`." << endl;
         {
             typedef char Type;
 
@@ -6169,7 +6174,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsl::string'." << endl;
+        if (verbose) cout << "\nUsing `bsl::string`." << endl;
         {
             typedef bsl::string Type;
 
@@ -6202,7 +6207,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsl::vector<char>'." << endl;
+        if (verbose) cout << "\nUsing `bsl::vector<char>`." << endl;
         {
             typedef bsl::vector<char> Type;
 
@@ -6239,7 +6244,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'MyEnumeration::Value' (with success)."
+        if (verbose) cout << "\nUsing `MyEnumeration::Value` (with success)."
                           << endl;
         {
             typedef test::MyEnumeration::Value Type;
@@ -6272,7 +6277,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'MyEnumeration::Value' (with failure)."
+        if (verbose) cout << "\nUsing `MyEnumeration::Value` (with failure)."
                           << endl;
         {
             typedef test::MyEnumeration::Value Type;
@@ -6302,7 +6307,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'MyEnumerationWithFallback::Value'."
+        if (verbose) cout << "\nUsing `MyEnumerationWithFallback::Value`."
                           << endl;
         {
             typedef test::MyEnumerationWithFallback::Value Type;
@@ -6337,7 +6342,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'CustomizedString' (with success)."
+        if (verbose) cout << "\nUsing `CustomizedString` (with success)."
                           << endl;
         {
             typedef test::CustomizedString Type;
@@ -6374,7 +6379,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'CustomizedString' (with failure)."
+        if (verbose) cout << "\nUsing `CustomizedString` (with failure)."
                           << endl;
         {
             typedef test::CustomizedString Type;
@@ -6406,17 +6411,17 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'parseList' FUNCTIONS
+        // TESTING `parseList` FUNCTIONS
         //
         // Concerns:
         //
         // Plan:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'parseList' Functions"
+        if (verbose) cout << "\nTesting `parseList` Functions"
                           << "\n=============================" << endl;
 
-        if (verbose) cout << "\nUsing 'bsl::vector<int>'." << endl;
+        if (verbose) cout << "\nUsing `bsl::vector<int>`." << endl;
         {
             typedef int                   ElemType;
             typedef bsl::vector<ElemType> Type;
@@ -6459,14 +6464,14 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'parseHex' FUNCTIONS
+        // TESTING `parseHex` FUNCTIONS
         //
         // Concerns:
         //
         // Plan:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'parseHex' Functions"
+        if (verbose) cout << "\nTesting `parseHex` Functions"
                           << "\n============================" << endl;
 
         static const struct {
@@ -6484,7 +6489,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout << "\nUsing 'bsl::string'." << endl;
+        if (verbose) cout << "\nUsing `bsl::string`." << endl;
         {
             typedef bsl::string Type;
 
@@ -6507,7 +6512,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsl::vector<char>'." << endl;
+        if (verbose) cout << "\nUsing `bsl::vector<char>`." << endl;
         {
             typedef bsl::vector<char> Type;
 
@@ -6530,7 +6535,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'CustomizedBase64Binary'." << endl;
+        if (verbose) cout << "\nUsing `CustomizedBase64Binary`." << endl;
         {
             typedef s_baltst::CustomizedBase64Binary Type;
 
@@ -6554,7 +6559,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'CustomizedHexBinary'." << endl;
+        if (verbose) cout << "\nUsing `CustomizedHexBinary`." << endl;
         {
             typedef s_baltst::CustomizedHexBinary Type;
 
@@ -6581,17 +6586,17 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'parseDecimal' FUNCTIONS
+        // TESTING `parseDecimal` FUNCTIONS
         //
         // Concerns:
         //
         // Plan:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'parseDecimal' Functions"
+        if (verbose) cout << "\nTesting `parseDecimal` Functions"
                           << "\n================================" << endl;
 
-        if (verbose) cout << "\nUsing 'bool'." << endl;
+        if (verbose) cout << "\nUsing `bool`." << endl;
         {
             typedef bool Type;
 
@@ -6623,7 +6628,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'char'." << endl;
+        if (verbose) cout << "\nUsing `char`." << endl;
         {
             typedef char Type;
 
@@ -6660,7 +6665,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'short'." << endl;
+        if (verbose) cout << "\nUsing `short`." << endl;
         {
             typedef short Type;
 
@@ -6697,7 +6702,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'int'." << endl;
+        if (verbose) cout << "\nUsing `int`." << endl;
         {
             typedef int Type;
 
@@ -6734,7 +6739,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsls::Types::Int64'." << endl;
+        if (verbose) cout << "\nUsing `bsls::Types::Int64`." << endl;
         {
             typedef bsls::Types::Int64 Type;
 
@@ -6772,7 +6777,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'unsigned char'." << endl;
+        if (verbose) cout << "\nUsing `unsigned char`." << endl;
         {
             typedef unsigned char Type;
 
@@ -6806,7 +6811,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'unsigned short'." << endl;
+        if (verbose) cout << "\nUsing `unsigned short`." << endl;
         {
             typedef unsigned short Type;
 
@@ -6840,7 +6845,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'unsigned int'." << endl;
+        if (verbose) cout << "\nUsing `unsigned int`." << endl;
         {
             typedef unsigned int Type;
 
@@ -6874,7 +6879,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsls::Types::Uint64'." << endl;
+        if (verbose) cout << "\nUsing `bsls::Types::Uint64`." << endl;
         {
             typedef bsls::Types::Uint64 Type;
 
@@ -6908,7 +6913,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'MyEnumeration::Value' (with success)."
+        if (verbose) cout << "\nUsing `MyEnumeration::Value` (with success)."
                           << endl;
         {
             typedef test::MyEnumeration::Value Type;
@@ -6942,7 +6947,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'MyEnumeration::Value' (with failure)."
+        if (verbose) cout << "\nUsing `MyEnumeration::Value` (with failure)."
                           << endl;
         {
             typedef test::MyEnumeration::Value Type;
@@ -6972,7 +6977,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'MyEnumerationWithFallback::Value'."
+        if (verbose) cout << "\nUsing `MyEnumerationWithFallback::Value`."
                           << endl;
         {
             typedef test::MyEnumerationWithFallback::Value Type;
@@ -7008,7 +7013,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'CustomizedInt' (with success)." << endl;
+        if (verbose) cout << "\nUsing `CustomizedInt` (with success)." << endl;
         {
             typedef test::CustomizedInt Type;
 
@@ -7047,7 +7052,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'CustomizedInt' (with failure)." << endl;
+        if (verbose) cout << "\nUsing `CustomizedInt` (with failure)." << endl;
         {
             typedef test::CustomizedInt Type;
 
@@ -7078,7 +7083,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'float'." << endl;
+        if (verbose) cout << "\nUsing `float`." << endl;
         {
             typedef float Type;
 
@@ -7127,7 +7132,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'double'." << endl;
+        if (verbose) cout << "\nUsing `double`." << endl;
         {
             typedef double Type;
 
@@ -7194,14 +7199,14 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'parseBase64' FUNCTIONS
+        // TESTING `parseBase64` FUNCTIONS
         //
         // Concerns:
         //
         // Plan:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'parseBase64' Functions"
+        if (verbose) cout << "\nTesting `parseBase64` Functions"
                           << "\n===============================" << endl;
 
         static const struct {
@@ -7219,7 +7224,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout << "\nUsing 'bsl::string'." << endl;
+        if (verbose) cout << "\nUsing `bsl::string`." << endl;
         {
             typedef bsl::string Type;
 
@@ -7242,7 +7247,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsl::vector<char>'." << endl;
+        if (verbose) cout << "\nUsing `bsl::vector<char>`." << endl;
         {
             typedef bsl::vector<char> Type;
 
@@ -7265,7 +7270,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'CustomizedBase64Binary'." << endl;
+        if (verbose) cout << "\nUsing `CustomizedBase64Binary`." << endl;
         {
             typedef s_baltst::CustomizedBase64Binary Type;
 
@@ -7289,7 +7294,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'CustomizedHexBinary'." << endl;
+        if (verbose) cout << "\nUsing `CustomizedHexBinary`." << endl;
         {
             typedef s_baltst::CustomizedHexBinary Type;
 

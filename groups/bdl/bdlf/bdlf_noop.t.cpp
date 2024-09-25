@@ -36,15 +36,15 @@ using bsl::endl;
 // Primary Manipulators, and the only Accessor is the function-call operator.
 //
 // Basic Accessor:
-//: o 'operator()'
+//  - `operator()`
 //
 // Global Concerns:
-//: o The test driver is robust w.r.t reuse in other, similar components.
-//: o ACCESSOR methods are declared 'const'.
-//: o No memory is ever allocated from the global allocator.
+//  - The test driver is robust w.r.t reuse in other, similar components.
+//  - ACCESSOR methods are declared `const`.
+//  - No memory is ever allocated from the global allocator.
 //
 // Global Assumptions:
-//: o ACCESSOR methods are 'const' thread-safe.
+//  - ACCESSOR methods are `const` thread-safe.
 // ----------------------------------------------------------------------------
 // CREATORS
 // [ 2] bdlf::NoOp();
@@ -64,7 +64,7 @@ using bsl::endl;
 // [ 7] USAGE EXAMPLE
 // [ *] CONCERN: The test driver reusable w/other, similar components.
 // [ *] CONCERN: In no case does memory come from the global allocator.
-// [ 3] CONCERN: ACCESSOR methods are declared 'const'.
+// [ 3] CONCERN: ACCESSOR methods are declared `const`.
 // [ 5] CONCERN: There is no temporary allocation from any allocator.
 // ----------------------------------------------------------------------------
 
@@ -133,17 +133,17 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bdlf::NoOp Obj;
 class NeverDefined;
 
+/// This function runs example 1.
 void example1();
-    // This function runs example 1.
 
+/// This function runs example 2.
 void example2();
-    // This function runs example 2.
 
 ///Usage
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: An Unwanted 'bsl::function' Callback
+///Example 1: An Unwanted `bsl::function` Callback
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // Asynchronous systems often provide callback-based interfaces that invoke
 // supplied callbacks at later points in time, often when an event has
@@ -154,82 +154,86 @@ void example2();
 //
 // Consider, for example, the following hypothetical interface to an
 // asynchronous system:
-//..
+// ```
     struct MyAsyncSystemUtil {
         // TYPES
-        typedef bsl::function<void(int)> StatusReceivedCallback;
-            // 'StatusReceivedCallback' is an alias for a callback functor that
-            // takes as an argument an integer status indicating success (0),
-            // or failures (any non-zero value).
 
+        /// `StatusReceivedCallback` is an alias for a callback functor that
+        /// takes as an argument an integer status indicating success (0),
+        /// or failures (any non-zero value).
+        typedef bsl::function<void(int)> StatusReceivedCallback;
+
+        /// Send a message to the server that this client is still active.
+        /// Invoke the specified `callback` with the value `0` on the worker
+        /// thread when this client receives, within the configured time
+        /// limit, an acknowledgement from the server that it received the
+        /// message.  Otherwise, invoke the `callback` with a non-zero value
+        /// on the worker thread after the configured time limit has expired
+        /// or the server or network responds with an error, whichever comes
+        /// first.
         static void sendPing(const StatusReceivedCallback& callback);
-            // Send a message to the server that this client is still active.
-            // Invoke the specified 'callback' with the value '0' on the worker
-            // thread when this client receives, within the configured time
-            // limit, an acknowledgement from the server that it received the
-            // message.  Otherwise, invoke the 'callback' with a non-zero value
-            // on the worker thread after the configured time limit has expired
-            // or the server or network responds with an error, whichever comes
-            // first.
     };
-//..
+// ```
 // Suppose that we are writing a client for this system that does not need to
-// be concerned about the status of 'ping' messages sent to the server, then we
-// can use 'bdlf::NoOp' to ignore the acknowledgements:
-//..
+// be concerned about the status of `ping` messages sent to the server, then we
+// can use `bdlf::NoOp` to ignore the acknowledgements:
+// ```
     void example1()
     {
         MyAsyncSystemUtil::sendPing(bdlf::NoOp());
     }
-//..
+// ```
 //
 ///Example 2: An Unwanted Template Type Callback
 ///- - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we are working with an asynchronous system whose interface
-// requires a template for a callback instead of a 'bsl::function'.
+// requires a template for a callback instead of a `bsl::function`.
 //
 // Consider, for example, the following hypothetical interface to an
 // asynchronous system:
-//..
+// ```
+
+    /// This class implements an asynchronous system that does important
+    /// example work.  While the important example work is being done, a
+    /// callback mechanism of type `t_CALLBACK` is used to provide estimates
+    /// about the percentage of the work that is complete.  The type
+    /// `t_CALLBACK` must be callable with a single `int` parameter [0,100].
     template <class t_CALLBACK>
     class AsyncSystem
     {
-        // This class implements an asynchronous system that does important
-        // example work.  While the important example work is being done, a
-        // callback mechanism of type 't_CALLBACK' is used to provide estimates
-        // about the percentage of the work that is complete.  The type
-        // 't_CALLBACK' must be callable with a single 'int' parameter [0,100].
 
         // DATA
-        t_CALLBACK d_callback;  // callable that gives feedback when 'run' runs
+        t_CALLBACK d_callback;  // callable that gives feedback when `run` runs
 
         public:
         // CREATORS
+
+        /// Create a `AsyncSystem` object that can be used to do important
+        /// example work.  Optionally specify `callback`, a `t_CALLBACK`,
+        /// object to be used for giving feedback about progress.  If no
+        /// `callback` is specified, a default-constructed object of type
+        /// `t_CALLBACK` will be used.
         explicit AsyncSystem(const t_CALLBACK& callback = t_CALLBACK());
-            // Create a 'AsyncSystem' object that can be used to do important
-            // example work.  Optionally specify 'callback', a 't_CALLBACK',
-            // object to be used for giving feedback about progress.  If no
-            // 'callback' is specified, a default-constructed object of type
-            // 't_CALLBACK' will be used.
 
         // MANIPULATORS
+
+        /// Do the very important example work that this class is designed
+        /// to do.  While doing said work, periodically invoke the
+        /// `callback` object provided to the constructor with an estimated
+        /// percentage of the task complete as an `int`.
         void run();
-            // Do the very important example work that this class is designed
-            // to do.  While doing said work, periodically invoke the
-            // 'callback' object provided to the constructor with an estimated
-            // percentage of the task complete as an 'int'.
     };
-//..
+// ```
 // Suppose that we are writing a client of this system that has no useful way
-// to report the progress from the callback, then we can use 'bdlf::NoOp' to
+// to report the progress from the callback, then we can use `bdlf::NoOp` to
 // ignore the progress reports:
-//..
+// ```
     void example2()
     {
         AsyncSystem<bdlf::NoOp> mySystem;
         mySystem.run();
     }
-//..
+// ```
 
 void MyAsyncSystemUtil::sendPing(const StatusReceivedCallback& callback)
 {
@@ -250,8 +254,8 @@ void AsyncSystem<t_CALLBACK>::run()
 }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
+/// Tests that operator() is `constexpr`
 constexpr void constexprFunction()
-    // Tests that operator() is 'constexpr'
 {
     Obj X;
     X();
@@ -273,7 +277,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -288,13 +292,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -312,13 +316,13 @@ int main(int argc, char *argv[])
         //   Ensure that types and traits of the class are as expected.
         //
         // Concerns:
-        //: 1 The type 'result_type' should be publicly accessible.
-        //:
-        //: 2 The type trait 'is_trivially_copyable' should be publicly
-        //:   accessible.
+        // 1. The type `result_type` should be publicly accessible.
+        //
+        // 2. The type trait `is_trivially_copyable` should be publicly
+        //    accessible.
         //
         // Plan:
-        //: 1 Use metafunctions to tests for types and traits. (C-1..2)
+        // 1. Use metafunctions to tests for types and traits. (C-1..2)
         //
         // Testing:
         //   NoOp::result_type
@@ -341,36 +345,36 @@ int main(int argc, char *argv[])
         //   any modifiable object of the class.
         //
         // Concerns:
-        //: 1 The assignment operator can assign the value of any modifiable
-        //:   target object to that of any source object.
-        //:
-        //: 2 No memory is allocated by assignment of one object to another.
-        //:
-        //: 3 The signature and return type are standard.
-        //:
-        //: 4 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 5 Assigning an object to itself behaves as expected (alias-safety).
+        // 1. The assignment operator can assign the value of any modifiable
+        //    target object to that of any source object.
+        //
+        // 2. No memory is allocated by assignment of one object to another.
+        //
+        // 3. The signature and return type are standard.
+        //
+        // 4. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 5. Assigning an object to itself behaves as expected (alias-safety).
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a member-function
-        //:   pointer having the appropriate signature and return type for the
-        //:   copy-assignment operator defined in this component.  (C-3)
-        //:
-        //: 2 Create a 'bslma::TestAllocator' object, and install it as the
-        //:   default allocator (note that a ubiquitous test allocator is
-        //:   already installed as the global allocator).
-        //:
-        //: 3 Create two objects, 'mX' and 'mY', and two references providing
-        //:   non-modifiable access, 'X' and 'Y', respectively.
-        //:
-        //: 4 Assign all permutations of references to all permutations of
-        //:   references providing modifiable access, and capture the returned
-        //:   reference.  Ensure the returned reference is a reference to the
-        //:   target object.  (C-1,3..4)
-        //:
-        //: 5 Use the test allocator from P-1 to verify that no memory is ever
-        //:   allocated from the default allocator.  (C-3)
+        // 1. Use the address of `operator=` to initialize a member-function
+        //    pointer having the appropriate signature and return type for the
+        //    copy-assignment operator defined in this component.  (C-3)
+        //
+        // 2. Create a `bslma::TestAllocator` object, and install it as the
+        //    default allocator (note that a ubiquitous test allocator is
+        //    already installed as the global allocator).
+        //
+        // 3. Create two objects, `mX` and `mY`, and two references providing
+        //    non-modifiable access, `X` and `Y`, respectively.
+        //
+        // 4. Assign all permutations of references to all permutations of
+        //    references providing modifiable access, and capture the returned
+        //    reference.  Ensure the returned reference is a reference to the
+        //    target object.  (C-1,3..4)
+        //
+        // 5. Use the test allocator from P-1 to verify that no memory is ever
+        //    allocated from the default allocator.  (C-3)
         //
         // Testing:
         //   operator=(const bdlf::NoOp& rhs);
@@ -420,23 +424,23 @@ int main(int argc, char *argv[])
         //   other one.
         //
         // Concerns:
-        //: 1 The copy constructor creates an object.
-        //:
-        //: 2 The original object is passed as a 'const' reference.
-        //:
-        //: 3 No memory is allocated by copy construction.
+        // 1. The copy constructor creates an object.
+        //
+        // 2. The original object is passed as a `const` reference.
+        //
+        // 3. No memory is allocated by copy construction.
         //
         // Plan:
-        //: 1 Create a 'bslma::TestAllocator' object, and install it as the
-        //:   default allocator (note that a ubiquitous test allocator is
-        //:   already installed as the global allocator).
-        //:
-        //: 2 Create a constant object 'X'.
-        //:
-        //: 3 Create a copy of 'X', called 'Y'.  (C-1..2)
-        //:
-        //: 4 Use the test allocator from P-1 to verify that no memory is ever
-        //:   allocated from the default allocator.  (C-3)
+        // 1. Create a `bslma::TestAllocator` object, and install it as the
+        //    default allocator (note that a ubiquitous test allocator is
+        //    already installed as the global allocator).
+        //
+        // 2. Create a constant object `X`.
+        //
+        // 3. Create a copy of `X`, called `Y`.  (C-1..2)
+        //
+        // 4. Use the test allocator from P-1 to verify that no memory is ever
+        //    allocated from the default allocator.  (C-3)
         //
         // Testing:
         //   bdlf::NoOp(const NoOp& o);
@@ -469,44 +473,44 @@ int main(int argc, char *argv[])
         //   any parameters of any type and doing nothing.
         //
         // Concerns:
-        //: 1 The function-call operator can be invoked with any parameters.
-        //:
-        //: 2 The function-call operator return type is void.
-        //:
-        //: 3 The function-call operator is declared 'const'.
-        //:
-        //: 4 The function-call operator is declared 'constexpr' where
-        //:   supported.
-        //:
-        //: 5 The function-call operator is declared 'noexcept' where
-        //:   supported.
-        //:
-        //: 6 No memory is allocated by the function-call operator.
+        // 1. The function-call operator can be invoked with any parameters.
+        //
+        // 2. The function-call operator return type is void.
+        //
+        // 3. The function-call operator is declared `const`.
+        //
+        // 4. The function-call operator is declared `constexpr` where
+        //    supported.
+        //
+        // 5. The function-call operator is declared `noexcept` where
+        //    supported.
+        //
+        // 6. No memory is allocated by the function-call operator.
         //
         // Plan:
-        //: 1 Verify the void return type of the function-call operator by
-        //:   assigning it to a function pointer with void return type.  (C-2)
-        //:
-        //: 2 Where 'noexcept' is supported, assign the function call operator
-        //:   to a 'noexcept' function pointer.  (C-5)
-        //:
-        //: 2 Create a 'bslma::TestAllocator' object, and install it as the
-        //:   current default allocator (note that a ubiquitous test allocator
-        //:   is already installed as the global allocator).
-        //:
-        //: 3 Use the default constructor to create an object 'mX'.
-        //:
-        //: 4 Create a constant reference 'X' to 'mX'.
-        //:
-        //: 5 Invoke the function-call operator on 'mX' with many different
-        //:   numbers of parameters of differrent types.  (C-1,3)
-        //:
-        //: 6 Use the test allocator from P1 to verify that no memory is
-        //:   allocated by the default constructor.  (C-6)
+        // 1. Verify the void return type of the function-call operator by
+        //    assigning it to a function pointer with void return type.  (C-2)
+        //
+        // 2. Where `noexcept` is supported, assign the function call operator
+        //    to a `noexcept` function pointer.  (C-5)
+        //
+        // 2. Create a `bslma::TestAllocator` object, and install it as the
+        //    current default allocator (note that a ubiquitous test allocator
+        //    is already installed as the global allocator).
+        //
+        // 3. Use the default constructor to create an object `mX`.
+        //
+        // 4. Create a constant reference `X` to `mX`.
+        //
+        // 5. Invoke the function-call operator on `mX` with many different
+        //    numbers of parameters of differrent types.  (C-1,3)
+        //
+        // 6. Use the test allocator from P1 to verify that no memory is
+        //    allocated by the default constructor.  (C-6)
         //
         // Testing:
         //   void operator()() const;
-        //   CONCERN: ACCESSOR methods are declared 'const'.
+        //   CONCERN: ACCESSOR methods are declared `const`.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -554,23 +558,23 @@ int main(int argc, char *argv[])
         //   object and use the destructor to destroy it safely.
         //
         // Concerns:
-        //: 1 An object can be created with the default constructor.
-        //:
-        //: 2 Where 'constexpr' is supported, the default constructor can be
-        //:   used to create a 'constexpr' object.
-        //:
-        //: 2 There is no allocation from the default allocator by the default
-        //:   constructor.
+        // 1. An object can be created with the default constructor.
+        //
+        // 2. Where `constexpr` is supported, the default constructor can be
+        //    used to create a `constexpr` object.
+        //
+        // 2. There is no allocation from the default allocator by the default
+        //    constructor.
         //
         // Plan:
-        //: 1 Create a 'bslma::TestAllocator' object, and install it as the
-        //:   current default allocator (note that a ubiquitous test allocator
-        //:   is already installed as the global allocator).
-        //:
-        //: 2 Use the default constructor to create an object 'mX'.  (C-1)
-        //:
-        //: 3 Use the test allocator from P1 to verify that no memory is
-        //:   allocated by the default constructor.  (C-2)
+        // 1. Create a `bslma::TestAllocator` object, and install it as the
+        //    current default allocator (note that a ubiquitous test allocator
+        //    is already installed as the global allocator).
+        //
+        // 2. Use the default constructor to create an object `mX`.  (C-1)
+        //
+        // 3. Use the test allocator from P1 to verify that no memory is
+        //    allocated by the default constructor.  (C-2)
         //
         // Testing:
         //   bdlf::NoOp();
@@ -598,15 +602,15 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an object 'x' (default ctor).
-        //: 2 Create an object 'y' (copy ctor).
-        //: 3 Assign 'x' to 'y' (assignment).
-        //: 3 Apply function call operator to 'x' and 'y' with a variety of
-        //:   parameters.
+        // 1. Create an object `x` (default ctor).
+        // 2. Create an object `y` (copy ctor).
+        // 3. Assign `x` to `y` (assignment).
+        // 3. Apply function call operator to `x` and `y` with a variety of
+        //    parameters.
         //
         // Testing:
         //   BREATHING TEST

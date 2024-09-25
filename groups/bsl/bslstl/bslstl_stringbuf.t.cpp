@@ -36,13 +36,13 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// Testing the 'stringbuf' class is a little tricky because its implementation
+// Testing the `stringbuf` class is a little tricky because its implementation
 // is in protected virtual methods.  First, we use a class derived from the
-// 'stringbuf' so that it can access the protected members of 'stringbuf', and
-// test 'stringbuf' methods through the derived class.  Second, we use public
-// methods of 'stringbuf' to exercise the functionality implemented in the
-// protected methods.  Those public methods are to create 'stringbuf', perform
-// input from 'stringbuf' and perform output into 'stringbuf'.
+// `stringbuf` so that it can access the protected members of `stringbuf`, and
+// test `stringbuf` methods through the derived class.  Second, we use public
+// methods of `stringbuf` to exercise the functionality implemented in the
+// protected methods.  Those public methods are to create `stringbuf`, perform
+// input from `stringbuf` and perform output into `stringbuf`.
 // ============================================================================
 // STRINGBUF:
 // [ 2] stringbuf(const ALLOCATOR&)
@@ -150,8 +150,9 @@ const char VH = 'H';
 const char VI = 'I';
 const char VJ = 'J';
 const char VK = 'K';
+
+/// All test types have character value type.
 const char VL = 'L';
-    // All test types have character value type.
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -160,7 +161,7 @@ const char VL = 'L';
 typedef std::ios_base       IosBase;
 typedef IosBase::openmode   Mode;
 
-// Define the length of a 'bsl::string' value long enough to ensure dynamic
+// Define the length of a `bsl::string` value long enough to ensure dynamic
 // memory allocation.
 
 const int LENGTH_OF_SUFFICIENTLY_LONG_STRING =
@@ -197,10 +198,10 @@ const int NUM_STRLEN_DATA = sizeof STRLEN_DATA / sizeof *STRLEN_DATA;
 
 namespace {
 
+/// Load into the specified `value` a character string having the specified
+/// `length`.  The behavior is undefined unless `length >= 0`.
 template <class STRING>
 void loadString(STRING *value, int length)
-    // Load into the specified 'value' a character string having the specified
-    // 'length'.  The behavior is undefined unless 'length >= 0'.
 {
     value->resize(length);
 
@@ -210,21 +211,21 @@ void loadString(STRING *value, int length)
     }
 }
 
+/// Return `true` if the specified string `s` could be moved to another
+/// string that uses the specified allocator `otherAlloc`, and `false`
+/// otherwise.
 template <class StringT>
 bool stringCouldBeMovedFrom(const StringT&                          s,
                             const typename StringT::allocator_type& otherAlloc)
-    // Return 'true' if the specified string 's' could be moved to another
-    // string that uses the specified allocator 'otherAlloc', and 'false'
-    // otherwise.
 {
     return s.size() >= LENGTH_OF_SUFFICIENTLY_LONG_STRING &&
            s.get_allocator() == otherAlloc;
 }
 
+/// Return `true` if the specified string `s` was possibly moved from, and
+/// `false` otherwise.
 template <class StringT>
 bool stringWasMovedFrom(const StringT& s)
-    // Return 'true' if the specified string 's' was possibly moved from, and
-    // 'false' otherwise.
 {
     return 0 == s.size();
 }
@@ -242,9 +243,9 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
                                       &bslma::NewDeleteAllocator::singleton());
 
         const int NUM_VALUES = 12;
-        static const TYPE initValues[NUM_VALUES] = { // avoid 'DEFAULT_VALUE'
+        static const TYPE initValues[NUM_VALUES] = { // avoid `DEFAULT_VALUE`
             TYPE(VA),                                // and
-            TYPE(VB),                                // 'UNINITIALIZED_VALUE'.
+            TYPE(VB),                                // `UNINITIALIZED_VALUE`.
             TYPE(VC),
             TYPE(VD),
             TYPE(VE),
@@ -389,7 +390,7 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
             // reset the read buffer
             memset(readbuf, -1, readbufSize);
 
-            // read some characters with 'xsgetn'
+            // read some characters with `xsgetn`
             std::streamsize readChars = strBuf.xsgetn(readbuf, n);
 
             // verify that characters were read successfully
@@ -715,7 +716,7 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
                 const Obj&             X  = mX;
                 bslma::TestAllocator&  oa = *objAllocatorPtr;
 
-                // Verify the object's 'get_allocator' accessor.
+                // Verify the object's `get_allocator` accessor.
 
                 ASSERTV(LINE, CONFIG, &oa, X.get_allocator().mechanism(),
                         &oa == X.get_allocator().mechanism());
@@ -735,9 +736,9 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
         // These calls are not supported on SunOS, because the std::allocator
         // there does not support rebind.  This limitation can be lifted once
         // we fully support C++20, where rebind is removed, and always goes
-        // through 'allocator_traits'.  See {DRQS 168075157} and
+        // through `allocator_traits`.  See {DRQS 168075157} and
         // https://github.com/bloomberg/bde/pull/268
-                    // test 'str(otherAllocator)'
+                    // test `str(otherAllocator)`
                 const bsl::basic_string<
                           TYPE,
                           bsl::char_traits<TYPE>,
@@ -753,7 +754,7 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
         {
-            // test 'str() &&'
+            // test `str() &&`
             for (std::size_t i = 0; i != NUM_DATA; ++i) {
                 const int   LINE = DATA[i].d_line;
                 const char *SPEC = DATA[i].d_spec_p;
@@ -806,7 +807,7 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
 #endif
 
         {
-            // test 'str(StringType)'
+            // test `str(StringType)`
             bslma::TestAllocator ta("test allocator");
 
             static const struct {
@@ -872,7 +873,7 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
         }
 
         {
-            // test 'str(MoveableRef<String>)'
+            // test `str(MoveableRef<String>)`
             bslma::TestAllocator ta("test allocator");
 
             typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
@@ -947,10 +948,10 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
         // These calls are not supported on SunOS, because the std::allocator
         // there does not support rebind.  This limitation can be lifted once
         // we fully support C++20, where rebind is removed, and always goes
-        // through 'allocator_traits'.  See {DRQS 168075157} and
+        // through `allocator_traits`.  See {DRQS 168075157} and
         // https://github.com/bloomberg/bde/pull/268
         {
-            // test 'str(String with different Allocator)'
+            // test `str(String with different Allocator)`
             bslma::TestAllocator ta("test allocator");
 
             static const struct {
@@ -1089,7 +1090,7 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
                 const Obj&             X  = mX;
                 bslma::TestAllocator&  oa = *objAllocatorPtr;
 
-                // Verify the object's 'get_allocator' accessor.
+                // Verify the object's `get_allocator` accessor.
 
                 ASSERTV(LINE, CONFIG, &oa, X.get_allocator().mechanism(),
                         &oa == X.get_allocator().mechanism());
@@ -1780,20 +1781,20 @@ namespace {
 //
 ///Example 1: Basic Operations
 ///- - - - - - - - - - - - - -
-// The following example demonstrates the use of 'bsl::stringbuf' to read and
-// write character data from and to a 'bsl::string' object.
+// The following example demonstrates the use of `bsl::stringbuf` to read and
+// write character data from and to a `bsl::string` object.
 //
-// Suppose we want to implement a simplified converter from 'unsigned int' to
-// 'bsl::string' and back.  First, we define the prototypes of two conversion
+// Suppose we want to implement a simplified converter from `unsigned int` to
+// `bsl::string` and back.  First, we define the prototypes of two conversion
 // functions:
-//..
+// ```
 //  bsl::string  toString(unsigned int from);
 //  unsigned int fromString(const bsl::string& from);
-//..
-// Then, we use 'bsl::stringbuf' to implement the 'toString' function.  We
-// write all digits into 'bsl::stringbuf' individually using 'sputc' methods
-// and then return the resulting 'bsl::string' object:
-//..
+// ```
+// Then, we use `bsl::stringbuf` to implement the `toString` function.  We
+// write all digits into `bsl::stringbuf` individually using `sputc` methods
+// and then return the resulting `bsl::string` object:
+// ```
 //  #include <algorithm>
 //
     bsl::string toString(unsigned int from)
@@ -1808,11 +1809,11 @@ namespace {
         std::reverse(result.begin(), result.end());
         return result;
     }
-//..
-// Now, we implement the 'fromString' function that converts from
-// 'bsl::string' to 'unsigned int' by using 'bsl::stringbuf' to read individual
+// ```
+// Now, we implement the `fromString` function that converts from
+// `bsl::string` to `unsigned int` by using `bsl::stringbuf` to read individual
 // digits from the string object:
-//..
+// ```
     unsigned int fromString(const bsl::string& from)
     {
         unsigned int result = 0;
@@ -1823,7 +1824,7 @@ namespace {
 
         return result;
     }
-//..
+// ```
 
 }  // close unnamed namespace
 
@@ -1880,11 +1881,11 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 Usage example compiles and executes without failures.
+        // 1. Usage example compiles and executes without failures.
         //
         // Plan:
-        //: 1 Copy and paste the usage example from the component header into
-        //:   the test driver and replace 'assert' with 'ASSERT'.
+        // 1. Copy and paste the usage example from the component header into
+        //    the test driver and replace `assert` with `ASSERT`.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nUSAGE EXAMPLE"
@@ -1892,28 +1893,28 @@ int main(int argc, char *argv[])
 
 // Finally, we verify that the result of the round-trip conversion is identical
 // to the original value:
-//..
+// ```
     unsigned int orig   = 92872498;
     unsigned int result = fromString(toString(orig));
 //
     ASSERT(orig == result);
-//..
+// ```
 
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // TESTING 'str' MANIPULATOR
+        // TESTING `str` MANIPULATOR
         //
         // Concerns:
-        //: 1 Setting the contents of the internal string works as expected.
+        // 1. Setting the contents of the internal string works as expected.
         //
         // Plan:
-        //: 1 Set the contents via the 'str' manipulator, and then verify that
-        //:   the correct contents are available.
-        //:
-        //: 2 Set the contents with a 'MovableRef', and verify that the correct
-        //:   contents are available, and that the source was moved from, when
-        //:   appropriate.
+        // 1. Set the contents via the `str` manipulator, and then verify that
+        //    the correct contents are available.
+        //
+        // 2. Set the contents with a `MovableRef`, and verify that the correct
+        //    contents are available, and that the source was moved from, when
+        //    appropriate.
         //
         // Testing:
         //   void str(const StringType& value);
@@ -1921,7 +1922,7 @@ int main(int argc, char *argv[])
         //   void str(const basic_string<CHAR, TRAITS, SALLOC>& value);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'str' MANIPULATOR"
+        if (verbose) printf("\nTESTING `str` MANIPULATOR"
                             "\n=========================\n");
 
         StringBufTest<char   >::testStrManipulator();
@@ -1933,39 +1934,39 @@ int main(int argc, char *argv[])
         // TESTING SWAP
         //
         // Concerns:
-        //: 1 The 'swap' method exchanges internal strings.
-        //:
-        //: 2 The 'swap' method exchanges internal pointers.
-        //:
-        //: 3 The 'swap' method exchanges modes.
-        //:
-        //: 4 Swap free function works the same way as the 'swap' method.
-        //:
-        //: 5 Asserted precondition violations are detected when enabled.
+        // 1. The `swap` method exchanges internal strings.
+        //
+        // 2. The `swap` method exchanges internal pointers.
+        //
+        // 3. The `swap` method exchanges modes.
+        //
+        // 4. Swap free function works the same way as the `swap` method.
+        //
+        // 5. Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create two objects of the 'StringBufTest' that allows to call
-        //:   'bslstl::basic_stringbuf' protected methods.
-        //:
-        //: 2 Swap these objects using class method and
-        //:
-        //:   1 Using 'str()' method verify that the internal strings have
-        //:     been exchanged.  (C-1)
-        //:
-        //:   2 Using protected methods 'xsgetn()' for output 'streambuf' and
-        //:     'xsputn()' for input 'streambuf' verify that modes of the
-        //:     objects have been replaced.  (C-3)
-        //:
-        //:   3 Using protected methods 'seekpos()', 'xsgetn()' and
-        //:     'xsputn()' verify that internal pointers of the objects have
-        //:     been replaced.  (C-2)
-        //:
-        //: 3 Create another two objects, swap them using free function and
-        //:   repeat the steps from P-2.  (C-4)
-        //:
-        //: 4 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones.  (C-5)
+        // 1. Create two objects of the `StringBufTest` that allows to call
+        //    `bslstl::basic_stringbuf` protected methods.
+        //
+        // 2. Swap these objects using class method and
+        //
+        //   1. Using `str()` method verify that the internal strings have
+        //      been exchanged.  (C-1)
+        //
+        //   2. Using protected methods `xsgetn()` for output `streambuf` and
+        //      `xsputn()` for input `streambuf` verify that modes of the
+        //      objects have been replaced.  (C-3)
+        //
+        //   3. Using protected methods `seekpos()`, `xsgetn()` and
+        //      `xsputn()` verify that internal pointers of the objects have
+        //      been replaced.  (C-2)
+        //
+        // 3. Create another two objects, swap them using free function and
+        //    repeat the steps from P-2.  (C-4)
+        //
+        // 4. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones.  (C-5)
         //
         // Testing:
         //   void swap(basic_stringbuf& other);
@@ -2020,12 +2021,12 @@ int main(int argc, char *argv[])
         // TESTING MODIFYING BUFFER POINTERS VIA BASE CLASS INTERFACE
         //
         // Concerns:
-        //: 1 The class functions correctly even when the base class functions
-        //:   'setg' and 'setp' are used to set buffer pointers to 0.
+        // 1. The class functions correctly even when the base class functions
+        //    `setg` and `setp` are used to set buffer pointers to 0.
         //
         // Plan:
-        //: 1 Ensure that the object's destructor validation works with
-        //:   pointers equal to 0.
+        // 1. Ensure that the object's destructor validation works with
+        //    pointers equal to 0.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING MODIFYING BUFFER POINTERS VIA BASE"
@@ -2085,16 +2086,16 @@ int main(int argc, char *argv[])
         // TESTING INPUT/OUTPUT FROM/TO STRINGBUF VIA PUBLIC INTERFACE
         //
         // Concerns:
-        //: 1 'str' setter correctly updates both the input and output stream
+        // 1. `str` setter correctly updates both the input and output stream
         //    positions.
         //
         // Plan:
-        //: 1 Ensure that successive calls to 'sbumpc' returns the expected
-        //:   characters, based on an initial string provided at construction.
-        //: 2 Seek the output position to the end of the string, and then
-        //:   replace the old string with a new, shorter string.
-        //: 3 Ensure that successive calls to 'sbumpc' now returns the expected
-        //:   characters, based on the new string.
+        // 1. Ensure that successive calls to `sbumpc` returns the expected
+        //    characters, based on an initial string provided at construction.
+        // 2. Seek the output position to the end of the string, and then
+        //    replace the old string with a new, shorter string.
+        // 3. Ensure that successive calls to `sbumpc` now returns the expected
+        //    characters, based on the new string.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING INPUT/OUTPUT FROM/TO STRINGBUF"
@@ -2131,51 +2132,51 @@ int main(int argc, char *argv[])
         // TESTING INPUT FROM STRINGBUF VIA PUBLIC INTERFACE
         //
         // Concerns:
-        //: 1 'in_avail' returns the correct number of available characters
-        //:   for read from 'stringbuf'.
-        //: 2 'snextc' advances the input position and then reads the
-        //:   character at that position from 'stringbuf'.
-        //: 3 'sbumpc' reads the character at the current input position and
-        //:   then advances the input position.
-        //: 4 'sgetc' reads the character at the current input position.
-        //: 5 'sgetn' reads the specified number of characters from the
-        //:   'stringbuf' and advances the input position to the number of
-        //:   read characters.
-        //: 6 'sungetc' puts the previously read character back into the
-        //:   'stringbuf'.
-        //: 7 'sputbackc' puts the specified character back into the
-        //:   'stringbuf'.
+        // 1. `in_avail` returns the correct number of available characters
+        //    for read from `stringbuf`.
+        // 2. `snextc` advances the input position and then reads the
+        //    character at that position from `stringbuf`.
+        // 3. `sbumpc` reads the character at the current input position and
+        //    then advances the input position.
+        // 4. `sgetc` reads the character at the current input position.
+        // 5. `sgetn` reads the specified number of characters from the
+        //    `stringbuf` and advances the input position to the number of
+        //    read characters.
+        // 6. `sungetc` puts the previously read character back into the
+        //    `stringbuf`.
+        // 7. `sputbackc` puts the specified character back into the
+        //    `stringbuf`.
         //
         // Plan:
-        //: 1 Call 'in_avail' on an empty 'stringbuf', 'stringbuf' with the
-        //:   initial string, 'stringbuf' with the initial string but with
-        //:   input pointer at the end, and verify that the returned number of
-        //:   available characters for read is correct.
-        //: 2 Read a character from 'stringbuf' with 'snextc' and verify that
-        //:   the character is correct and the 'stringbuf' input position is
-        //:   updated accordingly.
-        //: 3 Read a character from 'stringbuf' with 'sbumpc' and verify that
-        //:   the character is correct and the 'stringbuf' input position is
-        //:   updated accordingly.
-        //: 4 Read a character from 'stringbuf' with 'sgetc' and verify that
-        //:   the character is correct and the 'stringbuf' input position is
-        //:   updated accordingly.
-        //: 5 Read a character from 'stringbuf' with 'sgetc' after resetting
-        //:   the state of 'stringbuf' with 'str' and verify that the
-        //:   character is correct and the 'stringbuf' input position is
-        //:   updated accordingly.
-        //: 6 Read characters from 'stringbuf' with 'sgetn' and verify that
-        //:   the character is correct and the 'stringbuf' input position is
-        //:   updated accordingly.
-        //: 7 Read a character from 'stringbuf', then use 'sungetc' to put a
-        //:   previously read character back into 'stringbuf' and verify that
-        //:   the character gets put back correctly.
-        //: 8 Read a character from 'stringbuf', then use 'sputbackc' to put a
-        //:   a character back into 'stringbuf' and verify that the character
-        //:   gets put back correctly.
-        //: 9 Use 'sputbackc' to put a character back into 'stringbuf' in a
-        //:   way that invokes 'pbackfail' and verify that the character gets
-        //:   put back correctly.
+        // 1. Call `in_avail` on an empty `stringbuf`, `stringbuf` with the
+        //    initial string, `stringbuf` with the initial string but with
+        //    input pointer at the end, and verify that the returned number of
+        //    available characters for read is correct.
+        // 2. Read a character from `stringbuf` with `snextc` and verify that
+        //    the character is correct and the `stringbuf` input position is
+        //    updated accordingly.
+        // 3. Read a character from `stringbuf` with `sbumpc` and verify that
+        //    the character is correct and the `stringbuf` input position is
+        //    updated accordingly.
+        // 4. Read a character from `stringbuf` with `sgetc` and verify that
+        //    the character is correct and the `stringbuf` input position is
+        //    updated accordingly.
+        // 5. Read a character from `stringbuf` with `sgetc` after resetting
+        //    the state of `stringbuf` with `str` and verify that the
+        //    character is correct and the `stringbuf` input position is
+        //    updated accordingly.
+        // 6. Read characters from `stringbuf` with `sgetn` and verify that
+        //    the character is correct and the `stringbuf` input position is
+        //    updated accordingly.
+        // 7. Read a character from `stringbuf`, then use `sungetc` to put a
+        //    previously read character back into `stringbuf` and verify that
+        //    the character gets put back correctly.
+        // 8. Read a character from `stringbuf`, then use `sputbackc` to put a
+        //    a character back into `stringbuf` and verify that the character
+        //    gets put back correctly.
+        // 9. Use `sputbackc` to put a character back into `stringbuf` in a
+        //    way that invokes `pbackfail` and verify that the character gets
+        //    put back correctly.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING INPUT FROM STRINGBUF"
@@ -2389,37 +2390,37 @@ int main(int argc, char *argv[])
         // TESTING OUTPUT TO STRINGBUF VIA PUBLIC INTERFACE
         //
         // Concerns:
-        //: 1 'sputc' writes the specified character at the current output
-        //:   position and advances the output position.
-        //: 2 'sputn' writes the specified characters at the current output
-        //:   position and advances the output position to the number of
-        //:   characters written.
-        //: 3 'sputc' fails to write the character into a readonly input
-        //:   'stringbuf'.
-        //: 4 'sputn' fails to write characters into a readonly input
-        //:   'stringbuf'.
+        // 1. `sputc` writes the specified character at the current output
+        //    position and advances the output position.
+        // 2. `sputn` writes the specified characters at the current output
+        //    position and advances the output position to the number of
+        //    characters written.
+        // 3. `sputc` fails to write the character into a readonly input
+        //    `stringbuf`.
+        // 4. `sputn` fails to write characters into a readonly input
+        //    `stringbuf`.
         //
         // Plan:
-        //: 1 Use 'sputc' to output a character and verify that it's written
-        //:   correctly by using the 'stringbuf::str' method.
-        //: 2 Use 'sputn' to output characters and verify that it's written
-        //:   correctly by using the 'stringbuf::str' method.
-        //: 3 Change 'stringbuf' position with 'pubseekpos' and 'pubseekoff'
-        //:   and use 'sputc' to insert a character in the middle and verify
-        //:   that it's written correctly by using the 'stringbuf::str' method.
-        //: 4 Change 'stringbuf' position with 'pubseekpos' and 'pubseekoff'
-        //:   and use 'sputn' to insert characters in the middle and verify
-        //:   that it's written correctly by using the 'stringbuf::str' method.
-        //: 5 Append a character to 'stringbuf' that already has some output
-        //:   with 'sputc'.
-        //: 6 Append characters to 'stringbuf' that already has some output
-        //:   with 'sputn'.
-        //: 7 Output a character into a readonly (std::ios_base::in)
-        //:   'stringbuf' with 'sputc' and verify that the output fails and
-        //:   the state of 'stringbuf' doesn't change.
-        //: 8 Output characters into a readonly (std::ios_base::in)
-        //:   'stringbuf' with 'sputn' and verify that the output fails and
-        //:   the state of 'stringbuf' doesn't change.
+        // 1. Use `sputc` to output a character and verify that it's written
+        //    correctly by using the `stringbuf::str` method.
+        // 2. Use `sputn` to output characters and verify that it's written
+        //    correctly by using the `stringbuf::str` method.
+        // 3. Change `stringbuf` position with `pubseekpos` and `pubseekoff`
+        //    and use `sputc` to insert a character in the middle and verify
+        //    that it's written correctly by using the `stringbuf::str` method.
+        // 4. Change `stringbuf` position with `pubseekpos` and `pubseekoff`
+        //    and use `sputn` to insert characters in the middle and verify
+        //    that it's written correctly by using the `stringbuf::str` method.
+        // 5. Append a character to `stringbuf` that already has some output
+        //    with `sputc`.
+        // 6. Append characters to `stringbuf` that already has some output
+        //    with `sputn`.
+        // 7. Output a character into a readonly (std::ios_base::in)
+        //    `stringbuf` with `sputc` and verify that the output fails and
+        //    the state of `stringbuf` doesn't change.
+        // 8. Output characters into a readonly (std::ios_base::in)
+        //    `stringbuf` with `sputn` and verify that the output fails and
+        //    the state of `stringbuf` doesn't change.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING OUTPUT TO STRINGBUF"
@@ -2507,20 +2508,20 @@ int main(int argc, char *argv[])
         // TESTING OVERFLOW FUNCTION
         //
         // Concerns:
-        //: 1 'overflow' writes the specified character into an output
-        //:   'stringbuf' object.
-        //: 2 'overflow' fails to perform the write into an input 'stringbuf'
-        //:   object.
+        // 1. `overflow` writes the specified character into an output
+        //    `stringbuf` object.
+        // 2. `overflow` fails to perform the write into an input `stringbuf`
+        //    object.
         //
         // Plan:
-        //: 1 Create an input 'stringbuf' object and use 'overflow' to write
-        //:   a character into it.  Verify that 'overflow' with an input
-        //:   'stringbuf' fails.
-        //: 2 Create an output 'stringbuf' with an initial string, change
-        //:   the current output position to point in the middle of the
-        //:   'stringbuf'.  Then use 'overflow' to write a character into the
-        //:   'stringbuf' and verify that the final state of the 'stringbuf'
-        //:   obtained using the 'str' method matches the expected result.
+        // 1. Create an input `stringbuf` object and use `overflow` to write
+        //    a character into it.  Verify that `overflow` with an input
+        //    `stringbuf` fails.
+        // 2. Create an output `stringbuf` with an initial string, change
+        //    the current output position to point in the middle of the
+        //    `stringbuf`.  Then use `overflow` to write a character into the
+        //    `stringbuf` and verify that the final state of the `stringbuf`
+        //    obtained using the `str` method matches the expected result.
         //
         // Testing:
         //   overflow(int)
@@ -2537,21 +2538,21 @@ int main(int argc, char *argv[])
         // TESTING XSPUTN FUNCTION
         //
         // Concerns:
-        //: 1 'xsputn' writes the specified number of characters into an output
-        //:   'stringbuf' object and returned the correct number of written
-        //:   characters.
-        //: 2 'xsputn' fails to perform the write into an input 'stringbuf'
-        //:   object.
+        // 1. `xsputn` writes the specified number of characters into an output
+        //    `stringbuf` object and returned the correct number of written
+        //    characters.
+        // 2. `xsputn` fails to perform the write into an input `stringbuf`
+        //    object.
         //
         // Plan:
-        //: 1 Create an input 'stringbuf' object and use 'xsputn' to write
-        //:   characters into it.  Verify that 'xsputn' with an input
-        //:   'stringbuf' fails.
-        //: 2 Create an output 'stringbuf' with an initial string, change
-        //:   the current output position to point in the middle of the
-        //:   'stringbuf'.  Then use 'xsputn' to write characters into the
-        //:   'stringbuf' and verify that the final state of the 'stringbuf'
-        //:   obtained using the 'str' method matches the expected result.
+        // 1. Create an input `stringbuf` object and use `xsputn` to write
+        //    characters into it.  Verify that `xsputn` with an input
+        //    `stringbuf` fails.
+        // 2. Create an output `stringbuf` with an initial string, change
+        //    the current output position to point in the middle of the
+        //    `stringbuf`.  Then use `xsputn` to write characters into the
+        //    `stringbuf` and verify that the final state of the `stringbuf`
+        //    obtained using the `str` method matches the expected result.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING XSPUTN FUNCTION"
@@ -2565,25 +2566,25 @@ int main(int argc, char *argv[])
         // TESTING PBACKFAIL FUNCTION
         //
         // Concerns:
-        //: 1 Putting back 'EOF' results in error ('pbackfail' returns 'EOF').
-        //: 2 Putting back any character at the beginning of the 'stringbuf'
-        //:   results in error.
-        //: 3 Putting back a character that was previously read from a
-        //:   'stringbuf' object results in that character reinserted into
-        //:   'stringbuf' and the current input position of 'stringbuf' updated
-        //:   to point to the previous character.
+        // 1. Putting back `EOF` results in error (`pbackfail` returns `EOF`).
+        // 2. Putting back any character at the beginning of the `stringbuf`
+        //    results in error.
+        // 3. Putting back a character that was previously read from a
+        //    `stringbuf` object results in that character reinserted into
+        //    `stringbuf` and the current input position of `stringbuf` updated
+        //    to point to the previous character.
         //
         // Plan:
-        //: 1 Create a 'stringbuf' object with an initial string.
-        //: 2 Use 'pbackfail' to put back 'EOF' and verify that it results
-        //:   in error.
-        //: 3 Use 'pbackfail' to put back some character at the beginning of
-        //:   'stringbuf' and verify that it results in error.
-        //: 4 Walk through the 'stringbuf' reading each character one by one
-        //:   with 'uflow' and then reinserting it back with 'pbackfail'
-        //:   and verifying that 'pbackfail' undoes the effect of 'uflow', i.e.
-        //:   it puts the character back into 'stringbuf' and sets the current
-        //:   input position to point to that character.
+        // 1. Create a `stringbuf` object with an initial string.
+        // 2. Use `pbackfail` to put back `EOF` and verify that it results
+        //    in error.
+        // 3. Use `pbackfail` to put back some character at the beginning of
+        //    `stringbuf` and verify that it results in error.
+        // 4. Walk through the `stringbuf` reading each character one by one
+        //    with `uflow` and then reinserting it back with `pbackfail`
+        //    and verifying that `pbackfail` undoes the effect of `uflow`, i.e.
+        //    it puts the character back into `stringbuf` and sets the current
+        //    input position to point to that character.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING PBACKFAIL FUNCTION"
@@ -2597,17 +2598,17 @@ int main(int argc, char *argv[])
         // TESTING UFLOW FUNCTION
         //
         // Concerns:
-        //: 1 'uflow' reads a character from an input 'stringbuf' and advances
-        //:   the current input pointer.
+        // 1. `uflow` reads a character from an input `stringbuf` and advances
+        //    the current input pointer.
         //
         // Plans:
-        //: 1 Create an input 'stringbuf' object with some initial string.
-        //: 2 For a range of positions from 0 to the size of the 'stringbuf'
-        //:   object, change the current input position of the 'stringbuf',
-        //:   and then read a character from that position using the
-        //:   'uflow' method.
-        //: 3 Verify that the character read with 'uflow' is the same as
-        //:   the one from the initial string at that position.
+        // 1. Create an input `stringbuf` object with some initial string.
+        // 2. For a range of positions from 0 to the size of the `stringbuf`
+        //    object, change the current input position of the `stringbuf`,
+        //    and then read a character from that position using the
+        //    `uflow` method.
+        // 3. Verify that the character read with `uflow` is the same as
+        //    the one from the initial string at that position.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING UFLOW FUNCTION"
@@ -2621,17 +2622,17 @@ int main(int argc, char *argv[])
         // TESTING UNDERFLOW FUNCTION
         //
         // Concerns:
-        //: 1 'underflow' reads a character from an input 'stringbuf' without
-        //:   advancing the current input pointer.
+        // 1. `underflow` reads a character from an input `stringbuf` without
+        //    advancing the current input pointer.
         //
         // Plans:
-        //: 1 Create an input 'stringbuf' object with some initial string.
-        //: 2 For a range of positions from 0 to the size of the 'stringbuf'
-        //:   object, change the current input position of the 'stringbuf',
-        //:   and then read a character from that position using the
-        //:   'underflow' method.
-        //: 3 Verify that the character read with 'underflow' is the same as
-        //:   the one from the initial string at that position.
+        // 1. Create an input `stringbuf` object with some initial string.
+        // 2. For a range of positions from 0 to the size of the `stringbuf`
+        //    object, change the current input position of the `stringbuf`,
+        //    and then read a character from that position using the
+        //    `underflow` method.
+        // 3. Verify that the character read with `underflow` is the same as
+        //    the one from the initial string at that position.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING UNDERFLOW FUNCTION"
@@ -2645,14 +2646,14 @@ int main(int argc, char *argv[])
         // TESTING XSGETN FUNCTION
         //
         // Concerns:
-        //: 1 'xsgetn' reads the requested number of characters from the input
-        //:   'strinbuf' object.
+        // 1. `xsgetn` reads the requested number of characters from the input
+        //    `strinbuf` object.
         //
         // Plans:
-        //: 1 Create an input 'stringbuf' object with an initial string.
-        //: 2 Read characters from the 'stringbuf' object of various length.
-        //: 3 Verify the characters read with 'xsgetn' against the initial
-        //:   'stringbuf' string object.
+        // 1. Create an input `stringbuf` object with an initial string.
+        // 2. Read characters from the `stringbuf` object of various length.
+        // 3. Verify the characters read with `xsgetn` against the initial
+        //    `stringbuf` string object.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING XSGETN FUNCTION"
@@ -2666,17 +2667,17 @@ int main(int argc, char *argv[])
         // TESTING SEEKPOS FUNCTION
         //
         // Concerns:
-        //: 1 'seekpos' can change either input, output or both 'stringbuf'
-        //:   position of the appropriate (input or output) 'stringbuf' object
-        //:   in the range of valid positions.
+        // 1. `seekpos` can change either input, output or both `stringbuf`
+        //    position of the appropriate (input or output) `stringbuf` object
+        //    in the range of valid positions.
         //
         // Plan:
-        //: 1 Create a 'stringbuf' object of either input, output or
-        //:   input/output type with an initial string of varying length.
-        //: 2 Change input, output or both positions in the stringbuf for
-        //:   the range of positions from 0 to the end of the 'stringbuf'.
-        //: 3 Verify that the position was changed correctly using 'gptr'
-        //:   and 'pptr' functions.
+        // 1. Create a `stringbuf` object of either input, output or
+        //    input/output type with an initial string of varying length.
+        // 2. Change input, output or both positions in the stringbuf for
+        //    the range of positions from 0 to the end of the `stringbuf`.
+        // 3. Verify that the position was changed correctly using `gptr`
+        //    and `pptr` functions.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING SEEKPOS FUNCTION"
@@ -2690,22 +2691,22 @@ int main(int argc, char *argv[])
         // TESTING SEEKOFF FUNCTION
         //
         // Concerns:
-        //: 1 'seekoff' can change either input, output or both stringbuf
-        //:   position starting from the beginning of the buffer.
-        //: 2 'seekoff' can change either input, output or both stringbuf
-        //:   position starting from the end of the buffer.
-        //: 3 'seekoff' can change both input and output stringbuf
-        //:   positions starting from the current position into the buffer.
-        //: 4 'seekoff' can change the stringbuf position for either input,
-        //:    output or input/output stringbuf.
+        // 1. `seekoff` can change either input, output or both stringbuf
+        //    position starting from the beginning of the buffer.
+        // 2. `seekoff` can change either input, output or both stringbuf
+        //    position starting from the end of the buffer.
+        // 3. `seekoff` can change both input and output stringbuf
+        //    positions starting from the current position into the buffer.
+        // 4. `seekoff` can change the stringbuf position for either input,
+        //     output or input/output stringbuf.
         //
         // Plan:
-        //: 1 Create a 'stringbuf' object of either input, output or
-        //:   input/output type with an initial string of varying length.
-        //: 2 Change input, output or both positions in the stringbuf for
-        //:   the range of positions from 0 to the end of the 'stringbuf'.
-        //: 3 Verify that the position was changed correctly using 'gptr'
-        //:   and 'pptr' functions.
+        // 1. Create a `stringbuf` object of either input, output or
+        //    input/output type with an initial string of varying length.
+        // 2. Change input, output or both positions in the stringbuf for
+        //    the range of positions from 0 to the end of the `stringbuf`.
+        // 3. Verify that the position was changed correctly using `gptr`
+        //    and `pptr` functions.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING SEEKOFF FUNCTION"
@@ -2719,37 +2720,37 @@ int main(int argc, char *argv[])
         // TESTING MOVE ASSIGNMENT
         //
         // Concerns:
-        //: 1. move assignment moves
-        //: 2. move assignment properly updates the internal pointers of the
-        //:    moved-from object if the internal string changes
-        //: 3. move assignment properly updates the internal pointers of the
-        //:    moved-to object if the internal string has the small string
-        //:    optimization (pointers point into the object)
-        //: 4. move assignment objects having different open modes works as
-        //:    expected
+        //  1. move assignment moves
+        //  2. move assignment properly updates the internal pointers of the
+        //     moved-from object if the internal string changes
+        //  3. move assignment properly updates the internal pointers of the
+        //     moved-to object if the internal string has the small string
+        //     optimization (pointers point into the object)
+        //  4. move assignment objects having different open modes works as
+        //     expected
         //
         // Plan:
-        //: 1. create a stringbuf object with both long (allocating) and short
-        //:    strings.  Move assign other stringbufs from them.
-        //:    1. Verify that all accessible members have the moved-from
-        //:       values.
-        //:    2. Verify that the string has not changed.
-        //:    3. Verify that the read position has not changed.
-        //:    4. Verify that the long string has been moved-from by checking
-        //:       that the original stream now reports an empty 'str()'.  Note
-        //:       that this test requires the inner string to be longer than
-        //:       the short string optimization.
-        //:    5. Verify that the short string has been non-destructively
-        //:       moved-from by checking that the original stream still reports
-        //:       the original 'str()'.  Note that this test requires the
-        //:       string to employ the short string optimization (otherwise the
-        //:       move is destructive).
-        //:    6. Verify that the write position has not changed.
-        //: 2. Define a set of short and long strings (u) and a set of the open
-        //:    mode values (v).  For every item in the cross-product of these
-        //:    two sets (u, v), verify that after moving the string associated
-        //:    with the moved-to string buffer equals to the string associated
-        //:    with the moved-from string buffer obtained before moving.  (C-4)
+        //  1. create a stringbuf object with both long (allocating) and short
+        //     strings.  Move assign other stringbufs from them.
+        //     1. Verify that all accessible members have the moved-from
+        //        values.
+        //     2. Verify that the string has not changed.
+        //     3. Verify that the read position has not changed.
+        //     4. Verify that the long string has been moved-from by checking
+        //        that the original stream now reports an empty `str()`.  Note
+        //        that this test requires the inner string to be longer than
+        //        the short string optimization.
+        //     5. Verify that the short string has been non-destructively
+        //        moved-from by checking that the original stream still reports
+        //        the original `str()`.  Note that this test requires the
+        //        string to employ the short string optimization (otherwise the
+        //        move is destructive).
+        //     6. Verify that the write position has not changed.
+        //  2. Define a set of short and long strings (u) and a set of the open
+        //     mode values (v).  For every item in the cross-product of these
+        //     two sets (u, v), verify that after moving the string associated
+        //     with the moved-to string buffer equals to the string associated
+        //     with the moved-from string buffer obtained before moving.  (C-4)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING MOVE ASSIGNMENT"
@@ -2833,74 +2834,74 @@ int main(int argc, char *argv[])
         // BASIC ACCESSORS
         //
         // Concerns:
-        //: 1 The 'get_allocator' method returns the allocator specified at
-        //:   construction, and that is the default allocator at the time of
-        //:   object's construction if none was specified at construction.
-        //:
-        //: 2 The 'str' method returns a copy of the buffered sequence of
-        //:   characters that uses the default allocator to supply memory.
-        //:
-        //: 3 If string buffer object was created with
-        //:   'modeBitMask & ios_base::out' being nonzero then 'str' method
-        //:   returns a copy of the buffered sequence in the range
-        //:   '[pbase(), high_mark)', where 'high_mark' represents the position
-        //:   one past the highest initialized character in the buffer.
-        //:
-        //: 4 If string buffer object was created only in input mode then 'str'
-        //:   method returns a copy of the buffered sequence in the range
-        //:   '[eback(), egptr())'.
-        //:
-        //: 5 If string buffer object was created in neither output nor input
-        //:   mode then 'str' method returns a zero length string.
+        // 1. The `get_allocator` method returns the allocator specified at
+        //    construction, and that is the default allocator at the time of
+        //    object's construction if none was specified at construction.
+        //
+        // 2. The `str` method returns a copy of the buffered sequence of
+        //    characters that uses the default allocator to supply memory.
+        //
+        // 3. If string buffer object was created with
+        //    `modeBitMask & ios_base::out` being nonzero then `str` method
+        //    returns a copy of the buffered sequence in the range
+        //    `[pbase(), high_mark)`, where `high_mark` represents the position
+        //    one past the highest initialized character in the buffer.
+        //
+        // 4. If string buffer object was created only in input mode then `str`
+        //    method returns a copy of the buffered sequence in the range
+        //    `[eback(), egptr())`.
+        //
+        // 5. If string buffer object was created in neither output nor input
+        //    mode then `str` method returns a zero length string.
         //
         // Plan:
-        //: 1 Create an object without passing an allocator reference, setup
-        //:   temporary default allocator and verify that 'get_allocator'
-        //:   returns a copy of the default allocator at the time of object's
-        //:   construction.
-        //:
-        //: 2 Create an object specifying the allocator and verify that
-        //:   'get_allocator' returns a copy of the supplied allocator.  (C-1)
-        //:
-        //: 3 Specify a set S of initial strings with substantial and varied
-        //:   differences, ordered by increasing length, to be used in the
-        //:   following tests.
-        //:
-        //: 4 Execute a loop that creates an object with each value in S but
-        //:   invokes the constructor differently in each iteration:
-        //:   (a) without passing an allocator,
-        //:   (b) passing the address of a test allocator distinct from the
-        //:       default.
-        //:
-        //: 5 For each iteration from P-4:
-        //:
-        //:   1 Using 'str' method obtain a copy of the object's buffered
-        //:     sequence of characters.
-        //:
-        //:   2 Verify the value of the obtained string.
-        //:
-        //:   3 Using the 'get_allocator()' method verify that the expected
-        //:     allocator is assigned to the obtained string.  (C-2)
-        //:
-        //: 6 Create a table of distinct open mode value (in, out, ate)
-        //:   combination.
-        //:
-        //: 7 For each item in the table in P-6:
-        //:
-        //:   1 Create an object specifying the open mode and a distinct string
-        //:     value.
-        //:
-        //:   2 If the object was created only in input mode, ensure that 'str'
-        //:     returns a string equal to a copy of the buffered sequence in
-        //:     the range '[eback(), egptr()).
-        //:
-        //:   3 If the object was created with 'modeBitMask & ios_base::out'
-        //:     being nonzero, ensure that 'str' returns a string equal to a
-        //:     copy of the buffered sequence in the range
-        //:     '[eback(), high_mark)'.
-        //:
-        //:   4 If the object was created in neither input or output mode,
-        //:     ensure 'str' returns an empty string.
+        // 1. Create an object without passing an allocator reference, setup
+        //    temporary default allocator and verify that `get_allocator`
+        //    returns a copy of the default allocator at the time of object's
+        //    construction.
+        //
+        // 2. Create an object specifying the allocator and verify that
+        //    `get_allocator` returns a copy of the supplied allocator.  (C-1)
+        //
+        // 3. Specify a set S of initial strings with substantial and varied
+        //    differences, ordered by increasing length, to be used in the
+        //    following tests.
+        //
+        // 4. Execute a loop that creates an object with each value in S but
+        //    invokes the constructor differently in each iteration:
+        //    (a) without passing an allocator,
+        //    (b) passing the address of a test allocator distinct from the
+        //        default.
+        //
+        // 5. For each iteration from P-4:
+        //
+        //   1. Using `str` method obtain a copy of the object's buffered
+        //      sequence of characters.
+        //
+        //   2. Verify the value of the obtained string.
+        //
+        //   3. Using the `get_allocator()` method verify that the expected
+        //      allocator is assigned to the obtained string.  (C-2)
+        //
+        // 6. Create a table of distinct open mode value (in, out, ate)
+        //    combination.
+        //
+        // 7. For each item in the table in P-6:
+        //
+        //   1. Create an object specifying the open mode and a distinct string
+        //      value.
+        //
+        //   2. If the object was created only in input mode, ensure that `str`
+        //      returns a string equal to a copy of the buffered sequence in
+        //      the range '[eback(), egptr()).
+        //
+        //   3. If the object was created with `modeBitMask & ios_base::out`
+        //      being nonzero, ensure that `str` returns a string equal to a
+        //      copy of the buffered sequence in the range
+        //      `[eback(), high_mark)`.
+        //
+        //   4. If the object was created in neither input or output mode,
+        //      ensure `str` returns an empty string.
         //
         // Testing:
         //   allocator_type get_allocator() const;
@@ -2913,12 +2914,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBASIC ACCESSORS"
                             "\n===============\n");
 
-        if (verbose) printf("\tTesting 'get_allocator().'\n");
+        if (verbose) printf("\tTesting `get_allocator().`\n");
 
         StringBufTest<char   >::testGetAllocator();
         StringBufTest<wchar_t>::testGetAllocator();
 
-        if (verbose) printf("\tTesting 'str()'.\n");
+        if (verbose) printf("\tTesting `str()`.\n");
 
         StringBufTest<char   >::testStrAccessor();
         StringBufTest<wchar_t>::testStrAccessor();
@@ -2928,42 +2929,42 @@ int main(int argc, char *argv[])
         // PRIMARY MANIPULATORS
         //
         // Concerns:
-        //: 1. stringbuf is creatable with the default constructor
-        //: 2. stringbuf is creatable with constructor taking the input/output
-        //:    mode
-        //: 3. stringbuf is creatable with constructor taking the initial
-        //:    string
-        //: 4. stringbuf is creatable with constructors taking an allocator
-        //: 5. move constructor moves
-        //: 6. move constructor properly updates the internal pointers of the
-        //:    moved-from object if the internal string changes
-        //: 7. move constructor properly updates the internal pointers of the
-        //:    moved-to object if the internal string has the small string
-        //:    optimization (pointers point into the object)
+        //  1. stringbuf is creatable with the default constructor
+        //  2. stringbuf is creatable with constructor taking the input/output
+        //     mode
+        //  3. stringbuf is creatable with constructor taking the initial
+        //     string
+        //  4. stringbuf is creatable with constructors taking an allocator
+        //  5. move constructor moves
+        //  6. move constructor properly updates the internal pointers of the
+        //     moved-from object if the internal string changes
+        //  7. move constructor properly updates the internal pointers of the
+        //     moved-to object if the internal string has the small string
+        //     optimization (pointers point into the object)
         //
         // Plan:
-        //: 1. create stringbuf object with the default constructor
-        //: 2. create stringbuf objects with constructors taking the
-        //:    input/output mode
-        //: 3. create stringbuf object with constructor taking the initial
-        //:    string
-        //: 4. create stringbuf objects with constructors taking an allocator
-        //: 5. create a stringbuf object with both long (allocating) and short
-        //:    strings.  Move construct other stringbufs from them.
-        //:    1. Verify that all accessible members have the moved-from
-        //:       values.
-        //:    2. Verify that the string has not changed.
-        //:    3. Verify that the read position has not changed.
-        //:    4. Verify that the long string has been moved-from by checking
-        //:       that the original stream now reports an empty 'str()'.  Note
-        //:       that this test requires the inner string to be longer than
-        //:       the short string optimization.
-        //:    5. Verify that the short string has been non-destructively
-        //:       moved-from by checking that the original stream still reports
-        //:       the original 'str()'.  Note that this test requires the
-        //:       string to employ the short string optimization (otherwise the
-        //:       move is destructive).
-        //:    6. Verify that the write position has not changed.
+        //  1. create stringbuf object with the default constructor
+        //  2. create stringbuf objects with constructors taking the
+        //     input/output mode
+        //  3. create stringbuf object with constructor taking the initial
+        //     string
+        //  4. create stringbuf objects with constructors taking an allocator
+        //  5. create a stringbuf object with both long (allocating) and short
+        //     strings.  Move construct other stringbufs from them.
+        //     1. Verify that all accessible members have the moved-from
+        //        values.
+        //     2. Verify that the string has not changed.
+        //     3. Verify that the read position has not changed.
+        //     4. Verify that the long string has been moved-from by checking
+        //        that the original stream now reports an empty `str()`.  Note
+        //        that this test requires the inner string to be longer than
+        //        the short string optimization.
+        //     5. Verify that the short string has been non-destructively
+        //        moved-from by checking that the original stream still reports
+        //        the original `str()`.  Note that this test requires the
+        //        string to employ the short string optimization (otherwise the
+        //        move is destructive).
+        //     6. Verify that the write position has not changed.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING CREATORS"

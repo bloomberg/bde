@@ -154,11 +154,11 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // Test Plan:
-        //   Instantiate 'bslmf::RemoveCvq' with various types and verify
-        //   that their 'Type' member is initialized properly.
+        //   Instantiate `bslmf::RemoveCvq` with various types and verify
+        //   that their `Type` member is initialized properly.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'bslmf::RemoveCvq'\n"
+        if (verbose) printf("\nTESTING `bslmf::RemoveCvq`\n"
                             "\n==========================\n");
 
         // from component doc

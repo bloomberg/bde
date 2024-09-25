@@ -8,22 +8,22 @@
 #include <bsls_platform.h>
 #include <bsls_review.h>
 
-#include <bsl_algorithm.h>   // 'bsl::transform'
-#include <bsl_clocale.h>     // 'bsl::setlocale'
+#include <bsl_algorithm.h>   // `bsl::transform`
+#include <bsl_clocale.h>     // `bsl::setlocale`
 #include <bsl_cstddef.h>
-#include <bsl_cstdio.h>      // 'bsl::sprintf'
-#include <bsl_cstdlib.h>     // 'bsl::atoi'
-#include <bsl_cstring.h>     // 'bsl::strcmp', 'bsl::memset'
+#include <bsl_cstdio.h>      // `bsl::sprintf`
+#include <bsl_cstdlib.h>     // `bsl::atoi`
+#include <bsl_cstring.h>     // `bsl::strcmp`, `bsl::memset`
 #include <bsl_iostream.h>
 
-#include <ctype.h>           // 'tolower', 'toupper'
+#include <ctype.h>           // `tolower`, `toupper`
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-#include <bsl_c_string.h>    // 'bsl::_stricmp', 'bsl::_strnicmp'
+#include <bsl_c_string.h>    // `bsl::_stricmp`, `bsl::_strnicmp`
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp
 #else
-#include <strings.h>         // 'bsl::strcasecmp', 'bsl::strncasecmp'
+#include <strings.h>         // `bsl::strcasecmp`, `bsl::strncasecmp`
 #endif
 
 using namespace BloombergLP;
@@ -158,20 +158,20 @@ typedef bdlb::String Util;
 // The following two functions enable us to test that functions can take a null
 // input string pointer in the cases where the specified string length is 0.
 // All tests that iterate over a range of input lengths were extended to also
-// include a length of '-1', and 'ns' will return a null pointer in that case,
+// include a length of `-1`, and `ns` will return a null pointer in that case,
 // and everywhere the string length is used in the test case is passed through
-// 'nneg', which will return 0 in the case of '-1 == len'.
+// `nneg`, which will return 0 in the case of `-1 == len`.
 
+/// Return the specified `string` if `len >= 0`, otherwise return null.
 static inline
 const char *ns(const char *string, int len)
-    // Return the specified 'string' if 'len >= 0', otherwise return null.
 {
     return len < 0 ? 0 : string;
 }
 
+/// Return the specified `len` if it is positive and 0 otherwise.
 static inline
 int nneg(int len)
-    // Return the specified 'len' if it is positive and 0 otherwise.
 {
     return len < 0 ? 0 : len;
 }
@@ -189,19 +189,19 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'copy'
+        // TESTING `copy`
         //
         // Concerns:
-        //: 1 That the three 'copy' methods work as specified in the doc.
+        // 1. That the three `copy` methods work as specified in the doc.
         //
         // Plan:
-        //: 1 Table-based tests are used.
+        // 1. Table-based tests are used.
         //
         // Testing:
         //  copy(cchar *string, bslma::Allocator *basicAllocator);
@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
         //  copy(cBslStr& string, bslma::Allocator *basicAllocator);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\n" "TESTING 'copy'" "\n"
+        if (verbose) cout << "\n" "TESTING `copy`" "\n"
                                   "==============" "\n";
 
         bslma::TestAllocator ta;
@@ -292,28 +292,28 @@ int main(int argc, char *argv[])
       }  break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'skipLeadingTrailing'
+        // TESTING `skipLeadingTrailing`
         //
         // Concerns:
-        //: 1 Correctly handles leading and/or trailing spaces.
-        //:
-        //: 2 Correctly adjust only the 'end' pointer when the entire string is
-        //:   whitespace.
-        //:
-        //: 3 '*begin' is adjusted at most to the '*end - 1'th position.
-        //:
-        //: 4 Nothing happens when '*begin == *end'.
+        // 1. Correctly handles leading and/or trailing spaces.
+        //
+        // 2. Correctly adjust only the `end` pointer when the entire string is
+        //    whitespace.
+        //
+        // 3. `*begin` is adjusted at most to the `*end - 1`th position.
+        //
+        // 4. Nothing happens when `*begin == *end`.
         //
         // Plan:
-        //: 1 Pass the end points of a variety of strings covering all 4
-        //:   concerns.  In each case, observe where the end points wind up and
-        //:   confirm they are as expected.
+        // 1. Pass the end points of a variety of strings covering all 4
+        //    concerns.  In each case, observe where the end points wind up and
+        //    confirm they are as expected.
         //
         // Testing:
         //  skipLeadingTrailing(cchar **begin, cchar **end);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\n" "TESTING 'skipLeadingTrailing'" "\n"
+        if (verbose) cout << "\n" "TESTING `skipLeadingTrailing`" "\n"
                                   "=============================" "\n";
 
         static const struct {
@@ -411,33 +411,33 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'strstr', 'strstrCaseless', 'strrstr', 'strrstrCaseless'
+        // TESTING `strstr`, `strstrCaseless`, `strrstr`, `strrstrCaseless`
         //
         // Concerns:
-        //: 1 Forward-search correctly returns the position of the first found
-        //:   substring or '0' if not found.
-        //:
-        //: 2 Forward-search correctly returns the starting position of the
-        //:   string when an empty substring is passed in.
-        //:
-        //: 3 Reverse-search correctly returns the position of the last found
-        //:   substring or '0' if not found.
-        //:
-        //: 4 Reverse-search correctly returns the starting position of the
-        //:   string when an empty substring is passed in.
+        // 1. Forward-search correctly returns the position of the first found
+        //    substring or `0` if not found.
+        //
+        // 2. Forward-search correctly returns the starting position of the
+        //    string when an empty substring is passed in.
+        //
+        // 3. Reverse-search correctly returns the position of the last found
+        //    substring or `0` if not found.
+        //
+        // 4. Reverse-search correctly returns the starting position of the
+        //    string when an empty substring is passed in.
         //
         // Plan:
-        //: 1 This case use the Ad-Hoc Data Selection Method for contents of
-        //:   the original string and Depth-First Enumeration substring values.
-        //:
-        //: 2 To address concerns 1, 2, 3, and 4 we enumerate through different
-        //:   lengths of substrings (0 to 2) and match them against different
-        //:   lengths of original strings (0 to substring length + 2).  The
-        //:   case of both the substrings and the original strings are also
-        //:   permuted.  The resulting address returned from 'strstr',
-        //:   'strstrCaseless', 'strrstr', and 'strrstrCaseless' is compared
-        //:   against the expected offset from the original string to make sure
-        //:   concerns 1, 2, 3, and 4 are addressed.
+        // 1. This case use the Ad-Hoc Data Selection Method for contents of
+        //    the original string and Depth-First Enumeration substring values.
+        //
+        // 2. To address concerns 1, 2, 3, and 4 we enumerate through different
+        //    lengths of substrings (0 to 2) and match them against different
+        //    lengths of original strings (0 to substring length + 2).  The
+        //    case of both the substrings and the original strings are also
+        //    permuted.  The resulting address returned from `strstr`,
+        //    `strstrCaseless`, `strrstr`, and `strrstrCaseless` is compared
+        //    against the expected offset from the original string to make sure
+        //    concerns 1, 2, 3, and 4 are addressed.
         //
         // Testing:
         //  strstr(cchar *str, int strL, cchar *subStr, int subStrL);
@@ -448,7 +448,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\n"
        //-------------------------^
-       "TESTING 'strstr', 'strstrCaseless', 'strrstr', 'strrstrCaseless'" "\n"
+       "TESTING `strstr`, `strstrCaseless`, `strrstr`, `strrstrCaseless`" "\n"
        "================================================================" "\n";
        //-------------------------v
 
@@ -478,7 +478,7 @@ int main(int argc, char *argv[])
 
         } DATA[] = {
             //In the table below, R1-4 correspond to the results from the
-            //'strstr', 'strstrCaseless', 'strrstr', and 'strrstrCaseless'.
+            //`strstr`, `strstrCaseless`, `strrstr`, and `strrstrCaseless`.
             //
             //LINE, STR,     STRLEN,     SUBSTR,  SUBSTRLEN,  R1, R2, R3, R4
 
@@ -708,8 +708,8 @@ int main(int argc, char *argv[])
                 T_ T_ P(RESULTREVERSECASELESS)
             }
 
-            // Run 'strstr', 'strstrCaseless', 'strrstr', and
-            // 'strrstrCaseless'.
+            // Run `strstr`, `strstrCaseless`, `strrstr`, and
+            // `strrstrCaseless`.
             const char* strstrResult = Util::strstr(ns(STRING, STRINGLEN),
                                                     nneg(STRINGLEN),
                                                     ns(SUBSTRING,
@@ -824,35 +824,35 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'toFixedLength'
+        // TESTING `toFixedLength`
         //
         // Concerns:
-        //: 1 The correct content from the source string is copied into the
-        //:   destination string.  The number of characters copied is at most
-        //:   'dstLength' (i.e., the length of the destination string).
-        //:
-        //: 2 If the length of the source string ('srcLength') is less than
-        //:   'dstLength', the destination string is padded with the specified
-        //:   character to the length 'dstLength'.
+        // 1. The correct content from the source string is copied into the
+        //    destination string.  The number of characters copied is at most
+        //    `dstLength` (i.e., the length of the destination string).
+        //
+        // 2. If the length of the source string (`srcLength`) is less than
+        //    `dstLength`, the destination string is padded with the specified
+        //    character to the length `dstLength`.
         //
         // Plan:
-        //: 1 This case uses the Ad-Hoc Data Selection Method and the
-        //:   Array-Based Implementation Technique.
-        //:
-        //: 2 To address concerns 1 and 2, we arbitrarily select a set of
-        //:   strings as source strings.  We generate a string S for each of
-        //:   these source strings for verification purpose.  The length of S
-        //:   is always 'dstLength'.  If 'srcLength < dstLength', S contains
-        //:   the entire source string plus the correct padding at the end.
-        //:   Otherwise, S contains the first 'dstLength' characters of the
-        //:   source string.  Then we compare S with the destination string
-        //:   after 'toFixedLength' is invoked and make sure they are equal.
+        // 1. This case uses the Ad-Hoc Data Selection Method and the
+        //    Array-Based Implementation Technique.
+        //
+        // 2. To address concerns 1 and 2, we arbitrarily select a set of
+        //    strings as source strings.  We generate a string S for each of
+        //    these source strings for verification purpose.  The length of S
+        //    is always `dstLength`.  If `srcLength < dstLength`, S contains
+        //    the entire source string plus the correct padding at the end.
+        //    Otherwise, S contains the first `dstLength` characters of the
+        //    source string.  Then we compare S with the destination string
+        //    after `toFixedLength` is invoked and make sure they are equal.
         //
         // Testing:
         //  toFixedLength(char *d, int dL, cchar *s, int sL, char pad= ' ');
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\n" "TESTING 'toFixedLength'" "\n"
+        if (verbose) cout << "\n" "TESTING `toFixedLength`" "\n"
                                   "=======================" "\n";
 
         static const char *STRINGS[] = {
@@ -895,14 +895,14 @@ int main(int argc, char *argv[])
             for (int charIdx = 0; charIdx < NUM_CHARS; ++charIdx) {
                 const char PADCHAR = CHARS[charIdx];
 
-                // 'x' is a sentinel in 'CHARS' indicating that we want to
-                // verify the default value for the 'padChar' parameter.
+                // 'x' is a sentinel in `CHARS` indicating that we want to
+                // verify the default value for the `padChar` parameter.
 
                 const char CHKCHAR = 'x' != PADCHAR ? PADCHAR : ' ';
 
                 if (veryVerbose) { T_ P_(charIdx) P(PADCHAR) }
 
-                // Call 'toFixedLength' with various lengths for both source
+                // Call `toFixedLength` with various lengths for both source
                 // and destination string.
 
                 for (int dstLen = 0; dstLen < BUFSIZE; ++dstLen) {
@@ -927,7 +927,7 @@ int main(int argc, char *argv[])
                                                 dstLen,
                                                 ns(SRC, srcLen),
                                                 nneg(srcLen));
-                                                           // default 'padChar'
+                                                           // default `padChar`
                         }
 
                         // Generate the expected result string.
@@ -940,12 +940,12 @@ int main(int argc, char *argv[])
                             result.append(dstLen - nneg(srcLen), CHKCHAR);
                         }
 
-                        // Verify the result from 'toFixedLength'.
+                        // Verify the result from `toFixedLength`.
 
                         ASSERTV(strIdx, charIdx, dstLen, srcLen,
                              0 == bsl::memcmp(result.c_str(), dstBuf, dstLen));
 
-                        // Verify no overwrite of 'dstBuf'.
+                        // Verify no overwrite of `dstBuf`.
 
                         if (dstLen < BUFSIZE) {
                              ASSERTV(strIdx, charIdx, dstLen, srcLen,
@@ -960,27 +960,27 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'strnlen'
+        // TESTING `strnlen`
         //
         // Concerns:
-        //: 1 We want to verify that 'strnlen' returns the minimum of the
-        //:   length of the specified string and the specified maximum length.
+        // 1. We want to verify that `strnlen` returns the minimum of the
+        //    length of the specified string and the specified maximum length.
         //
         // Plan:
-        //: 1 This case uses the Ad-Hoc Data Selection Method and the
-        //:   Array-Based Implementation Technique.
-        //:
-        //: 2 We first select an arbitrary set of strings.  For each of these
-        //:   strings, we vary the maximum length from 0 to two times the
-        //:   actually string length.  We then use the string and maximum
-        //:   length as inputs to 'strnlen' and verify its return value equals
-        //:   the minimum of result of 'strlen' and the maximum length.
+        // 1. This case uses the Ad-Hoc Data Selection Method and the
+        //    Array-Based Implementation Technique.
+        //
+        // 2. We first select an arbitrary set of strings.  For each of these
+        //    strings, we vary the maximum length from 0 to two times the
+        //    actually string length.  We then use the string and maximum
+        //    length as inputs to `strnlen` and verify its return value equals
+        //    the minimum of result of `strlen` and the maximum length.
         //
         // Testing:
         //  strnlen(cchar *str, int maximumLength);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\n" "TESTING 'strnlen'" "\n"
+        if (verbose) cout << "\n" "TESTING `strnlen`" "\n"
                                   "=================" "\n";
 
         static const char *STRINGS[] = {
@@ -1016,26 +1016,26 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'pad'
+        // TESTING `pad`
         //
         // Concerns:
-        //: 1 The 'pad' method properly pads the input string with the
-        //:   character provided to the specified number if the number is
-        //:   greater than the original length of the string.
-        //:
-        //: 2 The 'pad' method will no alter the input string if the length
-        //:   specified is less than or equal to the length of the input
-        //:   string.
+        // 1. The `pad` method properly pads the input string with the
+        //    character provided to the specified number if the number is
+        //    greater than the original length of the string.
+        //
+        // 2. The `pad` method will no alter the input string if the length
+        //    specified is less than or equal to the length of the input
+        //    string.
         //
         // Plan:
-        //: 1 This case uses the Ad-Hoc Data Selection Method and the
-        //:   Table-Driven Implementation Technique.
-        //:
-        //: 2 To address concern 1 and 2, we call 'pad' with an arbitrarily
-        //:   selected set of data.  Then we verify that if the length
-        //:   specified does not exceed the string's original length, the
-        //:   string is unmodified.  Otherwise, the string is padded with the
-        //:   supplied character up to the specified length.
+        // 1. This case uses the Ad-Hoc Data Selection Method and the
+        //    Table-Driven Implementation Technique.
+        //
+        // 2. To address concern 1 and 2, we call `pad` with an arbitrarily
+        //    selected set of data.  Then we verify that if the length
+        //    specified does not exceed the string's original length, the
+        //    string is unmodified.  Otherwise, the string is padded with the
+        //    supplied character up to the specified length.
         //
         // Testing:
         //  pad(bsl::string *str, int numChars, char padChar = ' ');
@@ -1043,7 +1043,7 @@ int main(int argc, char *argv[])
         //  pad(std::pmr::string *str, size_type numChars, char padChar = ' ');
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\n" "TESTING 'pad'" "\n"
+        if (verbose) cout << "\n" "TESTING `pad`" "\n"
                                   "=============" "\n";
 
         static const char *STRINGS[] = {
@@ -1074,8 +1074,8 @@ int main(int argc, char *argv[])
             for (int charIdx = 0; charIdx < NUM_CHARS; ++charIdx) {
                 const char PADCHAR = CHARS[charIdx];
 
-                // 'x' is a sentinel in 'CHARS' indicating that we want to
-                // verify the default value for the 'padChar' parameter.
+                // 'x' is a sentinel in `CHARS` indicating that we want to
+                // verify the default value for the `padChar` parameter.
 
                 const char CHKCHAR = 'x' != PADCHAR ? PADCHAR : ' ';
 
@@ -1089,7 +1089,7 @@ int main(int argc, char *argv[])
                         Util::pad(&bslString, length, PADCHAR);
                     }
                     else {
-                        Util::pad(&bslString, length);  // default 'padChar'
+                        Util::pad(&bslString, length);  // default `padChar`
                     }
 
                     std::string stdString(STRING);
@@ -1097,7 +1097,7 @@ int main(int argc, char *argv[])
                         Util::pad(&stdString, length, PADCHAR);
                     }
                     else {
-                        Util::pad(&stdString, length);  // default 'padChar'
+                        Util::pad(&stdString, length);  // default `padChar`
                     }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
@@ -1106,12 +1106,12 @@ int main(int argc, char *argv[])
                         Util::pad(&pmrString, length, PADCHAR);
                     }
                     else {
-                        Util::pad(&pmrString, length);  // default 'padChar'
+                        Util::pad(&pmrString, length);  // default `padChar`
                     }
 #endif
 
                     if (LEN >= length) {
-                        // If the specified 'length' is not greater than the
+                        // If the specified `length` is not greater than the
                         // original string length, then the string should be
                         // unmodified.
 
@@ -1139,40 +1139,40 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'ltrim', 'rtrim', 'trim'
+        // TESTING `ltrim`, `rtrim`, `trim`
         //
         // Concerns:
-        //: 1 All of the 'ltrim', 'rtrim', and 'trim' methods properly trim the
-        //:   input strings of various types ('bsl::string', null-terminated
-        //:   C-style, and a non-null-terminated 'const char      *' with an
-        //:   'int' length specifier).
-        //:
-        //: 2 Specifically the methods that take a non-null-terminated
-        //:   'const char *' strings as input will not read pass the end of
-        //:   these strings.
+        // 1. All of the `ltrim`, `rtrim`, and `trim` methods properly trim the
+        //    input strings of various types (`bsl::string`, null-terminated
+        //    C-style, and a non-null-terminated `const char      *` with an
+        //    `int` length specifier).
+        //
+        // 2. Specifically the methods that take a non-null-terminated
+        //    `const char *` strings as input will not read pass the end of
+        //    these strings.
         //
         // Plan:
-        //: 1 This case uses the Ad-Hoc Data Selection Method and the
-        //:   Table-Driven Implementation Technique.
-        //:
-        //: 2 To address concern 1, we arbitrarily select a set S of strings
-        //:   with no whitespace characters as their beginning or ending
-        //:   characters.  Then we append whitespace characters before and
-        //:   after them and apply 'ltrim', 'rtrim', and 'trim' methods to
-        //:   them.  We verify that the result from the 'trim' methods equal
-        //:   the original string; that the result from the 'ltrim' methods
-        //:   equal the original string with the whitespace appended at the
-        //:   end; and that the result from the 'rtrim' methods equal the
-        //:   original string with the whitespace prepended at the beginning.
-        //:   For each string s in the set S, we generate all 3 types of
-        //:   strings for it, then pass them to the corresponding methods and
-        //:   verify the results.
-        //:
-        //: 3 To address concern 2, we create a non-null-terminated string for
-        //:   each string s by copying s into a buffer pre-filled with non-zero
-        //:   content.  This will cause incorrect compare results if any of
-        //:   these 'ltrim', 'rtrim' or 'trim' methods read pass the end of
-        //:   these strings.
+        // 1. This case uses the Ad-Hoc Data Selection Method and the
+        //    Table-Driven Implementation Technique.
+        //
+        // 2. To address concern 1, we arbitrarily select a set S of strings
+        //    with no whitespace characters as their beginning or ending
+        //    characters.  Then we append whitespace characters before and
+        //    after them and apply `ltrim`, `rtrim`, and `trim` methods to
+        //    them.  We verify that the result from the `trim` methods equal
+        //    the original string; that the result from the `ltrim` methods
+        //    equal the original string with the whitespace appended at the
+        //    end; and that the result from the `rtrim` methods equal the
+        //    original string with the whitespace prepended at the beginning.
+        //    For each string s in the set S, we generate all 3 types of
+        //    strings for it, then pass them to the corresponding methods and
+        //    verify the results.
+        //
+        // 3. To address concern 2, we create a non-null-terminated string for
+        //    each string s by copying s into a buffer pre-filled with non-zero
+        //    content.  This will cause incorrect compare results if any of
+        //    these `ltrim`, `rtrim` or `trim` methods read pass the end of
+        //    these strings.
         //
         // Testing:
         //  ltrim(char *str);
@@ -1192,7 +1192,7 @@ int main(int argc, char *argv[])
         //  trim(std::pmr::string *string);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\n" "TESTING 'ltrim', 'rtrim', 'trim'" "\n"
+        if (verbose) cout << "\n" "TESTING `ltrim`, `rtrim`, `trim`" "\n"
                                   "================================" "\n";
 
         static const char *STRINGS[]    = {
@@ -1203,7 +1203,7 @@ int main(int argc, char *argv[])
         const char white[]   = { '\t', '\n', '\013', '\014', '\r', ' ' };
         const int  NUM_WHITE = sizeof white / sizeof *white;
 
-        if (verbose) cout << "\tTesting 'char *', 'bsl::string', 'std::string'"
+        if (verbose) cout << "\tTesting `char *`, `bsl::string`, `std::string`"
                           << endl;
 
         for (int i = 0; STRINGS[i]; ++i) {
@@ -1275,13 +1275,13 @@ int main(int argc, char *argv[])
                     bsl::memset(nonNullString, 'Z', sizeof(nonNullString));
                     bsl::memcpy(nonNullString, cstring, length);
 
-                    // Generate the expected results for 'ltrim' and 'rtrim'.
+                    // Generate the expected results for `ltrim` and `rtrim`.
 
                     if (0 == bsl::strlen(STRINGS[i])) {
                         // Special case: If the original string was "", all
                         // (before and after) padding will be removed by the
-                        // 'ltrim' and 'rtrim' methods.  Therefore, clear the
-                        // '*LTrim' and '*RTrim' strings.
+                        // `ltrim` and `rtrim` methods.  Therefore, clear the
+                        // `*LTrim` and `*RTrim` strings.
 
                         bslLTrim.clear();
                         bslRTrim.clear();
@@ -1297,7 +1297,7 @@ int main(int argc, char *argv[])
                         stdRTrim += STRINGS[i];          // append
                     }
 
-                    // Testing 'ltrim'.
+                    // Testing `ltrim`.
 
                     Util::ltrim(cstring);
                     ASSERTV(i, bslLTrim == cstring);
@@ -1312,7 +1312,7 @@ int main(int argc, char *argv[])
                                                  nonNullString,
                                                  length));
 
-                    // Testing 'rtrim'.
+                    // Testing `rtrim`.
 
                     bslString = bslStringBeforeTrim;
                     stdString = stdStringBeforeTrim;
@@ -1335,7 +1335,7 @@ int main(int argc, char *argv[])
                                                  nonNullString,
                                                  length));
 
-                    // Testing 'trim'.
+                    // Testing `trim`.
 
                     bslString = bslStringBeforeTrim;
                     stdString = stdStringBeforeTrim;
@@ -1362,7 +1362,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\tTesting 'std::pmr::string'" << endl;
+        if (verbose) cout << "\tTesting `std::pmr::string`" << endl;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         for (int i = 0; STRINGS[i]; ++i) {
@@ -1403,13 +1403,13 @@ int main(int argc, char *argv[])
 
                     std::pmr::string pmrStringBeforeTrim = pmrString;
 
-                    // Generate the expected results for 'ltrim' and 'rtrim'.
+                    // Generate the expected results for `ltrim` and `rtrim`.
 
                     if (0 == bsl::strlen(STRINGS[i])) {
                         // Special case: If the original string was "", all
                         // (before and after) padding will be removed by the
-                        // 'ltrim' and 'rtrim' methods.  Therefore, clear the
-                        // '*LTrim' and '*RTrim' strings.
+                        // `ltrim` and `rtrim` methods.  Therefore, clear the
+                        // `*LTrim` and `*RTrim` strings.
 
                         pmrLTrim.clear();
                         pmrRTrim.clear();
@@ -1419,19 +1419,19 @@ int main(int argc, char *argv[])
                         pmrRTrim += STRINGS[i];          // append
                     }
 
-                    // Testing 'ltrim'.
+                    // Testing `ltrim`.
 
                     Util::ltrim(&pmrString);
                     ASSERTV(i, pmrLTrim == pmrString);
 
-                    // Testing 'rtrim'.
+                    // Testing `rtrim`.
 
                     pmrString = pmrStringBeforeTrim;
 
                     Util::rtrim(&pmrString);
                     ASSERTV(i, pmrRTrim == pmrString);
 
-                    // Testing 'trim'.
+                    // Testing `trim`.
 
                     pmrString = pmrStringBeforeTrim;
 
@@ -1445,43 +1445,43 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'lowerCaseCmp' AND 'upperCaseCmp'
+        // TESTING `lowerCaseCmp` AND `upperCaseCmp`
         //
         // Concerns:
-        //: 1 All of the 'lowerCaseCmp' and 'upperCaseCmp' methods return the
-        //:   correct results when comparing two strings of various types
-        //:   ('bsl::string', null-terminated C-style, and a
-        //:   non-null-terminated 'const char *' with an 'int' length
-        //:   specifier).
-        //:
-        //: 2 Specifically the methods that take a non-null-terminated
-        //:   'const char *' strings as input will not read pass the end of
-        //:   these strings.
-        //:
-        //: 3 The algorithm performs coherently with extended ASCII characters
-        //:   (128-255).
+        // 1. All of the `lowerCaseCmp` and `upperCaseCmp` methods return the
+        //    correct results when comparing two strings of various types
+        //    (`bsl::string`, null-terminated C-style, and a
+        //    non-null-terminated `const char *` with an `int` length
+        //    specifier).
+        //
+        // 2. Specifically the methods that take a non-null-terminated
+        //    `const char *` strings as input will not read pass the end of
+        //    these strings.
+        //
+        // 3. The algorithm performs coherently with extended ASCII characters
+        //    (128-255).
         //
         // Plan:
-        //: 1 This case uses the Ad-Hoc Data Selection Method and the
-        //:   Table-Driven Implementation Technique.
-        //:
-        //: 2 To address concern 1, we arbitrarily select a set S of string
-        //:   pairs and exercise all the 'lowerCaseCmp' and 'upperCaseCmp'
-        //:   methods and then verify the results by converting these strings
-        //:   to upper/lower cases.  These strings contain letters, digits,
-        //:   symbols, and special characters such as '\t' or '\n'.  For each
-        //:   pair of strings (s1, s2) in the set S, we generate all 3 types of
-        //:   strings for both s1 and s2, then pass them to the corresponding
-        //:   methods in the order of both (s1, s2) and (s2, s1) and verify the
-        //:   results.  Specifically for the non-null-terminated 'const char *'
-        //:   strings, we will vary the length of these strings while comparing
-        //:   against other strings using one of the above methods.
-        //:
-        //: 3 To address concern 2, we create a pair of non-null-terminated
-        //:   strings for each string pair (s1, s2) by copying s1 and s2 into
-        //:   two buffers pre-filled with non-zero content.  This will cause
-        //:   incorrect compare results if any of these 'lowerCaseCmp' or
-        //:   'upperCaseCmp' methods read pass the end of these strings.
+        // 1. This case uses the Ad-Hoc Data Selection Method and the
+        //    Table-Driven Implementation Technique.
+        //
+        // 2. To address concern 1, we arbitrarily select a set S of string
+        //    pairs and exercise all the `lowerCaseCmp` and `upperCaseCmp`
+        //    methods and then verify the results by converting these strings
+        //    to upper/lower cases.  These strings contain letters, digits,
+        //    symbols, and special characters such as '\t' or '\n'.  For each
+        //    pair of strings (s1, s2) in the set S, we generate all 3 types of
+        //    strings for both s1 and s2, then pass them to the corresponding
+        //    methods in the order of both (s1, s2) and (s2, s1) and verify the
+        //    results.  Specifically for the non-null-terminated `const char *`
+        //    strings, we will vary the length of these strings while comparing
+        //    against other strings using one of the above methods.
+        //
+        // 3. To address concern 2, we create a pair of non-null-terminated
+        //    strings for each string pair (s1, s2) by copying s1 and s2 into
+        //    two buffers pre-filled with non-zero content.  This will cause
+        //    incorrect compare results if any of these `lowerCaseCmp` or
+        //    `upperCaseCmp` methods read pass the end of these strings.
         //
         // Testing:
         //  lowerCaseCmp(cchar *lhsStr, cchar *rhsStr);
@@ -1505,7 +1505,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-                         "\n" "TESTING 'lowerCaseCmp' AND 'upperCaseCmp'" "\n"
+                         "\n" "TESTING `lowerCaseCmp` AND `upperCaseCmp`" "\n"
                               "=========================================" "\n";
 
         static const struct {
@@ -1671,7 +1671,7 @@ int main(int argc, char *argv[])
                 bsl::string string1(cstring1);
                 bsl::string string2(cstring2);
 
-                // Testing 'lowerCaseCmp'.
+                // Testing `lowerCaseCmp`.
 
                 bsl::string lowerStr1(string1);
                 bsl::string lowerStr2(string2);
@@ -1758,7 +1758,7 @@ int main(int argc, char *argv[])
                     }
                 }
 
-                // Testing 'upperCaseCmp'.
+                // Testing `upperCaseCmp`.
 
                 bsl::string upperStr1(cstring1);
                 bsl::string upperStr2(cstring2);
@@ -1836,36 +1836,36 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'areEqualCaseless'
+        // TESTING `areEqualCaseless`
         //
         // Concerns:
-        //: 1 All of the 'areEqualCaseless' methods return the correct results
-        //:   when comparing two strings of various types ('bsl::string',
-        //:   null-terminated C-style, and a non-null-terminated 'const char *'
-        //:   with an 'int' length specifier).
-        //:
-        //: 2 Specifically the methods that take non-null-terminated
-        //:   'const char *' strings as input will not read pass the end of
-        //:   these strings.
+        // 1. All of the `areEqualCaseless` methods return the correct results
+        //    when comparing two strings of various types (`bsl::string`,
+        //    null-terminated C-style, and a non-null-terminated `const char *`
+        //    with an `int` length specifier).
+        //
+        // 2. Specifically the methods that take non-null-terminated
+        //    `const char *` strings as input will not read pass the end of
+        //    these strings.
         //
         // Plan:
-        //: 1 This case uses the Ad-Hoc Data Selection Method and the
-        //:   Array-Based Implementation Technique.
-        //:
-        //: 2 To address concern 1, we arbitrarily select a set of strings and
-        //:   use the 'areEqualCaseless' methods to compare these strings
-        //:   against each other and verify the results against the ones
-        //:   returned by 'strcasecmp' or 'strncasecmp'.  These strings contain
-        //:   letters, digits, symbols, and special characters such as '\t' or
-        //:   '\n'.  Specifically for the non-null-terminated 'const char *'
-        //:   strings, we will vary the length of these strings while comparing
-        //:   against other strings using one of the above methods.
-        //:
-        //: 3 To address concern 2, we create the non-null-terminated strings
-        //:   by copying the original string without the null character into a
-        //:   buffer pre-filled with non-zero content.  This will cause
-        //:   incorrect compare results if any of these 'areEqualCaseless'
-        //:   methods read pass the end of these strings.
+        // 1. This case uses the Ad-Hoc Data Selection Method and the
+        //    Array-Based Implementation Technique.
+        //
+        // 2. To address concern 1, we arbitrarily select a set of strings and
+        //    use the `areEqualCaseless` methods to compare these strings
+        //    against each other and verify the results against the ones
+        //    returned by `strcasecmp` or `strncasecmp`.  These strings contain
+        //    letters, digits, symbols, and special characters such as '\t' or
+        //    '\n'.  Specifically for the non-null-terminated `const char *`
+        //    strings, we will vary the length of these strings while comparing
+        //    against other strings using one of the above methods.
+        //
+        // 3. To address concern 2, we create the non-null-terminated strings
+        //    by copying the original string without the null character into a
+        //    buffer pre-filled with non-zero content.  This will cause
+        //    incorrect compare results if any of these `areEqualCaseless`
+        //    methods read pass the end of these strings.
         //
         // Testing:
         //  areEqualCaseless(cchar *lhs, cchar *rhs);
@@ -1880,7 +1880,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-                    "\n" "TESTING 'areEqualCaseless' AND 'isNoCaseEqual'" "\n"
+                    "\n" "TESTING `areEqualCaseless` AND `isNoCaseEqual`" "\n"
                          "==============================================" "\n";
 
         static const char *STRINGS[] = {
@@ -1961,10 +1961,10 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) { T_ P(len) }
 
-                    // We need to compare the lengths because 'strncasecmp'
-                    // compares only the first 'len' characters and return 0 if
+                    // We need to compare the lengths because `strncasecmp`
+                    // compares only the first `len` characters and return 0 if
                     // they match, even though the string lengths might be
-                    // different.  Note that 'strncasecmp' returns 0 on
+                    // different.  Note that `strncasecmp` returns 0 on
                     // success.
 
                     result = (nneg(len) == length2)
@@ -1988,10 +1988,10 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) { T_ P(len) }
 
-                    // We need to compare the lengths because 'strncasecmp'
-                    // compares only the first 'len' characters and return 0 if
+                    // We need to compare the lengths because `strncasecmp`
+                    // compares only the first `len` characters and return 0 if
                     // they match, even though the string lengths might be
-                    // different.  Note that 'strncasecmp' returns 0 on
+                    // different.  Note that `strncasecmp` returns 0 on
                     // success.
 
                     result = (nneg(len) == length1)
@@ -2019,10 +2019,10 @@ int main(int argc, char *argv[])
 
                         if (veryVerbose) { T_ T_ P_(len1) P(len2) }
 
-                        // We need to compare the lengths because 'strncasecmp'
-                        // compares only the first 'len' characters and return
+                        // We need to compare the lengths because `strncasecmp`
+                        // compares only the first `len` characters and return
                         // 0 if they match, even though the string lengths
-                        // might be different.  Note that 'strncasecmp' returns
+                        // might be different.  Note that `strncasecmp` returns
                         // 0 on success.
 
                         result = (nneg(len1) == nneg(len2))
@@ -2040,30 +2040,30 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'toLower' AND 'toUpper'
+        // TESTING `toLower` AND `toUpper`
         //
         // Concerns:
-        //: 1 These methods properly convert input strings to lower/upper
-        //:   cases.
-        //:
-        //: 2 If the string supplied is a non-null-terminated 'const char *'
-        //:   with an 'int' length specifier, the corresponding methods won't
-        //:   go beyond the end of the string.
+        // 1. These methods properly convert input strings to lower/upper
+        //    cases.
+        //
+        // 2. If the string supplied is a non-null-terminated `const char *`
+        //    with an `int` length specifier, the corresponding methods won't
+        //    go beyond the end of the string.
         //
         // Plan:
-        //: 1 This case uses the Ad-Hoc Data Selection Method and the
-        //:   Array-Based Implementation Technique.
-        //:
-        //: 2 To address concern 1, we use 'tolower' or 'toupper' to
-        //:   convert the supplied test strings to lower/upper cases.  Then we
-        //:   compare them with the results of 'toLower' and 'toUpper' to make
-        //:   sure they match.
-        //:
-        //: 3 To address concern 2, we create the non-null-terminated
-        //:   'const char  *' string in a buffer pre-filled with non-null data.
-        //:   Then we verify that after the corresponding methods are invoked,
-        //:   the content in the buffer beyond the valid range of the string is
-        //:   unmodified.
+        // 1. This case uses the Ad-Hoc Data Selection Method and the
+        //    Array-Based Implementation Technique.
+        //
+        // 2. To address concern 1, we use `tolower` or `toupper` to
+        //    convert the supplied test strings to lower/upper cases.  Then we
+        //    compare them with the results of `toLower` and `toUpper` to make
+        //    sure they match.
+        //
+        // 3. To address concern 2, we create the non-null-terminated
+        //    `const char  *` string in a buffer pre-filled with non-null data.
+        //    Then we verify that after the corresponding methods are invoked,
+        //    the content in the buffer beyond the valid range of the string is
+        //    unmodified.
         //
         // Testing:
         //  toLower(char *string);
@@ -2078,11 +2078,11 @@ int main(int argc, char *argv[])
         //  toUpper(std::pmr::string *string);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\n" "TESTING 'toLower' AND 'toUpper'" "\n"
+        if (verbose) cout << "\n" "TESTING `toLower` AND `toUpper`" "\n"
                                   "===============================" "\n";
 
-        // 'bdlb::String' functions assume 7-bit ASCII, so we 'setlocale' for
-        // the calls to '::tolower' and '::toupper' in this test case.
+        // `bdlb::String` functions assume 7-bit ASCII, so we `setlocale` for
+        // the calls to `::tolower` and `::toupper` in this test case.
 
         bsl::setlocale(LC_CTYPE, "C");
 
@@ -2119,7 +2119,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) { T_ P(i) }
 
             {
-                // Testing 'toLower'.
+                // Testing `toLower`.
 
                 char cstring[64];
                 bsl::strcpy(cstring, STRINGS[i]);
@@ -2159,7 +2159,7 @@ int main(int argc, char *argv[])
                 ASSERTV(i, 'Z' == nonNullString[LENGTH]);
             }
             {
-                // Testing 'toUpper'.
+                // Testing `toUpper`.
 
                 char cstring[64];
                 bsl::strcpy(cstring, STRINGS[i]);
@@ -2206,13 +2206,13 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Using the Ad-Hoc Data Selection Method and the Brute-Force
-        //:   Implementation Technique, create several strings and use them to
-        //:   test various methods.
+        // 1. Using the Ad-Hoc Data Selection Method and the Brute-Force
+        //    Implementation Technique, create several strings and use them to
+        //    test various methods.
         //
         // Testing:
         //   BREATHING TEST
@@ -2233,7 +2233,7 @@ int main(int argc, char *argv[])
         int          l2  = static_cast<int>(s2.size());
         int          l3  = static_cast<int>(s3.size());
 
-        if (verbose) cout << "\tTesting 'areEqualCaseless'" << endl;
+        if (verbose) cout << "\tTesting `areEqualCaseless`" << endl;
 
         ASSERT(Util::areEqualCaseless(s1, s2));
         ASSERT(Util::areEqualCaseless(s1, cs2));
@@ -2261,7 +2261,7 @@ int main(int argc, char *argv[])
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\tTesting 'lowerCaseCmp'" << endl;
+        if (verbose) cout << "\tTesting `lowerCaseCmp`" << endl;
 
         ASSERT(0 == Util::lowerCaseCmp(s1, s2));
         ASSERT(0 == Util::lowerCaseCmp(s1, cs2));
@@ -2289,7 +2289,7 @@ int main(int argc, char *argv[])
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\tTesting 'upperCaseCmp'" << endl;
+        if (verbose) cout << "\tTesting `upperCaseCmp`" << endl;
 
         ASSERT(0 == Util::upperCaseCmp(s1, s2));
         ASSERT(0 == Util::upperCaseCmp(s1, cs2));
@@ -2318,7 +2318,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         {
-            if (verbose) cout << "\tTesting 'ltrim'" << endl;
+            if (verbose) cout << "\tTesting `ltrim`" << endl;
 
             char        cs[] = "   hello";
             bsl::string str(cs);
@@ -2338,7 +2338,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         {
-            if (verbose) cout << "\tTesting 'rtrim'" << endl;
+            if (verbose) cout << "\tTesting `rtrim`" << endl;
 
             char        cs[] = "hello    ";
             bsl::string str(cs);
@@ -2358,7 +2358,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         {
-            if (verbose) cout << "\tTesting 'trim'" << endl;
+            if (verbose) cout << "\tTesting `trim`" << endl;
 
             char        cs[] = "   hello   ";
             bsl::string str(cs);
@@ -2377,7 +2377,7 @@ int main(int argc, char *argv[])
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\tTesting 'pad'" << endl;
+        if (verbose) cout << "\tTesting `pad`" << endl;
 
         bsl::string strPad = "hello";
         Util::pad(&strPad, 8, '!');
@@ -2387,14 +2387,14 @@ int main(int argc, char *argv[])
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\tTesting 'strnlen'" << endl;
+        if (verbose) cout << "\tTesting `strnlen`" << endl;
 
         ASSERT(static_cast<int>(bsl::strlen(cs1)) == Util::strnlen(cs1, 9));
         ASSERT(                                 3 == Util::strnlen(cs1, 3));
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\tTesting 'toFixedLength'" << endl;
+        if (verbose) cout << "\tTesting `toFixedLength`" << endl;
 
         char buf[32];
         Util::toFixedLength(buf, 2, "hello", 5, '*');
@@ -2404,7 +2404,7 @@ int main(int argc, char *argv[])
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\tTesting 'toLower' and 'toUpper'" << endl;
+        if (verbose) cout << "\tTesting `toLower` and `toUpper`" << endl;
 
         char        csLower[] = "Hello123";
         char        csUpper[] = "Hello123";

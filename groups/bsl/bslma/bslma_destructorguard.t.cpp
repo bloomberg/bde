@@ -8,8 +8,8 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_objectbuffer.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 #include <vector>       // std::vector for the usage example
 
@@ -95,21 +95,22 @@ void aSsErT(bool condition, const char *message, int line)
 //                          HELPER CLASS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// This object indicates that its destructor is called by incrementing the
+/// counter it *holds* (provided at construction) in the destructor.
 class my_Class {
-    // This object indicates that its destructor is called by incrementing the
-    // counter it *holds* (provided at construction) in the destructor.
   private:
     int *d_counter_p; // Counter to be incremented at destruction
 
   public:
     // CREATORS
-    explicit my_Class(int *counter) : d_counter_p(counter) {}
-        // Create this object and optionally specify the address of the
-        // 'counter' to be held.
 
+    /// Create this object and optionally specify the address of the
+    /// `counter` to be held.
+    explicit my_Class(int *counter) : d_counter_p(counter) {}
+
+    /// Destroy this object.  Also increment this object's counter if it is
+    /// not `null`.
     ~my_Class() { ++*d_counter_p; }
-        // Destroy this object.  Also increment this object's counter if it is
-        // not 'null'.
 };
 
 //=============================================================================
@@ -138,14 +139,14 @@ class my_Class {
 
 // Suppose we have a situation where one of the two constructors will be called
 // to create an object on the stack for performance reasons.  The construction
-// thus occurs within either of the branches of an 'if' statement, so the
+// thus occurs within either of the branches of an `if` statement, so the
 // object itself, to survive the end of the "then" or "else" block, must be
-// constructed in a 'bsls::ObjectBuffer'.  Once constructed, the object would
+// constructed in a `bsls::ObjectBuffer`.  Once constructed, the object would
 // not be destroyed automatically, so to make sure it will be destroyed, we
-// place it under the management of a 'bslma::DestructorGuard'.  After that, we
+// place it under the management of a `bslma::DestructorGuard`.  After that, we
 // know that however the routine exits -- either by a return or as a result of
 // an exception being thrown -- the object will be destroyed.
-//..
+// ```
     double usageExample(double startValue)
     {
         bsls::ObjectBuffer<std::vector<double> > buffer;
@@ -160,26 +161,26 @@ class my_Class {
         BSLMA_DESTRUCTORGUARD_XLC_PLACEMENT_NEW_FIX;
 
         //***********************************************************
-        // Note the use of the destructor guard on 'myVec' (below). *
+        // Note the use of the destructor guard on `myVec` (below). *
         //***********************************************************
 
+        // Note that regardless of how this routine terminates, `myVec`
+        // will be destroyed.
         bslma::DestructorGuard<std::vector<double> > guard(&myVec);
-            // Note that regardless of how this routine terminates, 'myVec'
-            // will be destroyed.
 
         myVec.push_back(3.0);
-            // Note that 'push_back' could allocate memory and therefore may
-            // throw.  However, if it does, 'myVec' will be destroyed
-            // automatically along with 'guard'.
+            // Note that `push_back` could allocate memory and therefore may
+            // throw.  However, if it does, `myVec` will be destroyed
+            // automatically along with `guard`.
 
         if (myVec[0] >= 5.0) {
             return 5.0;                                               // RETURN
-                // Note that 'myVec' is automatically destroyed as the function
+                // Note that `myVec` is automatically destroyed as the function
                 // returns.
         }
 
         return myVec[myVec.size() / 2];
-            // Note that 'myVec' is destroyed after the temporary containing
+            // Note that `myVec` is destroyed after the temporary containing
             // the return value is created.
     }
 //
@@ -233,14 +234,14 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   Need to exercise basic functionality of 'bslma::DestructorGuard'.
+        //   Need to exercise basic functionality of `bslma::DestructorGuard`.
         //   Note that since this class has only a c'tor and d'tor, the
         //   breathing test is a thorough test of the component.
         //
         // Plan:
-        //   Have an instance of 'my_Class', a class which can be destructed
+        //   Have an instance of `my_Class`, a class which can be destructed
         //   multiple times and which keeps count of the number of times it has
-        //   been destructed.  Use 'bslma::DestructorGuard' to destruct it
+        //   been destructed.  Use `bslma::DestructorGuard` to destruct it
         //   several times and verify that the expected destructions occur.
         //
         // Testing:
@@ -277,16 +278,16 @@ int main(int argc, char *argv[])
         // HELPER CLASS TEST
         //
         // Concerns:
-        //   That the destructor for the helper class 'my_Class' increments the
+        //   That the destructor for the helper class `my_Class` increments the
         //   object's counter appropriately, and that there are no ill effects
-        //   from calling the destructor on a given instance of 'my_Class'
+        //   from calling the destructor on a given instance of `my_Class`
         //   multiple times.
         //
         // Plan:
-        //   Several times, create an instance of 'my_Class' referring to
-        //   'counter', verify that 'counter' gets incremented once for every
-        //   instance of 'my_Class' going out of scope.  The in another loop
-        //   iterate calling the destructor for the same 'my_Class' object
+        //   Several times, create an instance of `my_Class` referring to
+        //   `counter`, verify that `counter` gets incremented once for every
+        //   instance of `my_Class` going out of scope.  The in another loop
+        //   iterate calling the destructor for the same `my_Class` object
         //   several times, verifying that calling the destructor on the same
         //   object multiple times has the desired effect.
         //
@@ -298,7 +299,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nHELPER CLASS TEST"
                             "\n=================\n");
 
-        if (verbose) printf("Testing 'my_Class'.\n");
+        if (verbose) printf("Testing `my_Class`.\n");
         {
             int counter = 0;
             const int NUM_TEST = 5;

@@ -62,7 +62,7 @@ using namespace bsl;
 //                                   Overview
 //                                   --------
 // The component under test implements a suite of functions for converting
-// 'bdld::Datum' objects to JSON, and back.
+// `bdld::Datum` objects to JSON, and back.
 //
 // We use standard table-based approach to testing where we put both input and
 // expected output in the same table row and verify that the actual result
@@ -143,8 +143,8 @@ void aSsErT(bool condition, const char *message, int line)
 //                                USEFUL MACROS
 // ----------------------------------------------------------------------------
 
-// The following macros may be used to print an expression 'X' at different
-// levels of verbosity.  Note that 'X' is not surrounded with parentheses so
+// The following macros may be used to print an expression `X` at different
+// levels of verbosity.  Note that `X` is not surrounded with parentheses so
 // that expressions containing output stream operations can be supported.
 
 #define PV(X)   if         (verbose) cout << endl << X << endl;
@@ -255,7 +255,7 @@ struct TestCase07Data {
     int         d_line;
     const char *d_testName;        // name of the test file
     const char *d_JSON;            // JSON contents of the test
-    bool        d_isValid;         // 'true' if d_JSON is valid JSON
+    bool        d_isValid;         // `true` if d_JSON is valid JSON
 };
 
 struct FailureListData {
@@ -567,7 +567,7 @@ void testCase06(const TestCase6Data *data, int numData)
             opts.setSpacesPerLevel(SPL);
 
             if (bdld::Datum::e_DECIMAL64 == DATUM.type()) {
-                // Test when 'EncodeQuotedDecimal64' set to 'false'.
+                // Test when `EncodeQuotedDecimal64` set to `false`.
                 baljsn::DatumEncoderOptions opts2(opts);
 
                 opts2.setEncodeQuotedDecimal64(false);
@@ -761,7 +761,7 @@ void testCase04()
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    PVV("2. Verify we can round-trip 'int's");
+    PVV("2. Verify we can round-trip `int`s");
     {
         int               obj      = 123;
         const STRING      EXP_JSON = "123";
@@ -769,7 +769,7 @@ void testCase04()
         MD          datum(D::createInteger(obj), &ta);
         STRING      json;
         int         result = Util::encode(&json, *datum, strict_options);
-        // 'int's are not a "safely" encode-able type
+        // `int`s are not a "safely" encode-able type
         ASSERTV(result, 1 == result);
         ASSERTV(EXP_JSON, json, EXP_JSON == json);
 
@@ -784,7 +784,7 @@ void testCase04()
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    PVV("3. Verify we can round-trip 'double's");
+    PVV("3. Verify we can round-trip `double`s");
     {
         double            obj      = 1.375;
         const STRING      EXP_JSON = "1.375";
@@ -804,7 +804,7 @@ void testCase04()
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    PVV("4. Verify we can round-trip 'bool's");
+    PVV("4. Verify we can round-trip `bool`s");
 
     // -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 
@@ -848,7 +848,7 @@ void testCase04()
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    PVV("5. Verify we can round-trip 'null's");
+    PVV("5. Verify we can round-trip `null`s");
     {
         const STRING      EXP_JSON = "null";
 
@@ -866,7 +866,7 @@ void testCase04()
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    PVV("6. Verify we can round-trip 'Date's");
+    PVV("6. Verify we can round-trip `Date`s");
     {
         bdlt::Date        obj(2001, 12, 25);
         const STRING      EXP_STRING = "2001-12-25";
@@ -875,7 +875,7 @@ void testCase04()
         MD          datum(D::createDate(obj), &ta);
         STRING      json;
         int         result = Util::encode(&json, *datum, strict_options);
-        // 'bdlt::Date's are not a "safely" encode-able type
+        // `bdlt::Date`s are not a "safely" encode-able type
         ASSERTV(result, 1 == result);
         ASSERTV(EXP_JSON, json, EXP_JSON == json);
 
@@ -890,7 +890,7 @@ void testCase04()
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    PVV("7. Verify we can round-trip 'Datetime's");
+    PVV("7. Verify we can round-trip `Datetime`s");
     {
         bdlt::Datetime    obj(2001, 12, 25, 15, 59, 57, 123);
         const STRING      EXP_STRING = "2001-12-25T15:59:57.123";
@@ -899,7 +899,7 @@ void testCase04()
         MD          datum(D::createDatetime(obj, &ta), &ta);
         STRING      json;
         int         result = Util::encode(&json, *datum, strict_options);
-        // 'bdlt::Datetime's are not a "safely" encode-able type
+        // `bdlt::Datetime`s are not a "safely" encode-able type
         ASSERTV(result, 1 == result);
         ASSERTV(EXP_JSON, json, EXP_JSON == json);
 
@@ -914,7 +914,7 @@ void testCase04()
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    PVV("8. Verify we can round-trip 'DatetimeInterval's");
+    PVV("8. Verify we can round-trip `DatetimeInterval`s");
     {
         bdlt::DatetimeInterval obj(1, 23, 59, 59, 987, 654);
         const STRING           EXP_STRING = "+1_23:59:59.987654";
@@ -923,7 +923,7 @@ void testCase04()
         MD          datum(D::createDatetimeInterval(obj, &ta), &ta);
         STRING      json;
         int         result = Util::encode(&json, *datum, strict_options);
-        // 'bdlt::DatetimeInterval's are not a "safely" encode-able type
+        // `bdlt::DatetimeInterval`s are not a "safely" encode-able type
         ASSERTV(result, 1 == result);
         ASSERTV(EXP_JSON, json, EXP_JSON == json);
 
@@ -938,7 +938,7 @@ void testCase04()
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    PVV("9. Verify we can round-trip 'Time's");
+    PVV("9. Verify we can round-trip `Time`s");
     {
         bdlt::Time        obj(13, 14, 15, 678);
         const STRING      EXP_STRING = "13:14:15.678";
@@ -947,7 +947,7 @@ void testCase04()
         MD          datum(D::createTime(obj), &ta);
         STRING      json;
         int         result = Util::encode(&json, *datum, strict_options);
-        // 'bdlt::Time's are not a "safely" encode-able type
+        // `bdlt::Time`s are not a "safely" encode-able type
         ASSERTV(result, 1 == result);
         ASSERTV(EXP_JSON, json, EXP_JSON == json);
 
@@ -962,7 +962,7 @@ void testCase04()
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    PVV("10. Verify we can round-trip 'int64's");
+    PVV("10. Verify we can round-trip `int64`s");
     {
         bsls::Types::Int64 obj      = 12345;
         const STRING       EXP_JSON = "12345";
@@ -970,7 +970,7 @@ void testCase04()
         MD          datum(D::createInteger64(obj, &ta), &ta);
         STRING      json;
         int         result = Util::encode(&json, *datum, strict_options);
-        // 'bsls::Int64's are not a "safely" encode-able type
+        // `bsls::Int64`s are not a "safely" encode-able type
         ASSERTV(result, 1 == result);
         ASSERTV(EXP_JSON, json, EXP_JSON == json);
 
@@ -1040,7 +1040,7 @@ void testCase03()
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    PVV("2. Verify we can encode 'Date's");
+    PVV("2. Verify we can encode `Date`s");
     {
         bdlt::Date             obj(2001, 12, 25);
         const STRING           EXP_STRING = "2001-12-25";
@@ -1060,7 +1060,7 @@ void testCase03()
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    PVV("3. Verify we can encode 'Datetime's");
+    PVV("3. Verify we can encode `Datetime`s");
     {
         bdlt::Datetime         obj(2001, 12, 25, 15, 59, 57, 123);
         const STRING           EXP_STRING = "2001-12-25T15:59:57.123";
@@ -1080,7 +1080,7 @@ void testCase03()
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    PVV("4. Verify we can encode 'DatetimeInterval's");
+    PVV("4. Verify we can encode `DatetimeInterval`s");
     {
         bdlt::DatetimeInterval obj(1, 23, 59, 59, 987, 654);
         const STRING           EXP_STRING = "+1_23:59:59.987654";
@@ -1100,7 +1100,7 @@ void testCase03()
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    PVV("5. Verify we can encode 'Time's");
+    PVV("5. Verify we can encode `Time`s");
     {
         bdlt::Time             obj(13, 14, 15, 678);
         const STRING           EXP_STRING = "13:14:15.678";
@@ -1186,13 +1186,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -1206,13 +1206,13 @@ int main(int argc, char *argv[])
 // This section illustrates intended use of this component.
 //
 //
-///Example 1: Encode (and decode) 'Datum' to (and from) a JSON string.
+///Example 1: Encode (and decode) `Datum` to (and from) a JSON string.
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// The following example illustrates encoding a 'Datum' as a JSON string and
-// then decoding that JSON string back into a 'Datum' object.
+// The following example illustrates encoding a `Datum` as a JSON string and
+// then decoding that JSON string back into a `Datum` object.
 //
-// First, we create our 'Datum' object, using the 'bdld::DatumMaker' utility:
-//..
+// First, we create our `Datum` object, using the `bdld::DatumMaker` utility:
+// ```
     bsls::AlignedBuffer<8 * 1024>      buffer;
     bdlma::BufferedSequentialAllocator bsa(buffer.buffer(), sizeof(buffer));
     bdld::DatumMaker                   m(&bsa);
@@ -1221,9 +1221,9 @@ int main(int argc, char *argv[])
                                 "Title", "Ancillary Justice"),
                             m.m("Author", "John Scalzi",
                                 "Title", "Redshirts"));
-//..
-// Then, we convert the 'books' 'Datum' to formatted JSON:
-//..
+// ```
+// Then, we convert the `books` `Datum` to formatted JSON:
+// ```
     baljsn::DatumEncoderOptions bookOptions;
     bookOptions.setEncodingStyle(baljsn::EncodingStyle::e_PRETTY);
     bookOptions.setSpacesPerLevel(4);
@@ -1233,9 +1233,9 @@ int main(int argc, char *argv[])
     if (0 != rc) {
         // handle error
     }
-//..
+// ```
 // Next, we compare the result to the JSON we expect:
-//..
+// ```
     const bsl::string EXPECTED_BOOKS_JSON = "[\n"
         "    {\n"
         "        \"Author\" : \"Ann Leckie\",\n"
@@ -1248,24 +1248,24 @@ int main(int argc, char *argv[])
         "]";
 
     ASSERTV(EXPECTED_BOOKS_JSON, booksJSON, EXPECTED_BOOKS_JSON == booksJSON);
-//..
-// Finally, we can decode the 'booksJSON' and make sure we got the same value
+// ```
+// Finally, we can decode the `booksJSON` and make sure we got the same value
 // back:
-//..
+// ```
     bdld::ManagedDatum decodedBooks;
     rc = baljsn::DatumUtil::decode(&decodedBooks, booksJSON);
     if (0 != rc) {
         // handle error
     }
     ASSERT(*decodedBooks == books);
-//..
-///Example 2: Converting JSON to 'Datum'
+// ```
+///Example 2: Converting JSON to `Datum`
 ///- - - - - - - - - - - - - - - - - - -
-// The following example illustrates the construction of a 'Datum' object from
+// The following example illustrates the construction of a `Datum` object from
 // a JSON input.
 //
 // First, we create the JSON source, in both plain and formatted forms:
-//..
+// ```
     const bsl::string plainFamilyJSON = "["
                                  "{\"firstName\":\"Homer\","
                                  "\"age\":34}"
@@ -1280,7 +1280,7 @@ int main(int argc, char *argv[])
                                  "]";
 
     // Note that whitespace formatting is unimportant as long as the result is
-    // legal JSON.  This will generate the same 'Datum' as the single-line form
+    // legal JSON.  This will generate the same `Datum` as the single-line form
     // above.
     const bsl::string formattedFamilyJSON =
                                         "[\n"
@@ -1305,28 +1305,28 @@ int main(int argc, char *argv[])
                                         "        \"age\" : 1\n"
                                         "    }\n"
                                         "]";
-//..
-// Then, we convert the single-line 'string' to a 'Datum':
-//..
+// ```
+// Then, we convert the single-line `string` to a `Datum`:
+// ```
     bdld::ManagedDatum family;
     rc = baljsn::DatumUtil::decode(&family, plainFamilyJSON);
     if (0 != rc) {
         // handle error
     }
-//..
-// Next, we convert the formatted 'string' to another 'Datum' and make sure
+// ```
+// Next, we convert the formatted `string` to another `Datum` and make sure
 // that the results match:
-//..
+// ```
     bdld::ManagedDatum family2;
     rc = baljsn::DatumUtil::decode(&family2, formattedFamilyJSON);
     if (0 != rc) {
         // handle error
     }
     ASSERT(family == family2);
-//..
+// ```
 // Finally, we make sure that the structure of the resulting datum is as we
 // expect.
-//..
+// ```
     ASSERT(family->isArray());
     ASSERT(5 == family->theArray().length());
 
@@ -1336,22 +1336,22 @@ int main(int argc, char *argv[])
     ASSERT(2         == lisa.theMap().size());
     ASSERT("Lisa"    == lisa.theMap().find("firstName")->theString());
     ASSERT(8         == lisa.theMap().find("age")->theDouble());
-//..
-// Notice that the 'type' of "age" is 'double', since "age" was encoded as a
-// number, and 'double' is the supported representation of a JSON number (see
-// {'Supported Types'}).
+// ```
+// Notice that the `type` of "age" is `double`, since "age" was encoded as a
+// number, and `double` is the supported representation of a JSON number (see
+// {`Supported Types`}).
       } break;
       case 8: {
         // --------------------------------------------------------------------
         // REPRODUCE BUG FROM DRQS 165776192
         //
         // Concerns:
-        //: 1 The 'baljsn::DatumUtil::decode' is exception-neutral w.r.t.
-        //:   memory allocation.
+        // 1. The `baljsn::DatumUtil::decode` is exception-neutral w.r.t.
+        //    memory allocation.
         //
         // Plan:
-        //:  1 Invoke 'baljsn::DatumUtil::decode' in the presence of exception
-        //:    (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).
+        //  1. Invoke `baljsn::DatumUtil::decode` in the presence of exception
+        //     (using the `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*` macros).
         //
         // --------------------------------------------------------------------
 
@@ -1380,17 +1380,17 @@ int main(int argc, char *argv[])
       case 7: {
         //---------------------------------------------------------------------
         // JSON VALIDATION SUITE TEST
-        //   This case tests that the 'decode' methods give correct results
+        //   This case tests that the `decode` methods give correct results
         //   on the JSON validation suite at
         //   https://github.com/nst/JSONTestSuite.
         //
         // Concerns:
-        //: 1 The 'decode' method returns the expected result for the
-        //:   validation suite entries.
+        // 1. The `decode` method returns the expected result for the
+        //    validation suite entries.
         //
         // Plan:
-        //: 1 'decode' all the validation suite strings into 'Datum's, and
-        //:   compare the return code with the source string validity.
+        // 1. `decode` all the validation suite strings into `Datum`s, and
+        //    compare the return code with the source string validity.
         //
         // Testing:
         //---------------------------------------------------------------------
@@ -2336,28 +2336,28 @@ int main(int argc, char *argv[])
       case 6: {
         //---------------------------------------------------------------------
         // ENCODE AND PRINT TEST
-        //   This case tests the 'encode' and 'print' methods.
+        //   This case tests the `encode` and `print` methods.
         //
         // Concerns:
-        //: 1 The 'encode' overloads and 'print' method can all encode valid
-        //:   Datum's of all JSON-able types, and return an error when
-        //:   presented with invalid Datum types.
-        //:
-        //: 2 The NULL Datum is encoded correctly.
-        //:
-        //: 3 The formatting options are propagated and handled correctly.
-        //:
-        //: 4 The 'strictTypes()' option is handled correctly.
-        //:
-        //: 5 Datum maps with duplicate keys are propagated and handled
-        //:   correctly.
-        //:
-        //: 6 All allocations are done via the passed-in allocator.
+        // 1. The `encode` overloads and `print` method can all encode valid
+        //    Datum's of all JSON-able types, and return an error when
+        //    presented with invalid Datum types.
+        //
+        // 2. The NULL Datum is encoded correctly.
+        //
+        // 3. The formatting options are propagated and handled correctly.
+        //
+        // 4. The `strictTypes()` option is handled correctly.
+        //
+        // 5. Datum maps with duplicate keys are propagated and handled
+        //    correctly.
+        //
+        // 6. All allocations are done via the passed-in allocator.
         //
         // Plan:
-        //: 1 'encode' 'Datum's, and compare them with the expected return
-        //:   codes and strings, using 'TestAllocator's to ensure allocations
-        //:   are handled properly.
+        // 1. `encode` `Datum`s, and compare them with the expected return
+        //    codes and strings, using `TestAllocator`s to ensure allocations
+        //    are handled properly.
         //
         // Testing:
         //   int encode(string *, const Datum&, const DEOptions&, Allocator *);
@@ -2793,29 +2793,29 @@ int main(int argc, char *argv[])
       case 5: {
         //---------------------------------------------------------------------
         // DECODE TEST
-        //   This case tests the 'decode' methods.
+        //   This case tests the `decode` methods.
         //
         // Concerns:
-        //: 1 The 'decode' overloads can all decode valid strings of all JSON
-        //:   types, and return an error when presented with invalid JSON.
-        //:
-        //: 2 The empty string is decoded correctly.
-        //:
-        //: 3 JSON objects with duplicate keys are decoded correctly,
-        //:   preserving the first key/value pair for a given key.
-        //:
-        //: 4 The 'maxNestedDepth' option is handled correctly.
-        //:
-        //: 5 Whitespace is ignored in all legal locations.
-        //:
-        //: 6 All allocations are done via the passed-in allocator.
+        // 1. The `decode` overloads can all decode valid strings of all JSON
+        //    types, and return an error when presented with invalid JSON.
+        //
+        // 2. The empty string is decoded correctly.
+        //
+        // 3. JSON objects with duplicate keys are decoded correctly,
+        //    preserving the first key/value pair for a given key.
+        //
+        // 4. The `maxNestedDepth` option is handled correctly.
+        //
+        // 5. Whitespace is ignored in all legal locations.
+        //
+        // 6. All allocations are done via the passed-in allocator.
         //
         // Plan:
-        //: 1 'decode' strings, and compare them with the expected return codes
-        //:   and Datums, using 'TestAllocator's to ensure allocations are
-        //:   handled properly.  Pass different 'maxNestedDepth' option values
-        //:   to make sure errors occur if 'maxNestedDepth' is insufficient and
-        //:   the string is otherwise valid.
+        // 1. `decode` strings, and compare them with the expected return codes
+        //    and Datums, using `TestAllocator`s to ensure allocations are
+        //    handled properly.  Pass different `maxNestedDepth` option values
+        //    to make sure errors occur if `maxNestedDepth` is insufficient and
+        //    the string is otherwise valid.
         //
         // Testing:
         //  int decode(MgedDatum*, const string_view&);
@@ -2900,7 +2900,7 @@ int main(int argc, char *argv[])
             int         d_rc;       // return code.  Only the sign is
                                     // significant, but we're testing exact
                                     // values
-            int         d_depth;    // required maxNestedDepth for 'd_json_p'
+            int         d_depth;    // required maxNestedDepth for `d_json_p`
                                     // to parse, 0 for N/A
             bdld::Datum d_datum;
         } DATA[] =
@@ -3195,7 +3195,7 @@ int main(int argc, char *argv[])
                 continue;                                           // CONTINUE
             }
 
-            // Must do this before setting up 'da' - 'datum.print()' uses
+            // Must do this before setting up `da` - `datum.print()` uses
             // default allocator.
             if(veryVerbose) {
                 T_ P_(LINE) P_(JSON) P_(RC) P_(DEPTH) P(DATUM)
@@ -3242,7 +3242,7 @@ int main(int argc, char *argv[])
             const int           DEPTH = DATA[ti].d_depth;
             const bdld::Datum&  DATUM = DATA[ti].d_datum;
 
-            // Must do this before setting up 'da' - 'datum.print()' uses
+            // Must do this before setting up `da` - `datum.print()` uses
             // default allocator.
             if(veryVerbose) {
                 T_ P_(LINE) P_(JSON) P_(RC) P_(DEPTH) P(DATUM)
@@ -3335,10 +3335,10 @@ int main(int argc, char *argv[])
 
                 int rc = Util::decode(&result, &os, &isb, *i);
 
-                // If '0==DEPTH', we expected the parse to fail, so we don't
+                // If `0==DEPTH`, we expected the parse to fail, so we don't
                 // expect  the depth option to change anything.  If
-                // 'OPTIONS_DEPTH>=DEPTH', the parse should have the expected
-                // 'rc'.
+                // `OPTIONS_DEPTH>=DEPTH`, the parse should have the expected
+                // `rc`.
                 if (DEPTH == 0 || OPTIONS_DEPTH >= DEPTH) {
                     ASSERTV(LINE,
                             RC,
@@ -3367,7 +3367,7 @@ int main(int argc, char *argv[])
                                 0 != os.str().length());
                     }
                 }
-                else { // 'OPTIONS_DEPTH' is insufficient, we expect a failure.
+                else { // `OPTIONS_DEPTH` is insufficient, we expect a failure.
                     ASSERTV(LINE,
                             DEPTH,
                             OPTIONS_DEPTH,
@@ -3607,12 +3607,12 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases
         //
         // Plan:
-        //: 1 Construct a 'ManagedDatum', 'encode' it to a string, 'decode' the
-        //:   string, then make sure the values match.
+        // 1. Construct a `ManagedDatum`, `encode` it to a string, `decode` the
+        //    string, then make sure the values match.
         //
         // Testing:
         //   BREATHING ROUND-TRIP TEST
@@ -3633,13 +3633,13 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases
         //
         // Plan:
-        //: 1 For each supported 'Datum' value type, construct a 'ManagedDatum'
-        //:   containing an instance and make sure it is 'encode'-ed
-        //:   correctly.
+        // 1. For each supported `Datum` value type, construct a `ManagedDatum`
+        //    containing an instance and make sure it is `encode`-ed
+        //    correctly.
         //
         // Testing:
         //   BREATHING ENCODE TEST
@@ -3665,12 +3665,12 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases
         //
         // Plan:
-        //: 1 Construct strings representing the various 'Datum' value types
-        //:   and make sure they're parsed correctly.
+        // 1. Construct strings representing the various `Datum` value types
+        //    and make sure they're parsed correctly.
         //
         // Testing:
         //   BREATHING DECODE TEST
@@ -3751,7 +3751,7 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        PVV("2. Verify we can parse 'null' values.")
+        PVV("2. Verify we can parse `null` values.")
         {
             const char JSON[] = "null";
 
@@ -3766,7 +3766,7 @@ int main(int argc, char *argv[])
 
         PVV("3. Verify we can parse boolean values.")
         {
-            PVVV("\ta. Parse 'true'.");
+            PVVV("\ta. Parse `true`.");
             const char JSON_TRUE[] = "true";
 
             MD  datum(&ta);
@@ -3775,7 +3775,7 @@ int main(int argc, char *argv[])
             ASSERT(datum->isBoolean());
             ASSERT(datum->theBoolean());
 
-            PVVV("\tb. Parse 'false'.");
+            PVVV("\tb. Parse `false`.");
             const char JSON_FALSE[] = "false";
             datum.makeNull();
             result = Util::decode(&datum, JSON_FALSE);
@@ -3949,12 +3949,12 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases
         //
         // Plan:
-        //: 1 Construct a 'ManagedDatum', convert it to a string, parse the
-        //:   string, then make sure the values match.
+        // 1. Construct a `ManagedDatum`, convert it to a string, parse the
+        //    string, then make sure the values match.
         //
         // Testing:
         //   BREATHING TEST

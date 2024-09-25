@@ -45,14 +45,14 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // The class under testing is a parameterized queuing mechanism where the key
-// is a time value and the data a 'DATA' template parameter.  Items are order
+// is a time value and the data a `DATA` template parameter.  Items are order
 // by time value within the key.  Items that have the same time are stored in a
 // circular linked list.  Thus it is particularly important to test with items
 // having the same time value and try and splitting the circular lists at
 // various places.  We test all functions in isolation.
 //
 // Note that this component is not tested, indeed not designed, with respect to
-// exception safety.  (The constructor of the 'DATA' could throw.)  The
+// exception safety.  (The constructor of the `DATA` could throw.)  The
 // component-level documentation should also be updated to explicitly state the
 // guarantees.  Memory allocation, however, is well documented and tested in
 // case 8.  Concurrent access (a concern due to the reuse of nodes in the free
@@ -74,11 +74,11 @@ using namespace bsl;
 // [11] int countLE(const bsls::TimeInterval& time) const;
 //-----------------------------------------------------------------------------
 // [1 ] BREATHING TEST
-// [2 ] CLASS 'bdlcc::TimeQueueItem'
-// [9 ] CONCERN: Respect the 'bdema' allocator model
-// [10] CONCERN: Callbacks and 'DATA' destructors invoked while holding lock
+// [2 ] CLASS `bdlcc::TimeQueueItem`
+// [9 ] CONCERN: Respect the `bdema` allocator model
+// [10] CONCERN: Callbacks and `DATA` destructors invoked while holding lock
 // [11] CONCURRENCY TEST
-// [12] CONCERN: The queue can be used after a call to 'drain'.
+// [12] CONCERN: The queue can be used after a call to `drain`.
 // [13] CONCERN: Memory Pooling
 // [14] CONCERN: ORDER PRESERVATION
 // [15] CONCERN: OVERFLOW OF INDEX GENERATION COUNT
@@ -145,8 +145,8 @@ enum VecType { e_BEGIN,
 #endif
 };
 
+/// Return the current time, as a `TimeInterval`.
 bsls::TimeInterval now()
-    // Return the current time, as a 'TimeInterval'.
 {
     return bsls::SystemTime::nowRealtimeClock();
 }
@@ -168,10 +168,10 @@ bsl::ostream& operator<<(bsl::ostream& stream, u::VecType value)
                               // class TestString
                               // ================
 
+/// This class is a string with allocation, except that a
+/// default-constructed `TestString` is guaranteed *not* to trigger an
+/// allocation.  This class is used in test cases 9 and 11.
 class TestString {
-    // This class is a string with allocation, except that a
-    // default-constructed 'TestString' is guaranteed *not* to trigger an
-    // allocation.  This class is used in test cases 9 and 11.
 
     bslma::Allocator *d_allocator_p;  // held, not owned
     bsl::string      *d_string_p;     // owned
@@ -185,38 +185,42 @@ class TestString {
     BSLMF_NESTED_TRAIT_DECLARATION(TestString, bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create a string, optionally initialized with the optionally
+    /// specified `s`.  Optionally specify an `allocator` used to supply
+    /// memory.  If `allocator` is 0, the currently installed default
+    /// allocator is used.
     explicit TestString(bslma::Allocator *allocator = 0);
     explicit TestString(const char *s, bslma::Allocator *allocator = 0);
     explicit TestString(const bsl::string& s, bslma::Allocator *allocator = 0);
-        // Create a string, optionally initialized with the optionally
-        // specified 's'.  Optionally specify an 'allocator' used to supply
-        // memory.  If 'allocator' is 0, the currently installed default
-        // allocator is used.
 
+    /// Destroy this string object.
     ~TestString();
-        // Destroy this string object.
 
     // MANIPULATORS
+
+    /// Assign the string `s` to this instance.
     TestString& operator=(const TestString& rhs);
     TestString& operator=(const bsl::string& rhs);
-        // Assign the string 's' to this instance.
 
     // ACCESSORS
+
+    /// Return the string value of this object.
     operator const bsl::string& () const;
-        // Return the string value of this object.
 };
 
 // FREE OPERATORS
+
+/// Output the specified `string` to the specified `stream`.
 bsl::ostream& operator<<(bsl::ostream& os, const TestString& string);
-    // Output the specified 'string' to the specified 'stream'.
 
+/// Return 0 whether the specified strings `s1` and `s2` hold the same C++
+/// string and 1 if not.
 bool operator==(const TestString& lhs, const TestString& rhs);
-    // Return 0 whether the specified strings 's1' and 's2' hold the same C++
-    // string and 1 if not.
 
+/// Return 0 whether the specified strings `s1` and `s2` do not hold the
+/// same C++ string and 1 if they do.
 bool operator!=(const TestString& lhs, const TestString& rhs);
-    // Return 0 whether the specified strings 's1' and 's2' do not hold the
-    // same C++ string and 1 if they do.
 
                               // ----------------
                               // class TestString
@@ -320,16 +324,16 @@ typedef bdlcc::TimeQueue<int>           Container;
 typedef bdlcc::TimeQueueItem<int>       Item;
 typedef bsl::vector<bsls::TimeInterval> TimeIntervalList;
 
+/// Populate the specified `*container_p` with the specified `numItems`
+/// items whose `data` field is increasing, with time values randomly chosen
+/// from the specified collection of `timeValues`.  Use the specified
+/// `*randSeed_p` as the random number seed.  The behavior is undefined
+/// unless `timeValues` contains at least one value, and unless the values
+/// in `timeValues` are sorted and unique.
 void populate(Container               *container_p,
               const TimeIntervalList&  timeValues,
               int                      numItems,
               int                     *randSeed_p)
-    // Populate the specified '*container_p' with the specified 'numItems'
-    // items whose 'data' field is increasing, with time values randomly chosen
-    // from the specified collection of 'timeValues'.  Use the specified
-    // '*randSeed_p' as the random number seed.  The behavior is undefined
-    // unless 'timeValues' contains at least one value, and unless the values
-    // in 'timeValues' are sorted and unique.
 {
     const UintPtr tvSize = timeValues.size();
     ASSERT(0 < tvSize);
@@ -345,7 +349,7 @@ void populate(Container               *container_p,
     for (int ii = 0; ii < numItems; ++ii) {
         unsigned rand = bdlb::Random::generate15(randSeed_p);
 
-        // Note that there are 3 'add' methods, but the other two just call
+        // Note that there are 3 `add` methods, but the other two just call
         // this one.
 
         container_p->add(timeValues[rand % tvSize], ii, Container::Key(ii));
@@ -365,7 +369,7 @@ namespace TIMEQUEUE_TEST_CASE_11 {
 enum {
     k_NUM_THREADS    = 10,
     k_NUM_ITERATIONS = 1000,                 // per thread
-    k_NUM_REMOVE_ALL = k_NUM_ITERATIONS / 2  // between two 'removeAll'
+    k_NUM_REMOVE_ALL = k_NUM_ITERATIONS / 2  // between two `removeAll`
 };
 
 typedef bsl::string DATA;
@@ -384,9 +388,9 @@ struct Case11ThreadInfo {
 
 extern "C" {
 
+/// Invoke `add`, `update`, `popFront`, `popLE`, and/or `removeAll` in a
+/// loop.
 void *testAddUpdatePopRemoveAll(void *arg)
-    // Invoke 'add', 'update', 'popFront', 'popLE', and/or 'removeAll' in a
-    // loop.
 {
     Case11ThreadInfo *info = (Case11ThreadInfo*)arg;
     const int THREAD_ID = info->d_id;
@@ -435,8 +439,8 @@ void *testAddUpdatePopRemoveAll(void *arg)
     return NULL;
 }
 
+/// Invoke `length` and `countLE` in a loop.
 void *testLengthAndCountLE(void *)
-    // Invoke 'length' and 'countLE' in a loop.
 {
     barrier.wait();
     for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
@@ -465,9 +469,9 @@ namespace TIMEQUEUE_TEST_CASE_10 {
                             // class TestLockObject
                             // ====================
 
+/// This small test object holds a time queue reference, and attempts to
+/// access one of its blocking functions upon destruction.
 class TestLockObject {
-    // This small test object holds a time queue reference, and attempts to
-    // access one of its blocking functions upon destruction.
 
     // PRIVATE DATA MEMBERS
     const bdlcc::TimeQueue<TestLockObject> *d_timeQueue_p; // held, not owned
@@ -476,20 +480,22 @@ class TestLockObject {
 
   public:
     // CREATORS
+
+    /// Create a test object that holds a reference to the optionally
+    /// specified `queue`.
     explicit
     TestLockObject(const bdlcc::TimeQueue<TestLockObject> *queue = 0,
                    int                                    *numDestructions = 0,
                    int                                     verbose = 0);
-        // Create a test object that holds a reference to the optionally
-        // specified 'queue'.
 
+    /// Destroy this test object, in the process trying to access the held
+    /// queue's `minTime` function.
     ~TestLockObject();
-        // Destroy this test object, in the process trying to access the held
-        // queue's 'minTime' function.
 
     // MANIPULATORS
+
+    /// Reset the held queue reference to 0.
     void reset();
-        // Reset the held queue reference to 0.
 };
 
                             // --------------------
@@ -937,29 +943,29 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
 
 ///Usage
 ///-----
-// The following shows a typical usage of the 'bdlcc::TimeQueue' class,
-// implementing a simple threaded server 'my_Server' that manages individual
-// Connections ('my_Connection') on behalf of multiple Sessions ('my_Session').
+// The following shows a typical usage of the `bdlcc::TimeQueue` class,
+// implementing a simple threaded server `my_Server` that manages individual
+// Connections (`my_Connection`) on behalf of multiple Sessions (`my_Session`).
 // Each Connection is timed, such that input requests on that Connection will
 // "time out" after a user-specified time interval.  When a specific Connection
-// times out, that Connection is removed from the 'bdlcc::TimeQueue' and the
-// corresponding 'my_Session' is informed.
+// times out, that Connection is removed from the `bdlcc::TimeQueue` and the
+// corresponding `my_Session` is informed.
 //
-// In this simplified example, class 'my_Session' will terminate when its
-// Connection times out.  A more sophisticated implementation of 'my_Session'
+// In this simplified example, class `my_Session` will terminate when its
+// Connection times out.  A more sophisticated implementation of `my_Session`
 // would attempt recovery, perhaps by closing and reopening the physical
 // Connection.
 //
 ///Forward declarations:
 ///- - - - - - - - - - -
-// Class 'my_Server' will spawn two service threads to monitor connections for
+// Class `my_Server` will spawn two service threads to monitor connections for
 // available data and to manage time-outs, respectively.  Two forward-declared
 // "C" functions are invoked as the threads are spawned.  The signature of each
-// function follows the "C" standard "'void *'" interface for spawning threads.
-// Each function will be called on a new thread when the 'start' method is
-// invoked for a given 'my_Server' object.  Each function then delegates
-// processing for the thread back to the 'my_Server' object that spawned it.
-//..
+// function follows the "C" standard "`void *`" interface for spawning threads.
+// Each function will be called on a new thread when the `start` method is
+// invoked for a given `my_Server` object.  Each function then delegates
+// processing for the thread back to the `my_Server` object that spawned it.
+// ```
     extern "C" {
 
     void *my_connectionMonitorThreadEntry(void *server);
@@ -967,27 +973,28 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
     void *my_timerMonitorThreadEntry(void *server);
 
     }
-//..
-///struct 'my_Connection'
+// ```
+///struct `my_Connection`
 ///- - - - - - - - - - -
-// The 'my_Connection' structure is used by 'my_Server' to manage a single
-// physical connection on behalf of a 'my_Session'.
-//..
+// The `my_Connection` structure is used by `my_Server` to manage a single
+// physical connection on behalf of a `my_Session`.
+// ```
     class my_Session;
     struct my_Connection {
         int         d_timerId;
         my_Session *d_session_p;
     };
-//..
+// ```
 ///Protocol classes
 ///- - - - - - - -
-// Protocol class 'my_Session' provides a pure abstract protocol to manage a
+// Protocol class `my_Session` provides a pure abstract protocol to manage a
 // single "session" to be associated with a specific connection on a server.
-//..
+// ```
+
+    /// Pure protocol class to process a data buffer of arbitrary size.
+    /// Concrete implementations in the "real world" would typically manage
+    /// an external connection like a socket.
     class my_Session {
-        // Pure protocol class to process a data buffer of arbitrary size.
-        // Concrete implementations in the "real world" would typically manage
-        // an external connection like a socket.
 
       public:
         my_Session();
@@ -995,9 +1002,9 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
         virtual int handleTimeout(my_Connection *connection) = 0;
         virtual ~my_Session();
     };
-//..
+// ```
 // The constructor and destructor do nothing:
-//..
+// ```
     my_Session::my_Session()
     {
     }
@@ -1005,18 +1012,19 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
     my_Session::~my_Session()
     {
     }
-//..
-// Protocol class 'my_Server' provides a partial implementation of a simple
+// ```
+// Protocol class `my_Server` provides a partial implementation of a simple
 // server that supports and monitors an arbitrary number of connections and
 // handles incoming data for those connections.  Clients must provide a
-// concrete implementation that binds connections to concrete 'my_Session'
+// concrete implementation that binds connections to concrete `my_Session`
 // objects and monitors all open connections for incoming requests.  The
-// concrete implementation calls 'my_Server::newConnection()' when a new
+// concrete implementation calls `my_Server::newConnection()` when a new
 // connections is required, and implements the virtual function
-// 'monitorConnections' to monitor all open connections.
-//..
+// `monitorConnections` to monitor all open connections.
+// ```
+
+    /// Simple server supporting multiple Connections.
     class my_Server {
-        // Simple server supporting multiple Connections.
 
         bsl::vector<my_Connection*>      d_connections;
         bdlcc::TimeQueue<my_Connection*> d_timeQueue;
@@ -1028,45 +1036,45 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
         volatile bool                    d_done;
 
       protected:
+        /// Add the specified `connection` to the current `my_Server`,
+        /// setting the new timeout value to the current time plus the
+        /// timeout value provided at construction of this `my_Server`
+        /// instance.  If the added connection is the new "top" of the
+        /// queue, signal that the minimum time on the queue has changed.
+        /// Upon seeing this signal, the TimerMonitor thread will wake up
+        /// and look for expired timers.
+        ///
+        /// Behavior is undefined if `connection` has already been added to
+        /// any `my_Server` and has not been removed via member function
+        /// `closeConnection`.
         void newConnection(my_Connection *connection);
-            // Add the specified 'connection' to the current 'my_Server',
-            // setting the new timeout value to the current time plus the
-            // timeout value provided at construction of this 'my_Server'
-            // instance.  If the added connection is the new "top" of the
-            // queue, signal that the minimum time on the queue has changed.
-            // Upon seeing this signal, the TimerMonitor thread will wake up
-            // and look for expired timers.
-            //
-            // Behavior is undefined if 'connection' has already been added to
-            // any 'my_Server' and has not been removed via member function
-            // 'closeConnection'.
 
+        /// Remove the specified `connection` from the current `my_Server`,
+        /// so that it will no longer be monitored for available data.
         void removeConnection(my_Connection *connection);
-            // Remove the specified 'connection' from the current 'my_Server',
-            // so that it will no longer be monitored for available data.
 
+        /// Provide a mechanism for a concrete implementation to close a
+        /// specified `connection`.
         virtual void closeConnection(my_Connection *connection)=0;
-            // Provide a mechanism for a concrete implementation to close a
-            // specified 'connection'.
 
+        /// Receive in the specified `buffer_p` a pointer to a data buffer
+        /// of the specified `length` bytes, and pass this to the specified
+        /// `connection` to be processed.  Behavior is undefined if
+        /// `connection` is not currently added to this `my_Server` object,
+        /// or if `length` <= 0.
         void dataAvailable(my_Connection *connection,
                            void          *buffer_p,
                            int            length);
-            // Receive in the specified 'buffer_p' a pointer to a data buffer
-            // of the specified 'length' bytes, and pass this to the specified
-            // 'connection' to be processed.  Behavior is undefined if
-            // 'connection' is not currently added to this 'my_Server' object,
-            // or if 'length' <= 0.
 
       protected:
+        /// Monitor all connections in the current `my_Server`.  When data
+        /// becomes available for a given connection, pass the data to that
+        /// connection for processing.
         virtual void monitorConnections()=0;
-            // Monitor all connections in the current 'my_Server'.  When data
-            // becomes available for a given connection, pass the data to that
-            // connection for processing.
 
+        /// Monitor all timers in the current `my_Server`, and handle each
+        /// timer as it expires.
         void monitorTimers();
-            // Monitor all timers in the current 'my_Server', and handle each
-            // timer as it expires.
 
         // FRIENDS
         friend void *my_connectionMonitorThreadEntry(void *);
@@ -1078,23 +1086,25 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
 
       public:
         // CREATORS
+
+        /// Construct a `my_Server` object with a timeout value of the
+        /// specified `ioTimeout` seconds.  Use the optionally specified
+        /// `basicAllocator` for all memory allocation for data members of
+        /// `my_Server`.
         explicit
         my_Server(int ioTimeout, bslma::Allocator *basicAllocator = 0);
-            // Construct a 'my_Server' object with a timeout value of the
-            // specified 'ioTimeout' seconds.  Use the optionally specified
-            // 'basicAllocator' for all memory allocation for data members of
-            // 'my_Server'.
 
         virtual ~my_Server();
 
         // MANIPULATORS
+
+        /// Begin monitoring timers and connections.
         int start();
-            // Begin monitoring timers and connections.
     };
-//..
-// The constructor is simple: it initializes the internal 'bdlcc::TimeQueue'
+// ```
+// The constructor is simple: it initializes the internal `bdlcc::TimeQueue`
 // and sets the I/O timeout value.  The virtual destructor does nothing.
-//..
+// ```
     my_Server::my_Server(int ioTimeout, bslma::Allocator *basicAllocator)
     : d_timeQueue(basicAllocator)
     , d_ioTimeout(ioTimeout)
@@ -1115,13 +1125,13 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
             bslmt::ThreadUtil::join(d_timerThreadHandle);
         }
     }
-//..
-// Member function 'newConnection' adds the 'connection' to the current set of
+// ```
+// Member function `newConnection` adds the `connection` to the current set of
 // connections to be monitored.  This is done in two steps.  First, the
-// 'connection' is added to the internal array, and then a timer is set for the
-// 'connection' by creating a corresponding entry in the internal
-// 'bdlcc::TimeQueue'.
-//..
+// `connection` is added to the internal array, and then a timer is set for the
+// `connection` by creating a corresponding entry in the internal
+// `bdlcc::TimeQueue`.
+// ```
     void my_Server::newConnection(my_Connection *connection)
     {
         d_connections.push_back(connection);
@@ -1135,26 +1145,26 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
             d_timerChangedCond.signal();
         }
     }
-//..
-// Member function 'monitorConnections', provided by the concrete
+// ```
+// Member function `monitorConnections`, provided by the concrete
 // implementation class, can use the internal array to determine the set of
 // connections to be monitored.
 //
-// Member function 'removeConnection' removes the 'connection' from the current
+// Member function `removeConnection` removes the `connection` from the current
 // set of connections to be monitored.  This is done in two steps, in reversed
-// order from 'newConnection'.  First, the 'connection' is removed from the
-// internal 'bdlcc::TimeQueue', and then the 'connection' is removed from the
+// order from `newConnection`.  First, the `connection` is removed from the
+// internal `bdlcc::TimeQueue`, and then the `connection` is removed from the
 // internal array.
 //
 // The concrete implementation class must provide an implementation of virtual
-// function 'closeConnection'; this implementation must call 'removeConnection'
-// when the actual connection is to be removed from the 'my_Server' object.
+// function `closeConnection`; this implementation must call `removeConnection`
+// when the actual connection is to be removed from the `my_Server` object.
 //
-// Function 'closeConnection' is in turn called by function 'monitorTimers',
-// which manages the overall timer monitor thread.  Because 'monitorTimers'
+// Function `closeConnection` is in turn called by function `monitorTimers`,
+// which manages the overall timer monitor thread.  Because `monitorTimers`
 // takes responsibility for notifying other threads when the queue status
-// changes, function 'removeConnection' does not address these concerns.
-//..
+// changes, function `removeConnection` does not address these concerns.
+// ```
     void my_Server::removeConnection(my_Connection *connection)
     {
         // Remove from d_timeQueue
@@ -1169,12 +1179,12 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
             }
         }
     }
-//..
-// The 'dataAvailable' function will be called when data becomes available for
+// ```
+// The `dataAvailable` function will be called when data becomes available for
 // a specific connection.  It removes the connection from the timer queue while
 // the connection is busy, processes the available data, and returns the
 // connection to the queue with a new time value.
-//..
+// ```
     void my_Server::dataAvailable(my_Connection *connection,
                                   void          *buffer_p,
                                   int            length)
@@ -1196,12 +1206,12 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
             d_timerChangedCond.signal();
         }
     }
-//..
-// Function 'monitorTimers' manages the timer monitor thread; it is called when
+// ```
+// Function `monitorTimers` manages the timer monitor thread; it is called when
 // the thread is spawned, and checks repeatedly for expired timers; after each
 // check, it does a timed wait based upon the minimum time value seen in the
 // queue after all expired timers have been removed.
-//..
+// ```
     void my_Server::monitorTimers()
     {
         while (!d_done) {
@@ -1240,15 +1250,15 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
             }
         }
     }
-//..
-// Function 'start' spawns two separate threads.  The first thread will monitor
+// ```
+// Function `start` spawns two separate threads.  The first thread will monitor
 // connections and handle any data received on them.  The second monitors the
 // internal timer queue and removes connections that have timed out.  Function
-// 'start' calls 'bslmt::ThreadUtil::create', which expects a function pointer
+// `start` calls `bslmt::ThreadUtil::create`, which expects a function pointer
 // to a function with the standard "C" callback signature
-// 'void *fn(void *data)'.  This non-member function will call back into the
-// 'my_Server' object immediately.
-//..
+// `void *fn(void *data)`.  This non-member function will call back into the
+// `my_Server` object immediately.
+// ```
     int my_Server::start()
     {
         bslmt::ThreadAttributes attr;
@@ -1266,9 +1276,9 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
         }
         return 0;
     }
-//..
+// ```
 // Finally, we are now in a position to implement the two thread dispatchers:
-//..
+// ```
     extern "C" {
 
     void *my_connectionMonitorThreadEntry(void *server)
@@ -1284,18 +1294,18 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
     }
 
     }
-//..
+// ```
 // In order to test our server, we provide two concrete implementations of a
 // test session and of a test server as follows.
-//..
+// ```
     // myTestSession.h             -*-C++-*-
 
+    /// Concrete implementation of my_Session, providing simple test
+    /// semantics In particular, implement the virtual function
+    /// processData() to record all incoming data for the controlling
+    /// connection, and virtual function handleTimeout() for handling
+    /// timeouts.
     class my_TestSession : public my_Session {
-        // Concrete implementation of my_Session, providing simple test
-        // semantics In particular, implement the virtual function
-        // processData() to record all incoming data for the controlling
-        // connection, and virtual function handleTimeout() for handling
-        // timeouts.
 
         int d_verbose;
 
@@ -1329,20 +1339,20 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
 
     // myTestSession.h             -*-C++-*-
 
+    /// Concrete implementation of my_Server, providing connection logic.
     class my_TestServer :  public my_Server {
-        // Concrete implementation of my_Server, providing connection logic.
 
         int d_verbose;
 
       protected:
+        /// Close the specified external `connection` and call
+        /// `removeConnection` when done.
         void closeConnection(my_Connection *connection) BSLS_KEYWORD_OVERRIDE;
-            // Close the specified external 'connection' and call
-            // 'removeConnection' when done.
 
+        /// Monitor all connections in the current `my_Server`.  When data
+        /// becomes available for a given connection, pass the data to that
+        /// connection for processing.
         void monitorConnections() BSLS_KEYWORD_OVERRIDE;
-            // Monitor all connections in the current 'my_Server'.  When data
-            // becomes available for a given connection, pass the data to that
-            // connection for processing.
 
       private:
         // NOT IMPLEMENTED
@@ -1415,9 +1425,9 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
 
         bslmt::ThreadUtil::sleep(bsls::TimeInterval(8)); // 8s
     }
-//..
+// ```
 // The program that would exercise this test server would simply consist of:
-//..
+// ```
     int usageExample(int verbose)
     {
         my_TestServer mX(5, verbose); // timeout for connections: 5s
@@ -1428,16 +1438,16 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
 
         return 0;
     }
-//..
+// ```
 // The output of this program would look something as follows:
-//..
+// ```
 //  17:10:35.000: Opening connection 0x00161880
 //  17:10:35.000: Opening connection 0x001618b0
 //  17:10:37.000: Connection 0x00161880 receives 1024 bytes
 //  17:10:37.000: Processing data at address 0xfeefaf04 and length 1024.
 //  17:10:40.000: Closing connection 0x001618b0
 //  17:10:42.000: Closing connection 0x00161880
-//..
+// ```
 
 }  // close namespace TIMEQUEUE_USAGE_EXAMPLE
 
@@ -1470,8 +1480,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TEST USAGE EXAMPLE
         //   The usage example from the header has been incorporated into this
-        //   test driver.  All references to 'assert' have been replaced with
-        //   'ASSERT'.  Call the test example function and assert that it works
+        //   test driver.  All references to `assert` have been replaced with
+        //   `ASSERT`.  Call the test example function and assert that it works
         //   as expected.
         //
         // Plan:
@@ -1502,16 +1512,16 @@ int main(int argc, char *argv[])
         // CONCERN: OVERFLOW OF INDEX GENERATION COUNT
         //
         // Concerns:
-        //: 1 When a node is re-used sufficiently many times, the handle will
-        //:   be re-used.  This test exercises that roll over, and can be used
-        //:   with sanitizers to check for problems.
+        // 1. When a node is re-used sufficiently many times, the handle will
+        //    be re-used.  This test exercises that roll over, and can be used
+        //    with sanitizers to check for problems.
         //
         // Plan:
-        //: 1 Starting with an object with maximal node bits, create and remove
-        //:   nodes repeatedly until re-use of a handle value is certain.
-        //:
-        //: 2 Increment a counter each time the first handle value is re-used.
-        //:   Check to see that the counter is greater than 0.
+        // 1. Starting with an object with maximal node bits, create and remove
+        //    nodes repeatedly until re-use of a handle value is certain.
+        //
+        // 2. Increment a counter each time the first handle value is re-used.
+        //    Check to see that the counter is greater than 0.
         //
         // Testing:
         //   CONCERN: OVERFLOW OF INDEX GENERATION COUNT
@@ -1548,19 +1558,19 @@ int main(int argc, char *argv[])
         // CONCERN: ORDER PRESERVATION
         //
         // Concerns:
-        //: 1 That items added that have the same time value will, when popped,
-        //:   appear in the same order in which they were added to the time
-        //:   queue.
+        // 1. That items added that have the same time value will, when popped,
+        //    appear in the same order in which they were added to the time
+        //    queue.
         //
         // Plan:
-        //: 1 Use the method 'populate' defined in the namespace of this test
-        //:   case to populate a time queue with a given number of items, with
-        //:   a given number of different time values.  The data type will be
-        //:   'int', the items added will start at 0 and increment each time
-        //:   one is added.
-        //:
-        //: 2 Pop the elements from the queue in a variety of ways, and observe
-        //:   that, for a given time value, the 'int' values are increasing.
+        // 1. Use the method `populate` defined in the namespace of this test
+        //    case to populate a time queue with a given number of items, with
+        //    a given number of different time values.  The data type will be
+        //    `int`, the items added will start at 0 and increment each time
+        //    one is added.
+        //
+        // 2. Pop the elements from the queue in a variety of ways, and observe
+        //    that, for a given time value, the `int` values are increasing.
         //
         // Testing:
         //   CONCERN: ORDER PRESERVATION
@@ -1765,7 +1775,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // CONCERN: Memory Pooling.
         //
-        // Note that this is a white-box test added when the 'poolTimerMemory'
+        // Note that this is a white-box test added when the `poolTimerMemory`
         // flag was removed.  See drqs 35794413.
         //
         // Concerns:
@@ -1774,7 +1784,7 @@ int main(int argc, char *argv[])
         //     later elements.
         //
         // Plan:
-        //  1. Create a 'bdlcc_timequeue' with a test allocator, add elements
+        //  1. Create a `bdlcc_timequeue` with a test allocator, add elements
         //     and verify that memory is allocated.  Remove those elements
         //     and add the same number of new elements, and verify that no
         //     additional memory is allocated.
@@ -1827,7 +1837,7 @@ int main(int argc, char *argv[])
           //
           // Plan:
           //   For each of the following functions that remove elements from
-          //   the queue ('removeAll', 'popFront', 'popLE', 'remove'):
+          //   the queue (`removeAll`, `popFront`, `popLE`, `remove`):
           //
           //   1. Add items to an initially empty queue until more items can be
           //      added.
@@ -1957,17 +1967,17 @@ int main(int argc, char *argv[])
         //
         // Concern:
         //   When a node is placed back on the free list from a call to
-        //   'popFront', 'popLE' or 'removeAll', it must be ready for
+        //   `popFront`, `popLE` or `removeAll`, it must be ready for
         //   being reused right away even before that call terminates and
         //   without races.
         //
         // Plan:
-        //   Create a time queue.  Create 'k_NUM_THREADS' threads and let each
-        //   thread invoke 'add', 'find', 'update', 'popFront', and 'popLE' in
-        //   a loop.  Create a thread, let it invoke 'length' and 'countLE' in
+        //   Create a time queue.  Create `k_NUM_THREADS` threads and let each
+        //   thread invoke `add`, `find`, `update`, `popFront`, and `popLE` in
+        //   a loop.  Create a thread, let it invoke `length` and `countLE` in
         //   a loop and verify that there are at least 0 and no more than
-        //   'k_NUM_THREADS' elements at any given time.  At periodic
-        //   intervals, let another thread invoke 'removeAll'.  Let all threads
+        //   `k_NUM_THREADS` elements at any given time.  At periodic
+        //   intervals, let another thread invoke `removeAll`.  Let all threads
         //   run concurrently.  This test is mostly to verify that races don't
         //   happen, we are only going to do a mild error checking.
         //   Nevertheless, let each thread gather all the items it removes in
@@ -2013,22 +2023,22 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TEST CONCERN: 'DATA' destructors invoked while holding lock
+        // TEST CONCERN: `DATA` destructors invoked while holding lock
         //
         // Concern:
         //   Whenever an object belonging to the queue is destroyed (either
-        //   while 'pop*', 'remove*', or the queue destructor, it could invoke
+        //   while `pop*`, `remove*`, or the queue destructor, it could invoke
         //   an action that attempts to lock this time queue (e.g.,  access the
-        //   'minTime'.  Thus the 'DATA' destructor should never be invoked
+        //   `minTime`.  Thus the `DATA` destructor should never be invoked
         //   while holding the queue's internal lock.
         //
         // Plan:
         //   Create a time queue holding elements whose destructor purposely
-        //   tries to access the 'minTime'.  Then remove these elements in a
+        //   tries to access the `minTime`.  Then remove these elements in a
         //   variety of fashions.
         //
         // Testing:
-        //   CONCERN: 'DATA' DESTRUCTORS INVOKED WHILE HOLDING LOCK
+        //   CONCERN: `DATA` DESTRUCTORS INVOKED WHILE HOLDING LOCK
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -2100,22 +2110,22 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TEST CONCERN: Respecting the 'bdema' allocator model
+        // TEST CONCERN: Respecting the `bdema` allocator model
         //
         // Plan:
-        //   Redo case 6, but using 'TestString' instead of 'const char*'.
+        //   Redo case 6, but using `TestString` instead of `const char*`.
         //   The only default allocation should be for the temporary
-        //   empty constructs in the 'bdlcc::TimeQueueItem' constructors, and
-        //   the test class 'TestString' guarantees that a default-constructed
+        //   empty constructs in the `bdlcc::TimeQueueItem` constructors, and
+        //   the test class `TestString` guarantees that a default-constructed
         //   instance does not trigger an allocation.
         //
         // Testing:
-        //   CONCERN: RESPECTING THE 'bdema' ALLOCATOR MODEL
+        //   CONCERN: RESPECTING THE `bdema` ALLOCATOR MODEL
         // --------------------------------------------------------------------
 
         if (verbose)
             cout << endl
-                 << "Testing Concern: 'bdema' allocator model" << endl
+                 << "Testing Concern: `bdema` allocator model" << endl
                  << "========================================" << endl;
 
         bslma::TestAllocator ta2(veryVeryVerbose);
@@ -2388,7 +2398,7 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TEST 'update' MANIPULATOR
+        // TEST `update` MANIPULATOR
         //
         // Plan:
         //
@@ -2397,7 +2407,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing 'update' manipulator" << endl
+                          << "Testing `update` manipulator" << endl
                           << "============================" << endl;
 
         {
@@ -2495,7 +2505,7 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TEST 'popLE' MANIPULATOR
+        // TEST `popLE` MANIPULATOR
         //
         // Plan:
         //
@@ -2504,7 +2514,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing 'popLE' manipulator" << endl
+                          << "Testing `popLE` manipulator" << endl
                           << "===========================" << endl;
 
         namespace TC = TEST_CASE_POPLE;
@@ -2517,7 +2527,7 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TEST 'popFront' MANIPULATORS
+        // TEST `popFront` MANIPULATORS
         //
         // Plan:
         //
@@ -2527,7 +2537,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing 'popFront' manipulator" << endl
+                          << "Testing `popFront` manipulator" << endl
                           << "==============================" << endl;
 
         {
@@ -2722,7 +2732,7 @@ int main(int argc, char *argv[])
         // TEST REMOVEALL MANIPULATOR
         //
         // Plan:
-        //   Create and populate a time queue, invoke 'removeAll',
+        //   Create and populate a time queue, invoke `removeAll`,
         //   and assert that all the handles are indeed de-registered and that
         //   the time queue is empty.  For the version that gets a copy of the
         //   removed items into a local buffer, assert that the items are as
@@ -2733,7 +2743,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing 'removeAll' manipulator" << endl
+                          << "Testing `removeAll` manipulator" << endl
                           << "===============================" << endl;
 
         {
@@ -2871,7 +2881,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing 'remove' manipulator" << endl
+                          << "Testing `remove` manipulator" << endl
                           << "============================" << endl;
 
         {
@@ -3198,7 +3208,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TEST CLASS 'bdlcc::TimeQueueItem'
+        // TEST CLASS `bdlcc::TimeQueueItem`
         //
         // Plan:
         //   Create various time queue items using the different constructors.
@@ -3218,7 +3228,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING CLASS 'bdlcc::TimeQueueItem'" << endl
+                          << "TESTING CLASS `bdlcc::TimeQueueItem`" << endl
                           << "==================================" << endl;
 
         if (verbose) cout << "\tWithout allocators.\n";
@@ -3562,56 +3572,56 @@ int main(int argc, char *argv[])
       } break;
     case -1: {
         // --------------------------------------------------------------------
-        // 'poolTimerMemory' PERFORMANCE TESTING
+        // `poolTimerMemory` PERFORMANCE TESTING
         //
         // Concerns:
-        //: 1 Using the 'poolTimerMemory' flag while constructing a time
-        //:   queue provides a performance benefit.
+        // 1. Using the `poolTimerMemory` flag while constructing a time
+        //    queue provides a performance benefit.
         //
         // Plan:
-        //: 1 Specify two constant values, 'NUM_INNER_ITERATIONS' and
-        //:   'NUM_OUTER_TRANSITIONS' specifying the number of timers to be
-        //:   registered in a batch and how many such batches should be
-        //:   registered respectively.
-        //:
-        //: 2 Starting from 'now' construct a set of random timers ('timers')
-        //:   that will be registered with the time queue.
-        //:
-        //: 3 Identify intermediate times ('popTimes') when timers will be
-        //:   popped from the time queue.
-        //:
-        //: 4 Create a time queue, 'X', without specifying the
-        //:   'poolTimerMemory' flag, and specifying a test allocator.  For
-        //:   each value from [0..NUM_OUTER_ITERATIONS]:
-        //:
-        //:   1 Start a stop watch to record the time taken.
-        //:
-        //:   2 Add 'NUM_INNER_ITERATIONS' timers from the 'timers' vector.
-        //:
-        //:   3 Sleep for a certain interval to let the timers expire.
-        //:
-        //:   4 Pop all timers that have expired.
-        //:
-        //:   5 Stop the stop watch and record elapsed time.
-        //:
-        //: 5 Repeat Plan-4.1-5 for a time queue created by specifying the
-        //:   'poolTimerMemory' flag.
-        //:
-        //: 6 In verbose mode print out the time taken by both time queues and
-        //:   also the memory allocation characteristics as specified by their
-        //:   respective test allocators.
+        // 1. Specify two constant values, `NUM_INNER_ITERATIONS` and
+        //    `NUM_OUTER_TRANSITIONS` specifying the number of timers to be
+        //    registered in a batch and how many such batches should be
+        //    registered respectively.
+        //
+        // 2. Starting from `now` construct a set of random timers (`timers`)
+        //    that will be registered with the time queue.
+        //
+        // 3. Identify intermediate times (`popTimes`) when timers will be
+        //    popped from the time queue.
+        //
+        // 4. Create a time queue, `X`, without specifying the
+        //    `poolTimerMemory` flag, and specifying a test allocator.  For
+        //    each value from [0..NUM_OUTER_ITERATIONS]:
+        //
+        //   1. Start a stop watch to record the time taken.
+        //
+        //   2. Add `NUM_INNER_ITERATIONS` timers from the `timers` vector.
+        //
+        //   3. Sleep for a certain interval to let the timers expire.
+        //
+        //   4. Pop all timers that have expired.
+        //
+        //   5. Stop the stop watch and record elapsed time.
+        //
+        // 5. Repeat Plan-4.1-5 for a time queue created by specifying the
+        //    `poolTimerMemory` flag.
+        //
+        // 6. In verbose mode print out the time taken by both time queues and
+        //    also the memory allocation characteristics as specified by their
+        //    respective test allocators.
         //
         // Testing:
-        //   'poolTimerMemory' flag performance testing
+        //   `poolTimerMemory` flag performance testing
         // --------------------------------------------------------------------
 
-        // The 'poolTimerMemory' option is now deprecated.  However this test,
+        // The `poolTimerMemory` option is now deprecated.  However this test,
         // is not a "test" in that it has no asserts, and might still be
-        // utilized to verify the performance of the 'bdlcc::TimeQueue'.
+        // utilized to verify the performance of the `bdlcc::TimeQueue`.
 
         if (verbose)
             cout << endl
-                 << "Performance test using 'poolTimerMemory' flag" << endl
+                 << "Performance test using `poolTimerMemory` flag" << endl
                  << "=============================================" << endl;
 
         const char VA[] = "A";

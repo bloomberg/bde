@@ -14,8 +14,8 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The objects under test are two meta-functions, 'bsl::is_pointer' and
-// 'bslmf::IsPointer' and a template variable 'bsl::is_pointer_v', that
+// The objects under test are two meta-functions, `bsl::is_pointer` and
+// `bslmf::IsPointer` and a template variable `bsl::is_pointer_v`, that
 // determine whether a template parameter type is a pointer type.  Thus, we
 // need to ensure that the values returned by these meta-functions are correct
 // for each possible category of types.  Since the two meta-functions are
@@ -81,47 +81,51 @@ namespace {
 
 struct TestType {
    // This user-defined type is intended to be used during testing as an
-   // argument for the template parameter 'TYPE' of 'bsl::is_pointer'.
+   // argument for the template parameter `TYPE` of `bsl::is_pointer`.
 };
 
+/// This pointer to non-static function member type is intended to be used
+/// during testing as an argument for the template parameter `TYPE` of
+/// `bsl::is_pointer` and `bslmf::IsPointer`.
 typedef int (TestType::*MethodPtrTestType) ();
-    // This pointer to non-static function member type is intended to be used
-    // during testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::is_pointer' and 'bslmf::IsPointer'.
 
+/// This class public data member pointer type is intended to be used during
+/// testing as an argument as an argument for the template parameter `TYPE`
+/// of `bsl::is_pointer`.
 typedef int TestType::* PMD;
-    // This class public data member pointer type is intended to be used during
-    // testing as an argument as an argument for the template parameter 'TYPE'
-    // of 'bsl::is_pointer'.
 
+/// This function pointer type is intended to be used during testing as an
+/// argument for the template parameter `TYPE` of
+/// `bsl::is_pointer` and `bslmf::IsPointer`.
 typedef void (*FunctionPtrTestType) ();
-    // This function pointer type is intended to be used during testing as an
-    // argument for the template parameter 'TYPE' of
-    // 'bsl::is_pointer' and 'bslmf::IsPointer'.
 
 }  // close unnamed namespace
 
+/// Test cv-qualified combinations on the specified `type`.
 #define TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, type, result)                \
     ASSERT(result == metaFunc<type>::member);                                 \
     ASSERT(result == metaFunc<type const>::member);                           \
     ASSERT(result == metaFunc<type volatile>::member);                        \
     ASSERT(result == metaFunc<type const volatile>::member);
-    // Test cv-qualified combinations on the specified 'type'.
 
+/// Test cv-qualified combinations on the specified `type`.
 #define TYPE_ASSERT_CVQ_REF(metaFunc, member, type, result)                   \
     ASSERT(result == metaFunc<type&>::member);                                \
     ASSERT(result == metaFunc<type const&>::member);                          \
     ASSERT(result == metaFunc<type volatile&>::member);                       \
     ASSERT(result == metaFunc<type const volatile&>::member);
-    // Test cv-qualified combinations on the specified 'type'.
 
+/// Test all cv-qualified combinations on the specified `type`.
 #define TYPE_ASSERT_CVQ(metaFunc, member, type, result)                       \
     TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, type, result);                   \
     TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, const type, result);             \
     TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, volatile type, result);          \
     TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, const volatile type, result);
-    // Test all cv-qualified combinations on the specified 'type'.
 
+/// Test cv-qualified combinations on the specified `type` and confirm that
+/// the result value of `bsl::is_pointer` instantiated with those types and
+/// the value of `bsl::is_pointer_v` instantiated with same cv-qualified
+/// types are the same.
 #define TYPE_ASSERT_V_SAME(  type)                                              \
     ASSERT(bsl::is_pointer<  type               >::value ==                   \
            bsl::is_pointer_v<type               >);                           \
@@ -131,17 +135,13 @@ typedef void (*FunctionPtrTestType) ();
            bsl::is_pointer_v<type       volatile>);                           \
     ASSERT(bsl::is_pointer  <type const volatile>::value ==                   \
            bsl::is_pointer_v<type const volatile>)
-    // Test cv-qualified combinations on the specified 'type' and confirm that
-    // the result value of 'bsl::is_pointer' instantiated with those types and
-    // the value of 'bsl::is_pointer_v' instantiated with same cv-qualified
-    // types are the same.
 
+/// Test all cv-qualified combinations on the specified `type`.
 #define TYPE_ASSERT_V(                type);                                  \
     TYPE_ASSERT_V_SAME(               type);                                  \
     TYPE_ASSERT_V_SAME(const          type);                                  \
     TYPE_ASSERT_V_SAME(      volatile type);                                  \
     TYPE_ASSERT_V_SAME(const volatile type)
-    // Test all cv-qualified combinations on the specified 'type'.
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -169,13 +169,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -192,50 +192,50 @@ int main(int argc, char *argv[])
 ///- - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a particular type is a pointer type.
 //
-// First, we create two 'typedef's -- a pointer type and another type:
-//..
+// First, we create two `typedef`s -- a pointer type and another type:
+// ```
         typedef int  MyType;
         typedef int *MyPtrType;
-//..
-// Now, we instantiate the 'bsl::is_pointer' template for each of the
-// 'typedef's and assert the 'value' static data member of each instantiation:
-//..
+// ```
+// Now, we instantiate the `bsl::is_pointer` template for each of the
+// `typedef`s and assert the `value` static data member of each instantiation:
+// ```
         ASSERT(false == bsl::is_pointer<MyType>::value);
         ASSERT(true == bsl::is_pointer<MyPtrType>::value);
-//..
+// ```
 // Note that if the current compiler supports the variable templates C++14
 // feature then we can re-write the snippet of code above using the
-// 'bsl::is_pointer_v' variable as follows:
-//..
+// `bsl::is_pointer_v` variable as follows:
+// ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
         ASSERT(false == bsl::is_pointer_v<MyType>);
         ASSERT(true  == bsl::is_pointer_v<MyPtrType>);
 #endif
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'bslmf::IsPointer::value'
-        //   Ensure that the static data member 'value' of 'bslmf::IsPointer'
-        //   instantiations having various (template parameter) 'TYPES' has the
+        // `bslmf::IsPointer::value`
+        //   Ensure that the static data member `value` of `bslmf::IsPointer`
+        //   instantiations having various (template parameter) `TYPES` has the
         //   correct value.
         //
         // Concerns:
-        //: 1 'IsPointer::value' is 0 when 'TYPE' is a (possibly cv-qualified)
-        //:   primitive type.
+        // 1. `IsPointer::value` is 0 when `TYPE` is a (possibly cv-qualified)
+        //    primitive type.
         //
-        //: 2 'IsPointer::value' is 0 when 'TYPE' is a (possibly cv-qualified)
-        //:   user-defined type.
-        //:
-        //: 3 'IsPointer::value' is 0 when 'TYPE' is a (possibly cv-qualified)
-        //:   pointer to a (possibly cv-qualified) non-static member.
-        //:
-        //: 4 'IsPointer::value' is 1 when 'TYPE' is a (possibly cv-qualified)
-        //:   pointer to a (possibly cv-qualified) type.
+        // 2. `IsPointer::value` is 0 when `TYPE` is a (possibly cv-qualified)
+        //    user-defined type.
+        //
+        // 3. `IsPointer::value` is 0 when `TYPE` is a (possibly cv-qualified)
+        //    pointer to a (possibly cv-qualified) non-static member.
+        //
+        // 4. `IsPointer::value` is 1 when `TYPE` is a (possibly cv-qualified)
+        //    pointer to a (possibly cv-qualified) type.
         //
         // Plan:
-        //   Verify that 'bsl::IsPointer::value' has the correct value for
-        //   each (template parameter) 'TYPE' in the concerns.
+        //   Verify that `bsl::IsPointer::value` has the correct value for
+        //   each (template parameter) `TYPE` in the concerns.
         //
         // Testing:
         //   bsl::IsPointer::value
@@ -264,31 +264,31 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::is_pointer::value'
-        //   Ensure that the static data member 'value' of 'bsl::is_pointer'
-        //   instantiations having various (template parameter) 'TYPE's has the
+        // `bsl::is_pointer::value`
+        //   Ensure that the static data member `value` of `bsl::is_pointer`
+        //   instantiations having various (template parameter) `TYPE`s has the
         //   correct value.
         //
         // Concerns:
-        //: 1 'is_pointer::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) primitive type.
+        // 1. `is_pointer::value` is `false` when `TYPE` is a (possibly
+        //    cv-qualified) primitive type.
         //
-        //: 2 'is_pointer::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) user-defined type.
-        //:
-        //: 3 'is_pointer::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) pointer to a (possibly cv-qualified) non-static
-        //:   member.
-        //:
-        //: 4 'is_pointer::value' is 'true' when 'TYPE' is a (possibly
-        //:   cv-qualified) pointer to a (possibly cv-qualified) type.
-        //:
-        //: 5 That 'is_pointer_v<TYPE>' equals to 'is_pointer<TYPE>::value' for
-        //:   a variety of template parameter types.
+        // 2. `is_pointer::value` is `false` when `TYPE` is a (possibly
+        //    cv-qualified) user-defined type.
+        //
+        // 3. `is_pointer::value` is `false` when `TYPE` is a (possibly
+        //    cv-qualified) pointer to a (possibly cv-qualified) non-static
+        //    member.
+        //
+        // 4. `is_pointer::value` is `true` when `TYPE` is a (possibly
+        //    cv-qualified) pointer to a (possibly cv-qualified) type.
+        //
+        // 5. That `is_pointer_v<TYPE>` equals to `is_pointer<TYPE>::value` for
+        //    a variety of template parameter types.
         //
         // Plan:
-        //   Verify that 'bsl::is_pointer::value' has the correct value for
-        //   each (template parameter) 'TYPE' in the concerns.
+        //   Verify that `bsl::is_pointer::value` has the correct value for
+        //   each (template parameter) `TYPE` in the concerns.
         //
         // Testing:
         //   bsl::is_pointer<TYPE>::value

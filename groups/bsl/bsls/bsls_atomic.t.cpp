@@ -232,13 +232,14 @@ void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// This structure is used to test Atomic Pointers the self method
+/// returns the `this` pointer of this object.  The method is used
+/// to test `operator ->`.
+
+/// Return a pointer to this object.
 struct APTestObj
-    // This structure is used to test Atomic Pointers the self method
-    // returns the 'this' pointer of this object.  The method is used
-    // to test 'operator ->'.
 {
     const APTestObj* self() const { return this;}
-        // Return a pointer to this object.
 };
 
 typedef bsls::AtomicInt                      AI;
@@ -281,15 +282,15 @@ struct LockData
     INT turn;     // 0 or 1 - index into d_flags
 };
 
+/// PetersonsLock class implements the Peterson's locking algorithms for two
+/// concurrently executing threads, using atomic operations on integers with
+/// acquire/release/relaxed memory ordering semantics.
+///
+/// For the analysis of this algorithm see:
+/// http://www.justsoftwaresolutions.co.uk/threading/
+///                                   petersons_lock_with_C++0x_atomics.html
 template <class INT>
 class PetersonsLock
-    // PetersonsLock class implements the Peterson's locking algorithms for two
-    // concurrently executing threads, using atomic operations on integers with
-    // acquire/release/relaxed memory ordering semantics.
-    //
-    // For the analysis of this algorithm see:
-    // http://www.justsoftwaresolutions.co.uk/threading/
-    //                                   petersons_lock_with_C++0x_atomics.html
 {
 public:
     PetersonsLock(int id, LockData<INT>& lockData)
@@ -308,8 +309,8 @@ public:
 
         while (d().flags[1 - d_id].loadAcquire()
             && static_cast<int>(d().turn.loadAcquire()) == 1 - d_id)
-            // Contrary to justsoftwaresolutions 'turn' load needs to be
-            // 'loadAcquire'.
+            // Contrary to justsoftwaresolutions `turn` load needs to be
+            // `loadAcquire`.
         {
             if (--spin == 0) {
                 yield();
@@ -334,11 +335,11 @@ private:
     LockData<INT>&  d_data;
 };
 
+/// PetersonsLock class implements the Peterson's locking algorithms for two
+/// concurrently executing threads, using atomic operations on integers with
+/// sequential consistency memory ordering semantics.
 template <class INT>
 class PetersonsLockSeqCst
-    // PetersonsLock class implements the Peterson's locking algorithms for two
-    // concurrently executing threads, using atomic operations on integers with
-    // sequential consistency memory ordering semantics.
 {
 public:
     PetersonsLockSeqCst(int id, LockData<INT>& lockData)
@@ -402,10 +403,10 @@ bsls::AtomicInt s_data1(0);
 bsls::AtomicInt s_data2(0);
 bsls::AtomicInt s_data3(1);
 
+/// Test `lock` implemented using atomic operations by using it to protect
+/// some shared data, which is both read and written to.
 template <class LOCK>
 void testAtomicLocking(LOCK& lock, int iterations)
-    // Test 'lock' implemented using atomic operations by using it to protect
-    // some shared data, which is both read and written to.
 {
     for (int i = 0; i < iterations; ++i) {
         if (rand() & 1) {
@@ -526,9 +527,9 @@ void sharedCountLoopTest(TestLoopParameters *params)
     }
 }
 
+/// Run a simulation of the memory ordering test case to determine the
+/// number of iterations for the real test.
 extern "C" void *runTestingLoop(void *arg)
-    // Run a simulation of the memory ordering test case to determine the
-    // number of iterations for the real test.
 {
     TestLoopParameters *params = static_cast<TestLoopParameters *>(arg);
     params->d_testFunc(params);
@@ -536,9 +537,9 @@ extern "C" void *runTestingLoop(void *arg)
     return 0;
 }
 
+/// Observe changes in shared state for more accurate memory ordering test
+/// simulation.
 extern "C" void *runObserverLoop(void *arg)
-    // Observe changes in shared state for more accurate memory ordering test
-    // simulation.
 {
     TestLoopParameters *params = static_cast<TestLoopParameters *>(arg);
 
@@ -549,9 +550,9 @@ extern "C" void *runObserverLoop(void *arg)
     return 0;
 }
 
+/// Return a reasonable experimentally determined number of iterations for
+/// the memory ordering test case.
 int getTestCaseIterations(TestLoopParameters::TestFunc testFunc)
-    // Return a reasonable experimentally determined number of iterations for
-    // the memory ordering test case.
 {
     TestLoopParameters params;
     params.d_testFunc = testFunc;
@@ -699,19 +700,19 @@ void testCaseSharedPtr(int iterations)
 
 // EXAMPLE 1
 
+/// Dummy implementation.
 int processNextTransaction()
-    // Dummy implementation.
 {
     return 0;
 }
 
+/// Dummy implementation.
 void createWorkerThread()
-    // Dummy implementation.
 {
 }
 
+/// Dummy implementation.
 void waitAllThreads()
-    // Dummy implementation.
 {
 }
 
@@ -732,12 +733,12 @@ void serverMain()
 ///- - - - - - - - - - - - - - - - - - -
 // The following example demonstrates the use of atomic integer operations to
 // implement a thread-safe ref-counted handle similar to a shared pointer.
-// Each handle (of type 'my_CountedHandle') maintains a pointer to a
-// representation object, 'my_CountedHandleRep', which in turn, stores both a
+// Each handle (of type `my_CountedHandle`) maintains a pointer to a
+// representation object, `my_CountedHandleRep`, which in turn, stores both a
 // pointer to the managed object and a reference counter.
 //
 // Both the handle class and the representation class are template classes with
-// two template parameters.  The template parameter, 'INSTANCE', represents the
+// two template parameters.  The template parameter, `INSTANCE`, represents the
 // type of the "instance", or managed object.
 //
 // A representation object can be shared by several handle objects.  When a
@@ -747,31 +748,31 @@ void serverMain()
 // reference to the representation, it atomically decrements the reference
 // count.  If the resulting reference count becomes 0 (and there are no more
 // references to the object), the handle deletes the representation object and
-// the representation object, in turn, deletes the managed object ('INSTANCE').
+// the representation object, in turn, deletes the managed object (`INSTANCE`).
 //
-///Class 'my_CountedHandleRep'
+///Class `my_CountedHandleRep`
 /// -  -  -  -  -  -  -  -  -
-// First, we define class 'my_CountedHandleRep'.  This class manages a single
-// 'INSTANCE' object on behalf of multiple "handle" objects; since different
+// First, we define class `my_CountedHandleRep`.  This class manages a single
+// `INSTANCE` object on behalf of multiple "handle" objects; since different
 // "handle" objects may be active in different threads, class
-// 'my_CountedHandleRep' must be (fully) thread-safe.  Specifically, methods
-// 'increment' and 'decrement' must work atomically.
+// `my_CountedHandleRep` must be (fully) thread-safe.  Specifically, methods
+// `increment` and `decrement` must work atomically.
 //
-// The class declaration for 'my_CountedHandleRep' is identical to the same
-// class in component 'bsls_atomicoperations', with a single exception: member
-// 'd_count' is of type 'bsls::AtomicInt', rather than
-// 'bsls::AtomicOperations::Int'.  Whereas 'bsls::AtomicOperations::Int' is
-// merely a 'typedef' for a platform-specific data type to be used in atomic
-// integer operations, 'bsls::AtomicInt' encapsulates those atomic operations
-// as member functions and operator overloads.  Class 'my_CountedHandleRep'
+// The class declaration for `my_CountedHandleRep` is identical to the same
+// class in component `bsls_atomicoperations`, with a single exception: member
+// `d_count` is of type `bsls::AtomicInt`, rather than
+// `bsls::AtomicOperations::Int`.  Whereas `bsls::AtomicOperations::Int` is
+// merely a `typedef` for a platform-specific data type to be used in atomic
+// integer operations, `bsls::AtomicInt` encapsulates those atomic operations
+// as member functions and operator overloads.  Class `my_CountedHandleRep`
 // will benefit from this encapsulation: Its method implementations will be
-// able to operate on 'd_count' as if it were a standard integer.
+// able to operate on `d_count` as if it were a standard integer.
 //
-// Note that, as in the example in component 'bsls_atomicoperations', this rep
-// class is intended to be used only by class 'my_CountedHandle', and thus all
-// methods of class 'my_CountedHandleRep' are declared private, and 'friend'
-// status is granted to class 'my_CountedHandle':
-//..
+// Note that, as in the example in component `bsls_atomicoperations`, this rep
+// class is intended to be used only by class `my_CountedHandle`, and thus all
+// methods of class `my_CountedHandleRep` are declared private, and `friend`
+// status is granted to class `my_CountedHandle`:
+// ```
                         // =========================
                         // class my_CountedHandleRep
                         // =========================
@@ -806,23 +807,23 @@ class my_CountedHandleRep {
     void increment();
     int decrement();
 };
-//..
-///Class 'my_CountedHandle'
+// ```
+///Class `my_CountedHandle`
 ///-  -  -  -  -  -  -  - -
-// Then, we create class 'my_CountedHandle' that provides an individual handle
-// to the shared, reference-counted object.  Each 'my_CountedHandle' object
-// acts as a smart pointer, supplying an overloaded 'operator->' that provides
-// access to the underlying 'INSTANCE' object via pointer semantics.
+// Then, we create class `my_CountedHandle` that provides an individual handle
+// to the shared, reference-counted object.  Each `my_CountedHandle` object
+// acts as a smart pointer, supplying an overloaded `operator->` that provides
+// access to the underlying `INSTANCE` object via pointer semantics.
 //
-// 'my_CountedHandle' can also be copied freely; the copy constructor will use
-// the 'increment' method from 'my_CountedHandleRep' to note the extra copy.
-// Similarly, the destructor will call 'my_CountedHandleRep::decrement' to note
-// that there is one fewer handle the underlying 'INSTANCE' has, and delete the
+// `my_CountedHandle` can also be copied freely; the copy constructor will use
+// the `increment` method from `my_CountedHandleRep` to note the extra copy.
+// Similarly, the destructor will call `my_CountedHandleRep::decrement` to note
+// that there is one fewer handle the underlying `INSTANCE` has, and delete the
 // "rep" object when its reference count is reduced to zero.
 //
-// Similar to 'my_CountedHandleRep', the class declaration for
-// 'my_CountedHandle' is identical to that in 'bsls_atomicoperations':
-//..
+// Similar to `my_CountedHandleRep`, the class declaration for
+// `my_CountedHandle` is identical to that in `bsls_atomicoperations`:
+// ```
                         // ======================
                         // class my_CountedHandle
                         // ======================
@@ -846,13 +847,13 @@ class my_CountedHandle {
     INSTANCE *operator->() const;
     int numReferences() const;
 };
-//..
-///Function Definitions for 'my_CountedHandleRep'
+// ```
+///Function Definitions for `my_CountedHandleRep`
 ///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-// Next, we provide a definition for the 'static' 'deleteObject' method, which
-// is called by the destructor for class 'my_CountedHandle' for the last
-// instance of 'my_CountedHandle' using the given "rep" object:
-//..
+// Next, we provide a definition for the `static` `deleteObject` method, which
+// is called by the destructor for class `my_CountedHandle` for the last
+// instance of `my_CountedHandle` using the given "rep" object:
+// ```
 template <class INSTANCE>
 inline
 void my_CountedHandleRep<INSTANCE>::deleteObject(
@@ -860,15 +861,15 @@ void my_CountedHandleRep<INSTANCE>::deleteObject(
 {
     delete object;
 }
-//..
-// Then, we define the constructor for the 'my_CountedHandleRep<INSTANCE>'
-// class.  Member 'd_count' is initialized to 1, reflecting the fact that this
-// constructor will be called by a new instance of 'my_CountedHandle', which
+// ```
+// Then, we define the constructor for the `my_CountedHandleRep<INSTANCE>`
+// class.  Member `d_count` is initialized to 1, reflecting the fact that this
+// constructor will be called by a new instance of `my_CountedHandle`, which
 // instance is our first and only handle when this constructor is called:
-// notice that 'd_count' (of type 'bsls::AtomicInt') is initialized as if it
+// notice that `d_count` (of type `bsls::AtomicInt`) is initialized as if it
 // were a simple integer; its constructor guarantees that the initialization is
 // done atomically.
-//..
+// ```
 template <class INSTANCE>
 inline
 my_CountedHandleRep<INSTANCE>:: my_CountedHandleRep(INSTANCE *instance)
@@ -876,21 +877,21 @@ my_CountedHandleRep<INSTANCE>:: my_CountedHandleRep(INSTANCE *instance)
 , d_count(1)
 {
 }
-//..
-// Then, we define the destructor, which just deletes 'my_CountedHandle'
-// 'd_instance_p':
-//..
+// ```
+// Then, we define the destructor, which just deletes `my_CountedHandle`
+// `d_instance_p`:
+// ```
 template <class INSTANCE>
 inline
 my_CountedHandleRep<INSTANCE>::~my_CountedHandleRep()
 {
     delete d_instance_p;
 }
-//..
-// Next, we define method 'increment', which is called by 'my_CountedHandle'
+// ```
+// Next, we define method `increment`, which is called by `my_CountedHandle`
 // to add a new reference to the current "rep" object, which simply increments
-// 'd_count', using the prefix 'operator++':
-//..
+// `d_count`, using the prefix `operator++`:
+// ```
 // MANIPULATORS
 template <class INSTANCE>
 inline
@@ -898,32 +899,32 @@ void my_CountedHandleRep<INSTANCE>::increment()
 {
     ++d_count;
 }
-//..
+// ```
 // The above operation must be done atomically in a multi-threaded context;
-// class 'bsls::AtomicInt' provides this guarantee for all its overloaded
-// operators, and 'my_CountedHandleRep' relies upon this guarantee.
+// class `bsls::AtomicInt` provides this guarantee for all its overloaded
+// operators, and `my_CountedHandleRep` relies upon this guarantee.
 //
-// Then, we implement method 'decrement', which is called by 'my_CountedHandle'
+// Then, we implement method `decrement`, which is called by `my_CountedHandle`
 // when a reference to the current "rep" object is being deleted:
-//..
+// ```
 template <class INSTANCE>
 inline
 int my_CountedHandleRep<INSTANCE>::decrement()
 {
     return --d_count;
 }
-//..
+// ```
 // This method atomically decrements the number of references to this
-// 'my_CountedHandleRep' and, once again, atomicity is guaranteed by the
-// underlying type of 'd_count'.
+// `my_CountedHandleRep` and, once again, atomicity is guaranteed by the
+// underlying type of `d_count`.
 //
-///Function Definitions for 'my_CountedHandle'
+///Function Definitions for `my_CountedHandle`
 ///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-// Next, we define the first constructor for 'my_CountedHandle', which is used
-// when creating a handle for a new 'INSTANCE'; note that the 'INSTANCE' is
+// Next, we define the first constructor for `my_CountedHandle`, which is used
+// when creating a handle for a new `INSTANCE`; note that the `INSTANCE` is
 // constructed separately, and a pointer to that object is passed as the first
-// argument ('object'):
-//..
+// argument (`object`):
+// ```
                         // ----------------------
                         // class my_CountedHandle
                         // ----------------------
@@ -935,10 +936,10 @@ my_CountedHandle<INSTANCE>::my_CountedHandle(INSTANCE *instance)
 {
     d_rep_p = new my_CountedHandleRep<INSTANCE>(instance);
 }
-//..
+// ```
 // Then, we define the copy constructor; the new object copies the underlying
-// 'my_CountedHandleRep' and then increments its counter:
-//..
+// `my_CountedHandleRep` and then increments its counter:
+// ```
 template <class INSTANCE>
 inline
 my_CountedHandle<INSTANCE>::my_CountedHandle(
@@ -949,13 +950,13 @@ my_CountedHandle<INSTANCE>::my_CountedHandle(
         d_rep_p->increment();
     }
 }
-//..
+// ```
 // Next, we define the destructor which decrements the "rep" object's reference
-// count using the 'decrement' method.  The 'decrement' method returns the
+// count using the `decrement` method.  The `decrement` method returns the
 // object's reference count after the decrement is completed, and
-// 'my_CountedHandle' uses this value to determine whether the "rep" object
+// `my_CountedHandle` uses this value to determine whether the "rep" object
 // should be deleted:
-//..
+// ```
 template <class INSTANCE>
 inline
 my_CountedHandle<INSTANCE>::~my_CountedHandle()
@@ -964,10 +965,10 @@ my_CountedHandle<INSTANCE>::~my_CountedHandle()
         my_CountedHandleRep<INSTANCE>::deleteObject(d_rep_p);
     }
 }
-//..
-// Now, we define member 'operator->()', which provides basic pointer semantics
-// for 'my_CountedHandle':
-//..
+// ```
+// Now, we define member `operator->()`, which provides basic pointer semantics
+// for `my_CountedHandle`:
+// ```
 // ACCESSORS
 template <class INSTANCE>
 inline
@@ -975,27 +976,27 @@ INSTANCE *my_CountedHandle<INSTANCE>::operator->() const
 {
     return d_rep_p->d_instance_p;
 }
-//..
-// Finally, we define method 'numReferences', which returns the value of the
+// ```
+// Finally, we define method `numReferences`, which returns the value of the
 // reference counter:
-//..
+// ```
 template <class INSTANCE>
 inline
 int my_CountedHandle<INSTANCE>::numReferences() const
 {
     return d_rep_p ? d_rep_p->d_count : 0;
 }
-//..
-// Note that, while class 'my_CountedHandleRep' is itself fully thread-safe, it
-// does not guarantee thread safety for the 'INSTANCE' object.  In order to
-// provide thread safety for the 'INSTANCE' in the general case, the "rep"
+// ```
+// Note that, while class `my_CountedHandleRep` is itself fully thread-safe, it
+// does not guarantee thread safety for the `INSTANCE` object.  In order to
+// provide thread safety for the `INSTANCE` in the general case, the "rep"
 // would need to use a more general concurrency mechanism such as a mutex.
 //
 ///Example 3: Thread-Safe Lock-Free Singly-Linked List
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates the use of atomic pointers to implement a fast and
 // thread-aware, yet fast single-linked list.  The example class,
-// 'my_PtrStack', is a templatized pointer stack, supporting 'push' and 'pop'
+// `my_PtrStack`, is a templatized pointer stack, supporting `push` and `pop`
 // methods.  The class is implemented using a single-linked list.  Nodes in the
 // list are linked together using atomic operations.  Instance of this
 // structure are allocated using the provided allocator.  When nodes are freed,
@@ -1003,20 +1004,20 @@ int my_CountedHandle<INSTANCE>::numReferences() const
 // single-linked list, using atomic pointer operations.
 //
 // This example parallels the third usage example given for component
-// 'bsls_atomicoperations', presenting a different implementation of
-// 'my_PtrStack<T>', with an identical public interface.  Note that, where the
-// 'bsls_atomicoperations' example uses the basic data type
-// 'bsls::AtomicOperations::AtomicTypes::Pointer' for members 'd_list' and
-// 'd_freeList', this implementation uses instead the higher-level type
-// 'bsls::AtomicPointer<T>'.
+// `bsls_atomicoperations`, presenting a different implementation of
+// `my_PtrStack<T>`, with an identical public interface.  Note that, where the
+// `bsls_atomicoperations` example uses the basic data type
+// `bsls::AtomicOperations::AtomicTypes::Pointer` for members `d_list` and
+// `d_freeList`, this implementation uses instead the higher-level type
+// `bsls::AtomicPointer<T>`.
 //
-// First, we create class template, 'my_PtrStack', parameterized by 'TYPE'.
+// First, we create class template, `my_PtrStack`, parameterized by `TYPE`.
 // Instances of this template maintain a list of nodes and a free-node list.
-// Each node has a pointer to a data item, 'd_item_p', a link to the next node
-// in the list, 'd_next_p' and an atomic flag, 'd_inUseFlag', intended for
-// lock-free list manipulation.  The definition of the 'my_PtrStack' class is
+// Each node has a pointer to a data item, `d_item_p`, a link to the next node
+// in the list, `d_next_p` and an atomic flag, `d_inUseFlag`, intended for
+// lock-free list manipulation.  The definition of the `my_PtrStack` class is
 // provided below:
-//..
+// ```
 template <class TYPE>
 class my_PtrStack {
     // TYPES
@@ -1044,25 +1045,25 @@ class my_PtrStack {
     void push(TYPE *item);
     TYPE *pop();
 };
-//..
+// ```
 // Then, we write a constructor that default-initializes the stack.  In the
-// corresponding example in 'bsls_atomicoperations', the constructor must also
-// initialize the atomic pointer 'd_freeList'.  Since this example uses the
-// encapsulated type 'bsls::AtomicPointer', initialization of these member
+// corresponding example in `bsls_atomicoperations`, the constructor must also
+// initialize the atomic pointer `d_freeList`.  Since this example uses the
+// encapsulated type `bsls::AtomicPointer`, initialization of these member
 // variables is done in their default constructors.  Hence, no explicit code is
 // required in this constructor:
-//..
+// ```
 // CREATORS
 template <class TYPE>
 inline my_PtrStack<TYPE>::my_PtrStack()
 {
 }
-//..
-// Next, we define the 'deleteNodes' and the destructor function to delete
-// nodes that the 'my_PtrStack' object owns.  Note that we don't need to worry
+// ```
+// Next, we define the `deleteNodes` and the destructor function to delete
+// nodes that the `my_PtrStack` object owns.  Note that we don't need to worry
 // about the concurrent access to node lists in the destructor, as destructor
 // can be executed in only a single thread:
-//..
+// ```
 template <class TYPE>
 inline void my_PtrStack<TYPE>::deleteNodes(Node *node)
 {
@@ -1079,11 +1080,11 @@ inline my_PtrStack<TYPE>::~my_PtrStack()
     deleteNodes(d_list);
     deleteNodes(d_freeList);
 }
-//..
-// Then, we define method 'allocateNode' to get a node from the free list in
+// ```
+// Then, we define method `allocateNode` to get a node from the free list in
 // the thread-safe manner by leveraging atomic operations to ensure proper
 // thread synchronization:
-//..
+// ```
 // PRIVATE MANIPULATORS
 template <class TYPE>
 typename my_PtrStack<TYPE>::Node *my_PtrStack<TYPE>::allocateNode()
@@ -1094,20 +1095,20 @@ typename my_PtrStack<TYPE>::Node *my_PtrStack<TYPE>::allocateNode()
         if (!node) {
             break;
         }
-//..
+// ```
 // Next, we try locking the node, and start over if locking fails:
-//..
+// ```
         if (node->d_inUseFlag.swapInt(1)) {
             continue;
         }
-//..
-// Then, we atomically modify the head if it has not changed.  'testAndSwap'
-// compares 'd_freeList' to 'node', replacing 'node' with 'node->d_next_p' only
-// if it matches 'd_freeList'.  If 'd_freeList' did not match 'node', then the
+// ```
+// Then, we atomically modify the head if it has not changed.  `testAndSwap`
+// compares `d_freeList` to `node`, replacing `node` with `node->d_next_p` only
+// if it matches `d_freeList`.  If `d_freeList` did not match `node`, then the
 // free list has been changed on another thread, between its assignment to the
-// 'node' and the call to 'testAndSwap'.  If the list head has changed, then
+// `node` and the call to `testAndSwap`.  If the list head has changed, then
 // try again:
-//..
+// ```
         if (d_freeList.testAndSwap(node, node->d_next_p) == node) {
             break;
         }
@@ -1115,24 +1116,24 @@ typename my_PtrStack<TYPE>::Node *my_PtrStack<TYPE>::allocateNode()
         // Unlock the node.
         node->d_inUseFlag = 0;
     }
-//..
+// ```
 // Next, we allocate a new node if there were no nodes in the free node list:
-//..
+// ```
     if (!node) {
-        node = new Node();  // should allocate with 'd_allocator_p', but
-                            // here we use 'new' directly for simplicity
+        node = new Node();  // should allocate with `d_allocator_p`, but
+                            // here we use `new` directly for simplicity
         node->d_inUseFlag = 1;
     }
 
     return node;
 }
-//..
-// Note that the 'node' is returned in the locked state and remained
+// ```
+// Note that the `node` is returned in the locked state and remained
 // locked until it is added to the free list.
 //
-// Then, we define the 'freeNode' method to add a given 'node' to the free
-// list; 'freeNode' also needs to be synchronized using atomic operations:
-//..
+// Then, we define the `freeNode` method to add a given `node` to the free
+// list; `freeNode` also needs to be synchronized using atomic operations:
+// ```
 template <class TYPE>
 inline void my_PtrStack<TYPE>::freeNode(Node *node)
 {
@@ -1151,15 +1152,15 @@ inline void my_PtrStack<TYPE>::freeNode(Node *node)
         }
     }
 
-    // unlock the 'node'
+    // unlock the `node`
     node->d_inUseFlag = 0;
 }
-//..
-// Now, we begin to define the public "stack-like" interface for 'my_PtrStack'.
-// Note that the 'push' method is similar to 'freeNode', except that it assigns
-// an item value and operates on 'd_list', which maintains the list of active
+// ```
+// Now, we begin to define the public "stack-like" interface for `my_PtrStack`.
+// Note that the `push` method is similar to `freeNode`, except that it assigns
+// an item value and operates on `d_list`, which maintains the list of active
 // nodes:
-//..
+// ```
 // MANIPULATORS
 template <class TYPE>
 void my_PtrStack<TYPE>::push(TYPE *item)
@@ -1175,11 +1176,11 @@ void my_PtrStack<TYPE>::push(TYPE *item)
 
     node->d_inUseFlag = 0;
 }
-//..
-// Finally, we define the 'pop' method which removes the node from the top
-// of active node list, 'd_list', adds it to the free-node list, and returns
+// ```
+// Finally, we define the `pop` method which removes the node from the top
+// of active node list, `d_list`, adds it to the free-node list, and returns
 // the data item contained in the node to the caller:
-//..
+// ```
 template <class TYPE>
 TYPE *my_PtrStack<TYPE>::pop()
 {
@@ -1207,7 +1208,7 @@ TYPE *my_PtrStack<TYPE>::pop()
     }
     return item;
 }
-//..
+// ```
 // Notice that if the stack was empty, a NULL pointer is returned.
 
 //=============================================================================
@@ -1242,16 +1243,16 @@ int main(int argc, char *argv[])
         // TEST UPCASTING OF ATOMICINT FUNCTION RESULTS TO INT64
         //
         // Concerns:
-        //: 1 'AtomicInt' member functions returning an 'int' behave
-        //    correctly when the result is static cast to an 'Int64'.  This
+        // 1. `AtomicInt` member functions returning an `int` behave
+        //    correctly when the result is static cast to an `Int64`.  This
         //    tests an issue identified in optimized builds in DRQS 167770817.
         //
         // Plan:
-        //: 1 For various input values, construct an 'AtomicInt'.
-        //: 2 For various parameter values, call each function thereon
-        //    returning an 'int'.
-        //: 3 Cast the resulting 'int' to an 'Int64'.
-        //: 4 Check the resulting value is as expected.
+        // 1. For various input values, construct an `AtomicInt`.
+        // 2. For various parameter values, call each function thereon
+        //    returning an `int`.
+        // 3. Cast the resulting `int` to an `Int64`.
+        // 4. Check the resulting value is as expected.
         //
         // Testing:
         //   TEST UPCASTING OF ATOMICINT FUNCTION RESULTS TO INT64
@@ -1262,7 +1263,7 @@ int main(int argc, char *argv[])
                  << "\n====================================================="
                  << endl;
 
-        if (verbose) cout << "\nTesting 'bsls::AtomicInt' Primary Manipulators"
+        if (verbose) cout << "\nTesting `bsls::AtomicInt` Primary Manipulators"
                           << endl;
         {
             static const struct {
@@ -1296,7 +1297,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'bsls::AtomicInt' Inc and Dec"
+        if (verbose) cout << "\nTesting `bsls::AtomicInt` Inc and Dec"
                     << endl;
         {
             static const struct {
@@ -1333,7 +1334,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'bsls::AtomicInt' Add and Subtract"
+        if (verbose) cout << "\nTesting `bsls::AtomicInt` Add and Subtract"
             << endl;
         {
             static const struct {
@@ -1398,7 +1399,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'bsls::AtomicInt' Swap"
+        if (verbose) cout << "\nTesting `bsls::AtomicInt` Swap"
             << endl;
         {
             static const struct {
@@ -1607,12 +1608,12 @@ int main(int argc, char *argv[])
         //   For each atomic type(AtomicInt, AtomicInt64, AtomicUint,
         //   AtomicUint64), using a sequence of independent test values, begin
         //   by initializing each object to a base value.  Then increment the
-        //   value by 1 using to prefix 'operator ++'.  Verify that both the
+        //   value by 1 using to prefix `operator ++`.  Verify that both the
         //   return value and the resulting object value are equal to the
-        //   expected result.  Repeat using the "postfix" 'operator ++' and
+        //   expected result.  Repeat using the "postfix" `operator ++` and
         //   verify that the return is equal to the base value and that the
         //   resulting object value is the expected value.  Finally perform
-        //   similar tests for the prefix and postfix 'operator --' and verify
+        //   similar tests for the prefix and postfix `operator --` and verify
         //   that the results are correct.
         //
         // Testing:
@@ -1638,7 +1639,7 @@ int main(int argc, char *argv[])
                           << "\n========================================="
                           << endl;
 
-        if (verbose) cout << "\nTesting 'AtomicInt' Increment Manipulators"
+        if (verbose) cout << "\nTesting `AtomicInt` Increment Manipulators"
                           << endl;
         {
             static const struct {
@@ -1692,7 +1693,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'AtomicInt' Decrement Manipulators"
+        if (verbose) cout << "\nTesting `AtomicInt` Decrement Manipulators"
                           << endl;
         {
             static const struct {
@@ -1752,7 +1753,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'AtomicInt64' increment Manipulators"
+        if (verbose) cout << "\nTesting `AtomicInt64` increment Manipulators"
                           << endl;
         {
             static const struct {
@@ -1813,7 +1814,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'AtomicInt64' decrement Manipulators"
+        if (verbose) cout << "\nTesting `AtomicInt64` decrement Manipulators"
                           << endl;
         {
             static const struct {
@@ -1874,7 +1875,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'AtomicUint' Increment Manipulators"
+        if (verbose) cout << "\nTesting `AtomicUint` Increment Manipulators"
                           << endl;
         {
             static const struct {
@@ -1928,7 +1929,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'AtomicUint' Decrement Manipulators"
+        if (verbose) cout << "\nTesting `AtomicUint` Decrement Manipulators"
                           << endl;
         {
             static const struct {
@@ -1988,7 +1989,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'AtomicUint64' increment Manipulators"
+        if (verbose) cout << "\nTesting `AtomicUint64` increment Manipulators"
                           << endl;
         {
             static const struct {
@@ -2049,7 +2050,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'AtomicInt64' decrement Manipulators"
+        if (verbose) cout << "\nTesting `AtomicInt64` decrement Manipulators"
                           << endl;
         {
             static const struct {
@@ -2122,12 +2123,12 @@ int main(int argc, char *argv[])
         //   following tests to verify the swap and testAndSwap manipulators.
         //
         // 1 Using an independent sequence of values, initialize an object and
-        //   set its value to a base value.  Next 'swap' it with a second test
+        //   set its value to a base value.  Next `swap` it with a second test
         //   value and assert that the new value is the swapped value and that
         //   the return value is the base value.
         //
         // 2 Using an independent sequence of values, initialize an object and
-        //   set its value to a base value.  Next 'testAndSwap' it with a
+        //   set its value to a base value.  Next `testAndSwap` it with a
         //   second test value and assert that the new value is the expected
         //   value and that the return value is the expected return value.
         //
@@ -2151,7 +2152,7 @@ int main(int argc, char *argv[])
                           << "\n========================================="
                           << endl;
 
-        if (verbose) cout << "\nTesting 'AtomicInt' SWAP Manipulators" << endl;
+        if (verbose) cout << "\nTesting `AtomicInt` SWAP Manipulators" << endl;
         {
             static const struct {
                 int  d_lineNum;   // source line number
@@ -2189,7 +2190,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'AtomicInt' testAndSwap" << endl;
+        if (verbose) cout << "\nTesting `AtomicInt` testAndSwap" << endl;
         {
             static const struct {
                 int d_lineNum;       // source line number
@@ -2234,7 +2235,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'AtomicInt64' SWAP Manipulators"
+        if (verbose) cout << "\nTesting `AtomicInt64` SWAP Manipulators"
                           << endl;
         {
             static const struct {
@@ -2273,7 +2274,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'AtomicInt64' testAndSwap" << endl;
+        if (verbose) cout << "\nTesting `AtomicInt64` testAndSwap" << endl;
         {
             static const struct {
                 int   d_lineNum;       // source line number
@@ -2320,7 +2321,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\nTesting 'AtomicUint' SWAP Manipulators" << endl;
+            cout << "\nTesting `AtomicUint` SWAP Manipulators" << endl;
         {
             static const struct {
                 int          d_lineNum;   // source line number
@@ -2358,7 +2359,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'AtomicUint' testAndSwap" << endl;
+        if (verbose) cout << "\nTesting `AtomicUint` testAndSwap" << endl;
         {
             static const struct {
                 int          d_lineNum;      // source line number
@@ -2403,7 +2404,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'AtomicUint64' SWAP Manipulators"
+        if (verbose) cout << "\nTesting `AtomicUint64` SWAP Manipulators"
                           << endl;
         {
             static const struct {
@@ -2442,7 +2443,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'AtomicUint64' testAndSwap" << endl;
+        if (verbose) cout << "\nTesting `AtomicUint64` testAndSwap" << endl;
         {
             static const struct {
                 int    d_lineNum;       // source line number
@@ -2488,7 +2489,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'Pointer' SWAP Manipulators" << endl;
+        if (verbose) cout << "\nTesting `Pointer` SWAP Manipulators" << endl;
         {
             static const struct {
                 int        d_lineNum;    // source line number
@@ -2525,7 +2526,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'AtomicPointer' testAndSwap" << endl;
+        if (verbose) cout << "\nTesting `AtomicPointer` testAndSwap" << endl;
         {
             static const struct {
                 int        d_lineNum;       // source line number
@@ -2576,7 +2577,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'AtomicBool' SWAP Manipulators" << endl;
+        if (verbose) cout << "\nTesting `AtomicBool` SWAP Manipulators" << endl;
         {
             static const struct {
                 int  d_lineNum;    // source line number
@@ -2613,7 +2614,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'AtomicBool' testAndSwap" << endl;
+        if (verbose) cout << "\nTesting `AtomicBool` testAndSwap" << endl;
         {
             static const struct {
                 int  d_lineNum;       // source line number
@@ -2668,19 +2669,19 @@ int main(int argc, char *argv[])
         //   functions work as expected.
         //
         // Plan:
-        //   For each atomic type('AtomicInt', and 'AtomicInt64') using a
+        //   For each atomic type(`AtomicInt`, and `AtomicInt64`) using a
         //   sequence of independent values, begin by initializing the
-        //   value to 0 and adding the test value using the 'operator+='.
+        //   value to 0 and adding the test value using the `operator+=`.
         //   Assert that the resulting value is the expected value.  Then
-        //   subtract the test value using the 'operator-=' and verify that
+        //   subtract the test value using the `operator-=` and verify that
         //   The value returns to 0.  Repeat the operation using the
-        //   'add' method and assert the both the resulting value of the
+        //   `add` method and assert the both the resulting value of the
         //   object and the return value from the operation are both the
         //   expected value.  Next, initialize each object to a base value
-        //   add a delta value using 'operator+='.  Assert that the result
+        //   add a delta value using `operator+=`.  Assert that the result
         //   are still correct.  Then subtract the delta value using the
-        //   'operator -=' and verify that the value returns to the base value.
-        //   Repeat this step for the 'add' method and assert that the
+        //   `operator -=` and verify that the value returns to the base value.
+        //   Repeat this step for the `add` method and assert that the
         //   return value and resulting object values are correct.
         //
         // Testing:
@@ -2724,7 +2725,7 @@ int main(int argc, char *argv[])
                           << endl;
 
         if (verbose) cout << endl
-                          << "Testing 'AtomicInt' Arithmetic Manipulators"
+                          << "Testing `AtomicInt` Arithmetic Manipulators"
                           << endl;
         {
             static const struct {
@@ -2917,7 +2918,7 @@ int main(int argc, char *argv[])
 
         }
 
-        if (verbose) cout << "\nTesting 'AtomicInt64' Arithmetic Manipulators"
+        if (verbose) cout << "\nTesting `AtomicInt64` Arithmetic Manipulators"
                           << endl;
         {
             static const struct {
@@ -3090,7 +3091,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout << endl
-                          << "Testing 'AtomicUint' Arithmetic Manipulators"
+                          << "Testing `AtomicUint` Arithmetic Manipulators"
                           << endl;
         {
             static const struct {
@@ -3285,7 +3286,7 @@ int main(int argc, char *argv[])
 
         }
 
-        if (verbose) cout << "\nTesting 'AtomicUint64' Arithmetic Manipulators"
+        if (verbose) cout << "\nTesting `AtomicUint64` Arithmetic Manipulators"
                           << endl;
         {
             static const struct {
@@ -3470,10 +3471,10 @@ int main(int argc, char *argv[])
         //   Next, for the AtomicInt, AtomicInt64, AtomicUint, AtomicUint64,
         //   AtomicPointer, and AtomicBool types, for a sequence of independent
         //   test values, use the initialization constructor to construct an
-        //   object 'x' of each type.  Then using the copy constructor,
-        //   construct an object 'y' from 'x'.  Next construct a third object
-        //   'z'.  Using the assignment operator, assign the value of 'x' to
-        //   'z'.  Finally Verify that the value of 'x', 'y', and 'z' are
+        //   object `x` of each type.  Then using the copy constructor,
+        //   construct an object `y` from `x`.  Next construct a third object
+        //   `z`.  Using the assignment operator, assign the value of `x` to
+        //   `z`.  Finally Verify that the value of `x`, `y`, and `z` are
         //   correct.
         //
         // Testing:
@@ -3506,7 +3507,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Primary Manipulators"
                           << "\n============================" << endl;
 
-        if (verbose) cout << "\nTesting 'AtomicInt' Primary Manipulators"
+        if (verbose) cout << "\nTesting `AtomicInt` Primary Manipulators"
                           << endl;
         {
             static const struct {
@@ -3544,7 +3545,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout <<"\nTesting 'AtomicInt64' Primary Manipulators"
+        if (verbose) cout <<"\nTesting `AtomicInt64` Primary Manipulators"
                           << endl;
         {
             static const struct {
@@ -3582,7 +3583,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'AtomicUint' Primary Manipulators"
+        if (verbose) cout << "\nTesting `AtomicUint` Primary Manipulators"
                           << endl;
         {
             static const struct {
@@ -3620,7 +3621,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout <<"\nTesting 'AtomicUint64' Primary Manipulators"
+        if (verbose) cout <<"\nTesting `AtomicUint64` Primary Manipulators"
                           << endl;
         {
             static const struct {
@@ -3659,7 +3660,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\nTesting 'bsls::AtomicPointer' Primary Manipulators"
+            cout << "\nTesting `bsls::AtomicPointer` Primary Manipulators"
                  << endl;
         {
             static const struct {
@@ -3697,7 +3698,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'AtomicBool' Primary Manipulators"
+        if (verbose) cout << "\nTesting `AtomicBool` Primary Manipulators"
                           << endl;
         {
             static const struct {
@@ -3748,10 +3749,10 @@ int main(int argc, char *argv[])
         //   Begin by constructing an object using the default constructor
         //   and verify that it is the expected default value.  Then for a
         //   sequence independent test values, set the value using the basic
-        //   manipulator('operator=').  Verify that the value is correct using
-        //   the respective direct accessor('operator int',
-        //   'operator bsls::Types::Int64', 'operator unsigned int',
-        //   'operator bsls::Types::Uint64', 'operator T*', 'operator bool').
+        //   manipulator(`operator=`).  Verify that the value is correct using
+        //   the respective direct accessor(`operator int`,
+        //   `operator bsls::Types::Int64`, `operator unsigned int`,
+        //   `operator bsls::Types::Uint64`, `operator T*`, `operator bool`).
         //
         // Testing:
         //   bsls::AtomicInt();
@@ -3785,7 +3786,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Primary Manipulators"
                           << "\n============================" << endl;
 
-        if (verbose) cout << "\nTesting 'bsls::AtomicInt' Primary Manipulators"
+        if (verbose) cout << "\nTesting `bsls::AtomicInt` Primary Manipulators"
                           << endl;
         {
             static const struct {
@@ -3818,7 +3819,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\nTesting 'bsls::AtomicInt64' Primary Manipulators"
+            cout << "\nTesting `bsls::AtomicInt64` Primary Manipulators"
                  << endl;
         {
             static const struct {
@@ -3851,7 +3852,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\nTesting 'bsls::AtomicUint' Primary Manipulators"
+            cout << "\nTesting `bsls::AtomicUint` Primary Manipulators"
                  << endl;
         {
             static const struct {
@@ -3884,7 +3885,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\nTesting 'bsls::AtomicUint64' Primary Manipulators"
+            cout << "\nTesting `bsls::AtomicUint64` Primary Manipulators"
                  << endl;
         {
             static const struct {
@@ -3917,7 +3918,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\nTesting 'bsls::AtomicPointer' Primary Manipulators"
+            cout << "\nTesting `bsls::AtomicPointer` Primary Manipulators"
                  << endl;
         {
             static const struct {
@@ -3955,7 +3956,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'bsls::AtomicBool' Primary Manipulators"
+        if (verbose) cout << "\nTesting `bsls::AtomicBool` Primary Manipulators"
                           << endl;
         {
             static const struct {

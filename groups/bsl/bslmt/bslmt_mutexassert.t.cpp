@@ -26,15 +26,15 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // Two main testing strategies are employed here:
-//: 1 Assert on a locked mutex and observe nothing happens.
-//: 2 Assert on an unlocked mutex with an assert handler installed that will
-//:   throw an exception, catch the exception, and verify that an exception
-//:   was thrown.
+// 1. Assert on a locked mutex and observe nothing happens.
+// 2. Assert on an unlocked mutex with an assert handler installed that will
+//    throw an exception, catch the exception, and verify that an exception
+//    was thrown.
 //-----------------------------------------------------------------------------
 // MACROS
-//: o BSLMT_MUTEXASSERT_IS_LOCKED
-//: o BSLMT_MUTEXASSERT_IS_LOCKED_SAFE
-//: o BSLMT_MUTEXASSERT_IS_LOCKED_OPT
+//  - BSLMT_MUTEXASSERT_IS_LOCKED
+//  - BSLMT_MUTEXASSERT_IS_LOCKED_SAFE
+//  - BSLMT_MUTEXASSERT_IS_LOCKED_OPT
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 4] USAGE EXAMPLE
@@ -106,21 +106,22 @@ int veryVerbose;
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Sometimes multithreaded code is written such that the author of a function
 // requires that a caller has already acquired a mutex.  The
-// 'BSLMT_MUTEXASSERT_IS_LOCKED*' family of assertions allows the programmers
+// `BSLMT_MUTEXASSERT_IS_LOCKED*` family of assertions allows the programmers
 // to verify, using defensive programming techniques, that the mutex in
 // question is indeed locked.
 //
-// Suppose we have a fully thread-safe queue that contains 'int' values, and is
-// guarded by an internal mutex.  We can use 'BSLMT_MUTEXASSERT_IS_LOCKED_SAFE'
+// Suppose we have a fully thread-safe queue that contains `int` values, and is
+// guarded by an internal mutex.  We can use `BSLMT_MUTEXASSERT_IS_LOCKED_SAFE`
 // to ensure (in appropriate build modes) that proper internal locking of the
 // mutex is taking place.
 //
 // First, we define the container:
-//..
+// ```
+
+    /// This `class` provides a fully *thread-safe* unidirectional queue of
+    /// `int` values.  See {`bsls_glossary`|Fully Thread-Safe}.  All public
+    /// manipulators operate as single, atomic actions.
     class MyThreadSafeQueue {
-        // This 'class' provides a fully *thread-safe* unidirectional queue of
-        // 'int' values.  See {'bsls_glossary'|Fully Thread-Safe}.  All public
-        // manipulators operate as single, atomic actions.
 
         // DATA
         bsl::deque<int>      d_deque;    // underlying non-*thread-safe*
@@ -129,48 +130,50 @@ int veryVerbose;
         mutable bslmt::Mutex  d_mutex;    // mutex to provide thread safety
 
         // PRIVATE MANIPULATOR
+
+        /// Assign the value at the front of the queue to the specified
+        /// `*result`, and remove the value at the front of the queue;
+        /// return 0 if the queue was not initially empty, and a non-zero
+        /// value (with no effect) otherwise.  The behavior is undefined
+        /// unless `d_mutex` is locked.
         int popImp(int *result);
-            // Assign the value at the front of the queue to the specified
-            // '*result', and remove the value at the front of the queue;
-            // return 0 if the queue was not initially empty, and a non-zero
-            // value (with no effect) otherwise.  The behavior is undefined
-            // unless 'd_mutex' is locked.
 
       public:
         // ...
 
         // MANIPULATORS
+
+        /// Assign the value at the front of the queue to the specified
+        /// `*result`, and remove the value at the front of the queue;
+        /// return 0 if the queue was not initially empty, and a non-zero
+        /// value (with no effect) otherwise.
         int pop(int *result);
-            // Assign the value at the front of the queue to the specified
-            // '*result', and remove the value at the front of the queue;
-            // return 0 if the queue was not initially empty, and a non-zero
-            // value (with no effect) otherwise.
 
+        /// Assign the values of all the elements from this queue, in order,
+        /// to the specified `*result`, and remove them from this queue.
+        /// Any previous contents of `*result` are discarded.  Note that, as
+        /// with the other public manipulators, this entire operation occurs
+        /// as a single, atomic action.
         void popAll(bsl::vector<int> *result);
-            // Assign the values of all the elements from this queue, in order,
-            // to the specified '*result', and remove them from this queue.
-            // Any previous contents of '*result' are discarded.  Note that, as
-            // with the other public manipulators, this entire operation occurs
-            // as a single, atomic action.
 
+        /// ...
         void push(int value);
-            // ...
 
+        /// ...
         template <class INPUT_ITER>
         void pushRange(const INPUT_ITER& first, const INPUT_ITER& last);
-            // ...
     };
-//..
+// ```
 // Notice that our public manipulators have two forms: push/pop a single
 // element, and push/pop a collection of elements.  Popping even a single
 // element is non-trivial, so we factor this operation into a non-*thread-safe*
-// private manipulator that performs the pop, and is used in both public 'pop'
+// private manipulator that performs the pop, and is used in both public `pop`
 // methods.  This private manipulator requires that the mutex be locked, but
-// cannot lock the mutex itself, since the correctness of 'popAll' demands that
+// cannot lock the mutex itself, since the correctness of `popAll` demands that
 // all of the pops be collectively performed using a single mutex lock/unlock.
 //
 // Then, we define the private manipulator:
-//..
+// ```
     // PRIVATE MANIPULATOR
     int MyThreadSafeQueue::popImp(int *result)
     {
@@ -185,16 +188,16 @@ int veryVerbose;
             return 0;                                                 // RETURN
         }
     }
-//..
+// ```
 // Notice that, on the very first line, the private manipulator verifies, as a
 // precondition check, that the mutex has been acquired, using one of the
-// 'BSLMT_MUTEXASSERT_IS_LOCKED*' macros.  We use the '...IS_LOCKED_SAFE...'
+// `BSLMT_MUTEXASSERT_IS_LOCKED*` macros.  We use the `...IS_LOCKED_SAFE...`
 // version of the macro so that the check, which on some platforms is as
 // expensive as locking the mutex, is performed in only the safe build mode.
 //
 // Next, we define the public manipulators; each of which must acquire a lock
-// on the mutex (note that there is a bug in 'popAll'):
-//..
+// on the mutex (note that there is a bug in `popAll`):
+// ```
     // MANIPULATORS
     int MyThreadSafeQueue::pop(int *result)
     {
@@ -234,34 +237,34 @@ int veryVerbose;
         d_deque.insert(d_deque.begin(), first, last);
         d_mutex.unlock();
     }
-//..
-// Notice that, in 'popAll', we forgot to lock/unlock the mutex!
+// ```
+// Notice that, in `popAll`, we forgot to lock/unlock the mutex!
 //
-// Then, in our function 'example2Function', we make use of our class to create
-// and exercise a 'MyThreadSafeQueue' object:
-//..
+// Then, in our function `example2Function`, we make use of our class to create
+// and exercise a `MyThreadSafeQueue` object:
+// ```
     void testThreadSafeQueue(bsl::ostream& stream)
     {
         MyThreadSafeQueue queue;
-//..
-// Next, we populate the queue using 'pushRange':
-//..
+// ```
+// Next, we populate the queue using `pushRange`:
+// ```
         const int rawData[] = { 17, 3, 21, -19, 4, 87, 29, 3, 101, 31, 36 };
         enum { k_RAW_DATA_LENGTH = sizeof rawData / sizeof *rawData };
 
         queue.pushRange(rawData + 0, rawData + k_RAW_DATA_LENGTH);
-//..
+// ```
 // Then, we pop a few items off the front of the queue and verify their values:
-//..
+// ```
         int value = -1;
 
         ASSERT(0 == queue.pop(&value));    ASSERT(17 == value);
         ASSERT(0 == queue.pop(&value));    ASSERT( 3 == value);
         ASSERT(0 == queue.pop(&value));    ASSERT(21 == value);
-//..
-// Next, we attempt to empty the queue with 'popAll', which, if built in safe
+// ```
+// Next, we attempt to empty the queue with `popAll`, which, if built in safe
 // mode, would fail because it neglects to lock the mutex:
-//..
+// ```
         bsl::vector<int> v;
         queue.popAll(&v);
 
@@ -271,28 +274,28 @@ int veryVerbose;
         }
         stream << bsl::endl;
     }
-//..
+// ```
 // Then, we build in non-safe mode and run:
-//..
+// ```
 //  Remaining raw numbers: -19, 4, 87, 29, 3, 101, 31, 36
-//..
+// ```
 // Notice that, since the test case is being run in a single thread and our
 // check is disabled, the bug where the mutex was not acquired does not
 // manifest itself in a visible error, and we observe the seemingly correct
 // output.
 //
 // Now, we build in safe mode (which enables our check), run the program (which
-// calls 'example2Function'), and observe that, when we call 'popAll', the
-// 'BSLMT_MUTEXASSERT_IS_LOCKED_SAFE(&d_mutex)' macro issues an error message
+// calls `example2Function`), and observe that, when we call `popAll`, the
+// `BSLMT_MUTEXASSERT_IS_LOCKED_SAFE(&d_mutex)` macro issues an error message
 // and aborts:
-//..
+// ```
 //  Assertion failed: BSLMT_MUTEXASSERT_IS_LOCKED_SAFE(&d_mutex),
 //  file bslmt_mutexassertislocked.t.cpp, line 137 Aborted (core dumped)
-//..
+// ```
 // Finally, note that the message printed above and the subsequent aborting of
-// the program were the result of a call to 'bsls::Assert::invokeHandler',
+// the program were the result of a call to `bsls::Assert::invokeHandler`,
 // which in this case was configured (by default) to call
-// 'bsls::Assert::failAbort'.  Other handlers may be installed that produce
+// `bsls::Assert::failAbort`.  Other handlers may be installed that produce
 // different results, but in all cases should prevent the program from
 // proceeding normally.
 
@@ -356,7 +359,7 @@ void myHandler(const char *text, const char *file, int line)
 #ifdef BDE_BUILD_TARGET_EXC
     throw 5;
 #else
-    // We can't return to 'bsls::Assert::invokeHandler'.  Make sure this test
+    // We can't return to `bsls::Assert::invokeHandler`.  Make sure this test
     // fails.
 
     ASSERT(0 &&
@@ -385,12 +388,12 @@ int main(int argc, char *argv[])
         // TESTING USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 That the usage example compiles and functions as expected.
+        // 1. That the usage example compiles and functions as expected.
         //
         // Plan:
-        //: o Call 'testThreadSafeQueue', which implements and runs the usage
-        //:   example, but don't call it in safe assert mode unless
-        //:   'veryVerbose' is selected, since it will abort in that mode.
+        //  - Call `testThreadSafeQueue`, which implements and runs the usage
+        //    example, but don't call it in safe assert mode unless
+        //    `veryVerbose` is selected, since it will abort in that mode.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "USAGE EXAMPLE\n"
@@ -398,7 +401,7 @@ int main(int argc, char *argv[])
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
         if (!veryVerbose) {
-            cout << "Usage example not run in safe mode unless 'veryVerbose'"
+            cout << "Usage example not run in safe mode unless `veryVerbose`"
                     " is set since it will abort\n";
             break;
         }
@@ -411,14 +414,14 @@ int main(int argc, char *argv[])
         // TESTING ON LOCK HELD BY ANOTHER THREAD
         //
         // Concerns:
-        //: 1 That 'BSLMT_MUTEXASSERT_IS_LOCKED*' is never calling
-        //:   'bsls::Assert::invokeHandler' if the mutex is locked by another
-        //:   thread.
+        // 1. That `BSLMT_MUTEXASSERT_IS_LOCKED*` is never calling
+        //    `bsls::Assert::invokeHandler` if the mutex is locked by another
+        //    thread.
         //
         // Plan:
-        //: o Spawn a subthread that will lock a mutex, then, once it has,
-        //:   call the macros to assert that it is locked and observe that
-        //:   no failures occur.
+        //  - Spawn a subthread that will lock a mutex, then, once it has,
+        //    call the macros to assert that it is locked and observe that
+        //    no failures occur.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING LOCK HELD BY OTHER THREAD\n"
@@ -455,7 +458,7 @@ int main(int argc, char *argv[])
         BSLMT_MUTEXASSERT_IS_LOCKED_OPT( &mutexToAssertOn);
 
         // The subthread is blocked waiting for us to unlock
-        // 'mutexThatMainThreadWillUnlock'.  Unlock it so the subthread can
+        // `mutexThatMainThreadWillUnlock`.  Unlock it so the subthread can
         // finish and join the sub thread.
 
         mutexThatMainThreadWillUnlock.unlock();
@@ -465,25 +468,25 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLMT_MUTEXASSERT_IS_LOCKED*'
+        // TESTING `BSLMT_MUTEXASSERT_IS_LOCKED*`
         //
         // Concerns:
-        //: 1 That 'BSLMT_MUTEXASSERT_IS_LOCKED*' is never calling
-        //:   'bsls::Assert::invokeHandler' if the mutex is locked.
-        //: 2 That, in appropriate build modes, 'invokeHandler' is in fact
-        //:   called.  This test is only run when exceptions are enabled.
+        // 1. That `BSLMT_MUTEXASSERT_IS_LOCKED*` is never calling
+        //    `bsls::Assert::invokeHandler` if the mutex is locked.
+        // 2. That, in appropriate build modes, `invokeHandler` is in fact
+        //    called.  This test is only run when exceptions are enabled.
         //
-        //: Plan:
-        //: 1 With the mutex locked and the assert handler set to
-        //:   'bsls::failAbort' (the default), call all three '*_IS_LOCKED'
-        //:   asserts and verify that they don't fail (C-1).
-        //: 2 Only if exceptions are enabled, unlock the mutex and set the
-        //:   assert handler to 'TEST_CASE_2::myHandler' then call all 3
-        //:   macros in try-catch blocks.  Expect throws depending on the
-        //:   build mode.
+        //  Plan:
+        // 1. With the mutex locked and the assert handler set to
+        //    `bsls::failAbort` (the default), call all three `*_IS_LOCKED`
+        //    asserts and verify that they don't fail (C-1).
+        // 2. Only if exceptions are enabled, unlock the mutex and set the
+        //    assert handler to `TEST_CASE_2::myHandler` then call all 3
+        //    macros in try-catch blocks.  Expect throws depending on the
+        //    build mode.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'BSLMT_MUTEXASSERT_IS_LOCKED*'\n"
+        if (verbose) cout << "TESTING `BSLMT_MUTEXASSERT_IS_LOCKED*`\n"
                              "=====================================\n";
 
         bslmt::Mutex mutex;
@@ -595,7 +598,7 @@ int main(int argc, char *argv[])
       } break;
       case -1: {
         // ------------------------------------------------------------------
-        // TESTING 'BSLMT_MUTEXASSERT_IS_LOCKED_OPT'
+        // TESTING `BSLMT_MUTEXASSERT_IS_LOCKED_OPT`
         // ------------------------------------------------------------------
 
         if (verbose) cout << "WATCH ASSERT BLOW UP\n"

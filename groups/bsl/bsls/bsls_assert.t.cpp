@@ -8,18 +8,18 @@
 #include <bsls_unspecifiedbool.h>
 #include <bsls_types.h>
 
-// Include 'cassert' to make sure no macros conflict between 'bsls_assert.h'
-// and 'cassert'.  This test driver does *not* invoke 'assert(expression)'.
+// Include `cassert` to make sure no macros conflict between `bsls_assert.h`
+// and `cassert`.  This test driver does *not* invoke `assert(expression)`.
 #include <cassert>
 
 #ifndef BDE_BUILD_TARGET_EXC
-#include <csetjmp>   // 'setjmp' 'longjmp'
+#include <csetjmp>   // `setjmp` `longjmp`
 #endif
-#include <cstdio>    // 'fprintf'
-#include <cstdlib>   // 'atoi'
-#include <cstring>   // 'strcmp', 'strcpy'
-#include <exception> // 'exception'
-#include <iostream>  // 'ostream', 'cerr' for usage examples
+#include <cstdio>    // `fprintf`
+#include <cstdlib>   // `atoi`
+#include <cstring>   // `strcmp`, `strcpy`
+#include <exception> // `exception`
+#include <iostream>  // `ostream`, `cerr` for usage examples
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <signal.h>
@@ -33,7 +33,7 @@
 
 static_assert(std::is_trivially_destructible<
                           BloombergLP::bsls::AssertViolation>::value,
-                                            "Can use with 'setjmp'/'longjmp'");
+                                            "Can use with `setjmp`/`longjmp`");
 #endif
 #endif
 
@@ -120,31 +120,31 @@ using namespace std;
 // [15] USAGE EXAMPLE: Installing Prefabricated Assert-Handlers
 // [16] USAGE EXAMPLE: Creating Your Own Assert-Handler
 // [17] USAGE EXAMPLE: Using Scoped Guard
-// [18] USAGE EXAMPLE: Using "ASSERT" with 'BDE_BUILD_TARGET_SAFE_2'
+// [18] USAGE EXAMPLE: Using "ASSERT" with `BDE_BUILD_TARGET_SAFE_2`
 // [19] USAGE EXAMPLE: Conditional Compilation
 // [20] USAGE EXAMPLE: Conditional Compilation of Support Functions
 // [21] USAGE EXAMPLE: Conditional Compilation of Support Code
 //
-// [ 1] CONCERN: By default, the 'bsls::Assert::failByAbort' is used.
+// [ 1] CONCERN: By default, the `bsls::Assert::failByAbort` is used.
 // [ 2] CONCERN: ASSERT macros are instantiated properly for build targets
 // [ 2] CONCERN: all combinations of BDE_BUILD_TARGETs are allowed
 // [ 2] CONCERN: any one assert mode overrides all BDE_BUILD_TARGETs
 // [ 3] CONCERN: ubiquitously detect multiply-defined assertion-mode flags
 // [ 6] CONCERN: that locking does not stop the handlerGuard from working
-// [-1] CONCERN: 'bsls::Assert::failByAbort' aborts
-// [-1] CONCERN: 'bsls::Assert::failByAbort' prints to 'stderr'
-// [-2] CONCERN: 'bsls::Assert::failAbort' aborts
-// [-2] CONCERN: 'bsls::Assert::failAbort' prints to 'stderr'
-// [-3] CONCERN: 'bsls::Assert::failByThrow' aborts in non-exception build
-// [-3] CONCERN: 'bsls::Assert::failByThrow' prints to 'stderr' w/o EXC
-// [-4] CONCERN: 'bsls::Assert::failThrow' aborts in non-exception build
-// [-4] CONCERN: 'bsls::Assert::failThrow' prints to 'stderr' w/o EXC
-// [-5] CONCERN: 'bsls::Assert::failBySleep' sleeps forever
-// [-5] CONCERN: 'bsls::Assert::failBySleep' prints to 'stderr'
-// [-6] CONCERN: 'bsls::Assert::failSleep' sleeps forever
-// [-6] CONCERN: 'bsls::Assert::failSleep' prints to 'stderr'
-// [11] CONCERN: 'BSLS_ASSERTIMPUTIL_FILE' interaction
-// [12] CONCERN: 'constexpr' interaction
+// [-1] CONCERN: `bsls::Assert::failByAbort` aborts
+// [-1] CONCERN: `bsls::Assert::failByAbort` prints to `stderr`
+// [-2] CONCERN: `bsls::Assert::failAbort` aborts
+// [-2] CONCERN: `bsls::Assert::failAbort` prints to `stderr`
+// [-3] CONCERN: `bsls::Assert::failByThrow` aborts in non-exception build
+// [-3] CONCERN: `bsls::Assert::failByThrow` prints to `stderr` w/o EXC
+// [-4] CONCERN: `bsls::Assert::failThrow` aborts in non-exception build
+// [-4] CONCERN: `bsls::Assert::failThrow` prints to `stderr` w/o EXC
+// [-5] CONCERN: `bsls::Assert::failBySleep` sleeps forever
+// [-5] CONCERN: `bsls::Assert::failBySleep` prints to `stderr`
+// [-6] CONCERN: `bsls::Assert::failSleep` sleeps forever
+// [-6] CONCERN: `bsls::Assert::failSleep` prints to `stderr`
+// [11] CONCERN: `BSLS_ASSERTIMPUTIL_FILE` interaction
+// [12] CONCERN: `constexpr` interaction
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -220,7 +220,7 @@ static bool checkLevels = true;
                             // driver we want to avoid std::exception
 
 #ifndef BDE_BUILD_TARGET_EXC
-static std::jmp_buf jmpContext;  // for the 'ASSERTION_TEST_BEGIN' macro
+static std::jmp_buf jmpContext;  // for the `ASSERTION_TEST_BEGIN` macro
 #endif
 
 //=============================================================================
@@ -262,8 +262,8 @@ static std::jmp_buf jmpContext;  // for the 'ASSERTION_TEST_BEGIN' macro
 
 #if !defined(BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER)
 
-// 'invokeHandler' cannot return if we are building with the
-// '...ENABLE_NORETURN...' flag turned on.
+// `invokeHandler` cannot return if we are building with the
+// `...ENABLE_NORETURN...` flag turned on.
 
 struct LogProfile {
     enum { k_TEXT_BUFFER_SIZE = 1024 };
@@ -279,40 +279,40 @@ struct HandlerReturnTest {
     static bsls::Types::Int64 s_handlerInvocationCount;
     static bsls::Types::Int64 s_loggerInvocationCount;
 
+    /// Clear `s_firstProfile` and `s_secondProfile`, and set
+    /// `s_handlerInvocationCount` and `s_loggerInvocationCount` to 0.
     static void clear();
-        // Clear 's_firstProfile' and 's_secondProfile', and set
-        // 's_handlerInvocationCount' and 's_loggerInvocationCount' to 0.
 
+    /// Do nothing with the specified `text`, `file`, and `line`.
     static void emptyViolationHandler(const char *text,
                                       const char *file,
                                       int         line);
-        // Do nothing with the specified 'text', 'file', and 'line'.
 
+    /// Increment the `s_handlerInvocationCount` counter, do nothing with
+    /// the specified `text`, `file`, and `line`.
     static void countingViolationHandler(const char *text,
                                          const char *file,
                                          int         line);
-        // Increment the 's_handlerInvocationCount' counter, do nothing with
-        // the specified 'text', 'file', and 'line'.
 
+    /// Register a test failure if the specified `severity` is not fatal,
+    /// and store the specified `file`, `line`, and `message` into the
+    /// corresponding fields of either `s_firstProfile` (on the first
+    /// invocation of this function) or `s_secondProfile` (on the second
+    /// invocation of this function).  Additionally, register a test failure
+    /// if this function is called more than twice without an intervening
+    /// call to `clear`.
     static void recordingLogMessageHandler(bsls::LogSeverity::Enum  severity,
                                            const char              *file,
                                            int                      line,
                                            const char              *message);
-        // Register a test failure if the specified 'severity' is not fatal,
-        // and store the specified 'file', 'line', and 'message' into the
-        // corresponding fields of either 's_firstProfile' (on the first
-        // invocation of this function) or 's_secondProfile' (on the second
-        // invocation of this function).  Additionally, register a test failure
-        // if this function is called more than twice without an intervening
-        // call to 'clear'.
 
+    /// Increment the `s_loggerInvocationCount` counter.  If
+    /// `veryVeryVerbose` is `true` then log the specified `severity`,
+    /// `file`, `line`, and `message`;
     static void countingLogMessageHandler(bsls::LogSeverity::Enum  severity,
                                           const char              *file,
                                           int                      line,
                                           const char              *message);
-        // Increment the 's_loggerInvocationCount' counter.  If
-        // 'veryVeryVerbose' is 'true' then log the specified 'severity',
-        // 'file', 'line', and 'message';
 };
 
 LogProfile         HandlerReturnTest::s_firstProfile;
@@ -433,15 +433,15 @@ static void globalReset()
 
 //-----------------------------------------------------------------------------
 
+/// Set the `globalAssertFiredFlag` to `true`, the `globalReviewFiredFlag`
+/// to `false`, the `globalLegacyAssertFiredFlag` to `false`, and store the
+/// expression `text`, `file` name, `line` number, and `assertLlevel` values
+/// from the specified `violation` in `globalText`, `globalFile`,
+/// `globalLine`, and `globalLevel` respectively.  Then throw an
+/// `std::exception` object provided that `BDE_BUILD_TARGET_EXC` is defined;
+/// otherwise, abort the program.
 BSLS_ANNOTATION_NORETURN
 static void testDriverHandler(const bsls::AssertViolation& violation)
-    // Set the 'globalAssertFiredFlag' to 'true', the 'globalReviewFiredFlag'
-    // to 'false', the 'globalLegacyAssertFiredFlag' to 'false', and store the
-    // expression 'text', 'file' name, 'line' number, and 'assertLlevel' values
-    // from the specified 'violation' in 'globalText', 'globalFile',
-    // 'globalLine', and 'globalLevel' respectively.  Then throw an
-    // 'std::exception' object provided that 'BDE_BUILD_TARGET_EXC' is defined;
-    // otherwise, abort the program.
 {
     if (veryVeryVerbose) {
         printf( "*** testDriverHandler: ");
@@ -466,15 +466,15 @@ static void testDriverHandler(const bsls::AssertViolation& violation)
 #endif
 }
 
+/// Set the `globalAssertFiredFlag` to `true`, the `globalReviewFiredFlag`
+/// to `true`, `globalLegacyAssertFiredFlag` to `false`, and store the
+/// expression `text`, `file` name, `line` number, and `assertLlevel` values
+/// from the specified `violation` in `globalText`, `globalFile`,
+/// `globalLine`, and `globalLevel` respectively.  Then throw an
+/// `std::exception` object provided that `BDE_BUILD_TARGET_EXC` is defined;
+/// otherwise, abort the program.
 BSLS_ANNOTATION_NORETURN
 static void testDriverReviewHandler(const bsls::ReviewViolation& violation)
-    // Set the 'globalAssertFiredFlag' to 'true', the 'globalReviewFiredFlag'
-    // to 'true', 'globalLegacyAssertFiredFlag' to 'false', and store the
-    // expression 'text', 'file' name, 'line' number, and 'assertLlevel' values
-    // from the specified 'violation' in 'globalText', 'globalFile',
-    // 'globalLine', and 'globalLevel' respectively.  Then throw an
-    // 'std::exception' object provided that 'BDE_BUILD_TARGET_EXC' is defined;
-    // otherwise, abort the program.
 {
     if (veryVeryVerbose) {
         printf( "*** testReviewDriverHandler: ");
@@ -501,16 +501,16 @@ static void testDriverReviewHandler(const bsls::ReviewViolation& violation)
 
 //-----------------------------------------------------------------------------
 
+/// Set the `globalAssertFiredFlag` to `true`, the
+/// `globalLegacyAssertFiredFlag` to `true`, the `globalLevel` to `""`, and
+/// store the specified expression `text`, `file` name, and `line` number in
+/// `globalText`, `globalFile`, and `globalLine`.  Then throw an
+/// `std::exception` object provided that `BDE_BUILD_TARGET_EXC` is defined;
+/// otherwise, abort the program.
 BSLS_ANNOTATION_NORETURN
 static void legacyTestDriverHandler(const char *text,
                                     const char *file,
                                     int         line)
-    // Set the 'globalAssertFiredFlag' to 'true', the
-    // 'globalLegacyAssertFiredFlag' to 'true', the 'globalLevel' to '""', and
-    // store the specified expression 'text', 'file' name, and 'line' number in
-    // 'globalText', 'globalFile', and 'globalLine'.  Then throw an
-    // 'std::exception' object provided that 'BDE_BUILD_TARGET_EXC' is defined;
-    // otherwise, abort the program.
 {
     if (veryVeryVerbose) {
         printf( "*** legacyTestDriverHandler: "); P_(text) P_(file) P(line)
@@ -532,12 +532,12 @@ static void legacyTestDriverHandler(const char *text,
 
 //-----------------------------------------------------------------------------
 
+/// Print the `comment`, `file`, `line` and `assertLevel` from the specified
+/// `violation` to standard output if `veryVeryVerbose` is non-zero and
+/// return.  NOTE THAT this handler is against Bloomberg default policy and
+/// under normal circumstances such a handler will result in termination of
+/// the program anyway.
 static void returningHandler(const bsls::AssertViolation& violation)
-    // Print the 'comment', 'file', 'line' and 'assertLevel' from the specified
-    // 'violation' to standard output if 'veryVeryVerbose' is non-zero and
-    // return.  NOTE THAT this handler is against Bloomberg default policy and
-    // under normal circumstances such a handler will result in termination of
-    // the program anyway.
 {
     if (veryVeryVerbose) {
         printf( "*** returningHandler: ");
@@ -558,14 +558,14 @@ static void returningHandler(const bsls::AssertViolation& violation)
 
 //-----------------------------------------------------------------------------
 
+/// Format, in verbose mode, the expression `comment`, `file` name, `line`
+/// number, and `assertLevel` from the specified `violation` in the same way
+/// as the `bsls::Assert::failByAbort` assertion-failure handler function
+/// might, but on `cout` instead of `cerr`.  Then throw an `std::exception`
+/// object provided that `BDE_BUILD_TARGET_EXC` is defined; otherwise, abort
+/// the program.
 BSLS_ANNOTATION_NORETURN
 static void testDriverPrint(const bsls::AssertViolation& violation)
-    // Format, in verbose mode, the expression 'comment', 'file' name, 'line'
-    // number, and 'assertLevel' from the specified 'violation' in the same way
-    // as the 'bsls::Assert::failByAbort' assertion-failure handler function
-    // might, but on 'cout' instead of 'cerr'.  Then throw an 'std::exception'
-    // object provided that 'BDE_BUILD_TARGET_EXC' is defined; otherwise, abort
-    // the program.
 
 {
     if (veryVeryVerbose) {
@@ -624,10 +624,10 @@ struct ExplicitBool
 //                  GLOBAL HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Bogus `struct` used for testing: calls `bsls::Assert::failByThrow` on
+/// destruction to ensure that it does not re-throw with an exception
+/// pending (see case -2).
 struct BadBoy {
-    // Bogus 'struct' used for testing: calls 'bsls::Assert::failByThrow' on
-    // destruction to ensure that it does not re-throw with an exception
-    // pending (see case -2).
 
     BadBoy() {
         if (veryVerbose) printf( "BadBoy Created!\n" );
@@ -636,7 +636,7 @@ struct BadBoy {
     ~BadBoy() BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false) {
         if (veryVerbose) printf( "BadBoy Destroyed!\n" );
         bsls::Assert::failByThrow(bsls::AssertViolation(
-                                   "'failByThrow' handler called from ~BadBoy",
+                                   "`failByThrow` handler called from ~BadBoy",
                                    "f.c",
                                    9,"L"));
      }
@@ -648,9 +648,9 @@ void TestConfigurationMacros();
 
 struct ConstexprFunctions {
 
+    /// Return the specified `x`, the behavior is undefined if `x < 0`.
     BSLS_KEYWORD_CONSTEXPR_CPP17
     static int narrowConstexprFunction(int x)
-        // Return the specified 'x', the behavior is undefined if 'x < 0'.
     {
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
@@ -689,35 +689,35 @@ struct ConstexprFunctions {
 ///Usage
 ///-----
 // The following examples illustrate (1) when to use each of the three kinds of
-// (BSLS) "ASSERT" macros, (2) when and how to call the 'invokeHandler' method
+// (BSLS) "ASSERT" macros, (2) when and how to call the `invokeHandler` method
 // directly, (3) how to configure, at runtime, the behavior resulting from an
 // assertion failure using "off-the-shelf" handler methods, (4) how to create
 // your own custom assertion-failure handler function, (5) proper use of
-// 'bsls::AssertFailureHandlerGuard' to install, temporarily, an
+// `bsls::AssertFailureHandlerGuard` to install, temporarily, an
 // exception-producing assert handler, (6) how "ASSERT" macros would be used in
 // conjunction with portions of the source code (affecting binary
-// compatibility) that are incorporated only when 'BDE_BUILD_TARGET_SAFE_2' is
+// compatibility) that are incorporated only when `BDE_BUILD_TARGET_SAFE_2` is
 // defined, and (7) how assertion predicates (e.g.,
-// 'BSLS_ASSERT_SAFE_IS_ACTIVE') are used to conditionally compile additional
+// `BSLS_ASSERT_SAFE_IS_ACTIVE`) are used to conditionally compile additional
 // (redundant) defensive source code (not affecting binary compatibility)
 // precisely when the corresponding (BSLS) "ASSERT" macro (e.g.,
-// 'BSLS_ASSERT_SAFE') is active.
+// `BSLS_ASSERT_SAFE`) is active.
 //
 namespace usage_example_assert_1 {
-///Example 1: Using 'BSLS_ASSERT', 'BSLS_ASSERT_SAFE', and 'BSLS_ASSERT_OPT'
+///Example 1: Using `BSLS_ASSERT`, `BSLS_ASSERT_SAFE`, and `BSLS_ASSERT_OPT`
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This component provides three different variants of (BSLS) "ASSERT" macros.
 // This first usage example illustrates how one might select each of the
 // particular variants, based on the runtime cost of the defensive check
 // relative to that of the useful work being done.
 //
-// Use of the 'BSLS_ASSERT_SAFE' macro is often appropriate when the defensive
-// check occurs within the body of an 'inline' function.  The
-// 'BSLS_ASSERT_SAFE' macro minimizes the impact on runtime performance as it
+// Use of the `BSLS_ASSERT_SAFE` macro is often appropriate when the defensive
+// check occurs within the body of an `inline` function.  The
+// `BSLS_ASSERT_SAFE` macro minimizes the impact on runtime performance as it
 // is instantiated only when requested (i.e., by building in "safe mode").  For
-// example, consider a light-weight point class 'Kpoint' that maintains 'x' and
-// 'y' coordinates in the range '[-1000 .. 1000]':
-//..
+// example, consider a light-weight point class `Kpoint` that maintains `x` and
+// `y` coordinates in the range `[-1000 .. 1000]`:
+// ```
 // my_kpoint.h
 // ...
 
@@ -725,19 +725,19 @@ class Kpoint {
     short int d_x;
     short int d_y;
   public:
+    /// ...
+    /// The behavior is undefined unless `-1000 <= x <= 1000` and
+    /// `-1000 <= y <= 1000`.
     Kpoint(short int x, short int y);
-        // ...
-        // The behavior is undefined unless '-1000 <= x <= 1000' and
-        // '-1000 <= y <= 1000'.
     // ...
 };
 
 // ...
-//..
+// ```
 // Since the cost of validation here is significant compared with the useful
 // work being done, we might choose to implement defensive checks using
-// 'BSLS_ASSERT_SAFE' as follows:
-//..
+// `BSLS_ASSERT_SAFE` as follows:
+// ```
 // ...
 
 inline
@@ -750,32 +750,32 @@ Kpoint::Kpoint(short int x, short int y)
     BSLS_ASSERT_SAFE(-1000 <= x); BSLS_ASSERT_SAFE(x <= 1000);
     BSLS_ASSERT_SAFE(-1000 <= y); BSLS_ASSERT_SAFE(y <= 1000);
 }
-//..
-// For more substantial (non-'inline') functions, we would be more likely to
-// use the 'BSLS_ASSERT' macro because the runtime overhead due to defensive
+// ```
+// For more substantial (non-`inline`) functions, we would be more likely to
+// use the `BSLS_ASSERT` macro because the runtime overhead due to defensive
 // checks is likely to be much less significant.  For example, consider a
 // hash-table class that allows the client to resize the underlying table:
-//..
+// ```
 // my_hashtable.h
 // ...
 
+/// ...
 class HashTable {
-    // ...
   public:
     // ...
 
+    /// Adjust the size of the underlying hash table to be approximately
+    /// the current number of elements divided by the specified
+    /// `loadFactor`.  The behavior is undefined unless
+    /// `0 < loadFactor`.
     void resize(double loadFactor);
-        // Adjust the size of the underlying hash table to be approximately
-        // the current number of elements divided by the specified
-        // 'loadFactor'.  The behavior is undefined unless
-        // '0 < loadFactor'.
 };
-//..
+// ```
 // Since the relative runtime cost of validating the input argument is quite
 // small (e.g., less than 10%) compared to the typical work being done, we
-// might choose to implement the defensive check using 'BSLS_ASSERT' as
+// might choose to implement the defensive check using `BSLS_ASSERT` as
 // follows:
-//..
+// ```
 // my_hashtable.cpp
 // ...
 
@@ -786,39 +786,40 @@ void HashTable::resize(double loadFactor)
 
     // ...
 }
-//..
+// ```
 // In some cases, the runtime cost of checking is always negligible when
 // compared with the runtime cost of performing the useful work; moreover, the
 // consequences of continuing in an undefined state for certain applications
-// could be catastrophic.  Instead of using 'BSLS_ASSERT' in such cases, we
-// might consider using 'BSLS_ASSERT_OPT'.  For example, suppose we have a
-// financial application class 'TradingSystem' that performs trades:
-//..
+// could be catastrophic.  Instead of using `BSLS_ASSERT` in such cases, we
+// might consider using `BSLS_ASSERT_OPT`.  For example, suppose we have a
+// financial application class `TradingSystem` that performs trades:
+// ```
 // my_tradingsystem.h
 // ...
 
+/// ...
 class TradingSystem {
-    // ...
   public:
     // ...
-//..
-// Further suppose that there is a particular method 'executeTrade' that takes,
+// ```
+// Further suppose that there is a particular method `executeTrade` that takes,
 // as a scaling factor, an integer that must be a multiple of 100 or the
 // behavior is undefined (and might actually execute a trade):
-//..
+// ```
+
+    /// Execute the current trade using the specified `scalingFactor`.
+    /// The behavior is undefined unless `0 <= scalingFactor` and `100`
+    /// evenly divides `scalingFactor`.
     void executeTrade(int scalingFactor);
-        // Execute the current trade using the specified 'scalingFactor'.
-        // The behavior is undefined unless '0 <= scalingFactor' and '100'
-        // evenly divides 'scalingFactor'.
     // ...
 };
-//..
+// ```
 // Because the cost of the two checks is likely not even measurable compared to
 // the overhead of accessing databases and executing the trade, and because the
 // consequences of specifying a bad scaling factor are virtually unbounded, we
-// might choose to implement these defensive checks using 'BSLS_ASSERT_OPT' as
+// might choose to implement these defensive checks using `BSLS_ASSERT_OPT` as
 // follows:
-//..
+// ```
 // my_tradingsystem.cpp
 // ...
 
@@ -831,7 +832,7 @@ void TradingSystem::executeTrade(int scalingFactor)
 
     // ...
 }
-//..
+// ```
 // Notice that in each case, the choice of which of the three (BSLS) "ASSERT"
 // macros to use is governed primarily by the relative runtime cost compared
 // with that of the useful work being done (and only secondarily by the
@@ -839,18 +840,18 @@ void TradingSystem::executeTrade(int scalingFactor)
 //
 }  // close namespace usage_example_assert_1
 namespace usage_example_assert_2 {
-///Example 2: When and How to Call the 'invokeHandler' Method Directly
+///Example 2: When and How to Call the `invokeHandler` Method Directly
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // There *may* be times (but this is yet to be demonstrated) when we might
 // reasonably choose to unconditionally invoke the currently installed
 // assertion-failure handler directly -- i.e., instead of via one of the three
 // (BSLS) "ASSERT" macros provided in this component.  Suppose that we are
-// currently in the body of some function 'someFunc' and, for whatever reason,
+// currently in the body of some function `someFunc` and, for whatever reason,
 // feel compelled to invoke the currently installed assertion-failure handler
 // based on some criteria other than the current build mode.
-// 'BSLS_ASSERT_INVOKE' is provided for this purpose.  The call might look as
+// `BSLS_ASSERT_INVOKE` is provided for this purpose.  The call might look as
 // follows:
-//..
+// ```
 void someFunc(bool a, bool b, bool c)
 {
     bool someCondition = a && b && !c;
@@ -859,76 +860,76 @@ void someFunc(bool a, bool b, bool c)
         BSLS_ASSERT_INVOKE("Bad News");
     }
 }
-//..
-// If presented with invalid arguments, 'someFunc' (above) will produce output
+// ```
+// If presented with invalid arguments, `someFunc` (above) will produce output
 // similar to the following:
-//..
+// ```
 //  Assertion failed: Bad News, file bsls_assert.t.cpp, line 609
 //  Abort (core dumped)
-//..
+// ```
 // If a piece of code needs to be guaranteed to not return, the additional
-// macro 'BSLS_ASSERT_INVOKE_NORETURN' is also available.  It behaves the same
-// way as 'BSLS_ASSERT_INVOKE', but if the installed handler *does* return
-// 'failByAbort' will be immediately called.  On supported platforms it is
+// macro `BSLS_ASSERT_INVOKE_NORETURN` is also available.  It behaves the same
+// way as `BSLS_ASSERT_INVOKE`, but if the installed handler *does* return
+// `failByAbort` will be immediately called.  On supported platforms it is
 // marked appropriately to not return to support compiler requirements and
 // static analysis tools.
 //
 }  // close namespace usage_example_assert_2
 namespace usage_example_assert_3 {
-///Example 3: Runtime Configuration of the 'bsls::Assert' Facility
+///Example 3: Runtime Configuration of the `bsls::Assert` Facility
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // By default, any assertion failure will result in the invocation of the
-// 'bsls::Assert::failByAbort' handler function.  We can replace this behavior
+// `bsls::Assert::failByAbort` handler function.  We can replace this behavior
 // with that of one of the other static failure handler methods supplied in
-// 'bsls::Assert' as follows.  Let's assume we are at the top of our
-// application called 'myMain' (which would typically be 'main'):
-//..
+// `bsls::Assert` as follows.  Let's assume we are at the top of our
+// application called `myMain` (which would typically be `main`):
+// ```
 void myMain()
 {
-//..
+// ```
 // First observe that the default assertion-failure handler function is, in
-// fact, 'bsls::Assert::failByAbort':
-//..
+// fact, `bsls::Assert::failByAbort`:
+// ```
 assert(&bsls::Assert::failByAbort == bsls::Assert::violationHandler());
-//..
+// ```
 // Next, we install a new assertion-failure handler function,
-// 'bsls::Assert::failBySleep', from the suite of "off-the-shelf" handlers
-// provided as 'static' methods of 'bsls::Assert':
-//..
+// `bsls::Assert::failBySleep`, from the suite of "off-the-shelf" handlers
+// provided as `static` methods of `bsls::Assert`:
+// ```
 bsls::Assert::setViolationHandler(&bsls::Assert::failBySleep);
-//..
-// Observe that 'bsls::Assert::failBySleep' is the new, currently-installed
+// ```
+// Observe that `bsls::Assert::failBySleep` is the new, currently-installed
 // assertion-failure handler:
-//..
+// ```
 assert(&bsls::Assert::failBySleep == bsls::Assert::violationHandler());
-//..
+// ```
 // Note that if we were to explicitly invoke the current assertion-failure
 // handler as follows:
-//..
+// ```
 //  BSLS_ASSERT_INVOKE("message");  // This will hang!
-//..
-// the program will hang since 'bsls::Assert::failBySleep' repeatedly sleeps
+// ```
+// the program will hang since `bsls::Assert::failBySleep` repeatedly sleeps
 // for a period of time within an infinite loop.  Thus, this assertion-failure
 // handler is useful for hanging a process so that a debugger may be attached
 // to it.
 //
-// We may now decide to disable the 'setViolationHandler' method using the
-// 'bsls::Assert::lockAssertAdministration()' method to ensure that no one else
+// We may now decide to disable the `setViolationHandler` method using the
+// `bsls::Assert::lockAssertAdministration()` method to ensure that no one else
 // will override our decision globally.  Note, however, that the
-// 'bsls::AssertFailureHandlerGuard' is not affected, and can still be used to
+// `bsls::AssertFailureHandlerGuard` is not affected, and can still be used to
 // supplant the currently installed handler (see below):
-//..
+// ```
 bsls::Assert::lockAssertAdministration();
-//..
+// ```
 // Attempting to change the currently installed handler now will fail:
-//..
+// ```
     bsls::Assert::setViolationHandler(&bsls::Assert::failByAbort);
 
     assert(&bsls::Assert::failByAbort != bsls::Assert::violationHandler());
 
     assert(&bsls::Assert::failBySleep == bsls::Assert::violationHandler());
 }
-//..
+// ```
 //
 }  // close namespace usage_example_assert_3
 namespace usage_example_assert_4 {
@@ -937,22 +938,22 @@ namespace usage_example_assert_4 {
 // Sometimes, especially during testing, we may need to write our own custom
 // assertion-failure handler function.  The only requirements are that the
 // function have the same prototype (i.e., the same respective parameter and
-// return types) as the 'bsls::Assert::Handle' 'typedef', and that the function
-// should not return (i.e., it must 'abort', 'exit', 'terminate', 'throw', or
-// hang).  To illustrate, we will create a 'static' method at file scope that
-// conforms to the required structure (notice the explicit use of 'std::printf'
-// from '<cstdio>' instead of 'std::cout' from '<iostream>' to avoid
+// return types) as the `bsls::Assert::Handle` `typedef`, and that the function
+// should not return (i.e., it must `abort`, `exit`, `terminate`, `throw`, or
+// hang).  To illustrate, we will create a `static` method at file scope that
+// conforms to the required structure (notice the explicit use of `std::printf`
+// from `<cstdio>` instead of `std::cout` from `<iostream>` to avoid
 // interaction with the C++ memory allocation layer):
-//..
+// ```
 static bool globalEnableOurPrintingFlag = true;
 
+/// Print the expression `comment`, `file` name, and `line` number from
+/// the specified `violation` to `stdout` as a comma-separated list,
+/// replacing null string-argument values with empty strings (unless
+/// printing has been disabled by the `globalEnableOurPrintingFlag`
+/// variable), then unconditionally abort.
 static
 void ourFailureHandler(const bsls::AssertViolation& violation)
-    // Print the expression 'comment', 'file' name, and 'line' number from
-    // the specified 'violation' to 'stdout' as a comma-separated list,
-    // replacing null string-argument values with empty strings (unless
-    // printing has been disabled by the 'globalEnableOurPrintingFlag'
-    // variable), then unconditionally abort.
 {
     const char *comment = violation.comment();
     if (!comment) {
@@ -968,47 +969,48 @@ void ourFailureHandler(const bsls::AssertViolation& violation)
     }
     std::abort();
 }
-//..
+// ```
 // At the top level of our application we have the following:
-//..
+// ```
 void ourMain()
 {
-//..
+// ```
 // First, let's observe that we can assign this new function to a function
-// pointer of type 'bsls::Assert::Handler':
-//..
+// pointer of type `bsls::Assert::Handler`:
+// ```
 bsls::Assert::ViolationHandler f = &ourFailureHandler;
 (void)f;
-//..
+// ```
 // Now we can install it just as we would any other handler:
-//..
+// ```
 bsls::Assert::setViolationHandler(&ourFailureHandler);
-//..
+// ```
 // We can now invoke the default handler directly:
-//..
+// ```
 //  BSLS_ASSERT_INVOKE("str1");
 }
-//..
+// ```
 // With the resulting output something like as follows:
-//..
+// ```
 //  str1, my_file.cpp, 17
 //  Abort (core dumped)
-//..
+// ```
 //
 }  // close namespace usage_example_assert_4
 namespace usage_example_assert_5 {
-///Example 5: Using the 'bsls::AssertFailureHandlerGuard'
+///Example 5: Using the `bsls::AssertFailureHandlerGuard`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Sometimes we may want to replace, temporarily (i.e., within some local
 // lexical scope), the currently installed assertion-failure handler function.
-// In particular, we sometimes use the 'bsls::AssertFailureHandlerGuard' class
+// In particular, we sometimes use the `bsls::AssertFailureHandlerGuard` class
 // to replace the current handler with one that throws an exception (because we
 // know that such an exception is safe in the local context).  Let's start with
 // the simple factorial function below, which validates, in "debug mode" (or
 // "safe mode"), that its input is non-negative:
-//..
+// ```
+
+/// Return `n!`.  The behavior is undefined unless `0 <= n`.
 double fact(int n)
-    // Return 'n!'.  The behavior is undefined unless '0 <= n'.
 {
     BSLS_ASSERT(0 <= n);
 
@@ -1018,33 +1020,33 @@ double fact(int n)
     }
     return result;
 }
-//..
-// Now consider the following integer-valued 'extern "C"' C++ function,
-// 'wrapperFunc', which can be called from C and FORTRAN, as well as from C++:
-//..
+// ```
+// Now consider the following integer-valued `extern "C"` C++ function,
+// `wrapperFunc`, which can be called from C and FORTRAN, as well as from C++:
+// ```
 extern "C" int wrapperFunc(bool verboseFlag)
 {
     enum { GOOD = 0, BAD } result = GOOD; (void) verboseFlag;
-//..
+// ```
 // The purpose of this function is to allow assertion failures in subroutine
 // calls below this function to be handled by throwing an exception, which is
 // then caught by the wrapper and reported to the caller as a "bad" status.
 // Hence, when within the runtime scope of this function, we want to install,
-// temporarily, the assertion-failure handler 'bsls::Assert::failByThrow',
-// which, when invoked, causes an 'bsls::AssertTestException' object to be
+// temporarily, the assertion-failure handler `bsls::Assert::failByThrow`,
+// which, when invoked, causes an `bsls::AssertTestException` object to be
 // thrown.  (Note that we are not advocating this approach for "recovery", but
 // rather for an orderly shut-down, or perhaps during testing.)  The
-// 'bsls::AssertFailureHandlerGuard' class is provided for just this purpose:
-//..
+// `bsls::AssertFailureHandlerGuard` class is provided for just this purpose:
+// ```
     assert(&bsls::Assert::failByAbort == bsls::Assert::violationHandler());
 
     bsls::AssertFailureHandlerGuard guard(&bsls::Assert::failByThrow);
 
     assert(&bsls::Assert::failByThrow == bsls::Assert::violationHandler());
-//..
-// Next we open up a 'try' block, and somewhere within the 'try' we
-// "accidentally" invoke 'fact' with an out-of-contract value (i.e., '-1'):
-//..
+// ```
+// Next we open up a `try` block, and somewhere within the `try` we
+// "accidentally" invoke `fact` with an out-of-contract value (i.e., `-1`):
+// ```
 #ifdef BDE_BUILD_TARGET_EXC
     try
 #endif
@@ -1052,7 +1054,7 @@ extern "C" int wrapperFunc(bool verboseFlag)
 
         // ...
 
-        double d = fact(-1);        // Out-of-contract call to 'fact'.
+        double d = fact(-1);        // Out-of-contract call to `fact`.
         (void)d;
 
         // ...
@@ -1070,56 +1072,56 @@ extern "C" int wrapperFunc(bool verboseFlag)
 #endif
     return result;
 }
-//..
-// Assuming exceptions are enabled (i.e., 'BDE_BUILD_TARGET_EXC' is defined),
-// if an 'bsls::AssertTestException' occurs below this wrapper function, the
-// exception will be caught, a message will be printed to 'stdout', e.g.,
-//..
+// ```
+// Assuming exceptions are enabled (i.e., `BDE_BUILD_TARGET_EXC` is defined),
+// if an `bsls::AssertTestException` occurs below this wrapper function, the
+// exception will be caught, a message will be printed to `stdout`, e.g.,
+// ```
 //  Internal Error: bsls_assert.t.cpp:500: 0 <= n
-//..
-// and the 'wrapperFunc' function will return a bad status (i.e., 1) to its
+// ```
+// and the `wrapperFunc` function will return a bad status (i.e., 1) to its
 // caller.  Note that if exceptions are not enabled,
-// 'bsls::Assert::failByThrow' will behave as 'bsls::Assert::failByAbort', and
+// `bsls::Assert::failByThrow` will behave as `bsls::Assert::failByAbort`, and
 // dump core immediately:
-//..
+// ```
 //  Assertion failed: 0 <= n, file bsls_assert.t.cpp, line 500
 //  Abort (core dumped)
-//..
-// Finally note that the 'bsls::AssertFailureHandlerGuard' is not thread-aware.
+// ```
+// Finally note that the `bsls::AssertFailureHandlerGuard` is not thread-aware.
 // In particular, a guard that is created in one thread will also affect the
 // failure handlers that are used in other threads.  Care should be taken when
 // using this guard when more than a single thread is executing.
 //
 }  // close namespace usage_example_assert_5
 namespace usage_example_assert_6 {
-///Example 6: Using (BSLS) "ASSERT" Macros Along With 'BDE_BUILD_TARGET_SAFE_2'
+///Example 6: Using (BSLS) "ASSERT" Macros Along With `BDE_BUILD_TARGET_SAFE_2`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Recall that assertions do not affect binary compatibility; however, software
-// built with 'BDE_BUILD_TARGET_SAFE_2' defined need not be binary compatible
+// built with `BDE_BUILD_TARGET_SAFE_2` defined need not be binary compatible
 // with software built otherwise.  In this example, we look at how we might use
 // the (BSLS) "ASSERT" family of macros in conjunction with code that is
-// incorporated (at compile time) only when 'BDE_BUILD_TARGET_SAFE_2' is
+// incorporated (at compile time) only when `BDE_BUILD_TARGET_SAFE_2` is
 // defined.
 //
 // As a simple example, let's consider an elided implementation of a
 // singly-linked integer list and its iterator.  Whenever
-// 'BDE_BUILD_TARGET_SAFE_2' is defined, we want to defend against the
-// possibility that a client mistakenly passes a 'ListIter' object into a
-// 'List' object method (e.g., 'List::insert') where that 'ListIter' object did
-// not originate from the same 'List' object.
+// `BDE_BUILD_TARGET_SAFE_2` is defined, we want to defend against the
+// possibility that a client mistakenly passes a `ListIter` object into a
+// `List` object method (e.g., `List::insert`) where that `ListIter` object did
+// not originate from the same `List` object.
 //
-// We'll start by defining a local helper 'List_Link' 'struct' as follows:
-//..
+// We'll start by defining a local helper `List_Link` `struct` as follows:
+// ```
 struct List_Link {
     List_Link *d_next_p;
     int        d_data;
     List_Link(List_Link *next, int data) : d_next_p(next), d_data(data) { }
 };
-//..
-// Next, we'll define 'ListIter', which always identifies the current position
-// in a sequence of links, but whenever 'BDE_BUILD_TARGET_SAFE_2' is defined,
-// also maintains a pointer to its parent 'List' object:
-//..
+// ```
+// Next, we'll define `ListIter`, which always identifies the current position
+// in a sequence of links, but whenever `BDE_BUILD_TARGET_SAFE_2` is defined,
+// also maintains a pointer to its parent `List` object:
+// ```
 class List;                         // Forward declaration.
 
 class ListIter {
@@ -1147,10 +1149,10 @@ class ListIter {
 };
 bool operator==(const ListIter& lhs, const ListIter& rhs);
 bool operator!=(const ListIter& lhs, const ListIter& rhs);
-//..
-// Finally we define the 'List' class itself with most of the operations
-// elided; the methods of particular interest here are 'begin' and 'insert':
-//..
+// ```
+// Finally we define the `List` class itself with most of the operations
+// elided; the methods of particular interest here are `begin` and `insert`:
+// ```
 
 class List {
     List_Link *d_head_p;
@@ -1165,32 +1167,35 @@ class List {
 
     //| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
     //v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v
-    //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+    /// Return an iterator referring to the beginning of this list.
     ListIter begin()
-        // Return an iterator referring to the beginning of this list.
     {
         return ListIter(&d_head_p, this);
     }
-    //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
     //| | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
     //v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v v
-    //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+    /// Insert the specified `data` value into this list at the
+    /// specified `position`.
     void insert(const ListIter& position, int data)
-        // Insert the specified 'data' value into this list at the
-        // specified 'position'.
     {
 #ifdef BDE_BUILD_TARGET_SAFE_2
         BSLS_ASSERT_SAFE(this == position.d_parent_p);  // "safe 2 mode"
 #endif
         *position.d_current_p = new List_Link(*position.d_current_p, data);
     }
-    //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
     // ACCESSORS
+
+    /// Output the contents of this list to `stdout`.
     void print()
-        // Output the contents of this list to 'stdout'.
     {
         printf( "[" );
         for (List_Link *p = d_head_p; p; p = p->d_next_p) {
@@ -1199,11 +1204,11 @@ class List {
         printf(" ]\n");
     }
 };
-//..
+// ```
 // Outside of "safe 2 mode", it is possible to pass an iterator object obtained
-// from the 'begin' method of one 'List' object into the 'insert' method of
+// from the `begin` method of one `List` object into the `insert` method of
 // another, having, perhaps, unexpected results:
-//..
+// ```
 void sillyFunc(bool printFlag)
 {
     List a;
@@ -1218,33 +1223,33 @@ void sillyFunc(bool printFlag)
 
     List b;
     ListIter bIt = b.begin();
-    a.insert(bIt, 4);       // Oops!  Should have been: 'b.insert(bIt, 4);'
-    a.insert(bIt, 5);       // Oops!    "     "     "   '    "     "   5  '
-    a.insert(bIt, 6);       // Oops!    "     "     "   '    "     "   6  '
+    a.insert(bIt, 4);       // Oops!  Should have been: `b.insert(bIt, 4);`
+    a.insert(bIt, 5);       // Oops!    "     "     "   `    "     "   5  `
+    a.insert(bIt, 6);       // Oops!    "     "     "   `    "     "   6  `
 
     if (printFlag) {
         std::printf( "a = "); a.print();
         std::printf( "b = "); b.print();
     }
 }
-//..
-// In the example above, we have "accidentally" passed the iterator 'bIt'
-// obtained from 'List' object 'b' into the 'insert' method for 'List' object
-// 'a'.  The resulting undefined behavior (in other than "safe 2 mode") might
+// ```
+// In the example above, we have "accidentally" passed the iterator `bIt`
+// obtained from `List` object `b` into the `insert` method for `List` object
+// `a`.  The resulting undefined behavior (in other than "safe 2 mode") might
 // produce output that looks as follows:
-//..
+// ```
 //  a = [ 3 2 1 ]
 //  a = [ 3 2 1 ]
 //  b = [ 6 5 4 ]
-//..
-// If the same 'sillyFunc' were compiled in "safe 2 mode" (i.e., with
-// 'BDE_BUILD_TARGET_SAFE_2' defined) the undefined behavior would be detected
+// ```
+// If the same `sillyFunc` were compiled in "safe 2 mode" (i.e., with
+// `BDE_BUILD_TARGET_SAFE_2` defined) the undefined behavior would be detected
 // and the output would, by default, look more like the following:
-//..
+// ```
 //  a = [ 3 2 1 ]
 //  FATAL my_list.cpp:56 Assertion failed: this == position.d_parent_p
 //  Abort (core dumped)
-//..
+// ```
 // thereby quickly exposing the misuse by the client.
 //
 }  // close namespace usage_example_assert_6
@@ -1255,25 +1260,26 @@ namespace usage_example_assert_7 {
 // specific level of enabled assertions, we will want to use the corresponding
 // intermediate predicate that enables that level of assertions:
 //
-//: o For 'BSLS_ASSERT_SAFE', use 'BSLS_ASSERT_SAFE_IS_ACTIVE'.
-//:
-//: o For 'BSLS_ASSERT', use 'BSLS_ASSERT_IS_ACTIVE'.
-//:
-//: o For 'BSLS_ASSERT_OPT', use 'BSLS_ASSERT_OPT_IS_ACTIVE'.
+//  - For `BSLS_ASSERT_SAFE`, use `BSLS_ASSERT_SAFE_IS_ACTIVE`.
 //
-// Suppose that we have a class such as 'MyDate' (below) that, except for
+//  - For `BSLS_ASSERT`, use `BSLS_ASSERT_IS_ACTIVE`.
+//
+//  - For `BSLS_ASSERT_OPT`, use `BSLS_ASSERT_OPT_IS_ACTIVE`.
+//
+// Suppose that we have a class such as `MyDate` (below) that, except for
 // checking its invariants, would have a trivial destructor.  By not declaring
 // a destructor at all, we may realize performance advantages, but then we lose
 // the ability to validate our invariants in "debug" or "safe" mode.  What we
 // want to do is to declare (and later define) the destructor in precisely
 // those build modes for which we would want to assert invariants.
 //
-// An elided class 'MyDate', which is based on a serial-date implementation, is
+// An elided class `MyDate`, which is based on a serial-date implementation, is
 // provided for reference:
-//..
+// ```
+
+/// This class implements a value-semantic "date" type representing
+/// valid date values in the range `[ 0001Jan01 .. 9999Dec31 ]`.
 class MyDate {
-    // This class implements a value-semantic "date" type representing
-    // valid date values in the range '[ 0001Jan01 .. 9999Dec31 ]'.
 
     // DATA
     int d_serialDate;  // sequential representation within a valid range
@@ -1284,14 +1290,15 @@ class MyDate {
      // ...
 
      // CREATORS
+
+     /// Create a `MyDate` object having the value `0001Jan01`.
      MyDate();
-         // Create a 'MyDate' object having the value '0001Jan01'.
 
      // ...
 
+     /// Create a `MyDate` object having the same value as the specified
+     /// `original` object.
      MyDate(const MyDate& original);
-         // Create a 'MyDate' object having the same value as the specified
-         // 'original' object.
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
      ~MyDate();
@@ -1336,15 +1343,16 @@ MyDate::~MyDate()
 #endif
 
 // ...
-//..
-// In practice, however, we would probably implement an 'isValidSerialDate'
-// method in a lower-level utility class, e.g., 'MyDateImpUtil', leading to
+// ```
+// In practice, however, we would probably implement an `isValidSerialDate`
+// method in a lower-level utility class, e.g., `MyDateImpUtil`, leading to
 // code that is more fine-grained, modular, and hierarchically reusable:
-//..
+// ```
+
+/// Return `true` if the specified `d_date` represents a valid date
+/// value, and `false` otherwise.
 struct MyDateImpUtil {
     static bool isValidSerialDate(int d_date);
-        // Return 'true' if the specified 'd_date' represents a valid date
-        // value, and 'false' otherwise.
 };
 
 inline
@@ -1352,32 +1360,32 @@ bool MyDateImpUtil::isValidSerialDate(int d_date)
 {
     return 1 <= d_date && d_date <= 3652061;
 }
-//..
-// Like other aspects of 'BSLS_ASSERT_SAFE', the example above violates the
+// ```
+// Like other aspects of `BSLS_ASSERT_SAFE`, the example above violates the
 // one-definition rule for mixed-mode builds.  Note that all code conditionally
-// compiled based on 'BSLS_ASSERT_SAFE_IS_ACTIVE', 'BSLS_ASSERT_IS_ACTIVE', and
-// 'BSLS_ASSERT_OPT_IS_ACTIVE' should be binary compatible for mixed-mode
+// compiled based on `BSLS_ASSERT_SAFE_IS_ACTIVE`, `BSLS_ASSERT_IS_ACTIVE`, and
+// `BSLS_ASSERT_OPT_IS_ACTIVE` should be binary compatible for mixed-mode
 // builds.  If the conditionally-compiled code would not be binary compatible,
-// use 'BDE_BUILD_TARGET_SAFE_2' instead.
+// use `BDE_BUILD_TARGET_SAFE_2` instead.
 //
 // WARNING - In practice, declaring a destructor in some build modes but not
 // others has led to subtle and difficult-to-diagnose failures.  DON'T DO IT!
 //
 // Finally, in very rare cases, we may want to put in (redundant) defensive
-// code (in the spirit of 'BSLS_ASSERT_OPT') that is not part of the
+// code (in the spirit of `BSLS_ASSERT_OPT`) that is not part of the
 // component-level contract, yet (1) is known to have negligible runtime cost
 // and (2) is deemed to be so important as to be necessary even for optimized
 // builds.
 //
-// For example, consider again the 'MyDate' class above that now also declares
-// a non-'inline' 'print' method to format the current date value in some
+// For example, consider again the `MyDate` class above that now also declares
+// a non-`inline` `print` method to format the current date value in some
 // human-readable, but otherwise unspecified format:
-//..
+// ```
 // xyza_mydate.h
 // ...
 namespace usage_example_assert_7_b {
+/// ...
 class MyDate {
-    // ...
 
     // DATA
     int d_serialDate;  // sequential representation within a valid range
@@ -1387,41 +1395,41 @@ class MyDate {
     // ACCESSORS
     // ...
 
+    /// Write the value of this object to the specified output `stream`
+    /// in some human-readable format, and return a reference to
+    /// `stream`.  Optionally specify ...
     std::ostream& print(std::ostream& stream, ...) const;
-        // Write the value of this object to the specified output 'stream'
-        // in some human-readable format, and return a reference to
-        // 'stream'.  Optionally specify ...
 
     // ...
 
 };
-//..
+// ```
 // Successfully writing bad data is among the most insidious of bugs, because a
 // latent error can persist and not be discovered until long after the program
-// terminates.  Writing the value of a corrupted 'MyDate' object in a
+// terminates.  Writing the value of a corrupted `MyDate` object in a
 // *machine-readable* (binary) format is an error so serious as to warrant
 // invoking
-//..
+// ```
 void testFunction(int d_serialDate) {
     BSLS_ASSERT_OPT(MyDateImpUtil::isValidSerialDate(d_serialDate));
 
     (void)d_serialDate;
 }
-//..
+// ```
 // each time we attempt the output operation; however, printing the value in a
 // human-readable format intended primarily for debugging purposes is another
 // matter.  In anything other than a safe build (which in this case would
 // enforce essentially all method preconditions), it would be unfortunate if a
-// developer, knowing that there was a problem involving the use of 'MyDate',
-// inserted print statements to identify that problem, only to have the 'print'
+// developer, knowing that there was a problem involving the use of `MyDate`,
+// inserted print statements to identify that problem, only to have the `print`
 // method itself ruthlessly invoke the assert handler, likely terminating the
 // process).  Moreover, it may also be unsafe even to attempt to format the
-// value of a 'MyDate' object whose 'd_serialDate' value violates its
+// value of a `MyDate` object whose `d_serialDate` value violates its
 // invariants (e.g., due to a static table lookup).  In such cases we may, as
 // sympathetic library developers, choose to implement different undefined
 // (undocumented) redundant defensive behaviors, depending on the desired level
 // of assertions:
-//..
+// ```
 // xyza_mydate.cpp
 // ...
 // #include <xyza_mydateimputil.h>
@@ -1435,8 +1443,8 @@ std::ostream& MyDate::print(std::ostream& stream, ...) const
 
     (void)d_serialDate;
 #ifdef BSLS_ASSERT_OPT_IS_ACTIVE
-    // Note that if 'BSLS_ASSERT_LEVEL_NONE' has been set, this code --
-    // along with all 'BSLS_ASSERT_OPT' macros -- will not instantiate,
+    // Note that if `BSLS_ASSERT_LEVEL_NONE` has been set, this code --
+    // along with all `BSLS_ASSERT_OPT` macros -- will not instantiate,
     // enabling us to verify that the combined runtime overhead of all such
     // (redundant) defensive code is at worst negligible, if not
     // unmeasurable.
@@ -1453,14 +1461,14 @@ std::ostream& MyDate::print(std::ostream& stream, ...) const
 
 #endif // BSLS_ASSERT_IS_ACTIVE
 
-        // In safe mode, each of the 'MyClass' methods fully guards its
+        // In safe mode, each of the `MyClass` methods fully guards its
         // preconditions: There is simply no easy way to get here!
 
         BSLS_ASSERT_SAFE("Probable rogue memory overwrite!" && 0);
 
         // If we get here, we're corrupted, but not in safe mode!
 
-        return stream << "(* Invalid 'MyDate' State "
+        return stream << "(* Invalid `MyDate` State "
                       << d_serialDate
                       << " *)" << std::flush;                     // RETURN
 
@@ -1468,14 +1476,14 @@ std::ostream& MyDate::print(std::ostream& stream, ...) const
 #endif // BSLS_ASSERT_OPT_IS_ACTIVE
 
     // If we get here in a production build, this object is "sane": Do
-    // whatever this 'print' method would normally do, assuming that no
+    // whatever this `print` method would normally do, assuming that no
     // method preconditions or object invariants are violated.
 
     // ...  <*** Your (Normal-Case) Formatting Code Here! ***>
 
     return stream;
 }
-//..
+// ```
 }  // close namespace usage_example_assert_7_b
 }  // close namespace usage_example_assert_7
 ///Example 8: Conditional Compilation of Support Functions
@@ -1491,19 +1499,19 @@ std::ostream& MyDate::print(std::ostream& stream, ...) const
 // corresponding code bloat from having the function available might be an
 // overhead that is not desired.
 //
-// In order to totally remove the function when it is not needed, the 'IS_USED'
+// In order to totally remove the function when it is not needed, the `IS_USED`
 // suffixed macros can be used to guard the declaration and definition of the
-// function.  Suppose we have a 'class' with a function having a complex
+// function.  Suppose we have a `class` with a function having a complex
 // precondition, and that precondition check is both private and only needed
 // when the assertions that use it are enabled.  In that case, we can guard the
 // definitions and declarations against even being compiled like this:
-//..
+// ```
 namespace usage_example_assert_8 {
+/// ...
 class ComplexObject {
-    // ...
 #if defined(BSLS_ASSERT_SAFE_IS_USED)
     bool isPurplish() const;
-        // Return 'true' if the current state of this object fits within
+        // Return `true` if the current state of this object fits within
         // the complex requirements of being sufficiently purple, false
         // otherwise.
 #endif
@@ -1530,18 +1538,18 @@ void ComplexObject::doSomethingPurpley()
     BSLS_ASSERT_SAFE(isPurplish());
 }
 }  // close namespace usage_example_assert_8
-//..
-// Now, the 'ComplexObject::isPurplish' function will only exist in a subset of
+// ```
+// Now, the `ComplexObject::isPurplish` function will only exist in a subset of
 // builds:
-//: o When 'BSLS_ASSERT_SAFE' assertions are enabled in assert or review mode,
-//:   the function will be compiled and invoked.
-//: o When 'BSLS_ASSERT_VALIDATE_DISABLED_MACROS' is defined the function will
-//:   be compiled.  This will make sure that a future change does not
-//:   invalidate the implementation of 'isPurplish()' even though it is not
-//:   used.
-//: o When 'BSLS_ASSERT_SAFE' assertions are assumed the function will be
-//:   compiled and might be invoked, or at least have its implementation
-//:   inspected by the compiler to improve code generation.
+//  - When `BSLS_ASSERT_SAFE` assertions are enabled in assert or review mode,
+//    the function will be compiled and invoked.
+//  - When `BSLS_ASSERT_VALIDATE_DISABLED_MACROS` is defined the function will
+//    be compiled.  This will make sure that a future change does not
+//    invalidate the implementation of `isPurplish()` even though it is not
+//    used.
+//  - When `BSLS_ASSERT_SAFE` assertions are assumed the function will be
+//    compiled and might be invoked, or at least have its implementation
+//    inspected by the compiler to improve code generation.
 //
 ///Example 9: Conditional Compilation of Support Code
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1557,12 +1565,12 @@ void ComplexObject::doSomethingPurpley()
 // assertion itself does not lend itself to being assumed.
 //
 // Suppose we have a function that wishes to swap the values of its input:
-//..
+// ```
 namespace usage_example_assert_9_a {
+/// Exchange the values of the specified `lhs` and `rhs`.
 struct MySwapper {
     template <class T>
     static void swap(T& lhs, T& rhs)
-        // Exchange the values of the specified 'lhs' and 'rhs'.
     {
         T tmp = lhs;
         lhs = rhs;
@@ -1570,19 +1578,19 @@ struct MySwapper {
     }
 };
 }  // close namespace usage_example_assert_9_a
-//..
-// This works great as a simple 'swap' implementation, but we would like to
+// ```
+// This works great as a simple `swap` implementation, but we would like to
 // assert in safe mode that it is doing the correct thing.  In order to do that
 // we need to capture the initial values of our inputs before doing anything
 // else, and we want to do this only when the respective assertions are
 // enabled.  Here we would guard our code and our assertions in a check that
-// 'BSLS_ASSERT_SAFE_IS_ACTIVE' is defined, like this:
-//..
+// `BSLS_ASSERT_SAFE_IS_ACTIVE` is defined, like this:
+// ```
 namespace usage_example_assert_9_b {
+/// Exchange the values of the specified `lhs` and `rhs`.
 struct MySwapper {
     template <class T>
     static void swap(T& lhs, T& rhs)
-        // Exchange the values of the specified 'lhs' and 'rhs'.
     {
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
         T origLhs(lhs);
@@ -1598,7 +1606,7 @@ struct MySwapper {
     }
 };
 }  // close namespace usage_example_assert_9_b
-//..
+// ```
 
 // End of usage examples
 // BDE_VERIFY pragma: pop
@@ -1612,12 +1620,12 @@ void test_case_21() {
         // USAGE EXAMPLE #9
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into driver, remove leading
-        //:   comment characters, and replace 'assert' with 'ASSERT'.
+        // 1. Incorporate usage example from header into driver, remove leading
+        //    comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE: Conditional Compilation of Support Code
@@ -1644,12 +1652,12 @@ void test_case_20() {
         // USAGE EXAMPLE #8
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into driver, remove leading
-        //:   comment characters, and replace 'assert' with 'ASSERT'.
+        // 1. Incorporate usage example from header into driver, remove leading
+        //    comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE: Conditional Compilation of Support Functions
@@ -1671,12 +1679,12 @@ void test_case_19() {
         // USAGE EXAMPLE #7
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into driver, remove leading
-        //:   comment characters, and replace 'assert' with 'ASSERT'.
+        // 1. Incorporate usage example from header into driver, remove leading
+        //    comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE: Conditional Compilation
@@ -1698,15 +1706,15 @@ void test_case_18() {
         // USAGE EXAMPLE #6
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into driver, remove leading
-        //:   comment characters, and replace 'assert' with 'ASSERT'.
+        // 1. Incorporate usage example from header into driver, remove leading
+        //    comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
-        //   USAGE EXAMPLE: Using "ASSERT" with 'BDE_BUILD_TARGET_SAFE_2'
+        //   USAGE EXAMPLE: Using "ASSERT" with `BDE_BUILD_TARGET_SAFE_2`
         // --------------------------------------------------------------------
 
         if (verbose) printf( "\nUSAGE EXAMPLE #6"
@@ -1750,12 +1758,12 @@ void test_case_17() {
         // USAGE EXAMPLE #5
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into driver, remove leading
-        //:   comment characters, and replace 'assert' with 'ASSERT'.
+        // 1. Incorporate usage example from header into driver, remove leading
+        //    comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE: Using Scoped Guard
@@ -1783,7 +1791,7 @@ void test_case_17() {
         defined(BSLS_ASSERT_ENABLE_TEST_CASE_10)
 
         if (verbose) printf(
-                "\n*** Note that the following 'Internal Error: ... 0 <= n' "
+                "\n*** Note that the following `Internal Error: ... 0 <= n` "
                 "message is expected:\n\n" );
 
         ASSERT(0 != usage_example_assert_5::wrapperFunc(verbose));
@@ -1800,12 +1808,12 @@ void test_case_16() {
         // USAGE EXAMPLE #4
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into driver, remove leading
-        //:   comment characters, and replace 'assert' with 'ASSERT'.
+        // 1. Incorporate usage example from header into driver, remove leading
+        //    comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE: Creating Your Own Assert-Handler
@@ -1840,12 +1848,12 @@ void test_case_15() {
         // USAGE EXAMPLE #3
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into driver, remove leading
-        //:   comment characters, and replace 'assert' with 'ASSERT'.
+        // 1. Incorporate usage example from header into driver, remove leading
+        //    comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE: Using Administration Functions
@@ -1869,12 +1877,12 @@ void test_case_14() {
         // USAGE EXAMPLE #2
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into driver, remove leading
-        //:   comment characters, and replace 'assert' with 'ASSERT'.
+        // 1. Incorporate usage example from header into driver, remove leading
+        //    comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE: Invoking an assert handler directly
@@ -1900,12 +1908,12 @@ void test_case_13() {
         // USAGE EXAMPLE #1
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into driver, remove leading
-        //:   comment characters, and replace 'assert' with 'ASSERT'.
+        // 1. Incorporate usage example from header into driver, remove leading
+        //    comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE: Using Assert Macros
@@ -1923,18 +1931,18 @@ void test_case_13() {
 
 void test_case_12() {
         // --------------------------------------------------------------------
-        // 'CONSTEXPR' USE
+        // `CONSTEXPR` USE
         //
         // Concerns:
-        //: 1 The 'BSLS_ASSERT' macros should compile when used in a function
-        //:   marked with 'BSLS_KEYWORD_CONSTEXPR_CPP17'.
+        // 1. The `BSLS_ASSERT` macros should compile when used in a function
+        //    marked with `BSLS_KEYWORD_CONSTEXPR_CPP17`.
         //
         // Plan:
-        //: 1 Functions defined earlier must compile and be executable in
-        //:   contract at compile time.
+        // 1. Functions defined earlier must compile and be executable in
+        //    contract at compile time.
         //
         // Testing:
-        //   CONCERN: 'constexpr' interaction
+        //   CONCERN: `constexpr` interaction
         // --------------------------------------------------------------------
 
         if (verbose) printf( "\n'CONSTEXPR' USE"
@@ -1969,28 +1977,28 @@ void test_case_11() {
         // FILE NAME OVERRIDE
         //
         // Concerns:
-        //: 1 The file name logged can be overridden with the
-        //:   'BSLS_ASSERTIMPUTIL_FILE' macro.
+        // 1. The file name logged can be overridden with the
+        //    `BSLS_ASSERTIMPUTIL_FILE` macro.
         //
         // Plan:
-        //: 1 Only test the macros that are enabled in the current build level.
-        //:
-        //: 2 Test that the macros by default log the current '__FILE__'.
-        //:
-        //: 3 Test that the 'BSLS_ASSERTIMPUTIL_FILE' can be changed and all
-        //:   enabled macros log the new value.
-        //:
-        //: 4 Test that reverting back to 'BSLS_ASSERTIMPUTIL_DEFAULTFILE'
-        //:   returns to the original behavior.
+        // 1. Only test the macros that are enabled in the current build level.
+        //
+        // 2. Test that the macros by default log the current `__FILE__`.
+        //
+        // 3. Test that the `BSLS_ASSERTIMPUTIL_FILE` can be changed and all
+        //    enabled macros log the new value.
+        //
+        // 4. Test that reverting back to `BSLS_ASSERTIMPUTIL_DEFAULTFILE`
+        //    returns to the original behavior.
         //
         // Testing:
-        //   CONCERN: 'BSLS_ASSERTIMPUTIL_FILE' interaction
+        //   CONCERN: `BSLS_ASSERTIMPUTIL_FILE` interaction
         // --------------------------------------------------------------------
 
         if (verbose) printf( "\nFILE NAME OVERRIDE"
                              "\n==================\n" );
 
-        if (verbose) printf( "\nInstall 'testDriverHandler' "
+        if (verbose) printf( "\nInstall `testDriverHandler` "
                              "assertion-handler.\n" );
 
         bsls::Assert::setViolationHandler(&testDriverHandler);
@@ -2050,7 +2058,7 @@ void test_case_11() {
 #else
 
         if (veryVerbose) printf(
-            "\tRedefine 'BSLS_ASSERTIMPUTIL_FILE'.\n");
+            "\tRedefine `BSLS_ASSERTIMPUTIL_FILE`.\n");
 
 #undef BSLS_ASSERTIMPUTIL_FILE
 #define BSLS_ASSERTIMPUTIL_FILE altf
@@ -2093,8 +2101,8 @@ void test_case_11() {
         LOOP2_ASSERT(altf, globalFile,    0 == std::strcmp(altf, globalFile));
 
         if (veryVerbose) printf(
-            "\tRevert 'BSLS_ASSERTIMPUTIL_FILE' to "
-            "'BSLS_ASSERTIMPUTIL_DEFAULTFILE'.\n");
+            "\tRevert `BSLS_ASSERTIMPUTIL_FILE` to "
+            "`BSLS_ASSERTIMPUTIL_DEFAULTFILE`.\n");
 
 #undef BSLS_ASSERTIMPUTIL_FILE
 #define BSLS_ASSERTIMPUTIL_FILE BSLS_ASSERTIMPUTIL_DEFAULTFILE
@@ -2144,23 +2152,23 @@ void test_case_10() {
         // LEGACY FAILURE HANDLER
         //
         // Concerns:
-        //: 1 Failure handlers with the 'legacy' signature should continue to
-        //:   work properly and use the new overloads for that signature.
+        // 1. Failure handlers with the `legacy` signature should continue to
+        //    work properly and use the new overloads for that signature.
         //
         // Plan:
-        //: 1 Set the failure handler to 'legacyTestDriverHandler'
-        //:
-        //: 2 Verify that the 'failureHandler' function returns the correct
-        //:   expected function pointer, and that 'failureHandler' now returns
-        //:   a different value (pointing to a 'private' function that we
-        //:   cannot name.)
-        //:
-        //: 3 Directly invoke the handler using both overloads of
-        //:   'invokeHandler' in a manner paralleling the breathing test for
-        //:   the newer functions.
-        //:
-        //: 4 Verify that a handler guard created with a 'Handler' still works
-        //:   as expected.
+        // 1. Set the failure handler to `legacyTestDriverHandler`
+        //
+        // 2. Verify that the `failureHandler` function returns the correct
+        //    expected function pointer, and that `failureHandler` now returns
+        //    a different value (pointing to a `private` function that we
+        //    cannot name.)
+        //
+        // 3. Directly invoke the handler using both overloads of
+        //    `invokeHandler` in a manner paralleling the breathing test for
+        //    the newer functions.
+        //
+        // 4. Verify that a handler guard created with a `Handler` still works
+        //    as expected.
         //
         // Testing:
         //   typedef void (*Handler)(const char *, const char *, int);
@@ -2180,19 +2188,19 @@ void test_case_10() {
 
         bsls::Assert::setFailureHandler(&legacyTestDriverHandler);
 
-        // This should now be the 'private' method 'bsls::Assert::legacyFail',
+        // This should now be the `private` method `bsls::Assert::legacyFail`,
         // so we just verify that the value has changed.
         ASSERT(bsls::Assert::failByAbort != bsls::Assert::violationHandler());
 
-        // Store the pointer to this 'private' function for future comparisons.
+        // Store the pointer to this `private` function for future comparisons.
         bsls::Assert::Handler legacyFailPtr = bsls::Assert::failureHandler();
 
         ASSERT(::legacyTestDriverHandler ==
                                          bsls::Assert::failureHandler());
 
         if (verbose) printf(
-                "\nVerify that the 'invokeHandler' properly transmits "
-                "its arguments to a 'Handler'.\n" );
+                "\nVerify that the `invokeHandler` properly transmits "
+                "its arguments to a `Handler`.\n" );
         {
 
             globalReset();
@@ -2216,8 +2224,8 @@ void test_case_10() {
         }
 
         if (verbose) printf(
-                "\nVerify that the legacy 'invokeHandler' properly transmits "
-                "its arguments to a 'Handler'.\n" );
+                "\nVerify that the legacy `invokeHandler` properly transmits "
+                "its arguments to a `Handler`.\n" );
         {
 
             globalReset();
@@ -2274,15 +2282,15 @@ void test_case_9() {
         // RETURNING HANDLER LOG: BACKOFF
         //
         // Concerns:
-        //: 1 Log messages should back off exponentially.
+        // 1. Log messages should back off exponentially.
         //
         // Plan:
-        //: 1 In build configurations that allow handlers to return, install a
-        //:   violation handler that increments a counter and returns, and an
-        //:   instrumented log callback that increments a counter.
-        //:
-        //: 2 Call 'invokeHandler' repeatedly, and confirm that messages are
-        //:   emitted at the appropriate rate.  (C-1)
+        // 1. In build configurations that allow handlers to return, install a
+        //    violation handler that increments a counter and returns, and an
+        //    instrumented log callback that increments a counter.
+        //
+        // 2. Call `invokeHandler` repeatedly, and confirm that messages are
+        //    emitted at the appropriate rate.  (C-1)
         //
         // Testing:
         //   CONCERN: Returning handler log: backoff
@@ -2292,8 +2300,8 @@ void test_case_9() {
                              "\n==============================\n" );
 
 #if !defined(BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER)
-        // 'invokeHandler' cannot return if we are building with the
-        // '...ENABLE_NORETURN...' flag turned on.  If we do not have it on
+        // `invokeHandler` cannot return if we are building with the
+        // `...ENABLE_NORETURN...` flag turned on.  If we do not have it on
         // then we still need to disable the policy preventing returning.
 
         // Change the handler return policy not to abort.
@@ -2337,7 +2345,7 @@ void test_case_9() {
 #else
         if (veryVerbose) printf(
              "\nSKIP: "
-             "'BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER' is defined.\n");
+             "`BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER` is defined.\n");
 
 #endif
 }
@@ -2347,22 +2355,22 @@ void test_case_8() {
         // RETURNING HANDLER LOG: CONTENT
         //
         // Concerns:
-        //: 1 'invokeHandler' should log a message via 'bsls_log' if the
-        //:   currently-installed handler returns.
-        //:
-        //: 2 The log message should identify the file and line where the
-        //:   failed assertion occurred.
-        //:
-        //: 3 The log message should be severity 'fatal'.
+        // 1. `invokeHandler` should log a message via `bsls_log` if the
+        //    currently-installed handler returns.
+        //
+        // 2. The log message should identify the file and line where the
+        //    failed assertion occurred.
+        //
+        // 3. The log message should be severity `fatal`.
         //
         // Plan:
-        //: 1 In build configurations that allow handlers to return, install a
-        //:   violation handler that does nothing but return, and an
-        //:   instrumented log callback that captures log messages instead of
-        //:   printing them.
-        //:
-        //: 2 Call 'invokeHandler' twice, and confirm that messages are emitted
-        //:   with the appropriate (distinct) content.  (C-1..3)
+        // 1. In build configurations that allow handlers to return, install a
+        //    violation handler that does nothing but return, and an
+        //    instrumented log callback that captures log messages instead of
+        //    printing them.
+        //
+        // 2. Call `invokeHandler` twice, and confirm that messages are emitted
+        //    with the appropriate (distinct) content.  (C-1..3)
         //
         // Testing:
         //   CONCERN: Returning handler log: content
@@ -2373,8 +2381,8 @@ void test_case_8() {
 
 #if !defined(BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER)
 
-        // 'invokeHandler' cannot return if we are building with the
-        // '...ENABLE_NORETURN...' flag turned on.  If we do not have it on
+        // `invokeHandler` cannot return if we are building with the
+        // `...ENABLE_NORETURN...` flag turned on.  If we do not have it on
         // then we still need to disable the policy preventing returning.
 
         // Change the handler return policy not to abort.
@@ -2445,7 +2453,8 @@ void test_case_8() {
 
             ASSERT(0 == strcmp(ASSERT_FILE,   Test::s_firstProfile.d_file));
             ASSERT(            ASSERT_LINE == Test::s_firstProfile.d_line);
-            ASSERT(0 == strcmp(EXPECTED_TEXT, Test::s_firstProfile.d_text));
+            ASSERTV(EXPECTED_TEXT, Test::s_firstProfile.d_text,
+                      0 == strcmp(EXPECTED_TEXT, Test::s_firstProfile.d_text));
 
             ASSERT(0 != strcmp("", Test::s_secondProfile.d_file));
             ASSERT(          0 !=  Test::s_secondProfile.d_line);
@@ -2456,7 +2465,7 @@ void test_case_8() {
 #else
         if (veryVerbose) printf(
              "\nSKIP: "
-             "'BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER' is defined.\n");
+             "`BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER` is defined.\n");
 #endif
 }
 
@@ -2465,14 +2474,14 @@ void test_case_7() {
         // CONFIGURATION MACROS
         //
         // Concerns:
-        //: 1 The configuration macros that report on which assert facilities
-        //:   are available in the current build mode might not report
-        //:   correctly in all build modes.
+        // 1. The configuration macros that report on which assert facilities
+        //    are available in the current build mode might not report
+        //    correctly in all build modes.
         //
         // Plan:
-        //: 1 Subvert the regular include guards to verify that inclusion of
-        //:   'bsls_assert.h' defines the proper macros when included with
-        //:   varying build modes.
+        // 1. Subvert the regular include guards to verify that inclusion of
+        //    `bsls_assert.h` defines the proper macros when included with
+        //    varying build modes.
         //
         // Testing:
         //   BSLS_ASSERT_IS_ACTIVE
@@ -2497,20 +2506,20 @@ void test_case_6() {
         // FAILURE HANDLER GUARD
         //
         // Concerns:
-        //: 1 That the guard swaps new for current handler at construction.
-        //:
-        //: 2 Restores the original one at destruction.
-        //:
-        //: 3 That guards can nest.
-        //:
-        //: 4 That 'lockAssertAdministration' has no effect on guard.
+        // 1. That the guard swaps new for current handler at construction.
+        //
+        // 2. Restores the original one at destruction.
+        //
+        // 3. That guards can nest.
+        //
+        // 4. That `lockAssertAdministration` has no effect on guard.
         //
         // Plan:
-        //: 1 Create a guard, passing it the 'testDriverHandler' handler, and
-        //:   verify, using 'failureHandler', that this new handler was
-        //:   installed.  Then lock the administration, and repeat in nested
-        //:   fashion with the 'failBySleep' handler.  Verify restoration on
-        //:   the way out.
+        // 1. Create a guard, passing it the `testDriverHandler` handler, and
+        //    verify, using `failureHandler`, that this new handler was
+        //    installed.  Then lock the administration, and repeat in nested
+        //    fashion with the `failBySleep` handler.  Verify restoration on
+        //    the way out.
         //
         // Testing:
         //   class bsls::AssertFailureHandlerGuard
@@ -2526,7 +2535,7 @@ void test_case_6() {
 
         ASSERT(bsls::Assert::failByAbort == bsls::Assert::violationHandler());
 
-        if (verbose) printf( "\nCreate guard with 'testDriverHandler' "
+        if (verbose) printf( "\nCreate guard with `testDriverHandler` "
                              "handler.\n" );
 
         {
@@ -2545,7 +2554,7 @@ void test_case_6() {
             ASSERT(testDriverHandler == bsls::Assert::violationHandler());
 
             if (verbose) printf(
-                     "\nCreate second guard with 'failBySleep' handler.\n" );
+                     "\nCreate second guard with `failBySleep` handler.\n" );
             {
                 bsls::AssertFailureHandlerGuard guard(
                                                     bsls::Assert::failBySleep);
@@ -2556,7 +2565,7 @@ void test_case_6() {
                                              bsls::Assert::violationHandler());
 
                 if (verbose) printf(
-                   "\nDestroy guard created with '::failBySleep' handler.\n" );
+                   "\nDestroy guard created with `::failBySleep` handler.\n" );
             }
 
             if (verbose) printf( "\nVerify new assert handler.\n" );
@@ -2564,7 +2573,7 @@ void test_case_6() {
             ASSERT(::testDriverHandler == bsls::Assert::violationHandler());
 
             if (verbose) printf(
-                    "\nDestroy guard created with '::testDriverHandler' "
+                    "\nDestroy guard created with `::testDriverHandler` "
                     "handler.\n" );
         }
 
@@ -2579,34 +2588,34 @@ void test_case_5() {
         // ASSERTION HANDLER RETURN POLICY
         //
         // Concerns:
-        //: 1 'abortUponReturningAssertionFailureHandler' returns 'true', with
-        //:   default settings/build.
-        //:
-        //: 2 If 'permitOutOfPolicyReturningFailureHandler' is *not* called but
-        //:   'k_permitOutOfPolicyReturningAssertionBuildKey' is set to
-        //:   "bsls-PermitOutOfPolicyReturn"
-        //:   'abortUponReturningAssertionFailureHandler' returns 'true'.
-        //:
-        //: 3 If 'permitOutOfPolicyReturningFailureHandler' is called but
-        //:   'k_permitOutOfPolicyReturningAssertionBuildKey' is not set to
-        //:   "bsls-PermitOutOfPolicyReturn"
-        //:   'abortUponReturningAssertionFailureHandler' returns 'true'.
-        //:
-        //: 4 If 'permitOutOfPolicyReturningFailureHandler' is called and
-        //:   'k_permitOutOfPolicyReturningAssertionBuildKey' is set to
-        //:   "bsls-PermitOutOfPolicyReturn" and the provided assertion failure
-        //:   handler does not return, the program is not aborted.
+        // 1. `abortUponReturningAssertionFailureHandler` returns `true`, with
+        //    default settings/build.
+        //
+        // 2. If `permitOutOfPolicyReturningFailureHandler` is *not* called but
+        //    `k_permitOutOfPolicyReturningAssertionBuildKey` is set to
+        //    "bsls-PermitOutOfPolicyReturn"
+        //    `abortUponReturningAssertionFailureHandler` returns `true`.
+        //
+        // 3. If `permitOutOfPolicyReturningFailureHandler` is called but
+        //    `k_permitOutOfPolicyReturningAssertionBuildKey` is not set to
+        //    "bsls-PermitOutOfPolicyReturn"
+        //    `abortUponReturningAssertionFailureHandler` returns `true`.
+        //
+        // 4. If `permitOutOfPolicyReturningFailureHandler` is called and
+        //    `k_permitOutOfPolicyReturningAssertionBuildKey` is set to
+        //    "bsls-PermitOutOfPolicyReturn" and the provided assertion failure
+        //    handler does not return, the program is not aborted.
         //
         // Plan:
-        //: 1 We cannot test behavior that aborts except by hand (see negative
-        //:   test cases) therefore we use the
-        //:   'abortUponReturningAssertionFailureHandler' method to verify that
-        //:   the default behavior would be termination.  (C-1..3)
-        //:
-        //: 2 Set 'k_permitOutOfPolicyReturningAssertionBuildKey' to
-        //:   "bsls-PermitOutOfPolicyReturn" (use const cast) and call
-        //:   'permitOutOfPolicyReturningFailureHandler'.  Use
-        //:   'returningHandler' assertion handler and fire an assert.  (C-4)
+        // 1. We cannot test behavior that aborts except by hand (see negative
+        //    test cases) therefore we use the
+        //    `abortUponReturningAssertionFailureHandler` method to verify that
+        //    the default behavior would be termination.  (C-1..3)
+        //
+        // 2. Set `k_permitOutOfPolicyReturningAssertionBuildKey` to
+        //    "bsls-PermitOutOfPolicyReturn" (use const cast) and call
+        //    `permitOutOfPolicyReturningFailureHandler`.  Use
+        //    `returningHandler` assertion handler and fire an assert.  (C-4)
         //
         // Testing:
         //   void permitOutOfPolicyReturningFailureHandler();
@@ -2652,8 +2661,8 @@ void test_case_5() {
                                                                       == true);
         }
 
-        // 'invokeHandler' cannot return if we are building with the
-        // '...ENABLE_NORETURN...' flag turned on.
+        // `invokeHandler` cannot return if we are building with the
+        // `...ENABLE_NORETURN...` flag turned on.
 
         if (verbose) printf("\nTesting exceptional behavior\n");
         {
@@ -2681,7 +2690,7 @@ void test_case_5() {
 #else
         if (veryVerbose) printf(
              "\nSKIP: "
-             "'BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER' is defined.\n");
+             "`BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER` is defined.\n");
 #endif
 }
 
@@ -2690,16 +2699,16 @@ void test_case_4() {
         // ASSERTION FAILURE HANDLERS
         //
         // Concerns:
-        //: 1 That each of the assertion failure handlers provided herein
-        //:   behaves as advertised and (at least) matches the signature of the
-        //:   'bsls::Assert::ViolationHandler' or 'bsls::Assert::Handler'
-        //:   'typedef's.
+        // 1. That each of the assertion failure handlers provided herein
+        //    behaves as advertised and (at least) matches the signature of the
+        //    `bsls::Assert::ViolationHandler` or `bsls::Assert::Handler`
+        //    `typedef`s.
         //
         // Plan:
-        //: 1 Verify each handler's behavior.  Unfortunately, we cannot test
-        //:   functions that abort except by hand (see negative test cases).
-        //:
-        //: 2 Assign each handler function to a pointer of type 'Handler'.
+        // 1. Verify each handler's behavior.  Unfortunately, we cannot test
+        //    functions that abort except by hand (see negative test cases).
+        //
+        // 2. Assign each handler function to a pointer of type `Handler`.
         //
         // Testing:
         //   typedef void (*ViolationHandler)(const AssertViolation&);
@@ -2828,15 +2837,15 @@ void test_case_3() {
         // INCOMPATIBLE BUILD TARGETS
         //
         // Concerns:
-        //: 1 Any component including 'bsls_assert.h' that has multiple
-        //:   assertion-mode flags defined should fail to compile and provide a
-        //:   useful diagnostic.
+        // 1. Any component including `bsls_assert.h` that has multiple
+        //    assertion-mode flags defined should fail to compile and provide a
+        //    useful diagnostic.
         //
         // Plan:
-        //: 1 Repeat the assertions at runtime, and fail if any two macros
-        //:   incompatible macros are present.
-        //:
-        //: 2 (Manually) observe that the test is in the bsls_assert.h file.
+        // 1. Repeat the assertions at runtime, and fail if any two macros
+        //    incompatible macros are present.
+        //
+        // 2. (Manually) observe that the test is in the bsls_assert.h file.
         //
         // Testing:
         //   CONCERN: ubiquitously detect multiply-defined assertion-mode flags
@@ -2896,33 +2905,33 @@ void test_case_2() {
         // (BSLS) "ASSERT"-MACRO TEST
         //
         // Concerns:
-        //: 1 Each assert macro instantiates only when the appropriate build
-        //:   mode is set.
-        //:
-        //: 2 When instantiated, each macro fires only on "0" valued
-        //:   expressions
-        //:
-        //: 3 When a macro fires, the correct text, line, and file are
-        //:   transmitted to the current assertion-failure handler.
-        //:
-        //: 4 That the expression text that is printed is exactly what is in
-        //:   the parentheses of the macro.
+        // 1. Each assert macro instantiates only when the appropriate build
+        //    mode is set.
+        //
+        // 2. When instantiated, each macro fires only on "0" valued
+        //    expressions
+        //
+        // 3. When a macro fires, the correct text, line, and file are
+        //    transmitted to the current assertion-failure handler.
+        //
+        // 4. That the expression text that is printed is exactly what is in
+        //    the parentheses of the macro.
         //
         // Plan:
-        //: 1 We must not try to change build targets (or assert modes), but
-        //:   just observe them to see which assert macros should be
-        //:   instantiated.
-        //:
-        //: 2 When enabled, we need to try each of the macros on each of the
-        //:   (four) kinds of expression text arguments to make sure that it
-        //:   fires only on expressions that contextually conver to false.
-        //:
-        //: 3 In each case for 2.  (above) that fires, we will observe that the
-        //:   expression text, file name, and line number are correct.
-        //:
-        //: 4 Make sure that we vary the text in the expression (and include
-        //:   embedded whitespace (we don't care about leading or trailing
-        //:   whitespace).
+        // 1. We must not try to change build targets (or assert modes), but
+        //    just observe them to see which assert macros should be
+        //    instantiated.
+        //
+        // 2. When enabled, we need to try each of the macros on each of the
+        //    (four) kinds of expression text arguments to make sure that it
+        //    fires only on expressions that contextually conver to false.
+        //
+        // 3. In each case for 2.  (above) that fires, we will observe that the
+        //    expression text, file name, and line number are correct.
+        //
+        // 4. Make sure that we vary the text in the expression (and include
+        //    embedded whitespace (we don't care about leading or trailing
+        //    whitespace).
         //
         // Testing:
         //   BSLS_ASSERT_SAFE(X)
@@ -2937,17 +2946,17 @@ void test_case_2() {
         if (verbose) printf( "\n(BSLS) \"ASSERT\"-MACRO TEST"
                              "\n==========================\n" );
 
-        if (verbose) printf( "\nInstall 'testDriverHandler' "
+        if (verbose) printf( "\nInstall `testDriverHandler` "
                              "assertion-handler.\n" );
 
 #if !defined(BDE_BUILD_TARGET_EXC)
 #if defined(BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER)
-        // With exceptions not enabled and a '[[noreturn]]' 'invokeHandler'
+        // With exceptions not enabled and a `[[noreturn]]` `invokeHandler`
         // there is no way to test triggered assertions.
 
         if (veryVerbose) printf(
              "\nSKIP: "
-             "'BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER' is defined.\n");
+             "`BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER` is defined.\n");
 
         return;
 #else
@@ -3617,18 +3626,18 @@ void test_case_1() {
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 Want to observe the basic operation of this component in "default
-        //:   mode" (i.e., with no build flags specified).
+        // 1. Want to observe the basic operation of this component in "default
+        //    mode" (i.e., with no build flags specified).
         //
         // Plan:
-        //: 1 Call 'setAssertHandler' to install the 'testDriverHandler'
-        //:   "assert" function in order to observe that the installed function
-        //:   was called using the 'invokeHandler' method -- and, contingently,
-        //:   the 'BSLS_ASSERT_OPT(X)' macro -- with various arguments.
+        // 1. Call `setAssertHandler` to install the `testDriverHandler`
+        //    "assert" function in order to observe that the installed function
+        //    was called using the `invokeHandler` method -- and, contingently,
+        //    the `BSLS_ASSERT_OPT(X)` macro -- with various arguments.
         //
         // Testing:
         //   BREATHING TEST
-        //   CONCERN: By default, the 'bsls::Assert::failByAbort' is used.
+        //   CONCERN: By default, the `bsls::Assert::failByAbort` is used.
         //   AssertViolation::AssertViolation(...);
         //   const char *AssertViolation::comment();
         //   const char *AssertViolation::fileName();
@@ -3657,7 +3666,7 @@ void test_case_1() {
         ASSERT(::testDriverHandler == bsls::Assert::violationHandler());
 
         if (verbose) printf(
-                "\nVerify that the 'invokeHandler' properly transmits "
+                "\nVerify that the `invokeHandler` properly transmits "
                 "its arguments.\n" );
         {
 
@@ -3682,7 +3691,7 @@ void test_case_1() {
         }
 
         if (verbose) printf(
-                "\nVerify that the legacy 'invokeHandler' properly transmits "
+                "\nVerify that the legacy `invokeHandler` properly transmits "
                 "its arguments.\n" );
         {
 
@@ -3703,7 +3712,7 @@ void test_case_1() {
         }
 
         if (verbose) printf(
-                "\nVerify that 'lockAssertAdministration' blocks callback "
+                "\nVerify that `lockAssertAdministration` blocks callback "
                 "changes.\n" );
 
         bsls::Assert::lockAssertAdministration();
@@ -3718,7 +3727,7 @@ void test_case_1() {
         return;
 #endif
         if (verbose) printf(
-                "\nVerify that 'BSLS_ASSERT_OPT' doesn't fire for '!0' "
+                "\nVerify that `BSLS_ASSERT_OPT` doesn't fire for `!0` "
                 "expressions.\n" );
 
         if (veryVerbose) printf( "\tInteger-valued expression\n" );
@@ -3741,7 +3750,7 @@ void test_case_1() {
         }
 
         if (verbose) printf(
-                "\nVerify that 'BSLS_ASSERT_OPT' does fire for '0' "
+                "\nVerify that `BSLS_ASSERT_OPT` does fire for `0` "
                 "expressions.\n" );
 
         if (veryVerbose) printf( "\tInteger-valued expression\n" );
@@ -3790,17 +3799,17 @@ void test_case_m1() {
         // CALL FAIL ABORT HANDLER
         //
         // Concerns:
-        //: 1 That it does abort the program.
-        //:
-        //: 2 That it prints a message to 'stderr'.
+        // 1. That it does abort the program.
+        //
+        // 2. That it prints a message to `stderr`.
         //
         // Plan:
-        //: 1 Call 'bsls::Assert::failByAbort' after blocking the signal.
+        // 1. Call `bsls::Assert::failByAbort` after blocking the signal.
         //
         // Testing:
         //   void failByAbort(const AssertViolation& violation);
-        //   CONCERN: 'bsls::Assert::failByAbort' aborts
-        //   CONCERN: 'bsls::Assert::failByAbort' prints to 'stderr'
+        //   CONCERN: `bsls::Assert::failByAbort` aborts
+        //   CONCERN: `bsls::Assert::failByAbort` prints to `stderr`
         // --------------------------------------------------------------------
 
         if (verbose) printf( "\nCALL FAIL ABORT HANDLER"
@@ -3831,17 +3840,17 @@ void test_case_m2() {
         // CALL DEPRECATED FAIL ABORT HANDLER
         //
         // Concerns:
-        //: 1 That it does abort the program.
-        //:
-        //: 2 That it prints a message to 'stderr'.
+        // 1. That it does abort the program.
+        //
+        // 2. That it prints a message to `stderr`.
         //
         // Plan:
-        //: 1 Call 'bsls::Assert::failAbort' after blocking the signal.
+        // 1. Call `bsls::Assert::failAbort` after blocking the signal.
         //
         // Testing:
         //   void failAbort(const char *, const char *, int);
-        //   CONCERN: 'bsls::Assert::failAbort' aborts
-        //   CONCERN: 'bsls::Assert::failAbort' prints to 'stderr'
+        //   CONCERN: `bsls::Assert::failAbort` aborts
+        //   CONCERN: `bsls::Assert::failAbort` prints to `stderr`
         // --------------------------------------------------------------------
 
         if (verbose) printf( "\nCALL DEPRECATED FAIL ABORT HANDLER"
@@ -3871,21 +3880,21 @@ void test_case_m3() {
         // CALL FAIL THROW HANDLER
         //
         // Concerns:
-        //: 1 That it does *not* throw for an exception build when there is an
-        //:   exception pending.
-        //:
-        //: 2 That it behaves as 'failByAbort' for non-exception builds.
+        // 1. That it does *not* throw for an exception build when there is an
+        //    exception pending.
+        //
+        // 2. That it behaves as `failByAbort` for non-exception builds.
         //
         // Plan:
-        //: 1 Call 'bsls::Assert::failByThrow' from within the destructor of a
-        //:   test object on the stack after a throw.
-        //:
-        //: 2 Call 'bsls::Assert::failByAbort' after blocking the signal.
+        // 1. Call `bsls::Assert::failByThrow` from within the destructor of a
+        //    test object on the stack after a throw.
+        //
+        // 2. Call `bsls::Assert::failByAbort` after blocking the signal.
         //
         // Testing:
         //   void failByThrow(const AssertViolation& violation);
-        //   CONCERN: 'bsls::Assert::failByThrow' aborts in non-exception build
-        //   CONCERN: 'bsls::Assert::failByThrow' prints to 'stderr' w/o EXC
+        //   CONCERN: `bsls::Assert::failByThrow` aborts in non-exception build
+        //   CONCERN: `bsls::Assert::failByThrow` prints to `stderr` w/o EXC
         // --------------------------------------------------------------------
 
         if (verbose) printf( "\nCALL FAIL THROW HANDLER"
@@ -3896,13 +3905,13 @@ void test_case_m3() {
 
         fprintf(stderr, "\nTHE FOLLOWING SHOULD PRINT ON STDERR:\n"
                 "BSLS_ASSERT: An uncaught exception is pending;"
-                " cannot throw 'bsls_asserttestexception'.\n" );
-        fprintf(stderr, "assertion failed: 'failByThrow' handler called from "
+                " cannot throw `bsls_asserttestexception`.\n" );
+        fprintf(stderr, "assertion failed: `failByThrow` handler called from "
                 "~BadBoy, file f.c, line 9" );
 
 
         try {
-            BadBoy bad;     // calls 'bsls::Assert::failByThrow' on destruction
+            BadBoy bad;     // calls `bsls::Assert::failByThrow` on destruction
 
             if (veryVerbose) printf( "About to throw \"stuff\"\n" );
 
@@ -3942,21 +3951,21 @@ void test_case_m4() {
         // CALL DEPRECATED FAIL THROW HANDLER
         //
         // Concerns:
-        //: 1 That it does *not* throw for an exception build when there is an
-        //:   exception pending.
-        //:
-        //: 2 That it behaves as 'failAbort' for non-exception builds.
+        // 1. That it does *not* throw for an exception build when there is an
+        //    exception pending.
+        //
+        // 2. That it behaves as `failAbort` for non-exception builds.
         //
         // Plan:
-        //: 1 Call 'bsls::Assert::failThrow' from within the destructor of a
-        //:   test object on the stack after a throw.
-        //:
-        //: 2 Call 'bsls::Assert::failAbort' after blocking the signal.
+        // 1. Call `bsls::Assert::failThrow` from within the destructor of a
+        //    test object on the stack after a throw.
+        //
+        // 2. Call `bsls::Assert::failAbort` after blocking the signal.
         //
         // Testing:
         //   void failThrow(const char *, const char *, int);
-        //   CONCERN: 'bsls::Assert::failThrow' aborts in non-exception build
-        //   CONCERN: 'bsls::Assert::failThrow' prints to 'stderr' w/o EXC
+        //   CONCERN: `bsls::Assert::failThrow` aborts in non-exception build
+        //   CONCERN: `bsls::Assert::failThrow` prints to `stderr` w/o EXC
         // --------------------------------------------------------------------
 
         if (verbose) printf( "\nCALL DEPRECATED FAIL THROW HANDLER"
@@ -3967,13 +3976,13 @@ void test_case_m4() {
 
         fprintf(stderr, "\nTHE FOLLOWING SHOULD PRINT ON STDERR:\n"
                 "BSLS_ASSERT: An uncaught exception is pending;"
-                " cannot throw 'bsls_asserttestexception'.\n" );
-        fprintf(stderr, "assertion failed: 'failThrow' handler called from "
+                " cannot throw `bsls_asserttestexception`.\n" );
+        fprintf(stderr, "assertion failed: `failThrow` handler called from "
                 "~BadBoy, file f.c, line 9" );
 
 
         try {
-            BadBoy bad;       // calls 'bsls::Assert::failThrow' on destruction
+            BadBoy bad;       // calls `bsls::Assert::failThrow` on destruction
 
             if (veryVerbose) printf( "About to throw \"stuff\"\n" );
 
@@ -4012,18 +4021,18 @@ void test_case_m5() {
         // CALL FAIL SLEEP HANDLER
         //
         // Concerns:
-        //: 1 That it does sleep forever.
-        //:
-        //: 2 That it prints a message to 'stderr'.
+        // 1. That it does sleep forever.
+        //
+        // 2. That it prints a message to `stderr`.
         //
         // Plan:
-        //: 1 Call 'bsls::Assert::failBySleep'.  Then observe that a diagnostic
-        //:   is printed to 'stderr' and the program hangs.
+        // 1. Call `bsls::Assert::failBySleep`.  Then observe that a diagnostic
+        //    is printed to `stderr` and the program hangs.
         //
         // Testing:
         //   void failBySleep(const AssertViolation& violation);
-        //   CONCERN: 'bsls::Assert::failBySleep' sleeps forever
-        //   CONCERN: 'bsls::Assert::failBySleep' prints to 'stderr'
+        //   CONCERN: `bsls::Assert::failBySleep` sleeps forever
+        //   CONCERN: `bsls::Assert::failBySleep` prints to `stderr`
         // --------------------------------------------------------------------
 
         if (verbose) printf( "\nCALL FAIL SLEEP HANDLER"
@@ -4044,18 +4053,18 @@ void test_case_m6() {
         // CALL DEPRECATED FAIL SLEEP HANDLER
         //
         // Concerns:
-        //: 1 That it does sleep forever.
-        //:
-        //: 2 That it prints a message to 'stderr'.
+        // 1. That it does sleep forever.
+        //
+        // 2. That it prints a message to `stderr`.
         //
         // Plan:
-        //: 1 Call 'bsls::Assert::failSleep'.  Then observe that a diagnostic
-        //:   is printed to 'stderr' and the program hangs.
+        // 1. Call `bsls::Assert::failSleep`.  Then observe that a diagnostic
+        //    is printed to `stderr` and the program hangs.
         //
         // Testing:
         //   void failSleep(const char *, const char *, int);
-        //   CONCERN: 'bsls::Assert::failSleep' sleeps forever
-        //   CONCERN: 'bsls::Assert::failSleep' prints to 'stderr'
+        //   CONCERN: `bsls::Assert::failSleep` sleeps forever
+        //   CONCERN: `bsls::Assert::failSleep` prints to `stderr`
         // --------------------------------------------------------------------
 
         if (verbose) printf( "\nCALL DEPRECATED FAIL SLEEP HANDLER"
@@ -4075,16 +4084,16 @@ void test_case_m7() {
         // RETURNING HANDLER LOG: LIMITS
         //
         // Concerns:
-        //: 1 Log messages should stabilize at a period of 2^29.
+        // 1. Log messages should stabilize at a period of 2^29.
         //
         // Plan:
-        //: 1 In build configurations that allow handlers to return, install a
-        //:   violation handler that increments a counter and returns, and an
-        //:   instrumented log callback that captures log messages instead of
-        //:   printing them.
-        //:
-        //: 2 Call 'invokeHandler' 2^29 times.  Observe that the logger is
-        //:   called once every 2^29 times after that.  (C-1)
+        // 1. In build configurations that allow handlers to return, install a
+        //    violation handler that increments a counter and returns, and an
+        //    instrumented log callback that captures log messages instead of
+        //    printing them.
+        //
+        // 2. Call `invokeHandler` 2^29 times.  Observe that the logger is
+        //    called once every 2^29 times after that.  (C-1)
         //
         // Testing:
         //   CONCERN: Returning handler log: limits
@@ -4094,8 +4103,8 @@ void test_case_m7() {
                              "\n=============================\n" );
 
 #if !defined(BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER)
-        // 'invokeHandler' cannot return if we are building with the
-        // '...ENABLE_NORETURN...' flag turned on.
+        // `invokeHandler` cannot return if we are building with the
+        // `...ENABLE_NORETURN...` flag turned on.
 
         typedef HandlerReturnTest Test;
 
@@ -4150,7 +4159,7 @@ void test_case_m7() {
 #else
         if (veryVerbose) printf(
              "\nSKIP: "
-             "'BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER' is defined.\n");
+             "`BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER` is defined.\n");
 #endif
 }
 
@@ -4159,12 +4168,12 @@ void test_case_m8() {
         // RETURNING HANDLER ABORTS
         //
         // Concerns:
-        //: 1 With default settings/build, if the provided assertion failure
-        //:    handlers does not return, the program is aborted.
+        // 1. With default settings/build, if the provided assertion failure
+        //     handlers does not return, the program is aborted.
         //
         // Plan:
-        //: 1 Verify the default behavior by firing an assertion followed by a
-        //:   printout that should not be seen.
+        // 1. Verify the default behavior by firing an assertion followed by a
+        //    printout that should not be seen.
         //
         // Testing:
         //   void permitOutOfPolicyReturningFailureHandler();
@@ -4269,23 +4278,23 @@ int main(int argc, char *argv[])
 //   BDE_BUILD_TARGET_OPT
 //
 // Our testing strategy is to undefine all these macros, and any implementation
-// detail macros in the 'bsls_assert.h' header file, and re-include that
-// header.  The supporting component 'bsls_assert_macrotest' provides a header
-// that will undefine all of the public macros from both 'bsls_assert.h' and
-// 'bsls_review.h', then prepare us to re-include it after changing the above
-// build and assert level macros.  Note that '#include'ing a header inside a
+// detail macros in the `bsls_assert.h` header file, and re-include that
+// header.  The supporting component `bsls_assert_macrotest` provides a header
+// that will undefine all of the public macros from both `bsls_assert.h` and
+// `bsls_review.h`, then prepare us to re-include it after changing the above
+// build and assert level macros.  Note that `#include`ing a header inside a
 // function definition, as we do below, will flag an error for any construct
 // that is not supported inside a function definition, such as declaring a
 // template or defining a "local" function.  consequently, we must provide a
 // deeper "include-guard" inside the component header itself to protect the
 // non-macro parts of this component against the repeated inclusion.
 //
-// Because 'bsls_assert.h' includes 'bsls_review.h' and the configuration of
-// 'BSLS_REVIEW' impacts how asserts will behave, we also force 'bsls_review.h'
-// to get re-included (and undefine its macros just as the 'bsls_review' test
+// Because `bsls_assert.h` includes `bsls_review.h` and the configuration of
+// `BSLS_REVIEW` impacts how asserts will behave, we also force `bsls_review.h`
+// to get re-included (and undefine its macros just as the `bsls_review` test
 // driver does) so that we confirm both components work properly in tandem.
 //
-// For each test iteration that '#include <bsls_assert.h>', each of the macros
+// For each test iteration that `#include <bsls_assert.h>`, each of the macros
 // listed above should be undefined, along with each of the following that are
 // also defined within this header and the review header:
 //   BSLS_ASSERT_SAFE
@@ -4311,9 +4320,9 @@ int main(int argc, char *argv[])
 // of the 80 configurations under test.
 //
 // The table below maps each possible build configuration against the available
-// assert macros, flagging an 'X' when that combination should be supported.
+// assert macros, flagging an `X` when that combination should be supported.
 // If an assert macro should be enabled, this should be detectable by the
-// definition of the corresponding 'BSLS_ASSERT_*_IS_ACTIVE' macro.  Likewise,
+// definition of the corresponding `BSLS_ASSERT_*_IS_ACTIVE` macro.  Likewise,
 // those macros should not be defined unless the configuration is marked.
 //
 //  Expected test results
@@ -4433,27 +4442,27 @@ namespace
 {
 
 #if defined(BDE_BUILD_TARGET_EXC)
+/// This struct contains static functions suitable for registration as an
+/// assert handler, and provides a distinct "empty" type that may be thrown
+/// from the handler and caught within the test cases below, in order to
+/// confirm if the appropriate `BSLS_ASSERT_*` macros are enabled properly
+/// or not.
 struct AssertFailed {
-    // This struct contains static functions suitable for registration as an
-    // assert handler, and provides a distinct "empty" type that may be thrown
-    // from the handler and caught within the test cases below, in order to
-    // confirm if the appropriate 'BSLS_ASSERT_*' macros are enabled properly
-    // or not.
     BSLS_ANNOTATION_NORETURN
     static void failMacroTest(const bsls::AssertViolation&) {
         throw AssertFailed();
     }
 };
+/// This struct contains static functions suitable for registration as a
+/// review handler, and provides a distinct "empty" type that may be thrown
+/// from the handler and caught within the test cases below, in order to
+/// confirm if the appropriate `BSLS_ASSERT_*` macros are enabled properly
+/// or not.
+///
+/// Note that, without an explicit review level set an ASSERT macro should
+/// never trigger a review failure, so the tests for cases not involving
+/// review levels let this exception fall out and lead to a test failure.
 struct ReviewFailed {
-    // This struct contains static functions suitable for registration as a
-    // review handler, and provides a distinct "empty" type that may be thrown
-    // from the handler and caught within the test cases below, in order to
-    // confirm if the appropriate 'BSLS_ASSERT_*' macros are enabled properly
-    // or not.
-    //
-    // Note that, without an explicit review level set an ASSERT macro should
-    // never trigger a review failure, so the tests for cases not involving
-    // review levels let this exception fall out and lead to a test failure.
     static void failReviewMacroTest(const bsls::ReviewViolation &) {
         throw ReviewFailed();
     }
@@ -4461,7 +4470,7 @@ struct ReviewFailed {
 #else
     // Without exception support, we cannot fail an assert-test by throwing an
     // exception.  The most practical solution is to simply not compile those
-    // tests, so we do not supply an 'AssertFailed' alternative, to be sure to
+    // tests, so we do not supply an `AssertFailed` alternative, to be sure to
     // catch any compile-time use of this structure in exception-free builds.
 #endif
 }  // close unnamed namespace
@@ -4485,7 +4494,7 @@ void TestConfigurationMacros()
 //--------------------------------------------------------------------GENERATOR
 // The following script generates tests that are included in this function for
 // most/all of the various build configurations that we want to verify.
-//..
+// ```
 //  #!/usr/bin/env python
 //
 //  table1 = """
@@ -4632,7 +4641,7 @@ void TestConfigurationMacros()
 //  #error BSLS_ASSERT%s_IS_ASSUMED should not be defined
 //  #endif
 //  """ % (atype,atype,atype,atype,atype,atype,))
-//      elif exp == 'A':
+//      elif exp == `A`:
 //          print("""#if defined(BSLS_ASSERT%s_IS_ACTIVE)
 //  #error BSLS_ASSERT%s_IS_ACTIVE should not be defined
 //  #endif
@@ -4713,11 +4722,11 @@ void TestConfigurationMacros()
 //              print("#define %s" % (f,))
 //
 //      print("""
-//  // [3] Re-include the 'bsls_assert.h' header.
+//  // [3] Re-include the `bsls_assert.h` header.
 //
 //  #include <bsls_assert.h>
 //
-//  // [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+//  // [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 //  """)
 //
 //      printcheckassert("_OPT",expected[0])
@@ -4774,7 +4783,7 @@ void TestConfigurationMacros()
 //          expected = (line[40:41], line[44:45], line[48:49], line[54:55],
 //                      line[58:59], line[62:63],)
 //          printtest(flags, expected)
-//..
+// ```
 //----------------------------------------------------------------END GENERATOR
 
 
@@ -4790,11 +4799,11 @@ void TestConfigurationMacros()
 
     // (THIS LINE INTENTIONALLY LEFT BLANK)
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -4889,11 +4898,11 @@ void TestConfigurationMacros()
 
 #define BDE_BUILD_TARGET_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -4988,11 +4997,11 @@ void TestConfigurationMacros()
 
 #define BDE_BUILD_TARGET_DBG
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -5088,11 +5097,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BDE_BUILD_TARGET_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -5187,11 +5196,11 @@ void TestConfigurationMacros()
 
 #define BDE_BUILD_TARGET_SAFE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -5287,11 +5296,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BDE_BUILD_TARGET_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -5387,11 +5396,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BDE_BUILD_TARGET_DBG
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -5488,11 +5497,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BDE_BUILD_TARGET_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -5587,11 +5596,11 @@ void TestConfigurationMacros()
 
 #define BDE_BUILD_TARGET_SAFE_2
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -5687,11 +5696,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE_2
 #define BDE_BUILD_TARGET_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -5787,11 +5796,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE_2
 #define BDE_BUILD_TARGET_DBG
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -5888,11 +5897,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BDE_BUILD_TARGET_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -5988,11 +5997,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE_2
 #define BDE_BUILD_TARGET_SAFE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -6089,11 +6098,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BDE_BUILD_TARGET_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -6190,11 +6199,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BDE_BUILD_TARGET_DBG
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -6292,11 +6301,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BDE_BUILD_TARGET_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -6391,11 +6400,11 @@ void TestConfigurationMacros()
 
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -6491,11 +6500,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -6591,11 +6600,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -6692,11 +6701,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -6792,11 +6801,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -6893,11 +6902,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -6994,11 +7003,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -7096,11 +7105,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -7196,11 +7205,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -7297,11 +7306,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -7398,11 +7407,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -7500,11 +7509,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -7601,11 +7610,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -7703,11 +7712,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -7805,11 +7814,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -7908,11 +7917,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -8007,11 +8016,11 @@ void TestConfigurationMacros()
 
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -8107,11 +8116,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -8207,11 +8216,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -8308,11 +8317,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -8408,11 +8417,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -8509,11 +8518,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -8610,11 +8619,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -8712,11 +8721,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -8812,11 +8821,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -8913,11 +8922,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -9014,11 +9023,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -9116,11 +9125,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -9217,11 +9226,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -9319,11 +9328,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -9421,11 +9430,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -9524,11 +9533,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -9623,11 +9632,11 @@ void TestConfigurationMacros()
 
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -9723,11 +9732,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -9823,11 +9832,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -9924,11 +9933,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -10024,11 +10033,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -10125,11 +10134,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -10226,11 +10235,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -10328,11 +10337,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -10428,11 +10437,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -10529,11 +10538,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -10630,11 +10639,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -10732,11 +10741,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -10833,11 +10842,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -10935,11 +10944,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -11037,11 +11046,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -11140,11 +11149,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -11239,11 +11248,11 @@ void TestConfigurationMacros()
 
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -11339,11 +11348,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -11439,11 +11448,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -11540,11 +11549,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -11640,11 +11649,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -11741,11 +11750,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -11842,11 +11851,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -11944,11 +11953,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -12044,11 +12053,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -12145,11 +12154,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -12246,11 +12255,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -12348,11 +12357,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -12449,11 +12458,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -12551,11 +12560,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -12653,11 +12662,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -12756,11 +12765,11 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -12856,11 +12865,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSUME_OPT
 #define BSLS_REVIEW_LEVEL_NONE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -12954,11 +12963,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSUME_ASSERT
 #define BSLS_REVIEW_LEVEL_NONE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -13050,11 +13059,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSUME_SAFE
 #define BSLS_REVIEW_LEVEL_NONE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -13144,11 +13153,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_NONE
 #define BSLS_REVIEW_LEVEL_NONE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -13244,11 +13253,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 #define BSLS_REVIEW_LEVEL_NONE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -13344,11 +13353,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSERT
 #define BSLS_REVIEW_LEVEL_NONE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -13444,11 +13453,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 #define BSLS_REVIEW_LEVEL_NONE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -13544,11 +13553,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_NONE
 #define BSLS_REVIEW_LEVEL_REVIEW_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -13644,11 +13653,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSUME_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -13744,11 +13753,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSUME_ASSERT
 #define BSLS_REVIEW_LEVEL_REVIEW_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -13844,11 +13853,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSUME_SAFE
 #define BSLS_REVIEW_LEVEL_REVIEW_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -13944,11 +13953,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -14044,11 +14053,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSERT
 #define BSLS_REVIEW_LEVEL_REVIEW_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -14144,11 +14153,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 #define BSLS_REVIEW_LEVEL_REVIEW_OPT
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -14244,11 +14253,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_NONE
 #define BSLS_REVIEW_LEVEL_REVIEW
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -14344,11 +14353,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSUME_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -14444,11 +14453,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSUME_ASSERT
 #define BSLS_REVIEW_LEVEL_REVIEW
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -14544,11 +14553,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSUME_SAFE
 #define BSLS_REVIEW_LEVEL_REVIEW
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -14644,11 +14653,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -14744,11 +14753,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSERT
 #define BSLS_REVIEW_LEVEL_REVIEW
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -14844,11 +14853,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 #define BSLS_REVIEW_LEVEL_REVIEW
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -14944,11 +14953,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_NONE
 #define BSLS_REVIEW_LEVEL_REVIEW_SAFE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -15044,11 +15053,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSUME_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW_SAFE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -15144,11 +15153,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSUME_ASSERT
 #define BSLS_REVIEW_LEVEL_REVIEW_SAFE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -15244,11 +15253,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSUME_SAFE
 #define BSLS_REVIEW_LEVEL_REVIEW_SAFE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
@@ -15344,11 +15353,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW_SAFE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -15444,11 +15453,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSERT
 #define BSLS_REVIEW_LEVEL_REVIEW_SAFE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
@@ -15544,11 +15553,11 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 #define BSLS_REVIEW_LEVEL_REVIEW_SAFE
 
-// [3] Re-include the 'bsls_assert.h' header.
+// [3] Re-include the `bsls_assert.h` header.
 
 #include <bsls_assert.h>
 
-// [4] Test the 'IS_ACTIVE', 'IS_REVIEW', and 'IS_ASSUMED' macros
+// [4] Test the `IS_ACTIVE`, `IS_REVIEW`, and `IS_ASSUMED` macros
 
 #if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
 #error BSLS_ASSERT_OPT_IS_ACTIVE should be defined

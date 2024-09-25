@@ -9,8 +9,8 @@
 #include <bsls_keyword.h>
 #include <bsls_platform.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 #ifdef BDE_BUILD_TARGET_EXC
 #include <new>
@@ -27,12 +27,12 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// We are testing an allocator that uses 'std::malloc' and 'std::free' instead
-// of global 'new' and 'delete'.  Since there is no way of intercepting the
-// 'std::malloc' and 'std::free' methods, we indirectly check for proper source
-// of memory allocation by overriding global operator 'new' and 'delete', and
-// check whether they are invoked.  If no calls to global 'new' and 'delete'
-// are made, we assume 'std::malloc' and 'std::free' are used.
+// We are testing an allocator that uses `std::malloc` and `std::free` instead
+// of global `new` and `delete`.  Since there is no way of intercepting the
+// `std::malloc` and `std::free` methods, we indirectly check for proper source
+// of memory allocation by overriding global operator `new` and `delete`, and
+// check whether they are invoked.  If no calls to global `new` and `delete`
+// are made, we assume `std::malloc` and `std::free` are used.
 //-----------------------------------------------------------------------------
 // [ 1] bslma::MallocFreeAllocator()
 // [ 1] ~bslma::MallocFreeAllocator()
@@ -123,7 +123,7 @@ void *operator new(size_t size) throw(std::bad_alloc)
 #else
 void *operator new(size_t size)
 #endif
-    // Trace use of global operator new.  Note that we must use 'printf' to
+    // Trace use of global operator new.  Note that we must use `printf` to
     // avoid recursion.
 {
     void *addr = malloc(size);
@@ -175,52 +175,54 @@ void operator delete(void *address)
 //=============================================================================
 //                               USAGE EXAMPLE
 //-----------------------------------------------------------------------------
-// This component is intended to be used when the use of 'new' and 'delete' are
-// not desirable, such as the case of 'bslma::TestAllocator'.  Instead of using
-// 'bslma::Default' which uses the 'bslma::NewDeleteAllocator', this component
-// can be used to bypass the use of 'new' and 'delete'.
+// This component is intended to be used when the use of `new` and `delete` are
+// not desirable, such as the case of `bslma::TestAllocator`.  Instead of using
+// `bslma::Default` which uses the `bslma::NewDeleteAllocator`, this component
+// can be used to bypass the use of `new` and `delete`.
 //
 // The following example demonstrates the use of this component for a user
 // defined allocator instead of using the default allocator:
-//..
+// ```
     // my_allocator.h
     // ...
 
+    /// This class provides a mechanism for allocation and deallocation.
     class my_Allocator : public bslma::Allocator {
-        // This class provides a mechanism for allocation and deallocation.
 
         // DATA
         bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
 
       public:
         // CREATORS
-        explicit my_Allocator(bslma::Allocator *basicAllocator = 0);
-            // Create a 'my_Allcoator'.  Optionally specify 'basicAllocator' to
-            // supply memory.  If 'basicAllocator' is 0, the
-            // 'bslma::MallocFreeAllocator' will be used.
 
+        /// Create a `my_Allcoator`.  Optionally specify `basicAllocator` to
+        /// supply memory.  If `basicAllocator` is 0, the
+        /// `bslma::MallocFreeAllocator` will be used.
+        explicit my_Allocator(bslma::Allocator *basicAllocator = 0);
+
+        /// Destroy this allocator.  Note that the behavior of destroying an
+        /// allocator while memory is allocated from it is not specified.
+        /// (Unless you *know* that it is valid to do so, don't!)
         ~my_Allocator() BSLS_KEYWORD_OVERRIDE;
-            // Destroy this allocator.  Note that the behavior of destroying an
-            // allocator while memory is allocated from it is not specified.
-            // (Unless you *know* that it is valid to do so, don't!)
 
         // MANIPULATORS
-        void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
-            // Return a newly allocated block of memory of (at least) the
-            // specified positive 'size' (bytes).  If 'size' is 0, a null
-            // pointer is returned with no effect.  Note that the alignment of
-            // the address returned is the maximum alignment for any
-            // fundamental type defined for this platform.
 
+        /// Return a newly allocated block of memory of (at least) the
+        /// specified positive `size` (bytes).  If `size` is 0, a null
+        /// pointer is returned with no effect.  Note that the alignment of
+        /// the address returned is the maximum alignment for any
+        /// fundamental type defined for this platform.
+        void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
+
+        /// Return the memory at the specified `address` back to this
+        /// allocator.  If `address` is 0, this function has no effect.  The
+        /// behavior is undefined if `address` was not allocated using this
+        /// allocator, or has already been deallocated.
         void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
-            // Return the memory at the specified 'address' back to this
-            // allocator.  If 'address' is 0, this function has no effect.  The
-            // behavior is undefined if 'address' was not allocated using this
-            // allocator, or has already been deallocated.
     };
-//..
-// The constructor is implemented using 'bslma::MallocFreeAllocator'.
-//..
+// ```
+// The constructor is implemented using `bslma::MallocFreeAllocator`.
+// ```
     // my_allocator.cpp
     // ...
 
@@ -233,9 +235,9 @@ void operator delete(void *address)
     }
 
     // ...
-//..
-// When the 'basicAllocator' is not specified, the 'bslma::MallocFreeAllocator'
-// will be used - which then calls 'std::malloc' and 'std::free' for allocating
+// ```
+// When the `basicAllocator` is not specified, the `bslma::MallocFreeAllocator`
+// will be used - which then calls `std::malloc` and `std::free` for allocating
 // and deallocating memory.
 
 //=============================================================================
@@ -286,10 +288,10 @@ int main(int argc, char *argv[])
         //   compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //   Allocate memory using the default constructed 'my_Allocator', then
-        //   ensure that global 'new' and 'delete' are not invoked.  Also
-        //   construct 'my_Allocator' using a 'bslma::newDeleteAllocator', then
-        //   ensure that global 'new' and 'delete' are invoked.
+        //   Allocate memory using the default constructed `my_Allocator`, then
+        //   ensure that global `new` and `delete` are not invoked.  Also
+        //   construct `my_Allocator` using a `bslma::newDeleteAllocator`, then
+        //   ensure that global `new` and `delete` are invoked.
         //
         // Testing:
         //   Usage example
@@ -351,18 +353,18 @@ int main(int argc, char *argv[])
         // SINGLETON TEST
         //
         // Concerns:
-        //   1. That the 'singleton' method returns a valid
-        //      'bslma::MallocFreeAllocator' that can be used to allocate and
-        //      deallocate memory using 'malloc' and 'free'.
+        //   1. That the `singleton` method returns a valid
+        //      `bslma::MallocFreeAllocator` that can be used to allocate and
+        //      deallocate memory using `malloc` and `free`.
         //
-        //   2. Multiple invocations of 'singleton' return the same instance
-        //      of 'bslma::MallocFreeAllocator'.
+        //   2. Multiple invocations of `singleton` return the same instance
+        //      of `bslma::MallocFreeAllocator`.
         //
         // Plan:
         //   Perform the same breathing test on the
-        //   'bslma::MallocFreeAllocator' returned by the 'singleton' method.
+        //   `bslma::MallocFreeAllocator` returned by the `singleton` method.
         //   Also store the address of the instance returned by the
-        //   'singleton' method.
+        //   `singleton` method.
         //
         // Testing:
         //   static bslma::MallocFreeAllocator& singleton()
@@ -371,7 +373,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nSINGLETON TEST"
                             "\n==============\n");
 
-        if (verbose) printf("\nTesting 'singleton'\n");
+        if (verbose) printf("\nTesting `singleton`\n");
 
         bslma::MallocFreeAllocator *alloc =
                                       &bslma::MallocFreeAllocator::singleton();
@@ -428,12 +430,12 @@ int main(int argc, char *argv[])
         // ALLOCATE / DEALLOCATE NULL TEST
         //
         // Concerns:
-        //   That invoking 'allocate' with 0 size and 'deallocate' on 0 address
+        //   That invoking `allocate` with 0 size and `deallocate` on 0 address
         //   succeeds.
         //
         // Plan:
-        //   Create a 'bslma::MallocFreeAllocator' on the stack.  Then invoke
-        //   'allocate' with 0 size and 'deallocate' on 0 address.
+        //   Create a `bslma::MallocFreeAllocator` on the stack.  Then invoke
+        //   `allocate` with 0 size and `deallocate` on 0 address.
         //
         // Testing:
         //   void *allocate(size_type size)   // allocate 0
@@ -463,12 +465,12 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   That 'new' and 'delete' are not invoked by the
-        //   'bslma::MallocFreeAllocator'.
+        //   That `new` and `delete` are not invoked by the
+        //   `bslma::MallocFreeAllocator`.
         //
         // Plan:
         //   Create a malloc-free allocator on the program stack and verify
-        //   that the global 'new' and 'delete' are not called per method
+        //   that the global `new` and `delete` are not called per method
         //   invocation, and with the appropriate arguments.
         //
         // Testing:

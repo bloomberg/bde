@@ -36,9 +36,9 @@ using namespace bslstl;
 //                              --------
 //
 // Global Concerns:
-//: o Pointer/reference parameters are declared 'const'.
-//: o No memory is ever allocated.
-//: o Precondition violations are detected in appropriate build modes.
+//  - Pointer/reference parameters are declared `const`.
+//  - No memory is ever allocated.
+//  - Precondition violations are detected in appropriate build modes.
 //-----------------------------------------------------------------------------
 // MANIPULATORS
 // [ 2] VALUE_TYPE& value();
@@ -46,7 +46,7 @@ using namespace bslstl;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 4] USAGE EXAMPLE
-// [ 3] CONCERN: 'value' can be constructed with 'allocator_traits'.
+// [ 3] CONCERN: `value` can be constructed with `allocator_traits`.
 
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -140,22 +140,22 @@ bool TestType1::s_constructedFlag = false;
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: Allocating and Deallocating 'TreeNode' Objects.
+///Example 1: Allocating and Deallocating `TreeNode` Objects.
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we define a factory class for allocating and
-// destroying 'TreeNode' objects.
+// destroying `TreeNode` objects.
 //
-// First, we define the interface for the class 'NodeFactory':
-//..
+// First, we define the interface for the class `NodeFactory`:
+// ```
     template <class VALUE, class ALLOCATOR>
     class NodeFactory {
-//..
-// The parameterized 'ALLOCATOR' is intended to allocate objects of the
-// parameterized 'VALUE', so to use it to allocate objects of 'TreeNode<VALUE>'
+// ```
+// The parameterized `ALLOCATOR` is intended to allocate objects of the
+// parameterized `VALUE`, so to use it to allocate objects of `TreeNode<VALUE>`
 // we must rebind it to the tree node type.  Note that in general, we use
-// 'allocator_traits' to perform actions using an allocator (including the
+// `allocator_traits` to perform actions using an allocator (including the
 // rebind below):
-//..
+// ```
         // PRIVATE TYPES
         typedef typename bsl::allocator_traits<ALLOCATOR>::template
                                rebind_traits<TreeNode<VALUE> > AllocatorTraits;
@@ -170,35 +170,37 @@ bool TestType1::s_constructedFlag = false;
 
       public:
         // CREATORS
+
+        /// Create a tree node-factory that will use the specified
+        /// `allocator` to supply memory.
         NodeFactory(const ALLOCATOR& allocator);
-            // Create a tree node-factory that will use the specified
-            // 'allocator' to supply memory.
 
         // MANIPULATORS
-        TreeNode<VALUE> *createNode(const VALUE& value);
-            // Create a new 'TreeNode' object holding the specified 'value'.
 
+        /// Create a new `TreeNode` object holding the specified `value`.
+        TreeNode<VALUE> *createNode(const VALUE& value);
+
+        /// Destroy and deallocate the specified `node`.  The behavior is
+        /// undefined unless `node` is the address of a
+        /// `TreeNode<VALUE>` object.
         void deleteNode(bslalg::RbTreeNode *node);
-            // Destroy and deallocate the specified 'node'.  The behavior is
-            // undefined unless 'node' is the address of a
-            // 'TreeNode<VALUE>' object.
     };
-//..
-// Now, we implement the 'NodeFactory' type:
-//..
+// ```
+// Now, we implement the `NodeFactory` type:
+// ```
     template <class VALUE, class ALLOCATOR>
     inline
     NodeFactory<VALUE, ALLOCATOR>::NodeFactory(const ALLOCATOR& allocator)
     : d_allocator(allocator)
     {
     }
-//..
-// We implement the 'createNode' function by using the rebound
-// 'allocator_traits' for our allocator to in-place copy-construct the
-// supplied 'value' into the 'value' data member of our 'result' node
-// object.  Note that 'TreeNode' is a POD-like type, without a constructor, so
+// ```
+// We implement the `createNode` function by using the rebound
+// `allocator_traits` for our allocator to in-place copy-construct the
+// supplied `value` into the `value` data member of our `result` node
+// object.  Note that `TreeNode` is a POD-like type, without a constructor, so
 // we do not need to call its constructor here:
-//..
+// ```
     template <class VALUE, class ALLOCATOR>
     inline
     TreeNode<VALUE> *
@@ -210,13 +212,13 @@ bool TestType1::s_constructedFlag = false;
                                    value);
         return result;
     }
-//..
-// Finally, we define the function 'deleteNode', for destroying 'TreeNode'
-// objects.  Again, we use the rebound 'allocator_traits' for our tree node
-// type, this time to destroy the 'd_value' date member of node, and then to
-// deallocate its footprint.  Note that 'TreeNode' is a POD-like type,
+// ```
+// Finally, we define the function `deleteNode`, for destroying `TreeNode`
+// objects.  Again, we use the rebound `allocator_traits` for our tree node
+// type, this time to destroy the `d_value` date member of node, and then to
+// deallocate its footprint.  Note that `TreeNode` is a POD-like type,
 //  so we do not need to call its destructor here:
-//..
+// ```
     template <class VALUE, class ALLOCATOR>
     inline
     void NodeFactory<VALUE, ALLOCATOR>::deleteNode(bslalg::RbTreeNode *node)
@@ -226,40 +228,42 @@ bool TestType1::s_constructedFlag = false;
                                  bsls::Util::addressOf(treeNode->value()));
         AllocatorTraits::deallocate(d_allocator, treeNode, 1);
     }
-//..
+// ```
 //
-///Example 2: Creating a Simple Tree of 'TreeNode' Objects.
+///Example 2: Creating a Simple Tree of `TreeNode` Objects.
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In the following example we create a container-type 'Set' for
-// holding a set of values of a parameterized 'VALUE'.
+// In the following example we create a container-type `Set` for
+// holding a set of values of a parameterized `VALUE`.
 //
-// First, we define a comparator for 'VALUE' of 'TreeNode<VALUE>' objects.
-// This type is designed to be supplied to functions in 'bslalg::RbTreeUtil'.
-// Note that, for simplicity, this type uses 'operator<' to compare values,
+// First, we define a comparator for `VALUE` of `TreeNode<VALUE>` objects.
+// This type is designed to be supplied to functions in `bslalg::RbTreeUtil`.
+// Note that, for simplicity, this type uses `operator<` to compare values,
 // rather than a client defined comparator type.
-//..
+// ```
     template <class VALUE>
     class Comparator {
       public:
         // CREATORS
+
+        /// Create a node-value comparator.
         Comparator() {}
-            // Create a node-value comparator.
 
         // ACCESSORS
+
+        /// Return `true` if the specified `lhs` is less than (ordered
+        /// before) the specified `rhs`, and `false` otherwise.  The
+        /// behavior is undefined unless the supplied `bslalg::RbTreeNode`
+        /// object is of the derived `TreeNode<VALUE>` type.
         bool operator()(const VALUE&              lhs,
                         const bslalg::RbTreeNode& rhs) const;
         bool operator()(const bslalg::RbTreeNode& lhs,
                         const VALUE&              rhs) const;
-            // Return 'true' if the specified 'lhs' is less than (ordered
-            // before) the specified 'rhs', and 'false' otherwise.  The
-            // behavior is undefined unless the supplied 'bslalg::RbTreeNode'
-            // object is of the derived 'TreeNode<VALUE>' type.
     };
-//..
-// Then, we implement the comparison methods of 'Comparator'.  Note that the
-// supplied 'RbTreeNode' objects must be 'static_cast' to
-// 'TreeNode<VALUE>' to access their value:
-//..
+// ```
+// Then, we implement the comparison methods of `Comparator`.  Note that the
+// supplied `RbTreeNode` objects must be `static_cast` to
+// `TreeNode<VALUE>` to access their value:
+// ```
     template <class VALUE>
     inline
     bool Comparator<VALUE>::operator()(const VALUE&              lhs,
@@ -275,13 +279,13 @@ bool TestType1::s_constructedFlag = false;
     {
         return static_cast<const TreeNode<VALUE>& >(lhs).value() < rhs;
     }
-//..
+// ```
 // Now, having defined the requisite helper types, we define the public
-// interface for 'Set'.  Note that for the purposes of illustrating the use of
-// 'TreeNode' a number of simplifications have been made.  For example, this
-// implementation provides only 'insert', 'remove', 'isMember', and
-// 'numMembers' operations:
-//..
+// interface for `Set`.  Note that for the purposes of illustrating the use of
+// `TreeNode` a number of simplifications have been made.  For example, this
+// implementation provides only `insert`, `remove`, `isMember`, and
+// `numMembers` operations:
+// ```
     template <class VALUE,
               class ALLOCATOR = bsl::allocator<VALUE> >
     class Set {
@@ -299,33 +303,36 @@ bool TestType1::s_constructedFlag = false;
 
       public:
         // CREATORS
-        Set(const ALLOCATOR& allocator = ALLOCATOR());
-            // Create an empty set. Optionally specify a 'allocator' used to
-            // supply memory.  If 'allocator' is not specified, a default
-            // constructed 'ALLOCATOR' object is used.
 
+        /// Create an empty set. Optionally specify a `allocator` used to
+        /// supply memory.  If `allocator` is not specified, a default
+        /// constructed `ALLOCATOR` object is used.
+        Set(const ALLOCATOR& allocator = ALLOCATOR());
+
+        /// Destroy this set.
         ~Set();
-            // Destroy this set.
 
         // MANIPULATORS
-        void insert(const VALUE& value);
-            // Insert the specified value into this set.
 
+        /// Insert the specified value into this set.
+        void insert(const VALUE& value);
+
+        /// If `value` is a member of this set, then remove it and return
+        /// `true`, and return `false` otherwise.
         bool remove(const VALUE& value);
-            // If 'value' is a member of this set, then remove it and return
-            // 'true', and return 'false' otherwise.
 
         // ACCESSORS
-        bool isElement(const VALUE& value) const;
-            // Return 'true' if the specified 'value' is a member of this set,
-            // and 'false' otherwise.
 
+        /// Return `true` if the specified `value` is a member of this set,
+        /// and `false` otherwise.
+        bool isElement(const VALUE& value) const;
+
+        /// Return the number of elements in this set.
         int numElements() const;
-            // Return the number of elements in this set.
     };
-//..
-// Now, we define the implementation of 'Set':
-//..
+// ```
+// Now, we define the implementation of `Set`:
+// ```
     // CREATORS
     template <class VALUE, class ALLOCATOR>
     inline
@@ -389,11 +396,11 @@ bool TestType1::s_constructedFlag = false;
     {
         return d_tree.numNodes();
     }
-//..
-// Notice that the definition and implementation of 'Set' never directly
-// uses the 'TreeNode' type, but instead use it indirectly through
-// 'Comparator', and 'NodeFactory', and uses it via its base-class
-// 'bslalg::RbTreeNode'.
+// ```
+// Notice that the definition and implementation of `Set` never directly
+// uses the `TreeNode` type, but instead use it indirectly through
+// `Comparator`, and `NodeFactory`, and uses it via its base-class
+// `bslalg::RbTreeNode`.
 
 //=============================================================================
 //                                 MAIN PROGRAM
@@ -419,13 +426,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -433,8 +440,8 @@ int main(int argc, char *argv[])
           if (verbose) printf("\nUSAGE EXAMPLE"
                               "\n=============\n");
 
-// Finally, we test our 'Set'.
-//..
+// Finally, we test our `Set`.
+// ```
     bslma::TestAllocator defaultAllocator("defaultAllocator");
     bslma::DefaultAllocatorGuard defaultGuard(&defaultAllocator);
 
@@ -460,28 +467,28 @@ int main(int argc, char *argv[])
 
     ASSERT(0 == defaultAllocator.numBytesInUse());
     ASSERT(0 <  objectAllocator.numBytesInUse());
-//..
+// ```
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // CONCERN: 'value' CAN BE CONSTRUCTED WITH 'allocator_traits'.
+        // CONCERN: `value` CAN BE CONSTRUCTED WITH `allocator_traits`.
         //
         // Concerns:
-        //: 1 'value' can be constructed with 'allocator_traits::construct'.
+        // 1. `value` can be constructed with `allocator_traits::construct`.
         //
         // Plan:
-        //: 1 Create a class of which its construction can be verified.  Use
-        //:   'allocator_traits::construct' to construct the class and verify
-        //:   that the class's constructor is called.
+        // 1. Create a class of which its construction can be verified.  Use
+        //    `allocator_traits::construct` to construct the class and verify
+        //    that the class's constructor is called.
         //
         // Testing:
-        //   CONCERN: 'value' can be constructed with 'allocator_traits'.
+        //   CONCERN: `value` can be constructed with `allocator_traits`.
         // --------------------------------------------------------------------
         bslma::TestAllocator da("default");
         bslma::TestAllocator oa("object");
 
         if (verbose) printf(
-                "\nTesting construction of 'value' using allocator_traits.\n");
+                "\nTesting construction of `value` using allocator_traits.\n");
         {
             typedef TestType1      Type;
             typedef TreeNode<Type> Obj;
@@ -512,19 +519,19 @@ int main(int argc, char *argv[])
         // PRIMARY MANIPULATORS AND BASIC ACCESSORS
         //
         // Concerns:
-        //: 1 Manipulators can set value.
-        //:
-        //: 2 Accessor return value set by manipulator.
-        //:
-        //: 3 Accessor is declared const.
+        // 1. Manipulators can set value.
+        //
+        // 2. Accessor return value set by manipulator.
+        //
+        // 3. Accessor is declared const.
         //
         // Plan:
-        //: 1 Create a 'TreeNode' with 'VALUE_TYPE' as 'int' and set 'value'
-        //:   distinct numbers.  Verify the values are set with the accessor.
-        //:
-        //: 2 Create a 'TreeNode' with a type that has a constructor that can
-        //:   be verified if it has been invoked.  Verify that the constructor
-        //:   is invoked when 'allocator_traits::construct' is used.
+        // 1. Create a `TreeNode` with `VALUE_TYPE` as `int` and set `value`
+        //    distinct numbers.  Verify the values are set with the accessor.
+        //
+        // 2. Create a `TreeNode` with a type that has a constructor that can
+        //    be verified if it has been invoked.  Verify that the constructor
+        //    is invoked when `allocator_traits::construct` is used.
         //
         // Testing:
         //   VALUE_TYPE& value();
@@ -535,7 +542,7 @@ int main(int argc, char *argv[])
 
         bslma::DefaultAllocatorGuard defaultGuard(&da);
 
-        if (verbose) printf("\nTesting manipulator and accessor for 'int'.\n");
+        if (verbose) printf("\nTesting manipulator and accessor for `int`.\n");
         {
             typedef int            Type;
             typedef TreeNode<Type> Obj;
@@ -565,7 +572,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf(
-                         "\nTesting manipulator and accessor for 'string'.\n");
+                         "\nTesting manipulator and accessor for `string`.\n");
         {
             typedef bsl::string    Type;
             typedef TreeNode<Type> Obj;

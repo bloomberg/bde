@@ -81,16 +81,17 @@ BSLMF_ASSERT(bslmf::IsBitwiseCopyable<DecimalImpUtil::ValueType128>::value);
                     // class NotIsSpace
                     // ================
 
+/// Helper function object type used to skip spaces in strings
 template <class CHARTYPE>
 class NotIsSpace {
-    // Helper function object type used to skip spaces in strings
     const bsl::ctype<CHARTYPE> *d_ctype;
   public:
+    /// Construct a `NotIsSpace` object, using the specified `ctype`.
     explicit NotIsSpace(const bsl::ctype<CHARTYPE> *ctype);
-        // Construct a 'NotIsSpace' object, using the specified 'ctype'.
+
+    /// Return `true` if the specified `character` is a space (according to
+    /// the `ctype` provided at construction), and `false` otherwise.
     bool operator()(CHARTYPE character) const;
-        // Return 'true' if the specified 'character' is a space (according to
-        // the 'ctype' provided at construction), and 'false' otherwise.
 };
 
                     // ----------------
@@ -167,14 +168,14 @@ read(bsl::basic_istream<CHARTYPE, TRAITS>& in,
     return in;
 }
 
+/// Assign to the specified output `iter` the specified `character` the
+/// specified `numCharacters` times, incrementing `iter` between each
+/// assignment, and then return the resulting incremented iterator.   Note
+/// that this is an implementation of C++11 standard `std::fill_n` that has
+/// been specifialized slightly for filling characters; it is provided here
+/// because the C++98 definition of `fill_n` returns `void`.
 template <class ITER_TYPE, class CHAR_TYPE>
 ITER_TYPE fillN(ITER_TYPE iter, int numCharacters, CHAR_TYPE character)
-    // Assign to the specified output 'iter' the specified 'character' the
-    // specified 'numCharacters' times, incrementing 'iter' between each
-    // assignment, and then return the resulting incremented iterator.   Note
-    // that this is an implementation of C++11 standard 'std::fill_n' that has
-    // been specifialized slightly for filling characters; it is provided here
-    // because the C++98 definition of 'fill_n' returns 'void'.
 {
   while (numCharacters > 0) {
     *iter = character;
@@ -184,6 +185,15 @@ ITER_TYPE fillN(ITER_TYPE iter, int numCharacters, CHAR_TYPE character)
   return iter;
 }
 
+/// Gather (narrowed versions of) characters in the specified range
+/// [`begin`..`end`) that syntactically form a floating-point number
+/// (including `NaN`, `Inf`, and `Infinity`) into the buffer defined by the
+/// specified range [`to`..`toEnd`), qualifying (and, where needed,
+/// converting) input characters using the specified `ctype`, accepting
+/// instances of the specified digit group separator `separator`.  On
+/// success, sets the referent of the specified `hasDigit` to `true`;
+/// otherwise, `false`.  Returns an iterator prior to `end` indicating the
+/// last character examined, or equal to `end` if parsing terminated there.
 template <class CHAR_TYPE, class ITER_TYPE>
 ITER_TYPE
 doGetCommon(ITER_TYPE                    begin,
@@ -193,15 +203,6 @@ doGetCommon(ITER_TYPE                    begin,
             const char*                  toEnd,
             CHAR_TYPE                    separator,
             bool                        *hasDigit)
-    // Gather (narrowed versions of) characters in the specified range
-    // ['begin'..'end') that syntactically form a floating-point number
-    // (including 'NaN', 'Inf', and 'Infinity') into the buffer defined by the
-    // specified range ['to'..'toEnd'), qualifying (and, where needed,
-    // converting) input characters using the specified 'ctype', accepting
-    // instances of the specified digit group separator 'separator'.  On
-    // success, sets the referent of the specified 'hasDigit' to 'true';
-    // otherwise, 'false'.  Returns an iterator prior to 'end' indicating the
-    // last character examined, or equal to 'end' if parsing terminated there.
 {
     *hasDigit = false;
     // optional sign
@@ -295,18 +296,18 @@ doGetCommon(ITER_TYPE                    begin,
     return begin;
 }
 
+/// Return `true` if the specified `x` is negative and `false` otherwise.
 inline
 bool isNegative(const Decimal32& x)
-    // Return 'true' if the specified 'x' is negative and 'false' otherwise.
 {
     enum { k_SIGN_MASK = 0x80000000ul };
 
     return x.value().d_raw & k_SIGN_MASK;
 }
 
+/// Return `true` if the specified `x` is negative and `false` otherwise.
 inline
 bool isNegative(const Decimal64& x)
-    // Return 'true' if the specified 'x' is negative and 'false' otherwise.
 {
     const bsls::Types::Uint64 k_SIGN_MASK = 0x8000000000000000ull;
 
@@ -314,9 +315,9 @@ bool isNegative(const Decimal64& x)
 }
 
 
+/// Return `true` if the specified `x` is negative and `false` otherwise.
 inline
 bool isNegative(const Decimal128& x)
-    // Return 'true' if the specified 'x' is negative and 'false' otherwise.
 {
     const bsls::Types::Uint64 k_SIGN_MASK = 0x8000000000000000ull;
 
@@ -621,12 +622,12 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
         cfg.setExponent('E');
     }
 
+    // The size of the buffer sufficient to store max `DECIMAL` value in
+    // fixed notation with the max precision supported by `DECIMAL` type.
     const int k_BUFFER_SIZE = 1                          // sign
                             + 1 + Limits::max_exponent10 // integer part
                             + 1                          // decimal point
                             + Limits::max_precision;     // partial part
-        // The size of the buffer sufficient to store max 'DECIMAL' value in
-        // fixed notation with the max precision supported by 'DECIMAL' type.
 
     bslma::Allocator *allocator = bslma::Default::allocator();
     char             *buffer    = (char *)allocator->allocate(k_BUFFER_SIZE);

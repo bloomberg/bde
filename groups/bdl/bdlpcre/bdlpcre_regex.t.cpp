@@ -15,8 +15,8 @@
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 
-#include <bsl_climits.h>  // 'INT_MAX'
-#include <bsl_cmath.h>    // 'abs'
+#include <bsl_climits.h>  // `INT_MAX`
+#include <bsl_cmath.h>    // `abs`
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
@@ -98,7 +98,7 @@ using namespace bdlpcre;
 // [14] JIT OPTIMIZATION SUPPORT
 // [17] UNICODE CHARACTER PROPERTY SUPPORT
 // [18] MEMORY ALIGNMENT
-// [19] CONCERN: 'match' IS THREAD-SAFE
+// [19] CONCERN: `match` IS THREAD-SAFE
 // [21] DUPLICATE NAMED GROUPS
 // [22] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
@@ -395,9 +395,9 @@ static const char *printableCharacters[256]=
     "\\xff"   // 255  ff
 };
 
+/// Specialize for char*.  Need to expand \r, \n, \t and surround with
+/// DQUOTE characters.
 void printValue(ostream& out, const char* value)
-    // Specialize for char*.  Need to expand \r, \n, \t and surround with
-    // DQUOTE characters.
 {
     out << '"';
 
@@ -409,8 +409,8 @@ void printValue(ostream& out, const char* value)
     out << '"';
 }
 
+/// Need to expand \r, \n, \t and surround with DQUOTE characters.
 void printValue(ostream& out, const string& value)
-    // Need to expand \r, \n, \t and surround with DQUOTE characters.
 {
     printValue(out, value.c_str());
 }
@@ -479,8 +479,8 @@ namespace {
                         // MatchJob
                         // ========
 
+/// This class is used to test thread safety of the `match` method.
 class MatchJob {
-    // This class is used to test thread safety of the 'match' method.
 
   private:
     // DATA
@@ -490,9 +490,10 @@ class MatchJob {
 
   public:
     // CREATORS
+
+    /// Create match job object with the specified `regEx`, `subject`,
+    /// and `match`.
     MatchJob(const RegEx* regEx, const char *subject, const char *match)
-        // Create match job object with the specified 'regEx', 'subject',
-        // and 'match'.
     : d_regEx_p(regEx)
     , d_subject_p(subject)
     , d_match_p(match)
@@ -500,9 +501,10 @@ class MatchJob {
     };
 
     // ACCESSORS
+
+    /// Invoke `match` method on the `RegEx` object supplied at the
+    /// construction and verify that the result matches the expected.
     void doMatch() const;
-        // Invoke 'match' method on the 'RegEx' object supplied at the
-        // construction and verify that the result matches the expected.
 };
 
 // ACCESSORS
@@ -558,8 +560,8 @@ void MatchJob::doMatch() const
     ASSERTV(result3, d_match_p == result3);
 }
 
+/// This thread function performs match test for precompiled `RegEx` object.
 extern "C" void *testMatchFunction(void *threadArg)
-    // This thread function performs match test for precompiled 'RegEx' object.
 {
     const MatchJob *job = static_cast<const MatchJob *>(threadArg);
 
@@ -579,26 +581,27 @@ extern "C" void *testMatchFunction(void *threadArg)
                         // PrepareJob
                         // ==========
 
+/// This class is used to do performance tests.  This class prepares a
+/// pattern in a separate thread, forcing subsequent matches to use non
+/// optimal code path (with context allocation).
 class PrepareJob {
-    // This class is used to do performance tests.  This class prepares a
-    // pattern in a separate thread, forcing subsequent matches to use non
-    // optimal code path (with context allocation).
 
   private:
     // DATA
     RegEx      *d_regEx_p;       // unprepared RegEx
     const char *d_pattern_p;     // pointer to the pattern
-    int         d_flags;         // flags to 'prepare'
+    int         d_flags;         // flags to `prepare`
     size_t      d_jitStackSize;  // JIT stack size
 
   public:
     // CREATORS
+
+    /// Create match prepare object with the specified `regEx`, `pattern`,
+    /// `flags`, and `jitStackSize`
     PrepareJob(RegEx      *regEx,
                const char *pattern,
                int         flags,
                size_t      jitStackSize)
-        // Create match prepare object with the specified 'regEx', 'pattern',
-        // 'flags', and 'jitStackSize'
     : d_regEx_p(regEx)
     , d_pattern_p(pattern)
     , d_flags(flags)
@@ -607,9 +610,10 @@ class PrepareJob {
     };
 
     // MANIPULATORS
+
+    /// Invoke `prepare` method on the `RegEx` object supplied at the
+    /// construction.
     void doPrepare();
-        // Invoke 'prepare' method on the 'RegEx' object supplied at the
-        // construction.
 };
 
 // MANIPULATORS
@@ -624,8 +628,8 @@ void PrepareJob::doPrepare()
     ASSERTV(retCode, 0 == retCode);
 }
 
+/// This thread function performs match test for precompiled `RegEx` object.
 extern "C" void *testPrepareFunction(void *threadArg)
-    // This thread function performs match test for precompiled 'RegEx' object.
 {
     PrepareJob *job = static_cast<PrepareJob *>(threadArg);
 
@@ -662,36 +666,36 @@ int countNames(
 ///-----
 // The following snippets of code illustrate using this component to extract
 // the text of the "Subject:" field from an Internet e-mail message (RFC822).
-// The following 'parseSubject' function accepts an RFC822-compliant message of
+// The following `parseSubject` function accepts an RFC822-compliant message of
 // a specified length and returns the text of the message's subject in the
-// 'result' "out" parameter:
-//..
+// `result` "out" parameter:
+// ```
     int parseSubject(bsl::string *result,
                      const char  *message,
                      bsl::size_t  messageLength)
-//      // Parse the specified 'message' of the specified 'messageLength' for
-//      // the "Subject:" field of 'message'.  Return 0 on success and load the
-//      // specified 'result' with the text of the subject of 'message'; return
-//      // a non-zero value otherwise with no effect on 'result'.
+//      // Parse the specified `message` of the specified `messageLength` for
+//      // the "Subject:" field of `message`.  Return 0 on success and load the
+//      // specified `result` with the text of the subject of `message`; return
+//      // a non-zero value otherwise with no effect on `result`.
     {
-//..
+// ```
 // The following is the regular expression that will be used to find the
-// subject text of 'message'.  The "?P<subjectText>" syntax, borrowed from
+// subject text of `message`.  The "?P<subjectText>" syntax, borrowed from
 // Python, allows us later to refer to a particular matched sub-pattern (i.e.,
 // the text between the ':' and the '\r' in the "Subject:" field of the header)
 // by the name "subjectText":
-//..
+// ```
         const char PATTERN[] = "^subject:(?P<subjectText>[^\r]*)";
-//..
-// First we compile the 'PATTERN', using the 'prepare' method, in order to
-// match subject strings against it.  In the event that 'prepare' fails, the
+// ```
+// First we compile the `PATTERN`, using the `prepare` method, in order to
+// match subject strings against it.  In the event that `prepare` fails, the
 // first two arguments will be loaded with diagnostic information (an
 // informational string and an index into the pattern at which the error
-// occurred, respectively).  Two flags, 'RegEx::k_FLAG_CASELESS' and
-// 'RegEx::k_FLAG_MULTILINE', are used in preparing the pattern since Internet
+// occurred, respectively).  Two flags, `RegEx::k_FLAG_CASELESS` and
+// `RegEx::k_FLAG_MULTILINE`, are used in preparing the pattern since Internet
 // message headers contain case-insensitive content as well as '\n' characters.
-// The 'prepare' method returns 0 on success, and a non-zero value otherwise:
-//..
+// The `prepare` method returns 0 on success, and a non-zero value otherwise:
+// ```
         RegEx       regEx;
         bsl::string errorMessage;
         size_t      errorOffset;
@@ -702,14 +706,14 @@ int countNames(
                                         RegEx::k_FLAG_CASELESS |
                                         RegEx::k_FLAG_MULTILINE);
         ASSERT(0 == returnValue);
-//..
-// Next we call 'match' supplying 'message' and its length.  The 'matchVector'
+// ```
+// Next we call `match` supplying `message` and its length.  The `matchVector`
 // will be populated with (offset, length) pairs describing substrings in
-// 'message' that match the prepared 'PATTERN'.  All variants of the overloaded
-// 'match' method return the 'k_STATUS_SUCCESS' status if a match is found,
-// 'k_STATUS_NO_MATCH' if a match is not found, and some other value if any
+// `message` that match the prepared `PATTERN`.  All variants of the overloaded
+// `match` method return the `k_STATUS_SUCCESS` status if a match is found,
+// `k_STATUS_NO_MATCH` if a match is not found, and some other value if any
 // error occurs.  This value may help us to understand the reason of failure:
-//..
+// ```
         bsl::vector<bsl::pair<size_t, size_t> > matchVector;
         returnValue = regEx.match(&matchVector, message, messageLength);
 
@@ -720,19 +724,19 @@ int countNames(
             }
             else {
                 // Some failure occurred during the function call.
-                bsl::cout  << "'RegEx::match' failed with the following"
+                bsl::cout  << "`RegEx::match` failed with the following"
                            << " status: "
                            << returnValue
                            << bsl::endl;
                 return returnValue;                                   // RETURN
             }
         }
-//..
-// Then we pass "subjectText" to the 'subpatternIndex' method to obtain the
-// index into 'matchVector' that describes how to locate the subject text
-// within 'message'.  The text is then extracted from 'message' and assigned to
-// the 'result' "out" parameter:
-//..
+// ```
+// Then we pass "subjectText" to the `subpatternIndex` method to obtain the
+// index into `matchVector` that describes how to locate the subject text
+// within `message`.  The text is then extracted from `message` and assigned to
+// the `result` "out" parameter:
+// ```
         const bsl::pair<size_t, size_t> capturedSubject =
                              matchVector[regEx.subpatternIndex("subjectText")];
 
@@ -778,13 +782,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -793,10 +797,10 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-//..
+// ```
 // The following array contains the sample Internet e-mail message from which
 // we will extract the subject:
-//..
+// ```
     const char RFC822_MESSAGE[] =
         "Received: ; Fri, 23 Apr 2004 14:30:00 -0400\r\n"
         "Message-ID: <12345@mailgate.bloomberg.net>\r\n"
@@ -809,11 +813,11 @@ int main(int argc, char *argv[])
         "\r\n"
         "This is the message body.\r\n"
         ".\r\n";
-//..
-// Finally, we call 'parseSubject' to extract the subject from
-// 'RFC822_MESSAGE'.  The assertions verify that the subject of the message is
-// correctly extracted and assigned to the local 'subject' variable:
-//..
+// ```
+// Finally, we call `parseSubject` to extract the subject from
+// `RFC822_MESSAGE`.  The assertions verify that the subject of the message is
+// correctly extracted and assigned to the local `subject` variable:
+// ```
 //  int main()
 //  {
         bsl::string subject;
@@ -823,53 +827,53 @@ int main(int argc, char *argv[])
         ASSERT(0 == returnValue);
         ASSERT(" This is the subject text" == subject);
 //  }
-//..
+// ```
       } break;
       case 21: {
         // --------------------------------------------------------------------
         // TESTING DUPLICATE NAMED GROUPS
         //
         // Concerns:
-        //: 1 Duplicate sub-pattern names (named groups) are allowed iff
-        //:   the pattern is prepared with 'k_FLAG_DUPNAMES' flag or the '(?J)'
-        //:   option is used inside the pattern.
-        //:
-        //: 2 The 'namedSubpatterns' function correctly returns a full set of
-        //:   the used named sub-patterns.  Each duplicate name has own
-        //:   corresponding index.
-        //:
-        //: 3 The 'RegEx::match' function works correctly if duplicate
-        //:   sub-pattern names are used.
-        //:
-        //: 4 The 'namedSubpatterns' function work correctly for non-duplicate
-        //:   names as well.
-        //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Duplicate sub-pattern names (named groups) are allowed iff
+        //    the pattern is prepared with `k_FLAG_DUPNAMES` flag or the `(?J)`
+        //    option is used inside the pattern.
+        //
+        // 2. The `namedSubpatterns` function correctly returns a full set of
+        //    the used named sub-patterns.  Each duplicate name has own
+        //    corresponding index.
+        //
+        // 3. The `RegEx::match` function works correctly if duplicate
+        //    sub-pattern names are used.
+        //
+        // 4. The `namedSubpatterns` function work correctly for non-duplicate
+        //    names as well.
+        //
+        // 5. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create a pattern with duplicated sub-pattern names.  Call the
-        //:   'prepare' function:
-        //:     1.1 Without 'k_FLAG_DUPNAMES' flag and '(?J)' option.  Verify
-        //:         that the function fails.
-        //:     1.2 With '(?J)' option.  Verify that the function succeeds.
-        //:     1.3 With 'k_FLAG_DUPNAMES' flag.  Verify that the function
-        //:         succeeds.
-        //:
-        //: 2 Verify that the 'subpatternIndex' returns error for the duplicate
-        //:   sub-pattern name.
-        //:
-        //: 3 Call the 'namedSubpatterns' function and verify that the returned
-        //:   object contains the duplicate name with more than one index.
-        //:
-        //: 4 Verify that the 'RegEx::match' function works well for the
-        //:   pattern with duplicate sub-pattern names.
-        //:
-        //: 5 Prepare a pattern with 2 differently named sub-patterns.  Call
-        //:   the 'namedSubpatterns' function.  Verify that the set contains
+        // 1. Create a pattern with duplicated sub-pattern names.  Call the
+        //    `prepare` function:
+        //      1.1 Without `k_FLAG_DUPNAMES` flag and `(?J)` option.  Verify
+        //          that the function fails.
+        //      1.2 With `(?J)` option.  Verify that the function succeeds.
+        //      1.3 With `k_FLAG_DUPNAMES` flag.  Verify that the function
+        //          succeeds.
+        //
+        // 2. Verify that the `subpatternIndex` returns error for the duplicate
+        //    sub-pattern name.
+        //
+        // 3. Call the `namedSubpatterns` function and verify that the returned
+        //    object contains the duplicate name with more than one index.
+        //
+        // 4. Verify that the `RegEx::match` function works well for the
+        //    pattern with duplicate sub-pattern names.
+        //
+        // 5. Prepare a pattern with 2 differently named sub-patterns.  Call
+        //    the `namedSubpatterns` function.  Verify that the set contains
         //    exactly one element for each of the sub-pattern names.
-        //:
-        //: 6 Do negative testing to verify that asserts catch all the
-        //:   undefined behavior in the contract.
+        //
+        // 6. Do negative testing to verify that asserts catch all the
+        //    undefined behavior in the contract.
         //
         // Testing:
         //   DUPLICATE NAMED GROUPS
@@ -910,7 +914,7 @@ int main(int argc, char *argv[])
             ASSERTV(errorMsg, errorOffset, retCode == 0);
         }
 
-        if (verbose) cout << "\tSupply 'k_FLAG_DUPNAMES' flag to prepare" <<
+        if (verbose) cout << "\tSupply `k_FLAG_DUPNAMES` flag to prepare" <<
                                                                           endl;
         {
             int retCode = mX.prepare(&errorMsg,
@@ -920,13 +924,13 @@ int main(int argc, char *argv[])
             ASSERTV(errorMsg, errorOffset, retCode == 0);
         }
 
-        if (verbose) cout << "\tVerify 'subpatternIndex()' fails with"
+        if (verbose) cout << "\tVerify `subpatternIndex()` fails with"
                              " duplicate name" << endl;
         {
             ASSERT(X.subpatternIndex(SUBPATTERN_NAME) == -1);
         }
 
-        if (verbose) cout << "\tVerify 'namedSubpatterns()'" << endl;
+        if (verbose) cout << "\tVerify `namedSubpatterns()`" << endl;
         {
             NamedSubpatterns subpatterns;
             X.namedSubpatterns(&subpatterns);
@@ -946,7 +950,7 @@ int main(int argc, char *argv[])
             ASSERT(subpatternsFound > 1); // more than one index
         }
 
-        if (verbose) cout << "\tVerify 'RegEx::match()'" << endl;
+        if (verbose) cout << "\tVerify `RegEx::match()`" << endl;
         {
             bsl::vector<bsl::string_view> matches;
             int retCode = X.match(&matches, SUBJECT);
@@ -997,11 +1001,11 @@ int main(int argc, char *argv[])
         //   Testing no regression from pcre 3.37
         //
         // Concerns:
-        //: 1 Verify that JIT flag does not change results of the match.
+        // 1. Verify that JIT flag does not change results of the match.
         //
         // Plan:
-        //: 1 Perform target pattern match with and without jit flag and verify
-        //:   that the result is the same.
+        // 1. Perform target pattern match with and without jit flag and verify
+        //    that the result is the same.
         //
         // Testing:
         //   JIT REGRESSION
@@ -1046,22 +1050,22 @@ int main(int argc, char *argv[])
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // TESTING 'match' THREAD SAFETY
+        // TESTING `match` THREAD SAFETY
         //
         // Concerns:
-        //: 1 'match' can be safely called from the multiple threads.
+        // 1. `match` can be safely called from the multiple threads.
         //
         // Plan:
-        //: 1 Create and prepare a pattern (with and without JIT support)
-        //:
-        //: 2 Spawn muliple thread and call 'match' from all those thread,
-        //:   verify the matchs result in all threads.  C-1)
+        // 1. Create and prepare a pattern (with and without JIT support)
+        //
+        // 2. Spawn muliple thread and call `match` from all those thread,
+        //    verify the matchs result in all threads.  C-1)
         //
         // Testing:
-        //   CONCERN: 'match' IS THREAD-SAFE
+        //   CONCERN: `match` IS THREAD-SAFE
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'match' THREAD SAFETY" << endl
+                          << "TESTING `match` THREAD SAFETY" << endl
                           << "=============================" << endl;
 
         const char *SIMPLE_PATTERN     = "X(abc)*Z";
@@ -1152,12 +1156,12 @@ int main(int argc, char *argv[])
         // TESTING MEMORY ALIGNMENT
         //
         // Concerns:
-        //: 1 That alignment requirements aren't violated.
+        // 1. That alignment requirements aren't violated.
         //
         // Plan:
-        //: 1 Run this test built with the Sun CC compiler and linker with the
-        //:   '-xmemalign=8s' option set.  If alignment violations occur, there
-        //:   will be a bus error.  (C-1)
+        // 1. Run this test built with the Sun CC compiler and linker with the
+        //    `-xmemalign=8s` option set.  If alignment violations occur, there
+        //    will be a bus error.  (C-1)
         //
         // Testing:
         //   MEMORY ALLIGNMENT
@@ -1184,15 +1188,15 @@ int main(int argc, char *argv[])
         //   \p{..}, \P{..} and \X escape sequences
         //
         // Concerns:
-        //: 1 We want to make sure that \p{..}, \P{..} and \X escape sequences
-        //:   can be used in patterns.
+        // 1. We want to make sure that \p{..}, \P{..} and \X escape sequences
+        //    can be used in patterns.
         //
         // Plan:
-        //: 1 Create a set of UTF8 patterns containing required escape
-        //:   sequences.
-        //:
-        //: 2 Exercise the match function using a UTF8 subject that matches the
-        //:   pattern being tested.
+        // 1. Create a set of UTF8 patterns containing required escape
+        //    sequences.
+        //
+        // 2. Exercise the match function using a UTF8 subject that matches the
+        //    pattern being tested.
         //
         // Testing:
         //   UNICODE CHARACTER PROPERTY SUPPORT
@@ -1212,28 +1216,28 @@ int main(int argc, char *argv[])
             //line   pattern      utf8Subject     match
             //----   -------      -----------     -----
             // \p{L} - any Unicode letter
-            { L_,    "\\p{L}",    { 0xC3, 0x80 }, true  }, // 'A' with grave
-            { L_,    "\\p{L}",    { 0xC3, 0x91 }, true  }, // 'N' with tilde
+            { L_,    "\\p{L}",    { 0xC3, 0x80 }, true  }, // `A` with grave
+            { L_,    "\\p{L}",    { 0xC3, 0x91 }, true  }, // `N` with tilde
             { L_,    "\\p{L}",    { 0xC2, 0xAE }, false }, // Registered sign
             { L_,    "\\p{L}",    { 0xC2, 0xB0 }, false }, // Degree sign
 
             // \P{L} - any Unicode non-letter
-            { L_,    "\\P{L}",    { 0xC3, 0x80 }, false }, // 'A' with grave
-            { L_,    "\\P{L}",    { 0xC3, 0x91 }, false }, // 'N' with tilde
+            { L_,    "\\P{L}",    { 0xC3, 0x80 }, false }, // `A` with grave
+            { L_,    "\\P{L}",    { 0xC3, 0x91 }, false }, // `N` with tilde
             { L_,    "\\P{L}",    { 0xC2, 0xAE }, true  }, // Registered sign
             { L_,    "\\P{L}",    { 0xC2, 0xB0 }, true  }, // Degree sign
 
             // \P{L} - any valid Unicode
-            { L_,    "\\X",       { 0xC3, 0x80 }, true  }, // 'A' with grave
-            { L_,    "\\X",       { 0xC3, 0x91 }, true  }, // 'N' with tilde
+            { L_,    "\\X",       { 0xC3, 0x80 }, true  }, // `A` with grave
+            { L_,    "\\X",       { 0xC3, 0x91 }, true  }, // `N` with tilde
             { L_,    "\\X",       { 0xC2, 0xAE }, true  }, // Registered sign
             { L_,    "\\X",       { 0xC2, 0xB0 }, true  }, // Degree sign
 
             // Assorted list of character properties
-            { L_,    "\\p{Ll}",   { 0xC3, 0xA1 }, true  }, // 'a' with acute
-            { L_,    "\\p{Lu}",   { 0xC3, 0xA1 }, false }, // 'a' with acute
-            { L_,    "\\p{Ll}",   { 0xC5, 0x90 }, false }, // 'O' with dblacute
-            { L_,    "\\p{Lu}",   { 0xC5, 0x90 }, true  }, // 'O' with dblacute
+            { L_,    "\\p{Ll}",   { 0xC3, 0xA1 }, true  }, // `a` with acute
+            { L_,    "\\p{Lu}",   { 0xC3, 0xA1 }, false }, // `a` with acute
+            { L_,    "\\p{Ll}",   { 0xC5, 0x90 }, false }, // `O` with dblacute
+            { L_,    "\\p{Lu}",   { 0xC5, 0x90 }, true  }, // `O` with dblacute
         };
         const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1270,40 +1274,40 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING 'replace' and 'replaceRaw' METHODS
+        // TESTING `replace` and `replaceRaw` METHODS
         //
         // Concerns:
-        //: 1 Although we are not testing the implementation of the PCRE
-        //:   library, we want to check that the interface is plugged in
-        //:   correctly and works as documented.  In particular, we want to
-        //:   check that the 'subject', 'replacement', and 'options'
-        //:   arguments are passed to PCRE correctly and the resulting string
-        //:   is copied correctly to the 'result'.
-        //:
-        //: 2 'replace' and 'replaceRaw' returns an error and a position of the
-        //:   error is loaded to 'errorOffset' when a syntax error detected in
-        //:   the replacement string.
-        //:
-        //: 3 If the size of the resulting string does not match the supplied
-        //:   string 'result', then 'replace' and 'replaceRaw' computes the
-        //:   required size and resizes 'result' to hold the result.
-        //:
-        //: 4 'options' are reflected correctly to the corresponding PCRE flags
-        //:   and propagated to the underlying PCRE2 substitution function as
-        //:   expected.
-        //:
-        //: 5 If 'options' is not supplied then 'options' is set to 0 by
-        //:   default.
-        //:
-        //: 6 No memory is allocated from the default allocator.
+        // 1. Although we are not testing the implementation of the PCRE
+        //    library, we want to check that the interface is plugged in
+        //    correctly and works as documented.  In particular, we want to
+        //    check that the `subject`, `replacement`, and `options`
+        //    arguments are passed to PCRE correctly and the resulting string
+        //    is copied correctly to the `result`.
+        //
+        // 2. `replace` and `replaceRaw` returns an error and a position of the
+        //    error is loaded to `errorOffset` when a syntax error detected in
+        //    the replacement string.
+        //
+        // 3. If the size of the resulting string does not match the supplied
+        //    string `result`, then `replace` and `replaceRaw` computes the
+        //    required size and resizes `result` to hold the result.
+        //
+        // 4. `options` are reflected correctly to the corresponding PCRE flags
+        //    and propagated to the underlying PCRE2 substitution function as
+        //    expected.
+        //
+        // 5. If `options` is not supplied then `options` is set to 0 by
+        //    default.
+        //
+        // 6. No memory is allocated from the default allocator.
         //
         // Plan:
-        //: 1 Prepare a regular expression object using a given 'PATTERN'
-        //:   string, create a set of subjects that contain a match for
-        //:   'PATTERN'.
-        //:
-        //: 2 Exercise the 'replace' and 'replaceRaw'  methods using
-        //:   'replacement' and 'options' values.
+        // 1. Prepare a regular expression object using a given `PATTERN`
+        //    string, create a set of subjects that contain a match for
+        //    `PATTERN`.
+        //
+        // 2. Exercise the `replace` and `replaceRaw`  methods using
+        //    `replacement` and `options` values.
         //
         // Testing:
         //   int replace(bsl::string *, int *,  ...) const;
@@ -1316,7 +1320,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "TESTING 'replace' and 'replaceRaw' METHOD" << endl
+                 << "TESTING `replace` and `replaceRaw` METHOD" << endl
                  << "=========================================" << endl;
 
         enum {
@@ -1596,27 +1600,27 @@ int main(int argc, char *argv[])
         //  attributes.
         //
         // Concerns:
-        //: 1 The object depth limit attribute should take on the default value
-        //:   by default, and be modifiable by the relevant accessor.
-        //:
-        //: 2 The object depth limit attribute should limit the recursion depth
-        //:   for regular expression matches.
+        // 1. The object depth limit attribute should take on the default value
+        //    by default, and be modifiable by the relevant accessor.
+        //
+        // 2. The object depth limit attribute should limit the recursion depth
+        //    for regular expression matches.
         //
         // Plan:
-        //: 1 Default-construct a regular expression, and make sure that the
-        //:   depth limit matches the process default.  (C-1)
-        //:
-        //: 2 Modify the process default, making sure that the already
-        //:   constructed regex is not affected, that the process default
-        //:   accessor returns the new value, and that a new regex object is
-        //:   affected.  (C-1)
-        //:
-        //: 3 Modify the depth limit for both objects, and make sure they don't
-        //:   affect each other or the default value.  (C-1)
-        //:
-        //: 4 Modify the depth limit for a regular expression and make sure it
-        //:   affects the behaviour of the various 'match' overloads as
-        //:   expected.  (C-2)
+        // 1. Default-construct a regular expression, and make sure that the
+        //    depth limit matches the process default.  (C-1)
+        //
+        // 2. Modify the process default, making sure that the already
+        //    constructed regex is not affected, that the process default
+        //    accessor returns the new value, and that a new regex object is
+        //    affected.  (C-1)
+        //
+        // 3. Modify the depth limit for both objects, and make sure they don't
+        //    affect each other or the default value.  (C-1)
+        //
+        // 4. Modify the depth limit for a regular expression and make sure it
+        //    affects the behaviour of the various `match` overloads as
+        //    expected.  (C-2)
         //
         // Testing:
         //   int setDepthLimit(int);
@@ -1699,48 +1703,48 @@ int main(int argc, char *argv[])
         //  on hardware platform.
         //
         // Concerns:
-        //: 1 JIT optimization is used only if it is supported on current
-        //:   hardware platform.
-        //:
-        //: 2 All actions, necessary for JIT optimization, are performed if
-        //:   respective flag is provided to 'prepare' method.
-        //:
-        //: 3 JIT stack size can be set via last parameter of 'prepare' method.
-        //:
-        //: 4 Proper failure code is returned when the memory used for the JIT
-        //:   stack is insufficient.
-        //:
-        //: 5 'jitStackSize' returns the requested size of the dynamically
-        //:   allocated JIT stack if it was set by user and '0' otherwise.
+        // 1. JIT optimization is used only if it is supported on current
+        //    hardware platform.
+        //
+        // 2. All actions, necessary for JIT optimization, are performed if
+        //    respective flag is provided to `prepare` method.
+        //
+        // 3. JIT stack size can be set via last parameter of `prepare` method.
+        //
+        // 4. Proper failure code is returned when the memory used for the JIT
+        //    stack is insufficient.
+        //
+        // 5. `jitStackSize` returns the requested size of the dynamically
+        //    allocated JIT stack if it was set by user and `0` otherwise.
         //
         // Plan:
-        //: 1 Create two objects using two different test allocators. Provide
-        //:   default flag value to 'prepare' method for the first object and
-        //:   k_JIT_FLAG for another. Verify that second method's call invokes
-        //:   more memory allocations than the first one, if JIT optimization
-        //:   is supported and the same number, if it isn't.  Verify that
-        //:   'jitStackSize' method returns correct value.  (C-1,2,4)
-        //:
-        //: 2 Create two objects using two different test allocators. Provide
-        //:   k_JIT_FLAG to 'prepare' method for both of them. Provide default
-        //:   jitStackSize value to 'prepare' method for the first object and
-        //:   non-default for another. Verify that second method's call invokes
-        //:   more memory allocations than the first one, if JIT optimization
-        //:   is supported and the same number, if it isn't.  Verify that
-        //:   'jitStackSize' method returns correct value.  (C-1,2,4)
-        //:
-        //: 3 Create an object. Provide k_JIT_FLAG and zero jitStackSize value
-        //:   to 'prepare' method.  Exercise the 'match' method using a subject
-        //:   that matches the pattern passed to 'prepare' method.  Verify that
-        //:   method call succeeds.  Provide the same pattern, k_JIT_FLAG and
-        //:   tiniest non-zero jitStackSize value to 'prepare' method.
-        //:   Exercise the 'match' method using the same subject.  Verify that
-        //:   method call fails, if JIT optimization is supported and succeeds,
-        //:   if it isn't.  Provide the same pattern k_JIT_FLAG and bigger
-        //:   jitStackSize value to 'prepare' method.  Exercise the 'match'
-        //:   method using the same subject.  Verify that method call succeeds.
-        //:   After each 'prepare' method call verify that 'jitStackSize'
-        //:   method returns correct value.  (C-1,2..4)
+        // 1. Create two objects using two different test allocators. Provide
+        //    default flag value to `prepare` method for the first object and
+        //    k_JIT_FLAG for another. Verify that second method's call invokes
+        //    more memory allocations than the first one, if JIT optimization
+        //    is supported and the same number, if it isn't.  Verify that
+        //    `jitStackSize` method returns correct value.  (C-1,2,4)
+        //
+        // 2. Create two objects using two different test allocators. Provide
+        //    k_JIT_FLAG to `prepare` method for both of them. Provide default
+        //    jitStackSize value to `prepare` method for the first object and
+        //    non-default for another. Verify that second method's call invokes
+        //    more memory allocations than the first one, if JIT optimization
+        //    is supported and the same number, if it isn't.  Verify that
+        //    `jitStackSize` method returns correct value.  (C-1,2,4)
+        //
+        // 3. Create an object. Provide k_JIT_FLAG and zero jitStackSize value
+        //    to `prepare` method.  Exercise the `match` method using a subject
+        //    that matches the pattern passed to `prepare` method.  Verify that
+        //    method call succeeds.  Provide the same pattern, k_JIT_FLAG and
+        //    tiniest non-zero jitStackSize value to `prepare` method.
+        //    Exercise the `match` method using the same subject.  Verify that
+        //    method call fails, if JIT optimization is supported and succeeds,
+        //    if it isn't.  Provide the same pattern k_JIT_FLAG and bigger
+        //    jitStackSize value to `prepare` method.  Exercise the `match`
+        //    method using the same subject.  Verify that method call succeeds.
+        //    After each `prepare` method call verify that `jitStackSize`
+        //    method returns correct value.  (C-1,2..4)
 
         //
         // Testing:
@@ -1888,21 +1892,21 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'isJitAvailable' METHOD
+        // TESTING `isJitAvailable` METHOD
         //
         // Concerns:
-        //: 1 The 'isJitAvailable' returns correct hardcoded value in
-        //:   accordance with hardware platform.
+        // 1. The `isJitAvailable` returns correct hardcoded value in
+        //    accordance with hardware platform.
         //
         // Plan:
-        //: 1 Call 'isJitAvailable' method and compare returned result with the
-        //:   hardcoded expected value.  (C-1)
+        // 1. Call `isJitAvailable` method and compare returned result with the
+        //    hardcoded expected value.  (C-1)
         //
         // Testing:
         //   bool isJitAvailable();
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'isJitAvailable' METHOD" << endl
+                          << "TESTING `isJitAvailable` METHOD" << endl
                           << "===============================" << endl;
 
 #if defined(BSLS_PLATFORM_CPU_SPARC_V9)
@@ -1919,14 +1923,14 @@ int main(int argc, char *argv[])
         // TESTING ALLOCATOR PROPAGATION
         //
         // Concerns:
-        //: 1 We want to make sure that the allocator is propagated properly
-        //:   and that all memory allocation is done by the supplied allocator.
+        // 1. We want to make sure that the allocator is propagated properly
+        //    and that all memory allocation is done by the supplied allocator.
         //
         // Plan:
-        //: 1 Create a set of patterns using a test allocator, and use a
-        //:   default allocator guard to measure the amount of memory allocated
-        //:   via the default allocator.  Verify that all memory is allocated
-        //:   by the test allocator while exercising the pattern.  (C-1)
+        // 1. Create a set of patterns using a test allocator, and use a
+        //    default allocator guard to measure the amount of memory allocated
+        //    via the default allocator.  Verify that all memory is allocated
+        //    by the test allocator while exercising the pattern.  (C-1)
         //
         // Testing:
         //   ALLOCATOR PROPAGATION
@@ -2007,30 +2011,30 @@ int main(int argc, char *argv[])
       case 11: {
         // --------------------------------------------------------------------
         // TESTING SUBPATTERNS
-        //   This will test the 'numSubpatterns' and 'subpatternIndex'
-        //   accessors.  It will also test the vector 'match' and 'matchRaw'
+        //   This will test the `numSubpatterns` and `subpatternIndex`
+        //   accessors.  It will also test the vector `match` and `matchRaw`
         //   functions to verify that it returns the captured substrings
         //   correctly.
         //
         // Concerns:
-        //: 1 We want to make sure that subpatterns are recognized correctly
-        //:   and also that captured substrings can be retrieved.
+        // 1. We want to make sure that subpatterns are recognized correctly
+        //    and also that captured substrings can be retrieved.
         //
         // Plan:
-        //: 1 Create a set of patterns, with increasing number of subpatterns.
-        //:   The pattern used will be a regular expression with the capability
-        //:   of splitting a BDE-style class name into package name & class
-        //:   name, and also split the class name into separate words.  For
-        //:   example, 'bbasm_SecurityDataChunkResolver' will be split into
-        //:   package name 'bbasm' and class name 'SecurityDataChunkResolver'.
-        //:   Further, the class name will be split into separate words
-        //:   'Security', 'Data', 'Chunk', and 'Resolver'.  Each word is
-        //:   represented by a sub-pattern in the regular expression.  Since
-        //:   the set contains patterns with increasing number of subpatterns,
-        //:   the number of words that a pattern can identify will also
-        //:   increase.  The test data contains 'numWords' values from 0 to 4.
-        //:   This also tests "nested" subpatterns (the 'words' sub-patterns
-        //:   are nested inside the 'class-name' sub-pattern).  (C-1)
+        // 1. Create a set of patterns, with increasing number of subpatterns.
+        //    The pattern used will be a regular expression with the capability
+        //    of splitting a BDE-style class name into package name & class
+        //    name, and also split the class name into separate words.  For
+        //    example, `bbasm_SecurityDataChunkResolver` will be split into
+        //    package name `bbasm` and class name `SecurityDataChunkResolver`.
+        //    Further, the class name will be split into separate words
+        //    `Security`, `Data`, `Chunk`, and `Resolver`.  Each word is
+        //    represented by a sub-pattern in the regular expression.  Since
+        //    the set contains patterns with increasing number of subpatterns,
+        //    the number of words that a pattern can identify will also
+        //    increase.  The test data contains `numWords` values from 0 to 4.
+        //    This also tests "nested" subpatterns (the `words` sub-patterns
+        //    are nested inside the `class-name` sub-pattern).  (C-1)
         //
         // Testing:
         //   int numSubpatterns() const;
@@ -2164,11 +2168,11 @@ int main(int argc, char *argv[])
             }
 
             if (veryVeryVerbose) {
-                cout << "\n\tMatching with offsets based 'match'/'matchRaw'"
+                cout << "\n\tMatching with offsets based `match`/`matchRaw`"
                      << endl;
             }
             {
-                // 'match' is tested on the first iteration and 'matchRaw' on
+                // `match` is tested on the first iteration and `matchRaw` on
                 // the second one.
 
                 for (int i = 0; i < 2; ++i) {
@@ -2176,9 +2180,9 @@ int main(int argc, char *argv[])
 
                     if (NUM_WORDS%2) {
                         // Grow the vector to make sure it shrinks back to
-                        // exactly 'NUM_SUBPATTERNS'+1.  Only do this for 1/2
+                        // exactly `NUM_SUBPATTERNS`+1.  Only do this for 1/2
                         // the cases.  For the other half, we check that the
-                        // vector grows to exactly 'NUM_SUBPATTERNS'+1.
+                        // vector grows to exactly `NUM_SUBPATTERNS`+1.
 
                         for (int j = 0; j < NUM_SUBPATTERNS + 10; ++j) {
                             vMatch.push_back(make_pair(0, 0));
@@ -2268,11 +2272,11 @@ int main(int argc, char *argv[])
 
             if (veryVeryVerbose) {
                 cout
-                    << "\n\tMatching with 'StringRef' based 'match'/'matchRaw'"
+                    << "\n\tMatching with `StringRef` based `match`/`matchRaw`"
                     << endl;
             }
             {
-                // 'match' is tested on the first iteration and 'matchRaw' on
+                // `match` is tested on the first iteration and `matchRaw` on
                 // the second one.
 
                 for (int i = 0; i < 2; ++i) {
@@ -2280,9 +2284,9 @@ int main(int argc, char *argv[])
 
                     if (NUM_WORDS%2) {
                         // Grow the vector to make sure it shrinks back to
-                        // exactly 'NUM_SUBPATTERNS'+1.  Only do this for 1/2
+                        // exactly `NUM_SUBPATTERNS`+1.  Only do this for 1/2
                         // the cases.  For the other half, we check that the
-                        // vector grows to exactly 'NUM_SUBPATTERNS'+1.
+                        // vector grows to exactly `NUM_SUBPATTERNS`+1.
 
                         for (int j = 0; j < NUM_SUBPATTERNS + 10; ++j) {
                             vMatch.push_back((bslstl::StringRef()));
@@ -2328,7 +2332,7 @@ int main(int argc, char *argv[])
                         // If NUM_WORDS is 4, that means the last subpattern
                         // was not matched (only 4 words in the subject).  So
                         // make sure that the last element in the vector
-                        // contains (as per doc): empty 'StringRef'.
+                        // contains (as per doc): empty `StringRef`.
 
                         const bslstl::StringRef  NOT_FOUND;
                         const bslstl::StringRef& lastElement =
@@ -2363,32 +2367,32 @@ int main(int argc, char *argv[])
       case 10: {
         // --------------------------------------------------------------------
         // TESTING k_FLAG_DOTMATCHESALL FLAG
-        //   This will test the 'k_FLAG_DOTMATCHESALL' option when compiling
+        //   This will test the `k_FLAG_DOTMATCHESALL` option when compiling
         //   regular expressions.
         //
         // Concerns:
-        //: 1 We want to make sure that the dot metacharacter '.' matches all
-        //:   characters including newlines ('\n') when this flag is specified.
-        //:   We also want to check that not specifying this flag disables the
-        //:   matching of newlines.
+        // 1. We want to make sure that the dot metacharacter '.' matches all
+        //    characters including newlines ('\n') when this flag is specified.
+        //    We also want to check that not specifying this flag disables the
+        //    matching of newlines.
         //
         // Plan:
-        //: 1 For a given pattern string containing newlines, create two
-        //:   regular expression objects - one with 'k_FLAG_DOTMATCHESALL'
-        //:   specified and another without.
-        //:
-        //: 2 For each object, exercise the match function using subjects of
-        //:   the form "<preamble>\n<pattern-match>\n<postamble>".  Note that
-        //:   in some cases the pattern to be matched will contain newlines.
-        //:   Select test data with increasing preamble/postamble length (from
-        //:   0 to 3).  Verify that the object with 'k_FLAG_DOTMATCHESALL'
-        //:   always succeeds and also that the object without
-        //:   'k_FLAG_DOTMATCHESALL' always fails.  (C-1)
-        //:
-        //: 3 Finally, exercise the match function using a subject that matches
-        //:   the pattern exactly on a single line (i.e.  without any
-        //:   preamble/postamble/newline characters).  Verify that both objects
-        //:   succeed.  (C-1)
+        // 1. For a given pattern string containing newlines, create two
+        //    regular expression objects - one with `k_FLAG_DOTMATCHESALL`
+        //    specified and another without.
+        //
+        // 2. For each object, exercise the match function using subjects of
+        //    the form "<preamble>\n<pattern-match>\n<postamble>".  Note that
+        //    in some cases the pattern to be matched will contain newlines.
+        //    Select test data with increasing preamble/postamble length (from
+        //   0. to 3).  Verify that the object with `k_FLAG_DOTMATCHESALL`
+        //    always succeeds and also that the object without
+        //    `k_FLAG_DOTMATCHESALL` always fails.  (C-1)
+        //
+        // 3. Finally, exercise the match function using a subject that matches
+        //    the pattern exactly on a single line (i.e.  without any
+        //    preamble/postamble/newline characters).  Verify that both objects
+        //    succeed.  (C-1)
         //
         // Testing:
         //   k_FLAG_DOTMATCHESALL
@@ -2423,8 +2427,8 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
 
-        Obj mX(&ta); const Obj& X = mX;   // has   'k_FLAG_DOTMATCHESALL'
-        Obj mY(&ta); const Obj& Y = mY;   // !have 'k_FLAG_DOTMATCHESALL'
+        Obj mX(&ta); const Obj& X = mX;   // has   `k_FLAG_DOTMATCHESALL`
+        Obj mY(&ta); const Obj& Y = mY;   // !have `k_FLAG_DOTMATCHESALL`
 
         if (verbose) {
             cout << "\nPreparing the regular expression objects." << endl;
@@ -2552,27 +2556,27 @@ int main(int argc, char *argv[])
       case 9: {
         // --------------------------------------------------------------------
         // TESTING k_FLAG_UTF8 FLAG
-        //   This will test the 'k_FLAG_UTF8' option when compiling regular
+        //   This will test the `k_FLAG_UTF8` option when compiling regular
         //   expressions.
         //
         // Concerns:
-        //: 1 We want to make sure that UTF8 byte sequences are treated as
-        //:   single UTF8 characters when this flag is specified.  We also want
-        //:   to make sure that the same UTF8 byte sequences are treated as
-        //:   regular characters when this flag is not specified.
+        // 1. We want to make sure that UTF8 byte sequences are treated as
+        //    single UTF8 characters when this flag is specified.  We also want
+        //    to make sure that the same UTF8 byte sequences are treated as
+        //    regular characters when this flag is not specified.
         //
         // Plan:
-        //: 1 Create a set of UTF8 patterns.  For each pattern, create two
-        //:   regular expression objects - one with 'k_FLAG_UTF8' specified and
-        //:   another without 'k_FLAG_UTF8' specified.
-        //:
-        //: 2 For each object, exercise the match function using a UTF8 subject
-        //:   that matches the pattern being tested.  Verify that the object
-        //:   with 'k_FLAG_UTF8' succeeds and the object without 'k_FLAG_UTF8'
-        //:   fails.  Next, exercise the match function using a non-UTF8
-        //:   subject that matches the pattern being tested.  Verify that the
-        //:   object with 'k_FLAG_UTF8' fails and the object without
-        //:   'k_FLAG_UTF8' succeeds.  (C-1)
+        // 1. Create a set of UTF8 patterns.  For each pattern, create two
+        //    regular expression objects - one with `k_FLAG_UTF8` specified and
+        //    another without `k_FLAG_UTF8` specified.
+        //
+        // 2. For each object, exercise the match function using a UTF8 subject
+        //    that matches the pattern being tested.  Verify that the object
+        //    with `k_FLAG_UTF8` succeeds and the object without `k_FLAG_UTF8`
+        //    fails.  Next, exercise the match function using a non-UTF8
+        //    subject that matches the pattern being tested.  Verify that the
+        //    object with `k_FLAG_UTF8` fails and the object without
+        //    `k_FLAG_UTF8` succeeds.  (C-1)
         //
         // Testing:
         //   k_FLAG_UTF8
@@ -2609,8 +2613,8 @@ int main(int argc, char *argv[])
                 P_(LINE) P(PATTERN)
             }
 
-            Obj mX(&ta); const Obj& X = mX;  // has   'k_FLAG_UTF8'
-            Obj mY(&ta); const Obj& Y = mY;  // !have 'k_FLAG_UTF8'
+            Obj mX(&ta); const Obj& X = mX;  // has   `k_FLAG_UTF8`
+            Obj mY(&ta); const Obj& Y = mY;  // !have `k_FLAG_UTF8`
 
             bsl::string errorMsg;
             size_t      errorOffset;
@@ -2824,33 +2828,33 @@ int main(int argc, char *argv[])
       case 8: {
         // --------------------------------------------------------------------
         // TESTING k_FLAG_MULTILINE FLAG
-        //   This will test the 'k_FLAG_MULTILINE' option when compiling
+        //   This will test the `k_FLAG_MULTILINE` option when compiling
         //   regular expressions.
         //
         // Concerns:
-        //: 1 We want to make sure that '^' and '$' match 'beginning-of-line'
-        //:   and 'end-of-line' respectively when this flag is specified.  We
-        //:   also want to make sure that '^' and '$' match
-        //:   'beginning-of-string' and 'end-of-string' respectively when this
-        //:   flag is not specified.
+        // 1. We want to make sure that '^' and '$' match `beginning-of-line`
+        //    and `end-of-line` respectively when this flag is specified.  We
+        //    also want to make sure that '^' and '$' match
+        //    `beginning-of-string` and `end-of-string` respectively when this
+        //    flag is not specified.
         //
         // Plan:
-        //: 1 For a given pattern string starting with '^' and ending with '$',
-        //:   create two regular expression objects - one with
-        //:   'k_FLAG_MULTILINE' specified and another without
-        //:   'k_FLAG_MULTILINE' specified.
-        //:
-        //: 2 For each object, exercise the match function using subjects of
-        //:   the form "<preamble>\n<pattern-match>\n<postamble>".  Select test
-        //:   data with increasing preamble/postamble length (from 0 to 3).
-        //:   Verify that the object with 'k_FLAG_MULTILINE' always succeeds
-        //:   and that the object without 'k_FLAG_MULTILINE' always fails.
-        //:   (C-1)
-        //:
-        //: 3 Finally, exercise the match function using a subject that matches
-        //:   the pattern exactly on a single line (i.e.  without any
-        //:   preamble/postamble/newline characters).  Verify that both objects
-        //:   succeed.  (C-1)
+        // 1. For a given pattern string starting with '^' and ending with '$',
+        //    create two regular expression objects - one with
+        //    `k_FLAG_MULTILINE` specified and another without
+        //    `k_FLAG_MULTILINE` specified.
+        //
+        // 2. For each object, exercise the match function using subjects of
+        //    the form "<preamble>\n<pattern-match>\n<postamble>".  Select test
+        //    data with increasing preamble/postamble length (from 0 to 3).
+        //    Verify that the object with `k_FLAG_MULTILINE` always succeeds
+        //    and that the object without `k_FLAG_MULTILINE` always fails.
+        //    (C-1)
+        //
+        // 3. Finally, exercise the match function using a subject that matches
+        //    the pattern exactly on a single line (i.e.  without any
+        //    preamble/postamble/newline characters).  Verify that both objects
+        //    succeed.  (C-1)
         //
         // Testing:
         //   k_FLAG_MULTILINE
@@ -2886,8 +2890,8 @@ int main(int argc, char *argv[])
         };
         const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        Obj mX(&ta); const Obj& X = mX;  // has 'k_FLAG_MULTILINE'
-        Obj mY(&ta); const Obj& Y = mY;  // !have 'k_FLAG_MULTILINE'
+        Obj mX(&ta); const Obj& X = mX;  // has `k_FLAG_MULTILINE`
+        Obj mY(&ta); const Obj& Y = mY;  // !have `k_FLAG_MULTILINE`
 
         if (verbose) {
             cout << "\nPreparing the regular expression objects." << endl;
@@ -3014,28 +3018,28 @@ int main(int argc, char *argv[])
       case 7: {
         // --------------------------------------------------------------------
         // TESTING k_FLAG_CASELESS FLAG
-        //   This will test the 'k_FLAG_CASELESS' option when compiling regular
+        //   This will test the `k_FLAG_CASELESS` option when compiling regular
         //   expressions.
         //
         // Concerns:
-        //: 1 We want to make sure that caseless matching is performed when
-        //:   this flag is specified, and also that caseless matching is *not*
-        //:   performed when this flag is not specified.
+        // 1. We want to make sure that caseless matching is performed when
+        //    this flag is specified, and also that caseless matching is *not*
+        //    performed when this flag is not specified.
         //
         // Plan:
-        //: 1 For a given pattern string containing both upper-case and
-        //:   lower-case letters, create two regular expression objects - one
-        //:   with 'k_FLAG_CASELESS' specified and another without
-        //:   'k_FLAG_CASELESS' specified.
-        //:
-        //: 2 For each object, exercise the match function using subjects that
-        //:   use different cases from the pattern.  Verify that the object
-        //:   with 'k_FLAG_CASELESS' always succeeds and also that the object
-        //:   without 'k_FLAG_CASELESS' always fails.  (C-1)
-        //:
-        //: 3 Finally, exercise the match function using a subject that uses
-        //:   the same case as the pattern.  Verify that both objects succeed.
-        //:   (C-1)
+        // 1. For a given pattern string containing both upper-case and
+        //    lower-case letters, create two regular expression objects - one
+        //    with `k_FLAG_CASELESS` specified and another without
+        //    `k_FLAG_CASELESS` specified.
+        //
+        // 2. For each object, exercise the match function using subjects that
+        //    use different cases from the pattern.  Verify that the object
+        //    with `k_FLAG_CASELESS` always succeeds and also that the object
+        //    without `k_FLAG_CASELESS` always fails.  (C-1)
+        //
+        // 3. Finally, exercise the match function using a subject that uses
+        //    the same case as the pattern.  Verify that both objects succeed.
+        //    (C-1)
         //
         // Testing:
         //   k_FLAG_CASELESS
@@ -3063,8 +3067,8 @@ int main(int argc, char *argv[])
         };
         const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        Obj mX(&ta); const Obj& X = mX;  // has   'k_FLAG_CASELESS'
-        Obj mY(&ta); const Obj& Y = mY;  // !have 'k_FLAG_CASELESS'
+        Obj mX(&ta); const Obj& X = mX;  // has   `k_FLAG_CASELESS`
+        Obj mY(&ta); const Obj& Y = mY;  // !have `k_FLAG_CASELESS`
 
         if (verbose) {
             cout << "\nPreparing the regular expression objects." << endl;
@@ -3182,23 +3186,23 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'flags' METHOD
-        //   This will test that the options passed to the 'prepare' method are
+        // TESTING `flags` METHOD
+        //   This will test that the options passed to the `prepare` method are
         //   correctly propagated to the object data member.
         //
         // Concerns:
-        //: 1 Options passed to the 'prepare' method are stored as an object
-        //:   data member and returned by the 'flags' method.
+        // 1. Options passed to the `prepare` method are stored as an object
+        //    data member and returned by the `flags` method.
         //
         // Plan:
-        //: 1 Call 'prepare' with a different set of flags and verify that the
-        //:   'flags' method return correct value.  (C-1)
+        // 1. Call `prepare` with a different set of flags and verify that the
+        //    `flags` method return correct value.  (C-1)
         //
         // Testing:
         //   int flags() const;
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'flags' METHOD" << endl
+                          << "TESTING `flags` METHOD" << endl
                           << "======================" << endl;
 
         bslma::TestAllocator da("default", veryVeryVeryVerbose);
@@ -3273,33 +3277,33 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING EXTENDED 'match' AND 'matchRaw' METHODS
+        // TESTING EXTENDED `match` AND `matchRaw` METHODS
         //
         // Concerns:
-        //: 1 Although we are not testing the implementation of the PCRE
-        //:   library, we want to check that the interface is plugged in
-        //:   correctly and works as documented.  In particular, we want to
-        //:   check that the 'subject', 'subjectLength', and 'subjectStart'
-        //:   arguments are passed to PCRE correctly and the resulting
-        //:   'ovector' is copied correctly to the 'result'.  Also we want to
-        //:   make sure that a failure code is returned when the subject does
-        //:   not match the pattern.
+        // 1. Although we are not testing the implementation of the PCRE
+        //    library, we want to check that the interface is plugged in
+        //    correctly and works as documented.  In particular, we want to
+        //    check that the `subject`, `subjectLength`, and `subjectStart`
+        //    arguments are passed to PCRE correctly and the resulting
+        //    `ovector` is copied correctly to the `result`.  Also we want to
+        //    make sure that a failure code is returned when the subject does
+        //    not match the pattern.
         //
         // Plan:
-        //: 1 Prepare a regular expression object using a given 'PATTERN'
-        //:   string, create a set of subjects that contain a single match for
-        //:   'PATTERN'.  The set should contain subjects of increasing length,
-        //:   and also increasing match offsets ('matchOffset').
-        //:
-        //: 2 Exercise the 'match' and 'matchRaw' methods using 'subjectStart'
-        //:   values in the range [0..'subjectLength'].  Check that the methods
-        //:   succeed when 'subjectStart' <= 'matchOffset' and they fail when
-        //:   'subjectStart' > 'matchOffset'.  For each successful call to
-        //:   'match' or 'matchRaw', check that 'result' contains the correct
-        //:   'StringRef' for the captured string.  Note that captured
-        //:   substrings are tested in later test case.
-        //:
-        //: 3 Finally, exercise the special case where 'subjectLength' is 0.
+        // 1. Prepare a regular expression object using a given `PATTERN`
+        //    string, create a set of subjects that contain a single match for
+        //    `PATTERN`.  The set should contain subjects of increasing length,
+        //    and also increasing match offsets (`matchOffset`).
+        //
+        // 2. Exercise the `match` and `matchRaw` methods using `subjectStart`
+        //    values in the range [0..`subjectLength`].  Check that the methods
+        //    succeed when `subjectStart` <= `matchOffset` and they fail when
+        //    `subjectStart` > `matchOffset`.  For each successful call to
+        //    `match` or `matchRaw`, check that `result` contains the correct
+        //    `StringRef` for the captured string.  Note that captured
+        //    substrings are tested in later test case.
+        //
+        // 3. Finally, exercise the special case where `subjectLength` is 0.
         //
         // Testing:
         //   int match(bslstl::StringRef*, ...) const;
@@ -3309,12 +3313,12 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         if (verbose)
             cout << endl
-                 << "TESTING EXTENDED 'match' AND 'matchRaw' METHODS" << endl
+                 << "TESTING EXTENDED `match` AND `matchRaw` METHODS" << endl
                  << "===============================================" << endl;
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
 
-        const char PATTERN[] = "(a(b(c)?)?)";  // matches 'a', 'ab', or 'abc'
+        const char PATTERN[] = "(a(b(c)?)?)";  // matches `a`, `ab`, or `abc`
 
         static const struct {
             int         d_lineNum;      // source line number
@@ -3583,7 +3587,7 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == mX.prepare(&errorMsg, &errorOffset, PATTERN, 0));
 
-            // 'match' taking 'StringRef'
+            // `match` taking `StringRef`
             {
                 ASSERT_SAFE_PASS(X.match(   &r, string_view(SUBJECT,  9),  1));
                 ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  9,               1));
@@ -3629,7 +3633,7 @@ int main(int argc, char *argv[])
                 ASSERT_FAIL(X.matchRaw(     &p, SUBJECT,  1,               2));
             }
 
-            // 'match' taking 'bsl::vector' of 'StringRef'
+            // `match` taking `bsl::vector` of `StringRef`
             {
                 ASSERT_SAFE_PASS(X.match(   &z, string_view(SUBJECT,  9),  1));
                 ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  9,               1));
@@ -3693,33 +3697,33 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'match' AND 'matchRaw' METHODS
+        // TESTING `match` AND `matchRaw` METHODS
         //
         // Concerns:
-        //: 1 Although we are not testing the implementation of the PCRE
-        //:   library, we want to check that the interface is plugged in
-        //:   correctly and works as documented.  In particular, we want to
-        //:   check that the 'subject', 'subjectLength', and 'subjectStart'
-        //:   arguments are passed to PCRE correctly and the resulting
-        //:   'vector' is copied correctly to the 'result'.  Also we want to
-        //:   make sure that the correct status code is returned regardless of
-        //:   the results of the function call.
+        // 1. Although we are not testing the implementation of the PCRE
+        //    library, we want to check that the interface is plugged in
+        //    correctly and works as documented.  In particular, we want to
+        //    check that the `subject`, `subjectLength`, and `subjectStart`
+        //    arguments are passed to PCRE correctly and the resulting
+        //    `vector` is copied correctly to the `result`.  Also we want to
+        //    make sure that the correct status code is returned regardless of
+        //    the results of the function call.
         //
         // Plan:
-        //: 1 Prepare a regular expression object using a given 'PATTERN'
-        //:   string, create a set of subjects that contain a match for
-        //:   'PATTERN'.  The set should contain subjects of increasing length,
-        //:   and also increasing match offsets ('matchOffset').
-        //:
-        //: 2 Exercise the 'match' and 'matchRaw' methods using 'subjectStart'
-        //:   values in the range [0..'subjectLength'].  Check that the methods
-        //:   succeed when 'subjectStart' <= 'matchOffset' and they fail when
-        //:   'subjectStart' > 'matchOffset'.  For each successful call to
-        //:   'match' or 'matchRaw', check that 'result' contains the correct
-        //:   offset and length for the captured string.  Note that captured
-        //:   substrings are tested in later test case.
-        //:
-        //: 3 Finally, exercise the special case where 'subjectLength' is 0.
+        // 1. Prepare a regular expression object using a given `PATTERN`
+        //    string, create a set of subjects that contain a match for
+        //    `PATTERN`.  The set should contain subjects of increasing length,
+        //    and also increasing match offsets (`matchOffset`).
+        //
+        // 2. Exercise the `match` and `matchRaw` methods using `subjectStart`
+        //    values in the range [0..`subjectLength`].  Check that the methods
+        //    succeed when `subjectStart` <= `matchOffset` and they fail when
+        //    `subjectStart` > `matchOffset`.  For each successful call to
+        //    `match` or `matchRaw`, check that `result` contains the correct
+        //    offset and length for the captured string.  Note that captured
+        //    substrings are tested in later test case.
+        //
+        // 3. Finally, exercise the special case where `subjectLength` is 0.
         //
         // Testing:
         //   int match(const bsl::string_view&, ...) const;
@@ -3739,12 +3743,12 @@ int main(int argc, char *argv[])
         //   int matchRaw(std::pmr::vector<bsl::string_view> *result,...)const;
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'match' AND 'matchRaw' METHODS" << endl
+                          << "TESTING `match` AND `matchRaw` METHODS" << endl
                           << "======================================" << endl;
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
 
-        const char PATTERN[] = "(a(b(c)?)?)";  // matches 'a', 'ab', or 'abc'
+        const char PATTERN[] = "(a(b(c)?)?)";  // matches `a`, `ab`, or `abc`
 
         static const struct {
             int         d_lineNum;      // source line number
@@ -4348,14 +4352,14 @@ int main(int argc, char *argv[])
                 }
 
                 // The only possible way to check for a general error
-                // ('k_STATUS_FAILURE') being returned is to raise the
-                // 'PCRE2_ERROR_BADUTFOFFSET' library error, when a UTF-8
+                // (`k_STATUS_FAILURE`) being returned is to raise the
+                // `PCRE2_ERROR_BADUTFOFFSET` library error, when a UTF-8
                 // string is valid, but the value of start offset did not point
                 // to the beginning of a UTF character.  All other error
                 // variants are either prevented by our code, or depend on
                 // internal library states, or are not consistently
                 // reproducible.  Unfortunately, this option is not suitable
-                // for the 'raw' overloads, since they do not check the
+                // for the `raw` overloads, since they do not check the
                 // correctness of the UTF-8 string.
                 {
                     const char             *SUBJECT  = "\xC0\x80";
@@ -4475,7 +4479,7 @@ int main(int argc, char *argv[])
                 ASSERT_FAIL(X.matchRaw(     SUBJECT,  1,               2));
             }
 
-            // 'match' taking 'bsl::string_view'
+            // `match` taking `bsl::string_view`
             {
                 bsl::string_view p, *zp = 0; (void)zp;
 
@@ -4523,7 +4527,7 @@ int main(int argc, char *argv[])
                 ASSERT_FAIL(X.matchRaw(     &p, string_view(SUBJECT,  1),  2));
             }
 
-            // 'match' taking 'bsl::pair'
+            // `match` taking `bsl::pair`
             {
                 bsl::pair<size_t, size_t> p, *zp = 0; (void)zp;
 
@@ -4553,7 +4557,7 @@ int main(int argc, char *argv[])
                 ASSERT_FAIL(X.matchRaw(     &p, SUBJECT,  1,               2));
             }
 
-            // 'match' taking 'bsl::vector<bsl::pair<size_t, size_t>'
+            // `match` taking `bsl::vector<bsl::pair<size_t, size_t>`
             {
                 bsl::vector<bsl::pair<size_t, size_t> > v, *zv = 0; (void)zv;
 
@@ -4583,7 +4587,7 @@ int main(int argc, char *argv[])
                 ASSERT_FAIL(X.matchRaw(     &v, SUBJECT,  1,               2));
             }
 
-            // 'match' taking 'bsl::vector<bslstl::StringRef>'
+            // `match` taking `bsl::vector<bslstl::StringRef>`
             {
                 bsl::vector<bslstl::StringRef> v, *zv = 0; (void)zv;
 
@@ -4613,7 +4617,7 @@ int main(int argc, char *argv[])
                 ASSERT_FAIL(X.matchRaw(     &v, SUBJECT,  1,               2));
             }
 
-            // 'match' taking 'bsl::vector<bsl::string_view>'
+            // `match` taking `bsl::vector<bsl::string_view>`
             {
                 bsl::vector<bsl::string_view> v, *zv = 0; (void)zv;
 
@@ -4633,7 +4637,7 @@ int main(int argc, char *argv[])
                 ASSERT_FAIL(X.matchRaw(     &v, string_view(SUBJECT,  1),  2));
             }
 
-            // 'match' taking 'std::vector<bsl::string_view>'
+            // `match` taking `std::vector<bsl::string_view>`
             {
                 std::vector<bsl::string_view> v, *zv = 0; (void)zv;
 
@@ -4654,7 +4658,7 @@ int main(int argc, char *argv[])
             }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-            // 'match' taking 'std::pmr::vector<bsl::string_view>'
+            // `match` taking `std::pmr::vector<bsl::string_view>`
             {
                 std::pmr::vector<bsl::string_view> v, *zv = 0; (void)zv;
 
@@ -4689,40 +4693,40 @@ int main(int argc, char *argv[])
 
                 mX.clear();
 
-                // basic 'match'
+                // basic `match`
                 ASSERT_FAIL(X.match(          string_view(SUBJECT,  9), 1));
                 ASSERT_FAIL(X.match(          SUBJECT,  9,              1));
                 ASSERT_FAIL(X.matchRaw(       string_view(SUBJECT,  9), 1));
                 ASSERT_FAIL(X.matchRaw(       SUBJECT,  9,              1));
 
-                // 'match' taking 'bsl::pair'
+                // `match` taking `bsl::pair`
                 ASSERT_FAIL(X.match(   &p,    SUBJECT,  9,              1));
                 ASSERT_FAIL(X.matchRaw(&p,    SUBJECT,  9,              1));
 
-                // 'match' taking 'bsl::string_view'
+                // `match` taking `bsl::string_view`
                 ASSERT_FAIL(X.match(   &s,    SUBJECT,  9,              1));
                 ASSERT_FAIL(X.match(   &s,    string_view(SUBJECT,  9), 1));
                 ASSERT_FAIL(X.matchRaw(&s,    SUBJECT,  9,              1));
                 ASSERT_FAIL(X.matchRaw(&s,    string_view(SUBJECT,  9), 1));
 
-                // 'match' taking 'bsl::vector<bsl::pair<size_t, size_t>'
+                // `match` taking `bsl::vector<bsl::pair<size_t, size_t>`
                 ASSERT_FAIL(X.match(   &vp,   SUBJECT,  9,              1));
                 ASSERT_FAIL(X.matchRaw(&vp,   SUBJECT,  9,              1));
 
-                // 'match' taking 'bsl::vector<bslstl::StringRef>'
+                // `match` taking `bsl::vector<bslstl::StringRef>`
                 ASSERT_FAIL(X.match(   &vsr,  SUBJECT,  9,              1));
                 ASSERT_FAIL(X.matchRaw(&vsr,  SUBJECT,  9,              1));
 
-                // 'match' taking 'bsl::vector<bsl::string_view>'
+                // `match` taking `bsl::vector<bsl::string_view>`
                 ASSERT_FAIL(X.match(   &vsv,  string_view(SUBJECT,  9), 1));
                 ASSERT_FAIL(X.matchRaw(&vsv,  string_view(SUBJECT,  9), 1));
 
-                // 'match' taking 'std::vector<bsl::string_view>'
+                // `match` taking `std::vector<bsl::string_view>`
                 ASSERT_FAIL(X.match(   &vsv1, string_view(SUBJECT,  9), 1));
                 ASSERT_FAIL(X.matchRaw(&vsv1, string_view(SUBJECT,  9), 1));
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-                // 'match' taking 'std::pmr::vector<bsl::string_view>'
+                // `match` taking `std::pmr::vector<bsl::string_view>`
                 ASSERT_FAIL(X.match(   &vsv2, string_view(SUBJECT,  9), 1));
                 ASSERT_FAIL(X.matchRaw(&vsv2, string_view(SUBJECT,  9), 1));
 #endif
@@ -4737,40 +4741,40 @@ int main(int argc, char *argv[])
         //   patterns used for subsequent matching.
         //
         // Concerns:
-        //: 1 The object correctly handles valid and invalid patterns.
-        //:
-        //: 2 The compiled patterns are correctly cleared by either 'clear'
-        //:   method or when calling 'prepare' with different pattern.
-        //:
-        //: 3 The object correctly reports the state of the pattern via
-        //:   'isPrepared' accessor.
-        //:
-        //: 4 The object correctly reports about JIT stack absence via
-        //:   'jitStackSize' accessor.
-        //:
-        //: 5 The 'clear' method places the object in the "unprepared"
-        //:   state, regardless of the current pattern state.
+        // 1. The object correctly handles valid and invalid patterns.
+        //
+        // 2. The compiled patterns are correctly cleared by either `clear`
+        //    method or when calling `prepare` with different pattern.
+        //
+        // 3. The object correctly reports the state of the pattern via
+        //    `isPrepared` accessor.
+        //
+        // 4. The object correctly reports about JIT stack absence via
+        //    `jitStackSize` accessor.
+        //
+        // 5. The `clear` method places the object in the "unprepared"
+        //    state, regardless of the current pattern state.
         //
         // Plan:
-        //: 1 Construct a regular expression object and verify that the object
-        //:   after construction is in the "unprepared" state. (C-3)
-        //:
-        //: 2 Call 'prepare' method with valid and invalid patterns and verify
-        //:   that the correct patterns are compiled and the object is put in
-        //:   the "prepared" state or corresponding error code is returned.
-        //:   (C-2)
-        //:
-        //: 3 Subsequently call 'prepare' method and verify that on success
-        //:   previously compiled pattern is cleared.  For invalid pattern the
-        //:   object cleares previously compiled pattern and reports an error.
-        //:   (C-2,3)
-        //:
-        //: 4 Call 'clear' method and verify that the object goes into
-        //:   "unprepared" state and the accessors under the test return
-        //:   correct values.  (C-5)
-        //:
-        //: 5 Verify that memory is supplied by the allocator, passed at
-        //:   construction.
+        // 1. Construct a regular expression object and verify that the object
+        //    after construction is in the "unprepared" state. (C-3)
+        //
+        // 2. Call `prepare` method with valid and invalid patterns and verify
+        //    that the correct patterns are compiled and the object is put in
+        //    the "prepared" state or corresponding error code is returned.
+        //    (C-2)
+        //
+        // 3. Subsequently call `prepare` method and verify that on success
+        //    previously compiled pattern is cleared.  For invalid pattern the
+        //    object cleares previously compiled pattern and reports an error.
+        //    (C-2,3)
+        //
+        // 4. Call `clear` method and verify that the object goes into
+        //    "unprepared" state and the accessors under the test return
+        //    correct values.  (C-5)
+        //
+        // 5. Verify that memory is supplied by the allocator, passed at
+        //    construction.
         //
         // Testing:
         //   void clear();
@@ -4867,7 +4871,7 @@ int main(int argc, char *argv[])
             ASSERTV(errorOffset,    7               == errorOffset);
         }
 
-        if (verbose) cout << "\nTesting sequential 'prepare'." << endl;
+        if (verbose) cout << "\nTesting sequential `prepare`." << endl;
         {
             Obj mX(&ta); const Obj& X = mX;
 
@@ -4892,7 +4896,7 @@ int main(int argc, char *argv[])
             ASSERTV(X.pattern(),    INVALID_PATTERN  == X.pattern());
         }
 
-        if (verbose) cout << "\nTesting 'clear'." << endl;
+        if (verbose) cout << "\nTesting `clear`." << endl;
         {
             Obj mX(&ta); const Obj& X = mX;
 
@@ -4941,18 +4945,18 @@ int main(int argc, char *argv[])
         //   expected.
         //
         // Concerns:
-        //: 1 The objects can be constructed.
-        //:
-        //: 2 The memory comes from the supplied allocator or from default
-        //:   allocator if the allocator is not specified.
-        //:
-        //: 3 The object destroys all allocated memory at destruction.
+        // 1. The objects can be constructed.
+        //
+        // 2. The memory comes from the supplied allocator or from default
+        //    allocator if the allocator is not specified.
+        //
+        // 3. The object destroys all allocated memory at destruction.
         //
         // Plan:
-        //: 1 Create several 'DatumError' objects using the value constructors
-        //:   and verify that allocator is installed correctly.  (C-1,2)
-        //: 2 Let objects go out the scope to verify destructor behavior.
-        //:   (C-3)
+        // 1. Create several `DatumError` objects using the value constructors
+        //    and verify that allocator is installed correctly.  (C-1,2)
+        // 2. Let objects go out the scope to verify destructor behavior.
+        //    (C-3)
         //
         // Testing:
         //   RegEx(bslma::Allocator *basicAllocator);
@@ -5044,27 +5048,27 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create a regular expression object.  (C-1)
-        //:
-        //: 2 Verify that it is in the unprepared state.  (C-1)
-        //:
-        //: 3 Prepare the object with a pattern.  (C-1)
-        //:
-        //: 4 Verify that it is in the prepared state and that all the basic
-        //:   accessors return the correct values.  (C-1)
-        //:
-        //: 5 Verify that the regular and the vector match routines work
-        //:   correctly, with a 0 start position and also a non-zero start
-        //:   position.  (C-1)
-        //:
-        //: 6 Clear the object to free its resources.  (C-1)
-        //:
-        //: 7 Verify that the object has gone back to the unprepared state.
-        //:   (C-1)
+        // 1. Create a regular expression object.  (C-1)
+        //
+        // 2. Verify that it is in the unprepared state.  (C-1)
+        //
+        // 3. Prepare the object with a pattern.  (C-1)
+        //
+        // 4. Verify that it is in the prepared state and that all the basic
+        //    accessors return the correct values.  (C-1)
+        //
+        // 5. Verify that the regular and the vector match routines work
+        //    correctly, with a 0 start position and also a non-zero start
+        //    position.  (C-1)
+        //
+        // 6. Clear the object to free its resources.  (C-1)
+        //
+        // 7. Verify that the object has gone back to the unprepared state.
+        //    (C-1)
         //
         // Testing:
         //   BREATING TEST
@@ -5222,19 +5226,19 @@ int main(int argc, char *argv[])
         // PERFORMANCE TEST 1
         //
         // Concerns:
-        //: 1 JIT compiling optimization speed up pattern matching.
-        //:
-        //: 2 JIT compiling optimization slow down pattern preparation.
+        // 1. JIT compiling optimization speed up pattern matching.
+        //
+        // 2. JIT compiling optimization slow down pattern preparation.
         //
         // Plan:
-        //: 1 Using 'bsls_stopwatch' measure the run time of the 'match' method
-        //:   with and without JIT compiling support.  Compare the results and
-        //:   verify that 'match' with JIT support is faster.  (C-1)
-        //:
-        //: 2 Using 'bsls_stopwatch' measure the run time of the 'prepare'
-        //:   method with and without JIT compiling support.  Compare the
-        //:   results and verify that 'prepare' with JIT support is slower.
-        //:   (C-2)
+        // 1. Using `bsls_stopwatch` measure the run time of the `match` method
+        //    with and without JIT compiling support.  Compare the results and
+        //    verify that `match` with JIT support is faster.  (C-1)
+        //
+        // 2. Using `bsls_stopwatch` measure the run time of the `prepare`
+        //    method with and without JIT compiling support.  Compare the
+        //    results and verify that `prepare` with JIT support is slower.
+        //    (C-2)
         //
         // Testing:
         //  PERFORMANCE TEST 1
@@ -5278,7 +5282,7 @@ int main(int argc, char *argv[])
                 cout << "\nTesting '" << PATTERN << "'. pattern" << endl;
             }
 
-            // Testing 'match' without JIT compilation support.
+            // Testing `match` without JIT compilation support.
 
             int retCode = mX.prepare(&errorMsg,
                                      &errorOffset,
@@ -5333,7 +5337,7 @@ int main(int argc, char *argv[])
             mX.clear();
             mY.clear();
 
-            // Testing 'prepare' without JIT compilation support.
+            // Testing `prepare` without JIT compilation support.
 
             timer.start();
             for (int i = 0; i < NUM_MATCHES; ++i) {
@@ -5352,7 +5356,7 @@ int main(int argc, char *argv[])
             timer.reset();
             mX.clear();
 
-            // Testing 'match' with JIT compilation support.
+            // Testing `match` with JIT compilation support.
 
             retCode = mX.prepare(&errorMsg,
                                  &errorOffset,
@@ -5395,7 +5399,7 @@ int main(int argc, char *argv[])
             mX.clear();
             mY.clear();
 
-            // Testing 'prepare' with JIT compilation support.
+            // Testing `prepare` with JIT compilation support.
 
             timer.start();
             for (int i = 0; i < NUM_MATCHES; ++i) {
@@ -5439,13 +5443,13 @@ int main(int argc, char *argv[])
         // PERFORMANCE TEST 2
         //
         // Concerns:
-        //: Bypassing UTF staring validity check speed up pattern matching.
+        //  Bypassing UTF staring validity check speed up pattern matching.
         //
         // Plan:
-        //: 1 Using 'bsls_stopwatch' measure the run time of the 'match' method
-        //:   with and without UTF string validity check.  Compare the results
-        //:   and verify that 'match' without UTF string validity check is
-        //:   faster.
+        // 1. Using `bsls_stopwatch` measure the run time of the `match` method
+        //    with and without UTF string validity check.  Compare the results
+        //    and verify that `match` without UTF string validity check is
+        //    faster.
         //
         // Testing:
         //  PERFORMANCE TEST 2
@@ -5472,7 +5476,7 @@ int main(int argc, char *argv[])
         const Obj& X = mX;
 
         if (verbose) {
-            cout << "Testing 'match' with UTF string validity check."
+            cout << "Testing `match` with UTF string validity check."
                  << endl;
         }
 
@@ -5493,7 +5497,7 @@ int main(int argc, char *argv[])
         timer.reset();
 
         if (verbose) {
-            cout << "Testing 'match' without UTF string validity check."
+            cout << "Testing `match` without UTF string validity check."
                  << endl;
         }
 

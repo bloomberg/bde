@@ -9,7 +9,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
-#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstdlib.h>     // `atoi`
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -115,13 +115,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -138,66 +138,66 @@ int main(int argc, char *argv[])
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
-// 'bbldc::TerminatedDayCountUtil' methods.  First, create three 'bdlt::Date'
-// variables, 'd1', 'd2', and 'dt':
-//..
+// `bbldc::TerminatedDayCountUtil` methods.  First, create three `bdlt::Date`
+// variables, `d1`, `d2`, and `dt`:
+// ```
     const bdlt::Date d1(2003, 10, 18);
     const bdlt::Date d2(2003, 12, 31);
     const bdlt::Date dt(2004,  2, 29);
-//..
-// Then, compute the day count between 'd1' and 'd2' according to the ISDA
-// 30/360 EOM day-count convention with termination date 'dt':
-//..
+// ```
+// Then, compute the day count between `d1` and `d2` according to the ISDA
+// 30/360 EOM day-count convention with termination date `dt`:
+// ```
     const int daysDiff = bbldc::TerminatedDayCountUtil::daysDiff(
                                  d1,
                                  d2,
                                  dt,
                                  bbldc::DayCountConvention::e_ISDA_30_360_EOM);
     ASSERT(72 == daysDiff);
-//..
+// ```
 // Finally, compute the year fraction between the two dates according to the
-// ISDA 30/360 EOM day-count convention with termination date 'dt':
-//..
+// ISDA 30/360 EOM day-count convention with termination date `dt`:
+// ```
     const double yearsDiff = bbldc::TerminatedDayCountUtil::yearsDiff(
                                  d1,
                                  d2,
                                  dt,
                                  bbldc::DayCountConvention::e_ISDA_30_360_EOM);
 
-    // Need fuzzy comparison since 'yearsDiff' is a 'double'.
+    // Need fuzzy comparison since `yearsDiff` is a `double`.
     ASSERT(0.1999 < yearsDiff && 0.2001 > yearsDiff);
-//..
+// ```
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'yearsDiff'
+        // TESTING `yearsDiff`
         //   Verify the method correctly computes the number of years between
         //   two dates for the provided convention.
         //
         // Concerns:
-        //: 1 The 'yearsDiff' method produces the correct results for the
-        //:   provided convention.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The `yearsDiff` method produces the correct results for the
+        //    provided convention.
+        //
+        // 2. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Specify two termination dates, TA and TB, and a set S of
-        //:   {convention C, pairs of dates (d1, d2), their difference in years
-        //:   YA for TA, and their difference in years YB for TB}.  For the
-        //:   method under test, in a loop over the elements of S, apply the
-        //:   method to dates having the values d1 and d2 using convention C
-        //:   and confirm, with a fuzzy comparison (since the return value is a
-        //:   floating-point number), the method's results using the value YA
-        //:   for termination date TA and YB for termination date TB.  (C-1)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
+        // 1. Specify two termination dates, TA and TB, and a set S of
+        //    {convention C, pairs of dates (d1, d2), their difference in years
+        //    YA for TA, and their difference in years YB for TB}.  For the
+        //    method under test, in a loop over the elements of S, apply the
+        //    method to dates having the values d1 and d2 using convention C
+        //    and confirm, with a fuzzy comparison (since the return value is a
+        //    floating-point number), the method's results using the value YA
+        //    for termination date TA and YB for termination date TB.  (C-1)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //   double yearsDiff(beginDate, endDate, terminationDate, convention);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'yearsDiff'" << endl
+                          << "TESTING `yearsDiff`" << endl
                           << "===================" << endl;
 
         const bdlt::Date TA(2016, 2, 29);
@@ -213,8 +213,8 @@ int main(int argc, char *argv[])
                 int    d_year2;      // endDate year
                 int    d_month2;     // endDate month
                 int    d_day2;       // endDate day
-                double d_numYearsA;  // result # of years for 'TA'
-                double d_numYearsB;  // result # of years for 'TB'
+                double d_numYearsA;  // result # of years for `TA`
+                double d_numYearsB;  // result # of years for `TB`
             } DATA[] = {
 //                          - - first - -   - - second - -
 //line  type                year  mon  day  year  mon  day    YA      YB
@@ -323,33 +323,33 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'daysDiff'
+        // TESTING `daysDiff`
         //   Verify the method correctly computes the number of days between
         //   two dates for the provided convention.
         //
         // Concerns:
-        //: 1 The 'daysDiff' method produces the correct results for the
-        //:   provided convention.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The `daysDiff` method produces the correct results for the
+        //    provided convention.
+        //
+        // 2. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Specify two termination dates, TA and TB, and a set S of
-        //:   {convention C, pairs of dates (d1, d2), their difference in days
-        //:   DA for TA, and their difference in days DB for TB}.  For the
-        //:   method under test, in a loop over the elements of S, apply the
-        //:   method to dates having the values d1 and d2 using convention C
-        //:   and confirm the method's results using the value DA for
-        //:   termination date TA and DB for termination date TB.  (C-1)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
+        // 1. Specify two termination dates, TA and TB, and a set S of
+        //    {convention C, pairs of dates (d1, d2), their difference in days
+        //    DA for TA, and their difference in days DB for TB}.  For the
+        //    method under test, in a loop over the elements of S, apply the
+        //    method to dates having the values d1 and d2 using convention C
+        //    and confirm the method's results using the value DA for
+        //    termination date TA and DB for termination date TB.  (C-1)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //   int daysDiff(beginDate, endDate, terminationDate, convention);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'daysDiff'" << endl
+                          << "TESTING `daysDiff`" << endl
                           << "==================" << endl;
 
         const bdlt::Date TA(2016, 2, 29);
@@ -365,8 +365,8 @@ int main(int argc, char *argv[])
                 int  d_year2;     // endDate year
                 int  d_month2;    // endDate month
                 int  d_day2;      // endDate day
-                int  d_numDaysA;  // result # of years for 'TA'
-                int  d_numDaysB;  // result # of years for 'TB'
+                int  d_numDaysA;  // result # of years for `TA`
+                int  d_numDaysB;  // result # of years for `TB`
             } DATA[] = {
 //                          - - first - -   - - second - -
 //line  type                year  mon  day  year  mon  day  DA  DB
@@ -467,23 +467,23 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'isSupported'
+        // TESTING `isSupported`
         //   Verify the method correctly indicates whether or not the provided
         //   convention is supported by this component.
         //
         // Concerns:
-        //: 1 The 'isSupported' method produces the correct results for the
-        //:   provided convention.
+        // 1. The `isSupported` method produces the correct results for the
+        //    provided convention.
         //
         // Plan:
-        //: 1 Directly test the return value of the method.  (C-1)
+        // 1. Directly test the return value of the method.  (C-1)
         //
         // Testing:
         //   bool isSupported(convention);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'isSupported'" << endl
+                          << "TESTING `isSupported`" << endl
                           << "=====================" << endl;
 
         for (int i = 0; i < 1000; ++i) {

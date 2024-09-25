@@ -41,122 +41,123 @@ BSLS_IDENT_RCSID(balm_metricsmanager_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace balm {
 
+/// This class provides a namespace for auxiliary template operations for
+/// the `MetricsManager` class.  The operations provided serve as private
+/// manipulators of a `MetricsManager` object but, they are defined here, in
+/// the implementation, to avoid defining the (substantive) private template
+/// operations in the header.  Note that this class is a friend of
+/// `MetricsManager`.
 struct MetricsManager_PublicationHelper {
-    // This class provides a namespace for auxiliary template operations for
-    // the 'MetricsManager' class.  The operations provided serve as private
-    // manipulators of a 'MetricsManager' object but, they are defined here, in
-    // the implementation, to avoid defining the (substantive) private template
-    // operations in the header.  Note that this class is a friend of
-    // 'MetricsManager'.
 
+    /// An alias for a mapping of `Publisher` to the `MetricSample` for that
+    /// publisher.
     typedef bsl::map<bsl::shared_ptr<Publisher>, MetricSample> SampleCache;
-        // An alias for a mapping of 'Publisher' to the 'MetricSample' for that
-        // publisher.
 
     // CLASS METHODS
+
+    /// Update the specified `sampleCache` entry for the specified
+    /// `publisher` with the specified `sampleGroup` collected at the
+    /// specified `timeStamp`.  If a `MetricSample` does not already exist
+    /// for `publisher` in the `sampleCache`, create one and add it to the
+    /// `sampleCache`.
     static void updateSampleCache(
                                 SampleCache                       *sampleCache,
                                 const bsl::shared_ptr<Publisher>&  publisher,
                                 const MetricSampleGroup&           sampleGroup,
                                 const bdlt::DatetimeTz&            timeStamp);
-        // Update the specified 'sampleCache' entry for the specified
-        // 'publisher' with the specified 'sampleGroup' collected at the
-        // specified 'timeStamp'.  If a 'MetricSample' does not already exist
-        // for 'publisher' in the 'sampleCache', create one and add it to the
-        // 'sampleCache'.
 
+    /// Append to the specified `records` the metrics collected from the
+    /// specified `manager` for the specified `category`, and load into
+    /// specified `elapsedTime` the time interval from when they were last
+    /// reset to the specified `currentTime`; if `resetFlag` is `true`,
+    /// reset the metrics to their default state.  This operation will
+    /// collect aggregated metric record values from metric collection
+    /// callbacks in `manager.d_callbackRegistry` as well as from
+    /// `Collector` objects owned by `manager.d_collectors`, and if the
+    /// `resetFlag` is `true`, reset those collectors and callbacks to their
+    /// default state.  If a `category` has not been previously reset, then
+    /// the `elapsedTime` is computed from the creation of `manager`.  Note
+    /// that this operation does *not* test if `category` is enabled.
     static void collect(bsl::vector<MetricRecord> *records,
                         bsls::TimeInterval        *elapsedTime,
                         MetricsManager            *manager,
                         const Category            *category,
                         const bsls::TimeInterval&  now,
                         bool                       resetFlag);
-        // Append to the specified 'records' the metrics collected from the
-        // specified 'manager' for the specified 'category', and load into
-        // specified 'elapsedTime' the time interval from when they were last
-        // reset to the specified 'currentTime'; if 'resetFlag' is 'true',
-        // reset the metrics to their default state.  This operation will
-        // collect aggregated metric record values from metric collection
-        // callbacks in 'manager.d_callbackRegistry' as well as from
-        // 'Collector' objects owned by 'manager.d_collectors', and if the
-        // 'resetFlag' is 'true', reset those collectors and callbacks to their
-        // default state.  If a 'category' has not been previously reset, then
-        // the 'elapsedTime' is computed from the creation of 'manager'.  Note
-        // that this operation does *not* test if 'category' is enabled.
 
+    /// Publish, to publishers managed by the specified `manager`, metrics
+    /// records for the sequence of categories from the specified
+    /// `categoriesBegin` to the specified `categoriesEnd` collected from
+    /// metrics managed by `manager`, and if the specified `resetFlag` is
+    /// `true`, reset the metrics being collected to their default state.
+    /// The specified template type `ConstForwardCategoryIterator` must be
+    /// a forward iterator over a container of pointers to constant
+    /// `Category` objects, e.g.:
+    /// ```
+    /// bsl::set<const Category *>::const_iterator
+    /// ```
+    /// This operation will collect aggregated metric record values from
+    /// metric collection callbacks in `manager.d_callbackRegistry` as well
+    /// as from `Collector` objects owned by `manager.d_collectors`, for the
+    /// categories being iterated over, and then publish those records using
+    /// any publishers in `manager.d_publishers` registered for those
+    /// categories.  The map of previous publication times,
+    /// `manager.d_prevResetTimes`, is used to determine the time interval
+    /// that the collected metrics provide values for, and is updated as
+    /// part of this operation.  This operation obtains a *lock* on
+    /// `manager.d_publishLock` and then a *read* *lock* on
+    /// `manager.d_rwLock` (to access the properties of `manager`).  The
+    /// behavior is undefined unless each category appears only once between
+    /// `categoriesBegin` and `categoriesEnd`.  Note that this class is a
+    /// friend of `MetricsManager` and has access to the private data
+    /// members of `manager`.
     template <class ConstForwardCategoryIterator>
     static void publish(MetricsManager                      *manager,
                         const ConstForwardCategoryIterator&  categoriesBegin,
                         const ConstForwardCategoryIterator&  categoriesEnd,
                         bool                                 resetFlag);
-        // Publish, to publishers managed by the specified 'manager', metrics
-        // records for the sequence of categories from the specified
-        // 'categoriesBegin' to the specified 'categoriesEnd' collected from
-        // metrics managed by 'manager', and if the specified 'resetFlag' is
-        // 'true', reset the metrics being collected to their default state.
-        // The specified template type 'ConstForwardCategoryIterator' must be
-        // a forward iterator over a container of pointers to constant
-        // 'Category' objects, e.g.:
-        //..
-        //  bsl::set<const Category *>::const_iterator
-        //..
-        // This operation will collect aggregated metric record values from
-        // metric collection callbacks in 'manager.d_callbackRegistry' as well
-        // as from 'Collector' objects owned by 'manager.d_collectors', for the
-        // categories being iterated over, and then publish those records using
-        // any publishers in 'manager.d_publishers' registered for those
-        // categories.  The map of previous publication times,
-        // 'manager.d_prevResetTimes', is used to determine the time interval
-        // that the collected metrics provide values for, and is updated as
-        // part of this operation.  This operation obtains a *lock* on
-        // 'manager.d_publishLock' and then a *read* *lock* on
-        // 'manager.d_rwLock' (to access the properties of 'manager').  The
-        // behavior is undefined unless each category appears only once between
-        // 'categoriesBegin' and 'categoriesEnd'.  Note that this class is a
-        // friend of 'MetricsManager' and has access to the private data
-        // members of 'manager'.
 
+    /// Publish metrics for every category registered with the
+    /// `MetricsRegistry` object contained in the specified `manager`,
+    /// except for the specified `excludedCategories`.  Optionally specify a
+    /// `resetFlag` that determines if the metrics are reset as part of this
+    /// operation.  This operation will collect aggregated metric values for
+    /// each *enabled* category in its `metricRegistry()` (that is not in
+    /// `excludedCategories`) from registered callbacks as well as from its
+    /// own `CollectorRepository`, and then publish those records using any
+    /// publishers associated with the category.  Any category that is not
+    /// enabled is ignored.  If `resetFlag` is `true`, the metrics being
+    /// collected are reset to their default state.  The metrics manager
+    /// provides publishers the time interval over which a published
+    /// category of metrics were collected.  This interval is computed as
+    /// the elapsed time since the last time the category was reset (either
+    /// through a call to the `publish` or `collectSample` methods).  If a
+    /// category has not previously been reset then this interval is taken
+    /// to be the elapsed time since the creation of this metrics manager.
     template <class SET>
     static void publishAll(balm::MetricsManager *manager,
                            const SET&            excludedCategories,
                            bool                  resetFlag);
-        // Publish metrics for every category registered with the
-        // 'MetricsRegistry' object contained in the specified 'manager',
-        // except for the specified 'excludedCategories'.  Optionally specify a
-        // 'resetFlag' that determines if the metrics are reset as part of this
-        // operation.  This operation will collect aggregated metric values for
-        // each *enabled* category in its 'metricRegistry()' (that is not in
-        // 'excludedCategories') from registered callbacks as well as from its
-        // own 'CollectorRepository', and then publish those records using any
-        // publishers associated with the category.  Any category that is not
-        // enabled is ignored.  If 'resetFlag' is 'true', the metrics being
-        // collected are reset to their default state.  The metrics manager
-        // provides publishers the time interval over which a published
-        // category of metrics were collected.  This interval is computed as
-        // the elapsed time since the last time the category was reset (either
-        // through a call to the 'publish' or 'collectSample' methods).  If a
-        // category has not previously been reset then this interval is taken
-        // to be the elapsed time since the creation of this metrics manager.
 };
 
                               // ================
                               // class MapProctor
                               // ================
 
+/// This class implements a proctor that, unless `release` is called,
+/// erases an element from a templatized container object.  The templatized
+/// type `CONTAINER` may be any type that supports an `erase` operation
+/// taking a `CONTAINER::iterator` object, however it was explicitly
+/// intended to support `bsl::map` and `bsl::unordered_map` objects.  On
+/// construction, a `MapProctor` is provided the address of a `CONTAINER`
+/// object and an iterator (i.e., `CONTAINER::iterator`) into that object.
+/// On destruction, if `release()` has not been called, a `MapProctor`
+/// object will call `erase` on the supplied `CONTAINER`, passing the
+/// supplied `CONTAINER::iterator`.  If `release()` is called on a
+/// `MapProctor` object, then the `MapProctor` object's destructor will
+/// have no effect.
 template <class CONTAINER>
 class MapProctor {
-    // This class implements a proctor that, unless 'release' is called,
-    // erases an element from a templatized container object.  The templatized
-    // type 'CONTAINER' may be any type that supports an 'erase' operation
-    // taking a 'CONTAINER::iterator' object, however it was explicitly
-    // intended to support 'bsl::map' and 'bsl::unordered_map' objects.  On
-    // construction, a 'MapProctor' is provided the address of a 'CONTAINER'
-    // object and an iterator (i.e., 'CONTAINER::iterator') into that object.
-    // On destruction, if 'release()' has not been called, a 'MapProctor'
-    // object will call 'erase' on the supplied 'CONTAINER', passing the
-    // supplied 'CONTAINER::iterator'.  If 'release()' is called on a
-    // 'MapProctor' object, then the 'MapProctor' object's destructor will
-    // have no effect.
 
     // DATA
     CONTAINER                      *d_map;       // managed map
@@ -171,82 +172,85 @@ class MapProctor {
 
   public:
     // CREATORS
-    MapProctor(CONTAINER *map, const typename CONTAINER::iterator& iterator);
-        // Create a proctor object that will manage the element in the
-        // specified 'map' indicated by the specified 'iterator'.  Unless
-        // 'release()' is called prior to this object's destruction, this
-        // object's destructor will 'erase' the 'iterator' from the 'map'
-        // (i.e., 'map->erase(iterator)').  The behavior is undefined unless
-        // 'map' is a valid address of a 'CONTAINER' object, and 'iterator' is
-        // a valid iterator into that 'map', and remains a valid iterator for
-        // the lifetime of this object.
 
+    /// Create a proctor object that will manage the element in the
+    /// specified `map` indicated by the specified `iterator`.  Unless
+    /// `release()` is called prior to this object's destruction, this
+    /// object's destructor will `erase` the `iterator` from the `map`
+    /// (i.e., `map->erase(iterator)`).  The behavior is undefined unless
+    /// `map` is a valid address of a `CONTAINER` object, and `iterator` is
+    /// a valid iterator into that `map`, and remains a valid iterator for
+    /// the lifetime of this object.
+    MapProctor(CONTAINER *map, const typename CONTAINER::iterator& iterator);
+
+    /// Create a proctor object that will manage the element in the
+    /// specified `map` indicated by the specified `insertResult`.   The
+    /// boolean value `insertResult.second` indicates whether the proctor
+    /// is `active` and should manage the element indicated by
+    /// `insertResult.first`.  If `insertResult.second` is `true` and
+    /// `release()` is not called prior to this object's destruction, this
+    /// object's destructor will `erase` the `insertResult` iterator from
+    /// the `map` (i.e., `map->erase(insertResult.first)`).  If
+    /// `insertResult.second` is `false` or `release()` is called prior to
+    /// this object's destruction, then this object's destructor will have
+    /// no effect.  The behavior is undefined unless `map` is a valid
+    /// address of a `CONTAINER` object, and either `insertResult.second` is
+    /// `false` or `insertResult.first` is a valid iterator into `map` and
+    /// remains valid for the lifetime of this object.  Note that the type
+    /// of `insertResult` matches the return type of `bsl::map::insert()`
+    /// and `bsl::unordered_map::insert()`.
     MapProctor(CONTAINER                                      *map,
                bsl::pair<typename CONTAINER::iterator, bool>&  insertResult);
-        // Create a proctor object that will manage the element in the
-        // specified 'map' indicated by the specified 'insertResult'.   The
-        // boolean value 'insertResult.second' indicates whether the proctor
-        // is 'active' and should manage the element indicated by
-        // 'insertResult.first'.  If 'insertResult.second' is 'true' and
-        // 'release()' is not called prior to this object's destruction, this
-        // object's destructor will 'erase' the 'insertResult' iterator from
-        // the 'map' (i.e., 'map->erase(insertResult.first)').  If
-        // 'insertResult.second' is 'false' or 'release()' is called prior to
-        // this object's destruction, then this object's destructor will have
-        // no effect.  The behavior is undefined unless 'map' is a valid
-        // address of a 'CONTAINER' object, and either 'insertResult.second' is
-        // 'false' or 'insertResult.first' is a valid iterator into 'map' and
-        // remains valid for the lifetime of this object.  Note that the type
-        // of 'insertResult' matches the return type of 'bsl::map::insert()'
-        // and 'bsl::unordered_map::insert()'.
 
+    /// If `active()` is `true`, erase the element indicated by the iterator
+    /// supplied at construction from the map supplied at construction, and
+    /// destroy this proctor.
     ~MapProctor();
-        // If 'active()' is 'true', erase the element indicated by the iterator
-        // supplied at construction from the map supplied at construction, and
-        // destroy this proctor.
 
     // MANIPULATORS
+
+    /// Set `active()` to `false`.  After invoking this method, destroying
+    /// this object will have no effect on the map supplied at construction.
     void release();
-        // Set 'active()' to 'false'.  After invoking this method, destroying
-        // this object will have no effect on the map supplied at construction.
 };
 
                    // ======================================
                    // class MetricsManager_PublisherRegistry
                    // ======================================
 
+/// This class provides a mechanism for associating a `Publisher` object
+/// with one or more categories, or associating a `Publisher` with every
+/// category.  The `balm::Metricsmanager_PublisherRegistry` is responsible
+/// for managing the registration of `Publisher` objects for a
+/// `MetricsManager` object.
 class MetricsManager_PublisherRegistry {
-    // This class provides a mechanism for associating a 'Publisher' object
-    // with one or more categories, or associating a 'Publisher' with every
-    // category.  The 'balm::Metricsmanager_PublisherRegistry' is responsible
-    // for managing the registration of 'Publisher' objects for a
-    // 'MetricsManager' object.
 
     // PRIVATE TYPES
+
+    /// `PublisherPtr` is an alias for a shared pointer to a `Publisher`
+    /// object.
     typedef bsl::shared_ptr<Publisher>                    PublisherPtr;
-        // 'PublisherPtr' is an alias for a shared pointer to a 'Publisher'
-        // object.
 
+    /// `SpecificPublishers` is an alias for a map from a category to the
+    /// set of publishers for that category.
     typedef bsl::multimap<const Category *, PublisherPtr> SpecificPublishers;
-        // 'SpecificPublishers' is an alias for a map from a category to the
-        // set of publishers for that category.
 
+    /// `PublisherSet` type is an alias for set of managed pointers to
+    /// publisher objects.
     typedef bsl::set<PublisherPtr>                        PublisherSet;
-        // 'PublisherSet' type is an alias for set of managed pointers to
-        // publisher objects.
 
+    /// `PublisherRegistration` is an alias for a map, for a particular
+    /// publisher, from a category address to the iterator into a
+    /// `SpecificPublishers` multimap where that publisher is registered.
     typedef bsl::map<const Category *, SpecificPublishers::iterator>
                                                          PublisherRegistration;
-        // 'PublisherRegistration' is an alias for a map, for a particular
-        // publisher, from a category address to the iterator into a
-        // 'SpecificPublishers' multimap where that publisher is registered.
 
+    /// `RegistrationInfo` is an alias for a map from a publisher to the
+    /// iterators into a `SpecificPublishers` multimap where that publisher
+    /// is registered.  It serves as a reverse map for a
+    /// `SpecificPublishers`.
     typedef bsl::map<bsl::shared_ptr<Publisher>, PublisherRegistration>
                                                               RegistrationInfo;
-        // 'RegistrationInfo' is an alias for a map from a publisher to the
-        // iterators into a 'SpecificPublishers' multimap where that publisher
-        // is registered.  It serves as a reverse map for a
-        // 'SpecificPublishers'.
 
     // DATA
     SpecificPublishers  d_specificPublishers;  // map of category to set of
@@ -270,123 +274,128 @@ class MetricsManager_PublisherRegistry {
 
   public:
     // PUBLIC TYPES
-    typedef PublisherSet::iterator general_iterator;
-        // An alias for an iterator over the general publishers of this
-        // registry.  This should only be used with a lock on the properties of
-        // the 'MetricsManager' (therefore, it is not exposed to clients).
 
+    /// An alias for an iterator over the general publishers of this
+    /// registry.  This should only be used with a lock on the properties of
+    /// the `MetricsManager` (therefore, it is not exposed to clients).
+    typedef PublisherSet::iterator general_iterator;
+
+    /// An alias for an iterator over the specific publishers of this
+    /// registry.  This should only be used with a lock on the properties of
+    /// the `MetricsManager` (therefore, it is not exposed to clients).
     typedef SpecificPublishers::iterator specific_iterator;
-        // An alias for an iterator over the specific publishers of this
-        // registry.  This should only be used with a lock on the properties of
-        // the 'MetricsManager' (therefore, it is not exposed to clients).
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(MetricsManager_PublisherRegistry,
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create an empty publisher registry.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.
     explicit
     MetricsManager_PublisherRegistry(bslma::Allocator *basicAllocator);
-        // Create an empty publisher registry.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
 
+    /// Destroy this publisher registry.
     ~MetricsManager_PublisherRegistry();
-        // Destroy this publisher registry.
 
     // MANIPULATORS
-    int addGeneralPublisher(const bsl::shared_ptr<Publisher>& publisher);
-        // Add the specified 'publisher' to the set of publishers that should
-        // be used to propagate records for *every* category published.
-        // Return 0 on success, and a non-zero value with no effect if
-        // 'publisher' has already been registered.  Note that this method
-        // will have no effect and return a non-zero value if 'publisher' was
-        // previously registered for one or more specific categories (using
-        // the alternative 'addSpecificPublisher' method).
 
+    /// Add the specified `publisher` to the set of publishers that should
+    /// be used to propagate records for *every* category published.
+    /// Return 0 on success, and a non-zero value with no effect if
+    /// `publisher` has already been registered.  Note that this method
+    /// will have no effect and return a non-zero value if `publisher` was
+    /// previously registered for one or more specific categories (using
+    /// the alternative `addSpecificPublisher` method).
+    int addGeneralPublisher(const bsl::shared_ptr<Publisher>& publisher);
+
+    /// Add the specified `publisher` to the set of publishers that should
+    /// be used to publish metrics for the specified `category`.  Return 0
+    /// on success, and a non-zero value with no effect if `publisher` has
+    /// already been registered to publish `category`.  Note that this
+    /// method will return a non-zero value if the publisher has previously
+    /// been registered to publish every category (using the alternative
+    /// `addGeneralPublisher` method).
     int addSpecificPublisher(const Category                    *category,
                              const bsl::shared_ptr<Publisher>&  publisher);
-        // Add the specified 'publisher' to the set of publishers that should
-        // be used to publish metrics for the specified 'category'.  Return 0
-        // on success, and a non-zero value with no effect if 'publisher' has
-        // already been registered to publish 'category'.  Note that this
-        // method will return a non-zero value if the publisher has previously
-        // been registered to publish every category (using the alternative
-        // 'addGeneralPublisher' method).
 
+    /// Remove the specified `publisher` from this registry.  Return 0 on
+    /// success, or a non-zero value if the publisher' cannot be found.
+    /// Note that metrics should no longer be published using `publisher`
+    /// for any category.
     int removePublisher(const Publisher *publisher);
-        // Remove the specified 'publisher' from this registry.  Return 0 on
-        // success, or a non-zero value if the publisher' cannot be found.
-        // Note that metrics should no longer be published using 'publisher'
-        // for any category.
 
+    /// Return an iterator at the beginning of the sequence of general
+    /// iterators held by this registry.
     general_iterator beginGeneral();
-        // Return an iterator at the beginning of the sequence of general
-        // iterators held by this registry.
 
+    /// Return an iterator one past the end of the sequence of general
+    /// iterators held by this registry.
     general_iterator endGeneral();
-        // Return an iterator one past the end of the sequence of general
-        // iterators held by this registry.
 
+    /// Return an iterator at the beginning of the sequence of specific
+    /// iterators held by this registry.
     specific_iterator beginSpecific();
-        // Return an iterator at the beginning of the sequence of specific
-        // iterators held by this registry.
 
+    /// Return an iterator one past the end of the sequence of specific
+    /// iterators held by this registry.
     specific_iterator endSpecific();
-        // Return an iterator one past the end of the sequence of specific
-        // iterators held by this registry.
 
+    /// Return an iterator at the beginning of the range of specific
+    /// publishers registered for the specified `category`.
     specific_iterator lowerBound(const Category *category);
-        // Return an iterator at the beginning of the range of specific
-        // publishers registered for the specified 'category'.
 
+    /// Return an iterator one past the range of specific publishers
+    /// registered for the specified `category`.
     specific_iterator upperBound(const Category *category);
-        // Return an iterator one past the range of specific publishers
-        // registered for the specified 'category'.
 
     // ACCESSORS
+
+    /// Append to the specified `publishers`, the addresses of publishers
+    /// registered to publish metrics for every category.  Return the
+    /// number of publishers found.  Note that this method will not find
+    /// publishers associated with individual categories (i.e., category
+    /// specific publishers).
     template <class VECTOR>
     int findGeneralPublishers(VECTOR *publishers) const;
-        // Append to the specified 'publishers', the addresses of publishers
-        // registered to publish metrics for every category.  Return the
-        // number of publishers found.  Note that this method will not find
-        // publishers associated with individual categories (i.e., category
-        // specific publishers).
 
+    /// Append to the specified `publishers`, the addresses of publishers
+    /// associated with the (particular) specified `category`.  Return the
+    /// number of publishers found for `category`.  Note that this method
+    /// will not find publishers registered for every category (i.e,
+    /// general publishers).
     template <class VECTOR>
     int findSpecificPublishers(VECTOR         *publishers,
                                const Category *category) const;
-        // Append to the specified 'publishers', the addresses of publishers
-        // associated with the (particular) specified 'category'.  Return the
-        // number of publishers found for 'category'.  Note that this method
-        // will not find publishers registered for every category (i.e,
-        // general publishers).
 };
 
                    // =====================================
                    // class MetricsManager_CallbackRegistry
                    // =====================================
 
+/// This class provides a mechanism for associating a
+/// `MetricsCollectionCallback` functor with a category.  The
+/// `balm::Metricsmanager_CallbackRegistry` is responsible for managing the
+/// registration of `MetricsCollectionCallback` objects for a
+/// `MetricsManager` object.
 class MetricsManager_CallbackRegistry {
-    // This class provides a mechanism for associating a
-    // 'MetricsCollectionCallback' functor with a category.  The
-    // 'balm::Metricsmanager_CallbackRegistry' is responsible for managing the
-    // registration of 'MetricsCollectionCallback' objects for a
-    // 'MetricsManager' object.
 
     // PRIVATE TYPES
     typedef MetricsManager::CallbackHandle      CallbackHandle;
     typedef MetricsManager::RecordsCollectionCallback
                                                      RecordsCollectionCallback;
+
+    /// A `CallbackMap` type is a map from a category to the sequence of
+    /// `MetricsCollectionCallback` functions for that category.
     typedef bsl::multimap<const Category *,
                           RecordsCollectionCallback> CallbackMap;
-        // A 'CallbackMap' type is a map from a category to the sequence of
-        // 'MetricsCollectionCallback' functions for that category.
 
+    /// A `CallbackHandleMap` type is a map from a callback handle to the
+    /// iterator into a `CallbackMap` object for that handle.
     typedef bsl::map<CallbackHandle,
                      CallbackMap::iterator>          CallbackHandleMap;
-        // A 'CallbackHandleMap' type is a map from a callback handle to the
-        // iterator into a 'CallbackMap' object for that handle.
 
     // DATA
     int               d_nextHandle;  // next 'CallbackHandle' value
@@ -401,63 +410,67 @@ class MetricsManager_CallbackRegistry {
                                   const MetricsManager_CallbackRegistry&);
   public:
     // TYPES
+
+    /// An alias for an iterator over the callbacks in this registry. This
+    /// should only be used with a lock on the properties of the
+    /// `MetricsManager` (therefore, it is not exposed to clients).
     typedef CallbackMap::iterator iterator;
-        // An alias for an iterator over the callbacks in this registry. This
-        // should only be used with a lock on the properties of the
-        // 'MetricsManager' (therefore, it is not exposed to clients).
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(MetricsManager_CallbackRegistry,
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create an empty callback registry.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.
     explicit
     MetricsManager_CallbackRegistry(bslma::Allocator *basicAllocator = 0);
-        // Create an empty callback registry.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
 
+    /// Destroy this callback registry.
     ~MetricsManager_CallbackRegistry();
-        // Destroy this callback registry.
 
     // MANIPULATORS
+
+    /// Register the specified `callback` to record metrics for the
+    /// specified `category`, and return an opaque integer handle that can
+    /// be used later to remove the `callback`.  The behavior is undefined
+    /// if `callback` returns metrics belonging to metric categories other
+    /// than `category`.  Note that the same `callback` can be registered
+    /// for a `category` multiple times, and that registering the same
+    /// `callback` multiple times will result in an equal number of
+    /// invocations of the `callback` when publishing the `category`.
     CallbackHandle registerCollectionCallback(
                                    const Category                   *category,
                                    const RecordsCollectionCallback&  callback);
-        // Register the specified 'callback' to record metrics for the
-        // specified 'category', and return an opaque integer handle that can
-        // be used later to remove the 'callback'.  The behavior is undefined
-        // if 'callback' returns metrics belonging to metric categories other
-        // than 'category'.  Note that the same 'callback' can be registered
-        // for a 'category' multiple times, and that registering the same
-        // 'callback' multiple times will result in an equal number of
-        // invocations of the 'callback' when publishing the 'category'.
 
+    /// Remove the callback associated with the specified `handle`.  Return
+    /// 0 on success, or a non-zero value if `handle` cannot be found.
     int removeCollectionCallback(CallbackHandle handle);
-        // Remove the callback associated with the specified 'handle'.  Return
-        // 0 on success, or a non-zero value if 'handle' cannot be found.
 
+    /// Return an iterator at the beginning of the collection of callbacks.
     iterator begin();
-        // Return an iterator at the beginning of the collection of callbacks.
 
+    /// Return an iterator at the beginning of the range of callbacks
+    /// registered for the specified `category`.
     iterator lowerBound(const Category *category);
-        // Return an iterator at the beginning of the range of callbacks
-        // registered for the specified 'category'.
 
+    /// Return an iterator one past the range of callbacks registered for
+    /// the specified `category`.
     iterator upperBound(const Category *category);
-        // Return an iterator one past the range of callbacks registered for
-        // the specified 'category'.
 
+    /// Return an iterator one past the end of the collection of callbacks.
     iterator end();
-        // Return an iterator one past the end of the collection of callbacks.
 
     // ACCESSORS
+
+    /// Append to the specified `callbacks` the addresses to any metric
+    /// collection callbacks registered for the specified `category`.
+    /// Return the number of callbacks found for the `category`.
     int findCallbacks(
                bsl::vector<const RecordsCollectionCallback *> *callbacks,
                const Category                                 *category) const;
-        // Append to the specified 'callbacks' the addresses to any metric
-        // collection callbacks registered for the specified 'category'.
-        // Return the number of callbacks found for the 'category'.
 };
 
 }  // close package namespace
@@ -488,9 +501,9 @@ struct IsSet {
 };
 
 
+/// This type is used by `collectSample` to indirectly refer to a series of
+/// records in a vector (in case the vector is resized).
 struct SampleDescription {
-    // This type is used by 'collectSample' to indirectly refer to a series of
-    // records in a vector (in case the vector is resized).
 
     // PUBLIC DATA
     int                d_beginIndex;

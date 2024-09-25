@@ -197,18 +197,19 @@ namespace u {
                          // class PartialCustomizedType
                          // ===========================
 
+/// This class template provides the minimum necessary functionality to test
+/// `balber::BerUniversalTagNumber::select` with an `object` that has the
+/// `CustomizedType` `bldat` type category.  The specified `BASE_TYPE`
+/// defines the `BaseType` trait of the `CustomizedType` implementation
+/// provided by this class.
 template <class BASE_TYPE>
 class PartialCustomizedType {
-    // This class template provides the minimum necessary functionality to test
-    // 'balber::BerUniversalTagNumber::select' with an 'object' that has the
-    // 'CustomizedType' 'bldat' type category.  The specified 'BASE_TYPE'
-    // defines the 'BaseType' trait of the 'CustomizedType' implementation
-    // provided by this class.
 
   public:
     // CREATORS
+
+    /// Construct a `PartialCustomizedType` object.
     PartialCustomizedType()
-        // Construct a 'PartialCustomizedType' object.
     {
     }
 };
@@ -220,21 +221,21 @@ class PartialCustomizedType {
 
 namespace bdlat_CustomizedTypeFunctions {
 
+/// This `struct` provides a definition of the
+/// `bdlat_CustomizedTypeFucntions::BaseType` meta-function for all
+/// specializations of `PartialCustomizedType`.
 template <class BASE_TYPE>
 struct BaseType<u::PartialCustomizedType<BASE_TYPE> > {
-    // This 'struct' provides a definition of the
-    // 'bdlat_CustomizedTypeFucntions::BaseType' meta-function for all
-    // specializations of 'PartialCustomizedType'.
 
     typedef BASE_TYPE Type;
 };
 
+/// This `struct` provides a definition of the
+/// `bdlat_CustomizedTypeFunctions::IsCustomizedType` meta-function for all
+/// specializations of `PartialCustomizedType`.
 template <class BASE_TYPE>
 struct IsCustomizedType<u::PartialCustomizedType<BASE_TYPE> >
 : public bsl::true_type {
-    // This 'struct' provides a definition of the
-    // 'bdlat_CustomizedTypeFunctions::IsCustomizedType' meta-function for all
-    // specializations of 'PartialCustomizedType'.
 };
 
 } // close bdlat_CustomizedTypeFunctions
@@ -246,71 +247,74 @@ namespace u {
                           // class PartialDynamicType
                           // ========================
 
+/// This class template provides the minimum necessary functionality to
+/// test `balber::BerUniversalTagNumber::select` with an `object` that
+/// has the `DynamicType` `bdlat` type category.  The specified `VALUE_TYPE`
+/// defines the type of the underlying value of this object as well as its
+/// dynamic type category, which is the type category of the `VALUE_TYPE`.
 template <class VALUE_TYPE>
 class PartialDynamicType {
-    // This class template provides the minimum necessary functionality to
-    // test 'balber::BerUniversalTagNumber::select' with an 'object' that
-    // has the 'DynamicType' 'bdlat' type category.  The specified 'VALUE_TYPE'
-    // defines the type of the underlying value of this object as well as its
-    // dynamic type category, which is the type category of the 'VALUE_TYPE'.
 
   public:
     // TYPES
+
+    /// `ValueType` is an alias to the `VALUE_TYPE` template argument.
     typedef VALUE_TYPE ValueType;
-        // 'ValueType' is an alias to the 'VALUE_TYPE' template argument.
 
   private:
     // DATA
-    bslalg::ConstructorProxy<ValueType> d_value;
-        // The value of the underlying type, 'ValueType', for which this object
-        // is a wrapper with the 'DynamicType' category
 
+    // The value of the underlying type, `ValueType`, for which this object
+    // is a wrapper with the `DynamicType` category
+    bslalg::ConstructorProxy<ValueType> d_value;
+
+    // Note that this object stores its type category in a `d_category`
+    // data member. Storing this information in a data member, and in
+    // particular using that data member as the value to return in the
+    // `typeCategory` method below, is *critical* to expose a bug in the
+    // prior implementation of this component that did not expect
+    // `bdlat_TypeCategoryUtil::accessByCategory` to load information from
+    // its `object` argument.  This operation does, in practice, load such
+    // information (as one can imagine the implementation for
+    // `bcem_Aggregate` must, and indeed, does).
     bdlat_TypeCategory::Value           d_category;
-        // Note that this object stores its type category in a 'd_category'
-        // data member. Storing this information in a data member, and in
-        // particular using that data member as the value to return in the
-        // 'typeCategory' method below, is *critical* to expose a bug in the
-        // prior implementation of this component that did not expect
-        // 'bdlat_TypeCategoryUtil::accessByCategory' to load information from
-        // its 'object' argument.  This operation does, in practice, load such
-        // information (as one can imagine the implementation for
-        // 'bcem_Aggregate' must, and indeed, does).
 
   public:
     // CREATORS
+
+    /// Construct a `PartialDynamicType` object.  Optionally specify a
+    /// `basicAllocator` used to supply memory if `ValueType` is
+    /// allocator-aware, and is otherwise unused.  If `basicAllocator` is 0
+    /// and `ValueType` is allocator-aware, the currently installed default
+    /// allocator is used.
     explicit PartialDynamicType(bslma::Allocator *basicAllocator = 0)
-        // Construct a 'PartialDynamicType' object.  Optionally specify a
-        // 'basicAllocator' used to supply memory if 'ValueType' is
-        // allocator-aware, and is otherwise unused.  If 'basicAllocator' is 0
-        // and 'ValueType' is allocator-aware, the currently installed default
-        // allocator is used.
     : d_value(bslma::Default::allocator(basicAllocator))
     , d_category(static_cast<bdlat_TypeCategory::Value>(
           bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION))
     {
     }
 
+    /// Construct a `PartialDynamicType` object having the specified `value`
+    /// underlying value.  Optionally specify a `basicAllocator` used to
+    /// supply memory if `ValueType` is allocator-aware, and is otherwise
+    /// unused.  If `basicAllocator` is 0 and `ValueType` is
+    /// allocator-aware, the currently installed default allocator is used.
     explicit PartialDynamicType(const ValueType&  value,
                                 bslma::Allocator *basicAllocator = 0)
-        // Construct a 'PartialDynamicType' object having the specified 'value'
-        // underlying value.  Optionally specify a 'basicAllocator' used to
-        // supply memory if 'ValueType' is allocator-aware, and is otherwise
-        // unused.  If 'basicAllocator' is 0 and 'ValueType' is
-        // allocator-aware, the currently installed default allocator is used.
     : d_value(value, bslma::Default::allocator(basicAllocator))
     , d_category(static_cast<bdlat_TypeCategory::Value>(
           bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION))
     {
     }
 
+    /// Construct a `PartialDynamicType` object having an underlying value
+    /// that is a copy of the underlying value of the specified `original`
+    /// object.  Optionally specify a `basicAllocator` used to supply memory
+    /// if `ValueType` is allocator-aware, and is otherwise unused.  If
+    /// `basicAllocator` is 0 and `ValueType` is allocator-aware, the
+    /// currently installed default allocator is used.
     PartialDynamicType(const PartialDynamicType&  original,
                        bslma::Allocator          *basicAllocator = 0)
-        // Construct a 'PartialDynamicType' object having an underlying value
-        // that is a copy of the underlying value of the specified 'original'
-        // object.  Optionally specify a 'basicAllocator' used to supply memory
-        // if 'ValueType' is allocator-aware, and is otherwise unused.  If
-        // 'basicAllocator' is 0 and 'ValueType' is allocator-aware, the
-        // currently installed default allocator is used.
     : d_value(original.d_value.object(),
               bslma::Default::allocator(basicAllocator))
     , d_category(original.d_category)
@@ -318,10 +322,11 @@ class PartialDynamicType {
     }
 
     // MANIPULATORS
+
+    /// Assign to the underlying value of this object a copy of the
+    /// underlying value of the specified `original` object.  Return a
+    /// reference providing modifiable access to this object.
     PartialDynamicType& operator=(const PartialDynamicType& original)
-        // Assign to the underlying value of this object a copy of the
-        // underlying value of the specified 'original' object.  Return a
-        // reference providing modifiable access to this object.
     {
         d_value.object() = original.d_value.object();
         d_category       = original.d_category;
@@ -330,26 +335,28 @@ class PartialDynamicType {
     }
 
     // ACCESSORS
+
+    /// Return the *runtime* type category of this object, which is the
+    /// *compile-time* type category of `ValueType`.
     bdlat_TypeCategory::Value typeCategory() const
-        // Return the *runtime* type category of this object, which is the
-        // *compile-time* type category of 'ValueType'.
     {
         return d_category;
     }
 
+    /// Return a non-`const` reference to the underlying value of this
+    /// object.
     const ValueType& value() const
-        // Return a non-'const' reference to the underlying value of this
-        // object.
     {
         return d_value.object();
     }
 };
 
 // TRAITS
+
+/// Return the *runtime* type category for the specified `object`.
 template <class VALUE_TYPE>
 bdlat_TypeCategory::Value bdlat_typeCategorySelect(
                                   const PartialDynamicType<VALUE_TYPE>& object)
-    // Return the *runtime* type category for the specified 'object'.
 {
     return object.typeCategory();
 }
@@ -364,7 +371,7 @@ struct bdlat_TypeCategoryDeclareDynamic<u::PartialDynamicType<VALUE_TYPE> >
 
 namespace bdlat_ArrayFunctions {
 
-// No specialization of 'ElementType' need be provided for this test.
+// No specialization of `ElementType` need be provided for this test.
 
 template <class VALUE_TYPE>
 struct IsArray<u::PartialDynamicType<VALUE_TYPE> >
@@ -385,23 +392,23 @@ struct IsChoice<u::PartialDynamicType<VALUE_TYPE> >
 namespace {
 namespace u {
 
+/// This meta-function `struct` provides the calculation of the
+/// `BaseType` for the `CustomizedType` category of a `PartialDynamicType`
+/// if its specified `VALUE_TYPE` is a `CustomizedType`.
 template <
     class VALUE_TYPE,
     int = bdlat_CustomizedTypeFunctions::IsCustomizedType<VALUE_TYPE>::value>
 struct PartialDynamicType_BaseTypeImpl {
-    // This meta-function 'struct' provides the calculation of the
-    // 'BaseType' for the 'CustomizedType' category of a 'PartialDynamicType'
-    // if its specified 'VALUE_TYPE' is a 'CustomizedType'.
 
     typedef typename bdlat_CustomizedTypeFunctions::BaseType<VALUE_TYPE>::Type
         Type;
 };
 
+/// This meta-function `struct` provides the calculation of the
+/// `BaseType` for the `CustomizedType` category of a `PartialDynamicType`
+/// if its specified `VALUE_TYPE` is not a `CustomizedType`.
 template <class VALUE_TYPE>
 struct PartialDynamicType_BaseTypeImpl<VALUE_TYPE, 0> {
-    // This meta-function 'struct' provides the calculation of the
-    // 'BaseType' for the 'CustomizedType' category of a 'PartialDynamicType'
-    // if its specified 'VALUE_TYPE' is not a 'CustomizedType'.
 
     typedef bslmf::Nil Type;
 };
@@ -435,23 +442,23 @@ struct IsEnumeration<u::PartialDynamicType<VALUE_TYPE> >
 namespace {
 namespace u {
 
+/// This meta-function `struct` provides the calculation of the
+/// `ValueType` for the `NullableValue` category of a `PartialDynamicType`
+/// if its specified `VALUE_TYPE` has the `NullableValue` category.
 template <class VALUE_TYPE,
           int =
               bdlat_NullableValueFunctions::IsNullableValue<VALUE_TYPE>::value>
 struct PartialDynamicType_ValueTypeImpl {
-    // This meta-function 'struct' provides the calculation of the
-    // 'ValueType' for the 'NullableValue' category of a 'PartialDynamicType'
-    // if its specified 'VALUE_TYPE' has the 'NullableValue' category.
 
     typedef typename bdlat_NullableValueFunctions::ValueType<VALUE_TYPE>::Type
         Type;
 };
 
+/// This meta-function `struct` provides the calculation of the `ValueType`
+/// for the `NullableValue` category of a `PartialDynamicType` if its
+/// specified `VALUE_TYPE` does not have the `NullableValue` category.
 template <class VALUE_TYPE>
 struct PartialDynamicType_ValueTypeImpl<VALUE_TYPE, 0> {
-    // This meta-function 'struct' provides the calculation of the 'ValueType'
-    // for the 'NullableValue' category of a 'PartialDynamicType' if its
-    // specified 'VALUE_TYPE' does not have the 'NullableValue' category.
 
     typedef bslmf::Nil Type;
 };
@@ -486,16 +493,16 @@ struct IsSequence<u::PartialDynamicType<VALUE_TYPE> >
 namespace {
 namespace u {
 
+/// Invoke the specified `accessor`, passing it an appropriate
+/// representation of the specified `object` as the first argument, and
+/// either a `bdlat_TypeCategory::Array` tag object as the second argument
+/// if the first argument can be used with `bdlat_arrayfunctions`, or a
+/// `bslmf::Nil` tag object otherwise.  Return the result from the
+/// invocation of `accessor`.
 template <class VALUE_TYPE, class ACCESSOR>
 int bdlat_typeCategoryAccessArray(
                              const u::PartialDynamicType<VALUE_TYPE>& object,
                              ACCESSOR&                                accessor)
-    // Invoke the specified 'accessor', passing it an appropriate
-    // representation of the specified 'object' as the first argument, and
-    // either a 'bdlat_TypeCategory::Array' tag object as the second argument
-    // if the first argument can be used with 'bdlat_arrayfunctions', or a
-    // 'bslmf::Nil' tag object otherwise.  Return the result from the
-    // invocation of 'accessor'.
 {
     typedef typename
              bsl::conditional<bdlat_ArrayFunctions::IsArray<VALUE_TYPE>::value,
@@ -505,16 +512,16 @@ int bdlat_typeCategoryAccessArray(
     return accessor(object.value(), Tag());
 }
 
+/// Invoke the specified `accessor`, passing it an appropriate
+/// representation of the specified `object` as the first argument, and
+/// either a `bdlat_TypeCategory::Choice` tag object as the second argument
+/// if the first argument can be used with `bdlat_choicefunctions`, or a
+/// `bslmf::Nil` tag object otherwise.  Return the result from the
+/// invocation of `accessor`.
 template <class VALUE_TYPE, class ACCESSOR>
 int bdlat_typeCategoryAccessChoice(
                              const u::PartialDynamicType<VALUE_TYPE>& object,
                              ACCESSOR&                                accessor)
-    // Invoke the specified 'accessor', passing it an appropriate
-    // representation of the specified 'object' as the first argument, and
-    // either a 'bdlat_TypeCategory::Choice' tag object as the second argument
-    // if the first argument can be used with 'bdlat_choicefunctions', or a
-    // 'bslmf::Nil' tag object otherwise.  Return the result from the
-    // invocation of 'accessor'.
 {
     typedef typename
            bsl::conditional<bdlat_ChoiceFunctions::IsChoice<VALUE_TYPE>::value,
@@ -524,16 +531,16 @@ int bdlat_typeCategoryAccessChoice(
     return accessor(object.value(), Tag());
 }
 
+/// Invoke the specified `accessor`, passing it an appropriate
+/// representation of the specified `object` as the first argument, and
+/// either a `bdlat_TypeCategory::CustomizedType` tag object as the second
+/// argument if the first argument can be used with
+/// `bdlat_customizedtypefunctions`, or a `bslmf::Nil` tag object otherwise.
+/// Return the result from the invocation of `accessor`.
 template <class VALUE_TYPE, class ACCESSOR>
 int bdlat_typeCategoryAccessCustomizedType(
                              const u::PartialDynamicType<VALUE_TYPE>& object,
                              ACCESSOR&                                accessor)
-    // Invoke the specified 'accessor', passing it an appropriate
-    // representation of the specified 'object' as the first argument, and
-    // either a 'bdlat_TypeCategory::CustomizedType' tag object as the second
-    // argument if the first argument can be used with
-    // 'bdlat_customizedtypefunctions', or a 'bslmf::Nil' tag object otherwise.
-    // Return the result from the invocation of 'accessor'.
 {
     typedef typename bsl::conditional<
         bdlat_CustomizedTypeFunctions::IsCustomizedType<VALUE_TYPE>::value,
@@ -543,16 +550,16 @@ int bdlat_typeCategoryAccessCustomizedType(
     return accessor(object.value(), Tag());
 }
 
+/// Invoke the specified `accessor`, passing it an appropriate
+/// representation of the specified `object` as the first argument, and
+/// either a `bdlat_TypeCategory::Enumeration` tag object as the second
+/// argument if the first argument can be used with `bdlat_enumfunctions`,
+/// or a `bslmf::Nil` tag object otherwise.  Return the result from the
+/// invocation of `accessor`.
 template <class VALUE_TYPE, class ACCESSOR>
 int bdlat_typeCategoryAccessEnumeration(
                              const u::PartialDynamicType<VALUE_TYPE>& object,
                              ACCESSOR&                                accessor)
-    // Invoke the specified 'accessor', passing it an appropriate
-    // representation of the specified 'object' as the first argument, and
-    // either a 'bdlat_TypeCategory::Enumeration' tag object as the second
-    // argument if the first argument can be used with 'bdlat_enumfunctions',
-    // or a 'bslmf::Nil' tag object otherwise.  Return the result from the
-    // invocation of 'accessor'.
 {
     typedef typename bsl::conditional<
         bdlat_EnumFunctions::IsEnumeration<VALUE_TYPE>::value,
@@ -562,16 +569,16 @@ int bdlat_typeCategoryAccessEnumeration(
     return accessor(object.value(), Tag());
 }
 
+/// Invoke the specified `accessor`, passing it an appropriate
+/// representation of the specified `object` as the first argument, and
+/// either a `bdlat_TypeCategory::NullableValue` tag object as the second
+/// argument if the first argument can be used with
+/// `bdlat_nullablevaluefunctions`, or a `bslmf::Nil` tag object otherwise.
+/// Return the result from the invocation of `accessor`.
 template <class VALUE_TYPE, class ACCESSOR>
 int bdlat_typeCategoryAccessNullableValue(
                              const u::PartialDynamicType<VALUE_TYPE>& object,
                              ACCESSOR&                                accessor)
-    // Invoke the specified 'accessor', passing it an appropriate
-    // representation of the specified 'object' as the first argument, and
-    // either a 'bdlat_TypeCategory::NullableValue' tag object as the second
-    // argument if the first argument can be used with
-    // 'bdlat_nullablevaluefunctions', or a 'bslmf::Nil' tag object otherwise.
-    // Return the result from the invocation of 'accessor'.
 {
     typedef typename bsl::conditional<
         bdlat_NullableValueFunctions::IsNullableValue<VALUE_TYPE>::value,
@@ -581,16 +588,16 @@ int bdlat_typeCategoryAccessNullableValue(
     return accessor(object.value(), Tag());
 }
 
+/// Invoke the specified `accessor`, passing it an appropriate
+/// representation of the specified `object` as the first argument, and
+/// either a `bdlat_TypeCategory::Sequence` tag object as the second
+/// argument if the first argument can be used with
+/// `bdlat_sequencefunctions`, or a `bslmf::Nil` tag object otherwise.
+/// Return the result from the invocation of `accessor`.
 template <class VALUE_TYPE, class ACCESSOR>
 int bdlat_typeCategoryAccessSequence(
                              const u::PartialDynamicType<VALUE_TYPE>& object,
                              ACCESSOR&                                accessor)
-    // Invoke the specified 'accessor', passing it an appropriate
-    // representation of the specified 'object' as the first argument, and
-    // either a 'bdlat_TypeCategory::Sequence' tag object as the second
-    // argument if the first argument can be used with
-    // 'bdlat_sequencefunctions', or a 'bslmf::Nil' tag object otherwise.
-    // Return the result from the invocation of 'accessor'.
 {
     typedef typename bsl::conditional<
         bdlat_SequenceFunctions::IsSequence<VALUE_TYPE>::value,
@@ -600,16 +607,16 @@ int bdlat_typeCategoryAccessSequence(
     return accessor(object.value(), Tag());
 }
 
+/// Invoke the specified `accessor`, passing it an appropriate
+/// representation of the specified `object` as the first argument, and
+/// either a `bdlat_TypeCategory::Simple` tag object as the second argument
+/// if the first argument can be used as a simple type, or a `bslmf::Nil`
+/// tag object otherwise.  Return the result from the invocation of
+/// `accessor`.
 template <class VALUE_TYPE, class ACCESSOR>
 int bdlat_typeCategoryAccessSimple(
                              const u::PartialDynamicType<VALUE_TYPE>& object,
                              ACCESSOR&                                accessor)
-    // Invoke the specified 'accessor', passing it an appropriate
-    // representation of the specified 'object' as the first argument, and
-    // either a 'bdlat_TypeCategory::Simple' tag object as the second argument
-    // if the first argument can be used as a simple type, or a 'bslmf::Nil'
-    // tag object otherwise.  Return the result from the invocation of
-    // 'accessor'.
 {
     typedef typename bsl::conditional<
         bdlat_TypeCategory::e_SIMPLE_CATEGORY ==
@@ -617,11 +624,11 @@ int bdlat_typeCategoryAccessSimple(
                 bdlat_TypeCategory::Select<VALUE_TYPE>::e_SELECTION),
         bdlat_TypeCategory::Simple,
         bslmf::Nil>::type Tag;
-    // If the type category of 'VALUE_TYPE' is 'Simple', then 'Tag' is
-    // 'bdlat_TypeCategory::Simple', and 'bslmf::Nil' otherwise.  This
+    // If the type category of `VALUE_TYPE` is `Simple`, then `Tag` is
+    // `bdlat_TypeCategory::Simple`, and `bslmf::Nil` otherwise.  This
     // detection is done differently than for the complex type categories
-    // because 'Simple' types do not specialize a type trait to opt-in to being
-    // 'Simple'.
+    // because `Simple` types do not specialize a type trait to opt-in to being
+    // `Simple`.
 
     return accessor(object.value(), Tag());
 }
@@ -630,18 +637,24 @@ int bdlat_typeCategoryAccessSimple(
                          // struct TestCase4_ImplUtil
                          // =========================
 
+/// This utility `struct` provides a namespace for a suite of constants and
+/// functions used in the implementation of test case 4.
 struct TestCase4_ImpUtil {
-    // This utility 'struct' provides a namespace for a suite of constants and
-    // functions used in the implementation of test case 4.
 
     // CLASS DATA
     enum {
         k_NONE_TAG_NUMBER = -2 // sentinel value used to indicate that the
-                               // 'alternateTagNumber' output parameter of
-                               // 'select' should be unmodified upon return
+                               // `alternateTagNumber` output parameter of
+                               // `select` should be unmodified upon return
     };
 
     // CLASS METHODS
+
+    /// Compare the results of invoking
+    /// `balber::BerUniversalTagNumber::select` with the specified `object`
+    /// and `formattingMode` with the specified `expectedTagNumber` and
+    /// `expectedAlternateTagNumber`.  If identical, do nothing; otherwise,
+    /// log an error message and increment `testStatus`.
     template <class TYPE>
     static void verifySelect(
                int                                  LINE,
@@ -649,11 +662,6 @@ struct TestCase4_ImpUtil {
                int                                  formattingMode,
                balber::BerUniversalTagNumber::Value expectedTagNumber,
                int                                  expectedAlternateTagNumber)
-        // Compare the results of invoking
-        // 'balber::BerUniversalTagNumber::select' with the specified 'object'
-        // and 'formattingMode' with the specified 'expectedTagNumber' and
-        // 'expectedAlternateTagNumber'.  If identical, do nothing; otherwise,
-        // log an error message and increment 'testStatus'.
     {
         int alternateTagNumber = k_NONE_TAG_NUMBER;
 
@@ -669,6 +677,12 @@ struct TestCase4_ImpUtil {
                 alternateTagNumber == expectedAlternateTagNumber);
     }
 
+    /// Compare the results of invoking
+    /// `balber::BerUniversalTagNumber::select` with the specified `object`,
+    /// `formattingMode`, and `options` with the specified
+    /// `expectedTagNumber` and `expectedAlternateTagNumber`.  If identical,
+    /// do nothing; otherwise, log an error message and increment
+    /// `testStatus`.
     template <class TYPE>
     static void verifySelect(
                        int                                   LINE,
@@ -676,12 +690,6 @@ struct TestCase4_ImpUtil {
                        int                                   formattingMode,
                        const balber::BerEncoderOptions      *options,
                        balber::BerUniversalTagNumber::Value  expectedTagNumber)
-        // Compare the results of invoking
-        // 'balber::BerUniversalTagNumber::select' with the specified 'object',
-        // 'formattingMode', and 'options' with the specified
-        // 'expectedTagNumber' and 'expectedAlternateTagNumber'.  If identical,
-        // do nothing; otherwise, log an error message and increment
-        // 'testStatus'.
     {
         const balber::BerUniversalTagNumber::Value tagNumber =
         balber::BerUniversalTagNumber::select(object, formattingMode, options);
@@ -689,11 +697,11 @@ struct TestCase4_ImpUtil {
         ASSERTV(L_, LINE, tagNumber, tagNumber == expectedTagNumber);
     }
 
+    /// Invoke `balber::BerUniversalTagNumber::select` with the specified
+    /// `object` and `formattingMode`.  Note that this function is intended
+    /// to be used for negative testing of `select`.
     template <class TYPE>
     static void verifySelect(const TYPE& object, int formattingMode)
-        // Invoke 'balber::BerUniversalTagNumber::select' with the specified
-        // 'object' and 'formattingMode'.  Note that this function is intended
-        // to be used for negative testing of 'select'.
     {
         int alternateTagNumber = k_NONE_TAG_NUMBER;
 
@@ -701,13 +709,13 @@ struct TestCase4_ImpUtil {
             object, formattingMode, &alternateTagNumber);
     }
 
+    /// Invoke `balber::BerUniversalTagNumber::select` with the specified
+    /// `object`, `formattingMode`, and `options`.  Note that this function
+    /// is intended to be used for negative testing of `select`.
     template <class TYPE>
     static void verifySelect(const TYPE&                      object,
                              int                              formattingMode,
                              const balber::BerEncoderOptions *options)
-        // Invoke 'balber::BerUniversalTagNumber::select' with the specified
-        // 'object', 'formattingMode', and 'options'.  Note that this function
-        // is intended to be used for negative testing of 'select'.
     {
         balber::BerUniversalTagNumber::select(object, formattingMode, options);
     }
@@ -721,6 +729,8 @@ struct TestCase4_ImpUtil {
 //                       HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Test select() function, both with unadorned `formattingMode` and with
+/// an extra bit set in `formattingMode`.
 #define TEST_SELECT_WITH_OPTIONS(type, formattingMode, expected, options) {   \
         type object;                                                          \
         const balber::BerUniversalTagNumber::Value expectedResult = expected; \
@@ -736,9 +746,9 @@ struct TestCase4_ImpUtil {
                                                options);                      \
         LOOP2_ASSERT(expectedResult, result2, expectedResult == result2);     \
     }
-    // Test select() function, both with unadorned 'formattingMode' and with
-    // an extra bit set in 'formattingMode'.
 
+/// Test `select` function, both with unadorned `formattingMode` and with an
+/// extra bit set in `formattingMode`.
 #define TEST_SELECT_WITH_ALT_TAG(type, formattingMode, expected, otherTag) {  \
         type object;                                                          \
         int  altTag = -1;                                                     \
@@ -755,8 +765,6 @@ struct TestCase4_ImpUtil {
         LOOP2_ASSERT(expectedResult, result2, expectedResult == result2);     \
         LOOP2_ASSERT(*otherTag, altTag, *otherTag == altTag);                 \
     }
-    // Test 'select' function, both with unadorned 'formattingMode' and with an
-    // extra bit set in 'formattingMode'.
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -777,13 +785,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -799,67 +807,67 @@ int main(int argc, char *argv[])
 ///Exercise1: Basic Syntax
 ///- - - - - - - - - - - -
 // The following snippets of code provide a simple illustration of
-// 'balber::BerUniversalTagNumber' operation.
+// `balber::BerUniversalTagNumber` operation.
 //
-// First, create a variable 'tagNumber' of type
-// 'balber::BerUniversalTagNumber::Value' and initialize it to the value
-// 'balber::BerUniversalTagNumber::e_BER_INT':
-//..
+// First, create a variable `tagNumber` of type
+// `balber::BerUniversalTagNumber::Value` and initialize it to the value
+// `balber::BerUniversalTagNumber::e_BER_INT`:
+// ```
     balber::BerUniversalTagNumber::Value tagNumber
                                     = balber::BerUniversalTagNumber::e_BER_INT;
-//..
-// Next, store its representation in a variable 'rep' of type 'const char *':
-//..
+// ```
+// Next, store its representation in a variable `rep` of type `const char *`:
+// ```
     const char *rep = balber::BerUniversalTagNumber::toString(tagNumber);
     ASSERT(0 == strcmp(rep, "INT"));
-//..
-// Finally, print the value of 'tagNumber' to 'bsl::cout':
-//..
+// ```
+// Finally, print the value of `tagNumber` to `bsl::cout`:
+// ```
     bsl::cout << tagNumber << bsl::endl;
-//..
-// This statement produces the following output on 'bsl::cout':
-//..
+// ```
+// This statement produces the following output on `bsl::cout`:
+// ```
 //  INT
-//..
+// ```
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING ALL IN AND OUT OF CONTRACT 'SELECT' CALLS
-        //   This case tests the entire input-output space of 'select',
+        // TESTING ALL IN AND OUT OF CONTRACT `SELECT` CALLS
+        //   This case tests the entire input-output space of `select`,
         //   including the out-of-contract calls, to verify quality of
         //   implementation.
         //
         // Concerns:
-        //: 1 The calculated universal tag number for each supported type is
-        //:   equal to the tag number from the table for said type in the
-        //:   component documentation.  There are 3 exceptions to this rule.
-        //:   The 3 "real number" types: 'float', 'double', and
-        //:   'bdldfp::Decimal64' provide undocumented support for the
-        //:   'bdlat_FormattingMode::e_DEC' formatting mode.  The universal tag
-        //:   number for this formatting mode is the same as for their default
-        //:   formatting mode: 'balber::BerUniversalTagNumber::e_REAL'.
-        //:
-        //: 2 As a quality of implementation detail, 'select' asserts on all
-        //:   arguments that violate its contract.
-        //:
-        //: 3 The default universal tag number for date and time types is
-        //:   'e_BER_VISIBLE_STRING'.
-        //:
-        //: 4 The alternate tag number for date and time types is
-        //:   'e_BER_OCTET_STRING'.
-        //:
-        //: 5 The universal tag number for date and time types when encoder
-        //:   options are specified and the 'encodeDateAndTimeTypesAsBinary'
-        //:   flag is 'false' is 'e_BER_VISIBLE_STRING'.
-        //:
-        //: 6 The universal tag number for date and time types when encoder
-        //:   options are specified and the 'encodeDateAndTimeTypesAsBinary'
-        //:   flag is 'true' is 'e_BER_OCTET_STRING'.
+        // 1. The calculated universal tag number for each supported type is
+        //    equal to the tag number from the table for said type in the
+        //    component documentation.  There are 3 exceptions to this rule.
+        //    The 3 "real number" types: `float`, `double`, and
+        //    `bdldfp::Decimal64` provide undocumented support for the
+        //    `bdlat_FormattingMode::e_DEC` formatting mode.  The universal tag
+        //    number for this formatting mode is the same as for their default
+        //    formatting mode: `balber::BerUniversalTagNumber::e_REAL`.
+        //
+        // 2. As a quality of implementation detail, `select` asserts on all
+        //    arguments that violate its contract.
+        //
+        // 3. The default universal tag number for date and time types is
+        //    `e_BER_VISIBLE_STRING`.
+        //
+        // 4. The alternate tag number for date and time types is
+        //    `e_BER_OCTET_STRING`.
+        //
+        // 5. The universal tag number for date and time types when encoder
+        //    options are specified and the `encodeDateAndTimeTypesAsBinary`
+        //    flag is `false` is `e_BER_VISIBLE_STRING`.
+        //
+        // 6. The universal tag number for date and time types when encoder
+        //    options are specified and the `encodeDateAndTimeTypesAsBinary`
+        //    flag is `true` is `e_BER_OCTET_STRING`.
         //
         // Plan:
-        //: 1 Enumerate every value of the input space considered different by
-        //:   'select' and verify each property specified in "Concerns" holds.
+        // 1. Enumerate every value of the input space considered different by
+        //    `select` and verify each property specified in "Concerns" holds.
         //
         // Testing:
         //  Value select(const TYPE& object, int fmtMode, int *altTag);
@@ -871,8 +879,9 @@ int main(int argc, char *argv[])
         typedef bdlt::Datetime   Datetime;
         typedef bdlt::DatetimeTz DatetimeTz;
         typedef bdlt::Time       Time;
+
+        /// Convenient aliases for the date and time types.
         typedef bdlt::TimeTz     TimeTz;
-            // Convenient aliases for the date and time types.
 
         const bool                                 boolVal          = false;
         const char                                 charVal          = 'a';
@@ -901,14 +910,15 @@ int main(int argc, char *argv[])
         const bdlb::Variant2<Date, DateTz>         dateVariantVal;
         const bdlb::Variant2<Datetime, DatetimeTz> datetimeVariantVal;
         const bdlb::Variant2<Time, TimeTz>         timeVariantVal;
+
+        // Convenient aliases for a suite of values for all supported
+        // `bdlat` `Simple` types, as well as `bsl::vector<char>` (which is
+        // an `Array` type).
         const bsl::vector<char>                    charVectorVal;
-            // Convenient aliases for a suite of values for all supported
-            // 'bdlat' 'Simple' types, as well as 'bsl::vector<char>' (which is
-            // an 'Array' type).
 
         enum {
             // This enumeration provides a set of convenient aliases for the
-            // 'bdlat_TypeCategory::Value' enumerators.
+            // `bdlat_TypeCategory::Value` enumerators.
 
             ARRAY_C           = bdlat_TypeCategory::e_ARRAY_CATEGORY,
             CHOICE_C          = bdlat_TypeCategory::e_CHOICE_CATEGORY,
@@ -924,72 +934,80 @@ int main(int argc, char *argv[])
         typedef test::MyEnumeration::Value    Enumeration;
         typedef test::MyEnumeration           EnumerationUtil;
         typedef test::MySequence              Sequence;
+
+        /// Convenient aliases for types satisfying one of the `bdlat` type
+        /// categories and that are not parameterized by an underlying type.
+        /// These are the "level 0" complex `bdlat` types used in this test
+        /// (except for `SimpleInt`, which is not a complex type, but a
+        /// simple type.) `EnumerationUtil` is used below to get a value for
+        /// an enumerator.
         typedef int                           SimpleInt;
-            // Convenient aliases for types satisfying one of the 'bdlat' type
-            // categories and that are not parameterized by an underlying type.
-            // These are the "level 0" complex 'bdlat' types used in this test
-            // (except for 'SimpleInt', which is not a complex type, but a
-            // simple type.) 'EnumerationUtil' is used below to get a value for
-            // an enumerator.
 
         typedef u::PartialCustomizedType<Array>       CustomizedArray;
         typedef u::PartialCustomizedType<Choice>      CustomizedChoice;
         typedef u::PartialCustomizedType<Enumeration> CustomizedEnumeration;
         typedef u::PartialCustomizedType<Sequence>    CustomizedSequence;
+
+        /// Convenient aliases for `CustomizedType` types having `BaseType`
+        /// types that provide different "level 0" `bdlat` type categories.
+        /// These are the "level 1" `CustomizedType` types.
         typedef u::PartialCustomizedType<SimpleInt>   CustomizedSimpleInt;
-            // Convenient aliases for 'CustomizedType' types having 'BaseType'
-            // types that provide different "level 0" 'bdlat' type categories.
-            // These are the "level 1" 'CustomizedType' types.
 
         typedef u::PartialDynamicType<Array>       DynamicArray;
         typedef u::PartialDynamicType<Choice>      DynamicChoice;
         typedef u::PartialDynamicType<Enumeration> DynamicEnumeration;
         typedef u::PartialDynamicType<Sequence>    DynamicSequence;
+
+        /// Convenient aliases for `DynamicType` types having underlying
+        /// types that provide different "level 0" `bdlat` type categories.
+        /// These are the "level 1" `DynamicType` types.
         typedef u::PartialDynamicType<SimpleInt>   DynamicSimpleInt;
-            // Convenient aliases for 'DynamicType' types having underlying
-            // types that provide different "level 0" 'bdlat' type categories.
-            // These are the "level 1" 'DynamicType' types.
 
         typedef bdlb::NullableValue<Array>       NullableArray;
         typedef bdlb::NullableValue<Choice>      NullableChoice;
         typedef bdlb::NullableValue<Enumeration> NullableEnumeration;
         typedef bdlb::NullableValue<Sequence>    NullableSequence;
+
+        /// Convenient aliases for `NullableValue` types having `ValueType`
+        /// types that provide different "level 0" `bdlat` type categories.
+        /// These are the "level 1" `NullableValue` types.
         typedef bdlb::NullableValue<SimpleInt>   NullableSimpleInt;
-            // Convenient aliases for 'NullableValue' types having 'ValueType'
-            // types that provide different "level 0" 'bdlat' type categories.
-            // These are the "level 1" 'NullableValue' types.
 
         typedef u::PartialCustomizedType<DynamicSimpleInt>
                                                    CustomizedDynamicSimpleInt;
+
+        /// Convenient aliases for `CustomizedType` types having `BaseType`
+        /// types that provide different "level 1" `bdlat` type categories.
+        /// These are the "level 2" `CustomizedType` types.
         typedef u::PartialCustomizedType<NullableSimpleInt>
                                                    CustomizedNullableSimpleInt;
-            // Convenient aliases for 'CustomizedType' types having 'BaseType'
-            // types that provide different "level 1" 'bdlat' type categories.
-            // These are the "level 2" 'CustomizedType' types.
 
         typedef u::PartialDynamicType<CustomizedSimpleInt>
                                                     DynamicCustomizedSimpleInt;
+
+        /// Convenient aliases for `DynamicType` types having underlying
+        /// types that provide different "level 1" `bdlat` type categories.
+        /// these are the "level 2" `DynamicType` types.
         typedef u::PartialDynamicType<NullableSimpleInt>
                                                     DynamicNullableSimpleInt;
-            // Convenient aliases for 'DynamicType' types having underlying
-            // types that provide different "level 1" 'bdlat' type categories.
-            // these are the "level 2" 'DynamicType' types.
 
         typedef bdlb::NullableValue<CustomizedSimpleInt>
                                                    NullableCustomizedSimpleInt;
+
+        /// Convenient aliases for `NullableValue` types having `ValueType`
+        /// types that provide different "level 1" `bdlat` type categories.
+        /// These are the "level 2" `NullableValue` types.
         typedef bdlb::NullableValue<DynamicSimpleInt>
                                                    NullableDynamicSimpleInt;
-            // Convenient aliases for 'NullableValue' types having 'ValueType'
-            // types that provide different "level 1" 'bdlat' type categories.
-            // These are the "level 2" 'NullableValue' types.
 
         typedef u::PartialDynamicType<CustomizedDynamicSimpleInt>
                                              DynamicCustomizedDynamicSimpleInt;
+
+        /// Convenient aliases for `DynamicType` types having underlying
+        /// types that provide different "level 2" `bdlat` type categories.
+        /// These are the "level 3" `DynamicType` types.
         typedef u::PartialDynamicType<NullableDynamicSimpleInt>
                                              DynamicNullableDynamicSimpleInt;
-            // Convenient aliases for 'DynamicType' types having underlying
-            // types that provide different "level 2" 'bdlat' type categories.
-            // These are the "level 3" 'DynamicType' types.
 
         const Array                             arrayVal;
         const Choice                            choiceVal;
@@ -1017,25 +1035,28 @@ int main(int argc, char *argv[])
         const NullableEnumeration         nullEnumVal;
         const NullableSequence            nullSeqVal;
         const NullableSimpleInt           nullIntVal;
+
+        // These are Complex-typed values used in the below test table.
         const Sequence                    seqVal;
-            // These are Complex-typed values used in the below test table.
 
         const int BASE64  = bdlat_FormattingMode::e_BASE64;
         const int DEC     = bdlat_FormattingMode::e_DEC;
         const int DEFAULT = bdlat_FormattingMode::e_DEFAULT;
         const int HEX     = bdlat_FormattingMode::e_HEX;
-        const int TEXT    = bdlat_FormattingMode::e_TEXT;
-            // Convenient aliases for the enumerators of the valid formatting
-            // modes.
 
+        // Convenient aliases for the enumerators of the valid formatting
+        // modes.
+        const int TEXT    = bdlat_FormattingMode::e_TEXT;
+
+        /// Convenient alias for the utility `struct` used to provide
+        /// the implementation of the `PASS` and `FAIL` macros below.
         typedef u::TestCase4_ImpUtil TestUtil;
-            // Convenient alias for the utility 'struct' used to provide
-            // the implementation of the 'PASS' and 'FAIL' macros below.
 
         typedef balber::BerUniversalTagNumber TagNumberUtil;
+
+        /// Convenient aliases for the class under test, and the
+        /// tag number enumeration.
         typedef TagNumberUtil::Value          TagNumber;
-            // Convenient aliases for the class under test, and the
-            // tag number enumeration.
 
         const int       NONE           = TestUtil::k_NONE_TAG_NUMBER;
         const TagNumber BOOL           = TagNumberUtil::e_BER_BOOL;
@@ -1045,89 +1066,90 @@ int main(int argc, char *argv[])
         const TagNumber ENUMERATION    = TagNumberUtil::e_BER_ENUMERATION;
         const TagNumber UTF8_STRING    = TagNumberUtil::e_BER_UTF8_STRING;
         const TagNumber SEQUENCE       = TagNumberUtil::e_BER_SEQUENCE;
+
+        // Aliases for the enumerators of
+        // `balber::BerUniversalTagNumber::Value`, and `NONE`, which is a
+        // negative number not equal to the numerical values of any of the
+        // valid enumerators.  This value is used to verify that the
+        // `alternateTag` output argument of `select` is unmodified when
+        // the given type does not have an alternate tag.
         const TagNumber VISIBLE_STRING = TagNumberUtil::e_BER_VISIBLE_STRING;
-            // Aliases for the enumerators of
-            // 'balber::BerUniversalTagNumber::Value', and 'NONE', which is a
-            // negative number not equal to the numerical values of any of the
-            // valid enumerators.  This value is used to verify that the
-            // 'alternateTag' output argument of 'select' is unmodified when
-            // the given type does not have an alternate tag.
 
+        // `G` installs a throwing assertion failure handler for the
+        // duration of this test case, in order to perform negative
+        // testing.  This failure handler is required to be installed while
+        // either `PASS` or `FAIL`, defined below, are invoked.
         const bsls::AssertTestHandlerGuard G;
-            // 'G' installs a throwing assertion failure handler for the
-            // duration of this test case, in order to perform negative
-            // testing.  This failure handler is required to be installed while
-            // either 'PASS' or 'FAIL', defined below, are invoked.
 
+/// Verify that a particular set of argument and result values are
+/// in-contract for `select`.  This macro supports one of two overloads,
+/// having the following specifications:
+/// ```
+/// template <class ANY_TYPE>
+/// void PASS(
+///       const ANY_TYPE&                      object,
+///       int                                  formattingMode,
+///       balber::BerUniversalTagNumber::Value expectedTagNumber,
+///       int                                  expectedAlternateTagNumber);
+///     // Compare the results of invoking
+///     // `balber::BerUniversalTagNumber::select` with the specified
+///     // `object` and `formattingMode` with the specified
+///     // `expectedTagNumber` and `expectedAlternateTagNumber`.  If
+///     // identical, do nothing; otherwise log an error message and
+///     // increment `testStatus`.  If the `object` and `formattingMode`
+///     // violate the contract of `select`, increment `testStatus` and
+///     // log an error message.
+/// ```
+/// and,
+/// ```
+/// template <class ANY_TYPE>
+/// void PASS(const ANY_TYPE&                       object,
+///           int                                   formattingMode,
+///           const balber::BerEncoderOptions      *encoderOptions,
+///           balber::BerUniversalTagNumber::Value  expectedTagNumber);
+///     // Compare the results of invoking
+///     // `balber::BerUniversalTagNumber::select` with the specified
+///     // `object`, `formattingMode`, and `options` with the specified
+///     // `expectedTagNumber` and `expectedAlternateTagNumber`.  If
+///     // identical, do nothing; otherwise, log an error message and
+///     // increment `testStatus`.  If the `object` and `formattingMode`
+///     // violate the contract of `select`, increment `testStatus` and
+///     // log an error message.
+/// ```
 #define PASS(...)                                                             \
     ASSERT_PASS(                                                              \
       ::BloombergLP::u::TestCase4_ImpUtil::verifySelect(__LINE__, __VA_ARGS__))
-    // Verify that a particular set of argument and result values are
-    // in-contract for 'select'.  This macro supports one of two overloads,
-    // having the following specifications:
-    //..
-    //  template <class ANY_TYPE>
-    //  void PASS(
-    //        const ANY_TYPE&                      object,
-    //        int                                  formattingMode,
-    //        balber::BerUniversalTagNumber::Value expectedTagNumber,
-    //        int                                  expectedAlternateTagNumber);
-    //      // Compare the results of invoking
-    //      // 'balber::BerUniversalTagNumber::select' with the specified
-    //      // 'object' and 'formattingMode' with the specified
-    //      // 'expectedTagNumber' and 'expectedAlternateTagNumber'.  If
-    //      // identical, do nothing; otherwise log an error message and
-    //      // increment 'testStatus'.  If the 'object' and 'formattingMode'
-    //      // violate the contract of 'select', increment 'testStatus' and
-    //      // log an error message.
-    //..
-    // and,
-    //..
-    //  template <class ANY_TYPE>
-    //  void PASS(const ANY_TYPE&                       object,
-    //            int                                   formattingMode,
-    //            const balber::BerEncoderOptions      *encoderOptions,
-    //            balber::BerUniversalTagNumber::Value  expectedTagNumber);
-    //      // Compare the results of invoking
-    //      // 'balber::BerUniversalTagNumber::select' with the specified
-    //      // 'object', 'formattingMode', and 'options' with the specified
-    //      // 'expectedTagNumber' and 'expectedAlternateTagNumber'.  If
-    //      // identical, do nothing; otherwise, log an error message and
-    //      // increment 'testStatus'.  If the 'object' and 'formattingMode'
-    //      // violate the contract of 'select', increment 'testStatus' and
-    //      // log an error message.
-    //..
 
 #define FAIL(...)                                                             \
     ASSERT_SAFE_FAIL(                                                         \
                 ::BloombergLP::u::TestCase4_ImpUtil::verifySelect(__VA_ARGS__))
+/// Verify that a particular set of argument values are out-of-contract
+/// for `select`.  This macro supports one of two overloads, having the
+/// following specifications:
+/// ```
+/// template <class ANY_TYPE>
+/// void FAIL(const ANY_TYPE& object, int formattingMode);
+///     // Invoke `balber::BerUniversalTagNumber::select` with the
+///     // specified `object` and `formattingMode`.  Do nothing if the
+///     // invocation violates the contract of `select`; otherwise,
+///     // increment `testStatus` and log an error message.
+/// ```
+/// and,
+/// ```
+/// template <class ANY_TYPE>
+/// void FAIL(const ANY_TYPE&                  object,
+///           int                              formattingMode,
+///           const balber::BerEncoderOptions *options);
+///     // Invoke `balber::BerUniversalTagNumber::select` with the
+///     // specified `object`, `formattingMode`, and `options`.  Do nothing
+///     // if the invocation violates the contract of `select`; otherwise,
+///     // increment `testStatus` and log an error message.
+/// ```
 #define FAIL_OPT(...)                                                         \
     ASSERT_OPT_FAIL(                                                          \
                 ::BloombergLP::u::TestCase4_ImpUtil::verifySelect(__VA_ARGS__))
-    // Verify that a particular set of argument values are out-of-contract
-    // for 'select'.  This macro supports one of two overloads, having the
-    // following specifications:
-    //..
-    //  template <class ANY_TYPE>
-    //  void FAIL(const ANY_TYPE& object, int formattingMode);
-    //      // Invoke 'balber::BerUniversalTagNumber::select' with the
-    //      // specified 'object' and 'formattingMode'.  Do nothing if the
-    //      // invocation violates the contract of 'select'; otherwise,
-    //      // increment 'testStatus' and log an error message.
-    //..
-    // and,
-    //..
-    //  template <class ANY_TYPE>
-    //  void FAIL(const ANY_TYPE&                  object,
-    //            int                              formattingMode,
-    //            const balber::BerEncoderOptions *options);
-    //      // Invoke 'balber::BerUniversalTagNumber::select' with the
-    //      // specified 'object', 'formattingMode', and 'options'.  Do nothing
-    //      // if the invocation violates the contract of 'select'; otherwise,
-    //      // increment 'testStatus' and log an error message.
-    //..
 
-        // The following test table verifies that 'select' behaves according
+        // The following test table verifies that `select` behaves according
         // to the specification in the component documentation.
         //
         // In this test table, rows prefixed with a comment: /* ! */ indicate
@@ -1469,22 +1491,23 @@ int main(int argc, char *argv[])
         FAIL(seqVal            , TEXT                                   );
 
         // The following table tests the overload of
-        // 'balber::BerUniversalTagNumber::select' taking a
-        // 'balber::BerEncoderOptions'.  Note that this overload only differs
+        // `balber::BerUniversalTagNumber::select` taking a
+        // `balber::BerEncoderOptions`.  Note that this overload only differs
         // from the primary overload for the date and time types.
 
+        // An encoder options value that specifies date and time types
+        // should be encoded using their textual representation
         balber::BerEncoderOptions txtTime;
-            // An encoder options value that specifies date and time types
-            // should be encoded using their textual representation
 
+        // An encoder options value that specifies date and time types
+        // should be encoded using their binary representation
         balber::BerEncoderOptions binTime;
-            // An encoder options value that specifies date and time types
-            // should be encoded using their binary representation
         binTime.setEncodeDateAndTimeTypesAsBinary(true);
 
         const balber::BerEncoderOptions *TXT_TIME = &txtTime;
+
+        // Convenient aliases for the above options values
         const balber::BerEncoderOptions *BIN_TIME = &binTime;
-            // Convenient aliases for the above options values
 
         //         OBJECT       FMT MODE  OPTIONS       TAG NUMBER
         //   ------------------ -------- --------- ---------------------
@@ -1594,7 +1617,7 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TESTING SELECT FUNCTION
-        //   This will test the 'Select<TYPE>::value()' function.
+        //   This will test the `Select<TYPE>::value()` function.
         //
         // Concerns:
         //   The function must return the correct universal tag number.
@@ -1945,7 +1968,7 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // TESTING SELECT FUNCTION
-        //   This will test the 'Select<TYPE>::value()' function.
+        //   This will test the `Select<TYPE>::value()` function.
         //
         // Concerns:
         //   The function must return the correct universal tag number.
@@ -2316,11 +2339,11 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // VALUE TEST:
-        //   Verify that the 'toString' function produces strings that are
+        //   Verify that the `toString` function produces strings that are
         //   identical to their respective enumerator symbols.  Verify that the
         //   output operator produces the same respective string values that
-        //   would be produced by 'toString' (note that this is testing streams
-        //   convertible to standard 'ostream' streams and the 'print' method).
+        //   would be produced by `toString` (note that this is testing streams
+        //   convertible to standard `ostream` streams and the `print` method).
         //
         // Testing:
         //   enum Value { ... }
@@ -2420,7 +2443,7 @@ int main(int argc, char *argv[])
 
         for (i = 0; i < DATA_LENGTH; ++i) {
             char buf[SIZE];
-            memcpy(buf, CTRL_BUF, SIZE);  // Preset buf to 'unset' char values.
+            memcpy(buf, CTRL_BUF, SIZE);  // Preset buf to `unset` char values.
 
             const char *const FMT = DATA[i].d_ascii;
 

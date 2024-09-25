@@ -1,9 +1,9 @@
 // bslstl_syncbufbase.t.cpp                                           -*-C++-*-
 #include <bslstl_syncbufbase.h>
 
-#include <stddef.h>  // '::size_t'
+#include <stddef.h>  // `::size_t`
 #include <stdio.h>
-#include <stdlib.h>  // 'atoi'
+#include <stdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 
@@ -55,11 +55,11 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform simple sanity tests.
+        // 1. Perform simple sanity tests.
         //
         // Testing:
         //   BREATHING TEST

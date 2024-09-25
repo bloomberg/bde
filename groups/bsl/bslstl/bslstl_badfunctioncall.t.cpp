@@ -16,13 +16,13 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// The type under test is 'bsl::bad_function_call', an exception type whose
+// The type under test is `bsl::bad_function_call`, an exception type whose
 // interface and contract is dictated by the C++ standard.  If
-// 'std::bad_function_call' exception is available, we need to check that
-// 'bsl::bad_function_call' is a typedef to the standard's exception type.  If
-// 'std::bad_function_call' exception isn't available, we need to check that
-// 'bsl::bad_function_call' satisfies the interface and contract of
-// 'std::bad_function_call'.
+// `std::bad_function_call` exception is available, we need to check that
+// `bsl::bad_function_call` is a typedef to the standard's exception type.  If
+// `std::bad_function_call` exception isn't available, we need to check that
+// `bsl::bad_function_call` satisfies the interface and contract of
+// `std::bad_function_call`.
 //
 // ----------------------------------------------------------------------------
 // creators:
@@ -35,7 +35,7 @@ using namespace BloombergLP;
 // [ 4] typedef bsl::bad_function_call
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] CONCERN: Methods qualified 'noexcept' in standard are so.
+// [ 2] CONCERN: Methods qualified `noexcept` in standard are so.
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -120,17 +120,17 @@ int main(int argc, char *argv[])
 #ifdef BDE_BUILD_TARGET_EXC
       case 5: {
         // --------------------------------------------------------------------
-        // 'bsl::bad_function_call' IS THROWABLE
+        // `bsl::bad_function_call` IS THROWABLE
         //
         // Concerns:
-        //: 1 'bad_function_call' can be used in a throw expression.
+        // 1. `bad_function_call` can be used in a throw expression.
         //
         // Plan:
-        //: 1 For concern 1, throw an object of bsl::'bad_function_call' and
-        //:   check that it was caught by the correct handler.
+        // 1. For concern 1, throw an object of bsl::`bad_function_call` and
+        //    check that it was caught by the correct handler.
         //
         // Testing:
-        //   CONCERN: 'bsl::bad_function_call' can be thrown
+        //   CONCERN: `bsl::bad_function_call` can be thrown
         // --------------------------------------------------------------------
         if (verbose) printf("\n'bsl::bad_function_call' IS THROWABLE"
                             "\n======================================\n");
@@ -153,17 +153,17 @@ int main(int argc, char *argv[])
 
       case 4: {
         // --------------------------------------------------------------------
-        // 'bsl::bad_function_call' TYPEDEF
+        // `bsl::bad_function_call` TYPEDEF
         //
         // Concerns:
-        //: 1 The 'bsl::bad_function_call' is a typedef for
-        //:   'std::bad_function_call' if 'std::bad_function_call' is
-        //:    available.
+        // 1. The `bsl::bad_function_call` is a typedef for
+        //    `std::bad_function_call` if `std::bad_function_call` is
+        //     available.
         //
         // Plan:
-        //: 1 For concern 1, if we're using CPP11 library, check that
-        //:   'bsl::bad_function_call' is the same type as
-        //:   'std::bad_function_call' using 'bsl::is_same'.
+        // 1. For concern 1, if we're using CPP11 library, check that
+        //    `bsl::bad_function_call` is the same type as
+        //    `std::bad_function_call` using `bsl::is_same`.
         //
         // Testing:
         //   typedef bsl::bad_function_call
@@ -180,37 +180,37 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // DEFAULT CONSTRUCTION AND 'what' METHOD
+        // DEFAULT CONSTRUCTION AND `what` METHOD
         //
         // Concerns:
-        //: 1 A 'bad_function_call' object can be default constructed.
-        //:
-        //: 2 Invoking a 'what' method on a 'bad_function_call' object
-        //:   returns a "bad_function_call" string.
-        //:
-        //: 3 'what' method can be invoked on a const 'bad_function_call'
-        //:   object.
+        // 1. A `bad_function_call` object can be default constructed.
+        //
+        // 2. Invoking a `what` method on a `bad_function_call` object
+        //    returns a "bad_function_call" string.
+        //
+        // 3. `what` method can be invoked on a const `bad_function_call`
+        //    object.
         //
         // Plan:
-        //: 1 For concern 1, default construct a 'bad_function_call' object.
-        //:
-        //: 2 For concern 2, invoke the 'what' method on a
-        //:   'bad_function_call' object and check that the returned string
-        //:   is "bad_function_call".
-        //:
-        //: 3 For concern 3, in step 2, use a const qualified
-        //:   'bad_function_call' object.
+        // 1. For concern 1, default construct a `bad_function_call` object.
+        //
+        // 2. For concern 2, invoke the `what` method on a
+        //    `bad_function_call` object and check that the returned string
+        //    is "bad_function_call".
+        //
+        // 3. For concern 3, in step 2, use a const qualified
+        //    `bad_function_call` object.
         //
         // Testing:
         //   bad_function_call();
         //   const char *what() const;
         // --------------------------------------------------------------------
         if (verbose)
-            printf("\nDEFAULT CONSTRUCTION AND 'what' METHOD"
+            printf("\nDEFAULT CONSTRUCTION AND `what` METHOD"
                    "\n======================================\n");
         const bsl::bad_function_call b;
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-        // string returned by 'what()' method is implementation specific so we
+        // string returned by `what()` method is implementation specific so we
         // can only check our own implementation
         ASSERT(0 == strcmp("bad_function_call", b.what()));
 #else
@@ -220,40 +220,40 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'noexcept' SPECIFICATION
+        // `noexcept` SPECIFICATION
         //
         // Concerns:
-        //: 1 The 'noexcept' specification has been applied to
-        //:   'bad_function_call' constructor as required by the standard.
-        //:
-        //: 2 The 'noexcept' specification has been applied to
-        //:   'bad_function_call' 'what' method as required by the standard.
+        // 1. The `noexcept` specification has been applied to
+        //    `bad_function_call` constructor as required by the standard.
+        //
+        // 2. The `noexcept` specification has been applied to
+        //    `bad_function_call` `what` method as required by the standard.
         // Plan:
-        //: 1 Apply the unary 'noexcept' operator to a 'bad_function_call'
-        //:   constructor and, for concern 1, confirm that calculated boolean
-        //:   value matches the expected value.
-        //:
-        //: 2 Apply the unary 'noexcept' operator to 'bad_function_call'
-        //:   'what' method and, for concern 2, confirm that calculated boolean
-        //:   value matches the expected value.
+        // 1. Apply the unary `noexcept` operator to a `bad_function_call`
+        //    constructor and, for concern 1, confirm that calculated boolean
+        //    value matches the expected value.
+        //
+        // 2. Apply the unary `noexcept` operator to `bad_function_call`
+        //    `what` method and, for concern 2, confirm that calculated boolean
+        //    value matches the expected value.
         //
         // Testing:
-        //   CONCERN: Methods qualified 'noexcept' in standard are so.
+        //   CONCERN: Methods qualified `noexcept` in standard are so.
         // --------------------------------------------------------------------
 
         if (verbose)
             printf("\n'noexcept' SPECIFICATION"
                    "\n========================\n");
 
-            // N4835: 20.14.16.1 Class 'bad_function_call' [func.wrap.badcall]
-            //..
+            // N4835: 20.14.16.1 Class `bad_function_call` [func.wrap.badcall]
+            // ```
             //     namespace std {
             //       class bad_function_call: public std::exception {
             //       public:
             //         const char* what() const noexcept override;
             //       };
             //     } // namespace std
-            //..
+            // ```
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         // While noexcept specification is a standard requirement, at least one
         // library implementation does not apply the noexcept specification
@@ -272,11 +272,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
+        // 1. Perform and ad-hoc test of the primary modifiers and accessors.
         //
         // Testing:
         //   BREATHING TEST

@@ -6,8 +6,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 #include <string.h>
 
 using namespace BloombergLP;
@@ -17,11 +17,11 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// This component provides an extremely simple 'struct' with only types and
-// integral 'enum' values.  The concerns for testing are merely that the
-// computation of 'BLOCK_LENGTH' be correct and that the names are as expected.
+// This component provides an extremely simple `struct` with only types and
+// integral `enum` values.  The concerns for testing are merely that the
+// computation of `BLOCK_LENGTH` be correct and that the names are as expected.
 //-----------------------------------------------------------------------------
-// [ 2] 'bslalg::DequeImp::BLOCK_LENGTH'
+// [ 2] `bslalg::DequeImp::BLOCK_LENGTH`
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING CLASS TEMPLATE 'bslalg::DequeImpUtil'
+        // TESTING CLASS TEMPLATE `bslalg::DequeImpUtil`
         //
         // Concerns:  That all the names are defined.
         //
@@ -102,11 +102,11 @@ int main(int argc, char *argv[])
         //   that exercise the various branches and boundary conditions.
         //
         // Testing:
-        //   class template 'bslstl::DequeImp'
+        //   class template `bslstl::DequeImp`
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                          "\nTESTING CLASS TEMPLATE 'bslalg::DequeImpUtil'"
+                          "\nTESTING CLASS TEMPLATE `bslalg::DequeImpUtil`"
                           "\n=============================================\n");
 
 #define TEST_DEQUE_IMP(LINE_NUM, VALUE_TYPE, BLOCK_LENGTH)  {                \

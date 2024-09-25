@@ -25,10 +25,10 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// A 'bslmt::ReaderWriterMutexImpl' is the templated-for-testing implementation
+// A `bslmt::ReaderWriterMutexImpl` is the templated-for-testing implementation
 // of a reader-writer lock.  The templatization allows for the creation of a
-// script-based testing object, 'TestImpl', that enables simplified testing of
-// the concerns for each method.  The methods of 'bslmt::ReaderWriterMutexImpl'
+// script-based testing object, `TestImpl`, that enables simplified testing of
+// the concerns for each method.  The methods of `bslmt::ReaderWriterMutexImpl`
 // are tested by directly exercising the functionality or by using the
 // depth-limited enumeration technique.
 // ----------------------------------------------------------------------------
@@ -121,29 +121,29 @@ int veryVerbose = 0;
 // ============================================================================
 //                   GLOBAL STRUCTS FOR TESTING
 // ----------------------------------------------------------------------------
-// The struct 'TestImpl' serves as the concrete type for all three template
-// arguments of 'bslmt::ReaderWriterMutexImpl'; 'TestImpl' provides static
-// methods for atomic operations, mutex 'lock' and 'unlock', and semaphore
-// 'post' and 'wait'.  By using a
-// 'ReaderWriterMutexImpl<TestImpl, TestImpl, TestImpl>', a script can be
-// defined to test the execution of a 'ReaderWriterMutexImpl' method.
-// Specifically, the internal state of the 'ReaderWriterMutexImpl' can be
+// The struct `TestImpl` serves as the concrete type for all three template
+// arguments of `bslmt::ReaderWriterMutexImpl`; `TestImpl` provides static
+// methods for atomic operations, mutex `lock` and `unlock`, and semaphore
+// `post` and `wait`.  By using a
+// `ReaderWriterMutexImpl<TestImpl, TestImpl, TestImpl>`, a script can be
+// defined to test the execution of a `ReaderWriterMutexImpl` method.
+// Specifically, the internal state of the `ReaderWriterMutexImpl` can be
 // verified and set, and the methods called from the implementation can be
 // tracked.
 //
 ///SCRIPT SPECIFICATION
 ///--------------------
-// The script is a 'bsl::vector<int>'.  Every negative value in the script
-// represents a method call.  The implementation of 'TestImpl' uses 'ASSERT' to
+// The script is a `bsl::vector<int>`.  Every negative value in the script
+// represents a method call.  The implementation of `TestImpl` uses `ASSERT` to
 // verify the expected method has been called.  Before every negative script
 // entry, there may be zero, one, or two non-negative numbers.  If present, the
-// first non-negative number is used to verify ('ASSERT') the value of the
+// first non-negative number is used to verify (`ASSERT`) the value of the
 // internal state of the'ReaderWriterMutexImpl'.  If present, the second
 // non-negative number is used to replace the state value.
 //
 // The non-negative script entries are encoded as three digits, with each digit
 // representing a different count.  The first digit is the number of writers
-// (limited to 0 or 1 due to the 'ReaderWriterMutexImpl' implementation).  The
+// (limited to 0 or 1 due to the `ReaderWriterMutexImpl` implementation).  The
 // second digit is the count of pending writers.  The third digit is the number
 // of readers in the lock.
 
@@ -170,9 +170,9 @@ struct TestImpl {
         k_POST            = -10
     };
 
+    /// Display an error message providing the script and an indication of
+    /// the specified `exp` value at the current script location.
     static void printScript(int exp)
-        // Display an error message providing the script and an indication of
-        // the specified 'exp' value at the current script location.
     {
         cout << "   ";
         for (bsls::Types::size_type i = 0; i < s_script.size(); ++i) {
@@ -186,8 +186,8 @@ struct TestImpl {
         cout << endl;
     }
 
+    /// Perform the validate and assignment of the internal state.
     static void processState()
-        // Perform the validate and assignment of the internal state.
     {
         ASSERT(0 != s_state_p);
 
@@ -239,10 +239,10 @@ struct TestImpl {
         }
     }
 
+    /// Process the script up through the next method call and verify the
+    /// expected method is called by examining the specified
+    /// `expectedFunctionId`.
     static void processFunction(const int expectedFunctionId)
-        // Process the script up through the next method call and verify the
-        // expected method is called by examining the specified
-        // 'expectedFunctionId'.
     {
         processState();
 
@@ -264,15 +264,15 @@ struct TestImpl {
         ++s_scriptAt;
     }
 
+    /// Assign the specified `script` for verification.
     static void assignScript(const bsl::vector<int>& script)
-        // Assign the specified 'script' for verification.
     {
         s_script   = script;
         s_scriptAt = 0;
     }
 
+    /// Verify the script has been completely consumed.
     static void assertScriptComplete()
-        // Verify the script has been completely consumed.
     {
         processState();
 
@@ -451,17 +451,17 @@ int main(int argc, char *argv[])
         // ACCESSORS
         //
         // Concerns:
-        //: 1 Each accessor correctly returns the known state of a lock object.
-        //:
-        //: 2 Each accessor is 'const' qualified.
+        // 1. Each accessor correctly returns the known state of a lock object.
+        //
+        // 2. Each accessor is `const` qualified.
         //
         // Plan:
-        //: 1 An ad-hoc sequence of (previously tested) lock and unlock
-        //:   operations is used to put a test object into different state.
-        //:   The accessors are used to corroborate those states.  (C-1)
-        //:
-        //: 2 Each accessor invocation is done via a 'const'-reference to the
-        //:   object under test.  (C-2)
+        // 1. An ad-hoc sequence of (previously tested) lock and unlock
+        //    operations is used to put a test object into different state.
+        //    The accessors are used to corroborate those states.  (C-1)
+        //
+        // 2. Each accessor invocation is done via a `const`-reference to the
+        //    object under test.  (C-2)
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -520,15 +520,15 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'tryLockWrite'
+        // TESTING `tryLockWrite`
         //   The manipulator operates as expected.
         //
         // Concerns:
-        //: 1 That 'tryLockWrite' operates correctly in the presence of other
-        //:   manipulations upon the lock.
+        // 1. That `tryLockWrite` operates correctly in the presence of other
+        //    manipulations upon the lock.
         //
         // Plan:
-        //: 1 Directly test the execution paths.  (C-1)
+        // 1. Directly test the execution paths.  (C-1)
         //
         // Testing:
         //   void tryLockWrite();
@@ -536,11 +536,11 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'tryLockWrite'" << endl
+                 << "TESTING `tryLockWrite`" << endl
                  << "======================" << endl;
         }
 
-        // The values in 'DATA_*' represent the number of writers (0 or 1),
+        // The values in `DATA_*` represent the number of writers (0 or 1),
         // number of pending writers, and the number of readers written as
         // digits of the value (e.g., 123 represents 1 writer, 2 pending
         // writers, and 3 readers).
@@ -583,7 +583,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nFailure on 'tryLock'." << endl;
+        if (verbose) cout << "\nFailure on `tryLock`." << endl;
 
         {
             bsl::vector<int> script;
@@ -634,15 +634,15 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'tryLockRead'
+        // TESTING `tryLockRead`
         //   The manipulator operates as expected.
         //
         // Concerns:
-        //: 1 That 'tryLockRead' operates correctly in the presence of other
-        //:   manipulations upon the lock.
+        // 1. That `tryLockRead` operates correctly in the presence of other
+        //    manipulations upon the lock.
         //
         // Plan:
-        //: 1 Directly test the execution paths.  (C-1)
+        // 1. Directly test the execution paths.  (C-1)
         //
         // Testing:
         //   void tryLockRead();
@@ -650,11 +650,11 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'tryLockRead'" << endl
+                 << "TESTING `tryLockRead`" << endl
                  << "=====================" << endl;
         }
 
-        // The values in 'DATA_*' represent the number of writers (0 or 1),
+        // The values in `DATA_*` represent the number of writers (0 or 1),
         // number of pending writers, and the number of readers written as
         // digits of the value (e.g., 123 represents 1 writer, 2 pending
         // writers, and 3 readers).
@@ -815,15 +815,15 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'unlock'
+        // TESTING `unlock`
         //   The manipulator operates as expected.
         //
         // Concerns:
-        //: 1 That 'unlock' operates correctly in the presence of other
-        //:   manipulations upon the lock.
+        // 1. That `unlock` operates correctly in the presence of other
+        //    manipulations upon the lock.
         //
         // Plan:
-        //: 1 Directly test the execution paths.  (C-1)
+        // 1. Directly test the execution paths.  (C-1)
         //
         // Testing:
         //   void unlock();
@@ -831,11 +831,11 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'unlock'" << endl
+                 << "TESTING `unlock`" << endl
                  << "================" << endl;
         }
 
-        // The values in 'DATA_*' represent the number of writers (0 or 1),
+        // The values in `DATA_*` represent the number of writers (0 or 1),
         // number of pending writers, and the number of readers written as
         // digits of the value (e.g., 123 represents 1 writer, 2 pending
         // writers, and 3 readers).
@@ -957,16 +957,16 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'unlockWrite'
+        // TESTING `unlockWrite`
         //   The manipulator operates as expected.
         //
         // Concerns:
-        //: 1 That 'unlockWrite' operates correctly in the presence of other
-        //:   manipulations upon the lock.
+        // 1. That `unlockWrite` operates correctly in the presence of other
+        //    manipulations upon the lock.
         //
         // Plan:
-        //: 1 Directly test the execution paths, with and without semaphore
-        //:   manipulation.  (C-1)
+        // 1. Directly test the execution paths, with and without semaphore
+        //    manipulation.  (C-1)
         //
         // Testing:
         //   void unlockWrite();
@@ -974,11 +974,11 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'unlockWrite'" << endl
+                 << "TESTING `unlockWrite`" << endl
                  << "=====================" << endl;
         }
 
-        // The values in 'DATA_*' represent the number of writers (0 or 1),
+        // The values in `DATA_*` represent the number of writers (0 or 1),
         // number of pending writers, and the number of readers written as
         // digits of the value (e.g., 123 represents 1 writer, 2 pending
         // writers, and 3 readers).
@@ -1068,16 +1068,16 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'unlockRead'
+        // TESTING `unlockRead`
         //   The manipulator operates as expected.
         //
         // Concerns:
-        //: 1 That 'unlockRead' operates correctly in the presence of other
-        //:   manipulations upon the lock.
+        // 1. That `unlockRead` operates correctly in the presence of other
+        //    manipulations upon the lock.
         //
         // Plan:
-        //: 1 Directly test the execution paths, with and without semaphore
-        //:   manipulation.  (C-1)
+        // 1. Directly test the execution paths, with and without semaphore
+        //    manipulation.  (C-1)
         //
         // Testing:
         //   void unlockRead();
@@ -1085,11 +1085,11 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'unlockRead'" << endl
+                 << "TESTING `unlockRead`" << endl
                  << "====================" << endl;
         }
 
-        // The values in 'DATA_*' represent the number of writers (0 or 1),
+        // The values in `DATA_*` represent the number of writers (0 or 1),
         // number of pending writers, and the number of readers written as
         // digits of the value (e.g., 123 represents 1 writer, 2 pending
         // writers, and 3 readers).
@@ -1215,16 +1215,16 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'lockWrite'
+        // TESTING `lockWrite`
         //   The manipulator operates as expected.
         //
         // Concerns:
-        //: 1 That 'lockWrite' operates correctly in the presence of other
-        //:   manipulations upon the lock.
+        // 1. That `lockWrite` operates correctly in the presence of other
+        //    manipulations upon the lock.
         //
         // Plan:
-        //: 1 Directly test the execution paths, with and without semaphore
-        //:   acquisition.  (C-1)
+        // 1. Directly test the execution paths, with and without semaphore
+        //    acquisition.  (C-1)
         //
         // Testing:
         //   void lockWrite();
@@ -1232,11 +1232,11 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'lockWrite'" << endl
+                 << "TESTING `lockWrite`" << endl
                  << "===================" << endl;
         }
 
-        // The values in 'DATA_*' represent the number of writers (0 or 1),
+        // The values in `DATA_*` represent the number of writers (0 or 1),
         // number of pending writers, and the number of readers written as
         // digits of the value (e.g., 123 represents 1 writer, 2 pending
         // writers, and 3 readers).
@@ -1328,18 +1328,18 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'lockRead'
+        // TESTING `lockRead`
         //   The manipulator operates as expected.
         //
         // Concerns:
-        //: 1 That 'lockRead' operates correctly in the presence of other
-        //:   manipulations upon the lock.
+        // 1. That `lockRead` operates correctly in the presence of other
+        //    manipulations upon the lock.
         //
         // Plan:
-        //: 1 Using the enumeration technique to a depth of 3, where depth
-        //:   implies the number of failed compare-and-swap attempts, verify
-        //:   the 'lockRead' method can successfully complete with and without
-        //:   mutex acquisition.  (C-1)
+        // 1. Using the enumeration technique to a depth of 3, where depth
+        //    implies the number of failed compare-and-swap attempts, verify
+        //    the `lockRead` method can successfully complete with and without
+        //    mutex acquisition.  (C-1)
         //
         // Testing:
         //   void lockRead();
@@ -1347,11 +1347,11 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'lockRead'" << endl
+                 << "TESTING `lockRead`" << endl
                  << "==================" << endl;
         }
 
-        // The values in 'DATA_*' represent the number of writers (0 or 1),
+        // The values in `DATA_*` represent the number of writers (0 or 1),
         // number of pending writers, and the number of readers written as
         // digits of the value (e.g., 123 represents 1 writer, 2 pending
         // writers, and 3 readers).
@@ -1373,15 +1373,15 @@ int main(int argc, char *argv[])
         for (int depth = 0; depth <= 3; ++depth) {
             if (verbose) cout << "\tDepth = " << depth << '.' << endl;
 
-            // Compute the number of iterations for the 'depth'.
+            // Compute the number of iterations for the `depth`.
 
             bsls::Types::size_type maxIndex = NUM_WRITER;
             for (int i = 0; i < depth; ++i) {
                 maxIndex *= NUM_NO_WRITER;
             }
 
-            // Test the method for every possible sequence of the 'depth' and
-            // 'DATA_*' values.
+            // Test the method for every possible sequence of the `depth` and
+            // `DATA_*` values.
 
             for (bsls::Types::size_type index = 0; index < maxIndex; ++index) {
                 bsls::Types::size_type i;
@@ -1405,8 +1405,8 @@ int main(int argc, char *argv[])
                     continue;
                 }
 
-                // Produce the script for the method attempt.  The 'depth'
-                // corresponds to the number of 'CAS' attempts before the mutex
+                // Produce the script for the method attempt.  The `depth`
+                // corresponds to the number of `CAS` attempts before the mutex
                 // is locked.
 
                 bsl::vector<int> script;
@@ -1456,15 +1456,15 @@ int main(int argc, char *argv[])
         for (int depth = 0; depth <= 3; ++depth) {
             if (verbose) cout << "\tDepth = " << depth << '.' << endl;
 
-            // Compute the number of iterations for the 'depth'.
+            // Compute the number of iterations for the `depth`.
 
             bsls::Types::size_type maxIndex = NUM_NO_WRITER;
             for (int i = 0; i < depth; ++i) {
                 maxIndex *= NUM_NO_WRITER;
             }
 
-            // Test the method for every possible sequence of the 'depth' and
-            // 'DATA_*' values.
+            // Test the method for every possible sequence of the `depth` and
+            // `DATA_*` values.
 
             for (bsls::Types::size_type index = 0; index < maxIndex; ++index) {
                 bsls::Types::size_type i;
@@ -1492,8 +1492,8 @@ int main(int argc, char *argv[])
                     continue;
                 }
 
-                // Produce the script for the method attempt.  The 'depth'
-                // corresponds to the number of 'CAS' attempts before the
+                // Produce the script for the method attempt.  The `depth`
+                // corresponds to the number of `CAS` attempts before the
                 // compare-and-swap succeeds.
 
                 bsl::vector<int> script;
@@ -1544,13 +1544,13 @@ int main(int argc, char *argv[])
         //   destructor operate as expected.
         //
         // Concerns:
-        //: 1 The default constructor correctly initializes the internal state.
-        //:
-        //: 2 The destructor does nothing.
+        // 1. The default constructor correctly initializes the internal state.
+        //
+        // 2. The destructor does nothing.
         //
         // Plan:
-        //: 1 Using the 'TestImpl', directly verify the operatios of the
-        //:   creators.  (C-1,2)
+        // 1. Using the `TestImpl`, directly verify the operatios of the
+        //    creators.  (C-1,2)
         //
         // Testing:
         //   ReaderWriterMutexImpl();
@@ -1578,15 +1578,15 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create objects.
-        //:
-        //: 2 Exercise these objects using primary manipulators.
-        //:
-        //: 3 Verify expected values throughout.  (C-1)
+        // 1. Create objects.
+        //
+        // 2. Exercise these objects using primary manipulators.
+        //
+        // 3. Verify expected values throughout.  (C-1)
         //
         // Testing:
         //   BREATHING TEST

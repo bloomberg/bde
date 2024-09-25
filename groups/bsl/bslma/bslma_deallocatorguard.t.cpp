@@ -7,8 +7,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 #include <string.h>
 
 using namespace BloombergLP;
@@ -20,12 +20,12 @@ using namespace BloombergLP;
 //                              --------
 // We are testing a guard object to ensure that, when the guard object goes out
 // of scope, it deallocates the correct memory address with the allocator it
-// holds.  We use two allocators in this module: 'bslma::TestAllocator', and a
-// local 'TestAllocator', used to verify that the guard object can work with an
-// ALLOCATOR type that is not derived from 'bslma::Allocator'.  The local
-// 'TestAllocator' allocator has a 'deallocate' method which is instrumented to
+// holds.  We use two allocators in this module: `bslma::TestAllocator`, and a
+// local `TestAllocator`, used to verify that the guard object can work with an
+// ALLOCATOR type that is not derived from `bslma::Allocator`.  The local
+// `TestAllocator` allocator has a `deallocate` method which is instrumented to
 // record the most recent memory address used to invoke the method.  We
-// initialize the 'bslma::DeallocatorGuard' guard object with this allocator
+// initialize the `bslma::DeallocatorGuard` guard object with this allocator
 // and verify that when the guard object is destroyed the expected memory
 // address is recorded in the allocator.
 //-----------------------------------------------------------------------------
@@ -98,30 +98,33 @@ void aSsErT(bool condition, const char *message, int line)
 namespace BloombergLP {
 
 class TestAllocator {
-    int   d_isDeallocateCalled;    // set if 'deallocate' has bee called
+    int   d_isDeallocateCalled;    // set if `deallocate` has bee called
     void *d_lastDeallocateAddress; // last memory address deallocated
 
   public:
     // CREATORS
-    TestAllocator() : d_isDeallocateCalled(0), d_lastDeallocateAddress(0) {}
-        // Create this object.
 
+    /// Create this object.
+    TestAllocator() : d_isDeallocateCalled(0), d_lastDeallocateAddress(0) {}
+
+    /// Destroy this object.
     ~TestAllocator() {}
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Record the specified `address` and set an internal flag to indicate
+    /// this method has been called.
     void deallocate(void *address);
-        // Record the specified 'address' and set an internal flag to indicate
-        // this method has been called.
 
     // ACCESSORS
-    void *lastDeallocateAddress() const { return d_lastDeallocateAddress; }
-        // Return the last memory address that 'deallocate' was invoked with.
-        // Return 'null' if 'deallocate' has never been called on this object.
 
+    /// Return the last memory address that `deallocate` was invoked with.
+    /// Return `null` if `deallocate` has never been called on this object.
+    void *lastDeallocateAddress() const { return d_lastDeallocateAddress; }
+
+    /// Return `true` if `deallocate` has been called on this object, and
+    /// `false` otherwise.
     bool isDeallocateCalled() const { return d_isDeallocateCalled; }
-        // Return 'true' if 'deallocate' has been called on this object, and
-        // 'false' otherwise.
 };
 
 void TestAllocator::deallocate(void *address)
@@ -135,35 +138,36 @@ void TestAllocator::deallocate(void *address)
 //=============================================================================
 //                               USAGE EXAMPLE
 //-----------------------------------------------------------------------------
-// A 'bslma::DeallocatorGuard' can be used to ensure that a dynamically
+// A `bslma::DeallocatorGuard` can be used to ensure that a dynamically
 // allocated raw memory resource is safely deallocated in the presence of
 // multiple return statements or exceptions in an exception-neutral way (i.e.,
-// without the need for 'try'/'catch' blocks).  In this simple example,
-// consider the function 'evaluatePassword' which attempts to determine how
+// without the need for `try`/`catch` blocks).  In this simple example,
+// consider the function `evaluatePassword` which attempts to determine how
 // secure a given password might be:
-//..
+// ```
+
+    /// Evaluate the strength of the specified `password`, using the
+    /// specified `allocator` to supply memory for evaluation.  Return a
+    /// real value in the rage [0.0 .. 1.0] where 0.0 indicates the weakest
+    /// password, and 1.0 the strongest.
     double evaluatePassword(const char *password, bslma::Allocator *allocator);
-        // Evaluate the strength of the specified 'password', using the
-        // specified 'allocator' to supply memory for evaluation.  Return a
-        // real value in the rage [0.0 .. 1.0] where 0.0 indicates the weakest
-        // password, and 1.0 the strongest.
-//..
+// ```
 // This function will be implemented in terms of three *exception* *neutral*
 // subroutines, each of which operates on a writable copy of the
 // null-terminated password, (perturbing its contents slightly) and requiring
 // unbounded amounts of scratch memory (to be allocated and deallocated from a
 // supplied allocator):
-//..
+// ```
     int subroutine1(char *inOut, bslma::Allocator *allocator);
     int subroutine2(char *inOut, bslma::Allocator *allocator);
     int subroutine3(char *inOut, bslma::Allocator *allocator);
-//..
+// ```
 // A final subroutine is then used to determine and return the score:
-//..
+// ```
     double finalSubroutine(const char *result);
-//..
+// ```
 // The top-level routine is implemented as follows:
-//..
+// ```
     double evaluatePassword(const char *password, bslma::Allocator *allocator)
     {
 
@@ -174,7 +178,7 @@ void TestAllocator::deallocate(void *address)
         memcpy(buffer, password, size);
 
         //**************************************************************
-        //* Note the use of the deallocator guard on 'buffer' (below). *
+        //* Note the use of the deallocator guard on `buffer` (below). *
         //**************************************************************
 
         bslma::DeallocatorGuard<bslma::Allocator> guard(buffer, allocator);
@@ -193,16 +197,16 @@ void TestAllocator::deallocate(void *address)
 
         return finalSubroutine(buffer);
 
-    }  // note that 'buffer' is deallocated at end of block regardless
-//..
+    }  // note that `buffer` is deallocated at end of block regardless
+// ```
 // Notice that if any of the initial (numbered) subroutines returns a non-zero
-// status value, the top-level 'evaluatePassword' routine returns immediately
+// status value, the top-level `evaluatePassword` routine returns immediately
 // with a predetermined score.  Moreover, each of these routines
-// may encounter a 'bad_alloc' exception should the supplied allocator fail to
+// may encounter a `bad_alloc` exception should the supplied allocator fail to
 // return the requested memory.  Even if all of these subroutines evaluates
-// successfully, the score calculated using 'finalEval' is returned directly by
-// 'evaluatePassword', yet we still need to deallocate 'buffer'.  By guarding
-// buffer with a 'bslma::DeallocatorGuard' as shown above, all of these issues
+// successfully, the score calculated using `finalEval` is returned directly by
+// `evaluatePassword`, yet we still need to deallocate `buffer`.  By guarding
+// buffer with a `bslma::DeallocatorGuard` as shown above, all of these issues
 // are fully addressed, and the top-level routine is also *exception* *neutral*
 // as desired.
 
@@ -253,7 +257,7 @@ int main(int argc, char *argv[])
         //   compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //   Call the routine 'evaluatePassword'.
+        //   Call the routine `evaluatePassword`.
         //
         // Testing:
         //   usageExample();
@@ -274,12 +278,12 @@ int main(int argc, char *argv[])
         // TESTING WITH bslma::TestAllocator
         //
         // Concerns:
-        //   That the 'bslma::DeallocatorGuard' works correctly with a
-        //   'bslma::Allocator'.
+        //   That the `bslma::DeallocatorGuard` works correctly with a
+        //   `bslma::Allocator`.
         //
         // Plan:
-        //   Use the built-in capabilities of 'bslma::TestAllocator' to verify
-        //   that 'bslma::DeallocatorGuard' deallocates memory when it is
+        //   Use the built-in capabilities of `bslma::TestAllocator` to verify
+        //   that `bslma::DeallocatorGuard` deallocates memory when it is
         //   supposed to.
         //
         // Testing:
@@ -310,14 +314,14 @@ int main(int argc, char *argv[])
         // CTOR / DTOR TEST
         //
         // Concerns:
-        //   That the guard calls the allocator's 'deallocate' method upon
+        //   That the guard calls the allocator's `deallocate` method upon
         //   destruction, and that the guard can work with an allocator that
         //   provides only the minimal interface this component's contract
         //   requires.
         //
         // Plan:
-        //   Create 'bslma::DeallocatorGuard' guard objects holding
-        //   'TestAllocator' objects and varying memory addresses.  Verify that
+        //   Create `bslma::DeallocatorGuard` guard objects holding
+        //   `TestAllocator` objects and varying memory addresses.  Verify that
         //   when the guard object goes out of scope the allocator object
         //   contains the expected memory address.
         //
@@ -352,16 +356,16 @@ int main(int argc, char *argv[])
         // HELPER CLASS TEST
         //
         // Concerns:
-        //   That the local 'TestAllocator' class correctly records the memory
+        //   That the local `TestAllocator` class correctly records the memory
         //   addresses it deallocates, and correctly records whether
-        //   'deallocate' has been called.
+        //   `deallocate` has been called.
         //
         // Plan:
-        //   Create a 'TestAllocator' object and call its 'deallocate' method
-        //   with varying memory address.  Verify that 'lastDeallocateAddress'
+        //   Create a `TestAllocator` object and call its `deallocate` method
+        //   with varying memory address.  Verify that `lastDeallocateAddress`
         //   returns the expected memory addresses.  Also verify that
-        //   'isDeallocateCalled' indicates the proper state of the
-        //   'TestAllocator' object before and after 'deallocate' is called.
+        //   `isDeallocateCalled` indicates the proper state of the
+        //   `TestAllocator` object before and after `deallocate` is called.
         //
         // Testing:
         //   TestAllocator::TestAllocator();
@@ -374,7 +378,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nHELPER CLASS TEST"
                             "\n=================\n");
 
-        if (verbose) printf("Testing 'TestAllocator'.\n");
+        if (verbose) printf("Testing `TestAllocator`.\n");
 
         const void *DATA[] = {(void *) 0, (void *) 1, (void *) 2, (void *) 3 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;

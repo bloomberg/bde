@@ -8,9 +8,9 @@
 #include <bsls_libraryfeatures.h>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-                        // 'std::is_base_of',
-                        // 'std::is_floating_point', and
-                        // 'std::is_floating_point_v' (C++17)
+                        // `std::is_base_of`,
+                        // `std::is_floating_point`, and
+                        // `std::is_floating_point_v` (C++17)
 #endif
 
 #include <stdio.h>
@@ -23,8 +23,8 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines a meta-function, 'bsl::is_floating_point'
-// and a template variable 'bsl::is_floating_point_v' that determine whether a
+// The component under test defines a meta-function, `bsl::is_floating_point`
+// and a template variable `bsl::is_floating_point_v` that determine whether a
 // template parameter type is a floating-point type.  Thus, we need to ensure
 // that the values returned by the meta-function are correct for each possible
 // category of types.
@@ -87,36 +87,41 @@ void aSsErT(bool condition, const char *message, int line)
 
 namespace {
 
+/// This user-defined type is used for testing.
 struct TestType {
-    // This user-defined type is used for testing.
 };
 
 enum EnumTestType {
-    // This 'enum' type is used for testing.
+    // This `enum` type is used for testing.
     ENUM_TEST_VALUE0 = 0,
     ENUM_TEST_VALUE1
 };
 
+/// This pointer to function member type that returns an integral type is
+/// used for testing.
 typedef float (TestType::*RetFloatingPointMethodPtrType) ();
-    // This pointer to function member type that returns an integral type is
-    // used for testing.
 
+/// This pointer to function type that returns a floating-point type is used
+/// for testing.
 typedef double (*RetFloatingPointFunctionPtrType) ();
-    // This pointer to function type that returns a floating-point type is used
-    // for testing.
 
 }  // close unnamed namespace
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+/// `ASSERT` that `is_floating_point_v` has the same value as
+/// `is_floating_point::value`.
 #define ASSERT_V_SAME(TYPE)                                                   \
     ASSERT(bsl::is_floating_point  <TYPE>::value ==                           \
            bsl::is_floating_point_v<TYPE>)
-    // 'ASSERT' that 'is_floating_point_v' has the same value as
-    // 'is_floating_point::value'.
 #else
 #define ASSERT_V_SAME(TYPE)
 #endif
 
+/// Test all cv-qualified combinations on the specified `type` and confirm
+/// that the result value of the `metaFunc` and the expected `result` value
+/// are the same.  Also test that all cv-qualified combinations on the
+/// `type` has the same value as the `metaFunc_v` template variable
+/// instantiated with the same types.
 #define TYPE_ASSERT_CVQ(metaFunc, member, type, result)                       \
     ASSERT(result == metaFunc<               type>::member);                  \
     ASSERT(result == metaFunc<const          type>::member);                  \
@@ -126,11 +131,6 @@ typedef double (*RetFloatingPointFunctionPtrType) ();
     ASSERT_V_SAME(const          type);                                       \
     ASSERT_V_SAME(      volatile type);                                       \
     ASSERT_V_SAME(const volatile type);
-    // Test all cv-qualified combinations on the specified 'type' and confirm
-    // that the result value of the 'metaFunc' and the expected 'result' value
-    // are the same.  Also test that all cv-qualified combinations on the
-    // 'type' has the same value as the 'metaFunc_v' template variable
-    // instantiated with the same types.
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -158,13 +158,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.z
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.z
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -182,27 +182,27 @@ int main(int argc, char *argv[])
 // Suppose that we want to assert whether a particular type is a floating-point
 // type.
 //
-// First, we create two 'typedef's -- a floating-point type and a
+// First, we create two `typedef`s -- a floating-point type and a
 // non-floating-point type:
-//..
+// ```
     typedef void  MyType;
     typedef float MyFloatingPointType;
-//..
-// Now, we instantiate the 'bsl::is_floating_point' template for each of the
-// 'typedef's and assert the 'value' static data member of each instantiation:
-//..
+// ```
+// Now, we instantiate the `bsl::is_floating_point` template for each of the
+// `typedef`s and assert the `value` static data member of each instantiation:
+// ```
     ASSERT(false == bsl::is_floating_point<MyType>::value);
     ASSERT(true  == bsl::is_floating_point<MyFloatingPointType>::value);
-//..
+// ```
 // Note that if the current compiler supports the variable templates C++14
 // feature, then we can re-write the snippet of code above using the
 // 'bsl::is_floating_point_v<T> as follows:
-//..
+// ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
     ASSERT(false == bsl::is_floating_point_v<MyType>);
     ASSERT(true  == bsl::is_floating_point_v<MyFloatingPointType>);
 #endif
-//..
+// ```
 
       } break;
       case 2: {
@@ -210,36 +210,36 @@ int main(int argc, char *argv[])
         // TESTING IMPLEMENTATION
         //
         // Concerns:
-        //: 1 The 'bsl::is_floating_point' meta function is *never* implemented
-        //:   as an alias to the 'std::is_floating_point' Standard meta
-        //:   function.
-        //:
-        //: 2 The 'bsl::is_floating_point' meta function is *always* based on
-        //:   either 'bsl::true_type' or 'bsl::false_type'.
-        //:
-        //: 3 The 'bsl::is_floating_point_v' variable template *is* implemented
-        //:   using the 'std::is_floating_point_v' Standard variable template.
+        // 1. The `bsl::is_floating_point` meta function is *never* implemented
+        //    as an alias to the `std::is_floating_point` Standard meta
+        //    function.
+        //
+        // 2. The `bsl::is_floating_point` meta function is *always* based on
+        //    either `bsl::true_type` or `bsl::false_type`.
+        //
+        // 3. The `bsl::is_floating_point_v` variable template *is* implemented
+        //    using the `std::is_floating_point_v` Standard variable template.
         //
         // Plan:
-        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' is
-        //:   defined, use 'bsl::is_same' to compare 'bsl::is_floating_point'
-        //:   to 'std::is_floating_point' using a representative type.  (C-1)
-        //:
-        //: 2 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' is
-        //:   defined, use 'std::is_base_of' to confirm that the
-        //:   'bsl::is_floating_point' meta function has 'bsl::true_type' or
-        //:   'bsl::false_type', as appropriate, as a base class.  (C-2)
-        //:
-        //:   o For all versions, explicitly access the 'value' member to
-        //:     confirm that the inheritance is neither 'private', 'protected',
-        //:     nor ambiguous.
-        //:
-        //: 3 When 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' and (for
-        //:   'std::is_floating_point_v')
-        //:   'BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY' are defined,
-        //:   compare for equality the addresses of 'bsl::is_floating_point_v'
-        //:   and 'std::is_floating_point_v' using a representative type.
-        //:   (C-3)
+        // 1. When `BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY` is
+        //    defined, use `bsl::is_same` to compare `bsl::is_floating_point`
+        //    to `std::is_floating_point` using a representative type.  (C-1)
+        //
+        // 2. When `BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY` is
+        //    defined, use `std::is_base_of` to confirm that the
+        //    `bsl::is_floating_point` meta function has `bsl::true_type` or
+        //    `bsl::false_type`, as appropriate, as a base class.  (C-2)
+        //
+        //    - For all versions, explicitly access the `value` member to
+        //      confirm that the inheritance is neither `private`, `protected`,
+        //      nor ambiguous.
+        //
+        // 3. When `BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES` and (for
+        //    `std::is_floating_point_v`)
+        //    `BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY` are defined,
+        //    compare for equality the addresses of `bsl::is_floating_point_v`
+        //    and `std::is_floating_point_v` using a representative type.
+        //    (C-3)
         //
         // Testing:
         //   CONCERN: Conforms to implementation constraints.
@@ -249,10 +249,10 @@ int main(int argc, char *argv[])
                             "\n======================\n");
 
         if (veryVerbose) printf(
-                            "\nTesting 'is_floating_point' using 'double'.\n");
+                            "\nTesting `is_floating_point` using `double`.\n");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-                                                // for 'std::is_floating_point'
+                                                // for `std::is_floating_point`
         ASSERT((false == bsl::is_same<
                                      bsl::is_floating_point<double>,
                                      std::is_floating_point<double> >::value));
@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
 #if defined BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES                  \
  && defined BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
         if (veryVerbose) printf(
-                          "\nTesting 'is_floating_point_v' using 'double'.\n");
+                          "\nTesting `is_floating_point_v` using `double`.\n");
 
         typedef double T;
 
@@ -279,42 +279,42 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::is_floating_point::value'
-        //   Ensure that 'bsl::is_floating_point' returns the correct values
+        // `bsl::is_floating_point::value`
+        //   Ensure that `bsl::is_floating_point` returns the correct values
         //   for a variety of template parameter types.
         //
         // Concerns:
-        //: 1 'is_floating_point::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) non-integral primitive type.
-        //:
-        //: 2 'is_floating_point::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) user-defined type.
-        //:
-        //: 3 'is_floating_point::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) enum type.
-        //:
-        //: 4 'is_floating_point::value' is 'false' when 'TYPE' is a pointer to
-        //:   (possibly cv-qualified) floating-point type.
-        //:
-        //: 5 'is_floating_point::value' is 'false' when 'TYPE' is a reference
-        //:   to (possibly cv-qualified) floating-point type.
-        //:
-        //: 6 'is_integral::value' is 'false' when 'TYPE' is a function pointer
-        //:   type returning an integral type.
-        //:
-        //: 7 'is_integral::value' is 'false' when 'TYPE' is a function member
-        //:   pointer type returning an integral type.
-        //:
-        //: 8 'is_floating_point::value' is 'true' when 'TYPE' is a (possibly
-        //:   cv-qualified) floating-point type.
-        //:
-        //: 10 That 'is_floating_point<T>::value' has the same value as
-        //:    'is_floating_point_v<T>' for a variety of template parameter
-        //:    types.
+        // 1. `is_floating_point::value` is `false` when `TYPE` is a (possibly
+        //    cv-qualified) non-integral primitive type.
+        //
+        // 2. `is_floating_point::value` is `false` when `TYPE` is a (possibly
+        //    cv-qualified) user-defined type.
+        //
+        // 3. `is_floating_point::value` is `false` when `TYPE` is a (possibly
+        //    cv-qualified) enum type.
+        //
+        // 4. `is_floating_point::value` is `false` when `TYPE` is a pointer to
+        //    (possibly cv-qualified) floating-point type.
+        //
+        // 5. `is_floating_point::value` is `false` when `TYPE` is a reference
+        //    to (possibly cv-qualified) floating-point type.
+        //
+        // 6. `is_integral::value` is `false` when `TYPE` is a function pointer
+        //    type returning an integral type.
+        //
+        // 7. `is_integral::value` is `false` when `TYPE` is a function member
+        //    pointer type returning an integral type.
+        //
+        // 8. `is_floating_point::value` is `true` when `TYPE` is a (possibly
+        //    cv-qualified) floating-point type.
+        //
+        // 10. That `is_floating_point<T>::value` has the same value as
+        //     `is_floating_point_v<T>` for a variety of template parameter
+        //     types.
         //
         // Plan:
-        //: 1 Verify that 'bsl::is_floating_point::value' has the correct value
-        //:   for each concern.
+        // 1. Verify that `bsl::is_floating_point::value` has the correct value
+        //    for each concern.
         //
         // Testing:
         //   bsl::is_floating_point::value

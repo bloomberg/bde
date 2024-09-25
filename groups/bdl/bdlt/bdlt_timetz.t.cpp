@@ -21,7 +21,7 @@
 #include <bslx_testoutstream.h>
 #include <bslx_versionfunctions.h>
 
-#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstdlib.h>     // `atoi`
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>
@@ -43,7 +43,7 @@ using namespace bsl;
 //                                 Overview
 //                                 --------
 // The component under test implements a single value-semantic class,
-// 'bdlt::TimeTz', that represents a time value with a local time offset.  We
+// `bdlt::TimeTz`, that represents a time value with a local time offset.  We
 // will therefore follow our standard 10-case approach to testing
 // value-semantic types.
 // ----------------------------------------------------------------------------
@@ -85,7 +85,7 @@ using namespace bsl;
 // [ 1] BREATHING TEST
 // [19] USAGE EXAMPLE
 // [ *] CONCERN: no use of global or default allocators
-// [ 8] Reserved for 'swap' testing.
+// [ 8] Reserved for `swap` testing.
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: no use of global or default allocators
@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -211,32 +211,32 @@ int main(int argc, char *argv[])
 // dates on which points in time occur can be inferred from context.  Assuming
 // that we know that two such times fall on the same (local) calendar date, we
 // can determine whether or not the two times coincide by comparing their
-// 'bdlt::TimeTz' representations.
+// `bdlt::TimeTz` representations.
 //
-// First, we define three 'bdlt::TimeTz' objects representing the time in three
+// First, we define three `bdlt::TimeTz` objects representing the time in three
 // different time zones on the same (local) date:
-//..
+// ```
     bdlt::TimeTz newYorkTime(bdlt::Time(9, 30, 0, 0.0),
                              -5 * bdlt::TimeUnitRatio::k_MINUTES_PER_HOUR);
     bdlt::TimeTz chicagoTime(bdlt::Time(8, 30, 0, 0.0),
                              -6 * bdlt::TimeUnitRatio::k_MINUTES_PER_HOUR);
     bdlt::TimeTz phoenixTime(bdlt::Time(6, 30, 0, 0.0),
                              -7 * bdlt::TimeUnitRatio::k_MINUTES_PER_HOUR);
-//..
+// ```
 // Then, we observe that the local times are distinct:
-//..
+// ```
     ASSERT(newYorkTime.localTime() != chicagoTime.localTime());
     ASSERT(chicagoTime.localTime() != phoenixTime.localTime());
     ASSERT(phoenixTime.localTime() != newYorkTime.localTime());
-//..
-// Next, we observe that 'newYorkTime' and 'chicagoTime' actually represent the
+// ```
+// Next, we observe that `newYorkTime` and `chicagoTime` actually represent the
 // same point in time:
-//..
+// ```
     ASSERT(newYorkTime.utcTime() == chicagoTime.utcTime());
-//..
-// Finally, we observe that 'phoenixTime' is one hour earlier than
-// 'newYorkTime':
-//..
+// ```
+// Finally, we observe that `phoenixTime` is one hour earlier than
+// `newYorkTime`:
+// ```
     bdlt::DatetimeInterval delta =
                                  newYorkTime.utcTime() - phoenixTime.utcTime();
 
@@ -245,27 +245,27 @@ int main(int argc, char *argv[])
     ASSERT(0 == delta.minutes());
     ASSERT(0 == delta.seconds());
     ASSERT(0 == delta.milliseconds());
-//..
+// ```
       } break;
       case 18: {
         // --------------------------------------------------------------------
         // TESTING: hashAppend
         //
         // Concerns:
-        //: 1 Hope that different inputs hash differently
-        //: 2 Verify that equal inputs hash identically
-        //: 3 Works for 'const' and non-'const' values
+        // 1. Hope that different inputs hash differently
+        // 2. Verify that equal inputs hash identically
+        // 3. Works for `const` and non-`const` values
         //
         // Plan:
-        //: 1 Use a table specifying a set of distinct objects, verify that
-        //:   hashes of equivalent objects match and hashes on unequal objects
-        //:   do not.
+        // 1. Use a table specifying a set of distinct objects, verify that
+        //    hashes of equivalent objects match and hashes on unequal objects
+        //    do not.
         //
         // Testing:
         //    void hashAppend(HASHALG& hashAlg, const Calendar&);
         // --------------------------------------------------------------------
         if (verbose)
-            cout << "\nTESTING 'hashAppend'"
+            cout << "\nTESTING `hashAppend`"
                  << "\n====================\n";
 
         typedef ::BloombergLP::bslh::Hash<> Hasher;
@@ -275,10 +275,10 @@ int main(int argc, char *argv[])
         {
             struct {
                 int d_line;         // line number
-                int d_hour;         // 'Time' hour attribute
-                int d_minute;       // 'Time' minute attribute
-                int d_second;       // 'Time' second attribute
-                int d_millisecond;  // 'Time' millisecond attribute
+                int d_hour;         // `Time` hour attribute
+                int d_minute;       // `Time` minute attribute
+                int d_second;       // `Time` second attribute
+                int d_millisecond;  // `Time` millisecond attribute
                 int d_offset;       // offset
             } DATA[] = {
                 //    v------------- TIME ------------v
@@ -348,23 +348,23 @@ int main(int argc, char *argv[])
       case 17: {
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
         // --------------------------------------------------------------------
-        // MANIPULATOR 'validateAndSetTimeTz'
+        // MANIPULATOR `validateAndSetTimeTz`
         //
         // Concerns:
-        //: 1 'validateAndSetDateTz' sets the date and offset of a 'TimeTz'
-        //:   object to the specified values only if they are valid.
+        // 1. `validateAndSetDateTz` sets the date and offset of a `TimeTz`
+        //    object to the specified values only if they are valid.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of valid and
-        //:   invalid object values.  For each value verify that
-        //:   'validateAndSetDateTz' behaves correctly.  (C-1..2)
+        // 1. Using the table-driven technique, specify a set of valid and
+        //    invalid object values.  For each value verify that
+        //    `validateAndSetDateTz` behaves correctly.  (C-1..2)
         //
         // Testing:
         //   int validateAndSetTimeTz(const Time& localTime, int offset);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "MANIPULATOR 'validateAndSetTimeTz'" << endl
+                          << "MANIPULATOR `validateAndSetTimeTz`" << endl
                           << "==================================" << endl;
 
         if (verbose) cout << "\nUse a table of distinct inputs." << endl;
@@ -495,29 +495,29 @@ int main(int argc, char *argv[])
       case 16: {
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
         // --------------------------------------------------------------------
-        // ACCESSOR 'gmtTime'
-        //   A simple inspection of the implementation of 'gmtTime' shows that
+        // ACCESSOR `gmtTime`
+        //   A simple inspection of the implementation of `gmtTime` shows that
         //   it just calls another function to do all of its work.  In this
-        //   test case, we need only show that 'gmtTime' calls the correct
+        //   test case, we need only show that `gmtTime` calls the correct
         //   function.
         //
         // Concerns:
-        //: 1 'gmtTime' delegates its operation to 'utcTime'.
-        //:
-        //: 2 'gmtTime' is 'const'.
-        //:
+        // 1. `gmtTime` delegates its operation to `utcTime`.
+        //
+        // 2. `gmtTime` is `const`.
+        //
         // Plan:
-        //: 1 Using brute force, check that 'gmtTime' returns values that are
-        //:   unique to 'utcTime'.  (C-1)
-        //:
-        //: 2 Call 'gmtTime' on a 'const' object.  (C-2)
+        // 1. Using brute force, check that `gmtTime` returns values that are
+        //    unique to `utcTime`.  (C-1)
+        //
+        // 2. Call `gmtTime` on a `const` object.  (C-2)
         //
         // Testing:
         //   Time gmtTime() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "ACCESSOR 'gmtTime'" << endl
+                          << "ACCESSOR `gmtTime`" << endl
                           << "==================" << endl;
 
         if (verbose) cout << "\nCheck distinct return values." << endl;
@@ -540,31 +540,31 @@ int main(int argc, char *argv[])
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // ACCESSOR 'utcTime'
+        // ACCESSOR `utcTime`
         //
         // Concerns:
-        //: 1 'utcTime' returns the local time value supplied to the
-        //:   constructor, offset by 'offset' minutes.
-        //:
-        //: 2 'utcTime' returns the correct value when 'offset' is positive,
-        //:   negative, or zero.
-        //:
-        //: 3 'utcTime' is 'const'.
+        // 1. `utcTime` returns the local time value supplied to the
+        //    constructor, offset by `offset` minutes.
+        //
+        // 2. `utcTime` returns the correct value when `offset` is positive,
+        //    negative, or zero.
+        //
+        // 3. `utcTime` is `const`.
         //
         // Plan:
-        //: 1 Using the table-driven approach, construct objects with a set of
-        //:   distinct values, and verify that 'utcTime' returns the expected
-        //:   results.  (C-1..2)
-        //:
-        //: 2 Invoke 'utcTime' from a reference providing non-modifiable access
-        //:   to the object.  (C-3)
+        // 1. Using the table-driven approach, construct objects with a set of
+        //    distinct values, and verify that `utcTime` returns the expected
+        //    results.  (C-1..2)
+        //
+        // 2. Invoke `utcTime` from a reference providing non-modifiable access
+        //    to the object.  (C-3)
         //
         // Testing:
         //   Time utcTime() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "ACCESSOR 'utcTime'" << endl
+                          << "ACCESSOR `utcTime`" << endl
                           << "==================" << endl;
 
         if (verbose) cout <<
@@ -572,15 +572,15 @@ int main(int argc, char *argv[])
         {
             struct {
                 int d_line;            // line number
-                int d_hour;            // 'Time' hour attribute
-                int d_minute;          // 'Time' minute attribute
-                int d_second;          // 'Time' second attribute
-                int d_millisecond;     // 'Time' millisecond attribute
+                int d_hour;            // `Time` hour attribute
+                int d_minute;          // `Time` minute attribute
+                int d_second;          // `Time` second attribute
+                int d_millisecond;     // `Time` millisecond attribute
                 int d_offset;          // offset
-                int d_expHour;         // expected 'Time' hour attribute
-                int d_expMinute;       // expected 'Time' minute attribute
-                int d_expSecond;       // expected 'Time' second attribute
-                int d_expMillisecond;  // expected 'Time' millisecond attribute
+                int d_expHour;         // expected `Time` hour attribute
+                int d_expMinute;       // expected `Time` minute attribute
+                int d_expSecond;       // expected `Time` second attribute
+                int d_expMillisecond;  // expected `Time` millisecond attribute
             } DATA[] = {
                 //   v---- INPUT -----v            v--- EXPECTED --v
                 //LN HR    MN   SC   MS   OFFSET   HR   MN   SC   MS
@@ -654,23 +654,23 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // MANIPULATOR 'setTimeTzIfValid'
+        // MANIPULATOR `setTimeTzIfValid`
         //
         // Concerns:
-        //: 1 'setTimeTzIfValid' sets the date and offset of a 'TimeTz'
-        //:   object to the specified values only if they are valid.
+        // 1. `setTimeTzIfValid` sets the date and offset of a `TimeTz`
+        //    object to the specified values only if they are valid.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of valid and
-        //:   invalid object values.  For each value verify that
-        //:   'setTimeTzIfValid' behaves correctly.  (C-1..2)
+        // 1. Using the table-driven technique, specify a set of valid and
+        //    invalid object values.  For each value verify that
+        //    `setTimeTzIfValid` behaves correctly.  (C-1..2)
         //
         // Testing:
         //   int setTimeTzIfValid(const Time& localTime, int offset);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "MANIPULATOR 'setTimeTzIfValid'" << endl
+                          << "MANIPULATOR `setTimeTzIfValid`" << endl
                           << "==============================" << endl;
 
         if (verbose) cout << "\nUse a table of distinct inputs." << endl;
@@ -797,30 +797,30 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // MANIPULATOR 'setTimeTz'
+        // MANIPULATOR `setTimeTz`
         //
         // Concerns:
-        //: 1 'setTimeTz' sets the local time and offset of the object to the
-        //:   specified values.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        // 1. `setTimeTz` sets the local time and offset of the object to the
+        //    specified values.
+        //
+        // 2. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use the table-driven technique, specify a range of distinct time
-        //:   and offset values. Pass each value to the 'setTimeTz' method and
-        //:   verify that the resulting object value is correct.  (C-2)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-3)
+        // 1. Use the table-driven technique, specify a range of distinct time
+        //    and offset values. Pass each value to the `setTimeTz` method and
+        //    verify that the resulting object value is correct.  (C-2)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-3)
         //
         // Testing:
         //   void setTimeTz(const Time& localTime, int offset);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "MANIPULATOR 'setTimeTz'" << endl
+                          << "MANIPULATOR `setTimeTz`" << endl
                           << "=======================" << endl;
 
         if (verbose) cout << "\nUse a table of distinct inputs." << endl;
@@ -929,23 +929,23 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'isValid'
+        // CLASS METHOD `isValid`
         //
         // Concerns:
-        //: 1 'isValid' correctly determines whether a date and an associated
-        //:   offset are valid attributes of a 'TimeTz' object.
+        // 1. `isValid` correctly determines whether a date and an associated
+        //    offset are valid attributes of a `TimeTz` object.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of valid and
-        //:   invalid object values. For each value verify that 'isValid'
-        //:   returns the correct result.  (C-1..2)
+        // 1. Using the table-driven technique, specify a set of valid and
+        //    invalid object values. For each value verify that `isValid`
+        //    returns the correct result.  (C-1..2)
         //
         // Testing:
         //   static bool isValid(const Time& localTime, int offset);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "CLASS METHOD 'isValid'" << endl
+                          << "CLASS METHOD `isValid`" << endl
                           << "======================" << endl;
 
         if (verbose) cout << "\nUse a table of distinct input values." << endl;
@@ -1013,12 +1013,12 @@ int main(int argc, char *argv[])
         // DEFAULT CTOR
         //
         // Concerns:
-        //: 1 An object created with the default constructor has the
-        //:   contractually specified default value.
+        // 1. An object created with the default constructor has the
+        //    contractually specified default value.
         //
         // Plan:
-        //: 1 Default construct an object and verify that the object has the
-        //:   expected value.  (C-1)
+        // 1. Default construct an object and verify that the object has the
+        //    expected value.  (C-1)
         //
         // Testing:
         //   TimeTz();
@@ -1047,83 +1047,83 @@ int main(int argc, char *argv[])
         //   neutrality.
         //
         // Concerns:
-        //: 1 The class method 'maxSupportedBdexVersion' returns the correct
-        //:   version to be used for the specified 'versionSelector'.
-        //:
-        //: 2 The 'bdexStreamOut' method is callable on a reference providing
-        //:   only non-modifiable access.
-        //:
-        //: 3 For valid streams, externalization and unexternalization are
-        //:   inverse operations.
-        //:
-        //: 4 For invalid streams, externalization leaves the stream invalid
-        //:   and unexternalization does not alter the value of the object and
-        //:   leaves the stream invalid.
-        //:
-        //: 5 Unexternalizing of incomplete, invalid, or corrupted data results
-        //:   in a valid object of unspecified value and an invalidated stream.
-        //:
-        //: 6 The wire format of the object is as expected.
-        //:
-        //: 7 All methods are exception neutral.
-        //:
-        //: 8 The 'bdexStreamIn' and 'bdexStreamOut' methods return a reference
-        //:   to the provided stream in all situations.
-        //:
-        //: 9 The initial value of the object has no affect on
-        //:   unexternalization.
+        // 1. The class method `maxSupportedBdexVersion` returns the correct
+        //    version to be used for the specified `versionSelector`.
+        //
+        // 2. The `bdexStreamOut` method is callable on a reference providing
+        //    only non-modifiable access.
+        //
+        // 3. For valid streams, externalization and unexternalization are
+        //    inverse operations.
+        //
+        // 4. For invalid streams, externalization leaves the stream invalid
+        //    and unexternalization does not alter the value of the object and
+        //    leaves the stream invalid.
+        //
+        // 5. Unexternalizing of incomplete, invalid, or corrupted data results
+        //    in a valid object of unspecified value and an invalidated stream.
+        //
+        // 6. The wire format of the object is as expected.
+        //
+        // 7. All methods are exception neutral.
+        //
+        // 8. The `bdexStreamIn` and `bdexStreamOut` methods return a reference
+        //    to the provided stream in all situations.
+        //
+        // 9. The initial value of the object has no affect on
+        //    unexternalization.
         //
         // Plan:
-        //: 1 Test 'maxSupportedBdexVersion' explicitly.  (C-1)
-        //:
-        //: 2 All calls to the 'bdexStreamOut' accessor will be done from a
-        //:   'const' object or reference and all calls to the 'bdexStreamOut'
-        //:   free function (provided by 'bslx') will be supplied a 'const'
-        //:   object or reference.  (C-2)
-        //:
-        //: 3 Perform a direct test of the 'bdexStreamOut' and 'bdexStreamIn'
-        //:   methods (the rest of the testing will use the free functions
-        //:   'bslx::OutStreamFunctions::bdexStreamOut' and
-        //:   'bslx::InStreamFunctions::bdexStreamIn').
-        //:
-        //: 4 Define a set 'S' of test values to be used throughout the test
-        //:   case.
-        //:
-        //: 5 For all '(u, v)' in the cross product 'S X S', stream the value
-        //:   of 'u' into (a temporary copy of) 'v', 'T', and assert 'T == u'.
-        //:   (C-3, 9)
-        //:
-        //: 6 For all 'u' in 'S', create a copy of 'u' and attempt to stream
-        //:   into it from an invalid stream.  Verify after each attempt that
-        //:   the object is unchanged and that the stream is invalid.  (C-4)
-        //:
-        //: 7 Write 3 distinct objects to an output stream buffer of total
-        //:   length 'N'.  For each partial stream length from 0 to 'N - 1',
-        //:   construct an input stream and attempt to read into objects
-        //:   initialized with distinct values.  Verify values of objects
-        //:   that are either successfully modified or left entirely
-        //:   unmodified, and that the stream became invalid immediately after
-        //:   the first incomplete read.  Finally, ensure that each object
-        //:   streamed into is in some valid state.
-        //:
-        //: 8 Use the underlying stream package to simulate a typical valid
-        //:   (control) stream and verify that it can be streamed in
-        //:   successfully.  Then for each data field in the stream (beginning
-        //:   with the version number), provide one or more similar tests with
-        //:   that data field corrupted.  After each test, verify that the
-        //:   object is in some valid state after streaming, and that the
-        //:   input stream has become invalid.  (C-5)
-        //:
-        //: 9 Explicitly test the wire format.  (C-6)
-        //:
-        //:10 In all cases, confirm exception neutrality using the specially
-        //:   instrumented 'bslx::TestInStream' and a pair of standard macros,
-        //:   'BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN' and
-        //:   'BSLX_TESTINSTREAM_EXCEPTION_TEST_END', which configure the
-        //:   'bslx::TestInStream' object appropriately in a loop.  (C-7)
-        //:
-        //:11 In all cases, verify the return value of the tested method.
-        //:   (C-8)
+        // 1. Test `maxSupportedBdexVersion` explicitly.  (C-1)
+        //
+        // 2. All calls to the `bdexStreamOut` accessor will be done from a
+        //    `const` object or reference and all calls to the `bdexStreamOut`
+        //    free function (provided by `bslx`) will be supplied a `const`
+        //    object or reference.  (C-2)
+        //
+        // 3. Perform a direct test of the `bdexStreamOut` and `bdexStreamIn`
+        //    methods (the rest of the testing will use the free functions
+        //    `bslx::OutStreamFunctions::bdexStreamOut` and
+        //    `bslx::InStreamFunctions::bdexStreamIn`).
+        //
+        // 4. Define a set `S` of test values to be used throughout the test
+        //    case.
+        //
+        // 5. For all `(u, v)` in the cross product `S X S`, stream the value
+        //    of `u` into (a temporary copy of) `v`, `T`, and assert `T == u`.
+        //    (C-3, 9)
+        //
+        // 6. For all `u` in `S`, create a copy of `u` and attempt to stream
+        //    into it from an invalid stream.  Verify after each attempt that
+        //    the object is unchanged and that the stream is invalid.  (C-4)
+        //
+        // 7. Write 3 distinct objects to an output stream buffer of total
+        //    length `N`.  For each partial stream length from 0 to `N - 1`,
+        //    construct an input stream and attempt to read into objects
+        //    initialized with distinct values.  Verify values of objects
+        //    that are either successfully modified or left entirely
+        //    unmodified, and that the stream became invalid immediately after
+        //    the first incomplete read.  Finally, ensure that each object
+        //    streamed into is in some valid state.
+        //
+        // 8. Use the underlying stream package to simulate a typical valid
+        //    (control) stream and verify that it can be streamed in
+        //    successfully.  Then for each data field in the stream (beginning
+        //    with the version number), provide one or more similar tests with
+        //    that data field corrupted.  After each test, verify that the
+        //    object is in some valid state after streaming, and that the
+        //    input stream has become invalid.  (C-5)
+        //
+        // 9. Explicitly test the wire format.  (C-6)
+        //
+        // 10. In all cases, confirm exception neutrality using the specially
+        //    instrumented `bslx::TestInStream` and a pair of standard macros,
+        //    `BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN` and
+        //    `BSLX_TESTINSTREAM_EXCEPTION_TEST_END`, which configure the
+        //    `bslx::TestInStream` object appropriately in a loop.  (C-7)
+        //
+        // 11. In all cases, verify the return value of the tested method.
+        //    (C-8)
         //
         // Testing:
         //   static int maxSupportedBdexVersion(int versionSelector);
@@ -1164,7 +1164,7 @@ int main(int argc, char *argv[])
                                                 / sizeof *VALUES);
 
         if (verbose) {
-            cout << "\nTesting 'maxSupportedBdexVersion'." << endl;
+            cout << "\nTesting `maxSupportedBdexVersion`." << endl;
         }
         {
             ASSERT(1 == Obj::maxSupportedBdexVersion(0));
@@ -1195,8 +1195,8 @@ int main(int argc, char *argv[])
             }
 
             if (verbose) {
-                cout << "\tDirect initial trial of 'bdexStreamOut' and "
-                     << "(valid) 'bdexStreamIn'." << endl;
+                cout << "\tDirect initial trial of `bdexStreamOut` and "
+                     << "(valid) `bdexStreamIn`." << endl;
             }
             {
                 const Obj X(VC);
@@ -1234,13 +1234,13 @@ int main(int argc, char *argv[])
                 ASSERT(in.isEmpty());
             }
 
-            // We will use the stream free functions provided by 'bslx', as
-            // opposed to the class member functions, since the 'bslx'
+            // We will use the stream free functions provided by `bslx`, as
+            // opposed to the class member functions, since the `bslx`
             // implementation gives priority to the free function
             // implementations; we want to test what will be used.
             // Furthermore, toward making this test case more reusable in other
-            // components, from here on we generally use the 'bdexStreamIn' and
-            // 'bdexStreamOut' free functions that are defined in the 'bslx'
+            // components, from here on we generally use the `bdexStreamIn` and
+            // `bdexStreamOut` free functions that are defined in the `bslx`
             // package rather than call the like-named member functions
             // directly.
 
@@ -1469,7 +1469,7 @@ int main(int argc, char *argv[])
                             LOOP_ASSERT(i, !in);
                             LOOP_ASSERT(i, W3 == T3);
                         }
-                        else {  // 'LOD2 <= i < LOD3'
+                        else {  // `LOD2 <= i < LOD3`
                             In& rvIn1 = bdexStreamIn(in, mT1, VERSION);
                             if (1 == VERSION) {
                                 // Version 1 loses microseconds; replace.
@@ -1538,7 +1538,7 @@ int main(int argc, char *argv[])
         ASSERT(W != Y);
         ASSERT(X != Y);
 
-        const int SERIAL_Y = 1;       // internal rep. of 'Y.offset()'
+        const int SERIAL_Y = 1;       // internal rep. of `Y.offset()`
 
         if (verbose) {
             cout << "\t\tGood stream (for control)." << endl;
@@ -1579,7 +1579,7 @@ int main(int argc, char *argv[])
             cout << "\t\tBad version." << endl;
         }
         {
-            const char version = 0; // too small ('version' must be >= 1)
+            const char version = 0; // too small (`version` must be >= 1)
 
             Out out(VERSION_SELECTOR, &allocator);
 
@@ -1872,27 +1872,27 @@ int main(int argc, char *argv[])
         //   have the same value.
         //
         // Concerns:
-        //: 1 The assignment operator can change the value of any modifiable
-        //:   target object to that of any source object.
-        //:
-        //: 2 The signature and return type are standard.
-        //:
-        //: 3 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 4 The value of the source object is not modified.
-        //:
-        //: 5 Assigning an object to itself behaves as expected (alias-safety).
+        // 1. The assignment operator can change the value of any modifiable
+        //    target object to that of any source object.
+        //
+        // 2. The signature and return type are standard.
+        //
+        // 3. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 4. The value of the source object is not modified.
+        //
+        // 5. Assigning an object to itself behaves as expected (alias-safety).
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a member-function
-        //:   pointer having the appropriate signature and return type for the
-        //:   copy-assignment operator defined in this component.  (C-2)
-        //:
-        //: 2 Using the table-driven technique, specify a set S of (unique)
-        //:   objects with substantial and varied differences in value.
-        //:   Construct and initialize all combinations (U, V) in the cross
-        //:   product S x S, assign U from V, and verify the remaining
-        //:   concerns.  (C-1, C-3..5)
+        // 1. Use the address of `operator=` to initialize a member-function
+        //    pointer having the appropriate signature and return type for the
+        //    copy-assignment operator defined in this component.  (C-2)
+        //
+        // 2. Using the table-driven technique, specify a set S of (unique)
+        //    objects with substantial and varied differences in value.
+        //    Construct and initialize all combinations (U, V) in the cross
+        //    product S x S, assign U from V, and verify the remaining
+        //    concerns.  (C-1, C-3..5)
         //
         // Testing:
         //   TimeTz& operator=(const TimeTz& rhs);
@@ -1918,10 +1918,10 @@ int main(int argc, char *argv[])
         {
             struct {
                 int d_line;         // line number
-                int d_hour;         // 'Time' hour attribute
-                int d_minute;       // 'Time' minute attribute
-                int d_second;       // 'Time' second attribute
-                int d_millisecond;  // 'Time' millisecond attribute
+                int d_hour;         // `Time` hour attribute
+                int d_minute;       // `Time` minute attribute
+                int d_second;       // `Time` second attribute
+                int d_millisecond;  // `Time` millisecond attribute
                 int d_offset;       // offset
             } DATA[] = {
                 //    v------------- TIME ------------v
@@ -2022,7 +2022,7 @@ int main(int argc, char *argv[])
       case 8: {
         // --------------------------------------------------------------------
         // SWAP MEMBER AND FREE FUNCTIONS
-        //   Ensure that, when member and free 'swap' are implemented, we can
+        //   Ensure that, when member and free `swap` are implemented, we can
         //   exchange the values of any two objects.
         //
         // Concerns:
@@ -2032,14 +2032,14 @@ int main(int argc, char *argv[])
         //   N/A
         //
         // Testing:
-        //  Reserved for 'swap' testing.
+        //  Reserved for `swap` testing.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "SWAP MEMBER AND FREE FUNCTIONS" << endl
                           << "==============================" << endl;
 
-        if (verbose) cout << "Not implemented for 'bdlt::TimeTz'." << endl;
+        if (verbose) cout << "Not implemented for `bdlt::TimeTz`." << endl;
 
       } break;
       case 7: {
@@ -2049,20 +2049,20 @@ int main(int argc, char *argv[])
         //   other one, such that the two objects have the same value.
         //
         // Concerns:
-        //: 1 The copy constructor creates an object having the same value as
-        //:   that of the supplied original object.
-        //:
-        //: 2 The original object is passed as a reference providing
-        //:   non-modifiable access to that object.
-        //:
-        //: 3 The value of the original object is unchanged.
+        // 1. The copy constructor creates an object having the same value as
+        //    that of the supplied original object.
+        //
+        // 2. The original object is passed as a reference providing
+        //    non-modifiable access to that object.
+        //
+        // 3. The value of the original object is unchanged.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their attributes.
-        //:   Specify a set S whose elements have substantial and varied
-        //:   differences in value.  For each element in S, copy construct a
-        //:   new object from S and verify the concerns. (C-1..3)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their attributes.
+        //    Specify a set S whose elements have substantial and varied
+        //    differences in value.  For each element in S, copy construct a
+        //    new object from S and verify the concerns. (C-1..3)
         //
         // Testing:
         //   TimeTz(const TimeTz& original);
@@ -2076,10 +2076,10 @@ int main(int argc, char *argv[])
         {
             struct {
                 int d_line;         // line number
-                int d_hour;         // 'Time' hour attribute
-                int d_minute;       // 'Time' minute attribute
-                int d_second;       // 'Time' second attribute
-                int d_millisecond;  // 'Time' millisecond attribute
+                int d_hour;         // `Time` hour attribute
+                int d_minute;       // `Time` minute attribute
+                int d_second;       // `Time` second attribute
+                int d_millisecond;  // `Time` millisecond attribute
                 int d_offset;       // offset
             } DATA[] = {
                 //    v----------- TIME -----------v
@@ -2156,44 +2156,44 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // EQUALITY-COMPARISON OPERATORS
-        //   Ensure that '==' and '!=' are the operational definition of value.
+        //   Ensure that `==` and `!=` are the operational definition of value.
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if each of
-        //:   their corresponding salient attributes respectively compare
-        //:   equal.
-        //:
-        //: 2 'true  == (X == X)'  (i.e., identity)
-        //:
-        //: 3 'false == (X != X)'  (i.e., identity)
-        //:
-        //: 4 'X == Y' if and only if 'Y == X'  (i.e., commutativity)
-        //:
-        //: 5 'X != Y' if and only if 'Y != X'  (i.e., commutativity)
-        //:
-        //: 6 'X != Y' if and only if '!(X == Y)'
-        //:
-        //: 7 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., both comparison operators are free functions).
-        //:
-        //: 8 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //: 9 The equality operator's signature and return type are standard.
-        //:
-        //:10 The inequality operator's signature and return type are standard.
+        // 1. Two objects, `X` and `Y`, compare equal if and only if each of
+        //    their corresponding salient attributes respectively compare
+        //    equal.
+        //
+        // 2. `true  == (X == X)`  (i.e., identity)
+        //
+        // 3. `false == (X != X)`  (i.e., identity)
+        //
+        // 4. `X == Y` if and only if `Y == X`  (i.e., commutativity)
+        //
+        // 5. `X != Y` if and only if `Y != X`  (i.e., commutativity)
+        //
+        // 6. `X != Y` if and only if `!(X == Y)`
+        //
+        // 7. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., both comparison operators are free functions).
+        //
+        // 8. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        // 9. The equality operator's signature and return type are standard.
+        //
+        // 10. The inequality operator's signature and return type are standard.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the two homogeneous, free equality-
-        //:   comparison operators defined in this component.
-        //:   (C-7..10)
-        //:
-        //: 2 Using the table-driven technique, specify a set S of unique
-        //:   object values having various minor or subtle differences.  Verify
-        //:   the correctness of 'operator==' and 'operator!=' using all
-        //:   elements (u, v) of the cross product S X S.  (C-1..6)
+        // 1. Use the respective addresses of `operator==` and `operator!=` to
+        //    initialize function pointers having the appropriate signatures
+        //    and return types for the two homogeneous, free equality-
+        //    comparison operators defined in this component.
+        //    (C-7..10)
+        //
+        // 2. Using the table-driven technique, specify a set S of unique
+        //    object values having various minor or subtle differences.  Verify
+        //    the correctness of `operator==` and `operator!=` using all
+        //    elements (u, v) of the cross product S X S.  (C-1..6)
         //
         // Testing:
         //   bool operator==(const TimeTz& lhs, const TimeTz& rhs);
@@ -2222,10 +2222,10 @@ int main(int argc, char *argv[])
         {
             struct {
                 int d_line;         // line number
-                int d_hour;         // 'Time' hour attribute
-                int d_minute;       // 'Time' minute attribute
-                int d_second;       // 'Time' second attribute
-                int d_millisecond;  // 'Time' millisecond attribute
+                int d_hour;         // `Time` hour attribute
+                int d_minute;       // `Time` minute attribute
+                int d_second;       // `Time` second attribute
+                int d_millisecond;  // `Time` millisecond attribute
                 int d_offset;       // offset
             } DATA[] = {
                 //    v------------- TIME ------------v
@@ -2311,43 +2311,43 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // PRINT AND OUTPUT OPERATOR
         //   Ensure that the value of the object can be formatted appropriately
-        //   on an 'ostream' in some standard, human-readable form.
+        //   on an `ostream` in some standard, human-readable form.
         //
         // Concerns:
-        //: 1 The 'print' method writes the value to the specified 'ostream'.
-        //:
-        //: 2 The 'print' method writes the value in the intended format.
-        //:
-        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)'.
+        // 1. The `print` method writes the value to the specified `ostream`.
         //
-        //: 4 The 'print' method signature and return type are standard.
-        //:
-        //: 5 The 'print' method returns the supplied 'ostream'.
-        //:
-        //: 6 The optional 'level' and 'spacesPerLevel' parameters have the
-        //:   correct default values.
-        //:
-        //: 7 The output 'operator<<' signature and return type are standard.
-        //:
-        //: 8 The output 'operator<<' returns the supplied 'ostream'.
-        //:
-        //: 9 Padding provided by 'print' works *within* the padding provided
-        //:   by setting the stream's output width.
+        // 2. The `print` method writes the value in the intended format.
+        //
+        // 3. The output using `s << obj` is the same as `obj.print(s, 0, -1)`.
+        //
+        // 4. The `print` method signature and return type are standard.
+        //
+        // 5. The `print` method returns the supplied `ostream`.
+        //
+        // 6. The optional `level` and `spacesPerLevel` parameters have the
+        //    correct default values.
+        //
+        // 7. The output `operator<<` signature and return type are standard.
+        //
+        // 8. The output `operator<<` returns the supplied `ostream`.
+        //
+        // 9. Padding provided by `print` works *within* the padding provided
+        //    by setting the stream's output width.
         //
         // Plan:
-        //: 1 Use the addresses of the 'print' member function and 'operator<<'
-        //:   free function defined in this component to initialize,
-        //:   respectively, member-function and free-function pointers having
-        //:   the appropriate signatures and return types.  (C-4, 7)
-        //:
-        //: 2 Test that the 'print' method produces the expected results for
-        //:   various values of 'level' and 'spacesPerLevel', with various
-        //:   width settings for the output stream, and both left and right
-        //:   stream alignment.  The time format is already extensively tested
-        //:   in 'Time', so it will not be exhausted here.  (C-1, 2, 5, 9)
-        //:
-        //: 3 Test 'operator<<' using the 'print' method as an oracle.
-        //:   (C-3, 7, 8)
+        // 1. Use the addresses of the `print` member function and `operator<<`
+        //    free function defined in this component to initialize,
+        //    respectively, member-function and free-function pointers having
+        //    the appropriate signatures and return types.  (C-4, 7)
+        //
+        // 2. Test that the `print` method produces the expected results for
+        //    various values of `level` and `spacesPerLevel`, with various
+        //    width settings for the output stream, and both left and right
+        //    stream alignment.  The time format is already extensively tested
+        //    in `Time`, so it will not be exhausted here.  (C-1, 2, 5, 9)
+        //
+        // 3. Test `operator<<` using the `print` method as an oracle.
+        //    (C-3, 7, 8)
         //
         // Testing:
         //   bsl::ostream& operator<<(bsl::ostream& stream, const TimeTz& rhs);
@@ -2359,7 +2359,7 @@ int main(int argc, char *argv[])
                           << "=========================" << endl;
 
         // The global concern that we do not use the default allocator does not
-        // hold in this test case, because we use 'stringstream' as part of our
+        // hold in this test case, because we use `stringstream` as part of our
         // test apparatus.
 
         bslma::TestAllocator
@@ -2367,8 +2367,8 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard
                     alternateDefaultAllocatorGuard(&alternateDefaultAllocator);
 
-        if (verbose) cout << "\nAssign the addresses of 'print' and "
-                             "the output 'operator<<' to variables." << endl;
+        if (verbose) cout << "\nAssign the addresses of `print` and "
+                             "the output `operator<<` to variables." << endl;
         {
             typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
             typedef ostream& (*operatorPtr)(ostream&, const Obj&);
@@ -2426,7 +2426,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'print' with "
+        if (verbose) cout << "\nTesting `print` with "
                              "manipulators and left alignment." << endl;
         {
             static const struct {
@@ -2455,7 +2455,7 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             const char FILL_CHAR    = '@'; // Used for filling whitespaces due
-                                           // to 'setw'.
+                                           // to `setw`.
             const int  FORMAT_WIDTH = 33;
 
             for (int ti = 0; ti < NUM_DATA;  ++ti) {
@@ -2480,7 +2480,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'print' with "
+        if (verbose) cout << "\nTesting `print` with "
                              "manipulators and right alignment." << endl;
         {
             static const struct {
@@ -2509,7 +2509,7 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             const char FILL_CHAR    = '@'; // Used for filling whitespaces due
-                                           // to 'setw'.
+                                           // to `setw`.
 
             const int  FORMAT_WIDTH = 33;
 
@@ -2549,7 +2549,7 @@ int main(int argc, char *argv[])
             ASSERTV(output.str(), oracle.str(), oracle.str() == output.str());
         }
 
-        if (verbose) cout << "\nTesting 'operator<<'" << endl;
+        if (verbose) cout << "\nTesting `operator<<`" << endl;
         {
             static const struct {
                 int         d_line;     // line number
@@ -2587,12 +2587,12 @@ int main(int argc, char *argv[])
                 Obj mX(time, OFF);  const Obj& X = mX;
 
                 const char FILL_CHAR = '@'; // Used for filling whitespaces due
-                                            // to 'setw'.
+                                            // to `setw`.
 
                 const int  FORMAT_WIDTH = 23;
 
                 const int  OUTPUT_WIDTH = 20;  // expected width of bare
-                                               // 'TimeTz' representation
+                                               // `TimeTz` representation
 
                 const string FILL(FORMAT_WIDTH - OUTPUT_WIDTH, FILL_CHAR);
 
@@ -2663,26 +2663,26 @@ int main(int argc, char *argv[])
         // BASIC ACCESSORS
         //
         // Concerns:
-        //: 1 'offset' can return all values in the open range
-        //:   '( -1440 .. 1400 )'.
-        //:
-        //: 2 'offset' returns the offset value supplied to the constructor.
-        //:
-        //: 3 'localTime' returns the local time value supplied to the
-        //:   constructor.
-        //:
-        //: 4 'localTime' can return both set and unset ('24:00:00.000')
-        //:   values.
-        //:
-        //: 5 All accessors are 'const'.
+        // 1. `offset` can return all values in the open range
+        //    `( -1440 .. 1400 )`.
+        //
+        // 2. `offset` returns the offset value supplied to the constructor.
+        //
+        // 3. `localTime` returns the local time value supplied to the
+        //    constructor.
+        //
+        // 4. `localTime` can return both set and unset (`24:00:00.000`)
+        //    values.
+        //
+        // 5. All accessors are `const`.
         //
         // Plan:
-        //: 1 Using the table-driven approach, construct objects with a set of
-        //:   distinct values, and verify that the functions under test return
-        //:   the expected results.  (C-1..4)
-        //:
-        //: 2 Invoke each function under test from a reference providing
-        //:   non-modifiable access to the object.  (C-5)
+        // 1. Using the table-driven approach, construct objects with a set of
+        //    distinct values, and verify that the functions under test return
+        //    the expected results.  (C-1..4)
+        //
+        // 2. Invoke each function under test from a reference providing
+        //    non-modifiable access to the object.  (C-5)
         //
         // Testing:
         //   Time localTime() const;
@@ -2693,14 +2693,14 @@ int main(int argc, char *argv[])
                           << "BASIC ACCESSORS" << endl
                           << "===============" << endl;
 
-        if (verbose) cout << "\n'localTime', 'offset'." << endl;
+        if (verbose) cout << "\n'localTime', `offset`." << endl;
         {
             struct {
                 int d_line;         // line number
-                int d_hour;         // 'Time' hour attribute
-                int d_minute;       // 'Time' minute attribute
-                int d_second;       // 'Time' second attribute
-                int d_millisecond;  // 'Time' millisecond attribute
+                int d_hour;         // `Time` hour attribute
+                int d_minute;       // `Time` minute attribute
+                int d_second;       // `Time` second attribute
+                int d_millisecond;  // `Time` millisecond attribute
                 int d_offset;       // offset
             } DATA[] = {
                 //    v-------------- TIME -----------v
@@ -2800,25 +2800,25 @@ int main(int argc, char *argv[])
         // VALUE CTOR & DTOR
         //
         // Concerns:
-        //: 1 Object can be constructed from all valid combinations of
-        //:   'localTime' and 'offset'.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Object can be constructed from all valid combinations of
+        //    `localTime` and `offset`.
+        //
+        // 2. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using a table-based approach, iterate through representative
-        //:   combinations of 'localTime' and 'offset', obtained through
-        //:   category partitioning, and construct a 'TimeTz' object from each
-        //:   combination.  Note that, since 'Time' has already been tested,
-        //:   and the 'localTime' attribute is inspected only when comparing
-        //:   its value to '24:00:00.0000', we need only two distinct values
-        //:   for 'localTime'.  (C-1)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when an attempt is made to construct an object with an
-        //:   invalid combination of 'localTime' and 'offset', including
-        //:   combinations where one of the two is invalid of itself (using the
-        //:   'BSLS_ASSERTTEST_*' macros).  (C-2)
+        // 1. Using a table-based approach, iterate through representative
+        //    combinations of `localTime` and `offset`, obtained through
+        //    category partitioning, and construct a `TimeTz` object from each
+        //    combination.  Note that, since `Time` has already been tested,
+        //    and the `localTime` attribute is inspected only when comparing
+        //    its value to `24:00:00.0000`, we need only two distinct values
+        //    for `localTime`.  (C-1)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered when an attempt is made to construct an object with an
+        //    invalid combination of `localTime` and `offset`, including
+        //    combinations where one of the two is invalid of itself (using the
+        //    `BSLS_ASSERTTEST_*` macros).  (C-2)
         //
         // Testing:
         //   TimeTz(const Time& localTime, int offset);
@@ -2833,10 +2833,10 @@ int main(int argc, char *argv[])
         {
             struct {
                 int d_line;         // line number
-                int d_hour;         // 'Time' hour attribute
-                int d_minute;       // 'Time' minute attribute
-                int d_second;       // 'Time' second attribute
-                int d_millisecond;  // 'Time' millisecond attribute
+                int d_hour;         // `Time` hour attribute
+                int d_minute;       // `Time` minute attribute
+                int d_second;       // `Time` second attribute
+                int d_millisecond;  // `Time` millisecond attribute
                 int d_offset;       // offset
             } DATA[] = {
                 //    v------------ TIME  ------------v
@@ -2918,19 +2918,19 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an object x1 (init. to VA).    { x1:VA }
-        //: 2 Create an object x2 (copy from x1).   { x1:VA x2:VA }
-        //: 3 Set x1 to VB.                         { x1:VB x2:VA }
-        //: 4 Create an object x3 (default ctor).   { x1:VB x2:VA x3:U }
-        //: 5 Create an object x4 (copy from x3).   { x1:VB x2:VA x3:U  x4:U }
-        //: 6 Set x3 to VC.                         { x1:VB x2:VA x3:VC x4:U }
-        //: 7 Assign x2 = x1.                       { x1:VB x2:VB x3:VC x4:U }
-        //: 8 Assign x2 = x3.                       { x1:VB x2:VC x3:VC x4:U }
-        //: 9 Assign x1 = x1 (aliasing).            { x1:VB x2:VB x3:VC x4:U }
+        // 1. Create an object x1 (init. to VA).    { x1:VA }
+        // 2. Create an object x2 (copy from x1).   { x1:VA x2:VA }
+        // 3. Set x1 to VB.                         { x1:VB x2:VA }
+        // 4. Create an object x3 (default ctor).   { x1:VB x2:VA x3:U }
+        // 5. Create an object x4 (copy from x3).   { x1:VB x2:VA x3:U  x4:U }
+        // 6. Set x3 to VC.                         { x1:VB x2:VA x3:VC x4:U }
+        // 7. Assign x2 = x1.                       { x1:VB x2:VB x3:VC x4:U }
+        // 8. Assign x2 = x3.                       { x1:VB x2:VC x3:VC x4:U }
+        // 9. Assign x1 = x1 (aliasing).            { x1:VB x2:VB x3:VC x4:U }
         //
         // Testing:
         //   BREATHING TEST

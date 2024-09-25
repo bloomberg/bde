@@ -13,12 +13,12 @@ using namespace BloombergLP;
 //=============================================================================
 //                             TEST PLAN
 //                             ---------
-// The 'bsls_unspecifiedbool' component provides a class supplying the
-// 'typedef' for a type suitable for use in a conversion operator for types
+// The `bsls_unspecifiedbool` component provides a class supplying the
+// `typedef` for a type suitable for use in a conversion operator for types
 // that must be convertible to bool, but without suffering the accidental
-// integral promotions that would result if a true 'operator bool' was defined.
+// integral promotions that would result if a true `operator bool` was defined.
 // It further provides two static member functions that return values of this
-// type equivalent to 'true' and 'false'.  In order to completely test this
+// type equivalent to `true` and `false`.  In order to completely test this
 // component we must prove that the aliases type serves the advertized purpose
 // of supporting only the desired boolean conversions, and not the broader set
 // of integral conversions.  Then we must demonstrate that the two functions
@@ -97,76 +97,80 @@ namespace USAGE_EXAMPLE {
 ///- - - - - - - - - - - - - - - - -
 // A common requirement for "smart pointer" types is to emulate the native
 // pointer types and, in particular, support testing for "null" or "empty"
-// pointer values as a simple boolean conversion in 'if' and 'while' clauses.
-// We here demonstrate how to create a simple smart pointer type, 'SimplePtr',
+// pointer values as a simple boolean conversion in `if` and `while` clauses.
+// We here demonstrate how to create a simple smart pointer type, `SimplePtr`,
 // using this component to implement a safe the boolean conversion.
 //
-// An object of type 'SimplePtr' holds a pointer value, but does not claim
+// An object of type `SimplePtr` holds a pointer value, but does not claim
 // ownership or any responsibility for the lifetime of the referenced object.
-// A 'SimplePtr' object acts as a "simple" native pointer.
+// A `SimplePtr` object acts as a "simple" native pointer.
 //
-// First, we create the 'SimplePtr' class, define its data members, creators
+// First, we create the `SimplePtr` class, define its data members, creators
 // and manipulators:
-//..
+// ```
+
+    /// This class holds a pointer to a single object, and provides a subset
+    /// of the regular pointer operators.  For example, objects of this
+    /// class can be dereferenced with `operator*` and tested as a boolean
+    /// value to determine if null.  Conversely, this class does not support
+    /// pointer arithmetic.
     template <class TYPE>
     class SimplePtr
     {
-        // This class holds a pointer to a single object, and provides a subset
-        // of the regular pointer operators.  For example, objects of this
-        // class can be dereferenced with 'operator*' and tested as a boolean
-        // value to determine if null.  Conversely, this class does not support
-        // pointer arithmetic.
 
       private:
         // DATA
         TYPE *d_ptr_p;  // address of the referenced object
 
         // PRIVATE ACCESSORS
+
+        /// Suppress equality comparison operations on objects of this
+        /// class.
         bool operator==(const SimplePtr &);  // = delete;
         bool operator!=(const SimplePtr &);  // = delete;
-            // Suppress equality comparison operations on objects of this
-            // class.
 
       public:
         // CREATORS
+
+        /// Create a `SimplePtr` having the value of the specified `ptr`.
         explicit SimplePtr(TYPE *ptr = 0) : d_ptr_p(ptr) {}
-            // Create a 'SimplePtr' having the value of the specified 'ptr'.
 
         //! ~SimplePtr() = default;
             // Destroy this object.
 
         // ACCESSORS
-        TYPE& operator*() const  { return *d_ptr_p; }
-            // Return a reference to the object pointed to by this
-            // 'SimplePtr'.
 
+        /// Return a reference to the object pointed to by this
+        /// `SimplePtr`.
+        TYPE& operator*() const  { return *d_ptr_p; }
+
+        /// Return the held `d_ptr_p`.
         TYPE *operator->() const { return d_ptr_p; }
-            // Return the held 'd_ptr_p'.
-//..
+// ```
 // Next, we define, for convenience, an alias for a unique type that is
-// implicitly convertible to 'bool' (note that we pass the current template
-// instantiation to the 'bsls::UnspecifiedBool' template to guarantee
-// a unique name, even for different instantiations of this same 'SimplePtr'
+// implicitly convertible to `bool` (note that we pass the current template
+// instantiation to the `bsls::UnspecifiedBool` template to guarantee
+// a unique name, even for different instantiations of this same `SimplePtr`
 // template):
-//..
+// ```
         // TYPES
         typedef typename bsls::UnspecifiedBool<SimplePtr>::BoolType BoolType;
-//..
+// ```
 // Now, we can define a boolean conversion operator that tests whether or not
-// this 'SimplePtr' object is holding a null pointer, or a valid address:
-//..
+// this `SimplePtr` object is holding a null pointer, or a valid address:
+// ```
         operator BoolType() const {
             return bsls::UnspecifiedBool<SimplePtr>::makeValue(d_ptr_p);
         }
     }; // class SimplePtr
-//..
-// Note that we do not need to define 'operator!' as this single boolean
+// ```
+// Note that we do not need to define `operator!` as this single boolean
 // conversion operator is invoked with the correct semantics when the user
 // tries that operator.
 //
-// Finally, we write a simple test function, creating a couple of 'SimplePtr'
+// Finally, we write a simple test function, creating a couple of `SimplePtr`
 // objects, one "null", and the other with a well-defined address.
-//..
+// ```
     void runTests() {
         SimplePtr<int> p1;  // default ctor sets to null
         ASSERT(!p1);
@@ -178,8 +182,8 @@ namespace USAGE_EXAMPLE {
             ASSERT(3 == *p2);
         }
     }
-//..
-// Notice that 'SimplePtr' objects behave as native pointers.  They should
+// ```
+// Notice that `SimplePtr` objects behave as native pointers.  They should
 // be tested before dereferencing (as they could be null).
 
 }  // close namespace USAGE_EXAMPLE
@@ -206,12 +210,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -225,28 +229,28 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // UTILITY FUNCTIONS: 'trueValue', 'falseValue' and 'makeValue'
+        // UTILITY FUNCTIONS: `trueValue`, `falseValue` and `makeValue`
         //
         // Concerns:
-        //: 1 The static member functions 'trueValue', 'falseValue' and
-        //:   'makeValue' each return a value of type BoolType.
-        //: 2 'falseValue' returns a value that converts to the 'bool' value
-        //:   'false'
-        //: 3 'trueValue' returns a value that converts to the 'bool' value
-        //:   'true'
-        //: 4 'makeValue' returns a value that converts to 'true' or 'false'
-        //:    depending on the input parameter.
+        // 1. The static member functions `trueValue`, `falseValue` and
+        //    `makeValue` each return a value of type BoolType.
+        // 2. `falseValue` returns a value that converts to the `bool` value
+        //    `false`
+        // 3. `trueValue` returns a value that converts to the `bool` value
+        //    `true`
+        // 4. `makeValue` returns a value that converts to `true` or `false`
+        //     depending on the input parameter.
         //
         // Plan:
-        //: 1 Use the addresses of the 'falseFunc' and 'trueFunc' static
-        //:   methods in this component to initialize free-function pointers
-        //:   having the appropriate signatures return types.  (C-1)
-        //:
-        //: 2 Confirm that the value returned by 'falseValue' implicitly
-        //:   converts to a 'bool' having the value 'false'.  (C-2)
-        //:
-        //: 3 Confirm that the value returned by 'trueValue' implicitly
-        //:   converts to a 'bool' having the value 'true'.  (C-3)
+        // 1. Use the addresses of the `falseFunc` and `trueFunc` static
+        //    methods in this component to initialize free-function pointers
+        //    having the appropriate signatures return types.  (C-1)
+        //
+        // 2. Confirm that the value returned by `falseValue` implicitly
+        //    converts to a `bool` having the value `false`.  (C-2)
+        //
+        // 3. Confirm that the value returned by `trueValue` implicitly
+        //    converts to a `bool` having the value `true`.  (C-3)
         //
         // Testing:
         //  BoolType falseValue()
@@ -255,7 +259,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                        "\nUTILITY FUNCTIONS: '{true,false,make}Value'"
+                        "\nUTILITY FUNCTIONS: `{true,false,make}Value`"
                         "\n-----------------------------------------------\n");
 
         if (verbose) printf("\t1. Functions must return BoolType values\n");
@@ -274,19 +278,19 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) printf("\t2. 'falseValue()' converts to 'false'\n");
+        if (verbose) printf("\t2. `falseValue()` converts to `false`\n");
 
         const bool bFalse = HostType::falseValue();
         LOOP2_ASSERT(L_, bFalse, false == bFalse);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) printf("\t3. 'trueValue()' converts to 'true'\n");
+        if (verbose) printf("\t3. `trueValue()` converts to `true`\n");
 
         const bool bTrue = HostType::trueValue();
         LOOP2_ASSERT(L_, bTrue, true == bTrue);
 
-        if (verbose) printf("\t4. 'makeValue()' makes the correct value\n");
+        if (verbose) printf("\t4. `makeValue()` makes the correct value\n");
 
         const bool madeTrue = HostType::makeValue(true);
         LOOP2_ASSERT(L_, madeTrue, true == madeTrue);
@@ -299,92 +303,92 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // PROPERTIES: bsls::UnspecifiedBool<TYPE>::BoolType
         //
-        // The type 'bsls::UnspecifiedBool<TYPE>::BoolType' is intended to
+        // The type `bsls::UnspecifiedBool<TYPE>::BoolType` is intended to
         // substitute as a boolean type; therefore, in C-1 and C-6 below, we
         // will test it in all contexts where the language demands a boolean
         // type.  The exhaustive list of occasions in which a contextual
-        // conversion to 'bool' may occur is:
-        //:    1 Initialization
-        //:    2 Passing as an argument to a function
-        //:    3 In a return expression
-        //:    4 Assignment
-        //:    5 In a cast expression
-        //:    6 In conjunction with 'operator!'
-        //:    7 In conjunction with 'operator &&' or 'operator||',
-        //:      preserving boolean short-circuit semantics
-        //:    8 Testing in an 'if' clause
-        //:    9 Testing in a 'while' loop
-        //:   10 Testing in a 'for' loop
-        //:   11 Testing as the condition of a ternary '?:' expression
-        //:   12 Passes safely through a ',' operator
+        // conversion to `bool` may occur is:
+        //    1. Initialization
+        //    2. Passing as an argument to a function
+        //    3. In a return expression
+        //    4. Assignment
+        //    5. In a cast expression
+        //    6. In conjunction with `operator!`
+        //    7. In conjunction with `operator &&` or `operator||`,
+        //       preserving boolean short-circuit semantics
+        //    8. Testing in an `if` clause
+        //    9. Testing in a `while` loop
+        //   10. Testing in a `for` loop
+        //   11. Testing as the condition of a ternary `?:` expression
+        //   12. Passes safely through a ',' operator
         //
         // Note that while there may be additional contexts to test in C++11
         // we have no interest in listing or testing them, as in that case
         // this whole idiom and component should be replaced with
-        // 'explicit operator bool()'.
+        // `explicit operator bool()`.
         //
         // Concerns:
-        //: 1 Objects of type 'bsls::UnspecifiedBool<TYPE>::BoolType' must be
-        //:   contextually convertible to 'bool'.
-        //:
-        //: 2 Objects of type 'bsls::UnspecifiedBool<TYPE>::BoolType' must not
-        //:   promote to type 'int'.
-        //:
-        //: 3 Objects of type 'bsls::UnspecifiedBool<TYPE>::BoolType' must not
-        //:   convert to any native pointer type.
-        //:
-        //: 4 A default constructed 'bsls::UnspecifiedBool<TYPE>::BoolType'
-        //:   object, when converted to 'bool', has the value 'false',
-        //:   the same value as a default constructed 'bool'.
-        //:
-        //: 5 A 'bsls::UnspecifiedBool<TYPE>::BoolType' object initialized with
-        //:   the literal '0', when converted to a 'bool', has the value
-        //:   'false'.
-        //:
-        //: 6 A class with a conversion operator to type
-        //:   'bsls::UnspecifiedBool<TYPE>::BoolType' should be implicitly
-        //:   convertible to 'bool'.
-        //:
-        //: 7 Two classes that are implicitly convertible to different
-        //:   instantiations of type 'bsls::UnspecifiedBool<TYPE>::BoolType'
-        //:   should not accidentally be comparable to each other using
-        //:   'operator=='.
+        // 1. Objects of type `bsls::UnspecifiedBool<TYPE>::BoolType` must be
+        //    contextually convertible to `bool`.
+        //
+        // 2. Objects of type `bsls::UnspecifiedBool<TYPE>::BoolType` must not
+        //    promote to type `int`.
+        //
+        // 3. Objects of type `bsls::UnspecifiedBool<TYPE>::BoolType` must not
+        //    convert to any native pointer type.
+        //
+        // 4. A default constructed `bsls::UnspecifiedBool<TYPE>::BoolType`
+        //    object, when converted to `bool`, has the value `false`,
+        //    the same value as a default constructed `bool`.
+        //
+        // 5. A `bsls::UnspecifiedBool<TYPE>::BoolType` object initialized with
+        //    the literal `0`, when converted to a `bool`, has the value
+        //    `false`.
+        //
+        // 6. A class with a conversion operator to type
+        //    `bsls::UnspecifiedBool<TYPE>::BoolType` should be implicitly
+        //    convertible to `bool`.
+        //
+        // 7. Two classes that are implicitly convertible to different
+        //    instantiations of type `bsls::UnspecifiedBool<TYPE>::BoolType`
+        //    should not accidentally be comparable to each other using
+        //    `operator==`.
         //
         // Plan:
-        //: 1 Evaluate a value of type 'bsls::UnspecifiedBool<TYPE>::BoolType'
-        //:   in each situation where the language supports a contextual
-        //:   conversion to a boolean type.  This must compile.  (C1)
-        //:
-        //: 2 Define a pair of overloaded functions returning a 'bool' value,
-        //:   one taking a single 'int' and returning 'true', the other
-        //:   accepting anything through an ellipsis parameter
-        //:   'false'.  Call this function function with a value of type
-        //:   'bsls::UnspecifiedBool<TYPE>::BoolType' to prove the 'int'
-        //:   overload is *not* selected. (C2)
-        //:
-        //: 3 Define a set of overloaded functions returning a 'bool' value.
-        //:   Four overloaded functions take a single pointer argument,
-        //:   covering all four cv-qualification combinations on a 'void *'
-        //:   pointer, and return 'true'.  The other overload will accept
-        //:   anything through an ellipsis parameter and return 'false'.  Call
-        //:   this function function with a value of type
-        //:   'bsls::UnspecifiedBool<TYPE>::BoolType' to prove that none of the
-        //:   pointer-parameter overloads are selected. (C3)
-        //:
-        //: 4 Create a value-initialized object of type
-        //:   'bsls::UnspecifiedBool<TYPE>::BoolType' and assert that its value
-        //:   when converted to 'bool' is 'false'. (C4)
-        //:
-        //: 5 Create an object of type 'bsls::UnspecifiedBool<TYPE>::BoolType'
-        //:   and initialize it with the literal '0'.  Assert that its value
-        //:   when converted to 'bool' is 'false'. (C5)
-        //:
-        //: 6 Define a new type, 'Booleable', with a conversion operator
-        //:   converting to type 'bsls::UnspecifiedBool<Booleable>::BoolType'.
-        //:   Evaluate a value of type 'Booleable' in each context where the
-        //:   language supports an implicit conversion to a boolean type.  (C6)
-        //:
-        //: 7 TBD (C7)
+        // 1. Evaluate a value of type `bsls::UnspecifiedBool<TYPE>::BoolType`
+        //    in each situation where the language supports a contextual
+        //    conversion to a boolean type.  This must compile.  (C1)
+        //
+        // 2. Define a pair of overloaded functions returning a `bool` value,
+        //    one taking a single `int` and returning `true`, the other
+        //    accepting anything through an ellipsis parameter
+        //    `false`.  Call this function function with a value of type
+        //    `bsls::UnspecifiedBool<TYPE>::BoolType` to prove the `int`
+        //    overload is *not* selected. (C2)
+        //
+        // 3. Define a set of overloaded functions returning a `bool` value.
+        //    Four overloaded functions take a single pointer argument,
+        //    covering all four cv-qualification combinations on a `void *`
+        //    pointer, and return `true`.  The other overload will accept
+        //    anything through an ellipsis parameter and return `false`.  Call
+        //    this function function with a value of type
+        //    `bsls::UnspecifiedBool<TYPE>::BoolType` to prove that none of the
+        //    pointer-parameter overloads are selected. (C3)
+        //
+        // 4. Create a value-initialized object of type
+        //    `bsls::UnspecifiedBool<TYPE>::BoolType` and assert that its value
+        //    when converted to `bool` is `false`. (C4)
+        //
+        // 5. Create an object of type `bsls::UnspecifiedBool<TYPE>::BoolType`
+        //    and initialize it with the literal `0`.  Assert that its value
+        //    when converted to `bool` is `false`. (C5)
+        //
+        // 6. Define a new type, `Booleable`, with a conversion operator
+        //    converting to type `bsls::UnspecifiedBool<Booleable>::BoolType`.
+        //    Evaluate a value of type `Booleable` in each context where the
+        //    language supports an implicit conversion to a boolean type.  (C6)
+        //
+        // 7. TBD (C7)
         //
         // Testing:
         //   typedef bsls::UnspecifiedBool::BoolType
@@ -395,7 +399,7 @@ int main(int argc, char *argv[])
 
         typedef bsls::UnspecifiedBool<int>::BoolType BoolType;
 
-        if (verbose) printf("\t1. 'BoolType' implicitly converts to 'bool'\n");
+        if (verbose) printf("\t1. `BoolType` implicitly converts to `bool`\n");
 
         {
             const BoolType bt = BoolType();
@@ -434,9 +438,9 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) printf("\t\t1.2 Function argument\n");
 
+            /// Test as default argument, although it is hard to see a
+            /// use-case
             struct TestFunctionArgument {
-                // Test as default argument, although it is hard to see a
-                // use-case
                 static bool call(bool result = BoolType()) { return result; }
             };
             ASSERT(!TestFunctionArgument::call(bt));  // Explicitly passed arg.
@@ -464,7 +468,7 @@ int main(int argc, char *argv[])
             bool boldc = (bool)bt;
             ASSERT(!boldc);
 
-            if (veryVerbose) printf("\t\t1.6 'operator!'\n");
+            if (veryVerbose) printf("\t\t1.6 `operator!`\n");
 
             ASSERT(typeid(bool) != typeid(bt));
             ASSERT(typeid(bool) == typeid(!bt));
@@ -475,13 +479,13 @@ int main(int argc, char *argv[])
                 ASSERT(false);
             }
 
-            if (veryVerbose) printf("\t\t1.7 'operator||' and 'operator&&'\n");
+            if (veryVerbose) printf("\t\t1.7 `operator||` and `operator&&`\n");
 
+            /// Return a `bool` value.  Note that this function asserts
+            /// if it is ever called, in order to demonstrate that
+            /// boolean short-circuit evaluation was not honored.
             struct DidNotShortCircuit {
                 static bool call() { ASSERT(false); return false; }
-                    // Return a 'bool' value.  Note that this function asserts
-                    // if it is ever called, in order to demonstrate that
-                    // boolean short-circuit evaluation was not honored.
             };
             if(!bt || DidNotShortCircuit::call()) {
                 ASSERT(true);
@@ -494,13 +498,13 @@ int main(int argc, char *argv[])
                 ASSERT(false);
             }
 
-            if (veryVerbose) printf("\t\t1.8 'if' clause\n");
+            if (veryVerbose) printf("\t\t1.8 `if` clause\n");
 
             if (bt) {
                 ASSERT(false);
             }
 
-            if (veryVerbose) printf("\t\t1.9 'while' clauses\n");
+            if (veryVerbose) printf("\t\t1.9 `while` clauses\n");
 
             while (bt) {
                 ASSERT(false);
@@ -508,7 +512,7 @@ int main(int argc, char *argv[])
 
             do {} while (bt);
 
-            if (veryVerbose) printf("\t\t1.10 'for' loop\n");
+            if (veryVerbose) printf("\t\t1.10 `for` loop\n");
 
             BoolType vbt = bt;
 
@@ -526,7 +530,7 @@ int main(int argc, char *argv[])
             // Note that compilers (i.e., gcc and clang) will give a warning if
             // the left-hand side of a comma operator computes a result that is
             // not explicitly used or contains no side effects.  gcc recommends
-            // casting the unused expression to 'void'.
+            // casting the unused expression to `void`.
 
             bool bx = (static_cast<void>(true), bt);
             ASSERT(!bx);
@@ -535,7 +539,7 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) printf("\t2. 'BoolType' does not promote to 'int'\n");
+        if (verbose) printf("\t2. `BoolType` does not promote to `int`\n");
 
         {
             struct TestPromoteToInt {
@@ -544,13 +548,13 @@ int main(int argc, char *argv[])
             };
 
             const BoolType bt = BoolType();
-            ASSERT( TestPromoteToInt::call(0));  // 'int' is detected
-            ASSERT(!TestPromoteToInt::call(bt)); // 'bt' does not promote
+            ASSERT( TestPromoteToInt::call(0));  // `int` is detected
+            ASSERT(!TestPromoteToInt::call(bt)); // `bt` does not promote
         }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) printf("\t3. 'BoolType' does not convert to pointer\n");
+        if (verbose) printf("\t3. `BoolType` does not convert to pointer\n");
 
         {
             struct TestConvertToPointer {
@@ -562,18 +566,18 @@ int main(int argc, char *argv[])
             };
 
             const BoolType bt = BoolType();
-            ASSERT( TestConvertToPointer::call((void*)0)); // 'void*' detected
-            ASSERT(!TestConvertToPointer::call(bt));       // 'bt' is not
+            ASSERT( TestConvertToPointer::call((void*)0)); // `void*` detected
+            ASSERT(!TestConvertToPointer::call(bt));       // `bt` is not
         }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         if (verbose) printf(
-                        "\t4. 'BoolType' default value converts to 'false'\n");
+                        "\t4. `BoolType` default value converts to `false`\n");
 
         {
             // Perform non-contextual explicit conversion in order to compare
-            // to 'false'.
+            // to `false`.
             const BoolType bt = BoolType();
             const bool vt = bt;
             ASSERT(vt == false);
@@ -582,8 +586,8 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) printf("\t5. 'BoolType(0)' explicitly converts to "
-                            "'false'\n");
+        if (verbose) printf("\t5. `BoolType(0)` explicitly converts to "
+                            "`false`\n");
 
         {
             const BoolType b0 = 0;
@@ -594,7 +598,7 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) printf("\t6. Testing 'BoolType' conversion operator\n");
+        if (verbose) printf("\t6. Testing `BoolType` conversion operator\n");
 
         {
             // note this variable must be static to work around a stack
@@ -637,9 +641,9 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) printf("\t\t6.2 Function argument\n");
 
+            /// Test as default argument, although it is hard to see a
+            /// use-case
             struct TestFunctionArgument {
-                // Test as default argument, although it is hard to see a
-                // use-case
                 static bool call(bool result = Booleable()) { return result; }
             };
             ASSERT(!TestFunctionArgument::call(babel));  // Explicitly passed
@@ -668,7 +672,7 @@ int main(int argc, char *argv[])
             bool boldc = (bool)babel;
             ASSERT(!boldc);
 
-            if (veryVerbose) printf("\t\t6.6 'operator!'\n");
+            if (veryVerbose) printf("\t\t6.6 `operator!`\n");
 
             ASSERT(typeid(bool) != typeid(babel));
             ASSERT(typeid(bool) == typeid(!babel));
@@ -679,13 +683,13 @@ int main(int argc, char *argv[])
                 ASSERT(false);
             }
 
-            if (veryVerbose) printf("\t\t6.7 'operator||' and 'operator&&'\n");
+            if (veryVerbose) printf("\t\t6.7 `operator||` and `operator&&`\n");
 
+            /// Return a `bool` value.  Note that this function asserts
+            /// if it is ever called, in order to demonstrate that
+            /// boolean short-circuit evaluation was not honored.
             struct DidNotShortCircuit {
                 static bool call() { ASSERT(false); return false; }
-                    // Return a 'bool' value.  Note that this function asserts
-                    // if it is ever called, in order to demonstrate that
-                    // boolean short-circuit evaluation was not honored.
             };
             if(!babel || DidNotShortCircuit::call()) {
                 ASSERT(true);
@@ -698,13 +702,13 @@ int main(int argc, char *argv[])
                 ASSERT(false);
             }
 
-            if (veryVerbose) printf("\t\t6.8 'if' clause\n");
+            if (veryVerbose) printf("\t\t6.8 `if` clause\n");
 
             if (babel) {
                 ASSERT(false);
             }
 
-            if (veryVerbose) printf("\t\t6.9 'while' clause\n");
+            if (veryVerbose) printf("\t\t6.9 `while` clause\n");
 
             while (babel) {
                 ASSERT(false);
@@ -712,7 +716,7 @@ int main(int argc, char *argv[])
 
             do {} while (babel);
 
-            if (veryVerbose) printf("\t\t6.10 'for' loop\n");
+            if (veryVerbose) printf("\t\t6.10 `for` loop\n");
 
             for ( ; babel; ) {
                 ASSERT(false);
@@ -728,7 +732,7 @@ int main(int argc, char *argv[])
             // Note that compilers (i.e., gcc and clang) will give a warning if
             // the left-hand side of a comma operator computes a result that is
             // not explicitly used or contains no side effects.  gcc recommends
-            // casting the unused expression to 'void'.
+            // casting the unused expression to `void`.
 
             bool bx = (static_cast<void>(true), babel);
             ASSERT(!bx);
@@ -739,8 +743,8 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 That the functions exist with the documented signatures.
-        //: 2 That the basic functionality works as documented.
+        // 1. That the functions exist with the documented signatures.
+        // 2. That the basic functionality works as documented.
         //
         // Plan:
         //   Exercise each function in turn and devise an elementary test

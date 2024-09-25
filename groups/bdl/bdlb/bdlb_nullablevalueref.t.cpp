@@ -232,7 +232,7 @@ static bool         veryVerbose;
 static bool     veryVeryVerbose;
 static bool veryVeryVeryVerbose;
 
-// Define 'bsl::string' value long enough to ensure dynamic memory allocation.
+// Define `bsl::string` value long enough to ensure dynamic memory allocation.
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
 #define SUFFICIENTLY_LONG_STRING "123456789012345678901234567890123"
@@ -247,7 +247,7 @@ BSLMF_ASSERT(sizeof SUFFICIENTLY_LONG_STRING > sizeof(bsl::string));
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-//..
+// ```
 bdlb::NullableValue<int> &getNV()
     // Return a reference to a NullableValue for processing
 {
@@ -261,7 +261,7 @@ bdlb::NullableAllocatedValue<int> &getNAV()
     static bdlb::NullableAllocatedValue<int> nav(34);
     return nav;
 }
-//..
+// ```
 
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -275,7 +275,7 @@ struct SimpleStruct {
     : d_value(100) {}
 
     SimpleStruct(int i)
-        // Construct an object from the specified 'i'
+        // Construct an object from the specified `i`
     : d_value(i) {}
 
     int getValue()
@@ -304,7 +304,7 @@ struct SimpleHash {
 
     // MANIPULATORS
     void operator()(const void *input, size_t numBytes);
-        // Add the bytes specified by ['input', 'input' + 'numBytes') to the
+        // Add the bytes specified by [`input`, `input` + `numBytes`) to the
         // hash.
 
     result_type computeHash();
@@ -336,7 +336,7 @@ SimpleHash::result_type SimpleHash::computeHash()
 template <class TYPE, bool IS_CONST, bool IS_NAV>
 void comparisonTest(bsl::span<TYPE> values)
     // Test the comparison operators for ConstNullableValueRef<TYPE>.  Uses
-    // the specified 'values' as test cases.
+    // the specified `values` as test cases.
 {
     typedef typename bsl::remove_const<TYPE>::type  ValueType;
     typedef typename bsl::conditional<IS_NAV,
@@ -487,7 +487,7 @@ void comparisonTest(bsl::span<TYPE> values)
 template <class TYPE>
 void mixedComparisonTest(bsl::span<TYPE> values)
     // Test the comparison operators for ConstNullableValueRef<TYPE>.  Uses
-    // the specified 'values' as test cases.
+    // the specified `values` as test cases.
 {
     typedef typename bsl::remove_const<TYPE>::type  ValueType;
     typedef bdlb::NullableAllocatedValue<ValueType> Obj;
@@ -654,13 +654,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -671,15 +671,15 @@ int main(int argc, char *argv[])
                           << "=============" << endl;
 
         // Suppose we have a data structure that contains optional components
-        // that are implemented with 'NullableValue', and client code that uses
+        // that are implemented with `NullableValue`, and client code that uses
         // them.  Now we want to change the data structure to use
-        // 'NullableAllocatedValue', but without requiring simultaneous changes
-        // to the client code.  If the client code uses 'NullableValueRef' to
+        // `NullableAllocatedValue`, but without requiring simultaneous changes
+        // to the client code.  If the client code uses `NullableValueRef` to
         // access the optional values, the change will not require any source
         // changes in the clients; a recompile is sufficient.
         //
         // Given the following functions:
-        //..
+        // ```
         // bdlb::NullableValue<int> &getNV()
         //     // Return a reference to a NullableValue for processing
         // {
@@ -693,29 +693,29 @@ int main(int argc, char *argv[])
         //     static bdlb::NullableAllocatedValue<int> nav(34);
         //     return nav;
         // }
-        //..
+        // ```
         //  We can wrap both of these types into a wrapper, and then tread them
         //  indentically.
-        //..
+        // ```
         bdlb::NullableValueRef<int> w1(getNV());
         bdlb::NullableValueRef<int> w2(getNAV());
 
         ASSERT(23 == w1.value());
         ASSERT(34 == w2.value());
-        //..
+        // ```
       } break;
       case 7: {
         // --------------------------------------------------------------------
         // TESTING: HASHING
         //
         // Concerns:
-        //: 1 Hashing a valueRef is the same as hashing the referenced nullable
-        //:   value.
-        //:
+        // 1. Hashing a valueRef is the same as hashing the referenced nullable
+        //    value.
+        //
         // Plan:
-        //: 2 Create a non-null nullable value for a series of test values and
-        //:   verify that hashing it produces the same result as hashing 'true'
-        //:   and then the test values themselves.
+        // 2. Create a non-null nullable value for a series of test values and
+        //    verify that hashing it produces the same result as hashing `true`
+        //    and then the test values themselves.
         //
         // Testing:
         //   void hashAppend(HASHALG&, NullableValueRef<TYPE>&);
@@ -790,17 +790,17 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // DEPRECATED FUNCTIONS BROUGHT OVER FROM 'NullableValue'
+        // DEPRECATED FUNCTIONS BROUGHT OVER FROM `NullableValue`
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   const TYPE *addressOr(const TYPE *address) const;
@@ -810,7 +810,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-           << "DEPRECATED FUNCTIONS BROUGHT OVER FROM 'NullableValue'" << endl
+           << "DEPRECATED FUNCTIONS BROUGHT OVER FROM `NullableValue`" << endl
            << "======================================================" << endl;
 
         int                                  v = 123;
@@ -875,48 +875,48 @@ int main(int argc, char *argv[])
         // TESTING EQUALITY AND RELATIONAL OPERATORS
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if their
-        //:   corresponding values compare equal.
-        //:
-        //: 2 'true  == (X == X)' (i.e., identity).
-        //:
-        //: 3 'false == (X != X)' (i.e., identity).
-        //:
-        //: 4 'X == Y' if and only if 'Y == X' (i.e., commutativity).
-        //:
-        //: 5 'X != Y' if and only if 'Y != X' (i.e., commutativity).
-        //:
-        //: 6 'X != Y' if and only if '!(X == Y)'.
-        //:
-        //: 7 Null nullable object does not compare equal to any other
-        //:   non-nullable object.
-        //:
-        //: 8 An object 'X' is in relation to an object 'Y' as the value of 'X'
-        //:   is in relation to the value of 'Y'.
-        //:
-        //: 9 'false == (X <  X)' (i.e., irreflexivity).
-        //:
-        //:10 'true  == (X <= X)' (i.e., reflexivity).
-        //:
-        //:11 'false == (X >  X)' (i.e., irreflexivity).
-        //:
-        //:12 'true  == (X >= X)' (i.e., reflexivity).
-        //:
-        //:13 If 'X < Y', then '!(Y < X)' (i.e., asymmetry).
-        //:
-        //:14 'X <= Y' if and only if 'X < Y' exclusive-or 'X == Y'.
-        //:
-        //:15 If 'X > Y', then '!(Y > X)' (i.e., asymmetry).
-        //:
-        //:16 'X >= Y' if and only if 'X > Y' exclusive-or 'X == Y'.
-        //:
-        //:17 Non-modifiable objects can be compared (i.e., objects or
-        //:   providing only non-modifiable access).
-        //:
+        // 1. Two objects, `X` and `Y`, compare equal if and only if their
+        //    corresponding values compare equal.
+        //
+        // 2. `true  == (X == X)` (i.e., identity).
+        //
+        // 3. `false == (X != X)` (i.e., identity).
+        //
+        // 4. `X == Y` if and only if `Y == X` (i.e., commutativity).
+        //
+        // 5. `X != Y` if and only if `Y != X` (i.e., commutativity).
+        //
+        // 6. `X != Y` if and only if `!(X == Y)`.
+        //
+        // 7. Null nullable object does not compare equal to any other
+        //    non-nullable object.
+        //
+        // 8. An object `X` is in relation to an object `Y` as the value of `X`
+        //    is in relation to the value of `Y`.
+        //
+        // 9. `false == (X <  X)` (i.e., irreflexivity).
+        //
+        // 10. `true  == (X <= X)` (i.e., reflexivity).
+        //
+        // 11. `false == (X >  X)` (i.e., irreflexivity).
+        //
+        // 12. `true  == (X >= X)` (i.e., reflexivity).
+        //
+        // 13. If `X < Y`, then `!(Y < X)` (i.e., asymmetry).
+        //
+        // 14. `X <= Y` if and only if `X < Y` exclusive-or `X == Y`.
+        //
+        // 15. If `X > Y`, then `!(Y > X)` (i.e., asymmetry).
+        //
+        // 16. `X >= Y` if and only if `X > Y` exclusive-or `X == Y`.
+        //
+        // 17. Non-modifiable objects can be compared (i.e., objects or
+        //    providing only non-modifiable access).
+        //
         //
         // Plan:
-        //: 1 Create a set of values and test each of the wrapper/target
-        //: combinations against this set of values.
+        // 1. Create a set of values and test each of the wrapper/target
+        //  combinations against this set of values.
         //
         // Testing:
         //   bool operator==(NVWrapper<LHS_TYPE>&, NVWrapper<RHS_TYPE>&);
@@ -1018,14 +1018,14 @@ int main(int argc, char *argv[])
         // TESTING MANIPULATORS
         //
         // Concerns:
-        //:  1 The manipulators should change the state of the targeted
-        //:  nullable object, and those changes should be reflected in the
-        //:  wrapper object.
+        //  1. The manipulators should change the state of the targeted
+        //   nullable object, and those changes should be reflected in the
+        //   wrapper object.
         //
         // Plan:
-        //:  1 Create an empty object and a wrapper targeting it.  Use
-        //:  'emplace' to put a value into it, and then the other manipulators
-        //:  to modify the value.  Finally, use 'reset' to remove the value.
+        //  1. Create an empty object and a wrapper targeting it.  Use
+        //   `emplace` to put a value into it, and then the other manipulators
+        //   to modify the value.  Finally, use `reset` to remove the value.
         //
         // Testing:
         //   TYPE &emplace(ARGS args...);
@@ -1158,21 +1158,21 @@ int main(int argc, char *argv[])
         // TESTING ASSIGNMENT OPERATORS
         //
         // Concerns:
-        //: 1 That assigning a value to a wrapper updates the targeted nullable
-        //: object.
-        //: 2 That assigning a value to a wrapper whose target is empty "fills"
-        //: the target.
-        //: 3 That assigning a nullopt_t (or calling 'reset') to a wrapper
+        // 1. That assigning a value to a wrapper updates the targeted nullable
+        //  object.
+        // 2. That assigning a value to a wrapper whose target is empty "fills"
+        //  the target.
+        // 3. That assigning a nullopt_t (or calling `reset`) to a wrapper
         //  whose target is not empty "empties" the target.
-        //: 4 That assigning a nullopt_t (or calling 'reset') to a wrapper
+        // 4. That assigning a nullopt_t (or calling `reset`) to a wrapper
         //   whose target is empty is a no-op.
         //
         // Plan:
-        //:  1 Create a set of four wrappers; two targeting NullableValue and
-        //:  the other two targeting NullableAllocatedValue.  Assign various
-        //:  values (nullopt_t, TYPE, NullableValue, NullableAllocatedValue)
-        //:  to the wrappers, and verify that the wrapper and the targeted
-        //:  object are updated as expected.
+        //  1. Create a set of four wrappers; two targeting NullableValue and
+        //   the other two targeting NullableAllocatedValue.  Assign various
+        //   values (nullopt_t, TYPE, NullableValue, NullableAllocatedValue)
+        //   to the wrappers, and verify that the wrapper and the targeted
+        //   object are updated as expected.
         //
         // Testing:
         //   operator=(const TYPE &);
@@ -1347,21 +1347,21 @@ int main(int argc, char *argv[])
         //   expected.
         //
         // Concerns:
-        //: 1 The wrapper object should report the same state as the target.
-        //:
-        //: 2 The constructor must not copy the target object.
-        //:
-        //: 3 The conversion from 'bsl::optional', 'NullableValue', and
-        //:   'NullableAllocatedValue' to 'NullableValueRef' or
-        //:   'ConstNullableValueRef' can be done implicitly.
+        // 1. The wrapper object should report the same state as the target.
+        //
+        // 2. The constructor must not copy the target object.
+        //
+        // 3. The conversion from `bsl::optional`, `NullableValue`, and
+        //    `NullableAllocatedValue` to `NullableValueRef` or
+        //    `ConstNullableValueRef` can be done implicitly.
         //
         // Plan:
-        //: 1 Create six objects; two each of 'bsl::optional', 'NullableValue',
-        //:   and 'NullableAllocatedValue'.  Create a 'NullableValueRef' and a
-        //:   'ConstNullableValueRef' for each of them.  Verify that the
-        //:   contents of the wrappers match the contents of the wrapped
-        //:   objects.  Then make changes to the target, and verify that both
-        //:   the wrappers and the target objects change.  (C-1..3)
+        // 1. Create six objects; two each of `bsl::optional`, `NullableValue`,
+        //    and `NullableAllocatedValue`.  Create a `NullableValueRef` and a
+        //    `ConstNullableValueRef` for each of them.  Verify that the
+        //    contents of the wrappers match the contents of the wrapped
+        //    objects.  Then make changes to the target, and verify that both
+        //    the wrappers and the target objects change.  (C-1..3)
         //
         // Testing:
         //   NullableValueRef(bsl::optional<TYPE> &);
@@ -1478,19 +1478,19 @@ int main(int argc, char *argv[])
         //   This test exercises basic functionality, but tests nothing.
         //
         // Concerns:
-        //:  1 We want to demonstrate a base-line level of correct operation of
-        //:  the following methods and operators:
-        //:    - construction from NullableValue and NullableAllocatedValue
-        //:    - basic accessors: 'value' and 'has_value'.
-        //:    - the assignment operator
+        //  1. We want to demonstrate a base-line level of correct operation of
+        //   the following methods and operators:
+        //     - construction from NullableValue and NullableAllocatedValue
+        //     - basic accessors: `value` and `has_value`.
+        //     - the assignment operator
         //
         // Plan:
-        //:  1 Create four objects; two each of 'NullableValue' and
-        //:  'NullableAllocatedValue'.  Create a 'NullableValueRef' and a
-        //:  'ConstNullableValueRef' for each of them.  Verify that the
-        //:  contents of the wrappers match the contents of the wrapped
-        //:  Then make changes to the wrappers, and verify that both the
-        //:  wrappers and the wrapped objects change.
+        //  1. Create four objects; two each of `NullableValue` and
+        //   `NullableAllocatedValue`.  Create a `NullableValueRef` and a
+        //   `ConstNullableValueRef` for each of them.  Verify that the
+        //   contents of the wrappers match the contents of the wrapped
+        //   Then make changes to the wrappers, and verify that both the
+        //   wrappers and the wrapped objects change.
         //
         // Testing:
         //   BREATHING TEST
@@ -1559,7 +1559,7 @@ int main(int argc, char *argv[])
         ASSERT( nw0.has_value());
         ASSERT(42 == op0.value());
         ASSERT(42 == nw0.value());
-        // Note that even though 'cw0' provides const access, the underlying
+        // Note that even though `cw0` provides const access, the underlying
         // object can be changed via another method.
         ASSERT( cw0.has_value());
         ASSERT(42 == cw0.value());
@@ -1569,7 +1569,7 @@ int main(int argc, char *argv[])
         ASSERT( nw2.has_value());
         ASSERT(43 == nv0.value());
         ASSERT(43 == nw2.value());
-        // Note that even though 'cw2' provides const access, the underlying
+        // Note that even though `cw2` provides const access, the underlying
         // object can be changed via another method.
         ASSERT( cw2.has_value());
         ASSERT(43 == cw2.value());
@@ -1579,7 +1579,7 @@ int main(int argc, char *argv[])
         ASSERT( nw4.has_value());
         ASSERT(44 == av0.value());
         ASSERT(44 == nw4.value());
-        // Note that even though 'cw4' provides const access, the underlying
+        // Note that even though `cw4` provides const access, the underlying
         // object can be changed via another method.
         ASSERT( cw4.has_value());
         ASSERT(44 == cw4.value());

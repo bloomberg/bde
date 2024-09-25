@@ -22,32 +22,32 @@ using namespace bsl;
 //                                 --------
 // ----------------------------------------------------------------------------
 // The component under test implements a value-semantic attribute class that
-// provides the options available for configuring a 'balber::BerDecoder'
+// provides the options available for configuring a `balber::BerDecoder`
 // object.
 //
 // Primary Manipulators:
-//: o 'setMaxDepth'
-//: o 'setTraceLevel'
-//: o 'setMaxSequenceSize'
-//: o 'setSkipUnknownElements'
-//: o 'setDefaultEmptyStrings'
+//  - `setMaxDepth`
+//  - `setTraceLevel`
+//  - `setMaxSequenceSize`
+//  - `setSkipUnknownElements`
+//  - `setDefaultEmptyStrings`
 //
 // BasicAccessors:
-//: o 'maxDepth'
-//: o 'traceLevel'
-//: o 'maxSequenceSize'
-//: o 'skipUnknownElements'
-//: o 'defaultEmptyStrings'
+//  - `maxDepth`
+//  - `traceLevel`
+//  - `maxSequenceSize`
+//  - `skipUnknownElements`
+//  - `defaultEmptyStrings`
 //
-// This attribute class also provides 'bdlat'-support.
+// This attribute class also provides `bdlat`-support.
 //
 // Global Concerns:
-//: o The "DefaultEmptyStrings" attribute, introduced in the second version
-//:   of the representation, correctly implements the 'bdlat' attribute-info
-//:   API.
-//: o Prior versions of the 'balber::BerDecoderOptions' representation can be
-//:   loaded into the current representation without loss of information.  This
-//:   implies the loading operation (through 'bdlat') is backwards-compatible.
+//  - The "DefaultEmptyStrings" attribute, introduced in the second version
+//    of the representation, correctly implements the `bdlat` attribute-info
+//    API.
+//  - Prior versions of the `balber::BerDecoderOptions` representation can be
+//    loaded into the current representation without loss of information.  This
+//    implies the loading operation (through `bdlat`) is backwards-compatible.
 // ----------------------------------------------------------------------------
 // CREATORS
 // [ 1] balber::BerDecoderOptions();
@@ -69,7 +69,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] CONCERN: The "DefaultEmptyStrings" attribute is "AttributeInfo"-aware
-// [ 3] CONCERN: The current format is 'bdlat'-backwards-compatible
+// [ 3] CONCERN: The current format is `bdlat`-backwards-compatible
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -130,8 +130,8 @@ typedef balber::BerDecoderOptions Obj;
 // ----------------------------------------------------------------------------
 //
 // The following commented-out XSD can be used to generate the
-// 'bdlat'-compatible types used to test backwards-compatibility of different
-// versions 'balber::BerDecoderOptions'.
+// `bdlat`-compatible types used to test backwards-compatibility of different
+// versions `balber::BerDecoderOptions`.
 //
 // ----------------------------------------------------------------------------
 //
@@ -294,8 +294,8 @@ namespace test {
                          // class BerDecoderOptionsV1
                          // =========================
 
+/// The first representation of `balber::BerDecoderOptions`.
 class BerDecoderOptionsV1 {
-    // The first representation of 'balber::BerDecoderOptions'.
 
     // INSTANCE DATA
     int   d_maxDepth;
@@ -338,161 +338,166 @@ class BerDecoderOptionsV1 {
 
   public:
     // CLASS METHODS
-    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
-        // Return attribute information for the attribute indicated by the
-        // specified 'id' if the attribute exists, and 0 otherwise.
 
+    /// Return attribute information for the attribute indicated by the
+    /// specified `id` if the attribute exists, and 0 otherwise.
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+
+    /// Return attribute information for the attribute indicated by the
+    /// specified `name` of the specified `nameLength` if the attribute
+    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
-        // Return attribute information for the attribute indicated by the
-        // specified 'name' of the specified 'nameLength' if the attribute
-        // exists, and 0 otherwise.
 
     // CREATORS
+
+    /// Create an object of type `BerDecoderOptionsV1` having the default
+    /// value.
     BerDecoderOptionsV1();
-        // Create an object of type 'BerDecoderOptionsV1' having the default
-        // value.
 
+    /// Create an object of type `BerDecoderOptionsV1` having the value of
+    /// the specified `original` object.
     BerDecoderOptionsV1(const BerDecoderOptionsV1& original);
-        // Create an object of type 'BerDecoderOptionsV1' having the value of
-        // the specified 'original' object.
 
+    /// Destroy this object.
     ~BerDecoderOptionsV1();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     BerDecoderOptionsV1& operator=(const BerDecoderOptionsV1& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
+    /// Reset this object to the default value (i.e., its value upon
+    /// default construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
 
+    /// Invoke the specified `manipulator` sequentially on the address of
+    /// each (modifiable) attribute of this object, supplying `manipulator`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `manipulator` (i.e., the invocation that
+    /// terminated the sequence).
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
-        // Invoke the specified 'manipulator' sequentially on the address of
-        // each (modifiable) attribute of this object, supplying 'manipulator'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `id`,
+    /// supplying `manipulator` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `manipulator` if `id` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `name` of the
+    /// specified `nameLength`, supplying `manipulator` with the
+    /// corresponding attribute information structure.  Return the value
+    /// returned from the invocation of `manipulator` if `name` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
-        // specified 'nameLength', supplying 'manipulator' with the
-        // corresponding attribute information structure.  Return the value
-        // returned from the invocation of 'manipulator' if 'name' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Set the "MaxDepth" attribute of this object to the specified
+    /// `value`.
     void setMaxDepth(int value);
-        // Set the "MaxDepth" attribute of this object to the specified
-        // 'value'.
 
+    /// Set the "SkipUnknownElements" attribute of this object to the
+    /// specified `value`.
     void setSkipUnknownElements(bool value);
-        // Set the "SkipUnknownElements" attribute of this object to the
-        // specified 'value'.
 
+    /// Set the "TraceLevel" attribute of this object to the specified
+    /// `value`.
     void setTraceLevel(int value);
-        // Set the "TraceLevel" attribute of this object to the specified
-        // 'value'.
 
+    /// Set the "MaxSequenceSize" attribute of this object to the specified
+    /// `value`.
     void setMaxSequenceSize(int value);
-        // Set the "MaxSequenceSize" attribute of this object to the specified
-        // 'value'.
 
     // ACCESSORS
+
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.  Note that a trailing newline is provided
+    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
 
+    /// Invoke the specified `accessor` sequentially on each
+    /// (non-modifiable) attribute of this object, supplying `accessor`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `accessor` (i.e., the invocation that terminated
+    /// the sequence).
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
-        // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `id`, supplying `accessor`
+    /// with the corresponding attribute information structure.  Return the
+    /// value returned from the invocation of `accessor` if `id` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
-        // with the corresponding attribute information structure.  Return the
-        // value returned from the invocation of 'accessor' if 'id' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `name` of the specified
+    /// `nameLength`, supplying `accessor` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `accessor` if `name` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
-        // 'nameLength', supplying 'accessor' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'accessor' if 'name' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Return a reference to the non-modifiable "MaxDepth" attribute of
+    /// this object.
     int maxDepth() const;
-        // Return a reference to the non-modifiable "MaxDepth" attribute of
-        // this object.
 
+    /// Return a reference to the non-modifiable "SkipUnknownElements"
+    /// attribute of this object.
     bool skipUnknownElements() const;
-        // Return a reference to the non-modifiable "SkipUnknownElements"
-        // attribute of this object.
 
+    /// Return a reference to the non-modifiable "TraceLevel" attribute of
+    /// this object.
     int traceLevel() const;
-        // Return a reference to the non-modifiable "TraceLevel" attribute of
-        // this object.
 
+    /// Return a reference to the non-modifiable "MaxSequenceSize" attribute
+    /// of this object.
     int maxSequenceSize() const;
-        // Return a reference to the non-modifiable "MaxSequenceSize" attribute
-        // of this object.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have
+/// the same value, and `false` otherwise.  Two attribute objects have the
+/// same value if each respective attribute has the same value.
 inline
 bool operator==(const BerDecoderOptionsV1& lhs, const BerDecoderOptionsV1& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
+/// have the same value, and `false` otherwise.  Two attribute objects do
+/// not have the same value if one or more respective attributes differ in
+/// values.
 inline
 bool operator!=(const BerDecoderOptionsV1& lhs, const BerDecoderOptionsV1& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
 
+/// Format the specified `rhs` to the specified output `stream` and
+/// return a reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const BerDecoderOptionsV1& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
 
 }  // close package namespace
 
@@ -1028,37 +1033,37 @@ int main(int argc, char *argv[])
 
     // Attribute Types
 
-    typedef int  T1;  // 'maxDepth'
-    typedef int  T2;  // 'traceLevel'
-    typedef int  T3;  // 'maxSequenceSize'
-    typedef bool T4;  // 'skipUnknownElements'
-    typedef bool T5;  // 'defaultEmptyStrings'
+    typedef int  T1;  // `maxDepth`
+    typedef int  T2;  // `traceLevel`
+    typedef int  T3;  // `maxSequenceSize`
+    typedef bool T4;  // `skipUnknownElements`
+    typedef bool T5;  // `defaultEmptyStrings`
 
-    // Attribute 1 Values: 'maxDepth'
+    // Attribute 1 Values: `maxDepth`
     // In Versions: 1, 2
 
     static const T1 D1 = 32;  // default value
     static const T1 A1 = 10;
 
-    // Attribute 2 Values: 'traceLevel'
+    // Attribute 2 Values: `traceLevel`
     // In Versions: 1, 2
 
     static const T2 D2 = 0;  // default value
     static const T2 A2 = 3;
 
-    // Attribute 3 Values: 'maxSequenceSize'
+    // Attribute 3 Values: `maxSequenceSize`
     // In Versions: 1, 2
 
     static const T3 D3 = 1 * 1024 * 1024 * 1024;  // default value
     static const T3 A3 = 12345;
 
-    // Attribute 4 Values: 'skipUnknownElements'
+    // Attribute 4 Values: `skipUnknownElements`
     // In Versions: 1, 2
 
     static const T4 D4 = true;  // default value
     static const T4 A4 = false;
 
-    // Attribute 5 Values: 'defaultEmptyStrings'
+    // Attribute 5 Values: `defaultEmptyStrings`
     // In Versions: 2
 
     static const char ATTR5[] = "DefaultEmptyStrings";
@@ -1075,50 +1080,50 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
         // --------------------------------------------------------------------
-        // 'bdlat' BACKWARD COMPATIBILITY TEST
+        // `bdlat` BACKWARD COMPATIBILITY TEST
         //   Ensure that the current version of the representation of
-        //   'balber::BerDecoderOptions' is backwards-compatible with all older
+        //   `balber::BerDecoderOptions` is backwards-compatible with all older
         //   versions with respect to loading the value via the components in
-        //   the 'bdlat' package.
+        //   the `bdlat` package.
         //
         // Concerns:
-        //: 1 A 'balber::BerDecoderOptions' object having any prior
-        //:   representation can have its value loaded into an object
-        //:   with current representation without error.
-        //:
-        //: 2 Corresponding attributes between representations maintain their
-        //:   original values when loaded into the other representation.
-        //:
-        //: 3 Attributes present in a later version (V2) but not a prior
-        //:   version (V1) receive their default value when V1 object is
-        //:   loaded into a v2 object.
+        // 1. A `balber::BerDecoderOptions` object having any prior
+        //    representation can have its value loaded into an object
+        //    with current representation without error.
+        //
+        // 2. Corresponding attributes between representations maintain their
+        //    original values when loaded into the other representation.
+        //
+        // 3. Attributes present in a later version (V2) but not a prior
+        //    version (V1) receive their default value when V1 object is
+        //    loaded into a v2 object.
         //
         // Plan:
-        //: 1 Create an object 'Src0' in the first version of the
-        //:   representation with the default value.
-        //:
-        //: 2 Create an object 'Dst0' in the second version of the
-        //:   representation having any value.
-        //:
-        //: 3 Create an object 'Exp0' in the second version of the
-        //:   representation having the default value.
-        //:
-        //: 4 Load the value of 'Src0' into 'Dst0'.  Validate that the
-        //:   new value of 'Dst0' is equal to 'Exp0'.
-        //:
-        //: 5 Create an object 'Src1' in the first version of the
-        //:   representation having non-default values for all attributes.
-        //:
-        //: 6 Create an object 'Dst1' in the second version of the
-        //:   representation having any value.
-        //:
-        //: 7 Create an object 'Exp1' in the second versino of the
-        //:   representation having the same non-default values for all of
-        //:   its attributes that are shared with 'Src1', and default values
-        //:   for all other attributes.
-        //:
-        //: 8 Load the value of 'Src1' into 'Dst1'.  Validate that the new
-        //:   value of 'Dst1' is equal to 'Exp1'.
+        // 1. Create an object `Src0` in the first version of the
+        //    representation with the default value.
+        //
+        // 2. Create an object `Dst0` in the second version of the
+        //    representation having any value.
+        //
+        // 3. Create an object `Exp0` in the second version of the
+        //    representation having the default value.
+        //
+        // 4. Load the value of `Src0` into `Dst0`.  Validate that the
+        //    new value of `Dst0` is equal to `Exp0`.
+        //
+        // 5. Create an object `Src1` in the first version of the
+        //    representation having non-default values for all attributes.
+        //
+        // 6. Create an object `Dst1` in the second version of the
+        //    representation having any value.
+        //
+        // 7. Create an object `Exp1` in the second versino of the
+        //    representation having the same non-default values for all of
+        //    its attributes that are shared with `Src1`, and default values
+        //    for all other attributes.
+        //
+        // 8. Load the value of `Src1` into `Dst1`.  Validate that the new
+        //    value of `Dst1` is equal to `Exp1`.
         // --------------------------------------------------------------------
 
         typedef test::BerDecoderOptionsV1 ObjV1;
@@ -1185,32 +1190,32 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // ATTRIBUTE INFO TEST
         //   Ensure that the new attribute introduced in the second version
-        //   of the representation of 'balber::BerDecoderOptions' correctly
+        //   of the representation of `balber::BerDecoderOptions` correctly
         //   implements the attribute access and manipulation API expected
-        //   by the components in the 'bdlat' package.
+        //   by the components in the `bdlat` package.
         //
         // Concerns:
-        //: 1 One can look up the attribute info of "DefaultEmptyStrings"
-        //:   by ID or name.
-        //:
-        //: 2 One can manipulate the "DefaultEmptyStrings" attribute during
-        //:   bulk attribute manipulation, by ID, or by name.
-        //:
-        //: 3 One can access the "DefaultEmptyStrings" attribute during
-        //:   bulk attribute access, by ID, or by name.
+        // 1. One can look up the attribute info of "DefaultEmptyStrings"
+        //    by ID or name.
+        //
+        // 2. One can manipulate the "DefaultEmptyStrings" attribute during
+        //    bulk attribute manipulation, by ID, or by name.
+        //
+        // 3. One can access the "DefaultEmptyStrings" attribute during
+        //    bulk attribute access, by ID, or by name.
         //
         // Plan:
-        //: 1 Create a 'balber::BerDecoderOptions' object 'X' having the
-        //:   default value.
-        //:
-        //: 2 Look up the "DefaultEmptyStrings" attribute of 'X' by ID and
-        //:   then by name.
-        //:
-        //: 3 Manipulate the "DefaultEmptyStrings" attribute of 'X' during
-        //:   a bulk attribute manipulation, by ID, and then by name.
-        //:
-        //: 4 Access the "DefaultEmptyStrings" attribute of 'x' during a
-        //:   bulk attribute access, by ID, and then by name.
+        // 1. Create a `balber::BerDecoderOptions` object `X` having the
+        //    default value.
+        //
+        // 2. Look up the "DefaultEmptyStrings" attribute of `X` by ID and
+        //    then by name.
+        //
+        // 3. Manipulate the "DefaultEmptyStrings" attribute of `X` during
+        //    a bulk attribute manipulation, by ID, and then by name.
+        //
+        // 4. Access the "DefaultEmptyStrings" attribute of `x` during a
+        //    bulk attribute access, by ID, and then by name.
         // --------------------------------------------------------------------
 
         Obj        mX;
@@ -1342,38 +1347,38 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 This class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases
+        // 1. This class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases
         //
         // Plan:
-        //: 1 Create an object 'W' using the default constructor, such that
-        //:   it has the default value.  Validate that it has the default
-        //:   value.
-        //:
-        //: 2 Create an object 'X' as a copy of 'W'.  Validate that 'X' has the
-        //:   same value as 'W'.
-        //:
-        //: 3 Set each attribute of 'X' to a non-default value.  Validate that
-        //:   the attributes of 'X' have the respective non-default values.
-        //:
-        //: 4 Create an object 'Y' and set each attribute to the same
-        //:   respective non-default values as the attributes of 'X'.  Validate
-        //:   that 'X' and 'Y' have the same value.
-        //:
-        //: 5 Create an object 'Z' as a copy of 'Y'.  Validate that 'Z' has the
-        //:   same value as 'Y'.
-        //:
-        //: 6 Set each attribute of 'Z' to its respective default value.
-        //:   Validate that 'Z' has the same value as 'W'.
-        //:
-        //: 7 Assign the value of 'X' to 'W'.  Validate that 'X' has the same
-        //:   value as 'W'.
-        //:
-        //: 8 Assign the value of 'Z' to 'W'.  Validate that 'Z' has the same
-        //:   value as 'W'.
-        //:
-        //: 9 Assign the value of 'X' to 'X'.  Validate that 'X' has the same
-        //:   value as 'Y'.
+        // 1. Create an object `W` using the default constructor, such that
+        //    it has the default value.  Validate that it has the default
+        //    value.
+        //
+        // 2. Create an object `X` as a copy of `W`.  Validate that `X` has the
+        //    same value as `W`.
+        //
+        // 3. Set each attribute of `X` to a non-default value.  Validate that
+        //    the attributes of `X` have the respective non-default values.
+        //
+        // 4. Create an object `Y` and set each attribute to the same
+        //    respective non-default values as the attributes of `X`.  Validate
+        //    that `X` and `Y` have the same value.
+        //
+        // 5. Create an object `Z` as a copy of `Y`.  Validate that `Z` has the
+        //    same value as `Y`.
+        //
+        // 6. Set each attribute of `Z` to its respective default value.
+        //    Validate that `Z` has the same value as `W`.
+        //
+        // 7. Assign the value of `X` to `W`.  Validate that `X` has the same
+        //    value as `W`.
+        //
+        // 8. Assign the value of `Z` to `W`.  Validate that `Z` has the same
+        //    value as `W`.
+        //
+        // 9. Assign the value of `X` to `X`.  Validate that `X` has the same
+        //    value as `Y`.
         //
         // Testing:
         //   BREATHING TEST

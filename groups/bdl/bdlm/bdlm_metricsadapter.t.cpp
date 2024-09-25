@@ -39,10 +39,10 @@ using bsl::endl;
 // system.
 //
 // Global Concerns:
-//: o The test driver is robust w.r.t. reuse in other, similar components.
-//: o It is possible to create a concrete implementation of the protocol.
-//: o At no time is memory allocated from the global allocator except examples.
-//: o At no time is memory allocated from the default alloc. except examples.
+//  - The test driver is robust w.r.t. reuse in other, similar components.
+//  - It is possible to create a concrete implementation of the protocol.
+//  - At no time is memory allocated from the global allocator except examples.
+//  - At no time is memory allocated from the default alloc. except examples.
 // ----------------------------------------------------------------------------
 // CREATORS
 // [ 1] virtual ~MetricsAdapter();
@@ -157,23 +157,24 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Implementing the 'bdlm::MetricsAdapter' Protocol
+///Example 1: Implementing the `bdlm::MetricsAdapter` Protocol
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates an elided concrete implementation of the
-// 'bdlm::MetricsAdapter' protocol that allows for registering metric callback
+// `bdlm::MetricsAdapter` protocol that allows for registering metric callback
 // functions with a monitoring system.
 //
-// First, we define the interface of a limited 'my_MetricsMonitor' class that
+// First, we define the interface of a limited `my_MetricsMonitor` class that
 // allows only one metric collection function to be registered:
-//..
+// ```
+
+    /// This class implements a metric monitoring system.
     class my_MetricsMonitor {
-        // This class implements a metric monitoring system.
 
         // ...
 
         // DATA
         bdlm::Metric                   d_value;     // metric supplied to
-                                                    // 'd_callback'
+                                                    // `d_callback`
 
         bsl::string                    d_name;      // register metric name
 
@@ -183,32 +184,34 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
         // ...
 
         // MANIPULATORS
+
+        /// Register the specified `callback` with this monitoring system,
+        /// using the specified `name` for display purposes.  Return a
+        /// callback handle to be used with `removeCallback`.
         bdlm::MetricsAdapter::CallbackHandle registerCallback(
                                 const bsl::string&                   name,
                                 const bdlm::MetricsAdapter::Callback callback);
-            // Register the specified 'callback' with this monitoring system,
-            // using the specified 'name' for display purposes.  Return a
-            // callback handle to be used with 'removeCallback'.
 
+        /// Remove the callback associated with the specified `handle`.
+        /// Return 0 on success, or a non-zero value if `handle` cannot be
+        /// found.
         int removeCallback(const bdlm::MetricsAdapter::CallbackHandle& handle);
-            // Remove the callback associated with the specified 'handle'.
-            // Return 0 on success, or a non-zero value if 'handle' cannot be
-            // found.
 
+        /// Invoke the registered callback.
         void update();
-            // Invoke the registered callback.
 
         // ACCESSORS
-        const bsl::string& name() const;
-            // Return the name of the registered metric.
 
+        /// Return the name of the registered metric.
+        const bsl::string& name() const;
+
+        /// Return the value computed by the invocations of the registered
+        /// callback.
         double value() const;
-            // Return the value computed by the invocations of the registered
-            // callback.
     };
-//..
+// ```
 // Then, we implement the functions:
-//..
+// ```
     // MANIPULATORS
     bdlm::MetricsAdapter::CallbackHandle my_MetricsMonitor::registerCallback(
                                  const bsl::string&                   name,
@@ -243,13 +246,14 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
     {
         return d_value.theGauge();
     }
-//..
-// Next, we define the implementation class of the 'bdlm::MetricsAdapter'
+// ```
+// Next, we define the implementation class of the `bdlm::MetricsAdapter`
 // protocol:
-//..
+// ```
+
+    /// This class implements an interface for clients and suppliers of
+    /// metrics adapters.
     class my_MetricsAdapter : public bdlm::MetricsAdapter {
-        // This class implements an interface for clients and suppliers of
-        // metrics adapters.
 
         // DATA
         my_MetricsMonitor *d_monitor_p;  // pointer to monitor to use for
@@ -257,33 +261,35 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 
       public:
         // CREATORS
-        my_MetricsAdapter(my_MetricsMonitor *monitor);
-            // Create a 'my_MetricsAdapter' using the specified 'monitor' for
-            // registered callbacks.
 
+        /// Create a `my_MetricsAdapter` using the specified `monitor` for
+        /// registered callbacks.
+        my_MetricsAdapter(my_MetricsMonitor *monitor);
+
+        /// Destroy this object.
         ~my_MetricsAdapter() BSLS_KEYWORD_OVERRIDE;
-            // Destroy this object.
 
         // MANIPULATORS
+
+        /// Register the specified `callback` with a monitoring system,
+        /// using the specified `metricDescriptor` for the registration.
+        /// Return the callback handle to be used with
+        /// `removeCollectionCallback`.  Note the information used for
+        /// registration is implementation dependant, and may involve values
+        /// computed from the supplied arguments.
         CallbackHandle registerCollectionCallback(
                  const bdlm::MetricDescriptor& metricDescriptor,
                  const Callback&               callback) BSLS_KEYWORD_OVERRIDE;
-            // Register the specified 'callback' with a monitoring system,
-            // using the specified 'metricDescriptor' for the registration.
-            // Return the callback handle to be used with
-            // 'removeCollectionCallback'.  Note the information used for
-            // registration is implementation dependant, and may involve values
-            // computed from the supplied arguments.
 
         int removeCollectionCallback(const CallbackHandle& handle)
                                                          BSLS_KEYWORD_OVERRIDE;
-            // Remove the callback associated with the specified 'handle'.
-            // Return 0 on success, or a non-zero value if 'handle' cannot be
+            // Remove the callback associated with the specified `handle`.
+            // Return 0 on success, or a non-zero value if `handle` cannot be
             // found.
     };
-//..
-// Then, we implement the methods of 'myMetricsAdapter':
-//..
+// ```
+// Then, we implement the methods of `myMetricsAdapter`:
+// ```
     // CREATORS
     my_MetricsAdapter::my_MetricsAdapter(my_MetricsMonitor *monitor)
     : d_monitor_p(monitor)
@@ -314,15 +320,15 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
     {
         return d_monitor_p->removeCallback(handle);
     }
-//..
-// Next, we provide the metric method, 'my_metric', which will compute its
+// ```
+// Next, we provide the metric method, `my_metric`, which will compute its
 // invocation count:
-//..
+// ```
     void my_metric(BloombergLP::bdlm::Metric *value)
     {
         *value = value->theGauge() + 1.0;
     }
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -341,7 +347,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -363,14 +369,14 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -380,31 +386,31 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-// Then, we instantiate a 'my_MetricsMonitor' and a 'myMetricsAdapter':
-//..
+// Then, we instantiate a `my_MetricsMonitor` and a `myMetricsAdapter`:
+// ```
         my_MetricsMonitor monitor;
         my_MetricsAdapter adapter(&monitor);
-//..
-// Next, we construct a 'bdlm::MetricDescriptor', register the 'my_metric'
-// method with the 'monitor', and verify the 'monitor' has the expected name
+// ```
+// Next, we construct a `bdlm::MetricDescriptor`, register the `my_metric`
+// method with the `monitor`, and verify the `monitor` has the expected name
 // for the metric:
-//..
+// ```
         bdlm::MetricDescriptor descriptor("a", "b", 1, "c", "d", "e");
 
         adapter.registerCollectionCallback(descriptor, my_metric);
 
         ASSERT(monitor.name() == "a.b.c.d.e");
-//..
-// Now, we invoke the 'update' method a few times:
-//..
+// ```
+// Now, we invoke the `update` method a few times:
+// ```
         monitor.update();
         monitor.update();
         monitor.update();
-//..
+// ```
 // Finally, we verify the metric has the expected value:
-//..
+// ```
         ASSERT(monitor.value() == 3.0);
-//..
+// ```
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -412,36 +418,36 @@ int main(int argc, char *argv[])
         //   Ensure this class is a properly defined protocol.
         //
         // Concerns:
-        //: 1 The protocol is abstract: no objects of it can be created.
-        //:
-        //: 2 The protocol has no data members.
-        //:
-        //: 3 The protocol has a virtual destructor.
-        //:
-        //: 4 All methods of the protocol are pure virtual.
-        //:
-        //: 5 All methods of the protocol are publicly accessible.
+        // 1. The protocol is abstract: no objects of it can be created.
+        //
+        // 2. The protocol has no data members.
+        //
+        // 3. The protocol has a virtual destructor.
+        //
+        // 4. All methods of the protocol are pure virtual.
+        //
+        // 5. All methods of the protocol are publicly accessible.
         //
         // Plan:
-        //: 1 Define a concrete derived implementation, 'ProtocolClassTestImp',
-        //:   of the protocol.
-        //:
-        //: 2 Create an object of the 'bsls::ProtocolTest' class template
-        //:   parameterized by 'ProtocolClassTestImp', and use it to verify
-        //:   that:
-        //:
-        //:   1 The protocol is abstract. (C-1)
-        //:
-        //:   2 The protocol has no data members. (C-2)
-        //:
-        //:   3 The protocol has a virtual destructor. (C-3)
-        //:
-        //: 3 Use the 'BSLS_PROTOCOLTEST_ASSERT' macro to verify that
-        //:   non-creator methods of the protocol are:
-        //:
-        //:   1 virtual, (C-4)
-        //:
-        //:   2 publicly accessible. (C-5)
+        // 1. Define a concrete derived implementation, `ProtocolClassTestImp`,
+        //    of the protocol.
+        //
+        // 2. Create an object of the `bsls::ProtocolTest` class template
+        //    parameterized by `ProtocolClassTestImp`, and use it to verify
+        //    that:
+        //
+        //   1. The protocol is abstract. (C-1)
+        //
+        //   2. The protocol has no data members. (C-2)
+        //
+        //   3. The protocol has a virtual destructor. (C-3)
+        //
+        // 3. Use the `BSLS_PROTOCOLTEST_ASSERT` macro to verify that
+        //    non-creator methods of the protocol are:
+        //
+        //   1. virtual, (C-4)
+        //
+        //   2. publicly accessible. (C-5)
         //
         // Testing:
         //   virtual ~MetricsAdapter();

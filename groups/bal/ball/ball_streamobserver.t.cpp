@@ -39,7 +39,7 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // The component under the test is a simple observer that prints the log
-// records to the 'bsl::ostream' supplied at construction.
+// records to the `bsl::ostream` supplied at construction.
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] StreamObserver(bsl::ostream *stream)
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
@@ -152,13 +152,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -185,17 +185,17 @@ int main(int argc, char *argv[])
         // TESTING PRIMARY MANIPULATORS
         //
         // Concerns:
-        //: 1 Log record is correctly formatted.
-        //:
-        //: 2 Formatted log record is written to the output stream.
-        //:
-        //: 3 'setRecordFormatFunctor' can change the format effectively.
+        // 1. Log record is correctly formatted.
+        //
+        // 2. Formatted log record is written to the output stream.
+        //
+        // 3. `setRecordFormatFunctor` can change the format effectively.
         //
         // Plan:
-        //: 1 Create the observer object and publish log record.
-        //:
-        //: 2 Use 'setRecordFormatFunctor' manipulator to affect output format
-        //:   and verify that it has changed where expected.
+        // 1. Create the observer object and publish log record.
+        //
+        // 2. Use `setRecordFormatFunctor` manipulator to affect output format
+        //    and verify that it has changed where expected.
         //
         // Testing:
         //   StreamObserver(bsl::ostream *stream)
@@ -320,12 +320,12 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Run each method with arbitrary inputs and verify the behavior is
-        //:   as expected.
+        // 1. Run each method with arbitrary inputs and verify the behavior is
+        //    as expected.
         //
         // Testing:
         //   BREATHING TEST

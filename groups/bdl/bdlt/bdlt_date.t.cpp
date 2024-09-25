@@ -22,9 +22,9 @@
 #include <bslx_testoutstream.h>
 #include <bslx_versionfunctions.h>
 
-#include <bsl_climits.h>     // 'INT_MAX', 'INT_MIN'
-#include <bsl_cstdlib.h>     // 'atoi'
-#include <bsl_cstring.h>     // 'memcmp', 'strcmp'
+#include <bsl_climits.h>     // `INT_MAX`, `INT_MIN`
+#include <bsl_cstdlib.h>     // `atoi`
+#include <bsl_cstring.h>     // `memcmp`, `strcmp`
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
@@ -37,9 +37,9 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // The component under test defines a complex-constrained, value-semantic type
-// (for terminology, see 'bsldoc_glossary'), 'bdlt::Date', most of whose
+// (for terminology, see `bsldoc_glossary`), `bdlt::Date`, most of whose
 // non-trivial functionality is provided by a fully-tested implementation
-// utility component ('bdlt_serialdateimputil').  No allocator is involved.
+// utility component (`bdlt_serialdateimputil`).  No allocator is involved.
 // Moreover, the state of a date object is identically its value.  As such, our
 // testing concerns are (safely) limited to the mechanical functioning of the
 // various methods and free operators, and exception neutrality during BDEX
@@ -47,32 +47,32 @@ using namespace bsl;
 //
 // The underlying representation of a date is a single (32-bit) "serial date"
 // integer.  However, the class interface represents a date value as either two
-// or three integer fields, i.e., '(year, dayOfYear)' or '(year, month, day)',
+// or three integer fields, i.e., `(year, dayOfYear)` or `(year, month, day)`,
 // respectively.  Thus, it is always necessary to verify that each of the
 // parameters is correctly forwarded to the appropriate implementation utility
 // functions.
 //
 // Note that the choice of Primary Manipulators and Basic Accessors (below)
-// comports with the common view that '(year, month, day)' is the canonical
+// comports with the common view that `(year, month, day)` is the canonical
 // representation of a date.  Consequently, we restrict ourselves to the
 // three-integer representation of dates in the first ten test cases.  The
-// '(year, dayOfYear)' methods are first encountered in case 12.
+// `(year, dayOfYear)` methods are first encountered in case 12.
 //
 // Primary Manipulators:
-//: o Value constructor 'Date(int year, int month, int day)'
+//  - Value constructor `Date(int year, int month, int day)`
 //
 // Basic Accessors:
-//: o 'day'
-//: o 'month'
-//: o 'year'
+//  - `day`
+//  - `month`
+//  - `year`
 //
 // Global Concerns:
-//: o The test driver is robust w.r.t. reuse in other, similar components.
-//: o ACCESSOR methods are declared 'const'.
-//: o CREATOR/MANIPULATOR/OPERATOR ptr./ref. parameters are declared 'const'.
-//: o No memory is ever allocated from the global allocator.
-//: o No memory is ever allocated from the default allocator.
-//: o Precondition violations are detected in appropriate build modes.
+//  - The test driver is robust w.r.t. reuse in other, similar components.
+//  - ACCESSOR methods are declared `const`.
+//  - CREATOR/MANIPULATOR/OPERATOR ptr./ref. parameters are declared `const`.
+//  - No memory is ever allocated from the global allocator.
+//  - No memory is ever allocated from the default allocator.
+//  - Precondition violations are detected in appropriate build modes.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
 // [13] static bool isValidYearDay(int year, int dayOfYear);
@@ -144,11 +144,11 @@ using namespace bsl;
 // [ *] CONCERN: This test driver is reusable w/other, similar components.
 // [ *] CONCERN: In no case does memory come from the global allocator.
 // [ *] CONCERN: In no case does memory come from the default allocator.
-// [17] CONCERN: All ctor/manip./free op. ptr./ref. params are 'const'.
-// [18] CONCERN: All accessor methods are declared 'const'.
+// [17] CONCERN: All ctor/manip./free op. ptr./ref. params are `const`.
+// [18] CONCERN: All accessor methods are declared `const`.
 // [15] CONCERN: Precondition violations are detected when enabled.
-// [ 3] Reserved for 'gg' generator function.
-// [ 8] Reserved for 'swap' testing.
+// [ 3] Reserved for `gg` generator function.
+// [ 8] Reserved for `swap` testing.
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -281,7 +281,7 @@ struct AltDataRow {
     int d_V_day;    // V's day of year
     int d_W_year;   // W's year
     int d_W_day;    // W's day of year
-    int d_numDays;  // number of days to add ('W - V')
+    int d_numDays;  // number of days to add (`W - V`)
 };
 
 static
@@ -335,9 +335,9 @@ const int ALT_NUM_DATA = static_cast<int>(sizeof ALT_DATA / sizeof *ALT_DATA);
 #endif
 
 extern "C"
+/// Use the specified `data` array of `size` bytes as input to methods of
+/// this component and return zero.
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
-    // Use the specified 'data' array of 'size' bytes as input to methods of
-    // this component and return zero.
 {
     bslim::FuzzDataView fdv(data, size);
 
@@ -346,19 +346,19 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     switch (test) { case 0:  // Zero is always the leading case.
       case 1: {
         // --------------------------------------------------------------------
-        // FUZZ TESTING 'Date::setYearMonthDay'
+        // FUZZ TESTING `Date::setYearMonthDay`
         //
         // Concern:
-        //: 1 That in-contract invocation of 'setYearMonthDay' with three
-        //:   integers created from fuzz data succeeds.
+        // 1. That in-contract invocation of `setYearMonthDay` with three
+        //    integers created from fuzz data succeeds.
         //
         // Plan:
-        //: 1 Create 3 integers from fuzz data.
-        //:
-        //: 2 Create a 'Date' object.
-        //:
-        //: 2 Invoke 'setYearMonthDay' on the 'Date' object with the 3 integers
-        //:   inside the 'BSLS_FUZZTEST_EVALUATE' macro.
+        // 1. Create 3 integers from fuzz data.
+        //
+        // 2. Create a `Date` object.
+        //
+        // 2. Invoke `setYearMonthDay` on the `Date` object with the 3 integers
+        //    inside the `BSLS_FUZZTEST_EVALUATE` macro.
         //
         // Testing:
         //   Date::setYearMonthDay(int, int, int)
@@ -400,7 +400,7 @@ int main(int argc, char *argv[])
 
     // CONCERN: This test driver is reusable w/other, similar components.
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -420,13 +420,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -440,76 +440,76 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'bdlt::Date'
+///Example 1: Basic Use of `bdlt::Date`
 /// - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to create and use a
-// 'bdlt::Date' object.
+// `bdlt::Date` object.
 //
-// First, we create a default date 'd1':
-//..
+// First, we create a default date `d1`:
+// ```
     bdlt::Date d1;           ASSERT(   1 == d1.year());
                              ASSERT(   1 == d1.month());
                              ASSERT(   1 == d1.day());
-//..
-// Next, we set 'd1' to July 4, 1776:
-//..
+// ```
+// Next, we set `d1` to July 4, 1776:
+// ```
     d1.setYearMonthDay(1776, 7, 4);
                              ASSERT(1776 == d1.year());
                              ASSERT(   7 == d1.month());
                              ASSERT(   4 == d1.day());
-//..
-// We can also use 'setYearMonthDayIfValid' if we are not sure whether a
-// particular year/month/day combination constitutes a valid 'bdlt::Date'.  For
-// example, if we want to set 'd1' to '1900/02/29', and it turns out that year
+// ```
+// We can also use `setYearMonthDayIfValid` if we are not sure whether a
+// particular year/month/day combination constitutes a valid `bdlt::Date`.  For
+// example, if we want to set `d1` to `1900/02/29`, and it turns out that year
 // 1900 was not a leap year (it wasn't), there will be no effect on the current
 // value of the object:
-//..
+// ```
     int ret = d1.setYearMonthDayIfValid(1900, 2, 29);
                              ASSERT(   0 != ret);         // 1900 not leap year
-                             ASSERT(1776 == d1.year());   // no effect on 'd1'
+                             ASSERT(1776 == d1.year());   // no effect on `d1`
                              ASSERT(   7 == d1.month());
                              ASSERT(   4 == d1.day());
-//..
-// Then, from 'd1', we can determine the day of the year, and the day of the
+// ```
+// Then, from `d1`, we can determine the day of the year, and the day of the
 // week, of July 4, 1776:
-//..
+// ```
     int dayOfYear = d1.dayOfYear();
                              ASSERT( 186 == dayOfYear);
 
     bdlt::DayOfWeek::Enum dayOfWeek = d1.dayOfWeek();
                              ASSERT(bdlt::DayOfWeek::e_THU == dayOfWeek);
-//..
-// Next, we create a 'bdlt::Date' object, 'd2', using the year/day-of-year
+// ```
+// Next, we create a `bdlt::Date` object, `d2`, using the year/day-of-year
 // representation for dates:
-//..
+// ```
     bdlt::Date d2(1776, dayOfYear);
                              ASSERT(1776 == d2.year());
                              ASSERT( 186 == d2.dayOfYear());
                              ASSERT(   7 == d2.month());
                              ASSERT(   4 == d2.day());
                              ASSERT(  d1 == d2);
-//..
-// Then, we add six days to the value of 'd2':
-//..
+// ```
+// Then, we add six days to the value of `d2`:
+// ```
     d2 += 6;                 ASSERT(1776 == d2.year());
                              ASSERT(   7 == d2.month());
                              ASSERT(  10 == d2.day());
-//..
-// Now, we subtract 'd1' from 'd2', storing the (signed) difference in days
-// (a.k.a. *Actual* difference) in 'daysDiff':
-//..
+// ```
+// Now, we subtract `d1` from `d2`, storing the (signed) difference in days
+// (a.k.a. *Actual* difference) in `daysDiff`:
+// ```
     int daysDiff = d2 - d1;  ASSERT(   6 == daysDiff);
-//..
-// Finally, we stream the value of 'd2' to 'stdout':
-//..
+// ```
+// Finally, we stream the value of `d2` to `stdout`:
+// ```
 if (verbose)
     bsl::cout << d2 << bsl::endl;
-//..
+// ```
 // The streaming operator produces:
-//..
+// ```
 //  10JUL1776
-//..
-// on 'stdout'.
+// ```
+// on `stdout`.
 
       } break;
       case 20: {
@@ -517,21 +517,21 @@ if (verbose)
         // TESTING: hashAppend
         //
         // Concerns:
-        //: 1 Hashes different inputs differently
+        // 1. Hashes different inputs differently
         //
-        //: 2 Hashes equal inputs identically
+        // 2. Hashes equal inputs identically
         //
-        //: 3 Works for 'const' and non-'const' dates
+        // 3. Works for `const` and non-`const` dates
         //
         // Plan:
-        //: 1 Brute force test of a few hand picked values, ensuring that
+        // 1. Brute force test of a few hand picked values, ensuring that
         //    hashes of equivalent values match and hashes of unequal values do
         //    not.
         //
         // Testing:
         //    void hashAppend(HASHALG&, const Date&);
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTESTING 'hashAppend'"
+        if (verbose) cout << "\nTESTING `hashAppend`"
                           << "\n====================\n";
 
         if (verbose) cout << "Brute force test of several dates." << endl;
@@ -603,77 +603,77 @@ if (verbose)
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // 'addDaysIfValid' METHOD
+        // `addDaysIfValid` METHOD
         //   Ensure that the method correctly adjusts object state by the
         //   specified (signed) number of days only if the result is valid.
         //
         // Concerns:
-        //: 1 The method has the same effect on the object as 'operator+=' when
-        //:   the addition results in a valid date.
-        //:
-        //: 2 The method has no effect on the object if the addition would not
-        //:   result in a valid date.
-        //:
-        //: 3 The method accepts any 'int' value.
-        //:
-        //: 4 The method returns 0 on success, and a non-zero value on failure.
+        // 1. The method has the same effect on the object as `operator+=` when
+        //    the addition results in a valid date.
+        //
+        // 2. The method has no effect on the object if the addition would not
+        //    result in a valid date.
+        //
+        // 3. The method accepts any `int` value.
+        //
+        // 4. The method returns 0 on success, and a non-zero value on failure.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct date
-        //:   object value pairs (one pair per row) in terms of their
-        //:   year/day-of-year representations, and the non-negative number of
-        //:   days ('NUM_DAYS') that the second date value is advanced from
-        //:   that of the first date value.
-        //:
-        //: 2 For each row 'R' in the table of P-1:  (C-1)
-        //:
-        //:   1 Use the 2-argument value constructor to create two 'const'
-        //:     objects, 'V' and 'W', having the first and second date values
-        //:     from 'R', respectively.
-        //:
-        //:   2 Use the copy constructor to create a modifiable object, 'mX',
-        //:     from 'V'.
-        //:
-        //:   3 Verify that the 'addDaysIfValid' method, when invoked on 'mX'
-        //:     and passed 'NUM_DAYS' from 'R', returns the expected value (0).
-        //:
-        //:   4 Verify, using the equality-comparison operator, that 'mX' now
-        //:     has the same value as that of 'W'.  (C-1)
-        //:
-        //:   5 Repeat steps similar to those described in P-2.2..4 except
-        //:     that, this time, create 'mX' from 'W' and pass '-NUM_DAYS' to
-        //:     'addDaysIfValid'.  Verify that 'addDaysIfValid' still returns
-        //:     0, but that 'mX' now has the same value as that of 'V'.  (C-1)
-        //:
-        //: 3 Using the table-driven technique, specify a set of distinct date
-        //:   object values (one per row) in terms of their year/day-of-year
-        //:   representations, and a (signed) number of days ('NUM_DAYS') that
-        //:   when added to the date would produce an invalid value.
-        //:
-        //: 4 For each row 'R' in the table of P-3:  (C-2..4)
-        //:
-        //:   1 Use the 2-argument value constructor to create a 'const'
-        //:     object, 'W', having the date value from 'R'.
-        //:
-        //:   2 Use the copy constructor to create a modifiable object, 'mX',
-        //:     from 'W'.
-        //:
-        //:   3 Verify that the 'addDaysIfValid' method, when invoked on 'mX'
-        //:     and passed 'NUM_DAYS' from 'R', returns the expected value
-        //:     (non-zero).  (C-3..4)
-        //:
-        //:   4 Verify, using the equality-comparison operator, that 'mX' still
-        //:     has the same value as that of 'W'.  (C-2)
+        // 1. Using the table-driven technique, specify a set of distinct date
+        //    object value pairs (one pair per row) in terms of their
+        //    year/day-of-year representations, and the non-negative number of
+        //    days (`NUM_DAYS`) that the second date value is advanced from
+        //    that of the first date value.
+        //
+        // 2. For each row `R` in the table of P-1:  (C-1)
+        //
+        //   1. Use the 2-argument value constructor to create two `const`
+        //      objects, `V` and `W`, having the first and second date values
+        //      from `R`, respectively.
+        //
+        //   2. Use the copy constructor to create a modifiable object, `mX`,
+        //      from `V`.
+        //
+        //   3. Verify that the `addDaysIfValid` method, when invoked on `mX`
+        //      and passed `NUM_DAYS` from `R`, returns the expected value (0).
+        //
+        //   4. Verify, using the equality-comparison operator, that `mX` now
+        //      has the same value as that of `W`.  (C-1)
+        //
+        //   5. Repeat steps similar to those described in P-2.2..4 except
+        //      that, this time, create `mX` from `W` and pass `-NUM_DAYS` to
+        //      `addDaysIfValid`.  Verify that `addDaysIfValid` still returns
+        //      0, but that `mX` now has the same value as that of `V`.  (C-1)
+        //
+        // 3. Using the table-driven technique, specify a set of distinct date
+        //    object values (one per row) in terms of their year/day-of-year
+        //    representations, and a (signed) number of days (`NUM_DAYS`) that
+        //    when added to the date would produce an invalid value.
+        //
+        // 4. For each row `R` in the table of P-3:  (C-2..4)
+        //
+        //   1. Use the 2-argument value constructor to create a `const`
+        //      object, `W`, having the date value from `R`.
+        //
+        //   2. Use the copy constructor to create a modifiable object, `mX`,
+        //      from `W`.
+        //
+        //   3. Verify that the `addDaysIfValid` method, when invoked on `mX`
+        //      and passed `NUM_DAYS` from `R`, returns the expected value
+        //      (non-zero).  (C-3..4)
+        //
+        //   4. Verify, using the equality-comparison operator, that `mX` still
+        //      has the same value as that of `W`.  (C-2)
         //
         // Testing:
         //   int addDaysIfValid(int numDays);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "'addDaysIfValid' METHOD" << endl
+                          << "`addDaysIfValid` METHOD" << endl
                           << "=======================" << endl;
 
-        if (verbose) cout << "Testing 'addDaysIfValid' success." << endl;
+        if (verbose) cout << "Testing `addDaysIfValid` success." << endl;
         {
             const int NUM_DATA                 = ALT_NUM_DATA;
             const AltDataRow (&DATA)[NUM_DATA] = ALT_DATA;
@@ -711,7 +711,7 @@ if (verbose)
             }
         }
 
-        if (verbose) cout << "Testing 'addDaysIfValid' failure." << endl;
+        if (verbose) cout << "Testing `addDaysIfValid` failure." << endl;
         {
             static const struct {
                 int d_line;     // source line number
@@ -780,46 +780,46 @@ if (verbose)
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // 'dayOfWeek' AND 'monthOfYear' METHODS
+        // `dayOfWeek` AND `monthOfYear` METHODS
         //   Ensure that the correct day of the week and month of the year are
         //   returned for any date.
         //
         // Concerns:
-        //: 1 For any date, the correct day of the week is returned by
-        //:   'dayOfWeek'.
-        //:
-        //: 2 For any date, the correct month of the year is returned by
-        //:   'monthOfYear'.
-        //:
-        //: 3 The methods are declared 'const'.
+        // 1. For any date, the correct day of the week is returned by
+        //    `dayOfWeek`.
+        //
+        // 2. For any date, the correct month of the year is returned by
+        //    `monthOfYear`.
+        //
+        // 3. The methods are declared `const`.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their year/month/day
-        //:   representation, and the 'bdlt::DayOfWeek::Enum' and
-        //:   'bdlt::MonthOfYear::Enum' values expected from the methods
-        //:   'dayOfWeek' and 'monthOfYear' when applied to those tabulated
-        //:   dates.
-        //:
-        //: 2 For each row 'R' in the table of P-1:  (C-1..3)
-        //:
-        //:   1 Create a 'const' object 'X' using the 3-argument value
-        //:     constructor.
-        //:
-        //:   2 Verify that 'dayOfWeek', invoked on 'X', returns the expected
-        //:     value.  (C-1)
-        //:
-        //:   3 Verify that 'monthOfYear', invoked on 'X', returns the expected
-        //:     value.  (C-2..3)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their year/month/day
+        //    representation, and the `bdlt::DayOfWeek::Enum` and
+        //    `bdlt::MonthOfYear::Enum` values expected from the methods
+        //    `dayOfWeek` and `monthOfYear` when applied to those tabulated
+        //    dates.
+        //
+        // 2. For each row `R` in the table of P-1:  (C-1..3)
+        //
+        //   1. Create a `const` object `X` using the 3-argument value
+        //      constructor.
+        //
+        //   2. Verify that `dayOfWeek`, invoked on `X`, returns the expected
+        //      value.  (C-1)
+        //
+        //   3. Verify that `monthOfYear`, invoked on `X`, returns the expected
+        //      value.  (C-2..3)
         //
         // Testing:
         //   bdlt::DayOfWeek::Enum dayOfWeek() const;
         //   bdlt::MonthOfYear::Enum monthOfYear() const;
-        //   CONCERN: All accessor methods are declared 'const'.
+        //   CONCERN: All accessor methods are declared `const`.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "'dayOfWeek' AND 'monthOfYear' METHODS" << endl
+                          << "`dayOfWeek` AND `monthOfYear` METHODS" << endl
                           << "=====================================" << endl;
 
         typedef bdlt::DayOfWeek   DOW;
@@ -932,95 +932,95 @@ if (verbose)
         //   any two date values.
         //
         // Concerns:
-        //: 1 An object 'X' is in relation to an object 'Y' as the
-        //:   year/day-of-year representation of 'X' is in relation to the
-        //:   year/day-of-year representation of 'Y'.
-        //:
-        //: 2 'false == (X <  X)' (i.e., irreflexivity).
-        //:
-        //: 3 'true  == (X <= X)' (i.e., reflexivity).
-        //:
-        //: 4 'false == (X >  X)' (i.e., irreflexivity).
-        //:
-        //: 5 'true  == (X >= X)' (i.e., reflexivity).
-        //:
-        //: 6 If 'X < Y', then '!(Y < X)' (i.e., asymmetry).
-        //:
-        //: 7 'X <= Y' if and only if 'X < Y' exclusive-or 'X == Y'.
-        //:
-        //: 8 If 'X > Y', then '!(Y > X)' (i.e., asymmetry).
-        //:
-        //: 9 'X >= Y' if and only if 'X > Y' exclusive-or 'X == Y'.
-        //:
-        //:10 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., all relational-comparison operators are free functions).
-        //:
-        //:11 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //:12 The relational-comparison operators' signatures and return types
-        //:   are standard.
+        // 1. An object `X` is in relation to an object `Y` as the
+        //    year/day-of-year representation of `X` is in relation to the
+        //    year/day-of-year representation of `Y`.
+        //
+        // 2. `false == (X <  X)` (i.e., irreflexivity).
+        //
+        // 3. `true  == (X <= X)` (i.e., reflexivity).
+        //
+        // 4. `false == (X >  X)` (i.e., irreflexivity).
+        //
+        // 5. `true  == (X >= X)` (i.e., reflexivity).
+        //
+        // 6. If `X < Y`, then `!(Y < X)` (i.e., asymmetry).
+        //
+        // 7. `X <= Y` if and only if `X < Y` exclusive-or `X == Y`.
+        //
+        // 8. If `X > Y`, then `!(Y > X)` (i.e., asymmetry).
+        //
+        // 9. `X >= Y` if and only if `X > Y` exclusive-or `X == Y`.
+        //
+        // 10. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., all relational-comparison operators are free functions).
+        //
+        // 11. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        // 12. The relational-comparison operators' signatures and return types
+        //    are standard.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator<', 'operator<=',
-        //:   'operator>', and 'operator>=' to initialize function pointers
-        //:   having the appropriate signatures and return types for the four
-        //:   homogeneous, free relational-comparison operators defined in this
-        //:   component.  (C-10..12)
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their year/day-of-year
-        //:   representation.
-        //:
-        //: 3 For each row 'R1' in the table of P-2:  (C-1..9)
-        //:
-        //:   1 Use the 2-argument value constructor to create a 'const'
-        //:     object, 'W', having the value from 'R1'.
-        //:
-        //:   2 Using 'W', verify the anti-reflexive (reflexive) property of
-        //:     '<' and '>' ('<=' and '>=') in the presence of aliasing.
-        //:     (C-2..5)
-        //:
-        //:   3 For each row 'R2' in the table of P-2:  (C-1, 6..9)
-        //:
-        //:     1 Use the 2-argument value constructor to create a 'const'
-        //:       object, 'X', having the value from 'R1', and a second 'const'
-        //:       object, 'Y', having the value from 'R2'.
-        //:
-        //:     2 Record, in 'EXP', whether or not an object set to the value
-        //:       from 'R1' is expected to compare less than a (distinct)
-        //:       object set to the value from 'R2'.
-        //:
-        //:     3 Using 'X' and 'Y', verify the asymmetric property and
-        //:       expected return value for '<'.  (C-6)
-        //:
-        //:     4 Record, in 'EXP', whether or not an object set to the value
-        //:       from 'R1' is expected to compare less or equal to a
-        //:       (distinct) object set to the value from 'R2'.
-        //:
-        //:     5 Using 'X' and 'Y', verify the expected return value for '<='.
-        //:       (C-7)
-        //:
-        //:     6 Record, in 'EXP', whether or not an object set to the value
-        //:       from 'R1' is expected to compare greater than a (distinct)
-        //:       object set to the value from 'R2'.
-        //:
-        //:     7 Using 'X' and 'Y', verify the asymmetric property and
-        //:       expected return value for '>'.  (C-8)
-        //:
-        //:     8 Record, in 'EXP', whether or not an object set to the value
-        //:       from 'R1' is expected to compare greater than or equal to a
-        //:       (distinct) object set to the value from 'R2'.
-        //:
-        //:     9 Using 'X' and 'Y', verify the expected return value for '>='.
-        //:       (C-1, 9)
+        // 1. Use the respective addresses of `operator<`, `operator<=`,
+        //    `operator>`, and `operator>=` to initialize function pointers
+        //    having the appropriate signatures and return types for the four
+        //    homogeneous, free relational-comparison operators defined in this
+        //    component.  (C-10..12)
+        //
+        // 2. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their year/day-of-year
+        //    representation.
+        //
+        // 3. For each row `R1` in the table of P-2:  (C-1..9)
+        //
+        //   1. Use the 2-argument value constructor to create a `const`
+        //      object, `W`, having the value from `R1`.
+        //
+        //   2. Using `W`, verify the anti-reflexive (reflexive) property of
+        //      '<' and '>' (`<=` and `>=`) in the presence of aliasing.
+        //      (C-2..5)
+        //
+        //   3. For each row `R2` in the table of P-2:  (C-1, 6..9)
+        //
+        //     1. Use the 2-argument value constructor to create a `const`
+        //        object, `X`, having the value from `R1`, and a second `const`
+        //        object, `Y`, having the value from `R2`.
+        //
+        //     2. Record, in `EXP`, whether or not an object set to the value
+        //        from `R1` is expected to compare less than a (distinct)
+        //        object set to the value from `R2`.
+        //
+        //     3. Using `X` and `Y`, verify the asymmetric property and
+        //        expected return value for '<'.  (C-6)
+        //
+        //     4. Record, in `EXP`, whether or not an object set to the value
+        //        from `R1` is expected to compare less or equal to a
+        //        (distinct) object set to the value from `R2`.
+        //
+        //     5. Using `X` and `Y`, verify the expected return value for `<=`.
+        //        (C-7)
+        //
+        //     6. Record, in `EXP`, whether or not an object set to the value
+        //        from `R1` is expected to compare greater than a (distinct)
+        //        object set to the value from `R2`.
+        //
+        //     7. Using `X` and `Y`, verify the asymmetric property and
+        //        expected return value for '>'.  (C-8)
+        //
+        //     8. Record, in `EXP`, whether or not an object set to the value
+        //        from `R1` is expected to compare greater than or equal to a
+        //        (distinct) object set to the value from `R2`.
+        //
+        //     9. Using `X` and `Y`, verify the expected return value for `>=`.
+        //        (C-1, 9)
         //
         // Testing:
         //   bool operator< (const Date& lhs, const Date& rhs);
         //   bool operator<=(const Date& lhs, const Date& rhs);
         //   bool operator>=(const Date& lhs, const Date& rhs);
         //   bool operator> (const Date& lhs, const Date& rhs);
-        //   CONCERN: All ctor/manip./free op. ptr./ref. params are 'const'.
+        //   CONCERN: All ctor/manip./free op. ptr./ref. params are `const`.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1045,7 +1045,7 @@ if (verbose)
             (void)operatorGe;
         }
 
-        if (verbose) cout << "\nTesting operators '<', '<=', '>', '>='."
+        if (verbose) cout << "\nTesting operators '<', `<=`, '>', `>=`."
                           << endl;
 
         static const struct {
@@ -1113,7 +1113,7 @@ if (verbose)
 
                 if (veryVeryVerbose) { T_ T_ T_ P_(X) P(Y) }
 
-                // Verify 'operator<'.
+                // Verify `operator<`.
 
                 {
                     const bool EXP = (IYEAR  < JYEAR)
@@ -1126,7 +1126,7 @@ if (verbose)
                     }
                 }
 
-                // Verify 'operator<='.
+                // Verify `operator<=`.
 
                 {
                     const bool EXP = (IYEAR  < JYEAR)
@@ -1137,7 +1137,7 @@ if (verbose)
                                  EXP == ((X < Y) ^ (X == Y)));
                 }
 
-                // Verify 'operator>'.
+                // Verify `operator>`.
 
                 {
                     const bool EXP = (IYEAR  > JYEAR)
@@ -1150,7 +1150,7 @@ if (verbose)
                     }
                 }
 
-                // Verify 'operator>='.
+                // Verify `operator>=`.
 
                 {
                     const bool EXP = (IYEAR  > JYEAR)
@@ -1171,45 +1171,45 @@ if (verbose)
         //   difference between any two dates.
         //
         // Concerns:
-        //: 1 The value that is returned represents the (signed) number of days
-        //:   between the 'lhs' and 'rhs' date values.
-        //:
-        //: 2 The operator accepts every combination of argument values.
-        //:
-        //: 3 The values of the two source objects supplied to the operator
-        //:   are not modified.
-        //:
-        //: 4 Non-modifiable objects can be subtracted (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //: 5 The operator's signature and return type are standard.
+        // 1. The value that is returned represents the (signed) number of days
+        //    between the `lhs` and `rhs` date values.
+        //
+        // 2. The operator accepts every combination of argument values.
+        //
+        // 3. The values of the two source objects supplied to the operator
+        //    are not modified.
+        //
+        // 4. Non-modifiable objects can be subtracted (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        // 5. The operator's signature and return type are standard.
         //
         // Plan:
-        //: 1 Use the address of 'operator-' to initialize a function pointer
-        //:   having the appropriate signature and return type for the free
-        //:   subtraction operator defined in this component.  (C-4..5)
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct date
-        //:   object value pairs (one pair per row) in terms of their
-        //:   year/day-of-year representations, and the non-negative number of
-        //:   days that the second date value is advanced from that of the
-        //:   first date value ('DELTA').
-        //:
-        //: 3 For each row 'R' in the table of P-1:  (C-1..3)
-        //:
-        //:   1 Use the 2-argument value constructor to create two 'const'
-        //:     objects, 'V' and 'W', having the first and second date values
-        //:     from 'R', respectively.
-        //:
-        //:   2 Use the copy constructor to create a 'const' 'Obj', 'VV', from
-        //:     'V', and a 'const' 'Obj', 'WW', from 'W'.
-        //:
-        //:   3 Verify that 'W - V' returns 'DELTA' and that 'V - W' returns
-        //:     '-DELTA'.  (C-1..2)
-        //:
-        //:   4 Use the equality-comparison operator to verify that 'V' and 'W'
-        //:     still have the same values as those of 'VV' and 'WW',
-        //:     respectively.  (C-3)
+        // 1. Use the address of `operator-` to initialize a function pointer
+        //    having the appropriate signature and return type for the free
+        //    subtraction operator defined in this component.  (C-4..5)
+        //
+        // 2. Using the table-driven technique, specify a set of distinct date
+        //    object value pairs (one pair per row) in terms of their
+        //    year/day-of-year representations, and the non-negative number of
+        //    days that the second date value is advanced from that of the
+        //    first date value (`DELTA`).
+        //
+        // 3. For each row `R` in the table of P-1:  (C-1..3)
+        //
+        //   1. Use the 2-argument value constructor to create two `const`
+        //      objects, `V` and `W`, having the first and second date values
+        //      from `R`, respectively.
+        //
+        //   2. Use the copy constructor to create a `const` `Obj`, `VV`, from
+        //      `V`, and a `const` `Obj`, `WW`, from `W`.
+        //
+        //   3. Verify that `W - V` returns `DELTA` and that `V - W` returns
+        //      `-DELTA`.  (C-1..2)
+        //
+        //   4. Use the equality-comparison operator to verify that `V` and `W`
+        //      still have the same values as those of `VV` and `WW`,
+        //      respectively.  (C-3)
         //
         // Testing:
         //   int operator-(const Date& lhs, const Date& rhs);
@@ -1231,7 +1231,7 @@ if (verbose)
             (void)operatorSub;  // quash potential compiler warnings
         }
 
-        if (verbose) cout << "\nTesting 'operator-(Date, Date)'." << endl;
+        if (verbose) cout << "\nTesting `operator-(Date, Date)`." << endl;
         {
             const int NUM_DATA                 = ALT_NUM_DATA;
             const AltDataRow (&DATA)[NUM_DATA] = ALT_DATA;
@@ -1268,143 +1268,143 @@ if (verbose)
         //   initial dates by the specified (signed) number of days.
         //
         // Concerns:
-        //: 1 Each compound assignment operator can change the value of any
-        //:   modifiable target object based on any source 'numDays' value that
-        //:   does not violate the method's documented preconditions.
-        //:
-        //: 2 The reference returned from each compound assignment operator is
-        //:   to the target object (i.e., '*this').
-        //:
-        //: 3 The signatures and return types of the compound assignment
-        //:   operators are standard.
-        //:
-        //: 4 The object returned from the free 'operator+' ('operator-') has
-        //:   a date value that represents the sum (difference) of those of the
-        //:   two operands.
-        //:
-        //: 5 Each of the free operators accepts the contractually specified
-        //:   range of argument values.
-        //:
-        //: 6 The value of the source date object supplied to each of the free
-        //:   operators is not modified.
-        //:
-        //: 7 Non-modifiable objects can be added and subtracted by the free
-        //:   operators (i.e., objects or references providing only
-        //:   non-modifiable access).
-        //:
-        //: 8 The free operators' signatures and return types are standard.
-        //:
-        //: 9 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Each compound assignment operator can change the value of any
+        //    modifiable target object based on any source `numDays` value that
+        //    does not violate the method's documented preconditions.
+        //
+        // 2. The reference returned from each compound assignment operator is
+        //    to the target object (i.e., `*this`).
+        //
+        // 3. The signatures and return types of the compound assignment
+        //    operators are standard.
+        //
+        // 4. The object returned from the free `operator+` (`operator-`) has
+        //    a date value that represents the sum (difference) of those of the
+        //    two operands.
+        //
+        // 5. Each of the free operators accepts the contractually specified
+        //    range of argument values.
+        //
+        // 6. The value of the source date object supplied to each of the free
+        //    operators is not modified.
+        //
+        // 7. Non-modifiable objects can be added and subtracted by the free
+        //    operators (i.e., objects or references providing only
+        //    non-modifiable access).
+        //
+        // 8. The free operators' signatures and return types are standard.
+        //
+        // 9. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator+=' and 'operator-=' to
-        //:   initialize member-function pointers having the appropriate
-        //:   signatures and return types for the two compound assignment
-        //:   operators defined in this component.  (C-3)
-        //:
-        //: 2 Use the respective addresses of 'operator+' and 'operator-' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the three non-homogeneous, free binary
-        //:   arithmetic operators defined in this component.  (C-7..8)
-        //:
-        //: 3 Using the table-driven technique, specify a set of distinct date
-        //:   object value pairs (one pair per row) in terms of their
-        //:   year/day-of-year representations, and the non-negative number of
-        //:   days ('NUM_DAYS') that the second date value ('W') is advanced
-        //:   from that of the first date value ('V').
-        //:
-        //: 4 For each row 'R' in the table of P-3:  (C-1..2)
-        //:
-        //:   1 Use the 2-argument value constructor to create two 'const'
-        //:     objects, 'V' and 'W', having the first and second date values
-        //:     from 'R', respectively.
-        //:
-        //:   2 To test 'operator+=':
-        //:
-        //:     1 Use the copy constructor to create a modifiable object, 'mX',
-        //:       from 'V'.
-        //:
-        //:     2 Use the '+=' compound assignment operator to add 'NUM_DAYS'
-        //:       to 'mX' ('mX += NUM_DAYS').
-        //:
-        //:     3 Verify that the address of the return value is the same as
-        //:       that of 'mX'.
-        //:
-        //:     4 Use the equality-comparison operator to verify that the
-        //:       target object, 'mX', now has the same value as that of 'W'.
-        //:
-        //:     5 Repeat steps similar to those described in P-4.2.1..4 except
-        //:       that, this time, create 'mX' from 'W', add '-NUM_DAYS' to
-        //:       'mX' ('mX += -NUM_DAYS'), and verify that 'mX' now has the
-        //:       same value as that of 'V'.
-        //:
-        //:   3 To test 'operator-=':  (C-1..2)
-        //:
-        //:     1 Use the copy constructor to create a modifiable object, 'mX',
-        //:       from 'W'.
-        //:
-        //:     2 Use the '-=' compound assignment operator to subtract
-        //:       'NUM_DAYS' from 'mX' ('mX -= NUM_DAYS').
-        //:
-        //:     3 Verify that the address of the return value is the same as
-        //:       that of 'mX'.  (C-2)
-        //:
-        //:     4 Use the equality-comparison operator to verify that the
-        //:       target object, 'mX', now has the same value as that of 'V'.
-        //:
-        //:     5 Repeat steps similar to those described in P-4.3.1..4 except
-        //:       that, this time, create 'mX' from 'V', subtract '-NUM_DAYS'
-        //:       from 'mX' ('mX -= -NUM_DAYS'), and verify that 'mX' now has
-        //:       the same value as that of 'W'.  (C-1)
-        //:
-        //: 5 For each row 'R' in the table of P-3:  (C-4..6)
-        //:
-        //:   1 Use the 2-argument value constructor to create two 'const'
-        //:     objects, 'V' and 'W', having the first and second date values
-        //:     from 'R', respectively.
-        //:
-        //:   2 Use the copy constructor to create a 'const' 'Obj', 'VV', from
-        //:     'V', and a 'const' 'Obj', 'WW', from 'W'.
-        //:
-        //:   3 To test free 'operator+':
-        //:
-        //:     1 Bind the return values of 'V + NUM_DAYS' and 'NUM_DAYS + V'
-        //:       to references 'X' and 'Y', respectively, providing only
-        //:       non-modifiable access.
-        //:
-        //:     2 Use the equality-comparison operator to verify that:
-        //:
-        //:       1 'X' and 'Y' have the same value as that of 'W'.
-        //:
-        //:       2 'V' still has the same value as that of 'VV'.
-        //:
-        //:     3 Repeat steps similar to those described in P-5.3.1..2 except
-        //:       that, this time, bind the return values of 'W + -NUM_DAYS'
-        //:       and '-NUM_DAYS + W' to 'X' and 'Y', respectively; then verify
-        //:       that 'X' and 'Y' have the same value as that of 'V', and that
-        //:       'W' still has the same value as that of 'WW'.
-        //:
-        //:   4 To test free 'operator-':  (C-4..6)
-        //:
-        //:     1 Bind the return value of 'W - NUM_DAYS' to a reference 'X'
-        //:       providing only non-modifiable access.
-        //:
-        //:     2 Use the equality-comparison operator to verify that:
-        //:
-        //:       1 'X' has the same value as that of 'V'.
-        //:
-        //:       2 'W' still has the same value as that of 'WW'.
-        //:
-        //:     3 Repeat steps similar to those described in P-5.4.1..2 except
-        //:       that, this time, bind the return value of 'V - -NUM_DAYS' to
-        //:       'X'; then verify that 'X' has the same value as that of 'W',
-        //:       and that 'V' still has the same value as that of 'VV'.
-        //:       (C-4..6)
-        //:
-        //: 6 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid date and 'numDays' values, but not
-        //:   triggered for adjacent valid ones (using the 'BSLS_ASSERTTEST_*'
-        //:   macros).  (C-9)
+        // 1. Use the respective addresses of `operator+=` and `operator-=` to
+        //    initialize member-function pointers having the appropriate
+        //    signatures and return types for the two compound assignment
+        //    operators defined in this component.  (C-3)
+        //
+        // 2. Use the respective addresses of `operator+` and `operator-` to
+        //    initialize function pointers having the appropriate signatures
+        //    and return types for the three non-homogeneous, free binary
+        //    arithmetic operators defined in this component.  (C-7..8)
+        //
+        // 3. Using the table-driven technique, specify a set of distinct date
+        //    object value pairs (one pair per row) in terms of their
+        //    year/day-of-year representations, and the non-negative number of
+        //    days (`NUM_DAYS`) that the second date value (`W`) is advanced
+        //    from that of the first date value (`V`).
+        //
+        // 4. For each row `R` in the table of P-3:  (C-1..2)
+        //
+        //   1. Use the 2-argument value constructor to create two `const`
+        //      objects, `V` and `W`, having the first and second date values
+        //      from `R`, respectively.
+        //
+        //   2. To test `operator+=`:
+        //
+        //     1. Use the copy constructor to create a modifiable object, `mX`,
+        //        from `V`.
+        //
+        //     2. Use the `+=` compound assignment operator to add `NUM_DAYS`
+        //        to `mX` (`mX += NUM_DAYS`).
+        //
+        //     3. Verify that the address of the return value is the same as
+        //        that of `mX`.
+        //
+        //     4. Use the equality-comparison operator to verify that the
+        //        target object, `mX`, now has the same value as that of `W`.
+        //
+        //     5. Repeat steps similar to those described in P-4.2.1..4 except
+        //        that, this time, create `mX` from `W`, add `-NUM_DAYS` to
+        //        `mX` (`mX += -NUM_DAYS`), and verify that `mX` now has the
+        //        same value as that of `V`.
+        //
+        //   3. To test `operator-=`:  (C-1..2)
+        //
+        //     1. Use the copy constructor to create a modifiable object, `mX`,
+        //        from `W`.
+        //
+        //     2. Use the `-=` compound assignment operator to subtract
+        //        `NUM_DAYS` from `mX` (`mX -= NUM_DAYS`).
+        //
+        //     3. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-2)
+        //
+        //     4. Use the equality-comparison operator to verify that the
+        //        target object, `mX`, now has the same value as that of `V`.
+        //
+        //     5. Repeat steps similar to those described in P-4.3.1..4 except
+        //        that, this time, create `mX` from `V`, subtract `-NUM_DAYS`
+        //        from `mX` (`mX -= -NUM_DAYS`), and verify that `mX` now has
+        //        the same value as that of `W`.  (C-1)
+        //
+        // 5. For each row `R` in the table of P-3:  (C-4..6)
+        //
+        //   1. Use the 2-argument value constructor to create two `const`
+        //      objects, `V` and `W`, having the first and second date values
+        //      from `R`, respectively.
+        //
+        //   2. Use the copy constructor to create a `const` `Obj`, `VV`, from
+        //      `V`, and a `const` `Obj`, `WW`, from `W`.
+        //
+        //   3. To test free `operator+`:
+        //
+        //     1. Bind the return values of `V + NUM_DAYS` and `NUM_DAYS + V`
+        //        to references `X` and `Y`, respectively, providing only
+        //        non-modifiable access.
+        //
+        //     2. Use the equality-comparison operator to verify that:
+        //
+        //       1. `X` and `Y` have the same value as that of `W`.
+        //
+        //       2. `V` still has the same value as that of `VV`.
+        //
+        //     3. Repeat steps similar to those described in P-5.3.1..2 except
+        //        that, this time, bind the return values of `W + -NUM_DAYS`
+        //        and `-NUM_DAYS + W` to `X` and `Y`, respectively; then verify
+        //        that `X` and `Y` have the same value as that of `V`, and that
+        //        `W` still has the same value as that of `WW`.
+        //
+        //   4. To test free `operator-`:  (C-4..6)
+        //
+        //     1. Bind the return value of `W - NUM_DAYS` to a reference `X`
+        //        providing only non-modifiable access.
+        //
+        //     2. Use the equality-comparison operator to verify that:
+        //
+        //       1. `X` has the same value as that of `V`.
+        //
+        //       2. `W` still has the same value as that of `WW`.
+        //
+        //     3. Repeat steps similar to those described in P-5.4.1..2 except
+        //        that, this time, bind the return value of `V - -NUM_DAYS` to
+        //        `X`; then verify that `X` has the same value as that of `W`,
+        //        and that `V` still has the same value as that of `VV`.
+        //        (C-4..6)
+        //
+        // 6. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid date and `numDays` values, but not
+        //    triggered for adjacent valid ones (using the `BSLS_ASSERTTEST_*`
+        //    macros).  (C-9)
         //
         // Testing:
         //   Date& operator+=(int numDays);
@@ -1450,7 +1450,7 @@ if (verbose)
             const int NUM_DATA                 = ALT_NUM_DATA;
             const AltDataRow (&DATA)[NUM_DATA] = ALT_DATA;
 
-            if (verbose) cout << "\nTesting 'operator+='." << endl;
+            if (verbose) cout << "\nTesting `operator+=`." << endl;
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE     = DATA[ti].d_line;
@@ -1484,7 +1484,7 @@ if (verbose)
                 }
             }
 
-            if (verbose) cout << "\nTesting 'operator-='." << endl;
+            if (verbose) cout << "\nTesting `operator-=`." << endl;
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE     = DATA[ti].d_line;
@@ -1518,7 +1518,7 @@ if (verbose)
                 }
             }
 
-            if (verbose) cout << "\nTesting 'operator+'." << endl;
+            if (verbose) cout << "\nTesting `operator+`." << endl;
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE     = DATA[ti].d_line;
@@ -1555,7 +1555,7 @@ if (verbose)
                 }
             }
 
-            if (verbose) cout << "\nTesting 'operator-(Date, int)'." << endl;
+            if (verbose) cout << "\nTesting `operator-(Date, int)`." << endl;
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE     = DATA[ti].d_line;
@@ -1757,112 +1757,112 @@ if (verbose)
         //   Ensure that the operators correctly adjust date values by one day.
         //
         // Concerns:
-        //: 1 The member and free '++' ('--') operators increment (decrement)
-        //:   the value of the target date object by one day.
-        //:
-        //: 2 The reference returned from the member operators is to the target
-        //:   object (i.e., '*this').
-        //:
-        //: 3 The date object returned from the free operators has the same
-        //:   value as the target object prior to the operation.
-        //:
-        //: 4 The operators' signatures and return types are standard.
-        //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The member and free `++` (`--`) operators increment (decrement)
+        //    the value of the target date object by one day.
+        //
+        // 2. The reference returned from the member operators is to the target
+        //    object (i.e., `*this`).
+        //
+        // 3. The date object returned from the free operators has the same
+        //    value as the target object prior to the operation.
+        //
+        // 4. The operators' signatures and return types are standard.
+        //
+        // 5. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'Obj::operator++' and
-        //:   'Obj::operator--' to initialize member-function pointers having
-        //:   the appropriate signatures and return types for the member
-        //:   pre-increment and pre-decrement operators defined in this
-        //:   component.
-        //:
-        //: 2 Use the respective addresses of 'bdlt::operator++' and
-        //:   'bdlt::operator--' to initialize function pointers having the
-        //:   appropriate signatures and return types for the free
-        //:   post-increment and post-decrement operators defined in this
-        //:   component.  (C-4)
-        //:
-        //: 3 Using the table-driven technique, specify a set of distinct date
-        //:   object value pairs (one pair per row) in terms of their
-        //:   year/day-of-year representations such that the second date value
-        //:   is advanced exactly one day from that of the first date value.
-        //:
-        //: 4 To test the pre-increment (member) operator, for each row 'R' in
-        //:   the table of P-3:
-        //:
-        //:   1 Use the 2-argument value constructor to create two 'const'
-        //:     objects, 'V' and 'W', having the first and second date values
-        //:     from 'R', respectively.
-        //:
-        //:   2 Use the copy constructor to create a modifiable object, 'mX',
-        //:     from 'V'.
-        //:
-        //:   3 Apply the pre-increment operator to 'mX'.
-        //:
-        //:   4 Use the equality-comparison operator to verify that 'mX' now
-        //:     has the same value as that of 'W'.
-        //:
-        //:   5 Verify that the address of the return value is the same as
-        //:     that of 'mX'.
-        //:
-        //: 5 To test the pre-decrement (member) operator, for each row 'R' in
-        //:   the table of P-3:  (C-2)
-        //:
-        //:   1 Use the 2-argument value constructor to create two 'const'
-        //:     objects, 'V' and 'W', having the first and second date values
-        //:     from 'R', respectively.
-        //:
-        //:   2 Use the copy constructor to create a modifiable object, 'mX',
-        //:     from 'W'.
-        //:
-        //:   3 Apply the pre-decrement operator to 'mX'.
-        //:
-        //:   4 Use the equality-comparison operator to verify that 'mX' now
-        //:     has the same value as that of 'V'.
-        //:
-        //:   5 Verify that the address of the return value is the same as
-        //:     that of 'mX'.  (C-2)
-        //:
-        //: 6 To test the post-increment (free) operator, for each row 'R' in
-        //:   the table of P-3:
-        //:
-        //:   1 Use the 2-argument value constructor to create two 'const'
-        //:     objects, 'V' and 'W', having the first and second date values
-        //:     from 'R', respectively.
-        //:
-        //:   2 Use the copy constructor to create a modifiable object, 'mX',
-        //:     from 'V'.
-        //:
-        //:   3 Apply the post-increment operator to 'mX', binding the return
-        //:     value to a reference, 'Y', providing only non-modifiable
-        //:     access.
-        //:
-        //:   4 Use the equality-comparison operator to verify that 'mX' now
-        //:     has the same value as that of 'W', but 'Y' has the same value
-        //:     as that of 'V'.
-        //:
-        //: 7 To test the post-decrement (free) operator, for each row 'R' in
-        //:   the table of P-3:  (C-1, 3)
-        //:
-        //:   1 Use the 2-argument value constructor to create two 'const'
-        //:     objects, 'V' and 'W', having the first and second date values
-        //:     from 'R', respectively.
-        //:
-        //:   2 Use the copy constructor to create a modifiable object, 'mX',
-        //:     from 'W'.
-        //:
-        //:   3 Apply the post-decrement operator to 'mX', binding the return
-        //:     value to a reference, 'Y', providing only non-modifiable
-        //:     access.
-        //:
-        //:   4 Use the equality-comparison operator to verify that 'mX' now
-        //:     has the same value as that of 'V', but 'Y' has the same value
-        //:     as that of 'W'.  (C-1, 3)
-        //:
-        //: 8 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid date values, but not triggered for adjacent
-        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
+        // 1. Use the respective addresses of `Obj::operator++` and
+        //    `Obj::operator--` to initialize member-function pointers having
+        //    the appropriate signatures and return types for the member
+        //    pre-increment and pre-decrement operators defined in this
+        //    component.
+        //
+        // 2. Use the respective addresses of `bdlt::operator++` and
+        //    `bdlt::operator--` to initialize function pointers having the
+        //    appropriate signatures and return types for the free
+        //    post-increment and post-decrement operators defined in this
+        //    component.  (C-4)
+        //
+        // 3. Using the table-driven technique, specify a set of distinct date
+        //    object value pairs (one pair per row) in terms of their
+        //    year/day-of-year representations such that the second date value
+        //    is advanced exactly one day from that of the first date value.
+        //
+        // 4. To test the pre-increment (member) operator, for each row `R` in
+        //    the table of P-3:
+        //
+        //   1. Use the 2-argument value constructor to create two `const`
+        //      objects, `V` and `W`, having the first and second date values
+        //      from `R`, respectively.
+        //
+        //   2. Use the copy constructor to create a modifiable object, `mX`,
+        //      from `V`.
+        //
+        //   3. Apply the pre-increment operator to `mX`.
+        //
+        //   4. Use the equality-comparison operator to verify that `mX` now
+        //      has the same value as that of `W`.
+        //
+        //   5. Verify that the address of the return value is the same as
+        //      that of `mX`.
+        //
+        // 5. To test the pre-decrement (member) operator, for each row `R` in
+        //    the table of P-3:  (C-2)
+        //
+        //   1. Use the 2-argument value constructor to create two `const`
+        //      objects, `V` and `W`, having the first and second date values
+        //      from `R`, respectively.
+        //
+        //   2. Use the copy constructor to create a modifiable object, `mX`,
+        //      from `W`.
+        //
+        //   3. Apply the pre-decrement operator to `mX`.
+        //
+        //   4. Use the equality-comparison operator to verify that `mX` now
+        //      has the same value as that of `V`.
+        //
+        //   5. Verify that the address of the return value is the same as
+        //      that of `mX`.  (C-2)
+        //
+        // 6. To test the post-increment (free) operator, for each row `R` in
+        //    the table of P-3:
+        //
+        //   1. Use the 2-argument value constructor to create two `const`
+        //      objects, `V` and `W`, having the first and second date values
+        //      from `R`, respectively.
+        //
+        //   2. Use the copy constructor to create a modifiable object, `mX`,
+        //      from `V`.
+        //
+        //   3. Apply the post-increment operator to `mX`, binding the return
+        //      value to a reference, `Y`, providing only non-modifiable
+        //      access.
+        //
+        //   4. Use the equality-comparison operator to verify that `mX` now
+        //      has the same value as that of `W`, but `Y` has the same value
+        //      as that of `V`.
+        //
+        // 7. To test the post-decrement (free) operator, for each row `R` in
+        //    the table of P-3:  (C-1, 3)
+        //
+        //   1. Use the 2-argument value constructor to create two `const`
+        //      objects, `V` and `W`, having the first and second date values
+        //      from `R`, respectively.
+        //
+        //   2. Use the copy constructor to create a modifiable object, `mX`,
+        //      from `W`.
+        //
+        //   3. Apply the post-decrement operator to `mX`, binding the return
+        //      value to a reference, `Y`, providing only non-modifiable
+        //      access.
+        //
+        //   4. Use the equality-comparison operator to verify that `mX` now
+        //      has the same value as that of `V`, but `Y` has the same value
+        //      as that of `W`.  (C-1, 3)
+        //
+        // 8. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid date values, but not triggered for adjacent
+        //    valid ones (using the `BSLS_ASSERTTEST_*` macros).  (C-5)
         //
         // Testing:
         //   Date& operator++();
@@ -1943,7 +1943,7 @@ if (verbose)
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
-            if (verbose) cout << "\nTesting member 'operator++'." << endl;
+            if (verbose) cout << "\nTesting member `operator++`." << endl;
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE   = DATA[ti].d_line;
@@ -1969,7 +1969,7 @@ if (verbose)
                 LOOP_ASSERT(LINE, mR == &mX);
             }
 
-            if (verbose) cout << "\nTesting member 'operator--'." << endl;
+            if (verbose) cout << "\nTesting member `operator--`." << endl;
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE   = DATA[ti].d_line;
@@ -1995,7 +1995,7 @@ if (verbose)
                 LOOP_ASSERT(LINE, mR == &mX);
             }
 
-            if (verbose) cout << "\nTesting free 'operator++'." << endl;
+            if (verbose) cout << "\nTesting free `operator++`." << endl;
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE   = DATA[ti].d_line;
@@ -2021,7 +2021,7 @@ if (verbose)
                 LOOP_ASSERT(LINE, V == Y);
             }
 
-            if (verbose) cout << "\nTesting free 'operator--'." << endl;
+            if (verbose) cout << "\nTesting free `operator--`." << endl;
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE   = DATA[ti].d_line;
@@ -2052,7 +2052,7 @@ if (verbose)
         {
             bsls::AssertTestHandlerGuard hG;
 
-            if (verbose) cout << "\tMember 'operator++'" << endl;
+            if (verbose) cout << "\tMember `operator++`" << endl;
             {
                 const Obj V(9999, 364);
                 const Obj W(9999, 365);
@@ -2069,7 +2069,7 @@ if (verbose)
                 ASSERT(W == Y);
             }
 
-            if (verbose) cout << "\tMember 'operator--'" << endl;
+            if (verbose) cout << "\tMember `operator--`" << endl;
             {
                 const Obj V(1, 1);
                 const Obj W(1, 2);
@@ -2086,7 +2086,7 @@ if (verbose)
                 ASSERT(V == Y);
             }
 
-            if (verbose) cout << "\tFree 'operator++'" << endl;
+            if (verbose) cout << "\tFree `operator++`" << endl;
             {
                 const Obj V(9999, 364);
                 const Obj W(9999, 365);
@@ -2103,7 +2103,7 @@ if (verbose)
                 ASSERT(V == Y);
             }
 
-            if (verbose) cout << "\tFree 'operator--'" << endl;
+            if (verbose) cout << "\tFree `operator--`" << endl;
             {
                 const Obj V(1, 1);
                 const Obj W(1, 2);
@@ -2124,92 +2124,92 @@ if (verbose)
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // 'isValid*' METHODS AND CONDITIONAL SETTERS
+        // `isValid*` METHODS AND CONDITIONAL SETTERS
         //   Ensure that the methods correctly discriminate between valid and
         //   invalid date representations.
         //
         // Concerns:
-        //: 1 The 'isValidYearDay' method correctly categorizes every
-        //:   '(year, dayOfYear)' pair as either a valid or an invalid
-        //:   year/day-of-year date.
-        //:
-        //: 2 The 'isValidYearMonthDay' method correctly categorizes every
-        //:   '(year, month, day)' triple as either a valid or an invalid
-        //:   year/month/day date.
-        //:
-        //: 3 'setYearDayIfValid' can set an object to have any valid date
-        //:   value.
-        //:
-        //: 4 'setYearDayIfValid' is not affected by the state of the object on
-        //:   entry.
-        //:
-        //: 5 'setYearDayIfValid' has no effect on the object if the supplied
-        //:   '(year, dayOfYear)' pair is not a valid year/day-of-year date.
-        //:
-        //: 6 'setYearDayIfValid' returns 0 on success, and a non-zero value on
-        //:   failure.
-        //:
-        //: 7 'setYearMonthDayIfValid' can set an object to have any valid date
-        //:   value.
-        //:
-        //: 8 'setYearMonthDayIfValid' is not affected by the state of the
-        //:   object on entry.
-        //:
-        //: 9 'setYearMonthDayIfValid' has no effect on the object if the
-        //:   supplied (year, month, day) triple is not a valid year/month/day
-        //:   date.
-        //:
-        //:10 'setYearMonthDayIfValid' returns 0 on success, and a non-zero
-        //:   value on failure.
+        // 1. The `isValidYearDay` method correctly categorizes every
+        //    `(year, dayOfYear)` pair as either a valid or an invalid
+        //    year/day-of-year date.
+        //
+        // 2. The `isValidYearMonthDay` method correctly categorizes every
+        //    `(year, month, day)` triple as either a valid or an invalid
+        //    year/month/day date.
+        //
+        // 3. `setYearDayIfValid` can set an object to have any valid date
+        //    value.
+        //
+        // 4. `setYearDayIfValid` is not affected by the state of the object on
+        //    entry.
+        //
+        // 5. `setYearDayIfValid` has no effect on the object if the supplied
+        //    `(year, dayOfYear)` pair is not a valid year/day-of-year date.
+        //
+        // 6. `setYearDayIfValid` returns 0 on success, and a non-zero value on
+        //    failure.
+        //
+        // 7. `setYearMonthDayIfValid` can set an object to have any valid date
+        //    value.
+        //
+        // 8. `setYearMonthDayIfValid` is not affected by the state of the
+        //    object on entry.
+        //
+        // 9. `setYearMonthDayIfValid` has no effect on the object if the
+        //    supplied (year, month, day) triple is not a valid year/month/day
+        //    date.
+        //
+        // 10. `setYearMonthDayIfValid` returns 0 on success, and a non-zero
+        //    value on failure.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   *candidate* year/day-of-year date representations, and a flag
-        //:   value indicating whether the year/day-of-year values represent a
-        //:   valid date object.
-        //:
-        //: 2 For each row 'R' in the table of P-1:  (C-1, 3..6)
-        //:
-        //:   1 Verify that the 'isValidYearDay' method, when invoked on the
-        //:     year/day-of-year values from 'R', returns the expected value.
-        //:     (C-1)
-        //:
-        //:   2 Use the 2-argument value constructor to create a modifiable
-        //:     object, 'mX', having a value distinct from any of the (valid)
-        //:     values in 'R'.
-        //:
-        //:   3 Verify that the 'setYearDayIfValid' method, when invoked on
-        //:     'mX' and passed the year/day-of-year values from 'R', returns
-        //:     the expected value.  (C-6)
-        //:
-        //:   4 Verify, using the equality-comparison operator, that 'mX' has
-        //:     the expected value, i.e., 'mX' has the value from 'R' when
-        //:     'setYearDayIfValid' returns 0, and its value is unchanged
-        //:     otherwise.  (C-3..5)
-        //:
-        //: 3 Using the table-driven technique, specify a set of distinct
-        //:   *candidate* year/month/day date representations, and a flag
-        //:   value indicating whether the year/month/day values represent a
-        //:   valid date object.
-        //:
-        //: 4 For each row 'R' in the table of P-3:  (C-2, 7..10)
-        //:
-        //:   1 Verify that the 'isValidYearMonthDay' method, when invoked on
-        //:     the year/month/day values from 'R', returns the expected value.
-        //:     (C-2)
-        //:
-        //:   2 Use the 3-argument value constructor to create a modifiable
-        //:     object, 'mX', having a value distinct from any of the (valid)
-        //:     values in 'R'.
-        //:
-        //:   3 Verify that the 'setYearMonthDayIfValid' method, when invoked
-        //:     on 'mX' and passed the year/month/day values from 'R', returns
-        //:     the expected value.  (C-10)
-        //:
-        //:   4 Verify, using the equality-comparison operator, that 'mX' has
-        //:     the expected value, i.e., 'mX' has the value from 'R' when
-        //:     'setYearMonthDayIfValid' returns 0, and its value is unchanged
-        //:     otherwise.  (C-7..9)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    *candidate* year/day-of-year date representations, and a flag
+        //    value indicating whether the year/day-of-year values represent a
+        //    valid date object.
+        //
+        // 2. For each row `R` in the table of P-1:  (C-1, 3..6)
+        //
+        //   1. Verify that the `isValidYearDay` method, when invoked on the
+        //      year/day-of-year values from `R`, returns the expected value.
+        //      (C-1)
+        //
+        //   2. Use the 2-argument value constructor to create a modifiable
+        //      object, `mX`, having a value distinct from any of the (valid)
+        //      values in `R`.
+        //
+        //   3. Verify that the `setYearDayIfValid` method, when invoked on
+        //      `mX` and passed the year/day-of-year values from `R`, returns
+        //      the expected value.  (C-6)
+        //
+        //   4. Verify, using the equality-comparison operator, that `mX` has
+        //      the expected value, i.e., `mX` has the value from `R` when
+        //      `setYearDayIfValid` returns 0, and its value is unchanged
+        //      otherwise.  (C-3..5)
+        //
+        // 3. Using the table-driven technique, specify a set of distinct
+        //    *candidate* year/month/day date representations, and a flag
+        //    value indicating whether the year/month/day values represent a
+        //    valid date object.
+        //
+        // 4. For each row `R` in the table of P-3:  (C-2, 7..10)
+        //
+        //   1. Verify that the `isValidYearMonthDay` method, when invoked on
+        //      the year/month/day values from `R`, returns the expected value.
+        //      (C-2)
+        //
+        //   2. Use the 3-argument value constructor to create a modifiable
+        //      object, `mX`, having a value distinct from any of the (valid)
+        //      values in `R`.
+        //
+        //   3. Verify that the `setYearMonthDayIfValid` method, when invoked
+        //      on `mX` and passed the year/month/day values from `R`, returns
+        //      the expected value.  (C-10)
+        //
+        //   4. Verify, using the equality-comparison operator, that `mX` has
+        //      the expected value, i.e., `mX` has the value from `R` when
+        //      `setYearMonthDayIfValid` returns 0, and its value is unchanged
+        //      otherwise.  (C-7..9)
         //
         // Testing:
         //   static bool isValidYearDay(int year, int dayOfYear);
@@ -2227,14 +2227,14 @@ if (verbose)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "'isValid*' METHODS AND CONDITIONAL SETTERS"
+                          << "`isValid*` METHODS AND CONDITIONAL SETTERS"
                           << endl
                           << "=========================================="
                           << endl;
 
         if (verbose)
-            cout << "\nTesting 'isValidYearDay(year, dayOfYear)'"
-                    " and 'setYearDayIfValid'."
+            cout << "\nTesting `isValidYearDay(year, dayOfYear)`"
+                    " and `setYearDayIfValid`."
                  << endl;
         {
             static const struct {
@@ -2334,7 +2334,7 @@ if (verbose)
                     if (veryVeryVerbose) { T_ T_ P_(W) P(X) }
                 }
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
-                // '[isValid|validateAndSetYearDay](year, dayOfYear)'
+                // `[isValid|validateAndSetYearDay](year, dayOfYear)`
 
                 {
                     LOOP_ASSERT(LINE, !!EXP == Obj::isValid(YEAR, DAY));
@@ -2367,8 +2367,8 @@ if (verbose)
         }
 
         if (verbose)
-            cout << "\nTesting 'isValidYearMonthDay(year, month, day)'"
-                    " and 'setYearMonthDayIfValid'."
+            cout << "\nTesting `isValidYearMonthDay(year, month, day)`"
+                    " and `setYearMonthDayIfValid`."
                  << endl;
         {
             static const struct {
@@ -2541,7 +2541,7 @@ if (verbose)
                     if (veryVeryVerbose) { T_ T_ P_(W) P(X) }
                 }
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
-                // '[isValid|validateAndSetYearMonthDay](year, month, day)'
+                // `[isValid|validateAndSetYearMonthDay](year, month, day)`
 
                 {
                     LOOP_ASSERT(LINE, !!EXP == Obj::isValid(YEAR, MONTH, DAY));
@@ -2585,86 +2585,86 @@ if (verbose)
         //   that the accessors properly interpret object state.
         //
         // Concerns:
-        //: 1 The 2-argument value constructor can create an object to have any
-        //:   value that does not violate the method's documented
-        //:   preconditions.
-        //:
-        //: 2 The 'setYearDay' method can set an object to have any value that
-        //:   does not violate the method's documented preconditions.
-        //:
-        //: 3 'setYearDay' is not affected by the state of the object on entry.
-        //:
-        //: 4 The 'dayOfYear' method returns the value of the day-of-year
-        //:   attribute of the date.
-        //:
-        //: 5 The 'getYearDay' method returns the values of the
-        //:   year/day-of-year attributes of the date.
-        //:
-        //: 6 The 'dayOfYear' and 'getYearDay' accessor methods are declared
-        //:   'const'.
-        //:
-        //: 7 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The 2-argument value constructor can create an object to have any
+        //    value that does not violate the method's documented
+        //    preconditions.
+        //
+        // 2. The `setYearDay` method can set an object to have any value that
+        //    does not violate the method's documented preconditions.
+        //
+        // 3. `setYearDay` is not affected by the state of the object on entry.
+        //
+        // 4. The `dayOfYear` method returns the value of the day-of-year
+        //    attribute of the date.
+        //
+        // 5. The `getYearDay` method returns the values of the
+        //    year/day-of-year attributes of the date.
+        //
+        // 6. The `dayOfYear` and `getYearDay` accessor methods are declared
+        //    `const`.
+        //
+        // 7. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their (equivalent)
-        //:   year/day-of-year and year/month/day representations.
-        //:
-        //: 2 For each row 'R1' in the table of P-1:  (C-2..4)
-        //:
-        //:   1 Use the 3-argument value constructor to create a 'const'
-        //:     object, 'W', having the value specified by the year/month/day
-        //:     representation in 'R1'.
-        //:
-        //:   2 Create an object 'X' using the default constructor.
-        //:
-        //:   3 Use the 'setYearDay' manipulator to set 'X' to the value
-        //:     specified by the year/day-of-year representation in 'R1'.
-        //:
-        //:   4 Use the equality-comparison operator to verify that 'X' has the
-        //:     same value as that of 'W'.  (C-2)
-        //:
-        //:   5 Verify that the 'year' and 'dayOfYear' accessors applied to 'X'
-        //:     return the expected values.  (C-4)
-        //:
-        //:   6 For each row 'R2' in the table of P-1:  (C-3)
-        //:
-        //:     1 Use the 3-argument value constructor to create a modifiable
-        //:       object, 'mY', having the value specified by the
-        //:       year/month/day representation in 'R2'.
-        //:
-        //:     2 Use 'setYearDay' to set 'mY' to the value specified by the
-        //:       year/day-of-year representation in 'R1'.
-        //:
-        //:     3 Use the equality-comparison operator to verify that 'mY' has
-        //:       the same value as that of 'W'.  (C-3)
-        //:
-        //:     4 Verify that the 'year' and 'dayOfYear' accessors applied to
-        //:       'mY' return the expected values.
-        //:
-        //: 3 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their year/day-of-year
-        //:   representation.
-        //:
-        //: 4 For each row 'R' in the table of P-3:  (C-1, 5..6)
-        //:
-        //:   1 Create an object 'W' using the default constructor, then use
-        //:     'setYearDay' to set 'W' to the value in 'R'.
-        //:
-        //:   2 Also use the 2-argument value constructor to create a 'const'
-        //:     object, 'X', having the value from 'R'.
-        //:
-        //:   3 Use the equality-comparison operator to verify that 'X' has the
-        //:     same value as that of 'W'.  (C-1)
-        //:
-        //:   4 Verify that 'getYearDay', invoked on 'X', returns the same two
-        //:     values as are individually returned by the 'year' and
-        //:     'dayOfYear' accessors.  (C-5..6)
-        //:
-        //: 5 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid year/day-of-year attribute values, but not
-        //:   triggered for adjacent valid ones (using the 'BSLS_ASSERTTEST_*'
-        //:   macros).  (C-7)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their (equivalent)
+        //    year/day-of-year and year/month/day representations.
+        //
+        // 2. For each row `R1` in the table of P-1:  (C-2..4)
+        //
+        //   1. Use the 3-argument value constructor to create a `const`
+        //      object, `W`, having the value specified by the year/month/day
+        //      representation in `R1`.
+        //
+        //   2. Create an object `X` using the default constructor.
+        //
+        //   3. Use the `setYearDay` manipulator to set `X` to the value
+        //      specified by the year/day-of-year representation in `R1`.
+        //
+        //   4. Use the equality-comparison operator to verify that `X` has the
+        //      same value as that of `W`.  (C-2)
+        //
+        //   5. Verify that the `year` and `dayOfYear` accessors applied to `X`
+        //      return the expected values.  (C-4)
+        //
+        //   6. For each row `R2` in the table of P-1:  (C-3)
+        //
+        //     1. Use the 3-argument value constructor to create a modifiable
+        //        object, `mY`, having the value specified by the
+        //        year/month/day representation in `R2`.
+        //
+        //     2. Use `setYearDay` to set `mY` to the value specified by the
+        //        year/day-of-year representation in `R1`.
+        //
+        //     3. Use the equality-comparison operator to verify that `mY` has
+        //        the same value as that of `W`.  (C-3)
+        //
+        //     4. Verify that the `year` and `dayOfYear` accessors applied to
+        //        `mY` return the expected values.
+        //
+        // 3. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their year/day-of-year
+        //    representation.
+        //
+        // 4. For each row `R` in the table of P-3:  (C-1, 5..6)
+        //
+        //   1. Create an object `W` using the default constructor, then use
+        //      `setYearDay` to set `W` to the value in `R`.
+        //
+        //   2. Also use the 2-argument value constructor to create a `const`
+        //      object, `X`, having the value from `R`.
+        //
+        //   3. Use the equality-comparison operator to verify that `X` has the
+        //      same value as that of `W`.  (C-1)
+        //
+        //   4. Verify that `getYearDay`, invoked on `X`, returns the same two
+        //      values as are individually returned by the `year` and
+        //      `dayOfYear` accessors.  (C-5..6)
+        //
+        // 5. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid year/day-of-year attribute values, but not
+        //    triggered for adjacent valid ones (using the `BSLS_ASSERTTEST_*`
+        //    macros).  (C-7)
         //
         // Testing:
         //   Date(int year, int dayOfYear);
@@ -2677,7 +2677,7 @@ if (verbose)
                           << "2-ARGUMENT VALUE CTOR AND METHODS" << endl
                           << "=================================" << endl;
 
-        if (verbose) cout << "\nTesting 'setYearDay' and 'dayOfYear'." << endl;
+        if (verbose) cout << "\nTesting `setYearDay` and `dayOfYear`." << endl;
         {
             static const struct {
                 int d_line;        // source line number
@@ -2773,7 +2773,7 @@ if (verbose)
         }
 
         if (verbose)
-            cout << "\nTesting 'Date(year, dayOfYear)' and 'getYearDay'."
+            cout << "\nTesting `Date(year, dayOfYear)` and `getYearDay`."
                  << endl;
         {
             static const struct {
@@ -2922,56 +2922,56 @@ if (verbose)
         //   3-argument getter properly interprets object state.
         //
         // Concerns:
-        //: 1 An object created with the default constructor has the
-        //:   contractually specified default value.
-        //:
-        //: 2 The 'setYearMonthDay' method can set an object to have any value
-        //:   that does not violate the method's documented preconditions.
-        //:
-        //: 3 'setYearMonthDay' is not affected by the state of the object on
-        //:   entry.
-        //:
-        //: 4 The 'getYearMonthDay' method returns the values of the
-        //:   year/month/day attributes of the object.
-        //:
-        //: 5 The 'getYearMonthDay' accessor method is declared 'const'.
-        //:
-        //: 6 QoI: Asserted precondition violations are detected when enabled.
+        // 1. An object created with the default constructor has the
+        //    contractually specified default value.
+        //
+        // 2. The `setYearMonthDay` method can set an object to have any value
+        //    that does not violate the method's documented preconditions.
+        //
+        // 3. `setYearMonthDay` is not affected by the state of the object on
+        //    entry.
+        //
+        // 4. The `getYearMonthDay` method returns the values of the
+        //    year/month/day attributes of the object.
+        //
+        // 5. The `getYearMonthDay` accessor method is declared `const`.
+        //
+        // 6. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create an object using the default constructor.  Verify, using
-        //:   the 'year', 'month', and 'day' accessors, that the resulting
-        //:   object has a value of 0001/01/01.  (C-1)
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their year/month/day
-        //:   representation.
-        //:
-        //: 3 For each row 'R1' in the table of P-2:  (C-2..5)
-        //:
-        //:   1 Use the 3-argument value constructor to create a modifiable
-        //:     object, 'mX', from 'R1'.
-        //:
-        //:   2 For each row 'R2' in the table of P-2:  (C-2..5)
-        //:
-        //:     1 Use the 3-argument value constructor to create a 'const'
-        //:       object, 'W', having the value from 'R2'.
-        //:
-        //:     2 Use 'setYearMonthDay' to set 'mX' to the value specified
-        //:       in 'R2'.
-        //:
-        //:     3 Use the equality-comparison operator to verify that 'mX' now
-        //:       has the same value as that of 'W'.  (C-2..3)
-        //:
-        //:     4 Verify that 'getYearMonthDay', invoked on a reference
-        //:       providing only 'const' access to 'mX', returns the same three
-        //:       values as are individually returned by the 'year', 'month',
-        //:       and 'day' basic accessors.  (C-4..5)
-        //:
-        //: 4 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid year/month/day attribute values, but not
-        //:   triggered for adjacent valid ones (using the 'BSLS_ASSERTTEST_*'
-        //:   macros).  (C-6)
+        // 1. Create an object using the default constructor.  Verify, using
+        //    the `year`, `month`, and `day` accessors, that the resulting
+        //    object has a value of 0001/01/01.  (C-1)
+        //
+        // 2. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their year/month/day
+        //    representation.
+        //
+        // 3. For each row `R1` in the table of P-2:  (C-2..5)
+        //
+        //   1. Use the 3-argument value constructor to create a modifiable
+        //      object, `mX`, from `R1`.
+        //
+        //   2. For each row `R2` in the table of P-2:  (C-2..5)
+        //
+        //     1. Use the 3-argument value constructor to create a `const`
+        //        object, `W`, having the value from `R2`.
+        //
+        //     2. Use `setYearMonthDay` to set `mX` to the value specified
+        //        in `R2`.
+        //
+        //     3. Use the equality-comparison operator to verify that `mX` now
+        //        has the same value as that of `W`.  (C-2..3)
+        //
+        //     4. Verify that `getYearMonthDay`, invoked on a reference
+        //        providing only `const` access to `mX`, returns the same three
+        //        values as are individually returned by the `year`, `month`,
+        //        and `day` basic accessors.  (C-4..5)
+        //
+        // 4. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid year/month/day attribute values, but not
+        //    triggered for adjacent valid ones (using the `BSLS_ASSERTTEST_*`
+        //    macros).  (C-6)
         //
         // Testing:
         //   Date();
@@ -2997,7 +2997,7 @@ if (verbose)
         }
 
         if (verbose)
-            cout << "\nTesting 'setYearMonthDay' and 'getYearMonthDay'."
+            cout << "\nTesting `setYearMonthDay` and `getYearMonthDay`."
                  << endl;
         {
             if (verbose) cout << "\nUse a table of distinct object values."
@@ -3138,83 +3138,83 @@ if (verbose)
         //   neutrality.
         //
         // Concerns:
-        //: 1 The class method 'maxSupportedBdexVersion' returns the correct
-        //:   version to be used for the specified 'versionSelector'.
-        //:
-        //: 2 The 'bdexStreamOut' method is callable on a reference providing
-        //:   only non-modifiable access.
-        //:
-        //: 3 For valid streams, externalization and unexternalization are
-        //:   inverse operations.
-        //:
-        //: 4 For invalid streams, externalization leaves the stream invalid
-        //:   and unexternalization does not alter the value of the object and
-        //:   leaves the stream invalid.
-        //:
-        //: 5 Unexternalizing of incomplete, invalid, or corrupted data results
-        //:   in a valid object of unspecified value and an invalidated stream.
-        //:
-        //: 6 The wire format of the object is as expected.
-        //:
-        //: 7 All methods are exception neutral.
-        //:
-        //: 8 The 'bdexStreamIn' and 'bdexStreamOut' methods return a reference
-        //:   to the provided stream in all situations.
-        //:
-        //: 9 The initial value of the object has no affect on
-        //:   unexternalization.
+        // 1. The class method `maxSupportedBdexVersion` returns the correct
+        //    version to be used for the specified `versionSelector`.
+        //
+        // 2. The `bdexStreamOut` method is callable on a reference providing
+        //    only non-modifiable access.
+        //
+        // 3. For valid streams, externalization and unexternalization are
+        //    inverse operations.
+        //
+        // 4. For invalid streams, externalization leaves the stream invalid
+        //    and unexternalization does not alter the value of the object and
+        //    leaves the stream invalid.
+        //
+        // 5. Unexternalizing of incomplete, invalid, or corrupted data results
+        //    in a valid object of unspecified value and an invalidated stream.
+        //
+        // 6. The wire format of the object is as expected.
+        //
+        // 7. All methods are exception neutral.
+        //
+        // 8. The `bdexStreamIn` and `bdexStreamOut` methods return a reference
+        //    to the provided stream in all situations.
+        //
+        // 9. The initial value of the object has no affect on
+        //    unexternalization.
         //
         // Plan:
-        //: 1 Test 'maxSupportedBdexVersion' explicitly.  (C-1)
-        //:
-        //: 2 All calls to the 'bdexStreamOut' accessor will be done from a
-        //:   'const' object or reference and all calls to the 'bdexStreamOut'
-        //:   free function (provided by 'bslx') will be supplied a 'const'
-        //:   object or reference.  (C-2)
-        //:
-        //: 3 Perform a direct test of the 'bdexStreamOut' and 'bdexStreamIn'
-        //:   methods (the rest of the testing will use the free functions
-        //:   'bslx::OutStreamFunctions::bdexStreamOut' and
-        //:   'bslx::InStreamFunctions::bdexStreamIn').
-        //:
-        //: 4 Define a set 'S' of test values to be used throughout the test
-        //:   case.
-        //:
-        //: 5 For all '(u, v)' in the cross product 'S X S', stream the value
-        //:   of 'u' into (a temporary copy of) 'v', 'T', and assert 'T == u'.
-        //:   (C-3, 9)
-        //:
-        //: 6 For all 'u' in 'S', create a copy of 'u' and attempt to stream
-        //:   into it from an invalid stream.  Verify after each attempt that
-        //:   the object is unchanged and that the stream is invalid.  (C-4)
-        //:
-        //: 7 Write 3 distinct objects to an output stream buffer of total
-        //:   length 'N'.  For each partial stream length from 0 to 'N - 1',
-        //:   construct an input stream and attempt to read into objects
-        //:   initialized with distinct values.  Verify values of objects
-        //:   that are either successfully modified or left entirely
-        //:   unmodified, and that the stream became invalid immediately after
-        //:   the first incomplete read.  Finally, ensure that each object
-        //:   streamed into is in some valid state.
-        //:
-        //: 8 Use the underlying stream package to simulate a typical valid
-        //:   (control) stream and verify that it can be streamed in
-        //:   successfully.  Then for each data field in the stream (beginning
-        //:   with the version number), provide one or more similar tests with
-        //:   that data field corrupted.  After each test, verify that the
-        //:   object is in some valid state after streaming, and that the
-        //:   input stream has become invalid.  (C-5)
-        //:
-        //: 9 Explicitly test the wire format.  (C-6)
-        //:
-        //:10 In all cases, confirm exception neutrality using the specially
-        //:   instrumented 'bslx::TestInStream' and a pair of standard macros,
-        //:   'BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN' and
-        //:   'BSLX_TESTINSTREAM_EXCEPTION_TEST_END', which configure the
-        //:   'bslx::TestInStream' object appropriately in a loop.  (C-7)
-        //:
-        //:11 In all cases, verify the return value of the tested method.
-        //:   (C-8)
+        // 1. Test `maxSupportedBdexVersion` explicitly.  (C-1)
+        //
+        // 2. All calls to the `bdexStreamOut` accessor will be done from a
+        //    `const` object or reference and all calls to the `bdexStreamOut`
+        //    free function (provided by `bslx`) will be supplied a `const`
+        //    object or reference.  (C-2)
+        //
+        // 3. Perform a direct test of the `bdexStreamOut` and `bdexStreamIn`
+        //    methods (the rest of the testing will use the free functions
+        //    `bslx::OutStreamFunctions::bdexStreamOut` and
+        //    `bslx::InStreamFunctions::bdexStreamIn`).
+        //
+        // 4. Define a set `S` of test values to be used throughout the test
+        //    case.
+        //
+        // 5. For all `(u, v)` in the cross product `S X S`, stream the value
+        //    of `u` into (a temporary copy of) `v`, `T`, and assert `T == u`.
+        //    (C-3, 9)
+        //
+        // 6. For all `u` in `S`, create a copy of `u` and attempt to stream
+        //    into it from an invalid stream.  Verify after each attempt that
+        //    the object is unchanged and that the stream is invalid.  (C-4)
+        //
+        // 7. Write 3 distinct objects to an output stream buffer of total
+        //    length `N`.  For each partial stream length from 0 to `N - 1`,
+        //    construct an input stream and attempt to read into objects
+        //    initialized with distinct values.  Verify values of objects
+        //    that are either successfully modified or left entirely
+        //    unmodified, and that the stream became invalid immediately after
+        //    the first incomplete read.  Finally, ensure that each object
+        //    streamed into is in some valid state.
+        //
+        // 8. Use the underlying stream package to simulate a typical valid
+        //    (control) stream and verify that it can be streamed in
+        //    successfully.  Then for each data field in the stream (beginning
+        //    with the version number), provide one or more similar tests with
+        //    that data field corrupted.  After each test, verify that the
+        //    object is in some valid state after streaming, and that the
+        //    input stream has become invalid.  (C-5)
+        //
+        // 9. Explicitly test the wire format.  (C-6)
+        //
+        // 10. In all cases, confirm exception neutrality using the specially
+        //    instrumented `bslx::TestInStream` and a pair of standard macros,
+        //    `BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN` and
+        //    `BSLX_TESTINSTREAM_EXCEPTION_TEST_END`, which configure the
+        //    `bslx::TestInStream` object appropriately in a loop.  (C-7)
+        //
+        // 11. In all cases, verify the return value of the tested method.
+        //    (C-8)
         //
         // Testing:
         //   static int maxSupportedBdexVersion(int versionSelector);
@@ -3250,7 +3250,7 @@ if (verbose)
                               static_cast<int>(sizeof VALUES / sizeof *VALUES);
 
         if (verbose) {
-            cout << "\nTesting 'maxSupportedBdexVersion'." << endl;
+            cout << "\nTesting `maxSupportedBdexVersion`." << endl;
         }
         {
             ASSERT(1 == Obj::maxSupportedBdexVersion(0));
@@ -3267,8 +3267,8 @@ if (verbose)
         const int VERSION = Obj::maxSupportedBdexVersion(0);
 
         if (verbose) {
-            cout << "\nDirect initial trial of 'bdexStreamOut' and (valid) "
-                 << "'bdexStreamIn' functionality." << endl;
+            cout << "\nDirect initial trial of `bdexStreamOut` and (valid) "
+                 << "`bdexStreamIn` functionality." << endl;
         }
         {
             const Obj X(VC);
@@ -3295,13 +3295,13 @@ if (verbose)
             ASSERT(in.isEmpty());
         }
 
-        // We will use the stream free functions provided by 'bslx', as opposed
-        // to the class member functions, since the 'bslx' implementation gives
+        // We will use the stream free functions provided by `bslx`, as opposed
+        // to the class member functions, since the `bslx` implementation gives
         // priority to the free function implementations; we want to test what
         // will be used.  Furthermore, toward making this test case more
         // reusable in other components, from here on we generally use the
-        // 'bdexStreamIn' and 'bdexStreamOut' free functions that are defined
-        // in the 'bslx' package rather than call the like-named member
+        // `bdexStreamIn` and `bdexStreamOut` free functions that are defined
+        // in the `bslx` package rather than call the like-named member
         // functions directly.
 
         if (verbose) {
@@ -3507,7 +3507,7 @@ if (verbose)
                         LOOP_ASSERT(i, !in);
                         LOOP_ASSERT(i, W3 == T3);
                     }
-                    else {  // 'LOD2 <= i < LOD3'
+                    else {  // `LOD2 <= i < LOD3`
                         In& rvIn1 = bdexStreamIn(in, mT1, VERSION);
                         LOOP_ASSERT(i, &in == &rvIn1);
                         LOOP_ASSERT(i,  in);
@@ -3549,9 +3549,9 @@ if (verbose)
         ASSERT(X != Y);
 
 #ifdef BDE_USE_PROLEPTIC_DATES
-        const int SERIAL_Y = 733;   // streamed rep. of 'Y'
+        const int SERIAL_Y = 733;   // streamed rep. of `Y`
 #else
-        const int SERIAL_Y = 731;   // streamed rep. of 'Y'
+        const int SERIAL_Y = 731;   // streamed rep. of `Y`
 #endif
 
         if (verbose) {
@@ -3581,7 +3581,7 @@ if (verbose)
             cout << "\t\tBad version." << endl;
         }
         {
-            const char version = 0; // too small ('version' must be >= 1)
+            const char version = 0; // too small (`version` must be >= 1)
 
             Out out(VERSION_SELECTOR, &allocator);
             out.putInt24(SERIAL_Y);  // Stream out "new" value.
@@ -3811,68 +3811,68 @@ if (verbose)
         //   have the same value.
         //
         // Concerns:
-        //: 1 The assignment operator can change the value of any modifiable
-        //:   target object to that of any source object.
-        //:
-        //: 2 The signature and return type are standard.
-        //:
-        //: 3 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 4 The value of the source object is not modified.
-        //:
-        //: 5 Assigning an object to itself behaves as expected (alias-safety).
+        // 1. The assignment operator can change the value of any modifiable
+        //    target object to that of any source object.
+        //
+        // 2. The signature and return type are standard.
+        //
+        // 3. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 4. The value of the source object is not modified.
+        //
+        // 5. Assigning an object to itself behaves as expected (alias-safety).
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a member-function
-        //:   pointer having the appropriate signature and return type for the
-        //:   copy-assignment operator defined in this component.  (C-2)
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their year/month/day
-        //:   representation.
-        //:
-        //: 3 For each row 'R1' in the table of P-2:  (C-1, 3..4)
-        //:
-        //:   1 Use the 3-argument value constructor to create two 'const'
-        //:     objects, 'Z' and 'ZZ', both having the value from 'R1'.
-        //:
-        //:   2 For each row 'R2' in the table of P-2:  (C-1, 3..4)
-        //:
-        //:     1 Use the 3-argument value constructor to create a modifiable
-        //:       'Obj', 'mX', having the value from 'R2'.
-        //:
-        //:     2 Assign 'mX' from 'Z'.
-        //:
-        //:     3 Verify that the address of the return value is the same as
-        //:       that of 'mX'.  (C-3)
-        //:
-        //:     4 Use the equality-comparison operator to verify that: (C-1, 4)
-        //:
-        //:       1 The target object, 'mX', now has the same value as that of
-        //:         'Z'.  (C-1)
-        //:
-        //:       2 'Z' still has the same value as that of 'ZZ'.  (C-4)
-        //:
-        //: 4 Repeat steps similar to those described in P-3 except that, this
-        //:   time, there is no inner loop (as in P-3.2); instead, the source
-        //:   object, 'Z', is a reference to the target object, 'mX', and both
-        //:   'mX' and 'ZZ' are created to have the value from 'R1'.  For each
-        //:   'R1' in the table of P-2:  (C-5)
-        //:
-        //:   1 Use the 3-argument value constructor to create a modifiable
-        //:     'Obj', 'mX', having the value from 'R1', and a 'const' 'Obj',
-        //:     'ZZ', also having the value from 'R1'.
-        //:
-        //:   2 Let 'Z' be a reference providing only 'const' access to 'mX'.
-        //:
-        //:   3 Assign 'mX' from 'Z'.
-        //:
-        //:   4 Verify that the address of the return value is the same as that
-        //:     of 'mX'.
-        //:
-        //:   5 Use the equality-comparison operator to verify that the
-        //:     target object, 'Z' ('mX'), still has the same value as that of
-        //:     'ZZ'.  (C-5)
+        // 1. Use the address of `operator=` to initialize a member-function
+        //    pointer having the appropriate signature and return type for the
+        //    copy-assignment operator defined in this component.  (C-2)
+        //
+        // 2. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their year/month/day
+        //    representation.
+        //
+        // 3. For each row `R1` in the table of P-2:  (C-1, 3..4)
+        //
+        //   1. Use the 3-argument value constructor to create two `const`
+        //      objects, `Z` and `ZZ`, both having the value from `R1`.
+        //
+        //   2. For each row `R2` in the table of P-2:  (C-1, 3..4)
+        //
+        //     1. Use the 3-argument value constructor to create a modifiable
+        //        `Obj`, `mX`, having the value from `R2`.
+        //
+        //     2. Assign `mX` from `Z`.
+        //
+        //     3. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-3)
+        //
+        //     4. Use the equality-comparison operator to verify that: (C-1, 4)
+        //
+        //       1. The target object, `mX`, now has the same value as that of
+        //          `Z`.  (C-1)
+        //
+        //       2. `Z` still has the same value as that of `ZZ`.  (C-4)
+        //
+        // 4. Repeat steps similar to those described in P-3 except that, this
+        //    time, there is no inner loop (as in P-3.2); instead, the source
+        //    object, `Z`, is a reference to the target object, `mX`, and both
+        //    `mX` and `ZZ` are created to have the value from `R1`.  For each
+        //    `R1` in the table of P-2:  (C-5)
+        //
+        //   1. Use the 3-argument value constructor to create a modifiable
+        //      `Obj`, `mX`, having the value from `R1`, and a `const` `Obj`,
+        //      `ZZ`, also having the value from `R1`.
+        //
+        //   2. Let `Z` be a reference providing only `const` access to `mX`.
+        //
+        //   3. Assign `mX` from `Z`.
+        //
+        //   4. Verify that the address of the return value is the same as that
+        //      of `mX`.
+        //
+        //   5. Use the equality-comparison operator to verify that the
+        //      target object, `Z` (`mX`), still has the same value as that of
+        //      `ZZ`.  (C-5)
         //
         // Testing:
         //   Date& operator=(const Date& rhs);
@@ -3962,7 +3962,7 @@ if (verbose)
       case 8: {
         // --------------------------------------------------------------------
         // SWAP MEMBER AND FREE FUNCTIONS
-        //   Ensure that, when member and free 'swap' are implemented, we can
+        //   Ensure that, when member and free `swap` are implemented, we can
         //   exchange the values of any two objects.
         //
         // Concerns:
@@ -3972,14 +3972,14 @@ if (verbose)
         //   N/A
         //
         // Testing:
-        //  Reserved for 'swap' testing.
+        //  Reserved for `swap` testing.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "SWAP MEMBER AND FREE FUNCTIONS" << endl
                           << "==============================" << endl;
 
-        if (verbose) cout << "Not implemented for 'bdlt::Date'." << endl;
+        if (verbose) cout << "Not implemented for `bdlt::Date`." << endl;
 
       } break;
       case 7: {
@@ -3989,32 +3989,32 @@ if (verbose)
         //   other one, such that the two objects have the same value.
         //
         // Concerns:
-        //: 1 The copy constructor creates an object having the same value as
-        //:   that of the supplied original object.
-        //:
-        //: 2 The original object is passed as a reference providing
-        //:   non-modifiable access to that object.
-        //:
-        //: 3 The value of the original object is unchanged.
+        // 1. The copy constructor creates an object having the same value as
+        //    that of the supplied original object.
+        //
+        // 2. The original object is passed as a reference providing
+        //    non-modifiable access to that object.
+        //
+        // 3. The value of the original object is unchanged.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their year/month/day
-        //:   representation.
-        //:
-        //: 2 For each row 'R' in the table of P-1:  (C-1..3)
-        //:
-        //:   1 Use the 3-argument value constructor to create two 'const'
-        //:     objects, 'Z' and 'ZZ', both having the value from 'R'.
-        //:
-        //:   2 Use the copy constructor to create an object 'X' from 'Z'.
-        //:     (C-2)
-        //:
-        //:   3 Use the equality-comparison operator to verify that:  (C-1, 3)
-        //:
-        //:     1 'X' has the same value as that of 'Z'.  (C-1)
-        //:
-        //:     2 'Z' still has the same value as that of 'ZZ'.  (C-3)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their year/month/day
+        //    representation.
+        //
+        // 2. For each row `R` in the table of P-1:  (C-1..3)
+        //
+        //   1. Use the 3-argument value constructor to create two `const`
+        //      objects, `Z` and `ZZ`, both having the value from `R`.
+        //
+        //   2. Use the copy constructor to create an object `X` from `Z`.
+        //      (C-2)
+        //
+        //   3. Use the equality-comparison operator to verify that:  (C-1, 3)
+        //
+        //     1. `X` has the same value as that of `Z`.  (C-1)
+        //
+        //     2. `Z` still has the same value as that of `ZZ`.  (C-3)
         //
         // Testing:
         //   Date(const Date& original);
@@ -4060,7 +4060,7 @@ if (verbose)
 
             LOOP3_ASSERT(LINE, Z,  X,  Z == X);
 
-            // Verify that the value of 'Z' has not changed.
+            // Verify that the value of `Z` has not changed.
 
             LOOP3_ASSERT(LINE, ZZ, Z, ZZ == Z);
         }
@@ -4069,61 +4069,61 @@ if (verbose)
       case 6: {
         // --------------------------------------------------------------------
         // EQUALITY-COMPARISON OPERATORS
-        //   Ensure that '==' and '!=' are the operational definition of value.
+        //   Ensure that `==` and `!=` are the operational definition of value.
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if their
-        //:   corresponding year/month/day representations compare equal.
-        //:
-        //: 2 'true  == (X == X)' (i.e., identity).
-        //:
-        //: 3 'false == (X != X)' (i.e., identity).
-        //:
-        //: 4 'X == Y' if and only if 'Y == X' (i.e., commutativity).
-        //:
-        //: 5 'X != Y' if and only if 'Y != X' (i.e., commutativity).
-        //:
-        //: 6 'X != Y' if and only if '!(X == Y)'.
-        //:
-        //: 7 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., both comparison operators are free functions).
-        //:
-        //: 8 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //: 9 The equality-comparison operators' signatures and return types
-        //:   are standard.
+        // 1. Two objects, `X` and `Y`, compare equal if and only if their
+        //    corresponding year/month/day representations compare equal.
+        //
+        // 2. `true  == (X == X)` (i.e., identity).
+        //
+        // 3. `false == (X != X)` (i.e., identity).
+        //
+        // 4. `X == Y` if and only if `Y == X` (i.e., commutativity).
+        //
+        // 5. `X != Y` if and only if `Y != X` (i.e., commutativity).
+        //
+        // 6. `X != Y` if and only if `!(X == Y)`.
+        //
+        // 7. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., both comparison operators are free functions).
+        //
+        // 8. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        // 9. The equality-comparison operators' signatures and return types
+        //    are standard.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the two homogeneous, free equality-
-        //:   comparison operators defined in this component.  (C-7..9)
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their year/month/day
-        //:   representation.
-        //:
-        //: 3 For each row 'R1' in the table of P-2:  (C-1..6)
-        //:
-        //:   1 Use the 3-argument value constructor to create a 'const'
-        //:     object, 'W', having the value from 'R1'.
-        //:
-        //:   2 Using 'W', verify the reflexive (anti-reflexive) property of
-        //:     equality (inequality) in the presence of aliasing.  (C-2..3)
-        //:
-        //:   3 For each row 'R2' in the table of P-2:  (C-1, 4..6)
-        //:
-        //:     1 Record, in 'EXP', whether or not distinct objects set to
-        //:       values from 'R1' and 'R2', respectively, are expected to have
-        //:       the same value.
-        //:
-        //:     2 Use the 3-argument value constructor to create a 'const'
-        //:       object, 'X', having the value from 'R1', and a second 'const'
-        //:       object, 'Y', having the value from 'R2'.
-        //:
-        //:     3 Using 'X' and 'Y', verify the commutativity property and
-        //:       expected return value for both '==' and '!='.  (C-1, 4..6)
+        // 1. Use the respective addresses of `operator==` and `operator!=` to
+        //    initialize function pointers having the appropriate signatures
+        //    and return types for the two homogeneous, free equality-
+        //    comparison operators defined in this component.  (C-7..9)
+        //
+        // 2. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their year/month/day
+        //    representation.
+        //
+        // 3. For each row `R1` in the table of P-2:  (C-1..6)
+        //
+        //   1. Use the 3-argument value constructor to create a `const`
+        //      object, `W`, having the value from `R1`.
+        //
+        //   2. Using `W`, verify the reflexive (anti-reflexive) property of
+        //      equality (inequality) in the presence of aliasing.  (C-2..3)
+        //
+        //   3. For each row `R2` in the table of P-2:  (C-1, 4..6)
+        //
+        //     1. Record, in `EXP`, whether or not distinct objects set to
+        //        values from `R1` and `R2`, respectively, are expected to have
+        //        the same value.
+        //
+        //     2. Use the 3-argument value constructor to create a `const`
+        //        object, `X`, having the value from `R1`, and a second `const`
+        //        object, `Y`, having the value from `R2`.
+        //
+        //     3. Using `X` and `Y`, verify the commutativity property and
+        //        expected return value for both `==` and `!=`.  (C-1, 4..6)
         //
         // Testing:
         //   bool operator==(const Date& lhs, const Date& rhs);
@@ -4238,61 +4238,61 @@ if (verbose)
         // --------------------------------------------------------------------
         // PRINT AND OUTPUT OPERATOR (<<)
         //   Ensure that the value of the object can be formatted appropriately
-        //   on an 'ostream' in some standard, human-readable form.
+        //   on an `ostream` in some standard, human-readable form.
         //
         // Concerns:
-        //: 1 The 'print' method writes the value to the specified 'ostream'.
-        //:
-        //: 2 The 'print' method writes the value in the intended format.
-        //:
-        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)'.
-        //:
-        //: 4 The 'print' method's signature and return type are standard.
-        //:
-        //: 5 The 'print' method returns the supplied 'ostream'.
-        //:
-        //: 6 The optional 'level' and 'spacesPerLevel' parameters have the
-        //:   correct default values (0 and 4, respectively).
-        //:
-        //: 7 The output 'operator<<'s signature and return type are standard.
-        //:
-        //: 8 The output 'operator<<' returns the destination 'ostream'.
+        // 1. The `print` method writes the value to the specified `ostream`.
+        //
+        // 2. The `print` method writes the value in the intended format.
+        //
+        // 3. The output using `s << obj` is the same as `obj.print(s, 0, -1)`.
+        //
+        // 4. The `print` method's signature and return type are standard.
+        //
+        // 5. The `print` method returns the supplied `ostream`.
+        //
+        // 6. The optional `level` and `spacesPerLevel` parameters have the
+        //    correct default values (0 and 4, respectively).
+        //
+        // 7. The output `operator<<`s signature and return type are standard.
+        //
+        // 8. The output `operator<<` returns the destination `ostream`.
         //
         // Plan:
-        //: 1 Use the addresses of the 'print' member function and 'operator<<'
-        //:   free function defined in this component to initialize,
-        //:   respectively, member-function and free-function pointers having
-        //:   the appropriate signatures and return types.  (C-4, 7)
-        //:
-        //: 2 Using the table-driven technique:  (C-1..3, 5..6, 8)
-        //:
-        //:   1 Define fourteen carefully selected combinations of (two) object
-        //:     values ('A' and 'B'), having distinct values for each
-        //:     corresponding year/month/day attribute, and various values for
-        //:     the two formatting parameters, along with the expected output.
-        //:
-        //:     ( 'value' x  'level'   x 'spacesPerLevel' ):
-        //:     1 { A   } x {  0     } x {  0, 1, -1, -8 } --> 3 expected o/ps
-        //:     2 { A   } x {  3, -3 } x {  0, 2, -2, -8 } --> 6 expected o/ps
-        //:     3 { B   } x {  2     } x {  3            } --> 1 expected o/p
-        //:     4 { A B } x { -8     } x { -8            } --> 2 expected o/ps
-        //:     5 { A B } x { -9     } x { -9            } --> 2 expected o/ps
-        //:
-        //:   2 For each row in the table defined in P-2.1:  (C-1..3, 5..6, 8)
-        //:
-        //:     1 Using a 'const' 'Obj', supply each object value and pair of
-        //:       formatting parameters to 'print', omitting the 'level' or
-        //:       'spacesPerLevel' parameter if the value of that argument is
-        //:       '-8'.  If the parameters are, arbitrarily, '(-9, -9)', then
-        //:       invoke the 'operator<<' instead.
-        //:
-        //:     2 Use a standard 'ostringstream' to capture the actual output.
-        //:
-        //:     3 Verify the address of what is returned is that of the
-        //:       supplied stream.  (C-5, 8)
-        //:
-        //:     4 Compare the contents captured in P-2.2.2 with what is
-        //:       expected.  (C-1..3, 6)
+        // 1. Use the addresses of the `print` member function and `operator<<`
+        //    free function defined in this component to initialize,
+        //    respectively, member-function and free-function pointers having
+        //    the appropriate signatures and return types.  (C-4, 7)
+        //
+        // 2. Using the table-driven technique:  (C-1..3, 5..6, 8)
+        //
+        //   1. Define fourteen carefully selected combinations of (two) object
+        //      values (`A` and `B`), having distinct values for each
+        //      corresponding year/month/day attribute, and various values for
+        //      the two formatting parameters, along with the expected output.
+        //
+        //      ( `value` x  `level`   x `spacesPerLevel` ):
+        //     1. { A   } x {  0     } x {  0, 1, -1, -8 } --> 3 expected o/ps
+        //     2. { A   } x {  3, -3 } x {  0, 2, -2, -8 } --> 6 expected o/ps
+        //     3. { B   } x {  2     } x {  3            } --> 1 expected o/p
+        //     4. { A B } x { -8     } x { -8            } --> 2 expected o/ps
+        //     5. { A B } x { -9     } x { -9            } --> 2 expected o/ps
+        //
+        //   2. For each row in the table defined in P-2.1:  (C-1..3, 5..6, 8)
+        //
+        //     1. Using a `const` `Obj`, supply each object value and pair of
+        //        formatting parameters to `print`, omitting the `level` or
+        //        `spacesPerLevel` parameter if the value of that argument is
+        //        `-8`.  If the parameters are, arbitrarily, `(-9, -9)`, then
+        //        invoke the `operator<<` instead.
+        //
+        //     2. Use a standard `ostringstream` to capture the actual output.
+        //
+        //     3. Verify the address of what is returned is that of the
+        //        supplied stream.  (C-5, 8)
+        //
+        //     4. Compare the contents captured in P-2.2.2 with what is
+        //        expected.  (C-1..3, 6)
         //
         // Testing:
         //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
@@ -4306,8 +4306,8 @@ if (verbose)
                           << "PRINT AND OUTPUT OPERATOR (<<)" << endl
                           << "==============================" << endl;
 
-        if (verbose) cout << "\nAssign the addresses of 'print' and "
-                             "the output 'operator<<' to variables." << endl;
+        if (verbose) cout << "\nAssign the addresses of `print` and "
+                             "the output `operator<<` to variables." << endl;
         {
             typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
             typedef ostream& (*operatorPtr)(ostream&, const Obj&);
@@ -4474,15 +4474,15 @@ if (verbose)
         }
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
-        if (verbose) cout << "\nTesting DEPRECATED 'streamOut' for sanity."
+        if (verbose) cout << "\nTesting DEPRECATED `streamOut` for sanity."
                           << endl;
         {
             const Obj X(1959, 3, 8);
 
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
-            ostringstream os1(&oa);  // use with 'print'
-            ostringstream os2(&oa);  // use with 'streamOut'
+            ostringstream os1(&oa);  // use with `print`
+            ostringstream os2(&oa);  // use with `streamOut`
 
             ASSERT(&os1 == &X.print(os1, 0, -1));
             ASSERT(&os2 == &X.streamOut(os2));
@@ -4498,23 +4498,23 @@ if (verbose)
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 Each of the three basic accessors returns the value of the
-        //:   corresponding year/month/day attribute of the date.
-        //:
-        //: 2 Each basic accessor method is declared 'const'.
+        // 1. Each of the three basic accessors returns the value of the
+        //    corresponding year/month/day attribute of the date.
+        //
+        // 2. Each basic accessor method is declared `const`.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their year/month/day
-        //:   representation.
-        //:
-        //: 2 For each row 'R' in the table of P-1:  (C-1..2)
-        //:
-        //:   1 Use the 3-argument value constructor to create a 'const'
-        //:     object, 'X', having the value from 'R'.
-        //:
-        //:   2 Verify that each basic accessor, invoked on 'X', returns the
-        //:     expected value.  (C-1..2)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their year/month/day
+        //    representation.
+        //
+        // 2. For each row `R` in the table of P-1:  (C-1..2)
+        //
+        //   1. Use the 3-argument value constructor to create a `const`
+        //      object, `X`, having the value from `R`.
+        //
+        //   2. Verify that each basic accessor, invoked on `X`, returns the
+        //      expected value.  (C-1..2)
         //
         // Testing:
         //   int day() const;
@@ -4556,18 +4556,18 @@ if (verbose)
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // GENERATOR FUNCTION 'gg'
-        //   There is no 'gg' function for this component.
+        // GENERATOR FUNCTION `gg`
+        //   There is no `gg` function for this component.
         //
         // Testing:
-        //   Reserved for 'gg' generator function.
+        //   Reserved for `gg` generator function.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "GENERATOR FUNCTION 'gg'" << endl
+                          << "GENERATOR FUNCTION `gg`" << endl
                           << "=======================" << endl;
 
-        if (verbose) cout << "No 'gg' function for 'bdlt::Date'." << endl;
+        if (verbose) cout << "No `gg` function for `bdlt::Date`." << endl;
 
       } break;
       case 2: {
@@ -4578,40 +4578,40 @@ if (verbose)
         //   the destructor to destroy it safely.
         //
         // Concerns:
-        //: 1 The 3-argument value constructor can create an object to have any
-        //:   value that does not violate the method's documented
-        //:   preconditions.
-        //:
-        //: 2 An object can be safely destroyed.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The 3-argument value constructor can create an object to have any
+        //    value that does not violate the method's documented
+        //    preconditions.
+        //
+        // 2. An object can be safely destroyed.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the 3-argument value constructor, create an object to have
-        //:   the default value.  Verify, using the (as yet unproven) 'year',
-        //:   'month', and 'day' accessors, that the resulting object has a
-        //:   value of 0001/01/01.
-        //:
-        //: 2 Let the object created in P-1 go out of scope.
-        //:
-        //: 3 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their year/month/day
-        //:   representation.
-        //:
-        //: 4 For each row 'R' in the table of P-3:  (C-1..2)
-        //:
-        //:   1 Use the 3-argument value constructor to create a 'const'
-        //:     object, 'X', having the value from 'R'.
-        //:
-        //:   2 Verify, using the 'year', 'month', and 'day' accessors, that
-        //:     'X' has the expected value.  (C-1)
-        //:
-        //:   3 Let the object created in P-4.1 go out of scope.  (C-2)
-        //:
-        //: 5 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid year/month/day attribute values, but not
-        //:   triggered for adjacent valid ones (using the 'BSLS_ASSERTTEST_*'
-        //:   macros).  (C-3)
+        // 1. Using the 3-argument value constructor, create an object to have
+        //    the default value.  Verify, using the (as yet unproven) `year`,
+        //    `month`, and `day` accessors, that the resulting object has a
+        //    value of 0001/01/01.
+        //
+        // 2. Let the object created in P-1 go out of scope.
+        //
+        // 3. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their year/month/day
+        //    representation.
+        //
+        // 4. For each row `R` in the table of P-3:  (C-1..2)
+        //
+        //   1. Use the 3-argument value constructor to create a `const`
+        //      object, `X`, having the value from `R`.
+        //
+        //   2. Verify, using the `year`, `month`, and `day` accessors, that
+        //      `X` has the expected value.  (C-1)
+        //
+        //   3. Let the object created in P-4.1 go out of scope.  (C-2)
+        //
+        // 5. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid year/month/day attribute values, but not
+        //    triggered for adjacent valid ones (using the `BSLS_ASSERTTEST_*`
+        //    macros).  (C-3)
         //
         // Testing:
         //   Date(int year, int month, int day);
@@ -4633,7 +4633,7 @@ if (verbose)
             ASSERT(1 == X.day());
         }
 
-        if (verbose) cout << "\nTesting 'Date(year, month, day)'." << endl;
+        if (verbose) cout << "\nTesting `Date(year, month, day)`." << endl;
         {
             if (verbose) cout << "\nUse a table of distinct object values."
                               << endl;
@@ -4708,19 +4708,19 @@ if (verbose)
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an object 'w' (default ctor).      { w:0             }
-        //: 2 Create an object 'x' (copy from 'w').     { w:0 x:0         }
-        //: 3 Set 'x' to 'A' (value distinct from 0).   { w:0 x:A         }
-        //: 4 Create an object 'y' (init. to 'A').      { w:0 x:A y:A     }
-        //: 5 Create an object 'z' (copy from 'y').     { w:0 x:A y:A z:A }
-        //: 6 Set 'z' to 0 (the default value).         { w:0 x:A y:A z:0 }
-        //: 7 Assign 'w' from 'x'.                      { w:A x:A y:A z:0 }
-        //: 8 Assign 'w' from 'z'.                      { w:0 x:A y:A z:0 }
-        //: 9 Assign 'x' from 'x' (aliasing).           { w:0 x:A y:A z:0 }
+        // 1. Create an object `w` (default ctor).      { w:0             }
+        // 2. Create an object `x` (copy from `w`).     { w:0 x:0         }
+        // 3. Set `x` to `A` (value distinct from 0).   { w:0 x:A         }
+        // 4. Create an object `y` (init. to `A`).      { w:0 x:A y:A     }
+        // 5. Create an object `z` (copy from `y`).     { w:0 x:A y:A z:A }
+        // 6. Set `z` to 0 (the default value).         { w:0 x:A y:A z:0 }
+        // 7. Assign `w` from `x`.                      { w:A x:A y:A z:0 }
+        // 8. Assign `w` from `z`.                      { w:0 x:A y:A z:0 }
+        // 9. Assign `x` from `x` (aliasing).           { w:0 x:A y:A z:0 }
         //
         // Testing:
         //   BREATHING TEST
@@ -4732,18 +4732,18 @@ if (verbose)
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        // Constants defining 'A' value for testing.
+        // Constants defining `A` value for testing.
 
         const int A_YEAR = 1827, A_MONTH = 3, A_DAY = 26;
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 1. Create an object 'w' (default ctor)."
+        if (verbose) cout << "\n 1. Create an object `w` (default ctor)."
                              "\t\t{ w:0             }" << endl;
 
         Obj mW;  const Obj& W = mW;
 
-        if (veryVerbose) cout << "\ta. Check initial value of 'w'." << endl;
+        if (veryVerbose) cout << "\ta. Check initial value of `w`." << endl;
         if (veryVeryVerbose) { T_ P(W) }
 
         ASSERT(1 == W.year());
@@ -4751,19 +4751,19 @@ if (verbose)
         ASSERT(1 == W.day());
 
         if (veryVerbose) cout <<
-                          "\tb. Try equality operators: 'w' <op> 'w'." << endl;
+                          "\tb. Try equality operators: `w` <op> `w`." << endl;
 
         ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 2. Create an object 'x' (copy from 'w')."
+        if (verbose) cout << "\n 2. Create an object `x` (copy from `w`)."
                              "\t\t{ w:0 x:0         }" << endl;
 
         Obj mX(W);  const Obj& X = mX;
 
         if (veryVerbose) cout <<
-                                "\ta. Check the initial value of 'x'." << endl;
+                                "\ta. Check the initial value of `x`." << endl;
         if (veryVeryVerbose) { T_ P(X) }
 
         ASSERT(1 == X.year());
@@ -4771,19 +4771,19 @@ if (verbose)
         ASSERT(1 == X.day());
 
         if (veryVerbose) cout <<
-                     "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
+                     "\tb. Try equality operators: `x` <op> `w`, `x`." << endl;
 
         ASSERT(1 == (X == W));        ASSERT(0 == (X != W));
         ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 3. Set 'x' to 'A' (value distinct from 0)."
+        if (verbose) cout << "\n 3. Set `x` to `A` (value distinct from 0)."
                              "\t\t{ w:0 x:A         }" << endl;
 
         mX.setYearMonthDay(A_YEAR, A_MONTH, A_DAY);
 
-        if (veryVerbose) cout << "\ta. Check new value of 'x'." << endl;
+        if (veryVerbose) cout << "\ta. Check new value of `x`." << endl;
         if (veryVeryVerbose) { T_ P(X) }
 
         ASSERT(A_YEAR  == X.year());
@@ -4791,19 +4791,19 @@ if (verbose)
         ASSERT(A_DAY   == X.day());
 
         if (veryVerbose) cout <<
-                     "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
+                     "\tb. Try equality operators: `x` <op> `w`, `x`." << endl;
 
         ASSERT(0 == (X == W));        ASSERT(1 == (X != W));
         ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 4. Create an object 'y' (init. to 'A')."
+        if (verbose) cout << "\n 4. Create an object `y` (init. to `A`)."
                              "\t\t{ w:0 x:A y:A     }" << endl;
 
         Obj mY(A_YEAR, A_MONTH, A_DAY);  const Obj& Y = mY;
 
-        if (veryVerbose) cout << "\ta. Check initial value of 'y'." << endl;
+        if (veryVerbose) cout << "\ta. Check initial value of `y`." << endl;
         if (veryVeryVerbose) { T_ P(Y) }
 
         ASSERT(A_YEAR  == Y.year());
@@ -4811,7 +4811,7 @@ if (verbose)
         ASSERT(A_DAY   == Y.day());
 
         if (veryVerbose) cout <<
-                "\tb. Try equality operators: 'y' <op> 'w', 'x', 'y'." << endl;
+                "\tb. Try equality operators: `y` <op> `w`, `x`, `y`." << endl;
 
         ASSERT(0 == (Y == W));        ASSERT(1 == (Y != W));
         ASSERT(1 == (Y == X));        ASSERT(0 == (Y != X));
@@ -4819,12 +4819,12 @@ if (verbose)
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 5. Create an object 'z' (copy from 'y')."
+        if (verbose) cout << "\n 5. Create an object `z` (copy from `y`)."
                              "\t\t{ w:0 x:A y:A z:A }" << endl;
 
         Obj mZ(Y);  const Obj& Z = mZ;
 
-        if (veryVerbose) cout << "\ta. Check initial value of 'z'." << endl;
+        if (veryVerbose) cout << "\ta. Check initial value of `z`." << endl;
         if (veryVeryVerbose) { T_ P(Z) }
 
         ASSERT(A_YEAR  == Z.year());
@@ -4832,7 +4832,7 @@ if (verbose)
         ASSERT(A_DAY   == Z.day());
 
         if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `z` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(0 == (Z == W));        ASSERT(1 == (Z != W));
         ASSERT(1 == (Z == X));        ASSERT(0 == (Z != X));
@@ -4841,12 +4841,12 @@ if (verbose)
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 6. Set 'z' to 0 (the default value)."
+        if (verbose) cout << "\n 6. Set `z` to 0 (the default value)."
                              "\t\t\t{ w:0 x:A y:A z:0 }" << endl;
 
         mZ.setYearMonthDay(1, 1, 1);
 
-        if (veryVerbose) cout << "\ta. Check new value of 'z'." << endl;
+        if (veryVerbose) cout << "\ta. Check new value of `z`." << endl;
         if (veryVeryVerbose) { T_ P(Z) }
 
         ASSERT(1 == Z.year());
@@ -4854,7 +4854,7 @@ if (verbose)
         ASSERT(1 == Z.day());
 
         if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `z` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(1 == (Z == W));        ASSERT(0 == (Z != W));
         ASSERT(0 == (Z == X));        ASSERT(1 == (Z != X));
@@ -4863,12 +4863,12 @@ if (verbose)
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 7. Assign 'w' from 'x'."
+        if (verbose) cout << "\n 7. Assign `w` from `x`."
                              "\t\t\t\t{ w:A x:A y:A z:0 }" << endl;
 
         mW = X;
 
-        if (veryVerbose) cout << "\ta. Check new value of 'w'." << endl;
+        if (veryVerbose) cout << "\ta. Check new value of `w`." << endl;
         if (veryVeryVerbose) { T_ P(W) }
 
         ASSERT(A_YEAR  == W.year());
@@ -4876,7 +4876,7 @@ if (verbose)
         ASSERT(A_DAY   == W.day());
 
         if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `w` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
         ASSERT(1 == (W == X));        ASSERT(0 == (W != X));
@@ -4885,12 +4885,12 @@ if (verbose)
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 8. Assign 'w' from 'z'."
+        if (verbose) cout << "\n 8. Assign `w` from `z`."
                              "\t\t\t\t{ w:0 x:A y:A z:0 }" << endl;
 
         mW = Z;
 
-        if (veryVerbose) cout << "\ta. Check new value of 'w'." << endl;
+        if (veryVerbose) cout << "\ta. Check new value of `w`." << endl;
         if (veryVeryVerbose) { T_ P(W) }
 
         ASSERT(1 == W.year());
@@ -4898,7 +4898,7 @@ if (verbose)
         ASSERT(1 == W.day());
 
         if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `w` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
         ASSERT(0 == (W == X));        ASSERT(1 == (W != X));
@@ -4907,12 +4907,12 @@ if (verbose)
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 9. Assign 'x' from 'x' (aliasing)."
+        if (verbose) cout << "\n 9. Assign `x` from `x` (aliasing)."
                              "\t\t\t{ w:0 x:A y:A z:0 }" << endl;
 
         mX = X;
 
-        if (veryVerbose) cout << "\ta. Check (same) value of 'x'." << endl;
+        if (veryVerbose) cout << "\ta. Check (same) value of `x`." << endl;
         if (veryVeryVerbose) { T_ P(X) }
 
         ASSERT(A_YEAR  == X.year());
@@ -4920,7 +4920,7 @@ if (verbose)
         ASSERT(A_DAY   == X.day());
 
         if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `x` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(0 == (X == W));        ASSERT(1 == (X != W));
         ASSERT(1 == (X == X));        ASSERT(0 == (X != X));

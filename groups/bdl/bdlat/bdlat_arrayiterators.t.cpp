@@ -23,14 +23,14 @@ using namespace bsl;
 //
 // The iterators defined in this component have very few operations.  Testing
 // consists of instantiating the iterators with different sequence types and
-// testing the '*i++ = v' expression on the instantiated iterator.  This test
+// testing the `*i++ = v` expression on the instantiated iterator.  This test
 // driver defines an opaque sequence type that provides only indirect access
 // to its elements.  (The sequence can only be manipulated or accessed only
-// though 'bdlat_SequenceFunctions' methods and the individual items can be
-// manipulated or accessed only though 'bdlat_ValueFunctions' methods.)  This
+// though `bdlat_SequenceFunctions` methods and the individual items can be
+// manipulated or accessed only though `bdlat_ValueFunctions` methods.)  This
 // opaque sequence type is used to instantiate and test the class and function
 // templates in this component.  A second set of tests is also performed with
-// a simple 'bsl::vector' sequence.
+// a simple `bsl::vector` sequence.
 //-----------------------------------------------------------------------------
 // [ 1] class BackInsertIterator<TYPE>
 // [ 1] backInserter(const TYPE* array)
@@ -102,9 +102,9 @@ namespace Test {
                               // class FixedArray
                               // ================
 
+/// Fixed-sized array that conforms to the `bdlat_arrayfunctions` interface
+/// and can only be manipulated and accessed through that interface.
 template <int SIZE, class TYPE> class FixedArray;
-    // Fixed-sized array that conforms to the 'bdlat_arrayfunctions' interface
-    // and can only be manipulated and accessed through that interface.
 
 // FREE MANIPULATORS (bdlat_arrayfunctions manipulators for FixedArray)
 template <int SIZE, class TYPE, class MANIPULATOR>
@@ -121,15 +121,15 @@ int bdlat_arrayAccessElement(const FixedArray<SIZE, TYPE>& array,
                              ACCESSOR&                     accessor,
                              int                           index);
 
+/// Return the number of elements in the specified `array`.
 template <int SIZE, class TYPE>
 bsl::size_t bdlat_arraySize(const FixedArray<SIZE, TYPE>& array);
-    // Return the number of elements in the specified 'array'.
 
+/// Fixed-sized array that conforms to the `bdlat_arrayfunctions` interface
+/// and can only be manipulated and accessed through that interface.
 template <int SIZE, class TYPE>
 class FixedArray
 {
-    // Fixed-sized array that conforms to the 'bdlat_arrayfunctions' interface
-    // and can only be manipulated and accessed through that interface.
 
     // FRIEND MANIPULATORS (only way to change an object of this class)
     template <int SIZE2, class TYPE2, class MANIPULATOR>
@@ -170,12 +170,12 @@ class FixedArray
                           // class FixedArrayElement
                           // =======================
 
+/// Proxy object to access an element of a FixedArray.  The `accessElement`
+/// and `manipulateElement` methods in `FixedArray` used this proxy to
+/// simulate a complex array that does not provide direct references to the
+/// underlying array items.  This class meets the requirements of
+/// `bdlat_valuefunction`.
 template <class TYPE> class FixedArrayElement;
-    // Proxy object to access an element of a FixedArray.  The 'accessElement'
-    // and 'manipulateElement' methods in 'FixedArray' used this proxy to
-    // simulate a complex array that does not provide direct references to the
-    // underlying array items.  This class meets the requirements of
-    // 'bdlat_valuefunction'.
 
 // FREE MANIPULATORS (bdlat_valuefunctions manipulators for FixedArrayElement)
 template <class TYPE>
@@ -189,17 +189,17 @@ template <class LHS_TYPE, class TYPE>
 int bdlat_valueTypeAssign(LHS_TYPE                       *lhs,
                           const FixedArrayElement<TYPE>&  rhs);
 
+/// Proxy object to access an element of a FixedArray.  The `accessElement`
+/// and `manipulateElement` methods in `FixedArray` use this proxy to
+/// simulate a complex array that does not provide direct references to the
+/// underlying array items.  This class meets the requirements of
+/// `bdlat_valuefunction`.
 template <class TYPE>
 class FixedArrayElement {
-    // Proxy object to access an element of a FixedArray.  The 'accessElement'
-    // and 'manipulateElement' methods in 'FixedArray' use this proxy to
-    // simulate a complex array that does not provide direct references to the
-    // underlying array items.  This class meets the requirements of
-    // 'bdlat_valuefunction'.
 
+    /// The `FixedArray` class template is a friend of this class template.
     template <int SIZE, class TYPE2>
     friend class FixedArray;
-        // The 'FixedArray' class template is a friend of this class template.
 
     template <class TYPE2>
     friend void bdlat_valueTypeReset(FixedArrayElement<TYPE2> *object);
@@ -221,8 +221,9 @@ class FixedArrayElement {
 
   public:
     // CREATORS
+
+    /// Construct a proxy to the specified `element`.
     FixedArrayElement(TYPE* element) : d_element(element) { }
-        // Construct a proxy to the specified 'element'.
 
     // Compiler-generated destructor:
 
@@ -338,9 +339,9 @@ int Test::bdlat_valueTypeAssign(LHS_TYPE                       *lhs,
                               // class TestValue
                               // ===============
 
+/// Visitor to test that a value is as expected.
 template <class TYPE>
 struct TestValue {
-    // Visitor to test that a value is as expected.
     TYPE d_expected;
     bool d_result;
   public:
@@ -360,10 +361,10 @@ struct TestValue {
     }
 };
 
+/// Return true if the item at the specified `index` in the specified
+/// `array` has the value specified in `exp`.
 template <class ARRAY_TYPE, class ITEM_TYPE>
 bool testArrayItem(const ARRAY_TYPE& array, int index, const ITEM_TYPE& exp)
-    // Return true if the item at the specified 'index' in the specified
-    // 'array' has the value specified in 'exp'.
 {
     TestValue<ITEM_TYPE> probe(exp);
     bdlat_ArrayFunctions::accessElement(array, probe, index);
@@ -376,39 +377,39 @@ bool testArrayItem(const ARRAY_TYPE& array, int index, const ITEM_TYPE& exp)
 
 // To use the facilities in this component, you must of course include the
 // header file:
-//..
+// ```
 //  #include <bdlat_arrayiterators.h>
-//..
+// ```
 // The main use of the facilities in this component is for creating generic
 // algorithms.  The following generic function appends a few integers to the
-// end of an object of type 'ARRAY' that adheres to the 'bdlat_ArrayFunctions'
-// interface.  It starts by creating a 'BackInsertIterator':
-//..
+// end of an object of type `ARRAY` that adheres to the `bdlat_ArrayFunctions`
+// interface.  It starts by creating a `BackInsertIterator`:
+// ```
     template <class ARRAY>
     void appendSome(ARRAY *arrayObj)
     {
         bdlat_ArrayIterators::BackInsertIterator<ARRAY> it(arrayObj);
-//..
+// ```
 // Now, using the "*i++ = v" idiom, append the numbers 5 and 4 to the array
 // object:
-//..
+// ```
         *it++ = 5;
         *it++ = 4;
-//..
+// ```
 // Alternatively, one can use the iterator in a standard algorithm.  For
 // example, the following code appends the numbers 3, 2, and 1 to the array
 // object:
-//..
+// ```
         const int VALUES[] = { 3, 2, 1 };
         const int NUM_VALUES = sizeof(VALUES) / sizeof(VALUES[0]);
         bsl::copy(VALUES, VALUES + NUM_VALUES, it);
     }
-//..
-// An alternative implementation of 'appendSome' would use 'backInserter' to
+// ```
+// An alternative implementation of `appendSome` would use `backInserter` to
 // create an iterator without declaring its exact type.  Note that in this
-// case we do not create a variable 'it', but simply pass the iterator to a
+// case we do not create a variable `it`, but simply pass the iterator to a
 // standard algorithm:
-//..
+// ```
     template <class ARRAY>
     void appendSome2(ARRAY *arrayObj)
     {
@@ -417,19 +418,19 @@ bool testArrayItem(const ARRAY_TYPE& array, int index, const ITEM_TYPE& exp)
         bsl::copy(VALUES, VALUES + NUM_VALUES,
                   bdlat_ArrayIterators::backInserter(arrayObj));
     }
-//..
+// ```
 // In our main program, we need to construct an array that adheres to the
-// 'bdlat_arrayfunctions' interface:
-//..
+// `bdlat_arrayfunctions` interface:
+// ```
 //  #include <vector>
 
     int usageExample()
     {
         typedef bsl::vector<int> my_IntArrayType;
-//..
-// The result of calling 'appendSome' is that the elements 5, 4, 3, 2 and 1
+// ```
+// The result of calling `appendSome` is that the elements 5, 4, 3, 2 and 1
 // are appended to the array:
-//..
+// ```
         my_IntArrayType array1;
         appendSome(&array1);
         ASSERT(5 == array1[0]);
@@ -437,16 +438,16 @@ bool testArrayItem(const ARRAY_TYPE& array, int index, const ITEM_TYPE& exp)
         ASSERT(3 == array1[2]);
         ASSERT(2 == array1[3]);
         ASSERT(1 == array1[4]);
-//..
-// The result of calling 'appendSome2' is the same:
-//..
+// ```
+// The result of calling `appendSome2` is the same:
+// ```
         my_IntArrayType array2;
         appendSome2(&array2);
         ASSERT(array2 == array1);
 
         return 0;
     }
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -497,7 +498,7 @@ int main(int argc, char *argv[])
             Test::FixedArray<10, int> mV;
             const Test::FixedArray<10, int>& V = mV;
 
-            // Append the numbers 1 to 5 to 'mV'
+            // Append the numbers 1 to 5 to `mV`
             bsl::copy(INPUT, INPUT + 5, Obj::backInserter(&mV));
 
             ASSERT(5 == bdlat_ArrayFunctions::size(V));
@@ -515,7 +516,7 @@ int main(int argc, char *argv[])
             mV.push_back(66);
             mV.push_back(77);
 
-            // Append the numbers 1 to 5 to 'mV'
+            // Append the numbers 1 to 5 to `mV`
             bsl::copy(INPUT, INPUT + 5, Obj::backInserter(&mV));
 
             ASSERT(7 == V.size());

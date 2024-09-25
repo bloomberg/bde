@@ -118,10 +118,10 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-// We want to test the negative 'noexcept'-ness of some functions in span, but
-// only if we're not using 'std::span', because all three implementations of
-// std::span add 'noexcept' to 'front', 'back', 'first', 'last', and 'subspan',
-// as well as the '(pointer, pointer)' and '(pointer, size)' constructors.
+// We want to test the negative `noexcept`-ness of some functions in span, but
+// only if we're not using `std::span`, because all three implementations of
+// std::span add `noexcept` to `front`, `back`, `first`, `last`, and `subspan`,
+// as well as the `(pointer, pointer)` and `(pointer, size)` constructors.
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
     #define NOEXCEPT_TEST_ONLY_BSL_SPAN                                       1
 #endif
@@ -142,10 +142,11 @@ void aSsErT(bool condition, const char *message, int line)
 // function inspects each of the (numeric) values in the container, and if the
 // low bit is set, flips it.  This has the effect of turning odd values into
 // even values.
-//..
+// ```
+
+/// Make every value in the specified container `c` even.
 template <class CONTAINER>
 void MakeEven(CONTAINER &c)
-    // Make every value in the specified container 'c' even.
 {
     for (typename CONTAINER::iterator it = c.begin(); it != c.end(); ++it) {
         if (*it & 1) {
@@ -153,23 +154,24 @@ void MakeEven(CONTAINER &c)
         }
     }
 }
-//..
+// ```
 
 
 // First, we create the vector.  Then we define our function that returns a
-// 'slice' from the vector.
+// `slice` from the vector.
+
+/// Return a span into the specified `vec`, starting at the specified
+/// `first` index, and continuing up to (but not including) the specified
+/// `last` index.
 bsl::span<const int> slice(const bsl::vector<int>& vec,
                            size_t                  first,
                            size_t                  last)
-    // Return a span into the specified 'vec', starting at the specified
-    // 'first' index, and continuing up to (but not including) the specified
-    // 'last' index.
 {
     return bsl::span<const int>(vec.data() + first, last-first);
 }
 
+/// Test the basic constructors and assignment operators for bsl::span
 void TestBasicConstructors()
-    // Test the basic constructors and assignment operators for bsl::span
 {
     int arr [10];
 
@@ -193,7 +195,7 @@ void TestBasicConstructors()
 
 // MSVC erroneously reports the two constructors (pointer, size) and (pointer,
 // pointer) as noexcept.  The trigger appears to be declaring them as
-// 'constexpr'.  I reported to MS on 10-May-2024. They replied (on 13-May):
+// `constexpr`.  I reported to MS on 10-May-2024. They replied (on 13-May):
 //
 // The short answer is: compile with /permissive-.
 //
@@ -320,8 +322,8 @@ void TestBasicConstructors()
 }
 
 
+/// Test the construction of a bsl::span from various containers
 void TestContainerConstructors()
-    // Test the construction of a bsl::span from various containers
 {
 #ifndef BSLSTL_ARRAY_IS_ALIASED
     bsl::array<int, 10>        arr;
@@ -470,8 +472,8 @@ void TestContainerConstructors()
     }
 }
 
+/// Test the accessors of bsl::span.
 void TestAccessors()
-    // Test the accessors of bsl::span.
 {
     int arr [10];
 
@@ -593,8 +595,8 @@ void TestAccessors()
 
 }
 
+/// Test the various ways of making a smaller span from an original
 void TestSubspan()
-    // Test the various ways of making a smaller span from an original
 {
     int          arr [10];
     const size_t DYN = bsl::dynamic_extent;
@@ -801,8 +803,8 @@ void TestSubspan()
     ASSERT(&arr[7] == cdSubB3.data());
 }
 
+/// Verify that the iterators work
 void TestIterators()
-    // Verify that the iterators work
 {
     int arr [10];
     int idx;
@@ -947,8 +949,8 @@ void TestIterators()
 
 }
 
+/// Test the free functions swap, as_bytes, and as_writable_bytes
 void TestFreeFunctions ()
-    // Test the free functions swap, as_bytes, and as_writable_bytes
 {
     int arr [10];
 
@@ -1016,37 +1018,37 @@ void TestFreeFunctions ()
 }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+/// This struct provides a namespace for functions testing deduction guides.
+/// The tests are compile-time only; it is not necessary that these routines
+/// be called at run-time.  Note that the following constructors do not have
+/// associated deduction guides because the template parameters for
+/// `bsl::span` cannot be deduced from the constructor parameters.
+/// ```
+/// span()
+/// span(array<T_OTHER_TYPE, SIZE> &)
+/// span(const array<T_OTHER_TYPE, SIZE> &)
+/// span(span<T_OTHER_TYPE, SIZE>)
+/// ```
 struct TestDeductionGuides {
-    // This struct provides a namespace for functions testing deduction guides.
-    // The tests are compile-time only; it is not necessary that these routines
-    // be called at run-time.  Note that the following constructors do not have
-    // associated deduction guides because the template parameters for
-    // 'bsl::span' cannot be deduced from the constructor parameters.
-    //..
-    // span()
-    // span(array<T_OTHER_TYPE, SIZE> &)
-    // span(const array<T_OTHER_TYPE, SIZE> &)
-    // span(span<T_OTHER_TYPE, SIZE>)
-    //..
 
 #define ASSERT_SAME_TYPE(...) \
  static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
 
+    /// Test that constructing a `bsl::span` from various combinations of
+    /// arguments deduces the correct type.
+    /// ```
+    /// span(const span&  s)        -> decltype(s)
+    /// span(TYPE (&)[SIZE])        -> span<TYPE, SIZE>
+    /// span(      bsl::array<TYPE, SIZE>)  -> span<TYPE, SIZE>
+    /// span(const bsl::array<TYPE, SIZE>)  -> span<const TYPE, SIZE>
+    /// span(      std::array<TYPE, SIZE>)  -> span<TYPE, SIZE>
+    /// span(const std::array<TYPE, SIZE>)  -> span<const TYPE, SIZE>
+    /// span(      bsl::vector<TYPE, SIZE>) -> span<TYPE>
+    /// span(const bsl::vector<TYPE, SIZE>) -> span<const TYPE>
+    /// span(            CONTAINER &) -> span<CONTAINER::value_type>
+    /// span(const const CONTAINER &) -> span<const CONTAINER::value_type>
+    /// ```
     static void SimpleConstructors ()
-        // Test that constructing a 'bsl::span' from various combinations of
-        // arguments deduces the correct type.
-        //..
-        // span(const span&  s)        -> decltype(s)
-        // span(TYPE (&)[SIZE])        -> span<TYPE, SIZE>
-        // span(      bsl::array<TYPE, SIZE>)  -> span<TYPE, SIZE>
-        // span(const bsl::array<TYPE, SIZE>)  -> span<const TYPE, SIZE>
-        // span(      std::array<TYPE, SIZE>)  -> span<TYPE, SIZE>
-        // span(const std::array<TYPE, SIZE>)  -> span<const TYPE, SIZE>
-        // span(      bsl::vector<TYPE, SIZE>) -> span<TYPE>
-        // span(const bsl::vector<TYPE, SIZE>) -> span<const TYPE>
-        // span(            CONTAINER &) -> span<CONTAINER::value_type>
-        // span(const const CONTAINER &) -> span<const CONTAINER::value_type>
-        //..
     {
 
         typedef int T1;
@@ -1126,11 +1128,11 @@ int main(int argc, char *argv[])
         //   loop.
         //
         // Concerns:
-        //: 1 The usage example compiles, links, and runs as shown.
+        // 1. The usage example compiles, links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example into test driver and verify
-        //:   functionality with some sample values. (C-1)
+        // 1. Incorporate usage example into test driver and verify
+        //    functionality with some sample values. (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE 2
@@ -1150,7 +1152,7 @@ int main(int argc, char *argv[])
         }
 
         // Note that we can use the return value directly and avoid declaring
-        // the variable 'sp':
+        // the variable `sp`:
         val = 2;
         for (int x: slice(v, 2, 8)) {
             ASSERT(x == val++);
@@ -1166,12 +1168,12 @@ int main(int argc, char *argv[])
         //   function.
         //
         // Concerns:
-        //: 1 The usage example compiles, links, and runs as shown.
-        //:
+        // 1. The usage example compiles, links, and runs as shown.
+        //
         //
         // Plan:
-        //: 1 Incorporate usage example into test driver and verify
-        //:   functionality with some sample values. (C-1,2)
+        // 1. Incorporate usage example into test driver and verify
+        //    functionality with some sample values. (C-1,2)
         //
         // Testing:
         //   USAGE EXAMPLE 1
@@ -1217,17 +1219,17 @@ int main(int argc, char *argv[])
         //   constructors.
         //
         // Concerns:
-        //: 1 Construction from arrays deduces the value type from the value
-        //:   type of the array.
+        // 1. Construction from arrays deduces the value type from the value
+        //    type of the array.
         //
-        //: 2 Construction from a container deduces the value type from the
-        //:   value type of the container.
+        // 2. Construction from a container deduces the value type from the
+        //    value type of the container.
         //
         // Plan:
-        //: 1 Create a span by invoking the constructor without supplying the
-        //:   template arguments explicitly.
-        //:
-        //: 2 Verify that the deduced type is correct.
+        // 1. Create a span by invoking the constructor without supplying the
+        //    template arguments explicitly.
+        //
+        // 2. Verify that the deduced type is correct.
         //
         // Testing:
         //   CLASS TEMPLATE DEDUCTION GUIDES
@@ -1246,18 +1248,18 @@ int main(int argc, char *argv[])
       case 7: {
         // --------------------------------------------------------------------
         // FREE FUNCTIONS
-        //   This case tests the functionality of span's free functions 'swap',
-        //   'as_bytes' and 'as_writable_bytes'.
+        //   This case tests the functionality of span's free functions `swap`,
+        //   `as_bytes` and `as_writable_bytes`.
         //
         // Concerns:
-        //: 1 The functions exist, are callable, and return sane values.
+        // 1. The functions exist, are callable, and return sane values.
         //
         // Plan:
-        //: 1 Create a variety of span objects.
-        //:
-        //: 2 Call the free functions with the spans from step #1.
-        //:
-        //: 3 Verify the results of the functions under test.
+        // 1. Create a variety of span objects.
+        //
+        // 2. Call the free functions with the spans from step #1.
+        //
+        // 3. Verify the results of the functions under test.
         //
         // Testing:
         //   void swap(span a, span b) noexcept;
@@ -1276,17 +1278,17 @@ int main(int argc, char *argv[])
         //   This case tests the functionality of span's iterators.
         //
         // Concerns:
-        //: 1 Span should provide a full set of iterators; forward, reverse,
-        //:   const, and const reverse.
+        // 1. Span should provide a full set of iterators; forward, reverse,
+        //    const, and const reverse.
         //
         // Plan:
-        //: 1 Create a variety of span objects.
-        //:
-        //: 2 Traverse the contents of the memory referred to by the spans from
-        //:   step #1, using all the different kinds of iterators.
-        //:
-        //: 3 Verify that the iterators refer to the correct underlying element
-        //:   referred to by the span.
+        // 1. Create a variety of span objects.
+        //
+        // 2. Traverse the contents of the memory referred to by the spans from
+        //    step #1, using all the different kinds of iterators.
+        //
+        // 3. Verify that the iterators refer to the correct underlying element
+        //    referred to by the span.
         //
         // Testing:
         //   iterator begin() noexcept;
@@ -1307,16 +1309,16 @@ int main(int argc, char *argv[])
         //   subset of an existing span.
         //
         // Concerns:
-        //: 1 Each of the functions under tests returns a new span that refers
-        //:   to a subset of the data referenced by the original span.
+        // 1. Each of the functions under tests returns a new span that refers
+        //    to a subset of the data referenced by the original span.
         //
         // Plan:
-        //: 1 Create a variety of span objects.
-        //:
-        //: 2 Create new spans using the functions 'first', 'last', and
-        //:   'subspan'.
-        //:
-        //: 3 Verify that the new spans refer to the correct underlying data.
+        // 1. Create a variety of span objects.
+        //
+        // 2. Create new spans using the functions `first`, `last`, and
+        //    `subspan`.
+        //
+        // 3. Verify that the new spans refer to the correct underlying data.
         //
         // Testing:
         //   template <size_t COUNT> first();
@@ -1339,16 +1341,16 @@ int main(int argc, char *argv[])
         //   span.
         //
         // Concerns:
-        //: 1 The functions under test provide access to the correct elements.
+        // 1. The functions under test provide access to the correct elements.
         //
         // Plan:
-        //: 1 Create a variety of span objects.
-        //:
-        //: 2 Verify that 'operator[]', 'front', and 'back' provide references
-        //:   to the correct element of the underlying span.
-        //:
-        //: 3 Verify that 'size' and 'data' return the size of the span, and a
-        //:   pointer to the first element of the span, respectively.
+        // 1. Create a variety of span objects.
+        //
+        // 2. Verify that `operator[]`, `front`, and `back` provide references
+        //    to the correct element of the underlying span.
+        //
+        // 3. Verify that `size` and `data` return the size of the span, and a
+        //    pointer to the first element of the span, respectively.
         //
         // Testing:
         //   reference front();
@@ -1372,15 +1374,15 @@ int main(int argc, char *argv[])
         //   This case tests construction of a span from a container
         //
         // Concerns:
-        //: 1 That a span can be constructed from a bsl::array, a std::array,
-        //:   and a container that provides contiguous storage.
+        // 1. That a span can be constructed from a bsl::array, a std::array,
+        //    and a container that provides contiguous storage.
         //
         // Plan:
-        //: 1 Attempt to create a span from a bsl::array, a std::array, and
-        //:   from a bsl::vector.
-        //:
-        //: 2 Verify that the resulting spans refer to the memory held by the
-        //:   container that they were created from.
+        // 1. Attempt to create a span from a bsl::array, a std::array, and
+        //    from a bsl::vector.
+        //
+        // 2. Verify that the resulting spans refer to the memory held by the
+        //    container that they were created from.
         //
         // Testing:
         //   span(array<value_type, SIZE>&) noexcept;
@@ -1402,15 +1404,15 @@ int main(int argc, char *argv[])
         //   This case tests construction of a span.
         //
         // Concerns:
-        //: 1 That a span can be constructed from various combinations of
-        //:   parameters.
+        // 1. That a span can be constructed from various combinations of
+        //    parameters.
         //
         // Plan:
-        //: 1 Attempt to create a span from various combinations of parameters.
-        //:   bsl::vector.
-        //:
-        //: 2 Verify that the resulting spans refer to the memory referred to
-        //:   the paramaters passed to the constructor.
+        // 1. Attempt to create a span from various combinations of parameters.
+        //    bsl::vector.
+        //
+        // 2. Verify that the resulting spans refer to the memory referred to
+        //    the paramaters passed to the constructor.
         //
         // Testing:
         //   span() noexcept;
@@ -1434,13 +1436,13 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create a span referring to a the elements of a C-style array.
-        //:
-        //: 2 Ensure that the span refers to the memory managed by the array.
+        // 1. Create a span referring to a the elements of a C-style array.
+        //
+        // 2. Ensure that the span refers to the memory managed by the array.
         //
         // Testing:
         //   BREATHING TEST

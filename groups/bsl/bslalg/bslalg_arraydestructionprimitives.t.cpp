@@ -16,10 +16,10 @@
 #include <bsltf_stdstatefulallocator.h>          // for testing only
 
 #include <new>
-#include <ctype.h>      // 'isalpha'
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
-#include <string.h>     // 'strlen'
+#include <ctype.h>      // `isalpha`
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
+#include <string.h>     // `strlen`
 
 using namespace BloombergLP;
 
@@ -34,7 +34,7 @@ using namespace BloombergLP;
 // copyable.
 //
 // In order to facilitate the generation of test object instances, we make a
-// text object have the value semantics of a 'char', and generate an array of
+// text object have the value semantics of a `char`, and generate an array of
 // test objects from a string specification via a generating function
 // parameterized by the actual test object type.  This lets us reuse the same
 // test code for bitwise-copyable/moveable test types as well as those that do
@@ -113,9 +113,9 @@ class TestType;
 class TestTypeNoAlloc;
 class BitwiseCopyableTestType;
 
-typedef TestType                      T;    // uses 'bslma' allocators
-typedef TestTypeNoAlloc               TNA;  // does not use 'bslma' allocators
-typedef BitwiseCopyableTestType       BCT;  // does not use 'bslma' allocators
+typedef TestType                      T;    // uses `bslma` allocators
+typedef TestTypeNoAlloc               TNA;  // does not use `bslma` allocators
+typedef BitwiseCopyableTestType       BCT;  // does not use `bslma` allocators
 
 typedef bsls::Types::Int64      Int64;
 typedef bsls::Types::Uint64     Uint64;
@@ -133,12 +133,12 @@ bslma::TestAllocator *Z;  // initialized at the start of main()
                                // class TestType
                                // ==============
 
+/// This test type contains a `char` in some allocated storage.  It counts
+/// the number of default and copy constructions, assignments, and
+/// destructions.  It has no traits other than using a `bslma` allocator.
+/// It could have the bit-wise moveable traits but we defer that trait to
+/// the `MoveableTestType`.
 class TestType {
-    // This test type contains a 'char' in some allocated storage.  It counts
-    // the number of default and copy constructions, assignments, and
-    // destructions.  It has no traits other than using a 'bslma' allocator.
-    // It could have the bit-wise moveable traits but we defer that trait to
-    // the 'MoveableTestType'.
 
     char             *d_data_p;
     bslma::Allocator *d_allocator_p;
@@ -237,12 +237,12 @@ bool operator==(const TestType& lhs, const TestType& rhs)
                        // class TestTypeNoAlloc
                        // =====================
 
+/// This test type has footprint and interface identical to `TestType`.  It
+/// also counts the number of default and copy constructions, assignments,
+/// and destructions.  It does not allocate, and thus could have the
+/// bit-wise copyable trait, but we defer this to the
+/// `BitwiseCopyableTestType`.
 class TestTypeNoAlloc {
-    // This test type has footprint and interface identical to 'TestType'.  It
-    // also counts the number of default and copy constructions, assignments,
-    // and destructions.  It does not allocate, and thus could have the
-    // bit-wise copyable trait, but we defer this to the
-    // 'BitwiseCopyableTestType'.
 
     // DATA
     union {
@@ -311,9 +311,9 @@ bool operator==(const TestTypeNoAlloc& lhs,
                        // class BitwiseCopyableTestType
                        // =============================
 
+/// This test type is identical to `TestTypeNoAlloc` except that it has the
+/// bit-wise copyable trait.  All members are inherited.
 class BitwiseCopyableTestType : public TestTypeNoAlloc {
-    // This test type is identical to 'TestTypeNoAlloc' except that it has the
-    // bit-wise copyable trait.  All members are inherited.
 
   public:
     // CREATORS
@@ -346,16 +346,16 @@ template <> struct IsBitwiseCopyable<BitwiseCopyableTestType>
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// This proctor is responsible to create, in an array specified at
+/// construction, a sequence according to some specification.  Upon
+/// destruction, it destroys elements in that array according to the current
+/// specifications.  For `0 <= i < strlen(spec)`, `array[i]` is destroyed if
+/// and only if `1 == isalpha(spec[i])` and in addition, if a reference to
+/// an end pointer is specified at construction, if `i < *specEnd - spec`.
+/// If a tests succeeds, the specifications can be changed to allow for
+/// different (un)initialized elements.
 template <class TYPE, class ALLOCATOR>
 class CleanupGuard {
-    // This proctor is responsible to create, in an array specified at
-    // construction, a sequence according to some specification.  Upon
-    // destruction, it destroys elements in that array according to the current
-    // specifications.  For '0 <= i < strlen(spec)', 'array[i]' is destroyed if
-    // and only if '1 == isalpha(spec[i])' and in addition, if a reference to
-    // an end pointer is specified at construction, if 'i < *specEnd - spec'.
-    // If a tests succeeds, the specifications can be changed to allow for
-    // different (un)initialized elements.
 
     // DATA
     TYPE       *d_array_p;
@@ -411,11 +411,11 @@ class CleanupGuard {
     }
 };
 
+/// Destroy elements in the specified `array` according to the specified
+/// `spec`.  For `0 <= i < strlen(spec)`, `array[i]` is destroyed if and
+/// only if `1 == isalpha(spec[i])`.
 template <class TYPE, class ALLOCATOR>
 void cleanup(TYPE *array, const char *spec, ALLOCATOR alloc)
-    // Destroy elements in the specified 'array' according to the specified
-    // 'spec'.  For '0 <= i < strlen(spec)', 'array[i]' is destroyed if and
-    // only if '1 == isalpha(spec[i])'.
 {
     for (int i = 0; spec[i]; ++i) {
         char c = spec[i];
@@ -429,10 +429,10 @@ void cleanup(TYPE *array, const char *spec, ALLOCATOR alloc)
     }
 }
 
+/// Verify that elements in the specified `array` have values according to
+/// the specified `spec`.
 template <class TYPE>
 void verify(TYPE *array, const char *spec)
-    // Verify that elements in the specified 'array' have values according to
-    // the specified 'spec'.
 {
     for (int i = 0; spec[i]; ++i) {
         char c = spec[i];
@@ -457,12 +457,12 @@ void fillWithJunk(void *buf, int size)
 }
 
 //=============================================================================
-//              GENERATOR FUNCTIONS 'gg' AND 'ggg' FOR TESTING
+//              GENERATOR FUNCTIONS `gg` AND `ggg` FOR TESTING
 //-----------------------------------------------------------------------------
-// The following functions interpret the given 'spec' in order from left to
+// The following functions interpret the given `spec` in order from left to
 // right to configure an array according to a custom language.  Letters
 // [a .. z, A .. Z] correspond to arbitrary (but unique) char values used to
-// initialize elements of an array of 'T' objects.  An underscore ('_')
+// initialize elements of an array of `T` objects.  An underscore ('_')
 // indicates that an element should be left uninitialized.
 //
 // LANGUAGE SPECIFICATION
@@ -491,17 +491,17 @@ void fillWithJunk(void *buf, int size)
 // "a"          ...
 //-----------------------------------------------------------------------------
 
+/// Configure the specified `array` of objects of the parameterized `TYPE`
+/// (assumed to be uninitialized) according to the specified `spec`.
+/// Optionally specify a zero `verboseFlag` to suppress `spec` syntax error
+/// messages.  Return the index of the first invalid character, and a
+/// negative value otherwise.  Note that this function is used to implement
+/// `gg` as well as allow for verification of syntax error detection.
+///
+/// Note that this generator is used in exception tests, and thus need to be
+/// exception-safe.
 template <class TYPE, class ALLOCATOR>
 int ggg(TYPE *array, const char *spec, ALLOCATOR alloc, int verboseFlag = 1)
-    // Configure the specified 'array' of objects of the parameterized 'TYPE'
-    // (assumed to be uninitialized) according to the specified 'spec'.
-    // Optionally specify a zero 'verboseFlag' to suppress 'spec' syntax error
-    // messages.  Return the index of the first invalid character, and a
-    // negative value otherwise.  Note that this function is used to implement
-    // 'gg' as well as allow for verification of syntax error detection.
-    //
-    // Note that this generator is used in exception tests, and thus need to be
-    // exception-safe.
 {
     CleanupGuard<TYPE, ALLOCATOR> guard(array, spec, alloc);
     guard.setLength(0);
@@ -518,7 +518,7 @@ int ggg(TYPE *array, const char *spec, ALLOCATOR alloc, int verboseFlag = 1)
         }
         else {
             if (verboseFlag) {
-                printf("Error, bad character ('%c') in spec \"%s\""
+                printf("Error, bad character (`%c`) in spec \"%s\""
                        " at position %d.\n", spec[i], spec, i);
             }
 
@@ -531,11 +531,11 @@ int ggg(TYPE *array, const char *spec, ALLOCATOR alloc, int verboseFlag = 1)
     return SUCCESS;
 }
 
+/// Return a reference to the modifiable first element of the specified
+/// `array` after the value of `array` has been adjusted according to the
+/// specified `spec`.
 template <class TYPE, class ALLOCATOR>
 TYPE& gg(TYPE *array, const char *spec, ALLOCATOR alloc)
-    // Return a reference to the modifiable first element of the specified
-    // 'array' after the value of 'array' has been adjusted according to the
-    // specified 'spec'.
 {
     ASSERT(ggg(array, spec, alloc) < 0);
     return *array;
@@ -552,7 +552,7 @@ static const struct {
     int         d_ne;        // number of elements (ne = end - begin).
     const char *d_expected;  // expected result array
 } DATA_2[] = {
-    // Order test data by increasing 'ne'.
+    // Order test data by increasing `ne`.
 
     //line spec         begin    ne      expected
     //---- ----         -----    --      --------
@@ -621,40 +621,45 @@ namespace UsageExample {
 ///Usage
 ///-----
 // In this section we show intended use of this component.  Note that this
-// component is for use by the 'bslstl' package.  Other clients should use the
-// STL algorithms (in header '<algorithm>' and '<memory>').
+// component is for use by the `bslstl` package.  Other clients should use the
+// STL algorithms (in header `<algorithm>` and `<memory>`).
 //
-///Example 1: Destroy Arrays of 'int' and 'Integer' Wrapper Objects
+///Example 1: Destroy Arrays of `int` and `Integer` Wrapper Objects
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example, we will use 'bslalg::ArrayDestructionPrimitives' to destroy
-// both an array of integer scalars and an array of 'MyInteger' objects.
-// Calling the 'destory' method on an array of integers is a no-op while
-// calling the 'destroy' method on an array of objects of 'MyInteger' class
+// In this example, we will use `bslalg::ArrayDestructionPrimitives` to destroy
+// both an array of integer scalars and an array of `MyInteger` objects.
+// Calling the `destory` method on an array of integers is a no-op while
+// calling the `destroy` method on an array of objects of `MyInteger` class
 // invokes the destructor of each of the objects in the array.
 //
-// First, we define a 'MyInteger' class that contains an integer value:
-//..
+// First, we define a `MyInteger` class that contains an integer value:
+// ```
+
+    /// This class represents an integer value.
     class MyInteger {
-        // This class represents an integer value.
 //
         int d_intValue;  // integer value
 //
       public:
         // CREATORS
+
+        /// Create a `MyInteger` object having integer value `0`.
         MyInteger();
-            // Create a 'MyInteger' object having integer value '0'.
 //
+
+        /// Create a `MyInteger` object having the specified `value`.
         explicit MyInteger(int value);
-            // Create a 'MyInteger' object having the specified 'value'.
 //
+
+        /// Destroy this object.
         ~MyInteger();
-            // Destroy this object.
 //
         // ACCESSORS
+
+        /// Return the integer value contained in this object.
         int getValue() const;
-            // Return the integer value contained in this object.
     };
-//..
+// ```
 
 // CREATORS
 MyInteger::MyInteger()
@@ -712,47 +717,47 @@ int main(int argc, char *argv[])
                             "\n=====================\n");
         using namespace UsageExample;
 
-//..
-// Then, we create an array of objects, 'myIntegers', of type 'MyInteger' (note
-// that we 'bsls::ObjectBuffer' to allow us to safely invoke the destructor
+// ```
+// Then, we create an array of objects, `myIntegers`, of type `MyInteger` (note
+// that we `bsls::ObjectBuffer` to allow us to safely invoke the destructor
 // explicitly):
-//..
+// ```
     bsls::ObjectBuffer<MyInteger> arrayBuffer[5];
     MyInteger *myIntegers = &arrayBuffer[0].object();
     for (int i = 0;i < 5; ++i) {
         new (static_cast<void *>(myIntegers + i)) MyInteger(i);
     }
-//..
+// ```
 // Now, we define a primitive integer array:
-//..
+// ```
     int scalarIntegers[] = { 0, 1, 2, 3, 4 };
-//..
-// Finally, we use the uniform 'bslalg::ArrayDestructionPrimitives:destroy'
-// method to destroy both 'myIntegers' and 'scalarIntegers':
-//..
+// ```
+// Finally, we use the uniform `bslalg::ArrayDestructionPrimitives:destroy`
+// method to destroy both `myIntegers` and `scalarIntegers`:
+// ```
     bslalg::ArrayDestructionPrimitives::destroy(myIntegers, myIntegers + 5);
     bslalg::ArrayDestructionPrimitives::destroy(scalarIntegers,
                                                 scalarIntegers + 5);
-//..
+// ```
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING [deprecated] 'destroy'
+        // TESTING [deprecated] `destroy`
         //
         // Concerns:
-        //: 1. The 'destroy' acts as a uniform interface to destroy arrays of
-        //:    objects of different types as expected.
+        //  1. The `destroy` acts as a uniform interface to destroy arrays of
+        //     objects of different types as expected.
         //
         // Plan:
-        //: 1. Construct arrays of objects of types that have different type
-        //:    traits declared.  Call the 'destroy' method on them and verify
-        //:    they are destroyed as expected.  (C-1)
+        //  1. Construct arrays of objects of types that have different type
+        //     traits declared.  Call the `destroy` method on them and verify
+        //     they are destroyed as expected.  (C-1)
         //
         // Testing:
         //   void destroy(T *b, T *e, *a);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING [deprecated] 'destroy'\n");
+        if (verbose) printf("\nTESTING [deprecated] `destroy`\n");
 
         if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
         testDestroy<TNA>(false);
@@ -789,22 +794,22 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'destroy'
+        // TESTING `destroy`
         //
         // Concerns:
-        //: 1. The 'destroy' acts as a uniform interface to destroy arrays of
-        //:    objects of different types as expected.
+        //  1. The `destroy` acts as a uniform interface to destroy arrays of
+        //     objects of different types as expected.
         //
         // Plan:
-        //: 1. Construct arrays of objects of types that have different type
-        //:    traits declared.  Call the 'destroy' method on them and verify
-        //:    they are destroyed as expected.  (C-1)
+        //  1. Construct arrays of objects of types that have different type
+        //     traits declared.  Call the `destroy` method on them and verify
+        //     they are destroyed as expected.  (C-1)
         //
         // Testing:
         //   void destroy(T *b, T *e, A *a);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'destroy'"
+        if (verbose) printf("\nTESTING `destroy`"
                             "\n=================\n");
 
         if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
@@ -846,10 +851,10 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1. The 'destroy' algorithm works as intended.
+        //  1. The `destroy` algorithm works as intended.
         //
         // Plan:
-        //: 1. Construct objects in a range and use 'destroy' to destroy
+        //  1. Construct objects in a range and use `destroy` to destroy
         //     them.  Make sure all memory is deallocated.  (C-1)
         //
         // Testing:

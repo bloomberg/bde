@@ -4,8 +4,8 @@
 #include <bsls_deprecate.h>
 
 #include <stdio.h>
-#include <stdlib.h>  // 'atoi'
-#include <string.h>  // 'strcmp'
+#include <stdlib.h>  // `atoi`
+#include <string.h>  // `strcmp`
 
 // ============================================================================
 //                                 TEST PLAN
@@ -13,7 +13,7 @@
 //                                 Overview
 //                                 --------
 // The component component under test defines a family of macros that control
-// whether or not deprecations introduced in any given version of 'bsl' are
+// whether or not deprecations introduced in any given version of `bsl` are
 // active.  The component has no user interface as such, so the only test cases
 // are ad-hoc and appear "below-the-line".
 // ----------------------------------------------------------------------------
@@ -75,24 +75,24 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // CONFIRM VERSIONS WITH ACTIVE DEPRECATIONS
-        //   Appropriate 'BSL_VERSION_DEPRECATE_<M>_<N>' macros are defined for
+        //   Appropriate `BSL_VERSION_DEPRECATE_<M>_<N>` macros are defined for
         //   all versions with active deprecations.
         //
         // Concerns:
-        //: 1 Desired macros are defined.
-        //:
-        //: 2 Desired macros are correctly rendered.
-        //:
-        //: 2 Un-desired macros are not defined.
+        // 1. Desired macros are defined.
+        //
+        // 2. Desired macros are correctly rendered.
+        //
+        // 2. Un-desired macros are not defined.
         //
         // Plan:
-        //: 1 Compare the expansion of 'BSLS_DEPRECATE_IS_ACTIVE' for each
-        //:   version of BSL known to have active deprecation with the
-        //:   expansion of 'BSLS_DEPRECATE_ATTRIBUTE'.  (C-1,2)
-        //:
-        //: 2 Compare the expansion of 'BSLS_DEPRECATE_IS_ACTIVE' for nearby
-        //:   version of BSL known to *not* have active deprecation with the
-        //:   expansion of an empty macro definition.  (C-3)
+        // 1. Compare the expansion of `BSLS_DEPRECATE_IS_ACTIVE` for each
+        //    version of BSL known to have active deprecation with the
+        //    expansion of `BSLS_DEPRECATE_ATTRIBUTE`.  (C-1,2)
+        //
+        // 2. Compare the expansion of `BSLS_DEPRECATE_IS_ACTIVE` for nearby
+        //    version of BSL known to *not* have active deprecation with the
+        //    expansion of an empty macro definition.  (C-3)
         //
         // Testing:
         //   CONFIRM VERSIONS WITH ACTIVE DEPRECATIONS

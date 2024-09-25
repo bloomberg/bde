@@ -73,13 +73,14 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
                                         //
+
+/// Print identifier and its value.
 #define PW(X)                                                                 \
     bsl::wcout << #X " = " << (X) << bsl::endl;
-    // Print identifier and its value.
 
+/// `P(X)` without '\n'
 #define PW_(X)                                                                \
     bsl::wcout << #X " = " << (X) << ", " << bsl::flush;
-    // 'P(X)' without '\n'
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -98,10 +99,10 @@ typedef bslim::FormatGuard Guard;
 namespace {
 namespace u {
 
+/// Return the number of times the specified character `c` occurs in the
+/// specified string `str`.
 template <class CHAR_TYPE>
 bsl::size_t countChar(const bsl::basic_string<CHAR_TYPE>& str, CHAR_TYPE c)
-    // Return the number of times the specified character 'c' occurs in the
-    // specified string 'str'.
 {
     return bsl::count(str.begin(), str.end(), c);
 }
@@ -133,10 +134,10 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concern:
-        //: 1 That the usage example compiles and works properly.
+        // 1. That the usage example compiles and works properly.
         //
         // Plan:
-        //: 1 Encode the usage example and run it.
+        // 1. Encode the usage example and run it.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -148,7 +149,7 @@ int main(int argc, char *argv[])
 //
 ///Usage
 ///-----
-// In the following example we illustrate the usage of 'FormatGuard'.
+// In the following example we illustrate the usage of `FormatGuard`.
 //
 ///Example 1: Saving Stream State to be Restored Later:
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -156,36 +157,36 @@ int main(int argc, char *argv[])
 // state of the stream.
 //
 // First, we declare our stream:
-//..
+// ```
     bsl::ostringstream oss;
-//..
-// Then, we use a 'FormatGuard' to save the state of 'oss' before we
-// reconfigure it, so that when the 'FormatGuard' is destroyed it will resotre
-// 'oss' to its original state.
-//..
+// ```
+// Then, we use a `FormatGuard` to save the state of `oss` before we
+// reconfigure it, so that when the `FormatGuard` is destroyed it will resotre
+// `oss` to its original state.
+// ```
     {
         bslim::FormatGuard guard(&oss);
-//..
+// ```
 // Then, we reconfigure out stream and do some output:
-//..
+// ```
         oss << "First line in hex: " << bsl::showbase << bsl::hex << 80 <<
                                                                           endl;
-//..
-// Next, we leave the block and the destructor of 'guard' will restore 'oss'
+// ```
+// Next, we leave the block and the destructor of `guard` will restore `oss`
 // to its original configuration:
-//..
+// ```
     }
-//..
+// ```
 // Now, we do another line of output:
-//..
+// ```
     oss << "Second line in decimal: " << 123 << endl;
-//..
+// ```
 // Finally, we observe that our guarded output was in hex, as desired, and the
 // output afterward was in decimal, as desired:
-//..
+// ```
     ASSERT(oss.str() == "First line in hex: 0x50\n"
                         "Second line in decimal: 123\n");
-//..
+// ```
       } break;
       case 5: {
 #if 0
@@ -195,11 +196,11 @@ int main(int argc, char *argv[])
         // INPUT STREAM
         //
         // Concern:
-        //: 1 That the guard can work with a 'basic_istream'.
+        // 1. That the guard can work with a `basic_istream`.
         //
         // Plan:
-        //: 1 Configure a 'basic_istream', save the state, change the state,
-        //:   restore the state and observe that it was properly saved.
+        // 1. Configure a `basic_istream`, save the state, change the state,
+        //    restore the state and observe that it was properly saved.
         //
         // Testing:
         //   FormatGuard(bsl::basic_istream<CHAR_TYPE, CHAR_TRAITS> *);
@@ -228,11 +229,11 @@ int main(int argc, char *argv[])
         // VERY WIDE TYPE
         //
         // Concern:
-        //: 1 That the guard can work with a stream whose 'CHAR_TYPE' is some
-        //:   type other than 'char' or 'wchar_t'.
+        // 1. That the guard can work with a stream whose `CHAR_TYPE` is some
+        //    type other than `char` or `wchar_t`.
         //
         // Plan:
-        //: 1 Conduct some experiments on 'basic_ostringstream<unsigned>'.
+        // 1. Conduct some experiments on `basic_ostringstream<unsigned>`.
         //
         // Testing:
         //   FormatGuard(bsl::basic_ostream<unsigned> *);
@@ -246,10 +247,10 @@ int main(int argc, char *argv[])
                              "======================\n";
 
 
-        // It turns out that you can't do much to a 'basic_ostringstream<TYPE>'
-        // unless the locales are set up just right for 'TYPE', which is not
-        // the case for 'basic_ostringstream<unsigned>' except on Solaris with
-        // the 'cc' compiler.
+        // It turns out that you can't do much to a `basic_ostringstream<TYPE>`
+        // unless the locales are set up just right for `TYPE`, which is not
+        // the case for `basic_ostringstream<unsigned>` except on Solaris with
+        // the `cc` compiler.
 
         bsl::basic_ostringstream<unsigned> oss;
 
@@ -302,18 +303,18 @@ int main(int argc, char *argv[])
         // WIDE STRINGSTREAM TEST
         //
         // Concerns:
-        //: 1 Ensure the guard will work properly with a wide string stream.
+        // 1. Ensure the guard will work properly with a wide string stream.
         //
         // Plan:
-        //: 1 Create a wide string stream.
-        //:
-        //: 2 Save its state with a guard.
-        //:
-        //: 3 Change the stream's state.
-        //:
-        //: 4 Exit the guarded block.
-        //:
-        //: 5 Observe that the stream's state is restored.
+        // 1. Create a wide string stream.
+        //
+        // 2. Save its state with a guard.
+        //
+        // 3. Change the stream's state.
+        //
+        // 4. Exit the guarded block.
+        //
+        // 5. Observe that the stream's state is restored.
         //
         // Testing:
         //   FormatGuard(bsl::basic_ostream<wchar_t> *);
@@ -401,27 +402,27 @@ int main(int argc, char *argv[])
         // NORMAL STREAM TEST
         //
         // Concern:
-        //: 1 Test various different forms of stream configuration saved by
-        //:   guards.
+        // 1. Test various different forms of stream configuration saved by
+        //    guards.
         //
         // Plan:
-        //: 1 Create an 'ostringstream', configure it to a non-default
-        //:   state in various ways.
-        //:
-        //: 2 Do a few outputs with it and save references to 'string's of the
-        //:   outputs.
-        //:
-        //: 3 Iterate through a loop, within the loop:
-        //:   o Save the stream state with a guard
-        //:
-        //:   o change the stream state
-        //:
-        //:   o do some output relying on the different stream state.
-        //:
-        //:   o exit the guarded block
-        //:
-        //:   o repeat outputs identical to the ones done before the loop and
-        //:     observe the output is identical.
+        // 1. Create an `ostringstream`, configure it to a non-default
+        //    state in various ways.
+        //
+        // 2. Do a few outputs with it and save references to `string`s of the
+        //    outputs.
+        //
+        // 3. Iterate through a loop, within the loop:
+        //    - Save the stream state with a guard
+        //
+        //    - change the stream state
+        //
+        //    - do some output relying on the different stream state.
+        //
+        //    - exit the guarded block
+        //
+        //    - repeat outputs identical to the ones done before the loop and
+        //      observe the output is identical.
         //
         // Testing:
         //   FormatGuard(bsl::basic_ostream<CHAR_TYPE, CHAR_TRAITS> *);
@@ -546,7 +547,7 @@ int main(int argc, char *argv[])
                     ASSERT(1 == u::countChar(outputFixed, '.'));
                   } break;
                   case 5: {
-                    // Write 'bool's in alphanumeric form
+                    // Write `bool`s in alphanumeric form
 
                     // This test fails when using libc++ because of
                     // https://cplusplus.github.io/LWG/lwg-active.html#2703
@@ -609,12 +610,12 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to support comprehensive
-        //:   testing.
+        // 1. The class is sufficiently functional to support comprehensive
+        //    testing.
         //
         // Plan:
-        //: 1 Use the guard on an output stream and an input stream and observe
-        //:   its effects.
+        // 1. Use the guard on an output stream and an input stream and observe
+        //    its effects.
         //
         // Testing:
         //   BREATHING TEST

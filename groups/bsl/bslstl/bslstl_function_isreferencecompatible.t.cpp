@@ -5,8 +5,8 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 
@@ -17,11 +17,11 @@ using namespace BloombergLP;
 //                                  --------
 //
 // The metafunction under test is used to determine if, for template types
-// 'FROM_TYPE' and 'TO_TYPE', a reference to the specified 'FROM_TYPE'
-// parameter type can be substituted for a reference to the specified 'TO_TYPE'
+// `FROM_TYPE` and `TO_TYPE`, a reference to the specified `FROM_TYPE`
+// parameter type can be substituted for a reference to the specified `TO_TYPE`
 // parameter type with no loss of information.  By default, this metafunction
-// yields 'true_type' if 'FROM_TYPE' is the same as 'TO_TYPE'; else it yields
-//'false_type'.  However, this template can be specialized to yield 'true_type'
+// yields `true_type` if `FROM_TYPE` is the same as `TO_TYPE`; else it yields
+//`false_type`.  However, this template can be specialized to yield `true_type`
 // for other parameters that have compatible references.  The tests will verify
 // the default behaviour of the metafunction under test, as well as the
 // behaviour in the presence of a user provided specialization.  The tests will
@@ -112,11 +112,11 @@ static int veryVeryVeryVerbose = 0;  // For test allocators
 
 namespace bsl {
 
+/// Stub implementation of `bsl::function` for testing.  An object of this
+/// type is never created in this test driver, but conversion to and from
+/// this type is tested.
 template <class PROTOTYPE>
 class function {
-    // Stub implementation of 'bsl::function' for testing.  An object of this
-    // type is never created in this test driver, but conversion to and from
-    // this type is tested.
 };
 
 }  // close namespace bsl
@@ -126,18 +126,18 @@ namespace BloombergLP {
 template <class PROTOTYPE>
 class bdef_Function;
 
+/// Stub implementation of `BloombergLP::bdef_Function` for testing.  An
+/// object of this type is never created in this test driver, but conversion
+/// to and from this type is tested.
 template <class PROTOTYPE>
 class bdef_Function<PROTOTYPE *> : public bsl::function<PROTOTYPE> {
-    // Stub implementation of 'BloombergLP::bdef_Function' for testing.  An
-    // object of this type is never created in this test driver, but conversion
-    // to and from this type is tested.
 };
 
 namespace bslstl {
 
-// Specialize 'bsl::Function_IsReferenceCompatible' metafunction to indicate
-// that references to 'bdef_Function' can be used as references to
-// 'bsl::function'.
+// Specialize `bsl::Function_IsReferenceCompatible` metafunction to indicate
+// that references to `bdef_Function` can be used as references to
+// `bsl::function`.
 template <class PROTOTYPE>
 struct Function_IsReferenceCompatible<BloombergLP::bdef_Function<PROTOTYPE *>,
                                       bsl::function<PROTOTYPE> >
@@ -153,15 +153,15 @@ struct BaseClass {
 struct DerivedClass : BaseClass {
 };
 
+/// Instantiates `Function_IsReferenceCompatible<FROM, TO>` and verifies
+/// that the result type has a const member `value` such that
+/// `value == EXP`.  Also instantiate
+/// `Function_IsReferenceCompatible<FROM, TO>` with every combination of
+/// const qualifier on `FROM` and const qualifier on `TO`, verifying the
+/// expected result `value` (which is sometimes `false` even if `EXP` is
+/// true).
 template <class FROM, class TO, bool EXP, int LINE>
 void testIsReferenceCompatible()
-    // Instantiates 'Function_IsReferenceCompatible<FROM, TO>' and verifies
-    // that the result type has a const member 'value' such that
-    // 'value == EXP'.  Also instantiate
-    // 'Function_IsReferenceCompatible<FROM, TO>' with every combination of
-    // const qualifier on 'FROM' and const qualifier on 'TO', verifying the
-    // expected result 'value' (which is sometimes 'false' even if 'EXP' is
-    // true).
 {
     using namespace BloombergLP;
 
@@ -194,55 +194,55 @@ int main(int argc, char *argv[])
       case 0:  // Zero is always the leading case.
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'Function_IsReferenceCompatible'
+        // TESTING `Function_IsReferenceCompatible`
         //
         // Concerns:
-        //: 1 An instantiation of 'Function_IsReferenceCompatible<T,U>' where
-        //:   'T' and 'U' are the same type yields (class derived from)
-        //:   'true_type'.
-        //:
-        //: 2 An *unspecialized* instantiation of
-        //:   'Function_IsReferenceCompatible<T,U>' where 'T' and 'U' are
-        //:   different types yields 'false_type', even if 'T' is derived from
-        //:   'U'.
-        //:
-        //: 3 An instantiation of 'Function_IsReferenceCompatible<T,U>' that
-        //:   matches an explicit specialization or partial specialization
-        //:   yields the result of that specialization or partial
-        //:   specialization.
-        //:
-        //: 4 If 'T' is const qualified and 'U' is not const qualified,
-        //:   'Function_IsReferenceCompatible<T,U>' yields 'false_type' even
-        //:   if 'T' and 'U' are reference compatible.  If 'U' is const
-        //:   qualified, then the const qualifiers on both 'T' and 'U' are
-        //:   ignored.  (This semantic adheres to the language rule that 'U'
-        //:   type must be of same or greater cv qualification than 'T' type).
+        // 1. An instantiation of `Function_IsReferenceCompatible<T,U>` where
+        //    `T` and `U` are the same type yields (class derived from)
+        //    `true_type`.
+        //
+        // 2. An *unspecialized* instantiation of
+        //    `Function_IsReferenceCompatible<T,U>` where `T` and `U` are
+        //    different types yields `false_type`, even if `T` is derived from
+        //    `U`.
+        //
+        // 3. An instantiation of `Function_IsReferenceCompatible<T,U>` that
+        //    matches an explicit specialization or partial specialization
+        //    yields the result of that specialization or partial
+        //    specialization.
+        //
+        // 4. If `T` is const qualified and `U` is not const qualified,
+        //    `Function_IsReferenceCompatible<T,U>` yields `false_type` even
+        //    if `T` and `U` are reference compatible.  If `U` is const
+        //    qualified, then the const qualifiers on both `T` and `U` are
+        //    ignored.  (This semantic adheres to the language rule that `U`
+        //    type must be of same or greater cv qualification than `T` type).
         //
         // Plan:
-        //: 1 For concern 1, instantiate
-        //:   'Function_IsReferenceCompatible<T,T>', where 'T' is 'int', a
-        //:   'bsl::function' specialization and a 'bdef_Function'
-        //:   specialization.  Verify that the contained 'value' constant is
-        //:   'true'.
-        //:
-        //: 2 For concern 2, instantiate 'Function_IsReferenceCompatible<T,U>'
-        //:   where 'T' and 'U' are different, incompatible types, including
-        //:   the case where 'T' is derived from 'U'.  Verify that the
-        //:   contained 'value' constant is 'false'.
-        //:
-        //: 3 For concern 3, instantiate 'Function_IsReferenceCompatible<T,U>'
-        //:   where 'T' is a specialization of 'bdef_Function' and 'U' is a
-        //:   specialization of 'bsl::function' based on the same function
-        //:   prototype.  Verify that it yields 'true_type' (because there is
-        //:   an explicit specialization).  Repeat this step using
-        //:   'bdef_Function' and 'bsl::function' based on different function
-        //:   prototypes and verify that it yields 'false_type'.
-        //:
-        //: 4 For concern 4, repeat the above steps with const qualifiers on
-        //:   the first parameter, the second parameter, or both.  Verify that
-        //:   if the first parameter is const and the second is not const, then
-        //:   the result is 'false_type'; otherwise the result is the same as
-        //:   without the const qualifiers.
+        // 1. For concern 1, instantiate
+        //    `Function_IsReferenceCompatible<T,T>`, where `T` is `int`, a
+        //    `bsl::function` specialization and a `bdef_Function`
+        //    specialization.  Verify that the contained `value` constant is
+        //    `true`.
+        //
+        // 2. For concern 2, instantiate `Function_IsReferenceCompatible<T,U>`
+        //    where `T` and `U` are different, incompatible types, including
+        //    the case where `T` is derived from `U`.  Verify that the
+        //    contained `value` constant is `false`.
+        //
+        // 3. For concern 3, instantiate `Function_IsReferenceCompatible<T,U>`
+        //    where `T` is a specialization of `bdef_Function` and `U` is a
+        //    specialization of `bsl::function` based on the same function
+        //    prototype.  Verify that it yields `true_type` (because there is
+        //    an explicit specialization).  Repeat this step using
+        //    `bdef_Function` and `bsl::function` based on different function
+        //    prototypes and verify that it yields `false_type`.
+        //
+        // 4. For concern 4, repeat the above steps with const qualifiers on
+        //    the first parameter, the second parameter, or both.  Verify that
+        //    if the first parameter is const and the second is not const, then
+        //    the result is `false_type`; otherwise the result is the same as
+        //    without the const qualifiers.
         //
         // Testing:
         //      Function_IsReferenceCompatible
@@ -250,7 +250,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nTESTING 'Function_IsReferenceCompatible'"
+            printf("\nTESTING `Function_IsReferenceCompatible`"
                    "\n=======================================\n");
 
         typedef bsl::function<int(char *)>     bslFunc1;
@@ -289,11 +289,11 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 That the basic 'Function_IsReferenceCompatible' functionality
-        //:   works as intended.
+        // 1. That the basic `Function_IsReferenceCompatible` functionality
+        //    works as intended.
         //
         // Plan:
-        //: 1 Exercise basic use of 'Function_IsReferenceCompatible'
+        // 1. Exercise basic use of `Function_IsReferenceCompatible`
         //
         // Testing:
         //  BREATHING TEST

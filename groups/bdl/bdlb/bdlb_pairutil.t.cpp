@@ -25,10 +25,10 @@ using namespace bsl;
 //                                  Overview
 //                                  --------
 // This component is a utility that provides a single static function template,
-// 'tie'.  The primary concern is to ensure that this function template
+// `tie`.  The primary concern is to ensure that this function template
 // satisfies its contract.
 //
-// Note that as long as 'tie' always returns the correct type, there are no
+// Note that as long as `tie` always returns the correct type, there are no
 // allocator issues involved, because reference types are not allocator-aware.
 //-----------------------------------------------------------------------------
 // CLASS METHODS
@@ -148,21 +148,21 @@ int id(int x)
     return x;
 }
 
+/// Return an lvalue of type `t_TYPE` that is distinct from the one returned
+/// by `getSecond<t_TYPE>`.  This template is specialized for various types
+/// for which the default definition might not do the right thing.
 template <class t_TYPE>
 t_TYPE& getFirst()
-    // Return an lvalue of type 't_TYPE' that is distinct from the one returned
-    // by 'getSecond<t_TYPE>'.  This template is specialized for various types
-    // for which the default definition might not do the right thing.
 {
     static t_TYPE x;
     return x;
 }
 
+/// Return an lvalue of type `t_TYPE` that is distinct from the one returned
+/// by `getFirst<t_TYPE>`.  This template is specialized for various types
+/// for which the default definition might not do the right thing.
 template <class t_TYPE>
 t_TYPE& getSecond()
-    // Return an lvalue of type 't_TYPE' that is distinct from the one returned
-    // by 'getFirst<t_TYPE>'.  This template is specialized for various types
-    // for which the default definition might not do the right thing.
 {
     static t_TYPE y;
     return y;
@@ -180,24 +180,24 @@ Function& getSecond()
     return id;
 }
 
+/// Statically assert that the template parameters `t_TYPE1` and `t_TYPE2`
+/// are the same, which ensures that the argument types are almost the same,
+/// other than that they might differ in const-qualification.  Note that in
+/// C++03, we have no way to distinguish whether the original arguments were
+/// lvalues or rvalues, but surely we won't accidentally change the return
+/// type of of `bdlb::PairUtil::tie` to a reference (or a `const`
+/// non-reference) (I hope).
 template <class t_TYPE1, class t_TYPE2>
 void assertSameType(const t_TYPE1&, const t_TYPE2&)
-    // Statically assert that the template parameters 't_TYPE1' and 't_TYPE2'
-    // are the same, which ensures that the argument types are almost the same,
-    // other than that they might differ in const-qualification.  Note that in
-    // C++03, we have no way to distinguish whether the original arguments were
-    // lvalues or rvalues, but surely we won't accidentally change the return
-    // type of of 'bdlb::PairUtil::tie' to a reference (or a 'const'
-    // non-reference) (I hope).
 {
     BSLMF_ASSERT((bsl::is_same<t_TYPE1, t_TYPE2>::value));
 }
 
+/// Assert that the specified `first` and `second` pointers are unequal.
+/// Note that this overload is chosen only if the arguments point to the
+/// same type (up to cv-qualification).
 template <class t_TYPE>
 void assertDistinctIfSameUnqualType(const t_TYPE *first, const t_TYPE *second)
-    // Assert that the specified 'first' and 'second' pointers are unequal.
-    // Note that this overload is chosen only if the arguments point to the
-    // same type (up to cv-qualification).
 {
     ASSERT(first != second);
 }
@@ -234,11 +234,11 @@ struct TestWithFirst {
     }
 };
 
+/// Run test case 2 with all ordered pairs of scalar, array, class, union,
+/// and function types, as well as two specializations of `bsl::pair` (used
+/// in order to ensure that `tie` does not call an unintended constructor,
+/// since `bsl::pair` has many constructors.)
 void run()
-    // Run test case 2 with all ordered pairs of scalar, array, class, union,
-    // and function types, as well as two specializations of 'bsl::pair' (used
-    // in order to ensure that 'tie' does not call an unintended constructor,
-    // since 'bsl::pair' has many constructors.)
 {
     BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
                                           TestWithFirst,
@@ -258,19 +258,20 @@ namespace {
 ///-----
 // This section illustrates intended use of this component.
 //
-// Suppose we need to implement a function that takes a 'bsl::map' and stores
+// Suppose we need to implement a function that takes a `bsl::map` and stores
 // into out-parameters the key and value corresponding to the first entry in
-// the map.  Using 'bsl::map's container interface, we can obtain a reference
-// to a 'bsl::pair' of the key and value.  We can then use
-// 'bdlb::PairUtil::tie' to assign from both the key and value in a single
+// the map.  Using `bsl::map`s container interface, we can obtain a reference
+// to a `bsl::pair` of the key and value.  We can then use
+// `bdlb::PairUtil::tie` to assign from both the key and value in a single
 // expression:
+
+/// Load into the specified `key` and the specified `value` the key and
+/// value for the first entry in the specified `map` and return `true`, or
+/// else fail by storing 0 and an empty string and return `false` when `map`
+/// is empty.
 bool getFirst(int                              *key,
               bsl::string                      *value,
               const bsl::map<int, bsl::string>& map)
-    // Load into the specified 'key' and the specified 'value' the key and
-    // value for the first entry in the specified 'map' and return 'true', or
-    // else fail by storing 0 and an empty string and return 'false' when 'map'
-    // is empty.
 {
     if (map.empty()) {
         *key = 0;
@@ -281,8 +282,8 @@ bool getFirst(int                              *key,
     return true;
 }
 
+/// Run the usage example defined in the component header.
 void usageExample()
-    // Run the usage example defined in the component header.
 {
     bsl::map<int, bsl::string> map;
     map[30782530] = "bbi10";
@@ -317,12 +318,12 @@ int main(int argc, char *argv[])
         //   file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Copy the usage example from the component header, change 'assert'
-        //:   to 'ASSERT', and run the function 'usageExample'.  (C-1)
+        // 1. Copy the usage example from the component header, change `assert`
+        //    to `ASSERT`, and run the function `usageExample`.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -334,47 +335,47 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'tie'
+        // TESTING `tie`
         //
         // Concerns:
-        //: 1 The 'tie' function can accept lvalues of scalar, array, class,
-        //:   union, and function types.
-        //:
-        //: 2 The 'tie' function can accept both const and non-const lvalues.
-        //:
-        //: 3 The return type of the 'tie' function is always a 'bsl::pair'
-        //:   whose first type is an lvalue reference to the first argument's
-        //:   type and whose second type is an lvalue reference to the second
-        //:   argument's type.
-        //:
-        //: 4 The addresses of the first and second elements of the returned
-        //:   pair from 'tie' (which are the addresses of their referents) are
-        //:   equal to the addresses of the arguments.
-        //:
-        //: 5 The 'tie' function always calls the correct constructor of
-        //:   'bsl::pair' so as to ensure that the 'first' (resp. 'second')
-        //:   member of the result has the same address as the first (resp.
-        //:   second) argument.
+        // 1. The `tie` function can accept lvalues of scalar, array, class,
+        //    union, and function types.
+        //
+        // 2. The `tie` function can accept both const and non-const lvalues.
+        //
+        // 3. The return type of the `tie` function is always a `bsl::pair`
+        //    whose first type is an lvalue reference to the first argument's
+        //    type and whose second type is an lvalue reference to the second
+        //    argument's type.
+        //
+        // 4. The addresses of the first and second elements of the returned
+        //    pair from `tie` (which are the addresses of their referents) are
+        //    equal to the addresses of the arguments.
+        //
+        // 5. The `tie` function always calls the correct constructor of
+        //    `bsl::pair` so as to ensure that the `first` (resp. `second`)
+        //    member of the result has the same address as the first (resp.
+        //    second) argument.
         //
         // Plan:
-        //: 1 For all possible ordered pairs from a particular set of scalar,
-        //:   array, class, union, and function type, and const-qualified
-        //:   versions thereof, create one lvalue of each type.  For each such
-        //:   combination, call the 'tie' function and verify that the result
-        //:   has the expected type.  Then, verify that the 'first' member's
-        //:   address is the same as the address of the first lvalue, and the
-        //:   'second' member's address is the same as the address of the
-        //:   second lvalue.  (C-1..4)
-        //:
-        //: 2 Repeat P-1 using some combinations of two 'bsl::pair'
-        //:   specializations.  (C-5)
+        // 1. For all possible ordered pairs from a particular set of scalar,
+        //    array, class, union, and function type, and const-qualified
+        //    versions thereof, create one lvalue of each type.  For each such
+        //    combination, call the `tie` function and verify that the result
+        //    has the expected type.  Then, verify that the `first` member's
+        //    address is the same as the address of the first lvalue, and the
+        //    `second` member's address is the same as the address of the
+        //    second lvalue.  (C-1..4)
+        //
+        // 2. Repeat P-1 using some combinations of two `bsl::pair`
+        //    specializations.  (C-5)
         //
         // Testing:
         //   template<T1, T2> bsl::pair<T1&, T2&> tie(T1&, T2&)
         // --------------------------------------------------------------------
 
         if (verbose) cout
-               << "TESTING 'tie'\n"
+               << "TESTING `tie`\n"
                << "=============\n";
 
         bdlb_pairutil_test_case_2::run();
@@ -385,12 +386,12 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The component is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The component is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Verify that 'bdlb::PairUtil::tie' yields the correct result for a
-        //:   simple assignment and a simple comparison.  (C-1)
+        // 1. Verify that `bdlb::PairUtil::tie` yields the correct result for a
+        //    simple assignment and a simple comparison.  (C-1)
         //
         // Testing:
         //   BREATHING TEST
@@ -399,7 +400,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nBREATHING TEST"
                              "\n==============\n";
 
-        // Test assignment through 'tie'.
+        // Test assignment through `tie`.
         const char            *a_str = "a";
         pair<int, const char*> p(1, a_str);
 
@@ -411,7 +412,7 @@ int main(int argc, char *argv[])
         ASSERT(1     == first);
         ASSERT(a_str == second);
 
-        // Test comparison of two objects returned by 'tie'.
+        // Test comparison of two objects returned by `tie`.
         const int x1 = 2;
         const int y1 = 5;
         const int x2 = 3;

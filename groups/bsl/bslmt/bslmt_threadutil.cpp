@@ -27,10 +27,10 @@ namespace u {
 
 using namespace BloombergLP;
 
+/// This `struct` stores the information necessary to call the `extern "C"`
+/// function `d_threadFunction` passing it `void *` `d_userData` after
+/// a thread is created and named `d_threadName`.
 struct NamedFuncPtrRecord {
-    // This 'struct' stores the information necessary to call the 'extern "C"'
-    // function 'd_threadFunction' passing it 'void *' 'd_userData' after
-    // a thread is created and named 'd_threadName'.
 
     // DATA
     bslmt_ThreadFunction  d_threadFunction;    // extern "C" func ptr
@@ -39,6 +39,10 @@ struct NamedFuncPtrRecord {
 
   public:
     // CREATOR
+
+    /// Create a `NamedFuncPtrRecord` containing the specified
+    /// `threadFunction`, `userData`, and `threadName`, and using the
+    /// specified `allocator` to supply memory.
     NamedFuncPtrRecord(bslmt_ThreadFunction      threadFunction,
                        void                     *userData,
                        const bslstl::StringRef&  threadName,
@@ -46,9 +50,6 @@ struct NamedFuncPtrRecord {
     : d_threadFunction(threadFunction)
     , d_userData(userData)
     , d_threadName(threadName, allocator)
-        // Create a 'NamedFuncPtrRecord' containing the specified
-        // 'threadFunction', 'userData', and 'threadName', and using the
-        // specified 'allocator' to supply memory.
     {
     }
 };
@@ -59,11 +60,11 @@ struct NamedFuncPtrRecord {
 namespace BloombergLP {
 
 extern "C"
+/// C-linkage routine that allows us to call a C-style function and name the
+/// thread, using information in the specified `arg`, which points to a
+/// `u::NamedFuncPtrRecord` that must be freed by this function.  The
+/// behavior is undefined if the thread name is empty.
 void *bslmt_threadutil_namedFuncPtrThunk(void *arg)
-    // C-linkage routine that allows us to call a C-style function and name the
-    // thread, using information in the specified 'arg', which points to a
-    // 'u::NamedFuncPtrRecord' that must be freed by this function.  The
-    // behavior is undefined if the thread name is empty.
 {
     u::NamedFuncPtrRecord *nfpr_p = static_cast<u::NamedFuncPtrRecord *>(arg);
 

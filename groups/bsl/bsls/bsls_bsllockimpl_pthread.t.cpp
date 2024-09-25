@@ -22,10 +22,10 @@ using namespace BloombergLP;
 //                              --------
 // We are testing a mutually exclusive locking primitive ("mutex") that wraps a
 // suitable platform-specific mechanism.  The operations on the mutex type,
-// 'bsls::BslLockImpl_pthread', are 'lock' and 'unlock'.
+// `bsls::BslLockImpl_pthread`, are `lock` and `unlock`.
 //
-// In each test we use two concurrent threads, verifying that the 'lock' and
-// 'unlock' methods invoked by the respective threads occur in the expected
+// In each test we use two concurrent threads, verifying that the `lock` and
+// `unlock` methods invoked by the respective threads occur in the expected
 // order.
 // ----------------------------------------------------------------------------
 // [ 1] BslLockImpl_pthread::BslLockImpl_pthread();
@@ -95,28 +95,28 @@ extern "C" {
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Create a thread and return its thread id.
 static
 ThreadId createThread(ThreadFunction func, void *arg)
-    // Create a thread and return its thread id.
 {
     ThreadId id;
     pthread_create(&id, 0, func, arg);
     return id;
 }
 
+/// Join the thread with specified `id`.
 static
 void joinThread(ThreadId id)
-    // Join the thread with specified 'id'.
 {
     pthread_join(id, 0);
 }
 
 enum { MAX_SLEEP_CYCLES = 2 };
 
+/// Pause the current thread until the specified `*value` is non-zero, or a
+/// sufficient number of sleep cycles have elapsed.
 static
 void pause(bsls::AtomicInt *value)
-    // Pause the current thread until the specified '*value' is non-zero, or a
-    // sufficient number of sleep cycles have elapsed.
 {
     for (int i = 0; 0 == *value && i < MAX_SLEEP_CYCLES; ++i) {
         sleep(1);
@@ -165,13 +165,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -184,26 +184,26 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BASIC TEST
-        //   Ensure that 'BslLockImpl_pthread' works as expected.
+        //   Ensure that `BslLockImpl_pthread` works as expected.
         //
         // Concerns:
-        //: 1 Following construction, the lock is in the unlocked state.
-        //:
-        //: 2 'lock' acquires the lock for exclusive access by the calling
-        //:    thread.
-        //:
-        //: 3 'unlock' releases the lock making it available to other threads.
-        //:
+        // 1. Following construction, the lock is in the unlocked state.
+        //
+        // 2. `lock` acquires the lock for exclusive access by the calling
+        //     thread.
+        //
+        // 3. `unlock` releases the lock making it available to other threads.
+        //
         // Plan:
-        //: 1 Create a lock, 'mX', in the main thread, then create a child
-        //:   thread that has access to 'mX'.  Each of the threads, upon
-        //:   acquiring the lock on 'mX', atomically update a shared "first in"
-        //:   variable if and only if it still has its initial value (0); both
-        //:   threads use the 'lock' method.  Allow the child thread to run for
-        //:   a brief time before locking in the main thread.  After joining
-        //:   with the child thread, verify the "first in" variable has the
-        //:   expected result.  Repeat, except this time lock 'mX' in the main
-        //:   thread *before* creating the child thread.  (C-1..3)
+        // 1. Create a lock, `mX`, in the main thread, then create a child
+        //    thread that has access to `mX`.  Each of the threads, upon
+        //    acquiring the lock on `mX`, atomically update a shared "first in"
+        //    variable if and only if it still has its initial value (0); both
+        //    threads use the `lock` method.  Allow the child thread to run for
+        //    a brief time before locking in the main thread.  After joining
+        //    with the child thread, verify the "first in" variable has the
+        //    expected result.  Repeat, except this time lock `mX` in the main
+        //    thread *before* creating the child thread.  (C-1..3)
         //
         // Testing:
         //   BslLockImpl_pthread::BslLockImpl_pthread();

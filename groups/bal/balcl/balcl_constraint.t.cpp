@@ -7,14 +7,14 @@
 
 #include <bslim_testutil.h>
 
-#include <bslmf_issame.h>    // 'bsl::is_same'
+#include <bslmf_issame.h>    // `bsl::is_same`
 
-#include <bsls_types.h>      // 'bsls::Types::Int64'
+#include <bsls_types.h>      // `bsls::Types::Int64`
 
-#include <bsl_cstdlib.h>     // 'bsl::atoi'
+#include <bsl_cstdlib.h>     // `bsl::atoi`
 #include <bsl_iostream.h>
-#include <bsl_ostream.h>     // 'bsl::operator<<'
-#include <bsl_sstream.h>     // 'bsl::ostringstream'
+#include <bsl_ostream.h>     // `bsl::operator<<`
+#include <bsl_sstream.h>     // `bsl::ostringstream`
 #include <bsl_string.h>
 
 using namespace BloombergLP;
@@ -25,7 +25,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// This utility 'struct' provides convenient type aliases for each of the
+// This utility `struct` provides convenient type aliases for each of the
 // supported constraints (functors).  These are tested by showing that each
 // alias has the expected type (a compile-time test), and that functors of each
 // of those types can be created.
@@ -92,63 +92,64 @@ typedef balcl::Constraint Obj;
                          // =========================
 
 // BDE_VERIFY pragma: -FABC01  // Function ... not in alphabetic order
+
+/// Return `false` and set an error message to the specified `oss`.
 bool testCharConstraint    (const char *              , bsl::ostream& oss)
-    // Return 'false' and set an error message to the specified 'oss'.
 {
     oss << "error" << flush;
     return false;
 }
 
+/// Return `false` and set an error message to the specified `oss`.
 bool testIntConstraint     (const int *               , bsl::ostream& oss)
-    // Return 'false' and set an error message to the specified 'oss'.
 {
     oss << "error" << flush;
     return false;
 }
 
+/// Return `false` and set an error message to the specified `oss`.
 bool testInt64Constraint   (const bsls::Types::Int64 *, bsl::ostream& oss)
-    // Return 'false' and set an error message to the specified 'oss'.
 {
     oss << "error" << flush;
     return false;
 }
 
+/// Return `false` and set an error message to the specified `oss`.
 bool testDoubleConstraint  (const double *            , bsl::ostream& oss)
-    // Return 'false' and set an error message to the specified 'oss'.
 {
     oss << "error" << flush;
     return false;
 }
 
+/// Return `false` and set an error message to the specified `oss`.
 bool testStringConstraint  (const bsl::string *       , bsl::ostream& oss)
-    // Return 'false' and set an error message to the specified 'oss'.
 {
     oss << "error" << flush;
     return false;
 }
 
+/// Return `false` and set an error message to the specified `oss`.
 bool testDatetimeConstraint(const bdlt::Datetime *    , bsl::ostream& oss)
-    // Return 'false' and set an error message to the specified 'oss'.
 {
     oss << "error" << flush;
     return false;
 }
 
+/// Return `false` and set an error message to the specified `oss`.
 bool testDateConstraint    (const bdlt::Date *        , bsl::ostream& oss)
-    // Return 'false' and set an error message to the specified 'oss'.
 {
     oss << "error" << flush;
     return false;
 }
 
+/// Return `false` and set an error message to the specified `oss`.
 bool testTimeConstraint    (const bdlt::Time *        , bsl::ostream& oss)
-    // Return 'false' and set an error message to the specified 'oss'.
 {
     oss << "error" << flush;
     return false;
 }
     // These functions, never invoked, provide default values for creating each
-    // of the 'balcl::Constraint' nested 'typedef's.
+    // of the `balcl::Constraint` nested `typedef`s.
 
 // ============================================================================
 //                              MAIN PROGRAM
@@ -165,33 +166,33 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'balcl::Constraint'
+        // TESTING `balcl::Constraint`
         //
         // Concerns:
-        //: 1 Each alias represents the intended type.
-        //:
-        //: 2 Functors for each alias can be created and work as expected.
+        // 1. Each alias represents the intended type.
+        //
+        // 2. Functors for each alias can be created and work as expected.
         //
         // Plan:
-        //: 1 Use 'bsl::is_same' to compare each type alias with its expected
-        //:   type.  (C-1)
-        //:
-        //: 2 Create a functor of each type using the degenerate constraint
-        //:   functions defined in this test driver.  Invoke each and confirm
-        //:   that results match expectations.  (C-2)
+        // 1. Use `bsl::is_same` to compare each type alias with its expected
+        //    type.  (C-1)
         //
-        //:   o Pass the address of a 'const'-qualified variable to confirm
-        //:     that first parameter of each signature used 'const'.
+        // 2. Create a functor of each type using the degenerate constraint
+        //    functions defined in this test driver.  Invoke each and confirm
+        //    that results match expectations.  (C-2)
         //
-        //:   o Return an error message from each functor to confirm that the
-        //:     second parameter of each signature did *not* use 'const'.
+        //    - Pass the address of a `const`-qualified variable to confirm
+        //      that first parameter of each signature used `const`.
+        //
+        //    - Return an error message from each functor to confirm that the
+        //      second parameter of each signature did *not* use `const`.
         //
         // Testing:
         //   struct Constraint
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'balcl::Constraint'" << endl
+                          << "TESTING `balcl::Constraint`" << endl
                           << "===========================" << endl;
 
         if (veryVerbose) cout

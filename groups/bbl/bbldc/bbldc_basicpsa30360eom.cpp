@@ -14,12 +14,13 @@ namespace BloombergLP {
 namespace bbldc {
 
 // STATIC METHODS
+
+/// Return `true` if the specified `day` of the specified `month` in the
+/// specified `year` is the last day of February for that `year`, and
+/// `false` otherwise.  The behavior is undefined unless `year`, `month`,
+/// and `day` represent a valid `bdlt::Date` value.
 inline
 static bool isLastDayOfFebruary(int year, int month, int day)
-    // Return 'true' if the specified 'day' of the specified 'month' in the
-    // specified 'year' is the last day of February for that 'year', and
-    // 'false' otherwise.  The behavior is undefined unless 'year', 'month',
-    // and 'day' represent a valid 'bdlt::Date' value.
 {
     BSLS_ASSERT_SAFE(bdlt::Date::isValidYearMonthDay(year, month, day));
 
@@ -28,19 +29,19 @@ static bool isLastDayOfFebruary(int year, int month, int day)
             || (28 == day && !bdlt::SerialDateImpUtil::isLeapYear(year)));
 }
 
+/// Return the maximum of the specified `lhs` and `rhs` values.
 inline
 static int max(int lhs, int rhs)
-    // Return the maximum of the specified 'lhs' and 'rhs' values.
 {
     return lhs > rhs ? lhs : rhs;
 }
 
+/// Return the number of days between the specified `beginDate` and
+/// `endDate` according to the PSA 30/360 end-of-month day-count convention.
+/// If `beginDate <= endDate`, then the result is non-negative.  Note that
+/// reversing the order of `beginDate` and `endDate` negates the result.
 static int computeDaysDiff(const bdlt::Date& beginDate,
                            const bdlt::Date& endDate)
-    // Return the number of days between the specified 'beginDate' and
-    // 'endDate' according to the PSA 30/360 end-of-month day-count convention.
-    // If 'beginDate <= endDate', then the result is non-negative.  Note that
-    // reversing the order of 'beginDate' and 'endDate' negates the result.
 {
     int y1, m1, d1, y2, m2, d2;
     int negationFlag = beginDate > endDate;

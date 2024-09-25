@@ -25,10 +25,10 @@ using namespace BloombergLP;
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
 
+/// Reads the specified `numBytes` from the file with the specified
+/// `filename` into the specified `buffer`.  Return 0 on success, non-zero
+/// otherwise.
 int readFile(unsigned char *buffer, size_t numBytes, const char *filename)
-    // Reads the specified 'numBytes' from the file with the specified
-    // 'filename' into the specified 'buffer'.  Return 0 on success, non-zero
-    // otherwise.
 {
     int rval = 0;
     if (0 == numBytes)

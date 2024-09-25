@@ -21,7 +21,7 @@ using namespace bslx;
 //                                  --------
 // The component under test provides BDEX version computation for types.  This
 // component will be tested by verifying the return value of the method for a
-// variety of 'TYPE'.
+// variety of `TYPE`.
 // ----------------------------------------------------------------------------
 // [ 1] int maxSupportedBdexVersion<TYPE>(const TYPE *, int vs);
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -86,11 +86,11 @@ void aSsErT(int c, const char *s, int i)
 //                  GLOBAL CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// This class implements a subset of the methods required of a
+/// BDEX-compliant out stream.  This class is used to provide
+/// `bdexVersionSelector` when the `VersionFunctions` methods need to
+/// compute a version of a user-defined type.
 class TestStream {
-    // This class implements a subset of the methods required of a
-    // BDEX-compliant out stream.  This class is used to provide
-    // 'bdexVersionSelector' when the 'VersionFunctions' methods need to
-    // compute a version of a user-defined type.
 
     int d_versionSelector;
 
@@ -113,11 +113,11 @@ enum TestEnum {
     C
 };
 
+/// This class implements a subset of the methods required of a
+/// BDEX-compliant class.  This class is used to provide
+/// `maxSupportedBdexVersion` when the `VersionFunctions` methods need to
+/// compute a version of a user-defined type.
 class TestClass {
-    // This class implements a subset of the methods required of a
-    // BDEX-compliant class.  This class is used to provide
-    // 'maxSupportedBdexVersion' when the 'VersionFunctions' methods need to
-    // compute a version of a user-defined type.
 
   public:
     static int maxSupportedBdexVersion(int versionSelector) {
@@ -138,12 +138,12 @@ class TestClass {
 #endif
 };
 
+/// This class is a utility for verifying the results of
+/// `bslx::VersionFunctions::maxSupportedBdexVersion` applied to a (template
+/// parameter) type `TYPE`, `const TYPE`, `volatile TYPE`, and nested
+/// vectors of these types.
 template <class TYPE>
 struct TestType {
-    // This class is a utility for verifying the results of
-    // 'bslx::VersionFunctions::maxSupportedBdexVersion' applied to a (template
-    // parameter) type 'TYPE', 'const TYPE', 'volatile TYPE', and nested
-    // vectors of these types.
 
     template <class STREAM>
     static void testCV(STREAM& stream, int version)
@@ -216,17 +216,17 @@ struct TestType {
 ///Example 1: Querying BDEX Version
 ///- - - - - - - - - - - - - - - -
 // This component may be used by clients to query the version number for types
-// in a convenient manner.  First, define an 'enum', 'my_Enum':
-//..
+// in a convenient manner.  First, define an `enum`, `my_Enum`:
+// ```
     enum my_Enum {
         ENUM_VALUE1,
         ENUM_VALUE2,
         ENUM_VALUE3,
         ENUM_VALUE4
     };
-//..
-// Then, define a BDEX-compliant class, 'my_Class':
-//..
+// ```
+// Then, define a BDEX-compliant class, `my_Class`:
+// ```
     class my_Class {
       public:
         enum {
@@ -260,13 +260,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -276,11 +276,11 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-//..
-// Finally, verify the value returned by 'maxSupportedBdexVersion' for some
-// fundamental types, 'my_Enum', and 'my_Class' with an arbitrary
-// 'versionSelector':
-//..
+// ```
+// Finally, verify the value returned by `maxSupportedBdexVersion` for some
+// fundamental types, `my_Enum`, and `my_Class` with an arbitrary
+// `versionSelector`:
+// ```
     using bslx::VersionFunctions::maxSupportedBdexVersion;
     using bslx::VersionFunctions::k_NO_VERSION;
 
@@ -298,35 +298,35 @@ int main(int argc, char *argv[])
 
     ASSERT(my_Class::VERSION ==
         maxSupportedBdexVersion(reinterpret_cast<my_Class    *>(0), 20131127));
-//..
+// ```
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'maxSupportedBdexVersion<TYPE>'
+        // TESTING `maxSupportedBdexVersion<TYPE>`
         //   Ensure the correct value is returned for all usage groups.
         //
         // Concerns:
-        //: 1 The method returns 'k_NO_VERSION' for fundamental types,
-        //:   enumerations, and 'bsl::string'.
-        //:
-        //: 2 The method returns 1 for vectors and nested-vectors of
-        //:   fundamental types, enumerations, and 'bsl::string'.
-        //:
-        //: 3 'const' and 'volatile' are correctly handled by the method.
-        //:
-        //: 4 'maxSupportedBdexVersion' is appropriately used for other types.
+        // 1. The method returns `k_NO_VERSION` for fundamental types,
+        //    enumerations, and `bsl::string`.
+        //
+        // 2. The method returns 1 for vectors and nested-vectors of
+        //    fundamental types, enumerations, and `bsl::string`.
+        //
+        // 3. `const` and `volatile` are correctly handled by the method.
+        //
+        // 4. `maxSupportedBdexVersion` is appropriately used for other types.
         //
         // Plan:
-        //: 1 Define a parameterized class 'TestType' that will validate the
-        //:   return value against a provided value for 'TYPE', 'const TYPE',
-        //:   'volatile TYPE', and against a second provided value for
-        //:   'const' and 'volatile' nested vectors of 'TYPE' and use this
-        //:   mechanism to test fundamental, enum, and 'bsl::string'.  (C-1..3)
-        //:
-        //: 2 Use this mechanism with a test class and two different values
-        //:   returned by the 'bdexVersionSelector' of the stream to
-        //:   ensure correct return values for user-defined types.  (C-4)
+        // 1. Define a parameterized class `TestType` that will validate the
+        //    return value against a provided value for `TYPE`, `const TYPE`,
+        //    `volatile TYPE`, and against a second provided value for
+        //    `const` and `volatile` nested vectors of `TYPE` and use this
+        //    mechanism to test fundamental, enum, and `bsl::string`.  (C-1..3)
+        //
+        // 2. Use this mechanism with a test class and two different values
+        //    returned by the `bdexVersionSelector` of the stream to
+        //    ensure correct return values for user-defined types.  (C-4)
         //
         // Testing:
         //   int maxSupportedBdexVersion<TYPE>(const TYPE *, int vs);
@@ -336,10 +336,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'maxSupportedBdexVersion<TYPE>'" << endl
+                          << "TESTING `maxSupportedBdexVersion<TYPE>`" << endl
                           << "=======================================" << endl;
 
-        using namespace bslx::VersionFunctions;  // needed for 'k_NO_VERSION'
+        using namespace bslx::VersionFunctions;  // needed for `k_NO_VERSION`
 
         TestStream stream;
 

@@ -76,9 +76,9 @@ bsl::function<bsls::TimeInterval()> createDefaultCurrentTimeFunctor(
               clockType);
 }
 
+/// Return a value that is guaranteed never to be a valid thread id.
 static inline
 bsls::Types::Uint64 invalidThreadId()
-    // Return a value that is guaranteed never to be a valid thread id.
 {
     return bslmt::ThreadUtil::idAsUint64(
             bslmt::ThreadUtil::handleToId(bslmt::ThreadUtil::invalidHandle()));
@@ -90,9 +90,9 @@ namespace bdlmt {
                  // class EventSchedulerTestTimeSource_Data
                  // =======================================
 
+/// This `class` provides storage for the current time and a mutex to
+/// protect access to the current time.
 class EventSchedulerTestTimeSource_Data {
-    // This 'class' provides storage for the current time and a mutex to
-    // protect access to the current time.
 
     // DATA
     bsls::TimeInterval   d_currentTime;       // the current time
@@ -109,24 +109,27 @@ class EventSchedulerTestTimeSource_Data {
 
   public:
     // CREATORS
+
+    /// Create a test time-source data object that will store the
+    /// "system-time", initialized to the specified `currentTime`.
     explicit
     EventSchedulerTestTimeSource_Data(bsls::TimeInterval currentTime);
-        // Create a test time-source data object that will store the
-        // "system-time", initialized to the specified 'currentTime'.
 
     //! ~EventSchedulerTestTimeSource_Data() = default;
         // Destroy this object.
 
     // MANIPULATORS
+
+    /// Advance this object's current-time value by the specified `amount`
+    /// of time.  Return the updated current-time value.  The behavior is
+    /// undefined unless `amount` is positive, and `now + amount` is within
+    /// the range that can be represented with a `bsls::TimeInterval`.
     bsls::TimeInterval advanceTime(bsls::TimeInterval amount);
-        // Advance this object's current-time value by the specified 'amount'
-        // of time.  Return the updated current-time value.  The behavior is
-        // undefined unless 'amount' is positive, and 'now + amount' is within
-        // the range that can be represented with a 'bsls::TimeInterval'.
 
     // ACCESSORS
+
+    /// Return this object's current-time value.
     bsls::TimeInterval currentTime() const;
-        // Return this object's current-time value.
 };
 
 // CREATORS

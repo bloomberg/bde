@@ -23,7 +23,7 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'bdlt::DateUtil' provides a suite of functions for manipulating dates
+// `bdlt::DateUtil` provides a suite of functions for manipulating dates
 // without the use of a calendar.  This test driver tests each implemented
 // utility function independently.
 //
@@ -123,7 +123,7 @@ const bdlt::DayOfWeek::Enum e_SAT = bdlt::DayOfWeek::e_SAT;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The following function, 'LLVMFuzzerTestOneInput', is the entry point for the
+// The following function, `LLVMFuzzerTestOneInput`, is the entry point for the
 // clang fuzz testing facility.  See {http://bburl/BDEFuzzTesting} for details
 // on how to build and run with fuzz testing enabled.
 //-----------------------------------------------------------------------------
@@ -133,9 +133,9 @@ const bdlt::DayOfWeek::Enum e_SAT = bdlt::DayOfWeek::e_SAT;
 #endif
 
 extern "C"
+/// Use the specified `data` array of `size` bytes as input to methods of
+/// this component and return zero.
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
-    // Use the specified 'data' array of 'size' bytes as input to methods of
-    // this component and return zero.
 {
     bslim::FuzzDataView fdv(data, size);
 
@@ -144,20 +144,20 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     switch (test) { case 0:  // Zero is always the leading case.
       case 1: {
         // --------------------------------------------------------------------
-        // FUZZ TESTING 'lastDayInMonth'
+        // FUZZ TESTING `lastDayInMonth`
         //
         // Concern:
-        //: 1 That if integers in the prescribed ranges for 'year' and 'month'
-        //:   are passed as arguments to the function, a valid 'Date' is
-        //:   returned.
+        // 1. That if integers in the prescribed ranges for `year` and `month`
+        //    are passed as arguments to the function, a valid `Date` is
+        //    returned.
         //
         // Plan:
-        //: 1 Create a 'bslim::FuzzDataView' from the fuzz data.  Pass it to
-        //:   'bslim::FuzzUtil' to generate valid 'int' values (i.e., [1 .. 12]
-        //:   for 'month' and [1 .. 9999] for 'year') and invoke
-        //:   'DateUtil::lastDayInMonth' with these values.
-        //:
-        //: 2 Verify that the 'Date' returned from the function is valid.
+        // 1. Create a `bslim::FuzzDataView` from the fuzz data.  Pass it to
+        //    `bslim::FuzzUtil` to generate valid `int` values (i.e., [1 .. 12]
+        //    for `month` and [1 .. 9999] for `year`) and invoke
+        //    `DateUtil::lastDayInMonth` with these values.
+        //
+        // 2. Verify that the `Date` returned from the function is valid.
         //
         // Testing:
         //   DateUtil::lastDayInMonth(int year, int month);
@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
@@ -212,13 +212,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -238,30 +238,30 @@ int main(int argc, char *argv[])
 // generate a schedule for an event that occurs on the same day of the month
 // for 12 months.
 //
-// First, we use the 'bdlt::DateUtil::convertFromYYYYMMDD' function to convert
-// the integer into a 'bdlt::Date':
-//..
+// First, we use the `bdlt::DateUtil::convertFromYYYYMMDD` function to convert
+// the integer into a `bdlt::Date`:
+// ```
     const int startingDateYYYYMMDD = 20130430;
 
     bdlt::Date date;
     int rc = bdlt::DateUtil::convertFromYYYYMMDD(&date, startingDateYYYYMMDD);
     ASSERT(0 == rc);
-//..
-// Now, we use the 'addMonthsEom' function to generate the schedule.  Note that
-// 'addMonthsEom' adjusts the resulting date to be the last day of the month if
-// the original date is the last day of the month, while 'addMonthsNoEom' does
+// ```
+// Now, we use the `addMonthsEom` function to generate the schedule.  Note that
+// `addMonthsEom` adjusts the resulting date to be the last day of the month if
+// the original date is the last day of the month, while `addMonthsNoEom` does
 // not make this adjustment.
-//..
+// ```
     bsl::vector<bdlt::Date> schedule;
     schedule.push_back(date);
 
     for (int i = 1; i < 12; ++i) {
         schedule.push_back(bdlt::DateUtil::addMonthsEom(date, i));
     }
-//..
+// ```
 // Finally, we print the generated schedule to the console and observe the
 // output:
-//..
+// ```
 if (veryVerbose)
     bsl::copy(schedule.begin(),
               schedule.end(),
@@ -281,38 +281,38 @@ if (veryVerbose)
     //   31JAN2014
     //   28FEB2014
     //   31MAR2014
-//..
+// ```
 // Notice that the dates have been adjusted to the end of the month.  If we had
-// used 'addMonthsNoEom' instead of 'addMonthsEom', this adjustment would not
+// used `addMonthsNoEom` instead of `addMonthsEom`, this adjustment would not
 // have occurred.
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING 'lastDayInMonth'
+        // TESTING `lastDayInMonth`
         //
         // Concerns:
-        //: 1 The function returns the last day in 'month' and 'year'.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The function returns the last day in `month` and `year`.
+        //
+        // 2. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven approach, define a representative set of
-        //:   valid inputs.  Verify that the function returns the correct
-        //:   value.  Note that we do not need to do a very exhaustive test,
-        //:   because most of the work is handled by the already tested
-        //:   function 'bdlt::SerialDateImpUtil::lastDayOfMonth'.  (C-1)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-2)
+        // 1. Using the table-driven approach, define a representative set of
+        //    valid inputs.  Verify that the function returns the correct
+        //    value.  Note that we do not need to do a very exhaustive test,
+        //    because most of the work is handled by the already tested
+        //    function `bdlt::SerialDateImpUtil::lastDayOfMonth`.  (C-1)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-2)
         //
         // Testing:
         //   Date lastDayInMonth(year, month);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'lastDayInMonth'" << endl
+                          << "TESTING `lastDayInMonth`" << endl
                           << "========================" << endl;
 
         static const struct {
@@ -364,25 +364,25 @@ if (veryVerbose)
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING 'addYears'
+        // TESTING `addYears`
         //
         // Concerns:
-        //: 1 The function correctly delegates its operations either to
-        //:   'addYearsEom' if 'eomFlag' is 'true', or 'addYearsNoEom'
-        //:   otherwise.
-        //:
+        // 1. The function correctly delegates its operations either to
+        //    `addYearsEom` if `eomFlag` is `true`, or `addYearsNoEom`
+        //    otherwise.
+        //
         // Plan:
-        //: 1 Using the brute-force approach, for some inputs for which
-        //:   'addYearsEom' and 'addYearsNoEom' return different results,
-        //:   call 'addYears' with 'eomFlag' set to 'true' and 'false'.
-        //:   Verify that the function returns the correct values.  (C-1)
+        // 1. Using the brute-force approach, for some inputs for which
+        //    `addYearsEom` and `addYearsNoEom` return different results,
+        //    call `addYears` with `eomFlag` set to `true` and `false`.
+        //    Verify that the function returns the correct values.  (C-1)
         //
         // Testing:
         //   Date addYears(original, numYears, eomFlag);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'addYears'" << endl
+                          << "TESTING `addYears`" << endl
                           << "==================" << endl;
 
         {
@@ -399,45 +399,45 @@ if (veryVerbose)
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // TESTING 'addYearsNoEom'
+        // TESTING `addYearsNoEom`
         //
         // Concerns:
-        //: 1 If the day of the month of 'original' is the last day of the
-        //:   month, the resulting date is *not* moved to the end of the month.
-        //:
-        //: 2 If the day of the month of 'original' does not exist in the
-        //:   result month, the resulting date *is* moved to the end of the
-        //:   month.
-        //:
-        //: 3 That the month of the resulting date is the same as the original
-        //:   date.
-        //:
-        //: 4 That the year of the resulting date is the appropriately
-        //:   adjusted year.
-        //:
-        //: 5 Adding a negative number of years works as expected.
-        //:
-        //: 6 The entire range of valid argument and return values are
-        //:   supported.
-        //:
-        //: 7 QoI: Asserted precondition violations are detected when enabled.
+        // 1. If the day of the month of `original` is the last day of the
+        //    month, the resulting date is *not* moved to the end of the month.
+        //
+        // 2. If the day of the month of `original` does not exist in the
+        //    result month, the resulting date *is* moved to the end of the
+        //    month.
+        //
+        // 3. That the month of the resulting date is the same as the original
+        //    date.
+        //
+        // 4. That the year of the resulting date is the appropriately
+        //    adjusted year.
+        //
+        // 5. Adding a negative number of years works as expected.
+        //
+        // 6. The entire range of valid argument and return values are
+        //    supported.
+        //
+        // 7. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven approach, define a representative set of
-        //:   valid inputs.  Verify that the function returns the correct
-        //:   value.  (C-1..6)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-7)
+        // 1. Using the table-driven approach, define a representative set of
+        //    valid inputs.  Verify that the function returns the correct
+        //    value.  (C-1..6)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-7)
         //
         // Testing:
         //   Date addYearsNoEom(original, numYears);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'addYearsNoEom'" << endl
+                          << "TESTING `addYearsNoEom`" << endl
                           << "=======================" << endl;
 
         static const struct {
@@ -532,45 +532,45 @@ if (veryVerbose)
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING 'addYearsEom'
+        // TESTING `addYearsEom`
         //
         // Concerns:
-        //: 1 If the day of the month of 'original' is the last day of the
-        //:   month, the resulting date is moved to the end of the month.
-        //:
-        //: 2 If the day of the month of 'original' does not exist in the
-        //:   result month, the resulting date is moved to the end of the
-        //:   month.
-        //:
-        //: 3 That the month of the resulting date is the same as the original
-        //:   date.
-        //:
-        //: 4 That the year of the resulting date is the appropriately
-        //:   adjusted year.
-        //:
-        //: 5 Adding a negative number of years works as expected.
-        //:
-        //: 6 The entire range of valid argument and return values are
-        //:   supported.
-        //:
-        //: 7 QoI: Asserted precondition violations are detected when enabled.
+        // 1. If the day of the month of `original` is the last day of the
+        //    month, the resulting date is moved to the end of the month.
+        //
+        // 2. If the day of the month of `original` does not exist in the
+        //    result month, the resulting date is moved to the end of the
+        //    month.
+        //
+        // 3. That the month of the resulting date is the same as the original
+        //    date.
+        //
+        // 4. That the year of the resulting date is the appropriately
+        //    adjusted year.
+        //
+        // 5. Adding a negative number of years works as expected.
+        //
+        // 6. The entire range of valid argument and return values are
+        //    supported.
+        //
+        // 7. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven approach, define a representative set of
-        //:   valid inputs.  Verify that the function returns the correct
-        //:   value.  (C-1..6)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-7)
+        // 1. Using the table-driven approach, define a representative set of
+        //    valid inputs.  Verify that the function returns the correct
+        //    value.  (C-1..6)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-7)
         //
         // Testing:
         //   Date addYearsEom(original, numYears);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'addYearsEom'" << endl
+                          << "TESTING `addYearsEom`" << endl
                           << "=====================" << endl;
 
         static const struct {
@@ -661,25 +661,25 @@ if (veryVerbose)
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'addMonths'
+        // TESTING `addMonths`
         //
         // Concerns:
-        //: 1 The function correctly delegates its operations either to
-        //:   'addMonthsEom' if 'eomFlag' is 'true', or 'addMonthsNoEom'
-        //:   otherwise.
-        //:
+        // 1. The function correctly delegates its operations either to
+        //    `addMonthsEom` if `eomFlag` is `true`, or `addMonthsNoEom`
+        //    otherwise.
+        //
         // Plan:
-        //: 1 Using the brute-force approach, for some inputs for which
-        //:   'addMonthsEom' and 'addMonthsNoEom' return different results,
-        //:   call 'addMonths' with 'eomFlag' set to 'true' and 'false'.
-        //:   Verify that the function returns the correct values.  (C-1)
+        // 1. Using the brute-force approach, for some inputs for which
+        //    `addMonthsEom` and `addMonthsNoEom` return different results,
+        //    call `addMonths` with `eomFlag` set to `true` and `false`.
+        //    Verify that the function returns the correct values.  (C-1)
         //
         // Testing:
         //   Date addMonths(original, numMonths, eomFlag);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'addMonths'" << endl
+                          << "TESTING `addMonths`" << endl
                           << "===================" << endl;
 
         {
@@ -717,43 +717,43 @@ if (veryVerbose)
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING 'addMonthsEom'
+        // TESTING `addMonthsEom`
         //
         // Concerns:
-        //: 1 If the day of the month of 'original' is the last day of the
-        //:   month, the resulting date is moved to the end of the month.
-        //:
-        //: 2 If the day of the month of 'original' does not exist in the
-        //:   result month, the resulting date is moved to the end of the
-        //:   month.
-        //:
-        //: 3 If adding 'numMonths' to 'original' cannot be represented in the
-        //:   year of 'original', the resulting date correctly rolls over to
-        //:   the subsequent year.
-        //:
-        //: 4 Adding a negative number of months works as expected.
-        //:
-        //: 5 The entire range of valid argument and return values are
-        //:   supported.
-        //:
-        //: 6 QoI: Asserted precondition violations are detected when enabled.
+        // 1. If the day of the month of `original` is the last day of the
+        //    month, the resulting date is moved to the end of the month.
+        //
+        // 2. If the day of the month of `original` does not exist in the
+        //    result month, the resulting date is moved to the end of the
+        //    month.
+        //
+        // 3. If adding `numMonths` to `original` cannot be represented in the
+        //    year of `original`, the resulting date correctly rolls over to
+        //    the subsequent year.
+        //
+        // 4. Adding a negative number of months works as expected.
+        //
+        // 5. The entire range of valid argument and return values are
+        //    supported.
+        //
+        // 6. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven approach, define a representative set of
-        //:   valid inputs.  Verify that the function returns the correct
-        //:   value.  (C-1..5)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-6)
+        // 1. Using the table-driven approach, define a representative set of
+        //    valid inputs.  Verify that the function returns the correct
+        //    value.  (C-1..5)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-6)
         //
         // Testing:
         //   Date addMonthsEom(original, numMonths);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'addMonthsEom'" << endl
+                          << "TESTING `addMonthsEom`" << endl
                           << "======================" << endl;
 
         static const struct {
@@ -877,43 +877,43 @@ if (veryVerbose)
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'addMonthsNoEom'
+        // TESTING `addMonthsNoEom`
         //
         // Concerns:
-        //: 1 If the day of the month of 'original' is the last day of the
-        //:   month, the resulting date is *not* moved to the end of the month.
-        //:
-        //: 2 If the day of the month of 'original' does not exist in the
-        //:   result month, the resulting date *is* moved to the end of the
-        //:   month.
-        //:
-        //: 3 If adding 'numMonths' to 'original' cannot be represented in the
-        //:   year of 'original', the resulting date correctly rolls over to
-        //:   the subsequent year.
-        //:
-        //: 4 Adding a negative number of months works as expected.
-        //:
-        //: 5 The entire range of valid argument and return values are
-        //:   supported.
-        //:
-        //: 6 QoI: Asserted precondition violations are detected when enabled.
+        // 1. If the day of the month of `original` is the last day of the
+        //    month, the resulting date is *not* moved to the end of the month.
+        //
+        // 2. If the day of the month of `original` does not exist in the
+        //    result month, the resulting date *is* moved to the end of the
+        //    month.
+        //
+        // 3. If adding `numMonths` to `original` cannot be represented in the
+        //    year of `original`, the resulting date correctly rolls over to
+        //    the subsequent year.
+        //
+        // 4. Adding a negative number of months works as expected.
+        //
+        // 5. The entire range of valid argument and return values are
+        //    supported.
+        //
+        // 6. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven approach, define a representative set of
-        //:   valid inputs.  Verify that the function returns the correct
-        //:   value.  (C-1..5)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-6)
+        // 1. Using the table-driven approach, define a representative set of
+        //    valid inputs.  Verify that the function returns the correct
+        //    value.  (C-1..5)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-6)
         //
         // Testing:
         //   Date addMonthsNoEom(original, numMonths);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'addMonthsNoEom'" << endl
+                          << "TESTING `addMonthsNoEom`" << endl
                           << "========================" << endl;
 
         static const struct {
@@ -1042,29 +1042,29 @@ if (veryVerbose)
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'earliestDayOfWeekInMonth' AND 'lastDayOfWeekInMonth'
+        // TESTING `earliestDayOfWeekInMonth` AND `lastDayOfWeekInMonth`
         //
         // Concerns:
-        //: 1 The function returns the first/last 'dayOfWeek' in 'month' and
-        //:   'year' for all possible 'dayOfWeek' values.
-        //:
-        //: 2 The function works correctly if the first/last day of 'month' in
-        //:   'year' falls on 'dayOfWeek'.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The function returns the first/last `dayOfWeek` in `month` and
+        //    `year` for all possible `dayOfWeek` values.
+        //
+        // 2. The function works correctly if the first/last day of `month` in
+        //    `year` falls on `dayOfWeek`.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven approach, define a representative set of
-        //:   valid inputs.  Verify that the function returns the correct
-        //:   value.  Note that we do not need to do a very exhaustive test,
-        //:   because most of the work is handled by the already tested
-        //:   function 'nextDatOfWeekInclusive'/'previousDayOfWeekInclusive'.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-3)
+        // 1. Using the table-driven approach, define a representative set of
+        //    valid inputs.  Verify that the function returns the correct
+        //    value.  Note that we do not need to do a very exhaustive test,
+        //    because most of the work is handled by the already tested
+        //    function `nextDatOfWeekInclusive`/`previousDayOfWeekInclusive`.
+        //    (C-1..2)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-3)
         //
         // Testing:
         //   Date earliestDayOfWeekInMonth(year, month, dayOfWeek);
@@ -1073,14 +1073,14 @@ if (veryVerbose)
 
         if (verbose) {
         cout << endl
-             << "TESTING 'earliestDayOfWeekInMonth' AND 'lastDayOfWeekInMonth'"
+             << "TESTING `earliestDayOfWeekInMonth` AND `lastDayOfWeekInMonth`"
              << endl
              << "============================================================="
              << endl;
         }
 
         {
-            // 'earliestDayOfWeekInMonth'
+            // `earliestDayOfWeekInMonth`
 
             static const struct {
                 int                   d_line;   // source line number
@@ -1121,7 +1121,7 @@ if (veryVerbose)
         }
 
         {
-            // 'lastDayOfWeekInMonth'
+            // `lastDayOfWeekInMonth`
 
             static const struct {
                 int                   d_line;   // source line number
@@ -1186,45 +1186,45 @@ if (veryVerbose)
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'nthDayOfWeekInMonth'
-        //   This function first uses 'nextDayOfWeekInclusive' to find the
-        //   first occurrence of 'dayOfWeek' in 'month', and then adds the
-        //   required offset to get the 'n'th occurrence.  We need to verify
-        //   that 'nextDayOfWeekInclusive' is correctly called and that the
+        // TESTING `nthDayOfWeekInMonth`
+        //   This function first uses `nextDayOfWeekInclusive` to find the
+        //   first occurrence of `dayOfWeek` in `month`, and then adds the
+        //   required offset to get the `n`th occurrence.  We need to verify
+        //   that `nextDayOfWeekInclusive` is correctly called and that the
         //   correct offset is added.
         //
         // Concerns:
-        //: 1 The function correctly returns the 'n'th occurrence of the
-        //:   'dayOfWeek' in 'month' and 'year'.
-        //:
-        //: 2 If a 5th occurrence of the 'dayOfWeek' doesn't exist within
-        //:   'month' and 'year', the first 'dayOfWeek' of the next month is
-        //:   returned.
-        //:
-        //: 3 If a -5th occurrence of the 'dayOfWeek' doesn't exist within
-        //:   'month' and 'year', the last 'dayOfWeek' of the previous month is
-        //:   returned.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The function correctly returns the `n`th occurrence of the
+        //    `dayOfWeek` in `month` and `year`.
+        //
+        // 2. If a 5th occurrence of the `dayOfWeek` doesn't exist within
+        //    `month` and `year`, the first `dayOfWeek` of the next month is
+        //    returned.
+        //
+        // 3. If a -5th occurrence of the `dayOfWeek` doesn't exist within
+        //    `month` and `year`, the last `dayOfWeek` of the previous month is
+        //    returned.
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven approach, define a representative set of
-        //:   valid inputs, including 'n' from 1 to 5.  Note that we do not
-        //:   need to do a very exhaustive test, because most of the work is
-        //:   handled by the already tested function 'nextDayOfWeekInclusive'.
-        //:   (C-1..3)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-4)
+        // 1. Using the table-driven approach, define a representative set of
+        //    valid inputs, including `n` from 1 to 5.  Note that we do not
+        //    need to do a very exhaustive test, because most of the work is
+        //    handled by the already tested function `nextDayOfWeekInclusive`.
+        //    (C-1..3)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-4)
         //
         // Testing:
         //   Date nthDayOfWeekInMonth(year, month, dayOfWeek, n);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'nthDayOfWeekInMonth'" << endl
+                          << "TESTING `nthDayOfWeekInMonth`" << endl
                           << "=============================" << endl;
 
         static const struct {
@@ -1358,29 +1358,29 @@ if (veryVerbose)
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'previousDayOfWeekInclusive'
+        // TESTING `previousDayOfWeekInclusive`
         //   Verify that the function returns the correct date.  Note that
-        //   calendar irregularities are already compensated for by 'Date'
+        //   calendar irregularities are already compensated for by `Date`
         //   and therefore are not a concern in this test.
         //
         // Concerns:
-        //: 1 The date of the last 'dayOfWeek' on or before 'date' is returned.
-        //:
-        //: 2 If 'dayOfWeek' is equal to 'date.dayOfWeek()', 'date' is
-        //:   returned.
+        // 1. The date of the last `dayOfWeek` on or before `date` is returned.
+        //
+        // 2. If `dayOfWeek` is equal to `date.dayOfWeek()`, `date` is
+        //    returned.
         //
         // Plan:
-        //: 1 Using the table-driven approach, select a range of inputs and
-        //:   expected outputs covering all possible permutations of days of
-        //:   the week (SUN-SAT x SUN-SAT).  Verify that the function returns
-        //:   the correct value.  (C-1..2)
+        // 1. Using the table-driven approach, select a range of inputs and
+        //    expected outputs covering all possible permutations of days of
+        //    the week (SUN-SAT x SUN-SAT).  Verify that the function returns
+        //    the correct value.  (C-1..2)
         //
         // Testing:
         //   Date previousDayOfWeekInclusive(dayOfWeek, date);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'previousDayOfWeekInclusive'" << endl
+                          << "TESTING `previousDayOfWeekInclusive`" << endl
                           << "====================================" << endl;
 
         static const struct {
@@ -1483,29 +1483,29 @@ if (veryVerbose)
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'previousDayOfWeek'
+        // TESTING `previousDayOfWeek`
         //   Verify that the function returns the correct date.  Note that
-        //   calendar irregularities are already compensated for by 'Date'
+        //   calendar irregularities are already compensated for by `Date`
         //   and therefore are not a concern in this test.
         //
         // Concerns:
-        //: 1 The date of the last 'dayOfWeek' before 'date' is returned.
-        //:
-        //: 2 If 'dayOfWeek' is equal to 'date.dayOfWeek()', the date one week
-        //:   before 'date' is returned, *not* 'date'.
+        // 1. The date of the last `dayOfWeek` before `date` is returned.
+        //
+        // 2. If `dayOfWeek` is equal to `date.dayOfWeek()`, the date one week
+        //    before `date` is returned, *not* `date`.
         //
         // Plan:
-        //: 1 Using the table-driven approach, select a range of inputs and
-        //:   expected outputs covering all possible permutations of days of
-        //:   the week (SUN-SAT x SUN-SAT).  Verify that the function returns
-        //:   the correct value.  (C-1..2)
+        // 1. Using the table-driven approach, select a range of inputs and
+        //    expected outputs covering all possible permutations of days of
+        //    the week (SUN-SAT x SUN-SAT).  Verify that the function returns
+        //    the correct value.  (C-1..2)
         //
         // Testing:
         //   Date previousDayOfWeek(dayOfWeek, date);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'previousDayOfWeek'" << endl
+                          << "TESTING `previousDayOfWeek`" << endl
                           << "===========================" << endl;
 
         static const struct {
@@ -1607,29 +1607,29 @@ if (veryVerbose)
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'nextDayOfWeekInclusive'
+        // TESTING `nextDayOfWeekInclusive`
         //   Verify that the function returns the correct date.  Note that
-        //   calendar irregularities are already compensated for by 'Date'
+        //   calendar irregularities are already compensated for by `Date`
         //   and therefore are not a concern in this test.
         //
         // Concerns:
-        //: 1 The date of the first 'dayOfWeek' on or after 'date' is returned.
-        //:
-        //: 2 If 'dayOfWeek' is equal to 'date.dayOfWeek()', 'date' is
-        //:   returned.
+        // 1. The date of the first `dayOfWeek` on or after `date` is returned.
+        //
+        // 2. If `dayOfWeek` is equal to `date.dayOfWeek()`, `date` is
+        //    returned.
         //
         // Plan:
-        //: 1 Using the table-driven approach, select a range of inputs and
-        //:   expected outputs covering all possible permutations of days of
-        //:   the week (SUN-SAT x SUN-SAT).  Verify that the function returns
-        //:   the correct value.  (C-1..2)
+        // 1. Using the table-driven approach, select a range of inputs and
+        //    expected outputs covering all possible permutations of days of
+        //    the week (SUN-SAT x SUN-SAT).  Verify that the function returns
+        //    the correct value.  (C-1..2)
         //
         // Testing:
         //   Date nextDayOfWeekInclusive(dayOfWeek, date);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'nextDayOfWeekInclusive'" << endl
+                          << "TESTING `nextDayOfWeekInclusive`" << endl
                           << "================================" << endl;
 
         static const struct {
@@ -1731,29 +1731,29 @@ if (veryVerbose)
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'nextDayOfWeek'
+        // TESTING `nextDayOfWeek`
         //   Verify that the function returns the correct date.  Note that
-        //   calendar irregularities are already compensated for by 'Date'
+        //   calendar irregularities are already compensated for by `Date`
         //   and therefore are not a concern in this test.
         //
         // Concerns:
-        //: 1 The date of the first 'dayOfWeek' after 'date' is returned.
-        //:
-        //: 2 If 'dayOfWeek' is equal to 'date.dayOfWeek()', the date one week
-        //:   from 'date' is returned, *not* 'date'.
+        // 1. The date of the first `dayOfWeek` after `date` is returned.
+        //
+        // 2. If `dayOfWeek` is equal to `date.dayOfWeek()`, the date one week
+        //    from `date` is returned, *not* `date`.
         //
         // Plan:
-        //: 1 Using the table-driven approach, select a range of inputs and
-        //:   expected outputs covering all possible permutations of days of
-        //:   the week (SUN-SAT x SUN-SAT).  Verify that the function returns
-        //:   the correct value.  (C-1..2)
+        // 1. Using the table-driven approach, select a range of inputs and
+        //    expected outputs covering all possible permutations of days of
+        //    the week (SUN-SAT x SUN-SAT).  Verify that the function returns
+        //    the correct value.  (C-1..2)
         //
         // Testing:
         //   Date nextDayOfWeek(dayOfWeek, date);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'nextDayOfWeek'" << endl
+                          << "TESTING `nextDayOfWeek`" << endl
                           << "=======================" << endl;
 
         static const struct {
@@ -1854,29 +1854,29 @@ if (veryVerbose)
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'convertToYYYYMMDD'
+        // TESTING `convertToYYYYMMDD`
         //
         // Concerns:
-        //: 1 The function applies the correct formula to convert a 'Date'
-        //:   to an integral value in the "YYYYMMDD" format.
+        // 1. The function applies the correct formula to convert a `Date`
+        //    to an integral value in the "YYYYMMDD" format.
         //
         // Plan:
-        //: 1 Use the table-driven approach to define a representative set of
-        //:   dates:
-        //:
-        //:   1 Verify that calling 'convertToYYYYMMDD' on each date in the set
-        //:     returns the expected result.
-        //:
-        //:   2 Further corroborate the result by verifying that calling
-        //:     'convertFromYYYYMMDDRaw' on the result of P-1.1 returns the
-        //:     original date.  (C-1)
+        // 1. Use the table-driven approach to define a representative set of
+        //    dates:
+        //
+        //   1. Verify that calling `convertToYYYYMMDD` on each date in the set
+        //      returns the expected result.
+        //
+        //   2. Further corroborate the result by verifying that calling
+        //      `convertFromYYYYMMDDRaw` on the result of P-1.1 returns the
+        //      original date.  (C-1)
         //
         // Testing:
         //   int convertToYYYYMMDD(const Date& date);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'convertToYYYYMMDD'" << endl
+                          << "TESTING `convertToYYYYMMDD`" << endl
                           << "===========================" << endl;
 
         static const struct {
@@ -1915,41 +1915,41 @@ if (veryVerbose)
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'convertFromYYYYMMDD'
+        // TESTING `convertFromYYYYMMDD`
         //
         // Concerns:
-        //: 1 The function correctly delegates validation to 'isValidYYYYMMDD'.
-        //:
-        //: 2 The function correctly delegates its operations to
-        //:   'convertFromYYYYMMDDRaw' if the input value is valid.
-        //:
-        //: 3 If the input value is invalid, '*result' is unmodified.
-        //:
-        //: 4 If the input value is valid, 0 is returned; otherwise a non-zero
-        //:   value is returned.
-        //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The function correctly delegates validation to `isValidYYYYMMDD`.
+        //
+        // 2. The function correctly delegates its operations to
+        //    `convertFromYYYYMMDDRaw` if the input value is valid.
+        //
+        // 3. If the input value is invalid, `*result` is unmodified.
+        //
+        // 4. If the input value is valid, 0 is returned; otherwise a non-zero
+        //    value is returned.
+        //
+        // 5. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Call the function passing in an invalid 'YYYYMMDD' value; ensure
-        //:   that a non-zero value is returned and that the '*result' is
-        //:   unmodified.  (C-1, 3..4)
-        //:
-        //: 2 Call the function passing in a valid 'YYYYMMDD' value; ensure
-        //:   that the return value is 0 and that '*result' is set to the
-        //:   correct value.  (C-2, 4)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-5)
+        // 1. Call the function passing in an invalid `YYYYMMDD` value; ensure
+        //    that a non-zero value is returned and that the `*result` is
+        //    unmodified.  (C-1, 3..4)
+        //
+        // 2. Call the function passing in a valid `YYYYMMDD` value; ensure
+        //    that the return value is 0 and that `*result` is set to the
+        //    correct value.  (C-2, 4)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-5)
         //
         // Testing:
         //   int convertFromYYYYMMDD(Date *result, int yyyymmddValue);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'convertFromYYYYMMDD'" << endl
+                          << "TESTING `convertFromYYYYMMDD`" << endl
                           << "=============================" << endl;
 
         {
@@ -1984,29 +1984,29 @@ if (veryVerbose)
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'convertFromYYYYMMDDRaw'
+        // TESTING `convertFromYYYYMMDDRaw`
         //
         // Concerns:
-        //: 1 The function works for valid inputs.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The function works for valid inputs.
+        //
+        // 2. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use the table-driven approach to test representative valid
-        //:   inputs, and verify that the function returns the expected result.
-        //:   (C-1)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-2)
+        // 1. Use the table-driven approach to test representative valid
+        //    inputs, and verify that the function returns the expected result.
+        //    (C-1)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-2)
         //
         // Testing:
         //   Date convertFromYYYYMMDDRaw(int yyyymmddValue);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'convertFromYYYYMMDDRaw'" << endl
+                          << "TESTING `convertFromYYYYMMDDRaw`" << endl
                           << "================================" << endl;
 
         static const struct {
@@ -2055,24 +2055,24 @@ if (veryVerbose)
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'isValidYYYYMMDD'
+        // TESTING `isValidYYYYMMDD`
         //   The function correctly discriminates between valid and invalid
         //   dates in the "YYYYMMDD" format.
         //
         // Concerns:
-        //: 1 The function works for valid and invalid inputs.
+        // 1. The function works for valid and invalid inputs.
         //
         // Plan:
-        //: 1 Use the table-driven approach to test representative valid and
-        //:   invalid inputs, and verify the function returns the expected
-        //:   result.  (C-1)
+        // 1. Use the table-driven approach to test representative valid and
+        //    invalid inputs, and verify the function returns the expected
+        //    result.  (C-1)
         //
         // Testing:
         //   bool isValidYYYYMMDD(int yyyymmddValue);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'isValidYYYYMMDD'" << endl
+                          << "TESTING `isValidYYYYMMDD`" << endl
                           << "=========================" << endl;
 
         static const struct {

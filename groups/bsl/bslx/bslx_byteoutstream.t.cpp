@@ -27,7 +27,7 @@ using namespace bslx;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// For all output methods in 'ByteOutStream', the formatting of the input
+// For all output methods in `ByteOutStream`, the formatting of the input
 // value to its correct byte representation is delegated to another component.
 // We assume that this formatting has been rigorously tested and verified.
 // Therefore, we are concerned only with the proper placement and alignment of
@@ -35,8 +35,8 @@ using namespace bslx;
 // "marker" bytes between each output method call, and ensure that the new
 // output bytes are properly interleaved between the "marker" bytes.
 //
-// We have chosen the primary black-box manipulator for 'ByteOutStream' to be
-// 'putInt8'.
+// We have chosen the primary black-box manipulator for `ByteOutStream` to be
+// `putInt8`.
 // ----------------------------------------------------------------------------
 // [ 2] ByteOutStream(int sV, *ba = 0);
 // [ 2] ByteOutStream(int sV, bsl::size_t initialCapacity, *ba = 0);
@@ -207,14 +207,14 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -229,34 +229,34 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Basic Externalization
 ///- - - - - - - - - - - - - - - -
-// A 'bslx::ByteOutStream' can be used to externalize values in a
-// platform-neutral way.  Writing out fundamental C++ types and 'bsl::string'
+// A `bslx::ByteOutStream` can be used to externalize values in a
+// platform-neutral way.  Writing out fundamental C++ types and `bsl::string`
 // requires no additional work on the part of the client; the client can simply
 // use the stream directly.  The following code serializes a few representative
-// values using a 'bslx::ByteOutStream', compares the contents of this stream
+// values using a `bslx::ByteOutStream`, compares the contents of this stream
 // to the expected value, and then writes the contents of this stream's buffer
-// to 'stdout'.
+// to `stdout`.
 //
-// First, we create a 'bslx::ByteOutStream' with an arbitrary value for its
-// 'versionSelector' and externalize some values:
-//..
+// First, we create a `bslx::ByteOutStream` with an arbitrary value for its
+// `versionSelector` and externalize some values:
+// ```
     bslx::ByteOutStream outStream(20131127);
     outStream.putInt32(1);
     outStream.putInt32(2);
     outStream.putInt8('c');
     outStream.putString(bsl::string("hello"));
-//..
+// ```
 // Then, we compare the contents of the stream to the expected value:
-//..
+// ```
     const char  *theChars = outStream.data();
     bsl::size_t  length   = outStream.length();
     ASSERT(15 == length);
     ASSERT( 0 == bsl::memcmp(theChars,
                              "\x00\x00\x00\x01\x00\x00\x00\x02""c\x05""hello",
                              length));
-//..
-// Finally, we print the stream's contents to 'bsl::cout'.
-//..
+// ```
+// Finally, we print the stream's contents to `bsl::cout`.
+// ```
     if (veryVerbose)
     for (bsl::size_t i = 0; i < length; ++i) {
         if (bsl::isalnum(static_cast<unsigned char>(theChars[i]))) {
@@ -268,9 +268,9 @@ int main(int argc, char *argv[])
                       << bsl::endl;
         }
     }
-//..
+// ```
 // Executing the above code results in the following output:
-//..
+// ```
 //  nextByte (int): 0
 //  nextByte (int): 0
 //  nextByte (int): 0
@@ -286,28 +286,28 @@ int main(int argc, char *argv[])
 //  nextByte (char): l
 //  nextByte (char): l
 //  nextByte (char): o
-//..
-// See the 'bslx_byteinstream' component usage example for a more practical
-// example of using 'bslx' streams.
+// ```
+// See the `bslx_byteinstream` component usage example for a more practical
+// example of using `bslx` streams.
 
       } break;
       case 27: {
         // --------------------------------------------------------------------
         // EXTERNALIZATION FREE OPERATOR
-        //   Verify 'operator<<' works correctly.
+        //   Verify `operator<<` works correctly.
         //
         // Concerns:
-        //: 1 The method inline-forwards to the implementation correctly.
-        //:
-        //: 2 Invocations of the method can be chained.
+        // 1. The method inline-forwards to the implementation correctly.
+        //
+        // 2. Invocations of the method can be chained.
         //
         // Plan:
-        //: 1 Externalize a set of values and ensure the resultant buffer
-        //:   matches the one produced by the oracle implementation (the one
-        //:   forwarded to).  (C-1)
-        //:
-        //: 2 Externalize a set of values to the stream in one code line.
-        //:   (C-2)
+        // 1. Externalize a set of values and ensure the resultant buffer
+        //    matches the one produced by the oracle implementation (the one
+        //    forwarded to).  (C-1)
+        //
+        // 2. Externalize a set of values to the stream in one code line.
+        //    (C-2)
         //
         // Testing:
         //   ByteOutStream& operator<<(ByteOutStream&, const TYPE& value);
@@ -377,13 +377,13 @@ int main(int argc, char *argv[])
         //   Verify the method externalizes the expected bytes.
         //
         // Concerns:
-        //: 1 The method externalizes the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
+        // 1. The method externalizes the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
         //
         // Testing:
         //   putString(const bsl::string& value);
@@ -394,7 +394,7 @@ int main(int argc, char *argv[])
                           << "===============" << endl;
 
 
-        if (verbose) cout << "\nTesting 'putString'." << endl;
+        if (verbose) cout << "\nTesting `putString`." << endl;
         {
             const bsl::string DATA = "hello";
             const int         SIZE = SIZEOF_INT8 + 5 * SIZEOF_INT8;
@@ -437,17 +437,17 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   putLength(int length);
@@ -560,17 +560,17 @@ int main(int argc, char *argv[])
         //   Verify the method externalizes the expected bytes.
         //
         // Concerns:
-        //: 1 The method externalizes the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The method externalizes the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   putArrayFloat64(const double *array, int count);
@@ -644,17 +644,17 @@ int main(int argc, char *argv[])
         //   Verify the method externalizes the expected bytes.
         //
         // Concerns:
-        //: 1 The method externalizes the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The method externalizes the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   putArrayFloat32(const float *array, int count);
@@ -728,17 +728,17 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   putArrayInt64(const bsls::Types::Int64 *array, int count);
@@ -868,17 +868,17 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes
-        //:   (C-1..2)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes
+        //    (C-1..2)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   putArrayInt56(const bsls::Types::Int64 *array, int count);
@@ -1008,17 +1008,17 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   putArrayInt48(const bsls::Types::Int64 *array, int count);
@@ -1148,17 +1148,17 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   putArrayInt40(const bsls::Types::Int64 *array, int count);
@@ -1288,17 +1288,17 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   putArrayInt32(const int *array, int count);
@@ -1428,17 +1428,17 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   putArrayInt24(const int *array, int count);
@@ -1568,17 +1568,17 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   putArrayInt16(const short *array, int count);
@@ -1696,15 +1696,15 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //   putArrayInt8(const char *array, int count);
@@ -1885,13 +1885,13 @@ int main(int argc, char *argv[])
         //   Verify the method externalizes the expected bytes.
         //
         // Concerns:
-        //: 1 The method externalizes the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
+        // 1. The method externalizes the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
         //
         // Testing:
         //   putFloat64(double value);
@@ -1945,13 +1945,13 @@ int main(int argc, char *argv[])
         //   Verify the method externalizes the expected bytes.
         //
         // Concerns:
-        //: 1 The method externalizes the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
+        // 1. The method externalizes the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
         //
         // Testing:
         //   putFloat32(float value);
@@ -2005,13 +2005,13 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
         //
         // Testing:
         //   putInt64(bsls::Types::Int64 value);
@@ -2104,12 +2104,12 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
+        // 1. Externalize values at different offsets and verify the bytes.
         //    (C-1..2)
         //
         // Testing:
@@ -2203,13 +2203,13 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
         //
         // Testing:
         //   putInt48(bsls::Types::Int64 value);
@@ -2302,13 +2302,13 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
         //
         // Testing:
         //   putInt40(bsls::Types::Int64 value);
@@ -2401,12 +2401,12 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
+        // 1. Externalize values at different offsets and verify the bytes.
         //    (C-1..2)
         //
         // Testing:
@@ -2500,13 +2500,13 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
         //
         // Testing:
         //   putInt24(int value);
@@ -2599,13 +2599,13 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
         //
         // Testing:
         //   putInt16(int value);
@@ -2698,12 +2698,12 @@ int main(int argc, char *argv[])
         //   Verify the method produces the expected output format.
         //
         // Concerns:
-        //: 1 The method produces the expected output format.
+        // 1. The method produces the expected output format.
         //
         // Plan:
-        //: 1 For a small set of objects, use 'ostringstream' to write the
-        //:   object's value to a string buffer and then compare to expected
-        //:   output format.  (C-1)
+        // 1. For a small set of objects, use `ostringstream` to write the
+        //    object's value to a string buffer and then compare to expected
+        //    output format.  (C-1)
         //
         // Testing:
         //   ostream& operator<<(ostream& stream, const ByteOutStream&);
@@ -2841,16 +2841,16 @@ int main(int argc, char *argv[])
         //   Verify that the validity methods work correctly.
         //
         // Concerns:
-        //: 1 The stream initializes valid.
-        //:
-        //: 2 'invalidate' marks the stream invalid.
-        //:
-        //: 3 Both validity accessors return the correct validity state.
+        // 1. The stream initializes valid.
+        //
+        // 2. `invalidate` marks the stream invalid.
+        //
+        // 3. Both validity accessors return the correct validity state.
         //
         // Plan:
-        //: 1 Initialize a stream and verify the accessors' values.  (C-1)
-        //:
-        //: 2 'invalidate' the stream and verify the values.  (C-2..3)
+        // 1. Initialize a stream and verify the accessors' values.  (C-1)
+        //
+        // 2. `invalidate` the stream and verify the values.  (C-2..3)
         //
         // Testing:
         //   void invalidate();
@@ -2880,17 +2880,17 @@ int main(int argc, char *argv[])
         //   Verify functionality of the basic accessors.
         //
         // Concerns:
-        //: 1 'length' and 'data' methods return correct values.
-        //:
-        //: 2 'bdexVersionSelector' returns correct value.
+        // 1. `length` and `data` methods return correct values.
+        //
+        // 2. `bdexVersionSelector` returns correct value.
         //
         // Plan:
-        //: 1 Create an empty object, use 'putInt8' to modify state, and
-        //:   verify the expected values for the methods.  (C-1)
-        //:
-        //: 2 Create empty objects with different 'versionSelector' constructor
-        //:   values and verify the 'bdexVersionSelector' method's return
-        //:   value.  (C-2)
+        // 1. Create an empty object, use `putInt8` to modify state, and
+        //    verify the expected values for the methods.  (C-1)
+        //
+        // 2. Create empty objects with different `versionSelector` constructor
+        //    values and verify the `bdexVersionSelector` method's return
+        //    value.  (C-2)
         //
         // Testing:
         //   int bdexVersionSelector() const;
@@ -2944,36 +2944,36 @@ int main(int argc, char *argv[])
         //   Verify functionality of primary manipulators.
         //
         // Concerns:
-        //: 1 'putInt8' and 'putUint8' produce the expected results.
-        //:
-        //: 2 The initial capacity constructor allocates if needed.
-        //:
-        //: 3 'reserveCapacity' allocates if needed.
-        //:
-        //: 4 'reset' validates and removes all data from the object.
-        //:
-        //: 5 The destructor functions properly.
+        // 1. `putInt8` and `putUint8` produce the expected results.
+        //
+        // 2. The initial capacity constructor allocates if needed.
+        //
+        // 3. `reserveCapacity` allocates if needed.
+        //
+        // 4. `reset` validates and removes all data from the object.
+        //
+        // 5. The destructor functions properly.
         //
         // Plan:
-        //: 1 Verify allocation occurrences by using a test allocator.
-        //:
-        //: 2 Externalize data with the primary manipulator and verify the
-        //:   produced output using the basic accessors 'length' and 'data'.
-        //:   (C-1)
-        //:
-        //: 3 Construct with the initial capacity constructor and verify
-        //:   allocation occurred.  (C-2)
-        //:
-        //: 4 Use 'reserveCapacity' to set a larger required capacity, verify
-        //:   allocation occurred, use the method again to request a smaller
-        //:   capacity, and verify no allocation occurs.  (C-3)
-        //:
-        //: 5 Execute 'reset' on objects with varying length and verify
-        //:   the object is emptied.  Also execute 'reset' on invalid objects.
-        //:   (C-4)
-        //:
-        //: 6 Verify the functionality of the destructor using test allocators.
-        //:   (C-5)
+        // 1. Verify allocation occurrences by using a test allocator.
+        //
+        // 2. Externalize data with the primary manipulator and verify the
+        //    produced output using the basic accessors `length` and `data`.
+        //    (C-1)
+        //
+        // 3. Construct with the initial capacity constructor and verify
+        //    allocation occurred.  (C-2)
+        //
+        // 4. Use `reserveCapacity` to set a larger required capacity, verify
+        //    allocation occurred, use the method again to request a smaller
+        //    capacity, and verify no allocation occurs.  (C-3)
+        //
+        // 5. Execute `reset` on objects with varying length and verify
+        //    the object is emptied.  Also execute `reset` on invalid objects.
+        //    (C-4)
+        //
+        // 6. Verify the functionality of the destructor using test allocators.
+        //    (C-5)
         //
         // Testing:
         //   ByteOutStream(int sV, *ba = 0);
@@ -3156,15 +3156,15 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create 'ByteOutStream' objects using the default constructor.
-        //:
-        //: 2 Exercise these objects using various methods.
-        //:
-        //: 3 Verify expected values throughout.  (C-1)
+        // 1. Create `ByteOutStream` objects using the default constructor.
+        //
+        // 2. Exercise these objects using various methods.
+        //
+        // 3. Verify expected values throughout.  (C-1)
         //
         // Testing:
         //   BREATHING TEST

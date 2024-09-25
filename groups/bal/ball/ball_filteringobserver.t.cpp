@@ -128,8 +128,8 @@ typedef ball::FilteringObserver Obj;
 
 namespace {
 
+/// This class provides `operator()` that maintains its invocation count.
 class CountingPassFilter
-    // This class provides 'operator()' that maintains its invocation count.
 {
     //DATA
     int d_filterCounter;
@@ -158,8 +158,8 @@ class CountingPassFilter
     }
 };
 
+/// This class provides `operator()` that maintains its invocation count.
 class CountingDropFilter
-    // This class provides 'operator()' that maintains its invocation count.
 {
     //DATA
     int d_filterCounter;
@@ -188,9 +188,9 @@ class CountingDropFilter
     }
 };
 
+/// This filter is used to test that the allocator is properly hooked up at
+/// construction.
 class AllocatingFilter
-    // This filter is used to test that the allocator is properly hooked up at
-    // construction.
 {
     //DATA
     int              *d_data_p;       // data member
@@ -283,7 +283,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -293,13 +293,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -316,24 +316,24 @@ int main(int argc, char *argv[])
 //
 // First, we create a filter that will match a log record's category against
 // the pattern "EQUITY.*":
-//..
+// ```
 //  bool categoryFilter(const ball::Record& record, const ball::Context&)
 //  {
 //      return ball::PatternUtil::isMatch(record.fixedFields().category(),
 //                                         "EQUITY.*");
 //  }
-//..
+// ```
 // Then, we create the observer that will receive filtered log records and
 // create a filtering observer:
-//..
+// ```
     bsl::shared_ptr<ball::TestObserver> innerObserver(
                                            new ball::TestObserver(&bsl::cout));
 
     ball::FilteringObserver filteringObserver(innerObserver, categoryFilter);
-//..
+// ```
 // Next, we issue a series of log records and verify that only records with the
 // category matching the pattern are published to the inner observer:
-//..
+// ```
     const ball::Context context(ball::Transmission::e_PASSTHROUGH, 0, 1);
 
     ball::RecordAttributes fixedFields;
@@ -358,24 +358,24 @@ int main(int argc, char *argv[])
     filteringObserver.publish(record, context);
 
     ASSERT(1 == innerObserver->numPublishedRecords());  // dropped
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
         // TESTING PRIMARY MANIPULATORS
         //
         // Concerns:
-        //: 1 The allocator is hooked up correctly.
-        //:
-        //: 2 Log record is correctly formatted.
-        //:
-        //: 3 Formatted log record is written to the output stream.
-        //:
-        //: 4 The filtering observer drops all records if the filter functor is
-        //:   empty.
+        // 1. The allocator is hooked up correctly.
+        //
+        // 2. Log record is correctly formatted.
+        //
+        // 3. Formatted log record is written to the output stream.
+        //
+        // 4. The filtering observer drops all records if the filter functor is
+        //    empty.
         //
         // Plan:
-        //: 1 Create the observer object and publish log record.
+        // 1. Create the observer object and publish log record.
         //
         // Testing:
         //   FilteringObserver(observer, recordFilterCallback, allocator);
@@ -579,12 +579,12 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Run each method with arbitrary inputs and verify the behavior is
-        //:   as expected.
+        // 1. Run each method with arbitrary inputs and verify the behavior is
+        //    as expected.
         //
         // Testing:
         //   BREATHING TEST

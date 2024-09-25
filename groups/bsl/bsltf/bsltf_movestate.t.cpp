@@ -88,9 +88,9 @@ typedef bsltf::MoveState::Enum Enum;
 typedef bsltf::MoveState       Obj;
 typedef bsltf::CopyMoveState   Cms;
 
+/// Class that supplies ADL-findable `getMovedFrom`, `getMovedInto`, and
+/// `setMovedInto` functions.
 struct AdlClass1 {
-    // Class that supplies ADL-findable 'getMovedFrom', 'getMovedInto', and
-    // 'setMovedInto' functions.
     Enum d_movedFrom;
     Enum d_movedInto;
 
@@ -103,9 +103,9 @@ struct AdlClass1 {
         { obj_p->d_movedInto = value; }
 };
 
+/// Class that supplies ADL-findable `getMovedFrom`, `getMovedInto`, and
+/// `setMovedInto` functions.
 struct AdlClass2 {
-    // Class that supplies ADL-findable 'getMovedFrom', 'getMovedInto', and
-    // 'setMovedInto' functions.
 
     Cms::Enum d_copyMoveState;
 
@@ -118,8 +118,8 @@ struct AdlClass2 {
         { obj->d_copyMoveState = value; }
 };
 
+/// Class with no customization points.
 struct nonAdlClass {
-    // Class with no customization points.
 };
 
 // ============================================================================
@@ -154,13 +154,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -176,23 +176,23 @@ int main(int argc, char *argv[])
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -
 // The following snippets of code provide a simple illustration of using
-// 'bsltf::MoveState'.
+// `bsltf::MoveState`.
 //
-// First, we create a variable 'value' of type 'bsltf::MoveState::Enum'
+// First, we create a variable `value` of type `bsltf::MoveState::Enum`
 // and initialize it with the enumerator value
-// 'bsltf::MoveState::e_MOVED':
-//..
+// `bsltf::MoveState::e_MOVED`:
+// ```
     bsltf::MoveState::Enum value = bsltf::MoveState::e_MOVED;
-//..
+// ```
 // Now, we store the address of its ASCII representation in a pointer variable,
-// 'asciiValue', of type 'const char *':
-//..
+// `asciiValue`, of type `const char *`:
+// ```
     const char *asciiValue = bsltf::MoveState::toAscii(value);
-//..
-// Finally, we verify the value of 'asciiValue':
-//..
+// ```
+// Finally, we verify the value of `asciiValue`:
+// ```
     ASSERT(0 == strcmp(asciiValue, "MOVED"));
-//..
+// ```
 
       } break;
       case 2: {
@@ -200,38 +200,38 @@ int main(int argc, char *argv[])
         // TESTING ADL CUSTOMIZATION POINTS
         //
         // Concerns:
-        //: 1 If a type supplies a customization of the namespace functions
-        //:   'getMovedFrom', 'getMovedInto', and/or 'setMovedInto', then an
-        //:   unqualified call to one of those functions on an object of that
-        //:   type calls the appropriate customization function.
-        //:
-        //: 2 If a type does *not* supply a customization of the namespace
-        //:   functions 'getMovedFrom', 'getMovedInto', and/or 'setMovedInto'
-        //:   but *does* supply an customizatoin function for 'copyMoveState'
-        //:   and/or 'setCopyMoveState' then an unqualified call to one of the
-        //:   first three functions on an object of that type yields an adapted
-        //:   call to one of the latter two functions.
-        //:
-        //: 3 Otherwise 'getMovedFrom' and 'getMovedInto' return
-        //:   'MoveState::e_UNKNOWN' and 'setMovedInto' does nothing.
+        // 1. If a type supplies a customization of the namespace functions
+        //    `getMovedFrom`, `getMovedInto`, and/or `setMovedInto`, then an
+        //    unqualified call to one of those functions on an object of that
+        //    type calls the appropriate customization function.
+        //
+        // 2. If a type does *not* supply a customization of the namespace
+        //    functions `getMovedFrom`, `getMovedInto`, and/or `setMovedInto`
+        //    but *does* supply an customizatoin function for `copyMoveState`
+        //    and/or `setCopyMoveState` then an unqualified call to one of the
+        //    first three functions on an object of that type yields an adapted
+        //    call to one of the latter two functions.
+        //
+        // 3. Otherwise `getMovedFrom` and `getMovedInto` return
+        //    `MoveState::e_UNKNOWN` and `setMovedInto` does nothing.
         //
         // Plan:
-        //: 1 Create a class in its own namespace having customized versions of
-        //:   namespace-scope 'getMovedFrom', 'getMovedInto', and
-        //:   'setMovedInto'.  Verify that these customizations are called when
-        //:   the corresponding function is called without qualification.
-        //:   (C-1)
-        //:
-        //: 2 Create a class in its own namespace having customized versions of
-        //:   'copyMoveState' and 'setCopyMoveState'.  Verify that an
-        //:   unqualified call to 'getMovedFrom', 'getMovedInto', or
-        //:   'setMovedInto' calls the appropriate customization point and
-        //:   adapts it correctly.  (C-2)
-        //:
-        //: 3 Verify that an unqualified call to 'getMovedFrom', 'getMovedInto'
-        //:   on an 'int' or a class not providing the needed customization
-        //:   points returns 'e_UNKNOWN'.  Verify that an unqualified call to
-        //:   'setMovedInto' succeeds with no detectable effect.
+        // 1. Create a class in its own namespace having customized versions of
+        //    namespace-scope `getMovedFrom`, `getMovedInto`, and
+        //    `setMovedInto`.  Verify that these customizations are called when
+        //    the corresponding function is called without qualification.
+        //    (C-1)
+        //
+        // 2. Create a class in its own namespace having customized versions of
+        //    `copyMoveState` and `setCopyMoveState`.  Verify that an
+        //    unqualified call to `getMovedFrom`, `getMovedInto`, or
+        //    `setMovedInto` calls the appropriate customization point and
+        //    adapts it correctly.  (C-2)
+        //
+        // 3. Verify that an unqualified call to `getMovedFrom`, `getMovedInto`
+        //    on an `int` or a class not providing the needed customization
+        //    points returns `e_UNKNOWN`.  Verify that an unqualified call to
+        //    `setMovedInto` succeeds with no detectable effect.
         //
         // Testing
         //    MoveState::Enum bsltf::getMovedFrom(const TYPE& object);
@@ -280,41 +280,41 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // -------------------------------------------------------------------
-        // TESTING 'enum' AND 'toAscii'
+        // TESTING `enum` AND `toAscii`
         //
         // Concerns:
-        //: 1 The enumerator values are sequential, starting from 0.
-        //:
-        //: 2 The 'toAscii' method returns the expected string representation
-        //:   for each enumerator.
-        //:
-        //: 3 The 'toAscii' method returns a distinguished string when passed
-        //:   an out-of-band value.
-        //:
-        //: 4 The string returned by 'toAscii' is non-modifiable.
-        //:
-        //: 5 The 'toAscii' method has the expected signature.
+        // 1. The enumerator values are sequential, starting from 0.
+        //
+        // 2. The `toAscii` method returns the expected string representation
+        //    for each enumerator.
+        //
+        // 3. The `toAscii` method returns a distinguished string when passed
+        //    an out-of-band value.
+        //
+        // 4. The string returned by `toAscii` is non-modifiable.
+        //
+        // 5. The `toAscii` method has the expected signature.
         //
         // Plan:
-        //: 1 Verify that the enumerator values are sequential, starting from
-        //:   0.  (C-1)
-        //:
-        //: 2 Verify that the 'toAscii' method returns the expected string
-        //:   representation for each enumerator.  (C-2)
-        //:
-        //: 3 Verify that the 'toAscii' method returns a distinguished string
-        //:   when passed an out-of-band value.  (C-3)
-        //:
-        //: 4 Take the address of the 'toAscii' (class) method and use the
-        //:   result to initialize a variable of the appropriate type.
-        //:   (C-4, C-5)
+        // 1. Verify that the enumerator values are sequential, starting from
+        //    0.  (C-1)
+        //
+        // 2. Verify that the `toAscii` method returns the expected string
+        //    representation for each enumerator.  (C-2)
+        //
+        // 3. Verify that the `toAscii` method returns a distinguished string
+        //    when passed an out-of-band value.  (C-3)
+        //
+        // 4. Take the address of the `toAscii` (class) method and use the
+        //    result to initialize a variable of the appropriate type.
+        //    (C-4, C-5)
         //
         // Testing:
         //   enum Enum { ... };
         //   const char *toAscii(SystemClockType::Enum val);
         // -------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'enum' AND 'toAscii'"
+        if (verbose) printf("\nTESTING `enum` AND `toAscii`"
                             "\n============================\n");
 
 #if BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
@@ -355,7 +355,7 @@ int main(int argc, char *argv[])
             ASSERTV(ti, VALUE, ti == VALUE);
         }
 
-        if (verbose) printf("\nTesting 'toAscii'.\n");
+        if (verbose) printf("\nTesting `toAscii`.\n");
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE  = DATA[ti].d_lineNum;
@@ -370,7 +370,7 @@ int main(int argc, char *argv[])
             ASSERTV(LINE, ti, EXP, result,      0 == strcmp(EXP, result));
         }
 
-        if (verbose) printf("\nVerify 'toAscii' signature.\n");
+        if (verbose) printf("\nVerify `toAscii` signature.\n");
 
         {
             typedef const char *(*FuncPtr)(Enum);

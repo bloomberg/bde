@@ -113,31 +113,33 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// A simple test class that can instantiated and copied to help test the
+/// instantiation of `bdlb::TestInputIterator` on a user-defined type.
 class MyClass {
-    // A simple test class that can instantiated and copied to help test the
-    // instantiation of 'bdlb::TestInputIterator' on a user-defined type.
 
   public:
     // CREATORS
+
+    /// Construct a MyClass object.
     explicit MyClass(int){ }
-        // Construct a MyClass object.
 
+    /// Construct a copy of an object.
     MyClass(const MyClass& original) { (void) original; }
-        // Construct a copy of an object.
 
+    /// Destroy an object.
     ~MyClass() { }
-        // Destroy an object.
 
+    /// Member function, required for dereference operator test.
     int value() const { return 0; }
-        // Member function, required for dereference operator test.
 
   private:
     // MANIPULATORS
+
+    /// The type used to instantiate `bdlb::TestInputIterator` does not need
+    /// to be assignable, although it must be copy-constructible.  We
+    /// disable the assignment operator to ensure that we don't depend on
+    /// it.
     MyClass& operator=(const MyClass& rhs);
-        // The type used to instantiate 'bdlb::TestInputIterator' does not need
-        // to be assignable, although it must be copy-constructible.  We
-        // disable the assignment operator to ensure that we don't depend on
-        // it.
 
 
 };
@@ -150,14 +152,14 @@ class MyClass {
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'bdlb::TestInputIterator'
+///Example 1: Basic Use of `bdlb::TestInputIterator`
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// In the following example we use a 'bdlb::TestInputIterator' to test that an
+// In the following example we use a `bdlb::TestInputIterator` to test that an
 // aggregation function compiles when instantiated with a pure input iterator.
 //
-// First, we define a function 'sum' that accepts two input iterators and
+// First, we define a function `sum` that accepts two input iterators and
 // returns the sum of all elements in range specified by them.
-//..
+// ```
     template <class IN_ITER>
     typename bsl::iterator_traits<IN_ITER>::value_type
     sum(IN_ITER first, IN_ITER last)
@@ -168,29 +170,29 @@ class MyClass {
         }
         return total;
     }
-//..
-// Now, we define a function 'testSum' that first verifies that 'sum' correctly
-// accumulates a sum, and then verifies, using 'bdlb::TestInputIterator', that
-// 'sum' can be instantiated on an iterator that strictly matches the
+// ```
+// Now, we define a function `testSum` that first verifies that `sum` correctly
+// accumulates a sum, and then verifies, using `bdlb::TestInputIterator`, that
+// `sum` can be instantiated on an iterator that strictly matches the
 // requirements of an empty input iterator:
-//..
+// ```
     int testSum()
     {
         static const int myArray[6] = { 2, 3, 5, 7, 11, 0 };
 
-        // Verify that 'sum' correctly computes the sum using random access
+        // Verify that `sum` correctly computes the sum using random access
         // iterators (pointers).
         int r1 = sum(&myArray[0], &myArray[5]);
         ASSERT(28 == r1);
 
-        // Verify that 'sum' can be instantiated using a pure input iterator.
+        // Verify that `sum` can be instantiated using a pure input iterator.
         typedef bdlb::TestInputIterator<unsigned> iterType;
         unsigned r2 = sum(iterType(), iterType());
         ASSERT(0 == r2);
 
         return 0;
     }
-//..
+// ```
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -211,13 +213,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -234,24 +236,24 @@ int main(int argc, char *argv[])
         // EQUALITY-COMPARISON OPERATORS
         //
         // Concerns:
-        //: 1 Two objects of 'bdlb::TestInputIterator' class, 'X' and 'Y',
-        //:   always compare equal.
-        //:
-        //: 2 Two objects of 'bdlb::TestInputIterator' class, 'X' and 'Y',
-        //:   never compare unequal.
-        //:
-        //: 3 Comparison is symmetric.
-        //:
-        //: 4 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
+        // 1. Two objects of `bdlb::TestInputIterator` class, `X` and `Y`,
+        //    always compare equal.
+        //
+        // 2. Two objects of `bdlb::TestInputIterator` class, `X` and `Y`,
+        //    never compare unequal.
+        //
+        // 3. Comparison is symmetric.
+        //
+        // 4. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
         //
         // Plan:
-        //: 1 Create two different objects and verify the correctness of
-        //:   'operator==' and 'operator!=' using them.  (C-1..4)
-        //:
-        //: 2 Create modifiable object and const reference pointing to it.
-        //:   Verify the correctness of 'operator==' and 'operator!=' using
-        //:   them.  (C-1..4)
+        // 1. Create two different objects and verify the correctness of
+        //    `operator==` and `operator!=` using them.  (C-1..4)
+        //
+        // 2. Create modifiable object and const reference pointing to it.
+        //    Verify the correctness of `operator==` and `operator!=` using
+        //    them.  (C-1..4)
         //
         // Testing:
         //   bool operator==(TestInputIterator&, TestInputIterator&);
@@ -292,37 +294,37 @@ int main(int argc, char *argv[])
         //   expressions all compile.
         //
         // Concerns:
-        //: 1 Objects can be created using the default constructor.
-        //:
-        //: 2 Objects can be created using the copy constructor.
-        //:
-        //: 3 The copy constructor is not declared as explicit.
-        //:
-        //: 4 Objects can be assigned to from constant objects.
-        //:
-        //: 5 Assignments operations can be chained.
-        //:
-        //: 6 Objects can be destroyed.
+        // 1. Objects can be created using the default constructor.
+        //
+        // 2. Objects can be created using the copy constructor.
+        //
+        // 3. The copy constructor is not declared as explicit.
+        //
+        // 4. Objects can be assigned to from constant objects.
+        //
+        // 5. Assignments operations can be chained.
+        //
+        // 6. Objects can be destroyed.
         //
         // Plan:
-        //: 1 Verify the default constructor exists and is publicly accessible
-        //:   by default-constructing a 'const bdlb::TestInputIterator' object.
-        //:  (C-1)
-        //:
-        //: 2 Verify the copy constructor is publicly accessible and not
-        //:   'explicit' by using the copy-initialization syntax to create a
-        //:   second 'bdlb::TestInputIterator' from the first. (C-2..3)
-        //:
-        //: 3 Assign the value of the first ('const') object to the second.
-        //:   (C-4)
-        //:
-        //: 4 Chain the assignment of the value of the first ('const') object
-        //:   to the second, into a self-assignment of the second object to
-        //:   itself. (C-5)
-        //:
-        //: 5 Verify the destructor is publicly accessible by allowing the two
-        //:   'bdlb::TestInputIterator' object to leave scope and be destroyed.
-        //:   (C-6)
+        // 1. Verify the default constructor exists and is publicly accessible
+        //    by default-constructing a `const bdlb::TestInputIterator` object.
+        //   (C-1)
+        //
+        // 2. Verify the copy constructor is publicly accessible and not
+        //    `explicit` by using the copy-initialization syntax to create a
+        //    second `bdlb::TestInputIterator` from the first. (C-2..3)
+        //
+        // 3. Assign the value of the first (`const`) object to the second.
+        //    (C-4)
+        //
+        // 4. Chain the assignment of the value of the first (`const`) object
+        //    to the second, into a self-assignment of the second object to
+        //    itself. (C-5)
+        //
+        // 5. Verify the destructor is publicly accessible by allowing the two
+        //    `bdlb::TestInputIterator` object to leave scope and be destroyed.
+        //    (C-6)
         //
         // Testing:
         //   TestInputIterator();
@@ -371,11 +373,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Developer test sandbox. (C-1)
+        // 1. Developer test sandbox. (C-1)
         //
         // Testing:
         //   BREATHING TEST

@@ -83,8 +83,8 @@ class NonPod {
     virtual bool memberFunction() { return !d_data; }
 };
 
+/// Class with no declared traits.
 struct my_ClassWithNoTraits {
-    // Class with no declared traits.
     NonPod d_data;
 };
 

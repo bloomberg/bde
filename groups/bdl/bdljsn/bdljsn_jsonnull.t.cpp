@@ -7,7 +7,7 @@
 
 #include <bslim_testutil.h>
 
-#include <bslh_hash.h> // 'hashAppend(HASH_ALG, int)'
+#include <bslh_hash.h> // `hashAppend(HASH_ALG, int)`
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -20,16 +20,16 @@
 #include <bsls_libraryfeatures.h>
 #include <bsls_review.h>
 
-#include <bsl_cstdlib.h>  // 'bsl::realloc', 'bsl::free'
-#include <bsl_cstring.h>  // 'bsl::memcmp', 'bsl::memcpy'
+#include <bsl_cstdlib.h>  // `bsl::realloc`, `bsl::free`
+#include <bsl_cstring.h>  // `bsl::memcmp`, `bsl::memcpy`
 #include <bsl_iostream.h>
-#include <bsl_sstream.h>  // 'bsl::ostringstring'
+#include <bsl_sstream.h>  // `bsl::ostringstring`
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 #include <variant>
 #endif
 
-#include <stddef.h>  // 'size_t'
+#include <stddef.h>  // `size_t`
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -39,13 +39,13 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-// The 'bdljsn::JsonNull' class is a degenerate value-semantic type that
+// The `bdljsn::JsonNull` class is a degenerate value-semantic type that
 // defines just a single value and has few of the conventional value-semantic
 // methods.  There are no manipulators; hence no "primary manipulators".  There
-// are no accessors (other than 'print'); hence, no "basic accessors".
+// are no accessors (other than `print`); hence, no "basic accessors".
 // Accordingly, the standard 10-step (to start) testing plan is stripped down
-// to a few ad-hoc tests in case 1 with separate test cases for 'print',
-// 'hashAppend', and (of course) the USAGE EXAMPLE.
+// to a few ad-hoc tests in case 1 with separate test cases for `print`,
+// `hashAppend`, and (of course) the USAGE EXAMPLE.
 // ----------------------------------------------------------------------------
 // CREATORS
 // [ 1] JsonNull();
@@ -63,7 +63,7 @@ using namespace bsl;
 // [ 3] void hashAppend(HASHALG& hashAlgorithm, const JsonNull& object);
 // ----------------------------------------------------------------------------
 // [ 4] USAGE EXAMPLE
-// [ 2] CONCERN: All accessor methods are declared 'const'.
+// [ 2] CONCERN: All accessor methods are declared `const`.
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -119,44 +119,44 @@ typedef bdljsn::JsonNull Obj;
 //                      HELPER FUNCTIONS AND CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// This class implements a mock hashing algorithm that provides a way to
+/// accumulate and then examine data that is being passed into hashing
+/// algorithms by `hashAppend`.
 class MockAccumulatingHashingAlgorithm {
-    // This class implements a mock hashing algorithm that provides a way to
-    // accumulate and then examine data that is being passed into hashing
-    // algorithms by 'hashAppend'.
 
     void   *d_data_p;  // Data we were asked to hash
     size_t  d_length;  // Length of the data we were asked to hash
 
   public:
+    /// Create an object of this type.
     MockAccumulatingHashingAlgorithm()
     : d_data_p(0)
     , d_length(0)
-        // Create an object of this type.
     {
     }
 
+    /// Destroy this object
     ~MockAccumulatingHashingAlgorithm()
-        // Destroy this object
     {
         free(d_data_p);
     }
 
+    /// Append the data of the specified `length` at `voidPtr` for later
+    /// inspection.
     void operator()(const void *voidPtr, size_t length)
-        // Append the data of the specified 'length' at 'voidPtr' for later
-        // inspection.
     {
         d_data_p = realloc(d_data_p, d_length += length);
         memcpy(getData() + d_length - length, voidPtr, length);
     }
 
+    /// Return a pointer to the stored data.
     char *getData()
-        // Return a pointer to the stored data.
     {
         return static_cast<char *>(d_data_p);
     }
 
+    /// Return the length of the stored data.
     size_t getLength()
-        // Return the length of the stored data.
     {
         return d_length;
     }
@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -194,13 +194,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -219,43 +219,43 @@ int main(int argc, char *argv[])
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -
 // The scenario below illustrates almost all of the supported operations on the
-// 'bdljsn::JsonNull' type:
+// `bdljsn::JsonNull` type:
 //
-// First, we create a 'bdljsn::JsonNull' object:
-//..
+// First, we create a `bdljsn::JsonNull` object:
+// ```
     bdljsn::JsonNull a;
-//..
+// ```
 // Then, we examine the object's printed representation:
-//..
+// ```
     bsl::ostringstream oss;
     oss << a;
     ASSERT("null" == oss.str());
-//..
+// ```
 // Now, we create a second object of that class and confirm that it equals the
 // object created above.
-//..
+// ```
     bdljsn::JsonNull b;
     ASSERT( (a == b));
     ASSERT(!(a != b));
-//..
+// ```
 // Finally, we confirm that swapping the two objects has no effect.
-//..
+// ```
     swap(a, b);
     ASSERT(a == b);
-//..
+// ```
 
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'hashAppend'
+        // TESTING `hashAppend`
         //
         // Concerns:
-        //: 1 'hashAppend' has been implemented for 'bdljsn::JsonNull' and,
-        //:   when invoked, it passes the expected value to the user-provided
-        //:   'HASHALG' object.
+        // 1. `hashAppend` has been implemented for `bdljsn::JsonNull` and,
+        //    when invoked, it passes the expected value to the user-provided
+        //    `HASHALG` object.
         //
         // Plan:
-        //: 1 Use a mock hashing algorithm to test 'hashAppend'.
+        // 1. Use a mock hashing algorithm to test `hashAppend`.
         //
         // Testing:
         //   void hashAppend(HASHALG& hashAlgorithm, const JsonNull& object);
@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             bsl::cout << bsl::endl
-                      << "TESTING 'hashAppend'" << bsl::endl
+                      << "TESTING `hashAppend`" << bsl::endl
                       << "====================" << bsl::endl;
         }
 
@@ -289,62 +289,62 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // PRINT AND OUTPUT OPERATOR
         //   Ensure that the value of the object can be formatted appropriately
-        //   on an 'ostream' in some standard, human-readable form.
+        //   on an `ostream` in some standard, human-readable form.
         //
         // Concerns:
-        //: 1 The 'print' method and the output 'operator<<' have standard
-        //:   signatures and return types.
+        // 1. The `print` method and the output `operator<<` have standard
+        //    signatures and return types.
         //
-        //: 2 The 'print' method and the output 'operator<<' return the
-        //:   supplied 'ostream'.
-        //:
-        //: 3 The 'print' method writes the string "null" to the specified
-        //:   'ostream' at the intended indentation and followed by '\n'
-        //:   unless the third argument ('spacesPerLevel') is negative.
-        //:
-        //: 4 The optional 'level' and 'spacesPerLevel' parameters have the
-        //:   correct default values.
-        //:
-        //: 5 There is no output when the stream is invalid.
+        // 2. The `print` method and the output `operator<<` return the
+        //    supplied `ostream`.
+        //
+        // 3. The `print` method writes the string "null" to the specified
+        //    `ostream` at the intended indentation and followed by '\n'
+        //    unless the third argument (`spacesPerLevel`) is negative.
+        //
+        // 4. The optional `level` and `spacesPerLevel` parameters have the
+        //    correct default values.
+        //
+        // 5. There is no output when the stream is invalid.
         //
         // Plan:
-        //: 1 Use the addresses of the 'print' member function and 'operator<<'
-        //:   free function defined in this component to initialize,
-        //:   respectively, member-function and free-function pointers having
-        //:   the appropriate signatures and return types.  (C-1)
-        //:
-        //: 2 Using the table-driven technique: (C-2..5)
-        //:
-        //:   1 Create a table having combinations of the two formatting
-        //:     parameters, 'level' and 'spacesPerLevel', and the expected
-        //:     output.
-        //:
-        //:   2 Atypically, this table does *not* have parameters for creating
-        //:     test object of different values.  The type under test supports
-        //:     just a single value that is formatted as "null".
-        //:
-        //:   3 The formatting parameter '-9' and '-8' are "magic".  They are
-        //:     never used as arguments.  Rather they direct flow of the test
-        //:     case to code that confirms that the default argument values are
-        //:     correct and confirms that 'operator<<' works as expected.
-        //:
-        //:   4 Each table entry is used twice: First with a valid output
-        //:     stream and then again with the output stream in a 'bad' state.
-        //:     In the former case, the output should match that specified in
-        //:     in the table.  In the later case, there should be no output.
+        // 1. Use the addresses of the `print` member function and `operator<<`
+        //    free function defined in this component to initialize,
+        //    respectively, member-function and free-function pointers having
+        //    the appropriate signatures and return types.  (C-1)
+        //
+        // 2. Using the table-driven technique: (C-2..5)
+        //
+        //   1. Create a table having combinations of the two formatting
+        //      parameters, `level` and `spacesPerLevel`, and the expected
+        //      output.
+        //
+        //   2. Atypically, this table does *not* have parameters for creating
+        //      test object of different values.  The type under test supports
+        //      just a single value that is formatted as "null".
+        //
+        //   3. The formatting parameter `-9` and `-8` are "magic".  They are
+        //      never used as arguments.  Rather they direct flow of the test
+        //      case to code that confirms that the default argument values are
+        //      correct and confirms that `operator<<` works as expected.
+        //
+        //   4. Each table entry is used twice: First with a valid output
+        //      stream and then again with the output stream in a `bad` state.
+        //      In the former case, the output should match that specified in
+        //      in the table.  In the later case, there should be no output.
         //
         // Testing:
         //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
         //   operator<<(ostream& s, const bdljsn::JsonNull& d);
-        //   CONCERN: All accessor methods are declared 'const'.
+        //   CONCERN: All accessor methods are declared `const`.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PRINT AND OUTPUT OPERATOR" << endl
                           << "=========================" << endl;
 
-        if (veryVerbose) cout << "\nAssign the addresses of 'print' and "
-                                  "the output 'operator<<' to variables."
+        if (veryVerbose) cout << "\nAssign the addresses of `print` and "
+                                  "the output `operator<<` to variables."
                               << endl;
         {
             using namespace bdljsn;
@@ -388,15 +388,15 @@ int main(int argc, char *argv[])
             { L_,        -2,         1, "null"         NL },
             { L_,         2,         1, "  null"       NL },
 
-            // Default 'spl': 'X.print(os, level)'
+            // Default `spl`: `X.print(os, level)`
             { L_,         0, TEST_DFLT, "null"         NL },
             { L_,         1, TEST_DFLT, "    null"     NL },
             { L_,         2, TEST_DFLT, "        null" NL },
 
-            // Default 'level' and 'spl': 'X.print(os)'
+            // Default `level` and `spl`: `X.print(os)`
             { L_, TEST_DFLT, TEST_DFLT, "null"         NL },
 
-            // 'operator<<'
+            // `operator<<`
             { L_, TEST_OPER, TEST_OPER, "null"            }   // no trailing NL
 #undef NL
 // BDE_VERIFY pragma: +SP01
@@ -468,29 +468,29 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TEST CONSTRUCTOR, EQUALITY-COMPARISON OPERATORS, AND 'swap'
+        // TEST CONSTRUCTOR, EQUALITY-COMPARISON OPERATORS, AND `swap`
         //
         // Concerns:
-        //: 1 The equality operator's and 'swap' functions's signatures and
-        //:   return types are standard.
-        //:
-        //: 2 The constructor creates a object.
-        //:
-        //: 3 All created objects compare equal.
-        //:   1 'operator==' always returns 'true'.
-        //:   2 'operator!=' always returns 'false'.
-        //:
-        //: 4 Equality operators are commutative and transitive.
-        //:
-        //: 5 Swapping objects does not change the equality relationship.
-        //:
-        //: 6 The 'swap' function can be found via ADL.
+        // 1. The equality operator's and `swap` functions's signatures and
+        //    return types are standard.
+        //
+        // 2. The constructor creates a object.
+        //
+        // 3. All created objects compare equal.
+        //   1. `operator==` always returns `true`.
+        //   2. `operator!=` always returns `false`.
+        //
+        // 4. Equality operators are commutative and transitive.
+        //
+        // 5. Swapping objects does not change the equality relationship.
+        //
+        // 6. The `swap` function can be found via ADL.
         //
         // Plan:
-        //: 1 Use the "function-signature" idiom to confirm the operator's
-        //:   signature and return type.  (C-1)
-        //:
-        //: 2 Ad-hoc tests (C-2..6)
+        // 1. Use the "function-signature" idiom to confirm the operator's
+        //    signature and return type.  (C-1)
+        //
+        // 2. Ad-hoc tests (C-2..6)
         //
         // Testing:
         //   JsonNull();
@@ -500,7 +500,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-      << "TEST CONSTRUCTOR, EQUALITY-COMPARISON OPERATORS, AND 'swap'" << endl
+      << "TEST CONSTRUCTOR, EQUALITY-COMPARISON OPERATORS, AND `swap`" << endl
       << "===========================================================" << endl;
 
         if (veryVerbose) cout <<
@@ -519,7 +519,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose) cout <<
-                "\nAssign the address of 'swap' to a variable." << endl;
+                "\nAssign the address of `swap` to a variable." << endl;
         {
             typedef void (*freeFuncPtr)(Obj&, Obj&);
 
@@ -546,7 +546,7 @@ int main(int argc, char *argv[])
         ASSERT( (X == Z)); ASSERT( (Z == X));
         ASSERT( (X == Z)); ASSERT(!(Z != X));
 
-        if (veryVerbose) cout << "\nAd hoc tests: 'swap'." << endl;
+        if (veryVerbose) cout << "\nAd hoc tests: `swap`." << endl;
 
         bdljsn::swap(mX, mY);
 
@@ -561,7 +561,7 @@ int main(int argc, char *argv[])
         ASSERT( (X == Z)); ASSERT( (Z == X));
         ASSERT( (X == Z)); ASSERT(!(Z != X));
 
-        if (veryVerbose) cout << "\nAd hoc test: 'swap' ADL." << endl;
+        if (veryVerbose) cout << "\nAd hoc test: `swap` ADL." << endl;
 
         Obj mU;  const Obj& U = mU;
         Obj mV;  const Obj& V = mV;

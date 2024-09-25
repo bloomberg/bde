@@ -23,8 +23,8 @@
 #include <bsltf_argumenttype.h>
 #include <bsltf_stdallocatoradaptor.h>
 
-#include <cstdio>   // 'printf'
-#include <cstdlib>  // 'atoi'
+#include <cstdio>   // `printf`
+#include <cstdlib>  // `atoi`
 #include <cstring>
 
 #ifdef BDE_VERIFY
@@ -45,32 +45,32 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// This component provides a class template, 'ConstructorProxy', that wraps an
+// This component provides a class template, `ConstructorProxy`, that wraps an
 // object whose type might or might not be Allocator Aware (AA). The wrapper
 // itself provides no functionality other than the metaprogramming needed to
 // pass an allocator to the object's constructor, if appropriate.  The minimal
 // wrapper interface provides constructors having 1 to 15 arguments, a
-// destructor, and 'object' methods that retrieve the wrapped object.
+// destructor, and `object` methods that retrieve the wrapped object.
 //
-// The tests instantiate 'ConstructorProxy' with a number of test types and
+// The tests instantiate `ConstructorProxy` with a number of test types and
 // check that the constructors correctly transport an allocator argument to the
 // proxied object.  The test types will have combinations of the following
 // traits that exercise all the aspects of the template under test.
 //
-//: o Allocator awareness: Non-AA, pmr-AA, bsl-AA, legacy-AA, and STL-AA.
-//: o Leading allocator argument-passing protocol ('X(bsl::allocator_arg_t',
-//:   alloc, args...)' vs. trailing argument-passing protocol ('X(args...,
-//:   alloc)'
-//: o Bitwise moveable or not.
+//  - Allocator awareness: Non-AA, pmr-AA, bsl-AA, legacy-AA, and STL-AA.
+//  - Leading allocator argument-passing protocol (`X(bsl::allocator_arg_t`,
+//    alloc, args...)` vs. trailing argument-passing protocol (`X(args...,
+//    alloc)'
+//  - Bitwise moveable or not.
 //
 // Constructor arguments are varied along the following axis:
-//: o Number: 1 to 15, including a trailing allocator
-//: o Type: Must be compatible with the proxied object constructor.
-//: o Value category: 'const' lvalue, non-'const' lvalue, or rvalue
-//: o Proxied or not: A single value argument of proxied type is unwrapped
-//:   before being passed on.
+//  - Number: 1 to 15, including a trailing allocator
+//  - Type: Must be compatible with the proxied object constructor.
+//  - Value category: `const` lvalue, non-`const` lvalue, or rvalue
+//  - Proxied or not: A single value argument of proxied type is unwrapped
+//    before being passed on.
 //
-// This proxy class has no basic manipulators.  The 'object' methods are used
+// This proxy class has no basic manipulators.  The `object` methods are used
 // to test that the proxied object in is in the expected state.
 //-----------------------------------------------------------------------------
 // NESTED TYPES AND TRAITS
@@ -170,9 +170,9 @@ typedef bsltf::ArgumentType<12> ArgType12;
 typedef bsltf::ArgumentType<13> ArgType13;
 typedef bsltf::ArgumentType<14> ArgType14;
 
+/// Packet of 14 `bsltf::ArgumentType` values having initial values
+/// `VALUES[1]` through `VALUES[14]`.
 struct ArgPack {
-    // Packet of 14 'bsltf::ArgumentType' values having initial values
-    // 'VALUES[1]' through 'VALUES[14]'.
 
     // PUBLIC DATA
     bsltf::ArgumentType< 1> d_arg1;
@@ -219,11 +219,11 @@ struct ArgPack {
     }
 };
 
+/// Class to hold the value and state of any `ArgumentType` object. Note
+/// that this class does *not* track its own copy and move state; the state
+/// is frozen at the value acquired from the original construction from
+/// `ArgumentType<N>`.
 class FrozenArg {
-    // Class to hold the value and state of any 'ArgumentType' object. Note
-    // that this class does *not* track its own copy and move state; the state
-    // is frozen at the value acquired from the original construction from
-    // 'ArgumentType<N>'.
 
     int       d_value;
     CMS::Enum d_copyMoveState;
@@ -258,17 +258,17 @@ class FrozenArg {
     CMS::Enum copyMoveState(const FrozenArg& fa) { return fa.copyMoveState(); }
 };
 
+/// Base class for the 'TestType` template holding the allocator and
+/// providing allocator-related typedefs and accessors.  Each instantiation
+/// has a protected `AllocArg` type used to pass an allocator to the
+/// derived-class constructors and a `k_USES_BSLMA_ALLOCATOR` constant that
+/// is `true` for AA types and false for non-AA types.  The primary template
+/// is used for bsl-AA, pmr-AA, and STL-AA instantiations; specialization
+/// `TestType_Base<void>` is provided for non-AA instantiations and
+/// specialization `TestType_Base<bslma::Allocator *>` is provided for
+/// legacy-AA instantiations.
 template <class ALLOC>
 class TestType_Base {
-    // Base class for the 'TestType` template holding the allocator and
-    // providing allocator-related typedefs and accessors.  Each instantiation
-    // has a protected 'AllocArg' type used to pass an allocator to the
-    // derived-class constructors and a 'k_USES_BSLMA_ALLOCATOR' constant that
-    // is 'true' for AA types and false for non-AA types.  The primary template
-    // is used for bsl-AA, pmr-AA, and STL-AA instantiations; specialization
-    // 'TestType_Base<void>' is provided for non-AA instantiations and
-    // specialization 'TestType_Base<bslma::Allocator *>' is provided for
-    // legacy-AA instantiations.
 
     // DATA
     ALLOC d_allocator;
@@ -300,13 +300,13 @@ class TestType_Base {
     // ACCESSORS
     allocator_type get_allocator() const { return d_allocator; }
 
+    /// Return `true` if the specified `a` matches the allocator.  The
+    /// second overload relies on the fact that most STL allocators used for
+    /// testing at Bloomberg can be constructed (not necessarily converted)
+    /// from `bslma::Allocator *`; if not, a call to the second overload
+    /// will fail to compile.
     bool matchAllocator(AllocArg a) const { return a == d_allocator; }
     bool matchAllocator(bslma::Allocator *a) const
-        // Return 'true' if the specified 'a' matches the allocator.  The
-        // second overload relies on the fact that most STL allocators used for
-        // testing at Bloomberg can be constructed (not necessarily converted)
-        // from 'bslma::Allocator *'; if not, a call to the second overload
-        // will fail to compile.
     {
         allocator_type alloc(a);
         return alloc == d_allocator;
@@ -314,9 +314,9 @@ class TestType_Base {
 };
 
 
+/// Specialization of base class for derived classes not using an allocator.
 template <>
 class TestType_Base<void> {
-    // Specialization of base class for derived classes not using an allocator.
 
     // NOT IMPLEMENTED
     TestType_Base& operator=(const TestType_Base&) BSLS_KEYWORD_DELETED;
@@ -339,9 +339,9 @@ class TestType_Base<void> {
     bool matchAllocator(const ANY_ALLOC&) const { return true; }
 };
 
+/// Specialization of base class for `bslma::Allocator *`
 template <>
 class TestType_Base<bslma::Allocator *> {
-    // Specialization of base class for 'bslma::Allocator *'
 
     // DATA
     bslma::Allocator *d_allocator;
@@ -373,22 +373,23 @@ class TestType_Base<bslma::Allocator *> {
     bool matchAllocator(const AllocArg a) const { return a == d_allocator; }
 };
 
+/// Generalized test type. If `ALLOC` is `bsl::allocator` or
+/// `bslma::Allocator *`, every constructor can take an optional allocator
+/// argument at the end of its argument list.
 template <class ALLOC, bool USE_PREFIX_ARG>
 class TestType : public TestType_Base<ALLOC>
 {
-    // Generalized test type. If 'ALLOC' is 'bsl::allocator' or
-    // 'bslma::Allocator *', every constructor can take an optional allocator
-    // argument at the end of its argument list.
 
     // PRIVATE TYPES
+
+    /// Non-constructable, non-allocator, dummy type.
     class DummyAllocArg {
-        // Non-constructable, non-allocator, dummy type.
         DummyAllocArg();  // Private constructor
     };
     typedef TestType_Base<ALLOC>     Base;
 
-    // Either 'LeadingAllocArg' or 'TrailingAllocArg' will be an
-    // unconstructible dummy type.  If 'ALLOC' is void, then both will be
+    // Either `LeadingAllocArg` or `TrailingAllocArg` will be an
+    // unconstructible dummy type.  If `ALLOC` is void, then both will be
     // unconstructible dummy types.
     typedef typename bsl::conditional<USE_PREFIX_ARG,
                                       typename Base::AllocArg,
@@ -399,9 +400,9 @@ class TestType : public TestType_Base<ALLOC>
                                       typename Base::AllocArg
                                      >::type TrailingAllocArg;
 
+    /// Array of `FrozenArg`, taking advantage of compiler-generated default
+    /// ctor, copy ctor, and assignment.
     class FrozenArgArray {
-        // Array of 'FrozenArg', taking advantage of compiler-generated default
-        // ctor, copy ctor, and assignment.
 
         // DATA
         FrozenArg d_data[15];  // Item 0 is not used.
@@ -741,24 +742,28 @@ class TestType : public TestType_Base<ALLOC>
 # define REPEAT_UP_TO_MAXARGS(MACRO) BSLS_MACROREPEAT(14, MACRO)
 #endif
 
-// These macros are intended for use with 'BSLS_MACROREPEAT_*'
+// These macros are intended for use with `BSLS_MACROREPEAT_*`
+
+/// Get const reference to the nth argument in `const` `ArgPack`, `AP`
 #define CONST_ARG(n) AP.d_arg##n
-    // Get const reference to the nth argument in 'const' 'ArgPack', 'AP'
+
+/// Get mutable reference to the nth argument in mutable `ArgPack`, `AP`
 #define MUTABLE_ARG(n) mAP.d_arg##n
-    // Get mutable reference to the nth argument in mutable 'ArgPack', 'AP'
+
+/// Get rvalue reference to the nth argument in mutable `ArgPack`, `AP`
 #define RVALUE_ARG(n) MoveUtil::move(mAP.d_arg##n)
-    // Get rvalue reference to the nth argument in mutable 'ArgPack', 'AP'
+
+/// Assert that the nth argument in `ArgPack` `AP` has been moved from.
 #define ASSERT_ARG_MOVED_FROM(n)                         \
     ASSERTV(n, CMS::isMovedFrom(AP.d_arg##n))
-    // Assert that the nth argument in 'ArgPack' 'AP' has been moved from.
 
+/// For metaprogramming: Defines `allocator_type`, but is not AA.
 struct NoAlloc {
-    // For metaprogramming: Defines 'allocator_type', but is not AA.
     typedef void allocator_type;
 };
 
+/// Used to test whether its ctor argument was unwrapped.
 class WrapTest : public FrozenArg {
-    // Used to test whether its ctor argument was unwrapped.
 
     bool d_wasWrapped;
 
@@ -789,13 +794,13 @@ class WrapTest : public FrozenArg {
 //
 // First, we define a simple AA string class that will be our value type for
 // testing:
-//..
+// ```
 //  #include <bslma_bslallocator.h>
 //  #include <bslma_allocatorutil.h>
 //  #include <cstring>
 
+    /// Basic allocator-aware string class
     class String {
-        // Basic allocator-aware string class
 
         // DATA
         bsl::allocator<char>  d_allocator;
@@ -825,11 +830,11 @@ class WrapTest : public FrozenArg {
     // FREE FUNCTIONS
     bool operator==(const String& a, const String& b);
 //! bool operator!=(const String& a, const String& b);
-//..
+// ```
 // Next, we define the constructors, destructor, and equality-comparison
 // operators.  For brevity, we've omited the implementation of the assignment
 // operator, which is not used in this example:
-//..
+// ```
     String::String(const char *str, const allocator_type& a)
         : d_allocator(a), d_length(std::strlen(str))
     {
@@ -862,27 +867,27 @@ class WrapTest : public FrozenArg {
 //! {
 //!     return ! (a == b);
 //! }
-//..
+// ```
 // Now we are ready to define our key-value template.  The data portion of the
 // template needs a member for the key and one for the value.  Rather than
-// defining the value member as simply a member variable of 'TYPE', we use
-// 'bslalg::ConstructorProxy' to ensure that we will be able to construct it in
+// defining the value member as simply a member variable of `TYPE`, we use
+// `bslalg::ConstructorProxy` to ensure that we will be able to construct it in
 // a uniform way even though we do not know whether or not it is
 // allocator-aware:
-//..
+// ```
 //  #include <bslalg_constructorproxy.h>
 
+    /// Key-value pair with string key and arbitrary value type.
     template <class TYPE>
     class KeyValue {
-        // Key-value pair with string key and arbitrary value type.
 
         // DATA
         String                         d_key;
         bslalg::ConstructorProxy<TYPE> d_valueProxy;
-//..
+// ```
 // Next, we declare the creators and manipulators typical of an AA attribute
 // class:
-//..
+// ```
       public:
         typedef bsl::allocator<> allocator_type;
 
@@ -896,21 +901,21 @@ class WrapTest : public FrozenArg {
 
         // MANIPULATORS
         KeyValue& operator=(const KeyValue& rhs);
-//..
+// ```
 // Next, we declare the accessessors and, for convenience in this example,
-// define them inline.  Note that the 'value' accessor extracts the proxied
-// object from the 'd_valueProxy' member:
-//..
+// define them inline.  Note that the `value` accessor extracts the proxied
+// object from the `d_valueProxy` member:
+// ```
         // ACCESSESSORS
         allocator_type get_allocator() const { return d_key.get_allocator(); }
         const String&  key()   const { return d_key; }
         const TYPE&    value() const { return d_valueProxy.object(); }
     };
-//..
+// ```
 // Next, we define the value constructor, which passes its allocator argument
-// to both data members' constructors.  Note that the 'd_valueProxy',
-// constructor always expects an allocator argument, even if 'TYPE' is not AA:
-//..
+// to both data members' constructors.  Note that the `d_valueProxy`,
+// constructor always expects an allocator argument, even if `TYPE` is not AA:
+// ```
     template <class TYPE>
     KeyValue<TYPE>::KeyValue(const String&         k,
                              const TYPE&           v,
@@ -918,14 +923,14 @@ class WrapTest : public FrozenArg {
         : d_key(k, a), d_valueProxy(v, a)
     {
     }
-//..
+// ```
 // Next, we define the copy constructor and assignment operator.  Since
-// 'bslalg::ConstructorProxy' is not copyable, we must manually extract the
+// `bslalg::ConstructorProxy` is not copyable, we must manually extract the
 // proxied object in the assignment operator.  This extraction is not needed in
 // the copy constructor because the single-value proxy constructor
 // automatically "unwraps" its argument when presented with an instantiation of
-// 'bslalg::ConstructorProxy':
-//..
+// `bslalg::ConstructorProxy`:
+// ```
     template <class TYPE>
     KeyValue<TYPE>::KeyValue(const KeyValue&       original,
                              const allocator_type& a)
@@ -941,20 +946,20 @@ class WrapTest : public FrozenArg {
         d_valueProxy.object() = rhs.d_valueProxy.object();
         return *this;
     }
-//..
+// ```
 // Last, we define the destructor, which does nothing explicit (and could
-// therefore have been defaulted), because both 'String' and 'ConstructorProxy'
+// therefore have been defaulted), because both `String` and `ConstructorProxy`
 // clean up after themselves:
-//..
+// ```
     template <class TYPE>
     KeyValue<TYPE>::~KeyValue()
     {
     }
-//..
+// ```
 // Now we can illustrate the use of our key-value pair by defining a string-int
 // pair and constructing it with a test allocator.  Note that the allocator was
-// passed to the ('String') key, as we would expect:
-//..
+// passed to the (`String`) key, as we would expect:
+// ```
 //  #include <bslma_testallocator.h>
 
     void usageExample1()
@@ -966,21 +971,21 @@ class WrapTest : public FrozenArg {
         ASSERT(2023    == kv1.value());
         ASSERT(&ta     == kv1.get_allocator());
         ASSERT(&ta     == kv1.key().get_allocator());
-//..
+// ```
 // Next, we define a string-string pair and show that the allocator was
 // passed to *both* the key and value parts of the pair:
-//..
+// ```
         KeyValue<String> kv2("March", "Madness", &ta);
         ASSERT("March"   == kv2.key());
         ASSERT("Madness" == kv2.value());
         ASSERT(&ta       == kv2.get_allocator());
         ASSERT(&ta       == kv2.key().get_allocator());
         ASSERT(&ta       == kv2.value().get_allocator());
-//..
-// Finally, we declare a 'bslalg::ConstructorProxy' of 'KeyValue' and show how
+// ```
+// Finally, we declare a `bslalg::ConstructorProxy` of `KeyValue` and show how
 // we can pass more than one argument (up to 14) -- in addition to the
 // allocator -- to the proxied type's constructor:
-//..
+// ```
         typedef KeyValue<int> UnitVal;
 
         bslalg::ConstructorProxy<UnitVal> uvProxy("km", 14, &ta);
@@ -989,7 +994,7 @@ class WrapTest : public FrozenArg {
         ASSERT(14   == uv.value());
         ASSERT(&ta  == uv.get_allocator());
     }
-//..
+// ```
 
 }  // close unnamed namespace
 
@@ -1019,12 +1024,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLES
         //
         // Concerns:
-        //: 1 That the usage examples shown in the component-level
-        //:   documentation compile and run as described.
+        // 1. That the usage examples shown in the component-level
+        //    documentation compile and run as described.
         //
         // Plan:
-        //: 1 Copy the usage examples from the component header, changing
-        //    'assert' to 'ASSERT' and execute them.
+        // 1. Copy the usage examples from the component header, changing
+        //    `assert` to `ASSERT` and execute them.
         //
         // Testing:
         //     USAGE EXAMPLES
@@ -1039,41 +1044,41 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // UNWRAPPING CONSTRUCTORS
-        //   When the non-allocator argument to 'ConstructorProxy' is itself an
-        //   instaniation of 'ConstructorProxy', it is "unwrapped" before being
+        //   When the non-allocator argument to `ConstructorProxy` is itself an
+        //   instaniation of `ConstructorProxy`, it is "unwrapped" before being
         //   passed to the proxied object constructor.
         //
         // Concerns:
-        //: 1 A 'bslalg::ConstructorProxy<TYPE>' instantiation, 'Obj', when
-        //:   constructed with two arguments of type
-        //:   'bslalg::ConstructorProxy<T2>'  and 'allocator_type',
-        //:   respectively, "unwraps" its first argument and passes the non
-        //:   non-proxied element to the 'TYPE' constructor.
-        //:
-        //: 2 The value-category (lvalue vs. rvalue) of the argument is
-        //:   preserved.
+        // 1. A `bslalg::ConstructorProxy<TYPE>` instantiation, `Obj`, when
+        //    constructed with two arguments of type
+        //    `bslalg::ConstructorProxy<T2>`  and `allocator_type`,
+        //    respectively, "unwraps" its first argument and passes the non
+        //    non-proxied element to the `TYPE` constructor.
+        //
+        // 2. The value-category (lvalue vs. rvalue) of the argument is
+        //    preserved.
         //
         // Plan:
-        //: 1 Instrument a class 'WrapTest' to detect whether it was
-        //:   constructed with an 'bslmf::ArgumentType<T>' or a
-        //:   'bslalg::ConstructorProxy<bslmf::ArgumentType<1>>'.
-        //:
-        //: 2 Using the 'WrapTest' class, construct a
-        //:   bslalg::ConstructorProxy<WrapTest>' object from a
-        //:   'bslmf::ArgumentType<1>' object.  Verify that the proxied
-        //:   'WrapTest' was constructed with a bare 'bslmf::ArgumentType<1>'
-        //:   argument.
-        //:
-        //: 3 Repeat step 2, passing a
-        //:   'bslalg::ConstructorProxy<bslmf::ArgumentType<1>>' argument to
-        //:   the constructor.   erify that the proxied
-        //:   'WrapTest' was *still* constructed with a bare
-        //:   'bslmf::ArgumentType<1>' argument (i.e., the proxy layer was
-        //:   stripped off).
-        //:
-        //: 4 Repeat steps 2 and 3 with 'const' and non-'const' arguments and
-        //:   rvalue (movable) arguments.  Verify that the value category was
-        //:   preserved.
+        // 1. Instrument a class `WrapTest` to detect whether it was
+        //    constructed with an `bslmf::ArgumentType<T>` or a
+        //    `bslalg::ConstructorProxy<bslmf::ArgumentType<1>>`.
+        //
+        // 2. Using the `WrapTest` class, construct a
+        //    bslalg::ConstructorProxy<WrapTest>' object from a
+        //    `bslmf::ArgumentType<1>` object.  Verify that the proxied
+        //    `WrapTest` was constructed with a bare `bslmf::ArgumentType<1>`
+        //    argument.
+        //
+        // 3. Repeat step 2, passing a
+        //    `bslalg::ConstructorProxy<bslmf::ArgumentType<1>>` argument to
+        //    the constructor.   erify that the proxied
+        //    `WrapTest` was *still* constructed with a bare
+        //    `bslmf::ArgumentType<1>` argument (i.e., the proxy layer was
+        //    stripped off).
+        //
+        // 4. Repeat steps 2 and 3 with `const` and non-`const` arguments and
+        //    rvalue (movable) arguments.  Verify that the value category was
+        //    preserved.
         //
         // TESTING:
         //     ConstructorProxy(ARG01&,  const allocator_type&);
@@ -1142,75 +1147,75 @@ int main(int argc, char *argv[])
         // MULTI-ARGUMENT CONSTRUCTORS
         //
         // Concerns:
-        //: 1 For a 'bslalg::ConstructorProxy<TYPE>' instantiation, 'Obj', the
-        //:   constructor can be invoked with 1 to 14 arguments plus an
-        //:   allocator that is convertible to 'Obj::allocator_type',
-        //:   regardless of which AA model 'TYPE' conforms to and regardless of
-        //:   whether it uses the leading or trailing allocator-passing
-        //:   convention.
-        //:
-        //: 2 If 'bslma::UsesBslmaAllocator<TYPE>::value' is 'true', then the
-        //:   allocator is passed to the proxied-object's extended constructor;
-        //:   otherwise, the (non-extended) constructor is invoked.
-        //:
-        //: 3 The argument values are forwarded to the proxied object's
-        //:   constructor.
-        //:
-        //: 4 The argument value categories (lvalue vs rvalue) are preserved
-        //:   when passed to the proxied object's constructor.  Note that,
-        //:   in C++03, a modifiable lvalue is forwarded as a 'const' lvalue
-        //:   reference if there are two or more non-allocator arguments.
-        //:
-        //: 5 Concerns 1-4 apply when the constructor argument is passed as a
-        //:   memory resource pointer of type 'bslma::Allocator *' or allocator
-        //:   of type 'allocator_type'.
-        //:
-        //: 6 Concerns 1-4 apply when the constructor argument is passed as a
-        //:   null pointer.  The allocator used to construct the object uses
-        //:   the default memory resource.
+        // 1. For a `bslalg::ConstructorProxy<TYPE>` instantiation, `Obj`, the
+        //    constructor can be invoked with 1 to 14 arguments plus an
+        //    allocator that is convertible to `Obj::allocator_type`,
+        //    regardless of which AA model `TYPE` conforms to and regardless of
+        //    whether it uses the leading or trailing allocator-passing
+        //    convention.
+        //
+        // 2. If `bslma::UsesBslmaAllocator<TYPE>::value` is `true`, then the
+        //    allocator is passed to the proxied-object's extended constructor;
+        //    otherwise, the (non-extended) constructor is invoked.
+        //
+        // 3. The argument values are forwarded to the proxied object's
+        //    constructor.
+        //
+        // 4. The argument value categories (lvalue vs rvalue) are preserved
+        //    when passed to the proxied object's constructor.  Note that,
+        //    in C++03, a modifiable lvalue is forwarded as a `const` lvalue
+        //    reference if there are two or more non-allocator arguments.
+        //
+        // 5. Concerns 1-4 apply when the constructor argument is passed as a
+        //    memory resource pointer of type `bslma::Allocator *` or allocator
+        //    of type `allocator_type`.
+        //
+        // 6. Concerns 1-4 apply when the constructor argument is passed as a
+        //    null pointer.  The allocator used to construct the object uses
+        //    the default memory resource.
         //
         // Plan:
-        //: 1 Using the 'TestType' template, define a list of 'TYPE's,
-        //:   conforming to each of the five AA models, and each of the
-        //:   trailing and leading allocator-passing conventions.  For each
-        //:   'TYPE', let 'Obj' be 'bslalg::ConstructorProxy<TYPE>'.  Perform
-        //:   the following step on each such 'Obj'
-        //:
-        //:   1 Create a struct (pack) of 14 'bsltf::ArgumentType<N>' objects
-        //:     to use as arguments to the constructor.  The initial value of
-        //:     these objects should come from a known list of semi-random
-        //:     values.  Create a 'const' reference to the pack.
-        //:
-        //:   2 For *N* in 1 to 14, construct an 'Obj', passing its constructor
-        //:     *N* arguments of from the pack described step 1, followed by an
-        //:     allocator argument compatible with 'Obj::allocator_type'.
-        //:     (C-1)
-        //:
-        //:   3 Let 'P' be the reference returned by the 'object' accessor on
-        //:     the constructed 'Obj'.  Verify that, when
-        //:     'bslma::UsesBslmaAllocator<TYPE>::value' is 'true', the
-        //:     allocator used by 'P' matches the allocator passed to the 'Obj'
-        //:     constructor; otherwise the allocator used by 'P' matches the
-        //:     default allocator.  (C-2)
-        //:
-        //:   4 Verify that the value of the arguments captured in 'P' match
-        //:     the values of the arguments passed to the constructor.  (C-3)
-        //:
-        //:   5 Perform step 1.2 through 1.4 three times, passing the arguments
-        //:     by 'const' reference, non-const lvalue reference, and rvalue
-        //:     (movable) reference, respectively.  Verify the expected values
-        //:     for 'P[n].copiedInto()' and 'P[n].movedInto', where 'n' is the
-        //:     captured argument index.  Note that, in C++03, if the number of
-        //:     arguments is greater than 1, the expected value of
-        //:     'P[n].copiedInto()' will be 'e_COPIED_CONST' for both 'const'
-        //:     and non-'const' lvalue arguments.  (C-4)
-        //:
-        //:   6 Perform step 1.5 twice, passing the allocator as type
-        //:     'bslma::Allocator *' and 'allocator_type'.
-        //:
-        //:   7 Repeat step 1.5 one more time, passing the allocator a null
-        //:     pointer.  Verify that the proxied object is constructed as
-        //:     though the default allocator were passed in.
+        // 1. Using the `TestType` template, define a list of `TYPE`s,
+        //    conforming to each of the five AA models, and each of the
+        //    trailing and leading allocator-passing conventions.  For each
+        //    `TYPE`, let `Obj` be `bslalg::ConstructorProxy<TYPE>`.  Perform
+        //    the following step on each such `Obj`
+        //
+        //   1. Create a struct (pack) of 14 `bsltf::ArgumentType<N>` objects
+        //      to use as arguments to the constructor.  The initial value of
+        //      these objects should come from a known list of semi-random
+        //      values.  Create a `const` reference to the pack.
+        //
+        //   2. For *N* in 1 to 14, construct an `Obj`, passing its constructor
+        //      *N* arguments of from the pack described step 1, followed by an
+        //      allocator argument compatible with `Obj::allocator_type`.
+        //      (C-1)
+        //
+        //   3. Let `P` be the reference returned by the `object` accessor on
+        //      the constructed `Obj`.  Verify that, when
+        //      `bslma::UsesBslmaAllocator<TYPE>::value` is `true`, the
+        //      allocator used by `P` matches the allocator passed to the `Obj`
+        //      constructor; otherwise the allocator used by `P` matches the
+        //      default allocator.  (C-2)
+        //
+        //   4. Verify that the value of the arguments captured in `P` match
+        //      the values of the arguments passed to the constructor.  (C-3)
+        //
+        //   5. Perform step 1.2 through 1.4 three times, passing the arguments
+        //      by `const` reference, non-const lvalue reference, and rvalue
+        //      (movable) reference, respectively.  Verify the expected values
+        //      for `P[n].copiedInto()` and `P[n].movedInto`, where `n` is the
+        //      captured argument index.  Note that, in C++03, if the number of
+        //      arguments is greater than 1, the expected value of
+        //      `P[n].copiedInto()` will be `e_COPIED_CONST` for both `const`
+        //      and non-`const` lvalue arguments.  (C-4)
+        //
+        //   6. Perform step 1.5 twice, passing the allocator as type
+        //      `bslma::Allocator *` and `allocator_type`.
+        //
+        //   7. Repeat step 1.5 one more time, passing the allocator a null
+        //      pointer.  Verify that the proxied object is constructed as
+        //      though the default allocator were passed in.
         //
         // Testing:
         //    ConstructorProxy(ARG01...ARG14, const allocator_type&);
@@ -1229,7 +1234,7 @@ int main(int argc, char *argv[])
   // Copying from a non-const lvalue is always detected correctly in C++11
 # define EXP_COPIED_NONCONST(R) true
 #else
-  // Copying from a non-const is detected correctly in C++03 only if 'R == 1'
+  // Copying from a non-const is detected correctly in C++03 only if `R == 1`
 # define EXP_COPIED_NONCONST(R) (R == 1)
 #endif
 
@@ -1304,46 +1309,46 @@ int main(int argc, char *argv[])
         //   invoked with a single argument (which must be an allocator).
         //
         // Concerns:
-        //: 1 For a 'bslalg::ConstructorProxy<TYPE>' instantiation, 'Obj', the
-        //:   constructor can be invoked with a single argument -- any
-        //:   allocator that is convertible to 'Obj::allocator_type' --
-        //:   regardless of which AA model conforms to and regardless of
-        //:   whether it uses the leading or trailing allocator-passing
-        //:   convention.
-        //:
-        //: 2 If 'bslma::UsesBslmaAllocator<TYPE>::value' is 'true', then the
-        //:   allocator is passed to the proxied-object's extended default
-        //:   constructor; otherwise, the (non-extended) default constructor is
-        //:   invoked.
-        //:
-        //: 3 The 'object' method returns a reference to the
-        //:   (default-constructed) proxied object, preserving the constnesss
-        //:   of the proxy.
-        //:
-        //: 4 The 'Obj' destructor invokes the destructor of the proxied
-        //:   object.
+        // 1. For a `bslalg::ConstructorProxy<TYPE>` instantiation, `Obj`, the
+        //    constructor can be invoked with a single argument -- any
+        //    allocator that is convertible to `Obj::allocator_type` --
+        //    regardless of which AA model conforms to and regardless of
+        //    whether it uses the leading or trailing allocator-passing
+        //    convention.
+        //
+        // 2. If `bslma::UsesBslmaAllocator<TYPE>::value` is `true`, then the
+        //    allocator is passed to the proxied-object's extended default
+        //    constructor; otherwise, the (non-extended) default constructor is
+        //    invoked.
+        //
+        // 3. The `object` method returns a reference to the
+        //    (default-constructed) proxied object, preserving the constnesss
+        //    of the proxy.
+        //
+        // 4. The `Obj` destructor invokes the destructor of the proxied
+        //    object.
         //
         // Plan:
-        //: 1 For a list of 'TestType' instantations, 'TYPE', conforming to
-        //:   each of the five AA models, and each of the trailing and leading
-        //:   allocator-passing conventions, let 'Obj' be
-        //:   'bslalg::ConstructorProxy<TYPE>', and verify that:
-        //:
-        //:   1 'Obj' can be constructed with a single argument of type
-        //:     compatible with 'Obj::allocator_type'.  (C-1)
-        //:
-        //:   2 The 'object' method returns a reference to the
-        //:     default-constructed proxy object.  (C-3)
-        //:
-        //:   3 If 'TYPE' is a pmr-AA, bsl-AA, or legacy-AA type, then the
-        //:     object's 'matchAllocator' accessor will return 'true' when
-        //:     passed the same allocator that was passed to the constructor;
-        //:     otherwise 'matchAllocator' will return 'true' when passed a
-        //:     default allocator.  (C-2)
-        //:
-        //:   4 Using the instrumentation provided by 'TestType', verify that
-        //:     exactly one object is constructed by the 'Obj' constructor and
-        //:     one object is destroyed by the 'Obj' destructor.
+        // 1. For a list of `TestType` instantations, `TYPE`, conforming to
+        //    each of the five AA models, and each of the trailing and leading
+        //    allocator-passing conventions, let `Obj` be
+        //    `bslalg::ConstructorProxy<TYPE>`, and verify that:
+        //
+        //   1. `Obj` can be constructed with a single argument of type
+        //      compatible with `Obj::allocator_type`.  (C-1)
+        //
+        //   2. The `object` method returns a reference to the
+        //      default-constructed proxy object.  (C-3)
+        //
+        //   3. If `TYPE` is a pmr-AA, bsl-AA, or legacy-AA type, then the
+        //      object's `matchAllocator` accessor will return `true` when
+        //      passed the same allocator that was passed to the constructor;
+        //      otherwise `matchAllocator` will return `true` when passed a
+        //      default allocator.  (C-2)
+        //
+        //   4. Using the instrumentation provided by `TestType`, verify that
+        //      exactly one object is constructed by the `Obj` constructor and
+        //      one object is destroyed by the `Obj` destructor.
         //
         // Testing:
         //    ConstructorProxy(const allocator_type&);
@@ -1405,46 +1410,46 @@ int main(int argc, char *argv[])
         // NESTED TYPES and TRAITS
         //
         // Concerns:
-        //: 1 For a 'bslalg::ConstructorProxy<TYPE>' instantiation, 'Obj',
-        //:   'Obj::ValueType' is the same as 'TYPE'.
-        //:
-        //: 2 If 'TYPE' bsl-AA or legacy-AA, then 'Obj::allocator_type' is
-        //:   'bsl::allocator<>'; otherwise, it's
-        //:   'bsl::polymorphic_allocator<>', regardless of
-        //:   'TYPE::allocator_type::value_type'.
-        //:
-        //: 3 'bslma::UsesBslmaAllocator<TYPE>::value' is 'true', regardless of
-        //:   which AA model conforms to and regardless of whether it uses the
-        //:   leading or trailing allocator-passing convention.
-        //:
-        //: 4 'bslmf::UseAllocatorArgT<bslalg::ConstructorProxy<TYPE>>' always
-        //:   yields 'false'.
-        //:
-        //: 5 'bsltf::IsBitwiseMoveable<bslalg::ConstructorProxy<TYPE>>'
-        //:    mirrors 'bsltf::IsBitwiseMoveable<TYPE>'.
+        // 1. For a `bslalg::ConstructorProxy<TYPE>` instantiation, `Obj`,
+        //    `Obj::ValueType` is the same as `TYPE`.
+        //
+        // 2. If `TYPE` bsl-AA or legacy-AA, then `Obj::allocator_type` is
+        //    `bsl::allocator<>`; otherwise, it's
+        //    `bsl::polymorphic_allocator<>`, regardless of
+        //    `TYPE::allocator_type::value_type`.
+        //
+        // 3. `bslma::UsesBslmaAllocator<TYPE>::value` is `true`, regardless of
+        //    which AA model conforms to and regardless of whether it uses the
+        //    leading or trailing allocator-passing convention.
+        //
+        // 4. `bslmf::UseAllocatorArgT<bslalg::ConstructorProxy<TYPE>>` always
+        //    yields `false`.
+        //
+        // 5. `bsltf::IsBitwiseMoveable<bslalg::ConstructorProxy<TYPE>>`
+        //     mirrors `bsltf::IsBitwiseMoveable<TYPE>`.
         //
         // Plan
-        //: 1 For a list of 'TYPE's conforming to each of the five AA models,
-        //:   and each of the trailing and leading allocator-passing
-        //:   conventions, let 'Obj' be 'bslalg::ConstructorProxy<TYPE>', and
-        //:   verify that:
-        //:
-        //:   1 'Obj::valueType' is the same as 'TYPE'.  (C-1)
-        //:
-        //:   2 'Obj::allocator_type' is 'bsl::allocator<>' for 'TYPE' being
-        //:     bsl-AA or legacy-AA; otherwise, 'Obj::allocator_type' is
-        //:     bsl::polymorphic_allocator<>'.  (C-2)
-        //:
-        //:   3 'bslma::UsesBslmaAllocator<Obj>::value' is 'true'.  (C-3)
-        //:
-        //:   4 'bslma::AAModel<Obj>' is 'AAModelBsl' for 'TYPE' being bsl-AA
-        //:     or legacy-AA; otherwise, 'bslma::AAModel<Obj>' is 'AAModelPmr'.
-        //:
-        //:   5 'bslmf::UsesAllocatorArgT<Obj>::value' is 'false'.  (C-4)
-        //:
-        //: 2 Verify that 'bsltf::IsBitwiseMoveable<Obj>::value' for
-        //:   non-bitwise moveable 'TYPE' (e.g., 'TestType<A, U>') and 'true'
-        //:   for bitwise moveable 'TYPE' (e.g., 'int').  (C-5)
+        // 1. For a list of `TYPE`s conforming to each of the five AA models,
+        //    and each of the trailing and leading allocator-passing
+        //    conventions, let `Obj` be `bslalg::ConstructorProxy<TYPE>`, and
+        //    verify that:
+        //
+        //   1. `Obj::valueType` is the same as `TYPE`.  (C-1)
+        //
+        //   2. `Obj::allocator_type` is `bsl::allocator<>` for `TYPE` being
+        //      bsl-AA or legacy-AA; otherwise, `Obj::allocator_type` is
+        //      bsl::polymorphic_allocator<>'.  (C-2)
+        //
+        //   3. `bslma::UsesBslmaAllocator<Obj>::value` is `true`.  (C-3)
+        //
+        //   4. `bslma::AAModel<Obj>` is `AAModelBsl` for `TYPE` being bsl-AA
+        //      or legacy-AA; otherwise, `bslma::AAModel<Obj>` is `AAModelPmr`.
+        //
+        //   5. `bslmf::UsesAllocatorArgT<Obj>::value` is `false`.  (C-4)
+        //
+        // 2. Verify that `bsltf::IsBitwiseMoveable<Obj>::value` for
+        //    non-bitwise moveable `TYPE` (e.g., `TestType<A, U>`) and `true`
+        //    for bitwise moveable `TYPE` (e.g., `int`).  (C-5)
         //
         // Testing:
         //     NESTED TYPES
@@ -1494,126 +1499,126 @@ int main(int argc, char *argv[])
         // TEST APPARATUS
         //
         // Concerns:
-        //: 1 'FrozenArg' captures the value and copy/move state of any
-        //:   'bsltf::ArgumentType' instance.
-        //:
-        //: 2 'bslma::UsesBslmaAllocator<TestType<ALLOC, USE_PREFIX_ARG>>'
-        //:   yields 'true' if 'ALLOC' is 'bsl::polymorhic_allocator<T>',
-        //:   'bsl::allocator<T>', or 'bslma::Allocator *'.
-        //:
-        //: 3 'bslmtf::UsesAllocatorArgT<TestType<ALLOC, USE_PREFIX_ARG>>'
-        //:   yields 'true' if 'ALLOC' is non-'void' and 'USE_PREFIX_ARG' is
-        //:   'true'.
-        //:
-        //: 4 'AAModel<TestType<ALLOC, U> >::value' yields the expected value
-        //:   depending on 'ALLOC'.
-        //:
-        //: 5 'TestType<ALLOC, U>::allocator_type' is 'ALLOC' if 'ALLOC' is
-        //:   neither 'void' nor 'bslma::Allocator *'; otherwise
-        //:   'allocator_type' is not defined.
-        //:
-        //: 6 'TestType' can be constructed with 1 to 14 arguments of type
-        //:   'bsltf::ArgumentType<1>' to 'bsltf::ArgumentType<14>',
-        //:   respectively.  The value of the arguments is captured in the
-        //:   'TestType' object.
-        //:
-        //: 7 For each argument of 'const' lvalue type passed to a 'TestType'
-        //:   constructor, the captured 'FrozenArg' reflects that the
-        //:   argument's 'copiedInto()' attribute is 'e_COPIED_CONST'.
-        //:
-        //: 8 For each argument of mutable lvalue type passed to a 'TestType'
-        //:   constructor, the captured 'FrozenArg' reflects that the
-        //:   argument's 'copiedInto()' attribute is 'e_COPIED_MUTABLE'.
-        //:
-        //: 9 For each argument of rvalue (bslmf::MutableRef) type passed to a
-        //:   'TestType' constructor, the captured 'FrozenArg' reflects that
-        //:   the argument's 'movedInto()' attribute is 'e_MOVED'.
-        //:
-        //: 10 If no allocator is supplied, the default allocator is used to
-        //:   construct 'TestType'; 'matchAllocator' should return 'true' when
-        //:   called with address of the default allocator and 'false' when
-        //:   called with any other allocator except that 'matchType' always
-        //:   returns 'true' if 'ALLOC' is 'void'.
-        //:
-        //: 11 For non-'void' 'ALLOC', 'TestType<ALLOC, USE_PREFIX_ARG>', can
-        //:   be constructed with a trailing allocator argument (if
-        //:   'USE_PREFIX_ARG' is 'false') or a leading 'bsl::allocator_arg'
-        //:   followed by an allocator argument (if 'USE_PREFIX_ARG' is
-        //:   'true').  The allocator accessesor should return a copy of the
-        //:   allocator provided at construction and 'matchAllocator' should
-        //:   return true when given that allocator and 'false' for any other
-        //:   allocator.
-        //:
-        //: 12 The 'TestType' copy constructor and extended copy constructor
-        //:   copy the values and record that the new object is in a
-        //:   copied-into state.  If an allocator is provided, the new object
-        //:   uses that allocator, otherwise it uses the default allocator (for
-        //:   AA instantiations).
-        //:
-        //: 13 The 'TestType' move constructor and extended move constructor
-        //:   copy the values, record that the new object is in a moved-into
-        //:   state, and record that the original object is in a moved-from
-        //:   state after the move.  If an allocator is provided, the new
-        //:   object uses that allocator, otherwise it uses the allocator of
-        //:   the moved-from object (for AA instantiations).
-        //:
-        //: 14 The 'TestType' assignment operators copy the values but not the
-        //:   allocators, which remain unchanged.  For copy assignment, the lhs
-        //:   object enters a copied-into state.  For move assignment, the rhs
-        //:   object enters a moved-into state and the lhs object enters a
-        //:   moved-from state.
+        // 1. `FrozenArg` captures the value and copy/move state of any
+        //    `bsltf::ArgumentType` instance.
+        //
+        // 2. `bslma::UsesBslmaAllocator<TestType<ALLOC, USE_PREFIX_ARG>>`
+        //    yields `true` if `ALLOC` is `bsl::polymorhic_allocator<T>`,
+        //    `bsl::allocator<T>`, or `bslma::Allocator *`.
+        //
+        // 3. `bslmtf::UsesAllocatorArgT<TestType<ALLOC, USE_PREFIX_ARG>>`
+        //    yields `true` if `ALLOC` is non-`void` and `USE_PREFIX_ARG` is
+        //    `true`.
+        //
+        // 4. `AAModel<TestType<ALLOC, U> >::value` yields the expected value
+        //    depending on `ALLOC`.
+        //
+        // 5. `TestType<ALLOC, U>::allocator_type` is `ALLOC` if `ALLOC` is
+        //    neither `void` nor `bslma::Allocator *`; otherwise
+        //    `allocator_type` is not defined.
+        //
+        // 6. `TestType` can be constructed with 1 to 14 arguments of type
+        //    `bsltf::ArgumentType<1>` to `bsltf::ArgumentType<14>`,
+        //    respectively.  The value of the arguments is captured in the
+        //    `TestType` object.
+        //
+        // 7. For each argument of `const` lvalue type passed to a `TestType`
+        //    constructor, the captured `FrozenArg` reflects that the
+        //    argument's `copiedInto()` attribute is `e_COPIED_CONST`.
+        //
+        // 8. For each argument of mutable lvalue type passed to a `TestType`
+        //    constructor, the captured `FrozenArg` reflects that the
+        //    argument's `copiedInto()` attribute is `e_COPIED_MUTABLE`.
+        //
+        // 9. For each argument of rvalue (bslmf::MutableRef) type passed to a
+        //    `TestType` constructor, the captured `FrozenArg` reflects that
+        //    the argument's `movedInto()` attribute is `e_MOVED`.
+        //
+        // 10. If no allocator is supplied, the default allocator is used to
+        //    construct `TestType`; `matchAllocator` should return `true` when
+        //    called with address of the default allocator and `false` when
+        //    called with any other allocator except that `matchType` always
+        //    returns `true` if `ALLOC` is `void`.
+        //
+        // 11. For non-`void` `ALLOC`, `TestType<ALLOC, USE_PREFIX_ARG>`, can
+        //    be constructed with a trailing allocator argument (if
+        //    `USE_PREFIX_ARG` is `false`) or a leading `bsl::allocator_arg`
+        //    followed by an allocator argument (if `USE_PREFIX_ARG` is
+        //    `true`).  The allocator accessesor should return a copy of the
+        //    allocator provided at construction and `matchAllocator` should
+        //    return true when given that allocator and `false` for any other
+        //    allocator.
+        //
+        // 12. The `TestType` copy constructor and extended copy constructor
+        //    copy the values and record that the new object is in a
+        //    copied-into state.  If an allocator is provided, the new object
+        //    uses that allocator, otherwise it uses the default allocator (for
+        //    AA instantiations).
+        //
+        // 13. The `TestType` move constructor and extended move constructor
+        //    copy the values, record that the new object is in a moved-into
+        //    state, and record that the original object is in a moved-from
+        //    state after the move.  If an allocator is provided, the new
+        //    object uses that allocator, otherwise it uses the allocator of
+        //    the moved-from object (for AA instantiations).
+        //
+        // 14. The `TestType` assignment operators copy the values but not the
+        //    allocators, which remain unchanged.  For copy assignment, the lhs
+        //    object enters a copied-into state.  For move assignment, the rhs
+        //    object enters a moved-into state and the lhs object enters a
+        //    moved-from state.
         //
         // Plan:
-        //: 1 Put a set of 'bsltf::ArgumentType' objects into every legal
-        //:   move/copy state and arbitrary values and construct an 'FrozenArg'
-        //:   for each such object and verify that the value and move/copy
-        //:   state is captured correctly.  (C-1)
-        //:
-        //: 2 For 'ALLOC' types 'void', 'bsl::polymorphic_allocator',
-        //:   'bsl::allocator', 'bslma::Allocator *', and an standard-compliant
-        //:   allocator that is none of the preceding, and for 'USE_PREFIX_ARG'
-        //:   values 'false' and 'true', verify, for each combination, 'TT', of
-        //:   'TestType<ALLOC, USE_PREFIX_ARG>', that
-        //:   'bslma::UsesBslmaAllocator<TT>', 'bslmtf::UsesAllocatorArgT<TT>',
-        //:   'bslma::AAModel<TT>', and 'TT::allocator_type' have the expected
-        //:   types.  (C-2, C-3, C-4, C-5)
-        //:
-        //: 3 For a representative sample of the types in step 2, including all
-        //:   of the 'ALLOC' types and a selection of 'USE_PREFIX_ARG' values,
-        //:   construct objects of type 'TestType<ALLOC, USE_PREFIX_ARG>' using
-        //:   0 to 14 arguments, where each argument is a 'const' lvalue.
-        //:   Verify that the argument values are captured and that their
-        //:   'copiedInto' attribute is 'e_COPIED_CONST'.  (C-6, C-7)
-        //:
-        //: 4 Repeat step 3 with non-'const' lvalue arguments.  Verify that the
-        //:   captured arguments return 'e_COPIED_MUTABLE' from their
-        //:   'copiedInto()' accessesor.  (C-8)
-        //:
-        //: 5 Repeat step 3 with rvalue ('MovableRef') arguments.  Verify that
-        //:   the captured arguments return 'e_MOVED' from their 'movedInto()'
-        //:   accessesor.  (C-9)
-        //:
-        //: 6 Verify that 'matchAllocator(&da)' returns 'true', where 'da' is
-        //:   the default allocator.  (C-10)
-        //:
-        //: 7 For 'ALLOC' types other than 'void', repeat step 3 supplying a
-        //:   trailing allocator (if 'USE_PREFIX_ARG' is 'false') or leading
-        //:   'bsl::allocator_arg' + allocator (if 'USE_PREFIX_ARG' is 'true').
-        //:   Repeat steps 4 and 5 for the objects constructed this way.  Also
-        //:   verify that the allocator accessor and 'matchAllocator' method
-        //:   return the expected values.  (C-11)
-        //:
-        //: 8 Copy construct and move construct new objects from the ones
-        //:   created in step 3.  Verify that the values and copy/move state of
-        //:   the objects is as expected.  Repeat using the extended copy and
-        //:   move constructors and a different allocator.  Verify that the
-        //:   allocator is as expected.  (C-12, C-13)
-        //:
-        //: 9 Invoke the copy and move assignment operators on objects having
-        //:   different initial values and different allocators.  Verify that
-        //:   the values were copied or moved and that the allocators remained
-        //:   unchanged.  Verify that the copy/move state of all objects is as
-        //:   expected.  (C-14)
+        // 1. Put a set of `bsltf::ArgumentType` objects into every legal
+        //    move/copy state and arbitrary values and construct an `FrozenArg`
+        //    for each such object and verify that the value and move/copy
+        //    state is captured correctly.  (C-1)
+        //
+        // 2. For `ALLOC` types `void`, `bsl::polymorphic_allocator`,
+        //    `bsl::allocator`, `bslma::Allocator *`, and an standard-compliant
+        //    allocator that is none of the preceding, and for `USE_PREFIX_ARG`
+        //    values `false` and `true`, verify, for each combination, `TT`, of
+        //    `TestType<ALLOC, USE_PREFIX_ARG>`, that
+        //    `bslma::UsesBslmaAllocator<TT>`, `bslmtf::UsesAllocatorArgT<TT>`,
+        //    `bslma::AAModel<TT>`, and `TT::allocator_type` have the expected
+        //    types.  (C-2, C-3, C-4, C-5)
+        //
+        // 3. For a representative sample of the types in step 2, including all
+        //    of the `ALLOC` types and a selection of `USE_PREFIX_ARG` values,
+        //    construct objects of type `TestType<ALLOC, USE_PREFIX_ARG>` using
+        //   0. to 14 arguments, where each argument is a `const` lvalue.
+        //    Verify that the argument values are captured and that their
+        //    `copiedInto` attribute is `e_COPIED_CONST`.  (C-6, C-7)
+        //
+        // 4. Repeat step 3 with non-`const` lvalue arguments.  Verify that the
+        //    captured arguments return `e_COPIED_MUTABLE` from their
+        //    `copiedInto()` accessesor.  (C-8)
+        //
+        // 5. Repeat step 3 with rvalue (`MovableRef`) arguments.  Verify that
+        //    the captured arguments return `e_MOVED` from their `movedInto()`
+        //    accessesor.  (C-9)
+        //
+        // 6. Verify that `matchAllocator(&da)` returns `true`, where `da` is
+        //    the default allocator.  (C-10)
+        //
+        // 7. For `ALLOC` types other than `void`, repeat step 3 supplying a
+        //    trailing allocator (if `USE_PREFIX_ARG` is `false`) or leading
+        //    `bsl::allocator_arg` + allocator (if `USE_PREFIX_ARG` is `true`).
+        //    Repeat steps 4 and 5 for the objects constructed this way.  Also
+        //    verify that the allocator accessor and `matchAllocator` method
+        //    return the expected values.  (C-11)
+        //
+        // 8. Copy construct and move construct new objects from the ones
+        //    created in step 3.  Verify that the values and copy/move state of
+        //    the objects is as expected.  Repeat using the extended copy and
+        //    move constructors and a different allocator.  Verify that the
+        //    allocator is as expected.  (C-12, C-13)
+        //
+        // 9. Invoke the copy and move assignment operators on objects having
+        //    different initial values and different allocators.  Verify that
+        //    the values were copied or moved and that the allocators remained
+        //    unchanged.  Verify that the copy/move state of all objects is as
+        //    expected.  (C-14)
         //
         // Testing
         //     TEST APPARATUS
@@ -1948,11 +1953,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Execute each method to verify functionality for simple cases.
+        // 1. Execute each method to verify functionality for simple cases.
         //
         // Testing:
         //      BREATHING TEST
@@ -1977,7 +1982,7 @@ int main(int argc, char *argv[])
         bslalg::ConstructorProxy<IntWrapper> vObj2(9, alloc);
         ASSERT(9 == int(vObj2.object()));
 
-        // Test trailing 'bslma::Allocator *' argument
+        // Test trailing `bslma::Allocator *` argument
         {
             typedef TestType<bslma::Allocator *, false> ValueType;
             typedef bslalg::ConstructorProxy<ValueType> Obj;
@@ -2009,7 +2014,7 @@ int main(int argc, char *argv[])
             ASSERT(  CMS::isMovedInto(v4.object()[1]));
         }
 
-        // Test leading 'bsl::allocator<>' argument
+        // Test leading `bsl::allocator<>` argument
         {
             typedef TestType<bsl::allocator<int>, true> ValueType;
             typedef bslalg::ConstructorProxy<ValueType> Obj;

@@ -30,15 +30,16 @@ BSLS_IDENT_RCSID(baltzo_timezoneutilimp_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 // STATIC HELPER FUNCTIONS
+
+/// Load, into the specified `timeZone`, the address of the time zone
+/// information having the specified `timeZoneId` from the specified
+/// `cache`.  Return 0 on success, and a non-zero value otherwise.  A return
+/// status of `baltzo::ErrorCode::k_UNSUPPORTED_ID` indicates that
+/// `timeZoneId` is not recognized.
 static
 int lookupTimeZone(const baltzo::Zoneinfo **timeZone,
                    const char              *timeZoneId,
                    baltzo::ZoneinfoCache   *cache)
-    // Load, into the specified 'timeZone', the address of the time zone
-    // information having the specified 'timeZoneId' from the specified
-    // 'cache'.  Return 0 on success, and a non-zero value otherwise.  A return
-    // status of 'baltzo::ErrorCode::k_UNSUPPORTED_ID' indicates that
-    // 'timeZoneId' is not recognized.
 {
     BSLS_ASSERT(timeZone);
     BSLS_ASSERT(timeZoneId);
@@ -56,19 +57,19 @@ int lookupTimeZone(const baltzo::Zoneinfo **timeZone,
     return rc;
 }
 
+/// Return an iterator referring to a transition in the specified
+/// `timeZone`, having a local-time descriptor with the specified `dstFlag`.
+/// If existing, first examine the transition after the specified `start`,
+/// then the two transitions preceding `start` and eventually search from
+/// the last transition of `timeZone` backwards.  Return
+/// `timeZone.endTransition()` if `timeZone` does not contain any transition
+/// having a local-time descriptor with `dstFlag`.  The behavior is
+/// undefined unless `start` is a valid iterator in `timeZone`.
 static
 baltzo::Zoneinfo::TransitionConstIterator findTransitionWithDstFlag(
                      const bool                                       dstFlag,
                      const baltzo::Zoneinfo::TransitionConstIterator& start,
                      const baltzo::Zoneinfo&                          timeZone)
-    // Return an iterator referring to a transition in the specified
-    // 'timeZone', having a local-time descriptor with the specified 'dstFlag'.
-    // If existing, first examine the transition after the specified 'start',
-    // then the two transitions preceding 'start' and eventually search from
-    // the last transition of 'timeZone' backwards.  Return
-    // 'timeZone.endTransition()' if 'timeZone' does not contain any transition
-    // having a local-time descriptor with 'dstFlag'.  The behavior is
-    // undefined unless 'start' is a valid iterator in 'timeZone'.
 {
     BSLS_ASSERT(timeZone.endTransitions() != start);
     BSLS_ASSERT(timeZone.numTransitions() != 0);

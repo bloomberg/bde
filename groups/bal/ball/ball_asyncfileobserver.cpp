@@ -61,11 +61,11 @@ bsl::shared_ptr<ball::Record> createEmptyRecord(
     return record;
 }
 
+/// Publish a record to the specified `fileObserver` at `WARN` severity
+/// level that the specified `numDropped` messages have been dropped from
+/// publication because they could not be enqueued on the async file
+/// observer.
 void logDroppedMessageWarning(ball::FileObserver *fileObserver, int numDropped)
-    // Publish a record to the specified 'fileObserver' at 'WARN' severity
-    // level that the specified 'numDropped' messages have been dropped from
-    // publication because they could not be enqueued on the async file
-    // observer.
 {
     // We log the record unconditionally (i.e., without consulting the logger
     // manager as to whether WARN is enabled) to avoid an
@@ -81,10 +81,10 @@ void logDroppedMessageWarning(ball::FileObserver *fileObserver, int numDropped)
     fileObserver->publish(record, context);
 }
 
+/// Publish a record to the specified `fileObserver` at `ERROR` severity
+/// level indicating a failure to dequeue methods off of the async file
+/// observers record queue.
 void logQueueFailureError(ball::FileObserver *fileObserver)
-    // Publish a record to the specified 'fileObserver' at 'ERROR' severity
-    // level indicating a failure to dequeue methods off of the async file
-    // observers record queue.
 {
     // We log the record unconditionally (i.e., without consulting the logger
     // manager as to whether ERROR is enabled) to avoid an
@@ -101,10 +101,10 @@ void logQueueFailureError(ball::FileObserver *fileObserver)
     fileObserver->publish(record, context);
 }
 
+/// Publish a record to the specified `fileObserver` at `ERROR` severity
+/// level indicating a failure in flushing the queue as part of release
+/// records.
 void logReleaseRecordsError(ball::FileObserver *fileObserver)
-    // Publish a record to the specified 'fileObserver' at 'ERROR' severity
-    // level indicating a failure in flushing the queue as part of release
-    // records.
 {
     // We log the record unconditionally (i.e., without consulting the logger
     // manager as to whether ERROR is enabled) to avoid an
@@ -120,31 +120,31 @@ void logReleaseRecordsError(ball::FileObserver *fileObserver)
     fileObserver->publish(record, context);
 }
 
+/// Load the specified `attributes` with the attributes for the publication
+/// thread (for the moment, the thread name).
 void setPublicationThreadAttributes(bslmt::ThreadAttributes *attributes)
-    // Load the specified 'attributes' with the attributes for the publication
-    // thread (for the moment, the thread name).
 {
     attributes->setThreadName(k_THREAD_NAME);
 }
 
         // stop-record functions
 
+/// Return a `AsyncFileObserver_Record` object for which `isStopRecord` will
+/// return `true`, and that cannot be a user created record from
+/// `ball::AsyncFileObserver::publish`.  Note that this record is used by
+/// `stopThread` to signal to the publication thread to stop.  Note also that
+/// this is not simply a constant because such a constant would require a
+/// constructor be called before `main` in C++03.
 AsyncFileObserver_Record createStopRecord()
-    // Return a 'AsyncFileObserver_Record' object for which 'isStopRecord' will
-    // return 'true', and that cannot be a user created record from
-    // 'ball::AsyncFileObserver::publish'.  Note that this record is used by
-    // 'stopThread' to signal to the publication thread to stop.  Note also that
-    // this is not simply a constant because such a constant would require a
-    // constructor be called before 'main' in C++03.
 {
     AsyncFileObserver_Record record;
     return record;
 }
 
+/// Return `true` if the specified `record` was created by
+/// `createStopRecord` and `false` otherwise.  Note that this record is used
+/// by `stopThread` to signal to the publication thread to stop.
 bool isStopRecord(const AsyncFileObserver_Record& record)
-    // Return 'true' if the specified 'record' was created by
-    // 'createStopRecord' and 'false' otherwise.  Note that this record is used
-    // by 'stopThread' to signal to the publication thread to stop.
 {
     return 0 == record.d_record.get();
 }

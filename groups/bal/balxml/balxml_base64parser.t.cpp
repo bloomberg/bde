@@ -348,9 +348,9 @@ static const char *printableCharacters[256]=
     "\\xff"   // 255  ff
 };
 
+/// Specialize for char*.  Need to expand \r, \n, \t and surround with
+/// DQUOTE characters.
 void printValue(bsl::ostream& out, const char* value)
-    // Specialize for char*.  Need to expand \r, \n, \t and surround with
-    // DQUOTE characters.
 {
     out << '"';
 
@@ -362,14 +362,14 @@ void printValue(bsl::ostream& out, const char* value)
     out << '"';
 }
 
+/// Need to expand \r, \n, \t and surround with DQUOTE characters.
 void printValue(bsl::ostream& out, const bsl::string& value)
-    // Need to expand \r, \n, \t and surround with DQUOTE characters.
 {
     printValue(out, value.c_str());
 }
 
+/// Need to expand \r, \n, \t and surround with SQUOTE characters.
 void printValue(bsl::ostream& out, const char& value)
-    // Need to expand \r, \n, \t and surround with SQUOTE characters.
 {
     out << '\'' << printableCharacters[value] << '\'';
 }
@@ -395,9 +395,9 @@ int veryVeryVerbose;
 ///-----
 // The following snippets of code illustrate the usage of this component.
 // Suppose you had an input stream that contained Base64 data.  The following
-// 'loadFromBase64Stream' function loads this data into an 'bsl::vector<char>'
+// `loadFromBase64Stream` function loads this data into an `bsl::vector<char>`
 // blob:
-//..
+// ```
 //  #include <balxml_base64parser.h>
 //
 //  #include <istream>
@@ -423,9 +423,9 @@ int loadFromBase64Stream(bsl::vector<char> *result, bsl::istream& stream)
 
     return parser.endParse();
 }
-//..
-// The following function demonstrates the 'loadFromBase64Stream' function:
-//..
+// ```
+// The following function demonstrates the `loadFromBase64Stream` function:
+// ```
 //  #include <sstream>
 //
 void usageExample()
@@ -444,7 +444,7 @@ void usageExample()
     ASSERT('c' == vec[2]);
     ASSERT('d' == vec[3]);
 }
-//..
+// ```
 
 namespace {
 namespace u {
@@ -457,7 +457,7 @@ struct Data {
         const char *d_chars;       // characters to push
         bool        d_success;     // true if push successful
     }           d_input[k_MAX_NUM_PUSHES];
-    bool        d_endSuccess;  // true if 'endParse' successful
+    bool        d_endSuccess;  // true if `endParse` successful
     const char *d_resultData;  // expected result data
 };
 
@@ -576,7 +576,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -597,26 +597,26 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // THOROUGH TEST
-        //   This will thoroughly test the 'balxml::Base64Parser' class.
+        //   This will thoroughly test the `balxml::Base64Parser` class.
         //
         // Concerns:
-        //   This parser must reset the associated object when 'beginParse' is
+        //   This parser must reset the associated object when `beginParse` is
         //   called.  It should decode incoming Base64 characters that may be
-        //   passed through multiple calls of 'pushCharacters'.  The decoded
+        //   passed through multiple calls of `pushCharacters`.  The decoded
         //   data must be appended to the associated object.
         //
         // Plan:
-        //   Use 'bsl::vector<char>' for the 'TYPE' parameter.  For each item
-        //   in a set of test data, create an 'balxml::Base64Parser<TYPE>'
-        //   object and associate it with an 'bsl::vector<char>' object, 'mX',
-        //   that has been filled with some arbitrary data.  Verify that 'mX'
+        //   Use `bsl::vector<char>` for the `TYPE` parameter.  For each item
+        //   in a set of test data, create an `balxml::Base64Parser<TYPE>`
+        //   object and associate it with an `bsl::vector<char>` object, `mX`,
+        //   that has been filled with some arbitrary data.  Verify that `mX`
         //   has been reset.
         //
         //   Push the characters from the dataset into the parser object.
         //   Check that the return value is as expected.
         //
-        //   Call 'endParse' and check that the return value is as expected.
-        //   Finally, verify the contents of 'mX'.
+        //   Call `endParse` and check that the return value is as expected.
+        //   Finally, verify the contents of `mX`.
         //
         //   The test data was generated using a Base64 oracle that can be
         //   accessed at the following URL:

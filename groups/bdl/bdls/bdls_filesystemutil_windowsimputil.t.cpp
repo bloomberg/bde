@@ -21,7 +21,7 @@
 #else
 #define U_PLATFORM_IS_NATIVE 0
 #endif
-    // The macro 'U_PLATFORM_IS_NATIVE' is defined to be 1 if the current
+    // The macro `U_PLATFORM_IS_NATIVE` is defined to be 1 if the current
     // platform is Windows, and 0 otherwise.
 
 #if U_PLATFORM_IS_NATIVE
@@ -34,12 +34,12 @@
 //                                 Overview
 //                                 --------
 // The component under test provides a class template,
-// 'bdls::FilesystemUtil_WindowsImpUtil', that acts as a namespace template for
+// `bdls::FilesystemUtil_WindowsImpUtil`, that acts as a namespace template for
 // a suite of functions that provide file-system operations on top of those
 // provided by its class-type template parameter, which must be a namespace
 // struct that provides a suite of primitive file-system operations.  Thus, in
 // order to test this component, we will supply
-// 'bdls::FilesystemUtil_WindowsImpUtil' with synthetic primitive file-system
+// `bdls::FilesystemUtil_WindowsImpUtil` with synthetic primitive file-system
 // operations that record all input and output, in order to verify this
 // component correctly operates a Windows system.
 //-----------------------------------------------------------------------------
@@ -219,9 +219,9 @@ namespace u {
                         // struct TestWindowsFunctionId
                         // ============================
 
+/// This `struct` provides a namespace for enumerating a set of identifiers
+/// that denote some functions provided by Windows.
 struct TestWindowsFunctionId {
-    // This 'struct' provides a namespace for enumerating a set of identifiers
-    // that denote some functions provided by Windows.
 
     // TYPES
     enum Enum {
@@ -237,14 +237,15 @@ struct TestWindowsFunctionId {
                       // struct TestWindowsInterfaceCall
                       // ===============================
 
+/// This in-core, aggregate-like `struct` provides a representation of the
+/// arguments of a call to a Windows function.
 struct TestWindowsInterfaceCall {
-    // This in-core, aggregate-like 'struct' provides a representation of the
-    // arguments of a call to a Windows function.
 
     // TYPES
+
+    /// `FunctionId` is an alias to an enumeration for a set of identifiers
+    /// that denote some functions provided by Windows.
     typedef TestWindowsFunctionId FunctionId;
-        // 'FunctionId' is an alias to an enumeration for a set of identifiers
-        // that denote some functions provided by Windows.
 
     struct FileTimeToSystemTimeCall {
         // PUBLIC DATA
@@ -286,36 +287,39 @@ struct TestWindowsInterfaceCall {
     };
 
     // CREATORS
-    TestWindowsInterfaceCall();
-        // Create a 'TestWindowsInterfaceCall' object have indeterminate value.
 
+    /// Create a `TestWindowsInterfaceCall` object have indeterminate value.
+    TestWindowsInterfaceCall();
+
+    /// Create a `TestWindowsInterfaceCall` object having the same value as
+    /// the specified `other`.  The behavior is undefined if `other` has
+    /// indeterminate value or the active member of its union does not
+    /// correspond to the value of its `d_functionId` data member.
     TestWindowsInterfaceCall(const TestWindowsInterfaceCall& other);
-        // Create a 'TestWindowsInterfaceCall' object having the same value as
-        // the specified 'other'.  The behavior is undefined if 'other' has
-        // indeterminate value or the active member of its union does not
-        // correspond to the value of its 'd_functionId' data member.
 
     // MANIPULATORS
+
+    /// Assign to this object the specified `other` value and return a
+    /// reference to this object.  The behavior is undefined if `other` has
+    /// indeterminate value or the active member of its union does not
+    /// correspond to the value of its `d_functionId` data member.
     BSLA_MAYBE_UNUSED
     TestWindowsInterfaceCall& operator=(const TestWindowsInterfaceCall& other);
-        // Assign to this object the specified 'other' value and return a
-        // reference to this object.  The behavior is undefined if 'other' has
-        // indeterminate value or the active member of its union does not
-        // correspond to the value of its 'd_functionId' data member.
 };
 
                     // ===================================
                     // struct TestWindowsInterfaceResponse
                     // ===================================
 
+/// This in-core, aggregate-like `struct` provides a representation of the
+/// results of a call to a Windows function.
 struct TestWindowsInterfaceResponse {
-    // This in-core, aggregate-like 'struct' provides a representation of the
-    // results of a call to a Windows function.
 
     // TYPES
+
+    /// `FunctionId` is an alias to an enumeration for a set of identifiers
+    /// that denote some functions provided by Windows.
     typedef TestWindowsFunctionId FunctionId;
-        // 'FunctionId' is an alias to an enumeration for a set of identifiers
-        // that denote some functions provided by Windows.
 
     struct FileTimeToSystemTimeResponse {
         // PUBLIC DATA
@@ -359,67 +363,72 @@ struct TestWindowsInterfaceResponse {
     };
 
     // CREATORS
-    TestWindowsInterfaceResponse();
-        // Create a 'TestWindowsInterfaceResponse' object having indeterminate
-        // value.
 
+    /// Create a `TestWindowsInterfaceResponse` object having indeterminate
+    /// value.
+    TestWindowsInterfaceResponse();
+
+    /// Create a `TestWindowsInterfaceResponse` object having the same value
+    /// as the specified `other`.  The behavior is undefined if `other` has
+    /// indeterminate value or the active member of its union does not
+    /// correspond to the value of its `d_functionId` data member.
     TestWindowsInterfaceResponse(const TestWindowsInterfaceResponse& other);
-        // Create a 'TestWindowsInterfaceResponse' object having the same value
-        // as the specified 'other'.  The behavior is undefined if 'other' has
-        // indeterminate value or the active member of its union does not
-        // correspond to the value of its 'd_functionId' data member.
 
     // MANIPULATORS
+
+    /// Assign to this object the specified `other` value and return a
+    /// reference to this object.  The behavior is undefined if `other` has
+    /// indeterminate value or the active member of its union does not
+    /// correspond to the value of its `d_functionId` data member.
     BSLA_MAYBE_UNUSED
     TestWindowsInterfaceResponse& operator=(
                                     const TestWindowsInterfaceResponse& other);
-        // Assign to this object the specified 'other' value and return a
-        // reference to this object.  The behavior is undefined if 'other' has
-        // indeterminate value or the active member of its union does not
-        // correspond to the value of its 'd_functionId' data member.
 };
 
                          // ==========================
                          // class TestWindowsInterface
                          // ==========================
 
+/// This mechanism class provides a set of member functions that mock
+/// corresponding Windows functions.  It records the arguments to these
+/// functions in a queue, which clients retrieve with `popFrontCall`, and
+/// returns results from a queue that clients populate with
+/// `pushFrontResponse`.
 class TestWindowsInterface {
-    // This mechanism class provides a set of member functions that mock
-    // corresponding Windows functions.  It records the arguments to these
-    // functions in a queue, which clients retrieve with 'popFrontCall', and
-    // returns results from a queue that clients populate with
-    // 'pushFrontResponse'.
 
   public:
     // TYPES
+
+    /// `Call` is an alias to an in-core, aggregate-like `struct` that
+    /// provides a representation of the arguments of a call to a Windows
+    /// function.
     typedef TestWindowsInterfaceCall     Call;
-        // 'Call' is an alias to an in-core, aggregate-like 'struct' that
-        // provides a representation of the arguments of a call to a Windows
-        // function.
 
+    /// `Response` is an alias to an in-core, aggregate-like `struct` that
+    /// provides a representation of the results of a call to a Windows
+    /// function.
     typedef TestWindowsInterfaceResponse Response;
-        // 'Response' is an alias to an in-core, aggregate-like 'struct' that
-        // provides a representation of the results of a call to a Windows
-        // function.
 
+    /// `allocator_type` is an alias to the type of allocator that supplies
+    /// memory to `TestTransitionalUnixInterface` objects.
     typedef bsl::allocator<char> allocator_type;
-        // 'allocator_type' is an alias to the type of allocator that supplies
-        // memory to 'TestTransitionalUnixInterface' objects.
 
   private:
     // PRIVATE TYPES
+
+    /// `FunctionId` is an alias to an enumeration for a set of identifiers
+    /// that denote some functions provided by Windows.
     typedef TestWindowsFunctionId FunctionId;
-        // 'FunctionId' is an alias to an enumeration for a set of identifiers
-        // that denote some functions provided by Windows.
 
     // DATA
-    bsl::deque<Call>     d_calls;
-        // queue of call records that mock Windows functions populate and
-        // 'popFrontCall' drains
 
+    // queue of call records that mock Windows functions populate and
+    // `popFrontCall` drains
+    bsl::deque<Call>     d_calls;
+
+    // queue of response records that `pushBackResponse` populates and
+    // mock Windows functions drain
     bsl::deque<Response> d_responses;
-        // queue of response records that 'pushBackResponse' populates and
-        // mock Windows functions drain
 
     // NOT IMPLEMENTED
     TestWindowsInterface(const TestWindowsInterface&);
@@ -427,240 +436,249 @@ class TestWindowsInterface {
 
   public:
     // CREATORS
+
+    /// Create a `TestWindowsInterface` object that has empty call
+    /// and response queues.  Optionally specify an `allocator` used to
+    /// supply memory; otherwise, the default allocator is used.
     TestWindowsInterface();
     BSLA_MAYBE_UNUSED
     explicit TestWindowsInterface(const allocator_type& allocator);
-        // Create a 'TestWindowsInterface' object that has empty call
-        // and response queues.  Optionally specify an 'allocator' used to
-        // supply memory; otherwise, the default allocator is used.
 
     // MANIPULATORS
+
+    /// Push a `Call` to the call queue that has a
+    /// `FunctionId::e_FILE_TIME_TO_SYSTEM_TIME` `d_functionId`.  Return the
+    /// `d_result` of the next queued response.  The behavior is undefined
+    /// if the response queue is empty or the `d_functionId` of the next
+    /// queued response is not `FunctionId::e_GET_LAST_ERROR`.
     BOOL FileTimeToSystemTime(const FILETIME *lpFileTime,
                               LPSYSTEMTIME    lpSystemTime);
-        // Push a 'Call' to the call queue that has a
-        // 'FunctionId::e_FILE_TIME_TO_SYSTEM_TIME' 'd_functionId'.  Return the
-        // 'd_result' of the next queued response.  The behavior is undefined
-        // if the response queue is empty or the 'd_functionId' of the next
-        // queued response is not 'FunctionId::e_GET_LAST_ERROR'.
 
+    /// Push a `Call` to the call queue that has a
+    /// `FunctionId::e_GET_FILE_SIZE` `d_functionId`, a `d_hFile` equal to
+    /// the specified `hFile`, and a `d_lpFileSizeHigh` equal to the
+    /// specified `lpFileSizeHigh`.  Load the `d_lpFileSizeHigh` into
+    /// `lpFileSizeHigh` and return the `d_result` of the next queued
+    /// response.  The behavior is undefined if the response queue is empty
+    /// or the `d_functionId` of the next queued response is not
+    /// `FunctionId::e_GET_FILE_SIZE`.
     DWORD GetFileSize(HANDLE hFile, LPDWORD lpFileSizeHigh);
-        // Push a 'Call' to the call queue that has a
-        // 'FunctionId::e_GET_FILE_SIZE' 'd_functionId', a 'd_hFile' equal to
-        // the specified 'hFile', and a 'd_lpFileSizeHigh' equal to the
-        // specified 'lpFileSizeHigh'.  Load the 'd_lpFileSizeHigh' into
-        // 'lpFileSizeHigh' and return the 'd_result' of the next queued
-        // response.  The behavior is undefined if the response queue is empty
-        // or the 'd_functionId' of the next queued response is not
-        // 'FunctionId::e_GET_FILE_SIZE'.
 
     BOOL GetFileTime(HANDLE     hFile,
                      LPFILETIME lpCreationTime,
                      LPFILETIME lpLastAccessTime,
                      LPFILETIME lpLastWriteTime);
 
+    /// Push a `Call` to the call queue that has a
+    /// `FunctionId::e_GET_LAST_ERROR` `d_functionId`.  Return the
+    /// `d_result` of the next queued response.  The behavior is undefined
+    /// if the response queue is empty or the `d_functionId` of the next
+    /// queued response is not `FunctionId::e_GET_LAST_ERROR`.
     DWORD GetLastError();
-        // Push a 'Call' to the call queue that has a
-        // 'FunctionId::e_GET_LAST_ERROR' 'd_functionId'.  Return the
-        // 'd_result' of the next queued response.  The behavior is undefined
-        // if the response queue is empty or the 'd_functionId' of the next
-        // queued response is not 'FunctionId::e_GET_LAST_ERROR'.
 
+    /// Push a `Call` to the call queue that has a
+    /// `FunctionId::e_SYSTEM_TIME_TO_FILE_TIME` `d_functionId`, a
+    /// `d_lpSystemTime` equal to the specified `lpSystemTime`, and a
+    /// `d_lpFileTime` equal to the specified `lpFileTime`.  Load the
+    /// `d_lpFileTime` into the `lpFileTime` and return the `d_result` of
+    /// the next queued response.  The behavior is undefined if the response
+    /// queue is empty or the `d_functionId` of the next queued response is
+    /// not `FunctionId::e_GET_LAST_ERROR`.
     BOOL SystemTimeToFileTime(const SYSTEMTIME *lpSystemTime,
                               LPFILETIME        lpFileTime);
-        // Push a 'Call' to the call queue that has a
-        // 'FunctionId::e_SYSTEM_TIME_TO_FILE_TIME' 'd_functionId', a
-        // 'd_lpSystemTime' equal to the specified 'lpSystemTime', and a
-        // 'd_lpFileTime' equal to the specified 'lpFileTime'.  Load the
-        // 'd_lpFileTime' into the 'lpFileTime' and return the 'd_result' of
-        // the next queued response.  The behavior is undefined if the response
-        // queue is empty or the 'd_functionId' of the next queued response is
-        // not 'FunctionId::e_GET_LAST_ERROR'.
 
+    /// Load the next queued call into the specified `call` and remove it
+    /// from the queue.  The behavior is undefined if the call queue is
+    /// empty.
     void popFrontCall(Call *call);
-        // Load the next queued call into the specified 'call' and remove it
-        // from the queue.  The behavior is undefined if the call queue is
-        // empty.
 
+    /// Push the specified `response` to the response queue.
     void pushBackResponse(const Response& response);
-        // Push the specified 'response' to the response queue.
 
     // ACCESSORS
+
+    /// Return the number of calls in the call queue.
     BSLA_MAYBE_UNUSED
     int numCalls() const;
-        // Return the number of calls in the call queue.
 
+    /// Return the number of responses in the response queue.
     BSLA_MAYBE_UNUSED
     int numResponses() const;
-        // Return the number of responses in the response queue.
 };
 
                       // ===============================
                       // struct TestWindowsInterfaceUtil
                       // ===============================
 
+/// This utility `struct` provides an implementation of the requirements for
+/// the `WINDOWS_INTERFACE` template parameter of the functions provided by
+/// `FilesystemUtil_WindowsImpUtil` in terms of mock Windows calls.
 struct TestWindowsInterfaceUtil {
-    // This utility 'struct' provides an implementation of the requirements for
-    // the 'WINDOWS_INTERFACE' template parameter of the functions provided by
-    // 'FilesystemUtil_WindowsImpUtil' in terms of mock Windows calls.
 
     // TYPES
+
+    /// `BOOL` is an alias to the unsigned integral `BOOL` type provided
+    /// by the `windows.h` header.
     typedef ::BOOL BOOL;
-        // 'BOOL' is an alias to the unsigned integral 'BOOL' type provided
-        // by the 'windows.h' header.
 
+    /// `DWORD` is an alias to the unsigned integral `DWORD` type provided
+    /// by the `windows.h` header.
     typedef ::DWORD DWORD;
-        // 'DWORD' is an alias to the unsigned integral 'DWORD' type provided
-        // by the 'windows.h' header.
 
+    /// `FILETIME` is an alias to the `FILETIME` struct provided by the
+    /// `windows.h` header.
     typedef ::FILETIME FILETIME;
-        // 'FILETIME' is an alias to the 'FILETIME' struct provided by the
-        // 'windows.h' header.
 
+    /// `HANDLE` is an alias to the `HANDLE` type provided by the
+    /// `windows.h` header.
     typedef ::HANDLE HANDLE;
-        // 'HANDLE' is an alias to the 'HANDLE' type provided by the
-        // 'windows.h' header.
 
+    /// `INT64` is an alias to the signed integral `INT64` type provided by
+    /// the `windows.h` header.
     typedef ::INT64 INT64;
-        // 'INT64' is an alias to the signed integral 'INT64' type provided by
-        // the 'windows.h' header.
 
+    /// `LPDWORD` is an alias to the `LPDWORD` type provided by the
+    /// `windows.h` header.
     typedef ::LPDWORD LPDWORD;
-        // 'LPDWORD' is an alias to the 'LPDWORD' type provided by the
-        // 'windows.h' header.
 
+    /// `LPFILETIME` is an alias to the `LPFILETIME` type provided by the
+    /// `windows.h` header.
     typedef ::LPFILETIME LPFILETIME;
-        // 'LPFILETIME' is an alias to the 'LPFILETIME' type provided by the
-        // 'windows.h' header.
 
+    /// `LPSYSTEMTIME` is an alias to the `LPSYSTEMTIME` type provided by
+    /// the `windows.h` header.
     typedef ::LPSYSTEMTIME LPSYSTEMTIME;
-        // 'LPSYSTEMTIME' is an alias to the 'LPSYSTEMTIME' type provided by
-        // the 'windows.h' header.
 
+    /// `SYSTEMTIME` is an alias to the `SYSTEMTIME` struct provided by the
+    /// `windows.h` header.
     typedef ::SYSTEMTIME SYSTEMTIME;
-        // 'SYSTEMTIME' is an alias to the 'SYSTEMTIME' struct provided by the
-        // 'windows.h' header.
 
+    /// `ULARGE_INTEGER` is an alias to the unsigned integral
+    /// `ULARGE_INTEGER` type provided by the `windows.h` header.
     typedef ::ULARGE_INTEGER ULARGE_INTEGER;
-        // 'ULARGE_INTEGER' is an alias to the unsigned integral
-        // 'ULARGE_INTEGER' type provided by the 'windows.h' header.
 
+    /// `ULONG64` is an alias to the unsigned integral `ULONG64` type
+    /// provided by the `windows.h` header.
     typedef ::ULONG64 ULONG64;
-        // 'ULONG64' is an alias to the unsigned integral 'ULONG64' type
-        // provided by the 'windows.h' header.
 
+    /// `ULONGLONG` is an alias to the unsigned integral `ULONGLONG` type
+    /// provided by the `windows.h` header.
     typedef ::ULONGLONG ULONGLONG;
-        // 'ULONGLONG' is an alias to the unsigned integral 'ULONGLONG' type
-        // provided by the 'windows.h' header.
 
+    /// `WORD` is an alias to the unsigned integral `WORD` type provided by
+    /// the `windows.h` header.
     typedef ::WORD WORD;
-        // 'WORD' is an alias to the unsigned integral 'WORD' type provided by
-        // the 'windows.h' header.
   private:
     // CLASS DATA
+
+    // the currently-installed mock Windows interface mechanism
     static TestWindowsInterface *s_interface_p;
-        // the currently-installed mock Windows interface mechanism
 
   public:
     // CLASS METHODS
+
+    /// Push a `Call` to the interface's call queue that has a
+    /// `FunctionId::e_FILE_TIME_TO_SYSTEM_TIME` `d_functionId`, a
+    /// `d_lpFileTime` equal to the specified `lpFileTime`, and a
+    /// `d_lpSystemTime` equal to the specified `lpSystemTime`.  Load the
+    /// `d_lpSystemTime` into the `lpSystemTime` and return the `d_result`
+    /// of the interface's next queued response.  The behavior is undefined
+    /// if the response queue is empty or the next queued response is not
+    /// `FunctionId::e_FILE_TIME_TO_SYSTEM_TIME`.
     static BOOL FileTimeToSystemTime(const FILETIME *lpFileTime,
                                      LPSYSTEMTIME    lpSystemTime);
-        // Push a 'Call' to the interface's call queue that has a
-        // 'FunctionId::e_FILE_TIME_TO_SYSTEM_TIME' 'd_functionId', a
-        // 'd_lpFileTime' equal to the specified 'lpFileTime', and a
-        // 'd_lpSystemTime' equal to the specified 'lpSystemTime'.  Load the
-        // 'd_lpSystemTime' into the 'lpSystemTime' and return the 'd_result'
-        // of the interface's next queued response.  The behavior is undefined
-        // if the response queue is empty or the next queued response is not
-        // 'FunctionId::e_FILE_TIME_TO_SYSTEM_TIME'.
 
+    /// Push a `Call` to the interface's call queue that has a
+    /// `FunctionId::e_GET_FILE_SIZE` `d_functionId`, a `d_hFile` equal to
+    /// the specified `hFile`, and a `d_lpFileSizeHigh` equal to the
+    /// specified `lpFileSizeHigh`.  Load the `d_lpFileSizeHigh` into
+    /// `lpFileSizeHigh` and return the `d_result` of the interface's next
+    /// queued response.  The behavior is undefined if the response queue is
+    /// empty or the `d_functionId` of the next queued response is not
+    /// `FunctionId::e_GET_FILE_SIZE`.
     static DWORD GetFileSize(HANDLE hFile, LPDWORD lpFileSizeHigh);
-        // Push a 'Call' to the interface's call queue that has a
-        // 'FunctionId::e_GET_FILE_SIZE' 'd_functionId', a 'd_hFile' equal to
-        // the specified 'hFile', and a 'd_lpFileSizeHigh' equal to the
-        // specified 'lpFileSizeHigh'.  Load the 'd_lpFileSizeHigh' into
-        // 'lpFileSizeHigh' and return the 'd_result' of the interface's next
-        // queued response.  The behavior is undefined if the response queue is
-        // empty or the 'd_functionId' of the next queued response is not
-        // 'FunctionId::e_GET_FILE_SIZE'.
 
+    /// Push a `Call` to the interface's call queue that has a
+    /// `FunctionId::e_GET_FILE_TIME` `d_functionId`, a `d_hFile` equal to
+    /// the specified `hFile`, a `d_lpCreationTime` equal to the specified
+    /// `lpCreationTime`, a `d_lpLastAccessTime` equal to the specified
+    /// `lpLastAccessTime`, and a `d_lpLastWriteTime` equal to the specified
+    /// `lpLastWriteTime`.  Load the `d_lpCreationTime` to the
+    /// `lpCreatinTime`, the `d_lpLastAccessTime` to the `lpLastAccessTime`,
+    /// and the `d_lpLastWriteTime` to the `lpLastWriteTime` and return the
+    /// `d_result` of the interface's next queued response.  The behavior is
+    /// undefined if the response queue is empty or the `d_functionId` of
+    /// the next queued response is not `FunctionId::e_GET_FILE_TIME`.
     static BOOL GetFileTime(HANDLE     hFile,
                             LPFILETIME lpCreationTime,
                             LPFILETIME lpLastAccessTime,
                             LPFILETIME lpLastWriteTime);
-        // Push a 'Call' to the interface's call queue that has a
-        // 'FunctionId::e_GET_FILE_TIME' 'd_functionId', a 'd_hFile' equal to
-        // the specified 'hFile', a 'd_lpCreationTime' equal to the specified
-        // 'lpCreationTime', a 'd_lpLastAccessTime' equal to the specified
-        // 'lpLastAccessTime', and a 'd_lpLastWriteTime' equal to the specified
-        // 'lpLastWriteTime'.  Load the 'd_lpCreationTime' to the
-        // 'lpCreatinTime', the 'd_lpLastAccessTime' to the 'lpLastAccessTime',
-        // and the 'd_lpLastWriteTime' to the 'lpLastWriteTime' and return the
-        // 'd_result' of the interface's next queued response.  The behavior is
-        // undefined if the response queue is empty or the 'd_functionId' of
-        // the next queued response is not 'FunctionId::e_GET_FILE_TIME'.
 
+    /// Push a `Call` to the interface's call queue that has a
+    /// `FunctionId::e_GET_LAST_ERROR` `d_functionId`.  Return the
+    /// `d_result` of the interface's next queued response.  The behavior is
+    /// undefined if the response queue is empty or the `d_functionId` of
+    /// the next queued response is not `FunctionId::e_GET_LAST_ERROR`.
     static DWORD GetLastError();
-        // Push a 'Call' to the interface's call queue that has a
-        // 'FunctionId::e_GET_LAST_ERROR' 'd_functionId'.  Return the
-        // 'd_result' of the interface's next queued response.  The behavior is
-        // undefined if the response queue is empty or the 'd_functionId' of
-        // the next queued response is not 'FunctionId::e_GET_LAST_ERROR'.
 
+    /// Push a `Call` to the interface's call queue that has a
+    /// `FunctionId::e_SYSTEM_TIME_TO_FILE_TIME` `d_functionId`, a
+    /// `d_lpFileTime` equal to the specified `lpFileTime`, and a
+    /// `d_lpSystemTime` equal to the specified `lpSystemTime`.  Load the
+    /// `d_lpFileTime` into the `lpFileTime` and return the `d_result` of
+    /// the interface's next queued response.  The behavior is undefined if
+    /// the response queue is empty or the next queued response is not
+    /// `FunctionId::e_SYSTEM_TIME_TO_FILE_TIME`.
     static BOOL SystemTimeToFileTime(const SYSTEMTIME *lpSystemTime,
                                      LPFILETIME        lpFileTime);
-        // Push a 'Call' to the interface's call queue that has a
-        // 'FunctionId::e_SYSTEM_TIME_TO_FILE_TIME' 'd_functionId', a
-        // 'd_lpFileTime' equal to the specified 'lpFileTime', and a
-        // 'd_lpSystemTime' equal to the specified 'lpSystemTime'.  Load the
-        // 'd_lpFileTime' into the 'lpFileTime' and return the 'd_result' of
-        // the interface's next queued response.  The behavior is undefined if
-        // the response queue is empty or the next queued response is not
-        // 'FunctionId::e_SYSTEM_TIME_TO_FILE_TIME'.
 
+    /// Set the interface to the specified `interface`.
     static void setInterface(TestWindowsInterface *interface);
-        // Set the interface to the specified 'interface'.
 
+    /// Return the interface.
     BSLA_MAYBE_UNUSED
     static TestWindowsInterface *interface();
-        // Return the interface.
 };
 
                         // =======================
                         // class IntegralConverter
                         // =======================
 
+/// This function-object class template provides a function call operator
+/// that performs an integral conversion (or promotion if a conversion is
+/// unnecessary) from an arbitrary integral type to the specified
+/// `INTEGRAL_TYPE`.  The behavior is undefined unless `INTEGRAL_TYPE` is an
+/// integral type.
 template <class INTEGRAL_TYPE>
 class IntegralConverter {
-    // This function-object class template provides a function call operator
-    // that performs an integral conversion (or promotion if a conversion is
-    // unnecessary) from an arbitrary integral type to the specified
-    // 'INTEGRAL_TYPE'.  The behavior is undefined unless 'INTEGRAL_TYPE' is an
-    // integral type.
 
   public:
     // TRAITS
     BSLMF_ASSERT((bsl::is_integral<INTEGRAL_TYPE>::value));
 
     // TYPES
+
+    /// `ResultType` is an alias to the type returned by this class
+    /// template's function-call operator.
     typedef INTEGRAL_TYPE ResultType;
-        // 'ResultType' is an alias to the type returned by this class
-        // template's function-call operator.
 
     // CREATORS
+
+    /// Create a new `IntegralConverter` object.
     IntegralConverter();
-        // Create a new 'IntegralConverter' object.
 
     // ACCESSORS
+
+    /// Return the result of converting (or promoting, if a conversion is
+    /// unnecessary) the specified `value` to `INTEGRAL_TYPE`.  This
+    /// function does not participate in overload resolution unless the
+    /// specified `SOURCE_INTEGRAL_TYPE` is an integral type.
     template <class SOURCE_INTEGRAL_TYPE>
     typename bsl::enable_if<
         bsl::is_integral<SOURCE_INTEGRAL_TYPE>::value,
         ResultType
     >::type
     operator()(SOURCE_INTEGRAL_TYPE value) const;
-        // Return the result of converting (or promoting, if a conversion is
-        // unnecessary) the specified 'value' to 'INTEGRAL_TYPE'.  This
-        // function does not participate in overload resolution unless the
-        // specified 'SOURCE_INTEGRAL_TYPE' is an integral type.
 };
 
 // ============================================================================
@@ -1006,9 +1024,9 @@ IntegralConverter<INTEGRAL_TYPE>::operator()(SOURCE_INTEGRAL_TYPE value) const
 
 static FILETIME unixEpochFileTimeUtc;
 
+/// Utility function to inititalize `unixEpochFileTimeUtc` used for later
+/// tests.  Return 0 on success or non-zero on failure.
 int initEpochFileTime()
-    // Utility function to inititalize 'unixEpochFileTimeUtc' used for later
-    // tests.  Return 0 on success or non-zero on failure.
 {
 #if U_PLATFORM_IS_NATIVE
     bdlt::Datetime unixEpochUtc = bdlt::EpochUtil::epoch();
@@ -1042,11 +1060,11 @@ int initEpochFileTime()
     return 0;
 }
 
+/// Utility function to convert the specified `dt` into a windows `FILETIME`
+/// structure.  The optionally specified `doublecheck` indicates that
+/// additional tests are performed against the native functions when run on
+/// Windows.  Return the value generated.
 FILETIME toFT(const bdlt::Datetime& dt, bool doublecheck = true)
-    // Utility function to convert the specified 'dt' into a windows 'FILETIME'
-    // structure.  The optionally specified 'doublecheck' indicates that
-    // additional tests are performed against the native functions when run on
-    // Windows.  Return the value generated.
 {
     bsls::Types::Int64 microseconds =
                            (dt - bdlt::EpochUtil::epoch()).totalMicroseconds();
@@ -1086,6 +1104,10 @@ FILETIME toFT(const bdlt::Datetime& dt, bool doublecheck = true)
     return ret;
 }
 
+/// Utility function to call `toFT(Datetime)` with a `Datetime` constructed
+/// from the specified `year`, `month`, and `day`, and the optionally
+/// specified `hour`, `minute`, `second`, `millisecond`, and `microsecond`.
+/// Return the result fo the call to `toFT(Datetime)`.
 FILETIME toFT(int year,
               int month,
               int day,
@@ -1094,10 +1116,6 @@ FILETIME toFT(int year,
               int second      = 0,
               int millisecond = 0,
               int microsecond = 0)
-    // Utility function to call 'toFT(Datetime)' with a 'Datetime' constructed
-    // from the specified 'year', 'month', and 'day', and the optionally
-    // specified 'hour', 'minute', 'second', 'millisecond', and 'microsecond'.
-    // Return the result fo the call to 'toFT(Datetime)'.
 {
     return toFT(bdlt::Datetime(year,
                                month,
@@ -1135,7 +1153,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     using namespace bdls;
@@ -1153,9 +1171,9 @@ int main(int argc, char *argv[])
     const FileDescriptor INVALID_FD = INVALID_HANDLE_VALUE;
 
     enum {
+        /// a value that this text block uses to indicate that the
+        /// field is not applicable
         NA = 0
-            // a value that this text block uses to indicate that the
-            // field is not applicable
     };
 
     // Use system calls if available to initialize global FILETIME epoch.
@@ -1167,51 +1185,51 @@ int main(int argc, char *argv[])
     switch(test) { case 0:
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'getLastModificationTime'
+        // TESTING `getLastModificationTime`
         //   This case verifies, using a mock Windows interface, that
-        //   'getLastModificationTime' correctly converts the values of its
+        //   `getLastModificationTime` correctly converts the values of its
         //   arguments into the values required by the underlying Windows
         //   system operations, converts the results of the operations to
-        //   'getLastModificationTime's results, and invokes no undefined
+        //   `getLastModificationTime`s results, and invokes no undefined
         //   behavior when given or producing values near their limits.
         //
         // Concerns:
-        //: 1 Error return codes from 'GetFileTime' or
-        //:   'FileTimeToSystemTime' calls result in a non-zero return value.
-        //:
-        //: 1 Upon success, the value loaded into the Windows system time
-        //:   from the file time retrieved via a call to 'GetFileTime'
-        //:   is converted to the 'bdlt::Datetime' result that represents the
-        //:   same value as the system time, if a 'bdlt::Datetime' is capable
-        //:   of representing the value, and a non-zero value is returned
-        //:   otherwise.
+        // 1. Error return codes from `GetFileTime` or
+        //    `FileTimeToSystemTime` calls result in a non-zero return value.
+        //
+        // 1. Upon success, the value loaded into the Windows system time
+        //    from the file time retrieved via a call to `GetFileTime`
+        //    is converted to the `bdlt::Datetime` result that represents the
+        //    same value as the system time, if a `bdlt::Datetime` is capable
+        //    of representing the value, and a non-zero value is returned
+        //    otherwise.
         //
         // Plan:
-        //: 1 Create a table that enumerates several combinations of values for
-        //:   'descriptor', as well as return codes and output values to
-        //:   use as results from an underlying system calls, where the
-        //:   numeric limits of each are present, and values known to be near
-        //:   the limits of the corresponding results for
-        //:   'getLastModificationTime'.
-        //:
-        //: 2 For each combination 'C' of the set of combinations, do the
-        //:   following:
-        //:
-        //:   1 Prime a mock Windows interface to expect a call to
-        //:     'GetFileTime' with the file descriptor in 'C' and to provide
-        //:     the return code and 'FILETIME' struct values from 'C' as
-        //:     results to the call to 'GetFileTime'.
-        //:
-        //:   2 If the 'GetFileTime' call is primed to succeed, prime the
-        //:     interface to expect a call to 'FileTimeToSystemTime' with
-        //:     expected input and output from 'C'.
-        //:
-        //:   2 Invoke 'getLastModificationTime' with the file descriptor from
-        //:     'C'.
-        //:
-        //:   3 Verify that the results of the call to
-        //:     'getLastModificationTime' satisfy the properties defined by
-        //:     each concern relating to the particular result.
+        // 1. Create a table that enumerates several combinations of values for
+        //    `descriptor`, as well as return codes and output values to
+        //    use as results from an underlying system calls, where the
+        //    numeric limits of each are present, and values known to be near
+        //    the limits of the corresponding results for
+        //    `getLastModificationTime`.
+        //
+        // 2. For each combination `C` of the set of combinations, do the
+        //    following:
+        //
+        //   1. Prime a mock Windows interface to expect a call to
+        //      `GetFileTime` with the file descriptor in `C` and to provide
+        //      the return code and `FILETIME` struct values from `C` as
+        //      results to the call to `GetFileTime`.
+        //
+        //   2. If the `GetFileTime` call is primed to succeed, prime the
+        //      interface to expect a call to `FileTimeToSystemTime` with
+        //      expected input and output from `C`.
+        //
+        //   2. Invoke `getLastModificationTime` with the file descriptor from
+        //      `C`.
+        //
+        //   3. Verify that the results of the call to
+        //      `getLastModificationTime` satisfy the properties defined by
+        //      each concern relating to the particular result.
         //
         // Testing:
         //   Offset getLastModificationTime(bdlt::Datetime *, FileDescriptor);
@@ -1222,7 +1240,7 @@ int main(int argc, char *argv[])
 
         {
             // Initiate the static variables used by
-            // 'convertFileTimeToSystemTime'.
+            // `convertFileTimeToSystemTime`.
 
             Interface interface;
 
@@ -1253,25 +1271,25 @@ int main(int argc, char *argv[])
         const FTime FT_NA = {};
         const DTime DT_NA;
 
+        /// the line number
         const struct {
             int            d_line;
-                // the line number
 
+            /// the argument to `getLastModificationTime`
             FileDescriptor d_fileDescriptor;
-                // the argument to 'getLastModificationTime'
 
+            /// result from the mock `GetFileTime` Call
             FILETIME       d_lastWriteTime;
-                // result from the mock 'GetFileTime' Call
 
+            /// return value from the mock `GetFileTime` call
             BOOL           d_getFileTimeResult;
-                // return value from the mock 'GetFileTime' call
 
+            /// the expected value of `time` after the call to
+            /// `getLastModificationTime`
             bdlt::Datetime d_time;
-                // the expected value of 'time' after the call to
-                // 'getLastModificationTime'
 
+            /// the expected `getLastModificationTime` value
             int            d_result;
-                // the expected 'getLastModificationTime' value
           } DATA[] = {
               {
                   L_, INVALID_FD,
@@ -1386,43 +1404,43 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'getFileSize'
+        // TESTING `getFileSize`
         //   This case verifies, using a mock Windows interface, that
-        //   'getFileSize' correctly converts the values of its arguments into
+        //   `getFileSize` correctly converts the values of its arguments into
         //   the values required by the underlying Windows system operations,
-        //   converts the results of the operations to 'getFileSize's results,
+        //   converts the results of the operations to `getFileSize`s results,
         //   and invokes no undefined behavior when given or producing values
         //   near their limits.
         //
         // Concerns:
-        //: 1 Error return codes from 'GetFileSize' result in a non-zero return
-        //:   value.
-        //:
-        //: 1 Upon success, the 2 32-bit result values from the call to
-        //:   'GetFileSize' are combined into a single, signed 64-bit value
-        //:   that is not less than 0, and this value is returned.
+        // 1. Error return codes from `GetFileSize` result in a non-zero return
+        //    value.
+        //
+        // 1. Upon success, the 2 32-bit result values from the call to
+        //    `GetFileSize` are combined into a single, signed 64-bit value
+        //    that is not less than 0, and this value is returned.
         //
         // Plan:
-        //: 1 Create a table that enumerates several combinations of values for
-        //:   'descriptor', as well as result values for the underlying call to
-        //:   'GetFileSize', where the numeric limits of each are present.
-        //:
-        //: 2 For each combination 'C' of the set of combinations, do the
-        //:   following:
-        //:
-        //:   1 Prime a mock Windows interface to expect a call to
-        //:     'GetFileSize' with the file descriptor in 'C', and to provide
-        //:     results from C.
-        //:
-        //:   2 Prime the same interface to expect a call to 'GetLastError' if
-        //:     the return code from 'GetFileSize' is primed to indicate a
-        //:     possible error.
-        //:
-        //:   2 Invoke 'getFileSize' with the file descriptor from 'C'.
-        //:
-        //:   3 Verify that the results of the call to 'getFileSize' satisfy
-        //:     the properties defined by each concern relating to the
-        //:     particular result.
+        // 1. Create a table that enumerates several combinations of values for
+        //    `descriptor`, as well as result values for the underlying call to
+        //    `GetFileSize`, where the numeric limits of each are present.
+        //
+        // 2. For each combination `C` of the set of combinations, do the
+        //    following:
+        //
+        //   1. Prime a mock Windows interface to expect a call to
+        //      `GetFileSize` with the file descriptor in `C`, and to provide
+        //      results from C.
+        //
+        //   2. Prime the same interface to expect a call to `GetLastError` if
+        //      the return code from `GetFileSize` is primed to indicate a
+        //      possible error.
+        //
+        //   2. Invoke `getFileSize` with the file descriptor from `C`.
+        //
+        //   3. Verify that the results of the call to `getFileSize` satisfy
+        //      the properties defined by each concern relating to the
+        //      particular result.
         //
         // Testing:
         //   Offset getFileSize(FileDescriptor);
@@ -1430,33 +1448,33 @@ int main(int argc, char *argv[])
 
         {
             // This block tests all code paths through the Windows
-            // implementation of 'getFileSize', as well as boundary values for
+            // implementation of `getFileSize`, as well as boundary values for
             // its input and output, using a mock Windows interface.
 
             const u::IntegralConverter<Offset> I;
 
+            /// the line number
             const struct {
                 int            d_line;
-                    // the line number
 
+                /// the argument to `getFileSize`
                 FileDescriptor d_fileDescriptor;
-                    // the argument to 'getFileSize'
 
+                /// the high-32 bits to return from `GetFileSize`
                 DWORD          d_sizeHigh;
-                    // the high-32 bits to return from 'GetFileSize'
 
+                /// the low-32 bits to return from `GetFileSize`
                 DWORD          d_sizeLow;
-                    // the low-32 bits to return from 'GetFileSize'
 
+                /// whether to expect the implementation to call
+                /// `GetLastError`
                 bool           d_expectGetLastError;
-                    // whether to expect the implementation to call
-                    // 'GetLastError'
 
+                /// the value to return from `GetLastError`, if called
                 DWORD          d_lastError;
-                    // the value to return from 'GetLastError', if called
 
+                /// the expected `getFileSize` result
                 Offset         d_result;
-                    // the expected 'getFileSize' result
 
             } DATA[] = {
   //   LINE         EXPECT GET LAST ERROR?       LAST ERROR

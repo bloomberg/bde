@@ -22,7 +22,7 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] FUNCTION POINTER TYPES
-// [ 3] 'VOID' FUNCTION POINTER TYPES
+// [ 3] `VOID` FUNCTION POINTER TYPES
 // [ 4] VARARGS FUNCTION POINTER TYPES
 
 // ============================================================================
@@ -223,12 +223,12 @@ typedef T14* (*TestEllipsisFunc14NE)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10,
 //-----------------------------------------------------------------------------
 
 // Define the following function types:
-//..
+// ```
     typedef int  (*IntFunctionIntIntPtr)(int, int);
     typedef void (*VoidFunc0)();
-//..
+// ```
 // The following program should compile and run without errors:
-//..
+// ```
     void usageExample()
     {
         ASSERT(0 == bslmf::IsFunctionPointer<int>::value);
@@ -247,7 +247,7 @@ typedef T14* (*TestEllipsisFunc14NE)(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10,
         ASSERT(1 == (bsl::is_same<ResultType0, void>::value));
         ASSERT(1 == (bsl::is_same<ArgList0, bslmf::TypeList0>::value));
     }
-//..
+// ```
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -276,7 +276,7 @@ int main(int argc, char *argv[])
       case 4: {
         // --------------------------------------------------------------------
         // VARARGS FUNCTION POINTER TYPES
-        //   This test exercises  'const', 'volatile', and 'const volatile'
+        //   This test exercises  `const`, `volatile`, and `const volatile`
         //   function pointer types that have C-style varargs  with the trait.
         //
         // Concerns:
@@ -676,9 +676,9 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // 'VOID' FUNCTION POINTER TYPES
-        //   This test exercises 'void'-returning  'const', 'volatile', and
-        //   'const volatile' function pointer types with the trait.
+        // `VOID` FUNCTION POINTER TYPES
+        //   This test exercises `void`-returning  `const`, `volatile`, and
+        //   `const volatile` function pointer types with the trait.
         //
         // Concerns:
         //   1. That the functions exist with the documented signatures.
@@ -689,7 +689,7 @@ int main(int argc, char *argv[])
         //   verify that the contents of the trait type are correct.
         //
         // Testing:
-        //   'VOID' FUNCTION POINTER TYPES
+        //   `VOID` FUNCTION POINTER TYPES
         // --------------------------------------------------------------------
 
         if (verbose) printf("\n'VOID' FUNCTION POINTER TYPES"
@@ -1077,7 +1077,7 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // FUNCTION POINTER TYPES
-        //   This test exercises 'const', 'volatile', and 'const volatile'
+        //   This test exercises `const`, `volatile`, and `const volatile`
         //   function pointer types with the trait.
         //
         // Concerns:
@@ -1476,7 +1476,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // BREATHING TEST
         //   This test exercises basic for simple function types and their
-        //   corresponding 'noexcept' types.
+        //   corresponding `noexcept` types.
         //
         // Concerns:
         //   1. That the functions exist with the documented signatures.

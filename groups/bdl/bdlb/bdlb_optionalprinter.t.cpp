@@ -22,7 +22,7 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // The component under test implements a set of helper functions and classes
-// to print 'bsl::optional'.
+// to print `bsl::optional`.
 //
 // ----------------------------------------------------------------------------
 // CREATORS
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
     //
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -171,13 +171,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -187,73 +187,73 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-///Example 1: Printing 'bsl::optional' to a stream
+///Example 1: Printing `bsl::optional` to a stream
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// In this example, we demonstrate how to use 'bdlb::OptionalPrinterUtil' to
-// print 'bsl::optional' to a stream:
-//..
+// In this example, we demonstrate how to use `bdlb::OptionalPrinterUtil` to
+// print `bsl::optional` to a stream:
+// ```
     bsl::optional<int> value(42);
     bsl::cout << bdlb::OptionalPrinterUtil::makePrinter(value);
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
         // PRINT AND OUTPUT OPERATOR (<<)
         //   Ensure that the value of the object can be formatted appropriately
-        //   on an 'ostream' in some standard, human-readable form.
+        //   on an `ostream` in some standard, human-readable form.
         //
         // Concerns:
-        //: 1 The 'print' method writes the value to the specified 'ostream'.
-        //:
-        //: 2 The 'print' method writes the value in the intended format.
-        //:
-        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)'.
-        //:
-        //: 4 The 'print' method's signature and return type are standard.
-        //:
-        //: 5 The 'print' method returns the supplied 'ostream'.
-        //:
-        //: 6 The optional 'level' and 'spacesPerLevel' parameters have the
-        //:   correct default values (0 and 4, respectively).
-        //:
-        //: 7 The output 'operator<<'s signature and return type are standard.
-        //:
-        //: 8 The output 'operator<<' returns the destination 'ostream'.
+        // 1. The `print` method writes the value to the specified `ostream`.
+        //
+        // 2. The `print` method writes the value in the intended format.
+        //
+        // 3. The output using `s << obj` is the same as `obj.print(s, 0, -1)`.
+        //
+        // 4. The `print` method's signature and return type are standard.
+        //
+        // 5. The `print` method returns the supplied `ostream`.
+        //
+        // 6. The optional `level` and `spacesPerLevel` parameters have the
+        //    correct default values (0 and 4, respectively).
+        //
+        // 7. The output `operator<<`s signature and return type are standard.
+        //
+        // 8. The output `operator<<` returns the destination `ostream`.
         //
         // Plan:
-        //: 1 Use the addresses of the 'print' member function and 'operator<<'
-        //:   free function defined in this component to initialize,
-        //:   respectively, member-function and free-function pointers having
-        //:   the appropriate signatures and return types.  (C-4, 7)
-        //:
-        //: 2 Using the table-driven technique:  (C-1..3, 5..6, 8)
-        //:
-        //:   1 Define selected combinations of object values, and various
-        //:     values for the two formatting parameters, along with the
-        //:     expected output.
-        //:
-        //:     (  'level'   x 'spacesPerLevel' ):
-        //:     1 {  0     } x {  0, 1, -1, -8 }
-        //:     2 {  3, -3 } x {  0, 2, -2, -8 }
-        //:     3 {  2     } x {  3            }
-        //:     4 { -8     } x { -8            }
-        //:     5 { -9     } x { -9            }
-        //:
-        //:   2 For each row in the table defined in P-2.1:  (C-1..3, 5..6, 8)
-        //:
-        //:     1 Using a 'const' 'Obj', supply each object value and pair of
-        //:       formatting parameters to 'print', omitting the 'level' or
-        //:       'spacesPerLevel' parameter if the value of that argument is
-        //:       '-8'.  If the parameters are, arbitrarily, '(-9, -9)', then
-        //:       invoke the 'operator<<' instead.
-        //:
-        //:     2 Use a standard 'ostringstream' to capture the actual output.
-        //:
-        //:     3 Verify the address of what is returned is that of the
-        //:       supplied stream.  (C-5, 8)
-        //:
-        //:     4 Compare the contents captured in P-2.2.2 with what is
-        //:       expected.  (C-1..3, 6)
+        // 1. Use the addresses of the `print` member function and `operator<<`
+        //    free function defined in this component to initialize,
+        //    respectively, member-function and free-function pointers having
+        //    the appropriate signatures and return types.  (C-4, 7)
+        //
+        // 2. Using the table-driven technique:  (C-1..3, 5..6, 8)
+        //
+        //   1. Define selected combinations of object values, and various
+        //      values for the two formatting parameters, along with the
+        //      expected output.
+        //
+        //      (  `level`   x `spacesPerLevel` ):
+        //     1. {  0     } x {  0, 1, -1, -8 }
+        //     2. {  3, -3 } x {  0, 2, -2, -8 }
+        //     3. {  2     } x {  3            }
+        //     4. { -8     } x { -8            }
+        //     5. { -9     } x { -9            }
+        //
+        //   2. For each row in the table defined in P-2.1:  (C-1..3, 5..6, 8)
+        //
+        //     1. Using a `const` `Obj`, supply each object value and pair of
+        //        formatting parameters to `print`, omitting the `level` or
+        //        `spacesPerLevel` parameter if the value of that argument is
+        //        `-8`.  If the parameters are, arbitrarily, `(-9, -9)`, then
+        //        invoke the `operator<<` instead.
+        //
+        //     2. Use a standard `ostringstream` to capture the actual output.
+        //
+        //     3. Verify the address of what is returned is that of the
+        //        supplied stream.  (C-5, 8)
+        //
+        //     4. Compare the contents captured in P-2.2.2 with what is
+        //        expected.  (C-1..3, 6)
         //
         // Testing:
         //   OptionalPrinter(const bsl::optional<TYPE>* );
@@ -265,8 +265,8 @@ int main(int argc, char *argv[])
                              "\n=============================="
                           << endl;
 
-        if (veryVerbose) cout << "\nAssign the addresses of 'print' and "
-                              << "the output 'operator<<' to variables."
+        if (veryVerbose) cout << "\nAssign the addresses of `print` and "
+                              << "the output `operator<<` to variables."
                               << endl;
         {
             u::TestUtil<int>::printPtr printPtr =
@@ -404,11 +404,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 TBD
+        // 1. TBD
         //
         // Testing:
         //   BREATHING TEST

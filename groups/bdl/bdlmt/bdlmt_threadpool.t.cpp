@@ -152,7 +152,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 #if BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 #define BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
-     // This macro definition parallels that defined in the 'bsls_timeinterval'
+     // This macro definition parallels that defined in the `bsls_timeinterval`
      // header file.
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
@@ -181,11 +181,11 @@ int veryVeryVerbose;
                          // class TestMetricsAdapter
                          // ========================
 
+/// This class implements a pure abstract interface for clients and
+/// suppliers of metrics adapters.  The implemtation does not register
+/// callbacks with any monitoring system, but does track registrations to
+/// enable testing of thread-enabled objects metric registration.
 class TestMetricsAdapter : public bdlm::MetricsAdapter {
-    // This class implements a pure abstract interface for clients and
-    // suppliers of metrics adapters.  The implemtation does not register
-    // callbacks with any monitoring system, but does track registrations to
-    // enable testing of thread-enabled objects metric registration.
 
     // DATA
     bsl::vector<bdlm::MetricDescriptor> d_descriptors;
@@ -193,34 +193,37 @@ class TestMetricsAdapter : public bdlm::MetricsAdapter {
 
   public:
     // CREATORS
-    TestMetricsAdapter();
-        // Create a 'TestMetricsAdapter'.
 
+    /// Create a `TestMetricsAdapter`.
+    TestMetricsAdapter();
+
+    /// Destroy this object.
     ~TestMetricsAdapter() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Do nothing with the specified `metricsDescriptor` and `callback`.
+    /// Return a callback handle that will be verified in
+    /// `removeCollectionCallback`.
     CallbackHandle registerCollectionCallback(
                  const bdlm::MetricDescriptor& metricDescriptor,
                  const Callback&               callback) BSLS_KEYWORD_OVERRIDE;
-        // Do nothing with the specified 'metricsDescriptor' and 'callback'.
-        // Return a callback handle that will be verified in
-        // 'removeCollectionCallback'.
 
     int removeCollectionCallback(const CallbackHandle& handle)
                                                          BSLS_KEYWORD_OVERRIDE;
-        // Do nothing with the specified 'handle'.  Assert the supplied
-        // 'handle' matches what was provided by 'registerCollectionCallback'.
+        // Do nothing with the specified `handle`.  Assert the supplied
+        // `handle` matches what was provided by `registerCollectionCallback`.
         // Return 0.
 
+    /// Return this object to its constructed state.
     void reset();
-        // Return this object to its constructed state.
 
     // ACCESSORS
+
+    /// Return `true` if the registered descriptors match the ones expected
+    /// for the supplied `name` and the provided callback handles were
+    /// removed, and `false` otherwise.
     bool verify(const bsl::string& name) const;
-        // Return 'true' if the registered descriptors match the ones expected
-        // for the supplied 'name' and the provided callback handles were
-        // removed, and 'false' otherwise.
 };
 
                          // ------------------------
@@ -356,11 +359,11 @@ void TestSynchronousSignals(void *)
 }
 #endif
 
+/// This function is used to simulate a thread function.  It accepts a
+/// pointer to a pointer to a structure containing a mutex and a conditional
+/// variable.  The function simply blocks until the conditional variable is
+/// signaled.
 void *TestThreadFunction1(void *ptr)
-    // This function is used to simulate a thread function.  It accepts a
-    // pointer to a pointer to a structure containing a mutex and a conditional
-    // variable.  The function simply blocks until the conditional variable is
-    // signaled.
 {
     TestJobFunctionArgs *args = (TestJobFunctionArgs*)ptr;
     bslmt::LockGuard<bslmt::Mutex> lock(args->d_mutex);
@@ -373,11 +376,11 @@ void *TestThreadFunction1(void *ptr)
     return 0;
 }
 
+/// This function is used to simulate a thread function.  It accepts a
+/// pointer to a pointer to a structure containing a mutex and a conditional
+/// variable.  The function simply signals that it has started, increments
+/// the supplied counter and returns.
 static void *TestThreadFunction2( void *ptr )
-    // This function is used to simulate a thread function.  It accepts a
-    // pointer to a pointer to a structure containing a mutex and a conditional
-    // variable.  The function simply signals that it has started, increments
-    // the supplied counter and returns.
 {
     TestJobFunctionArgs *args = (TestJobFunctionArgs*)ptr;
     bslmt::LockGuard<bslmt::Mutex> lock(args->d_mutex);
@@ -387,11 +390,11 @@ static void *TestThreadFunction2( void *ptr )
     return 0;
 }
 
+/// This function is used to simulate a thread pool job.  It accepts a
+/// pointer to a pointer to a structure containing a mutex and a conditional
+/// variable.  The function simply blocks until the conditional variable is
+/// signaled.
 void TestJobFunction1(void *ptr)
-    // This function is used to simulate a thread pool job.  It accepts a
-    // pointer to a pointer to a structure containing a mutex and a conditional
-    // variable.  The function simply blocks until the conditional variable is
-    // signaled.
 {
     TestJobFunctionArgs *args = (TestJobFunctionArgs*)ptr;
     bslmt::LockGuard<bslmt::Mutex> lock(args->d_mutex);
@@ -403,14 +406,14 @@ void TestJobFunction1(void *ptr)
     }
 }
 
+/// This function is used to simulate a thread pool job.  It accepts a
+/// pointer to a pointer to a structure containing a mutex and a conditional
+/// variable.  All the threads calling this function will wait until the
+/// main thread invokes the `wait` on a barrier signifying the start of the
+/// function.  After that all the threads calling this function will wait
+/// until the main thread invokes the `wait` on a barrier signifying the end
+/// of the function
 void TestJobFunction3(void *ptr)
-    // This function is used to simulate a thread pool job.  It accepts a
-    // pointer to a pointer to a structure containing a mutex and a conditional
-    // variable.  All the threads calling this function will wait until the
-    // main thread invokes the 'wait' on a barrier signifying the start of the
-    // function.  After that all the threads calling this function will wait
-    // until the main thread invokes the 'wait' on a barrier signifying the end
-    // of the function
 {
     TestJobFunctionArgs1 *args = (TestJobFunctionArgs1*)ptr;
     ++args->d_count;
@@ -419,11 +422,11 @@ void TestJobFunction3(void *ptr)
     args->d_stopBarrier_p->wait();
 }
 
+/// This function is used to simulate a thread pool job.  It accepts a
+/// pointer to a pointer to a structure containing a mutex and a conditional
+/// variable.  The function simply signals that it has started, increments
+/// the supplied counter and returns.
 static void TestJobFunction2( void *ptr )
-    // This function is used to simulate a thread pool job.  It accepts a
-    // pointer to a pointer to a structure containing a mutex and a conditional
-    // variable.  The function simply signals that it has started, increments
-    // the supplied counter and returns.
 {
     TestJobFunctionArgs *args = (TestJobFunctionArgs*)ptr;
     bslmt::LockGuard<bslmt::Mutex> lock(args->d_mutex);
@@ -434,9 +437,9 @@ static void TestJobFunction2( void *ptr )
 
 }
 
+/// Return the total CPU time (user and system) consumed by the current
+/// process since creation; the CPU time unit is seconds.
 static double getCurrentCpuTime()
-    // Return the total CPU time (user and system) consumed by the current
-    // process since creation; the CPU time unit is seconds.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     HANDLE me = GetCurrentProcess();
@@ -466,19 +469,19 @@ namespace THREADPOOL_USAGE_EXAMPLE {
 
 ///Usage
 ///-----
-// This example demonstrates the use of a 'bdlmt::ThreadPool' to parallelize a
+// This example demonstrates the use of a `bdlmt::ThreadPool` to parallelize a
 // segment of program logic.  The example implements a multi-threaded file
 // search utility.  The utility searches multiple files for a string, similar
-// to the Unix command 'fgrep'; the use of a 'bdlmt::ThreadPool' allows the
+// to the Unix command `fgrep`; the use of a `bdlmt::ThreadPool` allows the
 // utility to search multiple files concurrently.
 //
 // The example program will take as input a string and a list of files to
-// search.  The program creates a 'bdlmt::ThreadPool', and then enqueues a
+// search.  The program creates a `bdlmt::ThreadPool`, and then enqueues a
 // single "job" for each file to be searched.  Each thread in the pool will
 // take a job from the queue, open the file, and search for the string.  If a
 // match is found, the job adds the filename to an array of matching filenames.
 // Because this array of filenames is shared across multiple jobs and across
-// multiple threads, access to the array is controlled via a 'bslmt::Mutex'.
+// multiple threads, access to the array is controlled via a `bslmt::Mutex`.
 //
 ///Setting ThreadPool Attributes
 ///- - - - - - - - - - - - - - -
@@ -495,15 +498,15 @@ namespace THREADPOOL_USAGE_EXAMPLE {
 // system spends significant resources switching context among multiple
 // threads.  Also we use a very short idle time since new jobs will arrive only
 // at startup.
-//..
+// ```
     const int                MIN_SEARCH_THREADS = 10;
     const int                MAX_SEARCH_THREADS = 50;
     const bsls::TimeInterval MAX_SEARCH_THREAD_IDLE(0, 100000000);
-//..
+// ```
 // Below is the structure that will be used to pass arguments to the file
 // search function.  Since each job will be searching a separate file, a
 // distinct instance of the structure will be used for each job.
-//..
+// ```
     struct my_FastSearchJobInfo {
         const bsl::string        *d_word;    // word to search for
         const bsl::string        *d_path;    // path of the file to search
@@ -511,22 +514,22 @@ namespace THREADPOOL_USAGE_EXAMPLE {
                                              // result file list
         bsl::vector<bsl::string> *d_outList; // list of matching files
     };
-//..
+// ```
 //
 ///The "void function/void pointer" Interface
 ///- - - - - - - - - - - - - - - - - - - - -
-// 'myFastSearchJob' is the search function to be executed as a job by threads
+// `myFastSearchJob` is the search function to be executed as a job by threads
 // in the thread pool.  It is declared with extern "C" linkage to match the
-// "void function/void pointer" interface.  The single 'void *' argument is
-// received and cast to point to a 'struct my_FastSearchJobInfo', which then
+// "void function/void pointer" interface.  The single `void *` argument is
+// received and cast to point to a `struct my_FastSearchJobInfo`, which then
 // points to the search string and a single file to be searched.  Note that
-// different 'my_FastSearchInfo' structures for the same search request will
-// differ only in the attribute 'd_path', which points to a specific filename
+// different `my_FastSearchInfo` structures for the same search request will
+// differ only in the attribute `d_path`, which points to a specific filename
 // among the set of files to be searched; other fields will be identical across
 // all structures for a given Fast Search.
 //
 // See the following section for an illustration of the functor interface.
-//..
+// ```
     extern "C" {
     static void myFastSearchJob(void *arg)
     {
@@ -545,19 +548,19 @@ namespace THREADPOOL_USAGE_EXAMPLE {
             while (nread >= wordLen) {
                 buffer[nread] = 0;
                 if (strstr(buffer, word)) {
-//..
+// ```
 // If we find a match, we add the file to the result list and return.  Since
 // the result list is shared among multiple processing threads, we use a mutex
-// lock to regulate access to the list.  We use a 'bslmt::LockGuard' to manage
+// lock to regulate access to the list.  We use a `bslmt::LockGuard` to manage
 // access to the mutex lock.  This template object acquires a mutex lock on
-// 'job->d_mutex' at construction, releases that lock on destruction.  Thus,
-// the mutex will be locked within the scope of the 'if' block, and released
+// `job->d_mutex` at construction, releases that lock on destruction.  Thus,
+// the mutex will be locked within the scope of the `if` block, and released
 // when the program exits that scope.
 //
-// See 'bslmt_threadutil' for information about the 'bslmt::Mutex' class, and
-// component 'bslmt_lockguard' for information about the 'bslmt::LockGuard'
+// See `bslmt_threadutil` for information about the `bslmt::Mutex` class, and
+// component `bslmt_lockguard` for information about the `bslmt::LockGuard`
 // template class.
-//..
+// ```
                     bslmt::LockGuard<bslmt::Mutex> lock(job->d_mutex);
                     job->d_outList->push_back(*job->d_path);
                     break;  // bslmt::LockGuard destructor unlocks mutex.
@@ -571,22 +574,22 @@ namespace THREADPOOL_USAGE_EXAMPLE {
     }
 
     } // extern "C"
-//..
-// Routine 'myFastSearch' is the main driving routine, taking three
-// arguments: a single string to search for ('word'), a list of files to
+// ```
+// Routine `myFastSearch` is the main driving routine, taking three
+// arguments: a single string to search for (`word`), a list of files to
 // search, and an output list of files.  When the function completes, the file
 // list will contain the names of files where a match was found.
-//..
+// ```
     void  myFastSearch(const bsl::string&              word,
                        const bsl::vector<bsl::string>& fileList,
                        bsl::vector<bsl::string>&       outFileList)
     {
         bslmt::Mutex            mutex;
         bslmt::ThreadAttributes defaultAttributes;
-//..
+// ```
 // We initialize the thread pool using default thread attributes.  We then
 // start the pool so that the threads can begin while we prepare the jobs.
-//..
+// ```
         bdlmt::ThreadPool       pool(defaultAttributes,
                                      MIN_SEARCH_THREADS,
                                      MAX_SEARCH_THREADS,
@@ -601,14 +604,14 @@ namespace THREADPOOL_USAGE_EXAMPLE {
 
             return;                                                   // RETURN
         }
-//..
+// ```
 // For each file to be searched, we create the job info structure that will be
 // passed to the search function and add the job to the pool.
 //
 // As noted above, all jobs will share a single mutex to guard the output file
-// list.  Function 'myFastSearchJob' uses a 'bslmt::LockGuard' on this mutex to
+// list.  Function `myFastSearchJob` uses a `bslmt::LockGuard` on this mutex to
 // serialize access to the list.
-//..
+// ```
         bsl::size_t count = fileList.size();
         my_FastSearchJobInfo *jobInfoArray = new my_FastSearchJobInfo[count];
 
@@ -620,32 +623,32 @@ namespace THREADPOOL_USAGE_EXAMPLE {
             job.d_outList = &outFileList;
             pool.enqueueJob(myFastSearchJob, &job);
         }
-//..
+// ```
 // Now we simply wait for all the jobs in the queue to complete.  Any matched
 // files should have been added to the output file list.
-//..
+// ```
         pool.drain();
         delete[] jobInfoArray;
     }
-//..
+// ```
 //
 ///The Functor Interface
 ///- - - - - - - - - - -
 // The "void function/void pointer" convention is idiomatic for C programs.
-// The 'void' pointer argument provides a generic way of passing in user data,
+// The `void` pointer argument provides a generic way of passing in user data,
 // without regard to the data type.  Clients who prefer better or more explicit
 // type safety may wish to use the Functor Interface instead.  This interface
-// uses the 'bsl::function' component to provide type-safe wrappers that
+// uses the `bsl::function` component to provide type-safe wrappers that
 // can match argument number and type for a C++ free function or member
 // function.
 //
 // To illustrate the Functor Interface, we will make two small changes to the
 // usage example above.  First, we change the signature of the function that
-// executes a single job, so that it uses a 'my_FastSearchJobInfo' pointer
-// rather than a 'void' pointer.  With this change, we can remove the first
-// executable statement, which casts the 'void *' pointer to
-// 'my_FastSearchJobInfo *'.
-//..
+// executes a single job, so that it uses a `my_FastSearchJobInfo` pointer
+// rather than a `void` pointer.  With this change, we can remove the first
+// executable statement, which casts the `void *` pointer to
+// `my_FastSearchJobInfo *`.
+// ```
     static void my_FastFunctorSearchJob(my_FastSearchJobInfo *job)
     {
         FILE *file;
@@ -674,10 +677,10 @@ namespace THREADPOOL_USAGE_EXAMPLE {
         }
         fclose(file);
     }
-//..
-// Next, we make a change to the loop that enqueues the jobs in 'myFastSearch'.
+// ```
+// Next, we make a change to the loop that enqueues the jobs in `myFastSearch`.
 // The function starts exactly as in the previous example:
-//..
+// ```
     static void myFastFunctorSearch(const string&         word,
                                     const vector<string>& fileList,
                                     vector<string>&       outFileList)
@@ -701,11 +704,11 @@ namespace THREADPOOL_USAGE_EXAMPLE {
 
         bsl::size_t count = fileList.size();
         my_FastSearchJobInfo  *jobInfoArray = new my_FastSearchJobInfo[count];
-//..
+// ```
 // We create a functor - a C++ object that acts as a function.  The thread pool
-// will "execute" this functor (by calling its 'operator()' member function) on
+// will "execute" this functor (by calling its `operator()` member function) on
 // a thread when one becomes available.
-//..
+// ```
         for (unsigned i = 0; i < count; ++i) {
             my_FastSearchJobInfo &job = jobInfoArray[i];
             job.d_word    = &word;
@@ -717,17 +720,17 @@ namespace THREADPOOL_USAGE_EXAMPLE {
                           bdlf::BindUtil::bind(&my_FastFunctorSearchJob, &job);
             pool.enqueueJob(jobHandle);
         }
-//..
+// ```
 // Note that the functor is created locally and handed to the thread pool.
 // The thread pool copies the functor onto its internal queue, and takes
 // responsibility for the copied functor until execution is complete.
 //
 // The function is completed exactly as it was in the previous example.
-//..
+// ```
         pool.drain();
         delete[] jobInfoArray;
     }
-//..
+// ```
 
 }  // close namespace THREADPOOL_USAGE_EXAMPLE
 
@@ -737,9 +740,9 @@ namespace THREADPOOL_USAGE_EXAMPLE {
 
 namespace THREAD_NAMES_TEST {
 
+/// Check that the name of the current thread matches `expectedThreadName`,
+/// where `expectedThreadName` is the specified `arg`.
 void threadNameCheckJob(void *arg)
-    // Check that the name of the current thread matches 'expectedThreadName',
-    // where 'expectedThreadName' is the specified 'arg'.
 {
     const char *expectedThreadName = static_cast<const char *>(arg);
 
@@ -771,9 +774,10 @@ namespace case14 {
                             // ===================
                             // OnceBlockingFunctor
                             // ===================
+
+/// A thread-safe functor that blocks in its `operator()` until its latches
+/// `arrive` method is called.
 class OnceBlockingFunctor {
-    // A thread-safe functor that blocks in its 'operator()' until its latches
-    // 'arrive' method is called.
 
   private:
     // CLASS DATA
@@ -781,13 +785,15 @@ class OnceBlockingFunctor {
 
   public:
     // CREATORS
+
+    /// Create a `OnceBlockingFunctor` object that uses the specified
+    /// `latch`.
     OnceBlockingFunctor(bslmt::Latch *latch);
-        // Create a 'OnceBlockingFunctor' object that uses the specified
-        // 'latch'.
 
     // ACCESSORS
+
+    /// Block until `arrive` is called on the latch.
     void operator()();
-        // Block until 'arrive' is called on the latch.
 };
 
 // CREATORS
@@ -815,31 +821,34 @@ class CopyCountingFunctor {
 
   public:
     // CREATORS
+
+    /// Create a new `CopyCountingFunctor` object that has the specified
+    /// `counter`, and set the counter to 0.
     explicit CopyCountingFunctor(int *counter);
-        // Create a new 'CopyCountingFunctor' object that has the specified
-        // 'counter', and set the counter to 0.
 
+    /// Create a new `CopyCountingFunctor` object that has the same counter
+    /// as the specified `other`; and also increase the counter by one.
     CopyCountingFunctor(const CopyCountingFunctor& other);
-        // Create a new 'CopyCountingFunctor' object that has the same counter
-        // as the specified 'other'; and also increase the counter by one.
 
+    /// Create a new `CopyCountingFunctor` object that has the same counter
+    /// as the specified `other`.
     CopyCountingFunctor(bslmf::MovableRef<CopyCountingFunctor> other);
-        // Create a new 'CopyCountingFunctor' object that has the same counter
-        // as the specified 'other'.
 
     // MANIPULATORS
-    CopyCountingFunctor& operator=(const CopyCountingFunctor& other);
-        // Overwrite this object that has the same counter as the specified
-        // 'other'; and also increase that counter by one.
 
+    /// Overwrite this object that has the same counter as the specified
+    /// `other`; and also increase that counter by one.
+    CopyCountingFunctor& operator=(const CopyCountingFunctor& other);
+
+    /// Overwrite this object that has the same counter as the specified
+    /// `other`.
     CopyCountingFunctor& operator=(
                                  bslmf::MovableRef<CopyCountingFunctor> other);
-        // Overwrite this object that has the same counter as the specified
-        // 'other'.
 
     // ACCESSORS
+
+    /// Do noting.
     void operator()();
-        // Do noting.
 };
 
                             // -------------------
@@ -919,9 +928,9 @@ bsls::AtomicInt depthCounter;
 
 extern "C" {
 
+/// This function is used to simulate a thread pool job.  It enqueues itself
+/// in the pool if the depth limit is not reached.
 void TestJobFunction7(void *)
-    // This function is used to simulate a thread pool job.  It enqueues itself
-    // in the pool if the depth limit is not reached.
 {
     ASSERT(depthCounter >= 0);
     ASSERT(depthCounter <= DEPTH_LIMIT);
@@ -981,11 +990,11 @@ extern "C" {
 //                         CASE -1 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 
+/// This function is used to simulate a thread pool job.  It accepts an
+/// `int` which controls the time taken by that job.  We let the job compute
+/// some quantity (the actually job does not matter, only the time it
+/// takes).  Here we compute the golden ratio.
 int testTimingJobFunction(const int N)
-    // This function is used to simulate a thread pool job.  It accepts an
-    // 'int' which controls the time taken by that job.  We let the job compute
-    // some quantity (the actually job does not matter, only the time it
-    // takes).  Here we compute the golden ratio.
 {
     double result = 1.0;
     for (int i = 0; i < N; ++i) {
@@ -1033,18 +1042,18 @@ int main(int argc, char *argv[])
         // TESTING THREAD NAMES
         //
         // Concerns:
-        //: 1 On platforms that support thread names, the thread name is set
-        //:   correctly.
+        // 1. On platforms that support thread names, the thread name is set
+        //    correctly.
         //
         // Plan:
-        //: 1 Verify when `threadAttributes.threadName()` and `threadPoolName`
-        //:   are empty, the global default is used.
-        //:
-        //: 2 Verify when `threadAttributes.threadName()` is empty and
-        //:   `threadPoolName` is specified, `threadPoolName` is used.
-        //:
-        //: 3 Verify when `threadAttributes.threadName()` is specified, it is
-        //:   used.
+        // 1. Verify when `threadAttributes.threadName()` and `threadPoolName`
+        //    are empty, the global default is used.
+        //
+        // 2. Verify when `threadAttributes.threadName()` is empty and
+        //    `threadPoolName` is specified, `threadPoolName` is used.
+        //
+        // 3. Verify when `threadAttributes.threadName()` is specified, it is
+        //    used.
         //
         // Testing:
         //   THREAD NAMES
@@ -1254,13 +1263,13 @@ int main(int argc, char *argv[])
       case 15: {
         // --------------------------------------------------------------------
         // TESTING MOVING ENQUEUEJOB METHOD
-        //   Verify that the moving 'enqueueJob' method really moves.
+        //   Verify that the moving `enqueueJob` method really moves.
         //
         // Plan:
         //   Create a functor that is copyable and movable, and it counts how
-        //   many times it was copied.  Then create a 'Job' (bsl::function) out
-        //   of the functor.  Next use 'bslmf::MovableRef' to move the 'Job'
-        //   into the 'ThreadPool' and verify that no copy happens.
+        //   many times it was copied.  Then create a `Job` (bsl::function) out
+        //   of the functor.  Next use `bslmf::MovableRef` to move the `Job`
+        //   into the `ThreadPool` and verify that no copy happens.
         //
         // Testing:
         //   int enqueueJob(bslmf::MovableRef<Job> functor)
@@ -1302,8 +1311,8 @@ int main(int argc, char *argv[])
         ASSERTV(counter, counter > 0);  // We had copies made
 
 #ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+        // This is how many copies it takes to build a `Job`.
         const int buildCopyCounter = counter;
-            // This is how many copies it takes to build a 'Job'.
 #endif
 
         counter = 0;  // Count again
@@ -1529,7 +1538,7 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'percentBusy' and 'resetPercentBusy' METHODS
+        // TESTING `percentBusy` and `resetPercentBusy` METHODS
         //   Verify that percent busy metric is reported as expected.
         //
         // Plan:
@@ -1685,10 +1694,10 @@ int main(int argc, char *argv[])
         //   Using an arbitrary set of MIN,MAX, and IDLE time values, create
         //   MAX concurrent jobs to force the creation of addition threads.
         //   Next complete all the jobs and create a new burst of 'BURST =
-        //   (MAX-MIN)/2' concurrent jobs to keep 'BURST' threads busy,
-        //   meanwhile the rest of 'MAX - BURST' threads will remain idle
-        //   for 'IDLE' time and thus should be destroyed.  Now complete
-        //   the 'BURST' jobs and assert that after IDLE time, all threads
+        //   (MAX-MIN)/2' concurrent jobs to keep `BURST` threads busy,
+        //   meanwhile the rest of `MAX - BURST` threads will remain idle
+        //   for `IDLE` time and thus should be destroyed.  Now complete
+        //   the `BURST` jobs and assert that after IDLE time, all threads
         //   beyond the minimum number have exited.
         //
         // Testing:
@@ -1775,7 +1784,7 @@ int main(int argc, char *argv[])
 
             // Also give a chance to the Threadpool to kill the idle threads.
             // But given the problematic likelihood of failure of this test, do
-            // not assert '0 == x.numWaitingThreads()'.
+            // not assert `0 == x.numWaitingThreads()`.
 
             bslmt::ThreadUtil::microSleep(IDLE * 300);
             bslmt::ThreadUtil::yield();
@@ -1790,7 +1799,7 @@ int main(int argc, char *argv[])
 
             // One millisecond has 1000 microseconds.  Use 30 % tolerance.
             // Again, given the problematic likelihood of failure of the last
-            // test, do not assert 'MIN == x.numWaitingThreads()'.
+            // test, do not assert `MIN == x.numWaitingThreads()`.
 
             bslmt::ThreadUtil::microSleep(IDLE * 1300);
             bslmt::ThreadUtil::yield();
@@ -1872,7 +1881,7 @@ int main(int argc, char *argv[])
             bslmt::ThreadAttributes  attrName2;
 
             const char *ATTR_NAME[] = { "", "name1", "name2" };
-                
+
             attrName1.setThreadName(ATTR_NAME[1]);
             attrName2.setThreadName(ATTR_NAME[2]);
 
@@ -2188,8 +2197,8 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'drain' and 'stop' and 'shutdown'
-        //   Verify that the 'drain', 'stop' and 'shutdown' behave as expected.
+        // TESTING `drain` and `stop` and `shutdown`
+        //   Verify that the `drain`, `stop` and `shutdown` behave as expected.
         //
         // Plan:
         //   First, for a sequence of independent min/max test values, create
@@ -2230,10 +2239,10 @@ int main(int argc, char *argv[])
 
         const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-        if (verbose) cout << "Testing: 'drain', 'stop', and 'shutdown'\n"
+        if (verbose) cout << "Testing: `drain`, `stop`, and `shutdown`\n"
                           << "=======================================" << endl;
 
-        if (veryVerbose) cout << "\tTesting: 'drain'\n"
+        if (veryVerbose) cout << "\tTesting: `drain`\n"
                               << "\t----------------" << endl;
 
         for (int i = 0; i < NUM_VALUES; ++i) {
@@ -2291,7 +2300,7 @@ int main(int argc, char *argv[])
             ASSERT(MIN == x.numWaitingThreads());
         }
 
-        if (veryVerbose) cout << "\n\tTesting: 'stop'"
+        if (veryVerbose) cout << "\n\tTesting: `stop`"
                               << "\n\t--------------" << endl;
 
         for (int i = 0; i < NUM_VALUES; ++i) {
@@ -2349,7 +2358,7 @@ int main(int argc, char *argv[])
 
         }
 
-        if (veryVerbose) cout << "\n\tTesting: 'shutdown'"
+        if (veryVerbose) cout << "\n\tTesting: `shutdown`"
                               << "\n\t------------------"
                               << endl;
 
@@ -2420,7 +2429,7 @@ int main(int argc, char *argv[])
         // TESTING DIRECT ACCESSORS:
         //   Verify that the threadpool correctly initializes with the
         //   specified max/min threads and idle time values represented by
-        //   'bsls::TimeInterval' and 'std::chrono::Duration' objects.
+        //   `bsls::TimeInterval` and `std::chrono::Duration` objects.
         //
         // Plan:
         //   For each of a sequence of independent min/max threads and idle
@@ -2484,7 +2493,7 @@ int main(int argc, char *argv[])
                 bslmt::ThreadAttributes  attrName2;
 
                 const char *ATTR_NAME[] = { "", "name1", "name2" };
-                
+
                 attrName1.setThreadName(ATTR_NAME[1]);
                 attrName2.setThreadName(ATTR_NAME[2]);
 
@@ -2496,7 +2505,7 @@ int main(int argc, char *argv[])
 
                 for (int j = 0; j < NUM_ATTRS; ++j) {
                     bslmt::ThreadAttributes attr(*ATTRS[j]);
-                
+
                     {
                         Obj        mX(attr, k_MIN, k_MAX, IDLE_TIME);
                         const Obj& X = mX;
@@ -2570,14 +2579,14 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_TIMEINTERVAL_PROVIDES_CHRONO_CONVERSIONS
 
-            if (verbose) cout << "\nTesting compatibility with 'bsl::chrono'."
+            if (verbose) cout << "\nTesting compatibility with `bsl::chrono`."
                               << endl;
             {
                 // See DRQS 168601740.
-                // 'bsls::TimeInterval' has implicit conversions from some
-                // 'std::chrono::duration' types. We want to ensure that
-                // 'bdlmt::ThreadPool' objects can be constructed using both
-                // 'std::chrono::duration' objects and 'std::chrono_literals'.
+                // `bsls::TimeInterval` has implicit conversions from some
+                // `std::chrono::duration` types. We want to ensure that
+                // `bdlmt::ThreadPool` objects can be constructed using both
+                // `std::chrono::duration` objects and `std::chrono_literals`.
 
                 using Seconds     = std::chrono::duration<int, std::ratio<1> >;
                 using Nanoseconds = std::chrono::duration<int, std::nano     >;
@@ -2702,9 +2711,9 @@ int main(int argc, char *argv[])
         //   primary manipulator [3, 6], copy constructor [2, 8], and
         //   assignment operator without [9, 10] and with [11] aliasing.  Use
         //   the direct accessors to verify the expected results.  Display
-        //   object values frequently in verbose mode.  Note that 'VA', 'VB',
-        //   and 'VC' denote unique, but otherwise arbitrary, object values,
-        //   while '0' denotes the default object value.
+        //   object values frequently in verbose mode.  Note that `VA`, `VB`,
+        //   and `VC` denote unique, but otherwise arbitrary, object values,
+        //   while `0` denotes the default object value.
         //
         // 1.   Create a default object x1          { x1:0        }
         // 2.   Create an object x2 (copy from x1)  { x1:0  x2:0  }
@@ -2740,22 +2749,22 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // TESTING HELPER FUNCTIONS
-        //   Verify that the support functions used to test 'bdlmt::ThreadPool'
-        //   behave as expected.  The 'TestJobFunction1' function is expected
+        //   Verify that the support functions used to test `bdlmt::ThreadPool`
+        //   behave as expected.  The `TestJobFunction1` function is expected
         //   to increment the supplied counter, signal a condition variable
         //   indicating that it has started, and wait for a stop condition to
-        //   be signaled before exiting.  'TestJobFunction2' is expected to
+        //   be signaled before exiting.  `TestJobFunction2` is expected to
         //   simply increment the supplied counter, signal a condition
         //   variable, indicating that it has started, and exit.
         //
         // Plan:
-        //   First create NITERATIONS threads that call 'TestJobFunction1'.
+        //   First create NITERATIONS threads that call `TestJobFunction1`.
         //   After each thread is started, verify that it increments the
         //   counter properly and that it waits for the stop condition before
         //   returning.  Then signal the stop the and verify that all the
         //   threads exit.
         //
-        //   Next create NITERATIONS threads that call 'TestJobFunction2'.
+        //   Next create NITERATIONS threads that call `TestJobFunction2`.
         //   After each thread is started, verify that it increments the
         //   counter properly.  Finally verify that each thread exits properly.
         //
@@ -2770,7 +2779,7 @@ int main(int argc, char *argv[])
         {
             const int NITERATIONS=50;
 
-            if (veryVerbose) cout << "\tTesting: 'TestJobFunction1'" << endl
+            if (veryVerbose) cout << "\tTesting: `TestJobFunction1`" << endl
                                   << "\t===========================" << endl;
 
             bslmt::Mutex mutex;
@@ -2811,7 +2820,7 @@ int main(int argc, char *argv[])
             ASSERT(NITERATIONS == args.d_count);
         }
 
-        if (veryVerbose) cout << "\tTesting: 'TestJobFunction2'\n"
+        if (veryVerbose) cout << "\tTesting: `TestJobFunction2`\n"
                               << "\t===========================" << endl;
         {
             const int NITERATIONS=50;
@@ -2854,7 +2863,7 @@ int main(int argc, char *argv[])
       } break;
       case -1: {
         // --------------------------------------------------------------------
-        // TESTING PERFORMANCE OF 'enqueueJob'
+        // TESTING PERFORMANCE OF `enqueueJob`
         //
         // Plan:
         //   Enqueue a large number of jobs that perform an loop long enough to
@@ -2873,10 +2882,10 @@ int main(int argc, char *argv[])
         //   threads.
         //
         // Testing:
-        //    PERFORMANCE OF 'enqueueJob'
+        //    PERFORMANCE OF `enqueueJob`
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING PERFORMANCE OF 'enqueueJob'\n"
+        if (verbose) cout << "TESTING PERFORMANCE OF `enqueueJob`\n"
                           << "===================================" << endl ;
 
         if (verbose)
@@ -2920,20 +2929,20 @@ int main(int argc, char *argv[])
         // TEST ENQUEUEJOB FAILS APPROPRIATELY
         //
         // Concern:
-        //   That 'equeueJob' returns non-zero when it is unable to spawn the
+        //   That `equeueJob` returns non-zero when it is unable to spawn the
         //   first thread.
         //
         // Plan:
         //   Before running the test, say
         //
-        //   $ ulimit -v 50000    # note that 'ulimit -v' doesn't work on Aix
+        //   $ ulimit -v 50000    # note that `ulimit -v` doesn't work on Aix
         //
         //   Limiting total memory of the task to about 50 meg.  Then run this
         //   test, which will try to spawn a 500 Mbyte thread, which will fail,
-        //   which should cause 'enqueueJob' to return a non-zero value.
+        //   which should cause `enqueueJob` to return a non-zero value.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'enqueueJob' fails\n"
+        if (verbose) cout << "\nTesting `enqueueJob` fails\n"
                                "==========================\n";
 
         bslmt::ThreadAttributes attr;

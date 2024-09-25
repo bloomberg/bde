@@ -144,12 +144,12 @@ void aSsErT(bool condition, const char *message, int line)
 
 namespace BloombergLP {
 namespace bsls {
+/// Print a descriptive form of the specified `category` bracketed by the
+/// specified `leadingString` and `trailingString`.
 template <>
 void BslTestUtil::callDebugprint(const bsl::error_category&  object,
                                  const char                 *leadingString,
                                  const char                 *trailingString)
-    // Print a descriptive form of the specified 'category' bracketed by the
-    // specified 'leadingString' and 'trailingString'.
 {
     printf("%serror_category<%s>%s",
            leadingString,
@@ -157,12 +157,12 @@ void BslTestUtil::callDebugprint(const bsl::error_category&  object,
            trailingString);
 }
 
+/// Print a descriptive form of the specified `code` bracketed by the
+/// specified `leadingString` and `trailingString`.
 template <>
 void BslTestUtil::callDebugprint(const bsl::error_code&  object,
                                  const char             *leadingString,
                                  const char             *trailingString)
-    // Print a descriptive form of the specified 'code' bracketed by the
-    // specified 'leadingString' and 'trailingString'.
 {
     printf("%serror_code<%d, '%s', %s>%s",
            leadingString,
@@ -172,12 +172,12 @@ void BslTestUtil::callDebugprint(const bsl::error_code&  object,
            trailingString);
 }
 
+/// Print a descriptive form of the specified `condition` bracketed by the
+/// specified `leadingString` and `trailingString`.
 template <>
 void BslTestUtil::callDebugprint(const bsl::error_condition&  object,
                                  const char                  *leadingString,
                                  const char                  *trailingString)
-    // Print a descriptive form of the specified 'condition' bracketed by the
-    // specified 'leadingString' and 'trailingString'.
 {
     printf("%serror_condition<%d, '%s', %s>%s",
            leadingString,
@@ -192,18 +192,19 @@ void BslTestUtil::callDebugprint(const bsl::error_condition&  object,
 namespace {
 
 // The following classes are used to test that assorted virtual overrides work
-// correctly.  They have been moved here from inside 'main()' due to an error
-// in the AIX compiler causing test cases to crash - '{DRQS 162760925}'.
+// correctly.  They have been moved here from inside `main()` due to an error
+// in the AIX compiler causing test cases to crash - `{DRQS 162760925}`.
 
+/// This class represents a concrete error category.
 struct concrete_error_category : public bsl::error_category
-    // This class represents a concrete error category.
 {
     // ACCESSORS
-    std::string message(int) const BSLS_KEYWORD_OVERRIDE;
-        // Unused implementation.
 
+    /// Unused implementation.
+    std::string message(int) const BSLS_KEYWORD_OVERRIDE;
+
+    /// Unused implementation.
     const char *name() const BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
-        // Unused implementation.
 };
 
 // ACCESSORS
@@ -220,36 +221,38 @@ const char *concrete_error_category::name() const BSLS_KEYWORD_NOEXCEPT
     return 0;
 }
 
+/// This class overrides virtual methods for testing.
 struct test_error_category : public concrete_error_category
-    // This class overrides virtual methods for testing.
 {
     // CLASS DATA
     static bool destructor_called;
 
     // CREATORS
+
+    /// Destroy this object.
     ~test_error_category() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this object.
 
     // ACCESSORS
+
+    /// Return the result of invoking the base implementation with the
+    /// specified `value` modified.
     error_condition default_error_condition(int value) const
                                    BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
-        // Return the result of invoking the base implementation with the
-        // specified 'value' modified.
 
+    /// Return whether the specified `code` is 3.
     bool equivalent(int code, const error_condition&) const
                                    BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
-        // Return whether the specified 'code' is 3.
 
+    /// Return whether the specified `condition` is 2.
     bool equivalent(const error_code&, int condition) const
                                    BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
-        // Return whether the specified 'condition' is 2.
 
+    /// Return a string describing the specified `value` using extra
+    /// annotation.
     std::string message(int value) const BSLS_KEYWORD_OVERRIDE;
-        // Return a string describing the specified 'value' using extra
-        // annotation.
 
+    /// Return a string naming this category.
     const char *name() const BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
-        // Return a string naming this category.
 };
 
 // CLASS DATA
@@ -306,22 +309,22 @@ const char *test_error_category::name() const BSLS_KEYWORD_NOEXCEPT
 ///Example 1: Dedicated Error Category
 ///- - - - - - - - - - - - - - - - - -
 // Suppose we have a dedicated system with a set of possible errors, and we
-// want to check if such an error has occurred.  We can use the 'system_error'
+// want to check if such an error has occurred.  We can use the `system_error`
 // capabilities of the C++ standard for this.
 //
 // First, open the namespaces for this component.
-//..
+// ```
     // carfx_errors.h
     namespace BloombergLP {
     namespace carfx {
-//..
-// Then define an 'enum' component to specify the set of error codes for the
+// ```
+// Then define an `enum` component to specify the set of error codes for the
 // system, and also use the component to define the system error machinery to
-// use it properly.  For exposition, all methods will be defined 'inline' so
+// use it properly.  For exposition, all methods will be defined `inline` so
 // that they can appear in sequence.  In practice, they would be defined in
 // separate implementation files.  (For the example, many of the methods
 // normally present are elided.)
-//..
+// ```
     struct Errors {
         // TYPES
         enum Enum {
@@ -330,8 +333,9 @@ const char *test_error_category::name() const BSLS_KEYWORD_NOEXCEPT
         };
 
         // CLASS METHODS
+
+        /// Return a string representing the specified `value`.
         static const char *toAscii(Enum value);
-            // Return a string representing the specified 'value'.
 
         // ... other enumeration class methods ...
     };
@@ -345,30 +349,33 @@ const char *test_error_category::name() const BSLS_KEYWORD_NOEXCEPT
           default: return "(* UNKNOWN *)";                            // RETURN
         }
     }
-//..
+// ```
 // Next, we define a category class that represents these errors.  This class
-// derives from 'bsl::error_category' and overrides the two pure virtual
+// derives from `bsl::error_category` and overrides the two pure virtual
 // methods required for a minimal implementation.  Note that the return type of
-// the virtual 'message' method is 'std::string' which allows the same
+// the virtual `message` method is `std::string` which allows the same
 // implementation to be used both in C++03 and C++11 modes.  We also define the
-// 'category' class method that maintains a singleton instance of the category
+// `category` class method that maintains a singleton instance of the category
 // class uniquely identifying the error type.
-//..
+// ```
     struct ErrorsCategory : public bsl::error_category {
         // CREATORS
+
+        /// Create an object of this type.
         ErrorsCategory();
-            // Create an object of this type.
 
         // ACCESSORS
-        std::string message(int value) const BSLS_KEYWORD_OVERRIDE;
-            // Return a string describing the specified 'value'.
 
+        /// Return a string describing the specified `value`.
+        std::string message(int value) const BSLS_KEYWORD_OVERRIDE;
+
+        /// Return a string describing this error category.
         const char *name() const BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
-            // Return a string describing this error category.
 
         // CLASS METHODS
+
+        /// Return a `const` reference to the singleton of this category.
         static const bsl::error_category& category();
-            // Return a 'const' reference to the singleton of this category.
     };
 
     // CREATORS
@@ -381,7 +388,7 @@ const char *test_error_category::name() const BSLS_KEYWORD_NOEXCEPT
     inline
     std::string ErrorsCategory::message(int value) const
     {
-        // Note that an out-of-range cast to 'Errors::Enum' is formally
+        // Note that an out-of-range cast to `Errors::Enum` is formally
         // undefined behavior, so the range check is necessary.
         return Errors::e_WHEELS_CAME_OFF <= value &&
                value <= Errors::e_ENGINE_FELL_OUT ?
@@ -399,48 +406,49 @@ const char *test_error_category::name() const BSLS_KEYWORD_NOEXCEPT
     inline
     const bsl::error_category& ErrorsCategory::category()
     {
-        // Note that for C++03, 'BSLMT_ONCE_DO' may be used to protect the
+        // Note that for C++03, `BSLMT_ONCE_DO` may be used to protect the
         // static initialization, although the likelihood of a problem is
         // vanishingly small.
         static const ErrorsCategory singleton;
         return singleton;
     }
-//..
+// ```
 // Then define namespace-scope functions to return error codes and conditions
 // for this error category.  (Normally a set of error values would be
 // specified only as one of the two, but both are used here for illustrative
 // purposes.)  These functions are at namespace scope because they need to be
 // found by argument-dependent lookup of the enumeration value.
-//..
+// ```
     // FREE FUNCTIONS
+
+    /// Return an error code for the specified `value`.
     inline
     bsl::error_code make_error_code(Errors::Enum value)
-        // Return an error code for the specified 'value'.
     {
         return bsl::error_code(static_cast<int>(value),
                                ErrorsCategory::category());
     }
 
+    /// Return an error condition for the specified `value`.
     inline
     bsl::error_condition make_error_condition(Errors::Enum value)
-        // Return an error condition for the specified 'value'.
     {
         return bsl::error_condition(static_cast<int>(value),
                                     ErrorsCategory::category());
     }
-//..
+// ```
 // Next, close the component namespaces.
-//..
+// ```
     }  // close package namespace
     }  // close enterprise namespace
-//..
+// ```
 // Then create specializations for the class templates that tag enumeration
 // types as eligible to be treated as error codes or conditions.  These
 // specializations must appear in the same namespace in which the class
 // templates are defined, and this component provides macros naming these
-// namespaces portably.  Again, for exposition, 'Errors::Enum' is marked as
+// namespaces portably.  Again, for exposition, `Errors::Enum` is marked as
 // both an error code and an error condition.
-//..
+// ```
     namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE {
     template <>
     struct is_error_code_enum<BloombergLP::carfx::Errors::Enum>
@@ -452,12 +460,13 @@ const char *test_error_category::name() const BSLS_KEYWORD_NOEXCEPT
     struct is_error_condition_enum<BloombergLP::carfx::Errors::Enum>
     : public bsl::true_type { };
     }  // close namespace BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE
-//..
+// ```
 // Now, write a function that can potentially have errors.
-//..
+// ```
+
+    /// Drive a car for the specified `distance` and set the specified
+    /// `code` to describe any problems encountered.
     void drive(bsl::error_code *code, int distance)
-        // Drive a car for the specified 'distance' and set the specified
-        // 'code' to describe any problems encountered.
     {
         using namespace BloombergLP::carfx;
         if (distance > 1000) {
@@ -470,7 +479,7 @@ const char *test_error_category::name() const BSLS_KEYWORD_NOEXCEPT
             *code = make_error_code(Errors::Enum(0));
         }
     }
-//..
+// ```
 
 // BDE_VERIFY pragma: +NT01  // close namespace comment depends on macro
 
@@ -497,13 +506,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -513,7 +522,7 @@ int main(int argc, char *argv[])
                             "\n=============\n");
 
 // Finally, exercise the function and check for errors.
-//..
+// ```
     bsl::error_code code;
     drive(&code, 50);
     ASSERT(!code);
@@ -521,27 +530,27 @@ int main(int argc, char *argv[])
     ASSERT(strstr(code.message().c_str(), "WHEELS"));
     drive(&code, 5000);
     ASSERT(strstr(code.message().c_str(), "ENGINE"));
-//..
+// ```
       } break;
       case 7: {
         // --------------------------------------------------------------------
         // TESTING ERROR CONDITION METHODS
-        //   Test the methods of the 'bsl::error_condition' class.
+        //   Test the methods of the `bsl::error_condition` class.
         //
         // Concerns:
-        //:  1 The default constructor makes a generic condition with value 0.
-        //:  2 The value/category constructor preserves its arguments.
-        //:  3 The templated constructor makes a matching condition.
-        //:  4 The 'assign' method preserves its arguments.
-        //:  5 Templated assignment makes a matching condition.
-        //:  6 'clear' makes a generic condition with value 0.
-        //:  7 The 'category' method retrieves the correct category.
-        //:  8 The 'message' method uses 'strerror' for its result.
-        //:  9 The 'value' method retrieves the correct value.
-        //: 10 Use in boolean context checks whether the value is non-zero.
+        //  1. The default constructor makes a generic condition with value 0.
+        //  2. The value/category constructor preserves its arguments.
+        //  3. The templated constructor makes a matching condition.
+        //  4. The `assign` method preserves its arguments.
+        //  5. Templated assignment makes a matching condition.
+        //  6. `clear` makes a generic condition with value 0.
+        //  7. The `category` method retrieves the correct category.
+        //  8. The `message` method uses `strerror` for its result.
+        //  9. The `value` method retrieves the correct value.
+        // 10. Use in boolean context checks whether the value is non-zero.
         //
         // Plan:
-        //:  1 Exercise each method in entirely obvious ways.  (C-1..10)
+        //  1. Exercise each method in entirely obvious ways.  (C-1..10)
         //
         // Testing:
         //   error_condition()
@@ -681,23 +690,23 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // TESTING ERROR CODE METHODS
-        //   Test the methods of the 'bsl::error_code' class.
+        //   Test the methods of the `bsl::error_code` class.
         //
         // Concerns:
-        //:  1 The default constructor makes a system code with value 0.
-        //:  2 The value/category constructor preserves its arguments.
-        //:  3 The templated constructor makes a matching code.
-        //:  4 The 'assign' method preserves its arguments.
-        //:  5 Templated assignment makes a matching code.
-        //:  6 'clear' makes a system code with value 0.
-        //:  7 The 'category' method retrieves the correct category.
-        //:  8 The 'default_error_condition' makes an equivalent condition.
-        //:  9 The 'message' method uses 'strerror' for its result.
-        //: 10 The 'value' method retrieves the correct value.
-        //: 11 Use in boolean context checks whether the value is non-zero.
+        //  1. The default constructor makes a system code with value 0.
+        //  2. The value/category constructor preserves its arguments.
+        //  3. The templated constructor makes a matching code.
+        //  4. The `assign` method preserves its arguments.
+        //  5. Templated assignment makes a matching code.
+        //  6. `clear` makes a system code with value 0.
+        //  7. The `category` method retrieves the correct category.
+        //  8. The `default_error_condition` makes an equivalent condition.
+        //  9. The `message` method uses `strerror` for its result.
+        // 10. The `value` method retrieves the correct value.
+        // 11. Use in boolean context checks whether the value is non-zero.
         //
         // Plan:
-        //:  1 Exercise each method in entirely obvious ways.  (C-1..11)
+        //  1. Exercise each method in entirely obvious ways.  (C-1..11)
         //
         // Testing:
         //   error_code()
@@ -800,7 +809,7 @@ int main(int argc, char *argv[])
         // See {DRQS 138124392}.  There appears to be an error in some versions
         // of the Linux system library (not the bslstl implementation) that
         // corrupts the generic category object when
-        // 'default_error_condition()' is called, leading to crashes.
+        // `default_error_condition()` is called, leading to crashes.
         if (0)
 #endif
         {
@@ -859,66 +868,66 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // TESTING ERROR CATEGORY METHODS
-        //   Test the methods of the 'bsl::error_category' class.
+        //   Test the methods of the `bsl::error_category` class.
         //
         // Concerns:
-        //: 1 This class is abstract, so testing methods can only be done via
-        //:   a derived class.
-        //:
-        //: 2 Verify that this class has a default constructor.
-        //:
-        //: 3 Verify that this class has a virtual destructor.
-        //:
-        //: 4 Verify that 'default_error_condition' is virtual and that the
-        //:   default implementation creates an error condition using the
-        //:   object as category.
-        //:
-        //: 5 Verify that the 'equivalent' methods are virtual and that the
-        //:   default implementations match values correctly.
-        //:
-        //: 6 Verify that the 'message' method is virtual and that the default
-        //:   implementation uses 'strerror' to translate an error value.
-        //:
-        //: 7 Verify that the 'name' method is virtual and that there is a
-        //:   default implementation.
-        //:
-        //: 8 Verify that comparison operations form a total order on category
-        //:   objects.
+        // 1. This class is abstract, so testing methods can only be done via
+        //    a derived class.
+        //
+        // 2. Verify that this class has a default constructor.
+        //
+        // 3. Verify that this class has a virtual destructor.
+        //
+        // 4. Verify that `default_error_condition` is virtual and that the
+        //    default implementation creates an error condition using the
+        //    object as category.
+        //
+        // 5. Verify that the `equivalent` methods are virtual and that the
+        //    default implementations match values correctly.
+        //
+        // 6. Verify that the `message` method is virtual and that the default
+        //    implementation uses `strerror` to translate an error value.
+        //
+        // 7. Verify that the `name` method is virtual and that there is a
+        //    default implementation.
+        //
+        // 8. Verify that comparison operations form a total order on category
+        //    objects.
         //
         // Plan:
-        //: 1 Create a concrete derived class that throws from its abstract
-        //:   method overrides, to serve as a base for further testing.  (C-1)
-        //:
-        //: 2 Have no user-defined constructors in the concrete class to show
-        //:   that the base-class default constructor is invoked.  (C-2)
-        //:
-        //: 3 Create a derived class that sets a variable in its destructor,
-        //:   allocate an object of that class, delete it via a pointer to
-        //:   'error_category', and observe that the variable is set.  (C-3)
-        //:
-        //: 4 Create a derived class that invokes 'default_error_condition' of
-        //:   'error_category' with a modified parameter, and observe that the
-        //:   result has the same category as the invoking object and the
-        //:   modified value.  (C-4)
-        //:
-        //: 5 Create error code and condition objects with the concrete class
-        //:   as category and observe that the equivalence values are correct.
-        //:   Then define a derived class with different rules for equivalence
-        //:   and observe that those rules are followed when invoked from base
-        //:   references.  (C-5)
-        //:
-        //: 6 Create a derived class with a 'message' method that invokes the
-        //:   'error_category' method and prepends extra text.  Observe that
-        //:   the result via invocation from a base reference contains both of
-        //:   the expected texts.  (C-6)
-        //:
-        //: 7 Create a derived class that overrides the 'name' method and
-        //:   observe the value returned when invoked from a base class
-        //:   reference.  (C-7)
-        //:
-        //: 8 Create an array of two of the concrete objects, initialize base
-        //:   references to the two objects, and verify that the comparisons
-        //:   return values consistent with the array ordering.  (C-8)
+        // 1. Create a concrete derived class that throws from its abstract
+        //    method overrides, to serve as a base for further testing.  (C-1)
+        //
+        // 2. Have no user-defined constructors in the concrete class to show
+        //    that the base-class default constructor is invoked.  (C-2)
+        //
+        // 3. Create a derived class that sets a variable in its destructor,
+        //    allocate an object of that class, delete it via a pointer to
+        //    `error_category`, and observe that the variable is set.  (C-3)
+        //
+        // 4. Create a derived class that invokes `default_error_condition` of
+        //    `error_category` with a modified parameter, and observe that the
+        //    result has the same category as the invoking object and the
+        //    modified value.  (C-4)
+        //
+        // 5. Create error code and condition objects with the concrete class
+        //    as category and observe that the equivalence values are correct.
+        //    Then define a derived class with different rules for equivalence
+        //    and observe that those rules are followed when invoked from base
+        //    references.  (C-5)
+        //
+        // 6. Create a derived class with a `message` method that invokes the
+        //    `error_category` method and prepends extra text.  Observe that
+        //    the result via invocation from a base reference contains both of
+        //    the expected texts.  (C-6)
+        //
+        // 7. Create a derived class that overrides the `name` method and
+        //    observe the value returned when invoked from a base class
+        //    reference.  (C-7)
+        //
+        // 8. Create an array of two of the concrete objects, initialize base
+        //    references to the two objects, and verify that the comparisons
+        //    return values consistent with the array ordering.  (C-8)
         //
         // Testing:
         //   error_category()
@@ -1072,37 +1081,37 @@ int main(int argc, char *argv[])
         //   Test the several comparison operators of this component.
         //
         // Concerns:
-        //: 1 Pairs of error codes are equal if and only if their values and
-        //:   categories match.
-        //:
-        //: 2 Pairs of error conditions are equal if and only if their values
-        //:   and categories match.
-        //:
-        //: 3 An error code and error condition are equal if and only if their
-        //:   values and categories match.
-        //:
-        //: 4 Pairs of error codes sort lexicographically by category then
-        //:   value.
-        //:
-        //: 5 Pairs of error conditions sort lexicographically by category then
-        //:   value.
+        // 1. Pairs of error codes are equal if and only if their values and
+        //    categories match.
+        //
+        // 2. Pairs of error conditions are equal if and only if their values
+        //    and categories match.
+        //
+        // 3. An error code and error condition are equal if and only if their
+        //    values and categories match.
+        //
+        // 4. Pairs of error codes sort lexicographically by category then
+        //    value.
+        //
+        // 5. Pairs of error conditions sort lexicographically by category then
+        //    value.
         //
         // Plan:
-        //: 1 Create four error codes with combinations of two values and two
-        //:   categories and verify the equality operations among them.  (C-1)
-        //:
-        //: 2 Create four error conditions with combinations of two values and
-        //:   two categories and verify the equality operations among them.
-        //:   (C-2)
-        //:
-        //: 3 Perform cross comparisons between the error codes and conditions
-        //:   from the above steps.  (C-3)
-        //:
-        //: 4 Verify that the ordering among codes matches the ordering among
-        //:   categories and values.  (C-4)
-        //:
-        //: 5 Verify that the ordering among conditions matches the ordering
-        //:   among categories and values.  (C-5)
+        // 1. Create four error codes with combinations of two values and two
+        //    categories and verify the equality operations among them.  (C-1)
+        //
+        // 2. Create four error conditions with combinations of two values and
+        //    two categories and verify the equality operations among them.
+        //    (C-2)
+        //
+        // 3. Perform cross comparisons between the error codes and conditions
+        //    from the above steps.  (C-3)
+        //
+        // 4. Verify that the ordering among codes matches the ordering among
+        //    categories and values.  (C-4)
+        //
+        // 5. Verify that the ordering among conditions matches the ordering
+        //    among categories and values.  (C-5)
         //
         // Testing:
         //   bool operator==(const error_code&, const error_code&)
@@ -1216,12 +1225,12 @@ int main(int argc, char *argv[])
                 // and they have different categories, you're into system-
                 // specific behavior.  On Windows, the system_category remaps
                 // error numbers to match the values that Windows uses.  This
-                // happens inside 'operator==', where a temporary
+                // happens inside `operator==`, where a temporary
                 // error_condition is created from the error_code, and then
                 // *that* is compared to the other error_condition.  The
                 // generic category doesn't do any such remapping.  Since we
-                // are only testing values from 'system_category' and
-                // 'generic_category' here, it is sufficient to check if the
+                // are only testing values from `system_category` and
+                // `generic_category` here, it is sufficient to check if the
                 // categories differ.
                 if (ci.category() != cj.category()) {
                     if (veryVeryVerbose) {
@@ -1243,32 +1252,32 @@ int main(int argc, char *argv[])
         //   Test the several free functions of this component.
         //
         // Concerns:
-        //: 1 generic_category() returns the same unique object each call
-        //: 2 system_category() returns the same unique object each call
-        //: 3 make_error_code returns a generic error code
-        //: 4 make_error_condition returns a generic error condition
-        //: 5 an error_code can be hashed
-        //: 6 an error_condition can be hashed
+        // 1. generic_category() returns the same unique object each call
+        // 2. system_category() returns the same unique object each call
+        // 3. make_error_code returns a generic error code
+        // 4. make_error_condition returns a generic error condition
+        // 5. an error_code can be hashed
+        // 6. an error_condition can be hashed
         //
         // Plan:
-        //: 1 Verify that several calls to generic_category() return the same
-        //:   object.  (C-1)
-        //:
-        //: 2 Verify that several calls to system_category() return the same
-        //:   object, distinct from generic_category().  (C-2)
-        //:
-        //: 3 Verify that a code created by make_error_code contains the value
-        //:   with which it was constructed, and is of generic category.  (C-3)
-        //:
-        //: 4 Verify that a condition created by make_error_condition contains
-        //:   the value with which it was constructed, and is of generic
-        //:   category.  (C-4)
-        //:
-        //: 5 Verify that a code can be hashed, and that codes with different
-        //:   values or categories hash to different values.  (C-5)
-        //:
-        //: 6 Verify that a condition can be hashed, and that codes with
-        //:   different values or categories hash to different values.  (C-6)
+        // 1. Verify that several calls to generic_category() return the same
+        //    object.  (C-1)
+        //
+        // 2. Verify that several calls to system_category() return the same
+        //    object, distinct from generic_category().  (C-2)
+        //
+        // 3. Verify that a code created by make_error_code contains the value
+        //    with which it was constructed, and is of generic category.  (C-3)
+        //
+        // 4. Verify that a condition created by make_error_condition contains
+        //    the value with which it was constructed, and is of generic
+        //    category.  (C-4)
+        //
+        // 5. Verify that a code can be hashed, and that codes with different
+        //    values or categories hash to different values.  (C-5)
+        //
+        // 6. Verify that a condition can be hashed, and that codes with
+        //    different values or categories hash to different values.  (C-6)
         //
         // Testing:
         //   generic_category()
@@ -1358,8 +1367,8 @@ int main(int argc, char *argv[])
         }
 
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-        // The '<system_error>' header does not specialize 'std::hash' for
-        // 'std::error_condition' until C++17.
+        // The `<system_error>` header does not specialize `std::hash` for
+        // `std::error_condition` until C++17.
         if (veryVerbose) {
             printf("cannot test hashing error conditions\n");
         }
@@ -1429,13 +1438,13 @@ int main(int argc, char *argv[])
         //   Verify that the code identification traits are set correctly.
         //
         // Concerns:
-        //: 1 bsl::is_error_code_enum<bsl::errc::errc>::value is false
-        //: 2 bsl::is_error_condition_enum<bsl::errc::errc>::value is true
-        //: 3 bsl::is_error_code_enum<other>::value is false
-        //: 4 bsl::is_error_condition_enum<other>::value is false
+        // 1. bsl::is_error_code_enum<bsl::errc::errc>::value is false
+        // 2. bsl::is_error_condition_enum<bsl::errc::errc>::value is true
+        // 3. bsl::is_error_code_enum<other>::value is false
+        // 4. bsl::is_error_condition_enum<other>::value is false
         //
         // Plan:
-        //: 1 Verify the trait value for each concern.  (C-1..4)
+        // 1. Verify the trait value for each concern.  (C-1..4)
         //
         // Testing:
         //   is_error_code_enum<TYPE>
@@ -1462,20 +1471,20 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create four test objects by using the default, initializing, and
-        //:   copy constructors.
-        //:
-        //: 2 Exercise the basic value-semantic methods and the equality
-        //:   operators using these test objects.
-        //:
-        //: 3 Invoke the primary manipulator, copy constructor, and assignment
-        //:   operator without and with aliasing.
-        //:
-        //: 4 Use the basic accessors to verify the expected results.  (C-1)
+        // 1. Create four test objects by using the default, initializing, and
+        //    copy constructors.
+        //
+        // 2. Exercise the basic value-semantic methods and the equality
+        //    operators using these test objects.
+        //
+        // 3. Invoke the primary manipulator, copy constructor, and assignment
+        //    operator without and with aliasing.
+        //
+        // 4. Use the basic accessors to verify the expected results.  (C-1)
         //
         // Testing:
         //   BREATHING TEST

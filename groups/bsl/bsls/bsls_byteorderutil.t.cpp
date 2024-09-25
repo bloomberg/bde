@@ -16,20 +16,20 @@
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The component under test contains a utility 'class' containing a collection
+// The component under test contains a utility `class` containing a collection
 // of single-argument, passed by value, static functions that return their
 // results.  There are two classes of functions:
 //
-//: o 'TYPE swapBytes(TYPE)' where 'TYPE' is any integral type
-//: o 'TYPE swapBytes{16,32,64}(TYPE) where 'TYPE' is an unsigned integral type
-//:   whose word width in bits is indicated by the number at the end of the
-//:   function name.
+//  - `TYPE swapBytes(TYPE)` where `TYPE` is any integral type
+//  - `TYPE swapBytes{16,32,64}(TYPE) where `TYPE' is an unsigned integral type
+//    whose word width in bits is indicated by the number at the end of the
+//    function name.
 //
-// The 'swapBytes(TYPE)' methods themselves fall into two categories
-//: o functions that take a single-byte argument, which is returned without
-//:   modification
-//: o functions that take a multi-byte argument, which is return with the byte
-//:   order reversed.
+// The `swapBytes(TYPE)` methods themselves fall into two categories
+//  - functions that take a single-byte argument, which is returned without
+//    modification
+//  - functions that take a multi-byte argument, which is return with the byte
+//    order reversed.
 //
 // Tables are created in this component with 2, 4, and 8-byte integral values,
 // along with the same value with byte order reversed.  For every integral
@@ -39,23 +39,23 @@
 // Some types vary in size across different platforms, and accommodation is
 // made for this, plus tests to make sure that all types are in fact tested.
 //
-// Single byte values are tested for all possible value in the 'singleByteTest'
+// Single byte values are tested for all possible value in the `singleByteTest`
 // template function.
 //
 // [5] USAGE EXAMPLE
 // [4] TESTING SINGLE BYTE OBJECTS
 // [3] TESTING TYPE MATCHING
-// [2] TESTING 'swapBytes', 'swapBytes{16,32,64}'
+// [2] TESTING `swapBytes`, `swapBytes{16,32,64}`
 // [1] BREATHING TEST
 //-----------------------------------------------------------------------------
 // [ 5] USAGE
-// [ 4] static TYPE swapBytes(TYPE) for all single-byte 'TYPE'
-// [ 3] static TYPE swapBytes(TYPE) for all integral 'TYPE'
-// [ 2] static TYPE swapBytes(TYPE) for all multi-byte integral 'TYPE'
+// [ 4] static TYPE swapBytes(TYPE) for all single-byte `TYPE`
+// [ 3] static TYPE swapBytes(TYPE) for all integral `TYPE`
+// [ 2] static TYPE swapBytes(TYPE) for all multi-byte integral `TYPE`
 // [ 2] static unsigned short swapBytes16(unsigned short)
 // [ 2] static unsigned int swapBytes32(unsigned int)
 // [ 2] static bsls::Uint64 swapBytes32(bsls::Uint64)
-// [ 1] static TYPE swapBytes(TYPE) for all multi-byte integral 'TYPE'
+// [ 1] static TYPE swapBytes(TYPE) for all multi-byte integral `TYPE`
 // [ 1] static unsigned short swapBytes16(unsigned short)
 // [ 1] static unsigned int swapBytes32(unsigned int)
 // [ 1] static bsls::Uint64 swapBytes32(bsls::Uint64)
@@ -138,25 +138,25 @@ typedef BloombergLP::bsls::ByteOrderUtil Util;
 
 namespace {
 
+/// Return `false` because `LHS_TYPE` and `RHS_TYPE` are different.
 template <class LHS_TYPE, class RHS_TYPE>
 bool isSameType(const LHS_TYPE&, const RHS_TYPE&)
-    // Return 'false' because 'LHS_TYPE' and 'RHS_TYPE' are different.
 {
     return false;
 }
 
+/// Return `true` because both of the arguments are of the same type.
 template <class TYPE>
 bool isSameType(const TYPE&, const TYPE&)
-    // Return 'true' because both of the arguments are of the same type.
 {
     return true;
 }
 
+/// Verify that `Util::swapBytes` returns the value passed without
+/// modification for all possible values passed to it when taking an arg of
+/// single byte type `TYPE`.
 template <class TYPE>
 void singleByteTest()
-    // Verify that 'Util::swapBytes' returns the value passed without
-    // modification for all possible values passed to it when taking an arg of
-    // single byte type 'TYPE'.
 {
     int counter = 0;
 
@@ -175,9 +175,9 @@ void singleByteTest()
     ASSERT(256 == counter);
 }
 
+/// Swap the byte order of the specified integral object `*value`.
 template <class TYPE>
 void swapBytesInPlace(TYPE *value)
-    // Swap the byte order of the specified integral object '*value'.
 {
     char *pc = reinterpret_cast<char *>(value);
 
@@ -352,13 +352,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -368,60 +368,60 @@ int main(int argc, char *argv[])
                               "=============\n");
 
 // In this example we demonstrate the use of different overloads of the
-// 'swapBytes' function.
+// `swapBytes` function.
 //
-// First we 'typedef' a shorthand to the utility 'class':
-//..
+// First we `typedef` a shorthand to the utility `class`:
+// ```
     typedef bsls::ByteOrderUtil Util;
-//..
-// Then, we demonstrate reversing the bytes of an 'unsigned short':
-//..
+// ```
+// Then, we demonstrate reversing the bytes of an `unsigned short`:
+// ```
     unsigned short us = 0x1234;
     ASSERT(0x3412 == Util::swapBytes(us));
-//..
+// ```
 // Next, we do a signed 'short:
-//..
+// ```
     short ss = 0x4321;
     ASSERT(0x2143 == Util::swapBytes(ss));
-//..
-// Then, we reverse an 'unsigned int':
-//..
+// ```
+// Then, we reverse an `unsigned int`:
+// ```
     unsigned int ui = 0x01020304;
     ASSERT(0x04030201 == Util::swapBytes(ui));
-//..
+// ```
 // Next, we reverse the bytes of a 32-bit signed integer:
-//..
+// ```
     int si = 0x11223344;
     ASSERT(0x44332211 == Util::swapBytes(si));
-//..
+// ```
 // Now, we perform the transform on a 64-bit unsigned:
-//..
+// ```
     bsls::Types::Uint64 ui64 = 0x0102030405060708ULL;
     ASSERT(0x0807060504030201ULL == Util::swapBytes(ui64));
-//..
+// ```
 // Finally, we do a 64-bit signed integer:
-//..
+// ```
     bsls::Types::Int64 i64 = 0x0a0b0c0d0e0f0102LL;
     ASSERT(0x02010f0e0d0c0b0aLL == Util::swapBytes(i64));
-//..
+// ```
       } break;
       case 4: {
         // --------------------------------------------------------------------
         // TESTING SINGLE BYTE OBJECTS
         //
         // Concerns:
-        //: 1 That 'swapBytes', when called on single byte objects, returns the
-        //:   value passed without modification.
+        // 1. That `swapBytes`, when called on single byte objects, returns the
+        //    value passed without modification.
         //
         // Plan:
-        //: 1 For 'bool', just test both possible values by hand.
-        //:
-        //: 2 For 'char' types, use the 'singleByteTest' template function
-        //:   (defined in this file) to test that 'swapBytes' is the identify
-        //:   function for all possible values of the char type.
+        // 1. For `bool`, just test both possible values by hand.
+        //
+        // 2. For `char` types, use the `singleByteTest` template function
+        //    (defined in this file) to test that `swapBytes` is the identify
+        //    function for all possible values of the char type.
         //
         // Testing:
-        //   static TYPE swapBytes(TYPE) for all single-byte 'TYPE'
+        //   static TYPE swapBytes(TYPE) for all single-byte `TYPE`
         // --------------------------------------------------------------------
 
         if (verbose) printf("TESTING SINGLE BYTE OBJECTS\n"
@@ -442,17 +442,17 @@ int main(int argc, char *argv[])
         // TESTING TYPE MATCHING
         //
         // Concerns:
-        //: 1 That the set of types supported by 'swapBytes' are
-        //:   distinguishable when passed by value, and that none of them
-        //:   evaluate to the same type (i.e., 'char' and 'signed char').
+        // 1. That the set of types supported by `swapBytes` are
+        //    distinguishable when passed by value, and that none of them
+        //    evaluate to the same type (i.e., `char` and `signed char`).
         //
         // Plan:
-        //: 1 Use the template function 'isSameType' (defined in this file)
-        //:   to compare types passed to it, and to compare the return value
-        //:   type of calls to 'swapBytes'.
+        // 1. Use the template function `isSameType` (defined in this file)
+        //    to compare types passed to it, and to compare the return value
+        //    type of calls to `swapBytes`.
         //
         // Testing:
-        //   static TYPE swapBytes(TYPE) for all integral 'TYPE'
+        //   static TYPE swapBytes(TYPE) for all integral `TYPE`
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING TYPE MATCHING\n"
@@ -705,33 +705,33 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'swapBytes', 'swapBytes{16,32,64}'
+        // TESTING `swapBytes`, `swapBytes{16,32,64}`
         //
         // Concerns:
-        //: 1 That 'swapBytes' and 'swapBytes{16,32,64}' return the proper
-        //:   values.
+        // 1. That `swapBytes` and `swapBytes{16,32,64}` return the proper
+        //    values.
         //
         // Plan:
-        //: o Traverse the 'data16', 'data32', and 'data64' tables.
-        //:   1 Use the 'swapBytesInPlace' oracle function (defined in this to
-        //:     verify that the 'd_swapped' field of the entry is reversed
-        //:     version of the 'd_value' entry.
-        //:
-        //:   2 Call 'isSameType' to compare the types of different variables
-        //:     and calls to 'swapBytes' and 'swapBytesNN', verifying that
-        //:     the types match or do not as expected.
-        //:
-        //:   3 Call 'swapBytesNN' and 'swapBytes' on the table values and
-        //:     verify the results are as expected.
+        //  - Traverse the `data16`, `data32`, and `data64` tables.
+        //   1. Use the `swapBytesInPlace` oracle function (defined in this to
+        //      verify that the `d_swapped` field of the entry is reversed
+        //      version of the `d_value` entry.
+        //
+        //   2. Call `isSameType` to compare the types of different variables
+        //      and calls to `swapBytes` and `swapBytesNN`, verifying that
+        //      the types match or do not as expected.
+        //
+        //   3. Call `swapBytesNN` and `swapBytes` on the table values and
+        //      verify the results are as expected.
         //
         // Testing:
-        //   static TYPE swapBytes(TYPE) for all multi-byte integral 'TYPE'
+        //   static TYPE swapBytes(TYPE) for all multi-byte integral `TYPE`
         //   static unsigned short swapBytes16(unsigned short)
         //   static unsigned int swapBytes32(unsigned int)
         //   static bsls::Uint64 swapBytes32(bsls::Uint64)
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'swapBytes', 'swapBytes{16,32,64}'\n"
+        if (verbose) printf("\nTESTING `swapBytes`, `swapBytes{16,32,64}`\n"
                               "==========================================\n");
 
         bool wchar_t_tested = false;
@@ -931,35 +931,35 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 Test the swapping functions for all multibyte swap functions in
-        //:   this component.
+        // 1. Test the swapping functions for all multibyte swap functions in
+        //    this component.
         //
         // Plan:
-        //   The tests are table driven, based on tables 'data16', 'data32',
-        //   and 'data64' declared outside 'main', that supply test values of
+        //   The tests are table driven, based on tables `data16`, `data32`,
+        //   and `data64` declared outside `main`, that supply test values of
         //   different word widths and their swapped values.
         //
-        //: 1 Test 16 bit swaps.
-        //:   A Test 'swapBytes16'
-        //:   B Test 'swapBytes' on 'short' and 'unsigned short'
-        //:   C If '2 == sizeof(wchar_t)', test 'swapBytes(wchar_t)'
-        //:
-        //: 2 Test 32 bit swaps.
-        //:   A Test 'swapBytes32'
-        //:   B Test 'swapBytes' on 'int' and 'unsigned int'
-        //:   C If '4 == sizeof(wchar_t)', test 'swapBytes(wchar_t)'
-        //:   D If '4 == sizeof(long)', test 'swapBytes(long)'
-        //:
-        //: 3 Test 64 bit swaps.
-        //:   A Test 'swapBytes64'
-        //:   B Test 'swapBytes' on 'Types::Int64' and 'Types::Uint64'
-        //:   C If '8 == sizeof(long)', test 'swapBytes(long)'
-        //:
-        //: 4 Check 'bool's set when testing 'wchar_t' and 'long' to make
-        //:   sure the #ifdef logic resulted in both types being tested.
+        // 1. Test 16 bit swaps.
+        //    A Test `swapBytes16`
+        //    B Test `swapBytes` on `short` and `unsigned short`
+        //    C If `2 == sizeof(wchar_t)`, test `swapBytes(wchar_t)`
+        //
+        // 2. Test 32 bit swaps.
+        //    A Test `swapBytes32`
+        //    B Test `swapBytes` on `int` and `unsigned int`
+        //    C If `4 == sizeof(wchar_t)`, test `swapBytes(wchar_t)`
+        //    D If `4 == sizeof(long)`, test `swapBytes(long)`
+        //
+        // 3. Test 64 bit swaps.
+        //    A Test `swapBytes64`
+        //    B Test `swapBytes` on `Types::Int64` and `Types::Uint64`
+        //    C If `8 == sizeof(long)`, test `swapBytes(long)`
+        //
+        // 4. Check `bool`s set when testing `wchar_t` and `long` to make
+        //    sure the #ifdef logic resulted in both types being tested.
         //
         // Testing:
-        //   static TYPE swapBytes(TYPE) for all multi-byte integral 'TYPE'
+        //   static TYPE swapBytes(TYPE) for all multi-byte integral `TYPE`
         //   static unsigned short swapBytes16(unsigned short)
         //   static unsigned int swapBytes32(unsigned int)
         //   static bsls::Uint64 swapBytes32(bsls::Uint64)
@@ -1120,7 +1120,7 @@ int main(int argc, char *argv[])
         //   Evaluate the performance of the swap functions.
         //
         // Plan:
-        //   Repeatedly evaluate the 'swapBytes' function, and use 'StopWatch'
+        //   Repeatedly evaluate the `swapBytes` function, and use `StopWatch`
         //   to evaluate how quickly they run.
         // --------------------------------------------------------------------
 
@@ -1260,13 +1260,13 @@ int main(int argc, char *argv[])
         printf("64: custom/generic: %g\n", int64Time / genericInt64Time);
         P_(int64Time); P(genericInt64Time);
 
-        // Output 'int64Total' to make sure it's observed and prevent
+        // Output `int64Total` to make sure it's observed and prevent
         // optimizers from optimizing loops out of existence.
 
         P(int64Total);
       } break;
       default: {
-        std::fprintf(stderr, "WARNING: CASE '$d' NOT FOUND.\n");
+        std::fprintf(stderr, "WARNING: CASE `$d` NOT FOUND.\n");
         testStatus = -1;
       } break;
     }

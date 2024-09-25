@@ -140,13 +140,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //
@@ -161,19 +161,19 @@ int main(int argc, char *argv[])
         // TESTING: lower_bound, upper_bound
         //
         // Concerns:
-        //: 1 That lower_bound returns the *first* match from a sequence of
-        //:   values.
-        //:
-        //: 2 That upper_bound returns the *last* match from a sequence of
-        //:   values.
-        //:
-        //: 3 That both lower_bound and upper_bound both function with and
-        //:   without a supplied comparator.
+        // 1. That lower_bound returns the *first* match from a sequence of
+        //    values.
+        //
+        // 2. That upper_bound returns the *last* match from a sequence of
+        //    values.
+        //
+        // 3. That both lower_bound and upper_bound both function with and
+        //    without a supplied comparator.
         //
         // Plan:
-        //: 1 Create an input array of integers and and perform a table based
-        //:   test ensuring the upper_bound and lower_bound functions return
-        //:   the expected results.
+        // 1. Create an input array of integers and and perform a table based
+        //    test ensuring the upper_bound and lower_bound functions return
+        //    the expected results.
         //
         // Testing:
         //   IT lower_bound(IT , IT , const TYPE& )
@@ -218,18 +218,18 @@ int main(int argc, char *argv[])
                 const int  EXACT     = DATA[i].d_exactMatch;
                 const int *END       = INPUT + NUM_INPUT;
 
-                // Note that the conditions for termination of 'lower_bound'
+                // Note that the conditions for termination of `lower_bound`
                 // on, for example, cppreference.com:
                 //
                 // "Returns an iterator pointing to the first element in the
                 // range [first, last) that is not less than (i.e. greater or
                 // equal to) value.".
                 //
-                // Similar condition exists for 'upper_bound'.
+                // Similar condition exists for `upper_bound`.
                 //
-                // Below we test returned iterator ('result') meets that
+                // Below we test returned iterator (`result`) meets that
                 // condition (if it is not the end iterator).  Then, we test
-                // the preceding position ('prevValue') does *not* meet the
+                // the preceding position (`prevValue`) does *not* meet the
                 // condition (if the returned iterator does not refer to the
                 // first element).  Thereby verifying the returned iterator is
                 // the *first* element in the range meeting termination
@@ -306,12 +306,12 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Run each method with arbitrary inputs and verify the behavior is
-        //:   as expected.
+        // 1. Run each method with arbitrary inputs and verify the behavior is
+        //    as expected.
         //
         // Testing:
         //   BREATHING TEST

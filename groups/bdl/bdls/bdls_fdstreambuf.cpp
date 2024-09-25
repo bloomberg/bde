@@ -64,11 +64,11 @@ typedef bdls::FilesystemUtil FileUtil;
                               // local functions
                               // ---------------
 
+/// Return `true` if the specified file descriptor `fd` refers to a regular
+/// file and `false` otherwise.  Note that a regular file is a file and not
+/// a directory, pipe, printer, keyboard or other device.
 static
 bool getRegularFileInfo(bdls::FilesystemUtil::FileDescriptor fd)
-    // Return 'true' if the specified file descriptor 'fd' refers to a regular
-    // file and 'false' otherwise.  Note that a regular file is a file and not
-    // a directory, pipe, printer, keyboard or other device.
 {
 #if defined(BSLS_PLATFORM_OS_UNIX)
     struct stat buf;

@@ -37,8 +37,8 @@ namespace {
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 
+/// Provides access to UNIX process user and system timers.
 struct UnixTimerUtil {
-    // Provides access to UNIX process user and system timers.
 
   private:
     // CLASS DATA
@@ -46,26 +46,28 @@ struct UnixTimerUtil {
     static const bsls::Types::Int64 s_nsecsPerMicrosecond;
   private:
     // PRIVATE CLASS METHODS
+
+    /// Helper routine to be used by the public methods below: call the OS
+    /// APIs and handle errors.
     static void systemProcessTimers(bsls::Types::Int64 *systemTimer,
                                     bsls::Types::Int64 *userTimer);
-        // Helper routine to be used by the public methods below: call the OS
-        // APIs and handle errors.
 
   public:
     // CLASS METHODS
+
+    /// Return converted to nanoseconds current value of system time as
+    /// returned by getrusage() if the call succeeds, and zero otherwise.
     static bsls::Types::Int64 systemTimer();
-        // Return converted to nanoseconds current value of system time as
-        // returned by getrusage() if the call succeeds, and zero otherwise.
 
+    /// Return converted to nanoseconds current value of user time as
+    /// returned by getrusage() if the call succeeds, and zero otherwise.
     static bsls::Types::Int64 userTimer();
-        // Return converted to nanoseconds current value of user time as
-        // returned by getrusage() if the call succeeds, and zero otherwise.
 
+    /// Return converted to nanoseconds current values of system and user
+    /// times as returned by getrusage() if the call succeeds, and zero
+    /// values otherwise.
     static void processTimers(bsls::Types::Int64 *systemTimer,
                               bsls::Types::Int64 *userTimer);
-        // Return converted to nanoseconds current values of system and user
-        // times as returned by getrusage() if the call succeeds, and zero
-        // values otherwise.
 };
 
 const bsls::Types::Int64 UnixTimerUtil::s_nsecsPerSecond = 1000 * 1000 * 1000;

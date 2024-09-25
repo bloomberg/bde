@@ -16,9 +16,9 @@
 #include <bsls_buildtarget.h>
 #include <bsls_objectbuffer.h>
 
-#include <algorithm>  // 'swap' in C++03 and earlier
+#include <algorithm>  // `swap` in C++03 and earlier
 #include <new>
-#include <utility>    // 'swap' in C++11 and later
+#include <utility>    // `swap` in C++11 and later
 
 #include <limits.h>
 #include <stdio.h>
@@ -37,20 +37,20 @@ using namespace BloombergLP::bsltf;
 // attribute class.  The Primary Manipulators and Basic Accessors are
 // therefore, respectively, the attribute setters and getters, each of which
 // follows our standard unconstrained attribute-type naming conventions:
-// 'setAttributeName' and 'attributeName'.
+// `setAttributeName` and `attributeName`.
 //
 // Primary Manipulators:
-//: o 'setData'
+//  - `setData`
 //
 // Basic Accessors:
-//: o 'data'
+//  - `data`
 //
 // Global Concerns:
-//: o No memory is ever allocated from the global allocator.
+//  - No memory is ever allocated from the global allocator.
 //
 // This particular attribute class also provides a value constructor capable of
 // creating an object in any state relevant for thorough testing, obviating the
-// primitive generator function, 'gg', normally used for this purpose.  We will
+// primitive generator function, `gg`, normally used for this purpose.  We will
 // therefore follow our standard 10-case approach to testing value-semantic
 // types except that we will test the value constructor in case 3 (in lieu of
 // the generator function), with the default constructor and primary
@@ -205,7 +205,7 @@ const DefaultValueRow DEFAULT_VALUES[] =
     // default (must be first)
     { L_,         0 },
 
-    // 'data'
+    // `data`
     { L_,   INT_MIN },
     { L_,        -1 },
     { L_,         1 },
@@ -217,20 +217,20 @@ enum { DEFAULT_NUM_VALUES = sizeof DEFAULT_VALUES / sizeof *DEFAULT_VALUES };
 //                     GLOBAL FUNCTIONS USED FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Call `exit` with the current `testStatus` of this test driver.  This
+/// function is intended to be used as an assertion handler, registered with
+/// `bsls_assert`.  To check that an assertion is triggered (when expected)
+/// in a destructor, we need a code path that can exit the process directly
+/// without returning control to the test handler.  In C++11, destructors
+/// are expected to have `noexcept(true)` exception specifications, which is
+/// the new default, so we cannot rely on the regular assert test handler
+/// that indicates an expected assertion by throwing an exception.  Note
+/// that the expected effect is `exit(0)` as `testStatus` should be zero for
+/// a passing test driver.  However, we do not want to lose reporting any
+/// other error detected in the current test case, so return the value of
+/// `testStatus`.
 static
 void exitHandler(const bsls::AssertViolation&)
-    // Call 'exit' with the current 'testStatus' of this test driver.  This
-    // function is intended to be used as an assertion handler, registered with
-    // 'bsls_assert'.  To check that an assertion is triggered (when expected)
-    // in a destructor, we need a code path that can exit the process directly
-    // without returning control to the test handler.  In C++11, destructors
-    // are expected to have 'noexcept(true)' exception specifications, which is
-    // the new default, so we cannot rely on the regular assert test handler
-    // that indicates an expected assertion by throwing an exception.  Note
-    // that the expected effect is 'exit(0)' as 'testStatus' should be zero for
-    // a passing test driver.  However, we do not want to lose reporting any
-    // other error detected in the current test case, so return the value of
-    // 'testStatus'.
 {
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
@@ -267,13 +267,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -288,59 +288,59 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Type Traits and Move Construction
 /// - - - - - - - - - - - - - - - - - - - - - -
-// First, we observe that the type uses 'bslma::Allocator's:
-//..
+// First, we observe that the type uses `bslma::Allocator`s:
+// ```
     ASSERT(true == bslma::UsesBslmaAllocator<
                               bsltf::WellBehavedMoveOnlyAllocTestType>::value);
-//..
+// ```
 // Then, we observe that the type is not copy-constructible:
-//..
+// ```
     ASSERT(false == bsl::is_copy_constructible<
                               bsltf::WellBehavedMoveOnlyAllocTestType>::value);
-//..
+// ```
 // Next, we observe that the type is not bitwise movable:
-//..
+// ```
     ASSERT(false == bslmf::IsBitwiseMoveable<
                               bsltf::WellBehavedMoveOnlyAllocTestType>::value);
-//..
+// ```
 // Then, we create an instance of our type with the value '5':
-//..
+// ```
     bsltf::WellBehavedMoveOnlyAllocTestType a(5);
-//..
+// ```
 // Next, we move-construct another instance from the first:
-//..
+// ```
     bsltf::WellBehavedMoveOnlyAllocTestType b(bslmf::MovableRefUtil::move(a));
-//..
+// ```
 // Now, we observe the salient state of both objects:
-//..
+// ```
     ASSERT(0 == a.data());
     ASSERT(5 == b.data());
-//..
+// ```
 // And finally, the non-salient state:
-//..
+// ```
     ASSERT(bsltf::MoveState::e_MOVED == a.movedFrom());
     ASSERT(bsltf::MoveState::e_MOVED == b.movedInto());
 //
     ASSERT(bsltf::MoveState::e_NOT_MOVED == a.movedInto());
     ASSERT(bsltf::MoveState::e_NOT_MOVED == b.movedFrom());
-//..
+// ```
       } break;
       case 12: {
         // --------------------------------------------------------------------
         // TESTING ASSERTION ON BITWISE MOVE
-        // The 'WellBehavedMoveOnlyAllocTestType' object is specifically
+        // The `WellBehavedMoveOnlyAllocTestType` object is specifically
         // designed to NOT be bitwise-moveable, so that it can be used to
-        // verify code is correctly testing the 'bslmf::IsBitwiseMoveable'
+        // verify code is correctly testing the `bslmf::IsBitwiseMoveable`
         // trait before using such a technique.  The destructor for this class
-        // is mined with a check that the current value of 'this' is the same
+        // is mined with a check that the current value of `this` is the same
         // as when the object was first created.  If this test fails, an
         // ASSERT_OPT is triggered.  In C++03 we might test for this using the
-        // familiar 'bsls_asserttest' facility, but in C++11 destructors become
-        // implicitly 'noexcept', and throwing a testing exception from the
-        // assertion handler will cause 'terminate' to be called for violating
+        // familiar `bsls_asserttest` facility, but in C++11 destructors become
+        // implicitly `noexcept`, and throwing a testing exception from the
+        // assertion handler will cause `terminate` to be called for violating
         // the exception specification.  Therefore, this test case will install
         // a custom assert handler directly before calling the destructor of a
-        // (illegally) bitwise-moved object, that calls 'exit(0)' to indicate
+        // (illegally) bitwise-moved object, that calls `exit(0)` to indicate
         // success, honoring the contract than an assertion handler should not
         // return to the caller.  As this will end the process, it must be the
         // last test in this test case, on a successful run.  Following the
@@ -348,21 +348,21 @@ int main(int argc, char *argv[])
         // was *not* supposed to return control back to the test case.
         //
         // Concerns:
-        //: 1 Bitwise moving this object will cause the destructor to raise an
-        //:   assertion.
+        // 1. Bitwise moving this object will cause the destructor to raise an
+        //    assertion.
         //
         // Plan:
-        //: 1 Create an memory buffer and create a new object with
-        //:   placement-new.
-        //:
-        //: 2 Install an assertion handler that will call 'exit' if triggered.
-        //:
-        //: 3 Bitwise-move the created object to another location in the
-        //:   buffer.  Explicitly call the object's destructor, which should
-        //:   exit via the assertion handler..  (C-1)
-        //:
-        //: 4 ASSERT after destruction to highlight an error if the destructor
-        //:   returns.
+        // 1. Create an memory buffer and create a new object with
+        //    placement-new.
+        //
+        // 2. Install an assertion handler that will call `exit` if triggered.
+        //
+        // 3. Bitwise-move the created object to another location in the
+        //    buffer.  Explicitly call the object's destructor, which should
+        //    exit via the assertion handler..  (C-1)
+        //
+        // 4. ASSERT after destruction to highlight an error if the destructor
+        //    returns.
         //
         // Testing:
         //   CONCERN: Bitwise-moved objects assert on destruction
@@ -375,7 +375,7 @@ int main(int argc, char *argv[])
             bslma::DefaultAllocatorGuard dag(&da);
 
             // The next test has an unusual code-path, and will directly call
-            // 'exit' from an assertion handler on success.  It must be the
+            // `exit` from an assertion handler on success.  It must be the
             // last part of this test case, as it will exit the process on
             // success without returning control to this test case.
 
@@ -402,9 +402,9 @@ int main(int argc, char *argv[])
 
                 ASSERT(5 == b.data());
 
-                b.~Obj();     // This should 'exit' if asserts are enabled
+                b.~Obj();     // This should `exit` if asserts are enabled
 
-                ASSERTV("The preceding destructor should 'exit' the process",
+                ASSERTV("The preceding destructor should `exit` the process",
                         false);
             }
         }
@@ -414,19 +414,19 @@ int main(int argc, char *argv[])
         // TESTING TYPE TRAITS
         //
         // Concerns:
-        //: 1 Ensure that 'WellBehavedMoveOnlyAllocTestType' has the necessary
-        //:   trait values to guarantee its expected behavior.
-        //:
-        //: 2 The object has the 'bslma::UsesBslmaAllocator' trait.
-        //:
-        //: 3 The object is not bitwise-moveable.
-        //:
-        //: 4 The object is not copy constructible.
-        //:
-        //: 5 The object is nothrow move constructible.
+        // 1. Ensure that `WellBehavedMoveOnlyAllocTestType` has the necessary
+        //    trait values to guarantee its expected behavior.
+        //
+        // 2. The object has the `bslma::UsesBslmaAllocator` trait.
+        //
+        // 3. The object is not bitwise-moveable.
+        //
+        // 4. The object is not copy constructible.
+        //
+        // 5. The object is nothrow move constructible.
         //
         // Plan:
-        //: 1 Use 'BSLMF_ASSERT' to verify all the type traits exists.  (C-1)
+        // 1. Use `BSLMF_ASSERT` to verify all the type traits exists.  (C-1)
         //
         // Testing:
         //   CONCERN: The object has the necessary type traits
@@ -458,129 +458,129 @@ int main(int argc, char *argv[])
         //   class to any object of the class.
         //
         // Concerns:
-        //: 1 The assignment operator can change the value of any modifiable
-        //:   target object to the original value of any source object.
-        //:
-        //: 2 The allocator address held by the target object is unchanged.
-        //:
-        //: 3 Any memory allocation is from the target object's allocator.
-        //:
-        //: 4 The signature and return type are standard.
-        //:
-        //: 5 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 6 The value of the source object is not modified if the allocators
-        //:   of the source and target don't match.
-        //:
-        //: 7 The allocator address held by the source object is unchanged.
-        //:
-        //: 8 Any memory allocation is exception neutral.
-        //:
-        //: 9 Assigning an object to itself behaves as expected (alias-safety).
-        //:
-        //: 10 Every object releases any allocated memory at destruction.
+        // 1. The assignment operator can change the value of any modifiable
+        //    target object to the original value of any source object.
+        //
+        // 2. The allocator address held by the target object is unchanged.
+        //
+        // 3. Any memory allocation is from the target object's allocator.
+        //
+        // 4. The signature and return type are standard.
+        //
+        // 5. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 6. The value of the source object is not modified if the allocators
+        //    of the source and target don't match.
+        //
+        // 7. The allocator address held by the source object is unchanged.
+        //
+        // 8. Any memory allocation is exception neutral.
+        //
+        // 9. Assigning an object to itself behaves as expected (alias-safety).
+        //
+        // 10. Every object releases any allocated memory at destruction.
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a member-function
-        //:   pointer having the appropriate signature and return type for the
-        //:   copy-assignment operator defined in this component.  (C-4)
-        //:
-        //: 2 Create a 'bslma::TestAllocator' object, and install it as the
-        //:   default allocator (note that a ubiquitous test allocator is
-        //:   already installed as the global allocator).
-        //:
-        //: 3 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their attributes.
-        //:
-        //: 4 For each row 'R1' (representing a distinct object value, 'DATA1')
-        //:   in the table described in P-3: (C-1..2, 5..8, 11)
-        //:
-        //:   1 Use the value constructor and a "scratch" allocator to create
-        //:     one 'const' 'Obj', ZZ', each having the value 'DATA1'.
-        //:
-        //:   2 Execute an inner loop that iterates over each row 'R2'
-        //:     (representing a distinct object value, 'DATA2') in the table
-        //:     described in P-3:
-        //:
-        //:   3 For each of the iterations (P-4.2):  (C-1..2, 5..8, 11)
-        //:
-        //:     1 Create a 'bslma::TestAllocator' object, 'oa'.
-        //:
-        //:     2 Use the value constructor and 'oa' to create a modifiable
-        //:       'Obj', 'mX', and 'const Obj' 'XX' having the value 'DATA2'.
-        //:
-        //:     3 Create an allocation exception block based on 'oa'.
-        //:
-        //:     4 Create a modifiable 'Obj' 'mZ' set to 'DATA1'.
-        //:
-        //:     5 Set up equality guards that will compare 'ZZ' to 'Z' and
-        //:       'XX' to 'X' upon destruction, to check that the strong
-        //:       exception guarantee is provided.
-        //:
-        //:     6 Move-assign 'mX' from 'Z' in the presence, which will throw.
-        //:
-        //:     7 Verify that the address of the return value is the same as
-        //:       that of 'mX'.  (C-5)
-        //:
-        //:     8 Use the equality-comparison operator to verify that: (C-1, 6)
-        //:
-        //:       1 The target object, 'mX', now has the same value as that of
-        //:         'ZZ'.  (C-1)
-        //:
-        //:       1 The source object, 'Z', still has the same value as that of
-        //:         'ZZ'.  (C-6)
-        //:
-        //:     9 Use the 'allocator' accessor of both 'mX' and 'Z' to verify
-        //:       that the respective allocator addresses held by the target
-        //:       and source objects are unchanged.  (C-2, 7)
-        //:
-        //:     10 Observe that neither the source nor the destination were
-        //:        marked 'moved' into or from.
-        //:
-        //:     11 Observe that at least one throw due to memory allocation
-        //:        occurred.
-        //:
-        //:     12 Observe from a 'TestAllocatorMonitor' that allocation(s)
-        //:        have occurred, and the net memory use is unchanged.
-        //:
-        //: 5 Still in the inner loop with 'DATA2' set, start a new block with
-        //:   and create a new 'mX' set to 'DATA2' and 'mZ' set to 'DATA1',
-        //:   both using allocator 'oa' this time.
-        //:
-        //:   1 Move assign 'mZ' to 'mX'.
-        //:
-        //:   2 Verify that the address of the return value is the same as that
-        //:     of 'mX'.  (C-5)
-        //:
-        //:   3 Use the equality-comparison operator to verify that: (C-1, 6)
-        //:     1 The target object, 'mX', now has the same value as that of
-        //:       'ZZ'.  (C-1)
-        //:
-        //:   4 Use the 'allocator' accessor of both 'mX' and 'Z' to verify
-        //:     that the respective allocator addresses held by the target and
-        //:     source objects are unchanged.  (C-2, 7)
-        //:
-        //:   5 Observe that the source was moved from, and the target was
-        //:     moved into.
-        //:
-        //:   6 Observe from a 'TestAllocatorMonitor' that no new allocation(s)
-        //:     have occurred, and the net memory use is down.
-        //:
-        //:   7 Observe that the default allocator has not been used.
-        //:
-        //: 6 Leave the innermost loop.
-        //:
-        //: 7 Still in the outermost loop, create an object 'mX' initialized to
-        //:   'DATA1', and assign it to itself.
-        //:
-        //:   1 Verify that the address of the return value is the same as that
-        //:     of 'mX'.  (C-5)
-        //:
-        //:   2 Observe the allocator of 'mX' is unchanged.
-        //:
-        //:   3 Observe that the value of 'mX' is unchanged.
-        //:
-        //:   4 Observe that no memory allocation happened.
+        // 1. Use the address of `operator=` to initialize a member-function
+        //    pointer having the appropriate signature and return type for the
+        //    copy-assignment operator defined in this component.  (C-4)
+        //
+        // 2. Create a `bslma::TestAllocator` object, and install it as the
+        //    default allocator (note that a ubiquitous test allocator is
+        //    already installed as the global allocator).
+        //
+        // 3. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their attributes.
+        //
+        // 4. For each row `R1` (representing a distinct object value, `DATA1`)
+        //    in the table described in P-3: (C-1..2, 5..8, 11)
+        //
+        //   1. Use the value constructor and a "scratch" allocator to create
+        //      one `const` `Obj`, ZZ', each having the value `DATA1`.
+        //
+        //   2. Execute an inner loop that iterates over each row `R2`
+        //      (representing a distinct object value, `DATA2`) in the table
+        //      described in P-3:
+        //
+        //   3. For each of the iterations (P-4.2):  (C-1..2, 5..8, 11)
+        //
+        //     1. Create a `bslma::TestAllocator` object, `oa`.
+        //
+        //     2. Use the value constructor and `oa` to create a modifiable
+        //        `Obj`, `mX`, and `const Obj` `XX` having the value `DATA2`.
+        //
+        //     3. Create an allocation exception block based on `oa`.
+        //
+        //     4. Create a modifiable `Obj` `mZ` set to `DATA1`.
+        //
+        //     5. Set up equality guards that will compare `ZZ` to `Z` and
+        //        `XX` to `X` upon destruction, to check that the strong
+        //        exception guarantee is provided.
+        //
+        //     6. Move-assign `mX` from `Z` in the presence, which will throw.
+        //
+        //     7. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-5)
+        //
+        //     8. Use the equality-comparison operator to verify that: (C-1, 6)
+        //
+        //       1. The target object, `mX`, now has the same value as that of
+        //          `ZZ`.  (C-1)
+        //
+        //       1. The source object, `Z`, still has the same value as that of
+        //          `ZZ`.  (C-6)
+        //
+        //     9. Use the `allocator` accessor of both `mX` and `Z` to verify
+        //        that the respective allocator addresses held by the target
+        //        and source objects are unchanged.  (C-2, 7)
+        //
+        //     10. Observe that neither the source nor the destination were
+        //         marked `moved` into or from.
+        //
+        //     11. Observe that at least one throw due to memory allocation
+        //         occurred.
+        //
+        //     12. Observe from a `TestAllocatorMonitor` that allocation(s)
+        //         have occurred, and the net memory use is unchanged.
+        //
+        // 5. Still in the inner loop with `DATA2` set, start a new block with
+        //    and create a new `mX` set to `DATA2` and `mZ` set to `DATA1`,
+        //    both using allocator `oa` this time.
+        //
+        //   1. Move assign `mZ` to `mX`.
+        //
+        //   2. Verify that the address of the return value is the same as that
+        //      of `mX`.  (C-5)
+        //
+        //   3. Use the equality-comparison operator to verify that: (C-1, 6)
+        //     1. The target object, `mX`, now has the same value as that of
+        //        `ZZ`.  (C-1)
+        //
+        //   4. Use the `allocator` accessor of both `mX` and `Z` to verify
+        //      that the respective allocator addresses held by the target and
+        //      source objects are unchanged.  (C-2, 7)
+        //
+        //   5. Observe that the source was moved from, and the target was
+        //      moved into.
+        //
+        //   6. Observe from a `TestAllocatorMonitor` that no new allocation(s)
+        //      have occurred, and the net memory use is down.
+        //
+        //   7. Observe that the default allocator has not been used.
+        //
+        // 6. Leave the innermost loop.
+        //
+        // 7. Still in the outermost loop, create an object `mX` initialized to
+        //    `DATA1`, and assign it to itself.
+        //
+        //   1. Verify that the address of the return value is the same as that
+        //      of `mX`.  (C-5)
+        //
+        //   2. Observe the allocator of `mX` is unchanged.
+        //
+        //   3. Observe that the value of `mX` is unchanged.
+        //
+        //   4. Observe that no memory allocation happened.
         //
         // Testing:
         //   Obj& operator=(Obj&&);
@@ -775,27 +775,27 @@ int main(int argc, char *argv[])
       case 8: {
         // --------------------------------------------------------------------
         // TESTING SWAP FREE FUNCTION
-        //   There is no member 'swap' function, but the free function in the
-        //   'bsltf' namespace needs testing.
+        //   There is no member `swap` function, but the free function in the
+        //   `bsltf` namespace needs testing.
         //
         // Concerns:
-        //: 1 'swap' exchanges the state of two distinct objects, and, if the
-        //:   memory allocators match, leaves both in a state that is both
-        //:   'movedFrom' and 'movedInto', and if not, leaves both in a state
-        //:   that is neither 'movedFrom' nor 'movedInto'.
-        //:
-        //: 2 'swap'ping an object with itself retains state, and leaves that
-        //:   object in a state that is both 'movedFrom' and 'movedInto'.
-        //:
-        //: 3 'swap' does not propagate allocators when two objects have
-        //:   different allocators.
-        //:
-        //: 4 'swap' might throw when allocators are different, but in no event
-        //:   does it leak memory, or mis-report an object being moved-into if
-        //:   no change of state occurs.
+        // 1. `swap` exchanges the state of two distinct objects, and, if the
+        //    memory allocators match, leaves both in a state that is both
+        //    `movedFrom` and `movedInto`, and if not, leaves both in a state
+        //    that is neither `movedFrom` nor `movedInto`.
+        //
+        // 2. `swap`ping an object with itself retains state, and leaves that
+        //    object in a state that is both `movedFrom` and `movedInto`.
+        //
+        // 3. `swap` does not propagate allocators when two objects have
+        //    different allocators.
+        //
+        // 4. `swap` might throw when allocators are different, but in no event
+        //    does it leak memory, or mis-report an object being moved-into if
+        //    no change of state occurs.
         //
         // Plan:
-        //: 1 ...
+        // 1. ...
         //
         // Testing:
         //   void swap(Obj& lhs, Obj& rhs);
@@ -977,102 +977,102 @@ int main(int argc, char *argv[])
         //   original value of the source object.
         //
         // Concerns:
-        //: 1 The move constructor creates an object having the same value as
-        //:   the original value of the supplied original object.
-        //:
-        //: 2 If an allocator is NOT supplied to the copy constructor, the
-        //:   target object uses the same allocator as the source object.
-        //:
-        //: 3 If an allocator IS supplied to the copy constructor, that
-        //:   allocator becomes the object allocator for the resulting object.
-        //:   1 If the allocator supplied matches the allocator of the source
-        //:     object, the behavior is the same as if no allocator is passed.
-        //:
-        //:   2 If the allocators don't match, a copy and not a move occurs.
-        //:
-        //: 4 Supplying a null allocator address has the same effect as not
-        //:   passing the default allocator.
-        //:
-        //: 5 Any memory allocation is from the object allocator.
-        //:
-        //: 6 If no allocator is passed or if the allocators match
-        //:   1 no allocations occur
-        //:
-        //:   2 the target is marked moved-into.
-        //:
-        //:   3 the source is marked moved-from.
-        //:
-        //: 7 If a non-matching allocator is passed
-        //:   1 the c'tor is exception-neutral w.r.t. memory allocation
-        //:
-        //:   2 the value of the source is unchanged
-        //:
-        //:   3 neither the source nor the target are marked moved.
-        //:
-        //: 8 The allocator address held by the original object is unchanged.
+        // 1. The move constructor creates an object having the same value as
+        //    the original value of the supplied original object.
+        //
+        // 2. If an allocator is NOT supplied to the copy constructor, the
+        //    target object uses the same allocator as the source object.
+        //
+        // 3. If an allocator IS supplied to the copy constructor, that
+        //    allocator becomes the object allocator for the resulting object.
+        //   1. If the allocator supplied matches the allocator of the source
+        //      object, the behavior is the same as if no allocator is passed.
+        //
+        //   2. If the allocators don't match, a copy and not a move occurs.
+        //
+        // 4. Supplying a null allocator address has the same effect as not
+        //    passing the default allocator.
+        //
+        // 5. Any memory allocation is from the object allocator.
+        //
+        // 6. If no allocator is passed or if the allocators match
+        //   1. no allocations occur
+        //
+        //   2. the target is marked moved-into.
+        //
+        //   3. the source is marked moved-from.
+        //
+        // 7. If a non-matching allocator is passed
+        //   1. the c'tor is exception-neutral w.r.t. memory allocation
+        //
+        //   2. the value of the source is unchanged
+        //
+        //   3. neither the source nor the target are marked moved.
+        //
+        // 8. The allocator address held by the original object is unchanged.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their attributes.
-        //:
-        //: 2 For each row (representing a distinct object value, 'DATA') in
-        //:   the table described in P-1: (C-1..10)
-        //:
-        //:   1 Use the value constructor and a "scratch" allocator to create
-        //:     two 'const' 'Obj', 'Z' and 'ZZ', each having the value 'V'.
-        //:
-        //:   2 Execute an inner loop creating three distinct objects in turn,
-        //:     each using the copy constructor in the presence of injected
-        //:     exceptions (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*'
-        //:     macros) on 'Z' from P-2.1, but configured differently: (a)
-        //:     without passing an allocator, (b) passing a null allocator
-        //:     address explicitly, and (c) passing the address of the same
-        //:     allocator the source used, and (d) passing the address of a
-        //:     test allocator other than the default allocator of the source
-        //:     object's allocator.  (C-7)
-        //:
-        //:   3 For each of these three iterations (P-2.2):  (C-1..10)
-        //:
-        //:     1 Create four 'bslma::TestAllocator' objects, and install one
-        //:       as the current default allocator (note that a ubiquitous test
-        //:       allocator is already installed as the global allocator).
-        //:
-        //:     2 Use the copy constructor to dynamically create an object 'X',
-        //:       with its object allocator configured appropriately (see
-        //:       P-2.2), supplying it the 'const' object 'Z' (see P-2.1); use
-        //:       a distinct test allocator for the object's footprint.  (C-8)
-        //:
-        //:     3 Use the equality-comparison operator to verify that:
-        //:       (C-1, 5, 9)
-        //:
-        //:       1 The newly constructed object, 'X', has the same value as
-        //:         that of 'Z'.  (C-1, 5)
-        //:
-        //:       2 'Z' still has the same value as that of 'ZZ'.  (C-9
-        //:
-        //:     4 Use the 'allocator' accessor of each underlying attribute
-        //:       capable of allocating memory to ensure that its object
-        //:       allocator is properly installed; also use the 'allocator'
-        //:       accessor of 'X' to verify that its object allocator is
-        //:       properly installed, and use the 'allocator' accessor of 'Z'
-        //:       to verify that the allocator address that it holds is
-        //:       unchanged.  (C-6, 10)
-        //:
-        //:     5 Use the appropriate test allocators to verify that:  (C-2..4,
-        //:       7..8)
-        //:
-        //:       1 An object allocates memory from the object allocator only.
-        //:         (C-2..4)
-        //:
-        //:       3 If an allocator was supplied at construction (P-2.1c), the
-        //:         current default allocator doesn't allocate any memory.
-        //:         (C-3)
-        //:
-        //:       4 No temporary memory is allocated from the object allocator.
-        //:         (C-7)
-        //:
-        //:       5 All object memory is released when the object is destroyed.
-        //:         (C-8)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their attributes.
+        //
+        // 2. For each row (representing a distinct object value, `DATA`) in
+        //    the table described in P-1: (C-1..10)
+        //
+        //   1. Use the value constructor and a "scratch" allocator to create
+        //      two `const` `Obj`, `Z` and `ZZ`, each having the value `V`.
+        //
+        //   2. Execute an inner loop creating three distinct objects in turn,
+        //      each using the copy constructor in the presence of injected
+        //      exceptions (using the `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*`
+        //      macros) on `Z` from P-2.1, but configured differently: (a)
+        //      without passing an allocator, (b) passing a null allocator
+        //      address explicitly, and (c) passing the address of the same
+        //      allocator the source used, and (d) passing the address of a
+        //      test allocator other than the default allocator of the source
+        //      object's allocator.  (C-7)
+        //
+        //   3. For each of these three iterations (P-2.2):  (C-1..10)
+        //
+        //     1. Create four `bslma::TestAllocator` objects, and install one
+        //        as the current default allocator (note that a ubiquitous test
+        //        allocator is already installed as the global allocator).
+        //
+        //     2. Use the copy constructor to dynamically create an object `X`,
+        //        with its object allocator configured appropriately (see
+        //        P-2.2), supplying it the `const` object `Z` (see P-2.1); use
+        //        a distinct test allocator for the object's footprint.  (C-8)
+        //
+        //     3. Use the equality-comparison operator to verify that:
+        //        (C-1, 5, 9)
+        //
+        //       1. The newly constructed object, `X`, has the same value as
+        //          that of `Z`.  (C-1, 5)
+        //
+        //       2. `Z` still has the same value as that of `ZZ`.  (C-9
+        //
+        //     4. Use the `allocator` accessor of each underlying attribute
+        //        capable of allocating memory to ensure that its object
+        //        allocator is properly installed; also use the `allocator`
+        //        accessor of `X` to verify that its object allocator is
+        //        properly installed, and use the `allocator` accessor of `Z`
+        //        to verify that the allocator address that it holds is
+        //        unchanged.  (C-6, 10)
+        //
+        //     5. Use the appropriate test allocators to verify that:  (C-2..4,
+        //        7..8)
+        //
+        //       1. An object allocates memory from the object allocator only.
+        //          (C-2..4)
+        //
+        //       3. If an allocator was supplied at construction (P-2.1c), the
+        //          current default allocator doesn't allocate any memory.
+        //          (C-3)
+        //
+        //       4. No temporary memory is allocated from the object allocator.
+        //          (C-7)
+        //
+        //       5. All object memory is released when the object is destroyed.
+        //          (C-8)
         //
         // Testing:
         //   Obj(bslmf::MovableRef<Obj>);
@@ -1185,8 +1185,8 @@ int main(int argc, char *argv[])
                     ASSERTV(X.data(), ZZ.data(), X == Z);
                 }
 
-                // Also invoke the object's 'allocator' accessor, as well as
-                // that of 'Z'.
+                // Also invoke the object's `allocator` accessor, as well as
+                // that of `Z`.
 
                 ASSERTV(LINE, CONFIG, &oa, X.allocator(),
                              &oa == X.allocator());
@@ -1245,72 +1245,72 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // TESTING EQUALITY-COMPARISON OPERATORS
-        //   Ensure that '==' and '!=' are the operational definition of value.
+        //   Ensure that `==` and `!=` are the operational definition of value.
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if they point
-        //:   to the same node in the same tree.
-        //:
-        //: 2 'true  == (X == X)'  (i.e., identity)
-        //:
-        //: 3 'false == (X != X)'  (i.e., identity)
-        //:
-        //: 4 'X == Y' if and only if 'Y == X'  (i.e., commutativity)
-        //:
-        //: 5 'X != Y' if and only if 'Y != X'  (i.e., commutativity)
-        //:
-        //: 6 'X != Y' if and only if '!(X == Y)'
-        //:
-        //: 7 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., both comparison operators are free functions).
-        //:
-        //: 8 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //; 9 The equality operator's signature and return type are standard.
-        //:
-        //:10 The inequality operator's signature and return type are standard.
-        //:
-        //:11 No memory allocation occurs as a result of comparison (e.g., the
-        //:   arguments are not passed by value).
-        //:
-        //:12 The equality operator's signature and return type are standard.
-        //:
-        //:13 The inequality operator's signature and return type are standard.
+        // 1. Two objects, `X` and `Y`, compare equal if and only if they point
+        //    to the same node in the same tree.
+        //
+        // 2. `true  == (X == X)`  (i.e., identity)
+        //
+        // 3. `false == (X != X)`  (i.e., identity)
+        //
+        // 4. `X == Y` if and only if `Y == X`  (i.e., commutativity)
+        //
+        // 5. `X != Y` if and only if `Y != X`  (i.e., commutativity)
+        //
+        // 6. `X != Y` if and only if `!(X == Y)`
+        //
+        // 7. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., both comparison operators are free functions).
+        //
+        // 8. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        // 9. The equality operator's signature and return type are standard.
+        //
+        // 10. The inequality operator's signature and return type are standard.
+        //
+        // 11. No memory allocation occurs as a result of comparison (e.g., the
+        //    arguments are not passed by value).
+        //
+        // 12. The equality operator's signature and return type are standard.
+        //
+        // 13. The inequality operator's signature and return type are standard.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the two homogeneous, free equality-
-        //:   comparison operators defined in this component.
-        //:   (C-7..10, 12..13)
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their attributes.
-        //:
-        //: 4 For each row 'R1' in the table of P-2:  (C-1..6)
-        //:
-        //:   1 Create a single object, and use it to verify the reflexive
-        //:     (anti-reflexive) property of equality (inequality) in the
-        //:     presence of aliasing.  (C-2..3)
-        //:
-        //:   2 Verify that no memory is ever allocated after object
-        //:     construction.  (C-11)
-        //:
-        //:   3 For each row 'R2' in the table of P-2:  (C-1, 4..6)
-        //:
-        //:     1 Record, in 'EXP', whether or not distinct objects created
-        //:       from 'R1' and 'R2', respectively, are expected to have the
-        //:       same value.
-        //:
-        //:     2 Create an object 'X' having the value of 'R1'.  Create
-        //:       another object 'Y' having the value of 'R2'.
-        //:
-        //:     3 Verify the commutativity property and the expected return
-        //:       value for both '==' and '!='.  (C-1, 4..6)
-        //:
-        //:     4 Verify that no memory is ever allocated after object
-        //:       construction.  (C-11)
+        // 1. Use the respective addresses of `operator==` and `operator!=` to
+        //    initialize function pointers having the appropriate signatures
+        //    and return types for the two homogeneous, free equality-
+        //    comparison operators defined in this component.
+        //    (C-7..10, 12..13)
+        //
+        // 2. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their attributes.
+        //
+        // 4. For each row `R1` in the table of P-2:  (C-1..6)
+        //
+        //   1. Create a single object, and use it to verify the reflexive
+        //      (anti-reflexive) property of equality (inequality) in the
+        //      presence of aliasing.  (C-2..3)
+        //
+        //   2. Verify that no memory is ever allocated after object
+        //      construction.  (C-11)
+        //
+        //   3. For each row `R2` in the table of P-2:  (C-1, 4..6)
+        //
+        //     1. Record, in `EXP`, whether or not distinct objects created
+        //        from `R1` and `R2`, respectively, are expected to have the
+        //        same value.
+        //
+        //     2. Create an object `X` having the value of `R1`.  Create
+        //        another object `Y` having the value of `R2`.
+        //
+        //     3. Verify the commutativity property and the expected return
+        //        value for both `==` and `!=`.  (C-1, 4..6)
+        //
+        //     4. Verify that no memory is ever allocated after object
+        //        construction.  (C-11)
         //
         // Testing:
         //   bool operator==(lhs, rhs);
@@ -1399,26 +1399,26 @@ int main(int argc, char *argv[])
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 Each accessor returns the value of the corresponding attribute
-        //:    of the object.
-        //:
-        //: 2 Each accessor method is declared 'const'.
-        //:
-        //: 3 No accessor allocates any memory.
+        // 1. Each accessor returns the value of the corresponding attribute
+        //     of the object.
+        //
+        // 2. Each accessor method is declared `const`.
+        //
+        // 3. No accessor allocates any memory.
         //
         // Plan:
-        //: 1 Use the default constructor, create an object having default
-        //:   attribute values.  Verify that the accessor for the 'data'
-        //:   attribute invoked on a reference providing non-modifiable access
-        //:   to the object return the expected value.  (C-1)
-        //:
-        //: 2 Set the 'data' attribute of the object to another value.  Verify
-        //:   that the accessor for the 'data' attribute invoked on a reference
-        //:   providing non-modifiable access to the object return the expected
-        //:   value.  (C-1, 2)
-        //:
-        //: 3 Verify that no memory is ever allocated after default
-        //:   construction.  (C-3)
+        // 1. Use the default constructor, create an object having default
+        //    attribute values.  Verify that the accessor for the `data`
+        //    attribute invoked on a reference providing non-modifiable access
+        //    to the object return the expected value.  (C-1)
+        //
+        // 2. Set the `data` attribute of the object to another value.  Verify
+        //    that the accessor for the `data` attribute invoked on a reference
+        //    providing non-modifiable access to the object return the expected
+        //    value.  (C-1, 2)
+        //
+        // 3. Verify that no memory is ever allocated after default
+        //    construction.  (C-3)
         //
         // Testing:
         //   int data() const;
@@ -1449,77 +1449,77 @@ int main(int argc, char *argv[])
         //   for thorough testing.
         //
         // Concerns:
-        //: 1 The value constructor can create an object having any value that
-        //:   does not violate the documented constraints.
-        //:
-        //: 2 If an allocator is NOT supplied to the value constructor, the
-        //:   default allocator in effect at the time of construction becomes
-        //:   the object allocator for the resulting object.
-        //:
-        //: 3 If an allocator IS supplied to the value constructor, that
-        //:   allocator becomes the object allocator for the resulting object.
-        //:
-        //: 4 Supplying a null allocator address has the same effect as not
-        //:   supplying an allocator.
-        //:
-        //: 5 Supplying an allocator to the value constructor has no effect
-        //:   on subsequent object values.
-        //:
-        //: 6 Any memory allocation is from the object allocator.
-        //:
-        //: 7 There is no temporary memory allocation from any allocator.
-        //:
-        //: 8 Every object releases any allocated memory at destruction.
-        //:
-        //: 9 Any memory allocation is exception neutral.
+        // 1. The value constructor can create an object having any value that
+        //    does not violate the documented constraints.
+        //
+        // 2. If an allocator is NOT supplied to the value constructor, the
+        //    default allocator in effect at the time of construction becomes
+        //    the object allocator for the resulting object.
+        //
+        // 3. If an allocator IS supplied to the value constructor, that
+        //    allocator becomes the object allocator for the resulting object.
+        //
+        // 4. Supplying a null allocator address has the same effect as not
+        //    supplying an allocator.
+        //
+        // 5. Supplying an allocator to the value constructor has no effect
+        //    on subsequent object values.
+        //
+        // 6. Any memory allocation is from the object allocator.
+        //
+        // 7. There is no temporary memory allocation from any allocator.
+        //
+        // 8. Every object releases any allocated memory at destruction.
+        //
+        // 9. Any memory allocation is exception neutral.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their attributes.
-        //:
-        //: 2 For each row (representing a distinct object value, 'V') in the
-        //:   table of P-1:
-        //:
-        //:   1 Execute an inner loop creating three distinct objects, in turn,
-        //:     each object having the same value of 'R1', but configured
-        //:     differently: (a) without passing an allocator, (b) passing a
-        //:     null allocator address explicitly, and (c) passing the address
-        //:     of a test allocator distinct from the default allocator.
-        //:
-        //:     1 Create three 'bslma::TestAllocator' objects, and install one
-        //:       as the current default allocator (note that a ubiquitous test
-        //:       allocator is already installed as the global allocator).
-        //:
-        //:     2 Use the value constructor to dynamically create an object
-        //:       having the value 'V' in the presence of injected exceptions
-        //:       (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros)
-        //:       with its object allocator configured appropriately (see
-        //:       P-2.1); use a distinct test allocator for the object's
-        //:       footprint.  (C-9)
-        //:
-        //:     3 Use the (as yet unproven) salient attribute accessors to
-        //:       verify that all of the attributes of each object have their
-        //:       expected values.  (C-1, 5)
-        //:
-        //:     4 Use the 'allocator' accessor of each underlying attribute
-        //:       capable of allocating memory to ensure that its object
-        //:       allocator is properly installed; also invoke the (as yet
-        //:       unproven) 'allocator' accessor of the object under test.
-        //:       (C-6)
-        //:
-        //:     5 Use the appropriate test allocators to verify that:
-        //:       (C-2..4, 7..8)
-        //:
-        //:       1 An object that IS expected to allocate memory does so
-        //:         from the object allocator only (irrespective of the
-        //:         specific number of allocations or the total amount of
-        //:         memory allocated).  (C-2..4)
-        //:
-        //:       4 No temporary memory is allocated from the object allocator.
-        //:         (C-7)
-        //:
-        //:       5 All object memory is released when the object is destroyed.
-        //:         (C-8)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their attributes.
+        //
+        // 2. For each row (representing a distinct object value, `V`) in the
+        //    table of P-1:
+        //
+        //   1. Execute an inner loop creating three distinct objects, in turn,
+        //      each object having the same value of `R1`, but configured
+        //      differently: (a) without passing an allocator, (b) passing a
+        //      null allocator address explicitly, and (c) passing the address
+        //      of a test allocator distinct from the default allocator.
+        //
+        //     1. Create three `bslma::TestAllocator` objects, and install one
+        //        as the current default allocator (note that a ubiquitous test
+        //        allocator is already installed as the global allocator).
+        //
+        //     2. Use the value constructor to dynamically create an object
+        //        having the value `V` in the presence of injected exceptions
+        //        (using the `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*` macros)
+        //        with its object allocator configured appropriately (see
+        //        P-2.1); use a distinct test allocator for the object's
+        //        footprint.  (C-9)
+        //
+        //     3. Use the (as yet unproven) salient attribute accessors to
+        //        verify that all of the attributes of each object have their
+        //        expected values.  (C-1, 5)
+        //
+        //     4. Use the `allocator` accessor of each underlying attribute
+        //        capable of allocating memory to ensure that its object
+        //        allocator is properly installed; also invoke the (as yet
+        //        unproven) `allocator` accessor of the object under test.
+        //        (C-6)
+        //
+        //     5. Use the appropriate test allocators to verify that:
+        //        (C-2..4, 7..8)
+        //
+        //       1. An object that IS expected to allocate memory does so
+        //          from the object allocator only (irrespective of the
+        //          specific number of allocations or the total amount of
+        //          memory allocated).  (C-2..4)
+        //
+        //       4. No temporary memory is allocated from the object allocator.
+        //          (C-7)
+        //
+        //       5. All object memory is released when the object is destroyed.
+        //          (C-8)
         //
         // Testing:
         //   Obj(int data, bslma::Allocator *bA = 0);
@@ -1641,78 +1641,78 @@ int main(int argc, char *argv[])
         //   relevant for thorough testing.
         //
         // Concerns:
-        //: 1 An object created with the default constructor has the
-        //:   contractually specified default value.
-        //:
-        //: 2 If an allocator is NOT supplied to the default constructor, the
-        //:   default allocator in effect at the time of construction becomes
-        //:   the object allocator for the resulting object.
-        //:
-        //: 3 If an allocator IS supplied to the default constructor, that
-        //:   allocator becomes the object allocator for the resulting object.
-        //:
-        //: 4 Supplying a null allocator address has the same effect as not
-        //:   supplying an allocator.
-        //:
-        //: 5 Supplying an allocator to the default constructor has no effect
-        //:   on subsequent object values.
-        //:
-        //: 6 Any memory allocation is from the object allocator.
-        //:
-        //: 7 There is no temporary allocation from any allocator.
-        //:
-        //: 8 Every object releases any allocated memory at destruction.
-        //:
-        //: 9 The default constructor is exception-neutral w.r.t. memory
-        //:   allocation.
-        //:
-        //:10 Each attribute can be set to represent any value that does not
-        //:   violate that attribute's documented constraints.
+        // 1. An object created with the default constructor has the
+        //    contractually specified default value.
+        //
+        // 2. If an allocator is NOT supplied to the default constructor, the
+        //    default allocator in effect at the time of construction becomes
+        //    the object allocator for the resulting object.
+        //
+        // 3. If an allocator IS supplied to the default constructor, that
+        //    allocator becomes the object allocator for the resulting object.
+        //
+        // 4. Supplying a null allocator address has the same effect as not
+        //    supplying an allocator.
+        //
+        // 5. Supplying an allocator to the default constructor has no effect
+        //    on subsequent object values.
+        //
+        // 6. Any memory allocation is from the object allocator.
+        //
+        // 7. There is no temporary allocation from any allocator.
+        //
+        // 8. Every object releases any allocated memory at destruction.
+        //
+        // 9. The default constructor is exception-neutral w.r.t. memory
+        //    allocation.
+        //
+        // 10. Each attribute can be set to represent any value that does not
+        //    violate that attribute's documented constraints.
         //
         // Plan:
-        //: 1 Create three attribute values for the 'data' attribute 'D', 'A',
-        //:   and 'B'.  'D' should be the default value.  'A' and 'B' should be
-        //:   the boundary values.
-        //:
-        //: 2 Using a loop-based approach, default-construct three distinct
-        //:   objects, in turn, but configured differently: (a) without passing
-        //:   an allocator, (b) passing a null allocator address explicitly,
-        //:   and (c) passing the address of a test allocator distinct from the
-        //:   default.  For each of these three iterations:
-        //:
-        //:   1 Create three 'bslma::TestAllocator' objects, and install one as
-        //:     as the current default allocator (note that a ubiquitous test
-        //:     allocator is already installed as the global allocator).
-        //:
-        //:   2 Use the default constructor to dynamically create an object 'X'
-        //:     in the presence of exception (using the
-        //:     'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros), with its object
-        //:     allocator configured appropriately (see P-2); use a distinct
-        //:     test allocator for the object's footprint.  (C-9)
-        //:
-        //:   3 Use the 'allocator' accessor of each underlying attribute
-        //:     capable of allocating memory to ensure that its object
-        //:     allocator is properly installed; also invoke the (as yet
-        //:     unproven) 'allocator' accessor of the object under test.
-        //:     (C-2..4)
-        //:
-        //:   4 Use the appropriate test allocators to verify that the
-        //:     appropriate amount of memory is allocated by the default
-        //:     constructor.  (C-9)
-        //:
-        //:   5 Use the individual (as yet unproven) salient attribute
-        //:     accessors to verify the default-constructed value.  (C-1)
-        //:
-        //:   6 Set 'data' attribute to 'A', 'B', and 'D'.  Verify that no
-        //:     memory allocation occurs.  Use the individual (as yet
-        //:     unproven) salient attribute accessors to verify the attribute
-        //:     has been changed.  (C-5..6)
-        //:
-        //:   7 Verify that no temporary memory is allocated from the object
-        //:     allocator.  (C-7)
-        //:
-        //:   8 Verify that all object memory is released when the object is
-        //:     destroyed.  (C-8)
+        // 1. Create three attribute values for the `data` attribute `D`, `A`,
+        //    and `B`.  `D` should be the default value.  `A` and `B` should be
+        //    the boundary values.
+        //
+        // 2. Using a loop-based approach, default-construct three distinct
+        //    objects, in turn, but configured differently: (a) without passing
+        //    an allocator, (b) passing a null allocator address explicitly,
+        //    and (c) passing the address of a test allocator distinct from the
+        //    default.  For each of these three iterations:
+        //
+        //   1. Create three `bslma::TestAllocator` objects, and install one as
+        //      as the current default allocator (note that a ubiquitous test
+        //      allocator is already installed as the global allocator).
+        //
+        //   2. Use the default constructor to dynamically create an object `X`
+        //      in the presence of exception (using the
+        //      `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*` macros), with its object
+        //      allocator configured appropriately (see P-2); use a distinct
+        //      test allocator for the object's footprint.  (C-9)
+        //
+        //   3. Use the `allocator` accessor of each underlying attribute
+        //      capable of allocating memory to ensure that its object
+        //      allocator is properly installed; also invoke the (as yet
+        //      unproven) `allocator` accessor of the object under test.
+        //      (C-2..4)
+        //
+        //   4. Use the appropriate test allocators to verify that the
+        //      appropriate amount of memory is allocated by the default
+        //      constructor.  (C-9)
+        //
+        //   5. Use the individual (as yet unproven) salient attribute
+        //      accessors to verify the default-constructed value.  (C-1)
+        //
+        //   6. Set `data` attribute to `A`, `B`, and `D`.  Verify that no
+        //      memory allocation occurs.  Use the individual (as yet
+        //      unproven) salient attribute accessors to verify the attribute
+        //      has been changed.  (C-5..6)
+        //
+        //   7. Verify that no temporary memory is allocated from the object
+        //      allocator.  (C-7)
+        //
+        //   8. Verify that all object memory is released when the object is
+        //      destroyed.  (C-8)
         //
         // Testing:
         //   Obj(bslma::Allocator *bA = 0);
@@ -1803,7 +1803,7 @@ int main(int argc, char *argv[])
             ASSERTV(CONFIG, X.movedInto(),
                             X.movedInto() == MoveState::e_NOT_MOVED);
 
-            // 'data'
+            // `data`
             {
                 bslma::TestAllocatorMonitor tam(&oa);
 
@@ -1847,11 +1847,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
+        // 1. Perform and ad-hoc test of the primary modifiers and accessors.
         //
         // Testing:
         //   BREATHING TEST

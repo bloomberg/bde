@@ -4,8 +4,8 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 
@@ -22,8 +22,8 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines a meta-function, 'bsl::is_arithmetic' and
-// a template variable 'bsl::is_arithmetic_v', that determine whether a
+// The component under test defines a meta-function, `bsl::is_arithmetic` and
+// a template variable `bsl::is_arithmetic_v`, that determine whether a
 // template parameter type is an arithmetic type.  Thus, we need to ensure that
 // the value returned by this meta-function is correct for each possible
 // category of types.
@@ -100,56 +100,60 @@ void aSsErT(bool condition, const char *message, int line)
 namespace {
 
 enum EnumTestType {
-    // This user-defined 'enum' type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::is_arithmetic'.
+    // This user-defined `enum` type is intended to be used for testing as the
+    // template parameter `TYPE` of `bsl::is_arithmetic`.
 };
 
+/// This user-defined `struct` type is intended to be used for testing as
+/// the template parameter `TYPE` of `bsl::is_arithmetic`.
 struct StructTestType {
-    // This user-defined 'struct' type is intended to be used for testing as
-    // the template parameter 'TYPE' of 'bsl::is_arithmetic'.
 };
 
+/// This user-defined `union` type is intended to be used for testing as the
+/// template parameter `TYPE` of `bsl::is_arithmetic`.
 union UnionTestType {
-    // This user-defined 'union' type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::is_arithmetic'.
 };
 
+/// This user-defined base class type is intended to be used for testing as
+/// the template parameter `TYPE` of `bsl::is_arithmetic`.
 class BaseClassTestType {
-    // This user-defined base class type is intended to be used for testing as
-    // the template parameter 'TYPE' of 'bsl::is_arithmetic'.
 };
 
+/// This user-defined derived class type is intended to be used for testing
+/// as the template parameter `TYPE` of `bsl::is_arithmetic`.
 class DerivedClassTestType : public BaseClassTestType {
-    // This user-defined derived class type is intended to be used for testing
-    // as the template parameter 'TYPE' of 'bsl::is_arithmetic'.
 };
 
+/// This pointer to non-static member function type is intended to be used
+/// for testing as the template parameter `TYPE` of `bsl::is_arithmetic`.
 typedef int (StructTestType::*MethodPtrTestType) ();
-    // This pointer to non-static member function type is intended to be used
-    // for testing as the template parameter 'TYPE' of 'bsl::is_arithmetic'.
 
+/// This function pointer type is intended to be used for testing as the
+/// template parameter `TYPE` of `bsl::is_arithmetic`.
 typedef void (*FunctionPtrTestType) ();
-    // This function pointer type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::is_arithmetic'.
 
+/// This pointer to member object type is intended to be used for testing as
+/// the template parameter `TYPE` of `bsl::is_arithmetic`.
 typedef int StructTestType::*PMD;
-    // This pointer to member object type is intended to be used for testing as
-    // the template parameter 'TYPE' of 'bsl::is_arithmetic'.
 
 struct Incomplete;
-    // This incomplete 'struct' type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::is_arithmetic'.
+    // This incomplete `struct` type is intended to be used for testing as the
+    // template parameter `TYPE` of `bsl::is_arithmetic`.
 
 }  // close unnamed namespace
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+/// `ASSERT` that `metaFunc_v` has the same value as `metaFunc::value`.
 #   define TYPE_ASSERT_V_SAME(metaFunc, member, type)                         \
         ASSERT(metaFunc<type>::member == metaFunc##_v<type>)
-    // 'ASSERT' that 'metaFunc_v' has the same value as 'metaFunc::value'.
 #else
 #   define TYPE_ASSERT_V_SAME(metaFunc, member, type)
 #endif
 
+/// Test cv-qualified combinations on the specified `type` and confirm that
+/// the result value of the `metaFunc` and the expected `result` value are
+/// the same.  Also confirm that the result value of the `metaFunc` and the
+/// value of the `metaFunc_v` variable are the same.
 #define TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, type, result)                \
     ASSERT(result == metaFunc<type>::member);                                 \
     ASSERT(result == metaFunc<type const>::member);                           \
@@ -159,11 +163,11 @@ struct Incomplete;
     TYPE_ASSERT_V_SAME(metaFunc, member, type const);                         \
     TYPE_ASSERT_V_SAME(metaFunc, member, type volatile);                      \
     TYPE_ASSERT_V_SAME(metaFunc, member, type const volatile);
-    // Test cv-qualified combinations on the specified 'type' and confirm that
-    // the result value of the 'metaFunc' and the expected 'result' value are
-    // the same.  Also confirm that the result value of the 'metaFunc' and the
-    // value of the 'metaFunc_v' variable are the same.
 
+/// Test cv-qualified combinations on the specified `type` and confirm that
+/// the result value of the `metaFunc` and the expected `result` value are
+/// the same.  Also confirm that the result value of the `metaFunc` and the
+/// value of the `metaFunc_v` variable are the same.
 #define TYPE_ASSERT_CVQ_PREFIX(metaFunc, member, type, result)                \
     ASSERT(result == metaFunc<type>::member);                                 \
     ASSERT(result == metaFunc<const type>::member);                           \
@@ -173,11 +177,11 @@ struct Incomplete;
     TYPE_ASSERT_V_SAME(metaFunc, member, const type);                         \
     TYPE_ASSERT_V_SAME(metaFunc, member, volatile type);                      \
     TYPE_ASSERT_V_SAME(metaFunc, member, const volatile type);
-    // Test cv-qualified combinations on the specified 'type' and confirm that
-    // the result value of the 'metaFunc' and the expected 'result' value are
-    // the same.  Also confirm that the result value of the 'metaFunc' and the
-    // value of the 'metaFunc_v' variable are the same.
 
+/// Test a reference to cv-qualified combinations on the specified `type`
+/// and confirm that the result value of the `metaFunc` and the expected
+/// `result` value are the same.  Also confirm that the result value of the
+/// `metaFunc` and the value of the `metaFunc_v` variable are the same.
 #define TYPE_ASSERT_CVQ_REF(metaFunc, member, type, result)                   \
     ASSERT(result == metaFunc<type&>::member);                                \
     ASSERT(result == metaFunc<type const&>::member);                          \
@@ -187,11 +191,12 @@ struct Incomplete;
     TYPE_ASSERT_V_SAME(metaFunc, member, const type&);                        \
     TYPE_ASSERT_V_SAME(metaFunc, member, volatile type&);                     \
     TYPE_ASSERT_V_SAME(metaFunc, member, const volatile type&);
-    // Test a reference to cv-qualified combinations on the specified 'type'
-    // and confirm that the result value of the 'metaFunc' and the expected
-    // 'result' value are the same.  Also confirm that the result value of the
-    // 'metaFunc' and the value of the 'metaFunc_v' variable are the same.
 
+/// Test an r-value reference to cv-qualified combinations on the specified
+/// `type` and confirm that the result value of the `metaFunc` and the
+/// expected `result` value are the same.  Also confirm that the result
+/// value of the `metaFunc` and the value of the `metaFunc_v` variable are
+/// the same.
 #define TYPE_ASSERT_CVQ_RREF(metaFunc, member, type, result)                  \
     ASSERT(result == metaFunc<type&&>::member);                               \
     ASSERT(result == metaFunc<type const&&>::member);                         \
@@ -201,20 +206,15 @@ struct Incomplete;
     TYPE_ASSERT_V_SAME(metaFunc, member, const type&&);                       \
     TYPE_ASSERT_V_SAME(metaFunc, member, volatile type&&);                    \
     TYPE_ASSERT_V_SAME(metaFunc, member, const volatile type&&);
-    // Test an r-value reference to cv-qualified combinations on the specified
-    // 'type' and confirm that the result value of the 'metaFunc' and the
-    // expected 'result' value are the same.  Also confirm that the result
-    // value of the 'metaFunc' and the value of the 'metaFunc_v' variable are
-    // the same.
 
+/// Test all cv-qualified combinations on the specified `type` and confirm
+/// that the result value of the `metaFunc` and the expected `result` value
+/// are the same.
 #define TYPE_ASSERT_CVQ(metaFunc, member, type, result)                       \
     TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, type, result);                   \
     TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, const type, result);             \
     TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, volatile type, result);          \
     TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, const volatile type, result);
-    // Test all cv-qualified combinations on the specified 'type' and confirm
-    // that the result value of the 'metaFunc' and the expected 'result' value
-    // are the same.
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -242,13 +242,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -265,65 +265,65 @@ int main(int argc, char *argv[])
 /// - - - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a set of types are arithmetic types.
 //
-// Now, we instantiate the 'bsl::is_arithmetic' template for these types, and
-// assert the 'value' static data member of each instantiation:
-//..
+// Now, we instantiate the `bsl::is_arithmetic` template for these types, and
+// assert the `value` static data member of each instantiation:
+// ```
     ASSERT(false == bsl::is_arithmetic<int& >::value);
     ASSERT(false == bsl::is_arithmetic<int *>::value);
     ASSERT(true  == bsl::is_arithmetic<int  >::value);
-//..
+// ```
 // Note that if the current compiler supports the variable templates C++14
 // feature then we can re-write the snippet of code above using the
-// 'bsl::is_arithmetic_v' variable as follows:
-//..
+// `bsl::is_arithmetic_v` variable as follows:
+// ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
     ASSERT(false == bsl::is_arithmetic_v<int& >);
     ASSERT(false == bsl::is_arithmetic_v<int *>);
     ASSERT(true  == bsl::is_arithmetic_v<int  >);
 #endif
-//..
+// ```
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::is_arithmetic::value'
-        //   Ensure that the static data member 'value' of
-        //   'bsl::is_arithmetic' instantiations having various (template
-        //   parameter) 'TYPE's has the correct value.
+        // `bsl::is_arithmetic::value`
+        //   Ensure that the static data member `value` of
+        //   `bsl::is_arithmetic` instantiations having various (template
+        //   parameter) `TYPE`s has the correct value.
         //
         // Concerns:
-        //: 1 'is_arithmetic::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) primitive type other than arithmetic type.
-        //:
-        //: 2 'is_arithmetic::value' is 'true' when 'TYPE' is a (possibly
-        //:   cv-qualified) arithmetic type.
-        //:
-        //: 3 'is_arithmetic::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) user-defined type.
-        //:
-        //: 4 'is_arithmetic::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) pointer type.
-        //:
-        //: 5 'is_arithmetic::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) reference type.
-        //:
-        //: 6 'is_arithmetic::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) function type.
-        //:
-        //: 7 That 'is_arithmetic_v<TYPE>' equals to
-        //:    'is_arithmetic<TYPE>::value' for a variety of template parameter
-        //:    types.
+        // 1. `is_arithmetic::value` is `false` when `TYPE` is a (possibly
+        //    cv-qualified) primitive type other than arithmetic type.
+        //
+        // 2. `is_arithmetic::value` is `true` when `TYPE` is a (possibly
+        //    cv-qualified) arithmetic type.
+        //
+        // 3. `is_arithmetic::value` is `false` when `TYPE` is a (possibly
+        //    cv-qualified) user-defined type.
+        //
+        // 4. `is_arithmetic::value` is `false` when `TYPE` is a (possibly
+        //    cv-qualified) pointer type.
+        //
+        // 5. `is_arithmetic::value` is `false` when `TYPE` is a (possibly
+        //    cv-qualified) reference type.
+        //
+        // 6. `is_arithmetic::value` is `false` when `TYPE` is a (possibly
+        //    cv-qualified) function type.
+        //
+        // 7. That `is_arithmetic_v<TYPE>` equals to
+        //     `is_arithmetic<TYPE>::value` for a variety of template parameter
+        //     types.
         //
         // Plan:
-        //   Verify that 'bsl::is_arithmetic::value' has the correct value for
-        //   each (template parameter) 'TYPE' in the concerns.
+        //   Verify that `bsl::is_arithmetic::value` has the correct value for
+        //   each (template parameter) `TYPE` in the concerns.
         //
         // Testing:
         //   bsl::is_arithmetic::value
         //   bsl::is_arithmetic_v
         // --------------------------------------------------------------------
 
-        if (verbose) printf("'bsl::is_arithmetic::value'\n"
+        if (verbose) printf("`bsl::is_arithmetic::value`\n"
                             "===========================\n");
 
         // C-1,7

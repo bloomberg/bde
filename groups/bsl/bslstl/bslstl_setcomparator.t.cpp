@@ -34,17 +34,17 @@
 //                              --------
 // The component under test implements a mechanism.  The component doesn't
 // define any state explicitly, but may inherit state from its parent class,
-// which depends on the parameterized 'COMPARATOR' type.  The component doesn't
+// which depends on the parameterized `COMPARATOR` type.  The component doesn't
 // define any primary manipulators, but it's parent state may be set on
 // construction.
 //
 // Basic Accessors:
-//: o 'keyComparator'
+//  - `keyComparator`
 //
 // Global Concerns:
-//: o All accessor methods are declared 'const'.
-//: o Pointer/reference parameters are declared 'const'.
-//: o No memory is ever allocated.
+//  - All accessor methods are declared `const`.
+//  - Pointer/reference parameters are declared `const`.
+//  - No memory is ever allocated.
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 3] SetComparator();
@@ -60,8 +60,8 @@
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 5] USAGE EXAMPLE
-// [ *] CONCERN: All accessor methods are declared 'const'.
-// [ *] CONCERN: Pointer/reference parameters are declared 'const'.
+// [ *] CONCERN: All accessor methods are declared `const`.
+// [ *] CONCERN: Pointer/reference parameters are declared `const`.
 // [ *] CONCERN: In no case does memory come from the global allocator.
 // [ 3] CONCERN: No memory is ever allocated from this class.
 //-----------------------------------------------------------------------------
@@ -71,18 +71,18 @@
 //                          ADL SWAP TEST HELPER
 // ----------------------------------------------------------------------------
 
+/// Exchange the values of the specified `a` and `b` objects using the
+/// `swap` method found by ADL (Argument Dependent Lookup).  The behavior
+/// is undefined unless `a` and `b` were created with the same allocator.
 template <class TYPE>
 void invokeAdlSwap(TYPE& a, TYPE& b)
-    // Exchange the values of the specified 'a' and 'b' objects using the
-    // 'swap' method found by ADL (Argument Dependent Lookup).  The behavior
-    // is undefined unless 'a' and 'b' were created with the same allocator.
 {
     using namespace bsl;
     swap(a, b);
 }
 
-// The following 'using' directives must come *after* the definition of
-// 'invokeAdlSwap' (above).
+// The following `using` directives must come *after* the definition of
+// `invokeAdlSwap` (above).
 
 using namespace BloombergLP;
 using namespace std;
@@ -158,16 +158,16 @@ namespace {
                        // class LessThanFunctor
                        // =====================
 
+/// This test class provides a mechanism that defines a const function-call
+/// operator that compares two objects of the parameterized `TYPE`.  The
+/// function-call operator is implemented with integer comparison using
+/// integers converted from objects of `TYPE` by the class method
+/// `bsltf::TemplateTestFacility::getIdentifier`.  As a side effect, the
+/// function-call operator also increments a counter `d_numCalls` used to
+/// keep track the method call count.  Object of this class can be
+/// identified by an id passed on construction.
 template <class TYPE>
 class LessThanFunctor {
-    // This test class provides a mechanism that defines a const function-call
-    // operator that compares two objects of the parameterized 'TYPE'.  The
-    // function-call operator is implemented with integer comparison using
-    // integers converted from objects of 'TYPE' by the class method
-    // 'bsltf::TemplateTestFacility::getIdentifier'.  As a side effect, the
-    // function-call operator also increments a counter 'd_numCalls' used to
-    // keep track the method call count.  Object of this class can be
-    // identified by an id passed on construction.
 
     // DATA
     int d_id;
@@ -224,16 +224,16 @@ bool operator!= (const LessThanFunctor<TYPE>& lhs,
                        // class LessThanFunctorMovable
                        // ============================
 
+/// This test class provides a mechanism that defines a const function-call
+/// operator that compares two objects of the parameterized `TYPE` and has
+/// a move constructor.  The function-call operator is implemented with
+/// integer comparison using integers converted from objects of `TYPE` by
+/// the class method `bsltf::TemplateTestFacility::getIdentifier`.  As a
+/// side effect, the function-call operator also increments a counter
+/// `d_numCalls` used to keep track the method call count.  Object of this
+/// class can be identified by an id passed on construction.
 template <class TYPE>
 class LessThanFunctorMovable {
-    // This test class provides a mechanism that defines a const function-call
-    // operator that compares two objects of the parameterized 'TYPE' and has
-    // a move constructor.  The function-call operator is implemented with
-    // integer comparison using integers converted from objects of 'TYPE' by
-    // the class method 'bsltf::TemplateTestFacility::getIdentifier'.  As a
-    // side effect, the function-call operator also increments a counter
-    // 'd_numCalls' used to keep track the method call count.  Object of this
-    // class can be identified by an id passed on construction.
 
     // DATA
     int d_id;
@@ -285,16 +285,16 @@ class LessThanFunctorMovable {
                        // class LessThanFunctorNonConst
                        // =============================
 
+/// This test class provides a mechanism that defines a non-`const`
+/// function-call operator that compares two objects of the parameterized
+/// `TYPE`.  The function-call operator is implemented with integer
+/// comparison using integers converted from objects of `TYPE` by the class
+/// method `bsltf::TemplateTestFacility::getIdentifier`.  As a side effect,
+/// the function-call operator also increments a counter `d_numCalls` used
+/// to keep track the method call count.  Object of this class can be
+/// identified by an id passed on construction.
 template <class TYPE>
 class LessThanFunctorNonConst {
-    // This test class provides a mechanism that defines a non-'const'
-    // function-call operator that compares two objects of the parameterized
-    // 'TYPE'.  The function-call operator is implemented with integer
-    // comparison using integers converted from objects of 'TYPE' by the class
-    // method 'bsltf::TemplateTestFacility::getIdentifier'.  As a side effect,
-    // the function-call operator also increments a counter 'd_numCalls' used
-    // to keep track the method call count.  Object of this class can be
-    // identified by an id passed on construction.
 
 
     // DATA
@@ -372,38 +372,38 @@ void TestDriver<TYPE>::test4()
     // --------------------------------------------------------------------
     // SWAP METHOD
     // Concerns:
-    //: 1 Invoking the 'swap' method or free function on an object with functor
-    //:   'COMPARATOR' passing another object exchanges their 'COMPARATOR'
-    //:   objects.
-    //:
-    //: 2 Invoking the 'swap' method or free function on an object with
-    //:   function pointer 'COMPARATOR' passing another object exchanges their
-    //:   'COMPARATOR' function pointers.
-    //:
-    //: 3 The free 'swap' function is discoverable through ADL (Argument
-    //:   Dependent Lookup).
+    // 1. Invoking the `swap` method or free function on an object with functor
+    //    `COMPARATOR` passing another object exchanges their `COMPARATOR`
+    //    objects.
+    //
+    // 2. Invoking the `swap` method or free function on an object with
+    //    function pointer `COMPARATOR` passing another object exchanges their
+    //    `COMPARATOR` function pointers.
+    //
+    // 3. The free `swap` function is discoverable through ADL (Argument
+    //    Dependent Lookup).
     //
     // Plan:
-    //: 1 Construct two objects using two different functors.  Verify the
-    //:   functors returned by 'keyComparator' compare equal to the functors
-    //:   used on construction'
-    //:
-    //: 2 Invoke the 'swap' method on one of the objects passing in the other.
-    //:   Verify the functor returned by calling 'keyComparator' on each
-    //:   object compare equal to the functor used on construction for the
-    //:   other object.  (C-1)
-    //:
-    //: 3 Construct two objects using two different function pointer.  Verify
-    //:   the function pointers returned by 'keyComparator' point to the same
-    //:   address as the function pointer used on construction.
-    //:
-    //: 4 Invoke the 'swap' method on one of the objects passing in the other.
-    //:   Verify the function pointer returned by calling 'keyComparator' on
-    //:   each object compare equal to the function pointer used on
-    //:   construction for the other object.  (C-2)
-    //:
-    //: 5 Repeat P-1..4, except this time use the 'invokeAdlSwap' helper
-    //:   function template the swap the objects.  (C-1..3)
+    // 1. Construct two objects using two different functors.  Verify the
+    //    functors returned by `keyComparator` compare equal to the functors
+    //    used on construction'
+    //
+    // 2. Invoke the `swap` method on one of the objects passing in the other.
+    //    Verify the functor returned by calling `keyComparator` on each
+    //    object compare equal to the functor used on construction for the
+    //    other object.  (C-1)
+    //
+    // 3. Construct two objects using two different function pointer.  Verify
+    //    the function pointers returned by `keyComparator` point to the same
+    //    address as the function pointer used on construction.
+    //
+    // 4. Invoke the `swap` method on one of the objects passing in the other.
+    //    Verify the function pointer returned by calling `keyComparator` on
+    //    each object compare equal to the function pointer used on
+    //    construction for the other object.  (C-2)
+    //
+    // 5. Repeat P-1..4, except this time use the `invokeAdlSwap` helper
+    //    function template the swap the objects.  (C-1..3)
     //
     // Testing:
     //   void swap(SetComparator& other);
@@ -413,7 +413,7 @@ void TestDriver<TYPE>::test4()
         printf("\n==TYPE: %s==\n", typeid(TYPE).name());
 
     if (verbose)
-        printf("\n\tTesting 'swap' method"
+        printf("\n\tTesting `swap` method"
                "for objects constructed with a functor\n");
     {
         FunctorType fA(1);
@@ -434,7 +434,7 @@ void TestDriver<TYPE>::test4()
     }
 
     if (verbose)
-        printf("\n\tTesting 'swap' method"
+        printf("\n\tTesting `swap` method"
                "for objects constructed with a function pointer\n");
     {
         FunctionType fA = &lessThanFunction<TYPE>;
@@ -455,7 +455,7 @@ void TestDriver<TYPE>::test4()
     }
 
     if (verbose)
-        printf("\n\tTesting 'swap' free function"
+        printf("\n\tTesting `swap` free function"
                "for objects constructed with a functor\n");
     {
         FunctorType fA(1);
@@ -476,7 +476,7 @@ void TestDriver<TYPE>::test4()
     }
 
     if (verbose)
-        printf("\n\tTesting 'swap' free function"
+        printf("\n\tTesting `swap` free function"
                "for objects constructed with a function pointer\n");
     {
         FunctionType fA = &lessThanFunction<TYPE>;
@@ -503,42 +503,42 @@ void TestDriver<TYPE>::test3()
     // --------------------------------------------------------------------
     // FUNCTION OPERATORS
     // Concerns:
-    //: 1 An object supports comparing a const 'Key' object with a const
-    //:   'TreeNode' object and a const 'TreeNode' object with a const 'Key'
-    //:   object for any 'COMPARATOR' type.
-    //:
-    //: 2 An object delegates its comparison operations to a default
-    //:   constructed object of the parameterized 'COMPARATOR' type if
-    //:   'COMPARATOR' is a functor type.
-    //:
-    //: 3 An object delegates its comparison operations to a copy of a functor
-    //:   passed on construction.
-    //:
-    //: 4 An objects delegates its comparison operations to a function referred
-    //:   to by a function pointer passed on construction.
-    //:
-    //: 5 A modifiable reference to an object support delegating to a functor
-    //:   'COMPARATOR' providing a non-'const' function call operator.
+    // 1. An object supports comparing a const `Key` object with a const
+    //    `TreeNode` object and a const `TreeNode` object with a const `Key`
+    //    object for any `COMPARATOR` type.
+    //
+    // 2. An object delegates its comparison operations to a default
+    //    constructed object of the parameterized `COMPARATOR` type if
+    //    `COMPARATOR` is a functor type.
+    //
+    // 3. An object delegates its comparison operations to a copy of a functor
+    //    passed on construction.
+    //
+    // 4. An objects delegates its comparison operations to a function referred
+    //    to by a function pointer passed on construction.
+    //
+    // 5. A modifiable reference to an object support delegating to a functor
+    //    `COMPARATOR` providing a non-`const` function call operator.
     //
     // Plan:
-    //: 1 Construct two objects using the default constructor with (1) a
-    //:   functor type providing a const function call operator and (2) a
-    //:   functor type providing a non-'const' function call operator.  Verify
-    //:   the operations of calling the 'operator()' on non-modifiable
-    //:   references to the first object and a modifiable reference to the
-    //:   second object.  (C-1..2, 5)
-    //:
-    //: 2 Construct two object using the value constructor passing in (1) a
-    //:   functor providing a const function call operator and (2) a functor
-    //:   providing a non-'const' function call operator.  Verify that invoking
-    //:   the 'operator()' on a non-modifiable reference to the first object
-    //:   and a modifiable reference to the second object delegate their
-    //:   operations to a copy of the functor passed on construction.
-    //:   (C-1, 3, 5)
-    //:
-    //: 3 Construct an object using a function pointer.  Verify 'operator()'
-    //:   delegates its operations to the function pointed to by that function
-    //:   pointer.  (C-1, 4)
+    // 1. Construct two objects using the default constructor with (1) a
+    //    functor type providing a const function call operator and (2) a
+    //    functor type providing a non-`const` function call operator.  Verify
+    //    the operations of calling the `operator()` on non-modifiable
+    //    references to the first object and a modifiable reference to the
+    //    second object.  (C-1..2, 5)
+    //
+    // 2. Construct two object using the value constructor passing in (1) a
+    //    functor providing a const function call operator and (2) a functor
+    //    providing a non-`const` function call operator.  Verify that invoking
+    //    the `operator()` on a non-modifiable reference to the first object
+    //    and a modifiable reference to the second object delegate their
+    //    operations to a copy of the functor passed on construction.
+    //    (C-1, 3, 5)
+    //
+    // 3. Construct an object using a function pointer.  Verify `operator()`
+    //    delegates its operations to the function pointed to by that function
+    //    pointer.  (C-1, 4)
     //
     // Testing:
     //   SetComparator();
@@ -556,7 +556,7 @@ void TestDriver<TYPE>::test3()
     bslma::DefaultAllocatorGuard dag(&da);
 
     if (verbose)
-        printf("\n\tTesting 'operator()' "
+        printf("\n\tTesting `operator()` "
                "for default constructed object\n");
     {
         SetComparator<Key, FunctorType> mComp;
@@ -594,7 +594,7 @@ void TestDriver<TYPE>::test3()
     }
 
     if (verbose)
-        printf("\n\tTesting 'operator()' "
+        printf("\n\tTesting `operator()` "
                "for objects constructed with a functor\n");
     {
 
@@ -645,7 +645,7 @@ void TestDriver<TYPE>::test3()
     }
 
     if (verbose)
-        printf("\n\tTesting 'operator()' "
+        printf("\n\tTesting `operator()` "
                "for objects constructed with a functor\n");
     {
         int id = 1;
@@ -678,7 +678,7 @@ void TestDriver<TYPE>::test3()
     }
 
     if (verbose)
-        printf("\n\tTesting 'operator()' "
+        printf("\n\tTesting `operator()` "
                "for objects constructed with a function pointer\n");
     {
         SetComparator<Key, FunctionType> mComp(&lessThanFunction<TYPE>);
@@ -716,34 +716,34 @@ void TestDriver<TYPE>::test2()
     // --------------------------------------------------------------------
     // CONSTRUCTORS AND BASIC ACCESSORS
     // Concerns:
-    //: 1 If a object is created using the default constructor,
-    //:   'keyComparator' returns a default constructed 'COMPARATOR' object.
-    //:
-    //: 2 If a object is created using a functor 'COMPARATOR', 'keyComparator'
-    //:   returns a copy constructed object of that functor.
-    //:
-    //: 3 If a object is created using a function pointer 'COMPARATOR',
-    //:   'keyComparator' returns a pointer pointing to the function.
-    //:
-    //: 4 Default constructing an object with parameterized type as a function
-    //:   pointer causes a compile time failure.
+    // 1. If a object is created using the default constructor,
+    //    `keyComparator` returns a default constructed `COMPARATOR` object.
+    //
+    // 2. If a object is created using a functor `COMPARATOR`, `keyComparator`
+    //    returns a copy constructed object of that functor.
+    //
+    // 3. If a object is created using a function pointer `COMPARATOR`,
+    //    `keyComparator` returns a pointer pointing to the function.
+    //
+    // 4. Default constructing an object with parameterized type as a function
+    //    pointer causes a compile time failure.
     //
     // Plan:
-    //: 1 Construct a object using the default constructor with a functor type
-    //:   as the parameterized 'COMPARATOR' type.  Verify the functor returned
-    //:   by 'keyComparator' is default constructed.  (C-1)
-    //:
-    //: 2 Construct a object using a functor.  Verify the functor returned by
-    //:  'keyComparator' compare equal to the functor used on construction'.
-    //:  (C-2)
-    //:
-    //: 3 Construct a object using a function pointer.  Verify the function
-    //:   pointer returned by 'keyComparator' points to the same address as
-    //:   the function pointer used on construction.  (C-3)
-    //:
-    //: 4 Manually verify that default-constructing an object with a function
-    //:   pointer as the parameterized 'COMPARATOR' type causes the compilation
-    //:   to fail.  (C-4)
+    // 1. Construct a object using the default constructor with a functor type
+    //    as the parameterized `COMPARATOR` type.  Verify the functor returned
+    //    by `keyComparator` is default constructed.  (C-1)
+    //
+    // 2. Construct a object using a functor.  Verify the functor returned by
+    //   `keyComparator` compare equal to the functor used on construction'.
+    //   (C-2)
+    //
+    // 3. Construct a object using a function pointer.  Verify the function
+    //    pointer returned by `keyComparator` points to the same address as
+    //    the function pointer used on construction.  (C-3)
+    //
+    // 4. Manually verify that default-constructing an object with a function
+    //    pointer as the parameterized `COMPARATOR` type causes the compilation
+    //    to fail.  (C-4)
     //
     // Testing:
     //   SetComparator();
@@ -759,7 +759,7 @@ void TestDriver<TYPE>::test2()
     bslma::DefaultAllocatorGuard dag(&da);
 
     if (verbose)
-        printf("\n\tTesting 'keyComparator()' "
+        printf("\n\tTesting `keyComparator()` "
                "for default constructed objects\n");
     {
         FunctorType functor;
@@ -769,7 +769,7 @@ void TestDriver<TYPE>::test2()
     }
 
     if (verbose)
-        printf("\n\tTesting 'keyComparator()' "
+        printf("\n\tTesting `keyComparator()` "
                "for objects constructed with a functor\n");
     {
         FunctorType functor(1);
@@ -779,7 +779,7 @@ void TestDriver<TYPE>::test2()
     }
 
     if (verbose)
-        printf("\n\tTesting 'keyComparator()' "
+        printf("\n\tTesting `keyComparator()` "
                "for objects constructed with a function pointer\n");
     {
         SetComparator<Key, FunctionType> mComp(&lessThanFunction<TYPE>);
@@ -901,14 +901,14 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Create a Simple Tree of 'TreeNode' Objects
+///Example 1: Create a Simple Tree of `TreeNode` Objects
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to create a tree of 'TreeNode' objects arranged
+// Suppose that we want to create a tree of `TreeNode` objects arranged
 // according to a functor that we supply.
 //
-// First, we create an array of 'bslstl::TreeNode' objects, each holding a pair
+// First, we create an array of `bslstl::TreeNode` objects, each holding a pair
 // of integers:
-//..
+// ```
           typedef bsl::allocator<TreeNode<int> > Alloc;
 
           bslma::TestAllocator oa;
@@ -922,14 +922,14 @@ int main(int argc, char *argv[])
               nodes[i] = allocator.allocate(1);
               nodes[i]->value() = i;
           }
-//..
-// Then, we define a 'SetComparator' object, 'comparator', for comparing
-// 'bslstl::TreeNode<int>' objects with integers.
-//..
+// ```
+// Then, we define a `SetComparator` object, `comparator`, for comparing
+// `bslstl::TreeNode<int>` objects with integers.
+// ```
           SetComparator<int, std::less<int> > comparator;
-//..
-// Now, we can use the functions in 'bslalg::RbTreeUtil' to arrange our tree:
-//..
+// ```
+// Now, we can use the functions in `bslalg::RbTreeUtil` to arrange our tree:
+// ```
           bslalg::RbTreeAnchor tree;
 
           for (int i = 0; i < NUM_NODES; ++i) {
@@ -950,10 +950,10 @@ int main(int argc, char *argv[])
           }
 
           ASSERT(5 == tree.numNodes());
-//..
-// Then, we use 'bslalg::RbTreeUtil::next()' to navigate the elements of the
+// ```
+// Then, we use `bslalg::RbTreeUtil::next()` to navigate the elements of the
 // tree, printing their values:
-//..
+// ```
           const bslalg::RbTreeNode *nodeIterator = tree.firstNode();
 
           while (nodeIterator != tree.sentinel()) {
@@ -961,21 +961,21 @@ int main(int argc, char *argv[])
                     static_cast<const TreeNode<int> *>(nodeIterator)->value());
               nodeIterator = bslalg::RbTreeUtil::next(nodeIterator);
           }
-//..
-// Next, we destroy and deallocate each of the 'bslstl::TreeNode' objects:
-//..
+// ```
+// Next, we destroy and deallocate each of the `bslstl::TreeNode` objects:
+// ```
           for (int i = 0; i < NUM_NODES; ++i) {
               allocator.deallocate(nodes[i], 1);
           }
-//..
+// ```
 // Finally, we observe the console output:
-//..
+// ```
 //  Node value: 0
 //  Node value: 1
 //  Node value: 2
 //  Node value: 3
 //  Node value: 4
-//..
+// ```
       } break;
       case 4: {
         if (verbose) printf("\nSWAP METHOD"

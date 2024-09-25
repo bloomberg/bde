@@ -26,7 +26,7 @@
 #include <bsls_systemtime.h>
 #include <bsls_platform.h>
 #include <bsls_timeutil.h>  // For CachePerformance
-#include <bsls_types.h>     // For 'BloombergLP::bsls::Types::Int64'
+#include <bsls_types.h>     // For `BloombergLP::bsls::Types::Int64`
 
 #include <bdlf_bind.h>
 
@@ -44,7 +44,7 @@
 #include <bsl_string.h>
 #include <bsl_utility.h>
 #include <bsl_vector.h>
-#include <bsl_cmath.h>   // 'sqrt'
+#include <bsl_cmath.h>   // `sqrt`
 #include <bsl_cstdlib.h>
 
 using bsl::cout;
@@ -96,24 +96,24 @@ using namespace BloombergLP;
 // [ 1] BREATHING TEST
 // [ 3] PRIMARY TEST APPARATUS
 // [ 5] OUTPUT (<<) OPERATOR
-// [ 8] CONCERN: 'deleteQueueCb' is the last callback processed
+// [ 8] CONCERN: `deleteQueueCb` is the last callback processed
 // [ 9] CONCERN: Multi-threaded safety of public API and processing
-// [10] CONCERN: One 'bdlmt::ThreadPool' can be shared by two MQTPs
-// [11] CONCERN: 'deleteQueue' blocks the caller
+// [10] CONCERN: One `bdlmt::ThreadPool` can be shared by two MQTPs
+// [11] CONCERN: `deleteQueue` blocks the caller
 // [12] CONCERN: Cleanup callback does not deadlock
 // [20] DRQS 99979290
 // [21] DRQS 104502699
 // [22] PAUSE/DELETE INTERACTION
 // [23] DRQS 107865762: more than one task per queue to thread pool
 // [24] DRQS 107733386: pause queue can be indefinitely deferred
-// [25] DRQS 112259433: 'drain' and 'deleteQueue' can deadlock
-// [26] DRQS 113734461: 'deleteQueue' copies cleanupFunctor
-// [27] DRQS 118269630: 'drain' may not drain underlying threadpool
+// [25] DRQS 112259433: `drain` and `deleteQueue` can deadlock
+// [26] DRQS 113734461: `deleteQueue` copies cleanupFunctor
+// [27] DRQS 118269630: `drain` may not drain underlying threadpool
 // [28] DRQS 139148629: deadlock when job pauses another queue
-// [29] DRQS 138890062: 'deleteQueueCb' running after destructor
+// [29] DRQS 138890062: `deleteQueueCb` running after destructor
 // [30] DRQS 140150365: resume fails immediately after pause
 // [31] DRQS 140403279: pause can deadlock with delete and create
-// [32] DRQS 143578129: 'numElements' stress test
+// [32] DRQS 143578129: `numElements` stress test
 // [34] DRQS 176332566: external threadpool shutdown race
 // [35] USAGE EXAMPLE 1
 // [-2] PERFORMANCE TEST
@@ -249,8 +249,8 @@ void makeFunc(Func  *f,
 void noop() {
 }
 
+/// Check that the name of the thread is one of the acceptable values.
 void checkThreadName()
-    // Check that the name of the thread is one of the acceptable values.
 {
     bsl::string threadName;
     bslmt::ThreadUtil::getThreadName(&threadName);
@@ -259,18 +259,18 @@ void checkThreadName()
                 threadName == "bdl.MultiQuePl" || threadName == "OtherName");
 }
 
+/// Increment the value at the address specified by `counter`.
 static
 void incrementCounter(bsls::AtomicInt *counter)
-    // Increment the value at the address specified by 'counter'.
 {
     ASSERT(counter);
     ++*counter;
 }
 
+/// Timed wait on the specified `barrier` for 0.1 seconds and load into the
+/// specified `timedOut` a non-zero value if the `timedWait` timeouts.
 static void timedWaitOnBarrier(bslmt::Barrier  *barrier,
                                bsls::AtomicInt *timedOut)
-    // Timed wait on the specified 'barrier' for 0.1 seconds and load into the
-    // specified 'timedOut' a non-zero value if the 'timedWait' timeouts.
 {
     ASSERT(barrier);
     ASSERT(timedOut);
@@ -283,8 +283,8 @@ static void waitTwiceAndIncrement(bslmt::Barrier  *barrier,
                                   bsls::AtomicInt *counter,
                                   int              incrementBy)
 {
-    // Wait two times on the specified 'barrier' and increment the specified
-    // 'counter' by the specified 'incrementBy' value.
+    // Wait two times on the specified `barrier` and increment the specified
+    // `counter` by the specified `incrementBy` value.
     barrier->wait();
     barrier->wait();
     counter->add(incrementBy);
@@ -294,8 +294,8 @@ static void resumeAndIncrement(Obj             *pool,
                                int              queueId,
                                bsls::AtomicInt *counter)
 {
-    // Resume the queue with the specified 'queueId' in the specified 'pool'.
-    // On success, increment the specified 'counter'.
+    // Resume the queue with the specified `queueId` in the specified `pool`.
+    // On success, increment the specified `counter`.
 
     if (0 == pool->resumeQueue(queueId)) {
         (*counter)++;
@@ -307,9 +307,9 @@ static void waitPauseAndIncrement(bslmt::Barrier  *barrier,
                                   int              queueId,
                                   bsls::AtomicInt *counter)
 {
-    // Wait on the specified 'barrier', pause the queue with the specified
-    // 'queueId' in the specified 'pool' and then increment the specified
-    // 'counter'.  Finally, wait on the barrier again.
+    // Wait on the specified `barrier`, pause the queue with the specified
+    // `queueId` in the specified `pool` and then increment the specified
+    // `counter`.  Finally, wait on the barrier again.
 
     barrier->wait();
     int rc = pool->pauseQueue(queueId);
@@ -322,16 +322,16 @@ static void waitThenAppend(bslmt::Semaphore *semaphore,
                            bsl::string      *value,
                            char              letter)
 {
-    // Wait on the specified 'semaphore', then append the specified 'letter' to
-    // the specified 'value'.
+    // Wait on the specified `semaphore`, then append the specified `letter` to
+    // the specified `value`.
     semaphore->wait();
     value->push_back(letter);
 }
 
 static void waitPauseWait(bslmt::Barrier *barrier, Obj *pool, int queueId)
 {
-    // Wait on the specified 'barrier', resume the queue with the specified
-    // 'queueId' in the specified 'pool', and then wait on the 'barrier'.
+    // Wait on the specified `barrier`, resume the queue with the specified
+    // `queueId` in the specified `pool`, and then wait on the `barrier`.
 
     barrier->wait();
     int rc = pool->pauseQueue(queueId);
@@ -341,7 +341,7 @@ static void waitPauseWait(bslmt::Barrier *barrier, Obj *pool, int queueId)
 
 static void waitWait(bslmt::Barrier *barrier)
 {
-    // Wait on the specified 'barrier' twice.
+    // Wait on the specified `barrier` twice.
 
     barrier->wait();
     barrier->wait();
@@ -349,8 +349,8 @@ static void waitWait(bslmt::Barrier *barrier)
 
 static void waitWaitCreate(bslmt::Barrier *barrier, Obj *pool)
 {
-    // Wait on the specified 'barrier' twice, then create a queue in the
-    // specified 'pool'.
+    // Wait on the specified `barrier` twice, then create a queue in the
+    // specified `pool`.
 
     barrier->wait();
     barrier->wait();
@@ -359,8 +359,8 @@ static void waitWaitCreate(bslmt::Barrier *barrier, Obj *pool)
 
 static void waitWaitDelete(bslmt::Barrier *barrier, Obj *pool, int queueId)
 {
-    // Wait on the specified 'barrier' twice, then delete the queue with the
-    // specified 'queueId' in the specified 'pool'.
+    // Wait on the specified `barrier` twice, then delete the queue with the
+    // specified `queueId` in the specified `pool`.
 
     barrier->wait();
     barrier->wait();
@@ -380,7 +380,7 @@ static void addAppendJobAtFront(Obj         *pool,
 
 static void waitOnBarrier(bslmt::Barrier *barrier, int numIterations)
 {
-    // Wait on the specified 'barrier' for 'numIterations' iterations.
+    // Wait on the specified `barrier` for `numIterations` iterations.
 
     ASSERT(barrier);
 
@@ -517,8 +517,8 @@ void case12EnqueueJob(bdlmt::MultiQueueThreadPool *mqtp,
                       const Func&                  job,
                       bslmt::Barrier              *barrier)
 {
-    // Enqueue the specified 'job' to the queue with the specified 'id' managed
-    // by the 'bdlmt::MultiQueueThreadPool' pointed to by 'mqtp'.
+    // Enqueue the specified `job` to the queue with the specified `id` managed
+    // by the `bdlmt::MultiQueueThreadPool` pointed to by `mqtp`.
 
     ASSERT(mqtp);
     ASSERT(barrier);
@@ -537,9 +537,9 @@ void case12DeleteQueue(bdlmt::MultiQueueThreadPool *mqtp,
                        const Func&                  cleanupCb,
                        bslmt::Barrier              *barrier)
 {
-    // Delete the queue identified by 'id' from the
-    // 'bdlmt::MultiQueueThreadPool' pointed to by 'mqtp' with the specified
-    // 'cleanupCb' callback.
+    // Delete the queue identified by `id` from the
+    // `bdlmt::MultiQueueThreadPool` pointed to by `mqtp` with the specified
+    // `cleanupCb` callback.
 
     ASSERT(mqtp);
     ASSERT(barrier);
@@ -550,9 +550,9 @@ void case12DeleteQueue(bdlmt::MultiQueueThreadPool *mqtp,
     barrier->wait();
 }
 
+/// Set the specified `called` to `true`.  Note that this function in
+/// intended to be bound as a cleanup functor for `deleteQueue`
 void case26CleanupFunctor(bool *called)
-    // Set the specified 'called' to 'true'.  Note that this function in
-    // intended to be bound as a cleanup functor for 'deleteQueue'
 {
     if (veryVerbose) {
         bsl::cout << "Case26 Cleanup Functor" << bsl::endl;
@@ -560,19 +560,19 @@ void case26CleanupFunctor(bool *called)
     *called = true;
 }
 
+/// Call `wait` on the specified `latch`.
 void case26WaitJob(bslmt::Latch *latch)
-    // Call 'wait' on the specified 'latch'.
 {
     latch->wait();
 }
 
+/// Call `deleteQueue` on the specified `queue`, using the specified
+/// `queueId`, and supply a cleanup functor that will set `cleanupDone` to
+/// `true`, and will be *destroyed* when this function exits (i.e., the
+/// functor will be called after the temporary functor in this function call
+/// is destroyed).  Note that this is factored into a separate function to
+/// ensure the temporary functor is destroyed.
 void case26DeleteQueue(Obj *queue, int queueId, bool *cleanupDone)
-    // Call 'deleteQueue' on the specified 'queue', using the specified
-    // 'queueId', and supply a cleanup functor that will set 'cleanupDone' to
-    // 'true', and will be *destroyed* when this function exits (i.e., the
-    // functor will be called after the temporary functor in this function call
-    // is destroyed).  Note that this is factored into a separate function to
-    // ensure the temporary functor is destroyed.
 {
     queue->deleteQueue(
         queueId, bdlf::BindUtil::bind(&case26CleanupFunctor, cleanupDone));
@@ -624,7 +624,7 @@ void case29Job()
 {
     s_case29Barrier_p->wait();
 
-    // If the destructor waits for the 'deleteQueueCb' to complete, the
+    // If the destructor waits for the `deleteQueueCb` to complete, the
     // following will time-out.
 
     ASSERT(0 != s_case29Barrier_p->timedWait(
@@ -646,20 +646,21 @@ void case32Job()
 //
 ///Example 1: A Word Search Application
 /// - - - - - - - - - - - - - - - - - -
-// This example illustrates the use of a 'bdlmt::MultiQueueThreadPool' in a
-// word search application called 'fastSearch'.  'fastSearch' searches a list
+// This example illustrates the use of a `bdlmt::MultiQueueThreadPool` in a
+// word search application called `fastSearch`.  `fastSearch` searches a list
 // of files for a list of words, and returns the set of files which contain all
-// of the specified words.  'bdlmt::MultiQueueThreadPool' is used to provide
+// of the specified words.  `bdlmt::MultiQueueThreadPool` is used to provide
 // concurrent processing of files, and to simplify the collection of results by
 // serializing access to result sets which are maintained for each word.
 //
 // First, we present a class used to manage a word, and the set of files which
 // contain that word:
-//..
+// ```
+
+    /// This class defines a search profile consisting of a word and a set
+    /// of files (given by name) that contain the word.  Here, "word" is
+    /// defined as any string of characters.
     class my_SearchProfile {
-        // This class defines a search profile consisting of a word and a set
-        // of files (given by name) that contain the word.  Here, "word" is
-        // defined as any string of characters.
 
         bsl::string           d_word;     // word to search for
         bsl::set<bsl::string> d_fileSet;  // set of matching files
@@ -671,36 +672,39 @@ void case32Job()
 
       public:
         // CREATORS
+
+        /// Create a `my_SearchProfile` with the specified `word`.
+        /// Optionally specify a `basicAllocator` used to supply memory.  If
+        /// `basicAllocator` is 0, the default memory allocator is used.
         my_SearchProfile(const char       *word,
                          bslma::Allocator *basicAllocator = 0);
-            // Create a 'my_SearchProfile' with the specified 'word'.
-            // Optionally specify a 'basicAllocator' used to supply memory.  If
-            // 'basicAllocator' is 0, the default memory allocator is used.
 
+        /// Destroy this search profile.
         ~my_SearchProfile();
-            // Destroy this search profile.
 
         // MANIPULATORS
+
+        /// Insert the specified `file` into the file set maintained by this
+        /// search profile.
         void insert(const char *file);
-            // Insert the specified 'file' into the file set maintained by this
-            // search profile.
 
         // ACCESSORS
+
+        /// Return `true` if the specified `file` matches this search
+        /// profile.
         bool isMatch(const char *file) const;
-            // Return 'true' if the specified 'file' matches this search
-            // profile.
 
+        /// Return a reference to the non-modifiable file set maintained by
+        /// this search profile.
         const bsl::set<bsl::string>& fileSet() const;
-            // Return a reference to the non-modifiable file set maintained by
-            // this search profile.
 
+        /// Return a reference to the non-modifiable word maintained by this
+        /// search profile.
         const bsl::string& word() const;
-            // Return a reference to the non-modifiable word maintained by this
-            // search profile.
     };
-//..
+// ```
 // And the implementation:
-//..
+// ```
     // CREATORS
     my_SearchProfile::my_SearchProfile(const char       *word,
                                        bslma::Allocator *basicAllocator)
@@ -754,16 +758,16 @@ void case32Job()
     {
         return d_word;
     }
-//..
+// ```
 // Next, we define a helper function to perform a search of a word in a
 // particular file.  The function is parameterized by a search profile and a
 // file name.  If the specified file name matches the profile, it is inserted
 // into the profile's file list.
-//..
+// ```
     void my_SearchCb(my_SearchProfile* profile, const char *file)
     {
-        // Insert the specified 'file' to the file set of the specified search
-        // 'profile' if 'file' matches the 'profile'.
+        // Insert the specified `file` to the file set of the specified search
+        // `profile` if `file` matches the `profile`.
 
         ASSERT(profile);
         ASSERT(file);
@@ -772,45 +776,45 @@ void case32Job()
             profile->insert(file);
         }
     }
-//..
-// Lastly, we present the front end to the search application: 'fastSearch'.
-// 'fastSearch' is parameterized by a list of words to search for, a list of
+// ```
+// Lastly, we present the front end to the search application: `fastSearch`.
+// `fastSearch` is parameterized by a list of words to search for, a list of
 // files to search in, and a set which is populated with the search results.
-// 'fastSearch' instantiates a 'bdlmt::MultiQueueThreadPool', and creates a
+// `fastSearch` instantiates a `bdlmt::MultiQueueThreadPool`, and creates a
 // queue for each word.  It then associates each queue with a search profile
 // based on a word in the word list.  Then, it enqueues a job to each queue for
 // each file in the file list that tries to match the file to each search
-// profile.  Lastly, 'fastSearch' collects the results, which is the set
+// profile.  Lastly, `fastSearch` collects the results, which is the set
 // intersection of each file set maintained by the individual search profiles.
-//..
+// ```
     void fastSearch(const bsl::vector<bsl::string>&  wordList,
                     const bsl::vector<bsl::string>&  fileList,
                     bsl::set<bsl::string>&           resultSet,
                     int                              repetitions = 1,
                     bslma::Allocator                *basicAllocator = 0)
     {
-        // Return the set of files, specified by 'fileList', containing every
-        // word in the specified 'wordList', in the specified 'resultSet'.
-        // Optionally specify 'repetitions', the number of repetitions to run
+        // Return the set of files, specified by `fileList`, containing every
+        // word in the specified `wordList`, in the specified `resultSet`.
+        // Optionally specify `repetitions`, the number of repetitions to run
         // the search jobs (it is used to increase the load for performance
-        // testing).  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the default memory allocator is
+        // testing).  Optionally specify a `basicAllocator` used to supply
+        // memory.  If `basicAllocator` is 0, the default memory allocator is
         // used.
 
+        /// This type is defined for notational convenience when iterating
+        /// over `wordList` or `fileList`.
         typedef bsl::vector<bsl::string> ListType;
-            // This type is defined for notational convenience when iterating
-            // over 'wordList' or 'fileList'.
 
+        /// This type is defined for notational convenience.  The first
+        /// parameter specifies a queue ID.  The second parameter specifies
+        /// an associated search profile.
         typedef bsl::pair<int, my_SearchProfile*> RegistryValue;
-            // This type is defined for notational convenience.  The first
-            // parameter specifies a queue ID.  The second parameter specifies
-            // an associated search profile.
 
+        /// This type is defined for notational convenience.  The first
+        /// parameter specifies a word.  The second parameter specifies a
+        /// tuple containing a queue ID, and an associated search profile
+        /// containing the specified word.
         typedef bsl::map<bsl::string, RegistryValue> RegistryType;
-            // This type is defined for notational convenience.  The first
-            // parameter specifies a word.  The second parameter specifies a
-            // tuple containing a queue ID, and an associated search profile
-            // containing the specified word.
 
         enum {
             // thread pool configuration
@@ -828,7 +832,7 @@ void case32Job()
         RegistryType profileRegistry(bsl::less<bsl::string>(), basicAllocator);
 
         // Create a queue and a search profile associated with each word in
-        // 'wordList'.
+        // `wordList`.
 
         for (ListType::const_iterator it = wordList.begin();
              it != wordList.end();
@@ -853,7 +857,7 @@ void case32Job()
         // Start the pool, enabling enqueuing and queue processing.
         pool.start();
 
-        // Enqueue a job which tries to match each file in 'fileList' with each
+        // Enqueue a job which tries to match each file in `fileList` with each
         // search profile.
 
         for (ListType::const_iterator it = fileList.begin();
@@ -877,7 +881,7 @@ void case32Job()
         // Stop the pool, and wait while enqueued jobs are processed.
         pool.stop();
 
-        // Construct the 'resultSet' as the intersection of file sets collected
+        // Construct the `resultSet` as the intersection of file sets collected
         // in each search profile.
 
         resultSet.insert(fileList.begin(), fileList.end());
@@ -897,7 +901,7 @@ void case32Job()
                                                                       profile);
         }
     }
-//..
+// ```
 
 struct StressJob {
     int        d_x;
@@ -924,21 +928,23 @@ int StressJob::s_count = 0;
 
 namespace mqpoolperf {
 
+/// This class performs the various performance tests
 class MQPoolPerformance {
-    // This class performs the various performance tests
 
   public:
     typedef bsls::Types::Int64              TimeType;
     typedef bsl::vector<bsls::Types::Int64> VecTimeType;
     typedef bsl::vector<int> VecIntType;
+
+    /// Initialization function takes a vector of ints, and returns 0 for
+    /// success, <0 for failure.
     typedef int (*InitFunc)(MQPoolPerformance*, VecIntType&);
-        // Initialization function takes a vector of ints, and returns 0 for
-        // success, <0 for failure.
+
+    /// Run function takes a pointer to MQPoolPerformance, and a vector of
+    /// ints.  It returns a return code of 0 for success, <0 for failure.
+    /// The last entry in the vector of ints is the thread number.  Writer
+    /// threads are first, writers after.
     typedef int (*RunFunc)(MQPoolPerformance*, VecIntType&);
-        // Run function takes a pointer to MQPoolPerformance, and a vector of
-        // ints.  It returns a return code of 0 for success, <0 for failure.
-        // The last entry in the vector of ints is the thread number.  Writer
-        // threads are first, writers after.
 
     typedef struct WorkData {
         RunFunc            d_func;
@@ -961,27 +967,31 @@ class MQPoolPerformance {
 
     VecTimeType d_vecWTime;
     VecTimeType d_vecUTime;
+
+    // Wall time, User time and system time in nanos, collected from the
+    // various threads, and the various repeats.  If we have 6 threads, and
+    // 100 repeats, we will have 60 entries.
     VecTimeType d_vecSTime;
-        // Wall time, User time and system time in nanos, collected from the
-        // various threads, and the various repeats.  If we have 6 threads, and
-        // 100 repeats, we will have 60 entries.
 
     TimeType d_avgWTime;
     TimeType d_avgUTime;
+
+    // Averages of Wall time, User time and system time in nanos,
+    // calculated from d_vecWTime, d_vecUTime, d_vecCTime respectively.
     TimeType d_avgSTime;
-        // Averages of Wall time, User time and system time in nanos,
-        // calculated from d_vecWTime, d_vecUTime, d_vecCTime respectively.
     TimeType d_seWTime;
     TimeType d_seUTime;
+
+    // Standard errors of Wall time, User time and system time in nanos,
+    // calculated from d_vecWTime, d_vecUTime, d_vecCTime respectively.  It
+    // is set to 0 if d_numRepeat = 1.
     TimeType d_seSTime;
-        // Standard errors of Wall time, User time and system time in nanos,
-        // calculated from d_vecWTime, d_vecUTime, d_vecCTime respectively.  It
-        // is set to 0 if d_numRepeat = 1.
+
+    /// run a single repetition of the calculation.  The calculation is
+    /// defined in the specified `func` function, and takes as input the
+    /// specified `args` vector.  Return for each thread a triad of elapsed
+    /// wall time, user time, system time.
     VecTimeType runTest(VecIntType& args, RunFunc func);
-        // run a single repetition of the calculation.  The calculation is
-        // defined in the specified 'func' function, and takes as input the
-        // specified 'args' vector.  Return for each thread a triad of elapsed
-        // wall time, user time, system time.
 
     // NOT IMPLEMENTED
     MQPoolPerformance(const MQPoolPerformance&);
@@ -995,45 +1005,49 @@ class MQPoolPerformance {
                       int               numRepeats,
                       bslma::Allocator *basicAllocator = 0);
 
+    /// run the initialization function.  The initialization is defined in
+    /// the specified `func` function, and takes as input the specified
+    /// `args` vector.  Returns the return code from `func`.
     int initialize(VecIntType& args, InitFunc func);
-        // run the initialization function.  The initialization is defined in
-        // the specified 'func' function, and takes as input the specified
-        // 'args' vector.  Returns the return code from 'func'.
+
+    /// run the tests by running `runTest` numRepeats times.  The test being
+    /// run is the defined in the specified `func` function, and takes as
+    /// input the specified `args` vector.  Return a triad of elapsed wall
+    /// time, user time, and system time.
     VecTimeType runTests(VecIntType& args, RunFunc func);
-        // run the tests by running 'runTest' numRepeats times.  The test being
-        // run is the defined in the specified 'func' function, and takes as
-        // input the specified 'args' vector.  Return a triad of elapsed wall
-        // time, user time, and system time.
+
+    /// print the output from the calculation
     void printResult();
-        // print the output from the calculation
 
     // ACCESSORS
+
+    ///  Return the allocator used by this object.
     bslma::Allocator *allocator() const;
-        //  Return the allocator used by this object.
 
+    /// Return the number of calculations
     int numCalcs() const;
-        // Return the number of calculations
 
+    /// Return the number of test repetitions
     int numRepeats() const;
-        // Return the number of test repetitions
 
+    /// Return the number of reader threads
     int numRThreads() const;
-        // Return the number of reader threads
 
+    /// Return the number of writer threads
     int numWThreads() const;
-        // Return the number of writer threads
 
+    /// Return the total number of threads.  It is equal to numRThreads() +
+    /// numWThreads().
     int numThreads() const;
-        // Return the total number of threads.  It is equal to numRThreads() +
-        // numWThreads().
 
+    /// Return the test title.
     const char* title() const;
-        // Return the test title.
 
     // TEST FUNCTIONS
+
+    /// Run the fastSearch test functionInsert with the specified
+    /// `poolperf_p`.  The specified `args` vector is empty.
     static int testFastSearch(MQPoolPerformance *poolperf_p, VecIntType& args);
-        // Run the fastSearch test functionInsert with the specified
-        // 'poolperf_p'.  The specified 'args' vector is empty.
 
 };  // END class MQPoolPerformance
 
@@ -1264,8 +1278,8 @@ const char* MQPoolPerformance::title() const
 int MQPoolPerformance::testFastSearch(MQPoolPerformance *poolperf_p,
                                       VecIntType&)
 {
-    // Run the fastSearch test functionInsert with the specified 'poolperf_p'.
-    // The specified 'args' vector is empty.
+    // Run the fastSearch test functionInsert with the specified `poolperf_p`.
+    // The specified `args` vector is empty.
     bslma::TestAllocator ta(false);
 
     bsl::string WORDS[] = {
@@ -1304,7 +1318,7 @@ int MQPoolPerformance::testFastSearch(MQPoolPerformance *poolperf_p,
 
 // This was originally done twice in a loop in case 14, but it is taking so
 // long that it was broken up to be called separately in 2 cases with different
-// values of 'concurrency'.
+// values of `concurrency`.
 
 namespace MULTIQUEUETHREADPOOL_CASE_14 {
 
@@ -1410,7 +1424,7 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
         ASSERT(!mX.isEnabled(queueIds[4]));
         mX.drainQueue(queueIds[2]);
 
-        // verify queues are disabled as expected after 'drainQueue()'
+        // verify queues are disabled as expected after `drainQueue()`
         for (int i = 0; i < k_NUM_QUEUES; ++i) {
             if (2 == i || 4 == i) {
                 ASSERT(!mX.isEnabled(queueIds[i]));
@@ -1424,7 +1438,7 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
         mX.drain();
         ASSERT(k_NUM_QUEUES == Sleeper::s_finished);
 
-        // verify queues are disabled as expected after 'drain()'
+        // verify queues are disabled as expected after `drain()`
         for (int i = 0; i < k_NUM_QUEUES; ++i) {
             if (2 == i || 4 == i) {
                 ASSERT(!mX.isEnabled(queueIds[i]));
@@ -1439,7 +1453,7 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
         mX.stop();
         ASSERT(2 * k_NUM_QUEUES - 2 == Sleeper::s_finished);
 
-        // make sure that 'drain' on a stopped pool won't segfault or abort,
+        // make sure that `drain` on a stopped pool won't segfault or abort,
         // and that it will return immediately
         startTime = now();
         mX.drain();
@@ -1455,7 +1469,7 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
             ASSERT(0 != mX.enqueueJob(queueIds[i], sleepHardly));
         }
 
-        // make sure that 'drainQueue' on a stopped pool won't segfault or
+        // make sure that `drainQueue` on a stopped pool won't segfault or
         // abort, and that it will return immediately
         startTime = now();
         mX.drainQueue(queueIds[3]);
@@ -1479,9 +1493,9 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
 }
 }  // close namespace MULTIQUEUETHREADPOOL_CASE_14
 
+/// NOP functor for cases 21, 22.
 struct DoNothing {
     void operator()() const {}
-        // NOP functor for cases 21, 22.
 };
 
 // ============================================================================
@@ -1512,9 +1526,9 @@ int main(int argc, char *argv[]) {
         // Plan:
         //   Incorporate the usage example from the header file into the test
         //   driver.  Make use of existing test apparatus by instantiating
-        //   objects with a 'bslma::TestAllocator' object where applicable.
-        //   Additionally, replace all calls to 'assert' in the usage example
-        //   with calls to 'ASSERT'.  This now becomes the source, which is
+        //   objects with a `bslma::TestAllocator` object where applicable.
+        //   Additionally, replace all calls to `assert` in the usage example
+        //   with calls to `ASSERT`.  This now becomes the source, which is
         //   then "copied" back to the header file by reversing the above
         //   process.
         //
@@ -1587,12 +1601,12 @@ int main(int argc, char *argv[]) {
         // DRQS 176332566: external threadpool shutdown race
         //
         // Concerns:
-        //: 1 Deleting a MQTP using an external thread pool does not have a
-        //:   race condition with jobs in the thread pool.
+        // 1. Deleting a MQTP using an external thread pool does not have a
+        //    race condition with jobs in the thread pool.
         //
         // Plan:
-        //: 1 Stress test 'bdlmt::MultiQueueThreadPool' deletion when using
-        //:   an external threadpool.
+        // 1. Stress test `bdlmt::MultiQueueThreadPool` deletion when using
+        //    an external threadpool.
         //
         // Testing:
         //   DRQS 176332566: external threadpool shutdown race
@@ -1608,7 +1622,7 @@ int main(int argc, char *argv[]) {
             bdlmt::ThreadPool underlyingPool(defaultAttrs, 2, 2, 0);
             underlyingPool.start();
 
-            // need to allocate to see data race with 'delete'
+            // need to allocate to see data race with `delete`
             bdlmt::MultiQueueThreadPool *pool =
                               new bdlmt::MultiQueueThreadPool(&underlyingPool);
 
@@ -1625,36 +1639,36 @@ int main(int argc, char *argv[]) {
         // TESTING BATCH SIZE
         //
         // Concerns:
-        //: 1 The value returned by 'batchSize' matches the value assigned by
-        //:   'setBatchSize'.
-        //:
-        //: 2 The value assigned by 'setBatchSize' is the batching size.
-        //:
-        //: 3 The 'deleteQueue' method operates properly (since a job is
-        //:   enqueued for handling deletion).
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The value returned by `batchSize` matches the value assigned by
+        //    `setBatchSize`.
+        //
+        // 2. The value assigned by `setBatchSize` is the batching size.
+        //
+        // 3. The `deleteQueue` method operates properly (since a job is
+        //    enqueued for handling deletion).
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use 'setBatchSize' to set the batching size and directly verify
-        //:   the result of 'batchSize'.  (C-1)
-        //:
-        //: 2 From the main thread, use 'setBatchSize' to set the batching size
-        //:   and submit at least this number of jobs to the queue with the
-        //:   first job using a barrier to sync the thread-pool thread with the
-        //:   main thread twice.  After the first synchronization, the main
-        //:   thread will delete the queue containing the jobs.  After the
-        //:   second synchronization, the main thread will verify the number
-        //:   of executed jobs is frequently the batch size using
-        //:   'numProcessed'.  Note that the number of executed jobs will not
-        //:   always match the batch size since the timing of when the thread
-        //:   from the thread pool will take jobs can not be guaranteed.  (C-2)
-        //:
-        //: 3 Verify the number of enqueued, processed, and deleted jobs in
-        //:   P-2 to ensure no jobs were lost.  Use 'numQueues' and
-        //:   'numElements' to verify the queue no longer exists.  (C-3)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Use `setBatchSize` to set the batching size and directly verify
+        //    the result of `batchSize`.  (C-1)
+        //
+        // 2. From the main thread, use `setBatchSize` to set the batching size
+        //    and submit at least this number of jobs to the queue with the
+        //    first job using a barrier to sync the thread-pool thread with the
+        //    main thread twice.  After the first synchronization, the main
+        //    thread will delete the queue containing the jobs.  After the
+        //    second synchronization, the main thread will verify the number
+        //    of executed jobs is frequently the batch size using
+        //    `numProcessed`.  Note that the number of executed jobs will not
+        //    always match the batch size since the timing of when the thread
+        //    from the thread pool will take jobs can not be guaranteed.  (C-2)
+        //
+        // 3. Verify the number of enqueued, processed, and deleted jobs in
+        //    P-2 to ensure no jobs were lost.  Use `numQueues` and
+        //    `numElements` to verify the queue no longer exists.  (C-3)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   void setBatchSize(int id, int batchSize);
@@ -1664,7 +1678,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "TESTING BATCH SIZE\n"
                           << "===================\n";
 
-        if (verbose) cout << "\nTesting 'batchSize'." << endl;
+        if (verbose) cout << "\nTesting `batchSize`." << endl;
         {
             Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);  const Obj& X = mX;
 
@@ -1693,7 +1707,7 @@ int main(int argc, char *argv[]) {
             ASSERT( 1 == X.batchSize(queueId));
         }
 
-        if (verbose) cout << "\nTesting 'setBatchSize'." << endl;
+        if (verbose) cout << "\nTesting `setBatchSize`." << endl;
         {
             const int k_ENQUEUE = 5;
 
@@ -1767,21 +1781,21 @@ int main(int argc, char *argv[]) {
       }  break;
       case 32: {
         // --------------------------------------------------------------------
-        // DRQS 143578129: 'numElements' stress test
+        // DRQS 143578129: `numElements` stress test
         //
         // Concerns:
-        //: 1 The value returned by 'numElements' is non-negative.
+        // 1. The value returned by `numElements` is non-negative.
         //
         // Plan:
-        //: 1 Stress test 'bdlmt::MultiQueueThreadPool' and frequently verify
-        //:   'numElements() >= 0'.
+        // 1. Stress test `bdlmt::MultiQueueThreadPool` and frequently verify
+        //    `numElements() >= 0`.
         //
         // Testing:
-        //   DRQS 143578129: 'numElements' stress test
+        //   DRQS 143578129: `numElements` stress test
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "DRQS 143578129: 'numElements' stress test\n"
+            cout << "DRQS 143578129: `numElements` stress test\n"
                  << "=========================================\n";
         }
 
@@ -1839,11 +1853,11 @@ int main(int argc, char *argv[]) {
         // DRQS 140403279: pause can deadlock with delete and create
         //
         // Concerns:
-        //: 1 If the 'pauseQueue' method blocks, there will not be a deadlock
-        //:   with other threads executing 'deleteQueue' and 'createQueue'.
+        // 1. If the `pauseQueue` method blocks, there will not be a deadlock
+        //    with other threads executing `deleteQueue` and `createQueue`.
         //
         // Plan:
-        //: 1 Recreate the scenario and verify there is no deadlock.
+        // 1. Recreate the scenario and verify there is no deadlock.
         //
         // Testing:
         //   DRQS 140403279: pause can deadlock with delete and create
@@ -1855,7 +1869,7 @@ int main(int argc, char *argv[]) {
               << "=========================================================\n";
         }
         {
-            // verifying with 'deleteQueue'
+            // verifying with `deleteQueue`
 
             Obj mX(bslmt::ThreadAttributes(), 4, 4, 30);
 
@@ -1929,7 +1943,7 @@ int main(int argc, char *argv[]) {
             mX.stop();
         }
         {
-            // verifying with 'createQueue'
+            // verifying with `createQueue`
 
             Obj mX(bslmt::ThreadAttributes(), 4, 4, 30);
 
@@ -2007,15 +2021,15 @@ int main(int argc, char *argv[]) {
         // DRQS 140150365: resume fails immediately after pause
         //
         // Concerns:
-        //: 1 The method 'resumeQueue' does not return an error when called
-        //:   quickly after 'pauseQueue'.
-        //:
-        //: 2 If 'pauseQueue' blocks, another thread that quickly runs
-        //:   'resumeQueue' unblocks the blocked thread (while the "currently
-        //:   executing job is completing").
+        // 1. The method `resumeQueue` does not return an error when called
+        //    quickly after `pauseQueue`.
+        //
+        // 2. If `pauseQueue` blocks, another thread that quickly runs
+        //    `resumeQueue` unblocks the blocked thread (while the "currently
+        //    executing job is completing").
         //
         // Plan:
-        //: 1 Recreate the scenario and verify that 'resumeQueue' succeeds.
+        // 1. Recreate the scenario and verify that `resumeQueue` succeeds.
         //
         // Testing:
         //   DRQS 140150365: resume fails immediately after pause
@@ -2023,14 +2037,14 @@ int main(int argc, char *argv[]) {
 
         if (verbose) {
             cout
-               << "DRQS 140150365: 'resume' fails immediately after 'pause'\n"
+               << "DRQS 140150365: `resume` fails immediately after `pause`\n"
                << "========================================================\n";
         }
 
         {
-            // verify when 'pauseQueue' does not block
+            // verify when `pauseQueue` does not block
 
-            // Note that in this test, 'pauseQueue' is expected -- but not
+            // Note that in this test, `pauseQueue` is expected -- but not
             // guaranteed -- to not block.  As such, the test will be repeated
             // until the desired code path is executed, or a large number of
             // iterations is performed (indicating failure).
@@ -2053,41 +2067,41 @@ int main(int argc, char *argv[]) {
                 mX.start();
                 int queueId = mX.createQueue();
 
-                // The enqueued job will set 'timedOut' if the contained wait
-                // on 'controlBarrier' times out.  We are trying to pause the
-                // queue before the job executes, so if '0 != timedOut' occurs
+                // The enqueued job will set `timedOut` if the contained wait
+                // on `controlBarrier` times out.  We are trying to pause the
+                // queue before the job executes, so if `0 != timedOut` occurs
                 // during the iteration, the iteration is not useful (the
-                // executed code path in 'pauseQueue' can not be determined).
+                // executed code path in `pauseQueue` can not be determined).
 
                 ASSERT(0 == mX.enqueueJob(queueId, job));
 
-                // The following invocation of 'pauseQueue' may execute before,
+                // The following invocation of `pauseQueue` may execute before,
                 // or after, the enqueued job starts.
 
                 ASSERT(0 == mX.pauseQueue(queueId));
 
-                // Note that '0 != timedOut' indicates 'pauseQueue' executed
+                // Note that `0 != timedOut` indicates `pauseQueue` executed
                 // after the enqueued job started (but does not guarantee that
-                // 'pauseQueue' blocks), and the iteration is not useful.
+                // `pauseQueue` blocks), and the iteration is not useful.
 
                 if (0 == timedOut) {
                     int rv = mX.resumeQueue(queueId);
                     ASSERT(0 == rv);
 
                     // Note that there is a very unlikely race with the timeout
-                    // in 'timedWaitInBarrier' if the thread that invoked
-                    // 'resumeQueue' is descheduled for a long time so, to
-                    // prevent a possible "hang" if 'wait' were used, the
-                    // following must be a 'timedWait'.
+                    // in `timedWaitInBarrier` if the thread that invoked
+                    // `resumeQueue` is descheduled for a long time so, to
+                    // prevent a possible "hang" if `wait` were used, the
+                    // following must be a `timedWait`.
 
                     rv = controlBarrier.timedWait(
                                            bsls::SystemTime::nowRealtimeClock()
                                                         .addMilliseconds(100));
 
-                    // If this 'timeWait' times out, then the 'timedWait' in
-                    // 'timedWaitOnBarrier' must have timed out (due to
+                    // If this `timeWait` times out, then the `timedWait` in
+                    // `timedWaitOnBarrier` must have timed out (due to
                     // pathalogical scheduling), and the iteration should not
-                    // be counted (i.e., '0 != timedOut').
+                    // be counted (i.e., `0 != timedOut`).
 
                     if (0 == rv) {
                         haveDesiredCodePath = true;
@@ -2104,7 +2118,7 @@ int main(int argc, char *argv[]) {
             ASSERT(haveDesiredCodePath);
         }
         {
-            // verify when 'pauseQueue' does block
+            // verify when `pauseQueue` does block
 
             bslmt::Barrier controlBarrier(2);
 
@@ -2137,7 +2151,7 @@ int main(int argc, char *argv[]) {
 
             bslmt::ThreadUtil::microSleep(20000);
 
-            // Failing on the following 'ASSERT' implies the sleep was not
+            // Failing on the following `ASSERT` implies the sleep was not
             // effective.
 
             ASSERT(0 == mX.resumeQueue(queueId));
@@ -2164,23 +2178,23 @@ int main(int argc, char *argv[]) {
       }  break;
       case 29: {
         // --------------------------------------------------------------------
-        // DRQS 138890062: 'deleteQueueCb' running after destructor
+        // DRQS 138890062: `deleteQueueCb` running after destructor
         //
         // Concerns:
-        //: 1 The method 'deleteQueueCb' can complete after the destructor has
-        //:   completed.
+        // 1. The method `deleteQueueCb` can complete after the destructor has
+        //    completed.
         //
         // Plan:
-        //: 1 Recreate the scenario and verify that the destructor will not
-        //:   complete before the 'deleteQueueCb' method.
+        // 1. Recreate the scenario and verify that the destructor will not
+        //    complete before the `deleteQueueCb` method.
         //
         // Testing:
-        //   DRQS 138890062: 'deleteQueueCb' running after destructor
+        //   DRQS 138890062: `deleteQueueCb` running after destructor
         // --------------------------------------------------------------------
 
         if (verbose) {
             cout
-            << "DRQS 138890062: 'deleteQueueCb' running after destructor\n"
+            << "DRQS 138890062: `deleteQueueCb` running after destructor\n"
             << "========================================================\n";
         }
 
@@ -2203,7 +2217,7 @@ int main(int argc, char *argv[]) {
             barrier.wait();
         }
 
-        // If the destructor waited for the 'deleteQueueCb' to complete, the
+        // If the destructor waited for the `deleteQueueCb` to complete, the
         // following will time-out.
 
         ASSERT(0 != barrier.timedWait(
@@ -2216,11 +2230,11 @@ int main(int argc, char *argv[]) {
         // DRQS 139148629: deadlock when job pauses another queue
         //
         // Concerns:
-        //: 1 That deadlock can occur in a 'bdlmt::MultiQueueThreadPool' with
-        //:   one thread when a job from one queue pauses a different queue.
+        // 1. That deadlock can occur in a `bdlmt::MultiQueueThreadPool` with
+        //    one thread when a job from one queue pauses a different queue.
         //
         // Plan:
-        //: 1 Recreate the scenario and verify the deadlock no longer occurs.
+        // 1. Recreate the scenario and verify the deadlock no longer occurs.
         //
         // Testing:
         //   DRQS 139148629: deadlock when job pauses another queue
@@ -2256,22 +2270,22 @@ int main(int argc, char *argv[]) {
       } break;
       case 27: {
         // --------------------------------------------------------------------
-        // DRQS 118269630: 'drain' may not drain underlying threadpool
+        // DRQS 118269630: `drain` may not drain underlying threadpool
         //
         // Concerns:
-        //: 1 That 'drain' appropriately reaches completion without causing
-        //:   race conditions between 'drain' and 'enqueueJob'.
+        // 1. That `drain` appropriately reaches completion without causing
+        //    race conditions between `drain` and `enqueueJob`.
         //
         // Plan:
-        //: 1 Recreate the scenario and verify the race no longer occurs.
+        // 1. Recreate the scenario and verify the race no longer occurs.
         //
         // Testing:
-        //   DRQS 118269630: 'drain' may not drain underlying threadpool
+        //   DRQS 118269630: `drain` may not drain underlying threadpool
         // --------------------------------------------------------------------
 
         if (verbose) {
             cout
-            << "DRQS 118269630: 'drain' may not drain underlying threadpool\n"
+            << "DRQS 118269630: `drain` may not drain underlying threadpool\n"
             << "===========================================================\n";
         }
 
@@ -2300,22 +2314,22 @@ int main(int argc, char *argv[]) {
       }  break;
       case 26: {
         // --------------------------------------------------------------------
-        // DRQS 113734461: 'deleteQueue' copies cleanupFunctor
+        // DRQS 113734461: `deleteQueue` copies cleanupFunctor
         //
         // Concerns:
-        //: 1 That 'deleteQueue' copies the user supplied 'cleanupFunctor'
-        //:   so that if the user supplied functor goes out of scope
-        //:   and is destroyed, the task does not seg-fault.
+        // 1. That `deleteQueue` copies the user supplied `cleanupFunctor`
+        //    so that if the user supplied functor goes out of scope
+        //    and is destroyed, the task does not seg-fault.
         //
         // Plan:
-        //: 1 Recreate the scenario and verify the deadlock no longer occurs.
+        // 1. Recreate the scenario and verify the deadlock no longer occurs.
         //
         // Testing:
-        //   DRQS 113734461: 'deleteQueue' copies cleanupFunctor
+        //   DRQS 113734461: `deleteQueue` copies cleanupFunctor
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "DRQS 113734461: 'deleteQueue' copies cleanupFunctor\n"
+            cout << "DRQS 113734461: `deleteQueue` copies cleanupFunctor\n"
                  << "===================================================\n";
         }
 
@@ -2328,8 +2342,8 @@ int main(int argc, char *argv[]) {
         mX.enqueueJob(queueId,
                           bdlf::BindUtil::bind(&case26WaitJob, &latch));
 
-        // We call 'deleteQueue' within a separate function to ensure the
-        // cleanup functor temporary object supplied to 'deleteQueue' is
+        // We call `deleteQueue` within a separate function to ensure the
+        // cleanup functor temporary object supplied to `deleteQueue` is
         // destroyed.
 
         case26DeleteQueue(&mX, queueId, &cleanupDone);
@@ -2342,23 +2356,23 @@ int main(int argc, char *argv[]) {
       } break;
       case 25: {
         // --------------------------------------------------------------------
-        // DRQS 112259433: 'drain' and 'deleteQueue' can deadlock
+        // DRQS 112259433: `drain` and `deleteQueue` can deadlock
         //
         // Concerns:
-        //: 1 The 'drain' and 'deleteQueue' methods should not allow a
-        //:   deadlock.  This DRQS revealed a scenario where, if a thread is
-        //:   waiting on 'drain' and 'deleteQueue' is called from an executing
-        //:   job, a deadlock occurs.
+        // 1. The `drain` and `deleteQueue` methods should not allow a
+        //    deadlock.  This DRQS revealed a scenario where, if a thread is
+        //    waiting on `drain` and `deleteQueue` is called from an executing
+        //    job, a deadlock occurs.
         //
         // Plan:
-        //: 1 Recreate the scenario and verify the deadlock no longer occurs.
+        // 1. Recreate the scenario and verify the deadlock no longer occurs.
         //
         // Testing:
-        //   DRQS 112259433: 'drain' and 'deleteQueue' can deadlock
+        //   DRQS 112259433: `drain` and `deleteQueue` can deadlock
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "DRQS 112259433: 'drain' and 'deleteQueue' can deadlock"
+            cout << "DRQS 112259433: `drain` and `deleteQueue` can deadlock"
                  << endl
                  << "======================================================"
                  << endl;
@@ -2389,20 +2403,20 @@ int main(int argc, char *argv[]) {
         // DRQS 107733386: pause queue can be indefinitely deferred
         //
         // Concerns:
-        //: 1 A call to 'pauseQueue' can not be deferred indefinitely by
-        //:   submitting more jobs at the front of the queue.  This DRQS
-        //:   revealed a scenario where an arbitrary number of tasks for a
-        //:   given queue may be submitted, after a call to 'pauseQueue', that
-        //:   prevent the pause from taking effect.
+        // 1. A call to `pauseQueue` can not be deferred indefinitely by
+        //    submitting more jobs at the front of the queue.  This DRQS
+        //    revealed a scenario where an arbitrary number of tasks for a
+        //    given queue may be submitted, after a call to `pauseQueue`, that
+        //    prevent the pause from taking effect.
         //
         // Plan:
-        //: 1 Recreate the scenario and verify the pause takes effect.
-        //:   Specifically, a job will be submitted that will recursively
-        //:   submit itself at the front of the queue before exiting; the job
-        //:   will daisy-chain itself.  While this is occurring, the queue will
-        //:   be paused in another thread.  The number of times the recursive
-        //:   submission succeeds will be verified as small, proving the
-        //:   'pauseQueue' can not be indefinitely deferred.
+        // 1. Recreate the scenario and verify the pause takes effect.
+        //    Specifically, a job will be submitted that will recursively
+        //    submit itself at the front of the queue before exiting; the job
+        //    will daisy-chain itself.  While this is occurring, the queue will
+        //    be paused in another thread.  The number of times the recursive
+        //    submission succeeds will be verified as small, proving the
+        //    `pauseQueue` can not be indefinitely deferred.
         //
         // Testing:
         //   DRQS 107733386: pause queue can be indefinitely deferred
@@ -2434,10 +2448,10 @@ int main(int argc, char *argv[]) {
 
         mX.stop();
 
-        // While no tasks should be scheduled before the 'pauseQueue'
+        // While no tasks should be scheduled before the `pauseQueue`
         // completes, verify only a few tasks were schedulable before the
-        // 'pauseQueue' completed.  Failure of this assert implies the
-        // 'pauseQueue' can be indefinitely delayed.
+        // `pauseQueue` completed.  Failure of this assert implies the
+        // `pauseQueue` can be indefinitely delayed.
 
         ASSERT(100 > s_daisyChainCount);
       }  break;
@@ -2446,19 +2460,19 @@ int main(int argc, char *argv[]) {
         // DRQS 107865762: more than one task per queue to thread pool
         //
         // Concerns:
-        //: 1 A 'MultiQueueThreadPool' may allow at most one task to be
-        //:   submitted to the thread poll for a given queue.  This DRQS
-        //:   revealed a scenario where an arbitrary number of tasks for a
-        //:   given queue may be submitted to the thread pool.
+        // 1. A `MultiQueueThreadPool` may allow at most one task to be
+        //    submitted to the thread poll for a given queue.  This DRQS
+        //    revealed a scenario where an arbitrary number of tasks for a
+        //    given queue may be submitted to the thread pool.
         //
         // Plan:
-        //: 1 Recreate the scenario and verify only one task may be submitted
-        //:   to the threadpool for a queue.  Specifically, the queue will be
-        //:   paused from the thread currently executing a callback.  This
-        //:   thread will not be allowed to return from the callback until the
-        //:   queue is resumed from another thread.  By using 'UniqueGuard',
-        //:   we verify than only one task is every submitted to the thread
-        //:   pool.
+        // 1. Recreate the scenario and verify only one task may be submitted
+        //    to the threadpool for a queue.  Specifically, the queue will be
+        //    paused from the thread currently executing a callback.  This
+        //    thread will not be allowed to return from the callback until the
+        //    queue is resumed from another thread.  By using `UniqueGuard`,
+        //    we verify than only one task is every submitted to the thread
+        //    pool.
         //
         // Testing:
         //   DRQS 107865762: more than one task per queue to thread pool
@@ -2506,11 +2520,11 @@ int main(int argc, char *argv[]) {
         // TESTING PAUSE/DELETE INTERACTION
         //
         // Concerns:
-        //: 1 The various loadRelaxed statements do not cause a race condition
-        //    where 'deleteQueue' executed after 'pauseQueue' fails or hangs.
+        // 1. The various loadRelaxed statements do not cause a race condition
+        //    where `deleteQueue` executed after `pauseQueue` fails or hangs.
         //
         // Plan:
-        //: 1 Run Pause/Delete a 1000 times, and check for success on delete.
+        // 1. Run Pause/Delete a 1000 times, and check for success on delete.
         //
         // Testing:
         //   PAUSE/DELETE INTERACTION
@@ -2549,12 +2563,12 @@ int main(int argc, char *argv[]) {
         // TESTING DRQS 104502699
         //
         // Concerns:
-        //: 1 DRQS 104502699 shows that if a multiqueue thread pool is
+        // 1. DRQS 104502699 shows that if a multiqueue thread pool is
         //    constructed for a thread pool, and that threadpool is shutdown,
         //    operations on the multiqueue thread pool hang.
         //
         // Plan:
-        //: 1 Incorporate the example from DRQS and show it no longer hangs.
+        // 1. Incorporate the example from DRQS and show it no longer hangs.
         //
         // Testing:
         //   DRQS 104502699
@@ -2588,12 +2602,12 @@ int main(int argc, char *argv[]) {
         // TESTING DRQS 99979290
         //
         // Concerns:
-        //: 1 DRQS 99979290 shows that if a multiqueue thread pool is
+        // 1. DRQS 99979290 shows that if a multiqueue thread pool is
         //    constructed for a thread pool, and that threadpool is shutdown,
         //    operations on the multiqueue thread pool hang.
         //
         // Plan:
-        //: 1 Incorporate the example from DRQS and show it no longer hangs.
+        // 1. Incorporate the example from DRQS and show it no longer hangs.
         //
         // Testing:
         //   DRQS 99979290
@@ -2620,10 +2634,10 @@ int main(int argc, char *argv[]) {
         // FRONT
         //
         // Concerns:
-        //   * 'addAtFront' positions a job at the front of the queue.
-        //   * 'addAtFront' fails if the queue is disabled.
-        //   * 'addAtFront' succeeds if the queue is paused.
-        //   * 'addAtFront' can be invoked from a worker thread.
+        //   * `addAtFront` positions a job at the front of the queue.
+        //   * `addAtFront` fails if the queue is disabled.
+        //   * `addAtFront` succeeds if the queue is paused.
+        //   * `addAtFront` can be invoked from a worker thread.
         //
         // Plan:
         //   Enqueue a job that waits on a synchronization mechanism in order
@@ -2653,8 +2667,8 @@ int main(int argc, char *argv[]) {
 
             id1 = mX.createQueue();
             // The first job we enqueue may or may not be dequeued before
-            // 'addJobAtFront' executes.  Thus, the two possible values of
-            // 'value' are "abc" and "bac".
+            // `addJobAtFront` executes.  Thus, the two possible values of
+            // `value` are "abc" and "bac".
             mX.enqueueJob(id1,
                           bdlf::BindUtil::bind(&waitThenAppend,
                                                &sema, &value, 'b'));
@@ -3054,7 +3068,7 @@ int main(int argc, char *argv[]) {
         // TESTING drainQueue AND drain: MORE JOBS SUBMITTED DURING DRAIN
         //
         // Concerns:
-        //   That 'drainQueue()' and 'drain()' work properly when more jobs
+        //   That `drainQueue()` and `drain()` work properly when more jobs
         //   are enqueued during the drain.
         // --------------------------------------------------------------------
 
@@ -3075,7 +3089,7 @@ int main(int argc, char *argv[]) {
         };
         bslmt::ThreadAttributes defaultAttrs;
 
-        // first do 'drainQueue()' case
+        // first do `drainQueue()` case
         {
             Obj mX(defaultAttrs,
                    k_MIN_THREADS,
@@ -3127,7 +3141,7 @@ int main(int argc, char *argv[]) {
             ASSERT(k_NUM_QUEUES - 1 == Sleeper::s_finished);
         }
 
-        // next do 'drain' case
+        // next do `drain` case
         {
             Obj mX(defaultAttrs,
                    k_MIN_THREADS,
@@ -3166,7 +3180,7 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // TESTING drainQueue AND drain: SIMPLE CASE
         //
-        // Repeat of test case 14 with different value passed to 'concurrency'
+        // Repeat of test case 14 with different value passed to `concurrency`
         // --------------------------------------------------------------------
 
         using namespace MULTIQUEUETHREADPOOL_CASE_14;
@@ -3182,28 +3196,28 @@ int main(int argc, char *argv[]) {
         // TESTING drainQueue AND drain: SIMPLE CASE
         //
         // Concerns:
-        //   That 'drainQueue()' and 'drain()' work properly.
+        //   That `drainQueue()` and `drain()` work properly.
         //
         // Plan:
-        //   A functor 'Sleeper' is created, an object of which, when invoked,
+        //   A functor `Sleeper` is created, an object of which, when invoked,
         //   will sleep for a configured number of seconds, then increment
-        //   a static atomic counter 's_finished'.
+        //   a static atomic counter `s_finished`.
         //   First submit long sleeping sleepers to all queues but one, and
-        //   submit a short sleeping sleeper to that queue.  Call 'drainQueue'
-        //   on the queue with the short sleeper.  Verify that 'drainQueue'
+        //   submit a short sleeping sleeper to that queue.  Call `drainQueue`
+        //   on the queue with the short sleeper.  Verify that `drainQueue`
         //   finishes before the long sleeping sleepers have finished.
         //   Now, to verify the queue was not permanently disabled by the
-        //   calls to 'drainQueue' or 'drain', submit some very fast sleepers
+        //   calls to `drainQueue` or `drain`, submit some very fast sleepers
         //   to all queues, stop, and verify that they all finished.
         //   Now, put a short lived job in a queue, disable that queue, then
         //   drain that queue.  Put a short lived job in another queue, disable
         //   that queue.  Then try to enqueue jobs to all queues, verifying
         //   that we only succeed in the queues that we expect to be enabled,
-        //   to verify that 'drainQueue' left the enabled state as it found it.
+        //   to verify that `drainQueue` left the enabled state as it found it.
         //   Then drain and verify that the expected number of jobs have
         //   finished.  Again try to submit jobs to all queues to verify that
-        //   'drain' left the enabled state as it found it.
-        //   Stop the threadpool, then call 'drain' and 'drainQueue' just to
+        //   `drain` left the enabled state as it found it.
+        //   Stop the threadpool, then call `drain` and `drainQueue` just to
         //   verify that they return immediate without segmentation faulting or
         //   aborting when called on a stopped queue.
         //   This test is called with one level of concurrency in this case,
@@ -3228,8 +3242,8 @@ int main(int argc, char *argv[]) {
         // TESTING numElements, numProcessed, AND numProcessedReset
         //
         // Concerns:
-        //   The return values for 'numElements', 'numProcessed', and
-        //   'numProcessedReset' are as expected.
+        //   The return values for `numElements`, `numProcessed`, and
+        //   `numProcessedReset` are as expected.
         //
         // Plan:
         //   In a loop over the same object under test, start the pool,
@@ -3245,7 +3259,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose)
             cout <<
-               "TESTING 'numElements', 'numProcessed', AND 'numProcessedReset'"
+               "TESTING `numElements`, `numProcessed`, AND `numProcessedReset`"
                  << endl
                  <<
                "=============================================================="
@@ -3279,7 +3293,7 @@ int main(int argc, char *argv[]) {
                    &ta);
             const Obj& X = mX;
 
-            // verify methods without optional 'numDeleted'
+            // verify methods without optional `numDeleted`
 
             for (int i = 1; i <= k_NUM_ITERATIONS; ++i) {
                 int numEnqueued = -1, numExecuted = -1;
@@ -3379,7 +3393,7 @@ int main(int argc, char *argv[]) {
                 ASSERT(0 == X.numElements());
             }
 
-            // verify methods with optional 'numDeleted'
+            // verify methods with optional `numDeleted`
 
             for (int i = 1; i <= k_NUM_ITERATIONS; ++i) {
                 int numEnqueued = -1, numExecuted = -1, numDeleted = -1;
@@ -3489,7 +3503,7 @@ int main(int argc, char *argv[]) {
                 ASSERT(0 == X.numElements());
             }
 
-            // verify 'deleteQueue' affects 'numDeleted' as expected
+            // verify `deleteQueue` affects `numDeleted` as expected
 
             for (int i = 1; i <= k_NUM_ITERATIONS; ++i) {
                 bslmt::Barrier barrier(2);
@@ -3568,10 +3582,10 @@ int main(int argc, char *argv[]) {
         //     the MQTP does not deadlock.
         //
         // Plan:
-        //   Instantiate a modifiable 'bdlmt::MultiQueueThreadPool' object, and
-        //   create two queues, identified as 'id1', and 'id2'.  Delete 'id1'
-        //   using a cleanup callback which enqueues a job to 'id2'.  Create
-        //   queue 'id3', and delete it with a callback that deletes 'id2'.
+        //   Instantiate a modifiable `bdlmt::MultiQueueThreadPool` object, and
+        //   create two queues, identified as `id1`, and `id2`.  Delete `id1`
+        //   using a cleanup callback which enqueues a job to `id2`.  Create
+        //   queue `id3`, and delete it with a callback that deletes `id2`.
         //
         // Testing:
         //   Concern: cleanup callback does not deadlock.
@@ -3599,7 +3613,7 @@ int main(int argc, char *argv[]) {
             const Obj& X = mX;
 
             bsls::AtomicInt counter(0);
-            Func            count;        // increment 'counter'
+            Func            count;        // increment `counter`
             makeFunc(&count, incrementCounter, &counter);
 
             ASSERT(0 == mX.start());
@@ -3623,7 +3637,7 @@ int main(int argc, char *argv[]) {
                                        id2,
                                        count,
                                        &barrier);
-            // The clean up callback for queue 'id1' will increment 'counter'.
+            // The clean up callback for queue `id1` will increment `counter`.
 
             if (veryVerbose) {
                 cout << "\tDeleting queue " << id1 << endl;
@@ -3631,11 +3645,11 @@ int main(int argc, char *argv[]) {
             ASSERT(0 == mX.deleteQueue(id1, cleanupCb));
             barrier.wait();
 
-            // The 'barrier.wait()' is insufficient to verify 'count' has
-            // completed since 'deleteQueue' does not wait for the queue to be
-            // actually deleted (and 'count' invoked).  Hence, if the increment
-            // of 'counter' is not verified, the deletion of the queue
-            // associated with 'id2' (below) may occur before the 'count'
+            // The `barrier.wait()` is insufficient to verify `count` has
+            // completed since `deleteQueue` does not wait for the queue to be
+            // actually deleted (and `count` invoked).  Hence, if the increment
+            // of `counter` is not verified, the deletion of the queue
+            // associated with `id2` (below) may occur before the `count`
             // callback executes and the counter will not be incremented as
             // expected.
 
@@ -3663,7 +3677,7 @@ int main(int argc, char *argv[]) {
             if (veryVerbose) {
                 cout << "\tDeleting queue " << id3 << endl;
             }
-            // The clean up callback for queue 'id3' will increment 'counter'.
+            // The clean up callback for queue `id3` will increment `counter`.
             ASSERT(0 == mX.deleteQueue(id3, cleanupCb));
             barrier.wait();
 
@@ -3679,7 +3693,7 @@ int main(int argc, char *argv[]) {
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING CONCERN: 'deleteQueue' DOES NOT BLOCK THE CALLER
+        // TESTING CONCERN: `deleteQueue` DOES NOT BLOCK THE CALLER
         //
         // Concerns:
         //   * That stopping one MQTP does not affect the other.
@@ -3694,11 +3708,11 @@ int main(int argc, char *argv[]) {
         //   TBD.
         //
         // Testing:
-        //   Concern: 'deleteQueue' blocks the caller.
+        //   Concern: `deleteQueue` blocks the caller.
         // --------------------------------------------------------------------
 
         if (verbose) {
-           cout << "Concern: 'deleteQueue' Does NOT Block the Caller." << endl
+           cout << "Concern: `deleteQueue` Does NOT Block the Caller." << endl
                 << "=================================================" << endl;
         }
 
@@ -3741,7 +3755,7 @@ int main(int argc, char *argv[]) {
       }  break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING CONCERN: ONE 'bdlmt::ThreadPool' CAN BE SHARED BY TWO MQTPS
+        // TESTING CONCERN: ONE `bdlmt::ThreadPool` CAN BE SHARED BY TWO MQTPS
         //
         // Concerns:
         //   * That stopping one MQTP does not affect the other.
@@ -3756,11 +3770,11 @@ int main(int argc, char *argv[]) {
         //   TBD.
         //
         // Testing:
-        //   Concern: One 'bcep::Threadpool' can be shared by two MQTPs.
+        //   Concern: One `bcep::Threadpool` can be shared by two MQTPs.
         // --------------------------------------------------------------------
 
         if (verbose) {
-           cout << "Concern: One 'bcep::Threadpool' Can Be Shared By Two MQTPs"
+           cout << "Concern: One `bcep::Threadpool` Can Be Shared By Two MQTPs"
                 << endl
                 << "=========================================================="
                 << endl;
@@ -3872,22 +3886,22 @@ int main(int argc, char *argv[]) {
         // TESTING CONCERN: MT-SAFETY OF PUBLIC API AND PROCESSING
         //
         // Concerns:
-        //   * That 'enqueueJob', 'deleteQueue', and 'processQueueCb' are
+        //   * That `enqueueJob`, `deleteQueue`, and `processQueueCb` are
         //     thread-safe.
         //
         //   * That queues are processed serially.
         //
         // Plan:
         //   Iterate over a number of test vectors varying in the minimum and
-        //   maximum number of threads used to create a 'bdlmt::ThreadPool',
+        //   maximum number of threads used to create a `bdlmt::ThreadPool`,
         //   and the number of queues to create.  For each test vector, create
-        //   a modifiable 'bdlmt::MultiQueueThreadPool' object 'mX', and a
-        //   non-modifiable reference to 'mX' named 'X'.  Start 'mX'.  Create
+        //   a modifiable `bdlmt::MultiQueueThreadPool` object `mX`, and a
+        //   non-modifiable reference to `mX` named `X`.  Start `mX`.  Create
         //   the specified number of queues, and enqueue a fixed number of jobs
         //   to each queue.  Each job (represented as a functor) increments a
         //   counter, and appends it to a list.  (the address of the counter
         //   and the address of the list are bound to the functor.)  Verify
-        //   the number of queues.  Then, stop 'mX', and verify the results.
+        //   the number of queues.  Then, stop `mX`, and verify the results.
         //
         // Testing:
         //   Multi-threaded safety of public API and processing
@@ -4059,31 +4073,31 @@ int main(int argc, char *argv[]) {
       }  break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING CONCERN: 'deleteQueueCb' IS THE LAST CALLBACK PROCESSED
+        // TESTING CONCERN: `deleteQueueCb` IS THE LAST CALLBACK PROCESSED
         //
         // Concerns:
-        //   * That no other enqueued jobs are processed after 'deleteQueue' is
+        //   * That no other enqueued jobs are processed after `deleteQueue` is
         //     called.
         //
-        //   * That after 'deleteQueue' is called, no other jobs can be
+        //   * That after `deleteQueue` is called, no other jobs can be
         //     enqueued.
         //
         // Plan:
-        //   Create a modifiable 'bdlmt::MultiQueueThreadPool', 'mX', and a
-        //   non-modifiable reference to 'mX' named 'X'.  Enqueue a job to 'mX'
-        //   which blocks on a barrier.  Then, enqueue several jobs to 'mX'
-        //   which increment a counter, initialized to 0.  Using 'X', verify
+        //   Create a modifiable `bdlmt::MultiQueueThreadPool`, `mX`, and a
+        //   non-modifiable reference to `mX` named `X`.  Enqueue a job to `mX`
+        //   which blocks on a barrier.  Then, enqueue several jobs to `mX`
+        //   which increment a counter, initialized to 0.  Using `X`, verify
         //   that there are a non-zero number of queued jobs.  Then, call
-        //   'deleteQueue' on 'mX'.  Verify that no other jobs can be enqueued
-        //   to 'mX'.  Then, unblock the barrier, and verify that none of the
+        //   `deleteQueue` on `mX`.  Verify that no other jobs can be enqueued
+        //   to `mX`.  Then, unblock the barrier, and verify that none of the
         //   jobs which increment the counter were executed.
         //
         // Testing:
-        //   CONCERN: 'deleteQueueCb' is the last callback processed
+        //   CONCERN: `deleteQueueCb` is the last callback processed
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "Concern: 'deleteQueueCb' Is the Last Callback Processed"
+            cout << "Concern: `deleteQueueCb` Is the Last Callback Processed"
                  << endl
                  << "======================================================="
                  << endl;
@@ -4100,8 +4114,8 @@ int main(int argc, char *argv[]) {
             bslmt::Barrier   barrier(2);
             bsls::AtomicInt  counter(0);
             Func             cleanupCb;  // empty callback
-            Func             block;      // blocks on 'barrier'
-            Func             count;      // increments 'counter'
+            Func             block;      // blocks on `barrier`
+            Func             count;      // increments `counter`
             makeFunc(&cleanupCb, waitOnBarrier, &barrier, 1);
             makeFunc(&block, waitOnBarrier, &barrier, 1);
             makeFunc(&count, incrementCounter, &counter);
@@ -4131,7 +4145,7 @@ int main(int argc, char *argv[]) {
             ASSERT(5 == X.numElements(id));
             ASSERT(0 == counter);
             ASSERT(0 == mX.deleteQueue(id, cleanupCb));
-            barrier.wait();                            // unblock 'barrier'
+            barrier.wait();                            // unblock `barrier`
             ASSERT(0 == counter);
             ASSERT(0 != mX.enqueueJob(id, count));
             ASSERT(0 != mX.enqueueJob(id, count));
@@ -4148,14 +4162,14 @@ int main(int argc, char *argv[]) {
         // TESTING ALTERNATE CONSTRUCTORS
         //
         // Concerns: That a pool constructed with an external
-        // 'bdlmt::ThreadPool' behaves identically to one created with an
+        // `bdlmt::ThreadPool` behaves identically to one created with an
         // internal thread pool.
         //
         // Plan:
-        //   Create a modifiable 'bdlmt::ThreadPool', 'pool', with 1 <
-        //   'minThreads' and 'minThreads' < 'maxThreads'.  Create a
-        //   'bdlmt::MultiQueueThreadPool', 'mX', instantiated with 'pool', and
-        //   a non-modifiable reference to 'mX' named 'X'.
+        //   Create a modifiable `bdlmt::ThreadPool`, `pool`, with 1 <
+        //   `minThreads` and `minThreads` < `maxThreads`.  Create a
+        //   `bdlmt::MultiQueueThreadPool`, `mX`, instantiated with `pool`, and
+        //   a non-modifiable reference to `mX` named `X`.
         //
         //   Start the pool.  Create a queue and enqueue a large number of jobs
         //   to it.  Each job, represented by a functor, increments a counter,
@@ -4163,7 +4177,7 @@ int main(int argc, char *argv[]) {
         //   verify that all jobs have been processed, by comparing the value
         //   of the counter to the number of enqueued jobs.  Verify that the
         //   queue was not deleted, and that the threads are still active.
-        //   Destroy 'mX', and verify that 'pool' is valid, and that all but
+        //   Destroy `mX`, and verify that `pool` is valid, and that all but
         //   the last thread have been destroyed.
         //
         // Note:
@@ -4237,8 +4251,8 @@ int main(int argc, char *argv[]) {
 
                 bslmt::Barrier  barrier(2);
                 bsls::AtomicInt counter(0);
-                Func            block;      // blocks on 'barrier'
-                Func            count;      // increments 'counter'
+                Func            block;      // blocks on `barrier`
+                Func            count;      // increments `counter`
                 makeFunc(&block, waitOnBarrier, &barrier, 2);
                 makeFunc(&count, incrementCounter, &counter);
 
@@ -4253,7 +4267,7 @@ int main(int argc, char *argv[]) {
                     ASSERTV(i, 0 == mX.enqueueJob(id, count));
                 }
                 barrier.wait();
-                ASSERT(k_NUM_JOBS == X.numElements(id));  // 'block' is
+                ASSERT(k_NUM_JOBS == X.numElements(id));  // `block` is
                                                           // blocking
                 ASSERT(0 == counter);
                 barrier.wait();
@@ -4265,7 +4279,7 @@ int main(int argc, char *argv[]) {
 
                 // Also give a chance to the Threadpool to kill the idle
                 // threads.  But given the problematic likelihood of failure of
-                // this test, only assert '1 >= tp.numActiveThreads()' when all
+                // this test, only assert `1 >= tp.numActiveThreads()` when all
                 // else has been exhausted.
 
                 bslmt::ThreadUtil::microSleep(k_IDLE);
@@ -4308,29 +4322,29 @@ int main(int argc, char *argv[]) {
       }  break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'enableQueue' AND 'disableQueue' FUNCTIONS
+        // TESTING `enableQueue` AND `disableQueue` FUNCTIONS
         //
         // Concerns:
-        //   * That 'enableQueue' and 'disableQueue' return with failure when
+        //   * That `enableQueue` and `disableQueue` return with failure when
         //     the pool is stopped.
         //
-        //   * That no jobs can be enqueued to a queue after 'disableQueue' is
+        //   * That no jobs can be enqueued to a queue after `disableQueue` is
         //     called for that queue.
         //
-        //   * That currently enqueued jobs are processed after 'disableQueue'
+        //   * That currently enqueued jobs are processed after `disableQueue`
         //     is called for a queue.
         //
         //   * That a disabled queue can be enabled.
         //
-        //   * That jobs can be enqueued to a queue after 'enableQueue' is
+        //   * That jobs can be enqueued to a queue after `enableQueue` is
         //     called for that queue.
         //
         //   * That a disabled queue can be deleted.
         //
         // Plan:
-        //   Create a modifiable 'bdlmt::MultiQueueThreadPool', 'mX', and a
-        //   non-modifiable reference to 'mX' named 'X'.  Verify that
-        //   'enableQueue' and 'disableQueue' fail when called on
+        //   Create a modifiable `bdlmt::MultiQueueThreadPool`, `mX`, and a
+        //   non-modifiable reference to `mX` named `X`.  Verify that
+        //   `enableQueue` and `disableQueue` fail when called on
         //   non-existent and invalid queue IDs.  Create a queue, and enqueue
         //   several jobs to it, starting with a job that blocks on a barrier,
         //   and followed by a number of jobs which increment a counter.
@@ -4347,7 +4361,7 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "Testing 'enableQueue' and 'disableQueue' Functions"
+            cout << "Testing `enableQueue` and `disableQueue` Functions"
                  << endl
                  << "=================================================="
                  << endl;
@@ -4365,8 +4379,8 @@ int main(int argc, char *argv[]) {
 
             bslmt::Barrier   barrier(2);
             bsls::AtomicInt  counter(0);
-            Func             block;      // blocks on 'barrier'
-            Func             count;      // increments 'counter'
+            Func             block;      // blocks on `barrier`
+            Func             count;      // increments `counter`
             makeFunc(&block, waitOnBarrier, &barrier, 1);
             makeFunc(&count, incrementCounter, &counter);
             Obj mX(defaultAttrs,
@@ -4426,8 +4440,8 @@ int main(int argc, char *argv[]) {
 
             ASSERT(9 == numElements || 10 == numElements);
             ASSERT(0 == mX.enqueueJob(id, block));
-            barrier.wait();                          // 'block' is blocking
-            barrier.wait();                          // 'block' is blocking
+            barrier.wait();                          // `block` is blocking
+            barrier.wait();                          // `block` is blocking
 
             ASSERT(0 == mX.disableQueue(id));
             while (0 < X.numElements(id)) {
@@ -4451,8 +4465,8 @@ int main(int argc, char *argv[]) {
         // Concerns:
         //   Verify the correct behavior of the output operator.
         //
-        //   Currently, there is no 'operator<<' defined for
-        //   'bdlmt::MultiQueueThreadPool', so this test case remains empty.
+        //   Currently, there is no `operator<<` defined for
+        //   `bdlmt::MultiQueueThreadPool`, so this test case remains empty.
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -4465,22 +4479,22 @@ int main(int argc, char *argv[]) {
         // TESTING BASIC ACCESSORS
         //
         // Concerns:
-        //   * That 'numQueues' reports a snapshot of the number of queues
+        //   * That `numQueues` reports a snapshot of the number of queues
         //     managed by the pool.
         //
-        //   * That 'numElements' reports a snapshot of the number of elements
+        //   * That `numElements` reports a snapshot of the number of elements
         //     in a given queue managed by the pool.
         //
-        //   * That 'numElements' returns -1 if called on a non-existent or
+        //   * That `numElements` returns -1 if called on a non-existent or
         //     invalid queue ID.
         //
         // Plan:
-        //   Create a modifiable 'bdlmt::MultiQueueThreadPool', 'mX', and a
-        //   non-modifiable reference to 'mX' named 'X'.  Create several
+        //   Create a modifiable `bdlmt::MultiQueueThreadPool`, `mX`, and a
+        //   non-modifiable reference to `mX` named `X`.  Create several
         //   queues, and enqueue a monotonically increasing number of jobs to
         //   each queue in succession, starting with a job that blocks on a
         //   barrier, and followed by a number of jobs which increment a
-        //   counter.  After all jobs have been enqueued, use 'X' to verify
+        //   counter.  After all jobs have been enqueued, use `X` to verify
         //   the number of queues, and the number of elements in each queue.
         //
         // Testing:
@@ -4504,7 +4518,7 @@ int main(int argc, char *argv[]) {
             bslmt::ThreadAttributes defaultAttrs;
 
             bslmt::Barrier   barrier(1 + k_MAX_QUEUES);
-            Func             block;      // blocks on 'barrier'
+            Func             block;      // blocks on `barrier`
             makeFunc(&block, waitOnBarrier, &barrier, 1);
             Obj mX(defaultAttrs,
                    k_MIN_THREADS,
@@ -4608,9 +4622,9 @@ int main(int argc, char *argv[]) {
         //   * That destroying the pool blocks until all queues are empty.
         //
         // Plan:
-        //   Create a modifiable 'bdlmt::MultiQueueThreadPool', 'mX' with
-        //   1 < 'minThreads' and 'minThreads' < 'maxThreads'.  Create a
-        //   non-modifiable reference to 'mX' named 'X'.
+        //   Create a modifiable `bdlmt::MultiQueueThreadPool`, `mX` with
+        //   1 < `minThreads` and `minThreads` < `maxThreads`.  Create a
+        //   non-modifiable reference to `mX` named `X`.
         //
         //   Start the pool.  Verify that deleting a queue via an imaginary
         //   queue ID results in an error.  Create a queue, and delete it.
@@ -4670,7 +4684,7 @@ int main(int argc, char *argv[]) {
                  << "========================================" << endl;
         }
 
-        enum { k_NUM_JOBS = 1000 };  // for testing 'stop' and 'shutdown'
+        enum { k_NUM_JOBS = 1000 };  // for testing `stop` and `shutdown`
 
         bsls::AtomicInt counter;
         bslma::TestAllocator ta(veryVeryVerbose);
@@ -4777,7 +4791,7 @@ int main(int argc, char *argv[]) {
             if (veryVerbose) {
                 const int LINE = L_;
                 P_(LINE);
-                cout << "Enqueue many elements, and call 'stop'."
+                cout << "Enqueue many elements, and call `stop`."
                      << endl;
             }
             {
@@ -4797,7 +4811,7 @@ int main(int argc, char *argv[]) {
                     ASSERTV(i, 0 == mX.enqueueJob(id, count));
                 }
                 barrier.wait();
-                ASSERT(k_NUM_JOBS == X.numElements(id));  // 'block' is
+                ASSERT(k_NUM_JOBS == X.numElements(id));  // `block` is
                                                           // blocking
                 ASSERT(0 == counter);
                 barrier.wait();
@@ -4886,7 +4900,7 @@ int main(int argc, char *argv[]) {
             if (veryVerbose) {
                 const int LINE = L_;
                 P_(LINE);
-                cout << "Enqueue many elements, and call 'shutdown'."
+                cout << "Enqueue many elements, and call `shutdown`."
                      << endl;
             }
             {
@@ -4906,7 +4920,7 @@ int main(int argc, char *argv[]) {
                     ASSERTV(i, 0 == mX.enqueueJob(id, count));
                 }
                 barrier.wait();
-                ASSERT(k_NUM_JOBS == X.numElements(id));  // 'block' is
+                ASSERT(k_NUM_JOBS == X.numElements(id));  // `block` is
                                                           // blocking
                 ASSERT(0 == counter);
                 barrier.wait();
@@ -4976,7 +4990,7 @@ int main(int argc, char *argv[]) {
                     ASSERTV(i, 0 == mX.enqueueJob(id, count));
                 }
                 barrier.wait();
-                ASSERT(k_NUM_JOBS == X.numElements(id));  // 'block' is
+                ASSERT(k_NUM_JOBS == X.numElements(id));  // `block` is
                                                           // blocking
                 ASSERT(0 == counter);
                 barrier.wait();
@@ -5009,16 +5023,16 @@ int main(int argc, char *argv[]) {
         //
         // Concerns:
         //   Exercise the basic functionality of the
-        //   'bdlmt::MultiQueueThreadPool' class.  We want to ensure that
+        //   `bdlmt::MultiQueueThreadPool` class.  We want to ensure that
         //   multi-queue thread pool objects can be instantiated and destroyed.
         //   We also want to exercise the primary manipulators and accessors.
         //
         // Plan:
-        //   Create a modifiable 'bdlmt::MultiQueueThreadPool' instance, 'mX',
-        //   and a non-'const' reference to 'mX' named 'X'.  Start 'mX'.
+        //   Create a modifiable `bdlmt::MultiQueueThreadPool` instance, `mX`,
+        //   and a non-`const` reference to `mX` named `X`.  Start `mX`.
         //   Create a queue, and enqueue a fixed number of jobs to it.  Each
         //   job (represented as a functor) increments a counter; the address
-        //   the counter is bound to the functor.  Then, stop 'mX', and verify
+        //   the counter is bound to the functor.  Then, stop `mX`, and verify
         //   the results.
         //
         // Testing:
@@ -5062,7 +5076,7 @@ int main(int argc, char *argv[]) {
             // all elements are processed, but neither the queue nor the
             // threads are destroyed.
             if (veryVerbose) {
-                cout << "\tCalling 'start'" << endl;
+                cout << "\tCalling `start`" << endl;
             }
             ASSERT(0 == mX.start());
             ASSERT(0 == mX.start());
@@ -5072,8 +5086,8 @@ int main(int argc, char *argv[]) {
 
             bslmt::Barrier  barrier(2);
             bsls::AtomicInt counter(0);
-            Func            block;      // blocks on 'barrier'
-            Func            count;      // increments 'counter'
+            Func            block;      // blocks on `barrier`
+            Func            count;      // increments `counter`
             makeFunc(&block, waitOnBarrier, &barrier, 2);
             makeFunc(&count, incrementCounter, &counter);
 
@@ -5096,15 +5110,15 @@ int main(int argc, char *argv[]) {
             }
 
             if (veryVerbose) {
-                cout << "\tWaiting for 'block' functor to finish." << endl;
+                cout << "\tWaiting for `block` functor to finish." << endl;
             }
             barrier.wait();
-            ASSERT(k_NUM_JOBS  == X.numElements(id));  // 'block' is blocking
+            ASSERT(k_NUM_JOBS  == X.numElements(id));  // `block` is blocking
             ASSERT(0 == counter);
             barrier.wait();
 
             if (veryVerbose) {
-                cout << "\tCalling 'stop'." << endl;
+                cout << "\tCalling `stop`." << endl;
             }
             mX.stop();
             ASSERT(k_NUM_JOBS == counter);
@@ -5123,19 +5137,19 @@ int main(int argc, char *argv[]) {
       }  break;
       case -1: {
         // --------------------------------------------------------------------
-        // TESTING RETURN STATUS OF 'START'
+        // TESTING RETURN STATUS OF `START`
         //
         // Concerns:
-        //  That 'start' fails gracefully when an owned threadpool can't be
+        //  That `start` fails gracefully when an owned threadpool can't be
         //  started.
         //
         // Plan:
         //  Try to start enough threads to exhaust the address space, and
-        //  observe the failure.  Note that this is a '-1' because allocating
+        //  observe the failure.  Note that this is a `-1` because allocating
         //  that much RAM in the nightly build would be a problem.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Testing 'start' return status\n"
+        if (verbose) cout << "Testing `start` return status\n"
                              "=============================\n";
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
@@ -5161,12 +5175,12 @@ int main(int argc, char *argv[]) {
         //   3rd parameter: number of repetitions to peform.
         //
         // Concerns:
-        //: 1 Calculates wall time, user time, and system time for inserting
-        //:   the given rows in bulk.
+        // 1. Calculates wall time, user time, and system time for inserting
+        //    the given rows in bulk.
         //
         // Plan:
-        //: 1 Create a MQPerformance object, and use testFastSearch.
-        //:   (C-1)
+        // 1. Create a MQPerformance object, and use testFastSearch.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE PERFORMANCE

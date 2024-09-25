@@ -23,7 +23,7 @@
 #include <bdlsb_fixedmemoutstreambuf.h>
 #include <bdlsb_memoutstreambuf.h>
 
-// These headers are for testing only and the hierarchy level of 'baljsn' was
+// These headers are for testing only and the hierarchy level of `baljsn` was
 // increased because of them.  They should be removed when possible.
 #include <balxml_decoder.h>
 #include <balxml_decoderoptions.h>
@@ -102,8 +102,8 @@ using bsl::endl;
 //                             Overview
 //                             --------
 // The component under test implements an encoder for outputting
-// 'bdeat'-compatible objects in the JSON format.  The object types that can be
-// encoded include 'bdeat' sequence, choice, array, enumeration, customized,
+// `bdeat`-compatible objects in the JSON format.  The object types that can be
+// encoded include `bdeat` sequence, choice, array, enumeration, customized,
 // simple, and dynamic types.  In addition, the encoder supports options to
 // allow compact and pretty formatting.
 //
@@ -230,9 +230,9 @@ namespace u {
                                // FREE FUNCTIONS
                                // ==============
 
+/// Print to stdout the length and the characters that are difference in the
+/// specified `lhs` and `rhs` strings.
 void printStringDifferences(const bsl::string& lhs, const bsl::string& rhs)
-    // Print to stdout the length and the characters that are difference in the
-    // specified 'lhs' and 'rhs' strings.
 {
     const bsl::size_t len1 = lhs.size();
     const bsl::size_t len2 = rhs.size();
@@ -249,11 +249,11 @@ void printStringDifferences(const bsl::string& lhs, const bsl::string& rhs)
     }
 }
 
+/// Decode the sequence of `s_baltst::FeatureTestMessage` objects defined
+/// by `s_baltst::FeatureTestMessage::s_XML_MESSAGES` as if by using
+/// `balxml::Decoder` and load the sequence to the specified `objects`.
 void constructFeatureTestMessage(
                             bsl::vector<s_baltst::FeatureTestMessage> *objects)
-    // Decode the sequence of 's_baltst::FeatureTestMessage' objects defined
-    // by 's_baltst::FeatureTestMessage::s_XML_MESSAGES' as if by using
-    // 'balxml::Decoder' and load the sequence to the specified 'objects'.
 {
     balxml::MiniReader reader;
     balxml::DecoderOptions options;
@@ -292,11 +292,11 @@ void constructFeatureTestMessage(
     }
 }
 
+/// Decode the specified `xmlString` to an object of the specified `TYPE`
+/// as if by using `balxml::Decoder` and load the object to the specified
+/// `object`.  Return 0 on success, and a non-zero value otherwise.
 template <class TYPE>
 int populateTestObject(TYPE *object, const bsl::string& xmlString)
-    // Decode the specified 'xmlString' to an object of the specified 'TYPE'
-    // as if by using 'balxml::Decoder' and load the object to the specified
-    // 'object'.  Return 0 on success, and a non-zero value otherwise.
 {
     bsl::istringstream ss(xmlString);
 
@@ -314,11 +314,11 @@ int populateTestObject(TYPE *object, const bsl::string& xmlString)
     return rc;
 }
 
+/// Assert that `baljsn::Encoder` can encode a diverse set of values of
+/// the specified integral `TYPE` to a JSON number literal, and that the
+/// encoding loses no precision of the original value.
 template <class TYPE>
 void testNumber()
-    // Assert that 'baljsn::Encoder' can encode a diverse set of values of
-    // the specified integral 'TYPE' to a JSON number literal, and that the
-    // encoding loses no precision of the original value.
 {
     // Test non-negative numbers.
 
@@ -449,6 +449,11 @@ struct EncodeEmptyArrays {
 
 struct TestUtil {
     // CLASS METHODS
+
+    /// Assert that encoding the specified `VALUE` using `baljsn::Encoder`
+    /// with the specified `ENCODING_STYLE`, `ENCODE_NULL_ELEMENTS`, and
+    /// `ENCODE_EMPTY_ARRAYS` options yields the specified
+    /// `EXPECTED_JSON_STRING`.
     template <class VALUE_TYPE>
     static void assertEncodedValueIsEqual(
                              int                          LINE,
@@ -457,10 +462,6 @@ struct TestUtil {
                              EncodeEmptyArrays::Enum      ENCODE_EMPTY_ARRAYS,
                              const VALUE_TYPE&            VALUE,
                              const bsl::string_view&      EXPECTED_JSON_STRING)
-        // Assert that encoding the specified 'VALUE' using 'baljsn::Encoder'
-        // with the specified 'ENCODING_STYLE', 'ENCODE_NULL_ELEMENTS', and
-        // 'ENCODE_EMPTY_ARRAYS' options yields the specified
-        // 'EXPECTED_JSON_STRING'.
     {
         bdlsb::MemOutStreamBuf outStreamBuf;
         bsl::ostream           outStream(&outStreamBuf);
@@ -497,12 +498,13 @@ class Replace {
     Replace() { }
 
     // ACCESSORS
+
+    /// Return the result of replacing each occurrence of the specified
+    /// `subject` with the specified `replacement` in the specified
+    /// `original` string.
     bsl::string operator()(const bsl::string_view& original,
                            const bsl::string_view& subject,
                            const bsl::string_view& replacement) const
-        // Return the result of replacing each occurrence of the specified
-        // 'subject' with the specified 'replacement' in the specified
-        // 'original' string.
     {
         bdlpcre::RegEx regex;
         bsl::string    prepareErrorMessage;
@@ -542,6 +544,12 @@ class Replace {
 class AssertEncodingOverflowIsDetectedFunction {
   private:
     // PRIVATE CLASS METHODS
+
+    /// Assert that the content of the specified `streamBuf` is equal to the
+    /// specified `EXPECTED_JSON_STRING`, that the specified `rc` is
+    /// 0 if the specified `SUCCESS` is true, that `rc` is non-zero if
+    /// `SUCCESS` is false, and that the `loggedMessages` of the specified
+    /// `encoder` is equal to the specified `EXPECTED_LOGGED_MESSAGES`.
     static void assertExpectations(
                          bdlsb::FixedMemOutStreamBuf *streamBuf,
                          const int                    rc,
@@ -550,11 +558,6 @@ class AssertEncodingOverflowIsDetectedFunction {
                          const int                    SUCCESS,
                          const bsl::string_view&      EXPECTED_JSON_STRING,
                          const bsl::string_view&      EXPECTED_LOGGED_MESSAGES)
-        // Assert that the content of the specified 'streamBuf' is equal to the
-        // specified 'EXPECTED_JSON_STRING', that the specified 'rc' is
-        // 0 if the specified 'SUCCESS' is true, that 'rc' is non-zero if
-        // 'SUCCESS' is false, and that the 'loggedMessages' of the specified
-        // 'encoder' is equal to the specified 'EXPECTED_LOGGED_MESSAGES'.
     {
         if (SUCCESS) {
             LOOP1_ASSERT_EQ(LINE, 0, rc);
@@ -581,6 +584,15 @@ class AssertEncodingOverflowIsDetectedFunction {
     AssertEncodingOverflowIsDetectedFunction() {}
 
     // ACCESSORS
+
+    /// Assert that encoding the specified `VALUE` using `baljsn::Encoder`
+    /// and a stream buffer that fails after its output sequence exceeds the
+    /// specified `BUFFER_SIZE` number of bytes succeeds if the specified
+    /// `SUCCESS` flag is `true`, and fails otherwise.  Then, in any case,
+    /// assert that the content of the stream buffer is equal to the
+    /// specified `EXPECTED_JSON_STRING`, and the content of the
+    /// `loggedMessages` of the `baljsn::Encoder` is equal to the specified
+    /// `EXPECTED_LOGGED_MESSAGES`.
     template <class VALUE_TYPE>
     void operator()(const int               LINE,
                     const VALUE_TYPE&       VALUE,
@@ -588,14 +600,6 @@ class AssertEncodingOverflowIsDetectedFunction {
                     const bool              SUCCESS,
                     const bsl::string_view& EXPECTED_JSON_STRING,
                     const bsl::string_view& EXPECTED_LOGGED_MESSAGES) const
-        // Assert that encoding the specified 'VALUE' using 'baljsn::Encoder'
-        // and a stream buffer that fails after its output sequence exceeds the
-        // specified 'BUFFER_SIZE' number of bytes succeeds if the specified
-        // 'SUCCESS' flag is 'true', and fails otherwise.  Then, in any case,
-        // assert that the content of the stream buffer is equal to the
-        // specified 'EXPECTED_JSON_STRING', and the content of the
-        // 'loggedMessages' of the 'baljsn::Encoder' is equal to the specified
-        // 'EXPECTED_LOGGED_MESSAGES'.
     {
         {
             baljsn::Encoder encoder;
@@ -727,12 +731,13 @@ class AssertEncodedValueIsEqualFunction {
     }
 
     // ACCESSORS
+
+    /// Assert that encoding the specified `VALUE` using `baljsn::Encoder`
+    /// with default options yields the specified `EXPECTED_JSON_STRING`.
     template <class VALUE_TYPE>
     void operator()(int                     LINE,
                     const VALUE_TYPE&       VALUE,
                     const bsl::string_view& EXPECTED_JSON_STRING) const
-        // Assert that encoding the specified 'VALUE' using 'baljsn::Encoder'
-        // with default options yields the specified 'EXPECTED_JSON_STRING'.
     {
         TestUtil::assertEncodedValueIsEqual(LINE,
                                             baljsn::EncodingStyle::e_COMPACT,
@@ -742,14 +747,14 @@ class AssertEncodedValueIsEqualFunction {
                                             EXPECTED_JSON_STRING);
     }
 
+    /// Assert that encoding the specified `VALUE` using `baljsn::Encoder`
+    /// with the specified `ENCODE_NULL_ELEMENTS` option yields the
+    /// specified `EXPECTED_JSON_STRING`.
     template <class VALUE_TYPE>
     void operator()(int                     LINE,
                     bool                    ENCODE_NULL_ELEMENTS,
                     const VALUE_TYPE&       VALUE,
                     const bsl::string_view& EXPECTED_JSON_STRING) const
-        // Assert that encoding the specified 'VALUE' using 'baljsn::Encoder'
-        // with the specified 'ENCODE_NULL_ELEMENTS' option yields the
-        // specified 'EXPECTED_JSON_STRING'.
     {
         return TestUtil::assertEncodedValueIsEqual(
             LINE,
@@ -761,15 +766,15 @@ class AssertEncodedValueIsEqualFunction {
             EXPECTED_JSON_STRING);
     }
 
+    /// Assert that encoding the specified `VALUE` using `baljsn::Encoder`
+    /// with the specified `ENCODING_STYLE` and `ENCODE_NULL_ELEMENTS`
+    /// options yields the specified `EXPECTED_JSON_STRING`.
     template <class VALUE_TYPE>
     void operator()(int                          LINE,
                     baljsn::EncodingStyle::Value ENCODING_STYLE,
                     bool                         ENCODE_NULL_ELEMENTS,
                     const VALUE_TYPE&            VALUE,
                     const bsl::string_view&      EXPECTED_JSON_STRING) const
-        // Assert that encoding the specified 'VALUE' using 'baljsn::Encoder'
-        // with the specified 'ENCODING_STYLE' and 'ENCODE_NULL_ELEMENTS'
-        // options yields the specified 'EXPECTED_JSON_STRING'.
     {
         TestUtil::assertEncodedValueIsEqual(LINE,
                                             ENCODING_STYLE,
@@ -781,14 +786,14 @@ class AssertEncodedValueIsEqualFunction {
                                             EXPECTED_JSON_STRING);
     }
 
+    /// Assert that encoding the specified `VALUE` using `baljsn::Encoder`
+    /// with the specified `ENCODE_EMPTY_ARRAYS` option yields the specified
+    /// `EXPECTED_JSON_STRING`.
     template <class VALUE_TYPE>
     void operator()(int                     LINE,
                     EncodeEmptyArrays::Enum ENCODE_EMPTY_ARRAYS,
                     const VALUE_TYPE&       VALUE,
                     const bsl::string_view& EXPECTED_JSON_STRING) const
-        // Assert that encoding the specified 'VALUE' using 'baljsn::Encoder'
-        // with the specified 'ENCODE_EMPTY_ARRAYS' option yields the specified
-        // 'EXPECTED_JSON_STRING'.
     {
         TestUtil::assertEncodedValueIsEqual(LINE,
                                             baljsn::EncodingStyle::e_COMPACT,
@@ -809,16 +814,17 @@ class AssertEncodedArrayOfValuesIsEqualFunction {
     AssertEncodedArrayOfValuesIsEqualFunction() {}
 
     // ACCESSORS
+
+    /// Assert that encoding various nested and non-nested `bsl::vector`
+    /// objects with copies of the specified `ELEMENT` as terminal
+    /// element(s) using `baljsn::Encoder` with all permutations of the
+    /// `EncodeEmptyArrays` option yields an equivalently-structured nested
+    /// or non-nested JSON array with the specified terminal
+    /// `EXPECTED_ELEMENT_STRING`.
     template <class ELEMENT_TYPE>
     void operator()(int                     LINE,
                     const ELEMENT_TYPE&     ELEMENT,
                     const bsl::string_view& EXPECTED_ELEMENT_STRING) const
-        // Assert that encoding various nested and non-nested 'bsl::vector'
-        // objects with copies of the specified 'ELEMENT' as terminal
-        // element(s) using 'baljsn::Encoder' with all permutations of the
-        // 'EncodeEmptyArrays' option yields an equivalently-structured nested
-        // or non-nested JSON array with the specified terminal
-        // 'EXPECTED_ELEMENT_STRING'.
     {
         const AssertEncodedValueIsEqualFunction       TEST;
         const s_baltst::TestPlaceHolder<ELEMENT_TYPE> e;
@@ -1168,13 +1174,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -1191,16 +1197,16 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Encoding a 'bas_codegen.pl'-generated object into JSON
+///Example 1: Encoding a `bas_codegen.pl`-generated object into JSON
 ///-----------------------------------------------------------------
 // Consider that we want to exchange an employee's information between two
 // processes.  To allow this information exchange we will define the XML schema
-// representation for that class, use 'bas_codegen.pl' to create the 'Employee'
-// 'class' for storing that information, populate an 'Employee' object, and
+// representation for that class, use `bas_codegen.pl` to create the `Employee`
+// `class` for storing that information, populate an `Employee` object, and
 // encode that object using the baljsn encoder.
 //
-// First, we will define the XML schema inside a file called 'employee.xsd':
-//..
+// First, we will define the XML schema inside a file called `employee.xsd`:
+// ```
 //  <?xml version='1.0' encoding='UTF-8'?>
 //  <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
 //             xmlns:test='http://bloomberg.com/schemas/test'
@@ -1226,33 +1232,33 @@ int main(int argc, char *argv[])
 //      <xs:element name='Employee' type='test:Employee'/>
 //
 //  </xs:schema>
-//..
-// Then, we will use the 'bas_codegen.pl' tool, to generate the C++ classes for
+// ```
+// Then, we will use the `bas_codegen.pl` tool, to generate the C++ classes for
 // this schema.  The following command will generate the header and
-// implementation files for the all the classes in the 'test_messages'
+// implementation files for the all the classes in the `test_messages`
 // components in the current directory:
-//..
+// ```
 //  $ bas_codegen.pl -m msg -p test xsdfile.xsd
-//..
-// Next, we will populate a 'test::Employee' object:
-//..
+// ```
+// Next, we will populate a `test::Employee` object:
+// ```
     test::Employee employee;
     employee.name()                 = "Bob";
     employee.homeAddress().street() = "Lexington Ave";
     employee.homeAddress().city()   = "New York City";
     employee.homeAddress().state()  = "New York";
     employee.age()                  = 21;
-//..
-// Then, we will create a 'baljsn::Encoder' object:
-//..
+// ```
+// Then, we will create a `baljsn::Encoder` object:
+// ```
     baljsn::Encoder encoder;
-//..
-// Now, we will output this object in the JSON format by invoking the 'encode'
-// method of the encoder.  We will also create a 'baljsn::EncoderOptions'
+// ```
+// Now, we will output this object in the JSON format by invoking the `encode`
+// method of the encoder.  We will also create a `baljsn::EncoderOptions`
 // object that allows us to specify that the encoding should be done in a
 // pretty format, and what the initial indent level and spaces per level should
-// be.  We will then pass that object to the 'encode' method:
-//..
+// be.  We will then pass that object to the `encode` method:
+// ```
     bsl::ostringstream os;
 
     baljsn::EncoderOptions options;
@@ -1263,9 +1269,9 @@ int main(int argc, char *argv[])
     const int rc = encoder.encode(os, employee, options);
     ASSERT(!rc);
     ASSERT(os);
-//..
+// ```
 // Finally, we will verify that the output is as expected:
-//..
+// ```
     const char EXP_OUTPUT[] = "    {\n"
                               "        \"name\" : \"Bob\",\n"
                               "        \"homeAddress\" : {\n"
@@ -1277,27 +1283,27 @@ int main(int argc, char *argv[])
                               "    }\n";
 
     ASSERT(EXP_OUTPUT == os.str());
-//..
+// ```
       } break;
       case 22: {
         // --------------------------------------------------------------------
         // TESTING ENCODING VECTORS OF VECTORS
-        //   This case tests that 'baljsn::Encoder::encode' supports encoding
+        //   This case tests that `baljsn::Encoder::encode` supports encoding
         //   vectors of vectors.
         //
         // Concerns:
-        //: 1 Encoding a vector of vectors of a 'bdlat'-compatible type
-        //:   emits valid JSON array of arrays.
+        // 1. Encoding a vector of vectors of a `bdlat`-compatible type
+        //    emits valid JSON array of arrays.
         //
         // Plan:
-        //: 1 Perform a depth-ordered enumeration of encoding all vectors of
-        //:   vectors of integers up to depth 2 and width 2, and verify that
-        //:   the encoded JSON is the corresponding array of arrays.
-        //:
-        //: 2 For some terminal 'bdlat' element types, enumerate a large
-        //:   number of different nested and non-nested arrays of these types
-        //:   and verify that the array encodes to a corresponding nested or
-        //:   non-nested JSON array.
+        // 1. Perform a depth-ordered enumeration of encoding all vectors of
+        //    vectors of integers up to depth 2 and width 2, and verify that
+        //    the encoded JSON is the corresponding array of arrays.
+        //
+        // 2. For some terminal `bdlat` element types, enumerate a large
+        //    number of different nested and non-nested arrays of these types
+        //    and verify that the array encodes to a corresponding nested or
+        //    non-nested JSON array.
         //
         // Testing:
         //   ENCODING VECTORS OF VECTORS
@@ -1384,26 +1390,26 @@ int main(int argc, char *argv[])
       case 21: {
         // --------------------------------------------------------------------
         // TESTING ENCODING NULL CHOICE
-        //   This case tests that 'baljsn::Encoder::encode' returns a non-zero
+        //   This case tests that `baljsn::Encoder::encode` returns a non-zero
         //   value if the supplied object contains a null choice.
         //
         // Concerns:
-        //: 1 When encoding an object containing null nullable choice, and
-        //:   'encodeNullElements' is 'false' then the encoder succeeds and
-        //:   returns valid json (DRQS 165224090)
-        //: 2 When encoding an object containing null nullable choice, and
-        //:   'encodeNullElements' is 'false' then the encoder returns a non-0
-        //:   value, and does not trigger any assertions (DRQS 165224090)
+        // 1. When encoding an object containing null nullable choice, and
+        //    `encodeNullElements` is `false` then the encoder succeeds and
+        //    returns valid json (DRQS 165224090)
+        // 2. When encoding an object containing null nullable choice, and
+        //    `encodeNullElements` is `false` then the encoder returns a non-0
+        //    value, and does not trigger any assertions (DRQS 165224090)
         //
         // Plan:
-        //: 1 Create a message object of type
-        //:   'MySequenceWithNullableAnonymousChoice' which contains an null
-        //:   choice and ensure that 'encode' returns a 0 value and returns
-        //:   json "{}".
-        //: 2 Create a message object of type
-        //:   'MySequenceWithNullableAnonymousChoice' which contains an null
-        //:   choice and ensure that, when 'encodeNullElements' is set,
-        //:   'encode' returns a non-0 value.
+        // 1. Create a message object of type
+        //    `MySequenceWithNullableAnonymousChoice` which contains an null
+        //    choice and ensure that `encode` returns a 0 value and returns
+        //    json "{}".
+        // 2. Create a message object of type
+        //    `MySequenceWithNullableAnonymousChoice` which contains an null
+        //    choice and ensure that, when `encodeNullElements` is set,
+        //    `encode` returns a non-0 value.
         //
         // Testing:
         //   ENCODING NULL CHOICE
@@ -1430,7 +1436,7 @@ int main(int argc, char *argv[])
             if (verbose) { P(rc); P(encoder.loggedMessages()); P(out.str()); }
         }
         // Two iterations to cover both possible settings for
-        // 'encodeNullElements'
+        // `encodeNullElements`
         for (int loop = 0; loop <= 1; loop++) {
             if (veryVerbose)
                 bsl::cout << "Running test for encodeNullElements="
@@ -1469,18 +1475,18 @@ int main(int argc, char *argv[])
       case 20: {
         // --------------------------------------------------------------------
         // TESTING ENCODING UNSET CHOICE
-        //   This case tests that 'baljsn::Encoder::encode' returns a non-zero
+        //   This case tests that `baljsn::Encoder::encode` returns a non-zero
         //   value if the supplied object contains an unset choice.
         //
         // Concerns:
-        //: 1 When encoding an object containing an unset choice, the encoder
-        //:   returns a non-0 value, and does not trigger any assertions.
+        // 1. When encoding an object containing an unset choice, the encoder
+        //    returns a non-0 value, and does not trigger any assertions.
         //
         // Plan:
-        //: 1 Create a message object of type 'MySequenceWithChoice' which
-        //:   contains an unset choice in its sub-object of type
-        //:   'MySequenceWithChoice' and ensure than 'encode' returns a
-        //:   non-0 value.
+        // 1. Create a message object of type `MySequenceWithChoice` which
+        //    contains an unset choice in its sub-object of type
+        //    `MySequenceWithChoice` and ensure than `encode` returns a
+        //    non-0 value.
         //
         // Testing:
         //   ENCODING UNSET CHOICE
@@ -1506,52 +1512,52 @@ int main(int argc, char *argv[])
       case 19: {
         // --------------------------------------------------------------------
         // TESTING ENCODING OVERFLOW DETECTION
-        //   This case tests that 'baljsn::Encoder::encode' returns a non-zero
+        //   This case tests that `baljsn::Encoder::encode` returns a non-zero
         //   value if the supplied stream or stream buffer indicates an error
         //   occurs during any output operation.
         //
         // Concerns:
-        //: 1 If all output operations on the supplied stream or stream buffer
-        //:   succeed, the encoder returns a 0 value, successfully encodes the
-        //:   JSON representation of the supplied value to the stream or stream
-        //:   buffer, and has no logged messages.
-        //:
-        //: 2 If any output operation on the supplied stream or stream buffer
-        //:   fails, the encoder returns a non-zero value, encodes a prefix of
-        //:   the JSON representation of the supplied value -- up to and
-        //:   including all successfully written characters -- to the stream or
-        //:   stream buffer, and has logged messages.
+        // 1. If all output operations on the supplied stream or stream buffer
+        //    succeed, the encoder returns a 0 value, successfully encodes the
+        //    JSON representation of the supplied value to the stream or stream
+        //    buffer, and has no logged messages.
+        //
+        // 2. If any output operation on the supplied stream or stream buffer
+        //    fails, the encoder returns a non-zero value, encodes a prefix of
+        //    the JSON representation of the supplied value -- up to and
+        //    including all successfully written characters -- to the stream or
+        //    stream buffer, and has logged messages.
         //
         // Plan:
-        //: 1 Create 2 's_baltst::SimpleRequest' objects, 'obj0' and 'obj1',
-        //:   that have different values for their attributes so that they
-        //:   will encode to JSON representations that have different lengths.
-        //:
-        //: 2 For both objects 'obj0' and 'obj1', do the following:
-        //:
-        //:   1 Identify the length 'L' of the JSON representation of the
-        //:     object.
-        //:
-        //:   2 Initialize output stream buffers that fail after 0, 1, 2,
-        //:     L - 2, and L - 1 bytes have been written, respectively.
-        //:
-        //:   3 Encode the object to the output sequence of each stream buffer.
-        //:
-        //:   4 Observe that the encoding operation fails, a prefix of the
-        //:     encoded data is in the output sequence of the stream buffer,
-        //:     and that the encoder's logged messages contain a description of
-        //:     the error.
-        //:
-        //:   5 Initialize a second set of output stream buffers that fail
-        //:     after L, L + 1, and L + 2 bytes have been written,
-        //:     respectively.
-        //:
-        //:   6 Encode the object to the output sequence of each stream buffer.
-        //:
-        //:   7 Observe that the encoding operation succeeds, the full JSON
-        //:     representation of the object is in the output sequence of the
-        //:     stream buffer, and that the encoder's logged messages are
-        //:     empty.
+        // 1. Create 2 `s_baltst::SimpleRequest` objects, `obj0` and `obj1`,
+        //    that have different values for their attributes so that they
+        //    will encode to JSON representations that have different lengths.
+        //
+        // 2. For both objects `obj0` and `obj1`, do the following:
+        //
+        //   1. Identify the length `L` of the JSON representation of the
+        //      object.
+        //
+        //   2. Initialize output stream buffers that fail after 0, 1, 2,
+        //      L - 2, and L - 1 bytes have been written, respectively.
+        //
+        //   3. Encode the object to the output sequence of each stream buffer.
+        //
+        //   4. Observe that the encoding operation fails, a prefix of the
+        //      encoded data is in the output sequence of the stream buffer,
+        //      and that the encoder's logged messages contain a description of
+        //      the error.
+        //
+        //   5. Initialize a second set of output stream buffers that fail
+        //      after L, L + 1, and L + 2 bytes have been written,
+        //      respectively.
+        //
+        //   6. Encode the object to the output sequence of each stream buffer.
+        //
+        //   7. Observe that the encoding operation succeeds, the full JSON
+        //      representation of the object is in the output sequence of the
+        //      stream buffer, and that the encoder's logged messages are
+        //      empty.
         //
         // Testing:
         //   int encode(*streamBuf, value, options);
@@ -1570,14 +1576,14 @@ int main(int argc, char *argv[])
         static const bool F = false;
         static const bool T = true;
 
+        // Error at document preamble.
         static const char *const ERROR_P =
                                     "Unable to encode element name: 'data'.\n";
-            // Error at document preamble.
 
+        // Error at document close.
         static const char *const ERROR_C =
             "An error occurred when writing to the supplied output stream or"
             " stream buffer.\n";
-            // Error at document close.
 
         s_baltst::SimpleRequest obj0;
         obj0.data()           = "";
@@ -1635,28 +1641,28 @@ int main(int argc, char *argv[])
         //   disambiguate the selection is not present.
         //
         // Concerns:
-        //: 1 The encoder emits empty-object token sequences for choice values
-        //:   having an empty selection with the untagged formatting mode.
+        // 1. The encoder emits empty-object token sequences for choice values
+        //    having an empty selection with the untagged formatting mode.
         //
         // Plan:
-        //: 1 Define a choice type that has 1 selection, which is an empty,
-        //:   anonymous sequence.
-        //:
-        //: 2 Identify the 2 boolean options that affect relevant aspects of
-        //:   the encoding of such choices:
-        //:
-        //:   1 Whether the encoding style is compact or pretty
-        //:
-        //:   2 Whether or not to encode empty values
-        //:
-        //: 3 For each combination a compact or pretty encoding style, and a
-        //:   'true' or 'false' empty-value encoding setting, perform the
-        //:   following:
-        //:
-        //:   1 Encode the choice using the specified encoding style and
-        //:     empty-value encoding setting
-        //:
-        //:   2 Verify that the emitted JSON is an empty-object
+        // 1. Define a choice type that has 1 selection, which is an empty,
+        //    anonymous sequence.
+        //
+        // 2. Identify the 2 boolean options that affect relevant aspects of
+        //    the encoding of such choices:
+        //
+        //   1. Whether the encoding style is compact or pretty
+        //
+        //   2. Whether or not to encode empty values
+        //
+        // 3. For each combination a compact or pretty encoding style, and a
+        //    `true` or `false` empty-value encoding setting, perform the
+        //    following:
+        //
+        //   1. Encode the choice using the specified encoding style and
+        //      empty-value encoding setting
+        //
+        //   2. Verify that the emitted JSON is an empty-object
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -1673,7 +1679,7 @@ int main(int argc, char *argv[])
         static const bool T = true;
         static const bool F = false;
 
-        // 'Type0' is unsupported and causes the encoder to violate the
+        // `Type0` is unsupported and causes the encoder to violate the
         // invariants of the formatter.  This was last verified April 20, 2020.
         //typedef baljsn::EncoderTestDegenerateChoice0 Type0;
         typedef baljsn::EncoderTestDegenerateChoice1 Type1;
@@ -1703,35 +1709,35 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING SEQUENCES WITH ATTRIBUTES OF ALL VALUE CATEGORIES
         //   This case tests that the encoder emits valid JSON when encoding
-        //   sequence attributes having any of the 7 'bdlat' value categories
+        //   sequence attributes having any of the 7 `bdlat` value categories
         //   that the encoder supports for attributes.
         //
         // Concerns:
-        //: 1 Regardless of value category, the encoder emits a valid and
-        //:   correct JSON representation of a sequence attribute.
+        // 1. Regardless of value category, the encoder emits a valid and
+        //    correct JSON representation of a sequence attribute.
         //
         // Plan:
-        //: 1 Define a sequence type that has 7 attributes whose types cover
-        //:   all 7 'bdlat' value categories that are supported for selections.
-        //:
-        //: 2 Identify the 2 boolean options that affect relevant aspects of
-        //:   the encoding of such sequences:
-        //:
-        //:   1 Whether the encoding style is compact or pretty
-        //:
-        //:   2 Whether or not to encode empty values
-        //:
-        //: 3 For each combination a compact or pretty encoding style, and a
-        //:   'true' or 'false' empty-value encoding setting, perform the
-        //:   following:
-        //:
-        //:   1 Encode the sequence using the specified encoding style and
-        //:     empty-value encoding setting
-        //:
-        //:   2 Verify that the emitted JSON is valid
-        //:
-        //:   3 Verify that the emitted JSON is a correct representation of
-        //:     the encoded object
+        // 1. Define a sequence type that has 7 attributes whose types cover
+        //    all 7 `bdlat` value categories that are supported for selections.
+        //
+        // 2. Identify the 2 boolean options that affect relevant aspects of
+        //    the encoding of such sequences:
+        //
+        //   1. Whether the encoding style is compact or pretty
+        //
+        //   2. Whether or not to encode empty values
+        //
+        // 3. For each combination a compact or pretty encoding style, and a
+        //    `true` or `false` empty-value encoding setting, perform the
+        //    following:
+        //
+        //   1. Encode the sequence using the specified encoding style and
+        //      empty-value encoding setting
+        //
+        //   2. Verify that the emitted JSON is valid
+        //
+        //   3. Verify that the emitted JSON is a correct representation of
+        //      the encoded object
         //
         // Testing:
         //   int encode(bsl::streambuf *streambuf, const TYPE& v, options);
@@ -1811,35 +1817,35 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING CHOICES WITH SELECTIONS OF ALL VALUE CATEGORIES
         //   This case tests that the encoder emits valid JSON when encoding
-        //   a choice selection having any of the 6 'bdlat' value categories
+        //   a choice selection having any of the 6 `bdlat` value categories
         //   that the encoder supports for selections.
         //
         // Concerns:
-        //: 1 Regardless of value category, the encoder emits a valid and
-        //:   correct JSON representation of a choice selection.
+        // 1. Regardless of value category, the encoder emits a valid and
+        //    correct JSON representation of a choice selection.
         //
         // Plan:
-        //: 1 Define a choice type that has 6 selections whose types cover
-        //:   all 6 'bdlat' value categories that are supported for selections.
-        //:
-        //: 2 Identify the 2 boolean options that affect relevant aspects of
-        //:   the encoding of such choices:
-        //:
-        //:   1 Whether the encoding style is compact or pretty
-        //:
-        //:   2 Whether or not to encode empty values
-        //:
-        //: 3 For each combination of one of the 6 selections, a compact or
-        //:   pretty encoding style, and a 'true' or 'false' empty-value
-        //:   encoding setting, perform the following:
-        //:
-        //:   1 Encode the selection using the specified encoding style and
-        //:     empty-value encoding setting
-        //:
-        //:   2 Verify that the emitted JSON is valid
-        //:
-        //:   3 Verify that the emitted JSON is a correct representation of
-        //:     the encoded object
+        // 1. Define a choice type that has 6 selections whose types cover
+        //    all 6 `bdlat` value categories that are supported for selections.
+        //
+        // 2. Identify the 2 boolean options that affect relevant aspects of
+        //    the encoding of such choices:
+        //
+        //   1. Whether the encoding style is compact or pretty
+        //
+        //   2. Whether or not to encode empty values
+        //
+        // 3. For each combination of one of the 6 selections, a compact or
+        //    pretty encoding style, and a `true` or `false` empty-value
+        //    encoding setting, perform the following:
+        //
+        //   1. Encode the selection using the specified encoding style and
+        //      empty-value encoding setting
+        //
+        //   2. Verify that the emitted JSON is valid
+        //
+        //   3. Verify that the emitted JSON is a correct representation of
+        //      the encoded object
         //
         // Testing:
         //   int encode(bsl::streambuf *streambuf, const TYPE& v, options);
@@ -1948,31 +1954,31 @@ int main(int argc, char *argv[])
         //   sequences having attributes with untagged-empty-sequence type.
         //
         // Concerns:
-        //: 1 The encoder emits no tokens for sequence attributes having
-        //:   untagged-empty-sequence type.
+        // 1. The encoder emits no tokens for sequence attributes having
+        //    untagged-empty-sequence type.
         //
         // Plan:
-        //: 1 Define 14 types that enumerate the first 14 elements of the
-        //:   depth-ordered enumeration of sequences having attributes of
-        //:   either integer or untagged-empty-sequence type.
-        //:
-        //: 2 Identify the 2 boolean options that affect relevant aspects of
-        //:   the encoding of sequences with untagged-empty-sequence types:
-        //:
-        //:   1 Whether the encoding style is compact or pretty
-        //:
-        //:   2 Whether or not to encode empty values
-        //:
-        //: 3 For each combination of one of the 14 types, a compact or pretty
-        //:   encoding style, and a 'true' or 'false' empty-value encoding
-        //:   setting, perform the following:
-        //:
-        //:   1 Encode a default-initialized object of each type.
-        //:
-        //:   2 Verify that the emitted JSON is valid.
-        //:
-        //:   3 Verify that the emitted JSON is the correct representation of
-        //:     the encoded object.
+        // 1. Define 14 types that enumerate the first 14 elements of the
+        //    depth-ordered enumeration of sequences having attributes of
+        //    either integer or untagged-empty-sequence type.
+        //
+        // 2. Identify the 2 boolean options that affect relevant aspects of
+        //    the encoding of sequences with untagged-empty-sequence types:
+        //
+        //   1. Whether the encoding style is compact or pretty
+        //
+        //   2. Whether or not to encode empty values
+        //
+        // 3. For each combination of one of the 14 types, a compact or pretty
+        //    encoding style, and a `true` or `false` empty-value encoding
+        //    setting, perform the following:
+        //
+        //   1. Encode a default-initialized object of each type.
+        //
+        //   2. Verify that the emitted JSON is valid.
+        //
+        //   3. Verify that the emitted JSON is the correct representation of
+        //      the encoded object.
         //
         // Testing:
         //   int encode(bsl::streambuf *streambuf, const TYPE& v, options);
@@ -2109,72 +2115,72 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING the log buffer clears on each 'encode' call
+        // TESTING the log buffer clears on each `encode` call
         //   This case tests that the log buffer is reset on each call to
-        //   'encode'.
+        //   `encode`.
         //
         // Concerns:
-        //: 1 The string returned from 'loggedMessages' resets each time
-        //:   'encode' is invoked, such that the contents of the logged
-        //:   messages refer to only the most recent invocation of 'encode'.
+        // 1. The string returned from `loggedMessages` resets each time
+        //    `encode` is invoked, such that the contents of the logged
+        //    messages refer to only the most recent invocation of `encode`.
         //
         // Plan:
-        //: 1 Create 2 objects of different types that 'baljsn::Encoder'
-        //:   always successfully encodes.
-        //:
-        //: 2 Create 2 objects of different types that 'baljsn::Encoder'
-        //:   always fails to encode, and which cause a failure as early
-        //:   in the encoding process as possible.  (Generally this means
-        //:   that each object will implement a 'bdlat' category that
-        //:   the encoder does not support).
-        //:
-        //: 3 Verify that, after performing various sequences of encoding
-        //:   operations where some/all succeed/fail, the 'loggedMessages' are
-        //:   empty if the last operation succeeds, and contain an expected
-        //:   message if and only if the last operation fails.
+        // 1. Create 2 objects of different types that `baljsn::Encoder`
+        //    always successfully encodes.
+        //
+        // 2. Create 2 objects of different types that `baljsn::Encoder`
+        //    always fails to encode, and which cause a failure as early
+        //    in the encoding process as possible.  (Generally this means
+        //    that each object will implement a `bdlat` category that
+        //    the encoder does not support).
+        //
+        // 3. Verify that, after performing various sequences of encoding
+        //    operations where some/all succeed/fail, the `loggedMessages` are
+        //    empty if the last operation succeeds, and contain an expected
+        //    message if and only if the last operation fails.
         //
         // Testing:
         //   int encode(bsl::streambuf *streambuf, const TYPE& v, options);
         // --------------------------------------------------------------------
 
         if (veryVerbose)
-            cout << "\nTESTING the log buffer clears on each 'encode' call"
+            cout << "\nTESTING the log buffer clears on each `encode` call"
                  << "\n==================================================="
                  << endl;
 
+        // `mS1` is a modifiable object for which `baljsn::Encoder::encode`
+        // will succeed.
         s_baltst::Address mS1;
-            // 'mS1' is a modifiable object for which 'baljsn::Encoder::encode'
-            // will succeed.
         mS1.street() = "1st";
         mS1.city()   = "New York";
         mS1.state()  = "New York";
 
+        // `S1` is a non-modifiable reference to `mS1`.
         const s_baltst::Address& S1 = mS1;
-            // 'S1' is a non-modifiable reference to 'mS1'.
 
+        // `mS2` is a modifiable object for which `baljsn::Encoder::encode`
+        // will succeed.
         s_baltst::Employee mS2;
-            // 'mS2' is a modifiable object for which 'baljsn::Encoder::encode'
-            // will succeed.
         mS2.name() = "John Doe";
         mS2.homeAddress() = S1;
         mS2.age() = 50;
 
+        // `S2` is a non-modifiable reference to `mS2`.
         const s_baltst::Employee& S2 = mS2;
-            // 'S2' is a non-modifiable reference to 'mS2'.
 
+        // `mF1` is a modifiable object for which `baljsn::Encoder::encode`
+        // will fail very early in the encoding process.
         u::Enumeration0 mF1;
-            // 'mF1' is a modifiable object for which 'baljsn::Encoder::encode'
-            // will fail very early in the encoding process.
 
+        // `F1` is a non-modifiable reference to `mF1`.
         const u::Enumeration0& F1 = mF1;
-            // 'F1' is a non-modifiable reference to 'mF1'.
 
+        // `mF2` is a modifiable object for which `baljsn::Encoder::encode`
+        // will fail very early in the encoding process.
         bdlb::NullableValue<s_baltst::Address> mF2;
-            // 'mF2' is a modifiable object for which 'baljsn::Encoder::encode'
-            // will fail very early in the encoding process.
 
+        // `F2` is a non-modifiable reference to `mF2`.
         const bdlb::NullableValue<s_baltst::Address>& F2 = mF2;
-            // 'F2' is a non-modifiable reference to 'mF2'.
 
         enum Instruction {
             // This enumeration provides a set of integer constants that
@@ -2182,10 +2188,10 @@ int main(int argc, char *argv[])
             // testing apparatus.
 
             NOOP = 0, // indicates to do nothing (no operation)
-            ES1,      // indicates to encode 'S1'
-            ES2,      // indicates to encode 'S2'
-            EF1,      // indicates to encode 'F1'
-            EF2       // indicates to encode 'F2'
+            ES1,      // indicates to encode `S1`
+            ES2,      // indicates to encode `S2`
+            EF1,      // indicates to encode `F1`
+            EF2       // indicates to encode `F2`
         };
 
         enum {
@@ -2205,47 +2211,47 @@ int main(int argc, char *argv[])
         };
 
 
+        // `SMsg1` is a string that is equivalent to the `loggedMessages`
+        // of a `baljsn::Encoder` after a successful encoding operation.
         static const char SMsg1[] = "";
-            // 'SMsg1' is a string that is equivalent to the 'loggedMessages'
-            // of a 'baljsn::Encoder' after a successful encoding operation.
 
 
+        // `FMsg1` is a string that is equivalent to the `loggedMessages`
+        // of a `baljsn::Encoder` after an encoding operation that fails
+        // due to the type of the target object having an unsupported
+        // `bdlat` category.
         static const char FMsg1[] =
             "Encoded object must be a Sequence, Choice, or Array type.\n";
-            // 'FMsg1' is a string that is equivalent to the 'loggedMessages'
-            // of a 'baljsn::Encoder' after an encoding operation that fails
-            // due to the type of the target object having an unsupported
-            // 'bdlat' category.
 
+        /// line number
         static const struct {
             int         d_line;
-                // line number
 
+            /// instructions for test apparatus
             Instruction d_instructions[k_MAX_INSTRUCTIONS];
-                // instructions for test apparatus
 
+            /// whether all operations succeed
             bool        d_encodeSuccessStatus;
-                // whether all operations succeed
 
+            /// messages from final operation
             const char *d_loggedMessages;
-                // messages from final operation
 
         } DATA[] = {
             //LINE    INSTRUCTIONS     STATUS  LOGGED MESSAGES
             //---- ------------------ -------- ---------------
             {   L_, {               }, success,         SMsg1 },
-                // Verify that the 'loggedMessages' are empty if no encoding
+                // Verify that the `loggedMessages` are empty if no encoding
                 // operations are performed.
 
             {   L_, { ES1           }, success,         SMsg1 },
             {   L_, { ES2           }, success,         SMsg1 },
-                // Verify that the 'loggedMessages' are empty if one
+                // Verify that the `loggedMessages` are empty if one
                 // encoding operation is performed, and that operation
                 // succeeds.
 
             {   L_, { EF1           }, failure,         FMsg1 },
             {   L_, { EF2           }, failure,         FMsg1 },
-                // Verify that the 'loggedMessages' have an expected message
+                // Verify that the `loggedMessages` have an expected message
                 // if one encoding operation is performed, and that operation
                 // fails.
 
@@ -2265,7 +2271,7 @@ int main(int argc, char *argv[])
             {   L_, { EF2, ES2      }, failure,         SMsg1 },
             {   L_, { EF2, EF1      }, failure,         FMsg1 },
             {   L_, { EF2, EF2      }, failure,         FMsg1 },
-                // Verify that the 'loggedMessages' have an expected message
+                // Verify that the `loggedMessages` have an expected message
                 // when, after performing 2 encoding operations, the second
                 // operation fails, and otherwise are empty.
 
@@ -2273,7 +2279,7 @@ int main(int argc, char *argv[])
             {   L_, { ES1, ES1, EF1 }, failure,         FMsg1 },
             {   L_, { ES1, EF1, ES1 }, failure,         SMsg1 },
             {   L_, { EF1, ES1, ES1 }, failure,         SMsg1 }
-                // Verify that the 'loggedMessages' have an expected message
+                // Verify that the `loggedMessages` have an expected message
                 // when the last encoding operation in a sequence of encoding
                 // operations fails, and otherwise are empty.
         };
@@ -2334,33 +2340,33 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'encodeNullElements' option
+        // TESTING `encodeNullElements` option
         //
         // Concerns:
-        //: 1 Encoder outputs "null" for null elements only if the
-        //:   'encodeNullElements' option is set.
-        //:
-        //: 2 The encoder correctly generates the output in pretty or compact
-        //:   style when used in consonance with this option.
+        // 1. Encoder outputs "null" for null elements only if the
+        //    `encodeNullElements` option is set.
+        //
+        // 2. The encoder correctly generates the output in pretty or compact
+        //    style when used in consonance with this option.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a table with
-        //:   a set of distinct rows of encoding style, initial indent level,
-        //:   spaces per level, input XML, 'encodeNullElements' option value,
-        //:   and the expected JSON corresponding to that object.
-        //:
-        //: 2 For each row in the tables of P-1:
-        //:
-        //:   1 Populate a 'balb::Sequence3' object based on the input XML
-        //:     using the XML decoder.
-        //:
-        //:   2 Create a 'baljsn::Encoder' object.
-        //:
-        //:   3 Create a 'ostringstream' object and encode the object
-        //:     using the specified style, formatting options, and
-        //:     'encodeNullElements' option.
-        //:
-        //:   4 Compare the generated JSON with the expected JSON.
+        // 1. Using the table-driven technique, specify a table with
+        //    a set of distinct rows of encoding style, initial indent level,
+        //    spaces per level, input XML, `encodeNullElements` option value,
+        //    and the expected JSON corresponding to that object.
+        //
+        // 2. For each row in the tables of P-1:
+        //
+        //   1. Populate a `balb::Sequence3` object based on the input XML
+        //      using the XML decoder.
+        //
+        //   2. Create a `baljsn::Encoder` object.
+        //
+        //   3. Create a `ostringstream` object and encode the object
+        //      using the specified style, formatting options, and
+        //      `encodeNullElements` option.
+        //
+        //   4. Compare the generated JSON with the expected JSON.
         //
         // Testing:
         //   int encode(bsl::streambuf *streamBuf, const TYPE& v, options);
@@ -2797,34 +2803,34 @@ int main(int argc, char *argv[])
         // ENCODING COMPLEX TEST MESSAGES
         //
         // Concerns:
-        //: 1 Encoder produces the expected results for a variety of complex
-        //:   'bas-codegen' generated objects.
-        //:
-        //: 2 The encoder correctly generates the output in pretty or compact
-        //:   style based on the passed in encoder options.
+        // 1. Encoder produces the expected results for a variety of complex
+        //    `bas-codegen` generated objects.
+        //
+        // 2. The encoder correctly generates the output in pretty or compact
+        //    style based on the passed in encoder options.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify three tables: one with
-        //:   a set of distinct rows of XML string value corresponding to a
-        //:   's_baltst::FeatureTestMessage' object, the second with the
-        //:   expected JSON corresponding to that object's value in pretty
-        //:   format, and third with the expected JSON in compact format.
-        //:
-        //: 2 For each row in the tables of P-1:
-        //:
-        //:   1 Construct a 's_baltst::FeatureTestMessage' object from the XML
-        //:     string using the XML decoder.
-        //:
-        //:   2 Create a 'baljsn::Encoder' object.
-        //:
-        //:   3 Create a 'bdlsb::MemOutStreamBuf' object and encode the
-        //:     's_baltst::FeatureTestMessage' object specifying the pretty
-        //:     print option.
-        //:
-        //:   4 Compare the generated JSON with the expected JSON in the
-        //:     pretty format.
-        //:
-        //:   5 Repeat steps 1 - 4 in the compact format.
+        // 1. Using the table-driven technique, specify three tables: one with
+        //    a set of distinct rows of XML string value corresponding to a
+        //    `s_baltst::FeatureTestMessage` object, the second with the
+        //    expected JSON corresponding to that object's value in pretty
+        //    format, and third with the expected JSON in compact format.
+        //
+        // 2. For each row in the tables of P-1:
+        //
+        //   1. Construct a `s_baltst::FeatureTestMessage` object from the XML
+        //      string using the XML decoder.
+        //
+        //   2. Create a `baljsn::Encoder` object.
+        //
+        //   3. Create a `bdlsb::MemOutStreamBuf` object and encode the
+        //      `s_baltst::FeatureTestMessage` object specifying the pretty
+        //      print option.
+        //
+        //   4. Compare the generated JSON with the expected JSON in the
+        //      pretty format.
+        //
+        //   5. Repeat steps 1 - 4 in the compact format.
         //
         // Testing:
         //   int encode(bsl::streambuf *streamBuf, const TYPE& v, options);
@@ -2910,9 +2916,9 @@ int main(int argc, char *argv[])
         // Encode test
         //
         // Concerns:
-        //: 1 'encode' only works for Choice or Sequence type.
-        //:
-        //: 2 'encode' a bad stream returns an error.
+        // 1. `encode` only works for Choice or Sequence type.
+        //
+        // 2. `encode` a bad stream returns an error.
         //
         // Testing:
         //  int encode(const TYPE& value);
@@ -2957,24 +2963,24 @@ int main(int argc, char *argv[])
         // ENCODING SEQUENCES
         //
         // Concerns:
-        //: 1 Sequence objects are encoded as name-value pairs.
-        //:
-        //: 2 Null elements are not encoded.
-        //:
-        //: 3 Empty sequence will be encoded as an object without any member.
-        //:
-        //: 4 Error occurred when encoding an element of a sequence causes
-        //:   error in encoding a sequence.
+        // 1. Sequence objects are encoded as name-value pairs.
+        //
+        // 2. Null elements are not encoded.
+        //
+        // 3. Empty sequence will be encoded as an object without any member.
+        //
+        // 4. Error occurred when encoding an element of a sequence causes
+        //    error in encoding a sequence.
         //
         // Plan:
-        //: 1 Encode a void sequence and verify the output is an empty JSON
-        //:   object.
-        //:
-        //: 2 Encode a sequence with some null values an verify only the
-        //:   non-null values are encoded.
-        //:
-        //: 3 Encoded a sequence with an unselected Choice and verify an error
-        //:   is returned.
+        // 1. Encode a void sequence and verify the output is an empty JSON
+        //    object.
+        //
+        // 2. Encode a sequence with some null values an verify only the
+        //    non-null values are encoded.
+        //
+        // 3. Encoded a sequence with an unselected Choice and verify an error
+        //    is returned.
         //
         // Testing:
         //   int encode(bsl::ostream& stream, const TYPE& v, options);
@@ -3019,7 +3025,7 @@ int main(int argc, char *argv[])
             mX.element4().makeValue();
             mX.element5().makeValue(3.14);
             {
-                // 'element4' is an unselected Choice.  Ensure encode sequence
+                // `element4` is an unselected Choice.  Ensure encode sequence
                 // propagate errors.
 
                 bsl::ostringstream lss;
@@ -3050,32 +3056,32 @@ int main(int argc, char *argv[])
         // ENCODING CHOICES
         //
         // Concerns:
-        //: 1 Encoding a Choice object results in a JSON object with one
-        //:   name-value pair, where the name is the selection name and value
-        //:   is the selected value.
-        //:
-        //: 2 Unselected Choice returns an error.
-        //:
-        //: 3 Error when encoding the selection is propagated.
-        //:
-        //: 4 Array Choice selections are encoded correctly.
+        // 1. Encoding a Choice object results in a JSON object with one
+        //    name-value pair, where the name is the selection name and value
+        //    is the selected value.
+        //
+        // 2. Unselected Choice returns an error.
+        //
+        // 3. Error when encoding the selection is propagated.
+        //
+        // 4. Array Choice selections are encoded correctly.
         //
         // Plan:
-        //: 1 Use a brute force approach:  (C-1..3)
-        //:
-        //:   1 Encode an unselected Choice object and verify it returns an
-        //:     error.  (C-2)
-        //:
-        //:   2 Encode a selected Choice and verify it returns a name-value
-        //:     pair.  (C-1)
-        //:
-        //:   3 Encode a selected Choice, where the selection is an unselected
-        //:     Choice and verify it returns an error.  (C-3)
-        //:
-        //: 2 Use the table-driven approach to verify that array Choice
-        //:   selections encode as expected.  Test empty and non-empty arrays
-        //:   with both settings for the 'encodeEmptyArrays' encoder option.
-        //:   (C-4)
+        // 1. Use a brute force approach:  (C-1..3)
+        //
+        //   1. Encode an unselected Choice object and verify it returns an
+        //      error.  (C-2)
+        //
+        //   2. Encode a selected Choice and verify it returns a name-value
+        //      pair.  (C-1)
+        //
+        //   3. Encode a selected Choice, where the selection is an unselected
+        //      Choice and verify it returns an error.  (C-3)
+        //
+        // 2. Use the table-driven approach to verify that array Choice
+        //    selections encode as expected.  Test empty and non-empty arrays
+        //    with both settings for the `encodeEmptyArrays` encoder option.
+        //    (C-4)
         //
         // Testing:
         //   int encode(bsl::ostream& stream, const TYPE& v, options);
@@ -3227,30 +3233,30 @@ int main(int argc, char *argv[])
         // ENCODING ARRAYS
         //
         // Concerns:
-        //: 1 'bsl::vector<char>' is encoded into as a JSON string type in
-        //:   base64 encoding.
-        //:
-        //: 2 Empty 'bsl::vector<char>' results in an empty string.
-        //:
-        //: 3 Empty arrays of other types by will not be encoded by default.
-        //:
-        //: 4 Empty vectors with the 'encodeEmptyArrays' option set to 'true'
-        //:   result in an '[' and ']' being output.
-        //:
-        //: 5 The formatting is appropriately output for all vectors including
-        //:   empty vectors when used in consonance with the
-        //:   'encodeEmptyArrays' option.
+        // 1. `bsl::vector<char>` is encoded into as a JSON string type in
+        //    base64 encoding.
+        //
+        // 2. Empty `bsl::vector<char>` results in an empty string.
+        //
+        // 3. Empty arrays of other types by will not be encoded by default.
+        //
+        // 4. Empty vectors with the `encodeEmptyArrays` option set to `true`
+        //    result in an '[' and ']' being output.
+        //
+        // 5. The formatting is appropriately output for all vectors including
+        //    empty vectors when used in consonance with the
+        //    `encodeEmptyArrays` option.
         //
         // Plan:
-        //: 1 Use a table-driven approach:
-        //:
-        //:   1 Create a set of values with various length of 'vector<char>'.
-        //:
-        //:   2 Encode each values and verify the result is in base64 format.
-        //:
-        //: 2 Repeat step one with 'vector<int>' instead.
-        //:
-        //: 3 Ensure that the output is as expected in all cases.
+        // 1. Use a table-driven approach:
+        //
+        //   1. Create a set of values with various length of `vector<char>`.
+        //
+        //   2. Encode each values and verify the result is in base64 format.
+        //
+        // 2. Repeat step one with `vector<int>` instead.
+        //
+        // 3. Ensure that the output is as expected in all cases.
         //
         // Testing:
         //   int encode(bsl::ostream& s, const bsl::vector<TYPE>& v, options);
@@ -3259,7 +3265,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nENCODING ARRAYS"
                           << "\n===============" << endl;
 
-        if (verbose) cout << "Encode 'vector<char>'" << endl;
+        if (verbose) cout << "Encode `vector<char>`" << endl;
         {
             const struct {
                 int         d_line;
@@ -3309,7 +3315,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "Encode 'vector<int>'" << endl;
+        if (verbose) cout << "Encode `vector<int>`" << endl;
         {
             typedef Options::EncodingStyle Style;
             Style P = Options::e_PRETTY;
@@ -3850,21 +3856,21 @@ int main(int argc, char *argv[])
         // ENCODING NULL-ABLES
         //
         // Concerns:
-        //: 1 Null value is encoded to "null".
-        //:
-        //: 2 Encoding a Nullable object with non-null value is the same as it
-        //:   the encoding is performed on the value directly.
+        // 1. Null value is encoded to "null".
+        //
+        // 2. Encoding a Nullable object with non-null value is the same as it
+        //    the encoding is performed on the value directly.
         //
         // Plan:
-        //: 1 Use the brute force approach:
-        //:
-        //:   1 Create a Nullable object.
-        //:
-        //:   2 Encode the Nullable object and verify it is encoded as "null".
-        //:
-        //:   3 Make the value non-null.
-        //:
-        //:   4 Encode the value and verify the result is as expected.
+        // 1. Use the brute force approach:
+        //
+        //   1. Create a Nullable object.
+        //
+        //   2. Encode the Nullable object and verify it is encoded as "null".
+        //
+        //   3. Make the value non-null.
+        //
+        //   4. Encode the value and verify the result is as expected.
         //
         // Testing:
         //   int encode(ostream& s, const bdlb::NullableValue<TYPE>& v, o);
@@ -3919,15 +3925,15 @@ int main(int argc, char *argv[])
         // ENCODING ENUMERATIONS
         //
         // Concerns:
-        //: 1 Encoding an Enumeration object result in a JSON string of the
-        //:   string representation of the Enumeration value.
+        // 1. Encoding an Enumeration object result in a JSON string of the
+        //    string representation of the Enumeration value.
         //
         // Plan:
-        //: 1 Use a generated Enumeration type and encode each enumeration
-        //:   value.
-        //:
-        //: 2 Verify that the result is equal to the value of the 'toString'
-        //:   method enclosed in double quotes.
+        // 1. Use a generated Enumeration type and encode each enumeration
+        //    value.
+        //
+        // 2. Verify that the result is equal to the value of the `toString`
+        //    method enclosed in double quotes.
         //
         // Testing:
         //   int encode(ostream& s, const TYPE& v, o);
@@ -3957,27 +3963,27 @@ int main(int argc, char *argv[])
         // ENCODING DATE AND TIME TYPES
         //
         // Concerns:
-        //: 1 Date/time are encoded in ISO 8601 format.
-        //:
-        //: 2 Output contains only information contained in the type being
-        //:   encoded.  (i.e., encoding 'bdlt::Date' will not print out a time
-        //:   or offset.)
-        //:
-        //: 3 The encoder option "datetimeFractionalSecondPrecision" affects
-        //:   the number of digits of precision in the outputs.
+        // 1. Date/time are encoded in ISO 8601 format.
+        //
+        // 2. Output contains only information contained in the type being
+        //    encoded.  (i.e., encoding `bdlt::Date` will not print out a time
+        //    or offset.)
+        //
+        // 3. The encoder option "datetimeFractionalSecondPrecision" affects
+        //    the number of digits of precision in the outputs.
         //
         // Plan:
-        //: 1 Use the table-driven technique:
-        //:
-        //:   1 Specify a set of valid values.
-        //:
-        //:   2 Encode each value and verify the output is as expected.
-        //:
-        //: 2 Perform step one for every date/time types.
-        //:
-        //: 3 For a Datetime and DatetimeTz value, set the
-        //:   "datetimeFractionalSecondPrecision" attribute from 0 to 6, and
-        //:   verify that the output is as expected.
+        // 1. Use the table-driven technique:
+        //
+        //   1. Specify a set of valid values.
+        //
+        //   2. Encode each value and verify the output is as expected.
+        //
+        // 2. Perform step one for every date/time types.
+        //
+        // 3. For a Datetime and DatetimeTz value, set the
+        //    "datetimeFractionalSecondPrecision" attribute from 0 to 6, and
+        //    verify that the output is as expected.
         //
         // Testing:
         //   int encode(ostream& s, const TYPE& v, o);
@@ -4297,19 +4303,19 @@ int main(int argc, char *argv[])
         // ENCODING NUMBERS
         //
         // Concerns:
-        //: 1 Encoded numbers have the expected precisions.
-        //:
-        //: 2 Encoded numbers used default format.
-        //:
-        //: 3 Encoding 'unsigned char' prints a number instead of string.
+        // 1. Encoded numbers have the expected precisions.
+        //
+        // 2. Encoded numbers used default format.
+        //
+        // 3. Encoding `unsigned char` prints a number instead of string.
         //
         // Plan:
-        //: 1 Use the table-driven technique:
-        //:
-        //:   1 Specify a set of valid values, including those that will test
-        //:     the precision of the output.
-        //:
-        //:   2 Encode each value and verify the output is as expected.
+        // 1. Use the table-driven technique:
+        //
+        //   1. Specify a set of valid values, including those that will test
+        //      the precision of the output.
+        //
+        //   2. Encode each value and verify the output is as expected.
         //
         // Testing:
         //   int encode(ostream& s, const TYPE& v, o);
@@ -4318,7 +4324,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nENCODING NUMBERS"
                           << "\n================" << endl;
 
-        if (verbose) cout << "Encode 'double'" << endl;
+        if (verbose) cout << "Encode `double`" << endl;
         {
             typedef bsl::numeric_limits<double> Limits;
 
@@ -4396,7 +4402,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "Encode invalid 'double'" << endl;
+        if (verbose) cout << "Encode invalid `double`" << endl;
         {
             bsl::ostringstream oss;
 
@@ -4418,7 +4424,7 @@ int main(int argc, char *argv[])
                         &oss, bsl::numeric_limits<double>::signaling_NaN()));
         }
 
-        if (verbose) cout << "Encode 'float'" << endl;
+        if (verbose) cout << "Encode `float`" << endl;
         {
             typedef bsl::numeric_limits<float> Limits;
 
@@ -4461,7 +4467,7 @@ int main(int argc, char *argv[])
                 // Full Mantissa Integers
                 { L_, 1.0f * 0xFFFFFF,  "16777215"        },
                 { L_, 1.0f * 0xFFFFFF      // this happens to be also
-                       * (1ull << 63)      // 'Limits::max()'
+                       * (1ull << 63)      // `Limits::max()`
                        * (1ull << 41),    "3.4028235e+38" },
 
                 // Boundary Values
@@ -4487,7 +4493,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "Encode 'Decimal64'" << endl;
+        if (verbose) cout << "Encode `Decimal64`" << endl;
         {
 #define DEC(X) BDLDFP_DECIMAL_DD(X)
             using bdldfp::Decimal64;
@@ -4551,21 +4557,21 @@ int main(int argc, char *argv[])
         // ENCODING STRINGS
         //
         // Concerns:
-        //: 1 Character are encoded as a single character string.
-        //:
-        //: 2 All escape characters are encoded corrected.
-        //:
-        //: 3 Control characters are encoded as hex.
+        // 1. Character are encoded as a single character string.
+        //
+        // 2. All escape characters are encoded corrected.
+        //
+        // 3. Control characters are encoded as hex.
         //
         // Plan:
-        //: 1 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of values that include all escaped characters and
-        //:     some control characters.
-        //:
-        //:   2 Encode the value and verify the results.
-        //:
-        //: 2 Repeat for strings and Customized type.
+        // 1. Using the table-driven technique:
+        //
+        //   1. Specify a set of values that include all escaped characters and
+        //      some control characters.
+        //
+        //   2. Encode the value and verify the results.
+        //
+        // 2. Repeat for strings and Customized type.
         //
         // Testing:
         //  int encode(const bsl::string & value);
@@ -4654,7 +4660,7 @@ int main(int argc, char *argv[])
                 const char *const VALUE = DATA[ti].d_value;
                 const char *const EXP   = DATA[ti].d_result;
 
-                if (veryVeryVerbose) cout << "Test 'char *'" << endl;
+                if (veryVeryVerbose) cout << "Test `char *`" << endl;
                 {
                     bsl::ostringstream oss;
                     ASSERTV(LINE, 0 == ImplUtil::encode(&oss, VALUE));
@@ -4663,7 +4669,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, result, EXP, result == EXP);
                 }
 
-                if (veryVeryVerbose) cout << "Test 'string'" << endl;
+                if (veryVeryVerbose) cout << "Test `string`" << endl;
                 {
                     bsl::ostringstream oss;
                     ASSERTV(LINE,
@@ -4692,11 +4698,11 @@ int main(int argc, char *argv[])
         // ENCODING BOOLEAN
         //
         // Concerns:
-        //: 1 'true' is encoded into "true" and 'false' is encoded into
-        //:   "false".
+        // 1. `true` is encoded into "true" and `false` is encoded into
+        //    "false".
         //
         // Plan:
-        //: 1 Use a brute force approach to test both cases.
+        // 1. Use a brute force approach to test both cases.
         //
         // Testing:
         //   int encode(const bool& value);
@@ -4707,7 +4713,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nENCODING BOOLEAN"
                           << "\n================" << endl;
 
-        if (verbose) cout << "Encode 'true'" << endl;
+        if (verbose) cout << "Encode `true`" << endl;
         {
             bsl::ostringstream oss;
             ASSERTV(0 == ImplUtil::encode(&oss, true));
@@ -4716,7 +4722,7 @@ int main(int argc, char *argv[])
             ASSERTV(result, result == "true");
         }
 
-        if (verbose) cout << "Encode 'false'" << endl;
+        if (verbose) cout << "Encode `false`" << endl;
         {
             bsl::ostringstream oss;
             ASSERTV(0 == ImplUtil::encode(&oss, false));
@@ -4731,8 +4737,8 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
         //

@@ -95,32 +95,32 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 2: {
         // -------------------------------------------------------------------
-        // TESTING 'toString' and 'fromString'
+        // TESTING `toString` and `fromString`
         //
         // Concerns:
-        //: 1 The 'toString' method returns the expected string representation
-        //:   for each enumerator.
-        //: 2 The 'fromString' method returns the right enumeration value.
+        // 1. The `toString` method returns the expected string representation
+        //    for each enumerator.
+        // 2. The `fromString` method returns the right enumeration value.
         //
         // Plan:
-        //: 1 Test 'toString' with different enumerator values and checking
-        //:   against the expected string representation.
-        //: 2 Test 'fromString' with different string values and checking
-        //:   against the expected enumerator value.
+        // 1. Test `toString` with different enumerator values and checking
+        //    against the expected string representation.
+        // 2. Test `fromString` with different string values and checking
+        //    against the expected enumerator value.
         //
         // Testing:
         //   const char *toString(Value val);
         //   int fromString(Value *result, const char *str, int len);
         // -------------------------------------------------------------------
 
-        if (verbose) cout << endl << "Testing 'toString' and 'fromString'"
+        if (verbose) cout << endl << "Testing `toString` and `fromString`"
                           << endl << "==================================="
                           << endl;
 
         typedef balxml::EncodingStyle::Value Enum;
         typedef balxml::EncodingStyle        Obj;
 
-        if (verbose) cout << "\nTesting 'toString'." << endl;
+        if (verbose) cout << "\nTesting `toString`." << endl;
 
         {
             static const struct {
@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'fromString'." << endl;
+        if (verbose) cout << "\nTesting `fromString`." << endl;
 
         {
             static const struct {

@@ -6,8 +6,8 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 using namespace bsl;
 using namespace BloombergLP;
@@ -25,8 +25,8 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines meta-functions, 'bsl::remove_pointer' and
-// 'bsl::remove_pointer_t', that transform a pointer type to the type pointed
+// The component under test defines meta-functions, `bsl::remove_pointer` and
+// `bsl::remove_pointer_t`, that transform a pointer type to the type pointed
 // to by the pointer type.  We need to ensure that the values returned by the
 // meta-function are correct for each possible category of types.
 //
@@ -92,22 +92,22 @@ struct TestType {
    // argument for a template parameter.
 };
 
+/// This non-static function member type is intended to be used during
+/// testing as an argument for the template parameter `TYPE` of
+/// `bsl::remove_pointer`.
 typedef void (TestType::*MethodPtrTestType) ();
-    // This non-static function member type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::remove_pointer'.
 
+/// This class public data member pointer type is intended to be used during
+/// testing as an argument as an argument for the template parameter `TYPE`
+/// of `bsl::remove_pointer`.
 typedef int TestType::* PMD;
-    // This class public data member pointer type is intended to be used during
-    // testing as an argument as an argument for the template parameter 'TYPE'
-    // of 'bsl::remove_pointer'.
 
 void funcWithDefaultArg(int arg = 0);
 
+/// Removing a pointer from some function pointer types can be problematic
+/// for some compilers (e.g., AIX xlC).
 template <class TYPE>
 void testFuncPtrType(TYPE)
-    // Removing a pointer from some function pointer types can be problematic
-    // for some compilers (e.g., AIX xlC).
 {
     // First remove the pointer from the function pointer type and make sure it
     // compiles.
@@ -119,13 +119,13 @@ void testFuncPtrType(TYPE)
     ASSERT((bsl::is_same<TYPE, FUNC_TYPE *>::value));
 }
 
+/// Removing a pointer from some function pointer types can be problematic
+/// for some compilers (e.g., AIX xlC).
 template <class TYPE>
 void testConstFuncPtrType(TYPE const)
-    // Removing a pointer from some function pointer types can be problematic
-    // for some compilers (e.g., AIX xlC).
 {
-    // First we ensure that we are using the 'const'-qualified TYPE.
-    // Unusually, we place the 'const' on the right, to reflect its placement
+    // First we ensure that we are using the `const`-qualified TYPE.
+    // Unusually, we place the `const` on the right, to reflect its placement
     // after the pointer '*' in intended use, and to avoid any concern about
     // subtle compiler bugs.
 
@@ -142,13 +142,13 @@ void testConstFuncPtrType(TYPE const)
     ASSERT((bsl::is_same<TYPE const, FUNC_TYPE *const>::value));
 }
 
+/// Removing a pointer from some function pointer types can be problematic
+/// for some compilers (e.g., AIX xlC).
 template <class TYPE>
 void testVolatileFuncPtrType(TYPE volatile)
-    // Removing a pointer from some function pointer types can be problematic
-    // for some compilers (e.g., AIX xlC).
 {
-    // First we ensure that we are using the 'const'-qualified TYPE.
-    // Unusually, we place the 'const' on the right, to reflect its placement
+    // First we ensure that we are using the `const`-qualified TYPE.
+    // Unusually, we place the `const` on the right, to reflect its placement
     // after the pointer '*' in intended use, and to avoid any concern about
     // subtle compiler bugs.
 
@@ -165,13 +165,13 @@ void testVolatileFuncPtrType(TYPE volatile)
     ASSERT((bsl::is_same<TYPE volatile, FUNC_TYPE *volatile>::value));
 }
 
+/// Removing a pointer from some function pointer types can be problematic
+/// for some compilers (e.g., AIX xlC).
 template <class TYPE>
 void testConstVolatileFuncPtrType(TYPE const volatile)
-    // Removing a pointer from some function pointer types can be problematic
-    // for some compilers (e.g., AIX xlC).
 {
-    // First we ensure that we are using the 'const'-qualified TYPE.
-    // Unusually, we place the 'const' on the right, to reflect its placement
+    // First we ensure that we are using the `const`-qualified TYPE.
+    // Unusually, we place the `const` on the right, to reflect its placement
     // after the pointer '*' in intended use, and to avoid any concern about
     // subtle compiler bugs.
 
@@ -219,13 +219,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -242,49 +242,49 @@ int main(int argc, char *argv[])
 /// - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to get the type pointed to by a pointer type.
 //
-// First, we create two 'typedef's -- a pointer type ('MyPtrType') and the type
-// pointed to by the pointer type ('MyType'):
-//..
+// First, we create two `typedef`s -- a pointer type (`MyPtrType`) and the type
+// pointed to by the pointer type (`MyType`):
+// ```
     typedef int  MyType;
     typedef int *MyPtrType;
-//..
-// Now, we get the type pointed to by 'MyPtrType' using 'bsl::remove_pointer'
-// and verify that the resulting type is the same as 'MyType':
-//..
+// ```
+// Now, we get the type pointed to by `MyPtrType` using `bsl::remove_pointer`
+// and verify that the resulting type is the same as `MyType`:
+// ```
     ASSERT((bsl::is_same<bsl::remove_pointer<MyPtrType>::type,
                          MyType>::value));
-//..
+// ```
 // Finally, if the current compiler supports alias templates C++11 feature, we
-// get the type pointed to by 'MyPtrType' using 'bsl::remove_pointer_t' and
-// verify that the resulting type is the same as 'MyType':
-//..
+// get the type pointed to by `MyPtrType` using `bsl::remove_pointer_t` and
+// verify that the resulting type is the same as `MyType`:
+// ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
     ASSERT(true ==
               (bsl::is_same<bsl::remove_pointer_t<MyPtrType>, MyType>::value));
 #endif
-//..
+// ```
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::remove_pointer::type'
-        //   Ensure that the 'typedef' 'type' of 'bsl::remove_pointer' has the
+        // `bsl::remove_pointer::type`
+        //   Ensure that the `typedef` `type` of `bsl::remove_pointer` has the
         //   correct type for a variety of template parameter types.
         //
         // Concerns:
-        //: 1 'bsl::remove_pointer' transforms a (possibly cv-qualified)
-        //:   pointer type to the type pointed to by that pointer type.
-        //:
-        //: 2 'bsl::remove_pointer' returns the same type as the argument when
-        //:   it is not a pointer type.
-        //:
-        //: 3 'bsl::remove_pointer_t' represents the return type of
-        //:   'bsl::remove_pointer' meta-function for a variety of template
-        //:   parameter types.
+        // 1. `bsl::remove_pointer` transforms a (possibly cv-qualified)
+        //    pointer type to the type pointed to by that pointer type.
+        //
+        // 2. `bsl::remove_pointer` returns the same type as the argument when
+        //    it is not a pointer type.
+        //
+        // 3. `bsl::remove_pointer_t` represents the return type of
+        //    `bsl::remove_pointer` meta-function for a variety of template
+        //    parameter types.
         //
         // Plan:
-        //   Verify that 'bsl::remove_pointer::type' has the correct type for
-        //   each (template parameter) 'TYPE' in the concerns.
+        //   Verify that `bsl::remove_pointer::type` has the correct type for
+        //   each (template parameter) `TYPE` in the concerns.
         //
         // Testing:
         //   bsl::remove_pointer::type

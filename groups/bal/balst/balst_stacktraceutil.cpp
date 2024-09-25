@@ -33,13 +33,13 @@ BSLS_IDENT_RCSID(balst_stacktraceutil_cpp,"$Id$ $CSID$")
 #pragma optimize("", off)
 #endif
 
+/// Find in the specified `pathName` the first character following the last
+/// `pathName` separator character (i.e., `/` or '\\') and return its
+/// address.  If there are no separator characters, return the address of
+/// the first character of `pathName`.  If the last character of `pathName`
+/// is a separator charactor, return the address of the terminating '\0'.
 static
 const char *findBasename(const char *pathName)
-    // Find in the specified 'pathName' the first character following the last
-    // 'pathName' separator character (i.e., '/' or '\\') and return its
-    // address.  If there are no separator characters, return the address of
-    // the first character of 'pathName'.  If the last character of 'pathName'
-    // is a separator charactor, return the address of the terminating '\0'.
 {
     const char *ptr = pathName + bsl::strlen(pathName);
 
@@ -67,23 +67,24 @@ class ResolverImpl<ObjectFileFormat::Dummy>
 {
   public:
     // PUBLIC CLASS METHODS
+
+    /// Populate information for the specified `stackFrames`, a vector of
+    /// stack trace frames in a stack trace object.  Specify `demangle`, to
+    /// determine whether demangling is to occur, and `basicAllocator`,
+    /// which is to be used for memory allocation.  The behavior is
+    /// undefined unless all the `address` field in `stackFrames` are valid
+    /// and other fields are invalid, and `basicAllocator != 0`.
     static
     int resolve(StackTrace *,    // 'stackTrace'
                 bool        )    // 'demangle'
-        // Populate information for the specified 'stackFrames', a vector of
-        // stack trace frames in a stack trace object.  Specify 'demangle', to
-        // determine whether demangling is to occur, and 'basicAllocator',
-        // which is to be used for memory allocation.  The behavior is
-        // undefined unless all the 'address' field in 'stackFrames' are valid
-        // and other fields are invalid, and 'basicAllocator != 0'.
     {
         return -1;
     }
 
+    /// For testing only.  Do some random garbage and return a line number
+    /// from within the routine.
     static inline
     int testFunc()
-        // For testing only.  Do some random garbage and return a line number
-        // from within the routine.
     {
         return -1;
     }

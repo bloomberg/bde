@@ -25,7 +25,7 @@
 #include <bsl_cstring.h>      // strlen(), memset(), memcpy(), memcmp()
 #include <bsl_iostream.h>
 #include <bsl_iomanip.h>
-#include <bsl_new.h>          // placement 'new' syntax
+#include <bsl_new.h>          // placement `new` syntax
 #include <bsl_sstream.h>
 
 #ifdef BSLS_PLATFORM_OS_UNIX
@@ -50,22 +50,22 @@ using namespace bsl;
 //
 // 2. *Streaming*
 //    This tests streamIn/streamOut functionality to ensure that
-//    'ball::RecordAttributes' objects behave correctly in normal streaming
+//    `ball::RecordAttributes` objects behave correctly in normal streaming
 //    and in presence of stream exceptions.
 //
 //    When a streaming exception occurs, we guarantee internal consistency,
 //    but not specific value.  The test suite verifies object consistency
 //    simply by allowing the object destructor to work correctly.
 //
-// 3. 'setMessage', 'clearMessage'
-//    This tests 'setMessage' and 'clearMessage', and, in particular, their
-//    interaction with the 'messageStream' and 'messageStreamBuf' accessors.
+// 3. `setMessage`, `clearMessage`
+//    This tests `setMessage` and `clearMessage`, and, in particular, their
+//    interaction with the `messageStream` and `messageStreamBuf` accessors.
 //
 // 4. *Usage Test*
 //    This illustrates simple usage examples, taken from the component
 //    header file.
 //-----------------------------------------------------------------------------
-// 'ball::RecordAttributes' public interface:
+// `ball::RecordAttributes` public interface:
 // [ 2] ball::RecordAttributes(bslma::Allocator *ba = 0);
 // [ 3] ball::RecordAttributes(ts, pid, tid, fn, ln, cat, sev, msg, *ba=0);
 // [ 2] ball::RecordAttributes(const ball::RecordAttributes& orig, *ba = 0);
@@ -342,7 +342,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example-2 from header into driver, remove
-        //   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //   leading comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE 2
@@ -370,7 +370,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example-1 from header into driver, remove
-        //   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //   leading comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE 1
@@ -410,32 +410,32 @@ int main(int argc, char *argv[])
 
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'setMessage', 'clearMessage' METHODS
+        // TESTING `setMessage`, `clearMessage` METHODS
         //
         // Concerns:
-        //: 1 Calling 'setMessage' results in the message being set to the
-        //:   expected value.
-        //:
-        //: 2 Calling 'clearMessage' results in the message being cleared.
-        //:
-        //: 3 Streaming into the message following a call to 'setMessage' or
-        //:   'clearMessage' extends the clobbered message.
-        //:
-        //: 4 Stream state is reset when clobbering the message via a call to
-        //:   'setMessage' or 'clearMessage'.
+        // 1. Calling `setMessage` results in the message being set to the
+        //    expected value.
+        //
+        // 2. Calling `clearMessage` results in the message being cleared.
+        //
+        // 3. Streaming into the message following a call to `setMessage` or
+        //    `clearMessage` extends the clobbered message.
+        //
+        // 4. Stream state is reset when clobbering the message via a call to
+        //    `setMessage` or `clearMessage`.
         //
         // Plan:
-        //: 1 Set the message to a series of test messages, in isolation then
-        //:   in series, verifying at each step.
-        //:
-        //: 2 Starting from a series of different test messages, verify that
-        //:   clearing the message works.
-        //:
-        //: 3 Using a table of sample messages, test starting with each of
-        //:   them, then clobbering with a palate cleanser, followed by
-        //:   streaming in another message from the table.  Manipulate the
-        //:   stream state before clobbering, then assert that it's reset
-        //:   afterwards.
+        // 1. Set the message to a series of test messages, in isolation then
+        //    in series, verifying at each step.
+        //
+        // 2. Starting from a series of different test messages, verify that
+        //    clearing the message works.
+        //
+        // 3. Using a table of sample messages, test starting with each of
+        //    them, then clobbering with a palate cleanser, followed by
+        //    streaming in another message from the table.  Manipulate the
+        //    stream state before clobbering, then assert that it's reset
+        //    afterwards.
         //
         // Testing:
         //   void setMessage(const char *message);
@@ -443,10 +443,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "'setMessage', 'clearMessage' METHODS" << endl
+                          << "`setMessage`, `clearMessage` METHODS" << endl
                           << "====================================" << endl;
 
-        if (veryVerbose) cout << "Test 'setMessage'." << endl;
+        if (veryVerbose) cout << "Test `setMessage`." << endl;
 
         for (int i = 0; i < NUM_TEST_MSGS; ++i) {
             Obj mX;
@@ -462,7 +462,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (veryVerbose) cout << "Test 'clearMessage'." << endl;
+        if (veryVerbose) cout << "Test `clearMessage`." << endl;
 
         for (int i = 0; i < NUM_TEST_MSGS; ++i) {
             Obj mX;
@@ -817,7 +817,7 @@ int main(int argc, char *argv[])
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         if (veryVerbose) {
-             cout << "\tTesting 'setMessage' and 'message'" << endl;
+             cout << "\tTesting `setMessage` and `message`" << endl;
         }
         {
             for (int i = 0; i < NUM_TEST_MSGS; ++i) {
@@ -829,7 +829,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose) {
-             cout << "\tTesting 'messageRef'" << endl;
+             cout << "\tTesting `messageRef`" << endl;
         }
         {
             bslstl::StringRef emptyMsgRef("", 0);
@@ -853,7 +853,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose) {
-             cout << "\tTesting 'clearMessage'" << endl;
+             cout << "\tTesting `clearMessage`" << endl;
         }
         {
             Obj mA;
@@ -867,7 +867,7 @@ int main(int argc, char *argv[])
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         if (veryVerbose) {
-             cout << "\tTesting 'messageStreamBuf'" << endl;
+             cout << "\tTesting `messageStreamBuf`" << endl;
         }
         {
             Obj mA;
@@ -902,7 +902,7 @@ int main(int argc, char *argv[])
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         if (veryVerbose) {
-             cout << "\tTesting 'messageStream'" << endl;
+             cout << "\tTesting `messageStream`" << endl;
         }
         {
             Obj mA;
@@ -1232,7 +1232,7 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (veryVerbose) cout << "Testing 'print'." << endl;
+        if (veryVerbose) cout << "Testing `print`." << endl;
         {
 #define NL "\n"
             static const struct {
@@ -1397,8 +1397,8 @@ int main(int argc, char *argv[])
                 ASSERTV(ti, Z1 == buf1[SIZE - 1]);  // Check for overrun.
                 ASSERTV(ti, Z2 == buf2[SIZE - 1]);  // Check for overrun.
 
-                // Verify 'buf1' and 'buf2' have same conetents as 'FMT', if
-                // ignore the '\0's in the middle of 'buf1' and 'buf2'.
+                // Verify `buf1` and `buf2` have same conetents as `FMT`, if
+                // ignore the '\0's in the middle of `buf1` and `buf2`.
 
                 const char *p1 = FMT;
                 const char *p2 = buf1;
@@ -1423,7 +1423,7 @@ int main(int argc, char *argv[])
                 ASSERTV(tj, 0 == p1[tj]);
                 ASSERTV(tk, 0 == p2[tk]);
 
-                // Verify the rest parts of 'buf1' and 'buf2' are untouched.
+                // Verify the rest parts of `buf1` and `buf2` are untouched.
 
                 ASSERTV(ti,  0 == memcmp(buf1 + SZ, CTRL_BUF1 + SZ, REST));
                 ASSERTV(ti,  0 == memcmp(buf2 + SZ, CTRL_BUF2 + SZ, REST));

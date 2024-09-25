@@ -101,10 +101,10 @@ static bslmt::Mutex coutMutex;
 
 typedef bslmt::SemaphoreImpl<bslmt::Platform::PosixSemaphore> Obj;
 
+/// This class defines a platform-independent condition variable.  Using
+/// bslmt Condition would create a dependency cycle.
+/// DATA
 class MyCondition {
-    // This class defines a platform-independent condition variable.  Using
-    // bslmt Condition would create a dependency cycle.
-    // DATA
     pthread_cond_t d_cond;
 
   private:
@@ -136,10 +136,10 @@ class MyCondition {
     }
 };
 
+/// This class defines a thread barrier.  This is a cut-and-paste of bslmt
+/// Barrier, but depending on bslmt Barrier itself here would cause a
+/// dependency cycle.
 class MyBarrier {
-    // This class defines a thread barrier.  This is a cut-and-paste of bslmt
-    // Barrier, but depending on bslmt Barrier itself here would cause a
-    // dependency cycle.
 
     bslmt::Mutex     d_mutex;     // mutex used to control access to this
                                   // barrier
@@ -166,30 +166,33 @@ class MyBarrier {
 
   public:
     // CREATORS
-    explicit MyBarrier(int numThreads);
-        // Construct a barrier that requires the specified 'numThreads' to
-        // unblock.  Note that the behavior is undefined unless
-        // '0 < numThreads'.
 
+    /// Construct a barrier that requires the specified `numThreads` to
+    /// unblock.  Note that the behavior is undefined unless
+    /// `0 < numThreads`.
+    explicit MyBarrier(int numThreads);
+
+    /// Wait for all *signaled* threads to unblock and destroy this barrier.
+    /// (See `wait` and `timedWait` below for the meaning of *signaled*.)
+    /// Note that the behavior is undefined if a barrier is destroyed while
+    /// one or more threads are waiting on it.
     ~MyBarrier();
-        // Wait for all *signaled* threads to unblock and destroy this barrier.
-        // (See 'wait' and 'timedWait' below for the meaning of *signaled*.)
-        // Note that the behavior is undefined if a barrier is destroyed while
-        // one or more threads are waiting on it.
 
     // MANIPULATORS
+
+    /// Block until the required number of threads have called either `wait`
+    /// or `timedWait` on this barrier.  Then *signal* all the threads that
+    /// are currently waiting on this barrier to unblock and reset the state
+    /// of this barrier to its initial state.  Note that generally `wait`
+    /// and `timedWait` should not be used together, for reasons explained
+    /// in the documentation of `timedWait`.
     void wait();
-        // Block until the required number of threads have called either 'wait'
-        // or 'timedWait' on this barrier.  Then *signal* all the threads that
-        // are currently waiting on this barrier to unblock and reset the state
-        // of this barrier to its initial state.  Note that generally 'wait'
-        // and 'timedWait' should not be used together, for reasons explained
-        // in the documentation of 'timedWait'.
 
     // ACCESSORS
+
+    /// Return the number of threads that are required to call `wait` before
+    /// all waiting threads will unblock.
     int numThreads() const;
-        // Return the number of threads that are required to call 'wait' before
-        // all waiting threads will unblock.
 };
 
 // ============================================================================
@@ -391,8 +394,8 @@ extern "C" void *thread2Wait(void * arg)
     return 0;
 }
 
+/// FIFO integer queue.
 class IntQueue {
-    // FIFO integer queue.
 
     bsl::deque<int> d_queue;
     Obj             d_mutexSem;
@@ -405,18 +408,20 @@ class IntQueue {
 
   public:
     // CREATORS
-    explicit IntQueue(bslma::Allocator *basicAllocator = 0);
-        // Create a new 'IntQueue' object.
 
+    /// Create a new `IntQueue` object.
+    explicit IntQueue(bslma::Allocator *basicAllocator = 0);
+
+    /// Destroy this object.
     ~IntQueue();
-        // Destroy this object.
 
     // MANIPULATORS
-    int getInt();
-        // Get an integer from the queue.
 
+    /// Get an integer from the queue.
+    int getInt();
+
+    /// Push the specified `number` to the queue.
     void pushInt(int number);
-        // Push the specified 'number' to the queue.
 };
 
 IntQueue::IntQueue(bslma::Allocator *basicAllocator)
@@ -438,7 +443,7 @@ int IntQueue::getInt()
     // Waiting for resources.
     d_resourceSem.wait();
 
-    // 'd_mutexSem' is used for exclusive access.
+    // `d_mutexSem` is used for exclusive access.
     d_mutexSem.wait();
     int ret = d_queue.back();
     d_queue.pop_back();
@@ -576,7 +581,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING MULTIPLE POST
         //
-        // Concern: that 'post(n)' for large n works properly.  Two test modes:
+        // Concern: that `post(n)` for large n works properly.  Two test modes:
         // when threads are not waiting, and when they are concurrently
         // waiting.
         // --------------------------------------------------------------------
@@ -586,7 +591,7 @@ int main(int argc, char *argv[])
                              "===========================\n";
 
         // If the counted semaphore is employed with posix semaphore, it's
-        // because the posix semaphore can't handle 'post(n)' for large 'n'.
+        // because the posix semaphore can't handle `post(n)` for large `n`.
 #else
         if (verbose) cout << "TESTING MULTIPLE POST\n"
                              "=====================\n";
@@ -660,7 +665,7 @@ int main(int argc, char *argv[])
       case 5: {
 ///Usage
 ///-----
-// This component is an implementation detail of 'bslmt' and is *not* intended
+// This component is an implementation detail of `bslmt` and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
@@ -674,17 +679,17 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'tryWait'
+        // TESTING `tryWait`
         //
         // Concerns:
-        //   1. 'tryWait' decrements the count if resources are available,
+        //   1. `tryWait` decrements the count if resources are available,
         //      or return an error otherwise.
         //
         // Plan:
-        //   We create two groups of threads.  One will call 'post', the other
-        //   'tryWait'.  First, we make sure that 'tryWait' fails if no
+        //   We create two groups of threads.  One will call `post`, the other
+        //   `tryWait`.  First, we make sure that `tryWait` fails if no
         //   resources are available.  Then we will make sure it succeeds if
-        //   resources are.  We will also test 'tryWait' in the steady state
+        //   resources are.  We will also test `tryWait` in the steady state
         //   works fine.
         //
         // Testing:
@@ -692,7 +697,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing 'trywait'" << endl
+                          << "Testing `trywait`" << endl
                           << "=================" << endl;
 
         bslmt::ThreadUtil::Handle threads[10];
@@ -720,13 +725,13 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'post(int)'
+        // TESTING `post(int)`
         //
         // Concerns:
         //   1. post(int) increments the count by the expected number
         //
         // Plan:
-        //   Create a set of threads calling 'wait' and use a thread to post a
+        //   Create a set of threads calling `wait` and use a thread to post a
         //   number smaller than the set of threads.
         //
         // Testing:
@@ -734,7 +739,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing 'post(int number)'" << endl
+                          << "Testing `post(int number)`" << endl
                           << "==========================" << endl;
 
         bslmt::ThreadUtil::Handle threads[6];
@@ -762,7 +767,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'wait' and 'post'
+        // TESTING `wait` and `post`
         //
         // Concerns:
         //   1. wait() blocks the thread when no resource is available,
@@ -770,14 +775,14 @@ int main(int argc, char *argv[])
         //   2. post() increments the count
         //
         // Plan:
-        //  Create two groups of threads: one will call 'post' and the other
-        //  will call 'wait'.  To address concern 1, we will use a barrier and
+        //  Create two groups of threads: one will call `post` and the other
+        //  will call `wait`.  To address concern 1, we will use a barrier and
         //  a counter to make sure that waiting threads are blocked into wait
-        //  state before any calls to 'post'.  After that, we will post a small
+        //  state before any calls to `post`.  After that, we will post a small
         //  limited number of times (between 0 and 5), and check that the
         //  semaphore can indeed satisfy that number of waiters.  Then we try
-        //  to reach a steady state by calling the two functions 'post' and
-        //  'wait' in a number of threads each, perturbing the 'post' operation
+        //  to reach a steady state by calling the two functions `post` and
+        //  `wait` in a number of threads each, perturbing the `post` operation
         //  by adding small delays to exercise different parts of the code.
         //
         // Testing:
@@ -786,7 +791,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing 'wait' and 'post'" << endl
+                          << "Testing `wait` and `post`" << endl
                           << "=========================" << endl;
 
         enum {
@@ -983,7 +988,7 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-#else  // not 'PosixSemaphore'
+#else  // not `PosixSemaphore`
 
 int main()
 {

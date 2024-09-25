@@ -29,7 +29,7 @@
 
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
-#include <bsl_cstring.h>         // 'strcmp'
+#include <bsl_cstring.h>         // `strcmp`
 #include <bsl_iostream.h>
 #include <bsl_vector.h>          // case -1
 
@@ -53,11 +53,11 @@ using namespace bsl;
 // Accessors" validate them, and then use them in tests for other methods.
 //
 // Primary Manipulators:
-//: o 'configure' (the overload with two parameters)
+//  - `configure` (the overload with two parameters)
 //
 // Basic Accessors:
-//: o 'loadTimezone'
-//: o 'loadLocalTimePeriod'
+//  - `loadTimezone`
+//  - `loadLocalTimePeriod`
 //
 // ----------------------------------------------------------------------------
 // CLASS METHODS
@@ -1033,12 +1033,12 @@ static const unsigned char EUROPE_BERLIN_DATA[] = {
 //                        GLOBAL CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// The Logger verbosity guard disables logging on construction, and
+/// re-enables logging, based on the prior default pass-through level, when
+/// it goes out of scope and is destroyed.  It is intended to suppress
+/// logged output for intentional errors when the test driver is run in
+/// non-verbose mode.
 struct LogVerbosityGuard {
-    // The Logger verbosity guard disables logging on construction, and
-    // re-enables logging, based on the prior default pass-through level, when
-    // it goes out of scope and is destroyed.  It is intended to suppress
-    // logged output for intentional errors when the test driver is run in
-    // non-verbose mode.
 
     bool                    d_verbose;             // verbose mode does not
                                                    // disable logging
@@ -1046,9 +1046,9 @@ struct LogVerbosityGuard {
     bsls::LogSeverity::Enum d_defaultPassthrough;  // default passthrough
                                                    // log level
 
+    /// If the optionally specified `verbose` is `false` disable logging
+    /// until this guard is destroyed.
     explicit LogVerbosityGuard(bool verbose = false)
-        // If the optionally specified 'verbose' is 'false' disable logging
-        // until this guard is destroyed.
     {
         d_verbose            = verbose;
         d_defaultPassthrough = bsls::Log::severityThreshold();
@@ -1058,8 +1058,8 @@ struct LogVerbosityGuard {
         }
     }
 
+    /// Set the logging verbosity back to its default state.
     ~LogVerbosityGuard()
-        // Set the logging verbosity back to its default state.
     {
         if (!d_verbose) {
             bsls::Log::setSeverityThreshold(d_defaultPassthrough);
@@ -1092,19 +1092,19 @@ extern "C" void *workerThread(void *arg)
 
 typedef bsl::vector<bslmt::ThreadUtil::Handle> Handles;
 
+/// Return the interval in seconds from UNIX epoch time of the specified
+/// `value`.  Note that this method is shorthand for
+/// `bdlt::EpochUtil::convertToTimeT64`.
 bdlt::EpochUtil::TimeT64 toTimeT(const bdlt::Datetime& value)
-    // Return the interval in seconds from UNIX epoch time of the specified
-    // 'value'.  Note that this method is shorthand for
-    // 'bdlt::EpochUtil::convertToTimeT64'.
 {
     return bdlt::EpochUtil::convertToTimeT64(value);
 }
 
+/// Return the datetime value indicated by the specified
+/// `iso8601TimeString`.  The behavior is undefined unless
+/// `iso8601TimeString` is a null-terminated C-string containing a time
+/// description matching the iso8601 specification (see `bdlt_iso8601util`).
 bdlt::Datetime toDatetime(const char *iso8601TimeString)
-    // Return the datetime value indicated by the specified
-    // 'iso8601TimeString'.  The behavior is undefined unless
-    // 'iso8601TimeString' is a null-terminated C-string containing a time
-    // description matching the iso8601 specification (see 'bdlt_iso8601util').
 {
     bdlt::Datetime time;
     BSLA_MAYBE_UNUSED int rc = bdlt::Iso8601Util::parse(
@@ -1115,9 +1115,9 @@ bdlt::Datetime toDatetime(const char *iso8601TimeString)
     return time;
 }
 
+/// A `struct` describing a transitions.  Note that this type is meant to
+/// be used to create data tables for use with `addTransitions`.
 struct TransitionDescription {
-    // A 'struct' describing a transitions.  Note that this type is meant to
-    // be used to create data tables for use with 'addTransitions'.
 
     int         d_line;
     const char *d_transitionTime;
@@ -1126,11 +1126,11 @@ struct TransitionDescription {
     bool        d_isDst;
 };
 
+/// Insert to the specified `result` the contiguous sequence of specified
+/// `descriptions`, of length `numDescriptions`.
 void addTransitions(baltzo::Zoneinfo            *result,
                     const TransitionDescription *descriptions,
                     int                          numDescriptions)
-    // Insert to the specified 'result' the contiguous sequence of specified
-    // 'descriptions', of length 'numDescriptions'.
 {
     BSLS_ASSERT(result);
 
@@ -1153,19 +1153,19 @@ namespace UsageExample1 {
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using 'localTimeOffset' as the Local Time Offset Callback
+///Example 1: Using `localTimeOffset` as the Local Time Offset Callback
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we must quickly generate time stamp values in local time (e.g., on
 // records for a high frequency logger) and the default performance of the
-// relevant methods of 'bdlt::CurrentTime' is inadequate.  Further suppose that
+// relevant methods of `bdlt::CurrentTime` is inadequate.  Further suppose that
 // we must do so arbitrary time values and time zones.  Those requirements can
-// be met by installing the 'localTimeOffset' method of
-// 'baltzo::LocalTimeOffsetUtil' as the local time callback used by
-// 'bdlt::CurrentTime'.
+// be met by installing the `localTimeOffset` method of
+// `baltzo::LocalTimeOffsetUtil` as the local time callback used by
+// `bdlt::CurrentTime`.
 //
 // First, specify the time zone to be used by the callback and a UTC date time
 // for the initial offset information in the cache.
-//..
+// ```
 void main1()
 {
     ASSERT(0 == baltzo::LocalTimeOffsetUtil::updateCount());
@@ -1181,27 +1181,27 @@ void main1()
 
     baltzo::LocalTimeOffsetUtil::loadTimezone(&timezone);
     ASSERT(0 == strcmp("America/New_York", timezone.c_str()));
-//..
-// Notice that the value returned by the 'updateCount' method is increased by
+// ```
+// Notice that the value returned by the `updateCount` method is increased by
 // one after then time zone information has been set.
 //
-// Then, use the 'setLoadLocalTimeOffsetCallback' method to set the
-// 'localTimeOffset' of 'baltzo::LocalTimeOffsetUtil' as the local time
-// offset callback used in 'bdlt::CurrentTime'.
-//..
+// Then, use the `setLoadLocalTimeOffsetCallback` method to set the
+// `localTimeOffset` of `baltzo::LocalTimeOffsetUtil` as the local time
+// offset callback used in `bdlt::CurrentTime`.
+// ```
     bdlt::LocalTimeOffset::LocalTimeOffsetCallback previousCallback =
                  baltzo::LocalTimeOffsetUtil::setLoadLocalTimeOffsetCallback();
 
     ASSERT(&baltzo::LocalTimeOffsetUtil::localTimeOffset
         == bdlt::LocalTimeOffset::localTimeOffsetCallback());
-//..
+// ```
 // Notice that previously installed callback was saved so we can restore it, if
 // needed.
 //
-// Now, calls to 'bdlt::CurrentTime' methods will use the method we installed.
+// Now, calls to `bdlt::CurrentTime` methods will use the method we installed.
 // For example, we can check the time offset in New York for three dates of
 // interest:
-//..
+// ```
     bsls::Types::Int64 offsetInSeconds =
         bdlt::LocalTimeOffset::localTimeOffset(bdlt::Datetime(2013, 2, 26))
                                                                .totalSeconds();
@@ -1227,18 +1227,18 @@ void main1()
     ASSERT(        3 == baltzo::LocalTimeOffsetUtil::updateCount());
     baltzo::LocalTimeOffsetUtil::loadTimezone(&timezone);
     ASSERT(        0 == strcmp("America/New_York", timezone.c_str()));
-//..
-// Notice that the value returned by 'updateCount()' is unchanged by our first
+// ```
+// Notice that the value returned by `updateCount()` is unchanged by our first
 // request, but incremented by the second and third request, which transitions
 // into and then out of daylight saving time.  Also notice that the updates
 // change the offset information but do not change the timezone.
 //
 // Finally, we restore the original local time callback.
-//..
+// ```
     previousCallback = bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(
                                                              previousCallback);
     ASSERT(previousCallback == &baltzo::LocalTimeOffsetUtil::localTimeOffset);
-//..
+// ```
 }
 }  // close namespace UsageExample1
 
@@ -1261,7 +1261,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator allocator("Test", veryVeryVeryVerbose);
@@ -1311,13 +1311,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -1335,28 +1335,28 @@ int main(int argc, char *argv[])
         // CALLBACK FUNCTION
         //
         // Concerns:
-        //: 1 The callback function loads the correct offset and returns 0 for
-        //:   arbitrary Zoneinfo timezones for arbitrary UTC datetimes.
-        //:
-        //: 2 For a given timezone, the callback function updates the cached
-        //:   local time offset information on transitions into and out of
-        //:   daylight saving time.
-        //:
-        //: 3 The value returned by the 'updateCall' method increases by one
-        //:   for each transition into and out of daylight saving time, and for
-        //:   no other invocations of the callback.
+        // 1. The callback function loads the correct offset and returns 0 for
+        //    arbitrary Zoneinfo timezones for arbitrary UTC datetimes.
+        //
+        // 2. For a given timezone, the callback function updates the cached
+        //    local time offset information on transitions into and out of
+        //    daylight saving time.
+        //
+        // 3. The value returned by the `updateCall` method increases by one
+        //    for each transition into and out of daylight saving time, and for
+        //    no other invocations of the callback.
         //
         // Plan:
-        //: 1 Using the array-driven approach, compare the results of calling
-        //:   to those obtained from an independent source.  (C-1)
-        //:
-        //: 2 Using the array-driven approach, for a fixed timezone, invoke the
-        //:   call back method on both sides of the boundaries of daylight
-        //:   saving time for a year.  Confirm that the expected values are
-        //:   returned throughout, and that the static members are updated when
-        //:   times transition into and out of daylight saving time.  Also
-        //:   confirm the same behavior when the series of datetimes are used
-        //:   in reverse order.  (C-2..3)
+        // 1. Using the array-driven approach, compare the results of calling
+        //    to those obtained from an independent source.  (C-1)
+        //
+        // 2. Using the array-driven approach, for a fixed timezone, invoke the
+        //    call back method on both sides of the boundaries of daylight
+        //    saving time for a year.  Confirm that the expected values are
+        //    returned throughout, and that the static members are updated when
+        //    times transition into and out of daylight saving time.  Also
+        //    confirm the same behavior when the series of datetimes are used
+        //    in reverse order.  (C-2..3)
         //
         // Testing:
         //  void loadLocalTimeOffset(int *result, const bdlt::Datetime& utc);
@@ -1552,30 +1552,30 @@ int main(int argc, char *argv[])
         // STATIC INITIALIZATION
         //
         // Concerns:
-        //: 1 The 'updateCount' method returns 0 before configuration.
-        //:
-        //: 2 The static members of 'baltzo::LocalTimeOffsetUtil' that take
-        //:   allocators use the default global allocator.
-        //:
+        // 1. The `updateCount` method returns 0 before configuration.
+        //
+        // 2. The static members of `baltzo::LocalTimeOffsetUtil` that take
+        //    allocators use the default global allocator.
+        //
         // Plan:
-        //: 1 Before any other use of 'baltzo::LocalTimeOffsetUtil', check the
-        //:   value returned by the 'updateCount' method.
-        //:
-        //: 2 Install the test allocators as the default and global allocators.
-        //:   Since the memory for the static members will be deleted after the
-        //:   return of 'main', we use a statically initialized allocator for
-        //:   the global allocator which will outlive the static members.
-        //:
-        //: 3 Using 'baltzo::TestLoader' and several helper functions, define a
-        //:   time zone with a description and a timezone name sufficiently
-        //:   long as to require memory allocation from 'bsl::string' (which
-        //:   has a short string optimization).  Construct a
-        //:   'baltzo::ZoneinfoCache' using the configured test loader and
-        //:   install that cache as the default timezone cache.
-        //:
-        //: 4 Configure our mechanism to use the custom-made timezone.  Check
-        //:   the block count of each allocator before and after configuration
-        //:   and compare to the expected values.
+        // 1. Before any other use of `baltzo::LocalTimeOffsetUtil`, check the
+        //    value returned by the `updateCount` method.
+        //
+        // 2. Install the test allocators as the default and global allocators.
+        //    Since the memory for the static members will be deleted after the
+        //    return of `main`, we use a statically initialized allocator for
+        //    the global allocator which will outlive the static members.
+        //
+        // 3. Using `baltzo::TestLoader` and several helper functions, define a
+        //    time zone with a description and a timezone name sufficiently
+        //    long as to require memory allocation from `bsl::string` (which
+        //    has a short string optimization).  Construct a
+        //    `baltzo::ZoneinfoCache` using the configured test loader and
+        //    install that cache as the default timezone cache.
+        //
+        // 4. Configure our mechanism to use the custom-made timezone.  Check
+        //    the block count of each allocator before and after configuration
+        //    and compare to the expected values.
         //
         // Testing:
         //  CONCERN: This component uses the global allocator.
@@ -1641,22 +1641,22 @@ int main(int argc, char *argv[])
         // SETTING THE LOCAL TIME OFFSET CALLBACK
         //
         // Concerns:
-        //: 1 The 'setLoadLocalTimeOffsetCallback' method sets the
-        //:   'localTimeOffset' method as the current local time offset
-        //:   callback used by 'bdlt::CurrentTime'.
-        //:
-        //: 2 The 'setLoadLocalTimeOffsetCallback' method returns the installed
-        //:   previously callback.
+        // 1. The `setLoadLocalTimeOffsetCallback` method sets the
+        //    `localTimeOffset` method as the current local time offset
+        //    callback used by `bdlt::CurrentTime`.
+        //
+        // 2. The `setLoadLocalTimeOffsetCallback` method returns the installed
+        //    previously callback.
         //
         // Plan:
-        //: 1 Use the 'bdlt::CurrentTime::currentLocalTimeOffsetCallback'
-        //:   method to check the current local time offset callback before and
-        //:   after calls to 'setLoadLocalTimeOffsetCallback'.  (C-1)
-        //:
-        //: 2 Compare the value returned by the initial call to the
-        //:   'bdlt::CurrentTime::currentLocalTimeOffsetCallback' method with
-        //:   that returned by the 'setLoadLocalTimeOffsetCallback' method.
-        //:   (C-2)
+        // 1. Use the `bdlt::CurrentTime::currentLocalTimeOffsetCallback`
+        //    method to check the current local time offset callback before and
+        //    after calls to `setLoadLocalTimeOffsetCallback`.  (C-1)
+        //
+        // 2. Compare the value returned by the initial call to the
+        //    `bdlt::CurrentTime::currentLocalTimeOffsetCallback` method with
+        //    that returned by the `setLoadLocalTimeOffsetCallback` method.
+        //    (C-2)
         //
         // Testing:
         //   bdlt::CurrentTime::LLTOC setLoadLocalTimeOffsetCallback();
@@ -1683,34 +1683,34 @@ int main(int argc, char *argv[])
         // OTHER MANIPULATORS
         //
         // Concerns:
-        //: 1 The other (non-primary) manipulators apply their expected default
-        //:   values.
-        //:
-        //: 2 The manipulators return a non-zero value when an invalid timezone
-        //:   is specified, and (QoI) there is no change in the static members.
-        //:
-        //: 3 The value returned by the 'updateCall' method increases by one
-        //:   for each successful call of a 'configure' method, and remains the
-        //:   same after unsuccessful calls.
-        //:
-        //: 4 The value returned by the 'updateCall' method increases by one
-        //:   for each successful call of a 'configure' method, and remains the
-        //:   same after unsuccessful calls.
+        // 1. The other (non-primary) manipulators apply their expected default
+        //    values.
+        //
+        // 2. The manipulators return a non-zero value when an invalid timezone
+        //    is specified, and (QoI) there is no change in the static members.
+        //
+        // 3. The value returned by the `updateCall` method increases by one
+        //    for each successful call of a `configure` method, and remains the
+        //    same after unsuccessful calls.
+        //
+        // 4. The value returned by the `updateCall` method increases by one
+        //    for each successful call of a `configure` method, and remains the
+        //    same after unsuccessful calls.
         //
         // Plan:
-        //: 1 Invoke the non-primary manipulators and compare the results with
-        //:   obtained from the primary manipulator using the expected default
-        //:   values.  (C-1)
-        //:
-        //:   o One default value is the current UTC time which, of course,
-        //:     changes between the invocation of the two manipulators;
-        //:     however, this is only a problem in the unlikely event that the
-        //:     local time zone information changes in that short interval.
-        //:
-        //: 2 Save the values of the static members and call each 'configure'
-        //:   method with an unknown timezone.  After each 'configure' call,
-        //:   check the return value, and compare the current values of the
-        //:   static members to the saved values.  (C-2..4)
+        // 1. Invoke the non-primary manipulators and compare the results with
+        //    obtained from the primary manipulator using the expected default
+        //    values.  (C-1)
+        //
+        //    - One default value is the current UTC time which, of course,
+        //      changes between the invocation of the two manipulators;
+        //      however, this is only a problem in the unlikely event that the
+        //      local time zone information changes in that short interval.
+        //
+        // 2. Save the values of the static members and call each `configure`
+        //    method with an unknown timezone.  After each `configure` call,
+        //    check the return value, and compare the current values of the
+        //    static members to the saved values.  (C-2..4)
         //
         // Testing:
         //   int configure();
@@ -1726,7 +1726,7 @@ int main(int argc, char *argv[])
         ASSERT(0 ==      updateCount);
         ASSERT(0 == priorUpdateCount);
 
-        if (verbose) cout << "\nTesting 'configure(const char *timezone)'"
+        if (verbose) cout << "\nTesting `configure(const char *timezone)`"
                           << endl;
         {
             for (int i = 0; i < DEFAULT_NUM_TZ_ARRAY; ++i) {
@@ -1761,7 +1761,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'configure()' for valid timezones"
+        if (verbose) cout << "\nTesting `configure()` for valid timezones"
                           << endl;
         {
             static char tzEquals[] = "TZ=";
@@ -1865,40 +1865,40 @@ int main(int argc, char *argv[])
         // PRIMARY MANIPULATOR and BASIC ACCESSORS
         //
         // Concerns:
-        //: 1 The primary manipulator can set the cached local time offset
-        //:   information for any entry in the Zoneinfo database for arbitrary
-        //:   UTC datetime.
-        //:
-        //: 2 The basic accessors report the currently cached local time offset
-        //:   information.
-        //:
-        //: 3 The primary manipulator returns a non-zero value when an invalid
-        //:   timezone is specified, and (QoI) there is no change in the static
-        //:   members.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The primary manipulator can set the cached local time offset
+        //    information for any entry in the Zoneinfo database for arbitrary
+        //    UTC datetime.
+        //
+        // 2. The basic accessors report the currently cached local time offset
+        //    information.
+        //
+        // 3. The primary manipulator returns a non-zero value when an invalid
+        //    timezone is specified, and (QoI) there is no change in the static
+        //    members.
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the array-driven approach, generate test cases for several
-        //:   entries representing several categories of Zoneinfo entries
-        //:   (i.e., timezone before and after "Etc/GMT" and "Etc/GMT" itself)
-        //:   and for several categories of UTC datetimes (i.e., before,
-        //:   during, and after daylight saving time, if defined in a
-        //:   timezone).  For each entry confirm that 'configure' returns
-        //:   successfully, and use the accessors to confirm that the cached
-        //:   information matches the expected results.  The expected results
-        //:   for the local time period is obtained using the
-        //:   'baltzo::TimeZoneUtil::loadLocalTimePeriodForUtc' method.
-        //:   (C-1..2)
-        //:
-        //: 2 Save the values of the static members, call 'configure' with an
-        //:   unknown timezone, check the return value, and compare the current
-        //:   values of the static members to the saved values.
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-4)
+        // 1. Using the array-driven approach, generate test cases for several
+        //    entries representing several categories of Zoneinfo entries
+        //    (i.e., timezone before and after "Etc/GMT" and "Etc/GMT" itself)
+        //    and for several categories of UTC datetimes (i.e., before,
+        //    during, and after daylight saving time, if defined in a
+        //    timezone).  For each entry confirm that `configure` returns
+        //    successfully, and use the accessors to confirm that the cached
+        //    information matches the expected results.  The expected results
+        //    for the local time period is obtained using the
+        //    `baltzo::TimeZoneUtil::loadLocalTimePeriodForUtc` method.
+        //    (C-1..2)
+        //
+        // 2. Save the values of the static members, call `configure` with an
+        //    unknown timezone, check the return value, and compare the current
+        //    values of the static members to the saved values.
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-4)
         //
         // Testing:
         //   int configure(const char *timezone, const bdlt::Datetime& utc);
@@ -2032,13 +2032,13 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Set the time zone to "America/New_York" for several dates in
-        //:   succession, and examine the local time period information at each
-        //:   stage.
+        // 1. Set the time zone to "America/New_York" for several dates in
+        //    succession, and examine the local time period information at each
+        //    stage.
         //
         // Testing:
         //   BREATHING TEST
@@ -2081,37 +2081,37 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // THREAD SAFETY
         //   The primary concern is the thread-safety of the
-        //   'localTimeOffset' method.  The other public methods will
+        //   `localTimeOffset` method.  The other public methods will
         //   typically be called once near the start of a process, and before
         //   multiple threads are launched.  Since the limit on thread creation
         //   vary significantly with platform, this test is designed to be run
         //   interactively (i.e., the test has a negative test number).
         //
         // Concerns:
-        //: 1 Concurrent threads calling the 'localTimeOffset' method each
-        //:   receive the correct result and return value indicating success.
-        //:
-        //: 2 When needed, the cached local time zone information is updated
-        //:   exactly once.
+        // 1. Concurrent threads calling the `localTimeOffset` method each
+        //    receive the correct result and return value indicating success.
+        //
+        // 2. When needed, the cached local time zone information is updated
+        //    exactly once.
         //
         // Plan:
-        //: 1 Set the timezone and UTC time to some day in 2013 before the
-        //:   start of daylight saving time in New York).
-        //:
-        //: 2 Launch multiple threads (where the number is determined by a
-        //:   command-line argument) that each wait at a common barrier until
-        //:   all the threads have been created, and then invoke the
-        //:   'localTimeOffset' method requesting the offset for the start
-        //:   of daylight saving time.
-        //:
-        //: 3 Compare the values obtained by each thread with the expected
-        //:   offset for the start of daylight saving time.
-        //:
-        //: 4 Confirm that the value returned by 'updateCount' increased by
-        //:   exactly one.
-        //:
-        //: 5 Repeat the test a number of times specified by a command-line
-        //:   argument.
+        // 1. Set the timezone and UTC time to some day in 2013 before the
+        //    start of daylight saving time in New York).
+        //
+        // 2. Launch multiple threads (where the number is determined by a
+        //    command-line argument) that each wait at a common barrier until
+        //    all the threads have been created, and then invoke the
+        //    `localTimeOffset` method requesting the offset for the start
+        //    of daylight saving time.
+        //
+        // 3. Compare the values obtained by each thread with the expected
+        //    offset for the start of daylight saving time.
+        //
+        // 4. Confirm that the value returned by `updateCount` increased by
+        //    exactly one.
+        //
+        // 5. Repeat the test a number of times specified by a command-line
+        //    argument.
         //
         // Testing:
         //   CONCERN: The public methods of this component are *thread-safe*.
@@ -2206,17 +2206,17 @@ int main(int argc, char *argv[])
         // PERFORMANCE: CACHE-HITS
         //
         // Concerns:
-        //: 1 The time needed to deliver an offset value from the cached
-        //:   information should be known.
+        // 1. The time needed to deliver an offset value from the cached
+        //    information should be known.
         //
         // Plan:
-        //: 1 Set the timezone and UTC time to some day in 2013 before the
-        //:   start of daylight saving time in New York).
-        //:
-        //: 2 Use a stopwatch mechanism to measure the time needed to
-        //:   iteratively request the local time offset at the UTC datetime set
-        //:   in P-1.  The number of iterations is determined by a command-line
-        //:   parameter.  (C-1)
+        // 1. Set the timezone and UTC time to some day in 2013 before the
+        //    start of daylight saving time in New York).
+        //
+        // 2. Use a stopwatch mechanism to measure the time needed to
+        //    iteratively request the local time offset at the UTC datetime set
+        //    in P-1.  The number of iterations is determined by a command-line
+        //    parameter.  (C-1)
         //
         // Testing:
         //   CONCERN: Performance on cache hits.
@@ -2262,20 +2262,20 @@ int main(int argc, char *argv[])
         // PERFORMANCE: CACHE MISSES
         //
         // Concerns:
-        //: 1 The time needed to deliver an offset value when the information
-        //:   is not in the cache information should be known.
+        // 1. The time needed to deliver an offset value when the information
+        //    is not in the cache information should be known.
         //
         // Plan:
-        //: 1 Set the timezone and UTC time to some day in 2013 before the
-        //:   start of daylight saving time in New York).
-        //:
-        //: 2 Use a stopwatch mechanism to measure the time needed to
-        //:   iteratively request the local time offset at the UTC datetime
-        //:   corresponding to the start of daylight saving time in New York,
-        //:   a cache-miss, which resets the cache.  Then, request the result
-        //:   for the UTC time set in P-1, another cache-miss.  The number of
+        // 1. Set the timezone and UTC time to some day in 2013 before the
+        //    start of daylight saving time in New York).
+        //
+        // 2. Use a stopwatch mechanism to measure the time needed to
+        //    iteratively request the local time offset at the UTC datetime
+        //    corresponding to the start of daylight saving time in New York,
+        //    a cache-miss, which resets the cache.  Then, request the result
+        //    for the UTC time set in P-1, another cache-miss.  The number of
         // requests is determined by a command-line parameter.
-        //:   parameter.  (C-1)
+        //    parameter.  (C-1)
         //
         // Testing:
         //   CONCERN: Performance on cache misses.

@@ -37,9 +37,10 @@ static int nativeDefaultThreadStackSizeImp()
     return k_SOLARIS_DEFAULT_STACK_SIZE;
 }
 # else // POSIX_THREADS && !Solaris
+
+/// Return the native thread stack size for pthreads platforms other than
+/// Solaris.
 static int nativeDefaultThreadStackSizeImp()
-    // Return the native thread stack size for pthreads platforms other than
-    // Solaris.
 {
     bsl::size_t threadStackSize;
 

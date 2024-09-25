@@ -25,8 +25,8 @@
 #include <bslx_versionfunctions.h>
 
 #include <bsl_new.h>          // placement syntax
-#include <bsl_cstring.h>      // 'strlen', 'memset', 'memcpy', 'memcmp'
-#include <bsl_c_stdlib.h>     // 'atoi'
+#include <bsl_cstring.h>      // `strlen`, `memset`, `memcpy`, `memcmp`
+#include <bsl_c_stdlib.h>     // `atoi`
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
@@ -54,8 +54,8 @@ using bsl::flush;
 //                                 --------
 // This test plan follows the standard approach for components implementing
 // value-semantic containers.  We have chosen as *primary* *manipulators* the
-// 'add' and 'removeAll' methods to be used by the generator functions 'g' and
-// 'gg'.  Additional helper functions are provided to facilitate sorting the
+// `add` and `removeAll` methods to be used by the generator functions `g` and
+// `gg`.  Additional helper functions are provided to facilitate sorting the
 // elements in expected test case results.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
@@ -129,7 +129,7 @@ using bsl::flush;
 // [ *] CONCERN: no use of global allocator
 // [ *] CONCERN: no use of default allocator
 // [14] NEGATIVE TESTING
-// [ 8] Reserved for 'swap' testing.
+// [ 8] Reserved for `swap` testing.
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -222,7 +222,7 @@ const Element &V0 = VALUES[0], &VA = V0,  // V0, V1, ... are used in
               &V1 = VALUES[1], &VB = V1,  // conjunction with the VALUES array.
               &V2 = VALUES[2], &VC = V2,
               &V3 = VALUES[3], &VD = V3,  // VA, VB, ... are used in
-              &V4 = VALUES[4], &VE = V4,  // conjunction with 'g' and 'gg'.
+              &V4 = VALUES[4], &VE = V4,  // conjunction with `g` and `gg`.
               &V5 = VALUES[5], &VF = V5,
               &V6 = VALUES[6], &VG = V6;
 
@@ -253,13 +253,13 @@ const int BIT_MASK[] = {
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Returns the smallest element that is greater than the specified
+/// `element` from the specified `array` (of the specified `arrayLen`).
+/// Return `element` if there are no elements in `array` that are greater
+/// than `element`.
 static Element nextElement(const Element *array,
                            int            arrayLen,
                            Element        element)
-    // Returns the smallest element that is greater than the specified
-    // 'element' from the specified 'array' (of the specified 'arrayLen').
-    // Return 'element' if there are no elements in 'array' that are greater
-    // than 'element'.
 {
     Element ret = element;
 
@@ -279,14 +279,14 @@ static Element nextElement(const Element *array,
     return ret;
 }
 
+/// Load into the specified `dest` array (of the specified `destLen`) the
+/// elements from the specified `src` array (of the specified `srcLen`), in
+/// ascending order and removing duplicated elements.  Return the number of
+/// elements added.  The behavior is undefined unless `srcLen <= destLen`.
 static int sortElementsAndRemoveDuplicates(Element       *dest,
                                            int            destLen,
                                            const Element *src,
                                            int            srcLen)
-    // Load into the specified 'dest' array (of the specified 'destLen') the
-    // elements from the specified 'src' array (of the specified 'srcLen'), in
-    // ascending order and removing duplicated elements.  Return the number of
-    // elements added.  The behavior is undefined unless 'srcLen <= destLen'.
 {
     ASSERT(srcLen <= destLen);
 
@@ -303,14 +303,14 @@ static int sortElementsAndRemoveDuplicates(Element       *dest,
 }
 
 // ============================================================================
-//              GENERATOR FUNCTIONS 'g' AND 'gg' FOR TESTING
+//              GENERATOR FUNCTIONS `g` AND `gg` FOR TESTING
 // ----------------------------------------------------------------------------
-// The following functions interpret the given 'spec' in order from left to
+// The following functions interpret the given `spec` in order from left to
 // right to configure the object according to a custom language.  Uppercase
 // letters [A .. G] correspond to arbitrary (but unique) DayOfWeek values to be
-// added to the 'bdlt::DayOfWeekSet' object.  A tilde ('~') indicates that the
+// added to the `bdlt::DayOfWeekSet` object.  A tilde ('~') indicates that the
 // logical (but not necessarily physical) state of the object is to be set to
-// its initial, empty state (via the 'removeAll' method).
+// its initial, empty state (via the `removeAll` method).
 //
 // LANGUAGE SPECIFICATION:
 // -----------------------
@@ -343,14 +343,14 @@ static int sortElementsAndRemoveDuplicates(Element       *dest,
 //
 // ----------------------------------------------------------------------------
 
+/// Configure the specified `object` according to the specified `spec`,
+/// using only the primary manipulator function `add` and white-box
+/// manipulator `removeAll`.  Optionally specify a zero `verboseFlag` to
+/// suppress `spec` syntax error messages.  Return the index of the first
+/// invalid character, and a negative value otherwise.  Note that this
+/// function is used to implement `gg` as well as allow for verification of
+/// syntax error detection.
 int ggg(bdlt::DayOfWeekSet *object, const char *spec, int verboseFlag = 1)
-    // Configure the specified 'object' according to the specified 'spec',
-    // using only the primary manipulator function 'add' and white-box
-    // manipulator 'removeAll'.  Optionally specify a zero 'verboseFlag' to
-    // suppress 'spec' syntax error messages.  Return the index of the first
-    // invalid character, and a negative value otherwise.  Note that this
-    // function is used to implement 'gg' as well as allow for verification of
-    // syntax error detection.
 {
     object->removeAll();
 
@@ -376,16 +376,16 @@ int ggg(bdlt::DayOfWeekSet *object, const char *spec, int verboseFlag = 1)
     return SUCCESS;
 }
 
+/// Return, by reference, the specified `*object` with its value adjusted
+/// according to the specified `spec`.
 bdlt::DayOfWeekSet& gg(bdlt::DayOfWeekSet *object, const char *spec)
-    // Return, by reference, the specified '*object' with its value adjusted
-    // according to the specified 'spec'.
 {
     ASSERT(ggg(object, spec) < 0);
     return *object;
 }
 
+/// Return, by value, a new object corresponding to the specified `spec`.
 bdlt::DayOfWeekSet g(const char *spec)
-    // Return, by value, a new object corresponding to the specified 'spec'.
 {
     bdlt::DayOfWeekSet object;
     return gg(&object, spec);
@@ -405,7 +405,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator globalAlloc;
@@ -425,7 +425,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -441,30 +441,30 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Manipulation and Traversal of Day of Week Sets
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// A 'bdlt::DayOfWeekSet' is useful for recording recurring appointments, or
+// A `bdlt::DayOfWeekSet` is useful for recording recurring appointments, or
 // special days (e.g., weekend days), in a calendar.  The following snippets of
-// code illustrate how to create and use a 'bdlt::DayOfWeek' set.
+// code illustrate how to create and use a `bdlt::DayOfWeek` set.
 //
 // First, we create a couple of commonly useful sets.  First we define the
-// 'bdlt::DayOfWeekSet' 'weekendDays':
-//..
+// `bdlt::DayOfWeekSet` `weekendDays`:
+// ```
     bdlt::DayOfWeekSet weekendDays;
-//..
+// ```
 // Then, we notice that this set is initially empty.
-//..
+// ```
     ASSERT(0 == weekendDays.length());
-//..
+// ```
 // Next, we add the days that characterize weekends:
-//..
+// ```
     weekendDays.add(bdlt::DayOfWeek::e_SUN);
     ASSERT(1 == weekendDays.length());
 
     weekendDays.add(bdlt::DayOfWeek::e_SAT);
     ASSERT(2 == weekendDays.length());
-//..
-// Then, we observe that 'weekendDays' now contains precisely the days we
+// ```
+// Then, we observe that `weekendDays` now contains precisely the days we
 // expect it to contain:
-//..
+// ```
     ASSERT(true  == weekendDays.isMember(bdlt::DayOfWeek::e_SUN));
     ASSERT(false == weekendDays.isMember(bdlt::DayOfWeek::e_MON));
     ASSERT(false == weekendDays.isMember(bdlt::DayOfWeek::e_TUE));
@@ -472,11 +472,11 @@ int main(int argc, char *argv[])
     ASSERT(false == weekendDays.isMember(bdlt::DayOfWeek::e_THU));
     ASSERT(false == weekendDays.isMember(bdlt::DayOfWeek::e_FRI));
     ASSERT(true  == weekendDays.isMember(bdlt::DayOfWeek::e_SAT));
-//..
-// Next, we create the complementary 'bdlt::DayOfWeekSet' 'weekDays' directly
-// from 'weekendDays' via a combination of unary negation and copy
+// ```
+// Next, we create the complementary `bdlt::DayOfWeekSet` `weekDays` directly
+// from `weekendDays` via a combination of unary negation and copy
 // construction:
-//..
+// ```
     bdlt::DayOfWeekSet weekDays(~weekendDays);
 
     ASSERT(5 == weekDays.length());
@@ -488,18 +488,18 @@ int main(int argc, char *argv[])
     ASSERT(true  == weekDays.isMember(bdlt::DayOfWeek::e_THU));
     ASSERT(true  == weekDays.isMember(bdlt::DayOfWeek::e_FRI));
     ASSERT(false == weekDays.isMember(bdlt::DayOfWeek::e_SAT));
-//..
+// ```
 // Then, to create a set containing all of the days in the week, we do so via
 // unary negation of the default constructed value:
-//..
+// ```
     const bdlt::DayOfWeekSet NO_DAYS;
     const bdlt::DayOfWeekSet ALL_DAYS(~NO_DAYS);
 
     ASSERT(7 == ALL_DAYS.length());
-//..
-// Next, we observe that neither 'weekDays' nor 'weekendDays' represent the
-// same value as 'ALL_DAYS', but their union does:
-//..
+// ```
+// Next, we observe that neither `weekDays` nor `weekendDays` represent the
+// same value as `ALL_DAYS`, but their union does:
+// ```
     ASSERT(ALL_DAYS != weekendDays);
     ASSERT(ALL_DAYS != weekDays);
     ASSERT(ALL_DAYS == (weekDays | weekendDays));
@@ -510,10 +510,10 @@ int main(int argc, char *argv[])
     ASSERT(weekDays    == ALL_DAYS - weekendDays);
 
     ASSERT(weekDays    == ALL_DAYS - weekendDays);
-//..
-// Then, we observe that similarly, neither 'weekDays' nor 'weekendDays'
-// represents the same value as 'NO_DAYS', but their intersection does:
-//..
+// ```
+// Then, we observe that similarly, neither `weekDays` nor `weekendDays`
+// represents the same value as `NO_DAYS`, but their intersection does:
+// ```
     ASSERT(NO_DAYS != weekendDays);
     ASSERT(NO_DAYS != weekDays);
     ASSERT(NO_DAYS == (weekDays & weekendDays));
@@ -521,10 +521,10 @@ int main(int argc, char *argv[])
     ASSERT(weekendDays == weekendDays - weekDays);
 
     ASSERT(weekDays    == weekDays - weekendDays);
-//..
-// Next, we create the corresponding set 'eDays' consisting of the only days of
-// the week that have an 'E' in them: 'TUESDAY' and 'WEDNESDAY':
-//..
+// ```
+// Next, we create the corresponding set `eDays` consisting of the only days of
+// the week that have an 'E' in them: `TUESDAY` and `WEDNESDAY`:
+// ```
     bdlt::DayOfWeekSet eDays;                 ASSERT(0 == eDays.length());
     eDays.add(bdlt::DayOfWeek::e_TUE);     ASSERT(1 == eDays.length());
     eDays.add(bdlt::DayOfWeek::e_WED);     ASSERT(2 == eDays.length());
@@ -536,12 +536,12 @@ int main(int argc, char *argv[])
     ASSERT(false == eDays.isMember(bdlt::DayOfWeek::e_THU));
     ASSERT(false == eDays.isMember(bdlt::DayOfWeek::e_FRI));
     ASSERT(false == eDays.isMember(bdlt::DayOfWeek::e_SAT));
-//..
-// Then, we create a set consisting of days that have an 'n' in them: 'MONDAY',
-// 'WEDNESDAY', and 'SUNDAY'.  We create the corresponding set 'nDays' starting
-// with the value of 'eDays' by first removing 'TUESDAY', and then adding
-// 'SUNDAY' and 'MONDAY':
-//..
+// ```
+// Then, we create a set consisting of days that have an 'N' in them: `MONDAY`,
+// `WEDNESDAY`, and `SUNDAY`.  We create the corresponding set `nDays` starting
+// with the value of `eDays` by first removing `TUESDAY`, and then adding
+// `SUNDAY` and `MONDAY`:
+// ```
     bdlt::DayOfWeekSet nDays(eDays);          ASSERT(2 == nDays.length());
 
     nDays.remove(bdlt::DayOfWeek::e_TUE);  ASSERT(1 == nDays.length());
@@ -556,25 +556,25 @@ int main(int argc, char *argv[])
     ASSERT(false == nDays.isMember(bdlt::DayOfWeek::e_THU));
     ASSERT(false == nDays.isMember(bdlt::DayOfWeek::e_FRI));
     ASSERT(false == nDays.isMember(bdlt::DayOfWeek::e_SAT));
-//..
-// Next, we observe that all 'eDays' are 'weekDays', but that's not true of
-// 'nDays':
-//..
+// ```
+// Next, we observe that all `eDays` are `weekDays`, but that's not true of
+// `nDays`:
+// ```
     ASSERT(true  == weekDays.areMembers(eDays));
     ASSERT(false == weekDays.areMembers(nDays));
-//..
+// ```
 // Now, we observe that iteration order is defined by increasing enumerated
-// 'bdlt::DayOfWeek::Day' value '[ SUN .. SAT ]'.  The following use of the
+// `bdlt::DayOfWeek::Day` value `[ SUN .. SAT ]`.  The following use of the
 // *forward* (bi-directional) iterator:
-//..
+// ```
     for (bdlt::DayOfWeekSet::iterator it  = ALL_DAYS.begin();
                                       it != ALL_DAYS.end();
                                       ++it) {
         bsl::cout << *it << bsl::endl;
     }
-//..
+// ```
 // produces:
-//..
+// ```
 //  SUN
 //  MON
 //  TUE
@@ -582,46 +582,46 @@ int main(int argc, char *argv[])
 //  THU
 //  FRI
 //  SAT
-//..
+// ```
 // on standard output.
 //
 // Finally, we observe that, similarly, the following use of the *reverse*
 // iterator:
-//..
+// ```
     for (bdlt::DayOfWeekSet::reverse_iterator it  = weekDays.rbegin();
                                               it != weekDays.rend();
                                               ++it) {
         bsl::cout << *it << bsl::endl;
     }
-//..
+// ```
 // produces:
-//..
+// ```
 //  FRI
 //  THU
 //  WED
 //  TUE
 //  MON
-//..
+// ```
       } break;
       case 15: {
         // --------------------------------------------------------------------
         // TESTING: hashAppend
         //
         // Concerns:
-        //: 1 Hope that different inputs hash differently
-        //: 2 Verify that equal inputs hash identically
-        //: 3 Works for 'const' and non-'const' values
+        // 1. Hope that different inputs hash differently
+        // 2. Verify that equal inputs hash identically
+        // 3. Works for `const` and non-`const` values
         //
         // Plan:
-        //: 1 Use a table specifying a set of distinct objects, verify that
-        //:   hashes of equivalent objects match and hashes on unequal objects
-        //:   do not.
+        // 1. Use a table specifying a set of distinct objects, verify that
+        //    hashes of equivalent objects match and hashes on unequal objects
+        //    do not.
         //
         // Testing:
         //    void hashAppend(HASHALG& hashAlg, const DayOfWeekSet&);
         // --------------------------------------------------------------------
         if (verbose)
-            cout << "\nTESTING 'hashAppend'"
+            cout << "\nTESTING `hashAppend`"
                  << "\n====================\n";
 
         typedef ::BloombergLP::bslh::Hash<> Hasher;
@@ -696,20 +696,20 @@ int main(int argc, char *argv[])
         // NEGATIVE TESTING
         //
         // Concerns:
-        //: 1 Provoke every instance of the word 'undefined' from the function
-        //:   doc of this component, and verify that they are all tested for by
-        //:   safe asserts.
+        // 1. Provoke every instance of the word `undefined` from the function
+        //    doc of this component, and verify that they are all tested for by
+        //    safe asserts.
         //
         // Plan:
         //   Note that this test was built and run with dbg_exc_mt_safe,
         //   dbg_exc_mt, and opt_exc_mt).
-        //: 1 Construct Iter with invalid index.
-        //: 2 Construct Iter with bit 0 set.
-        //: 3 Construct valid Iters.
-        //: 4 Dereference invalid and valid forward iters.
-        //: 5 Dereference invalid and valid reverse iters.
-        //: 6 Compare fwd/rvrs Iters to the same set.
-        //: 7 Compare fwd/rvrs Iters to different sets.
+        // 1. Construct Iter with invalid index.
+        // 2. Construct Iter with bit 0 set.
+        // 3. Construct valid Iters.
+        // 4. Dereference invalid and valid forward iters.
+        // 5. Dereference invalid and valid reverse iters.
+        // 6. Compare fwd/rvrs Iters to the same set.
+        // 7. Compare fwd/rvrs Iters to different sets.
         //
         // Testing:
         //   NEGATIVE TESTING
@@ -795,66 +795,66 @@ int main(int argc, char *argv[])
         // TESTING SET ARITHMETIC OPERATORS
         //
         // Concerns:
-        //: 1 For the infix '|', '&', '^', and '-' operators:
-        //:   A The return values are correct.
-        //:   B The objects input are not modified.
-        //:   C The object returned is not the lhs or rhs operand.
-        //:
-        //: 2 For the assignment '|=', '&=', '^', and '-=' operators:
-        //:   A The end value of the lhs is correct (and the same as the result
-        //:     of the corresponding infix operator).
-        //:   B The object on the rhs is not modified.
-        //:   C The object returned is the object on the lhs.
-        //:   D The operation works correctly under aliasing.
-        //:
-        //: 3 For unary '~' operator:
-        //:   A The return value is correct.
-        //:   B The parameter is not modified.
-        //:   C The object returned is not the object passed.
+        // 1. For the infix '|', '&', '^', and '-' operators:
+        //    A The return values are correct.
+        //    B The objects input are not modified.
+        //    C The object returned is not the lhs or rhs operand.
+        //
+        // 2. For the assignment `|=`, `&=`, '^', and `-=` operators:
+        //    A The end value of the lhs is correct (and the same as the result
+        //      of the corresponding infix operator).
+        //    B The object on the rhs is not modified.
+        //    C The object returned is the object on the lhs.
+        //    D The operation works correctly under aliasing.
+        //
+        // 3. For unary '~' operator:
+        //    A The return value is correct.
+        //    B The parameter is not modified.
+        //    C The object returned is not the object passed.
         //
         // Plan:
         //   We have a table where each of the lines of the table indicates
-        //   specs for two 'DayOfWeekSet' values, and then the specs for each
+        //   specs for two `DayOfWeekSet` values, and then the specs for each
         //   of the 4 infix operations:
-        //:  1 Perform the infix operation, assigning the result to a
-        //:    reference.
-        //:
-        //:  2 Verify that the value of the reference is the expected value
-        //:    from the table (C-1-A).
-        //:
-        //:  3 Verify that the address of the reference is not the address of
-        //:    either the lhs or rhs argument (C-1-C).
-        //:
-        //:  4 Verify that the left or right arguments have not been modified
-        //:    by comparing them with copies taken before the operation.
-        //:
-        //:  5 Perform the assignment equivalent of the infix operation, taking
-        //:    a reference to a modifiable of the result.
-        //:
-        //:  6 Verify that the value of the lhs of the assignment is now equal
-        //:    to the expected value from the table (C-2-A).
-        //:
-        //:  7 Verify that the address of the reference is equal to the address
-        //:    of the lhs of the assignment (C-2-3).
-        //:
-        //:  8 Verify that the value of the rhs argument has not changed
-        //:    (C-2-2).
-        //:
-        //:  9 Create an object that is a copy of the lhs object.
-        //:
-        //: 10 Apply the assignment to itself.
-        //:
-        //: 11 Verify the assigned object has the expect value (C-2-D).
+        //  1. Perform the infix operation, assigning the result to a
+        //     reference.
+        //
+        //  2. Verify that the value of the reference is the expected value
+        //     from the table (C-1-A).
+        //
+        //  3. Verify that the address of the reference is not the address of
+        //     either the lhs or rhs argument (C-1-C).
+        //
+        //  4. Verify that the left or right arguments have not been modified
+        //     by comparing them with copies taken before the operation.
+        //
+        //  5. Perform the assignment equivalent of the infix operation, taking
+        //     a reference to a modifiable of the result.
+        //
+        //  6. Verify that the value of the lhs of the assignment is now equal
+        //     to the expected value from the table (C-2-A).
+        //
+        //  7. Verify that the address of the reference is equal to the address
+        //     of the lhs of the assignment (C-2-3).
+        //
+        //  8. Verify that the value of the rhs argument has not changed
+        //     (C-2-2).
+        //
+        //  9. Create an object that is a copy of the lhs object.
+        //
+        // 10. Apply the assignment to itself.
+        //
+        // 11. Verify the assigned object has the expect value (C-2-D).
         //
         // Then for the unary '~' operator:
-        //:  1 Apply 'operator~' and keep a reference to the result.
-        //:
-        //:  2 Verify the value of the reference is as expected (C-3-A).
-        //:
-        //:  3 Verify the address of the reference is not the address of the
-        //:    argument (C-3-C)
-        //:
-        //:  4 Verify the value of the argument has not changed (C-3-B).
+        //  1. Apply `operator~` and keep a reference to the result.
+        //
+        //  2. Verify the value of the reference is as expected (C-3-A).
+        //
+        //  3. Verify the address of the reference is not the address of the
+        //     argument (C-3-C)
+        //
+        //  4. Verify the value of the argument has not changed (C-3-B).
         //
         // Testing:
         //   DayOfWeekSet& operator|=(const DayOfWeekSet& rhs);
@@ -1034,7 +1034,7 @@ int main(int argc, char *argv[])
                 gg(&mY, SPEC_B);
                 const Obj YY(Y);
 
-                // testing 'operator|' and 'operator|='
+                // testing `operator|` and `operator|=`
                 {
                     const Obj& Z = X | Y;
                     ASSERTV(LINE, U == Z);
@@ -1059,7 +1059,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, X == A);
                 }
 
-                // testing 'operator&' and 'operator&='
+                // testing `operator&` and `operator&=`
                 {
                     const Obj& Z = X & Y;
                     ASSERTV(LINE, I == Z);
@@ -1084,7 +1084,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, X == A);
                 }
 
-                // testing 'operator^' and 'operator^='
+                // testing `operator^` and `operator^=`
                 {
                     const Obj& Z = X ^ Y;
                     ASSERTV(LINE, E == Z);
@@ -1109,7 +1109,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, Obj() == A);
                 }
 
-                // testing 'operator-' and 'operator-='
+                // testing `operator-` and `operator-=`
                 {
                     const Obj& Z = X - Y;
                     ASSERTV(LINE, S == Z);
@@ -1134,7 +1134,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, Obj() == A);
                 }
 
-                // testing 'operator~'
+                // testing `operator~`
                 {
                     const Obj& Z = ~X;
                     ASSERTV(LINE, C  == Z);
@@ -1152,39 +1152,39 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING 'areMembers'
+        // TESTING `areMembers`
         //
         // Concerns:
-        //: 1 'X.areMembers(Y)' returns 'true' if all the days in 'Y' are set
-        //:   in 'X' and 'false' otherwise.
-        //:
-        //: 2 Neither 'X' nor 'Y' are modified by 'X.areMembers(Y)'.
-        //:
-        //: 3 Any valid 'DayOfWeekSet' 'areMembers' itself.
+        // 1. `X.areMembers(Y)` returns `true` if all the days in `Y` are set
+        //    in `X` and `false` otherwise.
+        //
+        // 2. Neither `X` nor `Y` are modified by `X.areMembers(Y)`.
+        //
+        // 3. Any valid `DayOfWeekSet` `areMembers` itself.
         //
         // Plan:
-        //   Iterate through a table of spec pairs 'specA' and 'specB', along
-        //   with 'LE", a bool that indicates that the days in 'specA' are a
-        //   (possibly improper) subset of the days in 'specB', and a bool 'GE'
+        //   Iterate through a table of spec pairs `specA` and `specB`, along
+        //   with `LE", a bool that indicates that the days in `specA' are a
+        //   (possibly improper) subset of the days in `specB`, and a bool `GE`
         //   that indicates vice-versa.  For each line of the table:
-        //: 1 Evaluate 'X.areMembers(Y)' and 'Y.areMembers(X)' and verify that
-        //:   they return the boolean values predicted by 'LE' and 'GE' (C-1).
-        //:
-        //: 2 Prior to doing that, copy-construct copies of 'X' and 'Y', then
-        //:   after doing it, compare them to the current values of 'X' and 'Y'
-        //:   and verify they haven't changed (C-2).
-        //:
-        //: 3 Verify that all sets 'areMembers' of themselves. (C-3)
+        // 1. Evaluate `X.areMembers(Y)` and `Y.areMembers(X)` and verify that
+        //    they return the boolean values predicted by `LE` and `GE` (C-1).
+        //
+        // 2. Prior to doing that, copy-construct copies of `X` and `Y`, then
+        //    after doing it, compare them to the current values of `X` and `Y`
+        //    and verify they haven't changed (C-2).
+        //
+        // 3. Verify that all sets `areMembers` of themselves. (C-3)
         //
         // Testing:
         //   bool areMembers(const DayOfWeekSet& set) const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'areMembers'" << endl
+                          << "TESTING `areMembers`" << endl
                           << "====================" << endl;
 
-        if (verbose) cout << "\nTesting 'areMembers'." << endl;
+        if (verbose) cout << "\nTesting `areMembers`." << endl;
 
         {
             static const struct {
@@ -1355,36 +1355,36 @@ int main(int argc, char *argv[])
         // TESTING ADD AND REMOVE
         //
         // Concerns:
-        //: 1 An element is always a member after it has been added with 'add'.
-        //:
-        //: 2 An element is never a member after it has been removed.
-        //:
-        //: 3 'remove' properly returns 'true' only if the day removed was
-        //:   previously an element.
-        //:
-        //: 4 Redundant 'add's don't change the value of an object.
-        //:
-        //: 5 Redundant 'remove's don't change the value of an object.
+        // 1. An element is always a member after it has been added with `add`.
+        //
+        // 2. An element is never a member after it has been removed.
+        //
+        // 3. `remove` properly returns `true` only if the day removed was
+        //    previously an element.
+        //
+        // 4. Redundant `add`s don't change the value of an object.
+        //
+        // 5. Redundant `remove`s don't change the value of an object.
         //
         // Plan:
         //   For a variety of initials values driven by the 'SPECS" array:
-        //: 1 iterate through all the possible days of the week
-        //:   o Check if the day is set
-        //:   o 'remove' the day
-        //:   o verify the day is no longer a member, regardless whether it was
-        //:     in the first place (C-2)
-        //:   o verify that the value returned by 'remove' corresponds
-        //:     properly with whether the day was set (C--3)
-        //:   o do a redundant 'remove' and observe that it returns 'false'
-        //:     and does not change the value of the object (C-5)
-        //:   o 'add' the day again.
-        //:   o verify that the day is not a member (C-1)
-        //:   o do a redundant 'add'.
-        //:   o verify the value has not been changed (C-4).
-        //:   o reset the object to the specification
-        //:   o iterate through the days, 'remove'ing days from the object,
-        //:     observing that the value of the object and the return value
-        //:     of 'remove' are as they should be (C-2, C-3, C-5);
+        // 1. iterate through all the possible days of the week
+        //    - Check if the day is set
+        //    - `remove` the day
+        //    - verify the day is no longer a member, regardless whether it was
+        //      in the first place (C-2)
+        //    - verify that the value returned by `remove` corresponds
+        //      properly with whether the day was set (C--3)
+        //    - do a redundant `remove` and observe that it returns `false`
+        //      and does not change the value of the object (C-5)
+        //    - `add` the day again.
+        //    - verify that the day is not a member (C-1)
+        //    - do a redundant `add`.
+        //    - verify the value has not been changed (C-4).
+        //    - reset the object to the specification
+        //    - iterate through the days, `remove`ing days from the object,
+        //      observing that the value of the object and the return value
+        //      of `remove` are as they should be (C-2, C-3, C-5);
         //
         // Testing:
         //   void add(DayOfWeek value);
@@ -1510,83 +1510,83 @@ int main(int argc, char *argv[])
         //   neutrality.
         //
         // Concerns:
-        //: 1 The class method 'maxSupportedBdexVersion' returns the correct
-        //:   version to be used for the specified 'versionSelector'.
-        //:
-        //: 2 The 'bdexStreamOut' method is callable on a reference providing
-        //:   only non-modifiable access.
-        //:
-        //: 3 For valid streams, externalization and unexternalization are
-        //:   inverse operations.
-        //:
-        //: 4 For invalid streams, externalization leaves the stream invalid
-        //:   and unexternalization does not alter the value of the object and
-        //:   leaves the stream invalid.
-        //:
-        //: 5 Unexternalizing of incomplete, invalid, or corrupted data results
-        //:   in a valid object of unspecified value and an invalidated stream.
-        //:
-        //: 6 The wire format of the object is as expected.
-        //:
-        //: 7 All methods are exception neutral.
-        //:
-        //: 8 The 'bdexStreamIn' and 'bdexStreamOut' methods return a reference
-        //:   to the provided stream in all situations.
-        //:
-        //: 9 The initial value of the object has no affect on
-        //:   unexternalization.
+        // 1. The class method `maxSupportedBdexVersion` returns the correct
+        //    version to be used for the specified `versionSelector`.
+        //
+        // 2. The `bdexStreamOut` method is callable on a reference providing
+        //    only non-modifiable access.
+        //
+        // 3. For valid streams, externalization and unexternalization are
+        //    inverse operations.
+        //
+        // 4. For invalid streams, externalization leaves the stream invalid
+        //    and unexternalization does not alter the value of the object and
+        //    leaves the stream invalid.
+        //
+        // 5. Unexternalizing of incomplete, invalid, or corrupted data results
+        //    in a valid object of unspecified value and an invalidated stream.
+        //
+        // 6. The wire format of the object is as expected.
+        //
+        // 7. All methods are exception neutral.
+        //
+        // 8. The `bdexStreamIn` and `bdexStreamOut` methods return a reference
+        //    to the provided stream in all situations.
+        //
+        // 9. The initial value of the object has no affect on
+        //    unexternalization.
         //
         // Plan:
-        //: 1 Test 'maxSupportedBdexVersion' explicitly.  (C-1)
-        //:
-        //: 2 All calls to the 'bdexStreamOut' accessor will be done from a
-        //:   'const' object or reference and all calls to the 'bdexStreamOut'
-        //:   free function (provided by 'bslx') will be supplied a 'const'
-        //:   object or reference.  (C-2)
-        //:
-        //: 3 Perform a direct test of the 'bdexStreamOut' and 'bdexStreamIn'
-        //:   methods (the rest of the testing will use the free functions
-        //:   'bslx::OutStreamFunctions::bdexStreamOut' and
-        //:   'bslx::InStreamFunctions::bdexStreamIn').
-        //:
-        //: 4 Define a set 'S' of test values to be used throughout the test
-        //:   case.
-        //:
-        //: 5 For all '(u, v)' in the cross product 'S X S', stream the value
-        //:   of 'u' into (a temporary copy of) 'v', 'T', and assert 'T == u'.
-        //:   (C-3, 9)
-        //:
-        //: 6 For all 'u' in 'S', create a copy of 'u' and attempt to stream
-        //:   into it from an invalid stream.  Verify after each attempt that
-        //:   the object is unchanged and that the stream is invalid.  (C-4)
-        //:
-        //: 7 Write 3 distinct objects to an output stream buffer of total
-        //:   length 'N'.  For each partial stream length from 0 to 'N - 1',
-        //:   construct an input stream and attempt to read into objects
-        //:   initialized with distinct values.  Verify values of objects
-        //:   that are either successfully modified or left entirely
-        //:   unmodified, and that the stream became invalid immediately after
-        //:   the first incomplete read.  Finally, ensure that each object
-        //:   streamed into is in some valid state.
-        //:
-        //: 8 Use the underlying stream package to simulate a typical valid
-        //:   (control) stream and verify that it can be streamed in
-        //:   successfully.  Then for each data field in the stream (beginning
-        //:   with the version number), provide one or more similar tests with
-        //:   that data field corrupted.  After each test, verify that the
-        //:   object is in some valid state after streaming, and that the
-        //:   input stream has become invalid.  (C-5)
-        //:
-        //: 9 Explicitly test the wire format.  (C-6)
-        //:
-        //:10 In all cases, confirm exception neutrality using the specially
-        //:   instrumented 'bslx::TestInStream' and a pair of standard macros,
-        //:   'BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN' and
-        //:   'BSLX_TESTINSTREAM_EXCEPTION_TEST_END', which configure the
-        //:   'bslx::TestInStream' object appropriately in a loop.  (C-7)
-        //:
-        //:11 In all cases, verify the return value of the tested method.
-        //:   (C-8)
+        // 1. Test `maxSupportedBdexVersion` explicitly.  (C-1)
+        //
+        // 2. All calls to the `bdexStreamOut` accessor will be done from a
+        //    `const` object or reference and all calls to the `bdexStreamOut`
+        //    free function (provided by `bslx`) will be supplied a `const`
+        //    object or reference.  (C-2)
+        //
+        // 3. Perform a direct test of the `bdexStreamOut` and `bdexStreamIn`
+        //    methods (the rest of the testing will use the free functions
+        //    `bslx::OutStreamFunctions::bdexStreamOut` and
+        //    `bslx::InStreamFunctions::bdexStreamIn`).
+        //
+        // 4. Define a set `S` of test values to be used throughout the test
+        //    case.
+        //
+        // 5. For all `(u, v)` in the cross product `S X S`, stream the value
+        //    of `u` into (a temporary copy of) `v`, `T`, and assert `T == u`.
+        //    (C-3, 9)
+        //
+        // 6. For all `u` in `S`, create a copy of `u` and attempt to stream
+        //    into it from an invalid stream.  Verify after each attempt that
+        //    the object is unchanged and that the stream is invalid.  (C-4)
+        //
+        // 7. Write 3 distinct objects to an output stream buffer of total
+        //    length `N`.  For each partial stream length from 0 to `N - 1`,
+        //    construct an input stream and attempt to read into objects
+        //    initialized with distinct values.  Verify values of objects
+        //    that are either successfully modified or left entirely
+        //    unmodified, and that the stream became invalid immediately after
+        //    the first incomplete read.  Finally, ensure that each object
+        //    streamed into is in some valid state.
+        //
+        // 8. Use the underlying stream package to simulate a typical valid
+        //    (control) stream and verify that it can be streamed in
+        //    successfully.  Then for each data field in the stream (beginning
+        //    with the version number), provide one or more similar tests with
+        //    that data field corrupted.  After each test, verify that the
+        //    object is in some valid state after streaming, and that the
+        //    input stream has become invalid.  (C-5)
+        //
+        // 9. Explicitly test the wire format.  (C-6)
+        //
+        // 10. In all cases, confirm exception neutrality using the specially
+        //    instrumented `bslx::TestInStream` and a pair of standard macros,
+        //    `BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN` and
+        //    `BSLX_TESTINSTREAM_EXCEPTION_TEST_END`, which configure the
+        //    `bslx::TestInStream` object appropriately in a loop.  (C-7)
+        //
+        // 11. In all cases, verify the return value of the tested method.
+        //    (C-8)
         //
         // Testing:
         //   static int maxSupportedBdexVersion(int versionSelector);
@@ -1605,7 +1605,7 @@ int main(int argc, char *argv[])
                           << "======================" << endl;
 
         if (verbose) {
-            cout << "\nTesting 'maxSupportedBdexVersion'." << endl;
+            cout << "\nTesting `maxSupportedBdexVersion`." << endl;
         }
         {
             ASSERT(1 == Obj::maxSupportedBdexVersion(0));
@@ -1622,8 +1622,8 @@ int main(int argc, char *argv[])
         const int VERSION = Obj::maxSupportedBdexVersion(0);
 
         if (verbose) {
-            cout << "\nDirect initial trial of 'bdexStreamOut' and (valid) "
-                 << "'bdexStreamIn' functionality." << endl;
+            cout << "\nDirect initial trial of `bdexStreamOut` and (valid) "
+                 << "`bdexStreamIn` functionality." << endl;
         }
         {
             Obj mX;  const Obj& X = mX;
@@ -1653,13 +1653,13 @@ int main(int argc, char *argv[])
             ASSERT(in.isEmpty());
         }
 
-        // We will use the stream free functions provided by 'bslx', as opposed
-        // to the class member functions, since the 'bslx' implementation gives
+        // We will use the stream free functions provided by `bslx`, as opposed
+        // to the class member functions, since the `bslx` implementation gives
         // priority to the free function implementations; we want to test what
         // will be used.  Furthermore, toward making this test case more
         // reusable in other components, from here on we generally use the
-        // 'bdexStreamIn' and 'bdexStreamOut' free functions that are defined
-        // in the 'bslx' package rather than call the like-named member
+        // `bdexStreamIn` and `bdexStreamOut` free functions that are defined
+        // in the `bslx` package rather than call the like-named member
         // functions directly.
 
         if (verbose) {
@@ -1885,7 +1885,7 @@ int main(int argc, char *argv[])
                         LOOP_ASSERT(i, !in);
                         LOOP_ASSERT(i, W3 == T3);
                     }
-                    else {  // 'LOD2 <= i < LOD3'
+                    else {  // `LOD2 <= i < LOD3`
                         In& rvIn1 = bdexStreamIn(in, mT1, VERSION);
                         LOOP_ASSERT(i, &in == &rvIn1);
                         LOOP_ASSERT(i,  in);
@@ -1932,7 +1932,7 @@ int main(int argc, char *argv[])
         ASSERT(W != Y);
         ASSERT(X != Y);
 
-        const int SERIAL_Y = 8;       // internal rep. of 'Y'
+        const int SERIAL_Y = 8;       // internal rep. of `Y`
 
         if (verbose) {
             cout << "\t\tGood stream (for control)." << endl;
@@ -1961,7 +1961,7 @@ int main(int argc, char *argv[])
             cout << "\t\tBad version." << endl;
         }
         {
-            const char version = 0; // too small ('version' must be >= 1)
+            const char version = 0; // too small (`version` must be >= 1)
 
             Out out(VERSION_SELECTOR, &allocator);
             out.putUint8(SERIAL_Y);  // Stream out "new" value.
@@ -2156,43 +2156,43 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   We have the following concerns:
-        //: 1 The value represented by any instance can be assigned to any
-        //:   other value.
-        //:
-        //: 2 The 'rhs' value must not be affected by the operation.
-        //:
-        //: 3 'rhs' being modified or going out of scope has no effect on the
-        //:   value of 'lhs' after the assignment.
-        //:
-        //: 4 The assignment operator returns a reference providing modifiable
-        //:   access to the object.
-        //:
-        //: 5 Aliasing (x = x): The assignment operator must always work.
+        // 1. The value represented by any instance can be assigned to any
+        //    other value.
+        //
+        // 2. The `rhs` value must not be affected by the operation.
+        //
+        // 3. `rhs` being modified or going out of scope has no effect on the
+        //    value of `lhs` after the assignment.
+        //
+        // 4. The assignment operator returns a reference providing modifiable
+        //    access to the object.
+        //
+        // 5. Aliasing (x = x): The assignment operator must always work.
         //
         // Plan:
-        //: 1 Declare an array of 'gg' specs, and iterate two nested loops
-        //:   through them.  The specs associated with the outer loop will
-        //:   represent the value to be written over, the value of the inner
-        //:   loop will represent the value to be assigned to.
-        //:
-        //: 2 Do the assignment, keeping a reference to the result of the
-        //:   assignment.
-        //:
-        //: 3 Verify the reference points to the modified object (C-4)
-        //:
-        //: 4 Verify 'lhs' is equivalent to the value that should have been
-        //:   assigned (C-1).
-        //:
-        //: 5 Verify the 'rhs' is unchanged (C-2);
-        //:
-        //: 6 Modify the 'rhs' variable by running 'gg' on it.
-        //:
-        //: 7 Verify the 'lhs' was unchanged by modifying 'rhs'.  (C-3)
-        //:
-        //: 8 Have the 'rhs' go out of scope, and again verify that 'lhs' was
-        //:   unchanged by this (C-3).
-        //:
-        //: 9 Have another loop iterate through the specs, assigning an object
+        // 1. Declare an array of `gg` specs, and iterate two nested loops
+        //    through them.  The specs associated with the outer loop will
+        //    represent the value to be written over, the value of the inner
+        //    loop will represent the value to be assigned to.
+        //
+        // 2. Do the assignment, keeping a reference to the result of the
+        //    assignment.
+        //
+        // 3. Verify the reference points to the modified object (C-4)
+        //
+        // 4. Verify `lhs` is equivalent to the value that should have been
+        //    assigned (C-1).
+        //
+        // 5. Verify the `rhs` is unchanged (C-2);
+        //
+        // 6. Modify the `rhs` variable by running `gg` on it.
+        //
+        // 7. Verify the `lhs` was unchanged by modifying `rhs`.  (C-3)
+        //
+        // 8. Have the `rhs` go out of scope, and again verify that `lhs` was
+        //    unchanged by this (C-3).
+        //
+        // 9. Have another loop iterate through the specs, assigning an object
         //
         // Testing:
         //   DayOfWeekSet& operator=(const DayOfWeekSet& rhs);
@@ -2269,7 +2269,7 @@ int main(int argc, char *argv[])
                         ASSERTV(U_SPEC, V_SPEC, Z, (VV == V), Z == (VV == V));
                     }
 
-                    // 'mV' (and therefore 'V') now out of scope
+                    // `mV` (and therefore `V`) now out of scope
                     ASSERTV(U_SPEC, V_SPEC, VV == U);
                 }
             }
@@ -2309,7 +2309,7 @@ int main(int argc, char *argv[])
       case 8: {
         // --------------------------------------------------------------------
         // SWAP MEMBER AND FREE FUNCTIONS
-        //   Ensure that, when member and free 'swap' are implemented, we can
+        //   Ensure that, when member and free `swap` are implemented, we can
         //   exchange the values of any two objects.
         //
         // Concerns:
@@ -2319,14 +2319,14 @@ int main(int argc, char *argv[])
         //   N/A
         //
         // Testing:
-        //  Reserved for 'swap' testing.
+        //  Reserved for `swap` testing.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "SWAP MEMBER AND FREE FUNCTIONS" << endl
                           << "==============================" << endl;
 
-        if (verbose) cout << "Not implemented for 'bdlt::DayOfWeekSet'."
+        if (verbose) cout << "Not implemented for `bdlt::DayOfWeekSet`."
                           << endl;
 
       } break;
@@ -2335,26 +2335,26 @@ int main(int argc, char *argv[])
         // TESTING COPY CONSTRUCTOR
         //
         // Concerns:
-        //: 1 The new object's value is the same as that of the original
-        //:   object (relying on the previously tested equality operators).
-        //:
-        //: 2 The value of the original object is left unaffected.
-        //:
-        //: 3 Subsequent changes in or destruction of the source object have
-        //:   no effect on the copy-constructed object.
+        // 1. The new object's value is the same as that of the original
+        //    object (relying on the previously tested equality operators).
+        //
+        // 2. The value of the original object is left unaffected.
+        //
+        // 3. Subsequent changes in or destruction of the source object have
+        //    no effect on the copy-constructed object.
         //
         // Plan:
-        //: 1 Create an object using the 'gg' function from the same spac,
-        //:   verify they compare equal.  Create the 2nd of the two in dynamic
-        //:   memory.
-        //:
-        //: 2 Copy construct a third object from the 2nd object.  Verify they
-        //:   compare equal.  Verify the first two objects still compare equal.
-        //:   (C-1, C-2)
-        //:
-        //: 3 Destroy the 2nd object and trash its memory.
-        //:
-        //: 4 Verify the first object and the third are still equal. (C-3)
+        // 1. Create an object using the `gg` function from the same spac,
+        //    verify they compare equal.  Create the 2nd of the two in dynamic
+        //    memory.
+        //
+        // 2. Copy construct a third object from the 2nd object.  Verify they
+        //    compare equal.  Verify the first two objects still compare equal.
+        //    (C-1, C-2)
+        //
+        // 3. Destroy the 2nd object and trash its memory.
+        //
+        // 4. Verify the first object and the third are still equal. (C-3)
         //
         // Testing:
         //   DayOfWeekSet(const DayOfWeekSet& original);
@@ -2418,33 +2418,33 @@ int main(int argc, char *argv[])
         // TESTING EQUALITY OPERATORS
         //
         // Concerns:
-        //: 1 Verify that a difference in return values of 'isMember(<member>)'
-        //:   for any possible 'member' of a set will result in two
-        //:   'DayOfWeekSet' object comparing as unequal, and that otherwise
-        //:   they will compare as equal.
-        //:
-        //: 2 Neither 'lhs' nor 'rhs' value may be modified.
+        // 1. Verify that a difference in return values of `isMember(<member>)`
+        //    for any possible `member` of a set will result in two
+        //    `DayOfWeekSet` object comparing as unequal, and that otherwise
+        //    they will compare as equal.
+        //
+        // 2. Neither `lhs` nor `rhs` value may be modified.
         //
         // Plan:
-        //: 1 Construct a table of specs to be fed to 'ggg' to generate
-        //:   different values.  The specs used shall all have sorted
-        //:   characters, thus making it straightforward to verify that they
-        //:   all specify different values.
-        //:
-        //: 2 Form 2 nested loops iterating through the table, and form
-        //:   'Obj' values 'X' and 'Y' corresponding to the specs specified
-        //:   by each of the 2 loops.
-        //:
-        //: 3 Apply 'isMember' exhaustively to 'X' and 'Y' and verify that they
-        //:   yield the same values only when 'X' and 'Y' were formed from
-        //:   the same spec.
-        //:
-        //: 4 Verify that the results of 'operator==' and 'operator!=' yield
-        //:   results consistent with the results from exhaustive application
-        //:   of 'isMember'.
-        //:
-        //: 5 Whenever calling 'operator==' or 'operator!=', passed references
-        //:   to const objects, thus confirming (C-2).
+        // 1. Construct a table of specs to be fed to `ggg` to generate
+        //    different values.  The specs used shall all have sorted
+        //    characters, thus making it straightforward to verify that they
+        //    all specify different values.
+        //
+        // 2. Form 2 nested loops iterating through the table, and form
+        //    `Obj` values `X` and `Y` corresponding to the specs specified
+        //    by each of the 2 loops.
+        //
+        // 3. Apply `isMember` exhaustively to `X` and `Y` and verify that they
+        //    yield the same values only when `X` and `Y` were formed from
+        //    the same spec.
+        //
+        // 4. Verify that the results of `operator==` and `operator!=` yield
+        //    results consistent with the results from exhaustive application
+        //    of `isMember`.
+        //
+        // 5. Whenever calling `operator==` or `operator!=`, passed references
+        //    to const objects, thus confirming (C-2).
         //
         // Testing:
         //   operator==(const DayOfWeekSet&, const DayOfWeekSet&);
@@ -2535,29 +2535,29 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING PRINT METHOD AND 'operator<<'
+        // TESTING PRINT METHOD AND `operator<<`
         //
         // Concerns:
-        //: 1 The print method formats the value of the object directly from
-        //:   the underlying state information according to supplied arguments.
-        //:   Ensure that the method formats properly for:
-        //:   o empty and non-empty values.
-        //:   o negative, 0, and positive levels.
-        //:   o 0 and non-zero spaces per level.
-        //: 2 Since 'operator<<' is layered on basic accessors, it is
-        //:   sufficient to test only the output *format* (and to ensure that
-        //:   no additional characters are written past the terminating null).
+        // 1. The print method formats the value of the object directly from
+        //    the underlying state information according to supplied arguments.
+        //    Ensure that the method formats properly for:
+        //    - empty and non-empty values.
+        //    - negative, 0, and positive levels.
+        //    - 0 and non-zero spaces per level.
+        // 2. Since `operator<<` is layered on basic accessors, it is
+        //    sufficient to test only the output *format* (and to ensure that
+        //    no additional characters are written past the terminating null).
         //
         // Plan:
-        //: 1 For each of an enumerated set of object, 'level', and
-        //:   'spacesPerLevel' values, ordered by increasing object length, use
-        //:   'ostringstream' to 'print' that object's value, using the
-        //:   tabulated parameters.  Compare the contents of the 'ostrstream'
-        //:   with the literal expected output format.
-        //: 2 To test 'operator<<', for each of a small representative set of
-        //:   object values, ordered by increasing length, use 'ostringstream'
-        //:   to write that object's value.  Compare the contents of the
-        //:   'ostrstream' with the literal expected output format.
+        // 1. For each of an enumerated set of object, `level`, and
+        //    `spacesPerLevel` values, ordered by increasing object length, use
+        //    `ostringstream` to `print` that object's value, using the
+        //    tabulated parameters.  Compare the contents of the `ostrstream`
+        //    with the literal expected output format.
+        // 2. To test `operator<<`, for each of a small representative set of
+        //    object values, ordered by increasing length, use `ostringstream`
+        //    to write that object's value.  Compare the contents of the
+        //    `ostrstream` with the literal expected output format.
         //
         // Testing:
         //   ostream& print(ostream& stream, int level, int spacesPerLevel);
@@ -2565,10 +2565,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING PRINT METHOD AND 'operator<<'" << endl
+                          << "TESTING PRINT METHOD AND `operator<<`" << endl
                           << "=====================================" << endl;
 
-        if (verbose) cout << "\nTesting 'print' (ostream)." << endl;
+        if (verbose) cout << "\nTesting `print` (ostream)." << endl;
 #define NL "\n"
         {
             static const struct {
@@ -2716,7 +2716,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'operator<<' (ostream)." << endl;
+        if (verbose) cout << "\nTesting `operator<<` (ostream)." << endl;
         {
             static const struct {
                 int         d_lineNum;  // source line number
@@ -2724,7 +2724,7 @@ int main(int argc, char *argv[])
                 const char *d_fmt_p;    // expected output format
             } DATA[] = {
                 // Note that the output is counterintuitive, because the chars
-                // 'A-G' in 'spec' are not in the order of the days of the
+                // `A-G` in `spec` are not in the order of the days of the
                 // week.
 
                 //line  spec            output format
@@ -2785,37 +2785,37 @@ int main(int argc, char *argv[])
         //   DayOfWeekSet_Iter class.
         //
         // Concerns:
-        //: 1 The iterator copy constructor, initializing constructor, and
-        //:   assignment operators set the internal state of the iterator
-        //:   correctly.
-        //:
-        //: 2 The set accessors return expected values.
-        //:
-        //: 3 The increment and decrement operators on the iterators work as
-        //:   expected.
+        // 1. The iterator copy constructor, initializing constructor, and
+        //    assignment operators set the internal state of the iterator
+        //    correctly.
+        //
+        // 2. The set accessors return expected values.
+        //
+        // 3. The increment and decrement operators on the iterators work as
+        //    expected.
         //
         // Plan:
-        //: 1 Test iterator constructors and 'operator='.
-        //:   For each line in a set of test data, initialize a 'data'
-        //:   variable containing the elements from the line.  Create the
-        //:   following 3 iterators:
-        //:   o X (default ctor)
-        //:   o Y (initial ctor)
-        //:   o Z (copy of Y using copy ctor)
-        //:
-        //: 2 Loop through the sorted array of elements, checking the value
-        //:   of '*Y' and '*Z' at each iteration.  At the mid-point, assign
-        //:   'Y' to 'X'.
-        //:
-        //: 3 Loop through the sorted array of elements starting at the
-        //:   mid-point, checking the value of '*X' at each iteration.
-        //:
-        //: 4 Test set accessors.  For each line in a set of test data,
-        //:   initialize a set using the 'gg' generator function.  Check that
-        //:   the length is as expected and that each element is a member of
-        //:   the set.  Test the forward and reverse iterators by creating a
-        //:   sorted array of elements and checking that the iterators contain
-        //:   the same elements as the sorted array, and in the same order.
+        // 1. Test iterator constructors and `operator=`.
+        //    For each line in a set of test data, initialize a `data`
+        //    variable containing the elements from the line.  Create the
+        //    following 3 iterators:
+        //    - X (default ctor)
+        //    - Y (initial ctor)
+        //    - Z (copy of Y using copy ctor)
+        //
+        // 2. Loop through the sorted array of elements, checking the value
+        //    of `*Y` and `*Z` at each iteration.  At the mid-point, assign
+        //    `Y` to `X`.
+        //
+        // 3. Loop through the sorted array of elements starting at the
+        //    mid-point, checking the value of `*X` at each iteration.
+        //
+        // 4. Test set accessors.  For each line in a set of test data,
+        //    initialize a set using the `gg` generator function.  Check that
+        //    the length is as expected and that each element is a member of
+        //    the set.  Test the forward and reverse iterators by creating a
+        //    sorted array of elements and checking that the iterators contain
+        //    the same elements as the sorted array, and in the same order.
         //
         // Testing:
         //   iterator begin() const;
@@ -2997,7 +2997,7 @@ int main(int argc, char *argv[])
         int oldLen = -1;
         int ti;
 
-        if (verbose) cout << "\nTesting iterator constructors and 'operator='."
+        if (verbose) cout << "\nTesting iterator constructors and `operator=`."
                           << endl;
         for (ti = 0; ti < NUM_DATA; ++ti) {
             const int LINE         = DATA[ti].d_lineNum;
@@ -3068,9 +3068,9 @@ int main(int argc, char *argv[])
             if (veryVerbose) CR;
         }
 
-        if (verbose) cout << "\nTesting 'isEmpty', 'isMember', 'length', "
-                          << "'begin', 'end', 'rbegin', 'rend', 'operator++',"
-                          << " 'operator--', and 'operator*'."
+        if (verbose) cout << "\nTesting `isEmpty`, `isMember`, `length`, "
+                          << "`begin`, `end`, `rbegin`, `rend`, `operator++`,"
+                          << " `operator--`, and `operator*`."
                           << endl;
         for (ti = 0; ti < NUM_DATA ; ++ti) {
             const int LINE         = DATA[ti].d_lineNum;
@@ -3205,44 +3205,44 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING PRIMITIVE GENERATOR FUNCTION 'gg'
+        // TESTING PRIMITIVE GENERATOR FUNCTION `gg`
         //
         // Concerns:
-        //: 1 That 'gg' produces expected values for given valid spec strings.
-        //:
-        //: 2 That 'ggg' properly reports the index in the spec string of
-        //:   the first char of invalid input, and -1 if the input is valid.
-        //: 3 Objects created with 'g' are equivalent to objects created by
-        //:   'gg' for the same spec.
-        //: 4 The object created by 'g' is a new object and not a copy of a
-        //:   preexisting object.
+        // 1. That `gg` produces expected values for given valid spec strings.
+        //
+        // 2. That `ggg` properly reports the index in the spec string of
+        //    the first char of invalid input, and -1 if the input is valid.
+        // 3. Objects created with `g` are equivalent to objects created by
+        //    `gg` for the same spec.
+        // 4. The object created by `g` is a new object and not a copy of a
+        //    preexisting object.
         //
         // Plan:
-        //: 1 For each of an enumerated sequence of 'spec' values, ordered by
-        //:   increasing 'spec' length, use the primitive generator function
-        //:   'gg' to set the state of a newly created object.  Verify that
-        //:   'gg' returns a valid reference to the modified argument object
-        //:   and, using basic accessors, that the value of the object is as
-        //:   expected.  Repeat the test for a longer 'spec' generated by
-        //:   prepending a string ending in a '~' character (denoting
-        //:   'removeAll').  Note that we are testing the parser only; the
-        //:   primary manipulators are already assumed to work. (C-1)
-        //:
-        //: 2 Iterate through a similar loop calling 'ggg' instead of 'gg' and,
-        //:   for each length of SPEC, first try a valid spec and verify that
-        //:   -1 is returned, then try invalid specs and verify that in all
-        //:   cases the index of the first invalid char of the spec is
-        //:   returned.
-        //:
-        //: 3 For a variety of specs, populate an object using 'gg', then
-        //:   confirm it is equivalent to an object returned by 'g' for the
-        //:   same spec. (C-1)
-        //:
-        //: 4 Create an object and populate it a couple of times with 'gg',
-        //:   verify that 'gg' returns the address of that object.  Create
-        //:   a couple of objects with 'g' and verify their addresses do not
-        //:   match, and do not match that of the object populated with 'gg.
-        //:   (C-2)
+        // 1. For each of an enumerated sequence of `spec` values, ordered by
+        //    increasing `spec` length, use the primitive generator function
+        //    `gg` to set the state of a newly created object.  Verify that
+        //    `gg` returns a valid reference to the modified argument object
+        //    and, using basic accessors, that the value of the object is as
+        //    expected.  Repeat the test for a longer `spec` generated by
+        //    prepending a string ending in a '~' character (denoting
+        //    `removeAll`).  Note that we are testing the parser only; the
+        //    primary manipulators are already assumed to work. (C-1)
+        //
+        // 2. Iterate through a similar loop calling `ggg` instead of `gg` and,
+        //    for each length of SPEC, first try a valid spec and verify that
+        //    -1 is returned, then try invalid specs and verify that in all
+        //    cases the index of the first invalid char of the spec is
+        //    returned.
+        //
+        // 3. For a variety of specs, populate an object using `gg`, then
+        //    confirm it is equivalent to an object returned by `g` for the
+        //    same spec. (C-1)
+        //
+        // 4. Create an object and populate it a couple of times with `gg`,
+        //    verify that `gg` returns the address of that object.  Create
+        //    a couple of objects with `g` and verify their addresses do not
+        //    match, and do not match that of the object populated with 'gg.
+        //    (C-2)
         //
         // Testing:
         //   DayOfWeekSet& gg(DayOfWeekSet* obj, const char *spec);
@@ -3252,7 +3252,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "TESTING PRIMITIVE GENERATOR FUNCTION 'gg'" << endl
+                 << "TESTING PRIMITIVE GENERATOR FUNCTION `gg`" << endl
                  << "=========================================" << endl;
 
         if (verbose) cout << "\nTesting generator on valid specs." << endl;
@@ -3408,7 +3408,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-            "\nCompare values produced by 'g' and 'gg' for various inputs."
+            "\nCompare values produced by `g` and `gg` for various inputs."
                                                                        << endl;
         {
             static const char *SPECS[] = {
@@ -3450,27 +3450,27 @@ int main(int argc, char *argv[])
         // TESTING PRIMARY MANIPULATORS
         //
         // Concerns:
-        //: 1 The default constructor creates the correct initial value.
-        //:
-        //: 2 The destructor doesn't segfault, abort, or exit
-        //:
-        //: 3 'add'
-        //:    A Produces the expected value.
-        //:    B Maintains valid internal state.
-        //:
-        //: 4 'removeAll' produces the expected value (empty).
+        // 1. The default constructor creates the correct initial value.
+        //
+        // 2. The destructor doesn't segfault, abort, or exit
+        //
+        // 3. `add`
+        //     A Produces the expected value.
+        //     B Maintains valid internal state.
+        //
+        // 4. `removeAll` produces the expected value (empty).
         //
         // Plan:
-        //:  1 Default construct a value and confirm its value with the
-        //:    'length' and 'isMember' accessors, then destroy it. (C-1, C-2)
-        //:
-        //:  2 Repetitively default construct objects and then apply different
-        //:    sequences of additions to it, then confirm its state and confirm
-        //:    its validity by destroying it. (C-3 A,B)
-        //:
-        //:  3 Incrementally build an instance using 'add' (and sometimes
-        //:    redundant 'add's), then empty it using 'removeAll', then rebuild
-        //:    it and destroy it. (C-3, C-4)
+        //  1. Default construct a value and confirm its value with the
+        //     `length` and `isMember` accessors, then destroy it. (C-1, C-2)
+        //
+        //  2. Repetitively default construct objects and then apply different
+        //     sequences of additions to it, then confirm its state and confirm
+        //     its validity by destroying it. (C-3 A,B)
+        //
+        //  3. Incrementally build an instance using `add` (and sometimes
+        //     redundant `add`s), then empty it using `removeAll`, then rebuild
+        //     it and destroy it. (C-3, C-4)
         //
         // Testing:
         //   DayOfWeekSet();
@@ -3499,7 +3499,7 @@ int main(int argc, char *argv[])
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'add' (bootstrap)." << endl;
+        if (verbose) cout << "\nTesting `add` (bootstrap)." << endl;
         {
             if (verbose) cout << "\tOn an object of initial length 0." << endl;
             Obj mX;  const Obj& X = mX;
@@ -3612,7 +3612,7 @@ int main(int argc, char *argv[])
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'removeAll'." << endl;
+        if (verbose) cout << "\nTesting `removeAll`." << endl;
         {
             if (verbose) cout << "\tOn an object of initial length 0." << endl;
             Obj mX;  const Obj& X = mX;
@@ -3685,7 +3685,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting the destructor." << endl;
 
-        if (verbose) cout << "\tWith 'add' only" << endl;
+        if (verbose) cout << "\tWith `add` only" << endl;
         {
             // For each lengths i up to some modest limit:
             //    1) create an instance
@@ -3719,7 +3719,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\tWith 'add' and 'removeAll'" << endl;
+        if (verbose) cout << "\tWith `add` and `removeAll`" << endl;
         {
             // For each pair of lengths (i, j) up to some modest limit:
             //    1) create an instance
@@ -3792,44 +3792,44 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: o Demonstrate operation of:
-        //:    1 creators (default, copy, d'tor)
-        //:    2 assignment
-        //:    3 equality operations
-        //:    4 output operator
-        //:    5 primary manipulators ('add', 'removeAll')
-        //:    6 basic accessor ('length')
-        //:    7 When applicable, the above should be tested under aliasing.
-        //:    8 Iterator, Reverse iterator
-        //:    9 print method
-        //:   10 operator<<
+        //  - Demonstrate operation of:
+        //    1. creators (default, copy, d'tor)
+        //    2. assignment
+        //    3. equality operations
+        //    4. output operator
+        //    5. primary manipulators (`add`, `removeAll`)
+        //    6. basic accessor (`length`)
+        //    7. When applicable, the above should be tested under aliasing.
+        //    8. Iterator, Reverse iterator
+        //    9. print method
+        //   10. operator<<
         //
         // Plan:
-        //:  1 Default construct, compare with itself (C-1, C-3, C-7)
-        //:
-        //:  2 Copy construct default constructed, compare (C-1, C-3, C-7)
-        //:
-        //:  3 Add a day to an object (C-5, C-6, C-3)
-        //:
-        //:  4 Add another day (C-5, C-6, C-3)
-        //:
-        //:  5 'removeAll' (C-5, C-6, C-3)
-        //:
-        //:  6 Another default constructed object (C-1, C-3, C-6)
-        //:
-        //:  7 Another copy constructed object (C-1, C-3, C-6)
-        //:
-        //:  8 Assign empty (C-2, C-3, C-6)
-        //:
-        //:  9 Assign non-empty (C-2, C-3, C-6)
-        //:
-        //: 10 Assign aliasing (C-2, C-3, C-6)
-        //:
-        //: 11 Iterator, reverse iterator (C-8)
-        //:
-        //: 12 Print method (C-9)
-        //:
-        //: 13 operator<< (C-10)
+        //  1. Default construct, compare with itself (C-1, C-3, C-7)
+        //
+        //  2. Copy construct default constructed, compare (C-1, C-3, C-7)
+        //
+        //  3. Add a day to an object (C-5, C-6, C-3)
+        //
+        //  4. Add another day (C-5, C-6, C-3)
+        //
+        //  5. `removeAll` (C-5, C-6, C-3)
+        //
+        //  6. Another default constructed object (C-1, C-3, C-6)
+        //
+        //  7. Another copy constructed object (C-1, C-3, C-6)
+        //
+        //  8. Assign empty (C-2, C-3, C-6)
+        //
+        //  9. Assign non-empty (C-2, C-3, C-6)
+        //
+        // 10. Assign aliasing (C-2, C-3, C-6)
+        //
+        // 11. Iterator, reverse iterator (C-8)
+        //
+        // 12. Print method (C-9)
+        //
+        // 13. operator<< (C-10)
         //
         // Testing:
         //   BREATHING TEST
@@ -4052,7 +4052,7 @@ int main(int argc, char *argv[])
         }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "P 12) Trying the 'print' method..." << endl;
+        if (verbose) cout << "P 12) Trying the `print` method..." << endl;
         if (verbose) {
             cout << endl;
             X4.print(cout);
@@ -4071,7 +4071,7 @@ int main(int argc, char *argv[])
         }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "P 13) Trying 'operator<<'..." << endl;
+        if (verbose) cout << "P 13) Trying `operator<<`..." << endl;
         if (verbose) {
             cout << endl;
             cout << X4 << endl;

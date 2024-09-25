@@ -2,7 +2,7 @@
 
 #include <bsls_platform.h>
 
-// the following suppresses warnings from '#include' inlined functions
+// the following suppresses warnings from `#include` inlined functions
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #pragma warning(disable:4180)
 #endif
@@ -22,7 +22,7 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
 
-#include <utility>     // 'std::move' for C++11
+#include <utility>     // `std::move` for C++11
 
 #include <stdio.h>     // atoi()
 #include <stdlib.h>    // atoi()
@@ -47,7 +47,7 @@ using namespace BloombergLP;
 #endif
 
 // Suppress bde_verify messages about all-uppercase type names.  Test drivers
-// are rife with short names like 'F' or 'PF' or 'T' or 'T1'.
+// are rife with short names like `F` or `PF` or `T` or `T1`.
 
 // BDE_VERIFY pragma: -UC01
 
@@ -127,7 +127,7 @@ void aSsErT(bool condition, const char *message, int line)
  ||(defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 40300)
 
 # define BSLMF_FORWARDINGREFTYPE_NO_ARRAY_OF_UNKNOWN_BOUND 1
-    // This macro signifies that this compiler rejects 'Type[]' as incomplete,
+    // This macro signifies that this compiler rejects `Type[]` as incomplete,
     // even in contexts where it should be valid, such as where it will pass by
     // reference or pointer.
 #endif
@@ -137,8 +137,8 @@ void aSsErT(bool condition, const char *message, int line)
     // versions, not yet released.  Update the version test accordingly.
 
 # define BSLMF_FORWARDINGREFTYPE_NO_ARRAY_DECAY_TO_RVALUE_REF 1
-    // This compiler cannot bind an rvalue array, such as 'char[]', to a
-    // rvalue-reference to a decayed array pointer, which would be 'char *&&'
+    // This compiler cannot bind an rvalue array, such as `char[]`, to a
+    // rvalue-reference to a decayed array pointer, which would be `char *&&`
     // in this example.
 #endif
 
@@ -166,19 +166,19 @@ void aSsErT(bool condition, const char *message, int line)
     // version 12.1.  The problem is the compiler fails to find a match when
     // passing a pointer-to-cv-qualified-member-function as an argument to a
     // function:
-    //..
+    // ```
     // struct Test {
     //     void function() const;
     // }
     //
-    // typedef void (Test::*pmf)() const;  // use typedef so 'const'ness clear
+    // typedef void (Test::*pmf)() const;  // use typedef so `const`ness clear
     //
     // void match(pmf) {}
     //
     // int main() {
     //     match(&Test::function); // xlC cannot find a match; fails to compile
     // }
-    //..
+    // ```
 #endif
 
 //=============================================================================
@@ -190,20 +190,20 @@ enum   Enum   { e_VAL1 = 1, e_VAL2 };
 struct Struct {
     int d_data;
 
+    /// Construct from the specified `v`.
     explicit Struct(int v) : d_data(v) { }
-        // Construct from the specified 'v'.
 
+    /// Copy-construct from the specified `other`.
     Struct(Struct& other) : d_data(other.d_data) { }
     Struct(const Struct& other) : d_data(other.d_data) { }
     Struct(volatile Struct& other) : d_data(other.d_data) { }
     Struct(const volatile Struct& other) : d_data(other.d_data) { }
-        // Copy-construct from the specified 'other'.
 };
 
+/// Return true if the specified `a` and `b` objects have same data member
+/// value.
 inline
 bool operator==(Struct a, Struct b)
-    // Return true if the specified 'a' and 'b' objects have same data member
-    // value.
 {
     return a.d_data == b.d_data;
 }
@@ -211,20 +211,20 @@ bool operator==(Struct a, Struct b)
 union  Union  {
     int d_data;
 
+    /// Construct from the specified `v`.
     explicit Union(int v) : d_data(v) { }
-        // Construct from the specified 'v'.
 
+    /// Copy-construct from the specified `other`.
     Union(Union& other) : d_data(other.d_data) { }
     Union(const Union& other) : d_data(other.d_data) { }
     Union(volatile Union& other) : d_data(other.d_data) { }
     Union(const volatile Union& other) : d_data(other.d_data) { }
-        // Copy-construct from the specified 'other'.
 };
 
+/// Return true if the specified `a` and `b` objects have the same data
+/// member value.
 inline
 bool operator==(Union a, Union b)
-    // Return true if the specified 'a' and 'b' objects have the same data
-    // member value.
 {
     return a.d_data == b.d_data;
 }
@@ -232,25 +232,25 @@ bool operator==(Union a, Union b)
 class  Class  {
     int d_data;
   public:
+    /// Construct from the specified `v`.
     explicit Class(int v) : d_data(v) { }
-        // Construct from the specified 'v'.
 
+    /// Copy-construct from the specified `other`.
     Class(Class& other) : d_data(other.d_data) { }
     Class(const Class& other) : d_data(other.d_data) { }
     Class(volatile Class& other) : d_data(other.d_data) { }
     Class(const volatile Class& other) : d_data(other.d_data) { }
-        // Copy-construct from the specified 'other'.
 
+    /// Return the value '2'.
     int two() { return 2; }
-        // Return the value '2'.
 
+    /// Return the value of this object.
     int value() const { return d_data; }
-        // Return the value of this object.
 };
 
+/// Return true if the specified `a` and `b` have the same `value()`.
 inline
 bool operator==(Class a, Class b)
-    // Return true if the specified 'a' and 'b' have the same 'value()'.
 {
     return a.value() == b.value();
 }
@@ -268,14 +268,14 @@ typedef int Struct::*Pm;
 typedef int (Class::*Pmf)();
 typedef int (Class::*Pmq)() const;
 
+/// Noop function that takes no arguments and returns nothing.
 void func() { }
-    // Noop function that takes no arguments and returns nothing.
 
+/// Noop function that takes one by-value argument and returns nothing.
 void funcI(int) { }
-    // Noop function that takes one by-value argument and returns nothing.
 
+/// Noop function that takes one by-reference argument and returns nothing.
 void funcRi(int&) { }
-    // Noop function that takes one by-reference argument and returns nothing.
 
 enum {
     k_LVALUE,
@@ -290,97 +290,98 @@ enum {
     k_FUNC_REFERENCE
 };
 
+/// Return a copy of the specified `v` object.  If `TP` has a cv-qualifier,
+/// then the compiler might discard it in the return type.  For testing
+/// purposes, what is important is that we get exactly what we would get
+/// when returning an object of type `TP`.
 template <class TP>
 TP toRvalue(TP v)
-    // Return a copy of the specified 'v' object.  If 'TP' has a cv-qualifier,
-    // then the compiler might discard it in the return type.  For testing
-    // purposes, what is important is that we get exactly what we would get
-    // when returning an object of type 'TP'.
 {
     return v;
 }
 
+/// Function object type that can be invoked with a cv-qualified reference
+/// to an object of the specified `TP` parameter type.
 template <class TP>
 struct CvRefMatch {
-    // Function object type that can be invoked with a cv-qualified reference
-    // to an object of the specified 'TP' parameter type.
 
+    /// Invoke with an l-value reference.
     int operator()(TP&) const { return k_LVALUE; }
     int operator()(const TP&) const { return k_CONST_LVALUE; }
     int operator()(volatile TP&) const { return k_VOLATILE_LVALUE; }
     int operator()(const volatile TP&) const { return k_CONST_VOLATILE_LVALUE;}
-        // Invoke with an l-value reference.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    /// Invoke with an r-value reference.
     int operator()(TP&&) const { return k_RVALUE; }
     int operator()(const TP&&) const { return k_CONST_RVALUE; }
     int operator()(volatile TP&&) const { return k_VOLATILE_RVALUE; }
     int operator()(const volatile TP&&) const
-        // Invoke with an r-value reference.
         { return k_CONST_VOLATILE_RVALUE; }
 #endif
 };
 
+/// Function object type that can be invoked with an array of the specified
+/// `TP` parameter type.
 template <class TP>
 class CvArrayMatch {
-    // Function object type that can be invoked with an array of the specified
-    // 'TP' parameter type.
 
+    /// Matches an array of known size.
     template <size_t k_SZ>
     int match(TP (&)[k_SZ], int) const { return int(k_SZ); }
-        // Matches an array of known size.
 
+    /// Matches an array of unknown size.
     int match(TP [], ...) const { return 0; }
-        // Matches an array of unknown size.
 
   public:
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    /// Matches both lvalue and rvalue arrays.
     template <class ANY>
     int operator()(ANY&& a) const { return match(a, 0); }
-        // Matches both lvalue and rvalue arrays.
 #else
     template <class ANY>
     int operator()(ANY& a) const { return match(a, 0); }
 #endif
 };
 
+/// Function object type that can be invoked with a function, function
+/// pointer, or function reference.
 template <class FUNC>
 struct FuncMatch {
-    // Function object type that can be invoked with a function, function
-    // pointer, or function reference.
 
+    /// Class that is convertible from `FUNC *`
     struct MatchFuncPtr {
-        // Class that is convertible from 'FUNC *'
+
+        /// Convert a `FUNC *` pointer to a `MatchFuncPtr` object.
         MatchFuncPtr(FUNC *) { }                                    // IMPLICIT
-            // Convert a 'FUNC *' pointer to a 'MatchFuncPtr' object.
     };
 
+    /// Match a function or a function reference.
     int operator()(FUNC&) const { return k_FUNC_REFERENCE; }
-        // Match a function or a function reference.
 
+    /// Match function pointer.  This overload requires a user-defined
+    /// conversion and this is less preferred than the previous one for
+    /// arguments that match both.
     int operator()(MatchFuncPtr) const { return k_FUNC_POINTER; }
-        // Match function pointer.  This overload requires a user-defined
-        // conversion and this is less preferred than the previous one for
-        // arguments that match both.
 };
 
+/// Forward the specified `arg` to the specified `target`.  This function is
+/// called in the middle of a chain of function calls that forward to the
+/// eventual `target` invocable object.
 template <class TP, class INVOCABLE>
 int endToEndIntermediary(typename bslmf::ForwardingRefType<TP>::Type arg,
                          const INVOCABLE&                         target)
-    // Forward the specified 'arg' to the specified 'target'.  This function is
-    // called in the middle of a chain of function calls that forward to the
-    // eventual 'target' invocable object.
 {
     return target(bslmf::ForwardingRefTypeUtil<TP>::forwardToTarget(arg));
 }
 
+/// Forward the specified `arg` to the specified `target` via an
+/// intermediate function.  This function is called at the start of a chain
+/// of function calls that forward to the eventual `target` invocable
+/// object.
 template <class TP, class INVOCABLE>
 int testEndToEnd(TP arg, const INVOCABLE& target)
-    // Forward the specified 'arg' to the specified 'target' via an
-    // intermediate function.  This function is called at the start of a chain
-    // of function calls that forward to the eventual 'target' invocable
-    // object.
 {
     return endToEndIntermediary<TP>(arg, target);
 }
@@ -390,9 +391,9 @@ int testEndToEnd(TP arg, const INVOCABLE& target)
 template <class TP, class INVOCABLE>
 int testEndToEndArray(typename bsl::add_lvalue_reference<TP>::type arg,
                       const INVOCABLE&                             target)
-    // Forward the specified 'arg' to the specified 'target' via an
+    // Forward the specified `arg` to the specified `target` via an
     // intermediate function.  This function is called at the start of a chain
-    // of function calls that forward to the eventual 'target' invocable
+    // of function calls that forward to the eventual `target` invocable
     // object.
 {
     return endToEndIntermediary<TP>(arg, target);
@@ -408,14 +409,14 @@ int testEndToEndArray(typename bsl::add_lvalue_reference<TP>::type arg,
 //
 ///Example 1: Direct look at metafunction results
 ///- - - - - - - - - - - - - - - - - - - - - - -
-// In this example, we invoke 'ForwardingRefType' on a variety of types and
-// look at the resulting 'Type' member:
-//..
+// In this example, we invoke `ForwardingRefType` on a variety of types and
+// look at the resulting `Type` member:
+// ```
     struct MyType {};
     typedef MyType& MyTypeRef;
 
+    /// Usage example.
     void usageExample1()
-        // Usage example.
     {
         BSLA_MAYBE_UNUSED typedef int                     T1;
         BSLA_MAYBE_UNUSED typedef int&                    T2;
@@ -444,7 +445,7 @@ int testEndToEndArray(typename bsl::add_lvalue_reference<TP>::type arg,
         BSLA_MAYBE_UNUSED typedef int * const &           EXP12;
 
 
-#if BSLS_COMPILERFEATURES_CPLUSPLUS>=201703L // 'using' for readibility
+#if BSLS_COMPILERFEATURES_CPLUSPLUS>=201703L // `using` for readibility
         using bslmf::ForwardingRefType;
         ASSERT((bsl::is_same<ForwardingRefType<T1>::Type,  EXP1>::value));
         ASSERT((bsl::is_same<ForwardingRefType<T2>::Type,  EXP2>::value));
@@ -460,36 +461,36 @@ int testEndToEndArray(typename bsl::add_lvalue_reference<TP>::type arg,
         ASSERT((bsl::is_same<ForwardingRefType<T12>::Type, EXP12>::value));
 #endif
     }
-//..
+// ```
 
 
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
+/// Return true if address of the specified `a` object matches the address
+/// of the specified `b` object.  Unlike a direct test, this function can be
+/// called even if `a` or `b` is an rvalue or rvalue reference.
 template <class TYPE>
 bool sameAddress(const TYPE& a, const TYPE& b)
-    // Return true if address of the specified 'a' object matches the address
-    // of the specified 'b' object.  Unlike a direct test, this function can be
-    // called even if 'a' or 'b' is an rvalue or rvalue reference.
 {
     return &a == &b;
 }
 
+/// Return true if address of the specified `a` entity (of parameterized
+/// `TYPE`)) matches the address of the specified `b` entity.  Note that
+/// this second overload is necessary only for compilers like IBM xlC that
+/// will not deduce a match for `const &` for function types and references.
 template <class TYPE>
 bool sameAddress(TYPE& a, TYPE& b)
-    // Return true if address of the specified 'a' entity (of parameterized
-    // 'TYPE')) matches the address of the specified 'b' entity.  Note that
-    // this second overload is necessary only for compilers like IBM xlC that
-    // will not deduce a match for 'const &' for function types and references.
 {
     return &a == &b;
 }
 
+/// Test `forwardToTarget` when the specified `obj` is an rvalue, reporting
+/// errors with the specified `lineNumber`.
 template <class TYPE>
 void testForwardToTargetVal(TYPE obj, int lineNumber)
-    // Test 'forwardToTarget' when the specified 'obj' is an rvalue, reporting
-    // errors with the specified 'lineNumber'.
 {
     typedef typename bslmf::ForwardingRefType<TYPE>::Type       FwdType;
     typedef typename bslmf::ForwardingRefType<TYPE>::TargetType TargetType;
@@ -508,6 +509,8 @@ void testForwardToTargetVal(TYPE obj, int lineNumber)
             bslmf::ForwardingRefTypeUtil<TYPE>::forwardToTarget(fwdObj));
 }
 
+/// Test `forwardToTarget` when the specified `obj` is an array, reporting
+/// errors with the specified `lineNumber`.
 template <class TYPE>
 #if defined(BSLMF_FOWARDINGTYPE_WORK_AROUND_SUN_ARRAY_TESTS)
 void testForwardToTargetArray(
@@ -515,8 +518,6 @@ void testForwardToTargetArray(
 #else
 void testForwardToTargetArray(TYPE obj, int lineNumber)
 #endif
-    // Test 'forwardToTarget' when the specified 'obj' is an array, reporting
-    // errors with the specified 'lineNumber'.
 {
     typedef typename bslmf::ForwardingRefType<TYPE>::Type           FwdType;
     typedef typename bslmf::ForwardingRefTypeUtil<TYPE>::TargetType TargetType;
@@ -540,10 +541,10 @@ void testForwardToTargetArray(TYPE obj, int lineNumber)
             &bslmf::MovableRefUtil::access(targetObj)[0]);
 }
 
+/// Test `forwardToTarget` when the specified `ref` is a reference type,
+/// reporting errors with the specified `lineNumber`.
 template <class TYPE>
 void testForwardToTargetRef(TYPE ref, int lineNumber)
-    // Test 'forwardToTarget' when the specified 'ref' is a reference type,
-    // reporting errors with the specified 'lineNumber'.
 {
     typedef typename bslmf::ForwardingRefType<TYPE>::Type FwdType;
     typedef typename bslmf::ForwardingRefTypeUtil<TYPE>::TargetType TargetType;
@@ -583,7 +584,7 @@ int main(int argc, char *argv[])
         //   as promised.
         //
         // Plan: Copy the usage example from the component header, replace
-        //   'assert' with 'ASSERT' and 'main' with 'usageExampleN' and verify
+        //   `assert` with `ASSERT` and `main` with `usageExampleN` and verify
         //   that it compiles and runs successfully.
         //
         // Testing:
@@ -602,49 +603,49 @@ int main(int argc, char *argv[])
         // TESTING END-TO-END OVERLOADING
         //
         // Concerns:
-        //: 1 An argument of type 'T' that is passed to one function as 'T',
-        //:   forwarded through a second function as
-        //:   'ForwardingRefType<T>::Type' and passed to a third (target)
-        //:   function by calling 'ForwardingRefTypeUtil<T>::forwardToTarget()'
-        //:   will be seen by the target function as if the original argument
-        //:   had been passed directly to it, including selecting the correct
-        //:   overload and instantiation of the target function.
-        //: 2 Rvalue types are forwarded to the target function without
-        //:   cv-qualification, regardless of whether an rvalue type is
-        //:   primitive or of class type.
-        //: 3 Lvalue reference types are forwarded to the target with the
-        //:   original cv-qualification.
-        //: 4 Rvalue reference types (C++11 and newer) are forwarded to the
-        //:   target with the original cv-qualification.
-        //: 5 Sized array types are forwarded to the target with the original
-        //:   array size.
-        //: 6 array-of-unknown-bound types are forwarded to the target as
-        //:   references to arrays of unknown bound.
+        // 1. An argument of type `T` that is passed to one function as `T`,
+        //    forwarded through a second function as
+        //    `ForwardingRefType<T>::Type` and passed to a third (target)
+        //    function by calling `ForwardingRefTypeUtil<T>::forwardToTarget()`
+        //    will be seen by the target function as if the original argument
+        //    had been passed directly to it, including selecting the correct
+        //    overload and instantiation of the target function.
+        // 2. Rvalue types are forwarded to the target function without
+        //    cv-qualification, regardless of whether an rvalue type is
+        //    primitive or of class type.
+        // 3. Lvalue reference types are forwarded to the target with the
+        //    original cv-qualification.
+        // 4. Rvalue reference types (C++11 and newer) are forwarded to the
+        //    target with the original cv-qualification.
+        // 5. Sized array types are forwarded to the target with the original
+        //    array size.
+        // 6. array-of-unknown-bound types are forwarded to the target as
+        //    references to arrays of unknown bound.
         //
         // Plan:
-        //: 1 For concern 1, create a small set of functor classes with
-        //:   several overloads of 'operator()'.  Each overload verifies
-        //:   correct invocation by returning a different enumerated
-        //:   value.  Call each functor via an intermediary function that
-        //:   takes a 'TP' argument and passes it to a second intermediary
-        //:   function taking a 'ForwardingRefType<TP>::Type' argument which,
-        //:   in turn, calls the functor.  Verify that the functor returns the
-        //:   same value as would be returned if it were called directly.
-        //: 2 For concern 2, perform step 1 with a functor class whose
-        //:   'operator()' takes 'const', 'volatile', and 'const
-        //:   volatile' lvalue reference types (C++03 and before) or
-        //:   unqualified, 'const', 'volatile', and 'const volatile' rvalue
-        //:   reference types (C++11 and newer).  Instantiate with a variety
-        //:   of primitive and non-primitive rvalue types of different
-        //:   cv-qualifications.
-        //: 3 For concern 3, repeat step 2, except instantiate with lvalue
-        //:   reference types.
-        //: 4 For concern 4, repeat step 2, except instantiate with rvalue
-        //:   reference types.
-        //: 5 For concerns 5 and 6, perform step 1 with a functor class whose
-        //:   'operator()' returns the size of the array on which it is
-        //:   called, or zero for pointer types.  Instantiate with a variety
-        //:   of array types and reference-to-array types.
+        // 1. For concern 1, create a small set of functor classes with
+        //    several overloads of `operator()`.  Each overload verifies
+        //    correct invocation by returning a different enumerated
+        //    value.  Call each functor via an intermediary function that
+        //    takes a `TP` argument and passes it to a second intermediary
+        //    function taking a `ForwardingRefType<TP>::Type` argument which,
+        //    in turn, calls the functor.  Verify that the functor returns the
+        //    same value as would be returned if it were called directly.
+        // 2. For concern 2, perform step 1 with a functor class whose
+        //    `operator()` takes `const`, `volatile`, and 'const
+        //    volatile' lvalue reference types (C++03 and before) or
+        //    unqualified, `const`, `volatile`, and `const volatile` rvalue
+        //    reference types (C++11 and newer).  Instantiate with a variety
+        //    of primitive and non-primitive rvalue types of different
+        //    cv-qualifications.
+        // 3. For concern 3, repeat step 2, except instantiate with lvalue
+        //    reference types.
+        // 4. For concern 4, repeat step 2, except instantiate with rvalue
+        //    reference types.
+        // 5. For concerns 5 and 6, perform step 1 with a functor class whose
+        //    `operator()` returns the size of the array on which it is
+        //    called, or zero for pointer types.  Instantiate with a variety
+        //    of array types and reference-to-array types.
         //
         // Testing:
         //   END-TO-END OVERLOADING
@@ -682,7 +683,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose) printf("rvalue types\n");
-#if 0 // For support of 'bdlf_bind', basic types are forwarded as const refs
+#if 0 // For support of `bdlf_bind`, basic types are forwarded as const refs
         TEST_ENDTOEND_RVALUE(int      , i);
         TEST_ENDTOEND_RVALUE(Enum     , e);
         TEST_ENDTOEND_RVALUE(double   , d);
@@ -815,89 +816,89 @@ int main(int argc, char *argv[])
 
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'bslmf::ForwardingRefTypeUtil'
+        // TESTING `bslmf::ForwardingRefTypeUtil`
         //
         // Concerns:
-        //: 1 For types that are not references, arrays, or functions,
-        //:   'ForwardingRefTypeUtil<TYPE>::TargetType' is similar to
-        //:   'TYPE' except that 'TargetType' might be a const reference
-        //:   (C++03) or rvalue reference (C++11+).  An object of 'TYPE'
-        //:   converted to 'ForwardingRefType<TYPE>::Type' and then forwarded
-        //:   using 'ForwardingRefTypeUtil<TYPE>::forwardToTarget(), will yield
-        //:   a value equal to the original object.
-        //: 2 For array types of (known or unknown) size,
-        //:   'ForwardingRefTypeUtil<TYPE>::TargetType' yields a reference to
-        //:   'TYPE'.  An array object of 'TYPE' converted to
-        //:   'ForwardingRefType<TYPE>::Type' then forwarded using
-        //:   'ForwardingRefTypeUtil<TYPE>::forwardToTarget() will yield a
-        //:   reference to the original array.
-        //: 3 For reference types, 'ForwardingRefTypeUtil<TYPE>::TargetType'
-        //:   yields 'TYPE'.  A reference of 'TYPE' converted to
-        //:   'ForwardingRefType<TYPE>::Type' then forwarded using
-        //:   'ForwardingRefTypeUtil<TYPE>::forwardToTarget() will yield a
-        //:   a reference identical to the original.
-        //: 4 All of the above concerns apply when 'TYPE' is
-        //:   cv-qualified.  Note that passing volatile-qualified objects by
-        //:   value or by rvalue-reference does not really happen in real code
-        //:   and is not supported by this component.
-        //: 5 For function types, 'ForwardingRefTypeUtil<TYPE>::TargetType'
-        //:   yields 'TYPE&'.  A function converted to
-        //:   'ForwardingRefType<TYPE>::Type' then forwarded using
-        //:   'ForwardingRefTypeUtil<TYPE>::forwardToTarget() will yield a a
-        //:   reference to the original function.
+        // 1. For types that are not references, arrays, or functions,
+        //    `ForwardingRefTypeUtil<TYPE>::TargetType` is similar to
+        //    `TYPE` except that `TargetType` might be a const reference
+        //    (C++03) or rvalue reference (C++11+).  An object of `TYPE`
+        //    converted to `ForwardingRefType<TYPE>::Type` and then forwarded
+        //    using 'ForwardingRefTypeUtil<TYPE>::forwardToTarget(), will yield
+        //    a value equal to the original object.
+        // 2. For array types of (known or unknown) size,
+        //    `ForwardingRefTypeUtil<TYPE>::TargetType` yields a reference to
+        //    `TYPE`.  An array object of `TYPE` converted to
+        //    `ForwardingRefType<TYPE>::Type` then forwarded using
+        //    'ForwardingRefTypeUtil<TYPE>::forwardToTarget() will yield a
+        //    reference to the original array.
+        // 3. For reference types, `ForwardingRefTypeUtil<TYPE>::TargetType`
+        //    yields `TYPE`.  A reference of `TYPE` converted to
+        //    `ForwardingRefType<TYPE>::Type` then forwarded using
+        //    'ForwardingRefTypeUtil<TYPE>::forwardToTarget() will yield a
+        //    a reference identical to the original.
+        // 4. All of the above concerns apply when `TYPE` is
+        //    cv-qualified.  Note that passing volatile-qualified objects by
+        //    value or by rvalue-reference does not really happen in real code
+        //    and is not supported by this component.
+        // 5. For function types, `ForwardingRefTypeUtil<TYPE>::TargetType`
+        //    yields `TYPE&`.  A function converted to
+        //    `ForwardingRefType<TYPE>::Type` then forwarded using
+        //    'ForwardingRefTypeUtil<TYPE>::forwardToTarget() will yield a a
+        //    reference to the original function.
         //
         // Plan:
-        //: 1 For concern 1, implement a function template,
-        //:   'testForwardToTargetVal' that can be instantiated with a 'TYPE'
-        //:   and that takes an argument 'obj' of 'TYPE'.  Instantiated on a
-        //:   variety of basic and non-basic types, 'testForwardToTargetVal'
-        //:   performs the following operations:
-        //:   a Verify that 'TargetType' is the expected transformation of
-        //:     'TYPE'.
-        //:   b Initialize a temporary variable of type
-        //:     'ForwardingRefType<TYPE>::Type' using 'obj.
-        //:   c Call 'forwardToTarget' on the temporary variable and verify
-        //:     that the resulting object compares equal to 'obj'.
-        //: 2 For concern 2, implement a function template,
-        //    'testForwardToTargetArray', that can be instantiated with an
-        //:   an array 'TYPE' (or reference-to-array 'TYPE') and that takes
-        //:   an argument 'obj' of 'TYPE'.  Instantiated on a variety of array
-        //:   types of known and unknown size as well a lvalue and rvalues to
-        //:   such types, 'testForwardToTargetArray' performs the following
-        //:   operations:
-        //:   a Verify that 'TargetType' is the expected transformation of
-        //:     'TYPE'.
-        //:   b Initialize a temporary variable of type
-        //:     'ForwardingRefType<TYPE>::Type' using 'obj.
-        //:   c Call 'forwardToTarget' on the temporary variable and verify
-        //:     that the resulting object has the same address as 'obj'.
-        //: 3 For concern 3, implement a function template,
-        //:   'testForwardToTargetRef' that can be instantiated with a
-        //:   reference 'TYPE' and that takes an argument 'ref' of 'TYPE'.
-        //:   Instantiated on a variety of lvalue and rvalue reference types,
-        //:   'testForwardToTargetRef', performs the following operations:
-        //:   a Verify that 'TargetType' is the expected transformation of
-        //:     'TYPE'.
-        //:   b Initialize a temporary variable of type
-        //:     'ForwardingRefType<TYPE>::Type' using 'obj'.
-        //:   c Call 'forwardToTarget' on the temporary variable and verify
-        //:     that the returned reference has the same address as 'obj'.
-        //: 4 For concern 4, instantiate the templates defined in the previous
-        //:   steps using cv-qualified template parameters.
-        //: 5 For concern 5, instantiate the template with a function
-        //:   type, 'F' and then:
-        //:   a Verify that 'TargetType' is 'F&'.
-        //:   b Initialize a temporary variable of type
-        //:     'ForwardingRefType<F>::Type' using 'func'.
-        //:   c Call 'forwardToTarget' on the temporary variable and verify
-        //:     that the returned reference has the same address as 'func'.
+        // 1. For concern 1, implement a function template,
+        //    `testForwardToTargetVal` that can be instantiated with a `TYPE`
+        //    and that takes an argument `obj` of `TYPE`.  Instantiated on a
+        //    variety of basic and non-basic types, `testForwardToTargetVal`
+        //    performs the following operations:
+        //    a Verify that `TargetType` is the expected transformation of
+        //      `TYPE`.
+        //    b Initialize a temporary variable of type
+        //      `ForwardingRefType<TYPE>::Type` using 'obj.
+        //    c Call `forwardToTarget` on the temporary variable and verify
+        //      that the resulting object compares equal to `obj`.
+        // 2. For concern 2, implement a function template,
+        //    `testForwardToTargetArray`, that can be instantiated with an
+        //    an array `TYPE` (or reference-to-array `TYPE`) and that takes
+        //    an argument `obj` of `TYPE`.  Instantiated on a variety of array
+        //    types of known and unknown size as well a lvalue and rvalues to
+        //    such types, `testForwardToTargetArray` performs the following
+        //    operations:
+        //    a Verify that `TargetType` is the expected transformation of
+        //      `TYPE`.
+        //    b Initialize a temporary variable of type
+        //      `ForwardingRefType<TYPE>::Type` using 'obj.
+        //    c Call `forwardToTarget` on the temporary variable and verify
+        //      that the resulting object has the same address as `obj`.
+        // 3. For concern 3, implement a function template,
+        //    `testForwardToTargetRef` that can be instantiated with a
+        //    reference `TYPE` and that takes an argument `ref` of `TYPE`.
+        //    Instantiated on a variety of lvalue and rvalue reference types,
+        //    `testForwardToTargetRef`, performs the following operations:
+        //    a Verify that `TargetType` is the expected transformation of
+        //      `TYPE`.
+        //    b Initialize a temporary variable of type
+        //      `ForwardingRefType<TYPE>::Type` using `obj`.
+        //    c Call `forwardToTarget` on the temporary variable and verify
+        //      that the returned reference has the same address as `obj`.
+        // 4. For concern 4, instantiate the templates defined in the previous
+        //    steps using cv-qualified template parameters.
+        // 5. For concern 5, instantiate the template with a function
+        //    type, `F` and then:
+        //    a Verify that `TargetType` is `F&`.
+        //    b Initialize a temporary variable of type
+        //      `ForwardingRefType<F>::Type` using `func`.
+        //    c Call `forwardToTarget` on the temporary variable and verify
+        //      that the returned reference has the same address as `func`.
         //
         // Testing:
         //   ForwardingRefTypeUtil<TYPE>::TargetType
         //   ForwardingRefTypeUtil<TYPE>::forwardToTarget(v)
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'bslmf::ForwardingRefTypeUtil'"
+        if (verbose) printf("\nTESTING `bslmf::ForwardingRefTypeUtil`"
                             "\n===================================\n");
 
         Enum    e = e_VAL2;
@@ -1093,63 +1094,63 @@ int main(int argc, char *argv[])
 
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'bslmf::ForwardingRefType<TYPE>::Type'
+        // TESTING `bslmf::ForwardingRefType<TYPE>::Type`
         //
         // Concerns:
-        //: 1 The forwarding type for "*basic* type cvq 'TP'" is
-        //:   'const vq&', where 'vq' is 'volatile' if 'TP' is
-        //:   volatile-qualified and is empty otherwise.
-        //: 2 The forwarding type for "*class* *or* *union* type cvq 'TP'" is
-        //:   'const vq TP&', where 'vq' is 'volatile' if 'TP' is
-        //:   volatile-qualified and is empty otherwise.
-        //: 3 The forwarding type for "function of type 'F'" or "reference to
-        //:   function of type 'F'" is "reference to function of type
-        //:   'F'".  The forwarding type for "pointer to function of type 'F'"
-        //:   is, 'F *const&'.
-        //: 4 The forwarding type for "array of cvq 'TP'" or "(lvalue or
-        //:   rvalue) reference to array of cvq 'TP'" is "cvq 'TP*'",
-        //:   regardless of whether the array size is known.
-        //: 5 The forwarding type for "lvalue reference to type cvq 'TP'" is
-        //:   the same "lvalue reference to cvq 'TP', for non-function and
-        //:   non-array types.
-        //: 6 (C++11 and newer only) The forwarding type for "rvalue reference
-        //:   to cvq type 'TP'" for non-function and non-array 'TP' is 'const
-        //:   vq TP&', where 'vq' is 'volatile' if 'TP' is volatile-qualified
-        //:   and 'vq' is empty otherwise.
+        // 1. The forwarding type for "*basic* type cvq `TP`" is
+        //    `const vq&`, where `vq` is `volatile` if `TP` is
+        //    volatile-qualified and is empty otherwise.
+        // 2. The forwarding type for "*class* *or* *union* type cvq `TP`" is
+        //    `const vq TP&`, where `vq` is `volatile` if `TP` is
+        //    volatile-qualified and is empty otherwise.
+        // 3. The forwarding type for "function of type `F`" or "reference to
+        //    function of type `F`" is "reference to function of type
+        //    `F`".  The forwarding type for "pointer to function of type `F`"
+        //    is, `F *const&`.
+        // 4. The forwarding type for "array of cvq `TP`" or "(lvalue or
+        //    rvalue) reference to array of cvq `TP`" is "cvq `TP*`",
+        //    regardless of whether the array size is known.
+        // 5. The forwarding type for "lvalue reference to type cvq `TP`" is
+        //    the same "lvalue reference to cvq `TP`, for non-function and
+        //    non-array types.
+        // 6. (C++11 and newer only) The forwarding type for "rvalue reference
+        //    to cvq type `TP`" for non-function and non-array `TP` is 'const
+        //    vq TP&`, where `vq' is `volatile` if `TP` is volatile-qualified
+        //    and `vq` is empty otherwise.
         //
         // Test Plan:
-        //: 1 For concern 1, instantiate 'ForwardingRefType' for fundamental,
-        //:   pointer, and enumeration types, both cv-qualified and
-        //:   unqualified, and verify  that the resulting 'Type' member is
-        //:   the parameter type without cv qualification.
-        //: 2 For concern 2, instantiate 'ForwardingRefType' for class and
-        //:   union type, both unqualified and cv-qualified, and verify that
-        //:   the resulting 'Type' member is the expected const lvalue
-        //:   reference type.
-        //: 3 For concern 3, instantiate 'ForwardingRefType' for a small number
-        //:   of function, reference-to-function, and pointer-to-function
-        //:   parameters and verify that the resulting 'Type' member is the
-        //:   expected type.
-        //: 3 For concern 4, instantiate 'ForwardingRefType' for a small number
-        //:   of array types, lvalue-reference-to-array types, and
-        //:   rvalue-reference-to-array types, both sized and unsized, and
-        //:   both cv-qualified and unqualified, and verify that the resulting
-        //:   'Type' member is the expected pointer type.
-        //: 5 For concern 5, instantiate 'ForwardingRefType' for *lvalue*
-        //:   reference to fundamental, pointer, enumeration, class, and union
-        //:   types, both cv-qualified and unqualified, and verify that the
-        //:   resulting 'Type' member is the same as the parameter type.
-        //: 6 For concern 6, instantiate 'ForwardingRefType' for *rvalue*
-        //:   reference to fundamental, pointer, enumeration, class, and union
-        //:   types, both cv-qualified and unqualified, and verify that the
-        //:   resulting 'Type' member is the expected const lvalue reference
-        //:   type.
+        // 1. For concern 1, instantiate `ForwardingRefType` for fundamental,
+        //    pointer, and enumeration types, both cv-qualified and
+        //    unqualified, and verify  that the resulting `Type` member is
+        //    the parameter type without cv qualification.
+        // 2. For concern 2, instantiate `ForwardingRefType` for class and
+        //    union type, both unqualified and cv-qualified, and verify that
+        //    the resulting `Type` member is the expected const lvalue
+        //    reference type.
+        // 3. For concern 3, instantiate `ForwardingRefType` for a small number
+        //    of function, reference-to-function, and pointer-to-function
+        //    parameters and verify that the resulting `Type` member is the
+        //    expected type.
+        // 3. For concern 4, instantiate `ForwardingRefType` for a small number
+        //    of array types, lvalue-reference-to-array types, and
+        //    rvalue-reference-to-array types, both sized and unsized, and
+        //    both cv-qualified and unqualified, and verify that the resulting
+        //    `Type` member is the expected pointer type.
+        // 5. For concern 5, instantiate `ForwardingRefType` for *lvalue*
+        //    reference to fundamental, pointer, enumeration, class, and union
+        //    types, both cv-qualified and unqualified, and verify that the
+        //    resulting `Type` member is the same as the parameter type.
+        // 6. For concern 6, instantiate `ForwardingRefType` for *rvalue*
+        //    reference to fundamental, pointer, enumeration, class, and union
+        //    types, both cv-qualified and unqualified, and verify that the
+        //    resulting `Type` member is the expected const lvalue reference
+        //    type.
         //
         // Testing:
         //   ForwardingRefType<TYPE>::Type
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'bslmf::ForwardingRefType<TYPE>::Type'"
+        if (verbose) printf("\nTESTING `bslmf::ForwardingRefType<TYPE>::Type`"
                             "\n===========================================\n");
 
 #define TEST_FWD_TYPE(T, EXP) \
@@ -1369,44 +1370,44 @@ int main(int argc, char *argv[])
         // TESTING TEST INFRASTRUCTURE
         //
         // Concerns:
-        //: 1 For 'crm' of type 'CvRefMatch<T>', 'crm(v)' returns the correct
-        //:   enumerator indicating whether 'v' is an lvalue, const lvalue,
-        //:   volatile lvalue, const volatile lvalue, rvalue, const rvalue,
-        //:   volatile rvalue, or const volatile rvalue.
-        //: 2 For 'cam' of type 'CvArrayMatch<T>' and 'a' of type array-of-T,
-        //:   'cam(a)' returns the number of elements of 'a' or '0' if 'a' has
-        //:   unknown bounds.
-        //: 3 For 'cam' of type 'CvArrayMatch<T>' and 'p' of type
-        //:   pointer-to-T, 'cam(p)' returns 0.
-        //: 4 Concerns 2 and 3 apply regardless of the cv qualification of 'a'
-        //:   or 'p'.
-        //: 5 For 'cam' of type 'CvArrayMatch<T>' and 'a' of type
-        //:   rvalue-reference-to-array-of-T, 'CvArrayMatch<T>' returns the
-        //:   same value as if 'a' were not an rvalue reference.
-        //: 6 For 'fm' of type 'FuncMatch<F>', 'fm(f)' returns
-        //:   'k_FUNC_REFERENCE' if 'f' is of type 'F' or 'F&' and
-        //:   'k_FUNC_POINTER' if 'f' is of type 'F*'.
+        // 1. For `crm` of type `CvRefMatch<T>`, `crm(v)` returns the correct
+        //    enumerator indicating whether `v` is an lvalue, const lvalue,
+        //    volatile lvalue, const volatile lvalue, rvalue, const rvalue,
+        //    volatile rvalue, or const volatile rvalue.
+        // 2. For `cam` of type `CvArrayMatch<T>` and `a` of type array-of-T,
+        //    `cam(a)` returns the number of elements of `a` or `0` if `a` has
+        //    unknown bounds.
+        // 3. For `cam` of type `CvArrayMatch<T>` and `p` of type
+        //    pointer-to-T, `cam(p)` returns 0.
+        // 4. Concerns 2 and 3 apply regardless of the cv qualification of `a`
+        //    or `p`.
+        // 5. For `cam` of type `CvArrayMatch<T>` and `a` of type
+        //    rvalue-reference-to-array-of-T, `CvArrayMatch<T>` returns the
+        //    same value as if `a` were not an rvalue reference.
+        // 6. For `fm` of type `FuncMatch<F>`, `fm(f)` returns
+        //    `k_FUNC_REFERENCE` if `f` is of type `F` or `F&` and
+        //    `k_FUNC_POINTER` if `f` is of type `F*`.
         //
         // Plan:
-        //: 1 For concern 1, create a variable, 'crm' of type
-        //:   'CvRefMatch<int>'.  Call 'crm(v)' for variables 'v' of type cvq
-        //:   'int' correct lvalue enumeration value is returned.  In C++11 or
-        //:   later mode, test with 'std::move(v)' and verify that the correct
-        //:   lvalue enumeration is returned.  Also test with a literal integer
-        //:   and verify that the return value is 'k_RVALUE_REF' in C++11 mode
-        //:   or 'k_CONST_LVALUE_REF' in C++03 mode.
-        //: 2 For concerns 2 and 3, create a variable, 'cam' of type
-        //:   'CvArrayMatch<int>'.  Define variables of type array-of-int,
-        //:   with both known and unknown sizes.  Verify that 'cam(v)' returns
-        //:   the correct size (or 0) for each array variable, 'v'.
-        //: 3 For concern 4, repeat step 2 for variables of each cvq
-        //:   combination.
-        //: 4 For concern 5 (C++11 or later), repeat steps 2 and 3 using
-        //:   'cam(std::move(v))'.
-        //: 6 For concern 6, create a variable, 'fm', of type
-        //:   'FuncMatch<F>'.  Call 'fm(f)' for arguments 'f' of type 'void()',
-        //:   'void(&)()', and 'void(*)()', and verify that the correct
-        //:   enumeration value is returned.
+        // 1. For concern 1, create a variable, `crm` of type
+        //    `CvRefMatch<int>`.  Call `crm(v)` for variables `v` of type cvq
+        //    `int` correct lvalue enumeration value is returned.  In C++11 or
+        //    later mode, test with `std::move(v)` and verify that the correct
+        //    lvalue enumeration is returned.  Also test with a literal integer
+        //    and verify that the return value is `k_RVALUE_REF` in C++11 mode
+        //    or `k_CONST_LVALUE_REF` in C++03 mode.
+        // 2. For concerns 2 and 3, create a variable, `cam` of type
+        //    `CvArrayMatch<int>`.  Define variables of type array-of-int,
+        //    with both known and unknown sizes.  Verify that `cam(v)` returns
+        //    the correct size (or 0) for each array variable, `v`.
+        // 3. For concern 4, repeat step 2 for variables of each cvq
+        //    combination.
+        // 4. For concern 5 (C++11 or later), repeat steps 2 and 3 using
+        //    `cam(std::move(v))`.
+        // 6. For concern 6, create a variable, `fm`, of type
+        //    `FuncMatch<F>`.  Call `fm(f)` for arguments `f` of type `void()`,
+        //    `void(&)()`, and `void(*)()`, and verify that the correct
+        //    enumeration value is returned.
         //
         // Testing:
         //   CvRefMatch<T>::operator()()

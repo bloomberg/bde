@@ -38,14 +38,14 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The 'balm::Metric' class and the macros defined in this component primarily
-// provide user-friendly access to a 'balm::Collector' object.  The classes and
+// The `balm::Metric` class and the macros defined in this component primarily
+// provide user-friendly access to a `balm::Collector` object.  The classes and
 // macros supply simplified constructors (that lookup the appropriate
-// 'balm::Collector' instance) and manipulator methods that respect whether the
+// `balm::Collector` instance) and manipulator methods that respect whether the
 // category of the collector is enabled.  Most of the tests can be performed by
-// creating an "oracle" 'balm::Collector' object and verifying that operations
-// performed on a 'balm::Metric' (or with a macro) have the same effect as the
-// same operation performed directly on the "oracle" 'balm::Collector'.
+// creating an "oracle" `balm::Collector` object and verifying that operations
+// performed on a `balm::Metric` (or with a macro) have the same effect as the
+// same operation performed directly on the "oracle" `balm::Collector`.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 9] static balm::Collector *lookupCollector(const bslstl::StringRef&  ,
@@ -77,7 +77,7 @@ using bsl::flush;
 //                       const balm::Metric&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [10] CONCURRENCY TEST: 'balm::Metric'
+// [10] CONCURRENCY TEST: `balm::Metric`
 // [11] USAGE EXAMPLE
 
 // ============================================================================
@@ -136,9 +136,9 @@ typedef bsl::vector<IColSPtr>                    IColSPtrVector;
 //                     CLASSES FOR AND FUNCTIONS TESTING
 // ----------------------------------------------------------------------------
 
+/// Return the current record value of the specified `collector`.
 inline
 balm::MetricRecord recordVal(const balm::Collector *collector)
-    // Return the current record value of the specified 'collector'.
 {
     balm::MetricRecord record;
     collector->load(&record);
@@ -147,8 +147,8 @@ balm::MetricRecord recordVal(const balm::Collector *collector)
 
 // --------------------- case 14: MetricConcurrencyTest -----------------------
 
+/// Invoke a set of operations operations synchronously.
 class MetricConcurrencyTest {
-    // Invoke a set of operations operations synchronously.
 
     // DATA
     bdlmt::FixedThreadPool  d_pool;
@@ -157,8 +157,9 @@ class MetricConcurrencyTest {
     bslmt::Barrier          d_barrier;
 
     // PRIVATE MANIPULATORS
+
+    /// Execute a single test.
     void execute();
-        // Execute a single test.
 
   public:
 
@@ -178,14 +179,15 @@ class MetricConcurrencyTest {
     ~MetricConcurrencyTest() {}
 
     //  MANIPULATORS
+
+    /// Run the test.
     void runTest();
-        // Run the test.
 };
 
 void MetricConcurrencyTest::execute()
 {
     // The test is performed in two parts.  The first part of the test invokes
-    // the manipulators for the 'balm::Metric' under test for a series of
+    // the manipulators for the `balm::Metric` under test for a series of
     // values.  The expected value for the metric can be computed exactly, and
     // the actual value is compared against this expected value.  The second
     // part of the test performs a similar series of operations while enabling
@@ -286,13 +288,13 @@ void MetricConcurrencyTest::runTest()
 // The following examples demonstrate how to configure, collect, and publish
 // metrics.
 //
-///Example 1 - Metric collection with 'balm::Metric'
+///Example 1 - Metric collection with `balm::Metric`
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// We can use 'balm::Metric' objects to record metric values.  In this
+// We can use `balm::Metric` objects to record metric values.  In this
 // example we implement a hypothetical event manager object.  We use
-// 'balm::Metric' objects to record metrics for the size of the request, the
+// `balm::Metric` objects to record metrics for the size of the request, the
 // elapsed processing time, and the number of failures.
-//..
+// ```
     class EventManager {
 
         // DATA
@@ -310,10 +312,11 @@ void MetricConcurrencyTest::runTest()
         {}
 
         // MANIPULATORS
+
+        /// Process the event described by the specified `eventId` and
+        /// `eventMessage` .  Return 0 on success, and a non-zero value
+        /// if there was an error handling the event.
         int handleEvent(int eventId, const bsl::string& eventMessage)
-            // Process the event described by the specified 'eventId' and
-            // 'eventMessage' .  Return 0 on success, and a non-zero value
-            // if there was an error handling the event.
         {
             (void)eventId;
 
@@ -323,7 +326,7 @@ void MetricConcurrencyTest::runTest()
             bsls::Stopwatch stopwatch;
             stopwatch.start();
 
-            // Process 'data' ('returnCode' may change).
+            // Process `data` (`returnCode` may change).
 
             if (0 != returnCode) {
                 d_failedRequests.increment();
@@ -335,7 +338,7 @@ void MetricConcurrencyTest::runTest()
 
     // ...
     };
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -364,7 +367,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -373,42 +376,42 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Usage Example"
                           << "\n=====================" << endl;
 
-///Example 2 - Create and access the default 'balm::MetricsManager' instance
+///Example 2 - Create and access the default `balm::MetricsManager` instance
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to create the default 'balm::MetricManager'
+// This example demonstrates how to create the default `balm::MetricManager`
 // instance and perform a trivial configuration.
 //
-// First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages
+// First we create a `balm::DefaultMetricsManagerScopedGuard`, which manages
 // the lifetime of the default metrics manager instance.  At construction, we
-// provide the scoped guard an output stream ('stdout') that it will publish
+// provide the scoped guard an output stream (`stdout`) that it will publish
 // metrics to.  Note that the default metrics manager is intended to be created
-// and destroyed by the *owner* of 'main'.  An instance of the manager should
+// and destroyed by the *owner* of `main`.  An instance of the manager should
 // be created during the initialization of an application (while the task has a
 // single thread) and destroyed just prior to termination (when there is
 // similarly a single thread).
-//..
+// ```
 //  int main(int argc, char *argv[])
     {
         // ...
 
         balm::DefaultMetricsManagerScopedGuard managerGuard(bsl::cout);
-//..
+// ```
 // Once the default instance has been created, it can be accessed using the
-// 'instance' operation.
-//..
+// `instance` operation.
+// ```
         balm::MetricsManager *manager =
                                        balm::DefaultMetricsManager::instance();
         ASSERT(0 != manager);
-//..
-// Note that the default metrics manager will be released when 'managerGuard'
+// ```
+// Note that the default metrics manager will be released when `managerGuard`
 // exits this scoped and is destroyed.  Clients that choose to explicitly call
-// 'balm::DefaultMetricsManager::create' must also explicitly call
-// 'balm::DefaultMetricsManager::release()'.
+// `balm::DefaultMetricsManager::create` must also explicitly call
+// `balm::DefaultMetricsManager::release()`.
 //
-// Now that we have created a 'balm::MetricsManager' instance, we can use the
+// Now that we have created a `balm::MetricsManager` instance, we can use the
 // instance to publish metrics collected using the event manager described in
 // Example 1:
-//..
+// ```
         EventManager eventManager;
 
         eventManager.handleEvent(0, "ab");
@@ -430,18 +433,18 @@ int main(int argc, char *argv[])
 
         manager->publishAll();
     }
-//..
+// ```
     } break;
       case 10: {
         // --------------------------------------------------------------------
-        // CONCURRENCY TEST: 'balm::Metric'
+        // CONCURRENCY TEST: `balm::Metric`
         //
         // Testing:
-        //     Thread-safety of 'balm::Metric' methods.
+        //     Thread-safety of `balm::Metric` methods.
         //
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TEST CONCURRENCY: 'balm::Metric'" << endl
+        if (verbose) cout << endl << "TEST CONCURRENCY: `balm::Metric`" << endl
                                   << "===============================" << endl;
 
         bslma::TestAllocator defaultAllocator;
@@ -460,10 +463,10 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING: 'lookupCollector'
+        // TESTING: `lookupCollector`
         //
         // Concerns:
-        //   That 'lookupCollector' properly looks up a collector from the
+        //   That `lookupCollector` properly looks up a collector from the
         //   supplied metrics manager, or from the default metrics manager, if
         //   none is supplied.
         //
@@ -480,7 +483,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING: 'lookupCollector'\n"
+                          << "TESTING: `lookupCollector`\n"
                           << "==========================\n";
 
         const char *IDS[] = {"A", "B", "AB", "TEST"};
@@ -535,16 +538,16 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING: 'accumulateCountTotalMinMax'
+        // TESTING: `accumulateCountTotalMinMax`
         //
         // Concerns:
-        //   That 'accumulateCountTotalMinMax' properly invokes the metric's
-        //   collector's 'accumulateCountTotalMinMax' method.
+        //   That `accumulateCountTotalMinMax` properly invokes the metric's
+        //   collector's `accumulateCountTotalMinMax` method.
         //
         // Plan:
         //   Specify a set S of unique object values having various minor or
         //   subtle differences.  For each value create an "oracle" collector,
-        //   invoke 'accumulateCountTotalMinMax' on the metric and the
+        //   invoke `accumulateCountTotalMinMax` on the metric and the
         //   "oracle", and verify the collector underlying the metric has the
         //   same value as the "oracle" collector.
         //
@@ -556,7 +559,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING: 'accumulateCountTotalMinMax'\n"
+                          << "TESTING: `accumulateCountTotalMinMax`\n"
                           << "=====================================\n";
 
         const char *IDS[] = {"A", "B", "AB", "TEST"};
@@ -579,7 +582,7 @@ int main(int argc, char *argv[])
         const int NUM_VALUES = sizeof(VALUES)/sizeof(*VALUES);
 
         if (veryVerbose)
-            cout << "\tverify 'accumulateCountTotalMinMax' is applied "
+            cout << "\tverify `accumulateCountTotalMinMax` is applied "
                  << "correctly.\n";
         {
             balm::MetricsManager mgr(Z);
@@ -610,8 +613,8 @@ int main(int argc, char *argv[])
             }
         }
         if (veryVerbose)
-            cout << "\tverify 'accumulateCountTotalMinMax' respects "
-                 << "'isActive' flag.\n";
+            cout << "\tverify `accumulateCountTotalMinMax` respects "
+                 << "`isActive` flag.\n";
 
         {
             for (int i = 0; i < NUM_IDS; ++i) {
@@ -649,11 +652,11 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING: 'update'
+        // TESTING: `update`
         //
         // Concerns:
-        //   That 'update' properly invokes the metric's collector's
-        //   'update' method.
+        //   That `update` properly invokes the metric's collector's
+        //   `update` method.
         //
         // Plan:
         //   Specify a set S of unique object values having various minor or
@@ -670,7 +673,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING: 'update'\n"
+                          << "TESTING: `update`\n"
                           << "=================\n";
 
         const char *IDS[] = {"A", "B", "AB", "TEST"};
@@ -681,7 +684,7 @@ int main(int argc, char *argv[])
         const int NUM_UPDATES = sizeof(UPDATES)/sizeof(*UPDATES);
 
         if (veryVerbose)
-            cout << "\tverify 'update'  applied correctly.\n";
+            cout << "\tverify `update`  applied correctly.\n";
 
         {
             balm::MetricsManager mgr(Z);
@@ -706,7 +709,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose)
-            cout << "\tverify 'update' respects 'isActive' flag.\n";
+            cout << "\tverify `update` respects `isActive` flag.\n";
 
         {
             for (int i = 0; i < NUM_IDS; ++i) {
@@ -737,12 +740,12 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING: 'increment'
+        // TESTING: `increment`
         //
         // Concerns:
-        //   That 'increment' properly invokes the metric's collector's
-        //   'increment' method.  That 'increment' properly observers the
-        //   categories 'enabled' status.
+        //   That `increment` properly invokes the metric's collector's
+        //   `increment` method.  That `increment` properly observers the
+        //   categories `enabled` status.
         //
         // Plan:
         //   Specify a set S of unique object values having various minor or
@@ -759,14 +762,14 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING: 'increment'\n"
+                          << "TESTING: `increment`\n"
                           << "====================\n";
 
         const char *IDS[] = {"A", "B", "AB", "TEST"};
         const int NUM_IDS = sizeof IDS / sizeof *IDS;
 
         if (veryVerbose)
-            cout << "\tverify 'increment' is applied correctly.\n";
+            cout << "\tverify `increment` is applied correctly.\n";
 
         {
             balm::MetricsManager mgr(Z);
@@ -791,7 +794,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose)
-            cout << "\tverify 'increment' respects 'isActive' flag.\n";
+            cout << "\tverify `increment` respects `isActive` flag.\n";
 
         {
             for (int i = 0; i < NUM_IDS; ++i) {
@@ -893,8 +896,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Specify a set S of unique object values having various minor or
-        //   subtle differences.  Verify the correctness of 'operator==' and
-        //   'operator!=' using all elements (u, v) of the cross product
+        //   subtle differences.  Verify the correctness of `operator==` and
+        //   `operator!=` using all elements (u, v) of the cross product
         //    S X S.
         //
         // Testing:
@@ -932,28 +935,28 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING: 'isActive'
+        // TESTING: `isActive`
         //
         // Concerns:
-        //   That 'isActive' returns 'true' if the collector's category is
-        //   enabled and 'false' if the collector's category is disabled, and
-        //   that 'isActive' always returns 'false' if the metric's collector
+        //   That `isActive` returns `true` if the collector's category is
+        //   enabled and `false` if the collector's category is disabled, and
+        //   that `isActive` always returns `false` if the metric's collector
         //   it is 0.
         //
         // Plan:
         //   Specify a set S of unique object values having various minor or
         //   subtle differences.  For each value, verify that disabling the
-        //   'balm::Category' sets the metric's 'isActive' flag to 'false', and
-        //   that enabling the category sets the metric's 'isActive' flag to
-        //   'true'.  Also verify that a 'balm::Metric' with a null collector
-        //   always returns 'false' for 'isActive'.
+        //   `balm::Category` sets the metric's `isActive` flag to `false`, and
+        //   that enabling the category sets the metric's `isActive` flag to
+        //   `true`.  Also verify that a `balm::Metric` with a null collector
+        //   always returns `false` for `isActive`.
         //
         // Testing:
         //   bool isActive() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING: 'isActive'\n"
+                          << "TESTING: `isActive`\n"
                           << "===================\n";
 
         const char *IDS[] = {"A", "B", "AB", "TEST"};
@@ -1005,16 +1008,16 @@ int main(int argc, char *argv[])
         //   Specify a set S of unique object values having various minor or
         //   subtle differences.
         //
-        //   Create a 'balm::Metric' object for each member of set S without a
+        //   Create a `balm::Metric` object for each member of set S without a
         //   metrics manager or default metrics manager and verify their
         //   collector value is 0.
         //
-        //   Create a 'balm::Metric' object for each member of set S and
+        //   Create a `balm::Metric` object for each member of set S and
         //   explicitly specify the metrics manager.  Verify the collector
         //   value is the correct collector from the metrics manager supplied
         //   at construction.
         //
-        //   Create a default metrics manager.  Then create a 'balm::Metric'
+        //   Create a default metrics manager.  Then create a `balm::Metric`
         //   object for each member of set S without (explicitly) specifying a
         //   metrics manager.  Verify the collector value is the correct
         //   collector from the default metrics manager.
@@ -1140,7 +1143,7 @@ int main(int argc, char *argv[])
             const Id A_ID = A_COL->metricId();
             const Id B_ID = B_COL->metricId();
 
-            if (veryVerbose) cout << "\tTesting 'balm::Metric'" << endl;
+            if (veryVerbose) cout << "\tTesting `balm::Metric`" << endl;
 
             Obj a1("A", "A", &manager);                 const Obj& A1 = a1;
             Obj a2(registry.getId("A", "A"), &manager); const Obj& A2 = a2;

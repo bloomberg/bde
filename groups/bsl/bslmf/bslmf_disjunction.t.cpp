@@ -87,27 +87,27 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING CLASS TEMPLATE 'bsl::disjunction'
+        // TESTING CLASS TEMPLATE `bsl::disjunction`
         //
         // Concerns:
-        //:  1 'disjunction<...>::value' is 'true' iff one of the arguments is
-        //:    'Arg::value == true'.
-        //:
-        //:  2 'disjunction_v<...>' has the same value as
-        //:    'disjunction<...>::value'.
+        //  1. `disjunction<...>::value` is `true` iff one of the arguments is
+        //     `Arg::value == true`.
+        //
+        //  2. `disjunction_v<...>` has the same value as
+        //     `disjunction<...>::value`.
         //
         // Plan:
-        //:  1 Verify the result for all possible arguments permutations for 0,
-        //:    1, 2, and 3 arguments.
-        //:
-        //:  2 Repeat the same tests with 'disjunction_v'.
+        //  1. Verify the result for all possible arguments permutations for 0,
+        //     1, 2, and 3 arguments.
+        //
+        //  2. Repeat the same tests with `disjunction_v`.
         //
         // Testing:
         //   bsl::disjunction
         //   bsl::disjunction_v
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING CLASS TEMPLATE 'bsl::disjunction'"
+        if (verbose) printf("\nTESTING CLASS TEMPLATE `bsl::disjunction`"
                             "\n=========================================\n");
 
         using bsl::disjunction;
@@ -161,10 +161,10 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 The provided utilities are sufficiently functional.
+        // 1. The provided utilities are sufficiently functional.
         //
         // Plan:
-        //: 1 Write any code with 'bsl::disjunction' here.
+        // 1. Write any code with `bsl::disjunction` here.
         //
         // Testing:
         //   BREATHING TEST

@@ -323,20 +323,20 @@ typedef T7 (T7::*TestFunc7CVLNE)(T1, T2, T3, T4, T5, T6, T7)
 //-----------------------------------------------------------------------------
 
 // Define the following function types:
-//..
+// ```
     typedef void (*VoidFunc0)();
-//..
-// and the following 'struct' with the following members:
-//..
+// ```
+// and the following `struct` with the following members:
+// ```
     struct MyTestClass {
         static void voidFunc0() {}
         int func1(int) { return 0; }
         int func2(int, int) { return 1; }
     };
-//..
-// In order to deduce the types of 'voidFunc0' and 'func1', we will use the C++
+// ```
+// In order to deduce the types of `voidFunc0` and `func1`, we will use the C++
 // template system to get two auxiliary functions:
-//..
+// ```
     template <class TYPE>
     void checkNotMemberFunctionPointer(TYPE object)
     {
@@ -356,9 +356,9 @@ typedef T7 (T7::*TestFunc7CVLNE)(T1, T2, T3, T4, T5, T6, T7)
         ASSERT(1 == (bsl::is_same<ResultType, RET>::value));
         ASSERT(1 == (bsl::is_same<ArgumentList, ARGS>::value));
     }
-//..
+// ```
 // The following program should compile and run without errors:
-//..
+// ```
     void usageExample()
     {
         ASSERT(0 == bslmf::IsMemberFunctionPointer<int>::value);
@@ -370,7 +370,7 @@ typedef T7 (T7::*TestFunc7CVLNE)(T1, T2, T3, T4, T5, T6, T7)
         checkMemberFunctionPointer<int, bslmf::TypeList2<int, int> >(
                                                           &MyTestClass::func2);
     }
-//..
+// ```
 
 //=============================================================================
 //                              MAIN PROGRAM

@@ -20,7 +20,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              OVERVIEW
 //                              --------
-// A 'bslmt::FastPostSemaphore' uses an implementation class and hence testing
+// A `bslmt::FastPostSemaphore` uses an implementation class and hence testing
 // the forwarding to the implementation is all that is required.
 // ----------------------------------------------------------------------------
 // CREATORS
@@ -104,11 +104,11 @@ void aSsErT(bool condition, const char *message, int line)
                             // class AnotherClock
                             // ==================
 
+/// `AnotherClock` is a C++11-compatible clock that is very similar to
+/// `bsl::chrono::steady_clock`.  The only difference is that it uses a
+/// different epoch; it begins 10000 "ticks" after the beginning of
+/// `steady_clock`s epoch.
 class AnotherClock {
-    // 'AnotherClock' is a C++11-compatible clock that is very similar to
-    // 'bsl::chrono::steady_clock'.  The only difference is that it uses a
-    // different epoch; it begins 10000 "ticks" after the beginning of
-    // 'steady_clock's epoch.
 
   private:
     typedef bsl::chrono::steady_clock base_clock;
@@ -122,9 +122,10 @@ class AnotherClock {
     static const bool is_steady = base_clock::is_steady;
 
     // CLASS METHODS
+
+    /// Return a time point representing the time since the beginning of the
+    /// epoch.
     static time_point now();
-        // Return a time point representing the time since the beginning of the
-        // epoch.
 };
 
 // CLASS METHODS
@@ -138,10 +139,10 @@ AnotherClock::time_point AnotherClock::now()
                              // class HalfClock
                              // ===============
 
+/// `HalfClock` is a C++11-compatible clock that is very similar to
+/// `bsl::chrono::steady_clock`.  The difference is that it runs "half as
+/// fast" as `steady_clock`.
 class HalfClock {
-    // 'HalfClock' is a C++11-compatible clock that is very similar to
-    // 'bsl::chrono::steady_clock'.  The difference is that it runs "half as
-    // fast" as 'steady_clock'.
 
   private:
     typedef bsl::chrono::steady_clock base_clock;
@@ -155,9 +156,10 @@ class HalfClock {
     static const bool is_steady = base_clock::is_steady;
 
     // CLASS METHODS
+
+    /// Return a time point representing the time since the beginning of the
+    /// epoch.
     static time_point now();
-        // Return a time point representing the time since the beginning of the
-        // epoch.
 };
 
 // CLASS METHODS
@@ -169,13 +171,13 @@ HalfClock::time_point HalfClock::now()
 
 // BDE_VERIFY pragma: pop
 
+/// Wait on the specified `FastPostSemaphore` `mX` for the specified
+/// `secondsToWait` seconds based on the specified `CLOCK`.  If the call to
+/// `timedWait` returns `e_TIMED_OUT`, indicating that a timeout has
+/// occurred, verify that at least that much time has elapsed (measured by
+/// the clock).
 template <class CLOCK>
 int WaitForTimeout(bslmt::FastPostSemaphore& mX, int secondsToWait)
-    // Wait on the specified 'FastPostSemaphore' 'mX' for the specified
-    // 'secondsToWait' seconds based on the specified 'CLOCK'.  If the call to
-    // 'timedWait' returns 'e_TIMED_OUT', indicating that a timeout has
-    // occurred, verify that at least that much time has elapsed (measured by
-    // the clock).
 {
     typename CLOCK::time_point tp = CLOCK::now() +
                                            bsl::chrono::seconds(secondsToWait);
@@ -201,13 +203,14 @@ typedef bslmt::FastPostSemaphore Obj;
 ///- - - - - - - - - - - - -
 // This example illustrates a very simple fixed-size queue where potential
 // clients can push integers to a queue, and later retrieve the integer values
-// from the queue in FIFO order.  Also, 'waitUntilEmpty' is implemented to
-// depict the common usage of 'getDisabledState'.
+// from the queue in FIFO order.  Also, `waitUntilEmpty` is implemented to
+// depict the common usage of `getDisabledState`.
 //
-// First, we define the 'IntQueue' class:
-//..
+// First, we define the `IntQueue` class:
+// ```
+
+    /// FIFO queue of integer values.
     class IntQueue {
-        // FIFO queue of integer values.
 
         // DATA
         bsl::vector<int>         d_data;            // queue values
@@ -223,10 +226,10 @@ typedef bslmt::FastPostSemaphore Obj;
         bsls::AtomicUint         d_popIdx;          // index to pop from
 
         mutable bslmt::Mutex     d_emptyMutex;      // blocking point for
-                                                    // 'waitUntilEmpty'
+                                                    // `waitUntilEmpty`
 
         mutable bslmt::Condition d_emptyCondition;  // condition variable for
-                                                    // 'waitUntilEmpty'
+                                                    // `waitUntilEmpty`
 
         // NOT IMPLEMENTED
         IntQueue(const IntQueue&);
@@ -247,51 +250,54 @@ typedef bslmt::FastPostSemaphore Obj;
         };
 
         // CREATORS
+
+        /// Create an `IntQueue` object with the specified `capacity`.
+        /// Optionally specify a `basicAllocator` used to supply memory.  If
+        /// `basicAllocator` is 0, the currently installed default allocator
+        /// is used.
         explicit
         IntQueue(bsl::size_t capacity, bslma::Allocator *basicAllocator = 0);
-            // Create an 'IntQueue' object with the specified 'capacity'.
-            // Optionally specify a 'basicAllocator' used to supply memory.  If
-            // 'basicAllocator' is 0, the currently installed default allocator
-            // is used.
 
         //! ~IntQueue() = default;
             // Destroy this object.
 
         // MANIPULATORS
+
+        /// Disable dequeueing from this queue.  All subsequent invocations
+        /// of `popFront` and `waitUntilEmpty` will fail immediately.  All
+        /// blocked invocations of `popFront` and `waitUntilEmpty` will fail
+        /// immediately.  If the queue is already dequeue disabled, this
+        /// method has no effect.
         void disablePopFront();
-            // Disable dequeueing from this queue.  All subsequent invocations
-            // of 'popFront' and 'waitUntilEmpty' will fail immediately.  All
-            // blocked invocations of 'popFront' and 'waitUntilEmpty' will fail
-            // immediately.  If the queue is already dequeue disabled, this
-            // method has no effect.
 
+        /// Enable dequeuing.  If the queue is not dequeue disabled, this
+        /// method has no effect.
         void enablePopFront();
-            // Enable dequeuing.  If the queue is not dequeue disabled, this
-            // method has no effect.
 
+        /// Remove the element from the front of this queue and load that
+        /// element into the specified `value`.  If the queue is empty,
+        /// block until it is not empty.  Return 0 on success, and a nonzero
+        /// value if the queue is disabled.
         int popFront(int *value);
-            // Remove the element from the front of this queue and load that
-            // element into the specified 'value'.  If the queue is empty,
-            // block until it is not empty.  Return 0 on success, and a nonzero
-            // value if the queue is disabled.
 
+        /// Append the specified `value` to the back of this queue, blocking
+        /// until either space is available - if necessary - or the queue is
+        /// disabled.  Return 0 on success, and a nonzero value if the queue
+        /// is disabled.
         int pushBack(int value);
-            // Append the specified 'value' to the back of this queue, blocking
-            // until either space is available - if necessary - or the queue is
-            // disabled.  Return 0 on success, and a nonzero value if the queue
-            // is disabled.
 
         // ACCESSORS
+
+        /// Block until all the elements in this queue are removed.  Return
+        /// 0 on success, and a non-zero value if the queue is not empty and
+        /// `isPopFrontDisabled()`.  A blocked thread waiting for the queue
+        /// to empty will return a non-zero value if `disablePopFront` is
+        /// invoked.
         int waitUntilEmpty() const;
-            // Block until all the elements in this queue are removed.  Return
-            // 0 on success, and a non-zero value if the queue is not empty and
-            // 'isPopFrontDisabled()'.  A blocked thread waiting for the queue
-            // to empty will return a non-zero value if 'disablePopFront' is
-            // invoked.
     };
-//..
+// ```
 // Next, implement the queue:
-//..
+// ```
     // CREATORS
     IntQueue::IntQueue(bsl::size_t capacity, bslma::Allocator *basicAllocator)
     : d_data(capacity, basicAllocator)
@@ -370,7 +376,7 @@ typedef bslmt::FastPostSemaphore Obj;
 
         return e_SUCCESS;
     }
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -390,13 +396,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -406,18 +412,18 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-// Then, declare an instance of 'IntQueue':
-//..
+// Then, declare an instance of `IntQueue`:
+// ```
     IntQueue queue(10);
-//..
+// ```
 // Next, populate some values:
-//..
+// ```
     ASSERT(0 == queue.pushBack(5));
     ASSERT(0 == queue.pushBack(7));
     ASSERT(0 == queue.pushBack(3));
-//..
+// ```
 // Now, pop and verify the values:
-//..
+// ```
     int value;
 
     ASSERT(0 == queue.popFront(&value));
@@ -428,31 +434,31 @@ int main(int argc, char *argv[])
 
     ASSERT(0 == queue.popFront(&value));
     ASSERT(3 == value);
-//..
-// Finally, use 'waitUntilEmpty' to verify the queue is empty:
-//..
+// ```
+// Finally, use `waitUntilEmpty` to verify the queue is empty:
+// ```
 //  ASSERT(IntQueue::e_SUCCESS == queue.waitUntilEmpty());
-//..
+// ```
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'clockType'
+        // TESTING `clockType`
         //
         // Concerns:
-        //: 1 'clockType' returns the clock type passed to the constructor.
-        //:
-        //: 2 'clockType' is declared 'const'.
+        // 1. `clockType` returns the clock type passed to the constructor.
+        //
+        // 2. `clockType` is declared `const`.
         //
         // Plan:
-        //: 1 Create a 'const' object, and then query it to make sure that the
-        //:   correct clock type is returned.
+        // 1. Create a `const` object, and then query it to make sure that the
+        //    correct clock type is returned.
         //
         // Testing:
         //   bsls::SystemClockType::Enum clockType() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'clockType'" << endl
+                          << "TESTING `clockType`" << endl
                           << "===================" << endl;
 
         const Obj def;
@@ -480,16 +486,16 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'take' AND 'takeAll'
+        // TESTING `take` AND `takeAll`
         //   Ensure the manipulators forward as expected.
         //
         // Concerns:
-        //: 1 The manipulators forward to the underlying implementation
-        //:   correctly.
+        // 1. The manipulators forward to the underlying implementation
+        //    correctly.
         //
         // Plan:
-        //: 1 Directly verify the result of 'take' and 'takeAll' during a
-        //:   sequence of operations on the semaphore.  (C-1)
+        // 1. Directly verify the result of `take` and `takeAll` during a
+        //    sequence of operations on the semaphore.  (C-1)
         //
         // Testing:
         //   int take(int maximumToTake);
@@ -498,7 +504,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'take' AND 'takeAll'" << endl
+                 << "TESTING `take` AND `takeAll`" << endl
                  << "============================" << endl;
         }
 
@@ -525,15 +531,15 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue'
+        // TESTING `getValue`
         //   Ensure the accessor forwards as expected.
         //
         // Concerns:
-        //: 1 The accessor forwards to the underlying implementation correctly.
+        // 1. The accessor forwards to the underlying implementation correctly.
         //
         // Plan:
-        //: 1 Directly verify the result of 'getValue' throughout a sequence of
-        //:   operations on the semaphore.  (C-1)
+        // 1. Directly verify the result of `getValue` throughout a sequence of
+        //    operations on the semaphore.  (C-1)
         //
         // Testing:
         //   int getValue() const;
@@ -541,7 +547,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'getValue'" << endl
+                 << "TESTING `getValue`" << endl
                  << "==================" << endl;
         }
         {
@@ -556,23 +562,23 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'post', 'timedWait', AND 'wait'
+        // TESTING `post`, `timedWait`, AND `wait`
         //   Ensure the manipulators forward as expected.
         //
         // Concerns:
-        //: 1 The manipulators 'post', 'timedWait, and 'wait' forward to the
-        //:   underlying implementation correctly.
+        // 1. The manipulators `post`, `timedWait, and `wait' forward to the
+        //    underlying implementation correctly.
         //
         // Plan:
-        //: 1 Create semaphores with varying initial count, invoke a
-        //:   manipulator, and directly verify the count using 'tryWait'.
-        //:
-        //: 2 Directly verify the timeout functionality of 'timedWait', the
-        //:   return value of the method, and use 'tryWait' to verify the
-        //:   semaphore count.
-        //:
-        //: 3 Create and disable semaphores and verify the return value of
-        //:   'wait' and 'timedWait'.  (C-1)
+        // 1. Create semaphores with varying initial count, invoke a
+        //    manipulator, and directly verify the count using `tryWait`.
+        //
+        // 2. Directly verify the timeout functionality of `timedWait`, the
+        //    return value of the method, and use `tryWait` to verify the
+        //    semaphore count.
+        //
+        // 3. Create and disable semaphores and verify the return value of
+        //    `wait` and `timedWait`.  (C-1)
         //
         // Testing:
         //   void post();
@@ -584,7 +590,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'post', 'timedWait', AND 'wait'" << endl
+                 << "TESTING `post`, `timedWait`, AND `wait`" << endl
                  << "=======================================" << endl;
         }
 
@@ -671,7 +677,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nDirect test of 'timedWait' concerns." << endl;
+        if (verbose) cout << "\nDirect test of `timedWait` concerns." << endl;
         {
             Obj mX;
 
@@ -730,17 +736,17 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'enable', 'disable', 'getDisabledState', AND 'isDisabled'
+        // TESTING `enable`, `disable`, `getDisabledState`, AND `isDisabled`
         //   Ensure the methods forward as expected.
         //
         // Concerns:
-        //: 1 The methods 'enable', 'disable', 'getDisabledState', and
-        //:   'isDisabled' forward to the underlying implementation correctly.
+        // 1. The methods `enable`, `disable`, `getDisabledState`, and
+        //    `isDisabled` forward to the underlying implementation correctly.
         //
         // Plan:
-        //: 1 Directly verify the effects of 'enable' and 'disable' using
-        //:   'tryWait'.  Using the known state of the semaphore, verify
-        //:   'getDisabledState' and 'isDisabled'.  (C-1)
+        // 1. Directly verify the effects of `enable` and `disable` using
+        //    `tryWait`.  Using the known state of the semaphore, verify
+        //    `getDisabledState` and `isDisabled`.  (C-1)
         //
         // Testing:
         //   void enable();
@@ -752,7 +758,7 @@ int main(int argc, char *argv[])
         if (verbose) {
 //----------^
 cout << endl
-     << "TESTING 'enable', 'disable', 'getDisabledState', AND 'isDisabled'"
+     << "TESTING `enable`, `disable`, `getDisabledState`, AND `isDisabled`"
      << endl
      << "================================================================="
      << endl;
@@ -790,27 +796,27 @@ cout << endl
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'tryWait'
+        // TESTING `tryWait`
         //   Ensure the manipulator forwards as expected.
         //
         // Concerns:
-        //: 1 The method 'tryWait' forwards to the underlying implementation
-        //:   correctly.
+        // 1. The method `tryWait` forwards to the underlying implementation
+        //    correctly.
         //
         // Plan:
-        //: 1 Create semaphores with varying initial count, invoke 'tryWait'
-        //:   and directly verify the results.
-        //:
-        //: 2 Create a semaphore with varying initial count, use the untested
-        //:   'disable' method to disable this semaphore, and verify the result
-        //:   of 'tryWait'.  (C-1)
+        // 1. Create semaphores with varying initial count, invoke `tryWait`
+        //    and directly verify the results.
+        //
+        // 2. Create a semaphore with varying initial count, use the untested
+        //    `disable` method to disable this semaphore, and verify the result
+        //    of `tryWait`.  (C-1)
         //
         // Testing:
         //   int tryWait();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'tryWait'" << endl
+                          << "TESTING `tryWait`" << endl
                           << "=================" << endl;
 
         for (int initialCount = 0; initialCount < 10; ++initialCount) {
@@ -836,14 +842,14 @@ cout << endl
         //   The basic concern is that the constructors operate as expected.
         //
         // Concerns:
-        //: 1 The semaphore count is correctly initialized.
-        //:
-        //: 2 The clock is correctly initialized.
+        // 1. The semaphore count is correctly initialized.
+        //
+        // 2. The clock is correctly initialized.
         //
         // Plan:
-        //: 1 Use the untested 'tryWait' and 'post' to verify the count.  (C-1)
-        //:
-        //: 2 Use the untested 'timedWait' to verify the clock.  (C-2)
+        // 1. Use the untested `tryWait` and `post` to verify the count.  (C-1)
+        //
+        // 2. Use the untested `timedWait` to verify the clock.  (C-2)
         //
         // Testing:
         //   FastPostSemaphore(clockType = e_REALTIME);
@@ -951,11 +957,11 @@ cout << endl
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Instantiate an object and verify basic functionality.  (C-1)
+        // 1. Instantiate an object and verify basic functionality.  (C-1)
         //
         // Testing:
         //   BREATHING TEST

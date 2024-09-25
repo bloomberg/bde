@@ -100,12 +100,13 @@ static bslmt::Mutex coutMutex;
 
 ///Usage
 ///-----
-// 'bslmt::Sluice' is intended to be used to implement other synchronization
-// mechanisms.  In particular, the functionality provided by 'bslmt::Sluice' is
+// `bslmt::Sluice` is intended to be used to implement other synchronization
+// mechanisms.  In particular, the functionality provided by `bslmt::Sluice` is
 // useful for implementing a condition variable:
-//..
+// ```
+
+    /// This class implements a condition variable based on `bslmt::Sluice`.
     class MyCondition {
-        // This class implements a condition variable based on 'bslmt::Sluice'.
 
         // DATA
         bslmt::Sluice d_waitSluice;  // sluice object
@@ -130,7 +131,7 @@ static bslmt::Mutex coutMutex;
             d_waitSluice.signalAll();
         }
     };
-//..
+// ```
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -210,11 +211,11 @@ class EnterPostSleepAndWaitJob {
             // class AnotherClock
             // ==================
 
+/// `AnotherClock` is a C++11-compatible clock that is very similar to
+/// `bsl::chrono::steady_clock`.  The only difference is that it uses a
+/// different epoch; it begins 10000 "ticks" after the beginning of
+/// `steady_clock`s epoch.
 class AnotherClock {
-    // 'AnotherClock' is a C++11-compatible clock that is very similar to
-    // 'bsl::chrono::steady_clock'.  The only difference is that it uses a
-    // different epoch; it begins 10000 "ticks" after the beginning of
-    // 'steady_clock's epoch.
 
   private:
     typedef bsl::chrono::steady_clock base_clock;
@@ -228,9 +229,10 @@ class AnotherClock {
     static const bool is_steady = base_clock::is_steady;
 
     // CLASS METHODS
+
+    /// Return a time point representing the time since the beginning of the
+    /// epoch.
     static time_point now();
-        // Return a time point representing the time since the beginning of the
-        // epoch.
 };
 
 // CLASS METHODS
@@ -244,10 +246,10 @@ AnotherClock::time_point AnotherClock::now()
             // class HalfClock
             // ===============
 
+/// `HalfClock` is a C++11-compatible clock that is very similar to
+/// `bsl::chrono::steady_clock`.  The difference is that it runs "half as
+/// fast" as `steady_clock`.
 class HalfClock {
-    // 'HalfClock' is a C++11-compatible clock that is very similar to
-    // 'bsl::chrono::steady_clock'.  The difference is that it runs "half as
-    // fast" as 'steady_clock'.
 
   private:
     typedef bsl::chrono::steady_clock base_clock;
@@ -261,9 +263,10 @@ class HalfClock {
     static const bool is_steady = base_clock::is_steady;
 
     // CLASS METHODS
+
+    /// Return a time point representing the time since the beginning of the
+    /// epoch.
     static time_point now();
-        // Return a time point representing the time since the beginning of the
-        // epoch.
 };
 
 // CLASS METHODS
@@ -275,12 +278,12 @@ HalfClock::time_point HalfClock::now()
 
 // BDE_VERIFY pragma: pop
 
+/// Wait on the specified `Sluice` `mX` for the specified `secondsToWait`
+/// seconds based on the specified `CLOCK`.  If the call to `timedWait`
+/// returns `e_TIMED_OUT`, indicating that a timeout has occurred, verify
+/// that at least that much time has elapsed (measured by the clock).
 template <class CLOCK>
 int WaitForTimeout(bslmt::Sluice& mX, int secondsToWait)
-    // Wait on the specified 'Sluice' 'mX' for the specified 'secondsToWait'
-    // seconds based on the specified 'CLOCK'.  If the call to 'timedWait'
-    // returns 'e_TIMED_OUT', indicating that a timeout has occurred, verify
-    // that at least that much time has elapsed (measured by the clock).
 {
     typename CLOCK::time_point tp = CLOCK::now() +
                                            bsl::chrono::seconds(secondsToWait);
@@ -296,12 +299,12 @@ int WaitForTimeout(bslmt::Sluice& mX, int secondsToWait)
 namespace {
 namespace u {
 
+/// This `class` is a mechanism for managing the creation and joining of a
+/// group of threads.  It mimics a subset of `bslmt::ThreadGroup`s
+/// functionality for use in this test driver.  Note that it is implemented
+/// here to avoid a dependency on `bslmt_threadgroup`, which would introduce
+/// a test driver cycle.
 class LocalThreadGroup {
-    // This 'class' is a mechanism for managing the creation and joining of a
-    // group of threads.  It mimics a subset of 'bslmt::ThreadGroup's
-    // functionality for use in this test driver.  Note that it is implemented
-    // here to avoid a dependency on 'bslmt_threadgroup', which would introduce
-    // a test driver cycle.
 
     // DATA
     bsl::vector<bslmt::ThreadUtil::Handle>    d_handles;
@@ -370,23 +373,23 @@ int main(int argc, char *argv[])
     switch (test) {  case 0:
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'clockType'
+        // TESTING `clockType`
         //
         // Concerns:
-        //: 1 'clockType' returns the clock type passed to the constructor.
-        //:
-        //: 2 'clockType' is declared 'const'.
+        // 1. `clockType` returns the clock type passed to the constructor.
+        //
+        // 2. `clockType` is declared `const`.
         //
         // Plan:
-        //: 1 Create a 'const' object, and then query it to make sure that the
-        //:   correct clock type is returned.
+        // 1. Create a `const` object, and then query it to make sure that the
+        //    correct clock type is returned.
         //
         // Testing:
         //   bsls::SystemClockType::Enum clockType() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'clockType'" << endl
+                          << "TESTING `clockType`" << endl
                           << "===================" << endl;
 
         const Obj def;
@@ -411,7 +414,7 @@ int main(int argc, char *argv[])
         // STRESS AND ALLOCATOR TEST
         //
         // From many threads, enter and wait.  From the main thread,
-        // continuously signal.  After several seconds, set a 'done' flag,
+        // continuously signal.  After several seconds, set a `done` flag,
         // signal once, and join all threads.
         //
         // Execute this test with a TestAllocator to look for leaks.

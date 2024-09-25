@@ -80,7 +80,7 @@ BSLS_IDENT("$Id: $")
 //     // Return the id of the current selection if the selection is
 //     // defined, and 0 otherwise.
 //
-// }  // close namespace 'mine'
+// }  // close namespace mine
 // ```
 // Also, the `IsChoice` meta-function must be specialized for the
 // `mine::MyChoice` type in the `bdlat_ChoiceFunctions` namespace.

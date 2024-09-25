@@ -23,7 +23,7 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// 'bdlma::BufferImpUtil' provides several static methods for allocating a
+// `bdlma::BufferImpUtil` provides several static methods for allocating a
 // contiguous block of memory from an external buffer.  The address of the
 // allocated memory block depends on several parameters: the current cursor
 // position, the size of the allocation, the alignment strategy (which is
@@ -122,17 +122,19 @@ static bsls::AlignedBuffer<k_BUFFER_SIZE> bufferStorage;
 // This component is typically used by a class that manages a memory buffer.
 // First, suppose we have a class that maintains a linked list of memory
 // blocks, details of which are elided:
-//..
+// ```
+
+    /// ...
     class BlockList {
-        // ...
     };
-//..
-// We can then create our memory manager using 'BlockList':
-//..
+// ```
+// We can then create our memory manager using `BlockList`:
+// ```
+
+    /// This class allocates memory from an internal pool of memory buffers
+    /// using natural alignment.  All allocated memory is managed internally
+    /// by the pool and released when the pool is destroyed.
     class my_SequentialPool {
-        // This class allocates memory from an internal pool of memory buffers
-        // using natural alignment.  All allocated memory is managed internally
-        // by the pool and released when the pool is destroyed.
 
         // DATA
         char                   *d_buffer_p;    // pointer to current buffer
@@ -147,33 +149,36 @@ static bsls::AlignedBuffer<k_BUFFER_SIZE> bufferStorage;
 
       private:
         // PRIVATE MANIPULATORS
+
+        /// Replenish the current buffer with memory that satisfies an
+        /// allocation request having at least the specified `size` (in
+        /// bytes).
         void replenishBuffer(bsls::Types::size_type size);
-            // Replenish the current buffer with memory that satisfies an
-            // allocation request having at least the specified 'size' (in
-            // bytes).
 
       public:
         // CREATORS
-        explicit my_SequentialPool(bslma::Allocator *basicAllocator = 0);
-            // Create a memory pool that dispenses heterogeneous blocks of
-            // memory (of varying, user-specified sizes).  Optionally specify a
-            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-            // 0, the currently installed default allocator is used.
 
+        /// Create a memory pool that dispenses heterogeneous blocks of
+        /// memory (of varying, user-specified sizes).  Optionally specify a
+        /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+        /// 0, the currently installed default allocator is used.
+        explicit my_SequentialPool(bslma::Allocator *basicAllocator = 0);
+
+        /// Destroy this memory pool and release all associated memory.
         ~my_SequentialPool();
-            // Destroy this memory pool and release all associated memory.
 
         // MANIPULATORS
+
+        /// Return the address of a contiguous block of naturally-aligned
+        /// memory of the specified `size` (in bytes).  The behavior is
+        /// undefined unless `0 < size`.
         void *allocate(bsls::Types::size_type size);
-            // Return the address of a contiguous block of naturally-aligned
-            // memory of the specified 'size' (in bytes).  The behavior is
-            // undefined unless '0 < size'.
     };
-//..
+// ```
 // The implementations of the constructor and destructor are elided since
-// 'allocate' alone is sufficient to illustrate the use of
-// 'bdlma::BufferImpUtil':
-//..
+// `allocate` alone is sufficient to illustrate the use of
+// `bdlma::BufferImpUtil`:
+// ```
     void *my_SequentialPool::allocate(bsls::Types::size_type size)
     {
         ASSERT(0 < size);
@@ -184,10 +189,10 @@ static bsls::AlignedBuffer<k_BUFFER_SIZE> bufferStorage;
                                                 d_bufferSize,
                                                 size,
                                                 bsls::Alignment::BSLS_NATURAL);
-//..
-// Note that if there is insufficient space in 'd_buffer_p',
-// 'allocateFromBuffer' returns 0:
-//..
+// ```
+// Note that if there is insufficient space in `d_buffer_p`,
+// `allocateFromBuffer` returns 0:
+// ```
         if (address) {
             return address;                                           // RETURN
         }
@@ -200,10 +205,10 @@ static bsls::AlignedBuffer<k_BUFFER_SIZE> bufferStorage;
                                                 size,
                                                 bsls::Alignment::BSLS_NATURAL);
     }
-//..
+// ```
 // Note that the *raw* version is used because the contract of
-// 'replenishBuffer' guarantees that the buffer will have sufficient space to
-// satisfy the allocation request of the specified 'size'.
+// `replenishBuffer` guarantees that the buffer will have sufficient space to
+// satisfy the allocation request of the specified `size`.
 
 //=============================================================================
 //           Additional Functionality Needed to Complete Usage Test Case
@@ -235,13 +240,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -521,7 +526,7 @@ int main(int argc, char *argv[])
                 P_(EXPOFFSET) P(EXPCURSOR)
             }
 
-            if (veryVerbose) cout << "\tTesting 'allocateFromBuffer'" << endl;
+            if (veryVerbose) cout << "\tTesting `allocateFromBuffer`" << endl;
             {
                 bsls::Types::IntPtr tmpCursor = CURSOR;
 
@@ -566,7 +571,7 @@ int main(int argc, char *argv[])
                                                 &buffer[EXPOFFSET] == address);
             }
 
-            if (veryVerbose) cout << "\tTesting 'allocateFromBufferRaw'"
+            if (veryVerbose) cout << "\tTesting `allocateFromBufferRaw`"
                                   << endl;
             {
                 bsls::Types::IntPtr tmpCursor = CURSOR;

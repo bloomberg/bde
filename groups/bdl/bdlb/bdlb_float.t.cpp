@@ -26,9 +26,9 @@ using namespace BloombergLP;
 // sample will give sufficient confidence in the correctness of the
 // implementation.
 //
-// WARNING: 'bsl::printf' is used in place of 'bsl::cout' because using
-//          'bsl::cout' is causing signaling NaN to quiet NaN conversion for
-//          'float' to fail in AIX optimized builds, for some odd reason.
+// WARNING: `bsl::printf` is used in place of `bsl::cout` because using
+//          `bsl::cout` is causing signaling NaN to quiet NaN conversion for
+//          `float` to fail in AIX optimized builds, for some odd reason.
 // ----------------------------------------------------------------------------
 // [2] static Classification classify(float number);
 // [2] static Classification classify(double number);
@@ -87,8 +87,8 @@ static void aSsErT(int c, const char *s, int i) {
                aSsErT(1, #X, __LINE__); } }
 
 // Allow compilation of individual test-cases (for test drivers that take a
-// very long time to compile).  Specify '-DSINGLE_TEST=<testcase>' to compile
-// only the '<testcase>' test case.
+// very long time to compile).  Specify `-DSINGLE_TEST=<testcase>` to compile
+// only the `<testcase>` test case.
 #define TEST_IS_ENABLED(num) (! defined(SINGLE_TEST) || SINGLE_TEST == (num))
 
 // ============================================================================
@@ -125,7 +125,7 @@ static bool veryVeryVerbose = 0;
 #define TEST_DOUBLE_SIGNALING_NAN
 
 #if defined(BSLS_PLATFORM_CPU_POWERPC)
-// PowerPC starts to "show" 'float' signaling NaN values with xlC 16 compiler,
+// PowerPC starts to "show" `float` signaling NaN values with xlC 16 compiler,
 // but not reliably enough for testing.
 
 # undef TEST_FLOAT_SIGNALING_NAN
@@ -145,32 +145,32 @@ static bool veryVeryVerbose = 0;
 
 typedef bdlb::Float Obj;
 
+/// Convert the specified `x` to its integer representation.
 unsigned int floatToRep(float x)
-    // Convert the specified 'x' to its integer representation.
 {
     unsigned int v;
     bsl::memcpy(&v, &x, sizeof(x));
     return v;
 }
 
+/// Convert the specified `x` to its integer representation.
 unsigned long long doubleToRep(double x)
-    // Convert the specified 'x' to its integer representation.
 {
     unsigned long long v;
     bsl::memcpy(&v, &x, sizeof(x));
     return v;
 }
 
+/// Convert the specified `x` to a `float` from its integer representation.
 float repToFloat(unsigned int x)
-    // Convert the specified 'x' to a 'float' from its integer representation.
 {
     float v;
     bsl::memcpy(&v, &x, sizeof(x));
     return v;
 }
 
+/// Convert the specified `x` to a `double` from its integer representation.
 double repToDouble(unsigned long long x)
-    // Convert the specified 'x' to a 'double' from its integer representation.
 {
     double v;
     bsl::memcpy(&v, &x, sizeof(x));
@@ -185,7 +185,7 @@ double dnzero() { return -0.0;  }
 float  fzero()  { return  0.0F; }
 double dzero()  { return  0.0;  }
 
-// Functions for 'min' and 'max': Avoids constant-folding bug in 'xlC 8':
+// Functions for `min` and `max`: Avoids constant-folding bug in `xlC 8`:
 float  fmin() { return FLT_MIN; }
 float  fmax() { return FLT_MAX; }
 double dmin() { return DBL_MIN; }
@@ -233,13 +233,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -257,10 +257,10 @@ int main(int argc, char *argv[])
 // On platforms that implement the IEEE 754 standard for floating-point
 // arithmetic, dividing a positive number by zero yields positive infinity and
 // dividing a negative number by zero yields negative infinity.  The result of
-// division by zero will therefore be detected as infinite by the 'isInfinite'
-// method and classified as infinity by the 'classify' and 'classifyFine'
+// division by zero will therefore be detected as infinite by the `isInfinite`
+// method and classified as infinity by the `classify` and `classifyFine`
 // methods in this component:
-//..
+// ```
     double zero =  0.0;
     double a    =  2.3  / zero;
     double b    = -0.55 / zero;
@@ -272,17 +272,17 @@ int main(int argc, char *argv[])
     ASSERT(bdlb::Float::k_INFINITE          == bdlb::Float::classify(b));
     ASSERT(bdlb::Float::k_POSITIVE_INFINITY == bdlb::Float::classifyFine(a));
     ASSERT(bdlb::Float::k_NEGATIVE_INFINITY == bdlb::Float::classifyFine(b));
-//..
+// ```
 // Note that the sign rules apply as usual:
-//..
+// ```
     double nzero = -0.0;
     double bn    = -0.55 / nzero;
     ASSERT(bdlb::Float::k_POSITIVE_INFINITY == bdlb::Float::classifyFine(bn));
-//..
+// ```
 // The result of multiplying infinity by infinity is also infinity, but the
 // result of multiplying infinity by zero is an indeterminate value (quiet
 // NaN):
-//..
+// ```
     double c = a * b;
     double d = a * zero;
     ASSERT(true  == bdlb::Float::isInfinite(c));
@@ -290,17 +290,17 @@ int main(int argc, char *argv[])
     ASSERT(true  == bdlb::Float::isNan(d));
     ASSERT(true  == bdlb::Float::isQuietNan(d));
     ASSERT(false == bdlb::Float::isSignalingNan(d));
-//..
+// ```
 // Quiet NaNs propagate such that further calculations also yield quiet NaNs:
-//..
+// ```
     double g = d - 3.4e12;
     ASSERT(false == bdlb::Float::isInfinite(g));
     ASSERT(true  == bdlb::Float::isNan(g));
     ASSERT(true  == bdlb::Float::isQuietNan(g));
-//..
+// ```
 // We can also detect whether a value has full precision (normal) or is so
 // small (close to zero) that precision has been lost (subnormal):
-//..
+// ```
     double e = -10.0 / 11.0;    // Full precision
     double f = e     / DBL_MAX; // Lost precision
     ASSERT(true                     == bdlb::Float::isNormal(e));
@@ -309,21 +309,21 @@ int main(int argc, char *argv[])
     ASSERT(true                     == bdlb::Float::isSubnormal(f));
     ASSERT(bdlb::Float::k_NORMAL    == bdlb::Float::classify(e));
     ASSERT(bdlb::Float::k_SUBNORMAL == bdlb::Float::classify(f));
-//..
-// The 'Classification' enumeration type is designed so that each
+// ```
+// The `Classification` enumeration type is designed so that each
 // classification occupies a separate bit.  This makes it easy to test for
 // multiple classifications in one test.  For example, if we are interested in
 // very that zero or denormalized (i.e., very small), we can detect both
 // conditions with a single mask:
-//..
+// ```
     const int SMALL_MASK = bdlb::Float::k_ZERO | bdlb::Float::k_SUBNORMAL;
     ASSERT(0 != (SMALL_MASK & bdlb::Float::classify(0.0)));
     ASSERT(0 != (SMALL_MASK & bdlb::Float::classify(f)));
     ASSERT(0 == (SMALL_MASK & bdlb::Float::classify(e)));
-//..
+// ```
 // Note, however, that although we can create a mask with several
 // classification bits, a single number belongs to only one classification and
-// the return value of 'classify' will have only one bit set at a time.
+// the return value of `classify` will have only one bit set at a time.
 
       } break;
       case 2: {
@@ -331,18 +331,18 @@ int main(int argc, char *argv[])
         // CLASSIFICATION TEST
         //
         // Concerns:
-        //: 1 Each classification function returns the correct values for a
-        //:   wide range of inputs.
-        //: 2 Each classification function works for both 'float' and 'double'
-        //:   values.
+        // 1. Each classification function returns the correct values for a
+        //    wide range of inputs.
+        // 2. Each classification function works for both `float` and `double`
+        //    values.
         //
         // Plan:
-        //: 1 Choose a set of values spanning the range of each fine-grained
-        //:   classification.  Choose values near the boundaries and use
-        //:   expressions that generate values with known classifications.
-        //: 2 For each value, call each classification function.
-        //: 3 Compare the result of each call to the expected value.
-        //: 4 Perform the test for 'float' and 'double' values.
+        // 1. Choose a set of values spanning the range of each fine-grained
+        //    classification.  Choose values near the boundaries and use
+        //    expressions that generate values with known classifications.
+        // 2. For each value, call each classification function.
+        // 3. Compare the result of each call to the expected value.
+        // 4. Perform the test for `float` and `double` values.
         //
         // Testing:
         //     static Classification classify(float number);
@@ -372,7 +372,7 @@ int main(int argc, char *argv[])
         if (verbose) bsl::printf("\nCLASSIFICATION TEST"
                                  "\n===================\n");
 
-        if (veryVerbose) bsl::printf("Testing 'float'\n");
+        if (veryVerbose) bsl::printf("Testing `float`\n");
 
         static const int X = -1; // Unknown result
 
@@ -392,12 +392,12 @@ int main(int argc, char *argv[])
         static const int POS_ZERO      = Obj::k_POSITIVE_ZERO;
         static const int NEG_ZERO      = Obj::k_NEGATIVE_ZERO;
 
-// This macro tests a function 'bdlb::Float::f(input)', where 'f' is the name
-// of one of the class functions in 'bdlb::Float'.  We assume that there is a
-// local variable, 'input' holding the argument to the function and a local
-// variable, 'f' holding the expected result of the function call.  If the 'f'
+// This macro tests a function `bdlb::Float::f(input)`, where `f` is the name
+// of one of the class functions in `bdlb::Float`.  We assume that there is a
+// local variable, `input` holding the argument to the function and a local
+// variable, `f` holding the expected result of the function call.  If the `f`
 // variable is less than zero, then the result is considered unpredictable and
-// will not be tested.  This corresponds to a value of 'X' in the test vectors.
+// will not be tested.  This corresponds to a value of `X` in the test vectors.
 #define FUNCTION_TEST(f) do { if (f >= 0) { \
     if (veryVeryVerbose) { Pd_(input); Pd(Obj::f(input)) } \
     int expected = (int) f; \
@@ -506,14 +506,14 @@ int main(int argc, char *argv[])
             FUNCTION_TEST_F(classifyFine  );
         }
 
-        if (veryVerbose) bsl::printf("Testing 'double'\n");
+        if (veryVerbose) bsl::printf("Testing `double`\n");
 
-// This macro tests a function 'bdlb::Float::f(input)', where 'f' is the name
-// of one of the class functions in 'bdlb::Float'.  We assume that there is a
-// local variable, 'input' holding the argument to the function and a local
-// variable, 'f' holding the expected result of the function call.  If the 'f'
+// This macro tests a function `bdlb::Float::f(input)`, where `f` is the name
+// of one of the class functions in `bdlb::Float`.  We assume that there is a
+// local variable, `input` holding the argument to the function and a local
+// variable, `f` holding the expected result of the function call.  If the `f`
 // variable is less than zero, then the result is considered unpredictable and
-// will not be tested.  This corresponds to a value of 'X' in the test vectors.
+// will not be tested.  This corresponds to a value of `X` in the test vectors.
 #define FUNCTION_TEST_D(f) do { if (f >= 0) { \
     if (veryVeryVerbose) { PX_(doubleToRep(input)); Pd((long)Obj::f(input)) } \
     int expected = (int) f; \
@@ -621,12 +621,12 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Call each method using ad-hoc values and verify that the return
-        //:   value is as expected.
+        // 1. Call each method using ad-hoc values and verify that the return
+        //    value is as expected.
         //
         // Testing:
         //   BREATHING TEST
@@ -638,7 +638,7 @@ int main(int argc, char *argv[])
         // Assert that this platform uses IEC 559 (IEEE 754) format by
         // converting comparing the of several floating-point numbers against
         // their known bit-representation in IEEE 754 format.  This also tests
-        // the 'toRep' and 'fromRep' functions in the test driver.
+        // the `toRep` and `fromRep` functions in the test driver.
         ASSERT(floatToRep(0.0F)    == 0x00000000U);
         ASSERT(floatToRep(-0.0F)   == 0x80000000U);
         ASSERT(floatToRep(1.0F)    == 0x3f800000U);
@@ -774,10 +774,10 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) {
 #if defined(TEST_FLOAT_SIGNALING_NAN)
-            puts("Will test 'float' signaling NaN");
+            puts("Will test `float` signaling NaN");
 #endif
 #if defined(TEST_DOUBLE_SIGNALING_NAN)
-            puts("Will test 'double' signaling NaN");
+            puts("Will test `double` signaling NaN");
 #endif
 
             Pf(finf);
@@ -800,7 +800,7 @@ int main(int argc, char *argv[])
         }
       } break;
       default: {
-        bsl::printf("WARNING: CASE '%d' NOT FOUND.\n", test);
+        bsl::printf("WARNING: CASE `%d` NOT FOUND.\n", test);
         testStatus = -1;
       } break;
     }

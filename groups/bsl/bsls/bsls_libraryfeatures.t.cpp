@@ -7,19 +7,19 @@
 #include <bsls_keyword.h>
 #include <bsls_platform.h>
 
-#include <stddef.h>  // for 'size_t'
-#include <stdio.h>   // for 'printf', 'puts'
-#include <stdlib.h>  // for 'atoi'
-#include <string>    // for 'pmr::string'
+#include <stddef.h>  // for `size_t`
+#include <stdio.h>   // for `printf`, `puts`
+#include <stdlib.h>  // for `atoi`
+#include <string>    // for `pmr::string`
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV
-    #include <string.h>  // for 'strchr'
+    #include <string.h>  // for `strchr`
 #endif
 
 // Verify assumption that the BASELINE C++11 library includes all of the new
 // library headers not covered by a more specific macro.  Note that we actively
 // #include each header to check for errors, though this could switch to using
-// '__has_include(<header>)' now that we no longer mess with standard include
+// `__has_include(<header>)` now that we no longer mess with standard include
 // files with intercept headers.
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     #include <array>
@@ -153,16 +153,16 @@
 // manually compile-time check for the absence of a feature when the associated
 // macro test is *not* defined by the component.  Note that the component does
 // not require that feature be absent when the macro is undefined.  See
-// {'bsls_libraryfeatures'|Converse Logic}.  These tests are provided as a
+// {`bsls_libraryfeatures`|Converse Logic}.  These tests are provided as a
 // debugging aid and as an investigative tool to discover the presence or
 // absence of these features in libraries that have not yet been evaluated.
 //
 // The compilation of code that uses a feature can be forced by defining (e.g.,
 // on the command line) a macro consisting of the feature macro suffixed by
-// '_FORCE'.  For example, to force a test for the presence of the '<tuple>'
-// type specify '-DBSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE_FORCE' on the command
+// `_FORCE`.  For example, to force a test for the presence of the `<tuple>`
+// type specify `-DBSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE_FORCE` on the command
 // line.  The code associated with that feature will be exposed to the compiler
-// even if 'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE_FORCE' was not defined by this
+// even if `BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE_FORCE` was not defined by this
 // component.
 //
 // Here, *failure* to compile this test driver is an indication that the
@@ -171,11 +171,11 @@
 // to determine whether or not the macro for the feature of interest is
 // defined.
 //
-//: o If defined, then component was correct in defining that macro (and any
-//:   expectation of compiler failure was incorrect).
-//:
-//: o If not defined, the component could be updated to recognize the build
-//:   configuration as providing the feature of interest.
+//  - If defined, then component was correct in defining that macro (and any
+//    expectation of compiler failure was incorrect).
+//
+//  - If not defined, the component could be updated to recognize the build
+//    configuration as providing the feature of interest.
 //
 // TBD Add tests for the new macros (and amendments to existing macros).  See
 //     the macros without test-case numbers below.
@@ -517,13 +517,13 @@ bool   BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV_defined =
                         // case 19
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
-#include <vector> // for 'concepts'
+#include <vector> // for `concepts`
 namespace case19 {
+/// Return `true` if the specified `lhs` and `rhs` are equal.  This function
+/// is used to conform concepts availability.
 template <class TYPE>
 requires std::equality_comparable<TYPE>
 constexpr bool equal(const TYPE& lhs, const TYPE& rhs)
-    // Return 'true' if the specified 'lhs' and 'rhs' are equal.  This function
-    // is used to conform concepts availability.
 {
     return lhs == rhs;
 }
@@ -533,19 +533,19 @@ constexpr bool equal(const TYPE& lhs, const TYPE& rhs)
 
                     // case 13
 
-#include <algorithm> // for 'search'
-#include <utility>   // for 'pair'
+#include <algorithm> // for `search`
+#include <utility>   // for `pair`
 
 namespace case13 {
 
 struct SearcherNull {
 
+    /// Return `std::pair<last, last>` ("needle not found")
+    /// irrespective of the contents of `[first, last)`.  Note that the
+    /// (default) constructor does not allow the specification of a
+    /// "needle".
     std::pair<const char *, const char*> operator()(const char* first,
                                                     const char* last) const;
-        // Return 'std::pair<last, last>' ("needle not found")
-        // irrespective of the contents of '[first, last)'.  Note that the
-        // (default) constructor does not allow the specification of a
-        // "needle".
 };
 
 std::pair<const char *, const char*>
@@ -568,7 +568,7 @@ BSLS_KEYWORD_CONSTEXPR ForwardIterator search(ForwardIterator first,
 
 namespace case12 {
     // We need to portably test whether the begin/end free functions are part
-    // of namespace 'std' when the feature macro is NOT defined, as this will
+    // of namespace `std` when the feature macro is NOT defined, as this will
     // cause failures when BDE code provides its own alternative.
 
 struct TestType {
@@ -580,16 +580,16 @@ struct TestType {
     int *end() { return &d_data; }
 };
 
+/// Return `begin()` for the specified `c`.
 template <class CONTAINER>
 typename CONTAINER::iterator begin(CONTAINER & c)
-    // Return 'begin()' for the specified 'c'.
 {
     return c.begin();
 }
 
+/// Return `end()` for the specified `c`.
 template <class CONTAINER>
 typename CONTAINER::iterator end(CONTAINER & c)
-    // Return 'end()' for the specified 'c'.
 {
     return c.end();
 }
@@ -624,23 +624,23 @@ typename CONTAINER::iterator end(CONTAINER & c)
     #include <utility>
     #include <vector>
 
+    /// Use each of the function templates associated with the
+    /// `BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY` flag in a
+    /// syntactically correct (and semantically meaningless) manner as a
+    /// compile-time test that these templates are available.
     static void useCpp14Algorithms()
-        // Use each of the function templates associated with the
-        // 'BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY' flag in a
-        // syntactically correct (and semantically meaningless) manner as a
-        // compile-time test that these templates are available.
     {
-        // Type defined in '<functional>'
+        // Type defined in `<functional>`
         ASSERT(0x0F == std::bit_not<unsigned char>().operator()(0xF0));
 
-        // Function defined in '<iterator>'
+        // Function defined in `<iterator>`
         std::vector<int> v;
         (void)std::make_reverse_iterator(v.end());
 
-        // Function defined in '<iomanip>'
+        // Function defined in `<iomanip>`
         (void)std::quoted("\"quotes\"");
 
-        // Function defined in '<utility>'
+        // Function defined in `<utility>`
         int X(0);
         int Y = std::exchange(X, 1);    (void)Y;
 
@@ -665,11 +665,11 @@ typename CONTAINER::iterator end(CONTAINER & c)
             d = 6us;
         }
 
-        { // Function defined in '<memory>'
+        { // Function defined in `<memory>`
             std::unique_ptr<int> up = std::make_unique<int>(0);
         }
 
-        { // Functions defined in '<type_traits>'
+        { // Functions defined in `<type_traits>`
             bool b = std::is_null_pointer<int *>::value;
             (void)b;
 
@@ -693,14 +693,14 @@ bool   BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY_defined =
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS) || \
     defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS_FORCE)
 
-    // We have already included '<atomic>' since C++11 baseline is present.
+    // We have already included `<atomic>` since C++11 baseline is present.
 
+    /// Attempt to use all standard names that exist for the feature flag
+    /// `BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS` as a
+    /// compile-time test that these specializations are available.  In
+    /// addition, verify at run-time that these precise bit-size atomics
+    /// have the expected (standard-mandated) `value_type`.
     static void useCpp11PreciseBitwidthAtomics()
-        // Attempt to use all standard names that exist for the feature flag
-        // 'BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS' as a
-        // compile-time test that these specializations are available.  In
-        // addition, verify at run-time that these precise bit-size atomics
-        // have the expected (standard-mandated) 'value_type'.
     {
 #define ASSERT_TYPEMATCH(type1, type2)       \
     ASSERT((std::is_same<type1, type2>::value))
@@ -820,7 +820,7 @@ bool   BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE_defined =
     defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR_FORCE)
 
     #include <tuple>
-    #include <utility> // for 'pair' and 'piecewise_construct'
+    #include <utility> // for `pair` and `piecewise_construct`
 
     std::pair<long, double> p(std::piecewise_construct,
                               std::tuple<int>(1),
@@ -854,39 +854,42 @@ bool   BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR_defined =
                 // class SimpleUniformRandomNumberGenerator
                 // ----------------------------------------
 
+    /// This class defines a simple, easily tested uniform random number
+    /// generator that can be validly used as the third argument to the
+    /// `std::shuffle` function in the `useCpp11Algorithms()` test
+    /// function.
     class SimpleUniformRandomNumberGenerator {
-        // This class defines a simple, easily tested uniform random number
-        // generator that can be validly used as the third argument to the
-        // 'std::shuffle' function in the 'useCpp11Algorithms()' test
-        // function.
 
       public:
         // TYPES
+
+        /// Alias for the type of the values returned by this class.
         typedef unsigned result_type;
-            // Alias for the type of the values returned by this class.
 
         // CLASS METHODS
-        static BSLS_KEYWORD_CONSTEXPR unsigned min();
-            // Return 0, the smallest value returned by 'operator()'.
 
+        /// Return 0, the smallest value returned by `operator()`.
+        static BSLS_KEYWORD_CONSTEXPR unsigned min();
+
+        /// Return the largest value *potentially* returned by `operator()`.
+        /// The C++ standard requires that this returned value be greater
+        /// than the value returned by the `min` method; consequentally,
+        /// this method returns 1 even though `operator()(void)` always
+        /// returns 0.
         static BSLS_KEYWORD_CONSTEXPR unsigned max();
-            // Return the largest value *potentially* returned by 'operator()'.
-            // The C++ standard requires that this returned value be greater
-            // than the value returned by the 'min' method; consequentally,
-            // this method returns 1 even though 'operator()(void)' always
-            // returns 0.
 
         // CREATORS
         //! SimpleUniformRandomNumberGenerator() = default;
-            // Create an 'SimpleUniformRandomNumberGenerator' object.
+            // Create an `SimpleUniformRandomNumberGenerator` object.
 
         //! ~SimpleUniformRandomNumberGenerator() = default;
-            // Destroy this 'SimpleUniformRandomNumberGenerator' object.
+            // Destroy this `SimpleUniformRandomNumberGenerator` object.
 
         // ACCESSORS
+
+        /// Return the next value from this `SimpleUniformNumberGenerator`
+        /// object.  For this generator, that value is always 0.
         unsigned operator()(void) const;
-            // Return the next value from this 'SimpleUniformNumberGenerator'
-            // object.  For this generator, that value is always 0.
     };
 
                 // ========================================
@@ -926,23 +929,23 @@ bool   BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR_defined =
 
     #include <algorithm>
     #include <ios>
-    #include <memory>         // for 'uninitialized_copy_n'
-    #include <numeric>        // for 'iota'
+    #include <memory>         // for `uninitialized_copy_n`
+    #include <numeric>        // for `iota`
     #include <sstream>
 
+    /// Return `true` irrespective of the (ignored) input argument.  Used to
+    /// instantiate function templates in the `useCpp11Algorithms` test
+    /// function.
     static bool unaryPredicate(int)
-        // Return 'true' irrespective of the (ignored) input argument.  Used to
-        // instantiate function templates in the 'useCpp11Algorithms' test
-        // function.
     {
         return true;
     }
 
+    /// Use each of the function templates associated with the
+    /// `BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY` flag in a
+    /// syntactically correct (and semantically meaningless) manner as a
+    /// compile-time test that these templates are available.
     static void useCpp11Algorithms()
-        // Use each of the function templates associated with the
-        // 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' flag in a
-        // syntactically correct (and semantically meaningless) manner as a
-        // compile-time test that these templates are available.
     {
         const int    iarray[]     = { 0, 1, 2 };
         const size_t NUM_ELEMENTS = sizeof  iarray / sizeof *iarray;
@@ -1078,64 +1081,65 @@ using namespace BloombergLP;
 // make features visible only if the required native standard library features
 // are present.
 //
-// For example, the 'tuple'-type is not available in older versions of the
+// For example, the `tuple`-type is not available in older versions of the
 // native standard library.  Suppose we have a utility component that returns
-// an instance of a 'tuple' of values *if* the underlying version of the
+// an instance of a `tuple` of values *if* the underlying version of the
 // standard library provides that type, and yet remain compilable otherwise.
 //
 // First, we conditionally include the header file we will need if we define an
-// interface that returns a 'std::tuple'.
-//..
+// interface that returns a `std::tuple`.
+// ```
     #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
     # ifndef INCLUDED_TUPLE
     # include <tuple>
     # define INCLUDED_TUPLE
     # endif
     #endif // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
-//..
+// ```
 // Then, we declare the methods that will be unconditionally provided by our
 // utility component:
-//..
+// ```
     struct MyStatisticalUtil
     {
         static double     mean(const int *begin, const int *end);
         static int      median(const int *begin, const int *end);
+
+        /// Return the median (mean, variance) of the sequence of values in
+        /// the specified non-empty, semi-open range `[begin, end)`.  The
+        /// behavior is undefined unless `begin < end`.
         static double variance(const int *begin, const int *end);
-            // Return the median (mean, variance) of the sequence of values in
-            // the specified non-empty, semi-open range '[begin, end)'.  The
-            // behavior is undefined unless 'begin < end'.
-//..
-// Now, we conditionally define an interface that returns a 'bsl::type', if
+// ```
+// Now, we conditionally define an interface that returns a `bsl::type`, if
 // that type is available.  Note that, if all three values are needed, calling
 // this interface is more efficient than calling the earlier three individually
 // because the input need be traversed one time, not three.
-//..
+// ```
     #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+        /// Return the median, mean, and variance (in that order) of the
+        /// sequence of values in the specified non-empty, semi-open range
+        /// `[begin, end)`.  The behavior is undefined unless `begin < end`.
         static std::tuple<int, double, double> getMedianMeanVariance(
                                                               const int *begin,
                                                               const int *end);
-            // Return the median, mean, and variance (in that order) of the
-            // sequence of values in the specified non-empty, semi-open range
-            // '[begin, end)'.  The behavior is undefined unless 'begin < end'.
 
     #endif // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 
     };
-//..
+// ```
 // Finally, we find that our code compiles when we build our code against
-// versions of the native standard library that provide a 'tuple' type, *and*
+// versions of the native standard library that provide a `tuple` type, *and*
 // those that do not.  Of course, in the later case the interface that returns
-// a 'tuple' is not defined for the 'MyStatisticalUtil' 'struct'.
+// a `tuple` is not defined for the `MyStatisticalUtil` `struct`.
 
 // ============================================================================
 //                              HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// Print a diagnostic message to standard output if any of the preprocessor
+/// flags of interest are defined, and their value if a value had been set.
+/// An "Enter" and "Leave" message is printed unconditionally so there is
+/// some report even if all of the flags are undefined.
 static void printFlags()
-    // Print a diagnostic message to standard output if any of the preprocessor
-    // flags of interest are defined, and their value if a value had been set.
-    // An "Enter" and "Leave" message is printed unconditionally so there is
-    // some report even if all of the flags are undefined.
 {
     printf("printFlags: Enter\n");
 
@@ -1702,13 +1706,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -1719,26 +1723,26 @@ int main(int argc, char *argv[])
       } break;
       case 24: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD'
+        // TESTING `BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD`
         //
         // Concerns:
-        //: 1 If 'BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD' is defined, the
-        //:   'std::jthread' class is available.
-        //:
-        //: 2 The corresponding standard feature test macro is defined and has
-        //:   a value in the expected range.
+        // 1. If `BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD` is defined, the
+        //    `std::jthread` class is available.
+        //
+        // 2. The corresponding standard feature test macro is defined and has
+        //    a value in the expected range.
         //
         // Plan:
-        //: 1 Make simple use of the 'std::jthread' class name and the member
-        //:   type 'id' to verify its reasonable availability when
-        //:   'BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD' is defined.
+        // 1. Make simple use of the `std::jthread` class name and the member
+        //    type `id` to verify its reasonable availability when
+        //    `BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD` is defined.
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD'\n"
+            printf("TESTING `BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD`\n"
                    "================================================\n");
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER)
@@ -1751,35 +1755,35 @@ int main(int argc, char *argv[])
         ASSERT((std::is_same_v<std::jthread::id, std::thread::id>));
 #else
         if (veryVerbose) {
-            puts("SKIPPED: 'BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD' is not "
+            puts("SKIPPED: `BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD` is not "
                  "defined.");
         }
 #endif
       } break;
       case 23: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER'
+        // TESTING `BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER`
         //
         // Concerns:
-        //: 1 If 'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER' is
-        //:   defined, the 'std::is_corresponding_member' meta function is
-        //:   available.
-        //:
-        //: 2 The corresponding standard feature test macro is defined and has
-        //:   a value in the expected range.
+        // 1. If `BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER` is
+        //    defined, the `std::is_corresponding_member` meta function is
+        //    available.
+        //
+        // 2. The corresponding standard feature test macro is defined and has
+        //    a value in the expected range.
         //
         // Plan:
-        //: 1 Make simple use of the 'std::is_corresponding_member' function
-        //:   template to verify its availability when
-        //:   'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER' is
-        //:   defined.
+        // 1. Make simple use of the `std::is_corresponding_member` function
+        //    template to verify its availability when
+        //    `BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER` is
+        //    defined.
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-         "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER'\n"
+         "TESTING `BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER`\n"
          "================================================================\n");
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER)
@@ -1796,34 +1800,34 @@ int main(int argc, char *argv[])
 #else
         if (veryVerbose) {
             printf("SKIPPED: "
-                   "'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER' "
+                   "`BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER` "
                    "undefined.\n");
         }
 #endif
       } break;
       case 22: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE'
+        // TESTING `BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE`
         //
         // Concerns:
-        //: 1 If 'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE'
-        //:   is defined, the 'std::is_pointer_interconvertible_base_of' and
-        //:   'std::is_pointer_interconvertible_with_class' function templates
-        //:   are available.
+        // 1. If `BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE`
+        //    is defined, the `std::is_pointer_interconvertible_base_of` and
+        //    `std::is_pointer_interconvertible_with_class` function templates
+        //    are available.
         //
         // Plan:
-        //: 1 Make simple use of the 'std::is_pointer_interconvertible_base_of'
-        //:   and 'std::is_pointer_interconvertible_with_class' function
-        //:   templates to verify their availability when
-        //:   'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE' is
-        //:   defined.
+        // 1. Make simple use of the `std::is_pointer_interconvertible_base_of`
+        //    and `std::is_pointer_interconvertible_with_class` function
+        //    templates to verify their availability when
+        //    `BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE` is
+        //    defined.
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-     "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE'\n"
+     "TESTING `BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE`\n"
      "====================================================================\n");
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE)
@@ -1873,20 +1877,20 @@ int main(int argc, char *argv[])
       } break;
       case 21: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE'
+        // TESTING `BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE`
         //
         // Concerns:
-        //: 1 If 'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE'
-        //:   is defined, the 'std::is_layout_compatible'
-        //:   function template is available.
-        //:
-        //: 2 The corresponding standard feature test macro is defined and has
-        //:   a value in the expected range.
+        // 1. If `BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE`
+        //    is defined, the `std::is_layout_compatible`
+        //    function template is available.
+        //
+        // 2. The corresponding standard feature test macro is defined and has
+        //    a value in the expected range.
         //
         // Plan:
-        //: 1 Make simple use of the 'std::is_layout_compatible' function
-        //:   template to verify its availability when
-        //:   'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE' is defined.
+        // 1. Make simple use of the `std::is_layout_compatible` function
+        //    template to verify its availability when
+        //    `BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE` is defined.
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE
@@ -1894,7 +1898,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             printf(
-            "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE'\n"
+            "TESTING `BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE`\n"
             "=============================================================\n");
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE)
@@ -1923,29 +1927,29 @@ int main(int argc, char *argv[])
         if (veryVerbose) {
             printf(
          "SKIPPED: "
-         "'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE' undefined.\n");
+         "`BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE` undefined.\n");
         }
 #endif
         }
       } break;
       case 20: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY'
+        // TESTING `BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY`
         //
         // Concerns:
-        //: 1 If 'BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY' is defined,
-        //:   'std::to_array' is available.
+        // 1. If `BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY` is defined,
+        //    `std::to_array` is available.
         //
         // Plan:
-        //: 1 Make simple use of 'std::to_array' to verify its availability
-        //:   if 'BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY' is defined.
+        // 1. Make simple use of `std::to_array` to verify its availability
+        //    if `BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY` is defined.
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY
         // --------------------------------------------------------------------
 
         if (verbose) {
-            printf("TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY'\n"
+            printf("TESTING `BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY`\n"
                    "=================================================\n");
         }
 
@@ -1979,45 +1983,45 @@ int main(int argc, char *argv[])
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // 'BSLS_LIBRARYFEATURES_HAS_CPP20_*' MISCELLANY
+        // `BSLS_LIBRARYFEATURES_HAS_CPP20_*` MISCELLANY
         //
         // Concerns:
-        //: 1 'BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION' is defined only when the
-        //:   native standard library provides it.
-        //:
-        //: 2 'BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS' is defined only when
-        //:   the native standard library provides it.
-        //:
-        //: 3 'BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES' is defined only when the
-        //:   native standard library provides it.
+        // 1. `BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION` is defined only when the
+        //    native standard library provides it.
         //
-        //: 3 'BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION' is defined only
-        //:   when the native standard library provides it.
-        //:
-        //: 4 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF' is
-        //:   defined only when the native standard library provides it.
-        //:
-        //: 5 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES' is
-        //:   defined only when the native standard library provides it.
-        //:
-        //: 6 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS' is
-        //:   defined only when the native standard library provides it.
-        //:
-        //: 7 'BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS'
-        //:   is defined only when the native standard library provides it.
-        //:
-        //: 8 'BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE' is
-        //:   defined only when the native standard library provides it.
-        //:
-        //: 9 'BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR' is defined only when
-        //:   the native standard library provides it.
-        //:
-        //:10 'BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV' is defined only
-        //:   when the native standard library provides it.
+        // 2. `BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS` is defined only when
+        //    the native standard library provides it.
+        //
+        // 3. `BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES` is defined only when the
+        //    native standard library provides it.
+        //
+        // 3. `BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION` is defined only
+        //    when the native standard library provides it.
+        //
+        // 4. `BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF` is
+        //    defined only when the native standard library provides it.
+        //
+        // 5. `BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES` is
+        //    defined only when the native standard library provides it.
+        //
+        // 6. `BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS` is
+        //    defined only when the native standard library provides it.
+        //
+        // 7. `BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS`
+        //    is defined only when the native standard library provides it.
+        //
+        // 8. `BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE` is
+        //    defined only when the native standard library provides it.
+        //
+        // 9. `BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR` is defined only when
+        //    the native standard library provides it.
+        //
+        // 10. `BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV` is defined only
+        //    when the native standard library provides it.
         //
         // Plan:
-        //: 1 When these macros are defined include the appropriate headers and
-        //:   use the expected names.
+        // 1. When these macros are defined include the appropriate headers and
+        //    use the expected names.
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
@@ -2037,8 +2041,8 @@ int main(int argc, char *argv[])
                           "\n=============================================");
 
         if (verbose) {
+/// Print Macro Defined
 #define PMD(macro_name) P(macro_name##_defined)
-    // Print Macro Defined
 
             PMD(BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION);
             PMD(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS);
@@ -2141,26 +2145,26 @@ int main(int argc, char *argv[])
         // CHARCONV RELATED MACROS
         //
         // Concerns:
-        //: 1 If 'BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV' is defined
-        //:   'BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV' is also defined as
-        //:   they represent levels of support.
-        //:
-        //: 3 When 'BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV' is defined
-        //:   both 'std::to_chars' and 'std::from_chars' overloads exist for
-        //:   all signed and unsigned standard integer types and 'char', as
-        //:   well as the 'std::to_chars_result' and 'std::from_chars_result'
-        //:   types are defined.
-        //:
-        //: 4 When 'BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV' is defined the
-        //:   'std::chars_format' type, as well as 'std::from_chars' and
-        //:   'std::to_chars' overloads exists for all 3 standard floating
-        //:   point types ('float', 'double', 'long double').
+        // 1. If `BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV` is defined
+        //    `BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV` is also defined as
+        //    they represent levels of support.
+        //
+        // 3. When `BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV` is defined
+        //    both `std::to_chars` and `std::from_chars` overloads exist for
+        //    all signed and unsigned standard integer types and `char`, as
+        //    well as the `std::to_chars_result` and `std::from_chars_result`
+        //    types are defined.
+        //
+        // 4. When `BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV` is defined the
+        //    `std::chars_format` type, as well as `std::from_chars` and
+        //    `std::to_chars` overloads exists for all 3 standard floating
+        //    point types (`float`, `double`, `long double`).
         //
         // Plan:
-        //: 1 Macro dependency tests (C-1) use the 'u_*_defined' variables.
-        //: 2 Presence of functions is tested by defining calling lambdas.
-        //: 3 Presence of result types is tested by declarations.
-        //: 4 'std::chars_format' is used as argument in the float lambdas.
+        // 1. Macro dependency tests (C-1) use the `u_*_defined` variables.
+        // 2. Presence of functions is tested by defining calling lambdas.
+        // 3. Presence of result types is tested by declarations.
+        // 4. `std::chars_format` is used as argument in the float lambdas.
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV
@@ -2181,7 +2185,7 @@ int main(int argc, char *argv[])
 
         // C-2
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV
-        // 'std::to_chars' for singed/unsigned integers plus 'char'
+        // `std::to_chars` for singed/unsigned integers plus `char`
         {
             char *FIRST = nullptr;
             char *LAST  = nullptr;
@@ -2244,7 +2248,7 @@ int main(int argc, char *argv[])
             };
         }
 
-        // 'std::from_chars' for singed/unsigned integers plus 'char'
+        // `std::from_chars` for singed/unsigned integers plus `char`
         {
             const char *FIRST = nullptr;
             const char *LAST  = nullptr;
@@ -2321,7 +2325,7 @@ int main(int argc, char *argv[])
 
         // C-3
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV
-        // 'std::to_chars' - for 'float', 'double', and 'long double'
+        // `std::to_chars` - for `float`, `double`, and `long double`
         {
             char *FIRST = nullptr;
             char *LAST  = nullptr;
@@ -2342,7 +2346,7 @@ int main(int argc, char *argv[])
             };
         }
 
-        // 'std::from_chars' - for 'float', 'double', and 'long double'
+        // `std::from_chars` - for `float`, `double`, and `long double`
         {
             const char *FIRST = nullptr;
             const char *LAST  = nullptr;
@@ -2369,24 +2373,24 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // 'BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY'
+        // `BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY`
         //
         // Concerns:
-        //: 1 'BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY' is defined only
-        //:   when the native standard library provides a baseline of C++20
-        //:   library features, including:
-        //:   o 'span'
-        //:   o 'barrier'
-        //:   o 'latch'
-        //:   o 'countingSemaphore'
-        //:   o 'to_array'
-        //:   o 'remove_cvref'
-        //:   o 'type_identity'
+        // 1. `BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY` is defined only
+        //    when the native standard library provides a baseline of C++20
+        //    library features, including:
+        //    - `span`
+        //    - `barrier`
+        //    - `latch`
+        //    - `countingSemaphore`
+        //    - `to_array`
+        //    - `remove_cvref`
+        //    - `type_identity`
         //
         // Plan:
-        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY' is
-        //:   defined include the appropriate headers and use the expected
-        //:   typenames.
+        // 1. When `BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY` is
+        //    defined include the appropriate headers and use the expected
+        //    typenames.
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
@@ -2455,7 +2459,7 @@ int main(int argc, char *argv[])
         {
             typedef int T;
 
-            // Types defined in '<type_traits>'
+            // Types defined in `<type_traits>`
             typedef std::remove_cvref  <T>::type TypeSansCvref;
             typedef std::remove_cvref_t<T>       TypeSansCvref_t;
 
@@ -2465,7 +2469,7 @@ int main(int argc, char *argv[])
         {
             typedef int T;
 
-            // Types defined in '<type_traits>'
+            // Types defined in `<type_traits>`
             typedef std::type_identity  <T>::type TypeIdentity;
             typedef std::type_identity_t<T>       TypeIdentity_t;
 
@@ -2479,17 +2483,17 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // 'BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS'
+        // `BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS`
         //
         // Concerns:
-        //: 1 'BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS' is defined only
-        //:   when the native standard library provides a baseline of C++17
-        //:   library features (empty, data, size).
+        // 1. `BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS` is defined only
+        //    when the native standard library provides a baseline of C++17
+        //    library features (empty, data, size).
         //
         // Plan:
-        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS' is
-        //:   defined include the appropriate headers and use the expected
-        //:   typenames.
+        // 1. When `BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS` is
+        //    defined include the appropriate headers and use the expected
+        //    typenames.
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS
@@ -2513,17 +2517,17 @@ int main(int argc, char *argv[])
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // 'BSLS_LIBRARYFEATURES_HAS_CPP17_*' MISCELLANY
+        // `BSLS_LIBRARYFEATURES_HAS_CPP17_*` MISCELLANY
         //
         // Concerns:
-        //: 1 'BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC' and
-        //:   'BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET' are defined only
-        //:   when the native standard library provides them.
+        // 1. `BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC` and
+        //    `BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET` are defined only
+        //    when the native standard library provides them.
         //
         // Plan:
-        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC' and/or
-        //:   'BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET' are defined
-        //:   include the appropriate headers and use the expected calls.
+        // 1. When `BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC` and/or
+        //    `BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET` are defined
+        //    include the appropriate headers and use the expected calls.
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC
@@ -2585,17 +2589,17 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // 'BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY'
+        // `BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY`
         //
         // Concerns:
-        //: 1 'BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY' is defined only
-        //:   when the native standard library provides a baseline of C++17
-        //:   library features (any, optional, variant, string_view).
+        // 1. `BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY` is defined only
+        //    when the native standard library provides a baseline of C++17
+        //    library features (any, optional, variant, string_view).
         //
         // Plan:
-        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY' is
-        //:   defined include the appropriate headers and use the expected
-        //:   typenames.
+        // 1. When `BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY` is
+        //    defined include the appropriate headers and use the expected
+        //    typenames.
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
@@ -2631,50 +2635,50 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_*' MACROS
+        // `BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_*` MACROS
         //
         // Concerns:
-        //: 1 The 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD' macro is
-        //:   defined when the native library provides a definition for an
-        //:   overload of the 'search' function template that accepts a
-        //:   searcher object, and not otherwise.
-        //:
-        //: 2 The 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS' macro is
-        //:   defined when the native library provides the definition for all
-        //:   of the 'search' functor templates in <functional>, and not
-        //:   otherwise.
-        //:
-        //: 3 The 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS' macro is
-        //:   only defined when the
-        //:   'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD' macro is also
-        //:   defined.  This is a santy check as we know that no implementation
-        //:   exists that would defined the functors but not the algorithm.
+        // 1. The `BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD` macro is
+        //    defined when the native library provides a definition for an
+        //    overload of the `search` function template that accepts a
+        //    searcher object, and not otherwise.
+        //
+        // 2. The `BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS` macro is
+        //    defined when the native library provides the definition for all
+        //    of the `search` functor templates in <functional>, and not
+        //    otherwise.
+        //
+        // 3. The `BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS` macro is
+        //    only defined when the
+        //    `BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD` macro is also
+        //    defined.  This is a santy check as we know that no implementation
+        //    exists that would defined the functors but not the algorithm.
         //
         // Plan:
-        //: 1 In namespace 'case13', define 'SearcherNull', a class that is
-        //:   compatible with the "searcher" concept and an independent
-        //:   definition of the 'search' overload under test.
-        //:
-        //: 2 If 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD' is set,
-        //:   confirm that the overload exists, that it accepts the searcher
-        //:   object, and returns the expected result.
-        //:
-        //: 3 If 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS' is set,
-        //:   confirm that the three native types for searcher objects exist.
-        //:
-        //: 4 If 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD' is *not* set,
-        //:   specify 'using' directives to search for definitions in both the
-        //:   'std' and the 'case13' namespaces.  Then define an
-        //:   an expression using the namespace-unqualified name 'search'.  If
-        //:   there is a definition in the 'std' namespace in addition
-        //:   to the one we planted in namespace 'case13', the test driver will
-        //:   fail to compile (ambiguity error).
-        //:
-        //: 5 If 'BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS' is *not* set
-        //:   set, we do not test for the possible presence of the 'std'
-        //:   functors, because only one of them may be missing, which we
-        //:   cannot test for, or they may be faulty and not indicated for that
-        //:   reason.
+        // 1. In namespace `case13`, define `SearcherNull`, a class that is
+        //    compatible with the "searcher" concept and an independent
+        //    definition of the `search` overload under test.
+        //
+        // 2. If `BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD` is set,
+        //    confirm that the overload exists, that it accepts the searcher
+        //    object, and returns the expected result.
+        //
+        // 3. If `BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS` is set,
+        //    confirm that the three native types for searcher objects exist.
+        //
+        // 4. If `BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD` is *not* set,
+        //    specify `using` directives to search for definitions in both the
+        //    `std` and the `case13` namespaces.  Then define an
+        //    an expression using the namespace-unqualified name `search`.  If
+        //    there is a definition in the `std` namespace in addition
+        //    to the one we planted in namespace `case13`, the test driver will
+        //    fail to compile (ambiguity error).
+        //
+        // 5. If `BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS` is *not* set
+        //    set, we do not test for the possible presence of the `std`
+        //    functors, because only one of them may be missing, which we
+        //    cannot test for, or they may be faulty and not indicated for that
+        //    reason.
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD
@@ -2729,29 +2733,29 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // 'BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS'
+        // `BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS`
         //
         // Concerns:
-        //: 1 The 'BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS' flag is
-        //:   defined when the 'begin' and 'end' function templates are
-        //:   provided by the native standard library.
-        //:
-        //: 2 The 'BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS' flag is not
-        //:   defined unless the 'begin' and 'end' function templates are
-        //:   provided by the native standard library.
+        // 1. The `BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS` flag is
+        //    defined when the `begin` and `end` function templates are
+        //    provided by the native standard library.
+        //
+        // 2. The `BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS` flag is not
+        //    defined unless the `begin` and `end` function templates are
+        //    provided by the native standard library.
         //
         // Plan:
-        //: 1 Write a test type, 'case13::TestType', that has members 'begin'
-        //:   and 'end', returning a correspondingly defined 'iterator_type'.
-        //:
-        //: 2 If the feature macro is defined, explicitly call 'std::begin' and
-        //:   'std::end' to confirm they exist with a compatible signature.
-        //:
-        //: 3 If the feature macro is NOT defined, apply a 'using namespace' to
-        //:   both namespaces 'std' and 'case13', and then call 'begin' and
-        //:   'end'.  The call will be ambiguous and force a compile-time error
-        //:   only if the 'std' functions are also available, indicating that
-        //:   the feature macro should be defined.
+        // 1. Write a test type, `case13::TestType`, that has members `begin`
+        //    and `end`, returning a correspondingly defined `iterator_type`.
+        //
+        // 2. If the feature macro is defined, explicitly call `std::begin` and
+        //    `std::end` to confirm they exist with a compatible signature.
+        //
+        // 3. If the feature macro is NOT defined, apply a `using namespace` to
+        //    both namespaces `std` and `case13`, and then call `begin` and
+        //    `end`.  The call will be ambiguous and force a compile-time error
+        //    only if the `std` functions are also available, indicating that
+        //    the feature macro should be defined.
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS
@@ -2773,7 +2777,7 @@ int main(int argc, char *argv[])
         }
 #else
         {
-            // This will produce ambiguities if 'begin' and 'end' are defined
+            // This will produce ambiguities if `begin` and `end` are defined
             // in both namespaces.
 
             using namespace std;
@@ -2787,23 +2791,23 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // 'BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE'
+        // `BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE`
         //
         // Concerns:
-        //: 1 The 'BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE' flag is
-        //:   defined when related macros
-        //:   'BSLS_LIBRARYFEATURES_HAS_CPP11_BASE_LINE',
-        //:   'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES' and
-        //:   'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES' are also defined.
+        // 1. The `BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE` flag is
+        //    defined when related macros
+        //    `BSLS_LIBRARYFEATURES_HAS_CPP11_BASE_LINE`,
+        //    `BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES` and
+        //    `BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES` are also defined.
         //
         // Plan:
-        //: 1 Confirm the expected relationship between
-        //:   'BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE' and its related
-        //:   macros 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASE_LINE',
-        //:   'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES' and
-        //:   'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES' using the
-        //:   associated conditionally initialized global variables.  See
-        //:   "Global constants for testing invariants" above.
+        // 1. Confirm the expected relationship between
+        //    `BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE` and its related
+        //    macros `BSLS_LIBRARYFEATURES_HAS_CPP11_BASE_LINE`,
+        //    `BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES` and
+        //    `BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES` using the
+        //    associated conditionally initialized global variables.  See
+        //    "Global constants for testing invariants" above.
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
@@ -2830,20 +2834,20 @@ int main(int argc, char *argv[])
         // STANDARD LIBRARY IMPLEMENTATION DETECTION
         //
         // Concerns:
-        //: 1 We detect the expected libraries for the compilers
-        //:
-        //: 2 We detect the right library implementation
+        // 1. We detect the expected libraries for the compilers
+        //
+        // 2. We detect the right library implementation
         //
         // Plan:
-        //: 1 Verify that the compiler type is one of the expected ones for the
-        //:   detected standard library implementation.
-        //:
-        //: 2 Try to include header files that exist only in the given standard
-        //:   library implementation to verify that we actually have that
-        //:   implementation.  This is done in the .cpp file so that it the
-        //:   sanity check is always done.  To find it, search for
-        //:   'Standard library implementation detection verification' in the
-        //:   implementation (.cpp) file.
+        // 1. Verify that the compiler type is one of the expected ones for the
+        //    detected standard library implementation.
+        //
+        // 2. Try to include header files that exist only in the given standard
+        //    library implementation to verify that we actually have that
+        //    implementation.  This is done in the .cpp file so that it the
+        //    sanity check is always done.  To find it, search for
+        //    `Standard library implementation detection verification` in the
+        //    implementation (.cpp) file.
         //
         // Testing:
         //  BSLS_LIBRARYFEATURES_STDCPP_GNU
@@ -2897,31 +2901,31 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // 'BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY'
+        // `BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY`
         //
         // Concerns:
-        //: 1 The 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' flag is
-        //:   defined when the native standard library defines the following
-        //:   functions and types:
-        //:
-        //:   o Type defined in '<functional>'
-        //:     o bit_not
-        //:
-        //:   o Function defined in '<iterator>'
-        //:     o make_reverse_iterator
-        //:
-        //:   o Function defined in '<iomanip>'
-        //:     o quoted
-        //:
-        //:   o UDLs support for '<chrono>'
-        //:
-        //:   o UDLs support for '<complex>'
+        // 1. The `BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY` flag is
+        //    defined when the native standard library defines the following
+        //    functions and types:
+        //
+        //    - Type defined in `<functional>`
+        //      - bit_not
+        //
+        //    - Function defined in `<iterator>`
+        //      - make_reverse_iterator
+        //
+        //    - Function defined in `<iomanip>`
+        //      - quoted
+        //
+        //    - UDLs support for `<chrono>`
+        //
+        //    - UDLs support for `<complex>`
         //
         // Plan:
-        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY' is defined
-        //:   conditionally compile code that includes '<functional>',
-        //:   '<iomanip>', '<iterator>', '<chrono>', '<complex>' and uses each
-        //:   of the listed function templates at least once.
+        // 1. When `BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY` is defined
+        //    conditionally compile code that includes `<functional>`,
+        //    `<iomanip>`, `<iterator>`, `<chrono>`, `<complex>` and uses each
+        //    of the listed function templates at least once.
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
@@ -2943,24 +2947,24 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // 'BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS'
+        // `BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS`
         //
         // Concerns:
-        //: 1 The 'BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS'
-        //:   flag is defined when the native standard library defines the
-        //:   following types:
-        //:
-        //:   o Types defined in '<atomic>'
-        //:
-        //:     o atomic class template and specializations for precise
-        //:       bitwidth integral types
-        //:
-        //:     o atomic class template and specializations for pointer types
+        // 1. The `BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS`
+        //    flag is defined when the native standard library defines the
+        //    following types:
+        //
+        //    - Types defined in `<atomic>`
+        //
+        //      - atomic class template and specializations for precise
+        //        bitwidth integral types
+        //
+        //      - atomic class template and specializations for pointer types
         //
         // Plan:
-        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS' is
-        //:   defined conditionally compile code that includes '<atomic>', and
-        //:   uses each of the listed types at least once.  (C-1)
+        // 1. When `BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS` is
+        //    defined conditionally compile code that includes `<atomic>`, and
+        //    uses each of the listed types at least once.  (C-1)
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
@@ -2981,22 +2985,22 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // 'isblank'
+        // `isblank`
         //
         // Concerns:
-        //: 1 The one-argument form of 'isblank' is available when
-        //:   'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' is defined.
-        //:
-        //: 2 The two-argument locale form of 'isblank' is available when
-        //:   'BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES' is
-        //:   defined.
+        // 1. The one-argument form of `isblank` is available when
+        //    `BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY` is defined.
+        //
+        // 2. The two-argument locale form of `isblank` is available when
+        //    `BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES` is
+        //    defined.
         //
         // Plan:
-        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' is defined
-        //:   compile code that uses the one-argument 'isblank'.
-        //:
-        //: 2 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES' is
-        //:   defined compile code that uses the two-argument 'isblank'.
+        // 1. When `BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY` is defined
+        //    compile code that uses the one-argument `isblank`.
+        //
+        // 2. When `BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES` is
+        //    defined compile code that uses the two-argument `isblank`.
         //
         // Testing:
         //   int std::isblank(int);
@@ -3013,43 +3017,43 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         if (verbose) {
-            printf("Expecting 'isblank' from <cctype>\n");
+            printf("Expecting `isblank` from <cctype>\n");
         }
         (void)static_cast<int (*)(int)>(&std::isblank);
 #else
         if (verbose) {
-            printf("Not expecting 'isblank' from <cctype>\n");
+            printf("Not expecting `isblank` from <cctype>\n");
         }
 #endif
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
         if (verbose) {
-            printf("Expecting 'isblank' from <locale>\n");
+            printf("Expecting `isblank` from <locale>\n");
         }
         (void)static_cast<bool (*)(char, const std::locale&)>(&std::isblank);
 #else
         if (verbose) {
-            printf("Not expecting 'isblank' from <locale>\n");
+            printf("Not expecting `isblank` from <locale>\n");
         }
 #endif
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // 'BSLS_LIBRARYFEATURES_HAS_C99_*'
+        // `BSLS_LIBRARYFEATURES_HAS_C99_*`
         //
         // Concerns:
-        //: 1 'BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY' is defined only when the
-        //:   native standard library provides C99 features.
-        //:
-        //: 2 'BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF' is defined only when the
-        //:   native standard library provides C99 'snprintf'.
+        // 1. `BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY` is defined only when the
+        //    native standard library provides C99 features.
+        //
+        // 2. `BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF` is defined only when the
+        //    native standard library provides C99 `snprintf`.
         //
         //
         // Plan:
-        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY' is defined compile
-        //:   code that uses C99 library functions.
-        //:
-        //: 2 If 'BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF' is defined compile
-        //:   code using 'snprintf'.
+        // 1. When `BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY` is defined compile
+        //    code that uses C99 library functions.
+        //
+        // 2. If `BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF` is defined compile
+        //    code using `snprintf`.
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
@@ -3101,27 +3105,27 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // 'BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR'
+        // `BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR`
         //
         // Concerns:
-        //: 1 'BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR' is defined only when
-        //:   the native standard library defines the 'unique_ptr' class
-        //:   template (in '<memory>').
+        // 1. `BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR` is defined only when
+        //    the native standard library defines the `unique_ptr` class
+        //    template (in `<memory>`).
         //
-        //: 2 If 'BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR' is defined then
-        //:   the related macro
-        //:   'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES' is also
-        //:   defined.
+        // 2. If `BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR` is defined then
+        //    the related macro
+        //    `BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES` is also
+        //    defined.
         //
         // Plan:
-        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR' is defined
-        //:   compile code that includes '<memory>' and constructs a
-        //:   'unique_ptr' object to an 'int'.
-        //:
-        //: 2 If 'BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR' is defined confirm
-        //:   that 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES' is also
-        //:   defined using the associated conditionally initialized global
-        //:   variables.  See "Global constants for testing invariants" above.
+        // 1. When `BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR` is defined
+        //    compile code that includes `<memory>` and constructs a
+        //    `unique_ptr` object to an `int`.
+        //
+        // 2. If `BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR` is defined confirm
+        //    that `BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES` is also
+        //    defined using the associated conditionally initialized global
+        //    variables.  See "Global constants for testing invariants" above.
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
@@ -3142,24 +3146,24 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // 'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE'
+        // `BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE`
         //
         // Concerns:
-        //: 1 'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE' is defined only when the
-        //:   native standard library defines the '<tuple>' class template.
-        //:
-        //: 2 If 'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE' is defined then the
-        //:   related macro 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'
-        //:   is also defined.
+        // 1. `BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE` is defined only when the
+        //    native standard library defines the `<tuple>` class template.
+        //
+        // 2. If `BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE` is defined then the
+        //    related macro `BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES`
+        //    is also defined.
         //
         // Plan:
-        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE' is defined compile
-        //:   code that includes '<tuple>' and constructs a 'tuple' object.
-        //:
-        //: 2 If 'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE' is defined confirm that
-        //:   'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES' is also
-        //:   defined using the associated conditionally initialized global
-        //:   variables.  See "Global constants for testing invariants" above.
+        // 1. When `BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE` is defined compile
+        //    code that includes `<tuple>` and constructs a `tuple` object.
+        //
+        // 2. If `BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE` is defined confirm that
+        //    `BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES` is also
+        //    defined using the associated conditionally initialized global
+        //    variables.  See "Global constants for testing invariants" above.
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
@@ -3180,33 +3184,33 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // 'BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR'
+        // `BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR`
         //
         // Concerns:
-        //: 1 The 'BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR'
-        //:   flag is defined when the native standard library defines for its
-        //:   'pair' class template (defined in '<utility>') a constructor that
-        //:   accepts as arguments 'std::piecewise_construct' (also
-        //:   defined in '<utility>' followed by two 'tuple' arguments.
-        //:
-        //: 2 If 'BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR' is
-        //:   defined then related macros
-        //:   'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE'
-        //:   'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES' are also
-        //:   defined.
+        // 1. The `BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR`
+        //    flag is defined when the native standard library defines for its
+        //    `pair` class template (defined in `<utility>`) a constructor that
+        //    accepts as arguments `std::piecewise_construct` (also
+        //    defined in `<utility>` followed by two `tuple` arguments.
+        //
+        // 2. If `BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR` is
+        //    defined then related macros
+        //    `BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE`
+        //    `BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES` are also
+        //    defined.
         //
         // Plan:
-        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR'
-        //:   is defined conditionally compile code that includes '<utility>',
-        //:   '<tuple>' and creates an object using the constructor specified
-        //:   in C-1.
-        //:
-        //: 2 Confirm the expected relationship between
-        //:   'BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR' and
-        //:   its related macros 'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE'
-        //:   'BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR' using the associated
-        //:   conditionally initialized global variables.  See "Global
-        //:   constants for testing invariants" above.
+        // 1. When `BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR`
+        //    is defined conditionally compile code that includes `<utility>`,
+        //    `<tuple>` and creates an object using the constructor specified
+        //    in C-1.
+        //
+        // 2. Confirm the expected relationship between
+        //    `BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR` and
+        //    its related macros `BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE`
+        //    `BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR` using the associated
+        //    conditionally initialized global variables.  See "Global
+        //    constants for testing invariants" above.
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
@@ -3229,103 +3233,103 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY'
+        // `BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY`
         //
         // Concerns:
-        //: 1 The 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' flag is
-        //:   defined when the native standard library defines the following
-        //:   functions and types:
-        //:
-        //:   o Functions defined in '<algorithm>'
-        //:     o 'all_of'
-        //:     o 'any_of'
-        //:     o 'copy_if'
-        //:     o 'copy_n'
-        //:     o 'find_if_not'
-        //:     o 'is_heap'
-        //:     o 'is_heap_until'
-        //:     o 'is_partitioned'
-        //:     o 'is_permutation'
-        //:     o 'is_sorted'
-        //:     o 'is_sorted_until'
-        //:     o 'minmax'
-        //:     o 'minmax_element'
-        //:     o 'move'
-        //:     o 'move_backward'
-        //:     o 'none_of'
-        //:     o 'partition_copy'
-        //:     o 'partition_point'
-        //:     o 'shuffle'
-        //:
-        //:   o Types defined in '<atomic>'
-        //:     o atomic class template and specializations for integral types
-        //:
-        //:   o Functions defined in '<functional>'
-        //:     o 'bind'
-        //:     o 'bit_and'
-        //:     o 'bit_or'
-        //:     o 'bit_xor'
-        //:     o 'cref'
-        //:     o 'is_bind_expression'
-        //:     o 'is_placeholder'
-        //:     o 'mem_fn'
-        //:     o 'ref'
-        //:     o 'reference_wrapper'
-        //:
-        //:   o Functions defined in '<iomanip>'
-        //:     o 'get_money'
-        //:     o 'put_money'
-        //:
-        //:   o Functions and types defined in '<ios>'
-        //:     o 'io_errc'
-        //:     o 'iostream_category'
-        //:     o 'is_error_code_enum'
-        //:     o 'make_error_code'
-        //:     o 'make_error_condition'
-        //:     o 'hexfloat'
-        //:     o 'defaultfloat'
-        //:
-        //:   o Functions defined in '<iterator>'
-        //:     o 'begin'
-        //:     o 'end'
-        //:     o 'move_iterator'
-        //:     o 'make_move_iterator'
-        //:     o 'next'
-        //:     o 'prev'
-        //:
-        //:   o Function defined in '<locale>'
-        //:     o 'isblank'
-        //:
-        //:   o Function defined in '<memory>'
-        //:     o 'addressof';
-        //:     o 'uninitialized_copy_n'
-        //:
-        //:   o Function defined in '<numeric>'
-        //:     o 'iota'
-        //:
-        //:   o Member function defined in '<typeinfo>'
-        //:     o 'type_info::hash_code'
-        //:
-        //:   o Function defined in '<utility>'
-        //:     o 'swap'
+        // 1. The `BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY` flag is
+        //    defined when the native standard library defines the following
+        //    functions and types:
+        //
+        //    - Functions defined in `<algorithm>`
+        //      - `all_of`
+        //      - `any_of`
+        //      - `copy_if`
+        //      - `copy_n`
+        //      - `find_if_not`
+        //      - `is_heap`
+        //      - `is_heap_until`
+        //      - `is_partitioned`
+        //      - `is_permutation`
+        //      - `is_sorted`
+        //      - `is_sorted_until`
+        //      - `minmax`
+        //      - `minmax_element`
+        //      - `move`
+        //      - `move_backward`
+        //      - `none_of`
+        //      - `partition_copy`
+        //      - `partition_point`
+        //      - `shuffle`
+        //
+        //    - Types defined in `<atomic>`
+        //      - atomic class template and specializations for integral types
+        //
+        //    - Functions defined in `<functional>`
+        //      - `bind`
+        //      - `bit_and`
+        //      - `bit_or`
+        //      - `bit_xor`
+        //      - `cref`
+        //      - `is_bind_expression`
+        //      - `is_placeholder`
+        //      - `mem_fn`
+        //      - `ref`
+        //      - `reference_wrapper`
+        //
+        //    - Functions defined in `<iomanip>`
+        //      - `get_money`
+        //      - `put_money`
+        //
+        //    - Functions and types defined in `<ios>`
+        //      - `io_errc`
+        //      - `iostream_category`
+        //      - `is_error_code_enum`
+        //      - `make_error_code`
+        //      - `make_error_condition`
+        //      - `hexfloat`
+        //      - `defaultfloat`
+        //
+        //    - Functions defined in `<iterator>`
+        //      - `begin`
+        //      - `end`
+        //      - `move_iterator`
+        //      - `make_move_iterator`
+        //      - `next`
+        //      - `prev`
+        //
+        //    - Function defined in `<locale>`
+        //      - `isblank`
+        //
+        //    - Function defined in `<memory>`
+        //      - `addressof`;
+        //      - `uninitialized_copy_n`
+        //
+        //    - Function defined in `<numeric>`
+        //      - `iota`
+        //
+        //    - Member function defined in `<typeinfo>`
+        //      - `type_info::hash_code`
+        //
+        //    - Function defined in `<utility>`
+        //      - `swap`
         //
         // Plan:
-        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' is defined
-        //:   run the 'testSimpleUniformRandomNumberGenerator' function to
-        //:   confirm that the helper class
-        //:   'SimpleUniformRandomNumberGenerator' -- used in the test of the
-        //:   'std::shuffle' function -- works as expected.
-        //:
-        //: 2 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' is defined
-        //:   conditionally compile code that includes '<algorithm>',
-        //:   '<atomic>', '<functional>', '<iomanip>', '<iterator>',
-        //:   '<locale>', '<memory>', '<numeric>', '<utility>' and uses each of
-        //:   the listed function templates at least once.
-        //:
-        //: 3 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' is defined
-        //:   conditionally compile code that includes '<typeindex>' and verify
-        //:   the 'hash_code' method is available in both 'type_info' and
-        //:   'type_index'.
+        // 1. When `BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY` is defined
+        //    run the `testSimpleUniformRandomNumberGenerator` function to
+        //    confirm that the helper class
+        //    `SimpleUniformRandomNumberGenerator` -- used in the test of the
+        //    `std::shuffle` function -- works as expected.
+        //
+        // 2. When `BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY` is defined
+        //    conditionally compile code that includes `<algorithm>`,
+        //    `<atomic>`, `<functional>`, `<iomanip>`, `<iterator>`,
+        //    `<locale>`, `<memory>`, `<numeric>`, `<utility>` and uses each of
+        //    the listed function templates at least once.
+        //
+        // 3. When `BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY` is defined
+        //    conditionally compile code that includes `<typeindex>` and verify
+        //    the `hash_code` method is available in both `type_info` and
+        //    `type_index`.
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
@@ -3356,23 +3360,23 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR'
+        // `BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR`
         //
         // Concerns:
-        //: 1 The 'BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR' flag is defined
-        //:   when the native standard library defines type
-        //:   'std::auto_ptr' template in '<memory>'.
-        //:
-        //: 2 The 'BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR' macro is set on all
-        //:   platforms (until C++17).
+        // 1. The `BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR` flag is defined
+        //    when the native standard library defines type
+        //    `std::auto_ptr` template in `<memory>`.
+        //
+        // 2. The `BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR` macro is set on all
+        //    platforms (until C++17).
         //
         // Plan:
-        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR' is defined
-        //:   conditionally compile code that includes '<memory>' and
-        //:   constructs 'std::auto_ptr' object for 'int'.
-        //:
-        //: 2 Confirm the value of the conditionally compiled global variable
-        //:   'BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR_defined' is 'true'.
+        // 1. When `BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR` is defined
+        //    conditionally compile code that includes `<memory>` and
+        //    constructs `std::auto_ptr` object for `int`.
+        //
+        // 2. Confirm the value of the conditionally compiled global variable
+        //    `BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR_defined` is `true`.
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR
@@ -3403,16 +3407,16 @@ int main(int argc, char *argv[])
       } break;
       case -1: {
         // --------------------------------------------------------------------
-        // 'BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT'
+        // `BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT`
         //
         // Concerns:
-        //: 1 The 'BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT' must never be
-        //:   defined.
+        // 1. The `BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT` must never be
+        //    defined.
         //
         // Plan:
-        //: 1 Confirm the value of the conditionally compiled global variable
-        //:   'BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT_defined' is
-        //:   'false'.
+        // 1. Confirm the value of the conditionally compiled global variable
+        //    `BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT_defined` is
+        //    `false`.
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: obsolescent: never

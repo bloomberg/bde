@@ -9,8 +9,8 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
 
-#include <cstdio>   // 'printf'
-#include <cstdlib>  // 'atoi'
+#include <cstdio>   // `printf`
+#include <cstdlib>  // `atoi`
 
 #ifdef BDE_VERIFY
 // Suppress some pedantic bde_verify checks in this test driver
@@ -30,11 +30,11 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 //                                   Overview
 //                                   --------
-// 'CopyMoveTracker' retains a limited history of move and copy operations.
+// `CopyMoveTracker` retains a limited history of move and copy operations.
 // Testing consists of ensuring that each constructor and method maintains and
-// reports this history correctly.  The 'setCopyMoveState' manipulator can put
+// reports this history correctly.  The `setCopyMoveState` manipulator can put
 // an object into any valid state, and thus can be used to establish a starting
-// condition for each test.  Because 'CopyMoveState' is designed to be
+// condition for each test.  Because `CopyMoveState` is designed to be
 // inherited from, limited tests are performed using derived classes;
 // specifically, constructing from a derived-class object should track the
 // copy/move history appropriately.
@@ -134,8 +134,8 @@ typedef bsltf::CopyMoveTracker Obj;
 typedef bsltf::CopyMoveState   CMS;
 typedef CMS::Enum              Enum;
 
+/// Class that uses a `CopyMoveTracker`.
 class Client {
-    // Class that uses a 'CopyMoveTracker'.
 
     typedef bslmf::MovableRefUtil MoveUtil;
 
@@ -160,11 +160,11 @@ class Client {
 #endif
 };
 
+/// Class inherited from `CopyMoveTracker`.  The psuedo-accessor
+/// `CopyMoveState::get` and psuedo-manipulator `CopyMoveState::set` work
+/// automatically as a consequence of this inheritance and do not need to be
+/// customized for this class.
 class DerivedClient : public Obj {
-    // Class inherited from 'CopyMoveTracker'.  The psuedo-accessor
-    // 'CopyMoveState::get' and psuedo-manipulator 'CopyMoveState::set' work
-    // automatically as a consequence of this inheritance and do not need to be
-    // customized for this class.
 
     typedef bslmf::MovableRefUtil MoveUtil;
 
@@ -217,15 +217,15 @@ const std::size_t NUM_VALID_STATES = sizeof(VALID_STATE_LIST) / sizeof(Enum);
 // moves and copies.
 //
 // First, we define the class and it's data members, including a
-// 'CopyMoveTracker' to keep track of the moves and copies:
-//..
+// `CopyMoveTracker` to keep track of the moves and copies:
+// ```
     class TrackedValue {
         bsltf::CopyMoveTracker d_tracker;
         int                    d_value;
-//..
-// Next, we define the constructors for 'TrackedValue' such that they forward
-// appropriately the 'CopyMoveTracker' member appropriately:
-//..
+// ```
+// Next, we define the constructors for `TrackedValue` such that they forward
+// appropriately the `CopyMoveTracker` member appropriately:
+// ```
       public:
         explicit TrackedValue(int v = 0) : d_tracker(), d_value(v) { }
         TrackedValue(const TrackedValue& original)
@@ -240,28 +240,28 @@ const std::size_t NUM_VALID_STATES = sizeof(VALID_STATE_LIST) / sizeof(Enum);
             d_value = originalLvalue.d_value;
             originalLvalue.d_value = -1;
         }
-//..
+// ```
 // For this example, we don't need to define the assignment operators, but
 // their implemenation would be similar to the corresponding constructors.
 //
 // Next, we define an accessor to return the value of our tracked value.
-//..
+// ```
         int value() const { return d_value; }
-//..
-// Then, we define a hidden friend function, 'copyMoveState', that returns the
+// ```
+// Then, we define a hidden friend function, `copyMoveState`, that returns the
 // copy/move state.  This friend function is an ADL customization point that
-// allows 'CopyMoveState::get(obj)' to return the copy/move state when 'obj' is
+// allows `CopyMoveState::get(obj)` to return the copy/move state when `obj` is
 // a tracked value and allows boolean psuedo-accessors such as
-// 'CopyMoveState::isMovedFrom(obj)' to query the copy/move state:
-//..
+// `CopyMoveState::isMovedFrom(obj)` to query the copy/move state:
+// ```
         friend bsltf::CopyMoveState::Enum copyMoveState(const TrackedValue& v)
             { return v.d_tracker.copyMoveState(); }
     };
-//..
-// Next, we define equality-comparison operators for 'TrackedValue'.  Note that
+// ```
+// Next, we define equality-comparison operators for `TrackedValue`.  Note that
 // only the value attribute is compared; the copy/move state is not a salient
 // attribute of the class and is thus not part of its value:
-//..
+// ```
     bool operator==(const TrackedValue &a, const TrackedValue &b)
     {
         return a.value() == b.value();
@@ -272,39 +272,39 @@ const std::size_t NUM_VALID_STATES = sizeof(VALID_STATE_LIST) / sizeof(Enum);
     {
         return a.value() != b.value();
     }
-//..
-// Now we use 'TrackedValue' in a program, beginning by constructing a
+// ```
+// Now we use `TrackedValue` in a program, beginning by constructing a
 // variable.  The variable is in the not-copied-or-moved state:
-//..
+// ```
     void usageExample1()
     {
         TrackedValue tv1(99);
         ASSERT(99 == tv1.value());
         ASSERT(bsltf::CopyMoveState::isOriginal(tv1));
-//..
-// Finally, we make a copy of our 'TrackedValue' variable.  The copy is in a
-// copied-into state, but it still has the same *value* as 'tv1':
-//..
+// ```
+// Finally, we make a copy of our `TrackedValue` variable.  The copy is in a
+// copied-into state, but it still has the same *value* as `tv1`:
+// ```
         TrackedValue tv2(tv1);
         ASSERT(99 == tv2.value());
         ASSERT(bsltf::CopyMoveState::isCopiedInto(tv2));
         ASSERT(bsltf::CopyMoveState::isCopiedNonconstInto(tv2));
         ASSERT(tv2 == tv1);
     }
-//..
+// ```
 //
 ///Example 2: Testing a wrapper template
 /// - - - - - - - - - - - - - - - - - -
-// In this example, we test a simple wrapper template, 'CountedWrapper<T>',
-// that holds an object of type 'T' and counts the number of such wrapper
+// In this example, we test a simple wrapper template, `CountedWrapper<T>`,
+// that holds an object of type `T` and counts the number of such wrapper
 // object currently live in the program.  We begin by sketching the wrapper
 // template being tested (with unnecessary details left out):
-//..
+// ```
 //  #include <bslmf_util.h>
 
+    /// Hold an object of `TYPE` and count the number of objects.
     template <class TYPE>
     class CountedWrapper {
-        // Hold an object of 'TYPE' and count the number of objects.
 
         // CLASS DATA
         static int s_count;
@@ -319,11 +319,11 @@ const std::size_t NUM_VALID_STATES = sizeof(VALID_STATE_LIST) / sizeof(Enum);
         // CREATORS
         CountedWrapper() { ++s_count; }
 
+        /// Construct the wrapped object by forwarding the specified
+        /// `ctorArg` to the constructor for `TYPE`.
         template <class ARG>
         explicit
         CountedWrapper(BSLS_COMPILERFEATURES_FORWARD_REF(ARG) ctorArg)
-            // Construct the wrapped object by forwarding the specified
-            // 'ctorArg' to the constructor for 'TYPE'.
             : d_object(BSLS_COMPILERFEATURES_FORWARD(ARG, ctorArg))
             { ++s_count; }
 
@@ -337,20 +337,20 @@ const std::size_t NUM_VALID_STATES = sizeof(VALID_STATE_LIST) / sizeof(Enum);
 
     template <class TYPE>
     int CountedWrapper<TYPE>::s_count = 0;
-//..
-// Next, we instantiat our wrapper with the 'TrackedValue' class from Example 1
+// ```
+// Next, we instantiat our wrapper with the `TrackedValue` class from Example 1
 // so that we can track whether the argument passed to the wrapper constructor
 // is correctly passed to the wrapped object, including preserving its value
 // category:
-//..
+// ```
     typedef CountedWrapper<TrackedValue> WrappedValue;
-//..
+// ```
 // Next, we check that a value-constructed wrapper results in a tracked value
 // that has not be copied or moved; i.e., no temporaries were created and then
 // copied.  Checking the copy/move state requires calling static methods of
-// 'bsltf::CopyMoveState'; we make such calls terser by defining 'Cms' as an
-// abbreviation for 'bsltf::CopyMoveState':
-//..
+// `bsltf::CopyMoveState`; we make such calls terser by defining `Cms` as an
+// abbreviation for `bsltf::CopyMoveState`:
+// ```
     void usageExample2()
     {
         typedef bsltf::CopyMoveState Cms;
@@ -359,12 +359,12 @@ const std::size_t NUM_VALID_STATES = sizeof(VALID_STATE_LIST) / sizeof(Enum);
         ASSERT(1 == WrappedValue::count());
         ASSERT(99 == wv1.object().value());
         ASSERT(Cms::isOriginal(wv1.object()));
-//..
-// Next, we check that a wrapper constructed from a 'TrackedValue' variable
+// ```
+// Next, we check that a wrapper constructed from a `TrackedValue` variable
 // forwards the variable as an lvalue, resulting in a call to the copy
 // constructor.  We also check that, in C++11, the lvalue is perfectly
 // forwarded as a non-const lvalue:
-//..
+// ```
         TrackedValue t2(44);
         ASSERT(Cms::isOriginal(t2));
 
@@ -378,12 +378,12 @@ const std::size_t NUM_VALID_STATES = sizeof(VALID_STATE_LIST) / sizeof(Enum);
         // Copy constructed from non-const original
         ASSERT(Cms::isCopiedNonconstInto(wv2.object()));
 #endif
-//..
-// Finally, we check that a wrapper constructed from a moved 'TrackedValue'
+// ```
+// Finally, we check that a wrapper constructed from a moved `TrackedValue`
 // forwards the variable as an rvalue, resulting in a call to the move
 // constructor.  Note that original variable is also modified by this
 // operation:
-//..
+// ```
         TrackedValue t3(t2);
         ASSERT(44 == t3.value());
         ASSERT(Cms::isCopiedNonconstInto(t3));
@@ -396,7 +396,7 @@ const std::size_t NUM_VALID_STATES = sizeof(VALID_STATE_LIST) / sizeof(Enum);
         ASSERT(44 == wv3.object().value());
         ASSERT(Cms::isMovedInto(wv3.object()));
     }
-//..
+// ```
 
 }  // close unnamed namespace
 
@@ -420,12 +420,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLES
         //
         // Concerns:
-        //: 1 That the usage examples shown in the component-level
-        //:   documentation compile and run as described.
+        // 1. That the usage examples shown in the component-level
+        //    documentation compile and run as described.
         //
         // Plan:
-        //: 1 Copy the usage examples from the component header, changing
-        //    'assert' to 'ASSERT' and execute them.
+        // 1. Copy the usage examples from the component header, changing
+        //    `assert` to `ASSERT` and execute them.
         //
         // Testing:
         //     USAGE EXAMPLES
@@ -441,25 +441,25 @@ int main(int argc, char *argv[])
 
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING 'swapCopyMoveStates'
+        // TESTING `swapCopyMoveStates`
         //
         // Concerns:
-        //: 1 'a.swapCopyMoveStates(b)' sets copy/move state of both 'a' and
-        //:   'b' to the bitwise OR of 'e_MOVED_INTO' and 'e_MOVED_FROM',
-        //:   regardless of the initial states of the a and b 'CopyMoveTracker'
-        //:   objects.
+        // 1. `a.swapCopyMoveStates(b)` sets copy/move state of both `a` and
+        //    `b` to the bitwise OR of `e_MOVED_INTO` and `e_MOVED_FROM`,
+        //    regardless of the initial states of the a and b `CopyMoveTracker`
+        //    objects.
         //
         // Plan:
-        //: 1 In a pair of nested loops setting two 'CopyMoveTracker' objects
-        //:   to each valid copy/move state.  Call 'a.swapCopyMoveStates(b)'
-        //:   and verify that both objects are set to the 'e_MOVED_INTO |
-        //:   e_MOVED_FROM' state.  (C-1)
+        // 1. In a pair of nested loops setting two `CopyMoveTracker` objects
+        //    to each valid copy/move state.  Call `a.swapCopyMoveStates(b)`
+        //    and verify that both objects are set to the 'e_MOVED_INTO |
+        //    e_MOVED_FROM' state.  (C-1)
         //
         // Testing:
         //     void swapCopyMoveStates(CopyMoveTracker& b);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'swapCopyMoveStates'"
+        if (verbose) printf("\nTESTING `swapCopyMoveStates`"
                             "\n===========================\n");
 
         Obj mA; const Obj& a = mA;
@@ -493,33 +493,33 @@ int main(int argc, char *argv[])
         // HIDDEN FRIENDS
         //
         // Concerns:
-        //: 1 For any 'CopyMoveTracker' object, 'x', an unqualified call to
-        //:   'setCopyMoveState(x, s)' has the same effect as
-        //:   'x.setCopyMoveState(s)'.
-        //: 2 For any 'CopyMoveTracker' object, 'x', 'CopyMoveState::set(x, s)'
-        //:   invokes 'setCopyMoveState(x, s)'.
-        //: 3 For any 'CopyMoveTracker' object, 'x', an unqualified call to
-        //:   'copyMoveState(x)' returns the same value as 'x.copyMoveState()'.
-        //: 4 For any 'CopyMoveTracker' object, 'x', 'CopyMoveState::get(x)'
-        //:   returns 'copyMoveState(x)'.
-        //: 5 The above concerns apply to classes derived from
-        //:   'CopyMoveTracker', even if they do not customize
-        //:   'setCopyMoveState' and/or 'copyMoveState'.
+        // 1. For any `CopyMoveTracker` object, `x`, an unqualified call to
+        //    `setCopyMoveState(x, s)` has the same effect as
+        //    `x.setCopyMoveState(s)`.
+        // 2. For any `CopyMoveTracker` object, `x`, `CopyMoveState::set(x, s)`
+        //    invokes `setCopyMoveState(x, s)`.
+        // 3. For any `CopyMoveTracker` object, `x`, an unqualified call to
+        //    `copyMoveState(x)` returns the same value as `x.copyMoveState()`.
+        // 4. For any `CopyMoveTracker` object, `x`, `CopyMoveState::get(x)`
+        //    returns `copyMoveState(x)`.
+        // 5. The above concerns apply to classes derived from
+        //    `CopyMoveTracker`, even if they do not customize
+        //    `setCopyMoveState` and/or `copyMoveState`.
         //
         // Plan:
-        //: 1 Loop over every valid state, 'S'.  Within the loop, create a
-        //:   'CopyMoveTracker' object 'mX' and const reference 'X'.  Then:
-        //:
-        //:   1 Use an unqualified call to 'setCopyMoveState(&mX, S)' to put a
-        //:     'mX' into state 'S' and verify the expected effect.  (C-1)
-        //:   2 Reset 'mX' and use 'CopyMoveState::set(&mX, S)' to put a 'mX'
-        //:     into state 'S' and verify the expected effect.  (C-2)
-        //:   3 Verify that an unqualified call to 'copyMoveState(X)' returns
-        //:     'S'.  (C-3)
-        //:   4 Verify that 'CopyMoveState::get(X)' returns 'S' (C-4)
-        //:
-        //: 2 Repeat the entire test using a derived class, 'DerivedClient'
-        //:   insetead of 'CopyMoveTracker directly.  (C-5)
+        // 1. Loop over every valid state, `S`.  Within the loop, create a
+        //    `CopyMoveTracker` object `mX` and const reference `X`.  Then:
+        //
+        //   1. Use an unqualified call to `setCopyMoveState(&mX, S)` to put a
+        //      `mX` into state `S` and verify the expected effect.  (C-1)
+        //   2. Reset `mX` and use `CopyMoveState::set(&mX, S)` to put a `mX`
+        //      into state `S` and verify the expected effect.  (C-2)
+        //   3. Verify that an unqualified call to `copyMoveState(X)` returns
+        //      `S`.  (C-3)
+        //   4. Verify that `CopyMoveState::get(X)` returns `S` (C-4)
+        //
+        // 2. Repeat the entire test using a derived class, `DerivedClient`
+        //    insetead of 'CopyMoveTracker directly.  (C-5)
         //
         // Testing:
         //      CopyMoveState::Enum copyMoveState(const CopyMoveTracker&);
@@ -585,23 +585,23 @@ int main(int argc, char *argv[])
         // EQUALITY COMPARISON OPERATORS
         //
         // Concerns:
-        //: 1 'operator==' always returns 'true' regardless of the copy/move
-        //:   states of the lhs and rhs 'CopyMoveTracker' objects.
-        //: 2 'operator!=' always returns 'false'.
-        //: 3 In C++20, a derived class declaring a defaulted 'operator==' will
-        //:   correctly determine that it's base class always returns equal.
+        // 1. `operator==` always returns `true` regardless of the copy/move
+        //    states of the lhs and rhs `CopyMoveTracker` objects.
+        // 2. `operator!=` always returns `false`.
+        // 3. In C++20, a derived class declaring a defaulted `operator==` will
+        //    correctly determine that it's base class always returns equal.
         //
         // Plan:
-        //: 1 In a pair of nested loops setting two 'CopyMoveTracker' objects
-        //:   to each valid copy/move state, verify that comparing the two with
-        //:   'operator==' always returns 'true' and comparing them with
-        //:   'operator!=' always returns 'false'.  (C-1, C-2)
-        //: 2 In C++20, create a derived class having a defaulted
-        //:   'operator=='.  Within the loop from step 1, create derived-class
-        //:   objects having the same and different values and the same or
-        //:   different copy/move states.  Verify that the compiler-generated
-        //:   equality operators correctly compare the objects' values and
-        //:   ignores their copy/move states.  (C-3)
+        // 1. In a pair of nested loops setting two `CopyMoveTracker` objects
+        //    to each valid copy/move state, verify that comparing the two with
+        //    `operator==` always returns `true` and comparing them with
+        //    `operator!=` always returns `false`.  (C-1, C-2)
+        // 2. In C++20, create a derived class having a defaulted
+        //    `operator==`.  Within the loop from step 1, create derived-class
+        //    objects having the same and different values and the same or
+        //    different copy/move states.  Verify that the compiler-generated
+        //    equality operators correctly compare the objects' values and
+        //    ignores their copy/move states.  (C-3)
         //
         // Testing:
         //     bool operator==(const CopyMoveTracker&, const CopyMoveTracker&);
@@ -627,7 +627,7 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
                 const int V1 = static_cast<int>(i);
-                const int V2 = V1 + 1;  // Any value different from 'V1'
+                const int V2 = V1 + 1;  // Any value different from `V1`
 
                 Client mD1(V1); const Client& D1 = mD1;
                 mD1.setCopyMoveState(iE);
@@ -656,22 +656,22 @@ int main(int argc, char *argv[])
 
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'resetCopyMoveState'
+        // TESTING `resetCopyMoveState`
         //
         // Concerns:
-        //: 1 Regardless of the starting state, 'resetCopyMoveState()' will
-        //:   reset the state of a 'CopyMoveTracker' to 'e_ORIGINAL'.
+        // 1. Regardless of the starting state, `resetCopyMoveState()` will
+        //    reset the state of a `CopyMoveTracker` to `e_ORIGINAL`.
         //
         // Plan:
-        //: 1 In a loop, put a 'CopyMoveTracker' into each valid state, then
-        //:   call 'resetCopyMoveState'.  Verify that the 'copyMoveState' then
-        //:   returns 'e_ORIGINAL'.
+        // 1. In a loop, put a `CopyMoveTracker` into each valid state, then
+        //    call `resetCopyMoveState`.  Verify that the `copyMoveState` then
+        //    returns `e_ORIGINAL`.
         //
         // Testing:
         //      void resetCopyMoveState();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'resetCopyMoveState'"
+        if (verbose) printf("\nTESTING `resetCopyMoveState`"
                             "\n============================\n");
 
         Obj x;
@@ -695,27 +695,27 @@ int main(int argc, char *argv[])
         // MOVE ASSIGNMENT OPERATORS
         //
         // Concerns:
-        //: 1 After a move assigment, the lhs 'CopyMoveTracker' has a copy/move
-        //:   state of 'e_MOVED_INTO'.
-        //: 2 Assignming from an rvalue of class derived from
-        //:   'CopyMoveTracker' has the same effect as move assignment.
-        //: 3 The copy/move state of the moved-from (rhs) object is modified by
-        //:   setting the 'e_MOVED_FROM' bit; the remaining bits of the
-        //:   copy/move state are unchanged.
+        // 1. After a move assigment, the lhs `CopyMoveTracker` has a copy/move
+        //    state of `e_MOVED_INTO`.
+        // 2. Assignming from an rvalue of class derived from
+        //    `CopyMoveTracker` has the same effect as move assignment.
+        // 3. The copy/move state of the moved-from (rhs) object is modified by
+        //    setting the `e_MOVED_FROM` bit; the remaining bits of the
+        //    copy/move state are unchanged.
         //
         // Plan:
-        //: 1 In a pair of nested loops, create lhs and rhs 'CopyMoveTracker'
-        //:   objects having with a different copy/move states in each
-        //:   iteration.  Move-construct from the rhs to the lhs object and
-        //:   verify that the lhs object is set to the moved-into state.  (C-1)
-        //: 2 In the same loops as step 1, create an object of class derived
-        //:   from 'CopyMoveTracker', with the same copy/move state as the
-        //:   previous rhs object.  Move assign from the derived-class object
-        //:   to lhs and verify that the lhs object is set to the moved-into
-        //:   state.  (C-2)
-        //: 3 For both steps above, verify that the rhs object's copy/move
-        //:   state is unhchanged except that the 'e_MOVED_FROM' bit is set.
-        //:   (C-3)
+        // 1. In a pair of nested loops, create lhs and rhs `CopyMoveTracker`
+        //    objects having with a different copy/move states in each
+        //    iteration.  Move-construct from the rhs to the lhs object and
+        //    verify that the lhs object is set to the moved-into state.  (C-1)
+        // 2. In the same loops as step 1, create an object of class derived
+        //    from `CopyMoveTracker`, with the same copy/move state as the
+        //    previous rhs object.  Move assign from the derived-class object
+        //    to lhs and verify that the lhs object is set to the moved-into
+        //    state.  (C-2)
+        // 3. For both steps above, verify that the rhs object's copy/move
+        //    state is unhchanged except that the `e_MOVED_FROM` bit is set.
+        //    (C-3)
         //
         // Testing:
         //      CopyMoveTracker& operator=(CopyMoveTracker&& original);
@@ -764,29 +764,29 @@ int main(int argc, char *argv[])
         // COPY ASSIGNMENT OPERATORS
         //
         // Concerns:
-        //: 1 After a copy assignment, calling 'isCopied' on the lhs
-        //:   'CopyMoveTracker' returns 'true'.
-        //: 2 If the rhs object is a 'const' lvalue, then the lhs object
-        //:   gets a copy/move state of 'e_COPIED_CONST_INTO'.
-        //: 3 If the rhs object is a non-'const' lvalue, then the lhs
-        //:   object gets a copy/move state of 'e_COPIED_NONCONST_INTO'.
-        //: 4 The rhs object's state is unchanged by the assignment.
-        //: 5 The above concerns apply regardless of the either object's
-        //:   initial copy/move state.
+        // 1. After a copy assignment, calling `isCopied` on the lhs
+        //    `CopyMoveTracker` returns `true`.
+        // 2. If the rhs object is a `const` lvalue, then the lhs object
+        //    gets a copy/move state of `e_COPIED_CONST_INTO`.
+        // 3. If the rhs object is a non-`const` lvalue, then the lhs
+        //    object gets a copy/move state of `e_COPIED_NONCONST_INTO`.
+        // 4. The rhs object's state is unchanged by the assignment.
+        // 5. The above concerns apply regardless of the either object's
+        //    initial copy/move state.
         //
         // Plan:
-        //: 1 Construct the rhs 'CopyMoveTracker' object and create a 'const'
-        //:   reference to it.
-        //: 2 Construct the lhs 'CopyMoveTracker' object and assign to it from
-        //:   the rhs object and the 'const' reference to the rhs object.
-        //:   Verify that each lhs has the expected copy/move state.  (C-1,
-        //:   C-2, C-3)
-        //: 3 Verify that the rhs object's copy/move state is unchanged.  (C-4)
-        //: 4 Repeat the previous steps in a pair of nested loops, setting the
-        //:   copy/move state of the lhs and rhs objects before preforming the
-        //:   assignments.  Verify that the original states have no effect on
-        //:   the resulting state of the lhs and that the rhs remains unchanged
-        //:   by the copies.  (C-5)
+        // 1. Construct the rhs `CopyMoveTracker` object and create a `const`
+        //    reference to it.
+        // 2. Construct the lhs `CopyMoveTracker` object and assign to it from
+        //    the rhs object and the `const` reference to the rhs object.
+        //    Verify that each lhs has the expected copy/move state.  (C-1,
+        //    C-2, C-3)
+        // 3. Verify that the rhs object's copy/move state is unchanged.  (C-4)
+        // 4. Repeat the previous steps in a pair of nested loops, setting the
+        //    copy/move state of the lhs and rhs objects before preforming the
+        //    assignments.  Verify that the original states have no effect on
+        //    the resulting state of the lhs and that the rhs remains unchanged
+        //    by the copies.  (C-5)
         //
         // Testing:
         //      CopyMoveTracker& operator=(const CopyMoveTracker& original);
@@ -826,27 +826,27 @@ int main(int argc, char *argv[])
         // MOVE CONSTRUCTORS
         //
         // Concerns:
-        //: 1 A move constructed 'CopyMoveTracker' object has a copy/move state
-        //:   of 'e_MOVED_INTO'.
-        //: 2 Constructing from an rvalue of class derived from
-        //:   'CopyMoveTracker' has the same effect as move construction.
-        //: 3 The copy/move state of the moved-from object is modified by
-        //:   setting the 'e_MOVED_FROM' bit; the remaining bits of the
-        //:   copy/move state are unchanged.
+        // 1. A move constructed `CopyMoveTracker` object has a copy/move state
+        //    of `e_MOVED_INTO`.
+        // 2. Constructing from an rvalue of class derived from
+        //    `CopyMoveTracker` has the same effect as move construction.
+        // 3. The copy/move state of the moved-from object is modified by
+        //    setting the `e_MOVED_FROM` bit; the remaining bits of the
+        //    copy/move state are unchanged.
         //
         // Plan:
-        //: 1 In a loop, create an original 'CopyMoveTracker' with a different
-        //:   copy/move state in each iteration.  Move-construct an object from
-        //:   the original and verify that the new object is in the moved-into
-        //:   state.  (C-1)
-        //: 2 In the same loop as step 1, create an object of class derived
-        //:   from 'CopyMoveTracker', with a different copy/move state in each
-        //:   iteration.  Construct a 'CopyMoveTracker' object from an rvalue
-        //:   reference to the derived-class object and verify that the new
-        //:   object is in the moved-into state.  (C-2)
-        //: 3 For both steps above, verify that the original object's copy/move
-        //:   state is unhchanged except that the 'e_MOVED_FROM' bit is set.
-        //:   (C-3)
+        // 1. In a loop, create an original `CopyMoveTracker` with a different
+        //    copy/move state in each iteration.  Move-construct an object from
+        //    the original and verify that the new object is in the moved-into
+        //    state.  (C-1)
+        // 2. In the same loop as step 1, create an object of class derived
+        //    from `CopyMoveTracker`, with a different copy/move state in each
+        //    iteration.  Construct a `CopyMoveTracker` object from an rvalue
+        //    reference to the derived-class object and verify that the new
+        //    object is in the moved-into state.  (C-2)
+        // 3. For both steps above, verify that the original object's copy/move
+        //    state is unhchanged except that the `e_MOVED_FROM` bit is set.
+        //    (C-3)
         //
         // Testing:
         //      CopyMoveTracker(bslmf::MovableRef<CopyMoveTracker> original);
@@ -889,29 +889,29 @@ int main(int argc, char *argv[])
         // COPY CONSTRUCTORS
         //
         // Concerns:
-        //: 1 A copy constructed 'CopyMoveTracker' returns 'true' from the
-        //:   'isCopied()' accessor.
-        //: 2 If the original object is a 'const' lvalue, then the new object
-        //:   has a copy/move state of 'e_COPIED_CONST_INTO'.
-        //: 3 If the original object is a non-'const' lvalue, then the new
-        //:   object has a copy/move state of 'e_COPIED_NONCONST_INTO'.
-        //: 4 The original object's state is unchanged.
-        //: 5 The above concerns apply regardless of the original object's
-        //:   copy/move state.
+        // 1. A copy constructed `CopyMoveTracker` returns `true` from the
+        //    `isCopied()` accessor.
+        // 2. If the original object is a `const` lvalue, then the new object
+        //    has a copy/move state of `e_COPIED_CONST_INTO`.
+        // 3. If the original object is a non-`const` lvalue, then the new
+        //    object has a copy/move state of `e_COPIED_NONCONST_INTO`.
+        // 4. The original object's state is unchanged.
+        // 5. The above concerns apply regardless of the original object's
+        //    copy/move state.
         //
         // Plan:
-        //: 1 Construct an original 'CopyMoveTracker' object and create a
-        //:   'const' reference to it.
-        //: 2 Copy construct one 'CopyMoveTracker' object from the original
-        //:   object and one from the 'const' reference to the original object.
-        //:   Verify that each copy has the expected copy/move state.  (C-1,
-        //:   C-2, C-3)
-        //: 3 Verify that the original object's copy/move state is unchanged.
-        //:   (C-4)
-        //: 4 Repeat the previous steps in a loop, changing the copy/move state
-        //:   of the original object before making the copies.  Verify that the
-        //:   original state has no effect on the state of the copies and that
-        //:   the original remains unchanged by the copies.  (C-5)
+        // 1. Construct an original `CopyMoveTracker` object and create a
+        //    `const` reference to it.
+        // 2. Copy construct one `CopyMoveTracker` object from the original
+        //    object and one from the `const` reference to the original object.
+        //    Verify that each copy has the expected copy/move state.  (C-1,
+        //    C-2, C-3)
+        // 3. Verify that the original object's copy/move state is unchanged.
+        //    (C-4)
+        // 4. Repeat the previous steps in a loop, changing the copy/move state
+        //    of the original object before making the copies.  Verify that the
+        //    original state has no effect on the state of the copies and that
+        //    the original remains unchanged by the copies.  (C-5)
         //
         // Testing:
         //      CopyMoveTracker(const CopyMoveTracker& original);
@@ -946,13 +946,13 @@ int main(int argc, char *argv[])
         // DEFAULT CONSTRUCTOR
         //
         // Concerns:
-        //: 1 The default constructor creates a 'CopyMoveTracker' in the
-        //:   'e_ORIGINAL' state.
+        // 1. The default constructor creates a `CopyMoveTracker` in the
+        //    `e_ORIGINAL` state.
         //
         // Plan:
-        //: 1 Construct a 'CopyMoveTracker' object using the default
-        //:   constructor.  Verify that 'copyMoveState' returns 'e_ORIGINAL'.
-        //:   (C-1)
+        // 1. Construct a `CopyMoveTracker` object using the default
+        //    constructor.  Verify that `copyMoveState` returns `e_ORIGINAL`.
+        //    (C-1)
         //
         // Testing:
         //       CopyMoveTracker();
@@ -971,37 +971,37 @@ int main(int argc, char *argv[])
       case 3: {
         // -------------------------------------------------------------------
         // TESTING ACCESSORS
-        //   Verify operation of the 'isCopiedInto', 'isMovedInto' and similar
+        //   Verify operation of the `isCopiedInto`, `isMovedInto` and similar
         //   accessors that check specific bits in the copy/move state.
         //
         // Concerns:
-        //: 1 When called on an object returning a copy/move state that
-        //:   includes neither 'e_COPIED_INTO' nor the 'e_MOVED_INTO' bit,
-        //:   'isOriginal' returns 'true' and all of the 'is*Into' queries
-        //:   return 'false'.
-        //: 2 Each query other than 'isOriginal' returns 'true' if the
-        //:   copy/move state contains the bits from the corresponding
-        //:   enumerator.
-        //: 3 Setting the 'e_MOVED_FROM' bit in the copy/move state causes
-        //:   'isMovedFrom' to return 'true' and does not change the result
-        //:   from any of the other queries.
-        //: 4 For a 'CopyMoveTracker', 't', 'CopyMoveState::isCopied(t)'
-        //:   returns the same result as 't.isCopied()'.  The same is true for
-        //:   the remaining accessors.
+        // 1. When called on an object returning a copy/move state that
+        //    includes neither `e_COPIED_INTO` nor the `e_MOVED_INTO` bit,
+        //    `isOriginal` returns `true` and all of the `is*Into` queries
+        //    return `false`.
+        // 2. Each query other than `isOriginal` returns `true` if the
+        //    copy/move state contains the bits from the corresponding
+        //    enumerator.
+        // 3. Setting the `e_MOVED_FROM` bit in the copy/move state causes
+        //    `isMovedFrom` to return `true` and does not change the result
+        //    from any of the other queries.
+        // 4. For a `CopyMoveTracker`, `t`, `CopyMoveState::isCopied(t)`
+        //    returns the same result as `t.isCopied()`.  The same is true for
+        //    the remaining accessors.
         //
         // Plan:
-        //: 1 Use a table-driven approach to verify that each query produces
-        //:   the expected value when called on an object returning each of the
-        //:   copy/move states in the range 'e_ORIGINAL' to 'e_MOVED_INTO',
-        //:   inclusive.  (C-1, C-2)
-        //: 2 Verify that 'isMovedFrom' returns 'false' when called on each
-        //:   object from step 1.  Then set the 'e_MOVED_FROM' bit in the
-        //:   object's state, without modifying any other bits, and verify that
-        //:   'isMovedFrom' now returns 'true' unless the 'e_UNKNOWN' bit is
-        //:   set.  (C-3)
-        //: 3 For each query in the preceeding steps, verify that the same
-        //:   query made via the corresponding 'CopyMoveState' static member
-        //:   function returns the same result.  (C-4)
+        // 1. Use a table-driven approach to verify that each query produces
+        //    the expected value when called on an object returning each of the
+        //    copy/move states in the range `e_ORIGINAL` to `e_MOVED_INTO`,
+        //    inclusive.  (C-1, C-2)
+        // 2. Verify that `isMovedFrom` returns `false` when called on each
+        //    object from step 1.  Then set the `e_MOVED_FROM` bit in the
+        //    object's state, without modifying any other bits, and verify that
+        //    `isMovedFrom` now returns `true` unless the `e_UNKNOWN` bit is
+        //    set.  (C-3)
+        // 3. For each query in the preceeding steps, verify that the same
+        //    query made via the corresponding `CopyMoveState` static member
+        //    function returns the same result.  (C-4)
         //
         // Testing:
         //     bool isCopiedConstInto() const;
@@ -1101,28 +1101,28 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // BASIC MANIPULATORS AND ACCESSORS
-        //    A 'CopyMoveTracker' can be put into any valid state using the
-        //    single manipulator, 'setCopyMoveState'.  The entire state can be
-        //    read out using the single accessor, 'copyMoveState'.
+        //    A `CopyMoveTracker` can be put into any valid state using the
+        //    single manipulator, `setCopyMoveState`.  The entire state can be
+        //    read out using the single accessor, `copyMoveState`.
         //
         // Concerns:
-        //: 1 A call to 'setCopyMoveState(x)' sets the state of a
-        //:   'CopyMoveTracker' object to 'x', for valid values of 'x' in the
-        //:   range 'e_ORIGINAL' to 'e_MAX_ENUM', inclusive.
-        //: 2 A call to 'setCopyMoveState(x)' with an invalid value for 'x'
-        //:   triggers a defensive check error (in non-optimized builds).
+        // 1. A call to `setCopyMoveState(x)` sets the state of a
+        //    `CopyMoveTracker` object to `x`, for valid values of `x` in the
+        //    range `e_ORIGINAL` to `e_MAX_ENUM`, inclusive.
+        // 2. A call to `setCopyMoveState(x)` with an invalid value for `x`
+        //    triggers a defensive check error (in non-optimized builds).
         //
         // Plan:
-        //: 1 Create a variable of type 'CopyMoveTracker' (the constructor is
-        //:   not being tested here, other than that it is invocable).
-        //: 2 For each valid bit pattern, 'e' in the range of
-        //:   'CopyMoveState::Enum', call 'setCopyMoveState(e)' on the object
-        //:   from step 1.  Using the 'copyMoveState' accessor, verify that the
-        //:   object state was set as specified.  (C-1)
-        //: 3 For each invalid bit pattern, 'e', in the range of
-        //:   'CopyMoveState::Enum', call 'setCopyMoveState(e)' on the object.
-        //:   Using the 'ASSERT_FAIL' macro, verify that the call would trigger
-        //:   an assert failure in the appropriate build mode.  (C-2)
+        // 1. Create a variable of type `CopyMoveTracker` (the constructor is
+        //    not being tested here, other than that it is invocable).
+        // 2. For each valid bit pattern, `e` in the range of
+        //    `CopyMoveState::Enum`, call `setCopyMoveState(e)` on the object
+        //    from step 1.  Using the `copyMoveState` accessor, verify that the
+        //    object state was set as specified.  (C-1)
+        // 3. For each invalid bit pattern, `e`, in the range of
+        //    `CopyMoveState::Enum`, call `setCopyMoveState(e)` on the object.
+        //    Using the `ASSERT_FAIL` macro, verify that the call would trigger
+        //    an assert failure in the appropriate build mode.  (C-2)
         //
         // Testing:
         //      void setCopyMoveState(CopyMoveState::Enum state);
@@ -1156,11 +1156,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Execute each method to verify functionality for simple cases.
+        // 1. Execute each method to verify functionality for simple cases.
         //
         // Testing:
         //      BREATHING TEST
@@ -1191,7 +1191,7 @@ int main(int argc, char *argv[])
 
         ASSERT(v1 == v2);  // always compare equal
 
-        // Test ADL-findable 'copyMoveState'.
+        // Test ADL-findable `copyMoveState`.
         ASSERTV(CMS::get(v2),
                 CMS::get(v2) == (CMS::e_COPIED_CONST_INTO|CMS::e_MOVED_FROM));
         ASSERT(CMS::isMovedInto(v3));

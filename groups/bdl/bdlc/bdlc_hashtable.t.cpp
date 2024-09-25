@@ -34,9 +34,9 @@ using namespace bsl;
 // After breathing the component [1], the implementation struct will be tested
 // [2].  Then the default traits will be tested [3].  Then the default hash
 // functions will be tested [4].  Then the object's constructors will be tested
-// [5].  Once objects can be constructed correctly, the 'insert' and 'remove'
-// methods will be tested [6].  Then the 'find' accessor will be tested [7].
-// Then the 'value' manipulator will be tested [8].  Finally, the usage example
+// [5].  Once objects can be constructed correctly, the `insert` and `remove`
+// methods will be tested [6].  Then the `find` accessor will be tested [7].
+// Then the `value` manipulator will be tested [8].  Finally, the usage example
 // in the component header file will be tested [9].
 //
 // The accessors will be used and tested throughout the test to verify the
@@ -173,8 +173,8 @@ void testIsRemovedFootprint(TYPE *)
 
 namespace TestCase2 {
 
+/// Return true if the specified `n` is prime, and false otherwise.
 bool isPrime(unsigned int n)
-    // Return true if the specified 'n' is prime, and false otherwise.
 {
     unsigned int upper = (unsigned int)(bsl::sqrt((double)n) + 0.5);
 
@@ -195,9 +195,9 @@ bool isPrime(unsigned int n)
 // ----------------------------------------------------------------------------
 
 // The following snippets of code illustrate the usage of this component.
-// Suppose we wanted to store a table of 'int' keys and 'double' values.  We
+// Suppose we wanted to store a table of `int` keys and `double` values.  We
 // will use a capacity hint of 10 for demonstration purposes:
-//..
+// ```
 //  #include <bdlc_hashtable.h>
 //
 void usageExample()
@@ -205,9 +205,9 @@ void usageExample()
     typedef bdlc::HashTable<int, double> TableType;
 
     TableType table(10);
-//..
+// ```
 // Now we can insert elements into this object:
-//..
+// ```
     TableType::Handle handles[3];
 
     struct {
@@ -230,9 +230,9 @@ void usageExample()
     table.insert(&handles[2], DATA[2].d_key, DATA[2].d_value);
     ASSERT(DATA[2].d_key   == table.key(handles[2]));
     ASSERT(DATA[2].d_value == table.value(handles[2]));
-//..
+// ```
 // Now we can find elements in this object using the key:
-//..
+// ```
     TableType::Handle findHandles[3];
 
     table.find(&findHandles[0], DATA[0].d_key);
@@ -247,7 +247,7 @@ void usageExample()
     ASSERT(DATA[2].d_key   == table.key(findHandles[2]));
     ASSERT(DATA[2].d_value == table.value(findHandles[2]));
 }
-//..
+// ```
 
 }  // close unnamed namespace
 
@@ -266,7 +266,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator testAllocator(testAllocatorVerbosity);
@@ -284,7 +284,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Run the usage example from the component's header file, replacing
-        //   'assert' with 'ASSERT'.
+        //   `assert` with `ASSERT`.
         //
         // Testing:
         //   Usage example.
@@ -300,15 +300,15 @@ int main(int argc, char *argv[])
       case 8: {
         // --------------------------------------------------------------------
         // TESTING VALUE MANIPULATOR
-        //   This will test the 'bdlc::HashTable::value(handle)' method.
+        //   This will test the `bdlc::HashTable::value(handle)` method.
         //
         // Concerns:
         //   This function must return a reference to the modifiable value
         //   identified by the provided handle.
         //
         // Plan:
-        //   Create a 'bdlc::HashTable' object and insert some elements.
-        //   Exercise the 'value' manipulator and verify that a reference to
+        //   Create a `bdlc::HashTable` object and insert some elements.
+        //   Exercise the `value` manipulator and verify that a reference to
         //   the modifiable value is returned.  Modify the value and check the
         //   result.
         //
@@ -329,21 +329,21 @@ int main(int argc, char *argv[])
       case 7: {
         // --------------------------------------------------------------------
         // TESTING FIND ACCESSOR
-        //   This will test the 'bdlc::HashTable::find(key)' method.
+        //   This will test the `bdlc::HashTable::find(key)` method.
         //
         // Concerns:
         //   This accessor must return false if there is no element with the
-        //   specified 'key'.  If the element exists, then the function must
-        //   return true and load the correct 'd_index' into the provided
+        //   specified `key`.  If the element exists, then the function must
+        //   return true and load the correct `d_index` into the provided
         //   handle.
         //
         // Plan:
-        //   Construct a 'bdlc::HashTable' object and insert some elements.
-        //   Use the 'find' accessor with a set of keys and check that the
+        //   Construct a `bdlc::HashTable` object and insert some elements.
+        //   Use the `find` accessor with a set of keys and check that the
         //   results are as expected.
         //
-        //   Run the test for objects with 'VALUE' and also objects without
-        //   'VALUE'.
+        //   Run the test for objects with `VALUE` and also objects without
+        //   `VALUE`.
         //
         // Testing:
         //   bool find(Handle *handle, const KEY& key) const;
@@ -352,7 +352,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Find Accessor"
                              "\n=====================\n";
 
-        if (verbose) cout << "\nTesting with 'bdlc::HashTable<int>'\n";
+        if (verbose) cout << "\nTesting with `bdlc::HashTable<int>`\n";
         {
         }
 
@@ -366,29 +366,29 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // TESTING INSERT AND REMOVE METHODS
-        //   This will test the 'bdlc::HashTable::insert(key)' method , the
-        //   'bdlc::HashTable::insert(key, value)' and the
-        //   'bdlc::HashTable::remove(handle)' method.
+        //   This will test the `bdlc::HashTable::insert(key)` method , the
+        //   `bdlc::HashTable::insert(key, value)` and the
+        //   `bdlc::HashTable::remove(handle)` method.
         //
         // Concerns:
         //   If the object is full, or if an element with the specified key
-        //   already exists, then the 'insert' function must return false,
+        //   already exists, then the `insert` function must return false,
         //   otherwise it must return true and load the element in the expected
         //   position.  The returned handle must contain this expected index.
-        //   Also, the 'insert' function must reuse table indices that have
+        //   Also, the `insert` function must reuse table indices that have
         //   been removed.
         //
         // Plan:
         //   For a given scale, prepare a set S of elements that will be
-        //   inserted to the 'bdlc::HashTable' object.  After each call to
-        //   'insert', use the 'maxChain', 'numCollisions', 'size', and
-        //   'totalChain' accessors and verify that they have the expected
+        //   inserted to the `bdlc::HashTable` object.  After each call to
+        //   `insert`, use the `maxChain`, `numCollisions`, `size`, and
+        //   `totalChain` accessors and verify that they have the expected
         //   values.  Also verify that the handle is as expected.  Use the
-        //   'key' and, if appropriate, 'value' accessors to check that the
+        //   `key` and, if appropriate, `value` accessors to check that the
         //   element has been loaded correctly.
         //
-        //   Exercise the 'remove' method by removing an element from the hash
-        //   table, then verify that the 'insert' method reuses the removed
+        //   Exercise the `remove` method by removing an element from the hash
+        //   table, then verify that the `insert` method reuses the removed
         //   table index.
         //
         // Testing:
@@ -423,33 +423,33 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // TESTING CONSTRUCTORS
-        //   This will test the 'bdlc::HashTable' constructors.
+        //   This will test the `bdlc::HashTable` constructors.
         //
         // Concerns:
-        //   The 'scale' parameter must be used to determine the capacity of
-        //   the object.  If 'basicAllocator' is not specified, the default
-        //   allocator must be used.  If 'basicAllocator' is specified, then
+        //   The `scale` parameter must be used to determine the capacity of
+        //   the object.  If `basicAllocator` is not specified, the default
+        //   allocator must be used.  If `basicAllocator` is specified, then
         //   the default allocator must *not* be used.  If hash functions are
         //   specified, they must be used.
         //
         // Plan:
         //   For a given set of scales, in increasing order, construct a
-        //   'bdlc::HashTable' object and check that its capacity is as
+        //   `bdlc::HashTable` object and check that its capacity is as
         //   expected.  Verify that the currently installed default allocator
-        //   was used.  Construct another 'bdlc::HashTable' object, this time
+        //   was used.  Construct another `bdlc::HashTable` object, this time
         //   specifying an allocator.  Verify that the specified allocator was
         //   used and the default allocator was not used.
         //
         //   For a given set of scales, and a given set of hash functions,
-        //   construct a 'bdlc::HashTable' object and check that its capacity
-        //   is as expected.  Use the 'insert' method and check that the first
-        //   hash function invoked.  Use the 'insert' method again, and check
+        //   construct a `bdlc::HashTable` object and check that its capacity
+        //   is as expected.  Use the `insert` method and check that the first
+        //   hash function invoked.  Use the `insert` method again, and check
         //   that this time the second hash function is invoked.  Repeat this
         //   test, this time specifying an allocator.  Verify that the
         //   specified allocator was used and the default allocator was not
         //   used.
         //
-        //   For each test, use the 'capacity' and 'scale' accessors to verify
+        //   For each test, use the `capacity` and `scale` accessors to verify
         //   the correctness of the constructor.
         //
         //   Note that the destructor is tested implicitly each time the object
@@ -481,8 +481,8 @@ int main(int argc, char *argv[])
       case 4: {
         // --------------------------------------------------------------------
         // TESTING DEFAULT HASH FUNCTORS
-        //   This will test the 'bdlc::HashTableDefaultHash1' struct and the
-        //   'bdlc::HashTableDefaultHash2' struct.
+        //   This will test the `bdlc::HashTableDefaultHash1` struct and the
+        //   `bdlc::HashTableDefaultHash2` struct.
         //
         // Concerns:
         //   The operators in this struct must behave as expected.
@@ -513,7 +513,7 @@ int main(int argc, char *argv[])
 
             typedef bdlc::HashTableDefaultHash1 Functor;
 
-            if (veryVerbose) cout << "\tUsing 'int'\n";
+            if (veryVerbose) cout << "\tUsing `int`\n";
             {
                 typedef int Key;
 
@@ -557,7 +557,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (veryVerbose) cout << "\tUsing 'double'\n";
+            if (veryVerbose) cout << "\tUsing `double`\n";
             {
                 typedef double Key;
 
@@ -598,7 +598,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (veryVerbose) cout << "\tUsing 'bsls::TimeInterval'\n";
+            if (veryVerbose) cout << "\tUsing `bsls::TimeInterval`\n";
             {
                 typedef bsls::TimeInterval Key;
 
@@ -734,7 +734,7 @@ int main(int argc, char *argv[])
 
             typedef bdlc::HashTableDefaultHash2 Functor;
 
-            if (veryVerbose) cout << "\tUsing 'int'\n";
+            if (veryVerbose) cout << "\tUsing `int`\n";
             {
                 typedef int Key;
 
@@ -778,7 +778,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (veryVerbose) cout << "\tUsing 'double'\n";
+            if (veryVerbose) cout << "\tUsing `double`\n";
             {
                 typedef double Key;
 
@@ -819,7 +819,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (veryVerbose) cout << "\tUsing 'bsls::TimeInterval'\n";
+            if (veryVerbose) cout << "\tUsing `bsls::TimeInterval`\n";
             {
                 typedef bsls::TimeInterval Key;
 
@@ -953,52 +953,52 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TESTING DEFAULT TRAITS
-        //   This will test the 'bdlc::HashTableDefaultTraits' struct.
+        //   This will test the `bdlc::HashTableDefaultTraits` struct.
         //
         // Concerns:
-        //   The 'load' function must be implemented using 'operator='.  The
-        //   'areEqual' function must use 'operator==' for all types, except
-        //   'const char*', which will use 'strcmp'.  The 'isNull',
-        //   'isRemoved', 'setToNull', and 'setToRemoved' functions must work
-        //   correctly for all POD types, 'bsl::string', 'const char*', and
-        //   'bsl::pair' types.
+        //   The `load` function must be implemented using `operator=`.  The
+        //   `areEqual` function must use `operator==` for all types, except
+        //   `const char*`, which will use `strcmp`.  The `isNull`,
+        //   `isRemoved`, `setToNull`, and `setToRemoved` functions must work
+        //   correctly for all POD types, `bsl::string`, `const char*`, and
+        //   `bsl::pair` types.
         //
         // Plan:
-        //   To test the 'load' function, specify a set S of (unique) objects
+        //   To test the `load` function, specify a set S of (unique) objects
         //   with substantial and varied differences in value.  Construct and
         //   initialize all combinations (u, v) in the cross product S X S,
         //   copy construct a control w from v, load v into u, and assert that
-        //   w == u and w == v.  Use 'int' for the 'BUCKET' parameter.
+        //   w == u and w == v.  Use `int` for the `BUCKET` parameter.
         //
-        //   To test the 'areEqual' function, specify a set S of (unique)
+        //   To test the `areEqual` function, specify a set S of (unique)
         //   objects with similar but different data values.  Then loop through
         //   the cross product of test data.  For each tuple, check that the
-        //   'areEqual' function returns the correct result.  Exercise the test
-        //   using 'int' and 'const char*' for the 'KEY' parameter.
+        //   `areEqual` function returns the correct result.  Exercise the test
+        //   using `int` and `const char*` for the `KEY` parameter.
         //
-        //   To test the 'isNull' function, prepare an 'int' with all bytes set
-        //   to 0.  Verify that 'isNull' returns true.  Then test the 'isNull'
-        //   function using an 'int' where all but one bytes is 0.  Verify that
-        //   'isNull' returns false.  Repeat this test with 'const char*' and
-        //   also 'bsl::pair<int, int>'.  Next, test the 'isNull' function
-        //   using a set of 'bsl::string' objects.  Verify that 'isNull'
+        //   To test the `isNull` function, prepare an `int` with all bytes set
+        //   to 0.  Verify that `isNull` returns true.  Then test the `isNull`
+        //   function using an `int` where all but one bytes is 0.  Verify that
+        //   `isNull` returns false.  Repeat this test with `const char*` and
+        //   also `bsl::pair<int, int>`.  Next, test the `isNull` function
+        //   using a set of `bsl::string` objects.  Verify that `isNull`
         //   returns true only for an empty string.
         //
-        //   Test the 'setToNull' function using 'int', 'const char*',
-        //   'bsl::pair<int, int>', and 'bsl::string' objects.  Verify that
-        //   'isNull' returns true.
+        //   Test the `setToNull` function using `int`, `const char*`,
+        //   `bsl::pair<int, int>`, and `bsl::string` objects.  Verify that
+        //   `isNull` returns true.
         //
-        //   To test the 'isRemoved' function, prepare an 'int' with all bytes
-        //   set to 0xFF.  Verify that 'isRemoved' returns true.  Then test the
-        //   'isRemoved' function using an 'int' where all but one bytes is
-        //   0xFF.  Verify that 'isRemoved' returns false.  Repeat this test
-        //   with 'const char*' and 'bsl::pair<int, int>'.  Next, test the
-        //   'isRemoved' function using a set of 'bsl::string' objects.  Verify
-        //   that 'isRemoved' returns true only for "(* REMOVED *)".
+        //   To test the `isRemoved` function, prepare an `int` with all bytes
+        //   set to 0xFF.  Verify that `isRemoved` returns true.  Then test the
+        //   `isRemoved` function using an `int` where all but one bytes is
+        //   0xFF.  Verify that `isRemoved` returns false.  Repeat this test
+        //   with `const char*` and `bsl::pair<int, int>`.  Next, test the
+        //   `isRemoved` function using a set of `bsl::string` objects.  Verify
+        //   that `isRemoved` returns true only for "(* REMOVED *)".
         //
-        //   Test the 'setToRemoved' function using 'int', 'const char*',
-        //   'bsl::pair<int, int>', and 'bsl::string' objects.  Verify that
-        //   'isRemoved' returns true.
+        //   Test the `setToRemoved` function using `int`, `const char*`,
+        //   `bsl::pair<int, int>`, and `bsl::string` objects.  Verify that
+        //   `isRemoved` returns true.
         //
         // Testing:
         //   void DefTraits::load(BUCKET *dst, const BUCKET& src);
@@ -1014,7 +1014,7 @@ int main(int argc, char *argv[])
 
         typedef bdlc::HashTableDefaultTraits Traits;
 
-        if (verbose) cout << "\nTesting 'load' function.\n";
+        if (verbose) cout << "\nTesting `load` function.\n";
         {
             typedef int Bucket;
 
@@ -1061,9 +1061,9 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'areEqual'.\n";
+        if (verbose) cout << "\nTesting `areEqual`.\n";
         {
-            if (veryVerbose) cout << "\nUsing 'int'\n";
+            if (veryVerbose) cout << "\nUsing `int`\n";
             {
                 typedef int Key;
 
@@ -1112,7 +1112,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (veryVerbose) cout << "\nUsing 'const char*'\n";
+            if (veryVerbose) cout << "\nUsing `const char*`\n";
             {
                 typedef const char* Key;
 
@@ -1165,27 +1165,27 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'isNull'.\n";
+        if (verbose) cout << "\nTesting `isNull`.\n";
         {
-            if (veryVerbose) cout << "\nUsing 'int'.\n";
+            if (veryVerbose) cout << "\nUsing `int`.\n";
             {
                 typedef int Bucket;
                 TestCase3::testIsNullFootprint((Bucket*)0);
             }
 
-            if (veryVerbose) cout << "\nUsing 'const char*'.\n";
+            if (veryVerbose) cout << "\nUsing `const char*`.\n";
             {
                 typedef const char* Bucket;
                 TestCase3::testIsNullFootprint((Bucket*)0);
             }
 
-            if (veryVerbose) cout << "\nUsing 'bsl::pair<int, int>'.\n";
+            if (veryVerbose) cout << "\nUsing `bsl::pair<int, int>`.\n";
             {
                 typedef bsl::pair<int, int> Bucket;
                 TestCase3::testIsNullFootprint((Bucket*)0);
             }
 
-            if (veryVerbose) cout << "\nUsing 'bsl::string'.\n";
+            if (veryVerbose) cout << "\nUsing `bsl::string`.\n";
             {
                 typedef bsl::string Bucket;
 
@@ -1220,9 +1220,9 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'setToNull'.\n";
+        if (verbose) cout << "\nTesting `setToNull`.\n";
         {
-            if (veryVerbose) cout << "Using 'int'.\n";
+            if (veryVerbose) cout << "Using `int`.\n";
             {
                 int obj = 1;
                 ASSERT(!Traits::isNull(obj));
@@ -1230,7 +1230,7 @@ int main(int argc, char *argv[])
                 ASSERT(Traits::isNull(obj));
             }
 
-            if (veryVerbose) cout << "Using 'const char*'.\n";
+            if (veryVerbose) cout << "Using `const char*`.\n";
             {
                 const char *obj = "Hello";
                 ASSERT(!Traits::isNull(obj));
@@ -1238,7 +1238,7 @@ int main(int argc, char *argv[])
                 ASSERT(Traits::isNull(obj));
             }
 
-            if (veryVerbose) cout << "Using 'bsl::pair<int, int>'.\n";
+            if (veryVerbose) cout << "Using `bsl::pair<int, int>`.\n";
             {
                 bsl::pair<int, int> obj(1, 0);
                 ASSERT(!Traits::isNull(obj));
@@ -1258,7 +1258,7 @@ int main(int argc, char *argv[])
                 ASSERT(Traits::isNull(obj));
             }
 
-            if (veryVerbose) cout << "Using 'bsl::string'.\n";
+            if (veryVerbose) cout << "Using `bsl::string`.\n";
             {
                 bsl::string obj = "Hello";
                 ASSERT(!Traits::isNull(obj));
@@ -1267,27 +1267,27 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'isRemoved'.\n";
+        if (verbose) cout << "\nTesting `isRemoved`.\n";
         {
-            if (veryVerbose) cout << "\nUsing 'int'.\n";
+            if (veryVerbose) cout << "\nUsing `int`.\n";
             {
                 typedef int Bucket;
                 TestCase3::testIsRemovedFootprint((Bucket*)0);
             }
 
-            if (veryVerbose) cout << "\nUsing 'const char*'.\n";
+            if (veryVerbose) cout << "\nUsing `const char*`.\n";
             {
                 typedef const char* Bucket;
                 TestCase3::testIsRemovedFootprint((Bucket*)0);
             }
 
-            if (veryVerbose) cout << "\nUsing 'bsl::pair<int, int>'.\n";
+            if (veryVerbose) cout << "\nUsing `bsl::pair<int, int>`.\n";
             {
                 typedef bsl::pair<int, int> Bucket;
                 TestCase3::testIsRemovedFootprint((Bucket*)0);
             }
 
-            if (veryVerbose) cout << "\nUsing 'bsl::string'.\n";
+            if (veryVerbose) cout << "\nUsing `bsl::string`.\n";
             {
                 typedef bsl::string Bucket;
 
@@ -1322,9 +1322,9 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'setToRemoved'.\n";
+        if (verbose) cout << "\nTesting `setToRemoved`.\n";
         {
-            if (veryVerbose) cout << "Using 'int'.\n";
+            if (veryVerbose) cout << "Using `int`.\n";
             {
                 int obj = 0;
                 ASSERT(!Traits::isRemoved(obj));
@@ -1332,7 +1332,7 @@ int main(int argc, char *argv[])
                 ASSERT(Traits::isRemoved(obj));
             }
 
-            if (veryVerbose) cout << "Using 'const char*'.\n";
+            if (veryVerbose) cout << "Using `const char*`.\n";
             {
                 const char *obj = "Hello";
                 ASSERT(!Traits::isRemoved(obj));
@@ -1340,7 +1340,7 @@ int main(int argc, char *argv[])
                 ASSERT(Traits::isRemoved(obj));
             }
 
-            if (veryVerbose) cout << "Using 'bsl::pair<int, int>'.\n";
+            if (veryVerbose) cout << "Using `bsl::pair<int, int>`.\n";
             {
                 bsl::pair<int, int> obj(1, 1);
                 Traits::setToRemoved(&obj.first);
@@ -1362,7 +1362,7 @@ int main(int argc, char *argv[])
                 ASSERT(Traits::isRemoved(obj));
             }
 
-            if (veryVerbose) cout << "Using 'bsl::string'.\n";
+            if (veryVerbose) cout << "Using `bsl::string`.\n";
             {
                 bsl::string obj = "Hello";
                 ASSERT(!Traits::isRemoved(obj));
@@ -1376,15 +1376,15 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // TESTING IMP UTIL
-        //   This will test the 'bdlc::HashTable_ImpUtil' struct.
+        //   This will test the `bdlc::HashTable_ImpUtil` struct.
         //
         // Concerns:
-        //   The 'PRIME_NUMBERS' array must contain only prime numbers and they
+        //   The `PRIME_NUMBERS` array must contain only prime numbers and they
         //   must be sorted.  All the static functions in this class must
         //   behave as expected.
         //
         // Plan:
-        //  Loop through the 'PRIME_NUMBERS' array and verify that all entries
+        //  Loop through the `PRIME_NUMBERS` array and verify that all entries
         //  are prime numbers and sorted.  For each function in this struct,
         //  exercise the function with a range of arguments.  Compare the
         //  returned results with an oracle.
@@ -1400,7 +1400,7 @@ int main(int argc, char *argv[])
 
         typedef bdlc::HashTable_ImpUtil ImpUtil;
 
-        if (verbose) cout << "\nTesting 'PRIME_NUMBERS' array.\n";
+        if (verbose) cout << "\nTesting `PRIME_NUMBERS` array.\n";
         {
             // Use oracle: bool TestCase2::isPrime(unsigned int);
 
@@ -1509,10 +1509,10 @@ int main(int argc, char *argv[])
         //   verify that the results are as expected.
         //
         // Plan:
-        //   Construct a 'bdlc::HashTable' object with key and value.  Insert
+        //   Construct a `bdlc::HashTable` object with key and value.  Insert
         //   elements into the object and verify the results.
         //
-        //   Repeat with a 'bdlc::HashTable' object with only key.
+        //   Repeat with a `bdlc::HashTable` object with only key.
         //
         // Testing:
         //   This test case exercises basic functionality.
@@ -1521,7 +1521,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nBREATHING TEST"
                              "\n==============\n";
 
-        if (verbose) cout << "\nUsing '<const char*, int>'\n";
+        if (verbose) cout << "\nUsing `<const char*, int>`\n";
         {
             typedef const char                  *Key;
             typedef int                          Value;
@@ -1554,7 +1554,7 @@ int main(int argc, char *argv[])
             ASSERT(VALUE == X.value(handle));
         }
 
-        if (verbose) cout << "\nUsing '<const char*>'\n";
+        if (verbose) cout << "\nUsing `<const char*>`\n";
         {
             typedef const char           *Key;
             typedef bdlc::HashTable<Key>  Class;

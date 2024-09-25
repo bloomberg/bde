@@ -107,8 +107,8 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 #if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
+/// On 64 bit systems `long` may be 32 or 64 bits.
 #define U_LONG_IS_64_BITS
-    // On 64 bit systems 'long' may be 32 or 64 bits.
 #endif
 
 typedef balxml::TypesPrintUtil Util;
@@ -293,7 +293,7 @@ namespace bdlat_EnumFunctions {
 //  CustomizedInt: a customized int
 //
 //@DESCRIPTION:
-//  todo: provide annotation for 'CustomizedInt'
+//  todo: provide annotation for `CustomizedInt`
 
 namespace BloombergLP {
 namespace s_baltst {
@@ -313,74 +313,79 @@ class CustomizedInt {
     typedef int BaseType;
 
     // CONSTANTS
+
+    /// the name of this class (i.e., "CustomizedInt")
     static const char CLASS_NAME[];
-        // the name of this class (i.e., "CustomizedInt")
 
     // CREATORS
+
+    /// Create an object of type `CustomizedInt` having the default value.
     CustomizedInt();
-        // Create an object of type 'CustomizedInt' having the default value.
 
+    /// Create an object of type `CustomizedInt` having the value of the
+    /// specified `original` object.
     CustomizedInt(const CustomizedInt& original);
-        // Create an object of type 'CustomizedInt' having the value of the
-        // specified 'original' object.
 
+    /// Create an object of type `CustomizedInt` having the specified
+    /// `value`.
     explicit CustomizedInt(int value);
-        // Create an object of type 'CustomizedInt' having the specified
-        // 'value'.
 
+    /// Destroy this object.
     ~CustomizedInt();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     CustomizedInt& operator=(const CustomizedInt& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
+    /// Reset this object to the default value (i.e., its value upon
+    /// default construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
 
+    /// Convert from the specified `value` to this type.  Return 0 if
+    /// successful and non-zero otherwise.
     int fromInt(int value);
-        // Convert from the specified 'value' to this type.  Return 0 if
-        // successful and non-zero otherwise.
 
     // ACCESSORS
+
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.  Note that a trailing newline is provided
+    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
 
+    /// Convert this value to `int`.
     const int& toInt() const;
-        // Convert this value to 'int'.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have
+/// the same value, and `false` otherwise.  Two attribute objects have the
+/// same value if each respective attribute has the same value.
 inline
 bool operator==(const CustomizedInt& lhs, const CustomizedInt& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
+/// have the same value, and `false` otherwise.  Two attribute objects do
+/// not have the same value if one or more respective attributes differ in
+/// values.
 inline
 bool operator!=(const CustomizedInt& lhs, const CustomizedInt& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
 
+/// Format the specified `rhs` to the specified output `stream` and return a
+/// reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const CustomizedInt& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and return a
-    // reference to the modifiable 'stream'.
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -491,8 +496,8 @@ namespace s_baltst {
                                // CONSTANTS
                                // ---------
 
+/// the name of this class
 const char CustomizedInt::CLASS_NAME[] = "s_baltst::CustomizedInt";
-    // the name of this class
 
 }  // close namespace s_baltst
 }  // close enterprise namespace
@@ -501,24 +506,24 @@ const char CustomizedInt::CLASS_NAME[] = "s_baltst::CustomizedInt";
 //                       *End-of-file Block removed.*
 // ----------------------------------------------------------------------------
 
+/// Match the specified floating point print `result` against the specified
+/// `matchPattern` and return `true` if `result` is considered a match, or
+/// `false` if `result` does not satisfy the `matchPattern`.  The
+/// pattern-matching is very simple, only one character is considered
+/// special: `X` matches any digit, every other character matches itself.
+/// Note that this means that the *length* of `matchPattern` must match the
+/// length of `result`, there is no way (or need) to specify optional
+/// characters.
+/// ```
+/// Pattern Examples:
+/// -----------------
+///
+/// "0.125"    -- matches "0.125", and "0.125" only.
+///
+/// "0.12X"    -- matches "0.120" to "0.129", but not "0.12" or "0.1234"
+/// ```
 bool matchFloatingPointResult(const bsl::string_view& result,
                               const bsl::string_view& matchPattern)
-    // Match the specified floating point print 'result' against the specified
-    // 'matchPattern' and return 'true' if 'result' is considered a match, or
-    // 'false' if 'result' does not satisfy the 'matchPattern'.  The
-    // pattern-matching is very simple, only one character is considered
-    // special: 'X' matches any digit, every other character matches itself.
-    // Note that this means that the *length* of 'matchPattern' must match the
-    // length of 'result', there is no way (or need) to specify optional
-    // characters.
-    //..
-    // Pattern Examples:
-    // -----------------
-    //
-    // "0.125"    -- matches "0.125", and "0.125" only.
-    //
-    // "0.12X"    -- matches "0.120" to "0.129", but not "0.12" or "0.1234"
-    //..
 {
 
     const bsl::size_t lenRes = result.length();
@@ -543,35 +548,35 @@ bool matchFloatingPointResult(const bsl::string_view& result,
     return true;
 }
 
+/// Verify the specified floating point print `result` against the specified
+/// `pattern` and return `true` if `result` is considered a match to the
+/// `pattern`, or `false` if `result` does not satisfy the `pattern`.  The
+/// pattern-matching is very simple, only two characters are considered
+/// special: `X` matches any digit, and a single '|' may be used to specify
+/// an alternate pattern considered on Microsoft Visual C++ builds only (see
+/// explanation in the code why that is needed).  In case an alternative is
+/// specified the first simple pattern (left of the '|') is considered
+/// on all platforms, and the second simple-pattern (after the '|') is
+/// considered *only* on MSVC.  Every other character matches itself.  Note
+/// that the *length* of a simple pattern must match the length of `result`,
+/// there is no way (or need) to specify optional characters.  See
+/// `matchFloatingPointResult` above for examples of simple patterns and
+/// what they match.
+/// ```
+/// Alternate Pattern Example:
+/// --------------------------
+///
+/// "0.2|0.3" -- Will match "0.2" on *all* platforms, will *also* match
+///              "0.3" on Microsoft Visual C++
+/// ```
 bool verifyFloatingPointResult(const bsl::string_view& result,
                                const bsl::string_view& pattern)
-    // Verify the specified floating point print 'result' against the specified
-    // 'pattern' and return 'true' if 'result' is considered a match to the
-    // 'pattern', or 'false' if 'result' does not satisfy the 'pattern'.  The
-    // pattern-matching is very simple, only two characters are considered
-    // special: 'X' matches any digit, and a single '|' may be used to specify
-    // an alternate pattern considered on Microsoft Visual C++ builds only (see
-    // explanation in the code why that is needed).  In case an alternative is
-    // specified the first simple pattern (left of the '|') is considered
-    // on all platforms, and the second simple-pattern (after the '|') is
-    // considered *only* on MSVC.  Every other character matches itself.  Note
-    // that the *length* of a simple pattern must match the length of 'result',
-    // there is no way (or need) to specify optional characters.  See
-    // 'matchFloatingPointResult' above for examples of simple patterns and
-    // what they match.
-    //..
-    // Alternate Pattern Example:
-    // --------------------------
-    //
-    // "0.2|0.3" -- Will match "0.2" on *all* platforms, will *also* match
-    //              "0.3" on Microsoft Visual C++
-    //..
 {
 
     const bsl::size_t altPos = pattern.find('|', 0);
 
     if (altPos != bsl::string_view::npos) {
-        // We have an alternative value for the broken MSVC 'sprintf' that may
+        // We have an alternative value for the broken MSVC `sprintf` that may
         // round the wrong way, depending on the C library version.  Since that
         // may depend on the machine the executable is run on, we have to
         // accept two alternates run-time, as we don't know compile-time which
@@ -591,8 +596,8 @@ bool verifyFloatingPointResult(const bsl::string_view& result,
 // ----------------------------------------------------------------------------
 
 // The following snippets of code illustrate the usage of this component.  It
-// prints an 'bsl::vector<char>' object using the 'BASE64' formatting mode:
-//..
+// prints an `bsl::vector<char>` object using the `BASE64` formatting mode:
+// ```
 //  #include <balxml_typesprintutil.h>
 //
 //  #include <cassert>
@@ -618,36 +623,36 @@ void usageExample1()
 
     ASSERT(EXPECTED_RESULT == ss.str());
 }
-//..
+// ```
 // The following snippet of shows what can be expected when printing valid or
-// invalid data via 'printText':
-//..
+// invalid data via `printText`:
+// ```
 void usageExample2()
 {
     bsl::ostringstream ss;
 
     const char VALID_STR[] = "Hello \t 'World'";
-//..
-// Note that all characters in the range '0x01' to '0x7F' are valid first bytes
-// (including printable ASCII, TAB '0x09', or LF '0x0a', but excluding control
-// characters other than TAB and LF) and that ampersand ('&' or '0x26'),
-// less-than ('<' or '0x3c'), greater-than ('>' or '0x3e'), apostrophe
-// ('0x27'), and quote ('"') will be printed as '&amp;', '&lt;', '&gt',
-// '&apos;' and '&quot;' respectively.  Hence the expected output for the above
-// string 'VALID_STR' is:
-//..
+// ```
+// Note that all characters in the range `0x01` to `0x7F` are valid first bytes
+// (including printable ASCII, TAB `0x09`, or LF `0x0a`, but excluding control
+// characters other than TAB and LF) and that ampersand ('&' or `0x26`),
+// less-than ('<' or `0x3c`), greater-than ('>' or `0x3e`), apostrophe
+// (`0x27`), and quote ('"') will be printed as `&amp;`, `&lt;`, `&gt`,
+// `&apos;` and `&quot;` respectively.  Hence the expected output for the above
+// string `VALID_STR` is:
+// ```
     const char EXPECTED_RESULT[] = "Hello \t &apos;World&apos;";
-//..
-// We can test that 'printText' will successfully print the string:
-//..
+// ```
+// We can test that `printText` will successfully print the string:
+// ```
     balxml::TypesPrintUtil::printText(ss, VALID_STR);
     ASSERT(ss.good());
     ASSERTV(EXPECTED_RESULT, ss.str(), EXPECTED_RESULT == ss.str());
-//..
+// ```
 // In addition, when invalid data is printed, the stream is set to a bad
 // state which is the proper means for the user to detect an error, as shown in
 // the following code snippet:
-//..
+// ```
     ss.str("");
     const char INVALID_STR[] = "Hello \300\t 'World'";
     balxml::TypesPrintUtil::printText(ss, INVALID_STR);
@@ -656,7 +661,7 @@ void usageExample2()
     ASSERTV(EXPECTED_INVALID_RESULT, ss.str(),
                  EXPECTED_INVALID_RESULT == ss.str());
 }
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -695,28 +700,28 @@ int main(int argc, char *argv[])
         //   individual list elements (that are not empty strings).
         //
         // Concerns:
-        //: 1 list-formatted array of nullable, simple types can be printed.
-        //:
-        //: 2 The textual representation of a nullable simple type that is
-        //:   not null is the same as the simple type.
-        //:
-        //: 3 The textual representation of any null value is the empty string.
-        //:
-        //: 4 Non-null elements are delimited by 1 space character even if
-        //:   separated by one or more null elements.
+        // 1. list-formatted array of nullable, simple types can be printed.
+        //
+        // 2. The textual representation of a nullable simple type that is
+        //    not null is the same as the simple type.
+        //
+        // 3. The textual representation of any null value is the empty string.
+        //
+        // 4. Non-null elements are delimited by 1 space character even if
+        //    separated by one or more null elements.
         //
         // Plan:
-        //: 1 Given two simple types, 'int' and 'bsl::string', do the
-        //:   following:
-        //:
-        //:   1 Enumerate arrays of length 0 to 3 and verify the textual
-        //:     representation of the array contains space-delimited
-        //:     representations of the value.
-        //:
-        //:   2 Enumerate arrays of nullable elements of length 0 to 3,
-        //:     with all possible permutations of null and non-null values,
-        //:     and verify the textual representation of the array contains
-        //:     space-delimited representations of the value.
+        // 1. Given two simple types, `int` and `bsl::string`, do the
+        //    following:
+        //
+        //   1. Enumerate arrays of length 0 to 3 and verify the textual
+        //      representation of the array contains space-delimited
+        //      representations of the value.
+        //
+        //   2. Enumerate arrays of nullable elements of length 0 to 3,
+        //      with all possible permutations of null and non-null values,
+        //      and verify the textual representation of the array contains
+        //      space-delimited representations of the value.
         //
         // Testing:
         //   PRINTING LISTS OF NULLABLE SIMPLE TYPES
@@ -791,17 +796,17 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'print' FUNCTION
+        // TESTING `print` FUNCTION
         //
         // Concerns:
         //
         // Plan:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'print' FUNCTION"
+        if (verbose) cout << "\nTESTING `print` FUNCTION"
                           << "\n========================" << endl;
 
-        if (verbose) cout << "\nUsing 'BASE64'." << endl;
+        if (verbose) cout << "\nUsing `BASE64`." << endl;
         {
             typedef bsl::vector<char> Type;
 
@@ -835,7 +840,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'DEC'." << endl;
+        if (verbose) cout << "\nUsing `DEC`." << endl;
         {
             typedef bool Type;
 
@@ -864,7 +869,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'DEFAULT' (bool->TEXT)." << endl;
+        if (verbose) cout << "\nUsing `DEFAULT` (bool->TEXT)." << endl;
         {
             typedef bool Type;
 
@@ -893,7 +898,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'DEFAULT' (char->DEC)." << endl;
+        if (verbose) cout << "\nUsing `DEFAULT` (char->DEC)." << endl;
         {
             typedef char Type;
 
@@ -927,7 +932,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'HEX'." << endl;
+        if (verbose) cout << "\nUsing `HEX`." << endl;
         {
             typedef bsl::vector<char> Type;
 
@@ -969,7 +974,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'IS_LIST'." << endl;
+        if (verbose) cout << "\nUsing `IS_LIST`." << endl;
         {
             typedef int                   ElemType;
             typedef bsl::vector<ElemType> Type;
@@ -1014,7 +1019,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'TEXT'." << endl;
+        if (verbose) cout << "\nUsing `TEXT`." << endl;
         {
             typedef bool Type;
 
@@ -1045,17 +1050,17 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'printDefault' FUNCTIONS
+        // TESTING `printDefault` FUNCTIONS
         //
         // Concerns:
         //
         // Plan:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'printDefault' FUNCTIONS"
+        if (verbose) cout << "\nTESTING `printDefault` FUNCTIONS"
                           << "\n================================" << endl;
 
-        if (verbose) cout << "\nUsing 'bool'." << endl;
+        if (verbose) cout << "\nUsing `bool`." << endl;
         {
             typedef bool Type;
 
@@ -1084,7 +1089,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'char'." << endl;
+        if (verbose) cout << "\nUsing `char`." << endl;
         {
             typedef char Type;
 
@@ -1118,7 +1123,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'short'." << endl;
+        if (verbose) cout << "\nUsing `short`." << endl;
         {
             typedef short Type;
 
@@ -1152,7 +1157,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'int'." << endl;
+        if (verbose) cout << "\nUsing `int`." << endl;
         {
             typedef int Type;
 
@@ -1186,7 +1191,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'long'." << endl;
+        if (verbose) cout << "\nUsing `long`." << endl;
         {
             typedef long Type;
 
@@ -1226,7 +1231,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsls::Types::Int64'." << endl;
+        if (verbose) cout << "\nUsing `bsls::Types::Int64`." << endl;
         {
             typedef bsls::Types::Int64 Type;
 
@@ -1260,7 +1265,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'unsigned char'." << endl;
+        if (verbose) cout << "\nUsing `unsigned char`." << endl;
         {
             typedef unsigned char Type;
 
@@ -1291,7 +1296,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'unsigned short'." << endl;
+        if (verbose) cout << "\nUsing `unsigned short`." << endl;
         {
             typedef unsigned short Type;
 
@@ -1322,7 +1327,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'unsigned int'." << endl;
+        if (verbose) cout << "\nUsing `unsigned int`." << endl;
         {
             typedef unsigned int Type;
 
@@ -1353,7 +1358,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsls::Types::Uint64'." << endl;
+        if (verbose) cout << "\nUsing `bsls::Types::Uint64`." << endl;
         {
             typedef bsls::Types::Uint64 Type;
 
@@ -1384,7 +1389,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'float'." << endl;
+        if (verbose) cout << "\nUsing `float`." << endl;
         {
             typedef float Type;
 
@@ -1417,7 +1422,7 @@ int main(int argc, char *argv[])
                 F( 1.234567e35f,     "1.234567e+35"    ),
                 F( 1.234567e-35f,    "1.234567e-35"    ),
 
-                // Values from 'balxml_encoder.t.cpp' 'runTestCase17'
+                // Values from `balxml_encoder.t.cpp` `runTestCase17`
                 F(1.1920928e-07f        , "1.1920928e-07" ),
                 F(2.3841856e-07f        , "2.3841856e-07" ),
                 F(1.5258789e-05f        , "1.5258789e-05" ),
@@ -1437,7 +1442,7 @@ int main(int argc, char *argv[])
 
                 // Full Mantissa Integers
                 F(1.0f * 0xFFFFFF      // this is also
-                       * (1ull << 63)  // 'NumLimits::max()'
+                       * (1ull << 63)  // `NumLimits::max()`
                        * (1ull << 41),  "3.4028235e+38"),
                 // Boundary Values
                 F( NumLimits::min(),    "1.1754944e-38"),
@@ -1509,7 +1514,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'double'." << endl;
+        if (verbose) cout << "\nUsing `double`." << endl;
         {
             typedef double Type;
 
@@ -1540,7 +1545,7 @@ int main(int argc, char *argv[])
                 D( 123.4567,                        "123.4567"               ),
                 D(1234567890123456.,   "1234567890123456"                    ),
 
-                // Values from 'balxml_encoder.t.cpp' 'runTestCase17'
+                // Values from `balxml_encoder.t.cpp` `runTestCase17`
                 D(1.1920928955078125e-07, "1.1920928955078125e-07"           ),
                 D(2.384185791015625e-07 , "2.384185791015625e-07"            ),
                 D(1.52587890625e-05     , "1.52587890625e-05"                ),
@@ -1561,7 +1566,7 @@ int main(int argc, char *argv[])
 
                 // Full Mantissa Integers
                 D(1.0 * 0x1FFFFFFFFFFFFFull, "9007199254740991"),
-                D(1.0 * 0x1FFFFFFFFFFFFFull  // This is also 'NumLimits::max()'
+                D(1.0 * 0x1FFFFFFFFFFFFFull  // This is also `NumLimits::max()`
                       * (1ull << 63) * (1ull << 63) * (1ull << 63)
                       * (1ull << 63) * (1ull << 63) * (1ull << 63)
                       * (1ull << 63) * (1ull << 63) * (1ull << 63)
@@ -1639,7 +1644,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'Decimal64'." << endl;
+        if (verbose) cout << "\nUsing `Decimal64`." << endl;
         {
             typedef bdldfp::Decimal64         Type;
             typedef bsl::numeric_limits<Type> Limits;
@@ -1778,7 +1783,7 @@ int main(int argc, char *argv[])
         }
 
 
-        if (verbose) cout << "\nUsing 'char*'." << endl;
+        if (verbose) cout << "\nUsing `char*`." << endl;
         {
             typedef const char* Type;
 
@@ -1808,7 +1813,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsl::string'." << endl;
+        if (verbose) cout << "\nUsing `bsl::string`." << endl;
         {
             typedef bsl::string Type;
 
@@ -1856,7 +1861,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bslstl::StringRef'." << endl;
+        if (verbose) cout << "\nUsing `bslstl::StringRef`." << endl;
         {
             typedef bslstl::StringRef Type;
 
@@ -1904,7 +1909,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'MyStringRef'." << endl;
+        if (verbose) cout << "\nUsing `MyStringRef`." << endl;
         {
             typedef MyStringRef Type;
 
@@ -1952,7 +1957,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsl::vector<char>'." << endl;
+        if (verbose) cout << "\nUsing `bsl::vector<char>`." << endl;
         {
             typedef bsl::vector<char> Type;
 
@@ -1986,7 +1991,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'MyEnumeration::Value'." << endl;
+        if (verbose) cout << "\nUsing `MyEnumeration::Value`." << endl;
         {
             typedef test::MyEnumeration::Value Type;
 
@@ -2015,7 +2020,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'CustomizedString'." << endl;
+        if (verbose) cout << "\nUsing `CustomizedString`." << endl;
         {
             typedef test::CustomizedString Type;
 
@@ -2048,7 +2053,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'CustomizedInt'." << endl;
+        if (verbose) cout << "\nUsing `CustomizedInt`." << endl;
         {
             typedef test::CustomizedInt Type;
 
@@ -2082,7 +2087,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'CustomizedHexBinary'." << endl;
+        if (verbose) cout << "\nUsing `CustomizedHexBinary`." << endl;
         {
             typedef s_baltst::CustomizedHexBinary Type;
 
@@ -2122,7 +2127,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'CustomizedBase64Binary'." << endl;
+        if (verbose) cout << "\nUsing `CustomizedBase64Binary`." << endl;
         {
             typedef s_baltst::CustomizedBase64Binary Type;
 
@@ -2482,7 +2487,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, result, EXP, result == EXP);
                 }
 
-                if (verbose) cout << "Print 'DateOrDateTz'" << endl;
+                if (verbose) cout << "Print `DateOrDateTz`" << endl;
                 {
                     bdlb::Variant2<bdlt::Date, bdlt::DateTz> dateVariant(
                                                                       theDate);
@@ -2528,7 +2533,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, result, EXP, result == EXP);
                 }
 
-                if (verbose) cout << "Print 'TimeOrTimeTz'" << endl;
+                if (verbose) cout << "Print `TimeOrTimeTz`" << endl;
                 {
                     bdlb::Variant2<bdlt::Time, bdlt::TimeTz> dateVariant(
                                                                       theTime);
@@ -2574,7 +2579,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, result, EXP, result == EXP);
                 }
 
-                if (verbose) cout << "Print 'DatetimeOrDatetimeTz'" << endl;
+                if (verbose) cout << "Print `DatetimeOrDatetimeTz`" << endl;
                 {
                     bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
                                                       dateVariant(theDatetime);
@@ -2663,36 +2668,36 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'printText' FUNCTIONS
+        // TESTING `printText` FUNCTIONS
         //
         // Concerns:
-        //: 1 That booleans and enumerations are printed as text properly.
-        //:
-        //: 2 That types that have the CustomizedString trait are printed
-        //:   correctly.
-        //:
-        //: 3 That invalid characters (single- and multi-bytes) are not
-        //:   printed.
-        //:
-        //: 4 That valid strings are printed correctly, and strings with
-        //:   invalid characters printed until the first invalid character.
+        // 1. That booleans and enumerations are printed as text properly.
+        //
+        // 2. That types that have the CustomizedString trait are printed
+        //    correctly.
+        //
+        // 3. That invalid characters (single- and multi-bytes) are not
+        //    printed.
+        //
+        // 4. That valid strings are printed correctly, and strings with
+        //    invalid characters printed until the first invalid character.
         //
         // Plan:
-        //   Exercise 'printText' with typical data to ascertain that it prints
+        //   Exercise `printText` with typical data to ascertain that it prints
         //   as expected for concerns 1 and 2.  For concerns 3 and 4, select
         //   test data with the boundary and area testing methods, and verify
         //   that output is as expected.  Note that since we are in effect
-        //   testing the internal method 'printTextReplacingXMLEscapes', there
+        //   testing the internal method `printTextReplacingXMLEscapes`, there
         //   is no need to test it for several types, since it is called on the
-        //   internal text buffer.  For this reason, we test only with 'char*'
-        //   data thoroughly, and trust that the forwarding for 'bsl::string'
+        //   internal text buffer.  For this reason, we test only with `char*`
+        //   data thoroughly, and trust that the forwarding for `bsl::string`
         //   and other string types will call the same method.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'printText' FUNCTIONS"
+        if (verbose) cout << "\nTESTING `printText` FUNCTIONS"
                           << "\n=============================" << endl;
 
-        if (verbose) cout << "\nUsing 'bool'." << endl;
+        if (verbose) cout << "\nUsing `bool`." << endl;
         {
             typedef bool Type;
 
@@ -2721,7 +2726,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'char' on valid input." << endl;
+        if (verbose) cout << "\nUsing `char` on valid input." << endl;
         {
             typedef char Type;
 
@@ -2806,7 +2811,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'char' on invalid input." << endl;
+        if (verbose) cout << "\nUsing `char` on invalid input." << endl;
         {
             typedef unsigned char Type;
 
@@ -3178,7 +3183,7 @@ int main(int argc, char *argv[])
             const bsl::string& HEADER = mHEADER;
             const bsl::string& TRAILER = mTRAILER;
 
-            if (verbose) cout << "\nUsing 'char*' on valid strings." << endl;
+            if (verbose) cout << "\nUsing `char*` on valid strings." << endl;
             {
                 typedef const char* Type;
 
@@ -3230,7 +3235,7 @@ int main(int argc, char *argv[])
             }
 
             if (verbose)
-                cout << "\nUsing 'bsl::string' on valid strings." << endl;
+                cout << "\nUsing `bsl::string` on valid strings." << endl;
             {
                 typedef bsl::string Type;
 
@@ -3268,7 +3273,7 @@ int main(int argc, char *argv[])
             }
 
             if (verbose)
-                cout << "\nUsing 'bslstl::StringRef' on valid strings.\n";
+                cout << "\nUsing `bslstl::StringRef` on valid strings.\n";
             {
                 typedef bslstl::StringRef Type;
 
@@ -3312,7 +3317,7 @@ int main(int argc, char *argv[])
             }
 
             if (verbose)
-                cout << "\nUsing 'MyStringRef' on valid strings.\n";
+                cout << "\nUsing `MyStringRef` on valid strings.\n";
             {
                 typedef MyStringRef Type;
 
@@ -3356,7 +3361,7 @@ int main(int argc, char *argv[])
             }
 
             if (verbose)
-                cout << "\nUsing 'vector<char>' on valid strings." << endl;
+                cout << "\nUsing `vector<char>` on valid strings." << endl;
             {
                 typedef bsl::vector<char> Type;
 
@@ -3408,7 +3413,7 @@ int main(int argc, char *argv[])
             }
 
             if (verbose)
-              cout << "\nUsing 'CustomizedString' on valid strings." << endl;
+              cout << "\nUsing `CustomizedString` on valid strings." << endl;
             {
                 typedef test::CustomizedString Type;
 
@@ -3720,7 +3725,7 @@ int main(int argc, char *argv[])
             const bsl::string& HEADER = mHEADER;
             const bsl::string& TRAILER = mTRAILER;
 
-            if (verbose) cout << "\nUsing 'char*' on invalid strings." << endl;
+            if (verbose) cout << "\nUsing `char*` on invalid strings." << endl;
             {
                 typedef const char* Type;
 
@@ -3767,7 +3772,7 @@ int main(int argc, char *argv[])
             }
 
             if (verbose)
-                cout << "\nUsing 'bsl::string' on invalid strings." << endl;
+                cout << "\nUsing `bsl::string` on invalid strings." << endl;
             {
                 typedef bsl::string Type;
 
@@ -3805,7 +3810,7 @@ int main(int argc, char *argv[])
             }
 
             if (verbose)
-                cout << "\nUsing 'bslstl::StringRef' on invalid strings."
+                cout << "\nUsing `bslstl::StringRef` on invalid strings."
                      << endl;
             {
                 typedef bslstl::StringRef Type;
@@ -3849,7 +3854,7 @@ int main(int argc, char *argv[])
             }
 
             if (verbose)
-                cout << "\nUsing 'MyStringRef' on invalid strings."
+                cout << "\nUsing `MyStringRef` on invalid strings."
                      << endl;
             {
                 typedef MyStringRef Type;
@@ -3893,7 +3898,7 @@ int main(int argc, char *argv[])
             }
 
             if (verbose)
-                cout << "\nUsing 'vector<char>' on invalid strings." << endl;
+                cout << "\nUsing `vector<char>` on invalid strings." << endl;
             {
                 typedef bsl::vector<char> Type;
 
@@ -3950,7 +3955,7 @@ int main(int argc, char *argv[])
 // written.
 
             if (verbose)
-              cout << "\nUsing 'CustomizedString' on invalid strings." << endl;
+              cout << "\nUsing `CustomizedString` on invalid strings." << endl;
             {
                 typedef test::CustomizedString Type;
 
@@ -3989,7 +3994,7 @@ int main(int argc, char *argv[])
 #endif
         }
 
-        if (verbose) cout << "\nUsing 'MyEnumeration::Value'." << endl;
+        if (verbose) cout << "\nUsing `MyEnumeration::Value`." << endl;
         {
             typedef test::MyEnumeration::Value Type;
 
@@ -4021,17 +4026,17 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'printList' FUNCTIONS
+        // TESTING `printList` FUNCTIONS
         //
         // Concerns:
         //
         // Plan:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'printList' FUNCTIONS"
+        if (verbose) cout << "\nTESTING `printList` FUNCTIONS"
                           << "\n=============================" << endl;
 
-        if (verbose) cout << "\nUsing 'bsl::vector<int>'." << endl;
+        if (verbose) cout << "\nUsing `bsl::vector<int>`." << endl;
         {
             typedef int                   ElemType;
             typedef bsl::vector<ElemType> Type;
@@ -4071,14 +4076,14 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'printHex' FUNCTIONS
+        // TESTING `printHex` FUNCTIONS
         //
         // Concerns:
         //
         // Plan:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'printHex' FUNCTIONS"
+        if (verbose) cout << "\nTESTING `printHex` FUNCTIONS"
                           << "\n============================" << endl;
 
         static const struct {
@@ -4096,7 +4101,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout << "\nUsing 'bsl::string'." << endl;
+        if (verbose) cout << "\nUsing `bsl::string`." << endl;
         {
             typedef bsl::string Type;
 
@@ -4115,7 +4120,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bslstl::StringRef'." << endl;
+        if (verbose) cout << "\nUsing `bslstl::StringRef`." << endl;
         {
             typedef bslstl::StringRef Type;
 
@@ -4134,7 +4139,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'MyStringRef'." << endl;
+        if (verbose) cout << "\nUsing `MyStringRef`." << endl;
         {
             typedef MyStringRef Type;
 
@@ -4153,7 +4158,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsl::vector<char>'." << endl;
+        if (verbose) cout << "\nUsing `bsl::vector<char>`." << endl;
         {
             typedef bsl::vector<char> Type;
 
@@ -4172,7 +4177,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'CustomizedHexBinary'." << endl;
+        if (verbose) cout << "\nUsing `CustomizedHexBinary`." << endl;
         {
             typedef s_baltst::CustomizedHexBinary Type;
 
@@ -4193,7 +4198,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'CustomizedBase64Binary'." << endl;
+        if (verbose) cout << "\nUsing `CustomizedBase64Binary`." << endl;
         {
             typedef s_baltst::CustomizedBase64Binary Type;
 
@@ -4217,17 +4222,17 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'printDecimal' FUNCTIONS
+        // TESTING `printDecimal` FUNCTIONS
         //
         // Concerns:
         //
         // Plan:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'printDecimal' FUNCTIONS"
+        if (verbose) cout << "\nTESTING `printDecimal` FUNCTIONS"
                           << "\n================================" << endl;
 
-        if (verbose) cout << "\nUsing 'bool'." << endl;
+        if (verbose) cout << "\nUsing `bool`." << endl;
         {
             typedef bool Type;
 
@@ -4256,7 +4261,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'char'." << endl;
+        if (verbose) cout << "\nUsing `char`." << endl;
         {
             typedef char Type;
 
@@ -4290,7 +4295,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'short'." << endl;
+        if (verbose) cout << "\nUsing `short`." << endl;
         {
             typedef short Type;
 
@@ -4324,7 +4329,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'int'." << endl;
+        if (verbose) cout << "\nUsing `int`." << endl;
         {
             typedef int Type;
 
@@ -4358,7 +4363,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'long'." << endl;
+        if (verbose) cout << "\nUsing `long`." << endl;
         {
             typedef long Type;
 
@@ -4398,7 +4403,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsls::Types::Int64'." << endl;
+        if (verbose) cout << "\nUsing `bsls::Types::Int64`." << endl;
         {
             typedef bsls::Types::Int64 Type;
 
@@ -4432,7 +4437,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'unsigned char'." << endl;
+        if (verbose) cout << "\nUsing `unsigned char`." << endl;
         {
             typedef unsigned char Type;
 
@@ -4463,7 +4468,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'unsigned short'." << endl;
+        if (verbose) cout << "\nUsing `unsigned short`." << endl;
         {
             typedef unsigned short Type;
 
@@ -4494,7 +4499,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'unsigned int'." << endl;
+        if (verbose) cout << "\nUsing `unsigned int`." << endl;
         {
             typedef unsigned int Type;
 
@@ -4525,7 +4530,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'unsigned long'." << endl;
+        if (verbose) cout << "\nUsing `unsigned long`." << endl;
         {
             typedef unsigned long Type;
 
@@ -4562,7 +4567,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsls::Types::Uint64'." << endl;
+        if (verbose) cout << "\nUsing `bsls::Types::Uint64`." << endl;
         {
             typedef bsls::Types::Uint64 Type;
 
@@ -4593,7 +4598,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'MyEnumeration::Value'." << endl;
+        if (verbose) cout << "\nUsing `MyEnumeration::Value`." << endl;
         {
             typedef test::MyEnumeration::Value Type;
 
@@ -4622,7 +4627,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'CustomizedInt'." << endl;
+        if (verbose) cout << "\nUsing `CustomizedInt`." << endl;
         {
             typedef test::CustomizedInt Type;
 
@@ -4656,7 +4661,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'float'." << endl;
+        if (verbose) cout << "\nUsing `float`." << endl;
         {
             typedef float Type;
 
@@ -4679,7 +4684,7 @@ int main(int argc, char *argv[])
                 F(    1.0f,                 "1"                              ),
                 F(  123.4567f,            "123.4567"                         ),
 
-                // Values from 'balxml_encoder.t.cpp' 'runTestCase17'
+                // Values from `balxml_encoder.t.cpp` `runTestCase17`
                 F(1.5258789e-05f      ,                   "0.000015258789"),
                 F(3.0517578e-05f      ,                   "0.000030517578"),
                 F(6.1035156e-05f      ,                   "0.000061035156"),
@@ -4764,7 +4769,7 @@ int main(int argc, char *argv[])
 
                 balxml::EncoderOptions options;
                 Util::printDecimal(ss, INPUT, &options);
-                // 'float' decimal printing uses no options
+                // `float` decimal printing uses no options
 
                 if (bdlb::Float::isNan(INPUT) ||
                     bdlb::Float::isInfinite(INPUT)) {
@@ -4783,7 +4788,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'double'." << endl;
+        if (verbose) cout << "\nUsing `double`." << endl;
         {
             typedef double Type;
 
@@ -4806,7 +4811,7 @@ int main(int argc, char *argv[])
                 D( 1.0,                                 "1"                ),
                 D( 123.4567,                          "123.4567"           ),
 
-                // Values from 'balxml_encoder.t.cpp' 'runTestCase17'
+                // Values from `balxml_encoder.t.cpp` `runTestCase17`
                 D(1.52587890625e-05  ,                   "0.0000152587890625"),
                 D(3.0517578125e-05   ,                   "0.000030517578125" ),
                 D(6.103515625e-05    ,                   "0.00006103515625"  ),
@@ -4851,7 +4856,7 @@ int main(int argc, char *argv[])
 
                 // Full Mantissa Integers
                 D(1.0 * 0x1FFFFFFFFFFFFFull, "9007199254740991"),
-                D(1.0 * 0x1FFFFFFFFFFFFFull // This is also 'NumLimits::max()'
+                D(1.0 * 0x1FFFFFFFFFFFFFull // This is also `NumLimits::max()`
                       * (1ull << 63) * (1ull << 63) * (1ull << 63)
                       * (1ull << 63) * (1ull << 63) * (1ull << 63)
                       * (1ull << 63) * (1ull << 63) * (1ull << 63)
@@ -4940,7 +4945,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'double' with encoder options" << endl;
+        if (verbose) cout << "\nUsing `double` with encoder options" << endl;
         {
             typedef double Type;
 
@@ -5103,7 +5108,7 @@ int main(int argc, char *argv[])
         // Large integer parts writing more digits than asked for
         D(  123456.001,         4,   N,          "123456.0"                  ),
 
-        // Values from 'balxml_encoder.t.cpp' 'runTestCase17' (no opts set)
+        // Values from `balxml_encoder.t.cpp` `runTestCase17` (no opts set)
         D(1.52587890625e-05  ,  N,   N,                  "0.0000152587890625"),
         D(3.0517578125e-05   ,  N,   N,                  "0.000030517578125" ),
         D(6.103515625e-05    ,  N,   N,                  "0.00006103515625"  ),
@@ -5140,7 +5145,7 @@ int main(int argc, char *argv[])
         D( 18014398509481984.,  N,   N,  "18014398509481984"                 ),
         D(144115188075855870.,  N,   N, "144115188075855872"                 ),
 
-        // More from 'balxml_encoder.t.cpp' 'runTestCase17' (with options set)
+        // More from `balxml_encoder.t.cpp` `runTestCase17` (with options set)
         D(1.52587890625e-05   ,   N,   0,                  "0.0"             ),
         D(3.0517578125e-05    ,   N,   0,                  "0.0"             ),
         D(6.103515625e-05     ,   N,   0,                  "0.0"             ),
@@ -5270,7 +5275,7 @@ int main(int argc, char *argv[])
           "332123348274797826204144723168738177180919299881250404026184" // 300
           "124858368.0"),                                                // 311
 #else
-        // AIX 'sprintf' is "lazy"
+        // AIX `sprintf` is "lazy"
         D(Limits::max(), N, 0,
           "179769313486231570814527423731704356800000000000000000000000" //  60
           "000000000000000000000000000000000000000000000000000000000000" // 120
@@ -5289,7 +5294,7 @@ int main(int argc, char *argv[])
           "332123348274797826204144723168738177180919299881250404026184" // 300
           "124858368.00000000000000000"),                                // 327
 #else
-        // AIX 'sprintf' is "lazy"
+        // AIX `sprintf` is "lazy"
         D(Limits::max(), 326, 17,
           "179769313486231570814527423731704356800000000000000000000000" //  60
           "000000000000000000000000000000000000000000000000000000000000" // 120
@@ -5330,7 +5335,7 @@ int main(int argc, char *argv[])
                "74797826204144723168738177180919299881250404026184"  // 300 + 1
                "124858368.0"),                                       // 311 + 1
 #else
-        // AIX 'sprintf' is "lazy"
+        // AIX `sprintf` is "lazy"
         D(-Limits::max(), N, 0, "-"                                  //     + 1
                "17976931348623157081452742373170435680000000000000"  //  50 + 1
                "00000000000000000000000000000000000000000000000000"  // 100 + 1
@@ -5351,7 +5356,7 @@ int main(int argc, char *argv[])
                "74797826204144723168738177180919299881250404026184"  // 300 + 1
                "124858368.00000000000000000"),                       // 327 + 1
 #else
-        // AIX 'sprintf' is "lazy"
+        // AIX `sprintf` is "lazy"
         D(-Limits::max(), 326, 17, "-"                               //     + 1
                "17976931348623157081452742373170435680000000000000"  //  50 + 1
                "00000000000000000000000000000000000000000000000000"  // 100 + 1
@@ -5406,14 +5411,14 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'printBase64' FUNCTIONS
+        // TESTING `printBase64` FUNCTIONS
         //
         // Concerns:
         //
         // Plan:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'printBase64' FUNCTIONS"
+        if (verbose) cout << "\nTESTING `printBase64` FUNCTIONS"
                           << "\n===============================" << endl;
 
         static const struct {
@@ -5431,7 +5436,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout << "\nUsing 'bsl::string'." << endl;
+        if (verbose) cout << "\nUsing `bsl::string`." << endl;
         {
             typedef bsl::string Type;
 
@@ -5450,7 +5455,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bslstl::StringRef'." << endl;
+        if (verbose) cout << "\nUsing `bslstl::StringRef`." << endl;
         {
             typedef bslstl::StringRef Type;
 
@@ -5469,7 +5474,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'MyStringRef'." << endl;
+        if (verbose) cout << "\nUsing `MyStringRef`." << endl;
         {
             typedef MyStringRef Type;
 
@@ -5488,7 +5493,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsl::vector<char>'." << endl;
+        if (verbose) cout << "\nUsing `bsl::vector<char>`." << endl;
         {
             typedef bsl::vector<char> Type;
 
@@ -5513,13 +5518,13 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Use a string streams as output.
-        //: 2 Write some scalar values in different formatting modes.
-        //: 3 Write 'vector<char>' (stand-in for "binary data) in Base64 & Hex.
+        // 1. Use a string streams as output.
+        // 2. Write some scalar values in different formatting modes.
+        // 3. Write `vector<char>` (stand-in for "binary data) in Base64 & Hex.
         //
         // Testing:
         //   BREATHING TEST

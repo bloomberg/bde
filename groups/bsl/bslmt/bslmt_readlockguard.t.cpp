@@ -3,8 +3,8 @@
 
 #include <bslim_testutil.h>
 
-#include <bsl_cstring.h>  // 'strcmp'
-#include <bsl_cstdlib.h>  // 'atoi'
+#include <bsl_cstring.h>  // `strcmp`
+#include <bsl_cstdlib.h>  // `atoi`
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -15,11 +15,11 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              OVERVIEW
 //                              --------
-// This program tests the functionality of the 'bslmt::ReadLockGuard' class.
+// This program tests the functionality of the `bslmt::ReadLockGuard` class.
 // It verifies that the class properly locks the synchronization object for
 // read at construction time, and that it properly unlocks the object at
-// destruction time.  A helper class, 'my_RWLock', is created to facilitate the
-// test process.  'my_RWLock' implements the required lock and unlock
+// destruction time.  A helper class, `my_RWLock`, is created to facilitate the
+// test process.  `my_RWLock` implements the required lock and unlock
 // interfaces and provides a means to determine when the functions are called.
 //
 //-----------------------------------------------------------------------------
@@ -44,9 +44,9 @@ using namespace bsl;
 // [4] bslmt::ReadLockGuardTryLock::release();
 // [4] bslmt::ReadLockGuardTryLock::ptr();
 //-----------------------------------------------------------------------------
-// [1] Ensure helper class 'my_RWLock' works as expected
-// [5] INTERACTION BET. 'bslmt::ReadLockGuard' AND 'bslmt::ReadLockGuardUnlock'
-// [6] DEPRECATED 'bslmt::LockReadGuard'
+// [1] Ensure helper class `my_RWLock` works as expected
+// [5] INTERACTION BET. `bslmt::ReadLockGuard` AND `bslmt::ReadLockGuardUnlock`
+// [6] DEPRECATED `bslmt::LockReadGuard`
 // [7] USAGE EXAMPLES
 
 // ============================================================================
@@ -101,14 +101,14 @@ int someCondition = 0;
 int someUpgradeCondition = 0;
 int someOtherCondition = 0;
 
+/// This class provides a simulated mutual exclusion mechanism which
+/// conforms to the interface required by the `bslmt::ReadLockGuard` class.
+/// It operates using a counter to track the symbolic "locked" state.  Each
+/// call to the lock and unlock functions increment or decrement the lock
+/// count respectively.  The current state of the lock count is accessible
+/// through the lockCount method.  The `tryLock` is designed to fail the
+/// first time, then succeed every other time.
 struct my_RWLock {
-    // This class provides a simulated mutual exclusion mechanism which
-    // conforms to the interface required by the 'bslmt::ReadLockGuard' class.
-    // It operates using a counter to track the symbolic "locked" state.  Each
-    // call to the lock and unlock functions increment or decrement the lock
-    // count respectively.  The current state of the lock count is accessible
-    // through the lockCount method.  The 'tryLock' is designed to fail the
-    // first time, then succeed every other time.
 
     int d_count;
     int d_attempt;
@@ -141,9 +141,9 @@ struct my_Object {
 ///-----
 // Use this component to ensure that in the event of an exception or exit from
 // any point in a given scope, the synchronization object will be properly
-// unlocked.  The following function, 'errorProneFunc', is overly complex, not
+// unlocked.  The following function, `errorProneFunc`, is overly complex, not
 // exception safe, and contains a bug.
-//..
+// ```
     static void errorProneFunc(const my_Object *obj, my_RWLock *rwlock)
     {
         rwlock->lockRead();
@@ -160,12 +160,12 @@ struct my_Object {
         rwlock->unlock();
         return;
     }
-//..
+// ```
 // The function can be rewritten with a cleaner and safer implementation using
-// a guard object.  The 'safeFunc' function is simpler than 'errorProneFunc',
+// a guard object.  The `safeFunc` function is simpler than `errorProneFunc`,
 // is exception safe, and avoids the multiple calls to unlock that can be a
 // source of errors.
-//..
+// ```
     static void safeFunc(const my_Object *obj, my_RWLock *rwlock)
     {
         bslmt::ReadLockGuard<my_RWLock> guard(rwlock);
@@ -180,13 +180,14 @@ struct my_Object {
         obj->defaultMethod();
         return;
     }
-//..
+// ```
 // When blocking while acquiring the lock is not desirable, one may instead use
-// a 'bslmt::ReadLockGuardTryLock' in the typical following fashion:
-//..
+// a `bslmt::ReadLockGuardTryLock` in the typical following fashion:
+// ```
+
+    /// Perform task and return positive value if locking succeeds.  Return
+    /// 0 if locking fails.
     static int safeButNonBlockingFunc(const my_Object *obj, my_RWLock *rwlock)
-        // Perform task and return positive value if locking succeeds.  Return
-        // 0 if locking fails.
     {
         const int RETRIES = 1; // use higher values for higher success rate
         bslmt::ReadLockGuardTryLock<my_RWLock> guard(rwlock, RETRIES);
@@ -203,13 +204,13 @@ struct my_Object {
         }
         return 0;
     }
-//..
+// ```
 // If the underlying lock object provides an upgrade to a lock for write (as
-// does 'bslmt::ReaderWriterLock' with the 'upgradeToWriteLock' function, for
+// does `bslmt::ReaderWriterLock` with the `upgradeToWriteLock` function, for
 // example), this can be safely used in conjunction with
-// 'bslmt::ReadLockGuard', as long as the same 'unlock' method is used to
+// `bslmt::ReadLockGuard`, as long as the same `unlock` method is used to
 // release both kinds of locks.  The following method illustrates this usage:
-//..
+// ```
     static void safeUpdateFunc(my_Object *obj, my_RWLock *rwlock)
     {
         const my_Object *constObj = obj;
@@ -226,16 +227,16 @@ struct my_Object {
         constObj->defaultMethod();
         return;
     }
-//..
-// In the above code, the call to 'upgradeToWriteLock' is not necessarily
+// ```
+// In the above code, the call to `upgradeToWriteLock` is not necessarily
 // atomic, as the upgrade may release the lock for read and be interrupted
 // before getting a lock for write.  It is possible to guarantee atomicity (as
-// does 'bslmt::ReaderWriterLock' if the 'lockReadReserveWrite' function is
-// used instead of 'lockRead', for example), but the standard constructor
-// should not be used.  Instead, the 'lockReadReserveWrite' lock function
+// does `bslmt::ReaderWriterLock` if the `lockReadReserveWrite` function is
+// used instead of `lockRead`, for example), but the standard constructor
+// should not be used.  Instead, the `lockReadReserveWrite` lock function
 // should be used explicitly, and the guard constructed with an object which is
 // already locked.  The following method illustrates this usage:
-//..
+// ```
     static void safeAtomicUpdateFunc(my_Object *obj, my_RWLock *rwlock)
     {
         const my_Object *constObj = obj;
@@ -253,14 +254,14 @@ struct my_Object {
         constObj->defaultMethod();
         return;
     }
-//..
-// Note that in the code above, the function 'rwlock->lockRead()' is never
+// ```
+// Note that in the code above, the function `rwlock->lockRead()` is never
 // called, but is nevertheless required for the code to compile.
 //
-// Instantiations of 'bslmt::ReadLockGuardUnlock' can be interleaved with
-// instantiations of 'bslmt::ReadLockGuard' to create both critical sections
+// Instantiations of `bslmt::ReadLockGuardUnlock` can be interleaved with
+// instantiations of `bslmt::ReadLockGuard` to create both critical sections
 // and regions where the lock is released.
-//..
+// ```
     void f(my_RWLock *rwlock)
     {
         bslmt::ReadLockGuard<my_RWLock> guard(rwlock);
@@ -277,7 +278,7 @@ struct my_Object {
         // critical section here
 
     } // rwlock is unlocked here
-//..
+// ```
 // Care must be taken so as not to interleave guard objects in such a way as to
 // cause an illegal sequence of calls on a lock (two sequential lock calls or
 // two sequential unlock calls on a non-recursive read/write lock).
@@ -378,7 +379,7 @@ int main(int argc, char *argv[])
         // DEPRECATED CLASSES
         //
         // Concern:
-        //   Backwards compatibility: ensure that the 'bslmt::LockReadGuard'
+        //   Backwards compatibility: ensure that the `bslmt::LockReadGuard`
         //   class exists and still works.
         //
         // Plan:
@@ -436,28 +437,28 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // INTERACTION BETWEEN 'bslmt::ReadLockGuard' AND
-        // 'bslmt::ReadLockGuardUnlock'
+        // INTERACTION BETWEEN `bslmt::ReadLockGuard` AND
+        // `bslmt::ReadLockGuardUnlock`
         //
         // Concern:
-        //   That 'bslmt::ReadLockGuard' and 'bslmt::ReadLockGuardUnlock'
+        //   That `bslmt::ReadLockGuard` and `bslmt::ReadLockGuardUnlock`
         //   interact together as expected.  That two different lock guards on
-        //   two different 'my_RWLock' objects do not interfere with each
+        //   two different `my_RWLock` objects do not interfere with each
         //   other.
         //
         // Plan:
-        //   We verify that using two independent 'my_RWLock' objects with two
-        //   distinct 'bslmt::ReadLockGuard' *and* 'bslmt::ReadLockGuardUnlock'
+        //   We verify that using two independent `my_RWLock` objects with two
+        //   distinct `bslmt::ReadLockGuard` *and* `bslmt::ReadLockGuardUnlock`
         //   objects in the same scope have no effect on each other.
         //
         // Testing:
         //   Interaction between lock and unlock guards, as well as
-        //   between two lock guards on two different 'my_RWLock' objects.
+        //   between two lock guards on two different `my_RWLock` objects.
         // --------------------------------------------------------------------
 
         if (verbose)
             cout << "\tTesting interaction between "
-                    "'bslmt::ReadLockGuard' and bslmt::ReadLockGuardUnlock'"
+                    "`bslmt::ReadLockGuard` and bslmt::ReadLockGuardUnlock'"
                  << endl
                  << "=============================="
                     "========================================"
@@ -490,29 +491,29 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING CLASS 'bslmt::ReadLockGuardTryLock'
+        // TESTING CLASS `bslmt::ReadLockGuardTryLock`
         //
         // Concern:
-        //   That the basic functionality of the 'bslmt::ReadLockGuardTryLock'
+        //   That the basic functionality of the `bslmt::ReadLockGuardTryLock`
         //   class template is correct.
         //
         // Plan:
         //   We begin by creating a series of nested
-        //   'bslmt::ReadLockGuardTryLock' objects using a common 'my_RWLock'
+        //   `bslmt::ReadLockGuardTryLock` objects using a common `my_RWLock`
         //   object.  With each new object we verify that the lock function is
         //   called only if the constructor succeeds.  As each object is
         //   destroyed, we verify that the unlock function is called.
         //
-        //   Next, we verify that the 'release' function works properly by
-        //   constructing a new 'bslmt::ReadLockGuard' and calling 'release'.
+        //   Next, we verify that the `release` function works properly by
+        //   constructing a new `bslmt::ReadLockGuard` and calling `release`.
         //   We verify that the returned pointer matches the value we supplied
         //   only if the constructor succeeded in acquiring the lock.  We then
-        //   verify that 'release' makes no attempt to unlock the supplied
-        //   object and that when the 'bslmt::ReadLockGuardTryLock' object is
+        //   verify that `release` makes no attempt to unlock the supplied
+        //   object and that when the `bslmt::ReadLockGuardTryLock` object is
         //   destroyed, it does not unlock the object.
         //
-        //   Finally we test that a 'bslmt::ReadLockGuardTryLock' can be
-        //   created with a null lock, and that 'release' may be called on the
+        //   Finally we test that a `bslmt::ReadLockGuardTryLock` can be
+        //   created with a null lock, and that `release` may be called on the
         //   guard.
         //
         // Testing:
@@ -584,29 +585,29 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING CLASS 'bslmt::ReadLockGuardUnlock'
+        // TESTING CLASS `bslmt::ReadLockGuardUnlock`
         //
         // Concern:
-        //   That the basic functionality of the 'bslmt::ReadLockGuardUnlock'
+        //   That the basic functionality of the `bslmt::ReadLockGuardUnlock`
         //   class template is correct.
         //
         // Plan:
         //   We begin by creating a series of nested
-        //   'bslmt::ReadLockGuardUnlock' objects using a common 'my_RWLock'
+        //   `bslmt::ReadLockGuardUnlock` objects using a common `my_RWLock`
         //   object.  With each new object we verify that the unlock function
         //   is called.  As each object is destroyed, we verify that the lock
         //   function is called.
         //
-        //   Next, we verify that the 'release' function works properly by
-        //   constructing a new 'bslmt::ReadLockGuardUnlock' and calling
-        //   'release'.  We verify that the returned pointer matches the value
-        //   we supplied.  We then verify that 'release' makes no attempt to
+        //   Next, we verify that the `release` function works properly by
+        //   constructing a new `bslmt::ReadLockGuardUnlock` and calling
+        //   `release`.  We verify that the returned pointer matches the value
+        //   we supplied.  We then verify that `release` makes no attempt to
         //   unlock the supplied object and that when the
-        //   'bslmt::ReadLockGuardUnlock' object is destroyed, it does not
+        //   `bslmt::ReadLockGuardUnlock` object is destroyed, it does not
         //   unlock the object.
         //
-        //   Finally we test that a 'bslmt::ReadLockGuardUnlock' can be created
-        //   with a null lock, and that 'release' may be called on the guard.
+        //   Finally we test that a `bslmt::ReadLockGuardUnlock` can be created
+        //   with a null lock, and that `release` may be called on the guard.
         //
         // Testing:
         //   bslmt::ReadLockGuardUnlock();
@@ -681,27 +682,27 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING CLASS 'bslmt::ReadLockGuard'
+        // TESTING CLASS `bslmt::ReadLockGuard`
         //
         // Concern:
-        //   That the basic functionality of the 'bslmt::ReadLockGuard' class
+        //   That the basic functionality of the `bslmt::ReadLockGuard` class
         //   template is correct.
         //
         // Plan:
-        //   We begin by creating a series of nested 'bslmt::ReadLockGuard'
-        //   objects using a common 'my_RWLock' object.  With each new object
+        //   We begin by creating a series of nested `bslmt::ReadLockGuard`
+        //   objects using a common `my_RWLock` object.  With each new object
         //   we verify that the lock function was called.  As each object is
         //   destroyed, we verify that the unlock function is called.
         //
-        //   Next, we verify that the 'release' function works properly by
-        //   constructing a new 'bslmt::ReadLockGuard' and calling 'release'.
+        //   Next, we verify that the `release` function works properly by
+        //   constructing a new `bslmt::ReadLockGuard` and calling `release`.
         //   We verify that the returned pointer matches the value we supplied.
-        //   We then verify that 'release' makes no attempt to unlock the
-        //   supplied object and that when the 'bslmt::ReadLockGuard' object is
+        //   We then verify that `release` makes no attempt to unlock the
+        //   supplied object and that when the `bslmt::ReadLockGuard` object is
         //   destroyed, it does not unlock the object.
         //
-        //   Finally we test that a 'bslmt::ReadLockGuard' can be created with
-        //   a null lock, and that 'release' may be called on the guard.
+        //   Finally we test that a `bslmt::ReadLockGuard` can be created with
+        //   a null lock, and that `release` may be called on the guard.
         //
         // Testing:
         //   bslmt::ReadLockGuard();
@@ -774,7 +775,7 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // HELPER CLASS TEST
-        //   The 'my_RWLock' class is a simple type that supports the lock and
+        //   The `my_RWLock` class is a simple type that supports the lock and
         //   unlock methods used by the guard class.  These methods simply
         //   increment and decrement a count integer data member.
         //

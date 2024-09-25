@@ -18,7 +18,7 @@
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
-#include <bsl_new.h>         // placement 'new' syntax
+#include <bsl_new.h>         // placement `new` syntax
 #include <bsl_set.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
@@ -168,15 +168,15 @@ bslma::TestAllocator testAllocator;
 
      // attributeset.h
 
+    /// A simple set based implementation of the `ball::AttributeContainer`
+    /// protocol used for testing.
     class AttributeSet : public ball::AttributeContainer {
-        // A simple set based implementation of the 'ball::AttributeContainer'
-        // protocol used for testing.
 
+        /// Return `true` if the specified `lhs` is ordered before the
+        /// specified `rhs`.
         struct AttributeComparator {
             bool operator()(const ball::Attribute& lhs,
                             const ball::Attribute& rhs) const
-                // Return 'true' if the specified 'lhs' is ordered before the
-                // specified 'rhs'.
             {
                 int cmp = bsl::strcmp(lhs.name(), rhs.name());
                 if (0 != cmp) {
@@ -234,45 +234,47 @@ bslma::TestAllocator testAllocator;
                                        bslma::UsesBslmaAllocator);
 
         // CREATORS
+
+        /// Create this attribute set.
         explicit
         AttributeSet(bslma::Allocator *basicAllocator = 0);
-            // Create this attribute set.
 
+        /// Create an attribute set with the same value as the specified
+        /// `original`.
         AttributeSet(const AttributeSet&  original,
                      bslma::Allocator    *basicAllocator = 0);
-            // Create an attribute set with the same value as the specified
-            // 'original'.
 
+        /// Destroy this attribute set.
         ~AttributeSet() BSLS_KEYWORD_OVERRIDE;
-            // Destroy this attribute set.
 
         // MANIPULATORS
-        void insert(const ball::Attribute& value);
-            // Add the specified 'value' to this attribute set.
 
+        /// Add the specified `value` to this attribute set.
+        void insert(const ball::Attribute& value);
+
+        /// Remove the specified `value` from this attribute set, return
+        /// `true` if the attribute was found, and `false` if `value` was
+        /// not a member of this set.
         bool remove(const ball::Attribute& value);
-            // Remove the specified 'value' from this attribute set, return
-            // 'true' if the attribute was found, and 'false' if 'value' was
-            // not a member of this set.
 
         // ACCESSORS
         bool hasValue(const ball::Attribute& value) const
                                                          BSLS_KEYWORD_OVERRIDE;
-            // Return 'true' if the attribute having specified 'value' exists
-            // in this object, and 'false' otherwise.
+            // Return `true` if the attribute having specified `value` exists
+            // in this object, and `false` otherwise.
 
         bsl::ostream& print(bsl::ostream& stream,
                             int           level = 0,
                             int           spacesPerLevel = 4) const
                                                          BSLS_KEYWORD_OVERRIDE;
-            // Format this object to the specified output 'stream' at the
-            // (absolute value of) the optionally specified indentation 'level'
-            // and return a reference to 'stream'.
+            // Format this object to the specified output `stream` at the
+            // (absolute value of) the optionally specified indentation `level`
+            // and return a reference to `stream`.
 
         void visitAttributes(
              const bsl::function<void(const ball::Attribute&)>& visitor) const
                                                          BSLS_KEYWORD_OVERRIDE;
-        // Invoke the specified 'visitor' function for all attributes in this
+        // Invoke the specified `visitor` function for all attributes in this
         // container.
     };
 
@@ -350,33 +352,35 @@ bslma::TestAllocator testAllocator;
                         // class TestPrintContainer
                         // ========================
 
+/// An implementation of `ball::AttributeContainer` intended to test the
+/// `print` method.
 class TestPrintContainer : public ball::AttributeContainer {
-    // An implementation of 'ball::AttributeContainer' intended to test the
-    // 'print' method.
 
     char d_char;
 
   public:
 
+    /// Create a `TestPrintContainer` that will print `X` when `print` is
+    /// invoked.
     TestPrintContainer() : d_char('X') {}
-        // Create a 'TestPrintContainer' that will print 'X' when 'print' is
-        // invoked.
 
+    /// Create a `TestPrintContainer` that will print the specified `c`
+    /// when `print` is invoked.
     TestPrintContainer(char c) : d_char(c) {}
-        // Create a 'TestPrintContainer' that will print the specified 'c'
-        // when 'print' is invoked.
 
+    /// Destroy this attribute set.
     ~TestPrintContainer() BSLS_KEYWORD_OVERRIDE {}
-        // Destroy this attribute set.
 
     // MANIPULATORS
+
+    /// Set to the character to be printed by this object to the specified
+    /// `c`.
     void setChar(char c) { d_char = c; }
-        // Set to the character to be printed by this object to the specified
-        // 'c'.
 
     // ACCESSORS
+
+    /// Return `true`.
     bool hasValue(const ball::Attribute&) const BSLS_KEYWORD_OVERRIDE
-        // Return 'true'.
     {
         return true;
     }
@@ -385,14 +389,14 @@ class TestPrintContainer : public ball::AttributeContainer {
                         int           level = 0,
                         int           spacesPerLevel = 4) const
                                                          BSLS_KEYWORD_OVERRIDE;
-        // Format this object to the specified output 'stream' at the
-        // (absolute value of) the optionally specified indentation 'level'
-        // and return a reference to 'stream'.
+        // Format this object to the specified output `stream` at the
+        // (absolute value of) the optionally specified indentation `level`
+        // and return a reference to `stream`.
 
     void visitAttributes(
         const bsl::function<void(const ball::Attribute&)>& visitor) const
                                                          BSLS_KEYWORD_OVERRIDE;
-        // Invoke the specified 'visitor' function for all attributes in this
+        // Invoke the specified `visitor` function for all attributes in this
         // container.
 };
 
@@ -421,11 +425,11 @@ void TestPrintContainer::visitAttributes(
 //                          FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Return `true` if the specified `expectedValue` equals the specified
+/// `actualValue`, otherwise return `false` and output to the console
+/// information about the lowest index where the two values differ.
 bool stringDiff(const bsl::string& expectedValue,
                 const bsl::string& actualValue)
-    // Return 'true' if the specified 'expectedValue' equals the specified
-    // 'actualValue', otherwise return 'false' and output to the console
-    // information about the lowest index where the two values differ.
 {
     const char *exp = expectedValue.c_str();
     const char *act = actualValue.c_str();
@@ -446,10 +450,10 @@ bool stringDiff(const bsl::string& expectedValue,
 }
 
 //=============================================================================
-//       GENERATOR FUNCTIONS 'g', 'gg', AND 'ggg' FOR TESTING LISTS
+//       GENERATOR FUNCTIONS `g`, `gg`, AND `ggg` FOR TESTING LISTS
 //-----------------------------------------------------------------------------
-// The 'g' family of functions generate a 'ball::AttributeContainerList' object
-// for testing.  They interpret a given 'spec' (from left to right) to
+// The `g` family of functions generate a `ball::AttributeContainerList` object
+// for testing.  They interpret a given `spec` (from left to right) to
 // configure list from a sequence of containers
 //
 // LANGUAGE SPECIFICATION:
@@ -524,34 +528,34 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Usage of 'ball::AttributeContainerList'
+///Example 1: Basic Usage of `ball::AttributeContainerList`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we demonstrate how to create a
-// 'ball::AttributeContainerList' object, how to add and remove elements from
+// `ball::AttributeContainerList` object, how to add and remove elements from
 // the list, and how to walk the list of attribute container addresses.
 //
 // We start by creating three attribute sets that we will use to populate our
-// attribute container list.  Note that this example uses the 'AttributeSet'
-// implementation of the 'ball::AttributeContainer' protocol defined in the
-// 'ball_attributecontainer' component documentation.
-//..
+// attribute container list.  Note that this example uses the `AttributeSet`
+// implementation of the `ball::AttributeContainer` protocol defined in the
+// `ball_attributecontainer` component documentation.
+// ```
     AttributeSet s1, s2, s3;
     s1.insert(ball::Attribute("Set1", 1));
     s2.insert(ball::Attribute("Set2", 2));
     s3.insert(ball::Attribute("Set3", 3));
 //
-//..
-// We can now create our 'ball::AttributeContainerList' and add the three
+// ```
+// We can now create our `ball::AttributeContainerList` and add the three
 // attribute container addresses to the list:
-//..
+// ```
     ball::AttributeContainerList exampleList;
     ball::AttributeContainerList::iterator s1Iter = exampleList.pushFront(&s1);
     ball::AttributeContainerList::iterator s2Iter = exampleList.pushFront(&s2);
     ball::AttributeContainerList::iterator s3Iter = exampleList.pushFront(&s3);
-//..
-// We can use the 'hasValue()' operation to test which attribute value are
+// ```
+// We can use the `hasValue()` operation to test which attribute value are
 // contained within the list of containers:
-//..
+// ```
     ASSERT(exampleList.hasValue(ball::Attribute("Set1", 1)));
     ASSERT(exampleList.hasValue(ball::Attribute("Set2", 2)));
     ASSERT(exampleList.hasValue(ball::Attribute("Set3", 3)));
@@ -559,19 +563,19 @@ int main(int argc, char *argv[])
     ASSERT(!exampleList.hasValue(ball::Attribute("Set1", 2)));
     ASSERT(!exampleList.hasValue(ball::Attribute("Set2", 1)));
     ASSERT(!exampleList.hasValue(ball::Attribute("Set4", 1)));
-//..
+// ```
 // We can use the iterators to efficiently remove elements from the list:
-//..
+// ```
     exampleList.remove(s3Iter);
 
-//..
-// Finally, we can use either the stream operator or the 'print()' method to
+// ```
+// Finally, we can use either the stream operator or the `print()` method to
 // print the attributes within an attribute container list:
-//..
+// ```
     if (veryVerbose) {
         bsl::cout << exampleList << bsl::endl;
     }
-//..
+// ```
 
     (void)s1Iter;
     (void)s2Iter;
@@ -588,7 +592,7 @@ int main(int argc, char *argv[])
         //   Specify a set S whose elements have substantial and varied
         //   differences in value.  For each element in S, construct and
         //   initialize a object based on that value.  Remove the elements
-        //   using 'remove()' and verify that the allocated memory is not
+        //   using `remove()` and verify that the allocated memory is not
         //   free, re-add the object and verify new memory is not allocated.
         //
         // Testing:
@@ -625,7 +629,7 @@ int main(int argc, char *argv[])
         const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
         for (int i = 0; i < NUM_VALUES; ++i) {
 
-            // Create a control object 'W'.
+            // Create a control object `W`.
             Obj w(&containerAllocator); const Obj& W = w;
             gg(&w, VALUES[i], containers);
 
@@ -677,7 +681,7 @@ int main(int argc, char *argv[])
         // TESTING: removeAllAndRelease()
         //
         // Concerns:
-        //   'removeAllAndRelease()' removes all the contained elements and
+        //   `removeAllAndRelease()` removes all the contained elements and
         //   releases the allocated memory.
         //
         // Plan:
@@ -752,7 +756,7 @@ int main(int argc, char *argv[])
         // TESTING: removeAll()
         //
         // Concerns:
-        //   'removeAll()' removes all the contained elements but does not
+        //   `removeAll()` removes all the contained elements but does not
         //   release the allocated memory.
         //
         // Plan:
@@ -828,7 +832,7 @@ int main(int argc, char *argv[])
         // TESTING: hasValue()
         //
         // Concerns:
-        //   'hasValue()' returns the logical or of calling 'hasValue()' on
+        //   `hasValue()` returns the logical or of calling `hasValue()` on
         //   each of the containers in the list.
         //
         // Plan:
@@ -884,8 +888,8 @@ int main(int argc, char *argv[])
             // container in the list containing the attribute ("X", N).
             bsl::string spec(VALUES[i]);
             for (int j = 0; j < 10; ++j) {
-                // Find if 'j' appears in the specification (and therefore
-                // hasValue will return 'true').
+                // Find if `j` appears in the specification (and therefore
+                // hasValue will return `true`).
                 bool hasValue = spec.find(static_cast<char>('0' + j))
                                                           != bsl::string::npos;
                 LOOP2_ASSERT(i, j,
@@ -898,8 +902,8 @@ int main(int argc, char *argv[])
         // TESTING PRINT AND OUTPUT (<<) OPERATOR:
         //
         // Plan:
-        //   Test that the 'print' method produces the expected results for
-        //   various values of 'level' and 'spacesPerLevel'.
+        //   Test that the `print` method produces the expected results for
+        //   various values of `level` and `spacesPerLevel`.
         //
         // Testing:
         //   ostream& print(ostream& os, int level = 0, int spl = 4) const;
@@ -907,7 +911,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING: 'print'\n"
+                          << "TESTING: `print`\n"
                           << "================\n";
 
         bsl::vector<TestPrintContainer> containers(Z);
@@ -1135,8 +1139,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Specify a set S of unique object values having various minor or
-        //   subtle differences.  Verify the correctness of 'operator==' and
-        //   'operator!=' using all elements (u, v) of the cross product
+        //   subtle differences.  Verify the correctness of `operator==` and
+        //   `operator!=` using all elements (u, v) of the cross product
         //    S X S.
         //
         // Testing:
@@ -1426,8 +1430,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Specify a set S of unique object values having various minor or
-        //   subtle differences.  Verify the correctness of 'operator==' and
-        //   'operator!=' using all elements (u, v) of the cross product
+        //   subtle differences.  Verify the correctness of `operator==` and
+        //   `operator!=` using all elements (u, v) of the cross product
         //    S X S.
         //
         // Testing:
@@ -1683,10 +1687,10 @@ int main(int argc, char *argv[])
         //   operation of the following methods and operators:
         //      - default and copy constructors (and also the destructor)
         //      - the assignment operator (including aliasing)
-        //      - equality operators: 'operator==()' and 'operator!=()'
-        //      - the (test-driver supplied) output operator: 'operator<<()'
-        //      - primary manipulators: 'push_back' and 'clear' methods
-        //      - basic accessors: 'size' and 'operator[]()'
+        //      - equality operators: `operator==()` and `operator!=()`
+        //      - the (test-driver supplied) output operator: `operator<<()`
+        //      - primary manipulators: `push_back` and `clear` methods
+        //      - basic accessors: `size` and `operator[]()`
         //   In addition we would like to exercise objects with potentially
         //   different internal organizations representing the same value.
         //

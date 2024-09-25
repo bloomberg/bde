@@ -29,16 +29,16 @@ using namespace std;
 //                             Overview
 //                             --------
 // Most of what this component implements are compile-time computations that
-// differ among platforms.  The tests do assume that alignment of 'char' is 1,
-// 'short' is 2, 'int' is 4, and 'double' is at least 4.  In addition, certain
+// differ among platforms.  The tests do assume that alignment of `char` is 1,
+// `short` is 2, `int` is 4, and `double` is at least 4.  In addition, certain
 // invariants are tested, including:
 //
-//: 1  That all alignment calculations result in a power of 2.
-//:
-//: 2  That 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT' really is the largest
-//:    value that will be produced by the alignment calculations and that
-//:    'bsls::AlignmentUtil::MaxAlignedType' is aligned at
-//:    'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'.
+// 1.  That all alignment calculations result in a power of 2.
+//
+// 2.  That `bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT` really is the largest
+//     value that will be produced by the alignment calculations and that
+//     `bsls::AlignmentUtil::MaxAlignedType` is aligned at
+//     `bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT`.
 //
 // For the few run-time functions provided in this component, we establish
 // post-conditions and test that the postconditions hold over a reasonable
@@ -144,21 +144,22 @@ struct Test8BytesAlignedType {
 // block returned must also have an alignment that is sufficient for any
 // conceivable object of that size.  To achieve a fully factored
 // implementation, we might choose to provide a low-level helper function
-// 'naturallyAlign' that, given the 'address' of the next available byte in
-// the larger chunk along with the requested block 'size' (in bytes), returns
+// `naturallyAlign` that, given the `address` of the next available byte in
+// the larger chunk along with the requested block `size` (in bytes), returns
 // the first appropriately (or *naturally*) aligned address for the requested
-// block at or after 'address':
-//..
+// block at or after `address`:
+// ```
+
+    /// Return the closest memory address at or after the specified
+    /// `*currentAddress` that is sufficiently aligned to accommodate any
+    /// object of the specified `size`, and update `*currentAddress` to
+    /// refer to the first available byte after the allocated object.  The
+    /// behavior is undefined unless `1 <= size`.
     void *naturallyAlign(void **currentAddress, int size);
-        // Return the closest memory address at or after the specified
-        // '*currentAddress' that is sufficiently aligned to accommodate any
-        // object of the specified 'size', and update '*currentAddress' to
-        // refer to the first available byte after the allocated object.  The
-        // behavior is undefined unless '1 <= size'.
-//..
-// We can implement the 'naturallyAlign' helper function easily using the
+// ```
+// We can implement the `naturallyAlign` helper function easily using the
 // methods defined in this class:
-//..
+// ```
     void *naturallyAlign(void **currentAddress, std::size_t size)
     {
         int   alignment = bsls::AlignmentUtil::calculateAlignmentFromSize(
@@ -170,31 +171,31 @@ struct Test8BytesAlignedType {
         *currentAddress = result + size;
         return result;
     }
-//..
-// We will then be able to use this 'naturallyAlign' helper function to
+// ```
+// We will then be able to use this `naturallyAlign` helper function to
 // allocate, from a buffer of contiguous memory, efficiently (but not
 // necessarily optimally) aligned memory for objects of varying sizes based
 // solely on the size of each object (i.e., determined by its natural, not
 // actual, alignment).
 //
 // To illustrate the functionality provided in this component, we begin by
-// assuming that we have some user-defined type, 'MyType', comprising several
+// assuming that we have some user-defined type, `MyType`, comprising several
 // data members:
-//..
+// ```
     struct MyType {         // size 24; actual alignment 8; natural alignment 8
         int     d_int;
         double  d_double;   // Assume 8-byte alignment.
         char   *d_charPtr;  // Assume size <= 8 bytes.
     };
-//..
-// We then define a function, 'f', which starts off by creating a maximally
-// aligned 'buffer' on the program stack:
-//..
+// ```
+// We then define a function, `f`, which starts off by creating a maximally
+// aligned `buffer` on the program stack:
+// ```
 //  void f()
 //  {
 //      // The remainder of the usage example is in the USAGE test case.
 //  }
-//..
+// ```
 
 //=============================================================================
 //                  CLASSES AND FUNCTIONS USED IN TESTS
@@ -271,21 +272,21 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // USAGE TEST
         //   Make sure main usage examples compile and work as advertized.
-        //   Thoroughly test the example function 'allocateFromBuffer'.
+        //   Thoroughly test the example function `allocateFromBuffer`.
         //
         // Test plan:
-        //   Copy usage example verbatim into test driver then change 'assert'
-        //   to 'ASSERT'.  Since usage example code declares template classes
+        //   Copy usage example verbatim into test driver then change `assert`
+        //   to `ASSERT`.  Since usage example code declares template classes
         //   and functions, it must be placed outside of main().  Within this
         //   test case, therefore, we call the externally-declared functions
         //   defined above.
         //
         //   For completeness, test allocateFromBuffer by allocating
         //   various-sized and aligned objects.  Note that both scenarios of
-        //   when 'memory.d_buffer' is 4-byte aligned and 8-byte aligned are
-        //   tested.  If 'memory.d_buffer' is 8-byte aligned, 'cursor' is
+        //   when `memory.d_buffer` is 4-byte aligned and 8-byte aligned are
+        //   tested.  If `memory.d_buffer` is 8-byte aligned, `cursor` is
         //   offset by 4 to simulate a 4-byte aligned buffer.  If
-        //   'memory.d_buffer' is 4-byte aligned, 'cursor' is offset by 4 to
+        //   `memory.d_buffer` is 4-byte aligned, `cursor` is offset by 4 to
         //   simulate an 8-byte aligned buffer.
         //
         // Testing:
@@ -309,15 +310,15 @@ int main(int argc, char *argv[])
 static
 #endif
 
-//..
+// ```
         union {
             bsls::AlignmentUtil::MaxAlignedType d_dummy;  // force max. align.
             char                                d_buffer[BUFFER_SIZE];
         } buffer;
-//..
-// Next we use the 'bsls::AlignmentUtil' functions directly to confirm that
-// 'buffer' is sufficiently aligned to accommodate a 'MaxAlignedType' object:
-//..
+// ```
+// Next we use the `bsls::AlignmentUtil` functions directly to confirm that
+// `buffer` is sufficiently aligned to accommodate a `MaxAlignedType` object:
+// ```
         int alignment = bsls::AlignmentFromType<
                                    bsls::AlignmentUtil::MaxAlignedType>::VALUE;
         int offset =
@@ -325,40 +326,40 @@ static
                                                                buffer.d_buffer,
                                                                alignment);
         ASSERT(0 == offset);  // sufficient alignment
-//..
-// Below we perform various memory allocations using our 'naturallyAlign'
+// ```
+// Below we perform various memory allocations using our `naturallyAlign`
 // helper function:
-//..
+// ```
         void *p         = static_cast<void *>(buffer.d_buffer);
 
         (void)            naturallyAlign(&p, sizeof(char));
 
         void *shortPtr5 = naturallyAlign(&p, 5 * sizeof(short));
-//..
-// Note that the address held in 'shortPtr' is numerically divisible by the
-// alignment of a 'short' on the current platform:
-//..
+// ```
+// Note that the address held in `shortPtr` is numerically divisible by the
+// alignment of a `short` on the current platform:
+// ```
         ASSERT(0 == ((static_cast<char *>(shortPtr5) - buffer.d_buffer) %
                                        bsls::AlignmentFromType<short>::VALUE));
 
         ASSERT(bsls::AlignmentUtil::is2ByteAligned(shortPtr5));
-//..
-// Next we use 'naturallyAlign' to allocate a block of appropriate size and
-// sufficient alignment to store a 'MyType' object:
-//..
+// ```
+// Next we use `naturallyAlign` to allocate a block of appropriate size and
+// sufficient alignment to store a `MyType` object:
+// ```
         void *objPtr = naturallyAlign(&p, sizeof(MyType));
-//..
-// Note that the alignment of the address held in 'objPtr' is numerically
+// ```
+// Note that the alignment of the address held in `objPtr` is numerically
 // divisible by the actual alignment requirement:
-//..
+// ```
         ASSERT(0 == bsls::AlignmentUtil::calculateAlignmentOffset(
                                       objPtr,
                                       bsls::AlignmentFromType<MyType>::VALUE));
-//..
-// Assuming 'buffer' has sufficient capacity, and the alignments for 'char',
-// 'short', and 'MyType' are, respectively, 1, 2, and 8, we would expect this
-// layout within 'buffer.d_buffer':
-//..
+// ```
+// Assuming `buffer` has sufficient capacity, and the alignments for `char`,
+// `short`, and `MyType` are, respectively, 1, 2, and 8, we would expect this
+// layout within `buffer.d_buffer`:
+// ```
 //  charPtr shortPtr5                            objPtr
 //  |       |                                                       |
 //  V       V                                                       V
@@ -366,11 +367,11 @@ static
 //  |ccc|   |sssssss:sssssss:sssssss:sssssss:sssssss|   :   :   :   |oooooo...
 //  ^---^---^---^---^---^---^---^---^---^---^---^---^---^---^---^---^---^---^-
 //  0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16  17  18
-//..
-// Note that on an atypical 32-bit platform where a 'double' is 4-byte
-// aligned, the actual alignment of 'MyType' would be 4, but its natural
+// ```
+// Note that on an atypical 32-bit platform where a `double` is 4-byte
+// aligned, the actual alignment of `MyType` would be 4, but its natural
 // alignment would still be 8 because its size would be 16; it is highly
-// unlikely that 'MyType' would have an actual (and therefore natural)
+// unlikely that `MyType` would have an actual (and therefore natural)
 // alignment of 4 on a 64-bit platform when using default compiler settings.
 
       } break;
@@ -392,13 +393,13 @@ static
         //   well suited for a test driver.
         //
         // Plan:
-        //   First, ensure that 'MaxAlign' is the maximally aligned type.
+        //   First, ensure that `MaxAlign` is the maximally aligned type.
         //
         //   Next, ensure that the size of the maximally aligned type is
         //   equal to its alignment offset.
         //
-        //   Finally, ensure that 'roundUpToMaximalAlignment' rounds its
-        //   argument up to the nearest multiple of 'sizeof(MaxAlign)'.
+        //   Finally, ensure that `roundUpToMaximalAlignment` rounds its
+        //   argument up to the nearest multiple of `sizeof(MaxAlign)`.
         //
         // Testing:
         //   static int roundUpToMaximalAlignment(std::size size);
@@ -426,7 +427,7 @@ static
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'is[248]ByteAligned'
+        // TESTING `is[248]ByteAligned`
         //
         // Plan:
         //
@@ -480,11 +481,11 @@ static
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING FUNCTION 'bsls::AlignmentUtil::calculateAlignmentOffset'
-        //   Ensure correctness for each pair of (ma, a), where 'ma' is a
-        //   memory address from 'baseAddr' to
-        //   'baseAddr + 2 * BSLS_MAX_ALIGNMENT + 1'
-        //   and 'a' is an alignment in [1 2 4 .. BSLS_MAX_ALIGNMENT] such
+        // TESTING FUNCTION `bsls::AlignmentUtil::calculateAlignmentOffset`
+        //   Ensure correctness for each pair of (ma, a), where `ma` is a
+        //   memory address from `baseAddr` to
+        //   `baseAddr + 2 * BSLS_MAX_ALIGNMENT + 1`
+        //   and `a` is an alignment in [1 2 4 .. BSLS_MAX_ALIGNMENT] such
         //   that:
         //     0 <= result
         //     result < a
@@ -494,7 +495,7 @@ static
         // Plan:
         //   Declare baseAddr as a pointer to a maximally-aligned memory
         //     buffer of size 2 * BSLS_MAX_ALIGNMENT + 1.
-        //   Iterate 'ma' over each address in buffer and iterate 'a' each
+        //   Iterate `ma` over each address in buffer and iterate `a` each
         //     power of two up to BSLS_MAX_ALIGNMENT.
         //   Compute bsls::AlignmentUtil::calculateAlignmentOffset(ma, a) and
         //     verify all concerns listed above.
@@ -561,9 +562,9 @@ static
 #ifdef BDE_BUILD_TARGET_EXC
             bsls::AssertTestHandlerGuard hG;
 
-            // '0' in the expected 'ALIGN' column indicates that the call is
+            // `0` in the expected `ALIGN` column indicates that the call is
             // out of contract, so any result will be accepted unless the
-            // relevant 'BSLS_ASSERT' macro is enabled.
+            // relevant `BSLS_ASSERT` macro is enabled.
 
             static struct {
                 int         d_lineNumber;
@@ -627,18 +628,18 @@ static
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING FUNCTION 'bsls::AlignmentUtil::calculateAlignmentFromSize'
+        // TESTING FUNCTION `bsls::AlignmentUtil::calculateAlignmentFromSize`
         //   Ensure correctness for all object sizes:
         //     Result must be greater than 0.
-        //     Result must be less than or equal to 'BSLS_MAX_ALIGNMENT'.
+        //     Result must be less than or equal to `BSLS_MAX_ALIGNMENT`.
         //     Size must be evenly divisible by result.
-        //     Size must not be evenly divisible by '2 * result' unless
-        //     'result == BSLS_MAX_ALIGNMENT'.
+        //     Size must not be evenly divisible by `2 * result` unless
+        //     `result == BSLS_MAX_ALIGNMENT`.
         //
         // Plan:
-        //   Assume 'BSLS_MAX_ALIGNMENT <= 16'.
+        //   Assume `BSLS_MAX_ALIGNMENT <= 16`.
         //   Compare results against expected values for inputs from 1 to 16.
-        //   Try all sizes up to '2 * BSLS_MAX_ALIGNMENT + 1'.
+        //   Try all sizes up to `2 * BSLS_MAX_ALIGNMENT + 1`.
         //   Test all concerns listed above.
         //
         // Tactics:
@@ -711,9 +712,9 @@ static
 #ifdef BDE_BUILD_TARGET_EXC
             bsls::AssertTestHandlerGuard hG;
 
-            // '0' in the expected 'ALIGN' column indicates that the call is
+            // `0` in the expected `ALIGN` column indicates that the call is
             // out of contract, so any result will be accepted unless the
-            // relevant 'BSLS_ASSERT' macro is enabled.
+            // relevant `BSLS_ASSERT` macro is enabled.
 
             static struct {
                 int          d_lineNumber;

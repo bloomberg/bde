@@ -27,23 +27,23 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// A 'bsl::allocator' is a reference-semantic type that holds a pointer to a
-// 'bslma::Allocator' object (its underlying "mechanism").  This pointer can be
-// set at construction (and if 0 is passed, then it uses 'bslma_default' to
+// A `bsl::allocator` is a reference-semantic type that holds a pointer to a
+// `bslma::Allocator` object (its underlying "mechanism").  This pointer can be
+// set at construction (and if 0 is passed, then it uses `bslma_default` to
 // substitute a pointer to the currently installed default allocator), and it
-// can be accessed through the 'mechanism' accessor.  It cannot be reset,
+// can be accessed through the `mechanism` accessor.  It cannot be reset,
 // however, since normally an allocator does not change during the lifetime of
-// an object.  A 'bsl::allocator' is parameterized by the type it allocates,
+// an object.  A `bsl::allocator` is parameterized by the type it allocates,
 // and that influences the behavior of several manipulators and accessors,
-// mainly depending on the size of that type.  A 'bsl::allocator' instantiated
-// on a different type can be obtained using the 'rebind' nested template.
+// mainly depending on the size of that type.  A `bsl::allocator` instantiated
+// on a different type can be obtained using the `rebind` nested template.
 //
 // Our specific concerns are that an allocator constructed with a certain
 // underlying mechanism actually uses that mechanism to allocate memory, and
-// that its rebound versions do as well.  Another concern is that 'max_size()'
+// that its rebound versions do as well.  Another concern is that `max_size()`
 // is the maximum possible size for that type (i.e., it is impossible to
-// meaningfully pass in a larger size), that 'size_type' is unsigned, that
-// 'difference_type' is signed, and that, generally, all the requirements of
+// meaningfully pass in a larger size), that `size_type` is unsigned, that
+// `difference_type` is signed, and that, generally, all the requirements of
 // C++ standard allocators are met in both C++17 (20.5.3.5
 // [allocator.requirements]) and C++03 (20.1.5 [lib.allocator.requirements]).
 //-----------------------------------------------------------------------------
@@ -164,8 +164,8 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //                  GLOBAL HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Allocator for testing equality operations.
 class EqTestAllocator : public bslma::Allocator {
-    // Allocator for testing equality operations.
 
     // DATA
     int                 d_id;
@@ -213,14 +213,14 @@ bool EqTestAllocator::do_is_equal(const bsl::memory_resource& other) const
     return false;
 }
 
+/// An empty "allocator" class
 struct NonAllocator {
-    // An empty "allocator" class
 };
 
+/// An allocator-aware test type that tracks its construction and
+/// destruction.
 template <class ALLOCATOR>
 class TestType {
-    // An allocator-aware test type that tracks its construction and
-    // destruction.
 
     static TestType *s_lastDestroyed;  // Most recently destroyed object
 
@@ -281,18 +281,18 @@ TestType<ALLOCATOR>::TestType(bsl::allocator_arg_t,
 {
 }
 
+/// A non-trivial-sized object.
 struct MyObject
 {
-    // A non-trivial-sized object.
 
     // DATA
     int  d_i;
     char d_s[10];
 };
 
+/// Class that overrides `operator&`, for testing the `address` method of
+/// `bsl::allocator`.
 struct HasOperatorAmpersand {
-    // Class that overrides 'operator&', for testing the 'address' method of
-    // 'bsl::allocator'.
 
     HasOperatorAmpersand *operator&() { return 0;    }
     HasOperatorAmpersand *address()   { return this; }
@@ -316,106 +316,111 @@ struct HasOperatorAmpersand {
 // dynamic growth, etc., we choose an array whose size is fixed at
 // construction.  Our array will accept any STL-compatible allocator; we do not
 // assume as scoped allocator, which would dictate that we pass the allocator
-// through to the parameterized 'T' contained type (see the 'bslma_allocator'
-// component and 'bslma_constructionutil' package).
+// through to the parameterized `T` contained type (see the `bslma_allocator`
+// component and `bslma_constructionutil` package).
 //
 // We begin by defining member variables to hold the allocator, length, and
 // allocated array:
-//..
+// ```
+
+    /// This class provides an array of (the template parameter) `TYPE` of
+    /// fixed length as determined at construction time, using an instance
+    /// of (the template parameter) `ALLOC` type to supply memory.
     template <class TYPE, class ALLOC>
     class my_FixedSizeArray {
-        // This class provides an array of (the template parameter) 'TYPE' of
-        // fixed length as determined at construction time, using an instance
-        // of (the template parameter) 'ALLOC' type to supply memory.
 
         // DATA
         ALLOC  d_allocator;
         int    d_length;
         TYPE  *d_array;
-//..
+// ```
 // Then, we define the public interface:
-//..
+// ```
       public:
         // TYPES
         typedef ALLOC allocator_type;
         typedef TYPE  value_type;
 
         // CREATORS
+
+        /// Create a fixed-size array of the specified `length`, using the
+        /// optionally specified `allocator` to supply memory.  If
+        /// `allocator` is not specified, a default-constructed instance of
+        /// the parameterized `ALLOC` type is used.  All the elements in the
+        /// resulting array are default-constructed.
         explicit my_FixedSizeArray(int          length,
                                    const ALLOC& allocator = ALLOC());
-            // Create a fixed-size array of the specified 'length', using the
-            // optionally specified 'allocator' to supply memory.  If
-            // 'allocator' is not specified, a default-constructed instance of
-            // the parameterized 'ALLOC' type is used.  All the elements in the
-            // resulting array are default-constructed.
 
+        /// Create a copy of the specified `original` fixed-size array,
+        /// using the optionally specified `allocator` to supply memory.  If
+        /// `allocator` is not specified, a default-constructed instance of
+        /// the parameterized `ALLOC` type is used.
         my_FixedSizeArray(const my_FixedSizeArray& original,
                           const ALLOC&             allocator = ALLOC());
-            // Create a copy of the specified 'original' fixed-size array,
-            // using the optionally specified 'allocator' to supply memory.  If
-            // 'allocator' is not specified, a default-constructed instance of
-            // the parameterized 'ALLOC' type is used.
 
+        /// Destroy this fixed size array.
         ~my_FixedSizeArray();
-            // Destroy this fixed size array.
 
         // MANIPULATORS
-        my_FixedSizeArray& operator=(const my_FixedSizeArray& original);
-            // Assign to this array the value of the specified 'original'
-            // array.  Note that the length of this array might change.
 
+        /// Assign to this array the value of the specified `original`
+        /// array.  Note that the length of this array might change.
+        my_FixedSizeArray& operator=(const my_FixedSizeArray& original);
+
+        /// Return a reference to the modifiable element at the specified
+        /// `index` position in this fixed size array.  The behavior is
+        /// undefined unless `index` is non-negative and less than
+        /// `length()`.
         TYPE& operator[](int index) { return d_array[index]; }
-            // Return a reference to the modifiable element at the specified
-            // 'index' position in this fixed size array.  The behavior is
-            // undefined unless 'index' is non-negative and less than
-            // 'length()'.
 
         // ACCESSORS
+
+        /// Return a reference to the modifiable element at the specified
+        /// `index` position in this fixed size array.  The behavior is
+        /// undefined unless `index` is non-negative and less than
+        /// `length()`.
         const TYPE& operator[](int index) const { return d_array[index]; }
-            // Return a reference to the modifiable element at the specified
-            // 'index' position in this fixed size array.  The behavior is
-            // undefined unless 'index' is non-negative and less than
-            // 'length()'.
 
+        /// Return the allocator used by this fixed size array to supply
+        /// memory.
         allocator_type get_allocator() const { return d_allocator; }
-            // Return the allocator used by this fixed size array to supply
-            // memory.
 
+        /// Return the length specified at construction of this fixed size
+        /// array.
         int length() const { return d_length; }
-            // Return the length specified at construction of this fixed size
-            // array.
     };
 
     // FREE OPERATORS
+
+    /// Return `true` if the specified `lhs` fixed-size array has the same
+    /// value as the specified `rhs` fixed-size array, and `false`
+    /// otherwise.  Two fixed-size arrays have the same value if they have
+    /// the same length and if the element at any index in `lhs` has the
+    /// same value as the corresponding element at the same index in `rhs`.
     template<class TYPE, class ALLOC>
     bool operator==(const my_FixedSizeArray<TYPE, ALLOC>& lhs,
                     const my_FixedSizeArray<TYPE, ALLOC>& rhs);
-        // Return 'true' if the specified 'lhs' fixed-size array has the same
-        // value as the specified 'rhs' fixed-size array, and 'false'
-        // otherwise.  Two fixed-size arrays have the same value if they have
-        // the same length and if the element at any index in 'lhs' has the
-        // same value as the corresponding element at the same index in 'rhs'.
 
+    /// Return `true` if the specified `lhs` fixed-size array does not have
+    /// the same value as the specified `rhs` fixed-size array, and `false`
+    /// otherwise.  Two fixed-size arrays have the same value if they have
+    /// the same length and if the element at any index in `lhs` has the
+    /// same value as the corresponding element at the same index in `rhs`.
     template<class TYPE, class ALLOC>
     bool operator!=(const my_FixedSizeArray<TYPE, ALLOC>& lhs,
                     const my_FixedSizeArray<TYPE, ALLOC>& rhs);
-        // Return 'true' if the specified 'lhs' fixed-size array does not have
-        // the same value as the specified 'rhs' fixed-size array, and 'false'
-        // otherwise.  Two fixed-size arrays have the same value if they have
-        // the same length and if the element at any index in 'lhs' has the
-        // same value as the corresponding element at the same index in 'rhs'.
-//..
-// Next, we define the first constructor, which uses the allocator's 'allocate'
-// memory to obtain memory, then uses its 'construct' method to construct each
+// ```
+// Next, we define the first constructor, which uses the allocator's `allocate`
+// memory to obtain memory, then uses its `construct` method to construct each
 // element.  To provide a uniform and future-proof interface, the standard way
-// to call 'allocate' and 'construct' is indrectly though
-// 'bsl::allocator_traits'.  If 'ALLOC' is a 'bsl::allocator' object, then the
-// 'construct' method will attempt to pass the allocator to the constructed
+// to call `allocate` and `construct` is indrectly though
+// `bsl::allocator_traits`.  If `ALLOC` is a `bsl::allocator` object, then the
+// `construct` method will attempt to pass the allocator to the constructed
 // elements.  Note that exception safety has been sacrificed for simplicity of
-// presentation; a production version of 'my_FixedSizeArray' would need to
+// presentation; a production version of `my_FixedSizeArray` would need to
 // unwind any constructed elements and the allocation if an exception were
 // thrown.
-//..
+// ```
 //  #include <bslma_allocatortraits.h>
 
     // CREATORS
@@ -433,10 +438,10 @@ struct HasOperatorAmpersand {
             Traits::construct(d_allocator, &d_array[i], TYPE());
         }
     }
-//..
+// ```
 // Next, we define the copy constructor, which initializes the allocator member
 // but defers the rest of the work to the assignment operator:
-//..
+// ```
     template<class TYPE, class ALLOC>
     my_FixedSizeArray<TYPE, ALLOC>::my_FixedSizeArray(
                                             const my_FixedSizeArray& original,
@@ -445,11 +450,11 @@ struct HasOperatorAmpersand {
     {
         *this = original;
     }
-//..
+// ```
 // Now we define the assignment operator, which allocates the array and copies
-// elements from the 'rhs' array.  Note, again, that we simplified the code by
+// elements from the `rhs` array.  Note, again, that we simplified the code by
 // omitting exception-safety constructs.
-//..
+// ```
     template<class TYPE, class ALLOC>
     my_FixedSizeArray<TYPE, ALLOC>&
     my_FixedSizeArray<TYPE, ALLOC>::operator=(const my_FixedSizeArray& rhs)
@@ -471,8 +476,8 @@ struct HasOperatorAmpersand {
             d_length = rhs.d_length;
             d_array  = Traits::allocate(d_allocator, d_length);
 
-            // Construct each element of the 'lhs' array from the corresponding
-            // 'rhs' element.
+            // Construct each element of the `lhs` array from the corresponding
+            // `rhs` element.
             for (int i = 0; i < d_length; ++i) {
                 Traits::construct(d_allocator, &d_array[i], rhs.d_array[i]);
             }
@@ -480,11 +485,11 @@ struct HasOperatorAmpersand {
 
         return *this;                                                 // RETURN
     }
-//..
-// Next, we define the destructor, which uses the allocator's 'destroy' method
-// to destroy each element, then the allocator's 'deallocate' method to return
+// ```
+// Next, we define the destructor, which uses the allocator's `destroy` method
+// to destroy each element, then the allocator's `deallocate` method to return
 // memory to the allocator:
-//..
+// ```
     template<class TYPE, class ALLOC>
     my_FixedSizeArray<TYPE, ALLOC>::~my_FixedSizeArray()
     {
@@ -498,10 +503,10 @@ struct HasOperatorAmpersand {
         // Return memory to allocator.
         Traits::deallocate(d_allocator, d_array, d_length);
     }
-//..
+// ```
 // The equality and inequality operators simply compare the lengths and element
 // values of the two arrays:
-//..
+// ```
     // FREE OPERATORS
     template<class TYPE, class ALLOC>
     bool operator==(const my_FixedSizeArray<TYPE, ALLOC>& lhs,
@@ -524,11 +529,11 @@ struct HasOperatorAmpersand {
                     const my_FixedSizeArray<TYPE, ALLOC>& rhs) {
         return ! (lhs == rhs);
     }
-//..
+// ```
 // Now we can create array objects with different allocator mechanisms.  First
-// we create an array, 'a1', using the default allocator and fill it with the
-// values '1 .. 5':
-//..
+// we create an array, `a1`, using the default allocator and fill it with the
+// values `1 .. 5`:
+// ```
 //  #include <bslma_bslallocator.h>
 //  #include <bslma_testallocator.h>
 
@@ -541,12 +546,12 @@ struct HasOperatorAmpersand {
         for (int i = 0; i < a1.length(); ++i) {
             a1[i] = i + 1;
         }
-//..
-// Finally, we create a copy of 'a1' using a test allocator.  The values of
-// 'a1' and 'a2' are equal, even though they have different allocation
+// ```
+// Finally, we create a copy of `a1` using a test allocator.  The values of
+// `a1` and `a2` are equal, even though they have different allocation
 // mechanisms.  We verify that the test allocator was used to allocate the new
 // array elements:
-//..
+// ```
         bslma::TestAllocator                         testAlloc;
         my_FixedSizeArray<int, bsl::allocator<int> > a2(a1, &testAlloc);
         ASSERT(a1 == a2);
@@ -554,18 +559,18 @@ struct HasOperatorAmpersand {
         ASSERT(&testAlloc         == a2.get_allocator());
         ASSERT(1 == testAlloc.numBlocksInUse());
     }
-//..
+// ```
 //
 ///Example 2: Propagation of the Allocator to Elements
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example, we use the 'FixedSizeArray' template defined in Example 1
-// and demonstrate how 'bsl::allocator' propagates itself to the elements it
+// In this example, we use the `FixedSizeArray` template defined in Example 1
+// and demonstrate how `bsl::allocator` propagates itself to the elements it
 // constructs, such that the container and its elements all use the same
 // allocator.
 //
-// First, we create a representative element class, 'MyType', that allocates
-// memory using the 'bslma::Allocator' protocol:
-//..
+// First, we create a representative element class, `MyType`, that allocates
+// memory using the `bslma::Allocator` protocol:
+// ```
 // #include <bslma_allocator.h>
 // #include <bslma_default.h>
 // #include <bslma_usesbslmaallocator.h>
@@ -591,12 +596,12 @@ struct HasOperatorAmpersand {
 
         // etc.
     };
-//..
-// Now, we instantiate 'my_FixedSizeArray' using 'MyType' and verify that,
+// ```
+// Now, we instantiate `my_FixedSizeArray` using `MyType` and verify that,
 // when we provide the address of an allocator to the constructor of the
 // container, the same address is passed to the constructor of the container's
 // elements:
-//..
+// ```
 // #include <bslmf_issame.h>
 
     void usageExample2()
@@ -613,11 +618,11 @@ struct HasOperatorAmpersand {
         for (int i = 0; i < arrayLen; ++i) {
             ASSERT(C1[i].allocator() == &testAlloc);
         }
-//..
+// ```
 // Next, we copy-construct the container and verify that the copy uses the
 // default allocator, not the allocator from the original; moreover, we verify
 // that the elements stored in the copy also use the default allocator.
-//..
+// ```
         ArrayType C2(C1);
         ASSERT(C2.get_allocator() != C1.get_allocator());
         ASSERT(C2.get_allocator() == bsl::allocator<MyType>());
@@ -625,12 +630,12 @@ struct HasOperatorAmpersand {
             ASSERT(C2[i].allocator() != &testAlloc);
             ASSERT(C2[i].allocator() == bslma::Default::defaultAllocator());
         }
-//..
+// ```
 // Finally, we create a third array using the test allocator and use assignment
 // to give it the same value as the second array.  We then verify that the
 // assignment did not modify the allocator of the lhs array and that the
 // elements of the resulting copy use the same allocator as the lhs array:
-//..
+// ```
         bslma::TestAllocator testAlloc2;
         ArrayType            C3(1, &testAlloc2);
         ASSERT(1 == testAlloc2.numBlocksInUse());
@@ -646,7 +651,7 @@ struct HasOperatorAmpersand {
             ASSERT(C3[i].allocator() == &testAlloc2);
         }
     }
-//..
+// ```
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -679,10 +684,10 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example must compile end execute without errors.
+        // 1. The usage example must compile end execute without errors.
         //
         // Plan:
-        //: 1 Copy-paste the usage example and replace 'assert' by 'ASSERT'.
+        // 1. Copy-paste the usage example and replace `assert` by `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -703,20 +708,20 @@ int main(int argc, char *argv[])
         // ASSIGNMENT
         //
         // Concerns:
-        //: 1 Assigning a 'bsl::allocator' to one having the same mechanism has
-        //:   no effect.
-        //: 2 Self assignment has no effect.
-        //: 3 (Negative test) Assigning allocators having different mechanisms
-        //:   is disallowed at run time via an assertion failure.
+        // 1. Assigning a `bsl::allocator` to one having the same mechanism has
+        //    no effect.
+        // 2. Self assignment has no effect.
+        // 3. (Negative test) Assigning allocators having different mechanisms
+        //    is disallowed at run time via an assertion failure.
         //
         // Plan:
-        //: 1 Assign allocators having the same mechanism and verify that
-        //:   nothing has changed.
-        //: 2 Assign an allocator to itself and verify that nothing has
-        //:   changed.
-        //: 3 (Build-mode dependent) Verify that trying to modify an allocator
-        //:   by assigning to it from one having a different mechanism triggers
-        //:   an assertion failure.
+        // 1. Assign allocators having the same mechanism and verify that
+        //    nothing has changed.
+        // 2. Assign an allocator to itself and verify that nothing has
+        //    changed.
+        // 3. (Build-mode dependent) Verify that trying to modify an allocator
+        //    by assigning to it from one having a different mechanism triggers
+        //    an assertion failure.
         //
         // Testing:
         //    allocator& operator=(const allocator& rhs);
@@ -747,31 +752,31 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // 'construct' AND 'destroy'
+        // `construct` AND `destroy`
         //
         // Concerns:
-        //: 1 Using 'construct' to construct an object with 0 to 14 arguments
-        //:   passes those arguments to the object's constructor.
-        //: 2 If the object is allocator-aware and uses a compatible allocator,
-        //:   the allocator is passed to the object's constructor.
-        //: 3 Destroy invokes the object's destructor.
+        // 1. Using `construct` to construct an object with 0 to 14 arguments
+        //    passes those arguments to the object's constructor.
+        // 2. If the object is allocator-aware and uses a compatible allocator,
+        //    the allocator is passed to the object's constructor.
+        // 3. Destroy invokes the object's destructor.
         //
         // Plan:
-        //: 1 Define a test type whose constructor takes 0 to 14 arguments.
-        //:   Construct an object of that type using the 'construct' method and
-        //:   verify that the arguments were passed to its constructor.  (C-1)
-        //: 2 Define an allocator-aware test type whose constructor takes 0 to
-        //:   14 arguments.  Construct an object of that type using the
-        //:   'construct' method and verify that the arguments were passed to
-        //:   its constructor.
-        //: 3 Destroy the objects from steps 1 and 2 using the 'destroy'
-        //:   method.  Verify that the objects' destructors were invoked.
+        // 1. Define a test type whose constructor takes 0 to 14 arguments.
+        //    Construct an object of that type using the `construct` method and
+        //    verify that the arguments were passed to its constructor.  (C-1)
+        // 2. Define an allocator-aware test type whose constructor takes 0 to
+        //   14. arguments.  Construct an object of that type using the
+        //    `construct` method and verify that the arguments were passed to
+        //    its constructor.
+        // 3. Destroy the objects from steps 1 and 2 using the `destroy`
+        //    method.  Verify that the objects' destructors were invoked.
         //
         // Testing:
         //
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'construct' AND 'destroy'"
+        if (verbose) printf("\n'construct' AND `destroy`"
                             "\n=========================\n");
 
         typedef TestType<NonAllocator>         TT;
@@ -838,37 +843,37 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // 'allocate' AND 'deallocate'
+        // `allocate` AND `deallocate`
         //
         // Concerns:
-        //: 1 For 'bsl::allocator<T>', calling 'allocate' with argument 'n'
-        //:   will allocate 'n * sizeof(T)' bytes from the mechanism object.
-        //: 2 A 'bsl::allocator<T2>' copied from a 'bsl::allocator<T1>' will
-        //:   allocate blocks from the same mechanism, even though the blocks
-        //:   have different sizes.
-        //: 3 An optional 'hint' pointer can be passed to 'allocate' but will
-        //:   have no effect.
-        //: 4 Deallocating a block from a 'bsl::allocator' returns it to the
-        //:   underlying mechanism object.
+        // 1. For `bsl::allocator<T>`, calling `allocate` with argument `n`
+        //    will allocate `n * sizeof(T)` bytes from the mechanism object.
+        // 2. A `bsl::allocator<T2>` copied from a `bsl::allocator<T1>` will
+        //    allocate blocks from the same mechanism, even though the blocks
+        //    have different sizes.
+        // 3. An optional `hint` pointer can be passed to `allocate` but will
+        //    have no effect.
+        // 4. Deallocating a block from a `bsl::allocator` returns it to the
+        //    underlying mechanism object.
         //
         // Plan:
-        //: 1 Create a 'bsl::allocator<int>' using a 'bslma::TestAllocator' and
-        //:   call 'allocate' with different values for 'n', with and without a
-        //:   hint pointer.  Verify that the blocks allocated from the test
-        //:   allocator have size 'n * sizeof(int)'.  (C-1, C-3)
-        //: 2 Initialize a 'bsl::allocator<char>' from the allocator in the
-        //:   previous step.  Allocate several blocks from the new allocator
-        //:   and verify that the blocks are correctly allocated from the same
-        //:   test allocator as was used in the previous step.
-        //: 3 Deallocate each of the blocks allocated in steps 1 and 2.  Verify
-        //:   that the memory is returned to the test allocator.
+        // 1. Create a `bsl::allocator<int>` using a `bslma::TestAllocator` and
+        //    call `allocate` with different values for `n`, with and without a
+        //    hint pointer.  Verify that the blocks allocated from the test
+        //    allocator have size `n * sizeof(int)`.  (C-1, C-3)
+        // 2. Initialize a `bsl::allocator<char>` from the allocator in the
+        //    previous step.  Allocate several blocks from the new allocator
+        //    and verify that the blocks are correctly allocated from the same
+        //    test allocator as was used in the previous step.
+        // 3. Deallocate each of the blocks allocated in steps 1 and 2.  Verify
+        //    that the memory is returned to the test allocator.
         //
         // Testing:
         //    pointer allocate(size_type n, const void *hint = 0);
         //    void deallocate(TYPE *p, std::size_t n = 1);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'allocate' AND 'deallocate'"
+        if (verbose) printf("\n'allocate' AND `deallocate`"
                             "\n===========================\n");
 
         bslma::TestAllocator ta("test 9", veryVeryVeryVerbose);
@@ -913,66 +918,66 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // 'operator==' AND 'operator!='
+        // `operator==` AND `operator!=`
         //
         // Concerns:
-        //: 1 Two 'bsl::allocator' objects that contain the same
-        //:   'bslma::Allocator' pointer compare equal using 'operator=='.
-        //:   The 'bslma::Allocator::is_equal' member function is not
-        //:   invoked.
-        //: 2 Two 'bsl::allocator' objects that contain different
-        //:   'bslma::Allocator' pointers compare equal if the 'is_equal'
-        //:   member function of 'bslma::Allocator' returns 'true'.
-        //: 3 Two 'bsl::allocator' objects that contain different
-        //:   'bslma::Allocator' pointers do not compare equal if the
-        //:   'is_equal' member function of 'bslma::Allocator' returns 'false'.
-        //: 4 Concerns 1-3 apply regardless of whether the two 'bsl::allocator'
-        //:   objects have the same 'value_type'.
-        //: 5 A 'bsl::allocator' can be compared for equality
-        //:   against a pointer to 'bslma::Allocator'; the result is the
-        //:   same as comparing it against a 'bsl::allocator' that
-        //:   was initialized with the 'bslma::Allocator' address.
-        //: 6 In all cases, 'operator!=' returns the inverse of 'operator=='.
-        //: 7 Every comparison is commutative; the return value is the same
-        //:   regardless of which operand is on the left.
+        // 1. Two `bsl::allocator` objects that contain the same
+        //    `bslma::Allocator` pointer compare equal using `operator==`.
+        //    The `bslma::Allocator::is_equal` member function is not
+        //    invoked.
+        // 2. Two `bsl::allocator` objects that contain different
+        //    `bslma::Allocator` pointers compare equal if the `is_equal`
+        //    member function of `bslma::Allocator` returns `true`.
+        // 3. Two `bsl::allocator` objects that contain different
+        //    `bslma::Allocator` pointers do not compare equal if the
+        //    `is_equal` member function of `bslma::Allocator` returns `false`.
+        // 4. Concerns 1-3 apply regardless of whether the two `bsl::allocator`
+        //    objects have the same `value_type`.
+        // 5. A `bsl::allocator` can be compared for equality
+        //    against a pointer to `bslma::Allocator`; the result is the
+        //    same as comparing it against a `bsl::allocator` that
+        //    was initialized with the `bslma::Allocator` address.
+        // 6. In all cases, `operator!=` returns the inverse of `operator==`.
+        // 7. Every comparison is commutative; the return value is the same
+        //    regardless of which operand is on the left.
         //
         // Plan:
-        //: 1 Define a class derived from 'bslma::Allocator' having a
-        //:   constructor-supplied integer ID.  The 'do_is_equal' method for
-        //:   this class will return true *iff* the IDs compare equal.  In
-        //:   addition, the 'do_is_equal' method will remember the argument
-        //:   argument for its most resent invocation.  For this test, the
-        //:   'do_allocate' and 'do_deallocate' methods are not called and can
-        //:   simply return null.  Create three instances of this class, two
-        //:   having the same ID and a third having a different ID.
-        //: 2 Perform the remaining steps in a loop, each iteration using a
-        //:   different combination of two of resources from step 1, 'r1' and
-        //:   'r2' (where 'r1' and 'r2' might be the same object).  Create two
-        //:   objects of 'bsl::allocator', 'pa1' and 'pa2',
-        //:   initialized from the addresses of 'r1' and 'r2', respecively.
-        //: 3 Verify that, when 'r1' and 'r2' are the same object, that 'pa1 ==
-        //:   pa2' is true and that no calls are made to 'do_is_equal'.  As a
-        //:   special case, test self-equality is always true and that no calls
-        //:   are made to 'do_is_equal' when comparing an object to itself.
-        //:   (C-1)
-        //: 4 Verify that, when 'r1' and 'r2' are different objects with the
-        //:   same ID, that 'pa1 == pa2' is true and that one call is made to
-        //:   'r1.do_is_equal(&r2)'.  (C-2)
-        //: 5 Verify that, when 'r1' and 'r2' have different IDs, that 'pa1 ==
-        //:   pa2' is false and that one call is made to
-        //:   'r1.do_is_equal(&r2)'.  (C-3)
-        //: 6 Ensure that 'pa1' and 'pa2' are have different value type
-        //:   arguments in step 2.  The self-equality test in step 3 ensures
-        //:   that 'operator==' and 'operator!=' work with the same value type
-        //:   whereas the remaining tests ensure that they work with different
-        //:   value types.  (C-4)
-        //: 7 Verify that 'pa1 == &r2' and that '&r1 == pa2' have the same
-        //:   result as 'pa1 == pa2', including whether or not 'do_is_equal' is
-        //:   called.  (C-5)
-        //: 8 In each of the steps testing '==', verify that '!=' returns the
-        //:   inverse.  (C-6)
-        //: 9 For each step involving '==' and '!=', repeat the step with the
-        //:   arguments reversed.  (C-7)
+        // 1. Define a class derived from `bslma::Allocator` having a
+        //    constructor-supplied integer ID.  The `do_is_equal` method for
+        //    this class will return true *iff* the IDs compare equal.  In
+        //    addition, the `do_is_equal` method will remember the argument
+        //    argument for its most resent invocation.  For this test, the
+        //    `do_allocate` and `do_deallocate` methods are not called and can
+        //    simply return null.  Create three instances of this class, two
+        //    having the same ID and a third having a different ID.
+        // 2. Perform the remaining steps in a loop, each iteration using a
+        //    different combination of two of resources from step 1, `r1` and
+        //    `r2` (where `r1` and `r2` might be the same object).  Create two
+        //    objects of `bsl::allocator`, `pa1` and `pa2`,
+        //    initialized from the addresses of `r1` and `r2`, respecively.
+        // 3. Verify that, when `r1` and `r2` are the same object, that 'pa1 ==
+        //    pa2' is true and that no calls are made to `do_is_equal`.  As a
+        //    special case, test self-equality is always true and that no calls
+        //    are made to `do_is_equal` when comparing an object to itself.
+        //    (C-1)
+        // 4. Verify that, when `r1` and `r2` are different objects with the
+        //    same ID, that `pa1 == pa2` is true and that one call is made to
+        //    `r1.do_is_equal(&r2)`.  (C-2)
+        // 5. Verify that, when `r1` and `r2` have different IDs, that 'pa1 ==
+        //    pa2' is false and that one call is made to
+        //    `r1.do_is_equal(&r2)`.  (C-3)
+        // 6. Ensure that `pa1` and `pa2` are have different value type
+        //    arguments in step 2.  The self-equality test in step 3 ensures
+        //    that `operator==` and `operator!=` work with the same value type
+        //    whereas the remaining tests ensure that they work with different
+        //    value types.  (C-4)
+        // 7. Verify that `pa1 == &r2` and that `&r1 == pa2` have the same
+        //    result as `pa1 == pa2`, including whether or not `do_is_equal` is
+        //    called.  (C-5)
+        // 8. In each of the steps testing `==`, verify that `!=` returns the
+        //    inverse.  (C-6)
+        // 9. For each step involving `==` and `!=`, repeat the step with the
+        //    arguments reversed.  (C-7)
         //
         // Testing:
         //    bool operator==(bsl::allocator<T>,  bsl::allocator<T>);
@@ -985,7 +990,7 @@ int main(int argc, char *argv[])
         //    bool operator!=(bsl::allocator<T>,  bslma::Allocator*);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'operator==' AND 'operator!='"
+        if (verbose) printf("\n'operator==` AND `operator!='"
                             "\n=============================\n");
 
         // Create resources
@@ -998,13 +1003,13 @@ int main(int argc, char *argv[])
         const int numMechanisms = sizeof(mechanisms) / sizeof(mechanisms[0]);
 
         for (int i = 0; i < numMechanisms; ++i) {
-            for (int j = i; j < numMechanisms; ++j) {  // 'j' can equal 'i'
+            for (int j = i; j < numMechanisms; ++j) {  // `j` can equal `i`
                 EqTestAllocator& r1(*mechanisms[i]);
                 EqTestAllocator& r2(*mechanisms[j]);
                 r1.reset();
                 r2.reset();
 
-                // 'allocator's with different value types
+                // `allocator`s with different value types
                 bsl::allocator<char> pa1(&r1);
                 bsl::allocator<int>  pa2(&r2);
 
@@ -1020,7 +1025,7 @@ int main(int argc, char *argv[])
                 const bool  expNe        = r1.id() != r2.id();
                 const void *expLastEqArg = (&r1 != &r2) ? &r2 : 0;
 
-                // Compare 'allocator' objects
+                // Compare `allocator` objects
                 ASSERTV(i, j, expEq        == (pa1 == pa2));
                 ASSERTV(i, j, expLastEqArg == r1.lastEqArg());
                 ASSERTV(i, j, 0            == r2.lastEqArg());
@@ -1030,7 +1035,7 @@ int main(int argc, char *argv[])
                 ASSERTV(i, j, 0            == r2.lastEqArg());
                 r1.reset();
 
-                // Compare 'allocator' against 'bslma::Allocator *'
+                // Compare `allocator` against `bslma::Allocator *`
                 ASSERTV(i, j, expEq        == (pa1 == &r2));
                 ASSERTV(i, j, expLastEqArg == r1.lastEqArg());
                 ASSERTV(i, j, 0            == r2.lastEqArg());
@@ -1080,23 +1085,23 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // 'bslma::IsStdAllocator'
+        // `bslma::IsStdAllocator`
         //
         // Concerns:
-        //: 1 The trait 'bslma::IsStdAllocator<bsl::allocator<E>>' inherits
-        //:   from 'bsl::true_type' for any complete type 'E'.
-        //: 2 The trait 'bslma::IsStdAllocator<bsl::allocator<void>>' inherits
-        //:   from 'bsl::false_type'.
+        // 1. The trait `bslma::IsStdAllocator<bsl::allocator<E>>` inherits
+        //    from `bsl::true_type` for any complete type `E`.
+        // 2. The trait `bslma::IsStdAllocator<bsl::allocator<void>>` inherits
+        //    from `bsl::false_type`.
         //
         // Plan:
-        //: 1 For various complete types, 'E', create an instance of
-        //:   'bslma::IsStdAllocator<bsl::allocator<E>>' and verify that the
-        //:   address of that instance is convertible to 'bsl::true_type *'.
-        //:   (C-1)
-        //: 2 Create an instance of
-        //:   'bslma::IsStdAllocator<bsl::allocator<void>>' and verify that the
-        //:   address of that instance is convertible to 'bsl::false_type *'.
-        //:   (C-2)
+        // 1. For various complete types, `E`, create an instance of
+        //    `bslma::IsStdAllocator<bsl::allocator<E>>` and verify that the
+        //    address of that instance is convertible to `bsl::true_type *`.
+        //    (C-1)
+        // 2. Create an instance of
+        //    `bslma::IsStdAllocator<bsl::allocator<void>>` and verify that the
+        //    address of that instance is convertible to `bsl::false_type *`.
+        //    (C-2)
         //
         // Testing:
         //   bslma::IsStdAllocator<bsl::allocator<E>>
@@ -1133,11 +1138,11 @@ int main(int argc, char *argv[])
         // TESTING ALLOCATOR_TRAITS
         //
         // Concerns:
-        //: 1 that the specialization of 'bsl::allocator_traits' for
-        //    'bsl::allocator' produces the correct member typedefs.
+        // 1. that the specialization of `bsl::allocator_traits` for
+        //    `bsl::allocator` produces the correct member typedefs.
         //
         // Plan:
-        //: 1 The testing is straightforward and follows the concerns.
+        // 1. The testing is straightforward and follows the concerns.
         //
         // Testing:
         //   bsl::allocator_traits<bsl::allocator<E>>
@@ -1164,7 +1169,7 @@ int main(int argc, char *argv[])
         typedef bsl::allocator_traits<AL> TL;
 
 
-        if (verbose) printf("\tTesting 'allocator_type'.\n");
+        if (verbose) printf("\tTesting `allocator_type`.\n");
         {
             ASSERT((bsl::is_same<TI::allocator_type, AI>::value));
             ASSERT((bsl::is_same<TF::allocator_type, AF>::value));
@@ -1172,7 +1177,7 @@ int main(int argc, char *argv[])
         }
 
 
-        if (verbose) printf("\tTesting 'value_type'.\n");
+        if (verbose) printf("\tTesting `value_type`.\n");
         {
             ASSERT((bsl::is_same<TI::value_type, int>::value));
             ASSERT((bsl::is_same<TI::value_type, AI::value_type>::value));
@@ -1187,14 +1192,14 @@ int main(int argc, char *argv[])
             ASSERT((bsl::is_same<TL::value_type, AL::value_type>::value));
         }
 
-        if (verbose) printf("\tTesting 'pointer'.\n");
+        if (verbose) printf("\tTesting `pointer`.\n");
         {
             ASSERT((bsl::is_same<TI::pointer, AI::pointer>::value));
             ASSERT((bsl::is_same<TF::pointer, AF::pointer>::value));
             ASSERT((bsl::is_same<TV::pointer, AV::pointer>::value));
         }
 
-        if (verbose) printf("\tTesting 'const_pointer'.\n");
+        if (verbose) printf("\tTesting `const_pointer`.\n");
         {
             ASSERT((bsl::is_same<TI::const_pointer,
                                  AI::const_pointer>::value));
@@ -1204,14 +1209,14 @@ int main(int argc, char *argv[])
                                  AV::const_pointer>::value));
         }
 
-        if (verbose) printf("\tTesting 'void_pointer'.\n");
+        if (verbose) printf("\tTesting `void_pointer`.\n");
         {
             ASSERT((bsl::is_same<TI::void_pointer, AV::pointer>::value));
             ASSERT((bsl::is_same<TF::void_pointer, AV::pointer>::value));
             ASSERT((bsl::is_same<TV::void_pointer, AV::pointer>::value));
         }
 
-        if (verbose) printf("\tTesting 'const_void_pointer'.\n");
+        if (verbose) printf("\tTesting `const_void_pointer`.\n");
         {
             ASSERT((bsl::is_same<TI::const_void_pointer,
                                  AV::const_pointer>::value));
@@ -1221,7 +1226,7 @@ int main(int argc, char *argv[])
                                  AV::const_pointer>::value));
         }
 
-        if (verbose) printf("\tTesting 'difference_type'.\n");
+        if (verbose) printf("\tTesting `difference_type`.\n");
         {
             ASSERT((bsl::is_same<TI::difference_type,
                                  AI::difference_type>::value));
@@ -1231,14 +1236,14 @@ int main(int argc, char *argv[])
                                  AV::difference_type>::value));
         }
 
-        if (verbose) printf("\tTesting 'size_type'.\n");
+        if (verbose) printf("\tTesting `size_type`.\n");
         {
             ASSERT((bsl::is_same<TI::size_type, AI::size_type>::value));
             ASSERT((bsl::is_same<TF::size_type, AF::size_type>::value));
             ASSERT((bsl::is_same<TV::size_type, AV::size_type>::value));
         }
 
-        if (verbose) printf("\tTesting 'rebind_alloc'.\n");
+        if (verbose) printf("\tTesting `rebind_alloc`.\n");
         {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
             ASSERT((bsl::is_same<TI::rebind_alloc<long>,
@@ -1257,7 +1262,7 @@ int main(int argc, char *argv[])
 #endif
         }
 
-        if (verbose) printf("\tTesting 'rebind_traits'.\n");
+        if (verbose) printf("\tTesting `rebind_traits`.\n");
         {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
             ASSERT((bsl::is_same<TI::rebind_traits<long>,TL>::value));
@@ -1278,7 +1283,7 @@ int main(int argc, char *argv[])
 #endif
         }
 
-        if (verbose) printf("\tTesting 'max_size()'.\n");
+        if (verbose) printf("\tTesting `max_size()`.\n");
         {
             ASSERT(TI::max_size(ai) == ai.max_size());
             ASSERT(TF::max_size(ai) == af.max_size());
@@ -1286,7 +1291,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            printf("\tTesting 'select_on_container_copy_construction()'.\n");
+            printf("\tTesting `select_on_container_copy_construction()`.\n");
         {
             ASSERT(a_def == TI::select_on_container_copy_construction(ai));
             ASSERT(a_def == TF::select_on_container_copy_construction(af));
@@ -1322,16 +1327,16 @@ int main(int argc, char *argv[])
         // TESTING NESTED TYPES
         //
         // Concerns:
-        //: 1 that 'size_type' is unsigned while 'difference_type' is signed.
-        //: 2 that size_type and difference_type are the right size (i.e., they
-        //:   can represent any difference of pointers in the memory model)
-        //: 3 that all other types exist and are as specified by the C++
-        //:   standard
-        //: 4 that if Y is X::rebind<U>::other, then Y::rebind<T>::other is
-        //:    the same type as X
+        // 1. that `size_type` is unsigned while `difference_type` is signed.
+        // 2. that size_type and difference_type are the right size (i.e., they
+        //    can represent any difference of pointers in the memory model)
+        // 3. that all other types exist and are as specified by the C++
+        //    standard
+        // 4. that if Y is X::rebind<U>::other, then Y::rebind<T>::other is
+        //     the same type as X
         //
         // Plan:
-        //: 1 The testing is straightforward and follows the concerns.
+        // 1. The testing is straightforward and follows the concerns.
         //
         // Testing:
         //   size_type
@@ -1351,7 +1356,7 @@ int main(int argc, char *argv[])
         typedef bsl::allocator<float> AF;
         typedef bsl::allocator<void>  AV;
 
-        if (verbose) printf("\tTesting 'size_type'.\n");
+        if (verbose) printf("\tTesting `size_type`.\n");
         {
             ASSERT(sizeof(AI::size_type) == sizeof(int*));
             ASSERT(sizeof(AV::size_type) == sizeof(void*));
@@ -1360,7 +1365,7 @@ int main(int argc, char *argv[])
             ASSERT(0 < ~(AV::size_type)0);
         }
 
-        if (verbose) printf("\tTesting 'difference_type'.\n");
+        if (verbose) printf("\tTesting `difference_type`.\n");
         {
             ASSERT(sizeof(AI::difference_type) == sizeof(int*));
             ASSERT(sizeof(AV::difference_type) == sizeof(void*));
@@ -1369,40 +1374,40 @@ int main(int argc, char *argv[])
             ASSERT(0 > ~(AV::difference_type)0);
         }
 
-        if (verbose) printf("\tTesting 'pointer'.\n");
+        if (verbose) printf("\tTesting `pointer`.\n");
         {
             ASSERT((bsl::is_same<AI::pointer, int*>::value));
             ASSERT((bsl::is_same<AF::pointer, float*>::value));
             ASSERT((bsl::is_same<AV::pointer, void*>::value));
         }
 
-        if (verbose) printf("\tTesting 'const_pointer'.\n");
+        if (verbose) printf("\tTesting `const_pointer`.\n");
         {
             ASSERT((bsl::is_same<AI::const_pointer, const int*>::value));
             ASSERT((bsl::is_same<AF::const_pointer, const float*>::value));
             ASSERT((bsl::is_same<AV::const_pointer, const void*>::value));
         }
 
-        if (verbose) printf("\tTesting 'reference'.\n");
+        if (verbose) printf("\tTesting `reference`.\n");
         {
             ASSERT((bsl::is_same<AI::reference, int&>::value));
             ASSERT((bsl::is_same<AF::reference, float&>::value));
         }
 
-        if (verbose) printf("\tTesting 'const_reference'.\n");
+        if (verbose) printf("\tTesting `const_reference`.\n");
         {
             ASSERT((bsl::is_same<AI::const_reference, const int&>::value));
             ASSERT((bsl::is_same<AF::const_reference, const float&>::value));
         }
 
-        if (verbose) printf("\tTesting 'value_type'.\n");
+        if (verbose) printf("\tTesting `value_type`.\n");
         {
             ASSERT((bsl::is_same<AI::value_type, int>::value));
             ASSERT((bsl::is_same<AF::value_type, float>::value));
             ASSERT((bsl::is_same<AV::value_type, void>::value));
         }
 
-        if (verbose) printf("\tTesting 'rebind'.\n");
+        if (verbose) printf("\tTesting `rebind`.\n");
         {
             ASSERT((bsl::is_same<AI::rebind<int  >::other, AI>::value));
             ASSERT((bsl::is_same<AI::rebind<float>::other, AF>::value));
@@ -1421,14 +1426,14 @@ int main(int argc, char *argv[])
         // TESTING ACCESSORS
         //
         // Concerns:
-        //: 1 that the correct 'bslma::Allocator*' is returned by 'mechanism'.
-        //: 2 that the result of 'max_size' fits and represents the maximum
-        //:   possible number of bytes in a 'bslma::Allocator::size_type'.
-        //: 3 that 'address' returns the address of its argument, ignoring any
-        //:   'operator&' member of the argument type.
+        // 1. that the correct `bslma::Allocator*` is returned by `mechanism`.
+        // 2. that the result of `max_size` fits and represents the maximum
+        //    possible number of bytes in a `bslma::Allocator::size_type`.
+        // 3. that `address` returns the address of its argument, ignoring any
+        //    `operator&` member of the argument type.
         //
         // Plan:
-        //: 1 The concerns are straightforward to test.
+        // 1. The concerns are straightforward to test.
         //
         // Testing:
         //   pointer address(reference x) const;
@@ -1442,7 +1447,7 @@ int main(int argc, char *argv[])
 
         bslma::Allocator *dflt = bslma::Default::allocator();
 
-        if (verbose) printf("\tTesting 'address()'.\n");
+        if (verbose) printf("\tTesting `address()`.\n");
         {
             bsl::allocator<int> ai;
             int                 i  = 0; const int& I = i;
@@ -1455,22 +1460,22 @@ int main(int argc, char *argv[])
             HasOperatorAmpersand                 mHoa;
             const HasOperatorAmpersand&          HOA   = mHoa;
 
-            // 'HasOperatorAmpersand::operator&' returns a null pointer whereas
-            // 'HasOperatorAmpersand::address()' returns the real address.
+            // `HasOperatorAmpersand::operator&` returns a null pointer whereas
+            // `HasOperatorAmpersand::address()` returns the real address.
             ASSERT(0 == &mHoa);
             ASSERT(0 == &HOA);
             ASSERT(0 != mHoa.address());
             ASSERT(0 != HOA.address());
 
-            // 'bsl::allocator::address(x)' returns the real address of 'x',
-            // ignoring the presence of 'x.operator&()'.
+            // `bsl::allocator::address(x)` returns the real address of `x`,
+            // ignoring the presence of `x.operator&()`.
             HasOperatorAmpersand       *ph = ah.address(mHoa);
             const HasOperatorAmpersand *pH = ah.address(HOA);
             ASSERT(mHoa.address() == ph);
             ASSERT(HOA.address()  == pH);
         }
 
-        if (verbose) printf("\tTesting 'mechanism()'.\n");
+        if (verbose) printf("\tTesting `mechanism()`.\n");
         {
             bslma::TestAllocator ta(veryVeryVeryVerbose);
 
@@ -1486,7 +1491,7 @@ int main(int argc, char *argv[])
             bsl::allocator<void> av5(ai2);  ASSERT(&ta  == av5.mechanism());
         }
 
-        if (verbose) printf("\tTesting 'max_size()'.\n");
+        if (verbose) printf("\tTesting `max_size()`.\n");
         {
             typedef bslma::Allocator::size_type bsize;
 
@@ -1528,22 +1533,22 @@ int main(int argc, char *argv[])
         // TESTING CONSTRUCTORS AND DESTRUCTOR
         //
         // Concerns:
-        //: 1 that an allocator can be constructed from the various
-        //:   constructors and that it uses the correct mechanism object.
-        //: 2 that an allocator can be constructed from an allocator to a
-        //:   different type
-        //: 3 that the destructor does not destroy its mechanism
+        // 1. that an allocator can be constructed from the various
+        //    constructors and that it uses the correct mechanism object.
+        // 2. that an allocator can be constructed from an allocator to a
+        //    different type
+        // 3. that the destructor does not destroy its mechanism
         //
         // Plan:
-        //: 1 We construct a number of allocators from various mechanisms, and
-        //:   test that they do compare equal to the selected mechanism.  Copy
-        //:   constructed allocators have to compare equal to their original
-        //:   values.  (C-1, C-2)
-        //: 2 Construct a 'bsl::allocator' from a test allocator.  Allocate a
-        //:   byte from the test allocator, then let the 'bsl::allocator'
-        //:   object go out of scope.  Verify that the test allocator did not
-        //:   detect a leak (i.e., its destructor was not called with
-        //:   outstanding memory blocks.  (C-3)
+        // 1. We construct a number of allocators from various mechanisms, and
+        //    test that they do compare equal to the selected mechanism.  Copy
+        //    constructed allocators have to compare equal to their original
+        //    values.  (C-1, C-2)
+        // 2. Construct a `bsl::allocator` from a test allocator.  Allocate a
+        //    byte from the test allocator, then let the `bsl::allocator`
+        //    object go out of scope.  Verify that the test allocator did not
+        //    detect a leak (i.e., its destructor was not called with
+        //    outstanding memory blocks.  (C-3)
         //
         // Testing:
         //   allocator();
@@ -1589,13 +1594,13 @@ int main(int argc, char *argv[])
         // TESTING TRAITS
         //
         // Concerns:
-        //: 1 That an allocator has the proper traits defined.
+        // 1. That an allocator has the proper traits defined.
         //
         // Plan:
-        //: 1 Since it does not matter what type 'bsl::allocator' is
-        //:   instantiated with, use 'int' and test for each expected trait.
-        //:   Note that 'void' also needs to be tested since it is a
-        //:   specialization.
+        // 1. Since it does not matter what type `bsl::allocator` is
+        //    instantiated with, use `int` and test for each expected trait.
+        //    Note that `void` also needs to be tested since it is a
+        //    specialization.
         //
         // Testing:
         //   bslmf::IsBitwiseEqualityComparable<sl::allocator>

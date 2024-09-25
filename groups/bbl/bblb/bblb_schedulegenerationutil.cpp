@@ -46,12 +46,12 @@ const int k_MIN_SERIAL_MONTH = (1*12 + 1) - 1;
 #define U_SERIAL2Y(S) (S)/12
 #define U_SERIAL2M(S) (S)%12 + 1
 
+/// Load in the specified `serialMonth` the serial month value computed from
+/// the specified `date` and load into `day` the value of `date.day()`.
 inline
 void computeSerialMonthAndDay(int               *serialMonth,
                               int               *day,
                               const bdlt::Date&  date)
-    // Load in the specified 'serialMonth' the serial month value computed from
-    // the specified 'date' and load into 'day' the value of 'date.day()'.
 {
     int year;
     int month;
@@ -59,15 +59,15 @@ void computeSerialMonthAndDay(int               *serialMonth,
     *serialMonth = U_YM2SERIAL(year, month);
 }
 
+/// If the specified `month` represents February and the specified
+/// `dayOfFeb` is non-zero, return the smaller of `dayOfFeb` and the last
+/// day of the `month` in the specified `year`.  Otherwise, return the
+/// day-of-month that is the smaller of the specified `day` and the last day
+/// of the `month in `year'.  The behavior is undefined unless
+/// `1 <= year <= 9999`, `1 <= month <= 12`, and the resulting date is a
+/// valid `bdlt::Date`.
 inline
 bdlt::Date getDayOfMonth(int year, int month, int day, int dayOfFeb)
-    // If the specified 'month' represents February and the specified
-    // 'dayOfFeb' is non-zero, return the smaller of 'dayOfFeb' and the last
-    // day of the 'month' in the specified 'year'.  Otherwise, return the
-    // day-of-month that is the smaller of the specified 'day' and the last day
-    // of the 'month in 'year'.  The behavior is undefined unless
-    // '1 <= year <= 9999', '1 <= month <= 12', and the resulting date is a
-    // valid 'bdlt::Date'.
 {
     BSLS_ASSERT(1 <= year  && 9999 >= year);
     BSLS_ASSERT(1 <= month &&   12 >= month);
@@ -82,12 +82,12 @@ bdlt::Date getDayOfMonth(int year, int month, int day, int dayOfFeb)
     return bdlt::Date(year, month, resultDay);
 }
 
+/// Return the largest integer smaller than the rational number represented
+/// by the ratio of the specified `numerator` and the specified
+/// `denominator`, without the use of floating-point calculations.  The
+/// behavior is undefined unless `denominator > 0`.
 inline
 int rationalFloor(int numerator, int denominator)
-    // Return the largest integer smaller than the rational number represented
-    // by the ratio of the specified 'numerator' and the specified
-    // 'denominator', without the use of floating-point calculations.  The
-    // behavior is undefined unless 'denominator > 0'.
 {
     BSLS_ASSERT(denominator > 0);
 
@@ -96,12 +96,12 @@ int rationalFloor(int numerator, int denominator)
             : numerator/denominator);
 }
 
+/// Return the smallest integer larger than the rational number represented
+/// by the ratio of the specified `numerator` and the specified
+/// `denominator`, without the use of floating-point calculations.  The
+/// behavior is undefined unless `denominator > 0`.
 inline
 int rationalCeiling(int numerator, int denominator)
-    // Return the smallest integer larger than the rational number represented
-    // by the ratio of the specified 'numerator' and the specified
-    // 'denominator', without the use of floating-point calculations.  The
-    // behavior is undefined unless 'denominator > 0'.
 {
     BSLS_ASSERT(denominator > 0);
 
@@ -110,22 +110,22 @@ int rationalCeiling(int numerator, int denominator)
             : numerator/denominator);
 }
 
+/// Load, into the specified `startSerialMonth` and the specified
+/// `endSerialMonth`, the bounds of the range of serial months that are at
+/// integral multiples of the specified `intervalInMonths` from the
+/// specified `exampleSerialMonth` and are bounded by the specified
+/// `earliestSerialMonth` and the specified `latestSerialMonth`.  Return 0
+/// on success, and a non-zero value without modifying `startSerialMonth` or
+/// `endSerialMonth` if these values would exceed the valid range for a
+/// serial month.  The behavior is undefined unless
+/// `k_MIN_SERIAL_MONTH <= exampleSerialMonth <= k_MAX_SERIAL_MONTH`, and
+/// `earliestSerialMonth <= latestSerialMonth`.
 int computeMonthRange(int *startSerialMonth,
                       int *endSerialMonth,
                       int  earliestSerialMonth,
                       int  latestSerialMonth,
                       int  exampleSerialMonth,
                       int  intervalInMonths)
-    // Load, into the specified 'startSerialMonth' and the specified
-    // 'endSerialMonth', the bounds of the range of serial months that are at
-    // integral multiples of the specified 'intervalInMonths' from the
-    // specified 'exampleSerialMonth' and are bounded by the specified
-    // 'earliestSerialMonth' and the specified 'latestSerialMonth'.  Return 0
-    // on success, and a non-zero value without modifying 'startSerialMonth' or
-    // 'endSerialMonth' if these values would exceed the valid range for a
-    // serial month.  The behavior is undefined unless
-    // 'k_MIN_SERIAL_MONTH <= exampleSerialMonth <= k_MAX_SERIAL_MONTH', and
-    // 'earliestSerialMonth <= latestSerialMonth'.
 {
     BSLS_ASSERT(   u::k_MAX_SERIAL_MONTH >= exampleSerialMonth
                 && u::k_MIN_SERIAL_MONTH <= exampleSerialMonth);
@@ -183,6 +183,20 @@ int computeMonthRange(int *startSerialMonth,
     return e_VALID_RANGE;
 }
 
+/// Increment the value of the specified `*startSerialMonth` by the
+/// specified `intervalInMonths` if its value is the same as the specified
+/// `earliestSerialMonth` and the specified `startDay` is smaller than the
+/// specified `earliestDay`.  Decrement the value of `*endSerialMonth` by
+/// the `intervalInMonths` if its value is the same as the specified
+/// `latestSerialMonth` and the specified `endDay` is larger than the
+/// specified `latestDay`.  Return 0 on success, and a non-zero value
+/// without modifying `startSerialMonth` or `endSerialMonth` if these values
+/// would exceed the valid range for a serial month.  The behavior is
+/// undefined unless
+/// `k_MIN_SERIAL_MONTH <= *startSerialMonth <= k_MAX_SERIAL_MONTH`,
+/// `k_MIN_SERIAL_MONTH <= *endSerialMonth <= k_MAX_SERIAL_MONTH`,
+/// `k_MIN_SERIAL_MONTH <= earliestSerialMonth <= k_MAX_SERIAL_MONTH`,
+/// `1 <= startDay <= 31`, and `1 <= endDay <= 31`.
 int adjustMonthRange(int *startSerialMonth,
                      int *endSerialMonth,
                      int  startDay,
@@ -192,20 +206,6 @@ int adjustMonthRange(int *startSerialMonth,
                      int  earliestSerialMonth,
                      int  latestSerialMonth,
                      int  intervalInMonths)
-    // Increment the value of the specified '*startSerialMonth' by the
-    // specified 'intervalInMonths' if its value is the same as the specified
-    // 'earliestSerialMonth' and the specified 'startDay' is smaller than the
-    // specified 'earliestDay'.  Decrement the value of '*endSerialMonth' by
-    // the 'intervalInMonths' if its value is the same as the specified
-    // 'latestSerialMonth' and the specified 'endDay' is larger than the
-    // specified 'latestDay'.  Return 0 on success, and a non-zero value
-    // without modifying 'startSerialMonth' or 'endSerialMonth' if these values
-    // would exceed the valid range for a serial month.  The behavior is
-    // undefined unless
-    // 'k_MIN_SERIAL_MONTH <= *startSerialMonth <= k_MAX_SERIAL_MONTH',
-    // 'k_MIN_SERIAL_MONTH <= *endSerialMonth <= k_MAX_SERIAL_MONTH',
-    // 'k_MIN_SERIAL_MONTH <= earliestSerialMonth <= k_MAX_SERIAL_MONTH',
-    // '1 <= startDay <= 31', and '1 <= endDay <= 31'.
 {
     BSLS_ASSERT(   *startSerialMonth <= u::k_MAX_SERIAL_MONTH
                 && *startSerialMonth >= u::k_MIN_SERIAL_MONTH);
@@ -245,6 +245,11 @@ int adjustMonthRange(int *startSerialMonth,
     return e_VALID_RANGE;
 }
 
+/// Load, into the specified `schedule`, the chronologically increasing
+/// sequence of unique dates that are integral multiples of the specified
+/// `intervalInDays` away from the specified `example` date, and within the
+/// specified closed-interval `[earliest, latest]`.  The behavior is
+/// undefined unless `earliest <= latest` and `1 <= intervalInDays`.
 template <class VECTOR>
 inline
 void generateFromDayIntervalImp(VECTOR            *schedule,
@@ -252,11 +257,6 @@ void generateFromDayIntervalImp(VECTOR            *schedule,
                                 const bdlt::Date&  latest,
                                 const bdlt::Date&  example,
                                 int                intervalInDays)
-    // Load, into the specified 'schedule', the chronologically increasing
-    // sequence of unique dates that are integral multiples of the specified
-    // 'intervalInDays' away from the specified 'example' date, and within the
-    // specified closed-interval '[earliest, latest]'.  The behavior is
-    // undefined unless 'earliest <= latest' and '1 <= intervalInDays'.
 {
     BSLS_ASSERT(schedule);
     BSLS_ASSERT(earliest <= latest);
@@ -276,6 +276,18 @@ void generateFromDayIntervalImp(VECTOR            *schedule,
     }
 }
 
+/// Load, into the specified `schedule`, the chronologically increasing
+/// sequence of unique dates that are on the specified `targetDayOfMonth`
+/// (or the last day of the month if `targetDayOfMonth` would be past the
+/// end of the month), integral multiples of the specified
+/// `intervalInMonths` away from the specified `exampleYear` and
+/// `exampleMonth`, and within the specified closed-interval
+/// `[earliest, latest]`.  Optionally specify `targetDayOfFeb` to replace
+/// `targetDayOfMonth` whenever the month of a `schedule` entry is February.
+/// The behavior is undefined unless `earliest <= latest`,
+/// `1 <= exampleYear <= 9999`, `1 <= exampleMonth <= 12`,
+/// `1 <= intervalInMonths`, `1 <= targetDayOfMonth <= 31`, and
+/// `0 <= targetDayOfFeb <= 29`.
 template <class VECTOR>
 inline
 void generateFromDayOfMonthImp(VECTOR            *schedule,
@@ -286,18 +298,6 @@ void generateFromDayOfMonthImp(VECTOR            *schedule,
                                int                intervalInMonths,
                                int                targetDayOfMonth,
                                int                targetDayOfFeb)
-    // Load, into the specified 'schedule', the chronologically increasing
-    // sequence of unique dates that are on the specified 'targetDayOfMonth'
-    // (or the last day of the month if 'targetDayOfMonth' would be past the
-    // end of the month), integral multiples of the specified
-    // 'intervalInMonths' away from the specified 'exampleYear' and
-    // 'exampleMonth', and within the specified closed-interval
-    // '[earliest, latest]'.  Optionally specify 'targetDayOfFeb' to replace
-    // 'targetDayOfMonth' whenever the month of a 'schedule' entry is February.
-    // The behavior is undefined unless 'earliest <= latest',
-    // '1 <= exampleYear <= 9999', '1 <= exampleMonth <= 12',
-    // '1 <= intervalInMonths', '1 <= targetDayOfMonth <= 31', and
-    // '0 <= targetDayOfFeb <= 29'.
 {
     BSLS_ASSERT(schedule);
     BSLS_ASSERT(earliest <= latest);
@@ -370,6 +370,22 @@ void generateFromDayOfMonthImp(VECTOR            *schedule,
     }
 }
 
+/// Load, into the specified `schedule`, the chronologically increasing
+/// sequence of unique dates that are on the specified
+/// `targetBusinessDayOfMonth` (or the highest count possible in the
+/// resulting month), integral multiples of the specified `intervalInMonths`
+/// away from the specified `exampleYear` and `exampleMonth`, and within the
+/// specified closed-interval `[earliest, latest]`.  Business days, as per
+/// the specified `calendar`, are counted, if `targetBusinessDayOfMonth` is
+/// positive, from and including the chronologically earliest business day
+/// to chronologically later business days, and if
+/// `targetBusinessDayOfMonth` is negative, from and including the
+/// chronologically latest business day to chronologically earlier business
+/// days.  If any of the months required for the schedule do not have a
+/// business day, return an empty `schedule`.  The behavior is undefined
+/// unless `earliest <= latest`, `1 <= exampleYear <= 9999`,
+/// `1 <= exampleMonth <= 12`, `1 <= intervalInMonths`, and
+/// `1 <= abs(targetBusinessDayOfMonth) <= 31`.
 template <class VECTOR>
 inline
 void generateFromBusinessDayOfMonthImp(
@@ -381,22 +397,6 @@ void generateFromBusinessDayOfMonthImp(
                              int                    intervalInMonths,
                              const bdlt::Calendar&  calendar,
                              int                    targetBusinessDayOfMonth)
-    // Load, into the specified 'schedule', the chronologically increasing
-    // sequence of unique dates that are on the specified
-    // 'targetBusinessDayOfMonth' (or the highest count possible in the
-    // resulting month), integral multiples of the specified 'intervalInMonths'
-    // away from the specified 'exampleYear' and 'exampleMonth', and within the
-    // specified closed-interval '[earliest, latest]'.  Business days, as per
-    // the specified 'calendar', are counted, if 'targetBusinessDayOfMonth' is
-    // positive, from and including the chronologically earliest business day
-    // to chronologically later business days, and if
-    // 'targetBusinessDayOfMonth' is negative, from and including the
-    // chronologically latest business day to chronologically earlier business
-    // days.  If any of the months required for the schedule do not have a
-    // business day, return an empty 'schedule'.  The behavior is undefined
-    // unless 'earliest <= latest', '1 <= exampleYear <= 9999',
-    // '1 <= exampleMonth <= 12', '1 <= intervalInMonths', and
-    // '1 <= abs(targetBusinessDayOfMonth) <= 31'.
 {
     BSLS_ASSERT(schedule);
     BSLS_ASSERT(earliest <= latest);
@@ -503,6 +503,16 @@ void generateFromBusinessDayOfMonthImp(
     }
 }
 
+/// Load, into the specified `schedule`, the chronologically increasing
+/// sequence of unique dates that are on the specified `dayOfWeek` on or
+/// after the specified `dayOfMonth`, integral multiples of the specified
+/// `intervalInMonths` away from the specified `exampleYear` and
+/// `exampleMonth`, and within the specified closed-interval
+/// `[earliest, latest]`.  If any of the months required for the schedule
+/// have fewer than `dayOfMonth` days, return an empty `schedule`.  The
+/// behavior is undefined unless `earliest <= latest`,
+/// `1 <= exampleYear <= 9999`, `1 <= exampleMonth <= 12`,
+/// `1 <= intervalInMonths`, and `1 <= dayOfMonth <= 31`.
 template <class VECTOR>
 inline
 void generateFromDayOfWeekAfterDayOfMonthImp(
@@ -514,16 +524,6 @@ void generateFromDayOfWeekAfterDayOfMonthImp(
                                      int                    intervalInMonths,
                                      bdlt::DayOfWeek::Enum  dayOfWeek,
                                      int                    dayOfMonth)
-    // Load, into the specified 'schedule', the chronologically increasing
-    // sequence of unique dates that are on the specified 'dayOfWeek' on or
-    // after the specified 'dayOfMonth', integral multiples of the specified
-    // 'intervalInMonths' away from the specified 'exampleYear' and
-    // 'exampleMonth', and within the specified closed-interval
-    // '[earliest, latest]'.  If any of the months required for the schedule
-    // have fewer than 'dayOfMonth' days, return an empty 'schedule'.  The
-    // behavior is undefined unless 'earliest <= latest',
-    // '1 <= exampleYear <= 9999', '1 <= exampleMonth <= 12',
-    // '1 <= intervalInMonths', and '1 <= dayOfMonth <= 31'.
 {
     BSLS_ASSERT(schedule);
     BSLS_ASSERT(earliest <= latest);
@@ -628,6 +628,15 @@ void generateFromDayOfWeekAfterDayOfMonthImp(
     }
 }
 
+/// Load, into the specified `schedule`, the chronologically increasing
+/// sequence of unique dates that are on the specified `dayOfWeek` of the
+/// specified `occurrenceWeek` of the month, integral multiples of the
+/// specified `intervalInMonths` away from the specified `exampleYear` and
+/// `exampleMonth`, and within the specified closed-interval
+/// `[earliest, latest]`.  The behavior is undefined unless
+/// `earliest <= latest`, `1 <= exampleYear <= 9999`,
+/// `1 <= exampleMonth <= 12`, `1 <= intervalInMonths`, and
+/// `1 <= occurrenceWeek <= 4`.
 template <class VECTOR>
 inline
 void generateFromDayOfWeekInMonthImp(VECTOR                *schedule,
@@ -638,15 +647,6 @@ void generateFromDayOfWeekInMonthImp(VECTOR                *schedule,
                                      int                    intervalInMonths,
                                      bdlt::DayOfWeek::Enum  dayOfWeek,
                                      int                    occurrenceWeek)
-    // Load, into the specified 'schedule', the chronologically increasing
-    // sequence of unique dates that are on the specified 'dayOfWeek' of the
-    // specified 'occurrenceWeek' of the month, integral multiples of the
-    // specified 'intervalInMonths' away from the specified 'exampleYear' and
-    // 'exampleMonth', and within the specified closed-interval
-    // '[earliest, latest]'.  The behavior is undefined unless
-    // 'earliest <= latest', '1 <= exampleYear <= 9999',
-    // '1 <= exampleMonth <= 12', '1 <= intervalInMonths', and
-    // '1 <= occurrenceWeek <= 4'.
 {
     BSLS_ASSERT(schedule);
     BSLS_ASSERT(earliest <= latest);

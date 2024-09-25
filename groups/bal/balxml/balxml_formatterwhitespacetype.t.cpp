@@ -23,10 +23,10 @@
 //                                 Overview
 //                                 --------
 // The component under test implements an enumeration of whitespace formatting
-// options for XML printing operations provided by the 'balxml' package.
+// options for XML printing operations provided by the `balxml` package.
 //
 // Global Concerns:
-//: o The enumerators of 'balxml::FormatterWhitespaceType::Enum' are unique
+//  - The enumerators of `balxml::FormatterWhitespaceType::Enum` are unique
 //
 // ----------------------------------------------------------------------------
 // [ 1] CONCERN: All whitespace-type enumerators are unique
@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -120,14 +120,14 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // ENUMERATOR UNIQUENESS
         //  Ensure that the enumerators of
-        //  'balxml::FormatterWhitespaceType::Enum' are unique.
+        //  `balxml::FormatterWhitespaceType::Enum` are unique.
         //
         // Concerns:
-        //: 1 The enumerators of 'balxml::FormatterWhitespaceType::Enum' are
-        //:   unique.
+        // 1. The enumerators of `balxml::FormatterWhitespaceType::Enum` are
+        //    unique.
         //
         // Plan:
-        //: 1 Verify the integral value of each enumerator.
+        // 1. Verify the integral value of each enumerator.
         //
         // Testing:
         //   CONCERN: All whitespace-type enumerators are unique

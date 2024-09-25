@@ -9,8 +9,8 @@
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
 
-// We include the 'fenv.h' header to ensure that there are no definition
-// conflicts between the Intel DFP code and the system 'fenv' header.
+// We include the `fenv.h` header to ensure that there are no definition
+// conflicts between the Intel DFP code and the system `fenv` header.
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
 #include <fenv.h>
@@ -34,9 +34,9 @@ using bsl::atoi;
 // specific build mode.
 //
 // Global Concerns:
-//: o Intel Headers are included correctly
-//: o No #define detritus is left behind
-//: o Intel Headers do not interact poorly with system headers
+//  - Intel Headers are included correctly
+//  - No #define detritus is left behind
+//  - Intel Headers do not interact poorly with system headers
 //
 // TBD:
 // ----------------------------------------------------------------------------
@@ -129,13 +129,13 @@ int main(int argc, char* argv[])
         // MACRO CLEAN ENVIRONMENT
         //
         // Concerns:
-        //: 1 The various macros used in configuring, tuning, and compiling the
-        //:   Intel DFP headers are disabled after inclusion.
+        // 1. The various macros used in configuring, tuning, and compiling the
+        //    Intel DFP headers are disabled after inclusion.
         //
         // Plan:
-        //: 1 Follow a pattern of '#ifdef <MACRO>',
-        //:   'ASSERT(false && "<MACRO>   still declared");', and '#endif' in
-        //:   confirming that each macro is disabled. (C-1)
+        // 1. Follow a pattern of `#ifdef <MACRO>`,
+        //    `ASSERT(false && "<MACRO>   still declared");`, and `#endif` in
+        //    confirming that each macro is disabled. (C-1)
         //
         // Testing:
         //   Macro clean environment
@@ -163,7 +163,7 @@ int main(int argc, char* argv[])
 
         // The Intel library was defining some constants that we do not want
         // polluting our global namespace.  We must test that those constants
-        // are no longer '#define'ed.
+        // are no longer `#define`ed.
 
         #ifdef P7
         ASSERT(false && "P7 still declared");
@@ -205,17 +205,17 @@ int main(int argc, char* argv[])
         //   library, and that the ones we call behave reasonably.
         //
         // Concerns:
-        //:  1 Intel function prototypes are declared, and are available for
-        //:    use.
+        //  1. Intel function prototypes are declared, and are available for
+        //     use.
         //
         // Plan:
-        //:  1 Declare variables of the various 'BID_UINTXX' types and call
-        //:    some initialization for them. (C-1)
-        //:
-        //:  2 Compute a simple arithmetic sum for some 'BID_UINTXX' variables.
-        //:    (C-1)
-        //:
-        //:  3 Verify the results of the simple arithmetic computation. (C-1)
+        //  1. Declare variables of the various `BID_UINTXX` types and call
+        //     some initialization for them. (C-1)
+        //
+        //  2. Compute a simple arithmetic sum for some `BID_UINTXX` variables.
+        //     (C-1)
+        //
+        //  3. Verify the results of the simple arithmetic computation. (C-1)
         //
         // Testing:
         //   Simple function call tests
@@ -261,14 +261,14 @@ int main(int argc, char* argv[])
         //   libary.
         //
         // Concerns:
-        //:  1 Intel Decimal types are declared, and are available for use.
+        //  1. Intel Decimal types are declared, and are available for use.
         //
         // Plan:
-        //:  1 Declare variables of the various 'BID_UINTXX' types and call
-        //:    some initialization for them. (C-1)
-        //:
-        //:  2 Call 'memcmp' on differently initialized variables to verify
-        //:    that their representations are distinct. (C-1)
+        //  1. Declare variables of the various `BID_UINTXX` types and call
+        //     some initialization for them. (C-1)
+        //
+        //  2. Call `memcmp` on differently initialized variables to verify
+        //     that their representations are distinct. (C-1)
         //
         // Testing:
         //   Intel Decimal types sanity test
@@ -309,11 +309,11 @@ int main(int argc, char* argv[])
         //   libary.
         //
         // Concerns:
-        //:  1 Intel Decimal headers are included.
+        //  1. Intel Decimal headers are included.
         //
         // Plan:
-        //:  1 Declare a variable of 'BID_UINT64', which should be defined in
-        //:    the Intel headers. (C-1)
+        //  1. Declare a variable of `BID_UINT64`, which should be defined in
+        //     the Intel headers. (C-1)
         //
         // Testing:
         //   Include Sanity Test

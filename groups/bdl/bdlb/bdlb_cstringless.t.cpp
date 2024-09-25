@@ -31,19 +31,19 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// 'bdlb::CStringLess' provides a stateless type and thus very little to test.
+// `bdlb::CStringLess` provides a stateless type and thus very little to test.
 // The primary concern is that function call operator compares C-strings
 // correctly.  CREATORS can be tested only for mechanical functioning.  And BSL
-// traits presence should be checked as we declare that 'bdlb::CStringLess' is
+// traits presence should be checked as we declare that `bdlb::CStringLess` is
 // an empty POD.
 //
 // The tests for this component are table based, i.e., testing actual results
 // against a table of expected results.
 //
 // Global Concerns:
-//: o No memory is ever allocated from the global allocator.
-//: o No memory is ever allocated from the default allocator.
-//: o Precondition violations are detected in appropriate build modes.
+//  - No memory is ever allocated from the global allocator.
+//  - No memory is ever allocated from the default allocator.
+//  - Precondition violations are detected in appropriate build modes.
 // ----------------------------------------------------------------------------
 // [ 3] operator()(const char *, const char *) const
 // [ 2] CStringLess()
@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -156,13 +156,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -175,37 +175,37 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'bdlb::CStringLess'
+///Example 1: Basic Use of `bdlb::CStringLess`
 /// - - - - - - - - - - - - - - - - - - - - -
 // Suppose we need a container to store set of unique C-strings. The following
-// code illustrates how to use 'bdlb::CStringLess' as a comparator for the
-// standard container 'set', to create a set of unique C-string values.
+// code illustrates how to use `bdlb::CStringLess` as a comparator for the
+// standard container `set`, to create a set of unique C-string values.
 //
-// Note that the default comparator for 'const char *' (i.e.,
-// 'bsl::less<const char *>') compares the supplied addresses, rather than the
+// Note that the default comparator for `const char *` (i.e.,
+// `bsl::less<const char *>`) compares the supplied addresses, rather than the
 // contents of the C-strings to which those address typically refer.  As a
 // result, when using the default comparator, identical C-string values located
-// at different addresses, will be successfully added to a 'set' container.
-// 'bdlb::CStringLess' compares the values of the C-strings ensuring that a
-// 'set', using 'CstringLess' as a comparator, is a set of unique string
+// at different addresses, will be successfully added to a `set` container.
+// `bdlb::CStringLess` compares the values of the C-strings ensuring that a
+// `set`, using `CstringLess` as a comparator, is a set of unique string
 // values.
 //
 // First, we create several C-strings:
-//..
+// ```
   const char newYork[]        = "NY";
   const char losAngeles[]     = "LA";
   const char newJersey[]      = "NJ";
   const char sanFrancisco[]   = "SF";
   const char anotherNewYork[] = "NY";
-//..
+// ```
 // Next, we create two containers, one with default comparator and another
-// using 'bdlb::CstringLess' as a comparator:
-//..
+// using `bdlb::CstringLess` as a comparator:
+// ```
   bsl::set<const char *>                    defaultComparatorContainer;
   bsl::set<const char *, bdlb::CStringLess> userComparatorContainer;
-//..
+// ```
 // Now, we fill containers with the same contents:
-//..
+// ```
   defaultComparatorContainer.insert(newYork);
   defaultComparatorContainer.insert(losAngeles);
   defaultComparatorContainer.insert(newJersey);
@@ -217,37 +217,37 @@ int main(int argc, char *argv[])
   userComparatorContainer.insert(newJersey);
   userComparatorContainer.insert(sanFrancisco);
   userComparatorContainer.insert(anotherNewYork);
-//..
-// Finally, we observe that the container created with 'CStringLess'
-// ('userComparatorContainer') contains the correct number of unique C-string
+// ```
+// Finally, we observe that the container created with `CStringLess`
+// (`userComparatorContainer`) contains the correct number of unique C-string
 // values (4), while the container using the default comparator does not:
-//..
+// ```
   ASSERT(5 == defaultComparatorContainer.size());
   ASSERT(4 == userComparatorContainer.size());
-//..
+// ```
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING QOI: 'CStringLess' IS AN EMPTY TYPE
+        // TESTING QOI: `CStringLess` IS AN EMPTY TYPE
         //   As a quality of implementation issue, the class has no state and
         //   should support the use of the empty base class optimization on
         //   compilers that support it.
         //
         // Concerns:
-        //: 1 Class 'bdlb::CStringLess' does not increase the size of an object
-        //:   when used as a base class.
-        //:
-        //: 2 Object of 'bdlb::CStringLess' class increases size of an object
-        //:   when used as a class member.
+        // 1. Class `bdlb::CStringLess` does not increase the size of an object
+        //    when used as a base class.
+        //
+        // 2. Object of `bdlb::CStringLess` class increases size of an object
+        //    when used as a class member.
         //
         // Plan:
-        //: 1 Define two identical non-empty classes with no padding, but
-        //:   derive one of them from 'bdlb::CStringLess', then assert that
-        //:   both classes have the same size. (C-1)
-        //:
-        //: 2 Create a non-empty class with an 'bdlb::CStringLess' additional
-        //:   data member, assert that class size is larger than sum of other
-        //:   data member's sizes. (C-2)
+        // 1. Define two identical non-empty classes with no padding, but
+        //    derive one of them from `bdlb::CStringLess`, then assert that
+        //    both classes have the same size. (C-1)
+        //
+        // 2. Create a non-empty class with an `bdlb::CStringLess` additional
+        //    data member, assert that class size is larger than sum of other
+        //    data member's sizes. (C-2)
         //
         // Testing:
         //   QoI: Support for empty base optimization
@@ -255,7 +255,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout
                       << endl
-                      << "TESTING QOI: 'CStringLess' IS AN EMPTY TYPE" << endl
+                      << "TESTING QOI: `CStringLess` IS AN EMPTY TYPE" << endl
                       << "===========================================" << endl;
 
         struct TwoInts {
@@ -284,12 +284,12 @@ int main(int argc, char *argv[])
         //   type traits to reflect this.
         //
         // Concerns:
-        //: 1 The class is trivially copyable.
-        //:
-        //: 2 The class has the trivial default constructor trait.
+        // 1. The class is trivially copyable.
+        //
+        // 2. The class has the trivial default constructor trait.
         //
         // Plan:
-        //: 1 ASSERT the presence of each trait required by the type. (C-1..2)
+        // 1. ASSERT the presence of each trait required by the type. (C-1..2)
         //
         // Testing:
         //   BSL Traits
@@ -310,18 +310,18 @@ int main(int argc, char *argv[])
         //   standard adaptable binary function.
         //
         // Concerns:
-        //: 1 The typedef 'first_argument_type' is publicly accessible and an
-        //:   alias for 'const char *'.
-        //:
-        //: 2 The typedef 'second_argument_type' is publicly accessible and an
-        //:   alias for 'const char *'.
-        //:
-        //: 3 The typedef 'result_type' is publicly accessible and an alias for
-        //:   'bool'.
+        // 1. The typedef `first_argument_type` is publicly accessible and an
+        //    alias for `const char *`.
+        //
+        // 2. The typedef `second_argument_type` is publicly accessible and an
+        //    alias for `const char *`.
+        //
+        // 3. The typedef `result_type` is publicly accessible and an alias for
+        //    `bool`.
         //
         // Plan:
-        //: 1 ASSERT each of the typedefs has accessibly aliases the correct
-        //:   type using 'bsl::is_same'. (C-1..3)
+        // 1. ASSERT each of the typedefs has accessibly aliases the correct
+        //    type using `bsl::is_same`. (C-1..3)
         //
         // Testing:
         //  Standard typedefs
@@ -341,35 +341,35 @@ int main(int argc, char *argv[])
         // FUNCTION CALL OPERATOR
         //
         // Concerns:
-        //: 1 Objects of type 'bdlb::CStringLess' can be invoked as a binary
-        //:   predicate returning 'bool' and taking two 'const char *'
-        //:   arguments.
-        //:
-        //: 2 The function call operator can be invoked on constant objects.
-        //:
-        //: 3 The function call returns 'true' or 'false' indicating whether
-        //:   the two supplied string arguments are supplied in lexical order.
-        //:
-        //: 4 Asserted precondition violations are detected when enabled.
-        //:
-        //: 5 No memory is allocated from the default allocator.
+        // 1. Objects of type `bdlb::CStringLess` can be invoked as a binary
+        //    predicate returning `bool` and taking two `const char *`
+        //    arguments.
+        //
+        // 2. The function call operator can be invoked on constant objects.
+        //
+        // 3. The function call returns `true` or `false` indicating whether
+        //    the two supplied string arguments are supplied in lexical order.
+        //
+        // 4. Asserted precondition violations are detected when enabled.
+        //
+        // 5. No memory is allocated from the default allocator.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of c-string for
-        //:   comparison, and a flag value indicating whether one string is
-        //:   lower than other.
-        //:
-        //: 2 For each row 'R' in the table of P-1 verify that the function
-        //:   call operator, when invoked on c-string values from 'R', returns
-        //:   the expected value.  (C-1..3)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-4)
-        //:
-        //: 4 Verify that no memory have been allocated from the default
-        //:   allocator.  (C-5)
+        // 1. Using the table-driven technique, specify a set of c-string for
+        //    comparison, and a flag value indicating whether one string is
+        //    lower than other.
+        //
+        // 2. For each row `R` in the table of P-1 verify that the function
+        //    call operator, when invoked on c-string values from `R`, returns
+        //    the expected value.  (C-1..3)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-4)
+        //
+        // 4. Verify that no memory have been allocated from the default
+        //    allocator.  (C-5)
         //
         // Testing:
         //   operator()(const char *, const char *) const
@@ -442,40 +442,40 @@ int main(int argc, char *argv[])
         //   expected expressions all compile.
         //
         // Concerns:
-        //: 1 Objects can be created using the default constructor.
-        //:
-        //: 2 Objects can be created using the copy constructor.
-        //:
-        //: 3 The copy constructor is not declared as explicit.
-        //:
-        //: 4 Objects can be assigned to from constant objects.
-        //:
-        //: 5 Assignments operations can be chained.
-        //:
-        //: 6 Objects can be destroyed.
-        //:
-        //: 7 No memory is allocated by the default allocator.
+        // 1. Objects can be created using the default constructor.
+        //
+        // 2. Objects can be created using the copy constructor.
+        //
+        // 3. The copy constructor is not declared as explicit.
+        //
+        // 4. Objects can be assigned to from constant objects.
+        //
+        // 5. Assignments operations can be chained.
+        //
+        // 6. Objects can be destroyed.
+        //
+        // 7. No memory is allocated by the default allocator.
         //
         // Plan:
-        //: 1 Verify the default constructor exists and is publicly accessible
-        //:   by default-constructing a 'const bdlb::CStringLess' object. (C-1)
-        //:
-        //: 2 Verify the copy constructor is publicly accessible and not
-        //:   'explicit' by using the copy-initialization syntax to create a
-        //:   second 'bdlb::CStringLess' from the first. (C-2..3)
-        //:
-        //: 3 Assign the value of the first ('const') object to the second.
-        //:   (C-4)
-        //:
-        //: 4 Chain the assignment of the value of the first ('const') object
-        //:   to the second, into a self-assignment of the second object to
-        //:   itself. (C-5)
-        //:
-        //: 5 Verify the destructor is publicly accessible by allowing the two
-        //:   'bdlb::CStringLess' object to leave scope and be destroyed. (C-6)
-        //:
-        //: 6 Verify that no memory have been allocated from the default
-        //:   allocator.  (C-7)
+        // 1. Verify the default constructor exists and is publicly accessible
+        //    by default-constructing a `const bdlb::CStringLess` object. (C-1)
+        //
+        // 2. Verify the copy constructor is publicly accessible and not
+        //    `explicit` by using the copy-initialization syntax to create a
+        //    second `bdlb::CStringLess` from the first. (C-2..3)
+        //
+        // 3. Assign the value of the first (`const`) object to the second.
+        //    (C-4)
+        //
+        // 4. Chain the assignment of the value of the first (`const`) object
+        //    to the second, into a self-assignment of the second object to
+        //    itself. (C-5)
+        //
+        // 5. Verify the destructor is publicly accessible by allowing the two
+        //    `bdlb::CStringLess` object to leave scope and be destroyed. (C-6)
+        //
+        // 6. Verify that no memory have been allocated from the default
+        //    allocator.  (C-7)
         //
         // Testing:
         //   CStringLess()
@@ -516,17 +516,17 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an object 'compare' using the default ctor.
-        //:
-        //: 2 Call the 'compare' functor with two string literals in lexical
-        //:   order.
-        //:
-        //: 3 Call the 'compare' functor with two string literals in reverse
-        //:   lexical order.
+        // 1. Create an object `compare` using the default ctor.
+        //
+        // 2. Call the `compare` functor with two string literals in lexical
+        //    order.
+        //
+        // 3. Call the `compare` functor with two string literals in reverse
+        //    lexical order.
         //
         // Testing:
         //   BREATHING TEST

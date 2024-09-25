@@ -132,18 +132,18 @@ enum VecType { e_BEGIN,
 #endif
                e_END };
 
+/// Return a pointer to the first element of `v`, unless `v` is empty, in
+/// which case return 0.
 template <class VECTOR>
 typename VECTOR::value_type *vBeginPtr(VECTOR *v)
-    // Return a pointer to the first element of 'v', unless 'v' is empty, in
-    // which case return 0.
 {
     return v->empty() ? 0 : &(*v)[0];
 }
 
+/// Return a pointer to the first element of `v`, unless `v` is empty, in
+/// which case return 0.
 template <class VECTOR>
 typename VECTOR::value_type *vEndPtr(VECTOR *v)
-    // Return a pointer to the first element of 'v', unless 'v' is empty, in
-    // which case return 0.
 {
     return v->empty() ? 0 : &(*v)[0] + v->size();
 }
@@ -151,12 +151,12 @@ typename VECTOR::value_type *vEndPtr(VECTOR *v)
 }  // close namespace u
 }  // close unnamed namspace
 
+/// Populate the specified `resultId` with a null-terminated string
+/// identifier containing the specified `heading` concatenated with the
+/// specified `value`.  The behavior is undefined if the resulting
+/// identifier would be larger than 100 (including the null terminating
+/// character).
 void stringId(bsl::string *resultId, const char *heading, int value)
-    // Populate the specified 'resultId' with a null-terminated string
-    // identifier containing the specified 'heading' concatenated with the
-    // specified 'value'.  The behavior is undefined if the resulting
-    // identifier would be larger than 100 (including the null terminating
-    // character).
 {
     char buffer[100];
     int rc = snprintf(buffer, 100, "%s-%d", heading, value);
@@ -166,15 +166,15 @@ void stringId(bsl::string *resultId, const char *heading, int value)
     *resultId = buffer;
 }
 
+/// Populate the specified `resultId` with a null-terminated string
+/// identifier containing the specified `heading` concatenated with the
+/// specified `value1` and `value2`.  The behavior is undefined if the
+/// resulting identifier would be larger than 100 (including the null
+/// terminating character).
 void stringId(bsl::string *resultId,
               const char  *heading,
               int          value1,
               int          value2)
-    // Populate the specified 'resultId' with a null-terminated string
-    // identifier containing the specified 'heading' concatenated with the
-    // specified 'value1' and 'value2'.  The behavior is undefined if the
-    // resulting identifier would be larger than 100 (including the null
-    // terminating character).
 {
     char buffer[100];
     int rc = snprintf(buffer, 100, "%s-%d-%d", heading, value1, value2);
@@ -195,8 +195,8 @@ bool recordLess(const Rec& lhs, const Rec& rhs)
     return cmp < 0;
 }
 
+/// Invoke a set of operations operations synchronously.
 class ThreadTester {
-    // Invoke a set of operations operations synchronously.
 
     // DATA
     bdlmt::FixedThreadPool     d_pool;
@@ -205,8 +205,9 @@ class ThreadTester {
     bslma::Allocator          *d_allocator_p;
 
     // PRIVATE MANIPULATORS
+
+    /// Execute a single test.
     void execute();
-        // Execute a single test.
 
   public:
 
@@ -225,8 +226,9 @@ class ThreadTester {
     ~ThreadTester() {}
 
     //  MANIPULATORS
+
+    /// Run the test.
     void runTest();
-        // Run the test.
 };
 
 void ThreadTester::execute()
@@ -238,11 +240,11 @@ void ThreadTester::execute()
     // threads and iterations.
     //
     // Test 1: Create a set of category and metric ids using
-    // these unique and partially unique ids, and call 'getDefaultCollector',
-    // 'getDefaultIntegerCollector', 'addCollector', 'addIntegerCollector', and
-    // 'getAddedCollectors' for each (category, id) combination; verify the
+    // these unique and partially unique ids, and call `getDefaultCollector`,
+    // `getDefaultIntegerCollector`, `addCollector`, `addIntegerCollector`, and
+    // `getAddedCollectors` for each (category, id) combination; verify the
     // returned values are correct and set the collectors to a known
-    // value.  Then, call 'collectAndReset' for each category and verify the
+    // value.  Then, call `collectAndReset` for each category and verify the
     // results.
 
     const int NUM_THREADS = d_pool.numThreads();
@@ -281,9 +283,9 @@ void ThreadTester::execute()
         d_barrier.wait();
 
         // Test 1.
-        // For each (category, id) combination, invoke 'getDefaultCollector',
-        // 'getDefaultIntegerCollector', 'addCollector',
-        // 'addIntegerCollector', and 'getAddedCollectors'.  Finally, set
+        // For each (category, id) combination, invoke `getDefaultCollector`,
+        // `getDefaultIntegerCollector`, `addCollector`,
+        // `addIntegerCollector`, and `getAddedCollectors`.  Finally, set
         // the collectors to a known (non-default) state.
 
         for (bsl::size_t j = 0; j < NUM_CATEGORIES; ++j) {
@@ -319,7 +321,7 @@ void ThreadTester::execute()
             }
         }
 
-        // Call 'collectAndReset' on each test category.
+        // Call `collectAndReset` on each test category.
         for (bsl::size_t j = 0; j < NUM_CATEGORIES; ++j) {
             const char *CATEGORY = CATEGORIES[j];
             const balm::Category *category = REG.findCategory(CATEGORY);
@@ -429,7 +431,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -440,11 +442,11 @@ int main(int argc, char *argv[])
 
 ///Usage
 ///-----
-// The following example illustrates creating a 'balm::CollectorRepository',
+// The following example illustrates creating a `balm::CollectorRepository`,
 // then looking up collectors in that repository, and finally collecting values
 // from the repository.  We start by creating creating a repository and
 // looking up 2 collectors and 2 integer collectors.
-//..
+// ```
     bslma::Allocator    *allocator = bslma::Default::allocator(0);
     balm::MetricRegistry  metricRegistry(allocator);
     balm::CollectorRepository repository(&metricRegistry, allocator);
@@ -461,39 +463,39 @@ int main(int argc, char *argv[])
         ASSERT(intCollector1 != intCollector2);
         ASSERT(intCollector1 ==
                repository.getDefaultIntegerCollector("Test","C3"));
-//..
+// ```
 // We now update the values in those collectors.
-//..
+// ```
     collector1->update(1.0);
     collector1->update(2.0);
     collector2->update(4.0);
 
     intCollector1->update(5);
     intCollector2->update(6);
-//..
+// ```
 // We can use the repository to collect recorded values from the collectors it
 // manages.  Since there are collectors for four metrics, there should be four
 // recorded values.  Note the order in which the records are returned is
 // undefined.
-//..
+// ```
     bsl::vector<balm::MetricRecord> records;
     repository.collectAndReset(&records, metricRegistry.getCategory("Test"));
         ASSERT(4 == records.size());
-//..
+// ```
 // Finally we write the recorded values to the console.
-//..
+// ```
     bsl::vector<balm::MetricRecord>::const_iterator it;
     for (it = records.begin(); it != records.end(); ++it) {
          bsl::cout << *it << bsl::endl;
     }
-//..
+// ```
 // The output of the for-loop should be:
-//..
+// ```
 //  [ Test.C1: 2 3 1 2 ]
 //  [ Test.C2: 1 4 4 4 ]
 //  [ Test.C3: 1 5 5 5 ]
 //  [ Test.C4: 1 6 6 6 ]
-//..
+// ```
 
       } break;
       case 8: {
@@ -520,33 +522,33 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING BASIC MANIPULATOR: 'collect'
+        // TESTING BASIC MANIPULATOR: `collect`
         //
         // Concerns:
-        //   That the 'collector' method properly collects values of all the
+        //   That the `collector` method properly collects values of all the
         //   collectors in the supplied category with no side effects.  That
         //   the collected records for a single metric are aggregated correctly
-        //   (across multiple instances of 'balm::Collector' and
-        //   'balm::IntegerCollector' for the same metric).
+        //   (across multiple instances of `balm::Collector` and
+        //   `balm::IntegerCollector` for the same metric).
         //
         // Plan:
         //   For an independent sequences of metric ids and categories, select
         //   the category under test, then create multiple collectors (and
         //   integer collectors) for each metric id/category combination, and
         //   update the collectors, using identifiable values.  Then for the
-        //   category under test, collect records using the 'collect' method
+        //   category under test, collect records using the `collect` method
         //   and verify the records match the expected aggregates of the
         //   identifiable values, and verify the corresponding collectors for
         //   those metrics have not been modified to their default value.
         //   Finally, for all other categories (categories where
-        //   'collect' has *not* been called), verify their collectors still
+        //   `collect` has *not* been called), verify their collectors still
         //   contain their original values (i.e., they have not been modified).
         //
         // Testing:
         //   void collect(v<MetricRecord> *, const Category *);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'collectAndReset'" << endl;
+        if (verbose) cout << "\nTesting `collectAndReset`" << endl;
 
         Registry reg(Z);
         const char *CATEGORIES[] = {"A", "B", "C"};
@@ -576,7 +578,7 @@ int main(int argc, char *argv[])
                             ICol *iCol = mX.addIntegerCollector(metric).get();
                             if (i == j) {
                                 // We are creating collector values for the
-                                // metric under test ('i == j').
+                                // metric under test (`i == j`).
 
                                 col->setCountTotalMinMax(k,  2 * k, -k, k);
                                 iCol->setCountTotalMinMax(k, 2 * k, -k, k);
@@ -701,29 +703,29 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING AUXILIARY MANIPULATORS: 'getDefaultCollector',
-        //                                 'getDefaultIntegerCollector'
+        // TESTING AUXILIARY MANIPULATORS: `getDefaultCollector`,
+        //                                 `getDefaultIntegerCollector`
         //
         // Concerns:
-        //   That 'getDefaultCollector' (and 'getDefaultIntegerCollector')
-        //   returns the address of a valid 'balm::Collector' object (or
-        //   'balm::IntegerCollector').
+        //   That `getDefaultCollector` (and `getDefaultIntegerCollector`)
+        //   returns the address of a valid `balm::Collector` object (or
+        //   `balm::IntegerCollector`).
         //
-        //   That 'getDefaultCollector' (and 'getDefaultIntegerCollector')
+        //   That `getDefaultCollector` (and `getDefaultIntegerCollector`)
         //   create new metric ids when required.
         //
         // Plan:
         //
         //   For a sequence of metric ids, create a new
-        //   'balm::CollectorRepository' and use 'getDefaultCollector' and
-        //   'getDefaultIntegerCollector' to create new collector objects.
-        //   Then verify subsequent calls to 'addCollector' create new
-        //   collector whereas 'getDefaultCollector' returns the original
+        //   `balm::CollectorRepository` and use `getDefaultCollector` and
+        //   `getDefaultIntegerCollector` to create new collector objects.
+        //   Then verify subsequent calls to `addCollector` create new
+        //   collector whereas `getDefaultCollector` returns the original
         //   collector.
         //
         //   Then, for a sequence of metric ids, create a new metric registry
-        //   and collector repository and invoke 'getDefaultCollector' and
-        //   'getDefaultIntegerCollector' - verify the operations return valid
+        //   and collector repository and invoke `getDefaultCollector` and
+        //   `getDefaultIntegerCollector` - verify the operations return valid
         //   collectors and add a new id to the metric registry.
         //
         // Testing:
@@ -755,13 +757,13 @@ int main(int argc, char *argv[])
         const int NUM_METRICS = sizeof METRICS / sizeof *METRICS;
 
         if (verbose) cout
-            << "\nTesting aixilary mainpulators 'getDefaultCollector'"
-            << " and 'getDefaultIntegerCollector'" << endl;
+            << "\nTesting aixilary mainpulators `getDefaultCollector`"
+            << " and `getDefaultIntegerCollector`" << endl;
 
         {
             if (veryVerbose) {
-                cout << "\tTest 'getDefaultCollector' followed by"
-                     << " 'addCollector'" << endl;
+                cout << "\tTest `getDefaultCollector` followed by"
+                     << " `addCollector`" << endl;
             }
 
             const int NUM_ADDITIONAL = 5;
@@ -802,7 +804,7 @@ int main(int argc, char *argv[])
         }
         {
             if (veryVerbose) {
-                cout << "\tTest 'getDefaultCollector' creates new metric ids "
+                cout << "\tTest `getDefaultCollector` creates new metric ids "
                      << "when necessary." << endl;
             }
             for (int i = 0; i < NUM_METRICS; ++i) {
@@ -835,27 +837,27 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING AUXILIARY MANIPULATORS: 'addCollector','addIntegerCollector'
+        // TESTING AUXILIARY MANIPULATORS: `addCollector`,`addIntegerCollector`
         //
         // Concerns:
-        //   That 'addCollector' (and 'addIntegerCollector') returns the
-        //   address of a new valid 'balm::Collector' object (or
-        //   'balm::IntegerCollector').
+        //   That `addCollector` (and `addIntegerCollector`) returns the
+        //   address of a new valid `balm::Collector` object (or
+        //   `balm::IntegerCollector`).
         //
-        //   That 'addCollector' (and 'addIntegerCollector') create new metric
+        //   That `addCollector` (and `addIntegerCollector`) create new metric
         //   ids when required.
         //
         // Plan:
         //
         //   For a sequence of metric ids, including duplicate ids,
-        //   invoke 'addCollector' and 'addIntegerCollector' putting the
+        //   invoke `addCollector` and `addIntegerCollector` putting the
         //   pointers into an "oracle" container owned by the test.  Then
         //   verify the pointers in the "oracle" are unique, and that their
-        //   values equal the response from 'getAddedCollectors'.
+        //   values equal the response from `getAddedCollectors`.
         //
         //   Then, for a sequence of metric ids, create a new metric registry
-        //   and collector repository and invoked 'addCollector' and
-        //   'addIntegerCollector' - verify the operations return valid
+        //   and collector repository and invoked `addCollector` and
+        //   `addIntegerCollector` - verify the operations return valid
         //   collectors and add a new id to the metric registry.
         //
         // Testing:
@@ -886,12 +888,12 @@ int main(int argc, char *argv[])
         };
         const int NUM_METRICS = sizeof METRICS / sizeof *METRICS;
 
-        if (verbose) cout << "\nTesting aixilary mainpulators 'addCollector'"
-                          << " and 'addIntegerCollector'" << endl;
+        if (verbose) cout << "\nTesting aixilary mainpulators `addCollector`"
+                          << " and `addIntegerCollector`" << endl;
 
         {
             if (veryVerbose) {
-                cout << "\tTest 'addCollector' creates valid new collectors."
+                cout << "\tTest `addCollector` creates valid new collectors."
                      << endl;
             }
 
@@ -921,7 +923,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
             // Verify the values added are unique and can be found using
-            // 'getAddedCollectors'.
+            // `getAddedCollectors`.
             bsl::set<Id>::const_iterator it = ids.begin();
             for (; it != ids.end(); ++it) {
 
@@ -949,7 +951,7 @@ int main(int argc, char *argv[])
         }
         {
             if (veryVerbose) {
-                cout << "\tTest 'addCollector' creates new metric ids when "
+                cout << "\tTest `addCollector` creates new metric ids when "
                      << "necessary." << endl;
             }
             for (int i = 0; i < NUM_METRICS; ++i) {
@@ -981,25 +983,25 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING BASIC MANIPULATOR: 'collectAndReset'
+        // TESTING BASIC MANIPULATOR: `collectAndReset`
         //
         // Concerns:
-        //   That 'collectAndReset' properly collects values of all the
+        //   That `collectAndReset` properly collects values of all the
         //   collectors in the supplied category with no side effects.  That
         //   the collected records for a single metric are aggregated
-        //   correctly (across multiple instances of 'balm::Collector' and
-        //   'balm::IntegerCollector' for the same metric).
+        //   correctly (across multiple instances of `balm::Collector` and
+        //   `balm::IntegerCollector` for the same metric).
         //
         // Plan:
         //   For an independent sequences of metric ids and categories, select
         //   the category under test, then create multiple collectors (and
         //   integer collectors) for each metric id/category combination, and
         //   update the collectors, using identifiable values.  Then for the
-        //   category under test, collect records using the 'collectAndReset'
+        //   category under test, collect records using the `collectAndReset`
         //   method and verify the records match the expected aggregates of the
         //   identifiable values, and verify the corresponding collectors for
         //   those metrics have been reset to their default value.  Finally,
-        //   for all other categories (categories where 'collectAndReset' has
+        //   for all other categories (categories where `collectAndReset` has
         //   *not* been called), verify their collectors still contain their
         //   original values (i.e., they have not been modified).
         //
@@ -1007,7 +1009,7 @@ int main(int argc, char *argv[])
         //   void collectAndReset(v<MetricRecord> *, const Category *);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'collectAndReset'" << endl;
+        if (verbose) cout << "\nTesting `collectAndReset`" << endl;
 
         Registry reg(Z);
         const char *CATEGORIES[] = {"A", "B", "C"};
@@ -1154,25 +1156,25 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING BASIC MANIPULATOR: 'getDefaultCollector',
-        //                            'getDefaultIntegerCollector'
+        // TESTING BASIC MANIPULATOR: `getDefaultCollector`,
+        //                            `getDefaultIntegerCollector`
         //
         // Concerns:
-        //   That 'getDefaultCollector' (and 'getDefaultIntegerCollector')
+        //   That `getDefaultCollector` (and `getDefaultIntegerCollector`)
         //   returns the valid address of the default balm::Collector' (or
-        //   'balm::IntegerCollector') object.
+        //   `balm::IntegerCollector`) object.
         //
-        //   That 'getDefaultCollector'  (and 'getDefaultIntegerCollector') if
-        //   called prior to 'addCollector' (or 'addIntegerCollector')
+        //   That `getDefaultCollector`  (and `getDefaultIntegerCollector`) if
+        //   called prior to `addCollector` (or `addIntegerCollector`)
         //   properly creates a new collector and returns its address.
         //
         // Plan:
         //
         //   Next, for a sequence of metric ids, create a new
-        //   'balm::CollectorRepository' and use 'getDefaultCollector' and
-        //   'getDefaultIntegerCollector' to create new collector objects.
-        //   Then verify subsequent calls to 'addCollector' create new
-        //   collector whereas 'getDefaultCollector' returns the original
+        //   `balm::CollectorRepository` and use `getDefaultCollector` and
+        //   `getDefaultIntegerCollector` to create new collector objects.
+        //   Then verify subsequent calls to `addCollector` create new
+        //   collector whereas `getDefaultCollector` returns the original
         //   collector.
         //
         // Testing:
@@ -1180,8 +1182,8 @@ int main(int argc, char *argv[])
         //   IntegerCollector *getDefaultIntegerCollector(const MetricId&);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'getDefaultCollector' and "
-                          << "'getDefaultIntegerCollector'" << endl;
+        if (verbose) cout << "\nTesting `getDefaultCollector` and "
+                          << "`getDefaultIntegerCollector`" << endl;
 
         Registry reg(Z);
         Id METRIC_AA = reg.getId("A", "A");
@@ -1207,8 +1209,8 @@ int main(int argc, char *argv[])
         const int NUM_METRICS = sizeof METRICS / sizeof *METRICS;
         {
             if (veryVerbose) {
-                cout << "\tTest 'addCollector' followed by "
-                     << "'getDefaultCollector'" << endl;
+                cout << "\tTest `addCollector` followed by "
+                     << "`getDefaultCollector`" << endl;
             }
 
             // Add collectors.
@@ -1245,7 +1247,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
             // Verify the values added are unique and can be found using
-            // 'getAddedCollectors'.
+            // `getAddedCollectors`.
             bsl::set<Id>::const_iterator it = ids.begin();
             for (; it != ids.end(); ++it) {
                 bsl::vector<Col *>&  exp_ColV  = cols[*it];
@@ -1262,8 +1264,8 @@ int main(int argc, char *argv[])
         }
         {
             if (veryVerbose) {
-                cout << "\tTest 'getDefaultCollector' followed by "
-                     << "'addCollector'" << endl;
+                cout << "\tTest `getDefaultCollector` followed by "
+                     << "`addCollector`" << endl;
             }
 
             const int NUM_ADDITIONAL = 5;
@@ -1301,15 +1303,15 @@ int main(int argc, char *argv[])
         // TESTING BASIC MANIPULATORS and ACCESSORS (BOOTSTRAP):
         //
         // Concerns:
-        //   That 'addCollector' (and 'addIntegerCollector') returns the
-        //   address of a new valid 'balm::Collector' object (or
-        //   'balm::IntegerCollector').
+        //   That `addCollector` (and `addIntegerCollector`) returns the
+        //   address of a new valid `balm::Collector` object (or
+        //   `balm::IntegerCollector`).
         //
-        //   That 'findCollectors' returns, in order of creation, the
-        //   addresses of those collectors created by 'addCollector' and
-        //   'addIntegerCollector'.
+        //   That `findCollectors` returns, in order of creation, the
+        //   addresses of those collectors created by `addCollector` and
+        //   `addIntegerCollector`.
         //
-        //   That 'findCollectors' appends to the supplied vectors and uses,
+        //   That `findCollectors` appends to the supplied vectors and uses,
         //   at most, 1 memory allocation per output vector.
         //
         // Plan:
@@ -1317,14 +1319,14 @@ int main(int argc, char *argv[])
         //   resulting object.
         //
         //   Then, for a sequence of metric ids, including duplicate ids,
-        //   invoke 'addCollector' and 'addIntegerCollector' putting the
+        //   invoke `addCollector` and `addIntegerCollector` putting the
         //   pointers into an "oracle" container owned by the test.  Then
         //   verify the pointers in the "oracle" are unique, and that their
-        //   values equal the response from 'getAddedCollectors'.
+        //   values equal the response from `getAddedCollectors`.
         //
-        //   Finally, call 'addCollector' and 'addIntegerCollector'
+        //   Finally, call `addCollector` and `addIntegerCollector`
         //   repeatedly for a single metric id.  Populate a vector with an
-        //   initial value.  Invoke 'getAddedCollectors' and verify that the
+        //   initial value.  Invoke `getAddedCollectors` and verify that the
         //   results are appended to the initial value and that the method
         //   does no perform more than 2 memory allocations.
         //
@@ -1382,8 +1384,8 @@ int main(int argc, char *argv[])
         }
         {
             if (veryVerbose) {
-                cout << "\tTest 'addCollector', 'addIntegerCollector', "
-                     << "'getAddedCollectors'. " << endl;
+                cout << "\tTest `addCollector`, `addIntegerCollector`, "
+                     << "`getAddedCollectors`. " << endl;
             }
 
             // Add collectors.
@@ -1409,7 +1411,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
             // Verify the values added are unique and can be found using
-            // 'getAddedCollectors'.
+            // `getAddedCollectors`.
             bsl::set<Id>::const_iterator it = ids.begin();
             for (; it != ids.end(); ++it) {
 
@@ -1439,7 +1441,7 @@ int main(int argc, char *argv[])
         }
         {
             if (veryVerbose) {
-                cout << "\tVerify 'getCollector' appends to the supplied "
+                cout << "\tVerify `getCollector` appends to the supplied "
                      << "array and does not allocate more than once." << endl;
             }
 
@@ -1708,7 +1710,7 @@ int main(int argc, char *argv[])
             Obj mX(&reg, Z);
 
             if (veryVerbose) {
-                cout << "\tTest 'getAddedCollectors'" << bsl::endl;
+                cout << "\tTest `getAddedCollectors`" << bsl::endl;
             }
             Col *col1 = mX.addCollector(METRIC_AA).get();
             Col *col2 = mX.addCollector(METRIC_AA).get();
@@ -1751,7 +1753,7 @@ int main(int argc, char *argv[])
             Obj mX(&reg, Z);
 
             if (veryVerbose) {
-                cout << "\tTest 'collectAndReset'" << bsl::endl;
+                cout << "\tTest `collectAndReset`" << bsl::endl;
             }
 
             bsl::vector<Col *> collectors(Z);

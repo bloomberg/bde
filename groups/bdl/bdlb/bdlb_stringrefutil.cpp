@@ -9,31 +9,31 @@
 namespace BloombergLP {
 namespace bdlb {
 
+/// Return the lower case analog of the specified `ch` if `ch` is an upper
+/// case character, and return `ch` otherwise; the sequence of characters
+/// `[A .. Z]` is mapped to `[a .. z]`.  The behavior is undefined unless
+/// characters are ASCII encoded.
 static inline int u_upperToLower(int ch)
-    // Return the lower case analog of the specified 'ch' if 'ch' is an upper
-    // case character, and return 'ch' otherwise; the sequence of characters
-    // '[A .. Z]' is mapped to '[a .. z]'.  The behavior is undefined unless
-    // characters are ASCII encoded.
 {
     return 'A' <= ch && ch <= 'Z'
            ? ch |=  0x20  // upper -> lower
            : ch;
 }
 
+/// Return the upper case analog of the specified `ch` if `ch` is a lower
+/// case character, and return `ch` otherwise; the sequence of characters
+/// `[a .. z]` is mapped to `[A .. Z]`.  The behavior is undefined unless
+/// characters are ASCII encoded.
 static inline int u_lowerToUpper(int ch)
-    // Return the upper case analog of the specified 'ch' if 'ch' is a lower
-    // case character, and return 'ch' otherwise; the sequence of characters
-    // '[a .. z]' is mapped to '[A .. Z]'.  The behavior is undefined unless
-    // characters are ASCII encoded.
 {
     return 'a' <= ch && ch <= 'z'
            ? ch &= ~0x20  // lower -> upper
            : ch;
 }
 
+/// Return `true` is the specified `ch` is one of the ASCII whitespace
+/// characters in the "C" and "POSIX" locales, and `false` otherwise.
 static inline bool u_isWhitespace(unsigned char ch)
-    // Return 'true' is the specified 'ch' is one of the ASCII whitespace
-    // characters in the "C" and "POSIX" locales, and 'false' otherwise.
 {
     if (' ' == ch) {
         return true;                                                  // RETURN

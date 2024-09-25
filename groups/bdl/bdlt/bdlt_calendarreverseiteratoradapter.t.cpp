@@ -25,10 +25,10 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'bdlt::CalendarReverseIteratorAdapter' is an iterator adapter (in-core
+// `bdlt::CalendarReverseIteratorAdapter` is an iterator adapter (in-core
 // value-semantic type) that adapts a more limited type, which offers a basic
 // set of operations, so that the resulting
-// 'bdlt::CalendarReverseIteratorAdapter' object meets many of the requirements
+// `bdlt::CalendarReverseIteratorAdapter` object meets many of the requirements
 // of a reverse iterator.  The primary manipulator of a reverse iterator is
 // the pre-increment operator that, together with a function that returns an
 // iterator to the start of a sequence, and a second function to return an
@@ -37,9 +37,9 @@ using namespace bsl;
 // which the state can be reasonably inferred by inspecting the result.
 //
 // In order to test this iterator adapter, a simple container supporting
-// 'bdlt::CalendarReverseIteratorAdapter' is implemented, to provide the basic
+// `bdlt::CalendarReverseIteratorAdapter` is implemented, to provide the basic
 // type to be adapted.  This container uses the
-// 'bdlt::CalendarReverseIteratorAdapter' template to declare its iterators,
+// `bdlt::CalendarReverseIteratorAdapter` template to declare its iterators,
 // as suggested in the usage example.
 // ----------------------------------------------------------------------------
 // [11] CalendarReverseIteratorAdapter();
@@ -60,9 +60,9 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [15] USAGE EXAMPLE
-// [ 3] Reserved for 'gg' generator function.
-// [ 5] Reserved for 'print' and 'operator<<' functions.
-// [ 8] Reserved for 'swap' testing.
+// [ 3] Reserved for `gg` generator function.
+// [ 5] Reserved for `print` and `operator<<` functions.
+// [ 8] Reserved for `swap` testing.
 // [10] Reserved for BDEX streaming testing.
 // ----------------------------------------------------------------------------
 
@@ -121,25 +121,26 @@ void aSsErT(bool condition, const char *message, int line)
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'bdlt::CalendarReverseIteratorAdapter'
+///Example 1: Basic Use of `bdlt::CalendarReverseIteratorAdapter`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example, we will use the 'bdlt::CalendarReverseIteratorAdapter' to
+// In this example, we will use the `bdlt::CalendarReverseIteratorAdapter` to
 // traverse an iterable container type.  Specifically, we will create an array
-// of 'struct' values, implement a bidirectional iterator class that is a
+// of `struct` values, implement a bidirectional iterator class that is a
 // forward iterator for this array, and then use
-// 'bdlt::CalendarReverseIteratorAdapter' to provide a reverse iterator that
+// `bdlt::CalendarReverseIteratorAdapter` to provide a reverse iterator that
 // will be used to traverse the array.
 //
 // First, we define a bidirectional iterator class:
-//..
+// ```
+
+    /// This `class` basically behaves as a pointer to the (template
+    /// parameter) `TYPE` with 4 types defined to allow the use of
+    /// `bdlt::CalendarReverseIteratorAdapter` with this `class`.  Note that
+    /// this `class` supports only a subset of the functionality that a
+    /// pointer would, but this subset covers all the functionality that a
+    /// `bdlt::CalendarReverseIteratorAdapter` needs.
     template <class TYPE>
     class Iterator {
-        // This 'class' basically behaves as a pointer to the (template
-        // parameter) 'TYPE' with 4 types defined to allow the use of
-        // 'bdlt::CalendarReverseIteratorAdapter' with this 'class'.  Note that
-        // this 'class' supports only a subset of the functionality that a
-        // pointer would, but this subset covers all the functionality that a
-        // 'bdlt::CalendarReverseIteratorAdapter' needs.
 
         // DATA
         TYPE *d_ptr;  // pointer to the element referred to by this iterator
@@ -156,14 +157,15 @@ void aSsErT(bool condition, const char *message, int line)
         typedef TYPE&  reference;
 
         // CREATORS
+
+        /// Create an `Iterator` object having the default value.
         Iterator()
-            // Create an 'Iterator' object having the default value.
         : d_ptr(0)
         {
         }
 
+        /// Create an `Iterator` object from the specified `value`.
         Iterator(TYPE *value)                                       // IMPLICIT
-            // Create an 'Iterator' object from the specified 'value'.
         : d_ptr(value)
         {
         }
@@ -175,121 +177,123 @@ void aSsErT(bool condition, const char *message, int line)
         // MANIPULATORS
         // Iterator& operator=(const Iterator&) = default;
 
+        /// Increment to the next element in the iteration sequence, and
+        /// return a reference providing modifiable access to this iterator.
+        /// The behavior is undefined if, on entry, this iterator has the
+        /// past-the-end value for an iterator over the underlying sequence.
         Iterator& operator++()
-            // Increment to the next element in the iteration sequence, and
-            // return a reference providing modifiable access to this iterator.
-            // The behavior is undefined if, on entry, this iterator has the
-            // past-the-end value for an iterator over the underlying sequence.
         {
             ++d_ptr;
             return *this;
         }
 
+        /// Decrement to the previous element in the iteration sequence, and
+        /// return a reference providing modifiable access to this iterator.
+        /// The behavior is undefined if, on entry, this iterator has the
+        /// same value as an iterator at the start of the underlying
+        /// sequence.
         Iterator& operator--()
-            // Decrement to the previous element in the iteration sequence, and
-            // return a reference providing modifiable access to this iterator.
-            // The behavior is undefined if, on entry, this iterator has the
-            // same value as an iterator at the start of the underlying
-            // sequence.
         {
             --d_ptr;
             return *this;
         }
 
         // ACCESSORS
+
+        /// Return a reference to the element referred to by this iterator.
+        /// The behavior is undefined unless this iterator is within the
+        /// bounds of the underlying sequence.
         reference operator*() const
-            // Return a reference to the element referred to by this iterator.
-            // The behavior is undefined unless this iterator is within the
-            // bounds of the underlying sequence.
         {
             return *d_ptr;
         }
 
+        /// Return a pointer to the element referred to by this iterator.
+        /// The behavior is undefined unless this iterator is within the
+        /// bounds of the underlying sequence.
         pointer operator->() const
-            // Return a pointer to the element referred to by this iterator.
-            // The behavior is undefined unless this iterator is within the
-            // bounds of the underlying sequence.
         {
             return d_ptr;
         }
 
+        /// Return an iterator referencing the location at the specified
+        /// `offset` from the element referenced by this iterator.  The
+        /// behavior is undefined unless the resultant iterator is within
+        /// the bounds of the underlying sequence.
         Iterator operator+(bsl::ptrdiff_t offset) const
-            // Return an iterator referencing the location at the specified
-            // 'offset' from the element referenced by this iterator.  The
-            // behavior is undefined unless the resultant iterator is within
-            // the bounds of the underlying sequence.
         {
             return Iterator(d_ptr + offset);
         }
     };
 
     // FREE OPERATORS
+
+    /// Return `true` if the specified `lhs` iterator has the same value as
+    /// the specified `rhs` iterator, and `false` otherwise.  Two iterators
+    /// have the same value if they refer to the same element, or both have
+    /// the past-the-end value for am iterator over the underlying iteration
+    /// sequence.  The behavior is undefined unless `lhs` and `rhs` refer to
+    /// the same underlying sequence.
     template <class TYPE>
     inline
     bool operator==(const Iterator<TYPE>& lhs,  const Iterator<TYPE>& rhs)
-        // Return 'true' if the specified 'lhs' iterator has the same value as
-        // the specified 'rhs' iterator, and 'false' otherwise.  Two iterators
-        // have the same value if they refer to the same element, or both have
-        // the past-the-end value for am iterator over the underlying iteration
-        // sequence.  The behavior is undefined unless 'lhs' and 'rhs' refer to
-        // the same underlying sequence.
     {
         return lhs.d_ptr == rhs.d_ptr;
     }
 
+    /// Return `true` if the specified `lhs` iterator does not have the same
+    /// value as the specified `rhs` iterator, and `false` otherwise.  Two
+    /// iterators do not have the same value if (1) they do not refer to the
+    /// same element and (2) both do not have the past-the-end value for an
+    /// iterator over the underlying iteration sequence.  The behavior is
+    /// undefined unless `lhs` and `rhs` refer to the same underlying
+    /// sequence.
     template <class TYPE>
     inline
     bool operator!=(const Iterator<TYPE>& lhs, const Iterator<TYPE>& rhs)
-        // Return 'true' if the specified 'lhs' iterator does not have the same
-        // value as the specified 'rhs' iterator, and 'false' otherwise.  Two
-        // iterators do not have the same value if (1) they do not refer to the
-        // same element and (2) both do not have the past-the-end value for an
-        // iterator over the underlying iteration sequence.  The behavior is
-        // undefined unless 'lhs' and 'rhs' refer to the same underlying
-        // sequence.
     {
         return !(lhs == rhs);
     }
-//..
-// Then, we define 'struct' 'S', the type that will be referred to by the
-// 'Iterator' type:
-//..
+// ```
+// Then, we define `struct` `S`, the type that will be referred to by the
+// `Iterator` type:
+// ```
     struct S {
         char d_c;
         int  d_i;
     };
-//..
-// The 'struct' 'S' has two data members.  By creating an array of distinct 'S'
+// ```
+// The `struct` `S` has two data members.  By creating an array of distinct `S`
 // values, the state of an iterator referring to an element of this array can
 // be easily verified by inspecting these two members.
 //
-// Next, we define four (distinct) 'S' values:
-//..
+// Next, we define four (distinct) `S` values:
+// ```
     const S s0 = { 'A', 3 };
     const S s1 = { 'B', 5 };
     const S s2 = { 'C', 7 };
     const S s3 = { 'D', 9 };
-//..
-// Then, we define 's', an array of 'S' values:
-//..
+// ```
+// Then, we define `s`, an array of `S` values:
+// ```
     S s[] = { s0, s1, s2, s3 };
     enum { NUM_S = sizeof s / sizeof *s };
-//..
-// Next, we define an iterator, 'sfBegin', referring to the first element of
-// 's' and an iterator, 'sfEnd', having the past-the-end value for an iterator
-// over 's':
-//..
+// ```
+// Next, we define an iterator, `sfBegin`, referring to the first element of
+// `s` and an iterator, `sfEnd`, having the past-the-end value for an iterator
+// over `s`:
+// ```
     Iterator<S> sfBegin(s + 0), sfEnd(s + NUM_S);
-//..
+// ```
 // Then, for convenience we declare our reverse iterator type that will be used
-// to traverse 's' in the reverse direction:
-//..
+// to traverse `s` in the reverse direction:
+// ```
     typedef bdlt::CalendarReverseIteratorAdapter<Iterator<S> > Reverse;
-//..
-// Next, we declare begin and end reverse iterators to our range of 'S' values:
-//..
+// ```
+// Next, we declare begin and end reverse iterators to our range of `S` values:
+// ```
     const Reverse rBegin(sfEnd), rEnd(sfBegin);
-//..
+// ```
 
 // ============================================================================
 //                     GLOBAL TYPEDEFS FOR TESTING
@@ -339,13 +343,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -355,9 +359,9 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-// Now, we traverse our range in the reverse direction, from 'rBegin' to
-// 'rEnd', streaming out the contents of the 'S' values as we go:
-//..
+// Now, we traverse our range in the reverse direction, from `rBegin` to
+// `rEnd`, streaming out the contents of the `S` values as we go:
+// ```
     bsl::ostringstream stream;
     for (Reverse it = rBegin; rEnd != it; ++it) {
         stream << (rBegin == it ? "" : ", ")
@@ -368,11 +372,11 @@ int main(int argc, char *argv[])
                << " }";
     }
     stream << bsl::flush;
-//..
+// ```
 // Finally, we verify the contents of the range output:
-//..
+// ```
     ASSERT(stream.str() == "{ D, 9 }, { C, 7 }, { B, 5 }, { A, 3 }");
-//..
+// ```
     if (veryVerbose) cout << stream.str() << endl;
 
       } break;
@@ -384,20 +388,20 @@ int main(int argc, char *argv[])
         //   has the expected value.
         //
         // Concerns:
-        //: 1 The value-assignment operator can change the value of any
-        //:   modifiable target object to that of any source object.
-        //:
-        //: 2 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 3 The value of the source object is not modified.
+        // 1. The value-assignment operator can change the value of any
+        //    modifiable target object to that of any source object.
+        //
+        // 2. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 3. The value of the source object is not modified.
         //
         // Plan:
-        //: 1 For every possible iterator into the floating-point and 'S'
-        //:   arrays, use the value constructor to create an object 'X' having
-        //:   the value from the iterator.  Assign to 'X' all possible
-        //:   iterator values from the array, verify the resultant value of
-        //:   'X', the return value of the assignment, and that the source
-        //:   iterator is unmodified.  (C-1..3)
+        // 1. For every possible iterator into the floating-point and `S`
+        //    arrays, use the value constructor to create an object `X` having
+        //    the value from the iterator.  Assign to `X` all possible
+        //    iterator values from the array, verify the resultant value of
+        //    `X`, the return value of the assignment, and that the source
+        //    iterator is unmodified.  (C-1..3)
         //
         // Testing:
         //   CalendarReverseIteratorAdapter& operator=(const iterator& rhs);
@@ -407,7 +411,7 @@ int main(int argc, char *argv[])
                           << "VALUE-ASSIGNMENT OPERATOR" << endl
                           << "=========================" << endl;
 
-        if (verbose) cout << "\nUse 'double' values." << endl;
+        if (verbose) cout << "\nUse `double` values." << endl;
         {
             for (int ti = 0; ti <= NUM_V; ++ti) {
                 Obj mX(ti != NUM_V ? Obj(vfBegin + ti + 1) : Obj());
@@ -430,7 +434,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUse 'S' values." << endl;
+        if (verbose) cout << "\nUse `S` values." << endl;
         {
             for (int ti = 0; ti <= NUM_S; ++ti) {
                 SObj mX(ti != NUM_S ? SObj(sfBegin + ti + 1) : SObj());
@@ -460,20 +464,20 @@ int main(int argc, char *argv[])
         //   as expected.
         //
         // Concerns:
-        //: 1 The operators correctly modify the state of the object.
-        //:
-        //: 2 The return value of the operators is as expected.
-        //:
-        //: 3 The returned iterator is modifiable and is associated with the
-        //:   original array.
+        // 1. The operators correctly modify the state of the object.
+        //
+        // 2. The return value of the operators is as expected.
+        //
+        // 3. The returned iterator is modifiable and is associated with the
+        //    original array.
         //
         // Plan:
-        //: 1 Using the floating-point and 'S' arrays, for each element index
-        //:   'ti' create two iterators 'X' and 'Z' where 'Z' is the expected
-        //:   result of applying the operator to 'X'.  Apply the operator to
-        //:   'X', verify the return value, verify the resultant value of 'X',
-        //:   and verify modifying the returned iterator works as expected.
-        //:   (C-1..3)
+        // 1. Using the floating-point and `S` arrays, for each element index
+        //    `ti` create two iterators `X` and `Z` where `Z` is the expected
+        //    result of applying the operator to `X`.  Apply the operator to
+        //    `X`, verify the return value, verify the resultant value of `X`,
+        //    and verify modifying the returned iterator works as expected.
+        //    (C-1..3)
         //
         // Testing:
         //   CalendarReverseIteratorAdapter operator++(CRIA&, int);
@@ -484,7 +488,7 @@ int main(int argc, char *argv[])
                           << "POST-INCREMENT AND POST-DECREMENT" << endl
                           << "=================================" << endl;
 
-        // Test with 'double' values.
+        // Test with `double` values.
 
         {
             double x = 3.2;
@@ -526,7 +530,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        // Test with 'S'.
+        // Test with `S`.
 
         {
             int  i = 7;
@@ -586,16 +590,16 @@ int main(int argc, char *argv[])
         //   as expected.
         //
         // Concerns:
-        //: 1 The operators correctly modify the state of the object.
-        //:
-        //: 2 The return value of the operators is as expected.
+        // 1. The operators correctly modify the state of the object.
+        //
+        // 2. The return value of the operators is as expected.
         //
         // Plan:
-        //: 1 Using the floating-point and 'S' arrays, for each element index
-        //:   'ti' create two iterators 'X' and 'Z' where 'Z' is the expected
-        //:   result of applying the operator to 'X'.  Apply the operator to
-        //:   'X', verify the return value, and verify the resultant value of
-        //:   'X'.  (C-1..2)
+        // 1. Using the floating-point and `S` arrays, for each element index
+        //    `ti` create two iterators `X` and `Z` where `Z` is the expected
+        //    result of applying the operator to `X`.  Apply the operator to
+        //    `X`, verify the return value, and verify the resultant value of
+        //    `X`.  (C-1..2)
         //
         // Testing:
         //   CalendarReverseIteratorAdapter& operator++();
@@ -606,7 +610,7 @@ int main(int argc, char *argv[])
                           << "PRE-INCREMENT AND PRE-DECREMENT" << endl
                           << "===============================" << endl;
 
-        // Test with 'double' values.
+        // Test with `double` values.
 
         {
             double x = 3.2;
@@ -634,7 +638,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        // Test with 'S'.
+        // Test with `S`.
 
         {
             for (int ti = 0; ti < NUM_S; ++ti) {
@@ -667,13 +671,13 @@ int main(int argc, char *argv[])
         //   object (having the default-constructed value).
         //
         // Concerns:
-        //: 1 An object created with the default constructor has the
-        //:   contractually specified default value.
+        // 1. An object created with the default constructor has the
+        //    contractually specified default value.
         //
         // Plan:
-        //: 1 Create an object using the default constructor.  Verify, using
-        //:   the 'forwardIterator' accessor, that the resulting object has
-        //:   the expected value.  (C-1)
+        // 1. Create an object using the default constructor.  Verify, using
+        //    the `forwardIterator` accessor, that the resulting object has
+        //    the expected value.  (C-1)
         //
         // Testing:
         //   CalendarReverseIteratorAdapter();
@@ -717,39 +721,39 @@ int main(int argc, char *argv[])
         //   have the same value.
         //
         // Concerns:
-        //: 1 The assignment operator can change the value of any modifiable
-        //:   target object to that of any source object.
-        //:
-        //: 2 The signature and return type are standard.
-        //:
-        //: 3 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 4 The value of the source object is not modified.
-        //:
-        //: 5 Assigning an object to itself behaves as expected (alias-safety).
+        // 1. The assignment operator can change the value of any modifiable
+        //    target object to that of any source object.
+        //
+        // 2. The signature and return type are standard.
+        //
+        // 3. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 4. The value of the source object is not modified.
+        //
+        // 5. Assigning an object to itself behaves as expected (alias-safety).
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a member-function
-        //:   pointer having the appropriate signature and return type for the
-        //:   copy-assignment operator defined in this component.  (C-2)
-        //:
-        //: 2 For every possible iterator into the floating-point and 'S'
-        //:   arrays, use the value constructor to create two 'const' objects,
-        //:   'Z' and 'ZZ', both having the value from the iterator.  Create,
-        //:   using all possible iterator values from the array, an object 'X'.
-        //:   Assign to 'X' from 'Z' and verify the return value.  Use the
-        //:   equality-comparison operator to verify that 'X' has the same
-        //:   value as that of 'Z' and 'Z' still has the same value as that of
-        //:   'ZZ'.  (C-1, 3..4)
-        //:
-        //: 3 For every possible iterator into the floating-point and 'S'
-        //:   arrays, use the value constructor to create one 'const' objects
-        //:   'ZZ', having the value from the iterator.  Copy construct an
-        //:   object 'X' from 'ZZ'.  Create a 'const' reference 'Y' to 'X'.
-        //:   Assign to 'X' from 'Y' and verify the return value.  Use the
-        //:   equality-comparison operator to verify that 'X' has the same
-        //:   value as that of 'Y' and 'Y' still has the same value as that of
-        //:   'ZZ'.  (C-5)
+        // 1. Use the address of `operator=` to initialize a member-function
+        //    pointer having the appropriate signature and return type for the
+        //    copy-assignment operator defined in this component.  (C-2)
+        //
+        // 2. For every possible iterator into the floating-point and `S`
+        //    arrays, use the value constructor to create two `const` objects,
+        //    `Z` and `ZZ`, both having the value from the iterator.  Create,
+        //    using all possible iterator values from the array, an object `X`.
+        //    Assign to `X` from `Z` and verify the return value.  Use the
+        //    equality-comparison operator to verify that `X` has the same
+        //    value as that of `Z` and `Z` still has the same value as that of
+        //    `ZZ`.  (C-1, 3..4)
+        //
+        // 3. For every possible iterator into the floating-point and `S`
+        //    arrays, use the value constructor to create one `const` objects
+        //    `ZZ`, having the value from the iterator.  Copy construct an
+        //    object `X` from `ZZ`.  Create a `const` reference `Y` to `X`.
+        //    Assign to `X` from `Y` and verify the return value.  Use the
+        //    equality-comparison operator to verify that `X` has the same
+        //    value as that of `Y` and `Y` still has the same value as that of
+        //    `ZZ`.  (C-5)
         //
         // Testing:
         //   CalendarReverseIteratorAdapter& operator=(rhs);
@@ -771,7 +775,7 @@ int main(int argc, char *argv[])
             (void)operatorAssignment;  // quash potential compiler warning
         }
 
-        if (verbose) cout << "\nUse 'double' values." << endl;
+        if (verbose) cout << "\nUse `double` values." << endl;
 
         for (int ti = 0; ti <= NUM_V; ++ti) {
             const Obj Z(ti != NUM_V ? Obj(vfBegin + ti + 1) : Obj());
@@ -803,7 +807,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUse 'S' values." << endl;
+        if (verbose) cout << "\nUse `S` values." << endl;
 
         for (int ti = 0; ti <= NUM_S; ++ti) {
             const SObj Z(ti != NUM_S ? SObj(sfBegin + ti + 1) : SObj());
@@ -838,10 +842,10 @@ int main(int argc, char *argv[])
       case 8: {
         // --------------------------------------------------------------------
         // SWAP MEMBER AND FREE FUNCTIONS
-        //   There are no 'swap' methods implemented for this component.
+        //   There are no `swap` methods implemented for this component.
         //
         // Testing:
-        //   Reserved for 'swap' testing.
+        //   Reserved for `swap` testing.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -857,22 +861,22 @@ int main(int argc, char *argv[])
         //   other one, such that the two objects have the same value.
         //
         // Concerns:
-        //: 1 The copy constructor creates an object having the same value as
-        //:   that of the supplied original object.
-        //:
-        //: 2 The original object is passed as a reference providing
-        //:   non-modifiable access to that object.
-        //:
-        //: 3 The value of the original object is unchanged.
+        // 1. The copy constructor creates an object having the same value as
+        //    that of the supplied original object.
+        //
+        // 2. The original object is passed as a reference providing
+        //    non-modifiable access to that object.
+        //
+        // 3. The value of the original object is unchanged.
         //
         // Plan:
-        //: 1 For every possible iterator into the floating-point and 'S'
-        //:   arrays, use the value constructor to create two 'const' objects,
-        //:   'Z' and 'ZZ', both having the value from the iterator.  Use the
-        //:   copy constructor to create an object 'X' from 'Z'.  Use the
-        //:   equality-comparison operator to verify that 'X' has the same
-        //:   value as that of 'Z' and 'Z' still has the same value as that of
-        //:   'ZZ'.  (C-1..3)
+        // 1. For every possible iterator into the floating-point and `S`
+        //    arrays, use the value constructor to create two `const` objects,
+        //    `Z` and `ZZ`, both having the value from the iterator.  Use the
+        //    copy constructor to create an object `X` from `Z`.  Use the
+        //    equality-comparison operator to verify that `X` has the same
+        //    value as that of `Z` and `Z` still has the same value as that of
+        //    `ZZ`.  (C-1..3)
         //
         // Testing:
         //   CalendarReverseIteratorAdapter(const CRIA&);
@@ -894,7 +898,7 @@ int main(int argc, char *argv[])
 
             ASSERT(Z == X);
 
-            // Verify that the value of 'Z' has not changed.
+            // Verify that the value of `Z` has not changed.
 
             ASSERT(ZZ == Z);
         }
@@ -909,12 +913,12 @@ int main(int argc, char *argv[])
 
             ASSERT(Z == X);
 
-            // Verify that the value of 'Z' has not changed.
+            // Verify that the value of `Z` has not changed.
 
             ASSERT(ZZ == Z);
         }
 
-        // Test with 'double' values.
+        // Test with `double` values.
 
         for (int ti = 0; ti < NUM_V; ++ti) {
             const Obj Z( vfBegin + ti + 1);
@@ -926,12 +930,12 @@ int main(int argc, char *argv[])
 
             LOOP_ASSERT(ti, Z == X);
 
-            // Verify that the value of 'Z' has not changed.
+            // Verify that the value of `Z` has not changed.
 
             LOOP_ASSERT(ti, ZZ == Z);
         }
 
-        // Test with 'S's.
+        // Test with `S`s.
 
         for (int ti = 0; ti < NUM_S; ++ti) {
             const SObj Z( sfBegin + ti + 1);
@@ -943,7 +947,7 @@ int main(int argc, char *argv[])
 
             LOOP_ASSERT(ti, Z == X);
 
-            // Verify that the value of 'Z' has not changed.
+            // Verify that the value of `Z` has not changed.
 
             LOOP_ASSERT(ti, ZZ == Z);
         }
@@ -952,42 +956,42 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // EQUALITY-COMPARISON OPERATORS
-        //   Ensure that '==' and '!=' are the operational definition of value.
+        //   Ensure that `==` and `!=` are the operational definition of value.
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if their
-        //:   corresponding 'forwardIterator()' objects compare equal.
-        //:
-        //: 2 'true  == (X == X)' (i.e., identity).
-        //:
-        //: 3 'false == (X != X)' (i.e., identity).
-        //:
-        //: 4 'X == Y' if and only if 'Y == X' (i.e., commutativity).
-        //:
-        //: 5 'X != Y' if and only if 'Y != X' (i.e., commutativity).
-        //:
-        //: 6 'X != Y' if and only if '!(X == Y)'.
-        //:
-        //: 7 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., both comparison operators are free functions).
-        //:
-        //: 8 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //: 9 The equality-comparison operators' signatures and return types
-        //:   are standard.
+        // 1. Two objects, `X` and `Y`, compare equal if and only if their
+        //    corresponding `forwardIterator()` objects compare equal.
+        //
+        // 2. `true  == (X == X)` (i.e., identity).
+        //
+        // 3. `false == (X != X)` (i.e., identity).
+        //
+        // 4. `X == Y` if and only if `Y == X` (i.e., commutativity).
+        //
+        // 5. `X != Y` if and only if `Y != X` (i.e., commutativity).
+        //
+        // 6. `X != Y` if and only if `!(X == Y)`.
+        //
+        // 7. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., both comparison operators are free functions).
+        //
+        // 8. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        // 9. The equality-comparison operators' signatures and return types
+        //    are standard.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the two homogeneous, free equality-
-        //:   comparison operators defined in this component.  (C-7..9)
-        //:
-        //: 2 Using the floating-point and 'S' arrays, for each element index
-        //:   'ti' and 'tj' create reverse iterators from forward iterators
-        //:   accessing the indexed elements and verify the results of the
-        //:   operators using the comparison of the indices as an oracle for
-        //:   the results.  (C-1..6)
+        // 1. Use the respective addresses of `operator==` and `operator!=` to
+        //    initialize function pointers having the appropriate signatures
+        //    and return types for the two homogeneous, free equality-
+        //    comparison operators defined in this component.  (C-7..9)
+        //
+        // 2. Using the floating-point and `S` arrays, for each element index
+        //    `ti` and `tj` create reverse iterators from forward iterators
+        //    accessing the indexed elements and verify the results of the
+        //    operators using the comparison of the indices as an oracle for
+        //    the results.  (C-1..6)
         //
         // Testing:
         //   bool operator==(lhs, rhs);
@@ -1012,7 +1016,7 @@ int main(int argc, char *argv[])
             (void)operatorNe;
         }
 
-        if (verbose) cout << "\nTest with 'double' values." << endl;
+        if (verbose) cout << "\nTest with `double` values." << endl;
 
         for (int ti = 0; ti < NUM_V; ++ti) {
             Obj lhs(vfBegin + ti + 1);
@@ -1025,7 +1029,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTest with 'S's." << endl;
+        if (verbose) cout << "\nTest with `S`s." << endl;
 
         for (int ti = 0; ti < NUM_V; ++ti) {
             SObj lhs(sfBegin + ti + 1);
@@ -1041,17 +1045,17 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // PRINT AND OUTPUT OPERATOR (<<)
-        //   There are no 'print' and 'operator<<' for this component.
+        //   There are no `print` and `operator<<` for this component.
         //
         // Testing:
-        //   Reserved for 'print' and 'operator<<' functions.
+        //   Reserved for `print` and `operator<<` functions.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PRINT AND OUTPUT OPERATOR (<<)" << endl
                           << "==============================" << endl;
 
-        if (verbose) cout << "No 'print' and 'operator<<' functions." << endl;
+        if (verbose) cout << "No `print` and `operator<<` functions." << endl;
 
       } break;
       case 4: {
@@ -1060,36 +1064,36 @@ int main(int argc, char *argv[])
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 Each of the basic accessors returns the expected value.
-        //:
-        //: 2 Each basic accessor method is declared 'const'.
+        // 1. Each of the basic accessors returns the expected value.
+        //
+        // 2. Each basic accessor method is declared `const`.
         //
         // Plan:
-        //: 1 Traverse the range of 'double' values with a reverse iterator.
-        //:
-        //:   1 Compare the result of 'operator*' with the expected value
-        //:     arrived at through array access.
-        //:
-        //:   2 Assign a new value to the reference returned by 'operator*',
-        //:     verifying it is a reference to a modifiable object, and verify
-        //:     through array access that the right memory location was
-        //:     modified.
-        //:
-        //: 2 Traverse the range of 'S's with a reverse iterator.
-        //:
-        //:   1 Compare the result of 'operator->' with the expected value
-        //:     arrived at through array access.
-        //:
-        //:   2 Assign a new value to the reference returned by 'operator->',
-        //:     verifying it is a reference to a modifiable object, and verify
-        //:     through array access that the right memory location was
-        //:     modified.
-        //:
-        //: 3 Traverse the 'double' values with a reverse iterator and a
-        //:   forward iterator at the same time.
-        //:
-        //:   1 Apply the 'forwardIterator' accessor to the reverse iterator
-        //:     and verify the result is equal to the forward iterator.
+        // 1. Traverse the range of `double` values with a reverse iterator.
+        //
+        //   1. Compare the result of `operator*` with the expected value
+        //      arrived at through array access.
+        //
+        //   2. Assign a new value to the reference returned by `operator*`,
+        //      verifying it is a reference to a modifiable object, and verify
+        //      through array access that the right memory location was
+        //      modified.
+        //
+        // 2. Traverse the range of `S`s with a reverse iterator.
+        //
+        //   1. Compare the result of `operator->` with the expected value
+        //      arrived at through array access.
+        //
+        //   2. Assign a new value to the reference returned by `operator->`,
+        //      verifying it is a reference to a modifiable object, and verify
+        //      through array access that the right memory location was
+        //      modified.
+        //
+        // 3. Traverse the `double` values with a reverse iterator and a
+        //    forward iterator at the same time.
+        //
+        //   1. Apply the `forwardIterator` accessor to the reverse iterator
+        //      and verify the result is equal to the forward iterator.
         //
         // Testing:
         //   reference operator*() const;
@@ -1102,7 +1106,7 @@ int main(int argc, char *argv[])
                           << "===============" << endl;
 
         if (verbose) {
-            cout << "Traverse the 'double' values verifying 'operator*'.\n";
+            cout << "Traverse the `double` values verifying `operator*`.\n";
         }
         {
             double x = 3.2;
@@ -1118,7 +1122,7 @@ int main(int argc, char *argv[])
 #if defined(BSLS_PLATFORM_CPU_X86)                                            \
  && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
     // This is necessary because on Linux, it seems there is inconsistency in
-    // the narrowing of the value to a 64-bit 'double' from the wider internal
+    // the narrowing of the value to a 64-bit `double` from the wider internal
     // processor FP registers.
 
                 LOOP_ASSERT(ti, fabs(v[ti] / x - 1.0) < 1.0e-15);
@@ -1130,7 +1134,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "Traverse the 'S's verifying 'operator->'.\n";
+        if (verbose) cout << "Traverse the `S`s verifying `operator->`.\n";
         {
             int  i = 7;
             char c = 'f';
@@ -1156,8 +1160,8 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "Traverse the 'double' values"
-                 << " verifying 'forwardIterator'.\n";
+            cout << "Traverse the `double` values"
+                 << " verifying `forwardIterator`.\n";
         }
         {
             Iterator<double> f = vfBegin + 1;
@@ -1171,20 +1175,20 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // GENERATOR FUNCTION 'gg'
-        //   There is no 'gg' function for this component.
+        // GENERATOR FUNCTION `gg`
+        //   There is no `gg` function for this component.
         //
         // Testing:
-        //   Reserved for 'gg' generator function.
+        //   Reserved for `gg` generator function.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "GENERATOR FUNCTION 'gg'" << endl
+                          << "GENERATOR FUNCTION `gg`" << endl
                           << "=======================" << endl;
 
         if (verbose) {
-            cout << "No 'gg' function for "
-                                      "'bdlt::CalendarReverseIteratorAdapter'."
+            cout << "No `gg` function for "
+                                      "`bdlt::CalendarReverseIteratorAdapter`."
                  << endl;
         }
       } break;
@@ -1196,15 +1200,15 @@ int main(int argc, char *argv[])
         //   destructor to destroy it safely.
         //
         // Concerns:
-        //: 1 The value constructor can create an object to have any value that
-        //:   does not violate the method's documented preconditions.
-        //:
-        //: 2 An object can be safely destroyed.
+        // 1. The value constructor can create an object to have any value that
+        //    does not violate the method's documented preconditions.
+        //
+        // 2. An object can be safely destroyed.
         //
         // Plan:
-        //: 1 Directly test the value constructor.  (C-1)
-        //:
-        //: 2 Let the object created in P-1 go out of scope.  (C-2)
+        // 1. Directly test the value constructor.  (C-1)
+        //
+        // 2. Let the object created in P-1 go out of scope.  (C-2)
         //
         // Testing:
         //   CalendarReverseIteratorAdapter(const iterator& value);
@@ -1233,30 +1237,30 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Start with an array of 'double' values, and create 'Iterator'
-        //:   objects pointing to the beginning ('vfBegin') and end ('vfEnd')
-        //:   of that array.
-        //:
-        //: 2 Create reverse begin and end iterators from the forward
-        //:   iterators.
-        //:
-        //: 3 Create other reverse iterator objects by first copying from the
-        //:   beginning and end reverse iterators and then manipulating them
-        //:   with increments and decrements.  Verify these resultant iterators
-        //:   reference the correct element by dereferencing the iterators and
-        //:   verifying the values returned.
-        //:
-        //: 4 Traverse the length of the range.
-        //:
-        //: 5 Verify that a reference to a modifiable value is returned by
-        //:   modifying the returned 'double' values.
-        //:
-        //: 6 Traverse the range again, verifying that the 'double' values are
-        //:   as expected.
+        // 1. Start with an array of `double` values, and create `Iterator`
+        //    objects pointing to the beginning (`vfBegin`) and end (`vfEnd`)
+        //    of that array.
+        //
+        // 2. Create reverse begin and end iterators from the forward
+        //    iterators.
+        //
+        // 3. Create other reverse iterator objects by first copying from the
+        //    beginning and end reverse iterators and then manipulating them
+        //    with increments and decrements.  Verify these resultant iterators
+        //    reference the correct element by dereferencing the iterators and
+        //    verifying the values returned.
+        //
+        // 4. Traverse the length of the range.
+        //
+        // 5. Verify that a reference to a modifiable value is returned by
+        //    modifying the returned `double` values.
+        //
+        // 6. Traverse the range again, verifying that the `double` values are
+        //    as expected.
         //
         // Testing:
         //   BREATHING TEST
@@ -1266,8 +1270,8 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        if (verbose) cout << "Initialize reverse 'begin' and 'end' from\n"
-                             "'Iterator' type iterators\n";
+        if (verbose) cout << "Initialize reverse `begin` and `end` from\n"
+                             "`Iterator` type iterators\n";
 
         const Obj vrBegin(vfEnd), vrEnd(vfBegin);
         ASSERT(vrBegin != vrEnd);
@@ -1286,12 +1290,12 @@ int main(int argc, char *argv[])
         ASSERT(vrBegin == it);
         ASSERT(vrEnd   != it);
 
-        if (verbose) cout << "Test 'operator*'\n";
+        if (verbose) cout << "Test `operator*`\n";
         {
             ASSERT(v9 == *it);
         }
 
-        if (verbose) cout << "Test 'operator++' and its return value.\n";
+        if (verbose) cout << "Test `operator++` and its return value.\n";
         {
             ASSERT(v8 == *++it);
             ASSERT(v8 == *it);

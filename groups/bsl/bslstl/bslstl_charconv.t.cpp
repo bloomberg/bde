@@ -50,51 +50,51 @@ using std::numeric_limits;
 //
 //                       // u::parseAndTestSignedInteger
 //
-// We have 'parseAndTestUnsignedInteger' that, passed a 'stringRef', an
-// 'Int64', and a 'base', will parse the string ref in 'base' to a number and
-// compare it with the number passed.  The function will return 'true' if the
+// We have `parseAndTestUnsignedInteger` that, passed a `stringRef`, an
+// `Int64`, and a `base`, will parse the string ref in `base` to a number and
+// compare it with the number passed.  The function will return `true` if the
 // string ref parses properly to a number that matches the specified number and
-// 'false' if they don't match or if the string ref is not a valid description
+// `false` if they don't match or if the string ref is not a valid description
 // of a number.  Note that no white space is tolerated in the string ref.  This
-// function was copied from 'bdlb_numericparseutil' with considerable
+// function was copied from `bdlb_numericparseutil` with considerable
 // modification.
 //
 //                       // u::parseAndTestUnsignedInteger
 //
-// We have 'parseAndTestUnsignedInteger' that is just like
-// 'parseAndTestSignedInteger' except that it takes a signed variable to
+// We have `parseAndTestUnsignedInteger` that is just like
+// `parseAndTestSignedInteger` except that it takes a signed variable to
 // compare and can parse a signed string.
 //
 // ----------------------------------------------------------------------------
-// We have two 'testing' functions defined in our test driver, that given a
+// We have two `testing` functions defined in our test driver, that given a
 // value, calls the function under test on that value and similar values
 // derived from it:
 //
 //                       // u::transformAndTestValue<TYPE>
 //
-// We have 'transformAndTestValue<TYPE>', a template function that, passed a
+// We have `transformAndTestValue<TYPE>`, a template function that, passed a
 // value, will run several transforms on it (including the identity transform,
-// bitwise complement, and negation) and test each of them, calling 'to_chars'
+// bitwise complement, and negation) and test each of them, calling `to_chars`
 // multiple times, starting with a buffer that is always big enough and then
 // decreasing the buffer size until the function fails, and
-// 'parseAndTestUnsignedInteger' or 'parseAndTestSignedInteger' (depending on
-// whether 'TYPE' is signed) to verify that the string produced is correct.
-// The function repeats the test for all supported values of 'base' passed to
-// 'to_chars'.
+// `parseAndTestUnsignedInteger` or `parseAndTestSignedInteger` (depending on
+// whether `TYPE` is signed) to verify that the string produced is correct.
+// The function repeats the test for all supported values of `base` passed to
+// `to_chars`.
 //
 //                          // u::metaTestValue
 //
-// We have 'metaTestValue' that, passed a value, calls
-// 'transformAndTestValue<TYPE>' using all fundamental integral types as
-// 'TYPE'.  It calls only those types that are large enough to be capable of
+// We have `metaTestValue` that, passed a value, calls
+// `transformAndTestValue<TYPE>` using all fundamental integral types as
+// `TYPE`.  It calls only those types that are large enough to be capable of
 // representing the value.
 //
 // ----------------------------------------------------------------------------
 //                             // Random Tests
 //
-// The random tests are driven by the 64-bit 'mmixRand64' random number
+// The random tests are driven by the 64-bit `mmixRand64` random number
 // generator.  The random tests of less than 8 bytes are done by masking the
-// result of 'mmixRand64' down to the appropriate number of bytes.
+// result of `mmixRand64` down to the appropriate number of bytes.
 // ----------------------------------------------------------------------------
 // [ 9] USAGE EXAMPLE
 // [ 8] FROM_CHARS FOR C++17 TEST
@@ -180,20 +180,20 @@ bool veryVeryVeryVerbose;
 namespace {
 namespace u {
 
+/// Return `true` if the specified `inputString`, parsed by the specified
+/// `base`, yields the specified `exp` and `false` otherwise.
+///
+/// Forward declaration -- jumping through hoops to achieve alphabetical
+/// order and appease bde verify.
 bool parseAndTestUnsignedInteger(const Uint64              exp,
                                  const bslstl::StringRef&  inputString,
                                  unsigned                  base);
-    // Return 'true' if the specified 'inputString', parsed by the specified
-    // 'base', yields the specified 'exp' and 'false' otherwise.
-    //
-    // Forward declaration -- jumping through hoops to achieve alphabetical
-    // order and appease bde verify.
 
+/// Return `true` if the specified `inputString`, parsed by the specified
+/// `base`, yields the specified `exp` and `false` otherwise.
 bool parseAndTestSignedInteger(bsls::Types::Int64 exp,
                                bslstl::StringRef  inputString,
                                unsigned           base)
-    // Return 'true' if the specified 'inputString', parsed by the specified
-    // 'base', yields the specified 'exp' and 'false' otherwise.
 {
     const UintPtr length = inputString.length();
     if (0 == length) {
@@ -213,11 +213,11 @@ bool parseAndTestSignedInteger(bsls::Types::Int64 exp,
     return parseAndTestUnsignedInteger(exp, inputString, base);
 }
 
+/// Return `true` if the specified `inputString`, parsed by the specified
+/// `base`, yields the specified `exp` and `false` otherwise.
 bool parseAndTestUnsignedInteger(const Uint64              exp,
                                  const bslstl::StringRef&  inputString,
                                  unsigned                  base)
-    // Return 'true' if the specified 'inputString', parsed by the specified
-    // 'base', yields the specified 'exp' and 'false' otherwise.
 {
     BSLS_ASSERT(2 <= base);
     BSLS_ASSERT(     base <= 36);
@@ -254,23 +254,23 @@ bool parseAndTestUnsignedInteger(const Uint64              exp,
     return exp == res;
 }
 
+/// Start with the specified `seedValue`.  The function will be called with
+/// values of the parameterized `TYPE` consisting of all the integral
+/// fundamental types in C++ except for `bool`.  Translate `seedValue`
+/// through six transforms.  For each transform, cast the value to a `TYPE`
+/// object, then use `to_chars` to translate that to a string.  Parse the
+/// string to an integral type with oracle parsing functions from this
+/// source file, and verify that it matches the original value passed to
+/// `to_chars`.  The behavior is undefined if `seedValue` cannot be
+/// represented as a `TYPE`.
+///
+/// If the operating system provides `std::to_chars`, then that is what will
+/// forward to `bsl::to_chars`, in which case `bslstl::to_chars` is a
+/// different function.  In that case, also translate the `TYPE` object with
+/// `bslstl::to_chars` and check that the resulting string matches what was
+/// obtained using `bsl::to_chars`.
 template <class TYPE>
 void transformAndTestValue(Uint64 seedValue)
-    // Start with the specified 'seedValue'.  The function will be called with
-    // values of the parameterized 'TYPE' consisting of all the integral
-    // fundamental types in C++ except for 'bool'.  Translate 'seedValue'
-    // through six transforms.  For each transform, cast the value to a 'TYPE'
-    // object, then use 'to_chars' to translate that to a string.  Parse the
-    // string to an integral type with oracle parsing functions from this
-    // source file, and verify that it matches the original value passed to
-    // 'to_chars'.  The behavior is undefined if 'seedValue' cannot be
-    // represented as a 'TYPE'.
-    //
-    // If the operating system provides 'std::to_chars', then that is what will
-    // forward to 'bsl::to_chars', in which case 'bslstl::to_chars' is a
-    // different function.  In that case, also translate the 'TYPE' object with
-    // 'bslstl::to_chars' and check that the resulting string matches what was
-    // obtained using 'bsl::to_chars'.
 {
     enum { k_IS_SIGNED = static_cast<TYPE>(-1) < 0,
            k_SHIFT     = 8 == sizeof(TYPE) ? 0 : sizeof(TYPE) * 8 };
@@ -319,10 +319,10 @@ void transformAndTestValue(Uint64 seedValue)
             vValue |= signExtend;
         }
 
-        const Int64 sValue = vValue;            // 'vValue' translated to
+        const Int64 sValue = vValue;            // `vValue` translated to
                                                 // signed 64 bit value.
         const TYPE  tValue = static_cast<TYPE>(vValue & mask);
-                                                // 'vValue' translate to 'TYPE'
+                                                // `vValue` translate to `TYPE`
                                                 // variable
 
         ASSERT(k_IS_SIGNED ? sValue == static_cast<Int64>( tValue)
@@ -331,7 +331,7 @@ void transformAndTestValue(Uint64 seedValue)
         if (veryVeryVerbose) { T_;    P(tValue); }
 
         for (unsigned base = 2; base <= 36; ++base) {
-            // 'k_BUFFER_LEN' is big enough to represent any signed 'TYPE' in
+            // `k_BUFFER_LEN` is big enough to represent any signed `TYPE` in
             // binary.  Note we don't have a terminating '\0'.
 
             enum { k_BUFFER_LEN = sizeof(TYPE) * 8 + 1 };
@@ -425,10 +425,10 @@ void transformAndTestValue(Uint64 seedValue)
     }
 }
 
+/// Run `u::transformAndTestValue` on the specified `value` for all
+/// fundamental integral types, but only those types capable of representing
+/// the value.
 void metaTestValue(Uint64 value)
-    // Run 'u::transformAndTestValue' on the specified 'value' for all
-    // fundamental integral types, but only those types capable of representing
-    // the value.
 {
     u::transformAndTestValue<Uint64>(value);
     if (0x8000000000000000ULL < value) {
@@ -462,11 +462,11 @@ void metaTestValue(Uint64 value)
     u::transformAndTestValue<char>(value);
 }
 
+/// Return a random number generated by a modified form of the MMIX Linear
+/// Congruential Generator algorithm developed by Donald Knuth (modified).
+/// If the optionally specified `seed` is non-zero, reset the accumulator to
+/// `seed`.
 Uint64 mmixRand64(Uint64 seed = 0)
-    // Return a random number generated by a modified form of the MMIX Linear
-    // Congruential Generator algorithm developed by Donald Knuth (modified).
-    // If the optionally specified 'seed' is non-zero, reset the accumulator to
-    // 'seed'.
 {
     static Uint64 randAccum = 0;
     if (seed) {
@@ -488,7 +488,7 @@ Uint64 mmixRand64(Uint64 seed = 0)
     return hi | (randAccum >> 32);
 }
 
-const Uint64 uint64Max = ~0ULL;    // max value a 'Uint64' can represent
+const Uint64 uint64Max = ~0ULL;    // max value a `Uint64` can represent
 
 }  // close namespace u
 }  // close unnamed namespace
@@ -498,48 +498,49 @@ const Uint64 uint64Max = ~0ULL;    // max value a 'Uint64' can represent
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Demonstrating Writing a number to a 'streambuf'
+///Example 1: Demonstrating Writing a number to a `streambuf`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we want to write a function that writes an 'int' to a 'streambuf'.
-// We can use 'bsl::to_chars' to write the 'int' to a buffer, then write the
-// buffer to the 'streambuf'.
+// Suppose we want to write a function that writes an `int` to a `streambuf`.
+// We can use `bsl::to_chars` to write the `int` to a buffer, then write the
+// buffer to the `streambuf`.
 //
 // First, we declare our function:
-//..
+// ```
+
+    /// Write the specified `value`, in decimal, to the specified `result`.
     void writeJsonScalar(std::streambuf *result, int value)
-        // Write the specified 'value', in decimal, to the specified 'result'.
     {
-//..
-// Then, we declare a buffer long enough to store any 'int' value in decimal.
-//..
-        char buffer[11];        // size large enough to write 'INT_MIN', the
+// ```
+// Then, we declare a buffer long enough to store any `int` value in decimal.
+// ```
+        char buffer[11];        // size large enough to write `INT_MIN`, the
                                 // worst-case value, in decimal.
-//..
+// ```
 // Next, we declare a variable to store the return value:
-//..
+// ```
         bsl::to_chars_result sts;
-//..
+// ```
 // Then, we call the function:
-//..
+// ```
         sts = bsl::to_chars(buffer, buffer + sizeof(buffer), value);
-//..
+// ```
 // Next, we check that the buffer was long enough, which should always be the
 // case:
-//..
+// ```
         ASSERT(bsl::ErrcEnum() == sts.ec);
-//..
-// Now, we check that 'sts.ptr' is in the range
-// '[ buffer + 1, buffer + sizeof(buffer) ]', which will always be the case
-// whether 'to_chars' succeeded or failed.
-//..
+// ```
+// Now, we check that `sts.ptr` is in the range
+// `[ buffer + 1, buffer + sizeof(buffer) ]`, which will always be the case
+// whether `to_chars` succeeded or failed.
+// ```
         ASSERT(buffer  <  sts.ptr);
         ASSERT(sts.ptr <= buffer + sizeof(buffer));
-//..
-// Finally, we write our buffer to the 'streambuf':
-//..
+// ```
+// Finally, we write our buffer to the `streambuf`:
+// ```
         result->sputn(buffer, sts.ptr - buffer);
     }
-//..
+// ```
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -565,12 +566,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concern:
-        //: 1 Demonstrate the functioning of this component.
+        // 1. Demonstrate the functioning of this component.
         //
         // Plan:
-        //: 1 The function 'writeJsonScalar' (above) demonstrates how the
-        //:   component could be used to write a number, in ascii, to a
-        //:   'streambuf'.
+        // 1. The function `writeJsonScalar` (above) demonstrates how the
+        //    component could be used to write a number, in ascii, to a
+        //    `streambuf`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -603,14 +604,14 @@ int main(int argc, char *argv[])
         // FROM_CHARS FOR C++17 TEST
         //
         // Concern:
-        //: 1 That the function 'from_chars' and the associated types are
-        //:   available in the namespace 'bsl'.
+        // 1. That the function `from_chars` and the associated types are
+        //    available in the namespace `bsl`.
         //
         // Plan:
-        //: 1 Call the function 'bsl::from_chars' and check the results.
-        //:   Because we're importing from the native standard library, we
-        //:   don't need exhaustive tests, just making sure that the routines
-        //:   are present.
+        // 1. Call the function `bsl::from_chars` and check the results.
+        //    Because we're importing from the native standard library, we
+        //    don't need exhaustive tests, just making sure that the routines
+        //    are present.
         //
         // Testing:
         //   FROM_CHARS FOR C++17 TEST
@@ -654,11 +655,11 @@ int main(int argc, char *argv[])
         // RANDOM 8-BYTE VALUES TEST
         //
         // Concern:
-        //: 1 That the component under test performs correctly for values
-        //:   greater than 0xffffffff.
+        // 1. That the component under test performs correctly for values
+        //    greater than 0xffffffff.
         //
         // Plan:
-        //: 1 Generate random 64-bit values and feed them to 'metaTestValue'.
+        // 1. Generate random 64-bit values and feed them to `metaTestValue`.
         //
         // Testing:
         //   RANDOM 8-BYTE VALUES TEST
@@ -685,11 +686,11 @@ int main(int argc, char *argv[])
         // RANDOM 4-BYTE VALUES TEST
         //
         // Concern:
-        //: 1 That the component under test performs correctly for random
-        //:   values in the range '[ 0x1000 .. 0xffffffff ]'.
+        // 1. That the component under test performs correctly for random
+        //    values in the range `[ 0x1000 .. 0xffffffff ]`.
         //
         // Plan:
-        //: 1 Generate random 32-bit values and feed them to 'metaTestValue'.
+        // 1. Generate random 32-bit values and feed them to `metaTestValue`.
         //
         // Testing:
         //   RANDOM 4-BYTE VALUES TEST
@@ -716,14 +717,14 @@ int main(int argc, char *argv[])
         // RANDOM 2-BYTE VALUES TEST
         //
         // Concern:
-        //: 1 That the component under test performs correctly for random
-        //:   values in the range '[ 256 .. 0xffff ]'.
+        // 1. That the component under test performs correctly for random
+        //    values in the range `[ 256 .. 0xffff ]`.
         //
         // Plan:
-        //: 1 Generate random 16-bit values and feed them to 'metaTestValue'.
-        //:
-        //: 2 Skip testing values in the range '[ 0 .. 0xff ]' since they were
-        //:   already covered in test case 4.
+        // 1. Generate random 16-bit values and feed them to `metaTestValue`.
+        //
+        // 2. Skip testing values in the range `[ 0 .. 0xff ]` since they were
+        //    already covered in test case 4.
         //
         // Testing:
         //   RANDOM 2-BYTE VALUES TEST
@@ -756,13 +757,13 @@ int main(int argc, char *argv[])
         // EXHAUSTIVE ONE-BYTE VALUES TEST
         //
         // Concern:
-        //: 1 That the function under test operates correctly for all values
-        //:   in the range '[ 0 .. 0xff ]' for all fundamental integral types.
+        // 1. That the function under test operates correctly for all values
+        //    in the range `[ 0 .. 0xff ]` for all fundamental integral types.
         //
         // Plan:
-        //: 1 Iterate through all possible values that single byte types
-        //:   represent, the range '[ 0 .. 0xff ]', and pass the values to
-        //:   'u::metaTestValue'.
+        // 1. Iterate through all possible values that single byte types
+        //    represent, the range `[ 0 .. 0xff ]`, and pass the values to
+        //    `u::metaTestValue`.
         //
         // Testing:
         //   EXHAUSTIVE ONE-BYTE VALUES TEST
@@ -782,14 +783,14 @@ int main(int argc, char *argv[])
         // ALL CORNER CASES TEST
         //
         // Concern:
-        //: 1 Run the function on all corner cases in all bases and check that
-        //:   it yields a completely correct result in each case.
+        // 1. Run the function on all corner cases in all bases and check that
+        //    it yields a completely correct result in each case.
         //
         // Plan:
-        //: 1 Loop through all powers of all supported bases and pass those
-        //:   values to 'u::metaTestValue', with all bases in each case, that
-        //:   will call 'u::transformAndTestValue' on the value for all
-        //:   integral types capable of representing it.
+        // 1. Loop through all powers of all supported bases and pass those
+        //    values to `u::metaTestValue`, with all bases in each case, that
+        //    will call `u::transformAndTestValue` on the value for all
+        //    integral types capable of representing it.
         //
         // Testing:
         //   ALL CORNER CASES TEST
@@ -801,9 +802,9 @@ int main(int argc, char *argv[])
         // We are interested in running the test on all powers of all possible
         // bases, and running each of those values on all possible bases.
 
-        // First, set those values of 'redundantPowers' whose index is a number
+        // First, set those values of `redundantPowers` whose index is a number
         // that is a power of a lower integral value.  It is not necessary to
-        // test those values of 'power' in the later loop, saving time.
+        // test those values of `power` in the later loop, saving time.
 
         static bool redundantPowers[37] = { 0 };
         for (unsigned power = 2; power <= 36; ++power) {
@@ -821,17 +822,17 @@ int main(int argc, char *argv[])
                 continue;
             }
 
-            // Increase 'value' by a factor of 'power' repeatedly until the
-            // result can no longer be represented as a 'Uint64'.
+            // Increase `value` by a factor of `power` repeatedly until the
+            // result can no longer be represented as a `Uint64`.
 
             for (Uint64 value = 1, ceiling = u::uint64Max / power;
                                                           value <= ceiling; ) {
                 value *= power;
 
-                // 'u::metaTestValue' will run the function under test on
-                // 'value' and 5 transforms of it, for all possible bases, for
+                // `u::metaTestValue` will run the function under test on
+                // `value` and 5 transforms of it, for all possible bases, for
                 // every integral fundamental type capable of representing
-                // 'value'.
+                // `value`.
 
                 u::metaTestValue(value);
             }
@@ -842,59 +843,59 @@ int main(int argc, char *argv[])
         // QUALITY TEST & ACCURACY ON SOME BASES TEST
         //
         // Concern:
-        //: 1 That, in any base,
-        //:   o negative numbers are always output beginning with '-'.
-        //:
-        //:   o positive numbers don't contain '-'.
-        //:
-        //:   o output other than an appropriate beginning '-' consists
-        //:     entirely of digits in the range '[ '0' ..  <base> )'.
-        //:
-        //:   o that a negative number is output as the same string as the
-        //:     corresponding positive number, except with a leading '-' added.
-        //:
-        //:   o that the number of digits output is appropriate to the log of
-        //:     the value in the given base.
-        //:
-        //: 2 That the function under test can accurately output decimal, hex,
-        //:   and octal strings of given values.
+        // 1. That, in any base,
+        //    - negative numbers are always output beginning with '-'.
+        //
+        //    - positive numbers don't contain '-'.
+        //
+        //    - output other than an appropriate beginning '-' consists
+        //      entirely of digits in the range `[ 0 ..  <base> )`.
+        //
+        //    - that a negative number is output as the same string as the
+        //      corresponding positive number, except with a leading '-' added.
+        //
+        //    - that the number of digits output is appropriate to the log of
+        //      the value in the given base.
+        //
+        // 2. That the function under test can accurately output decimal, hex,
+        //    and octal strings of given values.
         //
         // Plan:
-        //: 1 Have a table with positive constants in both string form and
-        //:   parsed as integral types, as either decimal, hex, or octal
-        //:   source, and a field indicating the base of the source number.
-        //:
-        //: 2 Iterate through the table of numbers.
-        //:   o Iterate through all bases in the range '[ 2 .. 36 ]'.
-        //:
-        //:   o Output the numbers and observe that they contain only digits
-        //:     in the range '[ 0 .. <base> )'.
-        //:
-        //:   o If the number is not 0, observe that the number of digits
-        //:     output is as expected for the size of the number and the base
-        //:     of the output.
-        //:
-        //:   o Assign the value to a signed type.  Output it again and observe
-        //:     we get the same result.
-        //:
-        //:   o Negate the signed type and output it again, and observe that
-        //:     we got the same value preceded by '-'.
-        //:
-        //: 3 Iterate through the table of numbers.  For each number:
-        //:   o write the number with both 'snprintf' and 'to_chars' as
-        //:     unsigned decimal, hex, and octal strings, and using 'sprintf'
-        //:     as an "oracle" for comparing the resulting strings for perfect
-        //:     accuracy.
-        //:
-        //:   o Assign it to a signed type, with it with both 'snprintf' and
-        //:     'to_chars', and observe they match to test for perfect
-        //:     accuracy.  Then negate the signed type and repeat the
-        //:     experiment.
-        //:
-        //: 4 Iterate through the table and for unsigned decimal, hex, or
-        //:   octal, if the string in the table is of that radix, compare the
-        //:   string in the table with the string generated by 'to_chars' to
-        //:   check that they match for perfect accuracy.
+        // 1. Have a table with positive constants in both string form and
+        //    parsed as integral types, as either decimal, hex, or octal
+        //    source, and a field indicating the base of the source number.
+        //
+        // 2. Iterate through the table of numbers.
+        //    - Iterate through all bases in the range `[ 2 .. 36 ]`.
+        //
+        //    - Output the numbers and observe that they contain only digits
+        //      in the range `[ 0 .. <base> )`.
+        //
+        //    - If the number is not 0, observe that the number of digits
+        //      output is as expected for the size of the number and the base
+        //      of the output.
+        //
+        //    - Assign the value to a signed type.  Output it again and observe
+        //      we get the same result.
+        //
+        //    - Negate the signed type and output it again, and observe that
+        //      we got the same value preceded by '-'.
+        //
+        // 3. Iterate through the table of numbers.  For each number:
+        //    - write the number with both `snprintf` and `to_chars` as
+        //      unsigned decimal, hex, and octal strings, and using `sprintf`
+        //      as an "oracle" for comparing the resulting strings for perfect
+        //      accuracy.
+        //
+        //    - Assign it to a signed type, with it with both `snprintf` and
+        //      `to_chars`, and observe they match to test for perfect
+        //      accuracy.  Then negate the signed type and repeat the
+        //      experiment.
+        //
+        // 4. Iterate through the table and for unsigned decimal, hex, or
+        //    octal, if the string in the table is of that radix, compare the
+        //    string in the table with the string generated by `to_chars` to
+        //    check that they match for perfect accuracy.
         //
         // Testing:
         //   TABLE-DRIVEN TEST
@@ -1442,11 +1443,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
+        // 1. Perform and ad-hoc test of the primary modifiers and accessors.
         //
         // Testing:
         //   BREATHING TEST

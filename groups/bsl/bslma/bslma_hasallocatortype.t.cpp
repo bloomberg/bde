@@ -12,8 +12,8 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
-#include <cstdio>   // 'printf'
-#include <cstdlib>  // 'atoi'
+#include <cstdio>   // `printf`
+#include <cstdlib>  // `atoi`
 
 #ifdef BDE_VERIFY
 // Suppress some pedantic bde_verify checks in this test driver
@@ -94,10 +94,10 @@ int veryVeryVeryVerbose = 0; // For test allocators
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Minimal C++11 allocator class template.  Member functions are never
+/// called and are thus not defined.
 template <class TYPE>
 struct MinimalAlloc {
-    // Minimal C++11 allocator class template.  Member functions are never
-    // called and are thus not defined.
     BSLMF_NESTED_TRAIT_DECLARATION(MinimalAlloc, bslma::IsStdAllocator);
 
     typedef TYPE value_type;
@@ -109,32 +109,32 @@ struct MinimalAlloc {
     void deallocate(TYPE* p, std::size_t n);
 };
 
+/// Class type having no `allocator_type` member.
 struct NoAllocatorType {
-    // Class type having no 'allocator_type' member.
 };
 
+/// Class type having an `allocator_type` member of `void` type, which does
+/// not meet the C++11 allocator requirements.
 struct VoidAllocatorType {
-    // Class type having an 'allocator_type' member of 'void' type, which does
-    // not meet the C++11 allocator requirements.
 
     typedef void allocator_type;
 };
 
+/// Class type having an `allocator_type` member of `struct` type that does
+/// not meet the C++11 allocator requirements.
 struct InvalidAllocatorType {
-    // Class type having an 'allocator_type' member of 'struct' type that does
-    // not meet the C++11 allocator requirements.
 
     struct allocator_type {
         typedef int value_type;
 
-        // Does not have an 'allocate' method, so does not meet the minimal
+        // Does not have an `allocate` method, so does not meet the minimal
         // requirements tested by this component.
     };
 };
 
+/// Class type having an `allocator_type` member that meets the C++11
+/// allocator requirements.
 struct WithAllocatorType {
-    // Class type having an 'allocator_type' member that meets the C++11
-    // allocator requirements.
 
     typedef MinimalAlloc<short> allocator_type;
 };
@@ -147,43 +147,44 @@ struct WithAllocatorType {
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Conditional 'allocator_type'
+///Example 1: Conditional `allocator_type`
 ///- - - - - - - - - - - - - - - - - - - -
-// In this example, we create a wrapper class, 'Wrapper', that defines a nested
-// 'allocator_type' if and only if the type it wraps has an 'allocator_type'.
-// First, we forward-declare a base class template, 'Wrapper_CondAllocType',
+// In this example, we create a wrapper class, `Wrapper`, that defines a nested
+// `allocator_type` if and only if the type it wraps has an `allocator_type`.
+// First, we forward-declare a base class template, `Wrapper_CondAllocType`,
 // parameterized on whether or the wrapped class is allocator-aware (AA).
-//..
+// ```
     template <class TYPE, bool IS_AA> struct Wrapper_CondAllocType;
-//..
-// Next, we specialize the base class for the non-AA ('false') case, providing
-// no 'allocator_type' nested member:
-//..
+// ```
+// Next, we specialize the base class for the non-AA (`false`) case, providing
+// no `allocator_type` nested member:
+// ```
     template <class TYPE>
     struct Wrapper_CondAllocType<TYPE, false> {
     };
-//..
-// Then, we specialize it for the AA ('true') case, using the 'allocator_type'
+// ```
+// Then, we specialize it for the AA (`true`) case, using the `allocator_type`
 // from the wrapped type:
-//..
+// ```
     template <class TYPE>
     struct Wrapper_CondAllocType<TYPE, true> {
         typedef typename TYPE::allocator_type allocator_type;
     };
-//..
+// ```
 // Next, we define our wrapper class to inherit the correct specialization of
-// 'Wrapper_CondAllocType' by specifying the result of 'HasAllocatorType' for
-// the 'IS_AA' argument:
-//..
+// `Wrapper_CondAllocType` by specifying the result of `HasAllocatorType` for
+// the `IS_AA` argument:
+// ```
+
+    /// ...
     template <class TYPE>
     class Wrapper
         : public Wrapper_CondAllocType<TYPE,
                                        bslma::HasAllocatorType<TYPE>::value> {
-        // ...
     };
-//..
-// Now, to test our work, we define a minimal allocator type, 'MyAlloc':
-//..
+// ```
+// Now, to test our work, we define a minimal allocator type, `MyAlloc`:
+// ```
     template <class TYPE>
     struct MyAlloc {
         BSLMF_NESTED_TRAIT_DECLARATION(MyAlloc, bslma::IsStdAllocator);
@@ -196,17 +197,17 @@ struct WithAllocatorType {
         TYPE* allocate(std::size_t n);
         void deallocate(TYPE* p, std::size_t n);
     };
-//..
-// Next, we define a class type, 'AAType', that uses 'MyAlloc':
-//..
+// ```
+// Next, we define a class type, `AAType`, that uses `MyAlloc`:
+// ```
     struct AAType {
         typedef MyAlloc<int> allocator_type;
-        //..
+        // ```
     };
-//..
-// Finally, we can verify that any instantiation of 'Wrapper' on 'AAType' is
-// itself AA, whereas instantiations on, e.g., 'int' or pointer types are not:
-//..
+// ```
+// Finally, we can verify that any instantiation of `Wrapper` on `AAType` is
+// itself AA, whereas instantiations on, e.g., `int` or pointer types are not:
+// ```
     void usageExample1()
     {
         ASSERT(bslma::HasAllocatorType<        AAType  >::value);
@@ -220,7 +221,7 @@ struct WithAllocatorType {
         ASSERT(! bslma::HasAllocatorType<        char *  >::value);
         ASSERT(! bslma::HasAllocatorType<Wrapper<char *> >::value);
     }
-//..
+// ```
 
 }  // close unnamed namespace
 
@@ -244,12 +245,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLES
         //
         // Concerns:
-        //: 1 That the usage examples shown in the component-level
-        //:   documentation compile and run as described.
+        // 1. That the usage examples shown in the component-level
+        //    documentation compile and run as described.
         //
         // Plan:
-        //: 1 Copy the usage examples from the component header, changing
-        //    'assert' to 'ASSERT' and execute them.
+        // 1. Copy the usage examples from the component header, changing
+        //    `assert` to `ASSERT` and execute them.
         //
         // Testing:
         //     USAGE EXAMPLES
@@ -268,27 +269,27 @@ int main(int argc, char *argv[])
         //   This case tests the entire functionality of this component.  In
         //   the description below, "the metafunction" refers to an
         //   instantiation of "bslma::HasAllocatorType<TYPE>", for some
-        //   'TYPE'.  The value "returned" by the metafunction refers to the
-        //   'value' member constant of the instantiation.
+        //   `TYPE`.  The value "returned" by the metafunction refers to the
+        //   `value` member constant of the instantiation.
         //
         // Concerns:
-        //: 1 The metafunction returns 'true' if 'TYPE' is a class having a
-        //:   public member type, 'allocator_type', where
-        //:   'TYPE::allocator_type' meets the requirements of a C++11
-        //:   allocator class.
-        //: 2 The metafunction returns 'false' if TYPE is a class that does not
-        //:   have an 'allocator_type' member or where 'TYPE::allocator_type'
-        //:   does not have a 'value_type' member.
-        //: 3 The metafunction returns 'false' if TYPE is a scalar, pointer,
-        //:   reference, or 'void' type.
-        //: 4 The cv-qualifiers on 'TYPE' have no affect on the result.
+        // 1. The metafunction returns `true` if `TYPE` is a class having a
+        //    public member type, `allocator_type`, where
+        //    `TYPE::allocator_type` meets the requirements of a C++11
+        //    allocator class.
+        // 2. The metafunction returns `false` if TYPE is a class that does not
+        //    have an `allocator_type` member or where `TYPE::allocator_type`
+        //    does not have a `value_type` member.
+        // 3. The metafunction returns `false` if TYPE is a scalar, pointer,
+        //    reference, or `void` type.
+        // 4. The cv-qualifiers on `TYPE` have no affect on the result.
         //
         // Plan:
-        //: 1 Verify the results of invoking the member function for a
-        //:   representative sample of the types described in concerns 1-3.
-        //:   (C-1, C-2, C-3)
-        //: 2 As an orthogonal perturbation on step one, try each type with
-        //:   'const', 'volatile', and 'const volatile' qualifiers.  (C-4)
+        // 1. Verify the results of invoking the member function for a
+        //    representative sample of the types described in concerns 1-3.
+        //    (C-1, C-2, C-3)
+        // 2. As an orthogonal perturbation on step one, try each type with
+        //    `const`, `volatile`, and `const volatile` qualifiers.  (C-4)
         //
         // Testing:
         //      FULL TEST

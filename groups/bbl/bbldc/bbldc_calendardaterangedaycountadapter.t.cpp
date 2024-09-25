@@ -15,7 +15,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
-#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstdlib.h>     // `atoi`
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
 
     // CONCERN: In no case does memory come from the global allocator.
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator globalAllocator("global", veryVerbose);
@@ -130,13 +130,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -150,46 +150,46 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Adapting 'bbldc::CalendarBus252'
+///Example 1: Adapting `bbldc::CalendarBus252`
 ///- - - - - - - - - - - - - - - - - - - - - -
 // This example shows the procedure for using
-// 'bbldc::CalendarDateRangeDayCountAdapter' to adapt the
-// 'bbldc::CalendarBus252' day-count convention to the
-// 'bbldc::DateRangeDayCount' protocol, and then the use of the day-count
-// methods.  First, we create a 'calendar' with a valid range spanning 2003 and
+// `bbldc::CalendarDateRangeDayCountAdapter` to adapt the
+// `bbldc::CalendarBus252` day-count convention to the
+// `bbldc::DateRangeDayCount` protocol, and then the use of the day-count
+// methods.  First, we create a `calendar` with a valid range spanning 2003 and
 // typical weekend days:
-//..
+// ```
     bdlt::Calendar calendar;
     calendar.setValidRange(bdlt::Date(2003, 1, 1), bdlt::Date(2003, 12, 31));
     calendar.addWeekendDay(bdlt::DayOfWeek::e_SUN);
     calendar.addWeekendDay(bdlt::DayOfWeek::e_SAT);
-//..
+// ```
 // Then, we define an instance of the adapted day-count convention and obtain a
-// reference to the 'bbldc::DateRangeDayCount':
-//..
+// reference to the `bbldc::DateRangeDayCount`:
+// ```
     const bbldc::CalendarDateRangeDayCountAdapter<bbldc::CalendarBus252>
                                                                myDcc(calendar);
     const bbldc::DateRangeDayCount&                            dcc = myDcc;
-//..
-// Next, create two 'bdlt::Date' variables, 'd1' and 'd2', with which to use
+// ```
+// Next, create two `bdlt::Date` variables, `d1` and `d2`, with which to use
 // the day-count convention methods:
-//..
+// ```
     const bdlt::Date d1(2003, 10, 19);
     const bdlt::Date d2(2003, 12, 31);
-//..
+// ```
 // Now, use the base-class reference to compute the day count between the two
 // dates:
-//..
+// ```
     const int daysDiff = dcc.daysDiff(d1, d2);
     ASSERT(52 == daysDiff);
-//..
+// ```
 // Finally, use the base-class reference to compute the year fraction between
 // the two dates:
-//..
+// ```
     const double yearsDiff = dcc.yearsDiff(d1, d2);
-    // Need fuzzy comparison since 'yearsDiff' is a 'double'.
+    // Need fuzzy comparison since `yearsDiff` is a `double`.
     ASSERT(yearsDiff > 0.2063 && yearsDiff < 0.2064);
-//..
+// ```
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -197,40 +197,40 @@ int main(int argc, char *argv[])
         //   Verify the inheritance mechanism works as expected.
         //
         // Concerns:
-        //: 1 The adaptation of a day-count convention class compiles and links
-        //:   (all virtual functions are defined).
-        //:
-        //: 2 The functions are in fact virtual and accessible from the
-        //:  'bbldc::DateRangeDayCount' base class.
-        //:
-        //: 3 The values bound at construction are correctly forwarded to the
-        //:   methods.
-        //:
-        //: 4 The destructor works as expected.
-        //:
-        //: 5 The constructor has the internal memory management system hooked
-        //:   up properly so that *all* internally allocated memory draws from
-        //:   the same user-supplied allocator whenever one is specified and
-        //:   the 'allocator' accessor return value is as expected.
-        //:
-        //: 6 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The adaptation of a day-count convention class compiles and links
+        //    (all virtual functions are defined).
+        //
+        // 2. The functions are in fact virtual and accessible from the
+        //   `bbldc::DateRangeDayCount` base class.
+        //
+        // 3. The values bound at construction are correctly forwarded to the
+        //    methods.
+        //
+        // 4. The destructor works as expected.
+        //
+        // 5. The constructor has the internal memory management system hooked
+        //    up properly so that *all* internally allocated memory draws from
+        //    the same user-supplied allocator whenever one is specified and
+        //    the `allocator` accessor return value is as expected.
+        //
+        // 6. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Construct an adapted object of a class (which is derived from
-        //:  'bbldc::DateRangeDayCount') and bind a 'bbldc::DateRangeDayCount'
-        //:  reference to the object.  Using the base class reference, invoke
-        //:  the 'daysDiff', 'firstDate', 'lastDate', and 'yearsDiff' methods.
-        //:  Verify that the correct implementations of the methods are called.
-        //:  (C-1..3)
-        //:
-        //: 2 The destructor is empty so the concern is trivially satisfied.
-        //:   (C-4)
-        //:
-        //: 3 Create an object using the constructor with and without passing
-        //:   in an allocator and verify the allocator is stored using the
-        //:   'allocator' accessor.
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-6)
+        // 1. Construct an adapted object of a class (which is derived from
+        //   `bbldc::DateRangeDayCount`) and bind a `bbldc::DateRangeDayCount`
+        //   reference to the object.  Using the base class reference, invoke
+        //   the `daysDiff`, `firstDate`, `lastDate`, and `yearsDiff` methods.
+        //   Verify that the correct implementations of the methods are called.
+        //   (C-1..3)
+        //
+        // 2. The destructor is empty so the concern is trivially satisfied.
+        //    (C-4)
+        //
+        // 3. Create an object using the constructor with and without passing
+        //    in an allocator and verify the allocator is stored using the
+        //    `allocator` accessor.
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-6)
         //
         // Testing:
         //   CalendarDateRangeDayCountAdapter(calendar, basicAllocator);
@@ -256,7 +256,7 @@ int main(int argc, char *argv[])
         bdlt::Date DATE3(1993, 2, 1);
         bdlt::Date DATE4(1996, 2, 1);
 
-        if (verbose) cout << "\nTesting 'daysDiff'" << endl;
+        if (verbose) cout << "\nTesting `daysDiff`" << endl;
         {
             {
                 bbldc::CalendarDateRangeDayCountAdapter<
@@ -269,7 +269,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'firstDate' and 'lastDate'" << endl;
+        if (verbose) cout << "\nTesting `firstDate` and `lastDate`" << endl;
         {
             {
                 bbldc::CalendarDateRangeDayCountAdapter<
@@ -282,7 +282,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'yearsDiff'" << endl;
+        if (verbose) cout << "\nTesting `yearsDiff`" << endl;
         {
             {
                 bbldc::CalendarDateRangeDayCountAdapter<
@@ -298,7 +298,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'allocator'" << endl;
+        if (verbose) cout << "\nTesting `allocator`" << endl;
         {
             {
                 bbldc::CalendarDateRangeDayCountAdapter<

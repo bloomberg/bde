@@ -119,22 +119,24 @@ namespace u {
 class SeekLessFixedMemInStreamBuf : public FSB {
   protected:
     // PROTECTED MANIPULATORS
+
+    /// Not supported.  Unconditionally return a negative value.
     pos_type seekoff(off_type                ,
                      bsl::ios_base::seekdir  ,
                      bsl::ios_base::openmode ) BSLS_KEYWORD_OVERRIDE;
-        // Not supported.  Unconditionally return a negative value.
 
+    /// Not supported.  Unconditionally return a negative value.
     pos_type seekpos(pos_type                ,
                      bsl::ios_base::openmode ) BSLS_KEYWORD_OVERRIDE;
-        // Not supported.  Unconditionally return a negative value.
 
   public:
     // CREATORS
+
+    /// Create a `SeekLessFixedMemInStreamBuf` that provides access to the
+    /// character sequence in the specified `buffer` of the specified
+    /// `length`.  The behavior is undefined unless
+    /// `buffer != 0 && length > 0` or `length == 0`.
     SeekLessFixedMemInStreamBuf(const char *buffer, bsl::size_t length);
-        // Create a 'SeekLessFixedMemInStreamBuf' that provides access to the
-        // character sequence in the specified 'buffer' of the specified
-        // 'length'.  The behavior is undefined unless
-        // 'buffer != 0 && length > 0' or 'length == 0'.
 };
 
                             // ---------------------------
@@ -1794,24 +1796,26 @@ const char * const charUtf8MultiLang = (const char *) utf8MultiLang;
 enum { NUM_UTF8_MULTI_LANG_CODE_POINTS = 11781,
        UTF8_MULTI_LANG_STR_LEN = sizeof(utf8MultiLang) - 1 };
 
+/// Random number generator using the high-order 32 bits of Donald Knuth's
+/// MMIX algorithm.
 class RandGen {
-    // Random number generator using the high-order 32 bits of Donald Knuth's
-    // MMIX algorithm.
 
     bsls::Types::Uint64 d_seed;
 
   public:
     // CREATOR
+
+    /// Initialize the generator with the optionally specified `startSeed`.
     explicit
     RandGen(int startSeed = 0);
-        // Initialize the generator with the optionally specified 'startSeed'.
 
     // MANIPULATORS
-    unsigned operator()();
-        // Return the next random number in the series;
 
+    /// Return the next random number in the series;
+    unsigned operator()();
+
+    /// Return a random `char`.
     char getChar();
-        // Return a random 'char'.
 };
 
 // CREATOR
@@ -1841,9 +1845,9 @@ char RandGen::getChar()
 static
 RandGen rg;
 
+/// Append a random 1-byte UTF-8 character to the specified `*dst`.
 static
 void appendRand1Byte(bsl::string *dst)
-    // Append a random 1-byte UTF-8 character to the specified '*dst'.
 {
     enum {
         k_LOW_BOUND  =    1,
@@ -1861,9 +1865,9 @@ void appendRand1Byte(bsl::string *dst)
     *dst += reinterpret_cast<const char *>(&buf[0]);
 }
 
+/// Append a random 2-byte UTF-8 character to the specified `*dst`.
 static
 void appendRand2Byte(bsl::string *dst)
-    // Append a random 2-byte UTF-8 character to the specified '*dst'.
 {
     enum {
         k_LOW_BOUND  =  0x80,
@@ -1882,9 +1886,9 @@ void appendRand2Byte(bsl::string *dst)
     *dst += reinterpret_cast<const char *>(&buf[0]);
 }
 
+/// Append a random 3-byte UTF-8 character to the specified `*dst`.
 static
 void appendRand3Byte(bsl::string *dst)
-    // Append a random 3-byte UTF-8 character to the specified '*dst'.
 {
     enum {
         k_LOW_BOUND  =  0x800,
@@ -1909,9 +1913,9 @@ void appendRand3Byte(bsl::string *dst)
     *dst += reinterpret_cast<const char *>(&buf[0]);
 }
 
+/// Append a random 4-byte UTF-8 character to the specified `*dst`.
 static
 void appendRand4Byte(bsl::string *dst)
-    // Append a random 4-byte UTF-8 character to the specified '*dst'.
 {
     enum {
         k_LOW_BOUND  =  0x10000,
@@ -1932,17 +1936,17 @@ void appendRand4Byte(bsl::string *dst)
     *dst += reinterpret_cast<const char *>(&buf[0]);
 }
 
+/// Append a random valid UTF-8 character to the specified `*dst`.  The '\0'
+/// byte is only possible if the specified `useZero` is `true`.  Optionally
+/// specify h `numBytes`.  If `0 == numBytes` append a '\0', otherwise
+/// `numBytes` is the length in bytes of the random sequence to be appended.
+/// If `numBytes` is not specified, a random value in the range `[ 1 .. 4 ]`
+/// will be used.  The behavior is undefined if a value of `numBytes`
+/// outside the range `[ 1 .. 4 ]` is specified.
 static
 void appendRandCorrectCodePoint(bsl::string *dst,
                                 bool         useZero,
                                 int          numBytes = -1)
-    // Append a random valid UTF-8 character to the specified '*dst'.  The '\0'
-    // byte is only possible if the specified 'useZero' is 'true'.  Optionally
-    // specify h 'numBytes'.  If '0 == numBytes' append a '\0', otherwise
-    // 'numBytes' is the length in bytes of the random sequence to be appended.
-    // If 'numBytes' is not specified, a random value in the range '[ 1 .. 4 ]'
-    // will be used.  The behavior is undefined if a value of 'numBytes'
-    // outside the range '[ 1 .. 4 ]' is specified.
 {
     unsigned r;
     if (-1 == numBytes) {
@@ -1978,10 +1982,10 @@ void appendRandCorrectCodePoint(bsl::string *dst,
     }
 }
 
+/// Given the specified `firstChar`, which is the first character of a UTF-8
+/// sequence, return the length in bytes of the sequence.  If `firstChar` is
+/// not a valid beginning of a UTF-8 sequence, return a negative value.
 int codePointSize(char firstChar)
-    // Given the specified 'firstChar', which is the first character of a UTF-8
-    // sequence, return the length in bytes of the sequence.  If 'firstChar' is
-    // not a valid beginning of a UTF-8 sequence, return a negative value.
 {
     if ((0xf8 & firstChar) == 0xf0) {
         return 4;                                                     // RETURN
@@ -1999,8 +2003,8 @@ int codePointSize(char firstChar)
     return -1;
 }
 
+/// Returns the specified `str` in a human-readable hex format.
 bsl::string dumpStr(const bsl::string& str)
-    // Returns the specified 'str' in a human-readable hex format.
 {
     bsl::string ret;
 
@@ -2022,9 +2026,9 @@ bsl::string dumpStr(const bsl::string& str)
     return ret;
 }
 
+/// Return the length of the specified `str`, as an `int`.
 inline
 int intStrLen(const char *str)
-    // Return the length of the specified 'str', as an 'int'.
 {
     return static_cast<int>(bsl::strlen(str));
 }
@@ -2422,14 +2426,14 @@ void brokenGlassTest(const u::Data&     data,
     }
 }
 
+/// Check that the specified `obj` is valid.  Check that `obj` is at the
+/// specified position `objPos`, and that reading from `obj` to the end of
+/// data (no more than 1024 bytes) matches the specified string `expText`.
+/// Use the specified `line`, from which we were called, in error messages.
 void checkWrapped(Obj            *obj,
                   PT              objPos,
                   const char     *expText,
                   int             line)
-    // Check that the specified 'obj' is valid.  Check that 'obj' is at the
-    // specified position 'objPos', and that reading from 'obj' to the end of
-    // data (no more than 1024 bytes) matches the specified string 'expText'.
-    // Use the specified 'line', from which we were called, in error messages.
 {
     ASSERTV(line, obj->isValid());
 

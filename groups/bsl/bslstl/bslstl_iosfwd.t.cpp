@@ -13,8 +13,8 @@
 //                              --------
 // The component under test provides no functionality per se.  Its sole purpose
 // is to provide forward declarations, in its header file (for the convenience
-// of 'bsl_iosfwd.h' in package 'bsl+bslhdrs'), of the standard types provided
-// by the four 'bslstl' components that implement string-based streams.
+// of `bsl_iosfwd.h` in package `bsl+bslhdrs`), of the standard types provided
+// by the four `bslstl` components that implement string-based streams.
 // Therefore, it is sufficient to verify, via appropriate declarations, that
 // the forward declarations are visible as expected.
 //-----------------------------------------------------------------------------

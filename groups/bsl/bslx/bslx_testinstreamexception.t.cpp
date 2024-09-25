@@ -88,13 +88,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -111,20 +111,20 @@ int main(int argc, char *argv[])
 //
 ///Example 1:  Throw and Catch
 ///- - - - - - - - - - - - - -
-// In the following example, the 'bslx::TestInStreamException' object is
-// thrown, caught, and examined.   First, set up a 'try' block and throw the
+// In the following example, the `bslx::TestInStreamException` object is
+// thrown, caught, and examined.   First, set up a `try` block and throw the
 // exception with the indication that the exception occurred during
-// unexternalization of an 'unsigned int':
-//..
+// unexternalization of an `unsigned int`:
+// ```
     try {
         throw TestInStreamException(bslx::TypeCode::e_UINT32);
-//..
+// ```
 // Then, catch the exception and verify the indicated cause of the exception:
-//..
+// ```
     } catch (const bslx::TestInStreamException& e) {
         ASSERT(bslx::TypeCode::e_UINT32 == e.dataType());
     }
-//..
+// ```
 #endif
 
       } break;
@@ -135,14 +135,14 @@ int main(int argc, char *argv[])
         //   and that the basic accessor returns the value.
         //
         // Concerns:
-        //: 1 The constructor stores the value.
-        //:
-        //: 2 The basic accessor returns the same value.
+        // 1. The constructor stores the value.
+        //
+        // 2. The basic accessor returns the same value.
         //
         // Plan:
-        //: 1 Create 'TestInStreamException' objects with varying values.
-        //:
-        //: 2 Verify that the basic accessor returns this value.  (C-1..2)
+        // 1. Create `TestInStreamException` objects with varying values.
+        //
+        // 2. Verify that the basic accessor returns this value.  (C-1..2)
         //
         // Testing:
         //   TestInStreamException(typeCode);

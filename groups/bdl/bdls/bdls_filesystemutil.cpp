@@ -158,11 +158,11 @@ namespace u {
 // 'substr' on a 'string_view', which yields a 'string_view', is more efficient
 // than 'substr' on a 'string', which yields a 'string'.
 
+/// Convert the specified `str` to a string view, and then return the result
+/// of `substr` on that passing the specified `idx` and `len`.
 bsl::string_view substr(const bsl::string& str,
                         const size_t       idx,
                         const size_t       len = bsl::string::npos)
-    // Convert the specified 'str' to a string view, and then return the result
-    // of 'substr' on that passing the specified 'idx' and 'len'.
 {
     return bsl::string_view(str).substr(idx, len);
 }
@@ -174,63 +174,65 @@ bsl::string_view substr(const bsl::string& str,
                           // struct UnixInterfaceUtil
                           // ========================
 
+/// This component-private utility `struct` provides an implementation of
+/// the requirements for the `UNIX_INTERFACE` template parameter of the
+/// functions provided by `FilesystemUtil_UnixImplUtil` in terms of actual
+/// Unix interface calls.  See also the notes regarding the `stat` structure
+/// in the documentation for `struct FilesystemUtil_UnixImpUtil`.
 struct UnixInterfaceUtil {
-    // This component-private utility 'struct' provides an implementation of
-    // the requirements for the 'UNIX_INTERFACE' template parameter of the
-    // functions provided by 'FilesystemUtil_UnixImplUtil' in terms of actual
-    // Unix interface calls.  See also the notes regarding the 'stat' structure
-    // in the documentation for 'struct FilesystemUtil_UnixImpUtil'.
 
     // TYPES
+
+    /// `off_t` is an alias to the `off_t` type provided by the
+    /// `sys/types.h` header.  It is a signed integral type used to
+    /// represent quantities of bytes.  Note that, depending on the build
+    /// configuration, this type may have 32 or 64 bits.
     typedef ::off_t off_t;
-        // 'off_t' is an alias to the 'off_t' type provided by the
-        // 'sys/types.h' header.  It is a signed integral type used to
-        // represent quantities of bytes.  Note that, depending on the build
-        // configuration, this type may have 32 or 64 bits.
 
+    /// `stat` is an alias to the `stat` `struct` provided by the
+    /// `sys/stat.h` header.
     typedef struct ::stat stat;
-        // 'stat' is an alias to the 'stat' 'struct' provided by the
-        // 'sys/stat.h' header.
 
+    /// `time_t` is an alias to the `time_t` type provided by the
+    /// `sys/types.h` header.  It represents a time point as number of
+    /// seconds since January 1st 1970 in Coordinated Universal Time.
     typedef ::time_t time_t;
-        // 'time_t' is an alias to the 'time_t' type provided by the
-        // 'sys/types.h' header.  It represents a time point as number of
-        // seconds since January 1st 1970 in Coordinated Universal Time.
 
     // CLASS METHODS
+
+    /// Return the value of the `st_mtim.nsec` field of the specified `stat`
+    /// struct.
     static long get_st_mtim_nsec(const stat& stat);
-        // Return the value of the 'st_mtim.nsec' field of the specified 'stat'
-        // struct.
 
+    /// Return the value of the `st_mtime` data member of the specified
+    /// `stat` struct.
     static time_t get_st_mtime(const stat& stat);
-        // Return the value of the 'st_mtime' data member of the specified
-        // 'stat' struct.
 
+    /// Return the value of the `st_size` data member of the specified
+    /// `stat` struct.  Note that this function is provided in order to
+    /// create a consistent interface for accessing the data members of a
+    /// `stat` struct with `get_st_mtime`.
     static off_t get_st_size(const stat& stat);
-        // Return the value of the 'st_size' data member of the specified
-        // 'stat' struct.  Note that this function is provided in order to
-        // create a consistent interface for accessing the data members of a
-        // 'stat' struct with 'get_st_mtime'.
 
+    /// Invoke and return the result of `::fstat(fildes, buf)` with the
+    /// specified  `fildes` and `buf`, where `::fstat` is the function
+    /// provided by the `sys/stat.h` header.
     static int fstat(int fildes, stat *buf);
-        // Invoke and return the result of '::fstat(fildes, buf)' with the
-        // specified  'fildes' and 'buf', where '::fstat' is the function
-        // provided by the 'sys/stat.h' header.
 };
 
                              // ==================
                              // struct UnixImpUtil
                              // ==================
 
+/// `UnixImpUtil` is an alias to an utility `struct` that provides the
+/// implementations of some of `bdls::FilesystemUtil`s functions for Unix
+/// systems.  Note that this `struct` is a specialization of a utility class
+/// template that defines some file-system operations in terms of a
+/// parameterized Unix-interface utility.  This alias instantiates that
+/// template with a `struct` that provides actual Unix interface calls.  The
+/// utility class template parameterizes its Unix interface in order to
+/// permit tests to instantiate the template with mock Unix interfaces.
 typedef bdls::FilesystemUtil_UnixImpUtil<UnixInterfaceUtil> UnixImpUtil;
-    // 'UnixImpUtil' is an alias to an utility 'struct' that provides the
-    // implementations of some of 'bdls::FilesystemUtil's functions for Unix
-    // systems.  Note that this 'struct' is a specialization of a utility class
-    // template that defines some file-system operations in terms of a
-    // parameterized Unix-interface utility.  This alias instantiates that
-    // template with a 'struct' that provides actual Unix interface calls.  The
-    // utility class template parameterizes its Unix interface in order to
-    // permit tests to instantiate the template with mock Unix interfaces.
 
                      // =================================
                      // typedef InterfaceUtil and ImpUtil
@@ -455,27 +457,28 @@ namespace {
                                // struct NameRec
                                // ==============
 
+/// This `struct` is for maintaining file names and whether they are
+/// matched as patterns or not.  It is used only by `visitTree`.
 struct NameRec {
-    // This 'struct' is for maintaining file names and whether they are
-    // matched as patterns or not.  It is used only by 'visitTree'.
 
     bsl::string d_basename;
     bool        d_foundAsPattern;
 
     // CREATORS
+
+    /// Create a `NameRec` object having the specified `basename` and the
+    /// the specified `foundAsPattern`.
     NameRec(const bsl::string& basename, bool foundAsPattern)
     : d_basename(basename)
     , d_foundAsPattern(foundAsPattern)
-        // Create a 'NameRec' object having the specified 'basename' and the
-        // the specified 'foundAsPattern'.
     {
     }
 
+    /// Create a `NameRec` object having the specified `basename` and the
+    /// the specified `foundAsPattern`.
     NameRec(const char *basename, bool foundAsPattern)
     : d_basename()
     , d_foundAsPattern(foundAsPattern)
-        // Create a 'NameRec' object having the specified 'basename' and the
-        // the specified 'foundAsPattern'.
     {
         BSLS_ASSERT(0 != basename);
 
@@ -483,9 +486,10 @@ struct NameRec {
     }
 
     // ACCESSOR
+
+    /// Return `true` if the `fullName` of this object is less than the
+    /// the `fullName` of the specified `rhs`.
     bool operator<(const NameRec& rhs) const
-        // Return 'true' if the 'fullName' of this object is less than the
-        // the 'fullName' of the specified 'rhs'.
     {
         const int rc = bsl::strcmp(d_basename.c_str(), rhs.d_basename.c_str());
 
@@ -505,10 +509,10 @@ struct NameRec {
 
 }  // close unnamed namespace
 
+/// Return an identifier for the current running process.  Note that this
+/// duplicates functionality in `ProcessUtil`, and is reproduced here to
+/// avoid a cycle.
 int getProcessId()
-    // Return an identifier for the current running process.  Note that this
-    // duplicates functionality in 'ProcessUtil', and is reproduced here to
-    // avoid a cycle.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     return static_cast<int>(GetCurrentProcessId());
@@ -517,12 +521,12 @@ int getProcessId()
 #endif
 }
 
+/// Return `true` if the specified `path` is "." or ".." and `false`
+/// otherwise.  This is equivalent to `isDotOrDots`, except it is called in
+/// the case where we know there are no `/`s in the file name, making the
+/// check simpler and faster.
 static inline
 bool shortIsDotOrDots(const char *path)
-    // Return 'true' if the specified 'path' is "." or ".." and 'false'
-    // otherwise.  This is equivalent to 'isDotOrDots', except it is called in
-    // the case where we know there are no '/'s in the file name, making the
-    // check simpler and faster.
 {
     return '.' == *path && (!path[1] || ('.' == path[1] && !path[2]));
 }
@@ -540,11 +544,11 @@ namespace {
 #  error "'bdls_filesystemutil' does not support this platform."
 # endif
 
+/// Run the appropriate `fstat` or `fstat64` function on the specified file
+/// `descriptor`, returning the results in the specified `statResult`.
 static inline
 int performFStat(BloombergLP::bdls::FilesystemUtil::FileDescriptor  descriptor,
                  StatResult                                        *statResult)
-    // Run the appropriate 'fstat' or 'fstat64' function on the specified file
-    // 'descriptor', returning the results in the specified 'statResult'.
 {
 #if   defined(U_USE_UNIX_FILE_SYSTEM_INTERFACE)
     return ::fstat  (descriptor, statResult);
@@ -555,14 +559,14 @@ int performFStat(BloombergLP::bdls::FilesystemUtil::FileDescriptor  descriptor,
 #endif
 }
 
+/// Run the appropriate `stat` or `stat64` function on the specified
+/// `fileName`, returning the results in the specified `statResult`, where
+/// the specified `followLinks` indicates whether symlinks are to be
+/// followed using `lstat` or `lstat64`.
 static inline
 int performStat(const char *fileName,
                 StatResult *statResult,
                 bool        followLinks = true)
-    // Run the appropriate 'stat' or 'stat64' function on the specified
-    // 'fileName', returning the results in the specified 'statResult', where
-    // the specified 'followLinks' indicates whether symlinks are to be
-    // followed using 'lstat' or 'lstat64'.
 {
 # if defined(U_USE_UNIX_FILE_SYSTEM_INTERFACE)
     return followLinks ?  ::stat(fileName, statResult)
@@ -580,14 +584,14 @@ extern "C" {
 // The following function must have a long, unique name.  Even though it's
 // declared 'static', on Solaris CC it winds up having global linkage.
 
+/// Return 0 if the specified `errorNum` is an `errno`-type value describing
+/// that access wasn't granted due to file permissions, which will manifest
+/// itself as one of the values `EPERM`, `EACCES`, or `ENOENT` and 1
+/// otherwise.
 static
 int bloombergLP_bdls_FileSystemUtil_isNotFilePermissionsError(
                                                           const char *,
                                                           int         errorNum)
-    // Return 0 if the specified 'errorNum' is an 'errno'-type value describing
-    // that access wasn't granted due to file permissions, which will manifest
-    // itself as one of the values 'EPERM', 'EACCES', or 'ENOENT' and 1
-    // otherwise.
 {
     // One use of this function is to pass it to 'glob', which will use the
     // function to indicate whether or not to stop traversing files based on
@@ -626,10 +630,10 @@ static const IsNotFilePermissionsErrorFuncPtr isNotFilePermissionsError_p =
 namespace BloombergLP {
 
 namespace {
+/// A `thunk` to be bound to the specified `vector` that can be called to
+/// push the specified `item` to the `vector`.
 template <class VECTOR_TYPE>
 void pushBackWrapper(VECTOR_TYPE *vector, const char *item)
-    // A 'thunk' to be bound to the specified 'vector' that can be called to
-    // push the specified 'item' to the 'vector'.
 {
     BSLS_ASSERT(vector);
 
@@ -773,22 +777,22 @@ int localFcntlLock(int descriptor, int cmd, int type)
     return fcntl(descriptor, cmd, &flk);
 }
 
+/// Free the specified glob data structure, `pglob`.  Note that this
+/// function has a signature appropriate for use as a managed pointer
+/// deleter, hence the parameters are both passed as `void *`.
 static inline
 void invokeGlobFree(void *pglob, void *)
-    // Free the specified glob data structure, 'pglob'.  Note that this
-    // function has a signature appropriate for use as a managed pointer
-    // deleter, hence the parameters are both passed as 'void *'.
 {
     BSLS_ASSERT(pglob);
 
     globfree(static_cast<glob_t *>(pglob));
 }
 
+/// Close the specified directory, `dir`.  Note that this function has a
+/// signature appropriate for use as a managed pointer deleter, hence the
+/// parameters are both passed as `void *`.
 static inline
 void invokeCloseDir(void *dir, void *)
-    // Close the specified directory, 'dir'.  Note that this function has a
-    // signature appropriate for use as a managed pointer deleter, hence the
-    // parameters are both passed as 'void *'.
 {
     BSLS_ASSERT(dir);
 
@@ -805,11 +809,11 @@ void invokeCloseDir(void *dir, void *)
     BSLS_ASSERT(0 == rc);
 }
 
+/// Close the file descriptor pointed to by the specified `fd_p`.  This is
+/// to be used in conjunction with `bslma::ManagedPtr` to create RAII guards
+/// for file descriptors.
 static
 void invokeCloseFD(void *fd_p, void *)
-    // Close the file descriptor pointed to by the specified 'fd_p'.  This is
-    // to be used in conjunction with 'bslma::ManagedPtr' to create RAII guards
-    // for file descriptors.
 {
     typedef bdls::FilesystemUtil Util;
     typedef Util::FileDescriptor FileDescriptor;
@@ -818,10 +822,10 @@ void invokeCloseFD(void *fd_p, void *)
     BSLS_ASSERT(0 == rc);    (void) rc;
 }
 
+/// Return `true` if the specified `path` is "." or ".." or ends in
+/// "/." or "/..", and `false` otherwise.
 static inline
 bool isDotOrDots(const char *path)
-    // Return 'true' if the specified 'path' is "." or ".." or ends in
-    // "/." or "/..", and 'false' otherwise.
 {
     BSLS_ASSERT(path);
 
@@ -860,13 +864,13 @@ bool isDotOrDots(const char *path)
     return '/' == end[-3];
 }
 
+/// Create a directory.  Return 0 on success, `k_ERROR_PATH_NOT_FOUND` if a
+/// component used as a directory in the specified `path` either does not
+/// exist or is not a directory, `k_ERROR_ALREADY_EXISTS` if the file system
+/// entry (not necessarily a directory) with the name `path` already exists,
+/// and a negative value for any other kind of error.
 static inline
 int makeDirectory(const char *path, bool isPrivate)
-    // Create a directory.  Return 0 on success, 'k_ERROR_PATH_NOT_FOUND' if a
-    // component used as a directory in the specified 'path' either does not
-    // exist or is not a directory, 'k_ERROR_ALREADY_EXISTS' if the file system
-    // entry (not necessarily a directory) with the name 'path' already exists,
-    // and a negative value for any other kind of error.
 {
     BSLS_ASSERT(path);
 
@@ -894,13 +898,13 @@ int makeDirectory(const char *path, bool isPrivate)
     }
 }
 
+/// Delete everything in the tree whose root directory is specified by the
+/// specified open file descriptor `dirFD`, not including the root.  Close
+/// `dirFd`.  The behavior is undefined unless `dirFD` refers to a directory
+/// and not a symlink.  Return 0 on success and a non-zero value otherwise.
 static
 int u_removeContentsOfTree(
                  const BloombergLP::bdls::FilesystemUtil::FileDescriptor dirFD)
-    // Delete everything in the tree whose root directory is specified by the
-    // specified open file descriptor 'dirFD', not including the root.  Close
-    // 'dirFd'.  The behavior is undefined unless 'dirFD' refers to a directory
-    // and not a symlink.  Return 0 on success and a non-zero value otherwise.
 {
     typedef bdls::FilesystemUtil::FileDescriptor FileDescriptor;
 

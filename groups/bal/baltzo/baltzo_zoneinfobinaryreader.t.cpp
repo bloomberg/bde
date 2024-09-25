@@ -55,20 +55,20 @@ using bsl::strncpy;
 // ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The 'baltzo::ZoneinfoBinaryReader' component contains a 'read' and 'readRaw'
+// The `baltzo::ZoneinfoBinaryReader` component contains a `read` and `readRaw`
 // functions to read the Zoneinfo binary data format from a byte stream.  A
 // test apparatus is created for testing this component.
 //
 // The test apparatus contains functions to create an arbitrary Zoneinfo binary
-// data.  A byte stream can be created from this data and the 'read' function
-// can be called on the byte stream to produce a 'baltzo::Zoneinfo' object.
-// However 'read' is free to interpret the original data to suit its purposes
+// data.  A byte stream can be created from this data and the `read` function
+// can be called on the byte stream to produce a `baltzo::Zoneinfo` object.
+// However `read` is free to interpret the original data to suit its purposes
 // (e.g. replace ZIC sentinel transition with its own that has different
-// timestamp).  Therefore, another option is to use 'readRaw' function that
+// timestamp).  Therefore, another option is to use `readRaw` function that
 // completely reproduces the original data.
-// The test apparatus contains the 'verifyTimeZone' and
-// 'verifyTimeZoneVersion2Or3Format' functions to verify the resulting
-// 'baltzo::Zoneinfo' object matches the data in the byte stream.  All three
+// The test apparatus contains the `verifyTimeZone` and
+// `verifyTimeZoneVersion2Or3Format` functions to verify the resulting
+// `baltzo::Zoneinfo` object matches the data in the byte stream.  All three
 // versions of the Zoneinfo binary data are tested.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
@@ -84,14 +84,14 @@ using bsl::strncpy;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [13] USAGE EXAMPLE
-// [ 3] CONCERN: 'read' properly processes the abbreviation strings
-// [ 4] CONCERN: 'read' properly processes local time types data
-// [ 5] CONCERN: 'read' properly processes transition data
-// [ 6] CONCERN: 'read' retrieves data with multiple transitions
-// [ 9] CONCERN: 'read' properly processes the time zone string
-// [10] CONCERN: 'read' retrieves a real-life Zoneinfo data
-// [11] CONCERN: 'read' retrieves a real-life Zoneinfo data of version '3'
-// [12] CONCERN: 'read' fails when header information is invalid
+// [ 3] CONCERN: `read` properly processes the abbreviation strings
+// [ 4] CONCERN: `read` properly processes local time types data
+// [ 5] CONCERN: `read` properly processes transition data
+// [ 6] CONCERN: `read` retrieves data with multiple transitions
+// [ 9] CONCERN: `read` properly processes the time zone string
+// [10] CONCERN: `read` retrieves a real-life Zoneinfo data
+// [11] CONCERN: `read` retrieves a real-life Zoneinfo data of version '3'
+// [12] CONCERN: `read` fails when header information is invalid
 //
 // [-1] DUMP TIMEZONE FILE
 // [-2] DUMP RAW TIMEZONE FILE
@@ -158,7 +158,7 @@ static const bsls::Types::Int64 MINIMUM_ZIC_TRANSITION = -576460752303423488LL;
 
 static const bool               EXPECTED_TO_FAIL = true;
 
-// Enumeration defining a set of the 'Zoneinfo' binary data versions.
+// Enumeration defining a set of the `Zoneinfo` binary data versions.
 enum TimeZoneVersion {
     k_VERSION_0,
     k_VERSION_2_OR_3
@@ -1550,21 +1550,21 @@ class RawHeader;
 class RawLocalTimeTypes;
 class ZoneinfoData;
 
+/// Write the specified `value` into the memory at the specified 'address in
+/// big-endian format.
 static void writeBigEndian(char *address, int value);
-    // Write the specified 'value' into the memory at the specified 'address in
-    // big-endian format.
 
+/// Write the specified `value` into the memory at the specified 'address in
+/// big-endian format.
 static void writeBigEndian64(char *address, bsls::Types::Int64 value);
-    // Write the specified 'value' into the memory at the specified 'address in
-    // big-endian format.
 
+/// Read from the memory at the specified `address` containing an integer
+/// in big-endian format, and return the value of the integer.
 static int readBigEndian(const char *address);
-    // Read from the memory at the specified 'address' containing an integer
-    // in big-endian format, and return the value of the integer.
 
+/// Read from the memory at the specified `address` containing an integer
+/// in big-endian format, and return the value of the integer.
 static bsls::Types::Int64 readBigEndian64(const char *address);
-    // Read from the memory at the specified 'address' containing an integer
-    // in big-endian format, and return the value of the integer.
 
 // ============================================================================
 //              GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
@@ -1605,11 +1605,11 @@ static bsls::Types::Int64 readBigEndian64(const char *address)
                               // class RawHeader
                               // ===============
 
+/// The byte sequence of the header of a Zoneinfo binary data format.
 class RawHeader {
-    // The byte sequence of the header of a Zoneinfo binary data format.
 
     // DATA
-    char d_headerId[4];          // must be 'EXPECTED_HEADER_ID'
+    char d_headerId[4];          // must be `EXPECTED_HEADER_ID`
     char d_version[1];           // must be '\0' or '2' (as of 2005)
     char d_reserved[15];         // unused
     char d_numIsGmt[4];          // number of encoded UTC/local indicators
@@ -1621,71 +1621,74 @@ class RawHeader {
 
   public:
     // CREATORS
+
+    /// Create a Zoneinfo binary header with the properties:
+    /// ```
+    /// version           == '\0'
+    /// numIsGmt          == 0
+    /// numIsStd          == 0
+    /// numLeaps          == 0
+    /// numTransitions    == 0
+    /// numLocalTimeTypes == 1
+    /// abbrevDataSize    == 1
+    /// ```
     RawHeader();
-        // Create a Zoneinfo binary header with the properties:
-        //..
-        // version           == '\0'
-        // numIsGmt          == 0
-        // numIsStd          == 0
-        // numLeaps          == 0
-        // numTransitions    == 0
-        // numLocalTimeTypes == 1
-        // abbrevDataSize    == 1
-        //..
 
     // MANIPULATORS
+
+    /// Set the character at the specified `index` of the header identifier
+    /// to the specified `value`.
     void setHeaderId(int index, char value);
-        // Set the character at the specified 'index' of the header identifier
-        // to the specified 'value'.
 
+    /// Set the value of the version to the specified `value`.
     void setVersion(char value);
-        // Set the value of the version to the specified 'value'.
 
+    /// Set the number of `isGmt` flag to the specified `value`.  Note that
+    /// the value is stored in big-endian format.
     void setNumIsGmt(int value);
-        // Set the number of 'isGmt' flag to the specified 'value'.  Note that
-        // the value is stored in big-endian format.
 
+    /// Set the number of `isStd` flag to the specified `value`.  Note that
+    /// the value is stored in big-endian format.
     void setNumIsStd(int value);
-        // Set the number of 'isStd' flag to the specified 'value'.  Note that
-        // the value is stored in big-endian format.
 
+    /// Set the number of leap corrections to the specified `value`.  Note
+    /// that the value is stored in big-endian format.
     void setNumLeaps(int value);
-        // Set the number of leap corrections to the specified 'value'.  Note
-        // that the value is stored in big-endian format.
 
+    /// Set the number of transitions to the specified `value`.  Note that
+    /// the value is stored in big-endian format.
     void setNumTransitions(int value);
-        // Set the number of transitions to the specified 'value'.  Note that
-        // the value is stored in big-endian format.
 
+    /// Set the number of local time types to the specified `value`.  Note
+    /// that the value is stored in big-endian format.
     void setNumLocalTimeTypes(int value);
-        // Set the number of local time types to the specified 'value'.  Note
-        // that the value is stored in big-endian format.
 
+    /// Set the size of abbreviation data to the specified `value`.  Note
+    /// that the value is stored in big-endian format.
     void setAbbrevDataSize(int value);
-        // Set the size of abbreviation data to the specified 'value'.  Note
-        // that the value is stored in big-endian format.
 
     // ACCESSORS
+
+    /// Return the value of `version` of this object.
     char version() const;
-        // Return the value of 'version' of this object.
 
+    /// Return the value of `numIsGmt` of this object.
     int numIsGmt() const;
-        // Return the value of 'numIsGmt' of this object.
 
+    /// Return the value of `numIsStd` of this object.
     int numIsStd() const;
-        // Return the value of 'numIsStd' of this object.
 
+    /// Return the value of `numLeaps` of this object.
     int numLeaps() const;
-        // Return the value of 'numLeaps' of this object.
 
+    /// Return the value of `numTransitions` of this object.
     int numTransitions() const;
-        // Return the value of 'numTransitions' of this object.
 
+    /// Return the value of `numLocalTimeTypes` of this object.
     int numLocalTimeTypes() const;
-        // Return the value of 'numLocalTimeTypes' of this object.
 
+    /// Return the value of `abbrevDataSize` of this object.
     int abbrevDataSize() const;
-        // Return the value of 'abbrevDataSize' of this object.
 
 };
 
@@ -1787,8 +1790,8 @@ int RawHeader::abbrevDataSize() const
                           // class RawLocalTimeTypes
                           // =======================
 
+/// The byte sequence of a local-time type in a Zoneinfo binary data format.
 class RawLocalTimeTypes {
-    // The byte sequence of a local-time type in a Zoneinfo binary data format.
 
     // DATA
     char          d_offset[4];          // UTC offset in number of seconds
@@ -1797,25 +1800,27 @@ class RawLocalTimeTypes {
 
   public:
     // MANIPULATORS
+
+    /// Set the value of `offset` to the specified `value`.  Note that the
+    /// value will be stored in big-endian format.
     void setOffset(int value);
-        // Set the value of 'offset' to the specified 'value'.  Note that the
-        // value will be stored in big-endian format.
 
+    /// Set the value of `isDst` flag to the specified `value`.
     void setIsDst(unsigned char value);
-        // Set the value of 'isDst' flag to the specified 'value'.
 
+    /// Set the value of `abbreviationIndex` to the specified `value`.
     void setAbbreviationIndex(unsigned char value);
-        // Set the value of 'abbreviationIndex' to the specified 'value'.
 
     // ACCESSORS
+
+    /// Return the value of `offset` of this object.
     int offset() const;
-        // Return the value of 'offset' of this object.
 
+    /// Return the value of `isDst` of this object.
     unsigned char isDst() const;
-        // Return the value of 'isDst' of this object.
 
+    /// Return the value of `abbreviationIndex` of this object.
     unsigned char abbreviationIndex() const;
-        // Return the value of 'abbreviationIndex' of this object.
 };
 
 BSLMF_ASSERT(6 == sizeof(RawLocalTimeTypes));
@@ -1860,8 +1865,8 @@ unsigned char RawLocalTimeTypes::abbreviationIndex() const
                              // class RawLeapInfo
                              // =================
 
+/// The byte sequence of a leap correction in a Zoneinfo binary data format.
 class RawLeapInfo {
-    // The byte sequence of a leap correction in a Zoneinfo binary data format.
 
     // DATA
     char d_transition[4];  // POSIX time at which the leap second occur
@@ -1869,20 +1874,22 @@ class RawLeapInfo {
 
   public:
     // MANIPULATORS
-    void setTransition(int value);
-        // Set the value of 'transition' to the specified 'value'.  Note that
-        // the value will be stored in big-endian format.
 
+    /// Set the value of `transition` to the specified `value`.  Note that
+    /// the value will be stored in big-endian format.
+    void setTransition(int value);
+
+    /// Set the value of `correction` to the specified `value`.  Note that
+    /// the value will be stored in big-endian format.
     void setCorrection(int value);
-        // Set the value of 'correction' to the specified 'value'.  Note that
-        // the value will be stored in big-endian format.
 
     // ACCESSORS
-    int transition() const;
-        // Return the value of 'transition' of this object.
 
+    /// Return the value of `transition` of this object.
+    int transition() const;
+
+    /// Return the value of `correction` of this object.
     int correction() const;
-        // Return the value of 'correction' of this object.
 };
 
                              // -----------------
@@ -1915,8 +1922,8 @@ int RawLeapInfo::correction() const
                             // class RawLeapInfo64
                             // ===================
 
+/// The byte sequence of a leap correction in a Zoneinfo binary data format.
 class RawLeapInfo64 {
-    // The byte sequence of a leap correction in a Zoneinfo binary data format.
 
     // DATA
     char d_transition[8];  // POSIX time at which the leap second occur
@@ -1924,20 +1931,22 @@ class RawLeapInfo64 {
 
   public:
     // MANIPULATORS
-    void setTransition(bsls::Types::Int64 value);
-        // Set the value of 'transition' to the specified 'value'.  Note that
-        // the value will be stored in big-endian format.
 
+    /// Set the value of `transition` to the specified `value`.  Note that
+    /// the value will be stored in big-endian format.
+    void setTransition(bsls::Types::Int64 value);
+
+    /// Set the value of `correction` to the specified `value`.  Note that
+    /// the value will be stored in big-endian format.
     void setCorrection(int value);
-        // Set the value of 'correction' to the specified 'value'.  Note that
-        // the value will be stored in big-endian format.
 
     // ACCESSORS
-    bsls::Types::Int64 transition() const;
-        // Return the value of 'transition' of this object.
 
+    /// Return the value of `transition` of this object.
+    bsls::Types::Int64 transition() const;
+
+    /// Return the value of `correction` of this object.
     int correction() const;
-        // Return the value of 'correction' of this object.
 };
 
                             // -------------------
@@ -1970,231 +1979,233 @@ int RawLeapInfo64::correction() const
                              // class ZoneinfoData
                              // ==================
 
+/// This class provides methods to create and store a Zoneinfo binary data
+/// format.
 class ZoneinfoData {
-    // This class provides methods to create and store a Zoneinfo binary data
-    // format.
 
     // DATA
     char         *d_buffer_p; // buffer to store Zoneinfo binary data
-    bsl::size_t   d_size;     // size of 'd_buffer_p'
+    bsl::size_t   d_size;     // size of `d_buffer_p`
 
     // PRIVATE MANIPULATORS
+
+    /// Populate the transition times of Zoneinfo binary data.  A valid
+    /// header is assumed to exist in `d_buffer_p` and the number of
+    /// transitions can be found in the header.  The transition times starts
+    /// at 0 and increase by 1 for each subsequent transition.
     void populateTransitionTimeBuf();
-        // Populate the transition times of Zoneinfo binary data.  A valid
-        // header is assumed to exist in 'd_buffer_p' and the number of
-        // transitions can be found in the header.  The transition times starts
-        // at 0 and increase by 1 for each subsequent transition.
 
+    /// Populate the transition times of Zoneinfo binary data.  A valid
+    /// header is assumed to exist in `d_buffer_p` and the number of
+    /// transitions can be found in the header.  The transition times starts
+    /// at 0 and increase by 1 for each subsequent transition.
     void populateTransitionTimeBuf64();
-        // Populate the transition times of Zoneinfo binary data.  A valid
-        // header is assumed to exist in 'd_buffer_p' and the number of
-        // transitions can be found in the header.  The transition times starts
-        // at 0 and increase by 1 for each subsequent transition.
 
+    /// Populate the index to local time types for each transition.  A valid
+    /// header is assumed to exist in `d_buffer_p` and the number of indexes
+    /// can be found in the header.  The indexes starts at 0, increase by 1
+    /// for each subsequent transition, and restarts at 0 when the indexes
+    /// is equal to the number of local time types.
     void populateTransitionIndexBuf();
-        // Populate the index to local time types for each transition.  A valid
-        // header is assumed to exist in 'd_buffer_p' and the number of indexes
-        // can be found in the header.  The indexes starts at 0, increase by 1
-        // for each subsequent transition, and restarts at 0 when the indexes
-        // is equal to the number of local time types.
 
+    /// Populate the index to local time types for each transition.  A valid
+    /// header is assumed to exist in `d_buffer_p` and the number of indexes
+    /// can be found in the header.  The indexes starts at 0, increase by 1
+    /// for each subsequent transition, and restarts at 0 when the indexes
+    /// is equal to the number of local time types.
     void populateTransitionIndexBuf64();
-        // Populate the index to local time types for each transition.  A valid
-        // header is assumed to exist in 'd_buffer_p' and the number of indexes
-        // can be found in the header.  The indexes starts at 0, increase by 1
-        // for each subsequent transition, and restarts at 0 when the indexes
-        // is equal to the number of local time types.
 
+    /// Populate the leap correction information of Zoneinfo binary data.  A
+    /// valid header is assumed to exist in `d_buffer_p` and the number of
+    /// leap corrections can be found in the header.  The leap-correction
+    /// times starts at 0, increase by 1 for each subsequent correction.
+    /// Each leap correction increases the accumulated leap correction by 1.
     void populateLeapCorrectionBuf();
-        // Populate the leap correction information of Zoneinfo binary data.  A
-        // valid header is assumed to exist in 'd_buffer_p' and the number of
-        // leap corrections can be found in the header.  The leap-correction
-        // times starts at 0, increase by 1 for each subsequent correction.
-        // Each leap correction increases the accumulated leap correction by 1.
 
+    /// Populate the leap correction information of Zoneinfo binary data.  A
+    /// valid header is assumed to exist in `d_buffer_p` and the number of
+    /// leap corrections can be found in the header.  The leap-correction
+    /// times starts at 0, increase by 1 for each subsequent correction.
+    /// Each leap correction increases the accumulated leap correction by 1.
     void populateLeapCorrectionBuf64();
-        // Populate the leap correction information of Zoneinfo binary data.  A
-        // valid header is assumed to exist in 'd_buffer_p' and the number of
-        // leap corrections can be found in the header.  The leap-correction
-        // times starts at 0, increase by 1 for each subsequent correction.
-        // Each leap correction increases the accumulated leap correction by 1.
 
+    /// Populate the local time type portion of the Zoneinfo binary data.  A
+    /// valid header is assumed to exist in `d_buffer_p` and the number of
+    /// local-time types can be found in the header.  The first local time
+    /// type has an offset from UTC of 0 seconds, isDst of `false` and
+    /// abbreviation data index of 0.  Subsequent local time type increments
+    /// the offset and abbreviation data index by 1, and alternate between
+    /// `true` and `false` for isDst settings.
     void populateLocalTimeTypeBuf();
-        // Populate the local time type portion of the Zoneinfo binary data.  A
-        // valid header is assumed to exist in 'd_buffer_p' and the number of
-        // local-time types can be found in the header.  The first local time
-        // type has an offset from UTC of 0 seconds, isDst of 'false' and
-        // abbreviation data index of 0.  Subsequent local time type increments
-        // the offset and abbreviation data index by 1, and alternate between
-        // 'true' and 'false' for isDst settings.
 
+    /// Populate the local time type portion of the Zoneinfo binary data.  A
+    /// valid header is assumed to exist in `d_buffer_p` and the number of
+    /// local-time types can be found in the header.  The first local time
+    /// type has an offset from UTC of 0 seconds, isDst of `false` and
+    /// abbreviation data index of 0.  Subsequent local time type increments
+    /// the offset and abbreviation data index by 1, and alternate between
+    /// `true` and `false` for isDst settings.
     void populateLocalTimeTypeBuf64();
-        // Populate the local time type portion of the Zoneinfo binary data.  A
-        // valid header is assumed to exist in 'd_buffer_p' and the number of
-        // local-time types can be found in the header.  The first local time
-        // type has an offset from UTC of 0 seconds, isDst of 'false' and
-        // abbreviation data index of 0.  Subsequent local time type increments
-        // the offset and abbreviation data index by 1, and alternate between
-        // 'true' and 'false' for isDst settings.
 
+    /// Populate the abbreviation part of the Zoneinfo binary data.  A valid
+    /// header is assumed to exist in `d_buffer_p` and the abbreviation data
+    /// size can be found in the header.  The abbreviation data will be
+    /// filled with '\0' character.
     void populateAbbreviationData();
-        // Populate the abbreviation part of the Zoneinfo binary data.  A valid
-        // header is assumed to exist in 'd_buffer_p' and the abbreviation data
-        // size can be found in the header.  The abbreviation data will be
-        // filled with '\0' character.
 
+    /// Populate the abbreviation part of the Zoneinfo binary data.  A valid
+    /// header is assumed to exist in `d_buffer_p` and the abbreviation data
+    /// size can be found in the header.  The abbreviation data will be
+    /// filled with '\0' character.
     void populateAbbreviationData64();
-        // Populate the abbreviation part of the Zoneinfo binary data.  A valid
-        // header is assumed to exist in 'd_buffer_p' and the abbreviation data
-        // size can be found in the header.  The abbreviation data will be
-        // filled with '\0' character.
 
+    /// Populate the time zone string part of the Zoneinfo binary data.  It
+    /// will be filled with two new line characters.
     void populateTimeZoneString();
-        // Populate the time zone string part of the Zoneinfo binary data.  It
-        // will be filled with two new line characters.
 
+    /// Populate `d_buffer_p` with synthetic Zoneinfo binary data that
+    /// matches the file description of the specified 'header.  This
+    /// function will call all the other `populate*` functions to fill the
+    /// buffer with data.
     void populateBuffer(const RawHeader& header);
-        // Populate 'd_buffer_p' with synthetic Zoneinfo binary data that
-        // matches the file description of the specified 'header.  This
-        // function will call all the other 'populate*' functions to fill the
-        // buffer with data.
 
   public:
     // CREATORS
+
+    /// Create a `ZoneinfoData` object with the smallest possible valid
+    /// Zoneinfo binary data.  This object will have the properties:
+    /// ```
+    /// version           == '\0'
+    /// numIsGmt          == 0
+    /// numIsStd          == 0
+    /// numLeaps          == 0
+    /// numTransitions    == 0
+    /// numLocalTimeTypes == 1
+    /// abbrevDataSize    == 1
+    /// ```
+    /// The created object will contain a valid Zoneinfo binary data in the
+    /// buffer.  The local time type will have an offset from UTC of 0,
+    /// DST is *not* in effect and an abbreviation index of 0.
     ZoneinfoData();
-        // Create a 'ZoneinfoData' object with the smallest possible valid
-        // Zoneinfo binary data.  This object will have the properties:
-        //..
-        // version           == '\0'
-        // numIsGmt          == 0
-        // numIsStd          == 0
-        // numLeaps          == 0
-        // numTransitions    == 0
-        // numLocalTimeTypes == 1
-        // abbrevDataSize    == 1
-        //..
-        // The created object will contain a valid Zoneinfo binary data in the
-        // buffer.  The local time type will have an offset from UTC of 0,
-        // DST is *not* in effect and an abbreviation index of 0.
 
+    /// Create a `ZoneinfoData` object with Zoneinfo binary data that
+    /// matches the file description supplied by the specified `header`.
+    /// The created object will contain a valid Zoneinfo binary data in the
+    /// buffer.  The buffer describes a time zone with the properties:
+    ///
+    /// * Transition times -- starts from 0 and increment by 1 for each
+    ///   subsequent transition.
+    /// * Transition indexes -- starts from 0 and increment by 1 for each
+    ///   subsequent transition.  Restart from 0 when the index equals to
+    ///   the number of local time types.
+    /// * Leap correction -- the time of leap-correction
+    ///   times starts at 0, increase by 1 for each subsequent correction.
+    ///   Each leap correction increases the accumulated leap correction by
+    ///    1.
+    ///
+    /// * Abbreviation data -- filled with '\0'.
+    ///
+    /// If the `header` is set to version `2`, the Zoneinfo binary data
+    /// will correctly represent the version `2` file format with both
+    /// 32-bit and 64-bit transition values.
     ZoneinfoData(const RawHeader& header);
-        // Create a 'ZoneinfoData' object with Zoneinfo binary data that
-        // matches the file description supplied by the specified 'header'.
-        // The created object will contain a valid Zoneinfo binary data in the
-        // buffer.  The buffer describes a time zone with the properties:
-        //
-        //: o Transition times -- starts from 0 and increment by 1 for each
-        //:   subsequent transition.
-        //:
-        //: o Transition indexes -- starts from 0 and increment by 1 for each
-        //:   subsequent transition.  Restart from 0 when the index equals to
-        //:   the number of local time types.
-        //:
-        //: o Leap correction -- the time of leap-correction
-        //:   times starts at 0, increase by 1 for each subsequent correction.
-        //:   Each leap correction increases the accumulated leap correction by
-        //:   1.
-        //:
-        //: o Abbreviation data -- filled with '\0'.
-        //
-        // If the 'header' is set to version '2', the Zoneinfo binary data
-        // will correctly represent the version '2' file format with both
-        // 32-bit and 64-bit transition values.
 
+    /// Create a `ZoneinfoData` object by duplicating the specified `data`
+    /// with the specified `size` into the buffer.  `data` is assumed to
+    /// contain Zoneinfo binary data.
     ZoneinfoData(const char *data, bsl::size_t size);
-        // Create a 'ZoneinfoData' object by duplicating the specified 'data'
-        // with the specified 'size' into the buffer.  'data' is assumed to
-        // contain Zoneinfo binary data.
 
+    /// Destroy this object.
     ~ZoneinfoData();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Set time zone string value by duplicating the specified `data` with
+    /// the specified `size` into the buffer.  As origin buffer may not be
+    /// able to accommodate additional symbols, new buffer of appropriate
+    /// size is allocated and data from the old one are duplicated before
+    /// appending time zone string.  Old buffer is deleted afterwards.  Note
+    /// that this operation has no effect if binary data version is not
+    /// equal to `2` or `3`.
     void setTimeZoneString(const char *data, bsl::size_t size);
-        // Set time zone string value by duplicating the specified 'data' with
-        // the specified 'size' into the buffer.  As origin buffer may not be
-        // able to accommodate additional symbols, new buffer of appropriate
-        // size is allocated and data from the old one are duplicated before
-        // appending time zone string.  Old buffer is deleted afterwards.  Note
-        // that this operation has no effect if binary data version is not
-        // equal to '2' or '3'.
 
+    /// Set the transition at the specified `index` to the specified
+    /// `timeValue` (a 32 bit `time_t`).
     void setTransitionTime(int index, int timeValue);
-        // Set the transition at the specified 'index' to the specified
-        // 'timeValue' (a 32 bit 'time_t').
 
+    /// Set the transition at the specified `index` to the specified
+    /// `timeValue` (a 32 bit `time_t`).
     void setTransitionTime64(int index, bsls::Types::Int64 timeValue);
-        // Set the transition at the specified 'index' to the specified
-        // 'timeValue' (a 32 bit 'time_t').
 
     // ACCESSORS
+
+    /// Return the address of the buffer containing the Zoneinfo data.
     char *buffer() const;
-        // Return the address of the buffer containing the Zoneinfo data.
 
+    /// Return the address of the portion in the buffer that is the start
+    /// of the version `2` or `3` header.
     char *getVersion2Or3Address() const;
-        // Return the address of the portion in the buffer that is the start
-        // of the version '2' or '3' header.
 
+    /// Return the address of the portion in the buffer containing header
+    /// information.
     RawHeader *getRawHeader() const;
-        // Return the address of the portion in the buffer containing header
-        // information.
 
+    /// Return the address of the portion in the buffer containing version
+    /// `2` header information.
     RawHeader *getRawHeader64() const;
-        // Return the address of the portion in the buffer containing version
-        // '2' header information.
 
+    /// Return the address of the portion in the buffer containing
+    /// POSIX-TZ-environment-variable-style string for use in handling
+    /// instants after the last transition time stored in the file (with
+    /// nothing between the newlines if there is no POSIX representation for
+    /// such instants.
     char *getTimeZoneString() const;
-        // Return the address of the portion in the buffer containing
-        // POSIX-TZ-environment-variable-style string for use in handling
-        // instants after the last transition time stored in the file (with
-        // nothing between the newlines if there is no POSIX representation for
-        // such instants.
 
+    /// Return the address of the portion in the buffer containing the times
+    /// of transitions.
     unsigned char *getTransitionTime() const;
-        // Return the address of the portion in the buffer containing the times
-        // of transitions.
 
+    /// Return the address of the portion in the buffer containing the
+    /// version `2` times of transitions.
     unsigned char *getTransitionTime64() const;
-        // Return the address of the portion in the buffer containing the
-        // version '2' times of transitions.
 
+    /// Return the address of the portion in the buffer containing the
+    /// indexes to local time types for each transition.
     unsigned char *getTransitionIndex() const;
-        // Return the address of the portion in the buffer containing the
-        // indexes to local time types for each transition.
 
+    /// Return the address of the portion in the buffer containing the
+    /// version `2` indexes to local time types for each transition.
     unsigned char *getTransitionIndex64() const;
-        // Return the address of the portion in the buffer containing the
-        // version '2' indexes to local time types for each transition.
 
+    /// Return the address of the portion in the buffer containing leap
+    /// correction information.
     RawLeapInfo *getRawLeapInfo() const;
-        // Return the address of the portion in the buffer containing leap
-        // correction information.
 
+    /// Return the address of the portion in the buffer containing version
+    /// `2` leap correction information.
     RawLeapInfo64 *getRawLeapInfo64() const;
-        // Return the address of the portion in the buffer containing version
-        // '2' leap correction information.
 
+    /// Return the address of the portion in the buffer containing local
+    /// time type information.
     RawLocalTimeTypes *getRawLocalTimeTypes() const;
-        // Return the address of the portion in the buffer containing local
-        // time type information.
 
+    /// Return the address of the portion in the buffer containing version
+    /// `2` local time type information.
     RawLocalTimeTypes *getRawLocalTimeTypes64() const;
-        // Return the address of the portion in the buffer containing version
-        // '2' local time type information.
 
+    /// Return the address of the portion in the buffer containing
+    /// abbreviation string data.
     char *getAbbrevData() const;
-        // Return the address of the portion in the buffer containing
-        // abbreviation string data.
 
+    /// Return the address of the portion in the buffer containing
+    /// version `2` abbreviation string data.
     char *getAbbrevData64() const;
-        // Return the address of the portion in the buffer containing
-        // version '2' abbreviation string data.
 
+    /// Return the size of the buffer containing the Zoneinfo data.
     bsl::size_t size() const;
-        // Return the size of the buffer containing the Zoneinfo data.
 
+    /// Return the length of the stored time zone string.
     bsl::size_t timeZoneStringLength() const;
-        // Return the length of the stored time zone string.
 };
 
                              // ------------------
@@ -2221,7 +2232,7 @@ void ZoneinfoData::populateBuffer(const RawHeader& header)
                   + bsl::max(header.numLocalTimeTypes(), 0) *
                                                       sizeof(RawLocalTimeTypes)
                   + bsl::max(header.abbrevDataSize(), 0)
-                  + 2;  // two 'newline' symbols for empty time zone string
+                  + 2;  // two `newline` symbols for empty time zone string
     }
     d_buffer_p = new char[d_size];
     memset(d_buffer_p, 0, d_size);
@@ -2598,23 +2609,23 @@ bsl::size_t ZoneinfoData::timeZoneStringLength() const
 
 // ----------------------------------------------------------------------------
 
+/// Validate description of a time zone based on the specified `timeZone` is
+/// the same as the description based on the specified `data`, and output an
+/// error message containing the line number indicated by the specified
+/// `line` when the validation failed.  Optionally specify an `expectToFail`
+/// flag indicating whether there is an intentional difference between
+/// `timeZone` and `data`.  If `expectToFail` is `true`, `verifyTimeZone`
+/// will not `ASSERT`, otherwise, `verifyTimeZone` will `ASSERT` at the
+/// location that an error is detected.  Also optionally specify a
+/// `rawFormat` flag indicating whether the `timeZone` absolutely accurately
+/// displays the original binary data.  The behavior is undefined unless
+/// `data` contains valid Zoneinfo version '\0' binary data in the buffer.
+/// Return 0 if the validation succeed, and a non-zero value otherwise.
 static int verifyTimeZone(const ZoneinfoData&     data,
                           const baltzo::Zoneinfo& timeZone,
                           int                     line,
                           bool                    expectToFail = false,
                           bool                    rawFormat = false)
-    // Validate description of a time zone based on the specified 'timeZone' is
-    // the same as the description based on the specified 'data', and output an
-    // error message containing the line number indicated by the specified
-    // 'line' when the validation failed.  Optionally specify an 'expectToFail'
-    // flag indicating whether there is an intentional difference between
-    // 'timeZone' and 'data'.  If 'expectToFail' is 'true', 'verifyTimeZone'
-    // will not 'ASSERT', otherwise, 'verifyTimeZone' will 'ASSERT' at the
-    // location that an error is detected.  Also optionally specify a
-    // 'rawFormat' flag indicating whether the 'timeZone' absolutely accurately
-    // displays the original binary data.  The behavior is undefined unless
-    // 'data' contains valid Zoneinfo version '\0' binary data in the buffer.
-    // Return 0 if the validation succeed, and a non-zero value otherwise.
 {
     const int               LINE = line;
     const baltzo::Zoneinfo& X    = timeZone;
@@ -2628,7 +2639,7 @@ static int verifyTimeZone(const ZoneinfoData&     data,
     RawLocalTimeTypes *localTimeTypeBuf = data.getRawLocalTimeTypes();
 
     // An extra transition is created for to handle time earlier than the first
-    // transition.  'Raw' version does not contain this transition.
+    // transition.  `Raw` version does not contain this transition.
 
     baltzo::Zoneinfo::TransitionConstIterator XT = X.beginTransitions();
 
@@ -2706,25 +2717,25 @@ static int verifyTimeZone(const ZoneinfoData&     data,
 
 // ----------------------------------------------------------------------------
 
+/// Validate description of a time zone based on the specified `timeZone` is
+/// the same as the description based on the specified `data`, and output an
+/// error message containing the line number indicated by the specified
+/// `line` when the validation failed.  Optionally specify an `expectToFail`
+/// flag indicating whether there is an intentional difference between
+/// `timeZone` and `data`.  If `expectToFail` is `true`,
+/// `verifyTimeZoneVersion2Or3Format` will not `ASSERT`, otherwise,
+/// `verifyTimeZoneVersion2Or3Format` will `ASSERT` at the location that an
+/// error is detected.  Also optionally specify a `rawFormat` flag
+/// indicating whether the `timeZone` absolutely accurately displays the
+/// original binary data.  The behavior is undefined unless `data` contains
+/// valid Zoneinfo version `2`  or `3` binary data in the buffer.  Return 0
+/// if the validation succeed, and a non-zero value otherwise.
 static int verifyTimeZoneVersion2Or3Format(
                                   const ZoneinfoData&     data,
                                   const baltzo::Zoneinfo& timeZone,
                                   int                     line,
                                   bool                    expectToFail = false,
                                   bool                    rawFormat = false)
-    // Validate description of a time zone based on the specified 'timeZone' is
-    // the same as the description based on the specified 'data', and output an
-    // error message containing the line number indicated by the specified
-    // 'line' when the validation failed.  Optionally specify an 'expectToFail'
-    // flag indicating whether there is an intentional difference between
-    // 'timeZone' and 'data'.  If 'expectToFail' is 'true',
-    // 'verifyTimeZoneVersion2Or3Format' will not 'ASSERT', otherwise,
-    // 'verifyTimeZoneVersion2Or3Format' will 'ASSERT' at the location that an
-    // error is detected.  Also optionally specify a 'rawFormat' flag
-    // indicating whether the 'timeZone' absolutely accurately displays the
-    // original binary data.  The behavior is undefined unless 'data' contains
-    // valid Zoneinfo version '2'  or '3' binary data in the buffer.  Return 0
-    // if the validation succeed, and a non-zero value otherwise.
 {
     const int                LINE             = line;
     const baltzo::Zoneinfo&  X                = timeZone;
@@ -2732,12 +2743,12 @@ static int verifyTimeZoneVersion2Or3Format(
     char                    *abbrevDataBuf    = data.getAbbrevData64();
     RawLocalTimeTypes       *localTimeTypeBuf = data.getRawLocalTimeTypes64();
 
-    // 'ZoneinfoBinaryReader::read' adds default transition dated to the the
-    // first representable 'bdlt::Datetime' value -- 'bdlt::Datetime(1, 1, 1)'.
+    // `ZoneinfoBinaryReader::read` adds default transition dated to the the
+    // first representable `bdlt::Datetime` value -- `bdlt::Datetime(1, 1, 1)`.
     // ZIC compiler can add its own sentinel transition with the timestamp
-    // equal to -2^59 (-576460752303423488).  'ZoneinfoBinaryReader::read'
+    // equal to -2^59 (-576460752303423488).  `ZoneinfoBinaryReader::read`
     // omits this transition during data file processing.
-    // 'ZoneinfoBinaryReader::readRaw', in turn, does not add BDE sentinel
+    // `ZoneinfoBinaryReader::readRaw`, in turn, does not add BDE sentinel
     // transition and preserves the ZIC's one.
 
     bsls::Types::Int64 firstTransitionTimestamp =
@@ -2847,16 +2858,16 @@ static int verifyTimeZoneVersion2Or3Format(
 
 // ----------------------------------------------------------------------------
 
+/// Alternately create two `Zoneinfo` objects; fill them using `read` method
+/// in one case and `readRaw` in the other, based on the specified binary
+/// `data` having the specified `version`; validate the correctness of the
+/// obtained results and print out the report using the specified `line` in
+/// case of an error.  Optionally specify an `expectToFail` flag indicating
+/// whether an error is expected to occur during the reading.
 static void readAndVerifyTimeZone(const ZoneinfoData& data,
                                   TimeZoneVersion     version,
                                   int                 line,
                                   bool                expectedToFail = false)
-    // Alternately create two 'Zoneinfo' objects; fill them using 'read' method
-    // in one case and 'readRaw' in the other, based on the specified binary
-    // 'data' having the specified 'version'; validate the correctness of the
-    // obtained results and print out the report using the specified 'line' in
-    // case of an error.  Optionally specify an 'expectToFail' flag indicating
-    // whether an error is expected to occur during the reading.
 {
     for (char mode = 'a'; mode <= 'b'; ++mode) {
         const bool RAW_MODE = 'a' == mode ? true : false;
@@ -2896,12 +2907,12 @@ static void readAndVerifyTimeZone(const ZoneinfoData& data,
 
 // ----------------------------------------------------------------------------
 
+/// Run ad-hoc tests on the `verifyTimeZone` function.  The tests will be
+/// based on a Zoneinfo with 5 transitions and 3 local time types.
+/// `verifyTimeZone` will be called on various `baltzo::Zoneinfo` objects
+/// and the return code will be verified.  Return 0 if all the tests passed,
+/// and a non-zero value otherwise.
 static int testVerifyTimeZone(int verbose)
-    // Run ad-hoc tests on the 'verifyTimeZone' function.  The tests will be
-    // based on a Zoneinfo with 5 transitions and 3 local time types.
-    // 'verifyTimeZone' will be called on various 'baltzo::Zoneinfo' objects
-    // and the return code will be verified.  Return 0 if all the tests passed,
-    // and a non-zero value otherwise.
 {
     // Create a table of transition time.
 
@@ -2937,7 +2948,7 @@ static int testVerifyTimeZone(int verbose)
     const char AB_DATA[] = "\0A\0AB\0";
     enum { AB_DATA_SIZE = sizeof AB_DATA / sizeof *AB_DATA };
 
-    // Create 'ZoneinfoData'
+    // Create `ZoneinfoData`
 
     RawHeader RH;
     RH.setVersion('\0');
@@ -2984,7 +2995,7 @@ static int testVerifyTimeZone(int verbose)
         ASSERT(0 == verifyTimeZone(ZI, TZ, L_));
     }
 
-    if (verbose) cout << "\nMissing transition at 'Jan 1, 1'" << endl;
+    if (verbose) cout << "\nMissing transition at `Jan 1, 1`" << endl;
     {
         baltzo::Zoneinfo TZ;
         TZ.addTransition(TRANSITION_TIMES[0], D[0]);
@@ -3126,12 +3137,12 @@ static int testVerifyTimeZone(int verbose)
 
 // ----------------------------------------------------------------------------
 
+/// Run ad-hoc tests on the `verifyTimeZoneVersion2Or3Format` function.  The
+/// tests will be based on a Zoneinfo with 5 transitions and 3 local time
+/// types.  `verifyTimeZoneVersion2Or3Format` will be called on various
+/// `baltzo::Zoneinfo` objects and the return code will be verified.  Return
+/// 0 if all the tests passed, and a non-zero value otherwise.
 static int testVerifyTimeZoneVersion2Or3Format(int verbose)
-    // Run ad-hoc tests on the 'verifyTimeZoneVersion2Or3Format' function.  The
-    // tests will be based on a Zoneinfo with 5 transitions and 3 local time
-    // types.  'verifyTimeZoneVersion2Or3Format' will be called on various
-    // 'baltzo::Zoneinfo' objects and the return code will be verified.  Return
-    // 0 if all the tests passed, and a non-zero value otherwise.
 {
     // Create a table of transition time.
 
@@ -3167,7 +3178,7 @@ static int testVerifyTimeZoneVersion2Or3Format(int verbose)
     const char AB_DATA[] = "\0A\0AB\0";
     enum { AB_DATA_SIZE = sizeof AB_DATA / sizeof *AB_DATA };
 
-    // Create 'ZoneinfoData'
+    // Create `ZoneinfoData`
 
     RawHeader RH;
     RH.setVersion('2');
@@ -3214,7 +3225,7 @@ static int testVerifyTimeZoneVersion2Or3Format(int verbose)
         ASSERT(0 == verifyTimeZoneVersion2Or3Format(ZI, TZ, L_));
     }
 
-    if (verbose) cout << "\nMissing transition at 'Jan 1, 1'" << endl;
+    if (verbose) cout << "\nMissing transition at `Jan 1, 1`" << endl;
     {
         baltzo::Zoneinfo TZ;
         TZ.addTransition(TRANSITION_TIMES[0], D[0]);
@@ -3422,7 +3433,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
@@ -3431,12 +3442,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE TEST
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into driver, remove leading
-        //:   comment characters.
+        // 1. Incorporate usage example from header into driver, remove leading
+        //    comment characters.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -3452,12 +3463,12 @@ int main(int argc, char *argv[])
 ///Example 1: Reading Zoneinfo binary data
 ///- - - - - - - - - - - - - - - - - - - -
 // The following demonstrates how to read a byte stream in the Zoneinfo binary
-// data format into a 'baltzo::Zoneinfo' object.  We start by creating Zoneinfo
+// data format into a `baltzo::Zoneinfo` object.  We start by creating Zoneinfo
 // data in memory for "Asia/Bangkok", which was chosen due to its small size.
-// Note that this data was generated by the 'zic' compiler, which is publicly
+// Note that this data was generated by the `zic` compiler, which is publicly
 // obtainable as part of the standard Zoneinfo distribution (see
-// 'http://www.twinsun.com/tz/tz-link.htm'):
-//..
+// `http://www.twinsun.com/tz/tz-link.htm`):
+// ```
     const unsigned char ASIA_BANGKOK_DATA[] = {
         0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02,
@@ -3475,29 +3486,29 @@ int main(int argc, char *argv[])
         0x00, 0x42, 0x4d, 0x54, 0x00, 0x49, 0x43, 0x54, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x0a, 0x49, 0x43, 0x54, 0x2d, 0x37, 0x0a
     };
-//..
+// ```
 // Then, we load this data into a stream buffer.
-//..
+// ```
     bdlsb::FixedMemInStreamBuf inStreamBuf(
                             reinterpret_cast<const char *>(ASIA_BANGKOK_DATA),
                             sizeof(ASIA_BANGKOK_DATA));
     bsl::istream inputStream(&inStreamBuf);
-//..
-// Now, we read the 'inputStream' using 'baltzo::ZoneinfoBinaryReader::read'.
-//..
+// ```
+// Now, we read the `inputStream` using `baltzo::ZoneinfoBinaryReader::read`.
+// ```
     baltzo::Zoneinfo timeZone;
     if (0 != baltzo::ZoneinfoBinaryReader::read(&timeZone, inputStream)) {
         bsl::cerr << "baltzo::ZoneinfoBinaryReader::load failed"
                   << bsl::endl;
         return 1;                                                     // RETURN
     }
-//..
+// ```
 // Finally, we write a description of the loaded Zoneinfo to the console.
-//..
+// ```
     if (verbose) timeZone.print(bsl::cout, 1, 3);
-//..
+// ```
 // The output of the preceding statement should look like:
-//..
+// ```
 // [
 //
 //    [
@@ -3515,39 +3526,39 @@ int main(int argc, char *argv[])
 //       ]
 //    ]
 // ]
-//..
+// ```
       } break;
       case 12: {
         // --------------------------------------------------------------------
         // TESTING INVALID HEADER
         //
         // Concerns:
-        //: 1 'read' fails when magic characters are invalid
-        //: 2 'read' fails when version number is invalid
-        //: 3 'read' fails when version '\0' 'numIsGmt' is invalid
-        //: 4 'read' fails when version '2' 'numIsGmt' is invalid
-        //: 5 'read' fails when version '\0' 'numIsStd' is invalid
-        //: 6 'read' fails when version '2' 'numIsStd' is invalid
-        //: 7 'read' fails when version '\0' 'numLeaps' is invalid
-        //: 8 'read' fails when version '2' 'numLeaps' is invalid
-        //: 9 'read' fails when version '\0' 'numTransitions' is invalid
-        //: 10 'read' fails when version '2' 'numTransitions' is invalid
-        //: 11 'read' fails when version '\0' 'numLocalTimeTypes' is invalid
-        //: 12 'read' fails when version '2' 'numLocalTimeTypes' is invalid
-        //: 13 'read' fails when version '\0' 'abbrevDataSize' is invalid
-        //: 14 'read' fails when version '2' 'abbrevDataSize' is invalid
+        // 1. `read` fails when magic characters are invalid
+        // 2. `read` fails when version number is invalid
+        // 3. `read` fails when version '\0' `numIsGmt` is invalid
+        // 4. `read` fails when version '2' `numIsGmt` is invalid
+        // 5. `read` fails when version '\0' `numIsStd` is invalid
+        // 6. `read` fails when version '2' `numIsStd` is invalid
+        // 7. `read` fails when version '\0' `numLeaps` is invalid
+        // 8. `read` fails when version '2' `numLeaps` is invalid
+        // 9. `read` fails when version '\0' `numTransitions` is invalid
+        // 10. `read` fails when version '2' `numTransitions` is invalid
+        // 11. `read` fails when version '\0' `numLocalTimeTypes` is invalid
+        // 12. `read` fails when version '2' `numLocalTimeTypes` is invalid
+        // 13. `read` fails when version '\0' `abbrevDataSize` is invalid
+        // 14. `read` fails when version '2' `abbrevDataSize` is invalid
         //
         // Plan:
-        //: 1 Create a string stream with incorrect header information for each
-        //:   variable in the header and verify that 'read' returns a non-zero
-        //:   value.
+        // 1. Create a string stream with incorrect header information for each
+        //    variable in the header and verify that `read` returns a non-zero
+        //    value.
         //
         // Testing:
-        //   CONCERN: 'read' fails when header information is invalid
+        //   CONCERN: `read` fails when header information is invalid
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing 'read' failure mode" << endl
+                          << "Testing `read` failure mode" << endl
                           << "===========================" << endl;
 
         typedef int (*ReadMethodPtr)(baltzo::Zoneinfo *, bsl::istream&);
@@ -3610,7 +3621,7 @@ int main(int argc, char *argv[])
                 ASSERT(-3 == readMethod(&TZ, inputStream));
             }
 
-            if (verbose) cout << "\tInvalid version '\\0' 'numIsGmt' ("
+            if (verbose) cout << "\tInvalid version '\\0' `numIsGmt` ("
                               << MODE_STR
                               << ")."
                               << endl;
@@ -3623,7 +3634,7 @@ int main(int argc, char *argv[])
                 ASSERT(-5 == readMethod(&TZ, inputStream));
             }
 
-            if (verbose) cout << "\tInvalid version '2' 'numIsGmt' ("
+            if (verbose) cout << "\tInvalid version '2' `numIsGmt` ("
                               << MODE_STR
                               << ")."
                               << endl;
@@ -3638,7 +3649,7 @@ int main(int argc, char *argv[])
                 ASSERT(-5 == readMethod(&TZ, inputStream));
             }
 
-            if (verbose) cout << "\tInvalid version '\0' 'numIsStd' ("
+            if (verbose) cout << "\tInvalid version '\0' `numIsStd` ("
                               << MODE_STR
                               << ")."
                               << endl;
@@ -3651,7 +3662,7 @@ int main(int argc, char *argv[])
                 ASSERT(-6 == readMethod(&TZ, inputStream));
             }
 
-            if (verbose) cout << "\tInvalid version '2' 'numIsStd' ("
+            if (verbose) cout << "\tInvalid version '2' `numIsStd` ("
                               << MODE_STR
                               << ")."
                               << endl;
@@ -3666,7 +3677,7 @@ int main(int argc, char *argv[])
                 ASSERT(-6 == readMethod(&TZ, inputStream));
             }
 
-            if (verbose) cout << "\tInvalid version '\0' 'numTransitions' ("
+            if (verbose) cout << "\tInvalid version '\0' `numTransitions` ("
                               << MODE_STR
                               << ")."
                               << endl;
@@ -3679,7 +3690,7 @@ int main(int argc, char *argv[])
                 ASSERT(-8 == readMethod(&TZ, inputStream));
             }
 
-            if (verbose) cout << "\tInvalid version '2' 'numTransitions' ("
+            if (verbose) cout << "\tInvalid version '2' `numTransitions` ("
                               << MODE_STR
                               << ")."
                               << endl;
@@ -3695,7 +3706,7 @@ int main(int argc, char *argv[])
             }
 
             if (verbose) cout <<
-                            "\nInvalid version '\\0' 'numLocalTimeTypes' ("
+                            "\nInvalid version '\\0' `numLocalTimeTypes` ("
                               << MODE_STR
                               << ")."
                               << endl;
@@ -3709,7 +3720,7 @@ int main(int argc, char *argv[])
             }
 
             if (verbose) cout <<
-                              "\nInvalid version '2' 'numLocalTimeTypes' ("
+                              "\nInvalid version '2' `numLocalTimeTypes` ("
                               << MODE_STR
                               << ")."
                               << endl;
@@ -3724,7 +3735,7 @@ int main(int argc, char *argv[])
                 ASSERT(-4 == readMethod(&TZ, inputStream));
             }
 
-            if (verbose) cout << "\tInvalid version '\\0' 'abbrevDataSize' ("
+            if (verbose) cout << "\tInvalid version '\\0' `abbrevDataSize` ("
                               << MODE_STR
                               << ")."
                               << endl;
@@ -3737,7 +3748,7 @@ int main(int argc, char *argv[])
                 ASSERT(-9 == readMethod(&TZ, inputStream));
             }
 
-            if (verbose) cout << "\tInvalid version '2' 'abbrevDataSize' ("
+            if (verbose) cout << "\tInvalid version '2' `abbrevDataSize` ("
                               << MODE_STR
                               << ")."
                               << endl;
@@ -3752,7 +3763,7 @@ int main(int argc, char *argv[])
                 ASSERT(-9 == readMethod(&TZ, inputStream));
             }
 
-            if (verbose) cout << "\tInvalid version '2' 'abbrevDataSize' ("
+            if (verbose) cout << "\tInvalid version '2' `abbrevDataSize` ("
                               << MODE_STR
                               << ")."
                               << endl;
@@ -3815,18 +3826,18 @@ int main(int argc, char *argv[])
         // TESTING VERSION '3' REAL LIFE DATA
         //
         // Concerns:
-        //: 1 'read' and 'readRaw' functions work for real-life zoneinfo binary
-        //:   file of version '3'.
+        // 1. `read` and `readRaw` functions work for real-life zoneinfo binary
+        //    file of version '3'.
         //
         // Plan:
-        //: 1 Call the 'read' function on the real-life Zoneinfo data from
-        //:   Pacific/Easter.  Verify the retrieved data.
-        //:
-        //: 2 Call the 'readRaw' function on the real-life Zoneinfo data from
-        //:   Pacific/Easter.  Verify the retrieved data.  (C-1)
+        // 1. Call the `read` function on the real-life Zoneinfo data from
+        //    Pacific/Easter.  Verify the retrieved data.
+        //
+        // 2. Call the `readRaw` function on the real-life Zoneinfo data from
+        //    Pacific/Easter.  Verify the retrieved data.  (C-1)
         //
         // Testing:
-        //   CONCERN: 'read' retrieves a real-life Zoneinfo data version '3'
+        //   CONCERN: `read` retrieves a real-life Zoneinfo data version '3'
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -3841,7 +3852,7 @@ int main(int argc, char *argv[])
                 0x00  // null character is added for bsl::string creation
             };
 
-            // Testing 'read'.
+            // Testing `read`.
             {
                 bdlsb::FixedMemInStreamBuf inStreamBuf(
                            reinterpret_cast<const char *>(PACIFIC_EASTER_DATA),
@@ -3864,11 +3875,11 @@ int main(int argc, char *argv[])
 
                 if (verbose) { T_ P(TZ) }
 
-                // 'ZoneinfoBinaryReader::read()' adds a default transition
-                // dated to the the first representable 'bdlt::Datetime' value
-                // -- 'bdlt::Datetime(1, 1, 1)'.   ZIC compiler also added its
+                // `ZoneinfoBinaryReader::read()` adds a default transition
+                // dated to the the first representable `bdlt::Datetime` value
+                // -- `bdlt::Datetime(1, 1, 1)`.   ZIC compiler also added its
                 // own sentinel transition with the timestamp equal to -2^59
-                // (-576460752303423488).  'ZoneinfoBinaryReader::read()' omits
+                // (-576460752303423488).  `ZoneinfoBinaryReader::read()` omits
                 // this transition during data file processing.  In that case
                 // the number of transitions in raw and processed data will be
                 // the same.
@@ -3878,7 +3889,7 @@ int main(int argc, char *argv[])
                 baltzo::Zoneinfo::TransitionConstIterator iter =
                                                          TZ.beginTransitions();
 
-                // Checking 'baltzo::ZoneinfoBinaryReader' sentinel transition.
+                // Checking `baltzo::ZoneinfoBinaryReader` sentinel transition.
 
                 ASSERTV(iter->utcTime(), FIRST_TRANSITION == iter->utcTime());
 
@@ -3886,7 +3897,7 @@ int main(int argc, char *argv[])
                         EASTER_TZ == TZ.posixExtendedRangeDescription());
             }
 
-            // Testing 'readRaw'.
+            // Testing `readRaw`.
             {
                 bdlsb::FixedMemInStreamBuf inStreamBuf(
                            reinterpret_cast<const char *>(PACIFIC_EASTER_DATA),
@@ -3909,7 +3920,7 @@ int main(int argc, char *argv[])
 
                 if (verbose) { T_ P(TZ) }
 
-                // Unlike 'read', 'readRaw' preserves ZIC compiler sentinel
+                // Unlike `read`, `readRaw` preserves ZIC compiler sentinel
                 // transition with the timestamp equal to -2^59
                 // (-576460752303423488) and does not add BDE sentinel
                 // transition.  So in that case the number of transitions in
@@ -3935,25 +3946,25 @@ int main(int argc, char *argv[])
         // TESTING REAL LIFE DATA
         //
         // Concerns:
-        //: 1 'read' and 'readRaw' functions correctly process real-life
-        //:   zoneinfo binary files.
+        // 1. `read` and `readRaw` functions correctly process real-life
+        //    zoneinfo binary files.
         //
         // Plan:
-        //: 1 Call the 'read' and 'readRaw' functions on a number of real-life
-        //:   Zoneinfo data.  Verify the retrieved data with
-        //:   'verifyTimeZoneVersion2Or3Format'.
-        //:   The chosen time zones are:
-        //:   o America/New_York -- due to common usage.
-        //:   o Europe/London -- due to common usage.
-        //:   o Asia/Tokyo -- due to common usage.
-        //:   o Pacific/Kiritimati -- due change in offset that is over 24
-        //:     hours.
-        //:   o Pacific/Chatham -- due to various uncommon properties such as
-        //:     greater than 12 hours in offset from UTC and non-whole hour
-        //:     offset.
+        // 1. Call the `read` and `readRaw` functions on a number of real-life
+        //    Zoneinfo data.  Verify the retrieved data with
+        //    `verifyTimeZoneVersion2Or3Format`.
+        //    The chosen time zones are:
+        //    - America/New_York -- due to common usage.
+        //    - Europe/London -- due to common usage.
+        //    - Asia/Tokyo -- due to common usage.
+        //    - Pacific/Kiritimati -- due change in offset that is over 24
+        //      hours.
+        //    - Pacific/Chatham -- due to various uncommon properties such as
+        //      greater than 12 hours in offset from UTC and non-whole hour
+        //      offset.
         //
         // Testing:
-        //   CONCERN: 'read' retrieves a real-life Zoneinfo data
+        //   CONCERN: `read` retrieves a real-life Zoneinfo data
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -4078,39 +4089,39 @@ int main(int argc, char *argv[])
         // TESTING TIME ZONE STRING READING
         //
         // Concerns:
-        //: 1 'read' and 'readRaw' succeed in loading version '\0' data into a
-        //:   'baltzo::Zoneinfo' object, but the default value of time zone
-        //:   string  is stored.
-        //:
-        //: 2 'read' and 'readRaw' succeed in loading of various time zone
-        //:   strings from version '2' binary data into a 'baltzo::Zoneinfo'
-        //:   object and the correct value of time zone string is stored.
-        //:
-        //: 3 'read' and 'readRaw' succeed in loading of various time zone
-        //:   strings from version '3' binary data into a 'baltzo::Zoneinfo'
-        //:   object and the correct value of time zone string is stored.
+        // 1. `read` and `readRaw` succeed in loading version '\0' data into a
+        //    `baltzo::Zoneinfo` object, but the default value of time zone
+        //    string  is stored.
+        //
+        // 2. `read` and `readRaw` succeed in loading of various time zone
+        //    strings from version '2' binary data into a `baltzo::Zoneinfo`
+        //    object and the correct value of time zone string is stored.
+        //
+        // 3. `read` and `readRaw` succeed in loading of various time zone
+        //    strings from version '3' binary data into a `baltzo::Zoneinfo`
+        //    object and the correct value of time zone string is stored.
         //
         // Plan:
-        //: 1 Using test apparatus, create a stream, containing binary data for
-        //:   valid 'baltzo::Zoneinfo' object of version '\0'.  Verify that
-        //:   'read' and 'readRaw' successfully load data into a
-        //:   'baltzo::Zoneinfo' object.  (C-1)
-        //:
-        //: 2 Using the table-driven technique, specify a set of (unique) time
-        //:   zone strings.
-        //:
-        //: 3 For each row (representing a distinct string value, 'V') in the
-        //:   table described in P-2:
-        //:
-        //:   1 Using test apparatus, create two streams, containing binary
-        //:     data for two valid 'baltzo::Zoneinfo' objects of version '2'
-        //:     and '3' and having 'V' as a time zone string.
-        //:
-        //:   2 Call sequentially 'read' and 'readRaw' and verify that data is
-        //:     successfully loaded into a 'baltzo::Zoneinfo' object.  (C-2..3)
+        // 1. Using test apparatus, create a stream, containing binary data for
+        //    valid `baltzo::Zoneinfo` object of version '\0'.  Verify that
+        //    `read` and `readRaw` successfully load data into a
+        //    `baltzo::Zoneinfo` object.  (C-1)
+        //
+        // 2. Using the table-driven technique, specify a set of (unique) time
+        //    zone strings.
+        //
+        // 3. For each row (representing a distinct string value, `V`) in the
+        //    table described in P-2:
+        //
+        //   1. Using test apparatus, create two streams, containing binary
+        //      data for two valid `baltzo::Zoneinfo` objects of version '2'
+        //      and '3' and having `V` as a time zone string.
+        //
+        //   2. Call sequentially `read` and `readRaw` and verify that data is
+        //      successfully loaded into a `baltzo::Zoneinfo` object.  (C-2..3)
         //
         // Testing:
-        //   CONCERN: 'read' properly processes the time zone string
+        //   CONCERN: `read` properly processes the time zone string
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -4205,19 +4216,19 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'read' with two parameters
+        // TESTING `read` with two parameters
         //
         // Concerns:
-        //: 1 'read' and 'readRaw' succeed in loading from various
-        //:   configurations of version '\0' data into a 'baltzo::Zoneinfo'
-        //:   object.
-        //:
-        //: 2 'read' and 'readRaw' succeed in loading from various
-        //:   configurations of version '2' binary data into a
-        //:   'baltzo::Zoneinfo' object.
+        // 1. `read` and `readRaw` succeed in loading from various
+        //    configurations of version '\0' data into a `baltzo::Zoneinfo`
+        //    object.
+        //
+        // 2. `read` and `readRaw` succeed in loading from various
+        //    configurations of version '2' binary data into a
+        //    `baltzo::Zoneinfo` object.
         //
         // Plan:
-        //: 1 Repeat case 7 testing 'read' overload with two parameters.
+        // 1. Repeat case 7 testing `read` overload with two parameters.
         //
         // Testing:
         //   int read(Zoneinfo *, bsl::istream&);
@@ -4225,7 +4236,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'read' with two parameters" << endl
+                          << "TESTING `read` with two parameters" << endl
                           << "==================================" << endl;
 
         if (verbose) cout <<
@@ -4323,22 +4334,22 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'read' with three parameters
+        // TESTING `read` with three parameters
         //
         // Concerns:
-        //: 1 'read' succeeds in loading from various configurations of
-        //:   version '\0' data into a 'baltzo::Zoneinfo' object and return
-        //:   the correct header information.
-        //:
-        //: 2 'read' succeeds in loading from various configurations of
-        //:   version '2' data into a 'baltzo::Zoneinfo' object and return
-        //:   the correct header information.
+        // 1. `read` succeeds in loading from various configurations of
+        //    version '\0' data into a `baltzo::Zoneinfo` object and return
+        //    the correct header information.
+        //
+        // 2. `read` succeeds in loading from various configurations of
+        //    version '2' data into a `baltzo::Zoneinfo` object and return
+        //    the correct header information.
         //
         // Plan:
-        //: 1 Use a table driven approach with enumeration in five dimension
-        //:   for each variable in the header, and verify that 'read'
-        //:   successfully load data into a 'baltzo::Zoneinfo'.  process the
-        //:   stream.
+        // 1. Use a table driven approach with enumeration in five dimension
+        //    for each variable in the header, and verify that `read`
+        //    successfully load data into a `baltzo::Zoneinfo`.  process the
+        //    stream.
         //
         // Testing:
         //   int read(Zoneinfo *, ZoneinfoBinaryHeader *, bsl::istream&);
@@ -4346,7 +4357,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'read' with three parameters" << endl
+                          << "TESTING `read` with three parameters" << endl
                           << "====================================" << endl;
 
         if (verbose) cout <<
@@ -4507,18 +4518,18 @@ int main(int argc, char *argv[])
         // TESTING MULTIPLE TRANSITIONS
         //
         // Concerns:
-        //: 1 'read' and 'readRaw' succeed in reading the version '\0' binary
-        //:   data with multiple transitions.
-        //:
-        //: 2 'read' and 'readRaw' succeed in reading the version '2' binary
-        //:   data with multiple transitions.
+        // 1. `read` and `readRaw` succeed in reading the version '\0' binary
+        //    data with multiple transitions.
+        //
+        // 2. `read` and `readRaw` succeed in reading the version '2' binary
+        //    data with multiple transitions.
         //
         // Plan:
-        //: 1 Use a table-based approach to create a string stream with
-        //:   multiple transitions and local time types.
+        // 1. Use a table-based approach to create a string stream with
+        //    multiple transitions and local time types.
         //
         // Testing:
-        //   CONCERN: 'read' retrieves data with multiple transitions
+        //   CONCERN: `read` retrieves data with multiple transitions
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -4661,61 +4672,61 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'read' FOR TRANSITIONS
+        // TESTING `read` FOR TRANSITIONS
         //
         // Concerns:
-        //: 1 'read' and 'readRaw' succeed in retrieving version '\0'
-        //:   transition data.
-        //:
-        //: 2 'read' and 'readRaw' succeed in retrieving version '2' transition
-        //:   data.
-        //:
-        //: 3 'read' and 'readRaw' fail when there are duplicated version '\0'
-        //:   transition times.
-        //:
-        //: 4 'read' and 'readRaw' fail when there are duplicated version '2'
-        //:   transition times.
-        //:
-        //: 5 'read' and 'readRaw' fail when version '\0' transitions are not
-        //:   in ascending order of time.
-        //:
-        //: 6 'read' and 'readRaw' fail when version '2' transitions are not in
-        //:   ascending order of time.
-        //:
-        //: 7 'read' and 'readRaw' fail when a version '\0' index to local time
-        //:   type is out of bound.
-        //:
-        //: 8 'read' and 'readRaw' fail when a version '2' index to local time
-        //:   type is out of bound.
-        //:
+        // 1. `read` and `readRaw` succeed in retrieving version '\0'
+        //    transition data.
+        //
+        // 2. `read` and `readRaw` succeed in retrieving version '2' transition
+        //    data.
+        //
+        // 3. `read` and `readRaw` fail when there are duplicated version '\0'
+        //    transition times.
+        //
+        // 4. `read` and `readRaw` fail when there are duplicated version '2'
+        //    transition times.
+        //
+        // 5. `read` and `readRaw` fail when version '\0' transitions are not
+        //    in ascending order of time.
+        //
+        // 6. `read` and `readRaw` fail when version '2' transitions are not in
+        //    ascending order of time.
+        //
+        // 7. `read` and `readRaw` fail when a version '\0' index to local time
+        //    type is out of bound.
+        //
+        // 8. `read` and `readRaw` fail when a version '2' index to local time
+        //    type is out of bound.
+        //
         //
         // Plan:
-        //: 1 Use a table driven approach to create a string stream with
-        //:   boundary values of version '\0' transition times, and verify that
-        //:   'read' and 'readRaw' successfully load data into a
-        //:   'baltzo::Zoneinfo'.
-        //:
-        //: 2 Use a table driven approach to create a string stream with
-        //:   boundary values of version '2' transition times, and verify that
-        //:   'read' and 'readRaw' successfully load data into a
-        //:   'baltzo::Zoneinfo'.
-        //:
-        //: 3 Create a string stream with transition times that are not in
-        //:   ascending out of order, and verify that 'read' and 'readRaw'
-        //:   return a non-zero value.
-        //:
-        //: 4 Create a string stream with duplicated transition times, and
-        //:   verify that 'read' and 'readRaw' return a non-zero value.
-        //:
-        //: 5 Create a string stream with transition that refers to a
-        //:   local-time type that is out of bound, and verify that 'read' and
-        //:   'readRaw' return a non-zero value.
+        // 1. Use a table driven approach to create a string stream with
+        //    boundary values of version '\0' transition times, and verify that
+        //    `read` and `readRaw` successfully load data into a
+        //    `baltzo::Zoneinfo`.
+        //
+        // 2. Use a table driven approach to create a string stream with
+        //    boundary values of version '2' transition times, and verify that
+        //    `read` and `readRaw` successfully load data into a
+        //    `baltzo::Zoneinfo`.
+        //
+        // 3. Create a string stream with transition times that are not in
+        //    ascending out of order, and verify that `read` and `readRaw`
+        //    return a non-zero value.
+        //
+        // 4. Create a string stream with duplicated transition times, and
+        //    verify that `read` and `readRaw` return a non-zero value.
+        //
+        // 5. Create a string stream with transition that refers to a
+        //    local-time type that is out of bound, and verify that `read` and
+        //    `readRaw` return a non-zero value.
         //
         // Testing:
-        //   CONCERN: 'read' properly processes transition data
+        //   CONCERN: `read` properly processes transition data
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'read' FOR TRANSITIONS" << endl
+                          << "TESTING `read` FOR TRANSITIONS" << endl
                           << "==============================" << endl;
 
         if (verbose) cout <<
@@ -4979,46 +4990,46 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'read' FOR LOCAL TIME TYPES
+        // TESTING `read` FOR LOCAL TIME TYPES
         //
         // Concerns:
-        //: 1 'read' and 'readRaw' succeed in retrieving version '\0' local
-        //:   time types data.
-        //:
-        //: 2 'read' and 'readRaw' succeed in retrieving version '2' local time
-        //:   types data.
-        //:
-        //: 3 'read' and 'readRaw' succeed with version '\0' duplicated local
-        //:   time types.
-        //:
-        //: 4 'read' and 'readRaw' succeed with version '2' duplicated local
-        //:   time types.
-        //:
-        //: 5 'read' and 'readRaw' fail when a UTC offset is greater than 24
-        //:   hours.
-        //:
-        //: 6 'read' and 'readRaw' fail when the abbreviation index is out of
-        //:   bound.
+        // 1. `read` and `readRaw` succeed in retrieving version '\0' local
+        //    time types data.
+        //
+        // 2. `read` and `readRaw` succeed in retrieving version '2' local time
+        //    types data.
+        //
+        // 3. `read` and `readRaw` succeed with version '\0' duplicated local
+        //    time types.
+        //
+        // 4. `read` and `readRaw` succeed with version '2' duplicated local
+        //    time types.
+        //
+        // 5. `read` and `readRaw` fail when a UTC offset is greater than 24
+        //    hours.
+        //
+        // 6. `read` and `readRaw` fail when the abbreviation index is out of
+        //    bound.
         //
         // Plan:
-        //: 1 Use a table driven approach to create a string stream with
-        //:   boundary values of a local time type, and verify that
-        //:   'read' and 'readRaw' successfully load data into a
-        //:   'baltzo::Zoneinfo'.
-        //:
-        //: 2 Create a string stream with duplicated local time types,
-        //:   and verify that 'read' and 'readRaw' successfully load data into
-        //:   a 'baltzo::Zoneinfo'.
-        //:
-        //: 3 Create a string stream with UTC offset greater than 24 hours, and
-        //:   verify that 'read' and 'readRaw' return a non-zero value.
-        //:
-        //: 4 Create a string stream with local-time type that refers to
-        //:   an abbreviation string index that is out of bound, and verify
-        //:   that 'read' and 'readRaw' return a non-zero value.
+        // 1. Use a table driven approach to create a string stream with
+        //    boundary values of a local time type, and verify that
+        //    `read` and `readRaw` successfully load data into a
+        //    `baltzo::Zoneinfo`.
+        //
+        // 2. Create a string stream with duplicated local time types,
+        //    and verify that `read` and `readRaw` successfully load data into
+        //    a `baltzo::Zoneinfo`.
+        //
+        // 3. Create a string stream with UTC offset greater than 24 hours, and
+        //    verify that `read` and `readRaw` return a non-zero value.
+        //
+        // 4. Create a string stream with local-time type that refers to
+        //    an abbreviation string index that is out of bound, and verify
+        //    that `read` and `readRaw` return a non-zero value.
         //
         // Testing:
-        //   CONCERN: 'read' properly processes local time types data
+        //   CONCERN: `read` properly processes local time types data
         // --------------------------------------------------------------------
         if (verbose) cout << endl
                           << "TESTING LOCAL TIME TYPES" << endl
@@ -5174,48 +5185,48 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'read' FOR ABBREVIATION STRINGS
+        // TESTING `read` FOR ABBREVIATION STRINGS
         //
         // Concerns:
-        //: 1 'read' and 'readRaw' successfully retrieve the version '\0'
-        //:   abbreviation strings.
-        //:
-        //: 2 'read' and 'readRaw' successfully retrieve the version '2'
-        //:   abbreviation strings.
-        //:
-        //: 3 'read' and 'readRaw' successfully retrieve the version '\0'
-        //:   abbreviation strings when the abbreviation string indexes in the
-        //:   local time descriptors are not in order.
-        //:
-        //: 4 'read' and 'readRaw' successfully retrieve the version '2'
-        //:   abbreviation strings when the abbreviation string indexes in the
-        //:   local time descriptors are not in order.
-        //:
-        //: 5 'read' and 'readRaw' fail when the version '\0' abbreviation
-        //:   string is not null terminated.
-        //:
-        //: 6 'read' and 'readRaw' fail when the version '2' abbreviation
-        //:   string is not null terminated.
+        // 1. `read` and `readRaw` successfully retrieve the version '\0'
+        //    abbreviation strings.
+        //
+        // 2. `read` and `readRaw` successfully retrieve the version '2'
+        //    abbreviation strings.
+        //
+        // 3. `read` and `readRaw` successfully retrieve the version '\0'
+        //    abbreviation strings when the abbreviation string indexes in the
+        //    local time descriptors are not in order.
+        //
+        // 4. `read` and `readRaw` successfully retrieve the version '2'
+        //    abbreviation strings when the abbreviation string indexes in the
+        //    local time descriptors are not in order.
+        //
+        // 5. `read` and `readRaw` fail when the version '\0' abbreviation
+        //    string is not null terminated.
+        //
+        // 6. `read` and `readRaw` fail when the version '2' abbreviation
+        //    string is not null terminated.
         //
         // Plan:
-        //: 1 Use a table-based approach and test that local time descriptors
-        //:   retrieved using the 'read' and 'readRaw' functions have the
-        //:   expected abbreviation string.
-        //:
-        //: 2 Use a table-based approach and create binary data where the
-        //:   abbreviation string index of the local time descriptors are in
-        //:   reversed order.  Test that descriptors retrieved using the 'read'
-        //:   and 'readRaw' functions have the expected abbreviation string.
-        //:
-        //: 3 Create a string stream with abbreviation string where the last
-        //:   character of the abbreviation string buffer is not null, and
-        //:   verify that 'read' and 'readRaw' return  a non-zero value.
+        // 1. Use a table-based approach and test that local time descriptors
+        //    retrieved using the `read` and `readRaw` functions have the
+        //    expected abbreviation string.
+        //
+        // 2. Use a table-based approach and create binary data where the
+        //    abbreviation string index of the local time descriptors are in
+        //    reversed order.  Test that descriptors retrieved using the `read`
+        //    and `readRaw` functions have the expected abbreviation string.
+        //
+        // 3. Create a string stream with abbreviation string where the last
+        //    character of the abbreviation string buffer is not null, and
+        //    verify that `read` and `readRaw` return  a non-zero value.
         //
         // Testing:
-        //   CONCERN: 'read' properly processes the abbreviation strings
+        //   CONCERN: `read` properly processes the abbreviation strings
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'read' FOR ABBREVIATION STRINGS"
+                          << "TESTING `read` FOR ABBREVIATION STRINGS"
                           << "=======================================" << endl;
 
         const char AB_DATA[] = "A\0BC\0DEF\0";
@@ -5498,37 +5509,37 @@ int main(int argc, char *argv[])
         // TESTING APPARATUS
         //
         // Concerns:
-        //: 1 A default constructed 'ZoneinfoData' object has the expected
-        //:   header values and size.
-        //:
-        //: 2 A value constructed version '\0' 'ZoneinfoData' object has the
-        //:   expected header values and size.
-        //:
-        //: 2 A value constructed version '2' 'ZoneinfoData' object has the
-        //:   expected header values and size.
-        //:
-        //: 3 'ZoneinfoData' creates a buffer with expected version '\0' data.
-        //:
-        //: 3 'ZoneinfoData' creates a buffer with expected version '2' data.
-        //:
-        //: 4 'verifyTimeZone' correctly reports whether a 'baltzo::Zoneinfo'
-        //:   matches the version '\0' Zoneinfo binary data.
-        //:
-        //: 4 'verifyTimeZoneVersion2Or3Format' correctly reports whether a
-        //:   'baltzo::Zoneinfo' matches the version '2' Zoneinfo binary data.
+        // 1. A default constructed `ZoneinfoData` object has the expected
+        //    header values and size.
+        //
+        // 2. A value constructed version '\0' `ZoneinfoData` object has the
+        //    expected header values and size.
+        //
+        // 2. A value constructed version '2' `ZoneinfoData` object has the
+        //    expected header values and size.
+        //
+        // 3. `ZoneinfoData` creates a buffer with expected version '\0' data.
+        //
+        // 3. `ZoneinfoData` creates a buffer with expected version '2' data.
+        //
+        // 4. `verifyTimeZone` correctly reports whether a `baltzo::Zoneinfo`
+        //    matches the version '\0' Zoneinfo binary data.
+        //
+        // 4. `verifyTimeZoneVersion2Or3Format` correctly reports whether a
+        //    `baltzo::Zoneinfo` matches the version '2' Zoneinfo binary data.
         //
         // Plan:
-        //: 1 Test that a default constructed 'ZoneinfoData' object has the
-        //:   expected header values and size
-        //:
-        //: 2 Use a table-based approach and test that a value constructed
-        //:   'ZoneinfoData' object has the expected header values and size.
-        //:
-        //: 3 Test that the buffer in 'ZoneinfoData' object is created as
-        //:   expected.
-        //:
-        //: 4 Use an ad hoc approach to test various edge cases of the
-        //:   function.
+        // 1. Test that a default constructed `ZoneinfoData` object has the
+        //    expected header values and size
+        //
+        // 2. Use a table-based approach and test that a value constructed
+        //    `ZoneinfoData` object has the expected header values and size.
+        //
+        // 3. Test that the buffer in `ZoneinfoData` object is created as
+        //    expected.
+        //
+        // 4. Use an ad hoc approach to test various edge cases of the
+        //    function.
         //
         // Testing:
         //   CONCERN: Test apparatus functions as documented.
@@ -5538,7 +5549,7 @@ int main(int argc, char *argv[])
                           << "=====================" << endl;
 
         if (verbose)
-                  cout << "\nTesting default values of 'ZoneinfoData'" << endl;
+                  cout << "\nTesting default values of `ZoneinfoData`" << endl;
         {
             ZoneinfoData ZI;
             BinHeader HD;
@@ -5853,12 +5864,12 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'verifyTimeZone'." << endl;
+        if (verbose) cout << "\nTesting `verifyTimeZone`." << endl;
         {
             testVerifyTimeZone(verbose);
         }
 
-        if (verbose) cout << "\nTesting 'verifyTimeZoneVersion2Or3Format'."
+        if (verbose) cout << "\nTesting `verifyTimeZoneVersion2Or3Format`."
                                                                        << endl;
         {
             testVerifyTimeZoneVersion2Or3Format(verbose);
@@ -5870,12 +5881,12 @@ int main(int argc, char *argv[])
         //   This case exercises (but doesn't fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Call 'read' on real-life data, 'Pacific/Chatham', and verify that
-        //:   read successfully load data into a 'baltzo::Zoneinfo'.
+        // 1. Call `read` on real-life data, `Pacific/Chatham`, and verify that
+        //    read successfully load data into a `baltzo::Zoneinfo`.
         //
         // Testing:
         //   BREATHING TEST
@@ -5963,8 +5974,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // DUMP RAW TIMEZONE FILE
         //   This loads a TZ Database binary file whose name is provided on
-        //   the console, and dumps its contents to stdout.  Unlike case '-1',
-        //   binary file reading occurs in 'raw' format, so no BDE adjustments
+        //   the console, and dumps its contents to stdout.  Unlike case `-1`,
+        //   binary file reading occurs in `raw` format, so no BDE adjustments
         //   (e.g. BDE sentinel transition) are applied to the result.
         //
         // Plan:

@@ -60,8 +60,8 @@ void aSsErT(bool condition, const char *message, int line)
 //                  USAGE EXAMPLE HELPER FUNCTIONS
 //-----------------------------------------------------------------------------
 
+/// Return 1
 int newFunction()
-    // Return 1
 {
     return 1;
 }
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Use the exact text of the usage example from the user
-        //   documentation, but change uses of 'assert' to 'ASSERT'.
+        //   documentation, but change uses of `assert` to `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -106,19 +106,19 @@ int main(int argc, char *argv[])
 // interface change.  For example, if a function changed names (a rare
 // occurrence, but disruptive when it does happen), disruption can be minimized
 // by conditionally calling the old or new function name using conditional
-// compilation.  The '#if' directive compares 'BBL_VERSION' to a specified
-// major, minor, and patch version 4 composed using 'BSL_MAKE_VERSION':
-//..
+// compilation.  The `#if` directive compares `BBL_VERSION` to a specified
+// major, minor, and patch version 4 composed using `BSL_MAKE_VERSION`:
+// ```
     #if BBL_VERSION > BSL_MAKE_VERSION(1, 2)
-        // Call 'newFunction' for BBL version 1.2 and later:
+        // Call `newFunction` for BBL version 1.2 and later:
         int result = newFunction();
     #else
-        // Call 'oldFunction' for BBL older than version 1.2:
+        // Call `oldFunction` for BBL older than version 1.2:
         int result = oldFunction();
     #endif
 
         ASSERT(result);
-//..
+// ```
       } break;
 
       case 1: {

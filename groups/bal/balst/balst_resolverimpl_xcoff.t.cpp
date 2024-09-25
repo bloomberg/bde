@@ -143,8 +143,8 @@ static TYPE abs(TYPE num)
 
 static
 const void *addFixedOffset(bsls::Types::UintPtr funcAddress)
-    // Given a function pointer stored in a 'UintPtr', add an offset to the
-    // pointer and return it as a 'const void *'.
+    // Given a function pointer stored in a `UintPtr`, add an offset to the
+    // pointer and return it as a `const void *`.
 {
 #ifdef BSLS_PLATFORM_OS_AIX
     // when you take '&' of a function on AIX, you get a pointer to a record
@@ -160,8 +160,8 @@ const void *addFixedOffset(bsls::Types::UintPtr funcAddress)
 
 static
 bool safeCmp(const char *a, const char *b, int len = -1)
-    // Do '!strcmp', returning 'true' if the specified 'a' and 'b' point to
-    // identical strings.  Return 'false' if either one is null.
+    // Do `!strcmp`, returning `true` if the specified `a` and `b` point to
+    // identical strings.  Return `false` if either one is null.
 {
     if (!a || !b) {
         return false;                                                 // RETURN
@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
@@ -234,14 +234,14 @@ int main(int argc, char *argv[])
         // TESTING: Potential Memory Leak (see DRQS 42134199)
         //
         // Concerns:
-        //: 1 That heap memory allocated when resolving symbols is reclaimed.
+        // 1. That heap memory allocated when resolving symbols is reclaimed.
         //
         // Plan:
-        //: 1 Resolve symbols repeatedly and observe, using 'sbrk', that the
-        //:   stack top remains constant (note that the stack top will grow
-        //:   for the first several iterations due to memory fragmentation,
-        //:   but should eventually settle down into 100% of memory being
-        //:   reclaimed.
+        // 1. Resolve symbols repeatedly and observe, using `sbrk`, that the
+        //    stack top remains constant (note that the stack top will grow
+        //    for the first several iterations due to memory fragmentation,
+        //    but should eventually settle down into 100% of memory being
+        //    reclaimed.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Memory Leak Test\n"
@@ -310,7 +310,7 @@ int main(int argc, char *argv[])
         //
         // Concerns: Exercise balst::StackTrace basic functionality.
         //
-        // Plan: Call 'printStackTrace()' to print a stack trace.
+        // Plan: Call `printStackTrace()` to print a stack trace.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "balst::ResolverImpl<Xcoff> breathing test\n"
@@ -339,7 +339,7 @@ int main(int argc, char *argv[])
             // The optizer is just UNBELIEVABLY clever.  If you declare a
             // routine inline, it is VERY aggressive about figuring out a way
             // to inline it, even if you call it through a pointer.
-            // 'Obj::testFunc' is an inline routine, but we force it out of
+            // `Obj::testFunc` is an inline routine, but we force it out of
             // line by taking a function ptr to it.
 
             UintPtr testFuncPtr = (UintPtr) &Obj::testFunc;
@@ -356,7 +356,7 @@ int main(int argc, char *argv[])
 
             frames[3].setAddress(addFixedOffset((UintPtr) &Obj::resolve));
 
-            // make sure 'qsort' is loaded
+            // make sure `qsort` is loaded
 
             int ints[] = { 0, 1 };
             bsl::qsort(&ints, 2, sizeof(ints[0]), &phonyCompare);
@@ -393,8 +393,8 @@ int main(int argc, char *argv[])
                     line = frames[i].lineNumber();
                     LOOP2_ASSERT(i, line, line > 0);
                     if (2 == i) {
-                        // check that the line number we got within 'testFunc'
-                        // is near the '__LINE__' we took within that routine.
+                        // check that the line number we got within `testFunc`
+                        // is near the `__LINE__` we took within that routine.
 
                         LOOP2_ASSERT(line, testFuncLine,
                                                 abs(line - testFuncLine) < 35);

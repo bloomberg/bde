@@ -30,10 +30,10 @@ using namespace bsl;
 // types.
 //
 // Global Concerns:
-//: o No methods or free operators allocate memory.
+//  - No methods or free operators allocate memory.
 //
 // Global Assumptions:
-//: o All CLASS METHODS and the '<<' free operator are 'const' thread-safe.
+//  - All CLASS METHODS and the `<<` free operator are `const` thread-safe.
 // ----------------------------------------------------------------------------
 // TYPES
 // [ 1] enum Enum { ... };
@@ -132,14 +132,14 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -155,77 +155,77 @@ int main(int argc, char *argv[])
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -
 // The following snippets of code provide a simple illustration of
-// 'ball::UserFieldType' usage.
+// `ball::UserFieldType` usage.
 //
-// First, we create a variable 'value' of type 'ball::UserFieldType::Enum' and
-// initialize it to the value 'ball::UserFieldType::e_STRING':
-//..
+// First, we create a variable `value` of type `ball::UserFieldType::Enum` and
+// initialize it to the value `ball::UserFieldType::e_STRING`:
+// ```
     ball::UserFieldType::Enum value = ball::UserFieldType::e_STRING;
-//..
+// ```
 // Next, we store a pointer to its ASCII representation in a variable
-// 'asciiValue' of type 'const char *':
-//..
+// `asciiValue` of type `const char *`:
+// ```
     const char *asciiValue = ball::UserFieldType::toAscii(value);
     ASSERT(0 == bsl::strcmp(asciiValue, "STRING"));
-//..
-// Finally, we print the value to 'bsl::cout':
-//..
+// ```
+// Finally, we print the value to `bsl::cout`:
+// ```
 if (veryVerbose)
     bsl::cout << value << bsl::endl;
-//..
-// This statement produces the following output on 'stdout':
-//..
+// ```
+// This statement produces the following output on `stdout`:
+// ```
 //  STRING
-//..
+// ```
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING OUTPUT ('<<') OPERATOR
+        // TESTING OUTPUT (`<<`) OPERATOR
         //
         // Concerns:
-        //: 1 The '<<' operator writes the output to the specified stream.
-        //:
-        //: 2 The '<<' operator writes the string representation of each
-        //:   enumerator in the intended format.
-        //:
-        //: 3 The '<<' operator writes a distinguished string when passed an
-        //:   out-of-band value.
-        //:
-        //: 4 The output produced by 'stream << value' is the same as that
-        //:   produced by 'Obj::print(stream, value, 0, -1)'.
-        //:
-        //: 5 There is no output when the stream is invalid.
-        //:
-        //: 6 The '<<' operator has the expected signature.
-        //:
-        //: 7 The '<<' operator returns the supplied 'ostream'.
+        // 1. The `<<` operator writes the output to the specified stream.
+        //
+        // 2. The `<<` operator writes the string representation of each
+        //    enumerator in the intended format.
+        //
+        // 3. The `<<` operator writes a distinguished string when passed an
+        //    out-of-band value.
+        //
+        // 4. The output produced by `stream << value` is the same as that
+        //    produced by `Obj::print(stream, value, 0, -1)`.
+        //
+        // 5. There is no output when the stream is invalid.
+        //
+        // 6. The `<<` operator has the expected signature.
+        //
+        // 7. The `<<` operator returns the supplied `ostream`.
         //
         // Plan:
-        //: 1 Verify that the '<<' operator produces the expected results for
-        //:   each enumerator.  (C-1..2)
-        //:
-        //: 2 Verify that the '<<' operator writes a distinguished string when
-        //:   passed an out-of-band value.  (C-3)
-        //:
-        //: 3 Verify that 'stream << value' writes the same output as
-        //:   'Obj::print(stream, value, 0, -1)'.  (C-4)
-        //:
-        //: 4 Verify that the address of the returned 'stream' is the same as
-        //:   the supplied 'stream'.  (C-7)
-        //:
-        //: 5 Verify that there is no output when the stream is invalid.  (C-5)
-        //:
-        //: 6 Take the address of the '<<' (free) operator and use the result
-        //:   to initialize a variable of the appropriate type.  (C-6)
+        // 1. Verify that the `<<` operator produces the expected results for
+        //    each enumerator.  (C-1..2)
+        //
+        // 2. Verify that the `<<` operator writes a distinguished string when
+        //    passed an out-of-band value.  (C-3)
+        //
+        // 3. Verify that `stream << value` writes the same output as
+        //    `Obj::print(stream, value, 0, -1)`.  (C-4)
+        //
+        // 4. Verify that the address of the returned `stream` is the same as
+        //    the supplied `stream`.  (C-7)
+        //
+        // 5. Verify that there is no output when the stream is invalid.  (C-5)
+        //
+        // 6. Take the address of the `<<` (free) operator and use the result
+        //    to initialize a variable of the appropriate type.  (C-6)
         //
         // Testing:
         //   operator<<(ostream& s, UserFieldType::Enum val);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING OUTPUT ('<<') OPERATOR" << endl
+        if (verbose) cout << endl << "TESTING OUTPUT (`<<`) OPERATOR" << endl
                                   << "==============================" << endl;
 
-// suppress outside 'enum' range warnings
+// suppress outside `enum` range warnings
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push
@@ -261,7 +261,7 @@ if (veryVerbose)
 
         const int   NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout << "\nTesting '<<' operator." << endl;
+        if (verbose) cout << "\nTesting `<<` operator." << endl;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int    LINE  = DATA[ti].d_lineNum;
@@ -309,7 +309,7 @@ if (veryVerbose)
             ASSERTV(LINE, ti, os.str(), os.str().empty());
         }
 
-        if (verbose) cout << "\nVerify '<<' operator signature." << endl;
+        if (verbose) cout << "\nVerify `<<` operator signature." << endl;
 
         {
             using namespace ball;
@@ -323,50 +323,50 @@ if (veryVerbose)
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'print'
+        // TESTING `print`
         //
         // Concerns:
-        //: 1 The 'print' method writes the output to the specified stream.
-        //:
-        //: 2 The 'print' method writes the string representation of each
-        //:   enumerator in the intended format taking the 'level' and
-        //:   'spacesPerLevel' parameter values into account.
-        //:
-        //: 3 The optional 'level' and 'spacesPerLevel' parameters have the
-        //:   correct default values.
-        //:
-        //: 4 The 'print' method writes a distinguished string when passed an
-        //:   out-of-band value.
-        //:
-        //: 5 There is no output when the stream is invalid.
-        //:
-        //: 6 The 'print' method has the expected signature.
-        //:
-        //: 7 The 'print' method returns the supplied 'ostream'.
+        // 1. The `print` method writes the output to the specified stream.
+        //
+        // 2. The `print` method writes the string representation of each
+        //    enumerator in the intended format taking the `level` and
+        //    `spacesPerLevel` parameter values into account.
+        //
+        // 3. The optional `level` and `spacesPerLevel` parameters have the
+        //    correct default values.
+        //
+        // 4. The `print` method writes a distinguished string when passed an
+        //    out-of-band value.
+        //
+        // 5. There is no output when the stream is invalid.
+        //
+        // 6. The `print` method has the expected signature.
+        //
+        // 7. The `print` method returns the supplied `ostream`.
         //
         // Plan:
-        //: 1 Verify that the 'print' method produces the expected results for
-        //:   each enumerator.  (C-1..3)
-        //:
-        //: 2 Verify that the 'print' method writes a distinguished string when
-        //:   passed an out-of-band value.  (C-4)
-        //:
-        //: 3 Verify that the address of the returned 'stream' is the same as
-        //:   the supplied 'stream'.  (C-7)
-        //:
-        //: 4 Verify that there is no output when the stream is invalid.  (C-5)
-        //:
-        //: 5 Take the address of the 'print' (class) method and use the
-        //:   result to initialize a variable of the appropriate type.  (C-6)
+        // 1. Verify that the `print` method produces the expected results for
+        //    each enumerator.  (C-1..3)
+        //
+        // 2. Verify that the `print` method writes a distinguished string when
+        //    passed an out-of-band value.  (C-4)
+        //
+        // 3. Verify that the address of the returned `stream` is the same as
+        //    the supplied `stream`.  (C-7)
+        //
+        // 4. Verify that there is no output when the stream is invalid.  (C-5)
+        //
+        // 5. Take the address of the `print` (class) method and use the
+        //    result to initialize a variable of the appropriate type.  (C-6)
         //
         // Testing:
         //   ostream& print(ostream& s, Enum val, int level = 0, int sPL = 4);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING 'print'" << endl
+        if (verbose) cout << endl << "TESTING `print`" << endl
                                   << "===============" << endl;
 
-// suppress outside 'enum' range warnings
+// suppress outside `enum` range warnings
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push
@@ -416,7 +416,7 @@ if (veryVerbose)
 
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout << "\nTesting 'print'." << endl;
+        if (verbose) cout << "\nTesting `print`." << endl;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int    LINE  = DATA[ti].d_lineNum;
@@ -438,7 +438,7 @@ if (veryVerbose)
 
             if (0 == LEVEL && 4 == SPL) {
                 if (veryVerbose)
-                    cout << "\tRepeat for 'print' default arguments." << endl;
+                    cout << "\tRepeat for `print` default arguments." << endl;
 
                 bslma::TestAllocator scratch("scratch", veryVeryVerbose);
                 ostringstream os(&scratch);
@@ -469,7 +469,7 @@ if (veryVerbose)
             ASSERTV(LINE, ti, os.str(), os.str().empty());
         }
 
-        if (verbose) cout << "\nVerify 'print' signature." << endl;
+        if (verbose) cout << "\nVerify `print` signature." << endl;
 
         {
             typedef bsl::ostream& (*FuncPtr)(bsl::ostream&, Enum, int, int);
@@ -481,46 +481,46 @@ if (veryVerbose)
       } break;
       case 1: {
         // -------------------------------------------------------------------
-        // TESTING 'enum' AND 'toAscii'
+        // TESTING `enum` AND `toAscii`
         //
         // Concerns:
-        //: 1 The enumerator values are sequential, starting from 1.
-        //:
-        //: 2 The 'toAscii' method returns the expected string representation
-        //:   for each enumerator.
-        //:
-        //: 3 The 'toAscii' method returns a distinguished string when passed
-        //:   an out-of-band value.
-        //:
-        //: 4 The string returned by 'toAscii' is non-modifiable.
-        //:
-        //: 5 The 'toAscii' method has the expected signature.
-        //:
+        // 1. The enumerator values are sequential, starting from 1.
+        //
+        // 2. The `toAscii` method returns the expected string representation
+        //    for each enumerator.
+        //
+        // 3. The `toAscii` method returns a distinguished string when passed
+        //    an out-of-band value.
+        //
+        // 4. The string returned by `toAscii` is non-modifiable.
+        //
+        // 5. The `toAscii` method has the expected signature.
+        //
         //
         // Plan:
-        //: 1 Verify that the enumerator values are sequential, starting from
-        //:   1.  (C-1)
-        //:
-        //: 2 Verify that the 'toAscii' method returns the expected string
-        //:   representation for each enumerator.  (C-2)
-        //:
-        //: 3 Verify that the 'toAscii' method returns a distinguished string
-        //:   when passed an out-of-band value.  (C-3)
-        //:
-        //: 4 Take the address of the 'toAscii' (class) method and use the
-        //:   result to initialize a variable of the appropriate type.
-        //:   (C-4..5)
-        //:
+        // 1. Verify that the enumerator values are sequential, starting from
+        //    1.  (C-1)
+        //
+        // 2. Verify that the `toAscii` method returns the expected string
+        //    representation for each enumerator.  (C-2)
+        //
+        // 3. Verify that the `toAscii` method returns a distinguished string
+        //    when passed an out-of-band value.  (C-3)
+        //
+        // 4. Take the address of the `toAscii` (class) method and use the
+        //    result to initialize a variable of the appropriate type.
+        //    (C-4..5)
+        //
         //
         // Testing:
         //   enum Enum { ... };
         //   const char *toAscii(UserFieldType::Enum val);
         // -------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING 'enum' AND 'toAscii'" << endl
+        if (verbose) cout << endl << "TESTING `enum` AND `toAscii`" << endl
                                   << "============================" << endl;
 
-// suppress outside 'enum' range warnings
+// suppress outside `enum` range warnings
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push
@@ -566,7 +566,7 @@ if (veryVerbose)
             ASSERTV(ti, VALUE, ti == VALUE);
         }
 
-        if (verbose) cout << "\nTesting 'toAscii'." << endl;
+        if (verbose) cout << "\nTesting `toAscii`." << endl;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE  = DATA[ti].d_lineNum;
@@ -581,7 +581,7 @@ if (veryVerbose)
             ASSERTV(LINE, ti,           0 == strcmp(EXP, result));
         }
 
-        if (verbose) cout << "\nVerify 'toAscii' signature." << endl;
+        if (verbose) cout << "\nVerify `toAscii` signature." << endl;
 
         {
             typedef const char *(*FuncPtr)(Enum);

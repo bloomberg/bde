@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
 
         int buckets[64];
 
-// First, we hash on the values of i in the range '[ 0, 1 << 15 )':
+// First, we hash on the values of i in the range `[ 0, 1 << 15 )`:
 
         {
             memset(buckets, 0, sizeof(buckets));
@@ -202,8 +202,8 @@ int main(int argc, char *argv[])
             }
         }
 
-// Then, we will hash on the values of '4 * i' for i in the range
-// '[ 0, 1 << 15 )'.  This is interesting because pointers will often be 4-byte
+// Then, we will hash on the values of `4 * i` for i in the range
+// `[ 0, 1 << 15 )`.  This is interesting because pointers will often be 4-byte
 // aligned and have the 2 low-order bits always zero, so this will be a
 // simulation of that:
 
@@ -366,16 +366,16 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
-        //:   Verify that small changes to the input value result in many
-        //:   bits being toggled in the output.  Note that the hash function
-        //:   currently only sets the low-order 32 bits of the result.  When
-        //:   this is fixed the asserts should be changed to demand that at
-        //:   least a quarter of the bits in a 'size_t' have changed.
+        // 1. Perform and ad-hoc test of the primary modifiers and accessors.
+        //    Verify that small changes to the input value result in many
+        //    bits being toggled in the output.  Note that the hash function
+        //    currently only sets the low-order 32 bits of the result.  When
+        //    this is fixed the asserts should be changed to demand that at
+        //    least a quarter of the bits in a `size_t` have changed.
         //
         // Testing:
         //   BREATHING TEST
@@ -455,7 +455,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Perform the test of case 2 inside a loop and report the timing
-        //   using a 'bdes_stopwatch'.
+        //   using a `bdes_stopwatch`.
         //
         // Testing:
         //    HashUtil::computeHash(char);

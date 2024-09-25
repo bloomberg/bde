@@ -9,7 +9,7 @@
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>
-#include <stdlib.h>  // 'atoi'
+#include <stdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 
@@ -18,8 +18,8 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test mostly just imports 'std' names to the 'bsl'.  The
-// only exception at the moment is the 'defaultfloat' manipulator.  It has been
+// The component under test mostly just imports `std` names to the `bsl`.  The
+// only exception at the moment is the `defaultfloat` manipulator.  It has been
 // available only since C++11 but we provide it as an extension to C++03 mode
 // as well.
 // ----------------------------------------------------------------------------
@@ -124,88 +124,88 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'bsl::defaultfloat'
+        // TESTING `bsl::defaultfloat`
         //
         // Concerns:
-        //: 1 Insertion of the 'bsl::defaultfloat' manipulator to ostream
-        //:   ('<<') unsets the 'ios_base::scientific' & 'ios_base::scientific'
-        //:   flags.
-        //:
-        //: 2 Extraction of the 'bsl::defaultfloat' manipulator from istream
-        //:   ('>>') unsets the 'ios_base::scientific' & 'ios_base::scientific'
-        //:   flags.
+        // 1. Insertion of the `bsl::defaultfloat` manipulator to ostream
+        //    (`<<`) unsets the `ios_base::scientific` & `ios_base::scientific`
+        //    flags.
+        //
+        // 2. Extraction of the `bsl::defaultfloat` manipulator from istream
+        //    (`>>`) unsets the `ios_base::scientific` & `ios_base::scientific`
+        //    flags.
         //
         // Plan:
-        //: 1 Ensure that 'floatfield == (scientific | fixed)'.
-        //:
-        //: 2 Create a default-constructed instance of any 'ostream' subclass
-        //:   and verify that the 'floatfield' is unset.
-        //:
-        //: 3 Apply the 'scientific' manipulator and verify that the
-        //:   'floatfield' flag is set (part of it).
-        //:
-        //: 4 Apply the 'defaultfloat' manipulator and verify that the
-        //:   'floatfield' flag is unset.
-        //:
-        //: 5 Apply the 'fixed' manipulator and verify that the 'floatfield'
-        //:   flag is set (part of it).
-        //:
-        //: 6 Apply the 'defaultfloat' manipulator and verify that the
-        //:   'floatfield' flag is unset.
-        //:
-        //: 7 Repeat steps 2-6 for any 'istream' subclass.
+        // 1. Ensure that `floatfield == (scientific | fixed)`.
+        //
+        // 2. Create a default-constructed instance of any `ostream` subclass
+        //    and verify that the `floatfield` is unset.
+        //
+        // 3. Apply the `scientific` manipulator and verify that the
+        //    `floatfield` flag is set (part of it).
+        //
+        // 4. Apply the `defaultfloat` manipulator and verify that the
+        //    `floatfield` flag is unset.
+        //
+        // 5. Apply the `fixed` manipulator and verify that the `floatfield`
+        //    flag is set (part of it).
+        //
+        // 6. Apply the `defaultfloat` manipulator and verify that the
+        //    `floatfield` flag is unset.
+        //
+        // 7. Repeat steps 2-6 for any `istream` subclass.
         //
         // Testing:
         //   ios_base& defaultfloat(ios_base& ios);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'bsl::defaultfloat'"
+        if (verbose) printf("\nTESTING `bsl::defaultfloat`"
                             "\n===========================\n");
 
         using bsl::ios_base;
         ASSERT(ios_base::floatfield ==
               (ios_base::scientific | ios_base::fixed));
 
-        // Verify the insertion to 'ostream'
+        // Verify the insertion to `ostream`
         {
             bsl::ostringstream os;
             ASSERT(!(os.flags() & ios_base::floatfield));
 
-            // Set 'ios_base::scientific' flag
+            // Set `ios_base::scientific` flag
             os << bsl::scientific;
             ASSERT(os.flags() & ios_base::floatfield);
 
-            // Clear 'ios_base::scientific' flag
+            // Clear `ios_base::scientific` flag
             os << bsl::defaultfloat;
             ASSERT(!(os.flags() & ios_base::floatfield));
 
-            // Set 'ios_base::fixed' flag
+            // Set `ios_base::fixed` flag
             os << bsl::fixed;
             ASSERT(os.flags() & ios_base::floatfield);
 
-            // Clear 'ios_base::fixed' flag
+            // Clear `ios_base::fixed` flag
             os << bsl::defaultfloat;
             ASSERT(!(os.flags() & ios_base::floatfield));
         }
 
-        // Verify the extraction from 'istream'
+        // Verify the extraction from `istream`
         {
             bsl::istringstream is;
             ASSERT(!(is.flags() & ios_base::floatfield));
 
-            // Set 'ios_base::scientific' flag
+            // Set `ios_base::scientific` flag
             is >> bsl::scientific;
             ASSERT(is.flags() & ios_base::floatfield);
 
-            // Clear 'ios_base::scientific' flag
+            // Clear `ios_base::scientific` flag
             is >> bsl::defaultfloat;
             ASSERT(!(is.flags() & ios_base::floatfield));
 
-            // Set 'ios_base::fixed' flag
+            // Set `ios_base::fixed` flag
             is >> bsl::fixed;
             ASSERT(is.flags() & ios_base::floatfield);
 
-            // Clear 'ios_base::fixed' flag
+            // Clear `ios_base::fixed` flag
             is >> bsl::defaultfloat;
             ASSERT(!(is.flags() & ios_base::floatfield));
         }

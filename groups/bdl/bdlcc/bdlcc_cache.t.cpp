@@ -36,16 +36,16 @@
 #include <bsls_atomic.h>
 #include <bsls_review.h>
 #include <bsls_nameof.h>
-#include <bsls_timeutil.h>  // 'CachePerformance'
-#include <bsls_types.h>     // 'BloombergLP::bsls::Types::Int64'
+#include <bsls_timeutil.h>  // `CachePerformance`
+#include <bsls_types.h>     // `BloombergLP::bsls::Types::Int64`
 
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
 #include <bsl_string.h>
 #include <bsl_iomanip.h>
-#include <bsl_cstdlib.h>    // 'atoi', 'rand'
-#include <bsl_cmath.h>      // 'sqrt'
-#include <bsl_cstdio.h>     // 'sprintf'
+#include <bsl_cstdlib.h>    // `atoi`, `rand`
+#include <bsl_cmath.h>      // `sqrt`
+#include <bsl_cstdio.h>     // `sprintf`
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -55,21 +55,21 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test defines a mechanism, 'bdlcc::Cache', that provides
+// The component under test defines a mechanism, `bdlcc::Cache`, that provides
 // an in-memory key-value cache with a configurable eviction policy.  Because
-// of the need to provide a thread-safe interface, 'bdlcc::Cache' is not a
+// of the need to provide a thread-safe interface, `bdlcc::Cache` is not a
 // value-semantic type; therefore, it does not provide a copy constructor, the
 // copy assignment operator, nor the equality comparison operators.
 //
-// Due to the similarity of 'bdlcc::Cache' with other standard containers, we
-// will utilize some of the test cases strategy for VST to which 'bdlcc::Cache'
+// Due to the similarity of `bdlcc::Cache` with other standard containers, we
+// will utilize some of the test cases strategy for VST to which `bdlcc::Cache`
 // applies.  Specifically, we will define the primary manipulators and the
 // basic accessors, and we will substitute the equality-comparison operator
 // with a custom function defined in this test driver.
 //
 // Two relatively unique aspects of this test driver are the need to ensure
 // template type correctness and thread safety.  Since almost all of the
-// template functionality of 'bdlcc::Cache' is delegated to implementation
+// template functionality of `bdlcc::Cache` is delegated to implementation
 // types, only the "pass-through" of this functionality needs to be tested.  As
 // such, we will test the template with a few common types, including a type
 // that allocates memory.  Thread-safety is achieved using a synchronization
@@ -77,23 +77,23 @@ using namespace bsl;
 // is needed.
 //
 // Primary Manipulators:
-//: o 'insert'
-//: o 'insertBulk'
-//: o 'popFront'
-//: o 'erase'
-//: o 'eraseBulk'
-//: o 'clear'
-//: o 'tryGetValue'
-//: o 'setPostEvictionCallback'
+//  - `insert`
+//  - `insertBulk`
+//  - `popFront`
+//  - `erase`
+//  - `eraseBulk`
+//  - `clear`
+//  - `tryGetValue`
+//  - `setPostEvictionCallback`
 //
 // Basic Accessors:
-//: o 'equalFunction'
-//: o 'evictionPolicy'
-//: o 'hashFunction'
-//: o 'highWatermark'
-//: o 'lowWatermark'
-//: o 'size'
-//: o 'visit'
+//  - `equalFunction`
+//  - `evictionPolicy`
+//  - `hashFunction`
+//  - `highWatermark`
+//  - `lowWatermark`
+//  - `size`
+//  - `visit`
 //
 // Global Concerns:
 // ----------------------------------------------------------------------------
@@ -132,7 +132,7 @@ using namespace bsl;
 // [15] THREAD SAFETY
 // [16] LOCKING TEST UTIL
 // [17] LOCKING
-// [19] CONCERN: USE 'allocator_arg' CONSTRUCTORS
+// [19] CONCERN: USE `allocator_arg` CONSTRUCTORS
 // [20] USAGE EXAMPLE
 // [-1] INSERT PERFORMANCE
 // [-2] INSERT BULK PERFORMANCE
@@ -230,29 +230,29 @@ bslma::TestAllocator talloc("ue2", veryVeryVeryVerbose);
 void example1()
 {
     // This examples shows some basic usage of the cache.  First, we define a
-    // custom post-eviction callback function, 'myPostEvictionCallback' that
+    // custom post-eviction callback function, `myPostEvictionCallback` that
     // simply prints the evicted item to stdout:
-    //..
-    //..
-    // Then, we define a 'bdlcc::Cache' object, 'myCache', that maps 'int' to
-    // 'bsl::string' and uses the LRU eviction policy:
-    //..
+    // ```
+    // ```
+    // Then, we define a `bdlcc::Cache` object, `myCache`, that maps `int` to
+    // `bsl::string` and uses the LRU eviction policy:
+    // ```
     bdlcc::Cache<int, bsl::string> myCache(bdlcc::CacheEvictionPolicy::e_LRU,
                                           6, 7, &talloc);
 
-    //..
+    // ```
     // Next, we insert 3 items into the cache and verify that the size of the
     // cache has been updated correctly:
-    //..
+    // ```
     myCache.insert(0, "Alex");
     myCache.insert(1, "John");
     myCache.insert(2, "Rob");
     ASSERT(myCache.size() == 3);
 
-    //..
+    // ```
     // Then, we bulk insert 3 additional items into the cache and verify that
     // the size of the cache has been updated correctly:
-    //..
+    // ```
     typedef bsl::pair<int, bsl::shared_ptr<bsl::string> > PairType;
     bsl::vector<PairType> insertData(&talloc);
     insertData.push_back(PairType(3,
@@ -264,37 +264,37 @@ void example1()
     myCache.insertBulk(insertData);
     ASSERT(myCache.size() == 6);
 
-    //..
+    // ```
     // Next, we retrieve the second value of the second item stored in the
-    // cache using the 'tryGetValue' method:
-    //..
+    // cache using the `tryGetValue` method:
+    // ```
     bsl::shared_ptr<bsl::string> value;
     int                          rc = myCache.tryGetValue(&value, 1);
     ASSERT(rc == 0);
     ASSERT(*value == "John");
-    //..
+    // ```
     // Then, we set the cache's post-eviction callback to
-    // 'myPostEvictionCallback':
-    //..
+    // `myPostEvictionCallback`:
+    // ```
     myCache.setPostEvictionCallback(myPostEvictionCallback);
-    //..
+    // ```
     // Now, we insert two more items into the cache to trigger the eviction
     // behavior:
-    //..
+    // ```
     myCache.insert(6, "Steve");
     ASSERT(myCache.size() == 7);
     myCache.insert(7, "Tim");
     ASSERT(myCache.size() == 6);
-    //..
+    // ```
     // Notice that after we insert "Steve", the size of the cache is at the
     // high watermark.  After the following item, "Tim", is inserted, the size
     // of the cache goes back down to 6, the low watermark.
     //
     // Finally, we observe the following output to stdout:
-    //..
+    // ```
     //  Evicted: Alex
     //  Evicted: Rob
-    //..
+    // ```
     // Notice that the item "John" was not evicted even though it was inserted
     // before "Rob", because "John" was accessed after "Rob" was inserted.
 }
@@ -310,32 +310,33 @@ bslma::TestAllocator talloc("ue2", veryVeryVeryVerbose);
 // values, so the service should pre-compute and cache them.  In addition, the
 // values are only valid for around one hour, so older items must be
 // periodically updated in the cache.  This problem can be solved using
-// 'bdlcc::Cache' with a background updater thread.
+// `bdlcc::Cache` with a background updater thread.
 //
 // First, we define the types representing the cached values and the cache
 // itself:
-//..
+// ```
 struct MyValue {
     int            d_data;       // data
     bdlt::Datetime d_timestamp;  // last update time stamp
 };
 
 typedef bdlcc::Cache<int, MyValue> MyCache;
-//..
-// Then, suppose that we have access to a function 'retrieveValue' that returns
-// a 'MyValue' object given a 'int' key:
-//..
+// ```
+// Then, suppose that we have access to a function `retrieveValue` that returns
+// a `MyValue` object given a `int` key:
+// ```
 MyValue retrieveValue(int key)
 {
     MyValue ret = {key, bdlt::CurrentTime::utc()};
     return ret;
 }
-//..
+// ```
 // Next, we define a visitor type to aggregate keys of the out-of-date values
 // in the cache:
-//..
+// ```
+
+/// Visitor to `MyCache`.
 struct MyVisitor {
-    // Visitor to 'MyCache'.
 
     bsl::vector<int>  d_oldKeys;  // list of out-of-date keys
 
@@ -343,9 +344,9 @@ struct MyVisitor {
     : d_oldKeys(&talloc)
     {}
 
+    /// Check if the specified `value` is older than 1 hour.  If so, insert
+    /// the specified `key` into `d_oldKeys`.
     bool operator() (int key, const MyValue& value)
-        // Check if the specified 'value' is older than 1 hour.  If so, insert
-        // the specified 'key' into 'd_oldKeys'.
     {
         if (veryVerbose) {
             bsl::cout << "Visiting " << key
@@ -364,10 +365,10 @@ struct MyVisitor {
         return true;
     }
 };
-//..
+// ```
 // Then, we define the background thread function to find and update the
 // out-of-date values:
-//..
+// ```
 void myWorker(MyCache *cache)
 {
     while (true) {
@@ -395,9 +396,9 @@ extern "C" void *myWorkerThread(void *v_cache)
     myWorker(cache);
     return 0;
 }
-//..
+// ```
 // Finally, we define the entry point of the application:
-//..
+// ```
 void example2()
 {
     MyCache myCache(bdlcc::CacheEvictionPolicy::e_FIFO, 100, 120, &talloc);
@@ -426,7 +427,7 @@ void example2()
     ASSERT(myCache.size() == 0);
     bslmt::ThreadUtil::join(myWorkerHandle);
 }
-//..
+// ```
 
 }  // close namespace usageExample2
 
@@ -489,13 +490,20 @@ static bsl::ostream& printCache(
     return stream;
 }
 
+/// The class is a wrapper to create a shared pointer in place, with and
+/// without an allocator.  This struct implements `SpCreateInplace`.
 template <class VALUE>
 struct InplaceUtil {
-    // The class is a wrapper to create a shared pointer in place, with and
-    // without an allocator.  This struct implements 'SpCreateInplace'.
 
   private:
     // PRIVATE MANIPULATORS
+
+    /// Create a shared_ptr object in the specified `ptr` with the specified
+    /// `v` value, using the specified `allocator`.  The last parameter
+    /// should be `true_type` if `VALUE` uses a `bslma::Allocator`, and
+    /// `false_type` if it does not.  Note that both functions are just a
+    /// way to decide, at compile time, if an allocator is to be passed to
+    /// the function.
     static void SpCreateInplaceImp(bsl::shared_ptr<VALUE> *ptr,
                                    const VALUE&            v,
                                    bslma::Allocator       *allocator,
@@ -504,20 +512,15 @@ struct InplaceUtil {
                                    const VALUE&            v,
                                    bslma::Allocator       *allocator,
                                    bsl::false_type);
-        // Create a shared_ptr object in the specified 'ptr' with the specified
-        // 'v' value, using the specified 'allocator'.  The last parameter
-        // should be 'true_type' if 'VALUE' uses a 'bslma::Allocator', and
-        // 'false_type' if it does not.  Note that both functions are just a
-        // way to decide, at compile time, if an allocator is to be passed to
-        // the function.
 
   public:
     // MANIPULATORS
+
+    /// Create a shared_ptr object in the specified `ptr` with the specified
+    /// `v` value, using the specified `allocator`.
     static void SpCreateInplace(bsl::shared_ptr<VALUE> *ptr,
                                 const VALUE&            v,
                                 bslma::Allocator       *allocator);
-        // Create a shared_ptr object in the specified 'ptr' with the specified
-        // 'v' value, using the specified 'allocator'.
 };
 
 // PRIVATE MANIPULATORS
@@ -551,8 +554,8 @@ void InplaceUtil<VALUE>::SpCreateInplace(bsl::shared_ptr<VALUE> *ptr,
 }  // close unnamed namespace
 
 namespace cacheperf {
+/// This class performs the various performance tests.
 class CachePerformance {
-    // This class performs the various performance tests.
 
   public:
     typedef bdlcc::Cache<int, bsl::string>                CacheType;
@@ -562,14 +565,15 @@ class CachePerformance {
     typedef bsl::vector<bsls::Types::Int64>               VecTimeType;
     typedef bsl::vector<int>                              VecIntType;
 
+    /// Initialization function takes a vector of `int`, and returns 0 on
+    /// success, and negative value on failure.
     typedef int (*InitFunc)(CachePerformance*, VecIntType&);
-        // Initialization function takes a vector of 'int', and returns 0 on
-        // success, and negative value on failure.
+
+    /// A run function takes a pointer to `CachePerformance`, and a vector
+    /// of `int`.  Returns a return code of 0 on success, and negative value
+    /// on failure.  The last entry in the vector of `int` is the thread
+    /// number.  Writer threads are first, readers after.
     typedef int (*RunFunc)(CachePerformance*, VecIntType&);
-        // A run function takes a pointer to 'CachePerformance', and a vector
-        // of 'int'.  Returns a return code of 0 on success, and negative value
-        // on failure.  The last entry in the vector of 'int' is the thread
-        // number.  Writer threads are first, readers after.
 
     typedef struct WorkData {
         RunFunc           d_func;
@@ -590,28 +594,32 @@ class CachePerformance {
 
     VecTimeType d_vecWTime;
     VecTimeType d_vecUTime;
+
+    // Wall time, user time and system time in nanos, collected from the
+    // various threads, and the various repetitions.  If we have 6
+    // threads, and 10 repetitions, we will have 60 entries.
     VecTimeType d_vecSTime;
-        // Wall time, user time and system time in nanos, collected from the
-        // various threads, and the various repetitions.  If we have 6
-        // threads, and 10 repetitions, we will have 60 entries.
 
     TimeType d_avgWTime;
     TimeType d_avgUTime;
+
+    // Averages of wall time, user time and system time in nanos,
+    // calculated from d_vecWTime, d_vecUTime, d_vecCTime respectively.
     TimeType d_avgSTime;
-        // Averages of wall time, user time and system time in nanos,
-        // calculated from d_vecWTime, d_vecUTime, d_vecCTime respectively.
     TimeType d_seWTime;
     TimeType d_seUTime;
+
+    // Standard errors of wall time, user time and system time in nanos,
+    // calculated from d_vecWTime, d_vecUTime, d_vecCTime respectively.
+    // They are set to 0 if d_numRepeat = 1.
     TimeType d_seSTime;
-        // Standard errors of wall time, user time and system time in nanos,
-        // calculated from d_vecWTime, d_vecUTime, d_vecCTime respectively.
-        // They are set to 0 if d_numRepeat = 1.
     CacheType d_cache;
+
+    /// Run a single repetition of the calculation.  The calculation is
+    /// defined in the specified `func` function, and takes as input the
+    /// specified `args` vector.  Return for each thread a triad of elapsed
+    /// wall time, user time, and system time.
     VecTimeType runTest(VecIntType& args, RunFunc func);
-        // Run a single repetition of the calculation.  The calculation is
-        // defined in the specified 'func' function, and takes as input the
-        // specified 'args' vector.  Return for each thread a triad of elapsed
-        // wall time, user time, and system time.
 
   private:
     // NOT IMPLEMENTED
@@ -629,95 +637,100 @@ class CachePerformance {
                      int                               numRepeats,
                      bslma::Allocator                 *basicAllocator = 0);
 
+    /// Run the initialization function.  The initialization is defined in
+    /// the specified `func` function, and takes as input the specified
+    /// `args` vector.  Returns the return code from `func`.
     int initialize(VecIntType& args, InitFunc func);
-        // Run the initialization function.  The initialization is defined in
-        // the specified 'func' function, and takes as input the specified
-        // 'args' vector.  Returns the return code from 'func'.
+
+    /// Run the tests by running `runTest` numRepeats times.  The test being
+    /// run is the defined in the specified `func` function, and takes as
+    /// input the specified `args` vector.  Return a triad of elapsed wall
+    /// time, user time, and system time.
     VecTimeType runTests(VecIntType& args, RunFunc func);
-        // Run the tests by running 'runTest' numRepeats times.  The test being
-        // run is the defined in the specified 'func' function, and takes as
-        // input the specified 'args' vector.  Return a triad of elapsed wall
-        // time, user time, and system time.
+
+    /// Print a standard time values output from the calculation.
     void printResult();
-        // Print a standard time values output from the calculation.
 
     // ACCESSORS
+
+    /// Return the memory allocator
     bslma::Allocator *allocator() const;
-        // Return the memory allocator
 
     CacheType& cache();
+
+    /// Return the eviction policy used by this cache.
     bdlcc::CacheEvictionPolicy::Enum evictionPolicy() const;
-        // Return the eviction policy used by this cache.
 
+    /// Return the high watermark of this cache, which is the size at which
+    /// eviction of existing items begins.
     bsl::size_t highWatermark() const;
-        // Return the high watermark of this cache, which is the size at which
-        // eviction of existing items begins.
 
+    /// Return the low watermark of this cache, which is the size at which
+    /// eviction of existing items ends.
     bsl::size_t lowWatermark() const;
-        // Return the low watermark of this cache, which is the size at which
-        // eviction of existing items ends.
 
+    /// Return the number of calculations.
     int numCalcs() const;
-        // Return the number of calculations.
 
+    /// Return the number of test repetitions.
     int numRepeats() const;
-        // Return the number of test repetitions.
 
+    /// Return the number of reader threads.
     int numRThreads() const;
-        // Return the number of reader threads.
 
+    /// Return the number of writer threads.
     int numWThreads() const;
-        // Return the number of writer threads.
 
+    /// Return the total number of threads.  It is equal to numRThreads() +
+    /// numWThreads().
     int numThreads() const;
-        // Return the total number of threads.  It is equal to numRThreads() +
-        // numWThreads().
 
+    /// Return the current size of this cache.
     bsl::size_t size() const;
-        // Return the current size of this cache.
 
+    /// Return the test title.
     const char* title() const;
-        // Return the test title.
 
                                 // test functions
 
+    /// Insert rows, one at a time, into the specified `cacheperf_p` using
+    /// the specified `args` vector.  Only value in `args` is the current
+    /// thread index, 0 to numThreads - 1.
     static int testInsert(CachePerformance *cacheperf_p, VecIntType& args);
-        // Insert rows, one at a time, into the specified 'cacheperf_p' using
-        // the specified 'args' vector.  Only value in 'args' is the current
-        // thread index, 0 to numThreads - 1.
 
+    /// Insert rows, in bulk, into the specified `cacheperf_p` using the
+    /// specified `args` vector.  `args[0]` is the number of batches to use.
+    /// `args[1]` (last parameter) is the current thread index, 0 to
+    /// numThreads - 1.
     static int testInsertBulk(CachePerformance *cacheperf_p, VecIntType& args);
-        // Insert rows, in bulk, into the specified 'cacheperf_p' using the
-        // specified 'args' vector.  'args[0]' is the number of batches to use.
-        // 'args[1]' (last parameter) is the current thread index, 0 to
-        // numThreads - 1.
 
+    /// Preload the specified cache in `cacheperf_p` for subsequent tests
+    /// using the specified `args` vector.  `args[0]` is the number of
+    /// values to load.  `arg[1]` is the sparsity of the data, that is, the
+    /// distance between consecutive values.  I.e: sparsity of 1 will
+    /// preload 0, 1, 2, ...  Sparsity of 2 will preload 0, 2, 4, ..., etc.
     static int initRead(CachePerformance *cacheperf_p, VecIntType& args);
-        // Preload the specified cache in 'cacheperf_p' for subsequent tests
-        // using the specified 'args' vector.  'args[0]' is the number of
-        // values to load.  'arg[1]' is the sparsity of the data, that is, the
-        // distance between consecutive values.  I.e: sparsity of 1 will
-        // preload 0, 1, 2, ...  Sparsity of 2 will preload 0, 2, 4, ..., etc.
 
+    /// Run tryGetValue multiple times against the specified `cacheperf_p`,
+    /// using the specified `args` vector.  `0 to arg[0] - 1` is the range
+    /// to read from.  `args[1]` is the thread index, and is used as the
+    /// seed for the random number generating the key values.
     static int testRead(CachePerformance *cacheperf_p, VecIntType& args);
-        // Run tryGetValue multiple times against the specified 'cacheperf_p',
-        // using the specified 'args' vector.  '0 to arg[0] - 1' is the range
-        // to read from.  'args[1]' is the thread index, and is used as the
-        // seed for the random number generating the key values.
 
+    /// Run either `insert` or `tryGetValue` multiple times against the
+    /// specified `cacheperf_p` cache, with the specified `args` vector.
+    /// `args[0]` is the number of values to load.  `arg[1]` is the
+    /// sparsity: 1 - 0, 1, 2, ...; 2 - 0, 2, 4, ..., etc.
+    /// `0 to arg[2] - 1` is the range to read from.  The first numWThreads
+    /// are write threads.  The rest are read threads.
     static int testReadWrite(CachePerformance *cacheperf_p, VecIntType& args);
-        // Run either 'insert' or 'tryGetValue' multiple times against the
-        // specified 'cacheperf_p' cache, with the specified 'args' vector.
-        // 'args[0]' is the number of values to load.  'arg[1]' is the
-        // sparsity: 1 - 0, 1, 2, ...; 2 - 0, 2, 4, ..., etc.
-        // '0 to arg[2] - 1' is the range to read from.  The first numWThreads
-        // are write threads.  The rest are read threads.
 
 };  // END class CachePerformance
 
 // FREE FUNCTIONS
+
+/// The thread main function.
 extern "C" void *workFunc(void *arg);
-    // The thread main function.
 
 CachePerformance::CachePerformance(
                               const char                       *title,
@@ -944,9 +957,9 @@ const char* CachePerformance::title() const
 int CachePerformance::testInsert(CachePerformance *cacheperf_p,
                                  VecIntType&       args)
 {
-    // Insert rows one at a time into the specified 'cacheperf_p' using the
-    // specified 'args' vector.  Only value in 'args' is the current thread
-    // index, 0 to 'numThreads - 1'.
+    // Insert rows one at a time into the specified `cacheperf_p` using the
+    // specified `args` vector.  Only value in `args` is the current thread
+    // index, 0 to `numThreads - 1`.
 
     int numThreads = cacheperf_p->numThreads();
     int size = cacheperf_p->numCalcs() / numThreads;
@@ -970,10 +983,10 @@ int CachePerformance::testInsert(CachePerformance *cacheperf_p,
 int CachePerformance::testInsertBulk(CachePerformance *cacheperf_p,
                                      VecIntType&       args)
 {
-    // Insert rows in bulk into the specified 'cacheperf_p' using the
-    // specified 'args' vector.  'args[0]' is the number of batches to use.
-    // 'args[1]' (last parameter) is the current thread index,
-    // 0 to 'numThreads - 1'.
+    // Insert rows in bulk into the specified `cacheperf_p` using the
+    // specified `args` vector.  `args[0]` is the number of batches to use.
+    // `args[1]` (last parameter) is the current thread index,
+    // 0 to `numThreads - 1`.
 
     int  numThreads = cacheperf_p->numThreads();
     int  numBatches = args[0];
@@ -999,9 +1012,9 @@ int CachePerformance::testInsertBulk(CachePerformance *cacheperf_p,
 
 int CachePerformance::initRead(CachePerformance *cacheperf_p, VecIntType& args)
 {
-    // Preload the specified cache in 'cacheperf_p' for subsequent tests using
-    // the specified 'args' vector.  'args[0]' is the number of values to load.
-    // 'arg[1]' is the sparsity of the data, that is, the distance between
+    // Preload the specified cache in `cacheperf_p` for subsequent tests using
+    // the specified `args` vector.  `args[0]` is the number of values to load.
+    // `arg[1]` is the sparsity of the data, that is, the distance between
     // consecutive values.  I.e: sparsity of 1 will preload 0, 1, 2, ...
     // Sparsity of 2 will preload 0, 2, 4, ..., etc.
 
@@ -1025,9 +1038,9 @@ int CachePerformance::initRead(CachePerformance *cacheperf_p, VecIntType& args)
 
 int CachePerformance::testRead(CachePerformance *cacheperf_p, VecIntType& args)
 {
-    // Run tryGetValue multiple times against the specified 'cacheperf_p',
-    // using the specified 'args' vector.  '0 to arg[0] - 1' is the range to
-    // read from.  'args[1]' is the thread index, and is used as the seed for
+    // Run tryGetValue multiple times against the specified `cacheperf_p`,
+    // using the specified `args` vector.  `0 to arg[0] - 1` is the range to
+    // read from.  `args[1]` is the thread index, and is used as the seed for
     // the random number generating the key values.
 
     int numThreads = cacheperf_p->numThreads();
@@ -1054,9 +1067,9 @@ int CachePerformance::testRead(CachePerformance *cacheperf_p, VecIntType& args)
 int CachePerformance::testReadWrite(CachePerformance *cacheperf_p,
                                     VecIntType&       args)
 {
-    // Run either insert of tryGetValue multiple times.  'args[0]' is the
-    // number of values to load.  'arg[1]' is the sparsity: 1 - 0, 1, 2, ...;
-    // 2 - 0, 2, 4, ..., etc.  '0 to arg[2] - 1' is the range to read from.
+    // Run either insert of tryGetValue multiple times.  `args[0]` is the
+    // number of values to load.  `arg[1]` is the sparsity: 1 - 0, 1, 2, ...;
+    // 2 - 0, 2, 4, ..., etc.  `0 to arg[2] - 1` is the range to read from.
     // The first numWThreads are write threads.  The rest are read threads.
 
     int countErr = 0;
@@ -1168,26 +1181,26 @@ void testTestingUtil()
     // Testing utility
     //
     // Concerns:
-    //: 1 'bdlcc::Cache_TestUtil' methods of 'lockRead', 'lockWrite', and
-    //:   'unlock' actually lock and unlock a reader writer lock.
+    // 1. `bdlcc::Cache_TestUtil` methods of `lockRead`, `lockWrite`, and
+    //    `unlock` actually lock and unlock a reader writer lock.
     //
     // Plan:
-    //: 1 Spawn a thread that calls 'lockWrite', sleep for 0.1sec, and calls
-    //:   'unlock'.  On the main thread, call 'lockWrite' and measure how long
-    //:   it took to acquire the lock.  It should be around 0.1 sec.
-    //:
-    //: 2 Spawn a thread that calls 'lockWrite', sleep for 0.1sec, and calls
-    //:   'unlock'.  On the main thread, call 'lockRead' and measure how long
-    //:   it took to acquire the lock.  It should be around 0.1 sec.
-    //:
-    //: 3 Spawn a thread that calls 'lockRead', sleep for 0.1sec, and calls
-    //:   'unlock'.  On the main thread, call 'lockWrite' and measure how long
-    //:   it took to acquire the lock.  It should be around 0.1 sec.
-    //:
-    //: 4 Spawn a thread that calls 'lockRead', sleep for 0.1sec, and calls
-    //:   'unlock'.  On the main thread, call 'lockRead' and measure how long
-    //:   it took to acquire the lock.  It should be much less than 0.1 sec.
-    //:
+    // 1. Spawn a thread that calls `lockWrite`, sleep for 0.1sec, and calls
+    //    `unlock`.  On the main thread, call `lockWrite` and measure how long
+    //    it took to acquire the lock.  It should be around 0.1 sec.
+    //
+    // 2. Spawn a thread that calls `lockWrite`, sleep for 0.1sec, and calls
+    //    `unlock`.  On the main thread, call `lockRead` and measure how long
+    //    it took to acquire the lock.  It should be around 0.1 sec.
+    //
+    // 3. Spawn a thread that calls `lockRead`, sleep for 0.1sec, and calls
+    //    `unlock`.  On the main thread, call `lockWrite` and measure how long
+    //    it took to acquire the lock.  It should be around 0.1 sec.
+    //
+    // 4. Spawn a thread that calls `lockRead`, sleep for 0.1sec, and calls
+    //    `unlock`.  On the main thread, call `lockRead` and measure how long
+    //    it took to acquire the lock.  It should be much less than 0.1 sec.
+    //
     // Testing:
     //   void Cache_TestUtil::lockRead();
     //   void Cache_TestUtil::lockWrite();
@@ -1271,8 +1284,8 @@ void testTestingUtil()
     }
 } // END testTestingUtil
 
+/// Visitor to the test `bdlcc:Cache` in `testLocking`.
 struct TestVisitor {
-    // Visitor to the test 'bdlcc:Cache' in 'testLocking'.
 
     bool operator() (int key, const bsl::string& value)
     {
@@ -1291,76 +1304,76 @@ struct TestVisitor {
 void testLocking()
 {
     // ------------------------------------------------------------------------
-    // Testing locking in 'bdlcc:Cache' methods
+    // Testing locking in `bdlcc:Cache` methods
     //
     // Concerns:
-    //: 1 'bdlcc::Cache_TestUtil' methods of 'insert', 'insertBulk', 'erase',
-    //:   'eraseBulk', 'clear', and 'popFront' actually write lock and unlock a
-    //:   reader writer lock.
+    // 1. `bdlcc::Cache_TestUtil` methods of `insert`, `insertBulk`, `erase`,
+    //    `eraseBulk`, `clear`, and `popFront` actually write lock and unlock a
+    //    reader writer lock.
     //
-    //: 2 'bdlcc::Cache_TestUtil' methods of 'size', and 'visit' actually read
-    //:   lock and unlock a reader writer lock.
+    // 2. `bdlcc::Cache_TestUtil` methods of `size`, and `visit` actually read
+    //    lock and unlock a reader writer lock.
     //
-    //: 3 'bdlcc::Cache_TestUtil' method of 'tryGetValue' actually read lock
-    //:   and unlock a reader writer lock if eviction policy is FIFO, and write
-    //:   lock and unlock a reader writer lock if eviction policy is LRU.
+    // 3. `bdlcc::Cache_TestUtil` method of `tryGetValue` actually read lock
+    //    and unlock a reader writer lock if eviction policy is FIFO, and write
+    //    lock and unlock a reader writer lock if eviction policy is LRU.
     //
     // Plan:
-    //: 1 Spawn a thread that calls 'lockRead', sleep for 0.1sec, and calls
-    //:   'unlock'.  On the main thread, call 'insert' and measure how long it
-    //:   took to complete.  It should be around 0.1 sec.
-    //:
-    //: 2 Spawn a thread that calls 'lockRead', sleep for 0.1sec, and calls
-    //:   'unlock'.  On the main thread, call 'insertBulk' and measure how long
-    //:   it took to complete.  It should be around 0.1 sec.
-    //:
-    //: 3 Spawn a thread that calls 'lockRead', sleep for 0.1sec, and calls
-    //:   'unlock'.  On the main thread, call 'erase' and measure how long it
-    //:   took to complete.  It should be around 0.1 sec.
-    //:
-    //: 4 Spawn a thread that calls 'lockRead', sleep for 0.1sec, and calls
-    //:   'unlock'.  On the main thread, call 'eraseBulk' and measure how long
-    //:   it took to complete.  It should be around 0.1 sec.
-    //:
-    //: 5 Spawn a thread that calls 'lockRead', sleep for 0.1sec, and calls
-    //:   'unlock'.  On the main thread, call 'clear' and measure how long it
-    //:   took to complete.  It should be around 0.1 sec.
-    //:
-    //: 6 Spawn a thread that calls 'lockRead', sleep for 0.1sec, and calls
-    //:   'unlock'.  On the main thread, call 'popFront' and measure how long
-    //:   it took to complete.  It should be around 0.1 sec.
-    //:
-    //: 7 Spawn a thread that calls 'lockWrite', sleep for 0.1sec, and calls
-    //:   'unlock'.  On the main thread, call 'size' and measure how long it
-    //:   took to complete.  It should be around 0.1 sec.
-    //:
-    //: 8 Spawn a thread that calls 'lockRead', sleep for 0.1sec, and calls
-    //:   'unlock'.  On the main thread, call 'size' and measure how long it
-    //:   took to complete.  It should be less than 0.1 sec.
-    //:
-    //: 9 Spawn a thread that calls 'lockWrite', sleep for 0.1sec, and calls
-    //:   'unlock'.  On the main thread, call 'visit' and measure how long it
-    //:   took to complete.  It should be around 0.1 sec.
-    //:
-    //:10 Spawn a thread that calls 'lockRead', sleep for 0.1sec, and calls
-    //:   'unlock'.  On the main thread, call 'visit' and measure how long it
-    //:   took to complete.  It should be less than 0.1 sec.
-    //:
-    //:11 Spawn a thread that calls 'lockRead', sleep for 0.1sec, and calls
-    //:   'unlock'.  On the main thread, use a 'bdlcc:Cache' object with LRU
-    //:   eviction policy, run 'tryGetValue' and measure how long it took to
-    //:   complete.  It should be around 0.1 sec.
-    //:
-    //:12 Spawn a thread that calls 'lockWrite', sleep for 0.1sec, and calls
-    //:   'unlock'.  On the main thread, use a 'bdlcc:Cache' object with FIFO
-    //:   eviction policy, run 'tryGetValue' and measure how long it took to
-    //:   complete.  It should be around 0.1 sec.
-    //:
-    //:13 Spawn a thread that calls 'lockRead', sleep for 0.1sec, and calls
-    //:   'unlock'.  On the main thread, use a 'bdlcc:Cache' object with FIFO
-    //:   eviction policy, run 'tryGetValue' and measure how long it took to
-    //:   complete.  It should be less than sec.
-    //:
+    // 1. Spawn a thread that calls `lockRead`, sleep for 0.1sec, and calls
+    //    `unlock`.  On the main thread, call `insert` and measure how long it
+    //    took to complete.  It should be around 0.1 sec.
+    //
+    // 2. Spawn a thread that calls `lockRead`, sleep for 0.1sec, and calls
+    //    `unlock`.  On the main thread, call `insertBulk` and measure how long
+    //    it took to complete.  It should be around 0.1 sec.
+    //
+    // 3. Spawn a thread that calls `lockRead`, sleep for 0.1sec, and calls
+    //    `unlock`.  On the main thread, call `erase` and measure how long it
+    //    took to complete.  It should be around 0.1 sec.
+    //
+    // 4. Spawn a thread that calls `lockRead`, sleep for 0.1sec, and calls
+    //    `unlock`.  On the main thread, call `eraseBulk` and measure how long
+    //    it took to complete.  It should be around 0.1 sec.
+    //
+    // 5. Spawn a thread that calls `lockRead`, sleep for 0.1sec, and calls
+    //    `unlock`.  On the main thread, call `clear` and measure how long it
+    //    took to complete.  It should be around 0.1 sec.
+    //
+    // 6. Spawn a thread that calls `lockRead`, sleep for 0.1sec, and calls
+    //    `unlock`.  On the main thread, call `popFront` and measure how long
+    //    it took to complete.  It should be around 0.1 sec.
+    //
+    // 7. Spawn a thread that calls `lockWrite`, sleep for 0.1sec, and calls
+    //    `unlock`.  On the main thread, call `size` and measure how long it
+    //    took to complete.  It should be around 0.1 sec.
+    //
+    // 8. Spawn a thread that calls `lockRead`, sleep for 0.1sec, and calls
+    //    `unlock`.  On the main thread, call `size` and measure how long it
+    //    took to complete.  It should be less than 0.1 sec.
+    //
+    // 9. Spawn a thread that calls `lockWrite`, sleep for 0.1sec, and calls
+    //    `unlock`.  On the main thread, call `visit` and measure how long it
+    //    took to complete.  It should be around 0.1 sec.
+    //
+    // 10. Spawn a thread that calls `lockRead`, sleep for 0.1sec, and calls
+    //    `unlock`.  On the main thread, call `visit` and measure how long it
+    //    took to complete.  It should be less than 0.1 sec.
+    //
+    // 11. Spawn a thread that calls `lockRead`, sleep for 0.1sec, and calls
+    //    `unlock`.  On the main thread, use a `bdlcc:Cache` object with LRU
+    //    eviction policy, run `tryGetValue` and measure how long it took to
+    //    complete.  It should be around 0.1 sec.
+    //
+    // 12. Spawn a thread that calls `lockWrite`, sleep for 0.1sec, and calls
+    //    `unlock`.  On the main thread, use a `bdlcc:Cache` object with FIFO
+    //    eviction policy, run `tryGetValue` and measure how long it took to
+    //    complete.  It should be around 0.1 sec.
+    //
+    // 13. Spawn a thread that calls `lockRead`, sleep for 0.1sec, and calls
+    //    `unlock`.  On the main thread, use a `bdlcc:Cache` object with FIFO
+    //    eviction policy, run `tryGetValue` and measure how long it took to
+    //    complete.  It should be less than sec.
+    //
     // Testing:
     //   void insert(const KEYTYPE& key, const VALUETYPE& value);
     //   void insert(const KEYTYPE& key, const ValuePtrType& valuePtr);
@@ -1382,7 +1395,7 @@ void testLocking()
 
     // LockRead / insert(const KEYTYPE& key, const VALUETYPE& value) test
     {
-        // Time the duration how long it took to run 'insert'
+        // Time the duration how long it took to run `insert`
         TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
@@ -1398,7 +1411,7 @@ void testLocking()
 
     // LockRead / insert(const KEYTYPE& key, const ValuePtrType& valuePtr) test
     {
-        // Time the duration how long it took to run 'insert'
+        // Time the duration how long it took to run `insert`
         TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
@@ -1416,7 +1429,7 @@ void testLocking()
 
     // LockRead / insertBulk
     {
-        // Time the duration how long it took to run 'insertBulk'
+        // Time the duration how long it took to run `insertBulk`
         TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
@@ -1438,7 +1451,7 @@ void testLocking()
 
     // LockRead / erase
     {
-        // Time the duration how long it took to run 'erase'
+        // Time the duration how long it took to run `erase`
         TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
@@ -1454,7 +1467,7 @@ void testLocking()
 
     // LockRead / eraseBulk
     {
-        // Time the duration how long it took to run 'eraseBulk'
+        // Time the duration how long it took to run `eraseBulk`
         TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
@@ -1473,7 +1486,7 @@ void testLocking()
 
     // LockRead / clear
     {
-        // Time the duration how long it took to run 'clear'
+        // Time the duration how long it took to run `clear`
         TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
@@ -1490,7 +1503,7 @@ void testLocking()
     // LockRead / popFront
     {
         cache.insert(6, "Jack");
-        // Time the duration how long it took to run 'popFront'
+        // Time the duration how long it took to run `popFront`
         TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
@@ -1506,7 +1519,7 @@ void testLocking()
 
     // LockWrite / size
     {
-        // Time the duration how long it took to run 'size'
+        // Time the duration how long it took to run `size`
         TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdWrite);
         smp.wait();
@@ -1525,7 +1538,7 @@ void testLocking()
     {
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
-        // Time the duration how long it took to run 'size'
+        // Time the duration how long it took to run `size`
         TimeType startTime = bsls::TimeUtil::getTimer();
 
         std::size_t size = cache.size();
@@ -1543,7 +1556,7 @@ void testLocking()
         cache.insert(7, "Steve");
         cache.insert(8, "Ofer");
         TestVisitor visitor;
-        // Time the duration how long it took to run 'visit'
+        // Time the duration how long it took to run `visit`
         TimeType startTime = bsls::TimeUtil::getTimer();
 
         bslmt::ThreadUtil::create(&handle, workThread, &tdWrite);
@@ -1563,7 +1576,7 @@ void testLocking()
         TestVisitor visitor;
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
-        // Time the duration how long it took to run 'visit'
+        // Time the duration how long it took to run `visit`
         TimeType startTime = bsls::TimeUtil::getTimer();
 
         cache.visit(visitor);
@@ -1579,7 +1592,7 @@ void testLocking()
     {
         // The default cache eviction policy is LRU.
 
-        // Time the duration how long it took to run 'tryGetValue'
+        // Time the duration how long it took to run `tryGetValue`
         TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
@@ -1602,7 +1615,7 @@ void testLocking()
     ThreadData         tdFifoRead( &fifoCache_TestUtil, k_SLEEP_PERIOD, 'R');
     // LockWrite / tryGetValue, FIFO
     {
-        // Time the duration how long it took to run 'tryGetValue'
+        // Time the duration how long it took to run `tryGetValue`
         TimeType startTime = bsls::TimeUtil::getTimer();
 
         // The default cache eviction policy is LRU - need to create a FIFO one
@@ -1625,7 +1638,7 @@ void testLocking()
         // The default cache eviction policy is LRU - need to create a FIFO one
         bslmt::ThreadUtil::create(&handle, workThread, &tdFifoRead);
         smp.wait();
-        // Time the duration how long it took to run 'tryGetValue'
+        // Time the duration how long it took to run `tryGetValue`
         TimeType startTime = bsls::TimeUtil::getTimer();
 
         bsl::shared_ptr<bsl::string> valuePtr;
@@ -1700,13 +1713,13 @@ void threadedTest1()
     // STRESS MULTITHREADED TEST
     //
     // Concerns:
-    //: 1 The code contains no deadlocks or race conditions.
+    // 1. The code contains no deadlocks or race conditions.
     //
     // Plan:
     //   Test for thread-safety using many simultaneous threads inserting and
     //   reading items from a shared cache.  Each worker thread gets assigned a
     //   unique id that determines the keys for which it is responsible.  Each
-    //   time a key is read, it is incremented by 1 using the 'insert' method.
+    //   time a key is read, it is incremented by 1 using the `insert` method.
     //   This is done for a fixed period of time before all worker threads are
     //   joined with the main thread.  The value stored for each key is then
     //   verified with the counted number of inserts stored in an atomic
@@ -1789,29 +1802,30 @@ template<> struct UsesBslmaAllocator<TypeWithAllocatorArg> : bsl::true_type {};
 // TestDriver template
 namespace {
 
+/// Convert an `int` value to a `bsl::pair` of the template parameter `KEY`
+/// and `VALUE` types.
 template <class KEYTYPE, class VALUETYPE, class ALLOC>
 struct IntToPairConverter {
-    // Convert an 'int' value to a 'bsl::pair' of the template parameter 'KEY'
-    // and 'VALUE' types.
 
     // CLASS METHODS
+
+    /// Create a new `pair<KEY, VALUE>` object at the specified `address`,
+    /// passing the specified `value` to the `KEY` and `VALUE` constructors
+    /// and using the specified `allocator` to supply memory.  The behavior
+    /// is undefined unless `0 < value < 128`.
     static void
     createInplace(bsl::pair<KEYTYPE, VALUETYPE> *address,
                   int                            value,
                   ALLOC                          allocator)
-        // Create a new 'pair<KEY, VALUE>' object at the specified 'address',
-        // passing the specified 'value' to the 'KEY' and 'VALUE' constructors
-        // and using the specified 'allocator' to supply memory.  The behavior
-        // is undefined unless '0 < value < 128'.
     {
         BSLS_ASSERT(address);
         BSLS_ASSERT(    0 < value);
         BSLS_ASSERT(value < 128);
 
-        // If creating the 'key' and 'value' temporary objects requires an
+        // If creating the `key` and `value` temporary objects requires an
         // allocator, it should not be the default allocator as that will
         // confuse the arithmetic of our test machinery.  Therefore, we will
-        // use the 'bslma::MallocFreeAllocator', as being the simplest, least
+        // use the `bslma::MallocFreeAllocator`, as being the simplest, least
         // obtrusive allocator that is also unlikely to be employed by an end
         // user.
 
@@ -1836,13 +1850,13 @@ struct IntToPairConverter {
     }
 };
 
+/// This test class provides a mechanism that defines a function-call
+/// operator that compares two objects of the parameterized `TYPE`.  The
+/// function-call operator is implemented with integer comparison using
+/// integers converted from objects of `TYPE` by the class method
+/// `TemplateTestFacility::getIdentifier`.
 template <class TYPE>
 class TestHashFunctor {
-    // This test class provides a mechanism that defines a function-call
-    // operator that compares two objects of the parameterized 'TYPE'.  The
-    // function-call operator is implemented with integer comparison using
-    // integers converted from objects of 'TYPE' by the class method
-    // 'TemplateTestFacility::getIdentifier'.
 
     // DATA
     int d_id;
@@ -1853,8 +1867,9 @@ class TestHashFunctor {
     {}
 
     // ACCESSORS
+
+    /// Return the has value of the specified `obj`.
     bsl::size_t operator() (const TYPE& obj) const
-        // Return the has value of the specified 'obj'.
     {
         return  bsltf::TemplateTestFacility::getIdentifier(obj);
     }
@@ -1877,13 +1892,13 @@ bool areEqual(const TYPE& lhs, const TYPE& rhs)
         == bsltf::TemplateTestFacility::getIdentifier(rhs);
 }
 
+/// This test class provides a mechanism that defines a function-call
+/// operator that compares two objects of the parameterized `TYPE`.  The
+/// function-call operator is implemented with integer comparison using
+/// integers converted from objects of `TYPE` by the class method
+/// `TemplateTestFacility::getIdentifier`.
 template <class TYPE>
 class TestEqualityComparator {
-    // This test class provides a mechanism that defines a function-call
-    // operator that compares two objects of the parameterized 'TYPE'.  The
-    // function-call operator is implemented with integer comparison using
-    // integers converted from objects of 'TYPE' by the class method
-    // 'TemplateTestFacility::getIdentifier'.
 
     // DATA
     int d_id;
@@ -1894,11 +1909,12 @@ class TestEqualityComparator {
     {}
 
     // ACCESSORS
+
+    /// Increment a counter that records the number of times this method is
+    /// called.   Return `true` if the integer representation of the
+    /// specified `lhs` is less than integer representation of the specified
+    /// `rhs`.
     bool operator() (const TYPE& lhs, const TYPE& rhs) const
-        // Increment a counter that records the number of times this method is
-        // called.   Return 'true' if the integer representation of the
-        // specified 'lhs' is less than integer representation of the specified
-        // 'rhs'.
     {
         return areEqual(lhs, rhs);
     }
@@ -1915,17 +1931,17 @@ class TestEqualityComparator {
 };
 
 
+/// This templatized struct provide a namespace for testing `bdlcc::Cache`.
+/// The parameterized `KEYTYPE`, `VALUETYPE`, `HASH`, `EQUAL` specifies the
+/// key type, the mapped type, the hash functor, the equality comparator
+/// type respectively.  Each "testCase*" method test a specific aspect of
+/// `bdlcc:Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>`.  Every test cases should
+/// be invoked with various parameterized type to fully test the cache.
 template <class KEYTYPE,
           class VALUETYPE = KEYTYPE,
           class HASH  = TestHashFunctor<KEYTYPE>,
           class EQUAL = TestEqualityComparator<KEYTYPE> >
 class TestDriver {
-    // This templatized struct provide a namespace for testing 'bdlcc::Cache'.
-    // The parameterized 'KEYTYPE', 'VALUETYPE', 'HASH', 'EQUAL' specifies the
-    // key type, the mapped type, the hash functor, the equality comparator
-    // type respectively.  Each "testCase*" method test a specific aspect of
-    // 'bdlcc:Cache<KEYTYPE, VALUETYPE, HASH, EQUAL>'.  Every test cases should
-    // be invoked with various parameterized type to fully test the cache.
 
   private:
     // TYPES
@@ -1940,36 +1956,36 @@ class TestDriver {
                                                 VALUETYPE,
                                                 PairStdAllocator> > TestValues;
 
+    /// This class implements a callback functor for testing purposes that
+    /// can used as the argument to the `setPostEvictionCallback` method.
+    /// The arguments passed to the value constructor is used to verify the
+    /// values received by function-call operator.  After the operations
+    /// being tested have been ran, the `assertEnd` method should be called
+    /// to ensure that all of the expected values have been received.
     class TestPostEvictionCallback {
-        // This class implements a callback functor for testing purposes that
-        // can used as the argument to the 'setPostEvictionCallback' method.
-        // The arguments passed to the value constructor is used to verify the
-        // values received by function-call operator.  After the operations
-        // being tested have been ran, the 'assertEnd' method should be called
-        // to ensure that all of the expected values have been received.
 
       private:
         // DATA
         const TestValues *d_values_p;  // array values to compare with
 
-        bsl::size_t      *d_pos_p;     // current position from 0.  If 'd_idx'
+        bsl::size_t      *d_pos_p;     // current position from 0.  If `d_idx`
                                        // is not 0, then this value corresponds
-                                       // to the position in the 'd_idx'.  This
+                                       // to the position in the `d_idx`.  This
                                        // needs to be a pointer so that copy
                                        // constructed objects will modify the
                                        // position in the original value, which
-                                       // is required for 'assertEnd' to work
+                                       // is required for `assertEnd` to work
                                        // correctly.
 
         bsl::size_t       d_size;      // expected size of evicted values
 
         bsl::size_t       d_start;     // start position.  The actual position
-                                       // in 'd_values_p' is either
-                                       // '*d_pos_p + d_start' or
-                                       // 'd_idx[*d_pos_p]' if 'd_idx' is not
+                                       // in `d_values_p` is either
+                                       // `*d_pos_p + d_start` or
+                                       // `d_idx[*d_pos_p]` if `d_idx` is not
                                        // 0.
 
-        bsl::size_t      *d_idx_p;       // array of indexes in 'd_values_p'
+        bsl::size_t      *d_idx_p;       // array of indexes in `d_values_p`
 
       public:
         TestPostEvictionCallback(const TestValues *values,
@@ -2004,16 +2020,16 @@ class TestDriver {
                     isExpected);
         }
 
+        /// Assert that we have iterated through all `d_size` members of the
+        /// `values` array.
         void assertEnd()
-            // Assert that we have iterated through all 'd_size' members of the
-            // 'values' array.
         {
             ASSERTV(*d_pos_p, d_size, assertEndImp());
         }
 
+        /// Return `true` if we have iterated through all `d_size` members
+        /// of the `values` array and `false` otherwise.
         bool assertEndImp()
-            // Return 'true' if we have iterated through all 'd_size' members
-            // of the 'values' array and 'false' otherwise.
         {
             return *d_pos_p == d_size;
         }
@@ -2034,13 +2050,13 @@ class TestDriver {
         }
     };
 
+    /// This class implements a visitor functor for testing purposes that
+    /// can be used as the argument to the `visit` method.  The arguments
+    ///  passed to the value constructor is used to verify the values
+    /// received by function-call operator.  Finally, the `assertEnd` method
+    ///  should be called to ensure that all of the expected values have
+    /// been received.
     class TestVisitor {
-        // This class implements a visitor functor for testing purposes that
-        // can be used as the argument to the 'visit' method.  The arguments
-        //  passed to the value constructor is used to verify the values
-        // received by function-call operator.  Finally, the 'assertEnd' method
-        //  should be called to ensure that all of the expected values have
-        // been received.
 
       public:
         struct Args {
@@ -2056,14 +2072,14 @@ class TestDriver {
 
         bsl::size_t       d_size;     // expected size of values to visit
 
-        const Args       *d_args_p;   // indices pointing to 'd_values_p' array
+        const Args       *d_args_p;   // indices pointing to `d_values_p` array
                                       // and values to return from the
                                       // function-call operator
 
         bsl::size_t       d_pos;      // current position from 0.  If
-                                      // 'd_args_p' is not 0, then this value
+                                      // `d_args_p` is not 0, then this value
                                       // corresponds to the position in the
-                                      // 'd_args_p'.  Otherwise, it indicates
+                                      // `d_args_p`.  Otherwise, it indicates
                                       // the position directly
 
       public:
@@ -2103,9 +2119,9 @@ class TestDriver {
             return ret;
         }
 
+        /// Assert that we have iterated through all `d_size` members of the
+        /// `values` array.
         void assertEnd()
-            // Assert that we have iterated through all 'd_size' members of the
-            // 'values' array.
         {
             ASSERTV(assertEndImp());
         }
@@ -2136,9 +2152,9 @@ class TestDriver {
             return ret;
         }
 
+        /// Return `true` if we have iterated through all `d_size` members
+        /// of the `values` array and `false` otherwise.
         bool assertEndImp()
-            // Return 'true' if we have iterated through all 'd_size' members
-            // of the 'values' array and 'false' otherwise.
         {
             return d_pos == d_size;
         }
@@ -2168,10 +2184,10 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase14()
     // TYPE TRAITS
     //
     // Concerns:
-    //: 1 The object has the 'bslma::UsesBslmaAllocator' trait.
+    // 1. The object has the `bslma::UsesBslmaAllocator` trait.
     //
     // Plan:
-    //: 1 Use 'BSLMF_ASSERT' to verify all the type traits exists.
+    // 1. Use `BSLMF_ASSERT` to verify all the type traits exists.
     //
     // Testing:
     //   TYPE TRAITS
@@ -2184,18 +2200,18 @@ template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
 void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase13()
 {
     // ------------------------------------------------------------------------
-    // 'insertBulk' WITH MOVE
+    // `insertBulk` WITH MOVE
     //
     // Concerns:
-    //: 1 'insertBulk' provides exception neutrality guarantee.  Note that we
-    //:   cannot guarantee that the source will not be modified if an exception
-    //:   is thrown.
+    // 1. `insertBulk` provides exception neutrality guarantee.  Note that we
+    //    cannot guarantee that the source will not be modified if an exception
+    //    is thrown.
     //
     // Plan:
-    //: 1 Using the loop-based approach, insert items using the 'insert' method
-    //:   taking a shared pointer and verify that the resulting object.  Test
-    //:   for exception safety guarantee using the
-    //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST' macros.
+    // 1. Using the loop-based approach, insert items using the `insert` method
+    //    taking a shared pointer and verify that the resulting object.  Test
+    //    for exception safety guarantee using the
+    //    `BSLMA_TESTALLOCATOR_EXCEPTION_TEST` macros.
     //
     // Testing:
     //   int insertBulk(bsl::vector<KVType>&& data);
@@ -2240,8 +2256,8 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase13()
 
             int postSetupThrows = -1;
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ca) {
-                // We have to build a new 'insertVec' each time, since if
-                // 'insertBulk' throws, elements in 'insertVec' will usually
+                // We have to build a new `insertVec` each time, since if
+                // `insertBulk` throws, elements in `insertVec` will usually
                 // have been moved out of.
 
                 mX.clear();
@@ -2303,10 +2319,10 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase12()
     // MOVE INSERT
     //
     // Concerns:
-    //: 1 That the move-insert method correctly moves values.
-    //:
-    //: 2 That the move-insert method has the right behavior when exceptions
-    //:   throw.
+    // 1. That the move-insert method correctly moves values.
+    //
+    // 2. That the move-insert method has the right behavior when exceptions
+    //    throw.
     //
     // Plan:
     //
@@ -2409,8 +2425,8 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase12()
             ++postSetupThrows;
 
             for (; tj < MAX_LENGTH; ++tj) {
-                // We have to create a new 'pr' every time, since if
-                // there's a throw, 'pr' might have been moved out of.
+                // We have to create a new `pr` every time, since if
+                // there's a throw, `pr` might have been moved out of.
 
                 switch (MODE) {
                   case 0: {
@@ -2473,16 +2489,16 @@ template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
 void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase11()
 {
     // ------------------------------------------------------------------------
-    // 'insertBulk'
+    // `insertBulk`
     //
     // Concerns:
-    //: 1 'insertBulk' provides exception neutrality guarantee.
+    // 1. `insertBulk` provides exception neutrality guarantee.
     //
     // Plan:
-    //: 1 Using the loop-based approach, insert items using the 'insert' method
-    //:   taking a shared pointer and verify that the resulting object.  Test
-    //:   for exception safety guarantee using the
-    //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST' macros.
+    // 1. Using the loop-based approach, insert items using the `insert` method
+    //    taking a shared pointer and verify that the resulting object.  Test
+    //    for exception safety guarantee using the
+    //    `BSLMA_TESTALLOCATOR_EXCEPTION_TEST` macros.
     //
     // Testing:
     //   int insertBulk(const bsl::vector<KVType>& data);
@@ -2571,18 +2587,18 @@ template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
 void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase10()
 {
     // ------------------------------------------------------------------------
-    // 'insert' TAKING A SHARED POINTER
-    //   'insert' taking a value as a const reference has already been tested
+    // `insert` TAKING A SHARED POINTER
+    //   `insert` taking a value as a const reference has already been tested
     //   in test case 2.
     //
     // Concerns:
-    //: 1 'insert' provides exception neutrality guarantee.
+    // 1. `insert` provides exception neutrality guarantee.
     //
     // Plan:
-    //: 1 Using the loop-based approach, insert items using the 'insert' method
-    //:   taking a shared pointer and verify that the resulting object.  Test
-    //:   for exception safety guarantee using the
-    //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST' macros.
+    // 1. Using the loop-based approach, insert items using the `insert` method
+    //    taking a shared pointer and verify that the resulting object.  Test
+    //    for exception safety guarantee using the
+    //    `BSLMA_TESTALLOCATOR_EXCEPTION_TEST` macros.
     //
     // Testing:
     //   void insert(const KEYTYPE& key, const ValuePtrType& valuePtr);
@@ -2630,18 +2646,18 @@ template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
 void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase9()
 {
     // ------------------------------------------------------------------------
-    // 'popFront'
+    // `popFront`
     //
     // Concerns:
-    //: 1 'popFront' removes the first item in the cache's queue.
-    //:
-    //: 2 'popFront' returns 0 on success and non-zero if the cache is empty.
-    //:
-    //: 3 'popFront' evokes the post-eviction callback on success.
+    // 1. `popFront` removes the first item in the cache's queue.
+    //
+    // 2. `popFront` returns 0 on success and non-zero if the cache is empty.
+    //
+    // 3. `popFront` evokes the post-eviction callback on success.
     //
     // Plan:
-    //: 1 Using the loop based approach, call 'popFront' for objects having
-    //:   different lengths and verify the method behaves correctly.
+    // 1. Using the loop based approach, call `popFront` for objects having
+    //    different lengths and verify the method behaves correctly.
     //
     // Testing:
     //   int popFront();
@@ -2721,16 +2737,16 @@ template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
 void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase8()
 {
     // ------------------------------------------------------------------------
-    // 'clear'
+    // `clear`
     //
     // Concerns:
-    //: 1 The 'clear' removes all items from the cache.
-    //:
-    //: 2 The post-eviction callback is not invoked.
+    // 1. The `clear` removes all items from the cache.
+    //
+    // 2. The post-eviction callback is not invoked.
     //
     // Plan:
-    //: 1 Using the loop based approach, call 'clear' for objects having
-    //:   different lengths and verify the method behaves correctly.
+    // 1. Using the loop based approach, call `clear` for objects having
+    //    different lengths and verify the method behaves correctly.
     //
     // Testing:
     //   void clear();
@@ -2788,22 +2804,22 @@ template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
 void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase7()
 {
     // ------------------------------------------------------------------------
-    // 'eraseBulk'
+    // `eraseBulk`
     //
     // Concerns:
-    //: 1 The 'eraseBulk' method removes the specified keys from the cache. The
-    //:   method returns the number of items successfully removed.
-    //:
-    //: 2 The 'erase' method invokes the post-eviction callback on success,
-    //:   passing the value of the evicted item.
+    // 1. The `eraseBulk` method removes the specified keys from the cache. The
+    //    method returns the number of items successfully removed.
+    //
+    // 2. The `erase` method invokes the post-eviction callback on success,
+    //    passing the value of the evicted item.
     //
     // Plan:
-    //: 1 Using the loop-based approach, make sure that erasing a valid key
-    //:   successfully removes the item with that key and calls the
-    //:   post-eviction callback.
-    //:
-    //: 2 Using the loop-based approach, make sure that erasing an invalid key
-    //:   returns a non-zero value.
+    // 1. Using the loop-based approach, make sure that erasing a valid key
+    //    successfully removes the item with that key and calls the
+    //    post-eviction callback.
+    //
+    // 2. Using the loop-based approach, make sure that erasing an invalid key
+    //    returns a non-zero value.
     //
     // Testing:
     //   int eraseBulk(const bsl::vector<KEYTYPE>& keys);
@@ -2869,7 +2885,7 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase7()
 
                     ASSERTV(LENGTH == X.size());
 
-                    // Keys to be erased with 'eraseBulk'
+                    // Keys to be erased with `eraseBulk`
                     bsl::vector<KEYTYPE> eraseKeysBsl(&scratch);
                     for (bsl::size_t v = 0; v < tj; ++v) {
                         eraseKeysBsl.push_back(VALUES[v].first);
@@ -2953,23 +2969,23 @@ template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
 void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase6()
 {
     // ------------------------------------------------------------------------
-    // 'erase'
+    // `erase`
     //
     // Concerns:
-    //: 1 The 'erase' method removes the specified key from the cache. The
-    //:   method returns 0 on success and non-zero if the key doesn't exist in
-    //:   the cache.
-    //:
-    //: 2 The 'erase' method invokes the post-eviction callback on success,
-    //:   passing the value of the evicted item.
+    // 1. The `erase` method removes the specified key from the cache. The
+    //    method returns 0 on success and non-zero if the key doesn't exist in
+    //    the cache.
+    //
+    // 2. The `erase` method invokes the post-eviction callback on success,
+    //    passing the value of the evicted item.
     //
     // Plan:
-    //: 1 Using the loop-based approach, make sure that erasing a valid key
-    //:   successfully removes the item with that key and calls the
-    //:   post-eviction callback.
-    //:
-    //: 2 Using the loop-based approach, make sure that erasing an invalid key
-    //:   returns a non-zero value.
+    // 1. Using the loop-based approach, make sure that erasing a valid key
+    //    successfully removes the item with that key and calls the
+    //    post-eviction callback.
+    //
+    // 2. Using the loop-based approach, make sure that erasing an invalid key
+    //    returns a non-zero value.
     //
     // Testing:
     //   int erase(const KEYTYPE& key);
@@ -3076,39 +3092,39 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase5()
     // Eviction Policies
     //
     // Concerns:
-    //: 1 Eviction starts when size of the cache is at its high watermark.  For
-    //:   example, if a cache with a high watermark of 3 has a size of 3, then
-    //:   inserting an item into the cache will result in the eviction of least
-    //:   one item.
-    //:
-    //: 2 Low watermark is the size of the cache at which eviction stops.  For
-    //:   example, if a cache with a high watermark of 3 and low watermark of
-    //:   2, then inserting an item into the cache will result in eviction of
-    //:   exactly 2 items.  In otherwords, when an item is inserted into the
-    //:   cache at the high watermark, the final size of the cache after this
-    //:   insertion operation is the low watermark.
-    //:
-    //: 3 For FIFO, the items are evicted in the order of insertion, with the
-    //:   elements first inserted being evicted first.
-    //:
-    //: 4 For LRU, the items are evicted in the order of access, with the
-    //:   elements least-recently accessed evicted first.  If no elements has
-    //:   been accessed, this policy is equivalent to FIFO.
-    //:
-    //: 5 'tryGetValue' only changes the eviction order if its argument
-    //:   'modifyEvictionQueue' is true, which is the default value.
+    // 1. Eviction starts when size of the cache is at its high watermark.  For
+    //    example, if a cache with a high watermark of 3 has a size of 3, then
+    //    inserting an item into the cache will result in the eviction of least
+    //    one item.
+    //
+    // 2. Low watermark is the size of the cache at which eviction stops.  For
+    //    example, if a cache with a high watermark of 3 and low watermark of
+    //    2, then inserting an item into the cache will result in eviction of
+    //    exactly 2 items.  In otherwords, when an item is inserted into the
+    //    cache at the high watermark, the final size of the cache after this
+    //    insertion operation is the low watermark.
+    //
+    // 3. For FIFO, the items are evicted in the order of insertion, with the
+    //    elements first inserted being evicted first.
+    //
+    // 4. For LRU, the items are evicted in the order of access, with the
+    //    elements least-recently accessed evicted first.  If no elements has
+    //    been accessed, this policy is equivalent to FIFO.
+    //
+    // 5. `tryGetValue` only changes the eviction order if its argument
+    //    `modifyEvictionQueue` is true, which is the default value.
     //
     // Plan:
-    //: 1 Use the loop-based approach to test 'insert' without any item access
-    //:   for objects with LRU or FIFO eviction policies.
-    //:
-    //: 2 Using the loop-based approach, make sure that calling 'tryGetValue'
-    //:   for a FIFO cache, or calling 'tryGetValue' with 'modifyEvictionQueue'
-    //:   set to 'false' for a LRU cache does not modify the eviction order.
-    //:
-    //: 3 Using the loop-based approach, verify that calling 'tryGetValue' for
-    //:   a LRU queue with 'modifyEvictionQueue' set to 'true' does modify the
-    //:   eviction order appropriately.
+    // 1. Use the loop-based approach to test `insert` without any item access
+    //    for objects with LRU or FIFO eviction policies.
+    //
+    // 2. Using the loop-based approach, make sure that calling `tryGetValue`
+    //    for a FIFO cache, or calling `tryGetValue` with `modifyEvictionQueue`
+    //    set to `false` for a LRU cache does not modify the eviction order.
+    //
+    // 3. Using the loop-based approach, verify that calling `tryGetValue` for
+    //    a LRU queue with `modifyEvictionQueue` set to `true` does modify the
+    //    eviction order appropriately.
     //
     // Testing:
     //   void setPostEvictionCallback(postEvictionCallback);
@@ -3499,21 +3515,21 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase4()
     //   Ensure each basic accessor properly interprets object state.
     //
     // Concerns:
-    //: 1 Each accessor returns the value of the correct property of the
-    //:   object.
-    //:
-    //: 2 Each accessor method is declared 'const'.
-    //:
-    //: 3 No accessor allocates any memory.
+    // 1. Each accessor returns the value of the correct property of the
+    //    object.
+    //
+    // 2. Each accessor method is declared `const`.
+    //
+    // 3. No accessor allocates any memory.
     //
     // Plan:
-    //: 1 Using the loop-based approach, create objects having different
-    //:   eviction policies and items.  Verify that the accessor methods
-    //:   behave correctly.
-    //:
-    //: 2 Use the brute-force approach to create and verify objects created
-    //:   with different high watermark, low watermark, hash function, and
-    //:   equal function.
+    // 1. Using the loop-based approach, create objects having different
+    //    eviction policies and items.  Verify that the accessor methods
+    //    behave correctly.
+    //
+    // 2. Use the brute-force approach to create and verify objects created
+    //    with different high watermark, low watermark, hash function, and
+    //    equal function.
     //
     // Testing:
     //   void visit(VISITOR& visitor) const;
@@ -3601,16 +3617,16 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase3()
     // TEST APPARATUS
     //
     // Concerns:
-    //: 1 'TestPostEvictionCallback' correctly determines the received values
-    //:   are as expected.
-    //:
-    //: 2 'TestVisitor' correctly determines the visited values are as
-    //:   expected.
+    // 1. `TestPostEvictionCallback` correctly determines the received values
+    //    are as expected.
+    //
+    // 2. `TestVisitor` correctly determines the visited values are as
+    //    expected.
     //
     // Plan:
-    //: 1 Use the brute-force approach to test the test apparatus.  We don't
-    //:   need to do an exhaustive test because the test apparatus are further
-    //:   corroborated throughout the rest of the test driver.
+    // 1. Use the brute-force approach to test the test apparatus.  We don't
+    //    need to do an exhaustive test because the test apparatus are further
+    //    corroborated throughout the rest of the test driver.
     //
     // Testing:
     //   TEST APPARATUS
@@ -3620,7 +3636,7 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase3()
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-    // Testing 'TestPostEvictionCallback'.
+    // Testing `TestPostEvictionCallback`.
     {
         bsl::size_t              pos;
         TestPostEvictionCallback callback(&VALUES, &pos, 0, 0);
@@ -3709,7 +3725,7 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase3()
         ASSERTV(!callback.assertEndImp());
     }
 
-    // Testing 'TestVisitor'
+    // Testing `TestVisitor`
     {
         TestVisitor visitor(&VALUES, 0);
         ASSERTV(visitor.assertEndImp());
@@ -3808,52 +3824,52 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase2()
     // DEFAULT CTOR, PRIMARY MANIPULATORS, & DTOR
     //
     // Concerns:
-    //: 1 An object created with the default constructor (with or without a
-    //:   supplied allocator) has the contractually specified default value.
-    //:
-    //: 2 If an allocator is NOT supplied to the default constructor, the
-    //:   default allocator in effect at the time of construction becomes the
-    //:   object allocator for the resulting object.
-    //:
-    //: 3 If an allocator IS supplied to the default constructor, that
-    //:   allocator becomes the object allocator for the resulting object.
-    //:
-    //: 4 Supplying a null allocator address has the same effect as not
-    //:   supplying an allocator.
-    //:
-    //: 5 Supplying an allocator to the default constructor has no effect on
-    //:   subsequent object values.
-    //:
-    //: 6 Any memory allocation is from the object allocator.
-    //:
-    //: 7 There is no temporary allocation from any allocator.
-    //:
-    //: 8 Every object releases any allocated memory at destruction.
-    //:
-    //:10 The 'insert' method provides exception neutrality guarantee.
-    //:
-    //:11 Ensure that hash function and allocators are passed in correctly to
-    //:   the underlying unordered map's constructor.
-    //:
-    //:12 QoI: The default constructor allocates 1 block of memory as required
-    //:   by the default construction of 'bsl::list'.
-    //:
-    //:13 QoI: Asserted precondition violations are detected when enabled.
+    // 1. An object created with the default constructor (with or without a
+    //    supplied allocator) has the contractually specified default value.
+    //
+    // 2. If an allocator is NOT supplied to the default constructor, the
+    //    default allocator in effect at the time of construction becomes the
+    //    object allocator for the resulting object.
+    //
+    // 3. If an allocator IS supplied to the default constructor, that
+    //    allocator becomes the object allocator for the resulting object.
+    //
+    // 4. Supplying a null allocator address has the same effect as not
+    //    supplying an allocator.
+    //
+    // 5. Supplying an allocator to the default constructor has no effect on
+    //    subsequent object values.
+    //
+    // 6. Any memory allocation is from the object allocator.
+    //
+    // 7. There is no temporary allocation from any allocator.
+    //
+    // 8. Every object releases any allocated memory at destruction.
+    //
+    // 10. The `insert` method provides exception neutrality guarantee.
+    //
+    // 11. Ensure that hash function and allocators are passed in correctly to
+    //    the underlying unordered map's constructor.
+    //
+    // 12. QoI: The default constructor allocates 1 block of memory as required
+    //    by the default construction of `bsl::list`.
+    //
+    // 13. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Use the loop-based approach to construct three different objects
-    //:   differently: without passing an allocator, passing a null allocator
-    //:   address explicitly, and passing the address of a test allocator
-    //:   explicitly.  For each iteration, insert elements into the constructed
-    //:   object and verify that the object has the correct value and memory
-    //:   has been allocated properly.
-    //:
-    //: 2 Use the brute-force approach to test the value constructor by
-    //:   verifying that all of the values have been correctly passed to the
-    //:   objects used in the implementation.
-    //:
-    //: 3 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered for invalid attribute values.
+    // 1. Use the loop-based approach to construct three different objects
+    //    differently: without passing an allocator, passing a null allocator
+    //    address explicitly, and passing the address of a test allocator
+    //    explicitly.  For each iteration, insert elements into the constructed
+    //    object and verify that the object has the correct value and memory
+    //    has been allocated properly.
+    //
+    // 2. Use the brute-force approach to test the value constructor by
+    //    verifying that all of the values have been correctly passed to the
+    //    objects used in the implementation.
+    //
+    // 3. Verify that, in appropriate build modes, defensive checks are
+    //    triggered for invalid attribute values.
     //
     // Testing:
     //   explicit Cache(bslma::Allocator *basicAllocator);
@@ -4074,8 +4090,8 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase1()
     //   This case exercises (but does not fully test) basic functionality.
     //
     // Concerns:
-    //: 1 The class is sufficiently functional to enable comprehensive testing
-    //:   in subsequent test cases.
+    // 1. The class is sufficiently functional to enable comprehensive testing
+    //    in subsequent test cases.
     //
     // Testing:
     //   BREATHING TEST
@@ -4262,7 +4278,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the default allocator.
@@ -4284,13 +4300,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -4301,21 +4317,21 @@ int main(int argc, char *argv[])
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // CONCERN: USE 'allocator_arg' CONSTRUCTORS
+        // CONCERN: USE `allocator_arg` CONSTRUCTORS
         //
         // Concern:
-        //: 1 If both 'bslma::UsesBslmaAllocator<VALUE>::value' and
-        //:   'bslmf::UsesAllocatorArgT<VALUE>::value' are 'true'
-        //:   'VALUE(allocator_arg, alloc, ...)' constructor must be used.
+        // 1. If both `bslma::UsesBslmaAllocator<VALUE>::value` and
+        //    `bslmf::UsesAllocatorArgT<VALUE>::value` are `true`
+        //    `VALUE(allocator_arg, alloc, ...)` constructor must be used.
         //
         // Plan:
-        //: 1 Declare a type that uses 'allocator_arg' copy-construction.
-        //:   Declare both traits 'true' for this type.  Create a
-        //:   'bdlcc::Cache<?, OurType>' object and try to call 'insert()'
-        //:   for it.  The code must compile successfully.
+        // 1. Declare a type that uses `allocator_arg` copy-construction.
+        //    Declare both traits `true` for this type.  Create a
+        //    `bdlcc::Cache<?, OurType>` object and try to call `insert()`
+        //    for it.  The code must compile successfully.
         //
         // Testing:
-        //   CONCERN: USE 'allocator_arg' CONSTRUCTORS
+        //   CONCERN: USE `allocator_arg` CONSTRUCTORS
         // --------------------------------------------------------------------
 
         bslma::TestAllocator ta("test");
@@ -4329,12 +4345,12 @@ int main(int argc, char *argv[])
         // REPRODUCE DRQS 134930805
         //
         // Concern:
-        //: 1 There was a bug where 'insert' was failing if the 'VALUE'
-        //:   template paramter was a shared ptr.
+        // 1. There was a bug where `insert` was failing if the `VALUE`
+        //    template paramter was a shared ptr.
         //
         // Plan:
-        //: 1 Create a 'bdlcc::Cache' with a shared ptr 'VALUE' and insert an
-        //:   element into it.
+        // 1. Create a `bdlcc::Cache` with a shared ptr `VALUE` and insert an
+        //    element into it.
         // --------------------------------------------------------------------
 
         bslma::TestAllocator ta("test");
@@ -4415,13 +4431,13 @@ int main(int argc, char *argv[])
         //   4th parameter: if F, use FIFO for eviction policy; LRU othrwise.
         //
         // Concerns:
-        //: 1 Calculates wall time, user time, and system time for inserting
-        //:   the given rows.
+        // 1. Calculates wall time, user time, and system time for inserting
+        //    the given rows.
         //
         // Plan:
-        //: 1 Create a CachePerformance object, and use testInsert.  High water
-        //:   mark is set above eviction. Run 10 repetitions.
-        //:   (C-1)
+        // 1. Create a CachePerformance object, and use testInsert.  High water
+        //    mark is set above eviction. Run 10 repetitions.
+        //    (C-1)
         //
         // Testing:
         //   INSERT PERFORMANCE
@@ -4456,13 +4472,13 @@ int main(int argc, char *argv[])
         //   into.
         //
         // Concerns:
-        //: 1 Calculates wall time, user time, and system time for inserting
-        //:   the given rows in bulk.
+        // 1. Calculates wall time, user time, and system time for inserting
+        //    the given rows in bulk.
         //
         // Plan:
-        //: 1 Create a CachePerformance object, and use testInsertBulk.  High
-        //:   mark is set above eviction. Run 10 repetitions.
-        //:   (C-1)
+        // 1. Create a CachePerformance object, and use testInsertBulk.  High
+        //    mark is set above eviction. Run 10 repetitions.
+        //    (C-1)
         //
         // Testing:
         //   INSERT BULK PERFORMANCE
@@ -4505,14 +4521,14 @@ int main(int argc, char *argv[])
         //   finding the key given.
         //
         // Concerns:
-        //: 1 Calculates wall time, user time, and system time for reading a
-        //:   random generated key from the pre-loaded cache.
+        // 1. Calculates wall time, user time, and system time for reading a
+        //    random generated key from the pre-loaded cache.
         //
         // Plan:
-        //: 1 Create a CachePerformance object, and use initRead to pre-load
-        //:   it.  High mark is set above eviction.  Then run testRead.  Run 10
-        //:   repetitions.
-        //:   (C-1)
+        // 1. Create a CachePerformance object, and use initRead to pre-load
+        //    it.  High mark is set above eviction.  Then run testRead.  Run 10
+        //    repetitions.
+        //    (C-1)
         //
         // Testing:
         //   READ PERFORMANCE
@@ -4565,16 +4581,16 @@ int main(int argc, char *argv[])
         //   finding the key given.
         //
         // Concerns:
-        //: 1 Calculates wall time, user time, and system time for a
-        //:   combination of reading a random generated key from the pre-loaded
-        //:   cache, and inserting random values into the cache.
+        // 1. Calculates wall time, user time, and system time for a
+        //    combination of reading a random generated key from the pre-loaded
+        //    cache, and inserting random values into the cache.
         //
         // Plan:
-        //: 1 Create a CachePerformance object, and use initRead to pre-load
-        //:   it.  High mark is set above eviction.  Then run testReadWrite.
-        //:   Note that testReadWrite run inserts for the writer threads and
-        //:   tryGetValue for the reader threads.  Run 10 repetitions.
-        //:   (C-1)
+        // 1. Create a CachePerformance object, and use initRead to pre-load
+        //    it.  High mark is set above eviction.  Then run testReadWrite.
+        //    Note that testReadWrite run inserts for the writer threads and
+        //    tryGetValue for the reader threads.  Run 10 repetitions.
+        //    (C-1)
         //
         // Testing:
         //   READ WRITE PERFORMANCE

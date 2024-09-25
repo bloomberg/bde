@@ -17,8 +17,8 @@
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
-#include <bsl_cstdlib.h>     // 'atoi'
-#include <bsl_cstring.h>     // 'memcpy'
+#include <bsl_cstdlib.h>     // `atoi`
+#include <bsl_cstring.h>     // `memcpy`
 #include <bsl_iostream.h>
 #include <bsl_list.h>
 #include <bsl_map.h>
@@ -40,9 +40,9 @@ using namespace bsl;  // automatically added by script
 //                                  Overview
 //                                  --------
 // The goals of this test suite are to verify that 1)
-// 'bdlma::ConcurrentMultipoolAllocator' correctly proxies memory requests
-// (except deallocation) to its 'bdlma::ConcurrentMultipool' member; and 2)
-// 'deallocate' method does *not* deallocate any memory.
+// `bdlma::ConcurrentMultipoolAllocator` correctly proxies memory requests
+// (except deallocation) to its `bdlma::ConcurrentMultipool` member; and 2)
+// `deallocate` method does *not* deallocate any memory.
 //
 // To achieve goal 1, create a string allocator and a string pool, and supply
 // each with its own instance of test allocator.  Request memory of varying
@@ -53,7 +53,7 @@ using namespace bsl;  // automatically added by script
 // To achieve goal 2, create a string allocator supplied with a test allocator.
 // Request memory of varying sizes and then deallocate each memory.  Verify
 // that the number of bytes in use indicated by the test allocator does not
-// decrease after each 'deallocate' method invocation.
+// decrease after each `deallocate` method invocation.
 //-----------------------------------------------------------------------------
 // [1] bdlma::ConcurrentMultipoolAllocator(numPools, basicAllocator);
 // [1] ~bdlma::ConcurrentMultipoolAllocator();
@@ -119,8 +119,9 @@ void aSsErT(int c, const char *s, int i)
 typedef bdlma::ConcurrentMultipoolAllocator Obj;
 
 // Warning: keep this in sync with bdema_Multipool.h!
+
+/// Stores pool number of this item.
 struct Header {
-    // Stores pool number of this item.
     union {
         int                                 d_pool;   // pool for this item
         bsls::AlignmentUtil::MaxAlignedType d_dummy;  // force max. alignment
@@ -131,10 +132,10 @@ struct Header {
 //                      HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Calculate the index of the pool that should allocate objects that are of
+/// the specified `objSize` (in bytes) from a multipool allocator managing
+/// the specified `numPools` number of memory pools.
 static int calcPool(int numPools, int objSize)
-    // Calculate the index of the pool that should allocate objects that are of
-    // the specified 'objSize' (in bytes) from a multipool allocator managing
-    // the specified 'numPools' number of memory pools.
 {
     ASSERT(0 < numPools);
     ASSERT(0 < objSize);
@@ -154,9 +155,9 @@ static int calcPool(int numPools, int objSize)
     return poolIndex;
 }
 
+/// Return the index of the pool that allocated the memory at the specified
+/// `address`.
 inline static int recPool(char *address)
-    // Return the index of the pool that allocated the memory at the specified
-    // 'address'.
 {
     ASSERT(address);
 
@@ -165,20 +166,20 @@ inline static int recPool(char *address)
     return h->d_header.d_pool;
 }
 
+/// Return the number of bytes between the specified `address1` and the
+/// specified `address2`.
 inline int delta(char *address1, char *address2)
-    // Return the number of bytes between the specified 'address1' and the
-    // specified 'address2'.
 {
     return static_cast<int>(address1 < address2
                           ? address2 - address1
                           : address1 - address2);
 }
 
+/// Using only primary manipulators, extend the capacity of the specified
+/// `object` to (at least) the specified `numElements` each of the specified
+/// `objSize` bytes, then remove all elements leaving `object` empty.  The
+/// behavior is undefined unless `0 <= numElements` and `0 <= objSize`.
 void stretchRemoveAll(Obj *object, int numElements, int objSize)
-    // Using only primary manipulators, extend the capacity of the specified
-    // 'object' to (at least) the specified 'numElements' each of the specified
-    // 'objSize' bytes, then remove all elements leaving 'object' empty.  The
-    // behavior is undefined unless '0 <= numElements' and '0 <= objSize'.
 {
     ASSERT(object);
     ASSERT(0 <= numElements);
@@ -198,22 +199,22 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using a 'bdlma::ConcurrentMultipoolAllocator'
+///Example 1: Using a `bdlma::ConcurrentMultipoolAllocator`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// A 'bdlma::ConcurrentMultipoolAllocator' can be used to supply memory to
-// node-based data structures such as 'bsl::set', 'bsl::list' or 'bsl::map'.
+// A `bdlma::ConcurrentMultipoolAllocator` can be used to supply memory to
+// node-based data structures such as `bsl::set`, `bsl::list` or `bsl::map`.
 // Suppose we are implementing a container of named graphs data structure,
 // where a graph is defined by a set of edges and nodes.  The various
 // fixed-sized nodes can be efficiently allocated by a
-// 'bdlma::ConcurrentMultipoolAllocator'.
+// `bdlma::ConcurrentMultipoolAllocator`.
 //
-// First, the edge class, 'my_Edge', is defined as follows:
-//..
+// First, the edge class, `my_Edge`, is defined as follows:
+// ```
     class my_Node;
 
+    /// This class represents an edge within a graph.  Both ends of the
+    /// edge must be connected to nodes.
     class my_Edge {
-        // This class represents an edge within a graph.  Both ends of the
-        // edge must be connected to nodes.
 
         // DATA
         my_Node *d_first;   // first node
@@ -223,9 +224,10 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 
       public:
         // CREATORS
+
+        /// Create an edge that connects to the specified `first` and
+        /// `second` nodes.
         my_Edge(my_Node *first, my_Node *second);
-            // Create an edge that connects to the specified 'first' and
-            // 'second' nodes.
 
         // ...
     };
@@ -235,12 +237,13 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
     : d_first(first), d_second(second)
     {
     }
-//..
-// Then, the node class, 'my_Node', is defined as follows:
-//..
+// ```
+// Then, the node class, `my_Node`, is defined as follows:
+// ```
+
+    /// This class represents a node within a graph.  A node can be
+    /// connected to any number of edges.
     class my_Node {
-        // This class represents a node within a graph.  A node can be
-        // connected to any number of edges.
 
         // DATA
         bsl::set<my_Edge *> d_edges;  // set of edges this node connects to
@@ -256,11 +259,12 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
         BSLMF_NESTED_TRAIT_DECLARATION(my_Node, bslma::UsesBslmaAllocator);
 
         // CREATORS
+
+        /// Create a node not connected to any other nodes.  Optionally
+        /// specify a `basicAllocator` used to supply memory.  If
+        /// `basicAllocator` is 0, the currently installed default allocator
+        /// is used.
         explicit my_Node(bslma::Allocator *basicAllocator = 0);
-            // Create a node not connected to any other nodes.  Optionally
-            // specify a 'basicAllocator' used to supply memory.  If
-            // 'basicAllocator' is 0, the currently installed default allocator
-            // is used.
 
         // ...
     };
@@ -270,11 +274,12 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
     : d_edges(basicAllocator)
     {
     }
-//..
-// Then we define the graph class, 'my_Graph', as follows:
-//..
+// ```
+// Then we define the graph class, `my_Graph`, as follows:
+// ```
+
+    /// This class represents a graph having sets of nodes and edges.
     class my_Graph {
-        // This class represents a graph having sets of nodes and edges.
 
         // DATA
         bsl::set<my_Edge> d_edges;  // set of edges in this graph
@@ -291,10 +296,11 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
         BSLMF_NESTED_TRAIT_DECLARATION(my_Graph, bslma::UsesBslmaAllocator);
 
         // CREATORS
+
+        /// Create an empty graph.  Optionally specify a `basicAllocator`
+        /// used to supply memory.  If `basicAllocator` is 0, the currently
+        /// installed default allocator is used.
         explicit my_Graph(bslma::Allocator *basicAllocator = 0);
-            // Create an empty graph.  Optionally specify a 'basicAllocator'
-            // used to supply memory.  If 'basicAllocator' is 0, the currently
-            // installed default allocator is used.
 
         // ...
     };
@@ -304,12 +310,13 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
     , d_nodes(basicAllocator)
     {
     }
-//..
+// ```
 // Then finally, the container for the collection of named graphs,
-// 'my_NamedGraphContainer', is defined as follows:
-//..
+// `my_NamedGraphContainer`, is defined as follows:
+// ```
+
+    /// This class stores a map that index graph names to graph objects.
     class my_NamedGraphContainer {
-        // This class stores a map that index graph names to graph objects.
 
         // DATA
         bsl::map<bsl::string, my_Graph> d_graphMap;  // map from graph names to
@@ -325,10 +332,11 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
                                        bslma::UsesBslmaAllocator);
 
         // CREATORS
+
+        /// Create an empty named graph container.  Optionally specify a
+        /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+        /// 0, the currently installed default allocator is used.
         explicit my_NamedGraphContainer(bslma::Allocator *basicAllocator = 0);
-            // Create an empty named graph container.  Optionally specify a
-            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-            // 0, the currently installed default allocator is used.
 
         // ...
     };
@@ -339,31 +347,31 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
     : d_graphMap(basicAllocator)
     {
     }
-//..
+// ```
 //
-///Example 2: Performance of a 'bdlma::ConcurrentMultipoolAllocator'
+///Example 2: Performance of a `bdlma::ConcurrentMultipoolAllocator`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// A 'bdlma::ConcurrentMultipoolAllocator' can greatly improve efficiency when
+// A `bdlma::ConcurrentMultipoolAllocator` can greatly improve efficiency when
 // it is used to supply memory to multiple node-based data structure, that
 // frequently both insert and remove nodes, while grows to significant size
 // before being destroyed.  The following experiment will illustrate the
-// benefits of using the 'bdlma::ConcurrentMultipoolAllocator' under the
+// benefits of using the `bdlma::ConcurrentMultipoolAllocator` under the
 // scenario by comparing the following 3 different allocator uses:
 //
-//: 1 Using the 'bslma::NewDeleteAllocator directly.
-//:
-//: 2 Using a 'bdlma::ConcurrentMultipoolAllocator as a direct substitute of
-//:   the 'bslma::NewDeleteAllocator'.
-//:
-//: 3 Exploiting the managed aspect of 'bslma_MultipoolAllocator' by avoiding
-//:   invocation of the destructor of the data structure; whereas, the
-//:   destruction of the allocator will automatically reclaim all memory.
+// 1. Using the 'bslma::NewDeleteAllocator directly.
 //
-// First, we create a test data structure that contain three 'bsl::list'.  Each
+// 2. Using a 'bdlma::ConcurrentMultipoolAllocator as a direct substitute of
+//    the `bslma::NewDeleteAllocator`.
+//
+// 3. Exploiting the managed aspect of `bslma_MultipoolAllocator` by avoiding
+//    invocation of the destructor of the data structure; whereas, the
+//    destruction of the allocator will automatically reclaim all memory.
+//
+// First, we create a test data structure that contain three `bsl::list`.  Each
 // list holds a different type of object, where each type has a different size.
 // For simplicity, we create these different object types as different
 // instantiations of a template class, parameterized on the object size:
-//..
+// ```
     template <int OBJECT_SIZE>
     class my_TestObject {
 
@@ -371,10 +379,10 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
         char d_data[OBJECT_SIZE];
 
     };
-//..
+// ```
 // Again, for simplicity, the size of these objects are chosen to be 20, 40,
 // and 80, instead of being parameterized as part of the test data structure:
-//..
+// ```
     class my_TestDataStructure {
 
         // PRIVATE TYPES
@@ -390,21 +398,21 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
       private:
         // Not implemented:
         my_TestDataStructure(const my_TestDataStructure&);
-//..
+// ```
 // The test will consist of the following steps:
 //
-//: 1 Push back into 'd_list1', then 'd_list2', then 'd_list3'.
-//: 2 Repeat #1.
-//: 3 Pop front from 'd_list1', then 'd_list2', then 'd_list3'.
+// 1. Push back into `d_list1`, then `d_list2`, then `d_list3`.
+// 2. Repeat #1.
+// 3. Pop front from `d_list1`, then `d_list2`, then `d_list3`.
 //
-// The above 3 steps will be repeated 'n' times, where 'n' is a parameter
+// The above 3 steps will be repeated `n` times, where `n` is a parameter
 // specified by the user.  This process will both grow the list and incorporate
 // a large number of node removals.  Note that nodes are removed from the front
 // of the list to simulate a particular real-world usage, where nodes removed
 // are rarely those recently added (this also remove the possibility of noise
 // from potential optimizations with relinquishing memory blocks that are most
 // recently allocated).
-//..
+// ```
       public:
         // CREATORS
         my_TestDataStructure(bslma::Allocator *basicAllocator = 0);
@@ -423,11 +431,11 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
     , d_list3(basicAllocator)
     {
     }
-//..
-// The 'push' method will push into the 3 'bsl::list' managed by
-// 'my_TestDataStructure' sequentially.  Similarly, the 'pop' method will pop
+// ```
+// The `push` method will push into the 3 `bsl::list` managed by
+// `my_TestDataStructure` sequentially.  Similarly, the `pop` method will pop
 // from the lists sequentially:
-//..
+// ```
     // MANIPULATORS
     void my_TestDataStructure::push()
     {
@@ -446,17 +454,17 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
             d_list2.pop_front();
             d_list3.pop_front();
     }
-//..
-// The above 'push' and 'pop' methods will allow us to evaluate the cost to add
+// ```
+// The above `push` and `pop` methods will allow us to evaluate the cost to add
 // and remove nodes using different allocators.  To evaluate the cost of
 // destruction (and hence deallocation of all allocated memory in the list
-// objects), we supply a 'static' 'test' method within a 'my_TestUtil' class to
+// objects), we supply a `static` `test` method within a `my_TestUtil` class to
 // create the test mechanism, run the test, and destroy the test mechanism.
 //
-// The 'test' method accepts a 'testLengthFactor' argument specified by the
-// user to control the length of the test.  The effect of 'testLengthFactor' is
+// The `test` method accepts a `testLengthFactor` argument specified by the
+// user to control the length of the test.  The effect of `testLengthFactor` is
 // shown below:
-//..
+// ```
 //  testLengthFactor            test size           n      iterations
 //  ----------------     ----------------     --------     ----------
 //        4                  10^4 = 10000           1          10000
@@ -481,18 +489,18 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 //                                            1000000              1
 //
 //   // ...
-//..
-// For each row of the specified 'testLengthFactor', a 'my_TestDataStructure'
+// ```
+// For each row of the specified `testLengthFactor`, a `my_TestDataStructure`
 // will be created "iterations" times, and each time the lists within the data
-// structure will grow by invoking 'push' twice and 'pop' once.  Note that, "n"
+// structure will grow by invoking `push` twice and `pop` once.  Note that, "n"
 // measures the effect of insertion and removal of nodes, while "iterations"
 // measures the effect of construction and destruction of entire lists of
 // nodes.
 //
-// The 'test' method will also accept an 'bslma::Allocator *', which will be
+// The `test` method will also accept an `bslma::Allocator *`, which will be
 // used as the allocator used to construct the test mechanism and its internal
 // lists:
-//..
+// ```
     class my_TestUtil {
 
       public:
@@ -536,14 +544,14 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
                 iterations /= 10;
             }
         }
-//..
+// ```
 // Next, to fully test the benefit of being able to relinquish all allocated
-// memory at once, we use the 'testManaged' method, which accepts only managed
+// memory at once, we use the `testManaged` method, which accepts only managed
 // allocators.  Instead of creating the test mechanism on the stack, the test
 // mechanism will be created on the heap.  After running the test, the
-// 'release' method of the allocator will reclaim all outstanding allocations
+// `release` method of the allocator will reclaim all outstanding allocations
 // at once, eliminating the need to run the destructor of the test mechanism:
-//..
+// ```
         static void testManaged(int                      testLengthFactor,
                                 bdlma::ManagedAllocator *managedAllocator)
         {
@@ -587,10 +595,10 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
             }
         }
     };
-//..
+// ```
 // Finally, in main, we run the test with the different allocators and
 // different allocator configuration based on command line arguments:
-//..
+// ```
 //  {
 //      int testLengthFactor = 5;
 //      const int NUM_POOLS  = 10;
@@ -646,11 +654,11 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 //
 //      return 0;
 //  }
-//..
+// ```
 // An excerpt of the results of the test running on IBM, under optimized mode,
-// using default constructed 'bdlma::ConcurrentMultipoolAllocator' parameters,
+// using default constructed `bdlma::ConcurrentMultipoolAllocator` parameters,
 // is shown below:
-//..
+// ```
 //  New Delete Allocator:
 //
 //  6       1       1000000 3.219204
@@ -680,11 +688,11 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 //  6       10000   100     0.394665
 //  6       100000  10      0.451662
 //  6       1000000 1       0.568951
-//..
-// It is clear that using a 'bdlma::MultipoolAllocator' results in an
+// ```
+// It is clear that using a `bdlma::MultipoolAllocator` results in an
 // improvement in memory allocation by a factor of about 4.  Furthermore, if
 // the managed aspect of the multipool allocator is exploited, the cost of
-// destruction rapidly decreases in relative terms as the list ('n') grows
+// destruction rapidly decreases in relative terms as the list (`n`) grows
 // larger.
 
 //=============================================================================
@@ -752,17 +760,17 @@ void my_DoubleStack::push(double value)
     d_stack_p[d_length++] = value;
 }
 
+/// Reallocate memory in the specified `array` to the specified `newSize`
+/// using the specified `basicAllocator`.  The specified `length` number of
+/// leading elements are preserved.  Since the
+///  class invariant requires that the physical capacity of the
+/// container may grow but never shrink; the behavior is undefined unless
+/// `length <= newSize`.
 static
 void reallocate(double           **array,
                 int                newSize,
                 int                length,
                 bslma::Allocator  *basicAllocator)
-    // Reallocate memory in the specified 'array' to the specified 'newSize'
-    // using the specified 'basicAllocator'.  The specified 'length' number of
-    // leading elements are preserved.  Since the
-    //  class invariant requires that the physical capacity of the
-    // container may grow but never shrink; the behavior is undefined unless
-    // 'length <= newSize'.
 {
     ASSERT(array);
     ASSERT(1 <= newSize);
@@ -842,23 +850,23 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:
       case 7: {
-// Finally, in 'main', we can create a 'bdlma::ConcurrentMultipoolAllocator'
-// and pass it to our 'my_NamedGraphContainer'.  Since we know that the maximum
-// block size needed is 32 (comes from 'sizeof(my_Graph)'), we can calculate
+// Finally, in `main`, we can create a `bdlma::ConcurrentMultipoolAllocator`
+// and pass it to our `my_NamedGraphContainer`.  Since we know that the maximum
+// block size needed is 32 (comes from `sizeof(my_Graph)`), we can calculate
 // the number of pools needed by using the formula specified in the
 // "configuration at construction" section:
-//..
+// ```
 //  largestPoolSize < 2 ^ (N + 2).
-//..
-// When solved for the above equation, the smallest 'N' that satisfies this
+// ```
+// When solved for the above equation, the smallest `N` that satisfies this
 // relationship is 3:
-//..
+// ```
     enum { k_NUM_POOLS = 3 };
 
     bdlma::ConcurrentMultipoolAllocator basicAllocator(k_NUM_POOLS);
 
     my_NamedGraphContainer container(&basicAllocator);
-//..
+// ```
 
       } break;
       case 6: {
@@ -871,7 +879,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   OLD USAGE EXAMPLE
@@ -914,10 +922,10 @@ int main(int argc, char *argv[])
 
             mp.deallocate(pS);
             mp.deallocate(pL);
-            // 'pS' and 'pL' are no longer valid addresses.
+            // `pS` and `pL` are no longer valid addresses.
 
             mp.release();
-            // Now 'pM' and 'pBuf' are also invalid addresses.
+            // Now `pM` and `pBuf` are also invalid addresses.
         }
       } break;
       case 5: {
@@ -976,7 +984,7 @@ int main(int argc, char *argv[])
         //   Create a multiPooling allocator initialized with a test allocator.
         //   Request memory of varying sizes and then deallocate each memory.
         //   Verify that the number of bytes in use indicated by the test
-        //   allocator does not decrease after each 'deallocate' method
+        //   allocator does not decrease after each `deallocate` method
         //   invocation.
         //
         // Testing:
@@ -986,7 +994,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "DEALLOCATE TEST" << endl
                                   << "===============" << endl;
 
-        if (verbose) cout << "Testing 'deallocate'." << endl;
+        if (verbose) cout << "Testing `deallocate`." << endl;
 
         const int DATA[] = { 0, 5, 12, 24, 32, 64, 256, 1000 };
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -1035,7 +1043,7 @@ int main(int argc, char *argv[])
         //   bdlma::ConcurrentMultipoolAllocator(int n,gsa,const int *ma,ba=0);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "Testing 'constructor' and 'destructor'"
+        if (verbose) cout << endl << "Testing `constructor` and `destructor`"
                           << endl << "======================================"
                           << endl;
 
@@ -1776,7 +1784,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   We have the following concerns:
-        //    1) The 'bdema::Multipool' constructor works properly:
+        //    1) The `bdema::Multipool` constructor works properly:
         //       a. The constructor is exception neutral w.r.t. memory
         //          allocation.
         //       b. The internal memory management system is hooked up properly
@@ -1791,12 +1799,12 @@ int main(int argc, char *argv[])
         // Plan:
         //   Create a test object using the constructor: 1) without
         //   exceptions and 2) in the presence of exceptions during memory
-        //   allocations using a 'bslma::TestAllocator' and varying its
+        //   allocations using a `bslma::TestAllocator` and varying its
         //   *allocation* *limit*.  When the object goes out of scope, verify
         //   that the destructor properly deallocates all memory that had been
         //   allocated to it.
         //
-        //   Concern 2 is addressed by making use of the 'allocate' method
+        //   Concern 2 is addressed by making use of the `allocate` method
         //   (which is thoroughly tested in case 3).
         //
         //   At the end, include a constructor test specifying a static buffer
@@ -1808,7 +1816,7 @@ int main(int argc, char *argv[])
         //   ~bdema::Multipool();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "Testing 'constructor' and 'destructor'"
+        if (verbose) cout << endl << "Testing `constructor` and `destructor`"
                           << endl << "======================================"
                           << endl;
 
@@ -1972,7 +1980,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "BASIC TEST" << endl
                                   << "==========" << endl;
 
-        if (verbose) cout << "Testing 'allocate', 'deallocate' and 'release'."
+        if (verbose) cout << "Testing `allocate`, `deallocate` and `release`."
                           << endl;
 
         const int DATA[] = { 5, 12, 24, 32, 64, 256, 1000 };

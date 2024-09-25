@@ -17,9 +17,9 @@
 
 #include <bsl_iostream.h>
 
-#include <climits>  // 'INT_MIN'
-#include <cstdio>   // 'printf'
-#include <cstdlib>  // 'atoi'
+#include <climits>  // `INT_MIN`
+#include <cstdio>   // `printf`
+#include <cstdlib>  // `atoi`
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -32,12 +32,12 @@ using bsl::endl;
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
 // This component contains a single class template,
-// 'bdlb::NullableAllocatedValue_PointerBitsPair', a regular value-semantic
+// `bdlb::NullableAllocatedValue_PointerBitsPair`, a regular value-semantic
 // private class holding a pointer and some number of flags.  The salient
-// attributes of a 'NullableAllocatedValue_PointerBitsPair' are the pointer and
+// attributes of a `NullableAllocatedValue_PointerBitsPair` are the pointer and
 // the value of the flags.  There are no non-salient attributes.  The primitive
-// manipulators are 'setPointer', which sets the pointer, 'setFlag' and
-// 'clearFlag', which manipulate the flags.
+// manipulators are `setPointer`, which sets the pointer, `setFlag` and
+// `clearFlag`, which manipulate the flags.
 //
 // ----------------------------------------------------------------------------
 // CREATORS
@@ -139,13 +139,13 @@ static int veryVeryVeryVerbose = 0; // For test allocators
 
 namespace {
 
+/// Compare the specified `value` to the specified `pointer` and `flags`.
+/// Return `true` if they match, and `false` otherwise.
 template <class TYPE, unsigned NUM_BITS>
 bool as_expected(
   const bdlb::NullableAllocatedValue_PointerBitsPair<TYPE, NUM_BITS>&  value,
   TYPE                                                                *pointer,
   unsigned                                                             flags)
-    // Compare the specified 'value' to the specified 'pointer' and 'flags'.
-    // Return 'true' if they match, and 'false' otherwise.
 {
     if (value.getPointer() != pointer) {
         return false;                                                 // RETURN
@@ -194,47 +194,47 @@ int main(int argc, char *argv[])
         //   have the same value.
         //
         // Concerns:
-        //: 1 The assignment operator can change the value of any modifiable
-        //:   target object to that of any source object.
-        //:
-        //: 2 The value of the source object is not modified.
-        //:
-        //: 3 Assigning an object to itself behaves as expected (alias-safety).
-        //:
-        //: 4 The signature and return type are standard.
-        //:
-        //: 5 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 6 Since this is a value-semantic object, it does not support
-        //:  move-assignment. However, we need to ensure that assignment from a
-        //:  rvalue-reference works.
-        //:
-        //: 7 No memory is allocated.
-        //:
+        // 1. The assignment operator can change the value of any modifiable
+        //    target object to that of any source object.
+        //
+        // 2. The value of the source object is not modified.
+        //
+        // 3. Assigning an object to itself behaves as expected (alias-safety).
+        //
+        // 4. The signature and return type are standard.
+        //
+        // 5. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 6. Since this is a value-semantic object, it does not support
+        //   move-assignment. However, we need to ensure that assignment from a
+        //   rvalue-reference works.
+        //
+        // 7. No memory is allocated.
+        //
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a member-function
-        //:   pointer having the appropriate signature and return type for the
-        //:   copy-assignment operator defined in this component.  (C-4)
-        //:
-        //: 2 Create a pair of objects, and give them different states. Assign
-        //:   one to the other, and check to see that the state of the
-        //:   destination object is modified, and that the state of the source
-        //:   object is unchanged. (C-1, C-2)
-        //:
-        //: 3 Assign an object to itself, and verify that the state of the
-        //:   object is unchanged. (C-3)
-        //:
-        //: 4 Take the address of the return value of the assignment, and
-        //:   verify that it is the same as the address of the destination.
-        //:   (C-5)
-        //:
-        //: 5 Assign an object from a MovableRef to another object, and verify
-        //:   that the state of the destination object is updated, and that the
-        //:   state of the source object is unchanged. (C-6)
-        //:
-        //: 6 Use the installed test allocator to verify that no memory is ever
-        //:   allocated from the default allocator.  (C-7)
+        // 1. Use the address of `operator=` to initialize a member-function
+        //    pointer having the appropriate signature and return type for the
+        //    copy-assignment operator defined in this component.  (C-4)
+        //
+        // 2. Create a pair of objects, and give them different states. Assign
+        //    one to the other, and check to see that the state of the
+        //    destination object is modified, and that the state of the source
+        //    object is unchanged. (C-1, C-2)
+        //
+        // 3. Assign an object to itself, and verify that the state of the
+        //    object is unchanged. (C-3)
+        //
+        // 4. Take the address of the return value of the assignment, and
+        //    verify that it is the same as the address of the destination.
+        //    (C-5)
+        //
+        // 5. Assign an object from a MovableRef to another object, and verify
+        //    that the state of the destination object is updated, and that the
+        //    state of the source object is unchanged. (C-6)
+        //
+        // 6. Use the installed test allocator to verify that no memory is ever
+        //    allocated from the default allocator.  (C-7)
         //
         // Testing:
         //   operator=(const NAV_PBP&);
@@ -288,45 +288,45 @@ int main(int argc, char *argv[])
       case 7: {
         // --------------------------------------------------------------------
         // SWAP MEMBER AND FREE FUNCTIONS
-        //   Ensure that the free 'swap' function is implemented and can
+        //   Ensure that the free `swap` function is implemented and can
         //   exchange the values of any two objects.  Ensure that member
-        //   'swap' is implemented and can exchange the values of any two
+        //   `swap` is implemented and can exchange the values of any two
         //   objects that use the same allocator.
         //
         // Concerns:
-        //: 1 Both functions exchange the values of the (two) supplied objects.
-        //:
-        //: 2 No memory is allocated.
-        //:
-        //: 3 Using either function to swap an object with itself does not
-        //:   affect the value of the object (alias-safety).
-        //:
-        //: 4 The free 'swap' function is discoverable through ADL (Argument
-        //:   Dependent Lookup).
-        //:
-        //: 5 The signature and return type are standard.
-        //:
+        // 1. Both functions exchange the values of the (two) supplied objects.
+        //
+        // 2. No memory is allocated.
+        //
+        // 3. Using either function to swap an object with itself does not
+        //    affect the value of the object (alias-safety).
+        //
+        // 4. The free `swap` function is discoverable through ADL (Argument
+        //    Dependent Lookup).
+        //
+        // 5. The signature and return type are standard.
+        //
         // Plan:
-        //: 1 Use the addresses of the 'swap' member and free functions defined
-        //:   in this component to initialize, respectively, member-function
-        //:   and free-function pointers having the appropriate signatures and
-        //:   return types.  (C-5)
-        //:
-        //: 1 Create a pair of objects, and give them different states. Swap
-        //:   one with the other, and check to see that the state of the source
-        //:   and the state of the destination are exchanged.
-        //:   (C-1)
-        //:
-        //: 2 Swap an object with itself, and verify that the state of the
-        //:   object is unchanged. (C-3)
-        //:
-        //: 3 Use the 'bslalg::SwapUtil' helper function template to swap the
-        //:   values of two object, using the free 'swap' function defined in
-        //:   this component, then verify that the values have been exchanged.
-        //:   (C-4)
-        //:
-        //: 4 Use the installed test allocator to verify that no memory is ever
-        //:   allocated from the default allocator.  (C-2)
+        // 1. Use the addresses of the `swap` member and free functions defined
+        //    in this component to initialize, respectively, member-function
+        //    and free-function pointers having the appropriate signatures and
+        //    return types.  (C-5)
+        //
+        // 1. Create a pair of objects, and give them different states. Swap
+        //    one with the other, and check to see that the state of the source
+        //    and the state of the destination are exchanged.
+        //    (C-1)
+        //
+        // 2. Swap an object with itself, and verify that the state of the
+        //    object is unchanged. (C-3)
+        //
+        // 3. Use the `bslalg::SwapUtil` helper function template to swap the
+        //    values of two object, using the free `swap` function defined in
+        //    this component, then verify that the values have been exchanged.
+        //    (C-4)
+        //
+        // 4. Use the installed test allocator to verify that no memory is ever
+        //    allocated from the default allocator.  (C-2)
         //
         // Testing:
         //   void swap(NAV_PBP& other);
@@ -398,27 +398,27 @@ int main(int argc, char *argv[])
         //   other one, such that the two objects have the same value.
         //
         // Concerns:
-        //: 1 The copy constructor creates an object having the same value as
-        //:   that of the supplied original object.
-        //:
-        //: 2 The original object is passed as a 'const' reference.
-        //:
-        //: 3 The value of the original object is unchanged.
-        //:
-        //: 4 Since this is a value-semantic object, it does not support
-        //:  move-assignment. However, we need to ensure that assignment from a
-        //:  rvalue-reference works.
-        //:
-        //: 5 No memory is allocated.
+        // 1. The copy constructor creates an object having the same value as
+        //    that of the supplied original object.
+        //
+        // 2. The original object is passed as a `const` reference.
+        //
+        // 3. The value of the original object is unchanged.
+        //
+        // 4. Since this is a value-semantic object, it does not support
+        //   move-assignment. However, we need to ensure that assignment from a
+        //   rvalue-reference works.
+        //
+        // 5. No memory is allocated.
         //
         // Plan:
-        //: 1 Create an object, and give it a known state. Construct another
-        //:   object from a const reference to the first, and verify that the
-        //:   new object has the same state as the original and the state of
-        //:   the original is unchanged. (C-1, C-2, C-3)
-        //:
-        //: 2 Use the installed test allocator to verify that no memory is ever
-        //:   allocated from the default allocator.  (C-5)
+        // 1. Create an object, and give it a known state. Construct another
+        //    object from a const reference to the first, and verify that the
+        //    new object has the same state as the original and the state of
+        //    the original is unchanged. (C-1, C-2, C-3)
+        //
+        // 2. Use the installed test allocator to verify that no memory is ever
+        //    allocated from the default allocator.  (C-5)
         //
         // Testing:
         //   NullableAllocatedValue_PointerBitsPair(const NAV_PBP &);
@@ -451,46 +451,46 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // EQUALITY-COMPARISON OPERATORS
-        //   Ensure that '==' and '!=' are the operational definition of value.
+        //   Ensure that `==` and `!=` are the operational definition of value.
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if each of
-        //:   their corresponding salient attributes respectively compares
-        //:   equal.
-        //:
-        //: 2 All salient attributes participate in the comparison.
-        //:
-        //: 3 No non-salient attributes participate.
-        //:
-        //: 4 'true  == (X == X)'  (i.e., identity)
-        //:
-        //: 5 'false == (X != X)'  (i.e., identity)
-        //:
-        //: 6 'X == Y' if and only if 'Y == X'  (i.e., commutativity)
-        //:
-        //: 7 'X != Y' if and only if 'Y != X'  (i.e., commutativity)
-        //:
-        //: 8 'X != Y' if and only if '!(X == Y)'
-        //:
-        //: 9 Non-modifiable objects can be compared (i.e., 'const' objects and
-        //:   'const' references).
-        //:
-        //:10 No memory is allocated.
-        //:
-        //:11 The equality operator's signature and return type are standard.
-        //:
+        // 1. Two objects, `X` and `Y`, compare equal if and only if each of
+        //    their corresponding salient attributes respectively compares
+        //    equal.
+        //
+        // 2. All salient attributes participate in the comparison.
+        //
+        // 3. No non-salient attributes participate.
+        //
+        // 4. `true  == (X == X)`  (i.e., identity)
+        //
+        // 5. `false == (X != X)`  (i.e., identity)
+        //
+        // 6. `X == Y` if and only if `Y == X`  (i.e., commutativity)
+        //
+        // 7. `X != Y` if and only if `Y != X`  (i.e., commutativity)
+        //
+        // 8. `X != Y` if and only if `!(X == Y)`
+        //
+        // 9. Non-modifiable objects can be compared (i.e., `const` objects and
+        //    `const` references).
+        //
+        // 10. No memory is allocated.
+        //
+        // 11. The equality operator's signature and return type are standard.
+        //
         // Plan:
-        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the two homogeneous, free equality-
-        //:   comparison operators defined in this component.  (C-11)
-        //:
-        //: 2 Create several objects with both different and the same values,
-        //:   and compare both the actual objects, and const references to the
-        //:   objects.   Ensure that they compare in the same manner.  (C-1..9)
-        //:
-        //: 3 Use the test allocator from P-2 to verify that no memory is ever
-        //:   allocated from the default allocator.  (C-10)
+        // 1. Use the respective addresses of `operator==` and `operator!=` to
+        //    initialize function pointers having the appropriate signatures
+        //    and return types for the two homogeneous, free equality-
+        //    comparison operators defined in this component.  (C-11)
+        //
+        // 2. Create several objects with both different and the same values,
+        //    and compare both the actual objects, and const references to the
+        //    objects.   Ensure that they compare in the same manner.  (C-1..9)
+        //
+        // 3. Use the test allocator from P-2 to verify that no memory is ever
+        //    allocated from the default allocator.  (C-10)
         //
         // Testing:
         //   bool equal(const NAV_PBP& other) const;
@@ -610,29 +610,29 @@ int main(int argc, char *argv[])
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 Each accessor returns the value of the corresponding attribute
-        //:   of the object.
-        //:
-        //: 2 Each accessor method is declared 'const'.
-        //:
-        //: 3 No accessor allocates any memory.
-        //:
+        // 1. Each accessor returns the value of the corresponding attribute
+        //    of the object.
+        //
+        // 2. Each accessor method is declared `const`.
+        //
+        // 3. No accessor allocates any memory.
+        //
         // Plan:
-        //: 1 Create two NullableAllocatedValue_PointerBitsPair objects with
-        //:   different attributes.
-        //:
-        //: 2 Verify that each basic accessor, invoked on a 'const' reference
-        //:   to the object created in P-1, returns the expected value.  (C-2)
-        //:
-        //: 3 For each salient attribute (contributing to value):
-        //:   1 Use the corresponding primary manipulator to set the attribute
-        //:     to a unique value.
-        //:
-        //:   2 Use the corresponding basic accessor to verify the new
-        //:     expected value.  (C-1)
-        //:
-        //: 4 Use the test allocator from P-2 to verify that no memory is ever
-        //:   allocated from the default allocator.  (C-3)
+        // 1. Create two NullableAllocatedValue_PointerBitsPair objects with
+        //    different attributes.
+        //
+        // 2. Verify that each basic accessor, invoked on a `const` reference
+        //    to the object created in P-1, returns the expected value.  (C-2)
+        //
+        // 3. For each salient attribute (contributing to value):
+        //   1. Use the corresponding primary manipulator to set the attribute
+        //      to a unique value.
+        //
+        //   2. Use the corresponding basic accessor to verify the new
+        //      expected value.  (C-1)
+        //
+        // 4. Use the test allocator from P-2 to verify that no memory is ever
+        //    allocated from the default allocator.  (C-3)
         //
         // Testing:
         //   bool readFlag() const;
@@ -683,19 +683,19 @@ int main(int argc, char *argv[])
         //   for thorough testing.
         //
         // Concerns:
-        //: 1 The value constructor can create an object having any value that
-        //:   does not violate the constructor's documented preconditions.
-        //:
-        //: 2 The value constructor allocates no memory.
+        // 1. The value constructor can create an object having any value that
+        //    does not violate the constructor's documented preconditions.
+        //
+        // 2. The value constructor allocates no memory.
         //
         // Plan:
-        //: 1 Create several NullableAllocatedValue_PointerBitsPair objects
-        //:   with different parameters. Verify that the objects contain the
-        //:   expected values.
-        //:   (C-1)
-        //:
-        //: 2 Use the test allocator from P-2 to verify that no memory is ever
-        //:   allocated from the default allocator.  (C-2)
+        // 1. Create several NullableAllocatedValue_PointerBitsPair objects
+        //    with different parameters. Verify that the objects contain the
+        //    expected values.
+        //    (C-1)
+        //
+        // 2. Use the test allocator from P-2 to verify that no memory is ever
+        //    allocated from the default allocator.  (C-2)
         //
         // Testing:
         //   NullableAllocatedValue_PointerBitsPair(TYPE *, unsigned);
@@ -727,26 +727,26 @@ int main(int argc, char *argv[])
         //   thorough testing, and use the destructor to destroy it safely.
         //
         // Concerns:
-        //: 1 An object created with the default constructor (with or without
-        //:   a supplied allocator) has the contractually specified default
-        //:   value.
-        //:
-        //: 2 The default constructor allocates no memory.
-        //:
-        //: 3 Each attribute is modifiable independently.
-        //:
-        //: 4 Each attribute can be set to represent any value that does not
-        //:   violate that attribute's documented constraints.
+        // 1. An object created with the default constructor (with or without
+        //    a supplied allocator) has the contractually specified default
+        //    value.
+        //
+        // 2. The default constructor allocates no memory.
+        //
+        // 3. Each attribute is modifiable independently.
+        //
+        // 4. Each attribute can be set to represent any value that does not
+        //    violate that attribute's documented constraints.
         //
         // Plan:
-        //: 1 Create a default-constructed object, and verify to make sure that
-        //:   all of the attributes have the expected values. (C-1)
-        //:
-        //: 2 Set each attribute, and afterwards verify that that attribute
-        //:   (and none of the others) has been changed as expected. (C-3, 4)
-        //:
-        //: 3 Verify that no temporary memory is allocated from the default
-        //:     allocator.  (C-2)
+        // 1. Create a default-constructed object, and verify to make sure that
+        //    all of the attributes have the expected values. (C-1)
+        //
+        // 2. Set each attribute, and afterwards verify that that attribute
+        //    (and none of the others) has been changed as expected. (C-3, 4)
+        //
+        // 3. Verify that no temporary memory is allocated from the default
+        //      allocator.  (C-2)
         //
         // Testing:
         //   NullableAllocatedValue_PointerBitsPair();
@@ -790,18 +790,18 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Construct a 'NullableAllocatedValue_PointerBitsPair'.  Verify
-        //:   that it is empty.
-        //:
-        //: 2 Construct a 'NullableAllocatedValue_PointerBitsPair' from a
-        //:   pointer.  Verify that  the held pointer is returned.
-        //:
-        //: 3 Set flags on the objects. Verify that the flags were set and
-        //:   cleared correctly.
+        // 1. Construct a `NullableAllocatedValue_PointerBitsPair`.  Verify
+        //    that it is empty.
+        //
+        // 2. Construct a `NullableAllocatedValue_PointerBitsPair` from a
+        //    pointer.  Verify that  the held pointer is returned.
+        //
+        // 3. Set flags on the objects. Verify that the flags were set and
+        //    cleared correctly.
         //
         // Testing:
         //   BREATHING TEST

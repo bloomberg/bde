@@ -37,7 +37,7 @@
 #ifndef BSLS_PLATFORM_OS_CYGWIN
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-// for 'EnumWindows'
+// for `EnumWindows`
 
 # pragma comment(lib, "user32.lib")
 # include <windows.h>
@@ -63,8 +63,8 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 6] USAGE EXAMPLE
-// [ 3] CONCERN: 'printStackTrace' works for routine in static library
-// [ 4] CONCERN: 'printStackTrace' works for inline routine on stack
+// [ 3] CONCERN: `printStackTrace` works for routine in static library
+// [ 4] CONCERN: `printStackTrace` works for inline routine on stack
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -181,7 +181,7 @@ typedef balst::StackTracePrintUtil_Test      PrintUtilTest;
     enum { e_DEMANGLE_PARENS = 0,
 
 # if  (BSLS_PLATFORM_CMP_VERSION >= 1700 && BSLS_PLATFORM_CMP_VERSION < 2000)
-    // MSVC cl-18.00, cl-19.00, and cl-19.10 don't demangle the '::' part
+    // MSVC cl-18.00, cl-19.00, and cl-19.10 don't demangle the `::` part
     // either.
 
            e_DEMANGLE_COLONS  = 0 };
@@ -210,7 +210,7 @@ typedef balst::StackTracePrintUtil_Test      PrintUtilTest;
 #endif
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BSLS_PLATFORM_CPU_64_BIT)
-// On Windows, longs aren't big enough to hold pointers or 'size_t's
+// On Windows, longs aren't big enough to hold pointers or `size_t`s
 
 #define SIZE_T_CONTROL_STRING "%llx"
 typedef long long unsigned int UintPtr;
@@ -239,9 +239,9 @@ typedef bsls::Types::IntPtr    IntPtr;
 static int verbose;
 static int veryVerbose;
 
-bsl::ostream *out_p;    // pointer to either 'cout' or a dummy stringstream
+bsl::ostream *out_p;    // pointer to either `cout` or a dummy stringstream
                         // that is never output, depending on the value of
-                        // 'verbose'.
+                        // `verbose`.
 
 const char *execName;
 
@@ -262,11 +262,11 @@ bool problem()
 // GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// The specified `matches` vector contains a sequence of strings.  This
+/// function is to assert that all of those strings are present, as
+/// substrings, in order, in the specified `str`.
 bool checkOutput(const bsl::string&               str,
                  const bsl::vector<const char *>& matches)
-    // The specified 'matches' vector contains a sequence of strings.  This
-    // function is to assert that all of those strings are present, as
-    // substrings, in order, in the specified 'str'.
 {
     const int ts = testStatus;
 
@@ -376,9 +376,9 @@ void logMessageHandler(bsls::LogSeverity::Enum  severity,
     ASSERT(checkOutput(output, match));
 }
 
+/// Recurse to the specified `depth`, then print out the stack trace to
+/// `cout`.
 void recurseAndThrow(int *depth)
-    // Recurse to the specified 'depth', then print out the stack trace to
-    // 'cout'.
 {
     if (--*depth > 0) {
         (*bslim::TestUtil::makeFunctionCallNonInline(&recurseAndThrow))(depth);
@@ -399,7 +399,7 @@ void recurseAndThrow(int *depth)
 
 namespace CASE_4 {
 
-// Pointer to be set to inline '&PrintUtil::forTestingOnlyDump'.
+// Pointer to be set to inline `&PrintUtil::forTestingOnlyDump`.
 
 void top()
 {
@@ -414,9 +414,9 @@ void top()
     pos = bsl::string::npos == pos ? 0 : pos + 1;
     inExec.erase(0, pos);
 
-    // The call to 'checkOutput' will verify that all the strings present in
-    // the vector 'matches' occur, in order, in the string 'dump' which
-    // contains the output of 'printStackTraceToString'.
+    // The call to `checkOutput` will verify that all the strings present in
+    // the vector `matches` occur, in order, in the string `dump` which
+    // contains the output of `printStackTraceToString`.
 
     bsl::vector<const char *> matches(&ta);
 
@@ -595,7 +595,7 @@ int phonyCompare(const void *, const void *)
 
     const bool stripped = NPOS != dump.find("--unknown--");
 
-    if (stripped) cout << "System libs stripped, unable to find 'qsort'\n";
+    if (stripped) cout << "System libs stripped, unable to find `qsort`\n";
 
     struct Data *STRINGS    = stripped ? strippedStrings : debugStrings;
     const int    numStrings = stripped ? NUM_STRIPPED_STRINGS
@@ -679,7 +679,7 @@ int top()
         {
             bslma::DefaultAllocatorGuard guard(&ta);
 
-            // 'bsl::stringstream::str' may create temporaries if the string is
+            // `bsl::stringstream::str` may create temporaries if the string is
             // large
 
             str = os.str();
@@ -709,7 +709,7 @@ int highMiddle(int i)
 
     calledTop = false;
 
-    i ^= ~i;            // effectively 'i = 0', but 'uses' value of 'i'
+    i ^= ~i;            // effectively `i = 0`, but `uses` value of `i`
     for (; i < 40; ++i) {
         if (i & 16) {
             i += 5;
@@ -812,7 +812,7 @@ bool top(bslma::Allocator *alloc)
         {
             bslma::DefaultAllocatorGuard guard(alloc);
 
-            // 'bsl::stringstream::str' may create temporaries if the string is
+            // `bsl::stringstream::str` may create temporaries if the string is
             // large
 
             str = myStream.str();
@@ -829,7 +829,7 @@ bool top(bslma::Allocator *alloc)
 
 int bottom(bslma::Allocator *alloc)
 {
-    // still attempting to thwart optimizer -- all this does is call 'top'
+    // still attempting to thwart optimizer -- all this does is call `top`
     // a bunch of times.
 
     called = false;
@@ -862,18 +862,18 @@ int bottom(bslma::Allocator *alloc)
                                     // Usage 1
                                     // -------
 
-// First, we define a recursive function 'recurseAndPrintStack' that recurses
-// to the specified 'depth', then calls
-// 'balst::StackTracePrintUtil::printStackTrace' to obtain a stack trace and
-// print it to 'cout'.  When we call 'printStackTrace', neither of the optional
-// arguments corresponding to 'maxFrames' or 'demanglingPreferredFlag' are
-// supplied; 'maxFrames' defaults to at least 1024 (which is more than we
-// need), and 'demanglingPreferredFlag' defaults to 'true'.
+// First, we define a recursive function `recurseAndPrintStack` that recurses
+// to the specified `depth`, then calls
+// `balst::StackTracePrintUtil::printStackTrace` to obtain a stack trace and
+// print it to `cout`.  When we call `printStackTrace`, neither of the optional
+// arguments corresponding to `maxFrames` or `demanglingPreferredFlag` are
+// supplied; `maxFrames` defaults to at least 1024 (which is more than we
+// need), and `demanglingPreferredFlag` defaults to `true`.
 
+/// Recurse to the specified `depth`, then print out the stack trace to
+/// `cout`.
 static
 void recurseAndPrintStack(int *depth)
-    // Recurse to the specified 'depth', then print out the stack trace to
-    // 'cout'.
 {
     if (--*depth > 0) {
         recurseAndPrintStack(depth);
@@ -886,11 +886,11 @@ void recurseAndPrintStack(int *depth)
                 // loop.
 }
 
-// Then, we call 'recurseAndPrintStack' from the main program.
+// Then, we call `recurseAndPrintStack` from the main program.
 
 // Now, invoking the main program on AIX produces the following output:
 
-// Finally, we observe the following about the above output to 'cout'.  Notice
+// Finally, we observe the following about the above output to `cout`.  Notice
 // that as the actual output would write each stack trace frame all on a single
 // line, and all the lines here were longer than 80 characters, it has been
 // manually edited to wrap and fit neatly within 79 character lines.  Also note
@@ -911,11 +911,11 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // make sure the shared lib containing 'malloc' is loaded
+    // make sure the shared lib containing `malloc` is loaded
 
     BSLA_MAYBE_UNUSED void *sharedLibMalloc = bsl::malloc(100);
 
-    // see if we can avoid calling 'malloc' from here on out
+    // see if we can avoid calling `malloc` from here on out
 
     bslma::TestAllocator ota;
     bdlma::SequentialAllocator ta(&ota);
@@ -923,7 +923,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator defaultAllocator;
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
-    // 'dummyOstream' is a way of achieving the equivalent of opening /dev/null
+    // `dummyOstream` is a way of achieving the equivalent of opening /dev/null
     // that works on Windoze.
 
     bsl::stringstream dummyOstream(&ta);
@@ -935,12 +935,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -949,7 +949,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TEST OF USAGE EXAMPLE\n"
                              "=====================\n";
 
-        // Call 'recurseAndPrintExample1' with will recurse 'depth' times, then
+        // Call `recurseAndPrintExample1` with will recurse `depth` times, then
         // print a stack trace.
 
         int depth = 5;
@@ -961,17 +961,17 @@ int main(int argc, char *argv[])
         // TESTING PRE-THROW LOGGER
         //
         // Concerns:
-        //: 1 That the pre throw logger works as designed.
+        // 1. That the pre throw logger works as designed.
         //
         // Plan:
-        //: 1 Set a pointer to the pre-throw logger as the hook for the
-        //:   'std::length_error' exception.
-        //:
-        //: 2 Set the 'bsls::Log::logMessageHandler' function to a function in
-        //:   this test driver to capture the output of 'BSLS_LOG_*'.  This
-        //:   function will check the the output is as expected.
-        //:
-        //: 3 Recurse a few times, then throw a length error.
+        // 1. Set a pointer to the pre-throw logger as the hook for the
+        //    `std::length_error` exception.
+        //
+        // 2. Set the `bsls::Log::logMessageHandler` function to a function in
+        //    this test driver to capture the output of `BSLS_LOG_*`.  This
+        //    function will check the the output is as expected.
+        //
+        // 3. Recurse a few times, then throw a length error.
         //
         // Testing:
         //   void logExceptionStackTrace(const char *, const char *);
@@ -1009,35 +1009,35 @@ int main(int argc, char *argv[])
         // TESTING WITH A FUNCTION IN A .h FILE IN THE CALL STACK
         //
         // Concern:
-        //: 1 That the stacktrace performs correctly if one of the functions
-        //:   on the call stack is defined in a .h file.
+        // 1. That the stacktrace performs correctly if one of the functions
+        //    on the call stack is defined in a .h file.
         //
         // Plan:
-        //: 1 A static inline function, 'forTestingOnlyDump', is defined within
-        //:   this class.  It does a stack trace using 'operator<<' and stores
-        //:   the result to a string.
-        //:
-        //: 2 'forTestingOnlyDump' must be called out of line to get it to
-        //:   leave a stack frame.  Since it is declared inline, the compiler
-        //:   will go to great lengths to inline it, especially in optimized
-        //:   mode.  Take a pointer to the function and call it through that
-        //:   pointer.
-        //:
-        //: 3 If we just store the address of the function to a pointer and
-        //:   call through that pointer, the optimizer will sometimes *STILL*
-        //:   figure out what we are doing and inline the call.  Call
-        //:   'bslim::TestUtil::identity', which does a transform on the
-        //:   function pointer that results in it being unchanged, that happens
-        //:   in another module so the compiler doesn't realize that it's an
-        //:   identity transform.  Thus, the compiler has no choice but to call
-        //:   the routine out of line.
-        //:
-        //: 4 On platforms / build modes that support source file names,
-        //:   verify that the source file name of the inline function is
-        //:   'balst_stacktrace.h'.
+        // 1. A static inline function, `forTestingOnlyDump`, is defined within
+        //    this class.  It does a stack trace using `operator<<` and stores
+        //    the result to a string.
+        //
+        // 2. `forTestingOnlyDump` must be called out of line to get it to
+        //    leave a stack frame.  Since it is declared inline, the compiler
+        //    will go to great lengths to inline it, especially in optimized
+        //    mode.  Take a pointer to the function and call it through that
+        //    pointer.
+        //
+        // 3. If we just store the address of the function to a pointer and
+        //    call through that pointer, the optimizer will sometimes *STILL*
+        //    figure out what we are doing and inline the call.  Call
+        //    `bslim::TestUtil::identity`, which does a transform on the
+        //    function pointer that results in it being unchanged, that happens
+        //    in another module so the compiler doesn't realize that it's an
+        //    identity transform.  Thus, the compiler has no choice but to call
+        //    the routine out of line.
+        //
+        // 4. On platforms / build modes that support source file names,
+        //    verify that the source file name of the inline function is
+        //    `balst_stacktrace.h`.
         //
         // Testing:
-        //   CONCERN: 'printStackTrace' works for inline routine on stack
+        //   CONCERN: `printStackTrace` works for inline routine on stack
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TEST WITH INLINE FUNCTION\n"
@@ -1052,25 +1052,25 @@ int main(int argc, char *argv[])
         // TESTING STACK TRACE WITH FUNCTION IN A SHARED LIBRARY
         //
         // Concerns:
-        //: 1 That correct routine names and library names are found if a
-        //:   routine from a shared library is on the stack.
+        // 1. That correct routine names and library names are found if a
+        //    routine from a shared library is on the stack.
         //
         // Plan:
-        //: 1 Create a routine that will do a stack trace.  Pass a pointer to
-        //:   it to a shared library routine that we know will call our
-        //:   routine.
-        //:
-        //: 2 Within our routine, do a stack trace, and examine it to verify
-        //:   that the shared library routine name and the shared library name
-        //:   appear appropriately.
+        // 1. Create a routine that will do a stack trace.  Pass a pointer to
+        //    it to a shared library routine that we know will call our
+        //    routine.
         //
-        //  On unix, we call 'qsort' with an array of length 2, which will
+        // 2. Within our routine, do a stack trace, and examine it to verify
+        //    that the shared library routine name and the shared library name
+        //    appear appropriately.
+        //
+        //  On unix, we call `qsort` with an array of length 2, which will
         //  result in the comparison function we provide being called once
-        //  within libc.  On windows, use 'EnumWindows' function from
-        //  'user32.dll' for the same purpose.
+        //  within libc.  On windows, use `EnumWindows` function from
+        //  `user32.dll` for the same purpose.
         //
         // Testing:
-        //   CONCERN: 'printStackTrace' works for routine in static library
+        //   CONCERN: `printStackTrace` works for routine in static library
         // --------------------------------------------------------------------
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -1093,42 +1093,42 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'printStackTrace'
+        // CLASS METHOD `printStackTrace`
         //
         // Concerns:
-        //: 1 The method outputs a correct sequence of routine names.
-        //:
-        //: 2 The number of frames printed does not exceed 'maxFrame'
-        //:
-        //: 3 Names are attempted to be demangled if 'demanglingPreferredFlag'
-        //:   is 'true', and are not demangled otherwise.
-        //:
-        //: 4 'demanglingPreferredFlag' defaults to 'true'.
-        //:
-        //: 5 The method correctly returns the given 'stream'.
-        //:
-        //: 6 Any allocated memory is released at the end of the method.
-        //:
-        //: 7 An error message is correctly printed when an error occurs.
-        //:
-        //: 8 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The method outputs a correct sequence of routine names.
+        //
+        // 2. The number of frames printed does not exceed `maxFrame`
+        //
+        // 3. Names are attempted to be demangled if `demanglingPreferredFlag`
+        //    is `true`, and are not demangled otherwise.
+        //
+        // 4. `demanglingPreferredFlag` defaults to `true`.
+        //
+        // 5. The method correctly returns the given `stream`.
+        //
+        // 6. Any allocated memory is released at the end of the method.
+        //
+        // 7. An error message is correctly printed when an error occurs.
+        //
+        // 8. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Call 'printStackTrace()' to print a stack trace to a
-        //:   stringstream.
-        //:
-        //: 2 Verify that the string created by the stringstream has the
-        //:   expected routine names.
-        //:
-        //: 3 Use the 'BSLS_ASSERTTEST_*' macros to verify that, in appropriate
-        //:   build modes, defensive checks are triggered for invalid
-        //:   arguments.
+        // 1. Call `printStackTrace()` to print a stack trace to a
+        //    stringstream.
+        //
+        // 2. Verify that the string created by the stringstream has the
+        //    expected routine names.
+        //
+        // 3. Use the `BSLS_ASSERTTEST_*` macros to verify that, in appropriate
+        //    build modes, defensive checks are triggered for invalid
+        //    arguments.
         //
         // Testing:
         //   bsl::ostream& printStackTrace(ostream& s, int max, bool demangle);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Testing 'printStackTrace'\n"
+        if (verbose) cout << "Testing `printStackTrace`\n"
                              "=========================\n";
 
         {
@@ -1158,14 +1158,14 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Several routines deep, do a stack trace to a string stream.
-        //:
-        //: 2 Check that the right sequence of routine names is present in
-        //:   the string stream.
+        // 1. Several routines deep, do a stack trace to a string stream.
+        //
+        // 2. Check that the right sequence of routine names is present in
+        //    the string stream.
         //
         // Testing:
         //   BREATHING TEST

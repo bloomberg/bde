@@ -99,7 +99,7 @@ static const struct {
     bool        d_isValid;      // valid flag
     bool        d_value;        // expected value
 } DATA[] = {
-    // Rows marked with 'ADD' indicate test data that added in order for every
+    // Rows marked with `ADD` indicate test data that added in order for every
     // state to be visited at least once (as found out by the state
     //
     // line   input string      pattern     validity   expected value
@@ -259,10 +259,10 @@ enum {
 
 enum {
     S0,  // no mismatch so far
-    S1,  // saw a '\' in 'pattern'
-    S2,  // saw a '*' in 'pattern'
-    RT,  // return 'true'
-    RF   // return 'false'
+    S1,  // saw a '\' in `pattern`
+    S2,  // saw a '*' in `pattern`
+    RT,  // return `true`
+    RF   // return `false`
 };
 
 static const int TOKEN[] = {
@@ -331,7 +331,7 @@ bool isMatch(const char *input, const char *pattern)
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The following function, 'LLVMFuzzerTestOneInput', is the entry point for the
+// The following function, `LLVMFuzzerTestOneInput`, is the entry point for the
 // clang fuzz testing facility.  See {http://bburl/BDEFuzzTesting} for details
 // on how to build and run with fuzz testing enabled.
 //-----------------------------------------------------------------------------
@@ -341,9 +341,9 @@ bool isMatch(const char *input, const char *pattern)
 #endif
 
 extern "C"
+/// Use the specified `data` array of `size` bytes as input to methods of
+/// this component and return zero.
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
-    // Use the specified 'data' array of 'size' bytes as input to methods of
-    // this component and return zero.
 {
     const char *FUZZ   = reinterpret_cast<const char *>(data);
     int         LENGTH = static_cast<int>(size);
@@ -358,10 +358,10 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     switch (test) { case 0:  // Zero is always the leading case.
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'isValidPattern'
+        // TESTING `isValidPattern`
         //
         // Plan:
-        //   Apply 'isValidPattern' to fuzz data and verify that the result is
+        //   Apply `isValidPattern` to fuzz data and verify that the result is
         //   correct by using a local implementation of pattern validation.
         //
         // Testing:
@@ -398,10 +398,10 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'isMatch'
+        // TESTING `isMatch`
         //
         // Plan:
-        //   Apply 'isValidPattern' and 'isMatch' to fuzz data and verify that
+        //   Apply `isValidPattern` and `isMatch` to fuzz data and verify that
         //   the result is correct by using a local implementation of matching
         //   input against patterns.
         //
@@ -516,7 +516,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // STATE MACHINE TEST
         // Concerns:
-        //   Our concern is that 'isMatch' should interpret the escape
+        //   Our concern is that `isMatch` should interpret the escape
         //   sequences and '*' correctly.
         //
         // Plan:
@@ -537,7 +537,7 @@ int main(int argc, char *argv[])
                           << "\n=================="
                           << endl;
 
-        if (verbose) cout << "\nTest state-machine-based 'isMatch'." << endl;
+        if (verbose) cout << "\nTest state-machine-based `isMatch`." << endl;
 
         using namespace BALL_PATTERNUTIL_TEST_CASE_2;
         ASSERT(NUMCLASSES * NUMCLASSES + 1
@@ -565,7 +565,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nCompare the efficiency of two 'isMatch' "
+        if (verbose) cout << "\nCompare the efficiency of two `isMatch` "
                           << "implementations." << endl;
 
         bsls::TimeInterval startTime;
@@ -581,7 +581,7 @@ int main(int argc, char *argv[])
 
         endTime = bsls::SystemTime::nowRealtimeClock();
 
-        if (verbose) cout << "\nElapsed time for 'PatternUtil::isMatch': "
+        if (verbose) cout << "\nElapsed time for `PatternUtil::isMatch`: "
                           << static_cast<double>(endTime.totalMicroseconds()
                               - startTime.totalMicroseconds()) / 1000000.0
                           << endl;
@@ -597,7 +597,7 @@ int main(int argc, char *argv[])
         endTime = bsls::SystemTime::nowRealtimeClock();
 
         if (verbose) cout << "\nElapsed time for state-machine-based "
-                          << "'isMatch': "
+                          << "`isMatch`: "
                           << static_cast<double>(endTime.totalMicroseconds()
                               - startTime.totalMicroseconds()) / 1000000.0
                           << endl;
@@ -608,7 +608,7 @@ int main(int argc, char *argv[])
         // TESTING isMatch and isValidPattern
         //
         // Concerns:
-        //   Our concern is that 'isMatch' should interpret the escape
+        //   Our concern is that `isMatch` should interpret the escape
         //   sequences and '*' correctly.
         //
         // Plan:
@@ -625,7 +625,7 @@ int main(int argc, char *argv[])
         //   static bool isValidPattern(const char *pattern);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'isMatch' and 'isValidPattern'"
+        if (verbose) cout << "\nTesting `isMatch` and `isValidPattern`"
                           << "\n======================================"
                           << endl;
 

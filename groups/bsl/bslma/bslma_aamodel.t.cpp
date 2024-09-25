@@ -12,8 +12,8 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
-#include <cstdio>   // 'printf'
-#include <cstdlib>  // 'atoi'
+#include <cstdio>   // `printf`
+#include <cstdlib>  // `atoi`
 
 #ifdef BDE_VERIFY
 // Suppress some pedantic bde_verify checks in this test driver
@@ -107,35 +107,35 @@ int veryVeryVeryVerbose = 0; // For test allocators
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Non Allocator-Aware (AA) class.
 struct NonAAClass {
-    // Non Allocator-Aware (AA) class.
 };
 
+/// Non Allocator-Aware (AA) class that nevertheless has an `allocator_type`
+/// typedef.
 struct VoidATClass {
-    // Non Allocator-Aware (AA) class that nevertheless has an 'allocator_type'
-    // typedef.
     typedef void allocator_type;
 };
 
+/// Class meeting minimal requirement for detection as *legacy-AA*.
 struct LegacyAAClass {
-    // Class meeting minimal requirement for detection as *legacy-AA*.
     BSLMF_NESTED_TRAIT_DECLARATION(LegacyAAClass, bslma::UsesBslmaAllocator);
 };
 
+/// Class meeting minimal requirement for detection as *bsl-AA*.
 struct BslAAClass {
-    // Class meeting minimal requirement for detection as *bsl-AA*.
 
     typedef bsl::allocator<int> allocator_type;
 };
 
+/// Class meeting minimal requirement for detection as *pmr-AA*.
 struct PmrAAClass {
-    // Class meeting minimal requirement for detection as *pmr-AA*.
 
     typedef bsl::polymorphic_allocator<int> allocator_type;
 };
 
+/// Class meeting minimal requirement for detection as *stl-AA*.
 struct StlAAClass {
-    // Class meeting minimal requirement for detection as *stl-AA*.
     struct allocator_type {
         BSLMF_NESTED_TRAIT_DECLARATION(allocator_type, bslma::IsStdAllocator);
         typedef int value_type;
@@ -144,7 +144,7 @@ struct StlAAClass {
     };
 };
 
-// These 'structs' would not meet the requirements for an AA type except that
+// These `structs` would not meet the requirements for an AA type except that
 // the corresponding trait is explicitly specialized below.
 struct LegacyAAByTrait { };
 struct BslAAByTrait { };
@@ -173,6 +173,10 @@ struct AAModelIsSupported<StlAAByTrait   , AAModelStl   > : bsl::true_type {};
 
 namespace {
 
+/// Return `true` if `PRED` is `true_type` and `false` if `PRED` is
+/// `false_type`.  This function does not participate in overload resolution
+/// unless its argument is (or is derived from) a Boolean specialization of
+/// `integral_constant`.
 template <class PRED>
 inline
 typename bsl::enable_if<
@@ -180,17 +184,13 @@ typename bsl::enable_if<
                         bsl::integral_constant<bool, PRED::value> *>::value,
         bool>::type
 predVal(PRED)
-    // Return 'true' if 'PRED' is 'true_type' and 'false' if 'PRED' is
-    // 'false_type'.  This function does not participate in overload resolution
-    // unless its argument is (or is derived from) a Boolean specialization of
-    // 'integral_constant'.
 {
     return PRED::value;
 }
 
+/// Return `true` if `DERIVED` is the same or derived from `BASE`.
 template <class DERIVED, class BASE>
 inline bool isDerivedFrom()
-    // Return 'true' if 'DERIVED' is the same or derived from 'BASE'.
 {
     return bsl::is_convertible<DERIVED *, BASE *>::value;
 }
@@ -205,14 +205,15 @@ namespace {
 
 ///Example 1: Conditionally Passing an Allocator to a Constructor
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates the use of 'AAModelIsSupported' to choose an
+// This example demonstrates the use of `AAModelIsSupported` to choose an
 // appropriate overload for AA constructors.  Consider a *bsl-AA* class,
-// 'Wrapper', that wraps an object of template-parameter type, 'TYPE'.  First,
+// `Wrapper`, that wraps an object of template-parameter type, `TYPE`.  First,
 // we define the data members:
-//..
+// ```
+
+    /// Wrap an object of type `TYPE`.
     template <class TYPE>
     class Wrapper {
-        // Wrap an object of type 'TYPE'.
 
         // DATA
         bsl::allocator<char> d_allocator;
@@ -221,18 +222,23 @@ namespace {
       public:
         // TYPES
         typedef bsl::allocator<char> allocator_type;
-//..
-// Next, we define the constructors.  The constructors for 'Wrapper' would all
-// take an optional 'allocator_type' argument, but the 'd_object' member might
+// ```
+// Next, we define the constructors.  The constructors for `Wrapper` would all
+// take an optional `allocator_type` argument, but the `d_object` member might
 // or might not be constructed with an allocator argument.  To handle the
 // allocator correctly, therefore, we choose to have two versions of each
-// constructor: one that is invoked if 'TYPE' is AA and one that is invoked if
+// constructor: one that is invoked if `TYPE` is AA and one that is invoked if
 // it is not.  Since both constructors have the same argument list, we must
 // make them templates and distinguish them using SFINAE so that only one
-// instantiation is valid, i.e., by using 'enable_if' along with the
-// 'AAModelIsSupported':
-//..
+// instantiation is valid, i.e., by using `enable_if` along with the
+// `AAModelIsSupported`:
+// ```
         // CREATORS
+
+        /// Construct a `Wrapper` using the specified `a` allocator, passing
+        /// the allocator to the wrapped object.  This constructor will not
+        /// participate in overload resolution unless `TYPE` supports the
+        /// legacy allocator-awareness model (*legacy-AA*).
         template <class ALLOC>
         explicit
         Wrapper(const ALLOC& a,
@@ -241,12 +247,13 @@ namespace {
                 && bslma::AAModelIsSupported<TYPE,bslma::AAModelLegacy>::value,
                     int
                 >::type = 0)
-            // Construct a 'Wrapper' using the specified 'a' allocator, passing
-            // the allocator to the wrapped object.  This constructor will not
-            // participate in overload resolution unless 'TYPE' supports the
-            // legacy allocator-awareness model (*legacy-AA*).
             : d_allocator(a), d_object(d_allocator.mechanism()) { }
 
+        /// Construct a `Wrapper` using the specified `a` allocator,
+        /// constructing the wrapped object without an explicit allocator.
+        /// This constructor will not participate in overload resolution if
+        /// `TYPE` supports the legacy allocator-awareness model
+        /// (*legacy-AA*).
         template <class ALLOC>
         explicit
         Wrapper(const ALLOC& a,
@@ -255,41 +262,38 @@ namespace {
                && !bslma::AAModelIsSupported<TYPE,bslma::AAModelLegacy>::value,
                    int
                 >::type = 0)
-            // Construct a 'Wrapper' using the specified 'a' allocator,
-            // constructing the wrapped object without an explicit allocator.
-            // This constructor will not participate in overload resolution if
-            // 'TYPE' supports the legacy allocator-awareness model
-            // (*legacy-AA*).
             : d_allocator(a), d_object() { }
-//..
+// ```
 // Support for *bsl-AA* implies support for *legacy-AA*, so the example above
 // needs to test for only the latter model; the first constructor overload is
-// selected if 'TYPE' implements either AA model.  Similarly
-// 'd_allocator.mechanism()' yields a common denominator type,
-// 'bslma::Allocator *' that can be passed to the constructor for 'd_object',
+// selected if `TYPE` implements either AA model.  Similarly
+// `d_allocator.mechanism()` yields a common denominator type,
+// `bslma::Allocator *` that can be passed to the constructor for `d_object`,
 // regardless of its preferred AA model.  The second overload is selected for
 // types that do *not* support the *legacy-AA* (or *bsl-AA*) model.  Note that
 // this example, though functional, does not handle all cases; e.g., it does
 // not handle types whose allocator constructor parameter is preceded by
-// 'bsl::allocator_arg_t'.  See higher-level components such as
-// 'bslma_contructionutil' for a more comprehensive treatment of AA constructor
+// `bsl::allocator_arg_t`.  See higher-level components such as
+// `bslma_contructionutil` for a more comprehensive treatment of AA constructor
 // variations.
 //
 // Next, we finish up our class by creating accessors to get the allocator and
 // wrapped object:
-//..
+// ```
         // ACCESSORS
+
+        /// Return the allocator used to construct this object.
         const allocator_type get_allocator() const { return d_allocator; }
-            // Return the allocator used to construct this object.
 
         const TYPE& value() const { return d_object; }
     };
-//..
+// ```
 // Now, to see the effect of these constructors, we'll use a simple AA class,
-// 'SampleAAType' that does nothing more than hold the allocator:
-//..
+// `SampleAAType` that does nothing more than hold the allocator:
+// ```
+
+    /// Sample AA class that adheres to the bsl-AA interface.
     class SampleAAType {
-        // Sample AA class that adheres to the bsl-AA interface.
 
         // DATA
         bsl::allocator<char> d_allocator;
@@ -309,13 +313,13 @@ namespace {
         // ACCESSORS
         allocator_type get_allocator() const { return d_allocator; }
     };
-//..
+// ```
 // Finally, in our main program, create an allocator and pass it to a couple of
-// 'Wrapper' objects, one instantiated with 'int' and the other instantiated
-// with our 'SampleAAType'.  We verify that both were constructed
-// appropriately, with the allocator being used by the 'SampleAAType' object,
+// `Wrapper` objects, one instantiated with `int` and the other instantiated
+// with our `SampleAAType`.  We verify that both were constructed
+// appropriately, with the allocator being used by the `SampleAAType` object,
 // as desired:
-//..
+// ```
     void usageExample1()
     {
         bslma::TestAllocator alloc;
@@ -328,34 +332,35 @@ namespace {
         ASSERT(&alloc == w2.get_allocator());
         ASSERT(&alloc == w2.value().get_allocator());
     }
-//..
-// Note that, even though 'SampleAAType' conforms to the *bsl-AA* interface, it
-// is also supports the *legacy-AA* model because 'bslma::Allocator *' is
-// convertible to 'bsl::allocator'.
+// ```
+// Note that, even though `SampleAAType` conforms to the *bsl-AA* interface, it
+// is also supports the *legacy-AA* model because `bslma::Allocator *` is
+// convertible to `bsl::allocator`.
 //
 ///Example 2: Choose an Implementation Based on Allocator-Aware (AA) model
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates the use of 'AAModel' to dispatch among several
+// This example demonstrates the use of `AAModel` to dispatch among several
 // implementations based on the AA model preferred by a parameter type.  We
 // would like a uniform way to get the allocator used by an object.  We'll
-// define a utility class, 'Util', containing a static member function
-// template, 'getAllocator(const TYPE& obj)' returning a 'bsl::allocator<char>'
+// define a utility class, `Util`, containing a static member function
+// template, `getAllocator(const TYPE& obj)` returning a `bsl::allocator<char>`
 // as follows:
 //
-//: o If 'TYPE' is *bsl-AA*, return 'obj.get_allocator()'.
-//: o If 'TYPE' is *legacy-AA*, return 'bsl::allocator<char>(obj.allocator())'.
-//: o If 'TYPE' is not AA, return 'bsl::allocator<char>()'.
-//: o If 'TYPE' is AA but not one of the above, compilation will fail.
+//  - If `TYPE` is *bsl-AA*, return `obj.get_allocator()`.
+//  - If `TYPE` is *legacy-AA*, return `bsl::allocator<char>(obj.allocator())`.
+//  - If `TYPE` is not AA, return `bsl::allocator<char>()`.
+//  - If `TYPE` is AA but not one of the above, compilation will fail.
 //
-// We'll use 'AAModel<TYPE>' to dispatch to one of three implementations of
-// 'getAllocator'.
+// We'll use `AAModel<TYPE>` to dispatch to one of three implementations of
+// `getAllocator`.
 //
-// First, we declare the 'Util' class and three private overloaded
+// First, we declare the `Util` class and three private overloaded
 // implemention functions, each taking an argument of a different AA model
 // tag:
-//..
+// ```
+
+    /// Namespace for functions that operate on AA types.
     class Util {
-        // Namespace for functions that operate on AA types.
 
         template <class TYPE>
         static bsl::allocator<char> getAllocatorImp(const TYPE& obj,
@@ -369,10 +374,10 @@ namespace {
         static bsl::allocator<char> getAllocatorImp(const TYPE&,
                                                     bslma::AAModelNone)
             { return bsl::allocator<char>(); }
-//..
+// ```
 // Next, we dispatch to one of the implementation functions using
-// 'AAModel<TYPE>' to yield a tag that indicates the AA model used by 'TYPE'.
-//..
+// `AAModel<TYPE>` to yield a tag that indicates the AA model used by `TYPE`.
+// ```
 
       public:
         // CLASS METHODS
@@ -380,12 +385,13 @@ namespace {
         static bsl::allocator<char> getAllocator(const TYPE& obj)
             { return getAllocatorImp(obj, bslma::AAModel<TYPE>()); }
     };
-//..
+// ```
 // Now, to check all of the possibilities, we create a minimal AA type sporting
 // the *legacy-AA* interface:
-//..
+// ```
+
+    /// Sample AA class that adheres to the bsl-AA interface.
     class SampleLegacyAAType {
-        // Sample AA class that adheres to the bsl-AA interface.
 
         // DATA
         bslma::Allocator *d_allocator_p;
@@ -402,12 +408,12 @@ namespace {
         // ACCESSORS
         bslma::Allocator *allocator() const { return d_allocator_p; }
     };
-//..
-// Finally, we create objects of 'SampleAAType' and 'SampleLegacyAAType' using
-// different allocators as well as an object of type 'float' (which, of course
-// is not AA), and verify that 'Util::getAllocator' returns the correct
+// ```
+// Finally, we create objects of `SampleAAType` and `SampleLegacyAAType` using
+// different allocators as well as an object of type `float` (which, of course
+// is not AA), and verify that `Util::getAllocator` returns the correct
 // allocator for each.
-//..
+// ```
     void usageExample2()
     {
         bslma::TestAllocator ta1, ta2;
@@ -443,12 +449,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLES
         //
         // Concerns:
-        //: 1 That the usage examples shown in the component-level
-        //:   documentation compile and run as described.
+        // 1. That the usage examples shown in the component-level
+        //    documentation compile and run as described.
         //
         // Plan:
-        //: 1 Copy the usage examples from the component header, changing
-        //:   'assert' to 'ASSERT' and execute them.
+        // 1. Copy the usage examples from the component header, changing
+        //    `assert` to `ASSERT` and execute them.
         //
         // Testing:
         //     USAGE EXAMPLES
@@ -463,34 +469,34 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'AAModel'
+        // TESTING `AAModel`
         //
         // Concerns:
-        //: 1 For each 'TYPE', 'AAModel<TYPE>' is derived from exactly one of
-        //:   the five AA *model tags**.  If a 'TYPE' supports more than one AA
-        //:   model, the returned tag will be the first supported of
-        //:   'AAModelPmr', 'AAModelBsl', 'AAModelLegacy', 'AAModelStl', and
-        //:   'AAModelNone'.
-        //: 2 If 'AAModelIsSupported' is explicitly specialized to 'true' for a
-        //:   specific 'TYPE' and 'MODEL', then 'AAModel' behaves as though
-        //:   'TYPE' supports that 'MODEL', even such support would not
-        //:   otherwise be deduceable.
+        // 1. For each `TYPE`, `AAModel<TYPE>` is derived from exactly one of
+        //    the five AA *model tags**.  If a `TYPE` supports more than one AA
+        //    model, the returned tag will be the first supported of
+        //    `AAModelPmr`, `AAModelBsl`, `AAModelLegacy`, `AAModelStl`, and
+        //    `AAModelNone`.
+        // 2. If `AAModelIsSupported` is explicitly specialized to `true` for a
+        //    specific `TYPE` and `MODEL`, then `AAModel` behaves as though
+        //    `TYPE` supports that `MODEL`, even such support would not
+        //    otherwise be deduceable.
         //
         // Plan:
-        //: 1 Define a set of classes with interfaces supporting each of the
-        //:   models (including non-AA interfaces).  Verify that
-        //:   'AAModel' is derived the expected *model tag* struct.  (C-1)
-        //: 2 Create types that do not meet the interface requirements for
-        //:   being AA but which are declared as being AA through
-        //:   specialization of 'AAModelIsSupported' for one of the AA *model
-        //:   tags*.  Add these types to the list of types tested in step 1 and
-        //:   ensure that the deduced results are as expected.  (C-2)
+        // 1. Define a set of classes with interfaces supporting each of the
+        //    models (including non-AA interfaces).  Verify that
+        //    `AAModel` is derived the expected *model tag* struct.  (C-1)
+        // 2. Create types that do not meet the interface requirements for
+        //    being AA but which are declared as being AA through
+        //    specialization of `AAModelIsSupported` for one of the AA *model
+        //    tags*.  Add these types to the list of types tested in step 1 and
+        //    ensure that the deduced results are as expected.  (C-2)
         //
         // Testing:
         //     AAModel<TYPE>
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'AAModel'"
+        if (verbose) printf("\nTESTING `AAModel`"
                             "\n=================\n");
 
         using namespace bslma;
@@ -517,68 +523,68 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'AAModelIsSupported'
+        // TESTING `AAModelIsSupported`
         //
         // Concerns:
-        //: 1 For each model, 'AAModelIsSupported<TYPE, MODEL>' is derived from
-        //:   'bsl::true_type' if 'TYPE' supports the specified 'MODEL';
-        //:   otherwise it is derived from 'bsl::false_type'.
-        //: 2 If, for a given 'TYPE', 'UsesBslmaAllocator<TYPE>::value' is
-        //:   'true', then 'AAModelIsSupported<TYPE, AAModelLegacy>' is derived
-        //:   from 'bsl::true_type' (but not necessarily vice-versa).
-        //: 3 If, for a given 'TYPE', 'TYPE::allocator_type' exists and is an
-        //:   allocator type, then 'AAModelIsSupported<TYPE, MODEL>' is
-        //:   'true_type' for one or more of 'AAModelBsl', 'AAModelPmr',
-        //:   'AAModelStl', depending on which allocator types are convertible
-        //:   to 'allocator_type'.  If 'TYPE::allocator_type' does not exists
-        //:   or is not an allocator class type, only 'AAModelIsSupported<TYPE,
-        //:   AAModelNone' is true.
-        //: 4 If 'AAModelIsSupported<TYPE, AAModelPmr>::value' is 'true', then
-        //:   'AAModelIsSupported<TYPE, AAModelBsl>' is also 'true'.  If
-        //:   'AAModelIsSupported<TYPE, AAModelBsl>::value' is 'true', then
-        //:   'AAModelIsSupported<TYPE, AAModelLegacy>' is also 'true'.  If
-        //:   either 'AAModelIsSupported<TYPE, AAModelPmr>::value' or
-        //:   'AAModelIsSupported<TYPE, AAModelBsl>' is 'true', then
-        //:   'AAModelIsSupported<TYPE, AAModelStl>' is also true.
-        //: 5 Concern 4 applies even for 'TYPE's for which 'AAModelIsSupported'
-        //:   is explicitly specialized to 'true' for a specific 'MODEL' (but
-        //:   not specialized to 'false' for one of the otherwise-deduced cases
-        //:   described in concern 4), even if 'TYPE' would otherwise not be
-        //:   deduced as supporting that 'MODEL'.
-        //: 6 'AAModelIsSupported<TYPE, AAModelNone>' is always true (unless
-        //:   explicitly specialized to false, which should never be done).
+        // 1. For each model, `AAModelIsSupported<TYPE, MODEL>` is derived from
+        //    `bsl::true_type` if `TYPE` supports the specified `MODEL`;
+        //    otherwise it is derived from `bsl::false_type`.
+        // 2. If, for a given `TYPE`, `UsesBslmaAllocator<TYPE>::value` is
+        //    `true`, then `AAModelIsSupported<TYPE, AAModelLegacy>` is derived
+        //    from `bsl::true_type` (but not necessarily vice-versa).
+        // 3. If, for a given `TYPE`, `TYPE::allocator_type` exists and is an
+        //    allocator type, then `AAModelIsSupported<TYPE, MODEL>` is
+        //    `true_type` for one or more of `AAModelBsl`, `AAModelPmr`,
+        //    `AAModelStl`, depending on which allocator types are convertible
+        //    to `allocator_type`.  If `TYPE::allocator_type` does not exists
+        //    or is not an allocator class type, only 'AAModelIsSupported<TYPE,
+        //    AAModelNone' is true.
+        // 4. If `AAModelIsSupported<TYPE, AAModelPmr>::value` is `true`, then
+        //    `AAModelIsSupported<TYPE, AAModelBsl>` is also `true`.  If
+        //    `AAModelIsSupported<TYPE, AAModelBsl>::value` is `true`, then
+        //    `AAModelIsSupported<TYPE, AAModelLegacy>` is also `true`.  If
+        //    either `AAModelIsSupported<TYPE, AAModelPmr>::value` or
+        //    `AAModelIsSupported<TYPE, AAModelBsl>` is `true`, then
+        //    `AAModelIsSupported<TYPE, AAModelStl>` is also true.
+        // 5. Concern 4 applies even for `TYPE`s for which `AAModelIsSupported`
+        //    is explicitly specialized to `true` for a specific `MODEL` (but
+        //    not specialized to `false` for one of the otherwise-deduced cases
+        //    described in concern 4), even if `TYPE` would otherwise not be
+        //    deduced as supporting that `MODEL`.
+        // 6. `AAModelIsSupported<TYPE, AAModelNone>` is always true (unless
+        //    explicitly specialized to false, which should never be done).
         //
         // Plan:
-        //: 1 Define a set of classes with interfaces supporting each of the
-        //:   models (including non-AA interfaces).  Verify that
-        //:   'AAModelIsSupported' is derived from either 'bsl::true_type' or
-        //:   'bsl::false_type' and that it's 'value' member is correct when
-        //:   specialized with each type and each of the five *model
-        //:   tags*.  (C-1)
-        //: 2 Among the types tested in step 1, include types that support the
-        //:   *legacy-AA* interface by virtual of having the
-        //:   'bslma::UsesBslmaAllocator' trait.  (C-2)
-        //: 3 Among the types tested in step 1, include types that have member
-        //:   type 'allocator_type' convertible from 'bsl::allocator'
-        //:   (*bsl-AA*), convertible from 'bsl::polymorphic_allocator'
-        //:   (*pmr-AA*), class type not convertible from either (*stl-AA*), or
-        //:   non-allocator type (not AA).  (C-3)
-        //: 4 In step 1, ensure that the expected results are consistant with
-        //:   the deduction rules (i.e., *bsl-AA* is a superset of
-        //:   *legacy-AA*).  (C-4)
-        //: 5 Create types that do not meet the interface requirements for
-        //:   being AA but which are declared as being AA through
-        //:   specialization of 'AAModelIsSupported' for one of the AA *model
-        //:   tags*.  Add these types to the list of types tested in steps 1
-        //:   and 4 and ensure that the deduced results are as expected.  (C-5)
-        //: 6 Verify that 'AAModelIsSupported<TYPE, AAModelNone>' is true for
-        //:   all types used in this test case.  (C-6)
+        // 1. Define a set of classes with interfaces supporting each of the
+        //    models (including non-AA interfaces).  Verify that
+        //    `AAModelIsSupported` is derived from either `bsl::true_type` or
+        //    `bsl::false_type` and that it's `value` member is correct when
+        //    specialized with each type and each of the five *model
+        //    tags*.  (C-1)
+        // 2. Among the types tested in step 1, include types that support the
+        //    *legacy-AA* interface by virtual of having the
+        //    `bslma::UsesBslmaAllocator` trait.  (C-2)
+        // 3. Among the types tested in step 1, include types that have member
+        //    type `allocator_type` convertible from `bsl::allocator`
+        //    (*bsl-AA*), convertible from `bsl::polymorphic_allocator`
+        //    (*pmr-AA*), class type not convertible from either (*stl-AA*), or
+        //    non-allocator type (not AA).  (C-3)
+        // 4. In step 1, ensure that the expected results are consistant with
+        //    the deduction rules (i.e., *bsl-AA* is a superset of
+        //    *legacy-AA*).  (C-4)
+        // 5. Create types that do not meet the interface requirements for
+        //    being AA but which are declared as being AA through
+        //    specialization of `AAModelIsSupported` for one of the AA *model
+        //    tags*.  Add these types to the list of types tested in steps 1
+        //    and 4 and ensure that the deduced results are as expected.  (C-5)
+        // 6. Verify that `AAModelIsSupported<TYPE, AAModelNone>` is true for
+        //    all types used in this test case.  (C-6)
         //
         // Testing:
         //     AAModelIsSupported<TYPE, MODEL>
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'AAModelIsSupported'"
+        if (verbose) printf("\nTESTING `AAModelIsSupported`"
                             "\n===========================\n");
 
         using namespace bslma;
@@ -614,11 +620,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Execute each methods to verify functionality for simple case.
+        // 1. Execute each methods to verify functionality for simple case.
         //
         // Testing:
         //      BREATHING TEST

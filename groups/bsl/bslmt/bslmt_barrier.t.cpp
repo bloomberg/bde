@@ -33,17 +33,17 @@ using namespace bsl;
 //
 // We begin by testing that a barrier can be constructed, destroyed, and hold a
 // number of threads required to unblock it.  Once that is established, we test
-// that the function 'numThreads()' properly returns the number passed to the
+// that the function `numThreads()` properly returns the number passed to the
 // constructor.  Next we test the core functionality of the barrier, that it
-// blocks until the necessary number of calls to 'wait()' have been performed,
+// blocks until the necessary number of calls to `wait()` have been performed,
 // that it then unblocks all the threads and resets the barrier to its initial
 // state, and that this can be repeated as many times as desired.  Once
-// 'wait()' is established to work, a similar test is performed for
-// 'timedWait', with the additional test that the calls to 'timedWait' must
+// `wait()` is established to work, a similar test is performed for
+// `timedWait`, with the additional test that the calls to `timedWait` must
 // time out if not enough threads call it within the time out period.  Next, we
-// make sure that 'wait' and 'timedWait' interact properly so that a call to
-// 'timedWait' can be unblocked by a call to 'wait' and vice versa.  Then, we
-// verify 'arrive' works properly and interacts with the 'wait' methods
+// make sure that `wait` and `timedWait` interact properly so that a call to
+// `timedWait` can be unblocked by a call to `wait` and vice versa.  Then, we
+// verify `arrive` works properly and interacts with the `wait` methods
 // correctly.  Finally, we make sure the usage example compiles and runs as
 // expected.
 //-----------------------------------------------------------------------------
@@ -56,7 +56,7 @@ using namespace bsl;
 // [ 9] bsls::SystemClockType::Enum clockType() const;
 //-----------------------------------------------------------------------------
 // [ 1] Breathing test
-// [ 5] Testing interactions between 'wait' and 'timedWait'
+// [ 5] Testing interactions between `wait` and `timedWait`
 // [ 6] Reusable barrier test
 // [ 7] 2-thread reuse test
 // [ 8] Thread-safety of the destructor test
@@ -112,24 +112,24 @@ void aSsErT(bool condition, const char *message, int line)
 //                 HELPER CLASSES AND FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// This structure is used to pass arguments to the thread functions that
+/// are used in testing.  The use of the individual data members depends on
+/// the context.
 struct ThreadArgs {
-    // This structure is used to pass arguments to the thread functions that
-    // are used in testing.  The use of the individual data members depends on
-    // the context.
 
     bslmt::Barrier  d_barrier;     // barrier used for testing
 
     bsls::AtomicInt d_waitCount;   // count of threads waiting or about to
                                   // wait on the barrier being tested
 
-    int            d_absTime;     // time out to use when calling 'timedWait'
+    int            d_absTime;     // time out to use when calling `timedWait`
                                   // (in microseconds)
 
     bsls::AtomicInt d_numTimedOut; // number of threads that time out on
-                                  // a call to 'timedWait'
+                                  // a call to `timedWait`
 
     bsls::SystemClockType::Enum d_clockType;
-                                  // clock type to use for 'timedWait' method
+                                  // clock type to use for `timedWait` method
 
     ThreadArgs(int                         barrierCount,
                int                         absTime = 0,
@@ -151,11 +151,11 @@ struct ThreadArgs {
                             // class AnotherClock
                             // ==================
 
+/// `AnotherClock` is a C++11-compatible clock that is very similar to
+/// `bsl::chrono::steady_clock`.  The only difference is that it uses a
+/// different epoch; it begins 10000 "ticks" after the beginning of
+/// `steady_clock`s epoch.
 class AnotherClock {
-    // 'AnotherClock' is a C++11-compatible clock that is very similar to
-    // 'bsl::chrono::steady_clock'.  The only difference is that it uses a
-    // different epoch; it begins 10000 "ticks" after the beginning of
-    // 'steady_clock's epoch.
 
   private:
     typedef bsl::chrono::steady_clock base_clock;
@@ -169,9 +169,10 @@ class AnotherClock {
     static const bool is_steady = base_clock::is_steady;
 
     // CLASS METHODS
+
+    /// Return a time point representing the time since the beginning of the
+    /// epoch.
     static time_point now();
-        // Return a time point representing the time since the beginning of the
-        // epoch.
 };
 
 // CLASS METHODS
@@ -185,10 +186,10 @@ AnotherClock::time_point AnotherClock::now()
                              // class HalfClock
                              // ===============
 
+/// `HalfClock` is a C++11-compatible clock that is very similar to
+/// `bsl::chrono::steady_clock`.  The difference is that it runs "half as
+/// fast" as `steady_clock`.
 class HalfClock {
-    // 'HalfClock' is a C++11-compatible clock that is very similar to
-    // 'bsl::chrono::steady_clock'.  The difference is that it runs "half as
-    // fast" as 'steady_clock'.
 
   private:
     typedef bsl::chrono::steady_clock base_clock;
@@ -202,9 +203,10 @@ class HalfClock {
     static const bool is_steady = base_clock::is_steady;
 
     // CLASS METHODS
+
+    /// Return a time point representing the time since the beginning of the
+    /// epoch.
     static time_point now();
-        // Return a time point representing the time since the beginning of the
-        // epoch.
 };
 
 // CLASS METHODS
@@ -216,12 +218,12 @@ HalfClock::time_point HalfClock::now()
 
 // BDE_VERIFY pragma: pop
 
+/// Wait on the specified `Barrier` `mX` for the specified `secondsToWait`
+/// seconds based on the specified `CLOCK`.  If the call to `timedWait`
+/// returns `e_TIMED_OUT`, indicating that a timeout has occurred, verify
+/// that at least that much time has elapsed (measured by the clock).
 template <class CLOCK>
 int WaitForTimeout(bslmt::Barrier& mX, int secondsToWait)
-    // Wait on the specified 'Barrier' 'mX' for the specified 'secondsToWait'
-    // seconds based on the specified 'CLOCK'.  If the call to 'timedWait'
-    // returns 'e_TIMED_OUT', indicating that a timeout has occurred, verify
-    // that at least that much time has elapsed (measured by the clock).
 {
     typename CLOCK::time_point tp = CLOCK::now() +
                                            bsl::chrono::seconds(secondsToWait);
@@ -332,11 +334,11 @@ void test(int numIterations, int numThreads)
 //                      HELPER FUNCTIONS FOR TEST CASE 5
 // ----------------------------------------------------------------------------
 
+/// This function is used to test the `wait` and `timedWait` methods
+/// together: it uses the `d_waitCount` atomic integer provided `ThreadArgs`
+/// structure to make sure that the call to the `wait` method of the
+/// provided barrier occurs before the call to `timedWait`.
 extern "C" void * testThread5a(void *arg)
-    // This function is used to test the 'wait' and 'timedWait' methods
-    // together: it uses the 'd_waitCount' atomic integer provided 'ThreadArgs'
-    // structure to make sure that the call to the 'wait' method of the
-    // provided barrier occurs before the call to 'timedWait'.
 {
     ThreadArgs *args = (ThreadArgs*)arg;
 
@@ -353,11 +355,11 @@ extern "C" void * testThread5a(void *arg)
     return arg;
 }
 
+/// This function is used to test the `wait` and `timedWait` methods
+/// together: it uses the `d_waitCount` atomic integer of the `ThreadArgs`
+/// structure to make sure that the call to the `timedWait` method of the
+/// provided barrier occurs before the call to `wait`.
 extern "C" void * testThread5b(void *arg)
-    // This function is used to test the 'wait' and 'timedWait' methods
-    // together: it uses the 'd_waitCount' atomic integer of the 'ThreadArgs'
-    // structure to make sure that the call to the 'timedWait' method of the
-    // provided barrier occurs before the call to 'wait'.
 {
     ThreadArgs *args = (ThreadArgs*)arg;
 
@@ -378,27 +380,29 @@ extern "C" void * testThread5b(void *arg)
 //                      HELPER FUNCTIONS FOR TEST CASE 4
 // ----------------------------------------------------------------------------
 
+/// This structure is used to pass arguments to the thread functions that
+/// are used in testing.  The use of the individual data members depends on
+/// the context.
 struct ThreadArgs4 {
-    // This structure is used to pass arguments to the thread functions that
-    // are used in testing.  The use of the individual data members depends on
-    // the context.
 
     bslmt::Barrier  d_barrier;     // barrier used for testing
 
-    int            d_absTime;     // time out to use when calling 'timedWait'
+    int            d_absTime;     // time out to use when calling `timedWait`
                                   // (in microseconds)
 
     bsls::AtomicInt d_stopCount;   // count indicating that thread has complete
                                   // its test
 
     bsls::AtomicInt d_numTimedOut; // number of threads that time out on
-                                  // a call to 'timedWait'
+                                  // a call to `timedWait`
 
     int            d_nThreads;    // number of worker threads
 
     bsls::SystemClockType::Enum d_clockType;
-                                  // clock type used for 'timedWait' method
+                                  // clock type used for `timedWait` method
 
+    /// Test helper constructor, using the specified `nThreads`, `absTime`
+    /// and `clock`.
     ThreadArgs4(int nThreads, int absTime, bsls::SystemClockType::Enum clock)
     : d_barrier(nThreads + 1, clock)
     , d_absTime(absTime)
@@ -406,20 +410,18 @@ struct ThreadArgs4 {
     , d_numTimedOut(0)
     , d_nThreads(nThreads)
     , d_clockType(clock)
-        // Test helper constructor, using the specified 'nThreads', 'absTime'
-        // and 'clock'.
     {
     }
 };
 
+/// This function is used to test the `timedWait` method: it begins by
+/// incrementing the `d_startCount` member of the provided `ThreadArgs4`
+/// structure, then calls the `wait` method of the provided barrier, and
+/// finally increments `d_stopCount` and returns.  This makes sure we can
+/// synchronize with the main thread via `d_startCount` and `d_stopCount`,
+/// so as to measure the time between before and after the `timedWait`
+/// section.
 extern "C" void * testThread4(void *arg)
-    // This function is used to test the 'timedWait' method: it begins by
-    // incrementing the 'd_startCount' member of the provided 'ThreadArgs4'
-    // structure, then calls the 'wait' method of the provided barrier, and
-    // finally increments 'd_stopCount' and returns.  This makes sure we can
-    // synchronize with the main thread via 'd_startCount' and 'd_stopCount',
-    // so as to measure the time between before and after the 'timedWait'
-    // section.
 {
     ThreadArgs4 *args = (ThreadArgs4*)arg;
 
@@ -466,11 +468,11 @@ extern "C" void * testThread4(void *arg)
 //                      HELPER FUNCTIONS FOR TEST CASE 3
 // ----------------------------------------------------------------------------
 
+/// This function is used to test the `wait` method: it begins by
+/// incrementing the `d_waitCount` member of the provided `ThreadArgs`
+/// structure, then calls the `wait` method of the provided barrier, and
+/// finally decrements `d_waitCount` and returns.
 extern "C" void * testThread3(void *arg)
-    // This function is used to test the 'wait' method: it begins by
-    // incrementing the 'd_waitCount' member of the provided 'ThreadArgs'
-    // structure, then calls the 'wait' method of the provided barrier, and
-    // finally decrements 'd_waitCount' and returns.
 {
     ThreadArgs *args = (ThreadArgs*)arg;
 
@@ -491,52 +493,52 @@ extern "C" void * testThread3(void *arg)
 //
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
-// The following example demonstrates the use of a 'bslmt::Barrier' to create
+// The following example demonstrates the use of a `bslmt::Barrier` to create
 // "checkpoints" in a threaded "basket trade" processing logic.  In this
 // example, a "basket" is a series of trades submitted as one logical trade.
 // If any given trade fails to process for any reason, then all the trades must
 // be canceled.
 //
-// The example is driven through function 'processBasketTrade', which takes as
-// its argument a reference to a 'BasketTrade' structure.  The 'BasketTrade'
-// structure contains a collection of 'Trade' objects; the 'processBasketTrade'
-// function creates a separate thread to manage each 'Trade' object.
+// The example is driven through function `processBasketTrade`, which takes as
+// its argument a reference to a `BasketTrade` structure.  The `BasketTrade`
+// structure contains a collection of `Trade` objects; the `processBasketTrade`
+// function creates a separate thread to manage each `Trade` object.
 //
-// The 'Trade' threads proceed independently, except that they synchronize with
+// The `Trade` threads proceed independently, except that they synchronize with
 // one another at various stages of the trade processing: each thread waits for
 // all trades to complete a given step before any individual trade thread
 // proceeds to the next step.
 //
-// The 'bslmt::Barrier' is used repeatedly at each processing stage to wait for
+// The `bslmt::Barrier` is used repeatedly at each processing stage to wait for
 // all trades to complete the given stage before continuing to the next stage.
 //
-// To begin, we define the fundamental structures 'Trade' and 'BasketTrade'.
-//..
+// To begin, we define the fundamental structures `Trade` and `BasketTrade`.
+// ```
     enum {
         k_MAX_BASKET_TRADES = 10
     };
 
+    /// Trade stuff...
     struct Trade {
-        // Trade stuff...
     };
 
     struct BasketTrade {
         bsl::vector<Trade> d_trades;  // array of trade that comprise the
                                       // basket
     };
-//..
-// Functions 'validateTrade', 'insertToDatabase', and 'submitToExchange' define
+// ```
+// Functions `validateTrade`, `insertToDatabase`, and `submitToExchange` define
 // functionality for the three stages of trade processing.  Again, the
-// 'bslmt::Barrier' will be used so that no individual trade moves forward to
+// `bslmt::Barrier` will be used so that no individual trade moves forward to
 // the next stage before all trades have completed the given stage.  So, for
-// instance, no individual trade can call the 'insertToDatabase' function until
-// all trades have successfully completed the 'validateTrade' function.
+// instance, no individual trade can call the `insertToDatabase` function until
+// all trades have successfully completed the `validateTrade` function.
 //
-// Functions 'deleteFromDatabase' and 'cancelAtExchange' are used for rolling
+// Functions `deleteFromDatabase` and `cancelAtExchange` are used for rolling
 // back all trades in the event that any one trade fails to move forward.
 //
 // The implementation of these functions is left incomplete for our example.
-//..
+// ```
     int validateTrade(Trade &trade)
     {
         (void)trade;
@@ -581,15 +583,15 @@ extern "C" void * testThread3(void *arg)
 
         return result;
     }
-//..
-// The 'processTrade' function handles a single trade within a Trade Basket.
-// Because this function is called within a 'bslmt::Thread' callback (see the
-// 'tradeProcessingThread' function, below), its arguments are passed in a
-// single structure.  The 'processTrade' function validates a trade, stores the
+// ```
+// The `processTrade` function handles a single trade within a Trade Basket.
+// Because this function is called within a `bslmt::Thread` callback (see the
+// `tradeProcessingThread` function, below), its arguments are passed in a
+// single structure.  The `processTrade` function validates a trade, stores the
 // trade into a database, and registers that trade with an exchange.  At each
-// step, the 'processTrade' function synchronizes with other trades in the
+// step, the `processTrade` function synchronizes with other trades in the
 // Trade Basket.
-//..
+// ```
     struct TradeThreadArgument {
         bsl::vector<Trade> *d_trades_p;
         bslmt::Barrier     *d_barrier_p;
@@ -603,37 +605,37 @@ extern "C" void * testThread3(void *arg)
         Trade &trade = (*arguments->d_trades_p)[arguments->d_tradeNum];
 
         retval = validateTrade(trade);
-//..
+// ```
 // If this trade failed validation, then indicate that an error has occurred.
 // Note that, even when an error occurs, we must still block on the barrier
 // object; otherwise, other threads which did not fail would remain blocked
 // indefinitely.
-//..
+// ```
         if (retval) *arguments->d_errorFlag_p = true;
         arguments->d_barrier_p->wait();
-//..
+// ```
 // Once all threads have completed the validation phase, check to see if any
 // errors occurred; if so, exit.  Otherwise continue to the next step.
-//..
+// ```
         if (*arguments->d_errorFlag_p) return arguments;              // RETURN
 
         retval = insertToDatabase(trade);
         if (retval) *arguments->d_errorFlag_p = true;
         arguments->d_barrier_p->wait();
-//..
+// ```
 // As before, if an error occurs on this thread, we must still block on the
 // barrier object.  This time, if an error has occurred, we need to check to
 // see whether this trade had an error.  If not, then the trade has been
 // inserted into the database, so we need to remove it before we exit.
-//..
+// ```
         if (*arguments->d_errorFlag_p) {
             if (!retval) deleteFromDatabase(trade);
             return arguments;                                         // RETURN
         }
-//..
+// ```
 // The final synchronization point is at the exchange.  As before, if there is
 // an error in the basket, we may need to cancel the individual trade.
-//..
+// ```
         retval = submitToExchange(trade);
         if (retval) *arguments->d_errorFlag_p = true;
         arguments->d_barrier_p->wait();
@@ -642,39 +644,40 @@ extern "C" void * testThread3(void *arg)
             deleteFromDatabase(trade);
             return arguments;                                         // RETURN
         }
-//..
+// ```
 // All synchronized steps have completed for all trades in this basket.  The
 // basket trade is placed.
-//..
+// ```
         return arguments;
     }
-//..
-// Function 'tradeProcessingThread' is a callback for 'bslmt::ThreadUtil',
-// which requires 'void' pointers for argument and return type and 'extern "C"'
-// linkage.  'bslmt::ThreadUtil::create()' expects a pointer to this function,
+// ```
+// Function `tradeProcessingThread` is a callback for `bslmt::ThreadUtil`,
+// which requires `void` pointers for argument and return type and `extern "C"`
+// linkage.  `bslmt::ThreadUtil::create()` expects a pointer to this function,
 // and provides that function pointer to the newly created thread.  The new
 // thread then executes this function.
 //
-// The 'tradeProcessingThread' function receives the 'void' pointer, casts it
-// to our required type ('TradeThreadArgument *'), and then calls the
-// type-specific function, 'processTrade'.  On return, the specific type is
-// cast back to 'void*'.
-//..
+// The `tradeProcessingThread` function receives the `void` pointer, casts it
+// to our required type (`TradeThreadArgument *`), and then calls the
+// type-specific function, `processTrade`.  On return, the specific type is
+// cast back to `void*`.
+// ```
     extern "C" void *tradeProcessingThread(void *argumentsIn)
     {
         return (void *) processTrade ((TradeThreadArgument *)argumentsIn);
     }
-//..
-// Function 'processBasketTrade' drives the example.  Given a 'BasketTrade',
+// ```
+// Function `processBasketTrade` drives the example.  Given a `BasketTrade`,
 // the function spawns a separate thread for each individual trade in the
-// basket, supplying the function 'tradeProcessingThread' to be executed on
+// basket, supplying the function `tradeProcessingThread` to be executed on
 // each thread.
-//..
+// ```
+
+    /// Return `true` if the specified basket `trade` was processed
+    /// successfully, and `false` otherwise.  The `trade` is processed
+    /// atomically, i.e., all the trades succeed, or none of the trades are
+    /// executed.
     bool processBasketTrade(BasketTrade& trade)
-        // Return 'true' if the specified basket 'trade' was processed
-        // successfully, and 'false' otherwise.  The 'trade' is processed
-        // atomically, i.e., all the trades succeed, or none of the trades are
-        // executed.
     {
         TradeThreadArgument arguments[k_MAX_BASKET_TRADES];
         bslmt::ThreadAttributes attributes;
@@ -682,17 +685,17 @@ extern "C" void * testThread3(void *arg)
 
         int numTrades = static_cast<int>(trade.d_trades.size());
         ASSERT(0 < numTrades && k_MAX_BASKET_TRADES >= numTrades);
-//..
+// ```
 // Construct the barrier that will be used by the processing threads.  Since a
 // thread will be created for each trade in the basket, use the number of
-// trades as the barrier count.  When 'bslmt::Barrier::wait()' is called, the
-// barrier will require 'numTrades' objects to wait before all are released.
-//..
+// trades as the barrier count.  When `bslmt::Barrier::wait()` is called, the
+// barrier will require `numTrades` objects to wait before all are released.
+// ```
         bslmt::Barrier barrier(numTrades);
         bool errorFlag = false;
-//..
+// ```
 // Create a thread to process each trade.
-//..
+// ```
         for (int i = 0; i < numTrades; ++i) {
             arguments[i].d_trades_p    = &trade.d_trades;
             arguments[i].d_barrier_p   = &barrier;
@@ -703,18 +706,18 @@ extern "C" void * testThread3(void *arg)
                                       tradeProcessingThread,
                                       &arguments[i]);
         }
-//..
+// ```
 // Wait for all threads to complete.
-//..
+// ```
         for (int i = 0; i < numTrades; ++i) {
             bslmt::ThreadUtil::join(threadHandles[i]);
         }
-//..
+// ```
 // Check if any error occurred.
-//..
+// ```
         return false == errorFlag;
     }
-//..
+// ```
 
 class Case7_Driver
 {
@@ -822,13 +825,13 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TEST USAGE EXAMPLE
         //   The usage example from the header has been incorporated into this
-        //   test driver.  All references to 'assert' have been replaced with
-        //   'ASSERT'.  Call the test example function and assert that it works
+        //   test driver.  All references to `assert` have been replaced with
+        //   `ASSERT`.  Call the test example function and assert that it works
         //   as expected.
         //
         // Plan:
-        //   Construct a dummy 'BasketTrade' and invoke the
-        //   'processBasketTrade' function.  Assert that the function returns
+        //   Construct a dummy `BasketTrade` and invoke the
+        //   `processBasketTrade` function.  Assert that the function returns
         //   the expected result.
         //
         // Testing:
@@ -850,33 +853,33 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'arrive'
+        // TESTING `arrive`
         //
         // Concerns:
-        //: 1 'arrive' increments the number of arrivals.
-        //:
-        //: 2 'arrive' signals the blocked threads.
-        //:
-        //: 3 'arrive' interacts correctly with 'wait'.
-        //:
-        //: 4 The barrier is reusable.
+        // 1. `arrive` increments the number of arrivals.
+        //
+        // 2. `arrive` signals the blocked threads.
+        //
+        // 3. `arrive` interacts correctly with `wait`.
+        //
+        // 4. The barrier is reusable.
         //
         // Plan:
-        //: 1 Create a barrier with the required number of arrivals equal to
-        //:   'a + w + 1', where 'a' is the number of arrivals that will occur
-        //:   and 'w' is the number of threads created that will invoke 'wait'.
-        //:   Once the threads have been created and the 'arrive' invocations
-        //:   done, verify all of the threads are blocked.  Issue the final
-        //:   arrival, an 'arrive'.  Join all threads and verify the number of
-        //:   threads that were blocked.  Repeat with the existing barrier but
-        //:   use 'wait' for the final arrival.  (C 1-4)
+        // 1. Create a barrier with the required number of arrivals equal to
+        //    `a + w + 1`, where `a` is the number of arrivals that will occur
+        //    and `w` is the number of threads created that will invoke `wait`.
+        //    Once the threads have been created and the `arrive` invocations
+        //    done, verify all of the threads are blocked.  Issue the final
+        //    arrival, an `arrive`.  Join all threads and verify the number of
+        //    threads that were blocked.  Repeat with the existing barrier but
+        //    use `wait` for the final arrival.  (C 1-4)
         //
         // Testing:
         //   void arrive();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'arrive'" << endl
+                          << "TESTING `arrive`" << endl
                           << "================" << endl;
 
         if (verbose) cout << "Ensure threads block." << endl;
@@ -915,12 +918,12 @@ int main(int argc, char *argv[])
                         ASSERT(0 == s_waited);
 
                         if (0 == iter % 2) {
-                            // test with 'arrive' being final arrival
+                            // test with `arrive` being final arrival
 
                             mX.arrive();
                         }
                         else {
-                            // test with 'wait' being final arrival
+                            // test with `wait` being final arrival
 
                             mX.wait();
                         }
@@ -967,23 +970,23 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'clockType'
+        // TESTING `clockType`
         //
         // Concerns:
-        //: 1 'clockType' returns the clock type passed to the constructor.
-        //:
-        //: 2 'clockType' is declared 'const'.
+        // 1. `clockType` returns the clock type passed to the constructor.
+        //
+        // 2. `clockType` is declared `const`.
         //
         // Plan:
-        //: 1 Create a 'const' object, and then query it to make sure that the
-        //:   correct clock type is returned.
+        // 1. Create a `const` object, and then query it to make sure that the
+        //    correct clock type is returned.
         //
         // Testing:
         //   bsls::SystemClockType::Enum clockType() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'clockType'" << endl
+                          << "TESTING `clockType`" << endl
                           << "===================" << endl;
 
         typedef bslmt::Barrier Obj;
@@ -1102,25 +1105,25 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING interaction between 'wait' and 'timedWait'
+        // TESTING interaction between `wait` and `timedWait`
         //
         // Concerns:
-        //   That a call to 'wait' can be unblocked by a call to 'timedWait'
+        //   That a call to `wait` can be unblocked by a call to `timedWait`
         //   and vice versa.
         //
         // Plan:
         //   Create a barrier object with two threads.  In one thread, call
-        //   'wait', then in the other thread call 'timedWait' (make sure this
-        //   happens after the call to 'wait'), and verify that no deadlock
+        //   `wait`, then in the other thread call `timedWait` (make sure this
+        //   happens after the call to `wait`), and verify that no deadlock
         //   occurs.  Then reverse roles, making sure that first call to
-        //   'timedWait' in first thread, then to 'wait' in second thread, also
+        //   `timedWait` in first thread, then to `wait` in second thread, also
         //   does not deadlock.
         //
-        // Testing: interaction between 'wait' and 'timedWait'
+        // Testing: interaction between `wait` and `timedWait`
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\tTesting interaction between 'wait' and 'timedWait'\n"
+            cout << "\tTesting interaction between `wait` and `timedWait`\n"
                  << "\t--------------------------------------------------"
                  << endl;
 
@@ -1205,38 +1208,38 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'timedWait'
+        // TESTING `timedWait`
         //
         // Concerns:
         //   Verify that the barrier will time out properly when too few
         //   threads are waiting on the barrier.  Verify that the barrier will
         //   not unblock any waiting threads until the required number of
-        //   threads have called the 'timedWait' method.  Also verify that once
+        //   threads have called the `timedWait` method.  Also verify that once
         //   all threads have been unblocked, that the waiting count is
         //   properly reset, allowing the barrier to be reused.
         //
         // Plan:
-        //   Create a barrier with an arbitrary 'numThreads' value.  Then
-        //   create 'numThreads' - 1 threads that block on the barrier using
-        //   the 'timedWait' method using an arbitrary 'absTime' value.  Once
+        //   Create a barrier with an arbitrary `numThreads` value.  Then
+        //   create `numThreads` - 1 threads that block on the barrier using
+        //   the `timedWait` method using an arbitrary `absTime` value.  Once
         //   the chosen number of threads have been started, wait until all
         //   the threads return.  Assert that all the threads time out.  Also
         //   assert that they do not time out before k_TIMEOUT.  This is done
-        //   by measuring the time between the 'timedWait' initiation and
+        //   by measuring the time between the `timedWait` initiation and
         //   return in each thread.
         //
         //   Next verify that the barrier resets properly after, and that the
-        //   'timedWait' method returns properly when the required number of
-        //   threads call 'timedWait' on the barrier.  Using a different
+        //   `timedWait` method returns properly when the required number of
+        //   threads call `timedWait` on the barrier.  Using a different
         //   barrier from the above test, create a new series of threads that
-        //   block on the barrier using the 'timedWait' method.  Once the
+        //   block on the barrier using the `timedWait` method.  Once the
         //   chosen number of threads have started and are blocked on the
-        //   barrier, call the 'timedWait' function on the barrier from the
+        //   barrier, call the `timedWait` function on the barrier from the
         //   main thread and verify that this method returns immediately
         //   without timing out.  This call should unblock all the threads that
         //   are waiting on the barrier.  Assert that there are no longer any
         //   threads waiting on the barrier and that none of the calls to
-        //   'timedWait' timed out.  Finally, repeat the process again using
+        //   `timedWait` timed out.  Finally, repeat the process again using
         //   the same barrier and a new set of threads to verify that the
         //   barrier resets properly.
         //
@@ -1245,7 +1248,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing: 'timedWait'" << endl
+                          << "Testing: `timedWait`" << endl
                           << "====================" << endl;
         enum {
             k_NTHREADS   = 5,
@@ -1253,7 +1256,7 @@ int main(int argc, char *argv[])
         };
 
         if (verbose)
-            cout << "\tTesting 'timedWait' with timeouts" << endl
+            cout << "\tTesting `timedWait` with timeouts" << endl
                  << "\t---------------------------------" << endl;
 
         bslmt::ThreadAttributes attributes;
@@ -1319,7 +1322,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\tTesting 'timedWait' without timeouts" << endl
+            cout << "\tTesting `timedWait` without timeouts" << endl
                  << "\t------------------------------------" << endl;
 
         {
@@ -1340,15 +1343,15 @@ int main(int argc, char *argv[])
                                              testThread4, &args);
                 }
 
-                // Note: previous testing used 'wait()', but this fails to make
-                // sure that the 'timedWait' function also succeeds in
+                // Note: previous testing used `wait()`, but this fails to make
+                // sure that the `timedWait` function also succeeds in
                 // unlocking the other threads, and can lead to a k_TIMEOUT
-                // failure if the worker threads time out before 'wait' is
-                // called.  We prefer to use the 'timedWait' function instead
+                // failure if the worker threads time out before `wait` is
+                // called.  We prefer to use the `timedWait` function instead
                 // and make sure it does not time out.  If it does time out,
                 // then the test will not be able to run properly, but this may
                 // be due to the failure of the test driver to reach line 621:
-                // 'args.d_barrier.timedWait()' below before the worker threads
+                // `args.d_barrier.timedWait()` below before the worker threads
                 // have already timed out (timer failure), so we do not assert
                 // and issue a warning instead.
 
@@ -1375,7 +1378,7 @@ int main(int argc, char *argv[])
                     }
                 }
                 else {
-                    // This can fail if 'timedWait' above gets executed after a
+                    // This can fail if `timedWait` above gets executed after a
                     // worker thread already timed out, but the extremely long
                     // k_TIMEOUT makes this really unlikely! Just to be
                     // complete, we avoid locking this test driver
@@ -1408,15 +1411,15 @@ int main(int argc, char *argv[])
                                              testThread4, &args);
                 }
 
-                // Note: previous testing used 'wait()', but this fails to make
-                // sure that the 'timedWait' function also succeeds in
+                // Note: previous testing used `wait()`, but this fails to make
+                // sure that the `timedWait` function also succeeds in
                 // unlocking the other threads, and can lead to a k_TIMEOUT
-                // failure if the worker threads time out before 'wait' is
-                // called.  We prefer to use the 'timedWait' function instead
+                // failure if the worker threads time out before `wait` is
+                // called.  We prefer to use the `timedWait` function instead
                 // and make sure it does not time out.  If it does time out,
                 // then the test will not be able to run properly, but this may
                 // be due to the failure of the test driver to reach line 621:
-                // 'args.d_barrier.timedWait()' below before the worker threads
+                // `args.d_barrier.timedWait()` below before the worker threads
                 // have already timed out (timer failure), so we do not assert
                 // and issue a warning instead.
 
@@ -1443,7 +1446,7 @@ int main(int argc, char *argv[])
                     }
                 }
                 else {
-                    // This can fail if 'timedWait' above gets executed after a
+                    // This can fail if `timedWait` above gets executed after a
                     // worker thread already timed out, but the extremely long
                     // k_TIMEOUT makes this really unlikely! Just to be
                     // complete, we avoid locking this test driver
@@ -1482,7 +1485,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'wait'
+        // TESTING `wait`
         //
         // Concerns:
         //   Verify that the barrier will not unblock any waiting threads until
@@ -1491,12 +1494,12 @@ int main(int argc, char *argv[])
         //   count is properly reset, allowing the barrier to be reused.
         //
         // Plan:
-        //   Create a barrier with an arbitrary 'numThreads' value.  Then
-        //   create 'numThreads' - 1 threads threads that block on the barrier
-        //   using the 'wait' method.  Assert that these 'numThreads' - 1
+        //   Create a barrier with an arbitrary `numThreads` value.  Then
+        //   create `numThreads` - 1 threads threads that block on the barrier
+        //   using the `wait` method.  Assert that these `numThreads` - 1
         //   threads are blocked.  After the configured number of threads
-        //   have been started and have called 'wait' on the barrier,
-        //   delay for a short time and call 'wait' on the barrier from the
+        //   have been started and have called `wait` on the barrier,
+        //   delay for a short time and call `wait` on the barrier from the
         //   main thread.  This should return immediately and unblock all
         //   threads that are waiting on the barrier.  Assert that there are
         //   no longer any threads blocking on the barrier.  Finally repeat the
@@ -1507,7 +1510,7 @@ int main(int argc, char *argv[])
         //   void wait();
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "Testing: 'wait'" << endl
+                          << "Testing: `wait`" << endl
                           << "===============" << endl;
 
         {
@@ -1562,7 +1565,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   Verify that the barrier correctly initializes with the specified
-        //   'numThreads' value.
+        //   `numThreads` value.
         //
         // Plan:
         //   For each of a sequence of independent values, construct a barrier
@@ -1622,8 +1625,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Construct a barrier object for one thread.  Assert that
-        //   the object initialized correctly using the 'numThreads' accessor
-        //   function.  Then call 'wait' and 'timedWait' on the barrier.  The
+        //   the object initialized correctly using the `numThreads` accessor
+        //   function.  Then call `wait` and `timedWait` on the barrier.  The
         //   calls should return immediately.  Then destroy the barrier.
         //
         // Testing:

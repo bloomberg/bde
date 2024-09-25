@@ -168,27 +168,27 @@ struct my_Type
 //                              USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
-// The examples below use a value-semantic string class, 'my_String' which can
-// be constructed from a null-terminated string and contains a member, 'c_str'
-// which returns a null-terminated string.  'my_String' does not have a default
+// The examples below use a value-semantic string class, `my_String` which can
+// be constructed from a null-terminated string and contains a member, `c_str`
+// which returns a null-terminated string.  `my_String` does not have a default
 // constructor and thus cannot be used in C-style arrays or unions.
 //
 ///Usage Example 1:
 ///- - - - - - - -
-// Here we use 'bsls::ObjectBuffer' to create a variable-length array of
-// 'my_String' objects.  For efficiency, the array is created on the stack as
-// a fixed-sized array of 'bsls::ObjectBuffer<my_String>' objects and the
-// length is kept in a separate variable.  Only 'len' calls are made to the
-// 'my_String' constructor, with the unused array elements left as raw
-// memory.  An array directly containing 'my_String' objects would not have
-// been possible because 'my_String' does not have a default constructor.
+// Here we use `bsls::ObjectBuffer` to create a variable-length array of
+// `my_String` objects.  For efficiency, the array is created on the stack as
+// a fixed-sized array of `bsls::ObjectBuffer<my_String>` objects and the
+// length is kept in a separate variable.  Only `len` calls are made to the
+// `my_String` constructor, with the unused array elements left as raw
+// memory.  An array directly containing `my_String` objects would not have
+// been possible because `my_String` does not have a default constructor.
 //
-// WARNING: the 'manipulateStrings' function below is not exception-safe.
+// WARNING: the `manipulateStrings` function below is not exception-safe.
 // If an exception is thrown anywhere within the function (e.g., from a
 // constructor call), the destructor will not be called on the constructed
 // string objects.  This logic would typically be augmented with guard objects
 // that call destructors in case of exception.
-//..
+// ```
     void manipulateStrings(const my_String* stringArray, int len)
     {
         ASSERT(len <= 10);
@@ -202,8 +202,8 @@ struct my_Type
         for (int i = 0; i < len; ++i)
         {
             my_String& s = tempArray[i].object();
-            ASSERT(s.c_str());  // use 's'
-            // ... String manipulations go here.  's' might be analyzed,
+            ASSERT(s.c_str());  // use `s`
+            // ... String manipulations go here.  `s` might be analyzed,
             // appended-to, passed to other functions, etc.
         }
 
@@ -228,12 +228,12 @@ struct my_Type
 
         return 0;
     }
-//..
+// ```
 ///Usage Example 2:
 ///- - - - - - - -
-// Here we use 'bsls::ObjectBuffer' to compose a variable-type object capable
+// Here we use `bsls::ObjectBuffer` to compose a variable-type object capable
 // of holding a string or an integer:
-//..
+// ```
     class my_Union
     {
       public:
@@ -309,32 +309,32 @@ struct my_Type
     {
         ASSERT(sizeof(bsls::ObjectBuffer<my_String>) == sizeof(my_String));
 
-        // Create a 'my_Union' object containing a string.
+        // Create a `my_Union` object containing a string.
         const my_Union U1("hello");
         ASSERT(my_Union::STRING == U1.typeTag());
         ASSERT(0 == U1.asInt());
         ASSERT("hello" == U1.asString());
 
-        // Create a 'my_Union' object containing an integer.
+        // Create a `my_Union` object containing an integer.
         const my_Union U2(123);
         ASSERT(my_Union::INT == U2.typeTag());
         ASSERT(123 == U2.asInt());
         ASSERT("123" == U2.asString());
 
-        // Create a 'my_Union' object containing a string that can be
+        // Create a `my_Union` object containing a string that can be
         // interpreted as an integer.
         const my_Union U3("0x456");
         ASSERT(my_Union::STRING == U3.typeTag());
         ASSERT(0x456 == U3.asInt());
         ASSERT("0x456" == U3.asString());
 
-        // Copy-construct a 'my_Union' object containing a string.
+        // Copy-construct a `my_Union` object containing a string.
         my_Union u4(U3);
         ASSERT(my_Union::STRING == u4.typeTag());
         ASSERT(0x456 == u4.asInt());
         ASSERT("0x456" == u4.asString());
 
-        // Use assignment to change 'u4' from string to integer.
+        // Use assignment to change `u4` from string to integer.
         u4 = U2;
         ASSERT(my_Union::INT == u4.typeTag());
         ASSERT(123 == u4.asInt());
@@ -342,7 +342,7 @@ struct my_Type
 
         return 0;
     }
-//..
+// ```
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -385,7 +385,7 @@ int main(int argc, char *argv[])
         //   - buffer() returns the address of the first byte of the buffer
         //
         // Plan:
-        //   - Create a 'bsls::ObjectBuffer' objects with different sizes and
+        //   - Create a `bsls::ObjectBuffer` objects with different sizes and
         //     alignments.
         //   - For each object, verify that buffer() returns the address of
         //     the object.

@@ -51,16 +51,16 @@ static const bsls::Types::Uint64 POWER_OF_TEN_LOOKUP[] = {
     10000000000ULL,    // 1e10
     100000000000ULL};  // 1e11
 
+/// Return `true` if the string specified by the range `[*iter, end)` has a
+/// valid leading unsigned integer prefix.  Empty strings and leading 0's
+/// are not allowed.  Increment `*iter` to point to the first character
+/// after the leading unsigned integer sequence (or to `end`).  If this
+/// function returns `true`, `*iter` has been advanced at least once past a
+/// valid unsigned integer.  If this function returns `false`, `*iter` is
+/// left in a valid but unspecified state (i.e., it may or may not have been
+/// advanced).
 static bool skipIfIsValidUint(bsl::string_view::const_iterator *iter,
                               bsl::string_view::const_iterator  end)
-    // Return 'true' if the string specified by the range '[*iter, end)' has a
-    // valid leading unsigned integer prefix.  Empty strings and leading 0's
-    // are not allowed.  Increment '*iter' to point to the first character
-    // after the leading unsigned integer sequence (or to 'end').  If this
-    // function returns 'true', '*iter' has been advanced at least once past a
-    // valid unsigned integer.  If this function returns 'false', '*iter' is
-    // left in a valid but unspecified state (i.e., it may or may not have been
-    // advanced).
 {
     // The empty string is invalid.
     if (*iter == end) {
@@ -93,12 +93,12 @@ static bool skipIfIsValidUint(bsl::string_view::const_iterator *iter,
     return true;
 }
 
+/// This struct holds a  data members for each of the  decomposed elements
+/// of a JSON number (see `NumberUtil_ImpUtil::decompose`).  This type
+/// serves to avoid a large number of local variables, particularly when
+/// working with multiple decomposed number presentations at the same time
+/// (e.g., in implementing `areEqual`).
 struct DecomposedNumber {
-    // This struct holds a  data members for each of the  decomposed elements
-    // of a JSON number (see 'NumberUtil_ImpUtil::decompose').  This type
-    // serves to avoid a large number of local variables, particularly when
-    // working with multiple decomposed number presentations at the same time
-    // (e.g., in implementing 'areEqual').
 
     // PUBLIC DATA
     bool                        d_isNegative;
@@ -112,11 +112,12 @@ struct DecomposedNumber {
 
   public:
     // CREATORS
+
+    /// Load the public data members of this object with the results of
+    /// calling `NumberUtil_ImpUtil::decompose` on the specified `value`.
+    /// The behavior is undefined unless `NumberUtil::isValidNumber(value)`
+    /// is `true`.
     explicit DecomposedNumber(const bsl::string_view& value);
-        // Load the public data members of this object with the results of
-        // calling 'NumberUtil_ImpUtil::decompose' on the specified 'value'.
-        // The behavior is undefined unless 'NumberUtil::isValidNumber(value)'
-        // is 'true'.
 };
 
 inline
@@ -137,12 +138,12 @@ DecomposedNumber::DecomposedNumber(const bsl::string_view& value)
     }
 }
 
+/// Write the specified number `n` to the specified `stream` and return a
+/// modifiable reference to the specified `stream`.  Note that this function
+/// is frequently useful in debugging, but is not currently used in the
+/// implementation.
 BSLS_ANNOTATION_UNUSED
 bsl::ostream& operator<<(bsl::ostream& stream, const DecomposedNumber& n)
-    // Write the specified number 'n' to the specified 'stream' and return a
-    // modifiable reference to the specified 'stream'.  Note that this function
-    // is frequently useful in debugging, but is not currently used in the
-    // implementation.
 {
     stream << "[ isNegative = " << n.d_isNegative << ", "
            << "isExpNegative = " << n.d_isExpNegative << ", "
@@ -156,15 +157,15 @@ bsl::ostream& operator<<(bsl::ostream& stream, const DecomposedNumber& n)
     return stream;
 }
 
+/// Return `true` if the specified `lhs` has the same text for its digits
+/// and exponent as the specified `rhs`.  This operation serves as a
+/// fallback for `areEqual` if the exponent cannot be represented in an
+/// Int64.  This operation ignores the sign (that has already been tested
+/// for equality), and primarily serves to ignore a `+` character if it
+/// appears in the Exp.  E.g., "1e100000000000000000000" and
+/// "1e+100000000000000000000" would compare equal.
 static bool compareNumberTextFallback(const DecomposedNumber& lhs,
                                       const DecomposedNumber& rhs)
-    // Return 'true' if the specified 'lhs' has the same text for its digits
-    // and exponent as the specified 'rhs'.  This operation serves as a
-    // fallback for 'areEqual' if the exponent cannot be represented in an
-    // Int64.  This operation ignores the sign (that has already been tested
-    // for equality), and primarily serves to ignore a '+' character if it
-    // appears in the Exp.  E.g., "1e100000000000000000000" and
-    // "1e+100000000000000000000" would compare equal.
 {
     if (lhs.d_isExpNegative != rhs.d_isExpNegative) {
         return false;                                                 // RETURN
@@ -177,13 +178,13 @@ static bool compareNumberTextFallback(const DecomposedNumber& lhs,
     return lhs.d_exponent == rhs.d_exponent;
 }
 
+/// Return the first non digit character starting at the specified `begin`
+/// iterator, and prior to the specified `end` character.  Return `end` if
+/// all of the characters are digits.  Note that `find_if_not` is a C++20
+/// algorithm.
 static bsl::string_view::const_iterator findFirstNonDigit(
                                         bsl::string_view::const_iterator begin,
                                         bsl::string_view::const_iterator end)
-    // Return the first non digit character starting at the specified 'begin'
-    // iterator, and prior to the specified 'end' character.  Return 'end' if
-    // all of the characters are digits.  Note that 'find_if_not' is a C++20
-    // algorithm.
 {
     for (; begin != end && bdlb::CharType::isDigit(*begin); ++begin);
     return begin;

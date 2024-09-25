@@ -5,9 +5,9 @@
 
 #include <bsls_platform.h>
 
-#include <bsl_cctype.h>    // 'bsl::isprint', 'bsl::toupper', etc.
-#include <bsl_cstdlib.h>   // 'bsl::atoi'
-#include <bsl_cstring.h>   // 'bsl::memset'
+#include <bsl_cctype.h>    // `bsl::isprint`, `bsl::toupper`, etc.
+#include <bsl_cstdlib.h>   // `bsl::atoi`
+#include <bsl_cstring.h>   // `bsl::memset`
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
@@ -26,7 +26,7 @@ using namespace bsl;  // automatically added by script
 // Almost all of the behavior in this component is implemented via tables.
 // Moreover, this component has no state, and the data it provides is
 // delightfully finite.  Lastly, much of the functionality being implemented
-// can be found in the standard C library: '#include <cctype>'.  Our general
+// can be found in the standard C library: `#include <cctype>`.  Our general
 // test approach will be to make liberal use of helper functions, oracles, and
 // loop-based "area" testing to verify (exhaustively) that each entry in every
 // table is correct.  Note that the redundant methods taking a category
@@ -100,7 +100,7 @@ using namespace bsl;  // automatically added by script
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 7] USAGE EXAMPLE
-// [ 2] Test helper functions match equivalent functions in '<cctype>'.
+// [ 2] Test helper functions match equivalent functions in `<cctype>`.
 // [ 2] The detailed tabular documentation in the header is accurate.
 // ----------------------------------------------------------------------------
 
@@ -419,18 +419,19 @@ static const char DOC_TABLE[128][bdlb::CharType::k_NUM_CATEGORIES] =
 //
 ///Example 1: Validating C-Style Identifiers
 ///- - - - - - - - - - - - - - - - - - - - -
-// The character category extensions 'IDENT' and 'ALUND' are particularly
+// The character category extensions `IDENT` and `ALUND` are particularly
 // useful for parsing C-style identifier names as described by the following
 // regular expression:
-//..
+// ```
 //  [A-Za-z_]([A-Za-z0-9_])*
-//..
-// The first character is required and must be in category 'ALUND'.  All
-// subsequent characters are optional and must be in category 'IDENT':
-//..
+// ```
+// The first character is required and must be in category `ALUND`.  All
+// subsequent characters are optional and must be in category `IDENT`:
+// ```
+
+    /// Return `true` if the specified `token` conforms to the requirements
+    /// of a C-style identifier, and `false` otherwise.
     bool isIdentifier(const char *token)
-        // Return 'true' if the specified 'token' conforms to the requirements
-        // of a C-style identifier, and 'false' otherwise.
     {
         ASSERT(token);
 
@@ -446,7 +447,7 @@ static const char DOC_TABLE[128][bdlb::CharType::k_NUM_CATEGORIES] =
 
         return true;
     }
-//..
+// ```
 
 // ============================================================================
 //                              MAIN PROGRAM
@@ -468,13 +469,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -484,7 +485,7 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-        if (verbose) cout << "\nTest 'isIdentifier' function." << endl;
+        if (verbose) cout << "\nTest `isIdentifier` function." << endl;
         {
             static const struct {
                 int         d_lineNum;   // source line number
@@ -554,44 +555,44 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // VERIFY COUNT AND STRING FUNCTIONS
-        //   Ensure 'numCategory', 'stringCategory', 'numUpper', etc. are
+        //   Ensure `numCategory`, `stringCategory`, `numUpper`, etc. are
         //   correct.
         //
         // Concerns:
-        //: 1 All character counts are consistent with the tables.
-        //: 2 The strings characters are consistent with the tables.
-        //: 3 Strings are ordered by increasing character encodings.
-        //: 4 The character at the corresponding 'count' index is null.
-        //: 5 The 'numCategory' and 'stringCategory' functions are tested
-        //:   exhaustively.
-        //: 6 Each 'num*' and 'string*' function are tested exhaustively.
-        //: 7 The results of 'stringCategory' and string are identical.
+        // 1. All character counts are consistent with the tables.
+        // 2. The strings characters are consistent with the tables.
+        // 3. Strings are ordered by increasing character encodings.
+        // 4. The character at the corresponding `count` index is null.
+        // 5. The `numCategory` and `stringCategory` functions are tested
+        //    exhaustively.
+        // 6. Each `num*` and `string*` function are tested exhaustively.
+        // 7. The results of `stringCategory` and string are identical.
         //
         // Plan:
         //   This test case uses the Area Data Selection Method and is
         //   implemented using the Brute Force and Loop-Based Implementation
         //   Techniques
         //
-        //: 1 For each of the character sets:
-        //:    1 Count up the number of 1 values returned and compare that
-        //:      value with the number returned by the 'numCategory' function.
-        //:      1 Also compare with individual num functions.
-        //:
-        //:    2 Initialize a table of 256 integers to 0; increment the array
-        //:      element corresponding to the code for each character in the
-        //:      'stringCategory' function.  Use the isCategory method to
-        //:      ensure that each character in the string belongs (and occurs
-        //:      once).
-        //:      1 also use the 'num*' functions and 'memcmp' to ensure that
-        //:        the corresponding strings returned are the same (and using
-        //:        '==' are, in fact, identical) and that both strings are null
-        //:        terminated (i.e., '0 == string...[num...]').
-        //:
-        //: 2 For each string of each category in 'stringCategory' walk the
-        //:    string and make sure that each character code is strictly
-        //:    greater than the previous by converting each 'char' to
-        //:    to 'unsigned char' before assigning to a signed integer
-        //:    'curr' (initial previous value 'prev = -1').
+        // 1. For each of the character sets:
+        //    1. Count up the number of 1 values returned and compare that
+        //       value with the number returned by the `numCategory` function.
+        //      1. Also compare with individual num functions.
+        //
+        //    2. Initialize a table of 256 integers to 0; increment the array
+        //       element corresponding to the code for each character in the
+        //       `stringCategory` function.  Use the isCategory method to
+        //       ensure that each character in the string belongs (and occurs
+        //       once).
+        //      1. also use the `num*` functions and `memcmp` to ensure that
+        //         the corresponding strings returned are the same (and using
+        //         `==` are, in fact, identical) and that both strings are null
+        //         terminated (i.e., `0 == string...[num...]`).
+        //
+        // 2. For each string of each category in `stringCategory` walk the
+        //     string and make sure that each character code is strictly
+        //     greater than the previous by converting each `char` to
+        //     to `unsigned char` before assigning to a signed integer
+        //     `curr` (initial previous value `prev = -1`).
         //
         // Testing:
         //   int numUpper();
@@ -644,7 +645,7 @@ int main(int argc, char *argv[])
                 Util::Category category = Util::Category(ci);
 
                 // Count up the number of true values in the table and compare
-                // it with the corresponding value returned from 'numCategory'.
+                // it with the corresponding value returned from `numCategory`.
 
                 int count = 0;
                 for (int i = 0; i < 256; ++i) {
@@ -826,19 +827,19 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // VERIFY IS MEMBER AND TOUPPER/TOLOWER FUNCTIONS
-        //   Ensure 'isCategory', 'isUpper', 'isDigit', etc. are implemented
+        //   Ensure `isCategory`, `isUpper`, `isDigit`, etc. are implemented
         //   properly.
         //
         // Concerns:
-        //: 1 Every table entry is correct.
-        //: 2 The 'isCategory' function is tested exhaustively.
+        // 1. Every table entry is correct.
+        // 2. The `isCategory` function is tested exhaustively.
         //
         // Plan: This test case uses the Area Data Selection Method and is
         // implemented using the Loop-Based Technique.
         //
-        //: 1 For each of the table-based functions, verify that the test
-        //:   helper produces the same results as the corresponding 'Utility'
-        //:   function.
+        // 1. For each of the table-based functions, verify that the test
+        //    helper produces the same results as the corresponding `Utility`
+        //    function.
         //
         // Testing:
         //   bool isUpper(char character);
@@ -952,14 +953,14 @@ int main(int argc, char *argv[])
         //   Ensure enumerated types covert to readable values.
         //
         // Concerns:
-        //: 1 Each enumerator converts to the appropriate string.
-        //: 2 Each enumerator prints as the appropriate string.
+        // 1. Each enumerator converts to the appropriate string.
+        // 2. Each enumerator prints as the appropriate string.
         //
         // Plan: This test case uses the Area Test Data Selection Method and is
         // implemented using the Brute-Force and Table-Based Implementation
         // Techniques.
-        //: 1 Assert the correct string value for each of these enumerators.
-        //: 2 Write each value to a buffer and verify its contents.
+        // 1. Assert the correct string value for each of these enumerators.
+        // 2. Write each value to a buffer and verify its contents.
         //
         // Testing:
         //   const char *toAscii(bdlb::CharType::Category category);
@@ -1084,14 +1085,14 @@ int main(int argc, char *argv[])
         //   Ensure that enumerated types and values are correct.
         //
         // Concerns:
-        //: 1 Each enumerator has the appropriate type.
-        //: 2 Each enumerator has the appropriate value.
-        //: 3 'BDEU_NUM_CATEGORIES' has the appropriate value.
+        // 1. Each enumerator has the appropriate type.
+        // 2. Each enumerator has the appropriate value.
+        // 3. `BDEU_NUM_CATEGORIES` has the appropriate value.
         //
         // Plan: This test case uses Ad Hoc Test Data Selection and is
         // implemented using the Brute Force Technique.
-        //: 1 Assert the correct value for each of these enumerators, after
-        //:   assigning it to a variable of type Category where appropriate.
+        // 1. Assert the correct value for each of these enumerators, after
+        //    assigning it to a variable of type Category where appropriate.
         //
         // Testing:
         //   enum Category;
@@ -1138,20 +1139,20 @@ int main(int argc, char *argv[])
         //   Ensure that supporting functionality is working properly.
         //
         // Concerns:
-        //: 1 The current setting for locale on this platform is "C local".
-        //: 2 Standard C-library functions from '<cctype>' give same results.
-        //: 3 The table defining behavior for each category is correct.
-        //: 4 The value returned is 0 or 1 (even though it is declared 'bool').
+        // 1. The current setting for locale on this platform is "C local".
+        // 2. Standard C-library functions from `<cctype>` give same results.
+        // 3. The table defining behavior for each category is correct.
+        // 4. The value returned is 0 or 1 (even though it is declared `bool`).
         //
         // Plan: This test case uses Area Data Selection and is implemented
         // using the Loop-Based Technique.
-        //: 1 For each of the table-based functions, verify that the test
-        //:   helper produces the same results as the corresponding C-library
-        //:   method and that the static table column for that entry is
-        //:   correct.
+        // 1. For each of the table-based functions, verify that the test
+        //    helper produces the same results as the corresponding C-library
+        //    method and that the static table column for that entry is
+        //    correct.
         //
         // Testing:
-        //   Test helper functions match equivalent functions in '<cctype>'.
+        //   Test helper functions match equivalent functions in `<cctype>`.
         //   The detailed tabular documentation in the header is accurate.
         // --------------------------------------------------------------------
 
@@ -1243,11 +1244,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Ad hoc.
+        // 1. Ad hoc.
         //
         // Testing:
         //   BREATHING TEST

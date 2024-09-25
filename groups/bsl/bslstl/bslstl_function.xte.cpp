@@ -124,17 +124,18 @@ static bool veryVeryVeryVerbose;
 #ifdef BSLS_PLATFORM_CMP_SUN
 #pragma error_messages (off, refmemnoconstr)
 #endif
+/// This class holds a bool value and a bool reference and has a function
+/// call operator that assigns the value to the reference.
 struct SimulatedLambdaWithReference
-    // This class holds a bool value and a bool reference and has a function
-    // call operator that assigns the value to the reference.
 {
     // DATA
     bool  d_s;  // the value
     bool& d_b;  // the reference
 
     // ACCESSORS
+
+    /// Perform `d_b = d_s`.
     void operator()() const;
-        // Perform 'd_b = d_s'.
 };
 #ifdef BSLS_PLATFORM_CMP_SUN
 #pragma error_messages (default, refmemnoconstr)
@@ -148,16 +149,16 @@ void SimulatedLambdaWithReference::operator()() const
     d_b = d_s;
 }
 
+/// This class holds a bool value and a bool pointer and has a function call
+/// operator that assigns the value through the pointer.
 struct SimulatedLambdaWithPointer
-    // This class holds a bool value and a bool pointer and has a function call
-    // operator that assigns the value through the pointer.
 {
     // DATA
     bool  d_s;    // the value
     bool *d_b_p;  // the pointer
 
+    /// Perform `*d_b_p = d_s`.
     void operator()() const;
-        // Perform '*d_b_p = d_s'.
 };
 
 void SimulatedLambdaWithPointer::operator()() const
@@ -169,22 +170,22 @@ void SimulatedLambdaWithPointer::operator()() const
 }
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
+/// A structure that cannot be copied.
 struct NonCopyableDeleted
-    // A structure that cannot be copied.
 {
     NonCopyableDeleted() = default;
     NonCopyableDeleted(const NonCopyableDeleted&) = delete;
     NonCopyableDeleted& operator=(const NonCopyableDeleted&) = delete;
 };
 
+/// Return a default constructed `NonCopyable` object.
 NonCopyableDeleted FuncNonCopyableDeleted()
-    // Return a default constructed 'NonCopyable' object.
 {
     return NonCopyableDeleted();
 }
 
+/// A structure that cannot be copied.
 struct NonCopyableNotDefined
-    // A structure that cannot be copied.
 {
     NonCopyableNotDefined() = default;
 
@@ -194,8 +195,8 @@ private:
     NonCopyableNotDefined& operator=(const NonCopyableNotDefined&);
 };
 
+/// Return a default constructed `NonCopyable` object.
 NonCopyableNotDefined FuncNonCopyableNotDefined()
-    // Return a default constructed 'NonCopyable' object.
 {
     return NonCopyableNotDefined();
 }

@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
@@ -143,14 +143,14 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -169,20 +169,20 @@ int main(int argc, char *argv[])
 // line fit parameters, variance and mean.
 //
 // First, we create example input and instantiate the appropriate mechanism:
-//..
+// ```
   double          inputX[] = { 1.0, 2.0, 4.0, 5.0 };
   double          inputY[] = { 1.0, 2.0, 4.0, 4.5 };
   bdlsta::LineFit lineFit;
-//..
-// Then, we invoke the 'add' routine to accumulate the data:
-//..
+// ```
+// Then, we invoke the `add` routine to accumulate the data:
+// ```
   for(int i = 0; i < 4; ++i) {
       lineFit.add(inputX[i], inputY[i]);
   }
-//..
+// ```
 // Finally, we assert that the alpha, beta, variance, and mean are what we
 // expect:
-//..
+// ```
   double alpha = 0.0, beta = 0.0;
   ASSERT(4    == lineFit.count());
   ASSERT(3.0  == lineFit.xMean());
@@ -191,35 +191,35 @@ int main(int argc, char *argv[])
   ASSERT(0    == lineFit.fitIfValid(&alpha, &beta));
   ASSERT(1e-3 >  fabs(0.175 - alpha));
   ASSERT(1e-3 >  fabs(0.9   - beta ));
-//..
+// ```
       } break;
       case 4: {
         // --------------------------------------------------------------------
         // TESTING EDGE CASES
         //
         // Concerns:
-        //: 1 'xMeanIfValid' returns '-1' when no data is supplied.
-        //:
-        //: 2 'yMeanIfValid' returns '-1' when no data is supplied.
-        //:
-        //: 3 'varianceIfValid' returns '-1' with less than 2 data values.
-        //:
-        //: 4 'fit' returns '-1' with less than 2 data values or all X's are
-        //:   identical.
-        //:
+        // 1. `xMeanIfValid` returns `-1` when no data is supplied.
+        //
+        // 2. `yMeanIfValid` returns `-1` when no data is supplied.
+        //
+        // 3. `varianceIfValid` returns `-1` with less than 2 data values.
+        //
+        // 4. `fit` returns `-1` with less than 2 data values or all X's are
+        //    identical.
+        //
         //
         // Plan:
-        //: 1 Verify that 'xMeanIfValid' with no data returns '-1'.  (C-1)
-        //:
-        //: 2 Verify that 'yMeanIfValid' with no data returns '-1'.  (C-1)
-        //:
-        //: 3 Verify that 'varianceIfValid' with 1 data value returns '-1'.
-        //:   (C-3)
-        //:
-        //: 4 Verify that 'fit' with 1 data value returns '-1'.  (C-4)
-        //:
-        //: 5 Verify that 'fit' with 2 identical X's returns '-1'.  (C-4)
-        //:
+        // 1. Verify that `xMeanIfValid` with no data returns `-1`.  (C-1)
+        //
+        // 2. Verify that `yMeanIfValid` with no data returns `-1`.  (C-1)
+        //
+        // 3. Verify that `varianceIfValid` with 1 data value returns `-1`.
+        //    (C-3)
+        //
+        // 4. Verify that `fit` with 1 data value returns `-1`.  (C-4)
+        //
+        // 5. Verify that `fit` with 2 identical X's returns `-1`.  (C-4)
+        //
         //
         // Testing:
         //   EDGE CASES
@@ -261,14 +261,14 @@ int main(int argc, char *argv[])
         //   expected.
         //
         // Concerns:
-        //: 1 All accessors return the expected values after 'bdlsta::LineFit'
-        //:   loaded with a series of values.
+        // 1. All accessors return the expected values after `bdlsta::LineFit`
+        //    loaded with a series of values.
         //
         // Plan:
-        //: 1 Using the table method, create 'bdlsta::LineFit', use
-        //:   'bdlsta::LineFit::add' to load data, and check the values of
-        //:   fitIfValid, xMeanIfValid, yMeanIfValid, and varianceIfValid.
-        //:   (C-1)
+        // 1. Using the table method, create `bdlsta::LineFit`, use
+        //    `bdlsta::LineFit::add` to load data, and check the values of
+        //    fitIfValid, xMeanIfValid, yMeanIfValid, and varianceIfValid.
+        //    (C-1)
         //
         // Testing:
         //   int fitIfValid(double *alpha, double *beta)
@@ -447,13 +447,13 @@ int main(int argc, char *argv[])
         //   accessors are working as expected also.
         //
         // Concerns:
-        //: 1 All accessors return the expected values after 'bdlsta::LineFit'
-        //:   loaded with a series of values.
-        //:
+        // 1. All accessors return the expected values after `bdlsta::LineFit`
+        //    loaded with a series of values.
+        //
         // Plan:
-        //: 1 Using the table method, create 'bdlsta::LineFit', use
-        //:   'bdlsta::LineFit::add' to load data, and check the values of
-        //:   xMean, yMean, and variance.  (C-1)
+        // 1. Using the table method, create `bdlsta::LineFit`, use
+        //    `bdlsta::LineFit::add` to load data, and check the values of
+        //    xMean, yMean, and variance.  (C-1)
         //
         // Testing:
         //   LineFit()
@@ -618,11 +618,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Developer test sandbox. (C-1)
+        // 1. Developer test sandbox. (C-1)
         //
         // Testing:
         //   BREATHING TEST

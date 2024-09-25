@@ -18,8 +18,8 @@ namespace bdlma {
 
 namespace {
 
+/// A simple `struct` to be placed before allocated user memory.
 struct AllocationHeader {
-    // A simple 'struct' to be placed before allocated user memory.
 
     void *d_allocation_p;
 };

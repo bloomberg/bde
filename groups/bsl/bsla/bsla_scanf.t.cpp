@@ -7,8 +7,8 @@
 
 #include <stdarg.h>  // varargs
 #include <stdio.h>
-#include <stdlib.h>  // 'atoi'
-#include <string.h>  // 'strcmp'
+#include <stdlib.h>  // `atoi`
+#include <string.h>  // `strcmp`
 
 // Set this preprocessor macro to 1 to enable compile warnings being generated,
 // 0 to disable them.
@@ -23,22 +23,22 @@
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
 // test driver using a compliant compiler, each time defining different values
-// of the boolean 'U_TRIGGER_WARNINGS' preprocessor macro.  In each case, the
+// of the boolean `U_TRIGGER_WARNINGS` preprocessor macro.  In each case, the
 // concerns are:
 //
-//: o Did the build succeed or not?
-//:
-//: o Was the expected warning observed or not?
-//:
-//: o Was the expected suppression of some warning suppressed or not?
-//:
-//: o For annotations taking arguments, do the results show if the arguments
-//:   were properly passed to the underlying compiler directives?
+//  - Did the build succeed or not?
+//
+//  - Was the expected warning observed or not?
+//
+//  - Was the expected suppression of some warning suppressed or not?
+//
+//  - For annotations taking arguments, do the results show if the arguments
+//    were properly passed to the underlying compiler directives?
 //
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
 // does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor macro is 'U_TRIGGER_WARNINGS', which, if set to
+// The controlling preprocessor macro is `U_TRIGGER_WARNINGS`, which, if set to
 // 1, provokes all the compiler warnings caused by the macros under test.  If
 // set to 0, prevents any warnings from happening.
 //
@@ -49,11 +49,11 @@
 // right-most column appear as comments throughout this test driver.  They can
 // be used as an aid to navigation to the test code for each annotation, and an
 // aid to assuring test coverage.
-//..
+// ```
 //  Annotation                            Result
 //  ------------------------------------  --------
 //  BSLA_SCANF(FMTIDX, STARTIDX)          Warning
-//..
+// ```
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 // [ 1] BREATHING TEST
@@ -116,18 +116,19 @@ void aSsErT(bool condition, const char *message, int line)
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Populate a Sequence of 'int's and 'float's with Random Numbers
+///Example 1: Populate a Sequence of `int`s and `float`s with Random Numbers
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we want to have a function that will populate a list of 'int's and
-// 'float's with random numbers in the range '[ 0 .. 100 )'.
+// Suppose we want to have a function that will populate a list of `int`s and
+// `float`s with random numbers in the range `[ 0 .. 100 )`.
 //
 // First, we define our function:
-//..
+// ```
+
+    /// Use `rand` to populate `int`s and `float`s, passed by pointer after
+    /// the specified `format`, which will specify the types of the
+    /// variables passed.  Return the number of variables populated, or -1
+    /// if the format string is invalid.
     int populateValues(const char *format, ...) BSLA_SCANF(1, 2);
-        // Use 'rand' to populate 'int's and 'float's, passed by pointer after
-        // the specified 'format', which will specify the types of the
-        // variables passed.  Return the number of variables populated, or -1
-        // if the format string is invalid.
 //
     int populateValues(const char *format, ...)
     {
@@ -168,7 +169,7 @@ void aSsErT(bool condition, const char *message, int line)
 //
         return ret;
     }
-//..
+// ```
 
 // ============================================================================
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
@@ -228,11 +229,11 @@ void use_with_warning_message_SCANF()
 //                              HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// Print a diagnostic message to standard output if any of the preprocessor
+/// flags of interest are defined, and their value if a value had been set.
+/// An "Enter" and "Leave" message is printed unconditionally so there is
+/// some report even if all of the flags are undefined.
 static void printFlags()
-    // Print a diagnostic message to standard output if any of the preprocessor
-    // flags of interest are defined, and their value if a value had been set.
-    // An "Enter" and "Leave" message is printed unconditionally so there is
-    // some report even if all of the flags are undefined.
 {
     printf("printFlags: Enter\n");
 
@@ -315,10 +316,10 @@ int main(int argc, char **argv)
         // USAGE EXAMPLE
         //
         // Concern:
-        //: 1 That the usage example builds and performs as expected.
+        // 1. That the usage example builds and performs as expected.
         //
         // Plan:
-        //: 1 Build and test the usage example.
+        // 1. Build and test the usage example.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -327,8 +328,8 @@ int main(int argc, char **argv)
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 
-// Then, in 'main', we call 'populateValues' properly:
-//..
+// Then, in `main`, we call `populateValues` properly:
+// ```
         float ff[3] = { 0, 0, 0 };
         int   ii[3] = { 0, 0, 0 };
 //
@@ -345,31 +346,31 @@ if (verbose) {
         printf("%d %g %g %d %d %g\n",
                                      ii[0], ff[0], ff[1], ii[1], ii[2], ff[2]);
 }
-//..
+// ```
 // Next, we observe that there are no compiler warnings and a reasonable set of
 // random numbers are output:
-//..
+// ```
 //  83 86.777 15.793 35 86 92.649
-//..
+// ```
 // Now, we make a call where the arguments don't match the format string:
-//..
+// ```
 #if U_TRIGGER_WARNINGS
         numVars = populateValues("%d %g", &ff[0], &ii[0]);
 #endif
-//..
+// ```
 // Finally, we observe the following compiler warnings with clang:
-//..
-//  .../bsla_scanf.t.cpp:351:43: warning: format specifies type 'int *' but the
-//  argument has type 'float *' [-Wformat]
+// ```
+//  .../bsla_scanf.t.cpp:351:43: warning: format specifies type `int *` but the
+//  argument has type `float *` [-Wformat]
 //      numVars = populateValues("%d %g", &ff[0], &ii[0]);
 //                                ~~      ^~~~~~
 //                                %f
-//  .../bsla_scanf.t.cpp:351:51: warning: format specifies type 'float *' but
-//  the argument has type 'int *' [-Wformat]
+//  .../bsla_scanf.t.cpp:351:51: warning: format specifies type `float *` but
+//  the argument has type `int *` [-Wformat]
 //      numVars = populateValues("%d %g", &ff[0], &ii[0]);
 //                                   ~~           ^~~~~~
 //                                   %d
-//..
+// ```
     (void) numVars;
       } break;
       case 1: {
@@ -377,20 +378,20 @@ if (verbose) {
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 This test driver builds with all expected compiler warning
-        //:   messages and no unexpected warnings when the 'U_TRIGGER_WARNINGS'
-        //:   preprocessor variable is defined to 1.
-        //:
-        //: 2 When 'U_TRIGGER_WARNINGS' is defined to 0, the compile is
-        //:   successful and with no warnings.
+        // 1. This test driver builds with all expected compiler warning
+        //    messages and no unexpected warnings when the `U_TRIGGER_WARNINGS`
+        //    preprocessor variable is defined to 1.
+        //
+        // 2. When `U_TRIGGER_WARNINGS` is defined to 0, the compile is
+        //    successful and with no warnings.
         //
         // Plan:
-        //: 1 Build with 'U_TRIGGER_WARNINGS' defined to 1 and externally
-        //:   examine compiler output for expected warnings and the absence of
-        //:   warnings expected to be suppressed.  (C-1)
-        //:
-        //: 2 Build with 'U_TRIGGER_WARNINGS' defined to 0 and observe that the
-        //:   compile is successful with no warnings.  (C-2)
+        // 1. Build with `U_TRIGGER_WARNINGS` defined to 1 and externally
+        //    examine compiler output for expected warnings and the absence of
+        //    warnings expected to be suppressed.  (C-1)
+        //
+        // 2. Build with `U_TRIGGER_WARNINGS` defined to 0 and observe that the
+        //    compile is successful with no warnings.  (C-2)
         //
         // Testing:
         //   BREATHING TEST
@@ -406,7 +407,7 @@ if (verbose) {
 
             if (!veryVeryVerbose) printFlags();
 
-            ASSERT(true); // remove unused warning for 'aSsErT'
+            ASSERT(true); // remove unused warning for `aSsErT`
         }
 
       } break;

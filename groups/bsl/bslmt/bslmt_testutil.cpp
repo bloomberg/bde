@@ -27,8 +27,8 @@ void *TestUtil::identityPtr(void *ptr)
                              // class TestUtil_Guard
                              // --------------------
 
+/// Return a reference to the recursive mutex created by this singleton.
 RecursiveMutex& TestUtil_Guard::singletonMutex()
-    // Return a reference to the recursive mutex created by this singleton.
 {
     static RecursiveMutex *mutex_p;
     static bsls::BslOnce   once = BSLS_BSLONCE_INITIALIZER;

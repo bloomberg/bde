@@ -24,8 +24,8 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// A 'bdlma::SequentialAllocator' adapts the 'bdlma::SequentialPool' mechanism
-// to the 'bdlma::ManagedAllocator' protocol.  The primary concern is that the
+// A `bdlma::SequentialAllocator` adapts the `bdlma::SequentialPool` mechanism
+// to the `bdlma::ManagedAllocator` protocol.  The primary concern is that the
 // allocator correctly proxies the memory allocation requests to the sequential
 // pool it adapts.
 //
@@ -39,12 +39,12 @@ using namespace bsl;
 // 2) If the memory used by either test allocator is non-zero, the number of
 //    bytes used by both test allocators is the same.
 //
-// We also need to verify that the 'deallocate' method has no effect.  Again,
+// We also need to verify that the `deallocate` method has no effect.  Again,
 // we make use of the test allocator to ensure that no memory is deallocated
-// when the 'deallocate' method of a sequential allocator is invoked on
+// when the `deallocate` method of a sequential allocator is invoked on
 // previously allocated memory.
 //
-// Finally, the destructor of 'bdlma::SequentialAllocator' is tested throughout
+// Finally, the destructor of `bdlma::SequentialAllocator` is tested throughout
 // the test driver.  At destruction, the allocator should reclaim all
 // outstanding allocated memory.  By setting the global allocator, default
 // allocator, and object allocator to different test allocators, we can
@@ -160,13 +160,13 @@ enum { k_DEFAULT_SIZE = 256 };
 ///-----
 // Allocators are often supplied, at construction, to objects requiring
 // dynamically-allocated memory.  For example, consider the following
-// 'my_DoubleStack' class whose constructor takes a 'bslma::Allocator *':
-//..
+// `my_DoubleStack` class whose constructor takes a `bslma::Allocator *`:
+// ```
     // my_doublestack.h
     // ...
 
+    /// This class implements a stack that stores `double` values.
     class my_DoubleStack {
-        // This class implements a stack that stores 'double' values.
 
         // DATA
         double           *d_stack_p;      // dynamically-allocated array
@@ -176,27 +176,30 @@ enum { k_DEFAULT_SIZE = 256 };
 
       private:
         // PRIVATE MANIPULATORS
+
+        /// Increase the capacity of this stack by at least one element.
         void increaseCapacity();
-            // Increase the capacity of this stack by at least one element.
 
         // Not implemented:
         my_DoubleStack(const my_DoubleStack&);
 
       public:
         // CREATORS
-        explicit my_DoubleStack(bslma::Allocator *basicAllocator = 0);
-            // Create a stack that stores 'double' values.  Optionally specify
-            // a 'basicAllocator' used to supply memory.  If 'basicAllocator'
-            // is 0, the currently installed default allocator is used.
 
+        /// Create a stack that stores `double` values.  Optionally specify
+        /// a `basicAllocator` used to supply memory.  If `basicAllocator`
+        /// is 0, the currently installed default allocator is used.
+        explicit my_DoubleStack(bslma::Allocator *basicAllocator = 0);
+
+        /// Destroy this stack and all elements held by it.
         ~my_DoubleStack();
-            // Destroy this stack and all elements held by it.
 
         // ...
 
         // MANIPULATORS
+
+        /// Push the specified `value` onto this stack.
         void push(double value);
-            // Push the specified 'value' onto this stack.
 
         // ...
     };
@@ -233,11 +236,11 @@ enum { k_DEFAULT_SIZE = 256 };
         d_stack_p = static_cast<double *>(
                           d_allocator_p->allocate(d_size * sizeof *d_stack_p));
     }
-//..
-// Note that, when the allocator passed in is a 'bdlma::SequentialAllocator',
-// the 'deallocate' method is a no-op, and all memory is reclaimed during the
+// ```
+// Note that, when the allocator passed in is a `bdlma::SequentialAllocator`,
+// the `deallocate` method is a no-op, and all memory is reclaimed during the
 // destruction of the allocator:
-//..
+// ```
     my_DoubleStack::~my_DoubleStack()
     {
         // CLASS INVARIANTS
@@ -265,7 +268,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // As part of our overall allocator testing strategy, we will create three
@@ -292,13 +295,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -308,59 +311,59 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-//..
-// In 'main', users can create a 'bdlma::SequentialAllocator' and pass it to
-// the constructor of 'my_DoubleStack':
-//..
+// ```
+// In `main`, users can create a `bdlma::SequentialAllocator` and pass it to
+// the constructor of `my_DoubleStack`:
+// ```
         bdlma::SequentialAllocator sequentialAlloc;
         my_DoubleStack dstack(&sequentialAlloc);
-//..
+// ```
 
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // 'reserveCapacity' TEST
+        // `reserveCapacity` TEST
         //
         // Concerns:
         //   1) That if there is sufficient memory within the internal buffer,
-        //      'reserveCapacity' should not trigger dynamic allocation.
+        //      `reserveCapacity` should not trigger dynamic allocation.
         //
         //   2) That we can allocate at least the amount of bytes specified in
-        //      'reserveCapacity' before triggering another dynamic allocation.
+        //      `reserveCapacity` before triggering another dynamic allocation.
         //
-        //   3) That 'reserveCapacity' can override the maximum buffer size
+        //   3) That `reserveCapacity` can override the maximum buffer size
         //      parameter supplied to the pool at construction.
         //
-        //   4) That invoking 'reserveCapacity' on a default constructed pool
+        //   4) That invoking `reserveCapacity` on a default constructed pool
         //      succeeds.
         //
-        //   5) That invoking 'reserveCapacity' with 0 bytes succeeds with no
+        //   5) That invoking `reserveCapacity` with 0 bytes succeeds with no
         //      dynamic memory allocation.
         //
         //   6) QoI: Asserted precondition violations are detected when
         //      enabled.
         //
         // Plan:
-        //   Create a 'bdlma::SequentialAllocator' using a test allocator and
+        //   Create a `bdlma::SequentialAllocator` using a test allocator and
         //   specify an initial size and maximum buffer size.
         //
-        //   First, for concern 1, invoke 'reserveCapacity' with a size less
+        //   First, for concern 1, invoke `reserveCapacity` with a size less
         //   than the initial size.  Allocate the same amount of memory, and
         //   verify, using the test allocator, that no new dynamic allocation
         //   is triggered.
         //
-        //   Then, for concern 2, invoke 'reserveCapacity' with a size larger
+        //   Then, for concern 2, invoke `reserveCapacity` with a size larger
         //   than the initial size.  Verify that the call triggers dynamic
         //   allocation, and that we can allocate the same amount of memory
         //   without triggering further dynamic allocation.
         //
-        //   For concern 3, invoke 'reserveCapacity' with a size larger than
+        //   For concern 3, invoke `reserveCapacity` with a size larger than
         //   the maximum buffer size.  Repeat verification for concern 2.
         //
         //   For concern 4, repeat the tests for concerns 1 and 2 with a
         //   default constructed sequential allocator.
         //
-        //   For concern 5, invoke 'reserveCapacity' with a 0 size, and verify
+        //   For concern 5, invoke `reserveCapacity` with a 0 size, and verify
         //   that no memory is allocated.
         //
         //   For concern 6, verify that, in appropriate build modes, defensive
@@ -370,12 +373,12 @@ int main(int argc, char *argv[])
         //   void reserveCapacity(int numBytes);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "'reserveCapacity' TEST" << endl
+        if (verbose) cout << endl << "`reserveCapacity` TEST" << endl
                                   << "======================" << endl;
 
         enum { k_INITIAL_SIZE = 64, k_MAX_BUFFER = k_INITIAL_SIZE * 4 };
 
-        if (verbose) cout << "\nTesting that 'reserveCapacity' does not "
+        if (verbose) cout << "\nTesting that `reserveCapacity` does not "
                              "trigger dynamic memory allocation." << endl;
 
         {
@@ -403,7 +406,7 @@ int main(int argc, char *argv[])
             ASSERT(numBytesUsed = objectAllocator.numBytesInUse());
         }
 
-        if (verbose) cout << "\nTesting 'reserveCapacity' on a default "
+        if (verbose) cout << "\nTesting `reserveCapacity` on a default "
                              "constructed allocator." << endl;
         {
             Obj mX(&objectAllocator);
@@ -423,7 +426,7 @@ int main(int argc, char *argv[])
             ASSERT(numBytesUsed == objectAllocator.numBytesInUse());
         }
 
-        if (verbose) cout << "\nTesting 'reserveCapacity' with 0 bytes"
+        if (verbose) cout << "\nTesting `reserveCapacity` with 0 bytes"
                           << endl;
         {
             Obj mX(&objectAllocator);
@@ -436,13 +439,13 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // 'truncate' TEST
+        // `truncate` TEST
         //
         // Concerns:
-        //   1. That 'truncate' reduces the amount of memory allocated to the
-        //      specified 'newSize'.
+        //   1. That `truncate` reduces the amount of memory allocated to the
+        //      specified `newSize`.
         //
-        //   2. That when 'truncate' fails, 'originalSize' is returned.
+        //   2. That when `truncate` fails, `originalSize` is returned.
         //
         //   3) QoI: Asserted precondition violations are detected when
         //      enabled.
@@ -456,7 +459,7 @@ int main(int argc, char *argv[])
         //   matches the expected offset.
         //
         //   For concern 2, truncate the memory returned by the initial
-        //   allocation, and verify that the return value is 'originalSize'.
+        //   allocation, and verify that the return value is `originalSize`.
         //
         //   For concern 3, verify that, in appropriate build modes, defensive
         //   checks are triggered.
@@ -465,14 +468,14 @@ int main(int argc, char *argv[])
         //   int truncate(void *address, int originalSize, int newSize);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "'truncate' TEST" << endl
+        if (verbose) cout << endl << "`truncate` TEST" << endl
                                   << "===============" << endl;
 
 #define NAT bsls::Alignment::BSLS_NATURAL
 #define MAX bsls::Alignment::BSLS_MAXIMUM
 #define BYT bsls::Alignment::BSLS_BYTEALIGNED
 
-        if (verbose) cout << "\nTesting 'truncate'." << endl;
+        if (verbose) cout << "\nTesting `truncate`." << endl;
 
         static const struct {
             int   d_line;         // line number
@@ -484,7 +487,7 @@ int main(int argc, char *argv[])
             // LINE     STRAT       INITIALSIZE   NEWSIZE   EXPOFFSET
             // ----     -----       -----------   -------   ---------
 
-            // * - 'allocate' triggers dynamic memory allocation
+            // * - `allocate` triggers dynamic memory allocation
 
             // NATURAL ALIGNMENT
             {  L_,      NAT,           1,           0,           0 },
@@ -639,16 +642,16 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // 'allocateAndExpand' TEST
+        // `allocateAndExpand` TEST
         //
         // Concerns:
-        //   1) That 'allocateAndExpand' returns the maximum amount of memory
+        //   1) That `allocateAndExpand` returns the maximum amount of memory
         //      available for use without triggering another allocation.
         //
-        //   2) That 'allocateAndExpand' returns the updated size of memory
+        //   2) That `allocateAndExpand` returns the updated size of memory
         //      used.
         //
-        //   3) That 'allocateAndExpand' has no effect when passed a size of
+        //   3) That `allocateAndExpand` has no effect when passed a size of
         //      0.
         //
         //   4) QoI: Asserted precondition violations are detected when
@@ -659,10 +662,10 @@ int main(int argc, char *argv[])
         //   vectors having the alignment strategy, initial memory offset, and
         //   expected memory used.  First allocate memory necessary for the
         //   initial memory offset, then allocate 1 byte using
-        //   'allocateAndExpand'.  Verify the updated size is the same as the
-        //   expected memory used.  Finally, invoke 'allocate' again and verify
+        //   `allocateAndExpand`.  Verify the updated size is the same as the
+        //   expected memory used.  Finally, invoke `allocate` again and verify
         //   it triggers new dynamic memory allocation -- meaning
-        //   'allocateAndExpand' did use up all available memory in the
+        //   `allocateAndExpand` did use up all available memory in the
         //   internal buffer.
         //
         //   For concern 4, verify that, in appropriate build modes, defensive
@@ -672,20 +675,20 @@ int main(int argc, char *argv[])
         //   void *allocateAndExpand(size_type *size);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "'allocateAndExpand' TEST" << endl
+        if (verbose) cout << endl << "`allocateAndExpand` TEST" << endl
                                   << "========================" << endl;
 
 #define NAT bsls::Alignment::BSLS_NATURAL
 #define MAX bsls::Alignment::BSLS_MAXIMUM
 #define BYT bsls::Alignment::BSLS_BYTEALIGNED
 
-        if (verbose) cout << "\nTesting 'expand'." << endl;
+        if (verbose) cout << "\nTesting `expand`." << endl;
 
         static const struct {
             int   d_line;         // line number
             Strat d_strategy;     // alignment strategy
             int   d_initialSize;  // size of initial allocation request
-            int   d_expused;      // expected memory used after 'expand'
+            int   d_expused;      // expected memory used after `expand`
         } DATA[] = {
             // LINE     STRAT    INITIALSIZE   EXPUSED
             // ----     -----    -----------   -------
@@ -767,7 +770,7 @@ int main(int argc, char *argv[])
                 ASSERT((char *)addr1 + INITIALSIZE + offset == (char *)addr2);
             }
 
-            // Check 'size' is updated correctly.
+            // Check `size` is updated correctly.
             ASSERT(EXPUSED == (int)size);
 
             // Check for no new allocations.
@@ -823,21 +826,21 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // 'release' TEST
+        // `release` TEST
         //
         // Concerns:
         //   1) That all memory allocated from the allocator supplied at
-        //      construction is deallocated after 'release'.
+        //      construction is deallocated after `release`.
         //
         //   2) That subsequent allocation requests after invocation of the
-        //      'release' method follow the specified growth and alignment
+        //      `release` method follow the specified growth and alignment
         //      strategies.
         //
         // Plan:
         //   For concerns 1 and 2, construct a sequential allocator using a
-        //   'bslma::TestAllocator', and allocate several memory blocks such
+        //   `bslma::TestAllocator`, and allocate several memory blocks such
         //   that there are multiple dynamic allocations.  Then invoke
-        //   'release' and verify, using the test allocator, that there
+        //   `release` and verify, using the test allocator, that there
         //   is no outstanding memory allocated.  Finally, allocate memory
         //   again and verify the alignment and growth strategies.
         //
@@ -845,14 +848,14 @@ int main(int argc, char *argv[])
         //   void release();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "'release' TEST" << endl
+        if (verbose) cout << endl << "`release` TEST" << endl
                                   << "==============" << endl;
 
 #define CON bsls::BlockGrowth::BSLS_CONSTANT
 #define MAX bsls::Alignment::BSLS_MAXIMUM
 
         if (verbose) cout << "\nTesting allocated memory is deallocated after"
-                             " 'release'." << endl;
+                             " `release`." << endl;
         {
             Obj mX(CON, MAX, &objectAllocator);
 
@@ -905,26 +908,26 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // 'deallocate' TEST
+        // `deallocate` TEST
         //
         // Concerns:
-        //   That 'deallocate' has no effect.
+        //   That `deallocate` has no effect.
         //
         // Plan:
         //   Create a sequential allocator initialized with a test allocator.
         //   Request memory of varying sizes and then deallocate each memory
         //   block.  Verify that the number of bytes in use indicated by the
-        //   test allocator does not decrease after each 'deallocate' method
+        //   test allocator does not decrease after each `deallocate` method
         //   invocation.
         //
         // Testing:
         //   void deallocate(void *address);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "'deallocate' TEST" << endl
+        if (verbose) cout << endl << "`deallocate` TEST" << endl
                                   << "=================" << endl;
 
-        if (verbose) cout << "\nTesting 'deallocate'." << endl;
+        if (verbose) cout << "\nTesting `deallocate`." << endl;
 
         const int DATA[] = { 0, 1, 5, 12, 24, 32, 64, 256, 257, 512, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -951,9 +954,9 @@ int main(int argc, char *argv[])
         // CTOR / ALLOCATE TEST
         //
         // Concerns:
-        //   1) That the 'bdlma::SequentialAllocator' correctly proxies its
+        //   1) That the `bdlma::SequentialAllocator` correctly proxies its
         //      constructor arguments and allocation requests to the
-        //      'bdlma::SequentialPool' it adapts.
+        //      `bdlma::SequentialPool` it adapts.
         //
         //   2) That allocating 0 bytes returns 0.
         //
@@ -1014,7 +1017,7 @@ int main(int argc, char *argv[])
         const Strat AS[3] = { NAT, MAX, BYT };
         const int NUM_AS = sizeof AS / sizeof *AS;
 
-        if (verbose) cout << "\nTesting 'Obj(Alloc *a = 0)'." << endl;
+        if (verbose) cout << "\nTesting `Obj(Alloc *a = 0)`." << endl;
         {
             bslma::TestAllocator ta(veryVeryVeryVerbose);
             bslma::TestAllocator tb(veryVeryVeryVerbose);
@@ -1037,7 +1040,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'Obj(GS g, Alloc *a = 0)'." << endl;
+        if (verbose) cout << "\nTesting `Obj(GS g, Alloc *a = 0)`." << endl;
         {
             bslma::TestAllocator ta(veryVeryVeryVerbose);
             bslma::TestAllocator tb(veryVeryVeryVerbose);
@@ -1062,7 +1065,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'Obj(AS a, Alloc *a = 0)'." << endl;
+        if (verbose) cout << "\nTesting `Obj(AS a, Alloc *a = 0)`." << endl;
         {
             bslma::TestAllocator ta(veryVeryVeryVerbose);
             bslma::TestAllocator tb(veryVeryVeryVerbose);
@@ -1104,7 +1107,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'Obj(GS g, AS a, Alloc *a = 0)'."
+        if (verbose) cout << "\nTesting `Obj(GS g, AS a, Alloc *a = 0)`."
                           << endl;
         {
             bslma::TestAllocator ta(veryVeryVeryVerbose);
@@ -1147,7 +1150,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'Obj(int initSize)'."
+        if (verbose) cout << "\nTesting `Obj(int initSize)`."
                           << endl;
         {
             bslma::TestAllocator ta(veryVeryVeryVerbose);
@@ -1184,7 +1187,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'Obj(initSize, Alloc *a = 0)'."
+        if (verbose) cout << "\nTesting `Obj(initSize, Alloc *a = 0)`."
                           << endl;
         {
             bslma::TestAllocator ta(veryVeryVeryVerbose);
@@ -1208,7 +1211,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'Obj(initSize, GS g, Alloc *a = 0)'."
+        if (verbose) cout << "\nTesting `Obj(initSize, GS g, Alloc *a = 0)`."
                           << endl;
         {
             bslma::TestAllocator ta(veryVeryVeryVerbose);
@@ -1234,7 +1237,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'Obj(initSize, AS a, Alloc *a = 0)'."
+        if (verbose) cout << "\nTesting `Obj(initSize, AS a, Alloc *a = 0)`."
                           << endl;
         {
             bslma::TestAllocator ta(veryVeryVeryVerbose);
@@ -1281,7 +1284,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-                         "\nTesting 'Obj(initSize, GS g, AS a, Alloc *a = 0)'."
+                         "\nTesting `Obj(initSize, GS g, AS a, Alloc *a = 0)`."
                           << endl;
         {
             bslma::TestAllocator ta(veryVeryVeryVerbose);
@@ -1334,7 +1337,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'Obj(initSize, int m, Alloc *a = 0)'."
+        if (verbose) cout << "\nTesting `Obj(initSize, int m, Alloc *a = 0)`."
                           << endl;
         {
             bslma::TestAllocator ta(veryVeryVeryVerbose);
@@ -1359,7 +1362,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-            "\nTesting 'Obj(initSize, int m, GS g, Alloc *a = 0)'." << endl;
+            "\nTesting `Obj(initSize, int m, GS g, Alloc *a = 0)`." << endl;
         {
             bslma::TestAllocator ta(veryVeryVeryVerbose);
             bslma::TestAllocator tb(veryVeryVeryVerbose);
@@ -1389,7 +1392,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-                        "\nTesting 'Obj(initSize, int m, AS a, Alloc *a = 0)'."
+                        "\nTesting `Obj(initSize, int m, AS a, Alloc *a = 0)`."
                           << endl;
         {
             bslma::TestAllocator ta(veryVeryVeryVerbose);
@@ -1440,7 +1443,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-                  "\nTesting 'Obj(initSize, int m, GS g, AS a, Alloc *a = 0)'."
+                  "\nTesting `Obj(initSize, int m, GS g, AS a, Alloc *a = 0)`."
                           << endl;
         {
             bslma::TestAllocator ta(veryVeryVeryVerbose);
@@ -1594,24 +1597,24 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   1) That a 'bdlma::SequentialAllocator' can be created and
+        //   1) That a `bdlma::SequentialAllocator` can be created and
         //      destroyed.
         //
-        //   2) That 'allocate' returns a block of memory having the specified
+        //   2) That `allocate` returns a block of memory having the specified
         //      size and expected alignment.
         //
-        //   3) That 'allocate' does not always cause dynamic allocation
+        //   3) That `allocate` does not always cause dynamic allocation
         //      (i.e., the allocator manages an internal buffer of memory).
         //
-        //   4) That 'allocate' returns a block of memory even when the
+        //   4) That `allocate` returns a block of memory even when the
         //      the allocation request exceeds the initial size of the internal
         //      buffer.
         //
         //   5) Destruction of the allocator releases all managed memory.
         //
         // Plan:
-        //   First, initialize a 'bdlma::SequentialAllocator' with a
-        //   'bslma::TestAllocator' (concern 1).  Then, allocate a block of
+        //   First, initialize a `bdlma::SequentialAllocator` with a
+        //   `bslma::TestAllocator` (concern 1).  Then, allocate a block of
         //   memory, and verify that it comes from the test allocator.
         //   Allocate another block of memory, and verify that no dynamic
         //   allocation is triggered (concern 3).  Verify the alignment and

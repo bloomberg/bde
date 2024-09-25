@@ -9,8 +9,8 @@
 
 template class bsl::slist<int>;
 
+/// Smoke test
 int main() {
-    // Smoke test
     bsl::slist<int> x;
     x.push_front(3);
     x.push_front(4);

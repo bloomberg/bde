@@ -12,25 +12,25 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
+/// A `bslma_NewDeleteAllocator_Singleton` is a buffer with the right size
+/// and alignment to hold a `bslma::NewDeleteAllocator` object.
 typedef bsls::ObjectBuffer<bslma::NewDeleteAllocator>
                                         bslma_NewDeleteAllocator_Singleton;
-    // A 'bslma_NewDeleteAllocator_Singleton' is a buffer with the right size
-    // and alignment to hold a 'bslma::NewDeleteAllocator' object.
 
+/// `g_newDeleteAllocatorSingleton` is a global static buffer to hold the
+/// singleton.
 static bslma_NewDeleteAllocator_Singleton g_newDeleteAllocatorSingleton;
-    // 'g_newDeleteAllocatorSingleton' is a global static buffer to hold the
-    // singleton.
 
+/// `g_newDeleteAllocatorSingleton_p` is a global static pointer to the
+/// singleton, which is *statically* initialized to 0.
 static bsls::AtomicOperations::AtomicTypes::Pointer
                                          g_newDeleteAllocatorSingleton_p = {0};
-    // 'g_newDeleteAllocatorSingleton_p' is a global static pointer to the
-    // singleton, which is *statically* initialized to 0.
 
+/// Construct a `bslma::NewDeleteAllocator` at the specified `address` in a
+/// thread-safe way, and return `address`.
 static inline
 bslma::NewDeleteAllocator *
 initSingleton(bslma_NewDeleteAllocator_Singleton *address)
-    // Construct a 'bslma::NewDeleteAllocator' at the specified 'address' in a
-    // thread-safe way, and return 'address'.
 {
     // Thread-safe initialization of singleton:
     //

@@ -21,9 +21,9 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'bslstl::BidirectionalIterator' is an in-core value-semantic type that
+// `bslstl::BidirectionalIterator` is an in-core value-semantic type that
 // adapts a more limited type, which offers a basic set of operations, so that
-// the resulting 'bslstl::BidirectionalIterator' object meets all the
+// the resulting `bslstl::BidirectionalIterator` object meets all the
 // requirements of a standard Bidirectional Iterator.  These requirements are
 // spelled out in [forward.iterators], Table 104 - Bidirectional iterator
 // requirements.  The primary manipulator of an iterator is the pre-increment
@@ -35,7 +35,7 @@ using namespace BloombergLP;
 //
 // In order to test this iterator adaptor, a simple container supporting
 // forward iterators will be implemented, to provide the basic type to be
-// adapted.  This container will use the 'bslstl::BidirectionalIterator'
+// adapted.  This container will use the `bslstl::BidirectionalIterator`
 // template to declare its iterators, as suggested in the usage example.
 //
 //  SKETCH NOTES FOR A PLAN THAT NEEDS UPDATING
@@ -117,7 +117,7 @@ template<class Iter>
 int testDistance( Iter first, Iter last )
 {
     //  A basic algorithm to verify the iterator can type walk the range
-    //  specified by the pair of iterators 'first' and 'last', and return at
+    //  specified by the pair of iterators `first` and `last`, and return at
     //  end of the range.  We choose to calculate distance as this might prove
     //  useful in verifying the number of iterations and operations in further
     //  tests.
@@ -249,7 +249,7 @@ struct Wrap { int data; };
 //  validating the iterator adaptor is that the iterator-like class being
 //  adapted for the container's iterators support only the minimum set of
 //  operations required for the adaptor.  If not for this requirement, we would
-//  use 'slist' as an already well-tested component.  Note that this simple
+//  use `slist` as an already well-tested component.  Note that this simple
 //  list container supports appending items to the front of the list, but does
 //  not support insertion at any other location, nor erasure.  This provides
 //  the minimal set of facilities needed to validate the iterator under test.
@@ -354,18 +354,19 @@ namespace testcontainer {
 // Suppose we want to create a standard compliant bidirectional access iterator
 // for a container.
 //
-// First, we define an iterator, 'MyArrayIterator', that meets the requirements
-// of the 'IMP_ITER' template parameter of 'BidirectionalIterator' class (see
+// First, we define an iterator, `MyArrayIterator`, that meets the requirements
+// of the `IMP_ITER` template parameter of `BidirectionalIterator` class (see
 // class level documentation), but does not meet the full set of requirements
 // for a bidirectional iterator as defined by the C++ standard.  Note that the
 // following shows only the public interface required.  Private members and
 // additional methods that may be needed to implement this class are elided in
 // this example:
-//..
+// ```
+
+    /// This class implements the minimal requirements to implement a
+    /// bidirectional iterator using `bslstl::BidirectionalIterator`.
     template <class VALUE>
     class MyArrayIterator {
-        // This class implements the minimal requirements to implement a
-        // bidirectional iterator using 'bslstl::BidirectionalIterator'.
 //
 // *** Remove the following from usage example to emphasis on the interface ***
         // DATA
@@ -378,59 +379,67 @@ namespace testcontainer {
                                const MyArrayIterator<OTHER_VALUE>&);
 //
       public:
+        /// Create a `MyArrayIterator` object referring to the
+        /// element of type `VALUE` at the specified `address`.
         explicit MyArrayIterator(VALUE* address);
-            // Create a 'MyArrayIterator' object referring to the
-            // element of type 'VALUE' at the specified 'address'.
 // ****************************************************************************
       public:
         // CREATORS
+
+        /// Create a `MyArrayIterator` object that does not refer to any
+        /// value.
         MyArrayIterator();
-            // Create a 'MyArrayIterator' object that does not refer to any
-            // value.
 //
+
+        /// Create a `MyArrayIterator` object having the same value
+        /// as the specified `original` object.
         MyArrayIterator(const MyArrayIterator& original);
-            // Create a 'MyArrayIterator' object having the same value
-            // as the specified 'original' object.
 //
+
+        /// Destroy this object;
         ~MyArrayIterator();
-            // Destroy this object;
 //
         // MANIPULATORS
+
+        /// Assign to this object the value of the specified `rhs` object,
+        /// and return a reference providing modifiable access to this
+        /// object.
         MyArrayIterator& operator=(const MyArrayIterator& rhs);
-            // Assign to this object the value of the specified 'rhs' object,
-            // and return a reference providing modifiable access to this
-            // object.
 //
+
+        /// Increment this object to refer to the next element in an array.
         void operator++();
-            // Increment this object to refer to the next element in an array.
 //
+
+        /// Decrement this object to refer to the previous element in an
+        /// array.
         void operator--();
-            // Decrement this object to refer to the previous element in an
-            // array.
 //
         // ACCESSORS
+
+        /// Return a reference providing modifiable access to the value (of
+        /// the parameterized `VALUE` type) of the element referred to by
+        /// this object.
         VALUE& operator*() const;
-            // Return a reference providing modifiable access to the value (of
-            // the parameterized 'VALUE' type) of the element referred to by
-            // this object.
     };
 //
     template <class VALUE>
     bool operator==(const MyArrayIterator<VALUE>&,
                     const MyArrayIterator<VALUE>&);
-//..
-// Notice that 'MyArrayIterator' does not implement a complete standard
-// compliant bidirectional iterator.  It is missing methods such as 'operator+'
-// and 'operator[]'.
+// ```
+// Notice that `MyArrayIterator` does not implement a complete standard
+// compliant bidirectional iterator.  It is missing methods such as `operator+`
+// and `operator[]`.
 //
 // Then, we define the interface for our container class template,
-// 'MyFixedSizeArray'.  The implementation of the interface is elided for
+// `MyFixedSizeArray`.  The implementation of the interface is elided for
 // brevity:
-//..
+// ```
+
+    /// This class implements a container that contains the parameterized
+    /// `SIZE` number of elements of the parameterized `VALUE` type.
     template <class VALUE, int SIZE>
     class MyFixedSizeArray {
-        // This class implements a container that contains the parameterized
-        // 'SIZE' number of elements of the parameterized 'VALUE' type.
 //
         // DATA
         VALUE d_array[SIZE];   // storage of the container
@@ -438,61 +447,67 @@ namespace testcontainer {
       public:
         // PUBLIC TYPES
         typedef VALUE value_type;
-//..
-// Now, we use 'BidirectionalIterator' to create a standard compliant iterator
+// ```
+// Now, we use `BidirectionalIterator` to create a standard compliant iterator
 // for this container:
-//..
+// ```
         typedef bslstl::BidirectionalIterator<VALUE,
                                              MyArrayIterator<VALUE> > iterator;
         typedef bslstl::BidirectionalIterator<const VALUE,
                                              MyArrayIterator<VALUE> >
                                                                 const_iterator;
-//..
-// Notice that the implementation for 'const_iterator' is
-// 'MyArrayIterator<VALUE>' and *not* 'MyArrayIterator<const VALUE>'.
+// ```
+// Notice that the implementation for `const_iterator` is
+// `MyArrayIterator<VALUE>` and *not* `MyArrayIterator<const VALUE>`.
 //
 // Next, we continue defining the rest of the class.
-//..
+// ```
         // CREATORS
         //! MyFixedSizeArray() = default;
-            // Create a 'MyFixedSizeArray' object having the parameterized
-            // 'SIZE' number of elements of the parameterized type 'VALUE'.
+            // Create a `MyFixedSizeArray` object having the parameterized
+            // `SIZE` number of elements of the parameterized type `VALUE`.
 //
         //! MyFixedSizeArray(const MyFixedSizeArray& original) = default;
-            // Create a 'MyFixedSizeArray' object having same number of
-            // elements as that of the specified 'original', the same value of
-            // each element as that of corresponding element in 'original'.
+            // Create a `MyFixedSizeArray` object having same number of
+            // elements as that of the specified `original`, the same value of
+            // each element as that of corresponding element in `original`.
 //
         //! ~MyFixedSizeArray() = default;
             // Destroy this object.
 //
         // MANIPULATORS
+
+        /// Return a bidirectional iterator providing modifiable access to
+        /// the first valid element of this object.
         iterator begin();
-            // Return a bidirectional iterator providing modifiable access to
-            // the first valid element of this object.
 //
+
+        /// Return a bidirectional iterator providing modifiable access to
+        /// the last valid element of this object.
         iterator end();
-            // Return a bidirectional iterator providing modifiable access to
-            // the last valid element of this object.
 //
+
+        /// Return a reference providing modifiable access to the element at
+        /// the specified `position`.
         VALUE& operator[](int position);
-            // Return a reference providing modifiable access to the element at
-            // the specified 'position'.
 //
         // ACCESSORS
+
+        /// Return a bidirectional iterator providing non-modifiable access
+        /// to the first valid element of this object.
         const_iterator begin() const;
-            // Return a bidirectional iterator providing non-modifiable access
-            // to the first valid element of this object.
 //
+
+        /// Return a bidirectional iterator providing non-modifiable access
+        /// to the last valid element of this object.
         const_iterator end() const;
-            // Return a bidirectional iterator providing non-modifiable access
-            // to the last valid element of this object.
 //
+
+        /// Return a reference providing non-modifiable access to the
+        /// specified `i`th element in this object.
         const VALUE& operator[](int position) const;
-            // Return a reference providing non-modifiable access to the
-            // specified 'i'th element in this object.
     };
-//..
+// ```
 
                         // ---------------
                         // MyArrayIterator
@@ -631,13 +646,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -648,20 +663,20 @@ int main(int argc, char *argv[])
 
         using namespace testcontainer;
 
-// Then, we create a 'MyFixedSizeArray' and initialize its elements:
-//..
+// Then, we create a `MyFixedSizeArray` and initialize its elements:
+// ```
     MyFixedSizeArray<int, 5> fixedArray;
     fixedArray[0] = 1;
     fixedArray[1] = 2;
     fixedArray[2] = 3;
     fixedArray[3] = 4;
     fixedArray[4] = 5;
-//..
-// Finally, to show that 'MyFixedSizeArray::iterator' can be used as a
+// ```
+// Finally, to show that `MyFixedSizeArray::iterator` can be used as a
 // bidirectional iterator, we invoke a function that takes bidirectional
-// iterators as parameters, such as 'std::reverse', on the 'begin' and 'end'
+// iterators as parameters, such as `std::reverse`, on the `begin` and `end`
 // iterators and verify the results:
-//..
+// ```
     std::reverse(fixedArray.begin(), fixedArray.end());
 //
     ASSERT(fixedArray[0] == 5);
@@ -669,7 +684,7 @@ int main(int argc, char *argv[])
     ASSERT(fixedArray[2] == 3);
     ASSERT(fixedArray[3] == 2);
     ASSERT(fixedArray[4] == 1);
-//..
+// ```
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -681,7 +696,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   BidirectionalIterator operator++(BidirectionalIterator&, int);
@@ -944,8 +959,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING EQUALITY OPERATOR
         //   The equality operator defines the notion of value for a type.  It
-        //   shall return 'true' when two iterators have the same value, and
-        //   'false' otherwise.  Likewise, operator!= shall return
+        //   shall return `true` when two iterators have the same value, and
+        //   `false` otherwise.  Likewise, operator!= shall return
         //
         // Concerns:
         //    Iterators must compare equal to themselves.
@@ -959,14 +974,14 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Create a list with a single element, so that the sequence is not
-        //   empty, but two increments will take an iterator from 'begin' to
-        //   'end'.  Validate that both the begin and end iterators compare
+        //   empty, but two increments will take an iterator from `begin` to
+        //   `end`.  Validate that both the begin and end iterators compare
         //   equal to themselves, and do not compare equal to each other.  Then
-        //   verify that an iterator copied from a 'begin' iterator compares
-        //   equal to 'begin' and not 'end', after a single increment compares
+        //   verify that an iterator copied from a `begin` iterator compares
+        //   equal to `begin` and not `end`, after a single increment compares
         //   equal to neither, and after a third increment compares equal to
-        //   the 'end' iterator.  Validating two iterators compare equal means
-        //   asserting both the '==' and '!=' operators yield the correct
+        //   the `end` iterator.  Validating two iterators compare equal means
+        //   asserting both the `==` and `!=` operators yield the correct
         //   values.
         //
         // Testing:
@@ -1020,12 +1035,12 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'print' AND 'operator<<'
+        // TESTING `print` AND `operator<<`
         //   N/A for this component, although a debug printer might be
         //   considered in the future.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'print' AND 'operator<<'"
+        if (verbose) printf("\nTESTING `print` AND `operator<<`"
                             "\n================================\n");
 
         if (verbose) printf("\nIterators do not support printing or streaming."
@@ -1130,7 +1145,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING (PRIMITIVE) GENERATORS
         //   The primitive generators for our iterator, the primary piece of
-        //   test apparatus, are the 'begin' and 'end' member functions of the
+        //   test apparatus, are the `begin` and `end` member functions of the
         //   sample container type.  It is difficult to test the value of these
         //   iterators without any basic accessors, but we can assert several
         //   basic properties:
@@ -1138,7 +1153,7 @@ int main(int argc, char *argv[])
         //    1/ No generated iterator shall have the value of a default-
         //       constructed iterator.
         //    2/ The generated iterators shall compare equal to themselves.
-        //    3/ The iterators generated by 'begin' and 'end' shall compare
+        //    3/ The iterators generated by `begin` and `end` shall compare
         //       equal if, and only if, the underlying container is empty.
         //   ..
         //   Note that while it is not possible to compare an iterator with
@@ -1233,7 +1248,7 @@ int main(int argc, char *argv[])
                             "\n============================\n");
 
         if (verbose) printf("\nTesting default constructor, destructor, "
-                             "and 'operator++'.\n");
+                             "and `operator++`.\n");
 
         //  Declare test data and types
         int testData[4] = { 0, 1, 2, 3 };
@@ -1281,11 +1296,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Invoke all methods and verify their behavior.
+        // 1. Invoke all methods and verify their behavior.
         //
         // Testing:
         //   BREATHING TEST
@@ -1365,7 +1380,7 @@ int main(int argc, char *argv[])
         ASSERTV(wit2->data,          13 == wit2->data);
         ASSERTV(&*wit1, &*wit2, &*wit1 == &*wit2);
 
-        //  Verify 'const_iterator' iterates, just like non-'const' 'iterator'.
+        //  Verify `const_iterator` iterates, just like non-`const` `iterator`.
         ++wit1;
         ++wit2;
         ASSERTV(&*wit1, &*wit2, wit1 == wit2);
@@ -1384,8 +1399,8 @@ int main(int argc, char *argv[])
         x = wit1;
         ASSERTV(&*wit1, &*x, wit1 == x);
 
-        // Not yet validated constness of any APIs, e.g., 'operator*' and
-        // 'operator->' (are constness concerns appropriate for a breathing
+        // Not yet validated constness of any APIs, e.g., `operator*` and
+        // `operator->` (are constness concerns appropriate for a breathing
         // test, we just want to confirm that each individual API can be
         // called.)
 
@@ -1479,13 +1494,13 @@ int main(int argc, char *argv[])
         }
 
         for (my_List<int>::iterator it = a.begin(); it != a.end(); ) {
-            //  Each iteration of the loop shall advance 'it' exactly once.
+            //  Each iteration of the loop shall advance `it` exactly once.
 
-            // Test 'const_iterator' can be initialized from non-'const'.
+            // Test `const_iterator` can be initialized from non-`const`.
             my_List<int>::const_iterator itc = it;
             ASSERT(itc == it);
 
-            // Test assignment from non-'const' to 'const_iterator'.
+            // Test assignment from non-`const` to `const_iterator`.
             ++itc;
             ASSERT(itc != it);
             itc = it;

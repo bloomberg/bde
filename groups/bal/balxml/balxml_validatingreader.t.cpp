@@ -95,19 +95,19 @@ typedef balxml::ValidatingReader Obj;
 //  </directory-entry>
 //
 // To make our example easier, i.e., in order to keep us from having to parse
-// the above XML, lets introduce an array of 'helper' structs.  This array will
+// the above XML, lets introduce an array of `helper` structs.  This array will
 // be filling in with data capable of describing the information contained in
 // the user directory XML above.
 
+/// TestNode is a struct that contains information capable of describing an
+/// XML node.
 struct TestNode {
-    // TestNode is a struct that contains information capable of describing an
-    // XML node.
     int            d_retCode;     // return code when we advance to this node
     Obj::NodeType  d_type;        // Describes the type of the XML node
     const char    *d_qname;       // Name qualified name the XML node
     const char    *d_nodeValue;   // Value of the XML node if null, then
                                   // hasValue() returns false
-    int            d_depthChange; // Used to adjust the 'TestReader' depth
+    int            d_depthChange; // Used to adjust the `TestReader` depth
                                   // level, valid values are -1, 0 or 1
     bool           d_isEmptyElement;
     struct {
@@ -120,8 +120,8 @@ struct TestNode {
 static const char *XmlValue = "version='1.0' encoding='UTF-8'";
 
 static const TestNode goodDocument[] = {
-    // 'fakeDocument' is an array of 'TestNode's, this array will be use by the
-    // 'TestReader' to traverse and describe the user directory XML above.
+    // `fakeDocument` is an array of `TestNode`s, this array will be use by the
+    // `TestReader` to traverse and describe the user directory XML above.
     { 0, Obj::e_NODE_TYPE_NONE,
          ""               , 0             ,  0,
          true, {}                                                            },
@@ -173,8 +173,8 @@ static const TestNode goodDocument[] = {
 };
 
 static const TestNode badDocument[] = {
-    // 'fakeDocument' is an array of 'TestNode's, this array will be use by the
-    // 'TestReader' to traverse and describe the user directory XML above.
+    // `fakeDocument` is an array of `TestNode`s, this array will be use by the
+    // `TestReader` to traverse and describe the user directory XML above.
     { 0, Obj::e_NODE_TYPE_NONE,
          ""               , 0             ,  0,
          true, {}                                                            },
@@ -217,11 +217,11 @@ static const TestNode badDocument[] = {
          true, {}                                                            }
 };
 
-// Start of usage example, extract to the 'balxml::ValidatingReader' header
+// Start of usage example, extract to the `balxml::ValidatingReader` header
 // file.
 
-// Create a class that implements the 'balxml::ValidatingReader' interface.
-//..
+// Create a class that implements the `balxml::ValidatingReader` interface.
+// ```
 class TestReader : public balxml::ValidatingReader
 {
 
@@ -338,9 +338,9 @@ public:
     bool isEmptyElement() const BSLS_KEYWORD_OVERRIDE;
     unsigned int options() const BSLS_KEYWORD_OVERRIDE;
 };
-//..
+// ```
 // Utility function to skip past white space.
-//..
+// ```
 int advancePastWhiteSpace(balxml::ValidatingReader& reader) {
     const char *whiteSpace = "\n\r\t ";
     const char *value = 0;
@@ -367,7 +367,7 @@ int advancePastWhiteSpace(balxml::ValidatingReader& reader) {
                               // ----------------
 
 // Do to the size of the TestReader's implementation it does not get promoted
-// to the usage example in the 'balxml::ValidatingReader' header.
+// to the usage example in the `balxml::ValidatingReader` header.
 
 // PRIVATE CLASS METHODS
 inline void TestReader::setEncoding(const char *encoding) {
@@ -376,9 +376,9 @@ inline void TestReader::setEncoding(const char *encoding) {
                : encoding;
 }
 
+/// Each time a node is read that is a BAEXML_NODE_TYPE_ELEMENT, we must
+/// push an prefixed on the prefix stack.
 inline void TestReader::adjustPrefixStack() {
-    // Each time a node is read that is a BAEXML_NODE_TYPE_ELEMENT, we must
-    // push an prefixed on the prefix stack.
     if (Obj::e_NODE_TYPE_ELEMENT == d_currentNode->d_type) {
 
         for (int ii = 0; ii < NUM_ATTRIBUTES; ++ii) {
@@ -552,7 +552,7 @@ int TestReader::advanceToNextNode() {
         d_currentNode++;
 
         if (d_prefixes && 1 == d_nodeDepth) {
-        // The 'TestReader' only recognizes namespace URIs with the prefix
+        // The `TestReader` only recognizes namespace URIs with the prefix
         // (xmlns:) on the top level element, these URIs will be added to the
         // prefix stack.  Namespace URI declarations on any other elements will
         // be treated like normal attributes.  The prefix stack will be reset
@@ -709,32 +709,32 @@ const char *TestReader::nodeLocalName() const {
         return 0;                                                     // RETURN
     }
 
-    // Our simple 'TestReader' does not understand XML with qualified node
+    // Our simple `TestReader` does not understand XML with qualified node
     // names, as such local name always equals qualified name.  Simply return
     // d_qname.
     return d_currentNode->d_qname;
 }
 
 const char *TestReader::nodePrefix() const {
-    // Our simple 'TestReader' does not understand XML with qualified node
+    // Our simple `TestReader` does not understand XML with qualified node
     // names, as such their are no prefixes.  Simply return "".
     return "";
 }
 
 int TestReader::nodeNamespaceId() const {
-    // Our simple 'TestReader' does not understand XML with namespaces on the
+    // Our simple `TestReader` does not understand XML with namespaces on the
     // node level, as such their are no namespace ids.  Simply return -1.
     return -1;
 }
 
 const char *TestReader::nodeNamespaceUri() const {
-    // Our simple 'TestReader' does not understand XML with namespaces on the
+    // Our simple `TestReader` does not understand XML with namespaces on the
     // node level, as such their are no namespace URIs.  Simply return "".
     return "";
 }
 
 const char *TestReader::nodeBaseUri() const {
-    // Our simple 'TestReader' does not understand XML with base URIs.  Simply
+    // Our simple `TestReader` does not understand XML with base URIs.  Simply
     // return "".
     return "";
 }
@@ -783,10 +783,10 @@ unsigned int TestReader::options() const {
 // ----------------------------------------------------------------------------
 //                              USAGE EXAMPLE
 // ----------------------------------------------------------------------------
-//..
+// ```
 // The following string describes xsd schema for
 // the documents we are going to parse
-//..
+// ```
     const char TEST_XSD_STRING[] =
         "<?xml version='1.0' encoding='UTF-8'?>"
         "<xsd:schema xmlns:xsd='http://www.w3.org/2001/XMLSchema'"
@@ -813,11 +813,11 @@ unsigned int TestReader::options() const {
         " "
         "<xsd:element name='directory-entry' type='entryType'/>"
         "</xsd:schema>";
-//..
+// ```
 // The following string describes correct xml for conforming schema.
 // The top level element contains one xml namespace attribute, with one
 // embedded entry describing a user.
-//..
+// ```
     const char TEST_GOOD_XML_STRING[] =
        "<?xml version='1.0' encoding='UTF-8'?>\n"
        "<directory-entry xmlns:dir='http://bloomberg.com/schemas/directory'\n"
@@ -828,10 +828,10 @@ unsigned int TestReader::options() const {
        "    <phone dir:phonetype='cell'>212-318-2000</phone>\n"
        "    <address/>\n"
        "</directory-entry>\n";
-//..
+// ```
 // The following string describes not valid xml.
 // Xml document is well formed, but does not conform schema.
-//..
+// ```
     const char TEST_BAD_XML_STRING[] =
        "<?xml version='1.0' encoding='UTF-8'?>\n"
        "<directory-entry xmlns:dir='http://bloomberg.com/schemas/directory'\n"
@@ -841,31 +841,31 @@ unsigned int TestReader::options() const {
        "    <name>John Smith</name>\n"
        "    <phone dir:phonetype='cell'>212-318-2000</phone>\n"
        "</directory-entry>\n";
-//..
+// ```
 
 int parse(balxml::ValidatingReader *reader,
           const char               *xmlData,
           const char               *xsdSchema)
 {
-//..
+// ```
 // In order to read the XML, we first need to construct a
-// 'balxml::NamespaceRegistry' object, a 'balxml::PrefixStack' object, and a
-// 'TestReader' object, where 'TestReader' is a derived implementation of
-// 'balxml_validatingreader'.
-//..
+// `balxml::NamespaceRegistry` object, a `balxml::PrefixStack` object, and a
+// `TestReader` object, where `TestReader` is a derived implementation of
+// `balxml_validatingreader`.
+// ```
     balxml::NamespaceRegistry namespaces;
     balxml::PrefixStack prefixStack(&namespaces);
 
     ASSERT(!reader->isOpen());
-//..
-// The reader uses a 'balxml::PrefixStack' to manage namespace prefixes so we
+// ```
+// The reader uses a `balxml::PrefixStack` to manage namespace prefixes so we
 // need to set it before we call open.
-//..
+// ```
     reader->setPrefixStack(&prefixStack);
     ASSERT(reader->prefixStack() == &prefixStack);
-//..
+// ```
 // Setup validation
-//..
+// ```
     reader->removeSchemas();
 
     reader->enableValidation(true);
@@ -873,32 +873,32 @@ int parse(balxml::ValidatingReader *reader,
 
     bsl::istringstream schemaStream(xsdSchema);
     reader->addSchema("aaa.xsd", schemaStream.rdbuf());
-//..
-// Now we call the 'open' method to setup the reader for parsing using the data
+// ```
+// Now we call the `open` method to setup the reader for parsing using the data
 // contained in the in the XML string.
-//..
+// ```
     int rc = reader->open(xmlData, bsl::strlen(xmlData), 0, "UTF-8");
     ASSERT(rc == 0);
-//..
-// Confirm that the 'bdem::Reader' has opened properly
-//..
+// ```
+// Confirm that the `bdem::Reader` has opened properly
+// ```
     ASSERT(reader->isOpen());
 
-//..
+// ```
 // Do actual document reading
-//..
+// ```
     while(1) {
         rc = reader->advanceToNextNode ();
         if (rc != 0) {
             break;
         }
-//..
+// ```
 //      process current node here
-//..
+// ```
     }
-//..
+// ```
 // Cleanup and close the reader.
-//..
+// ```
     reader->close();
     ASSERT(!reader->isOpen());
 
@@ -907,30 +907,30 @@ int parse(balxml::ValidatingReader *reader,
 
     return rc;
 }
-//..
+// ```
 // The main program parses an XML string using the TestReader
-//..
+// ```
 int usageExample()
 {
     TestReader testReader1(goodDocument);
 
     int rc = parse(&testReader1, TEST_GOOD_XML_STRING, TEST_XSD_STRING);
-//..
+// ```
 //  Normal end of data
-//..
+// ```
     ASSERT(rc==1);
 
     TestReader testReader2(badDocument);
 
     rc = parse(&testReader2, TEST_BAD_XML_STRING, TEST_XSD_STRING);
-//..
+// ```
 //  Parser error - document validation failed
-//..
+// ```
     ASSERT(rc==-1);
 
     return 0;
 }
-// End of usage example, extract to the 'balxml::ValidatingReader' header file.
+// End of usage example, extract to the `balxml::ValidatingReader` header file.
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -950,17 +950,17 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
-        // This is a simple implementation of the 'balxml::ValidatingReader'
+        // This is a simple implementation of the `balxml::ValidatingReader`
         // interface.
         //
         // Concerns:
         //   That the usage example compiles and runs correctly.
-        //   That a class can be derived from 'balxml::ValidatingReader' and
+        //   That a class can be derived from `balxml::ValidatingReader` and
         //       that it can override all the methods.
         //
         // Plan:
         //   Copy the usage example from the component-level documentation.
-        //   Replace 'assert' with 'ASSERT'.
+        //   Replace `assert` with `ASSERT`.
         //
         // Testing:
         //   balxml::ValidatingReader();  // Constructor

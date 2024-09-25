@@ -42,7 +42,7 @@ using bsl::flush;
 //
 // A major concern in this test driver is that we need to prevent optimizers
 // from inlining or chaining calls, which will distort the stack trace
-// obtained, so we employ 'bslim::TestUtil::makeFunctionCallNonInline' to do an
+// obtained, so we employ `bslim::TestUtil::makeFunctionCallNonInline` to do an
 // identity transform on function pointers that the compiler cannot understand,
 // and then do calls through those pointers, which prevents inlining.  To
 // prevent chaining, we make sure that functions do things after calls.
@@ -137,15 +137,15 @@ static int veryVeryVeryVerbose;
 
 const bsl::size_t npos = bsl::string::npos;
 
+/// The function just returns `funcPtr`, but only after putting it through a
+/// transform that the optimizer can't possibly understand that leaves it
+/// with its original value.  `TYPE` is expected to be a function pointer
+/// type.
+///
+/// Note that it's still necessary to put a lot of the routines through
+/// contortions to avoid the optimizer optimizing tail calls as jumps.
 template <class TYPE>
 TYPE foilOptimizer(const TYPE funcPtr)
-    // The function just returns 'funcPtr', but only after putting it through a
-    // transform that the optimizer can't possibly understand that leaves it
-    // with its original value.  'TYPE' is expected to be a function pointer
-    // type.
-    //
-    // Note that it's still necessary to put a lot of the routines through
-    // contortions to avoid the optimizer optimizing tail calls as jumps.
 {
     TYPE ret, ret2 = funcPtr;
 
@@ -162,8 +162,8 @@ TYPE foilOptimizer(const TYPE funcPtr)
 
     ret = (TYPE) u;
 
-    // That previous loop toggled all the bits in 'u' that it touched an even
-    // number of times, so 'ret == ret2', but I'm pretty sure the optimizer
+    // That previous loop toggled all the bits in `u` that it touched an even
+    // number of times, so `ret == ret2`, but I'm pretty sure the optimizer
     // can't figure that out.
 
     ASSERT(  u2 ==   u);
@@ -209,10 +209,10 @@ struct ConfigurationOptions {
     }
 };
 
+/// output all the variables in the specified `options` to the specified
+/// `stream`.  Return `stream`.
 bsl::ostream& operator<<(bsl::ostream&               stream,
                          const ConfigurationOptions& options)
-    // output all the variables in the specified 'options' to the specified
-    // 'stream'.  Return 'stream'.
 {
     stream << "num defaults: "         << options.d_numDefaults <<
               "   max frames: "        << options.d_maxFrames <<
@@ -222,9 +222,9 @@ bsl::ostream& operator<<(bsl::ostream&               stream,
     return stream;
 }
 
+/// Return `true` if stack trace `st` has demangled symbols and `false`
+/// otherwise.
 bool hasDemangling(const bsl::string& st)
-    // Return 'true' if stack trace 'st' has demangled symbols and 'false'
-    // otherwise.
 {
     const bsl::size_t posColons = st.find("::");
     const bool ret = npos != posColons;
@@ -237,18 +237,18 @@ bool hasDemangling(const bsl::string& st)
     return ret;
 }
 
+/// Recurse until the specified `callDepth` reaches 5, then perform a stack
+/// trace to the specified `stream`.  After recursing, use `Obj` to do the
+/// stack trace to `printerStream, and `Util::printStackTrace' to do a stack
+/// trace to `utilStream`.  Allow the specified `numDefaults` arguments to
+/// default.  Pass the specified `maxFrames`, `demangle`, and `addIgnore` to
+/// the corresponding arguments of the `Obj` c'tor or
+/// `Util::printStackTrace`.  The behavior is undefined unless
+/// `options.d_numDefaults` is in the range `[ 0 .. 3 ]`.
 int recurseAndStackTrace(bsl::ostream&               printerStream,
                          bsl::ostream&               utilStream,
                          const ConfigurationOptions& options,
                          int                         callDepth)
-    // Recurse until the specified 'callDepth' reaches 5, then perform a stack
-    // trace to the specified 'stream'.  After recursing, use 'Obj' to do the
-    // stack trace to 'printerStream, and 'Util::printStackTrace' to do a stack
-    // trace to 'utilStream'.  Allow the specified 'numDefaults' arguments to
-    // default.  Pass the specified 'maxFrames', 'demangle', and 'addIgnore' to
-    // the corresponding arguments of the 'Obj' c'tor or
-    // 'Util::printStackTrace'.  The behavior is undefined unless
-    // 'options.d_numDefaults' is in the range '[ 0 .. 3 ]'.
 {
     const int  numDefaults = options.d_numDefaults;
     const int  maxFrames   = options.d_maxFrames;
@@ -315,9 +315,9 @@ int recurseAndStackTrace(bsl::ostream&               printerStream,
     return ret || testStatus || 10 < callDepth ? testStatus + callDepth : 0;
 }
 
+/// Return the specified stack trace `str` without the first 2 lines of it.
+/// The behavior is undefined unless `str` contains at least 2 '\n's.
 bsl::string skipFirstFrame(const bsl::string& str)
-    // Return the specified stack trace 'str' without the first 2 lines of it.
-    // The behavior is undefined unless 'str' contains at least 2 '\n's.
 {
     bsl::size_t pos = str.find('\n');
     if (npos == pos) {
@@ -401,7 +401,7 @@ void testOptions(int LINE, const ConfigurationOptions& options)
     // Add ignore arg was obeyed
     // - - - - - - - - - - - - -
 
-    // If '1 <= ADD_INGORE', the first frame, which will not match, is not
+    // If `1 <= ADD_INGORE`, the first frame, which will not match, is not
     // printed.  Everything else is expected to match.
 
     if (1 <= ADD_IGNORE) {
@@ -434,18 +434,18 @@ namespace CASE_1 {
 
 bool called = false;
 
+/// Perform a stack trace to the specified `stream`.
 void top(bsl::ostream& stream)
-    // Perform a stack trace to the specified 'stream'.
 {
     called = true;
 
     stream << Obj();
 }
 
+/// Call the function `top` in such a way that it can't be inlined.
 int under(bsl::ostream& stream)
-    // Call the function 'top' in such a way that it can't be inlined.
 {
-    // still attempting to thwart optimizer -- all this does is call 'top' a
+    // still attempting to thwart optimizer -- all this does is call `top` a
     // bunch of times.
 
     called = false;
@@ -483,14 +483,14 @@ int under(bsl::ostream& stream)
 //
 ///Example 1: Streaming to BALL
 /// - - - - - - - - - - - - - -
-// First, we define a recursive function 'recurseAndPrintStack' that recurses 4
-// times, then calls '<< StackTracePrinter()' to obtain a stack trace and print
-// it to 'BALL_LOG_FATAL':
-//..
+// First, we define a recursive function `recurseAndPrintStack` that recurses 4
+// times, then calls `<< StackTracePrinter()` to obtain a stack trace and print
+// it to `BALL_LOG_FATAL`:
+// ```
 //  BALL_LOG_SET_NAMESPACE_CATEGORY("MY.CATEGORY");
 
+    /// Recurse 4 times and print a stack trace to `BALL_LOG_FATAL`.
     void recurseAndStreamStackDefault()
-        // Recurse 4 times and print a stack trace to 'BALL_LOG_FATAL'.
     {
         static int recurseCount = 0;
 
@@ -501,9 +501,9 @@ int under(bsl::ostream& stream)
             U_BALL_LOG_FATAL << balst::StackTracePrinter();
         }
     }
-//..
+// ```
 // which, on Linux, produces the output:
-//..
+// ```
 //  02SEP2021_21:55:58.619290 21325 140602555295616 FATAL /bb/.../balst_stacktr
 //  aceprinter.t.cpp 733 UNINITIALIZED_LOGGER_MANAGER
 //  (0): recurseAndStreamStackDefault()+0xcf at 0x408acc source:balst_stacktrac
@@ -520,19 +520,20 @@ int under(bsl::ostream& stream)
 //  st_stacktraceprinter.t
 //  (6): __libc_start_main+0xf5 at 0x7fe0943de495 in /lib64/libc.so.6
 //  (7): --unknown-- at 0x4074c5 in balst_stacktraceprinter.t
-//..
+// ```
 // Note that long lines of output here have been hand-wrapped to fit into
 // comments in this 79-column source file.  Also note that if the full path of
 // the executable or library is too long, only the basename will be displayed
 // by the facility, while if it is short, then the full path will be displayed.
 //
 // Then we define a similar recursive function, except that when we construct
-// the 'StackTracePrinter' object, we pass 2 to the 'maxFrames' argument,
+// the `StackTracePrinter` object, we pass 2 to the `maxFrames` argument,
 // indicating, for some reason, that we want to see only the top two stack
 // frames:
-//..
+// ```
+
+    /// Recurse 4 times and print a stack trace to `BALL_LOG_FATAL`.
     void recurseAndStreamStackMaxFrames2()
-        // Recurse 4 times and print a stack trace to 'BALL_LOG_FATAL'.
     {
         static int recurseCount = 0;
 
@@ -543,23 +544,24 @@ int under(bsl::ostream& stream)
             U_BALL_LOG_FATAL << balst::StackTracePrinter(2);
         }
     }
-//..
+// ```
 // which produces the output:
-//..
+// ```
 //  02SEP2021_21:55:58.624623 21325 140602555295616 FATAL /bb/.../balst_stacktr
 //  aceprinter.t.cpp 773 UNINITIALIZED_LOGGER_MANAGER
 //  (0): recurseAndStreamStackMaxFrames2()+0xcf at 0x408be1 source:balst_stackt
 //  raceprinter.t.cpp:773 in balst_stacktraceprinter.t
 //  (1): recurseAndStreamStackMaxFrames2()+0x2a at 0x408b3c source:balst_stackt
 //  raceprinter.t.cpp:775 in balst_stacktraceprinter.t
-//..
+// ```
 // Now, we define another similar recursive function, except that when we
-// construct the 'StackTracePrinter' object, we default 'maxFrames' to a large
-// value by passing it -1, and turn off demangling by passing 'false' to the
-// 'damanglingPreferredFlag' argument:
-//..
+// construct the `StackTracePrinter` object, we default `maxFrames` to a large
+// value by passing it -1, and turn off demangling by passing `false` to the
+// `damanglingPreferredFlag` argument:
+// ```
+
+    /// Recurse 4 times and print a stack trace to `BALL_LOG_FATAL`.
     void recurseAndStreamStackNoDemangle()
-        // Recurse 4 times and print a stack trace to 'BALL_LOG_FATAL'.
     {
         static int recurseCount = 0;
 
@@ -570,9 +572,9 @@ int under(bsl::ostream& stream)
             U_BALL_LOG_FATAL << balst::StackTracePrinter(-1, false);
         }
     }
-//..
+// ```
 // which produces the output:
-//..
+// ```
 //  02SEP2021_21:55:58.636414 21325 140602555295616 FATAL /bb/.../balst_stacktr
 //  aceprinter.t.cpp 798 UNINITIALIZED_LOGGER_MANAGER
 //  (0): _Z31recurseAndStreamStackNoDemanglev+0xcf at 0x408cf6 source:balst_sta
@@ -589,17 +591,18 @@ int under(bsl::ostream& stream)
 //  st_stacktraceprinter.t
 //  (6): __libc_start_main+0xf5 at 0x7fe0943de495 in /lib64/libc.so.6
 //  (7): --unknown-- at 0x4074c5 in balst_stacktraceprinter.t
-//..
+// ```
 // Finally, we define another similar recursive function, except that we pass
-// default values to the first 2 arguments of the 'StackTracePrinter' and pass
-// 5 to the third 'additionalIgnoreFrames' argument.  This indicates a number
+// default values to the first 2 arguments of the `StackTracePrinter` and pass
+// 5 to the third `additionalIgnoreFrames` argument.  This indicates a number
 // of frames from the top of the stack to be ignored, which may be desired if
 // the caller wants to do the streaming from within their own stack trace
 // facility, in which case the top couple of frames would be within that stack
 // trace facility, and unwanted and distracting for clients of that facility:
-//..
+// ```
+
+    /// Recurse 4 times and print a stack trace to `BALL_LOG_FATAL`.
     void recurseAndStreamStackAddIgnore5()
-        // Recurse 4 times and print a stack trace to 'BALL_LOG_FATAL'.
     {
         static int recurseCount = 0;
 
@@ -610,16 +613,16 @@ int under(bsl::ostream& stream)
             U_BALL_LOG_FATAL << balst::StackTracePrinter(-1, true, 5);
         }
     }
-//..
+// ```
 // which produces the output:
-//..
+// ```
 //  02SEP2021_21:55:58.647501 21325 140602555295616 FATAL /bb/.../balst_stacktr
 //  aceprinter.t.cpp 836 UNINITIALIZED_LOGGER_MANAGER
 //  (0): main+0x1b6 at 0x409007 source:balst_stacktraceprinter.t.cpp:904 in bal
 //  st_stacktraceprinter.t
 //  (1): __libc_start_main+0xf5 at 0x7fe0943de495 in /lib64/libc.so.6
 //  (2): --unknown-- at 0x4074c5 in balst_stacktraceprinter.t
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -641,12 +644,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -665,48 +668,48 @@ int main(int argc, char *argv[])
         // COMPARISON WITH STACKTRACEPRINTUTIL
         //
         // Concerns:
-        //: 1 That output matches that from 'StackTracePrintUtil', except
-        //:   starting with an initial '\n'.
-        //:
-        //: 2 That each argument controls the output accordingly.
+        // 1. That output matches that from `StackTracePrintUtil`, except
+        //    starting with an initial '\n'.
+        //
+        // 2. That each argument controls the output accordingly.
         //
         // Plan:
-        //: 1 Define a 'struct', 'ConfigurationOptions', which contains the
-        //:   values for each of the arguments to be passed to the stack trace
-        //:   printer, plus 'd_numDefaults', which is the number of arguments
-        //:   to be defaulted by not being specified.
-        //:
-        //: 2 Define a function, 'recurseAndStackTrace' which will recurse a
-        //:   specified number of times, and then stream two stack traces to
-        //:   two streams passed to it, one with 'Obj()', and the other with
-        //:   'StackTracePrintUtil::printStackTrace', to be checked and
-        //:   compared.
-        //:
-        //: 3 Define a function, 'testOptions', which is passed a
-        //:   'ConfigurationOptions' object and will call
-        //:   'recurseAndStackTrace' with those options, and compare the two
-        //:   stack traces and observe that the properties of the stack traces
-        //:   match the arguments of 'ConfigurationOptions'.
-        //:
-        //: 4 Note that the two stack traces will not normally exactly match,
-        //:   because the calls to the stack trace utilities will come from
-        //:   different offsets and different line numbers in the top frame
-        //:   recorded.  Write a function 'skipFirstFrame' which will remove
-        //:   the first frame of the trace, and then compare the two stack
-        //:   traces after that.  They should match.
-        //:
-        //: 5 Check that the 'maxFrames' argument was obeyed by counting the
-        //:   number of '\n's in the output and whether the function
-        //:   'testOptions' is displayed.
-        //:
-        //: 6 Check whether the demangling flag is obeyed by observing whether
-        //:   the substring "::" occurs in the output (it is only to be found
-        //:   in demangled symbols.  Note that demangling cannot be disabled
-        //:   on Windows.
-        //:
-        //: 7 Check whether the 'additionalIgnoreFrames' argument is obeyed
-        //:   by observing whether "recurseAndStackTrace" and "testOptions"
-        //:   are seen in the trace.
+        // 1. Define a `struct`, `ConfigurationOptions`, which contains the
+        //    values for each of the arguments to be passed to the stack trace
+        //    printer, plus `d_numDefaults`, which is the number of arguments
+        //    to be defaulted by not being specified.
+        //
+        // 2. Define a function, `recurseAndStackTrace` which will recurse a
+        //    specified number of times, and then stream two stack traces to
+        //    two streams passed to it, one with `Obj()`, and the other with
+        //    `StackTracePrintUtil::printStackTrace`, to be checked and
+        //    compared.
+        //
+        // 3. Define a function, `testOptions`, which is passed a
+        //    `ConfigurationOptions` object and will call
+        //    `recurseAndStackTrace` with those options, and compare the two
+        //    stack traces and observe that the properties of the stack traces
+        //    match the arguments of `ConfigurationOptions`.
+        //
+        // 4. Note that the two stack traces will not normally exactly match,
+        //    because the calls to the stack trace utilities will come from
+        //    different offsets and different line numbers in the top frame
+        //    recorded.  Write a function `skipFirstFrame` which will remove
+        //    the first frame of the trace, and then compare the two stack
+        //    traces after that.  They should match.
+        //
+        // 5. Check that the `maxFrames` argument was obeyed by counting the
+        //    number of '\n's in the output and whether the function
+        //    `testOptions` is displayed.
+        //
+        // 6. Check whether the demangling flag is obeyed by observing whether
+        //    the substring "::" occurs in the output (it is only to be found
+        //    in demangled symbols.  Note that demangling cannot be disabled
+        //    on Windows.
+        //
+        // 7. Check whether the `additionalIgnoreFrames` argument is obeyed
+        //    by observing whether "recurseAndStackTrace" and "testOptions"
+        //    are seen in the trace.
         //
         // Testing:
         //   Obj(int, bool, int);
@@ -722,17 +725,17 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Everything defaulting:\n";
 
-        // numDefaults = 0: 'Obj(<default>, <default>, <default>)'
+        // numDefaults = 0: `Obj(<default>, <default>, <default>)`
 
         TC::testOptions(L_, Options());    // Everything passed default.
 
-        // numDefaults = 3: 'Obj()'
+        // numDefaults = 3: `Obj()`
 
         TC::testOptions(L_, Options(3));   // All args defaulting
 
-        if (verbose) cout << "Various values of 'maxFrames':\n";
+        if (verbose) cout << "Various values of `maxFrames`:\n";
 
-        // numDefaults = 0: 'Obj(x, <default>, <default>)'
+        // numDefaults = 0: `Obj(x, <default>, <default>)`
 
         TC::testOptions(L_, Options(0, -1));
         TC::testOptions(L_, Options(0, 0));
@@ -741,7 +744,7 @@ int main(int argc, char *argv[])
         TC::testOptions(L_, Options(0, 7));
         TC::testOptions(L_, Options(0, 20));
 
-        // numDefaults = 2: 'Obj(x)'
+        // numDefaults = 2: `Obj(x)`
 
         TC::testOptions(L_, Options(2, -1));
         TC::testOptions(L_, Options(2, 0));
@@ -752,19 +755,19 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Disabling demangling\n";
 
-        // numDefaults = 0: 'Obj(x, y, <default>)'
+        // numDefaults = 0: `Obj(x, y, <default>)`
 
         TC::testOptions(L_, Options(0, -1, false));
         TC::testOptions(L_, Options(0, -1, true));
 
-        // numDefaults = 1: 'Obj(x, y)'
+        // numDefaults = 1: `Obj(x, y)`
 
         TC::testOptions(L_, Options(1, -1, false));
         TC::testOptions(L_, Options(1, -1, true));
 
         if (verbose) cout << "Additional Ignore frames\n";
 
-        // numDefaults = 0: 'Obj(x, y, z)'
+        // numDefaults = 0: `Obj(x, y, z)`
 
         TC::testOptions(L_, Options(0, -1, true, 0));
         TC::testOptions(L_, Options(0, -1, true, 1));
@@ -778,16 +781,16 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
-        //:
-        //: 2 That certain forms of undefined behavior are caught via asserts.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
+        //
+        // 2. That certain forms of undefined behavior are caught via asserts.
         //
         // Plan:
-        //: 1 Several routines deep, do a stack trace to a string stream.
-        //:
-        //: 2 Check that the right sequence of routine names is present in
-        //:   the string stream.
+        // 1. Several routines deep, do a stack trace to a string stream.
+        //
+        // 2. Check that the right sequence of routine names is present in
+        //    the string stream.
         //
         // Testing:
         //   BREATHING TEST

@@ -246,8 +246,8 @@ BSLS_IDENT("$Id: $")
 // template <>
 // struct HasFallbackEnumerator<mine::ImageType> : public bsl::true_type {
 // };
-// }  // close namespace 'bdlat_EnumFunctions'
-// }  // close namespace 'BloombergLP'
+// }  // close namespace bdlat_EnumFunctions
+// }  // close namespace BloombergLP
 // ```
 // The `bdlat` infrastructure (and any component that uses this infrastructure)
 // will now recognize `ImageType` as an "enumeration" type with a fallback

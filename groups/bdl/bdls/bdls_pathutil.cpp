@@ -19,14 +19,15 @@ namespace bdls {
 
 namespace {
 
+/// This functor is used to determine whether a character is any kind of
+/// separator.
 struct IsSeparator {
-    // This functor is used to determine whether a character is any kind of
-    // separator.
 
     // ACCESSOR
+
+    /// Return `true` if the specified `ch` character is a path separator
+    /// and return `false` otherwise.
     bool operator()(char ch) const;
-        // Return 'true' if the specified 'ch' character is a path separator
-        // and return 'false' otherwise.
 };
 
 // ACCESSOR
@@ -52,15 +53,15 @@ const char k_separators[] =
 #endif
     ;
 
+/// Load into the specified `resultOffset` the offset of the first *non*
+/// path-separator character in the specified `path` (e.g., the first
+/// character not equal to `/` on unix platforms).  Optionally specify
+/// `length` indicating the length of `path`.  If `length` is not supplied,
+/// call `strlen` on `path` to determine its length.
 static
 void findFirstNonSeparatorChar(size_t     *resultOffset,
                                const char *path,
                                int         length = -1)
-    // Load into the specified 'resultOffset' the offset of the first *non*
-    // path-separator character in the specified 'path' (e.g., the first
-    // character not equal to '/' on unix platforms).  Optionally specify
-    // 'length' indicating the length of 'path'.  If 'length' is not supplied,
-    // call 'strlen' on 'path' to determine its length.
 {
     BSLS_ASSERT(resultOffset);
     BSLS_ASSERT(path);
@@ -165,16 +166,16 @@ void findFirstNonSeparatorChar(size_t     *resultOffset,
     }
 }
 
+/// Load into the specified `result` the offset of the first *non*
+/// path-separator character in the specified `path` (e.g., the first
+/// character not equal to `/` on unix platforms).  Optionally specify
+/// `length` indicating the length of `path`.  If `length` is not supplied,
+/// call `strlen` on `path` to determine its length.  Note that the
+/// behavior of this routine is identical to that of the above
+/// `findFirstNonSeparatorChar` routine, except this one takes an `int *`
+/// instead of a `size_t *`.
 static
 void findFirstNonSeparatorChar(int *result, const char *path, int length = -1)
-    // Load into the specified 'result' the offset of the first *non*
-    // path-separator character in the specified 'path' (e.g., the first
-    // character not equal to '/' on unix platforms).  Optionally specify
-    // 'length' indicating the length of 'path'.  If 'length' is not supplied,
-    // call 'strlen' on 'path' to determine its length.  Note that the
-    // behavior of this routine is identical to that of the above
-    // 'findFirstNonSeparatorChar' routine, except this one takes an 'int *'
-    // instead of a 'size_t *'.
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(path);
@@ -185,14 +186,14 @@ void findFirstNonSeparatorChar(int *result, const char *path, int length = -1)
     *result = static_cast<int>(resultOffset);
 }
 
+/// Return the position of the beginning of the basename of the specified
+/// `path`.  The basename will not be found within the specified `rootEnd`
+/// characters from the beginning of `path`.  If the optionally specified
+/// `length` is not given, assume `path` is null-terminated.  Note that this
+/// file may be a directory.  Also note that trailing separators are
+/// ignored.
 static
 const char *leafDelimiter(const char *path, int rootEnd, int length = -1)
-    // Return the position of the beginning of the basename of the specified
-    // 'path'.  The basename will not be found within the specified 'rootEnd'
-    // characters from the beginning of 'path'.  If the optionally specified
-    // 'length' is not given, assume 'path' is null-terminated.  Note that this
-    // file may be a directory.  Also note that trailing separators are
-    // ignored.
 {
     BSLS_ASSERT(path);
 

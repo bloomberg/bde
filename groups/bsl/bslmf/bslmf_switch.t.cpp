@@ -6,8 +6,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 #include <string.h>
 
 #ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
@@ -19,7 +19,7 @@ using namespace BloombergLP;
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-// The component under test is a meta-function returning a 'TYPE' as a function
+// The component under test is a meta-function returning a `TYPE` as a function
 // of its template arguments.  As such, the concerns are limited to the
 // correctness of the return "value", which is established by using overload
 // resolution as the mechanism to discriminate among types.
@@ -28,8 +28,8 @@ using namespace BloombergLP;
 // [ 2] bslmf::SwitchN<SWITCH_SELECTOR,T0,. . .,T{N-1}>::Type
 // [ 1] bslmf::Switch<SWITCH_SELECTOR,T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>::Type
 //-----------------------------------------------------------------------------
-// [ 1] FUNCTIONALITY TEST (CLASS 'bslmf::Switch')
-// [ 2] CLASSES 'bslmf::SwitchN'
+// [ 1] FUNCTIONALITY TEST (CLASS `bslmf::Switch`)
+// [ 2] CLASSES `bslmf::SwitchN`
 // [ 3] USAGE EXAMPLE
 
 // ============================================================================
@@ -84,9 +84,10 @@ void aSsErT(bool condition, const char *message, int line)
 // BDE_VERIFY pragma: -FD01 // Function contracts replaced by expository text
 
 // Assume an external server API for storing and retrieving data:
-//..
+// ```
+
+    /// Dummy implementation of data server
     class Data_Server {
-        // Dummy implementation of data server
 
         int d_data;
 
@@ -103,45 +104,46 @@ void aSsErT(bool condition, const char *message, int line)
         }
         void retrieve(int   *data) { *data = d_data; }
     };
-//..
+// ```
 // In our application, we need some very small (1, 2, and 4-byte),
-// special-purpose string types, so we create the following 'ShortString'
+// special-purpose string types, so we create the following `ShortString`
 // class template:
-//..
+// ```
+
+    /// Store a short, fixed-length string.
     template <int LEN>
     class ShortString {
-        // Store a short, fixed-length string.
 
         char d_buffer[LEN];
 
       public:
+        /// Construct a `ShortString` having the same value as the
+        /// optionally specified NTCS `s`, and having an empty string value
+        /// otherwise.
         explicit ShortString(const char *s = "") { strncpy(d_buffer, s, LEN); }
-            // Construct a 'ShortString' having the same value as the
-            // optionally specified NTCS 's', and having an empty string value
-            // otherwise.
 
+        /// Retrieve this string from the specified data `server`.
         void retrieve(Data_Server *server);
-            // Retrieve this string from the specified data 'server'.
 
+        /// Store this string to the specified data `server`.
         void store(Data_Server *server) const;
-            // Store this string to the specified data 'server'.
 
+        /// Return the specified `n`th byte in this string.
         char operator[](int n) const { return d_buffer[n]; }
-            // Return the specified 'n'th byte in this string.
     };
 
+    /// Return `true` if the specified `lhs` has the same value as the
+    /// specified `rhs`, and `false` otherwise.
     template <int LEN>
     bool operator==(const ShortString<LEN>& lhs, const ShortString<LEN>& rhs)
-        // Return 'true' if the specified 'lhs' has the same value as the
-        // specified 'rhs', and 'false' otherwise.
     {
         return 0 == memcmp(&lhs, &rhs, LEN);
     }
 
+    /// Return `true` if the specified `ShortString` `lhs` has the same
+    /// value as the specified NTCS `rhs`, and `false` otherwise.
     template <int LEN>
     bool operator==(const ShortString<LEN>& lhs, const char *rhs)
-        // Return 'true' if the specified 'ShortString' 'lhs' has the same
-        // value as the specified NTCS 'rhs', and 'false' otherwise.
     {
         int i;
         for (i = 0; LEN > i && lhs[i]; ++i) {
@@ -152,19 +154,19 @@ void aSsErT(bool condition, const char *message, int line)
 
         return ('\0' == rhs[i]);
     }
-//..
+// ```
 // We would like to store our short strings in the data server, but the data
-// server only handles 'char', 'short' and 'int' types.  Since our strings fit
-// into these simple types, we can transform 'ShortString' into these integral
-// types when calling 'store' and 'retrieve', using 'bslmf::Switch' to choose
-// which integral type to use for each 'ShortString' type:
-//..
+// server only handles `char`, `short` and `int` types.  Since our strings fit
+// into these simple types, we can transform `ShortString` into these integral
+// types when calling `store` and `retrieve`, using `bslmf::Switch` to choose
+// which integral type to use for each `ShortString` type:
+// ```
     template <int LEN>
     void ShortString<LEN>::retrieve(Data_Server *server)
     {
-        // 'transferType will be 'char' if 'LEN' is 1, 'short' if 'LEN' is 2,
-        // and 'int' if 'LEN' 4.  Will choose 'void' and thus not compile if
-        // 'LEN' is 0 or 3.
+        // `transferType will be `char' if `LEN` is 1, `short` if `LEN` is 2,
+        // and `int` if `LEN` 4.  Will choose `void` and thus not compile if
+        // `LEN` is 0 or 3.
         typedef typename
            bslmf::Switch<LEN, void, char, short, void, int>::Type transferType;
 
@@ -176,9 +178,9 @@ void aSsErT(bool condition, const char *message, int line)
     template <int LEN>
     void ShortString<LEN>::store(Data_Server *server) const
     {
-        // 'transferType will be 'char' if 'LEN' is 1, 'short' if 'LEN' is 2,
-        // and 'int' if 'LEN' 4.  Will choose 'void' and thus not compile if
-        // 'LEN' is 0 or 3.
+        // `transferType will be `char' if `LEN` is 1, `short` if `LEN` is 2,
+        // and `int` if `LEN` 4.  Will choose `void` and thus not compile if
+        // `LEN` is 0 or 3.
         typedef typename
            bslmf::Switch<LEN, void, char, short, void, int>::Type transferType;
 
@@ -186,10 +188,10 @@ void aSsErT(bool condition, const char *message, int line)
         memcpy(&x, d_buffer, LEN);
         server->store(x);
     }
-//..
+// ```
 // In our main program, we first assert our basic assumptions, then we
-// store and retrieve strings using our 'ShortString' template.
-//..
+// store and retrieve strings using our `ShortString` template.
+// ```
     int usageExample()
     {
         ASSERT(2 == sizeof(short));
@@ -235,7 +237,7 @@ void aSsErT(bool condition, const char *message, int line)
 
         return 0;
     }
-//..
+// ```
 
 //BDE_VERIFY pragma: pop // end of usage example-example relaxed rules
 
@@ -293,7 +295,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -307,18 +309,18 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING CLASSES 'bslmf::SwitchN'
+        // TESTING CLASSES `bslmf::SwitchN`
         //
         // Concerns:
-        //   Returns the right type for 'SWITCH_SELECTOR' values 0-N.
-        //   Returns 'bslmf::Nil' for 'SWITCH_SELECTOR' < 0 or N <
-        //           'SWITCH_SELECTOR'
+        //   Returns the right type for `SWITCH_SELECTOR` values 0-N.
+        //   Returns `bslmf::Nil` for `SWITCH_SELECTOR` < 0 or N <
+        //           `SWITCH_SELECTOR`
         //
-        // Plan:  For each 'N' between 2 and 9:
+        // Plan:  For each `N` between 2 and 9:
         //   Instantiate with N different types each value in the range 0-(N-1)
-        //       as 'SWITCH_SELECTOR'.  Call an 'f' function on the result to
-        //       verify the type.  Instantiate with 'SWITCH_SELECTOR' out of
-        //       range 0-(N-1) and verify that 'f' returns '0'.
+        //       as `SWITCH_SELECTOR`.  Call an `f` function on the result to
+        //       verify the type.  Instantiate with `SWITCH_SELECTOR` out of
+        //       range 0-(N-1) and verify that `f` returns `0`.
         //   Note that, compared to case 1, we do not worry about defaulted nor
         //   repeated template arguments.
         //
@@ -326,7 +328,7 @@ int main(int argc, char *argv[])
         //   bslmf::SwitchN<SWITCH_SELECTOR,T0,. . .,T{N-1}>::Type
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING CLASSES 'bslmf::SwitchN'"
+        if (verbose) printf("\nTESTING CLASSES `bslmf::SwitchN`"
                             "\n================================\n");
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -477,20 +479,20 @@ int main(int argc, char *argv[])
         // FUNCTIONALITY TEST
         //
         // Concerns:
-        //   Returns the right type for 'SWITCH_SELECTOR' values 0-4.
-        //   Returns 'bslmf::Nil' for 'SWITCH_SELECTOR' < 0 or 4 <
-        //           'SWITCH_SELECTOR'
-        //   Returns 'bslmf::Nil' if 'SWITCH_SELECTOR' > number of template
+        //   Returns the right type for `SWITCH_SELECTOR` values 0-4.
+        //   Returns `bslmf::Nil` for `SWITCH_SELECTOR` < 0 or 4 <
+        //           `SWITCH_SELECTOR`
+        //   Returns `bslmf::Nil` if `SWITCH_SELECTOR` > number of template
         //           arguments
         //
         // Plan:
-        //   Define 10 overloaded versions of a function, 'f' returning
-        //       a different letter for each of the types 'A' - 'J' and
-        //       returning '0' for 'bslmf::Nil'.
+        //   Define 10 overloaded versions of a function, `f` returning
+        //       a different letter for each of the types `A` - `J` and
+        //       returning `0` for `bslmf::Nil`.
         //   Instantiate with 10 different types each value in the range 0-9 as
-        //       'SWITCH_SELECTOR'.  Call an 'f' function on the result to
-        //       verify the type.  Instantiate with 'SWITCH_SELECTOR' out of
-        //       range 0-9 and verify that 'f' returns '0'.
+        //       `SWITCH_SELECTOR`.  Call an `f` function on the result to
+        //       verify the type.  Instantiate with `SWITCH_SELECTOR` out of
+        //       range 0-9 and verify that `f` returns `0`.
         //   Instantiate with fewer than 9 different types and verify results.
         //
         // Testing:

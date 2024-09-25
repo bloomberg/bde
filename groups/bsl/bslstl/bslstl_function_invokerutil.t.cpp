@@ -11,8 +11,8 @@
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi', 'size_t'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`, `size_t`
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // Include version that can be compiled with C++03
@@ -29,19 +29,19 @@ using namespace BloombergLP;
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
 // The component under test provides a utility class with only one public
-// function, 'invokerForFunc'.  The return value of 'invokerForFunc' is itself
-// a function pointer which is invoked with the address of a 'Function_Rep'
+// function, `invokerForFunc`.  The return value of `invokerForFunc` is itself
+// a function pointer which is invoked with the address of a `Function_Rep`
 // object and a set of arguments that are fowarded to the target object of the
-// 'Function_Rep'.  Testing 'invokerForFunc' involves calling it with different
+// `Function_Rep`.  Testing `invokerForFunc` involves calling it with different
 // kinds of targets and then calling the resulting function pointer to verify
 // that the target is invoked.  Testing is performed with 0 to 13 arguments
 // forwarded to the target.
 // ----------------------------------------------------------------------------
 // [ 2] invokerForFunc(const bsl::nullptr_t&);
-// [ 2] invokerForFunc(const FUNC& f); // 'FUNC' == ptr to function
-// [ 3] invokerForFunc(const FUNC& f); // 'FUNC' == ptr to member function
-// [ 4] invokerForFunc(const FUNC& f); // 'FUNC' == ptr to data member
-// [ 5] invokerForFunc(const FUNC& f); // 'FUNC' == user-defined functor
+// [ 2] invokerForFunc(const FUNC& f); // `FUNC` == ptr to function
+// [ 3] invokerForFunc(const FUNC& f); // `FUNC` == ptr to member function
+// [ 4] invokerForFunc(const FUNC& f); // `FUNC` == ptr to data member
+// [ 5] invokerForFunc(const FUNC& f); // `FUNC` == user-defined functor
 // [ 6] IsFuncInvocable<PROTOTYPE, FUNC>
 //
 // ----------------------------------------------------------------------------
@@ -176,10 +176,10 @@ static const size_t k_SMALL_OBJECT_BUFFER_SIZE =
 #define NTWRAP(r)   bslalg::NothrowMovableUtil::wrap(r)
 #define NTUNWRAP(r) bslalg::NothrowMovableUtil::unwrap(r)
 
+/// A simple class with the interface of a smart pointer.
 template <class TYPE>
 class SmartPtr
 {
-    // A simple class with the interface of a smart pointer.
 
     TYPE *d_obj_p;
 
@@ -227,27 +227,27 @@ int rvalueMoveInt(bslmf::MovableRef<int> i)
 RVALUE_SUMMING_FUNC(0)
 BSLS_MACROREPEAT(13, RVALUE_SUMMING_FUNC)
 
-// Increment '*val' by one.  Used to test a void return type.
+// Increment `*val` by one.  Used to test a void return type.
 void increment(int *val)
 {
     ++*val;
 }
 
+/// a complete class type
 class Base {
-    // a complete class type
 };
 
+/// This is a complete class type that derives from `Base`, and which has a
+/// single, private data member to ensure that it is not an aggregate.  A
+/// constructor that initializes the data member and an accessor for it are
+/// provided to silence warnings that it may be unused.
+///
+/// Note that it is important that this class is not an aggregate because it
+/// is primarily used to test whether derived-to-base conversions are
+/// allowed by machinery in this component, e.g., in checking whether the
+/// return type of an invokable type is convertible to a desired return type
+/// in the `bslstl::Function_InvokerUtil::IsFuncInvocable` type trait.
 class Derived : public Base {
-    // This is a complete class type that derives from 'Base', and which has a
-    // single, private data member to ensure that it is not an aggregate.  A
-    // constructor that initializes the data member and an accessor for it are
-    // provided to silence warnings that it may be unused.
-    //
-    // Note that it is important that this class is not an aggregate because it
-    // is primarily used to test whether derived-to-base conversions are
-    // allowed by machinery in this component, e.g., in checking whether the
-    // return type of an invokable type is convertible to a desired return type
-    // in the 'bslstl::Function_InvokerUtil::IsFuncInvocable' type trait.
 
     // DATA
     int d_data;
@@ -267,46 +267,48 @@ class Derived : public Base {
     }
 };
 
+/// a complete class type that is explicitly convertible from `Base`
 class Explicit {
-    // a complete class type that is explicitly convertible from 'Base'
 
   public:
     // CREATORS
+
+    /// declared but not defined
     explicit Explicit(Base);
-        // declared but not defined
 };
 
+/// a complete class type that is an aggregate
 class BaseAggregate {
-    // a complete class type that is an aggregate
 };
 
+/// a complete class type that is an aggregate and derives from
+/// `BaseAggregate`
 class DerivedAggregate : public BaseAggregate {
-    // a complete class type that is an aggregate and derives from
-    // 'BaseAggregate'
 };
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=13
 
+/// forward declaration
 template <class PROTOTYPE>
 class F;
-    // forward declaration
 
+/// a complete class type that is invocable with the prototype
+/// `RET (ARGS...)`
 template <class RET, class... ARGS>
 class F<RET(ARGS...)> {
-    // a complete class type that is invocable with the prototype
-    // 'RET (ARGS...)'
 
   public:
     // ACCESSORS
+
+    /// declared but not defined
     RET operator()(ARGS...) const;
-        // declared but not defined
 };
 
 #endif
 
+/// Class of objects implicitly convertible to `int`
 class ConvertibleToInt
 {
-    // Class of objects implicitly convertible to 'int'
 
     int d_value;
 
@@ -316,16 +318,16 @@ class ConvertibleToInt
     operator int() const { return d_value; }
 };
 
+/// Simple wrapper around an arbitrary object of type `T`, for testing
+/// access through a pointer to data member.
 template <typename TYPE>
 struct DataWrapper
 {
-    // Simple wrapper around an arbitrary object of type 'T', for testing
-    // access through a pointer to data member.
 
     TYPE d_t;  // public data member
 
+    /// Initialize `d_t` with the specified `t`.
     DataWrapper(const TYPE& t) : d_t(t) {}
-        // Initialize 'd_t' with the specified 't'.
 };
 
 template <typename TYPE>
@@ -334,11 +336,11 @@ struct DerivedDataWrapper : DataWrapper<TYPE>
     DerivedDataWrapper(const TYPE& t) : DataWrapper<TYPE>(t) {}
 };
 
+/// Simple wrapper around an `int` that supplies member functions (whose
+/// address can be taken) for testing `bsl::function`.  This wrapper also
+/// provides a call operator that returns the value
 class IntWrapper
 {
-    // Simple wrapper around an 'int' that supplies member functions (whose
-    // address can be taken) for testing 'bsl::function'.  This wrapper also
-    // provides a call operator that returns the value
 
     int d_value;
 
@@ -368,32 +370,32 @@ class IntWrapper
 
     int increment0() { return d_value; }
     BSLS_MACROREPEAT(12, INCREMENT_FUNC)
-        // Mutable function with 0 to 12 arguments.  Increment 'd_value' by the
-        // sum of all arguments and return the new value.  'increment0()' is a
+        // Mutable function with 0 to 12 arguments.  Increment `d_value` by the
+        // sum of all arguments and return the new value.  `increment0()` is a
         // no-op.
 
     void incrementBy1() { ++d_value; }
 
+    /// Return `value()` + the integer at the specified `lv` modifiable
+    /// reference and set the value at `lv` to -1.
     int lvadd1(int& lv) const { int ret = d_value + lv; lv = -1; return ret; }
-        // Return 'value()' + the integer at the specified 'lv' modifiable
-        // reference and set the value at 'lv' to -1.
 
+    /// Return `value()` + the integer at the specified `rv` movable
+    /// reference and set the value at `rv` to -1.
     int rvadd1(bslmf::MovableRef<int> rv) const { return lvadd1(rv); }
-        // Return 'value()' + the integer at the specified 'rv' movable
-        // reference and set the value at 'rv' to -1.
 
     int sub1(int arg) { return value() - arg; }
 
     int value() const { return d_value; }
 
+    /// Return the current value added to the optionally specified
+    /// `increment` (default 0).
     int operator()(int increment = 0) const { return d_value + increment; }
-        // Return the current value added to the optionally specified
-        // 'increment' (default 0).
 
     void voidIncrement0() { }
     BSLS_MACROREPEAT(12, VOID_INCREMENT_FUNC)
-        // Mutating function with 0 to 12 arguments.  Increment 'd_value' by
-        // the sum of all arguments.  'voidIncrement0()' is a no-op.
+        // Mutating function with 0 to 12 arguments.  Increment `d_value` by
+        // the sum of all arguments.  `voidIncrement0()` is a no-op.
 };
 
 inline bool operator==(const IntWrapper& a, const IntWrapper& b)
@@ -407,9 +409,9 @@ inline bool operator!=(const IntWrapper& a, const IntWrapper& b)
     return a.value() != b.value();
 }
 
+/// Derived class of `IntWrapper`
 class IntWrapperDerived : public IntWrapper
 {
-    // Derived class of 'IntWrapper'
 
   public:
     IntWrapperDerived(int v) : IntWrapper(v) { }                    // IMPLICIT
@@ -418,16 +420,16 @@ class IntWrapperDerived : public IntWrapper
 int *getAddress(int& r) { return &r; }
 const int *getConstAddress(const int& r) { return &r; }
 
+/// Dummy class.  Does nothing.
 struct Dummy {
-    // Dummy class.  Does nothing.
 };
 
+/// Dummy class.  Does nothing.
 struct Dummy2 {
-    // Dummy class.  Does nothing.
 };
 
+/// Functor object that fits in the small object buffer.
 class SmallFunctor {
-    // Functor object that fits in the small object buffer.
 
     // DATA
     int d_value;
@@ -462,39 +464,40 @@ class SmallFunctor {
     int operator()(const IntWrapper& iw)
         { int ret = value() + iw.value(); setValue(ret); return ret; }
     BSLS_MACROREPEAT(12, OP_PAREN)
-        // Increment this object's value by the sum of the specified 'iw' (if
-        // any) and 'arg0' through 'arg12', then return the new value.  All of
+        // Increment this object's value by the sum of the specified `iw` (if
+        // any) and `arg0` through `arg12`, then return the new value.  All of
         // the arguments to this call operator are optional, so this functor
         // can be called with 0 to 13 (integer) arguments.
 
 #undef OP_PAREN
 
+    /// Parse the specified `valstr` as an integer and use it to set this
+    /// object's value.  This call operator is used to test invocations that
+    /// return `void`.  The string argument prevents overload ambiguity.
     void operator()(const char* valstr)
-        // Parse the specified 'valstr' as an integer and use it to set this
-        // object's value.  This call operator is used to test invocations that
-        // return 'void'.  The string argument prevents overload ambiguity.
         { setValue(atoi(valstr)); }
 
     void setValue(int value) { d_value = value; }
 
     // ACCESSORS
+
+    /// Return the address of the specified `arg`.  This call operator is
+    /// used to test invocations that take reference arguments.
     Dummy *operator()(Dummy& arg) const
-        // Return the address of the specified 'arg'.  This call operator is
-        // used to test invocations that take reference arguments.
         { return &arg; }
 
+    /// Return the address of the specified `arg`.  This call operator is
+    /// used to test invocations that take movable reference arguments.
     Dummy2 *operator()(bslmf::MovableRef<Dummy2> arg) const
-        // Return the address of the specified 'arg'.  This call operator is
-        // used to test invocations that take movable reference arguments.
         { return &bslmf::MovableRefUtil::access(arg); }
 
     int value() const { return d_value; }
 };
 
+/// Functor object that fits in the small object buffer but does not qualify
+/// for the small object optimization because it has a throwing move
+/// constructor.
 class SmallThrowingFunctor : public SmallFunctor {
-    // Functor object that fits in the small object buffer but does not qualify
-    // for the small object optimization because it has a throwing move
-    // constructor.
 
   public:
     // CREATORS
@@ -522,8 +525,8 @@ class SmallThrowingFunctor : public SmallFunctor {
     }
 };
 
+/// Functor object that does not fit in the small object buffer.
 class LargeFunctor : public SmallFunctor {
-    // Functor object that does not fit in the small object buffer.
 
     // Add enough padding so that it doesn't fit in the small object buffer.
     char d_padding[k_SMALL_OBJECT_BUFFER_SIZE - sizeof(int) + 1];
@@ -550,158 +553,160 @@ BSLMF_ASSERT(! SmallObjectOptimization::
                IsInplaceFunc<SmallThrowingFunctor>::value);
 BSLMF_ASSERT(! SmallObjectOptimization::IsInplaceFunc<LargeFunctor>::value);
 
+/// Wrap and make available an object of the specified `TYPE` for passing
+/// into functions and constructors in the test driver.  `TYPE` is
+/// constrained to be constructible from `int` and have a `value()` method
+/// that returns an `int`.  (`IntWrapper` and the `Functor`s above meet
+/// these criteria.)
 template <class TYPE>
 class ArgGeneratorBase {
-    // Wrap and make available an object of the specified 'TYPE' for passing
-    // into functions and constructors in the test driver.  'TYPE' is
-    // constrained to be constructible from 'int' and have a 'value()' method
-    // that returns an 'int'.  ('IntWrapper' and the 'Functor's above meet
-    // these criteria.)
 
     bsls::ObjectBuffer<TYPE> d_value;
 
   public:
     enum { INIT_VALUE = 0x2001, MOVED_FROM_VALUE = -1 };
 
+    /// Create an object of wrapping a `TYPE` object with a known initial
+    /// value.
     ArgGeneratorBase() { new (d_value.buffer()) TYPE(INIT_VALUE); }
-        // Create an object of wrapping a 'TYPE' object with a known initial
-        // value.
 
+    /// Reset the wrapped object to its initial value and return a
+    /// modifiable reference to the wrapped object.
     TYPE& reset()
-        // Reset the wrapped object to its initial value and return a
-        // modifiable reference to the wrapped object.
     {
         d_value.object().~TYPE();
         new (d_value.buffer()) TYPE(INIT_VALUE);
         return d_value.object();
     }
 
+    /// Return the value of the wrapped object.
     int value() const { return d_value.object().value(); }
-        // Return the value of the wrapped object.
 
+    /// Return a modifiable reference to the wrapped object.
     TYPE& targetObj() { return d_value.object(); }
-        // Return a modifiable reference to the wrapped object.
 };
 
+/// Wrap and make available an object of the specified `TYPE` for passing
+/// into functions and constructors in the test driver.  `TYPE` is
+/// constrained to be constructible from `int` and have a `value()` method
+/// that returns an `int`.  (`IntWrapper` and the `Functor`s above meet
+/// these criteria.)  The expected usage is to construct an object of this
+/// type, `x`, and pass `x.obj()` to a function or constructor.  After the
+/// call, verify that `x.check(v)` returns true, where `v` is the value that
+/// the call is expected to have written into `x`.
+///
+/// This primary template is used when `TYPE` is not an lvalue reference,
+/// rvalue reference, pointer, or `SmartPtr` type.
 template <class TYPE>
 struct ArgGenerator : ArgGeneratorBase<TYPE> {
-    // Wrap and make available an object of the specified 'TYPE' for passing
-    // into functions and constructors in the test driver.  'TYPE' is
-    // constrained to be constructible from 'int' and have a 'value()' method
-    // that returns an 'int'.  ('IntWrapper' and the 'Functor's above meet
-    // these criteria.)  The expected usage is to construct an object of this
-    // type, 'x', and pass 'x.obj()' to a function or constructor.  After the
-    // call, verify that 'x.check(v)' returns true, where 'v' is the value that
-    // the call is expected to have written into 'x'.
-    //
-    // This primary template is used when 'TYPE' is not an lvalue reference,
-    // rvalue reference, pointer, or 'SmartPtr' type.
 
+    /// Return true if the wrapped object has its initial value.  Normally,
+    /// this function would compare the wrapped object to the passed
+    /// argument, but since, for this specialization, `obj()` returns an
+    /// rvalue, `somecall(x.obj())` cannot modify `x`, so `x` would be
+    /// expected to retain its initial value.
     bool check(int /* exp */) const
-        // Return true if the wrapped object has its initial value.  Normally,
-        // this function would compare the wrapped object to the passed
-        // argument, but since, for this specialization, 'obj()' returns an
-        // rvalue, 'somecall(x.obj())' cannot modify 'x', so 'x' would be
-        // expected to retain its initial value.
         { return this->value() == ArgGeneratorBase<TYPE>::INIT_VALUE; }
 
+    /// Reset the wrapped object to its initial value and return a copy of
+    /// the wrapped object, typically for use as an argument in a function
+    /// call.
     TYPE obj() { return this->reset(); }
-        // Reset the wrapped object to its initial value and return a copy of
-        // the wrapped object, typically for use as an argument in a function
-        // call.
 };
 
+/// Specialization of `ArgGenerator` for lvalues reference to the specified
+/// `TYPE`.
 template <class TYPE>
 struct ArgGenerator<TYPE&> : ArgGeneratorBase<TYPE> {
-    // Specialization of 'ArgGenerator' for lvalues reference to the specified
-    // 'TYPE'.
 
+    /// Return true if the wrapped object's value compares equal to the
+    /// specified `exp`.
     bool check(int exp) const { return this->value() == exp; }
-        // Return true if the wrapped object's value compares equal to the
-        // specified 'exp'.
 
+    /// Reset the wrapped object to its initial value and return a
+    /// modifiable lvalue reference to the wrapped object, typically for use
+    /// as an argument in a function call.
     TYPE& obj() { return this->reset(); }
-        // Reset the wrapped object to its initial value and return a
-        // modifiable lvalue reference to the wrapped object, typically for use
-        // as an argument in a function call.
 };
 
+/// Specialization of `ArgGenerator` for lvalues reference to the specified
+/// `TYPE`.
 template <class TYPE>
 struct ArgGenerator<const TYPE&> : ArgGeneratorBase<TYPE> {
-    // Specialization of 'ArgGenerator' for lvalues reference to the specified
-    // 'TYPE'.
 
+    /// Return true if the wrapped object's value compares equal to the
+    /// specified `exp`.
     bool check(int exp) const { return this->value() == exp; }
-        // Return true if the wrapped object's value compares equal to the
-        // specified 'exp'.
 
+    /// Reset the wrapped object to its initial value and return a `const`
+    /// lvalue reference to the wrapped object, typically for use as an
+    /// argument in a function call.
     const TYPE& obj() { return this->reset(); }
-        // Reset the wrapped object to its initial value and return a 'const'
-        // lvalue reference to the wrapped object, typically for use as an
-        // argument in a function call.
 };
 
+/// Specialization of `ArgGenerator` for pointers to the specified `TYPE`.
 template <class TYPE>
 struct ArgGenerator<TYPE *> : ArgGeneratorBase<TYPE> {
-    // Specialization of 'ArgGenerator' for pointers to the specified 'TYPE'.
 
+    /// Return true if the wrapped object's value compares equal to the
+    /// specified `exp`.
     bool check(int exp) const { return this->value() == exp; }
-        // Return true if the wrapped object's value compares equal to the
-        // specified 'exp'.
 
+    /// Reset the wrapped object to its initial value and return a
+    /// modifiable pointer to the wrapped object, typically for use as an
+    /// argument in a function call.
     TYPE *obj() { return &this->reset(); }
-        // Reset the wrapped object to its initial value and return a
-        // modifiable pointer to the wrapped object, typically for use as an
-        // argument in a function call.
 };
 
+/// Specialization of `ArgGenerator` for pointers to the specified `TYPE`.
 template <class TYPE>
 struct ArgGenerator<const TYPE *> : ArgGeneratorBase<TYPE> {
-    // Specialization of 'ArgGenerator' for pointers to the specified 'TYPE'.
 
+    /// Return true if the wrapped object's value compares equal to the
+    /// specified `exp`.
     bool check(int exp) const { return this->value() == exp; }
-        // Return true if the wrapped object's value compares equal to the
-        // specified 'exp'.
 
+    /// Reset the wrapped object to its initial value and return a `const`
+    /// pointer to the wrapped object, typically for use as an argument in a
+    /// function call.
     const TYPE *obj() { return &this->reset(); }
-        // Reset the wrapped object to its initial value and return a 'const'
-        // pointer to the wrapped object, typically for use as an argument in a
-        // function call.
 };
 
+/// Specialization of `ArgGenerator` for `SmartPtr` to the specified `TYPE`.
 template <class TYPE>
 struct ArgGenerator<SmartPtr<TYPE> > : ArgGeneratorBase<TYPE> {
-    // Specialization of 'ArgGenerator' for 'SmartPtr' to the specified 'TYPE'.
 
-    // Specialization for smart pointers to 'TYPE'
+    // Specialization for smart pointers to `TYPE`
+
+    /// Return true if the wrapped object's value compares equal to the
+    /// specified `exp`.
     bool check(int exp) const { return this->value() == exp; }
-        // Return true if the wrapped object's value compares equal to the
-        // specified 'exp'.
 
+    /// Reset the wrapped object to its initial value and return a smart
+    /// pointer to the wrapped object, typically for use as an argument in a
+    /// function call.  The smart pointer is returned by value, but provides
+    /// modifiable access to the wrapped object.
     SmartPtr<TYPE> obj() { return SmartPtr<TYPE>(&this->reset()); }
-        // Reset the wrapped object to its initial value and return a smart
-        // pointer to the wrapped object, typically for use as an argument in a
-        // function call.  The smart pointer is returned by value, but provides
-        // modifiable access to the wrapped object.
 };
 
+/// Specialization of `ArgGenerator` for `SmartPtr` to the specified `TYPE`.
 template <class TYPE>
 struct ArgGenerator<const SmartPtr<TYPE> > : ArgGeneratorBase<TYPE> {
-    // Specialization of 'ArgGenerator' for 'SmartPtr' to the specified 'TYPE'.
 
-    // Specialization for smart pointers to 'TYPE'
+    // Specialization for smart pointers to `TYPE`
+
+    /// Return true if the wrapped object's value compares equal to the
+    /// specified `exp`.
     bool check(int exp) const { return this->value() == exp; }
-        // Return true if the wrapped object's value compares equal to the
-        // specified 'exp'.
 
+    /// Reset the wrapped object to its initial value and return a smart
+    /// pointer to the wrapped object, typically for use as an argument in a
+    /// function call.  The smart pointer is returned by value, but provides
+    /// modifiable access to the wrapped object.
     const SmartPtr<TYPE> obj() { return SmartPtr<TYPE>(&this->reset()); }
-        // Reset the wrapped object to its initial value and return a smart
-        // pointer to the wrapped object, typically for use as an argument in a
-        // function call.  The smart pointer is returned by value, but provides
-        // modifiable access to the wrapped object.
 };
 
-// 'bslmf::MovableRef' when C++11 is an alias for a member of a helper template
+// `bslmf::MovableRef` when C++11 is an alias for a member of a helper template
 // explicitly for the purpose of preventing type deduction.  This, however,
 // also prevents partial specialization on rvalue references, which we want to
 // do here.  To get around that we use a different type alias on C++11, and a
@@ -714,20 +719,20 @@ using DeducibleMovableRef = TYPE&&;
 #define DeducibleMovableRef bslmf::MovableRef
 #endif
 
+/// Wrap and make available an object of the specified `TYPE` for passing
+/// into functions as an rvalue reference (or a `MovableRef<TYPE>` when
+/// rvalue references are being simluated).
 template <class TYPE>
 struct ArgGenerator<DeducibleMovableRef<TYPE> > : ArgGeneratorBase<TYPE> {
-    // Wrap and make available an object of the specified 'TYPE' for passing
-    // into functions as an rvalue reference (or a 'MovableRef<TYPE>' when
-    // rvalue references are being simluated).
 
+    /// Return true if the wrapped object has been set to `MOVED_FROM_VALUE`
     bool check(int /*exp*/) const
-        // Return true if the wrapped object has been set to 'MOVED_FROM_VALUE'
         { return this->value() == ArgGeneratorBase<TYPE>::MOVED_FROM_VALUE; }
 
+    /// Reset the wrapped object to its initial value and return a
+    /// modifiable rvalue reference to the wrapped object, typically for
+    /// use as an argument in a function call.
     bslmf::MovableRef<TYPE> obj()
-        // Reset the wrapped object to its initial value and return a
-        // modifiable rvalue reference to the wrapped object, typically for
-        // use as an argument in a function call.
         { return bslmf::MovableRefUtil::move(this->reset()); }
 
 };
@@ -738,9 +743,9 @@ struct ArgGenerator<DeducibleMovableRef<TYPE> > : ArgGeneratorBase<TYPE> {
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=13
 
+/// Utilities to facilitate testing `invokerForFunc`.
 template <class RET, class... ARGS>
 struct TestUtil {
-    // Utilities to facilitate testing 'invokerForFunc'.
 
     // TYPES
     typedef Util::GenericInvoker
@@ -750,13 +755,13 @@ struct TestUtil {
                         typename bslmf::ForwardingType<ARGS>::Type... );
 };
 
+/// Empty the specified `rep` and install the specified `target` into `rep`,
+/// then return the result of calling `Util::invokerForFunc`.  The `RET` and
+/// `ARGS` paramters must be explicitly specified; the `FUNC` parameter is
+/// deduced.
 template <class RET, class... ARGS, class FUNC>
 typename TestUtil<RET, ARGS...>::Invoker *
 getInvoker(Rep *rep, FUNC target)
-    // Empty the specified 'rep' and install the specified 'target' into 'rep',
-    // then return the result of calling 'Util::invokerForFunc'.  The 'RET' and
-    // 'ARGS' paramters must be explicitly specified; the 'FUNC' parameter is
-    // deduced.
 {
     typedef TestUtil<RET, ARGS...> TU;
     typedef typename TU::PROTOTYPE Prototype;
@@ -772,10 +777,10 @@ getInvoker(Rep *rep, FUNC target)
 
 #endif
 
+/// Given `M` as `RemoveReference<RET>::type`, install the specified `pdm`
+/// as the target and test invokers with variations of prototype `M(ARG)`.
 template <class RET, class ARG, class PTR_TO_DATA_MEM>
 void testPtrToDataMember(PTR_TO_DATA_MEM pdm)
-    // Given 'M' as 'RemoveReference<RET>::type', install the specified 'pdm'
-    // as the target and test invokers with variations of prototype 'M(ARG)'.
 {
     typedef typename
         bslmf::MovableRefUtil::RemoveReference<RET>::type M;
@@ -784,20 +789,20 @@ void testPtrToDataMember(PTR_TO_DATA_MEM pdm)
     Rep                                                   rep(&ta);
     ArgGenerator<ARG>                                     gen;
 
-    // Prototype 'M(ARG)'
+    // Prototype `M(ARG)`
     ASSERT((0x2001 == getInvoker<M, ARG>(&rep, pdm)(&rep, gen.obj())));
 
-    // Prototype 'int(ARG)'
+    // Prototype `int(ARG)`
     ASSERT((0x2001 == getInvoker<int, ARG>(&rep, pdm)(&rep, gen.obj())));
 
-    // Prototype 'long(ARG)'
+    // Prototype `long(ARG)`
     ASSERT((0x2001 == getInvoker<long, ARG>(&rep, pdm)(&rep, gen.obj())));
 }
 
+/// Given `M` as `RemoveReference<RET>::type`, install the specified `pdm`
+/// as the target and test invokers with variations of prototype `M&(ARG)`.
 template <class RET, class ARG, class PTR_TO_DATA_MEM>
 void testPtrToDataMemberByRef(PTR_TO_DATA_MEM pdm)
-    // Given 'M' as 'RemoveReference<RET>::type', install the specified 'pdm'
-    // as the target and test invokers with variations of prototype 'M&(ARG)'.
 {
     typedef typename
         bslmf::MovableRefUtil::RemoveReference<RET>::type M;
@@ -808,26 +813,26 @@ void testPtrToDataMemberByRef(PTR_TO_DATA_MEM pdm)
 
     testPtrToDataMember<M, ARG>(pdm);
 
-    // Prototype 'M&(ARG)'.  'M' may be const qualified.
+    // Prototype `M&(ARG)`.  `M` may be const qualified.
     {
         M& r = getInvoker<M&, ARG>(&rep, pdm)(&rep, gen.obj());
         ASSERTV(&r, &(gen.targetObj().d_t), &r == &(gen.targetObj().d_t));
     }
 
-    // Prototype 'const M&(ARG)'.
+    // Prototype `const M&(ARG)`.
     {
         const M& r = getInvoker<const M&, ARG>(&rep, pdm)(&rep, gen.obj());
         ASSERTV(&r, &(gen.targetObj().d_t), &r == &(gen.targetObj().d_t));
     }
 }
 
+/// Test invocation of pointer to member function wrapper.  The `TYPE`,
+/// `RET`, and `ARG` type are selected by the caller so that the non-const
+/// member functions `IntWrapper::increment[0-12]` can be invoked with the
+/// correct number of arguments of type `ARG` on an object of type `TYPE`
+/// and return a value of type `RET`.
 template <class TYPE, class RET, class ARG>
 void testPtrToMemFunc()
-    // Test invocation of pointer to member function wrapper.  The 'TYPE',
-    // 'RET', and 'ARG' type are selected by the caller so that the non-const
-    // member functions 'IntWrapper::increment[0-12]' can be invoked with the
-    // correct number of arguments of type 'ARG' on an object of type 'TYPE'
-    // and return a value of type 'RET'.
 {
     bslma::TestAllocator ta;
     Rep                  rep(&ta);
@@ -920,7 +925,7 @@ void testPtrToMemFunc()
                        a10, a11, a12)));
     ASSERT(gen.check(0x3fff));
 
-    // Test 'const' member functions as well
+    // Test `const` member functions as well
     ASSERT(0x2001 == (getInvoker<RET, TYPE>
                       (&rep, &IntWrapper::add0)
                       (&rep, gen.obj())));
@@ -932,7 +937,7 @@ void testPtrToMemFunc()
     ASSERT(gen.check(0x2001));
 
     // No need to test 3 through 12 arguments.  That mechanism has already been
-    // tested via the 'testPtrToMemFunc' function.
+    // tested via the `testPtrToMemFunc` function.
 
     ASSERT(0x23ff == (getInvoker<RET, TYPE, ARG, ARG, ARG, ARG, ARG, ARG,
                                  ARG, ARG, ARG>
@@ -940,7 +945,7 @@ void testPtrToMemFunc()
                       (&rep, gen.obj(), a1, a2, a3, a4, a5, a6, a7, a8, a9)));
     ASSERT(gen.check(0x2001));
 
-    // Test void 'RET'
+    // Test void `RET`
     getInvoker<void, TYPE, ARG>
         (&rep, &IntWrapper::increment1)
         (&rep, gen.obj(), a1);     // No return type to test
@@ -952,13 +957,13 @@ void testPtrToMemFunc()
     ASSERT(gen.check(0x2003));     // Check expected side-effect
 }
 
+/// Test invocation of pointer to const member function wrapper.  Tests use
+/// const member functions `IntWrapper::add[0-12]`.  To save compile time,
+/// since `testPtrToMemFunc` already tests every possible argument-list
+/// length, we test only a small number of possible argument-list lengths
+/// (specifically 0, 1, and 12 arguments) here.
 template <class TYPE, class RET, class ARG>
 void testPtrToConstMemFunc()
-    // Test invocation of pointer to const member function wrapper.  Tests use
-    // const member functions 'IntWrapper::add[0-12]'.  To save compile time,
-    // since 'testPtrToMemFunc' already tests every possible argument-list
-    // length, we test only a small number of possible argument-list lengths
-    // (specifically 0, 1, and 12 arguments) here.
 {
     bslma::TestAllocator ta;
     Rep                  rep(&ta);
@@ -989,7 +994,7 @@ void testPtrToConstMemFunc()
     ASSERT(gen.check(0x2001));
 
     // No need to test 3 through 12 arguments.  That mechanism has already been
-    // tested via the 'testPtrToMemFunc' function.
+    // tested via the `testPtrToMemFunc` function.
 
     ASSERT(0x3fff == (getInvoker<RET, TYPE, ARG, ARG, ARG, ARG, ARG, ARG,
                                  ARG, ARG, ARG, ARG, ARG, ARG>
@@ -999,9 +1004,9 @@ void testPtrToConstMemFunc()
     ASSERT(gen.check(0x2001));
 }
 
+/// Test invocation of a stateful functor (function object)
 template <class FUNC, class RET, class ARG>
 void testFunctor()
-    // Test invocation of a stateful functor (function object)
 {
     bslma::TestAllocator ta;
     Rep                  rep(&ta); const Rep& REP = rep;
@@ -1098,7 +1103,7 @@ void testFunctor()
                    (&rep, gen.obj())
                    (&rep, bslmf::MovableRefUtil::move(v2))));
 
-    // Test with 'NothrowMovableWrapper'.
+    // Test with `NothrowMovableWrapper`.
     ASSERT((0x2001 == getInvoker<RET>(&rep, NTWRAP(gen.obj()))(&REP)));
     ASSERT(0x2001 == rep.target<FUNC>()->value());
     ASSERT((0x2002 == getInvoker<RET, IntW>
@@ -1153,71 +1158,71 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-    // 'Function_Rep' requires an allocator at construction.  'Function_Rep' is
+    // `Function_Rep` requires an allocator at construction.  `Function_Rep` is
     // not the class under test, so there are no allocation tests.  Therefore,
     // all tests simply use the default allocator for constructing
-    // 'Function_Rep' objects.
+    // `Function_Rep` objects.
     bslma::TestAllocator ta;
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'IsFuncInvocable<PROTOTYPE, FUNC>'
-        //   This case tests that 'IsFuncInvocable' correctly detects whether
-        //   objects of 'FUNC' type are invocable with the
-        //   'bslmf::ForwardingType'-forwarded argument types of the
-        //   'PROTOTYPE'.  This case also tests that 'IsFuncInvocable'
-        //   correctly detects whether objects of 'FUNC' type return an object
+        // TESTING `IsFuncInvocable<PROTOTYPE, FUNC>`
+        //   This case tests that `IsFuncInvocable` correctly detects whether
+        //   objects of `FUNC` type are invocable with the
+        //   `bslmf::ForwardingType`-forwarded argument types of the
+        //   `PROTOTYPE`.  This case also tests that `IsFuncInvocable`
+        //   correctly detects whether objects of `FUNC` type return an object
         //   of a type that is explicitly convertible to the return type of the
-        //   'PROTOTYPE'.  If both of these criteria are met, 'IsFuncInvocable'
-        //   should declare a 'true' 'value', and should declare a 'false'
-        //   'value' otherwise.
+        //   `PROTOTYPE`.  If both of these criteria are met, `IsFuncInvocable`
+        //   should declare a `true` `value`, and should declare a `false`
+        //   `value` otherwise.
         //
-        //   Note that 'IsFuncInvocable' is qualitatively different than
-        //   'std::is_invocable_r', in that it makes concessions for supporting
-        //   legacy behavior of 'bsl::function'.  'std::is_invocable_r<RET,
+        //   Note that `IsFuncInvocable` is qualitatively different than
+        //   `std::is_invocable_r`, in that it makes concessions for supporting
+        //   legacy behavior of `bsl::function`.  'std::is_invocable_r<RET,
         //   FUNC, ARGS...>' requires that the return type of the invocation of
-        //   'FUNC' with 'ARGS...' be implicitly convertible to 'RET', as
+        //   `FUNC` with `ARGS...` be implicitly convertible to `RET`, as
         //   opposed to explicitly convertible.  Further, the use of
-        //   'bslmf::ForwardingType' to forward arguments in the invoker of a
-        //   'bsl::function' creates qualitatively different behavior than
-        //   the argument forwarding mechanism used by the standard 'INVOKE'
+        //   `bslmf::ForwardingType` to forward arguments in the invoker of a
+        //   `bsl::function` creates qualitatively different behavior than
+        //   the argument forwarding mechanism used by the standard `INVOKE`
         //   pseudo-expression.
         //
-        //   In the concerns and plan, 'PROTOTYPE' is a function prototype
-        //   and 'RET(ARGS...)' is the same function prototype, where 'RET' is
-        //   the return type and 'ARGS...' are the argument types.
+        //   In the concerns and plan, `PROTOTYPE` is a function prototype
+        //   and `RET(ARGS...)` is the same function prototype, where `RET` is
+        //   the return type and `ARGS...` are the argument types.
         //
         // Concerns:
-        //: 1 If 'FUNC' is invocable with the arguments 'ARGS...' forwarded
-        //:   through 'bslmf::ForwardingType', and the return type of invoking
-        //:   'FUNC' as such is explicitly convertible to 'RET',
-        //:   'IsFuncInvocable' declares a static, Boolean data member 'value'
-        //:   that is 'true', and declares such a 'value' that is 'false'
-        //:   otherwise.
+        // 1. If `FUNC` is invocable with the arguments `ARGS...` forwarded
+        //    through `bslmf::ForwardingType`, and the return type of invoking
+        //    `FUNC` as such is explicitly convertible to `RET`,
+        //    `IsFuncInvocable` declares a static, Boolean data member `value`
+        //    that is `true`, and declares such a `value` that is `false`
+        //    otherwise.
         //
         // Plan:
-        //: 1 Using a large combination of cvr-qualified fundamental and
-        //:   class types in argument and return positions of 'PROTOTYPE" and
-        //:   the call operator of 'FUNC',  verify that the results of
-        //:   'IsFuncInvocable<PROTOTYPE, FUNC>' meet the specification of
-        //:   concern 1.
-        //:
-        //: 2 Verify that explicit conversions are permitted between the
-        //:   return type of 'FUNC' and 'RET'.
-        //:
-        //: 3 Verify that, for backward compatibility,
-        //:   'IsFuncInvocable<PROTOTYPE, FUNC>' permits bindings rvalues
-        //:   of fundamental types in 'ARGS...' to corresponding lvalues in the
-        //:   parameter list of 'FUNC'.  For more information, see
-        //:   {DRQS 164834023}.
+        // 1. Using a large combination of cvr-qualified fundamental and
+        //    class types in argument and return positions of 'PROTOTYPE" and
+        //    the call operator of `FUNC`,  verify that the results of
+        //    `IsFuncInvocable<PROTOTYPE, FUNC>` meet the specification of
+        //    concern 1.
+        //
+        // 2. Verify that explicit conversions are permitted between the
+        //    return type of `FUNC` and `RET`.
+        //
+        // 3. Verify that, for backward compatibility,
+        //    `IsFuncInvocable<PROTOTYPE, FUNC>` permits bindings rvalues
+        //    of fundamental types in `ARGS...` to corresponding lvalues in the
+        //    parameter list of `FUNC`.  For more information, see
+        //    {DRQS 164834023}.
         //
         // Testing
         //  IsFuncInvocable<PROTOTYPE, FUNC>
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nTESTING 'IsFuncInvocable<PROTOTYPE, FUNC>'"
+            printf("\nTESTING `IsFuncInvocable<PROTOTYPE, FUNC>`"
                    "\n==========================================\n");
 
 #ifdef BSLSTL_FUNCTION_INVOKERUTIL_SUPPORT_IS_FUNC_INVOCABLE
@@ -1303,7 +1308,7 @@ int main(int argc, char *argv[])
           //                                       ----.      .------------
           //        PROTOTYPE       INVOCAND TYPE       \.   /
           //       ------------ ----------------------  -- ----
-          // invocations with conversions of cvr-qualified 'int' argument types
+          // invocations with conversions of cvr-qualified `int` argument types
           TEST.run<void (    I),  void       (    I)  >(L_, YES);
           TEST.run<void (    I),  void       (   cI)  >(L_, YES);
           TEST.run<void (    I),  void       (   vI)  >(L_, YES);
@@ -1801,107 +1806,107 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // FUNCTION OBJECT TARGET
-        //  This case tests that 'invokerForFunc' returns the correct invoker
-        //  for functor-class targets.  In the concerns and plan, 'func' is a
-        //  functor object, 'rep' is a 'bslstl::Function_Rep' that holds a copy
-        //  of 'func', 'REP' is a const reference to 'rep' 'PROTOTYPE' is a
-        //  function prototype, 'RET(ARGS...)'  is the same function prototype,
-        //  where 'RET' is the return type and 'ARGS...' is the argument types,
-        //  and 'args...' is the list of invocation arguments of type
-        //  'ARGS...'.
+        //  This case tests that `invokerForFunc` returns the correct invoker
+        //  for functor-class targets.  In the concerns and plan, `func` is a
+        //  functor object, `rep` is a `bslstl::Function_Rep` that holds a copy
+        //  of `func`, `REP` is a const reference to `rep` `PROTOTYPE` is a
+        //  function prototype, `RET(ARGS...)`  is the same function prototype,
+        //  where `RET` is the return type and `ARGS...` is the argument types,
+        //  and `args...` is the list of invocation arguments of type
+        //  `ARGS...`.
         //
         // Concerns:
-        //: 1 Casting the return value of 'invokerForFunc<PROTOTYPE>(func)' to
-        //:   'RET(*)(Function_Rep *, ARGS...)' yields a pointer to function,
-        //:   'inv_p' such that 'inv_p(&rep, args...)' returns 'func(args...)'.
-        //:
-        //: 2 Invocation works for zero to ten arguments and yields the
-        //:   expected return value.
-        //:
-        //: 3 The prototype for 'func' need not be an exact match for the
-        //:   PROTOTYPE parameter of 'invokerForFunc'; so long as each type in
-        //:   'ARGS...' is implicitly convertible to the corresponding argument
-        //:   to 'func' and the return type of invocation through 'func' is
-        //:   implicitly convertible to 'RET'.
-        //:
-        //: 4 If 'RET' is 'void', then the return value of invocation is
-        //:   discarded, even if the return type of the 'func' is non-void.
-        //:
-        //: 5 Arguments that are supposed to be passed by (lvalue or rvalue)
-        //:   reference *are* passed by reference all the way through the
-        //:   invocation interface.
-        //:
-        //: 6 Invocation works correctly whether the functor fits within the
-        //:   small-object optimization or is allocated on the heap.
-        //:
-        //: 7 Side effects are observed even if the 'bsl::function' is const.
-        //:   This surprising fact comes from the idea that a 'function' object
-        //:   is an abstraction of a pointer to a function.  Moreover, type
-        //:   erasure means that, at compile time, it is not possible to
-        //:   determine whether the callable object even cares whether or not
-        //:   it is const.
-        //:
-        //: 8 When the functor argument is wrapped using a
-        //:   'bslalg::NothrowMovableWrapper', invocation procedes normally.
-        //:   The return value of 'invokerForFunc' will change if wrapping
-        //:   'func' causes it to qualify for the small object optimization
-        //:   when the unwrapped 'func' did not; otherwise the call to
-        //:   'invokerForFunc' returns the same pointer for both the wrapped
-        //:   and unwrapped 'func'.
+        // 1. Casting the return value of `invokerForFunc<PROTOTYPE>(func)` to
+        //    `RET(*)(Function_Rep *, ARGS...)` yields a pointer to function,
+        //    `inv_p` such that `inv_p(&rep, args...)` returns `func(args...)`.
+        //
+        // 2. Invocation works for zero to ten arguments and yields the
+        //    expected return value.
+        //
+        // 3. The prototype for `func` need not be an exact match for the
+        //    PROTOTYPE parameter of `invokerForFunc`; so long as each type in
+        //    `ARGS...` is implicitly convertible to the corresponding argument
+        //    to `func` and the return type of invocation through `func` is
+        //    implicitly convertible to `RET`.
+        //
+        // 4. If `RET` is `void`, then the return value of invocation is
+        //    discarded, even if the return type of the `func` is non-void.
+        //
+        // 5. Arguments that are supposed to be passed by (lvalue or rvalue)
+        //    reference *are* passed by reference all the way through the
+        //    invocation interface.
+        //
+        // 6. Invocation works correctly whether the functor fits within the
+        //    small-object optimization or is allocated on the heap.
+        //
+        // 7. Side effects are observed even if the `bsl::function` is const.
+        //    This surprising fact comes from the idea that a `function` object
+        //    is an abstraction of a pointer to a function.  Moreover, type
+        //    erasure means that, at compile time, it is not possible to
+        //    determine whether the callable object even cares whether or not
+        //    it is const.
+        //
+        // 8. When the functor argument is wrapped using a
+        //    `bslalg::NothrowMovableWrapper`, invocation procedes normally.
+        //    The return value of `invokerForFunc` will change if wrapping
+        //    `func` causes it to qualify for the small object optimization
+        //    when the unwrapped `func` did not; otherwise the call to
+        //    `invokerForFunc` returns the same pointer for both the wrapped
+        //    and unwrapped `func`.
         //
         // Plan:
-        //: 1 Create a functor, 'func' and pass it to
-        //:   'invokerForFunc<PROTOTYPE>', where 'PROTOTYPE' matches the
-        //:   prototype of a call operator in
-        //:   'func''s interface, yielding invoker 'inv_p' after casting to the
-        //:   specific invoker type.  Set 'func' as the target of a
-        //:   'Function_Rep' object, 'rep'.  Call 'inv_p(&REP, args...)', where
-        //:   the 'args' have the correct type for the function signature.
-        //:   Verify that this invocation returns the correct value and has the
-        //:   correct side-effect on 'rep->target()'.  (C-1)
-        //:
-        //: 2 Repeat the previous step for 'PROTOTYPE' having 0 to 13
-        //:   arguments.  (C-2)
-        //:
-        //: 3 Instantiate 'invokerForFunc' with a 'PROTOTYPE' having arguments
-        //:   of type 'ConvertibleToInt' and return type 'IntWrapper' instead
-        //:   of 'int'.  Verify that invocation works the same way as before,
-        //:   with conversions occuring automatically.  (C-3)
-        //:
-        //: 4 Instantiate 'invokerForFunc' with a 'RET' of 'void'.  Verify that
-        //:   a call operator that returns void and has side effects can be
-        //:   invoked, discarding the return value but having all expected side
-        //:   effects.  Verify that a call operator that returns non-void can
-        //:   be invoked, discarding the result.  (C-4)
-        //:
-        //: 5 Invoke a call operator that returns the address of its argument,
-        //:   which is passed by lvalue reference.  Test 'invokerForFunc' with
-        //:   a 'PROTOTYPE' that unambiguosly selects this call operator and
-        //:   verify that invocation returns the address of its argument.
-        //:   Repeat with a movable reference.  (C-5)
-        //:
-        //: 6 Perform the previous steps with a small functor that fits in the
-        //:   small-object buffer, a small functor that is disqualified from
-        //:   the small-object optimization because of a throwing move
-        //:   constructor, and a large functor that does not fit in the
-        //:   small-object buffer.  Verify that these functors produce
-        //:   identical results when the return value of 'invokerForFunc' is
-        //:   called.  (C-6)
-        //:
-        //: 7 When calling 'inv_p', the first argument should be a const
-        //:   reference to 'rep' (i.e., 'REP'), proving that the constness of
-        //:   the 'Function_Rep' does not affect side effects on the functor.
-        //:   (C-7)
-        //:
-        //: 8 Call 'invokerForFunc' twice: with both 'func' and with
-        //:   'bslalg::NothrowMovableUtil::wrap(func)'.  Verify that the
-        //:   results of calling the returned invoker are the same.  Verify
-        //:   that the returned invoker type and value compare of both calls
-        //:   return equal for the small and large functors but unequal for the
-        //:   small functor with throwing move constructor.  (C-8)
+        // 1. Create a functor, `func` and pass it to
+        //    `invokerForFunc<PROTOTYPE>`, where `PROTOTYPE` matches the
+        //    prototype of a call operator in
+        //    `func`'s interface, yielding invoker `inv_p` after casting to the
+        //    specific invoker type.  Set `func` as the target of a
+        //    `Function_Rep` object, `rep`.  Call `inv_p(&REP, args...)`, where
+        //    the `args` have the correct type for the function signature.
+        //    Verify that this invocation returns the correct value and has the
+        //    correct side-effect on `rep->target()`.  (C-1)
+        //
+        // 2. Repeat the previous step for `PROTOTYPE` having 0 to 13
+        //    arguments.  (C-2)
+        //
+        // 3. Instantiate `invokerForFunc` with a `PROTOTYPE` having arguments
+        //    of type `ConvertibleToInt` and return type `IntWrapper` instead
+        //    of `int`.  Verify that invocation works the same way as before,
+        //    with conversions occuring automatically.  (C-3)
+        //
+        // 4. Instantiate `invokerForFunc` with a `RET` of `void`.  Verify that
+        //    a call operator that returns void and has side effects can be
+        //    invoked, discarding the return value but having all expected side
+        //    effects.  Verify that a call operator that returns non-void can
+        //    be invoked, discarding the result.  (C-4)
+        //
+        // 5. Invoke a call operator that returns the address of its argument,
+        //    which is passed by lvalue reference.  Test `invokerForFunc` with
+        //    a `PROTOTYPE` that unambiguosly selects this call operator and
+        //    verify that invocation returns the address of its argument.
+        //    Repeat with a movable reference.  (C-5)
+        //
+        // 6. Perform the previous steps with a small functor that fits in the
+        //    small-object buffer, a small functor that is disqualified from
+        //    the small-object optimization because of a throwing move
+        //    constructor, and a large functor that does not fit in the
+        //    small-object buffer.  Verify that these functors produce
+        //    identical results when the return value of `invokerForFunc` is
+        //    called.  (C-6)
+        //
+        // 7. When calling `inv_p`, the first argument should be a const
+        //    reference to `rep` (i.e., `REP`), proving that the constness of
+        //    the `Function_Rep` does not affect side effects on the functor.
+        //    (C-7)
+        //
+        // 8. Call `invokerForFunc` twice: with both `func` and with
+        //    `bslalg::NothrowMovableUtil::wrap(func)`.  Verify that the
+        //    results of calling the returned invoker are the same.  Verify
+        //    that the returned invoker type and value compare of both calls
+        //    return equal for the small and large functors but unequal for the
+        //    small functor with throwing move constructor.  (C-8)
         //
         // Testing:
-        //  invokerForFunc(const FUNC& f); // 'FUNC' == user-defined functor
+        //  invokerForFunc(const FUNC& f); // `FUNC` == user-defined functor
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nFUNCTION OBJECT TARGET"
@@ -1934,64 +1939,64 @@ int main(int argc, char *argv[])
       case 4: {
         // --------------------------------------------------------------------
         // POINTER TO DATA MEMBER TARGET
-        //  This case tests that 'invokerForFunc' returns the correct invoker
+        //  This case tests that `invokerForFunc` returns the correct invoker
         //  for pointer-to-data-member targets.  In the concerns and plan,
-        //  'pdm' is a pointer to a public data member of type 'M' of class
-        //  'FT' (of type 'M FT::*'), 'rep' is a 'bslstl::Function_Rep' that
-        //  holds a copy of 'pdm', 'PROTOTYPE' is a function prototype,
-        //  'RET(T)' is the same function prototype, where 'RET' is the return
-        //  type, 'T' is a class type, reference-to-class type, or
-        //  pointer-to-class type, and 'obj' is an invocation argument of type
-        //  'T'.
+        //  `pdm` is a pointer to a public data member of type `M` of class
+        //  `FT` (of type `M FT::*`), `rep` is a `bslstl::Function_Rep` that
+        //  holds a copy of `pdm`, `PROTOTYPE` is a function prototype,
+        //  `RET(T)` is the same function prototype, where `RET` is the return
+        //  type, `T` is a class type, reference-to-class type, or
+        //  pointer-to-class type, and `obj` is an invocation argument of type
+        //  `T`.
         //
         // Concerns:
-        //: 1 If 'T' is the same as 'FT' calling the invoker with arguments
-        //:   '(&rep, obj)' yields the specified member of 'obj', by-value
-        //:   converting to alternate types or by reference if 'RET' is
-        //:   compatible reference type.
-        //:
-        //: 2 Verify the same works if 'M' is a 'const' member.
-        //:
-        //: 3 Arguments of type pointer to 'T', reference to 'T', and
-        //:   smart-pointer to 'T', should all be valid invoker arguments.
-        //:
-        //: 4 Concern 3 should apply with a target type that is
-        //:   compatible with 'const T'.
-        //:
-        //: 5 Concerns 1-4 should apply for invoker arguments that refer to a
-        //:   type derived from 'T'.
-        //:
-        //: 6 When the 'pdm' is wrapped using 'bslalg::NothrowMovableWrapper'
-        //:   the invocation procedes as though the wrapper were not present.
+        // 1. If `T` is the same as `FT` calling the invoker with arguments
+        //    `(&rep, obj)` yields the specified member of `obj`, by-value
+        //    converting to alternate types or by reference if `RET` is
+        //    compatible reference type.
+        //
+        // 2. Verify the same works if `M` is a `const` member.
+        //
+        // 3. Arguments of type pointer to `T`, reference to `T`, and
+        //    smart-pointer to `T`, should all be valid invoker arguments.
+        //
+        // 4. Concern 3 should apply with a target type that is
+        //    compatible with `const T`.
+        //
+        // 5. Concerns 1-4 should apply for invoker arguments that refer to a
+        //    type derived from `T`.
+        //
+        // 6. When the `pdm` is wrapped using `bslalg::NothrowMovableWrapper`
+        //    the invocation procedes as though the wrapper were not present.
         //
         // Plan:
-        //: 1 Create a class 'DataWrapper<TYPE>' that has a public data member
-        //:   of the specified 'TYPE'.
-        //:
-        //: 2 Test the invoker returned by 'invokerForFunc' using a 'PROTOTYPE'
-        //:   where 'T' is 'DataWrapper<int>' and the 'pdm' is a pointer to the
-        //:   'd_t' member of that type.  Verify that the return value is
-        //:   produced properly where 'RET' is 'int', 'long', 'int&', and
-        //:   'const int&'.  (C-1)
-        //:
-        //: 3 Test the same invocation for 'DataWrapper<const int>' where 'RET'
-        //:   is 'int', 'long', and 'const int&'.  (C-2)
-        //:
-        //: 4 Steps 2 and 3 also apply if 'T' is a reference to, object of,
-        //:   pointer to or smart-pointer to a 'DataWrapper'.  (C-3)
-        //:
-        //: 5 Step 3 also applies if 'T' is a reference to, object of,
-        //:   pointer to or smart-pointer to a 'const DataWrapper'.  (C-4)
-        //:
-        //: 6 Steps 2-5 also apply if 'T' is refers to a class derived from
-        //:   'DataWrapper<TYPE>'.  (C-5)
-        //:
-        //: 7 Call 'invokerForFunc' twice: once with 'pdm and once with
-        //:   'bslalg::NothrowMovableUtil::wrap(pdm)'.  Verify that the return
-        //:   type and value of both calls compare equal.  (C-6)
+        // 1. Create a class `DataWrapper<TYPE>` that has a public data member
+        //    of the specified `TYPE`.
+        //
+        // 2. Test the invoker returned by `invokerForFunc` using a `PROTOTYPE`
+        //    where `T` is `DataWrapper<int>` and the `pdm` is a pointer to the
+        //    `d_t` member of that type.  Verify that the return value is
+        //    produced properly where `RET` is `int`, `long`, `int&`, and
+        //    `const int&`.  (C-1)
+        //
+        // 3. Test the same invocation for `DataWrapper<const int>` where `RET`
+        //    is `int`, `long`, and `const int&`.  (C-2)
+        //
+        // 4. Steps 2 and 3 also apply if `T` is a reference to, object of,
+        //    pointer to or smart-pointer to a `DataWrapper`.  (C-3)
+        //
+        // 5. Step 3 also applies if `T` is a reference to, object of,
+        //    pointer to or smart-pointer to a `const DataWrapper`.  (C-4)
+        //
+        // 6. Steps 2-5 also apply if `T` is refers to a class derived from
+        //    `DataWrapper<TYPE>`.  (C-5)
+        //
+        // 7. Call `invokerForFunc` twice: once with 'pdm and once with
+        //    `bslalg::NothrowMovableUtil::wrap(pdm)`.  Verify that the return
+        //    type and value of both calls compare equal.  (C-6)
         //
         // Testing:
-        //  invokerForFunc(const FUNC& f); // 'FUNC' == ptr to data member
+        //  invokerForFunc(const FUNC& f); // `FUNC` == ptr to data member
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nPOINTER TO DATA MEMBER TARGET"
@@ -2056,117 +2061,117 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // POINTER TO MEMBER FUNCTION TARGET
-        //  This case tests that 'invokerForFunc' returns the correct invoker
+        //  This case tests that `invokerForFunc` returns the correct invoker
         //  for pointer-to-member-function targets.  In the concerns and plan,
-        //  'pmf' is a pointer to a non-static function member of class 'FT',
-        //  'rep' is a 'bslstl::Function_Rep' that holds a copy of 'pmf',
-        //  'PROTOTYPE' is a function prototype, 'RET(T, ARGS...)'  is the same
-        //  function prototype, where 'RET' is the return type, 'T' is a class
-        //  type, reference-to-class type, or pointer-to-class type, 'ARGS...'
-        //  is the argument types, 'obj' is an invocation argument of type 'T',
-        //  and 'args...' is the list of invocation arguments of type
-        //  'ARGS...'.
+        //  `pmf` is a pointer to a non-static function member of class `FT`,
+        //  `rep` is a `bslstl::Function_Rep` that holds a copy of `pmf`,
+        //  `PROTOTYPE` is a function prototype, `RET(T, ARGS...)`  is the same
+        //  function prototype, where `RET` is the return type, `T` is a class
+        //  type, reference-to-class type, or pointer-to-class type, `ARGS...`
+        //  is the argument types, `obj` is an invocation argument of type `T`,
+        //  and `args...` is the list of invocation arguments of type
+        //  `ARGS...`.
         //
         // Concerns:
-        //: 1 If 'T' is the same as 'FT' (i.e., 'obj' is passed by value),
-        //:   calling the invoker with arguments '(&rep, obj, args...)' yields
-        //:   the same return value as invoking '(obj.*pmf)(args...)' and will
-        //:   have no side effect on 'obj'.
-        //:
-        //: 2 If 'T' is the same as 'FT&', calling the invoker with arguments
-        //:   '(&rep, obj, args...)' yields the same return value and
-        //:   side-effect as invoking '(obj.*pmf)(args...)'.
-        //:
-        //: 3 If 'T' is a pointer to 'FT' or smart pointer to 'FT', calling the
-        //:   invoker with arguments '(&rep, obj, args...)' yields the same
-        //:   results and side effects as invoking '((*obj).*pmf)(args...)'.
-        //:
-        //: 4 Invocation works for zero to nine arguments, 'args...' in
-        //:   addition to the 'obj' argument and yields the expected return
-        //:   value.
-        //:
-        //: 5 The template argument types 'ARGS...' need not match the
-        //:   member-function arguments exactly, so long as the argument lists
-        //:   are the same length and each type in 'ARGS' is implicitly
-        //:   convertible to the corresponding argument in the call to 'pmf'.
-        //:   Similarly, 'RET' need not match the member-function return type
-        //:   exactly so long as it is implicitly convertible to
-        //:   member-function's return type.
-        //:
-        //: 6 If 'pmf' is a pointer to const member function, then 'T' can be
-        //:   an rvalue of, reference to, pointer to, or smart-pointer to
-        //:   either a const or non-const type compatible with 'T'.
-        //:
-        //: 7 Concerns 2, 3, and 4 also apply if 'T' is a reference to, object
-        //:   of, pointer to, or smart-pointer to, a type derived from 'FT'.
-        //:
-        //: 8 If 'RET' is 'void', then the return value of 'pmf' is discarded,
-        //:   even if 'pmf' returns non-void.
-        //:
-        //: 9 When the 'pmf' is wrapped using 'bslalg::NothrowMovableWrapper',
-        //:   the invocation procedes as though the wrapper were not present.
-        //:
-        //: 10 Arguments that are passed by lvalue or rvalue reference are
-        //:   passed by reference all the way down to the invoked member
-        //:   function.
+        // 1. If `T` is the same as `FT` (i.e., `obj` is passed by value),
+        //    calling the invoker with arguments `(&rep, obj, args...)` yields
+        //    the same return value as invoking `(obj.*pmf)(args...)` and will
+        //    have no side effect on `obj`.
+        //
+        // 2. If `T` is the same as `FT&`, calling the invoker with arguments
+        //    `(&rep, obj, args...)` yields the same return value and
+        //    side-effect as invoking `(obj.*pmf)(args...)`.
+        //
+        // 3. If `T` is a pointer to `FT` or smart pointer to `FT`, calling the
+        //    invoker with arguments `(&rep, obj, args...)` yields the same
+        //    results and side effects as invoking `((*obj).*pmf)(args...)`.
+        //
+        // 4. Invocation works for zero to nine arguments, `args...` in
+        //    addition to the `obj` argument and yields the expected return
+        //    value.
+        //
+        // 5. The template argument types `ARGS...` need not match the
+        //    member-function arguments exactly, so long as the argument lists
+        //    are the same length and each type in `ARGS` is implicitly
+        //    convertible to the corresponding argument in the call to `pmf`.
+        //    Similarly, `RET` need not match the member-function return type
+        //    exactly so long as it is implicitly convertible to
+        //    member-function's return type.
+        //
+        // 6. If `pmf` is a pointer to const member function, then `T` can be
+        //    an rvalue of, reference to, pointer to, or smart-pointer to
+        //    either a const or non-const type compatible with `T`.
+        //
+        // 7. Concerns 2, 3, and 4 also apply if `T` is a reference to, object
+        //    of, pointer to, or smart-pointer to, a type derived from `FT`.
+        //
+        // 8. If `RET` is `void`, then the return value of `pmf` is discarded,
+        //    even if `pmf` returns non-void.
+        //
+        // 9. When the `pmf` is wrapped using `bslalg::NothrowMovableWrapper`,
+        //    the invocation procedes as though the wrapper were not present.
+        //
+        // 10. Arguments that are passed by lvalue or rvalue reference are
+        //    passed by reference all the way down to the invoked member
+        //    function.
         //
         // Plan:
-        //: 1 Create a class 'IntWrapper' that holds an 'int' value and has
-        //:   const member functions 'add0' to 'add12' and non-const member
-        //:   functions 'increment0' to 'increment12', each taking 0 to 12
-        //:   'int' arguments.
-        //:
-        //: 2 Test the invoker returned by 'invokerForFunc' using a 'PROTOTYPE'
-        //:   where 'T' is 'IntWrapper' and the 'pmf' is a pointer to one of
-        //:   the 'increment' methods.  Verify that, when the invoker is
-        //:   called, the expected value is returned and no side effect is
-        //:   observed on the (pass-by-value) 'IntWrapper' argument.  (C-1)
-        //:
-        //: 3 Test the invoker returned by 'invokerForFunc' using a 'PROTOTYPE'
-        //:   where 'T' is 'IntWrapper&' and the 'pmf' is a pointer to one of
-        //:   the non-const methods.  Verify that, when the invoker is called,
-        //:   the expected value is returned and the expected side effect is
-        //:   observed on the (pass-by-reference) 'IntWrapper' argument.  (C-1)
-        //:
-        //: 4 Repeat step 3, except with 'T' being 'IntWrapper *' and the first
-        //:   argument being the address if an 'IntWrapper'.  Repeat again with
-        //:   'T' being 'SmartPtr<IntWrapper>'.  (C-3)
-        //:
-        //: 5 Repeat the above tests with 0 to 12 arguments in addition to the
-        //:   initial 'IntWrapper' argument.  (C-4)
-        //:
-        //: 6 Repeat the above tests, using a prototype of
-        //:   'IntWrapper(IntWrapper&, ConvertibleToInt...)' while maintaining
-        //:   a target with prototype 'int(IntWrapper&, int...)'.  Verify that
-        //:   the behavior is unchanged from the exact-match prototype.  (C-5)
-        //:
-        //: 7 Test selected invocations (it is not necessary to test all 14
-        //:   argument lists) with 'T' being 'const IntWrapper',
-        //:   'const IntWrapper&', 'const IntWrapper *', and
-        //:   'SmartPtr<const IntWrapper>' and using const member functions.
-        //:   (C-6)
-        //:
-        //: 8 Derive a class, 'IntWrapperDerived', from 'IntWrapper'.  Repeat
-        //:   selected cases using 'IntWrapperDerived' instead of 'IntWrapper'
-        //:   for the first argument of 'PROTOTYPE' but using a pointer to
-        //:   member of 'IntWrapper' as the target callable object.  (C-7)
-        //:
-        //: 9 Repeat selected cases using a 'RET' type of 'void'.  Verify that,
-        //:   although the return value is discarded, side effects (if any)
-        //:   still take effect.  (C-8)
-        //:
-        //: 10 Call 'invokerForFunc' twice: once with 'pmf' and once with
-        //:   'bslalg::NothrowMovableUtil::wrap(pmf)'.  Verify that the return
-        //:   type and value compare of both calls return equal.  (C-9)
-        //:
-        //: 11 Call the result of 'invokerForFunc' with 'pmf' being a pointer
-        //:   to member function that takes an argument by lvalue reference and
-        //:   test that the argument value is modified by the call.  Repeat
-        //:   with an rvalue reference.  It is not necessary to test more than
-        //:   one argument  (C-10)
+        // 1. Create a class `IntWrapper` that holds an `int` value and has
+        //    const member functions `add0` to `add12` and non-const member
+        //    functions `increment0` to `increment12`, each taking 0 to 12
+        //    `int` arguments.
+        //
+        // 2. Test the invoker returned by `invokerForFunc` using a `PROTOTYPE`
+        //    where `T` is `IntWrapper` and the `pmf` is a pointer to one of
+        //    the `increment` methods.  Verify that, when the invoker is
+        //    called, the expected value is returned and no side effect is
+        //    observed on the (pass-by-value) `IntWrapper` argument.  (C-1)
+        //
+        // 3. Test the invoker returned by `invokerForFunc` using a `PROTOTYPE`
+        //    where `T` is `IntWrapper&` and the `pmf` is a pointer to one of
+        //    the non-const methods.  Verify that, when the invoker is called,
+        //    the expected value is returned and the expected side effect is
+        //    observed on the (pass-by-reference) `IntWrapper` argument.  (C-1)
+        //
+        // 4. Repeat step 3, except with `T` being `IntWrapper *` and the first
+        //    argument being the address if an `IntWrapper`.  Repeat again with
+        //    `T` being `SmartPtr<IntWrapper>`.  (C-3)
+        //
+        // 5. Repeat the above tests with 0 to 12 arguments in addition to the
+        //    initial `IntWrapper` argument.  (C-4)
+        //
+        // 6. Repeat the above tests, using a prototype of
+        //    `IntWrapper(IntWrapper&, ConvertibleToInt...)` while maintaining
+        //    a target with prototype `int(IntWrapper&, int...)`.  Verify that
+        //    the behavior is unchanged from the exact-match prototype.  (C-5)
+        //
+        // 7. Test selected invocations (it is not necessary to test all 14
+        //    argument lists) with `T` being `const IntWrapper`,
+        //    `const IntWrapper&`, `const IntWrapper *`, and
+        //    `SmartPtr<const IntWrapper>` and using const member functions.
+        //    (C-6)
+        //
+        // 8. Derive a class, `IntWrapperDerived`, from `IntWrapper`.  Repeat
+        //    selected cases using `IntWrapperDerived` instead of `IntWrapper`
+        //    for the first argument of `PROTOTYPE` but using a pointer to
+        //    member of `IntWrapper` as the target callable object.  (C-7)
+        //
+        // 9. Repeat selected cases using a `RET` type of `void`.  Verify that,
+        //    although the return value is discarded, side effects (if any)
+        //    still take effect.  (C-8)
+        //
+        // 10. Call `invokerForFunc` twice: once with `pmf` and once with
+        //    `bslalg::NothrowMovableUtil::wrap(pmf)`.  Verify that the return
+        //    type and value compare of both calls return equal.  (C-9)
+        //
+        // 11. Call the result of `invokerForFunc` with `pmf` being a pointer
+        //    to member function that takes an argument by lvalue reference and
+        //    test that the argument value is modified by the call.  Repeat
+        //    with an rvalue reference.  It is not necessary to test more than
+        //    one argument  (C-10)
         //
         // Testing:
-        //  invokerForFunc(const FUNC& f); // 'FUNC' == ptr to member function
+        //  invokerForFunc(const FUNC& f); // `FUNC` == ptr to member function
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nPOINTER TO MEMBER FUNCTION TARGET"
@@ -2250,90 +2255,90 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // POINTER TO FUNCTION TARGET
-        //  This case tests that 'invokerForFunc' returns the correct invoker
-        //  for pointer-to-function targets.  In the concerns and plan, 'pf' is
-        //  a pointer to function, 'rep' is a 'bslstl::Function_Rep' that holds
-        //  a copy of 'pf', 'PROTOTYPE' is a function prototype, 'RET(ARGS...)'
-        //  is the same function prototype, where 'RET' is the return type and
-        //  'ARGS...' is the argument types, and 'args...' is the list of
-        //  invocation arguments of type 'ARGS...'.
+        //  This case tests that `invokerForFunc` returns the correct invoker
+        //  for pointer-to-function targets.  In the concerns and plan, `pf` is
+        //  a pointer to function, `rep` is a `bslstl::Function_Rep` that holds
+        //  a copy of `pf`, `PROTOTYPE` is a function prototype, `RET(ARGS...)`
+        //  is the same function prototype, where `RET` is the return type and
+        //  `ARGS...` is the argument types, and `args...` is the list of
+        //  invocation arguments of type `ARGS...`.
         //
         // Concerns:
-        //: 1 'bslstl::Function_InvokerUtil::invokerForFunc<PROTOTYPE>(pf)'
-        //:   returns a null pointer if 'pf' is 'nullptr' or a null function
-        //:   pointer.
-        //:
-        //: 2 Casting the return value of 'invokerForFunc<PROTOTYPE>(pf)' to
-        //:   'RET(*)(Function_Rep *, ARGS...)' yields a pointer to function,
-        //:   'inv_p' such that 'inv_p(&rep, args...)' returns 'pf(args...)'.
-        //:
-        //: 3 Invocation works for zero to ten arguments and yields the
-        //:   expected return value.
-        //:
-        //: 4 The prototype for 'pf' need not be an exact match for the
-        //:   PROTOTYPE parameter of 'invokerForFunc'; so long as each type in
-        //:   'ARGS...' is implicitly convertible to the corresponding argument
-        //:   to 'pf' and the return type of invocation through 'pf' is
-        //:   implicitly convertible to 'RET'.
-        //:
-        //: 5 If 'RET' is 'void', then the return value of invocation is
-        //:   discarded, even if the return type of the 'pf' is non-void.
-        //:
-        //: 6 Arguments that are supposed to be passed by reference *are*
-        //:   passed by reference all the way through the invocation interface.
-        //:
-        //: 7 Arguments that are supposed to be passed by rvalue reference
-        //:   *are passed by rvalue reference all the way through the
-        //:   invocation interface.
-        //:
-        //: 8 When the function pointer argument is wrapped using a
-        //:   'bslalg::NothrowMovableWrapper', invocation procedes as though
-        //:   the wrapper were not present.
+        // 1. `bslstl::Function_InvokerUtil::invokerForFunc<PROTOTYPE>(pf)`
+        //    returns a null pointer if `pf` is `nullptr` or a null function
+        //    pointer.
+        //
+        // 2. Casting the return value of `invokerForFunc<PROTOTYPE>(pf)` to
+        //    `RET(*)(Function_Rep *, ARGS...)` yields a pointer to function,
+        //    `inv_p` such that `inv_p(&rep, args...)` returns `pf(args...)`.
+        //
+        // 3. Invocation works for zero to ten arguments and yields the
+        //    expected return value.
+        //
+        // 4. The prototype for `pf` need not be an exact match for the
+        //    PROTOTYPE parameter of `invokerForFunc`; so long as each type in
+        //    `ARGS...` is implicitly convertible to the corresponding argument
+        //    to `pf` and the return type of invocation through `pf` is
+        //    implicitly convertible to `RET`.
+        //
+        // 5. If `RET` is `void`, then the return value of invocation is
+        //    discarded, even if the return type of the `pf` is non-void.
+        //
+        // 6. Arguments that are supposed to be passed by reference *are*
+        //    passed by reference all the way through the invocation interface.
+        //
+        // 7. Arguments that are supposed to be passed by rvalue reference
+        //    *are passed by rvalue reference all the way through the
+        //    invocation interface.
+        //
+        // 8. When the function pointer argument is wrapped using a
+        //    `bslalg::NothrowMovableWrapper`, invocation procedes as though
+        //    the wrapper were not present.
         //
         // Plan:
-        //: 1 Create a null pointer to function.  Invoke 'invokerForFunc' on
-        //:   that null pointer.  Verify that the return value is null.  (C-1)
-        //:
-        //: 2 Set 'pf' to the address of function 'f' and pass it to
-        //:   'invokerForFunc<PROTOTYPE>', where 'PROTOTYPE' matches the
-        //:   'f''s prototype, yielding invoker 'inv_p' after casting to the
-        //:   specific invoker type.  Set the address of 'f' as the target of a
-        //:   'Function_Rep' object, 'rep'.  Call 'inv_p(&rep, args...)', where
-        //:   the 'args' have the correct type for the function signature.
-        //:   Verify that this invocation returns the correct value.  Repeat
-        //:   this step for 'f' having 0 to 13 arguments.  (C-2, 3)
-        //:
-        //: 3 Instantiate 'invokerForFunc' with a 'PROTOTYPE' having arguments
-        //:   of type 'ConvertibleToInt' and return type 'IntWrapper' instead
-        //:   of 'int'.  Verify that invocation works the same way as before,
-        //:   with conversions occuring automatically.  It is not necessary to
-        //:   try every combination of 0 to 13 arguments.  (C-4)
-        //:
-        //: 4 Instantiate 'invokerForFunc' with a 'RET' of 'void'.  Verify that
-        //:   a function that returns void and has side effects can be invoked,
-        //:   discarding the return value but having all expected side effects.
-        //:   Verify that a function that returns non-void can be invoked,
-        //:   discarding the result.  (C-5)
-        //:
-        //: 5 Implement a set of functions, 'getAddress' and 'getConstAddress'
-        //:   that return the address of their argument, which is passed by
-        //:   reference and passed by const reference, respectively.  Test
-        //:   'invokerForFunc' with pointers to these functions and verify that
-        //:   invocation returns the address of their arguments.  (C-6)
-        //:
-        //: 6 Instantiate 'invokeForFunc' with a 'PROTOTPYE' having arguments
-        //:   of type 'bslmf::MovableRef<int>' and call a function with that
-        //:   signature which will reset each argument to '-1' and return the
-        //:   sum of their values.  Verify that this invocation returns the
-        //:   correct value and resets all parameters. (C-7)
-        //:
-        //: 7 Call 'invokerForFunc' twice: once with 'pf' and once with
-        //:   'bslalg::NothrowMovableUtil::wrap(pf)'.  Verify that the return
-        //:   type and value compare of both calls return equal.  (C-8)
+        // 1. Create a null pointer to function.  Invoke `invokerForFunc` on
+        //    that null pointer.  Verify that the return value is null.  (C-1)
+        //
+        // 2. Set `pf` to the address of function `f` and pass it to
+        //    `invokerForFunc<PROTOTYPE>`, where `PROTOTYPE` matches the
+        //    `f`'s prototype, yielding invoker `inv_p` after casting to the
+        //    specific invoker type.  Set the address of `f` as the target of a
+        //    `Function_Rep` object, `rep`.  Call `inv_p(&rep, args...)`, where
+        //    the `args` have the correct type for the function signature.
+        //    Verify that this invocation returns the correct value.  Repeat
+        //    this step for `f` having 0 to 13 arguments.  (C-2, 3)
+        //
+        // 3. Instantiate `invokerForFunc` with a `PROTOTYPE` having arguments
+        //    of type `ConvertibleToInt` and return type `IntWrapper` instead
+        //    of `int`.  Verify that invocation works the same way as before,
+        //    with conversions occuring automatically.  It is not necessary to
+        //    try every combination of 0 to 13 arguments.  (C-4)
+        //
+        // 4. Instantiate `invokerForFunc` with a `RET` of `void`.  Verify that
+        //    a function that returns void and has side effects can be invoked,
+        //    discarding the return value but having all expected side effects.
+        //    Verify that a function that returns non-void can be invoked,
+        //    discarding the result.  (C-5)
+        //
+        // 5. Implement a set of functions, `getAddress` and `getConstAddress`
+        //    that return the address of their argument, which is passed by
+        //    reference and passed by const reference, respectively.  Test
+        //    `invokerForFunc` with pointers to these functions and verify that
+        //    invocation returns the address of their arguments.  (C-6)
+        //
+        // 6. Instantiate `invokeForFunc` with a `PROTOTPYE` having arguments
+        //    of type `bslmf::MovableRef<int>` and call a function with that
+        //    signature which will reset each argument to `-1` and return the
+        //    sum of their values.  Verify that this invocation returns the
+        //    correct value and resets all parameters. (C-7)
+        //
+        // 7. Call `invokerForFunc` twice: once with `pf` and once with
+        //    `bslalg::NothrowMovableUtil::wrap(pf)`.  Verify that the return
+        //    type and value compare of both calls return equal.  (C-8)
         //
         // Testing:
         //  invokerForFunc(const bsl::nullptr_t&);
-        //  invokerForFunc(const FUNC& f); // 'FUNC' == ptr-to-function
+        //  invokerForFunc(const FUNC& f); // `FUNC` == ptr-to-function
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nPOINTER TO FUNCTION TARGET"
@@ -2733,19 +2738,19 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 The this component is sufficiently functional to enable
-        //:   comprehensive testing in subsequent test cases.
+        // 1. The this component is sufficiently functional to enable
+        //    comprehensive testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Call 'bslstl::Function_InvokerUtil::invokerForFunc' with a
-        //:   'nullptr' argument.  Verify that it returns null function
-        //:   pointer.
-        //:
-        //: 2 Create 'bslstl::Function_Rep' object and install a
-        //:   pointer-to-function as its target.  Verify that
-        //:   'bslstl::Function_InvokerUtil::invokerForFunc' returns a pointer
-        //:   to function that, when cast to the appropriate type, can be
-        //:   called to invoke the target function.
+        // 1. Call `bslstl::Function_InvokerUtil::invokerForFunc` with a
+        //    `nullptr` argument.  Verify that it returns null function
+        //    pointer.
+        //
+        // 2. Create `bslstl::Function_Rep` object and install a
+        //    pointer-to-function as its target.  Verify that
+        //    `bslstl::Function_InvokerUtil::invokerForFunc` returns a pointer
+        //    to function that, when cast to the appropriate type, can be
+        //    called to invoke the target function.
         //
         // Testing:
         //  BREATHING TEST

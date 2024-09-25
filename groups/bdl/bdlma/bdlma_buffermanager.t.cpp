@@ -26,23 +26,23 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// A 'bdlma::BufferManager' is a mechanism (i.e., having state but no value)
+// A `bdlma::BufferManager` is a mechanism (i.e., having state but no value)
 // that is used as a memory manager to manage an external buffer.  The primary
-// concern is that 'bdlma::BufferManager' returns memory from an appropriate
+// concern is that `bdlma::BufferManager` returns memory from an appropriate
 // source (the external buffer supplied at construction), and respects the
 // appropriate alignment strategy (also specified at construction).
 //
-// Even though 'bdlma::BufferManager' is a stateful object (where its state is
+// Even though `bdlma::BufferManager` is a stateful object (where its state is
 // determined by the internal cursor pointing to a particular part of the
 // external buffer supplied at construction), there are no accessors that can
 // precisely indicate the state of the buffer object.  The
-// 'hasSufficientCapacity' method can only approximate the position of the
+// `hasSufficientCapacity` method can only approximate the position of the
 // internal cursor, but cannot pinpoint the position since the method takes
 // into account the alignment strategy specified at construction.
 //
 // As a result, this test driver verifies the state of the buffer *indirectly*
 // by making two consecutive allocations -- where the first allocation tests
-// for the correctness of 'allocate', and the second verifies the internal
+// for the correctness of `allocate`, and the second verifies the internal
 // state of the buffer object.
 //
 // Negative testing (for precondition violations) is also part of the test
@@ -148,13 +148,13 @@ enum { k_MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT };
 
 bool globalDestructorInvoked = false;
 
+/// This object indicates when its destructor is called by setting
+/// `globalDestructorInvoked` to `true`.
 class my_Class {
-    // This object indicates when its destructor is called by setting
-    // 'globalDestructorInvoked' to 'true'.
 
   public:
+    /// Destroy this object and set `globalDestructorInvoked` to `true`.
     ~my_Class()
-        // Destroy this object and set 'globalDestructorInvoked' to 'true'.
     {
         globalDestructorInvoked = true;
     }
@@ -166,18 +166,19 @@ class my_Class {
 
 ///Usage
 ///-----
-// Suppose that we need to detect whether there are at least 'n' duplicates
+// Suppose that we need to detect whether there are at least `n` duplicates
 // within an array of integers.  Furthermore, suppose that speed is a concern
 // and we need the fastest possible implementation.  A natural solution will be
 // to use a hash table.  To further optimize for speed, we can use a custom
-// memory manager, such as 'bdlma::BufferManager', to speed up memory
+// memory manager, such as `bdlma::BufferManager`, to speed up memory
 // allocations.
 //
 // First, let's define the structure of a node inside our custom hash table
 // structure:
-//..
+// ```
+
+    /// This struct represents a node within a hash table.
     struct my_Node {
-        // This struct represents a node within a hash table.
 
         // DATA
         int      d_value;   // integer value this node holds
@@ -185,9 +186,10 @@ class my_Class {
         my_Node *d_next_p;  // pointer to the next node
 
         // CREATORS
+
+        /// Create a node having the specified `value` that refers to the
+        /// specified `next` node.
         my_Node(int value, my_Node *next);
-            // Create a node having the specified 'value' that refers to the
-            // specified 'next' node.
     };
 
     // CREATORS
@@ -197,23 +199,24 @@ class my_Class {
     , d_next_p(next)
     {
     }
-//..
-// Note that 'sizeof(my_Node) == 12' when compiled in 32-bit mode, and
-// 'sizeof(my_Node) == 16' when compiled in 64-bit mode.  This difference
+// ```
+// Note that `sizeof(my_Node) == 12` when compiled in 32-bit mode, and
+// `sizeof(my_Node) == 16` when compiled in 64-bit mode.  This difference
 // affects the amount of memory used under different alignment strategies (see
-// 'bsls_alignment' for more details on alignment strategies).
+// `bsls_alignment` for more details on alignment strategies).
 //
 // We can then define the structure of our specialized hash table used for
 // integer counting:
-//..
+// ```
+
+    /// This class represents a hash table that is used to keep track of the
+    /// number of occurrences of various integers.  Note that this is a
+    /// highly specialized class that uses a `bdlma::BufferManager` with
+    /// sufficient memory for memory allocations.
     class my_IntegerCountingHashTable {
-        // This class represents a hash table that is used to keep track of the
-        // number of occurrences of various integers.  Note that this is a
-        // highly specialized class that uses a 'bdlma::BufferManager' with
-        // sufficient memory for memory allocations.
 
         // DATA
-        my_Node              **d_nodeArray;  // array of 'my_Node' pointers
+        my_Node              **d_nodeArray;  // array of `my_Node` pointers
 
         int                    d_size;       // size of the node array
 
@@ -222,33 +225,36 @@ class my_Class {
 
       public:
         // CLASS METHODS
+
+        /// Return the memory required by a `my_IntegerCountingHashTable`
+        /// that has the specified `tableLength` and `numNodes`.
         static int calculateBufferSize(int tableLength, int numNodes);
-            // Return the memory required by a 'my_IntegerCountingHashTable'
-            // that has the specified 'tableLength' and 'numNodes'.
 
         // CREATORS
+
+        /// Create a hash table of the specified `size`, using the specified
+        /// `buffer` to supply memory.  The behavior is undefined unless
+        /// `0 < size`, `buffer` is non-zero, and `buffer` has sufficient
+        /// memory to support all memory allocations required.
         my_IntegerCountingHashTable(int size, bdlma::BufferManager *buffer);
-            // Create a hash table of the specified 'size', using the specified
-            // 'buffer' to supply memory.  The behavior is undefined unless
-            // '0 < size', 'buffer' is non-zero, and 'buffer' has sufficient
-            // memory to support all memory allocations required.
 
         // ...
 
         // MANIPULATORS
+
+        /// Insert the specified `value` with a count of 1 into this hash
+        /// table if `value` does not currently exist in the hash table, and
+        /// increment the count for `value` otherwise.  Return the number of
+        /// occurrences of `value` in this hash table.
         int insert(int value);
-            // Insert the specified 'value' with a count of 1 into this hash
-            // table if 'value' does not currently exist in the hash table, and
-            // increment the count for 'value' otherwise.  Return the number of
-            // occurrences of 'value' in this hash table.
 
         // ...
     };
-//..
-// The implementation of the rest of 'my_IntegerCountingHashTable' is elided as
-// the class method 'calculateBufferSize', constructor, and the 'insert' method
-// alone are sufficient to illustrate the use of 'bdlma::BufferManager':
-//..
+// ```
+// The implementation of the rest of `my_IntegerCountingHashTable` is elided as
+// the class method `calculateBufferSize`, constructor, and the `insert` method
+// alone are sufficient to illustrate the use of `bdlma::BufferManager`:
+// ```
     // CLASS METHODS
     int my_IntegerCountingHashTable::calculateBufferSize(int tableLength,
                                                          int numNodes)
@@ -257,11 +263,11 @@ class my_Class {
                               + numNodes * sizeof(my_Node)
                               + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
     }
-//..
+// ```
 // Note that, in case the allocated buffer is not aligned, the size calculation
 // includes a "fudge" factor equivalent to the maximum alignment requirement of
 // the platform.
-//..
+// ```
     // CREATORS
     my_IntegerCountingHashTable::my_IntegerCountingHashTable(
                                                   int                   size,
@@ -269,7 +275,7 @@ class my_Class {
     : d_size(size)
     , d_buffer(buffer)
     {
-        // 'd_buffer' must have sufficient memory to satisfy the allocation
+        // `d_buffer` must have sufficient memory to satisfy the allocation
         // request (as specified by the constructor's contract).
 
         d_nodeArray = static_cast<my_Node **>(
@@ -295,9 +301,9 @@ class my_Class {
             }
         }
 
-        // 'allocate' does not trigger dynamic memory allocation.  Therefore,
-        // we don't have to worry about exceptions and can use placement 'new'
-        // directly with 'allocate'.  'd_buffer' must have sufficient memory to
+        // `allocate` does not trigger dynamic memory allocation.  Therefore,
+        // we don't have to worry about exceptions and can use placement `new`
+        // directly with `allocate`.  `d_buffer` must have sufficient memory to
         // satisfy the allocation request (as specified by the constructor's
         // contract).
 
@@ -305,39 +311,40 @@ class my_Class {
 
         return 1;
     }
-//..
-// Note that 'bdlma::BufferManager' is used to allocate memory blocks of
+// ```
+// Note that `bdlma::BufferManager` is used to allocate memory blocks of
 // heterogeneous sizes.  In the constructor, memory is allocated for the node
-// array.  In 'insert', memory is allocated for the nodes.
+// array.  In `insert`, memory is allocated for the nodes.
 //
-// Finally, in the following 'detectNOccurrences' function, we can use the hash
-// table class to detect whether any integer value occurs at least 'n' times
+// Finally, in the following `detectNOccurrences` function, we can use the hash
+// table class to detect whether any integer value occurs at least `n` times
 // within a specified array:
-//..
+// ```
+
+    /// Return `true` if any integer value in the specified `array` having
+    /// the specified `length` appears at least the specified `n` times, and
+    /// `false` otherwise.
     bool detectNOccurrences(int n, const int *array, int length)
-        // Return 'true' if any integer value in the specified 'array' having
-        // the specified 'length' appears at least the specified 'n' times, and
-        // 'false' otherwise.
     {
         const int MAX_SIZE = my_IntegerCountingHashTable::
                                            calculateBufferSize(length, length);
-//..
-// We then allocate an external buffer to be used by 'bdlma::BufferManager'.
+// ```
+// We then allocate an external buffer to be used by `bdlma::BufferManager`.
 // Normally, this buffer will be created on the program stack if we know the
 // length in advance (for example, if we specify in the contract of this
 // function that we only handle arrays having a length of up to 10,000
 // integers).  However, to make this function more general, we decide to
 // allocate the memory dynamically.  This approach is still much more efficient
 // than using the default allocator, say, to allocate memory for individual
-// nodes within 'insert', since we need only a single dynamic allocation,
+// nodes within `insert`, since we need only a single dynamic allocation,
 // versus separate dynamic allocations for every single node:
-//..
+// ```
         bslma::Allocator *allocator = bslma::Default::defaultAllocator();
         char *buffer = static_cast<char *>(allocator->allocate(MAX_SIZE));
-//..
-// We use a 'bslma::DeallocatorGuard' to automatically deallocate the buffer
+// ```
+// We use a `bslma::DeallocatorGuard` to automatically deallocate the buffer
 // when the function ends:
-//..
+// ```
         bslma::DeallocatorGuard<bslma::Allocator> guard(buffer, allocator);
 
         bdlma::BufferManager bufferManager(buffer, MAX_SIZE);
@@ -351,8 +358,8 @@ class my_Class {
 
         return false;
     }
-//..
-// Note that the calculation of 'MAX_SIZE' assumes natural alignment.  If
+// ```
+// Note that the calculation of `MAX_SIZE` assumes natural alignment.  If
 // maximum alignment is used instead, a larger buffer is needed since each node
 // object will then be maximally aligned, which takes up 16 bytes each instead
 // of 12 bytes on a 32-bit architecture.  On a 64-bit architecture, there will
@@ -371,7 +378,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
@@ -381,13 +388,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -408,27 +415,27 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // -------------------------------------------------------------------
-        // TESTING 'calculateAlignmentOffsetFromSize'
+        // TESTING `calculateAlignmentOffsetFromSize`
         //   Ensure this accessor returns the expected value.
         //
         // Concerns:
-        //: 1 The method returns the expected value for all alignment
-        //:   strategies, values of 'address', and values of 'size'.
+        // 1. The method returns the expected value for all alignment
+        //    strategies, values of `address`, and values of `size`.
         //
         // Plan:
-        //: 1 Directly verify the result of this method for a large set of
-        //:   'address' values and '0 == size'.
-        //:
-        //: 2 Directly verify the result of this method using
-        //:   'bsls::AlignmentUtil' as an oracle for a large set of 'address'
-        //:   and 'size > 0' values.  (C-1)
+        // 1. Directly verify the result of this method for a large set of
+        //    `address` values and `0 == size`.
+        //
+        // 2. Directly verify the result of this method using
+        //    `bsls::AlignmentUtil` as an oracle for a large set of `address`
+        //    and `size > 0` values.  (C-1)
         //
         // Testing:
         //   int calculateAlignmentOffsetFromSize(address, size) const;
         // -------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'calculateAlignmentOffsetFromSize'"
+                          << "TESTING `calculateAlignmentOffsetFromSize`"
                           << endl
                           << "=========================================="
                           << endl;
@@ -502,10 +509,10 @@ int main(int argc, char *argv[])
         // TRUNCATE TEST
         //
         // Concerns:
-        //   1. That 'truncate' reduces the amount of memory allocated to the
-        //      specified 'newSize', and returns 'newSize' on success.
+        //   1. That `truncate` reduces the amount of memory allocated to the
+        //      specified `newSize`, and returns `newSize` on success.
         //
-        //   2. That when 'truncate' fails, 'originalSize' is returned.
+        //   2. That when `truncate` fails, `originalSize` is returned.
         //
         //   3. QoI: Asserted precondition violations are detected when
         //      enabled.
@@ -521,7 +528,7 @@ int main(int argc, char *argv[])
         //
         //   For concern 2, attempt to truncate the memory returned by the
         //   initial allocation, and verify that the return value is
-        //   'originalSize'.
+        //   `originalSize`.
         //
         //   For concern 3, verify that, in appropriate build modes, defensive
         //   checks are triggered.
@@ -539,7 +546,7 @@ int main(int argc, char *argv[])
 #define MAX bsls::Alignment::BSLS_MAXIMUM
 #define BYT bsls::Alignment::BSLS_BYTEALIGNED
 
-        if (verbose) cout << "\nTesting 'truncate'." << endl;
+        if (verbose) cout << "\nTesting `truncate`." << endl;
 
         static const struct {
             int   d_line;         // line number
@@ -708,13 +715,13 @@ int main(int argc, char *argv[])
         // EXPAND TEST
         //
         // Concerns:
-        //   1. That 'expand' uses up all of the available memory within the
+        //   1. That `expand` uses up all of the available memory within the
         //      buffer.
         //
-        //   2. That 'expand' returns the updated size of the memory used on
+        //   2. That `expand` returns the updated size of the memory used on
         //      success.
         //
-        //   3. That 'expand' returns the original 'size' on failure.
+        //   3. That `expand` returns the original `size` on failure.
         //
         //   4. QoI: Asserted precondition violations are detected when
         //      enabled.
@@ -723,14 +730,14 @@ int main(int argc, char *argv[])
         //   For concerns 1 and 2, using the table-driven technique, create
         //   test vectors having an alignment strategy, initial allocation
         //   size, and expected memory used.  First make the initial allocation
-        //   of the specified size.  Then allocate 1 byte and call 'expand'.
-        //   Verify that the return value of 'expand' is the same as the
-        //   expected memory used.  Finally, invoke 'allocate' again and verify
+        //   of the specified size.  Then allocate 1 byte and call `expand`.
+        //   Verify that the return value of `expand` is the same as the
+        //   expected memory used.  Finally, invoke `allocate` again and verify
         //   that it returns 0 (i.e., all memory is used).
         //
-        //   For concern 3, after invoking 'expand' when testing concerns 1 and
-        //   2, invoke 'expand' again on the initial memory allocated.  Verify
-        //   that the value returned is the original 'size'.
+        //   For concern 3, after invoking `expand` when testing concerns 1 and
+        //   2, invoke `expand` again on the initial memory allocated.  Verify
+        //   that the value returned is the original `size`.
         //
         //   For concern 4, verify that, in appropriate build modes, defensive
         //   checks are triggered.
@@ -748,13 +755,13 @@ int main(int argc, char *argv[])
 #define MAX bsls::Alignment::BSLS_MAXIMUM
 #define BYT bsls::Alignment::BSLS_BYTEALIGNED
 
-        if (verbose) cout << "\nTesting 'expand'." << endl;
+        if (verbose) cout << "\nTesting `expand`." << endl;
 
         static const struct {
             int   d_line;         // line number
             Strat d_strategy;     // alignment strategy
             int   d_initialSize;  // size of initial allocation request
-            int   d_expused;      // expected memory used after 'expand'
+            int   d_expused;      // expected memory used after `expand`
         } DATA[] = {
             // LINE     STRAT       INITIALSIZE       EXPUSED
             // ----     -----       -----------       -------
@@ -882,11 +889,11 @@ int main(int argc, char *argv[])
         // DELETEOBJECT TEST
         //
         // Concerns:
-        //   1. That both the 'deleteObject' and 'deleteObjectRaw' methods
+        //   1. That both the `deleteObject` and `deleteObjectRaw` methods
         //      invoke the destructor of the object passed in.
         //
         // Plan:
-        //   Since 'deleteObject' and 'deleteObjectRaw' do not deallocate
+        //   Since `deleteObject` and `deleteObjectRaw` do not deallocate
         //   memory, we just need to ensure that the destructor of the object
         //   passed in is invoked.
         //
@@ -900,7 +907,7 @@ int main(int argc, char *argv[])
 
         char *buffer = bufferStorage.buffer();
 
-        if (verbose) cout << "\nTesting 'deleteObject'." << endl;
+        if (verbose) cout << "\nTesting `deleteObject`." << endl;
         {
             Obj mX(buffer, k_BUFFER_SIZE);
 
@@ -913,7 +920,7 @@ int main(int argc, char *argv[])
             ASSERT(true == globalDestructorInvoked);
         }
 
-        if (verbose) cout << "\nTesting 'deleteObjectRaw'." << endl;
+        if (verbose) cout << "\nTesting `deleteObjectRaw`." << endl;
         {
             Obj mX(buffer, k_BUFFER_SIZE);
 
@@ -928,20 +935,20 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // 'hasSufficientCapacity' TEST
+        // `hasSufficientCapacity` TEST
         //
         // Concerns:
-        //   1. That 'hasSufficientCapacity' returns 'true' when an allocation
-        //      of 'size' bytes can be satisfied, and 'false' otherwise.
+        //   1. That `hasSufficientCapacity` returns `true` when an allocation
+        //      of `size` bytes can be satisfied, and `false` otherwise.
         //
         //   2. QoI: Asserted precondition violations are detected when
         //      enabled.
         //
         // Plan:
-        //   Since 'allocate' is thoroughly tested for the overflow case, we
+        //   Since `allocate` is thoroughly tested for the overflow case, we
         //   can use depth-first enumeration to test this by enumerating buffer
         //   sizes from 1 to 8 and test all two-allocation combinations.
-        //   Whenever 'hasSufficientCapacity' returns 'false', the next
+        //   Whenever `hasSufficientCapacity` returns `false`, the next
         //   allocation request should return 0 (and vice versa).
         //
         //   For concern 2, verify that, in appropriate build modes, defensive
@@ -951,10 +958,10 @@ int main(int argc, char *argv[])
         //   bool hasSufficientCapacity(int size) const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "'hasSufficientCapacity' TEST" << endl
+        if (verbose) cout << endl << "`hasSufficientCapacity` TEST" << endl
                                   << "============================" << endl;
 
-        if (verbose) cout << "\nTesting 'hasSufficientCapacity'." << endl;
+        if (verbose) cout << "\nTesting `hasSufficientCapacity`." << endl;
 
         char *buffer = bufferStorage.buffer();
 
@@ -987,7 +994,7 @@ int main(int argc, char *argv[])
 
                         // Subsequent allocation might or might not succeed.
                         // However, it should match the result of
-                        // 'hasSufficientCapacity'.
+                        // `hasSufficientCapacity`.
 
                         ret  =  X.hasSufficientCapacity(ALLOCSIZE2);
                         addr = mX.allocate(ALLOCSIZE2);
@@ -1023,33 +1030,33 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // 'reset' TEST
+        // `reset` TEST
         //
         // Concerns:
-        //   1. That 'reset' removes from the management of the object the
+        //   1. That `reset` removes from the management of the object the
         //      external buffer currently being managed (if any).
         //
-        //   2. That 'reset' has no effect on the previously managed buffer.
+        //   2. That `reset` has no effect on the previously managed buffer.
         //
-        //   3. That 'reset' can be called on an object that is not managing
+        //   3. That `reset` can be called on an object that is not managing
         //      a buffer.
         //
         // Plan:
-        //   For concern 1, after the call to 'reset' verify that a buffer is
-        //   no longer being managed using the 'buffer' accessor method.
+        //   For concern 1, after the call to `reset` verify that a buffer is
+        //   no longer being managed using the `buffer` accessor method.
         //
-        //   For concern 2, set all bytes in the buffer to '0xA' prior to
-        //   calling 'reset'.  Verify that the bytes in the buffer remain '0xA'
-        //   after 'reset' is called.
+        //   For concern 2, set all bytes in the buffer to `0xA` prior to
+        //   calling `reset`.  Verify that the bytes in the buffer remain `0xA`
+        //   after `reset` is called.
         //
-        //   For concern 3, perform a separate test that 'reset' can be called
+        //   For concern 3, perform a separate test that `reset` can be called
         //   on a default-constructed object with no (apparent) ill effects.
         //
         // Testing:
         //   void reset();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "'reset' TEST" << endl
+        if (verbose) cout << endl << "`reset` TEST" << endl
                                   << "============" << endl;
 
         char *buffer = bufferStorage.buffer();
@@ -1091,29 +1098,29 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // 'release' TEST
+        // `release` TEST
         //
         // Concerns:
-        //   1. That 'release' sets the internal cursor of the memory manager
+        //   1. That `release` sets the internal cursor of the memory manager
         //      to 0, but retains the external buffer being managed (if any).
         //
-        //   2. That 'release' has no effect on the managed buffer.
+        //   2. That `release` has no effect on the managed buffer.
         //
-        //   3. That 'release' can be called on an object that is not managing
+        //   3. That `release` can be called on an object that is not managing
         //      a buffer.
         //
         // Plan:
-        //   For concern 1, after the call to 'release': (1) verify that the
-        //   currently managed buffer is the same as before using the 'buffer'
+        //   For concern 1, after the call to `release`: (1) verify that the
+        //   currently managed buffer is the same as before using the `buffer`
         //   accessor method, and (2) verify that the entire buffer is
         //   available for reuse by requesting the entire buffer in a single
         //   allocation.
         //
-        //   For concern 2, set all bytes in the buffer to '0xA' prior to
-        //   calling 'release'.  Verify that the bytes in the buffer remain
-        //   '0xA' after 'release' is called.
+        //   For concern 2, set all bytes in the buffer to `0xA` prior to
+        //   calling `release`.  Verify that the bytes in the buffer remain
+        //   `0xA` after `release` is called.
         //
-        //   For concern 3, perform a separate test that 'release' can be
+        //   For concern 3, perform a separate test that `release` can be
         //   called on a default-constructed object with no (apparent) ill
         //   effects.
         //
@@ -1121,12 +1128,12 @@ int main(int argc, char *argv[])
         //   void release();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "'release' TEST" << endl
+        if (verbose) cout << endl << "`release` TEST" << endl
                                   << "==============" << endl;
 
         char *buffer = bufferStorage.buffer();
 
-        if (verbose) cout << "\nTesting address managed after 'release'."
+        if (verbose) cout << "\nTesting address managed after `release`."
                           << endl;
         {
             char bufferRef[k_BUFFER_SIZE];
@@ -1168,32 +1175,32 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // 'replaceBuffer' TEST
+        // `replaceBuffer` TEST
         //
         // Concerns:
-        //   1. That 'replaceBuffer' replaces the buffer managed by the
-        //      'bdlma::BufferManager' object, and that the amount of memory
-        //      available for allocation is 'newBufferSize'.
+        //   1. That `replaceBuffer` replaces the buffer managed by the
+        //      `bdlma::BufferManager` object, and that the amount of memory
+        //      available for allocation is `newBufferSize`.
         //
         //   2. That the address returned is the address of the previously
         //      managed buffer (if any).
         //
         //   3. That the previously managed buffer is not changed in any way
-        //      by the 'replaceBuffer' call.
+        //      by the `replaceBuffer` call.
         //
         //   4. QoI: Asserted precondition violations are detected when
         //      enabled.
         //
         // Plan:
-        //   For concerns 1 and 2, after the call to 'replaceBuffer', use the
-        //   'buffer' accessor method to verify that the address returned is
+        //   For concerns 1 and 2, after the call to `replaceBuffer`, use the
+        //   `buffer` accessor method to verify that the address returned is
         //   that of the previously managed buffer.  In addition, attempt to
         //   allocate the entire memory available in the buffer and verify that
         //   the allocation succeeded.
         //
-        //   For concern 3, set all bytes in the initial buffer to '0xA' prior
-        //   to calling 'replaceBuffer'.  Verify that the bytes in the buffer
-        //   remain '0xA' after 'replaceBuffer' is called.
+        //   For concern 3, set all bytes in the initial buffer to `0xA` prior
+        //   to calling `replaceBuffer`.  Verify that the bytes in the buffer
+        //   remain `0xA` after `replaceBuffer` is called.
         //
         //   For concern 4, verify that, in appropriate build modes, defensive
         //   checks are triggered.
@@ -1202,7 +1209,7 @@ int main(int argc, char *argv[])
         //   char *replaceBuffer(char *newBuffer, int newBufferSize);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "'replaceBuffer' TEST" << endl
+        if (verbose) cout << endl << "`replaceBuffer` TEST" << endl
                                   << "====================" << endl;
 
         if (verbose) cout << "\nTesting replace and address returned." << endl;
@@ -1283,10 +1290,10 @@ int main(int argc, char *argv[])
         // Concerns:
         //   1. That the allocated memory address is correctly aligned
         //      according to the alignment strategy indicated at construction
-        //      of the 'bdlma::BufferManager' and comes from the external
+        //      of the `bdlma::BufferManager` and comes from the external
         //      buffer also supplied at construction.
         //
-        //   2. That when 'allocate' is used and the allocation request causes
+        //   2. That when `allocate` is used and the allocation request causes
         //      the supplied buffer to overflow, 0 is returned.
         //
         //   3. That we can allocate the expected amount of memory from the
@@ -1300,12 +1307,12 @@ int main(int argc, char *argv[])
         //   test vectors having different alignment strategies, allocation
         //   sizes, and expected addresses of a subsequent allocation (please
         //   see the TEST PLAN for an explanation of why this is done).  Next,
-        //   construct a 'bdlma::BufferManager' using a maximally-aligned
+        //   construct a `bdlma::BufferManager` using a maximally-aligned
         //   buffer and the alignment strategy from the test vector.  Invoke
-        //   'allocate' and 'allocateRaw' with an allocation request of 1 byte.
+        //   `allocate` and `allocateRaw` with an allocation request of 1 byte.
         //   Then allocate a second time with the allocation size specified in
-        //   the test vector and verify the results of the 'allocate' and
-        //   'allocateRaw' methods with the expected values.
+        //   the test vector and verify the results of the `allocate` and
+        //   `allocateRaw` methods with the expected values.
         //
         //   For concern 2, create buffers of different sizes such that, after
         //   an initial allocation, the next allocation request will result
@@ -1314,7 +1321,7 @@ int main(int argc, char *argv[])
         //   For concern 3, using the table-driven technique, create a set of
         //   test vectors specifying the buffer size, allocation size,
         //   alignment strategy, and expected number of allocations.  Then keep
-        //   allocating until 'allocate' returns 0.
+        //   allocating until `allocate` returns 0.
         //
         //   For concern 4, verify that, in appropriate build modes, defensive
         //   checks are triggered.
@@ -1333,7 +1340,7 @@ int main(int argc, char *argv[])
 #define MAX bsls::Alignment::BSLS_MAXIMUM
 #define BYT bsls::Alignment::BSLS_BYTEALIGNED
 
-        if (verbose) cout << "\nTesting 'allocate' and 'allocateRaw'." << endl;
+        if (verbose) cout << "\nTesting `allocate` and `allocateRaw`." << endl;
         {
 
         static const struct {
@@ -1522,8 +1529,8 @@ int main(int argc, char *argv[])
 
         }
 
-        if (verbose) cout << "\nTesting continuous allocation with 'allocate'"
-                             " and 'allocateRaw'."
+        if (verbose) cout << "\nTesting continuous allocation with `allocate`"
+                             " and `allocateRaw`."
                           << endl;
         {
 
@@ -1696,7 +1703,7 @@ int main(int argc, char *argv[])
         // CTORS / ACCESSORS TEST
         //
         // Concerns:
-        //   1. That a 'bdlma::BufferManager' can be constructed using an
+        //   1. That a `bdlma::BufferManager` can be constructed using an
         //      external buffer and the correct buffer size.
         //
         //   2. That the alignment strategy, when not specified at
@@ -1712,12 +1719,12 @@ int main(int argc, char *argv[])
         // Plan:
         //   First, for concerns 1 and 3, construct two buffer objects, one
         //   with an initial buffer and one without.  Then, verify that the
-        //   'buffer' and 'bufferSize' methods return the correct address and
+        //   `buffer` and `bufferSize` methods return the correct address and
         //   size for each buffer object.
         //
         //   For concern 2, create four buffer objects, one without specifying
         //   the alignment strategy and the other three with specifying the
-        //   various alignment strategies.  Invoke 'allocate' twice on each
+        //   various alignment strategies.  Invoke `allocate` twice on each
         //   object, and verify, using the result of the second allocation,
         //   that the alignment strategy of the buffer object is correctly
         //   applied.
@@ -1905,21 +1912,21 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   1. That a 'bdlma::BufferManager' can be created and destroyed.
+        //   1. That a `bdlma::BufferManager` can be created and destroyed.
         //
-        //   2. That 'allocate' returns a block of memory having the specified
+        //   2. That `allocate` returns a block of memory having the specified
         //      size and alignment.
         //
-        //   3. That 'allocate' returns a block of memory from the external
+        //   3. That `allocate` returns a block of memory from the external
         //      buffer supplied at construction.
         //
         // Plan:
-        //   First, initialize a 'bdlma::BufferManager' with a 'static' buffer.
+        //   First, initialize a `bdlma::BufferManager` with a `static` buffer.
         //   Next, allocate a block of memory from the buffer object and verify
         //   that it comes from the external buffer.  Then, allocate another
         //   block of memory from the buffer object, and verify that the first
         //   allocation returned a block of memory of sufficient size by
-        //   checking that 'addr2 >= addr1 + k_ALLOC_SIZE1'.  Also verify that
+        //   checking that `addr2 >= addr1 + k_ALLOC_SIZE1`.  Also verify that
         //   the alignment strategy indicated at construction is followed by
         //   checking the address of the second allocation.
         //

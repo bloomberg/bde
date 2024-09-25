@@ -55,12 +55,12 @@
 #ifndef BSLS_PLATFORM_OS_CYGWIN
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-// for 'EnumWindows'
+// for `EnumWindows`
 
 # pragma comment(lib, "user32.lib")
 # include <windows.h>
 
-// 'getStackAddresses' will not be able to trace through our stack frames if
+// `getStackAddresses` will not be able to trace through our stack frames if
 // we're optimized on Windows
 
 # pragma optimize("", off)
@@ -235,7 +235,7 @@ typedef bsls::StackAddressUtil Address;
 #endif
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BSLS_PLATFORM_CPU_64_BIT)
-// On Windows, longs aren't big enough to hold pointers or 'size_t's
+// On Windows, longs aren't big enough to hold pointers or `size_t`s
 
 #define SIZE_T_CONTROL_STRING "%llx"
 typedef long long unsigned int UintPtr;
@@ -263,9 +263,9 @@ static bslma::TestAllocator ota;
 static bdlma::SequentialAllocator ta(&ota);
 static bslma::TestAllocator defaultAllocator;
 
-bsl::ostream *out_p;    // pointer to either 'cout' or a dummy stringstream
+bsl::ostream *out_p;    // pointer to either `cout` or a dummy stringstream
                         // that is never output, depending on the value of
-                        // 'verbose'.
+                        // `verbose`.
 
 static const bsl::size_t npos = bsl::string::npos;
 
@@ -285,7 +285,7 @@ TYPE approxAbs(TYPE x)
 
 bool fileExists(const char *fileName)
 {
-    // On Windows 'exists' uses the default allocator when it converts the
+    // On Windows `exists` uses the default allocator when it converts the
     // source file name to a wide string.
 
     bslma::DefaultAllocatorGuard guard(
@@ -306,10 +306,10 @@ bool problem()
     return false;
 }
 
+/// Copy the specified `symbol` to the specified `*dst`.  If it is a
+/// demangled function name with the return type specified, remove the
+/// return type, otherwise leave it unmodified.
 void stripReturnType(bsl::string *dst, const bsl::string& symbol)
-    // Copy the specified 'symbol' to the specified '*dst'.  If it is a
-    // demangled function name with the return type specified, remove the
-    // return type, otherwise leave it unmodified.
 {
     const bsl::size_t npos = bsl::string::npos;
 
@@ -337,10 +337,10 @@ void stripReturnType(bsl::string *dst, const bsl::string& symbol)
 // GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// check that the specified `str` contains all the strings specified in the
+/// vector `matches` in order.  Note that `matches` may be modified.
 void checkOutput(const bsl::string&               str,
                  const bsl::vector<const char *>& matches)
-    // check that the specified 'str' contains all the strings specified in the
-    // vector 'matches' in order.  Note that 'matches' may be modified.
 {
     bslma::TestAllocator localAllocator;
     bdlma::SequentialAllocator sa(&localAllocator);
@@ -378,16 +378,16 @@ const char *nullGuard(const char *string)
                                 // testStackTrace
                                 // --------------
 
+/// Verify that the specified StackTrace `st` is sane.  Tolerate up to
+/// `tolerateMisses` frames without line numbers, as xcoff fails to give
+/// line numbers when the code is in an inlined function.
 static
 void testStackTrace(const balst::StackTrace& st, int tolerateMisses = 0)
-    // Verify that the specified StackTrace 'st' is sane.  Tolerate up to
-    // 'tolerateMisses' frames without line numbers, as xcoff fails to give
-    // line numbers when the code is in an inlined function.
 {
     LOOP_ASSERT(st.length(), st.length() > 0);
 
     bool reachedMain = false, pastMain = false;   // The trace above, at, and
-                                                  // below 'main' have
+                                                  // below `main` have
                                                   // different properties.
 
     int numMisses = 0;
@@ -485,6 +485,10 @@ struct Passed {
     {}
 };
 
+/// Pack the args into a `Data` record and push them onto the specified
+/// `*dst`.  We couldn't just declare a static table because g++ gave errors
+/// or warnings whenever we casted a non-static member function ptr to a
+/// `void *` or `UintPtr`.
 template <class TYPE>
 static
 void pushVec(bsl::vector<Data> *dst,
@@ -493,17 +497,13 @@ void pushVec(bsl::vector<Data> *dst,
              const char        *demangledName,
              const char        *mangledSearch,
              const char        *baseName)
-    // Pack the args into a 'Data' record and push them onto the specified
-    // '*dst'.  We couldn't just declare a static table because g++ gave errors
-    // or warnings whenever we casted a non-static member function ptr to a
-    // 'void *' or 'UintPtr'.
 {
     Data data;
 
     data.d_line          = line;
 
     // On most platforms, a member func ptr is multiple times the size of a
-    // 'void *', so we've got to extract the address from it.
+    // `void *`, so we've got to extract the address from it.
 
     // On xcoff, a function ptr is really just a ptr to a location containing
     // a ptr to the address, so it needs and extra dereference.
@@ -621,9 +621,9 @@ bool straightTrace = true;
 
 void stackTop();    // forward declaration
 
+/// Recurse to the specified `depth` and then call `topOfTheStack`, passing
+/// in the specified `numRecurses`.
 void recurseABunchOfTimes(int *depth, int, void *, int, void *)
-    // Recurse to the specified 'depth' and then call 'topOfTheStack', passing
-    // in the specified 'numRecurses'.
 {
     if (--*depth <= 0) {
         (*bslim::TestUtil::makeFunctionCallNonInline(&stackTop))();
@@ -744,7 +744,7 @@ namespace NS_10_4 {
 #define BALST_STACKTRACEUTIL_TEST_10_SYMBOLS
 #endif
 
-bsls::TimeInterval start;            // initialized from 'main'
+bsls::TimeInterval start;            // initialized from `main`
 bsls::AtomicInt    threadId(0);
 
 bool mainFound = false;
@@ -758,18 +758,18 @@ double elapsed()
     return diff.totalSecondsAsDouble();
 }
 
+/// Recurse to the specified `depth` and then call `topOfTheStack`, passing
+/// in the specified `numRecurses`.
 void recurseABunchOfTimes(int *, int, void *, int, int);
-    // Recurse to the specified 'depth' and then call 'topOfTheStack', passing
-    // in the specified 'numRecurses'.
 
+/// Perform various tests after having recursed for several stack frames.
 void topOfTheStack(void *, void *, void *, int);
-    // Perform various tests after having recursed for several stack frames.
 
+/// For seven seconds, repeatedly recurse to various depths, each time
+/// testing the resulting stack frame.
 void loopForSevenSeconds()
-    // For seven seconds, repeatedly recurse to various depths, each time
-    // testing the resulting stack frame.
 {
-    // 'numRecurses' is the number of times 'recurseABunchOfTimes' occurs on
+    // `numRecurses` is the number of times `recurseABunchOfTimes` occurs on
     // the stack.  The idea here is that it varies between threads, to make
     // sure that all threads aren't doing exactly the same stack traces.
 
@@ -792,9 +792,9 @@ void loopForSevenSeconds()
     minTracesDone =  bsl::min(localTracesDone, minTracesDone);
 }
 
+/// Recurse to the specified `depth` and then call `topOfTheStack`, passing
+/// in the specified `numRecurses`.
 void recurseABunchOfTimes(int *depth, int, void *, int, int numRecurses)
-    // Recurse to the specified 'depth' and then call 'topOfTheStack', passing
-    // in the specified 'numRecurses'.
 {
     if (--*depth <= 0) {
         (*bslim::TestUtil::makeFunctionCallNonInline(&topOfTheStack))(
@@ -964,7 +964,7 @@ void case_8_recurse(int *depth)
     !defined(BSLS_PLATFORM_OS_DARWIN) &&                                      \
     !(defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_CMP_GNU))
 // The goal here is to create an identifier > 32,000 bytes
-// and < '((1 << 15) - 64)' bytes long.
+// and < `((1 << 15) - 64)` bytes long.
 
 // I think (but am not positive) that the C++ std guarantees support for
 // individual id's up to 1K long, and namespaces nested up to 255 deep.  Here
@@ -1162,7 +1162,7 @@ void case_5_top(bool demangle, bool useTestAllocator)
             LOOP2_ASSERT(sn, match,              bsl::strstr( sn, match));
 
             if ((!FORMAT_ELF || FORMAT_DWARF) && !FORMAT_DLADDR && DEBUG_ON) {
-                // 'case_5_top' is global -- elf can't find source file names
+                // `case_5_top` is global -- elf can't find source file names
                 // for globals
 
                 const char *sfnMatch = "balst_stacktraceutil.t.cpp";
@@ -1252,7 +1252,7 @@ void case_5_top(bool demangle, bool useTestAllocator)
                 if (!(FORMAT_ELF && !FORMAT_DWARF &&
                                             (!isMatch || e_STATIC_DISABLED)) &&
                                                   !FORMAT_DLADDR && DEBUG_ON) {
-                    // 'case_5_bottom' is static, so the source file name will
+                    // `case_5_bottom` is static, so the source file name will
                     // be known on elf, thus it will be known for all
                     // platforms other than Mach-O.
 
@@ -1333,7 +1333,7 @@ int case_4_top(bool demangle)
         matches.push_back(demangle ? "case_4_top(bool" : "case_4_top");
         matches.push_back(demangle ? "middle(bool" : "middle");
         matches.push_back(demangle ? "bottom(bool" : "bottom");
-        matches.push_back("main");    // 'main' is a C, not C++, symbol.
+        matches.push_back("main");    // `main` is a C, not C++, symbol.
 
         bsl::stringstream os(&ta);
         Util::printFormatted(os, st);
@@ -1343,7 +1343,7 @@ int case_4_top(bool demangle)
             str = os.str();
         }
         checkOutput(str, matches);
-        problem();    // set 'out_p' if problem
+        problem();    // set `out_p` if problem
 
         Util::printFormatted(*out_p, st);
     }
@@ -1502,8 +1502,8 @@ namespace CASE_2 {
 
 bool topCalled = false;
 
+/// Note that we don't get
 int top(bslma::Allocator *alloc)
-    // Note that we don't get
 {
     ASSERT(!topCalled);
     topCalled = true;
@@ -1685,19 +1685,19 @@ void bottom(bslma::Allocator *alloc)
 ///- - - - - - - - - - - - - - - - - - - -
 // In this example, we demonstrate how to output return addresses from the
 // stack to a stream in hex.  Note that in this case the stack trace is never
-// stored to a data object -- when the 'operator<<' is passed a pointer to the
-// 'hexStackTrace' function, it calls the 'hexStackTrace' function, which
+// stored to a data object -- when the `operator<<` is passed a pointer to the
+// `hexStackTrace` function, it calls the `hexStackTrace` function, which
 // gathers the stack addresses and immediately streams them out.  After the
-// 'operator<<' is finished, the stack addresses are no longer stored anywhere.
+// `operator<<` is finished, the stack addresses are no longer stored anywhere.
 
-// First, we define a routine 'recurseExample3' which will recurse the
-// specified 'depth' times, then call 'traceExample3'.
-//..
+// First, we define a routine `recurseExample3` which will recurse the
+// specified `depth` times, then call `traceExample3`.
+// ```
     void traceExample3();    // forward declaration
 
+    /// Recurse the specified `depth` number of times, then call
+    /// `traceExample3`, which will print a stack-trace.
     void recurseExample3(int *depth)
-        // Recurse the specified 'depth' number of times, then call
-        // 'traceExample3', which will print a stack-trace.
     {
         if (--*depth > 0) {
             recurseExample3(depth);
@@ -1712,20 +1712,20 @@ void bottom(bslma::Allocator *alloc)
 
     void traceExample3()
     {
-        // Now, within 'traceExample3', we output the stack addresses in hex by
-        // streaming the function pointer 'hexStackTrace' to the ostream:
+        // Now, within `traceExample3`, we output the stack addresses in hex by
+        // streaming the function pointer `hexStackTrace` to the ostream:
 
         *out_p << balst::StackTraceUtil::hexStackTrace << endl;
     }
-//..
+// ```
 // Finally, the output appears as a collection of hex values streamed out
 // separated by spaces.
-//..
+// ```
 //  0x10001e438 0x10001e3b8 0x10001e3b0 0x10001e3b0 0x10001e3b0 0x10001e3b0 ...
-//..
+// ```
 // The hex stack traces can be translated to a human-readable stack trace
-// using tools outside of BDE, such as Bloomberg's '/bb/bin/showfunc.tsk':
-//..
+// using tools outside of BDE, such as Bloomberg's `/bb/bin/showfunc.tsk`:
+// ```
 //  $ /bb/bin/showfunc.tsk <path to executable> 0x10001e438 0x10001e3b8 ...
 //  0x10001e438 .traceExample3__Fv + 64
 //  0x10001e3b8 .recurseExample3__FPi + 72
@@ -1736,7 +1736,7 @@ void bottom(bslma::Allocator *alloc)
 //  0x100000ba0 .main + 648
 //  0x1000002fc .__start + 116
 //  $
-//..
+// ```
 
                                     // -------
                                     // Usage 2
@@ -1745,8 +1745,8 @@ void bottom(bslma::Allocator *alloc)
 ///Example 2: Loading a Stack-Trace from an Array of Stack Addresses
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we demonstrate obtaining return addresses from the stack
-// using 'bsls::StackAddressUtil', and later using them to load a
-// 'balst::StackTrace' object with a description of the stack.  This approach
+// using `bsls::StackAddressUtil`, and later using them to load a
+// `balst::StackTrace` object with a description of the stack.  This approach
 // may be desirable if one wants to quickly save the addresses that are the
 // basis for a stack-trace, postponing the more time-consuming translation of
 // those addresses to more human-readable debug information until later.  To do
@@ -1754,14 +1754,14 @@ void bottom(bslma::Allocator *alloc)
 // stack, which may not be desirable if we are in a situation where there isn't
 // much room on the stack.
 //
-// First, we define a routine 'recurseExample2' which will recurse the
-// specified 'depth' times, then call 'traceExample2'.
-//..
+// First, we define a routine `recurseExample2` which will recurse the
+// specified `depth` times, then call `traceExample2`.
+// ```
     int traceExample2();    // forward declaration
 
+    /// Recurse the specified `depth` number of times, then call
+    /// `traceExample2`, which will print a stack-trace.
     int recurseExample2(int *depth)
-        // Recurse the specified 'depth' number of times, then call
-        // 'traceExample2', which will print a stack-trace.
     {
         int rc;
 
@@ -1783,28 +1783,28 @@ void bottom(bslma::Allocator *alloc)
 
     int traceExample2()
     {
-//..
-// Then, within 'traceExample2', we create a stack-trace object and an array
-// 'addresses' to hold some addresses.
-//..
+// ```
+// Then, within `traceExample2`, we create a stack-trace object and an array
+// `addresses` to hold some addresses.
+// ```
         balst::StackTrace stackTrace;
         enum { ARRAY_LENGTH = 50 };
         void *addresses[ARRAY_LENGTH];
-//..
-// Next, we call 'bsls::StackAddressUtil::getStackAddresses' to get the stored
-// return addresses from the stack and load them into the array 'addresses'.
+// ```
+// Next, we call `bsls::StackAddressUtil::getStackAddresses` to get the stored
+// return addresses from the stack and load them into the array `addresses`.
 // The call returns the number of addresses saved into the array, which will be
-// less than or equal to 'ARRAY_LENGTH'.
-//..
+// less than or equal to `ARRAY_LENGTH`.
+// ```
         int numAddresses = bsls::StackAddressUtil::getStackAddresses(
                                                                  addresses,
                                                                  ARRAY_LENGTH);
-//..
-// Then, we call 'loadStackTraceFromAddressArray' to initialize the information
+// ```
+// Then, we call `loadStackTraceFromAddressArray` to initialize the information
 // in the stack-trace object, such as function names, source file names, and
 // line numbers, if they are available.  The optional argument,
-// 'demanglingPreferredFlag', defaults to 'true'.
-//..
+// `demanglingPreferredFlag`, defaults to `true`.
+// ```
         int rc = balst::StackTraceUtil::loadStackTraceFromAddressArray(
                                                                  &stackTrace,
                                                                  addresses,
@@ -1813,15 +1813,15 @@ void bottom(bslma::Allocator *alloc)
         if (rc) {  // Error handling is omitted.
             return rc;                                                // RETURN
         }
-//..
-// Finally, we can print out the stack-trace object using 'printFormatted', or
+// ```
+// Finally, we can print out the stack-trace object using `printFormatted`, or
 // iterate through the stack-trace frames, printing them out one by one.  In
 // this example, we want instead to output only function names, and not line
 // numbers, source file names, or library names, so we iterate through the
 // stack-trace frames and print out only the properties we want.  Note that if
 // a string is unknown, it is represented as "", here we print it out as
 // "--unknown--" to let the user see that the name was unresolved.
-//..
+// ```
         for (int i = 0; i < stackTrace.length(); ++i) {
             const balst::StackTraceFrame& frame = stackTrace[i];
 
@@ -1833,9 +1833,9 @@ void bottom(bslma::Allocator *alloc)
 
         return 0;
     }
-//..
+// ```
 // Running this example would produce the following output:
-//..
+// ```
 // (0): traceExample2()
 // (1): recurseExample2(int*)
 // (2): recurseExample2(int*)
@@ -1844,7 +1844,7 @@ void bottom(bslma::Allocator *alloc)
 // (5): recurseExample2(int*)
 // (6): main
 // (7): _start
-//..
+// ```
 
                                  // -------
                                  // Usage 1
@@ -1852,14 +1852,14 @@ void bottom(bslma::Allocator *alloc)
 
 ///Example 1: Loading Stack-Trace Directly from the Stack
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// We start by defining a routine, 'recurseExample1', that will recurse the
-// specified 'depth' times, then call 'traceExample1':
-//..
+// We start by defining a routine, `recurseExample1`, that will recurse the
+// specified `depth` times, then call `traceExample1`:
+// ```
     int traceExample1();    // forward declaration
 
+    /// Recurse the specified `depth` number of times, then call
+    /// `traceExample1`.
     int recurseExample1(int *depth)
-        // Recurse the specified 'depth' number of times, then call
-        // 'traceExample1'.
     {
         int rc;
 
@@ -1878,41 +1878,41 @@ void bottom(bslma::Allocator *alloc)
                     // loop.
         return 0;
     }
-//..
-// Then, we define the function 'traceExample1', that will print a stack-trace:
-//..
+// ```
+// Then, we define the function `traceExample1`, that will print a stack-trace:
+// ```
     int traceExample1()
     {
-//..
-// Now, we create a 'balst::StackTrace' object and call
-// 'loadStackTraceFrameStack' to load the information from the stack of the
+// ```
+// Now, we create a `balst::StackTrace` object and call
+// `loadStackTraceFrameStack` to load the information from the stack of the
 // current thread into the stack-trace object.
 //
-// In this call to 'loadStackTraceFromStack', we use the default value of
-// 'maxFrames', which is at least 1024 and the default value for
-// 'demanglingPreferredFlag', which is 'true', meaning that the operation will
-// attempt to demangle function names.  Note that the object 'stackTrace' takes
+// In this call to `loadStackTraceFromStack`, we use the default value of
+// `maxFrames`, which is at least 1024 and the default value for
+// `demanglingPreferredFlag`, which is `true`, meaning that the operation will
+// attempt to demangle function names.  Note that the object `stackTrace` takes
 // very little room on the stack, and by default allocates most of its memory
 // directly from virtual memory without going through the heap, minimizing
 // potential complications due to stack-size limits and possible heap
 // corruption.
-//..
+// ```
         balst::StackTrace stackTrace;
         int rc = balst::StackTraceUtil::loadStackTraceFromStack(&stackTrace);
 
         if (rc) {  // Error handling is omitted.
             return rc;                                                // RETURN
         }
-//..
-// Finally, we use 'printFormatted' to stream out the stack-trace, one frame
+// ```
+// Finally, we use `printFormatted` to stream out the stack-trace, one frame
 // per line, in a concise, human-readable format.
-//..
+// ```
         balst::StackTraceUtil::printFormatted(*out_p, stackTrace);
         return 0;
     }
-//..
+// ```
 // The output from the preceding example on Solaris is as follows:
-//..
+// ```
 // (0): traceExample1()+0x28 at 0x327d0 in balst_stacktraceutil.t.dbg_exc_mt
 // (1): recurseExample1(int*)+0x54 at 0x32e30 in balst_stacktraceutil.t.dbg_exc
 // (2): recurseExample1(int*)+0x44 at 0x32e20 in balst_stacktraceutil.t.dbg_exc
@@ -1921,7 +1921,7 @@ void bottom(bslma::Allocator *alloc)
 // (5): recurseExample1(int*)+0x44 at 0x32e20 in balst_stacktraceutil.t.dbg_exc
 // (6): main+0x24c at 0x36c10 in balst_stacktraceutil.t.dbg_exc_mt
 // (7): _start+0x5c at 0x31d4c in balst_stacktraceutil.t.dbg_exc_mt
-//..
+// ```
 // Notice that the lines have been truncated to fit this 79 column source file,
 // and that on AIX or Windows, source file name and line number information
 // will also be displayed.
@@ -1939,15 +1939,15 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // make sure the shared lib containing 'malloc' is loaded
+    // make sure the shared lib containing `malloc` is loaded
 
     BSLA_MAYBE_UNUSED void *sharedLibMalloc = bsl::malloc(100);
 
-    // see if we can avoid calling 'malloc' from here on out
+    // see if we can avoid calling `malloc` from here on out
 
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
-    // 'dummyOstream' is a way of achieving the equivalent of opening /dev/null
+    // `dummyOstream` is a way of achieving the equivalent of opening /dev/null
     // that works on Windoze.
 
     bsl::stringstream dummyOstream(&ta);
@@ -1964,11 +1964,11 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE THREE
         //
         // Concerns:
-        //: 1 That the usage example that uses 'hexStackTrace' works.
+        // 1. That the usage example that uses `hexStackTrace` works.
         //
         // Plan:
-        //: 1 Call the routines in the usage example to observe that the
-        //:   example compiles and works.
+        // 1. Call the routines in the usage example to observe that the
+        //    example compiles and works.
         //
         // Testing:
         //   USAGE 3
@@ -1977,7 +1977,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TEST OF USAGE EXAMPLE 2\n"
                              "=======================\n";
 
-        // Call 'recurseExample3' with will recurse 'depth' times, then print
+        // Call `recurseExample3` with will recurse `depth` times, then print
         // a hex stack trace.
 
         int depth = 5;
@@ -1989,12 +1989,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE TWO
         //
         // Concerns:
-        //: 1 That the usage example that uses 'getStackAddresses' and
-        //    'loadStackTraceFrameAddressArray' works.
+        // 1. That the usage example that uses `getStackAddresses` and
+        //    `loadStackTraceFrameAddressArray` works.
         //
         // Plan:
-        //: 1 Call the routines in the usage example to observe that the
-        //:   example compiles and works.
+        // 1. Call the routines in the usage example to observe that the
+        //    example compiles and works.
         //
         // Testing:
         //   USAGE 2
@@ -2003,7 +2003,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TEST OF USAGE EXAMPLE 2\n"
                              "=======================\n";
 
-        // Call 'example2' with will recurse 'depth' times, then print a stack
+        // Call `example2` with will recurse `depth` times, then print a stack
         // trace.
 
         int depth = 5;
@@ -2016,12 +2016,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE ONE
         //
         // Concerns:
-        //: 1 That the usage example that uses 'loadStackTraceFrameStack'
-        //:   works.
+        // 1. That the usage example that uses `loadStackTraceFrameStack`
+        //    works.
         //
         // Plan:
-        //: 1 Call the routines in the usage example to observe that the
-        //:   example compiles and works.
+        // 1. Call the routines in the usage example to observe that the
+        //    example compiles and works.
         //
         // Testing:
         //   USAGE 1
@@ -2030,7 +2030,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TEST OF USAGE EXAMPLE 1\n"
                              "=======================\n";
 
-        // Call 'example1' with will recurse 'depth' times, then print a stack
+        // Call `example1` with will recurse `depth` times, then print a stack
         // trace.
 
         int depth = 5;
@@ -2043,12 +2043,12 @@ int main(int argc, char *argv[])
         // TESTING RESOLUTION DISABLE
         //
         // Concern:
-        //: 1 'balst::StackTraceConfigurationUtil' has ability to
-        //:   disable / enable symbol resolution.
+        // 1. `balst::StackTraceConfigurationUtil` has ability to
+        //    disable / enable symbol resolution.
         //
         // Plan:
-        //: 1 Disable resolution.  Load a stack trace.  Observe that addresses
-        //:   are known, but nothing else is.
+        // 1. Disable resolution.  Load a stack trace.  Observe that addresses
+        //    are known, but nothing else is.
         //
         // Testing:
         //   balst::StackTraceConfigurationUtil
@@ -2111,21 +2111,21 @@ int main(int argc, char *argv[])
         // TESTING: Stack Trace With Many Components
         //
         // Concerns:
-        //: o Test a stack trace on addresses from many components.  The other
-        //:   tests in involve exclusively addresses from this test driver
-        //:   which, containing 'main', may be an atypical component within
-        //:   the object.  This waw particularly a concern when testing DWARF
-        //:   for gcc-7.1.0.
+        //  - Test a stack trace on addresses from many components.  The other
+        //    tests in involve exclusively addresses from this test driver
+        //    which, containing `main`, may be an atypical component within
+        //    the object.  This waw particularly a concern when testing DWARF
+        //    for gcc-7.1.0.
         //
         // Plan:
-        //: o Load a ptr buffer with addresses of functions outside this
-        //:   component, then resolve it and observe that names are found and,
-        //:   if supported, file names and line numbers.
-        //:
-        //: o Note that it wasn't possible to statically define a table like is
-        //:   normally done in bde test drivers, because g++ gave warnings
-        //:   whenever a non-static member function was cast to a 'void *' or
-        //:   'UintPtr'.
+        //  - Load a ptr buffer with addresses of functions outside this
+        //    component, then resolve it and observe that names are found and,
+        //    if supported, file names and line numbers.
+        //
+        //  - Note that it wasn't possible to statically define a table like is
+        //    normally done in bde test drivers, because g++ gave warnings
+        //    whenever a non-static member function was cast to a `void *` or
+        //    `UintPtr`.
         //
         // Testing:
         //   STACK TRACE WITH MANY COMPONENTS
@@ -2143,13 +2143,13 @@ int main(int argc, char *argv[])
         if (!k_NON_WALKBACK_FUNCTION_PTRS_RESOLVABLE &&
                               (!verbose || bsl::strcmp(argv[2], "override"))) {
             // The Windows resolver can't resolve function ptrs taken via
-            // '&<symbolName>'.  It seems to work just fine on ptrs harvested
+            // `&<symbolName>`.  It seems to work just fine on ptrs harvested
             // via a stack walkback, just not on function ptrs.  Perhaps when
             // we get to the version after MSVC 2017 (cl-19.10) it will start
             // to work out.
             //
             // I experimented with taking pointers from the location pointed at
-            // by the '&<symbolName>' pointers, and from locations at various
+            // by the `&<symbolName>` pointers, and from locations at various
             // offsets from that, but this always resulted in complete failure.
 
             cout << "Test 14 Disabled on Windows up through MSVC 2017.\n";
@@ -2202,12 +2202,12 @@ int main(int argc, char *argv[])
                                     "totalNanoseconds", "bsls_timeinterval.h");
 
 //      This part of the test was eliminated, because the lib containing
-//      'math.h' symbols seems to be stripped of DWARF symbols, so we aren't
+//      `math.h` symbols seems to be stripped of DWARF symbols, so we aren't
 //      really able to test DWARF here.
 //
 //      ASSERT(0.0 == ::sin(0.0));              // make sure the lib is loaded
 //      typedef double (*SinCall)(double);      // Avoid compiler complaints
-//                                              // about 'sin' being
+//                                              // about `sin` being
 //      SinCall sinPtr = &bsl::sin;             // overloaeded.
 //
 //      TC::pushVec(&v, L_, sinPtr, "", "sin", 0);
@@ -2362,21 +2362,21 @@ int main(int argc, char *argv[])
         // TESTING: Potential Memory Leak (see DRQS 42134199)
         //
         // Concerns:
-        //: 1 That heap memory allocated when resolving symbols is reclaimed.
+        // 1. That heap memory allocated when resolving symbols is reclaimed.
         //
         // Plan:
-        //: 1 Resolve symbols repeatedly and observe, using 'sbrk', that the
-        //:   stack top remains constant (note that the stack top will grow
-        //:   for the first several iterations due to memory fragmentation,
-        //:   but should eventually settle down into 100% of memory being
-        //:   reclaimed.
+        // 1. Resolve symbols repeatedly and observe, using `sbrk`, that the
+        //    stack top remains constant (note that the stack top will grow
+        //    for the first several iterations due to memory fragmentation,
+        //    but should eventually settle down into 100% of memory being
+        //    reclaimed.
         // --------------------------------------------------------------------
 
 #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
         if (verbose) cout << "Memory Leak Test is Performed on Unix Only\n"
                              "==========================================\n";
 #elif defined(BSLS_PLATFORM_OS_DARWIN)
-        if (verbose) cout << "Test Disabled: 'sbrk' Deprecated on Darwin\n"
+        if (verbose) cout << "Test Disabled: `sbrk` Deprecated on Darwin\n"
                              "==========================================\n";
 #else
         if (verbose) cout << "Memory Leak Test\n"
@@ -2412,7 +2412,7 @@ int main(int argc, char *argv[])
         // TESTING PRINT HEX TRACE
         //
         // Concerns:
-        //   That 'Util::printHexStackTrace;' outputs the correct function
+        //   That `Util::printHexStackTrace;` outputs the correct function
         //   pointers.
         //
         // Plan:
@@ -2440,11 +2440,11 @@ int main(int argc, char *argv[])
         // TESTING << HEX TRACE
         //
         // Concerns:
-        //   That 'stream << Util::hexStackTrace;' outputs the correct
+        //   That `stream << Util::hexStackTrace;` outputs the correct
         //   function pointers.
         //
         // Plan:
-        //: 1 Do the output to a stringstream, then parse the hex pointers, put
+        // 1. Do the output to a stringstream, then parse the hex pointers, put
         //    them into a stack trace and resolve them and verify that results
         //    in the expected symbols.
         //
@@ -2473,7 +2473,7 @@ int main(int argc, char *argv[])
         //   demangling that aren't BDE code, might not be thread-safe.
         //
         // Plan:
-        //: 1 Repeatedly do stack traces in 2 threads simultaneously.  Don't
+        // 1. Repeatedly do stack traces in 2 threads simultaneously.  Don't
         //    bother streaming them -- the streaming code is entirely ours and
         //    we know it's safe.
         //
@@ -2510,24 +2510,24 @@ int main(int argc, char *argv[])
         // TESTING LINE #'S AND OFFSETS
         //
         // Concern:
-        //: 1 That the line numbers are accurate
-        //: 2 The offsets are consistent with the addresses.
+        // 1. That the line numbers are accurate
+        // 2. The offsets are consistent with the addresses.
         //
         // Plan:
-        //: 1 Within one routine, take stack traces 3 times in a row to 3 stack
-        //:   trace objects.
-        //: 2 On the line after each stack trace is taken, store the line
-        //:   number by assigning to ints from '__LINE__'.
-        //: 3 Verify that the symbol name for the top frame of the 3 stack
-        //:   trace objects is correct.
-        //: 4 Verify that the line numbers from the top frames of the 3 stack
-        //:   trace objects match the line numbers we saved to ints.
-        //: 5 Verify that the offsets from the top frames of the 3 stack trace
-        //:   objects are in the right order.
-        //: 6 Verify that the addresses from the top frames of the 3 stack
-        //:   trace objects are in the right order.
-        //: 7 Verify that the differences between the offsets are the same as
-        //:   the differences between the addresses from those frames.
+        // 1. Within one routine, take stack traces 3 times in a row to 3 stack
+        //    trace objects.
+        // 2. On the line after each stack trace is taken, store the line
+        //    number by assigning to ints from `__LINE__`.
+        // 3. Verify that the symbol name for the top frame of the 3 stack
+        //    trace objects is correct.
+        // 4. Verify that the line numbers from the top frames of the 3 stack
+        //    trace objects match the line numbers we saved to ints.
+        // 5. Verify that the offsets from the top frames of the 3 stack trace
+        //    objects are in the right order.
+        // 6. Verify that the addresses from the top frames of the 3 stack
+        //    trace objects are in the right order.
+        // 7. Verify that the differences between the offsets are the same as
+        //    the differences between the addresses from those frames.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING LINE #'S AND OFFSETS\n"
@@ -2535,7 +2535,7 @@ int main(int argc, char *argv[])
 
         enum { DATA_POINTS = 6 };
 
-        // Note that 'traces' (stack TRACES), 'ln' (Line NumberS), and 'GET_ST'
+        // Note that `traces` (stack TRACES), `ln` (Line NumberS), and `GET_ST`
         // (GET Stack Trace) must have very short names since it is imperative
         // that we be able do several things on a single 79 column line.
 
@@ -2569,7 +2569,7 @@ int main(int argc, char *argv[])
         // We make the assignment conditional on the result of the preceding
         // call, to prevent any clever compilers from anticipating the only
         // assignment to lnsRet[*] and assigning them at variable creation and
-        // putting *NO* executable statement where we're assigning '__LINE__'.
+        // putting *NO* executable statement where we're assigning `__LINE__`.
 
         GET_ST(&traces[0]); lnsRet[0] = 0 == rc ? __LINE__ : -1;
         lnsCall[0] = lnsRet[0];
@@ -2675,16 +2675,16 @@ int main(int argc, char *argv[])
         // TESTING WITH FPRINTF
         //
         // Concern:
-        //: 1 On some platforms, streaming the stacktrace out calls 'malloc'.
-        //:   Provide a test that does a stack trace without using any C++
-        //:   streaming to enable debugging with minimal calls to 'malloc', at
-        //:   least on those platforms where 'printf' doesn't call 'malloc'.
+        // 1. On some platforms, streaming the stacktrace out calls `malloc`.
+        //    Provide a test that does a stack trace without using any C++
+        //    streaming to enable debugging with minimal calls to `malloc`, at
+        //    least on those platforms where `printf` doesn't call `malloc`.
         //
         // Plan:
-        //: 1 Do a test case that won't stream out unless an assert fails, that
-        //:   otherwise does output with 'printf' only.
-        //: 2 On Unix, write the output to "/dev/null" to detect whether a
-        //:   segfault will occur duing output.
+        // 1. Do a test case that won't stream out unless an assert fails, that
+        //    otherwise does output with `printf` only.
+        // 2. On Unix, write the output to "/dev/null" to detect whether a
+        //    segfault will occur duing output.
         // --------------------------------------------------------------------
 
         // setbuf(stdout, 0);
@@ -2701,18 +2701,18 @@ int main(int argc, char *argv[])
         // TESTING LARGE SYMBOLS
         //
         // Concerns:
-        //: 1 That the package can resolve large symbols.
+        // 1. That the package can resolve large symbols.
         //
         // Plan:
         //   The expected max symbol size is a 1999 bytes on Windows,
         //   and a little less than 32K on Unix.  Verify that we can go near
         //   these limits.
         //
-        //: 1 Create a routine with a very long name, which does a stack
-        //:   trace.  Call that routine.
-        //: 2 Within that routine, do the stack trace and examine the lengths
-        //:   of the symbols encountered on the stack trace, and ensure that
-        //:   on of them is indeed as long as we intended.
+        // 1. Create a routine with a very long name, which does a stack
+        //    trace.  Call that routine.
+        // 2. Within that routine, do the stack trace and examine the lengths
+        //    of the symbols encountered on the stack trace, and ensure that
+        //    on of them is indeed as long as we intended.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "LARGE SYMBOL TESTING\n"
@@ -2771,16 +2771,16 @@ int main(int argc, char *argv[])
         // TEST OF RECURSIVE DEEP TRACE
         //
         // Concerns:
-        //: 1 That the stack trace utility will work properly on a deep
-        //:   stack trace.
+        // 1. That the stack trace utility will work properly on a deep
+        //    stack trace.
         //
         // Plan:
-        //: 1 Deeply recurse within a routine, then call the routine
-        //:   'case_5_top', which will create a stack trace object and populate
-        //:   it using 'loadStackTraceFrameStack'.
-        //: 2 Verify that the source file names and symbol names in the stack
-        //:   trace object are as expected.
-        //: 3 Repeat the test twice, once with demangling and once without.
+        // 1. Deeply recurse within a routine, then call the routine
+        //    `case_5_top`, which will create a stack trace object and populate
+        //    it using `loadStackTraceFrameStack`.
+        // 2. Verify that the source file names and symbol names in the stack
+        //    trace object are as expected.
+        // 3. Repeat the test twice, once with demangling and once without.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TEST OF RECURSIVE DEEP TRACE WITH FUNCTOR\n"
@@ -2813,17 +2813,17 @@ int main(int argc, char *argv[])
         // TEST OF loadStackTraceFrameStack
         //
         // Concern:
-        //: 1 That 'loadStackTraceFrameStack' produces a proper stack trace.
+        // 1. That `loadStackTraceFrameStack` produces a proper stack trace.
         //
         // Plan:
-        //: 1 Create a stack trace object, then populate it using
-        //:   'loadStackTraceFrameStack'.
-        //: 2 Do sanity checks on the stack trace object.
-        //: 3 Output the stack trace object to a stringstream using
-        //:   'printFormatted'.
-        //: 4 Confirm that the expected routine names are in the string prodced
-        //:   by the stringstream, in the right order.
-        //: 5 Repeat the test twice, with and without demangling enabled.
+        // 1. Create a stack trace object, then populate it using
+        //    `loadStackTraceFrameStack`.
+        // 2. Do sanity checks on the stack trace object.
+        // 3. Output the stack trace object to a stringstream using
+        //    `printFormatted`.
+        // 4. Confirm that the expected routine names are in the string prodced
+        //    by the stringstream, in the right order.
+        // 5. Repeat the test twice, with and without demangling enabled.
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
@@ -2846,23 +2846,23 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TEST OF STACK TRACE USING 'getStackAddresses' /
-        //                                    'loadStackTraceFrameAddressArray'
+        // TEST OF STACK TRACE USING `getStackAddresses` /
+        //                                    `loadStackTraceFrameAddressArray`
         //
         // Concerns:
-        //: 1 That the combination of 'getStackAddresses' and
-        //:   'loadStackTraceFrameAddressArray' produces a proper stack trace.
+        // 1. That the combination of `getStackAddresses` and
+        //    `loadStackTraceFrameAddressArray` produces a proper stack trace.
         //
         // Plan:
-        //: 1 Call 'getStackAddresses' followed by
-        //:   'loadStackTraceFrameAddressArray' to populate a stack trace
-        //:   object.
-        //: 2 Run sanity checks on the stack trace.
-        //: 3 Output the stack trace to a stringstream using '<<'.
-        //: 4 Verify that the expected routine names were output to the
-        //:   stringstream, in the right order.
-        //: 5 Repeat the whole test twice, once with & without demangling
-        //:   enabled.
+        // 1. Call `getStackAddresses` followed by
+        //    `loadStackTraceFrameAddressArray` to populate a stack trace
+        //    object.
+        // 2. Run sanity checks on the stack trace.
+        // 3. Output the stack trace to a stringstream using `<<`.
+        // 4. Verify that the expected routine names were output to the
+        //    stringstream, in the right order.
+        // 5. Repeat the whole test twice, once with & without demangling
+        //    enabled.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TEST OF DIRECT CALL TO getStackAddresses\n"
@@ -2890,25 +2890,25 @@ int main(int argc, char *argv[])
         // PRINT, OPERATOR<<, PRINTFORMATTED AND STREAM TEST
         //
         // Concerns:
-        //: 1 That 'printFormatted' writes to the specified 'ostream'.
-        //: 2 That the strings that are output are non-zero.
-        //: 3 That the streams returned are the same streams that are passed
-        //:   in.
-        //: 4 That the output contains the expected routine
-        //:   names.
-        //: 5 That neither function allocates any memory from the default
-        //:   allocator.
+        // 1. That `printFormatted` writes to the specified `ostream`.
+        // 2. That the strings that are output are non-zero.
+        // 3. That the streams returned are the same streams that are passed
+        //    in.
+        // 4. That the output contains the expected routine
+        //    names.
+        // 5. That neither function allocates any memory from the default
+        //    allocator.
         //
         // Plan:
-        //: 1 Create a stack trace object.
-        //: 2 Output the stack trace object to a stringstream using
-        //:   'print', 'operator<<', and 'printFormatted'.
-        //:   1 Verify that the string produced contains the expected routine
-        //:     names, in the right order.
-        //:   2 Verify that the reference returned by the output function
-        //:     operation refers to the stream passed in.
-        //: 3 Verify that the default allocator was not used by any of these
-        //:   functions.
+        // 1. Create a stack trace object.
+        // 2. Output the stack trace object to a stringstream using
+        //    `print`, `operator<<`, and `printFormatted`.
+        //   1. Verify that the string produced contains the expected routine
+        //      names, in the right order.
+        //   2. Verify that the reference returned by the output function
+        //      operation refers to the stream passed in.
+        // 3. Verify that the default allocator was not used by any of these
+        //    functions.
         // --------------------------------------------------------------------
 
         namespace TC = CASE_2;
@@ -2926,18 +2926,18 @@ int main(int argc, char *argv[])
         // LOADSTACKTRACEFROMADDRESSARRAY & LOADSTACKTRACEFROMSTACK TEST
         //
         // Concerns:
-        //: 1 That 'loadStackTraceFromAddressArray' correctly loads and
-        //:   resolves addresses passed in.
-        //: 2 That 'loadStackTraceFromStack' correctly loads a stack trace
-        //:   directly from the stack.
+        // 1. That `loadStackTraceFromAddressArray` correctly loads and
+        //    resolves addresses passed in.
+        // 2. That `loadStackTraceFromStack` correctly loads a stack trace
+        //    directly from the stack.
         // Plan:
-        //: 1 Get several subroutines deep on the stack.
-        //:   1 load a stack trace using
-        //:     'bsls::StackAddressUtil::getStackAddresses' and then initialize
-        //:     a stack trace using 'loadStackTraceFromAddressArray'.
-        //:   2 verify the subroutine names on the stack trace.
-        //:   3 load another stack trace using 'loadStackTraceFromStack'.
-        //:   4 verify the subroutine names on the stack trace.
+        // 1. Get several subroutines deep on the stack.
+        //   1. load a stack trace using
+        //      `bsls::StackAddressUtil::getStackAddresses` and then initialize
+        //      a stack trace using `loadStackTraceFromAddressArray`.
+        //   2. verify the subroutine names on the stack trace.
+        //   3. load another stack trace using `loadStackTraceFromStack`.
+        //   4. verify the subroutine names on the stack trace.
         // --------------------------------------------------------------------
 
         namespace TC = CASE_1;

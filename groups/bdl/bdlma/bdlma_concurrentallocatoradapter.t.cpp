@@ -19,8 +19,8 @@
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
-#include <bsl_cstdlib.h>                         // 'atoi'
-#include <bsl_cstring.h>                         // 'memcpy', 'memset'
+#include <bsl_cstdlib.h>                         // `atoi`
+#include <bsl_cstring.h>                         // `memcpy`, `memset`
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -30,16 +30,16 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The 'bdlma::ConcurrentAllocatorAdapter' class consists of one constructor, a
+// The `bdlma::ConcurrentAllocatorAdapter` class consists of one constructor, a
 // destructor, and four manipulators.  The manipulators are used to allocate,
 // deallocate, and reserve memory.  Since this component is a memory manager,
-// the 'bslma_testallocator' component is used extensively to verify expected
+// the `bslma_testallocator` component is used extensively to verify expected
 // behaviors.  Note that the copying of objects is explicitly disallowed since
-// the copy constructor and assignment operator are declared 'private' and left
+// the copy constructor and assignment operator are declared `private` and left
 // unimplemented.  So we are primarily concerned that the internal memory
 // management system functions as expected and that the manipulators operator
 // correctly.  Note that memory allocation must be tested for exception
-// neutrality (also via the 'bslma_testallocator' component).  Several small
+// neutrality (also via the `bslma_testallocator` component).  Several small
 // helper functions are also used to facilitate testing.
 //-----------------------------------------------------------------------------
 // [2] bdlma::ConcurrentAllocatorAdapter(int               numPools,
@@ -103,10 +103,10 @@ typedef bdlma::ConcurrentAllocatorAdapter Obj;
 //                      HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// The NoopAllocator is an empty implementation of the `bslma::Allocator`
+/// protocol that tracks the methods called and verifies the
+/// `bslma::Allocator` protocol.
 class NoopAllocator : public bslma::Allocator{
-    // The NoopAllocator is an empty implementation of the 'bslma::Allocator'
-    // protocol that tracks the methods called and verifies the
-    // 'bslma::Allocator' protocol.
 
   private:
     char const **d_lastMethod;  // the last method called on this instance
@@ -114,29 +114,32 @@ class NoopAllocator : public bslma::Allocator{
   public:
 
     // CREATORS
+
+    /// Create this `NoopAllocator` with the specified `lastMethod` to store
+    /// the last method called.
     NoopAllocator(char const **lastMethod)
-        // Create this 'NoopAllocator' with the specified 'lastMethod' to store
-        // the last method called.
     : d_lastMethod(lastMethod)
     {
         *d_lastMethod = "NoopAllocator";
     }
 
+    /// Destroy this `NoopAllocator`
     ~NoopAllocator() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this 'NoopAllocator'
 
     // MANIPULATORS
-    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
-        // This method has no effect for this allocator except that a
-        // subsequent call to 'lastMethod()' will return 'allocate'.
 
+    /// This method has no effect for this allocator except that a
+    /// subsequent call to `lastMethod()` will return `allocate`.
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
+
+    /// This method has no effect for this allocator except that a
+    /// subsequent call to `lastMethod()` will return `deallocate`.
     void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
-        // This method has no effect for this allocator except that a
-        // subsequent call to 'lastMethod()' will return 'deallocate'.
 
     // ACCESSORS
+
+    /// Return the last method called on this `NoopAllocator` instance.
     const char *lastMethod() { return *d_lastMethod; }
-        // Return the last method called on this 'NoopAllocator' instance.
 };
 
 NoopAllocator::~NoopAllocator()
@@ -168,15 +171,16 @@ struct WorkerArgs {
 };
 
 bslmt::Barrier g_barrier(k_NUM_THREADS);
+
+/// Perform a series of allocate, and deallocate operations on the
+/// `bdlma::ConcurrentAllocatorAdapter` and verify their results.  This
+/// operation is intended to be a thread entry point.  Cast the specified
+/// `args` to a `WorkerArgs`, and perform a series of
+/// `(WorkerArgs *)args->d_numSizes` allocations using the corresponding
+/// allocations sizes specified by `(WorkerARgs *)args->d_sizes`.  Use the
+/// barrier `g_barrier` to ensure tests are performed while the allocator is
+/// in the correct state.
 extern "C" void *workerThread(void *arg) {
-    // Perform a series of allocate, and deallocate operations on the
-    // 'bdlma::ConcurrentAllocatorAdapter' and verify their results.  This
-    // operation is intended to be a thread entry point.  Cast the specified
-    // 'args' to a 'WorkerArgs', and perform a series of
-    // '(WorkerArgs *)args->d_numSizes' allocations using the corresponding
-    // allocations sizes specified by '(WorkerARgs *)args->d_sizes'.  Use the
-    // barrier 'g_barrier' to ensure tests are performed while the allocator is
-    // in the correct state.
 
     WorkerArgs *args = (WorkerArgs *) arg;
     ASSERT(0 != args);
@@ -212,15 +216,16 @@ extern "C" void *workerThread(void *arg) {
 
 ///Usage
 ///-----
-// In the following usage example, we develop a simple 'AddressBook' class
+// In the following usage example, we develop a simple `AddressBook` class
 // containing two thread-enabled vectors of strings: one for names, the other
-// for addresses.  We use a 'bdlma::ConcurrentAllocatorAdapter' to synchronize
+// for addresses.  We use a `bdlma::ConcurrentAllocatorAdapter` to synchronize
 // memory allocations across our two thread-enabled vectors.  For the purpose
 // of this discussion, we first define a simple thread-enabled vector:
-//..
+// ```
+
+    /// This class defines a trivial thread-enabled vector.
     template <class TYPE>
     class ThreadEnabledVector {
-        // This class defines a trivial thread-enabled vector.
 
         // DATA
         mutable bslmt::Mutex d_mutex;     // synchronize access
@@ -232,68 +237,72 @@ extern "C" void *workerThread(void *arg) {
 
       public:
         // CREATORS
+
+        /// Create a thread-enabled vector.  Optionally specify a
+        /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+        /// 0, the currently installed default allocator is used.
         ThreadEnabledVector(bslma::Allocator *basicAllocator = 0)
-            // Create a thread-enabled vector.  Optionally specify a
-            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-            // 0, the currently installed default allocator is used.
         : d_elements(basicAllocator)
         {
         }
 
+        /// Destroy this thread-enabled vector object.
         ~ThreadEnabledVector() {}
-            // Destroy this thread-enabled vector object.
 
         // MANIPULATORS
+
+        /// Append the specified `value` to this thread-enabled vector and
+        /// return the index of the new element.
         int pushBack(const TYPE& value)
-            // Append the specified 'value' to this thread-enabled vector and
-            // return the index of the new element.
         {
             bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
             d_elements.push_back(value);
             return static_cast<int>(d_elements.size()) - 1;
         }
 
+        /// Set the element at the specified `index` in this thread-enabled
+        /// vector to the specified `value`.  The behavior is undefined
+        /// unless `0 <= index < length()`.
         void set(int index, const TYPE& value)
-            // Set the element at the specified 'index' in this thread-enabled
-            // vector to the specified 'value'.  The behavior is undefined
-            // unless '0 <= index < length()'.
         {
             bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
             d_elements[index] = value;
         }
 
         // ACCESSORS
+
+        /// Return the value of the element at the specified `index` in this
+        /// thread-enabled vector.  Note that elements are returned *by*
+        /// *value* because references to elements managed by this container
+        /// may be invalidated by another thread.
         TYPE element(int index) const
-            // Return the value of the element at the specified 'index' in this
-            // thread-enabled vector.  Note that elements are returned *by*
-            // *value* because references to elements managed by this container
-            // may be invalidated by another thread.
         {
             bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
             return d_elements[index];
         }
 
+        /// Return the number of elements in this thread-enabled vector.
         int length() const
-            // Return the number of elements in this thread-enabled vector.
         {
             bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
             return static_cast<int>(d_elements.size());
         }
     };
-//..
+// ```
 // We use this thread-enabled vector to create a AddressBook class.  However,
-// we use the 'bdlma::ConcurrentAllocatorAdapter' to prevent our two
+// we use the `bdlma::ConcurrentAllocatorAdapter` to prevent our two
 // (thread-enabled) vectors from attempting synchronous memory allocations from
-// our (potentially) non-thread safe 'bslma::Allocator'.  Note that we define a
-// local class, 'AddressBook_PrivateData', in order to guarantee that
-// 'd_allocatorAdapter' and 'd_mutex' are initialized before the thread-enabled
+// our (potentially) non-thread safe `bslma::Allocator`.  Note that we define a
+// local class, `AddressBook_PrivateData`, in order to guarantee that
+// `d_allocatorAdapter` and `d_mutex` are initialized before the thread-enabled
 // vectors that depend on them:
-//..
+// ```
+
+    /// This `struct` contains a mutex and an allocator adapter.  The
+    /// `AddressBook` class will inherit from this structure, ensuring that
+    /// the mutex and adapter are initialized before other member variables
+    /// that depend on them.
     struct AddressBook_PrivateData {
-        // This 'struct' contains a mutex and an allocator adapter.  The
-        // 'AddressBook' class will inherit from this structure, ensuring that
-        // the mutex and adapter are initialized before other member variables
-        // that depend on them.
 
       private:
         // Not implemented:
@@ -305,21 +314,21 @@ extern "C" void *workerThread(void *arg) {
         bdlma::ConcurrentAllocatorAdapter
                               d_allocatorAdapter;  // adapter for allocator
 
+        /// Create a empty AddressBook private data object.  Optionally
+        /// specify a `basicAllocator` used to supply memory.  If
+        /// `basicAllocator` is 0, the currently installed default allocator
+        /// is used.
         AddressBook_PrivateData(bslma::Allocator *basicAllocator = 0)
-            // Create a empty AddressBook private data object.  Optionally
-            // specify a 'basicAllocator' used to supply memory.  If
-            // 'basicAllocator' is 0, the currently installed default allocator
-            // is used.
         : d_allocatorAdapter(&d_mutex, basicAllocator)
         {
         }
     };
 
+    /// This `class` defines a thread-enabled AddressBook containing vectors
+    /// of names and addresses.  Note that this class uses private
+    /// inheritance to ensure that the allocator adapter and mutex are
+    /// initialized before the vectors of names and addresses.
     class AddressBook : private AddressBook_PrivateData {
-        // This 'class' defines a thread-enabled AddressBook containing vectors
-        // of names and addresses.  Note that this class uses private
-        // inheritance to ensure that the allocator adapter and mutex are
-        // initialized before the vectors of names and addresses.
 
         // DATA
         ThreadEnabledVector<bsl::string> d_names;      // list of names
@@ -331,65 +340,68 @@ extern "C" void *workerThread(void *arg) {
 
       public:
         // CREATORS
+
+        /// Create an empty AddressBook for storing names and addresses.
+        /// Optionally specify a `basicAllocator` used to supply memory.  If
+        /// `basicAllocator` is 0, the currently installed default allocator
+        /// is used.
         AddressBook(bslma::Allocator *basicAllocator = 0)
-            // Create an empty AddressBook for storing names and addresses.
-            // Optionally specify a 'basicAllocator' used to supply memory.  If
-            // 'basicAllocator' is 0, the currently installed default allocator
-            // is used.
         : AddressBook_PrivateData(basicAllocator)
         , d_names(&d_allocatorAdapter)
         , d_addresses(&d_allocatorAdapter)
         {
         }
 
+        /// Destroy this AddressBook.
         ~AddressBook()
-            // Destroy this AddressBook.
         {
         }
 
         // MANIPULATORS
+
+        /// Add the specified `name` to this AddressBook and return the
+        /// index of the newly-added name.
         int addName(const bsl::string& name)
-            // Add the specified 'name' to this AddressBook and return the
-            // index of the newly-added name.
         {
             return d_names.pushBack(name);
         }
 
+        /// Add the specified `address` to this AddressBook and return the
+        /// index of the newly-added address.
         int addAddress(const bsl::string& address)
-            // Add the specified 'address' to this AddressBook and return the
-            // index of the newly-added address.
         {
             return d_addresses.pushBack(address);
         }
 
         // ACCESSORS
+
+        /// Return the value of the name at the specified `index` in this
+        /// AddressBook.
         bsl::string name(int index) const
-            // Return the value of the name at the specified 'index' in this
-            // AddressBook.
         {
             return d_names.element(index);
         }
 
+        /// Return the value of the address at the specified `index` in this
+        /// AddressBook.
         bsl::string address(int index) const
-            // Return the value of the address at the specified 'index' in this
-            // AddressBook.
         {
             return d_addresses.element(index);
         }
 
+        /// Return the number of names in this AddressBook.
         int numNames() const
-            // Return the number of names in this AddressBook.
         {
             return d_names.length();
         }
 
+        /// Return the number of addresses in this AddressBook.
         int numAddresses() const
-            // Return the number of addresses in this AddressBook.
         {
             return d_addresses.length();
         }
     };
-//..
+// ```
 
 //=============================================================================
 //                                MAIN PROGRAM
@@ -420,7 +432,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -492,12 +504,12 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   We are concerned that the basic functionality of
-        //   'bdlma::ConcurrentAllocatorAdapter' works
+        //   `bdlma::ConcurrentAllocatorAdapter` works
         //   properly.
         //
         // Plan:
         //   Create a NoopAllocator and supply it to a
-        //   'bdlma::ConcurrentAllocatorAdapter' under test.  Verify that
+        //   `bdlma::ConcurrentAllocatorAdapter` under test.  Verify that
         //   operations on the allocator are delegated to the no-op allocator.
         //
         // Testing:

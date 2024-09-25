@@ -6,7 +6,7 @@
 #include <bslmf_isbitwisecopyable.h>
 
 #include <bsl_cstddef.h>
-#include <bsl_cstdlib.h>        // 'bsl::atoi'
+#include <bsl_cstdlib.h>        // `bsl::atoi`
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
@@ -26,21 +26,21 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-// The component under the test is an attribute class 'bdld::DatumBinaryRef'.
+// The component under the test is an attribute class `bdld::DatumBinaryRef`.
 //
-// Create a 'DatumBinaryRef' object and verify that values were correctly
-// passed down to the 'd_data_p' and 'd_size' data members.  Also exercise the
+// Create a `DatumBinaryRef` object and verify that values were correctly
+// passed down to the `d_data_p` and `d_size` data members.  Also exercise the
 // copy construction and assignment operator functionality and verify using the
 // equality operator that these objects have the same value.  Verify that all
 // comparison operators work as expected.  Verify that streaming operator
 // outputs the correctly formatted value.
 //
-//: o Primary Manipulators:
-//:   - DatumBinaryRef();
-//:   - DatumBinaryRef(const void* data, int type);
-//: o Basic Accessors:
-//:   - const void *data() const;
-//:   - SizeType size() const;
+//  - Primary Manipulators:
+//    - DatumBinaryRef();
+//    - DatumBinaryRef(const void* data, int type);
+//  - Basic Accessors:
+//    - const void *data() const;
+//    - SizeType size() const;
 //
 //-----------------------------------------------------------------------------
 // CREATORS
@@ -157,19 +157,20 @@ enum CompareResult {
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic 'DatumBinaryRef' usage
+///Example 1: Basic `DatumBinaryRef` usage
 ///- - - - - - - - - - - - - - - - - - - -
 // Suppose we have three functions. Data are obtained in the first one (with
 // memory allocation), processed in the second one and released (with memory
 // deallocation) in the third one.  The following code illustrates how to use
-// 'bdld::DatumBinaryRef' to pass information about memory storage between
+// `bdld::DatumBinaryRef` to pass information about memory storage between
 // them.
 //
 // First, we write all three functions:
-//..
+// ```
+
+    /// Allocate array of the specified `size` and initialize it with some
+    /// values.
     bdld::DatumBinaryRef obtainData(size_t size)
-        // Allocate array of the specified 'size' and initialize it with some
-        // values.
     {
         if (0 == size) {
             return bdld::DatumBinaryRef();                            // RETURN
@@ -181,8 +182,8 @@ enum CompareResult {
         return bdld::DatumBinaryRef(static_cast<void *>(buffer), size);
     }
 
+    /// Process data, held by the specified `binaryData` object.
     int processData(const bdld::DatumBinaryRef& binaryData)
-        // Process data, held by the specified 'binaryData' object.
     {
         ostringstream out;
         binaryData.print(out);
@@ -199,13 +200,13 @@ enum CompareResult {
         return result;
     }
 
+    /// Release memory, held by the specified `binaryData` object.
     void releaseData(const bdld::DatumBinaryRef& binaryData)
-        // Release memory, held by the specified 'binaryData' object.
     {
         const int *array = static_cast<const int *>(binaryData.data());
         delete [] array;
     }
-//..
+// ```
 
 // ============================================================================
 //                              MAIN PROGRAM
@@ -224,7 +225,7 @@ int main(int argc, char **argv)
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
@@ -234,13 +235,13 @@ int main(int argc, char **argv)
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -249,17 +250,17 @@ int main(int argc, char **argv)
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 // Next, we call first one to obtain data:
-//..
+// ```
     bdld::DatumBinaryRef binaryData = obtainData(5);
-//..
+// ```
 // Then we verify the results of second one's call:
-//..
+// ```
     ASSERT(10 == processData(binaryData));
-//..
+// ```
 // Finally, we release allocated memory:
-//..
+// ```
     releaseData(binaryData);
-//..
+// ```
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -268,10 +269,10 @@ int main(int argc, char **argv)
         //   type traits to reflect this.
         //
         // Concerns:
-        //: 1 The class has the bsl::is_trivially_copyable trait.
+        // 1. The class has the bsl::is_trivially_copyable trait.
         //
         // Plan:
-        //: 1 ASSERT the presence of each trait required by the type.  (C-1)
+        // 1. ASSERT the presence of each trait required by the type.  (C-1)
         //
         // Testing:
         //   TYPE TRAITS
@@ -289,13 +290,13 @@ int main(int argc, char **argv)
         // TESTING STREAM OUTPUT
         //
         // Concerns:
-        //: 1 Stream output operator and 'print' method put object's value to
-        //:   the specified stream in expected format.
+        // 1. Stream output operator and `print` method put object's value to
+        //    the specified stream in expected format.
         //
         // Plan:
-        //: 1 Create several 'DatumBinaryRef' objects with different values,
-        //:   put their values to the stream / print their values and verify
-        //:   that stream contains data in expected format.  (C-1)
+        // 1. Create several `DatumBinaryRef` objects with different values,
+        //    put their values to the stream / print their values and verify
+        //    that stream contains data in expected format.  (C-1)
         //
         // Testing:
         //   ostream& print(ostream& s, int level, int spacesPerLevel) const;
@@ -309,7 +310,7 @@ int main(int argc, char **argv)
                              reinterpret_cast<void *>(bsl::size_t(0xDEADBEEF));
         const int    SIZE    = 16;
 
-        if (verbose) cout << "\nTesting 'print'." << endl;
+        if (verbose) cout << "\nTesting `print`." << endl;
         {
 
             if (veryVerbose) cout << "\tSingle line, indent = [0, -1]" << endl;
@@ -371,7 +372,7 @@ int main(int argc, char **argv)
                 ASSERTV(EXPECTED, out.str(), EXPECTED == out.str());
             }
         }
-        if (veryVerbose) cout << "\nTesting 'operator<<'" << endl;
+        if (veryVerbose) cout << "\nTesting `operator<<`" << endl;
         {
             Obj        mB(ADDRESS, SIZE);
             const Obj& B = mB;
@@ -391,30 +392,30 @@ int main(int argc, char **argv)
         //   assignment work as expected.
         //
         // Concerns:
-        //: 1 The copy-constructor sets the same value as has original object
-        //:   to the newly created one.
-        //:
-        //: 2 The copy-constructor leaves the value of the original object
-        //:   unaffected.
-        //:
-        //: 3 The value represented by any instance can be assigned to any
-        //:   other instance.
-        //:
-        //: 4 The 'rhs' value must not be affected by the assignment operation.
-        //:
-        //: 5 Aliasing (x = x): The assignment operator must always work --
-        //:   even when the lhs and rhs are the same object.
+        // 1. The copy-constructor sets the same value as has original object
+        //    to the newly created one.
+        //
+        // 2. The copy-constructor leaves the value of the original object
+        //    unaffected.
+        //
+        // 3. The value represented by any instance can be assigned to any
+        //    other instance.
+        //
+        // 4. The `rhs` value must not be affected by the assignment operation.
+        //
+        // 5. Aliasing (x = x): The assignment operator must always work --
+        //    even when the lhs and rhs are the same object.
         //
         // Plan:
-        //: 1 Create 'DatumBinaryRef' object and it's copy.  Verify sameness of
-        //:   two objects.  Verify that origin object is unaffected.  (C-1..2)
-        //:
-        //: 2 Create 'DatumBinaryRef' object and assign it to another one.
-        //:   Verify  sameness of two objects.  Verify that assigned object is
-        //:   unaffected.  (C-3..4)
-        //:
-        //: 3 Assign object to itself.  Verify that object is unaffected.
-        //:   (C-5)
+        // 1. Create `DatumBinaryRef` object and it's copy.  Verify sameness of
+        //    two objects.  Verify that origin object is unaffected.  (C-1..2)
+        //
+        // 2. Create `DatumBinaryRef` object and assign it to another one.
+        //    Verify  sameness of two objects.  Verify that assigned object is
+        //    unaffected.  (C-3..4)
+        //
+        // 3. Assign object to itself.  Verify that object is unaffected.
+        //    (C-5)
         //
         // Testing:
         //   DatumBinaryRef(const DatumBinaryRef&) = default;
@@ -450,7 +451,7 @@ int main(int argc, char **argv)
             ASSERT(SIZE                       == B1.size());
         }
 
-        if (verbose) cout << "Testing 'operator='." << endl;
+        if (verbose) cout << "Testing `operator=`." << endl;
         {
             Obj        mB1(static_cast<void *>(&data), SIZE);
             const Obj& B1 = mB1;
@@ -490,35 +491,35 @@ int main(int argc, char **argv)
         // TESTING COMPARISON OPERATORS
         //
         // Concerns:
-        //: 1 Two objects compare equal if and only if sizes of their binary
-        //:   data and binary data itself are compare equal.
-        //:
-        //: 2 Each relational operator function reports the intended logical
-        //:   relationship.
-        //:
-        //: 3 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., all relational-comparison operators are free functions).
-        //:
-        //: 4 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //: 5 The equality-comparison operators' signatures and return types
-        //:   are standard.
-        //:
-        //: 6 The relational-comparison operators' signatures and return types
-        //:   are standard.
+        // 1. Two objects compare equal if and only if sizes of their binary
+        //    data and binary data itself are compare equal.
+        //
+        // 2. Each relational operator function reports the intended logical
+        //    relationship.
+        //
+        // 3. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., all relational-comparison operators are free functions).
+        //
+        // 4. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        // 5. The equality-comparison operators' signatures and return types
+        //    are standard.
+        //
+        // 6. The relational-comparison operators' signatures and return types
+        //    are standard.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of
-        //:   'DatumBinaryRef' object pairs , and a flag value indicating their
-        //:   relationship.
-        //:
-        //: 2 For each row 'R' in the table of P-1 verify that each tested
-        //:   operator returns the expected value.  (C-1..4)
-        //:
-        //: 3 Use the respective addresses of operators to initialize function
-        //:   pointers having the appropriate signatures and return types for
-        //:   the operators defined in this component.  (C-5..6)
+        // 1. Using the table-driven technique, specify a set of
+        //    `DatumBinaryRef` object pairs , and a flag value indicating their
+        //    relationship.
+        //
+        // 2. For each row `R` in the table of P-1 verify that each tested
+        //    operator returns the expected value.  (C-1..4)
+        //
+        // 3. Use the respective addresses of operators to initialize function
+        //    pointers having the appropriate signatures and return types for
+        //    the operators defined in this component.  (C-5..6)
         //
         // Testing:
         //   bool operator==(const DatumBinaryRef&, const DatumBinaryRef&);
@@ -684,31 +685,31 @@ int main(int argc, char **argv)
         //   accessors are working as expected also.
         //
         // Concerns:
-        //: 1 All (including internal) relevant states can be reached with
-        //:   primary manipulators.
-        //:
-        //: 2 Accessors return expected values.
-        //:
-        //: 3 'DatumBinaryRef' object can be destroyed.  Destruction doesn't
-        //:   affect binary data, object has pointed to.
-        //:
-        //: 4 Asserted precondition violations are detected when enabled.
+        // 1. All (including internal) relevant states can be reached with
+        //    primary manipulators.
+        //
+        // 2. Accessors return expected values.
+        //
+        // 3. `DatumBinaryRef` object can be destroyed.  Destruction doesn't
+        //    affect binary data, object has pointed to.
+        //
+        // 4. Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create an 'DatumBinaryRef' object using the default constructor
-        //:   and verify that all data members are initialized correctly.
-        //:   (C-1..2)
-        //:
-        //: 2 Create an 'DatumBinaryRef' object using the value constructor and
-        //:   verify that all data members are initialized correctly.  (C-1..2)
-        //:
-        //: 3 Let the 'DatumBinaryRef' object go out the scope.  Verify that
-        //:   binary data isn't affected.  (C-3)
-        //:
-        //: 4 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-4)
+        // 1. Create an `DatumBinaryRef` object using the default constructor
+        //    and verify that all data members are initialized correctly.
+        //    (C-1..2)
+        //
+        // 2. Create an `DatumBinaryRef` object using the value constructor and
+        //    verify that all data members are initialized correctly.  (C-1..2)
+        //
+        // 3. Let the `DatumBinaryRef` object go out the scope.  Verify that
+        //    binary data isn't affected.  (C-3)
+        //
+        // 4. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-4)
         //
         // Testing:
         //   DatumBinaryRef();
@@ -721,7 +722,7 @@ int main(int argc, char **argv)
                          << "PRIMARY MANIPULATORS AND BASIC ACCESSORS" << endl
                          << "========================================" << endl;
 
-        if (verbose) cout << "\nTesting 'DatumBinaryRef()'." << endl;
+        if (verbose) cout << "\nTesting `DatumBinaryRef()`." << endl;
         {
             Obj        mB;
             const Obj& B = mB;
@@ -731,7 +732,7 @@ int main(int argc, char **argv)
         }
 
         if (verbose)
-            cout << "\nTesting 'DatumBinaryRef(void *data, SizeType size)'."
+            cout << "\nTesting `DatumBinaryRef(void *data, SizeType size)`."
                  << endl;
         {
             char       ch = 123;
@@ -770,11 +771,11 @@ int main(int argc, char **argv)
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Developer test sandbox. (C-1)
+        // 1. Developer test sandbox. (C-1)
         //
         // Testing:
         //   BREATHING TEST

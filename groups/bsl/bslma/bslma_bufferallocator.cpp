@@ -18,20 +18,20 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
+/// Allocate a memory block of the specified `size` from the specified
+/// `buffer` at the specified `cursor` position, aligned at the specified
+/// `alignment` boundary.  Return the address of the allocated memory block
+/// if `buffer` contains enough available memory, and `null` otherwise.  The
+/// `cursor` is set to the position of remaining free buffer space after the
+/// allocation.  The behavior is undefined unless
+/// `0 < alignment <= bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT` and alignment
+/// is an integral power of 2.
 static
 void *allocateFromBufferImp(int                               *cursor,
                             char                              *buffer,
                             bslma::BufferAllocator::size_type  bufSize,
                             bslma::BufferAllocator::size_type  size,
                             int                                alignment)
-    // Allocate a memory block of the specified 'size' from the specified
-    // 'buffer' at the specified 'cursor' position, aligned at the specified
-    // 'alignment' boundary.  Return the address of the allocated memory block
-    // if 'buffer' contains enough available memory, and 'null' otherwise.  The
-    // 'cursor' is set to the position of remaining free buffer space after the
-    // allocation.  The behavior is undefined unless
-    // '0 < alignment <= bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT' and alignment
-    // is an integral power of 2.
 
 {
     BSLS_ASSERT(cursor);
@@ -161,9 +161,9 @@ void *BufferAllocator::allocate(size_type size)
 // ACCESSORS
 void BufferAllocator::print() const
 {
+    /// Quell diagnostics that occur whenever a function ptr is cast to
+    /// `void *` by going through this union.
     union {
-        // Quell diagnostics that occur whenever a function ptr is cast to
-        // 'void *' by going through this union.
 
         AllocCallback  d_acb;
         void          *d_p;

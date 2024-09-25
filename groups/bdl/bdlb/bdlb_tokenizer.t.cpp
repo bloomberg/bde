@@ -9,14 +9,14 @@
 #include <bsls_review.h>
 
 #include <bsl_algorithm.h>
-#include <bsl_cstdlib.h>                  // 'bsl::atoi'
-#include <bsl_cstring.h>                  // 'bsl::memcpy', 'bsl::strcmp'
+#include <bsl_cstdlib.h>                  // `bsl::atoi`
+#include <bsl_cstring.h>                  // `bsl::memcpy`, `bsl::strcmp`
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
-#include <string>       // for 'std::string'
+#include <string>       // for `std::string`
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -37,15 +37,15 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-// This component consists of a top-level mechanism, 'Tokenizer', that
+// This component consists of a top-level mechanism, `Tokenizer`, that
 // dispenses in-core value-semantic (standard) input iterators, of type
-// 'TokenizerIterator', which in turn can be used to sequence over tokens
+// `TokenizerIterator`, which in turn can be used to sequence over tokens
 // characterized by "soft" and "hard" delimiter characters maintained in a
-// shared private class, 'Tokenizer_Data'.  The 'Tokenizer' mechanism, though
+// shared private class, `Tokenizer_Data`.  The `Tokenizer` mechanism, though
 // not value-semantic, can also be used to sequence of the tokens a given
 // input, supplied at construction, additionally providing access to the
 // previous and current trailing delimiters.
-//..
+// ```
 //  +--------------------------------------+
 //  |   ,--------------.                   |
 //  |  ( Tokenizer_Data )                  |
@@ -58,64 +58,64 @@ using namespace bsl;
 //  |     `---------'                      |
 //  +--------------------------------------+
 //  bdlb_tokenizer
-//..
-// The plan will be to test the (component private) 'Tokenizer_Data' first,
-// followed by 'Tokenizer' itself, and finally the 'TokenizerIterator', as
+// ```
+// The plan will be to test the (component private) `Tokenizer_Data` first,
+// followed by `Tokenizer` itself, and finally the `TokenizerIterator`, as
 // these iterators are created (and returned by value) only from a valid
-// 'Tokenizer' object.
+// `Tokenizer` object.
 //
 ///Tokenizer_Data
 ///--------------
-//: o Primary Manipulators:
-//:   - Tokenizer_Data(const bsl::string_view& softD,
+//  - Primary Manipulators:
+//    - Tokenizer_Data(const bsl::string_view& softD,
 //                     const bsl::string_view& hardD);
-//: o Basic Accessors:
-//:   - int inputType(char character) const;
+//  - Basic Accessors:
+//    - int inputType(char character) const;
 //
 ///Tokenizer
 ///---------
-//: o Primary Manipulators:
-//:   - Tokenizer(const bsl::string_view& input,
+//  - Primary Manipulators:
+//    - Tokenizer(const bsl::string_view& input,
 //                      const bsl::string_view& soft,
 //                      const bsl::string_view& hard);
-//:   - Tokenizer(const char              *input,
+//    - Tokenizer(const char              *input,
 //                const bsl::string_view&  soft,
 //                const bsl::string_view&  hard);
-//:   - Tokenizer& operator++();
-//: o Basic Accessors:
-//:   - bool isValid() const;
-//:   - StringRef previousDelimiter() const;
-//:   - StringRef token() const;
-//:   - StringRef trailingDelimiter() const;
+//    - Tokenizer& operator++();
+//  - Basic Accessors:
+//    - bool isValid() const;
+//    - StringRef previousDelimiter() const;
+//    - StringRef token() const;
+//    - StringRef trailingDelimiter() const;
 //
 ///TokenizerIterator
 ///-----------------
-//: o Primary Manipulators:
-//:   - Tokenizer::begin() const;
-//:   - Tokenizer::end() const;
-//:   - TokenizerIterator();
-//:   - TokenizerIterator& operator++();
-//: o Basic Accessors:
-//:   - StringRef operator*() const;
-//:   - bool operator==(const TokenizerIterator&, const TokenizerIterator&);
+//  - Primary Manipulators:
+//    - Tokenizer::begin() const;
+//    - Tokenizer::end() const;
+//    - TokenizerIterator();
+//    - TokenizerIterator& operator++();
+//  - Basic Accessors:
+//    - StringRef operator*() const;
+//    - bool operator==(const TokenizerIterator&, const TokenizerIterator&);
 //
-// Keep in mind that the inertial contract for the 'Tokenizer_Data' states that
-// if the same character is supplied as both a 'soft' or 'hard' delimiter, it
-// is considered 'hard' by the 'Tokenizer_Data::inputType' method, yet
-// supplying that same character to both delimiter sets of a 'Tokenizer' would
+// Keep in mind that the inertial contract for the `Tokenizer_Data` states that
+// if the same character is supplied as both a `soft` or `hard` delimiter, it
+// is considered `hard` by the `Tokenizer_Data::inputType` method, yet
+// supplying that same character to both delimiter sets of a `Tokenizer` would
 // be considered (library) undefined and must be checked (in the appreciate
 // build mode) to ensure that such user are detected (and similarly for
 // repeated characters in the same delimiter set).
 //
-// Primary manipulators and basic accessors tests for 'Tokenizer' class have
+// Primary manipulators and basic accessors tests for `Tokenizer` class have
 // been united because of identity of testing.  Also secondary constructor
 // verification has been added to the same test case in order not to duplicate
 // machinery and the table of input data.  Similarly tests for
-// 'TokenizerIterator' class have been united.
+// `TokenizerIterator` class have been united.
 //
-// We will need to make sure that  the use of postfix ++ on a 'Tokenizer'
+// We will need to make sure that  the use of postfix ++ on a `Tokenizer`
 // object fails to compile.  We will also want to make sure that neither
-// 'Tokenizer_Data' or 'Tokenizer' is not copy constructable or assignable.
+// `Tokenizer_Data` or `Tokenizer` is not copy constructable or assignable.
 //
 //-----------------------------------------------------------------------------
 //                      // ----------------------------
@@ -273,26 +273,26 @@ const char HARD_DELIM_CHARS[] = "HIJK";
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Validate the specified `input`, `soft`, `hard` and `token` character
+/// sets and return `true` if the supplied character sets are valid and
+/// `false` otherwise.  Valid character sets must confirm to the following
+/// rules:
+/// o There are no duplicates in the soft, hard and token character sets.
+///
+/// o There are no duplicates in the input character set.
+///
+/// o All characters in the input string occur in the same relative order as
+///   they do in each of the respective character sets and that they do NOT
+///   skip over any characters in those respective sets.
+///
+/// o Only characters from the respective character sets appear in the
+///   input string.
+///
+/// All strings that do not confirm the to rules above are invalid.
 bool isValid(const string_view input,
              const string_view soft,
              const string_view hard,
              const string_view token);
-    // Validate the specified 'input', 'soft', 'hard' and 'token' character
-    // sets and return 'true' if the supplied character sets are valid and
-    // 'false' otherwise.  Valid character sets must confirm to the following
-    // rules:
-    // o There are no duplicates in the soft, hard and token character sets.
-    //
-    // o There are no duplicates in the input character set.
-    //
-    // o All characters in the input string occur in the same relative order as
-    //   they do in each of the respective character sets and that they do NOT
-    //   skip over any characters in those respective sets.
-    //
-    // o Only characters from the respective character sets appear in the
-    //   input string.
-    //
-    // All strings that do not confirm the to rules above are invalid.
 bool isValid(const string_view input,
              const string_view soft,
              const string_view hard,
@@ -397,7 +397,7 @@ int main(int argc, char **argv)
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
@@ -407,13 +407,13 @@ int main(int argc, char **argv)
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -434,17 +434,17 @@ int main(int argc, char **argv)
 // spaces and we want to remove all duplicated spaces.
 //
 // First, we create an example character array:
-//..
+// ```
     const char text1[] = "   This  is    a test.";
-//..
-// Then, we create a 'Tokenizer' that uses " "(space) as a soft delimiter:
-//..
+// ```
+// Then, we create a `Tokenizer` that uses " "(space) as a soft delimiter:
+// ```
     bdlb::Tokenizer tokenizer1(text1, " ");
-//..
+// ```
 // Note, that the tokenizer skips the leading soft delimiters upon
 // initialization.  Next, we iterate the input character array and build the
 // string without duplicated spaces:
-//..
+// ```
     bsl::string result1;
     if (tokenizer1.isValid()) {
         result1 += tokenizer1.token();
@@ -455,12 +455,12 @@ int main(int argc, char **argv)
         result1 += tokenizer1.token();
         ++tokenizer1;
     }
-//..
+// ```
 // Finally, we verify that the resulting string contains the expected result:
-//..
+// ```
     const bsl::string EXPECTED1("This is a test.");
     ASSERT(EXPECTED1 == result1);
-//..
+// ```
 //
 ///Example 2: Iterating Over Tokens Using Just *Hard* Delimiters
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -468,21 +468,21 @@ int main(int argc, char **argv)
 // sequence of tokens using just hard delimiters.
 //
 // Suppose, we want to reformat comma-separated-value file and insert the
-// default value of '0' into missing columns.
+// default value of `0` into missing columns.
 //
 // First, we create an example csv line:
-//..
+// ```
     const char text2[] = "Col1,Col2,Col3\n111,,133\n,222,\n311,322,\n";
-//..
-// Then, we create a 'Tokenizer' that uses ","(comma) and "\n"(new-line) as
+// ```
+// Then, we create a `Tokenizer` that uses ","(comma) and "\n"(new-line) as
 // hard delimiters:
-//..
+// ```
     bdlb::Tokenizer tokenizer2(text2, "", ",\n");
-//..
-// We use the 'trailingDelimiter' accessor to insert correct delimiter into the
+// ```
+// We use the `trailingDelimiter` accessor to insert correct delimiter into the
 // output string.  Next, we iterate the input line and insert the default
 // value:
-//..
+// ```
     string result2;
     while (tokenizer2.isValid()) {
         if (tokenizer2.token() != "") {
@@ -493,12 +493,12 @@ int main(int argc, char **argv)
         result2 += tokenizer2.trailingDelimiter();
         ++tokenizer2;
     }
-//..
+// ```
 // Finally, we verify that the resulting string contains the expected result:
-//..
+// ```
     const string EXPECTED2("Col1,Col2,Col3\n111,0,133\n0,222,0\n311,322,0\n");
     ASSERT(EXPECTED2 == result2);
-//..
+// ```
 //
 ///Example 3: Iterating Over Tokens Using Both *Hard* and *Soft* Delimiters
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -509,20 +509,20 @@ int main(int argc, char **argv)
 // separated with a "$"(dollar-sign), but can have leading or trailing spaces.
 //
 // First, we create an example line:
-//..
+// ```
     const char text3[] = " This $is    $   a$ test.      ";
-//..
-// Then, we create a 'Tokenizer' that uses "$"(dollar-sign) as a hard delimiter
+// ```
+// Then, we create a `Tokenizer` that uses "$"(dollar-sign) as a hard delimiter
 // and " "(space) as a soft delimiter:
-//..
+// ```
     bdlb::Tokenizer tokenizer3(text3, " ", "$");
-//..
+// ```
 // In this example we only extracting the tokens, and can use the iterator
 // provided by the tokenizer.
 //
 // Next, we create an iterator and iterate over the input, extracting the
 // tokens into the result string:
-//..
+// ```
     string result3;
 
     bdlb::Tokenizer::iterator it3 = tokenizer3.begin();
@@ -537,28 +537,28 @@ int main(int argc, char **argv)
         result3 += *it3;
         ++it3;
     }
-//..
+// ```
 // Finally, we verify that the resulting string contains the expected result:
-//..
+// ```
     const string EXPECTED3("This is a test.");
     ASSERT(EXPECTED3 == result3);
-//..
+// ```
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // Testing support for 'advance' algorithm.
+        // Testing support for `advance` algorithm.
         //
         // Concerns:
-        //: 1 Iterators can be used with standard algorithms.
+        // 1. Iterators can be used with standard algorithms.
         //
         // Plan:
-        //: 1 Call 'advance' algorithm and verify that it compiles and works.
+        // 1. Call `advance` algorithm and verify that it compiles and works.
         //    (C-1)
         //
         // Testing:
         //   STANDARD ALGORITHMS
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTest 'bsl::advance'\n";
+        if (verbose) cout << "\nTest `bsl::advance`\n";
         {
             bsl::string data = "foo bar baz boo bee";
             Obj         testData(data, " ");
@@ -581,59 +581,59 @@ int main(int argc, char **argv)
         // Testing standard input iterator interface
         //
         // Concerns:
-        //: 1 iterator_traits<Tokenizer::iterator> has 5 typedefs:
-        //:   difference_type, value_type, pointer, reference, and
-        //:   iterator_category.
-        //:
-        //: 2 Tokenizer::iterator> ids copy constructible, copy assignable,
-        //:   destructible.
-        //:
-        //: 3 Two iterators, 'X' and 'Y', compare equal if and only if each of
-        //:   their corresponding salient attributes respectively compares
-        //:   equal.
-        //:
-        //: 4 Comparison is symmetric.
-        //:
-        //: 5 a != b iff !(a == b).
-        //:
-        //: 6 prefix ++ operator advances the iteration state of this object to
-        //:   point to the next token.
-        //:
-        //: 7 postfix operator ++ return the iterator before any changes, and
-        //:   then behaves like prefix ++ operator.
-        //:
-        //: 8 Dereferencing an iterator should refer to the expected element.
+        // 1. iterator_traits<Tokenizer::iterator> has 5 typedefs:
+        //    difference_type, value_type, pointer, reference, and
+        //    iterator_category.
+        //
+        // 2. Tokenizer::iterator> ids copy constructible, copy assignable,
+        //    destructible.
+        //
+        // 3. Two iterators, `X` and `Y`, compare equal if and only if each of
+        //    their corresponding salient attributes respectively compares
+        //    equal.
+        //
+        // 4. Comparison is symmetric.
+        //
+        // 5. a != b iff !(a == b).
+        //
+        // 6. prefix ++ operator advances the iteration state of this object to
+        //    point to the next token.
+        //
+        // 7. postfix operator ++ return the iterator before any changes, and
+        //    then behaves like prefix ++ operator.
+        //
+        // 8. Dereferencing an iterator should refer to the expected element.
         //
         // Plan:
-        //: 1 iterator_traits instantiates for Tokenizer::iterator.
-        //:   (C-1)
-        //:
-        //: 2 iterator_traits find difference_type, value_type, pointer,
-        //:   reference, and iterator_category.
-        //:   (C-1)
-        //:
-        //: 3 Copy constructor and destructor are tested in case 7.
-        //:   (C-2)
-        //:
-        //: 4 Assignment operator is tested in case 8.
-        //:   (C-2)
-        //:
-        //: 5 Equality operator is tested in case 8.
-        //:   (C-3, C-4)
-        //:
-        //: 6 Inequality operator is tested in case 8.
-        //:   (C-5)
-        //:
-        //: 7 Prefix operator ++ is tested in case 7.
-        //:   (C-6)
-        //:
-        //: 8 Postfix operator ++ is tested in case 8.
-        //:   (C-7)
-        //:
-        //: 9 Assert that 'operator*' dereferences correctly for the string
-        //:   value, and that a 'bslstl::StringRef' function is called
-        //:   correctly on the referenced iterator.
-        //:   (C-8)
+        // 1. iterator_traits instantiates for Tokenizer::iterator.
+        //    (C-1)
+        //
+        // 2. iterator_traits find difference_type, value_type, pointer,
+        //    reference, and iterator_category.
+        //    (C-1)
+        //
+        // 3. Copy constructor and destructor are tested in case 7.
+        //    (C-2)
+        //
+        // 4. Assignment operator is tested in case 8.
+        //    (C-2)
+        //
+        // 5. Equality operator is tested in case 8.
+        //    (C-3, C-4)
+        //
+        // 6. Inequality operator is tested in case 8.
+        //    (C-5)
+        //
+        // 7. Prefix operator ++ is tested in case 7.
+        //    (C-6)
+        //
+        // 8. Postfix operator ++ is tested in case 8.
+        //    (C-7)
+        //
+        // 9. Assert that `operator*` dereferences correctly for the string
+        //    value, and that a `bslstl::StringRef` function is called
+        //    correctly on the referenced iterator.
+        //    (C-8)
         //
         // Testing:
         //   STANDARD INPUT ITERATOR INTERFACE
@@ -697,11 +697,11 @@ int main(int argc, char **argv)
         //   Test the fix for DRQS 101217017.
         //
         // Concerns:
-        //: 1 The code below did not compile prior to adding the missing
-        //:   traits.
+        // 1. The code below did not compile prior to adding the missing
+        //    traits.
         //
         // Plan:
-        //: 1 Verify that the code compiles.  (C-1)
+        // 1. Verify that the code compiles.  (C-1)
         //
         // Testing:
         //   DRQS 101217017
@@ -722,7 +722,7 @@ int main(int argc, char **argv)
         if (verbose)
             bsl::cout << ss.str();
 
-        // This fails with error: no type named 'iterator_category' in 'struct
+        // This fails with error: no type named `iterator_category` in 'struct
         // std::iterator_traits<BloombergLP::bdlb::TokenizerIterator>'.
         // Alternative test case:
         bsl::copy(tokenizer.begin(), tokenizer.end(),
@@ -731,76 +731,76 @@ int main(int argc, char **argv)
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // 'TokenizerIterator' OPERATORS
+        // `TokenizerIterator` OPERATORS
         //
         // Concerns:
-        //: 1 The assignment operator can change the value of any modifiable
-        //:   target object to that of any source object.
-        //:
-        //: 2 Assigning doesn't modify the value of the source object.
-        //:
-        //: 3 Assigning an object to itself behaves as expected (alias-safety).
-        //:
-        //: 4 Two objects, 'X' and 'Y', compare equal if and only if each of
-        //:   their corresponding salient attributes respectively compares
-        //:   equal.
-        //:
-        //: 5 Comparison is symmetric.
-        //:
-        //: 6 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //: 7 The iterator returned by the 'end' method is always equal to the
-        //:   default constructed iterator.
-        //:
-        //: 8 The post-increment operator changes the value of the object to
-        //:   refer to the next element in the list.
-        //:
-        //: 9 The value returned is the value of the object prior to the
-        //:   operator call.
-        //:
-        //:10 The signature and return type of operators are standard.
+        // 1. The assignment operator can change the value of any modifiable
+        //    target object to that of any source object.
+        //
+        // 2. Assigning doesn't modify the value of the source object.
+        //
+        // 3. Assigning an object to itself behaves as expected (alias-safety).
+        //
+        // 4. Two objects, `X` and `Y`, compare equal if and only if each of
+        //    their corresponding salient attributes respectively compares
+        //    equal.
+        //
+        // 5. Comparison is symmetric.
+        //
+        // 6. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        // 7. The iterator returned by the `end` method is always equal to the
+        //    default constructed iterator.
+        //
+        // 8. The post-increment operator changes the value of the object to
+        //    refer to the next element in the list.
+        //
+        // 9. The value returned is the value of the object prior to the
+        //    operator call.
+        //
+        // 10. The signature and return type of operators are standard.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a sets of input for
-        //:   tokenizer construction.
-        //:
-        //: 2 For each row 'R' in the table of P-1:
-        //:
-        //:   1 Create a tokenizer and acquire a TokenizerIterator.
-        //:
-        //:   2 Create an empty TokenizerIterator and assign previous one to
-        //:     it.
-        //:
-        //:   3 Verify integrity of the source object.  (C-2)
-        //:
-        //:   4 Verify new state of tested iterator.  (C-1,10)
-        //:
-        //:   5 Assign tested iterator to itself and verify it's integrity.
-        //:     (C-3,10)
-        //:
-        //: 3 For each row 'R' in the table of P-1:
-        //:
-        //:   1 Create a tokenizer and acquire a TokenizerIterator.
-        //:
-        //:   2 Create a copy of iterator.
-        //:
-        //:   3 Move both iterators along the input string and verify their
-        //:     comparison results.  (C-4..6,10)
-        //:
-        //: 4 For each row 'R' in the table of P-1:
-        //:
-        //:   1 Create a tokenizer and acquire a TokenizerIterator (model).
-        //:
-        //:   2 Create a copy of model (tested iterator).
-        //:
-        //:   3 Move model iterator with pre-increment operator and tested
-        //:     iterator with post-increment operator.  Verify returned value
-        //:     of post-increment operator and compare both operators result.
-        //:     (C-8..10)
-        //:
-        //:   4 Using 'end' method obtain an iterator and compare it with the
-        //:     default constructed iterator.  (C-7)
+        // 1. Using the table-driven technique, specify a sets of input for
+        //    tokenizer construction.
+        //
+        // 2. For each row `R` in the table of P-1:
+        //
+        //   1. Create a tokenizer and acquire a TokenizerIterator.
+        //
+        //   2. Create an empty TokenizerIterator and assign previous one to
+        //      it.
+        //
+        //   3. Verify integrity of the source object.  (C-2)
+        //
+        //   4. Verify new state of tested iterator.  (C-1,10)
+        //
+        //   5. Assign tested iterator to itself and verify it's integrity.
+        //      (C-3,10)
+        //
+        // 3. For each row `R` in the table of P-1:
+        //
+        //   1. Create a tokenizer and acquire a TokenizerIterator.
+        //
+        //   2. Create a copy of iterator.
+        //
+        //   3. Move both iterators along the input string and verify their
+        //      comparison results.  (C-4..6,10)
+        //
+        // 4. For each row `R` in the table of P-1:
+        //
+        //   1. Create a tokenizer and acquire a TokenizerIterator (model).
+        //
+        //   2. Create a copy of model (tested iterator).
+        //
+        //   3. Move model iterator with pre-increment operator and tested
+        //      iterator with post-increment operator.  Verify returned value
+        //      of post-increment operator and compare both operators result.
+        //      (C-8..10)
+        //
+        //   4. Using `end` method obtain an iterator and compare it with the
+        //      default constructed iterator.  (C-7)
         //
         // Testing:
         //   TokenizerIterator& operator=(const TokenizerIterator& rhs);
@@ -812,7 +812,7 @@ int main(int argc, char **argv)
 
         if (verbose)
                     cout << endl
-                         << "'TokenizerIterator' OPERATORS" << endl
+                         << "`TokenizerIterator` OPERATORS" << endl
                          << "=============================" << endl;
 
         if (verbose) cout << "\nTesting TokenizerIterator operators." << endl;
@@ -849,7 +849,7 @@ int main(int argc, char **argv)
         };
         enum { DATA_LEN = sizeof DATA / sizeof *DATA };
 
-        if (verbose) cout << "\tTesting 'operator='." << endl;
+        if (verbose) cout << "\tTesting `operator=`." << endl;
         {
             for (int ti = 0; ti < DATA_LEN; ++ti) {
                 const int    LINE     = DATA[ti].d_line;
@@ -884,7 +884,7 @@ int main(int argc, char **argv)
                     const ObjIt& eIt  = eMIt;
                     eMIt = It;
 
-                    // We need to test 'operator=' even with invalid iterator
+                    // We need to test `operator=` even with invalid iterator
                     // passed as a parameter, because it is allowed by
                     // component contract.  But we can't call accessor for such
                     // iterators, so we need to stop current iteration in that
@@ -938,7 +938,7 @@ int main(int argc, char **argv)
             }
         }
 
-        if (verbose) cout << "\tTesting 'operator==' and 'operator!='."
+        if (verbose) cout << "\tTesting `operator==` and `operator!=`."
                           << endl;
         {
             ASSERTV(  DEFAULT == DEFAULT );
@@ -983,7 +983,7 @@ int main(int argc, char **argv)
                     ASSERTV(LINE, i, true  == areEqual);
                     ASSERTV(LINE, i, false == areNotEqual);
 
-                    // We need to test 'operator==' and 'operator!=' even with
+                    // We need to test `operator==` and `operator!=` even with
                     // invalid iterators passed as a parameter, because it is
                     // allowed by component contract.  But we can't move
                     // forward such iterators, so we need to stop current
@@ -1013,7 +1013,7 @@ int main(int argc, char **argv)
             }
         }
 
-        if (verbose) cout << "\tTesting 'end()'" << endl;
+        if (verbose) cout << "\tTesting `end()`" << endl;
         {
             for (int ti = 0; ti < DATA_LEN; ++ti) {
                 const int   LINE  = DATA[ti].d_line;
@@ -1092,34 +1092,34 @@ int main(int argc, char **argv)
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // 'TokenizerIterator' PRIMARY MANIPULATORS AND BASIC ACCESSOR
+        // `TokenizerIterator` PRIMARY MANIPULATORS AND BASIC ACCESSOR
         //
         // Concerns:
-        //: 1 All (including internal) relevant states can be reached with
-        //:   primary manipulators.
-        //:
-        //: 2 TokenizerIterator correctly performs a traverse along the input
-        //:   string supplied at the 'Tokenizer' construction.
-        //:
-        //: 3 The pre-increment operator changes the value of the object to
-        //:    refer to the next token sequence in the input string.
-        //:
-        //: 4 Indirection operator provide an access to the tokens sequence,
-        //:   iterator pointing to.
-        //:
-        //: 5 'TokenizerIterator' object can be destroyed.
+        // 1. All (including internal) relevant states can be reached with
+        //    primary manipulators.
+        //
+        // 2. TokenizerIterator correctly performs a traverse along the input
+        //    string supplied at the `Tokenizer` construction.
+        //
+        // 3. The pre-increment operator changes the value of the object to
+        //     refer to the next token sequence in the input string.
+        //
+        // 4. Indirection operator provide an access to the tokens sequence,
+        //    iterator pointing to.
+        //
+        // 5. `TokenizerIterator` object can be destroyed.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a sets of input for
-        //:   tokenizer construction.
-        //:
-        //: 2 For each row 'R' in the table of P-1 create a tokenizer and
-        //:   acquire TokenizerIterator.  Iterate through the input string and
-        //:   verify token sequence, returned by the indirection operator.
-        //:   Failing to supply a token implies that the iterator has become
-        //:   invalid after the internal iteration loop exits.  (C-1..4)
-        //:
-        //: 3 Allow 'TokenizerIterator' object leave the scope.  (C-5)
+        // 1. Using the table-driven technique, specify a sets of input for
+        //    tokenizer construction.
+        //
+        // 2. For each row `R` in the table of P-1 create a tokenizer and
+        //    acquire TokenizerIterator.  Iterate through the input string and
+        //    verify token sequence, returned by the indirection operator.
+        //    Failing to supply a token implies that the iterator has become
+        //    invalid after the internal iteration loop exits.  (C-1..4)
+        //
+        // 3. Allow `TokenizerIterator` object leave the scope.  (C-5)
         //
         // Testing:
         //   iterator begin() const;
@@ -1130,7 +1130,7 @@ int main(int argc, char **argv)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-      << "'TokenizerIterator' PRIMARY MANIPULATORS AND BASIC ACCESSOR" << endl
+      << "`TokenizerIterator` PRIMARY MANIPULATORS AND BASIC ACCESSOR" << endl
       << "===========================================================" << endl;
 
         if (verbose) cout <<
@@ -1355,7 +1355,7 @@ int main(int argc, char **argv)
                 ObjIt        mIt = T.begin();
                 const ObjIt& It  = mIt;
 
-                // Initially 'cursor' is the address of the first token string.
+                // Initially `cursor` is the address of the first token string.
 
                 for (const char * const *cursor = EXPECTED;
                                         *cursor;
@@ -1396,10 +1396,10 @@ int main(int argc, char **argv)
                 }  // for current token in input row
             }  // for each row in table
 
-            // Using a still untested comparison operator, verify 'begin()'
+            // Using a still untested comparison operator, verify `begin()`
             // result for object, created with supplyed empty c-string.  Note
             // that exactly the same state can be obtained supplying empty or
-            // default constructed 'string_view'.
+            // default constructed `string_view`.
 
             {
                 Obj         mT("",
@@ -1415,39 +1415,39 @@ int main(int argc, char **argv)
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'reset' METHOD
+        // TESTING `reset` METHOD
         //
         // Concerns:
-        //: 1 'reset' method re-directs 'Tokenizer' object to new input.
-        //:
-        //: 2 'reset' method place 'Tokenizer' object to just-constructed
-        //:   state.
-        //:
-        //: 3 'reset' method preserve delimiter sets, supplied at construction.
-        //:
-        //: 4 'reset' method successfully handles default constructed
-        //:   'string_view' object passed as parameter.
-        //:
-        //: 5 QoI: asserted precondition violations are detected when enabled.
+        // 1. `reset` method re-directs `Tokenizer` object to new input.
+        //
+        // 2. `reset` method place `Tokenizer` object to just-constructed
+        //    state.
+        //
+        // 3. `reset` method preserve delimiter sets, supplied at construction.
+        //
+        // 4. `reset` method successfully handles default constructed
+        //    `string_view` object passed as parameter.
+        //
+        // 5. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a sets of input for
-        //:   construction and resetting.
-        //:
-        //: 2 For each row 'R' in the table of P-1 verify that after resetting
-        //:   underlying input sequence has been changed and state of the
-        //:   object is as if it has been just constructed with new input.
-        //:   (C-1..2)
-        //:
-        //: 3 Set single character as a delimiter and all other characters as
-        //:   an input string for object construction.  Reset obtained object
-        //:   with the same character set, arranged in the opposite order.
-        //:   Verify that delimiter hasn't been changed.  (C-3)
-        //:
-        //: 4 Reset the object with the default constructed 'string_view'.
-        //:   Verify the result.  (C-4)
-        //:
-        //: 5 Verify that defensive checks are addressed.  (C-5)
+        // 1. Using the table-driven technique, specify a sets of input for
+        //    construction and resetting.
+        //
+        // 2. For each row `R` in the table of P-1 verify that after resetting
+        //    underlying input sequence has been changed and state of the
+        //    object is as if it has been just constructed with new input.
+        //    (C-1..2)
+        //
+        // 3. Set single character as a delimiter and all other characters as
+        //    an input string for object construction.  Reset obtained object
+        //    with the same character set, arranged in the opposite order.
+        //    Verify that delimiter hasn't been changed.  (C-3)
+        //
+        // 4. Reset the object with the default constructed `string_view`.
+        //    Verify the result.  (C-4)
+        //
+        // 5. Verify that defensive checks are addressed.  (C-5)
         //
         // Testing:
         //   void reset(const char *input);
@@ -1455,10 +1455,10 @@ int main(int argc, char **argv)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'reset' METHOD" << endl
+                          << "TESTING `reset` METHOD" << endl
                           << "======================" << endl;
 
-        if (verbose) cout << "\nTesting 'reset' method" << endl;
+        if (verbose) cout << "\nTesting `reset` method" << endl;
 
         if (verbose) cout << "\tTesting input string resetting" << endl;
         {
@@ -1620,26 +1620,26 @@ int main(int argc, char **argv)
         //   Verify the non-basic accessors functionality.
         //
         // Concerns:
-        //: 1 Accessors correctly reflect current state of 'Tokenizer' object.
-        //:
-        //: 2 Embedded null character is correctly handled by the accessors.
-        //:
-        //: 3 Accessors can be successfully invoked for objects, having default
-        //:   constructed 'bsl::string_view' supplied on construction.
+        // 1. Accessors correctly reflect current state of `Tokenizer` object.
+        //
+        // 2. Embedded null character is correctly handled by the accessors.
+        //
+        // 3. Accessors can be successfully invoked for objects, having default
+        //    constructed `bsl::string_view` supplied on construction.
         //
         // Plan:
-        //: 1 Take 'Tokenizer' object through different states and verify
-        //:   accessors responses.  (C-1)
-        //:
-        //: 2 Add embedded null character to soft delimiter, hard delimiter
-        //:   and token sets respectively and verify accessors responses.
-        //:   (C-2)
-        //:
-        //: 3 Supply default constructed 'bsl::string_view' to the object
-        //:   constructor and invoke appropriate accessors.  Verify the
-        //:   results.  Note that invocation of 'hasTrailingSoft()',
-        //:   'isTrailingHard()' or 'token()' for such objects leads to
-        //:   undefined behavior. (C-3)
+        // 1. Take `Tokenizer` object through different states and verify
+        //    accessors responses.  (C-1)
+        //
+        // 2. Add embedded null character to soft delimiter, hard delimiter
+        //    and token sets respectively and verify accessors responses.
+        //    (C-2)
+        //
+        // 3. Supply default constructed `bsl::string_view` to the object
+        //    constructor and invoke appropriate accessors.  Verify the
+        //    results.  Note that invocation of `hasTrailingSoft()`,
+        //    `isTrailingHard()` or `token()` for such objects leads to
+        //    undefined behavior. (C-3)
         //
         // Testing:
         //   bool isValid() const;
@@ -1655,7 +1655,7 @@ int main(int argc, char **argv)
 
         if (verbose) cout << "\nTesting accessors." << endl;
 
-        if (verbose) cout << "\tTesting 'isValid'." << endl;
+        if (verbose) cout << "\tTesting `isValid`." << endl;
         {
             Obj        invalidMT("", SOFT_DELIM_CHARS, HARD_DELIM_CHARS);
             const Obj& invalidT = invalidMT;
@@ -1668,7 +1668,7 @@ int main(int argc, char **argv)
             ASSERT(true  == validT.isValid());
         }
 
-        if (verbose) cout << "\tTesting 'hasPreviousSoft'/'isPreviousHard'."
+        if (verbose) cout << "\tTesting `hasPreviousSoft`/`isPreviousHard`."
                           << endl;
         {
             const int  NUM_ITERATIONS = 6;
@@ -1758,7 +1758,7 @@ int main(int argc, char **argv)
             }
         }
 
-        if (verbose) cout << "\tTesting 'hasTrailingSoft'/'isTrailingHard'."
+        if (verbose) cout << "\tTesting `hasTrailingSoft`/`isTrailingHard`."
                           << endl;
         {
             const int  NUM_ITERATIONS = 6;
@@ -1888,7 +1888,7 @@ int main(int argc, char **argv)
 
             if (verbose)
                 cout << "\tTesting objects accepting default constructed"
-                     << " 'bsl::string_view' object upon creation."
+                     << " `bsl::string_view` object upon creation."
                      << endl;
             {
                 const string_view  DFLT_CONSTR_STRING_REF;
@@ -1942,51 +1942,51 @@ int main(int argc, char **argv)
         //   accessors are working as expected also.
         //
         // Concerns:
-        //: 1 All (including internal) relevant states can be reached with
-        //:   primary manipulators.
-        //:
-        //: 2 Multiple distinct characters of the same type are handled
-        //:   correctly.
-        //:
-        //: 3 Repeated characters are handled correctly.
-        //:
-        //: 4 The null character is handled the same way as any other
-        //:   character.
-        //:
-        //: 5 Non-ASCII characters are handled the same way as ASCII ones.
-        //:
-        //: 6 Inputs requiring many iterations succeed.
-        //:
-        //: 7 Inputs having large tokens/delimiters succeed.
-        //:
-        //: 8 Default constructed 'bsl::string_view' input succeeds.
-        //:
-        //: 9 QoI: asserted precondition violations are detected when enabled.
-        //:
-        //:10 Accessors return references to expected character sequences.
-        //:
-        //:11 'Tokenizer' object can be destroyed.
+        // 1. All (including internal) relevant states can be reached with
+        //    primary manipulators.
+        //
+        // 2. Multiple distinct characters of the same type are handled
+        //    correctly.
+        //
+        // 3. Repeated characters are handled correctly.
+        //
+        // 4. The null character is handled the same way as any other
+        //    character.
+        //
+        // 5. Non-ASCII characters are handled the same way as ASCII ones.
+        //
+        // 6. Inputs requiring many iterations succeed.
+        //
+        // 7. Inputs having large tokens/delimiters succeed.
+        //
+        // 8. Default constructed `bsl::string_view` input succeeds.
+        //
+        // 9. QoI: asserted precondition violations are detected when enabled.
+        //
+        // 10. Accessors return references to expected character sequences.
+        //
+        // 11. `Tokenizer` object can be destroyed.
         //
         // Plan:
-        //: 1 Using the table-driven technique, apply depth-ordered enumeration
-        //:   on the length of the input string to parse all unique inputs (in
-        //:   lexicographic order) up to a "depth" of 4 (note that we have
-        //:   hard-coded "stuv" to be set of soft delimiter characters, and
-        //:   "HIJK" to be the set of hard ones, leaving the digit characters
-        //:   "0123" to be used as unique token characters).  The input string
-        //:   as well as the sequence of expected "parsed" strings will be
-        //:   provided -- each on a single row of the table.  Failing to supply
-        //:   a token (followed by its trailing delimiter) implies that the
-        //:   iterator has become invalid (which is tested) after the internal
-        //:   iteration loop exits.  Verify each state of 'Tokenizer' object
-        //:   with basic accessors.  (C-1..2, 9)
-        //:
-        //: 2 Allow 'Tokenizer' object to leave the scope.  (C-10)
-        //:
-        //: 3 Additional add-hoc tests are provided to address remaining
-        //:   concerns.  (C-3..8)
-        //:
-        //: 4 Verify that defensive checks are addressed.  (C-8)
+        // 1. Using the table-driven technique, apply depth-ordered enumeration
+        //    on the length of the input string to parse all unique inputs (in
+        //    lexicographic order) up to a "depth" of 4 (note that we have
+        //    hard-coded "stuv" to be set of soft delimiter characters, and
+        //    "HIJK" to be the set of hard ones, leaving the digit characters
+        //    "0123" to be used as unique token characters).  The input string
+        //    as well as the sequence of expected "parsed" strings will be
+        //    provided -- each on a single row of the table.  Failing to supply
+        //    a token (followed by its trailing delimiter) implies that the
+        //    iterator has become invalid (which is tested) after the internal
+        //    iteration loop exits.  Verify each state of `Tokenizer` object
+        //    with basic accessors.  (C-1..2, 9)
+        //
+        // 2. Allow `Tokenizer` object to leave the scope.  (C-10)
+        //
+        // 3. Additional add-hoc tests are provided to address remaining
+        //    concerns.  (C-3..8)
+        //
+        // 4. Verify that defensive checks are addressed.  (C-8)
         //
         // Testing:
         //   Tokenizer(const char *, const string_view&, const string_view&);
@@ -2243,7 +2243,7 @@ int main(int argc, char **argv)
                         }
                     }
 
-                    // Initially 'cursor' is the address of the first token
+                    // Initially `cursor` is the address of the first token
                     // string.
 
                     for (const char * const *cursor = EXPECTED+1;
@@ -2457,7 +2457,7 @@ int main(int argc, char **argv)
         }
 
         if (verbose) cout <<
-                  "\nAd hoc 'stress' testing for iterations and size." << endl;
+                  "\nAd hoc `stress` testing for iterations and size." << endl;
         {
             if (verbose) cout << "\tTesting inputs requiring many iterations."
                               << endl;
@@ -2568,7 +2568,7 @@ int main(int argc, char **argv)
         }
 
         if (verbose)
-            cout << "\tTesting default constructed 'string_view' input."
+            cout << "\tTesting default constructed `string_view` input."
                  << endl;
         {
             const string_view  DFLT_CONSTR_STRING_REF;
@@ -2630,23 +2630,23 @@ int main(int argc, char **argv)
         //   check test inputs correctness.
         //
         // Concerns:
-        //: 1 There are no duplicates in the soft, hard and token character
-        //:  sets.
-        //:
-        //: 2 There are no duplicates in the input character set.
-        //:
-        //: 3 All characters in the input string occur in the same relative
-        //:   order as they do in each of the respective character sets and
-        //:   that they do NOT skip over any characters in those respective
-        //:   sets.
-        //:
-        //: 4 Only characters from the respective character sets appear in the
-        //:   input string.
+        // 1. There are no duplicates in the soft, hard and token character
+        //   sets.
+        //
+        // 2. There are no duplicates in the input character set.
+        //
+        // 3. All characters in the input string occur in the same relative
+        //    order as they do in each of the respective character sets and
+        //    that they do NOT skip over any characters in those respective
+        //    sets.
+        //
+        // 4. Only characters from the respective character sets appear in the
+        //    input string.
         //
         // Plan:
-        //: 1 Using the table-driven technique, test function on various input
-        //:   strings containing both valid and invalid character sequences.
-        //:   (C-1..4)
+        // 1. Using the table-driven technique, test function on various input
+        //    strings containing both valid and invalid character sequences.
+        //    (C-1..4)
         //
         // Testing:
         //   TEST APPARATUS
@@ -2948,12 +2948,12 @@ int main(int argc, char **argv)
                 { L_,   "1",    "HI",   "01",   "",     false },
 
                 // Testing validity of the input up to depth 4.  Self-testing
-                // pattern roll up.  The short pattern that returns 'false' is
-                // eliminated from patterns of longer depth.  For example, 't'
-                // is first shortest 'false' pattern that tests that symbol 't'
+                // pattern roll up.  The short pattern that returns `false` is
+                // eliminated from patterns of longer depth.  For example, `t`
+                // is first shortest `false` pattern that tests that symbol `t`
                 // from the soft delimiter set cannot appear as a first soft
                 // delimiter.  All longer patterns that have first soft
-                // delimiter 't' are eliminated.  Some elided patterns are left
+                // delimiter `t` are eliminated.  Some elided patterns are left
                 // in the table for illustration purposes and marked with "*
                 // (pattern)".
                 { L_,   "",     "",     "",     "",     true  }, // Depth 0
@@ -3108,44 +3108,44 @@ int main(int argc, char **argv)
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'Tokenizer_Data'
+        // TESTING `Tokenizer_Data`
         //   Ensure that types of characters are specified correctly by
-        //   'Tokenizer_Data' constructors and accessor returns them properly.
+        //   `Tokenizer_Data` constructors and accessor returns them properly.
         //
         // Concerns:
-        //: 1 Any character can be specified as either token, soft delimiter or
-        //:   hard delimiter input type.
-        //:
-        //: 2 Both constructors correctly map soft and hard delimiters sets,
-        //:   supplied at construction, to corresponding input types.
-        //:
-        //: 3 'inputType' method returns the actual input type of the specified
-        //:    character.
+        // 1. Any character can be specified as either token, soft delimiter or
+        //    hard delimiter input type.
+        //
+        // 2. Both constructors correctly map soft and hard delimiters sets,
+        //    supplied at construction, to corresponding input types.
+        //
+        // 3. `inputType` method returns the actual input type of the specified
+        //     character.
         //
         // Plan:
-        //: 1 Create a 'Tokenizer_Data' object, using one argument constructor
-        //:   for soft delimiter set categories of "empty", one character,
-        //:   multiple characters and all characters.  Verify that all
-        //:   characters from the supplied set are mapped to a soft delimiter
-        //:   input type and all other characters are mapped to a token input
-        //:   type.  (C-1..3)
-        //:
-        //: 2 Create a 'Tokenizer_Data' object, using two argument constructor
-        //:   for cross product of soft and hard delimiter sets categories of
-        //:   "empty", one character, multiple characters and all characters.
-        //:   Verify that:
-        //:
-        //:   1 All characters, not presented in the soft and hard delimiter
-        //:     sets, are mapped to the token input type.  (C-2..3)
-        //:
-        //:   2 Characters, presented only in one set (soft or hard delimiter)
-        //:     are mapped to the soft and hard delimiter input types
-        //:     respectively.  (C-2..3)
-        //:
-        //:   3 Characters, presented in both sets simultaneously, are mapped
-        //:     to the hard delimiter input type (hard delimiter  precedence
-        //:     over soft).  (C-2..3)
-        //:
+        // 1. Create a `Tokenizer_Data` object, using one argument constructor
+        //    for soft delimiter set categories of "empty", one character,
+        //    multiple characters and all characters.  Verify that all
+        //    characters from the supplied set are mapped to a soft delimiter
+        //    input type and all other characters are mapped to a token input
+        //    type.  (C-1..3)
+        //
+        // 2. Create a `Tokenizer_Data` object, using two argument constructor
+        //    for cross product of soft and hard delimiter sets categories of
+        //    "empty", one character, multiple characters and all characters.
+        //    Verify that:
+        //
+        //   1. All characters, not presented in the soft and hard delimiter
+        //      sets, are mapped to the token input type.  (C-2..3)
+        //
+        //   2. Characters, presented only in one set (soft or hard delimiter)
+        //      are mapped to the soft and hard delimiter input types
+        //      respectively.  (C-2..3)
+        //
+        //   3. Characters, presented in both sets simultaneously, are mapped
+        //      to the hard delimiter input type (hard delimiter  precedence
+        //      over soft).  (C-2..3)
+        //
         //
         // Testing:
         //   Tokenizer_Data(const string_view& softD);
@@ -3155,7 +3155,7 @@ int main(int argc, char **argv)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'Tokenizer_Data'" << endl
+                          << "TESTING `Tokenizer_Data`" << endl
                           << "========================" << endl;
 
         // Copy of the input character to input type mapping.
@@ -3522,11 +3522,11 @@ int main(int argc, char **argv)
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Developer test sandbox. (C-1)
+        // 1. Developer test sandbox. (C-1)
         //
         // Testing:
         //   BREATHING TEST
@@ -3675,19 +3675,19 @@ int main(int argc, char **argv)
         }
 
         if (verbose)
-            cout << "\nTesting the compatibility of 'StringRef' return values "
+            cout << "\nTesting the compatibility of `StringRef` return values "
                     "with standard types."
                  << endl;
         {
-            // 'bslstl::StringRef' should be, if possible, replaced with
-            // 'bsl::string_view' in accordance with BDE 4.0 recommendations.
-            // But  some 'bdlb::Tokenizer's accessors return
-            // 'bslstl::StringRef' objects.  The 'TokenizerIterator's
+            // `bslstl::StringRef` should be, if possible, replaced with
+            // `bsl::string_view` in accordance with BDE 4.0 recommendations.
+            // But  some `bdlb::Tokenizer`s accessors return
+            // `bslstl::StringRef` objects.  The `TokenizerIterator`s
             // dereference operator does the same.  The problem is that
-            // 'bslstl::StringRef' object can be implicitly converted to
-            // 'bsl::string' object, while 'bsl::string_view' object cannot.
+            // `bslstl::StringRef` object can be implicitly converted to
+            // `bsl::string` object, while `bsl::string_view` object cannot.
             // So such replacement  for returned values can break existing
-            // code.  Therefore 'StringRef' return values remain unaffected.
+            // code.  Therefore `StringRef` return values remain unaffected.
             // But we want to make sure, that such behavior does not break the
             // plans of customers who use standard types in their code.
 

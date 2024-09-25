@@ -374,9 +374,9 @@ typedef bool (*CheckChar)(char);
 bool isBasicRaw[256], *isBasicArray = isBasicRaw;
 bool isUrlRaw  [256], *isUrlArray   = isUrlRaw;
 
+/// Initialize `isBasicRaw` and `isUrlRaw`.
 struct InitRaw {
     InitRaw();
-        // Initialize 'isBasicRaw' and 'isUrlRaw'.
 } initRaw;
 
 InitRaw::InitRaw()
@@ -465,94 +465,96 @@ bool checkRange(const EncoderOptions&  options,
     return end - begin == bsl::count_if(begin, end, checkChar);
 }
 
+/// Return `true` if the specified `c` is valid base 64 character or part of
+/// a CRLF.
 inline
 bool notBasicAndNotEqualsAndNotCrlf(char c)
-    // Return 'true' if the specified 'c' is valid base 64 character or part of
-    // a CRLF.
 {
     unsigned char uc = c;
     return !(bsl::isalnum(uc) || bsl::strchr("+/=\n\r", uc));
 }
 
+/// Return `true` if the specified `c` is not a valid base 64 character.
 inline
 bool notBasicAndNotEquals(char c)
-    // Return 'true' if the specified 'c' is not a valid base 64 character.
 {
     unsigned char uc = c;
     return !(bsl::isalnum(uc) || bsl::strchr("+/=", uc));
 }
 
+/// Return `true` if the specified `c` is '=' or not a valid base 64
+/// character and not a CRLF character.
 inline
 bool equalsOrNotBasicAndNotCrlf(char c)
-    // Return 'true' if the specified 'c' is '=' or not a valid base 64
-    // character and not a CRLF character.
 {
     unsigned char uc = c;
     return !(bsl::isalnum(uc) || bsl::strchr("+/\n\r", uc));
 }
 
+/// Return `true` if the specified `c` is '=' or not a valid base 64
+/// character.
 inline
 bool equalsOrCrlfOrNotBasic(char c)
-    // Return 'true' if the specified 'c' is '=' or not a valid base 64
-    // character.
 {
     unsigned char uc = c;
     return !(bsl::isalnum(uc) || bsl::strchr("+/", uc));
 }
 
+/// Return `true` if the specified `c` is valid base 64 character or part of
+/// a CRLF.
 inline
 bool notUrlAndNotEqualsAndNotCrlf(char c)
-    // Return 'true' if the specified 'c' is valid base 64 character or part of
-    // a CRLF.
 {
     unsigned char uc = c;
     return !(bsl::isalnum(uc) || bsl::strchr("-_=\n\r", uc));
 }
 
+/// Return `true` if the specified `c` is not a valid base 64 character.
 inline
 bool notUrlAndNotEquals(char c)
-    // Return 'true' if the specified 'c' is not a valid base 64 character.
 {
     unsigned char uc = c;
     return !(bsl::isalnum(uc) || bsl::strchr("-_=", uc));
 }
 
+/// Return `true` if the specified `c` is '=' or not a valid base 64
+/// character and not a CRLF character.
 inline
 bool equalsOrNotUrlAndNotCrlf(char c)
-    // Return 'true' if the specified 'c' is '=' or not a valid base 64
-    // character and not a CRLF character.
 {
     unsigned char uc = c;
     return !(bsl::isalnum(uc) || bsl::strchr("-_\n\r", uc));
 }
 
+/// Return `true` if the specified `c` is '=' or not a valid base 64
+/// character.
 inline
 bool equalsOrCrlfOrNotUrl(char c)
-    // Return 'true' if the specified 'c' is '=' or not a valid base 64
-    // character.
 {
     unsigned char uc = c;
     return !(bsl::isalnum(uc) || bsl::strchr("-_", uc));
 }
 
+/// Random number generator using the high-order 32 bits of Donald Knuth's
+/// MMIX algorithm.
 class RandGen {
-    // Random number generator using the high-order 32 bits of Donald Knuth's
-    // MMIX algorithm.
 
     bsls::Types::Uint64 d_seed;
 
   public:
     // CREATORS
+
+    /// Initialize the generator with the optionally specified `startSeed`.
     explicit
     RandGen(int startSeed = 0);
-        // Initialize the generator with the optionally specified 'startSeed'.
 
     // MANIPULATORS
-    unsigned operator()();
-        // Return the next random number in the series;
 
+    /// Return the next random number in the series;
+    unsigned operator()();
+
+    /// Return a random `char`.
     char getChar();
-        // Return a random 'char'.
 };
 
 // CREATORS
@@ -597,14 +599,14 @@ T myMin(const T& a, const T& b)
                         // Function printCharN
                         // ===================
 
+/// Print the specified character `sequence` of specified `length` to the
+/// specified `stream` and return a reference to the modifiable `stream`
+/// (if a character is not graphical, its hexadecimal code is printed
+/// instead).  The behavior is undefined unless 0 <= `length` and sequence
+/// refers to a valid area of memory of size at least `length`.
 bsl::ostream& printCharN(bsl::ostream& output,
                          const char*   sequence,
                          size_t        length)
-    // Print the specified character 'sequence' of specified 'length' to the
-    // specified 'stream' and return a reference to the modifiable 'stream'
-    // (if a character is not graphical, its hexadecimal code is printed
-    // instead).  The behavior is undefined unless 0 <= 'length' and sequence
-    // refers to a valid area of memory of size at least 'length'.
 {
     static char HEX[] = "0123456789ABCDEF";
 
@@ -638,14 +640,14 @@ bsl::string showCharN(const char  *sequence,
                         // Function setState
                         // =================
 
+/// Move the specified `object` from its initial (i.e., newly constructed)
+/// state to the specified `state` using '\0' characters for input as
+/// needed.  The behavior is undefined if `object` is not in its
+/// newly-constructed initial state.  Note that when this function is
+/// invoked on a newly constructed object, it is presumed that
+/// `isInitialState` has been sufficiently tested to ensure that it returns
+/// `true`.
 void setState(bdlde::Base64Encoder *object, int state)
-    // Move the specified 'object' from its initial (i.e., newly constructed)
-    // state to the specified 'state' using '\0' characters for input as
-    // needed.  The behavior is undefined if 'object' is not in its
-    // newly-constructed initial state.  Note that when this function is
-    // invoked on a newly constructed object, it is presumed that
-    // 'isInitialState' has been sufficiently tested to ensure that it returns
-    // 'true'.
 {
     ASSERT(object); ASSERT(0 <= state); ASSERT(state < NUM_STATES);
 
@@ -744,35 +746,35 @@ void setState(bdlde::Base64Encoder *object, int state)
                         // Function isState
                         // ================
 
+/// If set to true, will enable ASSERTs in `::isState` (for debugging).
 static bool globalAssertsEnabled = false;
-    // If set to true, will enable ASSERTs in '::isState' (for debugging).
 
+/// Enable/Disable `::isState` ASSERTs for current scope; restore status at
+/// end.  Note that guards can be nested.
 class EnabledGuard {
-    // Enable/Disable '::isState' ASSERTs for current scope; restore status at
-    // end.  Note that guards can be nested.
 
     bool d_state;
 
   public:
+    /// Create a guard to control the activation of individual assertions in
+    /// the `::isState` test helper function using the specified enable
+    /// `flag` value.  If `flag` is `true` individual false values we be
+    /// reported as assertion errors.
     explicit
     EnabledGuard(bool flag)
-        // Create a guard to control the activation of individual assertions in
-        // the '::isState' test helper function using the specified enable
-        // 'flag' value.  If 'flag' is 'true' individual false values we be
-        // reported as assertion errors.
     : d_state(globalAssertsEnabled) { globalAssertsEnabled = flag; }
 
     ~EnabledGuard() { globalAssertsEnabled = d_state; }
 };
 
+/// Return `true` if the specified `object` was initially in the specified
+/// `state`, and `false` otherwise.  Setting the global variable
+/// `globalAssertsEnabled` to `true` enables individual sub-conditions to
+/// be ASSERTed, which can be used to facilitate test driver debugging.
+/// Note that the final state of `object` may (and probably will) be
+/// modified arbitrarily from its initial state in order to distinguish
+/// similar states.
 bool isState(bdlde::Base64Encoder *object, int state)
-    // Return 'true' if the specified 'object' was initially in the specified
-    // 'state', and 'false' otherwise.  Setting the global variable
-    // 'globalAssertsEnabled' to 'true' enables individual sub-conditions to
-    // be ASSERTed, which can be used to facilitate test driver debugging.
-    // Note that the final state of 'object' may (and probably will) be
-    // modified arbitrarily from its initial state in order to distinguish
-    // similar states.
 {
     ASSERT(object); ASSERT(0 <= state); ASSERT(state < NUM_STATES);
 
@@ -961,10 +963,10 @@ bool isState(bdlde::Base64Encoder *object, int state)
 
 namespace {
 
+/// This class implements a simple base64 decoder sufficient for this test
+/// driver.  The interface and code is taken from the `bdlde_base64decoder`
+/// component.
 class u_Base64Decoder_Test {
-    // This class implements a simple base64 decoder sufficient for this test
-    // driver.  The interface and code is taken from the 'bdlde_base64decoder'
-    // component.
 
     // PRIVATE TYPES
     enum {
@@ -1008,46 +1010,46 @@ class u_Base64Decoder_Test {
     int               d_bitsInStack;   // number of bits in 'd_stack'
 
   public:
+    /// Create a Base64 decoder in the initial state.  Unrecognized
+    /// characters (i.e., non-base64 characters other than whitespace) will
+    /// be treated as errors if the optionally specified
+    /// `unrecognizedIsErrorFlag` is `true`, and ignored otherwise.
     explicit
     u_Base64Decoder_Test(bool unrecognizedIsErrorFlag = true);
-        // Create a Base64 decoder in the initial state.  Unrecognized
-        // characters (i.e., non-base64 characters other than whitespace) will
-        // be treated as errors if the optionally specified
-        // 'unrecognizedIsErrorFlag' is 'true', and ignored otherwise.
 
+    /// Return the maximum number of decoded bytes that could result from an
+    /// input byte sequence of the specified `inputLength` provided to the
+    /// `convert` method of this decoder.  The behavior is undefined unless
+    /// 0 <= `inputLength`.
     static int maxDecodedLength(int encodedLen);
-        // Return the maximum number of decoded bytes that could result from an
-        // input byte sequence of the specified 'inputLength' provided to the
-        // 'convert' method of this decoder.  The behavior is undefined unless
-        // 0 <= 'inputLength'.
 
+    /// Decode the sequence of input characters starting at the specified
+    /// `begin` position up to, but not including, the specified `end`
+    /// position, writing any resulting output characters to the specified
+    /// `out` buffer.  Optionally specify the `maxNumOut` limit on the
+    /// number of bytes to output; if `maxNumOut` is negative, no limit is
+    /// imposed.  If the `maxNumOut` limit is reached, no further input will
+    /// be consumed.  Load into the specified `numOut` and `numIn` the
+    /// number of output bytes produced and input bytes consumed,
+    /// respectively.  Return a non-negative value on success, -1 on an
+    /// input error, and -2 if the `endConvert` method has already been
+    /// called without an intervening `resetState` call.
     int convert(char       *out,
                 int        *numOut,
                 int        *numIn,
                 const char *begin,
                 const char *end,
                 int         maxNumOut = -1);
-        // Decode the sequence of input characters starting at the specified
-        // 'begin' position up to, but not including, the specified 'end'
-        // position, writing any resulting output characters to the specified
-        // 'out' buffer.  Optionally specify the 'maxNumOut' limit on the
-        // number of bytes to output; if 'maxNumOut' is negative, no limit is
-        // imposed.  If the 'maxNumOut' limit is reached, no further input will
-        // be consumed.  Load into the specified 'numOut' and 'numIn' the
-        // number of output bytes produced and input bytes consumed,
-        // respectively.  Return a non-negative value on success, -1 on an
-        // input error, and -2 if the 'endConvert' method has already been
-        // called without an intervening 'resetState' call.
 
+    /// Terminate decoding for this decoder; write any retained output to
+    /// the specified `out` buffer; encode any unprocessed input characters
+    /// that do not complete a 3-byte sequence.  Optionally specify the
+    /// `maxNumOut` limit on the number of bytes to output; if `maxNumOut`
+    /// is negative, no limit is imposed.  Load into the specified `numOut`
+    /// the number of output bytes produced.  Return 0 on success, the
+    /// positive number of bytes *still* retained by this decoder if the
+    /// `maxNumOut` limit was reached, and a negative value otherwise.
     int endConvert(char* out, int *numOut, int maxNumOut = -1);
-        // Terminate decoding for this decoder; write any retained output to
-        // the specified 'out' buffer; encode any unprocessed input characters
-        // that do not complete a 3-byte sequence.  Optionally specify the
-        // 'maxNumOut' limit on the number of bytes to output; if 'maxNumOut'
-        // is negative, no limit is imposed.  Load into the specified 'numOut'
-        // the number of output bytes produced.  Return 0 on success, the
-        // positive number of bytes *still* retained by this decoder if the
-        // 'maxNumOut' limit was reached, and a negative value otherwise.
 };
 
 // CLASS DATA
@@ -1296,10 +1298,10 @@ namespace u {
 
 typedef void (*Checker)(const char *, const char *, bsl::size_t);
 
+/// Check that the specfied sequence `[ begin, end )` is 100% valid base 64
+/// characters, with CRLF's exactly where they're expected given the
+/// specified `lineLength`.
 void checkBasic(const char *begin, const char *end, bsl::size_t lineLength)
-    // Check that the specfied sequence '[ begin, end )' is 100% valid base 64
-    // characters, with CRLF's exactly where they're expected given the
-    // specified 'lineLength'.
 {
     if (0 == lineLength) {
         const char *preEqualsEnd = bsl::max(begin, end - 2);
@@ -1338,10 +1340,10 @@ void checkBasic(const char *begin, const char *end, bsl::size_t lineLength)
     }
 }
 
+/// Check that the specfied sequence `[ begin, end )` is 100% valid base 64
+/// characters, with CRLF's exactly where they're expected given the
+/// specified `lineLength`.
 void checkUrl(const char *begin, const char *end, bsl::size_t lineLength)
-    // Check that the specfied sequence '[ begin, end )' is 100% valid base 64
-    // characters, with CRLF's exactly where they're expected given the
-    // specified 'lineLength'.
 {
     if (0 == lineLength) {
         const char *preEqualsEnd = bsl::max(begin, end - 2);
@@ -1400,9 +1402,9 @@ void checkUrl(const char *begin, const char *end, bsl::size_t lineLength)
 using bsl::uint8_t;
 
 extern "C"
+/// Use the specified `data` array of `size` bytes as input to methods of
+/// this component and return zero.
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
-    // Use the specified 'data' array of 'size' bytes as input to methods of
-    // this component and return zero.
 {
     FuzzDataView fdv(data, size);    const FuzzDataView& FDV = fdv;
     int          test = FuzzUtil::consumeNumberInRange(&fdv, 1, 2);

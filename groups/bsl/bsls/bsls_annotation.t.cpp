@@ -4,8 +4,8 @@
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>
-#include <stdlib.h>  // 'calloc', 'realloc', 'atoi'
-#include <string.h>  // 'strcmp'
+#include <stdlib.h>  // `calloc`, `realloc`, `atoi`
+#include <string.h>  // `strcmp`
 
 // Uncomment next line to test annotations that can cause compiler warnings.
 //#define BSLS_ANNOTATION_TRIGGER_OTHER
@@ -21,56 +21,56 @@
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
 // task using a compliant compiler, each time defining a different
-// 'BSLS_ANNOTATION_TRIGGER_*' preprocessor variables (each undefined by
+// `BSLS_ANNOTATION_TRIGGER_*` preprocessor variables (each undefined by
 // default), and check the build output for the proper behavior.  In each case,
 // the concerns are:
 //
-//: o Did the build succeed or not?
-//:
-//: o Was the expected warning observed, or not?
-//:
-//: o Was the expected suppression of some warning, suppressed or not?
-//:
-//: o For annotations taking arguments, do the results show if the arguments
-//:   were properly passed to the underlying compiler directives?
+//  - Did the build succeed or not?
+//
+//  - Was the expected warning observed, or not?
+//
+//  - Was the expected suppression of some warning, suppressed or not?
+//
+//  - For annotations taking arguments, do the results show if the arguments
+//    were properly passed to the underlying compiler directives?
 //
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
 // does nothing.
 //
 // The controlling preprocessor variables are:
 //
-//: o 'BSLS_ANNOTATION_TRIGGER_ERROR': if defined, use the
-//:   'BSLS_ANNOTATION_ERROR(message)' annotation.  Note that the task should
-//:   *not* build and the compiler output should show the specified 'message'.
-//:
-//:   o Maintenance note: This is the only test that causes compiler failure.
-//:     If others are added, each will require an individual controlling
-//:     preprocessor variable.
-//:
-//: o 'BSLS_ANNOTATION_TRIGGER_OTHER', if defined, use all the annotations
-//:   defined in this component, except those expected to cause compile-time
-//:   failure.
+//  - `BSLS_ANNOTATION_TRIGGER_ERROR`: if defined, use the
+//    `BSLS_ANNOTATION_ERROR(message)` annotation.  Note that the task should
+//    *not* build and the compiler output should show the specified `message`.
 //
-// For each annotation, 'BSLS_ANNOTATION_XXXX', we create a function named
-// 'test_XXXX' to which annotation 'BSLS_ANNOTATION_XXXX' is applied.  For the
+//    - Maintenance note: This is the only test that causes compiler failure.
+//      If others are added, each will require an individual controlling
+//      preprocessor variable.
+//
+//  - `BSLS_ANNOTATION_TRIGGER_OTHER`, if defined, use all the annotations
+//    defined in this component, except those expected to cause compile-time
+//    failure.
+//
+// For each annotation, `BSLS_ANNOTATION_XXXX`, we create a function named
+// `test_XXXX` to which annotation `BSLS_ANNOTATION_XXXX` is applied.  For the
 // two annotations that are also applicable to variables and types, we
-// additionally create 'test_XXXX_variable' and 'test_XXXX_type'.  These
+// additionally create `test_XXXX_variable` and `test_XXXX_type`.  These
 // entities are exercised in several ways:
 //
-//: o Some are just declared and, if appropriate, defined, with no other usage.
-//:   For example, the 'BSLS_ANNOTATION_ALLOC_SIZE(x)' is a hint for compiler
-//:   optimization; no compiler message expected.  Another example is
-//:   'BSLS_ANNOTATION_UNUSED'.  For that annotation there must be no other
-//:   usage to check if the usual compiler warning message is suppressed.
-//:
-//: o For other test functions, variables, and types, a function, variable, or
-//:   type (as appropriated) named 'use_with_warning_message_XXXX' is defined
-//:   such that a warning message should be generated.
-//:
-//: o Finally, for some 'use_with_warning_message_XXXX' entities, there is a
-//:   corresponding 'use_without_diagnostic_message_XXXX' is defined to create
-//:   a context where annotation 'BSLS_ANNOTATION_XXXX' must *not* result in a
-//:   compiler message.
+//  - Some are just declared and, if appropriate, defined, with no other usage.
+//    For example, the `BSLS_ANNOTATION_ALLOC_SIZE(x)` is a hint for compiler
+//    optimization; no compiler message expected.  Another example is
+//    `BSLS_ANNOTATION_UNUSED`.  For that annotation there must be no other
+//    usage to check if the usual compiler warning message is suppressed.
+//
+//  - For other test functions, variables, and types, a function, variable, or
+//    type (as appropriated) named `use_with_warning_message_XXXX` is defined
+//    such that a warning message should be generated.
+//
+//  - Finally, for some `use_with_warning_message_XXXX` entities, there is a
+//    corresponding `use_without_diagnostic_message_XXXX` is defined to create
+//    a context where annotation `BSLS_ANNOTATION_XXXX` must *not* result in a
+//    compiler message.
 //
 // The table below classifies each of the annotations provided by this
 // component by the entities to which it can be applied (i.e., function,
@@ -79,7 +79,7 @@
 // right-most column appear as comments throughout this test driver.  They can
 // be used as an aid to navigation to the test code for each annotation, and an
 // aid to assuring test coverage.
-//..
+// ```
 //  No  Annotation                            E Result     Tag
 //  --  ------------------------------------  - --------   ----------
 //   1  BSLS_ANNOTATION_ALLOC_SIZE(x)         F optim.      1fo
@@ -104,32 +104,32 @@
 //  16 BSLS_ANNOTATION_FALLTHROUGH            F warn not   16fwn
 //  17 BSLS_ANNOTATION_NORETURN               F error      17fe
 //  18 BSLS_ANNOTATION_ANALYZER_NORETURN      F warn       18f
-//..
+// ```
 // Note that all annotations are defined as empty unless one is on a conforming
-// compiler (e.g., 'BSLS_PLATFORM_CMP_GNU' is defined).  Also note that there
+// compiler (e.g., `BSLS_PLATFORM_CMP_GNU` is defined).  Also note that there
 // are minimum version requirements for several annotations; otherwise they are
 // undefined.  Finally note that, if defined, the values for
-// 'BSLS_PLATFORM_CMP_GNU' and 'BSLS_PLATFORM_CMP_VER_MAJOR' are output when
+// `BSLS_PLATFORM_CMP_GNU` and `BSLS_PLATFORM_CMP_VER_MAJOR` are output when
 // the BREATHING TEST is run in verbose mode.
-//..
+// ```
 //  +--------------------------------+------------------------------------+
 //  | Minimum                        |                                    |
-//  | 'BSLS_PLATFORM_CMP_VER_MAJOR' | Annotations                        |
+//  | `BSLS_PLATFORM_CMP_VER_MAJOR` | Annotations                        |
 //  +--------------------------------+------------------------------------+
-//  |                         30100  |'BSLS_ANNOTATION_DEPRECATED'        |
+//  |                         30100  |`BSLS_ANNOTATION_DEPRECATED`        |
 //  +--------------------------------+------------------------------------+
-//  |                         30300  |'BSLS_ANNOTATION_ARG_NON_NULL'      |
-//  |                                |'BSLS_ANNOTATION_ARGS_NON_NULL'     |
+//  |                         30300  |`BSLS_ANNOTATION_ARG_NON_NULL`      |
+//  |                                |`BSLS_ANNOTATION_ARGS_NON_NULL`     |
 //  +--------------------------------+------------------------------------+
-//  |                         30400  |'BSLS_ANNOTATION_WARN_UNUSED_RESULT'|
+//  |                         30400  |`BSLS_ANNOTATION_WARN_UNUSED_RESULT`|
 //  +--------------------------------+------------------------------------+
-//  |                         40000  |'BSLS_ANNOTATION_NULL_TERMINATED'   |
-//  |                                |'BSLS_ANNOTATION_NULL_TERMINATED_AT'|
+//  |                         40000  |`BSLS_ANNOTATION_NULL_TERMINATED`   |
+//  |                                |`BSLS_ANNOTATION_NULL_TERMINATED_AT`|
 //  +--------------------------------+------------------------------------+
-//  |                         40300  |'BSLS_ANNOTATION_ALLOC_SIZE'        |
-//  |                                |'BSLS_ANNOTATION_ALLOC_SIZE_MUL'    |
+//  |                         40300  |`BSLS_ANNOTATION_ALLOC_SIZE`        |
+//  |                                |`BSLS_ANNOTATION_ALLOC_SIZE_MUL`    |
 //  +--------------------------------+------------------------------------+
-//..
+// ```
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
@@ -197,14 +197,14 @@ void *test_ALLOC_SIZE_MUL(size_t count, size_t size)                 // { 2fo }
 }
 
 int test_ERROR() BSLS_ANNOTATION_ERROR
-                               ("myExpectedError: Do not call 'test_WARNING'");
+                               ("myExpectedError: Do not call `test_WARNING`");
 int test_ERROR()
 {
     return 1;
 }
 
 int test_WARNING()
-              BSLS_ANNOTATION_WARNING("myWarning: Do not call 'test_WARNING'");
+              BSLS_ANNOTATION_WARNING("myWarning: Do not call `test_WARNING`");
 int test_WARNING()
 {
     return 1;
@@ -565,11 +565,11 @@ using namespace std;
 //                              HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// Print a diagnostic message to standard output if any of the preprocessor
+/// flags of interest are defined, and their value if a value had been set.
+/// An "Enter" and "Leave" message is printed unconditionally so there is
+/// some report even if all of the flags are undefined.
 static void printFlags()
-    // Print a diagnostic message to standard output if any of the preprocessor
-    // flags of interest are defined, and their value if a value had been set.
-    // An "Enter" and "Leave" message is printed unconditionally so there is
-    // some report even if all of the flags are undefined.
 {
     printf("printFlags: Enter\n");
 
@@ -806,22 +806,22 @@ int main(int argc, char **argv)
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 This test driver does *not* build when the
-        //:   'BSLS_ANNOTATION_TRIGGER_ERROR' preprocessor variable is defined
-        //:   and all expected output appears.
-        //:
-        //: 2 This test driver builds with all expected compiler warning
-        //:   messages and no unexpected warnings when the
-        //:   'BSLS_ANNOTATION_TRIGGER_OTHER' preprocessor variable is defined.
+        // 1. This test driver does *not* build when the
+        //    `BSLS_ANNOTATION_TRIGGER_ERROR` preprocessor variable is defined
+        //    and all expected output appears.
+        //
+        // 2. This test driver builds with all expected compiler warning
+        //    messages and no unexpected warnings when the
+        //    `BSLS_ANNOTATION_TRIGGER_OTHER` preprocessor variable is defined.
         //
         // Plan:
-        //: 1 Build with 'BSLS_ANNOTATION_TRIGGER_ERROR' defined and externally
-        //:   confirm that compilation of this task failed and the compiler
-        //:   output shows the expected message.  (C-1)
-        //:
-        //: 2 Build with 'BSLS_ANNOTATION_TRIGGER_WARNINGS' defined and
-        //:   externally examine compiler output for expected warnings and the
-        //:   absence of warnings expected to be suppressed.  (C-2)
+        // 1. Build with `BSLS_ANNOTATION_TRIGGER_ERROR` defined and externally
+        //    confirm that compilation of this task failed and the compiler
+        //    output shows the expected message.  (C-1)
+        //
+        // 2. Build with `BSLS_ANNOTATION_TRIGGER_WARNINGS` defined and
+        //    externally examine compiler output for expected warnings and the
+        //    absence of warnings expected to be suppressed.  (C-2)
         //
         // Testing:
         //   BREATHING TEST
@@ -837,7 +837,7 @@ int main(int argc, char **argv)
 
             if (!veryVeryVerbose) printFlags();
 
-            ASSERT(true); // remove unused warning for 'aSsErT'
+            ASSERT(true); // remove unused warning for `aSsErT`
         }
 
       } break;

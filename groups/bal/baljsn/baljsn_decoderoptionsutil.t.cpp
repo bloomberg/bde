@@ -7,7 +7,7 @@
 
 #include <bsls_asserttest.h>
 
-#include <bsl_cstdlib.h> // 'bsl::atoi'
+#include <bsl_cstdlib.h> // `bsl::atoi`
 #include <bsl_ostream.h>
 
 using namespace BloombergLP;
@@ -21,8 +21,8 @@ using bsl::endl;
 //                             Overview
 //                             --------
 // The component under test, 'baljsn_decoderoptionutils, implements a utility
-// for setting 'baljsn::DecoderOptions' object to particular configuration.
-// Currently there a single function, 'setMode', is provided, and two modes,
+// for setting `baljsn::DecoderOptions` object to particular configuration.
+// Currently there a single function, `setMode`, is provided, and two modes,
 // "default" and "strict" are defined.
 //
 // ----------------------------------------------------------------------------
@@ -111,13 +111,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -131,60 +131,60 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Setting 'baljsn::DecoderOptions' for Strictness
+///Example 1: Setting `baljsn::DecoderOptions` for Strictness
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Every call to one of the (non-deprecated) 'decode' functions of
-// 'baljsn::Decoder' requires the user to provide a 'baljsn::DecoderOptions'
+// Every call to one of the (non-deprecated) `decode` functions of
+// `baljsn::Decoder` requires the user to provide a `baljsn::DecoderOptions`
 // object that allows the user to fine-tune the rules used when decoding the
-// JSON document.  The 'setMode' function of this utility provides a convenient
+// JSON document.  The `setMode` function of this utility provides a convenient
 // way to set the option attributes to a combination that is deemed "strict"
 // (i.e., strictly complying with the rules of the JSON grammar).
 //
-// First, create a 'baljsn::DecoderOptions' object:
-//..
+// First, create a `baljsn::DecoderOptions` object:
+// ```
     baljsn::DecoderOptions options;
-//..
+// ```
 // Now, set the option values for strict compliance:
-//..
+// ```
     baljsn::DecoderOptionsUtil::setMode(
                                 &options,
                                 baljsn::DecoderOptionsUtil::e_STRICT_20240423);
-//..
-// Finally, should there be a need, 'options' can be adjusted to a laxer set of
+// ```
+// Finally, should there be a need, `options` can be adjusted to a laxer set of
 // rules by adjusting individual attributes or, if the original set of default
-// attributes is needed, by using 'setMode':
-//..
+// attributes is needed, by using `setMode`:
+// ```
     baljsn::DecoderOptionsUtil::setMode(&options,
                                         baljsn::DecoderOptionsUtil::e_DEFAULT);
-//..
+// ```
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TEST 'setMode'
+        // TEST `setMode`
         //
         // Concerns:
-        //: 1 When setting mode 'e_STRICT_20240423' all
-        //:   'baljsn::DecoderOptions' attributes relevant to strict are set to
-        //:   their expected values *and* no other attributes are changed.
-        //:
-        //: 2 When setting mode 'e_DEFAULT' all attributes (relevant to
-        //:   strictness or not) are set to their default values.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. When setting mode `e_STRICT_20240423` all
+        //    `baljsn::DecoderOptions` attributes relevant to strict are set to
+        //    their expected values *and* no other attributes are changed.
+        //
+        // 2. When setting mode `e_DEFAULT` all attributes (relevant to
+        //    strictness or not) are set to their default values.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 A sequence of ad-hoc tests.  (C-1,2)
-        //:
-        //: 2 Use 'BSLS_ASSERTTEST_*' macros to confirm pre-condition tests.
-        //:  (C-3)
+        // 1. A sequence of ad-hoc tests.  (C-1,2)
+        //
+        // 2. Use `BSLS_ASSERTTEST_*` macros to confirm pre-condition tests.
+        //   (C-3)
         //
         // Testing:
         //   static void setMode(DecoderOptions *options, Mode mode);
         // --------------------------------------------------------------------
 
         if (verbose) cout  << endl
-                           << "TEST 'setMode'" << endl
+                           << "TEST `setMode`" << endl
                            << "==============" << endl;
 
         if (veryVerbose) cout << "Set to Strict  Mode" << endl;

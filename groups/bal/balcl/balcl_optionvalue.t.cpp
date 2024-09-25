@@ -13,7 +13,7 @@
 
 #include <bsltf_templatetestfacility.h>
 
-#include <bslma_default.h>  // 'bslma::globalAllocator'
+#include <bslma_default.h>  // `bslma::globalAllocator`
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_usesbslmaallocator.h>
@@ -23,11 +23,11 @@
 #include <bsls_asserttest.h>
 #include <bsls_nameof.h>
 
-#include <bsl_cstdlib.h>  // 'bsl::atoi'
-#include <bsl_cstring.h>  // 'bsl::strcmp'
+#include <bsl_cstdlib.h>  // `bsl::atoi`
+#include <bsl_cstring.h>  // `bsl::strcmp`
 #include <bsl_iostream.h>
-#include <bsl_ostream.h>  // 'operator<<'
-#include <bsl_sstream.h>  // 'bsl::ostringstream'
+#include <bsl_ostream.h>  // `operator<<`
+#include <bsl_sstream.h>  // `bsl::ostringstream`
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
@@ -42,44 +42,44 @@ using namespace bsl;
 // The component under test implements a single, value-semantic class, that
 // provides access to a single value that:
 //
-//: o Can be of any of the types (17) defined by 'balcl::OptionType'.
-//: o Can be in an unspecified (null) state.
-//: o Can be in a unset state.
+//  - Can be of any of the types (17) defined by `balcl::OptionType`.
+//  - Can be in an unspecified (null) state.
+//  - Can be in a unset state.
 //
 // By design, the type of these (type variant) objects can be changed by using
-// a method, 'setType', that is implemented by 'reset'ing the object to its
+// a method, `setType`, that is implemented by `reset`ing the object to its
 // unset state.  Although this feature is less than optimal for a class of
-// general use, the behavior suffices for its use in 'balcl_commandline' and
+// general use, the behavior suffices for its use in `balcl_commandline` and
 // saves us the need to explore the large cross product of supported types for
 // each operation.
 //
-// The class under test is based on two other classes 'bdlb::Variant' and
-// 'bdlb::NullableValue' that are "configured" and wrapped in a manner suitable
-// for the needs of 'balcl_commandline'.  As those classes are themselves
+// The class under test is based on two other classes `bdlb::Variant` and
+// `bdlb::NullableValue` that are "configured" and wrapped in a manner suitable
+// for the needs of `balcl_commandline`.  As those classes are themselves
 // thoroughly tested, our concerns for this class are primarily:
 //
-//: o Have we provided the intended signatures?
-//: o Are we correctly forwarding to the other classes?
-//: o Have we implemented the intended precondition checks?
-//: o Have we providing 'const' qualification were expected?
-//: o Have we defined the expected default values for optional arguments?
+//  - Have we provided the intended signatures?
+//  - Are we correctly forwarding to the other classes?
+//  - Have we implemented the intended precondition checks?
+//  - Have we providing `const` qualification were expected?
+//  - Have we defined the expected default values for optional arguments?
 //
 // We follow the general pattern for testing a value-semantic class.  Where
-// per-type testing is needed, we use the 'bsltf_templatetestfacility' so tests
+// per-type testing is needed, we use the `bsltf_templatetestfacility` so tests
 // need not be explicitly written for each type.
 //
 // Primary Manipulators:
-//: o void reset();
-//: o template <class TYPE> void set(const TYPE& value);
-//: o void setNull();
-//: o void setType(OptionType::Enum type);
+//  - void reset();
+//  - template <class TYPE> void set(const TYPE& value);
+//  - void setNull();
+//  - void setType(OptionType::Enum type);
 //
 // Basic Accessors:
-//: o bool hasNonVoidType() const;
-//: o bool isNull() const;
-//: o OptionType::Enum type() const;
-//: o template <class TYPE> const TYPE& the() const;
-//: o bslma::Allocator *allocator() const;
+//  - bool hasNonVoidType() const;
+//  - bool isNull() const;
+//  - OptionType::Enum type() const;
+//  - template <class TYPE> const TYPE& the() const;
+//  - bslma::Allocator *allocator() const;
 //
 // ----------------------------------------------------------------------------
 // CREATORS
@@ -135,7 +135,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [10] USAGE EXAMPLES
-// [ 2] CONCERN: HELPER 'u::shiftType'
+// [ 2] CONCERN: HELPER `u::shiftType`
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -558,17 +558,17 @@ Ot::TimeArray     ValueB<Ot::TimeArray>    ::s_value =
 namespace {
 namespace u {
 
+/// Return the enumerated value that is the specified `offset` advanced from
+/// the specified `type` in the sequence `[Ot::e_BOOL .. Ot::e_TIME_ARRAY]`.
+/// Offsets that go past the end of the sequence wrap around to
+/// `Ot::e_BOOL`.  The behavior is undefined if `Ot::e_VOID == type`.  Note
+/// that `offset` can be negative.  Also note that `Ot::e_VOID` is *not*
+/// part of the sequence.
 Ot::Enum shiftType(Ot::Enum type, int offset)
-    // Return the enumerated value that is the specified 'offset' advanced from
-    // the specified 'type' in the sequence '[Ot::e_BOOL .. Ot::e_TIME_ARRAY]'.
-    // Offsets that go past the end of the sequence wrap around to
-    // 'Ot::e_BOOL'.  The behavior is undefined if 'Ot::e_VOID == type'.  Note
-    // that 'offset' can be negative.  Also note that 'Ot::e_VOID' is *not*
-    // part of the sequence.
 {
     ///Implementation Note
     ///-------------------
-    // Preconditions are checked using 'ASSERT' instead of 'BSLS_ASSERT*' to
+    // Preconditions are checked using `ASSERT` instead of `BSLS_ASSERT*` to
     // guarantee that there are no misleading exceptions thrown when this
     // function is used in negative tests.
 
@@ -597,22 +597,22 @@ Ot::Enum shiftType(Ot::Enum type, int offset)
     return static_cast<Ot::Enum>(typeAsInt);
 }
 
+/// Set the value of the object at the specified `objPtr` to one of three
+/// values as indicated by the specified `cfg`.  Optionally specify an
+/// `offset` from `objPtr->type()` for the type of the value being set.  The
+/// three allowed values for `cfg` are:
+///
+///  `D`: The default value for `objPtr->type()`.
+///  `A`: The `ValueA`      for `objPtr->type()`.
+///  `B`: The `ValueB`      for `objPtr->type()`.
+///
+/// The behavior is undefined if `cfg` has a value other that `D`, `A`, or
+/// `B`, or if `Ot::e_VOID == objPtr->type()` when `0 != offset`.
 void setValueDAB(Obj *objPtr, char cfg, int offset = 0)
-    // Set the value of the object at the specified 'objPtr' to one of three
-    // values as indicated by the specified 'cfg'.  Optionally specify an
-    // 'offset' from 'objPtr->type()' for the type of the value being set.  The
-    // three allowed values for 'cfg' are:
-    //
-    //: 'D': The default value for 'objPtr->type()'.
-    //: 'A': The 'ValueA'      for 'objPtr->type()'.
-    //: 'B': The 'ValueB'      for 'objPtr->type()'.
-    //
-    // The behavior is undefined if 'cfg' has a value other that 'D', 'A', or
-    // 'B', or if 'Ot::e_VOID == objPtr->type()' when '0 != offset'.
 {
     ///Implementation Note
     ///-------------------
-    // Preconditions are checked using 'ASSERT' instead of 'BSLS_ASSERT*' to
+    // Preconditions are checked using `ASSERT` instead of `BSLS_ASSERT*` to
     // guarantee that there are no misleading exceptions thrown when this
     // function is used in negative tests.
 
@@ -852,14 +852,14 @@ void setValueDAB(Obj *objPtr, char cfg, int offset = 0)
     }
 }
 
+/// Return `true` if the three values for the template parameter `TYPE`:
+/// * 'TYPE()
+/// * `ValueA<TYPE>::s_value`
+/// * `ValueB<TYPE>::s_value`
+/// are distinct from each other, and `false` otherwise.  The classes
+/// `ValueA<TYPE>` and `ValueB<TYPE>` are defined at file scope.
 template <class TYPE>
 bool checkValueDAB()
-    // Return 'true' if the three values for the template parameter 'TYPE':
-    //: o 'TYPE()
-    //: o 'ValueA<TYPE>::s_value'
-    //: o 'ValueB<TYPE>::s_value'
-    // are distinct from each other, and 'false' otherwise.  The classes
-    // 'ValueA<TYPE>' and 'ValueB<TYPE>' are defined at file scope.
 {
     const TYPE D = TYPE();
     const TYPE A(ValueA<TYPE>::s_value);
@@ -870,28 +870,28 @@ bool checkValueDAB()
         && A != B;
 }
 
+/// Return `true` if the two values:
+/// * `ValueA<bool>::s_value`
+/// * `ValueB<bool>::s_value`
+/// are distinct from each other and `bool() == ValueB<bool>::s_value`, and
+/// `false` otherwise.  The classes `ValueA<bool>` and `ValueB<bool>` are
+/// defined at file scope.
 template <>
 bool checkValueDAB<bool>()
-    // Return 'true' if the two values:
-    //: o 'ValueA<bool>::s_value'
-    //: o 'ValueB<bool>::s_value'
-    // are distinct from each other and 'bool() == ValueB<bool>::s_value', and
-    // 'false' otherwise.  The classes 'ValueA<bool>' and 'ValueB<bool>' are
-    // defined at file scope.
 {
     const bool D = bool();
     const bool A(ValueA<bool>::s_value);
     const bool B(ValueB<bool>::s_value);
 
     return D != A
-        && D == B   // only two distinct values of 'bool'
+        && D == B   // only two distinct values of `bool`
         && A != B;
 }
 
+/// Return `true` if the function template `checkValueDAB` returns `true`
+/// for every option type specified in `balcl::OptionType`, and `false`
+/// otherwise.
 bool checkAllValuesDAB()
-    // Return 'true' if the function template 'checkValueDAB' returns 'true'
-    // for every option type specified in 'balcl::OptionType', and 'false'
-    // otherwise.
 {
     return checkValueDAB<Ot::Bool>()
         && checkValueDAB<Ot::Char>()
@@ -912,23 +912,23 @@ bool checkAllValuesDAB()
         && checkValueDAB<Ot::TimeArray>();
 }
 
+/// Return `true` if the specified `obj` has a value corresponding to the
+/// value associated with the specified `cfg`, and `false` otherwise.
+/// Optionally specify an `offset` from `obj.type()` for the type of the
+/// value sought from `obj`.  The three allowed values for `cfg` are:
+///
+///  `D`: The default value for `objPtr->type()`.
+///  `A`: The `ValueA`      for `objPtr->type()`.
+///  `B`: The `ValueB`      for `objPtr->type()`.
+///
+/// The behavior is undefined if `cfg` has a value other that `D`, `A`, or
+/// `B`, or if `Ot::e_VOID == obj.type()` when `0 != offset`.
 bool hasValueDAB(const Obj& obj, char cfg, int offset = 0)
 
-    // Return 'true' if the specified 'obj' has a value corresponding to the
-    // value associated with the specified 'cfg', and 'false' otherwise.
-    // Optionally specify an 'offset' from 'obj.type()' for the type of the
-    // value sought from 'obj'.  The three allowed values for 'cfg' are:
-    //
-    //: 'D': The default value for 'objPtr->type()'.
-    //: 'A': The 'ValueA'      for 'objPtr->type()'.
-    //: 'B': The 'ValueB'      for 'objPtr->type()'.
-    //
-    // The behavior is undefined if 'cfg' has a value other that 'D', 'A', or
-    // 'B', or if 'Ot::e_VOID == obj.type()' when '0 != offset'.
 {
     ///Implementation Note
     ///-------------------
-    // Preconditions are checked using 'ASSERT' instead of 'BSLS_ASSERT*' to
+    // Preconditions are checked using `ASSERT` instead of `BSLS_ASSERT*` to
     // guarantee that there are no misleading exceptions thrown when this
     // function is used in negative tests.
 
@@ -1201,10 +1201,10 @@ bool hasValueDAB(const Obj& obj, char cfg, int offset = 0)
     return false; // Suppress warning.
 }
 
+/// Return the allocator of the specified `obj`.  The behavior is undefined
+/// unless `OptionType::EnumToType<ENUM>::type` is an allocating type where
+/// `ENUM` matches `obj.type()`.
 bslma::Allocator *getContainedAllocator(const Obj& obj)
-    // Return the allocator of the specified 'obj'.  The behavior is undefined
-    // unless 'OptionType::EnumToType<ENUM>::type' is an allocating type where
-    // 'ENUM' matches 'obj.type()'.
 {
     BSLS_ASSERT(Ot::e_VOID     != obj.type()
              && Ot::e_BOOL     != obj.type()
@@ -1278,19 +1278,18 @@ bslma::Allocator *getContainedAllocator(const Obj& obj)
     return 0; // Suppress warning.
 }
 
+/// Return `true` if the specified `expectedAllocator` is properly
+/// "installed" in the specified `obj` according to the specified
+/// `isAllocatingType`, and `false` otherwise.  There are two requirements
+/// for correctly "installed":
+///
+/// 1. The `obj` should use `expectedAllocator` (unconditionally).
+/// 2. If `obj` has a value and the value's type `isAllocatingType` (i.e.,
+///    `Ot::e_STRING` and any of the array types) then that value must use
+///    the `expectedAllocator`.
 bool checkAllocator(const Obj&        obj,
                     bool              isAllocatingType,
                     bslma::Allocator *expectedAllocator)
-    // Return 'true' if the specified 'expectedAllocator' is properly
-    // "installed" in the specified 'obj' according to the specified
-    // 'isAllocatingType', and 'false' otherwise.  There are two requirements
-    // for correctly "installed":
-    //
-    //: 1 The 'obj' should use 'expectedAllocator' (unconditionally).
-    //:
-    //: 2 If 'obj' has a value and the value's type 'isAllocatingType' (i.e.,
-    //:   'Ot::e_STRING' and any of the array types) then that value must use
-    //:   the 'expectedAllocator'.
 {
     if (expectedAllocator != obj.allocator()) {
         return false;                                                 // RETURN
@@ -1306,11 +1305,11 @@ bool checkAllocator(const Obj&        obj,
     return true;
 }
 
+/// Return 0 if streaming the specified `obj` seems correct, and a non-zero
+/// value otherwise.  Correctness is decided based on several heuristics
+/// that vary according to the state (unset or not), type, and null stater
+/// (or not) of `obj`.
 int checkPrint(const Obj& obj)
-    // Return 0 if streaming the specified 'obj' seems correct, and a non-zero
-    // value otherwise.  Correctness is decided based on several heuristics
-    // that vary according to the state (unset or not), type, and null stater
-    // (or not) of 'obj'.
 {
     const Ot::Enum type = obj.type();
 
@@ -1368,6 +1367,7 @@ int checkPrint(const Obj& obj)
 //                              TEMPLATE TEST FACILITY
 // ----------------------------------------------------------------------------
 
+/// This macro lists all of the types supported by the class under test.
 #define ALL_SUPPORTED_TYPES                                                   \
         balcl::OptionType::Bool,                                              \
         balcl::OptionType::Char,                                              \
@@ -1386,7 +1386,6 @@ int checkPrint(const Obj& obj)
         balcl::OptionType::DatetimeArray,                                     \
         balcl::OptionType::DateArray,                                         \
         balcl::OptionType::TimeArray
-    // This macro lists all of the types supported by the class under test.
 
 #define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
 
@@ -1400,17 +1399,17 @@ int checkPrint(const Obj& obj)
                         // struct TestDriver
                         // =================
 
+/// Test modifiable access.
 template <class TYPE>
 struct TestDriver {
     static void testCase9();
-        // Test modifiable access.
 
+    /// Test value constructors
     static void testCase4();
-        // Test value constructors
 
+    /// Test default constructors, primary manipulators, basic accessors,
+    /// and the destructor.
     static void testCase3();
-        // Test default constructors, primary manipulators, basic accessors,
-        // and the destructor.
 };
 
                         // -----------------
@@ -1785,7 +1784,7 @@ void TestDriver<TYPE>::testCase3()
     {
         bsls::AssertTestHandlerGuard hG;
 
-        if (veryVerbose) cout << "\nThe 'isNull'/'setNull' methods." << endl;
+        if (veryVerbose) cout << "\nThe `isNull`/`setNull` methods." << endl;
         {
             Obj mX; const Obj& X = mX;
 
@@ -1797,7 +1796,7 @@ void TestDriver<TYPE>::testCase3()
             ASSERT_PASS( X. isNull());
             ASSERT_PASS(mX.setNull());
         }
-        if (veryVerbose) cout << "\nThe 'set' methods." << endl;
+        if (veryVerbose) cout << "\nThe `set` methods." << endl;
         {
             Obj mX;
 
@@ -1810,7 +1809,7 @@ void TestDriver<TYPE>::testCase3()
             ASSERT_FAIL(u::setValueDAB(&mX, 'A',  1));
         }
 
-        if (veryVerbose) cout << "\nThe 'the' methods." << endl;
+        if (veryVerbose) cout << "\nThe `the` methods." << endl;
         {
             Obj mX; const Obj& X = mX;
 
@@ -1836,7 +1835,7 @@ void TestDriver<TYPE>::testCase3()
 //                            TEST CASE FUNCTIONS
 // ----------------------------------------------------------------------------
 // Compilers (especially IBM xlC) may run out of resources when compiling code
-// that contains large switch statements (due to 'case' being just a label and
+// that contains large switch statements (due to `case` being just a label and
 // so the compiler having to consider *all* the code inside the switch).  To
 // make this thorough test driver compile under such compilers we have factored
 // out certain large-code-generating test cases into separate functions.
@@ -1866,25 +1865,25 @@ int main() {
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'balcl::OptionValue'
+///Example 1: Basic Use of `balcl::OptionValue`
 /// - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to create and use a
-// 'balcl::OptionValue' object.  Note that 'balcl::OptionValue' objects are
+// `balcl::OptionValue` object.  Note that `balcl::OptionValue` objects are
 // typically used in a description of a sequence of command-line options (see
-// {'balcl_optiontype'}).
+// {`balcl_optiontype`}).
 //
-// First, we create a default 'balcl::OptionValue', 'valueA', and observe that
+// First, we create a default `balcl::OptionValue`, `valueA`, and observe that
 // it is in the unset state:
-//..
+// ```
     balcl::OptionValue valueA;
 
     ASSERT(false                     == valueA.hasNonVoidType());
     ASSERT(balcl::OptionType::e_VOID == valueA.type());
-//..
-// Next, we create a second 'balcl::OptionValue' having the value 5, and then
+// ```
+// Next, we create a second `balcl::OptionValue` having the value 5, and then
 // confirm its value and observe that it does not compare equal to the
-// 'valueA':
-//..
+// `valueA`:
+// ```
     balcl::OptionValue valueB(5);
 
     ASSERT(true                     == valueB.hasNonVoidType());
@@ -1892,16 +1891,16 @@ int main() {
     ASSERT(5                        == valueB.the<int>());
 
     ASSERT(valueA != valueB);
-//..
-// Then, we call the 'reset' method of 'valueB' resetting it to the unset
-// state, and observe that 'valueA' now compares equal to 'valueB':
-//..
+// ```
+// Then, we call the `reset` method of `valueB` resetting it to the unset
+// state, and observe that `valueA` now compares equal to `valueB`:
+// ```
     valueB.reset();
 
     ASSERT(valueA == valueB);
-//..
-// Now, we change the type of 'valueA' so that it can be hold a 'double' value:
-//..
+// ```
+// Now, we change the type of `valueA` so that it can be hold a `double` value:
+// ```
     valueA.setType(balcl::OptionType::e_DOUBLE);
     ASSERT(true                        == valueA.hasNonVoidType());
     ASSERT(balcl::OptionType::e_DOUBLE == valueA.type());
@@ -1909,14 +1908,14 @@ int main() {
 
     valueA.set(6.0);
     ASSERT(6.0                         == valueA.the<double>());
-//..
+// ```
 // Finally, we set the object to the null state.  Notice that the type of that
 // value is not changed:
-//..
+// ```
     valueA.setNull();
     ASSERT(true                        == valueA.isNull());
     ASSERT(balcl::OptionType::e_DOUBLE == valueA.type());
-//..
+// ```
 
     // Do not show line below in header.
     return 0;
@@ -1948,76 +1947,79 @@ enum { NUM_OPTIONS = 1 }; // any non-zero value
 //
 ///Example 2: Interpreting Option Parser Results
 ///- - - - - - - - - - - - - - - - - - - - - - -
-// Command-line options have values of many different types (e.g., 'int',
-// 'double', string, date) or their values may not be specified -- after all,
-// some command-line options may be *optional*.  The 'balcl::OptionValue' class
+// Command-line options have values of many different types (e.g., `int`,
+// `double`, string, date) or their values may not be specified -- after all,
+// some command-line options may be *optional*.  The `balcl::OptionValue` class
 // can be used to represent such values.
 //
-// First, we define 'MyCommandLineParser', a simple command-line argument
+// First, we define `MyCommandLineParser`, a simple command-line argument
 // parser.  This class accepts a description (e.g., option name, value type) of
-// allowable options on construction and provides a 'parse' method that accepts
-// 'argc' and 'argv', the values made available (by the operating system) to
-// 'main':
-//..
+// allowable options on construction and provides a `parse` method that accepts
+// `argc` and `argv`, the values made available (by the operating system) to
+// `main`:
+// ```
                         // =========================
                         // class MyCommandLineParser
                         // =========================
 
+    /// ...
     class MyCommandLineParser {
-        // ...
 
       public:
         // CREATORS
+
+        /// Create an object that can parse command-line arguments that
+        /// satisfy the specified `descriptions`, an array containing the
+        /// specified `count` elements.
         MyCommandLineParser(const MyOptionDescription *descriptions,
                             bsl::size_t                count);
-            // Create an object that can parse command-line arguments that
-            // satisfy the specified 'descriptions', an array containing the
-            // specified 'count' elements.
 
         // ...
 
         // MANIPULATORS
+
+        /// Parse the command-line options in the specified `argv`, an array
+        /// having the specified `argc` elements.  Return 0 on success --
+        /// i.e., the options were compatible with the option descriptions
+        /// specified on construction -- and a non-zero value otherwise.
         int parse(int argc, const char **argv);
-            // Parse the command-line options in the specified 'argv', an array
-            // having the specified 'argc' elements.  Return 0 on success --
-            // i.e., the options were compatible with the option descriptions
-            // specified on construction -- and a non-zero value otherwise.
 
         // ...
-//..
-// After a successful call to the 'parse' method, the results are available by
-// several accessors.  Note that the 'index' of a result corresponds to the
+// ```
+// After a successful call to the `parse` method, the results are available by
+// several accessors.  Note that the `index` of a result corresponds to the
 // index of that option in the description provided on construction:
-//..
+// ```
         // ACCESSORS
+
+        /// Return `true` if the most recent call to `parsed` was successful
+        /// and `false` otherwise.
         bool isParsed() const;
-            // Return 'true' if the most recent call to 'parsed' was successful
-            // and 'false' otherwise.
 
+        /// Return of the name of the parsed option at the specified `index`
+        /// position.  The behavior is undefined unless
+        /// `0 <= index < numOptions()` and `true == isParsed()`
         const char *name (bsl::size_t index) const;
-            // Return of the name of the parsed option at the specified 'index'
-            // position.  The behavior is undefined unless
-            // '0 <= index < numOptions()' and 'true == isParsed()'
 
+        /// Return a `const` reference to the value (possibly in a null
+        /// state) of the parsed option at the specified `index` position.
+        /// The behavior is undefined unless `0 <= index < numOptions()` and
+        /// `true == isParsed()`.
         const balcl::OptionValue& value(bsl::size_t index) const;
-            // Return a 'const' reference to the value (possibly in a null
-            // state) of the parsed option at the specified 'index' position.
-            // The behavior is undefined unless '0 <= index < numOptions()' and
-            // 'true == isParsed()'.
 
+        /// Return the number of parsed options.  The behavior is undefined
+        /// unless `true == isParsed()`.
         bsl::size_t numOptions() const;
-            // Return the number of parsed options.  The behavior is undefined
-            // unless 'true == isParsed()'.
 
         // ...
     };
-//..
+// ```
 // Note that neither our option description nor our parser support the concept
 // of default values for options that are not entered on the command line.
 //
 // Then, we create a description having three allowable options (elided), a
-// parser object, and invoke 'parse' on the arguments available from 'main':
-//..
+// parser object, and invoke `parse` on the arguments available from `main`:
+// ```
     int main(int argc, const char **argv)
     {
         MyOptionDescription optionDescriptions[NUM_OPTIONS] = {
@@ -2029,54 +2031,54 @@ enum { NUM_OPTIONS = 1 }; // any non-zero value
         int rc = parser.parse(argc, argv);
         ASSERT(0    == rc);
         ASSERT(true == parser.isParsed());
-//..
+// ```
 // Now, we examine the value of each defined option:
-//..
+// ```
         for (bsl::size_t i = 0; i < parser.numOptions(); ++i) {
             const char                *name  = parser.name(i);
             const balcl::OptionValue&  value = parser.value(i);
-//..
+// ```
 // Since our (toy) parser has no feature for handling default values for
 // options that are not specified on the command line, we must handle those
 // explicitly.
 //
 // If the option named "outputDir" was set, we use that value; otherwise, we
 // set a default value, the current directory:
-//..
+// ```
             if (0 == bsl::strcmp("outputDir", name)) {
                 setOutputDir(value.isNull()
                              ? "."
                              : value.the<bsl::string>().c_str());
             }
-//..
+// ```
 // If the option named "verbosityLevel" was set we use that value; otherwise,
 // we set a default value, '1':
-//..
+// ```
             if (0 == bsl::strcmp("verbosityLevel", name)) {
                 setVerbosityLevel(value.isNull()
                                   ? 1
                                   : value.the<int>());
             }
-//..
+// ```
 // The option named "caseInsensitive" has no associated value.  If that option
 // appeared on the command line, the value of the program flag is set to
-// 'true', otherwise ('false == isNull()') that flag is set to 'false':
-//..
+// `true`, otherwise (`false == isNull()`) that flag is set to `false`:
+// ```
             if (0 == bsl::strcmp("caseInsensitive", name)) {
                 setCaseInsensitivityFlag(value.isNull()
                                          ? false
                                          : true);
             }
         }
-//..
+// ```
 // Finally, we continue with the execution of our program using the values
 // obtained from the command-line options:
-//..
+// ```
         // ...
 
         return 0;
     }
-//..
+// ```
 
 // Do not show code below in the header file.
 
@@ -2143,14 +2145,14 @@ int main(int argc, const char *argv[])  {
         // USAGE EXAMPLES
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLES
@@ -2171,21 +2173,21 @@ int main(int argc, const char *argv[])  {
         // MODIFIABLE ACCESS
         //
         // Concerns:
-        //: 1 The 'the' manipulator provides non-'const' access to the value
-        //:   for each supported type.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The `the` manipulator provides non-`const` access to the value
+        //    for each supported type.
+        //
+        // 2. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For each supported option type, create an object having a value
-        //:   of that type and use the 'the' manipulator to access and change
-        //:   that value to several other distinct values.  Confirm the changes
-        //:   using equality comparison.
-        //:
-        //: 2 Use negative testing to confirm the precondition checks that
-        //:   disallow access to objects that do not hold a value (i.e., unset
-        //:   objects or objects in a null state), to access to that value via
-        //:   a non-matching type.
+        // 1. For each supported option type, create an object having a value
+        //    of that type and use the `the` manipulator to access and change
+        //    that value to several other distinct values.  Confirm the changes
+        //    using equality comparison.
+        //
+        // 2. Use negative testing to confirm the precondition checks that
+        //    disallow access to objects that do not hold a value (i.e., unset
+        //    objects or objects in a null state), to access to that value via
+        //    a non-matching type.
         //
         // Testing:
         //   template <class TYPE> TYPE& the();
@@ -2200,25 +2202,25 @@ int main(int argc, const char *argv[])  {
         // COPY ASSIGNMENT
         //
         // Concerns:
-        //: 1 The operator has the expected signature.
-        //:
-        //: 2 One object can be assigned to another irrespective of the
-        //:   state/type/value of each of those objects.
-        //:
-        //: 3 The allocator of the assigned to object (lhs) is preserved.
+        // 1. The operator has the expected signature.
+        //
+        // 2. One object can be assigned to another irrespective of the
+        //    state/type/value of each of those objects.
+        //
+        // 3. The allocator of the assigned to object (lhs) is preserved.
         //
         // Plan:
-        //: 1 Use the "pointer-to-method" idiom to have the compiler check the
-        //:   signature.
-        //:
-        //: 2 For a representative set of objects (see the
-        //:   'DEFINE_OBJECT_TEST_SET' macro), assign each object with itself
-        //:   and to every other object.  Use equality comparison to confirm
-        //:   that each object is in the expected state afterward.
-        //:
-        //: 3 Use an ad hoc test to assign on object to another that is using a
-        //:   different allocator.  Confirm that the 'lhs' object retains its
-        //:   original allocator.
+        // 1. Use the "pointer-to-method" idiom to have the compiler check the
+        //    signature.
+        //
+        // 2. For a representative set of objects (see the
+        //    `DEFINE_OBJECT_TEST_SET` macro), assign each object with itself
+        //    and to every other object.  Use equality comparison to confirm
+        //    that each object is in the expected state afterward.
+        //
+        // 3. Use an ad hoc test to assign on object to another that is using a
+        //    different allocator.  Confirm that the `lhs` object retains its
+        //    original allocator.
         //
         // Testing:
         //   operator=(const OptionValue& rhs);
@@ -2357,21 +2359,21 @@ int main(int argc, const char *argv[])  {
         // SWAP MEMBER AND FREE FUNCTION
         //
         // Concerns:
-        //: 1 The member function and the free function have the expected
-        //:   signatures.
-        //:
-        //: 2 Arguments are correctly forwarded to the corresponding methods
-        //:   of the underlying classes.
+        // 1. The member function and the free function have the expected
+        //    signatures.
+        //
+        // 2. Arguments are correctly forwarded to the corresponding methods
+        //    of the underlying classes.
         //
         // Plan:
-        //: 1 Use the "pointer to function" and "pointer to member-function"
-        //:   idioms to have the compiler check the signatures.  (C-1)
-        //:
-        //: 2 For a representative set of objects (see the
-        //:   'DEFINE_OBJECT_TEST_SET' macro), for each of these two functions,
-        //:   swap each object with itself and with every other object.  Use
-        //:   equality comparison to confirm that each object is in the
-        //:   expected state afterward.
+        // 1. Use the "pointer to function" and "pointer to member-function"
+        //    idioms to have the compiler check the signatures.  (C-1)
+        //
+        // 2. For a representative set of objects (see the
+        //    `DEFINE_OBJECT_TEST_SET` macro), for each of these two functions,
+        //    swap each object with itself and with every other object.  Use
+        //    equality comparison to confirm that each object is in the
+        //    expected state afterward.
         //
         // Testing:
         //   void swap(OptionValue& other);
@@ -2467,18 +2469,18 @@ int main(int argc, const char *argv[])  {
         // COPY CONSTRUCTOR
         //
         // Concerns:
-        //: 1 The copy constructor duplicates the state/type/value of the
-        //:   original object.
-        //:
-        //: 2 The allocator of the created object depends on its constructor
-        //:   argument (not the allocator of the original object).
+        // 1. The copy constructor duplicates the state/type/value of the
+        //    original object.
+        //
+        // 2. The allocator of the created object depends on its constructor
+        //    argument (not the allocator of the original object).
         //
         // Plans:
-        //: 1 Use the copy constructor to duplicate a representative set of
-        //:   objects (see the 'DEFINE_OBJECT_TEST_SET' macro).  Confirm the
-        //:   state of the created objects using equality comparison.  (C-1)
-        //:
-        //: 2 Ad hoc test (C-2).
+        // 1. Use the copy constructor to duplicate a representative set of
+        //    objects (see the `DEFINE_OBJECT_TEST_SET` macro).  Confirm the
+        //    state of the created objects using equality comparison.  (C-1)
+        //
+        // 2. Ad hoc test (C-2).
         //
         // Testing:
         //   OptionValue(const OV& o, Allocator *bA = 0);
@@ -2523,25 +2525,25 @@ int main(int argc, const char *argv[])  {
         // EQUALITY-COMPARISON OPERATORS
         //
         // Concerns:
-        //: 1 The equality comparison operations have the expected signatures.
-        //:
-        //: 2 Equality requires agreement in state (set/unset, null/not-null),
-        //:   type, and value, irrespective of supported type.
-        //:
-        //: 3 The equality operators provide the expected behavior with respect
-        //:   to identity, transitivity, commutativity, and negation.
+        // 1. The equality comparison operations have the expected signatures.
+        //
+        // 2. Equality requires agreement in state (set/unset, null/not-null),
+        //    type, and value, irrespective of supported type.
+        //
+        // 3. The equality operators provide the expected behavior with respect
+        //    to identity, transitivity, commutativity, and negation.
         //
         // Plans:
-        //: 1 Use the "pointer to function" idiom to have the compiler check
-        //:   the signatures.  (C-1)
-        //:
-        //: 2 Use a series of ad hoc tests on a representative set of objects
-        //:   (see the 'DEFINE_OBJECT_TEST_SET' macro) to confirm equality (or
-        //:   not) as expected.  (C-2)
-        //:
-        //: 3 Use macros to implicit replicate each check into several
-        //:   equivalent tests that show commutativity, negation, etc.
-        //:   Identity test are part of P-2.  (C-3)
+        // 1. Use the "pointer to function" idiom to have the compiler check
+        //    the signatures.  (C-1)
+        //
+        // 2. Use a series of ad hoc tests on a representative set of objects
+        //    (see the `DEFINE_OBJECT_TEST_SET` macro) to confirm equality (or
+        //    not) as expected.  (C-2)
+        //
+        // 3. Use macros to implicit replicate each check into several
+        //    equivalent tests that show commutativity, negation, etc.
+        //    Identity test are part of P-2.  (C-3)
         //
         // Testing:
         //   bool operator==(const OptionValue& lhs, rhs);
@@ -2579,7 +2581,7 @@ int main(int argc, const char *argv[])  {
 
         DEFINE_OBJECT_TEST_SET
 
-        // No match with 'Unset'
+        // No match with `Unset`
         COMBO_NE(Unset            , NullBool);
         COMBO_NE(Unset            , NullChar);
         COMBO_NE(Unset            , NullInt);
@@ -2636,7 +2638,7 @@ int main(int argc, const char *argv[])  {
         COMBO_NE(NullDateArray    , NullTimeArray     );
         COMBO_NE(NullTimeArray    , NullBool          );
 
-        // No match with 'Unset'
+        // No match with `Unset`
         COMBO_NE(Unset            , DfltBool         );
         COMBO_NE(Unset            , DfltChar         );
         COMBO_NE(Unset            , DfltInt          );
@@ -2712,7 +2714,7 @@ int main(int argc, const char *argv[])  {
         COMBO_NE(DfltDateArray    , DfltTimeArray     );
         COMBO_NE(DfltTimeArray    , DfltBool          );
 
-        // No match with 'Unset'
+        // No match with `Unset`
         COMBO_NE(Unset            , Val1Bool         );
         COMBO_NE(Unset            , Val1Char         );
         COMBO_NE(Unset            , Val1Int          );
@@ -2859,21 +2861,21 @@ int main(int argc, const char *argv[])  {
         // VALUE CONSTRUCTORS
         //
         // Concerns:
-        //: 1 Each of the value constructors can be invoked with no specified
-        //:   allocator (and receive the default allocator), or with an
-        //:   explicit 0 argument (and also receive the default allocator), or
-        //:   with an explicitly specified allocator.
-        //:
-        //: 2 Each object is created with the intended type, value, and
-        //:   allocator.
+        // 1. Each of the value constructors can be invoked with no specified
+        //    allocator (and receive the default allocator), or with an
+        //    explicit 0 argument (and also receive the default allocator), or
+        //    with an explicitly specified allocator.
+        //
+        // 2. Each object is created with the intended type, value, and
+        //    allocator.
         //
         // Plans:
-        //: 1 Use the "footprint" idiom to repeat each test for a test object
-        //:   created using each constructor and argument pattern of interest.
-        //:   (C-1)
-        //:
-        //: 2 Use the (test) basic allocators (sometimes via helper functions)
-        //:   to confirm that the objects were created as expected.  (C-2)
+        // 1. Use the "footprint" idiom to repeat each test for a test object
+        //    created using each constructor and argument pattern of interest.
+        //    (C-1)
+        //
+        // 2. Use the (test) basic allocators (sometimes via helper functions)
+        //    to confirm that the objects were created as expected.  (C-2)
         //
         // Testing:
         //   OptionValue(Ot::Enum type, Allocator *bA = 0);
@@ -2905,66 +2907,66 @@ int main(int argc, const char *argv[])  {
         // DEFAULT CTOR, PRIMARY MANIPULATORS, BASIC ACCESSORS, AND DTOR
         //
         // Concerns:
-        //: 1 The test values (defined at file scope) 'D, 'A', and 'B' are
-        //:   different from each other for every supported option type
-        //:   except 'bool' (which can have only two distinct values).
-        //:
-        //: 2 We test both constructors that create unset objects and confirm
-        //:   that each receives the intended allocator.
-        //:
-        //:   o Note that we do not test the 'Obj(basicAllocator *)'
-        //:     constructor with a 0 value because, in that case, the compiler
-        //:     dispatches to the value constructor that accepts an 'int' (a
-        //:     better match, no conversion needed), not the intended
-        //:     allocator.
-        //:
-        //: 3 Use the primary manipulators to run the created object through
-        //:   various states: unset, typed with the default value (of the
-        //:   option type), typed but no specified value (the "null" state),
-        //:   and at least two different non-default values.
-        //:
-        //: 4 The basic accessors are in agreement with the expected state/
-        //:   value of the object.
-        //:
-        //: 5 The print and 'operator<<' stream operators have the expected
-        //:   signatures.  Also, the 'print' method has the expected default
-        //:   values for 'level' and 'spacesPerLevel'.
-        //:
-        //: 6 All accessors are 'const' qualified.
-        //:
-        //: 7 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The test values (defined at file scope) `D, `A', and `B` are
+        //    different from each other for every supported option type
+        //    except `bool` (which can have only two distinct values).
+        //
+        // 2. We test both constructors that create unset objects and confirm
+        //    that each receives the intended allocator.
+        //
+        //    - Note that we do not test the `Obj(basicAllocator *)`
+        //      constructor with a 0 value because, in that case, the compiler
+        //      dispatches to the value constructor that accepts an `int` (a
+        //      better match, no conversion needed), not the intended
+        //      allocator.
+        //
+        // 3. Use the primary manipulators to run the created object through
+        //    various states: unset, typed with the default value (of the
+        //    option type), typed but no specified value (the "null" state),
+        //    and at least two different non-default values.
+        //
+        // 4. The basic accessors are in agreement with the expected state/
+        //    value of the object.
+        //
+        // 5. The print and `operator<<` stream operators have the expected
+        //    signatures.  Also, the `print` method has the expected default
+        //    values for `level` and `spacesPerLevel`.
+        //
+        // 6. All accessors are `const` qualified.
+        //
+        // 7. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use the helper function 'u::checkAllValuesDAB' to confirm that
-        //:   'D', 'A', and 'B' have distinct values for all option types
-        //:   (except 'bool').
+        // 1. Use the helper function `u::checkAllValuesDAB` to confirm that
+        //    `D`, `A`, and `B` have distinct values for all option types
+        //    (except `bool`).
         //
-        //: 2 Use the "footprint" idiom to repeat each test for a test object
-        //:   created using each constructor and argument pattern of interest.
-        //:   (C-2)
-        //:
-        //: 3 The state of the object is changed using the primary manipulators
-        //:   'setType', 'reset', 'set', 'setNull'.  (C-3)
-        //:
-        //:   o Note that 'setValue' is invoked via the 'u::setValueDAB' helper
-        //:     function.
-        //:
-        //: 4 Use each of the listed basic accessors to confirm object state.
-        //:   (C-4)
-        //:
-        //:   o Note that the 'template const TYPE& the<TYPE>' accessor is
-        //:     invoked via the 'u::hasValueDAB' helper function.
-        //:
-        //: 5 Use the "pointer to member-function/operator" idiom.  Test the
-        //:   default values in an ad-hoc test.  Note that we are primarily
-        //:   testing the correct delegation to the print methods of the
-        //:   underlying classes.
-        //:
-        //: 6 Always invoke accessors on 'const' qualified objects or
-        //:   'const'-references to objects.  (If the accessor were not
-        //:   'const' qualified, compilation would fail.)
-        //:
-        //: 7 Use 'BSLS_ASSERTTEST_*' facilities for negative testing.  (C-7)
+        // 2. Use the "footprint" idiom to repeat each test for a test object
+        //    created using each constructor and argument pattern of interest.
+        //    (C-2)
+        //
+        // 3. The state of the object is changed using the primary manipulators
+        //    `setType`, `reset`, `set`, `setNull`.  (C-3)
+        //
+        //    - Note that `setValue` is invoked via the `u::setValueDAB` helper
+        //      function.
+        //
+        // 4. Use each of the listed basic accessors to confirm object state.
+        //    (C-4)
+        //
+        //    - Note that the `template const TYPE& the<TYPE>` accessor is
+        //      invoked via the `u::hasValueDAB` helper function.
+        //
+        // 5. Use the "pointer to member-function/operator" idiom.  Test the
+        //    default values in an ad-hoc test.  Note that we are primarily
+        //    testing the correct delegation to the print methods of the
+        //    underlying classes.
+        //
+        // 6. Always invoke accessors on `const` qualified objects or
+        //    `const`-references to objects.  (If the accessor were not
+        //    `const` qualified, compilation would fail.)
+        //
+        // 7. Use `BSLS_ASSERTTEST_*` facilities for negative testing.  (C-7)
         //
         // Testing:
         //   OptionValue();
@@ -2989,14 +2991,14 @@ int main(int argc, const char *argv[])  {
             << endl;
 
         if (veryVerbose)
-            cout << "\nCheck test values 'D', 'A', and 'B'" << endl;
+            cout << "\nCheck test values `D`, `A`, and `B`" << endl;
 
         ASSERT(u::checkAllValuesDAB());
 
         RUN_EACH_TYPE(TestDriver, testCase3, ALL_SUPPORTED_TYPES);
 
         if (veryVerbose)
-            cout << "\nCheck signatures of 'print' and 'operator<<'" << endl;
+            cout << "\nCheck signatures of `print` and `operator<<`" << endl;
         {
             using namespace balcl;
             typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
@@ -3011,7 +3013,7 @@ int main(int argc, const char *argv[])  {
             (void)operatorOp;
         }
 
-        if (veryVerbose) cout << "\nTest return value of 'print'" << endl;
+        if (veryVerbose) cout << "\nTest return value of `print`" << endl;
         {
             bsl::ostringstream oss;
 
@@ -3021,7 +3023,7 @@ int main(int argc, const char *argv[])  {
 
         }
 
-        if (veryVerbose) cout << "Test default values of 'print'" << endl;
+        if (veryVerbose) cout << "Test default values of `print`" << endl;
         {
             bsl::ostringstream oss;
 
@@ -3033,42 +3035,42 @@ int main(int argc, const char *argv[])  {
 
             oss.str(""); oss.clear();
 
-            X.print(oss, 2);     // ACTION  'spacesPerLevel' default to 4.
+            X.print(oss, 2);     // ACTION  `spacesPerLevel` default to 4.
             ASSERT(  "        NULL\n" == oss.str());
                     //----^---  indented by 8
 
             oss.str(""); oss.clear();
 
-            X.print(oss);        // ACTION  'level' default to 0.
+            X.print(oss);        // ACTION  `level` default to 0.
             ASSERT(          "NULL\n" == oss.str());
                               // no indentation
         }
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // HELPER: 'u::shiftType'
+        // HELPER: `u::shiftType`
         //
         // Concerns:
-        //: 1 The returned (enumerator) value is offset by the given 'offset'
-        //:   from the given (enumerator) value when the enumerators are
-        //:   ordered in their sequence of definition.
+        // 1. The returned (enumerator) value is offset by the given `offset`
+        //    from the given (enumerator) value when the enumerators are
+        //    ordered in their sequence of definition.
         //
-        //: 2 An offset that extends past 'Ot::e_TIME_ARRAY' continues with
-        //:   'Ot::e_BOOL' (and vice versa).
-        //:
-        //: 3 The offset can be negative.
-        //:
-        //: 4 The value 'Ot::e_VOID' is ignored in the calculation.
+        // 2. An offset that extends past `Ot::e_TIME_ARRAY` continues with
+        //    `Ot::e_BOOL` (and vice versa).
+        //
+        // 3. The offset can be negative.
+        //
+        // 4. The value `Ot::e_VOID` is ignored in the calculation.
         //
         // Plan:
-        //: 1 Using a table-driven test, compare calculated results with
-        //:   expected results the extreme values of the sequence.
+        // 1. Using a table-driven test, compare calculated results with
+        //    expected results the extreme values of the sequence.
         //
         // Testing:
-        //   CONCERN: HELPER 'u::shiftType'
+        //   CONCERN: HELPER `u::shiftType`
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nHELPER: 'u::shiftType'"
+        if (verbose) cout << "\nHELPER: `u::shiftType`"
                              "\n======================" << endl;
 
         static const struct {
@@ -3125,15 +3127,15 @@ int main(int argc, const char *argv[])  {
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create Scalar, String, Array values, Nulls of those, and Void.
-        //: 2 Show accessors work.
-        //: 3 Show copying works.
-        //: 4 Show assignment works.
-        //: 5 Show accessing the values works.
+        // 1. Create Scalar, String, Array values, Nulls of those, and Void.
+        // 2. Show accessors work.
+        // 3. Show copying works.
+        // 4. Show assignment works.
+        // 5. Show accessing the values works.
         //
         // Testing:
         //   BREATHING TEST

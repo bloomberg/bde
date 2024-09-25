@@ -126,21 +126,21 @@ void testMetric(BloombergLP::bdlm::Metric *value)
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using 'balm::BdlmMetricsAdapter'
+///Example 1: Using `balm::BdlmMetricsAdapter`
 ///- - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates the initialization and usage of the
-// 'balm::BdlmMetricsAdapter' object, allowing for registering metric callback
-// functions with the 'balm' monitoring system.
+// `balm::BdlmMetricsAdapter` object, allowing for registering metric callback
+// functions with the `balm` monitoring system.
 //
 // First, we provide a metric function to be used during callback registration
-// with the 'balm' monitoring system:
-//..
+// with the `balm` monitoring system:
+// ```
     void elidedMetric(BloombergLP::bdlm::Metric *value)
     {
         (void)value;
         // ...
     }
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -181,14 +181,14 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -200,19 +200,19 @@ int main(int argc, char *argv[])
 
         expectDefaultAllocation = true;
 
-// Then, we construct a 'balm::MetricsManager' object and use it to construct a
-// 'balm::BdlmMetricsAdapter' that will use "bdlm" as its default metric
+// Then, we construct a `balm::MetricsManager` object and use it to construct a
+// `balm::BdlmMetricsAdapter` that will use "bdlm" as its default metric
 // namespace, "svc" as its default object indentifier prefix, and will not
 // attempt to set itself as the default metrics adapter:
-//..
+// ```
     balm::MetricsManager     manager;
     balm::BdlmMetricsAdapter adapter(&manager, "bdlm", "svc");
-//..
-// Next, we construct a 'bdlm::MetricsDescriptor' object to be used when
+// ```
+// Next, we construct a `bdlm::MetricsDescriptor` object to be used when
 // registering the callback function, using constants from
-// 'bdlm::MetricDescriptor' for the namespace and identifier to indicate the
-// implementation of the 'bdlm::MetricsAdapter' protocol should supply values:
-//..
+// `bdlm::MetricDescriptor` for the namespace and identifier to indicate the
+// implementation of the `bdlm::MetricsAdapter` protocol should supply values:
+// ```
     bdlm::MetricDescriptor descriptor(
             bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION,
             "example",
@@ -220,19 +220,19 @@ int main(int argc, char *argv[])
             "balm.bdlmmetricsadapter",
             "bmr",
             bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
-//..
+// ```
 // Now, we register the collection callback:
-//..
+// ```
     bdlm::MetricsAdapter::CallbackHandle handle =
                               adapter.registerCollectionCallback(descriptor,
                                                                  elidedMetric);
-//..
+// ```
 // Finally, presumably during shutdown of the application, we remove the
 // callback from the monitoring system, and verify the callback was
 // successfully removed:
-//..
+// ```
     ASSERT(0 == adapter.removeCollectionCallback(handle));
-//..
+// ```
 
       } break;
       case 2: {
@@ -242,23 +242,23 @@ int main(int argc, char *argv[])
         //   as expected.
         //
         // Concerns:
-        //: 1 'registerCollectionCallback' registers a callback with the
-        //:   supplied 'balm::MetricsManager'.
-        //:
-        //: 2 'removeCollectionCallback' removes a callback with the
-        //:   supplied 'balm::MetricsManager' and provides the correct return
-        //:   value.
+        // 1. `registerCollectionCallback` registers a callback with the
+        //    supplied `balm::MetricsManager`.
+        //
+        // 2. `removeCollectionCallback` removes a callback with the
+        //    supplied `balm::MetricsManager` and provides the correct return
+        //    value.
         //
         // Plan:
-        //: 1 Register a collection callback, invoke the 'publishAll' method on
-        //:   the metrics manager, and verify the callback was invoked.  (C-1)
-        //:
-        //: 2 Remove the callback, verify the return value indicates the
-        //:   removal of a callback, invoke 'publishAll', and verify the
-        //:   callback was not invoked.
-        //:
-        //: 3 Attempt to remove the callback again, and verify the return code
-        //:   indicates no callback was removed.  (C-2)
+        // 1. Register a collection callback, invoke the `publishAll` method on
+        //    the metrics manager, and verify the callback was invoked.  (C-1)
+        //
+        // 2. Remove the callback, verify the return value indicates the
+        //    removal of a callback, invoke `publishAll`, and verify the
+        //    callback was not invoked.
+        //
+        // 3. Attempt to remove the callback again, and verify the return code
+        //    indicates no callback was removed.  (C-2)
         //
         // Testing:
         //   CH registerCollectionCallback(metricDescriptor, cb);
@@ -300,25 +300,25 @@ int main(int argc, char *argv[])
         //   and that the basic accessors return these values.
         //
         // Concerns:
-        //: 1 The constructor correctly stores the default metric namespace,
-        //:   default object identifier prefix, and the allocator.
-        //:
-        //: 2 The basic accessors return these values.
-        //:
-        //: 3 The constructor has the internal memory management system hooked
-        //:   up properly so that *all* internally allocated memory draws from
-        //:   the same user-supplied allocator whenever one is specified.
-        //:
-        //: 4 Memory is not leaked by any method and the destructor properly
-        //:   deallocates the residual allocated memory.
+        // 1. The constructor correctly stores the default metric namespace,
+        //    default object identifier prefix, and the allocator.
+        //
+        // 2. The basic accessors return these values.
+        //
+        // 3. The constructor has the internal memory management system hooked
+        //    up properly so that *all* internally allocated memory draws from
+        //    the same user-supplied allocator whenever one is specified.
+        //
+        // 4. Memory is not leaked by any method and the destructor properly
+        //    deallocates the residual allocated memory.
         //
         // Plan:
-        //: 1 Create objects and verify the values returned by the basic
-        //:   accessors.  (C-1,2)
-        //:
-        //: 2 Use a supplied 'bslma::TestAllocator' that goes out-of-scope
-        //:   at the conclusion of each test to ensure all memory is taken from
-        //:   and returned to the allocator.  (C-3,4)
+        // 1. Create objects and verify the values returned by the basic
+        //    accessors.  (C-1,2)
+        //
+        // 2. Use a supplied `bslma::TestAllocator` that goes out-of-scope
+        //    at the conclusion of each test to ensure all memory is taken from
+        //    and returned to the allocator.  (C-3,4)
         //
         // Testing:
         //   BdlmMetricsAdapter(*mM, mN, oIP, *bA = 0);

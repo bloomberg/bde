@@ -3,11 +3,11 @@
 
 // Note the headers are in non-standard order.  This was required to silence an
 // error from clang 3.4.
-//..
+// ```
 //  /usr/include/unistd.h:449:12: error: declaration conflicts with target of
 //  using declaration already in scope
 //  extern int rename(const char *, const char *);
-//..
+// ```
 // This is an acknowledged issue:
 // <http://lists.cs.uiuc.edu/pipermail/llvmbugs/2012-May/023328.html>
 
@@ -17,9 +17,9 @@
 #include <bsls_stopwatch.h>              // for benchmarking only
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
-#include <windows.h>                     // 'Sleep'
+#include <windows.h>                     // `Sleep`
 #else
-#include <unistd.h>                      // 'usleep'
+#include <unistd.h>                      // `usleep`
 #endif
 
 #include <bsl_cstdio.h>
@@ -41,10 +41,10 @@ using namespace bsl;
 // [ 2] static int getRandomBytesNonBlocking(buf, numB);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [-2] PERFORMANCE: 'getRandomBytes'
-// [-3] PERFORMANCE: 'getRandomBytesNonBlocking'
-// [-4] PERFORMANCE: 'getRandomBytes'
-// [-5] PERFORMANCE: 'getRandomBytes'
+// [-2] PERFORMANCE: `getRandomBytes`
+// [-3] PERFORMANCE: `getRandomBytesNonBlocking`
+// [-4] PERFORMANCE: `getRandomBytes`
+// [-5] PERFORMANCE: `getRandomBytes`
 // [ 3] USAGE EXAMPLE
 
 // ============================================================================
@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -147,49 +147,49 @@ int main(int argc, char *argv[])
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
-//..
+// ```
 ///Example 1: Seeding the Random-Number Generator
 /// - - - - - - - - - - - - - - - - - - - - - - -
 // System-provided random-number generators generally must be initialized with
 // a seed value from which they go on to produce their stream of pseudo-random
-// numbers.  We can use 'RandomDevice' to provide such a seed.
+// numbers.  We can use `RandomDevice` to provide such a seed.
 //
 // First, we obtain the results of invoking the random-number generator without
 // having seeded it:
-//..
+// ```
     int unseededR1 = rand();
     int unseededR2 = rand();
-//..
+// ```
 // Then, we obtain a random number:
-//..
+// ```
     int seed = 0;
     int status = bdlb::RandomDevice::getRandomBytes(
         reinterpret_cast<unsigned char *>(&seed), sizeof(seed));
     ASSERT(0 == status);
     ASSERT(0 != seed);    // This will fail every few billion attempts...
-//..
+// ```
 // Next, we seed the random-number generator with our seed:
-//..
+// ```
     srand(seed);
-//..
+// ```
 // Finally, we observe that we obtain different numbers:
-//..
+// ```
     ASSERT(unseededR1 != rand());
     ASSERT(unseededR2 != rand());
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'int getRandomBytesNonBlocking(buf, numB)' TEST
+        // `int getRandomBytesNonBlocking(buf, numB)` TEST
         //
         // Concerns:
-        //: 1 If a number is passed, that many bytes are set.
-        //: 2 The random bytes are distributed uniformly (probabilistic).
+        // 1. If a number is passed, that many bytes are set.
+        // 2. The random bytes are distributed uniformly (probabilistic).
         //
         // Plan:
-        //: 1 Request a large pool and random bytes from non-blocking random
-        //:   number generator.  Verify that each is unique. Verify that the
-        //:   numbers approximate a uniform distribution.
+        // 1. Request a large pool and random bytes from non-blocking random
+        //    number generator.  Verify that each is unique. Verify that the
+        //    numbers approximate a uniform distribution.
         //
         // Testing:
         //   static int getRandomBytesNonBlocking(buf, numB);
@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "'int getRandomBytesNonBlocking(buf, numB)' TEST" << endl
+                 << "`int getRandomBytesNonBlocking(buf, numB)` TEST" << endl
                  << "===============================================" << endl;
 
         // 1) If a number is passed, that many bytes are set.
@@ -215,7 +215,7 @@ int main(int argc, char *argv[])
             memset(buffer,       0, NUM_BYTES);
             memset(or_buffer,    0, NUM_BYTES);
             memset(and_buffer, 0xf, NUM_BYTES);
-            // Repeat the accession of random bytes 'NUM_TRIALS' times to
+            // Repeat the accession of random bytes `NUM_TRIALS` times to
             // prevent false negatives
             for (int j = 0; j < NUM_TRIALS; ++j) {
                 if (veryVerbose) { P(j) }
@@ -227,9 +227,9 @@ int main(int argc, char *argv[])
                 }
             }
             // Check that the bytes set are non-zero and non-0xf.  Since
-            // 'NUM_TRIALS > 4', the is less than a 2^(-32) chance of these
+            // `NUM_TRIALS > 4`, the is less than a 2^(-32) chance of these
             // tests failing due to randomness.  They are much more likely to
-            // fail on '1 == i' than later.
+            // fail on `1 == i` than later.
 
             if (0 < i) {
                 int or_sum = 0, and_sum = 0;
@@ -284,7 +284,7 @@ int main(int argc, char *argv[])
         //   and incrementally to discover basic errors in isolation.
         //
         // Plan:
-        //     Request a large pool of random 'ints' from each of the system's
+        //     Request a large pool of random `ints` from each of the system's
         //     random number generators. Verify the uniqueness, and the
         //     distribution.
         //
@@ -314,7 +314,7 @@ int main(int argc, char *argv[])
       } break;
       case -1: {
         // --------------------------------------------------------------------
-        // 'int getRandomBytes(void *buf, int numBytes) TEST'
+        // `int getRandomBytes(void *buf, int numBytes) TEST`
         //
         // Concerns:
         //   1) If a number is passed, that many bytes are set.
@@ -335,7 +335,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "'int getRandomBytes(void *buf, int numBytes) TEST'"
+                 << "`int getRandomBytes(void *buf, int numBytes) TEST`"
                  << endl
                  << "=================================================="
                  << endl;
@@ -387,7 +387,7 @@ int main(int argc, char *argv[])
       } break;
       case -2: {
         // --------------------------------------------------------------------
-        // PERFORMANCE: 'getRandomBytes'
+        // PERFORMANCE: `getRandomBytes`
         //
         // Concerns:
         //   Measure the effect of requesting larger random numbers per
@@ -400,10 +400,10 @@ int main(int argc, char *argv[])
         //   time to complete each request.
         //
         // Testing:
-        //   PERFORMANCE: 'getRandomBytes'
+        //   PERFORMANCE: `getRandomBytes`
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "PERFORMANCE: 'getRandomBytes'" << endl
+                          << "PERFORMANCE: `getRandomBytes`" << endl
                           << "=============================" << endl;
         bsls::Stopwatch s;
         const int       NUM_ITERATIONS                = 4;
@@ -433,7 +433,7 @@ int main(int argc, char *argv[])
       } break;
       case -3: {
         // --------------------------------------------------------------------
-        // PERFORMANCE: 'getRandomBytesNonBlocking'
+        // PERFORMANCE: `getRandomBytesNonBlocking`
         //
         // Concerns:
         //    Measure the effect of requesting larger random numbers per
@@ -446,11 +446,11 @@ int main(int argc, char *argv[])
         //      time to complete each request.
         //
         // Testing:
-        //   PERFORMANCE: 'getRandomBytesNonBlocking'
+        //   PERFORMANCE: `getRandomBytesNonBlocking`
         //---------------------------------------------------------------------
         if (verbose)
             cout << endl
-                 << "PERFORMANCE: 'getRandomBytesNonBlocking'" << endl
+                 << "PERFORMANCE: `getRandomBytesNonBlocking`" << endl
                  << "========================================" << endl;
 
         int rand_int;
@@ -491,11 +491,11 @@ int main(int argc, char *argv[])
       } break;
       case -4: {
         // --------------------------------------------------------------------
-        // PERFORMANCE: 'getRandomBytes'
+        // PERFORMANCE: `getRandomBytes`
         //
         // Concerns:
         //   Measure the amount of time necessary to wait between successive
-        //   request for random 'int'(s).
+        //   request for random `int`(s).
         //
         // Plan:
         //   Request a large number of random numbers to empty out the entropy
@@ -504,9 +504,9 @@ int main(int argc, char *argv[])
         //   required to receive the next random number.
         //
         // Testing:
-        //   PERFORMANCE: 'getRandomBytes'
+        //   PERFORMANCE: `getRandomBytes`
         //---------------------------------------------------------------------
-        if (verbose) cout << "PERFORMANCE: 'getRandomBytes'"
+        if (verbose) cout << "PERFORMANCE: `getRandomBytes`"
                           << "=============================" << endl;
         bsls::Stopwatch  s;
         const int        MAX_SLEEP = 10;
@@ -540,22 +540,22 @@ int main(int argc, char *argv[])
       } break;
       case -5: {
         // --------------------------------------------------------------------
-        // PERFORMANCE: 'getRandomBytes'
+        // PERFORMANCE: `getRandomBytes`
         //
         // Concerns:
-        //   Measure the amount of time required to acquire 'NUM_ITERATIONS'
-        //   'int'(s).
+        //   Measure the amount of time required to acquire `NUM_ITERATIONS`
+        //   `int`(s).
         //
         // Plan:
-        //   Call 'RandomDevice::getRandomBytes' 'NUM_ITERATIONS' times, each
+        //   Call `RandomDevice::getRandomBytes` `NUM_ITERATIONS` times, each
         //   time
-        //   requesting a 'int'.
+        //   requesting a `int`.
         //
         // Testing:
-        //   PERFORMANCE: 'getRandomBytes'
+        //   PERFORMANCE: `getRandomBytes`
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "PERFORMANCE: 'getRandomBytes'" << endl
+                          << "PERFORMANCE: `getRandomBytes`" << endl
                           << "=============================" << endl;
 
         bsls::Stopwatch  s;

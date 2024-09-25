@@ -114,26 +114,27 @@ bool veryVeryVerbose;
 //                             USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
-// 'AttributeSet', as defined in the 'ball_attributecontainer' component
+// `AttributeSet`, as defined in the `ball_attributecontainer` component
 // documentation.
 
      // attributeset.h
 
+    /// A simple set-based implementation of the `ball::AttributeContainer`
+    /// protocol used for testing.
     class AttributeSet : public ball::AttributeContainer {
-        // A simple set-based implementation of the 'ball::AttributeContainer'
-        // protocol used for testing.
 
-//..
-// To define an STL set (or hash set) for 'ball::Attribute' values, we must
+// ```
+// To define an STL set (or hash set) for `ball::Attribute` values, we must
 // define a comparison (or hash) operation for attribute values.  Here we
 // define a comparison functor that compares attributes by name, then by
 // value-type, and finally by value.
-//..
+// ```
+
+        /// Return `true` if the specified `lhs` attribute is ordered
+        /// before the specified `rhs` attribute, and `false` otherwise.
         struct AttributeComparator {
             bool operator()(const ball::Attribute& lhs,
                             const ball::Attribute& rhs) const
-                // Return 'true' if the specified 'lhs' attribute is ordered
-                // before the specified 'rhs' attribute, and 'false' otherwise.
             {
                 int cmp = bsl::strcmp(lhs.name(), rhs.name());
                 if (0 != cmp) {
@@ -196,46 +197,49 @@ bool veryVeryVerbose;
                                        bslma::UsesBslmaAllocator);
 
         // CREATORS
-        AttributeSet(bslma::Allocator *basicAllocator = 0);
-            // Create an attribute set.
 
+        /// Create an attribute set.
+        AttributeSet(bslma::Allocator *basicAllocator = 0);
+
+        /// Destroy this attribute set.
         ~AttributeSet() BSLS_KEYWORD_OVERRIDE;
-            // Destroy this attribute set.
 
         // MANIPULATORS
-        void insert(const ball::Attribute& value);
-            // Add the specified 'value' to this attribute set.
 
+        /// Add the specified `value` to this attribute set.
+        void insert(const ball::Attribute& value);
+
+        /// Remove the specified `value` from this attribute set.  Return
+        /// `true` if the attribute was found, and `false` if `value` was
+        /// not a member of this set.
         bool remove(const ball::Attribute& value);
-            // Remove the specified 'value' from this attribute set.  Return
-            // 'true' if the attribute was found, and 'false' if 'value' was
-            // not a member of this set.
 
         // ACCESSORS
+
+        /// Return `true` if the attribute having specified `value` exists
+        /// in this object, and `false` otherwise.
         bool hasValue(const ball::Attribute& value)
                                                    const BSLS_KEYWORD_OVERRIDE;
-            // Return 'true' if the attribute having specified 'value' exists
-            // in this object, and 'false' otherwise.
 
+        /// Format this object to the specified output `stream` at the
+        /// (absolute value of) the optionally specified indentation `level`
+        /// and return a reference to `stream`.
         bsl::ostream& print(bsl::ostream& stream,
                             int           level = 0,
                             int           spacesPerLevel = 4)
                                                    const BSLS_KEYWORD_OVERRIDE;
-            // Format this object to the specified output 'stream' at the
-            // (absolute value of) the optionally specified indentation 'level'
-            // and return a reference to 'stream'.
 
         void visitAttributes(
                 const bsl::function<void(const ball::Attribute&)>& visitor)
                                                    const BSLS_KEYWORD_OVERRIDE;
-        // Invoke the specified 'visitor' function for all attributes in this
+        // Invoke the specified `visitor` function for all attributes in this
         // container.
     };
 
-//..
-// The 'AttributeSet' methods are simple wrappers around operations on a
-// 'bsl::set'.
-//..
+// ```
+// The `AttributeSet` methods are simple wrappers around operations on a
+// `bsl::set`.
+// ```
     inline
     AttributeSet::AttributeSet(bslma::Allocator *basicAllocator)
     : d_set(AttributeComparator(), basicAllocator)
@@ -319,8 +323,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.  Suppress
-        //   all 'cout' statements in non-verbose mode, and add streaming to
+        //   comment characters, and replace `assert` with `ASSERT`.  Suppress
+        //   all `cout` statements in non-verbose mode, and add streaming to
         //   a buffer to test programmatically the printing examples.
         //
         // Testing:
@@ -335,29 +339,29 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Installing a 'ball::AttributeContainer'
+///Example 1: Installing a `ball::AttributeContainer`
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// In the following code fragment, we will use a 'ball::ScopedAttributes' to
-// install a 'ball::AttributeContainer' in the current context.
+// In the following code fragment, we will use a `ball::ScopedAttributes` to
+// install a `ball::AttributeContainer` in the current context.
 //
 // We first create the current attribute context and two attributes:
-//..
+// ```
     ball::AttributeContext *context = ball::AttributeContext::getContext();
 
     ball::Attribute a1("uuid", 4044457);
     ball::Attribute a2("name", "Gang Chen");
     ASSERT(false == context->hasAttribute(a1));
     ASSERT(false == context->hasAttribute(a2));
-//..
-// Now we create an 'AttributeSet' and add the two attributes to this set,
+// ```
+// Now we create an `AttributeSet` and add the two attributes to this set,
 // then we use a 'ball::ScopedAttributes to install these attributes in the
 // current thread's attribute context.
 //
-// Note that we use the 'AttributeSet' implementation of the
-// 'ball::AttributeContainer' protocol defined in the component documentation
-// for 'ball_attributecontainer' (the 'ball' package provides a similar class
-// in the 'ball_defaultattributecontainer' component).
-//..
+// Note that we use the `AttributeSet` implementation of the
+// `ball::AttributeContainer` protocol defined in the component documentation
+// for `ball_attributecontainer` (the `ball` package provides a similar class
+// in the `ball_defaultattributecontainer` component).
+// ```
     {
         AttributeSet attributes;
         attributes.insert(a1);
@@ -365,17 +369,17 @@ int main(int argc, char *argv[])
         ball::ScopedAttributes attributeGuard(&attributes);
         ASSERT(true == context->hasAttribute(a1));
         ASSERT(true == context->hasAttribute(a2));
-//..
-// When 'attributeGuard' goes out of scope and is destroyed, 'attributes' are
+// ```
+// When `attributeGuard` goes out of scope and is destroyed, `attributes` are
 // removed from the current thread's attribute context, which prevents the
 // attribute context from referring to an invalid memory address (on the
 // stack).
-//..
+// ```
     }
 
     ASSERT(!context->hasAttribute(a1));
     ASSERT(!context->hasAttribute(a2));
-//..
+// ```
 
       } break;
       case 1: {
@@ -383,22 +387,22 @@ int main(int argc, char *argv[])
         // METHODS TEST
         //
         // Concerns:
-        //: 1 The constructor adds the supplied attribute container to the
-        //:   context.
-        //:
-        //: 2 The destructor removes the attribute container supplied at
-        //:   construction from the context.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The constructor adds the supplied attribute container to the
+        //    context.
+        //
+        // 2. The destructor removes the attribute container supplied at
+        //    construction from the context.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using brute force, verify that as scoped guards are created the
-        //:   expected attributes are added to the context, and that as the
-        //:   guards go out of scope the attributes are removed from the
-        //:   context.  (C-1..2)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered.  (C-3)
+        // 1. Using brute force, verify that as scoped guards are created the
+        //    expected attributes are added to the context, and that as the
+        //    guards go out of scope the attributes are removed from the
+        //    context.  (C-1..2)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered.  (C-3)
         //
         // Testing:
         //   ScopedAttributes(const AttributeContainer *attributes);

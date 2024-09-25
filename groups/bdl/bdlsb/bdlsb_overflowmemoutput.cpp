@@ -33,13 +33,14 @@ void OverflowMemOutput::grow(bsl::size_t numBytes,
 
     // copyOrigin flag is a caller hint to skip content copy, because caller
     // will completely overwrite the original content.  'd_overflowBuffer_p' is
-	// verified due to Undefined Behavior.
+    // verified due to Undefined Behavior.
     if (d_overflowBuffer_p) {
-		if (copyOrigin) {
-			bsl::memcpy(newBuffer, d_overflowBuffer_p, d_overflowBufferSize);
-		}
-		d_allocator_p->deallocate(d_overflowBuffer_p);
-	}
+        if (copyOrigin) {
+            bsl::memcpy(newBuffer, d_overflowBuffer_p, d_overflowBufferSize);
+        }
+
+        d_allocator_p->deallocate(d_overflowBuffer_p);
+    }
 
     d_overflowBuffer_p = newBuffer;
     d_overflowBufferSize = newSize;

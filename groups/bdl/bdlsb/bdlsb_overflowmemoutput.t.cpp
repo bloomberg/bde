@@ -28,10 +28,10 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// This test driver exercises all the public methods from the 'basic_streambuf'
-// protocol that are implemented by the class 'bdlsb::OverflowMemOutput', as
-// well as each public method in the 'bdlsb::OverflowMemOutput' class that is
-// not part of the 'basic_streambuf' protocol.
+// This test driver exercises all the public methods from the `basic_streambuf`
+// protocol that are implemented by the class `bdlsb::OverflowMemOutput`, as
+// well as each public method in the `bdlsb::OverflowMemOutput` class that is
+// not part of the `basic_streambuf` protocol.
 //
 // Our goal here is to ensure that the implementations comply exactly with the
 // IOStreams portion of the C++ standard where the standard explicitly defines
@@ -42,22 +42,22 @@ using namespace bsl;
 // function documentation.
 //
 /// Primary Constructors:
-//: o OverflowMemOutput(char             *buffer,
-//:                     bsl::size_t       length,
-//:                     bslma::Allocator *basicAllocator = 0);
+//  - OverflowMemOutput(char             *buffer,
+//                      bsl::size_t       length,
+//                      bslma::Allocator *basicAllocator = 0);
 //
 // Primary Manipulators:
-//: o int_type sputc(char_type);
-//: o pos_type pubseekoff(off_type, bsl::ios_base::beg, bsl::ios_base::out);
+//  - int_type sputc(char_type);
+//  - pos_type pubseekoff(off_type, bsl::ios_base::beg, bsl::ios_base::out);
 //
 // Basic accessors:
-//: o bsl::size_t dataLength() const;
-//: o bsl::size_t dataLengthInInitialBuffer() const;
-//: o bsl::size_t dataLengthInOverflowBuffer() const;
-//: o const char *initialBuffer() const;
-//: o bsl::size_t initialBufferSize() const;
-//: o const char *overflowBuffer() const;
-//: o bsl::size_t overflowBufferSize() const;
+//  - bsl::size_t dataLength() const;
+//  - bsl::size_t dataLengthInInitialBuffer() const;
+//  - bsl::size_t dataLengthInOverflowBuffer() const;
+//  - const char *initialBuffer() const;
+//  - bsl::size_t initialBufferSize() const;
+//  - const char *overflowBuffer() const;
+//  - bsl::size_t overflowBufferSize() const;
 //
 //-----------------------------------------------------------------------------
 // CREATORS
@@ -182,11 +182,11 @@ const io_seekdir  END = bsl::ios_base::end;
               // operator<< for bdlsb::OverflowMemOutput
               // =======================================
 
+/// Write the contents of the specified `streamBuffer` (as well as a marker
+/// indicating eight bytes groupings) to the specified output `stream` in
+/// binary format, and return a reference to the modifiable `stream`.
 bsl::ostream& operator<<(bsl::ostream&                   stream,
                          const bdlsb::OverflowMemOutput& streamBuffer)
-    // Write the contents of the specified 'streamBuffer' (as well as a marker
-    // indicating eight bytes groupings) to the specified output 'stream' in
-    // binary format, and return a reference to the modifiable 'stream'.
 {
     bsl::size_t  len  = streamBuffer.dataLengthInInitialBuffer();
     const char  *data = streamBuffer.initialBuffer();
@@ -241,13 +241,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, and replace 'assert' with
-        //:   'ASSERT'.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, and replace `assert` with
+        //    `ASSERT`.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -259,32 +259,32 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'bdlsb::OverflowMemOutput'
+///Example 1: Basic Use of `bdlsb::OverflowMemOutput`
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates instantiating a template,
-// 'bslx::GenericOutStream', on a 'bdlsb::OverflowMemOutput' object and using
-// the 'bslx::GenericOutStream' object to stream out some data.
+// `bslx::GenericOutStream`, on a `bdlsb::OverflowMemOutput` object and using
+// the `bslx::GenericOutStream` object to stream out some data.
 //
-// First, we create a stream buffer, 'streamBuf', and supply it stack allocated
+// First, we create a stream buffer, `streamBuf`, and supply it stack allocated
 // memory as its initial buffer:
-//..
+// ```
     enum { k_STREAMBUF_CAPACITY = 8 };
 
     char                     buffer[k_STREAMBUF_CAPACITY];
     bdlsb::OverflowMemOutput streamBuf(buffer, k_STREAMBUF_CAPACITY);
-//..
-// Then, we create an instance of 'bslx::GenericOutStream' using 'streamBuf',
-// with an arbitrary value for its 'versionSelector', and serialize some data:
-//..
+// ```
+// Then, we create an instance of `bslx::GenericOutStream` using `streamBuf`,
+// with an arbitrary value for its `versionSelector`, and serialize some data:
+// ```
     bslx::GenericOutStream<bdlsb::OverflowMemOutput> outStream(&streamBuf,
                                                                20150707);
     int MAGIC = 0x1812;
     outStream.putInt32(MAGIC);
     outStream.putInt32(MAGIC+1);
-//..
+// ```
 // Next, we verify that the data was correctly serialized and completely filled
 // initial buffer supplied at the stream buffer construction:
-//..
+// ```
     ASSERT(outStream.isValid());
     ASSERT(8 == streamBuf.dataLength());
     ASSERT(0 == bsl::memcmp(streamBuf.initialBuffer(),
@@ -293,56 +293,56 @@ int main(int argc, char *argv[])
     ASSERT(0 == bsl::memcmp(buffer, "\x00\x00\x18\x12\x00\x00\x18\x13", 8));
     ASSERT(0 == streamBuf.overflowBuffer());
     ASSERT(0 == streamBuf.overflowBufferSize());
-//..
+// ```
 // Then, we serialize some more data to trigger allocation of the internal
 // overflow buffer:
-//..
+// ```
     outStream.putString(bsl::string("test"));
-//..
+// ```
 // Finally, we verify that the additional data was serialized correctly and
 // landed into dynamically allocated overflow buffer:
-//..
+// ```
     ASSERT(outStream.isValid());
     ASSERT(13 == streamBuf.dataLength());
     ASSERT(0  != streamBuf.overflowBuffer());
     ASSERT(5  == streamBuf.dataLengthInOverflowBuffer());
     ASSERT(0  == bsl::memcmp(streamBuf.overflowBuffer(), "\x04test", 5));
-//..
+// ```
       } break;
 
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'grow' METHOD
+        // TESTING `grow` METHOD
         //
-        //   Various public methods of the 'bdlsb::OverflowMemOutput' can lead
+        //   Various public methods of the `bdlsb::OverflowMemOutput` can lead
         //   to internal grow of the internal overflow memory buffer.
         //
         // Concerns:
-        //: 1 On any operation that writes/positions past initial buffer
-        //:   capacity, the overflow buffer should be allocated ( if is does
-        //:   not exist ) and sized appropriately.
-        //:
-        //: 2 When the overflow buffer grows, the new overflow buffer should
-        //:   have double capacity, the data from the old overflow buffer
-        //:   should be copied over and the old overflow buffer should be
-        //:   deallocated.
+        // 1. On any operation that writes/positions past initial buffer
+        //    capacity, the overflow buffer should be allocated ( if is does
+        //    not exist ) and sized appropriately.
+        //
+        // 2. When the overflow buffer grows, the new overflow buffer should
+        //    have double capacity, the data from the old overflow buffer
+        //    should be copied over and the old overflow buffer should be
+        //    deallocated.
         //
         // Plan:
-        //: 1 Create a stream buffer at various different states.  For each
-        //:   state, invoke methods that can lead to internal grow of the
-        //:   overflow bufffer.  Verify that growth size and data is correct.
-        //:   The methods that can trigger internal overflow memory buffer grow
-        //:   grow are:
-        //:   1 'sputc'
-        //:   2 'sputn'
-        //:   3 'pubseekoff'
-        //:   4 'pubseekpos'
+        // 1. Create a stream buffer at various different states.  For each
+        //    state, invoke methods that can lead to internal grow of the
+        //    overflow bufffer.  Verify that growth size and data is correct.
+        //    The methods that can trigger internal overflow memory buffer grow
+        //    grow are:
+        //   1. `sputc`
+        //   2. `sputn`
+        //   3. `pubseekoff`
+        //   4. `pubseekpos`
         //
         // Testing:
         //   void grow(size_t, bool);
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'grow' METHOD" << endl
+                          << "TESTING `grow` METHOD" << endl
                           << "=====================" << endl;
 
         bslma::TestAllocator oa(veryVeryVeryVerbose);
@@ -357,7 +357,7 @@ int main(int argc, char *argv[])
             ASSERT(INIT_BUFSIZE*4 < strlen(filler));
 
             for (bsl::size_t i = 0; i < end; ++i) {
-                // Testing 'sputc' grow.
+                // Testing `sputc` grow.
 
                 char buffer[INIT_BUFSIZE];
 
@@ -426,7 +426,7 @@ int main(int argc, char *argv[])
             }
 
             for (bsl::size_t i = 0; i < end; ++i) {
-                // Testing 'sputn' grow.
+                // Testing `sputn` grow.
 
                 char buffer[INIT_BUFSIZE];
 
@@ -479,7 +479,7 @@ int main(int argc, char *argv[])
 
 
             for (bsl::size_t i = 0; i < end; ++i) {
-                // Testing 'pubseekoff' grow.
+                // Testing `pubseekoff` grow.
 
                 char buffer[INIT_BUFSIZE];
 
@@ -535,7 +535,7 @@ int main(int argc, char *argv[])
             }
 
             for (bsl::size_t i = 0; i < end; ++i) {
-                // Testing 'pubseekpos' grow.
+                // Testing `pubseekpos` grow.
 
                 char buffer[INIT_BUFSIZE];
 
@@ -596,20 +596,20 @@ int main(int argc, char *argv[])
 
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'pubsetbuf' METHOD
+        // TESTING `pubsetbuf` METHOD
         //
         // Concerns:
-        //: 1 Call to the 'pubsetbuf' has no effect.
+        // 1. Call to the `pubsetbuf` has no effect.
         //
         // Plan:
-        //: 1 Call the 'pubsetbuf' method and ensure that it has no effect.
-        //:   (C-1)
+        // 1. Call the `pubsetbuf` method and ensure that it has no effect.
+        //    (C-1)
         //
         // Testing:
         // OverflowMemOutput *pubsetbuf(char *buffer, bsl::streamsize length);
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'pubsetbuf' METHOD" << endl
+                          << "TESTING `pubsetbuf` METHOD" << endl
                           << "==========================" << endl;
         {
             char       buffer[INIT_BUFSIZE];
@@ -630,32 +630,32 @@ int main(int argc, char *argv[])
 
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'seek' METHODS
+        // TESTING `seek` METHODS
         //
         // Concerns:
-        //: 1 Seeking is correct for:
-        //:   - all relative positions.
-        //:   - positive, 0, and negative values.
-        //:   - into initial/overflow buffer.
-        //:
-        //: 2 Seeking beyond total capacity grow the stream buffer.
-        //:
-        //: 3 Seeking into "get" area has no effect.
+        // 1. Seeking is correct for:
+        //    - all relative positions.
+        //    - positive, 0, and negative values.
+        //    - into initial/overflow buffer.
+        //
+        // 2. Seeking beyond total capacity grow the stream buffer.
+        //
+        // 3. Seeking into "get" area has no effect.
         //
         // Plan:
-        //: 1 Perform a variety of seeks, using representative test vectors
-        //:   from the cross-product of offset categories beginning-pointer,
-        //:   current-pointer and end-pointer, with direction categories
-        //:   negative-forcing-past-beginning, negative-falling-within-bounds,
-        //:   0, positive-falling-within bounds, and positive-forcing-past-end.
-        //:   (C-1..3)
+        // 1. Perform a variety of seeks, using representative test vectors
+        //    from the cross-product of offset categories beginning-pointer,
+        //    current-pointer and end-pointer, with direction categories
+        //    negative-forcing-past-beginning, negative-falling-within-bounds,
+        //    0, positive-falling-within bounds, and positive-forcing-past-end.
+        //    (C-1..3)
         //
         // Testing:
         //   pos_type pubseekoff(off_type, seekdir, openmode);
         //   pos_type pubseekpos(pos_type, openmode);
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'seek' METHODS" << endl
+                          << "TESTING `seek` METHODS" << endl
                           << "======================" << endl;
 
         bslma::TestAllocator oa(veryVeryVeryVerbose);
@@ -834,7 +834,7 @@ int main(int argc, char *argv[])
                     }
                 }
 
-                // Testing 'pubseekpos' with default parameters.
+                // Testing `pubseekpos` with default parameters.
                 {
                     Obj  mSB(buffer, INIT_BUFSIZE, &oa);
 
@@ -873,36 +873,36 @@ int main(int argc, char *argv[])
 
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'sputn' METHOD
+        // TESTING `sputn` METHOD
         //
         // Concerns:
-        //: 1 Ensure 'sputn' correctly writes string of varying length.
-        //:
-        //: 2 Ensure that no more than the specified number of characters are
-        //:   written.
-        //:
-        //: 3 Ensure that 'sputn' correctly uses current write position
-        //:   indicator.
-        //:
-        //: 4 Ensure that overflow buffer relocations triggered by 'sputn' do
-        //:   not corrupt existing buffer content.
+        // 1. Ensure `sputn` correctly writes string of varying length.
+        //
+        // 2. Ensure that no more than the specified number of characters are
+        //    written.
+        //
+        // 3. Ensure that `sputn` correctly uses current write position
+        //    indicator.
+        //
+        // 4. Ensure that overflow buffer relocations triggered by `sputn` do
+        //    not corrupt existing buffer content.
         //
         // Plan:
-        //: 1 Write out representative strings from the categories 0
-        //:   characters, 1 character, and > 1 character, into stream buffer
-        //:   with representative contents "empty", substantially less than
-        //:   capacity, almost-full-so-that-next-write-exceeds-capacity and
-        //:   substantially more than current capacity.  (C-1..3)
-        //:
-        //: 2 After the whole sequence has been output into the stream buffer,
-        //:   verify that the content is intact by internal overflow buffer
-        //:   relocations.  (C-4)
+        // 1. Write out representative strings from the categories 0
+        //    characters, 1 character, and > 1 character, into stream buffer
+        //    with representative contents "empty", substantially less than
+        //    capacity, almost-full-so-that-next-write-exceeds-capacity and
+        //    substantially more than current capacity.  (C-1..3)
+        //
+        // 2. After the whole sequence has been output into the stream buffer,
+        //    verify that the content is intact by internal overflow buffer
+        //    relocations.  (C-4)
         //
         // Testing:
         //   streamsize sputn(const char *, streamsize);
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'sputn' METHOD" << endl
+                          << "TESTING `sputn` METHOD" << endl
                           << "======================" << endl;
 
         bslma::TestAllocator oa(veryVeryVeryVerbose);
@@ -935,8 +935,8 @@ int main(int argc, char *argv[])
             const char        SPUTN_FILLER = 'b';
 
             // This test builds a stream buffer with a content of the form
-            // "aaaaa...abbbbb...", where the 'b' string is output using
-            // 'sputn'.  The test verifies that the 'b' string start at the
+            // "aaaaa...abbbbb...", where the `b` string is output using
+            // `sputn`.  The test verifies that the `b` string start at the
             // correct position, has correct length.
 
             // This segment verifies correct behavior across different initial
@@ -1127,36 +1127,36 @@ int main(int argc, char *argv[])
 
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'sputc' METHOD
+        // TESTING `sputc` METHOD
         //
         // Concerns:
-        //: 1 Ensure 'sputc' correctly places the specified character into
-        //:   the stream buffer (both initially supplied by the client and
-        //:   dynamically allocated overflow buffer).
-        //:
-        //: 2 Ensure that 'sputc' correctly uses current write position
-        //:   indicator.
-        //:
-        //: 3 Ensure that overflow buffer relocations triggered by 'sputc' do
-        //:   not corrupt existing buffer content.
+        // 1. Ensure `sputc` correctly places the specified character into
+        //    the stream buffer (both initially supplied by the client and
+        //    dynamically allocated overflow buffer).
+        //
+        // 2. Ensure that `sputc` correctly uses current write position
+        //    indicator.
+        //
+        // 3. Ensure that overflow buffer relocations triggered by `sputc` do
+        //    not corrupt existing buffer content.
         //
         // Plan:
-        //: 1 Sequentially output a controlled sequence of characters one at a
-        //:   time and verify that observable state change accordingly.  i
-        //:   (C-1..2)
-        //:
-        //: 2 After the whole sequence has been output into the stream buffer,
-        //:   verify that the content is intact by internal overflow buffer
-        //:   relocations.  (C-3)
+        // 1. Sequentially output a controlled sequence of characters one at a
+        //    time and verify that observable state change accordingly.  i
+        //    (C-1..2)
+        //
+        // 2. After the whole sequence has been output into the stream buffer,
+        //    verify that the content is intact by internal overflow buffer
+        //    relocations.  (C-3)
         //
         // Testing:
         //   int_type sputc(char_type);
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'sputc' METHOD" << endl
+                          << "TESTING `sputc` METHOD" << endl
                           << "======================" << endl;
 
-        if (verbose) cout << "\nTesting 'sputc'." << endl;
+        if (verbose) cout << "\nTesting `sputc`." << endl;
         {
             char buffer[INIT_BUFSIZE+1];
             memset(buffer, 'Z', INIT_BUFSIZE + 1);
@@ -1231,13 +1231,13 @@ int main(int argc, char *argv[])
         //   Verify the basic accessors functionality.
         //
         // Concerns:
-        //: 1 Ensure that basic accessors return valid, expected values.
-        //:
+        // 1. Ensure that basic accessors return valid, expected values.
+        //
         //
         // Plan:
-        //: 1 Put stream buffer into various states using 'sputc' and
-        //:   'pubseekoff' methods and verify that accessors report correct
-        //:   values.  (C-1)
+        // 1. Put stream buffer into various states using `sputc` and
+        //    `pubseekoff` methods and verify that accessors report correct
+        //    values.  (C-1)
         //
         // Testing:
         //   size_t dataLength() const;
@@ -1252,7 +1252,7 @@ int main(int argc, char *argv[])
                           << "BASIC ACCESSORS" << endl
                           << "===============" << endl;
 
-        if (verbose) cout << "\nTesting accessors with 'sputc'" << endl;
+        if (verbose) cout << "\nTesting accessors with `sputc`" << endl;
         {
             bslma::TestAllocator oa(veryVeryVeryVerbose);
 
@@ -1321,7 +1321,7 @@ int main(int argc, char *argv[])
 
         // Seek into wide range of absolute positions and verify accessors
         // validity.  Triggers overflow.
-        if (verbose) cout << "\nTesting accessors with 'pubseekoff'." << endl;
+        if (verbose) cout << "\nTesting accessors with `pubseekoff`." << endl;
         {
             for (bsl::size_t i = 0; i < INIT_BUFSIZE*4+1; ++i) {
                 bslma::TestAllocator oa(veryVeryVeryVerbose);
@@ -1374,29 +1374,29 @@ int main(int argc, char *argv[])
         //
         //   Verify the auxiliary function used in the test driver.  The
         //   function is used to print out the content of the
-        //   'bdlsb::OverflowMemOutput' in a human-readable form.  Note that
+        //   `bdlsb::OverflowMemOutput` in a human-readable form.  Note that
         //   the tested function is not part of the component and use only to
         //   provide human readable test traces.
         //
         // Concerns:
-        //: 1 Output operator formats the stream buffer correctly.
-        //:
-        //: 2 Output operator does not produce any trailing characters.
-        //:
-        //: 3 Output operator works on references to 'const' object.
-        //:
-        //: 4 Output operator returns a reference to the modifiable stream
-        //:   argument.
+        // 1. Output operator formats the stream buffer correctly.
+        //
+        // 2. Output operator does not produce any trailing characters.
+        //
+        // 3. Output operator works on references to `const` object.
+        //
+        // 4. Output operator returns a reference to the modifiable stream
+        //    argument.
         //
         // Plan:
-        //: 1 For each of a small representative set of object values use
-        //:   'stringstream' to write that object's value to two separate
-        //:   strings.  Compare the contents of these strings with the literal
-        //:   expected output format and verify that they are equal.  (C-1..3)
-        //:
-        //: 2 Create a 'bdlsb::OverflowMemOutput' object.  Use 'ostrstream' to
-        //:   write that object's value and some characters in consecutive
-        //:   order.  (C-4)
+        // 1. For each of a small representative set of object values use
+        //    `stringstream` to write that object's value to two separate
+        //    strings.  Compare the contents of these strings with the literal
+        //    expected output format and verify that they are equal.  (C-1..3)
+        //
+        // 2. Create a `bdlsb::OverflowMemOutput` object.  Use `ostrstream` to
+        //    write that object's value and some characters in consecutive
+        //    order.  (C-4)
         //
         // Testing:
         //   TEST APPARATUS
@@ -1428,7 +1428,7 @@ int main(int argc, char *argv[])
             Obj        mSB(buffer, INIT_BUFSIZE);
             const Obj& SB = mSB;
 
-            // No intermediate checks are done.  'sputc' bootstrap already
+            // No intermediate checks are done.  `sputc` bootstrap already
             // verified correct behavior.
             mSB.sputc('h');
             mSB.sputc('e');
@@ -1494,87 +1494,87 @@ int main(int argc, char *argv[])
         // PRIMARY MANIPULATORS
         //
         //   Ensure that we can create an object and bring it to a well known
-        //   state for subsequent tests. This test case also bootstrap 'sputc'
+        //   state for subsequent tests. This test case also bootstrap `sputc`
         //   method (via direct observation of the client supplied buffer) and
         //   a number of accessors.
         //
         // Concerns:
-        //: 1 An object created with a value constructor (with or without
-        //:   a supplied allocator) has expected state.
-        //:
-        //: 2 If an allocator is not supplied to the value constructor, the
-        //:   default allocator in effect at the time of construction becomes
-        //:   the object allocator for the resulting object.
-        //:
-        //: 3 If an allocator is supplied to the value constructor, that
-        //:   allocator becomes the object allocator for the resulting object.
-        //:
-        //: 4 Supplying a null allocator address has the same effect as not
-        //:   supplying an allocator.
-        //:
-        //: 5 Supplying an allocator to the value constructor has no effect
-        //:   on subsequent object values.
-        //:
-        //: 6 Any memory allocation is from the object allocator.
-        //:
-        //: 7 There is no temporary allocation from any allocator.
-        //:
-        //: 8 Every object releases any allocated memory at destruction.
-        //:
-        //: 9 Any memory allocation is exception neutral.
-        //:
-        //:10 QoI: The value constructor allocates no memory.
-        //:
-        //:11 'sputc' correctly write characters into the client supplied
-        //:   buffer and advances position indicator.
-        //:
-        //:12 QoI: Asserted precondition violations are detected when enabled.
-        //:
-        //:13 'pubseekoff' correctly changes write position indicator when
-        //:   invoked with a selected parameters.
+        // 1. An object created with a value constructor (with or without
+        //    a supplied allocator) has expected state.
+        //
+        // 2. If an allocator is not supplied to the value constructor, the
+        //    default allocator in effect at the time of construction becomes
+        //    the object allocator for the resulting object.
+        //
+        // 3. If an allocator is supplied to the value constructor, that
+        //    allocator becomes the object allocator for the resulting object.
+        //
+        // 4. Supplying a null allocator address has the same effect as not
+        //    supplying an allocator.
+        //
+        // 5. Supplying an allocator to the value constructor has no effect
+        //    on subsequent object values.
+        //
+        // 6. Any memory allocation is from the object allocator.
+        //
+        // 7. There is no temporary allocation from any allocator.
+        //
+        // 8. Every object releases any allocated memory at destruction.
+        //
+        // 9. Any memory allocation is exception neutral.
+        //
+        // 10. QoI: The value constructor allocates no memory.
+        //
+        // 11. `sputc` correctly write characters into the client supplied
+        //    buffer and advances position indicator.
+        //
+        // 12. QoI: Asserted precondition violations are detected when enabled.
+        //
+        // 13. `pubseekoff` correctly changes write position indicator when
+        //    invoked with a selected parameters.
         //
         // Plan:
-        //: 1 Construct 3 distinct objects with different configuration: (a)
-        //:   without passing an allocator, (b) passing a null allocator
-        //:   address explicitely, and (c) passing the address of a test
-        //:   allocator distinct from the default.  For each object
-        //:   instantiation: (C-1..8)
-        //:
-        //:   1 Create distinct 'bdsma::TestAllocator' objects and install
-        //:     one as the current default allocator (note that an unique
-        //:     test allocator is already installed as the global allocator).
-        //:
-        //:   2 Use value constructor to create an object "mSB', with its
-        //:     object allocator configured appropriately. (C-1..5)
-        //:
-        //:   3 Use the appropriate test allocators to verify that no memory
-        //:     is allocated by the value constructor.  (C-10)
-        //:
-        //:   4 Use (yet untested) 'sputc' method to trigger memory allocation
-        //:     and verify that memory comes from the correct allocator.  (C-6)
-        //:
-        //:   5 Verify that all object memory is released when the object is
-        //:     destroyed.  (C-8)
-        //:
-        //: 2 Write series of characters to the value-constructed stream buffer
-        //:   using 'sputc' ( without causing overflow ) and verify that all
-        //:   character values is written correctly and the write position
-        //:   indicator is advanced.  (C-11)
-        //:
-        //: 3 Write enough characters to verify that the specified initial
-        //:   buffer is completely usable, and then write one more to ensure
-        //:   that the stream buffer allocates additional memory from the
-        //:   supplied allocator.  (C-6)
-        //:
-        //: 4 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-12)
-        //:
-        //: 5 Change the write position indicator with a selected parameters
-        //:   ( offset from the beginning of the stream buffer, in the put
-        //:   area ), write the character at the current position and verify
-        //:   that the character landed into expected location.  (C-13)
+        // 1. Construct 3 distinct objects with different configuration: (a)
+        //    without passing an allocator, (b) passing a null allocator
+        //    address explicitely, and (c) passing the address of a test
+        //    allocator distinct from the default.  For each object
+        //    instantiation: (C-1..8)
+        //
+        //   1. Create distinct `bdsma::TestAllocator` objects and install
+        //      one as the current default allocator (note that an unique
+        //      test allocator is already installed as the global allocator).
+        //
+        //   2. Use value constructor to create an object "mSB', with its
+        //      object allocator configured appropriately. (C-1..5)
+        //
+        //   3. Use the appropriate test allocators to verify that no memory
+        //      is allocated by the value constructor.  (C-10)
+        //
+        //   4. Use (yet untested) `sputc` method to trigger memory allocation
+        //      and verify that memory comes from the correct allocator.  (C-6)
+        //
+        //   5. Verify that all object memory is released when the object is
+        //      destroyed.  (C-8)
+        //
+        // 2. Write series of characters to the value-constructed stream buffer
+        //    using `sputc` ( without causing overflow ) and verify that all
+        //    character values is written correctly and the write position
+        //    indicator is advanced.  (C-11)
+        //
+        // 3. Write enough characters to verify that the specified initial
+        //    buffer is completely usable, and then write one more to ensure
+        //    that the stream buffer allocates additional memory from the
+        //    supplied allocator.  (C-6)
+        //
+        // 4. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-12)
+        //
+        // 5. Change the write position indicator with a selected parameters
+        //    ( offset from the beginning of the stream buffer, in the put
+        //    area ), write the character at the current position and verify
+        //    that the character landed into expected location.  (C-13)
         //
         // Testing:
         //   OverflowMemOutput(char             *buffer,
@@ -1590,13 +1590,13 @@ int main(int argc, char *argv[])
                           << "PRIMARY MANIPULATORS" << endl
                           << "====================" << endl;
 
-        if (verbose) cout << "\nTesting 'sputc' (bootstrap)." << endl;
+        if (verbose) cout << "\nTesting `sputc` (bootstrap)." << endl;
         {
-            // This test verifies that 'sputc' at minimum:
+            // This test verifies that `sputc` at minimum:
             //    1. Adds the character to the specified buffer.
             //    2. Does not write beyond the write position..
-            //    3. Character is not altered by the 'sputc'.
-            //    4. On overflow, the 'sputc' writes to the overflow buffer.
+            //    3. Character is not altered by the `sputc`.
+            //    4. On overflow, the `sputc` writes to the overflow buffer.
 
             if (veryVerbose) { T_ cout << "Testing different character values."
                                    << endl; }
@@ -1615,7 +1615,7 @@ int main(int argc, char *argv[])
             }
         }
         {
-            if (veryVerbose) { T_ cout << "Testing 'sputc' advances position."
+            if (veryVerbose) { T_ cout << "Testing `sputc` advances position."
                                    << endl; }
 
             char buffer[INIT_BUFSIZE+1];
@@ -1664,7 +1664,7 @@ int main(int argc, char *argv[])
                 Obj         mSB(buffer, INIT_BUFSIZE);
                 const Obj&  SB = mSB;
 
-                // Using yet not fully tested 'sputc' to fill initial buffer
+                // Using yet not fully tested `sputc` to fill initial buffer
                 // and one more causing memory allocation.  Using (yet
                 // untested) accessors to observe object state (bootstapping).
                 char        ch = 'a';
@@ -1685,7 +1685,7 @@ int main(int argc, char *argv[])
                     mSB.sputc(ch);
                 }
 
-                // Last 'sputc' cause memory allocation.
+                // Last `sputc` cause memory allocation.
                 ASSERTV(i, INIT_BUFSIZE + 1 == SB.dataLength());
 
                 ASSERTV(i, INIT_BUFSIZE == SB.initialBufferSize());
@@ -1723,7 +1723,7 @@ int main(int argc, char *argv[])
                 Obj         mSB(buffer, INIT_BUFSIZE, 0);
                 const Obj&  SB = mSB;
 
-                // Using yet not fully tested 'sputc' to fill initial buffer
+                // Using yet not fully tested `sputc` to fill initial buffer
                 // and one more causing memory allocation.  Using (yet
                 // untested) accessors to observe object state (bootstapping).
                 char        ch = 'a';
@@ -1744,7 +1744,7 @@ int main(int argc, char *argv[])
                     mSB.sputc(ch);
                 }
 
-                // Last 'sputc' cause memory allocation.
+                // Last `sputc` cause memory allocation.
                 ASSERTV(i, INIT_BUFSIZE + 1 == SB.dataLength());
 
                 ASSERTV(i, INIT_BUFSIZE == SB.initialBufferSize());
@@ -1783,7 +1783,7 @@ int main(int argc, char *argv[])
                 Obj         mSB(buffer, INIT_BUFSIZE, &oa);
                 const Obj&  SB = mSB;
 
-                // Using yet not fully tested 'sputc' to fill initial buffer
+                // Using yet not fully tested `sputc` to fill initial buffer
                 // and one more causing memory allocation.  Using (yet
                 // untested) accessors to observe object state (bootstapping).
                 char        ch = 'a';
@@ -1805,7 +1805,7 @@ int main(int argc, char *argv[])
                     mSB.sputc(ch);
                 }
 
-                // Last 'sputc' cause memory allocation
+                // Last `sputc` cause memory allocation
                 ASSERTV(i, INIT_BUFSIZE + 1 == SB.dataLength());
 
                 ASSERTV(i, INIT_BUFSIZE == SB.initialBufferSize());
@@ -1829,11 +1829,11 @@ int main(int argc, char *argv[])
             ASSERTV(oa.numBlocksInUse(),  0 ==  oa.numBlocksInUse());
         }
 
-        if (verbose) cout << "\nTesting 'pubseekoff' (bootstrap)."
+        if (verbose) cout << "\nTesting `pubseekoff` (bootstrap)."
                           << endl;
         {
             if (veryVerbose) {
-                T_ cout << "Testing 'pubseekoff' from beginning."
+                T_ cout << "Testing `pubseekoff` from beginning."
                         << endl;
             }
 
@@ -1878,7 +1878,7 @@ int main(int argc, char *argv[])
                     ASSERTV(i, SB.overflowBuffer());
                 }
 
-                // Using 'sputc' to output character and directly observing
+                // Using `sputc` to output character and directly observing
                 // the client supplied buffer for the character position.
                 mSB.sputc(ch);
 
@@ -1995,11 +1995,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Developer test sandbox. (C-1)
+        // 1. Developer test sandbox. (C-1)
         //
         // Testing:
         //   BREATHING TEST
@@ -2010,7 +2010,7 @@ int main(int argc, char *argv[])
                           << "==============" << endl;
 
         if (verbose) cout << "\nMake sure we can create and use a "
-                          << "'bdlsb::OverflowMemOutput'."
+                          << "`bdlsb::OverflowMemOutput`."
                           << endl;
 
         {

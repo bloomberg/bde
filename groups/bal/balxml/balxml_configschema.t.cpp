@@ -29,15 +29,15 @@
 // The component under test provides a textual representation of an XML Schema
 // Definition for the XML codec's encoding options, decoding options, and
 // encoding style.  The content of this file needs to be synchronized with the
-// structure represented by 'balxml::EncoderOptions',
-// 'balxml::DecoderOptions', and 'balxml::EncodingStyle'.
+// structure represented by `balxml::EncoderOptions`,
+// `balxml::DecoderOptions`, and `balxml::EncodingStyle`.
 //
 // Global Concerns:
-//: o The content of 'balxml::ConfigSchema::TEXT' is a valid XML Schema
-//:   Definition.
-//:
-//: o Changes to the content of 'balxml::ConfigSchema::TEXT' are
-//:   backward-compatible.
+//  - The content of `balxml::ConfigSchema::TEXT` is a valid XML Schema
+//    Definition.
+//
+//  - Changes to the content of `balxml::ConfigSchema::TEXT` are
+//    backward-compatible.
 // ----------------------------------------------------------------------------
 // CLASS DATA
 // [ 2] balxml::ConfigSchema::TEXT
@@ -45,8 +45,8 @@
 // FREE OPERATORS
 // [ 1] balxml::operator<<(ostream&, const balxml::ConfigSchema&);
 // ----------------------------------------------------------------------------
-// [ 2] CONCERN: The structure of 'TEXT' is equal to 'balxml.xsd'
-// [ 2] CONCERN: Changes to 'TEXT' are backward-compatible.
+// [ 2] CONCERN: The structure of `TEXT` is equal to `balxml.xsd`
+// [ 2] CONCERN: Changes to `TEXT` are backward-compatible.
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -108,10 +108,10 @@ using namespace BloombergLP;
                               // struct TestUtil
                               // ===============
 
+/// This utility `struct` provides a namespace for a suite of functions for
+/// loading the *expected*, structural representation of
+/// `balxml::ConfigSchema::TEXT` into a `s_baltst::BasicSchema`.
 struct TestUtil {
-    // This utility 'struct' provides a namespace for a suite of functions for
-    // loading the *expected*, structural representation of
-    // 'balxml::ConfigSchema::TEXT' into a 's_baltst::BasicSchema'.
 
     // TYPES
     typedef s_baltst::BasicSchemaAnnotationElement   AnnotationElement;
@@ -124,24 +124,25 @@ struct TestUtil {
     typedef s_baltst::BasicSchemaSimpleTypeElement   SimpleTypeElement;
 
     // CLASS METHODS
+
+    /// Load the expected structural representation of
+    /// `balxml::ConfigSchema::TEXT` into the specified `schema`.
     static void loadExpectedSchema(Schema *schema);
-        // Load the expected structural representation of
-        // 'balxml::ConfigSchema::TEXT' into the specified 'schema'.
 
+    /// Load the expected structural representation of the `EncodingStyle`
+    /// type defined in `balxml::ConfigSchema::TEXT` into the specified
+    /// `encodingStyle`.
     static void loadEncodingStyle(SimpleTypeElement *encodingStyle);
-        // Load the expected structural representation of the 'EncodingStyle'
-        // type defined in 'balxml::ConfigSchema::TEXT' into the specified
-        // 'encodingStyle'.
 
+    /// Load the expected structural representation of the `EncoderOptions`
+    /// type defined in `balxml::ConfigSchema::TEXT` into the specified
+    /// `encoderOptions`.
     static void loadEncoderOptions(ComplexTypeElement *encoderOptions);
-        // Load the expected structural representation of the 'EncoderOptions'
-        // type defined in 'balxml::ConfigSchema::TEXT' into the specified
-        // 'encoderOptions'.
 
+    /// Load the expected structural representation of the `DecoderOptions`
+    /// type defined in `balxml::ConfigSchema::TEXT` into the specified
+    /// `decoderOptions`.
     static void loadDecoderOptions(ComplexTypeElement *decoderOptions);
-        // Load the expected structural representation of the 'DecoderOptions'
-        // type defined in 'balxml::ConfigSchema::TEXT' into the specified
-        // 'decoderOptions'.
 };
 
 // ============================================================================
@@ -351,8 +352,8 @@ void TestUtil::loadEncoderOptions(ComplexTypeElement *encoderOptions)
         datetimeFractionalSecondPrecision.type()         = "xs:int";
         datetimeFractionalSecondPrecision.minOccurs()    = "0";
         datetimeFractionalSecondPrecision.maxOccurs()    = "1";
-        // As of October 15 2020, the value of 'defaultValue' is 6 in
-        // 'balxml.xsd', but must be 3 in 'balxml_configschema' in order to
+        // As of October 15 2020, the value of `defaultValue` is 6 in
+        // `balxml.xsd`, but must be 3 in `balxml_configschema` in order to
         // maintain backwards-compatibility with existing clients.  Please
         // consider backwards-compatibility concerns before changing this
         // value.
@@ -467,31 +468,31 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 2: {
         // --------------------------------------------------------------------
-        // STRUCTURAL CONTENT OF 'TEXT'
-        //   Ensure that the structural content of 'TEXT' is equal to what we
+        // STRUCTURAL CONTENT OF `TEXT`
+        //   Ensure that the structural content of `TEXT` is equal to what we
         //   expect.
         //
-        //   **NOTE** Whenever this test case fails due to a change to 'TEXT',
+        //   **NOTE** Whenever this test case fails due to a change to `TEXT`,
         //   update the test driver to match the new content, and consider
         //   whether all of those changes are backward-compatible.  This test
         //   case is designed to catch spurious, accidental, or unnoticed
-        //   changes to 'TEXT'.
+        //   changes to `TEXT`.
         //
         // Concerns:
-        //: 1 Incidental changes to 'balxml::ConfigSchema::TEXT' (likely due to
-        //:   careless code-generation) do not go unchecked.
-        //:
-        //: 2 The content of 'balxml::ConfigSchema::TEXT' is valid XML.
+        // 1. Incidental changes to `balxml::ConfigSchema::TEXT` (likely due to
+        //    careless code-generation) do not go unchecked.
+        //
+        // 2. The content of `balxml::ConfigSchema::TEXT` is valid XML.
         //
         // Plan:
-        //: 1 Parse the content of 'balxml::ConfigSchema::TEXT' into a
-        //:   's_baltst::BasicSchema', 'S', which is a rough, structural
-        //:   representation of an XML Schema Definition.
-        //:
-        //: 2 Verify that the structure of 'S' is equal to the expected
-        //:   structure (modulo annotations), where the "expected structure"
-        //:   refers to an encoding of the structure of 'S' in this test driver
-        //:   that does not get automatically modified by code generation.
+        // 1. Parse the content of `balxml::ConfigSchema::TEXT` into a
+        //    `s_baltst::BasicSchema`, `S`, which is a rough, structural
+        //    representation of an XML Schema Definition.
+        //
+        // 2. Verify that the structure of `S` is equal to the expected
+        //    structure (modulo annotations), where the "expected structure"
+        //    refers to an encoding of the structure of `S` in this test driver
+        //    that does not get automatically modified by code generation.
         //
         // Testing:
         //   balxml::ConfigSchema::TEXT
@@ -499,7 +500,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             bsl::cout << bsl::endl
-                      << "STRUCTURAL CONTENT OF 'TEXT'" << bsl::endl
+                      << "STRUCTURAL CONTENT OF `TEXT`" << bsl::endl
                       << "============================" << bsl::endl;
         }
 
@@ -509,7 +510,7 @@ int main(int argc, char *argv[])
         balxml::MiniReader     reader;
         balxml::Decoder        decoder(&options, &reader);
 
-        // Then, create a stream buffer that contains the content of 'TEXT'.
+        // Then, create a stream buffer that contains the content of `TEXT`.
 
         const bslstl::StringRef configSchemaText(balxml::ConfigSchema::TEXT);
 
@@ -517,9 +518,9 @@ int main(int argc, char *argv[])
             configSchemaText.data(), configSchemaText.length());
 
         // Next, parse the content of the stream buffer into a
-        // 's_baltst::BasicSchema', which provides a rough, structural
+        // `s_baltst::BasicSchema`, which provides a rough, structural
         // representation of an XML Schema Definition.  Note that
-        // 's_baltst::BasicSchema' is not sufficient to represent an XML Schema
+        // `s_baltst::BasicSchema` is not sufficient to represent an XML Schema
         // Definition in a production environment.
 
         s_baltst::BasicSchema configSchema;
@@ -534,7 +535,7 @@ int main(int argc, char *argv[])
         s_baltst::BasicSchema expectedSchema;
         u::TestUtil::loadExpectedSchema(&expectedSchema);
 
-        // Finally, assert that the content of 'TEXT' is structural equal
+        // Finally, assert that the content of `TEXT` is structural equal
         // (modulo annotations) to the content that we expect.
 
         typedef s_baltst::BasicSchemaUtil SchemaUtil;

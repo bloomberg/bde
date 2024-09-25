@@ -21,7 +21,7 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [  ] USAGE EXAMPLE
-// [ 2] CONCERN: Methods qualifed 'noexcept' in standard are so.
+// [ 2] CONCERN: Methods qualifed `noexcept` in standard are so.
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -104,39 +104,39 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 2: {
         // --------------------------------------------------------------------
-        // 'noexcept' SPECIFICATION
+        // `noexcept` SPECIFICATION
         //
         // Concerns:
-        //: 1 The 'noexcept' specification has been applied to all class
-        //:   interfaces required by the standard.
+        // 1. The `noexcept` specification has been applied to all class
+        //    interfaces required by the standard.
         //
         // Plan:
-        //: 1 Apply the uniary 'noexcept' operator to expressions that mimic
-        //:   those appearing in the standard and confirm that calculated
-        //:   boolean value matches the expected value.
-        //:
-        //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
-        //:   of the container, we need test for just one general type and any
-        //:   'TYPE' specializations.
+        // 1. Apply the uniary `noexcept` operator to expressions that mimic
+        //    those appearing in the standard and confirm that calculated
+        //    boolean value matches the expected value.
+        //
+        // 2. Since the `noexcept` specification does not vary with the `TYPE`
+        //    of the container, we need test for just one general type and any
+        //    `TYPE` specializations.
         //
         // Testing:
-        //   CONCERN: Methods qualifed 'noexcept' in standard are so.
+        //   CONCERN: Methods qualifed `noexcept` in standard are so.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+        if (verbose) printf("\n" "`noexcept` SPECIFICATION" "\n"
                                  "========================" "\n");
 
-        // N4594: 20.10.2.1 Class 'bad_weak_ptr'
+        // N4594: 20.10.2.1 Class `bad_weak_ptr`
 
         // page 590
-        //..
+        // ```
         //     namespace std {
         //       class bad_weak_ptr: public std::exception {
         //       public:
         //         bad_weak_ptr() noexcept;
         //       };
         //     } // namespace std
-        //..
+        // ```
 
         ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
             == BSLS_KEYWORD_NOEXCEPT_OPERATOR(bslstl::BadWeakPtr()));
@@ -148,11 +148,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
+        // 1. Perform and ad-hoc test of the primary modifiers and accessors.
         //
         // Testing:
         //   BREATHING TEST

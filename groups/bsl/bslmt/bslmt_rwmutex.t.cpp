@@ -109,7 +109,7 @@ typedef bslmt::RWMutex Obj;
 // versus the bslmt_readerwriterlock component.  Case -1 is a speed benchmark
 // of the POSIX RW mutex.  If POSIX is not available on the platform this
 // driver was built for, the test will fail.  Case -2 is a speed benchmark of
-// the bslmt_readerwriterlock component.  Case -3 checks the 'bias' of the
+// the bslmt_readerwriterlock component.  Case -3 checks the `bias` of the
 // POSIX RW mutex (a concern on IBM) and case -4 checks it for the
 // bslmt_readerwriterlock component.
 //
@@ -612,7 +612,7 @@ int benchmarkBiasFairness(bool* isFair, LOCK* lock)
    bslmt::ThreadUtil::yield();
 
    // There is one thread blocked waiting for the write lock.  Create a thread
-   // that will block waiting for the read 'qlock'.
+   // that will block waiting for the read `qlock`.
 
    int rwThreadHasLock = 0;
    ReadWaitThread<LOCK> readWaitThread(lock, &readStart,
@@ -814,25 +814,25 @@ int main(int argc, char *argv[])
         // COMPATIBILITY WITH GUARDS
         //
         // Concerns:
-        //: 1 That the component under test is compatible with
-        //:   'bslmt::ReadLockGuard'.
-        //:
-        //: 2 That the component under test is compatible with
-        //:   'bslmt::WriteLockGuard'.
-        //:
+        // 1. That the component under test is compatible with
+        //    `bslmt::ReadLockGuard`.
+        //
+        // 2. That the component under test is compatible with
+        //    `bslmt::WriteLockGuard`.
+        //
         //
         // Plan:
-        //: 1 Create a 'bslmt::ReaderWriterMutex' object.
-        //:
-        //: 2 In a block, lock the object for read with a guard.  As the class
-        //:   under test has no accessors to confirm that a 'RWMutex' has been
-        //:   locked by the same tread, all we can do is confirm that guard
-        //:   compiles.
-        //:
-        //: 3 In a block, lock the object for write with a guard.  As the class
-        //:   under test has no accessors to confirm that a 'RWMutex' has been
-        //:   locked by the same tread, all we can do is confirm that guard
-        //:   compiles.
+        // 1. Create a `bslmt::ReaderWriterMutex` object.
+        //
+        // 2. In a block, lock the object for read with a guard.  As the class
+        //    under test has no accessors to confirm that a `RWMutex` has been
+        //    locked by the same tread, all we can do is confirm that guard
+        //    compiles.
+        //
+        // 3. In a block, lock the object for write with a guard.  As the class
+        //    under test has no accessors to confirm that a `RWMutex` has been
+        //    locked by the same tread, all we can do is confirm that guard
+        //    compiles.
         //
         // Testing:
         //   bslmt::ReadLockGuard<Obj>

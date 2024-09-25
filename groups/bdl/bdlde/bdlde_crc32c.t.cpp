@@ -306,21 +306,21 @@ static bslma::TestAllocator *pa;
 //-----------------------------------------------------------------------------
 namespace {
 
+/// Struct representing a record in a table of performance statistics.
 struct TableRecord {
-    // Struct representing a record in a table of performance statistics.
     bsls::Types::Int64 d_size;
     bsls::Types::Int64 d_timeOne;
     bsls::Types::Int64 d_timeTwo;
     double             d_ratio;
 };
 
+/// Thread function: wait on the specified barrier and then, for each buffer
+/// in the specified `in`, calculate its crc32c value and store it in `out`.
 static
 void threadFunction(bsl::vector<unsigned int> *out,
                     const bsl::vector<char*>&  in,
                     bslmt::Barrier            *barrier,
                     bool                       useSoftware)
-    // Thread function: wait on the specified barrier and then, for each buffer
-    // in the specified 'in', calculate its crc32c value and store it in 'out'.
 {
     out->reserve(in.size());
     barrier->wait();
@@ -338,11 +338,11 @@ void threadFunction(bsl::vector<unsigned int> *out,
     }
 }
 
+/// Populate the specified `bufferLengths` with various lengths in
+/// increasing sorted order.  Return the maximum length populated.  Note
+/// that `bufferLengths` will be cleared.
 static
 int populateBufferLengthsSorted(bsl::vector<int> *bufferLengths)
-    // Populate the specified 'bufferLengths' with various lengths in
-    // increasing sorted order.  Return the maximum length populated.  Note
-    // that 'bufferLengths' will be cleared.
 {
     BSLS_ASSERT(bufferLengths);
 
@@ -378,17 +378,17 @@ int populateBufferLengthsSorted(bsl::vector<int> *bufferLengths)
     return bufferLengths->back();
 }
 
+/// Print the specified `headers` to the specified `out` in the following
+/// format:
+///
+/// ```
+/// ===================================================================
+/// | <headers[0]> | <headers[1]> | ... | <headers[headers.size() - 1]>
+/// ===================================================================
+/// ```
 static
 void printTableHeader(bsl::ostream&                   out,
                       const bsl::vector<bsl::string>& headers)
-    // Print the specified 'headers' to the specified 'out' in the following
-    // format:
-    //
-    //..
-    //  ===================================================================
-    //  | <headers[0]> | <headers[1]> | ... | <headers[headers.size() - 1]>
-    //  ===================================================================
-    //..
 {
     const bsl::size_t sumSizes = bsl::accumulate(headers.begin(),
                                                  headers.end(),
@@ -407,18 +407,18 @@ void printTableHeader(bsl::ostream&                   out,
     bsl::cout << '\n';
 }
 
+/// Print the specified `tableRecords` to the specified `out`, using the
+/// specified `headerCols` to determine the appropriate width for each
+/// column.
+/// Print in the following format:
+///
+/// ```
+/// | <size> | <timeOne> | <timeTwo> | <ratio>
+/// ```
 static
 void printTableRows(bsl::ostream&                   out,
                     const bsl::vector<TableRecord>& tableRecords,
                     const bsl::vector<bsl::string>& headerCols)
-    // Print the specified 'tableRecords' to the specified 'out', using the
-    // specified 'headerCols' to determine the appropriate width for each
-    // column.
-    // Print in the following format:
-    //
-    //..
-    //  | <size> | <timeOne> | <timeTwo> | <ratio>
-    //..
 {
     // PRECONDITIONS
     BSLS_ASSERT(headerCols.size() == 4);
@@ -455,11 +455,11 @@ void printTableRows(bsl::ostream&                   out,
     out.flags(flags);
 }
 
+/// Print a table having the specified `headerCols` and `tableRecords` to
+/// the specified `out`.
 void printTable(bsl::ostream&                   out,
                 const bsl::vector<bsl::string>& headerCols,
                 const bsl::vector<TableRecord>& tableRecords)
-    // Print a table having the specified 'headerCols' and 'tableRecords' to
-    // the specified 'out'.
 {
     printTableHeader(out, headerCols);
     printTableRows(out, tableRecords, headerCols);
@@ -893,9 +893,9 @@ void test3_calculateOnMisalignedBuffer()
     const int k_MY_ALIGNMENT =
            bsls::AlignmentFromType<bsls::AlignmentUtil::MaxAlignedType>::VALUE;
 
+    // Aligned buffer sufficiently large to contain every buffer generated
+    // for testing below
     bsls::AlignedBuffer<k_BUFFER_SIZE, k_MY_ALIGNMENT> allocBuffer;
-        // Aligned buffer sufficiently large to contain every buffer generated
-        // for testing below
 
     char *allocPtr = allocBuffer.buffer();
 
@@ -1183,9 +1183,10 @@ void test5_multithreadedCrc32cDefault()
 
     // [2] Multithreaded Calculation
     bslmt::ThreadGroup threadGroup(pa);
+
+    // Barrier to get each thread to start at the same time; `+1` for this
+    // (main) thread.
     bslmt::Barrier     barrier(k_NUM_THREADS + 1);
-        // Barrier to get each thread to start at the same time; '+1' for this
-        // (main) thread.
 
     bsl::vector<bsl::vector<unsigned int> > threadsCrc32cData(k_NUM_THREADS,
                                                               pa);
@@ -1278,9 +1279,10 @@ void test6_multithreadedCrc32cSoftware()
 
     // [2] Multithreaded Calculation
     bslmt::ThreadGroup threadGroup(pa);
+
+    // Barrier to get each thread to start at the same time; `+1` for this
+    // (main) thread.
     bslmt::Barrier      barrier(k_NUM_THREADS + 1);
-        // Barrier to get each thread to start at the same time; '+1' for this
-        // (main) thread.
 
     bsl::vector<bsl::vector<unsigned int> > threadsCrc32cData(pa);
     threadsCrc32cData.resize(k_NUM_THREADS);

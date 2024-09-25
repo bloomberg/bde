@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
@@ -144,14 +144,14 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -170,48 +170,48 @@ int main(int argc, char *argv[])
 // variance and kurtosis.
 //
 // First, we create example input and instantiate the appropriate mechanism:
-//..
+// ```
     double input[] = { 1.0, 2.0, 4.0, 5.0 };
 
     bdlsta::Moment<bdlsta::MomentLevel::e_M3> m3;
-//..
-// Then, we invoke the 'add' routine to accumulate the data:
-//..
+// ```
+// Then, we invoke the `add` routine to accumulate the data:
+// ```
     for(int i = 0; i < 4; ++i) {
         m3.add(input[i]);
     }
-//..
+// ```
 // Finally, we assert that the mean, variance, and skew are what we expect:
-//..
+// ```
     ASSERT(4   == m3.count());
     ASSERT(3.0 == m3.mean());
     ASSERT(1e-5 > fabs(3.33333 - m3.variance()));
     ASSERT(1e-5 > fabs(0.0     - m3.skew()));
-//..
+// ```
       } break;
       case 3: {
         // --------------------------------------------------------------------
         // TESTING EDGE CASES
         //
         // Concerns:
-        //: 1 'meanIfValid' returns '-1' when no data is fed.
-        //:
-        //: 2 'varianceIfValid' returns '-1' with less than 2 data values.
-        //:
-        //: 3 'skewIfValid' returns '-1' with less than 3 data values.
-        //:
-        //: 4 'kurtosisIfValid' returns '-1' with less than 4 data values.
+        // 1. `meanIfValid` returns `-1` when no data is fed.
+        //
+        // 2. `varianceIfValid` returns `-1` with less than 2 data values.
+        //
+        // 3. `skewIfValid` returns `-1` with less than 3 data values.
+        //
+        // 4. `kurtosisIfValid` returns `-1` with less than 4 data values.
         //
         // Plan:
-        //: 1 Verify the 'meanIfValid' with no data returns '-1'.  (C-1)
-        //:
-        //: 2 Verify the 'varianceIfValid' with 1 data value returns '-1'.
-        //:   (C-2)
-        //:
-        //: 3 Verify the 'skewIfValid' with 2 data values returns '-1'.  (C-3)
-        //:
-        //: 4 Verify the 'kurtosisIfValid' with 3 data values returns '-1'.
-        //:   (C-4)
+        // 1. Verify the `meanIfValid` with no data returns `-1`.  (C-1)
+        //
+        // 2. Verify the `varianceIfValid` with 1 data value returns `-1`.
+        //    (C-2)
+        //
+        // 3. Verify the `skewIfValid` with 2 data values returns `-1`.  (C-3)
+        //
+        // 4. Verify the `kurtosisIfValid` with 3 data values returns `-1`.
+        //    (C-4)
         //
         // Testing:
         //   EDGE CASES
@@ -271,24 +271,24 @@ int main(int argc, char *argv[])
         //   added here as well.
         //
         // Concerns:
-        //: 1 All accessors return the expected values after 'bdlsta::Moment'
-        //:   loaded with a series of values.
-        //:
-        //: 2 Different specializations produce the same set of values.
+        // 1. All accessors return the expected values after `bdlsta::Moment`
+        //    loaded with a series of values.
+        //
+        // 2. Different specializations produce the same set of values.
         //
         // Plan:
-        //: 1 Using the table method, create
-        //    'bdlsta::Moment<MomentLevel::e_M4>', use
-        //:   'bdlsta::Moment<MomentLevel::e_M4>::add' to load data, and check
-        //:   the values of mean, variance, skew, and kurtosis.  (C-1)
-        //:
-        //: 2 Verify that we get the same values from the 'raw' methods.  (C-1)
-        //:
-        //: 3 Load the same set of data into
-        //:   'bdlsta::Moment<MomentLevel::e_M3>',
-        //:   'bdlsta::Moment<MomentLevel::e_M2>',
-        //:   'bdlsta::Moment<MomentLevel::e_M1>', and verify that we get the
-        //:   same values.  (C-2)
+        // 1. Using the table method, create
+        //    `bdlsta::Moment<MomentLevel::e_M4>`, use
+        //    `bdlsta::Moment<MomentLevel::e_M4>::add` to load data, and check
+        //    the values of mean, variance, skew, and kurtosis.  (C-1)
+        //
+        // 2. Verify that we get the same values from the `raw` methods.  (C-1)
+        //
+        // 3. Load the same set of data into
+        //    `bdlsta::Moment<MomentLevel::e_M3>`,
+        //    `bdlsta::Moment<MomentLevel::e_M2>`,
+        //    `bdlsta::Moment<MomentLevel::e_M1>`, and verify that we get the
+        //    same values.  (C-2)
         //
         // Testing:
         //   Moment()
@@ -668,11 +668,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Developer test sandbox. (C-1)
+        // 1. Developer test sandbox. (C-1)
         //
         // Testing:
         //   BREATHING TEST
@@ -719,7 +719,7 @@ int main(int argc, char *argv[])
         ASSERT(fabs(3.33333 - m3.variance()) < 1e-5);
         ASSERT(fabs(0.0     - m3.skew())     < 1e-5);
         // The below would not compile since the object was created using
-        // 'e_M3':
+        // `e_M3`:
         //ASSERT(fabs(644.185 - m3.kurtosis()) < 1e-3);
 
         bdlsta::Moment<bdlsta::MomentLevel::e_M4> m4;

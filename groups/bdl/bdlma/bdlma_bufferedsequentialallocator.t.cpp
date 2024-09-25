@@ -26,8 +26,8 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// A 'bdlma::BufferedSequentialAllocator' adapts the
-// 'bdlma::BufferedSequentialPool' mechanism to the 'bdlma::ManagedAllocator'
+// A `bdlma::BufferedSequentialAllocator` adapts the
+// `bdlma::BufferedSequentialPool` mechanism to the `bdlma::ManagedAllocator`
 // protocol.  The primary concern is that the allocator correctly proxies the
 // memory allocation requests to the buffered sequential pool it adapts.
 //
@@ -41,13 +41,13 @@ using namespace bsl;
 // 2) If the memory used by either test allocator is non-zero, the number of
 //    bytes used by both test allocators is the same.
 //
-// We also need to verify that the 'deallocate' method has no effect.  Again,
+// We also need to verify that the `deallocate` method has no effect.  Again,
 // we make use of the test allocator to ensure that no memory is deallocated
-// when the 'deallocate' method of a buffered sequential allocator is invoked
+// when the `deallocate` method of a buffered sequential allocator is invoked
 // on previously allocated memory (both from the buffer and from the fall back
 // allocator).
 //
-// Finally, the destructor of 'bdlma::BufferedSequentialAllocator' is tested
+// Finally, the destructor of `bdlma::BufferedSequentialAllocator` is tested
 // throughout the test driver.  At destruction, the allocator should reclaim
 // all outstanding allocated memory.  By setting the global allocator, default
 // allocator, and object allocator to different test allocators, we can
@@ -159,35 +159,35 @@ static bsls::AlignedBuffer<k_BUFFER_SIZE> bufferStorage;
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using 'bdlma::BufferedSequentialAllocator' with Exact Calculation
+///Example 1: Using `bdlma::BufferedSequentialAllocator` with Exact Calculation
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we need to implement a method, 'calculate', that performs
+// Suppose we need to implement a method, `calculate`, that performs
 // calculations (where the specifics are not important to illustrate the use of
-// this component), which require three vectors of 'double' values.
+// this component), which require three vectors of `double` values.
 // Furthermore, suppose we know that we need to store at most 100 values for
 // each vector:
-//..
+// ```
     double calculate(const bsl::vector<double>& data)
     {
-//..
+// ```
 // Since the amount of memory needed is known in advance, we can optimize the
-// memory allocation by using a 'bdlma::BufferedSequentialAllocator' to supply
+// memory allocation by using a `bdlma::BufferedSequentialAllocator` to supply
 // memory for the vectors.  We can also prevent the vectors from resizing
 // (which triggers more allocations) by reserving for the specific capacity we
 // need:
-//..
+// ```
         enum { k_SIZE = 3 * 100 * sizeof(double) };
-//..
+// ```
 // In the above calculation, we assume that the only memory allocation
 // requested by the vector is the allocation for the array that stores the
-// 'double' values.  Furthermore, we assume that the 'reserve' method allocates
+// `double` values.  Furthermore, we assume that the `reserve` method allocates
 // the exact amount of memory for the number of items specified (in this case,
-// of type 'double').  Note that both of these assumptions are true for BDE's
-// implementation of 'bsl::vector'.
+// of type `double`).  Note that both of these assumptions are true for BDE's
+// implementation of `bsl::vector`.
 //
 // To avoid alignment issues described in the "Warning" section (above), we
-// create a 'bsls::AlignedBuffer':
-//..
+// create a `bsls::AlignedBuffer`:
+// ```
         bsls::AlignedBuffer<k_SIZE> bufferStorage;
 
         bdlma::BufferedSequentialAllocator alloc(bufferStorage.buffer(),
@@ -199,8 +199,8 @@ static bsls::AlignedBuffer<k_BUFFER_SIZE> bufferStorage;
 
         return data.empty() ? 0.0 : data.front();
     }
-//..
-// By making use of a 'bdlma::BufferedSequentialAllocator', *all* dynamic
+// ```
+// By making use of a `bdlma::BufferedSequentialAllocator`, *all* dynamic
 // memory allocation is eliminated in the above example.
 //
 
@@ -257,13 +257,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -286,20 +286,20 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting usage example 2." << endl;
         {
 
-///Example 2: Using 'bdlma::BufferedSequentialAllocator' with Fallback
+///Example 2: Using `bdlma::BufferedSequentialAllocator` with Fallback
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we are receiving updates for price quotes for a list of securities
 // through the following function:
-//..
+// ```
 //  void receivePriceQuotes(bsl::map<bsl::string, double> *updateMap);
-//      // Load into the specified 'updateMap' updates for price quotes for a
+//      // Load into the specified `updateMap` updates for price quotes for a
 //      // list of securities.
-//..
+// ```
 // Furthermore, suppose the number of securities we are interested in is
-// limited.  We can then use a 'bdlma::BufferedSequentialAllocator' to optimize
-// memory allocation for the 'bsl::map'.  We first create a buffer on the
+// limited.  We can then use a `bdlma::BufferedSequentialAllocator` to optimize
+// memory allocation for the `bsl::map`.  We first create a buffer on the
 // stack:
-//..
+// ```
     enum {
         k_NUM_SECURITIES = 100,
 
@@ -313,19 +313,19 @@ int main(int argc, char *argv[])
     };
 
     bsls::AlignedBuffer<k_TOTAL_SIZE> bufferStorage;
-//..
+// ```
 // The calculation of the amount of memory needed is just an estimate, as we
 // used the average security size instead of the maximum security size.  We
-// also assume that a 'bsl::map's node size is roughly the size of 4 pointers.
-//..
+// also assume that a `bsl::map`s node size is roughly the size of 4 pointers.
+// ```
     bdlma::BufferedSequentialAllocator bsa(bufferStorage.buffer(),
                                            k_TOTAL_SIZE,
                                            &objectAllocator);
     bsl::map<bsl::string, double> updateMap(&bsa);
 
     receivePriceQuotes(&updateMap);
-//..
-// With the use of a 'bdlma::BufferedSequentialAllocator', we can be reasonably
+// ```
+// With the use of a `bdlma::BufferedSequentialAllocator`, we can be reasonably
 // assured that the memory allocation performance is optimized (i.e., minimal
 // use of dynamic allocation).
 
@@ -339,27 +339,27 @@ int main(int argc, char *argv[])
         // TESTING ALLOCATOR ACCESSOR
         //
         // Concerns:
-        //: 1 That the 'allocator' accessor returns the allocator passed at
-        //:   construction, or the default allocator if none was passed.
-        //:
-        //: 2 That the allocator returned by the 'allocator' accessor is the
-        //:   one used when the buffer is exhausted.
+        // 1. That the `allocator` accessor returns the allocator passed at
+        //    construction, or the default allocator if none was passed.
+        //
+        // 2. That the allocator returned by the `allocator` accessor is the
+        //    one used when the buffer is exhausted.
         //
         // Plan:
-        //: 1 Repeat the following test, once passing an allocator to the
-        //:   object at construction, once passing no allocator (expecting the
-        //:   default allocator to be used in that case):
-        //:   o create the object
-        //:
-        //:   o query 'allocator()' and verify its return value
-        //:
-        //:   o query the state of the allocator we expect to be used
-        //:
-        //:   o do an allocation larger than the arena buffer
-        //:
-        //:   o query 'allocator()' again and verify its return value
-        //:
-        //:   o verify that the allocator we expect to be used has been used.
+        // 1. Repeat the following test, once passing an allocator to the
+        //    object at construction, once passing no allocator (expecting the
+        //    default allocator to be used in that case):
+        //    - create the object
+        //
+        //    - query `allocator()` and verify its return value
+        //
+        //    - query the state of the allocator we expect to be used
+        //
+        //    - do an allocation larger than the arena buffer
+        //
+        //    - query `allocator()` again and verify its return value
+        //
+        //    - verify that the allocator we expect to be used has been used.
         //
         // Testing:
         //   bslma::Allocator *allocator() const;
@@ -431,14 +431,14 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   For concern 1, dynamically allocate a buffer using a test
-        //   allocator.  Then, set all bytes in the buffer to '0xA', and
+        //   allocator.  Then, set all bytes in the buffer to `0xA`, and
         //   initialize a buffered sequential allocator using the buffer and
         //   the same test allocator.  Finally, destroy the allocator, and
-        //   verify that the bytes in the first buffer remain '0xA' and the
+        //   verify that the bytes in the first buffer remain `0xA` and the
         //   buffer is not deallocated.
         //
         //   For concern 2, construct a buffered sequential allocator using a
-        //   'bslma::TestAllocator', then allocate sufficient memory such that
+        //   `bslma::TestAllocator`, then allocate sufficient memory such that
         //   the buffer runs out and the allocator is used.  Finally, destroy
         //   the buffered sequential allocator, and verify, using the test
         //   allocator, that there is no outstanding memory allocated.
@@ -503,30 +503,30 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // 'release' TEST
+        // `release` TEST
         //
         // Concerns:
-        //   1) That 'release' has no effect on the previously managed buffer.
+        //   1) That `release` has no effect on the previously managed buffer.
         //
         //   2) That all memory allocated from the allocator supplied at
-        //      construction is deallocated after 'release'.
+        //      construction is deallocated after `release`.
         //
         //   3) That subsequent allocation requests after invocation of the
-        //      'release' method are satisfied by the buffer supplied at
+        //      `release` method are satisfied by the buffer supplied at
         //      construction.
         //
         // Plan:
         //   For concern 1, dynamically allocate a buffer using a test
-        //   allocator.  Then, set all bytes in the buffer to '0xA', and
+        //   allocator.  Then, set all bytes in the buffer to `0xA`, and
         //   initialize a buffered sequential allocator using the buffer and
-        //   the same test allocator.  Finally, invoke 'release' and verify
-        //   that the bytes in the first buffer remain '0xA' and the buffer is
+        //   the same test allocator.  Finally, invoke `release` and verify
+        //   that the bytes in the first buffer remain `0xA` and the buffer is
         //   not deallocated.
         //
         //   For concerns 2 and 3, construct a buffered sequential allocator
-        //   using a 'bslma::TestAllocator', then allocate sufficient memory
+        //   using a `bslma::TestAllocator`, then allocate sufficient memory
         //   such that the buffer runs out and the allocator is used.  Finally,
-        //   invoke 'release' and verify, using the test allocator, that there
+        //   invoke `release` and verify, using the test allocator, that there
         //   is no outstanding memory allocated.  Then, allocate memory again
         //   and verify memory comes from the buffer.
         //
@@ -534,11 +534,11 @@ int main(int argc, char *argv[])
         //   void release();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "'release' TEST" << endl
+        if (verbose) cout << endl << "`release` TEST" << endl
                                   << "==============" << endl;
 
         if (verbose) cout << "\nTesting managed buffer is not affected after "
-                             "'release'." << endl;
+                             "`release`." << endl;
 
         {
             ASSERT(0 == objectAllocator.numBlocksInUse());
@@ -571,7 +571,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == objectAllocator.numBlocksInUse());
 
         if (verbose) cout << "\nTesting allocated memory is deallocated after"
-                             " 'release'." << endl;
+                             " `release`." << endl;
         {
             char buffer[k_BUFFER_SIZE];
 
@@ -605,28 +605,28 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // 'deallocate' TEST
+        // `deallocate` TEST
         //
         // Concerns:
-        //   That 'deallocate' has no effect.
+        //   That `deallocate` has no effect.
         //
         // Plan:
         //   Create a buffered sequential allocator initialized with a test
         //   allocator.  Request memory of varying sizes and then deallocate
         //   each memory block.  Verify that the number of bytes in use
         //   indicated by the test allocator does not decrease after each
-        //   'deallocate' method invocation.
+        //   `deallocate` method invocation.
         //
         // Testing:
         //   void deallocate(void *address);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "'deallocate' TEST" << endl
+        if (verbose) cout << endl << "`deallocate` TEST" << endl
                                   << "=================" << endl;
 
         char *buffer = bufferStorage.buffer();
 
-        if (verbose) cout << "\nTesting 'deallocate'." << endl;
+        if (verbose) cout << "\nTesting `deallocate`." << endl;
 
         const int DATA[] = { 0, 1, 5, 12, 24, 32, 64, 256, 257, 512, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -652,9 +652,9 @@ int main(int argc, char *argv[])
         // CTOR / ALLOCATE TEST
         //
         // Concerns:
-        //   1) That the 'bdlma::BufferedSequentialAllocator' correctly proxies
+        //   1) That the `bdlma::BufferedSequentialAllocator` correctly proxies
         //      its constructor arguments and allocation requests to the
-        //      'bdlma::BufferedSequentialPool' it adapts.
+        //      `bdlma::BufferedSequentialPool` it adapts.
         //
         //   2) That allocating 0 bytes returns 0.
         //
@@ -948,16 +948,16 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   1) That a 'bdlma::BufferedSequentialAllocator' can be created and
+        //   1) That a `bdlma::BufferedSequentialAllocator` can be created and
         //      destroyed.
         //
-        //   2) That 'allocate' returns a block of memory having the specified
+        //   2) That `allocate` returns a block of memory having the specified
         //      size and expected alignment.
         //
-        //   3) That 'allocate' returns a block of memory from the external
+        //   3) That `allocate` returns a block of memory from the external
         //      buffer supplied at construction.
         //
-        //   4) That 'allocate' returns a block of memory even when the
+        //   4) That `allocate` returns a block of memory even when the
         //      the allocation request exceeds the remaining free space in the
         //      external buffer.
         //
@@ -966,17 +966,17 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   For concerns 1, 2, and 3, first, create a
-        //   'bdlma::BufferedSequentialAllocator' with an aligned static
+        //   `bdlma::BufferedSequentialAllocator` with an aligned static
         //   buffer.  Next, allocate a block of memory from the allocator and
         //   verify that it comes from the external buffer.  Then, allocate
         //   another block of memory from the allocator, and verify that the
         //   first allocation returns a block of memory of sufficient size by
-        //   checking that 'addr2 >= addr1 + ALLOC_SIZE1'.  Also verify that
+        //   checking that `addr2 >= addr1 + ALLOC_SIZE1`.  Also verify that
         //   the alignment strategy indicated at construction is followed by
         //   checking the address of the second allocation.
         //
-        //   For concern 4, initialize a 'bdlma::BufferedSequentialAllocator'
-        //   with a 'bslma::TestAllocator'.  Then allocate a block of memory
+        //   For concern 4, initialize a `bdlma::BufferedSequentialAllocator`
+        //   with a `bslma::TestAllocator`.  Then allocate a block of memory
         //   that is larger than the buffer supplied at construction of the
         //   buffered sequential allocator.  Verify that memory is allocated
         //   from the test allocator.

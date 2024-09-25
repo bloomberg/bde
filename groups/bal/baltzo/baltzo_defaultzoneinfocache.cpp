@@ -56,13 +56,14 @@ static baltzo::ZoneinfoCache *systemSingletonCachePtr = 0; // default sys cache
 static baltzo::ZoneinfoCache *userSingletonCachePtr   = 0; // default usr cache
 
 // STATIC HELPER FUNCTIONS
+
+/// Return the address of a modifiable singleton default, system-wide,
+/// default-cache instance, initializing that instance if this method has
+/// not previously been called.  Subsequent calls to this method return the
+/// previously created (singleton) instance with no other effect.  This
+/// methods is *not* thread safe.
 static
 baltzo::ZoneinfoCache *initSystemDefaultCache()
-    // Return the address of a modifiable singleton default, system-wide,
-    // default-cache instance, initializing that instance if this method has
-    // not previously been called.  Subsequent calls to this method return the
-    // previously created (singleton) instance with no other effect.  This
-    // methods is *not* thread safe.
 {
     bslma::Allocator *allocator = bslma::Default::globalAllocator();
 

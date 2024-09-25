@@ -16,8 +16,8 @@
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 
-#include <cstdio>      // 'std::printf'
-#include <cstdlib>     // 'std::atoi'
+#include <cstdio>      // `std::printf`
+#include <cstdlib>     // `std::atoi`
 
 #ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
@@ -72,51 +72,51 @@ using namespace BloombergLP;
 // The allocator argument to the facilities in this component can have one of
 // the following five types:
 //
-//: 1 A non-allocator expressed as a non-class object other than a pointer to
-//:   'bslma::Allocator'
-//: 2 A pointer to class (derived from) 'bslma::Allocator'
-//: 3 An instantiation of 'bsl::allocator'
-//: 4 An instantiation of 'bsl::polymorphic_allocator'
-//: 5 An STL allocator object of class type meeting the requirements of a C++11
-//:   allocator other than an instantiation of 'bsl::allocator' or
-//:   'bsl::polymorphic_allocator'
+// 1. A non-allocator expressed as a non-class object other than a pointer to
+//    `bslma::Allocator`
+// 2. A pointer to class (derived from) `bslma::Allocator`
+// 3. An instantiation of `bsl::allocator`
+// 4. An instantiation of `bsl::polymorphic_allocator`
+// 5. An STL allocator object of class type meeting the requirements of a C++11
+//    allocator other than an instantiation of `bsl::allocator` or
+//    `bsl::polymorphic_allocator`
 //
-// The destination object being constructed will have type 'T', belonging to
+// The destination object being constructed will have type `T`, belonging to
 // one of the following allocator-awareness (AA) models:
 //
-//: 1 Non-AA
-//: 2 legacy-AA: taking an 'bslma::Allocator *' as a constructor parameter
-//: 3 bsl-AA: taking an instantiation of 'bsl::allocator' as a constructor
-//:   parameter
-//: 4 pmr-AA: taking an instantiation of 'bsl::polymorphic_allocator' as a
-//:   constructor parameter
-//: 5 stl-AA: taking an allocator parameter of type 'T::allocator_type', where
-//:   'T::allocator_type' is not an instantiation of 'bsl::allocator' or
-//:   'bsl::polymorphic_allocator'
+// 1. Non-AA
+// 2. legacy-AA: taking an `bslma::Allocator *` as a constructor parameter
+// 3. bsl-AA: taking an instantiation of `bsl::allocator` as a constructor
+//    parameter
+// 4. pmr-AA: taking an instantiation of `bsl::polymorphic_allocator` as a
+//    constructor parameter
+// 5. stl-AA: taking an allocator parameter of type `T::allocator_type`, where
+//    `T::allocator_type` is not an instantiation of `bsl::allocator` or
+//    `bsl::polymorphic_allocator`
 //
 // If the type being constructed is non-AA, the allocator is ignored,
 // regardless of its category.  If a non-allocator is passed to a
-// 'ConstructionUtil' method, then no allocator is passed to the object
+// `ConstructionUtil` method, then no allocator is passed to the object
 // constructor regardless of the type's AA model.  Otherwise, the allocator
 // must be compatible with the type being constructed, as shown in this table:
 //
-//:                            |                AA MODEL
-//: ALLOCATOR TYPE             | non-AA | legacy-AA | bsl-AA | pmr-AA | stl-AA
-//: --------------------------------------------------------------------------
-//: non-allocator              | YES    | YES       | YES    | YES    | YES
-//: bslma::Allocator *         | YES    | YES       | YES    | YES    | NO
-//: bsl::allocator             | YES    | YES       | YES    | YES    | NO
-//: bsl::polymorphic_allocator | YES    | NO        | NO     | YES    | NO
-//: STL allocator              | YES    | NO        | NO     | NO     | YES
+//                             |                AA MODEL
+//  ALLOCATOR TYPE             | non-AA | legacy-AA | bsl-AA | pmr-AA | stl-AA
+//  --------------------------------------------------------------------------
+//  non-allocator              | YES    | YES       | YES    | YES    | YES
+//  bslma::Allocator *         | YES    | YES       | YES    | YES    | NO
+//  bsl::allocator             | YES    | YES       | YES    | YES    | NO
+//  bsl::polymorphic_allocator | YES    | NO        | NO     | YES    | NO
+//  STL allocator              | YES    | NO        | NO     | NO     | YES
 //
 // We must test all 17 of the valid combinations above.  Furthermore, any AA
 // type my conform to one of the following allocator-passing conventions:
 //
-//: 1 Trailing-allocator Convention: The allocator is passed as the last
-//:   argument to the constructor.
-//: 2 Leading-allocator Convention: 'bsl::allocator_arg' is passed as the first
-//:   argument to the constructor and the allocator is passed as the second
-//:   argument.
+// 1. Trailing-allocator Convention: The allocator is passed as the last
+//    argument to the constructor.
+// 2. Leading-allocator Convention: `bsl::allocator_arg` is passed as the first
+//    argument to the constructor and the allocator is passed as the second
+//    argument.
 //
 // Thus, the test cases must ensure that all 29 combinations of allocator
 // types, AA model, and allocator-passing convensions. Note that there are no
@@ -124,7 +124,7 @@ using namespace BloombergLP;
 // combinations.
 //
 // Other concerns of this component are the proper detection of traits (e.g.,
-// 'bslmf::IsBitwiseMoveable') and the correct selection of the implementation.
+// `bslmf::IsBitwiseMoveable`) and the correct selection of the implementation.
 // Some of these concerns are addressed by the compilation (detecting the wrong
 // traits will lead to compilation failure) and some others are addressed by
 // runtime detection of values after evaluation.
@@ -213,9 +213,9 @@ const int VALUES[] = {
     0, 20, 1, 23, 44, 66, 176, 878, 8, 912, 102, 111, 333, 712, 1414
 };
 
+/// Type that tracks whether it has been copied into, moved into, or moved
+/// from.
 class CopyMoveTracker {
-    // Type that tracks whether it has been copied into, moved into, or moved
-    // from.
 
   public:
     enum State {
@@ -275,17 +275,17 @@ class CopyMoveTracker {
     bool isMovedFrom()  const { return e_MOVED_FROM == d_state; }
 };
 
+/// This class template wraps an integer value and provides implicit
+/// conversion to, and explicit conversion from, `int`, while keeping track
+/// of copy and move operations.  Its main purpose is for following an
+/// argument through a forwarding interface.  Each value of the template
+/// parameter `N` yields a unique type, enabling this test driver to
+/// distingusih them when calling through a function template interface,
+/// thereby avoiding ambiguities or accidental switching of arguments in the
+/// implementation of test-class methods and constructors or in calls to
+/// methods and constructors of a class template under test.
 template <int N>
 class ArgumentType {
-    // This class template wraps an integer value and provides implicit
-    // conversion to, and explicit conversion from, 'int', while keeping track
-    // of copy and move operations.  Its main purpose is for following an
-    // argument through a forwarding interface.  Each value of the template
-    // parameter 'N' yields a unique type, enabling this test driver to
-    // distingusih them when calling through a function template interface,
-    // thereby avoiding ambiguities or accidental switching of arguments in the
-    // implementation of test-class methods and constructors or in calls to
-    // methods and constructors of a class template under test.
 
     // DATA
     int             d_data;     // attribute value
@@ -363,9 +363,9 @@ typedef ArgumentType<12> ArgType12;
 typedef ArgumentType<13> ArgType13;
 typedef ArgumentType<14> ArgType14;
 
+/// Packet of 14 `ArgumentType` values having initial values
+/// `VALUES[1]` through `VALUES[14]`.
 struct ArgPack {
-    // Packet of 14 'ArgumentType' values having initial values
-    // 'VALUES[1]' through 'VALUES[14]'.
 
     // PUBLIC DATA
     ArgumentType< 1> d_arg1;
@@ -412,18 +412,18 @@ struct ArgPack {
     }
 };
 
+/// A pass-by-value parameter of this class can be initialized with an
+/// argument of type `ArgumentType<N>`, in the process recording whether
+/// the argument was moved or copied.  Using `ArgumentType<N>` parameter
+/// directly does not work becuase, in C++03, initializing a pass-by-value
+/// parameter of type `ArgumentType<N>` from a `MovableRef` results in an
+/// ambiguous conversion sequence (i.e., `MovableRef::operator T&`
+/// vs. `ArgumentType(MovableRef)` are equally good conversions).  This
+/// class eliminates the ambiguity because `MovableRef<AT>` -> `AT&` ->
+/// `ByValueParam` requires *two* user-defined conversions and is therefore
+/// eliminated during overload resolution.
 template <int N>
 class ByValueParam : public ArgumentType<N> {
-    // A pass-by-value parameter of this class can be initialized with an
-    // argument of type 'ArgumentType<N>', in the process recording whether
-    // the argument was moved or copied.  Using 'ArgumentType<N>' parameter
-    // directly does not work becuase, in C++03, initializing a pass-by-value
-    // parameter of type 'ArgumentType<N>' from a 'MovableRef' results in an
-    // ambiguous conversion sequence (i.e., 'MovableRef::operator T&'
-    // vs. 'ArgumentType(MovableRef)' are equally good conversions).  This
-    // class eliminates the ambiguity because 'MovableRef<AT>' -> 'AT&' ->
-    // 'ByValueParam' requires *two* user-defined conversions and is therefore
-    // eliminated during overload resolution.
 
     typedef ArgumentType<N> Base;
 
@@ -435,11 +435,11 @@ class ByValueParam : public ArgumentType<N> {
         : Base(MoveUtil::move(original)) { }
 };
 
+/// Class to hold the value and state of any `ArgumentType` object. Note
+/// that this class does *not* track its own copy and move state; the state
+/// is frozen at the value acquired from the original construction from
+/// `ArgumentType<N>`.
 class FrozenArg {
-    // Class to hold the value and state of any 'ArgumentType' object. Note
-    // that this class does *not* track its own copy and move state; the state
-    // is frozen at the value acquired from the original construction from
-    // 'ArgumentType<N>'.
 
     int                    d_value;
     CopyMoveTracker::State d_copyMoveState;
@@ -486,11 +486,11 @@ class FrozenArg {
         { return CopyMoveTracker::e_MOVED_FROM == d_copyMoveState; }
 };
 
+/// Empty class to keep track of construction and destruction of `TestType`
+/// objects.  Used as a base class to `TestType`, this class's constructors
+/// and destructor keep track of live and total `TestType` counts and the
+/// address of the most-recently-destroyed `TestType` object.
 class TestTypeStats {
-    // Empty class to keep track of construction and destruction of 'TestType'
-    // objects.  Used as a base class to 'TestType', this class's constructors
-    // and destructor keep track of live and total 'TestType' counts and the
-    // address of the most-recently-destroyed 'TestType' object.
 
     // Private CLASS DATA
     static int             s_currentCount;  // count of live objects
@@ -499,16 +499,17 @@ class TestTypeStats {
 
   public:
     // CLASS METHODS
+
+    /// Return the number of currently live (constructed and not destroyed)
+    /// `TestType` objects.
     static int currentCount() { return s_currentCount; }
-        // Return the number of currently live (constructed and not destroyed)
-        // 'TestType' objects.
 
+    /// Return the number of `TestType` objects ever constructed.
     static int totalCount() { return s_totalCount; }
-        // Return the number of 'TestType' objects ever constructed.
 
+    /// Return the address of the most `TestType` object for which the
+    /// destructor was invoked.
     static TestTypeStats *lastDestroyed() { return s_lastDestroyed; }
-        // Return the address of the most 'TestType' object for which the
-        // destructor was invoked.
 
     // CREATORS
     TestTypeStats()                     { ++s_currentCount; ++s_totalCount; }
@@ -520,17 +521,17 @@ int            TestTypeStats::s_currentCount  = 0;
 int            TestTypeStats::s_totalCount    = 0;
 TestTypeStats *TestTypeStats::s_lastDestroyed = 0;
 
+/// Base class for the 'TestType` template holding the allocator and
+/// providing allocator-related typedefs and accessors.  Each instantiation
+/// has a protected `AllocArg` type used to pass an allocator to the
+/// derived-class constructors and a `k_USES_BSLMA_ALLOCATOR` constant that
+/// is `true` for AA types and false for non-AA types.  The primary template
+/// is used for bsl-AA, pmr-AA, and STL-AA instantiations; specialization
+/// `TestType_Base<void>` is provided for non-AA instantiations and
+/// specialization `TestType_Base<bslma::Allocator *>` is provided for
+/// legacy-AA instantiations.
 template <class ALLOC>
 class TestType_Base : public TestTypeStats {
-    // Base class for the 'TestType` template holding the allocator and
-    // providing allocator-related typedefs and accessors.  Each instantiation
-    // has a protected 'AllocArg' type used to pass an allocator to the
-    // derived-class constructors and a 'k_USES_BSLMA_ALLOCATOR' constant that
-    // is 'true' for AA types and false for non-AA types.  The primary template
-    // is used for bsl-AA, pmr-AA, and STL-AA instantiations; specialization
-    // 'TestType_Base<void>' is provided for non-AA instantiations and
-    // specialization 'TestType_Base<bslma::Allocator *>' is provided for
-    // legacy-AA instantiations.
 
     // DATA
     ALLOC d_allocator;
@@ -561,13 +562,13 @@ class TestType_Base : public TestTypeStats {
     // ACCESSORS
     allocator_type get_allocator() const { return d_allocator; }
 
+    /// Return `true` if the specified `a` matches the allocator.  The
+    /// second overload relies on the fact that most STL allocators used for
+    /// testing at Bloomberg can be constructed (not necessarily converted)
+    /// from `bslma::Allocator *`; if not, a call to the second overload
+    /// will fail to compile.
     bool matchAllocator(AllocArg a) const { return a == d_allocator; }
     bool matchAllocator(bslma::Allocator *a) const
-        // Return 'true' if the specified 'a' matches the allocator.  The
-        // second overload relies on the fact that most STL allocators used for
-        // testing at Bloomberg can be constructed (not necessarily converted)
-        // from 'bslma::Allocator *'; if not, a call to the second overload
-        // will fail to compile.
     {
         allocator_type alloc(a);
         return alloc == d_allocator;
@@ -576,9 +577,9 @@ class TestType_Base : public TestTypeStats {
         { return d_allocator == other.d_allocator; }
 };
 
+/// Specialization of base class for derived classes not using an allocator.
 template <>
 class TestType_Base<void> : public TestTypeStats {
-    // Specialization of base class for derived classes not using an allocator.
 
     // NOT IMPLEMENTED
     TestType_Base& operator=(const TestType_Base&) BSLS_KEYWORD_DELETED;
@@ -602,9 +603,9 @@ class TestType_Base<void> : public TestTypeStats {
     bool sameAllocator(const TestType_Base&) const { return true; }
 };
 
+/// Specialization of base class for `bslma::Allocator *`
 template <>
 class TestType_Base<bslma::Allocator *> : public TestTypeStats {
-    // Specialization of base class for 'bslma::Allocator *'
 
     // DATA
     bslma::Allocator *d_allocator;
@@ -636,22 +637,23 @@ class TestType_Base<bslma::Allocator *> : public TestTypeStats {
         { return d_allocator == other.d_allocator; }
 };
 
+/// Generalized test type. If `ALLOC` is `bsl::allocator` or
+/// `bslma::Allocator *`, every constructor can take an optional allocator
+/// argument at the end of its argument list.
 template <class ALLOC, bool USE_PREFIX_ARG>
 class TestType : public TestType_Base<ALLOC>
 {
-    // Generalized test type. If 'ALLOC' is 'bsl::allocator' or
-    // 'bslma::Allocator *', every constructor can take an optional allocator
-    // argument at the end of its argument list.
 
     // PRIVATE TYPES
+
+    /// Non-constructable, non-allocator, dummy type.
     class DummyAllocArg {
-        // Non-constructable, non-allocator, dummy type.
         DummyAllocArg();  // Private constructor
     };
     typedef TestType_Base<ALLOC>     Base;
 
-    // Either 'LeadingAllocArg' or 'TrailingAllocArg' will be an
-    // unconstructible dummy type.  If 'ALLOC' is void, then both will be
+    // Either `LeadingAllocArg` or `TrailingAllocArg` will be an
+    // unconstructible dummy type.  If `ALLOC` is void, then both will be
     // unconstructible dummy types.
     typedef typename bsl::conditional<USE_PREFIX_ARG,
                                       typename Base::AllocArg,
@@ -662,9 +664,9 @@ class TestType : public TestType_Base<ALLOC>
                                       typename Base::AllocArg
                                      >::type TrailingAllocArg;
 
+    /// Array of `FrozenArg`, taking advantage of compiler-generated default
+    /// ctor, copy ctor, and assignment.
     class FrozenArgArray {
-        // Array of 'FrozenArg', taking advantage of compiler-generated default
-        // ctor, copy ctor, and assignment.
 
         // DATA
         FrozenArg d_data[15];  // Item 0 is not used.
@@ -1021,10 +1023,10 @@ class TestType : public TestType_Base<ALLOC>
 
 #if defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
 
+/// Class to test copy elision when initializing a a member subobject using
+/// `ConstructioUtil::make`.
 template <class TYPE>
 class Wrapper {
-    // Class to test copy elision when initializing a a member subobject using
-    // 'ConstructioUtil::make'.
 
     TYPE d_member;
 
@@ -1044,10 +1046,10 @@ class Wrapper {
     const FrozenArg& operator[](std::size_t i) const { return d_member[i]; }
 };
 
+/// Derived class to test copy elision when initializing base class
+/// subobject using `ConstructionUtil::make`.
 template <class TYPE>
 class Derived : public TYPE {
-    // Derived class to test copy elision when initializing base class
-    // subobject using 'ConstructionUtil::make'.
 
   public:
     BSLMF_NESTED_TRAIT_DECLARATION(Derived, bslma::UsesBslmaAllocator);
@@ -1059,8 +1061,8 @@ class Derived : public TYPE {
 
 #endif  // defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
 
+/// A tracking test type that is bitwise movable.
 class BitwiseMovableTestType : public TestType<bslma::Allocator *, false> {
-    // A tracking test type that is bitwise movable.
 
     typedef TestType<bslma::Allocator *, false> Base;
 
@@ -1078,19 +1080,23 @@ class BitwiseMovableTestType : public TestType<bslma::Allocator *, false> {
         : Base(arg1, arg2, alloc) { }
 };
 
-// These macros are intended for use with 'BSLS_MACROREPEAT_*'
+// These macros are intended for use with `BSLS_MACROREPEAT_*`
+
+/// Get const reference to the nth argument in `const` `ArgPack`, `AP`
 #define CONST_ARG(n) AP.d_arg##n
-    // Get const reference to the nth argument in 'const' 'ArgPack', 'AP'
+
+/// Get mutable reference to the nth argument in mutable `ArgPack`, `AP`
 #define MUTABLE_ARG(n) mAP.d_arg##n
-    // Get mutable reference to the nth argument in mutable 'ArgPack', 'AP'
+
+/// Get rvalue reference to the nth argument in mutable `ArgPack`, `AP`
 #define RVALUE_ARG(n) MoveUtil::move(mAP.d_arg##n)
-    // Get rvalue reference to the nth argument in mutable 'ArgPack', 'AP'
+
+/// Assert that the nth argument in `ArgPack` `AP` has been moved from.
 #define ASSERT_ARG_MOVED_FROM(n)                         \
     ASSERTV(n, AP.d_arg##n.isMovedFrom())
-    // Assert that the nth argument in 'ArgPack' 'AP' has been moved from.
 
+/// For metaprogramming: Defines `allocator_type`, but is not AA.
 struct NoAlloc {
-    // For metaprogramming: Defines 'allocator_type', but is not AA.
     typedef void allocator_type;
 };
 
@@ -1098,10 +1104,10 @@ typedef void *NonAllocator;
 
 typedef bslma::Allocator *LegacyAllocator;  //@bdetdsplit FOR 3..6, 2.FIRST
 
+/// An allocator that behaves like `bsl::polymorphic_allocator` without
+/// depending on the `bslma_polymorphic_allocator` higher-level component.
 template <class TYPE = char>
 class PmrAllocator {
-    // An allocator that behaves like 'bsl::polymorphic_allocator' without
-    // depending on the 'bslma_polymorphic_allocator' higher-level component.
 
     enum { k_TYPE_ALIGNMENT = bsls::AlignmentFromType<TYPE>::VALUE };
 
@@ -1149,10 +1155,10 @@ class PmrAllocator {
         { return a.d_resource != b.d_resource; }
 };
 
+/// An allocator that behaves like `bsl::allocator` without depending on
+/// the `bslma_bslallocator` higher-level component.
 template <class TYPE = char>
 class BslAllocator : public PmrAllocator<TYPE> {
-    // An allocator that behaves like 'bsl::allocator' without depending on
-    // the 'bslma_bslallocator' higher-level component.
 
     typedef PmrAllocator<TYPE> Base;
 
@@ -1183,9 +1189,9 @@ class BslAllocator : public PmrAllocator<TYPE> {
     }
 };
 
+/// A Standard-compliant allocator
 template <class TYPE = char>
 class STLAllocator {
-    // A Standard-compliant allocator
 
     bslma::Allocator *d_mechanism;
 
@@ -1218,8 +1224,9 @@ class STLAllocator {
     //! ~STLAllocator() = default;
 
     BSLS_ANNOTATION_NODISCARD TYPE *allocate(std::size_t n);
+
+    /// These functions are not used, so are not defined.
     void deallocate(TYPE *p, std::size_t n);
-        // These functions are not used, so are not defined.
 
     friend bool operator==(const STLAllocator& a, const STLAllocator& b)
         { return a.d_mechanism == b.d_mechanism; }
@@ -1227,9 +1234,9 @@ class STLAllocator {
         { return a.d_mechanism != b.d_mechanism; }
 };
 
+/// Simplified `TestType`, but lacking a dedicated move constructor (moves
+/// degenerate to copies).
 class CopyOnlyTestType : public TestType<BslAllocator<>, false> {
-    // Simplified 'TestType', but lacking a dedicated move constructor (moves
-    // degenerate to copies).
 
     typedef TestType<BslAllocator<>, false> Base;
 
@@ -1253,9 +1260,9 @@ class CopyOnlyTestType : public TestType<BslAllocator<>, false> {
 //-----------------------------------------------------------------------------
 
 //@bdetdsplit FOR 8 BEGIN
-// Mimic 'bsl::allocator' for usage example
+// Mimic `bsl::allocator` for usage example
 namespace bsl {
-namespace {  // unnamed namespace within 'bsl' namespace
+namespace {  // unnamed namespace within `bsl` namespace
 
 template <class TYPE = char>
 class allocator : public BslAllocator<TYPE>
@@ -1278,7 +1285,7 @@ class allocator : public BslAllocator<TYPE>
     //! ~allocator();
 };
 
-}  // close unnamed namespace within 'bsl' namespace
+}  // close unnamed namespace within `bsl` namespace
 }  // close bsl namespace
 
 namespace {
@@ -1287,24 +1294,24 @@ namespace {
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using 'bslma::ConstructionUtil' to Implement a Container
+///Example 1: Using `bslma::ConstructionUtil` to Implement a Container
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates the intended use of 'bslma::ConstructionUtil' to
-// implement a simple container class that uses an instance of 'bsl::allocator'
+// This example demonstrates the intended use of `bslma::ConstructionUtil` to
+// implement a simple container class that uses an instance of `bsl::allocator`
 // for memory management.
 //
 // First, because allocation and construction are done in two separate steps,
 // we need to define a proctor type that will deallocate the allocated memory
 // in case the constructor throws an exception:
-//..
+// ```
 //  #include <bslma_bslallocator.h>
 
+    /// This class implements a proctor to release memory allocated during
+    /// the construction of a `MyContainer` object if the constructor for
+    /// the container's data element throws an exception.  Such a proctor
+    /// should be `release`d once the element is safely constructed.
     template <class TYPE>
     class MyContainerProctor {
-        // This class implements a proctor to release memory allocated during
-        // the construction of a 'MyContainer' object if the constructor for
-        // the container's data element throws an exception.  Such a proctor
-        // should be 'release'd once the element is safely constructed.
 
         // DATA
         bsl::allocator<TYPE>  d_allocator;
@@ -1317,22 +1324,23 @@ namespace {
 
       public:
         // CREATORS
+
+        /// Create a proctor that conditionally manages the memory at the
+        /// specified `address`, and that uses the specified `allocator` to
+        /// deallocate the block of memory (if not released -- see
+        /// `release`) upon destruction.  The behavior is undefined unless
+        /// `allocator` is non-zero and supplied the memory at `address`.
         MyContainerProctor(const bsl::allocator<TYPE> allocator, TYPE *address)
-            // Create a proctor that conditionally manages the memory at the
-            // specified 'address', and that uses the specified 'allocator' to
-            // deallocate the block of memory (if not released -- see
-            // 'release') upon destruction.  The behavior is undefined unless
-            // 'allocator' is non-zero and supplied the memory at 'address'.
         : d_allocator(allocator)
         , d_address_p(address)
         {
         }
 
+        /// Destroy this proctor, and deallocate the block of memory it
+        /// manages (if any) by invoking the `deallocate` method of the
+        /// allocator that was supplied at construction of this proctor.  If
+        /// no memory is currently being managed, this method has no effect.
         ~MyContainerProctor()
-            // Destroy this proctor, and deallocate the block of memory it
-            // manages (if any) by invoking the 'deallocate' method of the
-            // allocator that was supplied at construction of this proctor.  If
-            // no memory is currently being managed, this method has no effect.
         {
             if (d_address_p) {
                 d_allocator.deallocate(d_address_p, 1);
@@ -1340,113 +1348,117 @@ namespace {
         }
 
         // MANIPULATORS
+
+        /// Release from management the block of memory currently managed by
+        /// this proctor.  If no memory is currently being managed, this
+        /// method has no effect.
         void release()
-            // Release from management the block of memory currently managed by
-            // this proctor.  If no memory is currently being managed, this
-            // method has no effect.
         {
             d_address_p = 0;
         }
     };
-//..
+// ```
 // Then, we create a container class that holds a single element and uses
-// 'bsl::allocator' to supply memory:
-//..
+// `bsl::allocator` to supply memory:
+// ```
 //  #include <bslma_constructionutil.h>
 
+    /// This class provides a container that always holds exactly one
+    /// element, dynamically allocated using the specified `bslma`
+    /// allocator.
     template <class TYPE>
     class MyContainer {
-        // This class provides a container that always holds exactly one
-        // element, dynamically allocated using the specified 'bslma'
-        // allocator.
 
         // DATA
         bsl::allocator<TYPE>  d_allocator;
         TYPE                 *d_value_p;
 
+        /// Return the address of a new element that was allocated from this
+        /// container's allocator and initialized with the optionally
+        /// specified `value`, or default-initialized if `value` is not
+        /// specified.  If `TYPE` is AA, this container's allocator is used
+        /// to construct the new element.
         TYPE *createElement();
         TYPE *createElement(const TYPE& value);
-            // Return the address of a new element that was allocated from this
-            // container's allocator and initialized with the optionally
-            // specified 'value', or default-initialized if 'value' is not
-            // specified.  If 'TYPE' is AA, this container's allocator is used
-            // to construct the new element.
 
       public:
         typedef bsl::allocator<TYPE>  allocator_type;
 
         // CREATORS
+
+        /// Create a container with a default-constructed element.
+        /// Optionally specify a `allocator` used to supply memory.
         explicit
         MyContainer(const allocator_type& allocator = allocator_type())
-            // Create a container with a default-constructed element.
-            // Optionally specify a 'allocator' used to supply memory.
             : d_allocator(allocator), d_value_p(createElement()) { }
 
+        /// Create a container having an element constructed from the
+        /// specified `value`.  Optionally specify an `allocator` to supply
+        /// memory both for the container and for the contained element.
         explicit
         MyContainer(const TYPE&           value,
                     const allocator_type& allocator = allocator_type())
-            // Create a container having an element constructed from the
-            // specified 'value'.  Optionally specify an 'allocator' to supply
-            // memory both for the container and for the contained element.
             : d_allocator(allocator), d_value_p(createElement(value)) { }
 
+        /// Create a container having the same value as the specified
+        /// `original` object.  Optionally specify a `allocator` used
+        /// to supply memory.  If `allocator` is 0, the currently
+        /// installed default allocator is used.
         MyContainer(const MyContainer&    original,
                     const allocator_type& allocator = allocator_type())
-            // Create a container having the same value as the specified
-            // 'original' object.  Optionally specify a 'allocator' used
-            // to supply memory.  If 'allocator' is 0, the currently
-            // installed default allocator is used.
             : d_allocator(allocator)
             , d_value_p(createElement(*original.d_value_p)) { }
 
+        /// Destroy this object.
         ~MyContainer();
-            // Destroy this object.
 
         // MANIPULATORS
+
+        /// Assign to this object the value of the specified `rhs` object,
+        /// and return a reference providing modifiable access to this
+        /// object.
         MyContainer& operator=(const TYPE& rhs);
         MyContainer& operator=(const MyContainer& rhs);
-            // Assign to this object the value of the specified 'rhs' object,
-            // and return a reference providing modifiable access to this
-            // object.
 
+        /// Return a non-`const` reference to the element contained in this
+        /// object.
         TYPE& front()
-            // Return a non-'const' reference to the element contained in this
-            // object.
         {
             return *d_value_p;
         }
 
         // ACCESSORS
+
+        /// Return a `const` reference to the element contained in this
+        /// object.
         const TYPE& front() const
-            // Return a 'const' reference to the element contained in this
-            // object.
         {
             return *d_value_p;
         }
 
+        /// Return the allocator used by this object to supply memory.
         allocator_type get_allocator() const
-            // Return the allocator used by this object to supply memory.
         {
             return d_allocator;
         }
 
         // etc.
     };
-//..
-// Next, we implement the private 'createElement' members that allocate memory
-// and construct a 'TYPE' object in the allocated memory.  We perform the
-// allocation using the 'allocate' method of 'bsl::allocator' and the
-// construction using the 'construct' method of 'ConstructionUtil' that
+// ```
+// Next, we implement the private `createElement` members that allocate memory
+// and construct a `TYPE` object in the allocated memory.  We perform the
+// allocation using the `allocate` method of `bsl::allocator` and the
+// construction using the `construct` method of `ConstructionUtil` that
 // provides the correct semantics for passing the allocator to the constructed
 // object when appropriate:
-//..
+// ```
     template <class TYPE>
     TYPE *MyContainer<TYPE>::createElement()
     {
         TYPE *value_p = d_allocator.allocate(1);
         MyContainerProctor<TYPE> proctor(d_allocator, value_p);
 
-        // Call 'construct' passing the allocator but no constructor
+        // Call `construct` passing the allocator but no constructor
         // arguments.
 
         bslma::ConstructionUtil::construct(value_p, d_allocator);
@@ -1461,27 +1473,27 @@ namespace {
         TYPE *value_p = d_allocator.allocate(1);
         MyContainerProctor<TYPE> proctor(d_allocator, value_p);
 
-        // Call 'construct' passing the allocator and 'value' arguments.
+        // Call `construct` passing the allocator and `value` arguments.
 
         bslma::ConstructionUtil::construct(value_p, d_allocator, value);
         proctor.release();
 
         return value_p;
     }
-//..
+// ```
 // Now, the destructor destroys the object and deallocates the memory used to
 // hold the element using the allocator:
-//..
+// ```
     template <class TYPE>
     MyContainer<TYPE>::~MyContainer()
     {
         d_value_p->~TYPE();
         d_allocator.deallocate(d_value_p, 1);
     }
-//..
+// ```
 // Next, the assignment operator needs to assign the value without modifying
 // the allocator.
-//..
+// ```
     template <class TYPE>
     MyContainer<TYPE>& MyContainer<TYPE>::operator=(const TYPE& rhs)
     {
@@ -1496,10 +1508,10 @@ namespace {
     {
         return operator=(*rhs.d_value_p);
     }
-//..
-// Finally, we perform a simple test of 'MyContainer', instantiating it with
-// element type 'int':
-//..
+// ```
+// Finally, we perform a simple test of `MyContainer`, instantiating it with
+// element type `int`:
+// ```
     int usageExample1()
     {
         bslma::TestAllocator testAlloc;
@@ -1513,18 +1525,18 @@ namespace {
 
         return 0;
     }
-//..
+// ```
 //
-///Example 2: 'bslma' Allocator Propagation
+///Example 2: `bslma` Allocator Propagation
 ///- - - - - - - - - - - - - - - - - - - -
-// This example demonstrates that 'MyContainer' does indeed propagate the
+// This example demonstrates that `MyContainer` does indeed propagate the
 // allocator to its contained element.
 //
-// First, we create a representative element class, 'MyType'.  Unlike the
-// 'MyContainer' template, 'MyType' allocates memory using the
-// 'bslma::Allocator *' (legacy) allocator model instead of the
-// 'bsl::allocator' (bsl) allocator model:
-//..
+// First, we create a representative element class, `MyType`.  Unlike the
+// `MyContainer` template, `MyType` allocates memory using the
+// `bslma::Allocator *` (legacy) allocator model instead of the
+// `bsl::allocator` (bsl) allocator model:
+// ```
 //  #include <bslma_default.h>
 
     class MyType {
@@ -1539,34 +1551,35 @@ namespace {
         BSLMF_NESTED_TRAIT_DECLARATION(MyType, bslma::UsesBslmaAllocator);
 
         // CREATORS
+
+        /// Create a `MyType` object having the default value.  Optionally
+        /// specify a `basicAllocator` used to supply memory.  If
+        /// `basicAllocator` is 0, the currently installed default allocator
+        /// is used.
         explicit MyType(bslma::Allocator *basicAllocator = 0)
-            // Create a 'MyType' object having the default value.  Optionally
-            // specify a 'basicAllocator' used to supply memory.  If
-            // 'basicAllocator' is 0, the currently installed default allocator
-            // is used.
             : d_allocator_p(bslma::Default::allocator(basicAllocator))
             , d_value()
         {
             // ...
         }
 
+        /// Create a `MyType` object having the specified `value`.
+        /// Optionally specify a `basicAllocator` used to supply memory.  If
+        /// `basicAllocator` is 0, the currently installed default allocator
+        /// is used.
         explicit MyType(int               value,
                         bslma::Allocator *basicAllocator = 0)
-            // Create a 'MyType' object having the specified 'value'.
-            // Optionally specify a 'basicAllocator' used to supply memory.  If
-            // 'basicAllocator' is 0, the currently installed default allocator
-            // is used.
             : d_allocator_p(bslma::Default::allocator(basicAllocator))
             , d_value(value)
         {
             // ...
         }
 
+        /// Create a `MyType` object having the same value as the specified
+        /// `original` object.  Optionally specify a `basicAllocator` used
+        /// to supply memory.  If `basicAllocator` is 0, the currently
+        /// installed default allocator is used.
         MyType(const MyType& original, bslma::Allocator *basicAllocator = 0)
-            // Create a 'MyType' object having the same value as the specified
-            // 'original' object.  Optionally specify a 'basicAllocator' used
-            // to supply memory.  If 'basicAllocator' is 0, the currently
-            // installed default allocator is used.
         : d_allocator_p(bslma::Default::allocator(basicAllocator))
         , d_value(original.value())
         {
@@ -1576,32 +1589,33 @@ namespace {
         // ...
 
         // ACCESSORS
+
+        /// Return the allocator used by this object to supply memory.
         bslma::Allocator *allocator() const
-            // Return the allocator used by this object to supply memory.
         {
             return d_allocator_p;
         }
 
+        /// Return the value of this object.
         int value() const
-            // Return the value of this object.
         {
             return d_value;
         }
 
         // ...
     };
-//..
-// Finally, we instantiate 'MyContainer' using 'MyType' and verify that, when
+// ```
+// Finally, we instantiate `MyContainer` using `MyType` and verify that, when
 // we provide an allocator to the constructor of the container, the same
 // allocator is passed to the constructor of the contained element.  Because
 // the container and the element implement different allocator models, the
-// invocation of 'bslma::ConstructionUtil::construct' automatically adapts the
-// 'bsl::allocator' held by the container to a 'bslma::Allocator' pointer
+// invocation of `bslma::ConstructionUtil::construct` automatically adapts the
+// `bsl::allocator` held by the container to a `bslma::Allocator` pointer
 // expected by the element.  We also verify that, when the container is
 // copy-constructed without supplying an allocator, the copy uses the default
 // allocator, not the allocator from the original object.  Moreover, we verify
 // that the element stored in the copy also uses the default allocator:
-//..
+// ```
     void usageExample2()
     {
         bslma::TestAllocator testAlloc;
@@ -1629,26 +1643,26 @@ namespace {
         ASSERT(C4.front().allocator() == &testAlloc2);
         ASSERT(C4.front().value()     == 22);
     }
-//..
+// ```
 //
 #if defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
 ///Example 3: Constructing into Non-heap Memory
 ///- - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates using 'bslma::ConstructionUtil::make' to
+// This example demonstrates using `bslma::ConstructionUtil::make` to
 // implement a simple wrapper class that contains a single item that might or
-// might not use the 'bslma' allocator protocol.
+// might not use the `bslma` allocator protocol.
 //
 // First, we define a wrapper class that holds an object and a functor.  The
 // functor (known as the *listener*) is called each time the wrapped object is
 // changes.  We store the object directly as a member variable, instead of
 // using an uninitialized buffer, to avoid a separate construction step:
-//..
+// ```
+    /// This class is a wrapper around an object of the specified `TYPE`
+    /// that triggers a call to an object, called the "listener", of the
+    /// specified `FUNC` invocable type whenever the wrapped object is
+    /// changed.
     template <class TYPE, class FUNC>
     class MyTriggeredWrapper {
-        // This class is a wrapper around an object of the specified 'TYPE'
-        // that triggers a call to an object, called the "listener", of the
-        // specified 'FUNC' invocable type whenever the wrapped object is
-        // changed.
 
         // DATA
         TYPE d_value;
@@ -1658,64 +1672,67 @@ namespace {
         typedef bsl::allocator<> allocator_type;
 
         // CREATORS
+
+        /// Create an object with the specified `f` as the listener to be
+        /// called when a change is triggered.  Optionally specify `v` as
+        /// the wrapped value; otherwise the wrapped value is default
+        /// constructed.  Optionally specify `allocator` to supply
+        /// memory; otherwise the current default allocator is used.  If
+        /// `TYPE` is not allocator aware, `allocator` is ignored.
         explicit
         MyTriggeredWrapper(const FUNC&           f,
                            const allocator_type& allocator = allocator_type());
         MyTriggeredWrapper(const TYPE&           v,
                            const FUNC&           f,
                            const allocator_type& allocator = allocator_type());
-            // Create an object with the specified 'f' as the listener to be
-            // called when a change is triggered.  Optionally specify 'v' as
-            // the wrapped value; otherwise the wrapped value is default
-            // constructed.  Optionally specify 'allocator' to supply
-            // memory; otherwise the current default allocator is used.  If
-            // 'TYPE' is not allocator aware, 'allocator' is ignored.
 
+        /// Create a copy of the specified `original`.  Optionally specify
+        /// `allocator` to supply memory; otherwise the current
+        /// default allocator is used.
         MyTriggeredWrapper(const MyTriggeredWrapper&  original,
                            const allocator_type& allocator = allocator_type());
-            // Create a copy of the specified 'original'.  Optionally specify
-            // 'allocator' to supply memory; otherwise the current
-            // default allocator is used.
 
+        /// Destroy the wrapped object and listener.
         ~MyTriggeredWrapper()
-            // Destroy the wrapped object and listener.
         {
         }
 
         // MANIPULATORS
+
+        /// Assign to the wrapped value the value of the specified `rhs`,
+        /// invoke the listener with the new value, and return a reference
+        /// providing modifiable access to this object.  Note that the
+        /// listener itself is not assigned.
         MyTriggeredWrapper& operator=(const TYPE& rhs);
         MyTriggeredWrapper& operator=(const MyTriggeredWrapper& rhs);
-            // Assign to the wrapped value the value of the specified 'rhs',
-            // invoke the listener with the new value, and return a reference
-            // providing modifiable access to this object.  Note that the
-            // listener itself is not assigned.
 
+        /// Set the wrapped value to the specified `value` and invoke the
+        /// listener with the new value.
         void setValue(const TYPE& value);
-            // Set the wrapped value to the specified 'value' and invoke the
-            // listener with the new value.
 
         // ACCESSORS
+
+        /// Return a reference providing read-only access to the wrapped
+        /// value.
         const TYPE& value() const
-            // Return a reference providing read-only access to the wrapped
-            // value.
         {
             return d_value;
         }
 
+        /// Return a reference providing read-only access to the listener.
         const FUNC& listener() const
-            // Return a reference providing read-only access to the listener.
         {
             return d_listener;
         }
     };
-//..
-// Next, we define the constructors such that they initialize 'd_value' using
-// the specified allocator if and only if 'TYPE' accepts an allocator.  The
-// 'bslma::ConstructionUtil::make' family of functions encapsulate all of the
-// metaprogramming that detects whether 'TYPE' uses an allocator and, if so,
+// ```
+// Next, we define the constructors such that they initialize `d_value` using
+// the specified allocator if and only if `TYPE` accepts an allocator.  The
+// `bslma::ConstructionUtil::make` family of functions encapsulate all of the
+// metaprogramming that detects whether `TYPE` uses an allocator and, if so,
 // which construction protocol it uses (allocator at the front or at the back
 // of the argument list), making all three constructors straightforward:
-//..
+// ```
     template <class TYPE, class FUNC>
     MyTriggeredWrapper<TYPE, FUNC>::MyTriggeredWrapper(
                                               const FUNC&           f,
@@ -1743,16 +1760,16 @@ namespace {
     , d_listener(other.d_listener)
     {
     }
-//..
-// Note that, for 'd_value' to be constructed with the correct allocator, the
-// compiler must construct the result returned from 'make' directly into the
-// 'd_value' variable, an optimization known prior to C++17 as "copy elision".
+// ```
+// Note that, for `d_value` to be constructed with the correct allocator, the
+// compiler must construct the result returned from `make` directly into the
+// `d_value` variable, an optimization known prior to C++17 as "copy elision".
 // This optimization is required by the C++17 standard and is optional in
 // pre-2017 standards, but is implemented in all of the C++11 compilers for
 // which this component is expected to be used at Bloomberg.
 //
-// Next, we implement the assignment operators, which simply call 'setValue':
-//..
+// Next, we implement the assignment operators, which simply call `setValue`:
+// ```
     template <class TYPE, class FUNC>
     MyTriggeredWrapper<TYPE, FUNC>&
     MyTriggeredWrapper<TYPE, FUNC>::operator=(const TYPE& rhs)
@@ -1768,21 +1785,21 @@ namespace {
         setValue(rhs.value());
         return *this;
     }
-//..
-// Then, we implement 'setValue', which calls the listener after modifying the
+// ```
+// Then, we implement `setValue`, which calls the listener after modifying the
 // value:
-//..
+// ```
     template <class TYPE, class FUNC>
     void MyTriggeredWrapper<TYPE, FUNC>::setValue(const TYPE& value)
     {
         d_value = value;
         d_listener(d_value);
     }
-//..
-// Finally, we check our work by creating a listener for 'MyContainer<int>'
+// ```
+// Finally, we check our work by creating a listener for `MyContainer<int>`
 // that stores its last-seen value in a known location and a wrapper around
-// 'MyContainer<int>' to test it:
-//..
+// `MyContainer<int>` to test it:
+// ```
     int lastSeen = 0;
     void myListener(const MyContainer<int>& c)
     {
@@ -1801,7 +1818,7 @@ namespace {
 
         ASSERT(99 == lastSeen);
     }
-//..
+// ```
 #else  // if ! defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
     void usageExample3() { }
 #endif // defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
@@ -1834,13 +1851,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -1853,61 +1870,61 @@ int main(int argc, char *argv[])
         usageExample3();
       } break;
       case 7: {
-        // 'destructiveMove'
-        //   Test calls to 'destructiveMove' and verify that the first argument
+        // `destructiveMove`
+        //   Test calls to `destructiveMove` and verify that the first argument
         //   is move-constructed and the last argument is destroyed.  If the
         //   type being moved is bitwise-movable, no constructor or destructor
         //   is actually called.
         //
         // Concerns:
-        //: 1 If the type being moved is not bitwise-movable, the
-        //:   move-constructor is invoked to move the object then the
-        //:   destructor is invoked to destroy the original.
-        //:
-        //: 2 If the type being moved is bitwise-movable, the original is
-        //:   bitwise-copied to the destination; no constructors or destructors
-        //:   are invoked.
-        //:
-        //: 3 If the type being moved is allocator-aware, the supplied
-        //:   allocator is used for the target object.  If the supplied
-        //:   allocator is different than the source-object's allocator, the
-        //:   behavior is undefined, but no negative testing is possible at
-        //:   this time.
-        //:
-        //: 4 For AA types that do not have a dedicated move constructor (i.e.,
-        //:   the copy constructor acts as the move constructor), the target
-        //:   object is in a copied-to state, rather than a moved-to state, but
-        //:   the allocator is still the same as the source object because of
-        //:   concern 3.
+        // 1. If the type being moved is not bitwise-movable, the
+        //    move-constructor is invoked to move the object then the
+        //    destructor is invoked to destroy the original.
+        //
+        // 2. If the type being moved is bitwise-movable, the original is
+        //    bitwise-copied to the destination; no constructors or destructors
+        //    are invoked.
+        //
+        // 3. If the type being moved is allocator-aware, the supplied
+        //    allocator is used for the target object.  If the supplied
+        //    allocator is different than the source-object's allocator, the
+        //    behavior is undefined, but no negative testing is possible at
+        //    this time.
+        //
+        // 4. For AA types that do not have a dedicated move constructor (i.e.,
+        //    the copy constructor acts as the move constructor), the target
+        //    object is in a copied-to state, rather than a moved-to state, but
+        //    the allocator is still the same as the source object because of
+        //    concern 3.
         //
         // Plan:
-        //: 1 Using several instantiations of 'TestType', construct an object
-        //:   in one buffer than use 'destructiveMove' to relocate it to
-        //:   another buffer.  Verify that the target object is a in a
-        //:   move-constructed state, that the constructor was invoked exactly
-        //:   once, that the most-recently-destroyed object matches the source
-        //:   object, and that the total number of objects did not change as a
-        //:   result of the 'destructiveMove'.  (C-1)
-        //:
-        //: 2 Using a bitwise-movable variation of 'TestType', construct an
-        //:   object in one buffer than use 'destructiveMove' to relocate it to
-        //:   another buffer.  Verify that the target object is *not* in a
-        //:   moved-from state (because the move constructor was not invoked),
-        //:   that no constructors were invoked, that the
-        //:   most-recently-destroyed object did not change (because no
-        //:   destructors were invoked) and that the total number of objects
-        //:   did not change as a result of the 'destructiveMove'.  (C-2)
-        //:
-        //: 3 In steps 1 and 2, if the type under test is AA, supply the same
-        //:   allocator to the 'destructiveMove' call as was supplied to the
-        //:   source object's constructor.  Verify that, after calling
-        //:   'destructiveMove', the target object uses the supplied allocator.
-        //:   (C-3)
-        //:
-        //: 4 Using an AA type having a copy constructor but no separate move
-        //:   constructor, verify that 'destructiveMove' leaves the target
-        //:   object in a copied-to state having the supplied allocator.
-        //:   (C-4)
+        // 1. Using several instantiations of `TestType`, construct an object
+        //    in one buffer than use `destructiveMove` to relocate it to
+        //    another buffer.  Verify that the target object is a in a
+        //    move-constructed state, that the constructor was invoked exactly
+        //    once, that the most-recently-destroyed object matches the source
+        //    object, and that the total number of objects did not change as a
+        //    result of the `destructiveMove`.  (C-1)
+        //
+        // 2. Using a bitwise-movable variation of `TestType`, construct an
+        //    object in one buffer than use `destructiveMove` to relocate it to
+        //    another buffer.  Verify that the target object is *not* in a
+        //    moved-from state (because the move constructor was not invoked),
+        //    that no constructors were invoked, that the
+        //    most-recently-destroyed object did not change (because no
+        //    destructors were invoked) and that the total number of objects
+        //    did not change as a result of the `destructiveMove`.  (C-2)
+        //
+        // 3. In steps 1 and 2, if the type under test is AA, supply the same
+        //    allocator to the `destructiveMove` call as was supplied to the
+        //    source object's constructor.  Verify that, after calling
+        //    `destructiveMove`, the target object uses the supplied allocator.
+        //    (C-3)
+        //
+        // 4. Using an AA type having a copy constructor but no separate move
+        //    constructor, verify that `destructiveMove` leaves the target
+        //    object in a copied-to state having the supplied allocator.
+        //    (C-4)
         //
         // Testing:
         //     void destructiveMove(TYPE *target, const ALLOCATOR&, TYPE *src)
@@ -1923,7 +1940,7 @@ int main(int argc, char *argv[])
         ArgumentType<1> arg1(VALUES[1]);
         ArgumentType<2> arg2(VALUES[2]);
 
-        // Test with simple 'int' values
+        // Test with simple `int` values
         {
             int obj1 = 99;
             int obj2 = 0;
@@ -1931,7 +1948,7 @@ int main(int argc, char *argv[])
             ASSERTV(obj2, 99 == obj2);
         }
 
-        // Test with non-AA 'TestType'
+        // Test with non-AA `TestType`
         {
             typedef TestType<void, false>  TT;
 
@@ -1958,7 +1975,7 @@ int main(int argc, char *argv[])
             target.~TT();
         }
 
-        // Test with AA 'TestType'
+        // Test with AA `TestType`
         {
             typedef TestType<BslAllocator<>, true>  TT;
 
@@ -1987,7 +2004,7 @@ int main(int argc, char *argv[])
             target.~TT();
         }
 
-        // Test with AA 'BitwiseMovableTestType'
+        // Test with AA `BitwiseMovableTestType`
         {
             typedef BitwiseMovableTestType TT;
 
@@ -2017,7 +2034,7 @@ int main(int argc, char *argv[])
             target.~TT();
         }
 
-        // Test with AA 'TestType' for which move degenerates to copy
+        // Test with AA `TestType` for which move degenerates to copy
         {
             typedef CopyOnlyTestType TT;
 
@@ -2046,89 +2063,89 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // MULTI-ARGUMENT 'make'
-        //   Test calls to 'bslma::ConstructorUtil::make<TYPE>' having two or
+        // MULTI-ARGUMENT `make`
+        //   Test calls to `bslma::ConstructorUtil::make<TYPE>` having two or
         //   more arguments where the first argument is the allocator (or
         //   a non-allocator), and the remaining arguments are additional
-        //   arguments to the 'TYPE' constructor.  Verify that the call returns
-        //   a correctly constructed 'TYPE' object.
+        //   arguments to the `TYPE` constructor.  Verify that the call returns
+        //   a correctly constructed `TYPE` object.
         //
         // Concerns:
-        //: 1 'bslma::ConstructorUtil::make<TYPE>' can be invoked with an
-        //:   allocator (or a non-allocator scalar), and 1 to 14 additional
-        //:   'TYPE' constructor arguments, regardless of which AA model 'TYPE'
-        //:   conforms to and regardless of whether it uses the leading or
-        //:   trailing allocator-passing convention.  The call returns an
-        //:   object of 'TYPE'.
-        //:
-        //: 2 If 'TYPE' is allocator-aware (AA) and the allocator type is
-        //:   compatible with 'TYPE', then the allocator argument is passed to
-        //:   'TYPE''s extended constructor; otherwise, 'TYPE''s non-extended
-        //:   constructor is invoked.
-        //:
-        //: 3 The argument values are forwarded to 'TYPE''s constructor.
-        //:
-        //: 4 The argument value categories (lvalue vs rvalue) are preserved
-        //:   when forwarded to 'TYPE''s constructor.  Note that, in C++03,
-        //:   only the first argument is perfectly forwarded; for the remaining
-        //:   arguments, a modifiable lvalue is forwarded as a 'const' lvalue
-        //:   reference.
-        //:
-        //: 5 Initializing a 'TYPE' object from a call to 'make' --
-        //:   specifically by direct initialization, copy initialization,
-        //:   base-class initialization, member initialization, and
-        //:   initialization of a pass-by-value argument -- invokes the 'TYPE'
-        //:   constructor only once and does not invoke its move or copy
-        //:   constructor.  Note that the 'make' method is available only on
-        //:   platforms that reliably perform such copy elision.
+        // 1. `bslma::ConstructorUtil::make<TYPE>` can be invoked with an
+        //    allocator (or a non-allocator scalar), and 1 to 14 additional
+        //    `TYPE` constructor arguments, regardless of which AA model `TYPE`
+        //    conforms to and regardless of whether it uses the leading or
+        //    trailing allocator-passing convention.  The call returns an
+        //    object of `TYPE`.
+        //
+        // 2. If `TYPE` is allocator-aware (AA) and the allocator type is
+        //    compatible with `TYPE`, then the allocator argument is passed to
+        //    `TYPE`'s extended constructor; otherwise, `TYPE`'s non-extended
+        //    constructor is invoked.
+        //
+        // 3. The argument values are forwarded to `TYPE`'s constructor.
+        //
+        // 4. The argument value categories (lvalue vs rvalue) are preserved
+        //    when forwarded to `TYPE`'s constructor.  Note that, in C++03,
+        //    only the first argument is perfectly forwarded; for the remaining
+        //    arguments, a modifiable lvalue is forwarded as a `const` lvalue
+        //    reference.
+        //
+        // 5. Initializing a `TYPE` object from a call to `make` --
+        //    specifically by direct initialization, copy initialization,
+        //    base-class initialization, member initialization, and
+        //    initialization of a pass-by-value argument -- invokes the `TYPE`
+        //    constructor only once and does not invoke its move or copy
+        //    constructor.  Note that the `make` method is available only on
+        //    platforms that reliably perform such copy elision.
         //
         // Plan:
-        //: 1 Let 'TYPE' an element in a list of 'TestType' instantiations,
-        //:   'TYPE<A, C>', where 'A' is 'void', 'bslma::Allocator *',
-        //:   'BslAllocator', 'PmrAllocator', and 'StlAllocator', and where 'C'
-        //:   is 'true' and 'false'.  For each such 'TYPE', and an allocator
-        //:   'q' of type 'A2':
-        //:
-        //:   1 Create a struct (pack) of 14 'bsltf::ArgumentType<N>' objects
-        //:     to use as arguments to the constructor.  The initial value of
-        //:     these objects should come from a known list of semi-random
-        //:     values.  Create a 'const' reference to the pack.
-        //:
-        //:   2 For *N* in 1 to 14, call 'make<TYPE>', passing each compatible
-        //:     allocator type and *N* arguments from the pack described step
-        //:     1.  Capture the returned object in a local variable using
-        //:     direct initialization.  (C-1)
-        //:
-        //:   3 Verify that, when 'TYPE' is AA, the allocator used by the
-        //:     returned object matches the allocator passed to 'make';
-        //:     otherwise the allocator matches the default allocator.  (C-2)
-        //:
-        //:   4 Verify that the value of the arguments captured in the return
-        //:     value match the values of the arguments passed to the
-        //:     constructor.  (C-3)
-        //:
-        //:   5 Perform step 1.2 through 1.4 three times, passing the arguments
-        //:     by 'const' reference, non-const lvalue reference, and rvalue
-        //:     (movable) reference, respectively.  Verify the expected
-        //:     copy/move states for the captured values in the returned object
-        //:     and the original arguments passed to 'construct'. Note that, in
-        //:     C++03, the expected copy/move state for the second and
-        //:     subsequent captured values is 'e_CONST_COPIED_INTO' for both
-        //:     'const' and non-'const' lvalue arguments.  (C-4)
-        //:
-        //: 2 Initialize objects of a specific 'TestType' instantiation via
-        //:   direct initialization, copy initialization, base-class
-        //:   initialization, member initialization, and initialization of a
-        //:   pass-by-value argument from a call to 'make<TestType<...>>'.
-        //:   Verify that there was only one call to the 'TestType' constructor
-        //:   and that the initialized object is not in a copied-into or
-        //:   moved-into state.  (C-5)
+        // 1. Let `TYPE` an element in a list of `TestType` instantiations,
+        //    `TYPE<A, C>`, where `A` is `void`, `bslma::Allocator *`,
+        //    `BslAllocator`, `PmrAllocator`, and `StlAllocator`, and where `C`
+        //    is `true` and `false`.  For each such `TYPE`, and an allocator
+        //    `q` of type `A2`:
+        //
+        //   1. Create a struct (pack) of 14 `bsltf::ArgumentType<N>` objects
+        //      to use as arguments to the constructor.  The initial value of
+        //      these objects should come from a known list of semi-random
+        //      values.  Create a `const` reference to the pack.
+        //
+        //   2. For *N* in 1 to 14, call `make<TYPE>`, passing each compatible
+        //      allocator type and *N* arguments from the pack described step
+        //      1.  Capture the returned object in a local variable using
+        //      direct initialization.  (C-1)
+        //
+        //   3. Verify that, when `TYPE` is AA, the allocator used by the
+        //      returned object matches the allocator passed to `make`;
+        //      otherwise the allocator matches the default allocator.  (C-2)
+        //
+        //   4. Verify that the value of the arguments captured in the return
+        //      value match the values of the arguments passed to the
+        //      constructor.  (C-3)
+        //
+        //   5. Perform step 1.2 through 1.4 three times, passing the arguments
+        //      by `const` reference, non-const lvalue reference, and rvalue
+        //      (movable) reference, respectively.  Verify the expected
+        //      copy/move states for the captured values in the returned object
+        //      and the original arguments passed to `construct`. Note that, in
+        //      C++03, the expected copy/move state for the second and
+        //      subsequent captured values is `e_CONST_COPIED_INTO` for both
+        //      `const` and non-`const` lvalue arguments.  (C-4)
+        //
+        // 2. Initialize objects of a specific `TestType` instantiation via
+        //    direct initialization, copy initialization, base-class
+        //    initialization, member initialization, and initialization of a
+        //    pass-by-value argument from a call to `make<TestType<...>>`.
+        //    Verify that there was only one call to the `TestType` constructor
+        //    and that the initialized object is not in a copied-into or
+        //    moved-into state.  (C-5)
         //
         // Testing:
         //    TYPE make<TYPE>(const ALLOCATOR&, ARGS&&...);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nMULTI-ARGUMENT 'make'"
+        if (verbose) printf("\nMULTI-ARGUMENT `make`"
                             "\n=====================\n");
 #if defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
 
@@ -2138,7 +2155,7 @@ int main(int argc, char *argv[])
   // Copying from a non-const lvalue is always detected correctly in C++11
 # define EXP_COPIED_MUTABLE(TEST_OBJ, N) (TEST_OBJ)[(N)].isMutableCopiedInto()
 #else
-  // Copying from a non-const is detected correctly in C++03 only if 'N == 1'
+  // Copying from a non-const is detected correctly in C++03 only if `N == 1`
 # define EXP_COPIED_MUTABLE(TEST_OBJ, N)                      \
         (N == 1 ? (TEST_OBJ)[(N)].isMutableCopiedInto() :     \
                   (TEST_OBJ)[(N)].isConstCopiedInto())
@@ -2291,72 +2308,72 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // ALLOCATOR-ONLY 'make'
-        //   Test calls to 'bslma::ConstructorUtil::make<TYPE>' having a single
+        // ALLOCATOR-ONLY `make`
+        //   Test calls to `bslma::ConstructorUtil::make<TYPE>` having a single
         //   argument, which is the allocator (or a non-allocator).  Verify
-        //   that the call returns a default-constructed 'TYPE' object (non-AA
-        //   types) or extended default-constructed 'TYPE' object (AA types).
+        //   that the call returns a default-constructed `TYPE` object (non-AA
+        //   types) or extended default-constructed `TYPE` object (AA types).
         //
         // Concerns:
-        //: 1 If 'TYPE' is a non-AA type, 'make' can be called by passing,
-        //:   as the allocator (only) argument, any allocator or a
-        //:   non-allocator scalar; a default-constructed 'TYPE' object is
-        //:   returned.
-        //:
-        //: 2 If 'bslma::UsesBslmaAllocator<TYPE>::value' is 'true',
-        //:   'make' can be called by passing, as the allocator argument,
-        //:   a non-allocator, 'bslma::Allocator' pointer, or an allocator
-        //:   object having a 'mechanism' accessor that returns a
-        //:   'bslma::Allocator *'; an extended-default-constructed 'TYPE'
-        //:   object using the specified allocator is returned.
-        //:
-        //: 3 If 'TYPE::allocator_type' exists and is a class type, 'make'
-        //:   can be called by passing, as the allocator argument, any
-        //:   allocator that is convertible to 'TYPE::allocator_type'; an
-        //:   extended-default-constructed 'TYPE' object using the specified
-        //:   allocator is returned.
-        //:
-        //: 4 If a non-allocator is passed to 'make' a default-constructed
-        //:   'TYPE' object is returned.
-        //:
-        //: 5 If 'TYPE' is an AA type and a compatible allocator is passed to
-        //:   'make', then the allocator is passed to the extended default
-        //:   constructor for 'TYPE', regardless of whether 'TYPE' uses the
-        //:   leading or trailing allocator-passing convention.
+        // 1. If `TYPE` is a non-AA type, `make` can be called by passing,
+        //    as the allocator (only) argument, any allocator or a
+        //    non-allocator scalar; a default-constructed `TYPE` object is
+        //    returned.
+        //
+        // 2. If `bslma::UsesBslmaAllocator<TYPE>::value` is `true`,
+        //    `make` can be called by passing, as the allocator argument,
+        //    a non-allocator, `bslma::Allocator` pointer, or an allocator
+        //    object having a `mechanism` accessor that returns a
+        //    `bslma::Allocator *`; an extended-default-constructed `TYPE`
+        //    object using the specified allocator is returned.
+        //
+        // 3. If `TYPE::allocator_type` exists and is a class type, `make`
+        //    can be called by passing, as the allocator argument, any
+        //    allocator that is convertible to `TYPE::allocator_type`; an
+        //    extended-default-constructed `TYPE` object using the specified
+        //    allocator is returned.
+        //
+        // 4. If a non-allocator is passed to `make` a default-constructed
+        //    `TYPE` object is returned.
+        //
+        // 5. If `TYPE` is an AA type and a compatible allocator is passed to
+        //    `make`, then the allocator is passed to the extended default
+        //    constructor for `TYPE`, regardless of whether `TYPE` uses the
+        //    leading or trailing allocator-passing convention.
         //
         // Plan:
-        //: 1 Let 'TYPE' an element in a list of 'TestType' instantiations,
-        //:   'TYPE<A, C>', where 'A' is 'void', 'bslma::Allocator *',
-        //:   'BslAllocator', 'PmrAllocator', and 'StlAllocator', and where 'C'
-        //:   is 'true' and 'false'.  For each such 'TYPE', and an allocator
-        //:   'q' of type 'A2', verify that:
-        //:
-        //:   1 If 'A' is 'none' (i.e., 'TestType<A, C>' is not AA),
-        //:     the 'make<TYPE>(q)' call is valid for all allocator types,
-        //:     'A2' and invokes the default constructor of 'TYPE'.  (C-1)
-        //:
-        //:   2 If 'A' is 'bslma::Allocator *', the 'make<TYPE>(q)' call is
-        //:     valid if 'A2' is a non-allocator, 'bslma::Allocator *', or
-        //:     'BslAllocator'.  (C-2)
-        //:
-        //:   3 If 'A' is one of the other allocator types, the 'make<TYPE>(q)'
-        //:     call is valid if 'A2' is a non-allocator or is convertible to
-        //:     'A'.  (C-3)
-        //:
-        //:   4 If 'A2' is a non-allocator, then the default constructor for
-        //:     'TYPE' is invoked.  (C-4)
-        //:
-        //:   5 If 'A2' is an allocator type, then the extended default
-        //:     constructor for 'TYPE' is invoked.  (C-5)
-        //:
-        //:   6 Using the instrumentation provided by 'TestType', verify that
-        //:     exactly one object is constructed by the 'construct' method.
+        // 1. Let `TYPE` an element in a list of `TestType` instantiations,
+        //    `TYPE<A, C>`, where `A` is `void`, `bslma::Allocator *`,
+        //    `BslAllocator`, `PmrAllocator`, and `StlAllocator`, and where `C`
+        //    is `true` and `false`.  For each such `TYPE`, and an allocator
+        //    `q` of type `A2`, verify that:
+        //
+        //   1. If `A` is `none` (i.e., `TestType<A, C>` is not AA),
+        //      the `make<TYPE>(q)` call is valid for all allocator types,
+        //      `A2` and invokes the default constructor of `TYPE`.  (C-1)
+        //
+        //   2. If `A` is `bslma::Allocator *`, the `make<TYPE>(q)` call is
+        //      valid if `A2` is a non-allocator, `bslma::Allocator *`, or
+        //      `BslAllocator`.  (C-2)
+        //
+        //   3. If `A` is one of the other allocator types, the `make<TYPE>(q)`
+        //      call is valid if `A2` is a non-allocator or is convertible to
+        //      `A`.  (C-3)
+        //
+        //   4. If `A2` is a non-allocator, then the default constructor for
+        //      `TYPE` is invoked.  (C-4)
+        //
+        //   5. If `A2` is an allocator type, then the extended default
+        //      constructor for `TYPE` is invoked.  (C-5)
+        //
+        //   6. Using the instrumentation provided by `TestType`, verify that
+        //      exactly one object is constructed by the `construct` method.
         //
         // Testing:
         //    TYPE make<TYPE>(const ALLOCATOR&);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nALLOCATOR-ONLY 'make'"
+        if (verbose) printf("\nALLOCATOR-ONLY `make`"
                             "\n=====================\n");
 
 #if defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
@@ -2425,71 +2442,71 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // MULTI-ARGUMENT 'construct'
-        //   Test calls to 'bslma::ConstructorUtil::construct' having three or
+        // MULTI-ARGUMENT `construct`
+        //   Test calls to `bslma::ConstructorUtil::construct` having three or
         //   more arguments where the first argument is the address of the
         //   object being constructed, the second argument is the allocator (or
         //   a non-allocator), and the remaining arguments are additional
         //   arguments to the type of object being constructed.
         //
         // Concerns:
-        //: 1 'bslma::ConstructorUtil::construct' can be invoked with the
-        //:   address of an object of type 'TYPE' to be constructed, an
-        //:   allocator (or a non-allocator scalar), and 1 to 14 additional
-        //:   'TYPE' constructor arguments, regardless of which AA model 'TYPE'
-        //:   conforms to and regardless of whether it uses the leading or
-        //:   trailing allocator-passing convention.
-        //:
-        //: 2 If 'TYPE' is allocator-aware (AA) and the allocator type is
-        //:   compatible with 'TYPE', then the allocator argument is passed to
-        //:   'TYPE''s extended constructor; otherwise, 'TYPE''s non-extended
-        //:   constructor is invoked.
-        //:
-        //: 3 The argument values are forwarded to 'TYPE''s constructor.
-        //:
-        //: 4 The argument value categories (lvalue vs rvalue) are preserved
-        //:   when forwarded to 'TYPE''s constructor.  Note that, in C++03,
-        //:   only the first argument is perfectly forwarded; for the remaining
-        //:   arguments, a modifiable lvalue is forwarded as a 'const' lvalue
-        //:   reference.
+        // 1. `bslma::ConstructorUtil::construct` can be invoked with the
+        //    address of an object of type `TYPE` to be constructed, an
+        //    allocator (or a non-allocator scalar), and 1 to 14 additional
+        //    `TYPE` constructor arguments, regardless of which AA model `TYPE`
+        //    conforms to and regardless of whether it uses the leading or
+        //    trailing allocator-passing convention.
+        //
+        // 2. If `TYPE` is allocator-aware (AA) and the allocator type is
+        //    compatible with `TYPE`, then the allocator argument is passed to
+        //    `TYPE`'s extended constructor; otherwise, `TYPE`'s non-extended
+        //    constructor is invoked.
+        //
+        // 3. The argument values are forwarded to `TYPE`'s constructor.
+        //
+        // 4. The argument value categories (lvalue vs rvalue) are preserved
+        //    when forwarded to `TYPE`'s constructor.  Note that, in C++03,
+        //    only the first argument is perfectly forwarded; for the remaining
+        //    arguments, a modifiable lvalue is forwarded as a `const` lvalue
+        //    reference.
         //
         // Plan:
-        //: 1 Let 'TYPE' an element in a list of 'TestType' instantiations,
-        //:   'TYPE<A, C>', where 'A' is 'void', 'bslma::Allocator *',
-        //:   'BslAllocator', 'PmrAllocator', and 'StlAllocator', and where 'C'
-        //:   is 'true' and 'false'.  For a pointer 'p' to each such 'TYPE',
-        //:   and an allocator 'q' of type 'A2':
-        //:
-        //:   1 Create a struct (pack) of 14 'bsltf::ArgumentType<N>' objects
-        //:     to use as arguments to the constructor.  The initial value of
-        //:     these objects should come from a known list of semi-random
-        //:     values.  Create a 'const' reference to the pack.
-        //:
-        //:   2 For *N* in 1 to 14, use 'construct' to initialize '*p', passing
-        //:     each compatible allocator type and *N* arguments from the pack
-        //:     described step 1.  (C-1)
-        //:
-        //:   3 Verify that, when 'TYPE' is AA, the allocator used by '*p'
-        //:     matches the allocator passed to 'construct'; otherwise the
-        //:     allocator used by '*p' matches the default allocator.  (C-2)
-        //:
-        //:   4 Verify that the value of the arguments captured in '*p' match
-        //:     the values of the arguments passed to the constructor.  (C-3)
-        //:
-        //:   5 Perform step 1.2 through 1.4 three times, passing the arguments
-        //:     by 'const' reference, non-const lvalue reference, and rvalue
-        //:     (movable) reference, respectively.  Verify the expected
-        //:     copy/move states for the captured values in '*p' and the
-        //:     original arguments passed to 'construct'. Note that, in C++03,
-        //:     the expected copy/move state for the second and subsequent
-        //:     captured values is 'e_CONST_COPIED_INTO' for both 'const' and
-        //:     non-'const' lvalue arguments.  (C-4)
+        // 1. Let `TYPE` an element in a list of `TestType` instantiations,
+        //    `TYPE<A, C>`, where `A` is `void`, `bslma::Allocator *`,
+        //    `BslAllocator`, `PmrAllocator`, and `StlAllocator`, and where `C`
+        //    is `true` and `false`.  For a pointer `p` to each such `TYPE`,
+        //    and an allocator `q` of type `A2`:
+        //
+        //   1. Create a struct (pack) of 14 `bsltf::ArgumentType<N>` objects
+        //      to use as arguments to the constructor.  The initial value of
+        //      these objects should come from a known list of semi-random
+        //      values.  Create a `const` reference to the pack.
+        //
+        //   2. For *N* in 1 to 14, use `construct` to initialize `*p`, passing
+        //      each compatible allocator type and *N* arguments from the pack
+        //      described step 1.  (C-1)
+        //
+        //   3. Verify that, when `TYPE` is AA, the allocator used by `*p`
+        //      matches the allocator passed to `construct`; otherwise the
+        //      allocator used by `*p` matches the default allocator.  (C-2)
+        //
+        //   4. Verify that the value of the arguments captured in `*p` match
+        //      the values of the arguments passed to the constructor.  (C-3)
+        //
+        //   5. Perform step 1.2 through 1.4 three times, passing the arguments
+        //      by `const` reference, non-const lvalue reference, and rvalue
+        //      (movable) reference, respectively.  Verify the expected
+        //      copy/move states for the captured values in `*p` and the
+        //      original arguments passed to `construct`. Note that, in C++03,
+        //      the expected copy/move state for the second and subsequent
+        //      captured values is `e_CONST_COPIED_INTO` for both `const` and
+        //      non-`const` lvalue arguments.  (C-4)
         //
         // Testing:
         //    void construct(TYPE *, const ALLOCATOR&, ARGS&&...);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nMULTI-ARGUMENT 'construct'"
+        if (verbose) printf("\nMULTI-ARGUMENT `construct`"
                             "\n==========================\n");
 
         bslma::TestAllocator ta("test allocator", veryVeryVeryVerbose);
@@ -2498,7 +2515,7 @@ int main(int argc, char *argv[])
   // Copying from a non-const lvalue is always detected correctly in C++11
 # define EXP_COPIED_MUTABLE(TEST_OBJ, N) (TEST_OBJ)[(N)].isMutableCopiedInto()
 #else
-  // Copying from a non-const is detected correctly in C++03 only if 'N == 1'
+  // Copying from a non-const is detected correctly in C++03 only if `N == 1`
 # define EXP_COPIED_MUTABLE(TEST_OBJ, N)                      \
         (N == 1 ? (TEST_OBJ)[(N)].isMutableCopiedInto() :     \
                   (TEST_OBJ)[(N)].isConstCopiedInto())
@@ -2592,8 +2609,8 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // ALLOCATOR-ONLY 'construct'
-        //   Test two-argument calls to 'bslma::ConstructorUtil::construct',
+        // ALLOCATOR-ONLY `construct`
+        //   Test two-argument calls to `bslma::ConstructorUtil::construct`,
         //   where the first argument is the address of the object being
         //   constructed and the second argument is the allocator (or a
         //   non-allocator). Verify that the call invokes the object's default
@@ -2601,74 +2618,74 @@ int main(int argc, char *argv[])
         //   types).
         //
         // Concerns:
-        //: 1 If 'TYPE' is a non-AA type, 'construct' can be called by passing,
-        //:   as the allocator (second) argument, any allocator or a
-        //:   non-allocator scalar; the default constructor for 'TYPE' is
-        //:   invoked.
-        //:
-        //: 2 If 'bslma::UsesBslmaAllocator<TYPE>::value' is 'true',
-        //:   'construct' can be called by passing, as the allocator argument,
-        //:   a non-allocator, 'bslma::Allocator' pointer, or an allocator
-        //:   object having a 'mechanism' accessor that returns a
-        //:   'bslma::Allocator *'.
-        //:
-        //: 3 If 'TYPE::allocator_type' exists and is a class type, 'construct'
-        //:   can be called by passing, as the allocator argument, any
-        //:   allocator that is convertible to 'TYPE::allocator_type'.
-        //:
-        //: 4 If a non-allocator is passed to 'construct', the default
-        //:   constructor for 'TYPE' is invoked.
-        //:
-        //: 5 If 'TYPE' is an AA type and a compatible allocator is passed to
-        //:   'construct', then the allocator is passed to the extended default
-        //:   constructor for 'TYPE', regardless of whether 'TYPE' uses the
-        //:   leading or trailing allocator-passing convention.
+        // 1. If `TYPE` is a non-AA type, `construct` can be called by passing,
+        //    as the allocator (second) argument, any allocator or a
+        //    non-allocator scalar; the default constructor for `TYPE` is
+        //    invoked.
+        //
+        // 2. If `bslma::UsesBslmaAllocator<TYPE>::value` is `true`,
+        //    `construct` can be called by passing, as the allocator argument,
+        //    a non-allocator, `bslma::Allocator` pointer, or an allocator
+        //    object having a `mechanism` accessor that returns a
+        //    `bslma::Allocator *`.
+        //
+        // 3. If `TYPE::allocator_type` exists and is a class type, `construct`
+        //    can be called by passing, as the allocator argument, any
+        //    allocator that is convertible to `TYPE::allocator_type`.
+        //
+        // 4. If a non-allocator is passed to `construct`, the default
+        //    constructor for `TYPE` is invoked.
+        //
+        // 5. If `TYPE` is an AA type and a compatible allocator is passed to
+        //    `construct`, then the allocator is passed to the extended default
+        //    constructor for `TYPE`, regardless of whether `TYPE` uses the
+        //    leading or trailing allocator-passing convention.
         //
         // Plan:
-        //: 1 Create a 'TestType<A, C>' class template where 'A' is the desired
-        //:   allocator type (or 'void' for none) and 'C' is the desired
-        //:   allocator-passing convention ('false' for trailing allocator,
-        //:   'true' for leading allocator).
-        //:
-        //: 2 Create a set of STL-compatible allocator templates,
-        //:   'BslAllocator', 'PmrAllocator', and 'STLAllocator'.  Note that
-        //:   'BslAllocator' and 'PmrAllocator' mimic 'bsl::allocator' and
-        //:   'bsl::polymorphic_allocator' but avoid creating a cyclic
-        //:   dependency on 'bslma_bslallocator' or
-        //:   'bslma_polymorphicallocator'.
-        //:
-        //: 3 Let 'TYPE' an element in a list of 'TestType' instantiations,
-        //:   'TYPE<A, C>', where 'A' is 'void', 'bslma::Allocator *',
-        //:   'BslAllocator', 'PmrAllocator', and 'StlAllocator', and where 'C'
-        //:   is 'true' and 'false'.  For a pointer 'p' to each such 'TYPE',
-        //:   and an allocator 'q' of type 'A2', verify that:
-        //:
-        //:   1 If 'A' is 'none' (i.e., 'TestType<A, C>' is not AA),
-        //:     the 'construct(p, q)' call is valid for all allocator types,
-        //:     'A2' and invokes the default constructor of 'TYPE'.  (C-1)
-        //:
-        //:   2 If 'A' is 'bslma::Allocator *', the 'construct(p, q)' call is
-        //:     valid if 'A2' is a non-allocator, 'bslma::Allocator *', or
-        //:     'BslAllocator'.  (C-2)
-        //:
-        //:   3 If 'A' is one of the other allocator types, then 'construct(p,
-        //:     q)' call is valid if 'A2' is a non-allocator or is convertible
-        //:     to 'A'.  (C-3)
-        //:
-        //:   4 If 'A2' is a non-allocator, then the default constructor for
-        //:     'TYPE' is invoked.  (C-4)
-        //:
-        //:   5 If 'A2' is an allocator type, then the extended default
-        //:     constructor for 'TYPE' is invoked.  (C-5)
-        //:
-        //:   6 Using the instrumentation provided by 'TestType', verify that
-        //:     exactly one object is constructed by the 'construct' method.
+        // 1. Create a `TestType<A, C>` class template where `A` is the desired
+        //    allocator type (or `void` for none) and `C` is the desired
+        //    allocator-passing convention (`false` for trailing allocator,
+        //    `true` for leading allocator).
+        //
+        // 2. Create a set of STL-compatible allocator templates,
+        //    `BslAllocator`, `PmrAllocator`, and `STLAllocator`.  Note that
+        //    `BslAllocator` and `PmrAllocator` mimic `bsl::allocator` and
+        //    `bsl::polymorphic_allocator` but avoid creating a cyclic
+        //    dependency on `bslma_bslallocator` or
+        //    `bslma_polymorphicallocator`.
+        //
+        // 3. Let `TYPE` an element in a list of `TestType` instantiations,
+        //    `TYPE<A, C>`, where `A` is `void`, `bslma::Allocator *`,
+        //    `BslAllocator`, `PmrAllocator`, and `StlAllocator`, and where `C`
+        //    is `true` and `false`.  For a pointer `p` to each such `TYPE`,
+        //    and an allocator `q` of type `A2`, verify that:
+        //
+        //   1. If `A` is `none` (i.e., `TestType<A, C>` is not AA),
+        //      the `construct(p, q)` call is valid for all allocator types,
+        //      `A2` and invokes the default constructor of `TYPE`.  (C-1)
+        //
+        //   2. If `A` is `bslma::Allocator *`, the `construct(p, q)` call is
+        //      valid if `A2` is a non-allocator, `bslma::Allocator *`, or
+        //      `BslAllocator`.  (C-2)
+        //
+        //   3. If `A` is one of the other allocator types, then 'construct(p,
+        //      q)` call is valid if `A2' is a non-allocator or is convertible
+        //      to `A`.  (C-3)
+        //
+        //   4. If `A2` is a non-allocator, then the default constructor for
+        //      `TYPE` is invoked.  (C-4)
+        //
+        //   5. If `A2` is an allocator type, then the extended default
+        //      constructor for `TYPE` is invoked.  (C-5)
+        //
+        //   6. Using the instrumentation provided by `TestType`, verify that
+        //      exactly one object is constructed by the `construct` method.
         //
         // Testing:
         //    void construct(TYPE *, const ALLOCATOR&);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nALLOCATOR-ONLY 'construct'"
+        if (verbose) printf("\nALLOCATOR-ONLY `construct`"
                             "\n==========================\n");
 
         bslma::TestAllocator ta("test allocator", veryVeryVeryVerbose);
@@ -2737,120 +2754,120 @@ int main(int argc, char *argv[])
         // TEST APPARATUS
         //
         // Concerns:
-        //: 1 'FrozenArg' captures the value and copy/move state of any
-        //:   'bsltf::ArgumentType' instance.
-        //:
-        //: 2 'bslma::UsesBslmaAllocator<TestType<ALLOC, USE_PREFIX_ARG>>'
-        //:   yields 'true' if 'ALLOC' is 'PmrAllocator<T>', 'BslAllocator<T>',
-        //:   or 'bslma::Allocator *'.
-        //:
-        //: 3 'bslmtf::UsesAllocatorArgT<TestType<ALLOC, USE_PREFIX_ARG>>'
-        //:   yields 'true' if 'ALLOC' is non-'void' and 'USE_PREFIX_ARG' is
-        //:   'true'.
-        //:
-        //: 4 'TestType<ALLOC, U>::allocator_type' is not defined if 'ALLOC' is
-        //:   'void' or 'bslma::Allocator *'; otherwise 'allocator_type' is
-        //:   'ALLOC'.
-        //:
-        //: 5 'TestType' can be constructed with 1 to 14 arguments of type
-        //:   'bsltf::ArgumentType<1>' to 'bsltf::ArgumentType<14>',
-        //:   respectively.  The values of the arguments is captured in the
-        //:   'TestType' object.
-        //:
-        //: 6 For each argument of 'const' lvalue type passed to a 'TestType'
-        //:   constructor, the captured 'FrozenArg' reflects that the
-        //:   argument was copied from a 'const' lvalue.
-        //:
-        //: 7 For each argument of mutable lvalue type passed to a 'TestType'
-        //:   constructor, the captured 'FrozenArg' reflects that the
-        //:   argument was copied from a non-'const' lvalue.
-        //:
-        //: 8 For each argument of rvalue ('bslmf::MutableRef') type passed to
-        //:   a 'TestType' constructor, the captured 'FrozenArg' reflects that
-        //:   the argument was moved from an xvalue.
-        //:
-        //: 9 If no allocator is supplied, the default allocator is used to
-        //:   construct 'TestType' (for AA instantiations).
-        //:
-        //: 10 For non-'void' 'ALLOC', 'TestType<ALLOC, USE_PREFIX_ARG>', can
-        //:   be constructed with a trailing allocator argument (if
-        //:   'USE_PREFIX_ARG' is 'false') or a leading 'bsl::allocator_arg'
-        //:   followed by an allocator argument (if 'USE_PREFIX_ARG' is
-        //:   'true').  The allocator accessor should return a copy of the
-        //:   allocator provided at construction and 'matchAllocator' should
-        //:   return true when given that allocator and 'false' for any other
-        //:   allocator.
-        //:
-        //: 11 The 'TestType' copy constructor and extended copy constructor
-        //:   copy the values and record that the new object is in a
-        //:   copied-into state.  If an allocator is provided, the new object
-        //:   uses that allocator, otherwise it uses the default allocator (for
-        //:   AA instantiations).
-        //:
-        //: 12 The 'TestType' move constructor and extended move constructor
-        //:   copy the values, record that the new object is in a moved-into
-        //:   state, and record that the original object is in a moved-from
-        //:   state after the move.  If an allocator is provided, the new
-        //:   object uses that allocator, otherwise it uses the allocator of
-        //:   the moved-from object (for AA instantiations).
-        //:
-        //: 13 The 'TestType' assignment operators copy the values but not the
-        //:   allocators, which remain unchanged.  For copy assignment, the lhs
-        //:   object enters a copied-into state.  For move assignment, the rhs
-        //:   object enters a moved-into state and the lhs object enters a
-        //:   moved-from state.
+        // 1. `FrozenArg` captures the value and copy/move state of any
+        //    `bsltf::ArgumentType` instance.
+        //
+        // 2. `bslma::UsesBslmaAllocator<TestType<ALLOC, USE_PREFIX_ARG>>`
+        //    yields `true` if `ALLOC` is `PmrAllocator<T>`, `BslAllocator<T>`,
+        //    or `bslma::Allocator *`.
+        //
+        // 3. `bslmtf::UsesAllocatorArgT<TestType<ALLOC, USE_PREFIX_ARG>>`
+        //    yields `true` if `ALLOC` is non-`void` and `USE_PREFIX_ARG` is
+        //    `true`.
+        //
+        // 4. `TestType<ALLOC, U>::allocator_type` is not defined if `ALLOC` is
+        //    `void` or `bslma::Allocator *`; otherwise `allocator_type` is
+        //    `ALLOC`.
+        //
+        // 5. `TestType` can be constructed with 1 to 14 arguments of type
+        //    `bsltf::ArgumentType<1>` to `bsltf::ArgumentType<14>`,
+        //    respectively.  The values of the arguments is captured in the
+        //    `TestType` object.
+        //
+        // 6. For each argument of `const` lvalue type passed to a `TestType`
+        //    constructor, the captured `FrozenArg` reflects that the
+        //    argument was copied from a `const` lvalue.
+        //
+        // 7. For each argument of mutable lvalue type passed to a `TestType`
+        //    constructor, the captured `FrozenArg` reflects that the
+        //    argument was copied from a non-`const` lvalue.
+        //
+        // 8. For each argument of rvalue (`bslmf::MutableRef`) type passed to
+        //    a `TestType` constructor, the captured `FrozenArg` reflects that
+        //    the argument was moved from an xvalue.
+        //
+        // 9. If no allocator is supplied, the default allocator is used to
+        //    construct `TestType` (for AA instantiations).
+        //
+        // 10. For non-`void` `ALLOC`, `TestType<ALLOC, USE_PREFIX_ARG>`, can
+        //    be constructed with a trailing allocator argument (if
+        //    `USE_PREFIX_ARG` is `false`) or a leading `bsl::allocator_arg`
+        //    followed by an allocator argument (if `USE_PREFIX_ARG` is
+        //    `true`).  The allocator accessor should return a copy of the
+        //    allocator provided at construction and `matchAllocator` should
+        //    return true when given that allocator and `false` for any other
+        //    allocator.
+        //
+        // 11. The `TestType` copy constructor and extended copy constructor
+        //    copy the values and record that the new object is in a
+        //    copied-into state.  If an allocator is provided, the new object
+        //    uses that allocator, otherwise it uses the default allocator (for
+        //    AA instantiations).
+        //
+        // 12. The `TestType` move constructor and extended move constructor
+        //    copy the values, record that the new object is in a moved-into
+        //    state, and record that the original object is in a moved-from
+        //    state after the move.  If an allocator is provided, the new
+        //    object uses that allocator, otherwise it uses the allocator of
+        //    the moved-from object (for AA instantiations).
+        //
+        // 13. The `TestType` assignment operators copy the values but not the
+        //    allocators, which remain unchanged.  For copy assignment, the lhs
+        //    object enters a copied-into state.  For move assignment, the rhs
+        //    object enters a moved-into state and the lhs object enters a
+        //    moved-from state.
         //
         // Plan:
-        //: 1 Put a set of 'bsltf::ArgumentType' objects into every legal
-        //:   move/copy state and arbitrary values and construct an 'FrozenArg'
-        //:   for each such object and verify that the value and move/copy
-        //:   state is captured correctly.  (C-1)
-        //:
-        //: 2 For 'ALLOC' types 'void', 'PmrAllocator', 'BslAllocator',
-        //:   'bslma::Allocator *', and a standard-compliant allocator that is
-        //:   none of the preceding, and for 'USE_PREFIX_ARG' values 'false'
-        //:   and 'true', verify, for each combination, 'TT', of type
-        //:   'TestType<ALLOC, USE_PREFIX_ARG>', that
-        //:   'bslma::UsesBslmaAllocator<TT>', 'bslmtf::UsesAllocatorArgT<TT>',
-        //:   and 'TT::allocator_type' have the expected types.  (C-2, C-3,
-        //:   C-4)
-        //:
-        //: 3 For a representative sample of the types in step 2, including all
-        //:   of the 'ALLOC' types and a selection of 'USE_PREFIX_ARG' values,
-        //:   construct objects of type 'TestType<ALLOC, USE_PREFIX_ARG>' using
-        //:   0 to 14 arguments, where each argument is a 'const' lvalue.
-        //:   Verify that the argument values are captured and that their
-        //:   'copiedInto' attribute is 'e_COPIED_CONST'.  (C-5, C-6)
-        //:
-        //: 4 Repeat step 3 with non-'const' lvalue arguments.  Verify that the
-        //:   captured arguments return 'e_COPIED_MUTABLE' from their
-        //:   'copiedInto()' accessesor.  (C-7)
-        //:
-        //: 5 Repeat step 3 with rvalue ('MovableRef') arguments.  Verify that
-        //:   the captured arguments return 'e_MOVED' from their 'movedInto()'
-        //:   accessor.  (C-8)
-        //:
-        //: 6 Perform steps 3-5 without passing an allocator to the 'TestType'
-        //:   constructor.  Verify that 'matchAllocator(&da)' returns 'true',
-        //:   where 'da' is the default allocator.  (C-9)
-        //:
-        //: 7 For 'ALLOC' types other than 'void', repeat steps 3-5 supplying a
-        //:   trailing allocator (if 'USE_PREFIX_ARG' is 'false') or leading
-        //:   'bsl::allocator_arg' + allocator (if 'USE_PREFIX_ARG' is 'true').
-        //:   Verify that the allocator accessor and 'matchAllocator' method
-        //:   return the expected values.  (C-10)
-        //:
-        //: 8 Copy construct and move construct new objects from the ones
-        //:   created in steps 3-5.  Verify that the values and copy/move state
-        //:   of the objects is as expected.  Repeat using the extended copy
-        //:   and move constructors and a different allocator.  Verify that the
-        //:   allocator is as expected.  (C-11, C-12)
-        //:
-        //: 9 Invoke the copy and move assignment operators on objects having
-        //:   different initial values and different allocators.  Verify that
-        //:   the values were copied or moved and that the allocators remained
-        //:   unchanged.  Verify that the copy/move state of all objects is as
-        //:   expected.  (C-13)
+        // 1. Put a set of `bsltf::ArgumentType` objects into every legal
+        //    move/copy state and arbitrary values and construct an `FrozenArg`
+        //    for each such object and verify that the value and move/copy
+        //    state is captured correctly.  (C-1)
+        //
+        // 2. For `ALLOC` types `void`, `PmrAllocator`, `BslAllocator`,
+        //    `bslma::Allocator *`, and a standard-compliant allocator that is
+        //    none of the preceding, and for `USE_PREFIX_ARG` values `false`
+        //    and `true`, verify, for each combination, `TT`, of type
+        //    `TestType<ALLOC, USE_PREFIX_ARG>`, that
+        //    `bslma::UsesBslmaAllocator<TT>`, `bslmtf::UsesAllocatorArgT<TT>`,
+        //    and `TT::allocator_type` have the expected types.  (C-2, C-3,
+        //    C-4)
+        //
+        // 3. For a representative sample of the types in step 2, including all
+        //    of the `ALLOC` types and a selection of `USE_PREFIX_ARG` values,
+        //    construct objects of type `TestType<ALLOC, USE_PREFIX_ARG>` using
+        //   0. to 14 arguments, where each argument is a `const` lvalue.
+        //    Verify that the argument values are captured and that their
+        //    `copiedInto` attribute is `e_COPIED_CONST`.  (C-5, C-6)
+        //
+        // 4. Repeat step 3 with non-`const` lvalue arguments.  Verify that the
+        //    captured arguments return `e_COPIED_MUTABLE` from their
+        //    `copiedInto()` accessesor.  (C-7)
+        //
+        // 5. Repeat step 3 with rvalue (`MovableRef`) arguments.  Verify that
+        //    the captured arguments return `e_MOVED` from their `movedInto()`
+        //    accessor.  (C-8)
+        //
+        // 6. Perform steps 3-5 without passing an allocator to the `TestType`
+        //    constructor.  Verify that `matchAllocator(&da)` returns `true`,
+        //    where `da` is the default allocator.  (C-9)
+        //
+        // 7. For `ALLOC` types other than `void`, repeat steps 3-5 supplying a
+        //    trailing allocator (if `USE_PREFIX_ARG` is `false`) or leading
+        //    `bsl::allocator_arg` + allocator (if `USE_PREFIX_ARG` is `true`).
+        //    Verify that the allocator accessor and `matchAllocator` method
+        //    return the expected values.  (C-10)
+        //
+        // 8. Copy construct and move construct new objects from the ones
+        //    created in steps 3-5.  Verify that the values and copy/move state
+        //    of the objects is as expected.  Repeat using the extended copy
+        //    and move constructors and a different allocator.  Verify that the
+        //    allocator is as expected.  (C-11, C-12)
+        //
+        // 9. Invoke the copy and move assignment operators on objects having
+        //    different initial values and different allocators.  Verify that
+        //    the values were copied or moved and that the allocators remained
+        //    unchanged.  Verify that the copy/move state of all objects is as
+        //    expected.  (C-13)
         //
         // Testing:
         //     TEST APPARATUS
@@ -3220,11 +3237,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Execute each method to verify functionality for simple cases.
+        // 1. Execute each method to verify functionality for simple cases.
         //
         // Testing:
         //      BREATHING TEST
@@ -3241,9 +3258,9 @@ int main(int argc, char *argv[])
         ArgumentType<1> arg1(10);
         ArgumentType<2> arg2(20);
 
-        if (veryVerbose) printf("Testing 'construct' and 'make'\n");
+        if (veryVerbose) printf("Testing `construct` and `make`\n");
 
-        // Construct a non-AA type ('int')
+        // Construct a non-AA type (`int`)
         {
             typedef int                    TT;
             typedef bsls::ObjectBuffer<TT> ObjBuf;
@@ -3343,7 +3360,7 @@ int main(int argc, char *argv[])
 #endif // defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
         }
 
-        if (veryVerbose) printf("Testing 'destructiveMove'");
+        if (veryVerbose) printf("Testing `destructiveMove`");
 
         {
             typedef TestType<void, false>  TT;

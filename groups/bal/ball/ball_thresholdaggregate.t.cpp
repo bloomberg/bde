@@ -201,8 +201,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.  Suppress
-        //   all 'cout' statements in non-verbose mode, and add streaming to
+        //   comment characters, and replace `assert` with `ASSERT`.  Suppress
+        //   all `cout` statements in non-verbose mode, and add streaming to
         //   a buffer to test programmatically the printing examples.
         //
         // Testing:
@@ -238,7 +238,7 @@ int main(int argc, char *argv[])
         //   Specifying a set of test vectors consisting of distinct valid
         //   test values having subtle difference and hash sizes including
         //   powers of two and primes.  For each value and hash size, verify
-        //   that the 'hash' function returns expected value.
+        //   that the `hash` function returns expected value.
         //
         //   7 is the smallest hash table size and 1610612741 is largest size
         //   (that can fit into an int) used by stlport hashtable.
@@ -364,8 +364,8 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING STATIC 'areValidThresholdLevels' FUNCTION:
-        //   The static 'areValidThresholdLevels' function should return
+        // TESTING STATIC `areValidThresholdLevels` FUNCTION:
+        //   The static `areValidThresholdLevels` function should return
         //   correct value for both valid and invalid input.
         //
         // Plan:
@@ -375,7 +375,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   static bool areValidThresholdLevels(int, int, int, int);
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTesting 'areValidThresholdLevels' function"
+        if (verbose) cout << "\nTesting `areValidThresholdLevels` function"
                           << "\n=========================================="
                           << endl;
 
@@ -403,13 +403,13 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'setLevels' FUNCTION:
-        //   The 'setLevels' function should correctly pass the specified
+        // TESTING `setLevels` FUNCTION:
+        //   The `setLevels` function should correctly pass the specified
         //   value to the object.
         //
         // Plan:
         //   For a sequence of independent valid test values, use the
-        //   constructor to create an object and then use the 'setLevels'
+        //   constructor to create an object and then use the `setLevels`
         //   function to set its value.  For the set of destination values
         //   that are valid, verify that the value has been correctly passed
         //   to the object.  Otherwise, verify that the original value of the
@@ -418,7 +418,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   void setLevels(int, int, int, int);
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTesting 'setLevels' function"
+        if (verbose) cout << "\nTesting `setLevels` function"
                           << "\n============================" << endl;
 
         for (int i = 0; i < NUM_DATA && DATA[i].d_isValidFlag; ++i) {
@@ -556,7 +556,7 @@ int main(int argc, char *argv[])
       case 8: {
         // --------------------------------------------------------------------
         // TESTING SECONDARY TEST APPARATUS:
-        //   Void for 'ball::ThresholdAggregate'.
+        //   Void for `ball::ThresholdAggregate`.
         // --------------------------------------------------------------------
 
       } break;
@@ -618,7 +618,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Specify a set S of unique object values that may have various
         //   minor or subtle differences.  Verify the correctness of
-        //   'operator==' and 'operator!=' using all elements (u, v) of the
+        //   `operator==` and `operator!=` using all elements (u, v) of the
         //   cross product S X S.
         //
         // Testing:
@@ -669,13 +669,13 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'operator<<' AND 'print':
-        //   The output operator and 'print' method should print out the value
+        // TESTING `operator<<` AND `print`:
+        //   The output operator and `print` method should print out the value
         //   of objects in the expected format.
         //
         // Plan:
         //   For each of a small representative set of object values, use
-        //   'ostrstream' to write that object's value to a character buffer
+        //   `ostrstream` to write that object's value to a character buffer
         //   and then compare the contents of that buffer with the expected
         //   output format.
         //
@@ -684,10 +684,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing 'operator<<' and 'print'" << endl
+                          << "Testing `operator<<` and `print`" << endl
                           << "================================" << endl;
 
-        if (verbose) cout << "\nTesting 'operator<<' (ostream)." << endl;
+        if (verbose) cout << "\nTesting `operator<<` (ostream)." << endl;
 
         static const struct {
             int         d_line;            // line number
@@ -732,7 +732,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, os.str() == DATA[i].d_output);
         }
 
-        if (verbose) cout << "\nTesting 'print'." << endl;
+        if (verbose) cout << "\nTesting `print`." << endl;
 
         static const struct {
             int         d_line;            // line number
@@ -822,7 +822,7 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TESTING PRIMITIVE TEST APPARATUS:
-        //   Void for 'ball::ThresholdAggregate'.
+        //   Void for `ball::ThresholdAggregate`.
         // --------------------------------------------------------------------
 
       } break;
@@ -893,8 +893,8 @@ int main(int argc, char *argv[])
         //   manipulator [3, 6], copy constructor [2, 8], and assignment
         //   operator without [9, 10] and with [11] aliasing.  Use the direct
         //   accessors to verify the expected results.  Display object values
-        //   frequently in verbose mode.  Note that 'VA', 'VB', and 'VC'
-        //   denote unique, but otherwise arbitrary, object values, while '0'
+        //   frequently in verbose mode.  Note that `VA`, `VB`, and `VC`
+        //   denote unique, but otherwise arbitrary, object values, while `0`
         //   denotes the default object value.
         //
         // 1.  Create an object x1 using VA.        { x1:VA }

@@ -65,11 +65,11 @@ enum {
 # endif
 };
 
+/// Return the native pthreads scheduling policy corresponding to the
+/// specified `policy` which is of type
+/// `bslmt::ThreadAttributes::SchedulingPolicy`.
 static inline
 int localPthreadsPolicy(int policy)
-    // Return the native pthreads scheduling policy corresponding to the
-    // specified 'policy' which is of type
-    // 'bslmt::ThreadAttributes::SchedulingPolicy'.
 {
     typedef bslmt::ThreadAttributes Attr;
 
@@ -85,12 +85,12 @@ int localPthreadsPolicy(int policy)
     return SCHED_OTHER;
 }
 
+/// Initialize the specified pthreads attribute type `destination`,
+/// configuring it with information from the specified thread attributes
+/// object `src`.  Note that it is assumed that `destination` is
+/// uninitialized and `pthread_attr_init` has not already been call on it.
 static int initPthreadAttribute(pthread_attr_t                 *destination,
                                 const bslmt::ThreadAttributes&  src)
-    // Initialize the specified pthreads attribute type 'destination',
-    // configuring it with information from the specified thread attributes
-    // object 'src'.  Note that it is assumed that 'destination' is
-    // uninitialized and 'pthread_attr_init' has not already been call on it.
 {
     typedef bslmt::ThreadAttributes Attr;
 

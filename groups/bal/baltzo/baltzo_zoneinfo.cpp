@@ -19,12 +19,13 @@ BSLS_IDENT_RCSID(baltzo_zoneinfo_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 // STATIC HELPER FUNCTIONS
+
+/// Return `true` if the specified `transitions` contain a transition with
+/// the specified `descriptor`, and `false` otherwise.
 static
 bool containsDescriptor(
                     const bsl::vector<baltzo::ZoneinfoTransition>& transitions,
                     const baltzo::LocalTimeDescriptor&             descriptor)
-    // Return 'true' if the specified 'transitions' contain a transition with
-    // the specified 'descriptor', and 'false' otherwise.
 {
     baltzo::Zoneinfo::TransitionConstIterator it  = transitions.begin();
     baltzo::Zoneinfo::TransitionConstIterator end = transitions.end();

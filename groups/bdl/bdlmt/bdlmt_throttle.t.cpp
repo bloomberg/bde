@@ -29,9 +29,9 @@
 #include <bsls_bsltestutil.h>
 
 #include <bsl_algorithm.h>
-#include <bsl_c_ctype.h>      // 'isdigit'
+#include <bsl_c_ctype.h>      // `isdigit`
 #include <bsl_cstdio.h>
-#include <bsl_cstdlib.h>      // 'atoi'
+#include <bsl_cstdlib.h>      // `atoi`
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_limits.h>
@@ -188,41 +188,53 @@ namespace u {
 
 typedef void (*VoidFunc)();
 
+/// Return the specified `x` in string form.
 const char *b(bool x)
-    // Return the specified 'x' in string form.
 {
     return x ? "true" : "false";
 }
 
+/// Return a `TimeInterval` indicating the current time, using the clock
+/// indicated by the optionally specified `clockType`.
 inline
 bsls::TimeInterval clockTi(ClockType clockType = CT::e_MONOTONIC)
-    // Return a 'TimeInterval' indicating the current time, using the clock
-    // indicated by the optionally specified 'clockType'.
 {
     return bsls::SystemTime::now(clockType);
 }
 
+/// Return the time in seconds, as a floating point value, using the
+/// specified optionally specified `clockType`.
 double doubleClock(ClockType clockType = CT::e_MONOTONIC)
-    // Return the time in seconds, as a floating point value, using the
-    // specified optionally specified 'clockType'.
 {
     return u::clockTi(clockType).totalSecondsAsDouble();
 }
 
+/// Return the specified atomic `*x_p`.
 Int64 get(bsls::AtomicOperations::AtomicTypes::Int64 *x_p)
-    // Return the specified atomic '*x_p'.
 {
     return bsls::AtomicOperations::getInt64(x_p);
 }
 
+/// Return the current time, in nanoseconds, according to the clock
+/// indicated by the optionally specified `clockType`.
 inline
 Int64 nanoClock(ClockType clockType = CT::e_MONOTONIC)
-    // Return the current time, in nanoseconds, according to the clock
-    // indicated by the optionally specified 'clockType'.
 {
     return clockTi(clockType).totalNanoseconds();
 }
 
+/// Return a time interval converted from the specified `timeStr` of the
+/// form "<minutes>:<seconds>.<frac>:<nano>", where:
+/// * <minutes> and <seconds> can be any number of digits.
+/// * <frac> is the fractional part of a second following the '.'.
+/// * <nano> is nanoseconds and can be any number of digits
+/// Note that both ':'s and the '.' are optional.  If no '.' is present, the
+/// second ':' may not be present.  If the first ':' is not present, the
+/// first field is taken to be seconds.  The behavior is undefined if
+/// `bsl::strlen(timeStr) > 128`, if any extra '.'s or ':''s are in the
+/// `timeStr`, if `timeStr` contains any character other than digits, '.',
+/// and ':', or if <minutes>, <seconds>, or <nano> are too long to be
+/// parsed into an `int`.
 bsls::TimeInterval toTime(const char *);    // forward declaration
 
 double secondsPrevLeakTime(Obj *throttle_p)
@@ -232,22 +244,22 @@ double secondsPrevLeakTime(Obj *throttle_p)
     return static_cast<double>(lag) * 1e-9;
 }
 
+/// Sleep for the specified `timeInSeconds` seconds, where 10 * 1000
+/// microseconds is minimum sleep, at least on some platforms.
 inline
 void sleep(double timeInSeconds)
-    // Sleep for the specified 'timeInSeconds' seconds, where 10 * 1000
-    // microseconds is minimum sleep, at least on some platforms.
 {
     bslmt::ThreadUtil::microSleep(static_cast<int>(timeInSeconds * 1e6));
 }
 
+/// Sleep for at least the specified `timeInSeconds`, using the system clock
+/// specified by `clockType`.  Return 0 if the amount of time slept was at
+/// least `timeInSeconds`, and not more than 1.1 times `timeInSeconds`,
+/// return a positive value if we slept too long, and a negative value if we
+/// slept too short.
 inline
 double checkedSleep(double    timeInSeconds,
                     ClockType clockType = CT::e_MONOTONIC)
-    // Sleep for at least the specified 'timeInSeconds', using the system clock
-    // specified by 'clockType'.  Return 0 if the amount of time slept was at
-    // least 'timeInSeconds', and not more than 1.1 times 'timeInSeconds',
-    // return a positive value if we slept too long, and a negative value if we
-    // slept too short.
 {
     const double start = doubleClock(clockType);
     sleep(timeInSeconds);
@@ -261,18 +273,6 @@ double checkedSleep(double    timeInSeconds,
 }
 
 bsls::TimeInterval toTime(const char *timeStr)
-    // Return a time interval converted from the specified 'timeStr' of the
-    // form "<minutes>:<seconds>.<frac>:<nano>", where:
-    //: o <minutes> and <seconds> can be any number of digits.
-    //: o <frac> is the fractional part of a second following the '.'.
-    //: o <nano> is nanoseconds and can be any number of digits
-    // Note that both ':'s and the '.' are optional.  If no '.' is present, the
-    // second ':' may not be present.  If the first ':' is not present, the
-    // first field is taken to be seconds.  The behavior is undefined if
-    // 'bsl::strlen(timeStr) > 128', if any extra '.'s or ':''s are in the
-    // 'timeStr', if 'timeStr' contains any character other than digits, '.',
-    // and ':', or if <minutes>, <seconds>, or <nano> are too long to be
-    // parsed into an 'int'.
 {
     char buf[128 + 1];
     const bsl::size_t len = bsl::strlen(timeStr);
@@ -342,12 +342,12 @@ bsls::TimeInterval toTime(const char *timeStr)
     return ret;
 }
 
+/// This overloaded function enables `TimeInterval`s to be indicated in
+/// tables by either the specified `timeStr`, which this function forwards
+/// to `toTime`, or by specifying an actual `TimeInterval`, which is
+/// specified to the `orig` argument of the other overload.
 inline
 bsls::TimeInterval tiAdapt(const char *timeStr)
-    // This overloaded function enables 'TimeInterval's to be indicated in
-    // tables by either the specified 'timeStr', which this function forwards
-    // to 'toTime', or by specifying an actual 'TimeInterval', which is
-    // specified to the 'orig' argument of the other overload.
 {
     return toTime(timeStr);
 }
@@ -361,9 +361,9 @@ bsls::TimeInterval tiAdapt(const bsls::TimeInterval& orig)
 }  // close namespace u
 }  // close unnamed namespace
 
+/// Output the specified `v`, one element per line, to the specified
+/// `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const bsl::vector<Int64>& v)
-    // Output the specified 'v', one element per line, to the specified
-    // 'stream'.
 {
     typedef bsl::vector<Int64>::const_iterator It;
 
@@ -376,9 +376,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const bsl::vector<Int64>& v)
     return stream;
 }
 
+/// Output the specified `clockType` to the specified `stream`.
 bsl::ostream& operator<<(bsl::ostream&               stream,
                          bsls::SystemClockType::Enum clockType)
-    // Output the specified 'clockType' to the specified 'stream'.
 {
     stream << bsls::SystemClockType::toAscii(clockType);
 
@@ -388,7 +388,7 @@ bsl::ostream& operator<<(bsl::ostream&               stream,
 #if 0
 bsl::ostream& operator<<(bsl::ostream&      stream,
                          bsls::TimeInterval timeInterval)
-    // Output the specified 'clockType' to the specified 'stream'.
+    // Output the specified `clockType` to the specified `stream`.
 {
     stream << timeInterval.seconds();;
     char nanoseconds[10];
@@ -417,8 +417,8 @@ namespace Case_Usage {
 //
 ///Example 1: Error Reporting
 /// - - - - - - - - - - - - -
-// Suppose we have an error reporting function 'reportError', that prints an
-// error message to a log stream.  There is a possibility that 'reportError'
+// Suppose we have an error reporting function `reportError`, that prints an
+// error message to a log stream.  There is a possibility that `reportError`
 // will be called very frequently, and that reports of this error will
 // overwhelm the other contents of the log, so we want to throttle the number
 // of times this error will be reported.  For our application we decide that we
@@ -426,44 +426,45 @@ namespace Case_Usage {
 // the error is occurring continuously, that we want a maximum sustained rate
 // of one error report every five seconds.
 //
-// First, we declare the signature of our 'reportError' function:
-//..
+// First, we declare the signature of our `reportError` function:
+// ```
+
+    /// Report an error to the specified `stream`.
     void reportError(bsl::ostream& stream)
-        // Report an error to the specified 'stream'.
     {
-//..
+// ```
 // Then, we define the maximum number of traces that can happen at a time to be
 // 10:
-//..
+// ```
         static const int maxSimultaneousTraces = 10;
-//..
+// ```
 // Next, we define the minimum interval between subsequent reported errors, if
 // errors are being continuously reported to be one report every 5 seconds.
 // Note that the units are nanoseconds, which must be represented using a 64
 // bit integral value:
-//..
+// ```
         static const bsls::Types::Int64 nanosecondsPerSustainedTrace =
                             5 * bdlt::TimeUnitRatio::k_NANOSECONDS_PER_SECOND;
-//..
-// Then, we declare our 'throttle' object and use the 'BDLMT_THROTTLE_INIT'
+// ```
+// Then, we declare our `throttle` object and use the `BDLMT_THROTTLE_INIT`
 // macro to initialize it, using the two above constants.  Note that the two
 // above constants *MUST* be calculated at compile-time, which means, among
 // other things, that they can't contain any floating point sub-expressions:
-//..
+// ```
         static bdlmt::Throttle throttle = BDLMT_THROTTLE_INIT(
                           maxSimultaneousTraces, nanosecondsPerSustainedTrace);
-//..
-// Now, we call 'requestPermission' at run-time to determine whether to report
+// ```
+// Now, we call `requestPermission` at run-time to determine whether to report
 // the next error to the log:
-//..
+// ```
         if (throttle.requestPermission()) {
-//..
+// ```
 // Finally, we write the message to the log:
-//..
+// ```
             stream << "Help!  I'm being held prisoner in a microprocessor!\n";
         }
     }
-//..
+// ```
 
 }  // close namespace Case_Usage
 
@@ -476,9 +477,9 @@ namespace Case_Allow_None {
 bsls::AtomicInt64 eventsSoFar(0);
 bsls::AtomicInt   atomicBarrier(-1);
 
+/// Make a large number of requests via `..._IF_ALLOW_NONE` and verify that
+/// none of the actions and permitted and all of them are refused.
 void threadJobIf()
-    // Make a large number of requests via '..._IF_ALLOW_NONE' and verify that
-    // none of the actions and permitted and all of them are refused.
 {
     enum { k_TIGHT_ITERATIONS = 1024 };
 
@@ -499,10 +500,10 @@ void threadJobIf()
     }
 }
 
+/// Make a large number of requests of varying numbers of actions on a
+/// throttle configured with `..._ALLOW_NONE` and verify that none of the
+/// are permitted and all of them are refused.
 void threadJobInit()
-    // Make a large number of requests of varying numbers of actions on a
-    // throttle configured with '..._ALLOW_NONE' and verify that none of the
-    // are permitted and all of them are refused.
 {
     enum { k_BILLION          = 1000 * 1000 * 1000,
            k_TIGHT_ITERATIONS = 1024 };
@@ -573,9 +574,9 @@ namespace Case_Allow_All {
 bsls::AtomicInt64 eventsSoFar(0);
 bsls::AtomicInt   atomicBarrier(-1);
 
+/// Make a large number of requests for permission using `..._IF_ALLOW_ALL`
+/// and observe that actions are always allowed.
 void threadJobIf()
-    // Make a large number of requests for permission using '..._IF_ALLOW_ALL'
-    // and observe that actions are always allowed.
 {
     enum { k_TIGHT_ITERATIONS = 1024 };
 
@@ -596,10 +597,10 @@ void threadJobIf()
     }
 }
 
+/// Make a large number of requests for permission for varying numbers of
+/// actions via varying overloads of the `requestPermission` method and
+/// observe that actions are always allowed.
 void threadJobInit()
-    // Make a large number of requests for permission for varying numbers of
-    // actions via varying overloads of the 'requestPermission' method and
-    // observe that actions are always allowed.
 {
     enum { k_BILLION          = 1000 * 1000 * 1000,
            k_TIGHT_ITERATIONS = 1024 };
@@ -693,10 +694,10 @@ double calculateBalance(Obj *throttle, const bsls::TimeInterval& now)
     return static_cast<double>(diff) * balanceFactor;
 }
 
+/// Request permission for many actions using `Throttle` objections
+/// initialialized with the `..._INIT*` macros, with the type of clock
+/// driven by `clockType` and the contention driven by `contention`.
 void threadJob()
-    // Request permission for many actions using 'Throttle' objections
-    // initialialized with the '..._INIT*' macros, with the type of clock
-    // driven by 'clockType' and the contention driven by 'contention'.
 {
     Obj& throttle = CT::e_MONOTONIC == clockType
                   ? throttleMonotonic
@@ -876,9 +877,9 @@ bsls::AtomicInt eventsSoFar(0);
 bsls::AtomicInt atomicBarrier(-1);
 bslmt::Barrier  barrier(u::numThreads + 1);
 
+/// Request permission, many times under very high contention, and see if
+/// any actions are refused.
 void threadJob()
-    // Request permission, many times under very high contention, and see if
-    // any actions are refused.
 {
     barrier.wait();
     while (0 != atomicBarrier) {}
@@ -923,13 +924,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -963,15 +964,15 @@ int main(int argc, char *argv[])
         // ALLOW_NONE STRESS TEST
         //
         // Concerns:
-        //: 1 That the 'BDLMT_THROTTLE_IF_ALLOW_NONE' and
-        //:   'BDLMT_THROTTLE_INIT_ALLOW_NONE' macros permit no events, and
-        //:   appropriately control an 'else' block as well.
+        // 1. That the `BDLMT_THROTTLE_IF_ALLOW_NONE` and
+        //    `BDLMT_THROTTLE_INIT_ALLOW_NONE` macros permit no events, and
+        //    appropriately control an `else` block as well.
         //
         // Plan:
-        //: 1 Have 40 threads in a tight loop calling the 'allow no' macro
-        //:   controlling a 'then' clause that we confirm was never taken, and
-        //:   an 'else' clause that we confirm was always taken.
-        //: 2 Measure the speed with which events are approved.
+        // 1. Have 40 threads in a tight loop calling the `allow no` macro
+        //    controlling a `then` clause that we confirm was never taken, and
+        //    an `else` clause that we confirm was always taken.
+        // 2. Measure the speed with which events are approved.
         //
         // Testing:
         //   CONCERN: BDLMT_THROTTLE_INIT_ALLOW_NONE stress test
@@ -1033,15 +1034,15 @@ int main(int argc, char *argv[])
         // ALLOW_ALL STRESS TEST
         //
         // Concerns:
-        //: 1 That the 'BDLMT_THROTTLE_IF_ALLOW_ALL' and
-        //:   'BDLMT_THROTTLE_INIT_ALLOW_ALL' macros permit all events, and
-        //:   appropriately control an 'else' block as well.
+        // 1. That the `BDLMT_THROTTLE_IF_ALLOW_ALL` and
+        //    `BDLMT_THROTTLE_INIT_ALLOW_ALL` macros permit all events, and
+        //    appropriately control an `else` block as well.
         //
         // Plan:
-        //: 1 Have 40 threads in a tight loop calling the 'allow all' macro
-        //:   controlling a 'then' clause that we confirm was always taken, and
-        //:   an 'else' clause that we confirm was never taken.
-        //: 2 Measure the speed with which events are approved.
+        // 1. Have 40 threads in a tight loop calling the `allow all` macro
+        //    controlling a `then` clause that we confirm was always taken, and
+        //    an `else` clause that we confirm was never taken.
+        // 2. Measure the speed with which events are approved.
         //
         // Testing:
         //   CONCERN: BDLMT_THROTTLE_INIT_ALLOW_ALL stress test
@@ -1104,12 +1105,12 @@ int main(int argc, char *argv[])
         // MULTITHREADED TEST -- HIGH CONTENTION, IF
         //
         // Concerns:
-        //: 1 That the type under test functions properly under light
-        //:   multithreaded contention.
+        // 1. That the type under test functions properly under light
+        //    multithreaded contention.
         //
         // Plan:
-        //: 1 Repeat the first test in the breathing test, only in a
-        //:   multithreaded context.
+        // 1. Repeat the first test in the breathing test, only in a
+        //    multithreaded context.
         //
         // Testing:
         //   CONCERN: Multithreaded, high contention, macro if
@@ -1127,12 +1128,12 @@ int main(int argc, char *argv[])
         // MULTITHREADED TEST -- LOW CONTENTION, IF
         //
         // Concerns:
-        //: 1 That the type under test functions properly under light
-        //:   multithreaded contention.
+        // 1. That the type under test functions properly under light
+        //    multithreaded contention.
         //
         // Plan:
-        //: 1 Repeat the first test in the breathing test, only in a
-        //:   multithreaded context.
+        // 1. Repeat the first test in the breathing test, only in a
+        //    multithreaded context.
         //
         // Testing:
         //   CONCERN: Multithreaded, low contention, macro if
@@ -1152,12 +1153,12 @@ int main(int argc, char *argv[])
         // MULTITHREADED TEST -- HIGH CONTENTION, INIT
         //
         // Concerns:
-        //: 1 That the type under test functions properly under light
-        //:   multithreaded contention.
+        // 1. That the type under test functions properly under light
+        //    multithreaded contention.
         //
         // Plan:
-        //: 1 Repeat the first test in the breathing test, only in a
-        //:   multithreaded context.
+        // 1. Repeat the first test in the breathing test, only in a
+        //    multithreaded context.
         //
         // Testing:
         //   CONCERN: Multithreaded, high contention, macro init
@@ -1175,12 +1176,12 @@ int main(int argc, char *argv[])
         // MULTITHREADED TEST -- LOW CONTENTION, INIT
         //
         // Concerns:
-        //: 1 That the type under test functions properly under light
-        //:   multithreaded contention.
+        // 1. That the type under test functions properly under light
+        //    multithreaded contention.
         //
         // Plan:
-        //: 1 Repeat the first test in the breathing test, only in a
-        //:   multithreaded context.
+        // 1. Repeat the first test in the breathing test, only in a
+        //    multithreaded context.
         //
         // Testing:
         //   CONCERN: Multithreaded, low contention, macro init
@@ -1198,51 +1199,51 @@ int main(int argc, char *argv[])
         // TESTING BDLMT_THROTTLE_IF MACROS
         //
         // Concerns:
-        //: 1 That all the 'BDLMT_THROTTLE_IF*' macros work correctly.
+        // 1. That all the `BDLMT_THROTTLE_IF*` macros work correctly.
         //
         // Plan:
-        //: 1 Black box testing 1: Iterate a number of times, calling a
-        //:   'BDLMT_THROTTLE_IF' with counters in both if 'if' clause and the
-        //:   'else' clause controlled by the macro, enough times to exhaust
-        //:   'maxSimultaneousActions' but not enough to run long enough for
-        //:   'nanosecondsPerAction' to expire.  This makes the tallies of
-        //:   counters very predictable, and confirm them.
-        //:
-        //: 2 Black box testing 2: Iterate a number of times calling a
-        //:   'BDLMT_THROTTLE_IF' with a fairly short 'nanosecondsPerAction',
-        //:   with counters in both clauses, and a sleep for 1/4 of the
-        //:   'nanospecondsPerAction', and the outer loop timed to finish after
-        //:   '2.5 * nanospecondsPerAction' has expired.  This should result in
-        //:   'maxSimultaneousActions + 2' events being approved, and a roughly
-        //:   predictable number of events rejected.
-        //:
-        //: 3: Repeat both black box tests for 'BDLMT_THROTTLE_IF_REALTIME'.
-        //:
-        //: 4 White box test:
-        //:   o Define a macro taking 'maxSimultaneousActions' and
-        //:     'nanoSecondsPerAction' arguments, which expands into a code
-        //:     block calling 'BDLMT_THROTTLE_IF' 'maxSimultaneousActions'
-        //:     times, with separate bools being set in the 'if' and 'else'
-        //:     clauses, verifying that the 'if' was always set and the 'else'
-        //:     bool never was.
-        //:   o In the 'if' clause, take a reference to the static throttle
-        //:     instantiated by the macro, and use the accessors to confirm
-        //:     that the state is as expected.
-        //:   o Call the macro with a variety of inputs.
-        //:
-        //: 5 Repeat the white box test for 'BDLMT_THROTTLE_IF_REALTIME'.
-        //:
-        //: 6 Adapt the white box test to 'BDLMT_THROTTLE_ALLOW_ALL'.  Note
-        //:   that there is no need for all the code to be in a macro, since
-        //:   there are no args to be varied.  This test requires very
-        //:   intimate white-box knowledge of the component, because the
-        //:   the state of the throttle is set to strange values in that case.
-        //:
-        //: 6 Adapt the white box test to 'BDLMT_THROTTLE_ALLOW_NONE'.  This
-        //:   is very similar to the 'BDLMT_THROTTLE_ALLOW_ALL' case except
-        //:   that the throttle defined in the conditional has to be
-        //:   accessed from the 'else' clause, since the 'if' clause is never
-        //:   executed.
+        // 1. Black box testing 1: Iterate a number of times, calling a
+        //    `BDLMT_THROTTLE_IF` with counters in both if `if` clause and the
+        //    `else` clause controlled by the macro, enough times to exhaust
+        //    `maxSimultaneousActions` but not enough to run long enough for
+        //    `nanosecondsPerAction` to expire.  This makes the tallies of
+        //    counters very predictable, and confirm them.
+        //
+        // 2. Black box testing 2: Iterate a number of times calling a
+        //    `BDLMT_THROTTLE_IF` with a fairly short `nanosecondsPerAction`,
+        //    with counters in both clauses, and a sleep for 1/4 of the
+        //    `nanospecondsPerAction`, and the outer loop timed to finish after
+        //    `2.5 * nanospecondsPerAction` has expired.  This should result in
+        //    `maxSimultaneousActions + 2` events being approved, and a roughly
+        //    predictable number of events rejected.
+        //
+        //  3: Repeat both black box tests for `BDLMT_THROTTLE_IF_REALTIME`.
+        //
+        // 4. White box test:
+        //    - Define a macro taking `maxSimultaneousActions` and
+        //      `nanoSecondsPerAction` arguments, which expands into a code
+        //      block calling `BDLMT_THROTTLE_IF` `maxSimultaneousActions`
+        //      times, with separate bools being set in the `if` and `else`
+        //      clauses, verifying that the `if` was always set and the `else`
+        //      bool never was.
+        //    - In the `if` clause, take a reference to the static throttle
+        //      instantiated by the macro, and use the accessors to confirm
+        //      that the state is as expected.
+        //    - Call the macro with a variety of inputs.
+        //
+        // 5. Repeat the white box test for `BDLMT_THROTTLE_IF_REALTIME`.
+        //
+        // 6. Adapt the white box test to `BDLMT_THROTTLE_ALLOW_ALL`.  Note
+        //    that there is no need for all the code to be in a macro, since
+        //    there are no args to be varied.  This test requires very
+        //    intimate white-box knowledge of the component, because the
+        //    the state of the throttle is set to strange values in that case.
+        //
+        // 6. Adapt the white box test to `BDLMT_THROTTLE_ALLOW_NONE`.  This
+        //    is very similar to the `BDLMT_THROTTLE_ALLOW_ALL` case except
+        //    that the throttle defined in the conditional has to be
+        //    accessed from the `else` clause, since the `if` clause is never
+        //    executed.
         //
         // Testing:
         //   BDLMT_THROTTLE_IF(int, Int64)
@@ -1461,15 +1462,15 @@ int main(int argc, char *argv[])
         // TESTING INITIALIZATION MACROS
         //
         // Concerns:
-        //: 1 That the macro initializers create throttles with the same state
-        //:   as a throttle with 'initialize' called with the same arguments.
+        // 1. That the macro initializers create throttles with the same state
+        //    as a throttle with `initialize` called with the same arguments.
         //
         // Plan:
-        //: 1 Statically initialize a set of throttles with different
-        //:   arguments, and have each one pointed to by a line in a table that
-        //:   contains the same arguments to be passed to 'initialize', after
-        //:   which 'memcmp' is called to verify that the throttles have
-        //:   identical state.
+        // 1. Statically initialize a set of throttles with different
+        //    arguments, and have each one pointed to by a line in a table that
+        //    contains the same arguments to be passed to `initialize`, after
+        //    which `memcmp` is called to verify that the throttles have
+        //    identical state.
         //
         // Testing:
         //   BDLMT_THROTTLE_INIT(int, Int64)
@@ -1540,41 +1541,41 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'nextPermit'
+        // TESTING `nextPermit`
         //
         // Concerns:
-        //: 1 If 'nextPermit' is called with invalid input, it will return a
-        //:   non-zero value without modifying the time interval passed to it.
-        //:
-        //: 2 If 'nextPermit' is called with valid input, it will return 0, and
-        //:   set the time interval passed by pointer to it to the exact
-        //:   earliest nanosecond when the specified 'numActions' would be
-        //:   permitted.
+        // 1. If `nextPermit` is called with invalid input, it will return a
+        //    non-zero value without modifying the time interval passed to it.
+        //
+        // 2. If `nextPermit` is called with valid input, it will return 0, and
+        //    set the time interval passed by pointer to it to the exact
+        //    earliest nanosecond when the specified `numActions` would be
+        //    permitted.
         //
         // Plan:
-        //: 1 Iterate through a table executing 4 commands:
-        //:   o 'e_CMD_INIT': Initialize the throttle, but don't call any
-        //:     manipulators that will effect its 'd_prevLeakTime' field.  This
-        //:     will only be called for setting the throttle to 'allow all' or
-        //:     'allow none'.
-        //:   o 'e_CMD_INIT_SET_TIME': Initialize the throttle, and call
-        //:     'requestPermissions' to set the 'd_prevLeakTime' field to
-        //:     exactly the time specified.
-        //:   o 'e_CMD_NEXT_PERMIT': Call 'nextPermit', expect it to succeed
-        //:     and return 0 and set the time interval passed to the exact
-        //:     nanosecond when 'numActions' actions would be permitted.  Then
-        //:     follow up with 'requestPermission' to verify that, then
-        //:     re-initialize the throttle to the exact state it was in before
-        //:     'nextPermit' was called.
-        //:   o 'e_CMD_NEXT_PERMIT_INVALID': Call 'nextPermit', expect it to
-        //:     return a non-zero value without modifying the time interval
-        //:     that was passed to it.
+        // 1. Iterate through a table executing 4 commands:
+        //    - `e_CMD_INIT`: Initialize the throttle, but don't call any
+        //      manipulators that will effect its `d_prevLeakTime` field.  This
+        //      will only be called for setting the throttle to `allow all` or
+        //      `allow none`.
+        //    - `e_CMD_INIT_SET_TIME`: Initialize the throttle, and call
+        //      `requestPermissions` to set the `d_prevLeakTime` field to
+        //      exactly the time specified.
+        //    - `e_CMD_NEXT_PERMIT`: Call `nextPermit`, expect it to succeed
+        //      and return 0 and set the time interval passed to the exact
+        //      nanosecond when `numActions` actions would be permitted.  Then
+        //      follow up with `requestPermission` to verify that, then
+        //      re-initialize the throttle to the exact state it was in before
+        //      `nextPermit` was called.
+        //    - `e_CMD_NEXT_PERMIT_INVALID`: Call `nextPermit`, expect it to
+        //      return a non-zero value without modifying the time interval
+        //      that was passed to it.
         //
         // Testing:
         //   int nextPermit(bsls::TimeInterval *, int) const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'nextPermit'\n"
+        if (verbose) cout << "TESTING `nextPermit`\n"
                              "====================\n";
 
         enum { k_BILLION = 1000 * 1000 * 1000 };
@@ -1584,56 +1585,56 @@ int main(int argc, char *argv[])
                    e_CMD_NEXT_PERMIT,
                    e_CMD_NEXT_PERMIT_INVALID };
 
+        // We assign the time interval to be returned from `nextPermit` to
+        // this ridiculous value before the call.  This value is never
+        // expected from a valid call, while with invalid calls we confirm
+        // that the time interval is unmodified.
         const TimeInterval nullTI(-123456789, -123456789);
-            // We assign the time interval to be returned from 'nextPermit' to
-            // this ridiculous value before the call.  This value is never
-            // expected from a valid call, while with invalid calls we confirm
-            // that the time interval is unmodified.
 
+        // White box -- this is the time interval that will be returned by
+        // `nextPermit` if the throttle was initialized `allow all`.
         const TimeInterval minusTenYears(
                                   - Obj::k_TEN_YEARS_NANOSECONDS / k_BILLION,
                                   -(Obj::k_TEN_YEARS_NANOSECONDS % k_BILLION));
-            // White box -- this is the time interval that will be returned by
-            // 'nextPermit' if the throttle was initialized 'allow all'.
 
-        // 'INIT_ALLOW_ALL': initialize the throttle to 'allow all'.
+        // `INIT_ALLOW_ALL`: initialize the throttle to `allow all`.
 
 #undef  INIT_ALLOW_ALL
 #define INIT_ALLOW_ALL                                                        \
     { L_, e_CMD_INIT, 1, 0, -1, TimeInterval() }
 
-        // 'INIT_ALLOW_NONE': initialize the throttle to 'allow none'.
+        // `INIT_ALLOW_NONE`: initialize the throttle to `allow none`.
 
 #undef  INIT_ALLOW_NONE
 #define INIT_ALLOW_NONE                                                       \
     { L_, e_CMD_INIT, 0, 1, -1, TimeInterval() }
 
-        // 'INIT_SET_TIME': initialize the throttle with the specified
-        // 'maxSimultaneousActions' and 'secondsPerAction', and use
-        // 'requestPermission' to set the 'd_prevLeakTime' to the specified
-        // string 'setTimeSpec', which is to be parsed by 'u::toTime'.
+        // `INIT_SET_TIME`: initialize the throttle with the specified
+        // `maxSimultaneousActions` and `secondsPerAction`, and use
+        // `requestPermission` to set the `d_prevLeakTime` to the specified
+        // string `setTimeSpec`, which is to be parsed by `u::toTime`.
 
 #undef  INIT_SET_TIME
 #define INIT_SET_TIME(maxSimultaneousActions, secondsPerAction, setTimeSpec)  \
     { L_, e_CMD_INIT_SET_TIME, maxSimultaneousActions, secondsPerAction,      \
                                                    -1, u::toTime(setTimeSpec) }
 
-        // 'NEXT_PERMIT': call 'nextPermit' with the specified 'numActions' and
+        // `NEXT_PERMIT`: call `nextPermit` with the specified `numActions` and
         // verify that it succeeds.  Compare the time returned to the specified
-        // 'expectedTimeSpec' and verify that it matches.  If the throttle was
-        // not initialized to 'allow all', call 'requestPermission' after the
-        // 'nextPermit' call to verify that the time returned was the exact
+        // `expectedTimeSpec` and verify that it matches.  If the throttle was
+        // not initialized to `allow all`, call `requestPermission` after the
+        // `nextPermit` call to verify that the time returned was the exact
         // nanosecond when permission would be granted, then re-initialize the
-        // throttle back to the state it was in before the 'nextPermit' call.
-        // Note that 'expectedTimeSpec' can be either a string to be parsed by
-        // 'u::toTime' or a 'TimeInterval'.
+        // throttle back to the state it was in before the `nextPermit` call.
+        // Note that `expectedTimeSpec` can be either a string to be parsed by
+        // `u::toTime` or a `TimeInterval`.
 
 #undef  NEXT_PERMIT
 #define NEXT_PERMIT(numActions, expectedTimeSpec)                             \
     { L_, e_CMD_NEXT_PERMIT, -1, -1, numActions, u::tiAdapt(expectedTimeSpec) }
 
-        // 'NEXT_PERMIT': call 'nextPermit' with the specified 'numActions' and
-        // verify that it fails, and that the 'TimeInterval' passed to the call
+        // `NEXT_PERMIT`: call `nextPermit` with the specified `numActions` and
+        // verify that it fails, and that the `TimeInterval` passed to the call
         // was not modified.
 
 #undef  NEXT_PERMIT_INVALID
@@ -1733,15 +1734,15 @@ int main(int argc, char *argv[])
 
         // We declare the following variables associated with initialization
         // outside the loop so that they can be re-used to re-initialize
-        // objects in the 'e_CMD_NEXT_PERMIT == cmd' case.
+        // objects in the `e_CMD_NEXT_PERMIT == cmd` case.
 
         int          maxSimultaneousActions;
         double       secondsPerAction = 0.0;
         TimeInterval initTimeInterval;
 
-        bool         allowAll = false;  // 'e_CMD_NEXT_PERMIT == cmd' needs to
+        bool         allowAll = false;  // `e_CMD_NEXT_PERMIT == cmd` needs to
                                         // know if, on the last initialization,
-                                        // the throttle was set to 'allow all'.
+                                        // the throttle was set to `allow all`.
 
         for (int ti = 0; ti < k_NUM_DATA; ++ti) {
             const Data&         data         = DATA[ti];
@@ -1762,8 +1763,8 @@ int main(int argc, char *argv[])
                               static_cast<Int64>(secondsPerAction *1e9));
 
                 if (e_CMD_INIT_SET_TIME == cmd) {
-                    // Call 'requestPermission' to set the throttle's
-                    // 'd_prevLeakTime' field to 'initTimeInterval'.
+                    // Call `requestPermission` to set the throttle's
+                    // `d_prevLeakTime` field to `initTimeInterval`.
 
                     ASSERTV(LINE, mX.requestPermission(maxSimultaneousActions,
                                                        initTimeInterval));
@@ -1780,8 +1781,8 @@ int main(int argc, char *argv[])
                                                        timeInterval == result);
 
                 if (!allowAll) {
-                    // Use 'requestPermission' to verify that 'result' was the
-                    // EXACT nanosecond when 'numActions' would first have been
+                    // Use `requestPermission` to verify that `result` was the
+                    // EXACT nanosecond when `numActions` would first have been
                     // permitted.
 
                     result.addNanoseconds(-1);
@@ -1791,7 +1792,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, !mX.requestPermission(result));
 
                     // Re-initialize the throttle to the state it was in before
-                    // 'nextPermit' was called.
+                    // `nextPermit` was called.
 
                     mX.initialize(maxSimultaneousActions,
                                   static_cast<Int64>(secondsPerAction *1e9));
@@ -1816,29 +1817,29 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'requestPermissionIfValid' -- WHITE BOX
+        // TESTING `requestPermissionIfValid` -- WHITE BOX
         //
         // Conerns:
-        //: 1 That 'requestPermissionIfValid' returns non-zero when fed invalid
-        //:   input, without modifying the value of the specified '*result'.
-        //:
-        //: 2 That 'requestPermissionIfValid' returns 0 when fed valid input.
+        // 1. That `requestPermissionIfValid` returns non-zero when fed invalid
+        //    input, without modifying the value of the specified `*result`.
+        //
+        // 2. That `requestPermissionIfValid` returns 0 when fed valid input.
         //
         // Plan:
-        //: 1 Do a table-driven test to feed various invalid inputs to
-        //:   'requestPermissionIfValid'.
-        //:
-        //: 2 Loop twice, once where '*result' is pre-set to 'false', once with
-        //:   it pre-set to 'true', and observe that neither time is it
-        //:   modified unless the inputs were valid.
-        //:
-        //: 3 Have the table call the function a few time with valid inputs,
-        //:   and observe in those cases that 0 is returned a '*result' has the
-        //:   expected value.
-        //:
-        //: 4 Note that we won't be extensively testing for correctness of the
-        //:   '*result' returned when the function is fed valid input, since we
-        //:   have already tested 'requestPermission'.
+        // 1. Do a table-driven test to feed various invalid inputs to
+        //    `requestPermissionIfValid`.
+        //
+        // 2. Loop twice, once where `*result` is pre-set to `false`, once with
+        //    it pre-set to `true`, and observe that neither time is it
+        //    modified unless the inputs were valid.
+        //
+        // 3. Have the table call the function a few time with valid inputs,
+        //    and observe in those cases that 0 is returned a `*result` has the
+        //    expected value.
+        //
+        // 4. Note that we won't be extensively testing for correctness of the
+        //    `*result` returned when the function is fed valid input, since we
+        //    have already tested `requestPermission`.
         //
         // Testing:
         //   int requestPermissionIfValid(bool*,int);
@@ -1846,7 +1847,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-                           "TESTING 'requestPermissionIfValid' -- WHITE BOX\n"
+                           "TESTING `requestPermissionIfValid` -- WHITE BOX\n"
                            "===============================================\n";
 
         enum Cmd        { e_CMD_INIT, e_CMD_REQUEST };
@@ -1861,13 +1862,13 @@ int main(int argc, char *argv[])
         const Int64 int64Min   = bsl::numeric_limits<Int64>::min();
         const Int64 secondsMin = int64Min / u::k_SECOND;
 
+        // When `d_timeInterval` is set to this value, it indicates that
+        // the time is not to be passed to `requestPermissionIfValid` and
+        // that it is to call the system time.
         const TimeInterval nullTI = u::toTime("1234:56.789");
-            // When 'd_timeInterval' is set to this value, it indicates that
-            // the time is not to be passed to 'requestPermissionIfValid' and
-            // that it is to call the system time.
 
-        // 'INIT': Initialize the throttle with the specified
-        // 'maxSimultaneousActions' andb 'secondsPerAction'.
+        // `INIT`: Initialize the throttle with the specified
+        // `maxSimultaneousActions` andb `secondsPerAction`.
 
 #undef  INIT
 #define INIT(maxSimultaneousActions, secondsPerAction)                        \
@@ -1875,22 +1876,22 @@ int main(int argc, char *argv[])
           static_cast<Int64>((secondsPerAction) * 1e9), -1, nullTI,           \
                                                                 e_EXP_INVALID }
 
-        // 'REQUEST_INVALID' -- call 'requestPermissionIfValid' with the
-        // specified 'numActions'.  If 'timeSpec' does not evaluate to the same
-        // time interval as 'nullTI', pass the time interval to the function is
+        // `REQUEST_INVALID` -- call `requestPermissionIfValid` with the
+        // specified `numActions`.  If `timeSpec` does not evaluate to the same
+        // time interval as `nullTI`, pass the time interval to the function is
         // well.  The function under test is expected to return a non-zero
-        // value, without modifying '*result'.
+        // value, without modifying `*result`.
 
 #undef  REQUEST_INVALID
 #define REQUEST_INVALID(numActions, timeSpec)                                 \
     { L_, e_CMD_REQUEST, -1, -1, (numActions), u::tiAdapt(timeSpec),          \
                                                                 e_EXP_INVALID }
 
-        // 'REQUEST_INVALID' -- call 'requestPermissionIfValid' with the
-        // specified 'numActions'.  If 'timeSpec' does not evaluate to the same
-        // time interval as 'nullTI', pass the time interval to the function is
+        // `REQUEST_INVALID` -- call `requestPermissionIfValid` with the
+        // specified `numActions`.  If `timeSpec` does not evaluate to the same
+        // time interval as `nullTI`, pass the time interval to the function is
         // well.  The function under test is expected to return 0 with
-        // '*result' set to 'expResult'.
+        // `*result` set to `expResult`.
 
 #undef  REQUEST_OK
 #define REQUEST_OK(numActions, timeSpec, expResult)                           \
@@ -1989,10 +1990,10 @@ int main(int argc, char *argv[])
 
         Obj mX;
         for (int ti = 0; ti < 2; ++ti) {
-            // This outer 'ti' loop iterates through two values, 'false' and
-            // 'true', to which the returned value 'ret' is set before calling
-            // 'requestPermissionIfValid'.  If the parameters were not valid,
-            // we verify that 'ret' is unchanged by the call.
+            // This outer `ti` loop iterates through two values, `false` and
+            // `true`, to which the returned value `ret` is set before calling
+            // `requestPermissionIfValid`.  If the parameters were not valid,
+            // we verify that `ret` is unchanged by the call.
 
             for (int tj = 0; tj < k_NUM_DATA; ++tj) {
                 const Data& data = DATA[tj];
@@ -2055,23 +2056,23 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'requestPermission' USING SYSTEM TIME
+        // TESTING `requestPermission` USING SYSTEM TIME
         //
         // Concerns:
-        //: 1 That 'requestPermission' works when not passed a
-        //:   'bsls::TimeInterval' object, in which case it calls the system
-        //:   time.
+        // 1. That `requestPermission` works when not passed a
+        //    `bsls::TimeInterval` object, in which case it calls the system
+        //    time.
         //
         // Plan:
-        //: 1 Do a table-driven test, manipulating elapsed time by calling
-        //:   'u::sleep'.
+        // 1. Do a table-driven test, manipulating elapsed time by calling
+        //    `u::sleep`.
         //
         // Testing:
         //   bool requestPermission();
         //   bool requestPermission(int);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'requestPermission' USING SYSTEM TIME\n"
+        if (verbose) cout << "TESTING `requestPermission` USING SYSTEM TIME\n"
                              "=============================================\n";
 
         enum Cmd { e_CMD_INIT, e_CMD_SLEEP, e_CMD_REQUEST };
@@ -2313,55 +2314,55 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'requestPermission' WITH TIME PASSED
+        // TESTING `requestPermission` WITH TIME PASSED
         //
         // Concerns:
-        //: 1 That request permission grants or refuses permission :
-        //:   appropriately when a throttle is configured for finite
-        //:   permission.
-        //:
-        //: 2 That request permission always grants permission when the
-        //:   throttle is configured 'allow all'.
-        //:
-        //: 3 That request permission never grants permission when the throttle
-        //:   is configured 'allow none'.
-        //:
-        //: 4 Negative testing of 'requestPermission'.
+        // 1. That request permission grants or refuses permission :
+        //    appropriately when a throttle is configured for finite
+        //    permission.
+        //
+        // 2. That request permission always grants permission when the
+        //    throttle is configured `allow all`.
+        //
+        // 3. That request permission never grants permission when the throttle
+        //    is configured `allow none`.
+        //
+        // 4. Negative testing of `requestPermission`.
         //
         // Plan:
-        //: 1 Construct a table with nullable values indicating how the
-        //:   throttle is to be initialized, and with a 'const char *' field to
-        //:   indicate time specs, an int field to indicate
-        //:   'maxSimultaneousActions', and a bool field to indicate whether
-        //:   permission is expected to be granted.  Rows are to take two
-        //:   forms:
-        //:   o 2nd & 3rd column specify args to 'initialize'
-        //:   o 2nd & 3rd columns are -1, and the remaining columns specify the
-        //:     args with which 'requestPermission' is to be called and the
-        //:     expected result of this call.
-        //:
-        //: 2 Iterate through the table, and if it's an initialization record,
-        //:   call 'initalize' on the throttle, otherwise call
-        //:   'requestPermission' with the specified arguments and check that
-        //:   the permission matches expectations.
-        //:
-        //: 3 Use the same table with a similar loop to drive the single-arg
-        //;   'requestPermission'.
-        //:
-        //: 4 Write a loop going through the same table to drive testing of
-        //:   a throttle initialized for 'allow all'.
-        //:
-        //: 5 Write a loop going through the same table to drive testing of
-        //:   'allow none'.
-        //:
-        //: 6 Do negative testing.
+        // 1. Construct a table with nullable values indicating how the
+        //    throttle is to be initialized, and with a `const char *` field to
+        //    indicate time specs, an int field to indicate
+        //    `maxSimultaneousActions`, and a bool field to indicate whether
+        //    permission is expected to be granted.  Rows are to take two
+        //    forms:
+        //    - 2nd & 3rd column specify args to `initialize`
+        //    - 2nd & 3rd columns are -1, and the remaining columns specify the
+        //      args with which `requestPermission` is to be called and the
+        //      expected result of this call.
+        //
+        // 2. Iterate through the table, and if it's an initialization record,
+        //    call `initalize` on the throttle, otherwise call
+        //    `requestPermission` with the specified arguments and check that
+        //    the permission matches expectations.
+        //
+        // 3. Use the same table with a similar loop to drive the single-arg
+        //    `requestPermission`.
+        //
+        // 4. Write a loop going through the same table to drive testing of
+        //    a throttle initialized for `allow all`.
+        //
+        // 5. Write a loop going through the same table to drive testing of
+        //    `allow none`.
+        //
+        // 6. Do negative testing.
         //
         // Testing:
         //   requestPermission(int, const bsls::TimeInterval&);
         //   requestPermission(const bsls::TimeInterval&);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'requestPermission' WITH TIME PASSED\n"
+        if (verbose) cout << "TESTING `requestPermission` WITH TIME PASSED\n"
                              "============================================\n";
 
 #undef  REQUEST
@@ -2616,12 +2617,12 @@ int main(int argc, char *argv[])
             const Int64 int64Max    = bsl::numeric_limits<Int64>::max();
             const Int64 secondsMax  = int64Max / u::k_SECOND;
 
-            // 'd_prevLeakTime' starts out initialized to
-            // '-Obj::k_TEN_YEARS_NANOSECONDS', and in a successful
-            // 'requestPermission', that is subtracted from 'now', so when
-            // passing near-max values to 'now', we have to lower the near-max
+            // `d_prevLeakTime` starts out initialized to
+            // `-Obj::k_TEN_YEARS_NANOSECONDS`, and in a successful
+            // `requestPermission`, that is subtracted from `now`, so when
+            // passing near-max values to `now`, we have to lower the near-max
             // value so that that subtraction can occur without overflowing the
-            // 'Int64' which would be undefined behavior.
+            // `Int64` which would be undefined behavior.
 
             const Int64 secondsMaxB =
                        (int64Max - Obj::k_TEN_YEARS_NANOSECONDS) / u::k_SECOND;
@@ -2630,13 +2631,13 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "Negative Testing, 2-Arg\n";
 
-            // A successful call to 'requestPermission' changes the value of
-            // 'd_prevLeakTime' to a hard-to-predict value which, combined with
+            // A successful call to `requestPermission` changes the value of
+            // `d_prevLeakTime` to a hard-to-predict value which, combined with
             // some of the max or near-max values we're passing in to
-            // subsequent 'requestPermission' calls, results in overflows of
-            // 'Int64' values which is undefined behavior.  So to keep things
-            // predictable and defined, on all the 'requestPermission' calls
-            // that we expect to pass we start with a newly-initialized 'Obj'.
+            // subsequent `requestPermission` calls, results in overflows of
+            // `Int64` values which is undefined behavior.  So to keep things
+            // predictable and defined, on all the `requestPermission` calls
+            // that we expect to pass we start with a newly-initialized `Obj`.
 
 #define U_ASSERT_PASS(expr) do {                                              \
                 Obj mY = BDLMT_THROTTLE_INIT(4, u::k_SECOND);                 \
@@ -2686,11 +2687,11 @@ int main(int argc, char *argv[])
         // TESTING TEST APPARATUS
         //
         // Concerns:
-        //: 1 That 'toTime' works as specced.
+        // 1. That `toTime` works as specced.
         //
         // Plan:
-        //: 2 Call 'toTime' with table-driven inputs and observe the output is
-        //:   as expected.
+        // 2. Call `toTime` with table-driven inputs and observe the output is
+        //    as expected.
         //
         // TESTING
         //   TEST APPARATUS
@@ -2769,27 +2770,27 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'initialize' and ACCESSORS
+        // TESTING `initialize` and ACCESSORS
         //
         // Concerns:
-        //: 1 That after an object is initialized using 'initialize' that the
-        //:   accessors verify the state of the object is as expected.
+        // 1. That after an object is initialized using `initialize` that the
+        //    accessors verify the state of the object is as expected.
         //
         // Plan:
-        //: 1 Set up a table and loop over it.
-        //:
-        //: 2 Each iteration, create two throttles, one of which has the clock
-        //:   type defaulting, and one of which has the clock type from the
-        //:   table passed.
-        //:
-        //: 3 If the clock type is monotonic, compare the two throttles and
-        //:   verify that they are binary identical.
-        //:
-        //: 4 Use the 3 accessors to verify that the state of the throttle
-        //:   corresponds to the table driven inputs.
-        //:
-        //: 5 Note that we never test the 'allow all' or 'allow none' cases in
-        //:   this test case, those will be covered later.
+        // 1. Set up a table and loop over it.
+        //
+        // 2. Each iteration, create two throttles, one of which has the clock
+        //    type defaulting, and one of which has the clock type from the
+        //    table passed.
+        //
+        // 3. If the clock type is monotonic, compare the two throttles and
+        //    verify that they are binary identical.
+        //
+        // 4. Use the 3 accessors to verify that the state of the throttle
+        //    corresponds to the table driven inputs.
+        //
+        // 5. Note that we never test the `allow all` or `allow none` cases in
+        //    this test case, those will be covered later.
         //
         // Testing:
         //   void initialize(int, Int64, SystemClockType::Enum);
@@ -2800,7 +2801,7 @@ int main(int argc, char *argv[])
         //   Int64 nanosecondsPerAction() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'initialize' and ACCESSORS\n"
+        if (verbose) cout << "TESTING `initialize` and ACCESSORS\n"
                              "==================================\n";
 
         typedef bdlt::TimeUnitRatio TUR;
@@ -2887,21 +2888,21 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Negative Testing\n";
         {
-            // values for 'maxSimultaneousActions'
+            // values for `maxSimultaneousActions`
 
             const int msaBad = INT_MIN;    (void) msaBad;
             const int msaLo  = -1;         (void) msaLo;
             const int msaMin = 0;
             const int msaMax = INT_MAX;
 
-            // values for 'nanosecondsPerAction'
+            // values for `nanosecondsPerAction`
 
             const Int64 nsaBad = bsl::numeric_limits<Int64>::min();
             const Int64 nsaLo  = -1;    (void) nsaBad;    (void) nsaLo;
             const Int64 nsaMin = 0;
             const Int64 nsaMax = bsl::numeric_limits<Int64>::max();
 
-            // values for 'clockType'
+            // values for `clockType`
 
             const ClockType ctm   = CT::e_MONOTONIC;
             const ClockType ctr   = CT::e_REALTIME;
@@ -2970,12 +2971,12 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Initialize some throttles to values, and manipulators and
-        //:   accessors.
+        // 1. Initialize some throttles to values, and manipulators and
+        //    accessors.
         //
         // Testing:
         //   BREATHING TEST
@@ -3139,25 +3140,25 @@ int main(int argc, char *argv[])
         // EVENTS DROPPED TEST
         //
         // Concerns:
-        //: 1 That under high contention under circumstances where multiple
-        //:   threads are likely to update the clock at the same time, that
-        //:   events are not lost.
+        // 1. That under high contention under circumstances where multiple
+        //    threads are likely to update the clock at the same time, that
+        //    events are not lost.
         //
         // Plan:
-        //: 1 Control everything by a double barrier -- first, a
-        //:   'bslmt::Barrier' for long waits, then spinning on the atomic
-        //:   'atomicBarrier' for short waits.  This guarantees that all
-        //:   threads will be released from the second barrier at very close to
-        //:   exactly the same time, without wasting too many cycles doing long
-        //:   spins on the atomic.
-        //:
-        //: 2 After being released from the double barrier, all subthreads will
-        //:   attempt to get permission for a number of events.  There will be
-        //:   enough events allowed in the period for ALL attempted events to
-        //:   acquire permission.
-        //:
-        //: 3 At the end, check the numer of events that were permitted and
-        //:   verify that none were refused.
+        // 1. Control everything by a double barrier -- first, a
+        //    `bslmt::Barrier` for long waits, then spinning on the atomic
+        //    `atomicBarrier` for short waits.  This guarantees that all
+        //    threads will be released from the second barrier at very close to
+        //    exactly the same time, without wasting too many cycles doing long
+        //    spins on the atomic.
+        //
+        // 2. After being released from the double barrier, all subthreads will
+        //    attempt to get permission for a number of events.  There will be
+        //    enough events allowed in the period for ALL attempted events to
+        //    acquire permission.
+        //
+        // 3. At the end, check the numer of events that were permitted and
+        //    verify that none were refused.
         //
         // Testing:
         //   EVENTS DROPPED TEST

@@ -47,9 +47,9 @@ using bsl::endl;
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// The component under test implements a utility for parsing 'bdeat' compatible
-// simple types from a 'bsl::string_view'.  The parsing is done via overloaded
-// 'getValue' functions that are provided for fundamental types and 'bdlt'
+// The component under test implements a utility for parsing `bdeat` compatible
+// simple types from a `bsl::string_view`.  The parsing is done via overloaded
+// `getValue` functions that are provided for fundamental types and `bdlt`
 // types.  Since the functions are independent and do not share any state we
 // will test them independently.
 //
@@ -199,10 +199,10 @@ DECLARE_STATIC_TEST_CASE(9223372036854775807);
 //                              TEST MACHINERY
 // ----------------------------------------------------------------------------
 
+/// Compare the data written to the specified `lhs` with the data in the
+/// specified `rhs` ignoring whitespace in the `lhs`.  Return `true` if they
+/// are equal, and `false` otherwise.
 bool areBuffersEqual(const char *lhs, const char *rhs)
-    // Compare the data written to the specified 'lhs' with the data in the
-    // specified 'rhs' ignoring whitespace in the 'lhs'.  Return 'true' if they
-    // are equal, and 'false' otherwise.
 {
     while (*lhs) {
         if (' ' == *lhs) {
@@ -264,7 +264,7 @@ void roundTripTestNonNumericValues()
         else {
             ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
         }
-        // We also use 'memcmp' to ensure that we really get back the
+        // We also use `memcmp` to ensure that we really get back the
         // same binary IEEE-754.
         ASSERTV(LINE, VALUE, result, decoded,
                 0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
@@ -296,7 +296,7 @@ bool canRepresentImpl(Int64 VALUE, bsl::false_type)  // an unsigned type
 template <class TYPE>
 bool canRepresent(Int64 VALUE)
 {
-    // Unfortunately at the moment 'bsl::is_signed' is not available on C++03
+    // Unfortunately at the moment `bsl::is_signed` is not available on C++03
     return canRepresentImpl<TYPE>(
                VALUE,
                bsl::integral_constant<bool,
@@ -383,13 +383,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -402,25 +402,25 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Decoding into a Simple 'struct' from JSON data
+///Example 1: Decoding into a Simple `struct` from JSON data
 ///---------------------------------------------------------
 // Suppose we want to de-serialize some JSON data into an object.
 //
-// First, we define a struct, 'Employee', to contain the data:
-//..
+// First, we define a struct, `Employee`, to contain the data:
+// ```
     struct Employee {
         bsl::string d_name;
         bdlt::Date   d_date;
         int         d_age;
     };
-//..
-// Then, we create an 'Employee' object:
-//..
+// ```
+// Then, we create an `Employee` object:
+// ```
     Employee employee;
-//..
+// ```
 // Next, we specify the string values in JSON format used to represent the
 // object data.  Note that the birth date is specified in the ISO 8601 format:
-//..
+// ```
     const char *name = "\"John Smith\"";
     const char *date = "\"1985-06-24\"";
     const char *age  = "21";
@@ -428,19 +428,19 @@ int main(int argc, char *argv[])
     const bsl::string_view nameRef(name);
     const bsl::string_view dateRef(date);
     const bsl::string_view ageRef(age);
-//..
+// ```
 // Now, we use the created string refs to populate the employee object:
-//..
+// ```
     ASSERT(0 == baljsn::ParserUtil::getValue(&employee.d_name, nameRef));
     ASSERT(0 == baljsn::ParserUtil::getValue(&employee.d_date, dateRef));
     ASSERT(0 == baljsn::ParserUtil::getValue(&employee.d_age, ageRef));
-//..
+// ```
 // Finally, we will verify that the values are as expected:
-//..
+// ```
     ASSERT("John Smith"            == employee.d_name);
     ASSERT(bdlt::Date(1985, 06, 24) == employee.d_date);
     ASSERT(21                      == employee.d_age);
-//..
+// ```
       } break;
       case 30: {
         // --------------------------------------------------------------------
@@ -448,10 +448,10 @@ int main(int argc, char *argv[])
         //   Make sure a static call leading to `getUint64` succeeds.
         //
         // Concerns:
-        //: 1 Does a call at static load time returns correct value?
+        // 1. Does a call at static load time returns correct value?
         //
         // Plan:
-        //: 1 Test that a call at static load time returns correct value.
+        // 1. Test that a call at static load time returns correct value.
         //
         // Testing:
         //   DRQS 174180775 - TEST STATIC CALL
@@ -501,32 +501,32 @@ int main(int argc, char *argv[])
       } break;
       case 29: {
         // --------------------------------------------------------------------
-        // TESTING 'stripQuotes'
+        // TESTING `stripQuotes`
         //
         // Concerns:
-        //: 1 'stripQuotes' returns 'true' if the input string is of the form
-        //:   '"' + S + '"', where S is a possibly empty string, and modifies
-        //:   its argument to refer to S.
-        //: 2 'stripQuotes' returns 'false' in all other cases, and doesn't
-        //:   modify its argument.
+        // 1. `stripQuotes` returns `true` if the input string is of the form
+        //    '"' + S + '"', where S is a possibly empty string, and modifies
+        //    its argument to refer to S.
+        // 2. `stripQuotes` returns `false` in all other cases, and doesn't
+        //    modify its argument.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows of input value, expected resulting value, and return value.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Create a 'bsl::string_view' object referring to the input
-        //:     string and pass it to the 'stripQuotes' function.
-        //:
-        //:   2 Verify that the return value of 'stripQuotes', and the value of
-        //:     the 'bsl::string_view' object, are as specified in the table.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows of input value, expected resulting value, and return value.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Create a `bsl::string_view` object referring to the input
+        //      string and pass it to the `stripQuotes` function.
+        //
+        //   2. Verify that the return value of `stripQuotes`, and the value of
+        //      the `bsl::string_view` object, are as specified in the table.
         //
         // Testing:
         //   static bool stripQuotes(bsl::string_view *str);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'stripQuotes'"
+        if (verbose) cout << "\nTESTING `stripQuotes`"
                           << "\n=====================" << endl;
 
         static const struct {
@@ -575,42 +575,42 @@ int main(int argc, char *argv[])
       } break;
       case 28: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' for 'bdlt::DatetimeOrDatetimeTz'
+        // TESTING `getValue` for `bdlt::DatetimeOrDatetimeTz`
         //
         // Concerns:
-        //: 1 Values in the valid range, including the maximum and minimum
-        //:   values for this type, are parsed correctly.
-        //:
-        //: 2 The function fails and the passed in variable remains unmodified
-        //:   if the data is not valid.
-        //:
-        //: 3 The return code is 0 on success and non-zero on failure.
+        // 1. Values in the valid range, including the maximum and minimum
+        //    values for this type, are parsed correctly.
+        //
+        // 2. The function fails and the passed in variable remains unmodified
+        //    if the data is not valid.
+        //
+        // 3. The return code is 0 on success and non-zero on failure.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows of string value, expected parsed value, and return code.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Provide the string value and a variable  to be parsed into to
-        //:     the 'getValue' function.  Invoke the function three times,
-        //:     leaving the variable unset, then assigning a sentinel value of
-        //:     type "bdlt::Datetime' to the variable and finally assigning a
-        //:     a sentinel value of type 'bdlt::DatetimeTz'.
-        //:
-        //:   2 If the parsing should succeed then verify that the variable
-        //:     value matches the expected value.  Otherwise confirm that the
-        //:     variable value is unmodified.  (C-1..2)
-        //:
-        //:   3 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.  (C-3)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows of string value, expected parsed value, and return code.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Provide the string value and a variable  to be parsed into to
+        //      the `getValue` function.  Invoke the function three times,
+        //      leaving the variable unset, then assigning a sentinel value of
+        //      type "bdlt::Datetime' to the variable and finally assigning a
+        //      a sentinel value of type `bdlt::DatetimeTz`.
+        //
+        //   2. If the parsing should succeed then verify that the variable
+        //      value matches the expected value.  Otherwise confirm that the
+        //      variable value is unmodified.  (C-1..2)
+        //
+        //   3. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.  (C-3)
         //
         // Testing:
         //   static int getValue(DatetimeOrDatetimeTz *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTESTING 'getValue' for 'bdlt::DatetimeOrDatetimeTz'"
+            cout << "\nTESTING `getValue` for `bdlt::DatetimeOrDatetimeTz`"
                  << "\n==================================================="
                  << endl;
         {
@@ -641,8 +641,8 @@ int main(int argc, char *argv[])
 
                 bool        d_isDatetimeTz;  // flag indicating whether the
                                              // result object is expected to
-                                             // contain 'DatetimeTz' or
-                                             // 'Datetime' object
+                                             // contain `DatetimeTz` or
+                                             // `Datetime` object
             } DATA[] = {
 //LINE  INPUT
 //----  --------------------------------------------
@@ -1157,7 +1157,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, value.isUnset());
                 }
 
-                // 'bdlt::Datetime' value is initially assigned.
+                // `bdlt::Datetime` value is initially assigned.
 
                 value = DEFAULT_DATETIME;
                 ASSERTV(LINE, value.is<bdlt::Datetime>());
@@ -1190,7 +1190,7 @@ int main(int argc, char *argv[])
                             DEFAULT_DATETIME == value.the<bdlt::Datetime>());
                 }
 
-                // 'bdlt::DatetimeTz' value is initially assigned.
+                // `bdlt::DatetimeTz` value is initially assigned.
 
                 value = DEFAULT_DATETIMETZ;
                 ASSERTV(LINE, value.is<bdlt::DatetimeTz>());
@@ -1229,41 +1229,41 @@ int main(int argc, char *argv[])
       } break;
       case 27: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' for 'DateOrDateTz'
+        // TESTING `getValue` for `DateOrDateTz`
         //
         // Concerns:
-        //: 1 Values in the valid range, including the maximum and minimum
-        //:   values for this type, are parsed correctly.
-        //:
-        //: 2 The function fails and the passed in variable remains unmodified
-        //:   if the data is not valid.
-        //:
-        //: 3 The return code is 0 on success and non-zero on failure.
+        // 1. Values in the valid range, including the maximum and minimum
+        //    values for this type, are parsed correctly.
+        //
+        // 2. The function fails and the passed in variable remains unmodified
+        //    if the data is not valid.
+        //
+        // 3. The return code is 0 on success and non-zero on failure.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows of string value, expected parsed value, and return code.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Provide the string value and a variable  to be parsed into to
-        //:     the 'getValue' function.  Invoke the function three times,
-        //:     leaving the variable unset, then assigning a sentinel value of
-        //:     type "bdlt::Date' to the variable and finally assigning a
-        //:     sentinel value of type 'bdlt::DateTz'.
-        //:
-        //:   2 If the parsing should succeed then verify that the variable
-        //:     value matches the expected value.  Otherwise confirm that the
-        //:     variable value is unmodified.  (C-1..2)
-        //:
-        //:   3 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.  (C-3)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows of string value, expected parsed value, and return code.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Provide the string value and a variable  to be parsed into to
+        //      the `getValue` function.  Invoke the function three times,
+        //      leaving the variable unset, then assigning a sentinel value of
+        //      type "bdlt::Date' to the variable and finally assigning a
+        //      sentinel value of type `bdlt::DateTz`.
+        //
+        //   2. If the parsing should succeed then verify that the variable
+        //      value matches the expected value.  Otherwise confirm that the
+        //      variable value is unmodified.  (C-1..2)
+        //
+        //   3. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.  (C-3)
         //
         // Testing:
         //   static int getValue(bdlt::DateOrDateTz   *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'getValue' for 'DateOrDateTz'"
+        if (verbose) cout << "\nTESTING `getValue` for `DateOrDateTz`"
                           << "\n=====================================" << endl;
         {
             static const struct {
@@ -1283,7 +1283,7 @@ int main(int argc, char *argv[])
 
                 bool        d_isDateTz;  // flag indicating whether the result
                                          // object is expected to contain
-                                         // 'DateTz' or 'Date' object
+                                         // `DateTz` or `Date` object
             } DATA[] = {
   //LINE  INPUT                     YEAR  MONTH   DAY    OFF  VALID   DATETZ
   //----  ------------------------  ----  -----   ---  -----  -----   ------
@@ -1424,7 +1424,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, value.isUnset());
                 }
 
-                // 'bdlt::Date' value is initially assigned.
+                // `bdlt::Date` value is initially assigned.
 
                 value = DEFAULT_DATE;
                 ASSERTV(LINE, value.is<bdlt::Date>());
@@ -1451,7 +1451,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, DEFAULT_DATE == value.the<bdlt::Date>());
                 }
 
-                // 'bdlt::DateTz' value is initially assigned.
+                // `bdlt::DateTz` value is initially assigned.
 
                 value = DEFAULT_DATETZ;
                 ASSERTV(LINE, value.is<bdlt::DateTz>());
@@ -1482,41 +1482,41 @@ int main(int argc, char *argv[])
       } break;
       case 26: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' for 'TimeOrTimeTz'
+        // TESTING `getValue` for `TimeOrTimeTz`
         //
         // Concerns:
-        //: 1 Values in the valid range, including the maximum and minimum
-        //:   values for this type, are parsed correctly.
-        //:
-        //: 2 The function fails and the passed in variable remains unmodified
-        //:   if the data is not valid.
-        //:
-        //: 3 The return code is 0 on success and non-zero on failure.
+        // 1. Values in the valid range, including the maximum and minimum
+        //    values for this type, are parsed correctly.
+        //
+        // 2. The function fails and the passed in variable remains unmodified
+        //    if the data is not valid.
+        //
+        // 3. The return code is 0 on success and non-zero on failure.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows of string value, expected parsed value, and return code.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Provide the string value and a variable to be parsed into to
-        //:     the 'getValue' function.  Invoke the function three times,
-        //:     leaving the variable unset, then assigning a sentinel value of
-        //:     type "bdlt::Time' to the variable and finally assigning a
-        //:     a sentinel value of type 'bdlt::TimeTz'.
-        //:
-        //:   2 If the parsing should succeed then verify that the variable
-        //:     value matches the expected value.  Otherwise confirm that the
-        //:     variable value is unmodified.  (C-1..2)
-        //:
-        //:   3 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.  (C-3)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows of string value, expected parsed value, and return code.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Provide the string value and a variable to be parsed into to
+        //      the `getValue` function.  Invoke the function three times,
+        //      leaving the variable unset, then assigning a sentinel value of
+        //      type "bdlt::Time' to the variable and finally assigning a
+        //      a sentinel value of type `bdlt::TimeTz`.
+        //
+        //   2. If the parsing should succeed then verify that the variable
+        //      value matches the expected value.  Otherwise confirm that the
+        //      variable value is unmodified.  (C-1..2)
+        //
+        //   3. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.  (C-3)
         //
         // Testing:
         //   static int getValue(TimeOrTimeTz         *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'getValue' for 'TimeOrTimeTz'"
+        if (verbose) cout << "\nTESTING `getValue` for `TimeOrTimeTz`"
                           << "\n=====================================" << endl;
         {
             static const struct {
@@ -1540,7 +1540,7 @@ int main(int argc, char *argv[])
 
                 bool        d_isTimeTz;  // flag indicating whether the result
                                          // object is expected to contain
-                                         // 'TimeTz' or 'Time' object
+                                         // `TimeTz` or `Time` object
             } DATA[] = {
   //LINE INPUT
   //---- ---------------------------
@@ -1787,7 +1787,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, value.isUnset());
                 }
 
-                // 'bdlt::Time' value is initially assigned.
+                // `bdlt::Time` value is initially assigned.
 
                 value = DEFAULT_TIME;
                 ASSERTV(LINE, value.is<bdlt::Time>());
@@ -1814,7 +1814,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, DEFAULT_TIME == value.the<bdlt::Time>());
                 }
 
-                // 'bdlt::TimeTz' value is initially assigned.
+                // `bdlt::TimeTz` value is initially assigned.
 
                 value = DEFAULT_TIMETZ;
                 ASSERTV(LINE, value.is<bdlt::TimeTz>());
@@ -1848,17 +1848,17 @@ int main(int argc, char *argv[])
         // DATE AND TIME TYPES ROUND-TRIP
         //
         // Concerns:
-        //: 1 Date/time values decode back to the same value.
+        // 1. Date/time values decode back to the same value.
         //
         // Plan:
-        //: 1 Use the table-driven technique:
-        //:
-        //:   1 Specify a set of valid values.
-        //:
-        //:   2 Encode, then decode each value and verify the decoded value is
-        //:     the same..
-        //:
-        //: 2 Perform step one for every date/time type.
+        // 1. Use the table-driven technique:
+        //
+        //   1. Specify a set of valid values.
+        //
+        //   2. Encode, then decode each value and verify the decoded value is
+        //      the same..
+        //
+        // 2. Perform step one for every date/time type.
         //
         // Testing:
         //   DATE AND TIME TYPES ROUND-TRIP
@@ -1924,7 +1924,7 @@ int main(int argc, char *argv[])
             baljsn::EncoderOptions options;
             options.setDatetimeFractionalSecondPrecision(6);
 
-            if (verbose) cout << "Round-trip 'Date'" << endl;
+            if (verbose) cout << "Round-trip `Date`" << endl;
             {
                 bsl::ostringstream oss;
                 ASSERTV(LINE, 0 == Print::printValue(oss, DATE, &options));
@@ -1936,7 +1936,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, DATE, result, decoded, DATE == decoded);
             }
 
-            if (verbose) cout << "Round-trip 'DateTz'" << endl;
+            if (verbose) cout << "Round-trip `DateTz`" << endl;
             {
                 bsl::ostringstream oss;
                 ASSERTV(LINE, 0 == Print::printValue(oss, DATETZ, &options));
@@ -1948,7 +1948,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, DATETZ, result, decoded, DATETZ == decoded);
             }
 
-            if (verbose) cout << "Round-trip 'Time'" << endl;
+            if (verbose) cout << "Round-trip `Time`" << endl;
             {
                 bsl::ostringstream oss;
                 ASSERTV(LINE, 0 == Print::printValue(oss, TIME, &options));
@@ -1960,7 +1960,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, TIME, result, decoded, TIME == decoded);
             }
 
-            if (verbose) cout << "Round-trip 'TimeTz'" << endl;
+            if (verbose) cout << "Round-trip `TimeTz`" << endl;
             {
                 bsl::ostringstream oss;
                 ASSERTV(LINE, 0 == Print::printValue(oss, TIMETZ, &options));
@@ -1972,7 +1972,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, TIMETZ, result, decoded, TIMETZ == decoded);
             }
 
-            if (verbose) cout << "Round-trip 'Datetime'" << endl;
+            if (verbose) cout << "Round-trip `Datetime`" << endl;
             {
                 bsl::ostringstream oss;
                 ASSERTV(LINE, 0 == Print::printValue(oss, DATETIME, &options));
@@ -1984,7 +1984,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, DATETIME, result, decoded, DATETIME == decoded);
             }
 
-            if (verbose) cout << "Round-trip 'DatetimeTz'" << endl;
+            if (verbose) cout << "Round-trip `DatetimeTz`" << endl;
             {
                 bsl::ostringstream oss;
                 ASSERTV(LINE,
@@ -2004,18 +2004,18 @@ int main(int argc, char *argv[])
         // NUMBERS ROUND-TRIP
         //
         // Concerns:
-        //: 1 Numbers encoded without precisions round trip to the same number.
-        //:
-        //: 2 'unsigned char' values are treated as numbers.
+        // 1. Numbers encoded without precisions round trip to the same number.
+        //
+        // 2. `unsigned char` values are treated as numbers.
         //
         // Plan:
-        //: 1 Use the table-driven technique:
-        //:
-        //:   1 Specify a set of valid values, including those that will test
-        //:     the precision of the output.
-        //:
-        //:   2 Encode, then decode each value and verify that the decoded
-        //:     value is as expected.
+        // 1. Use the table-driven technique:
+        //
+        //   1. Specify a set of valid values, including those that will test
+        //      the precision of the output.
+        //
+        //   2. Encode, then decode each value and verify that the decoded
+        //      value is as expected.
         //
         // Testing:
         //  NUMBERS ROUND-TRIP
@@ -2024,7 +2024,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nNUMBERS ROUND-TRIP"
                           << "\n==================" << endl;
 
-        if (verbose) cout << "Round-trip 'float'" << endl;
+        if (verbose) cout << "Round-trip `float`" << endl;
         {
             typedef bsl::numeric_limits<float> Limits;
 
@@ -2066,7 +2066,7 @@ int main(int argc, char *argv[])
                 // Full Mantissa Integers
                 { L_, 1.0f * 0xFFFFFF },
                 { L_, 1.0f * 0xFFFFFF     // this happens to be also
-                       * (1ull << 63)     // 'NumLimits::max()'
+                       * (1ull << 63)     // `NumLimits::max()`
                        * (1ull << 41) },
 
                 // Boundary Values
@@ -2091,7 +2091,7 @@ int main(int argc, char *argv[])
                 float decoded;
                 ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
                 ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
-                // We also use 'memcmp' to ensure that we really get back the
+                // We also use `memcmp` to ensure that we really get back the
                 // same binary IEEE-754.
                 ASSERTV(LINE, VALUE, result, decoded,
                         0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
@@ -2104,12 +2104,12 @@ int main(int argc, char *argv[])
                 result = oss.str();
                 ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
                 ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
-                // We also use 'memcmp' to ensure that we really get back the
+                // We also use `memcmp` to ensure that we really get back the
                 // same binary IEEE-754.
                 ASSERTV(LINE, VALUE, result, decoded,
                         0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
 
-                // Verify that 'maxFloatPrecision == 0' round-trips as well
+                // Verify that `maxFloatPrecision == 0` round-trips as well
                 options.setMaxFloatPrecision(0);
                 oss.str("");
                 ASSERTV(LINE, 0 == Print::printValue(oss, VALUE, &options));
@@ -2117,7 +2117,7 @@ int main(int argc, char *argv[])
                 result = oss.str();
                 ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
                 ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
-                // We also use 'memcmp' to ensure that we really get back the
+                // We also use `memcmp` to ensure that we really get back the
                 // same binary IEEE-754.
                 ASSERTV(LINE, VALUE, result, decoded,
                         0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
@@ -2125,16 +2125,16 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "Round-trip 'float' with 'maxFloatPrecision' option"
+            cout << "Round-trip `float` with `maxFloatPrecision` option"
                  << endl;
         {
             float neg0 = copysignf(0.0f, -1.0f);
 
+            // We use infinity to indicate that with the specified encoder
+            // options the exact same binary numeric value must be parsed
+            // back, as `printValue`/`getValue` do not normally allow it as
+            // input.
             const float ROUND_TRIPS = bsl::numeric_limits<float>::infinity();
-                // We use infinity to indicate that with the specified encoder
-                // options the exact same binary numeric value must be parsed
-                // back, as 'printValue'/'getValue' do not normally allow it as
-                // input.
 
             const struct {
                 int   d_line;
@@ -2188,7 +2188,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
                 if (EXPECTED == ROUND_TRIPS) {
                     ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
-                    // We also use 'memcmp' to ensure that we really get back
+                    // We also use `memcmp` to ensure that we really get back
                     // the same binary IEEE-754.
                     ASSERTV(LINE, VALUE, result, decoded,
                             0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
@@ -2200,12 +2200,12 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "Round-trip 'float' Inf and NaN" << endl;
+        if (verbose) cout << "Round-trip `float` Inf and NaN" << endl;
         {
             roundTripTestNonNumericValues<float>();
         }
 
-        if (verbose) cout << "Round-trip 'double'" << endl;
+        if (verbose) cout << "Round-trip `double`" << endl;
         {
             typedef bsl::numeric_limits<double> Limits;
 
@@ -2280,7 +2280,7 @@ int main(int argc, char *argv[])
                 double decoded;
                 ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
                 ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
-                // We also use 'memcmp' to ensure that we really get back the
+                // We also use `memcmp` to ensure that we really get back the
                 // same binary IEEE-754.
                 ASSERTV(LINE, VALUE, result, decoded,
                         0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
@@ -2294,12 +2294,12 @@ int main(int argc, char *argv[])
                 result = oss.str();
                 ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
                 ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
-                // We also use 'memcmp' to ensure that we really get back the
+                // We also use `memcmp` to ensure that we really get back the
                 // same binary IEEE-754.
                 ASSERTV(LINE, VALUE, result, decoded,
                         0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
 
-                // Verify that 'maxDoublePrecision == 0' round-trips as well
+                // Verify that `maxDoublePrecision == 0` round-trips as well
                 options.setMaxDoublePrecision(0);
                 oss.str("");
                 ASSERTV(LINE, 0 == Print::printValue(oss, VALUE, &options));
@@ -2307,7 +2307,7 @@ int main(int argc, char *argv[])
                 result = oss.str();
                 ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
                 ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
-                // We also use 'memcmp' to ensure that we really get back the
+                // We also use `memcmp` to ensure that we really get back the
                 // same binary IEEE-754.
                 ASSERTV(LINE, VALUE, result, decoded,
                         0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
@@ -2315,18 +2315,18 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "Round-trip 'double' with 'maxDoublePrecision' option"
+            cout << "Round-trip `double` with `maxDoublePrecision` option"
                  << endl;
         {
             typedef bsl::numeric_limits<double> Limits;
 
             double neg0 = copysign(0.0, -1.0);
 
+            // We use infinity to indicate that with the specified encoder
+            // options the exact same binary numeric value must be parsed
+            // back, as `printValue`/`getValue` do not normally allow it as
+            // input.
             const double ROUND_TRIPS = Limits::infinity();
-                // We use infinity to indicate that with the specified encoder
-                // options the exact same binary numeric value must be parsed
-                // back, as 'printValue'/'getValue' do not normally allow it as
-                // input.
 
             const struct {
                 int    d_line;
@@ -2391,7 +2391,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
                 if (EXPECTED == ROUND_TRIPS) {
                     ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
-                    // We also use 'memcmp' to ensure that we really get back
+                    // We also use `memcmp` to ensure that we really get back
                     // the same binary IEEE-754.
                     ASSERTV(LINE, VALUE, result, decoded,
                             0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
@@ -2403,12 +2403,12 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "Round-trip 'double' Inf and NaN" << endl;
+        if (verbose) cout << "Round-trip `double` Inf and NaN" << endl;
         {
             roundTripTestNonNumericValues<double>();
         }
 
-        if (verbose) cout << "Round-trip 'Decimal64'" << endl;
+        if (verbose) cout << "Round-trip `Decimal64`" << endl;
         {
 #define DEC(X) BDLDFP_DECIMAL_DD(X)
 
@@ -2448,7 +2448,7 @@ int main(int argc, char *argv[])
                 bdldfp::Decimal64 decoded;
                 ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
                 ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
-                // We also use 'memcmp' to ensure that we really get back the
+                // We also use `memcmp` to ensure that we really get back the
                 // same binary IEEE-754.
                 ASSERTV(LINE, VALUE, result, decoded,
                         0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
@@ -2456,7 +2456,7 @@ int main(int argc, char *argv[])
                 // Verify that default options are the same as no options
                 // ** NOT done because the default without options is different
 
-                // Verify that 'setEncodeQuotedDecimal64' 'false' behaves the
+                // Verify that `setEncodeQuotedDecimal64` `false` behaves the
                 // same way as no options in that it round trips.
                 baljsn::EncoderOptions options;
                 options.setEncodeQuotedDecimal64(false);
@@ -2467,12 +2467,12 @@ int main(int argc, char *argv[])
                 result = oss.str();
                 ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
                 ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
-                // We also use 'memcmp' to ensure that we really get back the
+                // We also use `memcmp` to ensure that we really get back the
                 // same binary IEEE-754.
                 ASSERTV(LINE, VALUE, result, decoded,
                         0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
 
-                // Verify that 'setEncodeQuotedDecimal64' 'true' quotes the
+                // Verify that `setEncodeQuotedDecimal64` `true` quotes the
                 // numbers as if they were strings
                 options.setEncodeQuotedDecimal64(true);
 
@@ -2482,7 +2482,7 @@ int main(int argc, char *argv[])
                 result = oss.str();
                 ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
                 ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
-                // We also use 'memcmp' to ensure that we really get back the
+                // We also use `memcmp` to ensure that we really get back the
                 // same binary IEEE-754.
                 ASSERTV(LINE, VALUE, result, decoded,
                         0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
@@ -2490,7 +2490,7 @@ int main(int argc, char *argv[])
 #undef DEC
         }
 
-        if (verbose) cout << "Round-trip 'Decimal64' Inf and NaN" << endl;
+        if (verbose) cout << "Round-trip `Decimal64` Inf and NaN" << endl;
         {
             roundTripTestNonNumericValues<bdldfp::Decimal64>();
         }
@@ -2512,19 +2512,19 @@ int main(int argc, char *argv[])
         // STRINGS ROUND-TRIP
         //
         // Concerns:
-        //: 1 Encoded single characters string read back as .
-        //:
-        //: 2 All escape characters are encoded corrected.
-        //:
-        //: 3 Control characters round-trip.
+        // 1. Encoded single characters string read back as .
+        //
+        // 2. All escape characters are encoded corrected.
+        //
+        // 3. Control characters round-trip.
         //
         // Plan:
-        //: 1 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of values that include all escaped characters and
-        //:     some control characters.
-        //:
-        //:   2 Encode the value and verify the results.
+        // 1. Using the table-driven technique:
+        //
+        //   1. Specify a set of values that include all escaped characters and
+        //      some control characters.
+        //
+        //   2. Encode the value and verify the results.
         //
         // Testing:
         //  static int printValue(bsl::ostream& s, const char             *v);
@@ -2619,10 +2619,10 @@ int main(int argc, char *argv[])
         // BOOLEAN ROUND-TRIP
         //
         // Concerns:
-        //: 1 Both 'bool' values read back as the same value when printed.
+        // 1. Both `bool` values read back as the same value when printed.
         //
         // Plan:
-        //: 1 Use a brute force approach to test both cases.
+        // 1. Use a brute force approach to test both cases.
         //
         // Testing:
         //   BOOLEAN ROUND-TRIP
@@ -2631,7 +2631,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nBOOLEAN ROUND-TRIP"
                           << "\n==================" << endl;
 
-        if (verbose) cout << "Round-trip 'true'" << endl;
+        if (verbose) cout << "Round-trip `true`" << endl;
         {
             bsl::ostringstream oss;
             ASSERTV(0 == Print::printValue(oss, true));
@@ -2659,7 +2659,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "Encode 'false'" << endl;
+        if (verbose) cout << "Encode `false`" << endl;
         {
             bsl::ostringstream oss;
             ASSERTV(0 == Print::printValue(oss, false));
@@ -2689,40 +2689,40 @@ int main(int argc, char *argv[])
       } break;
       case 21: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' for Decimal64 values
+        // TESTING `getValue` for Decimal64 values
         //
         // Concerns:
-        //: 1 Values in the valid range are parsed correctly.  Note that we do
-        //:   not need to perform an exhaustive test, because we assume the
-        //:   underlying parse function used 'DecimalUtil::parseDecimal64' is
-        //:   implemented correctly.
-        //:
-        //: 2 The passed in variable is unmodified if the data is not valid.
-        //:
-        //: 3 The return code is 0 on success and non-zero on failure.
+        // 1. Values in the valid range are parsed correctly.  Note that we do
+        //    not need to perform an exhaustive test, because we assume the
+        //    underlying parse function used `DecimalUtil::parseDecimal64` is
+        //    implemented correctly.
+        //
+        // 2. The passed in variable is unmodified if the data is not valid.
+        //
+        // 3. The return code is 0 on success and non-zero on failure.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows of string value, expected parsed value, and return code.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Provide the string value and a variable  to be parsed into to
-        //:     the 'getValue' function.  The variable is assigned a sentinel
-        //:     value before invoking the function.
-        //:
-        //:   2 If the parsing should succeed then verify that the variable
-        //:     value matches the expected value.  Otherwise confirm that the
-        //:     variable value is unmodified.
-        //:
-        //:   3 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows of string value, expected parsed value, and return code.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Provide the string value and a variable  to be parsed into to
+        //      the `getValue` function.  The variable is assigned a sentinel
+        //      value before invoking the function.
+        //
+        //   2. If the parsing should succeed then verify that the variable
+        //      value matches the expected value.  Otherwise confirm that the
+        //      variable value is unmodified.
+        //
+        //   3. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.
         //
         // Testing:
         //   static int getValue(bdldfp::Decimal64 *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'getValue' for Decimal64"
+        if (verbose) cout << "\nTESTING `getValue` for Decimal64"
                           << "\n================================" << endl;
         {
 #define DEC(X) BDLDFP_DECIMAL_DD(X)
@@ -2861,37 +2861,37 @@ int main(int argc, char *argv[])
       } break;
       case 20: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' for vector<char> values
+        // TESTING `getValue` for vector<char> values
         //
         // Concerns:
-        //: 1 Valid base64-encoded values are parsed correctly.
-        //:
-        //: 2 The passed in variable is unmodified if the data is not valid.
-        //:
-        //: 3 The return code is 0 on success and non-zero on failure.
+        // 1. Valid base64-encoded values are parsed correctly.
+        //
+        // 2. The passed in variable is unmodified if the data is not valid.
+        //
+        // 3. The return code is 0 on success and non-zero on failure.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows of string value, expected parsed value, and return code.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Provide the string value and a variable  to be parsed into to
-        //:     the 'getValue' function.  The variable is assigned a sentinel
-        //:     value before invoking the function.
-        //:
-        //:   2 If the parsing should succeed then verify that the variable
-        //:     value matches the expected value.  Otherwise confirm that the
-        //:     variable value is unmodified.
-        //:
-        //:   3 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows of string value, expected parsed value, and return code.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Provide the string value and a variable  to be parsed into to
+        //      the `getValue` function.  The variable is assigned a sentinel
+        //      value before invoking the function.
+        //
+        //   2. If the parsing should succeed then verify that the variable
+        //      value matches the expected value.  Otherwise confirm that the
+        //      variable value is unmodified.
+        //
+        //   3. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.
         //
         // Testing:
         //   static int getValue(vector<char>     *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'getValue' for 'vector<char>'"
+        if (verbose) cout << "\nTESTING `getValue` for `vector<char>`"
                           << "\n======================================"
                           << endl;
         {
@@ -2969,38 +2969,38 @@ int main(int argc, char *argv[])
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' for bdlt::DatetimeTz values
+        // TESTING `getValue` for bdlt::DatetimeTz values
         //
         // Concerns:
-        //: 1 Values in the valid range, including the maximum and minimum
-        //:   values for this type, are parsed correctly.
-        //:
-        //: 2 The passed in variable is unmodified if the data is not valid.
-        //:
-        //: 3 The return code is 0 on success and non-zero on failure.
+        // 1. Values in the valid range, including the maximum and minimum
+        //    values for this type, are parsed correctly.
+        //
+        // 2. The passed in variable is unmodified if the data is not valid.
+        //
+        // 3. The return code is 0 on success and non-zero on failure.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows of string value, expected parsed value, and return code.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Provide the string value and a variable  to be parsed into to
-        //:     the 'getValue' function.  The variable is assigned a sentinel
-        //:     value before invoking the function.
-        //:
-        //:   2 If the parsing should succeed then verify that the variable
-        //:     value matches the expected value.  Otherwise confirm that the
-        //:     variable value is unmodified.
-        //:
-        //:   3 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows of string value, expected parsed value, and return code.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Provide the string value and a variable  to be parsed into to
+        //      the `getValue` function.  The variable is assigned a sentinel
+        //      value before invoking the function.
+        //
+        //   2. If the parsing should succeed then verify that the variable
+        //      value matches the expected value.  Otherwise confirm that the
+        //      variable value is unmodified.
+        //
+        //   3. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.
         //
         // Testing:
         //   static int getValue(bdlt::DatetimeTz     *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'getValue' for 'bdlt::DatetimeTz'"
+        if (verbose) cout << "\nTESTING `getValue` for `bdlt::DatetimeTz`"
                           << "\n========================================"
                           << endl;
         {
@@ -3389,38 +3389,38 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' for bdlt::Datetime values
+        // TESTING `getValue` for bdlt::Datetime values
         //
         // Concerns:
-        //: 1 Values in the valid range, including the maximum and minimum
-        //:   values for this type, are parsed correctly.
-        //:
-        //: 2 The passed in variable is unmodified if the data is not valid.
-        //:
-        //: 3 The return code is 0 on success and non-zero on failure.
+        // 1. Values in the valid range, including the maximum and minimum
+        //    values for this type, are parsed correctly.
+        //
+        // 2. The passed in variable is unmodified if the data is not valid.
+        //
+        // 3. The return code is 0 on success and non-zero on failure.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows of string value, expected parsed value, and return code.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Provide the string value and a variable  to be parsed into to
-        //:     the 'getValue' function.  The variable is assigned a sentinel
-        //:     value before invoking the function.
-        //:
-        //:   2 If the parsing should succeed then verify that the variable
-        //:     value matches the expected value.  Otherwise confirm that the
-        //:     variable value is unmodified.
-        //:
-        //:   3 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows of string value, expected parsed value, and return code.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Provide the string value and a variable  to be parsed into to
+        //      the `getValue` function.  The variable is assigned a sentinel
+        //      value before invoking the function.
+        //
+        //   2. If the parsing should succeed then verify that the variable
+        //      value matches the expected value.  Otherwise confirm that the
+        //      variable value is unmodified.
+        //
+        //   3. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.
         //
         // Testing:
         //   static int getValue(bdlt::Datetime       *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'getValue' for 'bdlt::Datetime'"
+        if (verbose) cout << "\nTESTING `getValue` for `bdlt::Datetime`"
                           << "\n======================================"
                           << endl;
         {
@@ -3994,38 +3994,38 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' for bdlt::DateTz values
+        // TESTING `getValue` for bdlt::DateTz values
         //
         // Concerns:
-        //: 1 Values in the valid range, including the maximum and minimum
-        //:   values for this type, are parsed correctly.
-        //:
-        //: 2 The passed in variable is unmodified if the data is not valid.
-        //:
-        //: 3 The return code is 0 on success and non-zero on failure.
+        // 1. Values in the valid range, including the maximum and minimum
+        //    values for this type, are parsed correctly.
+        //
+        // 2. The passed in variable is unmodified if the data is not valid.
+        //
+        // 3. The return code is 0 on success and non-zero on failure.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows of string value, expected parsed value, and return code.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Provide the string value and a variable  to be parsed into to
-        //:     the 'getValue' function.  The variable is assigned a sentinel
-        //:     value before invoking the function.
-        //:
-        //:   2 If the parsing should succeed then verify that the variable
-        //:     value matches the expected value.  Otherwise confirm that the
-        //:     variable value is unmodified.
-        //:
-        //:   3 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows of string value, expected parsed value, and return code.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Provide the string value and a variable  to be parsed into to
+        //      the `getValue` function.  The variable is assigned a sentinel
+        //      value before invoking the function.
+        //
+        //   2. If the parsing should succeed then verify that the variable
+        //      value matches the expected value.  Otherwise confirm that the
+        //      variable value is unmodified.
+        //
+        //   3. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.
         //
         // Testing:
         //   static int getValue(bdlt::DateTz         *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'getValue' for 'bdlt::DateTz'"
+        if (verbose) cout << "\nTESTING `getValue` for `bdlt::DateTz`"
                           << "\n====================================" << endl;
         {
             static const struct {
@@ -4249,38 +4249,38 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' for bdlt::Date values
+        // TESTING `getValue` for bdlt::Date values
         //
         // Concerns:
-        //: 1 Values in the valid range, including the maximum and minimum
-        //:   values for this type, are parsed correctly.
-        //:
-        //: 2 The passed in variable is unmodified if the data is not valid.
-        //:
-        //: 3 The return code is 0 on success and non-zero on failure.
+        // 1. Values in the valid range, including the maximum and minimum
+        //    values for this type, are parsed correctly.
+        //
+        // 2. The passed in variable is unmodified if the data is not valid.
+        //
+        // 3. The return code is 0 on success and non-zero on failure.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows of string value, expected parsed value, and return code.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Provide the string value and a variable  to be parsed into to
-        //:     the 'getValue' function.  The variable is assigned a sentinel
-        //:     value before invoking the function.
-        //:
-        //:   2 If the parsing should succeed then verify that the variable
-        //:     value matches the expected value.  Otherwise confirm that the
-        //:     variable value is unmodified.
-        //:
-        //:   3 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows of string value, expected parsed value, and return code.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Provide the string value and a variable  to be parsed into to
+        //      the `getValue` function.  The variable is assigned a sentinel
+        //      value before invoking the function.
+        //
+        //   2. If the parsing should succeed then verify that the variable
+        //      value matches the expected value.  Otherwise confirm that the
+        //      variable value is unmodified.
+        //
+        //   3. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.
         //
         // Testing:
         //   static int getValue(bdlt::Date           *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'getValue' for 'bdlt::Date' types"
+        if (verbose) cout << "\nTESTING `getValue` for `bdlt::Date` types"
                           << "\n========================================"
                           << endl;
         {
@@ -4416,38 +4416,38 @@ int main(int argc, char *argv[])
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' for bdlt::TimeTz values
+        // TESTING `getValue` for bdlt::TimeTz values
         //
         // Concerns:
-        //: 1 Values in the valid range, including the maximum and minimum
-        //:   values for this type, are parsed correctly.
-        //:
-        //: 2 The passed in variable is unmodified if the data is not valid.
-        //:
-        //: 3 The return code is 0 on success and non-zero on failure.
+        // 1. Values in the valid range, including the maximum and minimum
+        //    values for this type, are parsed correctly.
+        //
+        // 2. The passed in variable is unmodified if the data is not valid.
+        //
+        // 3. The return code is 0 on success and non-zero on failure.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows of string value, expected parsed value, and return code.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Provide the string value and a variable  to be parsed into to
-        //:     the 'getValue' function.  The variable is assigned a sentinel
-        //:     value before invoking the function.
-        //:
-        //:   2 If the parsing should succeed then verify that the variable
-        //:     value matches the expected value.  Otherwise confirm that the
-        //:     variable value is unmodified.
-        //:
-        //:   3 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows of string value, expected parsed value, and return code.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Provide the string value and a variable  to be parsed into to
+        //      the `getValue` function.  The variable is assigned a sentinel
+        //      value before invoking the function.
+        //
+        //   2. If the parsing should succeed then verify that the variable
+        //      value matches the expected value.  Otherwise confirm that the
+        //      variable value is unmodified.
+        //
+        //   3. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.
         //
         // Testing:
         //   static int getValue(bdlt::TimeTz         *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'getValue' for 'bdlt::TimeTz'"
+        if (verbose) cout << "\nTESTING `getValue` for `bdlt::TimeTz`"
                           << "\n====================================" << endl;
         {
             static const struct {
@@ -4561,38 +4561,38 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' for bdlt::Time values
+        // TESTING `getValue` for bdlt::Time values
         //
         // Concerns:
-        //: 1 Values in the valid range, including the maximum and minimum
-        //:   values for this type, are parsed correctly.
-        //:
-        //: 2 The passed in variable is unmodified if the data is not valid.
-        //:
-        //: 3 The return code is 0 on success and non-zero on failure.
+        // 1. Values in the valid range, including the maximum and minimum
+        //    values for this type, are parsed correctly.
+        //
+        // 2. The passed in variable is unmodified if the data is not valid.
+        //
+        // 3. The return code is 0 on success and non-zero on failure.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows of string value, expected parsed value, and return code.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Provide the string value and a variable  to be parsed into to
-        //:     the 'getValue' function.  The variable is assigned a sentinel
-        //:     value before invoking the function.
-        //:
-        //:   2 If the parsing should succeed then verify that the variable
-        //:     value matches the expected value.  Otherwise confirm that the
-        //:     variable value is unmodified.
-        //:
-        //:   3 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows of string value, expected parsed value, and return code.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Provide the string value and a variable  to be parsed into to
+        //      the `getValue` function.  The variable is assigned a sentinel
+        //      value before invoking the function.
+        //
+        //   2. If the parsing should succeed then verify that the variable
+        //      value matches the expected value.  Otherwise confirm that the
+        //      variable value is unmodified.
+        //
+        //   3. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.
         //
         // Testing:
         //   static int getValue(bdlt::Time           *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'getValue' for 'bdlt::Time'"
+        if (verbose) cout << "\nTESTING `getValue` for `bdlt::Time`"
                           << "\n==================================" << endl;
         {
             static const struct {
@@ -4749,49 +4749,49 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'getQuotedString', 'getUnquotedString', and 'getValue' for
+        // TESTING `getQuotedString`, `getUnquotedString`, and `getValue` for
         // string values
         //
         // Concerns:
-        //: 1 Values in the valid range, including the maximum and minimum
-        //:   values for this type, are parsed correctly, for 'getQuotedString'
-        //:   and 'getUnquotedString'.
-        //:
-        //: 2 'getValue' and 'getQuotedString' are equivalent.
-        //:
-        //: 3 The passed in variable is unmodified if the data is not valid.
-        //:
-        //: 4 For 'getUnquotedString', embedded unescaped '"' characters are
-        //:   placed in the result.
-        //:
-        //: 5 The return code is 0 on success and non-zero on failure.
+        // 1. Values in the valid range, including the maximum and minimum
+        //    values for this type, are parsed correctly, for `getQuotedString`
+        //    and `getUnquotedString`.
+        //
+        // 2. `getValue` and `getQuotedString` are equivalent.
+        //
+        // 3. The passed in variable is unmodified if the data is not valid.
+        //
+        // 4. For `getUnquotedString`, embedded unescaped '"' characters are
+        //    placed in the result.
+        //
+        // 5. The return code is 0 on success and non-zero on failure.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows of string value, expected parsed value, and return code.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Provide the string value and a variable to be parsed into to
-        //:     the 'getValue' function.  The variable is assigned a sentinel
-        //:     value before invoking the function.
-        //:
-        //:   2 If the parsing should succeed then verify that the variable
-        //:     value matches the expected value.  Otherwise confirm that the
-        //:     variable value is unmodified.
-        //:
-        //:   3 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.
-        //:
-        //:   4 Call 'getQuotedString', making sure the result is identical in
-        //:     return code and/or value.
-        //:
-        //:   5 Call 'getUnquotedString', making sure the result (if
-        //:     successful) includes the extra outer '"'.
-        //:
-        //: 3 Using the table-driven technique, specify a different set of
-        //:   distinct rows of string value, expected parse value, and return
-        //:   code for testing 'getUnquotedString'.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows of string value, expected parsed value, and return code.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Provide the string value and a variable to be parsed into to
+        //      the `getValue` function.  The variable is assigned a sentinel
+        //      value before invoking the function.
+        //
+        //   2. If the parsing should succeed then verify that the variable
+        //      value matches the expected value.  Otherwise confirm that the
+        //      variable value is unmodified.
+        //
+        //   3. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.
+        //
+        //   4. Call `getQuotedString`, making sure the result is identical in
+        //      return code and/or value.
+        //
+        //   5. Call `getUnquotedString`, making sure the result (if
+        //      successful) includes the extra outer '"'.
+        //
+        // 3. Using the table-driven technique, specify a different set of
+        //    distinct rows of string value, expected parse value, and return
+        //    code for testing `getUnquotedString`.
         //
         // Testing:
         //   static int getQuotedString(bsl::string *, bsl::string_view);
@@ -4800,8 +4800,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTESTING 'getQuotedString', 'getUnquotedString', and "
-                    "'getValue' for string values"
+            cout << "\nTESTING `getQuotedString`, `getUnquotedString`, and "
+                    "`getValue` for string values"
                     "\n===================================================="
                     "============================" << endl;
         {
@@ -4907,7 +4907,7 @@ int main(int argc, char *argv[])
                 {  L_, "\"ab\"cd\"",     -1, "ab",                    -1, 0  },
                 {  L_, "\"abcd\"\"",     -1, "abcd",                  -1, 0  },
 
-                // Values that 'strtol' accepts - '{DRQS 162368243}'.
+                // Values that `strtol` accepts - `{DRQS 162368243}`.
                 {  L_, "\"\\U0xFF\"",    -1, ERROR_VALUE,             -1, 0  },
                 {  L_, "\"\\U   4\"",    -1, ERROR_VALUE,             -1, 0  },
                 {  L_, "\"\\U  -1\"",    -1, ERROR_VALUE,             -1, 0  },
@@ -4916,7 +4916,7 @@ int main(int argc, char *argv[])
                 {  L_, "\"\\ud83d\\u  -1\"", -1, ERROR_VALUE,         -1, 0  },
 
                 // These error strings were copied from
-                // 'bdlde_charconvertutf32' test driver.
+                // `bdlde_charconvertutf32` test driver.
 
                 // values that are not valid Unicode because they are in the
                 // lower UTF-16 bit plane.
@@ -5045,38 +5045,38 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' for double values
+        // TESTING `getValue` for double values
         //
         // Concerns:
-        //: 1 Values in the valid range, including the maximum and minimum
-        //:   values for this type, are parsed correctly.
-        //:
-        //: 2 The passed in variable is unmodified if the data is not valid.
-        //:
-        //: 3 The return code is 0 on success and non-zero on failure.
+        // 1. Values in the valid range, including the maximum and minimum
+        //    values for this type, are parsed correctly.
+        //
+        // 2. The passed in variable is unmodified if the data is not valid.
+        //
+        // 3. The return code is 0 on success and non-zero on failure.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows of string value, expected parsed value, and return code.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Provide the string value and a variable  to be parsed into to
-        //:     the 'getValue' function.  The variable is assigned a sentinel
-        //:     value before invoking the function.
-        //:
-        //:   2 If the parsing should succeed then verify that the variable
-        //:     value matches the expected value.  Otherwise confirm that the
-        //:     variable value is unmodified.
-        //:
-        //:   3 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows of string value, expected parsed value, and return code.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Provide the string value and a variable  to be parsed into to
+        //      the `getValue` function.  The variable is assigned a sentinel
+        //      value before invoking the function.
+        //
+        //   2. If the parsing should succeed then verify that the variable
+        //      value matches the expected value.  Otherwise confirm that the
+        //      variable value is unmodified.
+        //
+        //   3. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.
         //
         // Testing:
         //   static int getValue(double              *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'getValue' for double"
+        if (verbose) cout << "\nTESTING `getValue` for double"
                           << "\n=============================" << endl;
         {
             typedef double Type;
@@ -5283,38 +5283,38 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' for float values
+        // TESTING `getValue` for float values
         //
         // Concerns:
-        //: 1 Values in the valid range, including the maximum and minimum
-        //:   values for this type, are parsed correctly.
-        //:
-        //: 2 The passed in variable is unmodified if the data is not valid.
-        //:
-        //: 3 The return code is 0 on success and non-zero on failure.
+        // 1. Values in the valid range, including the maximum and minimum
+        //    values for this type, are parsed correctly.
+        //
+        // 2. The passed in variable is unmodified if the data is not valid.
+        //
+        // 3. The return code is 0 on success and non-zero on failure.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows of string value, expected parsed value, and return code.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Provide the string value and a variable  to be parsed into to
-        //:     the 'getValue' function.  The variable is assigned a sentinel
-        //:     value before invoking the function.
-        //:
-        //:   2 If the parsing should succeed then verify that the variable
-        //:     value matches the expected value.  Otherwise confirm that the
-        //:     variable value is unmodified.
-        //:
-        //:   3 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows of string value, expected parsed value, and return code.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Provide the string value and a variable  to be parsed into to
+        //      the `getValue` function.  The variable is assigned a sentinel
+        //      value before invoking the function.
+        //
+        //   2. If the parsing should succeed then verify that the variable
+        //      value matches the expected value.  Otherwise confirm that the
+        //      variable value is unmodified.
+        //
+        //   3. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.
         //
         // Testing:
         //   static int getValue(float               *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'getValue' for float"
+        if (verbose) cout << "\nTESTING `getValue` for float"
                           << "\n============================" << endl;
         {
             typedef float Type;
@@ -5514,38 +5514,38 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' for Uint64 values
+        // TESTING `getValue` for Uint64 values
         //
         // Concerns:
-        //: 1 Values in the valid range, including the maximum and minimum
-        //:   values for this type, are parsed correctly.
-        //:
-        //: 2 The passed in variable is unmodified if the data is not valid.
-        //:
-        //: 3 The return code is 0 on success and non-zero on failure.
+        // 1. Values in the valid range, including the maximum and minimum
+        //    values for this type, are parsed correctly.
+        //
+        // 2. The passed in variable is unmodified if the data is not valid.
+        //
+        // 3. The return code is 0 on success and non-zero on failure.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows of string value, expected parsed value, and return code.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Provide the string value and a variable  to be parsed into to
-        //:     the 'getValue' function.  The variable is assigned a sentinel
-        //:     value before invoking the function.
-        //:
-        //:   2 If the parsing should succeed then verify that the variable
-        //:     value matches the expected value.  Otherwise confirm that the
-        //:     variable value is unmodified.
-        //:
-        //:   3 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows of string value, expected parsed value, and return code.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Provide the string value and a variable  to be parsed into to
+        //      the `getValue` function.  The variable is assigned a sentinel
+        //      value before invoking the function.
+        //
+        //   2. If the parsing should succeed then verify that the variable
+        //      value matches the expected value.  Otherwise confirm that the
+        //      variable value is unmodified.
+        //
+        //   3. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.
         //
         // Testing:
         //   static int getValue(bsls::Types::Uint64 *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'getValue' for Uint64"
+        if (verbose) cout << "\nTESTING `getValue` for Uint64"
                           << "\n=============================" << endl;
 
         {
@@ -5803,38 +5803,38 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' for Int64 values
+        // TESTING `getValue` for Int64 values
         //
         // Concerns:
-        //: 1 Values in the valid range, including the maximum and minimum
-        //:   values for this type, are parsed correctly.
-        //:
-        //: 2 The passed in variable is unmodified if the data is not valid.
-        //:
-        //: 3 The return code is 0 on success and non-zero on failure.
+        // 1. Values in the valid range, including the maximum and minimum
+        //    values for this type, are parsed correctly.
+        //
+        // 2. The passed in variable is unmodified if the data is not valid.
+        //
+        // 3. The return code is 0 on success and non-zero on failure.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows of string value, expected parsed value, and return code.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Provide the string value and a variable  to be parsed into to
-        //:     the 'getValue' function.  The variable is assigned a sentinel
-        //:     value before invoking the function.
-        //:
-        //:   2 If the parsing should succeed then verify that the variable
-        //:     value matches the expected value.  Otherwise confirm that the
-        //:     variable value is unmodified.
-        //:
-        //:   3 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows of string value, expected parsed value, and return code.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Provide the string value and a variable  to be parsed into to
+        //      the `getValue` function.  The variable is assigned a sentinel
+        //      value before invoking the function.
+        //
+        //   2. If the parsing should succeed then verify that the variable
+        //      value matches the expected value.  Otherwise confirm that the
+        //      variable value is unmodified.
+        //
+        //   3. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.
         //
         // Testing:
         //   static int getValue(bsls::Types::Int64  *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'getValue' for Int64"
+        if (verbose) cout << "\nTESTING `getValue` for Int64"
                           << "\n============================" << endl;
 
         {
@@ -6155,38 +6155,38 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' for unsigned int values
+        // TESTING `getValue` for unsigned int values
         //
         // Concerns:
-        //: 1 Values in the valid range, including the maximum and minimum
-        //:   values for this type, are parsed correctly.
-        //:
-        //: 2 The passed in variable is unmodified if the data is not valid.
-        //:
-        //: 3 The return code is 0 on success and non-zero on failure.
+        // 1. Values in the valid range, including the maximum and minimum
+        //    values for this type, are parsed correctly.
+        //
+        // 2. The passed in variable is unmodified if the data is not valid.
+        //
+        // 3. The return code is 0 on success and non-zero on failure.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows of string value, expected parsed value, and return code.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Provide the string value and a variable  to be parsed into to
-        //:     the 'getValue' function.  The variable is assigned a sentinel
-        //:     value before invoking the function.
-        //:
-        //:   2 If the parsing should succeed then verify that the variable
-        //:     value matches the expected value.  Otherwise confirm that the
-        //:     variable value is unmodified.
-        //:
-        //:   3 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows of string value, expected parsed value, and return code.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Provide the string value and a variable  to be parsed into to
+        //      the `getValue` function.  The variable is assigned a sentinel
+        //      value before invoking the function.
+        //
+        //   2. If the parsing should succeed then verify that the variable
+        //      value matches the expected value.  Otherwise confirm that the
+        //      variable value is unmodified.
+        //
+        //   3. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.
         //
         // Testing:
         //   static int getValue(unsigned int        *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'getValue' for unsigned int"
+        if (verbose) cout << "\nTESTING `getValue` for unsigned int"
                           << "\n===================================" << endl;
 
         {
@@ -6401,38 +6401,38 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' for int values
+        // TESTING `getValue` for int values
         //
         // Concerns:
-        //: 1 Values in the valid range, including the maximum and minimum
-        //:   values for this type, are parsed correctly.
-        //:
-        //: 2 The passed in variable is unmodified if the data is not valid.
-        //:
-        //: 3 The return code is 0 on success and non-zero on failure.
+        // 1. Values in the valid range, including the maximum and minimum
+        //    values for this type, are parsed correctly.
+        //
+        // 2. The passed in variable is unmodified if the data is not valid.
+        //
+        // 3. The return code is 0 on success and non-zero on failure.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows of string value, expected parsed value, and return code.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Provide the string value and a variable  to be parsed into to
-        //:     the 'getValue' function.  The variable is assigned a sentinel
-        //:     value before invoking the function.
-        //:
-        //:   2 If the parsing should succeed then verify that the variable
-        //:     value matches the expected value.  Otherwise confirm that the
-        //:     variable value is unmodified.
-        //:
-        //:   3 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows of string value, expected parsed value, and return code.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Provide the string value and a variable  to be parsed into to
+        //      the `getValue` function.  The variable is assigned a sentinel
+        //      value before invoking the function.
+        //
+        //   2. If the parsing should succeed then verify that the variable
+        //      value matches the expected value.  Otherwise confirm that the
+        //      variable value is unmodified.
+        //
+        //   3. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.
         //
         // Testing:
         //   static int getValue(int                 *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'getValue' for int"
+        if (verbose) cout << "\nTESTING `getValue` for int"
                           << "\n==========================" << endl;
         {
             typedef int Type;
@@ -6697,38 +6697,38 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' for unsigned short values
+        // TESTING `getValue` for unsigned short values
         //
         // Concerns:
-        //: 1 Values in the valid range, including the maximum and minimum
-        //:   values for this type, are parsed correctly.
-        //:
-        //: 2 The passed in variable is unmodified if the data is not valid.
-        //:
-        //: 3 The return code is 0 on success and non-zero on failure.
+        // 1. Values in the valid range, including the maximum and minimum
+        //    values for this type, are parsed correctly.
+        //
+        // 2. The passed in variable is unmodified if the data is not valid.
+        //
+        // 3. The return code is 0 on success and non-zero on failure.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows of string value, expected parsed value, and return code.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Provide the string value and a variable  to be parsed into to
-        //:     the 'getValue' function.  The variable is assigned a sentinel
-        //:     value before invoking the function.
-        //:
-        //:   2 If the parsing should succeed then verify that the variable
-        //:     value matches the expected value.  Otherwise confirm that the
-        //:     variable value is unmodified.
-        //:
-        //:   3 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows of string value, expected parsed value, and return code.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Provide the string value and a variable  to be parsed into to
+        //      the `getValue` function.  The variable is assigned a sentinel
+        //      value before invoking the function.
+        //
+        //   2. If the parsing should succeed then verify that the variable
+        //      value matches the expected value.  Otherwise confirm that the
+        //      variable value is unmodified.
+        //
+        //   3. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.
         //
         // Testing:
         //   static int getValue(unsigned short      *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'getValue' for unsigned short"
+        if (verbose) cout << "\nTESTING `getValue` for unsigned short"
                           << "\n=====================================" << endl;
 
         {
@@ -6945,38 +6945,38 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' for short values
+        // TESTING `getValue` for short values
         //
         // Concerns:
-        //: 1 Values in the valid range, including the maximum and minimum
-        //:   values for this type, are parsed correctly.
-        //:
-        //: 2 The passed in variable is unmodified if the data is not valid.
-        //:
-        //: 3 The return code is 0 on success and non-zero on failure.
+        // 1. Values in the valid range, including the maximum and minimum
+        //    values for this type, are parsed correctly.
+        //
+        // 2. The passed in variable is unmodified if the data is not valid.
+        //
+        // 3. The return code is 0 on success and non-zero on failure.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows of string value, expected parsed value, and return code.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Provide the string value and a variable  to be parsed into to
-        //:     the 'getValue' function.  The variable is assigned a sentinel
-        //:     value before invoking the function.
-        //:
-        //:   2 If the parsing should succeed then verify that the variable
-        //:     value matches the expected value.  Otherwise confirm that the
-        //:     variable value is unmodified.
-        //:
-        //:   3 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows of string value, expected parsed value, and return code.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Provide the string value and a variable  to be parsed into to
+        //      the `getValue` function.  The variable is assigned a sentinel
+        //      value before invoking the function.
+        //
+        //   2. If the parsing should succeed then verify that the variable
+        //      value matches the expected value.  Otherwise confirm that the
+        //      variable value is unmodified.
+        //
+        //   3. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.
         //
         // Testing:
         //   static int getValue(short               *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'getValue' for short"
+        if (verbose) cout << "\nTESTING `getValue` for short"
                           << "\n============================" << endl;
         {
             typedef short Type;
@@ -7231,38 +7231,38 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' for unsigned char values
+        // TESTING `getValue` for unsigned char values
         //
         // Concerns:
-        //: 1 Values in the valid range, including the maximum and minimum
-        //:   values for this type, are parsed correctly.
-        //:
-        //: 2 The passed in variable is unmodified if the data is not valid.
-        //:
-        //: 3 The return code is 0 on success and non-zero on failure.
+        // 1. Values in the valid range, including the maximum and minimum
+        //    values for this type, are parsed correctly.
+        //
+        // 2. The passed in variable is unmodified if the data is not valid.
+        //
+        // 3. The return code is 0 on success and non-zero on failure.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows of string value, expected parsed value, and return code.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Provide the string value and a variable  to be parsed into to
-        //:     the 'getValue' function.  The variable is assigned a sentinel
-        //:     value before invoking the function.
-        //:
-        //:   2 If the parsing should succeed then verify that the variable
-        //:     value matches the expected value.  Otherwise confirm that the
-        //:     variable value is unmodified.
-        //:
-        //:   3 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows of string value, expected parsed value, and return code.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Provide the string value and a variable  to be parsed into to
+        //      the `getValue` function.  The variable is assigned a sentinel
+        //      value before invoking the function.
+        //
+        //   2. If the parsing should succeed then verify that the variable
+        //      value matches the expected value.  Otherwise confirm that the
+        //      variable value is unmodified.
+        //
+        //   3. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.
         //
         // Testing:
         //   static int getValue(unsigned char       *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'getValue' for unsigned char"
+        if (verbose) cout << "\nTESTING `getValue` for unsigned char"
                           << "\n====================================" << endl;
         {
             typedef unsigned char Type;
@@ -7450,38 +7450,38 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' for signed char values
+        // TESTING `getValue` for signed char values
         //
         // Concerns:
-        //: 1 Values in the valid range, including the maximum and minimum
-        //:   values for this type, are parsed correctly.
-        //:
-        //: 2 The passed in variable is unmodified if the data is not valid.
-        //:
-        //: 3 The return code is 0 on success and non-zero on failure.
+        // 1. Values in the valid range, including the maximum and minimum
+        //    values for this type, are parsed correctly.
+        //
+        // 2. The passed in variable is unmodified if the data is not valid.
+        //
+        // 3. The return code is 0 on success and non-zero on failure.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows of string value, expected parsed value, and return code.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Provide the string value and a variable  to be parsed into to
-        //:     the 'getValue' function.  The variable is assigned a sentinel
-        //:     value before invoking the function.
-        //:
-        //:   2 If the parsing should succeed then verify that the variable
-        //:     value matches the expected value.  Otherwise confirm that the
-        //:     variable value is unmodified.
-        //:
-        //:   3 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows of string value, expected parsed value, and return code.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Provide the string value and a variable  to be parsed into to
+        //      the `getValue` function.  The variable is assigned a sentinel
+        //      value before invoking the function.
+        //
+        //   2. If the parsing should succeed then verify that the variable
+        //      value matches the expected value.  Otherwise confirm that the
+        //      variable value is unmodified.
+        //
+        //   3. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.
         //
         // Testing:
         //   static int getValue(char                *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'getValue' for signed char"
+        if (verbose) cout << "\nTESTING `getValue` for signed char"
                           << "\n==================================" << endl;
 
         {
@@ -7686,28 +7686,28 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' for bool values
+        // TESTING `getValue` for bool values
         //
         // Concerns:
-        //: 1 "true" is decoded into 'true' and "false" is decoded into
-        //:   'false'.
-        //:
-        //: 2 A string that is a subset of 'true' and 'false' returns an error.
-        //:
-        //: 3 The return code is 0 on success and non-zero on failure.
+        // 1. "true" is decoded into `true` and "false" is decoded into
+        //    `false`.
+        //
+        // 2. A string that is a subset of `true` and `false` returns an error.
+        //
+        // 3. The return code is 0 on success and non-zero on failure.
         //
         // Plan:
-        //: 1 Use a brute force approach to test both cases.  Confirm that the
-        //:   return value is 0.
-        //:
-        //: 2 Try to decode an erroneous value and verify that the return
-        //:   value is non-zero.
+        // 1. Use a brute force approach to test both cases.  Confirm that the
+        //    return value is 0.
+        //
+        // 2. Try to decode an erroneous value and verify that the return
+        //    value is non-zero.
         //
         // Testing:
         //   static int getValue(bool                *v, bsl::string_viewf s);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'getValue' for bool"
+        if (verbose) cout << "\nTESTING `getValue` for bool"
                           << "\n===========================" << endl;
 
         {
@@ -7778,8 +7778,8 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
         //

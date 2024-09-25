@@ -42,7 +42,7 @@ using namespace bsl;
 // of it.  The general plan is that the methods are tested against a set of
 // tabulated test vectors, and negative tests for preconditions are conducted.
 // The test vectors cover the permutations of interest of relations of the type
-// 'earliest <= example <= latest' as well as edge cases for the resulting
+// `earliest <= example <= latest` as well as edge cases for the resulting
 // schedule.
 // ----------------------------------------------------------------------------
 // [ 2] generateFromDayInterval(s, e, l, example, interval);
@@ -132,9 +132,9 @@ enum VecType { e_BEGIN, e_BSL = e_BEGIN, e_STD,
 //                           TEST FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// Output the value of the specified enum `vt` to the specified `stream`
+/// and return a reference to `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, VecType vt)
-    // Output the value of the specified enum 'vt' to the specified 'stream'
-    // and return a reference to 'stream'.
 {
     stream << (e_BSL == vt
              ? "BSL"
@@ -149,12 +149,12 @@ bsl::ostream& operator<<(bsl::ostream& stream, VecType vt)
     return stream;
 }
 
+/// Load, into the specified `output` stream a comma-separated string
+/// representation of the specified `date` vector.
 template <class VECTOR>
 static
 void toString(bsl::ostringstream *output,
               const VECTOR& date)
-    // Load, into the specified 'output' stream a comma-separated string
-    // representation of the specified 'date' vector.
 {
     static const bool isVector =
                   bsl::is_same<VECTOR, bsl::vector<bdlt::Date> >::value
@@ -175,30 +175,31 @@ void toString(bsl::ostringstream *output,
 //                            TEST CLASSES
 // ----------------------------------------------------------------------------
 
+/// Define a calendar loader that can be used to create a calendar with
+/// valid range `[1/1/2000, 1/1/2020]` containing Saturday and Sunday as
+/// weekend days and a fixed set of holidays in each year.  Note that
+/// holidays are chosen arbitrarily, since exhaustive range of calendar
+/// states is already tested in the `CalendarUtil` component for
+/// `nthBusDayOfMonthOrMax` to which the routine
+/// `generateFromBusinessDayOfMonth` delegates.
 class TestCalendarLoader : public bdlt::CalendarLoader
-    // Define a calendar loader that can be used to create a calendar with
-    // valid range '[1/1/2000, 1/1/2020]' containing Saturday and Sunday as
-    // weekend days and a fixed set of holidays in each year.  Note that
-    // holidays are chosen arbitrarily, since exhaustive range of calendar
-    // states is already tested in the 'CalendarUtil' component for
-    // 'nthBusDayOfMonthOrMax' to which the routine
-    // 'generateFromBusinessDayOfMonth' delegates.
 {
   public:
     // CREATORS
+
+    /// Destroy this object.
     ~TestCalendarLoader() BSLS_KEYWORD_OVERRIDE
-        // Destroy this object.
     {
     }
 
+    /// Load, into the specified `result`, the calendar corresponding to the
+    /// specified `calendarName`.  Return 0 on success, and a non-zero value
+    /// otherwise.  If the return value is 1, the calendar was not found and
+    /// `*result` is unchanged.  If the return value is any other non-zero
+    /// value, then some other error occurred, and the state of the object
+    /// pointed to by `result` is valid, but its value is undefined.
     int load(bdlt::PackedCalendar *result, const char * /* calendar name */)
                                                           BSLS_KEYWORD_OVERRIDE
-        // Load, into the specified 'result', the calendar corresponding to the
-        // specified 'calendarName'.  Return 0 on success, and a non-zero value
-        // otherwise.  If the return value is 1, the calendar was not found and
-        // '*result' is unchanged.  If the return value is any other non-zero
-        // value, then some other error occurred, and the state of the object
-        // pointed to by 'result' is valid, but its value is undefined.
     {
         const int startYear = 2000;
         const int endYear = 2020;
@@ -258,14 +259,14 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -283,58 +284,58 @@ int main(int argc, char *argv[])
 // Suppose that we want to determine the sequence of dates that are:
 //   * integral multiples of 9 months away from July 2007,
 //   * on the 23rd day of the month,
-//   * and within the closed interval '[02/01/2012, 02/28/2015]'.
+//   * and within the closed interval `[02/01/2012, 02/28/2015]`.
 //
 // First, we define the inputs and output to the schedule generation function:
-//..
+// ```
     bdlt::Date earliest(2012, 2,  1);
     bdlt::Date   latest(2015, 2, 28);
     bdlt::Date  example(2007, 7, 23);
 
     bsl::vector<bdlt::Date> schedule;
-//..
-// Now, we invoke the 'generateFromDayOfMonth' routine to obtain the subset of
+// ```
+// Now, we invoke the `generateFromDayOfMonth` routine to obtain the subset of
 // dates:
-//..
+// ```
     bblb::ScheduleGenerationUtil::generateFromDayOfMonth(
                                                     &schedule,
                                                     earliest,
                                                     latest,
                                                     example.year(),
                                                     example.month(),
-                                                    9,    // 'intervalInMonths'
-                                                    23);  // 'targetDayOfMonth'
-//..
+                                                    9,    // `intervalInMonths`
+                                                    23);  // `targetDayOfMonth`
+// ```
 // Finally, we assert that the generated schedule is what we expect:
-//..
+// ```
     ASSERT(4 == schedule.size());
     ASSERT(bdlt::Date(2012, 10, 23) == schedule[0]);
     ASSERT(bdlt::Date(2013,  7, 23) == schedule[1]);
     ASSERT(bdlt::Date(2014,  4, 23) == schedule[2]);
     ASSERT(bdlt::Date(2015,  1, 23) == schedule[3]);
-//..
+// ```
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'generateFromDayOfWeekInMonth'
+        // TESTING `generateFromDayOfWeekInMonth`
         //
         // Concerns:
-        //: 1 The method produces the expected result values.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The method produces the expected result values.
+        //
+        // 2. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Test permutations of interest for the method's arguments.  (C-1)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for argument values.  (C-2)
+        // 1. Test permutations of interest for the method's arguments.  (C-1)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for argument values.  (C-2)
         //
         // Testing:
         //   generateFromDayOfWeekInMonth(s, e, l, d, eY, eM, i, oW);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'generateFromDayOfWeekInMonth'" << endl
+                          << "TESTING `generateFromDayOfWeekInMonth`" << endl
                           << "======================================" << endl;
 
         static const struct {
@@ -454,7 +455,7 @@ int main(int argc, char *argv[])
 
             bdlt::Date d(2015,1,23);
 
-            // 'earliest <= latest'
+            // `earliest <= latest`
 
             ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
                                &scheduleBsl, d, d-1, 2010, 2, 1, DAY(FRI), 1));
@@ -473,7 +474,7 @@ int main(int argc, char *argv[])
                                  &schedulePmr, d, d, 2010, 2, 1, DAY(FRI), 1));
 #endif
 
-            // 'exampleYear'
+            // `exampleYear`
 
             ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
                                    &scheduleBsl, d, d,  0, 2, 1, DAY(FRI), 1));
@@ -508,7 +509,7 @@ int main(int argc, char *argv[])
                                 &schedulePmr, d, d, 10000, 2, 1, DAY(FRI), 1));
 #endif
 
-            // 'exampleMonth'
+            // `exampleMonth`
 
             ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
                                 &scheduleBsl, d, d, 2010,  0, 1, DAY(FRI), 1));
@@ -543,7 +544,7 @@ int main(int argc, char *argv[])
                                 &schedulePmr, d, d, 2010, 13, 1, DAY(FRI), 1));
 #endif
 
-            // 'interval'
+            // `interval`
 
             ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
                                  &scheduleBsl, d, d, 2010, 2, 0, DAY(FRI), 1));
@@ -562,7 +563,7 @@ int main(int argc, char *argv[])
                                  &schedulePmr, d, d, 2010, 2, 1, DAY(FRI), 1));
 #endif
 
-            // 'ocurrenceWeek'
+            // `ocurrenceWeek`
 
             ASSERT_FAIL(Obj::generateFromDayOfWeekInMonth(
                                  &scheduleBsl, d, d, 2010, 2, 1, DAY(FRI), 0));
@@ -600,18 +601,18 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'generateFromDayOfWeekAfterDayOfMonth'
+        // TESTING `generateFromDayOfWeekAfterDayOfMonth`
         //
         // Concerns:
-        //: 1 The method produces the expected result values.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The method produces the expected result values.
+        //
+        // 2. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Test permutations of interest for the method's arguments.  (C-1)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for argument values.  (C-2)
+        // 1. Test permutations of interest for the method's arguments.  (C-1)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for argument values.  (C-2)
         //
         // Testing:
         //   generateFromDayOfWeekAfterDayOfMonth(s, e, l, d, eY, eM, i, DOM);
@@ -619,7 +620,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'generateFromDayOfWeekAfterDayOfMonth'" << endl
+                 << "TESTING `generateFromDayOfWeekAfterDayOfMonth`" << endl
                  << "==============================================" << endl;
         }
 
@@ -743,7 +744,7 @@ int main(int argc, char *argv[])
 
             bdlt::Date d(2015,1,23);
 
-            // 'earliest <= latest'
+            // `earliest <= latest`
 
             ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
                                &scheduleBsl, d, d-1, 2010, 2, 1, DAY(FRI), 1));
@@ -762,7 +763,7 @@ int main(int argc, char *argv[])
                                  &schedulePmr, d, d, 2010, 2, 1, DAY(FRI), 1));
 #endif
 
-            // 'exampleYear'
+            // `exampleYear`
 
             ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
                                     &scheduleBsl, d, d, 0, 2, 1, DAY(FRI), 1));
@@ -797,7 +798,7 @@ int main(int argc, char *argv[])
                                 &schedulePmr, d, d, 10000, 2, 1, DAY(FRI), 1));
 #endif
 
-            // 'exampleMonth'
+            // `exampleMonth`
 
             ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
                                  &scheduleBsl, d, d, 2010, 0, 1, DAY(FRI), 1));
@@ -832,7 +833,7 @@ int main(int argc, char *argv[])
                                 &schedulePmr, d, d, 2010, 13, 1, DAY(FRI), 1));
 #endif
 
-            // 'interval'
+            // `interval`
 
             ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
                                  &scheduleBsl, d, d, 2010, 2, 0, DAY(FRI), 1));
@@ -851,7 +852,7 @@ int main(int argc, char *argv[])
                                  &schedulePmr, d, d, 2010, 2, 1, DAY(FRI), 1));
 #endif
 
-            // 'dayOfMonth'
+            // `dayOfMonth`
 
             ASSERT_FAIL(Obj::generateFromDayOfWeekAfterDayOfMonth(
                                  &scheduleBsl, d, d, 2010, 2, 1, DAY(FRI), 0));
@@ -889,18 +890,18 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'generateFromBusinessDayOfMonth'
+        // TESTING `generateFromBusinessDayOfMonth`
         //
         // Concerns:
-        //: 1 The method produces the expected result values.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The method produces the expected result values.
+        //
+        // 2. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Test permutations of interest for the method's arguments.  (C-1)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for argument values.  (C-2)
+        // 1. Test permutations of interest for the method's arguments.  (C-1)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for argument values.  (C-2)
         //
         // Testing:
         //   generateFromBusinessDayOfMonth(s, e, l, c, eY, eM, i, tBDOM);
@@ -908,7 +909,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'generateFromBusinessDayOfMonth'" << endl
+                 << "TESTING `generateFromBusinessDayOfMonth`" << endl
                  << "========================================" << endl;
         }
 
@@ -1093,7 +1094,7 @@ int main(int argc, char *argv[])
 
             bdlt::Date d(2015, 1, 23);
 
-            // 'earliest <= latest'
+            // `earliest <= latest`
 
             ASSERT_FAIL(Obj::generateFromBusinessDayOfMonth(
                                  &scheduleBsl, d, d - 1, 2010, 2, 1, cal1, 1));
@@ -1112,7 +1113,7 @@ int main(int argc, char *argv[])
                                      &schedulePmr, d, d, 2010, 2, 1, cal1, 1));
 #endif
 
-            // 'exampleYear'
+            // `exampleYear`
 
             ASSERT_FAIL(Obj::generateFromBusinessDayOfMonth(
                                         &scheduleBsl, d, d, 0, 2, 1, cal1, 1));
@@ -1147,7 +1148,7 @@ int main(int argc, char *argv[])
                                     &schedulePmr, d, d, 10000, 2, 1, cal1, 1));
 #endif
 
-            // 'exampleMonth'
+            // `exampleMonth`
 
             ASSERT_FAIL(Obj::generateFromBusinessDayOfMonth(
                                      &scheduleBsl, d, d, 2010, 0, 1, cal1, 1));
@@ -1182,7 +1183,7 @@ int main(int argc, char *argv[])
                                     &schedulePmr, d, d, 2010, 13, 1, cal1, 1));
 #endif
 
-            // 'interval'
+            // `interval`
 
             ASSERT_FAIL(Obj::generateFromBusinessDayOfMonth(
                                      &scheduleBsl, d, d, 2010, 2, 0, cal1, 1));
@@ -1201,7 +1202,7 @@ int main(int argc, char *argv[])
                                      &schedulePmr, d, d, 2010, 2, 1, cal1, 1));
 #endif
 
-            // 'targetBusinessDayOfMonth'
+            // `targetBusinessDayOfMonth`
 
             ASSERT_PASS(Obj::generateFromBusinessDayOfMonth(
                                     &scheduleBsl, d, d, 2010, 2, 1, cal1, -1));
@@ -1231,25 +1232,25 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'generateFromDayOfMonth'
+        // TESTING `generateFromDayOfMonth`
         //
         // Concerns:
-        //: 1 The method produces the expected result values.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The method produces the expected result values.
+        //
+        // 2. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Test permutations of interest for the method's arguments.  (C-1)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for argument values.  (C-2)
+        // 1. Test permutations of interest for the method's arguments.  (C-1)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for argument values.  (C-2)
         //
         // Testing:
         //   generateFromDayOfMonth(s, e, l, eY, eM, i, tDOM, tDOF);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'generateFromDayOfMonth'" << endl
+                          << "TESTING `generateFromDayOfMonth`" << endl
                           << "================================" << endl;
 
         static const struct {
@@ -1383,7 +1384,7 @@ int main(int argc, char *argv[])
 
             bdlt::Date d(2015, 1, 23);
 
-            // 'earliest <= latest'
+            // `earliest <= latest`
 
             ASSERT_FAIL(Obj::generateFromDayOfMonth(
                                     &scheduleBsl, d, d - 1, 2010, 2, 1, 1, 1));
@@ -1402,7 +1403,7 @@ int main(int argc, char *argv[])
                                         &schedulePmr, d, d, 2010, 2, 1, 1, 1));
 #endif
 
-            // 'exampleYear'
+            // `exampleYear`
 
             ASSERT_FAIL(Obj::generateFromDayOfMonth(
                                            &scheduleBsl, d, d, 0, 2, 1, 1, 1));
@@ -1437,7 +1438,7 @@ int main(int argc, char *argv[])
                                        &schedulePmr, d, d, 10000, 2, 1, 1, 1));
 #endif
 
-            // 'exampleMonth'
+            // `exampleMonth`
 
             ASSERT_FAIL(Obj::generateFromDayOfMonth(
                                         &scheduleBsl, d, d, 2010, 0, 1, 1, 1));
@@ -1472,7 +1473,7 @@ int main(int argc, char *argv[])
                                        &schedulePmr, d, d, 2010, 13, 1, 1, 1));
 #endif
 
-            // 'interval'
+            // `interval`
 
             ASSERT_FAIL(Obj::generateFromDayOfMonth(
                                         &scheduleBsl, d, d, 2010, 2, 0, 1, 1));
@@ -1491,7 +1492,7 @@ int main(int argc, char *argv[])
                                         &schedulePmr, d, d, 2010, 2, 1, 1, 1));
 #endif
 
-            // 'targetDayOfMonth'
+            // `targetDayOfMonth`
 
             ASSERT_FAIL(Obj::generateFromDayOfMonth(
                                         &scheduleBsl, d, d, 2010, 2, 1, 0, 1));
@@ -1526,7 +1527,7 @@ int main(int argc, char *argv[])
                                        &schedulePmr, d, d, 2010, 2, 1, 32, 1));
 #endif
 
-            // 'targetDayOfFeb'
+            // `targetDayOfFeb`
 
             ASSERT_FAIL(Obj::generateFromDayOfMonth(
                                        &scheduleBsl, d, d, 2010, 2, 1, 3, -1));
@@ -1572,25 +1573,25 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'generateFromDayInterval'
+        // TESTING `generateFromDayInterval`
         //
         // Concerns:
-        //: 1 The method produces the expected result values.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The method produces the expected result values.
+        //
+        // 2. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Test permutations of interest for the method's arguments.  (C-1)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for argument values.  (C-2)
+        // 1. Test permutations of interest for the method's arguments.  (C-1)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for argument values.  (C-2)
         //
         // Testing:
         //   generateFromDayInterval(s, e, l, example, interval);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'generateFromDayInterval'" << endl
+                          << "TESTING `generateFromDayInterval`" << endl
                           << "=================================" << endl;
 
         static const struct {
@@ -1684,7 +1685,7 @@ int main(int argc, char *argv[])
 
             bdlt::Date d(2015, 1, 23);
 
-            // 'earliest <= latest'
+            // `earliest <= latest`
 
             ASSERT_FAIL(Obj::generateFromDayInterval(
                                                 &scheduleBsl, d, d - 1, d, 2));
@@ -1703,7 +1704,7 @@ int main(int argc, char *argv[])
                                                     &schedulePmr, d, d, d, 2));
 #endif
 
-            // 'interval'
+            // `interval`
 
             ASSERT_FAIL(Obj::generateFromDayInterval(
                                                     &scheduleBsl, d, d, d, 0));
@@ -1725,20 +1726,20 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'toString'
+        // TESTING `toString`
         //
         // Concerns:
-        //: 1 The method produces the expected result values.
+        // 1. The method produces the expected result values.
         //
         // Plan:
-        //: 1 Test permutations of interest for the method's arguments.  (C-1)
+        // 1. Test permutations of interest for the method's arguments.  (C-1)
         //
         // Testing:
         //   toString(output, date)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'toString'" << endl
+                          << "TESTING `toString`" << endl
                           << "==================" << endl;
 
         bsl::vector<bdlt::Date> date;

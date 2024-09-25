@@ -18,7 +18,7 @@ using namespace bslmf;
 //                                Overview
 //                                --------
 // The component under test defines meta-function that represents a
-// compile-time integer sequence, 'bslmf::IntegerSequence'.  Thus, we need to
+// compile-time integer sequence, `bslmf::IntegerSequence`.  Thus, we need to
 // ensure that an integer sequences represent collections of integer values of
 // the specified length.
 // ----------------------------------------------------------------------------
@@ -92,7 +92,7 @@ void aSsErT(bool condition, const char *message, int line)
     ASSERT((bsl::is_same<Obj4::value_type, const volatile T>::value));   \
     ASSERT(0 == Obj4::size());                                           \
 }
-// Test all cv-qualified combination on the specified 'T'.
+// Test all cv-qualified combination on the specified `T`.
 
 namespace {
 
@@ -104,69 +104,73 @@ namespace {
                               // struct ItemUtil
                               //================
 
+/// This `struct` provides an namespace for utility mata-function operations
+/// using parameter packs.
 template <std::size_t INDEX, class T>
 struct ItemUtil {
-    // This 'struct' provides an namespace for utility mata-function operations
-    // using parameter packs.
   private:
     // PRIVATE CLASS METHODS
+
+    /// Recursively call `value(s...)` function for an index value that
+    /// precedes the value of the specified template non-type parameter
+    /// `INDEX`.
     template <class ...IS>
     static
     constexpr T getNext(T, IS... s)
-        // Recursively call 'value(s...)' function for an index value that
-        // precedes the value of the specified template non-type parameter
-        // 'INDEX'.
     {
         return ItemUtil<INDEX-1, T>::value(s...);
     }
 
   public:
     // CLASS METHODS
+
+    /// Return the N-th item of the specified parameter pack `s...`.
     template <class ...IS>
     static
     constexpr T value(IS... s)
-        // Return the N-th item of the specified parameter pack 's...'.
     {
         static_assert(INDEX < sizeof...(IS), "");
         return getNext(s...);
     }
 };
 
+/// This partial specialization of `ItemUtil` provides an access to the
+/// first item of an parameter pack.
 template <class T>
 struct ItemUtil<0, T> {
-    // This partial specialization of 'ItemUtil' provides an access to the
-    // first item of an parameter pack.
   private:
     // PRIVATE CLASS METHODS
+
+    /// Return the first item `v` of an parameter pack.
     template <class ...IS>
     static
     constexpr T getFirst(T v, IS...)
-        // Return the first item 'v' of an parameter pack.
     {
         return v;
     }
 
+    /// Return the first item `v` of an parameter pack having a single item.
     static
     constexpr T getFirst(T v)
-        // Return the first item 'v' of an parameter pack having a single item.
     {
         return v;
     }
 
 public:
     // CLASS METHODS
+
+    /// Return the first item the specified parameter pack.
     template <class ...IS>
     static
     constexpr T value(IS ...s)
-        // Return the first item the specified parameter pack.
     {
         return getFirst(s...);
     }
 };
 
+/// Return the N-th item of the specified integer sequence.
 template <std::size_t N, class T, T... IS>
 constexpr T getValue(IntegerSequence<T, IS...>)
-    // Return the N-th item of the specified integer sequence.
 {
     static_assert(N < sizeof...(IS), "");
     return ItemUtil<N, T>::value(IS...);
@@ -179,31 +183,31 @@ constexpr T getValue(IntegerSequence<T, IS...>)
 ///Example 1: Pass C-array as a parameter to a function with variadic template
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //
-// Suppose we want to initialize a C-Array of known size 'N' with data read
+// Suppose we want to initialize a C-Array of known size `N` with data read
 // from a data source using a library class that provides a variadic template
 // interface that loads a data of variable length into the supplied parameter
 // pack.
 //
-// First, define a class template 'DataReader',
-//..
+// First, define a class template `DataReader`,
+// ```
 template <std::size_t t_N>
 class DataReader {
   public:
-//..
-// Then, implement a method that loads the specified parameter pack 'args' with
+// ```
+// Then, implement a method that loads the specified parameter pack `args` with
 // data read from a data source.
-//..
+// ```
     template <class ...t_T>
     void read(t_T*... args) const
     {
         static_assert(sizeof...(args) == t_N, "");
         read_impl(args...);
     }
-//..
+// ```
 // Next, for the test purpose provide simple implementation of the recursive
-// variadic 'read_impl' function that streams the number of the C-Array's
-// element to 'stdout'.
-//..
+// variadic `read_impl` function that streams the number of the C-Array's
+// element to `stdout`.
+// ```
 private:
     template <class t_U, class ...t_T>
     void read_impl(t_U*, t_T*... args) const
@@ -212,18 +216,18 @@ private:
                static_cast<int>(t_N - 1 - sizeof...(args)));
         read_impl(args...);
     }
-//..
+// ```
 // Then, implement the recursion break condition:
-//..
+// ```
     void read_impl() const
     {
     }
 };
-//..
-// Next, define a helper function template 'readData' that expands the
-// parameter pack of indices 't_I' and invokes the variadic template 'read'
-// method of the specified 'reader' object.
-//..
+// ```
+// Next, define a helper function template `readData` that expands the
+// parameter pack of indices `t_I` and invokes the variadic template `read`
+// method of the specified `reader` object.
+// ```
 namespace {
 template<class t_R, class t_T, std::size_t... t_I>
 void readData(const t_R&  reader,
@@ -239,7 +243,7 @@ void readData(const t_R&  reader,
         //             &data[t_N-1]);
 }
 }
-//..
+// ```
 
 }  // close unnamed namespace
 
@@ -269,13 +273,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -284,9 +288,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE\n"
                               "=============\n");
 
-// Finally, define a 'data' C-Array and 'reader' variables and pass them to the
-// 'readData' function as parameters.
-//..
+// Finally, define a `data` C-Array and `reader` variables and pass them to the
+// `readData` function as parameters.
+// ```
         constexpr int      k_SIZE = 5;
         DataReader<k_SIZE> reader;
         int                data[k_SIZE] = {0};
@@ -294,57 +298,57 @@ int main(int argc, char *argv[])
         readData(reader,
                  data,
                  bslmf::IntegerSequence<size_t, 0, 1, 2, 3, 4>());
-//..
-// Note that using a direct call to the 'bslmf::IntegerSequence' constructor
+// ```
+// Note that using a direct call to the `bslmf::IntegerSequence` constructor
 // looks a bit clumsy here.  The better approach is to use alias template
-// 'bslmf::MakeIntegerSequence', that creates a collection of increasing
+// `bslmf::MakeIntegerSequence`, that creates a collection of increasing
 // integer values, having the specified N-value length.  The usage example in
 // that component shows this method more clearly.  But we can not afford its
 // presence here to avoid a cycle/levelization violation.
 //
-// The streaming operator produces output in the following format on 'stdout':
-//..
+// The streaming operator produces output in the following format on `stdout`:
+// ```
 // read element #0
 // read element #1
 // read element #2
 // read element #3
 // read element #4
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'bslmf::IntegerSequence'
+        // `bslmf::IntegerSequence`
         //
         // Concerns:
-        //: 1 That the 'value_type' is the same as the template parameter of
-        //:   the template 'struct' 'bslmf::IntegerSequence'.
-        //:
-        //: 2 That the length of an integer sequence equals to the size of the
-        //:   template parameter pack.
-        //:
-        //: 3 That 'size()' can be used in constant expressions.
-        //:
-        //: 4 That 'T' can be any integer type.
-        //:
-        //: 5 That repeated values are supported, i.e.
-        //:  'bslmf::IntegerSequence<int, 0, 0, 0, 0, 0>'.
-        //:
-        //: 6 That both positive and negative if any values of the parameter
-        //:   type 'T' are supported, i.e. 'IntegerSequence<int, -1, 0, 1>'.
-        //:
-        //: 7 That a super-long sequences (having 1024 paramnetrs) are
-        //:   supported.
+        // 1. That the `value_type` is the same as the template parameter of
+        //    the template `struct` `bslmf::IntegerSequence`.
+        //
+        // 2. That the length of an integer sequence equals to the size of the
+        //    template parameter pack.
+        //
+        // 3. That `size()` can be used in constant expressions.
+        //
+        // 4. That `T` can be any integer type.
+        //
+        // 5. That repeated values are supported, i.e.
+        //   `bslmf::IntegerSequence<int, 0, 0, 0, 0, 0>`.
+        //
+        // 6. That both positive and negative if any values of the parameter
+        //    type `T` are supported, i.e. `IntegerSequence<int, -1, 0, 1>`.
+        //
+        // 7. That a super-long sequences (having 1024 paramnetrs) are
+        //    supported.
         //
         // Plan:
-        //: 1 Define a number of integer sequences of various integer types,
-        //:   having distinct lengths and ensure that these sequences represent
-        //:   collections of integer values having the specified length and
-        //:   values.
-        //:
-        //: 2 Ensure that 'noexcept(size()' is 'true'. (C-3)
-        //:
-        //: 3 Test at least one super-long integer sequence having length equal
-        //:   to 1023.
+        // 1. Define a number of integer sequences of various integer types,
+        //    having distinct lengths and ensure that these sequences represent
+        //    collections of integer values having the specified length and
+        //    values.
+        //
+        // 2. Ensure that `noexcept(size()` is `true`. (C-3)
+        //
+        // 3. Test at least one super-long integer sequence having length equal
+        //    to 1023.
         //
         // Testing:
         //   bslmf::IntegerSequence<class T, T... Ints>
@@ -545,22 +549,22 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // HELPER CLASS TEST
-        //   Ensure that the 'ItemUtil' and 'getValue' meta-functions work as
+        //   Ensure that the `ItemUtil` and `getValue` meta-functions work as
         //   expected.
         //
         // Concerns:
-        //: 1 That the 'ItemUtil<N>' meta-function returns the value of an item
-        //:   of the specified parameter pack at the specified location 'N'.
-        //:
-        //: 2 That the 'getValue<N>' meta-function returns the value of an item
-        //:   of the specified integer sequence at the specified location 'N'.
+        // 1. That the `ItemUtil<N>` meta-function returns the value of an item
+        //    of the specified parameter pack at the specified location `N`.
+        //
+        // 2. That the `getValue<N>` meta-function returns the value of an item
+        //    of the specified integer sequence at the specified location `N`.
         //
         // Plan:
-        //: 1 Ensure that 'ItemUtil' returns expected values of all items in
-        //:   the parameter pack.
-        //:
-        //: 2 Ensure that 'getValue' invokes 'ItemUtil<N>' meta-function and
-        //:   returns expected values of all items in an integer sequence.
+        // 1. Ensure that `ItemUtil` returns expected values of all items in
+        //    the parameter pack.
+        //
+        // 2. Ensure that `getValue` invokes `ItemUtil<N>` meta-function and
+        //    returns expected values of all items in an integer sequence.
         //
         // Testing:
         //   template <size_t N, class T>
@@ -652,9 +656,9 @@ int main(int argc, char *argv[])
     (void) argc;
     (void) argv;
 
-    ASSERT(true); // remove unused warning for 'aSsErT'
+    ASSERT(true); // remove unused warning for `aSsErT`
 
-    printf("Cannot test 'bslmf::IntegerSequence' in pre-C++11 mode.\n");
+    printf("Cannot test `bslmf::IntegerSequence` in pre-C++11 mode.\n");
     return -1;
 }
 

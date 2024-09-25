@@ -18,8 +18,8 @@
 
 #include <new>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 #include <string.h>
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
@@ -35,9 +35,9 @@ using namespace BloombergLP;
 //                              --------
 //
 // Global Concerns:
-//: o Pointer/reference parameters are declared 'const'.
-//: o No memory is ever allocated.
-//: o Precondition violations are detected in appropriate build modes.
+//  - Pointer/reference parameters are declared `const`.
+//  - No memory is ever allocated.
+//  - Precondition violations are detected in appropriate build modes.
 //-----------------------------------------------------------------------------
 // [ 4] BASE CLASS MANIPULATORS AND ACCESSORS
 // [ 3] BASIC ACCESSORS
@@ -152,18 +152,19 @@ bool isConst(TYPE *)
 //
 ///Example 1: Creating and Using a List Template Class
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we want to create a linked list template class called 'MyList'.
+// Suppose we want to create a linked list template class called `MyList`.
 //
 // First, we create an iterator helper class, which will eventually be defined
-// as a nested type within the 'MyList' class.
-//..
+// as a nested type within the `MyList` class.
+// ```
                             // ===============
                             // MyList_Iterator
                             // ===============
-//..
+// ```
+
+/// This iterator is used to refer to positions within a list.
 template <class PAYLOAD>
 class MyList_Iterator {
-    // This iterator is used to refer to positions within a list.
 
     // PRIVATE TYPES
     typedef bslalg::BidirectionalNode<PAYLOAD> Node;
@@ -203,9 +204,9 @@ bool operator==(MyList_Iterator<PAYLOAD> lhs,
 template <class PAYLOAD>
 bool operator!=(MyList_Iterator<PAYLOAD> lhs,
                 MyList_Iterator<PAYLOAD> rhs);
-//..
+// ```
 // Then, we implment the functions for the iterator type.
-//..
+// ```
                                 // ---------------
                                 // MyList_Iterator
                                 // ---------------
@@ -234,18 +235,18 @@ bool operator!=(MyList_Iterator<PAYLOAD> lhs,
 {
     return !(lhs == rhs);
 }
-//..
-// Next, we define our 'MyList' class, with 'MyList::Iterator' being a public
-// typedef of 'MyList_Iterator'.  For brevity, we will omit much of te that a
+// ```
+// Next, we define our `MyList` class, with `MyList::Iterator` being a public
+// typedef of `MyList_Iterator`.  For brevity, we will omit much of te that a
 // full, general-purpose list class would have.
-//..
+// ```
                                 // ======
                                 // MyList
                                 // ======
 
+/// Doubly-linked list storing objects of type `PAYLOAD`.
 template <class PAYLOAD>
 class MyList {
-    // Doubly-linked list storing objects of type 'PAYLOAD'.
 
     // PRIVATE TYPES
     typedef bslalg::BidirectionalNode<PAYLOAD> Node;
@@ -278,9 +279,9 @@ class MyList {
     void pushBack(const ValueType& value);
     void popBack();
 };
-//..
-// Then, we implement the functions for the 'MyList' class:
-//..
+// ```
+// Then, we implement the functions for the `MyList` class:
+// ```
                                 // ------
                                 // MyList
                                 // ------
@@ -358,7 +359,7 @@ void MyList<PAYLOAD>::popBack()
     d_allocator_p->deleteObjectRaw(
                            static_cast<bslalg::BidirectionalLink *>(toDelete));
 }
-//..
+// ```
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -389,7 +390,7 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concern:
-        //   Demonstrate the usefulness of the 'BidirectionalNode' type.
+        //   Demonstrate the usefulness of the `BidirectionalNode` type.
         //
         // Plan:
         //   Use it to build a linked list.
@@ -397,25 +398,25 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
-//..
-// Next, in 'main', we use our 'MyList' class to store a list of ints:
-//..
+// ```
+// Next, in `main`, we use our `MyList` class to store a list of ints:
+// ```
         MyList<int> intList;
-//..
+// ```
 // Then, we declare an array of ints to populate it with:
-//..
+// ```
         int intArray[] = { 8, 2, 3, 5, 7, 2 };
         enum { NUM_INTS = sizeof intArray / sizeof *intArray };
-//..
+// ```
 // Now, we iterate, pushing ints to the list:
-//..
+// ```
         for (const int *pInt = intArray; pInt != intArray + NUM_INTS; ++pInt) {
             intList.pushBack(*pInt);
         }
-//..
-// Finally, we use our 'Iterator' type to traverse the list and observe its
+// ```
+// Finally, we use our `Iterator` type to traverse the list and observe its
 // values:
-//..
+// ```
         MyList<int>::Iterator it = intList.begin();
         ASSERT(8 == *it);
         ASSERT(2 == *++it);
@@ -430,15 +431,15 @@ int main(int argc, char *argv[])
         // TESTING BASE CLASS MANIPULATORS AND ACCESSORS
         //
         // Concerns:
-        //: 1 That the base class manipulators and accessors are accessible
-        //:   (not private or protected inheritance).
-        //:
-        //: 2 That the base class accessors are const methods.
+        // 1. That the base class manipulators and accessors are accessible
+        //    (not private or protected inheritance).
+        //
+        // 2. That the base class accessors are const methods.
         //
         // Plan:
-        //: 1 Create an object and a const reference to it.  Manipulate the
-        //:   object with the accessors using the non-'const' object, and
-        //:   observe it via the accessors using the 'const' object.
+        // 1. Create an object and a const reference to it.  Manipulate the
+        //    object with the accessors using the non-`const` object, and
+        //    observe it via the accessors using the `const` object.
         // --------------------------------------------------------------------
 
         if (verbose) printf(
@@ -480,7 +481,7 @@ int main(int argc, char *argv[])
             ASSERT(KA == X.nextLink());
 
             mX.reset();
-            ASSERT(KA_INT == X.value());// 'reset' affected base class only
+            ASSERT(KA_INT == X.value());// `reset` affected base class only
             ASSERT(0 == X.previousLink());
             ASSERT(0 == X.nextLink());
 
@@ -507,14 +508,14 @@ int main(int argc, char *argv[])
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 Each accessor returns the value of the corresponding attribute
-        //:    of the object.
-        //:
-        //: 2 Each accessor method is declared 'const'.
+        // 1. Each accessor returns the value of the corresponding attribute
+        //     of the object.
+        //
+        // 2. Each accessor method is declared `const`.
         //
         // Plan:
-        //: 1 Using the manipulators, set the object to the desired state,
-        //:   and observe the state from the 'const' accessors.
+        // 1. Using the manipulators, set the object to the desired state,
+        //    and observe the state from the `const` accessors.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING BASIC ACCESSORS"
@@ -561,21 +562,21 @@ int main(int argc, char *argv[])
         // TESTING PRIMARY MANIPULATORS
         //
         // Concerns:
-        //: 1 Manipulators can set value.
-        //:
-        //: 2 Accessor return value set by manipulator.
-        //:
-        //: 3 Accessor is declared const.
+        // 1. Manipulators can set value.
+        //
+        // 2. Accessor return value set by manipulator.
+        //
+        // 3. Accessor is declared const.
         //
         // Plan:
-        //: 1 Create a 'BidirectionalNode' with 'VALUE_TYPE' as 'int' and set
-        //:   'value' distinct numbers.  Verify the values are set with the
-        //:   accessor.
-        //:
-        //: 2 Create a 'BidirectionalNode' with a type that has a constructor
-        //:   that can be verified if it has been invoked.  Verify that the
-        //:   constructor is invoked when 'allocator_traits::construct' is
-        //:   used.
+        // 1. Create a `BidirectionalNode` with `VALUE_TYPE` as `int` and set
+        //    `value` distinct numbers.  Verify the values are set with the
+        //    accessor.
+        //
+        // 2. Create a `BidirectionalNode` with a type that has a constructor
+        //    that can be verified if it has been invoked.  Verify that the
+        //    constructor is invoked when `allocator_traits::construct` is
+        //    used.
         //
         // Testing:
         //   VALUE_TYPE& value();
@@ -590,7 +591,7 @@ int main(int argc, char *argv[])
 
         bslma::DefaultAllocatorGuard defaultGuard(&da);
 
-        if (verbose) printf("\nTesting for payload of 'int'.\n");
+        if (verbose) printf("\nTesting for payload of `int`.\n");
         {
             typedef bslalg::BidirectionalNode<int> Obj;
 
@@ -619,7 +620,7 @@ int main(int argc, char *argv[])
             ASSERTV(0 == oa.numBlocksInUse());
         }
 
-        if (verbose) printf("\nTesting for payload of 'TestType1'.\n");
+        if (verbose) printf("\nTesting for payload of `TestType1`.\n");
         {
             typedef bslalg::BidirectionalNode<TestType1> Obj;
             typedef Obj::ValueType VT;
@@ -656,11 +657,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
+        // 1. Perform and ad-hoc test of the primary modifiers and accessors.
         //
         // Testing:
         //   BREATHING TEST

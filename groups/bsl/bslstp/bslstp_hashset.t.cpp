@@ -4,8 +4,8 @@
 
 template class bsl::hash_set<long>;
 
+/// Smoke test
 int main() {
-    // Smoke test
     bsl::hash_set<int> x;
     x.insert(1);
     x.erase(x.begin());

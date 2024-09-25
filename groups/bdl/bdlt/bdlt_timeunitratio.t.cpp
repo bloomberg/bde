@@ -5,7 +5,7 @@
 
 #include <bsl_iostream.h>
 
-#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstdlib.h>     // `atoi`
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -15,10 +15,10 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-// The component under test implements a single utility 'struct', that defines
-// a set of constants inside an 'enum'.  There is no executable code.
+// The component under test implements a single utility `struct`, that defines
+// a set of constants inside an `enum`.  There is no executable code.
 // Therefore the component can be tested in a single test case that simply
-// checks the values defined in the 'enum'.
+// checks the values defined in the `enum`.
 // ----------------------------------------------------------------------------
 // [ 2] const Int64 TimeUnitRatio::k_NANOSECONDS_PER_MICROSECOND
 // [ 2] const Int64 TimeUnitRatio::k_MICROSECONDS_PER_MILLISECOND
@@ -96,7 +96,7 @@ using namespace bsl;
 // [ 2] const int   TimeUnitRatio::k_H_PER_D_32
 // ----------------------------------------------------------------------------
 // [ 3] USAGE EXAMPLE
-// [ 1] TEST APPARATUS: 'calculateRatio'
+// [ 1] TEST APPARATUS: `calculateRatio`
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -166,38 +166,38 @@ Int64 k_SOURCE_USECS_PER_DAY = 86400000000LL;
 
 // Logical Derivations
 
+/// nano- indicates 10^-9:  ^123456789
 Int64 k_SOURCE_NSECS_PER_SEC = 1000000000;
-    // nano- indicates 10^-9:  ^123456789
 
+/// micro- indicates 10^-6: ^123456
 Int64 k_SOURCE_USECS_PER_SEC = 1000000;
-    // micro- indicates 10^-6: ^123456
 
 // ============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
 bsls::Types::Int64 ratios[] = {
-    // Each value in 'ratios' represents the multiplier between a unit of time,
+    // Each value in `ratios` represents the multiplier between a unit of time,
     // and the unit that follows it in the progression from nanosecond to day.
 
           1000,        1000,        1000,       60,        60,        24,
 };
 
 enum TimeIntervalDesignators {
-    // Each value in 'TimeIntervalDesignators' represents the offset of into
-    // 'ratios' at which the ratio between a given time unit and the next
-    // larger time unit occurs.  Note that there is no entry in 'ratios'
-    // corresponding to days ('k_D'), because there is no larger time unit.
+    // Each value in `TimeIntervalDesignators` represents the offset of into
+    // `ratios` at which the ratio between a given time unit and the next
+    // larger time unit occurs.  Note that there is no entry in `ratios`
+    // corresponding to days (`k_D`), because there is no larger time unit.
 
     k_NS,        k_US,        k_MS,        k_S,       k_M,       k_H,       k_D
 };
 
+/// Calculate the ratio between the numerator designated by the specified
+/// `numeratorID` and the denominator designated by the specified
+/// `denominatorID`.  The behavior is undefined unless `numeratorID` and
+/// `denominatorID` are values that appear in
+/// `enum TimeIntervalDesignators`, and `numeratorID <= denominatorID`.
 bsls::Types::Int64 calculateRatio(int numeratorID, int denominatorID)
-    // Calculate the ratio between the numerator designated by the specified
-    // 'numeratorID' and the denominator designated by the specified
-    // 'denominatorID'.  The behavior is undefined unless 'numeratorID' and
-    // 'denominatorID' are values that appear in
-    // 'enum TimeIntervalDesignators', and 'numeratorID <= denominatorID'.
 {
     ASSERT(k_NS <= numeratorID         );
     ASSERT(        numeratorID   <= k_D);
@@ -242,13 +242,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -268,7 +268,7 @@ int main(int argc, char *argv[])
 // Each component that needs to perform such conversions could derive the
 // constants needed locally, but doing so would result in an inconsistent
 // vocabulary across components, and multiple opportunities for bugs.
-// 'bdlt::TimeUnitRatio' achieves the desired consistency and avoids bugs by
+// `bdlt::TimeUnitRatio` achieves the desired consistency and avoids bugs by
 // providing a single location for the constants used in such conversions.
 //
 // Suppose we have a time interval described as an integral number of
@@ -277,79 +277,79 @@ int main(int argc, char *argv[])
 //
 // First, we define a variable representing the number of nanoseconds that have
 // elapsed since a particular event:
-//..
+// ```
     bsls::Types::Int64 interval = 62003004005LL;  // nanoseconds since event
-//..
+// ```
 // Then, we extract the minutes part from the total, using the constant
-// 'bdlt::TimeUnitRatio::k_NS_PER_M':
-//..
+// `bdlt::TimeUnitRatio::k_NS_PER_M`:
+// ```
     bsls::Types::Int64 minutesPart =
                                     interval / bdlt::TimeUnitRatio::k_NS_PER_M;
-//..
+// ```
 // Next, we calculate the remaining nanoseconds using the same constant:
-//..
+// ```
     bsls::Types::Int64 remainder = interval % bdlt::TimeUnitRatio::k_NS_PER_M;
-//..
+// ```
 // Then, we extract the seconds part from the remainder, using the constant
-// 'bdlt::TimeUnitRatio::k_NS_PER_S':
-//..
+// `bdlt::TimeUnitRatio::k_NS_PER_S`:
+// ```
     bsls::Types::Int64 secondsPart =
                                    remainder / bdlt::TimeUnitRatio::k_NS_PER_S;
-//..
+// ```
 // Next, we calculate the remaining nanoseconds using the same constant:
-//..
+// ```
     remainder %= bdlt::TimeUnitRatio::k_NS_PER_S;
-//..
+// ```
 // Then, we extract the milliseconds part from the remainder, using the
-// constant 'bdlt::TimeUnitRatio::k_NS_PER_MS':
-//..
+// constant `bdlt::TimeUnitRatio::k_NS_PER_MS`:
+// ```
     bsls::Types::Int64 millisecondsPart =
                                   remainder / bdlt::TimeUnitRatio::k_NS_PER_MS;
-//..
+// ```
 // Next, we calculate the remaining nanoseconds using the same constant:
-//..
+// ```
     remainder %= bdlt::TimeUnitRatio::k_NS_PER_MS;
-//..
+// ```
 // Then, we extract the microseconds part from the remainder, using the
-// constant 'bdlt::TimeUnitRatio::k_NS_PER_US':
-//..
+// constant `bdlt::TimeUnitRatio::k_NS_PER_US`:
+// ```
     bsls::Types::Int64 microsecondsPart =
                                   remainder / bdlt::TimeUnitRatio::k_NS_PER_US;
-//..
+// ```
 // Next, we calculate the remaining nanoseconds using the same constant:
-//..
+// ```
     remainder %= bdlt::TimeUnitRatio::k_NS_PER_US;
-//..
+// ```
 // Now, we extract the nanoseconds part, which is exactly the remainder we
 // already have:
-//..
+// ```
     bsls::Types::Int64 nanosecondsPart = remainder;
-//..
+// ```
 // Finally, we confirm that the parts we have extracted all have the correct
 // values:
-//..
+// ```
     ASSERT(1 == minutesPart);
     ASSERT(2 == secondsPart);
     ASSERT(3 == millisecondsPart);
     ASSERT(4 == microsecondsPart);
     ASSERT(5 == nanosecondsPart);
-//..
+// ```
 // Note that in practice, the number of nanoseconds since the event would be
 // provided by some system utility, and not a constant as was shown here for
 // purposes of exposition.
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'TimeUnitRatio' VALUES
+        // TESTING `TimeUnitRatio` VALUES
         //
         // Concerns:
-        //: 1 That each value defined in 'TimeUnitRatio' is correct.
+        // 1. That each value defined in `TimeUnitRatio` is correct.
         //
         // Plan:
-        //: 1 Using brute force, compare each explicit value defined in
-        //:   'TimeUnitRatio' to a value calculated using the 'calculateRatio'
-        //:   helper function.  (C-1)
+        // 1. Using brute force, compare each explicit value defined in
+        //    `TimeUnitRatio` to a value calculated using the `calculateRatio`
+        //    helper function.  (C-1)
         //
         // Testing:
         //   const Int64 TimeUnitRatio::k_NANOSECONDS_PER_MICROSECOND
@@ -429,7 +429,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'TimeUnitRatio' VALUES" << endl
+                          << "TESTING `TimeUnitRatio` VALUES" << endl
                           << "==============================" << endl;
 
         if (verbose) cout << "\nCompare constants to expected values." << endl;
@@ -918,22 +918,22 @@ int main(int argc, char *argv[])
         // TESTING ORACLE
         //
         // Concerns:
-        //: 1 That each single-step ratio between neighboring units is correct.
-        //:
-        //: 2 That the ratio between a unit and itself is '1'.
-        //:
-        //: 3 That ratios are accumulated across the entire range of units.
+        // 1. That each single-step ratio between neighboring units is correct.
+        //
+        // 2. That the ratio between a unit and itself is '1'.
+        //
+        // 3. That ratios are accumulated across the entire range of units.
         //
         // Plan:
-        //: 1 Using brute force, check the calculated ratio of each unit with
-        //:   itself and with the next larger unit in the progression from
-        //:   nanosecond to day.  (C-1,2)
-        //:
-        //: 2 Compare accumulated ratios with documented or empirically-derived
-        //:   values for larger time ratios.  (C-3)
+        // 1. Using brute force, check the calculated ratio of each unit with
+        //    itself and with the next larger unit in the progression from
+        //    nanosecond to day.  (C-1,2)
+        //
+        // 2. Compare accumulated ratios with documented or empirically-derived
+        //    values for larger time ratios.  (C-3)
         //
         // Testing:
-        //   TEST APPARATUS: 'calculateRatio'
+        //   TEST APPARATUS: `calculateRatio`
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl

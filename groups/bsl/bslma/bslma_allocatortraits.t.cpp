@@ -38,18 +38,18 @@ using namespace bsl;
 // the public types and (static member) functions are pass-through's to the
 // underlying allocator class's public types and methods.  Therefore, most of
 // the testing is simply to ensure that the pass-through is correct.  The
-// 'construct' function is more complex than the rest -- it doesn't call the
-// underlying allocator's 'construct' method but instead uses placement new to
+// `construct` function is more complex than the rest -- it doesn't call the
+// underlying allocator's `construct` method but instead uses placement new to
 // construct an object in one of two ways: If the allocator type follows the
-// 'bslma' allocator model, and if the object being constructed accepts a
-// 'bslma::Allocator*' argument, then the allocator itself is passed as an
+// `bslma` allocator model, and if the object being constructed accepts a
+// `bslma::Allocator*` argument, then the allocator itself is passed as an
 // extra argument to the object's constructor; otherwise, the arguments to
-// 'construct' are passed to object's constructors unchanged.  The test for
-// 'construct' must therefore test different combinations of both 'bslma' and
-// non-'bslma' allocator classes and both 'bslma'-compliant and
-// non-'bslma'-compliant object types.
+// `construct` are passed to object's constructors unchanged.  The test for
+// `construct` must therefore test different combinations of both `bslma` and
+// non-`bslma` allocator classes and both `bslma`-compliant and
+// non-`bslma`-compliant object types.
 //
-// This test plan tests each public member of 'allocator_traits' in turn.  The
+// This test plan tests each public member of `allocator_traits` in turn.  The
 // type members are needed by the function members, so they are tested first.
 // Other than that, there is no hierarchical relationship among the members, so
 // the order of test is arbitrary
@@ -179,7 +179,7 @@ namespace bsl {
 template <class TYPE>
 class allocator {
     // An STL-compatible allocator that forwards allocation calls to an
-    // underlying mechanism object of a type derived from 'bslma::Allocator'.
+    // underlying mechanism object of a type derived from `bslma::Allocator`.
     // This class template adheres to the allocator requirements defined in
     // section 20.1.5 [lib.allocator.requirements] of the C++ standard and may
     // be used to instantiate any [container] class template that follows the
@@ -216,49 +216,49 @@ class allocator {
     // CREATORS
     allocator();
         // Create a proxy object that will forward allocation calls to the
-        // object pointed to by 'bslma::Default::defaultAllocator()'.
+        // object pointed to by `bslma::Default::defaultAllocator()`.
         // Postcondition:
-        //..
+        // ```
         //  this->d_mechanism_p == bslma::Default::defaultAllocator();
-        //..
+        // ```
 
     allocator(BloombergLP::bslma::Allocator *mechanism);            // IMPLICIT
-        // Convert a 'bslma::Allocator' pointer to an 'allocator' object that
+        // Convert a `bslma::Allocator` pointer to an `allocator` object that
         // forwards allocation calls to the object pointed to by the specified
-        // 'mechanism'.  If 'mechanism' is 0, then the currently installed
+        // `mechanism`.  If `mechanism` is 0, then the currently installed
         // default allocator is used instead.  Postcondition:
-        // '0 == mechanism || this->mechanism() == mechanism'.
+        // `0 == mechanism || this->mechanism() == mechanism`.
 
     // MANIPULATORS
     pointer allocate(size_type n, const void *hint = 0);
-        // Allocate enough (properly aligned) space for the specified 'n'
-        // objects of (template parameter) 'TYPE' by calling 'allocate' on the
-        // mechanism object.  The optionally specified 'hint' argument is
+        // Allocate enough (properly aligned) space for the specified `n`
+        // objects of (template parameter) `TYPE` by calling `allocate` on the
+        // mechanism object.  The optionally specified `hint` argument is
         // ignored by this allocator type.  The behavior is undefined unless
-        // 'n <= max_size()'.
+        // `n <= max_size()`.
 
-    // In C++03, 'allocator_traits::construct' requires that the corresponding
-    // allocator has a 'construct' method.
+    // In C++03, `allocator_traits::construct` requires that the corresponding
+    // allocator has a `construct` method.
 
     template <class ELEMENT_TYPE>
     void construct(ELEMENT_TYPE *address);
-        // Construct an object of (template parameter) 'ELEMENT_TYPE', by
-        // calling the corresponding constructor of 'ELEMENT_TYPE', at the
-        // specified uninitialized memory 'address'.  The behavior is undefined
-        // unless 'address' is properly aligned for objects of 'ELEMENT_TYPE'.
+        // Construct an object of (template parameter) `ELEMENT_TYPE`, by
+        // calling the corresponding constructor of `ELEMENT_TYPE`, at the
+        // specified uninitialized memory `address`.  The behavior is undefined
+        // unless `address` is properly aligned for objects of `ELEMENT_TYPE`.
 
     template <class ELEMENT_TYPE>
     void construct(ELEMENT_TYPE *address, int argument);
-        // Construct an object of (template parameter) 'ELEMENT_TYPE', by
-        // forwarding the specified 'argument' to the corresponding constructor
-        // of 'ELEMENT_TYPE', at the specified uninitialized memory 'address'.
-        // The behavior is undefined unless 'address' is properly aligned for
-        // objects of 'ELEMENT_TYPE'.
+        // Construct an object of (template parameter) `ELEMENT_TYPE`, by
+        // forwarding the specified `argument` to the corresponding constructor
+        // of `ELEMENT_TYPE`, at the specified uninitialized memory `address`.
+        // The behavior is undefined unless `address` is properly aligned for
+        // objects of `ELEMENT_TYPE`.
 
     void deallocate(pointer p, size_type n = 1);
-        // Return memory previously allocated with 'allocate' to the underlying
-        // mechanism object by calling 'deallocate' on the mechanism object
-        // with the specified 'p'.  The optionally specified 'n' argument is
+        // Return memory previously allocated with `allocate` to the underlying
+        // mechanism object by calling `deallocate` on the mechanism object
+        // with the specified `p`.  The optionally specified `n` argument is
         // ignored by this allocator type.
 
     // ACCESSORS
@@ -333,8 +333,8 @@ allocator<TYPE> allocator<TYPE>::select_on_container_copy_construction() const
 template <class T1, class T2>
 inline
 bool operator==(const allocator<T1>& lhs, const allocator<T2>& rhs)
-    // Return 'true' if the specified 'lhs' and 'rhs' are proxies for the same
-    // 'bslma::Allocator' object.  This is a practical implementation of the
+    // Return `true` if the specified `lhs` and `rhs` are proxies for the same
+    // `bslma::Allocator` object.  This is a practical implementation of the
     // STL requirement that two allocators compare equal if and only if memory
     // allocated from one can be deallocated from the other.  Note that the two
     // allocators need not be instantiated on the same type in order to compare
@@ -346,8 +346,8 @@ bool operator==(const allocator<T1>& lhs, const allocator<T2>& rhs)
 template <class T1, class T2>
 inline
 bool operator!=(const allocator<T1>& lhs, const allocator<T2>& rhs)
-    // Return 'true' unless the specified 'lhs' and 'rhs' are proxies for the
-    // same 'bslma::Allocator' object, in which case return 'false'.  This is a
+    // Return `true` unless the specified `lhs` and `rhs` are proxies for the
+    // same `bslma::Allocator` object, in which case return `false`.  This is a
     // practical implementation of the STL requirement that two allocators
     // compare equal if and only if memory allocated from one can be
     // deallocated from the other.  Note that the two allocators need not be
@@ -372,22 +372,22 @@ using ::bsl::is_trivially_copyable;
 // In this section we show intended usage of this component.
 //
 // IMPORTANT NOTE: This usage example is based on an allocator of type
-// 'bsl::allocator', as defined in 'bslma_bslallocator.h'.  As 'bsl::allocator'
-// depends on 'bslma::allocatortraits', the use of a 'bsl::allocator' is not
+// `bsl::allocator`, as defined in `bslma_bslallocator.h`.  As `bsl::allocator`
+// depends on `bslma::allocatortraits`, the use of a `bsl::allocator` is not
 // possible in the test driver, and so a mock allocator class is used instead.
 //
 ///Example 1: A Container Class
 ///- - - - - - - - - - - - - -
-// This example demonstrates the intended use of 'allocator_traits' to
+// This example demonstrates the intended use of `allocator_traits` to
 // implement a standard-conforming container class.  First, we create a
 // container class that holds a single object and which meets the requirements
 // both of a standard container and of a Bloomberg container.  I.e., when
 // instantiated with an allocator argument it uses the standard allocator
-// model; otherwise it uses the 'bslma' model.  We provide an alias,
-// 'AllocTraits', to the specific 'allocator_traits' instantiation to simplify
+// model; otherwise it uses the `bslma` model.  We provide an alias,
+// `AllocTraits`, to the specific `allocator_traits` instantiation to simplify
 // the implementation of each method that must allocate memory, or create or
 // destroy elements.
-//..
+// ```
 // #include <bslma_allocatortraits.h>
 
 using namespace BloombergLP;
@@ -398,7 +398,7 @@ class MyContainer {
     // element, dynamically allocated using the specified allocator.
 
     typedef bsl::allocator_traits<ALLOC> AllocTraits;
-        // Alias for the 'allocator_traits' instantiation to use for all
+        // Alias for the `allocator_traits` instantiation to use for all
         // memory management requests.
 
     // DATA
@@ -425,17 +425,17 @@ class MyContainer {
     const TYPE& front() const { return *d_value_p; }
 
     // etc.
-//..
-// Next we define the type traits for 'MyContainer' so that it is recognized as
+// ```
+// Next we define the type traits for `MyContainer` so that it is recognized as
 // an STL *sequence* container:
-//: o Defines STL iterators
-//: o Is bitwise moveable if the allocator is bitwise moveable
-//: o Uses 'bslma' allocators if the 'ALLOC' template parameter is convertible
-//:   from 'bslma::Allocator*'.
-//..
+//  - Defines STL iterators
+//  - Is bitwise moveable if the allocator is bitwise moveable
+//  - Uses `bslma` allocators if the `ALLOC` template parameter is convertible
+//    from `bslma::Allocator*`.
+// ```
     // TRAITS
 
-    // We would do the following if 'bslalg' was accessible.
+    // We would do the following if `bslalg` was accessible.
     // BSLMF_NESTED_TRAIT_DECLARATION(
     //    MyContainer, bslalg::HasStlIterators);
 
@@ -449,21 +449,21 @@ class MyContainer {
         bslma::UsesBslmaAllocator,
         (bsl::is_convertible<bslma::Allocator*, ALLOC>::value));
 };
-//..
+// ```
 // Then we implement the constructors, which allocate memory and construct a
-// 'TYPE' object in the allocated memory.  Because the allocation and
+// `TYPE` object in the allocated memory.  Because the allocation and
 // construction are done in two separate steps, we need to create a proctor
 // that will deallocate the allocated memory in case the constructor throws an
 // exception.  The proctor uses the uniform interface provided by
-// 'allocator_traits' to access the 'pointer' and 'deallocate' members of
-// 'ALLOC':
-//..
+// `allocator_traits` to access the `pointer` and `deallocate` members of
+// `ALLOC`:
+// ```
 template <class ALLOC>
 class MyContainerProctor {
     // This class implements a proctor to release memory allocated during
-    // the construction of a 'MyContainer' object if the constructor for
+    // the construction of a `MyContainer` object if the constructor for
     // the container's data element throws an exception.  Such a proctor
-    // should be 'release'd once the element is safely constructed.
+    // should be `release`d once the element is safely constructed.
 
     typedef typename bsl::allocator_traits<ALLOC>::pointer pointer;
     ALLOC   d_alloc;
@@ -481,19 +481,19 @@ class MyContainerProctor {
 
     void release() { d_data_p = pointer(); }
 };
-//..
-// Next, we perform the actual allocation and construction using the 'allocate'
-// and 'construct' members of 'allocator_traits', which provide the correct
+// ```
+// Next, we perform the actual allocation and construction using the `allocate`
+// and `construct` members of `allocator_traits`, which provide the correct
 // semantic for passing the allocator to the constructed object when
 // appropriate:
-//..
+// ```
 template <class TYPE, class ALLOC>
 MyContainer<TYPE, ALLOC>::MyContainer(const ALLOC& a)
     : d_allocator(a)
 {
     d_value_p = AllocTraits::allocate(d_allocator, 1);
     MyContainerProctor<ALLOC> proctor(a, d_value_p);
-    // Call 'construct' with no constructor arguments
+    // Call `construct` with no constructor arguments
     AllocTraits::construct(d_allocator, d_value_p);
     proctor.release();
 }
@@ -504,17 +504,17 @@ MyContainer<TYPE, ALLOC>::MyContainer(const TYPE& v, const ALLOC& a)
 {
     d_value_p = AllocTraits::allocate(d_allocator, 1);
     MyContainerProctor<ALLOC> proctor(a, d_value_p);
-    // Call 'construct' with one constructor argument of type 'TYPE'
+    // Call `construct` with one constructor argument of type `TYPE`
     AllocTraits::construct(d_allocator, d_value_p, v);
     proctor.release();
 }
-//..
-// Next, the copy constructor for 'MyContainer' needs to conditionally copy the
-// allocator from the 'other' container.  The copy constructor uses
-// 'allocator_traits::select_on_container_copy_construction' to decide whether
-// to copy the 'other' allocator (for non-bslma allocators) or to
+// ```
+// Next, the copy constructor for `MyContainer` needs to conditionally copy the
+// allocator from the `other` container.  The copy constructor uses
+// `allocator_traits::select_on_container_copy_construction` to decide whether
+// to copy the `other` allocator (for non-bslma allocators) or to
 // default-construct the allocator (for bslma allocators).
-//..
+// ```
 template <class TYPE, class ALLOC>
 MyContainer<TYPE, ALLOC>::MyContainer(const MyContainer& other)
     : d_allocator(bsl::allocator_traits<ALLOC>::
@@ -525,20 +525,20 @@ MyContainer<TYPE, ALLOC>::MyContainer(const MyContainer& other)
     AllocTraits::construct(d_allocator, d_value_p, *other.d_value_p);
     proctor.release();
 }
-//..
-// Now, the destructor uses 'allocator_traits' functions to destroy and
+// ```
+// Now, the destructor uses `allocator_traits` functions to destroy and
 // deallocate the value object:
-//..
+// ```
 template <class TYPE, class ALLOC>
 MyContainer<TYPE, ALLOC>::~MyContainer()
 {
     AllocTraits::destroy(d_allocator, d_value_p);
     AllocTraits::deallocate(d_allocator, d_value_p, 1);
 }
-//..
-// Finally, we perform a simple test of 'MyContainer', instantiating it with
-// element type 'int':
-//..
+// ```
+// Finally, we perform a simple test of `MyContainer`, instantiating it with
+// element type `int`:
+// ```
 int usageExample1()
 {
     bslma::TestAllocator testAlloc;
@@ -552,15 +552,15 @@ int usageExample1()
 
     return 0;
 }
-//..
+// ```
 ///Example 2: C++03 Allocators
 ///- - - - - - - - - - - - - -
-// This example shows that when 'MyContainer' is instantiated with a C++03
+// This example shows that when `MyContainer` is instantiated with a C++03
 // allocator, that the allocator is a) copied on copy construction and b) is
 // not propagated from the container to its elements.  Firstly we create a
-// representative element class, 'MyType', that allocates memory using the
+// representative element class, `MyType`, that allocates memory using the
 // bslma allocator protocol:
-//..
+// ```
 // #include <bslma_default.h>
 
 class MyType {
@@ -585,9 +585,9 @@ class MyType {
 
     // etc.
 };
-//..
+// ```
 // Then we create a C++03-style allocator class template:
-//..
+// ```
 template <class TYPE>
 class MyCpp03Allocator {
     int d_state;
@@ -707,12 +707,12 @@ bool operator!=(const MyCpp03Allocator<TYPE1>& lhs,
 {
     return ! (lhs == rhs);
 }
-//..
-// Finally we instantiate 'MyContainer' using this allocator type and verify
+// ```
+// Finally we instantiate `MyContainer` using this allocator type and verify
 // that elements are constructed using the default allocator (because the
 // allocator is not propagated from the container).  We also verify that the
 // allocator is copied on copy-construction:
-//..
+// ```
 int usageExample2()
 {
     typedef MyCpp03Allocator<MyType> MyTypeAlloc;
@@ -742,7 +742,7 @@ int usageExample2()
 
     return 0;
 }
-//..
+// ```
 
 }  // close namespace usage_example
 
@@ -754,7 +754,7 @@ int usageExample2()
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-// 'g_x' is a dummy object with a unique address
+// `g_x` is a dummy object with a unique address
 struct Uniq { } g_x;
 
 // The following are default values for the 5 attributes of our test classes.
@@ -768,7 +768,7 @@ Uniq       *const DFLT_E = &g_x;
 //                  GLOBAL HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
-// Most recent hint given to any allocator's 'allocate' member function.
+// Most recent hint given to any allocator's `allocate` member function.
 const void* g_lastHint;
 
                           // =======================
@@ -778,7 +778,7 @@ const void* g_lastHint;
 template <class TYPE>
 class NonBslmaAllocator {
     // This class is a C++03-compliant allocator that does not conform to the
-    // 'bslma' allocator model.
+    // `bslma` allocator model.
     bslma::Allocator *d_mechanism;
 
   public:
@@ -913,8 +913,8 @@ bool operator!=(const NonBslmaAllocator<TYPE_1>& lhs,
 template <class TYPE>
 class BslmaAllocator
 {
-    // This class is a C++03-compliant allocator that conforms to the 'bslma'
-    // allocator model (i.e., it is convertible from 'bslma::Allocator*'.
+    // This class is a C++03-compliant allocator that conforms to the `bslma`
+    // allocator model (i.e., it is convertible from `bslma::Allocator*`.
     bslma::Allocator *d_mechanism;
 
     typedef typename bslma::UsesBslmaAllocator<TYPE>::type IsBslma;
@@ -1075,7 +1075,7 @@ class FunkyPointer
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
     FunkyPointer& operator=(const FunkyPointer& rhs) = default;
-        // Assign to this object the value of the specified 'rhs', and return a
+        // Assign to this object the value of the specified `rhs`, and return a
         // reference providing modifiable access to this object.
 #endif
 
@@ -1104,12 +1104,12 @@ bool operator!=(FunkyPointer<TYPE> lhs, FunkyPointer<TYPE> rhs)
 template <class TYPE>
 class FunkyAllocator
 {
-    // Allocator that uses 'FunkyPointer' as its pointer type.  Not all
+    // Allocator that uses `FunkyPointer` as its pointer type.  Not all
     // allocator-aware classes can work with such an allocator, but
-    // 'allocator_traits' should work fine.
+    // `allocator_traits` should work fine.
     //
-    // This class is a C++03-compliant allocator that conforms to the 'bslma'
-    // allocator model (i.e., it is convertible from 'bslma::Allocator*'.
+    // This class is a C++03-compliant allocator that conforms to the `bslma`
+    // allocator model (i.e., it is convertible from `bslma::Allocator*`.
     bslma::Allocator *d_mechanism;
 
     void doConstruct(TYPE *p, const TYPE& val, bsl::false_type) {
@@ -1293,8 +1293,8 @@ template <class TYPE, class TRAIT_VALUE>
 class MinimalNonEmptyAllocatorWithTraits {
     // Minimal non-empty allocator with trait overrides
     //
-    // This class is a C++11-compliant allocator delegates to 'new' and
-    // 'delete', and permits overriding of all of the traits.
+    // This class is a C++11-compliant allocator delegates to `new` and
+    // `delete`, and permits overriding of all of the traits.
 
     int d_dummyData; // dummy data to make the class non-emtpy.
 
@@ -1331,13 +1331,13 @@ class MinimalNonEmptyAllocatorWithTraits {
 
     BSLA_NODISCARD
     TYPE* allocate(size_t n)
-        // Call 'new' with the specified 'n'.
+        // Call `new` with the specified `n`.
     {
         return ::operator new(n * sizeof(TYPE));
     }
 
     void deallocate(TYPE* p, size_t)
-        // Call 'new' with the specified 'p'.
+        // Call `new` with the specified `p`.
     {
         ::operator delete(p);
     }
@@ -1358,7 +1358,7 @@ struct AttribStruct5
 class AttribClass5
 {
     // This test class has up to 5 constructor arguments and does not use the
-    // 'bslma' allocator protocol.
+    // `bslma` allocator protocol.
 
     AttribStruct5 d_attrib;
 
@@ -1411,8 +1411,8 @@ template <class ALLOC>
 class AttribClass5Alloc
 {
     // This test class has up to 5 constructor arguments plus an (optional)
-    // allocator.  If the 'ALLOC' template argument is 'allocator', then this
-    // class conforms to the 'bslma' allocator model, otherwise it does not.
+    // allocator.  If the `ALLOC` template argument is `allocator`, then this
+    // class conforms to the `bslma` allocator model, otherwise it does not.
 
     AttribClass5 d_attrib;
     ALLOC        d_allocator;
@@ -1453,7 +1453,7 @@ class AttribClass5Alloc
     friend void operator&(AttribClass5Alloc&) { }
 };
 
-// Set the 'UsesBslmaAllocator' trait.  If the allocator uses the bslma model,
+// Set the `UsesBslmaAllocator` trait.  If the allocator uses the bslma model,
 // then this trait will be true.
 namespace BloombergLP {
 namespace bslma {
@@ -1468,7 +1468,7 @@ namespace bslma {
 class AttribClass5bslma
 {
     // This test class has up to 5 constructor arguments plus an (optional)
-    // address of a 'bslma::Allocator'.  This class conforms to the 'bslma'
+    // address of a `bslma::Allocator`.  This class conforms to the `bslma`
     // allocator model.
 
     AttribClass5      d_attrib;
@@ -1534,11 +1534,11 @@ matchAttrib(const TYPE&   v,
 
 template <class TYPE>
 inline bool isMutable(TYPE& /* x */) { return true; }
-    // Return 'true'.  Preferred match if 'x' is a modifiable lvalue.
+    // Return `true`.  Preferred match if `x` is a modifiable lvalue.
 
 template <class TYPE>
 inline bool isMutable(const TYPE& /* x */) { return false; }
-    // Return 'false'.  Preferred match if 'x' is an rvalue or const lvalue.
+    // Return `false`.  Preferred match if `x` is an rvalue or const lvalue.
 
 //=============================================================================
 //                  IMPLEMENTATION OF TEST CASES
@@ -1546,12 +1546,12 @@ inline bool isMutable(const TYPE& /* x */) { return false; }
 
 template <template <class TYPE> class ALLOC_TMPLT>
 void testAllocatorConformance(const char* allocName)
-    // Print to the console the specified 'allocName' and then test the
-    // (template parameter) 'ALLOC_TMPLT' allocator class template (as part of
-    // testing the test harness).  Instantiating 'ALLOC_TMPLT<AttribClass5>',
+    // Print to the console the specified `allocName` and then test the
+    // (template parameter) `ALLOC_TMPLT` allocator class template (as part of
+    // testing the test harness).  Instantiating `ALLOC_TMPLT<AttribClass5>`,
     // check that each nested typedef required for C++03 allocators exists and
     // has the correct qualities (e.g., integral, pointer-like, etc.  Check
-    // that 'rebind<float>::other' is the same as 'ALLOC_TMPLT<float>'.  Invoke
+    // that `rebind<float>::other` is the same as `ALLOC_TMPLT<float>`.  Invoke
     // each member function and verify the expected behavior.
 {
     if (verbose) printf("Testing allocator class template %s\n", allocName);
@@ -1573,7 +1573,7 @@ void testAllocatorConformance(const char* allocName)
 
     LOOP_ASSERT_ISSAME(allocName, value_type, AttribClass5);
 
-    // Verify that 'pointer' and 'const_pointer' are pointer-like
+    // Verify that `pointer` and `const_pointer` are pointer-like
     pointer p;
     LOOP_ASSERT(allocName, sizeof(*p) == sizeof(value_type));
     const_pointer cp;
@@ -1582,8 +1582,8 @@ void testAllocatorConformance(const char* allocName)
     LOOP_ASSERT_ISSAME(allocName, reference, value_type&);
     LOOP_ASSERT_ISSAME(allocName, const_reference, const value_type&);
 
-    // Verify that 'size_type' is an unsigned integral type and
-    // 'difference_type' is a signed integral type.
+    // Verify that `size_type` is an unsigned integral type and
+    // `difference_type` is a signed integral type.
     {
         size_type s = -1;
         LOOP_ASSERT(allocName, s > 0);
@@ -1649,7 +1649,7 @@ void testAllocatorConformance(const char* allocName)
     LOOP6_ASSERT(allocName, p->a(), p->b(), p->c(), p->d(), p->e(),
                  matchAttrib(*p, VAL_A, VAL_B, VAL_C, VAL_D, VAL_E));
 
-    // Test that 'pointer' can convert to 'const_pointer'
+    // Test that `pointer` can convert to `const_pointer`
     cp = p;
     LOOP_ASSERT(allocName, isMutable(*p));
     LOOP_ASSERT(allocName, ! isMutable(*cp));
@@ -1689,8 +1689,8 @@ void testAllocatorConformance(const char* allocName)
 
 template <class TYPE>
 void testAttribClass(const char* className)
-    // Print to the console the specified 'className' and then test the
-    // specified 'TYPE' attribute class as part of testing the test harness.
+    // Print to the console the specified `className` and then test the
+    // specified `TYPE` attribute class as part of testing the test harness.
     // Invoke each constructor, then test that the object has the expected
     // attributes and allocator.
 {
@@ -1775,10 +1775,10 @@ void testAttribClass(const char* className)
 
 template <>
 void testAttribClass<AttribClass5>(const char* className)
-    // Test the 'AttribClass5' class as part of testing the test harness.
+    // Test the `AttribClass5` class as part of testing the test harness.
     // Invoke each constructor, then test that the object has the expected
     // attributes and allocator.  This function is a specialization of
-    // 'testAttribClass' that tests 'AttribClass5' and doesn't use an
+    // `testAttribClass` that tests `AttribClass5` and doesn't use an
     // allocator.
 {
     if (verbose) printf("Testing attribute class %s\n", className);
@@ -1972,7 +1972,7 @@ void testRebind(const char* testName)
     BSLA_MAYBE_UNUSED typedef typename Traits1::template rebind_traits<float>
         Traits1ReboundF;
 
-    // Rebind from 'TYPE_1' to 'U'
+    // Rebind from `TYPE_1` to `U`
     LOOP_ASSERT(testName, (bsl::is_convertible<
                            Alloc1Rebound2*, Alloc2*>::value));
     LOOP_ASSERT(testName, (bsl::is_convertible<
@@ -1980,7 +1980,7 @@ void testRebind(const char* testName)
     LOOP_ASSERT_ISSAME(testName,
                        typename Traits1Rebound2::allocator_type, Alloc2);
 
-    // Rebind from 'U' to 'TYPE_1'
+    // Rebind from `U` to `TYPE_1`
     LOOP_ASSERT(testName,
                 (bsl::is_convertible<Alloc2Rebound1*, Alloc1*>::value));
     LOOP_ASSERT(testName,
@@ -1988,7 +1988,7 @@ void testRebind(const char* testName)
     LOOP_ASSERT_ISSAME(testName,
                        typename Traits2Rebound1::allocator_type, Alloc1);
 
-    // Rebind from 'TYPE_1' to 'TYPE_1' (identity)
+    // Rebind from `TYPE_1` to `TYPE_1` (identity)
     LOOP_ASSERT(testName,
                 (bsl::is_convertible<Alloc1Rebound1*, Alloc1*>::value));
     LOOP_ASSERT(testName,
@@ -2040,7 +2040,7 @@ void testAllocateDeallocate(const char *name)
     const char hint[1] =  { 'H' };
     const char nonHint[1] = { '-' };
 
-    // All of the test classes use 'AttribClass5' to keep track of their
+    // All of the test classes use `AttribClass5` to keep track of their
     // constructor and destructor calls.
     const int ctorCountB = AttribClass5::ctorCount();
     const int dtorCountB = AttribClass5::dtorCount();
@@ -2127,10 +2127,10 @@ void testConstructDestroy(const char *allocname,
 
     ALLOC a(&ta);
 
-    // Expected allocator for object after construction will be a copy of 'a'
+    // Expected allocator for object after construction will be a copy of `a`
     // if the scoped model is used or the default allocator otherwise.  Note
-    // that 'TYPE::AllocatorType might be different than 'ALLOC', in which case
-    // 'scoped' must be false.
+    // that `TYPE::AllocatorType might be different than `ALLOC', in which case
+    // `scoped` must be false.
     typename TYPE::AllocatorType exp_a(scoped ? &ta : &default_ta);
 
     // Contents of this array are unimportant -- only their addresses are used.
@@ -2247,14 +2247,14 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage examples in the header file compile.
-        //: 2 The usage examples in the header produces correct results.
+        // 1. The usage examples in the header file compile.
+        // 2. The usage examples in the header produces correct results.
         //
         // Test plan:
-        //: o Copy the usage examples from the header into this test driver,
-        //:   replacing 'assert' with 'ASSERT' and 'main' with 'usageExample1',
-        //:   'usageExample2', and 'usageExample3'.  (C1)
-        //: o Call 'usageExample1', 'usageExample2', and 'usageExample3' (C2)
+        //  - Copy the usage examples from the header into this test driver,
+        //    replacing `assert` with `ASSERT` and `main` with `usageExample1`,
+        //    `usageExample2`, and `usageExample3`.  (C1)
+        //  - Call `usageExample1`, `usageExample2`, and `usageExample3` (C2)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -2269,26 +2269,26 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'select_on_container_copy_construction'
+        // TESTING `select_on_container_copy_construction`
         //
         // Concerns:
-        //: 1 For an allocator 'a' of type 'ALLOC' that is convertible from
-        //:   'bslma::Allocator*', 'allocator_traits<ALLOC>'
-        //:   '::select_on_container_copy_construction(a)' returns 'ALLOC()'
-        //: 2 For an allocator 'a' of type 'ALLOC' that is NOT convertible from
-        //:   'bslma::Allocator*', 'allocator_traits<ALLOC>'
-        //:   '::select_on_container_copy_construction(a)' returns 'a'
+        // 1. For an allocator `a` of type `ALLOC` that is convertible from
+        //    `bslma::Allocator*`, `allocator_traits<ALLOC>`
+        //    `::select_on_container_copy_construction(a)` returns `ALLOC()`
+        // 2. For an allocator `a` of type `ALLOC` that is NOT convertible from
+        //    `bslma::Allocator*`, `allocator_traits<ALLOC>`
+        //    `::select_on_container_copy_construction(a)` returns `a`
         //
         // Plan
-        //: o For a variety of allocators, test that the function under test
-        //:   returns the appropriate result.
+        //  - For a variety of allocators, test that the function under test
+        //    returns the appropriate result.
         //
         // Testing:
         //   ALLOC select_on_container_copy_construction(const ALLOC& rhs);
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                        "\nTESTING 'select_on_container_copy_construction'"
+                        "\nTESTING `select_on_container_copy_construction`"
                         "\n===============================================\n");
 
 #define TEST_SOCCC_COPY(ALLOC) {                                              \
@@ -2338,23 +2338,23 @@ int main(int argc, char *argv[])
 
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'max_size'
+        // TESTING `max_size`
         //
         // Concerns:
-        //: 1 For any allocator 'a' of type 'ALLOC',
-        //:   'allocator_traits<ALLOC>::max_size(a)' will return the same value
-        //:   as 'a.max_size()'.
+        // 1. For any allocator `a` of type `ALLOC`,
+        //    `allocator_traits<ALLOC>::max_size(a)` will return the same value
+        //    as `a.max_size()`.
         //
         // Plan:
-        //: o For a variety of allocators, test the result of calling
-        //:   'max_size' through the 'allocator_traits' is the same as calling
-        //:   'max_size' directly.
+        //  - For a variety of allocators, test the result of calling
+        //    `max_size` through the `allocator_traits` is the same as calling
+        //    `max_size` directly.
         //
         // Testing:
         //   size_type max_size(const ALLOC& a);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'max_size'"
+        if (verbose) printf("\nTESTING `max_size`"
                             "\n==================\n");
 
 #define TEST_MAX_SIZE(ALLOC) {                                                \
@@ -2398,53 +2398,53 @@ int main(int argc, char *argv[])
         // TESTING CONSTRUCT AND DESTROY
         //
         // Concerns:
-        //: 1 For an allocator 'a' of type 'ALLOC', calling
-        //:   'allocator_traits<ALLOC>::construct(a, p, args)', where 'p' is a
-        //:   pointer to an object of type 'TYPE' and *args* represents 0 to 5
-        //:   constructor arguments for 'TYPE', the constructor for 'TYPE' will
-        //:   be invoked for the object at 'p' and will be passed *args*.
-        //: 2 (Special case of the previous concern) calling
-        //:   'allocator_traits<ALLOC>::construct(a, p, v)', where 'v' is an
-        //:   expression of type 'TYPE' will result in the copy constructor for
-        //:   'TYPE' being invoked to make a copy of 'v'.
-        //: 3 If 'TYPE' is a type which has the trait
-        //:   'bslma::UsesBslmaAllocator', and 'ALLOC' is convertible from
-        //:   'bslma::Allocator*', then 'a' is passed as an additional
-        //:   constructor argument to 'allocator_traits<ALLOC>::construct'.
-        //: 4 Calling 'allocator_traits<ALLOC>::destroy(a, p)' invokes the
-        //:   destructor for 'TYPE' for the object at 'p'.
-        //: 5 The behavior of 'construct' and 'destroy' is unaffected by the
-        //:   type of 'ALLOC::value_type' nor by the relationship between
-        //:   'ALLOC::value_type' and 'TYPE'.
+        // 1. For an allocator `a` of type `ALLOC`, calling
+        //    `allocator_traits<ALLOC>::construct(a, p, args)`, where `p` is a
+        //    pointer to an object of type `TYPE` and *args* represents 0 to 5
+        //    constructor arguments for `TYPE`, the constructor for `TYPE` will
+        //    be invoked for the object at `p` and will be passed *args*.
+        // 2. (Special case of the previous concern) calling
+        //    `allocator_traits<ALLOC>::construct(a, p, v)`, where `v` is an
+        //    expression of type `TYPE` will result in the copy constructor for
+        //    `TYPE` being invoked to make a copy of `v`.
+        // 3. If `TYPE` is a type which has the trait
+        //    `bslma::UsesBslmaAllocator`, and `ALLOC` is convertible from
+        //    `bslma::Allocator*`, then `a` is passed as an additional
+        //    constructor argument to `allocator_traits<ALLOC>::construct`.
+        // 4. Calling `allocator_traits<ALLOC>::destroy(a, p)` invokes the
+        //    destructor for `TYPE` for the object at `p`.
+        // 5. The behavior of `construct` and `destroy` is unaffected by the
+        //    type of `ALLOC::value_type` nor by the relationship between
+        //    `ALLOC::value_type` and `TYPE`.
         //
         // Plan:
-        //: o Create a function template, 'testConstructDestruct' that can be
-        //:   instantiated with an arbitrary allocator type 'ALLOC' and type
-        //:   'TYPE' and that addresses of the above concerns as follows.  Give
-        //:   'testConstructDestruct' a boolean parameter, 'scoped', that the
-        //:   caller sets to 'true' if 'ALLOC' is convertible from
-        //:   'bslma::Allocator*' and 'TYPE' has the trait
-        //:   'bslma::UsesBslmaAllocator' (C1-C5)
-        //: o Within 'testConstructDestruct', create an aligned buffer 'b' for
-        //:   an object of type 'TYPE'.  Create an allocator 'a' and call
-        //:   'allocator_traits<ALLOC>::construct(a, &b, args)', where args is
-        //:   0 to 5 arguments, including a single argument of type 'TYPE'.
-        //:   Verify that a constructor for 'TYPE' was called and that the
-        //:   resulting object has the expected attributes.  (C1,C2)
-        //: o If 'scoped' is true, verify that the call to 'construct' resulted
-        //:   in the constructed object using allocator 'a'.  Otherwise, the
-        //:   constructed object uses the default allocator.  (C3)
-        //: o Call 'allocator_traits<ALLOC>::destroy(a, &b)' and verify that
-        //:   the 'TYPE' destructor for the object in 'b' is invoked.  (C4)
-        //: o Instantiate and invoke 'testConstructDestroy' on each meaningful
-        //:   combination of attribute classes ('AttribClass5',
-        //:   'AttribClass5Alloc', and 'AttribClass5bslma') and allocator type
-        //:   ('NonBslmaAllocator', 'BslmaAllocator', 'FunkyAllocator',
-        //:   including combinations were the allocator's 'value_type' does and
-        //:   does not match the attribute class.  When instantiating
-        //:   'testConstructDestroy', ensure that 'scoped' is set appropriately
-        //:   for the combination of the allocator and attribute class.
-        //:   (C1-C5)
+        //  - Create a function template, `testConstructDestruct` that can be
+        //    instantiated with an arbitrary allocator type `ALLOC` and type
+        //    `TYPE` and that addresses of the above concerns as follows.  Give
+        //    `testConstructDestruct` a boolean parameter, `scoped`, that the
+        //    caller sets to `true` if `ALLOC` is convertible from
+        //    `bslma::Allocator*` and `TYPE` has the trait
+        //    `bslma::UsesBslmaAllocator` (C1-C5)
+        //  - Within `testConstructDestruct`, create an aligned buffer `b` for
+        //    an object of type `TYPE`.  Create an allocator `a` and call
+        //    `allocator_traits<ALLOC>::construct(a, &b, args)`, where args is
+        //   0. to 5 arguments, including a single argument of type `TYPE`.
+        //    Verify that a constructor for `TYPE` was called and that the
+        //    resulting object has the expected attributes.  (C1,C2)
+        //  - If `scoped` is true, verify that the call to `construct` resulted
+        //    in the constructed object using allocator `a`.  Otherwise, the
+        //    constructed object uses the default allocator.  (C3)
+        //  - Call `allocator_traits<ALLOC>::destroy(a, &b)` and verify that
+        //    the `TYPE` destructor for the object in `b` is invoked.  (C4)
+        //  - Instantiate and invoke `testConstructDestroy` on each meaningful
+        //    combination of attribute classes (`AttribClass5`,
+        //    `AttribClass5Alloc`, and `AttribClass5bslma`) and allocator type
+        //    (`NonBslmaAllocator`, `BslmaAllocator`, `FunkyAllocator`,
+        //    including combinations were the allocator's `value_type` does and
+        //    does not match the attribute class.  When instantiating
+        //    `testConstructDestroy`, ensure that `scoped` is set appropriately
+        //    for the combination of the allocator and attribute class.
+        //    (C1-C5)
         //
         // Testing:
         //   void construct(ALLOC& a, TYPE *p, Args&&... args);
@@ -2524,46 +2524,46 @@ int main(int argc, char *argv[])
         // TESTING ALLOCATE AND DEALLOCATE
         //
         // Concerns:
-        //: 1 For any allocator 'a' of type 'ALLOC', with value type 'TYPE',
-        //:   calling 'allocator_traits<ALLOC>::allocate(a, n)' results in a
-        //:   pass-through call to
-        //:   'a.allocate(n), returning enough space for 'n' objects of type
-        //:   'TYPE'.
-        //: 2 If a hint pointer, 'h', is passed to
-        //:   'allocator_traits<ALLOC>::allocate(a, n, h)', then 'h' is passed
-        //:   through to the underlying call to 'a.allocate(n, h)'.
-        //: 3 A call to 'allocator_traits<ALLOC>::deallocate(a, p, n)' results
-        //:   in a pass-through call to 'a.deallocate(p, n)', deallocating the
-        //:   previously-allocated memory at 'p'.
-        //: 4 Neither 'allocate' nor 'deallocate' results in any constructors
-        //:   being called for 'TYPE'.
+        // 1. For any allocator `a` of type `ALLOC`, with value type `TYPE`,
+        //    calling `allocator_traits<ALLOC>::allocate(a, n)` results in a
+        //    pass-through call to
+        //    `a.allocate(n), returning enough space for `n' objects of type
+        //    `TYPE`.
+        // 2. If a hint pointer, `h`, is passed to
+        //    `allocator_traits<ALLOC>::allocate(a, n, h)`, then `h` is passed
+        //    through to the underlying call to `a.allocate(n, h)`.
+        // 3. A call to `allocator_traits<ALLOC>::deallocate(a, p, n)` results
+        //    in a pass-through call to `a.deallocate(p, n)`, deallocating the
+        //    previously-allocated memory at `p`.
+        // 4. Neither `allocate` nor `deallocate` results in any constructors
+        //    being called for `TYPE`.
         //
         // Plan:
-        //: o Create a function template 'testAllocateDeallocate' which may be
-        //:   instantiated with an arbitrary standard-conforming allocator
-        //:   type, ALLOC.  This function makes multiple calls to
-        //:   'allocator_traits<ALLOC>::allocate(a, n)', where 'a' is an
-        //:   instance of 'ALLOC' and n is 1, 2, and 10.  Verify that the
-        //:   allocator allocates the expected amount of memory.  (C1)
-        //: o Within 'testAllocateDeallocate', also call
-        //:   'allocator_traits<ALLOC>::allocate(a, n, h)', where 'h' is an
-        //:   arbitrary address, and verify that the correct amount of memory
-        //:   is allocated and that 'h' was passed through to the allocator.
-        //:   (All of the allocators used for testing are instrumented so that
-        //:   'h' is stored in a known location.)  (C2)
-        //: o For each pointer, 'p', returned by calling
-        //:   'allocator_traits<ALLOC>::allocate(a, n [, h])' within
-        //:   'testAllocateDeallocate', call
-        //:   'allocator_traits<ALLOC>::deallocate(p, n)' and verify that the
-        //:   storage was deallocated.  (C3)
-        //: o Finally, test that none of the operations within
-        //:   'testAllocateDeallocate' change the count of constructors or
-        //:   destructors invoked on our test types.  (C4)
-        //: o Instantiate and invoke 'testAllocateDeallocate' on each
-        //:   meaningful combination of attribute classes ('AttribClass5',
-        //:   'AttribClass5Alloc', and 'AttribClass5bslma') and allocator type
-        //:   ('NonBslmaAllocator', 'BslmaAllocator', 'FunkyAllocator').
-        //:   (C1-C4)
+        //  - Create a function template `testAllocateDeallocate` which may be
+        //    instantiated with an arbitrary standard-conforming allocator
+        //    type, ALLOC.  This function makes multiple calls to
+        //    `allocator_traits<ALLOC>::allocate(a, n)`, where `a` is an
+        //    instance of `ALLOC` and n is 1, 2, and 10.  Verify that the
+        //    allocator allocates the expected amount of memory.  (C1)
+        //  - Within `testAllocateDeallocate`, also call
+        //    `allocator_traits<ALLOC>::allocate(a, n, h)`, where `h` is an
+        //    arbitrary address, and verify that the correct amount of memory
+        //    is allocated and that `h` was passed through to the allocator.
+        //    (All of the allocators used for testing are instrumented so that
+        //    `h` is stored in a known location.)  (C2)
+        //  - For each pointer, `p`, returned by calling
+        //    `allocator_traits<ALLOC>::allocate(a, n [, h])` within
+        //    `testAllocateDeallocate`, call
+        //    `allocator_traits<ALLOC>::deallocate(p, n)` and verify that the
+        //    storage was deallocated.  (C3)
+        //  - Finally, test that none of the operations within
+        //    `testAllocateDeallocate` change the count of constructors or
+        //    destructors invoked on our test types.  (C4)
+        //  - Instantiate and invoke `testAllocateDeallocate` on each
+        //    meaningful combination of attribute classes (`AttribClass5`,
+        //    `AttribClass5Alloc`, and `AttribClass5bslma`) and allocator type
+        //    (`NonBslmaAllocator`, `BslmaAllocator`, `FunkyAllocator`).
+        //    (C1-C4)
         //
         // Testing:
         //   pointer allocate(ALLOC& a, size_type n);
@@ -2608,25 +2608,25 @@ int main(int argc, char *argv[])
         // TESTING REBIND
         //
         // Concerns:
-        //: 1 For allocator template 'ALLOC_TMPL' and types 'TYPE' and 'U',
-        //:   'allocator_traits<ALLOC_TMPL<TYPE> >::rebind_alloc<U>' is the
-        //:   same as, or derived from 'ALLOC_TMPL<U>'.
-        //: 2 For allocator template 'ALLOC_TMPL' and types 'TYPE' and 'U',
-        //:   'allocator_traits<ALLOC_TMPL<TYPE> >::rebind_traits<U>' is the
-        //:   same as, or derived from 'allocator_traits<ALLOC_TMPL<U> >'.
-        //: 3 A rebind operation can be applied twice to a rebound type.
-        //: 4 Concerns 1 through 3 apply if 'TYPE' is the same as 'U'.
+        // 1. For allocator template `ALLOC_TMPL` and types `TYPE` and `U`,
+        //    `allocator_traits<ALLOC_TMPL<TYPE> >::rebind_alloc<U>` is the
+        //    same as, or derived from `ALLOC_TMPL<U>`.
+        // 2. For allocator template `ALLOC_TMPL` and types `TYPE` and `U`,
+        //    `allocator_traits<ALLOC_TMPL<TYPE> >::rebind_traits<U>` is the
+        //    same as, or derived from `allocator_traits<ALLOC_TMPL<U> >`.
+        // 3. A rebind operation can be applied twice to a rebound type.
+        // 4. Concerns 1 through 3 apply if `TYPE` is the same as `U`.
         //
         // Plan
-        //: o Create a function template, 'testRebind' that applies
-        //:   'rebind_alloc' and 'rebind_traits' and tests the resulting types.
-        //:   (C1-C2)
-        //: o 'testRebind' also applies 'rebind_alloc' and 'rebind_traits' to
-        //:   the results of the previous rebinds.  (C3)
-        //: o 'testRebind' also applies 'rebind_alloc<TYPE>' and
-        //:   'rebind_traits<TYPE>' to 'ALLOC_TMPL<TYPE>'.  (C4)
-        //: o Call 'testRebind' with each combination of test allocators and
-        //:   test value types, as well as with value type 'int'.  (C1-C4)
+        //  - Create a function template, `testRebind` that applies
+        //    `rebind_alloc` and `rebind_traits` and tests the resulting types.
+        //    (C1-C2)
+        //  - `testRebind` also applies `rebind_alloc` and `rebind_traits` to
+        //    the results of the previous rebinds.  (C3)
+        //  - `testRebind` also applies `rebind_alloc<TYPE>` and
+        //    `rebind_traits<TYPE>` to `ALLOC_TMPL<TYPE>`.  (C4)
+        //  - Call `testRebind` with each combination of test allocators and
+        //    test value types, as well as with value type `int`.  (C1-C4)
         //
         // Testing:
         //   rebind_alloc<U>
@@ -2643,9 +2643,9 @@ int main(int argc, char *argv[])
 #define TEST_REBIND(ALLOC_TMP, TYPE, U) \
         testRebind<ALLOC_TMP, TYPE, U>(#ALLOC_TMP ", " #TYPE ", " #U)
 
-        // 'testRebind' applies rebind operations in both directions.  Hence,
-        // after invoking 'testRebind<A, A, B>()' it is not necessary to invoke
-        // 'testRebind<A, B, A>()'.
+        // `testRebind` applies rebind operations in both directions.  Hence,
+        // after invoking `testRebind<A, A, B>()` it is not necessary to invoke
+        // `testRebind<A, B, A>()`.
         TEST_REBIND(NonBslmaAllocator, int               , AttribClass5     );
         TEST_REBIND(NonBslmaAllocator, int               , AC5AllocNonBslma );
         TEST_REBIND(NonBslmaAllocator, int               , AC5AllocBslma    );
@@ -2683,41 +2683,41 @@ int main(int argc, char *argv[])
         // TESTING NESTED TYPEDEFS
         //
         // Concerns:
-        //: 1 'allocator_type' is the same as 'ALLOC'.
-        //: 2 'value_type', 'pointer', 'const_pointer', 'difference_type', and
-        //:   'size_type' are the same as the corresponding types within
-        //:   'ALLOC'.
-        //: 3 'void_pointer' is the same as 'void*' and 'const_void_pointer' is
-        //:   the same as 'const void*'.
-        //: 4 The types 'propagate_on_container_copy_assignment'
-        //:   'propagate_on_container_move_assignment' and
-        //:   'propagate_on_container_swap' are each derived from
-        //:   'bsl::false_type' unless defined as a trait on the allocator
-        //:   itself, in which case they are determined by the trait defined on
-        //:   the allocator.
-        //: 5 Where the trait 'is_always_equal' is not defined on the allocator
-        //:   itself, the type 'is_always_equal' is derived from
-        //:   'bsl::false_type' for non-empty allocators and 'bsl::true_type'
-        //:   otherwise.
-        //: 6 Where the trait 'is_always_equal' is defined on the allocator
-        //:   itself, the type 'is_always_equal' is determined by the trait
-        //:   defined on the allocator.
-        //: 7 Concerns 1-6 apply to any allocator type.
+        // 1. `allocator_type` is the same as `ALLOC`.
+        // 2. `value_type`, `pointer`, `const_pointer`, `difference_type`, and
+        //    `size_type` are the same as the corresponding types within
+        //    `ALLOC`.
+        // 3. `void_pointer` is the same as `void*` and `const_void_pointer` is
+        //    the same as `const void*`.
+        // 4. The types `propagate_on_container_copy_assignment`
+        //    `propagate_on_container_move_assignment` and
+        //    `propagate_on_container_swap` are each derived from
+        //    `bsl::false_type` unless defined as a trait on the allocator
+        //    itself, in which case they are determined by the trait defined on
+        //    the allocator.
+        // 5. Where the trait `is_always_equal` is not defined on the allocator
+        //    itself, the type `is_always_equal` is derived from
+        //    `bsl::false_type` for non-empty allocators and `bsl::true_type`
+        //    otherwise.
+        // 6. Where the trait `is_always_equal` is defined on the allocator
+        //    itself, the type `is_always_equal` is determined by the trait
+        //    defined on the allocator.
+        // 7. Concerns 1-6 apply to any allocator type.
         //
         // Plan:
-        //: 1 Create a template function, 'testNestedTypedefs' that directly
-        //:   tests each of the types.  (C1-6).
-        //: 2 Instantiate and invoke 'testNestedTypedefs' on each meaningful
-        //:   combination of attribute classes ('AttribClass5',
-        //:   'AttribClass5Alloc', and 'AttribClass5bslma') and allocator types
-        //:   ('NonBslmaAllocator', 'BslmaAllocator', 'FunkyAllocator').
-        //: 3 Create a template function, 'testMinimalTypedefs' that directly
-        //:   tests the 'MinimalAllocator' and
-        //:   'MinimalNonEmptyAllocatorWithTraits'  (C1-6).
-        //: 4 Instantiate and invoke 'testMinimalTypedefs' on each meaningful
-        //:   combination of attribute classes ('AttribClass5',
-        //:   'AttribClass5Alloc', and 'AttribClass5bslma') and allocator types
-        //:   ('MinimalAllocator', 'MinimalNonEmptyAllocatorWithTraits').
+        // 1. Create a template function, `testNestedTypedefs` that directly
+        //    tests each of the types.  (C1-6).
+        // 2. Instantiate and invoke `testNestedTypedefs` on each meaningful
+        //    combination of attribute classes (`AttribClass5`,
+        //    `AttribClass5Alloc`, and `AttribClass5bslma`) and allocator types
+        //    (`NonBslmaAllocator`, `BslmaAllocator`, `FunkyAllocator`).
+        // 3. Create a template function, `testMinimalTypedefs` that directly
+        //    tests the `MinimalAllocator` and
+        //    `MinimalNonEmptyAllocatorWithTraits`  (C1-6).
+        // 4. Instantiate and invoke `testMinimalTypedefs` on each meaningful
+        //    combination of attribute classes (`AttribClass5`,
+        //    `AttribClass5Alloc`, and `AttribClass5bslma`) and allocator types
+        //    (`MinimalAllocator`, `MinimalNonEmptyAllocatorWithTraits`).
         //
         // Testing:
         //   allocator_type
@@ -2817,76 +2817,76 @@ int main(int argc, char *argv[])
         // TESTING TEST HARNESS
         //
         // Concerns:
-        //: 1  The 'NonBslmaAllocator' class defines all of the
-        //:    nested types required by C++03.
-        //: 2  The 'NonBslmaAllocator' class can be rebound using the
-        //:    'rebind' member template.
-        //: 3  The objects of 'NonBslmaAllocator' can be (explicitly)
-        //:    constructed from a pointer to a 'bslma::TestAllocator'.
-        //: 4  The default constructor for 'NonBslmaAllocator'
-        //:    uses the currently-installed test allocator.
-        //: 5  A 'NonBslmaAllocator' object can be copy-constructed.
-        //: 6  Calling 'allocate' and 'deallocate' on 'NonBslmaAllocator'
-        //:    objects allocates and deallocates the expected number of bytes
-        //:    from the underlying 'bslma::TestAllocator'.
-        //: 7  Calling 'construct' and 'destroy' for an object allocated from
-        //:    a 'NonBslmaAllocator' results in the object being initialized
-        //:    and destroyed as expected.
-        //: 8  Calling 'address' on reference to an object allocated from a
-        //:    'NonBslmaAllocator' yields its address.
-        //: 9  Calling 'max_size' on a 'NonBslmaAllocator' yields 'INT_MAX'.
-        //: 10 A 'NonBslmaAllocator' can be compared for equality.  The result
-        //:    is true if the object was constructed from the same
-        //:    'bslma::TestAllocator' address.
-        //: 11 Concerns 1 through 10 also apply to 'BslmaAllocator'.
-        //: 12 Concerns 1 through 10 also apply to 'FunkyAllocator'.
-        //: 13 A 'bslma::Allocator*' can be implicitly converted to a
-        //:    'BslmaAllocator' object.
-        //: 14 An 'AttribClass5' object can be constructed with 0 to 5
-        //:    arguments, storing each argument in a separate attribute and
-        //:    using known defaults for any remaining attributes.
-        //: 15 An 'AttribClass5Alloc' object can be constructed with 0 to 5
-        //:    arguments, storing each argument in a separate attribute and
-        //:    using known defaults for any remaining attributes.
-        //: 16 An 'AttribClass5Alloc' object can be constructed with 0 to 5
-        //:    arguments plus an allocator argument, storing each argument in
-        //:    a separate attribute and using known defaults for any remaining
-        //:    attributes.
-        //: 17 If a 'AttribClass5Alloc' object is constructed without an
-        //:    allocator argument, then the default allocator is used.
-        //: 18 Concerns 15 to 17 also apply to 'AttribClass5bslma' except that
-        //:    the allocator attribute is of type 'bslma::Allocator*' instead
-        //:    of a standard allocator type.
-        //: 19 Within this test driver, all of the allocators will store the
-        //:    most recent hint passed to 'allocate' in the 'g_lastHint'
-        //:    global variable.
+        // 1.  The `NonBslmaAllocator` class defines all of the
+        //     nested types required by C++03.
+        // 2.  The `NonBslmaAllocator` class can be rebound using the
+        //     `rebind` member template.
+        // 3.  The objects of `NonBslmaAllocator` can be (explicitly)
+        //     constructed from a pointer to a `bslma::TestAllocator`.
+        // 4.  The default constructor for `NonBslmaAllocator`
+        //     uses the currently-installed test allocator.
+        // 5.  A `NonBslmaAllocator` object can be copy-constructed.
+        // 6.  Calling `allocate` and `deallocate` on `NonBslmaAllocator`
+        //     objects allocates and deallocates the expected number of bytes
+        //     from the underlying `bslma::TestAllocator`.
+        // 7.  Calling `construct` and `destroy` for an object allocated from
+        //     a `NonBslmaAllocator` results in the object being initialized
+        //     and destroyed as expected.
+        // 8.  Calling `address` on reference to an object allocated from a
+        //     `NonBslmaAllocator` yields its address.
+        // 9.  Calling `max_size` on a `NonBslmaAllocator` yields `INT_MAX`.
+        // 10. A `NonBslmaAllocator` can be compared for equality.  The result
+        //     is true if the object was constructed from the same
+        //     `bslma::TestAllocator` address.
+        // 11. Concerns 1 through 10 also apply to `BslmaAllocator`.
+        // 12. Concerns 1 through 10 also apply to `FunkyAllocator`.
+        // 13. A `bslma::Allocator*` can be implicitly converted to a
+        //     `BslmaAllocator` object.
+        // 14. An `AttribClass5` object can be constructed with 0 to 5
+        //     arguments, storing each argument in a separate attribute and
+        //     using known defaults for any remaining attributes.
+        // 15. An `AttribClass5Alloc` object can be constructed with 0 to 5
+        //     arguments, storing each argument in a separate attribute and
+        //     using known defaults for any remaining attributes.
+        // 16. An `AttribClass5Alloc` object can be constructed with 0 to 5
+        //     arguments plus an allocator argument, storing each argument in
+        //     a separate attribute and using known defaults for any remaining
+        //     attributes.
+        // 17. If a `AttribClass5Alloc` object is constructed without an
+        //     allocator argument, then the default allocator is used.
+        // 18. Concerns 15 to 17 also apply to `AttribClass5bslma` except that
+        //     the allocator attribute is of type `bslma::Allocator*` instead
+        //     of a standard allocator type.
+        // 19. Within this test driver, all of the allocators will store the
+        //     most recent hint passed to `allocate` in the `g_lastHint`
+        //     global variable.
         //
         // Plan:
-        //: o Create a function template, 'testAllocatorConformance', to check
-        //:   C++03 conformance of 'NonBslmaAllocator', 'BslmaAllocator', and
-        //:   'FunkyAllocator'.  The test function simply and directly tests
-        //:   each allocator requirement from C++03.  (C1-C12).
-        //: o Use 'bsl::is_convertible' to test that 'bslma::Allocator*' is
-        //:   convertible to 'BslmaAllocator' and that it is NOT convertible to
-        //:   'NonBslmaAllocator' (C13).
-        //: o Create a function template, 'testAttribClass' that tests an
-        //:   attribute class by constructing it with 0 to 5 arguments and
-        //:   testing its attributes.  (C15)
-        //: o Also within 'testAttribClass', test that the attribute class can
-        //:   be constructed with an additional allocator argument (and that it
-        //:   has the correct default).  (C16-C17)
-        //: o Specialize 'testAttribClass' for 'AttribClass5', which has no
-        //:   allocator.  (C18)
-        //: o Instantiate 'testAttribClass' with each meaningful combination of
-        //:   attribute classes ('AttribClass5', 'AttribClass5Alloc', and
-        //:   'AttribClass5bslma') and allocator type ('NonBslmaAllocator',
-        //:   'BslmaAllocator', 'FunkyAllocator', 'bslma::Allocator*', and no
-        //:   allocator).  (C16-C18)
-        //: o Within 'testAllocatorConformance', set 'g_lastHint' to a known
-        //:   address before calling 'allocate' with no hint.  Verify that
-        //:   'g_lastHint' gets set to null.  Repeat this test, but pass a
-        //:   second known address as a hint, verifying that 'g_lastHint' gets
-        //:   set to the second known address.
+        //  - Create a function template, `testAllocatorConformance`, to check
+        //    C++03 conformance of `NonBslmaAllocator`, `BslmaAllocator`, and
+        //    `FunkyAllocator`.  The test function simply and directly tests
+        //    each allocator requirement from C++03.  (C1-C12).
+        //  - Use `bsl::is_convertible` to test that `bslma::Allocator*` is
+        //    convertible to `BslmaAllocator` and that it is NOT convertible to
+        //    `NonBslmaAllocator` (C13).
+        //  - Create a function template, `testAttribClass` that tests an
+        //    attribute class by constructing it with 0 to 5 arguments and
+        //    testing its attributes.  (C15)
+        //  - Also within `testAttribClass`, test that the attribute class can
+        //    be constructed with an additional allocator argument (and that it
+        //    has the correct default).  (C16-C17)
+        //  - Specialize `testAttribClass` for `AttribClass5`, which has no
+        //    allocator.  (C18)
+        //  - Instantiate `testAttribClass` with each meaningful combination of
+        //    attribute classes (`AttribClass5`, `AttribClass5Alloc`, and
+        //    `AttribClass5bslma`) and allocator type (`NonBslmaAllocator`,
+        //    `BslmaAllocator`, `FunkyAllocator`, `bslma::Allocator*`, and no
+        //    allocator).  (C16-C18)
+        //  - Within `testAllocatorConformance`, set `g_lastHint` to a known
+        //    address before calling `allocate` with no hint.  Verify that
+        //    `g_lastHint` gets set to null.  Repeat this test, but pass a
+        //    second known address as a hint, verifying that `g_lastHint` gets
+        //    set to the second known address.
         //
         // Testing:
         //   TEST HARNESS
@@ -2908,7 +2908,7 @@ int main(int argc, char *argv[])
         testAllocatorConformance<FunkyAllocator>("FunkyAllocator");
 
         if (verbose)
-            printf("Testing convertibility from 'bslma::Allocator*'\n");
+            printf("Testing convertibility from `bslma::Allocator*`\n");
 
         ASSERT(  (bsl::is_convertible<bslma::Allocator*,
                                        BslmaAllocator<int> >::value));
@@ -2968,22 +2968,22 @@ int main(int argc, char *argv[])
             ASSERT_ISSAME(Obj*, Traits::pointer);
             ASSERT_ISSAME(const Obj*, Traits::const_pointer);
 
-            // Test 'allocate'
+            // Test `allocate`
             Alloc a1(&ta);
             Obj *p = Traits::allocate(a1, 1);
             ASSERT(1 == ta.numBlocksInUse());
             ASSERT(sizeof(Obj) == ta.numBytesInUse());
 
-            // Test 'construct'
+            // Test `construct`
             Traits::construct(a1, p, 'x', 88, 0.25);
             ASSERT(matchAttrib(*p, 'x', 88, 0.25, DFLT_D, DFLT_E));
 
-            // Test 'destroy'
+            // Test `destroy`
             AttribClass5::setDtorScratchPad(0);
             Traits::destroy(a1, p);
             ASSERT(88 == AttribClass5::dtorScratchPad());
 
-            // Test 'deallocate'
+            // Test `deallocate`
             Traits::deallocate(a1, p, 1);
             ASSERT(0 == ta.numBlocksInUse());
             ASSERT(0 == ta.numBytesInUse());
@@ -3002,23 +3002,23 @@ int main(int argc, char *argv[])
             ASSERT_ISSAME(Obj*, Traits::pointer);
             ASSERT_ISSAME(const Obj*, Traits::const_pointer);
 
-            // Test 'allocate'
+            // Test `allocate`
             Alloc a1(&ta);
             Obj *p = Traits::allocate(a1, 1);
             ASSERT(1 == ta.numBlocksInUse());
             ASSERT(sizeof(Obj) == ta.numBytesInUse());
 
-            // Test 'construct'
+            // Test `construct`
             const char bye[] = "bye";
             Traits::construct(a1, p, 'x', 88, 0.25, bye);
             ASSERT(matchAttrib(*p, 'x', 88, 0.25, bye, DFLT_E, &ta));
 
-            // Test 'destroy'
+            // Test `destroy`
             AttribClass5::setDtorScratchPad(0);
             Traits::destroy(a1, p);
             ASSERT(88 == AttribClass5::dtorScratchPad());
 
-            // Test 'deallocate'
+            // Test `deallocate`
             Traits::deallocate(a1, p, 1);
             ASSERT(0 == ta.numBlocksInUse());
             ASSERT(0 == ta.numBytesInUse());

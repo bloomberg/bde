@@ -23,25 +23,25 @@ using namespace BloombergLP;
 //                              Overview
 //                              --------
 // An allocator is a value-semantic type whose value consists of a single
-// pointer to a 'bslma::Allocator' object (its underlying "mechanism").  This
+// pointer to a `bslma::Allocator` object (its underlying "mechanism").  This
 // pointer can be set at construction (and if 0 is passed, then it uses
-// 'bslma_default' to substitute a pointer to the currently installed default
-// allocator), and it can be accessed through the 'mechanism' accessor.  It
+// `bslma_default` to substitute a pointer to the currently installed default
+// allocator), and it can be accessed through the `mechanism` accessor.  It
 // cannot be reset, however, since normally an allocator does not change during
-// the lifetime of an object.  A 'bsl::allocator' is parameterized by the type
+// the lifetime of an object.  A `bsl::allocator` is parameterized by the type
 // that it allocates, and that influences the behavior of several manipulators
 // and accessors, mainly depending on the size of that type.  The same
 // 'bsl::allocator" can be re-parameterized for another type ("rebound") using
-// the 'rebind' nested template.
+// the `rebind` nested template.
 //
-// Although 'bsl::allocator' is a value-semantic type, the fact that its value
+// Although `bsl::allocator` is a value-semantic type, the fact that its value
 // is fixed at construction and not permitted to change let us relax the usual
 // concerns of a typical value-semantic type.  Our specific concerns are that
 // an allocator constructed with a certain underlying mechanism actually uses
 // that mechanism to allocate memory, and that its rebound versions also do.
-// Another concern is that the 'max_size' is the maximum possible size for that
+// Another concern is that the `max_size` is the maximum possible size for that
 // type (i.e., it is impossible to meaningfully pass in a larger size), and
-// that the 'size_type' is unsigned, the 'difference_type' is signed, and
+// that the `size_type` is unsigned, the `difference_type` is signed, and
 // generally all the requirements of C++ standard allocators are met (20.1.2
 // [allocator.requirements]).
 //-----------------------------------------------------------------------------
@@ -171,9 +171,9 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
                               // struct MyObject
                               // ===============
 
+/// A non-trivial-sized object.
 struct MyObject
 {
-    // A non-trivial-sized object.
 
     // DATA
     int  d_i;
@@ -213,8 +213,8 @@ int main(int argc, char *argv[])
         // Concerns:  The usage example must compile end execute without
         //   errors.
         //
-        // Plan:  Copy-paste the usage example and replace 'assert' by
-        //   'ASSERT'.
+        // Plan:  Copy-paste the usage example and replace `assert` by
+        //   `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -236,7 +236,7 @@ int main(int argc, char *argv[])
         // TESTING NESTED TYPES
         //
         // Concerns:
-        //   o that 'size_type' is unsigned while 'difference_type' is signed.
+        //   o that `size_type` is unsigned while `difference_type` is signed.
         //   o that size_type and difference_type are the right size (i.e.,
         //     they can represent any difference of pointers in the memory
         //     model)
@@ -264,51 +264,51 @@ int main(int argc, char *argv[])
         typedef bslma::StdTestAllocator<int>   AI;
         typedef bslma::StdTestAllocator<float> AF;
 
-        if (verbose) printf("\tTesting 'size_type'.\n");
+        if (verbose) printf("\tTesting `size_type`.\n");
         {
             ASSERT(sizeof(AI::size_type) == sizeof(int*));
 
             ASSERT(0 < ~(AI::size_type)0);
         }
 
-        if (verbose) printf("\tTesting 'difference_type'.\n");
+        if (verbose) printf("\tTesting `difference_type`.\n");
         {
             ASSERT(sizeof(AI::difference_type) == sizeof(int*));
 
             ASSERT(0 > ~(AI::difference_type)0);
         }
 
-        if (verbose) printf("\tTesting 'pointer'.\n");
+        if (verbose) printf("\tTesting `pointer`.\n");
         {
             ASSERT((bsl::is_same<AI::pointer, int*>::value));
             ASSERT((bsl::is_same<AF::pointer, float*>::value));
         }
 
-        if (verbose) printf("\tTesting 'const_pointer'.\n");
+        if (verbose) printf("\tTesting `const_pointer`.\n");
         {
             ASSERT((bsl::is_same<AI::const_pointer, const int*>::value));
             ASSERT((bsl::is_same<AF::const_pointer, const float*>::value));
         }
 
-        if (verbose) printf("\tTesting 'reference'.\n");
+        if (verbose) printf("\tTesting `reference`.\n");
         {
             ASSERT((bsl::is_same<AI::reference, int&>::value));
             ASSERT((bsl::is_same<AF::reference, float&>::value));
         }
 
-        if (verbose) printf("\tTesting 'const_reference'.\n");
+        if (verbose) printf("\tTesting `const_reference`.\n");
         {
             ASSERT((bsl::is_same<AI::const_reference, const int&>::value));
             ASSERT((bsl::is_same<AF::const_reference, const float&>::value));
         }
 
-        if (verbose) printf("\tTesting 'value_type'.\n");
+        if (verbose) printf("\tTesting `value_type`.\n");
         {
             ASSERT((bsl::is_same<AI::value_type, int>::value));
             ASSERT((bsl::is_same<AF::value_type, float>::value));
         }
 
-        if (verbose) printf("\tTesting 'rebind'.\n");
+        if (verbose) printf("\tTesting `rebind`.\n");
         {
             ASSERT((bsl::is_same<AI::rebind<int  >::other, AI>::value));
             ASSERT((bsl::is_same<AI::rebind<float>::other, AF>::value));
@@ -322,9 +322,9 @@ int main(int argc, char *argv[])
         // TESTING ACCESSORS
         //
         // Concerns:
-        //   o that the correct 'bslma::Allocator*' is returned by 'mechanism'.
-        //   o that the result of 'max_size' fits and represents the maximum
-        //     possible number of bytes in a 'bslma::Allocator::size_type'.
+        //   o that the correct `bslma::Allocator*` is returned by `mechanism`.
+        //   o that the result of `max_size` fits and represents the maximum
+        //     possible number of bytes in a `bslma::Allocator::size_type`.
         //   o that all comparisons exist and resolve to comparing the
         //     mechanisms.
         //
@@ -344,7 +344,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator         da("default");
         bslma::DefaultAllocatorGuard dag(&da);
 
-        if (verbose) printf("\tTesting 'mechanism()'.\n");
+        if (verbose) printf("\tTesting `mechanism()`.\n");
         {
             bslma::TestAllocator ta(veryVeryVeryVerbose);
 
@@ -368,7 +368,7 @@ int main(int argc, char *argv[])
             ASSERT(&ta  == ad5.mechanism());
         }
 
-        if (verbose) printf("\tTesting 'max_size()'.\n");
+        if (verbose) printf("\tTesting `max_size()`.\n");
         {
             typedef bslma::Allocator::size_type bsize;
 
@@ -404,7 +404,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("\tTesting 'operator=='.\n");
+        if (verbose) printf("\tTesting `operator==`.\n");
         {
             bslma::TestAllocator ta1(veryVeryVeryVerbose);
             bslma::TestAllocator ta2(veryVeryVeryVerbose);
@@ -415,7 +415,7 @@ int main(int argc, char *argv[])
             bslma::StdTestAllocator<double> ad1(&ta1);
             bslma::StdTestAllocator<double> ad2(&ta2);
 
-            // One of lhs or rhs is 'bslma::Allocator *'.
+            // One of lhs or rhs is `bslma::Allocator *`.
 
             ASSERT(&ta1 == ai1);  ASSERT(ai1 == &ta1);
             ASSERT(&ta2 != ai1);  ASSERT(ai1 != &ta2);
@@ -429,7 +429,7 @@ int main(int argc, char *argv[])
             ASSERT(&ta1 == ad1);  ASSERT(ad1 == &ta1);
             ASSERT(&ta2 != ad1);  ASSERT(ad1 != &ta2);
 
-            // Both lhs and rhs are 'bslma::StdTestAllocator'.
+            // Both lhs and rhs are `bslma::StdTestAllocator`.
 
             ASSERT(ai1 == ai1);  ASSERT(ai1 != ai2);
             ASSERT(ai1 == ad1);  ASSERT(ai1 != ad2);
@@ -496,9 +496,9 @@ int main(int argc, char *argv[])
         // Concerns:
         //   That an allocator has the proper traits defined.
         //
-        // Plan: Since it does not matter what type 'StdTestAllocator' is
-        // instantiated with, use 'int' and test for each expected trait.
-        // Note that 'void' also needs to be tested since it is a
+        // Plan: Since it does not matter what type `StdTestAllocator` is
+        // instantiated with, use `int` and test for each expected trait.
+        // Note that `void` also needs to be tested since it is a
         // specialization.
         //
         // Testing:

@@ -4,8 +4,8 @@
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>
-#include <stdlib.h>  // 'atoi'
-#include <string.h>  // 'strcmp'
+#include <stdlib.h>  // `atoi`
+#include <string.h>  // `strcmp`
 
 // Set this preprocessor macro to 1 to enable compile warnings being generated,
 // 0 to disable them.
@@ -20,22 +20,22 @@
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
 // test driver using a compliant compiler, each time defining different values
-// of the boolean 'U_TRIGGER_WARNINGS' preprocessor macro.  In each case, the
+// of the boolean `U_TRIGGER_WARNINGS` preprocessor macro.  In each case, the
 // concerns are:
 //
-//: o Did the build succeed or not?
-//:
-//: o Was the expected warning observed or not?
-//:
-//: o Was the expected suppression of some warning suppressed or not?
-//:
-//: o For annotations taking arguments, do the results show if the arguments
-//:   were properly passed to the underlying compiler directives?
+//  - Did the build succeed or not?
+//
+//  - Was the expected warning observed or not?
+//
+//  - Was the expected suppression of some warning suppressed or not?
+//
+//  - For annotations taking arguments, do the results show if the arguments
+//    were properly passed to the underlying compiler directives?
 //
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
 // does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor macro is 'U_TRIGGER_WARNINGS', which, if set to
+// The controlling preprocessor macro is `U_TRIGGER_WARNINGS`, which, if set to
 // 1, provokes all the compiler warnings caused by the macros under test.  If
 // set to 0, prevents any warnings from happening.
 //
@@ -46,12 +46,12 @@
 // right-most column appear as comments throughout this test driver.  They can
 // be used as an aid to navigation to the test code for each annotation, and an
 // aid to assuring test coverage.
-//..
+// ```
 //  Annotation                            Result
 //  ------------------------------------  --------
 //  BSLA_NONNULLARG(...)                  warning
 //  BSLA_NONNULLARGS                      warning
-//..
+// ```
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 // [ 1] BREATHING TEST
@@ -115,12 +115,13 @@ void aSsErT(bool condition, const char *message, int line)
 //
 ///Example 1: Passing Null to Arguments Annotated as Non-Null
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// First, we define a function, 'usagePrint1', annotated such that a compiler
+// First, we define a function, `usagePrint1`, annotated such that a compiler
 // warning will occur if the first argument of the annotated function is passed
-// 0, 'NULL', 'nullptr', or (on clang) a null pointer constant expression:
-//..
+// 0, `NULL`, `nullptr`, or (on clang) a null pointer constant expression:
+// ```
+
+    /// Print the specified `string` the specified `repetition` times.
     void usagePrint1(const char *string, int repetition) BSLA_NONNULLARG(1);
-        // Print the specified 'string' the specified 'repetition' times.
 //
     void usagePrint1(const char *string, int repetition)
     {
@@ -128,14 +129,15 @@ void aSsErT(bool condition, const char *message, int line)
             printf("%s\n", string);
         }
     }
-//..
+// ```
 // Then, we define a nearly identical function annotated with
-// 'BSLA_NONNULLARGS' instead.  Note that only pointer arguments are affected
-// by this annotation -- 'repetition' is not affected and may be passed 0
+// `BSLA_NONNULLARGS` instead.  Note that only pointer arguments are affected
+// by this annotation -- `repetition` is not affected and may be passed 0
 // without a warning being emitted:
-//..
+// ```
+
+    /// Print the specified `string` the specified `repetition` times.
     void usagePrint2(const char *string, int repetition) BSLA_NONNULLARGS;
-        // Print the specified 'string' the specified 'repetition' times.
 //
     void usagePrint2(const char *string, int repetition)
     {
@@ -143,9 +145,9 @@ void aSsErT(bool condition, const char *message, int line)
             printf("%s\n", string);
         }
     }
-//..
+// ```
 // So the two different annotations on these functions have an identical
-// effect -- affecting the 'string' argument but not the 'repetition' argument.
+// effect -- affecting the `string` argument but not the `repetition` argument.
 //
 
 // ============================================================================
@@ -154,8 +156,8 @@ void aSsErT(bool condition, const char *message, int line)
 
 char test_NONNULLARG_1(const void *p, const void *q, const void *r)
                                                             BSLA_NONNULLARG(1);
-    // Dereference the specified 'p' and return the result, ignoring the
-    // specified 'q' and 'r'.
+    // Dereference the specified `p` and return the result, ignoring the
+    // specified `q` and `r`.
 char test_NONNULLARG_1(const void *p, const void *q, const void *r)
 {
     char c = *reinterpret_cast<const char *>(p);
@@ -167,8 +169,8 @@ char test_NONNULLARG_1(const void *p, const void *q, const void *r)
 
 int test_NONNULLARG_2_3(const void *p, const void *q, const void *r)
                                                          BSLA_NONNULLARG(2, 3);
-    // Ignore the specified 'p' and return the sum of the chars pointed at by
-    // the specified 'q' and 'r'.
+    // Ignore the specified `p` and return the sum of the chars pointed at by
+    // the specified `q` and `r`.
 
 int test_NONNULLARG_2_3(const void *p, const void *q, const void *r)
 {
@@ -176,9 +178,9 @@ int test_NONNULLARG_2_3(const void *p, const void *q, const void *r)
     return *static_cast<const char *>(q) + *static_cast<const char *>(r);
 }
 
+/// Return the sum of the characters pointed at by the specified `p` and
+/// `q`.
 int test_NONNULLARGS(void *p, void *q) BSLA_NONNULLARGS;
-    // Return the sum of the characters pointed at by the specified 'p' and
-    // 'q'.
 
 int test_NONNULLARGS(void *p, void *q)
 {
@@ -197,22 +199,22 @@ int test_NONNULLARGS(void *p, void *q)
 //                  USAGE WITH NO EXPECTED COMPILER WARNINGS
 // ----------------------------------------------------------------------------
 
+/// Call `test_NONNULLARG_1` without provoking a warning.
 void use_without_diagnostic_message_NONNULLARG_1()
-    // Call 'test_NONNULLARG_1' without provoking a warning.
 {
     test_NONNULLARG_1("", NULL, NULL);
 }
 
+/// Call `test_NONNULLARG_2_3` without provoking a warning.
 void use_without_diagnostic_message_ARG2_NONNULL()
-    // Call 'test_NONNULLARG_2_3' without provoking a warning.
 {
     char buffer2[2] = { 'a', 0 };
     int ret = test_NONNULLARG_2_3(NULL, buffer2, buffer2 + 1);
     ASSERT('a' == ret);
 }
 
+/// Call `test_NONNULLARGS` without provoking a warning.
 void use_without_diagnostic_message_NONNULLARGS()
-    // Call 'test_NONNULLARGS' without provoking a warning.
 {
     char buffer1[2];
     char buffer2[2];
@@ -227,7 +229,7 @@ void use_without_diagnostic_message_NONNULLARGS()
 #if U_TRIGGER_WARNINGS
 
 void use_with_warning_message_NONNULLARG_1()
-    // Call 'test_NONNULLARG_1' several times, each time provoking a warning.
+    // Call `test_NONNULLARG_1` several times, each time provoking a warning.
 {
     test_NONNULLARG_1(0   , NULL, NULL);
     test_NONNULLARG_1(NULL, NULL, NULL);
@@ -237,7 +239,7 @@ void use_with_warning_message_NONNULLARG_1()
 }
 
 void use_with_warning_message_NONNULLARG_2_3_NONNULL()
-    // Call 'test_NONNULLARG_2_3' several times, each time provoking a warning.
+    // Call `test_NONNULLARG_2_3` several times, each time provoking a warning.
 {
     test_NONNULLARG_2_3("", "", NULL);
     test_NONNULLARG_2_3("", NULL,"");
@@ -246,7 +248,7 @@ void use_with_warning_message_NONNULLARG_2_3_NONNULL()
 }
 
 void use_with_warning_message_NONNULLARGS()
-    // Call 'test_NONNULLARGS' several times, each time provoking a warning.
+    // Call `test_NONNULLARGS` several times, each time provoking a warning.
 {
     char buffer1[2];
     char buffer2[2];
@@ -266,11 +268,11 @@ void use_with_warning_message_NONNULLARGS()
 //                              HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// Print a diagnostic message to standard output if any of the preprocessor
+/// flags of interest are defined, and their value if a value had been set.
+/// An "Enter" and "Leave" message is printed unconditionally so there is
+/// some report even if all of the flags are undefined.
 static void printFlags()
-    // Print a diagnostic message to standard output if any of the preprocessor
-    // flags of interest are defined, and their value if a value had been set.
-    // An "Enter" and "Leave" message is printed unconditionally so there is
-    // some report even if all of the flags are undefined.
 {
     printf("printFlags: Enter\n");
 
@@ -353,10 +355,10 @@ int main(int argc, char **argv)
         // USAGE EXAMPLE
         //
         // Concern:
-        //: 1 That the usage example builds and performs as expected.
+        // 1. That the usage example builds and performs as expected.
         //
         // Plan:
-        //: 1 Build and test the usage example.
+        // 1. Build and test the usage example.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -365,26 +367,26 @@ int main(int argc, char **argv)
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 
-// Next, in 'main', we call both functions with a non-null first argument, and
+// Next, in `main`, we call both functions with a non-null first argument, and
 // observe that no warning occurs.  Note that even though 0 is passed to the
-// integer argument to 'usagePrint2' and the 'BSLA_NONNULLARGS' annotation was
+// integer argument to `usagePrint2` and the `BSLA_NONNULLARGS` annotation was
 // used, non-pointer arguments are not affected by that annotation:
-//..
+// ```
         usagePrint1("woof", 0);
         usagePrint2("meow", 0);
-//..
+// ```
 // Then, we call both functions passing the first argument a variable whose
-// value is known by the compiler to be null, but since 'np1' is a non-'const'
+// value is known by the compiler to be null, but since `np1` is a non-`const`
 // variable, no warning is issued:
-//..
+// ```
 #if U_TRIGGER_WARNINGS
         char *np1 = NULL;
         usagePrint1(np1,    0);
         usagePrint2(np1,    0);
-//..
+// ```
 // Now, we call both functions passing various forms of constant null pointer
 // expressions to the first argument:
-//..
+// ```
         usagePrint1(   0, -10);
         usagePrint2(   0, -10);
 
@@ -399,14 +401,14 @@ int main(int argc, char **argv)
             usagePrint2(nullptr, -40);
         #endif
 
-        char * const np2 = 0;   // 'np2', unlike 'np1' above, is 'const'.
+        char * const np2 = 0;   // `np2`, unlike `np1` above, is `const`.
         usagePrint1(np2, -50);    // Warning with clang, not g++
         usagePrint2(np2, -50);    // Warning with clang, not g++
 #endif
-//..
+// ```
 // Finally, we observe that the above calls result in the following warnings
 // with clang w/C++11 support:
-//..
+// ```
 //  .../bsla_nonnullarg.t.cpp:376:30: warning: null passed to a callee that
 //  requires a non-null argument [-Wnonnull]
 //      usagePrint1(   0, -10);
@@ -447,29 +449,29 @@ int main(int argc, char **argv)
 //  requires a non-null argument [-Wnonnull]
 //      usagePrint2(np2, -50);    // Warning with clang, not g++
 //                  ~~~     ^
-//..
+// ```
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 This test driver builds with all expected compiler warning
-        //:   messages and no unexpected warnings when the 'U_TRIGGER_WARNINGS'
-        //:   preprocessor variable is defined to 1.
-        //:
-        //: 2 When 'U_TRIGGER_WARNINGS' is defined to 0, the compile is
-        //:   successful and with no warnings.
+        // 1. This test driver builds with all expected compiler warning
+        //    messages and no unexpected warnings when the `U_TRIGGER_WARNINGS`
+        //    preprocessor variable is defined to 1.
+        //
+        // 2. When `U_TRIGGER_WARNINGS` is defined to 0, the compile is
+        //    successful and with no warnings.
         //
         // Plan:
-        //: 1 Build with 'U_TRIGGER_WARNINGS' defined to and externally examine
-        //:   compiler output for expected warnings and the absence of warnings
-        //:   expected to be suppressed.  (C-1)
-        //:
-        //: 2 Build with 'U_TRIGGER_WARNINGS' defined to 0 and observe that the
-        //:   compile is successful with no warnings.
-        //:
-        //: 3 Run with 'verbose' to get a listing of macro expansions.
+        // 1. Build with `U_TRIGGER_WARNINGS` defined to and externally examine
+        //    compiler output for expected warnings and the absence of warnings
+        //    expected to be suppressed.  (C-1)
+        //
+        // 2. Build with `U_TRIGGER_WARNINGS` defined to 0 and observe that the
+        //    compile is successful with no warnings.
+        //
+        // 3. Run with `verbose` to get a listing of macro expansions.
         //
         // Testing:
         //   BREATHING TEST
@@ -485,7 +487,7 @@ int main(int argc, char **argv)
 
             if (!veryVeryVerbose) printFlags();
 
-            ASSERT(true); // remove unused warning for 'aSsErT'
+            ASSERT(true); // remove unused warning for `aSsErT`
         }
 
       } break;

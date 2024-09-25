@@ -32,35 +32,35 @@ using namespace bslalg;
 // (value-semantic) attribute class.  The Primary Manipulators and Basic
 // Accessors are therefore, respectively, the attribute setters and getters,
 // each of which follows our standard unconstrained attribute-type naming
-// conventions: 'setAttributeName' and 'attributeName'.
+// conventions: `setAttributeName` and `attributeName`.
 //
 // Primary Manipulators:
-//: o setColor
-//: o setParent
-//: o setLeftChild
-//: o setRightChild
+//  - setColor
+//  - setParent
+//  - setLeftChild
+//  - setRightChild
 //
 // Basic Accessors:
-//: o color
-//: o parent
-//: o leftChild
-//: o rightChild
+//  - color
+//  - parent
+//  - leftChild
+//  - rightChild
 //
 // Certain standard value-semantic-type test cases are omitted:
-//: o [ 8] -- 'swap' is not implemented for this class.
+//  - [ 8] -- `swap` is not implemented for this class.
 //
 // Global Concerns:
-//: o The test driver is robust w.r.t. reuse in other, similar components.
-//: o ACCESSOR methods are declared 'const'.
-//: o CREATOR & MANIPULATOR pointer/reference parameters are declared 'const'.
-//: o Precondition violations are detected in appropriate build modes.
-//: o No memory is allocated from any allocator.
+//  - The test driver is robust w.r.t. reuse in other, similar components.
+//  - ACCESSOR methods are declared `const`.
+//  - CREATOR & MANIPULATOR pointer/reference parameters are declared `const`.
+//  - Precondition violations are detected in appropriate build modes.
+//  - No memory is allocated from any allocator.
 //
 // Global Assumptions:
-//: o ACCESSOR methods are 'const' thread-safe.
-//: o Individual attribute types are presumed to be *alias-safe*; hence, only
-//:   certain methods require the testing of this property:
-//:   o copy-assignment
+//  - ACCESSOR methods are `const` thread-safe.
+//  - Individual attribute types are presumed to be *alias-safe*; hence, only
+//    certain methods require the testing of this property:
+//    - copy-assignment
 // ----------------------------------------------------------------------------
 // CREATORS
 // [ 2] bslalg::RbTreeNode
@@ -90,9 +90,9 @@ using namespace bslalg;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [10] USAGE EXAMPLE
-// [ 3] 'gg' FUNCTION
-// [ 2] CONCERN: All creator/manipulator ptr./ref. parameters are 'const'.
-// [ 4] CONCERN: All accessor methods are declared 'const'.
+// [ 3] `gg` FUNCTION
+// [ 2] CONCERN: All creator/manipulator ptr./ref. parameters are `const`.
+// [ 4] CONCERN: All accessor methods are declared `const`.
 // [ 2] CONCERN: Precondition violations are detected when enabled.
 
 // ============================================================================
@@ -173,9 +173,9 @@ void debugprint(const Obj& val) {
 }  // close package namespace
 }  // close enterprise namespace
 
+/// Initialize the specified `result` with the specified `color`, `parent`,
+/// `left`, and `right`.
 static Obj& gg(Obj *result, Color color, Obj *parent, Obj *left, Obj *right)
-    // Initialize the specified 'result' with the specified 'color', 'parent',
-    // 'left', and 'right'.
 {
     result->setColor(color);
     result->setParent(parent);
@@ -184,9 +184,9 @@ static Obj& gg(Obj *result, Color color, Obj *parent, Obj *left, Obj *right)
     return *result;
 }
 
+/// Convenience function to verify all attributes of the specified `lhs` has
+/// the same value as the attributes of the specified `rhs`.
 static bool operator==(const Obj& lhs, const Obj& rhs)
-    // Convenience function to verify all attributes of the specified 'lhs' has
-    // the same value as the attributes of the specified 'rhs'.
 {
     return (lhs.color()      == rhs.color()
          && lhs.parent()     == rhs.parent()
@@ -194,9 +194,9 @@ static bool operator==(const Obj& lhs, const Obj& rhs)
          && lhs.rightChild() == rhs.rightChild());
 }
 
+/// Convenience function to verify at least one attribute of the specified
+/// `lhs` has different value from the attributes of the specified `rhs`.
 static bool operator!=(const Obj& lhs, const Obj& rhs)
-    // Convenience function to verify at least one attribute of the specified
-    // 'lhs' has different value from the attributes of the specified 'rhs'.
 {
     return !(lhs == rhs);
 }
@@ -226,18 +226,18 @@ const DefaultDataRow DEFAULT_DATA[] =
 
     { L_,   RED,            0,          0,          0 },
 
-    // 'color'
+    // `color`
     { L_,   BLACK,          0,          0,          0 },
 
-    // 'parent'
+    // `parent`
     { L_,   RED,     (Obj *)4,          0,          0 },
     { L_,   RED,         PTR1,          0,          0 },
 
-    // 'leftNode'
+    // `leftNode`
     { L_,   RED,            0,   (Obj *)4,          0 },
     { L_,   RED,            0,       PTR2,          0 },
 
-    // 'rightNode'
+    // `rightNode`
     { L_,   RED,            0,          0,   (Obj *)4 },
     { L_,   RED,            0,          0,       PTR2 },
 
@@ -257,150 +257,149 @@ const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 //
 ///Example 1: Creating a Function to Print a Red Black Tree
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates creating a function that prints, to a 'FILE', a
-// tree of 'RbTreeNode' objects.
+// This example demonstrates creating a function that prints, to a `FILE`, a
+// tree of `RbTreeNode` objects.
 //
-// First, we define the signature to a function, 'printTree', that accepts, in
+// First, we define the signature to a function, `printTree`, that accepts, in
 // addition to an output file and root node, a function pointer argument
 // (supplied by clients) used to print each node's value.  Note that a node's
-// value is not accessible through 'RbTreeNode':
-//..
+// value is not accessible through `RbTreeNode`:
+// ```
     void printTree(FILE             *output,
                    const RbTreeNode *rootNode,
                    void (*printNodeValueCallback)(FILE *, const RbTreeNode *))
     {
-//..
-// Now, we define the body of 'printTree', which is a recursive function that
+// ```
+// Now, we define the body of `printTree`, which is a recursive function that
 // performs a prefix traversal of the supplied binary tree, printing the value
-// and color of 'rootNode' before recursively printing its left and then the
+// and color of `rootNode` before recursively printing its left and then the
 // right sub-trees.
-//..
+// ```
         if (0 == rootNode) {
             return;                                                   // RETURN
         }
         fprintf(output, " [ ");
 //
-        // Print the value and color of 'rootNode'.
+        // Print the value and color of `rootNode`.
 //
         printNodeValueCallback(output, rootNode);
         fprintf(output,
                 ": %s",
                 rootNode->color() == RbTreeNode::BSLALG_RED ? "RED" : "BLACK");
 //
-        // Recursively call 'printTree' on the left and right sub-trees.
+        // Recursively call `printTree` on the left and right sub-trees.
 //
         printTree(output, rootNode->leftChild(), printNodeValueCallback);
         printTree(output, rootNode->rightChild(), printNodeValueCallback);
         fprintf(output, " ]");
     }
-//..
-// Finally, notice that we use 'FILE' in the context of this usage example to
-// avoid a dependency of standard library streams.  We will use 'printTree' to
+// ```
+// Finally, notice that we use `FILE` in the context of this usage example to
+// avoid a dependency of standard library streams.  We will use `printTree` to
 // print a description of a tree in the next example.
 //
 ///Example 2: Creating a Simple Red-Black Tree
 ///- - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates creating a simple tree of integer values using
-// 'RbTreeNode'.  Note that, in practice, clients should use associated
-// utilities to manage such a tree (see 'bslalg_rbtreenodeprimitives').
+// `RbTreeNode`.  Note that, in practice, clients should use associated
+// utilities to manage such a tree (see `bslalg_rbtreenodeprimitives`).
 //
-// First, we define a node-type 'IntTreeNode' that inherits from 'RbTreeNode':
-//..
+// First, we define a node-type `IntTreeNode` that inherits from `RbTreeNode`:
+// ```
+
+    /// A red-black tree node containing an integer data-value.
     struct IntTreeNode : public RbTreeNode {
-        // A red-black tree node containing an integer data-value.
 //
         int d_value;  // "payload" value represented by the node
     };
-//..
-// Then, we define a function 'printIntNodeValue' to print the value of an
+// ```
+// Then, we define a function `printIntNodeValue` to print the value of an
 // integer node.  Note that this function's signature matches that
-// required by 'printTree' (defined in the preceding example):
-//..
+// required by `printTree` (defined in the preceding example):
+// ```
     void printIntTreeNodeValue(FILE *output, const RbTreeNode *node)
     {
        ASSERT(0 != node);
 //
        fprintf(output, "%d", static_cast<const IntTreeNode*>(node)->d_value);
     }
-//..
+// ```
 
 ///Example 3: Creating a Function To Validate a Red-Black Tree
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates creating a function to validate the properties of
 // a red-black tree.
 //
-// First, we declare the signature of a function 'validateRbTree', which takes
+// First, we declare the signature of a function `validateRbTree`, which takes
 // two arguments, the address to the root node of a tree, and a comparator
 // function, which is used to compare the payload values of the tree nodes.
 // Note that the parameterized comparator is needed because a node's value is
-// not accessible through the supplied 'RbTreeNode', and that the functor is,
+// not accessible through the supplied `RbTreeNode`, and that the functor is,
 // by convention, supplied by value, which may be more efficient in the case
 // of state-less function objects.
-//..
+// ```
+
+    /// Return the number of black nodes between `rootNode` and each (and
+    /// every) leaf in the tree rooted at `rootNode`, and a negative number
+    /// if `rootNode` does not refer to a valid red-black binary-search tree
+    /// that is ordered according to the specified `comparator`.  If
+    /// `rootNode` is 0, then return 0.  `rootNode` is considered a valid
+    /// red-black binary search-tree if it obeys the following rules:
+    ///
+    /// 1. All nodes in the left sub-tree of `rootNode` are ordered at or
+    ///    before `rootNode`, and all nodes in right sub-tree of
+    ///    `rootNode`, are ordered at or after node, as determined by
+    ///    `comparator`.
+    /// 2. Both children of `rootNode` refer to `rootNode` as a parent.
+    /// 3. If `rootNode` is red, its children are either black or 0.
+    /// 4. Every path from `rootNode` to a leaf contains the same number of
+    ///    black nodes.
+    /// 5. Rules (1-4) are obeyed, recursively, by the left and right
+    ///    sub-trees of `rootNode`.
+    ///
+    /// Note that this particular specification of a the constraints on a
+    /// red-black tree does not require the presence of, black colored, NIL
+    /// leaf nodes, instead NULL children are implicitly assumed to be NIL
+    /// leaf nodes (as typically is the case for C/C++ implementations).
+    /// This specification also does not require the root node to be
+    /// colored black, as there's no practical benefit to enforcing that
+    /// constraint.
     template <class NODE_COMPARATOR>
     int validateRbTree(const RbTreeNode *rootNode,
                        NODE_COMPARATOR   comparator);
-        // Return the number of black nodes between 'rootNode' and each (and
-        // every) leaf in the tree rooted at 'rootNode', and a negative number
-        // if 'rootNode' does not refer to a valid red-black binary-search tree
-        // that is ordered according to the specified 'comparator'.  If
-        // 'rootNode' is 0, then return 0.  'rootNode' is considered a valid
-        // red-black binary search-tree if it obeys the following rules:
-        //
-        //: 1 All nodes in the left sub-tree of 'rootNode' are ordered at or
-        //:   before 'rootNode', and all nodes in right sub-tree of
-        //:   'rootNode', are ordered at or after node, as determined by
-        //:   'comparator'.
-        //:
-        //: 2 Both children of 'rootNode' refer to 'rootNode' as a parent.
-        //:
-        //: 3 If 'rootNode' is red, its children are either black or 0.
-        //:
-        //: 4 Every path from 'rootNode' to a leaf contains the same number of
-        //:   black nodes.
-        //:
-        //: 5 Rules (1-4) are obeyed, recursively, by the left and right
-        //:   sub-trees of 'rootNode'.
-        //
-        // Note that this particular specification of a the constraints on a
-        // red-black tree does not require the presence of, black colored, NIL
-        // leaf nodes, instead NULL children are implicitly assumed to be NIL
-        // leaf nodes (as typically is the case for C/C++ implementations).
-        // This specification also does not require the root node to be
-        // colored black, as there's no practical benefit to enforcing that
-        // constraint.
-//..
+// ```
 // Then, we declare the signature for an auxiliary function.  The auxiliary
 // function accepts an additional minimum node value and a maximum node value,
 // and is needed to recursively apply rule 1.
-//..
+// ```
+
+    /// Return the number of black nodes between `rootNode` and each (and
+    /// every) leaf in the tree rooted at `rootNode`, and a negative number
+    /// if either: (1) `rootNode` does not refer to a valid red-black
+    /// binary search tree that is ordered according to the specified
+    /// `comparator`, (2) if `minNodeValue` is not 0 and all nodes in the
+    /// tree are at or after `minNodeValue`, and (3) if `maxNodeValue` is
+    /// not 0 and  all nodes in the tree are at or before `maxNodeValue`.
     template <class NODE_COMPARATOR>
     int validateRbTreeRaw(const RbTreeNode *rootNode,
                           const RbTreeNode *minNodeValue,
                           const RbTreeNode *maxNodeValue,
                           NODE_COMPARATOR   comparator);
-        // Return the number of black nodes between 'rootNode' and each (and
-        // every) leaf in the tree rooted at 'rootNode', and a negative number
-        // if either: (1) 'rootNode' does not refer to a valid red-black
-        // binary search tree that is ordered according to the specified
-        // 'comparator', (2) if 'minNodeValue' is not 0 and all nodes in the
-        // tree are at or after 'minNodeValue', and (3) if 'maxNodeValue' is
-        // not 0 and  all nodes in the tree are at or before 'maxNodeValue'.
-//..
-// Next, we define the implementation of 'validateRbTree', which simply
-// delegates to 'validateRbTreeRaw'.
-//..
+// ```
+// Next, we define the implementation of `validateRbTree`, which simply
+// delegates to `validateRbTreeRaw`.
+// ```
     template <class NODE_COMPARATOR>
     int validateRbTree(const RbTreeNode *rootNode,
                        NODE_COMPARATOR   comparator)
     {
         return validateRbTreeRaw(rootNode, 0, 0, comparator);
     }
-//..
-// Now, we define the implementation of 'validateRbTreeRaw', which tests if
-// 'rootNode' (and its immediate descendent) violate any of rules, and then
-// recursively calls 'validateRbTreeAux' on its left and right sub-trees:
-//..
+// ```
+// Now, we define the implementation of `validateRbTreeRaw`, which tests if
+// `rootNode` (and its immediate descendent) violate any of rules, and then
+// recursively calls `validateRbTreeAux` on its left and right sub-trees:
+// ```
     template <class NODE_COMPARATOR>
     int validateRbTreeRaw(const RbTreeNode *rootNode,
                           const RbTreeNode *minNodeValue,
@@ -506,13 +505,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -521,14 +520,14 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-//..
-// Next, define 'main' for our test, and create four nodes that we will use to
+// ```
+// Next, define `main` for our test, and create four nodes that we will use to
 // construct a tree:
-//..
+// ```
 //    int main(int argc, const char *argv[])
 //    {
           IntTreeNode A, B, C;
-//..
+// ```
 // Next, we use the nodes to form a valid red-black tree with the following
 // structure:
 // .-----------------------------------------------------------------------.
@@ -539,7 +538,7 @@ int main(int argc, char *argv[])
 // |      B (value: 1, RED)   C ( value: 3, RED )                          |
 // |                                                                       |
 // `-----------------------------------------------------------------------'
-//..
+// ```
           A.d_value = 2;
           A.setColor(RbTreeNode::BSLALG_BLACK);
           A.setParent(0);
@@ -557,17 +556,17 @@ int main(int argc, char *argv[])
           C.setParent(&A);
           C.setLeftChild(0);
           C.setRightChild(0);
-//..
-// Finally, we use the 'printTree' function defined in the preceding example
-// with the 'printIntNodeValue' function defined above in order to print out
+// ```
+// Finally, we use the `printTree` function defined in the preceding example
+// with the `printIntNodeValue` function defined above in order to print out
 // the structure of our tree:
-//..
+// ```
           printTree(stdout, &A, printIntTreeNodeValue);
-//..
-// Notice that the console ouput of the call to 'printTree' will look like:
-//..
+// ```
+// Notice that the console ouput of the call to `printTree` will look like:
+// ```
 //  [ 2: BLACK [ 1: RED ] [ 3: RED ] ]
-//..
+// ```
         printf("\n");
         IntTreeNodeComparator comparator;
         ASSERT(1 == validateRbTree(&A, comparator));
@@ -575,43 +574,43 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'reset'
+        // TESTING `reset`
         //
         // Concerns:
-        //: 1 Sets the 'parent', 'leftChild', 'rightChild', and 'color'
-        //:  properties respectively.
-        //:
+        // 1. Sets the `parent`, `leftChild`, `rightChild`, and `color`
+        //   properties respectively.
+        //
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   object values (one per row) in terms of their individual
-        //:   attributes, including (a) first, the default value, and (b)
-        //:   boundary values corresponding to every range of values that each
-        //:   individual attribute can independently attain.
-        //:
-        //: 2 For each row (representing a distinct object value, 'V') in the
-        //:   table described in P-1:  (C-1..3)
-        //:
-        //:   1 Use the value constructor to create an 'Obj', 'mX', each having
-        //:     the value 'V'.
-        //:
-        //:   2 Invoke 'makeBlack' twice, and after each call, use the
-        //:     attribute accessors to verify the color is black and all other
-        //:     attributes remain unchanged.
-        //:
-        //:   3 Invoke 'makeRed' twice, and after each call, and use the
-        //:     attribute accessors to verify the color is red, while all other
-        //:     attributes remain unchanged.  (C-1)
-        //:
-        //:   4 Invoke 'toggleColor' twice, and after each call, use the
-        //:     attribute accessors to verify the color changed, while all
-        //:     other attributes remain unchanged.  (C-2..3)
+        // 1. Using the table-driven technique, specify a set of (unique) valid
+        //    object values (one per row) in terms of their individual
+        //    attributes, including (a) first, the default value, and (b)
+        //    boundary values corresponding to every range of values that each
+        //    individual attribute can independently attain.
+        //
+        // 2. For each row (representing a distinct object value, `V`) in the
+        //    table described in P-1:  (C-1..3)
+        //
+        //   1. Use the value constructor to create an `Obj`, `mX`, each having
+        //      the value `V`.
+        //
+        //   2. Invoke `makeBlack` twice, and after each call, use the
+        //      attribute accessors to verify the color is black and all other
+        //      attributes remain unchanged.
+        //
+        //   3. Invoke `makeRed` twice, and after each call, and use the
+        //      attribute accessors to verify the color is red, while all other
+        //      attributes remain unchanged.  (C-1)
+        //
+        //   4. Invoke `toggleColor` twice, and after each call, use the
+        //      attribute accessors to verify the color changed, while all
+        //      other attributes remain unchanged.  (C-2..3)
         //
         // Testing:
         //   void reset(RbTreeNode *, RbTreeNode *, RbTreeNode *, Color );
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'reset'"
+        if (verbose) printf("\nTESTING `reset`"
                             "\n===============\n");
 
         if (verbose) printf("\nUse table of distinct object values.\n");
@@ -674,25 +673,25 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING NON-CONST 'parent', 'leftChild' AND 'rightChild'
+        // TESTING NON-CONST `parent`, `leftChild` AND `rightChild`
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 Each method returns the value of the corresponding attribute
-        //:   of the object.
-        //:
-        //: 2 Each method return a non-'const' pointer.
+        // 1. Each method returns the value of the corresponding attribute
+        //    of the object.
+        //
+        // 2. Each method return a non-`const` pointer.
         //
         // Plan:
-        //: 1 Use the default constructor to create an object (having default
-        //:   attribute values).
-        //:
-        //: 2 For each salient attribute (contributing to value):  (C-1..2)
-        //:   1 Use the corresponding primary manipulator to set the attribute
-        //:     to a unique value.
-        //:
-        //:   2 Use the corresponding basic accessor to verify the new
-        //:     expected value.  (C-1..2)
+        // 1. Use the default constructor to create an object (having default
+        //    attribute values).
+        //
+        // 2. For each salient attribute (contributing to value):  (C-1..2)
+        //   1. Use the corresponding primary manipulator to set the attribute
+        //      to a unique value.
+        //
+        //   2. Use the corresponding basic accessor to verify the new
+        //      expected value.  (C-1..2)
         //
         // Testing:
         //   RbTreeNode *parent()
@@ -701,29 +700,29 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-               "\nTESTING NON-CONST 'parent', 'leftChild' AND 'rightChild'"
+               "\nTESTING NON-CONST `parent`, `leftChild` AND `rightChild`"
                "\n========================================================\n");
 
         // Attribute Types
 
-        typedef Color T1;  // 'color'
-        typedef Obj * T2;  // 'parent'
-        typedef Obj * T3;  // 'leftChild'
-        typedef Obj * T4;  // 'rightChild'
+        typedef Color T1;  // `color`
+        typedef Obj * T2;  // `parent`
+        typedef Obj * T3;  // `leftChild`
+        typedef Obj * T4;  // `rightChild`
 
         if (verbose) printf("\nEstablish suitable attribute values.\n");
 
         // -----------------------------------------------------
-        // 'D' values: These are the default-constructed values.
+        // `D` values: These are the default-constructed values.
         // -----------------------------------------------------
 
-        const T1 D1 = RED;  // 'color'
-        const T2 D2 = 0;    // 'parent'
-        const T3 D3 = 0;    // 'leftChild'
-        const T4 D4 = 0;    // 'rightChild'
+        const T1 D1 = RED;  // `color`
+        const T2 D2 = 0;    // `parent`
+        const T3 D3 = 0;    // `leftChild`
+        const T4 D4 = 0;    // `rightChild`
 
         // -------------------------------------------------------
-        // 'A' values: Boundary values.
+        // `A` values: Boundary values.
         // -------------------------------------------------------
 
         const T1 A1 = BLACK;
@@ -731,7 +730,7 @@ int main(int argc, char *argv[])
         const T3 A3 = PTR2;
         const T4 A4 = PTR2;
 
-        // N.B. 'setColor' -- which would use 'A1' -- is not tested in this
+        // N.B. `setColor` -- which would use `A1` -- is not tested in this
         // test case.
 
         (void) A1;
@@ -793,74 +792,74 @@ int main(int argc, char *argv[])
         //   have the same value.
         //
         // Concerns:
-        //: 1 The assignment operator can change the value of any modifiable
-        //:   target object to that of any source object.
-        //:
-        //: 2 The signature and return type are standard.
-        //:
-        //: 3 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 4 The value of the source object is not modified.
-        //:
-        //: 5 Assigning an object to itself behaves as expected (alias-safety).
+        // 1. The assignment operator can change the value of any modifiable
+        //    target object to that of any source object.
+        //
+        // 2. The signature and return type are standard.
+        //
+        // 3. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 4. The value of the source object is not modified.
+        //
+        // 5. Assigning an object to itself behaves as expected (alias-safety).
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a member-function
-        //:   pointer having the appropriate signature and return type for the
-        //:   copy-assignment operator defined in this component.  (C-2)
-        //:
-        //: 2 Using the table-driven technique, specify a set of (unique) valid
-        //:   object values (one per row) in terms of their individual
-        //:   attributes, including (a) first, the default value, and (b)
-        //:   boundary values corresponding to every range of values that each
-        //:   individual attribute can independently attain.
-        //:
-        //: 3 For each row 'R1' (representing a distinct object value, 'V') in
-        //:   the table described in P-3:  (C-1, 3..4)
-        //:
-        //:   1 Create two 'const' 'Obj', 'Z' and 'ZZ', each having the value
-        //:     'V'.
-        //:
-        //:   2 Execute an inner loop that iterates over each row 'R2'
-        //:     (representing a distinct object value, 'W') in the table
-        //:     described in P-3:
-        //:
-        //:   3 For each of the iterations (P-3.2):  (C-1, 3..4)
-        //:
-        //:     1 Use the value constructor to create a modifiable 'Obj', 'mX',
-        //:       having the value 'W'.
-        //:
-        //:     2 Assign 'mX' from 'Z'.
-        //:
-        //:     3 Verify that the address of the return value is the same as
-        //:       that of 'mX'.  (C-3)
-        //:
-        //:     4 Use the equality-comparison operator to verify that: (C-1, 4)
-        //:
-        //:       1 The target object, 'mX', now has the same value as that of
-        //:         'Z'.  (C-1)
-        //:
-        //:       2 'Z' still has the same value as that of 'ZZ'.  (C-4)
-        //:
-        //: 4 Repeat steps similar to those described in P-2 except that, this
-        //:   time, the source object, 'Z', is a reference to the target
-        //:   object, 'mX', and both 'mX' and 'ZZ' are initialized to have the
-        //:   value 'V'.  For each row (representing a distinct object value,
-        //:   'V') in the table described in P-2:  (C-5)
-        //:
-        //:   1 Use the value constructor to create a modifiable 'Obj' 'mX';
-        //:     also use the value constructor to create a 'const' 'Obj' 'ZZ'.
-        //:
-        //:   2 Let 'Z' be a reference providing only 'const' access to 'mX'.
-        //:
-        //:   3 Assign 'mX' from 'Z'.
-        //:
-        //:   4 Verify that the address of the return value is the same as that
-        //:     of 'mX'.  (C-3)
-        //:
-        //:   5 Use the equality-comparison operator to verify that the
-        //:     target object, 'Z', still has the same value as that of 'ZZ'.
-        //:     (C-5)
+        // 1. Use the address of `operator=` to initialize a member-function
+        //    pointer having the appropriate signature and return type for the
+        //    copy-assignment operator defined in this component.  (C-2)
+        //
+        // 2. Using the table-driven technique, specify a set of (unique) valid
+        //    object values (one per row) in terms of their individual
+        //    attributes, including (a) first, the default value, and (b)
+        //    boundary values corresponding to every range of values that each
+        //    individual attribute can independently attain.
+        //
+        // 3. For each row `R1` (representing a distinct object value, `V`) in
+        //    the table described in P-3:  (C-1, 3..4)
+        //
+        //   1. Create two `const` `Obj`, `Z` and `ZZ`, each having the value
+        //      `V`.
+        //
+        //   2. Execute an inner loop that iterates over each row `R2`
+        //      (representing a distinct object value, `W`) in the table
+        //      described in P-3:
+        //
+        //   3. For each of the iterations (P-3.2):  (C-1, 3..4)
+        //
+        //     1. Use the value constructor to create a modifiable `Obj`, `mX`,
+        //        having the value `W`.
+        //
+        //     2. Assign `mX` from `Z`.
+        //
+        //     3. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-3)
+        //
+        //     4. Use the equality-comparison operator to verify that: (C-1, 4)
+        //
+        //       1. The target object, `mX`, now has the same value as that of
+        //          `Z`.  (C-1)
+        //
+        //       2. `Z` still has the same value as that of `ZZ`.  (C-4)
+        //
+        // 4. Repeat steps similar to those described in P-2 except that, this
+        //    time, the source object, `Z`, is a reference to the target
+        //    object, `mX`, and both `mX` and `ZZ` are initialized to have the
+        //    value `V`.  For each row (representing a distinct object value,
+        //    `V`) in the table described in P-2:  (C-5)
+        //
+        //   1. Use the value constructor to create a modifiable `Obj` `mX`;
+        //      also use the value constructor to create a `const` `Obj` `ZZ`.
+        //
+        //   2. Let `Z` be a reference providing only `const` access to `mX`.
+        //
+        //   3. Assign `mX` from `Z`.
+        //
+        //   4. Verify that the address of the return value is the same as that
+        //      of `mX`.  (C-3)
+        //
+        //   5. Use the equality-comparison operator to verify that the
+        //      target object, `Z`, still has the same value as that of `ZZ`.
+        //      (C-5)
         //
         // Testing:
         //   bslalg::RbTreeNode& operator=(const bslalg::RbTreeNode& rhs);
@@ -946,37 +945,37 @@ int main(int argc, char *argv[])
         //   other one, such that the two objects have the same value.
         //
         // Concerns:
-        //: 1 The copy constructor creates an object having the same value as
-        //:   that of the supplied original object.
-        //:
-        //: 2 The original object is passed as a reference providing
-        //:   non-modifiable access to that object.
-        //:
-        //: 3 The value of the original object is unchanged.
+        // 1. The copy constructor creates an object having the same value as
+        //    that of the supplied original object.
+        //
+        // 2. The original object is passed as a reference providing
+        //    non-modifiable access to that object.
+        //
+        // 3. The value of the original object is unchanged.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   object values (one per row) in terms of their individual
-        //:   attributes, including (a) first, the default value, and (b)
-        //:   boundary values corresponding to every range of values that each
-        //:   individual attribute can independently attain.
-        //:
-        //: 2 For each row (representing a distinct object value, 'V') in the
-        //:   table described in P-1:  (C-1..3)
-        //:
-        //:   1 Use the value constructor to create two 'const' 'Obj', 'Z' and
-        //:     'ZZ', each having the value 'V'.
-        //:
-        //:   2 Use the copy constructor to create an object 'X',
-        //:     supplying it the 'const' object 'Z'.  (C-2)
-        //:
-        //:   3 Use the equality-comparison operator to verify that:
-        //:     (C-1, 3)
-        //:
-        //:     1 The newly constructed object, 'X', has the same value as 'Z'.
-        //:       (C-1)
-        //:
-        //:     2 'Z' still has the same value as 'ZZ'.  (C-3)
+        // 1. Using the table-driven technique, specify a set of (unique) valid
+        //    object values (one per row) in terms of their individual
+        //    attributes, including (a) first, the default value, and (b)
+        //    boundary values corresponding to every range of values that each
+        //    individual attribute can independently attain.
+        //
+        // 2. For each row (representing a distinct object value, `V`) in the
+        //    table described in P-1:  (C-1..3)
+        //
+        //   1. Use the value constructor to create two `const` `Obj`, `Z` and
+        //      `ZZ`, each having the value `V`.
+        //
+        //   2. Use the copy constructor to create an object `X`,
+        //      supplying it the `const` object `Z`.  (C-2)
+        //
+        //   3. Use the equality-comparison operator to verify that:
+        //      (C-1, 3)
+        //
+        //     1. The newly constructed object, `X`, has the same value as `Z`.
+        //        (C-1)
+        //
+        //     2. `Z` still has the same value as `ZZ`.  (C-3)
         //
         // Testing:
         //   bslalg::RbTreeNode(const bslalg::RbTreeNode& o);
@@ -1012,7 +1011,7 @@ int main(int argc, char *argv[])
 
             ASSERTV(LINE,  Z, X,  Z == X);
 
-            // Verify that the value of 'Z' has not changed.
+            // Verify that the value of `Z` has not changed.
 
             ASSERTV(LINE, ZZ, Z, ZZ == Z);
         }  // end foreach row
@@ -1020,40 +1019,40 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'makeRed', 'makeBlack' AND 'toggleColor'
+        // TESTING `makeRed`, `makeBlack` AND `toggleColor`
         //
         // Concerns:
-        //: 1 'makeRed' and 'makeBlack' will set the 'color' attribute to their
-        //:   respective color regardless of what the initial color is.
-        //:
-        //: 2 'toggleColor' will change the color of the object.
-        //:
-        //: 3 None of the other attributes will change.
+        // 1. `makeRed` and `makeBlack` will set the `color` attribute to their
+        //    respective color regardless of what the initial color is.
+        //
+        // 2. `toggleColor` will change the color of the object.
+        //
+        // 3. None of the other attributes will change.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   object values (one per row) in terms of their individual
-        //:   attributes, including (a) first, the default value, and (b)
-        //:   boundary values corresponding to every range of values that each
-        //:   individual attribute can independently attain.
-        //:
-        //: 2 For each row (representing a distinct object value, 'V') in the
-        //:   table described in P-1:  (C-1..3)
-        //:
-        //:   1 Use the value constructor to create an 'Obj', 'mX', each having
-        //:     the value 'V'.
-        //:
-        //:   2 Invoke 'makeBlack' twice, and after each call, use the
-        //:     attribute accessors to verify the color is black and all other
-        //:     attributes remain unchanged.
-        //:
-        //:   3 Invoke 'makeRed' twice, and after each call, and use the
-        //:     attribute accessors to verify the color is red, while all other
-        //:     attributes remain unchanged.  (C-1)
-        //:
-        //:   4 Invoke 'toggleColor' twice, and after each call, use the
-        //:     attribute accessors to verify the color changed, while all
-        //:     other attributes remain unchanged.  (C-2..3)
+        // 1. Using the table-driven technique, specify a set of (unique) valid
+        //    object values (one per row) in terms of their individual
+        //    attributes, including (a) first, the default value, and (b)
+        //    boundary values corresponding to every range of values that each
+        //    individual attribute can independently attain.
+        //
+        // 2. For each row (representing a distinct object value, `V`) in the
+        //    table described in P-1:  (C-1..3)
+        //
+        //   1. Use the value constructor to create an `Obj`, `mX`, each having
+        //      the value `V`.
+        //
+        //   2. Invoke `makeBlack` twice, and after each call, use the
+        //      attribute accessors to verify the color is black and all other
+        //      attributes remain unchanged.
+        //
+        //   3. Invoke `makeRed` twice, and after each call, and use the
+        //      attribute accessors to verify the color is red, while all other
+        //      attributes remain unchanged.  (C-1)
+        //
+        //   4. Invoke `toggleColor` twice, and after each call, use the
+        //      attribute accessors to verify the color changed, while all
+        //      other attributes remain unchanged.  (C-2..3)
         //
         // Testing:
         //   void makeBlack();
@@ -1061,7 +1060,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                       "\nTESTING 'makeRed', 'makeBlack' AND 'toggleColor'"
+                       "\nTESTING `makeRed`, `makeBlack` AND `toggleColor`"
                        "\n================================================\n");
 
         if (verbose) printf("\nUse table of distinct object values.\n");
@@ -1144,10 +1143,10 @@ int main(int argc, char *argv[])
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 Each accessor returns the value of the corresponding attribute
-        //:   of the object.
-        //:
-        //: 2 Each accessor method is declared 'const'.
+        // 1. Each accessor returns the value of the corresponding attribute
+        //    of the object.
+        //
+        // 2. Each accessor method is declared `const`.
         //
         // Plan:
         //   In case 3 we demonstrated that all basic accessors work properly
@@ -1156,19 +1155,19 @@ int main(int argc, char *argv[])
         //   which were fully tested in case 2, to further corroborate that
         //   these accessors are properly interpreting object state.
         //
-        //: 1 Use the default constructor to create an object (having default
-        //:   attribute values).
-        //:
-        //: 2 Verify that each basic accessor, invoked on a reference providing
-        //:   non-modifiable access to the object created in P2, returns the
-        //:   expected value.  (C-2)
-        //:
-        //: 3 For each salient attribute (contributing to value):  (C-1)
-        //:   1 Use the corresponding primary manipulator to set the attribute
-        //:     to a unique value.
-        //:
-        //:   2 Use the corresponding basic accessor to verify the new
-        //:     expected value.  (C-1)
+        // 1. Use the default constructor to create an object (having default
+        //    attribute values).
+        //
+        // 2. Verify that each basic accessor, invoked on a reference providing
+        //    non-modifiable access to the object created in P2, returns the
+        //    expected value.  (C-2)
+        //
+        // 3. For each salient attribute (contributing to value):  (C-1)
+        //   1. Use the corresponding primary manipulator to set the attribute
+        //      to a unique value.
+        //
+        //   2. Use the corresponding basic accessor to verify the new
+        //      expected value.  (C-1)
         //
         // Testing:
         //   Color color() const
@@ -1182,24 +1181,24 @@ int main(int argc, char *argv[])
 
         // Attribute Types
 
-        typedef Color T1;  // 'color'
-        typedef Obj * T2;  // 'parent'
-        typedef Obj * T3;  // 'leftChild'
-        typedef Obj * T4;  // 'rightChild'
+        typedef Color T1;  // `color`
+        typedef Obj * T2;  // `parent`
+        typedef Obj * T3;  // `leftChild`
+        typedef Obj * T4;  // `rightChild`
 
         if (verbose) printf("\nEstablish suitable attribute values.\n");
 
         // -----------------------------------------------------
-        // 'D' values: These are the default-constructed values.
+        // `D` values: These are the default-constructed values.
         // -----------------------------------------------------
 
-        const T1 D1 = RED;  // 'color'
-        const T2 D2 = 0;    // 'parent'
-        const T3 D3 = 0;    // 'leftChild'
-        const T4 D4 = 0;    // 'rightChild'
+        const T1 D1 = RED;  // `color`
+        const T2 D2 = 0;    // `parent`
+        const T3 D3 = 0;    // `leftChild`
+        const T4 D4 = 0;    // `rightChild`
 
         // -------------------------------------------------------
-        // 'A' values: Boundary values.
+        // `A` values: Boundary values.
         // -------------------------------------------------------
 
         const T1 A1 = BLACK;
@@ -1257,39 +1256,39 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'gg' FUNCTION
+        // TESTING `gg` FUNCTION
         //   Ensure that we can put an object into any initial state relevant
         //   for thorough testing.
         //
         // Concerns:
-        //: 1 The 'gg' can create an object having any value that does not
-        //:   violate the constructor's documented preconditions.
-        //:
-        //: 2 Any argument can be 'const'.
+        // 1. The `gg` can create an object having any value that does not
+        //    violate the constructor's documented preconditions.
+        //
+        // 2. Any argument can be `const`.
         //
         // Plan:
-        //: 1 Using the table-driven technique:
-        //:   1 Specify a set of (unique) valid object values (one per row) in
-        //:     terms of their individual attributes, including (a) first, the
-        //:     default value, and (b) boundary values corresponding to every
-        //:     range of values that each individual attribute can
-        //:     independently attain.
-        //:
-        //: 2 For each row (representing a distinct object value, 'V') in the
-        //:   table described in P-1: (C-1..2)
-        //:
-        //:   1 Use the value constructor to create an object having the value
-        //:     'V' supplying all the arguments as 'const'. (C-2)
-        //:
-        //:   2 Use the (as yet unproven) salient attribute accessors to verify
-        //:     that all of the attributes of each object have their expected
-        //:     values.  (C-1)
+        // 1. Using the table-driven technique:
+        //   1. Specify a set of (unique) valid object values (one per row) in
+        //      terms of their individual attributes, including (a) first, the
+        //      default value, and (b) boundary values corresponding to every
+        //      range of values that each individual attribute can
+        //      independently attain.
+        //
+        // 2. For each row (representing a distinct object value, `V`) in the
+        //    table described in P-1: (C-1..2)
+        //
+        //   1. Use the value constructor to create an object having the value
+        //      `V` supplying all the arguments as `const`. (C-2)
+        //
+        //   2. Use the (as yet unproven) salient attribute accessors to verify
+        //      that all of the attributes of each object have their expected
+        //      values.  (C-1)
         //
         // Testing:
         //   Obj& gg(Obj *r, Color c, Obj *p, Obj *l, Obj *r)
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'gg' FUNCTION"
+        if (verbose) printf("\nTESTING `gg` FUNCTION"
                             "\n=====================\n");
 
         if (verbose) printf("\nUse table of distinct object values.\n");
@@ -1331,47 +1330,47 @@ int main(int argc, char *argv[])
         //   thorough testing, and use the destructor to destroy it safely.
         //
         // Concerns:
-        //: 1 An object created with the default constructor has the
-        //:   contractually specified default value.
-        //:
-        //: 2 Any argument can be 'const'.
-        //:
-        //: 3 Each attribute is modifiable independently.
-        //:
-        //: 4 Each attribute can be set to represent any value that does not
-        //:   violate that attribute's documented constraints.
-        //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        // 1. An object created with the default constructor has the
+        //    contractually specified default value.
+        //
+        // 2. Any argument can be `const`.
+        //
+        // 3. Each attribute is modifiable independently.
+        //
+        // 4. Each attribute can be set to represent any value that does not
+        //    violate that attribute's documented constraints.
+        //
+        // 5. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create three sets of attribute values for the object: 'D', 'A',
-        //:   and 'B'.  'D' values correspond to the attribute values, and 'A'
-        //:   and 'B' values are chosen to be distinct boundary values where
-        //:   possible.
-        //:
-        //: 2 Use the default constructor to create an object 'X'.
-        //:
-        //: 3 Use the individual (as yet unproven) salient attribute
-        //:   accessors to verify the default-constructed value.  (C-1)
-        //:
-        //: 4 For each attribute 'i', in turn, create a local block.  Then
-        //:   inside the block, using brute force, set that attribute's
-        //:   value, passing a 'const' argument representing each of the
-        //:   three test values, in turn (see P-1), first to 'Ai', then to
-        //:   'Bi', and finally back to 'Di'.  After each transition, use the
-        //:   (as yet unproven) basic accessors to verify that only the
-        //:   intended attribute value changed.  (C-2, 4)
-        //:
-        //: 5 Corroborate that attributes are modifiable independently by
-        //:   first setting all of the attributes to their 'A' values.  Then
-        //:   incrementally set each attribute to its 'B' value and verify
-        //:   after each manipulation that only that attribute's value
-        //:   changed.  (C-3)
-        //:
-        //: 6 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-5)
+        // 1. Create three sets of attribute values for the object: `D`, `A`,
+        //    and `B`.  `D` values correspond to the attribute values, and `A`
+        //    and `B` values are chosen to be distinct boundary values where
+        //    possible.
+        //
+        // 2. Use the default constructor to create an object `X`.
+        //
+        // 3. Use the individual (as yet unproven) salient attribute
+        //    accessors to verify the default-constructed value.  (C-1)
+        //
+        // 4. For each attribute `i`, in turn, create a local block.  Then
+        //    inside the block, using brute force, set that attribute's
+        //    value, passing a `const` argument representing each of the
+        //    three test values, in turn (see P-1), first to `Ai`, then to
+        //    `Bi`, and finally back to `Di`.  After each transition, use the
+        //    (as yet unproven) basic accessors to verify that only the
+        //    intended attribute value changed.  (C-2, 4)
+        //
+        // 5. Corroborate that attributes are modifiable independently by
+        //    first setting all of the attributes to their `A` values.  Then
+        //    incrementally set each attribute to its `B` value and verify
+        //    after each manipulation that only that attribute's value
+        //    changed.  (C-3)
+        //
+        // 6. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-5)
         //
         // Testing:
         //   bslalg::RbTreeNode();
@@ -1388,21 +1387,21 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nEstablish suitable attribute values.\n");
 
-        // 'D' values: These are the default-constructed values.
+        // `D` values: These are the default-constructed values.
 
-        const Color D1 = RED;        // 'color'
-        Obj *const  D2 = 0;          // 'parent'
-        Obj *const  D3 = 0;          // 'leftChild'
-        Obj *const  D4 = 0;          // 'rightChild'
+        const Color D1 = RED;        // `color`
+        Obj *const  D2 = 0;          // `parent`
+        Obj *const  D3 = 0;          // `leftChild`
+        Obj *const  D4 = 0;          // `rightChild`
 
-        // 'A' values.
+        // `A` values.
 
         const Color A1 = BLACK;
         Obj *const  A2 = (Obj *)0x04;
         Obj *const  A3 = (Obj *)0x08;
         Obj *const  A4 = (Obj *)0x0c;
 
-        // 'B' values.
+        // `B` values.
 
         const Color B1 = RED;
         Obj *const  B2 = PTR1;
@@ -1434,7 +1433,7 @@ int main(int argc, char *argv[])
                     "Verify that each attribute is independently settable.\n");
 
         // -------
-        // 'color'
+        // `color`
         // -------
         {
             mX.setColor(A1);
@@ -1457,7 +1456,7 @@ int main(int argc, char *argv[])
         }
 
         // --------
-        // 'parent'
+        // `parent`
         // --------
         {
             mX.setParent(A2);
@@ -1480,7 +1479,7 @@ int main(int argc, char *argv[])
         }
 
         // -----------
-        // 'leftChild'
+        // `leftChild`
         // -----------
         {
             mX.setLeftChild(A3);
@@ -1503,7 +1502,7 @@ int main(int argc, char *argv[])
         }
 
         // ------------
-        // 'rightChild'
+        // `rightChild`
         // ------------
         {
             mX.setRightChild(A4);
@@ -1528,7 +1527,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("Corroborate attribute independence.\n");
         {
             // ---------------------------------------
-            // Set all attributes to their 'A' values.
+            // Set all attributes to their `A` values.
             // ---------------------------------------
 
             mX.setColor(A1);
@@ -1543,7 +1542,7 @@ int main(int argc, char *argv[])
 
 
             // ---------------------------------------
-            // Set all attributes to their 'B' values.
+            // Set all attributes to their `B` values.
             // ---------------------------------------
 
             mX.setColor(B1);
@@ -1592,11 +1591,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
+        // 1. Perform and ad-hoc test of the primary modifiers and accessors.
         //
         // Testing:
         //   BREATHING TEST
@@ -1607,27 +1606,27 @@ int main(int argc, char *argv[])
 
         // Attribute Types
 
-        typedef Color T1;  // 'color'
-        typedef Obj * T2;  // 'parent'
-        typedef Obj * T3;  // 'leftChild'
-        typedef Obj * T4;  // 'rightChild'
+        typedef Color T1;  // `color`
+        typedef Obj * T2;  // `parent`
+        typedef Obj * T3;  // `leftChild`
+        typedef Obj * T4;  // `rightChild`
 
-        // Attribute 1 Values: 'color'
+        // Attribute 1 Values: `color`
 
         const T1 D1 = RED;        // default value
         const T1 A1 = BLACK;
 
-        // Attribute 2 Values: 'parent'
+        // Attribute 2 Values: `parent`
 
         const T2 D2 = 0;        // default value
         const T2 A2 = PTR1;
 
-        // Attribute 3 Values: 'leftChild'
+        // Attribute 3 Values: `leftChild`
 
         const T3 D3 = 0;        // default value
         const T3 A3 = PTR2;
 
-        // Attribute 4 Values: 'rightChild'
+        // Attribute 4 Values: `rightChild`
 
         const T4 D4 = 0;        // default value
         const T4 A4 = PTR2;
@@ -1635,7 +1634,7 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) printf("\n Create an object 'w'.\n");
+        if (verbose) printf("\n Create an object `w`.\n");
 
         Obj mW;  const Obj& W = mW;
         mW.setColor(D1);
@@ -1643,7 +1642,7 @@ int main(int argc, char *argv[])
         mW.setLeftChild(D3);
         mW.setRightChild(D4);
 
-        if (veryVerbose) printf("\ta. Check initial value of 'w'.\n");
+        if (veryVerbose) printf("\ta. Check initial value of `w`.\n");
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         ASSERT(D1 == W.color());
@@ -1652,17 +1651,17 @@ int main(int argc, char *argv[])
         ASSERT(D4 == W.rightChild());
 
         if (veryVerbose) printf(
-                               "\tb. Try equality operators: 'w' <op> 'w'.\n");
+                               "\tb. Try equality operators: `w` <op> `w`.\n");
 
         ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) printf("\n Create 'X' from 'W').\n");
+        if (verbose) printf("\n Create `X` from `W`).\n");
 
         Obj mX(W);  const Obj& X = mX;
 
-        if (veryVerbose) printf("\ta. Check new value of 'x'.\n");
+        if (veryVerbose) printf("\ta. Check new value of `x`.\n");
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(D1 == X.color());
@@ -1672,7 +1671,7 @@ int main(int argc, char *argv[])
 
 
         if (veryVerbose) printf(
-                          "\tb. Try equality operators: 'x' <op> 'w', 'x'.\n");
+                          "\tb. Try equality operators: `x` <op> `w`, `x`.\n");
 
         ASSERT(1 == (X == W));        ASSERT(0 == (X != W));
         ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
@@ -1680,14 +1679,14 @@ int main(int argc, char *argv[])
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         if (verbose) printf(
-                    "\n Set 'X' with values 'A' (value distinct from 'D').\n");
+                    "\n Set `X` with values `A` (value distinct from `D`).\n");
 
         mX.setColor(A1);
         mX.setParent(A2);
         mX.setLeftChild(A3);
         mX.setRightChild(A4);
 
-        if (veryVerbose) printf("\ta. Check new value of 'x'.\n");
+        if (veryVerbose) printf("\ta. Check new value of `x`.\n");
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(A1 == X.color());
@@ -1697,19 +1696,19 @@ int main(int argc, char *argv[])
 
 
         if (veryVerbose) printf(
-                          "\tb. Try equality operators: 'x' <op> 'w', 'x'.\n");
+                          "\tb. Try equality operators: `x` <op> `w`, `x`.\n");
 
         ASSERT(0 == (X == W));        ASSERT(1 == (X != W));
         ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) printf("\n Create 'Y' and set 'Y' with 'X'.\n");
+        if (verbose) printf("\n Create `Y` and set `Y` with `X`.\n");
 
         Obj mY;  const Obj& Y = mY;
         mY = X;
 
-        if (veryVerbose) printf("\ta. Check new value of 'x'.\n");
+        if (veryVerbose) printf("\ta. Check new value of `x`.\n");
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(A1 == Y.color());
@@ -1719,7 +1718,7 @@ int main(int argc, char *argv[])
 
 
         if (veryVerbose) printf(
-                          "\tb. Try equality operators: 'x' <op> 'w', 'x'.\n");
+                          "\tb. Try equality operators: `x` <op> `w`, `x`.\n");
 
         ASSERT(0 == (X == W));        ASSERT(1 == (X != W));
         ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
@@ -1727,7 +1726,7 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) printf("\n 'makeBlack'\n");
+        if (verbose) printf("\n `makeBlack`\n");
 
         mW.makeBlack();
 
@@ -1747,7 +1746,7 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) printf("\n 'makeRed'\n");
+        if (verbose) printf("\n `makeRed`\n");
 
         mX.makeRed();
 
@@ -1767,7 +1766,7 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) printf("\n 'toggleColor'\n");
+        if (verbose) printf("\n `toggleColor`\n");
 
         mX.toggleColor();
 

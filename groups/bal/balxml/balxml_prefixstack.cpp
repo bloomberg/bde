@@ -31,10 +31,10 @@ const PredefinedPrefix predefinedPrefixes[] =
 
 const PredefinedPrefix nullPrefix = { "", -1 };
 
+/// Return the namespace ID for the specified predefined `prefix` or -1 if
+/// `prefix` is not predefined.  The behavior is undefined unless
+/// `prefix.data()` is non-null.
 const PredefinedPrefix& lookupPredefinedPrefix(const bsl::string_view& prefix)
-    // Return the namespace ID for the specified predefined 'prefix' or -1 if
-    // 'prefix' is not predefined.  The behavior is undefined unless
-    // 'prefix.data()' is non-null.
 {
     for (int i = 0; i < ARRAY_LEN(predefinedPrefixes); ++i) {
         if (prefix == predefinedPrefixes[i].d_prefix) {

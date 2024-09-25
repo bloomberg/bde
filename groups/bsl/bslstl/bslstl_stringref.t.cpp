@@ -173,7 +173,7 @@ using namespace BloombergLP;
 // [16] USAGE EXAMPLE
 // [12] TYPE TRAITS
 // [13] STRING CONSTRUCTORS COMPATIBILITY
-// [15] CONV of 'string_view' W.R.T. 'std::basic_string' (from stringview)
+// [15] CONV of `string_view` W.R.T. `std::basic_string` (from stringview)
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -264,8 +264,9 @@ const char VH = 'H';
 const char VI = 'I';
 const char VJ = 'J';
 const char VK = 'K';
+
+/// All test types have character value type.
 const char VL = 'L';
-    // All test types have character value type.
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -2251,8 +2252,8 @@ const char * const charUtf8MultiLang = (const char *) utf8MultiLang;
 static
 bsls::Types::Uint64 randAccum = 0;
 
+/// MMIX Linear Congruential Generator algorithm by Donald Knuth
 int absMmixRandNum()
-    // MMIX Linear Congruential Generator algorithm by Donald Knuth
 {
     randAccum = randAccum * 6364136223846793005LL + 1442695040888963407LL;
     const int ret = static_cast<int>(randAccum >> 32);
@@ -2270,18 +2271,18 @@ int absMmixRandNum()
 ///Example 1: Basic Operations
 ///- - - - - - - - - - - - - -
 // The following snippets of code illustrate basic and varied use of the
-// 'bslstl::StringRef' class.
+// `bslstl::StringRef` class.
 //
-// First, we define a function, 'getNumBlanks', that returns the number of
+// First, we define a function, `getNumBlanks`, that returns the number of
 // blank (' ') characters contained in the string referenced by a specified
-// 'bslstl::StringRef':
-//..
+// `bslstl::StringRef`:
+// ```
 //  #include <algorithm>
 
+    /// Return the number of blank (' ') characters in the string referenced
+    /// by the specified `stringRef`.
     bslstl::StringRef::size_type
     getNumBlanks(const bslstl::StringRef& stringRef)
-        // Return the number of blank (' ') characters in the string referenced
-        // by the specified 'stringRef'.
     {
 #if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
         // See <http://tinyurl.com/qz7blzp>.
@@ -2292,20 +2293,20 @@ int absMmixRandNum()
         return std::count(stringRef.begin(), stringRef.end(), ' ');
 #endif
     }
-//..
-// Notice that the function delegates the work to the 'std::count' STL
+// ```
+// Notice that the function delegates the work to the `std::count` STL
 // algorithm.  This delegation is made possible by the STL-compatible iterators
-// provided by the 'begin' and 'end' accessors.
+// provided by the `begin` and `end` accessors.
 
 //=============================================================================
 //                        GLOBAL FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Return `true` is `lhs` and `rhs` depict the same string and `false`
+/// otherwise.
 template <class CHAR_TYPE>
 bool areEqual(const bsl::basic_string<CHAR_TYPE>& lhs,
               bsl::basic_string_view<CHAR_TYPE>   rhs)
-    // Return 'true' is 'lhs' and 'rhs' depict the same string and 'false'
-    // otherwise.
 {
     if (lhs.length() != rhs.length()) {
         return false;                                                 // RETURN
@@ -2320,11 +2321,11 @@ bool areEqual(const bsl::basic_string<CHAR_TYPE>& lhs,
     return true;
 }
 
+/// Return `true` is `lhs` and `rhs` depict the same string and `false`
+/// otherwise.
 template <class CHAR_TYPE>
 bool areEqual(const bsl::basic_string<CHAR_TYPE>& lhs,
               bslstl::StringRefImp<CHAR_TYPE>     rhs)
-    // Return 'true' is 'lhs' and 'rhs' depict the same string and 'false'
-    // otherwise.
 {
     if (lhs.length() != rhs.length()) {
         return false;                                                 // RETURN
@@ -2339,10 +2340,10 @@ bool areEqual(const bsl::basic_string<CHAR_TYPE>& lhs,
     return true;
 }
 
+/// Print the specified `c`.  If `1 < sizeof(c)` and `notFirst`, precede it
+/// with ", ".
 template <class CHAR>
 void printChar(CHAR c, bool notFirst)
-    // Print the specified 'c'.  If '1 < sizeof(c)' and 'notFirst', precede it
-    // with ", ".
 {
     if (1 == sizeof(CHAR)) {
         if (0 < c && 0 == (c & 0x80)) {
@@ -2366,9 +2367,9 @@ void printChar(CHAR c, bool notFirst)
 namespace BloombergLP {
 namespace bslstl {
 
+/// Print the specified `value`.
 template <class CHAR>
 void debugprint(const StringRefImp<CHAR>& value)
-    // Print the specified 'value'.
 {
     BSLMF_ASSERT(sizeof(CHAR) <= sizeof(int));
 
@@ -2398,9 +2399,9 @@ void debugprint(const basic_string<CHAR>& value)
 
 }  // close namespace bsl
 
+/// Return the specified `value` normalized to -1, 0, or +1 depending upon
+/// whether value was negative, zero, or positive, respectively.
 int normalizeCompare(int value)
-    // Return the specified 'value' normalized to -1, 0, or +1 depending upon
-    // whether value was negative, zero, or positive, respectively.
 {
     return value > 0
          ? +1
@@ -2409,20 +2410,20 @@ int normalizeCompare(int value)
          : 0;
 }
 // ============================================================================
-//                 Test Case 11: Testing 'bsl::string;;operator='
+//                 Test Case 11: Testing `bsl::string;;operator=`
 // ----------------------------------------------------------------------------
 
+/// Return constant string.
 struct OpEqualsAssignTestA {
     operator const char *() const
-        // Return constant string.
     {
         return "OpEqualsAssignTestA -- loooooong string to provoke allocation";
     }
 };
 
+/// Return `StringRef` assembled from constant string.
 struct OpEqualsAssignTestB {
     operator bslstl::StringRef() const
-        // Return 'StringRef' assembled from constant string.
     {
         return "OpEqualsAssignTestB -- loooooong string to provoke allocation";
     }
@@ -2432,12 +2433,12 @@ struct OpEqualsAssignTestB {
 //                     GLOBAL TEST DRIVER
 // ----------------------------------------------------------------------------
 
+/// Load the specified `result` with the specified `asciiInput`, where each
+/// input character value is converted to the (template parameter) type
+/// `CHAR_TYPE`.  The behavior is undefined unless `asciiInput` is a valid
+/// null terminated ascii string.
 void copyStringValue(char    *result, const char *asciiInput);
 void copyStringValue(wchar_t *result, const char *asciiInput);
-    // Load the specified 'result' with the specified 'asciiInput', where each
-    // input character value is converted to the (template parameter) type
-    // 'CHAR_TYPE'.  The behavior is undefined unless 'asciiInput' is a valid
-    // null terminated ascii string.
 
 void copyStringValue(char *result, const char *asciiInput)
 {
@@ -2453,46 +2454,48 @@ void copyStringValue(wchar_t *result, const char *asciiInput)
     } while (*asciiInput);
 }
 
+/// Check constructors of the (themplate parameter) `TARGET` type for
+/// ambiguity, passing the specified `source` as a parameter.
 template <class TARGET, class SOURCE>
 void testStringCtorsAmbiguityTemplate(const SOURCE& source)
-    // Check constructors of the (themplate parameter) 'TARGET' type for
-    // ambiguity, passing the specified 'source' as a parameter.
 {
     TARGET target(source);
     (void) target;
 }
 
+/// Check constructors of the `bsl::string` for ambiguity, passing the
+/// specified `source` as a parameter.
 void testStringCtorsAmbiguity(const bslstl::StringRefData<char>& source)
-    // Check constructors of the 'bsl::string' for ambiguity, passing the
-    // specified 'source' as a parameter.
 {
     bsl::basic_string<char> target(source);
     (void) target;
 }
 
+/// This function is used to check if implicit constructor of the
+/// `bsl::string` is called to construct the specified `str`.
 void testStringImplicitCtor(bsl::basic_string<char> str)
-    // This function is used to check if implicit constructor of the
-    // 'bsl::string' is called to construct the specified 'str'.
 {
     (void) str;
 }
 
+/// This dummy class has an implicit conversion operator to
+/// `bslstl::StringRefImp` to check if implicit constructor of the
+/// `bsl::string` is called.
 template <class CHAR_TYPE>
 class ImplicitlyConvertibleToString {
-    // This dummy class has an implicit conversion operator to
-    // 'bslstl::StringRefImp' to check if implicit constructor of the
-    // 'bsl::string' is called.
 
   public:
     // CREATORS
+
+    /// Create an object o fthis type.
     ImplicitlyConvertibleToString()
-        // Create an object o fthis type.
     {
     }
 
     // ACCESSORS
+
+    /// Return an empty `StringRefImp` object.
     operator bslstl::StringRefImp<CHAR_TYPE>() const
-        // Return an empty 'StringRefImp' object.
     {
         const CHAR_TYPE *NULL_PTR = 0;
         return bslstl::StringRefImp<CHAR_TYPE>(NULL_PTR, 0);
@@ -2503,34 +2506,36 @@ class ImplicitlyConvertibleToString {
                  // class ConvertibleToStringViewType
                  // =================================
 
+/// This test class provides conversion operators to
+/// `bsl::basic_string_view` object.  It is used for testing methods that
+/// accept `StringViewLike` types.
 template <class TYPE,
           class TRAITS = bsl::char_traits<TYPE> >
 class ConvertibleToStringViewType
-    // This test class provides conversion operators to
-    // 'bsl::basic_string_view' object.  It is used for testing methods that
-    // accept 'StringViewLike' types.
 {
     // DATA
     const TYPE *d_value_p;  // value (held, not owned)
 
   public:
     // CREATORS
+
+    /// Create an object that has the specified `value`.
     explicit ConvertibleToStringViewType(const TYPE *value);
-        // Create an object that has the specified 'value'.
 
     // ACCESSORS
+
+    /// Convert this object to a `bsl::basic_string_view` object,
+    /// instantiated with the same character type and traits type.  The
+    /// return string will contain the same sequence of characters as this
+    /// object.  Note that this conversion operator can be invoked
+    /// implicitly (e.g., during argument passing).
     operator bsl::basic_string_view<TYPE, TRAITS>() const;
-        // Convert this object to a 'bsl::basic_string_view' object,
-        // instantiated with the same character type and traits type.  The
-        // return string will contain the same sequence of characters as this
-        // object.  Note that this conversion operator can be invoked
-        // implicitly (e.g., during argument passing).
 
+    /// Return the value of this object.
     const TYPE *data() const;
-        // Return the value of this object.
 
+    /// Return the length of the underlying string.
     size_t length() const;
-        // Return the length of the underlying string.
 };
 
                  // ---------------------------------
@@ -2571,21 +2576,21 @@ size_t ConvertibleToStringViewType<TYPE, TRAITS>::length() const
 
 class IncompleteType;
     // Incomplete class to check the correctness of the SFINAE conditions of
-    // the 'bsl::basic_string' template constructor.
+    // the `bsl::basic_string` template constructor.
 
+/// This function is the first of a pair of overloads for a SFINAE check.
 void overloadedFunction(const bsl::string&)
-    // This function is the first of a pair of overloads for a SFINAE check.
 {
 }
 
+/// This function is the second of a pair of overloads for a SFINAE check.
 void overloadedFunction(const IncompleteType&)
-    // This function is the second of a pair of overloads for a SFINAE check.
 {
 }
 
+/// This function calls the overloaded function name with the specified
+/// inclomplete `obj`.
 void testIncompleteTypeConversion(const IncompleteType &obj)
-    // This function calls the overloaded function name with the specified
-    // inclomplete 'obj'.
 {
     overloadedFunction(obj);
 }
@@ -2594,10 +2599,10 @@ void testIncompleteTypeConversion(const IncompleteType &obj)
                             // class ExceptionGuard
                             // ====================
 
+/// This scoped guard helps to verify the full guarantee of rollback in
+/// exception-throwing code.
 template <class VALUE_TYPE>
 struct ExceptionGuard {
-    // This scoped guard helps to verify the full guarantee of rollback in
-    // exception-throwing code.
 
     // DATA
     int               d_lineNum;
@@ -2633,8 +2638,9 @@ struct ExceptionGuard {
 template <class CHAR_TYPE>
 class TestDriver {
     // TYPES
+
+    /// Type under testing.
     typedef bslstl::StringRefImp<CHAR_TYPE> Obj;
-        // Type under testing.
 
     typedef bsl::basic_string<CHAR_TYPE> String;
 
@@ -2642,94 +2648,94 @@ class TestDriver {
 
   public:
 
+    /// Conversions between strings and string view-like types (moved from
+    /// bslstl_string_test.t.cpp to prevent cycles).
     static void testCase15();
-        // Conversions between strings and string view-like types (moved from
-        // bslstl_string_test.t.cpp to prevent cycles).
 
+    /// Testing construction of string views and string refs from different
+    /// types.
     static void testCase14();
-        // Testing construction of string views and string refs from different
-        // types.
 
+    /// Testing reverse iterators.
     static void testCase10();
-        // Testing reverse iterators.
 
+    /// Testing `StringRefImp(const StringRefImp& , size_type, size_type)`
     static void testCase9();
-        // Testing 'StringRefImp(const StringRefImp& , size_type, size_type)'
 
+    /// Load the specified `values` with the address of an array containing
+    /// initialized values of the parameterized `TYPE` and return the length
+    /// of that array.
     static int getValues(const CHAR_TYPE **values);
-        // Load the specified 'values' with the address of an array containing
-        // initialized values of the parameterized 'TYPE' and return the length
-        // of that array.
 
+    /// Using only primary manipulators, extend the length of the specified
+    /// `object` by the specified `size` by adding copies of the optionally
+    /// specified `value`, or with the null character for the (template
+    /// parameter) `TYPE` if `value` is not specified.  The resulting value
+    /// is not specified.
     static void stretch(String           *object,
                         size_t            size,
                         const CHAR_TYPE&  value = CHAR_TYPE());
-        // Using only primary manipulators, extend the length of the specified
-        // 'object' by the specified 'size' by adding copies of the optionally
-        // specified 'value', or with the null character for the (template
-        // parameter) 'TYPE' if 'value' is not specified.  The resulting value
-        // is not specified.
 
+    /// Using only primary manipulators, extend the capacity of the
+    /// specified `object` to (at least) the specified `size` by adding
+    /// copies of the optionally specified `value` or with the null
+    /// character for the (template parameter) `TYPE` if `value` is not
+    /// specified; then remove all elements leaving `object` empty.
     static void stretchRemoveAll(String           *object,
                                  size_t            size,
                                  const CHAR_TYPE&  value = CHAR_TYPE());
-        // Using only primary manipulators, extend the capacity of the
-        // specified 'object' to (at least) the specified 'size' by adding
-        // copies of the optionally specified 'value' or with the null
-        // character for the (template parameter) 'TYPE' if 'value' is not
-        // specified; then remove all elements leaving 'object' empty.
 
+    /// Configure the specified `object` according to the specified `spec`,
+    /// using only the primary manipulator function `push_back` and
+    /// white-box manipulator `clear`.  Optionally specify a zero
+    /// `verboseFlag` to suppress `spec` syntax error messages.  Return the
+    /// index of the first invalid character, and a negative value
+    /// otherwise.  Note that this function is used to implement `gg` as
+    /// well as allow for verification of syntax error detection.
     static int ggg(String *object, const char *spec, int verboseFlag = 1);
-        // Configure the specified 'object' according to the specified 'spec',
-        // using only the primary manipulator function 'push_back' and
-        // white-box manipulator 'clear'.  Optionally specify a zero
-        // 'verboseFlag' to suppress 'spec' syntax error messages.  Return the
-        // index of the first invalid character, and a negative value
-        // otherwise.  Note that this function is used to implement 'gg' as
-        // well as allow for verification of syntax error detection.
 
+    /// Return, by reference, the specified `object` with its value adjusted
+    /// according to the specified `spec`.
     static String& gg(String *object, const char *spec);
-        // Return, by reference, the specified 'object' with its value adjusted
-        // according to the specified 'spec'.
 
+    /// Return, by value, a new object corresponding to the specified
+    /// `spec`.
     static String g(const char *spec);
-        // Return, by value, a new object corresponding to the specified
-        // 'spec'.
 
+    /// Return, by value, a new string object with the specified `length`
+    /// and the specified `seed` character.  The actual content of the
+    /// string is not important, only the string length and the fact that
+    /// two different `seeds` produce two different results.
     static String g(size_t length, CHAR_TYPE seed);
-        // Return, by value, a new string object with the specified 'length'
-        // and the specified 'seed' character.  The actual content of the
-        // string is not important, only the string length and the fact that
-        // two different 'seeds' produce two different results.
 };
 
 template <class TYPE>
 void TestDriver<TYPE>::testCase15()
 {
     // --------------------------------------------------------------------
-    // TESTING CONVERSION of 'string_view' W.R.T. 'std::basic_string'
+    // TESTING CONVERSION of `string_view` W.R.T. `std::basic_string`
     //
     // (This test was migrated here for bslstl_stringview.t.cpp to prevent
     // dependency cycles).
     //
     // Concerns:
-    //: 1 That it is possible to construct a 'string_view' from a
-    //:   'std::string'.
-    //:
-    //: 2 That the source is not modified.
-    //:
-    //: 3 That the contents of the constructed object match the original
-    //:   string.
-    //:
-    //: 4 That a variety of string and string view types are constructible and
-    //:   assignable from each other.
+    // 1. That it is possible to construct a `string_view` from a
+    //    `std::string`.
+    //
+    // 2. That the source is not modified.
+    //
+    // 3. That the contents of the constructed object match the original
+    //    string.
+    //
+    // 4. That a variety of string and string view types are constructible and
+    //    assignable from each other.
     //
     // Plan:
-    //: 1 Using a few samples, create strings with those contents, create
-    //:   string views from them, and verify that the results are consistent.
-    //:
-    //: 2 Construct a variety of string-like objects and verify that they
-    //:   inter-convert properly with string views.
+    // 1. Using a few samples, create strings with those contents, create
+    //    string views from them, and verify that the results are consistent.
+    //
+    // 2. Construct a variety of string-like objects and verify that they
+    //    inter-convert properly with string views.
     // --------------------------------------------------------------------
 
     static const char *DATA[] = {
@@ -2743,7 +2749,7 @@ void TestDriver<TYPE>::testCase15()
         const char *pc;
         TYPE        buffer[100], *pB;
 
-        // Copy from 'char' buffer to 'TYPE' buffer.
+        // Copy from `char` buffer to `TYPE` buffer.
 
         for (pB = buffer, pc = CHAR_STR; (*pB++ = *pc++); ) {
             ;  // do nothing
@@ -2758,7 +2764,7 @@ void TestDriver<TYPE>::testCase15()
         const bsl::basic_string_view<TYPE> sv(str);
         ASSERT(pB == str);    // unchanged
 
-        // Compare 'sv' with 'str', they should match.
+        // Compare `sv` with `str`, they should match.
 
         ASSERT(str.length() == sv.length());
         ASSERT(!sv.data()[sv.length()]);
@@ -2829,7 +2835,7 @@ void TestDriver<TYPE>::testCase15()
             std::basic_string<TYPE> o(v);
             ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
 #ifdef BSLSTL_STRING_VIEW_IS_ALIASED
-            // Will not work with 'explicit string_view::operator std::string'
+            // Will not work with `explicit string_view::operator std::string`
             // in our implementation.
             o = v;
             ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
@@ -2850,7 +2856,7 @@ void TestDriver<TYPE>::testCase15()
             std::basic_string<TYPE> o(v);
             ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
 #ifdef BSLSTL_STRING_VIEW_IS_ALIASED
-            // Will not work with 'explicit string_view::operator std::string'
+            // Will not work with `explicit string_view::operator std::string`
             // in our implementation.
             o = v;
             ASSERT(0 == memcmp(o.data(), v.data(), (LEN + 1) * sizeof(TYPE)));
@@ -2886,10 +2892,10 @@ void TestDriver<TYPE>::testCase15()
             v = s;
             ASSERT(v.data() == s.data());
 
-            // 'StringRefData' constructor from 'bsl::basic_string_view' was
+            // `StringRefData` constructor from `bsl::basic_string_view` was
             // made explicit to solve the problem described in the
             // DRQS 173445931.  We still able to implicitly convert
-            // 'StringRefData' object to 'bsl::basic_string_view' since it is
+            // `StringRefData` object to `bsl::basic_string_view` since it is
             // an upcasting conversion, but not vice versa.  So we have to
             // comment out the rest of the test.
             //
@@ -2912,49 +2918,49 @@ void TestDriver<CHAR_TYPE>::testCase14()
     // TESTING CONSTRUCTION AND STRING VIEWS
     //
     // Concern:
-    //: 1 That both 'StringRefImp' and 'bsl::string_view' are constructible
-    //:   from a variety of source types.
-    //:   o from 'const CHAR_TYPE *'
-    //:
-    //:   o from '(const CHAR_TYPE *, size_t)'
-    //:
-    //:   o from 'bsl::basic_string<CHAR_TYPE>'
-    //:
-    //:   o from 'std::basic_string<CHAR_TYPE>'
-    //:
-    //:   o from another 'const' object of the same type
+    // 1. That both `StringRefImp` and `bsl::string_view` are constructible
+    //    from a variety of source types.
+    //    - from `const CHAR_TYPE *`
+    //
+    //    - from `(const CHAR_TYPE *, size_t)`
+    //
+    //    - from `bsl::basic_string<CHAR_TYPE>`
+    //
+    //    - from `std::basic_string<CHAR_TYPE>`
+    //
+    //    - from another `const` object of the same type
     //
     // Plan:
-    //: 1 Have a function 'areEqual' which will determine if a 'basic_string'
-    //:   matches a 'StringRefImp', with an overload similarly comparing a
-    //:   'basic_string' with a 'basic_string_view'.
-    //:
-    //: 2 Have a table containing a number of strings, some of which are too
-    //:   long to be stored in the short string optimization.
-    //:
-    //: 3 Iterate through the table.
-    //:
-    //: 4 Copy the string of 'char' to a buffer of 'CHAR_TYPE'.
-    //:
-    //: 5 With both 'StringRefImp<CHAR_TYPE>' and
-    //:   'basic_string_view<CHAR_TYPE>', construct from various types, then
-    //:   compare using 'areEqual':
-    //:   o from 'const CHAR_TYPE *'
-    //:
-    //:   o from '(const CHAR_TYPE *, size_t)'
-    //:
-    //:   o from 'bsl::basic_string<CHAR_TYPE>'
-    //:
-    //:   o from 'std::basic_string<CHAR_TYPE>'
-    //:
-    //:   o from another 'const' object of the same type
-    //:
-    //: 6 Compare the 5 objects created with 'operator==' to ensure they're all
-    //:   identical.
-    //:
-    //: 7 Also create another object from a different string 'arf' not in the
-    //:   table and test that 'areEqual' indicates that it does not match other
-    //:   objects to test the accuracy of 'areEqual'.
+    // 1. Have a function `areEqual` which will determine if a `basic_string`
+    //    matches a `StringRefImp`, with an overload similarly comparing a
+    //    `basic_string` with a `basic_string_view`.
+    //
+    // 2. Have a table containing a number of strings, some of which are too
+    //    long to be stored in the short string optimization.
+    //
+    // 3. Iterate through the table.
+    //
+    // 4. Copy the string of `char` to a buffer of `CHAR_TYPE`.
+    //
+    // 5. With both `StringRefImp<CHAR_TYPE>` and
+    //    `basic_string_view<CHAR_TYPE>`, construct from various types, then
+    //    compare using `areEqual`:
+    //    - from `const CHAR_TYPE *`
+    //
+    //    - from `(const CHAR_TYPE *, size_t)`
+    //
+    //    - from `bsl::basic_string<CHAR_TYPE>`
+    //
+    //    - from `std::basic_string<CHAR_TYPE>`
+    //
+    //    - from another `const` object of the same type
+    //
+    // 6. Compare the 5 objects created with `operator==` to ensure they're all
+    //    identical.
+    //
+    // 7. Also create another object from a different string `arf` not in the
+    //    table and test that `areEqual` indicates that it does not match other
+    //    objects to test the accuracy of `areEqual`.
     //
     // Testing:
     //   bsl::string_view(const char *);
@@ -3108,19 +3114,19 @@ void TestDriver<CHAR_TYPE>::testCase10()
     // TESTING ITERATORS
     //
     // Concerns:
-    //: 1 When then string reference is default constructed or the bounded
-    //:   string is empty, then 'rbegin()' compare equals to 'rend()'.
-    //:
-    //: 2 The range '[rbegin(), rend())' contains all values inserted into the
-    //:   container in descending order.
-    //:
+    // 1. When then string reference is default constructed or the bounded
+    //    string is empty, then `rbegin()` compare equals to `rend()`.
+    //
+    // 2. The range `[rbegin(), rend())` contains all values inserted into the
+    //    container in descending order.
+    //
     //
     // Plan:
     //   We test the two concerns by manually constructing the appropriate
     //   string reference objects and verify the expected output and behavior.
     //   More exhaustive tests are not required because
-    //   'const_reverse_iterator' is implemented by the (fully-tested)
-    //   'bslstl_ReverseIterator'.
+    //   `const_reverse_iterator` is implemented by the (fully-tested)
+    //   `bslstl_ReverseIterator`.
     //
     // Testing:
     //   const_reverse_iterator rbegin() const;
@@ -3171,35 +3177,35 @@ void TestDriver<CHAR_TYPE>::testCase9()
     //
     // Concerns:
     //
-    //: 1 Supplying an empty string ref, and 'startIndex' 0, 'numCharacters'
-    //:   0, results in an empty string ref.
-    //:
-    //: 2 For a non empty string ref, the resulting string ref's 'begin'
-    //:   iterator is at the same address as the 'startIndex' character of the
-    //:   original string ref.
-    //:
-    //: 3 If 'numCharacters' does next extend beyond the end of the original
-    //:   string ref, the resulting string ref is 'numCharacters' in length.
-    //:
-    //: 4 If 'numCharacters' extends beyond the end of the original string
-    //:   ref the resulting string ref is the tail of the original string ref.
-    //:
-    //: 5 QoI: Asserted precondition violations are detected when enabled.
+    // 1. Supplying an empty string ref, and `startIndex` 0, `numCharacters`
+    //    0, results in an empty string ref.
+    //
+    // 2. For a non empty string ref, the resulting string ref's `begin`
+    //    iterator is at the same address as the `startIndex` character of the
+    //    original string ref.
+    //
+    // 3. If `numCharacters` does next extend beyond the end of the original
+    //    string ref, the resulting string ref is `numCharacters` in length.
+    //
+    // 4. If `numCharacters` extends beyond the end of the original string
+    //    ref the resulting string ref is the tail of the original string ref.
+    //
+    // 5. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
     //
-    //: 1 Test with an empty string ref as input. (C-1)
-    //:
-    //: 2 Test a non-empty input through all possible start indices. (C-2)
-    //:
-    //: 3 Test a non-empty input through all possible lengths of the input and
-    //:   beyond the end of the input range. (C-3,4)
-    //:
-    //: 4 Test a non-empty input through possibly start indices and lengths (a
-    //:   cross product of tests 2 & 3). (C-2..4)
-    //:
-    //: 5 Test the asserted preconditions using the 'BSLS_ASSERTTEST_*'
-    //:   macros. (C-5)
+    // 1. Test with an empty string ref as input. (C-1)
+    //
+    // 2. Test a non-empty input through all possible start indices. (C-2)
+    //
+    // 3. Test a non-empty input through all possible lengths of the input and
+    //    beyond the end of the input range. (C-3,4)
+    //
+    // 4. Test a non-empty input through possibly start indices and lengths (a
+    //    cross product of tests 2 & 3). (C-2..4)
+    //
+    // 5. Test the asserted preconditions using the `BSLS_ASSERTTEST_*`
+    //    macros. (C-5)
     //
     // Testing:
     //   StringRefImp(const StringRefImp&, size_type, size_type)
@@ -3216,7 +3222,7 @@ void TestDriver<CHAR_TYPE>::testCase9()
         ASSERT(Z.isEmpty());
     }
 
-    if (verbose) printf("\tTest various values for 'startIndex'\n");
+    if (verbose) printf("\tTest various values for `startIndex`\n");
     {
         const char value[] = "abcdefg";
         CHAR_TYPE  input[sizeof(value)];
@@ -3240,7 +3246,7 @@ void TestDriver<CHAR_TYPE>::testCase9()
         }
     }
 
-    if (verbose) printf("\tTest various values for 'numCharacters'\n");
+    if (verbose) printf("\tTest various values for `numCharacters`\n");
     {
         const char value[] = "abcdefg";
         CHAR_TYPE  input[sizeof(value)];
@@ -3284,7 +3290,7 @@ void TestDriver<CHAR_TYPE>::testCase9()
         }
     }
 
-    if (verbose) printf("\tTest both 'startIndex' and 'numCharacters'\n");
+    if (verbose) printf("\tTest both `startIndex` and `numCharacters`\n");
     {
         const char value[] = "abcdefg";
         CHAR_TYPE  input[sizeof(value)];
@@ -3330,7 +3336,7 @@ void TestDriver<CHAR_TYPE>::testCase9()
 
         Obj original(input, LENGTH); const Obj& ORIGINAL = original;
 
-        if (verbose) printf("\tNegative testing 'startIndex <= or.length'.\n");
+        if (verbose) printf("\tNegative testing `startIndex <= or.length`.\n");
         {
             ASSERT_SAFE_PASS_RAW(Obj(ORIGINAL, ORIGINAL.length(), 0));
             ASSERT_SAFE_FAIL_RAW(Obj(ORIGINAL, ORIGINAL.length() + 1, 0));
@@ -3456,11 +3462,11 @@ const CHAR *ptrFunction(const CHAR *string)
     return string;
 }
 
+/// Test all the accessor methods, especially including both `compare`
+/// methods, and test all free comparison operators between `bsl::string`s,
+/// `std::strings`s, `StringRefImp`s, and `const CHAR *`s.
 template <class CHAR>
 void testAccessorsComparisons()
-    // Test all the accessor methods, especially including both 'compare'
-    // methods, and test all free comparison operators between 'bsl::string's,
-    // 'std::strings's, 'StringRefImp's, and 'const CHAR *'s.
 {
     const char *charTypeName = bsls::NameOf<CHAR>();
 
@@ -3468,8 +3474,8 @@ void testAccessorsComparisons()
                            <<  charTypeName << "\n"
                               "=================================\n";
 
-    // We test to ensure that all comparisons between 'basic_strings',
-    // 'StringRefImp's, and 'const CHAR *'s yield matching results.
+    // We test to ensure that all comparisons between `basic_strings`,
+    // `StringRefImp`s, and `const CHAR *`s yield matching results.
     // We have no strings with embedded '\0's in this example.
 
     if (verbose) {
@@ -3578,7 +3584,7 @@ void testAccessorsComparisons()
             ASSERTV(IL, IS, (ACTUAL_LEN == 0) == ISR.isEmpty());
             ASSERTV(IL, IS, (ACTUAL_LEN == 0) == ISR.empty());
 
-            // Test 'operator[]':
+            // Test `operator[]`:
 
             for (std::size_t ii = 0; ii < ACTUAL_LEN; ++ii) {
                 ASSERTV(IL, IS, ii, IPC[ii], ISR[ii], IPC[ii] == ISR[ii]);
@@ -3645,7 +3651,7 @@ void testAccessorsComparisons()
 
             ASSERTV(IL, JL, IS, JS, EQ, IL != JL || EQ);
 
-            // Call the two 'compare' methods directly:
+            // Call the two `compare` methods directly:
 
             typedef bslstl::StringRefImp_CompareUtil CUtil;
 
@@ -3679,7 +3685,7 @@ void testAccessorsComparisons()
             ASSERTV(IL, JL, IS, JS, LE == (COMPARE_PC <= 0));
             ASSERTV(IL, JL, IS, JS, LE == (COMPARE_SR <= 0));
 
-            // Normalize 'COMPARE_PC' & 'COMPARE_SR' to +1, -1, or 0, at which
+            // Normalize `COMPARE_PC` & `COMPARE_SR` to +1, -1, or 0, at which
             // point they should be equal, if they weren't equal to begin with.
 
             COMPARE_PC = normalizeCompare(COMPARE_PC);
@@ -3689,7 +3695,7 @@ void testAccessorsComparisons()
                                                      COMPARE_PC == COMPARE_SR);
 
 
-            // 'operator=='
+            // `operator==`
 
             ASSERTV(IL, JL, IS, JS, EQ, (IS  == JPC), EQ == (IS  == JPC));
             ASSERTV(IL, JL, IS, JS, EQ, (IS  == JS),  EQ == (IS  == JS));
@@ -3720,7 +3726,7 @@ void testAccessorsComparisons()
             ASSERTV(IL, JL, IS, JS, EQ, (IPC == JSR), EQ == (IPC == JSR));
             ASSERTV(IL, JL, IS, JS, EQ, (IPC == JSV), EQ == (IPC == JSV));
 
-            // 'operator!='
+            // `operator!=`
 
             ASSERTV(IL, JL, IS, JS, NE, (IS  != JPC), NE == (IS  != JPC));
             ASSERTV(IL, JL, IS, JS, NE, (IS  != JS),  NE == (IS  != JS));
@@ -3751,7 +3757,7 @@ void testAccessorsComparisons()
             ASSERTV(IL, JL, IS, JS, NE, (IPC != JSR), NE == (IPC != JSR));
             ASSERTV(IL, JL, IS, JS, NE, (IPC != JSV), NE == (IPC != JSV));
 
-            // 'operator<'
+            // `operator<`
 
             ASSERTV(IL, JL, IS, JS, LT, (IS  <  JPC), LT == (IS  <  JPC));
             ASSERTV(IL, JL, IS, JS, LT, (IS  <  JS),  LT == (IS  <  JS));
@@ -3782,7 +3788,7 @@ void testAccessorsComparisons()
             ASSERTV(IL, JL, IS, JS, LT, (IPC <  JSR), LT == (IPC <  JSR));
             ASSERTV(IL, JL, IS, JS, LT, (IPC <  JSV), LT == (IPC <  JSV));
 
-            // 'operator>='
+            // `operator>=`
 
             ASSERTV(IL, JL, IS, JS, GE, (IS  >= JPC), GE == (IS  >= JPC));
             ASSERTV(IL, JL, IS, JS, GE, (IS  >= JS),  GE == (IS  >= JS));
@@ -3813,7 +3819,7 @@ void testAccessorsComparisons()
             ASSERTV(IL, JL, IS, JS, GE, (IPC >= JSR), GE == (IPC >= JSR));
             ASSERTV(IL, JL, IS, JS, GE, (IPC >= JSV), GE == (IPC >= JSV));
 
-            // 'operator>'
+            // `operator>`
 
             ASSERTV(IL, JL, IS, JS, GT, (IS  >  JPC), GT == (IS  >  JPC));
             ASSERTV(IL, JL, IS, JS, GT, (IS  >  JS),  GT == (IS  >  JS));
@@ -3844,7 +3850,7 @@ void testAccessorsComparisons()
             ASSERTV(IL, JL, IS, JS, GT, (IPC >  JSR), GT == (IPC >  JSR));
             ASSERTV(IL, JL, IS, JS, GT, (IPC >  JSV), GT == (IPC >  JSV));
 
-            // 'operator<='
+            // `operator<=`
 
             ASSERTV(IL, JL, IS, JS, LE, (IS  <= JPC), LE == (IS  <= JPC));
             ASSERTV(IL, JL, IS, JS, LE, (IS  <= JS),  LE == (IS  <= JS));
@@ -3881,7 +3887,7 @@ void testAccessorsComparisons()
                 continue;
             }
 
-            // 'operator=='
+            // `operator==`
 
             ASSERTV(IL, JL, IS, JS, EQ, (ISF == JPF), EQ == (ISF == JPF));
             ASSERTV(IL, JL, IS, JS, EQ, (ISF == JSF), EQ == (ISF == JSF));
@@ -3912,7 +3918,7 @@ void testAccessorsComparisons()
             ASSERTV(IL, JL, IS, JS, EQ, (IPF == JRF), EQ == (IPF == JRF));
             ASSERTV(IL, JL, IS, JS, EQ, (IPF == JVF), EQ == (IPF == JVF));
 
-            // 'operator!='
+            // `operator!=`
 
             ASSERTV(IL, JL, IS, JS, NE, (ISF != JPF), NE == (ISF != JPF));
             ASSERTV(IL, JL, IS, JS, NE, (ISF != JSF), NE == (ISF != JSF));
@@ -3943,7 +3949,7 @@ void testAccessorsComparisons()
             ASSERTV(IL, JL, IS, JS, NE, (IPF != JRF), NE == (IPF != JRF));
             ASSERTV(IL, JL, IS, JS, NE, (IPF != JVF), NE == (IPF != JVF));
 
-            // 'operator<'
+            // `operator<`
 
             ASSERTV(IL, JL, IS, JS, LT, (ISF <  JPF), LT == (ISF <  JPF));
             ASSERTV(IL, JL, IS, JS, LT, (ISF <  JSF), LT == (ISF <  JSF));
@@ -3974,7 +3980,7 @@ void testAccessorsComparisons()
             ASSERTV(IL, JL, IS, JS, LT, (IPF <  JRF), LT == (IPF <  JRF));
             ASSERTV(IL, JL, IS, JS, LT, (IPF <  JVF), LT == (IPF <  JVF));
 
-            // 'operator>='
+            // `operator>=`
 
             ASSERTV(IL, JL, IS, JS, GE, (ISF >= JPF), GE == (ISF >= JPF));
             ASSERTV(IL, JL, IS, JS, GE, (ISF >= JSF), GE == (ISF >= JSF));
@@ -4005,7 +4011,7 @@ void testAccessorsComparisons()
             ASSERTV(IL, JL, IS, JS, GE, (IPF >= JRF), GE == (IPF >= JRF));
             ASSERTV(IL, JL, IS, JS, GE, (IPF >= JVF), GE == (IPF >= JVF));
 
-            // 'operator>'
+            // `operator>`
 
             ASSERTV(IL, JL, IS, JS, GT, (ISF >  JPF), GT == (ISF >  JPF));
             ASSERTV(IL, JL, IS, JS, GT, (ISF >  JSF), GT == (ISF >  JSF));
@@ -4036,7 +4042,7 @@ void testAccessorsComparisons()
             ASSERTV(IL, JL, IS, JS, GT, (IPF >  JRF), GT == (IPF >  JRF));
             ASSERTV(IL, JL, IS, JS, GT, (IPF >  JVF), GT == (IPF >  JVF));
 
-            // 'operator<='
+            // `operator<=`
 
             ASSERTV(IL, JL, IS, JS, LE, (ISF <= JPF), LE == (ISF <= JPF));
             ASSERTV(IL, JL, IS, JS, LE, (ISF <= JSF), LE == (ISF <= JSF));
@@ -4106,7 +4112,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -4115,33 +4121,33 @@ int main(int argc, char *argv[])
         if (verbose) std::cout << "\nTESTING USAGE EXAMPLE"
                                << "\n=====================\n";
 
-// Then, call 'getNumBlanks' on a default constructed 'bslstl::StringRef':
-//..
+// Then, call `getNumBlanks` on a default constructed `bslstl::StringRef`:
+// ```
     bslstl::StringRef            emptyRef;
     bslstl::StringRef::size_type numBlanks = getNumBlanks(emptyRef);
     ASSERT(0 == numBlanks);
 
     ASSERT(""         == emptyRef);
     ASSERT("anything" >= emptyRef);
-//..
-// Notice that the behavior a default constructed 'bslstl::StringRef' object
+// ```
+// Notice that the behavior a default constructed `bslstl::StringRef` object
 // behaves the same as if it referenced an empty string.
 //
-// Next, we (implicitly) construct a 'bsl::string' object from
-// 'bslstl::StringRef':
-//..
+// Next, we (implicitly) construct a `bsl::string` object from
+// `bslstl::StringRef`:
+// ```
     bsl::string empty(emptyRef);
     ASSERT(0 == empty.size());
-//..
-// Then, we call 'getNumBlanks' on a string literal and assert that the number
+// ```
+// Then, we call `getNumBlanks` on a string literal and assert that the number
 // of blanks returned is as expected:
-//..
+// ```
     numBlanks = getNumBlanks("Good things come to those who wait.");
     ASSERT(6 == numBlanks);
-//..
-// Next, we define a longer string literal, 'poem', that we will use in the
+// ```
+// Next, we define a longer string literal, `poem`, that we will use in the
 // rest of this usage example:
-//..
+// ```
     const char poem[] =                  // by William Butler Yeats (1865-1939)
 //      |....5....|....5....|....5....|....5....|   //  length  blanks
                                                     //
@@ -4157,68 +4163,68 @@ int main(int argc, char *argv[])
                                                     //    total: 42
     numBlanks = getNumBlanks(poem);
     ASSERT(42 == numBlanks);
-//..
-// Then, we construct a 'bslstl::StringRef' object, 'line', that refers to only
-// the first line of the 'poem':
-//..
+// ```
+// Then, we construct a `bslstl::StringRef` object, `line`, that refers to only
+// the first line of the `poem`:
+// ```
     bslstl::StringRef line(poem, 29);
     numBlanks = getNumBlanks(line);
 
     ASSERT( 5 == numBlanks);
     ASSERT(29 == line.length());
     ASSERT( 0 == std::strncmp(poem, line.data(), line.length()));
-//..
-// Next, we use the 'assign' method to make 'line' refer to the second line of
-// the 'poem':
-//..
+// ```
+// Next, we use the `assign` method to make `line` refer to the second line of
+// the `poem`:
+// ```
     line.assign(poem + 29, poem + 57);
     numBlanks = getNumBlanks(line);
     ASSERT(4 == numBlanks);
     ASSERT((57 - 29) == line.length());
     ASSERT("There is nobody wise enough\n" == line);
-//..
-// Then, we call 'getNumBlanks' with a 'bsl::string' initialized to the
-// contents of the 'poem':
-//..
+// ```
+// Then, we call `getNumBlanks` with a `bsl::string` initialized to the
+// contents of the `poem`:
+// ```
     const bsl::string poemString(poem);
     numBlanks = getNumBlanks(poemString);
     ASSERT(42 == numBlanks);
     ASSERT(bslstl::StringRef(poemString) == poemString);
     ASSERT(bslstl::StringRef(poemString) == poemString.c_str());
-//..
-// Next, we make a 'bslstl::StringRef' object that refers to a string that will
+// ```
+// Next, we make a `bslstl::StringRef` object that refers to a string that will
 // be able to hold embedded null characters:
-//..
+// ```
     char poemWithNulls[512];
     const bslstl::StringRef::size_type poemLength = std::strlen(poem);
     ASSERT(poemLength < 512);
 
     std::memcpy(poemWithNulls, poem, poemLength + 1);
     ASSERT(0 == std::strcmp(poem, poemWithNulls));
-//..
-// Now, we replace each occurrence of a '\n' in 'poemWithNulls' with a yielding
+// ```
+// Now, we replace each occurrence of a '\n' in `poemWithNulls` with a yielding
 // '\0':
-//..
+// ```
     std::replace(poemWithNulls, poemWithNulls + poemLength, '\n', '\0');
     ASSERT(0 != std::strcmp(poem, poemWithNulls));
-//..
-// Finally, we observe that 'poemWithNulls' has the same number of blank
-// characters as the original 'poem':
-//..
+// ```
+// Finally, we observe that `poemWithNulls` has the same number of blank
+// characters as the original `poem`:
+// ```
     numBlanks = getNumBlanks(bslstl::StringRef(poemWithNulls, poemLength));
     ASSERT(42 == numBlanks);
-//..
+// ```
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // CONVERSION of 'string_view' W.R.T. 'std::basic_string'
+        // CONVERSION of `string_view` W.R.T. `std::basic_string`
         //
-        // This test was migrated to from 'bslstl_stringview.t.cpp' TC 23 to
+        // This test was migrated to from `bslstl_stringview.t.cpp` TC 23 to
         // here to avoid dependency cycles.
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                   "CONVERSION of 'string_view' W.R.T. 'std::basic_string'\n"
+                   "CONVERSION of `string_view` W.R.T. `std::basic_string`\n"
                    "======================================================\n");
 
         TestDriver<char>::testCase15();
@@ -4246,29 +4252,29 @@ int main(int argc, char *argv[])
       case 13: {
         // --------------------------------------------------------------------
         // STRING CONSTRUCTORS COMPATIBILITY
-        //   The appearance of the 'bsl::string_view' class in the inheritance
+        //   The appearance of the `bsl::string_view` class in the inheritance
         //   chain
-        //   "'bsl::string_view'<-'bslstl::StringRefData'<-'bslstl::StringRef'"
+        //   "`bsl::string_view`<-`bslstl::StringRefData`<-`bslstl::StringRef`"
         //   has created several potentially dangerous places.  This test is
         //   intended to reveal these problems if any.
         //
         // Concerns:
-        //: 1 Calls for the 'bsl::string' constructors are unambiguous while
-        //:   passing objects of 'bsl::string_view', 'bslstl::StringRefData' or
-        //:   'bslstl::StringRef' types as a parameter.
-        //:
-        //: 2 The 'bsl::string' constructor, accepting constant reference to
-        //:   'bslstl::StringRefData' object can be called implicitly.
+        // 1. Calls for the `bsl::string` constructors are unambiguous while
+        //    passing objects of `bsl::string_view`, `bslstl::StringRefData` or
+        //    `bslstl::StringRef` types as a parameter.
+        //
+        // 2. The `bsl::string` constructor, accepting constant reference to
+        //    `bslstl::StringRefData` object can be called implicitly.
         //
         // Plan:
-        //: 1 Explicitly call 'bsl::string' constructor, passing objects of
-        //:   'bsl::string_view', 'bslstl::StringRefData' or
-        //:   'bslstl::StringRef' types as a parameter.
-        //:
-        //: 2 Call special fuctions, that implicitly or explicitly invoke
-        //:   'bsl::string' constructors and pass objects of
-        //:   'bsl::string_view', 'bslstl::StringRefData' or
-        //:   'bslstl::StringRef' types as a parameter.  (C-1..2)
+        // 1. Explicitly call `bsl::string` constructor, passing objects of
+        //    `bsl::string_view`, `bslstl::StringRefData` or
+        //    `bslstl::StringRef` types as a parameter.
+        //
+        // 2. Call special fuctions, that implicitly or explicitly invoke
+        //    `bsl::string` constructors and pass objects of
+        //    `bsl::string_view`, `bslstl::StringRefData` or
+        //    `bslstl::StringRef` types as a parameter.  (C-1..2)
         //
         // Testing:
         //   STRING CONSTRUCTORS COMPATIBILITY
@@ -4317,20 +4323,20 @@ int main(int argc, char *argv[])
         //   have appropriate bsl type traits to reflect this.
         //
         // Concerns:
-        //: 1 The class has the 'bsl::is_trivially_copyable' trait.
-        //:
-        //: 2 The class has the 'bslmf::IsBitwiseMoveable' trait.
-        //:
-        //: 3 The class doesn't have the
-        //:   'bsl::is_trivially_default_constructible' trait.
-        //:
-        //: 4 The class doesn't have the 'bslma::UsesBslmaAllocator' trait.
-        //:
-        //: 5 The class doesn't have the 'bslmf::IsBitwiseEqualityComparable'
-        //:   trait.
+        // 1. The class has the `bsl::is_trivially_copyable` trait.
+        //
+        // 2. The class has the `bslmf::IsBitwiseMoveable` trait.
+        //
+        // 3. The class doesn't have the
+        //    `bsl::is_trivially_default_constructible` trait.
+        //
+        // 4. The class doesn't have the `bslma::UsesBslmaAllocator` trait.
+        //
+        // 5. The class doesn't have the `bslmf::IsBitwiseEqualityComparable`
+        //    trait.
         //
         // Plan:
-        //: 1 ASSERT the presence of each trait required by the type.  (C-1..5)
+        // 1. ASSERT the presence of each trait required by the type.  (C-1..5)
         //
         // Testing:
         //   TYPE TRAITS
@@ -4363,23 +4369,23 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'bsl::string::operator='
+        // TESTING `bsl::string::operator=`
         //
         // Concerns:
-        //   That string assignment to a 'bsl::string' through the 'operator='
+        //   That string assignment to a `bsl::string` through the `operator=`
         //   member compiles and works properly.  Of particular interest is
         //   whether any of these conversion failed to compile due to
         //   ambiguities.
         //
         //   Note that this must be done in this component, rather than in
-        //   'bslstl_string.t.cpp', since we want to test assigning from a
-        //   'bslstl::StringRef'.
+        //   `bslstl_string.t.cpp`, since we want to test assigning from a
+        //   `bslstl::StringRef`.
         //
         // Testing:
         //   bsl::string::operator=(const bslstl::StringRefData&);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'bsl::string::operator='"
+        if (verbose) printf("\nTESTING `bsl::string::operator=`"
                             "\n================================\n");
 
         bslma::TestAllocator         ta("test",    veryVeryVeryVerbose);
@@ -4422,7 +4428,7 @@ int main(int argc, char *argv[])
         // TESTING REVERSE ITERATORS
         // --------------------------------------------------------------------
 
-        //  See 'TestDriver::testCase10' for concerns and plan.
+        //  See `TestDriver::testCase10` for concerns and plan.
 
         if (verbose) std::cout << "\nTESTING REVERSE ITERATORS"
                                   "\n=========================\n";
@@ -4432,14 +4438,14 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'StringRefImp(StringRefImp&, size_type, size_type)'
+        // TESTING `StringRefImp(StringRefImp&, size_type, size_type)`
         //
         // --------------------------------------------------------------------
 
-        //  See 'TestDriver::testCase9' for concerns and plan.
+        //  See `TestDriver::testCase9` for concerns and plan.
 
         if (verbose) printf(
-            "\nTESTING 'StringRefImp(StringRefImp&, size_type, size_type)'"
+            "\nTESTING `StringRefImp(StringRefImp&, size_type, size_type)`"
             "\n===========================================================\n");
 
         RUN_EACH_TYPE(TestDriver, testCase9, char, wchar_t);
@@ -4450,38 +4456,38 @@ int main(int argc, char *argv[])
         // TESTING HASH FUNCTION
         //
         // Concerns:
-        //: 1 The hash function in versions of this component prior to
-        //:   /main/bb/dev/10 returned '0' for all input strings.  This test
-        //:   will verify that the hash function returns acceptably distinct
-        //:   values for a set of input strings, allowing for at most one
-        //:   collision.
-        //:
-        //: 2 The 'hashAppend' function should be picked up and used by
-        //;   bslh:Hash. The whole string should be used in this hash.
-        //:   'bsl::hash' specialization has been deleted, so calls to
-        //:   'bsl::hash' should automatically forward to 'bslh::Hash'.
+        // 1. The hash function in versions of this component prior to
+        //    /main/bb/dev/10 returned `0` for all input strings.  This test
+        //    will verify that the hash function returns acceptably distinct
+        //    values for a set of input strings, allowing for at most one
+        //    collision.
+        //
+        // 2. The `hashAppend` function should be picked up and used by
+        //    bslh:Hash. The whole string should be used in this hash.
+        //    `bsl::hash` specialization has been deleted, so calls to
+        //    `bsl::hash` should automatically forward to `bslh::Hash`.
         //
         // Plan:
-        //: 1 Hash a reasonably large number of strings, capturing the hash
-        //:   values.  Make sure re-hashing the same strings in a different
-        //:   order returns the same values.  Then make sure that each
-        //:   resulting hash was not encountered more than twice (so we're
-        //:   allowing SOME collisions, but not too many).
-        //:
-        //:   The strings to be hashed will include some "typical" short
-        //:   strings including the names of current and past members of the
-        //:   BDE team and the tickers for the members of the S&P 500 index.
-        //:
-        //:   While there are no guarantees that these data sets are
-        //:   representative, this at least allows us to make sure that our
-        //:   hash performs in a reasonable manner.
-        //:
-        //: 2 Test using both bslh::Hash<> and bsl::hash<StringRef> (both of
-        //:    which should now give the same result). Hash strings where only
-        //:    the final value differs to ensure that the full length of the
-        //:    string is being hashed. Also hash multiple copies of the same
-        //:    string and ensure they produce the same hash to make sure
-        //:    nothing beyond the end of the string is being hashed.
+        // 1. Hash a reasonably large number of strings, capturing the hash
+        //    values.  Make sure re-hashing the same strings in a different
+        //    order returns the same values.  Then make sure that each
+        //    resulting hash was not encountered more than twice (so we're
+        //    allowing SOME collisions, but not too many).
+        //
+        //    The strings to be hashed will include some "typical" short
+        //    strings including the names of current and past members of the
+        //    BDE team and the tickers for the members of the S&P 500 index.
+        //
+        //    While there are no guarantees that these data sets are
+        //    representative, this at least allows us to make sure that our
+        //    hash performs in a reasonable manner.
+        //
+        // 2. Test using both bslh::Hash<> and bsl::hash<StringRef> (both of
+        //     which should now give the same result). Hash strings where only
+        //     the final value differs to ensure that the full length of the
+        //     string is being hashed. Also hash multiple copies of the same
+        //     string and ensure they produce the same hash to make sure
+        //     nothing beyond the end of the string is being hashed.
         //
         // Testing:
         //   bsl::hash<BloombergLP::bslstl::StringRef>
@@ -5844,18 +5850,18 @@ int main(int argc, char *argv[])
                           << "S4 = \""   << S4 << "\", " << std::endl;
             }
 
-            // 'std::string' versus StringRef
+            // `std::string` versus StringRef
             LOOP_ASSERT(LINE, RESULT == (S3  + X2));
 
-            // StringRef versus 'std::string'
+            // StringRef versus `std::string`
             LOOP_ASSERT(LINE, RESULT == (X1  + S4));
 
-            // 'bsl::string' versus 'bsl::string'.  This test is to ensure no
+            // `bsl::string` versus `bsl::string`.  This test is to ensure no
             // overloading ambiguity was introduced.
 
             LOOP_ASSERT(LINE, RESULT == (S1  + S2));
 
-            // 'std::string' versus 'bsl::string'.  This test is to
+            // `std::string` versus `bsl::string`.  This test is to
             // ensure no overloading ambiguity was introduced.
 
             LOOP_ASSERT(LINE, RESULT == (S3  + S4));
@@ -5892,7 +5898,7 @@ int main(int argc, char *argv[])
         if (verbose) std::cout << "\nTESTING MANIPULATORS"
                                   "\n====================\n";
 
-        if (verbose) std::cout << "\nTesting:\n\t'reset()'\n\t'assign()'"
+        if (verbose) std::cout << "\nTesting:\n\t`reset()`\n\t`assign()`"
                                << "\n= = = = = = = = = = = ="
                                << std::endl;
         if (veryVerbose)
@@ -6345,7 +6351,7 @@ int main(int argc, char *argv[])
                           << "S4 = \""   << S4 << "\", " << std::endl;
             }
 
-            // 'std::string' versus StringRef
+            // `std::string` versus StringRef
             LOOP_ASSERT(LINE, LT   == (S3 <  X2));
             LOOP_ASSERT(LINE, GT   == (S3 >  X2));
             LOOP_ASSERT(LINE, LTEQ == (S3 <= X2));
@@ -6353,7 +6359,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, EQ   == (S3 == X2));
             LOOP_ASSERT(LINE, EQ   != (S3 != X2));
 
-            // StringRef versus 'std::string'
+            // StringRef versus `std::string`
             LOOP_ASSERT(LINE, LT   == (X1 <  S4));
             LOOP_ASSERT(LINE, GT   == (X1 >  S4));
             LOOP_ASSERT(LINE, LTEQ == (X1 <= S4));
@@ -6371,7 +6377,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, EQ   == (S1 == S2));
             LOOP_ASSERT(LINE, EQ   != (S1 != S2));
 
-            // 'std::string' versus 'std::string'.  This test is
+            // `std::string` versus `std::string`.  This test is
             // to ensure no overloading ambiguity was introduced.
 
             LOOP_ASSERT(LINE, LT   == (S3 <  S4));
@@ -6392,7 +6398,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   For an empty string, non-empty string and substring, use
-        //   'ostringstream' to write that object's value to a character buffer
+        //   `ostringstream` to write that object's value to a character buffer
         //   and then compare the contents of that buffer with the expected
         //   output format.
         //
@@ -6403,13 +6409,13 @@ int main(int argc, char *argv[])
         if (verbose) std::cout << "\nTESTING OUTPUT (<<) OPERATOR"
                                   "\n============================\n";
 
-        if (verbose) std::cout << "\nTesting 'operator<<' (ostream)."
+        if (verbose) std::cout << "\nTesting `operator<<` (ostream)."
                                << "\n= = = = = = = = = = = = = = = ="
                                << std::endl;
         {
             const size_t SIZE = 1000;     // max length of output string
             const char XX = static_cast<char>(0xFF);   // value representing an
-                                                       // unset 'char'
+                                                       // unset `char`
             char mCtrlBuf[SIZE];  memset(mCtrlBuf, XX, SIZE);
 
             Obj es(EMPTY_STRING);  const Obj& ES = es;
@@ -6536,42 +6542,42 @@ int main(int argc, char *argv[])
         // TESTING BASIC ACCESSORS AND COMPARISONS
         //
         // Concerns:
-        //: 1 Each individual 'stringRef' field must be correctly forwarded
-        //:   from the fully-tested underlying constructor.
+        // 1. Each individual `stringRef` field must be correctly forwarded
+        //    from the fully-tested underlying constructor.
         //
         // Plan:
-        //: 1 Define a table of string, 'conat CHAR *', and 'StringRegImp'
-        //:   values that refer to the 'TestData' template class of
-        //:   null-terminated strings.
-        //:
-        //: 2 Have a 'length' field in the table to indicate that a
-        //:   'StringRefImp' refers only to a subset of a null-terminated
-        //:   string, or can be default-constructed.
-        //:
-        //: 3 Loop 'I' through the table creating I-values of
-        //:   'bsl::basic_string', a 'std::basic_string', a
-        //:   'StringRefImp', and 'const char *' all having the value indicated
-        //:   by the table.
-        //:
-        //: 4 Probe the accessors of the created 'StringRefImp' to verify that
-        //:   they have the proper values.
-        //:
-        //: 5 Do a nested loop 'J' through the table, creating J-values of all
-        //:   the types created in the I-Loop.
-        //:
-        //: 6 Compare the 'bsl::string' I and J values to determine the
-        //:   booleans 'EQ', 'NE', 'LT', 'GT', 'LE', and 'GE' to indicate all
-        //:   the comparison values of comparing the I-value and J-value.
-        //:
-        //: 7 Us the 'compare' methods to compare the I 'StringRefImp' to both
-        //:   the J 'StringRefImp' and the J 'const CHAR *', observe that the
-        //:   comparisons match the results from comparing the two
-        //:   'bsl::string's.
-        //:
-        //: 8 Use the '==', '!=', '<', '>=', '>', and '<=' operators to do all
-        //:   possible comparisons with the various I values on the left and
-        //:   J values on the right and confirm they all match the initial
-        //:   results of comparing the two 'bsl::string's.
+        // 1. Define a table of string, `conat CHAR *`, and `StringRegImp`
+        //    values that refer to the `TestData` template class of
+        //    null-terminated strings.
+        //
+        // 2. Have a `length` field in the table to indicate that a
+        //    `StringRefImp` refers only to a subset of a null-terminated
+        //    string, or can be default-constructed.
+        //
+        // 3. Loop `I` through the table creating I-values of
+        //    `bsl::basic_string`, a `std::basic_string`, a
+        //    `StringRefImp`, and `const char *` all having the value indicated
+        //    by the table.
+        //
+        // 4. Probe the accessors of the created `StringRefImp` to verify that
+        //    they have the proper values.
+        //
+        // 5. Do a nested loop `J` through the table, creating J-values of all
+        //    the types created in the I-Loop.
+        //
+        // 6. Compare the `bsl::string` I and J values to determine the
+        //    booleans `EQ`, `NE`, `LT`, `GT`, `LE`, and `GE` to indicate all
+        //    the comparison values of comparing the I-value and J-value.
+        //
+        // 7. Us the `compare` methods to compare the I `StringRefImp` to both
+        //    the J `StringRefImp` and the J `const CHAR *`, observe that the
+        //    comparisons match the results from comparing the two
+        //    `bsl::string`s.
+        //
+        // 8. Use the `==`, `!=`, '<', `>=`, '>', and `<=` operators to do all
+        //    possible comparisons with the various I values on the left and
+        //    J values on the right and confirm they all match the initial
+        //    results of comparing the two `bsl::string`s.
         //
         // Testing:
         //   const_iterator begin() const;
@@ -6649,10 +6655,10 @@ int main(int argc, char *argv[])
         BloombergLP::comparisons::testAccessorsComparisons<unsigned char>();
         BloombergLP::comparisons::testAccessorsComparisons<signed char>();
 
-        // The size of 'wchar_t', and whether it is signed, varies by platform,
-        // like 'char', and some platforms seem to support only one of
-        // 'signed wchar_t' or 'unsigned wchar_t', depending which is the
-        // opposite signedness of 'wchar_t'.
+        // The size of `wchar_t`, and whether it is signed, varies by platform,
+        // like `char`, and some platforms seem to support only one of
+        // `signed wchar_t` or `unsigned wchar_t`, depending which is the
+        // opposite signedness of `wchar_t`.
 
         BloombergLP::comparisons::testAccessorsComparisons<wchar_t>();
 
@@ -6667,11 +6673,11 @@ int main(int argc, char *argv[])
         // TESTING BASIC CONSTRUCTORS
         //
         // Concerns:
-        //: 1 The begin and end members must be correctly set by the different
-        //:   constructors.
+        // 1. The begin and end members must be correctly set by the different
+        //    constructors.
         //
         // Plan:
-        //: 1 Test each of the constructors with empty and non-empty strings.
+        // 1. Test each of the constructors with empty and non-empty strings.
         //
         // Testing:
         //   bslstl::StringRefImp();
@@ -7196,7 +7202,7 @@ int main(int argc, char *argv[])
         //   Exercise each method lightly.
         //
         // Plan:
-        //   Create several 'bsl::string' objects and use them to test various
+        //   Create several `bsl::string` objects and use them to test various
         //   methods.
         //
         // Testing:

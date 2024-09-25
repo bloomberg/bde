@@ -135,10 +135,10 @@ static TYPE abs(TYPE num)
 
 const Int64 mask32 = 0xffffffffLL;
 
+/// Target function to be resolved.  Never called.  Do some arbitary
+/// arithmetic so there will be some length of code in this routine.
 static
 int funcStaticOne(int k)
-    // Target function to be resolved.  Never called.  Do some arbitary
-    // arithmetic so there will be some length of code in this routine.
 {
     Uint64 ret = L_;
     unsigned i = k;
@@ -150,9 +150,9 @@ int funcStaticOne(int k)
     return static_cast<int>(ret & mask32);
 }
 
+/// Target function to be resolved.  Never called.  Do some arbitary
+/// arithmetic so there will be some length of code in this routine.
 int funcGlobalOne(int k)
-    // Target function to be resolved.  Never called.  Do some arbitary
-    // arithmetic so there will be some length of code in this routine.
 {
     Uint64 ret = L_;
     unsigned i = k;
@@ -164,10 +164,10 @@ int funcGlobalOne(int k)
     return static_cast<int>(ret & mask32);
 }
 
+/// Target function to be resolved.  Never called.  Do some arbitary
+/// arithmetic so there will be some length of code in this routine.
 static inline
 int funcStaticInlineOne(int k)
-    // Target function to be resolved.  Never called.  Do some arbitary
-    // arithmetic so there will be some length of code in this routine.
 {
     Uint64 ret = L_;
     unsigned i = k;
@@ -179,20 +179,20 @@ int funcStaticInlineOne(int k)
     return static_cast<int>(ret & mask32);
 }
 
+/// Given a function pointer stored in a `UintPtr`, add an offset to the
+/// pointer and return it as a `const void *`.
 static
 const void *addFixedOffset(bsls::Types::UintPtr funcAddress)
-    // Given a function pointer stored in a 'UintPtr', add an offset to the
-    // pointer and return it as a 'const void *'.
 {
     const char *ptr = (const char *) funcAddress;
 
     return ptr + 4;
 }
 
+/// Do `!strcmp`, returning `true` if the specified `a` and `b` point to
+/// identical strings.  Return `false` if either one is null.
 static
 bool safeCmp(const char *a, const char *b, int len = -1)
-    // Do '!strcmp', returning 'true' if the specified 'a' and 'b' point to
-    // identical strings.  Return 'false' if either one is null.
 {
     if (!a || !b) {
         return false;                                                 // RETURN
@@ -202,10 +202,10 @@ bool safeCmp(const char *a, const char *b, int len = -1)
 
 }
 
+/// Return `true` if the specified `target` points to a string contained in
+/// the specified `string`.  Return `false` if `string` or `target` is null.
 static
 bool safeStrStr(const char *string, const char *target)
-    // Return 'true' if the specified 'target' points to a string contained in
-    // the specified 'string'.  Return 'false' if 'string' or 'target' is null.
 {
     if (!string || !target) {
         return false;                                                 // RETURN
@@ -214,10 +214,10 @@ bool safeStrStr(const char *string, const char *target)
     return bsl::strstr(string, target);
 }
 
+/// null guard -- substitute "(null)" for the specified `str` if `str` is
+/// null.
 static
 const char *ng(const char *str)
-    // null guard -- substitute "(null)" for the specified 'str' if 'str' is
-    // null.
 {
     return str ? str : "(null)";
 }
@@ -276,7 +276,7 @@ int main(int argc, char *argv[])
 
     bslma::TestAllocator ta;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator defaultAllocator;
@@ -327,7 +327,7 @@ int main(int argc, char *argv[])
         //
         // Concerns: Exercise balst::StackTrace basic functionality.
         //
-        // Plan: Call 'printStackTrace()' to print a stack trace.
+        // Plan: Call `printStackTrace()` to print a stack trace.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "balst::ResolverImpl<Elf> breathing test\n"
@@ -358,7 +358,7 @@ int main(int argc, char *argv[])
             // The optizer is just UNBELIEVABLY clever.  If you declare a
             // routine inline, it is VERY aggressive about figuring out a way
             // to inline it, even if you call it through a pointer.
-            // 'Obj::testFunc' is an inline routine, but we force it out of
+            // `Obj::testFunc` is an inline routine, but we force it out of
             // line by taking a function ptr to it.
 
             UintPtr testFuncPtr = (UintPtr) &funcStaticInlineOne;
@@ -375,14 +375,14 @@ int main(int argc, char *argv[])
             stackTrace[2].setAddress(addFixedOffset(testFuncPtr));
 
 #if 0
-            // Testing '&qsort' doesn't work.  The similar test in
+            // Testing `&qsort` doesn't work.  The similar test in
             // balst_stacktraceutil.t.cpp works.  I think what's happening is
-            // &qsort doesn't properly point to 'qsort', it points to a thunk
+            // &qsort doesn't properly point to `qsort`, it points to a thunk
             // that dynamically loads qsort and then calls it.  So when the
             // resolver tries to resolve the ptr to the thunk, it can't.
 
             {
-                // make sure the component contain 'qsort' is loaded
+                // make sure the component contain `qsort` is loaded
 
                 int ints[] = { 0, 1 };
                 bsl::qsort(&ints, 2, sizeof(ints[0]), &phonyCompare);
@@ -514,8 +514,8 @@ int main(int argc, char *argv[])
             SM(4, "test");
 #undef  SM
 
-            // Note that we skip after the first space in 'name', if any is
-            // found, because on Solaris CC 'name' begins with the return type
+            // Note that we skip after the first space in `name`, if any is
+            // found, because on Solaris CC `name` begins with the return type
             // declaration.  No other spaces are expected.
 
             if (demangle) {

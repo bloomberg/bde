@@ -14,8 +14,8 @@
 #include <bsl_algorithm.h>
 #include <bsl_iostream.h>
 
-#include <bsl_c_limits.h>    // 'INT_MIN', 'INT_MAX'
-#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_c_limits.h>    // `INT_MIN`, `INT_MAX`
+#include <bsl_cstdlib.h>     // `atoi`
 
 using namespace BloombergLP;
 
@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -202,14 +202,14 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -228,28 +228,28 @@ int main(int argc, char *argv[])
 // this component are used.  Note that, in all of these examples, the low-order
 // bit is considered bit 0 and resides on the right edge of the bit string.
 //
-// First, the 'ge' function takes a single argument, 'index', and returns a bit
-// mask with all bits below the specified 'index' cleared and all bits at or
-// above the 'index' set:
-//..
+// First, the `ge` function takes a single argument, `index`, and returns a bit
+// mask with all bits below the specified `index` cleared and all bits at or
+// above the `index` set:
+// ```
 //  +-------------------------------------------------------------------------+
-//  | 'bdlb::BitMaskUtil::ge(16)' in binary:                                  |
+//  | `bdlb::BitMaskUtil::ge(16)` in binary:                                  |
 //  |                                                                         |
-//  | 'index': bit 16:                                      *                 |
+//  | `index`: bit 16:                                      *                 |
 //  | All bits at and above bit 16 are set:  11111111111111110000000000000000 |
 //  +-------------------------------------------------------------------------+
 //
     const uint32_t expGe = 0xffff0000;
     ASSERT(expGe == bdlb::BitMaskUtil::ge(16));
-//..
-// Next, the 'lt' function returns a bit mask with all bits at or above the
-// specified 'index' cleared, and all bits below 'index' set.  'lt' and 'ge'
-// return the complement of each other if passed the same 'index':
-//..
+// ```
+// Next, the `lt` function returns a bit mask with all bits at or above the
+// specified `index` cleared, and all bits below `index` set.  `lt` and `ge`
+// return the complement of each other if passed the same `index`:
+// ```
 //  +-------------------------------------------------------------------------+
-//  | 'bdlb::BitMaskUtil::lt(16)' in binary:                                  |
+//  | `bdlb::BitMaskUtil::lt(16)` in binary:                                  |
 //  |                                                                         |
-//  | 'index': bit 16:                                      *                 |
+//  | `index`: bit 16:                                      *                 |
 //  | All bits below bit 16 are set:         00000000000000001111111111111111 |
 //  +-------------------------------------------------------------------------+
 //
@@ -257,28 +257,28 @@ int main(int argc, char *argv[])
     ASSERT(expLt == bdlb::BitMaskUtil::lt(16));
 
     ASSERT(expGe == ~expLt);
-//..
-// Then, the 'eq' function returns a bit mask with only the bit at the
-// specified 'index' set:
-//..
+// ```
+// Then, the `eq` function returns a bit mask with only the bit at the
+// specified `index` set:
+// ```
 //  +-------------------------------------------------------------------------+
-//  | 'bdlb::BitMaskUtil::eq(23)' in binary:                                  |
+//  | `bdlb::BitMaskUtil::eq(23)` in binary:                                  |
 //  |                                                                         |
-//  | 'index': bit 23:                               *                        |
+//  | `index`: bit 23:                               *                        |
 //  | Only bit 23 is set:                    00000000100000000000000000000000 |
 //  +-------------------------------------------------------------------------+
 //
     const uint32_t expEq = 0x00800000;
     ASSERT(expEq == bdlb::BitMaskUtil::eq(23));
-//..
-// Now, the 'ne' function returns a bit mask with only the bit at the specified
-// 'index' cleared.  'ne' and 'eq' return the complement of each other for a
-// given 'index':
-//..
+// ```
+// Now, the `ne` function returns a bit mask with only the bit at the specified
+// `index` cleared.  `ne` and `eq` return the complement of each other for a
+// given `index`:
+// ```
 //  +-------------------------------------------------------------------------+
-//  | 'bdlb::BitMaskUtil::ne(23)' in binary:                                  |
+//  | `bdlb::BitMaskUtil::ne(23)` in binary:                                  |
 //  |                                                                         |
-//  | 'index': bit 23:                               *                        |
+//  | `index`: bit 23:                               *                        |
 //  | All bits other than bit 16 are set:    11111111011111111111111111111111 |
 //  +-------------------------------------------------------------------------+
 //
@@ -286,14 +286,14 @@ int main(int argc, char *argv[])
     ASSERT(expNe == bdlb::BitMaskUtil::ne(23));
 
     ASSERT(expEq == ~expNe);
-//..
-// Finally, 'one' and 'zero' return a bit mask with all bits within a specified
-// range starting from a specified 'index' either set or cleared, respectively.
-// For the same arguments, 'one' and 'zero' return the complement of each
+// ```
+// Finally, `one` and `zero` return a bit mask with all bits within a specified
+// range starting from a specified `index` either set or cleared, respectively.
+// For the same arguments, `one` and `zero` return the complement of each
 // other:
-//..
+// ```
 //  +-------------------------------------------------------------------------+
-//  | 'bdlb::BitMaskUtil::one(16, 4)' in binary:                              |
+//  | `bdlb::BitMaskUtil::one(16, 4)` in binary:                              |
 //  |                                                                         |
 //  | bit 16:                                               *                 |
 //  | 4 bits starting at bit 16:                         ****                 |
@@ -304,7 +304,7 @@ int main(int argc, char *argv[])
     ASSERT(expOne == bdlb::BitMaskUtil::one(16, 4));
 //
 //  +-------------------------------------------------------------------------+
-//  | 'bdlb::BitMaskUtil::zero(16, 4)' in binary:                             |
+//  | `bdlb::BitMaskUtil::zero(16, 4)` in binary:                             |
 //  |                                                                         |
 //  | bit 16:                                               *                 |
 //  | 4 bits starting at bit 16:                         ****                 |
@@ -315,7 +315,7 @@ int main(int argc, char *argv[])
     ASSERT(expZero == bdlb::BitMaskUtil::zero(16, 4));
 
     ASSERT(expZero == ~expOne);
-//..
+// ```
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -323,17 +323,17 @@ int main(int argc, char *argv[])
         //   Ensure the methods return the expected value.
         //
         // Concerns:
-        //: 1 The functions all return the correct result.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. The functions all return the correct result.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Do table-driven testing.
-        //:
-        //: 2 Do exhaustive testing, calculating the expected result through
-        //:   different algorithms than the functions use.  (C-1)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-2)
+        // 1. Do table-driven testing.
+        //
+        // 2. Do exhaustive testing, calculating the expected result through
+        //    different algorithms than the functions use.  (C-1)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //   uint32_t one(int index, int numBits);
@@ -351,8 +351,8 @@ int main(int argc, char *argv[])
             int      d_lineNum;     // line number
             int      d_index;       // index
             int      d_numBits;     // number of bits
-            uint32_t d_zero;        // expected result from 'zero' function
-            uint32_t d_one;         // expected result from 'one' function
+            uint32_t d_zero;        // expected result from `zero` function
+            uint32_t d_one;         // expected result from `one` function
         } DATA_A[] = {
           //LINE Idx  NumBits  zero result      one result
           //---- ---  -------  -----------      ----------
@@ -413,8 +413,8 @@ int main(int argc, char *argv[])
             int      d_lineNum;     // line number
             int      d_index;       // index
             int      d_numBits;     // number of bits
-            uint64_t d_zero;        // expected result from 'zero' function
-            uint64_t d_one;         // expected result from 'one' function
+            uint64_t d_zero;        // expected result from `zero` function
+            uint64_t d_one;         // expected result from `one` function
         } DATA_B[] = {
           //LINE Idx NumBits        zero result      one result
           //---- --- -------        -----------      ----------
@@ -469,7 +469,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Exhaustive 32-bit testing\n";
         for (int iNB = 0; iNB <= BPW; ++iNB) {
             uint32_t nbBits = Util::lt(iNB);
-            // When '((iIdx == BPW) && (iNB == 0))' this test is UB, but this
+            // When `((iIdx == BPW) && (iNB == 0))` this test is UB, but this
             // case is covered by DATA_A table.
             for (int iIdx = 0; (iIdx <= BPW - iNB) && (iIdx < BPW); ++iIdx) {
                 ASSERTV(iNB, iIdx, (nbBits << iIdx) == Util::one(iIdx, iNB));
@@ -480,7 +480,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Exhaustive 64-bit testing\n";
         for (int iNB = 0; iNB <= BPS; ++iNB) {
             uint64_t nbBits = Util::lt64(iNB);
-            // When '((iIdx == BPW) && (iNB == 0))' this test is UB, but this
+            // When `((iIdx == BPW) && (iNB == 0))` this test is UB, but this
             // case is covered by DATA_B table.
             for (int iIdx = 0; (iIdx <= BPS - iNB) && (iIdx < BPS); ++iIdx) {
                 ASSERTV(iNB, iIdx, (nbBits << iIdx) == Util::one64(iIdx, iNB));
@@ -545,23 +545,23 @@ int main(int argc, char *argv[])
         // TESTING ONE ARG MASK GENERATION FUNCTIONS
         //
         // Concerns:
-        //: 1 All 12 single-argument mask functions return the correct result.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. All 12 single-argument mask functions return the correct result.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Do table-driven testing.  Note that since the functions come in
-        //:   pairs whose results are compliments of each other, test one pair
-        //:   per table.
-        //:
-        //: 2 Do exhaustive testing, exhausting all input in the range
-        //:   '[0 .. wordSize]', comparing the result with an expected value
-        //:   calculated by a means other than that employed by the function.
-        //:
-        //: 3 Do exhaustive testing verifying that functions expected to return
-        //:   the complement of each other actually do.  (C-1)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-2)
+        // 1. Do table-driven testing.  Note that since the functions come in
+        //    pairs whose results are compliments of each other, test one pair
+        //    per table.
+        //
+        // 2. Do exhaustive testing, exhausting all input in the range
+        //    `[0 .. wordSize]`, comparing the result with an expected value
+        //    calculated by a means other than that employed by the function.
+        //
+        // 3. Do exhaustive testing verifying that functions expected to return
+        //    the complement of each other actually do.  (C-1)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //   uint32_t eq(int index);
@@ -583,7 +583,7 @@ int main(int argc, char *argv[])
                           << "=========================================\n";
 
         {
-            if (verbose) cout << "Table-driven test of 'eq' and 'ne'\n";
+            if (verbose) cout << "Table-driven test of `eq` and `ne`\n";
 
             struct {
                 int      d_line;
@@ -613,7 +613,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            if (verbose) cout << "Table-driven test of 'ge' and 'lt'\n";
+            if (verbose) cout << "Table-driven test of `ge` and `lt`\n";
 
             struct {
                 int      d_line;
@@ -643,7 +643,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            if (verbose) cout << "Table-driven test of 'gt' and 'le'\n";
+            if (verbose) cout << "Table-driven test of `gt` and `le`\n";
 
             struct {
                 int      d_line;
@@ -680,7 +680,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            if (verbose) cout << "Table-driven test of 'eq64' and 'ne64'\n";
+            if (verbose) cout << "Table-driven test of `eq64` and `ne64`\n";
 
             struct {
                 int      d_line;
@@ -712,7 +712,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            if (verbose) cout << "Table-driven test of 'ge64' and 'lt64'\n";
+            if (verbose) cout << "Table-driven test of `ge64` and `lt64`\n";
 
             struct {
                 int      d_line;
@@ -744,7 +744,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            if (verbose) cout << "Table-driven test of 'gt64' and 'le64'\n";
+            if (verbose) cout << "Table-driven test of `gt64` and `le64`\n";
 
             struct {
                 int      d_line;
@@ -782,78 +782,78 @@ int main(int argc, char *argv[])
 
         int i;
 
-        if (verbose) cout << "Exhaustive Testing of 'eq'" << endl;
+        if (verbose) cout << "Exhaustive Testing of `eq`" << endl;
         for (i = 0; i < BITS_PER_WORD; ++i) {
             LOOP_ASSERT(i, one << i == Util::eq(i));
         }
         ASSERT(zero == Util::eq(BITS_PER_WORD));
 
-        if (verbose) cout << "Exhaustive Testing of 'ne'" << endl;
+        if (verbose) cout << "Exhaustive Testing of `ne`" << endl;
         for (i = 0; i < (int) BITS_PER_WORD; ++i) {
             LOOP_ASSERT(i, ~(one << i) == Util::ne(i));
         }
         ASSERT(~zero == Util::ne(BITS_PER_WORD));
 
-        if (verbose) cout << "Exhaustive Testing of 'ge'" << endl;
+        if (verbose) cout << "Exhaustive Testing of `ge`" << endl;
         for (i = 0; i < (int) BITS_PER_WORD; ++i) {
             LOOP_ASSERT(i, ~zero << i == Util::ge(i));
         }
         ASSERT(zero == Util::ge(BITS_PER_WORD));
 
-        if (verbose) cout << "Exhaustive Testing of 'gt'" << endl;
+        if (verbose) cout << "Exhaustive Testing of `gt`" << endl;
         for (i = 0; i < (int) BITS_PER_WORD - 1; ++i) {
             LOOP_ASSERT(i, ~zero << (i + 1) == Util::gt(i));
         }
         ASSERT(zero == Util::gt(BITS_PER_WORD - 1));
         ASSERT(zero == Util::gt(BITS_PER_WORD));
 
-        if (verbose) cout << "Exhaustive Testing of 'le'" << endl;
+        if (verbose) cout << "Exhaustive Testing of `le`" << endl;
         for (i = 0; i < (int) BITS_PER_WORD - 1; ++i) {
             LOOP_ASSERT(i, (one << (i + 1)) - 1 == Util::le(i));
         }
         ASSERT(~zero == Util::le(BITS_PER_WORD - 1));
         ASSERT(~zero == Util::le(BITS_PER_WORD));
 
-        if (verbose) cout << "Exhaustive Testing of 'lt'" << endl;
+        if (verbose) cout << "Exhaustive Testing of `lt`" << endl;
         for (i = 0; i < (int) BITS_PER_WORD; ++i) {
             LOOP_ASSERT(i, (one << i) - 1 == Util::lt(i));
             ASSERT(Util::lt(i) == ~Util::ge(i));
         }
         ASSERT(~zero == Util::lt(BITS_PER_WORD));
 
-        if (verbose) cout << "Exhaustive Testing of 'eq64'" << endl;
+        if (verbose) cout << "Exhaustive Testing of `eq64`" << endl;
         for (i = 0; i < (int) BITS_PER_UINT64; ++i) {
             LOOP_ASSERT(i, one64 << i == Util::eq64(i));
         }
         ASSERT(zero64 == Util::eq64(i));
 
-        if (verbose) cout << "Exhaustive Testing of 'ne64'" << endl;
+        if (verbose) cout << "Exhaustive Testing of `ne64`" << endl;
         for (i = 0; i < (int) BITS_PER_UINT64; ++i) {
             LOOP_ASSERT(i, ~(one64 << i) == Util::ne64(i));
         }
         ASSERT(~zero64 == Util::ne64(i));
 
-        if (verbose) cout << "Exhaustive Testing of 'ge64'" << endl;
+        if (verbose) cout << "Exhaustive Testing of `ge64`" << endl;
         for (i = 0; i < (int) BITS_PER_UINT64; ++i) {
             LOOP_ASSERT(i, ~zero64 << i == Util::ge64(i));
         }
         ASSERT(zero64 == Util::ge64(i));
 
-        if (verbose) cout << "Exhaustive Testing of 'gt64'" << endl;
+        if (verbose) cout << "Exhaustive Testing of `gt64`" << endl;
         for (i = 0; i < (int) BITS_PER_UINT64 - 1; ++i) {
             LOOP_ASSERT(i, ~zero64 << (i + 1) == Util::gt64(i));
         }
         ASSERT(zero64 == Util::gt64(BITS_PER_UINT64 - 1));
         ASSERT(zero64 == Util::gt64(BITS_PER_UINT64));
 
-        if (verbose) cout << "Exhaustive Testing of 'le64'" << endl;
+        if (verbose) cout << "Exhaustive Testing of `le64`" << endl;
         for (i = 0; i < (int) BITS_PER_UINT64 - 1; ++i) {
             LOOP_ASSERT(i, (one64 << (i + 1)) - 1 == Util::le64(i));
         }
         ASSERT(~zero64 == Util::le64(BITS_PER_UINT64 - 1));
         ASSERT(~zero64 == Util::le64(BITS_PER_UINT64));
 
-        if (verbose) cout << "Exhaustive Testing of 'lt64'" << endl;
+        if (verbose) cout << "Exhaustive Testing of `lt64`" << endl;
         for (i = 0; i < (int) BITS_PER_UINT64; ++i) {
             LOOP_ASSERT(i, (one64 << i) - 1 == Util::lt64(i));
         }
@@ -954,15 +954,15 @@ int main(int argc, char *argv[])
         // TESTING LOCAL ENUM TYPE VARIABLES
         //
         // Concerns:
-        //: 1 Ensure that the 'enum' values in the 'struct' have the correct
-        //:   values.
+        // 1. Ensure that the `enum` values in the `struct` have the correct
+        //    values.
         //
         // Plan:
-        //: 1 Carefully define a set of 'const' local "helper" variables
-        //:   initialized to appropriate intermediate or final values.
-        //:
-        //: 2 Compare the "helper" variables to the actual 'enum' values in
-        //:   the 'struct'.  (C-1)
+        // 1. Carefully define a set of `const` local "helper" variables
+        //    initialized to appropriate intermediate or final values.
+        //
+        // 2. Compare the "helper" variables to the actual `enum` values in
+        //    the `struct`.  (C-1)
         //
         // Testing:
         //   k_BITS_PER_UINT32

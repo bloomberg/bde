@@ -36,18 +36,18 @@ namespace {
 
 typedef bsls::AtomicOperations AtomicOps;
 
+/// This object is used for assigning a unique initial rule set sequence
+/// number to each category manager that is created.
 static
 AtomicOps::AtomicTypes::Int64 categoryManagerSequenceNumber = { -1 };
-    // This object is used for assigning a unique initial rule set sequence
-    // number to each category manager that is created.
 
                     // =====================
                     // class CategoryProctor
                     // =====================
 
+/// This class facilitates exception neutrality by proctoring memory
+/// management for `Category` objects.
 class CategoryProctor {
-    // This class facilitates exception neutrality by proctoring memory
-    // management for 'Category' objects.
 
     // PRIVATE TYPES
     typedef bsl::vector<ball::Category *> CategoryVector;
@@ -67,27 +67,28 @@ class CategoryProctor {
 
   public:
     // CREATORS
-    CategoryProctor(Category *category, bslma::Allocator *allocator);
-        // Create a proctor to manage the specified 'category' object,
-        // allocated with the specified 'allocator'.  On this proctor's
-        // destruction, unless release has been called, the 'category' will be
-        // destroyed and its footprint deallocated.
 
+    /// Create a proctor to manage the specified `category` object,
+    /// allocated with the specified `allocator`.  On this proctor's
+    /// destruction, unless release has been called, the `category` will be
+    /// destroyed and its footprint deallocated.
+    CategoryProctor(Category *category, bslma::Allocator *allocator);
+
+    /// Rollback the owned objects to their initial state on failure.
     ~CategoryProctor();
-        // Rollback the owned objects to their initial state on failure.
 
     // MANIPULATORS
 
     // BDE_VERIFY pragma: push
     // BDE_VERIFY pragma: -FABC01: Functions not in alphanumeric order
 
+    /// Take ownership of the specified `categories` object to roll it back
+    /// on failure.
     void setCategories(CategoryVector *categories);
-        // Take ownership of the specified 'categories' object to roll it back
-        // on failure.
 
+    /// Release the ownership of all objects currently managed by this
+    /// proctor.
     void release();
-        // Release the ownership of all objects currently managed by this
-        // proctor.
 
     // BDE_VERIFY pragma: pop
 };

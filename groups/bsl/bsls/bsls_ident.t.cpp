@@ -5,7 +5,7 @@
 // *** The format of this component test driver is non-standard. ***
 
 // #include <bsls_ident.h>      // included below in usage example.
-#include <cstdlib>              // 'atoi'
+#include <cstdlib>              // `atoi`
 #include <iostream>
 
 // using namespace BloombergLP;
@@ -84,10 +84,10 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //-----------------------------------------------------------------------------
 ///Usage
 ///-----
-// The following example shows how we first include 'bsls_ident.h' and then
-// use the 'BSLS_IDENT' macro.  For header ('.h') files this macro should be
-// placed directly after the include guards, e.g., 'bsls_somefile.h':
-//..
+// The following example shows how we first include `bsls_ident.h` and then
+// use the `BSLS_IDENT` macro.  For header (`.h`) files this macro should be
+// placed directly after the include guards, e.g., `bsls_somefile.h`:
+// ```
     // bsls_somefile.h            -*-C++-*-
     #ifndef INCLUDED_BSLS_SOMEFILE
     #define INCLUDED_BSLS_SOMEFILE
@@ -98,22 +98,22 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     // ...
 
     #endif // INCLUDED_BSLS_SOMEFILE
-//..
+// ```
 //  (For BDE-style headers, which make use of redundant includes guards,
 //  see below.)
 //
-// For implementation ('.cpp') files the 'BSLS_IDENT' macro should be placed
+// For implementation (`.cpp`) files the `BSLS_IDENT` macro should be placed
 // directly after the comment line for the file name and the language, e.g.,
-// 'bsls_somefile.cpp':
-//..
+// `bsls_somefile.cpp`:
+// ```
     // bsls_somefile.cpp          -*-C++-*-
 
     #include <bsls_ident.h>
     BSLS_IDENT("$Id: $")
-//..
-// Note that BDE-style components use *redundant* '#include' guards (see
-// "HERE" below) in their header files, e.g., 'bsls_somefile.h':
-//..
+// ```
+// Note that BDE-style components use *redundant* `#include` guards (see
+// "HERE" below) in their header files, e.g., `bsls_somefile.h`:
+// ```
     // bsls_somefile.h            -*-C++-*-
     #ifndef INCLUDED_BSLS_SOMEFILE
     #define INCLUDED_BSLS_SOMEFILE
@@ -126,7 +126,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     // ...
 
     #endif // INCLUDED_BSLS_SOMEFILE
-//..
+// ```
 
 
 //=============================================================================

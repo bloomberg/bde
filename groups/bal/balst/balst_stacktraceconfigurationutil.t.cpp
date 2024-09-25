@@ -90,10 +90,10 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 That the usage example compiles and works.
+        // 1. That the usage example compiles and works.
         //
         // Plan:
-        //: 1 Compile and run the exact code in the usage example.
+        // 1. Compile and run the exact code in the usage example.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -108,15 +108,15 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Evaluating Boolean Value
 // - - - - - - - - - - - - - - - - - -
-// If neither 'enableResolution' nor 'disableResolution' have been called, the
-// default value of 'isResolutionDisabled' is 'false'.
-//..
+// If neither `enableResolution` nor `disableResolution` have been called, the
+// default value of `isResolutionDisabled` is `false`.
+// ```
     ASSERT(false ==
                    balst::StackTraceConfigurationUtil::isResolutionDisabled());
-//..
-// After that, the value tracks whether 'disableResolution' or
-// 'enableResolution' has been called.
-//..
+// ```
+// After that, the value tracks whether `disableResolution` or
+// `enableResolution` has been called.
+// ```
     balst::StackTraceConfigurationUtil::disableResolution();
 
     ASSERT(true == balst::StackTraceConfigurationUtil::isResolutionDisabled());
@@ -125,21 +125,21 @@ int main(int argc, char *argv[])
 
     ASSERT(false ==
                    balst::StackTraceConfigurationUtil::isResolutionDisabled());
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
         // ALL TRANSITIONS TEST
         //
         // Concerns:
-        //: 1 Test the default value.
-        //:
-        //: 2 Test all possible transitions of the state.
+        // 1. Test the default value.
+        //
+        // 2. Test all possible transitions of the state.
         //
         // Plan:
-        //: 1 Test the default value.
-        //:
-        //: 2 Test all possible transitiions.
+        // 1. Test the default value.
+        //
+        // 2. Test all possible transitiions.
         //
         // Testing:
         //   isResolutionDisabled();
@@ -195,11 +195,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Randomly call 'enable' and 'disable' and observe 'isEnabled'.
+        // 1. Randomly call `enable` and `disable` and observe `isEnabled`.
         //
         // Testing:
         //   BREATHING TEST

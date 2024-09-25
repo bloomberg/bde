@@ -8,9 +8,9 @@ namespace BloombergLP {
 namespace bdlt {
 namespace {
 
+/// Return the difference in number of days from the specified `day1` to the
+/// specified `day2`.
 int dayOfWeekDifference(DayOfWeek::Enum day1, DayOfWeek::Enum day2)
-    // Return the difference in number of days from the specified 'day1' to the
-    // specified 'day2'.
 {
     if (day1 > day2) {
         return 7 - day1 + day2;                                       // RETURN

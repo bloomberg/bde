@@ -30,8 +30,8 @@ using namespace bslstl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test is a utility for building 'Datum' objects holding
-// int maps of 'Datum' objects.
+// The component under test is a utility for building `Datum` objects holding
+// int maps of `Datum` objects.
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] DatumIntMapBuilder(SizeType, allocator_type);
@@ -131,9 +131,10 @@ const size_t NUM_ELEMENTS = sizeof(values) / sizeof(DatumIntMapEntry);
 //=============================================================================
 //               GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
+/// Return `true` if key in the specified `lhs` is greater than key in the
+/// specified `rhs` and `false` otherwise.
 bool compareGreater(const DatumIntMapEntry& lhs, const DatumIntMapEntry& rhs)
-    // Return 'true' if key in the specified 'lhs' is greater than key in the
-    // specified 'rhs' and 'false' otherwise.
 {
     return lhs.key() > rhs.key();
 }
@@ -170,13 +171,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -193,11 +194,11 @@ int main(int argc, char *argv[])
 ///- - - - - - - - - - - -
 // Suppose we need a data map for some UX data.  The keys of the map are 32-bit
 // integers; and the values in that map can be different types.  The following
-// code illustrates how to use 'bdld::DatumIntMapBuilder' to create such map
+// code illustrates how to use `bdld::DatumIntMapBuilder` to create such map
 // easily.
 //
 // First, we need data to fill our int-map:
-//..
+// ```
     bslma::TestAllocator ta("test", veryVeryVerbose);
 
     DatumIntMapEntry formData[] = {
@@ -208,26 +209,26 @@ int main(int argc, char *argv[])
     };
 
     const size_t DATA_SIZE  = sizeof(formData) / sizeof(DatumIntMapEntry);
-//..
-// Next, we create an object of 'DatumIntMapBuilder' class with initial
+// ```
+// Next, we create an object of `DatumIntMapBuilder` class with initial
 // capacity sufficient for storing all our data:
-//..
+// ```
     DatumIntMapBuilder builder(DATA_SIZE, &ta);
-//..
+// ```
 // Then, we load our builder with these data:
-//..
+// ```
     for (size_t i = 0; i < DATA_SIZE; ++i) {
         builder.pushBack(formData[i].key(), formData[i].value());
     }
-//..
-// Next, we adopt the int-map, held by our builder, by newly created 'Datum'
+// ```
+// Next, we adopt the int-map, held by our builder, by newly created `Datum`
 // object:
-//..
+// ```
     Datum form = builder.commit();
-//..
+// ```
 // Now, we can check that all data have been correctly added to the int-map at
 // the required order:
-//..
+// ```
     ASSERT(true == form.isIntMap());
     ASSERT(DATA_SIZE == form.theIntMap().size());
 
@@ -246,23 +247,23 @@ int main(int argc, char *argv[])
     ASSERT(4           == form.theIntMap()[3].key());
     ASSERT(true        == form.theIntMap()[3].value().isInteger());
     ASSERT(10          == form.theIntMap()[3].value().theInteger());
-//..
-// Finally, we destroy the 'Datum' object to release all allocated memory
+// ```
+// Finally, we destroy the `Datum` object to release all allocated memory
 // correctly:
-//..
+// ```
     Datum::destroy(form, &ta);
     ASSERT(0 == ta.numBytesInUse());
-//..
+// ```
       } break;
       case 7: {
         // --------------------------------------------------------------------
         // TESTING TRAITS
         //
         // Concerns:
-        //: 1 bslma::UsesBslmaAllocator is true for DatumIntMapBuilder.
+        // 1. bslma::UsesBslmaAllocator is true for DatumIntMapBuilder.
         //
         // Plan:
-        //: 1 Assert trait.  (C-1)
+        // 1. Assert trait.  (C-1)
         //
         // Testing:
         //   bslma::UsesBslmaAllocator
@@ -275,42 +276,42 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'sortAndCommit'
+        // TESTING `sortAndCommit`
         //
         // Concerns:
-        //: 1 'sortAndCommit' doesn't sort empty int-map.  Adopted int-map is
-        //:   marked as unsorted.
-        //:
-        //: 2 'sortAndCommit' sorts the elements of non-empty int-map before
-        //:   adopting.  Adopted int-map is marked as sorted.
-        //:
-        //: 3 No memory leak occur during int-map sorting and adoption.
+        // 1. `sortAndCommit` doesn't sort empty int-map.  Adopted int-map is
+        //    marked as unsorted.
+        //
+        // 2. `sortAndCommit` sorts the elements of non-empty int-map before
+        //    adopting.  Adopted int-map is marked as sorted.
+        //
+        // 3. No memory leak occur during int-map sorting and adoption.
         //
         // Plan:
-        //: 1 Create a 'DatumIntMapBuilder' object using specified allocator.
-        //:   Get a 'Datum' object by calling 'sortAndCommit' and verify it's
-        //:   status.  (C-1)
-        //:
-        //: 2 Create a 'DatumIntMapBuilder' object using specified allocator.
-        //:   Append a few elements to the int-map.  Get a 'Datum' object by
-        //:   calling 'sortAndCommit' and verify it's status.  Also verify that
-        //:   the elements in the int-map have been sorted.  (C-2)
-        //:
-        //: 3 After all objects deletion verify that no memory from specified
-        //:   allocator is used.  (C-3)
+        // 1. Create a `DatumIntMapBuilder` object using specified allocator.
+        //    Get a `Datum` object by calling `sortAndCommit` and verify it's
+        //    status.  (C-1)
+        //
+        // 2. Create a `DatumIntMapBuilder` object using specified allocator.
+        //    Append a few elements to the int-map.  Get a `Datum` object by
+        //    calling `sortAndCommit` and verify it's status.  Also verify that
+        //    the elements in the int-map have been sorted.  (C-2)
+        //
+        // 3. After all objects deletion verify that no memory from specified
+        //    allocator is used.  (C-3)
         //
         // Testing:
         //    Datum sortAndCommit();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'sortAndCommit'" << endl
+                          << "TESTING `sortAndCommit`" << endl
                           << "=======================" << endl;
         {
             bslma::TestAllocator ta("test", veryVeryVerbose);
 
             if (verbose)
-                cout << "\nTesting 'sortAndCommit' with empty int-map."
+                cout << "\nTesting `sortAndCommit` with empty int-map."
                      << endl;
             {
                 Obj          mB(0, &ta);
@@ -324,7 +325,7 @@ int main(int argc, char *argv[])
             }
 
             if (verbose) cout
-                    << "\nTesting 'sortAndCommit' with non-empty int-map."
+                    << "\nTesting `sortAndCommit` with non-empty int-map."
                     << endl;
             {
                 bslma::TestAllocator ta("test", veryVeryVerbose);
@@ -363,41 +364,41 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'setSorted'
+        // TESTING `setSorted`
         //
         // Concerns:
-        //: 1 'setSorted' sets the sort flag of empty int-map to 'false'
-        //:   anyway.
-        //:
-        //: 2 'setSorted' sets given value to the sort flag of non-empty
-        //:   int-map.
+        // 1. `setSorted` sets the sort flag of empty int-map to `false`
+        //    anyway.
+        //
+        // 2. `setSorted` sets given value to the sort flag of non-empty
+        //    int-map.
         //
         // Plan:
-        //: 1 Create a 'DatumIntMapBuilder' object with empty capacity.  Set
-        //:   the sort flag to 'true'.  Get a 'Datum' object by calling
-        //:   'commit' and verify that int-map is marked as unsorted.  (C-1)
-        //:
-        //: 2 Create a 'DatumIntMapBuilder' object.  Append a few elements to
-        //:   the int-map in a sorted order.  Set the sort flag.  Get a 'Datum'
-        //:   object by calling 'commit' and verify that int-map is marked as
-        //:   sorted.  Also verify that the elements in the int-map are still
-        //:   in sorted order.  (C-2)
-        //:
-        //: 3 Create another 'DatumIntMapBuilder' object.  Append a few
-        //:   elements to int-map.  Set the sort flag and then reset it.  Get a
-        //:   'Datum' object by calling 'commit' and verify that int-map is
-        //:   marked as unsorted.  Also verify that the elements in the int-map
-        //:   are still in the order specified on the int-map creation.  (C-3)
+        // 1. Create a `DatumIntMapBuilder` object with empty capacity.  Set
+        //    the sort flag to `true`.  Get a `Datum` object by calling
+        //    `commit` and verify that int-map is marked as unsorted.  (C-1)
+        //
+        // 2. Create a `DatumIntMapBuilder` object.  Append a few elements to
+        //    the int-map in a sorted order.  Set the sort flag.  Get a `Datum`
+        //    object by calling `commit` and verify that int-map is marked as
+        //    sorted.  Also verify that the elements in the int-map are still
+        //    in sorted order.  (C-2)
+        //
+        // 3. Create another `DatumIntMapBuilder` object.  Append a few
+        //    elements to int-map.  Set the sort flag and then reset it.  Get a
+        //    `Datum` object by calling `commit` and verify that int-map is
+        //    marked as unsorted.  Also verify that the elements in the int-map
+        //    are still in the order specified on the int-map creation.  (C-3)
         //
         // Testing:
         //    void setSorted(bool);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'setSorted'" << endl
+                          << "TESTING `setSorted`" << endl
                           << "===================" << endl;
 
-        if (verbose) cout << "\nTesting 'setSorted' with empty int-map."
+        if (verbose) cout << "\nTesting `setSorted` with empty int-map."
                           << endl;
         {
             bslma::TestAllocator ta("test", veryVeryVerbose);
@@ -417,7 +418,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == ta.numBytesInUse());
         }
 
-        if (verbose) cout << "\nTesting 'setSorted' with sorted int-map."
+        if (verbose) cout << "\nTesting `setSorted` with sorted int-map."
                           << endl;
         {
             bslma::TestAllocator ta("test", veryVeryVerbose);
@@ -457,7 +458,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == ta.numBytesInUse());
         }
 
-        if (verbose) cout << "\nTesting 'setSorted' with unsorted int-map."
+        if (verbose) cout << "\nTesting `setSorted` with unsorted int-map."
                           << endl;
         {
             bslma::TestAllocator ta("test", veryVeryVerbose);
@@ -487,34 +488,34 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'pushBack'
+        // TESTING `pushBack`
         //
         // Concerns:
-        //: 1 The 'pushBack' method appends 'Datum' value with the specified
-        //:   key to the end of the int-map.
-        //:
-        //: 2 The 'pushBack' method grows the int-map, only if it is filled to
-        //:   the capacity.
-        //:
-        //: 3 The 'pushBack' method uses the allocator, passed at construction,
-        //:   to grow the int-map.
+        // 1. The `pushBack` method appends `Datum` value with the specified
+        //    key to the end of the int-map.
+        //
+        // 2. The `pushBack` method grows the int-map, only if it is filled to
+        //    the capacity.
+        //
+        // 3. The `pushBack` method uses the allocator, passed at construction,
+        //    to grow the int-map.
         //
         // Plan:
-        //: 1 Create a 'DatumIntMapBuilder' object.  Push back few elements to
-        //:   the int-map and verify that the capacity has increased only if
-        //:   there is no place for new item.  Verify that memory is allocated
-        //:   by the allocator passed on the builder construction.  (C-2..3)
-        //:
-        //: 2 Get a 'Datum' object by committing the int-map and verify it
-        //:   contains item in the same order as they has been passed to the
-        //:   'pushBack' method.  (C-1)
+        // 1. Create a `DatumIntMapBuilder` object.  Push back few elements to
+        //    the int-map and verify that the capacity has increased only if
+        //    there is no place for new item.  Verify that memory is allocated
+        //    by the allocator passed on the builder construction.  (C-2..3)
+        //
+        // 2. Get a `Datum` object by committing the int-map and verify it
+        //    contains item in the same order as they has been passed to the
+        //    `pushBack` method.  (C-1)
         //
         // Testing:
         //    void pushBack(const bslstl::StringRef&, const Datum&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'pushBack'" << endl
+                          << "TESTING `pushBack`" << endl
                           << "==================" << endl;
 
         {
@@ -584,28 +585,28 @@ int main(int argc, char *argv[])
         // BASIC ACCESSORS
         //
         // Concerns:
-        //: 1 The 'capacity' method returns the capacity of the datum int-map.
-        //:
-        //: 2 The 'get_allocator' method returns the allocator specified at
-        //:   construction, and that is a default allocator if none was
-        //:   specified at construction.
-        //:
-        //: 3 The 'size' method returns the current size of the datum int-map.
+        // 1. The `capacity` method returns the capacity of the datum int-map.
+        //
+        // 2. The `get_allocator` method returns the allocator specified at
+        //    construction, and that is a default allocator if none was
+        //    specified at construction.
+        //
+        // 3. The `size` method returns the current size of the datum int-map.
         //
         // Plan:
-        //: 1 Create a 'DatumIntMapBuilder' object.  Append a few elements to
-        //:   the int-map and verify that the 'capacity' and 'size' methods
-        //:   return expected values.  (C-1,2)
-        //:
-        //: 2 Execute a loop that creates an object but invokes the default
-        //:   constructor differently in each iteration: (a) without passing an
-        //:   allocator, (b) passing a default-constructed allocator explicitly
-        //:   (c) passing the address of a test allocator distinct from the
-        //:   default, and (d) passing in an allocator constructed from the
-        //:   address of a test allocator distinct from the default.  For each
-        //:   of these iterations verify that the correct allocator is returned
-        //:   by 'get_allocator()' and is used when memory is actually
-        //:   allocated.
+        // 1. Create a `DatumIntMapBuilder` object.  Append a few elements to
+        //    the int-map and verify that the `capacity` and `size` methods
+        //    return expected values.  (C-1,2)
+        //
+        // 2. Execute a loop that creates an object but invokes the default
+        //    constructor differently in each iteration: (a) without passing an
+        //    allocator, (b) passing a default-constructed allocator explicitly
+        //    (c) passing the address of a test allocator distinct from the
+        //    default, and (d) passing in an allocator constructed from the
+        //    address of a test allocator distinct from the default.  For each
+        //    of these iterations verify that the correct allocator is returned
+        //    by `get_allocator()` and is used when memory is actually
+        //    allocated.
         //
         // Testing:
         //    SizeType capacity() const;
@@ -616,7 +617,7 @@ int main(int argc, char *argv[])
                           << "BASIC ACCESSORS" << endl
                           << "===============" << endl;
 
-        if (verbose) cout << "\nTesting 'capacity' and 'size'." << endl;
+        if (verbose) cout << "\nTesting `capacity` and `size`." << endl;
         {
             bslma::TestAllocator ta("test", veryVeryVerbose);
 
@@ -647,7 +648,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout << "\nTesting construction, allocation, and "
-                          << "'get_allocator'." << endl;
+                          << "`get_allocator`." << endl;
 
         for (char cfg = 'a'; cfg <= 'd'; ++cfg) {
 
@@ -689,7 +690,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator&  oa = *objAllocatorPtr;
             bslma::TestAllocator& noa = (&da == &oa) ? sa : da;
 
-            // Verify the object's 'get_allocator' accessor.
+            // Verify the object's `get_allocator` accessor.
 
             ASSERTV(CONFIG, &oa, X.get_allocator().mechanism(),
                     &oa == X.get_allocator());
@@ -737,63 +738,63 @@ int main(int argc, char *argv[])
         // PRIMARY MANIPULATORS
         //
         // Concerns:
-        //: 1 The constructor correctly sets required capacity and binds given
-        //:   allocator with created object.
-        //:
-        //: 2 The 'append' method appends a 'Datum' value with the specified
-        //:   key to the end of the int-map.
-        //:
-        //: 3 The 'append' method grows the int-map, only if there is no place
-        //:   to store passed objects.
-        //:
-        //: 4 The 'append' method uses allocator, passed at the construction,
-        //:   to grow the int-map.
-        //:
-        //: 5 The 'commit' method creates a 'Datum' object holding a int-map of
-        //:   'Datum' objects.
-        //:
-        //: 6 The destructor releases all memory, allocated during int-map or
-        //:   it's items creation, if int-map hasn't been committed.
-        //:
-        //: 7 The destructor doesn't affect committed int-map.
-        //:
-        //: 8 Asserted precondition violations are detected when enabled.
+        // 1. The constructor correctly sets required capacity and binds given
+        //    allocator with created object.
+        //
+        // 2. The `append` method appends a `Datum` value with the specified
+        //    key to the end of the int-map.
+        //
+        // 3. The `append` method grows the int-map, only if there is no place
+        //    to store passed objects.
+        //
+        // 4. The `append` method uses allocator, passed at the construction,
+        //    to grow the int-map.
+        //
+        // 5. The `commit` method creates a `Datum` object holding a int-map of
+        //    `Datum` objects.
+        //
+        // 6. The destructor releases all memory, allocated during int-map or
+        //    it's items creation, if int-map hasn't been committed.
+        //
+        // 7. The destructor doesn't affect committed int-map.
+        //
+        // 8. Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create a several 'DatumIntMapBuilder' objects with user-defined
-        //:   or default capacity and allocator.  Verify that enough memory to
-        //:   store required number of elements has been allocated by the
-        //:   specified allocator.  (C-1)
-        //:
-        //: 2 Create a 'DatumIntMapBuilder' object.  Append a few elements to
-        //:   the int-map and verify that the capacity has been increased only
-        //:   if there is no place for new items.  Verify that memory is
-        //:   allocated by the allocator passed on the builder construction.
-        //:   (C-3..4)
-        //:
-        //: 3 Create a 'DatumIntMapBuilder' object and get a 'Datum' object by
-        //:   committing the int-map.  Verify that acquired object contains
-        //:   empty int-map.  (C-5)
-        //:
-        //: 4 Create a 'DatumIntMapBuilder' object.  Append a few elements to
-        //:   the int-map and get a 'Datum' object by committing it.  Verify
-        //:   that received object contains items in the same order as they has
-        //:   been passed to the 'append' method.  (C-2,5)
-        //:
-        //: 5 Create a 'DatumIntMapBuilder' object.  Append a few elements to
-        //:   the int-map and let the object leave the scope.  Verify no
-        //:   memory, allocated by allocator, given on object creation, is
-        //:   used.  (C-6)
-        //:
-        //: 6 Create a 'DatumIntMapBuilder' object.  Append a few elements to
-        //:   the int-map and get a 'Datum' object by committing it.  Let the
-        //:   builder leave the scope.  Verify that 'Datum' object hasn't been
-        //:   changed.  (C-7)
-        //:
-        //: 7 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-8)
+        // 1. Create a several `DatumIntMapBuilder` objects with user-defined
+        //    or default capacity and allocator.  Verify that enough memory to
+        //    store required number of elements has been allocated by the
+        //    specified allocator.  (C-1)
+        //
+        // 2. Create a `DatumIntMapBuilder` object.  Append a few elements to
+        //    the int-map and verify that the capacity has been increased only
+        //    if there is no place for new items.  Verify that memory is
+        //    allocated by the allocator passed on the builder construction.
+        //    (C-3..4)
+        //
+        // 3. Create a `DatumIntMapBuilder` object and get a `Datum` object by
+        //    committing the int-map.  Verify that acquired object contains
+        //    empty int-map.  (C-5)
+        //
+        // 4. Create a `DatumIntMapBuilder` object.  Append a few elements to
+        //    the int-map and get a `Datum` object by committing it.  Verify
+        //    that received object contains items in the same order as they has
+        //    been passed to the `append` method.  (C-2,5)
+        //
+        // 5. Create a `DatumIntMapBuilder` object.  Append a few elements to
+        //    the int-map and let the object leave the scope.  Verify no
+        //    memory, allocated by allocator, given on object creation, is
+        //    used.  (C-6)
+        //
+        // 6. Create a `DatumIntMapBuilder` object.  Append a few elements to
+        //    the int-map and get a `Datum` object by committing it.  Let the
+        //    builder leave the scope.  Verify that `Datum` object hasn't been
+        //    changed.  (C-7)
+        //
+        // 7. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-8)
         //
         // Testing:
         //    DatumIntMapBuilder(SizeType, allocator_type);
@@ -872,7 +873,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'append'." << endl;
+        if (verbose) cout << "\nTesting `append`." << endl;
         {
             bslma::TestAllocator ta("test", veryVeryVerbose);
 
@@ -908,7 +909,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == ta.numBytesInUse());
         }
 
-        if (verbose) cout << "\nTesting 'commit'." << endl;
+        if (verbose) cout << "\nTesting `commit`." << endl;
         {
             bslma::TestAllocator ta("test", veryVeryVerbose);
 
@@ -1067,7 +1068,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator ta("test", veryVeryVerbose);
 
             bsls::AssertTestHandlerGuard hG;
-            if (verbose) cout << "\tTesting 'append'." << endl;
+            if (verbose) cout << "\tTesting `append`." << endl;
             {
                 Obj              mB(0, &ta);
                 DatumIntMapEntry entry(1, Datum::createInteger(1));
@@ -1078,7 +1079,7 @@ int main(int argc, char *argv[])
                 ASSERT_PASS(mB.append(&entry, 1));
             }
 
-            if (verbose) cout << "\tTesting 'commit'." << endl;
+            if (verbose) cout << "\tTesting `commit`." << endl;
             {
                 DatumIntMapEntry first (1, Datum::createInteger(1));
                 DatumIntMapEntry second(2, Datum::createInteger(2));
@@ -1095,12 +1096,12 @@ int main(int argc, char *argv[])
                 unsorted.append(&second, 1);
                 unsorted.append(&first, 1);
 
-                // Obtained int-map has 'sorted' flag set to 'false' by
+                // Obtained int-map has `sorted` flag set to `false` by
                 // default.  To test assertion we need to change its value.
-                // 'setSorted' hasn't been tested yet, but there is no other
-                // method to setup 'sorted' flag of int-map.  And to test
-                // 'setSorted' we have to use 'commit' method to obtain int-map
-                // with its accessor.  So 'setSorted' is bootstrapped as
+                // `setSorted` hasn't been tested yet, but there is no other
+                // method to setup `sorted` flag of int-map.  And to test
+                // `setSorted` we have to use `commit` method to obtain int-map
+                // with its accessor.  So `setSorted` is bootstrapped as
                 // simpler method.
 
                 realSorted.setSorted(true);
@@ -1128,11 +1129,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Developer test sandbox.  (C-1)
+        // 1. Developer test sandbox.  (C-1)
         //
         // Testing:
         //   BREATHING TEST

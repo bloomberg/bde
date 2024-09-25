@@ -4,8 +4,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>      // 'printf', 'fprintf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`, `fprintf`
+#include <stdlib.h>     // `atoi`
 
 using namespace BloombergLP;
 
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Use the exact text of the usage example from the user
-        //   documentation, but guard any 'printf' statements with 'verbose'
+        //   documentation, but guard any `printf` statements with `verbose`
         //   checks.
         //
         // Testing:
@@ -91,14 +91,14 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTEST USAGE EXAMPLE"
                             "\n==================\n");
 
-// At compile time, the 'patch' version of BSL can be examined.
-//..
+// At compile time, the `patch` version of BSL can be examined.
+// ```
         #if BSLSCM_PATCHVERSION_PATCH > 0
             if (verbose) printf("This is a patch release\n");
         #else
             if (verbose) printf("This is a \".0\" initial release\n");
         #endif
-//..
+// ```
       } break;
 
       case 1: {
@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
         //   That BSLSCM_PATCHVERSION_PATCH is defined.
         //
         // Plan:
-        //   Make sure that the 'BSLSCM_PATCHVERSION_PATCH' symbol is defined
+        //   Make sure that the `BSLSCM_PATCHVERSION_PATCH` symbol is defined
         //   by the header.
         //
         // Testing:

@@ -116,15 +116,15 @@ BSLMF_ASSERT(0 == (k_BITS_PER_UINT64 & (k_BITS_PER_UINT64 - 1))); // power of 2
 
 }  // close unnamed namespace
 
+/// Return the specified `value` cast as an `unsigned int`.  Note that if we
+/// want to perform `% k_BITS_PER_UINT64` on a `size_t`, we are only
+/// interested in the low-order 6 bits, so it is best to cast it down to 32
+/// bits for a cheaper mod operation.  It is important that the type being
+/// cast to is `unsigned int`, not `int`, since the `int` could wind up
+/// negative, in which case the `%` operation could return a negative
+/// result.
 static inline
 unsigned int u32(uint64_t value)
-    // Return the specified 'value' cast as an 'unsigned int'.  Note that if we
-    // want to perform '% k_BITS_PER_UINT64' on a 'size_t', we are only
-    // interested in the low-order 6 bits, so it is best to cast it down to 32
-    // bits for a cheaper mod operation.  It is important that the type being
-    // cast to is 'unsigned int', not 'int', since the 'int' could wind up
-    // negative, in which case the '%' operation could return a negative
-    // result.
 {
     return static_cast<unsigned int>(value);
 }
@@ -135,15 +135,15 @@ namespace {
                                 // class BitPtrDiff
                                 // ----------------
 
+/// This `class` represents a signed integral value with
+/// `<bits in pointer> + 6` bits of resolution.  Thus, it is able to
+/// represent the signed distance between any two bits in the address
+/// space, and is designed to hold the difference between two objects of
+/// type `BitPtr` defined below.
+///
+/// This type has no public manipulators, and variables of this type outside
+/// this class are always created `const`.
 class BitPtrDiff {
-    // This 'class' represents a signed integral value with
-    // '<bits in pointer> + 6' bits of resolution.  Thus, it is able to
-    // represent the signed distance between any two bits in the address
-    // space, and is designed to hold the difference between two objects of
-    // type 'BitPtr' defined below.
-    //
-    // This type has no public manipulators, and variables of this type outside
-    // this class are always created 'const'.
 
     // TYPES
     enum { k_NUM_LO_BITS    = 6,
@@ -176,14 +176,15 @@ class BitPtrDiff {
 
   public:
     // CREATORS
-    BitPtrDiff(size_t value);                                       // IMPLICIT
-        // Create a 'BitPtrDiff' object with the specified 'value'.  The
-        // created object will always have a positive value.
 
+    /// Create a `BitPtrDiff` object with the specified `value`.  The
+    /// created object will always have a positive value.
+    BitPtrDiff(size_t value);                                       // IMPLICIT
+
+    /// Create a `BitPtrDiff` object with the specified `hi` and `lo`
+    /// initializing `d_hi` and `d_lo` respectively.  The behavior is
+    /// undefined unless `lo < k_BITS_PER_UINT64`.
     BitPtrDiff(IntPtr hi, unsigned lo);
-        // Create a 'BitPtrDiff' object with the specified 'hi' and 'lo'
-        // initializing 'd_hi' and 'd_lo' respectively.  The behavior is
-        // undefined unless 'lo < k_BITS_PER_UINT64'.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
     // To avoid warnings about future incompatibility due to the deleted copy
@@ -191,20 +192,21 @@ class BitPtrDiff {
     // generated.  For consistency the destructor was also placed here and
     // declared to be explicitly generated.
 
+    /// Create a `BitPtrDiff` object that is a copy of the specified
+    /// `original`.  Note that this trivial constructor's definition is
+    /// compiler generated.
     BitPtrDiff(const BitPtrDiff& original) = default;
-        // Create a 'BitPtrDiff' object that is a copy of the specified
-        // 'original'.  Note that this trivial constructor's definition is
-        // compiler generated.
 
+    /// Destroy this object.  Note that this trivial destructor's definition
+    /// is compiler generated.
     ~BitPtrDiff() = default;
-        // Destroy this object.  Note that this trivial destructor's definition
-        // is compiler generated.
 #endif
 
     // ACCESSORS
+
+    /// Return the negated value of this object.  Note that this is the
+    /// unary minus operator.
     BitPtrDiff operator-() const;
-        // Return the negated value of this object.  Note that this is the
-        // unary minus operator.
 };
 
                               // ----------------
@@ -255,10 +257,11 @@ BitPtrDiff BitPtrDiff::operator-() const
 }
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` is greater than the specified
+/// `rhs`, and `false` otherwise.
 inline
 bool operator>(const BitPtrDiff& lhs, const BitPtrDiff& rhs)
-    // Return 'true' if the specified 'lhs' is greater than the specified
-    // 'rhs', and 'false' otherwise.
 {
     return lhs.d_hi >  rhs.d_hi ||
           (lhs.d_hi == rhs.d_hi && lhs.d_lo > rhs.d_lo);
@@ -295,26 +298,26 @@ bool operator>=(const BitPtrDiff& lhs, const BitPtrDiff& rhs)
                               // class BitPtr
                               // ------------
 
+/// This `class` is a type that can represent a pointer to any bit in the
+/// address space.
+///
+/// A normal pointer can point to any byte in the address space, but more
+/// bits of resolution are needed to point to any bit in the address space.
+/// We use a high-order `IntPtr`, `d_hi`, that can refer to any 8-byte
+/// aligned `uint64_t` location, and another `unsigned int`, `d_lo`, of
+/// which we use the low-order 6 bits to index into any bit within that
+/// `uint64_t`.  On platforms where a `uint64_t` may not be 8-byte aligned,
+/// this is accommodated by varying `d_lo` to reflect the difference in
+/// offset.
+///
+/// Note that, though this `class` is sort of a pointer class, it has no
+/// dereference operators.
+///
+/// This `class` has no manipulators; all objects of this type are declared
+/// `const`.  The only thing that can be done with objects of this type is
+/// to subtract one from another, yielding a `BitPtrDiff` (defined above)
+/// that will indicate the distance in bits between the two `BitPtr`s.
 class BitPtr {
-    // This 'class' is a type that can represent a pointer to any bit in the
-    // address space.
-    //
-    // A normal pointer can point to any byte in the address space, but more
-    // bits of resolution are needed to point to any bit in the address space.
-    // We use a high-order 'IntPtr', 'd_hi', that can refer to any 8-byte
-    // aligned 'uint64_t' location, and another 'unsigned int', 'd_lo', of
-    // which we use the low-order 6 bits to index into any bit within that
-    // 'uint64_t'.  On platforms where a 'uint64_t' may not be 8-byte aligned,
-    // this is accommodated by varying 'd_lo' to reflect the difference in
-    // offset.
-    //
-    // Note that, though this 'class' is sort of a pointer class, it has no
-    // dereference operators.
-    //
-    // This 'class' has no manipulators; all objects of this type are declared
-    // 'const'.  The only thing that can be done with objects of this type is
-    // to subtract one from another, yielding a 'BitPtrDiff' (defined above)
-    // that will indicate the distance in bits between the two 'BitPtr's.
 
     enum { k_NUM_LO_BITS    = 6,
            k_USED_LO_MASK   = (1 << k_NUM_LO_BITS) - 1,
@@ -340,9 +343,10 @@ class BitPtr {
 
   public:
     // CREATORS
+
+    /// Create a `BitPtr` object referring to the bit specified by `ptr` and
+    /// `index`, the `index`th bit of the `uint64_t` pointed at by `ptr`.
     BitPtr(const uint64_t *ptr, size_t index);
-        // Create a 'BitPtr' object referring to the bit specified by 'ptr' and
-        // 'index', the 'index'th bit of the 'uint64_t' pointed at by 'ptr'.
 
     // ~BitPtr() = default;
 };
@@ -355,25 +359,27 @@ class BitPtr {
 BitPtr::BitPtr(const uint64_t *ptr, size_t index)
 {
     enum {
+        /// Number of low-order bits of `ptr` that are to be shifted
+        /// down and added to `d_lo`.  These bits are necessary to access
+        /// bytes, but not to access aligned `uint64_t`s.
         k_NUM_BYTE_PTR_BITS = 3,
-            // Number of low-order bits of 'ptr' that are to be shifted
-            // down and added to 'd_lo'.  These bits are necessary to access
-            // bytes, but not to access aligned 'uint64_t's.
+
+        /// Mask for removing the low-order bits from the pointer part.
         k_PTR_MASK = (1 << k_NUM_BYTE_PTR_BITS) - 1,
-            // Mask for removing the low-order bits from the pointer part.
+
+        /// The low-order bits of `ptrPart` get added to the high-order
+        /// significant bits of `d_lo`, so they have to be shifted up by
+        /// this amount.
         k_SHIFT_UP = k_NUM_LO_BITS - k_NUM_BYTE_PTR_BITS
-            // The low-order bits of 'ptrPart' get added to the high-order
-            // significant bits of 'd_lo', so they have to be shifted up by
-            // this amount.
     };
 
     enum {
         // Put this in a separate 'enum' declaration so the above remain 32-bit
         // constants.
 
+        /// The high-order 3 bits of `d_hi`, which should always be 0.
         k_HI_MASK = static_cast<UintPtr>(k_PTR_MASK) <<
                             (sizeof(d_hi) * CHAR_BIT - k_NUM_BYTE_PTR_BITS)
-            // The high-order 3 bits of 'd_hi', which should always be 0.
     };
 
     ptr  +=     index  / k_BITS_PER_UINT64;
@@ -406,10 +412,11 @@ BitPtr::BitPtr(const uint64_t *ptr, size_t index)
 }
 
 // FREE OPERATORS
+
+/// Return a `BitPtrDiff` representing the distance in bits between the
+/// specified `lhs` and `rhs`.
 inline
 BitPtrDiff operator-(const BitPtr& lhs, const BitPtr& rhs)
-    // Return a 'BitPtrDiff' representing the distance in bits between the
-    // specified 'lhs' and 'rhs'.
 {
     enum { k_UNUSED_LO_MASK = BitPtr::k_UNUSED_LO_MASK };
 
@@ -434,125 +441,126 @@ BitPtrDiff operator-(const BitPtr& lhs, const BitPtr& rhs)
                               // class Mover
                               // -----------
 
+/// This template `class` provides a namespace for static functions that
+/// manipulate bit strings.  The clients (local within this file) use
+/// `move`, `left`, and `right` to apply bitwise-logical operations between
+/// bit strings.
+///
+/// The two template arguments are functions:
+/// ```
+/// void OPER_DO_BITS(uint64_t *dstWord,
+///                   int       dstIndex,
+///                   uint64_t  srcValue,
+///                   int       numBits);
+/// ```
+/// where `OPER_DO_BITS` applies some bitwise-logical operation between
+/// `numBits` bits in `dstWord` and the low-order `numBits` of `srcValue`,
+/// assigning the result to the corresponding bits of `dstWord`.  The
+/// behavior is undefined unless `dstIndex + numBits <= k_BITS_PER_UINT64`,
+/// so the operation never affects more than a single 64-bit word.
+///
+/// And:
+/// ```
+/// void OPER_DO_ALIGNED_WORD(uint64_t *dstWord,
+///                           uint64_t  srcValue);
+/// ```
+/// where `OPER_DO_ALIGNED_WORD` applies the same bitwise-logical operation
+/// between all bits of `*dstWord` and all bits of `srcValue`, assigning the
+/// result to `*dstWord`.  Note that a call to
+/// `OPER_DO_ALIGNED_WORD(dstWord, srcValue)` would have exactly the same
+/// effect as `OPER_DO_BITS(dstWord, 0, srcValue, k_BITS_PER_UINT64)`, but
+/// `OPER_DO_ALIGNED_WORD` is much more efficient in that case.
 template <void OPER_DO_BITS(        uint64_t *, int, uint64_t, int),
           void OPER_DO_ALIGNED_WORD(uint64_t *,      uint64_t     )>
 class Mover {
-    // This template 'class' provides a namespace for static functions that
-    // manipulate bit strings.  The clients (local within this file) use
-    // 'move', 'left', and 'right' to apply bitwise-logical operations between
-    // bit strings.
-    //
-    // The two template arguments are functions:
-    //..
-    // void OPER_DO_BITS(uint64_t *dstWord,
-    //                   int       dstIndex,
-    //                   uint64_t  srcValue,
-    //                   int       numBits);
-    //..
-    // where 'OPER_DO_BITS' applies some bitwise-logical operation between
-    // 'numBits' bits in 'dstWord' and the low-order 'numBits' of 'srcValue',
-    // assigning the result to the corresponding bits of 'dstWord'.  The
-    // behavior is undefined unless 'dstIndex + numBits <= k_BITS_PER_UINT64',
-    // so the operation never affects more than a single 64-bit word.
-    //
-    // And:
-    //..
-    // void OPER_DO_ALIGNED_WORD(uint64_t *dstWord,
-    //                           uint64_t  srcValue);
-    //..
-    // where 'OPER_DO_ALIGNED_WORD' applies the same bitwise-logical operation
-    // between all bits of '*dstWord' and all bits of 'srcValue', assigning the
-    // result to '*dstWord'.  Note that a call to
-    // 'OPER_DO_ALIGNED_WORD(dstWord, srcValue)' would have exactly the same
-    // effect as 'OPER_DO_BITS(dstWord, 0, srcValue, k_BITS_PER_UINT64)', but
-    // 'OPER_DO_ALIGNED_WORD' is much more efficient in that case.
 
     // PRIVATE CLASS METHODS
+
+    /// Set the specified `numBits` contiguous bits starting at the
+    /// specified `dstIndex` in the specified `dstBitString` to the result
+    /// of the operation `OPER_DO_BITS` of those bits and the low-order
+    /// `numBits` bits in the specified `srcValue`.  All other bits are
+    /// unaffected.  The behavior is undefined unless
+    /// `0 <= dstIndex < k_BITS_PER_UINT64`, and
+    /// `0 <= numBits < k_BITS_PER_UINT64`.  Note that this operation may
+    /// affect up to two 64-bit words of `dstBitString`.
     static void doPartialWord(uint64_t *dstBitString,
                               int       dstIndex,
                               uint64_t  srcValue,
                               int       numBits);
-        // Set the specified 'numBits' contiguous bits starting at the
-        // specified 'dstIndex' in the specified 'dstBitString' to the result
-        // of the operation 'OPER_DO_BITS' of those bits and the low-order
-        // 'numBits' bits in the specified 'srcValue'.  All other bits are
-        // unaffected.  The behavior is undefined unless
-        // '0 <= dstIndex < k_BITS_PER_UINT64', and
-        // '0 <= numBits < k_BITS_PER_UINT64'.  Note that this operation may
-        // affect up to two 64-bit words of 'dstBitString'.
 
+    /// Set the `k_BITS_PER_UINT64` contiguous bits starting at the
+    /// specified `dstIndex` in the specified `dstBitString` to the result
+    /// of the operation `OPER_DO_BITS` of those bits and the bits in the
+    /// specified `srcValue`.  All other bits are unaffected.  The operation
+    /// `OPER_DO_BITS` has arguments: pointer to destination array, index
+    /// within destination array, source value, and number of bits to apply
+    /// the operation upon.  The behavior is undefined unless
+    /// `0 < dstIndex < k_BITS_PER_UINT64`.
     static void doFullNonAlignedWord(uint64_t *dstBitString,
                                      int       dstIndex,
                                      uint64_t  srcValue);
-        // Set the 'k_BITS_PER_UINT64' contiguous bits starting at the
-        // specified 'dstIndex' in the specified 'dstBitString' to the result
-        // of the operation 'OPER_DO_BITS' of those bits and the bits in the
-        // specified 'srcValue'.  All other bits are unaffected.  The operation
-        // 'OPER_DO_BITS' has arguments: pointer to destination array, index
-        // within destination array, source value, and number of bits to apply
-        // the operation upon.  The behavior is undefined unless
-        // '0 < dstIndex < k_BITS_PER_UINT64'.
 
   public:
     // PUBLIC CLASS METHODS
 
                                 // directional moves
 
+    /// Apply the bitwise-logical operation indicated by `OPER_DO_BITS` and
+    /// `OPER_DO_ALIGNED_WORD` between the specified `numBits` of the
+    /// specified `dstBitString` and the specified `srcBitString`, beginning
+    /// at the specified `dstIndex` and the specified `srcIndex`,
+    /// respectively.  Use `doPartialWord`, `doFullNonAlignedWord`, and
+    /// `OPER_DO_ALIGNED_WORD` to apply the operation.  The operation
+    /// proceeds from the low-order bits to the high-order bits.  All other
+    /// bits are unaffected.  The behavior is undefined unless
+    /// `0 <= dstIndex`, `0 <= srcIndex`, `srcBitString` contains at least
+    /// `srcIndex + numBits` bits, `0 <= numBits`, and `dstBitString`
+    /// contains at least `dstIndex + numBits` bits.  Note that this method
+    /// is alias-safe provided the destination range is located at the same
+    /// place as or below the source range.
     static void left(uint64_t       *dstBitString,
                      size_t          dstIndex,
                      const uint64_t *srcBitString,
                      size_t          srcIndex,
                      size_t          numBits);
-        // Apply the bitwise-logical operation indicated by 'OPER_DO_BITS' and
-        // 'OPER_DO_ALIGNED_WORD' between the specified 'numBits' of the
-        // specified 'dstBitString' and the specified 'srcBitString', beginning
-        // at the specified 'dstIndex' and the specified 'srcIndex',
-        // respectively.  Use 'doPartialWord', 'doFullNonAlignedWord', and
-        // 'OPER_DO_ALIGNED_WORD' to apply the operation.  The operation
-        // proceeds from the low-order bits to the high-order bits.  All other
-        // bits are unaffected.  The behavior is undefined unless
-        // '0 <= dstIndex', '0 <= srcIndex', 'srcBitString' contains at least
-        // 'srcIndex + numBits' bits, '0 <= numBits', and 'dstBitString'
-        // contains at least 'dstIndex + numBits' bits.  Note that this method
-        // is alias-safe provided the destination range is located at the same
-        // place as or below the source range.
 
+    /// Apply the bitwise-logical operation indicated by `OPER_DO_BITS` and
+    /// `OPER_DO_ALIGNED_WORD` between the specified `numBits` of the
+    /// specified `dstBitString` and the specified `srcBitString`, beginning
+    /// at the specified `dstIndex` and the specified `srcIndex`,
+    /// respectively.  Use `doPartialWord`, `doFullNonAlignedWord`, and
+    /// `OPER_DO_ALIGNED_WORD` to apply the operation.  The operation
+    /// proceeds from the high-order bits to the low-order bits (e.g., the
+    /// opposite of `left`).  All other bits are unaffected.  The behavior
+    /// is undefined unless `0 <= dstIndex`, `0 <= srcIndex`, `srcBitString`
+    /// contains at least `srcIndex + numBits` bits, `0 <= numBits`, and
+    /// `dstBitString` contains at least `dstIndex + numBits` bits.  Note
+    /// that this method is alias-safe if the destination range is located
+    /// at the same place as or above the source range.
     static void right(uint64_t       *dstBitString,
                       size_t          dstIndex,
                       const uint64_t *srcBitString,
                       size_t          srcIndex,
                       size_t          numBits);
-        // Apply the bitwise-logical operation indicated by 'OPER_DO_BITS' and
-        // 'OPER_DO_ALIGNED_WORD' between the specified 'numBits' of the
-        // specified 'dstBitString' and the specified 'srcBitString', beginning
-        // at the specified 'dstIndex' and the specified 'srcIndex',
-        // respectively.  Use 'doPartialWord', 'doFullNonAlignedWord', and
-        // 'OPER_DO_ALIGNED_WORD' to apply the operation.  The operation
-        // proceeds from the high-order bits to the low-order bits (e.g., the
-        // opposite of 'left').  All other bits are unaffected.  The behavior
-        // is undefined unless '0 <= dstIndex', '0 <= srcIndex', 'srcBitString'
-        // contains at least 'srcIndex + numBits' bits, '0 <= numBits', and
-        // 'dstBitString' contains at least 'dstIndex + numBits' bits.  Note
-        // that this method is alias-safe if the destination range is located
-        // at the same place as or above the source range.
 
                                 // ambidextrous move
 
+    /// Apply the bitwise-logical operation indicated by `OPER_DO_BITS` and
+    /// `OPER_DO_ALIGNED_WORD` between the specified `numBits` of the
+    /// specified `dstBitString` and the specified `srcBitString`, beginning
+    /// at the specified `dstIndex` and `srcIndex`, respectively.  The
+    /// behavior is undefined unless `0 <= dstIndex`, `0 <= srcIndex`,
+    /// `srcBitString` contains at least `srcIndex + numBits` bits,
+    /// `0 <= numBits`, and `dstBitString` contains at least
+    /// `dstIndex + numBits` bits.  Note that this function is implemented
+    /// by simply calling `left` or `right` as appropriate, depending upon
+    /// whether, and how, `dstBitString` and `srcBitString` overlap.
     static void move(uint64_t       *dstBitString,
                      size_t          dstIndex,
                      const uint64_t *srcBitString,
                      size_t          srcIndex,
                      size_t          numBits);
-        // Apply the bitwise-logical operation indicated by 'OPER_DO_BITS' and
-        // 'OPER_DO_ALIGNED_WORD' between the specified 'numBits' of the
-        // specified 'dstBitString' and the specified 'srcBitString', beginning
-        // at the specified 'dstIndex' and 'srcIndex', respectively.  The
-        // behavior is undefined unless '0 <= dstIndex', '0 <= srcIndex',
-        // 'srcBitString' contains at least 'srcIndex + numBits' bits,
-        // '0 <= numBits', and 'dstBitString' contains at least
-        // 'dstIndex + numBits' bits.  Note that this function is implemented
-        // by simply calling 'left' or 'right' as appropriate, depending upon
-        // whether, and how, 'dstBitString' and 'srcBitString' overlap.
 };
 
 template <void OPER_DO_BITS(        uint64_t *, int, uint64_t, int),
@@ -876,13 +884,13 @@ void Mover<OPER_DO_BITS, OPER_DO_ALIGNED_WORD>::move(
 
                                 // widely used
 
+/// Return a `uint64_t` value with the low-order specified `numBits` set and
+/// the rest cleared.  The behavior is undefined unless
+/// `0 <= numBits < k_BITS_PER_UINT64`.  Note that this function performs
+/// the same calculation as `BitMaskUtil::lt64`, except that it doesn't
+/// waste time handling the case of `k_BITS_PER_UINT64 == numBits`.
 static inline
 uint64_t lt64Raw(int numBits)
-    // Return a 'uint64_t' value with the low-order specified 'numBits' set and
-    // the rest cleared.  The behavior is undefined unless
-    // '0 <= numBits < k_BITS_PER_UINT64'.  Note that this function performs
-    // the same calculation as 'BitMaskUtil::lt64', except that it doesn't
-    // waste time handling the case of 'k_BITS_PER_UINT64 == numBits'.
 {
     BSLS_ASSERT(0 <= numBits);
     BSLS_ASSERT(     numBits < k_BITS_PER_UINT64);
@@ -890,13 +898,13 @@ uint64_t lt64Raw(int numBits)
     return (1ULL << numBits) - 1;
 }
 
+/// Return a `uint64_t` value with the low-order specified `numBits` cleared
+/// and the rest set.  The behavior is undefined unless
+/// `0 <= numBits < k_BITS_PER_UINT64`.  Note that this function performs
+/// the same calculation as `BitMaskUtil::ge64`, except that it doesn't
+/// waste time handling the case of `k_BITS_PER_UINT64 == numBits`.
 static inline
 uint64_t ge64Raw(int numBits)
-    // Return a 'uint64_t' value with the low-order specified 'numBits' cleared
-    // and the rest set.  The behavior is undefined unless
-    // '0 <= numBits < k_BITS_PER_UINT64'.  Note that this function performs
-    // the same calculation as 'BitMaskUtil::ge64', except that it doesn't
-    // waste time handling the case of 'k_BITS_PER_UINT64 == numBits'.
 {
     BSLS_ASSERT(0 <= numBits);
     BSLS_ASSERT(     numBits < k_BITS_PER_UINT64);
@@ -904,11 +912,11 @@ uint64_t ge64Raw(int numBits)
     return ~0ULL << numBits;
 }
 
+/// Return the absolute value of the specified `x`.  The behavior is
+/// undefined unless `-x != x` or `0 == x`.
 template <class TYPE>
 static inline
 TYPE absRaw(TYPE x)
-    // Return the absolute value of the specified 'x'.  The behavior is
-    // undefined unless '-x != x' or '0 == x'.
 {
     BSLS_ASSERT(-x != x || 0 == x);
 
@@ -917,20 +925,20 @@ TYPE absRaw(TYPE x)
 
                         // for 'areEqual'
 
+/// Return `true` if the specified `numBits` bits of the specified `word1`
+/// starting at the specified position `pos1` differ from the `numBits` bits
+/// of the specified `word2` starting at the specified position `pos2`, and
+/// `false` if the bit patterns are identical.  The behavior is undefined
+/// unless `0 <= pos1`, `0 <= pos2`, `0 < numBits`,
+/// `pos1 + numBits <= k_BITS_PER_UINT64`, and
+/// `pos2 + numBits <= k_BITS_PER_UINT64`.  Note that this function does not
+/// handle the case of `0 == numBits`.
 static inline
 bool bitsInWordsDiffer(uint64_t word1,
                        int      pos1,
                        uint64_t word2,
                        int      pos2,
                        int      numBits)
-    // Return 'true' if the specified 'numBits' bits of the specified 'word1'
-    // starting at the specified position 'pos1' differ from the 'numBits' bits
-    // of the specified 'word2' starting at the specified position 'pos2', and
-    // 'false' if the bit patterns are identical.  The behavior is undefined
-    // unless '0 <= pos1', '0 <= pos2', '0 < numBits',
-    // 'pos1 + numBits <= k_BITS_PER_UINT64', and
-    // 'pos2 + numBits <= k_BITS_PER_UINT64'.  Note that this function does not
-    // handle the case of '0 == numBits'.
 {
     BSLS_ASSERT(numBits + pos1 <= k_BITS_PER_UINT64);
     BSLS_ASSERT(numBits + pos2 <= k_BITS_PER_UINT64);
@@ -945,24 +953,24 @@ bool bitsInWordsDiffer(uint64_t word1,
 
                         // for 'swapRaw'
 
+/// Swap the specified `numBits` sequence of bits starting at the specified
+/// `index1` in the specified `word1` with the `numBits` starting at the
+/// specified `index2` in the specified `word2`.  The behavior is undefined
+/// unless `0 <= index1`, `0 <= index2`, `0 < numBits`,
+/// `index1 + numBits <= k_BITS_PER_UINT64`,
+/// `index2 + numBits <= k_BITS_PER_UINT64`, and the two sets of bits
+/// specified are not overlapping regions of the same word.  Note that the
+/// non-overlapping condition is unchecked and is the responsibility of the
+/// caller to ensure that it doesn't happen.  Also note that it is
+/// permissible for `word1` and `word2` to refer to the same word, provided
+/// the bits being swapped don't overlap.  Also note this function doesn't
+/// handle the case of `0 == numBits`.
 static
 void swapBitsInWords(uint64_t *word1,
                      int       index1,
                      uint64_t *word2,
                      int       index2,
                      int       numBits)
-    // Swap the specified 'numBits' sequence of bits starting at the specified
-    // 'index1' in the specified 'word1' with the 'numBits' starting at the
-    // specified 'index2' in the specified 'word2'.  The behavior is undefined
-    // unless '0 <= index1', '0 <= index2', '0 < numBits',
-    // 'index1 + numBits <= k_BITS_PER_UINT64',
-    // 'index2 + numBits <= k_BITS_PER_UINT64', and the two sets of bits
-    // specified are not overlapping regions of the same word.  Note that the
-    // non-overlapping condition is unchecked and is the responsibility of the
-    // caller to ensure that it doesn't happen.  Also note that it is
-    // permissible for 'word1' and 'word2' to refer to the same word, provided
-    // the bits being swapped don't overlap.  Also note this function doesn't
-    // handle the case of '0 == numBits'.
 {
     BSLS_ASSERT(word1);
     BSLS_ASSERT(word2);
@@ -987,10 +995,10 @@ void swapBitsInWords(uint64_t *word1,
 
                         // for 'print'
 
+/// Efficiently insert the specified `numSpaces` spaces into the specified
+/// `stream`.  This function has no effect on `stream` if `numSpaces < 0`.
 static
 void putSpaces(bsl::ostream& stream, int numSpaces)
-    // Efficiently insert the specified 'numSpaces' spaces into the specified
-    // 'stream'.  This function has no effect on 'stream' if 'numSpaces < 0'.
 {
     // Algorithm: Write spaces in chunks.  The chunk size is large enough so
     // that most times only a single call to the 'write' method is needed.
@@ -1011,13 +1019,13 @@ void putSpaces(bsl::ostream& stream, int numSpaces)
     }
 }
 
+/// Output indentation to the specified `stream` that is appropriate
+/// according to BDE printing conventions for the specified `level` and
+/// the specified `spacesPerLevel`.
 static
 bsl::ostream& indent(bsl::ostream& stream,
                      int           level,
                      int           spacesPerLevel)
-    // Output indentation to the specified 'stream' that is appropriate
-    // according to BDE printing conventions for the specified 'level' and
-    // the specified 'spacesPerLevel'.
 {
     if (spacesPerLevel < 0) {
         spacesPerLevel = -spacesPerLevel;
@@ -1027,12 +1035,12 @@ bsl::ostream& indent(bsl::ostream& stream,
     return stream;
 }
 
+/// Output a newline and indentation to the specified `stream` appropriate
+/// for the specified `level` and the specified `spacesPerLevel`.
 static
 bsl::ostream& newlineAndIndent(bsl::ostream& stream,
                                int           level,
                                int           spacesPerLevel)
-    // Output a newline and indentation to the specified 'stream' appropriate
-    // for the specified 'level' and the specified 'spacesPerLevel'.
 {
     if (spacesPerLevel < 0) {
         return stream << ' ';                                         // RETURN

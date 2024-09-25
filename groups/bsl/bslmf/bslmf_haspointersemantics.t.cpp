@@ -86,10 +86,10 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 Exercise basic functionality of component
+        // 1. Exercise basic functionality of component
         //
         // Plan:
-        //: 1
+        //  1
         //
         // Testing:
         // --------------------------------------------------------------------

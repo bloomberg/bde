@@ -10,22 +10,22 @@ namespace BloombergLP {
 
 namespace {
 
+/// Return the number of units that would be drained from a leaky bucket
+/// over the specified `timeInterval` at the specified `drainRate`, plus the
+/// specified `fractionalUnitDrainedInNanoUnits`, representing a fractional
+/// remainder from a previous call to `calculateNumberOfUnitsToDrain`.  Load
+/// into `fractionalUnitDrainedInNanoUnits` the fractional remainder
+/// (between 0.0 and 1.0, represented in nano-units) from this calculation.
+/// The behavior is undefined unless
+/// `0 <= *fractionalUnitDrainedInNanoUnits < 1000000000` (i.e., it
+/// represents a value between 0 and 1 unit) and
+/// `timeInterval.seconds() * drainRate <= ULLONG_MAX`.  Note that
+/// `fractionalUnitDrainedInNanoUnits` is represented in nano-units to avoid
+/// using a floating point representation.
 bsls::Types::Uint64 calculateNumberOfUnitsToDrain(
                     bsls::Types::Uint64*      fractionalUnitDrainedInNanoUnits,
                     bsls::Types::Uint64       drainRate,
                     const bsls::TimeInterval& timeInterval)
-    // Return the number of units that would be drained from a leaky bucket
-    // over the specified 'timeInterval' at the specified 'drainRate', plus the
-    // specified 'fractionalUnitDrainedInNanoUnits', representing a fractional
-    // remainder from a previous call to 'calculateNumberOfUnitsToDrain'.  Load
-    // into 'fractionalUnitDrainedInNanoUnits' the fractional remainder
-    // (between 0.0 and 1.0, represented in nano-units) from this calculation.
-    // The behavior is undefined unless
-    // '0 <= *fractionalUnitDrainedInNanoUnits < 1000000000' (i.e., it
-    // represents a value between 0 and 1 unit) and
-    // 'timeInterval.seconds() * drainRate <= ULLONG_MAX'.  Note that
-    // 'fractionalUnitDrainedInNanoUnits' is represented in nano-units to avoid
-    // using a floating point representation.
 
 {
     const bsls::Types::Uint64 k_NANOUNITS_PER_UNIT = 1000000000;

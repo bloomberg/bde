@@ -30,16 +30,17 @@ namespace ball {
 BSLMF_ASSERT((bsl::is_same<RuleSet::MaskType, unsigned int>::value));
 
 // PRIVATE CREATORS
+
+/// Note that this constructor is private, so the validation of the
+/// threshold level values does not need to be repeated here.  They are
+/// validated in `CategoryManager::addCategory`, prior to creating an
+/// instance of this class.
 Category::Category(const char       *categoryName,
                    int               recordLevel,
                    int               passLevel,
                    int               triggerLevel,
                    int               triggerAllLevel,
                    bslma::Allocator *basicAllocator)
-    // Note that this constructor is private, so the validation of the
-    // threshold level values does not need to be repeated here.  They are
-    // validated in 'CategoryManager::addCategory', prior to creating an
-    // instance of this class.
 : d_thresholdLevels(recordLevel, passLevel, triggerLevel, triggerAllLevel)
 , d_threshold(ThresholdAggregate::maxLevel(recordLevel,
                                            passLevel,

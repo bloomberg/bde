@@ -5,8 +5,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 using namespace bsl;
 using namespace BloombergLP;
@@ -16,9 +16,9 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines meta-functions, 'bsl::add_cv' and
-// 'bsl::add_cv_t' that add a top-level 'const'-qualifier and a top-level
-// 'volatile'-qualifier to a template parameter type.  Thus, we need to ensure
+// The component under test defines meta-functions, `bsl::add_cv` and
+// `bsl::add_cv_t` that add a top-level `const`-qualifier and a top-level
+// `volatile`-qualifier to a template parameter type.  Thus, we need to ensure
 // that the values returned by the meta-function are correct for each possible
 // category of types.
 //
@@ -81,18 +81,18 @@ namespace {
 
 struct TestType {
    // This user-defined type is intended to be used during testing as an
-   // argument for the template parameter 'TYPE' of 'bsl::add_cv'.
+   // argument for the template parameter `TYPE` of `bsl::add_cv`.
 };
 
+/// This non-static function member type is intended to be used during
+/// testing as an argument for the template parameter `TYPE` of
+/// `bsl::add_cv`.
 typedef void (TestType::*MethodPtrTestType) ();
-    // This non-static function member type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::add_cv'.
 
+/// This class public data member pointer type is intended to be used during
+/// testing as an argument as an argument for the template parameter `TYPE`
+/// of `bsl::add_cv`.
 typedef int TestType::* PMD;
-    // This class public data member pointer type is intended to be used during
-    // testing as an argument as an argument for the template parameter 'TYPE'
-    // of 'bsl::add_cv'.
 
 }  // close unnamed namespace
 
@@ -122,13 +122,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -141,62 +141,62 @@ int main(int argc, char *argv[])
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Adding a 'const'-Qualifier and a 'volatile'-Qualifier to a Type
+///Example 1: Adding a `const`-Qualifier and a `volatile`-Qualifier to a Type
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to add a 'const'-qualifier and a 'volatile'-qualifier
+// Suppose that we want to add a `const`-qualifier and a `volatile`-qualifier
 // to a particular type.
 //
-// First, we create two 'typedef's -- a 'const'-qualified and
-// 'volatile'-qualified type ('MyCvType') and the same type without the
-// cv-qualifiers ('MyType'):
-//..
+// First, we create two `typedef`s -- a `const`-qualified and
+// `volatile`-qualified type (`MyCvType`) and the same type without the
+// cv-qualifiers (`MyType`):
+// ```
         typedef int                MyType;
         typedef const volatile int MyCvType;
-//..
-// Now, we add a 'const'-qualifier and a 'volatile'-qualifier to 'MyType' using
-// 'bsl::add_cv' and verify that the resulting type is the same as 'MyCvType':
-//..
+// ```
+// Now, we add a `const`-qualifier and a `volatile`-qualifier to `MyType` using
+// `bsl::add_cv` and verify that the resulting type is the same as `MyCvType`:
+// ```
         ASSERT(true ==
                    (bsl::is_same<bsl::add_cv<MyType>::type, MyCvType>::value));
-//..
+// ```
 // Finally, if the current compiler supports alias templates C++11 feature, we
-// add a 'const'-qualifier and a 'volatile'-qualifier to 'MyType' using
-// 'bsl::add_cv_t' and verify that the resulting type is the same as
-// 'MyCvType':
-//..
+// add a `const`-qualifier and a `volatile`-qualifier to `MyType` using
+// `bsl::add_cv_t` and verify that the resulting type is the same as
+// `MyCvType`:
+// ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
         ASSERT(true == (bsl::is_same<bsl::add_cv_t<MyType>, MyCvType>::value));
 #endif
-//..
+// ```
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::add_cv::type'
-        //   Ensure that the 'typedef' 'type' of 'bsl::add_cv' has the correct
+        // `bsl::add_cv::type`
+        //   Ensure that the `typedef` `type` of `bsl::add_cv` has the correct
         //   type for a variety of template parameter types.
         //
-        //   Ensure that the 'bsl::add_cv_t' represents the correct type for a
+        //   Ensure that the `bsl::add_cv_t` represents the correct type for a
         //   variety of template parameter types.
         //
         // Concerns:
-        //: 1 'bsl::add_cv' adds a top-level 'const'-qualifier and a top-level
-        //:   'volatile'-qualifier only to regular types (primitive, pointers,
-        //:   and user-defined types).
-        //:
-        //: 2 'bsl::add_cv' does not add a 'const'-qualifier nor a
-        //:   'volatile'-qualifier to reference types, function types, or types
-        //:   that are already both 'const'-qualified and 'volatile'-qualified.
-        //:
-        //: 3 'bsl::add_cv_t' represents the return type of 'bsl::add_cv'
-        //:   meta-function for a variety of template parameter types.
+        // 1. `bsl::add_cv` adds a top-level `const`-qualifier and a top-level
+        //    `volatile`-qualifier only to regular types (primitive, pointers,
+        //    and user-defined types).
+        //
+        // 2. `bsl::add_cv` does not add a `const`-qualifier nor a
+        //    `volatile`-qualifier to reference types, function types, or types
+        //    that are already both `const`-qualified and `volatile`-qualified.
+        //
+        // 3. `bsl::add_cv_t` represents the return type of `bsl::add_cv`
+        //    meta-function for a variety of template parameter types.
         //
         // Plan:
-        //  1 Verify that 'bsl::add_cv::type' and 'bsl::add_cv_t' have the
+        //  1 Verify that `bsl::add_cv::type` and `bsl::add_cv_t` have the
         //    correct type for each concern. (C1-2)
         //
-        //  2 Verify that 'bsl::add_cv_t' has the same type as the return
-        //    type of 'bsl::add_cv' for a variety of template parameter types.
+        //  2 Verify that `bsl::add_cv_t` has the same type as the return
+        //    type of `bsl::add_cv` for a variety of template parameter types.
         //    (C-3)
         //
         // Testing:

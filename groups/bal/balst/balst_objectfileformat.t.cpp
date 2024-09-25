@@ -22,16 +22,16 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// Since this component implements 'CPP' macro's and 'typedef's, which may or
+// Since this component implements `CPP` macro's and `typedef`s, which may or
 // may not be defined, there is not too much to test in this driver.  Since
 // correctness will be affected by compile-time switches during the build
 // process, any compile-time tests we come up with should probably reside
 // directly in the header or implementation file.
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-// [ 1] Ensure that if a 'RESOLVER' id is defined, it has the value '1'.
-// [ 2] Ensure that exactly one of the 'RESOLVER' ids is defined.
-// [ 3] That 'Obj::Policy' is appropriate for the platform.
+// [ 1] Ensure that if a `RESOLVER` id is defined, it has the value '1'.
+// [ 2] Ensure that exactly one of the `RESOLVER` ids is defined.
+// [ 3] That `Obj::Policy` is appropriate for the platform.
 // [ 4] USAGE EXAMPLE
 
 // ============================================================================
@@ -82,7 +82,7 @@ static void aSsErT(int c, const char *s, int i)
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
+#define P_(X) cout << #X " = " << (X) << ", " << flush; // `P(X)` without '\n'
 #define T_ cout << "\t" << flush;             // Print tab w/o newline.
 #define L_ __LINE__                           // current Line number
 
@@ -103,12 +103,12 @@ typedef balst::ObjectFileFormat          Obj;
 //                    HELPER FUNCTIONS FOR USAGE EXAMPLE
 // ============================================================================
 
-///Example 1: Accessing 'balst::ObjectFileFormat' at Run Time
+///Example 1: Accessing `balst::ObjectFileFormat` at Run Time
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// The templated (specialized) 'typeTest' function returns a unique, non-zero
+// The templated (specialized) `typeTest` function returns a unique, non-zero
 // value when passed an object of types
-// 'balst::ObjectFileFormat::{Elf,Xcoff,Windows}', and 0 otherwise.
-//..
+// `balst::ObjectFileFormat::{Elf,Xcoff,Windows}`, and 0 otherwise.
+// ```
 template <class TYPE>
 int typeTest(const TYPE &)
 {
@@ -134,7 +134,7 @@ int typeTest(const balst::ObjectFileFormat::Dladdr &)
 {
     return 4;
 }
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -156,12 +156,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -173,14 +173,14 @@ int main(int argc, char *argv[])
 
 #if !defined(BALST_OBJECTFILEFORMAT_RESOLVER_UNIMPLEMENTED)
 
-// We define an object 'policy' of type 'balst::ObjectFileFormat::Policy',
-// which will be of type '...::Elf', '...::Xcoff', or '...::Windows'
+// We define an object `policy` of type `balst::ObjectFileFormat::Policy`,
+// which will be of type `...::Elf`, `...::Xcoff`, or `...::Windows`
 // appropriate for the platform.
-//..
+// ```
         balst::ObjectFileFormat::Policy policy;
-//..
-// We now test it using 'typeTest':
-//..
+// ```
+// We now test it using `typeTest`:
+// ```
         ASSERT(typeTest(policy) > 0);
 
     #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
     #else
         #error No resolver format defined
     #endif
-//..
+// ```
 
 #endif
 
@@ -204,11 +204,11 @@ int main(int argc, char *argv[])
         // PROPER RESOLVER POLICY DEFINED
         //
         // Concerns:
-        //: 1 That all resolver policies exist, and that 'Obj::Policy' is
-        //:   appropriately defined for the platform.
+        // 1. That all resolver policies exist, and that `Obj::Policy` is
+        //    appropriately defined for the platform.
         //
         // Plan:
-        //: 1 Use 'bslmf::IsSame' to verify types match appropriately.
+        // 1. Use `bslmf::IsSame` to verify types match appropriately.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -250,18 +250,18 @@ int main(int argc, char *argv[])
       }  break;
       case 2: {
         // --------------------------------------------------------------------
-        // UNIQUE '#define' DEFINED
+        // UNIQUE `#define` DEFINED
         //
         // Concerns:
-        //: 1 Ensure that exactly one object file format '#define' is defined.
+        // 1. Ensure that exactly one object file format `#define` is defined.
         //
         // Plan:
-        //: 1 Increment a count once for each object file format #define and
-        //:   then verify it's been incremented once.  (C-1)
+        // 1. Increment a count once for each object file format #define and
+        //    then verify it's been incremented once.  (C-1)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "UNIQUE '#define' DEFINED" << endl
+                          << "UNIQUE `#define` DEFINED" << endl
                           << "========================" << endl;
 
         int count = 0;
@@ -293,14 +293,14 @@ int main(int argc, char *argv[])
         // RESOLVER
         //
         // Concern:
-        //: 1 That that 'RESOLVER' identifiers, when defined, have the value
-        //:   '1', that they are appropriate for the platform, and that never
-        //:   are there more than one defined at a time.
+        // 1. That that `RESOLVER` identifiers, when defined, have the value
+        //    '1', that they are appropriate for the platform, and that never
+        //    are there more than one defined at a time.
         //
         // Plan:
-        //: 1 For each platform set, check that the appropriate object file
-        //:   format '#define' is defined, the others are not, and that the
-        //:   '#define' that is defined evaluates to '1'.  (C-1)
+        // 1. For each platform set, check that the appropriate object file
+        //    format `#define` is defined, the others are not, and that the
+        //    `#define` that is defined evaluates to '1'.  (C-1)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl

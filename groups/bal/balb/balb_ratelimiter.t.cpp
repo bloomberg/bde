@@ -22,29 +22,29 @@ using namespace bsl;
 // The component under test implements a mechanism.
 //
 // Class Methods:
-//: o 'supportsRateLimitsExactly'
+//  - `supportsRateLimitsExactly`
 //
 // Primary Manipulators:
-//: o 'setRateLimits'
+//  - `setRateLimits`
 //
 // Basic Accessors:
-//: o 'peakRateLimit'
-//: o 'sustainedRateLimit'
-//: o 'peakRateWindow'
-//: o 'sustainedRateWindow'
-//: o 'lastUpdateTime'
-//: o 'unitsReserved'
+//  - `peakRateLimit`
+//  - `sustainedRateLimit`
+//  - `peakRateWindow`
+//  - `sustainedRateWindow`
+//  - `lastUpdateTime`
+//  - `unitsReserved`
 //
 // This class also provides a value constructor capable of creating an object
 // having any parameters.
 //
 // Global Concerns:
-//: o ACCESSOR methods are declared 'const'.
-//: o CREATOR & MANIPULATOR pointer/reference parameters are declared 'const'.
-//: o Precondition violations are detected in appropriate build modes.
+//  - ACCESSOR methods are declared `const`.
+//  - CREATOR & MANIPULATOR pointer/reference parameters are declared `const`.
+//  - Precondition violations are detected in appropriate build modes.
 //
 // Global Assumptions:
-//: o ACCESSOR methods are 'const' thread-safe.
+//  - ACCESSOR methods are `const` thread-safe.
 //-----------------------------------------------------------------------------
 //
 // CREATORS
@@ -76,8 +76,8 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [13] USAGE EXAMPLE
-// [ 3] All accessor methods are declared 'const'.
-// [ *] All creator/manipulator ptr./ref. parameters are 'const'.
+// [ 3] All accessor methods are declared `const`.
+// [ *] All creator/manipulator ptr./ref. parameters are `const`.
 //=============================================================================
 
 //=============================================================================
@@ -133,7 +133,7 @@ static void aSsErT(int c, const char *s, int i)
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
+#define P_(X) cout << #X " = " << (X) << ", " << flush; // `P(X)` without '\n'
 #define T_ cout << "\t" << flush;             // Print tab w/o newline.
 #define L_ __LINE__                           // current Line number
 
@@ -167,20 +167,20 @@ typedef unsigned int        uint;
 // Suppose that we want to send data over a network interface with the load
 // spike limitations explained below:
 //
-//: o The long term average rate of resource usage (i.e., the sustained rate)
-//:   should not exceed 1024 bytes/s ('Rs').
-//:
-//: o The period over which to monitor the long term average rate (i.e., the
-//:   sustained-rate time-window) should be 0.5s ('Wp').
-//:
-//: o The peak resource usage (i.e., the peak rate) should not exceed 2048
-//:   bytes/s ('Rp').
-//:
-//: o The period over which to monitor the peak resource usage should be
-//:   0.0625s (Wp).
+//  - The long term average rate of resource usage (i.e., the sustained rate)
+//    should not exceed 1024 bytes/s (`Rs`).
+//
+//  - The period over which to monitor the long term average rate (i.e., the
+//    sustained-rate time-window) should be 0.5s (`Wp`).
+//
+//  - The peak resource usage (i.e., the peak rate) should not exceed 2048
+//    bytes/s (`Rp`).
+//
+//  - The period over which to monitor the peak resource usage should be
+//    0.0625s (Wp).
 //
 // This is shown in Figure 2 below.
-//..
+// ```
 // Fig. 2:
 //
 //     ^ Rate (Units per second)
@@ -196,31 +196,31 @@ typedef unsigned int        uint;
 //     |                                           .
 //      --------------------------------------------->
 //                                         T (seconds)
-//..
+// ```
 // Notice that we can understand the limitations imposed by the rate-limiter
-// graphically as the maximum area above the respective lines, 'Rp' and 'Rs',
+// graphically as the maximum area above the respective lines, `Rp` and `Rs`,
 // that the usage curve to allowed to achieve.  In the example above:
 //
-//  o The area above the sustained rate 'Rs' (e.g., 'A1' or 'A2+B') should
+//  o The area above the sustained rate `Rs` (e.g., `A1` or `A2+B`) should
 //    contain no more than 512 bytes.
 //
-//  o The area above the peak rate 'Rp' should contain no more than 128 bytes.
+//  o The area above the peak rate `Rp` should contain no more than 128 bytes.
 //
-// Further suppose that we have a function, 'sendData', that transmits a
+// Further suppose that we have a function, `sendData`, that transmits a
 // specified amount of data over that network:
-//..
+// ```
 bool sendData(bsl::size_t dataSize)
-      // Send a specified 'dataSize' amount of data over the network.
-      // Return 'true' if data was sent successfully and 'false' otherwise.
+      // Send a specified `dataSize` amount of data over the network.
+      // Return `true` if data was sent successfully and `false` otherwise.
 {
     (void)(dataSize);
-//..
-// For simplicity, 'sendData' will not actually send any data and will always
-// return 'true'.
-//..
+// ```
+// For simplicity, `sendData` will not actually send any data and will always
+// return `true`.
+// ```
     return true;
 }
-//..
+// ```
 
 //=============================================================================
 //                                 MAIN PROGRAM
@@ -244,7 +244,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters and replace 'assert' with 'ASSERT'.
+        //   comment characters and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -254,11 +254,11 @@ int main(int argc, char *argv[])
                           << "TESTING USAGE EXAMPLE" << endl
                           << "=====================" << endl;
 
-// First, we create a 'RateLimiter' object having a sustained rate of 1024
+// First, we create a `RateLimiter` object having a sustained rate of 1024
 // bytes/s, a sustained-rate time-window of 0.5s (512 bytes / 1024 bytes/s),
 // a peak-rate of 2048 bytes/s, and a peak-rate time-window of 0.0625s
 // (128 bytes / 2048 bytes/s):
-//..
+// ```
    bsls::Types::Uint64 sustainedRateLimit = 1024;
    bsls::TimeInterval  sustainedRateWindow(0.5);
    bsls::Types::Uint64 peakRateLimit = 2048;
@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
                                   peakRateLimit,
                                   peakRateWindow,
                                   now);
-//..
+// ```
 // Note that the rate limiter does not prevent the rate at any instant from
 // exceeding either the peak-rate or the sustained rate; instead, it prevents
 // the average rate over the peak-rate time-window from exceeding maximum
@@ -279,17 +279,17 @@ int main(int argc, char *argv[])
 //
 // Then, we define the size of data to be send, the size of each data chunk,
 // and a counter of data actually sent:
-//..
+// ```
    bsl::size_t sizeOfData = 10 * 1024; // in bytes
    bsl::size_t chunkSize  = 64;        // in bytes
    bsl::size_t bytesSent  = 0;
-//..
+// ```
 // Now, we send the chunks of data using a loop.  For each iteration, we check
 // whether submitting another byte would exceed the rate limiter's bandwidth
 // limits.  If not, we send an additional chunk of data and submit the number
-// of bytes sent to the leaky bucket.  Note that 'submit' is invoked only after
+// of bytes sent to the leaky bucket.  Note that `submit` is invoked only after
 // the data has been sent.
-//..
+// ```
     while (bytesSent < sizeOfData) {
         now = bdlt::CurrentTime::now();
         if (!rateLimiter.wouldExceedBandwidth(now)) {
@@ -298,11 +298,11 @@ int main(int argc, char *argv[])
                 bytesSent += chunkSize;
             }
         }
-//..
+// ```
 // Finally, if submitting another byte will cause the rate limiter to exceed
 // its bandwidth limits, then we wait until the submission will be allowed by
-// waiting for an amount time returned by the 'calculateTimeToSubmit' method:
-//..
+// waiting for an amount time returned by the `calculateTimeToSubmit` method:
+// ```
         else {
             bsls::TimeInterval  timeToSubmit =
                                         rateLimiter.calculateTimeToSubmit(now);
@@ -311,29 +311,29 @@ int main(int argc, char *argv[])
             bslmt::ThreadUtil::microSleep(static_cast<int>(uS));
         }
     }
-//..
+// ```
 // Notice that we wait by putting the thread into a sleep state instead of
 // using busy-waiting to better optimize for multi-threaded applications.
-//..
+// ```
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'cancelReserved'
+        // CLASS METHOD `cancelReserved`
         //
         // Concerns:
-        //: 1 The method decrements the number of 'unitsReserved'.
-        //:
-        //: 2 The method does not submit units.
-        //:
-        //: 3 The method correctly handles the case, when 'numOfUnits' is
-        //:  greater than the number of 'unitsReserved'.
+        // 1. The method decrements the number of `unitsReserved`.
+        //
+        // 2. The method does not submit units.
+        //
+        // 3. The method correctly handles the case, when `numOfUnits` is
+        //   greater than the number of `unitsReserved`.
         //
         // Testing:
         //   void cancelReserved(bsls::Types::Uint64 numOfUnits)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "CLASS METHOD 'cancelReserved'" << endl
+                          << "CLASS METHOD `cancelReserved`" << endl
                           << "=============================" << endl;
 
         const Uint64 S_RATE = 1000;
@@ -431,24 +431,24 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'reset'
+        // CLASS METHOD `reset`
         //
         // Concerns:
-        //: 1 The object parameters are not affected by the 'reset'
-        //:    method.
-        //:
-        //: 2 The object state is set to initial state and 'lastUpdateTime'
-        //:   is recorded correctly when 'reset' is invoked
-        //:
-        //: 3 'reset' method invokes 'resetStatistics' method and
-        //:   'statisticsCollectionStartTime' is updated
+        // 1. The object parameters are not affected by the `reset`
+        //     method.
+        //
+        // 2. The object state is set to initial state and `lastUpdateTime`
+        //    is recorded correctly when `reset` is invoked
+        //
+        // 3. `reset` method invokes `resetStatistics` method and
+        //    `statisticsCollectionStartTime` is updated
         //
         // Testing:
         //   void reset(const bsls::TimeInterval& currentTime);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "CLASS METHOD 'reset'" << endl
+                          << "CLASS METHOD `reset`" << endl
                           << "====================" << endl;
 
         Uint64 usedUnits       = 0;
@@ -509,23 +509,23 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'resetStatistics'
+        // CLASS METHOD `resetStatistics`
         //
         // Concerns:
-        //: 1 'resetStatistics' resets unit statistics counter to 0.
-        //:
-        //: 2 'resetStatistics' updates 'statisticsCollectionStartTime' time
-        //:    correctly.
-        //:
-        //: 3 'resetStatistics' does not alter object state except for
-        //:   submitted units counter and 'lastReset' time.
+        // 1. `resetStatistics` resets unit statistics counter to 0.
+        //
+        // 2. `resetStatistics` updates `statisticsCollectionStartTime` time
+        //     correctly.
+        //
+        // 3. `resetStatistics` does not alter object state except for
+        //    submitted units counter and `lastReset` time.
         //
         // Testing:
         //   void resetStatistics();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "CLASS METHOD 'resetStatistics'" << endl
+                          << "CLASS METHOD `resetStatistics`" << endl
                           << "==========================" << endl;
 
         Uint64 usedUnits       = 0;
@@ -575,28 +575,28 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'getStatistics'
+        // CLASS METHOD `getStatistics`
         //
         // Concerns:
-        //: 1 'getStatistics' returns 0 for a new object, created by value
-        //:   CTOR.
-        //:
-        //: 2 'getStatistics' returns correct numbers of used and unused units
-        //:   (the calculation is base upon the sustained rate sustained rate
-        //:   after a sequence of 'submit' and 'updateState' calls.
-        //:
-        //: 3 Specifying invalid parameters for 'getStatistics()' causes
-        //:   certain behavior in special build configuration.
-        //:
-        //: 4 Statistics is calculated for interval between
-        //:   'statisticsCollectionStartTime' and 'lastUpdateTime'
+        // 1. `getStatistics` returns 0 for a new object, created by value
+        //    CTOR.
+        //
+        // 2. `getStatistics` returns correct numbers of used and unused units
+        //    (the calculation is base upon the sustained rate sustained rate
+        //    after a sequence of `submit` and `updateState` calls.
+        //
+        // 3. Specifying invalid parameters for `getStatistics()` causes
+        //    certain behavior in special build configuration.
+        //
+        // 4. Statistics is calculated for interval between
+        //    `statisticsCollectionStartTime` and `lastUpdateTime`
         //
         // Testing:
         //   void getStatistics(*submittedUnits, *unusedUnits) const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "CLASS METHOD 'getStatistics'" << endl
+                          << "CLASS METHOD `getStatistics`" << endl
                           << "============================" << endl;
 
         Uint64 usedUnits   = 0;
@@ -712,26 +712,26 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'updateState'
+        // CLASS METHOD `updateState`
         //
         // Concerns:
-        //: 1 The method updates 'lastUpdateTime'.
-        //:
-        //: 2 The method udpdates 'lastUpdateTime' if the specified
-        //:   'currentTime' precedes 'lastUpdateTime'.
-        //:
-        //: 3 The method does not affect 'statisticsCollectionStartTime' if
-        //:   time does not go backwards.
-        //:
-        //: 4 The method updates 'statisticsCollectionStartTime', if
-        //:   'lastUpdateTime' precedes 'statisticsCollectionStartTime'.
+        // 1. The method updates `lastUpdateTime`.
+        //
+        // 2. The method udpdates `lastUpdateTime` if the specified
+        //    `currentTime` precedes `lastUpdateTime`.
+        //
+        // 3. The method does not affect `statisticsCollectionStartTime` if
+        //    time does not go backwards.
+        //
+        // 4. The method updates `statisticsCollectionStartTime`, if
+        //    `lastUpdateTime` precedes `statisticsCollectionStartTime`.
         //
         // Testing:
         //   void updateState(const bsls::TimeInterval& currentTime);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "CLASS METHOD 'updateState'" << endl
+                          << "CLASS METHOD `updateState`" << endl
                           << "==========================" << endl;
 
         Obj x(10, Ti(10), 100, Ti(1), Ti(10));
@@ -752,26 +752,26 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'wouldExceedBandwidth', 'calculateTimeToSubmit'.
+        // CLASS METHOD `wouldExceedBandwidth`, `calculateTimeToSubmit`.
         //
         // Concerns:
-        //: 1 'wouldExceedBandwidth' returns true when peak rate limit is
-        //:   exceeded.
-        //:
-        //: 2 'wouldExceedBandwidth' returns true, when sustained rate limit is
-        //:   exceeded.
-        //:
-        //: 3 'wouldExceedBandwidth' returns false, if load does not exceed
-        //:   both limits.
-        //:
-        //: 4 'calculateTimeToSubmit' returns a non-zero interval when
-        //:   'wouldExceedBandwidth' returns true.
-        //:
-        //: 5 'calculateTimeToSubmit' returns a zero interval when
-        //:   'wouldExceedBandwidth' returns false.
-        //:
-        //: 6 After waiting for the time interval, returned by
-        //:   'calculateTimeToSubmit' 'wouldExceedBandwidth' returns false.
+        // 1. `wouldExceedBandwidth` returns true when peak rate limit is
+        //    exceeded.
+        //
+        // 2. `wouldExceedBandwidth` returns true, when sustained rate limit is
+        //    exceeded.
+        //
+        // 3. `wouldExceedBandwidth` returns false, if load does not exceed
+        //    both limits.
+        //
+        // 4. `calculateTimeToSubmit` returns a non-zero interval when
+        //    `wouldExceedBandwidth` returns true.
+        //
+        // 5. `calculateTimeToSubmit` returns a zero interval when
+        //    `wouldExceedBandwidth` returns false.
+        //
+        // 6. After waiting for the time interval, returned by
+        //    `calculateTimeToSubmit` `wouldExceedBandwidth` returns false.
         //
         // Testing:
         //   bsls::TimeInterval wouldExceedBandwidth(currentTime);
@@ -780,7 +780,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
          cout << endl
-              << "CLASS METHOD 'wouldExceedBandwidth', 'calculateTimeToSubmit'"
+              << "CLASS METHOD `wouldExceedBandwidth`, `calculateTimeToSubmit`"
               << endl
               << "============================================================"
               << endl;
@@ -860,41 +860,41 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'setRateLimits'
+        // CLASS METHOD `setRateLimits`
         //
         // Concerns:
-        //: 1 The method sets the specified time windows intervals for peak and
-        //:   sustained rate.
-        //:
-        //: 2 The method sets the specified peak and sustained rate.
-        //:
-        //: 3 Specifying wrong parameters for 'setRateLimits' parameters causes
-        //:   certain behavior in special build configuration.
-        //:
-        //: 4 The 'sustainedRateWindow' is set to the interval, it takes to
-        //:   drain the rounded down number of units, that may be drained at
-        //:   the 'sustainedRateLimit' during the 'sustainedRateWindow',
-        //:   specified for the CTOR.
-        //:
-        //: 5 The 'sustainedRateWindow' is set to the interval, it takes to
-        //:   drain the rounded down number of units, that may be drained at
-        //:   the 'sustainedRateLimit' during the 'sustainedRateWindow',
-        //:   specified for the CTOR.
-        //:
-        //: 6 If the 'sustainedRateWindow', specified for CTOR is less than the
-        //:   interval, required to drain 1 unit at sustainedRateLimit',
-        //:   'sustainedRateWindow' is set to this interval.
-        //:
-        //: 7 The 'supportsRateLimitsExactly' method reports 'false' for
-        //:   unsupported arguments and when a requested window cannot be
-        //:   exactly supported.
+        // 1. The method sets the specified time windows intervals for peak and
+        //    sustained rate.
+        //
+        // 2. The method sets the specified peak and sustained rate.
+        //
+        // 3. Specifying wrong parameters for `setRateLimits` parameters causes
+        //    certain behavior in special build configuration.
+        //
+        // 4. The `sustainedRateWindow` is set to the interval, it takes to
+        //    drain the rounded down number of units, that may be drained at
+        //    the `sustainedRateLimit` during the `sustainedRateWindow`,
+        //    specified for the CTOR.
+        //
+        // 5. The `sustainedRateWindow` is set to the interval, it takes to
+        //    drain the rounded down number of units, that may be drained at
+        //    the `sustainedRateLimit` during the `sustainedRateWindow`,
+        //    specified for the CTOR.
+        //
+        // 6. If the `sustainedRateWindow`, specified for CTOR is less than the
+        //    interval, required to drain 1 unit at sustainedRateLimit',
+        //    `sustainedRateWindow` is set to this interval.
+        //
+        // 7. The `supportsRateLimitsExactly` method reports `false` for
+        //    unsupported arguments and when a requested window cannot be
+        //    exactly supported.
         //
         // Testing:
         //   void setRateLimits(sR, sRW, pR, pRW, currentTime);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING: 'setRateLimits'" << endl
+                          << "TESTING: `setRateLimits`" << endl
                           << "========================" << endl;
 
         const Uint64 BIG_VAL       = 0xFFFFFFFFULL * 2;
@@ -994,23 +994,23 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'reserve', 'unitsReserved', 'submitReserved'
+        // CLASS METHOD `reserve`, `unitsReserved`, `submitReserved`
         //
         // Concerns:
-        //: 1 'reserve' increments 'unitsReserved'.
-        //:
-        //: 2 'unitsReserved' returns number of units currently reserved.
-        //:
-        //: 3 'submitReserved' decrements 'unitsReserved' and submits units.
-        //:
-        //: 4 'submitReserved' may submit more units, than there are actually
-        //:   reserved.
-        //:
-        //: 5 Specifying wrong parameters to 'reserve' causes certain behavior
-        //:   in special build configuration.
-        //:
-        //: 6 Specifying wrong parameters to 'submitReserved' causes certain
-        //:   behavior in special build configuration.
+        // 1. `reserve` increments `unitsReserved`.
+        //
+        // 2. `unitsReserved` returns number of units currently reserved.
+        //
+        // 3. `submitReserved` decrements `unitsReserved` and submits units.
+        //
+        // 4. `submitReserved` may submit more units, than there are actually
+        //    reserved.
+        //
+        // 5. Specifying wrong parameters to `reserve` causes certain behavior
+        //    in special build configuration.
+        //
+        // 6. Specifying wrong parameters to `submitReserved` causes certain
+        //    behavior in special build configuration.
         //
         // Testing:
         //      void reserve(bsls::Types::Uint64 numOfUnits);
@@ -1020,7 +1020,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "TESTING: 'reserve', 'unitsReserved', 'submitReserved'"
+                 << "TESTING: `reserve`, `unitsReserved`, `submitReserved`"
                  << endl
                  << "====================================================="
                  << endl;
@@ -1140,14 +1140,14 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // 'submit', 'wouldExceedBandwidth', 'calculateTimeToSubmit'
+        // `submit`, `wouldExceedBandwidth`, `calculateTimeToSubmit`
         //
         // Concerns:
-        //: 1 'wouldExceedBandwidth' has the same behavior, when compared to
-        //:    the pair of 'balb::LeakyBucket' objects.
-        //:
-        //: 2 Specifying wrong parameters to 'submit' causes certain behavior
-        //:   in special build configuration.
+        // 1. `wouldExceedBandwidth` has the same behavior, when compared to
+        //     the pair of `balb::LeakyBucket` objects.
+        //
+        // 2. Specifying wrong parameters to `submit` causes certain behavior
+        //    in special build configuration.
         //
         // Testing:
         //   void submit(unsigned int numOfUnits);
@@ -1156,9 +1156,9 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "'submit', 'wouldExceedBandwidth', calculateTimeToSubmit'"
+                 << "`submit`, `wouldExceedBandwidth`, `calculateTimeToSubmit`"
                  << endl
-                 << "========================================================"
+                 << "========================================================="
                  << endl;
 
         struct {
@@ -1184,7 +1184,7 @@ int main(int argc, char *argv[])
 
         const int NUM_DATA = sizeof(DATA)/sizeof(*DATA);
 
-        if (verbose) cout << endl << "Testing: 'wouldExceedBandwidth'"
+        if (verbose) cout << endl << "Testing: `wouldExceedBandwidth`"
                           << endl;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -1235,7 +1235,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout << endl
-                          << "Testing: 'calculateTimeToSubmit'" << endl;
+                          << "Testing: `calculateTimeToSubmit`" << endl;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
 
@@ -1317,21 +1317,21 @@ int main(int argc, char *argv[])
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 Each accessor returns the value of the corresponding attribute
-        //:   of the object.
-        //:
-        //: 2 Each accessor method is declared 'const'.
+        // 1. Each accessor returns the value of the corresponding attribute
+        //    of the object.
+        //
+        // 2. Each accessor method is declared `const`.
         //
         // Plan:
-        //: 1 Create an object using the value constructor.  Verify that each
-        //:   basic accessor, invoked on a reference providing non-modifiable
-        //:   access to the object, returns the expected value.  (C-2)
-        //:
-        //: 2 Create another object using the value constructor having a
-        //:   different value for each attribute compared to a default
-        //:   constructed object.  Verify that each basic accessor, invoked on
-        //:   a reference providing non-modifiable access to the object,
-        //:   returns the expected value.  (C-1)
+        // 1. Create an object using the value constructor.  Verify that each
+        //    basic accessor, invoked on a reference providing non-modifiable
+        //    access to the object, returns the expected value.  (C-2)
+        //
+        // 2. Create another object using the value constructor having a
+        //    different value for each attribute compared to a default
+        //    constructed object.  Verify that each basic accessor, invoked on
+        //    a reference providing non-modifiable access to the object,
+        //    returns the expected value.  (C-1)
         //
         // Testing:
         //   bsls::Types::Uint64 peakRateLimit() const;
@@ -1381,40 +1381,40 @@ int main(int argc, char *argv[])
         //   for thorough testing.
         //
         // Concerns:
-        //: 1 The value constructor can create an object having any value that
-        //:   does not violate the constructor's documented preconditions.
-        //:
-        //: 2 The capacity of a underlying leaky bucket is set to the
-        //:   rounded-down product of 'sustainedRateWindow' and
-        //:   'sustainedRateLimit'.  As a result, the 'sustainedRateLimit'
-        //:   retrieved from an object's accessor may be one less than the
-        //:   original specified value.
-        //:
-        //: 3 If less than one unit is transmitted during the specified
-        //:   'sustainedRateWindow' at 'sustainedRateLimit' then
-        //:   'sustainRateWindow' will be set to the time period during which 1
-        //:   unit is transmitted.
-        //:
-        //: 4 The capacity of a underlying leaky bucket is set to the
-        //:   rounded-down product of 'peakRateWindow' and 'peakRateLimit'.  As
-        //:   a result, the 'peakRateLimit' retrieved from an object's accessor
-        //:   may be one less than the original specified value.
-        //:
-        //: 5 If less than one unit is transmitted during the specified
-        //:   'peakRateWindow' at 'peakRateLimit' then 'sustainRateWindow' will
-        //:   be set to the time period during which 1 unit is transmitted.
-        //:
-        //: 6 QoI: Assert preconditions violations are detected when enabled.
+        // 1. The value constructor can create an object having any value that
+        //    does not violate the constructor's documented preconditions.
+        //
+        // 2. The capacity of a underlying leaky bucket is set to the
+        //    rounded-down product of `sustainedRateWindow` and
+        //    `sustainedRateLimit`.  As a result, the `sustainedRateLimit`
+        //    retrieved from an object's accessor may be one less than the
+        //    original specified value.
+        //
+        // 3. If less than one unit is transmitted during the specified
+        //    `sustainedRateWindow` at `sustainedRateLimit` then
+        //    `sustainRateWindow` will be set to the time period during which 1
+        //    unit is transmitted.
+        //
+        // 4. The capacity of a underlying leaky bucket is set to the
+        //    rounded-down product of `peakRateWindow` and `peakRateLimit`.  As
+        //    a result, the `peakRateLimit` retrieved from an object's accessor
+        //    may be one less than the original specified value.
+        //
+        // 5. If less than one unit is transmitted during the specified
+        //    `peakRateWindow` at `peakRateLimit` then `sustainRateWindow` will
+        //    be set to the time period during which 1 unit is transmitted.
+        //
+        // 6. QoI: Assert preconditions violations are detected when enabled.
         //
         // Plan:
-        //: 2 Use a table driven test, for a set of varied possible attributes,
-        //:   to invoke the value constructor and verify the values of the
-        //:   resulting objects.  (C-1..5)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-6)
+        // 2. Use a table driven test, for a set of varied possible attributes,
+        //    to invoke the value constructor and verify the values of the
+        //    resulting objects.  (C-1..5)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-6)
         //
         // Testing:
         //   RateLimiter(sR, sRW, pR, pRW, currentTime);

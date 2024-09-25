@@ -10,7 +10,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
-#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstdlib.h>     // `atoi`
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -130,13 +130,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -153,72 +153,72 @@ int main(int argc, char *argv[])
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
-// 'bbldc::CalendarDayCountUtil' methods.  First, create two 'bdlt::Date'
-// variables, 'd1' and 'd2':
-//..
+// `bbldc::CalendarDayCountUtil` methods.  First, create two `bdlt::Date`
+// variables, `d1` and `d2`:
+// ```
     const bdlt::Date d1(2003, 10, 19);
     const bdlt::Date d2(2003, 12, 31);
-//..
-// Then, create a 'calendar' with a valid range spanning 2003 and typical
+// ```
+// Then, create a `calendar` with a valid range spanning 2003 and typical
 // weekend days:
-//..
+// ```
     bdlt::Calendar calendar;
     calendar.setValidRange(bdlt::Date(2003, 1, 1), bdlt::Date(2003, 12, 31));
     calendar.addWeekendDay(bdlt::DayOfWeek::e_SUN);
     calendar.addWeekendDay(bdlt::DayOfWeek::e_SAT);
-//..
-// Now, compute the day count between 'd1' and 'd2' according to the BUS-252
+// ```
+// Now, compute the day count between `d1` and `d2` according to the BUS-252
 // day-count convention:
-//..
+// ```
     const int daysDiff = bbldc::CalendarDayCountUtil::daysDiff(
                                 d1,
                                 d2,
                                 calendar,
                                 bbldc::DayCountConvention::e_CALENDAR_BUS_252);
     ASSERT(52 == daysDiff);
-//..
+// ```
 // Finally, compute the year fraction between the two dates according to the
 // BUS-252 day-count convention:
-//..
+// ```
     const double yearsDiff = bbldc::CalendarDayCountUtil::yearsDiff(
                                 d1,
                                 d2,
                                 calendar,
                                 bbldc::DayCountConvention::e_CALENDAR_BUS_252);
-    // Need fuzzy comparison since 'yearsDiff' is a 'double'.
+    // Need fuzzy comparison since `yearsDiff` is a `double`.
     ASSERT(0.2063 < yearsDiff && 0.2064 > yearsDiff);
-//..
+// ```
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'yearsDiff'
+        // TESTING `yearsDiff`
         //   Verify the method correctly computes the number of years between
         //   two dates for the provided convention.
         //
         // Concerns:
-        //: 1 The 'yearsDiff' method produces the correct results for the
-        //:   provided convention.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The `yearsDiff` method produces the correct results for the
+        //    provided convention.
+        //
+        // 2. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Specify two calendars, CA and CB, and a set S of {convention C,
-        //:   pairs of dates (d1, d2), their difference in years DA for CA, and
-        //:   their difference in years DB for CB}.  For the method under test,
-        //:   in a loop over the elements of S, apply the method to dates
-        //:   having the values d1 and d2 using convention C and confirm, with
-        //:   a fuzzy comparison (since the return value is a floating-point
-        //:   number), the method's results using the value DA for calendar CA
-        //:   and DB for calendar CB.  (C-1)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
+        // 1. Specify two calendars, CA and CB, and a set S of {convention C,
+        //    pairs of dates (d1, d2), their difference in years DA for CA, and
+        //    their difference in years DB for CB}.  For the method under test,
+        //    in a loop over the elements of S, apply the method to dates
+        //    having the values d1 and d2 using convention C and confirm, with
+        //    a fuzzy comparison (since the return value is a floating-point
+        //    number), the method's results using the value DA for calendar CA
+        //    and DB for calendar CB.  (C-1)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //   double yearsDiff(beginDate, endDate, calendar, convention);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'yearsDiff'" << endl
+                          << "TESTING `yearsDiff`" << endl
                           << "===================" << endl;
 
         {
@@ -231,8 +231,8 @@ int main(int argc, char *argv[])
                 int    d_year2;      // endDate year
                 int    d_month2;     // endDate month
                 int    d_day2;       // endDate day
-                double d_numYearsA;  // result # of years for calendar 'CA'
-                double d_numYearsB;  // result # of years for calendar 'CB'
+                double d_numYearsA;  // result # of years for calendar `CA`
+                double d_numYearsB;  // result # of years for calendar `CB`
             } DATA[] = {
 //                          - - first - -   - - second - -
 //line  type                year  mon  day  year  mon  day    YA      YB
@@ -349,33 +349,33 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'daysDiff'
+        // TESTING `daysDiff`
         //   Verify the method correctly computes the number of days between
         //   two dates for the provided convention.
         //
         // Concerns:
-        //: 1 The 'daysDiff' method produces the correct results for the
-        //:   provided convention.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The `daysDiff` method produces the correct results for the
+        //    provided convention.
+        //
+        // 2. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Specify two calendars, CA and CB, and a set S of {convention C,
-        //:   pairs of dates (d1, d2), their difference in days DA for CA, and
-        //:   their difference in days DB for CB}.  For the method under test,
-        //:   in a loop over the elements of S, apply the method to dates
-        //:   having the values d1 and d2 using convention C and confirm the
-        //:   method's results using the value DA for calendar CA and DB for
-        //:   calendar CB.  (C-1)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
+        // 1. Specify two calendars, CA and CB, and a set S of {convention C,
+        //    pairs of dates (d1, d2), their difference in days DA for CA, and
+        //    their difference in days DB for CB}.  For the method under test,
+        //    in a loop over the elements of S, apply the method to dates
+        //    having the values d1 and d2 using convention C and confirm the
+        //    method's results using the value DA for calendar CA and DB for
+        //    calendar CB.  (C-1)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //   int daysDiff(beginDate, endDate, calendar, convention);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'daysDiff'" << endl
+                          << "TESTING `daysDiff`" << endl
                           << "==================" << endl;
 
         {
@@ -388,8 +388,8 @@ int main(int argc, char *argv[])
                 int  d_year2;     // endDate year
                 int  d_month2;    // endDate month
                 int  d_day2;      // endDate day
-                int  d_numDaysA;  // result # of years for calendar 'CA'
-                int  d_numDaysB;  // result # of years for calendar 'CB'
+                int  d_numDaysA;  // result # of years for calendar `CA`
+                int  d_numDaysB;  // result # of years for calendar `CB`
             } DATA[] = {
 //                          - - first - -   - - second - -
 //line  type                year  mon  day  year  mon  day  DA  DB
@@ -498,23 +498,23 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'isSupported'
+        // TESTING `isSupported`
         //   Verify the method correctly indicates whether or not the provided
         //   convention is supported by this component.
         //
         // Concerns:
-        //: 1 The 'isSupported' method produces the correct results for the
-        //:   provided convention.
+        // 1. The `isSupported` method produces the correct results for the
+        //    provided convention.
         //
         // Plan:
-        //: 1 Directly test the return value of the method.  (C-1)
+        // 1. Directly test the return value of the method.  (C-1)
         //
         // Testing:
         //   bool isSupported(convention);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'isSupported'" << endl
+                          << "TESTING `isSupported`" << endl
                           << "=====================" << endl;
 
         for (int i = 0; i < 1000; ++i) {

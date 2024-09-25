@@ -15,8 +15,8 @@
 
 #include <cstddef>      // std::size_t
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 #ifdef BSLS_PLATFORM_CMP_MSVC  // Microsoft Compiler
 #ifdef _MSC_EXTENSIONS         // Microsoft Extensions Enabled
@@ -152,14 +152,14 @@ typedef void (*DeleteFunction)(MyTestObject *);
                           // class MyBslTestAllocator
                           // ========================
 
+/// This class meets enough of the standard `Allocator` requirements in
+/// order to test the out-of-place creation apparatus with such allocators
+/// that are convertible from `bslma::Allocator *` (e.g. `bsl::allocator`).
 template <class TYPE>
 class MyBslTestAllocator {
-    // This class meets enough of the standard 'Allocator' requirements in
-    // order to test the out-of-place creation apparatus with such allocators
-    // that are convertible from 'bslma::Allocator *' (e.g. 'bsl::allocator').
 
     BSLMF_ASSERT((!bsl::is_same<TYPE, void>::value));
-        // 'Allocator' implementations with a 'void' 'value_type' have to
+        // `Allocator` implementations with a `void` `value_type` have to
         // provide a different interface.  Support for this is not necessary
         // for this test driver.
 
@@ -247,9 +247,10 @@ void MyBslTestAllocator<TYPE>::destroy(ELEMENT_TYPE *address)
                          // ==================
                          // class MyTestObject
                          // ==================
+
+/// This class provides an implementation for `bslma::SharedPtrRep` so that
+/// it can be initialized and tested.
 class MyTestObject {
-    // This class provides an implementation for 'bslma::SharedPtrRep' so that
-    // it can be initialized and tested.
 
     // DATA
     int        d_data;
@@ -289,21 +290,21 @@ int MyTestObject::d_deleteCounter = 0;
                          // struct MyDeleteFunctor
                          // ======================
 
+/// This `struct` provides an `operator()` that can be used to delete a
+/// `MyTestObject` object.
 struct MyDeleteFunctor {
-    // This 'struct' provides an 'operator()' that can be used to delete a
-    // 'MyTestObject' object.
 
   public:
     void operator()(MyTestObject *object)
     {
-        // Destroy the specified 'object'.
+        // Destroy the specified `object`.
         delete object;
     }
 };
 
 void myDeleteFunction(MyTestObject *object)
 {
-    // Delete the specified 'object'.
+    // Delete the specified `object`.
     delete object;
 }
 
@@ -311,11 +312,11 @@ void myDeleteFunction(MyTestObject *object)
                          // class MyAllocTestDeleter
                          // ========================
 
+/// This class provides a prototypical function-like deleter that takes a
+/// `bslma::Allocator` at construction.  It is used to check that the
+/// allocator used to construct the representation is passed correctly to
+/// the deleter.
 class MyAllocTestDeleter {
-    // This class provides a prototypical function-like deleter that takes a
-    // 'bslma::Allocator' at construction.  It is used to check that the
-    // allocator used to construct the representation is passed correctly to
-    // the deleter.
 
     // DATA
     bslma::Allocator *d_allocator_p;
@@ -375,7 +376,7 @@ MyAllocTestDeleter::~MyAllocTestDeleter()
 MyAllocTestDeleter& MyAllocTestDeleter::operator=(
                                                  const MyAllocTestDeleter& rhs)
 {
-    ASSERT(0 == "'MyAllocTestDeleter::operator=' should not be used.");
+    ASSERT(0 == "`MyAllocTestDeleter::operator=` should not be used.");
     d_deleter_p = rhs.d_deleter_p;
     return *this;
 }
@@ -448,7 +449,7 @@ MyAllocArgTestDeleter::MyAllocArgTestDeleter(
 , d_deleter_p(original.d_deleter_p)
 , d_memory_p(d_allocator_p->allocate(13))
 {
-    ASSERT(0 == "'MyAllocArgTestDeleter::MyAllocArgTestDeleter(original)'"
+    ASSERT(0 == "`MyAllocArgTestDeleter::MyAllocArgTestDeleter(original)`"
                 " should not be used.");
 }
 
@@ -471,7 +472,7 @@ MyAllocArgTestDeleter::~MyAllocArgTestDeleter()
 MyAllocArgTestDeleter& MyAllocArgTestDeleter::operator=(
                                               const MyAllocArgTestDeleter& rhs)
 {
-    ASSERT(0 == "'MyAllocArgTestDeleter::operator=' should not be used.");
+    ASSERT(0 == "`MyAllocArgTestDeleter::operator=` should not be used.");
     d_deleter_p = rhs.d_deleter_p;
     return *this;
 }
@@ -557,7 +558,7 @@ MyBslAllocArgTestDeleter::MyBslAllocArgTestDeleter(
 , d_memory_p(d_allocator.allocate(13))
 {
     ASSERT(0 ==
-               "'MyBslAllocArgTestDeleter::MyBslAllocArgTestDeleter(original)'"
+               "`MyBslAllocArgTestDeleter::MyBslAllocArgTestDeleter(original)`"
                " should not be used.");
 }
 
@@ -580,7 +581,7 @@ MyBslAllocArgTestDeleter::~MyBslAllocArgTestDeleter()
 MyBslAllocArgTestDeleter& MyBslAllocArgTestDeleter::operator=(
                                                const MyBslAllocArgTestDeleter&)
 {
-    ASSERT(0 == "'MyBslAllocArgTestDeleter::operator=' should not be used.");
+    ASSERT(0 == "`MyBslAllocArgTestDeleter::operator=` should not be used.");
     return *this;
 }
 
@@ -599,13 +600,13 @@ class MyTestFactory {
     // MANIPULATORS
     MyTestObject *createObject()
     {
-        // Dynamically allocate a new 'MyTestObject'.
+        // Dynamically allocate a new `MyTestObject`.
         return new MyTestObject();
     }
 
     void deleteObject(MyTestObject *object)
     {
-        // Delete the specified 'object'.
+        // Delete the specified `object`.
         delete object;
     }
 };
@@ -617,7 +618,7 @@ class MyTestFactory {
 
 class MySharedDatetime {
     // This class provide a reference counted smart pointer to support shared
-    // ownership of a 'bdlt::Datetime' object.
+    // ownership of a `bdlt::Datetime` object.
 
   private:
     bdlt::Datetime      *d_ptr_p;  // pointer to the managed object
@@ -635,11 +636,11 @@ class MySharedDatetime {
         // Dereference the shared Datetime
 
     bdlt::Datetime *operator->() const;
-        // Return address of the modifiable 'bdlt::Datetime' referred to by
+        // Return address of the modifiable `bdlt::Datetime` referred to by
         // this class.
 
     bdlt::Datetime *ptr() const;
-        // Return address of the modifiable 'bdlt::Datetime' referred to by
+        // Return address of the modifiable `bdlt::Datetime` referred to by
         // this class.
 };
 
@@ -727,13 +728,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing: USAGE EXAMPLE
         // --------------------------------------------------------------------
@@ -761,14 +762,14 @@ int main(int argc, char *argv[])
         // TESTING CREATORS
         //
         // Concerns:
-        //: 1 Object is properly initialized, and can be properly destroyed
-        //:   when the last reference is released.
+        // 1. Object is properly initialized, and can be properly destroyed
+        //    when the last reference is released.
         //
         // Plan:
-        //: 1 Construct a 'bslma::SharedPtrOutofplaceRep' using each
-        //:   constructor overload, calling 'releaseRef' to remove the last
-        //:   reference.  Then check the deleter is called to destroy the
-        //:   object.
+        // 1. Construct a `bslma::SharedPtrOutofplaceRep` using each
+        //    constructor overload, calling `releaseRef` to remove the last
+        //    reference.  Then check the deleter is called to destroy the
+        //    object.
         //
         // Testing:
         //   SharedPtrOutofplaceRep<TYPE, DELETER> *makeOutofplaceRep(...);
@@ -925,35 +926,35 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'releaseRef' AND 'releaseWeakRef'
+        // TESTING `releaseRef` AND `releaseWeakRef`
         //   Note that this test is essentially reconfirming the base class
         //   implementation has not been broken by this derived class; these
         //   non-virtual methods should be fully tested already by the base
         //   class.
         //
         // Concerns:
-        //: 1 'releaseRef' and 'releaseWeakRef' decrement the reference count
-        //:   correctly.
-        //: 2 'disposeObject' is called when there is no shared reference.
-        //: 3 'disposeRep' is called only when there is no shared reference
-        //:   and no weak reference.
+        // 1. `releaseRef` and `releaseWeakRef` decrement the reference count
+        //    correctly.
+        // 2. `disposeObject` is called when there is no shared reference.
+        // 3. `disposeRep` is called only when there is no shared reference
+        //    and no weak reference.
         //
         // Plan:
-        //: 1 Call 'acquireRef' then 'releaseRef' and verify 'numReference' did
-        //:   not change.  Call 'acquireWeakRef' then 'releaseWeakRef' and
-        //:   verify 'numWeakReference' did not change.
-        //: 2 Call 'releaseRef' when there is only one reference remaining.
-        //:   Then verify that both 'disposeObject' and 'disposeRep' is called.
-        //: 3 Create another object and call 'acquireWeakRef' before calling
-        //:   'releaseRef'.  Verify that only 'disposeObject' is called.  Then
-        //:   call 'releaseWeakRef' and verify that 'disposeRep' is called.
+        // 1. Call `acquireRef` then `releaseRef` and verify `numReference` did
+        //    not change.  Call `acquireWeakRef` then `releaseWeakRef` and
+        //    verify `numWeakReference` did not change.
+        // 2. Call `releaseRef` when there is only one reference remaining.
+        //    Then verify that both `disposeObject` and `disposeRep` is called.
+        // 3. Create another object and call `acquireWeakRef` before calling
+        //    `releaseRef`.  Verify that only `disposeObject` is called.  Then
+        //    call `releaseWeakRef` and verify that `disposeRep` is called.
         //
         // Testing:
         //   void releaseRef();
         //   void releaseWeakRef();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'releaseRef' AND 'releaseWeakRef'"
+        if (verbose) printf("\nTESTING `releaseRef` AND `releaseWeakRef`"
                             "\n=========================================\n");
 
         numAllocations = ta.numAllocations();
@@ -984,7 +985,7 @@ int main(int argc, char *argv[])
             ASSERT(true == X.hasUniqueOwner());
 
             if (verbose) printf(
-                        "\nTesting 'releaseRef' with no weak reference'"
+                        "\nTesting `releaseRef` with no weak reference'"
                         "\n--------------------------------------------\n");
 
             x.releaseRef();
@@ -994,7 +995,7 @@ int main(int argc, char *argv[])
             ASSERT(numDeallocations == ta.numDeallocations());
         }
 
-        if (verbose) printf("\nTesting 'releaseRef' with weak reference'"
+        if (verbose) printf("\nTesting `releaseRef` with weak reference'"
                             "\n-----------------------------------------\n");
 
         {
@@ -1026,13 +1027,13 @@ int main(int argc, char *argv[])
         // TESTING BASIC CONSTRUCTOR
         //
         // Concerns:
-        //: 1 Object is properly initialized, and can be properly destroyed
-        //:   when the last reference is released.
+        // 1. Object is properly initialized, and can be properly destroyed
+        //    when the last reference is released.
         //
         // Plan:
-        //: 1 Construct a 'bslma::SharedPtrOutofplaceRep' using the preferred
-        //:   constructor.  Then call 'releaseRef' to remove the last reference
-        //:   and check the that the destructor for the held object is called.
+        // 1. Construct a `bslma::SharedPtrOutofplaceRep` using the preferred
+        //    constructor.  Then call `releaseRef` to remove the last reference
+        //    and check the that the destructor for the held object is called.
         //
         // Testing:
         //   BOOTSTRAP SharedPtrOutofplaceRep(...);
@@ -1046,7 +1047,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING BASIC CONSTRUCTOR"
                             "\n=========================\n");
 
-        if (verbose) printf("\nTesting 'disposeObject' and 'disposeRep'"
+        if (verbose) printf("\nTesting `disposeObject` and `disposeRep`"
                             "\n========================================\n");
 
         numAllocations = ta.numAllocations();
@@ -1073,7 +1074,7 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 This test exercises basic functionality but tests nothing.
+        // 1. This test exercises basic functionality but tests nothing.
         //
         // Testing:
         //   BREATHING TEST

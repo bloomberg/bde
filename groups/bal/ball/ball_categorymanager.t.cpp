@@ -54,11 +54,11 @@ using namespace bsl;
 // Note that places where test drivers in this family are likely to require
 // adjustment are indicated by the tag: "ADJ".
 //-----------------------------------------------------------------------------
-// 'ball::Category' private methods, tested indirectly:
+// `ball::Category` private methods, tested indirectly:
 // [ 2] ball::Category(const char *name, int, int, int, int, *ba = 0);
 // [ 2] ~ball::Category();
 //
-// 'ball::Category' public interface:
+// `ball::Category` public interface:
 // [ 5] static bool areValidThresholdLevels(int, int, int, int);
 // [ 5] int setLevels(int, int, int, int);
 // [ 3] const char *categoryName() const;
@@ -69,7 +69,7 @@ using namespace bsl;
 // [ 3] int triggerLevel() const;
 // [ 3] int triggerAllLevel() const;
 //
-// 'ball::CategoryManager' public interface:
+// `ball::CategoryManager` public interface:
 // [ 2] ball::CategoryManager(bslma::Allocator *ba = 0);
 // [ 2] ~ball::CategoryManager();
 // [ 6] ball::Category& operator[](int index);
@@ -91,7 +91,7 @@ using namespace bsl;
 // [13] ball::RuleSet& ruleSet() const;
 // [ 8] bsls::Types::Int64 ruleSetSequenceNumber() const;
 //
-// 'ball::CategoryHolder' public interface:
+// `ball::CategoryHolder` public interface:
 // [10] void reset();
 // [10] void setCategory(const ball::Category *category);
 // [10] void setThreshold(int threshold);
@@ -101,14 +101,14 @@ using namespace bsl;
 // [10] ball::CategoryHolder *next() const;
 //
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-// 'ball::CategoryManagerIter' public interface:
+// `ball::CategoryManagerIter` public interface:
 // [17] CategoryManagerIter(const CategoryManager& cm);
 // [17] ~CategoryManagerIter();
 // [17] void operator++();
 // [17] operator const void *() const;
 // [17] const Category& operator()() const;
 //
-// 'ball::CategoryManagerManip' public interface:
+// `ball::CategoryManagerManip` public interface:
 // [18] CategoryManagerManip(CategoryManager *cm);
 // [18] ~CategoryManagerManip();
 // [18] void advance();
@@ -177,7 +177,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define PA_(X) cout << #X " = " << ((void *) X) << ", " << flush;
 
 // The following variable and macros provide a thread-safe framework for using
-// 'bsl::cout'.
+// `bsl::cout`.
 
 static bslmt::Mutex coutMutex;
 
@@ -272,19 +272,20 @@ const int *LA = LEVELS[0],
                              // class my_ListType
                              // =================
 
+/// Objects of this type are passed in thread arguments to
+/// functions declared `extern "C"`.
+///
+/// Note that this is a workaround for certain compilers (such as
+/// Sun WorkShop 6 update 1 C++ 5.2 Patch 109508-09 2002/07/08)
+/// which do not allow template functions to be called in `extern "C"`
+/// functions.
 class my_ListType : public bsl::vector<void *> {
-    // Objects of this type are passed in thread arguments to
-    // functions declared 'extern "C"'.
-    //
-    // Note that this is a workaround for certain compilers (such as
-    // Sun WorkShop 6 update 1 C++ 5.2 Patch 109508-09 2002/07/08)
-    // which do not allow template functions to be called in 'extern "C"'
-    // functions.
 
   public:
     // MANIPULATORS
+
+    /// Sort this list in ascending order.
     void sort();
-        // Sort this list in ascending order.
 };
 
 // MANIPULATORS
@@ -298,12 +299,12 @@ void my_ListType::sort()
                          // class my_ThreadParameters
                          // =========================
 
+/// This class provides a set of parameters given to a worker thread.  In
+/// particular, this class provides a category manager on which to perform
+/// thread-specific actions, a list of category names to act on, a
+/// barrier object to coordinate thread activity, and a container to store
+/// the results of any computations.
 struct my_ThreadParameters {
-    // This class provides a set of parameters given to a worker thread.  In
-    // particular, this class provides a category manager on which to perform
-    // thread-specific actions, a list of category names to act on, a
-    // barrier object to coordinate thread activity, and a container to store
-    // the results of any computations.
 
     bslmt::Barrier *d_barrier_p; // coordinates activity between threads (held)
     my_ListType    *d_results_p; // container to store results (held)
@@ -340,15 +341,15 @@ bsl::string bitset2string(const bsl::bitset<BITS>& bs)
 extern "C"
 void *case9ThreadW(void *arg)
 {
-    // Retrieve the parameters 'cm', 'names', 'NUM_NAMES', and 'results'
-    // from the opaque argument 'arg' of type pointer to 'my_ThreadParameters'.
-    // In a tight loop, write each category names in the 'names' array of
-    // size 'NUM_NAMES' to the category manager 'cm'.  Store the address
-    // of each category added to 'cm' in the 'results' container.  Return
+    // Retrieve the parameters `cm`, `names`, `NUM_NAMES`, and `results`
+    // from the opaque argument `arg` of type pointer to `my_ThreadParameters`.
+    // In a tight loop, write each category names in the `names` array of
+    // size `NUM_NAMES` to the category manager `cm`.  Store the address
+    // of each category added to `cm` in the `results` container.  Return
     // after attempting to add each category.  Note that when more than one
     // "write" thread is active, we expect each to add only a subset of
     // categories to the manager due to the acquisition of write locks and
-    // the fact that the 'addCategory' method fails if the category is already
+    // the fact that the `addCategory` method fails if the category is already
     // present.
 
     my_ThreadParameters&  params    = *static_cast<my_ThreadParameters*>(arg);
@@ -388,12 +389,12 @@ void *case9ThreadW(void *arg)
 extern "C"
 void *case9ThreadQ(void *arg)
 {
-    // Retrieve the parameters 'cm', 'names', 'NUM_NAMES', and 'results'
-    // from the opaque argument 'arg' of type pointer to 'my_ThreadParameters'.
-    // In a tight loop, query the category manager 'cm' for each category
-    // named in the 'names' array of size 'NUM_NAMES'.  Store each address
-    // in the 'results' container.  After all categories have been
-    // retrieved, sort 'results', and return.
+    // Retrieve the parameters `cm`, `names`, `NUM_NAMES`, and `results`
+    // from the opaque argument `arg` of type pointer to `my_ThreadParameters`.
+    // In a tight loop, query the category manager `cm` for each category
+    // named in the `names` array of size `NUM_NAMES`.  Store each address
+    // in the `results` container.  After all categories have been
+    // retrieved, sort `results`, and return.
 
     my_ThreadParameters&  params    = *static_cast<my_ThreadParameters*>(arg);
     Obj&                  cm        = *params.d_cm_p;
@@ -565,7 +566,7 @@ enum {
 bslmt::Barrier barrier(k_NUM_THREADS);  // synchronize threads
 
 struct ThreadArgs {
-    bool *d_flags_p;  // 'k_NUM_OBJECTS * k_NUM_THREADS' elements
+    bool *d_flags_p;  // `k_NUM_OBJECTS * k_NUM_THREADS` elements
 };
 
 extern "C" void *seqNumUniquenessThread(void *args)
@@ -596,11 +597,11 @@ struct TestDrqs171004031Data {
     Obj                d_mx;            // Object under test
     const char * const d_categoryName;  // category name
 
+    /// Create a TestDrqs171004031Data object with a barrier to synchronize
+    /// the start of the specified `threads`, and the specified
+    /// `categoryName`.
     TestDrqs171004031Data(unsigned int  threads,
                           const char   *categoryName);
-        // Create a TestDrqs171004031Data object with a barrier to synchronize
-        // the start of the specified 'threads', and the specified
-        // 'categoryName'.
 };
 
 TestDrqs171004031Data::TestDrqs171004031Data(unsigned int  threads,
@@ -611,10 +612,10 @@ TestDrqs171004031Data::TestDrqs171004031Data(unsigned int  threads,
 {
 }
 
+/// After waiting for a barrier to encourage collisions, invoke
+/// `lookupCategory` on the `CategoryManager` referenced by the
+/// `TestDrqs171004031Data` object pointed to by the specified `void_p`.
 void *lookupCategoryFunction(void* void_p)
-    // After waiting for a barrier to encourage collisions, invoke
-    // 'lookupCategory' on the 'CategoryManager' referenced by the
-    // 'TestDrqs171004031Data' object pointed to by the specified 'void_p'.
 {
     TestDrqs171004031Data &testData =
                                 *(static_cast<TestDrqs171004031Data*>(void_p));
@@ -625,10 +626,10 @@ void *lookupCategoryFunction(void* void_p)
     return 0;
 }
 
+/// After waiting for a barrier to encourage collisions, invoke
+/// `addCategory` on the `CategoryManager` referenced by the
+/// `TestDrqs171004031Data` object pointed to by the specified `void_p`.
 void *addCategoryFunction(void* void_p)
-    // After waiting for a barrier to encourage collisions, invoke
-    // 'addCategory' on the 'CategoryManager' referenced by the
-    // 'TestDrqs171004031Data' object pointed to by the specified 'void_p'.
 {
     TestDrqs171004031Data &testData =
                                 *(static_cast<TestDrqs171004031Data*>(void_p));
@@ -639,11 +640,11 @@ void *addCategoryFunction(void* void_p)
     return 0;
 }
 
+/// Create test data and run the specified `addCategoryThreads` number of
+/// threads adding categories and the specified `lookupCategoryThreads`
+/// number of threads looking up categories.
 void testDrqs171004031(unsigned int addCategoryThreads,
                        unsigned int lookupCategoryThreads)
-    // Create test data and run the specified 'addCategoryThreads' number of
-    // threads adding categories and the specified 'lookupCategoryThreads'
-    // number of threads looking up categories.
 {
     TestDrqs171004031Data testData(addCategoryThreads + lookupCategoryThreads,
                                    "TSAN category");
@@ -700,24 +701,24 @@ int main(int argc, char *argv[])
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING 'ball::CategoryManagerManip'
+        // TESTING `ball::CategoryManagerManip`
         //
         // Concerns:
-        //: 1 The basic concern is that the constructor, the destructor, the
-        //:   manipulators:
-        //:     - void advance();
-        //:     - Category& operator()();
-        //:   and the accessor:
-        //:     - operator const void *() const;
-        //:   operate as expected.
+        // 1. The basic concern is that the constructor, the destructor, the
+        //    manipulators:
+        //      - void advance();
+        //      - Category& operator()();
+        //    and the accessor:
+        //      - operator const void *() const;
+        //    operate as expected.
         //
         // Plan:
-        //: 1 Create a category manager X.  Add categories to X having various
-        //:   names and threshold level values.  Create an iterator for X.
-        //:   Change the threshold level values using the modifiable access
-        //:   provided by the iterator.  Verify that the values are changed.
-        //:   Change the threshold levels back to their original values, and
-        //:   verify that they were reset.  (C-1)
+        // 1. Create a category manager X.  Add categories to X having various
+        //    names and threshold level values.  Create an iterator for X.
+        //    Change the threshold level values using the modifiable access
+        //    provided by the iterator.  Verify that the values are changed.
+        //    Change the threshold levels back to their original values, and
+        //    verify that they were reset.  (C-1)
         //
         // Testing:
         //   CategoryManagerManip(CategoryManager *cm);
@@ -727,7 +728,7 @@ int main(int argc, char *argv[])
         //   operator const void *() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING 'ball::CategoryManagerManip'"
+        if (verbose) cout << endl << "TESTING `ball::CategoryManagerManip`"
                           << endl << "===================================="
                           << endl;
 
@@ -774,23 +775,23 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING 'ball::CategoryManagerIter'
+        // TESTING `ball::CategoryManagerIter`
         //
         // Concerns:
-        //: 1 The basic concerns for the iterator are that the constructor,
-        //:   the destructor, the manipulator 'operator++', and the accessors:
-        //:     - operator const void *() const;
-        //:     - const Category& operator()() const;
-        //:   operate as expected.
+        // 1. The basic concerns for the iterator are that the constructor,
+        //    the destructor, the manipulator `operator++`, and the accessors:
+        //      - operator const void *() const;
+        //      - const Category& operator()() const;
+        //    operate as expected.
         //
         // Plan
-        //: 1 Construct a category manager X.  Add categories to X having
-        //:   various names and threshold levels.  Construct another empty
-        //:   category manager Y.  Walk the categories of X with an iterator;
-        //:   add categories with names and threshold levels obtained from the
-        //:   iterator into Y.  Verify that the two category managers have the
-        //:   same length, and that entries in each with that same name have
-        //:   the same threshold levels.  (C-1)
+        // 1. Construct a category manager X.  Add categories to X having
+        //    various names and threshold levels.  Construct another empty
+        //    category manager Y.  Walk the categories of X with an iterator;
+        //    add categories with names and threshold levels obtained from the
+        //    iterator into Y.  Verify that the two category managers have the
+        //    same length, and that entries in each with that same name have
+        //    the same threshold levels.  (C-1)
         //
         // Testing:
         //   CategoryManagerIter(const CategoryManager& cm);
@@ -800,7 +801,7 @@ int main(int argc, char *argv[])
         //   const Category& operator()() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING 'ball::CategoryManagerIter'"
+        if (verbose) cout << endl << "TESTING `ball::CategoryManagerIter`"
                           << endl << "==================================="
                           << endl;
 
@@ -841,12 +842,12 @@ int main(int argc, char *argv[])
         // DRQS 171004031 - TSAN test
         //
         // Concerns:
-        //: 1 DRQS 171004031 showed the presence of data races, those were
+        // 1. DRQS 171004031 showed the presence of data races, those were
         //    confirmed by this test prior to fixing them, and can now be shown
         //    to be fixed by running this test under TSAN.
         //
         // Plan:
-        //: 1 Populate the rule set, then simultaneously add categories and
+        // 1. Populate the rule set, then simultaneously add categories and
         //    look up categories.
         //
         // Testing:
@@ -868,7 +869,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.  This now
+        //   comment characters, and replace `assert` with `ASSERT`.  This now
         //   becomes the source, which is then "copied" back to the header file
         //   by reversing the above process.
         //
@@ -958,18 +959,18 @@ int main(int argc, char *argv[])
         // TESTING UNIQUENESS OF INITIAL RULE SET SEQUENCE NUMBER
         //
         // Concerns:
-        //: 1 For each object, the initial value for the rule set sequence
-        //:   number is unique.
+        // 1. For each object, the initial value for the rule set sequence
+        //    number is unique.
         //
         // Plan
-        //: 1 Run three threads concurrently that each create a succession of
-        //:   category manager objects in a tight loop.  The threads share an
-        //:   array having the same number of elements as the total number of
-        //:   objects created across the three threads.  Each time an object is
-        //:   created, the element in the array corresponding to that object's
-        //:   initial rule set sequence number is marked.  After joining the
-        //:   three threads, verify that all elements of the array have been
-        //:   marked.  (C-1)
+        // 1. Run three threads concurrently that each create a succession of
+        //    category manager objects in a tight loop.  The threads share an
+        //    array having the same number of elements as the total number of
+        //    objects created across the three threads.  Each time an object is
+        //    created, the element in the array corresponding to that object's
+        //    initial rule set sequence number is marked.  After joining the
+        //    three threads, verify that all elements of the array have been
+        //    marked.  (C-1)
         //
         // Testing:
         //   UNIQUENESS OF INITIAL RULE SET SEQUENCE NUMBER
@@ -1056,7 +1057,7 @@ int main(int argc, char *argv[])
         //    manager.
         //
         // Plan:
-        //    Create a set of 'ball::ThresholdAggregate' objects containing a
+        //    Create a set of `ball::ThresholdAggregate` objects containing a
         //    variety of test threshold levels, and create a series of
         //    category holders for a test category.  Then, for each threshold
         //    aggregate in the test values, set the threshold levels for the
@@ -1206,8 +1207,8 @@ int main(int argc, char *argv[])
         // TESTING FUNCTIONS TAKING A HOLDER
         //
         // Concerns:
-        //   The 'addCategory' function taking a ball::CategoryHolder object
-        //   works exactly as the 'addCategory' without the
+        //   The `addCategory` function taking a ball::CategoryHolder object
+        //   works exactly as the `addCategory` without the
         //   ball_CategoryHolder.
         //
         // Plan
@@ -1215,7 +1216,7 @@ int main(int argc, char *argv[])
         //   names and threshold levels, passing a category holder object.
         //   Verify that the returned category object is correct and also
         //   check that the passed in holder object is correctly populated.
-        //   Use the 'lookupCategory' function, again passing it the holder
+        //   Use the `lookupCategory` function, again passing it the holder
         //   object, to get back the same category information.  Verify that
         //   the returned category object and the holder object are correct.
         //   For some of the data values confirm that passing a null holder
@@ -1364,7 +1365,7 @@ int main(int argc, char *argv[])
         ASSERT(pe        == G.category());
         ASSERT(&H        == G.next());
 
-        // Test passing NULL Holder to 'addCategory'
+        // Test passing NULL Holder to `addCategory`
         THRESHOLD = calculateThreshold(LF[0], LF[1], LF[2], LF[3]);
         numBytes  = TA.numBytesInUse();
         mH.reset();
@@ -1385,7 +1386,7 @@ int main(int argc, char *argv[])
         ASSERT(0         == G.next());
 
 
-        // Test passing NULL Holder to 'lookupCategory'
+        // Test passing NULL Holder to `lookupCategory`
         THRESHOLD = calculateThreshold(LG[0], LG[1], LG[2], LG[3]);
         numBytes  = TA.numBytesInUse();
         mH.reset();
@@ -1477,7 +1478,7 @@ int main(int argc, char *argv[])
         //   a ball::CategoryHolder object.  Statically initialize an object X
         //   using one of the specified data values.  Using the accessor
         //   functions verify that X contains the expected data.  Then use the
-        //   'reset' function to put X into its default state.  Finally, use
+        //   `reset` function to put X into its default state.  Finally, use
         //   the manipulator functions to re-assign the same data value to X.
         //   Confirm the state of X using the accessors.
         //
@@ -1599,9 +1600,9 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING: 'addRules', 'removeRules'
+        // TESTING: `addRules`, `removeRules`
         //
-        // Concerns:  That 'addRules' and 'removeRules' correctly update the
+        // Concerns:  That `addRules` and `removeRules` correctly update the
         //   category manager's rule set and the relevant rule masks for the
         //   managed categories, and return the correct value.
         //
@@ -1609,12 +1610,12 @@ int main(int argc, char *argv[])
         //   For each possible subset of a set of categories, create a rule
         //   for each category in the subset and add it to a rule-set.  Add the
         //   set of rules to the category manager and verify: (1) the return
-        //   value for 'addRules' is the number of rules (2) the sequence
+        //   value for `addRules` is the number of rules (2) the sequence
         //   number is updated (3) the category manager's rule set contains
         //   the newly added rules, and (4) that the relevant rule bit mask
         //   for each category is correct.  Then, create a rule set for all
-        //   categories and invoke 'addRules', verify the return value for
-        //   the 'addRules' method is the number of rules that were *not*
+        //   categories and invoke `addRules`, verify the return value for
+        //   the `addRules` method is the number of rules that were *not*
         //   originally added.  Then remove the original subset of rules, and
         //   verify the same 4 points as when we originally added the rules.
         //   Finally, remove all the rules, and verify the return value.
@@ -1625,7 +1626,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Test 'addRules', 'removeRules'" << endl
+                          << "Test `addRules`, `removeRules`" << endl
                           << "==============================" << endl;
 
         bslma::TestAllocator ta;
@@ -1653,7 +1654,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            // Add the subset of rules indicated by the bitmask 'mask'.
+            // Add the subset of rules indicated by the bitmask `mask`.
             ASSERT(rules.numRules()                == mX.addRules(rules));
             ASSERT(bdlb::BitUtil::numBitsSet(mask) == X.ruleSet().numRules());
             if (mask != 0) {
@@ -1690,7 +1691,7 @@ int main(int argc, char *argv[])
 
             // Add all the rules.  Note that the number of rules actually
             // added should be only those rules not belonging to the subset of
-            // rules indicated by the bitmask 'mask'.
+            // rules indicated by the bitmask `mask`.
             ASSERT(bdlb::BitUtil::numBitsSet(endMask & ~mask) ==
                                                         mX.addRules(allRules));
             ASSERT(bdlb::BitUtil::numBitsSet(endMask) ==
@@ -1699,7 +1700,7 @@ int main(int argc, char *argv[])
 
             seqNo = X.ruleSetSequenceNumber();
 
-            // Remove those rules indicated by the bitmask 'mask'.  Note that
+            // Remove those rules indicated by the bitmask `mask`.  Note that
             // the category manager should have a rule for every category.
             ASSERT(bdlb::BitUtil::numBitsSet(mask) == mX.removeRules(rules));
             ASSERT(bdlb::BitUtil::numBitsSet(~(~endMask | mask)) ==
@@ -1729,7 +1730,7 @@ int main(int argc, char *argv[])
             }
 
             // Remove all the rules.  Note that this removes the remaining
-            // rules, i.e., those rules *not* indicated by the bitmask 'mask'.
+            // rules, i.e., those rules *not* indicated by the bitmask `mask`.
             ASSERT(bdlb::BitUtil::numBitsSet(endMask & ~mask) ==
                                                      mX.removeRules(allRules));
             ASSERT(0 == X.ruleSet().numRules());
@@ -1737,16 +1738,16 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'addRule', 'removeRule', 'removeAllRules'
+        // TESTING `addRule`, `removeRule`, `removeAllRules`
         //
         // Concerns:
-        //   'addRule', 'removeRule', 'removeAllRules' update the set of rules
+        //   `addRule`, `removeRule`, `removeAllRules` update the set of rules
         //   and the relevant rule masks for the affected ball::Category
         //   objects.
         //
         // Plan:
         //    For each category, in a set of test categories, create a rule
-        //    and verify: (1) the return value for the 'addRule' method, (2)
+        //    and verify: (1) the return value for the `addRule` method, (2)
         //    that the rule has been added to the category manager's set of
         //    rules (3) that the sequence number has been updated, and (4) that
         //    relevant rule masks for the categories is correct.  Create a
@@ -1764,7 +1765,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "TESTING 'addRule', 'removeRule', 'removeAllRules'" << endl
+                 << "TESTING `addRule`, `removeRule`, `removeAllRules`" << endl
                  << "=================================================" <<endl;
 
         bslma::TestAllocator ta;
@@ -1855,25 +1856,25 @@ int main(int argc, char *argv[])
         // TESTING MT-SAFETY: ADD AND LOOKUP
         //
         // Concerns:
-        //   'addCategory' and 'lookupCategory' should operate as expected in
+        //   `addCategory` and `lookupCategory` should operate as expected in
         //   a multi-threaded environment, particularly on the same object:
         //
-        //   - calls to 'lookupCategory' can occur concurrently
-        //   - calls to 'addCategory' have transactional integrity
-        //   - successful calls to 'lookupCategory' refer to the same object
+        //   - calls to `lookupCategory` can occur concurrently
+        //   - calls to `addCategory` have transactional integrity
+        //   - successful calls to `lookupCategory` refer to the same object
         //
         // Plan:
-        //   Create a category manager 'mX'.  In several "writer" threads, add
-        //   categories to 'mX' having various names and threshold levels.  In
-        //   several other threads, query 'mX' for each category until all
-        //   queries are satisfied.  The result of each call to 'addCategory'
-        //   and 'lookupCategory' is stored in a container associated with the
+        //   Create a category manager `mX`.  In several "writer" threads, add
+        //   categories to `mX` having various names and threshold levels.  In
+        //   several other threads, query `mX` for each category until all
+        //   queries are satisfied.  The result of each call to `addCategory`
+        //   and `lookupCategory` is stored in a container associated with the
         //   calling thread.  When all threads have completed, the values in
         //   these containers are validated to ensure that
         //
-        //   - All categories added via 'addCategory' are unique across all
+        //   - All categories added via `addCategory` are unique across all
         //     "write" threads.
-        //   - The lists of categories queried via 'lookupCategory' are
+        //   - The lists of categories queried via `lookupCategory` are
         //     identical across all "query" threads.
         //
         // Testing:
@@ -1891,7 +1892,7 @@ int main(int argc, char *argv[])
             NUM_THREADS    = NUM_W_THREADS + NUM_Q_THREADS
         };
 
-        // Generate 'ball::Category' names.
+        // Generate `ball::Category` names.
         bsl::string categoryNames[NUM_CATEGORIES];
         for (int i = 0; i < NUM_CATEGORIES; ++i) {
             categoryNames[i] = bitset2string(bsl::bitset<32>(i));
@@ -1947,7 +1948,7 @@ int main(int argc, char *argv[])
         ASSERT(NUM_CATEGORIES == mX.length());
         ASSERT(NUM_CATEGORIES == totalAddedCategories);
 
-        // Merge "write" threads' results into 'results'.
+        // Merge "write" threads' results into `results`.
         my_ListType results;
         for (int i = 0; i < NUM_W_THREADS; ++i) {
             my_ListType&   list = threads[i].d_results;
@@ -1959,7 +1960,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(NUM_CATEGORIES == results.size());
 
-        // Validate "query" threads' results against 'results'.
+        // Validate "query" threads' results against `results`.
         for (int i = NUM_W_THREADS; i < NUM_THREADS; ++i) {
             if (veryVerbose) {
                 T_;
@@ -1987,16 +1988,16 @@ int main(int argc, char *argv[])
         //   as expected.
         //
         // Plan:
-        //   Create a modifiable 'ball::CategoryManager' object, 'mX', and a
-        //   non-modifiable reference to 'mX' named 'X'.  Add categories to
-        //   'mX' having various names and threshold level values.  Iterate
-        //   over 'mX', using the non-'const' index 'operator' to change the
-        //   threshold level values on 'ball::Category' objects obtained from
-        //   'mX'.  Verify that the values are changed using const
-        //   'ball::Category' objects obtained from 'X'.  Change the threshold
+        //   Create a modifiable `ball::CategoryManager` object, `mX`, and a
+        //   non-modifiable reference to `mX` named `X`.  Add categories to
+        //   `mX` having various names and threshold level values.  Iterate
+        //   over `mX`, using the non-`const` index `operator` to change the
+        //   threshold level values on `ball::Category` objects obtained from
+        //   `mX`.  Verify that the values are changed using const
+        //   `ball::Category` objects obtained from `X`.  Change the threshold
         //   levels back to their original values using the const index
-        //   operator on 'mX', and verify that they were reset, again using
-        //   'X'.
+        //   operator on `mX`, and verify that they were reset, again using
+        //   `X`.
         //
         // Testing:
         //   ball::Category& operator[](int index);
@@ -2069,11 +2070,11 @@ int main(int argc, char *argv[])
         //   Tabulate various threshold level values, call each of the four
         //   methods under test using the tabulated values as arguments, and
         //   assert the expected function return values and the expected
-        //   side-effects.  In particular, test that 'setLevels',
-        //   'addCategory', and 'setThresholdLevels' exhibit the correct
+        //   side-effects.  In particular, test that `setLevels`,
+        //   `addCategory`, and `setThresholdLevels` exhibit the correct
         //   behavior with respect to the modification of existing categories
         //   or the addition of new categories.  Note that it is assumed that
-        //   'addCategory' was thoroughly tested in case 2 (Bootstrap) with
+        //   `addCategory` was thoroughly tested in case 2 (Bootstrap) with
         //   valid threshold levels.
         //
         // Testing:
@@ -2267,19 +2268,19 @@ int main(int argc, char *argv[])
         // TESTING ISENABLED
         //
         // Concerns:
-        //   The concern is that 'isEnabled' returns the correct value with
+        //   The concern is that `isEnabled` returns the correct value with
         //   various threshold level settings.
         //
         // Plan
         //   Construct a category manager and add a category.  Set the
         //   threshold level settings to different values and verify that in
-        //   each case 'isEnabled' returns the correct value.
+        //   each case `isEnabled` returns the correct value.
         //
         // Testing:
         //   bool isEnabled(int) const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "Test 'isEnabled'" << endl
+        if (verbose) cout << endl << "Test `isEnabled`" << endl
                                   << "================" << endl;
 
         static const struct {
@@ -2569,14 +2570,14 @@ int main(int argc, char *argv[])
         //            one is specified.
         //    2. The destructor properly deallocates all allocated memory to
         //       its corresponding allocator from any attainable state.
-        //    3. 'addCategory' adds the expected category.
-        //    4. 'setThresholdLevels' sets the appropriate category with the
+        //    3. `addCategory` adds the expected category.
+        //    4. `setThresholdLevels` sets the appropriate category with the
         //       specified values.
         // Plan:
         //   To address concerns 1a - 1b, create an object using the default
         //   constructor:
         //    - With and without passing in an allocator.
-        //    - Verify that in the presence of 'bslma::TestAllocator', the
+        //    - Verify that in the presence of `bslma::TestAllocator`, the
         //      memory allocation occurs using the test allocator.
         //
         //   To address concern 3, construct an object, add a series of
@@ -2838,7 +2839,7 @@ int main(int argc, char *argv[])
         //     - length
         //
         // Plan:
-        //   First, create a 'ball::CategoryManager' instance.  Add a category
+        //   First, create a `ball::CategoryManager` instance.  Add a category
         //   to the category manager, verify the category manager's length, and
         //   verify that all levels and the name are set correctly.
         //

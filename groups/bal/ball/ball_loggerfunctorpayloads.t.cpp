@@ -12,7 +12,7 @@
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>
 
-#include <bsl_new.h>         // placement 'new' syntax
+#include <bsl_new.h>         // placement `new` syntax
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -24,7 +24,7 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // The component under test is a utility consisting of one pure procedure,
-// 'setThresholdLevels'.  That lone method is tested using a table-based
+// `setThresholdLevels`.  That lone method is tested using a table-based
 // approach where the following test data is tabulated: valid and invalid
 // threshold level values; category names; regular expressions.
 //
@@ -113,7 +113,7 @@ namespace BALL_USAGE_EXAMPLE_1 {
 ///Example: Basic Usage
 /// - - - - - - - - - -
 // The following code snippets illustrate how to use this component's
-// 'loadParentCategoryThresholdValues' method to allow a newly-created "child"
+// `loadParentCategoryThresholdValues` method to allow a newly-created "child"
 // category to inherit the logging threshold levels from its most proximate
 // parent category (if such a category already exists).  Note that the category
 // "hierarchy" is by naming convention only, but that the callback makes it
@@ -123,7 +123,7 @@ namespace BALL_USAGE_EXAMPLE_1 {
 // special.
 //
 // To keep this example transparent, we will create and inspect several
-// categories within 'main' directly; some categories will be "declared" to be
+// categories within `main` directly; some categories will be "declared" to be
 // "parent" categories, and we will set the threshold levels explicitly, while
 // other categories will act as "children", which is to say that they will
 // obtain their threshold levels through the callback mechanism.  In a more
@@ -131,15 +131,15 @@ namespace BALL_USAGE_EXAMPLE_1 {
 // and "child" categories, but rather as categories are dynamically
 // administered by the user, newly created categories would pick up the changes
 // made to existing parents.  As a practical matter, the beginning of the
-// function 'main' constitute the "usage" to *install* the callback; the rest
+// function `main` constitute the "usage" to *install* the callback; the rest
 // of this example merely illustrates the *consequences* of that.
 //
-// First, we load the logger manager 'configuration' with the desired "payload"
-// function, 'ball::LoggerFunctorPayloads::loadParentCategoryThresholdValues',
-// and use the trailing 'char' argument 'delimiter', set to the value '.',
+// First, we load the logger manager `configuration` with the desired "payload"
+// function, `ball::LoggerFunctorPayloads::loadParentCategoryThresholdValues`,
+// and use the trailing `char` argument `delimiter`, set to the value '.',
 // which will be bound into the functor and supplied back to the payload on
 // each invocation.
-//..
+// ```
     // myapp.cpp
     int main()
     {
@@ -156,45 +156,45 @@ namespace BALL_USAGE_EXAMPLE_1 {
                _4,
                _5,
                delimiter));
-//..
+// ```
 // Then, we initialize the logger manager, using the configuration defined
 // above:
-//..
+// ```
         ball::LoggerManagerScopedGuard guard(configuration);
-//..
+// ```
 // The above code is all that the user needs to do to customize the logger to
 // "inherit" thresholds from parents.  The rest of this example illustrates the
-// consequences of having installed 'myCallback'.  For convenience in what
-// follows, we define a reference, 'manager', to the singleton logger manager.
-//..
+// consequences of having installed `myCallback`.  For convenience in what
+// follows, we define a reference, `manager`, to the singleton logger manager.
+// ```
         ball::LoggerManager& manager = ball::LoggerManager::singleton();
-//..
+// ```
 // We now create two "parent" categories named "EQUITY.MARKET" and
 // "EQUITY.GRAPHICS", and give them arbitrary but distinct threshold levels.
 // We also set the default levels to distinct values in order to be able to
 // verify exactly where "child" levels have come from later on.
-//..
+// ```
         manager.setDefaultThresholdLevels(128, 96, 64, 32);
 
         manager.addCategory("EQUITY.MARKET", 127, 95, 63, 31);
         manager.addCategory("EQUITY.GRAPHICS", 129, 97, 65, 33);
-//..
-// Note that the call to 'addCategory', which takes the four 'int' threshold
+// ```
+// Note that the call to `addCategory`, which takes the four `int` threshold
 // arguments, does not invoke the callback at all, but rather -- assuming that
 // the named category does not yet exist -- sets the thresholds to the
 // specified values directly.
 //
 // We can use the logger manager interface to verify that the levels have been
-// set.  First, we use the 'lookupCategory' method to obtain the two parent
-// categories (here assigned 'p1' and 'p2').
-//..
+// set.  First, we use the `lookupCategory` method to obtain the two parent
+// categories (here assigned `p1` and `p2`).
+// ```
         const ball::Category *p1 = manager.lookupCategory("EQUITY.MARKET");
         const ball::Category *p2 = manager.lookupCategory("EQUITY.GRAPHICS");
-//..
-// Next, we can use the appropriate 'ball::Category' accessor methods to
-// 'ASSERT' the expected results.  Recall that the ordered sequence of levels
+// ```
+// Next, we can use the appropriate `ball::Category` accessor methods to
+// `ASSERT` the expected results.  Recall that the ordered sequence of levels
 // is "Record", "Pass", "Trigger", and "TriggerAll".
-//..
+// ```
         ASSERT(127 == p1->recordLevel());
         ASSERT( 95 == p1->passLevel());
         ASSERT( 63 == p1->triggerLevel());
@@ -204,20 +204,20 @@ namespace BALL_USAGE_EXAMPLE_1 {
         ASSERT( 97 == p2->passLevel());
         ASSERT( 65 == p2->triggerLevel());
         ASSERT( 33 == p2->triggerAllLevel());
-//..
-// Now, we will add several "child" categories using the 'setCategory' method
-// taking a single argument, the 'char*' category name.  This method uses the
+// ```
+// Now, we will add several "child" categories using the `setCategory` method
+// taking a single argument, the `char*` category name.  This method uses the
 // callback in determining the "default" threshold levels to use.  The six
 // statements are numbered for subsequent discussion.
-//..
+// ```
         manager.setCategory("EQUITY.MARKET.NYSE");                       // (1)
         manager.setCategory("EQUITY.MARKET.NASDAQ");                     // (2)
         manager.setCategory("EQUITY.GRAPHICS.MATH.FACTORIAL");           // (3)
         manager.setCategory("EQUITY.GRAPHICS.MATH.ACKERMANN");           // (4)
         manager.setCategory("EQUITY.GRAPHICS.MATH");                     // (5)
         manager.setCategory("EQUITY");                                   // (6)
-//..
-// Note that all six calls to 'setCategory' will succeed in adding new
+// ```
+// Note that all six calls to `setCategory` will succeed in adding new
 // categories to the registry.  Calls (1)-(5) will "find" their parent's names
 // and "inherit" the parent's levels.  Call (6), however, will not find a
 // parent category, and so will receive the default threshold levels, just as
@@ -236,7 +236,7 @@ namespace BALL_USAGE_EXAMPLE_1 {
 //
 // Let us now verify some of the 24 threshold levels that have been set by the
 // above calls.  We will verify the results of lines (1), (3), and (6) above.
-//..
+// ```
         const ball::Category *c1, *c3, *c6;
 
         c1 =  manager.lookupCategory("EQUITY.MARKET.NYSE");
@@ -259,7 +259,7 @@ namespace BALL_USAGE_EXAMPLE_1 {
 
         return 0;
     }
-//..
+// ```
 }  // close namespace BALL_USAGE_EXAMPLE_1
 
 //=============================================================================
@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -300,10 +300,10 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'loadParentCategoryThresholdValues'
+        // TESTING `loadParentCategoryThresholdValues`
         //
         // Concerns:
-        //   The method under test relies on the services of the 'ball' logger,
+        //   The method under test relies on the services of the `ball` logger,
         //   but does not modify the state of the logger.  The concerns are
         //   that, given known "parent" categories already registered in the
         //   logger, that the method can "find" the proximate parent as
@@ -332,8 +332,8 @@ int main(int argc, char *argv[])
         //
         //   Construct a table of candidate child category names, delimiters,
         //   and expected thresholds (either from a parent or from the default)
-        //   and call 'loadParentCategoryThresholdValues' with names and
-        //   delimiters from the table, confirming that the four 'int*'
+        //   and call `loadParentCategoryThresholdValues` with names and
+        //   delimiters from the table, confirming that the four `int*`
         //   arguments were correctly assigned to.
         //
         // Testing:
@@ -342,7 +342,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "Testing 'loadParentCategoryThresholdValues'" << endl
+                 << "Testing `loadParentCategoryThresholdValues`" << endl
                  << "===========================================" << endl;
 
         // Initialize Logger Manager.

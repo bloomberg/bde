@@ -82,10 +82,10 @@ void aSsErT(bool condition, const char *message, int line)
                         // class GetValue<LVALUE_TYPE>
                         // ===========================
 
+/// This visitor assigns the value of the visited member to
+/// `d_destination_p`.
 template <class LVALUE_TYPE>
 class GetValue {
-    // This visitor assigns the value of the visited member to
-    // 'd_destination_p'.
 
     // PRIVATE DATA MEMBERS
     LVALUE_TYPE *d_lValue_p;  // held, not owned
@@ -95,21 +95,22 @@ class GetValue {
     explicit GetValue(LVALUE_TYPE *lValue);
 
     // ACCESSORS
-    int operator()(const LVALUE_TYPE& object) const;
-        // Assign the specified 'object' to '*d_destination_p'.
 
+    /// Assign the specified `object` to `*d_destination_p`.
+    int operator()(const LVALUE_TYPE& object) const;
+
+    /// Do nothing with the specified `object`.
     template <class RVALUE_TYPE>
     int operator()(const RVALUE_TYPE& object) const;
-        // Do nothing with the specified 'object'.
 };
 
                        // ==============================
                        // class AssignValue<RVALUE_TYPE>
                        // ==============================
 
+/// This visitor assigns `d_value` to the visited member.
 template <class RVALUE_TYPE>
 class AssignValue {
-    // This visitor assigns 'd_value' to the visited member.
 
     // PRIVATE DATA MEMBERS
     RVALUE_TYPE d_value;
@@ -119,12 +120,13 @@ class AssignValue {
     explicit AssignValue(const RVALUE_TYPE& value);
 
     // ACCESSORS
-    int operator()(RVALUE_TYPE *object) const;
-        // Assign 'd_value' to the specified '*object'.
 
+    /// Assign `d_value` to the specified `*object`.
+    int operator()(RVALUE_TYPE *object) const;
+
+    /// Do nothing with the specified `object`.
     template <class LVALUE_TYPE>
     int operator()(LVALUE_TYPE *object) const;
-        // Do nothing with the specified 'object'.
 };
 
                         // ---------------------------
@@ -300,7 +302,7 @@ namespace Obj = bdlat_NullableValueFunctions;
 // - - - - - - - - - - - - - - - - - - -
 // Suppose you had a type whose value could be in a "null" state.
 //
-//..
+// ```
     namespace BloombergLP {
     namespace mine {
 
@@ -319,51 +321,53 @@ namespace Obj = bdlat_NullableValueFunctions;
 
     }  // close namespace mine
     }  // close enterprise namespace
-//..
-// We can now make 'mine::MyNullableValue' expose "nullable" behavior by
-// implementing the necessary 'bdlta_NullableValueFunctions' for
-// 'MyNullableValue' inside the 'mine' namespace and defining the required
-// meta-functions withing the 'bdlat_NullableValueFunctions' namespace.
+// ```
+// We can now make `mine::MyNullableValue` expose "nullable" behavior by
+// implementing the necessary `bdlta_NullableValueFunctions` for
+// `MyNullableValue` inside the `mine` namespace and defining the required
+// meta-functions withing the `bdlat_NullableValueFunctions` namespace.
 //
 // First, we should forward declare all the functions that we will implement
-// inside the 'mine' namespace:
-//..
+// inside the `mine` namespace:
+// ```
     namespace BloombergLP {
     namespace mine {
 
     // MANIPULATORS
-    void bdlat_nullableValueMakeValue(MyNullableValue *object);
-        // Assign to the specified "nullable" 'object' the default value for
-        // the contained type (i.e., 'ValueType()').
 
+    /// Assign to the specified "nullable" `object` the default value for
+    /// the contained type (i.e., `ValueType()`).
+    void bdlat_nullableValueMakeValue(MyNullableValue *object);
+
+    /// Invoke the specified `manipulator` on the address of the value
+    /// stored in the specified "nullable" `object`.  Return the value from
+    /// the invocation of `manipulator`.  The behavior is undefined if
+    /// `object` contains a null value.
     template <class MANIPULATOR>
     int bdlat_nullableValueManipulateValue(MyNullableValue *object,
                                            MANIPULATOR&     manipulator);
-        // Invoke the specified 'manipulator' on the address of the value
-        // stored in the specified "nullable" 'object'.  Return the value from
-        // the invocation of 'manipulator'.  The behavior is undefined if
-        // 'object' contains a null value.
 
     // ACCESSORS
+
+    /// Invoke the specified `accessor` on a `const`-reference to the value
+    /// stored in the specified "nullable" `object`.  Return the value from
+    /// the invocation of `accessor`.  The behavior is undefined if `object`
+    /// contains a null value.
     template <class ACCESSOR>
     int bdlat_nullableValueAccessValue(const MyNullableValue& object,
                                        ACCESSOR&              accessor);
-        // Invoke the specified 'accessor' on a 'const'-reference to the value
-        // stored in the specified "nullable" 'object'.  Return the value from
-        // the invocation of 'accessor'.  The behavior is undefined if 'object'
-        // contains a null value.
 
+    /// Return `true` if the specified "nullable" `object` contains a null
+    /// value, and `false` otherwise.
     bool bdlat_nullableValueIsNull(const MyNullableValue& object);
-        // Return 'true' if the specified "nullable" 'object' contains a null
-        // value, and 'false' otherwise.
 
     }  // close namespace mine
     }  // close enterprise namespace
-//..
+// ```
 // Then, we will implement these functions.  Recall that the two (non-template)
-// functions should be defined in some '.cpp' file, unless you choose to make
-// them 'inline' functions.
-//..
+// functions should be defined in some `.cpp` file, unless you choose to make
+// them `inline` functions.
+// ```
     namespace BloombergLP {
 
     // MANIPULATORS
@@ -401,11 +405,11 @@ namespace Obj = bdlat_NullableValueFunctions;
     }
 
     }  // close enterprise namespace
-//..
-// Finally, we specialize the 'IsNullableValue' and 'ValueType' meta-functions
-// in the 'bdlat_NullableValueFunctions' namespace for the
-// 'mine::MyNullableValue' type:
-//..
+// ```
+// Finally, we specialize the `IsNullableValue` and `ValueType` meta-functions
+// in the `bdlat_NullableValueFunctions` namespace for the
+// `mine::MyNullableValue` type:
+// ```
     namespace BloombergLP {
     namespace bdlat_NullableValueFunctions {
 
@@ -421,25 +425,25 @@ namespace Obj = bdlat_NullableValueFunctions;
 
     }  // close namespace bdlat_NullableValueFunctions
     }  // close enterprise namespace
-//..
-// This completes the 'bdlat' infrastructure for 'mine::MyNullableValue' and
+// ```
+// This completes the `bdlat` infrastructure for `mine::MyNullableValue` and
 // allows the generic software to recognize the type as a nullable abstraction.
 //
 ///Example 2: Using the Infrastructure Via General Methods
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// The 'bdlat' "nullable" framework provides a set of fundamental operations
+// The `bdlat` "nullable" framework provides a set of fundamental operations
 // common to any "nullable" type.  We can build upon these operations to make
 // our own utilities, or use them on our own types that are plugged into the
-// framework, like 'mine::MyNullableValue', which we created in {Example 1}.
+// framework, like `mine::MyNullableValue`, which we created in {Example 1}.
 // For example, we can use the (fundamental) operations in the
-// 'bdlat_NullableValueFunctions' namespace to operate on
-// 'mine::NullableValue', even though they have no knowledge of that type in
+// `bdlat_NullableValueFunctions` namespace to operate on
+// `mine::NullableValue`, even though they have no knowledge of that type in
 // particular:
 //
 // Two of those operations are rather basic.  One simply informs whether or not
-// an object is in the null state (the 'isNull' method).  Another sets an
-// object to a default, non-null state (the 'makeValue' method).
-//..
+// an object is in the null state (the `isNull` method).  Another sets an
+// object to a default, non-null state (the `makeValue` method).
+// ```
     void usageMakeObject()
     {
         BSLMF_ASSERT(bdlat_NullableValueFunctions::
@@ -451,13 +455,13 @@ namespace Obj = bdlat_NullableValueFunctions;
         bdlat_NullableValueFunctions::makeValue(&object);
         ASSERT(!bdlat_NullableValueFunctions::isNull(object));
     }
-//..
+// ```
 // The other two generic methods accomplish their actions via user-supplied
 // functors.
 //
 // Let us define a generic functor that gives us access to the underlying value
 // of the "nullable" type, if it's not null:
-//..
+// ```
     template <class VALUE_TYPE>
     class GetValueAccessor {
 
@@ -472,21 +476,22 @@ namespace Obj = bdlat_NullableValueFunctions;
         }
 
         // MANIPULATORS
+
+        /// Assign the value of the specified `containedValue` to the object
+        /// addressed by `d_value_p`.
         int operator()(const VALUE_TYPE& containedValue)
-            // Assign the value of the specified 'containedValue' to the object
-            // addressed by 'd_value_p'.
         {
             *d_value_p = containedValue;
             return 0;
         }
     };
-//..
+// ```
 // Notice that the above class makes no assumptions about the value being
 // accessed other than it can be copied (in the constructor) and assigned (in
 // the operator).
 //
 // This functor can be used to fetch the value of our nullable object:
-//..
+// ```
     void usageGetValue()
     {
         mine::MyNullableValue object;
@@ -501,12 +506,12 @@ namespace Obj = bdlat_NullableValueFunctions;
         ASSERT(0 == rc);
         ASSERT(0 == value);
     }
-//..
-// Notice that we did not invoke 'accessValue' until 'object' had been set to a
+// ```
+// Notice that we did not invoke `accessValue` until `object` had been set to a
 // non-null state.  Doing otherwise would have led to undefined behavior.
 //
 // Finally, let's define a functor to set the state of a nullable object:
-//..
+// ```
     template <class VALUE_TYPE>
     class SetValueManipulator {
 
@@ -527,13 +532,13 @@ namespace Obj = bdlat_NullableValueFunctions;
             return 0;
         }
     };
-//..
+// ```
 // As with the previous functor, this functor has no knowledge of the nullable
 // type to which it will be applied.  The only assumption here is that the
 // value (type) of our nullable type can be copy constructed and copy assigned.
 //
 // Let us use this functor to modify one of our nullable objects:
-//..
+// ```
     void usageSetValue()
     {
         mine::MyNullableValue object;
@@ -555,7 +560,7 @@ namespace Obj = bdlat_NullableValueFunctions;
         ASSERT( 0 == rca);
         ASSERT(42 == value);
     }
-//..
+// ```
 //
 ///Example 3: Defining Utility Functions
 ///- - - - - - - - - - - - - - - - - - -
@@ -565,24 +570,25 @@ namespace Obj = bdlat_NullableValueFunctions;
 // Suppose we want to create utilities for getting and setting the value
 // associated with an arbitrary "nullable" type.
 //
-// These functors make minimal assumptions of 'VALUE_TYPE', merely that it is
+// These functors make minimal assumptions of `VALUE_TYPE`, merely that it is
 // copy constructable and copy assignable.
 //
-//..
+// ```
     struct NullableValueUtil {
 
         // CLASS METHODS
+
+        /// Load to the specified `value` the value of the specified
+        /// nullable value `object`.  This function template requires that
+        /// the specified `NULLABLE_VALUE_TYPE` is a `bdlat` "nullable"
+        /// type.  The behavior is undefined unless `object` is in a
+        /// non-null state (i.e.,
+        /// `false == bdlat_NullableValueFunctions::isNull(object))`.
         template <class NULLABLE_VALUE_TYPE>
         static int getValue(
             typename bdlat_NullableValueFunctions
                                 ::ValueType<NULLABLE_VALUE_TYPE>::Type *value,
             const NULLABLE_VALUE_TYPE&                                  object)
-            // Load to the specified 'value' the value of the specified
-            // nullable value 'object'.  This function template requires that
-            // the specified 'NULLABLE_VALUE_TYPE' is a 'bdlat' "nullable"
-            // type.  The behavior is undefined unless 'object' is in a
-            // non-null state (i.e.,
-            // 'false == bdlat_NullableValueFunctions::isNull(object))'.
         {
             BSLMF_ASSERT(bdlat_NullableValueFunctions
                                 ::IsNullableValue<NULLABLE_VALUE_TYPE>::value);
@@ -597,19 +603,19 @@ namespace Obj = bdlat_NullableValueFunctions;
                                                              valueAccessor);
         }
 
+        /// Set the value of the specified `object` to the specified
+        /// `value`.  This function template requires that the specified
+        /// `NULLABLE_VALUE_TYPE` is a `bdlat` "nullable" type.  The
+        /// behavior is undefined unless `object` is in a non-null state
+        /// (i.e., `false == bdlat_NullableValueFunctions::isNull(object))`.
+        /// Note that a "nullable" object can be put into a non-null state
+        /// by the `bdlat_NullableValueFunctions::makeValue` function
+        /// overload for the `NULLABLE_VALUE_TYPE`.
         template <class NULLABLE_VALUE_TYPE>
         static int setValue(NULLABLE_VALUE_TYPE                        *object,
                             const typename bdlat_NullableValueFunctions
                                ::ValueType<NULLABLE_VALUE_TYPE>::Type&  value)
 
-            // Set the value of the specified 'object' to the specified
-            // 'value'.  This function template requires that the specified
-            // 'NULLABLE_VALUE_TYPE' is a 'bdlat' "nullable" type.  The
-            // behavior is undefined unless 'object' is in a non-null state
-            // (i.e., 'false == bdlat_NullableValueFunctions::isNull(object))'.
-            // Note that a "nullable" object can be put into a non-null state
-            // by the 'bdlat_NullableValueFunctions::makeValue' function
-            // overload for the 'NULLABLE_VALUE_TYPE'.
         {
             BSLMF_ASSERT(bdlat_NullableValueFunctions
                                 ::IsNullableValue<NULLABLE_VALUE_TYPE>::value);
@@ -625,10 +631,10 @@ namespace Obj = bdlat_NullableValueFunctions;
                                                                  manipulator);
         }
     };
-//..
+// ```
 // Now, we can use these functors to write generic utility functions for
 // getting and setting the value types of arbitrary "nullable" classes.
-//..
+// ```
     void myUsageScenario()
     {
         mine::MyNullableValue object;
@@ -649,13 +655,13 @@ namespace Obj = bdlat_NullableValueFunctions;
         ASSERT( 0 == rcg);
         ASSERT(42 == value);
     }
-//..
+// ```
 //
 ///Example 4: Achieving Type Independence
 /// - - - - - - - - - - - - - - - - - - -
-// Finally, suppose we have another type such as 'your::YourNullableType',
+// Finally, suppose we have another type such as `your::YourNullableType`,
 // shown below:
-//..
+// ```
 //  namespace BloombergLP {
 //  namespace your {
 //
@@ -708,18 +714,18 @@ namespace Obj = bdlat_NullableValueFunctions;
 //
 //  }  // close namespace your
 //  }  // close enterprise namespace
-//..
-// Notice that while there are many similarities to 'mine::MyNullableValue'
+// ```
+// Notice that while there are many similarities to `mine::MyNullableValue`
 // there are clearly differences:
-//: o The value type is 'bsl::string', not 'int'.
-//: o Attributes are accessed via accessor methods, not public data members.
+//  - The value type is `bsl::string`, not `int`.
+//  - Attributes are accessed via accessor methods, not public data members.
 //
-// Nevertheless, since 'your::YourNullableValue' also provides the functions
-// and types expected by the 'bdlat' infrastructure (not shown) we can
-// successfully use 'your::YourNullableValue' value instead of
-// 'mine::MyNullableValue' in the previous usage scenario, with no other
+// Nevertheless, since `your::YourNullableValue` also provides the functions
+// and types expected by the `bdlat` infrastructure (not shown) we can
+// successfully use `your::YourNullableValue` value instead of
+// `mine::MyNullableValue` in the previous usage scenario, with no other
 // changes:
-//..
+// ```
     void yourUsageScenario()
     {
         your::YourNullableValue object;  // YOUR NULLABLE TYPE
@@ -740,18 +746,18 @@ namespace Obj = bdlat_NullableValueFunctions;
         ASSERT(  0  == rcg);
         ASSERT("NB" == value);
     }
-//..
-// Notice that syntax and order of 'bdlat_NullableValueFunction' functions
+// ```
+// Notice that syntax and order of `bdlat_NullableValueFunction` functions
 // calls have not been changed.  The only difference is that the contained
-// type has changed from 'int' to 'bsl::string'.
+// type has changed from `int` to `bsl::string`.
 //
 // Finally, instead of defining a new "nullable" type, we could substitute the
-// existing type template 'bdlb::NullableValue'.  Note that this component
-// provides specializations of the 'bdlat_nullableValueFunctions' for that
+// existing type template `bdlb::NullableValue`.  Note that this component
+// provides specializations of the `bdlat_nullableValueFunctions` for that
 // type.  Since the accessor and manipulator functions we created earlier are
-// type neutral, we can simply drop 'bdlb::NullableValue<float>' into our
+// type neutral, we can simply drop `bdlb::NullableValue<float>` into our
 // familiar scenario:
-//..
+// ```
     void anotherUsageScenario()
     {
         bdlb::NullableValue<float> object;  // BDE NULLABLE TYPE
@@ -772,7 +778,7 @@ namespace Obj = bdlat_NullableValueFunctions;
         ASSERT(0   == rcg);
         ASSERT(2.0 == value);
     }
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -787,7 +793,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -800,7 +806,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Copy-paste the example, change the assert into ASSERT,
-        //   and pass a string stream instead of 'bsl::cout' in order to check
+        //   and pass a string stream instead of `bsl::cout` in order to check
         //   the print format.
         //
         // Testing:

@@ -15,7 +15,7 @@
 // delimited regions of C++11 code, then this test driver is a minimal 'main'
 // program that tests nothing and is not '#include'd in the original.
 //
-// Generated on Fri Aug 23 12:24:02 2024
+// Generated on Mon Sep 30 21:26:03 2024
 // Command line: sim_cpp11_features.pl bslma_constructionutil.xt.cpp
 
 // Expanded test driver only when compiling bslma_constructionutil.cpp

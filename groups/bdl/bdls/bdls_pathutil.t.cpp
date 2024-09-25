@@ -24,7 +24,7 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'bdlt::PathUtil' provides a suite of functions for manipulating strings that
+// `bdlt::PathUtil` provides a suite of functions for manipulating strings that
 // represent paths in the filesystem.  This test driver falls short of accepted
 // standards and needs to be rewritten.
 //
@@ -290,9 +290,9 @@ struct Parameters {
 #endif
 };
 
+/// Replace each occurrence of '/' with '\\' in the specified `path`.
 template <class STRING_TYPE>
 void convertToWindowsSeparator(STRING_TYPE *path)
-    // Replace each occurrence of '/' with '\\' in the specified 'path'.
 {
     bsl::string::size_type position = path->find('/');
     for ( ; position != bsl::string::npos; position = path->find('/')) {
@@ -300,8 +300,8 @@ void convertToWindowsSeparator(STRING_TYPE *path)
     }
 }
 
+/// Replace each occurrence of '\\' with '\' in the specified `path`.
 void convertToUnixSeparator(bsl::string *path)
-    // Replace each occurrence of '\\' with '\' in the specified 'path'.
 {
     bsl::string::size_type position = path->find('\\');
     for ( ;
@@ -322,7 +322,7 @@ void usageExample()
 ///- - - - - - - - - - - -
 // We start with strings representing an absolute native path and a relative
 // native path, respectively:
-//..
+// ```
     #ifdef BSLS_PLATFORM_OS_WINDOWS
     STRING_TYPE tempPath  = "c:\\windows\\temp";
     STRING_TYPE otherPath = "22jan08\\log.txt";
@@ -330,18 +330,18 @@ void usageExample()
     STRING_TYPE tempPath  = "/var/tmp";
     STRING_TYPE otherPath = "22jan08/log.txt";
     #endif
-//..
-// 'tempPath' is an absolute path, since it has a root.  It also has a leaf
+// ```
+// `tempPath` is an absolute path, since it has a root.  It also has a leaf
 // element ("temp"):
-//..
+// ```
     ASSERT(false == bdls::PathUtil::isRelative(tempPath));
     ASSERT(true  == bdls::PathUtil::isAbsolute(tempPath));
     ASSERT(true  == bdls::PathUtil::hasLeaf(tempPath));
-//..
+// ```
 // We can add filenames to the path one at a time, or we can add another path
 // if is relative.  We can also remove filenames from the end of the path one
 // at a time:
-//..
+// ```
     bdls::PathUtil::appendRaw(&tempPath, "myApp");
     bdls::PathUtil::appendRaw(&tempPath, "logs");
 
@@ -357,39 +357,39 @@ void usageExample()
     #else
     ASSERT("/var/tmp/myApp/logs/22jan08/log2.txt"              == tempPath);
     #endif
-//..
+// ```
 // A relative path may be appended to any other path, even itself.  An absolute
 // path may not be appended to any path, or undefined behavior will result:
-//..
+// ```
     ASSERT(0 == bdls::PathUtil::appendIfValid(&otherPath, otherPath));  // OK
     /* bdls::PathUtil::append(&otherPath, tempPath); */ // UNDEFINED BEHAVIOR!
-//..
+// ```
 // Note that there is no attempt to distinguish filenames that are regular
 // files from filenames that are directories, or to verify the existence of
 // paths in the filesystem.
-//..
+// ```
     #ifdef BSLS_PLATFORM_OS_WINDOWS
     ASSERT("c:\\windows\\temp\\myApp\\logs\\22jan08\\log2.txt" == tempPath);
     #else
     ASSERT("/var/tmp/myApp/logs/22jan08/log2.txt"              == tempPath);
     #endif
-//..
+// ```
 //
-///Example 2: Parsing a path using 'splitFilename'
+///Example 2: Parsing a path using `splitFilename`
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we need to obtain all filenames from the path.
 //
 // First, we create a path for splitting and a storage for filenames:
-//..
+// ```
     #ifdef BSLS_PLATFORM_OS_WINDOWS
     const char                     *splitPath = "c:\\one\\two\\three\\four";
     #else
     const char                     *splitPath = "//one/two/three/four";
     #endif
     bsl::vector<bsl::string_view>  filenames;
-//..
+// ```
 // Then, we run a cycle to sever filenames from the end one by one:
-//..
+// ```
     bsl::string_view head;
     bsl::string_view tail;
     bsl::string_view path(splitPath);
@@ -399,9 +399,9 @@ void usageExample()
         filenames.push_back(tail);
         path = head;
     } while (!tail.empty());
-//..
+// ```
 // Now, verify the resulting values:
-//..
+// ```
     ASSERT(5           == filenames.size());
 
     ASSERT("four"      == filenames[0]);
@@ -409,15 +409,15 @@ void usageExample()
     ASSERT("two"       == filenames[2]);
     ASSERT("one"       == filenames[3]);
     ASSERT(""          == filenames[4]);
-//..
+// ```
 // Finally, make sure that only the root remains of the original value:
-//..
+// ```
     #ifdef BSLS_PLATFORM_OS_WINDOWS
     ASSERT("c:\\"      == head);
     #else
     ASSERT("//"        == head);
     #endif
-//..
+// ```
 }
 
 template <class STRING_TYPE>
@@ -455,7 +455,7 @@ void test_getExtension(int verbose, int veryVerbose, int veryVeryVerbose)
 // 6. Dots in parent directories
 {L_, "/a/b.c/a",            1, false, ""       },
 {L_, "a.txt/b",             0, false, ""       },
-// 7. Consistency with 'getLeaf'
+// 7. Consistency with `getLeaf`
 {L_, "/a.txt/",             1, true,  ".txt"   },
 {L_, "a.exe/",              0, true,  ".exe"   },
 // 8. Empty extensions
@@ -477,7 +477,7 @@ void test_getExtension(int verbose, int veryVerbose, int veryVeryVerbose)
 // 6. [Windows] Dots in parent directories
 {L_, "\\\\a\\b.c\\a",       4, false, ""       },
 {L_, "a.txt\\b",            0, false, ""       },
-// 7. [Windows] Consistency with 'getLeaf'
+// 7. [Windows] Consistency with `getLeaf`
 {L_, "c:\\\\a.txt\\",       3, true,  ".txt"   },
 {L_, "a.exe\\",             0, true,  ".exe"   },
 // 8. [Windows] Empty extensions
@@ -496,20 +496,20 @@ void test_getExtension(int verbose, int veryVerbose, int veryVeryVerbose)
 
         (void) PATH;
 
-        // Explicit negative 'rootEnd'
+        // Explicit negative `rootEnd`
         STRING_TYPE extension;
         int         result =
             bdls::PathUtil::getExtension(&extension, DATA[i].d_path, -1);
         ASSERTV(LINE, SUCCESS, result == 0, SUCCESS == (result == 0));
         ASSERTV(LINE, EXTENSION, extension, EXTENSION == extension);
 
-        // Implicit negative 'rootEnd' (default value)
+        // Implicit negative `rootEnd` (default value)
         extension.clear();
         result = bdls::PathUtil::getExtension(&extension, DATA[i].d_path);
         ASSERTV(LINE, SUCCESS, result == 0, SUCCESS == (result == 0));
         ASSERTV(LINE, EXTENSION, extension, EXTENSION == extension);
 
-        // Explicit non-negative 'rootEnd'
+        // Explicit non-negative `rootEnd`
         extension.clear();
         result =
             bdls::PathUtil::getExtension(&extension, DATA[i].d_path, ROOT);
@@ -803,7 +803,7 @@ void test_splitFilename(int verbose, int veryVerbose, int veryVeryVerbose)
 
         if (veryVerbose) { T_; P_(ti); P(PATH); }
 
-        // Explicit negative 'rootEnd'.
+        // Explicit negative `rootEnd`.
 
         bsl::string_view head;
         bsl::string_view tail;
@@ -826,7 +826,7 @@ void test_splitFilename(int verbose, int veryVerbose, int veryVeryVerbose)
                  << endl;
         }
 
-        // Implicit negative 'rootEnd' (default value).
+        // Implicit negative `rootEnd` (default value).
 
         head = emptyRefOrView;
         tail = emptyRefOrView;
@@ -836,7 +836,7 @@ void test_splitFilename(int verbose, int veryVerbose, int veryVeryVerbose)
         ASSERTV(LINE, EXP_HEAD, head, EXP_HEAD == head);
         ASSERTV(LINE, EXP_TAIL, tail, EXP_TAIL == tail);
 
-        // Explicit non-negative 'rootEnd'.
+        // Explicit non-negative `rootEnd`.
 
         head = emptyRefOrView;
         tail = emptyRefOrView;
@@ -846,7 +846,7 @@ void test_splitFilename(int verbose, int veryVerbose, int veryVeryVerbose)
         ASSERTV(LINE, EXP_HEAD, head, EXP_HEAD == head);
         ASSERTV(LINE, EXP_TAIL, tail, EXP_TAIL == tail);
 
-        // 'head' is alias of 'path'.
+        // `head` is alias of `path`.
 
         bsl::string_view aliasPath = DATA[ti].d_path;
         tail = emptyRefOrView;
@@ -857,7 +857,7 @@ void test_splitFilename(int verbose, int veryVerbose, int veryVeryVerbose)
         ASSERTV(LINE, EXP_HEAD, aliasPath, EXP_HEAD == aliasPath);
         ASSERTV(LINE, EXP_TAIL, tail,      EXP_TAIL == tail);
 
-        // 'tail' is alias of 'path'.
+        // `tail` is alias of `path`.
 
         aliasPath = DATA[ti].d_path;
         head = emptyRefOrView;
@@ -1230,7 +1230,7 @@ int main(int argc, char *argv[])
 
     (void)veryVerbose;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch(test) { case 0:
@@ -1240,13 +1240,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -1267,17 +1267,17 @@ int main(int argc, char *argv[])
         // TESTING SEPARATOR CONSTANT
         //
         // Concerns:
-        //: 1 The 'k_SEPARATOR' represents valid path separator on any
-        //:   supported platform.
+        // 1. The `k_SEPARATOR` represents valid path separator on any
+        //    supported platform.
         //
         // Plan:
-        //: 1 Explicitly append 'k_SEPARATOR' and some string representing
-        //:   filename to another string, representing path.  Compose a
-        //:   reference value using the 'appendIfValid' function.  Compare the
-        //:   results.
-        //:
-        //: 2 Extract filenames from both paths using the 'getLeaf' function
-        //:  and compare them.  (C-1)
+        // 1. Explicitly append `k_SEPARATOR` and some string representing
+        //    filename to another string, representing path.  Compose a
+        //    reference value using the `appendIfValid` function.  Compare the
+        //    results.
+        //
+        // 2. Extract filenames from both paths using the `getLeaf` function
+        //   and compare them.  (C-1)
         //
         // Testing:
         //   TESTING SEPARATOR CONSTANT
@@ -1312,45 +1312,45 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING: 'getExtension'
+        // TESTING: `getExtension`
         //
         // Concerns:
-        //: 1 The 'getExtension' method accepts absolute and relative paths.
-        //:
-        //: 2 The 'getExtension' method accepts empty paths and returns an
-        //:   empty extension in that case.
-        //:
-        //: 3 The 'getExtension' method is able to find the extension even
-        //:   in filenames that contain multiple dots.
-        //:
-        //: 4 The 'getExtension' method does not find extensions in the special
-        //:   files '.' and '..'
-        //:
-        //: 5 In the case that the leaf of the path begins with a dot ('.'),
-        //:   it is ignored as a character for considering what the path is.
-        //:
-        //: 6 The 'getExtension' method is not tricked by dots in the
-        //:     directory names containing the path
-        //:
-        //: 7 The 'getExtension' method behaviour is consistent with that of
-        //:   the 'getLeaf' method ("a.txt/" *has* an extension)
-        //:
-        //: 8 The 'getExtension' method correctly identifies empty extensions
-        //:
-        //: 9 Asserted precondition violations are detected when enabled.
+        // 1. The `getExtension` method accepts absolute and relative paths.
+        //
+        // 2. The `getExtension` method accepts empty paths and returns an
+        //    empty extension in that case.
+        //
+        // 3. The `getExtension` method is able to find the extension even
+        //    in filenames that contain multiple dots.
+        //
+        // 4. The `getExtension` method does not find extensions in the special
+        //    files '.' and `..`
+        //
+        // 5. In the case that the leaf of the path begins with a dot ('.'),
+        //    it is ignored as a character for considering what the path is.
+        //
+        // 6. The `getExtension` method is not tricked by dots in the
+        //      directory names containing the path
+        //
+        // 7. The `getExtension` method behaviour is consistent with that of
+        //    the `getLeaf` method ("a.txt/" *has* an extension)
+        //
+        // 8. The `getExtension` method correctly identifies empty extensions
+        //
+        // 9. Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create a table of test input values and expected results
-        //:
-        //: 2 Iterate over this table verifying that 'getExtension' produces
-        //:   the expected results with
-        //:     - the explicit negative value of the 'rootEnd'
-        //:     - the default value of the 'rootEnd'
-        //:     - the explicit correct value of the 'rootEnd
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones.  (C-9)
+        // 1. Create a table of test input values and expected results
+        //
+        // 2. Iterate over this table verifying that `getExtension` produces
+        //    the expected results with
+        //      - the explicit negative value of the `rootEnd`
+        //      - the default value of the `rootEnd`
+        //      - the explicit correct value of the 'rootEnd
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones.  (C-9)
         //
         // Testing:
         //   void getExtension(bsl::string*, const string_view&, int);
@@ -1371,76 +1371,76 @@ int main(int argc, char *argv[])
     }; break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING: 'splitFilename'
+        // TESTING: `splitFilename`
         //
         // Concerns:
-        //: 1 The 'splitFilename' method accepts absolute and relative paths.
-        //:
-        //: 2 The 'splitFilename' method accepts empty paths and returns empty
-        //:   'head' and 'tail' in such cases.
-        //:
-        //: 3 The resulting 'head' always contains the root of the original
-        //:   path.
-        //:
-        //: 4 The resulting 'head' does not contain trailing seperators.
-        //:
-        //: 5 The resulting 'tail' does not contain seperators.
-        //:
-        //: 6 The 'splitFilename' method properly handles Windows paths
-        //:   containing forward and backward slashes.
-        //:
-        //: 7 The 'splitFilename' method correctly identifies the root end of
-        //:   the passed path.
-        //:
-        //: 8 The 'splitFilename' method correctly handles passed 'head' or
-        //:   'tail' in the case when they are aliases of 'path'
-        //:   ('head == &path' or 'tail == &path').
-        //:
-        //: 9 Asserted precondition violations are detected when enabled.
+        // 1. The `splitFilename` method accepts absolute and relative paths.
+        //
+        // 2. The `splitFilename` method accepts empty paths and returns empty
+        //    `head` and `tail` in such cases.
+        //
+        // 3. The resulting `head` always contains the root of the original
+        //    path.
+        //
+        // 4. The resulting `head` does not contain trailing seperators.
+        //
+        // 5. The resulting `tail` does not contain seperators.
+        //
+        // 6. The `splitFilename` method properly handles Windows paths
+        //    containing forward and backward slashes.
+        //
+        // 7. The `splitFilename` method correctly identifies the root end of
+        //    the passed path.
+        //
+        // 8. The `splitFilename` method correctly handles passed `head` or
+        //    `tail` in the case when they are aliases of `path`
+        //    (`head == &path` or `tail == &path`).
+        //
+        // 9. Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create a table of test input values and expected results.  Input
-        //:   values are graded in the following way:
-        //:
-        //:     Windows:
-        //:     --------
-        //:     - empty path
-        //:     - slashes only
-        //:     - LFS  root
-        //:     - UNC  root
-        //:     - LUNC root
-        //:
-        //:   As Windows OS supports both backward and forward slashes, we
-        //:   check both variants separately.
-        //:
-        //:     Unix:
-        //:     -----
-        //:     - empty path
-        //:     - one slash root
-        //:     - two slashes root
-        //:     - three slashes root
-        //:
-        //:   Whithin each group input values are graded in the following way:
-        //:
-        //:     - root + delimiter(s)
-        //:     - root + delimiter(s) + file
-        //:     - root + delimiter(s) + folder
-        //:     - root + delimiter    + folder + delimiter(s) + file
-        //:
-        //:   As paths can contain multiple delimiters, we add up to 4 of them
-        //:   to check that they are handled correctly.
-        //:
-        //: 2 Iterate over this table verifying that 'splitFilename' produces
-        //:   the expected results with
-        //:     - the explicit negative value of the 'rootEnd'
-        //:     - the default value of the 'rootEnd'
-        //:     - the explicit correct value of the 'rootEnd
-        //:     - the 'head' being an address of 'path'
-        //:     - the 'tail' being an address of 'path'  (C-1..8)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones.  (C-9)
+        // 1. Create a table of test input values and expected results.  Input
+        //    values are graded in the following way:
+        //
+        //      Windows:
+        //      --------
+        //      - empty path
+        //      - slashes only
+        //      - LFS  root
+        //      - UNC  root
+        //      - LUNC root
+        //
+        //    As Windows OS supports both backward and forward slashes, we
+        //    check both variants separately.
+        //
+        //      Unix:
+        //      -----
+        //      - empty path
+        //      - one slash root
+        //      - two slashes root
+        //      - three slashes root
+        //
+        //    Whithin each group input values are graded in the following way:
+        //
+        //      - root + delimiter(s)
+        //      - root + delimiter(s) + file
+        //      - root + delimiter(s) + folder
+        //      - root + delimiter    + folder + delimiter(s) + file
+        //
+        //    As paths can contain multiple delimiters, we add up to 4 of them
+        //    to check that they are handled correctly.
+        //
+        // 2. Iterate over this table verifying that `splitFilename` produces
+        //    the expected results with
+        //      - the explicit negative value of the `rootEnd`
+        //      - the default value of the `rootEnd`
+        //      - the explicit correct value of the 'rootEnd
+        //      - the `head` being an address of `path`
+        //      - the `tail` being an address of `path`  (C-1..8)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones.  (C-9)
         //
         // Testing:
         //   void splitFilename(string_view*, string_view*,
@@ -1461,39 +1461,39 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING: 'appendIfValid'
+        // TESTING: `appendIfValid`
         //
         // Concerns:
-        //: 1 Return an error code is the appended path is an absolute path.
-        //:
-        //: 2 If 'path' does not contain trailing separators, 'filename' is
-        //:   appended with the appropriate separator.
-        //:
-        //: 3 If 'path' does contain trailing separators, 'filename' is
-        //:   appended with only a single separator.
-        //:
-        //: 4 If 'filename' contains trailing separators, they are not in
-        //:   appended to 'path'.
-        //:
-        //: 5 If 'path' contains only separators it is simplified to a single
-        //:   separator.
-        //:
-        //: 6 If 'filename' is an alias for any element in 'path', it is still
-        //:   correctly appended.
-        //:
-        //: 7 Windows file names properly handle drive names in the absolute
-        //:   path.
+        // 1. Return an error code is the appended path is an absolute path.
+        //
+        // 2. If `path` does not contain trailing separators, `filename` is
+        //    appended with the appropriate separator.
+        //
+        // 3. If `path` does contain trailing separators, `filename` is
+        //    appended with only a single separator.
+        //
+        // 4. If `filename` contains trailing separators, they are not in
+        //    appended to `path`.
+        //
+        // 5. If `path` contains only separators it is simplified to a single
+        //    separator.
+        //
+        // 6. If `filename` is an alias for any element in `path`, it is still
+        //    correctly appended.
+        //
+        // 7. Windows file names properly handle drive names in the absolute
+        //    path.
         //
         // Plan:
-        //: 1 Create a table of test input values and expected results, and
-        //:   iterate over this table verifying that 'appendIfValue' produces
-        //:   the expected results.  (C-1, C-2, C-3, C-4, C-5, C-6)
-        //:
-        //: 1 Iterate over a series of simple test paths, and for each
-        //:   path, iterate over a series of sub-string within that path.
-        //:   For each sub-string, create a bsl::string_view aliasing that
-        //:   sub-string, create an expected result value, and verify
-        //:   that 'appendIfValid' also generates that expected value (C-7).
+        // 1. Create a table of test input values and expected results, and
+        //    iterate over this table verifying that `appendIfValue` produces
+        //    the expected results.  (C-1, C-2, C-3, C-4, C-5, C-6)
+        //
+        // 1. Iterate over a series of simple test paths, and for each
+        //    path, iterate over a series of sub-string within that path.
+        //    For each sub-string, create a bsl::string_view aliasing that
+        //    sub-string, create an expected result value, and verify
+        //    that `appendIfValid` also generates that expected value (C-7).
         //
         // Testing:
         //  int appendIfValid(bsl::string *, const bsl::string_view& );

@@ -29,19 +29,19 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'bdlb::CStringEqualTo' provides a stateless type and thus very little to
+// `bdlb::CStringEqualTo` provides a stateless type and thus very little to
 // test.  The primary concern is that function call operator compares C-strings
 // correctly.  CREATORS can be tested only for mechanical functioning.  And BSL
-// traits presence should be checked as we declare that 'bdlb::CStringEqualTo'
+// traits presence should be checked as we declare that `bdlb::CStringEqualTo`
 // is an empty POD.
 //
 // The tests for this component are table based, i.e., testing actual results
 // against a table of expected results.
 //
 // Global Concerns:
-//: o No memory is ever allocated from the global allocator.
-//: o No memory is ever allocated from the default allocator.
-//: o Precondition violations are detected in appropriate build modes.
+//  - No memory is ever allocated from the global allocator.
+//  - No memory is ever allocated from the default allocator.
+//  - Precondition violations are detected in appropriate build modes.
 // ----------------------------------------------------------------------------
 // [ 2] CStringEqualTo()
 // [ 2] CStringEqualTo(const CStringEqualTo&)
@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -162,13 +162,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -181,58 +181,58 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-// Example 1: Basic Use of 'bdlb::CStringEqualTo'
+// Example 1: Basic Use of `bdlb::CStringEqualTo`
 /// - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to create and use a
-// 'bdlb::CStringEqualTo' object as a binary predicate for the standard library
-// function 'bsl::equal' to test that two ranges of null-terminated character
+// `bdlb::CStringEqualTo` object as a binary predicate for the standard library
+// function `bsl::equal` to test that two ranges of null-terminated character
 // strings are equal.
 //
 // First, we create few sequences with null-terminated character strings,
 // making sure that their elements have different memory addresses:
-//..
+// ```
     const char hello1[] = { 'h', 'e', 'l', 'l', 'o', 0};
     const char hello2[] = { 'h', 'e', 'l', 'l', 'o', 0};
 
     const char* arrayA[3] = { "A", "B", hello1 };
     const char* arrayB[3] = { "A", "B", hello2 };
-//..
+// ```
 // Now, use bdlb::CStringEqualTo() as a binary predicate to compare sequences:
-//..
+// ```
     bool bdlbEqualTo = bsl::equal(arrayA, arrayA+3, arrayB,
                                   bdlb::CStringEqualTo());
     bool bslEqualTo  = bsl::equal(arrayA, arrayA+3, arrayB,
                                   bsl::equal_to<const char *>());
-//..
-// Finally, we observe that 'bdlb::CStringEqualTo' compares character string by
+// ```
+// Finally, we observe that `bdlb::CStringEqualTo` compares character string by
 // their values, while default comparator compares addresses:
-//..
+// ```
     ASSERT( true  == bdlbEqualTo );
     ASSERT( false == bslEqualTo );
-//..
+// ```
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING QoI: 'CStringEqualTo' IS AN EMPTY TYPE
+        // TESTING QoI: `CStringEqualTo` IS AN EMPTY TYPE
         //   As a quality of implementation issue, the class has no state and
         //   should support the use of the empty base class optimization on
         //   compilers that support it.
         //
         // Concerns:
-        //: 1 class 'bdlb::CStringEqualTo' does not increase the size of an
-        //:   object when used as a base class.
-        //:
-        //: 2 Object of 'bdlb::CStringEqualTo' class increases size of an
-        //:   object when used as a class member.
+        // 1. class `bdlb::CStringEqualTo` does not increase the size of an
+        //    object when used as a base class.
+        //
+        // 2. Object of `bdlb::CStringEqualTo` class increases size of an
+        //    object when used as a class member.
         //
         // Plan:
-        //: 1 Define two identical non-empty classes with no padding, but
-        //:   derive one of them from 'bdlb::CStringLess', then assert that
-        //:   both classes have the same size. (C-1)
-        //:
-        //: 2 Create a non-empty class with an 'bdlb::CStringLess' additional
-        //:   data member, assert that class size is larger than sum of other
-        //:   data member's sizes. (C-2)
+        // 1. Define two identical non-empty classes with no padding, but
+        //    derive one of them from `bdlb::CStringLess`, then assert that
+        //    both classes have the same size. (C-1)
+        //
+        // 2. Create a non-empty class with an `bdlb::CStringLess` additional
+        //    data member, assert that class size is larger than sum of other
+        //    data member's sizes. (C-2)
         //
         // Testing:
         //   QoI: Support for empty base optimization
@@ -240,7 +240,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout
                    << endl
-                   << "TESTING QoI: 'CStringEqualTo' IS AN EMPTY TYPE" << endl
+                   << "TESTING QoI: `CStringEqualTo` IS AN EMPTY TYPE" << endl
                    << "==============================================" << endl;
 
         struct TwoInts {
@@ -270,12 +270,12 @@ int main(int argc, char *argv[])
         //   type traits to reflect this.
         //
         // Concerns:
-        //: 1 The class is trivially copyable.
-        //:
-        //: 2 The class is trivially default constructable.
+        // 1. The class is trivially copyable.
+        //
+        // 2. The class is trivially default constructable.
         //
         // Plan:
-        //: 1 ASSERT the presence of each trait required by the type. (C-1..2)
+        // 1. ASSERT the presence of each trait required by the type. (C-1..2)
         //
         // Testing:
         //   BSL Type Traits
@@ -296,18 +296,18 @@ int main(int argc, char *argv[])
         //   standard adaptable binary function.
         //
         // Concerns:
-        //: 1 The typedef 'first_argument_type' is publicly accessible and an
-        //:   alias for 'const char *'.
-        //:
-        //: 2 The typedef 'second_argument_type' is publicly accessible and an
-        //:   alias for 'const char *'.
-        //:
-        //: 3 The typedef 'result_type' is publicly accessible and an alias for
-        //:   'bool'.
+        // 1. The typedef `first_argument_type` is publicly accessible and an
+        //    alias for `const char *`.
+        //
+        // 2. The typedef `second_argument_type` is publicly accessible and an
+        //    alias for `const char *`.
+        //
+        // 3. The typedef `result_type` is publicly accessible and an alias for
+        //    `bool`.
         //
         // Plan:
-        //: 1 ASSERT each of the typedefs has accessibly aliases the correct
-        //:   type using 'bsl::is_same'. (C-1..3)
+        // 1. ASSERT each of the typedefs has accessibly aliases the correct
+        //    type using `bsl::is_same`. (C-1..3)
         //
         // Testing:
         //   Standard typedefs
@@ -327,33 +327,33 @@ int main(int argc, char *argv[])
         // FUNCTION CALL OPERATOR
         //
         // Concerns:
-        //: 1 Objects of type 'bdlb::CStringEqualTo' can be invokes as a binary
-        //:   predicate returning 'bool' and taking two 'const char *'
-        //:   arguments.
-        //:
-        //: 2 The function call operator can be invoked on constant objects.
-        //:
-        //: 3 The function call returns 'true' or 'false' indicating whether
-        //:   the two supplied string arguments have the same string value.
-        //:
-        //: 4 No memory is allocated from the default or global allocators.
+        // 1. Objects of type `bdlb::CStringEqualTo` can be invokes as a binary
+        //    predicate returning `bool` and taking two `const char *`
+        //    arguments.
+        //
+        // 2. The function call operator can be invoked on constant objects.
+        //
+        // 3. The function call returns `true` or `false` indicating whether
+        //    the two supplied string arguments have the same string value.
+        //
+        // 4. No memory is allocated from the default or global allocators.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of C-strings for
-        //:   comparison, and a flag value indicating whether one string is
-        //:   equal to the other.
-        //:
-        //: 2 For each row 'R' in the table of P-1 verify that the function
-        //:   call operator, when invoked on C-string values from 'R', returns
-        //:   the expected value.  (C-1..3)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-4)
-        //:
-        //: 4 Verify that no memory have been allocated from the default
-        //:   allocator.  (C-5)
+        // 1. Using the table-driven technique, specify a set of C-strings for
+        //    comparison, and a flag value indicating whether one string is
+        //    equal to the other.
+        //
+        // 2. For each row `R` in the table of P-1 verify that the function
+        //    call operator, when invoked on C-string values from `R`, returns
+        //    the expected value.  (C-1..3)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-4)
+        //
+        // 4. Verify that no memory have been allocated from the default
+        //    allocator.  (C-5)
         //
         // Testing:
         //   operator()(const char *, const char *) const
@@ -420,41 +420,41 @@ int main(int argc, char *argv[])
         //   expected expressions compile.
         //
         // Concerns:
-        //: 1 Objects can be created using the default constructor.
-        //:
-        //: 2 Objects can be created using the copy constructor.
-        //:
-        //: 3 The copy constructor is not declared as explicit.
-        //:
-        //: 4 Objects can be assigned to from constant objects.
-        //:
-        //: 5 Assignments operations can be chained.
-        //:
-        //: 6 Objects can be destroyed.
-        //:
-        //: 7 No memory is allocated by the default and global allocators.
+        // 1. Objects can be created using the default constructor.
+        //
+        // 2. Objects can be created using the copy constructor.
+        //
+        // 3. The copy constructor is not declared as explicit.
+        //
+        // 4. Objects can be assigned to from constant objects.
+        //
+        // 5. Assignments operations can be chained.
+        //
+        // 6. Objects can be destroyed.
+        //
+        // 7. No memory is allocated by the default and global allocators.
         //
         // Plan:
-        //: 2 Verify the default constructor exists and is publicly accessible
-        //:   by default-constructing a 'const CStringEqualTo'
-        //:   object. (C-1)
-        //:
-        //: 3 Verify the copy constructor is publicly accessible and not
-        //:   'explicit' by using the copy-initialization syntax to create a
-        //:   second 'CStringEqualTo' from the first. (C-2,3)
-        //:
-        //: 4 Assign the value of the first ('const') object to the second.
-        //:   (C-4)
-        //:
-        //: 5 Chain the assignment of the value of the first ('const') object
-        //:   to the second, into a self-assignment of the second object to
-        //:   itself. (C-5)
-        //:
-        //: 6 Verify the destructor is publicly accessible by allowing the
-        //:   'CStringEqualTo' object(s) to leave scope and be destroyed. (C-6)
-        //:
-        //: 7 Verify that no memory have been allocated from the default
-        //:   allocator. (C-7)
+        // 2. Verify the default constructor exists and is publicly accessible
+        //    by default-constructing a `const CStringEqualTo`
+        //    object. (C-1)
+        //
+        // 3. Verify the copy constructor is publicly accessible and not
+        //    `explicit` by using the copy-initialization syntax to create a
+        //    second `CStringEqualTo` from the first. (C-2,3)
+        //
+        // 4. Assign the value of the first (`const`) object to the second.
+        //    (C-4)
+        //
+        // 5. Chain the assignment of the value of the first (`const`) object
+        //    to the second, into a self-assignment of the second object to
+        //    itself. (C-5)
+        //
+        // 6. Verify the destructor is publicly accessible by allowing the
+        //    `CStringEqualTo` object(s) to leave scope and be destroyed. (C-6)
+        //
+        // 7. Verify that no memory have been allocated from the default
+        //    allocator. (C-7)
         //
         // Testing:
         //   CStringEqualTo()
@@ -495,13 +495,13 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an object 'compare' using the default constructor. (C-1)
-        //:
-        //: 2 Call the 'compare' functor with two string literals. (C-1)
+        // 1. Create an object `compare` using the default constructor. (C-1)
+        //
+        // 2. Call the `compare` functor with two string literals. (C-1)
         //
         // Testing:
         //   BREATHING TEST

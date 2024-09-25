@@ -6,7 +6,7 @@
 #include <bslim_testutil.h>
 
 #include <bsl_iostream.h>
-#include <bsl_new.h>          // placement 'new' syntax
+#include <bsl_new.h>          // placement `new` syntax
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strlen(), memset(), memcpy(), memcmp()
@@ -17,23 +17,23 @@ using namespace bsl;  // automatically added by script
 //=============================================================================
 //                                TEST PLAN
 //-----------------------------------------------------------------------------
-// This component currently has two procedures: The 'fromAsciiCaseless'
-// procedure is an inverse operation on 'ball::Severity::toAscii'.  The
-// 'isValidNameCaseless' procedure is a helper to 'fromAsciiCaseless'.  The
-// test strategy is to first validate that 'fromAsciiCaseless' correctly
+// This component currently has two procedures: The `fromAsciiCaseless`
+// procedure is an inverse operation on `ball::Severity::toAscii`.  The
+// `isValidNameCaseless` procedure is a helper to `fromAsciiCaseless`.  The
+// test strategy is to first validate that `fromAsciiCaseless` correctly
 // interprets the small set of C-style strings that represent the enumerated
-// values of 'ball::Severity::Level' and then confirm that it rejects as
+// values of `ball::Severity::Level` and then confirm that it rejects as
 // invalid strings that are small perturbations from the members of the valid
-// set.  Once some confidence in 'fromAsciiCaseless' is established, it is
-// checked for consistency with 'isValidNameCaseless' and then checked for
-// consistency with 'ball::Severity::toAscii'.
+// set.  Once some confidence in `fromAsciiCaseless` is established, it is
+// checked for consistency with `isValidNameCaseless` and then checked for
+// consistency with `ball::Severity::toAscii`.
 //-----------------------------------------------------------------------------
 // [ 1] static int fromAsciiCaseless(ball::Severity::Level *, const char *);
 // [ 5] static int fromAscii(ball::Severity::Level *, const char *);
 // [ 2] static bool isValidNameCaseless(const char *);
 // [ 4] static bool isValidName(const char *);
 //-----------------------------------------------------------------------------
-// [ 3] TESTING: consistency with 'ball::Severity::toAscii'
+// [ 3] TESTING: consistency with `ball::Severity::toAscii`
 // [ 6] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -140,11 +140,11 @@ int main(int argc, char *argv[])
 ///Usage
 ///-----
 // In this example, we show how to validate that a set of C-style strings
-// correspond to 'ball::Severity::Level' enumerators, and then use those
+// correspond to `ball::Severity::Level` enumerators, and then use those
 // strings to generate enumerator values that, in turn, may be used to
 // administer a logger manager.  Here, for convenience, we define our strings
 // in an array, much as how we might receive them from a command line:
-//..
+// ```
       const char *argv[] = {
           "INFO",   // record
           "WARN",   // pass
@@ -171,23 +171,23 @@ int main(int argc, char *argv[])
       ASSERT(ball::Severity::e_WARN  == pass);
       ASSERT(ball::Severity::e_ERROR == trigger);
       ASSERT(ball::Severity::e_FATAL == triggerAll);
-//..
+// ```
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // BASIC TEST 'isValidName'
-        //   Test that 'isValidName' correctly classifies input
+        // BASIC TEST `isValidName`
+        //   Test that `isValidName` correctly classifies input
         //   strings.
         //
         // Concerns:
-        //   - Are 'fromAscii' and 'isvalidName' in agreement
+        //   - Are `fromAscii` and `isvalidName` in agreement
         //     in their interpretation of input?
         //
         // Plan:
-        //   - Replicate the basic test of 'fromAscii' to test
-        //     'isValidName'.  Where the return status of
-        //     'fromAscii' is 0 the return value of
-        //     'isValidName' should be 'true', and 'false' otherwise.
+        //   - Replicate the basic test of `fromAscii` to test
+        //     `isValidName`.  Where the return status of
+        //     `fromAscii` is 0 the return value of
+        //     `isValidName` should be `true`, and `false` otherwise.
         //
         // Testing:
         //   bool isValidName(const char *severityName);
@@ -197,7 +197,7 @@ int main(int argc, char *argv[])
         // internal code base only.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-        if (verbose) cout << "BASIC TEST 'isValidName'" << endl
+        if (verbose) cout << "BASIC TEST `isValidName`" << endl
                           << "========================" << endl;
 
         static const struct {
@@ -265,21 +265,21 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // BASIC TEST 'fromAscii'
-        //    Test that 'fromAscii' correctly returns the enumerated
+        // BASIC TEST `fromAscii`
+        //    Test that `fromAscii` correctly returns the enumerated
         //    integer value that is named by its argument.
         //
         // Concerns:
-        //   - Does 'fromAscii' work correctly for each of the valid
+        //   - Does `fromAscii` work correctly for each of the valid
         //     inputs?
-        //   - Does 'fromAscii' correctly return an error condition
+        //   - Does `fromAscii` correctly return an error condition
         //     when given incorrect input?
         //
         // Plan:
-        //   - Confirm that 'fromAscii' returns success (0), and loads
+        //   - Confirm that `fromAscii` returns success (0), and loads
         //     the correct severity value for each each of the valid
         //     input strings.
-        //   - Confirm that 'fromAscii' correctly returns invalid
+        //   - Confirm that `fromAscii` correctly returns invalid
         //     status (non-zero) and leaves unchanged the severity value at
         //     the load address when given invalid input.  A set of invalid
         //     input is created by "ad hoc" perturbations on the set of
@@ -294,7 +294,7 @@ int main(int argc, char *argv[])
         // internal code base only.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-        if (verbose) cout << "BASIC TEST 'fromAscii'" << endl
+        if (verbose) cout << "BASIC TEST `fromAscii`" << endl
                           << "======================" << endl;
 
         static const struct {
@@ -365,12 +365,12 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING: consistency with 'ball::Severity::toAscii'
-        //    The 'fromAsciiCaseless' procedure should be a functional
-        //    inverse to 'ball::Severity::ToAscii'.
+        // TESTING: consistency with `ball::Severity::toAscii`
+        //    The `fromAsciiCaseless` procedure should be a functional
+        //    inverse to `ball::Severity::ToAscii`.
         //
         // Concerns:
-        //:  1 The implementations of 'ball::Severity' and 'ball::SeverityUtil'
+        //  1. The implementations of `ball::Severity` and `ball::SeverityUtil`
         //     may become out-of-sync.  This test is provided to aid
         //     maintenance.
         //
@@ -384,7 +384,7 @@ int main(int argc, char *argv[])
         //                  const char           *severityName);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "CONSISTENCY WITH 'ToAscii'" << endl
+        if (verbose) cout << "CONSISTENCY WITH `ToAscii`" << endl
                           << "========================="  << endl;
             Enum VALUES[] = {
                Class::e_OFF,
@@ -408,25 +408,25 @@ int main(int argc, char *argv[])
         } break;
       case 2: {
         // --------------------------------------------------------------------
-        // BASIC TEST 'isValidNameCaseless'
-        //   Test that 'isValidNameCaseless' correctly classifies input
+        // BASIC TEST `isValidNameCaseless`
+        //   Test that `isValidNameCaseless` correctly classifies input
         //   strings.
         //
         // Concerns:
-        //   - Are 'fromAsciiCaseless' and 'isvalidName' in agreement
+        //   - Are `fromAsciiCaseless` and `isvalidName` in agreement
         //     in their interpretation of input?
         //
         // Plan:
-        //   - Replicate the basic test of 'fromAsciiCaseless' to test
-        //     'isValidNameCaseless'.  Where the return status of
-        //     'fromAsciiCaseless' is 0 the return value of
-        //     'isValidNameCaseless' should be 'true', and 'false' otherwise.
+        //   - Replicate the basic test of `fromAsciiCaseless` to test
+        //     `isValidNameCaseless`.  Where the return status of
+        //     `fromAsciiCaseless` is 0 the return value of
+        //     `isValidNameCaseless` should be `true`, and `false` otherwise.
         //
         // Testing:
         //   bool isValidNameCaseless(const char *severityName);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "BASIC TEST 'isValidNameCaseless'" << endl
+        if (verbose) cout << "BASIC TEST `isValidNameCaseless`" << endl
                           << "========================" << endl;
 
         static const struct {
@@ -494,21 +494,21 @@ int main(int argc, char *argv[])
         } break;
       case 1: {
         // --------------------------------------------------------------------
-        // BASIC TEST 'fromAsciiCaseless'
-        //    Test that 'fromAsciiCaseless' correctly returns the enumerated
+        // BASIC TEST `fromAsciiCaseless`
+        //    Test that `fromAsciiCaseless` correctly returns the enumerated
         //    integer value that is named by its argument.
         //
         // Concerns:
-        //   - Does 'fromAsciiCaseless' work correctly for each of the valid
+        //   - Does `fromAsciiCaseless` work correctly for each of the valid
         //     inputs?
-        //   - Does 'fromAsciiCaseless' correctly return an error condition
+        //   - Does `fromAsciiCaseless` correctly return an error condition
         //     when given incorrect input?
         //
         // Plan:
-        //   - Confirm that 'fromAsciiCaseless' returns success (0), and loads
+        //   - Confirm that `fromAsciiCaseless` returns success (0), and loads
         //     the correct severity value for each each of the valid
         //     input strings.
-        //   - Confirm that 'fromAsciiCaseless' correctly returns invalid
+        //   - Confirm that `fromAsciiCaseless` correctly returns invalid
         //     status (non-zero) and leaves unchanged the severity value at
         //     the load address when given invalid input.  A set of invalid
         //     input is created by "ad hoc" perturbations on the set of
@@ -519,7 +519,7 @@ int main(int argc, char *argv[])
         //                 const char           *severityName);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "BASIC TEST 'fromAsciiCaseless'" << endl
+        if (verbose) cout << "BASIC TEST `fromAsciiCaseless`" << endl
                           << "======================" << endl;
 
         static const struct {

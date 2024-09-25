@@ -84,23 +84,23 @@ int main(int argc, char *argv[])
         // TEST DEFINITIONS
         //
         // Concerns:
-        //: 1 When BDE_OMIT_INTERNAL_DEPRECATED is not defined, the suite of
-        //:   BDEAT_... and bdeat_... macros should be defined to be their
-        //:   e_... and bdlat_... versions.
-        //:
-        //: 2 When BDE_OMIT_INTERNAL_DEPRECATED is defined, the BDEAT_... and
-        //:   bdeat_... macros should not be defined.
+        // 1. When BDE_OMIT_INTERNAL_DEPRECATED is not defined, the suite of
+        //    BDEAT_... and bdeat_... macros should be defined to be their
+        //    e_... and bdlat_... versions.
+        //
+        // 2. When BDE_OMIT_INTERNAL_DEPRECATED is defined, the BDEAT_... and
+        //    bdeat_... macros should not be defined.
         //
         // Plan:
-        //: 1 Obtain a stringized version of the macro definition through the
-        //:   usual indirection through a secondary macro before quoting.
-        //:
-        //: 2 When BDE_OMIT_INTERNAL_DEPRECATED is not defined, compare the
-        //:   stringized version to the expected value.  (C-1)
-        //:
-        //: 3 When BDE_OMIT_INTERNAL_DEPRECATED is defined, compare the
-        //:   stringized version to the macro name (without a macro definition
-        //:   the quoting process will just return the quoted name).
+        // 1. Obtain a stringized version of the macro definition through the
+        //    usual indirection through a secondary macro before quoting.
+        //
+        // 2. When BDE_OMIT_INTERNAL_DEPRECATED is not defined, compare the
+        //    stringized version to the expected value.  (C-1)
+        //
+        // 3. When BDE_OMIT_INTERNAL_DEPRECATED is defined, compare the
+        //    stringized version to the macro name (without a macro definition
+        //    the quoting process will just return the quoted name).
         //
         // Testing:
         //   DEFINITIONS
@@ -117,11 +117,11 @@ int main(int argc, char *argv[])
 
 #undef l
 #define l(x) \
-{ L_, "bdeat_" #x, "bdlat_" #x, v(bdeat_ ## x) }  // lower-case 'bdeat' macro
+{ L_, "bdeat_" #x, "bdlat_" #x, v(bdeat_ ## x) }  // lower-case `bdeat` macro
 
 #undef u
 #define u(x) \
-{ L_, "BDEAT_" #x, "BDLAT_" #x, v(BDEAT_ ## x) }  // upper-case 'BDEAT' macro
+{ L_, "BDEAT_" #x, "BDLAT_" #x, v(BDEAT_ ## x) }  // upper-case `BDEAT` macro
 
         static struct {
             int         d_line;        // line number

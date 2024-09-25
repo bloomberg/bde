@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
-        //   Simple example illustrating use of 'bsl::is_array'.
+        //   Simple example illustrating use of `bsl::is_array`.
         //
         // Concerns:
         //
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
 ///Usage
 ///-----
 // For example:
-//..
+// ```
         ASSERT(1 == (bsl::is_same<bslmf::ArrayToPointer<int[5]>::Type
                                  , int*>::value));
         ASSERT(1 == (bsl::is_same<bslmf::ArrayToPointer<int*>::Type
@@ -138,12 +138,12 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // Test Plan:
-        //   Instantiate 'bslmf::ArrayToConstPointer' with various types and
-        //   verify that their 'Type' member aliases the correctly const-
+        //   Instantiate `bslmf::ArrayToConstPointer` with various types and
+        //   verify that their `Type` member aliases the correctly const-
         //   qualified decayed type.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'bslmf::ArrayToConstPointer'\n"
+        if (verbose) printf("\nTESTING `bslmf::ArrayToConstPointer`\n"
                             "\n====================================\n");
 
         ASSERT_SAME(bslmf::ArrayToPointer<char const    [1]>::Type,
@@ -342,11 +342,11 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // Test Plan:
-        //   Instantiate 'bslmf::ArrayToPointer' with various types and verify
-        //   that their 'Type' member aliases the correctly decayed type.
+        //   Instantiate `bslmf::ArrayToPointer` with various types and verify
+        //   that their `Type` member aliases the correctly decayed type.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'bslmf::ArrayToPointer'\n"
+        if (verbose) printf("\nTESTING `bslmf::ArrayToPointer`\n"
                             "\n===============================\n");
 
         ASSERT_SAME(bslmf::ArrayToPointer<const char [6]>::Type, const char*);
@@ -357,7 +357,7 @@ int main(int argc, char *argv[])
         (BSLS_PLATFORM_CMP_VER_MAJOR == 3 && BSLS_PLATFORM_CMP_VER_MINOR < 5)))
 
             // Note that there is a bug in the Clang 3.1 compiler that causes
-            // the front end to assert on the following 'typeid' expression:
+            // the front end to assert on the following `typeid` expression:
             P(typeid(const char [6]).name());
 #endif
             P(typeid(bslmf::ArrayToPointer<const char [6]>::Type).name());

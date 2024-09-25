@@ -32,11 +32,11 @@ namespace {
 
 #ifdef BSLS_PLATFORM_CPU_SSE4_1
 
+/// Convert 8 bytes of data starting at the specified `src` into its
+/// equivalent hex representation, writing the resulting 16 characters to
+/// the specified `dst` buffer, which must be aligned to a 16-byte boundary.
+/// Note that `src` need not be aligned.
 void hex16sse(void *dst, const unsigned char *src)
-    // Convert 8 bytes of data starting at the specified 'src' into its
-    // equivalent hex representation, writing the resulting 16 characters to
-    // the specified 'dst' buffer, which must be aligned to a 16-byte boundary.
-    // Note that 'src' need not be aligned.
 {
     // Load 8 bytes (unaligned)
     __m128i x = _mm_loadu_si64(src);

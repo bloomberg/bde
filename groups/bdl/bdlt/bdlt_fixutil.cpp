@@ -29,9 +29,9 @@ using namespace BloombergLP::bdlt;
                                   // struct Impl
                                   // ===========
 
+/// This `class` is private to this component and is not to be referred to
+/// outside this component.
 class Impl {
-    // This 'class' is private to this component and is not to be referred to
-    // outside this component.
 
     // PRIVATE TYPES
     typedef BloombergLP::bdlt::FixUtil Util;
@@ -53,6 +53,13 @@ class Impl {
     // 'bsl::string', 'std::string', or 'std::pmr::string'.
 
     // CLASS METHODS
+
+    /// Load the FIX representation of the specified `object` into the
+    /// specified `string`.  Specify a `configuration` to affect the format
+    /// of the generated string.  `STRING` must be `bsl::string`,
+    /// `std::string`, or `std::pmr::string`.  Return the number of
+    /// characters in the formatted string.  The previous contents of
+    /// `string` (if any) are discarded.
     template <class STRING>
     static int generate(STRING                      *string,
                         const Date&                  object,
@@ -77,12 +84,6 @@ class Impl {
     static int generate(STRING                      *string,
                         const DatetimeTz&            object,
                         const FixUtilConfiguration&  configuration);
-        // Load the FIX representation of the specified 'object' into the
-        // specified 'string'.  Specify a 'configuration' to affect the format
-        // of the generated string.  'STRING' must be 'bsl::string',
-        // 'std::string', or 'std::pmr::string'.  Return the number of
-        // characters in the formatted string.  The previous contents of
-        // 'string' (if any) are discarded.
 };
 
                                 // -----------
@@ -216,17 +217,17 @@ int Impl::generate(STRING                      *string,
 
 // STATIC HELPER FUNCTIONS
 
+/// Convert the (unsigned) ASCII decimal integer starting at the specified
+/// `begin` and ending immediately before the specified `end` into its
+/// corresponding `int` value, load the value into the specified `result`,
+/// and set the specified `*nextPos` to `end`.  Return 0 on success, and a
+/// non-zero value (with no effect) otherwise.  All characters in the range
+/// `[begin .. end)` must be decimal digits.  The behavior is undefined
+/// unless `begin < end` and the parsed value does not exceed `INT_MAX`.
 int asciiToInt(const char **nextPos,
                int         *result,
                const char  *begin,
                const char  *end)
-    // Convert the (unsigned) ASCII decimal integer starting at the specified
-    // 'begin' and ending immediately before the specified 'end' into its
-    // corresponding 'int' value, load the value into the specified 'result',
-    // and set the specified '*nextPos' to 'end'.  Return 0 on success, and a
-    // non-zero value (with no effect) otherwise.  All characters in the range
-    // '[begin .. end)' must be decimal digits.  The behavior is undefined
-    // unless 'begin < end' and the parsed value does not exceed 'INT_MAX'.
 {
     BSLS_ASSERT(nextPos);
     BSLS_ASSERT(result);
@@ -253,18 +254,18 @@ int asciiToInt(const char **nextPos,
     return 0;
 }
 
+/// Parse the date, represented in the "YYYYMMDD" FIX extended format, from
+/// the string starting at the specified `begin` and ending before the
+/// specified `end`, load into the specified `date` the parsed values, and
+/// set the specified `*nextPos` to the location one past the last parsed
+/// character.  Return 0 on success, and a non-zero value (with no effect on
+/// `*nextPos`) otherwise.  The behavior is undefined unless `begin <= end`.
+/// Note that successfully parsing a date before `end` is reached is not an
+/// error.
 int parseDate(const char **nextPos,
               Date        *date,
               const char  *begin,
               const char  *end)
-    // Parse the date, represented in the "YYYYMMDD" FIX extended format, from
-    // the string starting at the specified 'begin' and ending before the
-    // specified 'end', load into the specified 'date' the parsed values, and
-    // set the specified '*nextPos' to the location one past the last parsed
-    // character.  Return 0 on success, and a non-zero value (with no effect on
-    // '*nextPos') otherwise.  The behavior is undefined unless 'begin <= end'.
-    // Note that successfully parsing a date before 'end' is reached is not an
-    // error.
 {
     BSLS_ASSERT(nextPos);
     BSLS_ASSERT(date);
@@ -304,20 +305,20 @@ int parseDate(const char **nextPos,
     return 0;
 }
 
+/// Parse the fractional second starting at the specified `begin` and ending
+/// before the specified `end`, load into the specified `microsecond` the
+/// parsed value (in microseconds) rounded to the closest microsecond, and
+/// set the specified `*nextPos` to the location one past the last parsed
+/// character (necessarily a decimal digit).  Return 0 on success, and a
+/// non-zero value (with no effect) otherwise.  There must be at least one
+/// digit, only the first 7 digits are significant, and all digits beyond
+/// the first 7 are parsed but ignored.  The behavior is undefined unless
+/// `begin <= end`.  Note that successfully parsing a fractional second
+/// before `end` is reached is not an error.
 int parseFractionalSecond(const char **nextPos,
                           int         *microsecond,
                           const char  *begin,
                           const char  *end)
-    // Parse the fractional second starting at the specified 'begin' and ending
-    // before the specified 'end', load into the specified 'microsecond' the
-    // parsed value (in microseconds) rounded to the closest microsecond, and
-    // set the specified '*nextPos' to the location one past the last parsed
-    // character (necessarily a decimal digit).  Return 0 on success, and a
-    // non-zero value (with no effect) otherwise.  There must be at least one
-    // digit, only the first 7 digits are significant, and all digits beyond
-    // the first 7 are parsed but ignored.  The behavior is undefined unless
-    // 'begin <= end'.  Note that successfully parsing a fractional second
-    // before 'end' is reached is not an error.
 {
     BSLS_ASSERT(nextPos);
     BSLS_ASSERT(microsecond);
@@ -366,19 +367,19 @@ int parseFractionalSecond(const char **nextPos,
     return 0;
 }
 
+/// Parse the timezone offset, represented in the "Z|(+|-])hh{:mm}" FIX
+/// extended format, from the string starting at the specified `begin` and
+/// ending before the specified `end`, load into the specified
+/// `minuteOffset` the indicated offset (in minutes) from UTC, and set the
+/// specified `*nextPos` to the location one past the last parsed character.
+/// Return 0 on success, and a non-zero value (with no effect on `*nextPos`)
+/// otherwise.  The behavior is undefined unless `begin <= end`.  Note that
+/// successfully parsing a timezone offset before `end` is reached is not an
+/// error.
 int parseTimezoneOffset(const char **nextPos,
                         int         *minuteOffset,
                         const char  *begin,
                         const char  *end)
-    // Parse the timezone offset, represented in the "Z|(+|-])hh{:mm}" FIX
-    // extended format, from the string starting at the specified 'begin' and
-    // ending before the specified 'end', load into the specified
-    // 'minuteOffset' the indicated offset (in minutes) from UTC, and set the
-    // specified '*nextPos' to the location one past the last parsed character.
-    // Return 0 on success, and a non-zero value (with no effect on '*nextPos')
-    // otherwise.  The behavior is undefined unless 'begin <= end'.  Note that
-    // successfully parsing a timezone offset before 'end' is reached is not an
-    // error.
 {
     BSLS_ASSERT(nextPos);
     BSLS_ASSERT(minuteOffset);
@@ -444,24 +445,24 @@ int parseTimezoneOffset(const char **nextPos,
     return 0;
 }
 
+/// Parse the time, represented in the "hh:mm[:ss[.s+]]" FIX extended
+/// format, from the string starting at the specified `begin` and ending
+/// before the specified `end`, load into the specified `time` the parsed
+/// value with the fractional second rounded to the closest microsecond,
+/// load into the specified `tzOffset` the number of minutes the time is
+/// offset from UTC, load into the specified `isNextDay` whether the
+/// specified `time` would be 24:00:00.000000 or greater, and set the
+/// specified `*nextPos` to the location one past the last parsed
+/// character.  Return 0 on success, and a non-zero value (with no effect on
+/// `*nextPos`) otherwise.  The behavior is undefined unless
+/// `begin <= end`.  Note that successfully parsing a time before `end` is
+/// reached is not an error.
 int parseTime(const char **nextPos,
               Time        *time,
               int         *tzOffset,
               bool        *isNextDay,
               const char  *begin,
               const char  *end)
-    // Parse the time, represented in the "hh:mm[:ss[.s+]]" FIX extended
-    // format, from the string starting at the specified 'begin' and ending
-    // before the specified 'end', load into the specified 'time' the parsed
-    // value with the fractional second rounded to the closest microsecond,
-    // load into the specified 'tzOffset' the number of minutes the time is
-    // offset from UTC, load into the specified 'isNextDay' whether the
-    // specified 'time' would be 24:00:00.000000 or greater, and set the
-    // specified '*nextPos' to the location one past the last parsed
-    // character.  Return 0 on success, and a non-zero value (with no effect on
-    // '*nextPos') otherwise.  The behavior is undefined unless
-    // 'begin <= end'.  Note that successfully parsing a time before 'end' is
-    // reached is not an error.
 {
     BSLS_ASSERT(nextPos);
     BSLS_ASSERT(time);
@@ -566,15 +567,15 @@ int parseTime(const char **nextPos,
     return 0;
 }
 
+/// Write, to the specified `buffer`, the decimal string representation of
+/// the specified `value` padded with leading zeros to the specified
+/// `paddedLen`, and return `paddedLen`.  `buffer` is NOT null-terminated.
+/// The behavior is undefined unless `0 <= value`, `0 <= paddedLen`, and
+/// `buffer` has sufficient capacity to hold `paddedLen` characters.  Note
+/// that if the decimal string representation of `value` is more than
+/// `paddedLen` digits, only the low-order `paddedLen` digits of `value` are
+/// output.
 int generateInt(char *buffer, int value, int paddedLen)
-    // Write, to the specified 'buffer', the decimal string representation of
-    // the specified 'value' padded with leading zeros to the specified
-    // 'paddedLen', and return 'paddedLen'.  'buffer' is NOT null-terminated.
-    // The behavior is undefined unless '0 <= value', '0 <= paddedLen', and
-    // 'buffer' has sufficient capacity to hold 'paddedLen' characters.  Note
-    // that if the decimal string representation of 'value' is more than
-    // 'paddedLen' digits, only the low-order 'paddedLen' digits of 'value' are
-    // output.
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= value);
@@ -590,16 +591,16 @@ int generateInt(char *buffer, int value, int paddedLen)
     return paddedLen;
 }
 
+/// Write, to the specified `buffer`, the decimal string representation of
+/// the specified `value` padded with leading zeros to the specified
+/// `paddedLen` followed by the specified `separator` character, and return
+/// `paddedLen + 1`.  `buffer` is NOT null-terminated.  The behavior is
+/// undefined unless `0 <= value`, `0 <= paddedLen`, and `buffer` has
+/// sufficient capacity to hold `paddedLen` characters.  Note that if the
+/// decimal string representation of `value` is more than `paddedLen`
+/// digits, only the low-order `paddedLen` digits of `value` are output.
 inline
 int generateInt(char *buffer, int value, int paddedLen, char separator)
-    // Write, to the specified 'buffer', the decimal string representation of
-    // the specified 'value' padded with leading zeros to the specified
-    // 'paddedLen' followed by the specified 'separator' character, and return
-    // 'paddedLen + 1'.  'buffer' is NOT null-terminated.  The behavior is
-    // undefined unless '0 <= value', '0 <= paddedLen', and 'buffer' has
-    // sufficient capacity to hold 'paddedLen' characters.  Note that if the
-    // decimal string representation of 'value' is more than 'paddedLen'
-    // digits, only the low-order 'paddedLen' digits of 'value' are output.
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= value);
@@ -611,13 +612,13 @@ int generateInt(char *buffer, int value, int paddedLen, char separator)
     return paddedLen + 1;
 }
 
+/// Write, to the specified `buffer`, the formatted timezone offset
+/// indicated by the specified `tzOffset` and `configuration`, and return
+/// the number of bytes written.  The behavior is undefined unless `buffer`
+/// has sufficient capacity and `-(24 * 60) < tzOffset < 24 * 60`.
 int generateTimezoneOffset(char                        *buffer,
                            int                          tzOffset,
                            const FixUtilConfiguration&  configuration)
-    // Write, to the specified 'buffer', the formatted timezone offset
-    // indicated by the specified 'tzOffset' and 'configuration', and return
-    // the number of bytes written.  The behavior is undefined unless 'buffer'
-    // has sufficient capacity and '-(24 * 60) < tzOffset < 24 * 60'.
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(-(24 * 60) < tzOffset);
@@ -752,12 +753,12 @@ int generatedLengthForTimeTzObject(int                         defaultLength,
 }
 #endif
 
+/// Copy, to the specified `dst` buffer having the specified `dstLen`, the
+/// specified initial `srcLen` characters in the specified `src` string if
+/// `dstLen >= srcLen`, and copy `dstLen` characters otherwise.  Include a
+/// null terminator if and only if `dstLen > srcLen`.  The behavior is
+/// undefined unless `0 <= dstLen` and `0 <= srcLen`.
 void copyBuf(char *dst, int dstLen, const char *src, int srcLen)
-    // Copy, to the specified 'dst' buffer having the specified 'dstLen', the
-    // specified initial 'srcLen' characters in the specified 'src' string if
-    // 'dstLen >= srcLen', and copy 'dstLen' characters otherwise.  Include a
-    // null terminator if and only if 'dstLen > srcLen'.  The behavior is
-    // undefined unless '0 <= dstLen' and '0 <= srcLen'.
 {
     BSLS_ASSERT(dst);
     BSLS_ASSERT(0 <= dstLen);

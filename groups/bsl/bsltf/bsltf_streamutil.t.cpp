@@ -14,10 +14,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// No 'using' statements: this entire test driver is outside the enterprise
-// namespace, to test the fact that ADL will find these 'operator<<' operators
-// from outside the 'bsltf' namespace.  (even though they're in the
-// 'BloombergLP::bsltf' namespace).
+// No `using` statements: this entire test driver is outside the enterprise
+// namespace, to test the fact that ADL will find these `operator<<` operators
+// from outside the `bsltf` namespace.  (even though they're in the
+// `BloombergLP::bsltf` namespace).
 
 //=============================================================================
 //                             TEST PLAN
@@ -102,11 +102,11 @@ typedef BloombergLP::bsltf::TemplateTestFacility TTF;
 namespace {
 namespace u {
 
+/// All of the operators provided by this component can stream to any
+/// `STREAM` type that supports `operator<<(int)`, so that's the only
+/// streaming operation this `class` supports.  The most recently streamed
+/// value can be examined with the `value` accessor.
 class TestStreamer {
-    // All of the operators provided by this component can stream to any
-    // 'STREAM' type that supports 'operator<<(int)', so that's the only
-    // streaming operation this 'class' supports.  The most recently streamed
-    // value can be examined with the 'value' accessor.
 
     // DATA
     int d_valueStreamed;
@@ -118,31 +118,34 @@ class TestStreamer {
 
   public:
     // CREATOR
+
+    /// Construct this object in the reset state.
     TestStreamer()
-        // Construct this object in the reset state.
     {
         reset();
     }
 
     // MANIPULATOR
+
+    /// Stream the specified `rhs` this object.
     TestStreamer& operator<<(int rhs)
-        // Stream the specified 'rhs' this object.
     {
         d_valueStreamed = rhs;
         return *this;
     }
 
+    /// Set the value of this object to `INT_MIN`.
     void reset()
-        // Set the value of this object to 'INT_MIN'.
     {
         d_valueStreamed = INT_MIN;
     }
 
     // ACCESSOR
+
+    /// Return the value most recently streamed to this object since either
+    /// the last reset or creation, or `INT_MIN` if it hasn't been streamed
+    /// to since then.
     int value() const
-        // Return the value most recently streamed to this object since either
-        // the last reset or creation, or 'INT_MIN' if it hasn't been streamed
-        // to since then.
     {
         return d_valueStreamed;
     }
@@ -157,34 +160,36 @@ class TestStreamer {
 
 namespace Usage {
 
+/// This `class` allows one to do transplate stream-style output of `int`s
+/// and `const char *` strings to `fprintf`-style output.
 class StdioStream {
-    // This 'class' allows one to do transplate stream-style output of 'int's
-    // and 'const char *' strings to 'fprintf'-style output.
 
     // DATA
     FILE *d_out_p;
 
   public:
     // CREATOR
+
+    /// Create a `StdioStream` that will direct its output to the specified
+    /// `out_p`.  The behavior is undefined if `0 == out_p`.
     explicit StdioStream(FILE *out_p)
     : d_out_p(out_p)
-        // Create a 'StdioStream' that will direct its output to the specified
-        // 'out_p'.  The behavior is undefined if '0 == out_p'.
     {
         BSLS_ASSERT(out_p);
     }
 
     // MANIPULATORS
+
+    /// Output the specified `rhs` to `d_out_p`.
     StdioStream& operator<<(int rhs)
-        // Output the specified 'rhs' to 'd_out_p'.
     {
         fprintf(d_out_p, "%d", rhs);
 
         return *this;
     }
 
+    /// Output the specified `rhs` to `d_out_p`.
     StdioStream& operator<<(const char *rhs)
-        // Output the specified 'rhs' to 'd_out_p'.
     {
         fprintf(d_out_p, "%s", rhs);
         if (strchr(rhs, '\n')) {
@@ -217,15 +222,15 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concern:
-        //: 1 Demonstrate the usage of this component.
+        // 1. Demonstrate the usage of this component.
         //
         // Plan:
-        //: 1 Define a simple 'StdioStream' class that translates streaming
-        //:   int 'printf'-style output, and define an object 'cout' of that
-        //:   class.
-        //:
-        //: 2 Define a 'SimpleTestType' object, assign it a few values, and
-        //:   stream them to 'cout'.
+        // 1. Define a simple `StdioStream` class that translates streaming
+        //    int `printf`-style output, and define an object `cout` of that
+        //    class.
+        //
+        // 2. Define a `SimpleTestType` object, assign it a few values, and
+        //    stream them to `cout`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -236,19 +241,19 @@ int main(int argc, char *argv[])
 
         Usage::StdioStream cout(stdout);
 
-// We have defined a 'cout' object that can stream 'int's and 'const char *'
+// We have defined a `cout` object that can stream `int`s and `const char *`
 // null-terminated strings.  Note that the operators defined by this component
-// require only that the left-hand argument be able to stream 'int's, so our
-// 'cout' more than satisfies this requirement.
+// require only that the left-hand argument be able to stream `int`s, so our
+// `cout` more than satisfies this requirement.
 //
-// Then, in 'main', we define a 'bsltf::SimpleTestType' object 'st':
-//..
+// Then, in `main`, we define a `bsltf::SimpleTestType` object `st`:
+// ```
     BloombergLP::bsltf::SimpleTestType st;
-//..
-// Now, we do some output, assigning 'st' several different values and
+// ```
+// Now, we do some output, assigning `st` several different values and
 // streaming them out:
-//..
-    cout << "Several values of 'st': ";
+// ```
+    cout << "Several values of `st`: ";
 
     for (int ii = 0; ii <= 100; ii += 20) {
         st.setData(ii);
@@ -256,25 +261,25 @@ int main(int argc, char *argv[])
         cout << (ii ? ", " : "") << st;
     }
     cout << "\n";
-//..
+// ```
 // Finally, we observe the output, which is:
-//..
-//  Several values of 'st': 0, 20, 40, 60, 80, 100
-//..
+// ```
+//  Several values of `st`: 0, 20, 40, 60, 80, 100
+// ```
       } break;
       case 3: {
         // --------------------------------------------------------------------
         // TEST STREAMING SUPPORTED BSLTF TYPES
         //
         // Concerns:
-        //: 1 The output operator correctly streams the value of an object of
-        //:   any test type in the 'bsltf' package into a specified stream.
+        // 1. The output operator correctly streams the value of an object of
+        //    any test type in the `bsltf` package into a specified stream.
         //
         // Plan:
-        //: 1 For each 'bsltf' test type, create an object of such a type
-        //:   having a unique value and stream its value into a
-        //:   'std::ostringstream'.  Verify that the string output to the
-        //:   stream has the expected value.  (C-1)
+        // 1. For each `bsltf` test type, create an object of such a type
+        //    having a unique value and stream its value into a
+        //    `std::ostringstream`.  Verify that the string output to the
+        //    stream has the expected value.  (C-1)
         //
         // Testing:
         //   STREAM& op<<(STREAM&, const AllocBitwiseMoveableTestType&);
@@ -310,7 +315,7 @@ int main(int argc, char *argv[])
                               TTF::create<bt::AllocBitwiseMoveableTestType>(1);
 
 #if 0
-            // 'TTF::create<bt::AllocEmplacableTestType>' is commented out
+            // `TTF::create<bt::AllocEmplacableTestType>` is commented out
             // everywhere it is called in bsltf_templatetestfacility.t.cpp and
             // doesn't compile when I try to build it here.
 
@@ -645,23 +650,23 @@ int main(int argc, char *argv[])
         // TEST APPARATUS
         //
         // Concerns:
-        //: 1 The 'TestStream' object always has the last 'int' value streamed
-        //:   to it.
-        //:
-        //: 2 The 'operator<<(TestStream&, int)' returns a reference to the
-        //:   first argument.
-        //:
-        //: 3 If never streamed to since creation, or if reset, the value is
-        //:   'INT_MIN'.
+        // 1. The `TestStream` object always has the last `int` value streamed
+        //    to it.
+        //
+        // 2. The `operator<<(TestStream&, int)` returns a reference to the
+        //    first argument.
+        //
+        // 3. If never streamed to since creation, or if reset, the value is
+        //    `INT_MIN`.
         //
         // Plan:
-        //: 1 Default construct a 'TestStreamer' object.
-        //:   o Observe that its initial value is 'INT_MIN'.
-        //:
-        //:   o Stream an 'int' to it and observe that the value takes on that
-        //:     'int's value.
-        //:
-        //:   o Observe that a reference to the 'TestStreamer' is returned.
+        // 1. Default construct a `TestStreamer` object.
+        //    - Observe that its initial value is `INT_MIN`.
+        //
+        //    - Stream an `int` to it and observe that the value takes on that
+        //      `int`s value.
+        //
+        //    - Observe that a reference to the `TestStreamer` is returned.
         //
         // Testing:
         //   TEST APPARATUS
@@ -670,7 +675,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("TEST APPARATUS\n"
                             "==============\n");
 
-        if (verbose) printf("Simple test of 'u::TestStreamer'\n");
+        if (verbose) printf("Simple test of `u::TestStreamer`\n");
         {
             u::TestStreamer ts, *ts_p = 0;
             ASSERT(INT_MIN == ts.value());
@@ -689,19 +694,19 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 That our 'operator<<' can stream values to type which supports
-        //:   'int' being streamed to it.
+        // 1. That our `operator<<` can stream values to type which supports
+        //    `int` being streamed to it.
         //
         // Plan:
-        //: 1 Construct an object of type 'bsltf::SimpleTestType'.
-        //:
-        //: 2 Construct an object of type 'u::TestStreamer', a type defined in
-        //:   this file, which supports only 'operator<<(int)' and records such
-        //:   actions.
-        //:
-        //: 3 Set the 'SimpleTestType' object to several values, and then, in
-        //:   each case, stream the value to the 'TestStreamer' object, and
-        //:   observe that the correct value was streamed.
+        // 1. Construct an object of type `bsltf::SimpleTestType`.
+        //
+        // 2. Construct an object of type `u::TestStreamer`, a type defined in
+        //    this file, which supports only `operator<<(int)` and records such
+        //    actions.
+        //
+        // 3. Set the `SimpleTestType` object to several values, and then, in
+        //    each case, stream the value to the `TestStreamer` object, and
+        //    observe that the correct value was streamed.
         //
         // Testing:
         //   BREATHING TEST

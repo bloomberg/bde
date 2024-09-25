@@ -3,9 +3,9 @@
 
 #include <bslim_testutil.h>
 
-#include <bslmf_issame.h>    // 'bsl::is_same'
+#include <bslmf_issame.h>    // `bsl::is_same`
 
-#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstdlib.h>     // `atoi`
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -17,9 +17,9 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // The component under test defines a single utility class,
-// 'bdlt::SerialDateImpUtil', by 'typedef'-ing that class to one of two other
+// `bdlt::SerialDateImpUtil`, by `typedef`-ing that class to one of two other
 // classes that implement the same (documentation-only) protocol.  This test
-// driver uses a template meta-function, 'bsl::is_same', to confirm that the
+// driver uses a template meta-function, `bsl::is_same`, to confirm that the
 // mapping is correct for the current build mode.  Each of those implementation
 // classes is exhautively tested in their own test drivers (not here).
 // ----------------------------------------------------------------------------
@@ -89,22 +89,22 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'typedef'
+        // TESTING `typedef`
         //
         // Concerns:
-        //: 1 The 'typedef' maps 'SerialDateImpUtil' to the implementation
-        //:   class required by the build mode.
+        // 1. The `typedef` maps `SerialDateImpUtil` to the implementation
+        //    class required by the build mode.
         //
         // Plan:
-        //: 1 Explicitly test using the 'bsl::is_same' template that 'Util'
-        //:   is the same as the class expected for the current build mode.
+        // 1. Explicitly test using the `bsl::is_same` template that `Util`
+        //    is the same as the class expected for the current build mode.
         //
         // Testing:
         //   typedef SerialDateTimeUtil
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'typedef'" << endl
+                          << "TESTING `typedef`" << endl
                           << "=================" << endl;
 
 #ifdef BDE_USE_PROLEPTIC_DATES

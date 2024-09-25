@@ -26,7 +26,7 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-// A 'balm::Category' is a simple mechanism class containing a character
+// A `balm::Category` is a simple mechanism class containing a character
 // pointer and a boolean value.
 // ----------------------------------------------------------------------------
 // balm::Category
@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -148,16 +148,16 @@ int main(int argc, char *argv[])
 ///Usage
 ///-----
 // The following example demonstrates how to create, access, and modify a
-// 'balm::Category' object.  We start by creating three category objects with
+// `balm::Category` object.  We start by creating three category objects with
 // different names:
-//..
+// ```
     balm::Category categoryA("A", true);
     balm::Category categoryB("B", false);
     balm::Category categoryC("C");
-//..
-// Once the category object have been created we can use the 'name' and
-// 'enabled' method to access their value.
-//..
+// ```
+// Once the category object have been created we can use the `name` and
+// `enabled` method to access their value.
+// ```
     ASSERT(0 == bsl::strcmp("A", categoryA.name()));
     ASSERT(0 == bsl::strcmp("B", categoryB.name()));
     ASSERT(0 == bsl::strcmp("C", categoryC.name()));
@@ -165,22 +165,22 @@ int main(int argc, char *argv[])
     ASSERT( categoryA.enabled());
     ASSERT(!categoryB.enabled());
     ASSERT( categoryC.enabled());
-//..
+// ```
 // Finally, we modify the enablement status of one of the categories, and then
 // write all three categories to the console.
-//..
+// ```
     categoryC.setEnabled(false);
 
     bsl::cout << "categoryA: " << categoryA << bsl::endl
               << "categoryB: " << categoryB << bsl::endl
               << "categoryC: " << categoryC << bsl::endl;
-//..
+// ```
 // The console output will look like:
-//..
+// ```
 //  categoryA: [ A ENABLED ]
 //  categoryB: [ B DISABLED ]
 //  categoryC: [ C DISABLED ]
-//..
+// ```
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
         //   Specify a set S of (unique) values with substantial and varied
         //   differences in value.  Construct a set of objects from a default
         //   value and then use the manipulator methods to set the value to a
-        //   value in the set 'S'.
+        //   value in the set `S`.
         //
         // Testing:
         //   void registerCategoryHolder(balm::CategoryHolder *holder);
@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
         //   void isEnabledRaw();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'registerCategoryHolder' and "
+        if (verbose) cout << "\nTesting `registerCategoryHolder` and "
                           << "'setEnabled" << endl;
         enum { NUM_ELEMENTS = 10 };
         balm::CategoryHolder holders[NUM_ELEMENTS];
@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   For each of a small representative set of object values, use
-        //   'ostrstream' to write that object's value to a character buffer
+        //   `ostrstream` to write that object's value to a character buffer
         //   and then compare the contents of that buffer with the expected
         //   output format.
         //
@@ -314,7 +314,7 @@ int main(int argc, char *argv[])
         //   Specify a set S of (unique) values with substantial and varied
         //   differences in value.  Construct a set of objects from a default
         //   value and then use the manipulator methods to set the value to a
-        //   value in the set 'S'.
+        //   value in the set `S`.
         //
         // Testing:
         //   void setName(const char *name);

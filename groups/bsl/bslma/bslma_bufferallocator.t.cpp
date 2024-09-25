@@ -121,8 +121,8 @@ int calcOffset(void *address, int alignment)
 static int globalLastCallbackArg;
 static int globalCallbackCnt;
 
-// Idiom for calling an allocator and converting 'std::bad_alloc' to
-// 'bsls::StdExceptionTranslator::bad_alloc'
+// Idiom for calling an allocator and converting `std::bad_alloc` to
+// `bsls::StdExceptionTranslator::bad_alloc`
 struct AllocArgs
 {
     bslma::Allocator            *d_alloc;
@@ -143,8 +143,8 @@ static void *allocCallback(int size)
 
 class my_ShortArray {
     short *d_array_p; // dynamically-allocated array of short integers
-    int d_size;       // physical size of the 'd_array_p' array (elements)
-    int d_length;     // logical length of the 'd_array_p' array (elements)
+    int d_size;       // physical size of the `d_array_p` array (elements)
+    int d_length;     // logical length of the `d_array_p` array (elements)
     bslma::Allocator *d_allocator_p; // holds (but does not own) allocator
 
   private:
@@ -152,9 +152,10 @@ class my_ShortArray {
 
   public:
     // CREATORS
+
+    /// Create an empty array using the specified `basicAllocator` to
+    /// supply memory.
     my_ShortArray(bslma::Allocator *basicAllocator);
-        // Create an empty array using the specified 'basicAllocator' to
-        // supply memory.
     // ...
 
     ~my_ShortArray();
@@ -195,15 +196,15 @@ inline void my_ShortArray::append(short value)
     d_array_p[d_length++] = value;
 }
 
+/// Reallocate memory in the specified `array` to the specified
+/// `newSize` using the specified `basicAllocator` or global new
+/// operator.  The specified `length` number of leading elements are
+/// preserved.  Since the class invariant requires that the physical
+/// capacity of the container may grow but never shrink; the behavior
+/// is undefined unless length <= newSize.
 inline static
 void reallocate(short **array, int newSize, int length,
                 bslma::Allocator *basicAllocator)
-    // Reallocate memory in the specified 'array' to the specified
-    // 'newSize' using the specified 'basicAllocator' or global new
-    // operator.  The specified 'length' number of leading elements are
-    // preserved.  Since the class invariant requires that the physical
-    // capacity of the container may grow but never shrink; the behavior
-    // is undefined unless length <= newSize.
 {
     ASSERT(array);
     ASSERT(1 <= newSize);
@@ -338,10 +339,10 @@ int main(int argc, char *argv[])
         // OUTPUT OPERATOR TEST (<<)
         //   Create and configure a buffer allocator with some chosen values.
         //   Output the allocator to a buffer in memory and verify that the
-        //   buffer contains the expected format.  Note that testing 'print'
-        //   and 'operator<<(st, allocator)' implicitly tests
-        //   'operator<<(st, strategy)' since the output of the first two
-        //   methods contains the output of 'operator<<(st, strategy)'.
+        //   buffer contains the expected format.  Note that testing `print`
+        //   and `operator<<(st, allocator)` implicitly tests
+        //   `operator<<(st, strategy)` since the output of the first two
+        //   methods contains the output of `operator<<(st, strategy)`.
         //
         // Testing:
         //   void print() const;
@@ -393,7 +394,7 @@ int main(int argc, char *argv[])
             // Because bslma is a low-level utility, bslma::TestAllocator does
             // not have a function to print to ostream, and thus cannot print
             // to a strstream.  The print() member function always prints to
-            // 'stdout'.  The code below forks a process and captures stdout
+            // `stdout`.  The code below forks a process and captures stdout
             // to a memory buffer.
             int pipes[2], pid;
             ssize_t sz = 0, r = 0;
@@ -422,7 +423,7 @@ int main(int argc, char *argv[])
                 }
 
                 // This call print() function sends its output to the pipe,
-                // which is in turn read into 'buf' by the parent process.
+                // which is in turn read into `buf` by the parent process.
                 a.print();
 
                 exit(0);
@@ -448,10 +449,10 @@ int main(int argc, char *argv[])
         //   Iterate over a set of loop-generated vectors of varying buffer
         //   size and perform independent tests.  For each test, create a
         //   default buffer allocator and buffer allocators using alignment
-        //   strategies 'MAXIMUM_ALIGNMENT' and 'NATURAL_ALIGNMENT'.  Call the
-        //   'allocate' method on each of the allocators for varying allocation
+        //   strategies `MAXIMUM_ALIGNMENT` and `NATURAL_ALIGNMENT`.  Call the
+        //   `allocate` method on each of the allocators for varying allocation
         //   sizes, and verify the results against those produced by calling
-        //   'allocateFromBuffer' class method.  Note that the callback
+        //   `allocateFromBuffer` class method.  Note that the callback
         //   function mechanism is not tested in this case.
         //
         // Testing:
@@ -536,15 +537,15 @@ int main(int argc, char *argv[])
         //   Iterate over a set of tabulated test vectors and perform
         //   independent tests.  The test vectors consist of the cross product
         //   of sets of values for the buffer size, alignment, cursor position
-        //   and allocation size.  If 'N4' is detected in a test vector's
+        //   and allocation size.  If `N4` is detected in a test vector's
         //   alignment field and the platform is 4-byte maximally aligned, or
-        //   'N8' is detected and the platform is 8-byte maximally aligned,
-        //   'allocateFromBuffer(cs, buf, bsz, sz, strategy)' is tested with
-        //   'NATURAL_ALIGNMENT' as its alignment strategy.  Otherwise,
-        //   'allocateFromBuffer(cs, buf, bsz, sz, alignment)' is tested.  If a
-        //   test vector's alignment field value is equal to 'MAX_ALIGNMENT',
-        //   'allocateFromBuffer(cs, buf, bsz, sz, strategy)' is also tested
-        //   automatically with 'MAXIMUM_ALIGNMENT' as its alignment strategy.
+        //   `N8` is detected and the platform is 8-byte maximally aligned,
+        //   `allocateFromBuffer(cs, buf, bsz, sz, strategy)` is tested with
+        //   `NATURAL_ALIGNMENT` as its alignment strategy.  Otherwise,
+        //   `allocateFromBuffer(cs, buf, bsz, sz, alignment)` is tested.  If a
+        //   test vector's alignment field value is equal to `MAX_ALIGNMENT`,
+        //   `allocateFromBuffer(cs, buf, bsz, sz, strategy)` is also tested
+        //   automatically with `MAXIMUM_ALIGNMENT` as its alignment strategy.
         //   Verify that the resulting cursor is equal to the expected cursor
         //   position, and the allocated memory address is correctly offset
         //   according to the specified alignment.  Note that the above test is
@@ -563,10 +564,10 @@ int main(int argc, char *argv[])
             N8  = -2  // Natural alignment w/ 8-byte max alignment.
         };
         enum {
-            NA = -1   // Indicate 'null' is returned for a test vector.
+            NA = -1   // Indicate `null` is returned for a test vector.
         };
 
-        // Note that for 'd_expOffset' and d_expCursor', the first element in
+        // Note that for `d_expOffset` and d_expCursor', the first element in
         // the array represents the expected value when the buffer is aligned
         // on a 4-byte boundary, and the second element for when the buffer is
         // is aligned on an 8-byte boundary.
@@ -1036,7 +1037,7 @@ int main(int argc, char *argv[])
 
         const int DATA_SZ = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout << "Testing 'allocateFromBuffer'." << endl;
+        if (verbose) cout << "Testing `allocateFromBuffer`." << endl;
         {
             typedef bsls::AlignmentUtil T;
             enum {
@@ -1129,7 +1130,7 @@ int main(int argc, char *argv[])
         // BREATHING TEST:
         //   Create buffer allocators using the default constructor.  Allocate
         //   memory of different sizes and verify that memory is properly
-        //   aligned.  Also allocate memory using 'allocateFromBuffer' with
+        //   aligned.  Also allocate memory using `allocateFromBuffer` with
         //   different alignment and verify memory is aligned according to the
         //   specified alignment.
         //
@@ -1183,7 +1184,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-           cout << "Trying 'allocateFromBuffer' w/ natural alignment." << endl;
+           cout << "Trying `allocateFromBuffer` w/ natural alignment." << endl;
         {
             int cursor = 0;
 
@@ -1208,7 +1209,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "Trying 'allocateFromBuffer' w/ alignment of 2." << endl;
+            cout << "Trying `allocateFromBuffer` w/ alignment of 2." << endl;
         {
             const int ALIGN = 2;
             int cursor = 0;

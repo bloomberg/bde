@@ -11,8 +11,8 @@
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 #include <new>                 // if so, need to include new as well
 
@@ -31,7 +31,7 @@ using namespace BloombergLP;
 #if defined(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND)
 # define BSL_DO_NOT_TEST_MOVE_FORWARDING 1
 // Some compilers produce ambiguities when trying to construct our test types
-// for 'emplace'-type functionality with the C++03 move-emulation.  This is a
+// for `emplace`-type functionality with the C++03 move-emulation.  This is a
 // compiler bug triggering in lower level components, so we simply disable
 // those aspects of testing, and rely on the extensive test coverage on other
 // platforms.
@@ -140,23 +140,23 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
+/// This leading branch is the preferred version for C++17, but the feature
+/// test macro is (currently) for documentation purposes only, and never
+/// defined.  This is the ideal (simplest) form for such declarations:
 # define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
     const BSLS_KEYWORD_CONSTEXPR bsl::bool_constant<EXPRESSION> NAME{}
-    // This leading branch is the preferred version for C++17, but the feature
-    // test macro is (currently) for documentation purposes only, and never
-    // defined.  This is the ideal (simplest) form for such declarations:
 #elif defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
 # define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
     constexpr bsl::integral_constant<bool, EXPRESSION> NAME{}
     // This is the preferred C++11 form for the definition of integral constant
-    // variables.  It assumes the presence of 'constexpr' in the compiler as an
+    // variables.  It assumes the presence of `constexpr` in the compiler as an
     // indication that brace-initialization and traits are available, as it has
     // historically been one of the last C++11 features to ship.
 #else
 # define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
     static const bsl::integral_constant<bool, EXPRESSION> NAME =              \
                  bsl::integral_constant<bool, EXPRESSION>()
-    // 'bsl::integral_constant' is not an aggregate prior to C++17 extending
+    // `bsl::integral_constant` is not an aggregate prior to C++17 extending
     // the rules, so a C++03 compiler must explicitly initialize integral
     // constant variables in a way that is unambiguously not a vexing parse
     // that declares a function instead.
@@ -166,7 +166,7 @@ void aSsErT(bool condition, const char *message, int line)
 //              GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-// 'MyTestObject' CLASS HIERARCHY (defined below)
+// `MyTestObject` CLASS HIERARCHY (defined below)
 class MyTestObject;
 
 // OTHER TEST OBJECTS (defined below)
@@ -186,10 +186,10 @@ typedef MyTestObject TObj;
                              // class MyTestObject
                              // ==================
 
+/// This class provides a test object that keeps track of how many instances
+/// have been deleted.  Optionally, also keeps track of how many instances
+/// have been copied.
 class MyTestObject {
-    // This class provides a test object that keeps track of how many instances
-    // have been deleted.  Optionally, also keeps track of how many instances
-    // have been copied.
 
     // DATA
     int *d_deleteCounter_p;
@@ -259,30 +259,32 @@ struct MoveState {
 
   public:
     // CLASS METHOD
+
+    /// Return the non-modifiable string representation corresponding to the
+    /// specified enumeration `value`, if it exists, and a unique (error)
+    /// string otherwise.  The string representation of `value` matches its
+    /// corresponding enumerator name with the "e_" prefix elided.  For
+    /// example:
+    /// ```
+    /// bsl::cout << MoveState::toAscii(MoveState::e_MOVED);
+    /// ```
+    /// will print the following on standard output:
+    /// ```
+    /// MOVED
+    /// ```
+    /// Note that specifying a `value` that does not match any of the
+    /// enumerators will result in a string representation that is distinct
+    /// from any of those corresponding to the enumerators, but is otherwise
+    /// unspecified.
     static const char *toAscii(MoveState::Enum value);
-        // Return the non-modifiable string representation corresponding to the
-        // specified enumeration 'value', if it exists, and a unique (error)
-        // string otherwise.  The string representation of 'value' matches its
-        // corresponding enumerator name with the "e_" prefix elided.  For
-        // example:
-        //..
-        //  bsl::cout << MoveState::toAscii(MoveState::e_MOVED);
-        //..
-        // will print the following on standard output:
-        //..
-        //  MOVED
-        //..
-        // Note that specifying a 'value' that does not match any of the
-        // enumerators will result in a string representation that is distinct
-        // from any of those corresponding to the enumerators, but is otherwise
-        // unspecified.
 
 };
 
 // FREE FUNCTIONS
+
+/// Print the specified `value` as a string.
 inline
 void debugprint(const MoveState::Enum& value)
-    // Print the specified 'value' as a string.
 {
     printf("%s", MoveState::toAscii(value));
 }
@@ -291,15 +293,15 @@ void debugprint(const MoveState::Enum& value)
                          // class MyTestArg<int>
                          // ====================
 
+/// This class template declares a separate type for each template parameter
+/// value `N`, `MyTestArg<N>`, that wraps an integer value and provides
+/// implicit conversion to and from `int`.  Its main purpose is that having
+/// separate types for testing enables distinguishing them when calling
+/// through a function template interface, thereby avoiding ambiguities or
+/// accidental switching of arguments in the implementation of in-place
+/// constructors.
 template <int N>
 class MyTestArg {
-    // This class template declares a separate type for each template parameter
-    // value 'N', 'MyTestArg<N>', that wraps an integer value and provides
-    // implicit conversion to and from 'int'.  Its main purpose is that having
-    // separate types for testing enables distinguishing them when calling
-    // through a function template interface, thereby avoiding ambiguities or
-    // accidental switching of arguments in the implementation of in-place
-    // constructors.
 
     // DATA
     int              d_data;       // attribute value
@@ -308,55 +310,59 @@ class MyTestArg {
 
   public:
     // CREATORS
+
+    /// Create a `MyTestArg` object having the default attribute value `-1`.
     MyTestArg();
-        // Create a 'MyTestArg' object having the default attribute value '-1'.
 
+    /// Create an `MyTestArg` object having the specified `value`. The
+    /// behavior is undefined unless `value >= 0`.
     explicit MyTestArg(int value);
-        // Create an 'MyTestArg' object having the specified 'value'. The
-        // behavior is undefined unless 'value >= 0'.
 
+    /// Create a `MyTestArg` object having the same value as the specified
+    /// `original`.
     MyTestArg(const MyTestArg& original);
-        // Create a 'MyTestArg' object having the same value as the specified
-        // 'original'.
 
+    /// Create a `MyTestArg` object having the same value as the specified
+    /// `original`.  Note that `original` is left in a valid but unspecified
+    /// state.
     MyTestArg(BloombergLP::bslmf::MovableRef<MyTestArg> original);
-        // Create a 'MyTestArg' object having the same value as the specified
-        // 'original'.  Note that 'original' is left in a valid but unspecified
-        // state.
 
     //! ~ArgumentType() = default;
         // Destroy this object.
 
     // MANIPULATORS
-    MyTestArg& operator=(const MyTestArg& rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
 
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.
+    MyTestArg& operator=(const MyTestArg& rhs);
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.  Note
+    /// that `rhs` is left in a valid but unspecified state.
     MyTestArg& operator=(BloombergLP::bslmf::MovableRef<MyTestArg> rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.  Note
-        // that 'rhs' is left in a valid but unspecified state.
 
     // ACCESSORS
+
+    /// Return the value of this object.
     operator int() const;
-        // Return the value of this object.
 
+    /// Return the move state of this object as source of a move operation.
     MoveState::Enum movedFrom() const;
-        // Return the move state of this object as source of a move operation.
 
+    /// Return the move state of this object as target of a move operation.
     MoveState::Enum movedInto() const;
-        // Return the move state of this object as target of a move operation.
 
 };
 
 // FREE FUNCTIONS
+
+/// Return the move-from state of the specified `object`.
 template <int N>
 MoveState::Enum getMovedFrom(const MyTestArg<N>& object);
-    // Return the move-from state of the specified 'object'.
 
+/// Return the move-into state of the specified `object`.
 template <int N>
 MoveState::Enum getMovedInto(const MyTestArg<N>& object);
-    // Return the move-into state of the specified 'object'.
 
 typedef MyTestArg< 1> MyTestArg01;
 typedef MyTestArg< 2> MyTestArg02;
@@ -371,9 +377,10 @@ typedef MyTestArg<10> MyTestArg10;
 typedef MyTestArg<11> MyTestArg11;
 typedef MyTestArg<12> MyTestArg12;
 typedef MyTestArg<13> MyTestArg13;
+
+/// Define fourteen test argument types `MyTestArg01..14` to be used with the
+/// in-place constructors of `MyInplaceTestObject`.
 typedef MyTestArg<14> MyTestArg14;
-    // Define fourteen test argument types 'MyTestArg01..14' to be used with the
-    // in-place constructors of 'MyInplaceTestObject'.
 
 typedef MyTestArg01                                     ArgType01;
 typedef MyTestArg02                                     ArgType02;
@@ -388,18 +395,19 @@ typedef MyTestArg10                                     ArgType10;
 typedef MyTestArg11                                     ArgType11;
 typedef MyTestArg12                                     ArgType12;
 typedef MyTestArg13                                     ArgType13;
+
+/// Define fourteen test argument types `MyTestArg01..14` to be used with the
+/// in-place constructors of `MyInplaceTestObject`.
 typedef MyTestArg14                                     ArgType14;
-    // Define fourteen test argument types 'MyTestArg01..14' to be used with the
-    // in-place constructors of 'MyInplaceTestObject'.
 
                          // =========================
                          // class MyInplaceTestObject
                          // =========================
 
+/// This class provides a test object used to check that the arguments
+/// passed for creating a shared pointer with an in-place representation are
+/// of the correct types and values.
 class MyInplaceTestObject {
-    // This class provides a test object used to check that the arguments
-    // passed for creating a shared pointer with an in-place representation are
-    // of the correct types and values.
 
     // DATA
     MyTestArg01 d_a01;
@@ -420,6 +428,10 @@ class MyInplaceTestObject {
 
   public:
     // CREATORS
+
+    /// Create a `MyInplaceTestObject` by initializing the data members
+    /// `d_a01`..`d_a14` with the specified `a1`..`a14`, and initializing any
+    /// remaining data members with their default value (-1).
     MyInplaceTestObject();
     explicit MyInplaceTestObject(MyTestArg01 a1);
     MyInplaceTestObject(MyTestArg01 a01,
@@ -526,20 +538,18 @@ class MyInplaceTestObject {
                         MyTestArg12 a12,
                         MyTestArg13 a13,
                         MyTestArg14 a14);
-        // Create a 'MyInplaceTestObject' by initializing the data members
-        // 'd_a01'..'d_a14' with the specified 'a1'..'a14', and initializing any
-        // remaining data members with their default value (-1).
 
+    /// Increment the count of calls to this destructor, and destroy this
+    /// object.
     ~MyInplaceTestObject();
-        // Increment the count of calls to this destructor, and destroy this
-        // object.
 
     // ACCESSORS
+
+    /// Return `true` if the specified `rhs` has the same value as this
+    /// object, and `false` otherwise.  Two `MyInplaceTestObject` objects
+    /// have the same value if each of their corresponding data members
+    /// `d1`..`d14` have the same value.
     bool operator==(const MyInplaceTestObject& rhs) const;
-        // Return 'true' if the specified 'rhs' has the same value as this
-        // object, and 'false' otherwise.  Two 'MyInplaceTestObject' objects
-        // have the same value if each of their corresponding data members
-        // 'd1'..'d14' have the same value.
 
     const ArgType01& arg01() const;
     const ArgType02& arg02() const;
@@ -554,13 +564,14 @@ class MyInplaceTestObject {
     const ArgType11& arg11() const;
     const ArgType12& arg12() const;
     const ArgType13& arg13() const;
-    const ArgType14& arg14() const;
-        // Return the value of the correspondingly numbered argument that was
-        // passed to the constructor of this object.
 
+    /// Return the value of the correspondingly numbered argument that was
+    /// passed to the constructor of this object.
+    const ArgType14& arg14() const;
+
+    /// Return the number of times an object of this type has been
+    /// destroyed.
     static int getNumDeletes();
-        // Return the number of times an object of this type has been
-        // destroyed.
 };
 
 //=============================================================================
@@ -1105,7 +1116,7 @@ const ArgType14& MyInplaceTestObject::arg14() const
 
 class MySharedDatetime {
     // This class provide a reference counted smart pointer to support shared
-    // ownership of a 'bdlt::Datetime' object.
+    // ownership of a `bdlt::Datetime` object.
 
   private:
     bdlt::Datetime      *d_ptr_p;  // pointer to the managed object
@@ -1122,11 +1133,11 @@ class MySharedDatetime {
 
     MySharedDatetime(bdlt::Datetime* ptr, bslma::SharedPtrRep* rep);
         // Create a shared datetime that adopts ownership of the specified
-        // 'ptr' and the specified 'rep.
+        // `ptr` and the specified 'rep.
 
     MySharedDatetime(const MySharedDatetime& original);
         // Create a shared datetime that refers to the same object managed by
-        // the specified 'original'
+        // the specified `original`
 
     ~MySharedDatetime();
         // Destroy this shared datetime and release the reference any object it
@@ -1138,21 +1149,21 @@ class MySharedDatetime {
                        int               year,
                        int               month,
                        int               day);
-        // Create a new 'MySharedDatetimeRepImpl', using the specified
-        // 'allocator' to supply memory, using the specified 'year', 'month'
-        // and 'day' to initialize the 'bdlt::Datetime' within the newly
-        // created 'MySharedDatetimeRepImpl', and make this 'MySharedDatetime'
-        // refer to the 'bdlt::Datetime'.
+        // Create a new `MySharedDatetimeRepImpl`, using the specified
+        // `allocator` to supply memory, using the specified `year`, `month`
+        // and `day` to initialize the `bdlt::Datetime` within the newly
+        // created `MySharedDatetimeRepImpl`, and make this `MySharedDatetime`
+        // refer to the `bdlt::Datetime`.
 
     bdlt::Datetime& operator*() const;
-        // Return a modifiable reference to the shared 'bdlt::Datetime' object.
+        // Return a modifiable reference to the shared `bdlt::Datetime` object.
 
     bdlt::Datetime *operator->() const;
-        // Return the address of the modifiable 'bdlt::Datetime' to which this
+        // Return the address of the modifiable `bdlt::Datetime` to which this
         // object refers.
 
     bdlt::Datetime *ptr() const;
-        // Return the address of the modifiable 'bdlt::Datetime' to which this
+        // Return the address of the modifiable `bdlt::Datetime` to which this
         // object refers.
 };
 
@@ -1225,9 +1236,9 @@ bdlt::Datetime *MySharedDatetime::ptr() const {
                        // class TestDriver
                        // ================
 
+/// This class provide a namespace for testing the `MyInplaceTestObject`.
+/// Each "testCase*" method tests a specific aspect of `MyInplaceTestObject`.
 class TestDriver {
-    // This class provide a namespace for testing the 'MyInplaceTestObject'.
-    // Each "testCase*" method tests a specific aspect of 'MyInplaceTestObject'.
 
   private:
     // PRIVATE TYPES
@@ -1236,7 +1247,7 @@ class TestDriver {
   private:
     // TEST APPARATUS
     //-------------------------------------------------------------------------
-    // The generating functions interpret the given 'spec' in order from left
+    // The generating functions interpret the given `spec` in order from left
     // to right to create the object according to a custom language.
     // Uppercase letters [A..Z] correspond to arbitrary (but unique) char
     // values to be used as the constructor arguments at the same position.
@@ -1260,8 +1271,8 @@ class TestDriver {
     // <DEFAULT>    ::= ' ' (space)
     //                  // Default-constructed value
     //
-    // For specification string of length 'N' use object constructor taking
-    // exactly 'N' arguments with values corresponding to the character at the
+    // For specification string of length `N` use object constructor taking
+    // exactly `N` arguments with values corresponding to the character at the
     // character's position.
     //
     // Spec String  Description
@@ -1287,24 +1298,24 @@ class TestDriver {
 
 #if 0
     static int ggg(Obj *object, const char *spec, int verbose = 1);
-        // Construct the specified 'object' according to the specified 'spec',
-        // using the object constructor.  Optionally specify a zero 'verbose'
-        // to suppress 'spec' syntax error messages.  Return the index of the
+        // Construct the specified `object` according to the specified `spec`,
+        // using the object constructor.  Optionally specify a zero `verbose`
+        // to suppress `spec` syntax error messages.  Return the index of the
         // first invalid character, and a negative value otherwise.  Note that
-        // this function is used to implement 'gg' as well as allow for
+        // this function is used to implement `gg` as well as allow for
         // verification of syntax error detection.
 
     static Obj& gg(Obj *object, const char *spec);
-        // Return, by reference, the specified 'object' with its value
-        // constructed according to the specified 'spec'.
+        // Return, by reference, the specified `object` with its value
+        // constructed according to the specified `spec`.
 
   public:
     // TEST CASES
     static void testCase12();
-        // Test 'getNumDeletes' class method.
+        // Test `getNumDeletes` class method.
 
     static void testCase11();
-        // Test 'isEqual' method.
+        // Test `isEqual` method.
 
     static void testCase9();
         // Test copy-assignment operator.
@@ -1313,15 +1324,18 @@ class TestDriver {
         // Test copy constructor.
 
     static void testCase6();
-        // Test equality and inequality operators ('operator==', 'operator!=').
+        // Test equality and inequality operators (`operator==`, `operator!=`).
 
     static void testCase4();
         // Test basic accessors.
 
     static void testCase3();
-        // Test generator functions 'ggg', and 'gg'.
+        // Test generator functions `ggg`, and `gg`.
 #endif
   public:
+    /// Test value constructors for the specified (template parameter)
+    /// number of arguments.  See the test case function for documented
+    /// concerns and test plan.
     template <int N_ARGS,
               int N01,
               int N02,
@@ -1338,9 +1352,6 @@ class TestDriver {
               int N13,
               int N14>
     static void testCase3();
-        // Test value constructors for the specified (template parameter)
-        // number of arguments.  See the test case function for documented
-        // concerns and test plan.
 };
 
 
@@ -1366,21 +1377,21 @@ void TestDriver::testCase3()
     //   This helper exercises value constructors that take 0..14 arguments.
     //
     // Concerns:
-    //: 1 Constructor arguments are correcty passed to the corresponding
-    //:   attributes of the object.
+    // 1. Constructor arguments are correcty passed to the corresponding
+    //    attributes of the object.
     //
     // Plan:
-    //: 1 Create 14 argument values.
-    //:
-    //: 2 Based on the (first) template parameter indicating the number of
-    //:   arguments to pass in, call the value constructor with the
-    //:   corresponding number of arguments, performing an explicit move
-    //:   of the argument if so indicated by the template parameter
-    //:   corresponding to the argument.
-    //:
-    //: 3 Verify that the argument values were passed correctly.
-    //:
-    //: 4 Verify that the move-state for each argument is as expected.
+    // 1. Create 14 argument values.
+    //
+    // 2. Based on the (first) template parameter indicating the number of
+    //    arguments to pass in, call the value constructor with the
+    //    corresponding number of arguments, performing an explicit move
+    //    of the argument if so indicated by the template parameter
+    //    corresponding to the argument.
+    //
+    // 3. Verify that the argument values were passed correctly.
+    //
+    // 4. Verify that the move-state for each argument is as expected.
     // ------------------------------------------------------------------------
 
     bslma::TestAllocator ta("Test case 3");
@@ -1703,34 +1714,34 @@ int main(int argc, char *argv[])
 #endif
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'releaseRef' and 'releaseWeakRef'
+        // TESTING `releaseRef` and `releaseWeakRef`
         //
         // Concerns:
-        //: 1 'releaseRef' and 'releaseWeakRef' is decrementing the reference
-        //:     count correctly.
-        //:
-        //: 2 disposeObject() is called when there is no shared reference.
-        //:
-        //: 3 disposeRep() is called only when there is no shared reference and
-        //:   no weak reference.
+        // 1. `releaseRef` and `releaseWeakRef` is decrementing the reference
+        //      count correctly.
+        //
+        // 2. disposeObject() is called when there is no shared reference.
+        //
+        // 3. disposeRep() is called only when there is no shared reference and
+        //    no weak reference.
         //
         // Plan:
-        //: 1 Call 'acquireRef' then 'releaseRef' and verify 'numReference' did
-        //:   not change.  Call 'acquireWeakRef' then 'releaseWeakRef' and
-        //:   verify 'numWeakReference' did not change.
-        //:
-        //: 2 Call 'releaseRef' when there is only one reference remaining.
-        //:   Then verify that both 'disposeObject' and 'disposeRep' is called.
-        //:
-        //: 3 Create another object and call 'acquireWeakRef' before calling
-        //:   'releaseRef'.  Verify that only 'disposeObject' is called.  Then
-        //:   call 'releaseWeakRef' and verify that 'disposeRep' is called.
+        // 1. Call `acquireRef` then `releaseRef` and verify `numReference` did
+        //    not change.  Call `acquireWeakRef` then `releaseWeakRef` and
+        //    verify `numWeakReference` did not change.
+        //
+        // 2. Call `releaseRef` when there is only one reference remaining.
+        //    Then verify that both `disposeObject` and `disposeRep` is called.
+        //
+        // 3. Create another object and call `acquireWeakRef` before calling
+        //    `releaseRef`.  Verify that only `disposeObject` is called.  Then
+        //    call `releaseWeakRef` and verify that `disposeRep` is called.
         //
         // Testing:
         //   void releaseRef();
         //   void releaseWeakRef();
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING 'releaseRef' and 'releaseWeakRef'"
+        if (verbose) printf("\nTESTING `releaseRef` and `releaseWeakRef`"
                             "\n=========================================\n");
 
         numAllocations = ta.numAllocations();
@@ -1758,7 +1769,7 @@ int main(int argc, char *argv[])
             ASSERT(true == X.hasUniqueOwner());
 
             if (verbose) printf(
-                        "\nTesting 'releaseRef' with no weak reference'"
+                        "\nTesting `releaseRef` with no weak reference'"
                         "\n--------------------------------------------\n");
 
             x.releaseRef();
@@ -1766,7 +1777,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == numDeletes);
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
-        if (verbose) printf("\nTesting 'releaseRef' with weak reference'"
+        if (verbose) printf("\nTesting `releaseRef` with weak reference'"
                             "\n-----------------------------------------\n");
 
         {
@@ -1792,19 +1803,19 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'disposeObject'
+        // TESTING `disposeObject`
         //
         // Concerns:
-        //   The destructor of the object is called when 'disposeObject' is
+        //   The destructor of the object is called when `disposeObject` is
         //   called.
         //
         // Plan:
-        //   Call 'disposeObject' and verify that the destructor is called.
+        //   Call `disposeObject` and verify that the destructor is called.
         //
         // Testing:
         //   void disposeObject();
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING 'disposeObject'"
+        if (verbose) printf("\nTESTING `disposeObject`"
                             "\n=======================\n");
 
         numAllocations = ta.numAllocations();
@@ -2085,7 +2096,7 @@ int main(int argc, char *argv[])
             ASSERT(EXP == *(xPtr->ptr()));
             ASSERT(xPtr->originalPtr() == static_cast<void*>(xPtr->ptr()));
 
-            // Manually deallocate the representation using 'disposeRep'.
+            // Manually deallocate the representation using `disposeRep`.
 
             xPtr->disposeRep();
 

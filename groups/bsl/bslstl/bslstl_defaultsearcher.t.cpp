@@ -3,7 +3,7 @@
 
 #include <bslstl_equalto.h>
 #include <bslstl_forwarditerator.h>
-#include <bslstl_iterator.h>  // for 'bsl::distance', et al.
+#include <bslstl_iterator.h>  // for `bsl::distance`, et al.
 #include <bslstl_list.h>
 #include <bslstl_pair.h>
 #include <bslstl_string.h>
@@ -17,19 +17,19 @@
 #include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 #include <bsls_timeutil.h>  // TC -1
-#include <bsls_types.h>     // for 'bsls::Types::Int64'
+#include <bsls_types.h>     // for `bsls::Types::Int64`
 
-#include <cctype>     // for 'std::tolower'
-#include <cstddef>    // for 'std::size_t'
-#include <cstdlib>    // for 'std::atoi'
-#include <cstring>    // for 'std::strlen'
-#include <functional> // for 'std::equal_to'
-#include <utility>    // for 'std::move'
+#include <cctype>     // for `std::tolower`
+#include <cstddef>    // for `std::size_t`
+#include <cstdlib>    // for `std::atoi`
+#include <cstring>    // for `std::strlen`
+#include <functional> // for `std::equal_to`
+#include <utility>    // for `std::move`
 
 #include <assert.h>
-#include <float.h>    // for 'FLT_MAX' and 'FLT_MIN'
-#include <stddef.h>   // for 'NULL'
-#include <stdio.h>    // for 'stdout' and 'printf'
+#include <float.h>    // for `FLT_MAX` and `FLT_MIN`
+#include <stddef.h>   // for `NULL`
+#include <stdio.h>    // for `stdout` and `printf`
 
 #if defined(BSLS_PLATFORM_CMP_SUN)
 #pragma error_messages(off, SEC_UNINITIALIZED_MEM_READ)
@@ -50,13 +50,13 @@ using namespace BloombergLP;
 //                             Overview
 //                             --------
 // This component defines a template for a mechanism class,
-// 'bslstl::DefaultSearcher' in which two iterators define the range of values
+// `bslstl::DefaultSearcher` in which two iterators define the range of values
 // being sought for (the "needle") and another two iterators define the range
 // of values being sought through (the "haystack").  Note that the two pairs of
 // iterators must refer to the same value type, but otherwise need not be the
 // same type.  Thus, a sequences in one type of container (e.g., a list) can be
 // sought in another type of container (e.g., a set).  Our test concerns will
-// focus on the attributes of the iterators -- forward or random; 'const' or
+// focus on the attributes of the iterators -- forward or random; `const` or
 // not -- rather than on the value types (which we assume are tested
 // elsewhere).
 //
@@ -147,20 +147,21 @@ static bool veryVeryVeryVerbose;
                                // class CharList
                                // ==============
 
+/// This array class is a simple wrapper on a `char` array offering an input
+/// iterator access via the `begin` and `end` accessors.  The iterator is
+/// specifically an *input* iterator and its value type is the (template
+/// parameter) `TYPE`.
 template <class TYPE>
 class CharList {
-    // This array class is a simple wrapper on a 'char' array offering an input
-    // iterator access via the 'begin' and 'end' accessors.  The iterator is
-    // specifically an *input* iterator and its value type is the (template
-    // parameter) 'TYPE'.
 
     // DATA
     bsl::vector<TYPE> d_value;
 
   public:
     // TYPES
+
+    /// Input iterator.
     typedef bslstl::ForwardIterator<const TYPE, const TYPE *> const_iterator;
-        // Input iterator.
 
     // CREATORS
     CharList() {}
@@ -205,20 +206,21 @@ CharList<TYPE>::end() const
                               // class CharArray
                               // ===============
 
+/// This array class is a simple wrapper on a deque offering an input
+/// iterator access via the `begin` and `end` accessors.  The iterator is
+/// specifically a *random-access* iterator and its value type is the
+/// (template parameter) `TYPE`.
 template <class TYPE>
 class CharArray {
-    // This array class is a simple wrapper on a deque offering an input
-    // iterator access via the 'begin' and 'end' accessors.  The iterator is
-    // specifically a *random-access* iterator and its value type is the
-    // (template parameter) 'TYPE'.
 
     // DATA
     bsl::vector<TYPE>  d_value;
 
   public:
     // TYPES
+
+    /// Random-access iterator.
     typedef const TYPE *const_iterator;
-        // Random-access iterator.
 
     // CREATORS
     CharArray() {}
@@ -503,7 +505,7 @@ const char * const HAYSTACK_TEXT_FIRST  = u_haystackText;
 const char * const HAYSTACK_TEXT_LAST   = u_haystackText
                                         + HAYSTACK_TEXT_LENGTH;
 
-// Represent the same content as 'u_haystackTest' using a smaller alphabet.  In
+// Represent the same content as `u_haystackTest` using a smaller alphabet.  In
 // the string below the ASCII value of each character above is given as three
 // characters in octal format.
 
@@ -1044,7 +1046,7 @@ const char * const HAYSTACK_OCTAL_FIRST  = u_haystackOctal;
 const char * const HAYSTACK_OCTAL_LAST   = u_haystackOctal
                                          + HAYSTACK_OCTAL_LENGTH;
 
-// Represent the same content as 'u_haystackTest' using an even smaller
+// Represent the same content as `u_haystackTest` using an even smaller
 // alphabet.  In the string below the ASCII value of each character above is
 // given as eight characters in binary ('0' or '1') format.
 
@@ -2837,16 +2839,16 @@ void processTestRun(bsl::list<float>::const_iterator first,
 }
 
 // INSERT in Example 1.
-//..
+// ```
     struct MyCaseInsensitiveCharComparator {
         bool operator()(const char& a, const char& b) const {
             return std::tolower(a) == std::tolower(b);
         }
     };
-//..
+// ```
 
+/// Test the Usage examples.
 static void usage()
-    // Test the Usage examples.
 {
 ///Usage
 ///-----
@@ -2861,8 +2863,8 @@ static void usage()
 // the Declaration of Independence (of the United States):
 //
 // First, we obtain the text of document and word of interest as sequences of
-// 'char' values.
-//..
+// `char` values.
+// ```
     const char document[] =
     " IN CONGRESS, July 4, 1776.\n"                // 28
     "\n"                                           //  1
@@ -2878,20 +2880,20 @@ static void usage()
     "Honor.";
 
     const char *word = "United";
-//..
-// Then, we create a 'bsl::default_searcher' object (a functor) using the given
-// 'word':
-//..
+// ```
+// Then, we create a `bsl::default_searcher` object (a functor) using the given
+// `word`:
+// ```
     XYZ::default_searcher<const char*> searchForUnited(
                                                      word,
                                                      word + std::strlen(word));
-//..
+// ```
 // Notice that no equality comparison functor was specified so
-// 'searchForUnited' will use 'bsl::equal_to<char>' by default.
+// `searchForUnited` will use `bsl::equal_to<char>` by default.
 //
 // Now, we invoke our functor, specifying the range of the document to be
 // searched:
-//..
+// ```
     bsl::pair<const char *, const char *> result = searchForUnited(
                                                               document,
                                                               document
@@ -2902,12 +2904,12 @@ static void usage()
     ASSERT(120 == offset);
     ASSERT(static_cast<std::size_t>(result.second - result.first)
                == std::strlen(word));
-//..
+// ```
 // Finally, we notice that search correctly ignored the appearance of the word
 // "united" (all lower case) in the second sentence.
 //
-// {'bslstl_boyermoorehorspoolsearcher'|Example 1} shows how the same problem
-// is addressed using 'bsl::boyer_moore_horspool_searcher'.
+// {`bslstl_boyermoorehorspoolsearcher`|Example 1} shows how the same problem
+// is addressed using `bsl::boyer_moore_horspool_searcher`.
 //
 ///Example 2: Defining a Comparator
 /// - - - - - - - - - - - - - - - -
@@ -2917,26 +2919,26 @@ static void usage()
 //
 // First, define (at file scope if using a pre-C++11 compiler) an equality
 // comparison class that provides the required functor interface:
-//..
+// ```
 //  [INSERT FROM ABOVE]
-//..
-// Then, define a new 'bsl::default_searcher' type and create a searcher object
-// to search for 'word':
-//..
+// ```
+// Then, define a new `bsl::default_searcher` type and create a searcher object
+// to search for `word`:
+// ```
     XYZ::default_searcher<const char *,
                           struct MyCaseInsensitiveCharComparator>
                                                     searchForUnitedInsensitive(
                                                     word,
                                                     word + std::strlen(word));
-//..
+// ```
 // Note that the new searcher object will used a default constructed
-// 'MyCaseInsensitiveCharComparator' class.  If a equality comparison object
+// `MyCaseInsensitiveCharComparator` class.  If a equality comparison object
 // requires state supplied on construction, such an object be explicitly
 // created and supplied as the final constructor argument.
 //
 // Now, we invoke our new functor, specifying that the same document searched
 // in {Example 1}:
-//..
+// ```
     bsl::pair<const char *, const char *> resultInsensitive =
                                                     searchForUnitedInsensitive(
                                                               document,
@@ -2949,11 +2951,11 @@ static void usage()
     ASSERT(static_cast<std::size_t>(resultInsensitive.second
                                   - resultInsensitive.first)
                == std::strlen(word));
-//..
-// Finally, we find the next occurrence of 'word' by *reusing* the same
+// ```
+// Finally, we find the next occurrence of `word` by *reusing* the same
 // searcher object, this time instructing it to begin its search just after the
-// previous occurrence of 'word' was found:
-//..
+// previous occurrence of `word` was found:
+// ```
     resultInsensitive = searchForUnitedInsensitive(resultInsensitive.second,
                                                    document + sizeof document);
 
@@ -2963,20 +2965,20 @@ static void usage()
     ASSERT(static_cast<std::size_t>(resultInsensitive.second
                                   - resultInsensitive.first)
                == std::strlen(word));
-//..
+// ```
 //
-// {'bslstl_boyermoorehorspoolsearcher'|Example 2} shows how the same problem
-// is addressed using 'bsl::boyer_moore_horspool_searcher'.
+// {`bslstl_boyermoorehorspoolsearcher`|Example 2} shows how the same problem
+// is addressed using `bsl::boyer_moore_horspool_searcher`.
 //
-///Example 3: Non-'char' Searches
+///Example 3: Non-`char` Searches
 /// - - - - - - - - - - - - - - -
-// The 'bsl::default_searcher' class template is not constrained to searching
-// for 'char' values.  Searches can be done on other types (see {Iterator
+// The `bsl::default_searcher` class template is not constrained to searching
+// for `char` values.  Searches can be done on other types (see {Iterator
 // Requirements}).  Moreover the container of the sequence being sought (the
 // "needle") need not the same as the sequence being searched (the "haystack").
 //
-// Suppose one has data from an instrument that reports 'float' values and that
-// inserts the sequence '{ FLT_MAX, FLT_MIN, FLT_MAX }' as a marker for the
+// Suppose one has data from an instrument that reports `float` values and that
+// inserts the sequence `{ FLT_MAX, FLT_MIN, FLT_MAX }` as a marker for the
 // start and end of a test run.  We can assume the probably of the instrument
 // reporting this sequence as readings is negligible and that data reported
 // outside of the test runs is random noise.  Here is how we can search for the
@@ -2984,28 +2986,28 @@ static void usage()
 //
 // First, we create a representation of the sequence that denotes the limit of
 // a test run.
-//..
+// ```
     const float       markerSequence[]     = { FLT_MAX , FLT_MIN , FLT_MAX };
     const std::size_t markerSequenceLength = sizeof  markerSequence
                                            / sizeof *markerSequence;
-//..
+// ```
 // Next, we obtain the data to be searched.  (In this example, we will use
 // simulated data.)
-//..
+// ```
     bsl::list<float> data;  // Container provides bidirectional iterators.
     doTestRun(&data);
-//..
+// ```
 // Then, we define and create our searcher object:
-//..
+// ```
     XYZ::default_searcher<const float *> searchForMarker(markerSequence,
                                                          markerSequence
                                                        + markerSequenceLength);
-//..
+// ```
 // Notice that no equality comparison functor was specified so
-// 'searchForMarker' will use 'bsl::equal_to<float>' by default.
+// `searchForMarker` will use `bsl::equal_to<float>` by default.
 //
 // Now, we invoke our searcher on the instrument data.
-//..
+// ```
     typedef bsl::list<float>::const_iterator DataConstItr;
 
     const bsl::pair<DataConstItr, DataConstItr> notFound(data.cend(),
@@ -3018,10 +3020,10 @@ static void usage()
     ASSERT(notFound != markerPosition);
 
     DataConstItr startOfTestRun = markerPosition.second;
-//..
+// ```
 // Finally, we locate the marker of the end of the first test run and pass the
 // location of the first test run data to some other function for processing.
-//..
+// ```
     markerPosition = searchForMarker(markerPosition.second, data.cend());
 
     ASSERT(notFound != markerPosition);
@@ -3029,11 +3031,11 @@ static void usage()
     DataConstItr endOfTestRun = markerPosition.first;
 
     processTestRun(startOfTestRun, endOfTestRun);
-//..
+// ```
 //
-// {'bslstl_boyermoorehorspoolsearcher'|Example 3} shows how the same problem
-// is addressed using 'bsl::boyer_moore_horspool_searcher'.  Notice that other
-// example uses 'data' from a container that provides random access iterators;
+// {`bslstl_boyermoorehorspoolsearcher`|Example 3} shows how the same problem
+// is addressed using `bsl::boyer_moore_horspool_searcher`.  Notice that other
+// example uses `data` from a container that provides random access iterators;
 // whereas here, bidirectional iterators are used (and forward iterators would
 // have sufficed).
 }
@@ -3054,13 +3056,13 @@ static const char *performanceSyntaxMessage(int test)
     }
 }
 
+/// Load to the specified `haystackFirstPtr` and `haystackLastPtr` the
+/// beginning and end address of the statically defined test haystack data
+/// corresponding to the specified `haystackOption`.  Return 0 on success
+/// and a non-zero value if `haystackOption` is not recognized.
 static int getHaystack(const char **haystackFirstPtr,
                        const char **haystackLastPtr,
                        const char  *haystackOption)
-    // Load to the specified 'haystackFirstPtr' and 'haystackLastPtr' the
-    // beginning and end address of the statically defined test haystack data
-    // corresponding to the specified 'haystackOption'.  Return 0 on success
-    // and a non-zero value if 'haystackOption' is not recognized.
 {
     assert(haystackFirstPtr);
     assert(haystackLastPtr);
@@ -3140,39 +3142,39 @@ int getDataForHaystack(const DATA_t **DATA,
 }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+/// This struct provides a namespace for functions testing deduction guides.
+/// The tests are compile-time only; it is not necessary that these routines
+/// be called at run-time.
 struct TestDeductionGuides {
-    // This struct provides a namespace for functions testing deduction guides.
-    // The tests are compile-time only; it is not necessary that these routines
-    // be called at run-time.
 
 #define ASSERT_SAME_TYPE(...) \
  static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
 
+    /// Always return true
     template <class KEY_TYPE>
     struct StupidEqual {
         bool operator()(const KEY_TYPE&, const KEY_TYPE&) const
-            // Always return true
         {
             return true;
         }
     };
 
+    /// Always return true
     template <class KEY_TYPE>
     static size_t StupidEqualFn(const KEY_TYPE&, const KEY_TYPE&)
-        // Always return true
     {
         return true;
     }
 
+    /// Test that constructing a `bslstl::DefaultSearcher` from various
+    /// combinations of arguments deduces the correct type.
+    /// ```
+    /// DefaultSearcher(const DefaultSearcher&  s) -> decltype(s)
+    /// DefaultSearcher(      DefaultSearcher&& s) -> decltype(s)
+    ///
+    /// DefaultSearcher(Iter, Iter, BinaryPredicate = BinaryPredicate())
+    /// ```
     void TestBSLSearcher ()
-        // Test that constructing a 'bslstl::DefaultSearcher' from various
-        // combinations of arguments deduces the correct type.
-        //..
-        //  DefaultSearcher(const DefaultSearcher&  s) -> decltype(s)
-        //  DefaultSearcher(      DefaultSearcher&& s) -> decltype(s)
-        //
-        //  DefaultSearcher(Iter, Iter, BinaryPredicate = BinaryPredicate())
-        //..
     {
         typedef int T1;
 
@@ -3211,14 +3213,14 @@ struct TestDeductionGuides {
 
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
     void TestSTLSearcher ()
-        // Test that constructing a 'bsl::default_searcher' from various
+        // Test that constructing a `bsl::default_searcher` from various
         // combinations of arguments deduces the correct type.
-        //..
+        // ```
         //  default_searcher(const default_searcher&  s) -> decltype(s)
         //  default_searcher(      default_searcher&& s) -> decltype(s)
         //
         //  default_searcher(Iter, Iter, BinaryPredicate = BinaryPredicate())
-        //..
+        // ```
     {
         typedef int T1;
 
@@ -3282,14 +3284,14 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, replace 'assert' with 'ASSERT', and
-        //:   replace 'bsl::' with 'std::'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, replace `assert` with `ASSERT`, and
+        //    replace `bsl::` with `std::`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -3308,18 +3310,18 @@ int main(int argc, char *argv[])
         //   constructors.
         //
         // Concerns:
-        //: 1 Construction from iterators deduces the value type from the value
-        //:   type of the iterator.
+        // 1. Construction from iterators deduces the value type from the value
+        //    type of the iterator.
         //
         // Plan:
-        //: 1 Create a 'DefaultSearcher' by invoking the constructor without
-        //:   supplying the template arguments explicitly.
-        //:
-        //: 2 If we are not using the system's 'default_searcher', create a
-        //:   'bsl::default_searcher' by invoking the constructor without
-        //:   supplying the template arguments explicitly.
-        //:
-        //: 3 Verify that the deduced types are correct.
+        // 1. Create a `DefaultSearcher` by invoking the constructor without
+        //    supplying the template arguments explicitly.
+        //
+        // 2. If we are not using the system's `default_searcher`, create a
+        //    `bsl::default_searcher` by invoking the constructor without
+        //    supplying the template arguments explicitly.
+        //
+        // 3. Verify that the deduced types are correct.
         //
         // Testing:
         //   CLASS TEMPLATE DEDUCTION GUIDES
@@ -3337,49 +3339,49 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TEST 'default_seacher' FACADE
-        //   The 'default_searcher' class is a facade that forwards to selected
-        //   interfaces of 'DefaultSearcher', a class that has been thoroughly
+        // TEST `default_seacher` FACADE
+        //   The `default_searcher` class is a facade that forwards to selected
+        //   interfaces of `DefaultSearcher`, a class that has been thoroughly
         //   tested below.  Our concerns are largely those of correct
         //   forwarding of arguments.
         //
         // Concerns:
-        //: 1 The (non-default) constructor has the expected default parameter
-        //:   for 'pred'.
-        //:
-        //: 2 Constructor arguments are forwarded in correct order to the
-        //:   'DefaultSearcher' implementation.
-        //:
-        //: 3 The search 'operator()' forwards its arguments in the correct
-        //:   order to the 'DefaultSearcher' implementation.
-        //:
-        //: 4 QoI: Precondition violations are detected in appropriate build
-        //:   modes.
+        // 1. The (non-default) constructor has the expected default parameter
+        //    for `pred`.
+        //
+        // 2. Constructor arguments are forwarded in correct order to the
+        //    `DefaultSearcher` implementation.
+        //
+        // 3. The search `operator()` forwards its arguments in the correct
+        //    order to the `DefaultSearcher` implementation.
+        //
+        // 4. QoI: Precondition violations are detected in appropriate build
+        //    modes.
         //
         // Plan:
-        //: 1 Use the 'bsl::is_same' meta-function to confirm that a searcher
-        //:   type defined without optional parameters matches one declared
-        //:   with the known defualt types.  (C-1)
-        //:
-        //: 2 Confirm proper forwarding of range arguments (both for the CTOR
-        //:   and 'operator()') by creating a series of sets that would produce
-        //:   noticeably different results if the range beginning or end was
-        //:   off by even one position.  (C-2, C-3)
-        //:
-        //: 4 Confirm proper forwarding the functors by creating cases that
-        //:   would produce noticeably different results if the intended
-        //:   functors were not used.  Note that switching the two functors is
-        //:   not a concern as that would produce a compile error.  (C-2)
-        //:
-        //: 5 Use the conventional Negative testing idiom to confirm that
-        //:   pre-conditions are tested in the appropriate build modes.  (C-4)
+        // 1. Use the `bsl::is_same` meta-function to confirm that a searcher
+        //    type defined without optional parameters matches one declared
+        //    with the known defualt types.  (C-1)
+        //
+        // 2. Confirm proper forwarding of range arguments (both for the CTOR
+        //    and `operator()`) by creating a series of sets that would produce
+        //    noticeably different results if the range beginning or end was
+        //    off by even one position.  (C-2, C-3)
+        //
+        // 4. Confirm proper forwarding the functors by creating cases that
+        //    would produce noticeably different results if the intended
+        //    functors were not used.  Note that switching the two functors is
+        //    not a concern as that would produce a compile error.  (C-2)
+        //
+        // 5. Use the conventional Negative testing idiom to confirm that
+        //    pre-conditions are tested in the appropriate build modes.  (C-4)
         //
         // Testing:
         //   default_searcher: facade forwards correctly
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                        "\n" "TEST 'default_seacher' FACADE"
+                        "\n" "TEST `default_seacher` FACADE"
                         "\n" "=============================" "\n");
 
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
@@ -3490,7 +3492,7 @@ int main(int argc, char *argv[])
             typedef bsl::pair<const char *, const char*> Result;
 
             const char *haystack =
-              "When 'polish' starts a sentence I confuse it with 'Polish'.";
+              "When `polish` starts a sentence I confuse it with `Polish`.";
             // ----^----|----^----|----^----|----^----|----^----|----^----|
             // 1     | 10        20        30        40        50 |      60
 
@@ -3676,7 +3678,7 @@ int main(int argc, char *argv[])
             typedef bsl::pair<const char *, const char*> Result;
 
             const char *haystack =
-              "When 'polish' starts a sentence I confuse it with 'Polish'.";
+              "When `polish` starts a sentence I confuse it with `Polish`.";
             // ----^----|----^----|----^----|----^----|----^----|----^----|
             // 1     | 10        20        30        40        50 |      60
 
@@ -3757,72 +3759,72 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TEST 'operator()'
+        // TEST `operator()`
         //
         // Concerns:
-        //: 1 The method has the expected signature.  In particular,
-        //:   1 the method is 'const' qualified.
-        //:   2 the method returns the expected type.
-        //:
-        //: 2 The haystack iterator type may be just a constant iterator.
-        //:
-        //: 3 The haystack iterator type can be just a forward iterator.
+        // 1. The method has the expected signature.  In particular,
+        //   1. the method is `const` qualified.
+        //   2. the method returns the expected type.
         //
-        //: 4 The method uses the equality comparison functor supplied on
-        //:   construction.
-        //:
-        //: 5 The method searches the specified range (and no further).
-        //:
-        //: 6 The method returns position of the first occurrence of needle
-        //:   in the specified haystack.
-        //:
-        //: 7 If the needle is not found in the haystack, a zero-length
-        //:   range positioned at the end of the haystack is returned.
-        //:
-        //: 8 The returns the expected results for each combination of
-        //:   needle and haystack range:
-        //:   o length 0, no elements
-        //:   o length 1, one element that is both first and last
-        //:   o length 2, separate first and last elements
-        //:   o length 3, separate first, last elements, and one
-        //:     undistinguished (middle) element.
-        //:
-        //: 9 QoI: Precondition violations are detected in appropriate build
-        //:   modes.
+        // 2. The haystack iterator type may be just a constant iterator.
+        //
+        // 3. The haystack iterator type can be just a forward iterator.
+        //
+        // 4. The method uses the equality comparison functor supplied on
+        //    construction.
+        //
+        // 5. The method searches the specified range (and no further).
+        //
+        // 6. The method returns position of the first occurrence of needle
+        //    in the specified haystack.
+        //
+        // 7. If the needle is not found in the haystack, a zero-length
+        //    range positioned at the end of the haystack is returned.
+        //
+        // 8. The returns the expected results for each combination of
+        //    needle and haystack range:
+        //    - length 0, no elements
+        //    - length 1, one element that is both first and last
+        //    - length 2, separate first and last elements
+        //    - length 3, separate first, last elements, and one
+        //      undistinguished (middle) element.
+        //
+        // 9. QoI: Precondition violations are detected in appropriate build
+        //    modes.
         //
         // Plan:
-        //: 1 Define a table of test cases that cover a spectrum of concerns:
-        //:   o Needles and haystacks of varying combinations of lengths from
-        //:     empty to at least three, including edge cases on
-        //:     needle/haystack lengths.
-        //:   o Haystacks that do not contain the needle.
-        //:   o Haystacks that contain the needle at the beginning, middle, and
-        //:     end.
-        //:   o Haystacks that contain multiple instances of the needle.
-        //:   o Haystacks that have partial needles (false starts) before the
-        //:     actual needle.
-        //:
-        //: 2 Each entry in the table has pre-calculated expected results, both
-        //:   for case sensitive searches (the default) and case insensitive
-        //:   searches.  Both searches are done to show that the equality
-        //:   comparison functor that is shown is actually used.
-        //:
-        //: 3 A "matrix" of four searcher objects are created:
-        //:   o Needle iterator type: forward and random.
-        //:   o Comparator type: case-sensitive (default) and case-insensitive.
-        //:
-        //: 4 Each of the four searcher objects is invoked on both types
-        //:   of haystacks:  forward iterator and random iterator.
-        //:
-        //: 5 Call defined iterators are constant.
-        //:
-        //: 6 All searches are done using 'const'-qualified searcher objects.
+        // 1. Define a table of test cases that cover a spectrum of concerns:
+        //    - Needles and haystacks of varying combinations of lengths from
+        //      empty to at least three, including edge cases on
+        //      needle/haystack lengths.
+        //    - Haystacks that do not contain the needle.
+        //    - Haystacks that contain the needle at the beginning, middle, and
+        //      end.
+        //    - Haystacks that contain multiple instances of the needle.
+        //    - Haystacks that have partial needles (false starts) before the
+        //      actual needle.
+        //
+        // 2. Each entry in the table has pre-calculated expected results, both
+        //    for case sensitive searches (the default) and case insensitive
+        //    searches.  Both searches are done to show that the equality
+        //    comparison functor that is shown is actually used.
+        //
+        // 3. A "matrix" of four searcher objects are created:
+        //    - Needle iterator type: forward and random.
+        //    - Comparator type: case-sensitive (default) and case-insensitive.
+        //
+        // 4. Each of the four searcher objects is invoked on both types
+        //    of haystacks:  forward iterator and random iterator.
+        //
+        // 5. Call defined iterators are constant.
+        //
+        // 6. All searches are done using `const`-qualified searcher objects.
         //
         // Testing:
         //   bsl::pair<FIH, FIH> operator()(FIH hsFirst, FIH hsLast) const;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n" "TEST 'operator()'"
+        if (verbose) printf("\n" "TEST `operator()`"
                             "\n" "=================\n");
 
         for (std::size_t ti = 0; ti < numDATA; ++ti) {
@@ -3983,48 +3985,48 @@ int main(int argc, char *argv[])
         // CONSTRUCTOR AND BASIC ACCESSORS
         //
         // Concerns:
-        //: 1 The constructor creates an object.
-        //:
-        //: 2 The basic accessors show object attributes in agreement with the
-        //:   object's constructor arguments.
-        //:
-        //: 3 The optional parameter defaults to the expected value,
-        //:   'bsl::equal_to<TYPE>'.
-        //:
-        //: 4 The needle iterator type may be just a constant iterator.
-        //:
-        //: 5 The needle iterator type can be just a forward iterator.
-        //:
-        //: 6 The basic accessors are 'const'-qualified.
-        //:
-        //: 7 The object holds copies of constructor arguments.
-        //:
-        //: 8 The accessor to the equality comparison functor returns a
-        //:   'const'-reference to the object's functor.
-        //:
-        //: 9 The object's public type, 'value_type', is the expected type.
-        //:
-        //:10 QoI: Precondition violations are detected in appropriate build
-        //:   modes.
+        // 1. The constructor creates an object.
+        //
+        // 2. The basic accessors show object attributes in agreement with the
+        //    object's constructor arguments.
+        //
+        // 3. The optional parameter defaults to the expected value,
+        //    `bsl::equal_to<TYPE>`.
+        //
+        // 4. The needle iterator type may be just a constant iterator.
+        //
+        // 5. The needle iterator type can be just a forward iterator.
+        //
+        // 6. The basic accessors are `const`-qualified.
+        //
+        // 7. The object holds copies of constructor arguments.
+        //
+        // 8. The accessor to the equality comparison functor returns a
+        //    `const`-reference to the object's functor.
+        //
+        // 9. The object's public type, `value_type`, is the expected type.
+        //
+        // 10. QoI: Precondition violations are detected in appropriate build
+        //    modes.
         //
         // Plan:
-        //: 1 Accessor 'const'-qualification is demonstrated by invoking each
-        //:   accessor via a 'const'-reference to an object.
-        //:
-        //: 2 Acceptance of iterator types is demonstrated by creating objects
-        //:   using a constant iterator type derived from
-        //:   'bslstl::ForwardIterator'.
-        //:
-        //: 3 Show that the object type is the same, irrespective of whether or
-        //:   not the optional argument is supplied.
-        //:
-        //: 4 We demonstrate that the object hold copies of constructor
-        //:   arguments by changing those objects and confirming that they are
-        //:   no longer equal to the values returned by the accessors.
-        //:
-        //: 5 We demonstrate that the "functor" accessor returns by value
-        //:   by showing that changes to a returned object are *not* reflected
-        //:   by changes in the object returned by the accessor.
+        // 1. Accessor `const`-qualification is demonstrated by invoking each
+        //    accessor via a `const`-reference to an object.
+        //
+        // 2. Acceptance of iterator types is demonstrated by creating objects
+        //    using a constant iterator type derived from
+        //    `bslstl::ForwardIterator`.
+        //
+        // 3. Show that the object type is the same, irrespective of whether or
+        //    not the optional argument is supplied.
+        //
+        // 4. We demonstrate that the object hold copies of constructor
+        //    arguments by changing those objects and confirming that they are
+        //    no longer equal to the values returned by the accessors.
+        //
+        // 5. We demonstrate that the "functor" accessor returns by value
+        //    by showing that changes to a returned object are *not* reflected
+        //    by changes in the object returned by the accessor.
         //
         // Testing:
         //   DefaultSearcher(FIN needleFirst, FIN needleLast, EQUAL equal);
@@ -4143,19 +4145,19 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create a searcher object to search for the ", " sequence of the
-        //:   literal string, "Hello, world!".  Confirm that the result, a
-        //:   pair, matches the pointers used to construct the searcher.
+        // 1. Create a searcher object to search for the ", " sequence of the
+        //    literal string, "Hello, world!".  Confirm that the result, a
+        //    pair, matches the pointers used to construct the searcher.
         //
-        //: 2 Create a small array of non-zero 'int' values, a needle, and
-        //:   copy that sequence amidst a longer list of 'int' zero values,
-        //:   the haystack.  Create a searcher object and confirm that the
-        //:   result matches in position and length the place where the needle
-        //:   was injected into the haystack.
+        // 2. Create a small array of non-zero `int` values, a needle, and
+        //    copy that sequence amidst a longer list of `int` zero values,
+        //    the haystack.  Create a searcher object and confirm that the
+        //    result matches in position and length the place where the needle
+        //    was injected into the haystack.
         //
         // Testing:
         //   BREATHING TEST
@@ -4185,7 +4187,7 @@ int main(int argc, char *argv[])
             ASSERT(haystack + 7 == result.second);
         }
 
-        if (veryVerbose) printf("Vectors of 'int' values\n");
+        if (veryVerbose) printf("Vectors of `int` values\n");
         {
             const int            intNeedle[] = { 2, 4, 6, 8 };
             const std::size_t numIntNeedle   = sizeof  intNeedle
@@ -4233,10 +4235,10 @@ int main(int argc, char *argv[])
       } break;
       case -1: {
         // --------------------------------------------------------------------
-        // PERFORMANCE: 'operator()'
+        // PERFORMANCE: `operator()`
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n" "PERFORMANCE: 'operator()'" "\n"
+        if (verbose) printf("\n" "PERFORMANCE: `operator()`" "\n"
                                  "=========================" "\n");
 
         if (argc < 4) {

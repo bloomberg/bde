@@ -12,12 +12,12 @@
 
 #include <bsltf_stdstatefulallocator.h>
 
-#include <iostream>  // 'std::cout'
+#include <iostream>  // `std::cout`
 #include <ostream>
 
-#include <stddef.h>  // '::size_t'
+#include <stddef.h>  // `::size_t`
 #include <stdio.h>
-#include <stdlib.h>  // 'atoi'
+#include <stdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 
@@ -26,10 +26,10 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test implements 'std::basic_streambuf' that accumulates
-// the output and atomically transfers it to the wrapped 'basic_streambuf' on
-// the destructor or the 'emit' member function call.  All tests are performend
-// for 'basic_syncbuf<char>' and 'basic_syncbuf<wchar_t>' instances.
+// The component under test implements `std::basic_streambuf` that accumulates
+// the output and atomically transfers it to the wrapped `basic_streambuf` on
+// the destructor or the `emit` member function call.  All tests are performend
+// for `basic_syncbuf<char>` and `basic_syncbuf<wchar_t>` instances.
 // ----------------------------------------------------------------------------
 // CREATORS
 // [ 2] basic_syncbuf(ALLOCATOR = {});
@@ -136,9 +136,9 @@ static bool veryVeryVeryVerbose;
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// "Type-parametrized namespace" for the tests.
 template <class CHAR>
 class SyncBufTest {
-    // "Type-parametrized namespace" for the tests.
 
     // PRIVATE TYPES
     typedef bsl::basic_syncbuf<CHAR> syncbuf;
@@ -147,15 +147,16 @@ class SyncBufTest {
     typedef syncbuf Obj;
 
     // PRIVATE CLASS FUNCTIONS
+
+    /// Create a `string` from the specified `chars`.
     template <size_t Len>
     static string make_string(const CHAR (&chars)[Len])
-        // Create a 'string' from the specified 'chars'.
     {
         return string(chars, Len);
     }
 
+    /// Create a `string` from the specified `ch`.
     static string make_string(CHAR ch)
-        // Create a 'string' from the specified 'ch'.
     {
         return string(size_t(1), ch);
     }
@@ -229,7 +230,7 @@ class SyncBufTest {
                 buf.sputc(chars[1]);
                 ASSERT(wrapped.str().empty());
 
-                // 'emit' is called by the destructor
+                // `emit` is called by the destructor
             }
             ASSERT(wrapped.str() == make_string(chars));
         }
@@ -326,7 +327,7 @@ class SyncBufTest {
         lhs.sputc(chars[0]);
         ASSERTV(tmp_wrapped.str().empty());
 
-        lhs = std::move(rhs);  // 'lhs.emit()' is implicitly called here
+        lhs = std::move(rhs);  // `lhs.emit()` is implicitly called here
         ASSERT(lhs.get_wrapped() == &wrapped);
         ASSERT(rhs.get_allocator().mechanism() == &alloc);
         ASSERT(!rhs.get_wrapped());
@@ -339,8 +340,8 @@ class SyncBufTest {
         ASSERT(wrapped.str() == make_string(chars[1]));
     }
 
+    /// TESTING `swap`
     static void testSwap()
-        // TESTING 'swap'
     {
         {
             bslma::TestAllocator alloc("alloc");
@@ -454,18 +455,18 @@ class SyncBufTest {
 //-----------------------------------------------------------------------------
 namespace bsl { using std::ostream; }
 
+/// Write atomically to the specified `os` output stream.
 void writeSync(bsl::ostream& os)
-    // Write atomically to the specified 'os' output stream.
 {
-    // Temporarily replace the underlying 'streambuf'
+    // Temporarily replace the underlying `streambuf`
     bsl::syncbuf buf(os.rdbuf());
     os.rdbuf(&buf);
 
-    // Write to the 'syncbuf'
+    // Write to the `syncbuf`
     os << "Hello, ";
     os << "World!\n";
 
-    // Restore the underlying 'streambuf'
+    // Restore the underlying `streambuf`
     os.rdbuf(buf.get_wrapped());
 
     // The accumulated output will be atomically flushed/emitted here
@@ -496,12 +497,12 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate the usage example from header into test driver,
-        //:   remove leading comment characters. (C-1)
+        // 1. Incorporate the usage example from header into test driver,
+        //    remove leading comment characters. (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -510,34 +511,34 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 // Now call the function:
-//..
+// ```
     writeSync(std::cout);
-//..
+// ```
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'swap'
+        // TESTING `swap`
         //
         // Concerns:
-        //: 1 The 'swap' function exchanges the state of two 'syncbuf's.
-        //:
-        //: 2 Swap free function works the same way as the 'swap' member.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The `swap` function exchanges the state of two `syncbuf`s.
+        //
+        // 2. Swap free function works the same way as the `swap` member.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Construct two 'syncbuf' objects: 'a' and 'b'.  Call the member
-        //:   'swap' function.  Verify that the state has been exchanged.  Call
-        //:   the 'swap' function.  Verify that the state has been restored.
-        //:
-        //: 2 Perform negative testing to verify that asserts catch all the
-        //:   undefined behavior in the contract.
+        // 1. Construct two `syncbuf` objects: `a` and `b`.  Call the member
+        //    `swap` function.  Verify that the state has been exchanged.  Call
+        //    the `swap` function.  Verify that the state has been restored.
+        //
+        // 2. Perform negative testing to verify that asserts catch all the
+        //    undefined behavior in the contract.
         //
         // Testing:
         //   void swap(basic_syncbuf& other);
         //   void swap(basic_syncbuf& a, basic_syncbuf& b);
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING 'swap'"
+        if (verbose) printf("\nTESTING `swap`"
                             "\n==============\n");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
@@ -550,25 +551,25 @@ int main(int argc, char *argv[])
         // TESTING MOVE ASSIGNMENT
         //
         // Concerns:
-        //: 1 Move assignment moves all the state from 'original', including
-        //:   the accumulated and not flushed output.  'original' has no
-        //:   associated wrapped buffer after the call.
-        //:
-        //: 2 'emit' is called for '*this' before any assignments.
+        // 1. Move assignment moves all the state from `original`, including
+        //    the accumulated and not flushed output.  `original` has no
+        //    associated wrapped buffer after the call.
+        //
+        // 2. `emit` is called for `*this` before any assignments.
         //
         // Plan:
-        //: 1 Construct two 'syncbuf' objects: 'lhs' and 'rhs'.  Write a char
-        //:   to each of the objects (different chars) but don't call 'emit'.
-        //:   Move-assign - 'lhs = move(rhs)'.  Verify that:
-        //:     o 'lhs.get_wrapped()' and 'lhs.get_allocator()' return what
-        //:       'rhs.get_wrapped()' and 'rhs.get_allocator()' returned
-        //:       before;
-        //:     o 'rhs.get_wrapped()' returns 'nullptr';
-        //:     o a char written to 'lhs' is flushed to the wrapped
-        //:       'streambuf';
-        //:     o 'rhs.emit()' has no effect;
-        //:     o 'lhs.emit()' flushes a char written to 'rhs' before to the
-        //:       wrapped 'streambuf'.
+        // 1. Construct two `syncbuf` objects: `lhs` and `rhs`.  Write a char
+        //    to each of the objects (different chars) but don't call `emit`.
+        //    Move-assign - `lhs = move(rhs)`.  Verify that:
+        //      - `lhs.get_wrapped()` and `lhs.get_allocator()` return what
+        //        `rhs.get_wrapped()` and `rhs.get_allocator()` returned
+        //        before;
+        //      - `rhs.get_wrapped()` returns `nullptr`;
+        //      - a char written to `lhs` is flushed to the wrapped
+        //        `streambuf`;
+        //      - `rhs.emit()` has no effect;
+        //      - `lhs.emit()` flushes a char written to `rhs` before to the
+        //        wrapped `streambuf`.
         //
         // Testing:
         //   basic_syncbuf& operator=(basic_syncbuf&& original);
@@ -586,29 +587,29 @@ int main(int argc, char *argv[])
         // TESTING MOVE CONSTRUCTOR
         //
         // Concerns:
-        //: 1 Move constructor moves all the state from 'original', including
-        //:   the accumulated and not flushed output.  'original' has no
-        //:   associated wrapped buffer after the call.
-        //:
-        //: 2 An allocator can be passed as a second argument.  Otherwise it
-        //:   will be copied from 'original'.
+        // 1. Move constructor moves all the state from `original`, including
+        //    the accumulated and not flushed output.  `original` has no
+        //    associated wrapped buffer after the call.
+        //
+        // 2. An allocator can be passed as a second argument.  Otherwise it
+        //    will be copied from `original`.
         //
         // Plan:
-        //: 1 Construct a 'syncbuf' object ('rhs').  Write a char but don't
-        //:   call 'emit'.  Move-construct a new object ('lhs') from 'rhs'
-        //:   (without explicit allocator).  Verify that:
-        //:     o 'lhs.get_wrapped()' and 'lhs.get_allocator()' return what
-        //:       'rhs.get_wrapped()' and 'rhs.get_allocator()' returned
-        //:       before;
-        //:     o 'rhs.get_wrapped()' returns 'nullptr';
-        //:     o 'rhs.emit()' has no effect;
-        //:     o 'lhs.emit()' flushes the buffered content to the wrapped
-        //:       'streambuf'.
-        //:
-        //: 2 Repeat the test but now pass an allocator explicitly to the
-        //:   move constructor.  Verify that 'lhs.get_allocator()' returns the
-        //:   specified allocator instead of 'rhs.get_allocator()'.  Repeat the
-        //:   other verification without changes.
+        // 1. Construct a `syncbuf` object (`rhs`).  Write a char but don't
+        //    call `emit`.  Move-construct a new object (`lhs`) from `rhs`
+        //    (without explicit allocator).  Verify that:
+        //      - `lhs.get_wrapped()` and `lhs.get_allocator()` return what
+        //        `rhs.get_wrapped()` and `rhs.get_allocator()` returned
+        //        before;
+        //      - `rhs.get_wrapped()` returns `nullptr`;
+        //      - `rhs.emit()` has no effect;
+        //      - `lhs.emit()` flushes the buffered content to the wrapped
+        //        `streambuf`.
+        //
+        // 2. Repeat the test but now pass an allocator explicitly to the
+        //    move constructor.  Verify that `lhs.get_allocator()` returns the
+        //    specified allocator instead of `rhs.get_allocator()`.  Repeat the
+        //    other verification without changes.
         //
         // Testing:
         //   basic_syncbuf(basic_syncbuf&& original);
@@ -627,14 +628,14 @@ int main(int argc, char *argv[])
         // TESTING BASIC ACCESSORS
         //
         // Concerns:
-        //: 1 The accessors are callable with 'const' object.
-        //:
-        //: 2 The accessors return the values specified at construction time.
+        // 1. The accessors are callable with `const` object.
+        //
+        // 2. The accessors return the values specified at construction time.
         //
         // Plan:
-        //: 1 Construct a 'syncbuf' object.  Take a 'const' reference to it.
-        //:   Call each of the accessors using the reference.  Compare the
-        //:   returned values with the values passed to the constructor.
+        // 1. Construct a `syncbuf` object.  Take a `const` reference to it.
+        //    Call each of the accessors using the reference.  Compare the
+        //    returned values with the values passed to the constructor.
         //
         // Testing:
         //   allocator_type get_allocator() const;
@@ -651,29 +652,29 @@ int main(int argc, char *argv[])
         // TESTING PRIMARY MANIPULATORS
         //
         // Concerns:
-        //: 1 An object can be constructed using a pointer to 'streambuf' and
-        //:   an allocator.  Either of the parameters (or both) can be omited -
-        //:   default values will be used instead.
-        //:
-        //: 2 'set_emit_on_sync' is callable with one 'bool' argument and sets
-        //:   the "emit-on-sync" flag to the specified value.
-        //:
-        //: 3 'emit' flushes the buffered content to the wrapped 'streambuf'.
-        //:
-        //: 4 Destuctor calls 'emit'.
+        // 1. An object can be constructed using a pointer to `streambuf` and
+        //    an allocator.  Either of the parameters (or both) can be omited -
+        //    default values will be used instead.
+        //
+        // 2. `set_emit_on_sync` is callable with one `bool` argument and sets
+        //    the "emit-on-sync" flag to the specified value.
+        //
+        // 3. `emit` flushes the buffered content to the wrapped `streambuf`.
+        //
+        // 4. Destuctor calls `emit`.
         //
         // Plan:
-        //: 1 Try each of four variants of the constructor calls.
-        //:
-        //: 2 Call the 'set_emit_on_sync' function.
-        //:
-        //: 3 Create a 'stringbuf' and set it as a wrapped 'streambuf'.  Write
-        //:   chars to the 'syncbuf' and verify that nothing has been flushed
-        //:   to the 'stringbuf'.  Call 'emit' and verify that everything has
-        //:   been flushed.
-        //:
-        //: 4 Repeat the previous test but don't call 'emit', destroy the
-        //:   'syncbuf' instead.
+        // 1. Try each of four variants of the constructor calls.
+        //
+        // 2. Call the `set_emit_on_sync` function.
+        //
+        // 3. Create a `stringbuf` and set it as a wrapped `streambuf`.  Write
+        //    chars to the `syncbuf` and verify that nothing has been flushed
+        //    to the `stringbuf`.  Call `emit` and verify that everything has
+        //    been flushed.
+        //
+        // 4. Repeat the previous test but don't call `emit`, destroy the
+        //    `syncbuf` instead.
         //
         // Testing:
         //   basic_syncbuf(ALLOCATOR = {});
@@ -693,11 +694,11 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform simple sanity tests.
+        // 1. Perform simple sanity tests.
         //
         // Testing:
         //   BREATHING TEST

@@ -302,12 +302,13 @@ const char *const sha512Results[6] =
 // displayed for human consumption, they are typically converted to hex, but
 // that would create unnecessary overhead here.
 //..
+
+/// Return `true` if the specified `password` concatenated with the
+/// specified `salt` has a SHA-512 hash equal to the specified
+/// `expected` and return `false` otherwise.
 bool validatePassword(const bsl::string&   password,
                       const bsl::string&   salt,
                       const unsigned char *expected)
-    // Return 'true' if the specified 'password' concatenated with the
-    // specified 'salt' has a SHA-512 hash equal to the specified
-    // 'expected' and return 'false' otherwise.
 {
     bdlde::Sha512 hasher;
     hasher.update(password.c_str(), password.length());
@@ -321,10 +322,10 @@ bool validatePassword(const bsl::string&   password,
                       expected);
 }
 
+/// Asserts that the constant string `pass` salted with `word` has the
+/// expected hash value.  In a real application, the expected hash would
+/// likely come from some sort of database.
 void assertPasswordIsExpected()
-    // Asserts that the constant string 'pass' salted with 'word' has the
-    // expected hash value.  In a real application, the expected hash would
-    // likely come from some sort of database.
 {
     const bsl::string   password = "pass";
     const bsl::string   salt     = "word";
@@ -344,10 +345,10 @@ void assertPasswordIsExpected()
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Store into the specified `output` the hex representation of the bytes in
+/// the specified `input`.
 template<bsl::size_t SIZE>
 void toHex(bsl::string *output, const unsigned char (&input)[SIZE])
-    // Store into the specified 'output' the hex representation of the bytes in
-    // the specified 'input'.
 {
     const char *hexTable = "0123456789abcdef";
     output->clear();
@@ -358,18 +359,18 @@ void toHex(bsl::string *output, const unsigned char (&input)[SIZE])
     }
 }
 
+/// Return the size of the array parameter.
 template<class VALUE, bsl::size_t SIZE>
 bsl::size_t arraySize(const VALUE (&)[SIZE])
-    // Return the size of the array parameter.
 {
     return SIZE;
 }
 
+/// Verify that an instance of the specified `HASHER` produces the same hash
+/// when hashing an entire message as it does when hashing the message in
+/// pieces.
 template<class HASHER>
 void testIncremental()
-    // Verify that an instance of the specified 'HASHER' produces the same hash
-    // when hashing an entire message as it does when hashing the message in
-    // pieces.
 {
     const char *inputs[] =
     {
@@ -404,10 +405,10 @@ void testIncremental()
     }
 }
 
+/// Hash certain known messages using an instance of `HASHER`, and verify
+/// that the results match the results in the specified `expected`.
 template<class HASHER>
 void testKnownHashes(const char *const (&expected)[6])
-    // Hash certain known messages using an instance of 'HASHER', and verify
-    // that the results match the results in the specified 'expected'.
 {
     unsigned char digest[HASHER::k_DIGEST_SIZE];
     bsl::string   hexDigest;
@@ -423,12 +424,12 @@ void testKnownHashes(const char *const (&expected)[6])
     }
 }
 
+/// Test the member function `loadDigestAndReset` after updating the digest
+/// with the specified `message`.  The result can be verified to be correct
+/// by using the result from `loadDigest` as an oracle, since this function
+/// has already been tested.
 template<class HASHER, bsl::size_t LENGTH>
 void testLoadDigestAndReset(const char (&message)[LENGTH])
-    // Test the member function 'loadDigestAndReset' after updating the digest
-    // with the specified 'message'.  The result can be verified to be correct
-    // by using the result from 'loadDigest' as an oracle, since this function
-    // has already been tested.
 {
     HASHER digest1;
     HASHER digest2;
@@ -449,11 +450,11 @@ void testLoadDigestAndReset(const char (&message)[LENGTH])
     ASSERT(digest1 == digest2);
 }
 
+/// Test that the member function `print` and the stream operator (`<<`)
+/// both output the correct value when for each element of the specified
+/// `expected`.
 template<class HASHER>
 void testPrinting(const char *const (&expected)[6])
-    // Test that the member function 'print' and the stream operator ('<<')
-    // both output the correct value when for each element of the specified
-    // 'expected'.
 {
     for (bsl::size_t index = 0; index != arraySize(inputMessages); ++index)
     {
@@ -470,10 +471,10 @@ void testPrinting(const char *const (&expected)[6])
     }
 }
 
+/// Test the member function `reset` after updating the digest with the
+/// specified `message` and the specified `length`.
 template<class HASHER, bsl::size_t LENGTH>
 void testReset(const char (&message)[LENGTH])
-    // Test the member function 'reset' after updating the digest with the
-    // specified 'message' and the specified 'length'.
 {
     HASHER digest1;
     HASHER digest2;
@@ -486,10 +487,10 @@ void testReset(const char (&message)[LENGTH])
     ASSERT(digest1 == digest2);
 }
 
+/// Test the two-argument constructor accepting the specified `message` and
+/// the specified `length`.
 template<class HASHER, bsl::size_t LENGTH>
 void testTwoArgumentConstructor(const char (&message)[LENGTH])
-    // Test the two-argument constructor accepting the specified 'message' and
-    // the specified 'length'.
 {
     HASHER digest1(message, LENGTH);
     HASHER digest2;

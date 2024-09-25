@@ -66,43 +66,43 @@ using namespace bsl;
 //                              --------
 // The component under test defines a container implementing a flat hash set.
 // The general concerns are correctness, exception safety, and proper
-// dispatching.  For all of the object's functionality except 'print' and
-// 'operator<<', this simplifies to verifying the forwarding to the
-// implementation object 'bdlc::FlatHashTable'.
+// dispatching.  For all of the object's functionality except `print` and
+// `operator<<`, this simplifies to verifying the forwarding to the
+// implementation object `bdlc::FlatHashTable`.
 //
 // Primary Manipulators:
-//: o 'clear'
-//: o 'erase(key)'
-//: o 'insert'
-//: o 'reset'
+//  - `clear`
+//  - `erase(key)`
+//  - `insert`
+//  - `reset`
 //
 // Basic Accessors:
-//: o 'allocator'
-//: o 'capacity'
-//: o 'find'
-//: o 'hash_function'
-//: o 'key_eq'
-//: o 'max_load_factor'
-//: o 'size'
+//  - `allocator`
+//  - `capacity`
+//  - `find`
+//  - `hash_function`
+//  - `key_eq`
+//  - `max_load_factor`
+//  - `size`
 //
 // Certain standard value-semantic-type test cases are omitted:
-//: o [ 3] FlatHashSet& gg(FlatHashSet *object, const char *spec);
-//: o [ 3] int ggg(FlatHashSet *object, const char *spec, int verboseFlag);
-//: o [10] BDEX
+//  - [ 3] FlatHashSet& gg(FlatHashSet *object, const char *spec);
+//  - [ 3] int ggg(FlatHashSet *object, const char *spec, int verboseFlag);
+//  - [10] BDEX
 //
 // Global Concerns:
-//: o The test driver is robust w.r.t. reuse in other, similar components.
-//: o ACCESSOR methods are declared 'const'.
-//: o CREATOR & MANIPULATOR pointer/reference parameters are declared 'const'.
-//: o No memory is ever allocated from the global allocator.
-//: o Any allocated memory is always from the object allocator.
-//: o An object's value is independent of the allocator used to supply memory.
-//: o Injected exceptions are safely propagated during memory allocation.
-//: o Precondition violations are detected in appropriate build modes.
+//  - The test driver is robust w.r.t. reuse in other, similar components.
+//  - ACCESSOR methods are declared `const`.
+//  - CREATOR & MANIPULATOR pointer/reference parameters are declared `const`.
+//  - No memory is ever allocated from the global allocator.
+//  - Any allocated memory is always from the object allocator.
+//  - An object's value is independent of the allocator used to supply memory.
+//  - Injected exceptions are safely propagated during memory allocation.
+//  - Precondition violations are detected in appropriate build modes.
 //
 // Global Assumptions:
-//: o All explicit memory allocations are presumed to use the global, default,
-//:   or object allocator.
+//  - All explicit memory allocations are presumed to use the global, default,
+//    or object allocator.
 // ----------------------------------------------------------------------------
 // CREATORS
 // [ 2] FlatHashSet();
@@ -177,9 +177,9 @@ using namespace bsl;
 // [ 8] void swap(FlatHashSet&, FlatHashSet&);
 // ----------------------------------------------------------------------------
 // [29] USAGE EXAMPLE
-// [24] CONCERN: 'FlatHashSet' has the necessary type traits
-// [25] DRQS 165258625: 'insert' could create reference to temporary
-// [27] DRQS 169531176: 'bsl::inserter' usage on Sun
+// [24] CONCERN: `FlatHashSet` has the necessary type traits
+// [25] DRQS 165258625: `insert` could create reference to temporary
+// [27] DRQS 169531176: `bsl::inserter` usage on Sun
 // [ 1] BREATHING TEST
 // [-1] PERFORMANCE TEST
 // ----------------------------------------------------------------------------
@@ -262,46 +262,49 @@ bool veryVeryVeryVerbose;
                              // class SeedIsHash
                              // ================
 
+/// This class template provides a hash algorithm that returns the specified
+/// seed value for all hash requests.
 template <class TYPE>
 class SeedIsHash {
-    // This class template provides a hash algorithm that returns the specified
-    // seed value for all hash requests.
 
     bsl::size_t d_seed;  // value to return for all hash requests
 
   public:
     // CREATORS
+
+    /// Create a `SeedIsHash` object having 0 as the seed value.
     SeedIsHash()
-        // Create a 'SeedIsHash' object having 0 as the seed value.
     : d_seed(0)
     {
     }
 
+    /// Create a `SeedIsHash` object having the specified `seed`.
     explicit SeedIsHash(bsl::size_t seed)
-        // Create a 'SeedIsHash' object having the specified 'seed'.
     : d_seed(seed)
     {
     }
 
+    /// Create a `SeedIsHash` object having the value of the specified
+    /// `original` object.
     SeedIsHash(const SeedIsHash& original)
-        // Create a 'SeedIsHash' object having the value of the specified
-        // 'original' object.
     : d_seed(original.d_seed)
     {
     }
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs`, and return a
+    /// reference providing modifiable access to this object.
     SeedIsHash& operator=(const SeedIsHash& rhs)
-        // Assign to this object the value of the specified 'rhs', and return a
-        // reference providing modifiable access to this object.
     {
         d_seed = rhs.d_seed;
         return *this;
     }
 
     // ACCESSORS
+
+    /// Return the provided-at-construction seed value.
     bsl::size_t operator()(const TYPE&) const
-        // Return the provided-at-construction seed value.
     {
         return d_seed;
     }
@@ -311,15 +314,16 @@ class SeedIsHash {
                           // class TestValueIsHash
                           // =====================
 
+/// This class provides a hash algorithm that provides a simple mapping from
+/// `KEY` to hash.
 template <class KEY>
 class TestValueIsHash {
-    // This class provides a hash algorithm that provides a simple mapping from
-    // 'KEY' to hash.
 
   public:
     // ACCESSORS
+
+    /// Return `key.data()` for the specified `key`.
     bsl::size_t operator()(const KEY& key) const
-        // Return 'key.data()' for the specified 'key'.
     {
         return static_cast<bsl::size_t>(key.data());
     }
@@ -329,52 +333,55 @@ class TestValueIsHash {
                            // class EqualAndState
                            // ===================
 
+/// This class template provides an equality functor that also has a value
+/// useful for testing when the equality functor should be copied.
 template <class TYPE>
 class EqualAndState {
-    // This class template provides an equality functor that also has a value
-    // useful for testing when the equality functor should be copied.
 
     TYPE d_state;  // state value
 
   public:
     // CREATORS
+
+    /// Create a `EqualAndState` object having the default state value.
     EqualAndState()
-        // Create a 'EqualAndState' object having the default state value.
     : d_state()
     {
     }
 
+    /// Create a `EqualAndState` object having the specified `state`.
     explicit EqualAndState(const TYPE& state)
-        // Create a 'EqualAndState' object having the specified 'state'.
     : d_state(state)
     {
     }
 
+    /// Create a `EqualAndState` object having the value of the specified
+    /// `original` object.
     EqualAndState(const EqualAndState& original)
-        // Create a 'EqualAndState' object having the value of the specified
-        // 'original' object.
     : d_state(original.d_state)
     {
     }
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs`, and return a
+    /// reference providing modifiable access to this object.
     EqualAndState& operator=(const EqualAndState& rhs)
-        // Assign to this object the value of the specified 'rhs', and return a
-        // reference providing modifiable access to this object.
     {
         d_state = rhs.d_state;
         return *this;
     }
 
     // ACCESSORS
+
+    /// Return, for the specified `lhs` and `rhs`, `lhs == rhs`.
     bool operator()(const TYPE& lhs, const TYPE& rhs) const
-        // Return, for the specified 'lhs' and 'rhs', 'lhs == rhs'.
     {
         return lhs == rhs;
     }
 
+    /// Return a non-modifiable reference to the state value.
     const TYPE& state() const
-        // Return a non-modifiable reference to the state value.
     {
         return d_state;
     }
@@ -384,11 +391,11 @@ class EqualAndState {
 //                     GLOBAL FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Address the move assignment concerns of test case 15 for the specified
+/// `id`, that can be used to determine the `KEY` in case of a test failure,
+/// for a type that allocates if the specified `allocates` is `true`.
 template <class KEY>
 void testCase15MoveAssignment(int id, bool allocates)
-    // Address the move assignment concerns of test case 15 for the specified
-    // 'id', that can be used to determine the 'KEY' in case of a test failure,
-    // for a type that allocates if the specified 'allocates' is 'true'.
 {
     typedef bdlc::FlatHashSet<KEY, TestValueIsHash<KEY> > Obj;
 
@@ -500,18 +507,18 @@ void testCase15MoveAssignment(int id, bool allocates)
     }
 }
 
+/// Address the move constructor with allocator concerns of test case 14 for
+/// the specified `id` that can be used to determine the `KEY` in case of a
+/// test failure.
 template <class KEY>
 void testCase14MoveConstructorWithAllocator(int id)
-    // Address the move constructor with allocator concerns of test case 14 for
-    // the specified 'id' that can be used to determine the 'KEY' in case of a
-    // test failure.
 {
     typedef bdlc::FlatHashSet<KEY, TestValueIsHash<KEY> > Obj;
 
     bslma::TestAllocator oa("oa", veryVeryVeryVerbose);
 
     for (int i = 0; i < 2; ++i) {
-        // Create control object 'W'.
+        // Create control object `W`.
         Obj mW(&oa);  const Obj& W = mW;
 
         bsls::ObjectBuffer<KEY> key;
@@ -533,7 +540,7 @@ void testCase14MoveConstructorWithAllocator(int id)
 
             bslma::DefaultAllocatorGuard dag(&da);
 
-            // Create source object 'Y'.
+            // Create source object `Y`.
             bsls::ObjectBuffer<Obj> bufferY;
 
             Obj *pY = bufferY.address();
@@ -589,7 +596,7 @@ void testCase14MoveConstructorWithAllocator(int id)
             // Verify the value of the object.
             LOOP_ASSERT(id, X == W);
 
-            // Verify that 'X' and 'Y' have the correct allocator.
+            // Verify that `X` and `Y` have the correct allocator.
             LOOP_ASSERT(id, &oa == X.allocator());
             LOOP_ASSERT(id, &sa == Y.allocator());
 
@@ -602,10 +609,10 @@ void testCase14MoveConstructorWithAllocator(int id)
                 LOOP_ASSERT(id, 0 < oa.numBlocksTotal());
             }
 
-            // Verify 'Y' is in a valid state.
+            // Verify `Y` is in a valid state.
             pY->~Obj();
 
-            // Verify the value of the object after destruction of 'Y'.
+            // Verify the value of the object after destruction of `Y`.
             LOOP_ASSERT(id, X == W);
 
             fa.deleteObject(objPtr);
@@ -619,18 +626,18 @@ void testCase14MoveConstructorWithAllocator(int id)
     }
 }
 
+/// Address the move constructor without allocator concerns of test case 13
+/// for the specified `id` that can be used to determine the `KEY` in case
+/// of a test failure.
 template <class KEY>
 void testCase13MoveConstructorWithoutAllocator(int id)
-    // Address the move constructor without allocator concerns of test case 13
-    // for the specified 'id' that can be used to determine the 'KEY' in case
-    // of a test failure.
 {
     typedef bdlc::FlatHashSet<KEY, TestValueIsHash<KEY> > Obj;
 
     bslma::TestAllocator oa("oa", veryVeryVeryVerbose);
 
     for (int i = 0; i < 2; ++i) {
-        // Create control object 'W'.
+        // Create control object `W`.
         Obj mW(&oa);  const Obj& W = mW;
 
         bsls::ObjectBuffer<KEY> key;
@@ -642,7 +649,7 @@ void testCase13MoveConstructorWithoutAllocator(int id)
 
         LOOP_ASSERT(id, i == W.begin()->data());
 
-        // Create source object 'Y' in an object buffer so it may be deleted.
+        // Create source object `Y` in an object buffer so it may be deleted.
         bsls::ObjectBuffer<Obj> objY;
         bslma::ConstructionUtil::construct(objY.address(), &oa, W);
         Obj& mY = objY.object();  const Obj& Y = mY;
@@ -655,31 +662,31 @@ void testCase13MoveConstructorWithoutAllocator(int id)
         Obj mX(bslmf::MovableRefUtil::move(mY));  const Obj& X = mX;
 
         // Verify no memory was ever allocated (default and global allocators
-        // are checked in 'main').
+        // are checked in `main`).
 
         LOOP_ASSERT(id, expNumAllocations == oa.numAllocations());
 
         // Verify the value of the object.
         LOOP_ASSERT(id, X == W);
 
-        // Verify 'Y' is valid.
+        // Verify `Y` is valid.
         objY.object().~Obj();
 
-        // Verify 'X' is valid after 'Y' is destroyed and still equal to 'W'.
+        // Verify `X` is valid after `Y` is destroyed and still equal to `W`.
         LOOP_ASSERT(id, X == W);
     }
 }
 
+/// Address the `insert` concerns of test cases 2 and 26 for the specified
+/// `id`, that can be used to determine the `KEY` in case of a test failure,
+/// for a type that allocates if the specified `allocates` is `true`, and
+/// allocates on rehashes if the specified `allocatesOnRehash` is `true`.
+/// Use `insert` with a hint if the specified `useHint` is `true`.
 template <class KEY>
 void testCaseInsert(int  id,
                     bool allocates,
                     bool allocatesOnRehash,
                     bool useHint)
-    // Address the 'insert' concerns of test cases 2 and 26 for the specified
-    // 'id', that can be used to determine the 'KEY' in case of a test failure,
-    // for a type that allocates if the specified 'allocates' is 'true', and
-    // allocates on rehashes if the specified 'allocatesOnRehash' is 'true'.
-    // Use 'insert' with a hint if the specified 'useHint' is 'true'.
 {
     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -766,13 +773,13 @@ void testCaseInsert(int  id,
     }
 }
 
+/// Address the move `insert` concerns of test cases 2 and 26 for the
+/// specified `id` that can be used to determine `KEY` in case of a test
+/// failure, for a type that allocates if the specified `allocates` is
+/// `true`, and can be moved if the specified `moveable` is `true`.  Use
+/// `insert` with a hint if the specified `useHint` is `true`.
 template <class KEY>
 void testCaseInsertMove(int id, bool allocates, bool moveable, bool useHint)
-    // Address the move 'insert' concerns of test cases 2 and 26 for the
-    // specified 'id' that can be used to determine 'KEY' in case of a test
-    // failure, for a type that allocates if the specified 'allocates' is
-    // 'true', and can be moved if the specified 'moveable' is 'true'.  Use
-    // 'insert' with a hint if the specified 'useHint' is 'true'.
 {
     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -875,11 +882,11 @@ void testCaseInsertMove(int id, bool allocates, bool moveable, bool useHint)
 
 static unsigned int s_antiOptimization = 0;
 
+/// For the specified `set`, insert a large number of values and then invoke
+/// `find()` with values matching those inserted.  Return the duration of
+/// the `find()` invocations.
 template <class SET>
 bsls::TimeInterval performanceFindPresent(SET *set)
-    // For the specified 'set', insert a large number of values and then invoke
-    // 'find()' with values matching those inserted.  Return the duration of
-    // the 'find()' invocations.
 {
     const int NUM_TRIAL = 101;
     const int MAX       = 4096;
@@ -907,11 +914,11 @@ bsls::TimeInterval performanceFindPresent(SET *set)
     return results[NUM_TRIAL / 2];
 }
 
+/// For the specified `set`, insert a large number of values and then invoke
+/// `find()` with values not matching those inserted.  Return the duration
+/// of the `find()` invocations.
 template <class SET>
 bsls::TimeInterval performanceFindNotPresent(SET *set)
-    // For the specified 'set', insert a large number of values and then invoke
-    // 'find()' with values not matching those inserted.  Return the duration
-    // of the 'find()' invocations.
 {
     const int NUM_TRIAL = 101;
     const int MAX       = 4096;
@@ -956,15 +963,15 @@ bsls::TimeInterval performanceFindNotPresent(SET *set)
 // domain, or (even if there is a meaningful ordering) the value of ordering
 // the results is outweighed by the higher performance provided by unordered
 // sets (compared to ordered sets).  On platforms that support relevant SIMD
-// instructions (e.g., SSE2), 'bdlc::FlatHashSet' generally exhibits better
-// performance than 'bsl::unordered_set'.
+// instructions (e.g., SSE2), `bdlc::FlatHashSet` generally exhibits better
+// performance than `bsl::unordered_set`.
 //
 // Suppose one is analyzing data on a set of customers, and each customer is
 // categorized by several attributes: customer type, geographic area, and
 // (internal) project code; and that each attribute takes on one of a limited
 // set of values.  This data can be handled by creating an enumeration for each
 // of the attributes:
-//..
+// ```
     typedef enum {
         e_REPEAT
       , e_DISCOUNT
@@ -998,10 +1005,10 @@ bsls::TimeInterval performanceFindNotPresent(SET *set)
       , e_SMITH
       // ...
     } ProjectCode;
-//..
+// ```
 // The data set (randomly generated for this example) is provided in a
 // statically initialized array:
-//..
+// ```
     static const struct CustomerProfile {
         CustomerCode d_customer;
         LocationCode d_location;
@@ -1110,7 +1117,7 @@ bsls::TimeInterval performanceFindNotPresent(SET *set)
     };
     const bsl::size_t numCustomerProfiles = sizeof  customerProfiles
                                           / sizeof *customerProfiles;
-//..
+// ```
 // Suppose, as the first step in our analysis, we wish to determine the number
 // of unique combinations of customer attributes that exist in our data set.
 // We can do that by inserting each data item into a flat hash set: the first
@@ -1119,35 +1126,36 @@ bsls::TimeInterval performanceFindNotPresent(SET *set)
 // in our data.
 //
 // First, as there are no standard methods for hashing or comparing our
-// user-defined types, we define 'CustomerProfileHash' and
-// 'CustomerProfileEqual' classes, each a stateless functor.  Note that there
+// user-defined types, we define `CustomerProfileHash` and
+// `CustomerProfileEqual` classes, each a stateless functor.  Note that there
 // is no meaningful ordering of the attribute values, they are merely arbitrary
 // code numbers; nothing is lost by using an unordered set instead of an
 // ordered set:
-//..
+// ```
     class CustomerProfileHash {
       public:
         // CREATORS
         //! CustomerProfileHash() = default;
-            // Create a 'CustomerProfileHash' object.
+            // Create a `CustomerProfileHash` object.
 
         //! CustomerProfileHash(const CustomerProfileHash& original) = default;
-            // Create a 'CustomerProfileHash' object.  Note that as
-            // 'CustomerProfileHash' is an empty (stateless) type, this
+            // Create a `CustomerProfileHash` object.  Note that as
+            // `CustomerProfileHash` is an empty (stateless) type, this
             // operation has no observable effect.
 
         //! ~CustomerProfileHash() = default;
             // Destroy this object.
 
         // ACCESSORS
+
+        /// Return a hash value for the specified `x`.
         bsl::size_t operator()(const CustomerProfile& x) const;
-            // Return a hash value for the specified 'x'.
     };
-//..
+// ```
 // The hash function combines the several enumerated values from the class
-// (each a small 'int' value) into a single, unique 'int' value, and then
-// applies the default hash function for 'int'.
-//..
+// (each a small `int` value) into a single, unique `int` value, and then
+// applies the default hash function for `int`.
+// ```
     // ACCESSORS
     bsl::size_t CustomerProfileHash::operator()(const CustomerProfile& x) const
     {
@@ -1160,22 +1168,23 @@ bsls::TimeInterval performanceFindNotPresent(SET *set)
       public:
         // CREATORS
         //! CustomerProfileEqual() = default;
-            // Create a 'CustomerProfileEqual' object.
+            // Create a `CustomerProfileEqual` object.
 
         //! CustomerProfileEqual(const CustomerProfileEqual& original)
         //!                                                          = default;
-            // Create a 'CustomerProfileEqual' object.  Note that as
-            // 'CustomerProfileEqual' is an empty (stateless) type, this
+            // Create a `CustomerProfileEqual` object.  Note that as
+            // `CustomerProfileEqual` is an empty (stateless) type, this
             // operation has no observable effect.
 
         //! ~CustomerProfileEqual() = default;
             // Destroy this object.
 
         // ACCESSORS
+
+        /// Return `true` if the specified `lhs` has the same value as the
+        /// specified `rhs`, and `false` otherwise.
         bool operator()(const CustomerProfile& lhs,
                         const CustomerProfile& rhs) const;
-            // Return 'true' if the specified 'lhs' has the same value as the
-            // specified 'rhs', and 'false' otherwise.
     };
 
     // ACCESSORS
@@ -1186,17 +1195,17 @@ bsls::TimeInterval performanceFindNotPresent(SET *set)
             && lhs.d_customer == rhs.d_customer
             && lhs.d_project  == rhs.d_project;
     }
-//..
+// ```
 // Notice that many of the required methods of the hash and comparator types
 // are compiler generated.  (The declarations of those methods are commented
-// out and suffixed by an '= default' comment.)
+// out and suffixed by an `= default` comment.)
 //
 // Then, we define the type of the flat hash set:
-//..
+// ```
     typedef bdlc::FlatHashSet<CustomerProfile,
                               CustomerProfileHash,
                               CustomerProfileEqual> ProfileCategories;
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -1226,13 +1235,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -1241,8 +1250,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-// Next, we create a flat hash set and insert each item of 'customerProfiles':
-//..
+// Next, we create a flat hash set and insert each item of `customerProfiles`:
+// ```
     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
     ProfileCategories profileCategories(&oa);
@@ -1252,42 +1261,42 @@ int main(int argc, char *argv[])
     }
 
     ASSERT(numCustomerProfiles >= profileCategories.size());
-//..
-// Notice that we ignore the status returned by the 'insert' method.  We fully
+// ```
+// Notice that we ignore the status returned by the `insert` method.  We fully
 // expect some operations to fail.
 //
-// Finally, the size of 'profileCategories' matches the number of unique
+// Finally, the size of `profileCategories` matches the number of unique
 // customer profiles in this data set:
-//..
+// ```
     if (verbose) {
         bsl::cout << numCustomerProfiles << ' ' << profileCategories.size()
                   << bsl::endl;
     }
-//..
+// ```
 // Standard output shows:
-//..
+// ```
 //  100 84
-//..
+// ```
       } break;
       case 28: {
         // --------------------------------------------------------------------
-        // TESTING 'EMPLACE'
-        //   Test 'emplace' and 'emplace_hint'.
+        // TESTING `EMPLACE`
+        //   Test `emplace` and `emplace_hint`.
         //
         // Concerns:
-        //: 1 That 'emplace' and 'emplace_hint' perform correctly.
+        // 1. That `emplace` and `emplace_hint` perform correctly.
         //
         // Plan:
-        //: 1 Emplace values into the set with a variety of construction
-        //:   parameters.  Check that values that are not included in the set
-        //:   are added, and ones that already exist are not added.
+        // 1. Emplace values into the set with a variety of construction
+        //    parameters.  Check that values that are not included in the set
+        //    are added, and ones that already exist are not added.
         //
         // Testing:
         //   pair<iterator, bool> try_emplace(Args...);
         //   iterator emplace(const_iterator, Args...);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'EMPLACE'"
+        if (verbose) printf("\nTESTING `EMPLACE`"
                             "\n=================\n");
 
         bslma::TestAllocator oa("object", veryVeryVeryVerbose);
@@ -1326,21 +1335,21 @@ int main(int argc, char *argv[])
       case 27: {
         // --------------------------------------------------------------------
         // INSERTER
-        //   Interoperation with 'bsl::inserter' works as expected.
+        //   Interoperation with `bsl::inserter` works as expected.
         //
         // Concerns:
-        //: 1 A 'bsl::inserter' object can be constructed from the class.
-        //:
-        //: 2 Use of the 'bsl::inserter' object with a STL algorithm adds items
-        //:   to the collection as expected.
+        // 1. A `bsl::inserter` object can be constructed from the class.
+        //
+        // 2. Use of the `bsl::inserter` object with a STL algorithm adds items
+        //    to the collection as expected.
         //
         // Plan:
-        //: 1 Construct a 'bsl::inserter' from the class. (C-1)
-        //:
-        //: 2 Invoke 'bsl::fill_n' on the inserter. (C-2)
+        // 1. Construct a `bsl::inserter` from the class. (C-1)
+        //
+        // 2. Invoke `bsl::fill_n` on the inserter. (C-2)
         //
         // Testing:
-        //   DRQS 169531176: 'bsl::inserter' usage on Sun
+        //   DRQS 169531176: `bsl::inserter` usage on Sun
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1362,17 +1371,17 @@ int main(int argc, char *argv[])
         //   The hint insert method operates as expected.
         //
         // Concerns:
-        //: 1 The manipulator 'insert' with a hint correctly forwards to the
-        //:   implementation class, correctly forwards the return value from
-        //:   the implementation class, and honors
-        //:   bitwise-copy/bitwise-move/move.
+        // 1. The manipulator `insert` with a hint correctly forwards to the
+        //    implementation class, correctly forwards the return value from
+        //    the implementation class, and honors
+        //    bitwise-copy/bitwise-move/move.
         //
         // Plan:
-        //: 1 Create objects using the 'bslma::TestAllocator', use the 'insert'
-        //:   with a hint method with various values, verify the return value,
-        //:   and use the basic accessors to verify the value of the object.
-        //:   Use 'bsltf' test types to verify bitwise-copy/bitwise-move/move
-        //:   are honored.  (C-1)
+        // 1. Create objects using the `bslma::TestAllocator`, use the `insert`
+        //    with a hint method with various values, verify the return value,
+        //    and use the basic accessors to verify the value of the object.
+        //    Use `bsltf` test types to verify bitwise-copy/bitwise-move/move
+        //    are honored.  (C-1)
         //
         // Testing:
         //   iterator insert(const_iterator, FORWARD_REF(ENTRY_TYPE) entry)
@@ -1382,7 +1391,7 @@ int main(int argc, char *argv[])
                           << "HINT INSERT" << endl
                           << "===========" << endl;
 
-        if (verbose) cout << "Testing copy 'insert' with hint." << endl;
+        if (verbose) cout << "Testing copy `insert` with hint." << endl;
         {
             testCaseInsert<bsltf::AllocBitwiseMoveableTestType>(1,
                                                                 true,
@@ -1409,7 +1418,7 @@ int main(int argc, char *argv[])
                                                             true);
         }
 
-        if (verbose) cout << "Testing move 'insert' with hint." << endl;
+        if (verbose) cout << "Testing move `insert` with hint." << endl;
         {
             testCaseInsertMove<bsltf::AllocBitwiseMoveableTestType>(1,
                                                                     true,
@@ -1447,27 +1456,27 @@ int main(int argc, char *argv[])
       } break;
       case 25: {
         // --------------------------------------------------------------------
-        // DRQS 165258625: 'insert' could create reference to temporary
+        // DRQS 165258625: `insert` could create reference to temporary
         //
         // Concerns:
-        //: 1 The 'insert' method does not access a value after it goes out of
-        //:   scope.  When the argument to 'insert' is convertible (but not
-        //:   equivalent) to the type held in the container, a reference to a
-        //:   temporary value was created.  This reference was accessed after
-        //:   the temporary value went out of scope.
+        // 1. The `insert` method does not access a value after it goes out of
+        //    scope.  When the argument to `insert` is convertible (but not
+        //    equivalent) to the type held in the container, a reference to a
+        //    temporary value was created.  This reference was accessed after
+        //    the temporary value went out of scope.
         //
         // Plan:
-        //: 1 In ASAN builds, verify the following code does not produce a
+        // 1. In ASAN builds, verify the following code does not produce a
         //    "stack-use-after-scope" error.  (C-1)
         //
         // Testing:
-        //   DRQS 165258625: 'insert' could create reference to temporary
+        //   DRQS 165258625: `insert` could create reference to temporary
         // --------------------------------------------------------------------
 
         if (verbose) {
 // ---------^
 cout << endl
-     << "DRQS 165258625: 'insert' could create reference to temporary" << endl
+     << "DRQS 165258625: `insert` could create reference to temporary" << endl
      << "============================================================" << endl;
 // ---------v
         }
@@ -1483,18 +1492,18 @@ cout << endl
       case 24: {
         // --------------------------------------------------------------------
         // TYPE TRAITS
-        //   Ensure 'bdlc::FlatHashSet' has the expected type traits.
+        //   Ensure `bdlc::FlatHashSet` has the expected type traits.
         //
         // Concerns:
-        //: 1 The expected type traits are defined, and common type traits
-        //:   that are not expected are undefined.
+        // 1. The expected type traits are defined, and common type traits
+        //    that are not expected are undefined.
         //
         // Plan:
-        //: 1 'BSLMF_ASSERT' the expected defined and expected undefined type
-        //:   traits.  (C-1)
+        // 1. `BSLMF_ASSERT` the expected defined and expected undefined type
+        //    traits.  (C-1)
         //
         // Testing:
-        //   CONCERN: 'FlatHashSet' has the necessary type traits
+        //   CONCERN: `FlatHashSet` has the necessary type traits
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1518,12 +1527,12 @@ cout << endl
         //   The initializer list insert method operates as expected.
         //
         // Concerns:
-        //: 1 The initializer list insert method correctly forwards to the
-        //:   underlying implementation, and produces the expected value.
+        // 1. The initializer list insert method correctly forwards to the
+        //    underlying implementation, and produces the expected value.
         //
         // Plan:
-        //: 1 Create various objects and directly verify the results of the
-        //:   initializer list insert method.  (C-1)
+        // 1. Create various objects and directly verify the results of the
+        //    initializer list insert method.  (C-1)
         //
         // Testing:
         //   void insert(bsl::initializer_list<KEY> values);
@@ -1595,15 +1604,15 @@ cout << endl
         //   The initializer list assignment operator operates as expected.
         //
         // Concerns:
-        //: 1 The initializer list assignment operator correctly forwards to
-        //:   the underlying implementation, and produces the expected value.
-        //:
-        //: 2 The resultant hash and equality functors are as expected.
+        // 1. The initializer list assignment operator correctly forwards to
+        //    the underlying implementation, and produces the expected value.
+        //
+        // 2. The resultant hash and equality functors are as expected.
         //
         // Plan:
-        //: 1 Create various objects, including stateful hash and equality
-        //:   functors, and directly verify the results of the initializer
-        //:   list assignment operator.  (C-1)
+        // 1. Create various objects, including stateful hash and equality
+        //    functors, and directly verify the results of the initializer
+        //    list assignment operator.  (C-1)
         //
         // Testing:
         //   FlatHashSet& operator=(bsl::initializer_list<KEY> values);
@@ -1711,13 +1720,13 @@ cout << endl
         //   The initializer list value constructors operate as expected.
         //
         // Concerns:
-        //: 1 The constructors create the correct initial value and have the
-        //:   hashing, equality, and internal memory management systems hooked
-        //:   up properly.
+        // 1. The constructors create the correct initial value and have the
+        //    hashing, equality, and internal memory management systems hooked
+        //    up properly.
         //
         // Plan:
-        //: 1 Create various objects using the constructors and directly verify
-        //:   the arguments were stored correctly using the accessors.  (C-1)
+        // 1. Create various objects using the constructors and directly verify
+        //    the arguments were stored correctly using the accessors.  (C-1)
         //
         // Testing:
         //   FlatHashSet(bsl::initializer_list<KEY> values, Allocator * = 0);
@@ -2020,7 +2029,7 @@ cout << endl
 
                 ASSERT(   64 == X.capacity());
                 ASSERT(    1 == X.size());
-                // Due to comparison operator, cannot test with 'contains'.
+                // Due to comparison operator, cannot test with `contains`.
                 ASSERT(   SA == *X.begin());
                 ASSERT(    9 == X.hash_function()(SA));
                 ASSERT(    9 == X.hash_function()(SB));
@@ -2039,13 +2048,13 @@ cout << endl
         //   The iterator value constructors operate as expected.
         //
         // Concerns:
-        //: 1 The constructors create the correct initial value and have the
-        //:   hashing, equality, and internal memory management systems hooked
-        //:   up properly.
+        // 1. The constructors create the correct initial value and have the
+        //    hashing, equality, and internal memory management systems hooked
+        //    up properly.
         //
         // Plan:
-        //: 1 Create various objects using the constructors and directly verify
-        //:   the arguments were stored correctly using the accessors.  (C-1)
+        // 1. Create various objects using the constructors and directly verify
+        //    the arguments were stored correctly using the accessors.  (C-1)
         //
         // Testing:
         //   FlatHashSet(INPUT_ITERATOR, INPUT_ITERATOR, Allocator *bA = 0);
@@ -2384,7 +2393,7 @@ cout << endl
 
                 ASSERT(   64 == X.capacity());
                 ASSERT(    1 == X.size());
-                // Due to comparison operator, cannot test with 'contains'.
+                // Due to comparison operator, cannot test with `contains`.
                 ASSERT(   SA == *X.begin());
                 ASSERT(    9 == X.hash_function()(SA));
                 ASSERT(    9 == X.hash_function()(SB));
@@ -2398,18 +2407,18 @@ cout << endl
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // 'rehash' AND 'reserve'
+        // `rehash` AND `reserve`
         //
-        // Ensure the 'rehash' and 'reserve' methods operate as expected.
+        // Ensure the `rehash` and `reserve` methods operate as expected.
         //
         // Concerns:
-        //: 1 The 'rehash' and 'reserve'  methods correctly forward to the
-        //:   underlying implementation.
+        // 1. The `rehash` and `reserve`  methods correctly forward to the
+        //    underlying implementation.
         //
         // Plan:
-        //: 1 Construct and object, use 'rehash' and 'reserve' to alter the
-        //:   object's capacity, and verify the resultant capacity with the
-        //:   'capacity' accessor.  (C-1)
+        // 1. Construct and object, use `rehash` and `reserve` to alter the
+        //    object's capacity, and verify the resultant capacity with the
+        //    `capacity` accessor.  (C-1)
         //
         // Testing:
         //   void rehash(size_t);
@@ -2417,10 +2426,10 @@ cout << endl
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "'rehash' AND 'reserve'" << endl
+                          << "`rehash` AND `reserve`" << endl
                           << "======================" << endl;
 
-        if (verbose) cout << "Testing 'rehash'." << endl;
+        if (verbose) cout << "Testing `rehash`." << endl;
         {
             typedef bdlc::FlatHashSet<int> Obj;
 
@@ -2437,7 +2446,7 @@ cout << endl
             ASSERT(64 == X.capacity());
         }
 
-        if (verbose) cout << "Testing 'reserve'." << endl;
+        if (verbose) cout << "Testing `reserve`." << endl;
         {
             typedef bdlc::FlatHashSet<int> Obj;
 
@@ -2456,28 +2465,28 @@ cout << endl
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // RANGE 'erase'
-        //   Ensure the range 'erase' method operates as expected.
+        // RANGE `erase`
+        //   Ensure the range `erase` method operates as expected.
         //
         // Concerns:
-        //: 1 The range 'erase' method correctly forwards to the underlying
-        //:   implementation and correctly forwards the return value.
+        // 1. The range `erase` method correctly forwards to the underlying
+        //    implementation and correctly forwards the return value.
         //
         // Plan:
-        //: 1 For an object 'X' constructed with one contained value, verify
-        //:   the results of range 'erase' for 'X.erase(X.begin(), X.begin())',
-        //:   'X.erase(X.end(), X.end())', and 'X.erase(X.begin(), X.end())'.
-        //:   (C-1)
+        // 1. For an object `X` constructed with one contained value, verify
+        //    the results of range `erase` for `X.erase(X.begin(), X.begin())`,
+        //    `X.erase(X.end(), X.end())`, and `X.erase(X.begin(), X.end())`.
+        //    (C-1)
         //
         // Testing:
         //   const_iterator erase(const_iterator, const_iterator);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "RANGE 'erase'" << endl
+                          << "RANGE `erase`" << endl
                           << "=============" << endl;
 
-        if (verbose) cout << "Testing range 'erase'." << endl;
+        if (verbose) cout << "Testing range `erase`." << endl;
         {
             typedef bdlc::FlatHashSet<int, SeedIsHash<int> > Obj;
 
@@ -2499,31 +2508,31 @@ cout << endl
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // ITERATOR 'erase'
-        //   Ensure the iterator 'erase' method operates as expected.
+        // ITERATOR `erase`
+        //   Ensure the iterator `erase` method operates as expected.
         //
         // Concerns:
-        //: 1 The iterator 'erase' method correctly forwards to the underlying
-        //:   implementation and correctly forwards the return value.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The iterator `erase` method correctly forwards to the underlying
+        //    implementation and correctly forwards the return value.
+        //
+        // 2. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Construct an object with two contained values and use the
-        //:   iterator 'erase' method to empty the object, verifying the
-        //:   object's value and the return value after each 'erase'.  (C-1)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
+        // 1. Construct an object with two contained values and use the
+        //    iterator `erase` method to empty the object, verifying the
+        //    object's value and the return value after each `erase`.  (C-1)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //   const_iterator erase(const_iterator);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "ITERATOR 'erase'" << endl
+                          << "ITERATOR `erase`" << endl
                           << "================" << endl;
 
-        if (verbose) cout << "Testing iterator 'erase'." << endl;
+        if (verbose) cout << "Testing iterator `erase`." << endl;
         {
             typedef bdlc::FlatHashSet<int, SeedIsHash<int> > Obj;
 
@@ -2559,30 +2568,30 @@ cout << endl
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // RANGE 'insert'
-        //   Ensure the range 'insert' method correctly forwards to the
+        // RANGE `insert`
+        //   Ensure the range `insert` method correctly forwards to the
         //   implementation component.
         //
         // Concerns:
-        //: 1 The range 'insert' method correctly forwards to the underlying
-        //:   implementation component, resulting in the specified elements
-        //:   being inserted.
+        // 1. The range `insert` method correctly forwards to the underlying
+        //    implementation component, resulting in the specified elements
+        //    being inserted.
         //
         // Plan:
-        //: 1 For an object Z with one inserted element, verify the results of
-        //:   range 'insert' into an empty object 'X' for
-        //:   'X.insert(Z.begin(), Z.begin())', 'X.insert(Z.end(), Z.end())',
-        //:   and 'X.insert(X.begin(), X.end())'.  (C-1)
+        // 1. For an object Z with one inserted element, verify the results of
+        //    range `insert` into an empty object `X` for
+        //    `X.insert(Z.begin(), Z.begin())`, `X.insert(Z.end(), Z.end())`,
+        //    and `X.insert(X.begin(), X.end())`.  (C-1)
         //
         // Testing:
         //   void insert(INPUT_ITERATOR, INPUT_ITERATOR);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "RANGE 'insert'" << endl
+                          << "RANGE `insert`" << endl
                           << "==============" << endl;
 
-        if (verbose) cout << "Testing range 'insert'." << endl;
+        if (verbose) cout << "Testing range `insert`." << endl;
         {
             typedef bdlc::FlatHashSet<int, SeedIsHash<int> > Obj;
 
@@ -2611,26 +2620,26 @@ cout << endl
         //   implementation component.
         //
         // Concerns:
-        //: 1 The signature and return type are standard.
-        //:
-        //: 2 The move assignment operator correctly forwards to the
-        //:   underlying implementation component, resulting in the value of
-        //:   any target object being set to that of any source object.
-        //:
-        //: 3 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 4 There is no memory allocations.
+        // 1. The signature and return type are standard.
+        //
+        // 2. The move assignment operator correctly forwards to the
+        //    underlying implementation component, resulting in the value of
+        //    any target object being set to that of any source object.
+        //
+        // 3. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 4. There is no memory allocations.
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a function pointer
-        //:   having the appropriate structure for the move assignment operator
-        //:   defined in this component.  (C-1)
-        //:
-        //: 2 Verify the results of the move assignment operator and its return
-        //:   value on two distinct objects of various types.  (C-2,3)
-        //:
-        //: 3 Use a test allocator and verify that no memory is allocated
-        //:   during the move assignment operator invocation.  (C-4)
+        // 1. Use the address of `operator=` to initialize a function pointer
+        //    having the appropriate structure for the move assignment operator
+        //    defined in this component.  (C-1)
+        //
+        // 2. Verify the results of the move assignment operator and its return
+        //    value on two distinct objects of various types.  (C-2,3)
+        //
+        // 3. Use a test allocator and verify that no memory is allocated
+        //    during the move assignment operator invocation.  (C-4)
         //
         // Testing:
         //   FlatHashSet& operator=(FlatHashSet&&);
@@ -2663,56 +2672,56 @@ cout << endl
         //   the implementation component.
         //
         // Concerns:
-        //: 1 The constructor correctly forwards to the underlying
-        //:   implementation component, resulting in the newly created object
-        //:   having the same value as that of the original object before the
-        //:   call.
-        //:
-        //: 2 The allocator is propagated to the newly created object if (and
-        //:   only if) no allocator is specified in the call to the move
-        //:   constructor.
-        //:
-        //: 3 The original object is always left in a valid state and the
-        //:   allocator address held by the original object is unchanged.
-        //:
-        //: 4 Subsequent changes to or destruction of the original object have
-        //:   no effect on the move-constructed object and vice-versa.
-        //:
-        //: 5 The object has its internal memory management system hooked up
-        //:   properly so that *all* internally allocated memory draws from a
-        //:   user-supplied allocator whenever one is specified.
-        //:
-        //: 6 Every object releases any allocated memory at destruction.
+        // 1. The constructor correctly forwards to the underlying
+        //    implementation component, resulting in the newly created object
+        //    having the same value as that of the original object before the
+        //    call.
+        //
+        // 2. The allocator is propagated to the newly created object if (and
+        //    only if) no allocator is specified in the call to the move
+        //    constructor.
+        //
+        // 3. The original object is always left in a valid state and the
+        //    allocator address held by the original object is unchanged.
+        //
+        // 4. Subsequent changes to or destruction of the original object have
+        //    no effect on the move-constructed object and vice-versa.
+        //
+        // 5. The object has its internal memory management system hooked up
+        //    properly so that *all* internally allocated memory draws from a
+        //    user-supplied allocator whenever one is specified.
+        //
+        // 6. Every object releases any allocated memory at destruction.
         //
         // Plan:
-        //: 1 Specify a set 'S' of two distinct object values to be used
-        //:   sequentially in the following tests; for each entry, create a
-        //:   control object.
-        //:
-        //: 2 Call the move constructor to create the container in all
-        //:   relevant use cases involving the allocator: 1) no allocator
-        //:   passed in, 2) a '0' is explicitly passed in as the allocator
-        //:   argument, 3) the same allocator as that of the original object
-        //:   is explicitly passed in, and 4) a different allocator than that
-        //:   of the original object is passed in.
-        //:
-        //: 3 For each of the object values (P-1) and for each configuration
-        //:   (P-2), verify the following:
-        //:
-        //:   1 Verify the newly created object has the same value as that of
-        //:     the original object before the call to the move constructor
-        //:     (control value).  (C-1)
-        //:
-        //:   3 Ensure that the new original, and control object continue to
-        //:     have the correct allocator and that all memory allocations come
-        //:     from the appropriate allocator.  (C-2,5)
-        //:
-        //:   7 Verify the original object (after the move construction) to
-        //:     is in a valid state, destroy it, and then verify newly created
-        //:     is in a valid state.  (C-3,4)
-        //:
-        //:   8 Verify all memory is released when the object is destroyed.
-        //:     (C-6)
+        // 1. Specify a set `S` of two distinct object values to be used
+        //    sequentially in the following tests; for each entry, create a
+        //    control object.
+        //
+        // 2. Call the move constructor to create the container in all
+        //    relevant use cases involving the allocator: 1) no allocator
+        //    passed in, 2) a `0` is explicitly passed in as the allocator
+        //    argument, 3) the same allocator as that of the original object
+        //    is explicitly passed in, and 4) a different allocator than that
+        //    of the original object is passed in.
+        //
+        // 3. For each of the object values (P-1) and for each configuration
+        //    (P-2), verify the following:
+        //
+        //   1. Verify the newly created object has the same value as that of
+        //      the original object before the call to the move constructor
+        //      (control value).  (C-1)
+        //
+        //   3. Ensure that the new original, and control object continue to
+        //      have the correct allocator and that all memory allocations come
+        //      from the appropriate allocator.  (C-2,5)
+        //
+        //   7. Verify the original object (after the move construction) to
+        //      is in a valid state, destroy it, and then verify newly created
+        //      is in a valid state.  (C-3,4)
+        //
+        //   8. Verify all memory is released when the object is destroyed.
+        //      (C-6)
         //
         // Testing:
         //   FlatHashSet(FlatHashSet&&, Allocator *basicAllocator);
@@ -2749,39 +2758,39 @@ cout << endl
         //   to the implementation component.
         //
         // Concerns:
-        //: 1 The constructor correctly forwards to the underlying
-        //:   implementation component, resulting in the newly created object
-        //:   having the same value as that of the original object before the
-        //:   call.
-        //:
-        //: 2 The original object is left in a valid state.
-        //:
-        //: 3 Subsequent changes to or destruction of the original object have
-        //:   no effect on the move-constructed object and vice-versa.
-        //:
-        //: 4 The constructor does not allocate memory.
+        // 1. The constructor correctly forwards to the underlying
+        //    implementation component, resulting in the newly created object
+        //    having the same value as that of the original object before the
+        //    call.
+        //
+        // 2. The original object is left in a valid state.
+        //
+        // 3. Subsequent changes to or destruction of the original object have
+        //    no effect on the move-constructed object and vice-versa.
+        //
+        // 4. The constructor does not allocate memory.
         //
         // Plan:
-        //: 1 Specify a set 'S' of two distinct object values to be used
-        //:   sequentially in the following tests; for each entry, create a
-        //:   control object.
-        //:
-        //: 2 For each of the object values (P-1), verify the following:
-        //:
-        //:   1 Verify the newly created object has the same value as that of
-        //:     the original object before the call to the move constructor
-        //:     (control value).
-        //:
-        //:   2 After the move construction, verify the newly created object
-        //:     is equal to the control object, and ensure the original object
-        //:     is in a valid state.  (C-1,2)
-        //:
-        //:   3 Destroy the original object, and then ensure the newly created
-        //:     object is in a valid state.  (C-3)
-        //:
-        //: 3 The allocators used to create the objects will be verified to
-        //:   ensure that no memory was allocated during use of the constructor
-        //:   (note that this check may be done at the global level).  (C-4)
+        // 1. Specify a set `S` of two distinct object values to be used
+        //    sequentially in the following tests; for each entry, create a
+        //    control object.
+        //
+        // 2. For each of the object values (P-1), verify the following:
+        //
+        //   1. Verify the newly created object has the same value as that of
+        //      the original object before the call to the move constructor
+        //      (control value).
+        //
+        //   2. After the move construction, verify the newly created object
+        //      is equal to the control object, and ensure the original object
+        //      is in a valid state.  (C-1,2)
+        //
+        //   3. Destroy the original object, and then ensure the newly created
+        //      object is in a valid state.  (C-3)
+        //
+        // 3. The allocators used to create the objects will be verified to
+        //    ensure that no memory was allocated during use of the constructor
+        //    (note that this check may be done at the global level).  (C-4)
         //
         // Testing:
         //   FlatHashSet(FlatHashSet&&);
@@ -2817,24 +2826,24 @@ cout << endl
         //   Ensure the search methods and iterators operate as expected.
         //
         // Concerns:
-        //: 1 The 'begin' iterator methods correctly determine the first
-        //:   contained value.
-        //:
-        //: 2 Incrementing the 'begin' iterator 'size()' times visits all
-        //:   contained elements and results in the 'end' iterator.
-        //:
-        //: 3 The accessors 'contains', 'count', and 'equal_range' correctly
-        //:   forward to the implementation object and correctly forward the
-        //:   return value.
+        // 1. The `begin` iterator methods correctly determine the first
+        //    contained value.
+        //
+        // 2. Incrementing the `begin` iterator `size()` times visits all
+        //    contained elements and results in the `end` iterator.
+        //
+        // 3. The accessors `contains`, `count`, and `equal_range` correctly
+        //    forward to the implementation object and correctly forward the
+        //    return value.
         //
         // Plan:
-        //: 1 Using the basic accessors, verify the 'begin' methods return an
-        //:   iterator referencing the first populated entry and incrementing
-        //:   the 'begin' iterator 'size()' times visits all contained elements
-        //:   and results in the 'end' iterator.  (C-1,2)
-        //:
-        //: 2 Directly verify the result of 'contains', 'count', and
-        //:   'equal_range' when applied to various object values.  (C-3)
+        // 1. Using the basic accessors, verify the `begin` methods return an
+        //    iterator referencing the first populated entry and incrementing
+        //    the `begin` iterator `size()` times visits all contained elements
+        //    and results in the `end` iterator.  (C-1,2)
+        //
+        // 2. Directly verify the result of `contains`, `count`, and
+        //    `equal_range` when applied to various object values.  (C-3)
         //
         // Testing:
         //   bool contains(const KEY&) const;
@@ -2898,7 +2907,7 @@ cout << endl
         }
 
         if (verbose) {
-            cout << "Testing 'contains', 'count', and 'equal_range'." << endl;
+            cout << "Testing `contains`, `count`, and `equal_range`." << endl;
         }
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
@@ -2943,24 +2952,24 @@ cout << endl
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // 'empty' AND 'load_factor'
+        // `empty` AND `load_factor`
         //
         // Ensure the non-basic accessors and iterators operate as expected.
         //
         // Concerns:
-        //: 1 The accessors 'empty' and 'load_factor' are consistent with the
-        //:   results of 'size' and 'capacity'.
-        //:
-        //: 2 The methods do not allocate memory.
+        // 1. The accessors `empty` and `load_factor` are consistent with the
+        //    results of `size` and `capacity`.
+        //
+        // 2. The methods do not allocate memory.
         //
         // Plan:
-        //: 1 Create an object and insert values into the object.  Verify the
-        //:   results of 'empty' and 'load_factor' to the value expected given
-        //:   'size' and 'capacity' for the object values.  (C-1)
-        //:
-        //: 2 The allocators used to create the objects will be verified to
-        //:   ensure that no memory was allocated during use of the accessors
-        //:   and iterators.  (C-2)
+        // 1. Create an object and insert values into the object.  Verify the
+        //    results of `empty` and `load_factor` to the value expected given
+        //    `size` and `capacity` for the object values.  (C-1)
+        //
+        // 2. The allocators used to create the objects will be verified to
+        //    ensure that no memory was allocated during use of the accessors
+        //    and iterators.  (C-2)
         //
         // Testing:
         //   bool empty() const;
@@ -2968,12 +2977,12 @@ cout << endl
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "'empty' AND 'load_factor'" << endl
+                          << "`empty` AND `load_factor`" << endl
                           << "=========================" << endl;
 
         typedef bdlc::FlatHashSet<int> Obj;
 
-        if (verbose) cout << "Testing 'empty' and 'load_factor'." << endl;
+        if (verbose) cout << "Testing `empty` and `load_factor`." << endl;
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -2997,7 +3006,7 @@ cout << endl
                 float loadFactor = static_cast<float>(X.size())
                                             / static_cast<float>(X.capacity());
 
-                // Note that since 'capacity' is a power of two, a simple check
+                // Note that since `capacity` is a power of two, a simple check
                 // suffices.
 
                 LOOP_ASSERT(i, loadFactor == X.load_factor());
@@ -3025,20 +3034,20 @@ cout << endl
         //   have the same value.
         //
         // Concerns:
-        //: 1 The signature and return type are standard.
-        //:
-        //: 2 The assignment operator correctly forwards to the implementation
-        //:   component and returns the correct value.
+        // 1. The signature and return type are standard.
+        //
+        // 2. The assignment operator correctly forwards to the implementation
+        //    component and returns the correct value.
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a function pointer
-        //:   having the appropriate structure for the copy assignment operator
-        //:   defined in this component.  (C-1)
-        //:
-        //: 2 Construct distinct objects X, Y, and Z.  Assign X the value of Y
-        //:   and verify the resultant value of X and the return value of the
-        //:   assignment.  Assign X the value of X and verify the resultant
-        //:   value of X and the return value of the assignment.
+        // 1. Use the address of `operator=` to initialize a function pointer
+        //    having the appropriate structure for the copy assignment operator
+        //    defined in this component.  (C-1)
+        //
+        // 2. Construct distinct objects X, Y, and Z.  Assign X the value of Y
+        //    and verify the resultant value of X and the return value of the
+        //    assignment.  Assign X the value of X and verify the resultant
+        //    value of X and the return value of the assignment.
         //
         // Testing:
         //   FlatHashSet& operator=(const FlatHashSet&);
@@ -3097,33 +3106,33 @@ cout << endl
       case 8: {
         // --------------------------------------------------------------------
         // SWAP MEMBER AND FREE FUNCTION
-        //   Ensure that, when member and free 'swap' are implemented, we can
+        //   Ensure that, when member and free `swap` are implemented, we can
         //   exchange the values of any two objects.
         //
         // Concerns:
-        //: 1 Both functions have standard signatures and return types.
-        //:
-        //: 2 Both functions correctly forward to the underlying implementation
-        //:   component and exchange the values of the (two) supplied objects.
-        //:
-        //: 3 The free 'swap' function is discoverable through ADL (Argument
-        //:   Dependent Lookup).
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Both functions have standard signatures and return types.
+        //
+        // 2. Both functions correctly forward to the underlying implementation
+        //    component and exchange the values of the (two) supplied objects.
+        //
+        // 3. The free `swap` function is discoverable through ADL (Argument
+        //    Dependent Lookup).
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use the addresses of the 'swap' member and free functions defined
-        //:   in this component to initialize, respectively, member-function
-        //:   and free-function pointers having the appropriate signatures and
-        //:   return types.  (C-1)
-        //:
-        //: 2 Create various objects and verify the result of the 'swap' member
-        //:   and free functions.  (C-2)
-        //:
-        //: 3 Use the 'bslalg::SwapUtil' helper function template to swap the
-        //:   values of two distinct objects.  (C-3)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Use the addresses of the `swap` member and free functions defined
+        //    in this component to initialize, respectively, member-function
+        //    and free-function pointers having the appropriate signatures and
+        //    return types.  (C-1)
+        //
+        // 2. Create various objects and verify the result of the `swap` member
+        //    and free functions.  (C-2)
+        //
+        // 3. Use the `bslalg::SwapUtil` helper function template to swap the
+        //    values of two distinct objects.  (C-3)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   void swap(FlatHashSet&);
@@ -3158,7 +3167,7 @@ cout << endl
             freeSwap(a, b);
         }
 
-        if (verbose) cout << "Testing 'swap' methods." << endl;
+        if (verbose) cout << "Testing `swap` methods." << endl;
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -3206,7 +3215,7 @@ cout << endl
             ASSERT(&oa2 == Y.allocator());
         }
 
-        if (verbose) cout << "Invoke free 'swap' function where ADL is used."
+        if (verbose) cout << "Invoke free `swap` function where ADL is used."
                           << endl;
         {
             bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
@@ -3258,16 +3267,16 @@ cout << endl
         //   other one, such that the two objects have the same value.
         //
         // Concerns:
-        //: 1 The copy constructor (with or without a supplied allocator)
-        //:   correctly forwards to the implementation object and creates an
-        //:   object having the same value as the supplied original object.
+        // 1. The copy constructor (with or without a supplied allocator)
+        //    correctly forwards to the implementation object and creates an
+        //    object having the same value as the supplied original object.
         //
         // Plan:
-        //: 1 Create objects W and Z, having distinct value.  Create X as a
-        //:   copy of W without supplying an allocator.  Create Y as a copy of
-        //:   Z supplying an allocator.  Verify the values of X and Y using
-        //:   'operator=='.  Verify the allocators using the 'allocator'
-        //:   accessor.  (C-1)
+        // 1. Create objects W and Z, having distinct value.  Create X as a
+        //    copy of W without supplying an allocator.  Create Y as a copy of
+        //    Z supplying an allocator.  Verify the values of X and Y using
+        //    `operator==`.  Verify the allocators using the `allocator`
+        //    accessor.  (C-1)
         //
         // Testing:
         //   FlatHashSet(const FlatHashSet&, Allocator *bA = 0);
@@ -3310,17 +3319,17 @@ cout << endl
       case 6: {
         // --------------------------------------------------------------------
         // EQUALITY OPERATORS
-        //   Ensure that '==' and '!=' are the operational definition of value.
+        //   Ensure that `==` and `!=` are the operational definition of value.
         //
         // Concerns:
-        //: 1 The equality operators correctly forward to the implementation
-        //:   object and propagate the return value from the implementation
-        //:   object.
+        // 1. The equality operators correctly forward to the implementation
+        //    object and propagate the return value from the implementation
+        //    object.
         //
         // Plan:
-        //: 1 Create three distinct object values and verify the results of
-        //:   of all nine possible comparisons for each operator, using 'const'
-        //:   items exclusively.  (C-1)
+        // 1. Create three distinct object values and verify the results of
+        //    of all nine possible comparisons for each operator, using `const`
+        //    items exclusively.  (C-1)
         //
         // Testing:
         //   bool operator==(const FlatHashSet&, const FlatHashSet&);
@@ -3374,61 +3383,61 @@ cout << endl
         // --------------------------------------------------------------------
         // PRINT AND OUTPUT OPERATOR
         //   Ensure that the value of the object can be formatted appropriately
-        //   on an 'ostream' in some standard, human-readable form.
+        //   on an `ostream` in some standard, human-readable form.
         //
         // Concerns:
-        //: 1 The 'print' method writes the value to the specified 'ostream'.
-        //:
-        //: 2 The 'print' method writes the value in the intended format.
-        //:
-        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)',
-        //:   but with each "attributeName = " elided.
-        //:
-        //: 4 The 'print' method signature and return type are standard.
-        //:
-        //: 5 The 'print' method returns the supplied 'ostream'.
-        //:
-        //: 6 The optional 'level' and 'spacesPerLevel' parameters have the
-        //:   correct default values.
-        //:
-        //: 7 The output 'operator<<' signature and return type are standard.
-        //:
-        //: 8 The output 'operator<<' returns the supplied 'ostream'.
+        // 1. The `print` method writes the value to the specified `ostream`.
+        //
+        // 2. The `print` method writes the value in the intended format.
+        //
+        // 3. The output using `s << obj` is the same as `obj.print(s, 0, -1)`,
+        //    but with each "attributeName = " elided.
+        //
+        // 4. The `print` method signature and return type are standard.
+        //
+        // 5. The `print` method returns the supplied `ostream`.
+        //
+        // 6. The optional `level` and `spacesPerLevel` parameters have the
+        //    correct default values.
+        //
+        // 7. The output `operator<<` signature and return type are standard.
+        //
+        // 8. The output `operator<<` returns the supplied `ostream`.
         //
         // Plan:
-        //: 1 Use the addresses of the 'print' member function and 'operator<<'
-        //:   free function defined in this component to initialize,
-        //:   respectively, member-function and free-function pointers having
-        //:   the appropriate signatures and return types.  (C-4,7)
-        //:
-        //: 2 Using the table-driven technique: (C-1..3,5..6,8)
-        //:
-        //:   1 Define fourteen carefully selected combinations of (two) object
-        //:     values ('A' and 'B'), having distinct values for each
-        //:     corresponding salient attribute, and various values for the two
-        //:     formatting parameters, along with the expected output ( 'value'
-        //:     x 'level' x 'spacesPerLevel' ):
-        //:     1 { A } x { 0 } x { 0, 1, -1, -8 } --> 3 expected o/ps
-        //:     2 { A } x { 3, -3 } x { 0, 2, -2, -8 } --> 8 expected o/ps
-        //:     3 { B } x { 2 } x { 3 } --> 1 expected op
-        //:     4 { A B } x { -8 } x { -8 } --> 2 expected o/ps
-        //:     4 { A B } x { -9 } x { -9 } --> 2 expected o/ps
-        //:
-        //:   2 For each row in the table defined in P-2.1: (C-1..3,5,7)
-        //:
-        //:     1 Using a 'const' 'Obj', supply each object value and pair of
-        //:       formatting parameters to 'print', omitting the 'level' or
-        //:       'spacesPerLevel' parameter if the value of that argument is
-        //:       '-8'.  If the parameters are, arbitrarily, (-9, -9), then
-        //:       invoke the 'operator<<' instead.
-        //:
-        //:     2 Use a standard 'ostringstream' to capture the actual output.
-        //:
-        //:     3 Verify the address of what is returned is that of the
-        //:       supplied stream.  (C-5,8)
-        //:
-        //:     4 Compare the contents captured in P-2.2.2 with what is
-        //:       expected.  (C-1..3,6)
+        // 1. Use the addresses of the `print` member function and `operator<<`
+        //    free function defined in this component to initialize,
+        //    respectively, member-function and free-function pointers having
+        //    the appropriate signatures and return types.  (C-4,7)
+        //
+        // 2. Using the table-driven technique: (C-1..3,5..6,8)
+        //
+        //   1. Define fourteen carefully selected combinations of (two) object
+        //      values (`A` and `B`), having distinct values for each
+        //      corresponding salient attribute, and various values for the two
+        //      formatting parameters, along with the expected output ( `value`
+        //      x `level` x `spacesPerLevel` ):
+        //     1. { A } x { 0 } x { 0, 1, -1, -8 } --> 3 expected o/ps
+        //     2. { A } x { 3, -3 } x { 0, 2, -2, -8 } --> 8 expected o/ps
+        //     3. { B } x { 2 } x { 3 } --> 1 expected op
+        //     4. { A B } x { -8 } x { -8 } --> 2 expected o/ps
+        //     4. { A B } x { -9 } x { -9 } --> 2 expected o/ps
+        //
+        //   2. For each row in the table defined in P-2.1: (C-1..3,5,7)
+        //
+        //     1. Using a `const` `Obj`, supply each object value and pair of
+        //        formatting parameters to `print`, omitting the `level` or
+        //        `spacesPerLevel` parameter if the value of that argument is
+        //        `-8`.  If the parameters are, arbitrarily, (-9, -9), then
+        //        invoke the `operator<<` instead.
+        //
+        //     2. Use a standard `ostringstream` to capture the actual output.
+        //
+        //     3. Verify the address of what is returned is that of the
+        //        supplied stream.  (C-5,8)
+        //
+        //     4. Compare the contents captured in P-2.2.2 with what is
+        //        expected.  (C-1..3,6)
         //
         // Testing:
         //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
@@ -3441,8 +3450,8 @@ cout << endl
 
         typedef bdlc::FlatHashSet<int, SeedIsHash<int> > Obj;
 
-        if (verbose) cout << "Assign the addresses of 'print' and "
-                             "the output 'operator<<' to variables." << endl;
+        if (verbose) cout << "Assign the addresses of `print` and "
+                             "the output `operator<<` to variables." << endl;
         {
             using namespace bdlc;
 
@@ -3710,25 +3719,25 @@ cout << endl
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 Each accessor returns the value of the corresponding attribute of
-        //:   the object.
-        //:
-        //: 2 Each accessor method is declared 'const'.
-        //:
-        //: 3 No accessor allocates memory.
+        // 1. Each accessor returns the value of the corresponding attribute of
+        //    the object.
+        //
+        // 2. Each accessor method is declared `const`.
+        //
+        // 3. No accessor allocates memory.
         //
         // Plan:
-        //: 1 Produce objects of arbitrary state and verify the accessors'
-        //:   return values against expected values.  Since the accessors all
-        //:   forward to an implementation class, verifying the forwarding is
-        //:   correct is all that is required.  (C-1)
-        //:
-        //: 2 The accessors will only be accessed from a 'const' reference to
-        //:   the created object.  (C-2)
-        //:
-        //: 3 The allocators used to create the objects will be verified to
-        //:   ensure that no memory was allocated during use of the accessors
-        //:   (note that this check may be done at the global level).  (C-3)
+        // 1. Produce objects of arbitrary state and verify the accessors'
+        //    return values against expected values.  Since the accessors all
+        //    forward to an implementation class, verifying the forwarding is
+        //    correct is all that is required.  (C-1)
+        //
+        // 2. The accessors will only be accessed from a `const` reference to
+        //    the created object.  (C-2)
+        //
+        // 3. The allocators used to create the objects will be verified to
+        //    ensure that no memory was allocated during use of the accessors
+        //    (note that this check may be done at the global level).  (C-3)
         //
         // Testing:
         //   size_t capacity() const;
@@ -3745,8 +3754,8 @@ cout << endl
                           << "===============" << endl;
 
         if (verbose) {
-            cout << "\nTesting 'capacity', 'hash_function', 'key_eq', "
-                 << "'max_load_factor', and 'allocator'."
+            cout << "\nTesting `capacity`, `hash_function`, `key_eq`, "
+                 << "`max_load_factor`, and `allocator`."
                  << endl;
         }
         {
@@ -3782,7 +3791,7 @@ cout << endl
             }
         }
 
-        if (verbose) cout << "Testing 'find' and 'size'." << endl;
+        if (verbose) cout << "Testing `find` and `size`." << endl;
         {
             typedef bdlc::FlatHashSet<int> Obj;
 
@@ -3825,57 +3834,57 @@ cout << endl
         // --------------------------------------------------------------------
         // PRIMARY MANIPULATORS TEST
         //   The constructor, the destructor, and the primary manipulators:
-        //      - 'clear'
-        //      - 'erase(key)'
-        //      - 'insert'
-        //      - 'reset'
+        //      - `clear`
+        //      - `erase(key)`
+        //      - `insert`
+        //      - `reset`
         //   operate as expected.
         //
         // Concerns:
-        //: 1 The constructors create the correct initial value and have the
-        //:   hashing, equality, and internal memory management systems hooked
-        //:   up properly.
-        //:
-        //: 2 The primary manipulator 'insert' correctly forwards to the
-        //:   implementation class, correctly forwards the return value from
-        //:   the implementation class, and honors
-        //:   bitwise-copy/bitwise-move/move.
-        //:
-        //: 3 The primary manipulator 'erase(key)' correctly forwards to the
-        //:   implementation class and correctly forwards the return value from
-        //:   the implementation class.
-        //:
-        //: 4 The primary manipulators 'clear' and 'reset' correctly forward
-        //:   to the implementation class.
-        //:
-        //: 5 Memory is not leaked by any method and the destructor properly
-        //:   deallocates the residual allocated memory.
+        // 1. The constructors create the correct initial value and have the
+        //    hashing, equality, and internal memory management systems hooked
+        //    up properly.
+        //
+        // 2. The primary manipulator `insert` correctly forwards to the
+        //    implementation class, correctly forwards the return value from
+        //    the implementation class, and honors
+        //    bitwise-copy/bitwise-move/move.
+        //
+        // 3. The primary manipulator `erase(key)` correctly forwards to the
+        //    implementation class and correctly forwards the return value from
+        //    the implementation class.
+        //
+        // 4. The primary manipulators `clear` and `reset` correctly forward
+        //    to the implementation class.
+        //
+        // 5. Memory is not leaked by any method and the destructor properly
+        //    deallocates the residual allocated memory.
         //
         // Plan:
-        //: 1 Create various objects using the constructors and directly verify
-        //:   the arguments were stored correctly using the (untested) basic
-        //:   accessors.  Verify all allocations are done from the allocator
-        //:   in future tests.  (C-1)
-        //:
-        //: 2 Create objects using the 'bslma::TestAllocator', use the 'insert'
-        //:   method with various values, verify the return value, and use the
-        //:   (untested) basic accessors to verify the value of the object.
-        //:   Use 'bsltf' test types to verify bitwise-copy/bitwise-move/move
-        //:   are honored.  (C-2)
-        //:
-        //: 3 Create objects using the 'bslma::TestAllocator', use 'insert'
-        //:   to obtain various states, use 'erase', verify the return value,
-        //:   and use the (untested) basic accessors to verify the value of the
-        //:   object.  (C-3)
-        //:
-        //: 4 Create objects using the 'bslma::TestAllocator', use 'insert' to
-        //:   obtain various states, use the primary manipulators 'clear' and
-        //:   'reset', and verify the object's value using the (untested) basic
-        //:   accessors.  (C-4)
-        //:
-        //: 5 Use a supplied 'bslma::TestAllocator' that goes out-of-scope
-        //:   at the conclusion of each test to ensure all memory is returned
-        //:   to the allocator.  (C-5)
+        // 1. Create various objects using the constructors and directly verify
+        //    the arguments were stored correctly using the (untested) basic
+        //    accessors.  Verify all allocations are done from the allocator
+        //    in future tests.  (C-1)
+        //
+        // 2. Create objects using the `bslma::TestAllocator`, use the `insert`
+        //    method with various values, verify the return value, and use the
+        //    (untested) basic accessors to verify the value of the object.
+        //    Use `bsltf` test types to verify bitwise-copy/bitwise-move/move
+        //    are honored.  (C-2)
+        //
+        // 3. Create objects using the `bslma::TestAllocator`, use `insert`
+        //    to obtain various states, use `erase`, verify the return value,
+        //    and use the (untested) basic accessors to verify the value of the
+        //    object.  (C-3)
+        //
+        // 4. Create objects using the `bslma::TestAllocator`, use `insert` to
+        //    obtain various states, use the primary manipulators `clear` and
+        //    `reset`, and verify the object's value using the (untested) basic
+        //    accessors.  (C-4)
+        //
+        // 5. Use a supplied `bslma::TestAllocator` that goes out-of-scope
+        //    at the conclusion of each test to ensure all memory is returned
+        //    to the allocator.  (C-5)
         //
         // Testing:
         //   FlatHashSet();
@@ -4172,7 +4181,7 @@ cout << endl
             }
         }
 
-        if (verbose) cout << "Testing copy 'insert'." << endl;
+        if (verbose) cout << "Testing copy `insert`." << endl;
         {
             testCaseInsert<bsltf::AllocBitwiseMoveableTestType>(1,
                                                                 true,
@@ -4199,7 +4208,7 @@ cout << endl
                                                             false);
         }
 
-        if (verbose) cout << "Testing move 'insert'." << endl;
+        if (verbose) cout << "Testing move `insert`." << endl;
         {
             testCaseInsertMove<bsltf::AllocBitwiseMoveableTestType>(1,
                                                                     true,
@@ -4235,7 +4244,7 @@ cout << endl
                                                                 false);
         }
 
-        if (verbose) cout << "Testing 'erase'." << endl;
+        if (verbose) cout << "Testing `erase`." << endl;
         {
             typedef int                                       Key;
             typedef bdlc::FlatHashSet<Key>                    Obj;
@@ -4261,7 +4270,7 @@ cout << endl
             ASSERT(X.end() == X.find(1));
         }
 
-        if (verbose) cout << "Testing 'clear'." << endl;
+        if (verbose) cout << "Testing `clear`." << endl;
         {
             typedef int                                       Key;
             typedef bdlc::FlatHashSet<Key>                    Obj;
@@ -4288,7 +4297,7 @@ cout << endl
             ASSERT(32 == X.capacity());
         }
 
-        if (verbose) cout << "Testing 'reset'." << endl;
+        if (verbose) cout << "Testing `reset`." << endl;
         {
             typedef int                                       Key;
             typedef bdlc::FlatHashSet<Key>                    Obj;
@@ -4321,11 +4330,11 @@ cout << endl
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Instantiate an object and verify basic functionality.  (C-1)
+        // 1. Instantiate an object and verify basic functionality.  (C-1)
         //
         // Testing:
         //   BREATHING TEST
@@ -4390,23 +4399,23 @@ cout << endl
       case -1: {
         // --------------------------------------------------------------------
         // PERFORMANCE TEST
-        //    Verify 'bdlc::FlatHashSet' can outperform 'bsl::unordered_set'.
+        //    Verify `bdlc::FlatHashSet` can outperform `bsl::unordered_set`.
         //
         // Concerns:
-        //: 1 'bdlc::FlatHashSet' can outperform 'bsl::unordered_set' when
-        //:   'find' is used for values present in the set.
-        //:
-        //: 2 'bdlc::FlatHashSet' can outperform 'bsl::unordered_set' when
-        //:   'find' is used for values not present in the set.
+        // 1. `bdlc::FlatHashSet` can outperform `bsl::unordered_set` when
+        //    `find` is used for values present in the set.
+        //
+        // 2. `bdlc::FlatHashSet` can outperform `bsl::unordered_set` when
+        //    `find` is used for values not present in the set.
         //
         // Plan:
-        //: 1 Perform a performance test for 'find' with values in the set
-        //:   and verify 'bdlc::FlatHashSet' outperforms 'bsl::unordered_set'.
-        //:   (C-1)
-        //:
-        //: 2 Perform a performance test for 'find' with values not in the set
-        //:   and verify 'bdlc::FlatHashSet' outperforms 'bsl::unordered_set'.
-        //:   (C-2)
+        // 1. Perform a performance test for `find` with values in the set
+        //    and verify `bdlc::FlatHashSet` outperforms `bsl::unordered_set`.
+        //    (C-1)
+        //
+        // 2. Perform a performance test for `find` with values not in the set
+        //    and verify `bdlc::FlatHashSet` outperforms `bsl::unordered_set`.
+        //    (C-2)
         //
         // Testing:
         //   PERFORMANCE TEST

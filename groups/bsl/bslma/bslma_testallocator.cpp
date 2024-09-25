@@ -35,12 +35,12 @@ namespace bslma {
                     // struct TestAllocator_BlockHeader
                     // ================================
 
+/// This `struct` holds the attributes for a block of allocated memory and
+/// immediately precedes the block's *user segment* (i.e., the portion of
+/// the block that is returned to the user).  The headers for all currently
+/// allocated blocks are linked together into a list; the `TestAllocator`
+/// class holds pointers to the head and tail of that list.
 struct TestAllocator_BlockHeader {
-    // This 'struct' holds the attributes for a block of allocated memory and
-    // immediately precedes the block's *user segment* (i.e., the portion of
-    // the block that is returned to the user).  The headers for all currently
-    // allocated blocks are linked together into a list; the 'TestAllocator'
-    // class holds pointers to the head and tail of that list.
 
     // DATA
     unsigned int  d_magicNumber;  // allocated/deallocated/other identifier
@@ -103,19 +103,20 @@ const std::size_t k_MAX_ALIGNMENT = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 #define FMT_I64 BSLS_BSLTESTUTIL_FORMAT_I64 // printf format str for 'Int64'
 
 // LOCAL IMPLEMENTATION FUNCTIONS
+
+/// Return `true` if the specified `address` is aligned on the specified
+/// `alignment` or `false` otherwise.
 inline bool isAligned(const void *address, std::size_t alignment)
-    // Return 'true' if the specified 'address' is aligned on the specified
-    // 'alignment' or 'false' otherwise.
 {
     return 0 == bsls::AlignmentUtil::calculateAlignmentOffset(address,
                                                               int(alignment));
 }
 
+/// Format in hex to `stdout`, a block of memory starting at the specified
+/// starting `address` of the specified `length` (in bytes).  Each line of
+/// formatted output will have a maximum of 16 bytes per line, where each
+/// line starts with the address of that 16-byte chunk.
 void formatBlock(const void *address, std::ptrdiff_t length)
-    // Format in hex to 'stdout', a block of memory starting at the specified
-    // starting 'address' of the specified 'length' (in bytes).  Each line of
-    // formatted output will have a maximum of 16 bytes per line, where each
-    // line starts with the address of that 16-byte chunk.
 {
     const Uchar *addr    = static_cast<const unsigned char *>(address);
     const Uchar *endAddr = addr + length;
@@ -150,17 +151,17 @@ void formatBlockHeader(const BlockHeader *address)
     formatBlock(&address->d_sentinel, k_SENTINEL_SIZE);
 }
 
+/// Format the contents of the presumably invalid memory block at the
+/// specified `address` to `stdout`, using the specified `allocator`,
+/// `underrunBy`, and `overrunBy` information.  A suitable error message, if
+/// appropriate, is printed first, followed by the fields in the header.
+/// Finally, up to the first 64 bytes of memory of the "payload" portion of
+/// the allocated memory is printed; if fewer than 64 bytes were requested,
+/// the dump will include some of the trailing sentinel.
 void formatInvalidMemoryBlock(const BlockHeader    *address,
                               bslma::TestAllocator *allocator,
                               int                   underrunBy,
                               int                   overrunBy)
-    // Format the contents of the presumably invalid memory block at the
-    // specified 'address' to 'stdout', using the specified 'allocator',
-    // 'underrunBy', and 'overrunBy' information.  A suitable error message, if
-    // appropriate, is printed first, followed by the fields in the header.
-    // Finally, up to the first 64 bytes of memory of the "payload" portion of
-    // the allocated memory is printed; if fewer than 64 bytes were requested,
-    // the dump will include some of the trailing sentinel.
 {
     unsigned int  magicNumber = address->d_magicNumber;
     size_type     numBytes    = address->d_bytes;
@@ -220,23 +221,25 @@ void formatInvalidMemoryBlock(const BlockHeader    *address,
                         // class FILEStream
                         // ----------------
 
+/// Streaming class that prints to a `FILE *`.  This class meets the
+/// requirements for the argument to `printToStream`, but is not a
+/// general-purpose `ostream`-like stream.
 class FILEStream {
-    // Streaming class that prints to a 'FILE *'.  This class meets the
-    // requirements for the argument to 'printToStream', but is not a
-    // general-purpose 'ostream'-like stream.
 
     // DATA
     std::FILE* d_file_p;
 
   public:
     // CREATORS
+
+    /// Create an object for printing to the specified `f` file.
     explicit FILEStream(std::FILE* f);
-        // Create an object for printing to the specified 'f' file.
 
     // MANIPULATORS
+
+    /// Write the specified `text` of specified `len` to the file held by
+    /// this object.
     void write(const char *text, std::size_t len);
-        // Write the specified 'text' of specified 'len' to the file held by
-        // this object.
 };
 
 inline

@@ -185,9 +185,9 @@ int ParserUtil::getValue(bdldfp::Decimal64       *value,
         return -1;                                                    // RETURN
     }
 
+    // The size of the string sufficient to store `bdldfp::Decimal64`
+    // values.
     const int k_MAX_STRING_LENGTH = 32;
-        // The size of the string sufficient to store 'bdldfp::Decimal64'
-        // values.
 
     char                               buffer[k_MAX_STRING_LENGTH + 1];
     bdlma::BufferedSequentialAllocator allocator(buffer,
@@ -204,9 +204,10 @@ int ParserUtil::getValue(bdldfp::Decimal64       *value,
     }
 
     bdldfp::Decimal64 d;
+
+    // Note that `bdldfp::DecimalUtil::parseDecimal` does not parse signed
+    // `nan` values.
     int rc = bdldfp::DecimalUtil::parseDecimal64(&d, dataString);
-        // Note that 'bdldfp::DecimalUtil::parseDecimal' does not parse signed
-        // 'nan' values.
 
     if (0 != rc) {
         if (6    == data.length()                    &&

@@ -8,7 +8,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
-#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstdlib.h>     // `atoi`
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
 
@@ -112,9 +112,9 @@ enum VecType { e_BEGIN,
 //-----------------------------------------------------------------------------
 
 
+/// Print the value of the specified `vecType` to the specified `stream` and
+/// return a reference to `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, VecType vecType)
-    // Print the value of the specified 'vecType' to the specified 'stream' and
-    // return a reference to 'stream'.
 {
     stream << (e_BSL == vecType
              ? "bsl"
@@ -136,20 +136,20 @@ bsl::ostream& operator<<(bsl::ostream& stream, VecType vecType)
 namespace {
 namespace u {
 
+/// Call when a function returning a double is required, but you really
+/// want undefined behavior
 double doubleAbort()
-    // Call when a function returning a double is required, but you really
-    // want undefined behavior
 {
     BSLS_ASSERT(0);
 
     return 0;
 }
 
+/// Return a pointer to the first element of the specified `v`, or null if
+/// `v` is empty.  Note that `std::vector` in some standard libraries do not
+/// support the `data()` accessor.
 template <class VECTOR>
 const typename VECTOR::value_type *data(const VECTOR& v)
-    // Return a pointer to the first element of the specified 'v', or null if
-    // 'v' is empty.  Note that 'std::vector' in some standard libraries do not
-    // support the 'data()' accessor.
 {
     return v.empty() ? 0 : &*v.begin();
 }
@@ -182,13 +182,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -204,73 +204,73 @@ int main(int argc, char *argv[])
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
-// 'bbldc::PeriodIcmaActualActual' methods.  First, create two 'bdlt::Date'
-// variables, 'd1' and 'd2':
-//..
+// `bbldc::PeriodIcmaActualActual` methods.  First, create two `bdlt::Date`
+// variables, `d1` and `d2`:
+// ```
     const bdlt::Date d1(2003, 10, 19);
     const bdlt::Date d2(2003, 12, 31);
-//..
-// Then, create a schedule of period dates, 'sched', corresponding to a
-// quarterly payment ('periodYearDiff == 0.25'):
-//..
+// ```
+// Then, create a schedule of period dates, `sched`, corresponding to a
+// quarterly payment (`periodYearDiff == 0.25`):
+// ```
     bsl::vector<bdlt::Date> sched;
     sched.push_back(bdlt::Date(2003, 10, 1));
     sched.push_back(bdlt::Date(2004,  1, 1));
-//..
-// Next, compute the day count between 'd1' and 'd2':
-//..
+// ```
+// Next, compute the day count between `d1` and `d2`:
+// ```
     const int daysDiff = bbldc::PeriodIcmaActualActual::daysDiff(d1, d2);
     ASSERT(73 == daysDiff);
-//..
+// ```
 // Finally, compute the year fraction between the two dates:
-//..
+// ```
     const double yearsDiff = bbldc::PeriodIcmaActualActual::yearsDiff(d1,
                                                                       d2,
                                                                       sched,
                                                                       0.25);
-    // Need fuzzy comparison since 'yearsDiff' is a 'double'.
+    // Need fuzzy comparison since `yearsDiff` is a `double`.
     ASSERT(yearsDiff > 0.1983 && yearsDiff < 0.1985);
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'yearsDiff'
+        // TESTING `yearsDiff`
         //   Verify the method correctly computes the number of years between
         //   two dates.
         //
         // Concerns:
-        //: 1 The 'yearsDiff' method produces the correct results.
-        //:
-        //: 2 Reversing the date parameters negates the returned value.
-        //:
-        //: 3 The 'periodYearDiff' argument acts as a simple multiplier of the
-        //:   result.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The `yearsDiff` method produces the correct results.
+        //
+        // 2. Reversing the date parameters negates the returned value.
+        //
+        // 3. The `periodYearDiff` argument acts as a simple multiplier of the
+        //    result.
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Specify a set S of {pairs of dates (d1, d2), a schedule of
-        //:   periods P, and the difference in years D}.  For the method under
-        //:   test, in a loop over the elements of S, apply the method to dates
-        //:   having the values d1 and d2 with the periods P and 1.0 for the
-        //:   'periodYearDiff' and confirm the result using the value D with a
-        //:   fuzzy comparison (since the return value is a floating-point
-        //:   number).   (C-1)
-        //:
-        //: 2 Also verify the result is negated when the date parameters are
-        //:   reversed.  (C-2)
-        //:
-        //: 3 Also verify the result is multiplied by the 'periodYearDiff' when
-        //:   alternate values are supplied.  (C-3)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Specify a set S of {pairs of dates (d1, d2), a schedule of
+        //    periods P, and the difference in years D}.  For the method under
+        //    test, in a loop over the elements of S, apply the method to dates
+        //    having the values d1 and d2 with the periods P and 1.0 for the
+        //    `periodYearDiff` and confirm the result using the value D with a
+        //    fuzzy comparison (since the return value is a floating-point
+        //    number).   (C-1)
+        //
+        // 2. Also verify the result is negated when the date parameters are
+        //    reversed.  (C-2)
+        //
+        // 3. Also verify the result is multiplied by the `periodYearDiff` when
+        //    alternate values are supplied.  (C-3)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   double yearsDiff(bD, eD, pD, pYD);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'yearsDiff'" << endl
+                          << "TESTING `yearsDiff`" << endl
                           << "===================" << endl;
 
         {
@@ -473,7 +473,7 @@ int main(int argc, char *argv[])
             double NUM_PYD = sizeof PYD / sizeof *PYD;
 
             if (verbose) cout <<
-                "\nTesting: 'yearsDiff(beginDate, endDate)'" << endl;
+                "\nTesting: `yearsDiff(beginDate, endDate)`" << endl;
 
             for (int di = 0; di < NUM_DATA ; ++di) {
                 const int    LINE      = DATA[di].d_lineNum;
@@ -531,7 +531,7 @@ int main(int argc, char *argv[])
                     const double sum     = result + nresult;
                     ASSERTV(vt, LINE, 0.0 == sum);
 
-                // Verify modifying the 'periodYearFraction' value works as
+                // Verify modifying the `periodYearFraction` value works as
                 // expected.
 
                     for (int dj = 0; dj < NUM_PYD; ++dj) {
@@ -562,7 +562,7 @@ int main(int argc, char *argv[])
         { // negative testing
             bsls::AssertTestHandlerGuard hG;
 
-            // 'periodDate' with no errors.
+            // `periodDate` with no errors.
 
             bsl::vector<bdlt::Date>        mA;
             const bsl::vector<bdlt::Date>& A = mA;
@@ -580,7 +580,7 @@ int main(int argc, char *argv[])
             const std::pmr::vector<bdlt::Date> AP = mAP;    (void) AP;
 #endif
 
-            // 'periodDate' with non-sorted values.
+            // `periodDate` with non-sorted values.
 
             bsl::vector<bdlt::Date>        mE1;
             const bsl::vector<bdlt::Date>& E1 = mE1;
@@ -599,7 +599,7 @@ int main(int argc, char *argv[])
             const std::pmr::vector<bdlt::Date> E1P = mE1P;    (void) E1P;
 #endif
 
-            // 'periodDate' with non-unique values.
+            // `periodDate` with non-unique values.
 
             bsl::vector<bdlt::Date>        mE2;
             const bsl::vector<bdlt::Date>& E2 = mE2;
@@ -619,7 +619,7 @@ int main(int argc, char *argv[])
             const std::pmr::vector<bdlt::Date> E2P = mE2P;    (void) E2P;
 #endif
 
-            // 'periodDate' with only one value.
+            // `periodDate` with only one value.
 
             bsl::vector<bdlt::Date>        mE3;
             const bsl::vector<bdlt::Date>& E3 = mE3;
@@ -634,7 +634,7 @@ int main(int argc, char *argv[])
             const std::pmr::vector<bdlt::Date> E3P = mE3P;    (void) E3P;
 #endif
 
-            // 'periodDate' with no values.
+            // `periodDate` with no values.
 
             bsl::vector<bdlt::Date>        mE4;
             const bsl::vector<bdlt::Date>& E4 = mE4;
@@ -753,7 +753,7 @@ int main(int argc, char *argv[])
         }
         {
             if (verbose) cout <<
-                "\nTesting: 'yearsDiff(date, date)'" << endl;
+                "\nTesting: `yearsDiff(date, date)`" << endl;
 
             const bdlt::Date startDate = bdlt::Date(1900,  1,  1);
             const bdlt::Date endDate   = bdlt::Date(2200, 12, 31);
@@ -786,33 +786,33 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'daysDiff'
+        // TESTING `daysDiff`
         //   Verify the method correctly computes the number of days between
         //   two dates.
         //
         // Concerns:
-        //: 1 The 'daysDiff' method produces the correct results.
-        //:
-        //: 2 Reversing the date parameters negates the returned value.
+        // 1. The `daysDiff` method produces the correct results.
+        //
+        // 2. Reversing the date parameters negates the returned value.
         //
         // Plan:
-        //: 1 Specify a set S of {pairs of dates (d1, d2) and their difference
-        //:   in days D}.  For the method under test, in a loop over the
-        //:   elements of S, apply the method to dates having the values d1
-        //:   and d2 and confirm the result using the value D.  (C-1)
-        //:
-        //: 2 Also verify the result is negated when the date parameters are
-        //:   reversed.  (C-2)
+        // 1. Specify a set S of {pairs of dates (d1, d2) and their difference
+        //    in days D}.  For the method under test, in a loop over the
+        //    elements of S, apply the method to dates having the values d1
+        //    and d2 and confirm the result using the value D.  (C-1)
+        //
+        // 2. Also verify the result is negated when the date parameters are
+        //    reversed.  (C-2)
         //
         // Testing:
         //   int daysDiff(const bdlt::Date& bD, const bdlt::Date& eD);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'daysDiff'" << endl
+                          << "TESTING `daysDiff`" << endl
                           << "==================" << endl;
 
-        if (verbose) cout << "\nTesting: 'daysDiff(beginDate, endDate)'"
+        if (verbose) cout << "\nTesting: `daysDiff(beginDate, endDate)`"
                           << "\n======================================="
                           << endl;
 
@@ -924,7 +924,7 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             if (verbose) cout <<
-                "\nTesting: 'daysDiff(beginDate, endDate)'" << endl;
+                "\nTesting: `daysDiff(beginDate, endDate)`" << endl;
 
             for (int di = 0; di < NUM_DATA ; ++di) {
                 const int LINE     = DATA[di].d_lineNum;

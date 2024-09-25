@@ -120,10 +120,10 @@ BSLMF_ASSERT(sizeof(int)       <  sizeof(bsls::Types::Int64));
 
 #ifdef BSLMT_PLATFORM_WIN32_THREADS
 
-                        // * asserts about 'DWORD'
+                        // * asserts about `DWORD`
 
 BSLMF_ASSERT((bsl::is_same<DWORD, unsigned long>::value));
-BSLMF_ASSERT(sizeof(DWORD) == sizeof(int));     // 'long' is 4 bytes on
+BSLMF_ASSERT(sizeof(DWORD) == sizeof(int));     // `long` is 4 bytes on
                                                 // windows, 32 or 64 bit
 BSLMF_ASSERT((DWORD) -1 > 0);
 
@@ -143,14 +143,14 @@ static int sign(Int64 value)
                               // --------------
 
 // These tests are templated to allow easy repetition for testing of both
-// 'Obj::TimeSpec' and 'mach_timespec_t'.
+// `Obj::TimeSpec` and `mach_timespec_t`.
 
-                             // 'tv_sec' is signed
+                             // `tv_sec` is signed
 
+/// Check if the specified `TIMESPEC` type is signed, and if so, test it
+/// accordingly.
 template <class TIMESPEC>
 void testSignedTimespec(const char *timeSpecName)
-    // Check if the specified 'TIMESPEC' type is signed, and if so, test it
-    // accordingly.
 {
     enum { k_MILLION = 1000 * 1000,
            k_BILLION = k_MILLION * 1000 };
@@ -317,12 +317,12 @@ void testSignedTimespec(const char *timeSpecName)
     }
 }
 
-                             // 'tv_sec' is unsigned
+                             // `tv_sec` is unsigned
 
+/// Check if the specified `TIMESPEC` type is unsigned, and if so, test it
+/// accordingly.
 template <class TIMESPEC>
 void testUnsignedTimespec(const char *timeSpecName)
-    // Check if the specified 'TIMESPEC' type is unsigned, and if so, test it
-    // accordingly.
 {
     enum { k_MILLION = 1000 * 1000,
            k_BILLION = 1000 * k_MILLION };
@@ -496,12 +496,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 Demonstrate the principle of 'saturation'.
+        // 1. Demonstrate the principle of `saturation`.
         //
         // Plan:
-        //: 1 Assign values from an 'Int64' to an 'unsigned int' using
-        //:   'toMillisec', demonstrating that values within range are
-        //:   undistorted while values above and below range are saturated.
+        // 1. Assign values from an `Int64` to an `unsigned int` using
+        //    `toMillisec`, demonstrating that values within range are
+        //    undistorted while values above and below range are saturated.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -509,35 +509,35 @@ int main(int argc, char *argv[])
 
 ///Usage
 ///-----
-// Suppose we need to assign a value held in a 'bsls::TimeInterval' to an
-// 'unsigned int', where the 'unsigned int' is to contain an equivalent time
-// interval expressed in milliseconds.  A 'bsls::TimeInterval' is able to
+// Suppose we need to assign a value held in a `bsls::TimeInterval` to an
+// `unsigned int`, where the `unsigned int` is to contain an equivalent time
+// interval expressed in milliseconds.  A `bsls::TimeInterval` is able to
 // represent intervals that are outside the range of intervals that can be
-// represented by an 'unsigned int' number of milliseconds (e.g., any negative
-// time interval).  'bslmt::SaturatedTimeConversionImpUtil' handles values
+// represented by an `unsigned int` number of milliseconds (e.g., any negative
+// time interval).  `bslmt::SaturatedTimeConversionImpUtil` handles values
 // outside the representable range of the destination type by "saturating",
 // that is values outside the representable range of the destination type will
 // be assigned the maximum or minimum representable value of the destination
 // type (whichever is closer to the source value).
 //
-// First, we define variables of our source ('bsls::TimeInterval') and
-// destination ('unsigned int') types:
-//..
+// First, we define variables of our source (`bsls::TimeInterval`) and
+// destination (`unsigned int`) types:
+// ```
     unsigned int destinationInterval;
     bsls::TimeInterval sourceInterval;
-//..
+// ```
 // Then, we try a value that does not require saturation and observe that
-// 'toMillisec' converts it without modification (beyond loss of precision):
-//..
+// `toMillisec` converts it without modification (beyond loss of precision):
+// ```
     sourceInterval.setInterval(4, 321000000);
     bslmt::SaturatedTimeConversionImpUtil::toMillisec(
                                          &destinationInterval, sourceInterval);
     ASSERT(4321 == destinationInterval);
-//..
+// ```
 // Next, we calculate the maximum value that can be represented in an
-// 'unsigned int' number of milliseconds, and verify that converting an
-// equivalent 'bsls::TimeInterval' does not modify the value:
-//..
+// `unsigned int` number of milliseconds, and verify that converting an
+// equivalent `bsls::TimeInterval` does not modify the value:
+// ```
     const unsigned int maxDestinationInterval =
                                       bsl::numeric_limits<unsigned int>::max();
     bsls::TimeInterval maximumTimeInterval(
@@ -546,53 +546,53 @@ int main(int argc, char *argv[])
     bslmt::SaturatedTimeConversionImpUtil::toMillisec(
                                    &destinationInterval, maximumTimeInterval);
     ASSERT(maxDestinationInterval == destinationInterval);
-//..
+// ```
 // Now, we attempt to convert a value greater than the maximum representable in
-// an 'unsigned int' milliseconds and verify that the resulting value is the
-// maximum representable 'unsigned int' value:
-//..
+// an `unsigned int` milliseconds and verify that the resulting value is the
+// maximum representable `unsigned int` value:
+// ```
     bsls::TimeInterval aboveMaxInterval = maximumTimeInterval +
                                             bsls::TimeInterval(0, 1000 * 1000);
     bslmt::SaturatedTimeConversionImpUtil::toMillisec(
                                        &destinationInterval, aboveMaxInterval);
     ASSERT(maxDestinationInterval == destinationInterval);
-//..
+// ```
 // Next, we try a value less than 0 and observe the result of the saturated
 // conversion is 0 (the minimum representable value):
-//..
+// ```
     bsls::TimeInterval belowMinimumInterval(-1, 0);
     bslmt::SaturatedTimeConversionImpUtil::toMillisec(
                                    &destinationInterval, belowMinimumInterval);
     ASSERT(0 == destinationInterval);
-//..
-// Finally, when we convert a 'bsls::TimeInterval' containing a fractional
-// millisecond using 'toMillisec', the converted value is greater than the
+// ```
+// Finally, when we convert a `bsls::TimeInterval` containing a fractional
+// millisecond using `toMillisec`, the converted value is greater than the
 // input value:
-//..
-    bsls::TimeInterval piMSec(0, 3141593);  // 'pi' millseconds
+// ```
+    bsls::TimeInterval piMSec(0, 3141593);  // `pi` millseconds
     unsigned int       mSec;
     bslmt::SaturatedTimeConversionImpUtil::toMillisec(&mSec, piMSec);
     ASSERT(4 == mSec);
-//..
+// ```
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // ASSERTS ABOUT 'TimeSpec' and 'mach_timespec_t'
+        // ASSERTS ABOUT `TimeSpec` and `mach_timespec_t`
         //
         // Concerns:
-        //    Our implementations of 'toTimeSpec' make assumptions about
+        //    Our implementations of `toTimeSpec` make assumptions about
         //    whether the destination values are signed or unsigned.  Verify
         //    these assumptions here.
         //
         // Plan:
-        //    Assign '-t' to both fields of 'TimeSpec' and verify that the
-        //    values are negative, also verify that 'TimeSpec::tv_nsec' can
+        //    Assign `-t` to both fields of `TimeSpec` and verify that the
+        //    values are negative, also verify that `TimeSpec::tv_nsec` can
         //    can handle values to +- one billion, and that
-        //    'mach_timespec_t::tv_nsec' can handle up to one billion.
+        //    `mach_timespec_t::tv_nsec` can handle up to one billion.
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-                            "ASSERTS ABOUT 'TimeSpec' and 'mach_timespec_t'\n"
+                            "ASSERTS ABOUT `TimeSpec` and `mach_timespec_t`\n"
                             "==============================================\n";
 
         enum { k_BILLION = 1000 * 1000 * 1000 };
@@ -621,56 +621,56 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'toMillisec'
+        // TESTING `toMillisec`
         //
         // Concerns:
-        //: 1 That 'toMillisec' copies values that are in range without
-        //:   distortion.
-        //: 2 That for values above the range that can be copied properly,
-        //:   '*dst' is set to its max value;
-        //: 3 That for values below the range that can be copied properly,
-        //:   '*dst' is set to 0 (its min value);
+        // 1. That `toMillisec` copies values that are in range without
+        //    distortion.
+        // 2. That for values above the range that can be copied properly,
+        //    `*dst` is set to its max value;
+        // 3. That for values below the range that can be copied properly,
+        //    `*dst` is set to 0 (its min value);
         //
         // Plan:
-        //: o Calculate 'maxSec' and 'maxNSec', the 'seconds' and 'nanoSeconds'
-        //:   fields that a 'bsls::TimeInterval' will have and map to the exact
-        //:   highest value of 'DWORD (== uintMax)' when properly converted
-        //:   by 'toMillisec'.
-        //: o Do trials with 'seconds() == maxSec', and 'nanoseconds()' varying
-        //:   between the max possible value and 0 by increments of a million,
-        //:   observing that for nanoseconds greater than 'maxNSec', the
-        //:   result is saturate, and below that it is not.
-        //: o Vary input with 'seconds' from 'maxSec - 1000' to 'maxSec + 1000'
-        //:   with 'nanoseconds == 0', verifying that for values below
-        //:   'maxSec' no saturation occurs, and above 'maxSec' saturation
-        //:   does occur.
-        //: o Vary input with 'seconds' from 'maxSec - 1000' to 'maxSec + 1000'
-        //:   with 'nanoseconds == maxNSec + 1000000', verifying that for
-        //:   values below 'maxSec' no saturation occurs, and '>= maxSec'
-        //:   saturation does occur.
-        //: o Vary the seconds from 0 to 'maxSec + 2000000', incrementing
-        //:   nanoseconds gradually, observing that saturation occurs at
-        //:   exactly the right times.
-        //: o Set nanoseconds to 'maxNSec' and vary seconds from 'maxSec' to
-        //:   lower values down to 0, observing that no saturation occurs.
-        //: o Set nanoseconds to a negative value and vary seconds from 0 down
-        //:   to 'int64Min' by increments of '(1 << 48)', observing that
-        //:   saturation always occurs.
-        //: o Set nanoseconds to 'maxNSec' and slowly increment it while
-        //:   setting seconds to 'maxSec' and incrementing it by '(1 << 48)'
-        //:   and observe that saturation always occurs.
-        //: o Set seconds to 0 and vary nanoseconds over the range
-        //:   '( -k_BILLION, k_BILLION )' by increments of a million, observing
-        //:   that negative values are saturated and positive values are not.
-        //: o Set seconds to the max and min possible values, varying
-        //:   nanoseconds over the full possible range by increments of a
-        //:   million, and observe that saturation always properly occurs.
+        //  - Calculate `maxSec` and `maxNSec`, the `seconds` and `nanoSeconds`
+        //    fields that a `bsls::TimeInterval` will have and map to the exact
+        //    highest value of `DWORD (== uintMax)` when properly converted
+        //    by `toMillisec`.
+        //  - Do trials with `seconds() == maxSec`, and `nanoseconds()` varying
+        //    between the max possible value and 0 by increments of a million,
+        //    observing that for nanoseconds greater than `maxNSec`, the
+        //    result is saturate, and below that it is not.
+        //  - Vary input with `seconds` from `maxSec - 1000` to `maxSec + 1000`
+        //    with `nanoseconds == 0`, verifying that for values below
+        //    `maxSec` no saturation occurs, and above `maxSec` saturation
+        //    does occur.
+        //  - Vary input with `seconds` from `maxSec - 1000` to `maxSec + 1000`
+        //    with `nanoseconds == maxNSec + 1000000`, verifying that for
+        //    values below `maxSec` no saturation occurs, and `>= maxSec`
+        //    saturation does occur.
+        //  - Vary the seconds from 0 to `maxSec + 2000000`, incrementing
+        //    nanoseconds gradually, observing that saturation occurs at
+        //    exactly the right times.
+        //  - Set nanoseconds to `maxNSec` and vary seconds from `maxSec` to
+        //    lower values down to 0, observing that no saturation occurs.
+        //  - Set nanoseconds to a negative value and vary seconds from 0 down
+        //    to `int64Min` by increments of `(1 << 48)`, observing that
+        //    saturation always occurs.
+        //  - Set nanoseconds to `maxNSec` and slowly increment it while
+        //    setting seconds to `maxSec` and incrementing it by `(1 << 48)`
+        //    and observe that saturation always occurs.
+        //  - Set seconds to 0 and vary nanoseconds over the range
+        //    `( -k_BILLION, k_BILLION )` by increments of a million, observing
+        //    that negative values are saturated and positive values are not.
+        //  - Set seconds to the max and min possible values, varying
+        //    nanoseconds over the full possible range by increments of a
+        //    million, and observe that saturation always properly occurs.
         //
         // Testing:
-        //   'toMillisec'
+        //   `toMillisec`
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'toMillisec'\n"
+        if (verbose) cout << "TESTING `toMillisec`\n"
                              "====================\n";
 
 #ifdef BSLMT_PLATFORM_POSIX_THREADS
@@ -854,7 +854,7 @@ int main(int argc, char *argv[])
 
             // Compute the threshold for saturating a Uint64 representation of
             // milliseconds.  I.e.,
-            // 'bsls::TimeInterval(SEC_LIMIT, NANO_SEC_LIMIT)' should be the
+            // `bsls::TimeInterval(SEC_LIMIT, NANO_SEC_LIMIT)` should be the
             // maximum representable Uint64 number of milliseconds.
 
             const Int64       SEC_LIMIT = MAX_UINT64 / k_MILLISECS_PER_SEC;
@@ -924,55 +924,55 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'toTimeT'
+        // TESTING `toTimeT`
         //
         // Concerns:
-        //   Note that the exact type of 'time_t' is not clearly specified
+        //   Note that the exact type of `time_t` is not clearly specified
         //   and may vary with the platform.  We must test for possibilities
-        //   of 'time_t' being signed or unsigned, 4 or 8 byte.
-        //: 1 That 'toTimeT' assigns 'Int64's to 'time_t's properly, exactly
-        //:   copying values whenever possible.
-        //: 2 That 'toTimeT' correctly saturating when it is not possible to
-        //:   copy a value exactly.
+        //   of `time_t` being signed or unsigned, 4 or 8 byte.
+        // 1. That `toTimeT` assigns `Int64`s to `time_t`s properly, exactly
+        //    copying values whenever possible.
+        // 2. That `toTimeT` correctly saturating when it is not possible to
+        //    copy a value exactly.
         //
         // Plan:
-        //: 1 32-bit signed
-        //:   o Iterate over the range of values that can be exactly assigned,
-        //:     incrementing in 64K increments, being sure to include the min
-        //:     and max possible values.
-        //:   o iterate from the max exactly assignable value to the max of
-        //:     of the input range, in iterations of (1 << 48), observing
-        //:     saturation.
-        //:   o iterate from the min exactly assignable value to the min of
-        //:     of the input range, in iterations of (1 << 48), observing
-        //:     saturation.
-        //:   o test the exact min and max values of the input range.
-        //: 2 64-bit signed
-        //:   o iterate from the min of the input range to the max of the
-        //:     input range in increments of (1 << 48), observing that values
-        //:     are assigned without modification.
-        //:   o iterate from the max of the input range to the min of the
-        //:     input range in increments of (1 << 48), observing that values
-        //:     are assigned without modification.
-        //: 3 32-bit unsigned
-        //:   o Iterate over the range of values that can be exactly assigned,
-        //:     incrementing in 64K increments, being sure to include the min
-        //:     and max possible values.
-        //:   o iterate from the max value that can be accurately copied to
-        //:     the max of the input range in (1 << 48) increments, observing
-        //:     saturation.
-        //:   o iterate from 0 to the min of the input range in (1 << 48)
-        //:     increments, observing saturation.
-        //:   o test the exact min and max of the input range, observing
-        //:     saturation.
-        //: 4 64-bit unsigned
-        //:   o traverse the input range in (1 << 48) increments, taking care
-        //:     to include both the absolute min and max values, observing
-        //:     that non-negative values are copied without modification,
-        //:     and negative values are saturated as 0.
+        // 1. 32-bit signed
+        //    - Iterate over the range of values that can be exactly assigned,
+        //      incrementing in 64K increments, being sure to include the min
+        //      and max possible values.
+        //    - iterate from the max exactly assignable value to the max of
+        //      of the input range, in iterations of (1 << 48), observing
+        //      saturation.
+        //    - iterate from the min exactly assignable value to the min of
+        //      of the input range, in iterations of (1 << 48), observing
+        //      saturation.
+        //    - test the exact min and max values of the input range.
+        // 2. 64-bit signed
+        //    - iterate from the min of the input range to the max of the
+        //      input range in increments of (1 << 48), observing that values
+        //      are assigned without modification.
+        //    - iterate from the max of the input range to the min of the
+        //      input range in increments of (1 << 48), observing that values
+        //      are assigned without modification.
+        // 3. 32-bit unsigned
+        //    - Iterate over the range of values that can be exactly assigned,
+        //      incrementing in 64K increments, being sure to include the min
+        //      and max possible values.
+        //    - iterate from the max value that can be accurately copied to
+        //      the max of the input range in (1 << 48) increments, observing
+        //      saturation.
+        //    - iterate from 0 to the min of the input range in (1 << 48)
+        //      increments, observing saturation.
+        //    - test the exact min and max of the input range, observing
+        //      saturation.
+        // 4. 64-bit unsigned
+        //    - traverse the input range in (1 << 48) increments, taking care
+        //      to include both the absolute min and max values, observing
+        //      that non-negative values are copied without modification,
+        //      and negative values are saturated as 0.
         //
         // TESTING
-        //   'toTimeT'
+        //   `toTimeT`
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING TIME_T\n"
@@ -1138,31 +1138,31 @@ int main(int argc, char *argv[])
         // TESTING TIMESPEC -- UNSIGNED TV_SEC
         //
         // Concerns:
-        //   This test case concerns the case where the 'tv_sec' field of
-        //   'timespec' is unsigned.
-        //: 1 That 'toTimeSpec' will properly assign a value from a
-        //:   'bsls::TimeInterval' to a 'timespec' if the 'bsls::TimeInterval's
-        //:   value can be exactly represented by the 'timespec'.
-        //: 2 That if a value is too high or too low to be represented by the
-        //:   'timespec', the 'timespec' is assigned the highest or lowest
-        //:   value it can represent, whichever is closer to the intended
-        //:   value.
+        //   This test case concerns the case where the `tv_sec` field of
+        //   `timespec` is unsigned.
+        // 1. That `toTimeSpec` will properly assign a value from a
+        //    `bsls::TimeInterval` to a `timespec` if the `bsls::TimeInterval`s
+        //    value can be exactly represented by the `timespec`.
+        // 2. That if a value is too high or too low to be represented by the
+        //    `timespec`, the `timespec` is assigned the highest or lowest
+        //    value it can represent, whichever is closer to the intended
+        //    value.
         //
         // Plan:
-        //: 1 sizeof(tv_sec) == 4
-        //:   o Iterate testing for values of 'TimeInterval.seconds()' from 0
-        //:     to 'uintMax' at intervals of 64K, making sure to include the
-        //:     exact values of 0 and 'uintMax', varying the nanosecond field
-        //:     slightly but keeping it in normal range.
-        //:   o Test with values above and below the range which can be
-        //:     represented with a 'timespec', and observe that both fields of
-        //:     the 'timespec' are at the appropriate extreme.
-        //:   o Test with 'timeInterval.second()' at its exact minimum and
-        //:     maximum values, and verify the results are as they should be.
-        //: 2 sizeof(tv_sec) == 8
-        //:   o Iterate from the minimum to the maximum values of
-        //:     'timeInterval.seconds()', verifying that 'tv_sec' is always
-        //:     exactly equal to the '.seconds()' value.
+        // 1. sizeof(tv_sec) == 4
+        //    - Iterate testing for values of `TimeInterval.seconds()` from 0
+        //      to `uintMax` at intervals of 64K, making sure to include the
+        //      exact values of 0 and `uintMax`, varying the nanosecond field
+        //      slightly but keeping it in normal range.
+        //    - Test with values above and below the range which can be
+        //      represented with a `timespec`, and observe that both fields of
+        //      the `timespec` are at the appropriate extreme.
+        //    - Test with `timeInterval.second()` at its exact minimum and
+        //      maximum values, and verify the results are as they should be.
+        // 2. sizeof(tv_sec) == 8
+        //    - Iterate from the minimum to the maximum values of
+        //      `timeInterval.seconds()`, verifying that `tv_sec` is always
+        //      exactly equal to the `.seconds()` value.
         //
         // TESTING
         //   toTimeSpec
@@ -1179,31 +1179,31 @@ int main(int argc, char *argv[])
         // TESTING TIMESPEC -- SIGNED TV_SEC
         //
         // Concerns:
-        //   This test case concerns the case where the 'tv_sec' field of
-        //   'timespec' is signed.
-        //: 1 That 'toTimeSpec' will properly assign a value from a
-        //:   'bsls::TimeInterval' to a 'timespec' if the 'bsls::TimeInterval's
-        //:   value can be exactly represented by the 'timespec'.
-        //: 2 That if a value is too high or too low to be represented by the
-        //:   'timespec', the 'timespec' is assigned the highest or lowest
-        //:   value it can represent, whichever is closer to the intended
-        //:   value.
+        //   This test case concerns the case where the `tv_sec` field of
+        //   `timespec` is signed.
+        // 1. That `toTimeSpec` will properly assign a value from a
+        //    `bsls::TimeInterval` to a `timespec` if the `bsls::TimeInterval`s
+        //    value can be exactly represented by the `timespec`.
+        // 2. That if a value is too high or too low to be represented by the
+        //    `timespec`, the `timespec` is assigned the highest or lowest
+        //    value it can represent, whichever is closer to the intended
+        //    value.
         //
         // Plan:
-        //: 1 sizeof(tv_sec) == 4
-        //:   o Iterate testing for values of 'TimeInterval.seconds()' from
-        //:     'intMin' to 'intMax' at intervals of 64K, making sure to
-        //:     include the exact values of 'intMin' and 'intMax', varying the
-        //:     nanosecond field slightly but keeping it in normal range.
-        //:   o Test with values above and below the range which can be
-        //:     represented with a 'timespec', and observe that both fields of
-        //:     the 'timespec' are at the appropriate extreme.
-        //:   o Test with 'timeInterval.second()' at its exact minimum and
-        //:     maximum values, and verify the results are as they should be.
-        //: 1 sizeof(tv_sec) == 8
-        //:   o Iterate from the minimum to the maximum values of
-        //:     'timeInterval.seconds()', verifying that 'tv_sec' is always
-        //:     exactly equal to the '.seconds()' value.
+        // 1. sizeof(tv_sec) == 4
+        //    - Iterate testing for values of `TimeInterval.seconds()` from
+        //      `intMin` to `intMax` at intervals of 64K, making sure to
+        //      include the exact values of `intMin` and `intMax`, varying the
+        //      nanosecond field slightly but keeping it in normal range.
+        //    - Test with values above and below the range which can be
+        //      represented with a `timespec`, and observe that both fields of
+        //      the `timespec` are at the appropriate extreme.
+        //    - Test with `timeInterval.second()` at its exact minimum and
+        //      maximum values, and verify the results are as they should be.
+        // 1. sizeof(tv_sec) == 8
+        //    - Iterate from the minimum to the maximum values of
+        //      `timeInterval.seconds()`, verifying that `tv_sec` is always
+        //      exactly equal to the `.seconds()` value.
         //
         // TESTING
         //   toTimeSpec
@@ -1221,16 +1221,16 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   Demonstrate basic functionality, which will vary depending upon
-        //   the type of 'TimeSpec'.
+        //   the type of `TimeSpec`.
         //
         // Plan:
-        //: 1 Demonstrate assignment on all platforms with no saturation..
-        //: 2 Demonstrate saturation if 'tv_sec' is 4 byte unsigned.
-        //: 3 Demonstrate saturation if 'tv_sec' is 4 byte signed.
-        //: 4 Demonstrate assignment & saturation if 'tv_sec' is 8 byte
-        //:   unsigned.
-        //: 5 Demonstrate more assignment (no saturation possible) if 'tv_sec'
-        //:   is 8 byte signed.
+        // 1. Demonstrate assignment on all platforms with no saturation..
+        // 2. Demonstrate saturation if `tv_sec` is 4 byte unsigned.
+        // 3. Demonstrate saturation if `tv_sec` is 4 byte signed.
+        // 4. Demonstrate assignment & saturation if `tv_sec` is 8 byte
+        //    unsigned.
+        // 5. Demonstrate more assignment (no saturation possible) if `tv_sec`
+        //    is 8 byte signed.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "BREATHING TEST\n"
@@ -1255,9 +1255,9 @@ int main(int argc, char *argv[])
 
         ts.tv_sec = -1;
 
-        // We sometimes have to introduce a 'matcher' variable to avoid
-        // compiler warnings when code intended for one type of 'timespec' gets
-        // compiled on a platform where 'timespec' has a different type.
+        // We sometimes have to introduce a `matcher` variable to avoid
+        // compiler warnings when code intended for one type of `timespec` gets
+        // compiled on a platform where `timespec` has a different type.
 
         if (4 == sizeof(ts.tv_sec)) {
             if (ts.tv_sec > 0) {

@@ -176,15 +176,15 @@ namespace u {
 
 // HELPER FUNCTIONS
 
+/// Write the base64 encoding of the character sequence defined by the
+/// specified `begin` and `end` iterators into the specified `stream` and
+/// return `stream`.  Each instantiation of this private function is called
+/// only once (by the functions below) and can thus be inlined without
+/// causing code bloat.
 template <class INPUT_ITERATOR>
 bsl::ostream& encodeBase64(bsl::ostream&  stream,
                            INPUT_ITERATOR begin,
                            INPUT_ITERATOR end)
-    // Write the base64 encoding of the character sequence defined by the
-    // specified 'begin' and 'end' iterators into the specified 'stream' and
-    // return 'stream'.  Each instantiation of this private function is called
-    // only once (by the functions below) and can thus be inlined without
-    // causing code bloat.
 {
     bdlde::Base64Encoder base64Encoder(0);  // 0 means do not insert CRLF
 
@@ -205,20 +205,20 @@ bsl::ostream& encodeBase64(bsl::ostream&  stream,
     return stream;
 }
 
+/// Format the specified `data` buffer of the specified `dataLength` to the
+/// specified output `stream` using the `bdlat_FormattingMode::e_TEXT`
+/// formatting mode, and using the optionally specified encoder `options`.
+/// Return 0 on success, and a non-negative value otherwise.  If
+/// `dataLength` is -1, then detect automatically the null character as the
+/// end of the string.  If `data` is invalid UTF-8 or contains a null
+/// character and `dataLength` is not -1 (neither one being allowed for XML
+/// 1.0), then return the address of the first byte of the offending UTF-8
+/// character in `data`.
 const char *printTextReplacingXMLEscapes(
                                      bsl::ostream&                 stream,
                                      const char                   *data,
                                      int                           dataLength,
                                      const balxml::EncoderOptions *options = 0)
-    // Format the specified 'data' buffer of the specified 'dataLength' to the
-    // specified output 'stream' using the 'bdlat_FormattingMode::e_TEXT'
-    // formatting mode, and using the optionally specified encoder 'options'.
-    // Return 0 on success, and a non-negative value otherwise.  If
-    // 'dataLength' is -1, then detect automatically the null character as the
-    // end of the string.  If 'data' is invalid UTF-8 or contains a null
-    // character and 'dataLength' is not -1 (neither one being allowed for XML
-    // 1.0), then return the address of the first byte of the offending UTF-8
-    // character in 'data'.
 {
     // IMPLEMENTATION NOTE: This implementation does not buffer the output, for
     // two reasons.  The first is that most ostream's are buffered already.
@@ -731,31 +731,27 @@ const char *printTextReplacingXMLEscapes(
 // point, and with all significant digits, even if all some of those integer
 // digits could be zero and we could still restore the original binary value.
 
+/// Write, to the specified `stream` the decimal textual representation of
+/// the specified floating point number `object`, with precision governed by
+/// the specified `maxTotalDigits`, and `maxFractionDigits` values such that
+/// the text will contain no more than `maxTotalDigits` decimal digits out
+/// of which there will be exactly `maxFractionDigits` digits after the
+/// decimal point unless that would violate one of the following rules:
+///
+/// 1. No less than 2 and no more than 326 total digits are written.
+/// 2. No less than one, and no more than 17 fractional digits are written.
+/// 3. At least one integer digit (before the decimal point) is written.
+/// 4. At least one fractional digit (after the decimal point) is written.
+/// 5. All significant integer digits (before the decimal dot) are written.
+///
+/// If `object` does not represent a numeric value set the `failbit` of
+/// `stream` and do not write anything.
+///
+/// Return a modifiable reference to `stream`.
 bsl::ostream& printDecimalWithDigitsOptions(bsl::ostream& stream,
                                             double        object,
                                             int           maxTotalDigits,
                                             int           maxFractionDigits)
-    // Write, to the specified 'stream' the decimal textual representation of
-    // the specified floating point number 'object', with precision governed by
-    // the specified 'maxTotalDigits', and 'maxFractionDigits' values such that
-    // the text will contain no more than 'maxTotalDigits' decimal digits out
-    // of which there will be exactly 'maxFractionDigits' digits after the
-    // decimal point unless that would violate one of the following rules:
-    //
-    //: 1 No less than 2 and no more than 326 total digits are written.
-    //:
-    //: 2 No less than one, and no more than 17 fractional digits are written.
-    //:
-    //: 3 At least one integer digit (before the decimal point) is written.
-    //:
-    //: 4 At least one fractional digit (after the decimal point) is written.
-    //:
-    //: 5 All significant integer digits (before the decimal dot) are written.
-    //
-    // If 'object' does not represent a numeric value set the 'failbit' of
-    // 'stream' and do not write anything.
-    //
-    // Return a modifiable reference to 'stream'.
 {
 // Ensuring our assumptions about the 'double' type being IEEE-754 'binary64'.
 // These compile time assertions are important because the correctness of our
@@ -854,8 +850,8 @@ bsl::ostream& printDecimalWithDigitsOptions(bsl::ostream& stream,
         maxFractionDigits = maxTotalDigits - 1;
     }
 
+    // See explanation of the buffer size in the {Implementation Notes}.
     char buffer[k_BUFFER_SIZE];
-        // See explanation of the buffer size in the {Implementation Notes}.
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #pragma warning(push)
@@ -1002,13 +998,13 @@ bsl::ostream& printDecimalImpl(bsl::ostream&            stream,
         cfg.setSNan("NaN");
     }
 
+    // The size of the buffer sufficient to store max `bdldfp::Decimal64`
+    // value in fixed notation with the max precision supported by
+    // `bdldfp::Decimal64` type.
     const int k_BUFFER_SIZE = 1                          // sign
                             + 1 + Limits::max_exponent10 // integer part
                             + 1                          // decimal point
                             + Limits::max_precision;     // partial part
-        // The size of the buffer sufficient to store max 'bdldfp::Decimal64'
-        // value in fixed notation with the max precision supported by
-        // 'bdldfp::Decimal64' type.
 
     char buffer[k_BUFFER_SIZE + 1];
     int  len = bdldfp::DecimalUtil::format(buffer, k_BUFFER_SIZE, object, cfg);
@@ -1176,13 +1172,14 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                             const EncoderOptions       *,
                                             bdlat_TypeCategory::Simple)
 {
+    /// The `typedef` is necessary due to the very long type name.
     typedef bslalg::NumericFormatterUtil NfUtil;
-        // The 'typedef' is necessary due to the very long type name.
+
+    // `NfUtil::ToCharsMaxLength<float>::k_VALUE` is the minimum size with
+    // which `bslalg::NumericFormatterUtil::toChars` is guaranteed to never
+    // fail when called with *any* `float` value and the default format as
+    // we do below.
     char buffer[NfUtil::ToCharsMaxLength<float>::k_VALUE];
-        // 'NfUtil::ToCharsMaxLength<float>::k_VALUE' is the minimum size with
-        // which 'bslalg::NumericFormatterUtil::toChars' is guaranteed to never
-        // fail when called with *any* 'float' value and the default format as
-        // we do below.
 
     const char * const endPtr = NfUtil::toChars(buffer,
                                                 buffer + sizeof buffer,
@@ -1202,13 +1199,14 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                             const EncoderOptions       *,
                                             bdlat_TypeCategory::Simple)
 {
+    /// The `typedef` is necessary due to the very long type name.
     typedef bslalg::NumericFormatterUtil NfUtil;
-        // The 'typedef' is necessary due to the very long type name.
+
+    // `NfUtil::ToCharsMaxLength<double>::k_VALUE` is the minimum size with
+    // which `bslalg::NumericFormatterUtil::toChars` is guaranteed to never
+    // fail when called with *any* `double` value and the default format as
+    // we do below.
     char buffer[NfUtil::ToCharsMaxLength<double>::k_VALUE];
-        // 'NfUtil::ToCharsMaxLength<double>::k_VALUE' is the minimum size with
-        // which 'bslalg::NumericFormatterUtil::toChars' is guaranteed to never
-        // fail when called with *any* 'double' value and the default format as
-        // we do below.
 
     const char * const endPtr = NfUtil::toChars(buffer,
                                                 buffer + sizeof buffer,

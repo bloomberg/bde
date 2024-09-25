@@ -109,8 +109,8 @@ enum {
     k_ERROR_BUFFER_SIZE   = k_MAX_PATH_LENGTH + 256
 };
 
+/// Return the system-specific error code.
 static int getErrorCode(void)
-    // Return the system-specific error code.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     int rc = GetLastError();
@@ -120,8 +120,8 @@ static int getErrorCode(void)
 #endif
 }
 
+/// Return the specified `timestamp` in the `YYYYMMDD_hhmmss` format.
 static bsl::string getTimestampSuffix(const bdlt::Datetime& timestamp)
-    // Return the specified 'timestamp' in the 'YYYYMMDD_hhmmss' format.
 {
     char buffer[16];
 
@@ -138,16 +138,16 @@ static bsl::string getTimestampSuffix(const bdlt::Datetime& timestamp)
     return bsl::string(buffer);
 }
 
+/// Load, into the specified `logFileName`, the filename that is obtained by
+/// replacing every `%`-escape sequence in the specified `logFilePattern`.
+/// If the specified `publishInLocalTime` is `true`, replace the time
+/// patterns with local time values, and replace them with UTC time values
+/// otherwise.  Load the current time in UTC into the specified
+/// `timestampUtc`.
 static void getLogFileName(bsl::string    *logFileName,
                            bdlt::Datetime *timestampUtc,
                            const char     *logFilePattern,
                            bool            publishInLocalTime)
-    // Load, into the specified 'logFileName', the filename that is obtained by
-    // replacing every '%'-escape sequence in the specified 'logFilePattern'.
-    // If the specified 'publishInLocalTime' is 'true', replace the time
-    // patterns with local time values, and replace them with UTC time values
-    // otherwise.  Load the current time in UTC into the specified
-    // 'timestampUtc'.
 {
     BSLS_ASSERT(logFileName);
     BSLS_ASSERT(timestampUtc);
@@ -216,10 +216,10 @@ static void getLogFileName(bsl::string    *logFileName,
     *logFileName = os.str();
 }
 
+/// Return `true` if the specified `logFilePattern` contains a recognized
+/// `%`-escape sequence, and false otherwise.  The recognized escape
+/// sequence are "%Y", "%M", "%D", "%h", "%m", "%s", and "%%".
 static bool hasEscapePattern(const char *logFilePattern)
-    // Return 'true' if the specified 'logFilePattern' contains a recognized
-    // '%'-escape sequence, and false otherwise.  The recognized escape
-    // sequence are "%Y", "%M", "%D", "%h", "%m", "%s", and "%%".
 
 {
     for (; *logFilePattern; ++logFilePattern) {
@@ -245,10 +245,10 @@ static bool hasEscapePattern(const char *logFilePattern)
     return false;
 }
 
+/// Open a file stream referred to by the specified `stream` for the file
+/// with the specified `filename` in append mode.  Return 0 on success, and
+/// a non-zero value otherwise.
 static int openLogFile(bsl::ostream *stream, const char *filename)
-    // Open a file stream referred to by the specified 'stream' for the file
-    // with the specified 'filename' in append mode.  Return 0 on success, and
-    // a non-zero value otherwise.
 {
     BSLS_ASSERT(stream);
     BSLS_ASSERT(filename);
@@ -309,12 +309,12 @@ static int openLogFile(bsl::ostream *stream, const char *filename)
     return 0;
 }
 
+/// Return `true` if the specified `a` and `b` times are within 10% of the
+/// specified `interval` from each other, and `false` otherwise.  The
+/// behavior is undefined unless `0 <= interval.totalMilliseconds()`.
 bool fuzzyEqual(const bdlt::Datetime&         a,
                 const bdlt::Datetime&         b,
                 const bdlt::DatetimeInterval& interval)
-    // Return 'true' if the specified 'a' and 'b' times are within 10% of the
-    // specified 'interval' from each other, and 'false' otherwise.  The
-    // behavior is undefined unless '0 <= interval.totalMilliseconds()'.
 {
     BSLS_ASSERT(0 <= interval.totalMilliseconds());
 
@@ -329,19 +329,19 @@ bool fuzzyEqual(const bdlt::Datetime&         a,
     return distance < (interval.totalMilliseconds() / 10);
 }
 
+/// Return the UTC time for the next scheduled file rotation after the
+/// specified `fileCreationTimeUtc`, for a schedule that has a start
+/// reference time indicated by the specified `referenceStartTime` and
+/// rotated every specified `interval`.  If the specified
+/// `referenceStartTimeInLocalTime` is `true`, the `referenceStartTime`
+/// interpreted as local time value, and as UTC time value otherwise.
+/// `fileCreationTimeUtc` must be a UTC time value.  The behavior is
+/// undefined unless `0 <= interval.totalMilliseconds()`.
 static bdlt::Datetime computeNextRotationTime(
                    const bdlt::Datetime&         referenceStartTime,
                    bool                          referenceStartTimeInLocalTime,
                    const bdlt::DatetimeInterval& interval,
                    const bdlt::Datetime&         fileCreationTimeUtc)
-    // Return the UTC time for the next scheduled file rotation after the
-    // specified 'fileCreationTimeUtc', for a schedule that has a start
-    // reference time indicated by the specified 'referenceStartTime' and
-    // rotated every specified 'interval'.  If the specified
-    // 'referenceStartTimeInLocalTime' is 'true', the 'referenceStartTime'
-    // interpreted as local time value, and as UTC time value otherwise.
-    // 'fileCreationTimeUtc' must be a UTC time value.  The behavior is
-    // undefined unless '0 <= interval.totalMilliseconds()'.
 {
     BSLS_ASSERT(0 < interval.totalMilliseconds());
 

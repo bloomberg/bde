@@ -217,7 +217,7 @@ BSLS_IDENT("$Id: $")
 //         // Load into the specified 'result' the value of the specified
 //         // 'object'.
 //
-// } // close namespace 'mine'
+// } // close namespace mine
 // ```
 // Next, we provide the definitions for each of these functions:
 // ```
@@ -248,8 +248,8 @@ BSLS_IDENT("$Id: $")
 //     struct IsCustomizedType<mine::Cusip> : bsl::true_type {
 //     };
 //
-// } // close namespace 'bdlat_CustomizedTypeFunctions'
-// } // close namespace 'BloombergLP'
+// } // close namespace bdlat_CustomizedTypeFunctions
+// } // close namespace BloombergLP
 // ```
 // The `bdlat` infrastructure (and any component that uses this infrastructure)
 // will now recognize `mine::Cusip` as a "customized" type.

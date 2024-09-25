@@ -24,25 +24,25 @@ using namespace BloombergLP;
 //                              Overview
 //                              --------
 // An allocator is a value-semantic type whose value consists of a single
-// pointer to a 'bslma::Allocator' object (its underlying "mechanism").  This
+// pointer to a `bslma::Allocator` object (its underlying "mechanism").  This
 // pointer can be set at construction (and if 0 is passed, then it uses
-// 'bslma_default' to substitute a pointer to the currently installed default
-// allocator), and it can be accessed through the 'mechanism' accessor.  It
+// `bslma_default` to substitute a pointer to the currently installed default
+// allocator), and it can be accessed through the `mechanism` accessor.  It
 // cannot be reset, however, since normally an allocator does not change during
-// the lifetime of an object.  A 'bsl::allocator' is parameterized by the type
+// the lifetime of an object.  A `bsl::allocator` is parameterized by the type
 // that it allocates, and that influences the behavior of several manipulators
 // and accessors, mainly depending on the size of that type.  The same
-// 'bsl::allocator' can be re-parameterized for another type ("rebound") using
-// the 'rebind' nested template.
+// `bsl::allocator` can be re-parameterized for another type ("rebound") using
+// the `rebind` nested template.
 //
-// Although 'bsl::allocator' is a value-semantic type, the fact that its value
+// Although `bsl::allocator` is a value-semantic type, the fact that its value
 // is fixed at construction and not permitted to change let us relax the usual
 // concerns of a typical value-semantic type.  Our specific concerns are that
 // an allocator constructed with a certain underlying mechanism actually uses
 // that mechanism to allocate memory, and that its rebound versions also do.
-// Another concern is that the 'max_size' is the maximum possible size for that
+// Another concern is that the `max_size` is the maximum possible size for that
 // type (i.e., it is impossible to meaningfully pass in a larger size), and
-// that the 'size_type' is unsigned, the 'difference_type' is signed, and
+// that the `size_type` is unsigned, the `difference_type` is signed, and
 // generally all the requirements of C++ standard allocators are met (20.1.2
 // [allocator.requirements]).
 //-----------------------------------------------------------------------------
@@ -175,22 +175,22 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 // We first show how to define a container type parameterized with an STL-style
 // allocator template parameter.  For simplicity, we choose a fixed-size array
 // to avoid issues concerning reallocation, dynamic growth, etc.  Furthermore,
-// we do not assume the 'bslma' allocation protocol, which would dictate that
-// we pass-through the allocator to the parameterized 'T' contained type (see
-// the 'bslma_allocator' component and 'bslalg' package).  The interface would
+// we do not assume the `bslma` allocation protocol, which would dictate that
+// we pass-through the allocator to the parameterized `T` contained type (see
+// the `bslma_allocator` component and `bslalg` package).  The interface would
 // be as follows:
-//..
+// ```
     // my_fixedsizearray.h
 
                                // =======================
                                // class my_FixedSizeArray
                                // =======================
 
+    /// This class provides an array of (the template parameter) `TYPE`
+    /// passed of fixed length at construction, using an instance of the
+    /// parameterized `ALLOC` type to supply memory.
     template <class TYPE, class ALLOC>
     class my_FixedSizeArray {
-        // This class provides an array of (the template parameter) 'TYPE'
-        // passed of fixed length at construction, using an instance of the
-        // parameterized 'ALLOC' type to supply memory.
 
         // DATA
         ALLOC  d_allocator;
@@ -205,54 +205,58 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         typedef TYPE   value_type;
 
         // CREATORS
+
+        /// Create a fixed-size array of the specified `length`, using the
+        /// optionally specified `allocator` to supply memory.  If
+        /// `allocator` is not specified, a default-constructed instance of
+        /// the parameterized `ALLOC` type is used.  Note that all the
+        /// elements in that array are default-constructed.
         explicit my_FixedSizeArray(int length,
                                    const ALLOC& allocator = ALLOC());
-            // Create a fixed-size array of the specified 'length', using the
-            // optionally specified 'allocator' to supply memory.  If
-            // 'allocator' is not specified, a default-constructed instance of
-            // the parameterized 'ALLOC' type is used.  Note that all the
-            // elements in that array are default-constructed.
 
+        /// Create a copy of the specified `original` fixed-size array,
+        /// using the optionally specified `allocator` to supply memory.  If
+        /// `allocator` is not specified, a default-constructed instance of
+        /// the parameterized `ALLOC` type is used.
         my_FixedSizeArray(const my_FixedSizeArray& original,
                           const ALLOC&             allocator = ALLOC());
-            // Create a copy of the specified 'original' fixed-size array,
-            // using the optionally specified 'allocator' to supply memory.  If
-            // 'allocator' is not specified, a default-constructed instance of
-            // the parameterized 'ALLOC' type is used.
 
+        /// Destroy this fixed size array.
         ~my_FixedSizeArray();
-            // Destroy this fixed size array.
 
         // MANIPULATORS
+
+        /// Return a reference to the modifiable element at the specified
+        /// `index` position in this fixed size array.
         TYPE& operator[](int index);
-            // Return a reference to the modifiable element at the specified
-            // 'index' position in this fixed size array.
 
         // ACCESSORS
+
+        /// Return a reference to the modifiable element at the specified
+        /// `index` position in this fixed size array.
         const TYPE& operator[](int index) const;
-            // Return a reference to the modifiable element at the specified
-            // 'index' position in this fixed size array.
 
+        /// Return a reference to the non-modifiable allocator used by this
+        /// fixed size array to supply memory.  This is here for
+        /// illustrative purposes.  We should not generally have an accessor
+        /// to return the allocator.
         const ALLOC& allocator() const;
-            // Return a reference to the non-modifiable allocator used by this
-            // fixed size array to supply memory.  This is here for
-            // illustrative purposes.  We should not generally have an accessor
-            // to return the allocator.
 
+        /// Return the length specified at construction of this fixed size
+        /// array.
         int length() const;
-            // Return the length specified at construction of this fixed size
-            // array.
     };
 
     // FREE OPERATORS
+
+    /// Return `true` if the specified `lhs` fixed-size array has the same
+    /// value as the specified `rhs` fixed-size array, and `false`
+    /// otherwise.  Two fixed-size arrays have the same value if they have
+    /// the same length and if the element at any index in `lhs` has the
+    /// same value as the corresponding element at the same index in `rhs`.
     template<class TYPE, class ALLOC>
     bool operator==(const my_FixedSizeArray<TYPE, ALLOC>& lhs,
                     const my_FixedSizeArray<TYPE, ALLOC>& rhs);
-        // Return 'true' if the specified 'lhs' fixed-size array has the same
-        // value as the specified 'rhs' fixed-size array, and 'false'
-        // otherwise.  Two fixed-size arrays have the same value if they have
-        // the same length and if the element at any index in 'lhs' has the
-        // same value as the corresponding element at the same index in 'rhs'.
 
 
     namespace BloombergLP {
@@ -267,9 +271,9 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     }  // close namespace bslma
     }  // close enterprise namespace
 
-//..
+// ```
 // The implementation is straightforward
-//..
+// ```
                            // ----------------------
                            // class my_FixedSizeArray
                            // ----------------------
@@ -358,49 +362,52 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         return d_length;
     }
 
-//..
+// ```
 // Now we declare an allocator mechanism.  Our mechanism will be to simply call
-// the global 'operator new' and 'operator delete' functions, and count the
+// the global `operator new` and `operator delete` functions, and count the
 // number of blocks outstanding (allocated but not deallocated).  Note that a
 // more reusable implementation would take an underlying mechanism at
 // construction.  We keep things simple only for the sake of this example.
-//..
+// ```
     // my_countingallocator.h
 
                              // ==========================
                              // class my_CountingAllocator
                              // ==========================
 
+    /// This concrete implementation of the `bslma::Allocator` protocol
+    /// maintains some statistics of the number of blocks outstanding (i.e.,
+    /// allocated but not yet deallocated).
     class my_CountingAllocator : public bslma::Allocator {
-        // This concrete implementation of the 'bslma::Allocator' protocol
-        // maintains some statistics of the number of blocks outstanding (i.e.,
-        // allocated but not yet deallocated).
 
         // DATA
         int d_blocksOutstanding;
 
       public:
         // CREATORS
+
+        /// Create a counting allocator that uses the operators `new` and
+        /// `delete` to supply and free memory.
         my_CountingAllocator();
-            // Create a counting allocator that uses the operators 'new' and
-            // 'delete' to supply and free memory.
 
         // MANIPULATORS
-        void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
-            // Return a pointer to an uninitialized memory of the specified
-            // 'size (in bytes).
 
+        /// Return a pointer to an uninitialized memory of the specified
+        /// 'size (in bytes).
+        void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
+
+        /// Return the memory at the specified `address` to this allocator.
         void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
-            // Return the memory at the specified 'address' to this allocator.
 
         // ACCESSORS
+
+        /// Return the number of blocks outstanding (i.e., allocated but not
+        /// yet deallocated by this counting allocator).
         int blocksOutstanding() const;
-            // Return the number of blocks outstanding (i.e., allocated but not
-            // yet deallocated by this counting allocator).
     };
-//..
+// ```
 // The implementation is really straightforward:
-//..
+// ```
     // my_countingallocator.cpp
 
                              // -------------------------
@@ -431,11 +438,11 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     {
         return d_blocksOutstanding;
     }
-//..
+// ```
 // Now we can create array objects with different allocator mechanisms.  First
-// we create an array, 'a1', using the default allocator and fill it with the
-// values '1 .. 5':
-//..
+// we create an array, `a1`, using the default allocator and fill it with the
+// values `1 .. 5`:
+// ```
     void usageExample() {
 
         my_FixedSizeArray<int, bsl::allocator<int> > a1(5);
@@ -445,11 +452,11 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         for (int i = 0; i < a1.length(); ++i) {
             a1[i] = i + 1;
         }
-//..
-// Then we create a copy of 'a1' using the counting allocator.  The values of
-// 'a1' and 'a2' are equal, even though they have different allocation
+// ```
+// Then we create a copy of `a1` using the counting allocator.  The values of
+// `a1` and `a2` are equal, even though they have different allocation
 // mechanisms.
-//..
+// ```
         my_CountingAllocator countingAlloc;
         my_FixedSizeArray<int, bsl::allocator<int> > a2(a1,&countingAlloc);
                    ASSERT(a1 == a2);
@@ -457,15 +464,15 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
                    ASSERT(&countingAlloc == a2.allocator());
                    ASSERT(1 == countingAlloc.blocksOutstanding());
     }
-//..
+// ```
 
                               // ===============
                               // struct MyObject
                               // ===============
 
+/// A non-trivial-sized object.
 struct MyObject
 {
-    // A non-trivial-sized object.
 
     // DATA
     int  d_i;
@@ -505,8 +512,8 @@ int main(int argc, char *argv[])
         // Concerns:  The usage example must compile end execute without
         //   errors.
         //
-        // Plan:  Copy-paste the usage example and replace 'assert' by
-        //   'ASSERT'.
+        // Plan:  Copy-paste the usage example and replace `assert` by
+        //   `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -526,7 +533,7 @@ int main(int argc, char *argv[])
         // TESTING NESTED TYPES
         //
         // Concerns:
-        //   o that 'size_type' is unsigned while 'difference_type' is signed.
+        //   o that `size_type` is unsigned while `difference_type` is signed.
         //   o that size_type and difference_type are the right size (i.e.,
         //     they can represent any difference of pointers in the memory
         //     model)
@@ -555,7 +562,7 @@ int main(int argc, char *argv[])
         typedef bsl::allocator<float> AF;
         typedef bsl::allocator<void>  AV;
 
-        if (verbose) printf("\tTesting 'size_type'.\n");
+        if (verbose) printf("\tTesting `size_type`.\n");
         {
             ASSERT(sizeof(AI::size_type) == sizeof(int*));
             ASSERT(sizeof(AV::size_type) == sizeof(void*));
@@ -564,7 +571,7 @@ int main(int argc, char *argv[])
             ASSERT(0 < ~(AV::size_type)0);
         }
 
-        if (verbose) printf("\tTesting 'difference_type'.\n");
+        if (verbose) printf("\tTesting `difference_type`.\n");
         {
             ASSERT(sizeof(AI::difference_type) == sizeof(int*));
             ASSERT(sizeof(AV::difference_type) == sizeof(void*));
@@ -573,40 +580,40 @@ int main(int argc, char *argv[])
             ASSERT(0 > ~(AV::difference_type)0);
         }
 
-        if (verbose) printf("\tTesting 'pointer'.\n");
+        if (verbose) printf("\tTesting `pointer`.\n");
         {
             ASSERT((bsl::is_same<AI::pointer, int*>::value));
             ASSERT((bsl::is_same<AF::pointer, float*>::value));
             ASSERT((bsl::is_same<AV::pointer, void*>::value));
         }
 
-        if (verbose) printf("\tTesting 'const_pointer'.\n");
+        if (verbose) printf("\tTesting `const_pointer`.\n");
         {
             ASSERT((bsl::is_same<AI::const_pointer, const int*>::value));
             ASSERT((bsl::is_same<AF::const_pointer, const float*>::value));
             ASSERT((bsl::is_same<AV::const_pointer, const void*>::value));
         }
 
-        if (verbose) printf("\tTesting 'reference'.\n");
+        if (verbose) printf("\tTesting `reference`.\n");
         {
             ASSERT((bsl::is_same<AI::reference, int&>::value));
             ASSERT((bsl::is_same<AF::reference, float&>::value));
         }
 
-        if (verbose) printf("\tTesting 'const_reference'.\n");
+        if (verbose) printf("\tTesting `const_reference`.\n");
         {
             ASSERT((bsl::is_same<AI::const_reference, const int&>::value));
             ASSERT((bsl::is_same<AF::const_reference, const float&>::value));
         }
 
-        if (verbose) printf("\tTesting 'value_type'.\n");
+        if (verbose) printf("\tTesting `value_type`.\n");
         {
             ASSERT((bsl::is_same<AI::value_type, int>::value));
             ASSERT((bsl::is_same<AF::value_type, float>::value));
             ASSERT((bsl::is_same<AV::value_type, void>::value));
         }
 
-        if (verbose) printf("\tTesting 'rebind'.\n");
+        if (verbose) printf("\tTesting `rebind`.\n");
         {
             ASSERT((bsl::is_same<AI::rebind<int  >::other, AI>::value));
             ASSERT((bsl::is_same<AI::rebind<float>::other, AF>::value));
@@ -625,9 +632,9 @@ int main(int argc, char *argv[])
         // TESTING ACCESSORS
         //
         // Concerns:
-        //   o that the correct 'bslma::Allocator*' is returned by 'mechanism'.
-        //   o that the result of 'max_size' fits and represents the maximum
-        //     possible number of bytes in a 'bslma::Allocator::size_type'.
+        //   o that the correct `bslma::Allocator*` is returned by `mechanism`.
+        //   o that the result of `max_size` fits and represents the maximum
+        //     possible number of bytes in a `bslma::Allocator::size_type`.
         //   o that all comparisons exist and resolve to comparing the
         //     mechanisms.
         //
@@ -646,7 +653,7 @@ int main(int argc, char *argv[])
 
         bslma::Allocator *dflt = bslma::Default::allocator();
 
-        if (verbose) printf("\tTesting 'mechanism()'.\n");
+        if (verbose) printf("\tTesting `mechanism()`.\n");
         {
             bslma::TestAllocator ta(veryVeryVeryVerbose);
 
@@ -662,7 +669,7 @@ int main(int argc, char *argv[])
             bsl::allocator<void> av5(ai2);  ASSERT(&ta  == av5.mechanism());
         }
 
-        if (verbose) printf("\tTesting 'max_size()'.\n");
+        if (verbose) printf("\tTesting `max_size()`.\n");
         {
             typedef bslma::Allocator::size_type bsize;
 
@@ -698,7 +705,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("\tTesting 'operator=='.\n");
+        if (verbose) printf("\tTesting `operator==`.\n");
         {
             bslma::TestAllocator ta1(veryVeryVeryVerbose);
             bslma::TestAllocator ta2(veryVeryVeryVerbose);
@@ -709,7 +716,7 @@ int main(int argc, char *argv[])
             bsl::allocator<void> av1(&ta1);
             bsl::allocator<void> av2(&ta2);
 
-            // One of lhs or rhs is 'bslma::Allocator *'.
+            // One of lhs or rhs is `bslma::Allocator *`.
 
             ASSERT(&ta1 == ai1);  ASSERT(ai1 == &ta1);
             ASSERT(&ta2 != ai1);  ASSERT(ai1 != &ta2);
@@ -723,7 +730,7 @@ int main(int argc, char *argv[])
             ASSERT(&ta1 == av1);  ASSERT(av1 == &ta1);
             ASSERT(&ta2 != av1);  ASSERT(av1 != &ta2);
 
-            // Both lhs and rhs are 'bsl::allocator'.
+            // Both lhs and rhs are `bsl::allocator`.
 
             ASSERT(ai1 == ai1);  ASSERT(ai1 != ai2);
             ASSERT(ai1 == av1);  ASSERT(ai1 != av2);
@@ -789,9 +796,9 @@ int main(int argc, char *argv[])
         // Concerns:
         //   That an allocator has the proper traits defined.
         //
-        // Plan: Since it does not matter what type 'bsl::allocator' is
-        // instantiated with, use 'int' and test for each expected trait.
-        // Note that 'void' also needs to be tested since it is a
+        // Plan: Since it does not matter what type `bsl::allocator` is
+        // instantiated with, use `int` and test for each expected trait.
+        // Note that `void` also needs to be tested since it is a
         // specialization.
         //
         // Testing:

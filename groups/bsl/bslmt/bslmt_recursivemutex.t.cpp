@@ -16,7 +16,7 @@
 #include <bsls_atomic.h>
 #include <bsls_stopwatch.h>
 
-#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstdlib.h>     // `atoi`
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -125,35 +125,35 @@ int main(int argc, char *argv[])
 
 ///Usage
 ///-----
-// As the name implies, 'bslmt::RecursiveMutex' supports multiple calls to
-// 'lock', which *must* be balanced by a corresponding number of calls to
-// 'unlock'.  Suppose that we are using a 'bslmt::RecursiveMutex' object to
+// As the name implies, `bslmt::RecursiveMutex` supports multiple calls to
+// `lock`, which *must* be balanced by a corresponding number of calls to
+// `unlock`.  Suppose that we are using a `bslmt::RecursiveMutex` object to
 // guarantee exclusive access to some object.  The following sketches the
-// "recursive" nature of 'bslmt::RecursiveMutex':
-//..
+// "recursive" nature of `bslmt::RecursiveMutex`:
+// ```
     bslmt::RecursiveMutex recMutex;
-//..
+// ```
 // Assume that we do not have exclusive access to the object.
-//..
+// ```
     recMutex.lock();    // first level of locking
-//..
+// ```
 // We have exclusive access here.
-//..
+// ```
     recMutex.lock();    // second level of locking
-//..
+// ```
 // We still have exclusive access.
-//..
+// ```
     recMutex.unlock();  // release second level lock -- mutex stays locked
-//..
+// ```
 // We *still* have exclusive access.
-//..
+// ```
     recMutex.unlock();  // release first level lock -- mutex is unlocked
-//..
-// The two calls to 'unlock' have balanced the two earlier calls to 'lock'.
+// ```
+// The two calls to `unlock` have balanced the two earlier calls to `lock`.
 // Consequently, we no longer have exclusive access.
 //
-// Note that 'bslmt::RecursiveMutex' has substantially more overhead than does
-// 'bslmt::Mutex'.  Consequently, the latter should be used unless recursive
+// Note that `bslmt::RecursiveMutex` has substantially more overhead than does
+// `bslmt::Mutex`.  Consequently, the latter should be used unless recursive
 // locking is truly warranted.
 
       } break;

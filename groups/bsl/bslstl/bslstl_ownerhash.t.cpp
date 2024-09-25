@@ -98,22 +98,25 @@ class SimpleRep : public bslma::SharedPtrRep {
 
   public:
     // CREATORS
+
+    /// Construct a `SimpleRep` from the specified `ptr`
     explicit SimpleRep(void *ptr);
-        // Construct a 'SimpleRep' from the specified 'ptr'
 
     // MANIPULATORS
+
+    /// Does nothing
     void disposeObject() BSLS_KEYWORD_OVERRIDE;
-        // Does nothing
 
+    /// Does nothing
     void disposeRep() BSLS_KEYWORD_OVERRIDE;
-        // Does nothing
 
+    /// Return NULL
     void *getDeleter(const std::type_info&) BSLS_KEYWORD_OVERRIDE;
-        // Return NULL
 
     // ACCESSORS
+
+    /// Return a copy of the pointer passed to the constructor.
     void *originalPtr() const BSLS_KEYWORD_OVERRIDE;
-        // Return a copy of the pointer passed to the constructor.
 };
 
                                  // ==========
@@ -126,8 +129,9 @@ class Base {
     virtual ~Base();// = default;
 
     // MANIPULATORS
+
+    /// A pure virtual function to be overridden
     virtual int *get() = 0;
-        // A pure virtual function to be overridden
 };
 
                                // =============
@@ -139,12 +143,14 @@ class Derived : public Base {
 
   public:
     // CREATORS
+
+    /// Construct a `Derived` from the specified `i`
     explicit Derived(int i);
-        // Construct a 'Derived' from the specified 'i'
 
     // MANIPULATORS
+
+    /// return a pointer to the member variable `d_i`
     int *get() BSLS_KEYWORD_OVERRIDE;
-        // return a pointer to the member variable 'd_i'
 };
 
                               // ---------------
@@ -204,7 +210,7 @@ int *Derived::get()
 //=============================================================================
 //                             USAGE EXAMPLE
 //-----------------------------------------------------------------------------
-///Example 1: Basic Use of 'owner_hash'
+///Example 1: Basic Use of `owner_hash`
 /// - - - - - - - - - - - - - - - - - -
 // Suppose we need an unordered map accepting shared pointers as keys.  We also
 // expect that this container will be accessible from multiple threads and some
@@ -212,52 +218,52 @@ int *Derived::get()
 // cycles.
 //
 // First, we define an owner-based equality predicate, that is required by the
-// 'bsl::unordered_map' along with this owner-based hash.
-//..
+// `bsl::unordered_map` along with this owner-based hash.
+// ```
     struct TestOwnerEqual {
         // TYPES
         typedef void is_transparent;
 
+        /// For the specified `lhs` and `rhs`, return the result of
+        /// `lhs.owner_equal(rhs)`
         template <class T1, class T2>
         bool operator()(const bsl::shared_ptr<T1>& lhs,
                         const bsl::shared_ptr<T2>& rhs) const
-            // For the specified 'lhs' and 'rhs', return the result of
-            // 'lhs.owner_equal(rhs)'
         {
             return lhs.owner_equal(rhs);
         }
 
+        /// For the specified `lhs` and `rhs`, return the result of
+        /// `lhs.owner_equal(rhs)`
         template <class T1, class T2>
         bool operator()(const bsl::shared_ptr<T1>& lhs,
                         const bsl::weak_ptr<T2>&   rhs) const
-            // For the specified 'lhs' and 'rhs', return the result of
-            // 'lhs.owner_equal(rhs)'
         {
             return lhs.owner_equal(rhs);
         }
 
+        /// For the specified `lhs` and `rhs`, return the result of
+        /// `lhs.owner_equal(rhs)`
         template <class T1, class T2>
         bool operator()(const bsl::weak_ptr<T1>&   lhs,
                         const bsl::shared_ptr<T2>& rhs) const
-            // For the specified 'lhs' and 'rhs', return the result of
-            // 'lhs.owner_equal(rhs)'
         {
             return lhs.owner_equal(rhs);
         }
 
+        /// For the specified `lhs` and `rhs`, return the result of
+        /// `lhs.owner_equal(rhs)`
         template <class T1, class T2>
         bool operator()(const bsl::weak_ptr<T1>& lhs,
                         const bsl::weak_ptr<T2>& rhs) const
-            // For the specified 'lhs' and 'rhs', return the result of
-            // 'lhs.owner_equal(rhs)'
         {
             return lhs.owner_equal(rhs);
         }
     };
-//..
+// ```
 // Note that this struct is defined only to avoid cycle dependencies between
 // BDE components.  In real code for these purposes it is recommended to use
-// 'bsl::owner_equal'.
+// `bsl::owner_equal`.
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -303,13 +309,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -318,7 +324,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 // Then, we create a container and populate it:
-//..
+// ```
         typedef bsl::unordered_map<
             bsl::shared_ptr<int>,
             int,
@@ -333,9 +339,9 @@ int main(int argc, char *argv[])
 
         container[sharedPtr1] = 1;
         container[sharedPtr2] = 2;
-//..
+// ```
 // Now, we make sure, that shared pointers can be used to perform lookup:
-//..
+// ```
         Map::const_iterator iter = container.find(sharedPtr1);
         ASSERT(container.end() != iter        );
         ASSERT(1               == iter->second);
@@ -343,10 +349,10 @@ int main(int argc, char *argv[])
         iter = container.find(sharedPtr2);
         ASSERT(container.end() != iter);
         ASSERT(2               == iter->second);
-//..
+// ```
 // Finally, we simulate the situation of accessing the container from another
 // thread and perform lookup using weak pointers:
-//..
+// ```
         iter = container.find(weakPtr1);
         ASSERT(container.end() != iter        );
         ASSERT(1               == iter->second);
@@ -354,36 +360,36 @@ int main(int argc, char *argv[])
         bsl::weak_ptr<int> weakPtr3(bsl::make_shared<int>(3));
         iter = container.find(weakPtr3);
         ASSERT(container.end() == iter);
-//..
+// ```
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING QOI: 'owner_hash' IS AN EMPTY TYPE
+        // TESTING QOI: `owner_hash` IS AN EMPTY TYPE
         //   As a quality of implementation issue, the class has no state and
         //   should support the use of the empty base class optimization on
         //   compilers that support it.
         //
         // Concerns:
-        //: 1 Class 'bsl::owner_hash' does not increase the size of an object
-        //:   when used as a base class.
-        //:
-        //: 2 Object of 'bsl::owner_hash' class increases size of an object
-        //:   when used as a class member.
+        // 1. Class `bsl::owner_hash` does not increase the size of an object
+        //    when used as a base class.
+        //
+        // 2. Object of `bsl::owner_hash` class increases size of an object
+        //    when used as a class member.
         //
         // Plan:
-        //: 1 Define two identical non-empty classes with no padding, but
-        //:   derive one of them from 'bsl::owner_hash', then assert that both
-        //:   classes have the same size. (C-1)
-        //:
-        //: 2 Create a non-empty class with an 'bsl::owner_hash' additional
-        //:   member, assert that class size is larger than sum of other data
-        //:   member's sizes. (C-2)
+        // 1. Define two identical non-empty classes with no padding, but
+        //    derive one of them from `bsl::owner_hash`, then assert that both
+        //    classes have the same size. (C-1)
+        //
+        // 2. Create a non-empty class with an `bsl::owner_hash` additional
+        //    member, assert that class size is larger than sum of other data
+        //    member's sizes. (C-2)
         //
         // Testing:
         //   QoI: Support for empty base optimization
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING QOI: 'owner_hash' IS AN EMPTY TYPE"
+        if (verbose) printf("\nTESTING QOI: `owner_hash` IS AN EMPTY TYPE"
                             "\n==========================================\n");
 
         struct TwoInts {
@@ -410,16 +416,16 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING TYPEDEF
         //   Comparator's transparency is determined by the presence of the
-        //   'is_transparent' type.  We need to verify that the class offers
+        //   `is_transparent` type.  We need to verify that the class offers
         //   the required typedef.
         //
         // Concerns:
-        //: 1 The type 'is_transparent' is defined in 'bsl::owner_hash',
-        //:   publicly accessible and an alias for 'void'.
+        // 1. The type `is_transparent` is defined in `bsl::owner_hash`,
+        //    publicly accessible and an alias for `void`.
         //
         // Plan:
-        //: 1 ASSERT the typedef aliases the correct type using
-        //    'bsl::is_same'. (C-1)
+        // 1. ASSERT the typedef aliases the correct type using
+        //    `bsl::is_same`. (C-1)
         //
         // Testing:
         //  TESTING TYPEDEF
@@ -434,34 +440,34 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'owner_hash' FUNCTOR
-        //   'owner_hash' is an empty POD type with implicitly defined special
-        //   member functions and a 'const'-qualified function call operator.
+        // TESTING `owner_hash` FUNCTOR
+        //   `owner_hash` is an empty POD type with implicitly defined special
+        //   member functions and a `const`-qualified function call operator.
         //
         // Concerns:
-        //:  1 'owner_hash' can be value-initialized.
-        //:  2 'owner_hash' can be copy-initialized.
-        //:  3 'owner_hash' can be copy-assigned.
-        //:  4 'owner_hash' has overloads for the function call operator that
-        //:    can take a 'shared_ptr<T>' object by reference, or a
-        //:    'weak_ptr<T>' by reference.
-        //:  5 The overloaded function call operator for all 'owner_hash'
-        //:    templates returns the hash of the 'rep' held by the argument.
-        //:  6 QoI: No operations on 'owner_hash' objects allocate any memory.
+        //  1. `owner_hash` can be value-initialized.
+        //  2. `owner_hash` can be copy-initialized.
+        //  3. `owner_hash` can be copy-assigned.
+        //  4. `owner_hash` has overloads for the function call operator that
+        //     can take a `shared_ptr<T>` object by reference, or a
+        //     `weak_ptr<T>` by reference.
+        //  5. The overloaded function call operator for all `owner_hash`
+        //     templates returns the hash of the `rep` held by the argument.
+        //  6. QoI: No operations on `owner_hash` objects allocate any memory.
         //
         // Plan:
-        //:  1 Create two shared pointer representation objects, with a known
-        //:  relationship between their addresses.  Then create shared and weak
-        //:  ptr objects from these representations, and confirm the correct
-        //:  runtime behavior when invoking the function call operator of the
-        //:  'owner_hash' functor.
+        //  1. Create two shared pointer representation objects, with a known
+        //   relationship between their addresses.  Then create shared and weak
+        //   ptr objects from these representations, and confirm the correct
+        //   runtime behavior when invoking the function call operator of the
+        //   `owner_hash` functor.
         //
         // Testing:
         //  size_t owner_hash::operator()(const shared_ptr<TYPE>&) const
         //  size_t owner_hash::operator()(const weak_ptr<TYPE>&) const
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'owner_hash' FUNCTOR"
+        if (verbose) printf("\nTESTING `owner_hash` FUNCTOR"
                             "\n============================\n");
 
         {

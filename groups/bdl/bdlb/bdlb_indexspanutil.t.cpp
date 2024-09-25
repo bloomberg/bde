@@ -21,7 +21,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// This component is a utility operating on 'bldb::IndexSpan' objects.
+// This component is a utility operating on `bldb::IndexSpan` objects.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
 // [2] IndexSpan shrink(original, shrinkBegin, shrinkEnd);
@@ -101,18 +101,18 @@ typedef bdlb::IndexSpanUtil Util;
 ///Example1: Taking a IPv6 address out of a URI
 /// - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have a class that stores a parsed URL using a string to store the
-// full URL and 'IndexSpan' objects to describe the individual parts of the
+// full URL and `IndexSpan` objects to describe the individual parts of the
 // URL, and we want to add accessors that handle the case when the host part of
 // the URL is an IPv6 address, such as "http://[ff:fe:9]/index.html".  As
 // observed, an IPv6 address is indicated by the '[' and ']' characters (the
 // URL is ill formed if the closing ']' is not present).  We want to implement
-// two methods, one to query if the host part of the URL is IPv6 ('isIPv6Host')
+// two methods, one to query if the host part of the URL is IPv6 (`isIPv6Host`)
 // and another to get the IPv6 address (the part without the square brackets)
-// if the host is actually an IPv6 address ('getIPv6Host').
+// if the host is actually an IPv6 address (`getIPv6Host`).
 //
-// First, let us create a 'ParsedUrl' class.  For brevity, the class has only
-// those parts that are needed to implement 'isIPv6Host' and 'getIPv6Host'.
-//..
+// First, let us create a `ParsedUrl` class.  For brevity, the class has only
+// those parts that are needed to implement `isIPv6Host` and `getIPv6Host`.
+// ```
     class ParsedUrl {
       private:
         // DATA
@@ -121,56 +121,59 @@ typedef bdlb::IndexSpanUtil Util;
 
       public:
         // CREATORS
+
+        /// Create a `ParsedUrl` from the specified `url`, and `host`.
         ParsedUrl(const bslstl::StringRef& url, bdlb::IndexSpan host)
-            // Create a 'ParsedUrl' from the specified 'url', and 'host'.
         : d_url(url)
         , d_host(host)
         {
         }
 
         // ACCESSORS
-        bool isIPv6Host() const;
-            // Return 'true' if the host part represents an IPv6 address and
-            // 'false' otherwise.
 
+        /// Return `true` if the host part represents an IPv6 address and
+        /// `false` otherwise.
+        bool isIPv6Host() const;
+
+        /// Return a string reference to the IPv6 address in the host part
+        /// of this URL.  The behavior is undefined unless
+        /// `isIPv6Host() == true` for this object.
         bslstl::StringRef getIPv6Host() const;
-            // Return a string reference to the IPv6 address in the host part
-            // of this URL.  The behavior is undefined unless
-            // 'isIPv6Host() == true' for this object.
     };
-//..
-// Next, we implement 'isIPv6Host'.
-//..
+// ```
+// Next, we implement `isIPv6Host`.
+// ```
     bool ParsedUrl::isIPv6Host() const
     {
         return !d_host.isEmpty() && '[' == d_url[d_host.position()];
     }
-//..
+// ```
 //  Then, to make the accessors simple (and readable), we implement a helper
-//  function that creates a 'StringRef' from a 'StringRef' and an 'IndexSpan'.
-//  (Don't do this in real code, use 'IndexSpanStringUtil::bind' that is
+//  function that creates a `StringRef` from a `StringRef` and an `IndexSpan`.
+//  (Don't do this in real code, use `IndexSpanStringUtil::bind` that is
 //  levelized above this component - so we cannot use it here.)
-//..
+// ```
+
+    /// Return a string reference to the substring of the specified `full`
+    /// thing defined by the specified `part`.
     bslstl::StringRef bindSpan(const bslstl::StringRef& full,
                                const bdlb::IndexSpan&   part)
-        // Return a string reference to the substring of the specified 'full'
-        // thing defined by the specified 'part'.
     {
         BSLS_ASSERT(part.position() <= full.length());
         BSLS_ASSERT(part.position() + part.length() <= full.length());
 
         return bslstl::StringRef(full.data() + part.position(), part.length());
     }
-//..
-// Next, we implement 'getIPv6Host' using 'bdlb::IndexSpanUtil::shrink'.
-//..
+// ```
+// Next, we implement `getIPv6Host` using `bdlb::IndexSpanUtil::shrink`.
+// ```
     bslstl::StringRef ParsedUrl::getIPv6Host() const
     {
         BSLS_ASSERT(isIPv6Host());
 
         return bindSpan(d_url, bdlb::IndexSpanUtil::shrink(d_host, 1, 1));
     }
-//..
+// ```
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -192,14 +195,14 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -207,32 +210,32 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nUSAGE EXAMPLE"
                              "\n=============\n";
 
-// See the rest of the code just before the 'main' function.
+// See the rest of the code just before the `main` function.
 //
 // Finally, we verify the two methods with URLs.
-//..
+// ```
     ParsedUrl pu1("https://host/path/", bdlb::IndexSpan(8, 4));
     ASSERT(false == pu1.isIPv6Host());
 
     ParsedUrl pu2("https://[12:3:fe:9]/path/", bdlb::IndexSpan(8, 11));
     ASSERT(true == pu2.isIPv6Host());
     ASSERT("12:3:fe:9" == pu2.getIPv6Host());
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
         // TESTING SHRINK
         //
         // Concerns:
-        //: 1 Shrinking from the beginning increases position and decreases
-        //:   length.
-        //:
-        //: 2 Shrinking from the end decreases length only.
-        //:
-        //: 2 Shrinking beyond the size 'BSLS_ASSERT's.
+        // 1. Shrinking from the beginning increases position and decreases
+        //    length.
+        //
+        // 2. Shrinking from the end decreases length only.
+        //
+        // 2. Shrinking beyond the size `BSLS_ASSERT`s.
         //
         // Plan:
-        //: 1 Table based testing.
+        // 1. Table based testing.
         //
         // Testing:
         //   IndexSpan shrink(original, shrinkBegin, shrinkEnd);
@@ -309,11 +312,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Call the utility functions to verify their existence and basics.
+        // 1. Call the utility functions to verify their existence and basics.
         //
         // Testing:
         //   BREATHING TEST

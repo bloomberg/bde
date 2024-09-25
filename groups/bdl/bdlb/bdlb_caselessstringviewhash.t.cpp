@@ -36,20 +36,20 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'bdlb::CaselessStringViewHash' provides a stateless type and thus very
+// `bdlb::CaselessStringViewHash` provides a stateless type and thus very
 // little to test.  The primary concern is that function call operator
 // correctly generates case insensitive hash codes based on the contents of
 // string views.  CREATORS can be tested only for mechanical functioning.  And
 // BSL traits presence should be checked as we declare that
-// 'bdlb::CaselessStringViewHash' is an empty POD.
+// `bdlb::CaselessStringViewHash` is an empty POD.
 //
 // The tests for this component are table based, i.e., testing actual results
 // against a table of expected results.
 //
 // Global Concerns:
-//: o No memory is ever allocated from the global allocator.
-//: o No memory is ever allocated from the default allocator.
-//: o Precondition violations are detected in appropriate build modes.
+//  - No memory is ever allocated from the global allocator.
+//  - No memory is ever allocated from the default allocator.
+//  - Precondition violations are detected in appropriate build modes.
 // ----------------------------------------------------------------------------
 // [ 3] operator()(bsl::string_view) const;
 // [ 2] CaselessStringViewHash();
@@ -109,9 +109,9 @@ typedef bdlb::CaselessStringViewHash Obj;
 namespace {
 namespace u {
 
+/// If the character pointed at by the specified `pc` is upper or lower
+/// case, toggle the case of the character.
 void toggleCase(char *pc)
-    // If the character pointed at by the specified 'pc' is upper or lower
-    // case, toggle the case of the character.
 {
     if (bdlb::CharType::isUpper(*pc)) {
         *pc = bdlb::CharType::toLower(*pc);
@@ -121,19 +121,19 @@ void toggleCase(char *pc)
     }
 }
 
+/// Random number generator using the high-order 32 bits of Donald Knuth's
+/// MMIX algorithm.
 class RandGen {
-    // Random number generator using the high-order 32 bits of Donald Knuth's
-    // MMIX algorithm.
 
     bsls::Types::Uint64 d_seed;
 
   public:
+    /// Default-construct the generator.
     explicit
     RandGen();
-        // Default-construct the generator.
 
+    /// Return the next random number in the series;
     unsigned operator()();
-        // Return the next random number in the series;
 };
 
 // CREATOR
@@ -206,11 +206,11 @@ BSLMF_ASSERT(sizeof(int) < sizeof(IntWithMember));
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'bdlb::CaselessStringViewHash':
+///Example 1: Basic Use of `bdlb::CaselessStringViewHash`:
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we need an associative container to store, for any stock name, the
 // number of shares of that stock we own:
-//..
+// ```
     typedef bsl::unordered_map<bsl::string, int> SecuritiesOwnedCS;
                                                         // case sensitive
 
@@ -221,7 +221,7 @@ BSLMF_ASSERT(sizeof(int) < sizeof(IntWithMember));
                                bdlb::CaselessStringViewEqualTo>
                                                              SecuritiesOwnedCI;
                                                         // case insensitive
-//..
+// ```
 // This type of container stores quantities of shares and allows access to them
 // by their names, in a case-insensitive manner.
 
@@ -255,12 +255,12 @@ int main(int argc, char *argv[])
         //   Copied to component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Get usage example working in test driver, then propagate it to
-        //:   the header file.
+        // 1. Get usage example working in test driver, then propagate it to
+        //    the header file.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -272,26 +272,26 @@ int main(int argc, char *argv[])
 //
 // First, we create a container for securities holdings, case-sensitive, and
 // fill it:
-//..
+// ```
     SecuritiesOwnedCS securitiesOwnedCS;
 
     securitiesOwnedCS["IBM"]       = 616;
     securitiesOwnedCS["Microsoft"] = 6160000;
 
     ASSERT(2 == securitiesOwnedCS.size());
-//..
+// ```
 // Then, we create a container for securities holdings, case-insensitive, and
 // fill it:
-//..
+// ```
     SecuritiesOwnedCI securitiesOwnedCI;
 
     securitiesOwnedCI["IBM"]       = 616;
     securitiesOwnedCI["Microsoft"] = 6160000;
 
     ASSERT(2 == securitiesOwnedCI.size());
-//..
-// Now, we try accessing the case-sensitive 'securitiesc':
-//..
+// ```
+// Now, we try accessing the case-sensitive `securitiesc`:
+// ```
     ASSERT(1   == securitiesOwnedCS.count("IBM"));
     ASSERT(616 == securitiesOwnedCS[      "IBM"]);
 
@@ -307,9 +307,9 @@ int main(int argc, char *argv[])
     ASSERT(0       == securitiesOwnedCS.count("MICROSOFT"));
 
     ASSERT(0 == securitiesOwnedCS.count("Google"));
-//..
-// Finally, we access the case-insensitive 'securitiesci':
-//..
+// ```
+// Finally, we access the case-insensitive `securitiesci`:
+// ```
     ASSERT(1   == securitiesOwnedCI.count("IBM"));
     ASSERT(616 == securitiesOwnedCI[      "IBM"]);
     ASSERT(1   == securitiesOwnedCI.count("ibm"));
@@ -329,7 +329,7 @@ int main(int argc, char *argv[])
     ASSERT(6160000 == securitiesOwnedCI[      "MICROSOFT"]);
 
     ASSERT(0 == securitiesOwnedCI.count("Google"));
-//..
+// ```
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -337,45 +337,45 @@ int main(int argc, char *argv[])
         //   Verify that the class offers an operator()
         //
         // Concerns:
-        //: 1 Objects of 'bdlb::CaselessStringViewHash' type can be invoked as
-        //:   a predicate function returning 'bsl::size_t' and taking a
-        //:   'bsl::string' or 'bsl::string_view' argument.
-        //:
-        //: 2 The function call operator can be invoked on constant objects.
-        //:
-        //: 3 The function call returns the same result as a usage of
-        //:   'bslh::SpookyHashAlgorithm' passing the argument string converted
-        //:   to lower case and its length.
-        //:
-        //: 4 The result doesn't depend on the case of any of the characters in
-        //:   the string.
-        //:
-        //: 5 No memory is allocated from the default or global allocators.
+        // 1. Objects of `bdlb::CaselessStringViewHash` type can be invoked as
+        //    a predicate function returning `bsl::size_t` and taking a
+        //    `bsl::string` or `bsl::string_view` argument.
+        //
+        // 2. The function call operator can be invoked on constant objects.
+        //
+        // 3. The function call returns the same result as a usage of
+        //    `bslh::SpookyHashAlgorithm` passing the argument string converted
+        //    to lower case and its length.
+        //
+        // 4. The result doesn't depend on the case of any of the characters in
+        //    the string.
+        //
+        // 5. No memory is allocated from the default or global allocators.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of 'bsl::string's
-        //:   for comparison.
-        //:
-        //: 2 Iterate through the set of strings in the table, and explicitly
-        //:   call 'SpookyHashAlgorithm' on each string cast to lower case and
-        //:   observe the result is the same as the hash on the original
-        //:   string.
-        //:
-        //: 3 Iterate 'LHS' through the set of strings in the table.
-        //:
-        //: 4 In a nested loop, iterate 'rhs' through the set of strings in
-        //:   the table, and 'const bsl::string& RHS = rhs':
-        //:   o Iterate several times.
-        //:     1 Compare 'LHS' to 'rhs' with 'CaselessStringViewEqualTo' and
-        //:       observe that we get 'true' only when both loops are on the
-        //:       same line.
-        //:
-        //:     2 Randomly perturb the case of one character of 'rhs'.
-        //:
-        //: 5 Conduct some tests on a default-constructed string view.
-        //:
-        //: 6 Verify that no memory have been allocated from the default
-        //:   allocator.  (C-5)
+        // 1. Using the table-driven technique, specify a set of `bsl::string`s
+        //    for comparison.
+        //
+        // 2. Iterate through the set of strings in the table, and explicitly
+        //    call `SpookyHashAlgorithm` on each string cast to lower case and
+        //    observe the result is the same as the hash on the original
+        //    string.
+        //
+        // 3. Iterate `LHS` through the set of strings in the table.
+        //
+        // 4. In a nested loop, iterate `rhs` through the set of strings in
+        //    the table, and `const bsl::string& RHS = rhs`:
+        //    - Iterate several times.
+        //     1. Compare `LHS` to `rhs` with `CaselessStringViewEqualTo` and
+        //        observe that we get `true` only when both loops are on the
+        //        same line.
+        //
+        //     2. Randomly perturb the case of one character of `rhs`.
+        //
+        // 5. Conduct some tests on a default-constructed string view.
+        //
+        // 6. Verify that no memory have been allocated from the default
+        //    allocator.  (C-5)
         //
         // Testing:
         //   operator()(bsl::string_view) const;
@@ -408,7 +408,7 @@ int main(int argc, char *argv[])
         const Obj hash = Obj();
         u::RandGen generator;
 
-        if (verbose) cout << "Comparing with 'SpookyHashAlgorithm' directly\n";
+        if (verbose) cout << "Comparing with `SpookyHashAlgorithm` directly\n";
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const Data&       datai = DATA[ti];
@@ -459,7 +459,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LHS, rhs, (LINEI == LINEJ) ==
                                                    (hash1(LHS) == hash2(rhs)));
 
-                    // toggle the case of one character of 'rhs', chosen at
+                    // toggle the case of one character of `rhs`, chosen at
                     // random
 
                     if (!rhs.empty()) {
@@ -496,42 +496,42 @@ int main(int argc, char *argv[])
         //   expected expressions all compile, and
         //
         // Concerns:
-        //: 1 Objects can be created using the default constructor.
-        //:
-        //: 2 Objects can be created using the copy constructor.
-        //:
-        //: 3 The copy constructor is not declared as explicit.
-        //:
-        //: 4 Objects can be assigned to from constant objects.
-        //:
-        //: 5 Assignments operations can be chained.
-        //:
-        //: 6 Objects can be destroyed.
-        //:
-        //: 7 No memory is allocated by the default allocator.
+        // 1. Objects can be created using the default constructor.
+        //
+        // 2. Objects can be created using the copy constructor.
+        //
+        // 3. The copy constructor is not declared as explicit.
+        //
+        // 4. Objects can be assigned to from constant objects.
+        //
+        // 5. Assignments operations can be chained.
+        //
+        // 6. Objects can be destroyed.
+        //
+        // 7. No memory is allocated by the default allocator.
         //
         // Plan:
-        //: 1 Verify the default constructor exists and is publicly accessible
-        //:   by default-constructing a 'const bdlb::CaselessStringViewHash'
-        //:   object.  (C-1)
-        //:
-        //: 2 Verify the copy constructor is publicly accessible and not
-        //:   'explicit' by using the copy-initialization syntax to create a
-        //:   second 'bdlb::CaselessStringViewHash' from the first.  (C-2..3)
-        //:
-        //: 3 Assign the value of the first ('const') object to the second.
-        //:   (C-4)
-        //:
-        //: 4 Chain the assignment of the value of the first ('const') object
-        //:   to the second, into a self-assignment of the second object to
-        //:   itself.  (C-5)
-        //:
-        //: 5 Verify the destructor is publicly accessible by allowing the two
-        //:   'bdlb::CaselessStringViewHash' object to leave scope and be
-        //:   destroyed.  (C-6)
-        //:
-        //: 6 Verify that no memory have been allocated from the default
-        //:   allocator.  (C-7)
+        // 1. Verify the default constructor exists and is publicly accessible
+        //    by default-constructing a `const bdlb::CaselessStringViewHash`
+        //    object.  (C-1)
+        //
+        // 2. Verify the copy constructor is publicly accessible and not
+        //    `explicit` by using the copy-initialization syntax to create a
+        //    second `bdlb::CaselessStringViewHash` from the first.  (C-2..3)
+        //
+        // 3. Assign the value of the first (`const`) object to the second.
+        //    (C-4)
+        //
+        // 4. Chain the assignment of the value of the first (`const`) object
+        //    to the second, into a self-assignment of the second object to
+        //    itself.  (C-5)
+        //
+        // 5. Verify the destructor is publicly accessible by allowing the two
+        //    `bdlb::CaselessStringViewHash` object to leave scope and be
+        //    destroyed.  (C-6)
+        //
+        // 6. Verify that no memory have been allocated from the default
+        //    allocator.  (C-7)
         //
         // Testing:
         //   CaselessStringViewHash();
@@ -569,11 +569,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Developer test sandbox.  (C-1)
+        // 1. Developer test sandbox.  (C-1)
         //
         // Testing:
         //   BREATHING TEST

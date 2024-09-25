@@ -87,19 +87,19 @@ void aSsErT(bool condition, const char *message, int line)
 ///Usage Example 1: Repeated template instantiation
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we wish to explicitly instantiate a template with a
-// sequence of integer values.  First, assume a function template 'foo<V>' that
-// adds the (compile-time) value 'V' to a global 'total' each time it is
+// sequence of integer values.  First, assume a function template `foo<V>` that
+// adds the (compile-time) value `V` to a global `total` each time it is
 // called:
-//..
+// ```
     int total = 0;
     template <int V> void foo() { total += V; }
-//..
-// Now, if we instantiate and call 'foo<X>()' once for each 'X' in the range
-// '2' to '6'.  To do that, we create a macro, 'FOO_STMNT(X)' which and calls
-// 'foo<X+1>' (i.e., 'FOO_STMNT(1)' will call 'foo<2>()'). Then we invoke
-// 'FOO_STMNT' 5 times with arguments 1, 2, 3, 4, and 5 using the
-// 'BSLS_MACROREPEAT' macro:
-//..
+// ```
+// Now, if we instantiate and call `foo<X>()` once for each `X` in the range
+// '2' to '6'.  To do that, we create a macro, `FOO_STMNT(X)` which and calls
+// `foo<X+1>` (i.e., `FOO_STMNT(1)` will call `foo<2>()`). Then we invoke
+// `FOO_STMNT` 5 times with arguments 1, 2, 3, 4, and 5 using the
+// `BSLS_MACROREPEAT` macro:
+// ```
     int usageExample1() {
 
         #define FOO_STMNT(X) foo<X+1>();  // Semicolon at end of each statement
@@ -107,54 +107,54 @@ void aSsErT(bool condition, const char *message, int line)
         ASSERT(20 == total);
         return 0;
    }
-//..
+// ```
 //
 ///Usage Example 2: Repeated function arguments
 ///- - - - - - - - - - - - - - - - - - - - - -
 // In this example, we supply as series of identical arguments to a function
-// invocation, using 'BSLS_MACROREPEAT_COMMA'.  First, assume a function,
-// 'fmtQuartet' that takes four integer arguments and formats them into a
+// invocation, using `BSLS_MACROREPEAT_COMMA`.  First, assume a function,
+// `fmtQuartet` that takes four integer arguments and formats them into a
 // string:
-//..
+// ```
     #include <cstring>
     #include <cstdio>
 
     void fmtQuartet(char *result, int a, int b, int c, int d) {
         std::sprintf(result, "%d %d %d %d", a, b, c, d);
     }
-//..
+// ```
 // Now we wish to invoke this function, but in a context where the last three
 // arguments are always the same as each other.  For this situation we define a
-// macro 'X(x)' that ignores its argument and simply expands to an unchanging
-// set of tokens. If the repeated argument is named 'i', then the expansion of
-// 'X(x)' is simply '(i)':
-//..
+// macro `X(x)` that ignores its argument and simply expands to an unchanging
+// set of tokens. If the repeated argument is named `i`, then the expansion of
+// `X(x)` is simply `(i)`:
+// ```
     int usageExample2() {
         char buffer[20];
         int  i = 8;
         #define X(x) (i)
-//..
-// Finally, we invoke macro 'X(x)' three times within the argument list of
-// 'fmtQuart'.  We use 'BSLS_MACROREPEAT_COMMA' for these invocations, as it
+// ```
+// Finally, we invoke macro `X(x)` three times within the argument list of
+// `fmtQuart`.  We use `BSLS_MACROREPEAT_COMMA` for these invocations, as it
 // inserts a comma between each repetition:
-//..
+// ```
         fmtQuartet(buffer, 7, BSLS_MACROREPEAT_COMMA(3, X));
         ASSERT(0 == std::strcmp(buffer, "7 8 8 8"));
         return 0;
     }
-//..
+// ```
 //
 ///Usage Example 3: Bitmask computation
 ///- - - - - - - - - - - - - - - - - -
 // In this example, we Compute (at compile time) a 7-bit mask.  First, we
-// defined a macro 'BITVAL' that computes the value of a single bit 'B' in the
+// defined a macro `BITVAL` that computes the value of a single bit `B` in the
 // mask:
-//..
+// ```
     #define BITVAL(B) (1 << (B - 1))
-//..
-// Then we use the 'BSLS_MACROREPEAT_SEP' to invoke 'BITVAL' 7 times,
+// ```
+// Then we use the `BSLS_MACROREPEAT_SEP` to invoke `BITVAL` 7 times,
 // separating the repetitions with the bitwise OR operator:
-//..
+// ```
     const unsigned mask = BSLS_MACROREPEAT_SEP(7, BITVAL, |);
 
     int usageExample3() {
@@ -169,8 +169,8 @@ void aSsErT(bool condition, const char *message, int line)
 // Nest all three macros in this component to generate 10 overloads of sumArgs,
 // with 1 to 20 arguments.  The return value of each function will have the sum
 // of the arguments in low 24 bits, and the count of arguments in the next 5
-// bits.  Thus 'sumArgs(0xa, 0xb)' would return '0x2000015', where the first
-// '2' represents the number of arguments passed and the (hex) '15' is the sum
+// bits.  Thus `sumArgs(0xa, 0xb)` would return `0x2000015`, where the first
+// '2' represents the number of arguments passed and the (hex) `15` is the sum
 // of 0xa and 0xb.
 #define SUMARG_A(n) a ## n
 #define SUMARG_INTA(n) int a ## n
@@ -210,13 +210,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example in the header compiles and runs.
+        // 1. The usage example in the header compiles and runs.
         //
         // Plan:
-        //: 1 Copy the usage example from the component header, changing
-        //:   'ASSERT' to 'assert' and changing 'usageExample1',
-        //:   'usageExample2', and 'usageExample3' to 'main'.
-        //: 2 Invoke each usage example function.
+        // 1. Copy the usage example from the component header, changing
+        //    `ASSERT` to `assert` and changing `usageExample1`,
+        //    `usageExample2`, and `usageExample3` to `main`.
+        // 2. Invoke each usage example function.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -235,29 +235,29 @@ int main(int argc, char *argv[])
         // TESTING BSLS_MACROREPEAT_SEP
         //
         // Concerns:
-        //: 1 When invoked with a repetition count if 0, the macro expands to
-        //:   an empty token stream.
-        //: 2 When invoked with a repetition count of 1 to 20, the repetition
-        //:   phrase is repeated the specified number of times.
-        //: 3 The specified separator token appears appears between repetitions
-        //: 4 The repetition phrase is invoked with an integer literal argument
-        //:   that indicates the argument number (starting at 1).
+        // 1. When invoked with a repetition count if 0, the macro expands to
+        //    an empty token stream.
+        // 2. When invoked with a repetition count of 1 to 20, the repetition
+        //    phrase is repeated the specified number of times.
+        // 3. The specified separator token appears appears between repetitions
+        // 4. The repetition phrase is invoked with an integer literal argument
+        //    that indicates the argument number (starting at 1).
         //
         // Plan:
-        //: 1 To test concern 1, invoke 'BSLS_MACROREPEAT_SEP' with a
-        //:   repetition count if 0 in between two string literals.  Verify
-        //:   that the result is the concatenation of the two strings with no
-        //:   intervening characters.
-        //: 2 For concern 2, invoke 'BSLS_MACROREPEAT_SEP' with each repetition
-        //:   count from 1 to 20 using a repetition phrase that ORs bits such
-        //:   that the resulting value verifies the actual repetitions invoked.
-        //: 3 For concern 3, the separator is a '|', which produces a result
-        //:   that can be verified.
-        //: 4 For concern 4, the repetition phrase constructs the values being
-        //:   ORed together by token-concatenation between the token 'val' and
-        //:   the integer literal generated by 'BSLS_MACROREPEAT_SEP'.  A set
-        //:   of constants, 'val0', 'val1', etc. contain the actual values to
-        //:   be ORed together.
+        // 1. To test concern 1, invoke `BSLS_MACROREPEAT_SEP` with a
+        //    repetition count if 0 in between two string literals.  Verify
+        //    that the result is the concatenation of the two strings with no
+        //    intervening characters.
+        // 2. For concern 2, invoke `BSLS_MACROREPEAT_SEP` with each repetition
+        //    count from 1 to 20 using a repetition phrase that ORs bits such
+        //    that the resulting value verifies the actual repetitions invoked.
+        // 3. For concern 3, the separator is a '|', which produces a result
+        //    that can be verified.
+        // 4. For concern 4, the repetition phrase constructs the values being
+        //    ORed together by token-concatenation between the token `val` and
+        //    the integer literal generated by `BSLS_MACROREPEAT_SEP`.  A set
+        //    of constants, `val0`, `val1`, etc. contain the actual values to
+        //    be ORed together.
         //
         // Testing
         //   BSLS_MACROREPEAT_SEP(N, MACRO, S)
@@ -322,37 +322,37 @@ int main(int argc, char *argv[])
         // TESTING BSLS_MACROREPEAT_COMMA
         //
         // Concerns:
-        //: 1 When invoked with a repetition count if 0, the macro expands to
-        //:   an empty token stream.
-        //: 2 When invoked with a repetition count of 1 to 20, the repetition
-        //:   phrase is repeated the specified number of times.
-        //: 3 A comma is inserted between repetitions.
-        //: 4 The repetition phrase is invoked with an integer literal argument
-        //:   that indicates the argument number (starting at 1).
-        //: 5 'BSLS_MACROREPEAT_COMMA' can be used to generate the formal
-        //:   parameter list for a function prototype.
-        //: 6 'BSLS_MACROREPEAT_COMMA' can be used to generate the actual
-        //:   argument list for a function call.
+        // 1. When invoked with a repetition count if 0, the macro expands to
+        //    an empty token stream.
+        // 2. When invoked with a repetition count of 1 to 20, the repetition
+        //    phrase is repeated the specified number of times.
+        // 3. A comma is inserted between repetitions.
+        // 4. The repetition phrase is invoked with an integer literal argument
+        //    that indicates the argument number (starting at 1).
+        // 5. `BSLS_MACROREPEAT_COMMA` can be used to generate the formal
+        //    parameter list for a function prototype.
+        // 6. `BSLS_MACROREPEAT_COMMA` can be used to generate the actual
+        //    argument list for a function call.
         //
         // Plan:
-        //: 1 To test concern 1, invoke 'BSLS_MACROREPEAT_COMMA' with a
-        //:   repetition count if 0 in between two string literals.  Verify
-        //:   that the result is the concatenation of the two strings with no
-        //:   intervening characters.
-        //: 2 For concern 2, invoke 'BSLS_MACROREPEAT_COMMA' with each
-        //:   repetition count from 1 to 20 within a function argument list,
-        //:   where the function counts the number of repetitions and sums them
-        //:   up.
-        //: 3 For concerns 3 and 6, the invocation occurs as a function
-        //:   argument list, which requires comma-separation.
-        //: 4 For concern 4, the repetition phrase constructs the values being
-        //:   summed together by token-concatenation between the token 'val'
-        //:   and the integer literal generated by 'BSLS_MACROREPEAT_COMMA'.
-        //:   A set of constants, 'val0', 'val1', etc. contain the actual
-        //:   values to be summed together.
-        //: 5 For concern 5, a function 'sumArgs' is generated with 0 to 20
-        //:   arguments using 'BSLS_MACROREPEAT_COMMA' to generate the
-        //:   argument list.
+        // 1. To test concern 1, invoke `BSLS_MACROREPEAT_COMMA` with a
+        //    repetition count if 0 in between two string literals.  Verify
+        //    that the result is the concatenation of the two strings with no
+        //    intervening characters.
+        // 2. For concern 2, invoke `BSLS_MACROREPEAT_COMMA` with each
+        //    repetition count from 1 to 20 within a function argument list,
+        //    where the function counts the number of repetitions and sums them
+        //    up.
+        // 3. For concerns 3 and 6, the invocation occurs as a function
+        //    argument list, which requires comma-separation.
+        // 4. For concern 4, the repetition phrase constructs the values being
+        //    summed together by token-concatenation between the token `val`
+        //    and the integer literal generated by `BSLS_MACROREPEAT_COMMA`.
+        //    A set of constants, `val0`, `val1`, etc. contain the actual
+        //    values to be summed together.
+        // 5. For concern 5, a function `sumArgs` is generated with 0 to 20
+        //    arguments using `BSLS_MACROREPEAT_COMMA` to generate the
+        //    argument list.
         //
         // Testing
         //   BSLS_MACROREPEAT_COMMA(N, MACRO)
@@ -417,30 +417,30 @@ int main(int argc, char *argv[])
         // TESTING BSLS_MACROREPEAT
         //
         // Concerns:
-        //: 1 When invoked with a repetition count if 0, the macro expands to
-        //:   an empty token stream.
-        //: 2 When invoked with a repetition count of 1 to 20, the repetition
-        //:   phrase is repeated the specified number of times.
-        //: 3 No extra tokens are inserted between repetitions.
-        //: 4 The repetition phrase is invoked with an integer literal argument
-        //:   that indicates the argument number (starting at 1).
+        // 1. When invoked with a repetition count if 0, the macro expands to
+        //    an empty token stream.
+        // 2. When invoked with a repetition count of 1 to 20, the repetition
+        //    phrase is repeated the specified number of times.
+        // 3. No extra tokens are inserted between repetitions.
+        // 4. The repetition phrase is invoked with an integer literal argument
+        //    that indicates the argument number (starting at 1).
         //
         // Plan:
-        //: 1 To test concern 1, invoke 'BSLS_MACROREPEAT' with a repetition
-        //:   count if 0 in between two string literals.  Verify that the
-        //:   result is the concatenation of the two strings with no
-        //:   intervening characters.
-        //: 2 For concern 2, invoke 'BSLS_MACROREPEAT' with each repetition
-        //:   count from 1 to 20 using a repetition phrase that XORs bits such
-        //:   that the resulting value verifies the actual repetitions invoked.
-        //: 3 For concern 3, the repetition phrase ends in a '^', which is not
-        //:   likely to compile if extra tokens are inserted between
-        //:   repetitions.
-        //: 4 For concern 4, the repetition phrase constructs the values being
-        //:   XORed together by token-concatenation between the token 'val' and
-        //:   the integer literal generated by 'BSLS_MACROREPEAT'.  A set of
-        //:   constants, 'val0', 'val1', etc. contain the actual values to be
-        //:   XORed together.
+        // 1. To test concern 1, invoke `BSLS_MACROREPEAT` with a repetition
+        //    count if 0 in between two string literals.  Verify that the
+        //    result is the concatenation of the two strings with no
+        //    intervening characters.
+        // 2. For concern 2, invoke `BSLS_MACROREPEAT` with each repetition
+        //    count from 1 to 20 using a repetition phrase that XORs bits such
+        //    that the resulting value verifies the actual repetitions invoked.
+        // 3. For concern 3, the repetition phrase ends in a '^', which is not
+        //    likely to compile if extra tokens are inserted between
+        //    repetitions.
+        // 4. For concern 4, the repetition phrase constructs the values being
+        //    XORed together by token-concatenation between the token `val` and
+        //    the integer literal generated by `BSLS_MACROREPEAT`.  A set of
+        //    constants, `val0`, `val1`, etc. contain the actual values to be
+        //    XORed together.
         //
         // Testing
         //   BSLS_MACROREPEAT(N, MACRO)
@@ -508,12 +508,12 @@ int main(int argc, char *argv[])
         //   This "test" exercises basic functionality, but tests nothing.
         //
         // Concerns:
-        //: 1 Exercise the basic functionality of this component.
+        // 1. Exercise the basic functionality of this component.
         //
         // Plan:
-        //: 1 Invoke each of the 'BSLS_MACROREPEAT*' macros with a few
-        //:   different repeat counts and a few different repetition phrase in
-        //:   such a way that the result can be easily verified.
+        // 1. Invoke each of the `BSLS_MACROREPEAT*` macros with a few
+        //    different repeat counts and a few different repetition phrase in
+        //    such a way that the result can be easily verified.
         //
         // Testing:
         //  BREATHING TEST

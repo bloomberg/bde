@@ -21,14 +21,14 @@ namespace balb {
 namespace {
 namespace u {
 
+/// Return the address, in memory acquired from the specified
+/// `basicAllocator`, of a `balb::PipeControlChannel` object configured to
+/// invoke the `dispatchMethod` function of the specified `controlManager`
+/// and that uses `basicAllocator` to supply memory.
 static
 PipeControlChannel *makeControlChannel(ControlManager   *controlManager,
                                        bslma::Allocator *basicAllocator)
 
-    // Return the address, in memory acquired from the specified
-    // 'basicAllocator', of a 'balb::PipeControlChannel' object configured to
-    // invoke the 'dispatchMethod' function of the specified 'controlManager'
-    // and that uses 'basicAllocator' to supply memory.
 {
     BSLS_ASSERT(controlManager);
     BSLS_ASSERT(basicAllocator);

@@ -24,12 +24,12 @@ using namespace std;
 // ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// 'bsls_systemtime' defines 'static' functions for obtaining the current clock
+// `bsls_systemtime` defines `static` functions for obtaining the current clock
 // time.  The operations for obtaining the real-time clock can be tested
-// against the C library function 'time'.  Operations for obtaining the
+// against the C library function `time`.  Operations for obtaining the
 // monotonic clock simply test that the monotonic clock is a uniformly
 // increasing value whose relative difference between calls is similar to the
-// relative difference between calls to the C library function 'time'.  A
+// relative difference between calls to the C library function `time`.  A
 // couple negative test cases are defined to allow stress testing of
 // monotonicity in ways that are not compatible with automated testing.
 //-----------------------------------------------------------------------------
@@ -100,9 +100,9 @@ typedef bsls::SystemClockType       SystemClockType;
 namespace BloombergLP {
 namespace bsls {
 
+/// Print the specified `timeInterval` to the console.  Note that this free
+/// function overload works in coordination with `bsls_bsltestutil`.
 void debugprint(const bsls::TimeInterval& timeInterval)
-    // Print the specified 'timeInterval' to the console.  Note that this free
-    // function overload works in coordination with 'bsls_bsltestutil'.
 {
     debugprint(timeInterval.totalSecondsAsDouble());
 }
@@ -140,14 +140,14 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -159,59 +159,59 @@ int main(int argc, char *argv[])
 ///Example 1: Getting Current Wall Clock Time
 /// - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use this utility component
-// to obtain the system time by calling 'now' and 'nowRealtimeClock'.
+// to obtain the system time by calling `now` and `nowRealtimeClock`.
 //
-// First, we call 'nowRealtimeClock', and set 't1', to the current time
+// First, we call `nowRealtimeClock`, and set `t1`, to the current time
 // according to the real-time clock:
-//..
+// ```
     bsls::TimeInterval t1 = bsls::SystemTime::nowRealtimeClock();
 //
     ASSERT(bsls::TimeInterval() != t1);
-//..
+// ```
 // Next, we sleep for 1 second:
-//..
+// ```
     sleep(1);
-//..
-// Now, we call 'now', and supply 'e_REALTIME' to indicate a real-time clock
-// value should be returned, and then set 't2' to the current time according
+// ```
+// Now, we call `now`, and supply `e_REALTIME` to indicate a real-time clock
+// value should be returned, and then set `t2` to the current time according
 // to the real-time clock:
-//..
+// ```
     bsls::TimeInterval t2 = bsls::SystemTime::now(
                                             bsls::SystemClockType::e_REALTIME);
 //
     ASSERT(bsls::TimeInterval() != t2);
-//..
-// Finally, we verify the interval between 't1' and 't2' is close to 1 second:
-//..
+// ```
+// Finally, we verify the interval between `t1` and `t2` is close to 1 second:
+// ```
     bsls::TimeInterval interval = t2 - t1;
 //
     ASSERT(bsls::TimeInterval(.9) <= interval &&
                                      interval <= bsls::TimeInterval(1.1));
-//..
+// ```
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // CLASS METHODS: 'now(SystemClockType::Enum)'
-        //  Ensure the returned 'TimeInterval' value represents the current
-        //  system time as per the specified 'SystemClockType::Enum'.
+        // CLASS METHODS: `now(SystemClockType::Enum)`
+        //  Ensure the returned `TimeInterval` value represents the current
+        //  system time as per the specified `SystemClockType::Enum`.
         //
         // Concerns:
-        //: 1 'now(e_REALTIME)' provides the current "wall" time.
-        //:
-        //: 2 'now(e_MONOTONIC)' provides the current monotonic clock time.
+        // 1. `now(e_REALTIME)` provides the current "wall" time.
+        //
+        // 2. `now(e_MONOTONIC)` provides the current monotonic clock time.
         //
         // Plan:
-        //: 1 Verify 'now(e_REALTIME)' closely approximates the value returned
-        //:   by 'nowRealtimeClock'.  (C-1)
-        //:
-        //: 2 Verify 'now(e_MONOTONIC)' closely approximates the value returned
-        //:   by 'nowMonotonicClock'.  (C-2)
+        // 1. Verify `now(e_REALTIME)` closely approximates the value returned
+        //    by `nowRealtimeClock`.  (C-1)
+        //
+        // 2. Verify `now(e_MONOTONIC)` closely approximates the value returned
+        //    by `nowMonotonicClock`.  (C-2)
         //
         // Testing:
         //  TimeInterval now(SystemClockType::Enum);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nCLASS METHODS: 'now(SystemClockType::Enum)'"
+        if (verbose) printf("\nCLASS METHODS: `now(SystemClockType::Enum)`"
                             "\n===========================================\n");
 
         if (veryVerbose) printf("\tCompare results w/ monotonic clock\n");
@@ -230,27 +230,27 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // CLASS METHODS: 'nowMonotonicClock'
+        // CLASS METHODS: `nowMonotonicClock`
         //
         // Concerns:
-        //: 1 Consecutive calls to 'nowMonotonicClock' measure time intervals
-        //:   that match those measured by calls to the (previously tested)
-        //:   'nowRealtimeClock'.
-        //:
-        //: 2 That consecutive values do not decrease.
-        //:
-        //: 3 QoI: The resolution of the monotonic clock is < 1 second.
+        // 1. Consecutive calls to `nowMonotonicClock` measure time intervals
+        //    that match those measured by calls to the (previously tested)
+        //    `nowRealtimeClock`.
+        //
+        // 2. That consecutive values do not decrease.
+        //
+        // 3. QoI: The resolution of the monotonic clock is < 1 second.
         //
         // Plan:
-        //: 1 Call 'nowMonotonicClock' in a loop for a couple seconds; verify
-        //:   the results do not decrease between iterations, and that
-        //:   increments of the clock are less than 1 second.  (C-1..3)
+        // 1. Call `nowMonotonicClock` in a loop for a couple seconds; verify
+        //    the results do not decrease between iterations, and that
+        //    increments of the clock are less than 1 second.  (C-1..3)
         //
         // Testing:
         //   TimeInterval nowMonotonicClock();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nCLASS METHODS: 'nowMonotonicClock'"
+        if (verbose) printf("\nCLASS METHODS: `nowMonotonicClock`"
                             "\n==================================\n");
 
         if (veryVerbose) printf("\tCompare results w/ real-time clock\n");
@@ -288,37 +288,37 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // CLASS METHODS: 'nowRealtimeClock'
+        // CLASS METHODS: `nowRealtimeClock`
         //
         // Concerns:
-        //: 1 'nowRealtimeClock' returns values that are intervals from the
-        //:   Unix epoch.
-        //:
-        //: 2 'nowRealtimeClock' returns time values that are consistent with
-        //:   the current wall clock time.
-        //:
-        //: 3 QoI: That consecutive values do not decrease (under normal
-        //:   conditions).
-        //:
-        //: 4 QoI: The resolution of the real-time clock is < 1 second.
+        // 1. `nowRealtimeClock` returns values that are intervals from the
+        //    Unix epoch.
+        //
+        // 2. `nowRealtimeClock` returns time values that are consistent with
+        //    the current wall clock time.
+        //
+        // 3. QoI: That consecutive values do not decrease (under normal
+        //    conditions).
+        //
+        // 4. QoI: The resolution of the real-time clock is < 1 second.
         //
         // Plan:
-        //: 1 Call 'nowRealtimeClock' and verify the value returned, when
-        //:   treated as an interval from the Unix epoch, corresponds to a
-        //:   possible wall clock time.  (C-1)
-        //:
-        //: 2 Call 'nowRealtimeClock' and compare the value returned to an
-        //:   oracle clock, i.e., the standard library function 'time'.  (C-2)
-        //:
-        //: 3 Call 'nowRealtimeClock' in a loop for a couple seconds; verify
-        //:   the results do not decrease between iterations, and that
-        //:   increments of the clock are less than 1 second.  (C-3..4)
+        // 1. Call `nowRealtimeClock` and verify the value returned, when
+        //    treated as an interval from the Unix epoch, corresponds to a
+        //    possible wall clock time.  (C-1)
+        //
+        // 2. Call `nowRealtimeClock` and compare the value returned to an
+        //    oracle clock, i.e., the standard library function `time`.  (C-2)
+        //
+        // 3. Call `nowRealtimeClock` in a loop for a couple seconds; verify
+        //    the results do not decrease between iterations, and that
+        //    increments of the clock are less than 1 second.  (C-3..4)
         //
         // Testing:
         //   TimeInterval nowRealtimeClock();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nCLASS METHODS: 'nowRealtimeClock'"
+        if (verbose) printf("\nCLASS METHODS: `nowRealtimeClock`"
                             "\n=================================\n");
 
         if (veryVerbose) printf("\tTest result is relative to Unix epoch\n");
@@ -332,7 +332,7 @@ int main(int argc, char *argv[])
             ASSERT(SEPT_27_2014 + HUNDRED_YEARS_APPROX >= t.seconds());
         }
 
-        if (veryVerbose) printf("\tCompare results to 'time'\n");
+        if (veryVerbose) printf("\tCompare results to `time`\n");
         {
             time_t       timeValue       = time(0);
             TimeInterval systemTimeValue = Obj::nowRealtimeClock();
@@ -368,7 +368,7 @@ int main(int argc, char *argv[])
     case -1: {
         // --------------------------------------------------------------------
         // CONCERN: STRESS TEST FOR MONOTONICITY
-        //  Verify that each subsequent call to 'now' reports a time that is
+        //  Verify that each subsequent call to `now` reports a time that is
         //  non-decreasing.
         //
         // Plan:

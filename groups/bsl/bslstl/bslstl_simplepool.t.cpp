@@ -161,20 +161,20 @@ struct TestType3 {
 
 namespace {
 
+/// Return `true` if the container is expected to allocate memory on the
+/// specified `n`th element, and `false` otherwise.
 bool expectToAllocate(int n)
-    // Return 'true' if the container is expected to allocate memory on the
-    // specified 'n'th element, and 'false' otherwise.
 {
     if (n > 32) {
         return (0 == n % 32);                                         // RETURN
     }
-    return (((n - 1) & n) == 0);  // Allocate when 'n' is a power of 2
+    return (((n - 1) & n) == 0);  // Allocate when `n` is a power of 2
 }
 
 
+/// A fixed sized stack for storing pointers allocated/deallocated by the
+/// pool.
 class Stack {
-    // A fixed sized stack for storing pointers allocated/deallocated by the
-    // pool.
 
     enum { CAPACITY = 128 };  // maximum capacity of the container
 
@@ -184,19 +184,21 @@ class Stack {
 
   public:
     // CREATORS
-    Stack() : d_size(0) {}
-        // Create an empty stack.
 
+    /// Create an empty stack.
+    Stack() : d_size(0) {}
+
+    /// Create a stack with the same data as the specified `original`.
     Stack(const Stack& original)
-        // Create a stack with the same data as the specified 'original'.
     {
         d_size = original.d_size;
         memcpy(d_data, original.d_data, d_size * sizeof(*d_data));
     }
 
     // MANIPULATORS
+
+    /// Add the specified `value` to the top of the stack.
     void push(void *value)
-        // Add the specified 'value' to the top of the stack.
     {
         BSLS_ASSERT(CAPACITY != d_size);
 
@@ -204,9 +206,9 @@ class Stack {
         ++d_size;
     }
 
+    /// Remove the top value from the stack.  The behavior is undefined
+    /// unless the stack is not empty.
     void pop()
-        // Remove the top value from the stack.  The behavior is undefined
-        // unless the stack is not empty.
     {
         BSLS_ASSERT(0 != d_size);
 
@@ -214,14 +216,15 @@ class Stack {
     }
 
     // ACCESSORS
+
+    /// Return `true` if the stack is not empty, and `false` otherwise.
     bool empty() { return 0 == d_size; }
-        // Return 'true' if the stack is not empty, and 'false' otherwise.
 
+    /// Return the number of elements in the container.
     int size() { return d_size; }
-        // Return the number of elements in the container.
 
+    /// Return the top value in the stack.
     void *top()
-        // Return the top value in the stack.
     {
         BSLS_ASSERT(0 != d_size);
 
@@ -229,16 +232,16 @@ class Stack {
     }
 };
 
+/// A `memory_resource` that checks that each deallocation is matched with a
+/// corresponding allocation having the same address, size, and alignment.
+/// Can have up to a maximum of 128 blocks outstanding.
 class CheckedResource : public bslma::TestAllocator {
-    // A 'memory_resource' that checks that each deallocation is matched with a
-    // corresponding allocation having the same address, size, and alignment.
-    // Can have up to a maximum of 128 blocks outstanding.
 
     // PRIVATE TYPES
     typedef bslma::TestAllocator Base;
 
+    /// Information about a block of memory allocated from this resource.
     struct BlockInfo {
-        // Information about a block of memory allocated from this resource.
         void        *d_block_p;
         std::size_t  d_bytes;
         std::size_t  d_alignment;
@@ -247,7 +250,7 @@ class CheckedResource : public bslma::TestAllocator {
     // DATA
     enum { k_MAX_OUTSTANDING_BLOCKS = 128 };
 
-    // Keep track of allocations in an array of 'BlockInfo' objects.
+    // Keep track of allocations in an array of `BlockInfo` objects.
     BlockInfo             d_blocks[k_MAX_OUTSTANDING_BLOCKS];
     BlockInfo            *d_nextBlock;  // Next unallocated block info
 
@@ -392,77 +395,79 @@ void CheckedResource::deallocate(void *address)
     do_deallocate(address, 0, bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 }
 
+/// This templatized struct provide a namespace for testing the `map`
+/// container.  The parameterized `VALUE` specifies the value type for this
+/// object.  Each "testCase*" method test a specific aspect of
+/// `SimplePool<VALUE>`.  Every test cases should be invoked with various
+/// parameterized type to fully test the container.
 template <class VALUE>
 class TestDriver {
-    // This templatized struct provide a namespace for testing the 'map'
-    // container.  The parameterized 'VALUE' specifies the value type for this
-    // object.  Each "testCase*" method test a specific aspect of
-    // 'SimplePool<VALUE>'.  Every test cases should be invoked with various
-    // parameterized type to fully test the container.
 
   private:
     // TYPES
-    typedef bslstl::SimplePool<VALUE, bsl::allocator<VALUE> > Obj;
-        // Type under testing.
 
+    /// Type under testing.
+    typedef bslstl::SimplePool<VALUE, bsl::allocator<VALUE> > Obj;
+
+    /// Alias for a STL compliant allocator.
     typedef bsltf::StdTestAllocator<VALUE> StlAlloc;
-        // Alias for a STL compliant allocator.
 
   private:
+    /// Initialize the specified `result` object by performing a number of
+    /// allocations and deallocations indicated by the specified
+    /// `numAllocs` and `numDealloc`, and load into the specified
+    /// `usedBlocks` and `freeBlocks` the addresses of the memory blocks
+    /// that was allocated and deallocated respectively.  The behavior is
+    /// undefined unless `numAllocs >= numDealloc`.
     static const Obj& init(Obj   *result,
                            Stack *usedBlocks,
                            Stack *freeBlocks,
                            int    numAllocs,
                            int    numDealloc);
-        // Initialize the specified 'result' object by performing a number of
-        // allocations and deallocations indicated by the specified
-        // 'numAllocs' and 'numDealloc', and load into the specified
-        // 'usedBlocks' and 'freeBlocks' the addresses of the memory blocks
-        // that was allocated and deallocated respectively.  The behavior is
-        // undefined unless 'numAllocs >= numDealloc'.
 
+    /// Perform allocations and deallocations on the specified `result` such
+    /// that it will be left with the specified `numBlocks` number of free
+    /// blocks.
     static void createFreeBlocks(Obj *result, int numBlocks);
-        // Perform allocations and deallocations on the specified 'result' such
-        // that it will be left with the specified 'numBlocks' number of free
-        // blocks.
 
   public:
     // TEST CASES
+
+    /// Test other accessors.
     static void testCase13();
-        // Test other accessors.
 
+    /// Test usage example.
     static void testCase12();
-        // Test usage example.
 
+    /// Test move assignment operator.
     static void testCase11();
-        // Test move assignment operator.
 
+    /// Test move constructor.
     static void testCase10();
-        // Test move constructor.
 
+    /// Test alignment concern.
     static void testCase9();
-        // Test alignment concern.
 
+    /// Test `swap` member.
     static void testCase8();
-        // Test 'swap' member.
 
+    /// Test `release`.
     static void testCase7();
-        // Test 'release'.
 
+    /// Test `reserve`.
     static void testCase6();
-        // Test 'reserve'.
 
+    /// Test `deallocate`.
     static void testCase5();
-        // Test 'deallocate'.
 
+    /// Test basic accessors (`allocator`).
     static void testCase4();
-        // Test basic accessors ('allocator').
 
+    /// Test generator functions `ggg`, and `gg`.
     static void testCase3();
-        // Test generator functions 'ggg', and 'gg'.
 
+    /// Test primary manipulators.
     static void testCase2();
-        // Test primary manipulators.
 };
 
 template <class VALUE>
@@ -529,27 +534,27 @@ void TestDriver<VALUE>::testCase13()
     // OTHER ACCESSOR
     //
     // Concerns:
-    //: 1 The accessor method returns a value that reflects the addition of
-    //:   and distribution of blocks from the free list.
-    //:
-    //: 2 The accessor is declared 'const'.
-    //:
-    //: 3 The accessor allocates no memory from any allocator.
+    // 1. The accessor method returns a value that reflects the addition of
+    //    and distribution of blocks from the free list.
+    //
+    // 2. The accessor is declared `const`.
+    //
+    // 3. The accessor allocates no memory from any allocator.
     //
     // Plan:
-    //: 1 For a series of objects, each constructed using a different
-    //:   expression of the default constructor, for a range of block requests:
-    //:
-    //:   1 Call the 'reserve' method for the current size block request.
-    //:   2 Confirm that the accessor shows the expected before and after the
-    //:     call to the 'reserve' method.
-    //:   3 Confirm that the pool invokes its allocator for memory when there
-    //:     are no free blocks and 'allocate' is called.
-    //:
-    //: 2 The accessor is always called via a 'const' alias to the pool.
-    //:
-    //: 3 A test allocator is used to confirm that no memory allocated for any
-    //:   accessor call.
+    // 1. For a series of objects, each constructed using a different
+    //    expression of the default constructor, for a range of block requests:
+    //
+    //   1. Call the `reserve` method for the current size block request.
+    //   2. Confirm that the accessor shows the expected before and after the
+    //      call to the `reserve` method.
+    //   3. Confirm that the pool invokes its allocator for memory when there
+    //      are no free blocks and `allocate` is called.
+    //
+    // 2. The accessor is always called via a `const` alias to the pool.
+    //
+    // 3. A test allocator is used to confirm that no memory allocated for any
+    //    accessor call.
     //
     // Testing:
     //   bool hasFreeBlocks() const;
@@ -681,61 +686,61 @@ void TestDriver<VALUE>::testCase10()
     //   future allocations.
     //
     // Concerns:
-    //: 1 The source pool's allocator is propagated to the newly created pool.
-    //:
-    //: 2 The newly created pool takes ownership of all allocations associated
-    //:   with the source pool.
-    //:
-    //: 3 The source pool is left in the default state, i.e., one where there
-    //:   are no associated allocations.
-    //:
-    //: 4 No memory is allocated or deallocated during move construction.
-    //:
-    //: 5 Pointer returned by 'allocate' on the newly created pool is aligned
-    //:   correctly.
-    //:
-    //: 6 Every allocation allocate contiguous blocks.
-    //:
-    //: 7 The newly created pool releases all memory on destruction.
-    //:
-    //: 8 The function is exception neutral w.r.t memory allocation.
+    // 1. The source pool's allocator is propagated to the newly created pool.
+    //
+    // 2. The newly created pool takes ownership of all allocations associated
+    //    with the source pool.
+    //
+    // 3. The source pool is left in the default state, i.e., one where there
+    //    are no associated allocations.
+    //
+    // 4. No memory is allocated or deallocated during move construction.
+    //
+    // 5. Pointer returned by `allocate` on the newly created pool is aligned
+    //    correctly.
+    //
+    // 6. Every allocation allocate contiguous blocks.
+    //
+    // 7. The newly created pool releases all memory on destruction.
+    //
+    // 8. The function is exception neutral w.r.t memory allocation.
     //
     // Plan:
-    //: 1 For each allocator configuration:
-    //:
-    //:   1 Create a source pool object 'mZ' with an object allocator 'oa'.
-    //:
-    //:   2 For each of a number of values representing the initial allocation
-    //:     count, 'N':
-    //:
-    //:     1 Call 'allocate' on 'mZ' 'N' times and record the last allocation
+    // 1. For each allocator configuration:
+    //
+    //   1. Create a source pool object `mZ` with an object allocator `oa`.
+    //
+    //   2. For each of a number of values representing the initial allocation
+    //      count, `N`:
+    //
+    //     1. Call `allocate` on `mZ` `N` times and record the last allocation
     //        result.
-    //:
-    //:     2 Move 'mZ' to a new object 'mX' in presence of injected exceptions
-    //:       (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros)   (C-8)
-    //:
-    //:     3 Verify that 'X' now has the same allocator as 'Z'.          (C-1)
-    //:
-    //:     3 Verify that no memory was allocated or deallocated during the
-    //:       move.                                                       (C-4)
-    //:
-    //:     4 Delete 'mZ' and verify that no memory was allocated or
-    //:       deallocated.                                                (C-3)
-    //:
-    //:   4 Call 'allocate' on the 'mX' object another 96 times; for each
-    //:     iteration:                                              (C 2, 5..7)
-    //:
-    //:     1 Verify that memory allocation continues from where 'Z' left off,
-    //:       is only allocated from object allocator, and only when expected.
-    //:                                                                   (C-2)
-    //:
-    //:     2 Verify address returned is aligned.                         (C-5)
-    //:
-    //:     3 If memory is not allocated, the address is the max of
-    //:       'sizeof(VALUE)' and 'sizeof(void *) larger than the previous
-    //:       address.                                                    (C-6)
-    //:
-    //:   5 Delete the object and verify all memory is deallocated.       (C-7)
+    //
+    //     2. Move `mZ` to a new object `mX` in presence of injected exceptions
+    //        (using the `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*` macros)   (C-8)
+    //
+    //     3. Verify that `X` now has the same allocator as `Z`.          (C-1)
+    //
+    //     3. Verify that no memory was allocated or deallocated during the
+    //        move.                                                       (C-4)
+    //
+    //     4. Delete `mZ` and verify that no memory was allocated or
+    //        deallocated.                                                (C-3)
+    //
+    //   4. Call `allocate` on the `mX` object another 96 times; for each
+    //      iteration:                                              (C 2, 5..7)
+    //
+    //     1. Verify that memory allocation continues from where `Z` left off,
+    //        is only allocated from object allocator, and only when expected.
+    //                                                                    (C-2)
+    //
+    //     2. Verify address returned is aligned.                         (C-5)
+    //
+    //     3. If memory is not allocated, the address is the max of
+    //        `sizeof(VALUE)` and 'sizeof(void *) larger than the previous
+    //        address.                                                    (C-6)
+    //
+    //   5. Delete the object and verify all memory is deallocated.       (C-7)
     //
     // Testing:
     //   explicit SimplePool(MovableRef<SimplePool> original);
@@ -857,15 +862,15 @@ void TestDriver<VALUE>::testCase9()
     // CONCERN: Standard allocator can be used
     //
     // Concerns:
-    //: 1 The object can be created from a standard compliant allocator.
-    //:
-    //: 2 Memory allocated is correctly aligned.
+    // 1. The object can be created from a standard compliant allocator.
+    //
+    // 2. Memory allocated is correctly aligned.
     //
     // Plan:
-    //: 1 Create an 'bslstl::SimplePool' using a standard compliant allocator
-    //:   with minimal features.  (C-1)
-    //:
-    //: 2 Allocate some memory and verify the blocks are memory aligned.  (C-2)
+    // 1. Create an `bslstl::SimplePool` using a standard compliant allocator
+    //    with minimal features.  (C-1)
+    //
+    // 2. Allocate some memory and verify the blocks are memory aligned.  (C-2)
     //
     // Testing:
     //   CONCERN: Standard allocator can be used
@@ -891,44 +896,44 @@ template<class VALUE>
 void TestDriver<VALUE>::testCase8()
 {
     // ------------------------------------------------------------------------
-    // MANIPULATOR 'swap'
+    // MANIPULATOR `swap`
     //
     // Concerns:
-    //: 1 'swap' exchange the free list and chunk list of the objects.
-    //:
-    //: 2 The common object allocator address held by both objects is
-    //:   unchanged.
-    //:
-    //: 3 No memory is allocated from any allocator.
-    //:
-    //: 4 Swapping an object with itself does not affect the value of the
-    //:   object (alias-safety).
-    //:
-    //: 5 Memory is deallocated on the destruction of the object.
-    //:
-    //: 6 QoI: Asserted precondition violations are detected when enabled.
+    // 1. `swap` exchange the free list and chunk list of the objects.
+    //
+    // 2. The common object allocator address held by both objects is
+    //    unchanged.
+    //
+    // 3. No memory is allocated from any allocator.
+    //
+    // 4. Swapping an object with itself does not affect the value of the
+    //    object (alias-safety).
+    //
+    // 5. Memory is deallocated on the destruction of the object.
+    //
+    // 6. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Using a table-based approach:
-    //:
-    //:   1 Create two objects of which memory has been allocated and
-    //:     deallocated various number of times.
-    //:
-    //:   2 Swap the two objects, verify allocator is not changed.  (C-2)
-    //:
-    //:   3 Verify no memory is allocated (C-3)
-    //:
-    //:   4 Verify the free list of the objects have been swapped by calling
-    //:     'allocate and checking the address of the allocated memory blocks.
-    //:
-    //:   5 Delete one of the objects and verify the memory of the other have
-    //:     not been deallocated.  (C-1, 5)
-    //:
-    //:   6 Swap an object with itself and verify the object is unchanged.
-    //:     (C-4)
-    //:
-    //: 2 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
+    // 1. Using a table-based approach:
+    //
+    //   1. Create two objects of which memory has been allocated and
+    //      deallocated various number of times.
+    //
+    //   2. Swap the two objects, verify allocator is not changed.  (C-2)
+    //
+    //   3. Verify no memory is allocated (C-3)
+    //
+    //   4. Verify the free list of the objects have been swapped by calling
+    //      'allocate and checking the address of the allocated memory blocks.
+    //
+    //   5. Delete one of the objects and verify the memory of the other have
+    //      not been deallocated.  (C-1, 5)
+    //
+    //   6. Swap an object with itself and verify the object is unchanged.
+    //      (C-4)
+    //
+    // 2. Verify that, in appropriate build modes, defensive checks are
+    //    triggered (using the `BSLS_ASSERTTEST_*` macros).  (C-6)
     //
     // Testing:
     //   void swap(bslstl_SimplePool& other);
@@ -1016,8 +1021,8 @@ void TestDriver<VALUE>::testCase8()
                 }
             }
 
-            // 'Y' is now destroyed, its blocks should be deallocated.  Verify
-            // Blocks in 'X' (which used to be in 'Y' before the swap) is not
+            // `Y` is now destroyed, its blocks should be deallocated.  Verify
+            // Blocks in `X` (which used to be in `Y` before the swap) is not
             // deallocated.
 
             char SCRIBBLED_MEMORY[sizeof(VALUE)];
@@ -1086,24 +1091,24 @@ template<class VALUE>
 void TestDriver<VALUE>::testCase7()
 {
     // ------------------------------------------------------------------------
-    // MANIPULATOR 'release'
+    // MANIPULATOR `release`
     //
     // Concerns:
-    //: 1 'release' deallocate all memory whether it was in the free list or
-    //:   used list.
-    //:
-    //: 2 No temporary memory is allocated.
-    //:
-    //: 3 No free memory blocks is available after a 'release'.  i.e.,
-    //:   subsequent 'allocate' will need to allocate memory from the heap.
+    // 1. `release` deallocate all memory whether it was in the free list or
+    //    used list.
+    //
+    // 2. No temporary memory is allocated.
+    //
+    // 3. No free memory blocks is available after a `release`.  i.e.,
+    //    subsequent `allocate` will need to allocate memory from the heap.
     //
     // Plan:
-    //: 1 Invoke 'allocate' and 'deallocate' various number of time.
-    //:
-    //:   1 Call 'release' and verify all memory is deallocated.  (C-1..2)
-    //:
-    //:   2 Call 'allocate' and verify memory is allocated from the heap.
-    //:     (C-3)
+    // 1. Invoke `allocate` and `deallocate` various number of time.
+    //
+    //   1. Call `release` and verify all memory is deallocated.  (C-1..2)
+    //
+    //   2. Call `allocate` and verify memory is allocated from the heap.
+    //      (C-3)
     //
     // Testing:
     //   void release();
@@ -1176,38 +1181,38 @@ template<class VALUE>
 void TestDriver<VALUE>::testCase6()
 {
     // ------------------------------------------------------------------------
-    // MANIPULATOR 'reserve'
+    // MANIPULATOR `reserve`
     //
     // Concerns:
-    //: 1 'reserve' allocate exactly the specified number of blocks such that
-    //:   subsequent 'allocate' does not get memory from the heap.
-    //:
-    //: 2 Free blocks that was allocated before 'reserve' is not destroyed.
-    //:
-    //: 3 All memory allocation comes from the object allocator.
-    //:
-    //: 4 Memory is deallocated on the destruction of the object.
+    // 1. `reserve` allocate exactly the specified number of blocks such that
+    //    subsequent `allocate` does not get memory from the heap.
+    //
+    // 2. Free blocks that was allocated before `reserve` is not destroyed.
+    //
+    // 3. All memory allocation comes from the object allocator.
+    //
+    // 4. Memory is deallocated on the destruction of the object.
     //
     // Plan:
-    //: 1 For each different values of i from 1 to 7:
-    //:
-    //:   1 For each different values of j from 0 to 7:
-    //:
-    //:     1 Create 'j' memory blocks in the free list.
-    //:
-    //:     2 Call 'reserve' for 'i' blocks.
-    //:
-    //:     3 Invoke 'allocate' 'i + j' times, and verify no memory is
-    //:       allocated.
-    //:
-    //:     4 Invoke 'allocate' again and verify memory is allocated from the
-    //:       heap.  (C-1..3)
-    //:
-    //: 2 Verify all memory is deallocated on destruction.  (C-4)
+    // 1. For each different values of i from 1 to 7:
+    //
+    //   1. For each different values of j from 0 to 7:
+    //
+    //     1. Create `j` memory blocks in the free list.
+    //
+    //     2. Call `reserve` for `i` blocks.
+    //
+    //     3. Invoke `allocate` `i + j` times, and verify no memory is
+    //        allocated.
+    //
+    //     4. Invoke `allocate` again and verify memory is allocated from the
+    //        heap.  (C-1..3)
+    //
+    // 2. Verify all memory is deallocated on destruction.  (C-4)
     //
     // ------------------------------------------------------------------------
 
-    if (verbose) printf("\nMANIPULATOR 'reserve'"
+    if (verbose) printf("\nMANIPULATOR `reserve`"
                         "\n======================\n");
 
     for (int ti = 1; ti < 8; ++ti) {
@@ -1222,7 +1227,7 @@ void TestDriver<VALUE>::testCase6()
 
                 createFreeBlocks(&mX, tj);
 
-                if (veryVerbose) printf("'reserve'\n");
+                if (veryVerbose) printf("`reserve`\n");
                 {
                     bslma::TestAllocatorMonitor oam(&oa);
                     mX.reserve(ti);
@@ -1269,42 +1274,42 @@ template<class VALUE>
 void TestDriver<VALUE>::testCase5()
 {
     // ------------------------------------------------------------------------
-    // MANIPULATOR 'deallocate'
+    // MANIPULATOR `deallocate`
     //
     // Concerns:
-    //: 1 Deallocating returns the memory to a free list.
-    //:
-    //: 2 'allocate' does not allocate from the heap when there are still
-    //:   blocks in the free list.
-    //:
-    //: 3 'allocate' retrieve the last block that was deallocated.
-    //:
-    //: 4 'allocate' will retrieve memory from the heap if the free list is
-    //:   empty.
-    //:
-    //: 5 'deallocate' does not allocate or release any memory.
-    //:
-    //: 6 QoI: Asserted precondition violations are detected when enabled.
+    // 1. Deallocating returns the memory to a free list.
+    //
+    // 2. `allocate` does not allocate from the heap when there are still
+    //    blocks in the free list.
+    //
+    // 3. `allocate` retrieve the last block that was deallocated.
+    //
+    // 4. `allocate` will retrieve memory from the heap if the free list is
+    //    empty.
+    //
+    // 5. `deallocate` does not allocate or release any memory.
+    //
+    // 6. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Create a list of sequences to allocate and deallocate memory.  For
-    //:   each sequence:
-    //:
-    //:   1 Invoke 'allocate' and 'deallocate' according to the sequence.
-    //:
-    //:   2 Verify that each allocate returns the last block that was
-    //:     deallocated if 'deallocate' was called.  (C-1..3)
-    //:
-    //:   3 Verify no memory was allocated from the heap on 'deallocate'.
-    //:     (C-5)
-    //:
-    //:   4 Verify 'allocate' will get memory from the heap only when expected.
-    //:
-    //: 2 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
+    // 1. Create a list of sequences to allocate and deallocate memory.  For
+    //    each sequence:
+    //
+    //   1. Invoke `allocate` and `deallocate` according to the sequence.
+    //
+    //   2. Verify that each allocate returns the last block that was
+    //      deallocated if `deallocate` was called.  (C-1..3)
+    //
+    //   3. Verify no memory was allocated from the heap on `deallocate`.
+    //      (C-5)
+    //
+    //   4. Verify `allocate` will get memory from the heap only when expected.
+    //
+    // 2. Verify that, in appropriate build modes, defensive checks are
+    //    triggered (using the `BSLS_ASSERTTEST_*` macros).  (C-6)
     // ------------------------------------------------------------------------
 
-    if (verbose) printf("\nMANIPULATOR 'deallocate'"
+    if (verbose) printf("\nMANIPULATOR `deallocate`"
                         "\n========================");
 
     struct {
@@ -1400,21 +1405,21 @@ void TestDriver<VALUE>::testCase4()
     // BASIC ACCESSORS
     //
     // Concerns:
-    //: 1 'allocator' returns the allocator that was supplied on construction.
-    //:
-    //: 2 The accessor is declared 'const'.
-    //:
-    //: 3 The accessor does not allocate any memory from any allocator.
+    // 1. `allocator` returns the allocator that was supplied on construction.
+    //
+    // 2. The accessor is declared `const`.
+    //
+    // 3. The accessor does not allocate any memory from any allocator.
     //
     // Plan:
-    //: 1 For each allocator configuration:
-    //:
-    //:   1 Create a 'bslstl_SimplePool' with an allocator.
-    //:
-    //:   2 Use the basic accessor to verify the allocator is installed
-    //:     properly.  (C-1..2)
-    //:
-    //:   3 Verify no memory is allocated from any allocator.  (C-3)
+    // 1. For each allocator configuration:
+    //
+    //   1. Create a `bslstl_SimplePool` with an allocator.
+    //
+    //   2. Use the basic accessor to verify the allocator is installed
+    //      properly.  (C-1..2)
+    //
+    //   3. Verify no memory is allocated from any allocator.  (C-3)
     //
     // Testing:
     //   AllocatorType& allocator();
@@ -1498,50 +1503,50 @@ void TestDriver<VALUE>::testCase2()
     //   thorough testing, and use the destructor to destroy it safely.
     //
     // Concerns:
-    //: 1 An object created with the constructor has the specified
-    //:   allocator.
-    //:
-    //: 2 Any memory allocation is from the object allocator.
-    //:
-    //: 3 There is no temporary allocation from any allocator.
-    //:
-    //: 4 Every object releases any allocated memory at destruction.  The
-    //:   deallocation calls use the same size and alignment as the allocation
-    //:   calls.
-    //:
-    //: 5 Pointer returned by 'allocate' is aligned correctly.
-    //:
-    //: 6 Allocation starts at one block, up to a maximum of 32 blocks.
-    //:
-    //: 7 Every allocation allocate contiguous blocks.
-    //:
-    //: 8 Constructor allocates no memory.
-    //:
-    //: 9 Any memory allocation is exception neutral.
-    //:
-    //: 10 Destructor returns all memory to the allocator using exactly the
-    //:    mirror of the allocation call.
+    // 1. An object created with the constructor has the specified
+    //    allocator.
+    //
+    // 2. Any memory allocation is from the object allocator.
+    //
+    // 3. There is no temporary allocation from any allocator.
+    //
+    // 4. Every object releases any allocated memory at destruction.  The
+    //    deallocation calls use the same size and alignment as the allocation
+    //    calls.
+    //
+    // 5. Pointer returned by `allocate` is aligned correctly.
+    //
+    // 6. Allocation starts at one block, up to a maximum of 32 blocks.
+    //
+    // 7. Every allocation allocate contiguous blocks.
+    //
+    // 8. Constructor allocates no memory.
+    //
+    // 9. Any memory allocation is exception neutral.
+    //
+    // 10. Destructor returns all memory to the allocator using exactly the
+    //     mirror of the allocation call.
     //
     // Plan:
-    //: 1 For each allocator configuration:
-    //:
-    //:   1 Create a pool object and verify no memory is allocated.  (C-1, 8)
-    //:
-    //:   2 Call 'allocate' 96 times in the presence of exception, for each
-    //:     time:
-    //:
-    //:     1 Verify memory is only allocated from object allocator and only
-    //:       when expected.  (C-2..3, 6, 9)
-    //:
-    //:     2 Verify address returned is aligned.  (C-5)
-    //:
-    //:     3 If memory is not allocated, the address is the max of
-    //:       'sizeof(VALUE)' and 'sizeof(void *) larger than the previous
-    //:       address.  (C-7)
-    //:
-    //:   3 Delete the object and verify all memory is deallocated. Using a
-    //:     special memory resource, verify that all deallocation calls match
-    //:     the size and alignment of the corresponding allocation call. (C-4)
+    // 1. For each allocator configuration:
+    //
+    //   1. Create a pool object and verify no memory is allocated.  (C-1, 8)
+    //
+    //   2. Call `allocate` 96 times in the presence of exception, for each
+    //      time:
+    //
+    //     1. Verify memory is only allocated from object allocator and only
+    //        when expected.  (C-2..3, 6, 9)
+    //
+    //     2. Verify address returned is aligned.  (C-5)
+    //
+    //     3. If memory is not allocated, the address is the max of
+    //        `sizeof(VALUE)` and 'sizeof(void *) larger than the previous
+    //        address.  (C-7)
+    //
+    //   3. Delete the object and verify all memory is deallocated. Using a
+    //      special memory resource, verify that all deallocation calls match
+    //      the size and alignment of the corresponding allocation call. (C-4)
     //
     // Testing:
     //   explicit SimplePool(const ALLOCATOR& allocator);
@@ -1612,7 +1617,7 @@ void TestDriver<VALUE>::testCase2()
        ASSERTV(sa.numBlocksTotal(),   sa.numBlocksInUse(),
                sa.numBlocksTotal() == sa.numBlocksInUse());
 
-        // 'Obj' destructor returns memory to supplied allocator.
+        // `Obj` destructor returns memory to supplied allocator.
     }
 
     // Verify all memory was released on object destruction.
@@ -1635,25 +1640,28 @@ void TestDriver<VALUE>::testCase2()
 /// - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to implement a stack with a linked list.  It is
 // expensive to allocate memory every time a node is inserted.  Therefore, we
-// can use 'SimplePool' to efficiently manage the memory for the list.
+// can use `SimplePool` to efficiently manage the memory for the list.
 //
 // First, we define the class that implements the stack:
-//..
+// ```
+
+    /// This class defines a node-based stack of integers.
     template <class ALLOCATOR = bsl::allocator<int> >
     class my_Stack {
-        // This class defines a node-based stack of integers.
 //
         // PRIVATE TYPES
+
+        /// This `struct` implements a link data structure containing a
+        /// value and a pointer to the next node.
         struct Node {
-            // This 'struct' implements a link data structure containing a
-            // value and a pointer to the next node.
 //
             int   d_value;   // payload value
             Node *d_next_p;  // pointer to the next node
         };
 //
+
+        /// Alias for memory pool.
         typedef bslstl::SimplePool<Node, ALLOCATOR> Pool;
-            // Alias for memory pool.
 //
       private:
         // DATA
@@ -1663,33 +1671,38 @@ void TestDriver<VALUE>::testCase2()
 //
       public:
         // CREATORS
+
+        /// Create an empty `my_Stack` object.  Optionally specify a
+        /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+        /// 0, the currently installed default allocator is used.
         my_Stack(const ALLOCATOR& allocator = ALLOCATOR());
-            // Create an empty 'my_Stack' object.  Optionally specify a
-            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-            // 0, the currently installed default allocator is used.
 //
         // MANIPULATORS
+
+        /// Insert an element with the specified value to the top of this
+        /// stack.
         void push(int value);
-            // Insert an element with the specified value to the top of this
-            // stack.
 //
+
+        /// Remove the top element from this stack.  The behavior is
+        /// undefined unless `1 <= size()`.
         void pop();
-            // Remove the top element from this stack.  The behavior is
-            // undefined unless '1 <= size()'.
 //
         // ACCESSORS
+
+        /// Return the value of the element on the top of this stack.  The
+        /// behavior is undefined unless `1 <= size()`.
         int top();
-            // Return the value of the element on the top of this stack.  The
-            // behavior is undefined unless '1 <= size()'.
 //
+
+        /// Return the number of elements in this stack.
         std::size_t size();
-            // Return the number of elements in this stack.
     };
-//..
+// ```
 // Now, we define the implementation of the stack.  Notice how
-// 'bslstl::SimplePool' is used to allocate memory in 'push' and deallocate
-// memory in 'pop':
-//..
+// `bslstl::SimplePool` is used to allocate memory in `push` and deallocate
+// memory in `pop`:
+// ```
     // CREATORS
     template <class ALLOCATOR>
     my_Stack<ALLOCATOR>::my_Stack(const ALLOCATOR& allocator)
@@ -1737,7 +1750,7 @@ void TestDriver<VALUE>::testCase2()
     {
         return d_size;
     }
-//..
+// ```
 
 //=============================================================================
 //                                 MAIN PROGRAM
@@ -1768,13 +1781,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -1784,7 +1797,7 @@ int main(int argc, char *argv[])
                             "\n=============\n");
 
 // Finally, we test our stack by pushing and popping some elements:
-//..
+// ```
     my_Stack<> stack;
     stack.push(1);
     stack.push(2);
@@ -1805,7 +1818,7 @@ int main(int argc, char *argv[])
     stack.pop();
 
     ASSERT(0 == stack.size());
-//..
+// ```
 
       } break;
       case 11: {

@@ -4,7 +4,7 @@
 
 #include <bslim_testutil.h>
 
-#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstdlib.h>     // `atoi`
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -54,8 +54,8 @@ static void aSsErT(bool condition, const char *message, int line)
 //                      USAGE EXAMPLE HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// Return 1
 int newFunction()
-    // Return 1
 {
     return 1;
 }
@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Use the exact text of the usage example from the user
-        //   documentation, but change uses of 'assert' to 'ASSERT'.
+        //   documentation, but change uses of `assert` to `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -101,19 +101,19 @@ int main(int argc, char *argv[])
 // interface change.  For example, if the name of a function changes (a rare
 // occurrence, but potentially disruptive when it does happen), the impact on
 // affected code can be minimized by conditionally calling the function by its
-// old or new name using conditional compilation.  In the following, the '#if'
-// preprocessor directive compares 'BDL_VERSION' (i.e., the latest BDL version,
+// old or new name using conditional compilation.  In the following, the `#if`
+// preprocessor directive compares `BDL_VERSION` (i.e., the latest BDL version,
 // excluding the patch version) to a specified major and minor version composed
-// using the 'BSL_MAKE_VERSION' macro:
-//..
+// using the `BSL_MAKE_VERSION` macro:
+// ```
     #if BDL_VERSION > BSL_MAKE_VERSION(1, 3)
-        // Call 'newFunction' for BDL versions later than 1.3.
+        // Call `newFunction` for BDL versions later than 1.3.
         int result = newFunction();
     #else
-        // Call 'oldFunction' for BDL version 1.3 or earlier.
+        // Call `oldFunction` for BDL version 1.3 or earlier.
         int result = oldFunction();
     #endif
-//..
+// ```
 
         (void)result;
       } break;

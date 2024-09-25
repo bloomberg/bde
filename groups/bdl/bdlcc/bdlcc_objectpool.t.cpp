@@ -77,10 +77,10 @@ using namespace bsl;
 //        introduce inconsistencies.  This is tested in [ 3], [ 4],
 //        [ 5] and [ 6].
 //
-//      o concurrent access to 'd_numObjects' do not introduce
+//      o concurrent access to `d_numObjects` do not introduce
 //        inconsistencies.  This is tested in [ 7].
 //
-//      o concurrent access to 'd_numAvailableObjects' do not introduce
+//      o concurrent access to `d_numAvailableObjects` do not introduce
 //        inconsistencies.  This is tested in [ 8].
 //
 //      o once an object has been released, it can be used by the
@@ -194,11 +194,12 @@ static int veryVerbose;
 static int veryVeryVerbose;
 
 bslmt::ThreadAttributes attributes;
+
+/// Create the specified `numThreads`, each executing the specified
+/// `function`.  Number each thread (sequentially from 0 to `numThreads-1`)
+/// by passing i to i'th thread.  Finally join all the threads.
 void executeInParallel(int                               numThreads,
                        bslmt::ThreadUtil::ThreadFunction function)
-    // Create the specified 'numThreads', each executing the specified
-    // 'function'.  Number each thread (sequentially from 0 to 'numThreads-1')
-    // by passing i to i'th thread.  Finally join all the threads.
 {
     bslmt::ThreadUtil::Handle *threads =
                                new bslmt::ThreadUtil::Handle[numThreads];
@@ -505,20 +506,20 @@ const char *DEFAULT_STRING_INIT =
                          "A default string, which is larger than what can fit "
                          "into the string short buffer";
 
+/// Create a `str::string` object at the specified `address` in an initial
+/// state equal to the `DEFAULT_STRING_INIT` string.
 static void badCreateString(void *address)
-    // Create a 'str::string' object at the specified 'address' in an initial
-    // state equal to the 'DEFAULT_STRING_INIT' string.
 {
     new(address) bsl::string(DEFAULT_STRING_INIT);
 }
 
+/// Create a `str::string` object at the specified `address` with the
+/// specified `initial` value.  Use the specified `allocator` to supply
+/// memory.  If `allocator` is 0, the currently installed default allocator
+/// is used.
 static void createString(void               *address,
                          const bsl::string&  initial,
                          bslma::Allocator   *allocator)
-    // Create a 'str::string' object at the specified 'address' with the
-    // specified 'initial' value.  Use the specified 'allocator' to supply
-    // memory.  If 'allocator' is 0, the currently installed default allocator
-    // is used.
 {
     new(address) bsl::string(initial, allocator);
 }
@@ -566,10 +567,10 @@ class A
 int A::constructorCount = 0;
 int A::destructorCount = 0;
 
+/// Countdown for throwing an exception in B's constructor.  If 0, no
+/// exception will be thrown.  Otherwise, this global variable will be
+/// decremented in the destructor and an exception thrown when it reaches 0.
 static int createBThrow = 1;
-    // Countdown for throwing an exception in B's constructor.  If 0, no
-    // exception will be thrown.  Otherwise, this global variable will be
-    // decremented in the destructor and an exception thrown when it reaches 0.
 
 class B
 {
@@ -594,7 +595,7 @@ class B
     , d_alloc_p(bslma::Default::allocator(alloc))
     {
         if (createBThrow && 0 == --createBThrow) {
-            throw Exception();   // destroys 'd_a'
+            throw Exception();   // destroys `d_a`
         }
         d_value_p = (int *) d_alloc_p->allocate(sizeof(int));
         *d_value_p = 1;
@@ -846,9 +847,9 @@ extern "C"
         return NULL;
     }
 
+/// Verify that `numAvailableObjects` reports the actual number of available
+/// objects.
 void verifyPool(bdlcc::ObjectPool<my_Class> *pool)
-    // Verify that 'numAvailableObjects' reports the actual number of available
-    // objects.
 {
     int numCreated = pool->numObjects();
     int numAvailable = pool->numAvailableObjects();
@@ -1105,24 +1106,25 @@ namespace OBJECTPOOL_TEST_USAGE_EXAMPLE
 
 {
 
+    /// Dummy query class.
     class Query
-        // Dummy query class.
     {
     };
 
+    /// Dummy query factory class.
     class QueryFactory
-        // Dummy query factory class.
     {
       public:
         // MANIPULATORS
+
+        /// Return a dummy query.
         Query *createQuery()
-            // Return a dummy query.
         {
             return (Query *)NULL;
         }
 
+        /// Simulate destruction of the specified `query`.
         void destroyQuery(Query *query)
-            // Simulate destruction of the specified 'query'.
         {
             (void)query;
         }
@@ -1141,10 +1143,10 @@ bsls::AtomicInt64 totalResponseTime2; // total response time when
 /// - - - -
 // In this example, we simulate a database server accepting queries from
 // clients and executing each query in a separate thread.  Client requests are
-// simulated by function 'getClientQuery' which returns a query to be executed.
-// The class 'Query' encapsulates a database query and 'queryFactory' is an
-// object of a query factory class 'QueryFactory'.
-//..
+// simulated by function `getClientQuery` which returns a query to be executed.
+// The class `Query` encapsulates a database query and `queryFactory` is an
+// object of a query factory class `QueryFactory`.
+// ```
     enum {
         k_CONNECTION_OPEN_TIME  = 100,  // (simulated) time to open a
                                         // connection (in microseconds)
@@ -1156,8 +1158,8 @@ bsls::AtomicInt64 totalResponseTime2; // total response time when
                                         // (in microseconds)
     };
 
+    /// This class simulates a database connection.
     class my_DatabaseConnection
-        // This class simulates a database connection.
     {
       public:
         my_DatabaseConnection()
@@ -1176,11 +1178,11 @@ bsls::AtomicInt64 totalResponseTime2; // total response time when
             (void)query;
         }
     };
-//..
+// ```
 // The server runs several threads which, on each iteration, obtain a new
 // client request from the query factory, and process it, until the desired
 // total number of requests is achieved.
-//..
+// ```
     extern "C" void serverThread(bsls::AtomicInt *queries,
                                  int              max,
                                  void             (*queryHandler)(Query*))
@@ -1190,16 +1192,17 @@ bsls::AtomicInt64 totalResponseTime2; // total response time when
             queryHandler(query);
         }
     }
-//..
+// ```
 // We first give an implementation that does not uses the object pool.  Later
 // we will give an implementation using an object pool to manage the database
 // connections.  We also keep track of total response time for each case.  When
 // object pool is *not* used, each thread, in order to execute a query, creates
-// a *new* database connection, calls its 'executeQuery' method to execute the
+// a *new* database connection, calls its `executeQuery` method to execute the
 // query and finally closes the connection.
-//..
+// ```
+
+    /// Handle the specified `query` without using an objectpool.
     extern "C" void queryHandler1(Query *query)
-        // Handle the specified 'query' without using an objectpool.
     {
         bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
         my_DatabaseConnection connection;
@@ -1210,14 +1213,14 @@ bsls::AtomicInt64 totalResponseTime2; // total response time when
 
         queryFactory->destroyQuery(query);
 
-        // 'connection' is implicitly destroyed on function return.
+        // `connection` is implicitly destroyed on function return.
     }
-//..
+// ```
 
 bdlcc::ObjectPool<my_DatabaseConnection> *connectionPool;
 
 extern "C" void queryHandler2(Query *query)
-        // Handle the specified 'query' using an objectpool.
+        // Handle the specified `query` using an objectpool.
 {
     bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
     my_DatabaseConnection *connection = connectionPool->getObject();
@@ -1244,7 +1247,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     using namespace bdlf::PlaceHolders;
@@ -1470,7 +1473,7 @@ int main(int argc, char *argv[])
         queryFactory = new QueryFactory;
 
 // The main thread starts and joins these threads:
-//..
+// ```
     enum {
         k_NUM_THREADS = 8,
         k_NUM_QUERIES = 10000
@@ -1485,7 +1488,7 @@ int main(int argc, char *argv[])
                                        &queryHandler1),
                   k_NUM_THREADS);
     tg.joinAll();
-//..
+// ```
 // In above strategy, clients always incur the delay associated with opening
 // and closing a database connection.  Now we show an implementation that will
 // use object pool to *pool* the database connections.
@@ -1498,17 +1501,17 @@ int main(int argc, char *argv[])
 // construction and owned by the pool.  By default, the creator invokes the
 // default constructor of the underlying type, passing the pool's allocator if
 // the type uses the bslma::Allocator protocol to supply memory (as specified
-// by the "Uses Bslma Allocator" trait, see 'bslalg_typetraits').  If this
+// by the "Uses Bslma Allocator" trait, see `bslalg_typetraits`).  If this
 // behavior is not sufficient, we can supply our own functor for type creation.
 //
 ///Creating an object pool that constructs default objects
 /// - - - - - - - - - - - - - - - - - - -
 // When the default constructor of our type is sufficient, whether or not that
-// type uses 'bslma::Allocator', we can simply use the default behavior of
-// 'bdlcc::ObjectPool':
-//..
+// type uses `bslma::Allocator`, we can simply use the default behavior of
+// `bdlcc::ObjectPool`:
+// ```
     bdlcc::ObjectPool<my_DatabaseConnection> pool(-1);
-//..
+// ```
 ///Creating an object pool that constructs non-default objects
 ///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 // In this example, if we decide that connection IDs must be supplied to
@@ -1517,23 +1520,23 @@ int main(int argc, char *argv[])
 // responsibility of client code to pass the pool's allocator (supplied as the
 // second argument to the functor) to the new object if it uses
 // bslma::Allocator.
-//..
+// ```
 //    void createConnection(void *arena, bslma::Allocator *alloc, int id)
 //    {
 //       new (arena) my_DatabaseConnection(id, alloc);
 //    }
-//..
+// ```
 // then...
-//..
+// ```
 //    int myId = 100;
 //    bdlcc::ObjectPool<my_DatabaseConnection> pool(
 //                             bdlf::BindUtil::bind(&createConnection,
 //                                                 bdlf::PlaceHolders::_1,
 //                                                 bdlf::PlaceHolders::_2,
 //                                                 myId));
-//..
+// ```
 // Whichever creator we choose, the modified server looks like
-//..
+// ```
 //  connectionPool = &pool;
 //
 //  for (int i = 0; i < k_NUM_QUERIES; ++i) {
@@ -1543,18 +1546,18 @@ int main(int argc, char *argv[])
 //  for (int i = 0; i < k_NUM_QUERIES; ++i) {
 //      bslmt::ThreadUtil::join(threads[i]);
 //  }
-//..
-///Modified 'queryHandler'
+// ```
+///Modified `queryHandler`
 ///- - - - - - - - - - - -
 // Now each thread, instead of creating a new connection, gets a connection
 // from the object pool.  After using the connection, the client returns it
-// back to the pool for further reuse.  The modified 'queryHandler' is
+// back to the pool for further reuse.  The modified `queryHandler` is
 // following.
-//..
+// ```
 //    bdlcc::ObjectPool<my_DatabaseConnection> *connectionPool;
 //
 //    void queryHandler2(Query *query)
-//        // Process the specified 'query'.
+//        // Process the specified `query`.
 //    {
 //        bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
 //        my_DatabaseConnection *connection = connectionPool->getObject();
@@ -1566,12 +1569,12 @@ int main(int argc, char *argv[])
 //        connectionPool->releaseObject(connection);
 //        queryFactory->destroyQuery(query);
 //    }
-//..
+// ```
 // The total response time for each strategy is:
-//..
+// ```
 // totalResponseTime1 = 199970775520
 // totalResponseTime2 = 100354490480
-//..
+// ```
 
         connectionPool = &pool;
 
@@ -1711,10 +1714,10 @@ int main(int argc, char *argv[])
         // TESTING CONCERN: Exception safety
         //
         // Concerns:
-        //   That if an object constructor throws in 'getObject',
+        //   That if an object constructor throws in `getObject`,
         //   the objects are destroyed properly and the pool
         //   is left in a valid state (identical to its prior state, for the
-        //   call to 'getObject').  We make the object have a side effect to
+        //   call to `getObject`).  We make the object have a side effect to
         //   ensure that the address of the object is correctly passed to the
         //   clean-up guard when the exception is thrown.
         //
@@ -1734,7 +1737,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta(veryVeryVerbose);
         bslma::DefaultAllocatorGuard taGuard(&ta);
 
-        if (verbose) cout << "\tWith 'getObject'" << endl
+        if (verbose) cout << "\tWith `getObject`" << endl
                           << "\t----------------" << endl;
         A::constructorCount = B::constructorCount = 0;
         A::destructorCount  = B::destructorCount  = 0;
@@ -1781,7 +1784,7 @@ int main(int argc, char *argv[])
             cout << endl;
         }
 
-        if (verbose) cout << "\tWith 'reserveCapacity'" << endl
+        if (verbose) cout << "\tWith `reserveCapacity`" << endl
                           << "\t----------------------" << endl;
         A::constructorCount = B::constructorCount = 0;
         A::destructorCount  = B::destructorCount  = 0;
@@ -1827,7 +1830,7 @@ int main(int argc, char *argv[])
             cout << endl;
         }
 
-        if (verbose) cout << "\tWith 'increaseCapacity'" << endl
+        if (verbose) cout << "\tWith `increaseCapacity`" << endl
                           << "\t-----------------------" << endl;
         A::constructorCount = B::constructorCount = 0;
         A::destructorCount  = B::destructorCount  = 0;
@@ -1880,21 +1883,21 @@ int main(int argc, char *argv[])
 
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'RELEASE_OBJECT':
-        //   Verifying the 'releaseObject'.
+        // TESTING `RELEASE_OBJECT`:
+        //   Verifying the `releaseObject`.
         //
         // Concerns:
-        //   That once an object has been released by 'releaseObject', it can
+        //   That once an object has been released by `releaseObject`, it can
         //   be used by the pool to satisfy further object requests
         //   (potentially from other threads).
         //
         // Plan:
-        //   Create a pool of objects of 'Counter' (a class that encapsulates
-        //   an integer and has 'increment' method (to increment this
-        //   integer) and 'count' method (to report it)).  Create
-        //   'k_NUM_THREADS' threads and let each thread (in a loop) invoke
-        //   'getObject' (getting a 'Counter' object 'c'), 'c.increment()'
-        //   and finally 'releaseObject(c)'.  Join all the threads and then
+        //   Create a pool of objects of `Counter` (a class that encapsulates
+        //   an integer and has `increment` method (to increment this
+        //   integer) and `count` method (to report it)).  Create
+        //   `k_NUM_THREADS` threads and let each thread (in a loop) invoke
+        //   `getObject` (getting a `Counter` object `c`), `c.increment()`
+        //   and finally `releaseObject(c)`.  Join all the threads and then
         //   verify that the sum of all the counters is equal to the number of
         //   threads multiplied by the number of iterations in the loop.
         //
@@ -1902,7 +1905,7 @@ int main(int argc, char *argv[])
         //   void releaseObject(TYPE *objPtr);
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'RELEASE_OBJECT'" << endl
+                          << "TESTING `RELEASE_OBJECT`" << endl
                           << "========================" << endl;
 
         using namespace OBJECTPOOL_TEST_CASE_9;
@@ -1925,30 +1928,30 @@ int main(int argc, char *argv[])
 
       case 8: {
         // --------------------------------------------------------------------
-        // CONCURRENCY TEST FOR 'd_numAvailableObjects':
-        //   Verify the concurrent manipulation of 'd_numAvailableObjects'.
+        // CONCURRENCY TEST FOR `d_numAvailableObjects`:
+        //   Verify the concurrent manipulation of `d_numAvailableObjects`.
         //
         // Concerns:
-        //   That the 'd_numAvailableObjects' remains consistent when multiple
-        //   threads invoke 'increaseCapacity', 'getObject' and
-        //   'releaseObject'.
+        //   That the `d_numAvailableObjects` remains consistent when multiple
+        //   threads invoke `increaseCapacity`, `getObject` and
+        //   `releaseObject`.
         //
         // Plan:
-        //   Create a pool, create 'k_NUM_THREADS' threads and let each thread
+        //   Create a pool, create `k_NUM_THREADS` threads and let each thread
         //   run a loop.  In each iteration of the loop, call
-        //   'increaseCapacity(1)' and 'releaseObject' (thus incrementing
-        //   'd_numAvailableObjects' by 2), then call 'getObject' twice (thus
-        //   decrementing 'd_numAvailableObjects' by 2) followed by state
+        //   `increaseCapacity(1)` and `releaseObject` (thus incrementing
+        //   `d_numAvailableObjects` by 2), then call `getObject` twice (thus
+        //   decrementing `d_numAvailableObjects` by 2) followed by state
         //   verification.
         //
         // Testing:
         //   int numAvailableObjects() const;
         // --------------------------------------------------------------------
         // TBD: This test case is failing on IBM machine for higher values of
-        // 'k_NUM_ITERATIONS'
+        // `k_NUM_ITERATIONS`
         if (verbose)
             cout << endl
-                 << "CONCURRENCY TEST FOR 'd_numAvailableObjects'" << endl
+                 << "CONCURRENCY TEST FOR `d_numAvailableObjects`" << endl
                  << "================" << endl;
 
         using namespace OBJECTPOOL_TEST_CASE_8;
@@ -1971,18 +1974,18 @@ int main(int argc, char *argv[])
 
       case 7: {
         // --------------------------------------------------------------------
-        // CONCURRENCY TEST FOR 'd_numObjects':
-        //   Verify the concurrent manipulation of 'd_numObjects'.
+        // CONCURRENCY TEST FOR `d_numObjects`:
+        //   Verify the concurrent manipulation of `d_numObjects`.
         //
         // Concerns:
-        //   That the 'd_numObjects' remains consistent when multiple
-        //   threads call 'increaseCapacity' and 'numObjects'.
+        //   That the `d_numObjects` remains consistent when multiple
+        //   threads call `increaseCapacity` and `numObjects`.
         //
         // Plan:
-        //   Create a pool, create 'k_NUM_THREADS' threads and let each thread
-        //   call 'increaseCapacity', followed by 'numObjects' in a
+        //   Create a pool, create `k_NUM_THREADS` threads and let each thread
+        //   call `increaseCapacity`, followed by `numObjects` in a
         //   loop.  Verify that for each thread, the values returned by
-        //   'numObjects' are in increasing order.
+        //   `numObjects` are in increasing order.
         //
         // Testing:
         //   void increaseCapacity(int numObjects);
@@ -1990,7 +1993,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         if (verbose)
             cout << endl
-                 << "CONCURRENCY TEST FOR 'd_numObjects'" << endl
+                 << "CONCURRENCY TEST FOR `d_numObjects`" << endl
                  << "==========================================" << endl;
 
         using namespace OBJECTPOOL_TEST_CASE_7;
@@ -2009,23 +2012,23 @@ int main(int argc, char *argv[])
         //   Verify the concurrent manipulation of free object list.
         //
         // Concerns:
-        //   That the 'd_freeObjectsList' remains consistent in presence of
-        //   multiple threads calling 'releaseObject', 'getObject',
-        //   'increaseCapacity' and 'reserveCapacity'.
+        //   That the `d_freeObjectsList` remains consistent in presence of
+        //   multiple threads calling `releaseObject`, `getObject`,
+        //   `increaseCapacity` and `reserveCapacity`.
         //
         // Plan:
         //   Create a pool and reserve enough objects (so that calls to
-        //   'getObject' can be quickly satisfied).  Create 'k_NUM_THREADS'
+        //   `getObject` can be quickly satisfied).  Create `k_NUM_THREADS`
         //   (a multiple of 4) threads.  Define a *0-order* thread to be
         //   any i'th threads such that i%4 == 0.  Similarly define *1-order*
         //   thread (i%4 == 1), *2-order* thread (i%4 == 2) and *3-order*
-        //   thread (i%4 == 3).  Let all 0-order threads call 'getObject' in
+        //   thread (i%4 == 3).  Let all 0-order threads call `getObject` in
         //   a loop (thus collecting the objects that can later be released),
         //   meanwhile remaining threads wait.  After all the threads
         //   reach a common barrier, let each 0-order thread call
-        //   'releaseObject', each 1-order thread call 'getObject', each
-        //   2-order thread call 'increaseCapacity' and each 3-order thread
-        //   call 'reserveCapacity'.  Finally verify the state.
+        //   `releaseObject`, each 1-order thread call `getObject`, each
+        //   2-order thread call `increaseCapacity` and each 3-order thread
+        //   call `reserveCapacity`.  Finally verify the state.
         //
         // Testing:
         //   TYPE *getObject();
@@ -2068,14 +2071,14 @@ int main(int argc, char *argv[])
         //   Verify the concurrent manipulation of free object list.
         //
         // Concerns:
-        //   That the 'd_freeObjectsList' remains consistent in presence of
-        //   multiple threads calling 'releaseObject' and 'getObject'.
+        //   That the `d_freeObjectsList` remains consistent in presence of
+        //   multiple threads calling `releaseObject` and `getObject`.
         //
         // Plan:
         //   Create a pool and reserve enough objects so that calls to
-        //   'getObject' can be quickly satisfied.  Create 'k_NUM_THREADS'
-        //   threads and let each thread call 'getObject' followed by
-        //   'releaseObject' in a loop.  Finally verify the state.
+        //   `getObject` can be quickly satisfied.  Create `k_NUM_THREADS`
+        //   threads and let each thread call `getObject` followed by
+        //   `releaseObject` in a loop.  Finally verify the state.
         //
         // Testing:
         //   TYPE *getObject();
@@ -2113,18 +2116,18 @@ int main(int argc, char *argv[])
         //   Verify the concurrent manipulation of free object list.
         //
         // Concerns:
-        //   That the 'd_freeObjectsList' remains consistent in presence of
-        //   multiple threads calling 'releaseObject' and 'getObject'.
+        //   That the `d_freeObjectsList` remains consistent in presence of
+        //   multiple threads calling `releaseObject` and `getObject`.
         //
         // Plan:
         //   Create a pool and reserve enough objects so that calls to
-        //   'getObject' can be quickly satisfied.  Create 'k_NUM_THREADS'
-        //   threads.  Let even numbered threads call 'getObject' in a
+        //   `getObject` can be quickly satisfied.  Create `k_NUM_THREADS`
+        //   threads.  Let even numbered threads call `getObject` in a
         //   loop (thus collecting the objects that can later be released),
         //   meanwhile odd numbered threads wait.  After that when all the
         //   threads have reached a barrier,  let even numbered threads
-        //   call 'releaseObject' (in a loop) and odd numbered threads
-        //   call 'getObject' (in a loop).  Finally verify the state.
+        //   call `releaseObject` (in a loop) and odd numbered threads
+        //   call `getObject` (in a loop).  Finally verify the state.
         //
         // Testing:
         //   TYPE *getObject();
@@ -2163,19 +2166,19 @@ int main(int argc, char *argv[])
         //   Verify the concurrent manipulation of free object list.
         //
         // Concerns:
-        //   That the 'd_freeObjectsList' remains consistent when multiple
-        //   threads call 'getObject'.
+        //   That the `d_freeObjectsList` remains consistent when multiple
+        //   threads call `getObject`.
         //
-        //   That the 'd_freeObjectsList' remains consistent when multiple
-        //   threads call 'releaseObject'.
+        //   That the `d_freeObjectsList` remains consistent when multiple
+        //   threads call `releaseObject`.
         //
         // Plan:
         //   Create a pool and reserve enough objects so that calls to
-        //   'getObject' can be quickly satisfied.  Create 'k_NUM_THREADS'
-        //   threads, each of which will call 'getObject' in a loop
+        //   `getObject` can be quickly satisfied.  Create `k_NUM_THREADS`
+        //   threads, each of which will call `getObject` in a loop
         //   (thus ensuring the first part of the concerns is tested
         //   effectively).  Verify the state after the loop.  Now let each
-        //   thread call 'releaseObject' in a loop (thus ensuring the
+        //   thread call `releaseObject` in a loop (thus ensuring the
         //   second part of concerns is tested effectively) and verify the
         //   state.
         //
@@ -2225,7 +2228,7 @@ int main(int argc, char *argv[])
         //
         //   That the objects are constructed properly.
         //
-        //   That 'getObject' returns a properly constructed object.
+        //   That `getObject` returns a properly constructed object.
         //
         //   That the destructor destroys all the objects created by the pool.
         //
@@ -2234,9 +2237,9 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Initialize pools for various values of replenishment policy.  Use
-        //   'bslma::TestAllocator' as the allocator for each pool.  Do
+        //   `bslma::TestAllocator` as the allocator for each pool.  Do
         //   the following for each pool.
-        //   Invoke 'getObject' repeatedly and verify that the correct
+        //   Invoke `getObject` repeatedly and verify that the correct
         //   number of objects are created.  Verify that all the objects (and
         //   associated block and object nodes) are properly laid out in the
         //   allocated memory (this is achieved by (1) using the test
@@ -2245,12 +2248,12 @@ int main(int argc, char *argv[])
         //   of these).  Verify that each object is properly aligned (this is
         //   achieved by having knowledge of each object's staring address and
         //   its alignment).  Verify that each object is properly constructed
-        //   and 'getObject' returns a properly constructed object (this is
+        //   and `getObject` returns a properly constructed object (this is
         //   achieved by having the object constructor initialize a class
-        //   variable 'd_pattern' and a subsequent verification of the same).
+        //   variable `d_pattern` and a subsequent verification of the same).
         //   When the pool is destroyed, verify that all the objects are
         //   destroyed (this is achieved by maintaining object count in
-        //   'objCount') and the memory is reclaimed (this is achieved by
+        //   `objCount`) and the memory is reclaimed (this is achieved by
         //   using test allocator).
         //
         // Testing:
@@ -2344,7 +2347,7 @@ int main(int argc, char *argv[])
                         (bsls::Types::IntPtr)currP % al == 0);
 
                     // verify that successive objects are separated by
-                    // 'k_OBJECT_FRAME_SIZE' bytes.
+                    // `k_OBJECT_FRAME_SIZE` bytes.
                     my_CheckingClass *temp =
              (my_CheckingClass *)(void *)((char *)lastP + k_OBJECT_FRAME_SIZE);
                     LOOP5_ASSERT(i, j, k, (char*)lastP, (char*)currP,
@@ -2382,23 +2385,23 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Create a pool with default replenishment-policy, verify the
-        //   initial state, call 'getObject' a couple of times (verifying
-        //   states after each call), call 'releaseObject' and verify the
+        //   initial state, call `getObject` a couple of times (verifying
+        //   states after each call), call `releaseObject` and verify the
         //   state.
         //
         //   Create a pool with -2 as replenishment-policy, verify the
-        //   initial state, call 'getObject' three times and verify the
+        //   initial state, call `getObject` three times and verify the
         //   states after each call.
         //
         //   Create a pool with 1 as replenishment-policy, verify the
-        //   initial state, call 'getObject' two times and verify the
+        //   initial state, call `getObject` two times and verify the
         //   states after each call.
         //
-        //   Create a pool, call 'reserveCapacity(2)', 'getObject' and
-        //   'releaseObject' in order and verify the states after each
+        //   Create a pool, call `reserveCapacity(2)`, `getObject` and
+        //   `releaseObject` in order and verify the states after each
         //   call.
         //
-        //   Create a pool, call 'reserveCapacity' five times (passing 0, 1,
+        //   Create a pool, call `reserveCapacity` five times (passing 0, 1,
         //   1, 2, 2 as its argument) and verify the states after each call.
         //
         // Testing:

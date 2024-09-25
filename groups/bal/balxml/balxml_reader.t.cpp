@@ -98,7 +98,7 @@ namespace UsageExample {
 //
 ///Example 2: The protocol implementation
 /// - - - - - - - - - - - - - - - - - - -
-// We have to implement all pure virtual functions of the 'balxml::Reader'
+// We have to implement all pure virtual functions of the `balxml::Reader`
 // protocol, but to make the example easier to read and shorter we will stub
 // some methods.  Moreover, we will provide fake implementations of the methods
 // used in this example, so our implementation will not handle the given XML
@@ -107,15 +107,17 @@ namespace UsageExample {
 // First, let's introduce an array of "helper" structs.  This array will be
 // filled in with data capable of describing the information contained in the
 // user directory XML above:
-//..
+// ```
+
+    /// A struct that contains information capable of describing an XML
+    /// node.
     struct TestNode {
-        // A struct that contains information capable of describing an XML
-        // node.
 
         // TYPES
+
+        /// This struct represents the qualified name and value of an XML
+        /// attribute.
         struct Attribute {
-            // This struct represents the qualified name and value of an XML
-            // attribute.
 
             const char *d_qname;  // qualified name of the attribute
             const char *d_value;  // value of the attribute
@@ -126,30 +128,31 @@ namespace UsageExample {
         };
 
         // DATA
+
+        /// type of the node
         balxml::Reader::NodeType  d_type;
-            // type of the node
 
+        /// qualified name of the node
         const char               *d_qname;
-            // qualified name of the node
 
+        /// value of the XML node (if it's null, `hasValue()` returns
+        /// `false`)
         const char               *d_nodeValue;
-            // value of the XML node (if it's null, 'hasValue()' returns
-            // 'false')
 
+        /// adjustment for the depth level of `TestReader`, valid values are
+        /// -1, 0 or 1
         int                       d_depthChange;
-            // adjustment for the depth level of 'TestReader', valid values are
-            // -1, 0 or 1
 
+        /// flag indicating whether the element is empty
         bool                      d_isEmpty;
-            // flag indicating whether the element is empty
 
+        /// array of attributes
         Attribute d_attributes[k_NUM_ATTRIBUTES];
-            // array of attributes
     };
 
     static const TestNode fakeDocument[] = {
-        // 'fakeDocument' is an array of 'TestNode' objects, that will be used
-        // by the 'TestReader' to traverse and describe the user directory XML
+        // `fakeDocument` is an array of `TestNode` objects, that will be used
+        // by the `TestReader` to traverse and describe the user directory XML
         // above.
 
         { balxml::Reader::e_NODE_TYPE_NONE,
@@ -201,12 +204,12 @@ namespace UsageExample {
           0                , 0                               ,  0,
           false, {}                                                          },
     };
-//..
-// Now, create a class that implements the 'balxml::Reader' interface.  Note
+// ```
+// Now, create a class that implements the `balxml::Reader` interface.  Note
 // that documentation for class methods is omitted to reduce the text of the
-// usage example.  If necessary, it can be seen in the 'balxml::Reader' class
+// usage example.  If necessary, it can be seen in the `balxml::Reader` class
 // declaration.
-//..
+// ```
                                   // ================
                                   // class TestReader
                                   // ================
@@ -314,7 +317,7 @@ namespace UsageExample {
     inline
     void TestReader::adjustPrefixStack()
     {
-        // Each time this object reads a 'e_NODE_TYPE_ELEMENT' node, it must
+        // Each time this object reads a `e_NODE_TYPE_ELEMENT` node, it must
         // push a namespace prefix onto the prefix stack to handle in-scope
         // namespace calculations that happen inside XML documents where inner
         // namespaces can override outer ones.
@@ -388,10 +391,10 @@ namespace UsageExample {
         }
         d_isOpen    = true;
         d_nodeDepth = 0;
-//..
+// ```
 // Note that we do not use the supplied buffer, but direct the internal
 // iterator to the fake structure:
-//..
+// ```
         d_currentNode = fakeDocument;
 
         setEncoding(encoding);
@@ -427,7 +430,7 @@ namespace UsageExample {
 
         if (balxml::Reader::e_NODE_TYPE_NONE == nextNode->d_type) {
             // The document ends when the type of the next node is
-            // 'e_NODE_TYPE_NONE'.
+            // `e_NODE_TYPE_NONE`.
             d_prefixes->reset();
             return 1;                                                 // RETURN
         }
@@ -435,8 +438,8 @@ namespace UsageExample {
         d_currentNode = nextNode;
 
         if (d_prefixes && 1 == d_nodeDepth) {
-            // A 'TestReader' only recognizes namespace URIs that have the
-            // prefix "xmlns:" on the top-level element. A 'TestReader' adds
+            // A `TestReader` only recognizes namespace URIs that have the
+            // prefix "xmlns:" on the top-level element. A `TestReader` adds
             // such URIs to its prefix stack. It treats namespace URI
             // declarations on any other elements like normal attributes, and
             // resets its prefix stack once the top level element closes.
@@ -555,10 +558,10 @@ namespace UsageExample {
             return 0;                                                 // RETURN
         }
 
-        // This simple 'TestReader' does not understand XML that contains
+        // This simple `TestReader` does not understand XML that contains
         // qualified node names. This means the local name of a node is always
         // equal to its qualified name, so this function simply returns
-        // 'd_qname'.
+        // `d_qname`.
         return d_currentNode->d_qname;
     }
 
@@ -629,9 +632,9 @@ namespace UsageExample {
     {
         return 0;
     }
-//..
-// Finally, our implementation of 'balxml::Reader' is complete. We may use this
-// implementation as the 'TestReader' in the first example.
+// ```
+// Finally, our implementation of `balxml::Reader` is complete. We may use this
+// implementation as the `TestReader` in the first example.
 
 int usageExample()
 {
@@ -640,7 +643,7 @@ int usageExample()
 // The following string describes xml for a very simple user directory.
 // The top level element contains one xml namespace attribute, with one
 // embedded entry describing a user.
-//..
+// ```
     const char TEST_XML_STRING[] =
        "<?xml version='1.0' encoding='UTF-8'?>\n"
        "<directory-entry xmlns:dir='http://bloomberg.com/schemas/directory'>\n"
@@ -648,41 +651,41 @@ int usageExample()
        "    <phone dir:phonetype='cell'>212-318-2000</phone>\n"
        "    <address/>\n"
        "</directory-entry>\n";
-//..
+// ```
 // Suppose we need to extract the name of the user and his cellphone number
 // from this entry.
 // In order to read the XML, we first need to construct a
-// 'balxml::NamespaceRegistry' object, a 'balxml::PrefixStack' object, and a
-// 'TestReader' object, where 'TestReader' is an implementation of
-// 'balxml::Reader'.
-//..
+// `balxml::NamespaceRegistry` object, a `balxml::PrefixStack` object, and a
+// `TestReader` object, where `TestReader` is an implementation of
+// `balxml::Reader`.
+// ```
     balxml::NamespaceRegistry namespaces;
     balxml::PrefixStack       prefixStack(&namespaces);
     TestReader                testReader;
     balxml::Reader&           reader = testReader;
-//..
-// The reader uses a 'balxml::PrefixStack' to manage namespace prefixes.
+// ```
+// The reader uses a `balxml::PrefixStack` to manage namespace prefixes.
 // Installing a stack for an open reader leads to undefined behavior.  So, we
 // want to ensure that our reader is not open before installation.
-//..
+// ```
     ASSERT(false == reader.isOpen());
 
     reader.setPrefixStack(&prefixStack);
 
     ASSERT(&prefixStack == reader.prefixStack());
-//..
-// Next, we call the 'open' method to setup the reader for parsing using the
+// ```
+// Next, we call the `open` method to setup the reader for parsing using the
 // data contained in the XML string.
-//..
+// ```
     reader.open(TEST_XML_STRING, sizeof(TEST_XML_STRING) -1, 0, "UTF-8");
-//..
-// Confirm that the 'bdem::Reader' has opened properly.
-//..
+// ```
+// Confirm that the `bdem::Reader` has opened properly.
+// ```
     ASSERT(true == reader.isOpen());
-//..
+// ```
 // Then, iterate through the nodes to find the elements that are interesting to
 // us. First, we'll find the user's name:
-//..
+// ```
     int         rc = 0;
     bsl::string name;
     bsl::string number;
@@ -700,9 +703,9 @@ int usageExample()
     ASSERT(true                             == reader.nodeHasValue());
 
     name.assign(reader.nodeValue());
-//..
+// ```
 // Next, advance to the user's phone number:
-//..
+// ```
     do {
         rc = reader.advanceToNextNode();
         ASSERT(0 == rc);
@@ -726,22 +729,22 @@ int usageExample()
 
         number.assign(reader.nodeValue());
     }
-//..
+// ```
 // Now, verify the extracted data:
-//..
+// ```
     ASSERT("John Smith"   == name);
     ASSERT("212-318-2000" == number);
-//..
+// ```
 // Finally, close the reader:
-//..
+// ```
     reader.close();
     ASSERT(false == reader.isOpen());
-//..
+// ```
 // And exit from the function:
-//..
+// ```
     return 0;
 }
-//..
+// ```
 
 }  // close namespace UsageExample
 
@@ -763,16 +766,16 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
-        // This is a simple implementation of the 'balxml::Reader' interface.
+        // This is a simple implementation of the `balxml::Reader` interface.
         //
         // Concerns:
         //   That the usage example compiles and runs correctly.
-        //   That a class can be derived from 'balxml::Reader' and that it can
+        //   That a class can be derived from `balxml::Reader` and that it can
         //       override all the methods.
         //
         // Plan:
         //   Copy the usage example from the component-level documentation.
-        //   Replace 'assert' with 'ASSERT'.
+        //   Replace `assert` with `ASSERT`.
         //
         // Testing:
         //   balxml::Reader();  // Constructor
@@ -807,12 +810,12 @@ int main(int argc, char *argv[])
         // NODETYPE STREAMING
         //
         // Concerns:
-        //: 1 Streaming a NodeType enumeration value results in the same
-        //:   string as calling 'nodeTypeAsString()'.
+        // 1. Streaming a NodeType enumeration value results in the same
+        //    string as calling `nodeTypeAsString()`.
         //
         // Plan:
-        //: 1 Stream various NodeType values to a string stream and compare
-        //:   the results to 'nodeTypeAsString()'. (C-1)
+        // 1. Stream various NodeType values to a string stream and compare
+        //    the results to `nodeTypeAsString()`. (C-1)
         //
         // Testing:
         //   bsl::ostream& operator(bsl::ostream&, balxml::Reader::NodeType);

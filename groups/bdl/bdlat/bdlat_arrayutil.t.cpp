@@ -22,7 +22,7 @@
 // ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-// This test driver tests each utility operation provided by 'ArrayUtil' in its
+// This test driver tests each utility operation provided by `ArrayUtil` in its
 // own case.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
@@ -120,9 +120,9 @@ namespace usage {
 // arrays.
 //
 // First, we need to define an accessor functor per
-// {'bdlat_typecategory'|'ACCESSOR' Functors} that will be used to detect
+// {`bdlat_typecategory`|`ACCESSOR` Functors} that will be used to detect
 // whether an array element is itself an array:
-//..
+// ```
     class MyArrayDetector {
         // DATA
         bool d_didVisitArray;
@@ -155,27 +155,28 @@ namespace usage {
             return d_didVisitArray;
         }
     };
-//..
-// Then, we can define a utility 'struct', 'MyArrayUtil', that provides a
+// ```
+// Then, we can define a utility `struct`, `MyArrayUtil`, that provides a
 // function for detecting whether or not an array has an element that is itself
 // an array:
-//..
+// ```
     struct MyArrayUtil {
 
         // CLASS METHODS
+
+        /// Load the value `true` to the object addressed by the specified
+        /// `isArray` if the element at the specified `index` of the
+        /// specified `array` has the "array" type category, and load
+        /// the value `false` otherwise.  Return 0 on success, and a
+        /// non-zero value otherwise.  If a non-zero value is returned,
+        /// the value loaded to `isArray` is unspecified.  The behavior is
+        /// undefined unless the specified `array` has the "array" type
+        /// category, `0 <= index`, and
+        /// `index < bdlat_ArrayFunctions::size(array)`.
         template <class TYPE>
         static int isElementAnArray(bool        *isArray,
                                     const TYPE&  array,
                                     int          index)
-            // Load the value 'true' to the object addressed by the specified
-            // 'isArray' if the element at the specified 'index' of the
-            // specified 'array' has the "array" type category, and load
-            // the value 'false' otherwise.  Return 0 on success, and a
-            // non-zero value otherwise.  If a non-zero value is returned,
-            // the value loaded to 'isArray' is unspecified.  The behavior is
-            // undefined unless the specified 'array' has the "array" type
-            // category, '0 <= index', and
-            // 'index < bdlat_ArrayFunctions::size(array)'.
         {
             BSLS_ASSERT(bdlat_TypeCategoryFunctions::select(array) ==
                         bdlat_TypeCategory::e_ARRAY_CATEGORY);
@@ -195,10 +196,10 @@ namespace usage {
             return 0;
         }
     };
-//..
+// ```
 // Finally, we can use this utility to detect whether elements of array types
 // are themselves arrays:
-//..
+// ```
     void example()
     {
         bsl::vector<int> vectorA;
@@ -218,7 +219,7 @@ namespace usage {
         ASSERT(0 == rc);
         ASSERT(isArray);
     }
-//..
+// ```
 
 }  // close namespace usage
 }  // close unnamed namespace
@@ -823,7 +824,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -838,13 +839,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -863,45 +864,45 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'manipulateElementByCategory'
-        //   This case tests the 'manipulateElementByCategory' function.
+        // TESTING `manipulateElementByCategory`
+        //   This case tests the `manipulateElementByCategory` function.
         //
         // Concerns:
-        //: 1 The type category supplied to the manipulator functor corresponds
-        //:   is the dynamic type category of the element.
-        //:
-        //: 2 The element pointer supplied to the manipulator functor
-        //:   addresses the array element at the specified index.
-        //:
-        //: 3 If the manipulator functor returns 0 then 0 is returned,
-        //:   otherwise a non-zero value is returned.
-        //:
-        //: 4 Passing a non-array violates an assertion.
-        //:
-        //: 5 Passing an index less than 0 violates an assertion.
-        //:
-        //: 6 Passing an index greater than the size of the array violates an
-        //:   assertion.
+        // 1. The type category supplied to the manipulator functor corresponds
+        //    is the dynamic type category of the element.
+        //
+        // 2. The element pointer supplied to the manipulator functor
+        //    addresses the array element at the specified index.
+        //
+        // 3. If the manipulator functor returns 0 then 0 is returned,
+        //    otherwise a non-zero value is returned.
+        //
+        // 4. Passing a non-array violates an assertion.
+        //
+        // 5. Passing an index less than 0 violates an assertion.
+        //
+        // 6. Passing an index greater than the size of the array violates an
+        //    assertion.
         //
         // Plan:
-        //: 1 For each type category, create a 'bsl::vector' object holding
-        //:   a single element with that type category, and verify that a
-        //:   manipulator functor is invoked with that category.
-        //:
-        //: 2 Similarly, verify that a manipulator functor is invoked with
-        //:   the correct element address.
-        //:
-        //: 3 Configure manipulator functors to return a non-zero value, and
-        //:   verify that the same value is returned.
-        //:
-        //: 4 Pass objects with a dynamic, non-array type category and verify
-        //:   that an assertion is violated.
-        //:
-        //: 5 Attempt to access an element at a negative index and verify that
-        //:   an assertion is violated.
-        //:
-        //: 6 Attempt to access an element at an index equal to the size of
-        //:   the array and verify that an assertion is violated.
+        // 1. For each type category, create a `bsl::vector` object holding
+        //    a single element with that type category, and verify that a
+        //    manipulator functor is invoked with that category.
+        //
+        // 2. Similarly, verify that a manipulator functor is invoked with
+        //    the correct element address.
+        //
+        // 3. Configure manipulator functors to return a non-zero value, and
+        //    verify that the same value is returned.
+        //
+        // 4. Pass objects with a dynamic, non-array type category and verify
+        //    that an assertion is violated.
+        //
+        // 5. Attempt to access an element at a negative index and verify that
+        //    an assertion is violated.
+        //
+        // 6. Attempt to access an element at an index equal to the size of
+        //    the array and verify that an assertion is violated.
         //
         // Testing
         //   manipulateElementByCategory(const TYPE&, MANIPULATOR&, int);
@@ -1035,45 +1036,45 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'accessElementByCategory'
-        //   This case tests the 'accessElementByCategory' function.
+        // TESTING `accessElementByCategory`
+        //   This case tests the `accessElementByCategory` function.
         //
         // Concerns:
-        //: 1 The type category supplied to the accessor functor corresponds
-        //:   is the dynamic type category of the element.
-        //:
-        //: 2 The element reference supplied to the accessor functor is a
-        //:   reference to the array element at the specified index.
-        //:
-        //: 3 If the accessor functor returns 0 then 0 is returned, otherwise
-        //:   a non-zero value is returned.
-        //:
-        //: 4 Passing a non-array violates an assertion.
-        //:
-        //: 5 Passing an index less than 0 violates an assertion.
-        //:
-        //: 6 Passing an index greater than the size of the array violates an
-        //:   assertion.
+        // 1. The type category supplied to the accessor functor corresponds
+        //    is the dynamic type category of the element.
+        //
+        // 2. The element reference supplied to the accessor functor is a
+        //    reference to the array element at the specified index.
+        //
+        // 3. If the accessor functor returns 0 then 0 is returned, otherwise
+        //    a non-zero value is returned.
+        //
+        // 4. Passing a non-array violates an assertion.
+        //
+        // 5. Passing an index less than 0 violates an assertion.
+        //
+        // 6. Passing an index greater than the size of the array violates an
+        //    assertion.
         //
         // Plan:
-        //: 1 For each type category, create a 'bsl::vector' object holding
-        //:   a single element with that type category, and verify that an
-        //:   accessor functor is invoked with that category.
-        //:
-        //: 2 Similarly, verify that an accessor functor is invoked with
-        //:   the correct element address.
-        //:
-        //: 3 Configure accessor functors to return a non-zero value, and
-        //:   verify that the same value is returned.
-        //:
-        //: 4 Pass objects with a dynamic, non-array type category and verify
-        //:   that an assertion is violated.
-        //:
-        //: 5 Attempt to access an element at a negative index and verify that
-        //:   an assertion is violated.
-        //:
-        //: 6 Attempt to access an element at an index equal to the size of
-        //:   the array and verify that an assertion is violated.
+        // 1. For each type category, create a `bsl::vector` object holding
+        //    a single element with that type category, and verify that an
+        //    accessor functor is invoked with that category.
+        //
+        // 2. Similarly, verify that an accessor functor is invoked with
+        //    the correct element address.
+        //
+        // 3. Configure accessor functors to return a non-zero value, and
+        //    verify that the same value is returned.
+        //
+        // 4. Pass objects with a dynamic, non-array type category and verify
+        //    that an assertion is violated.
+        //
+        // 5. Attempt to access an element at a negative index and verify that
+        //    an assertion is violated.
+        //
+        // 6. Attempt to access an element at an index equal to the size of
+        //    the array and verify that an assertion is violated.
         //
         // Testing
         //   accessElementByCategory(const TYPE&, ACCESSOR&, int);
@@ -1081,7 +1082,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             bsl::cout << bsl::endl
-                      << "'accessElementByCategory'" << bsl::endl
+                      << "`accessElementByCategory`" << bsl::endl
                       << "=========================" << bsl::endl;
         }
 
@@ -1209,20 +1210,20 @@ int main(int argc, char *argv[])
         //   This case tests the testing apparatus.
         //
         // Concerns:
-        //: 1 The 'u::*Element' types have the static and dynamic type category
-        //:   of their namesake.
-        //:
-        //: 2 Objects of 'u::DyanmicTypeElement' type have 'dynamic type'
-        //:   static type category, and the dynamic type category matching
-        //:   the category enumerator supplied on construction.
+        // 1. The `u::*Element` types have the static and dynamic type category
+        //    of their namesake.
+        //
+        // 2. Objects of `u::DyanmicTypeElement` type have `dynamic type`
+        //    static type category, and the dynamic type category matching
+        //    the category enumerator supplied on construction.
         //
         // Plan:
-        //: 1 For all 'u::*Element' types, verify their type category matches
-        //:   their namesake.
-        //:
-        //: 2 Instantiate 'u::DynamicTypeElement' objects with each category
-        //:   enumerator and verify that the type categories of the objects
-        //:   match the enumerator with which they were constructed.
+        // 1. For all `u::*Element` types, verify their type category matches
+        //    their namesake.
+        //
+        // 2. Instantiate `u::DynamicTypeElement` objects with each category
+        //    enumerator and verify that the type categories of the objects
+        //    match the enumerator with which they were constructed.
         //
         // Testing:
         //   TEST APPARATUS

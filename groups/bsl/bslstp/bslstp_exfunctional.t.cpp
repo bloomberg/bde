@@ -10,9 +10,9 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>     // 'sprintf', 'snprintf' [NOT '<cstdio>', which does not
-                       // include 'snprintf']
-#include <stdlib.h>    // 'atoi'
+#include <stdio.h>     // `sprintf`, `snprintf` [NOT `<cstdio>`, which does not
+                       // include `snprintf`]
+#include <stdlib.h>    // `atoi`
 
 using namespace BloombergLP;
 
@@ -139,18 +139,18 @@ int main(int argc, char *argv[])
         // VERIFYING: bslstp::Identity
         //
         // Concerns:
-        //: 1 The identity functor returns a const reference to the argument
-        //:   that it is passed.
-        //:
+        // 1. The identity functor returns a const reference to the argument
+        //    that it is passed.
+        //
         // Plan:
-        //: 1 Create a couple Identity objects, and call 'operator()' and
-        //:   verify a  reference to the supplied object is returned.
+        // 1. Create a couple Identity objects, and call `operator()` and
+        //    verify a  reference to the supplied object is returned.
         //
         // Testing:
         //   bslstp::Identity::operator(const TYPE%)
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nVERIFYING 'bslstp::Identity'\n"
+        if (verbose) printf("\nVERIFYING `bslstp::Identity`\n"
                             "\n============================\n");
 
         {

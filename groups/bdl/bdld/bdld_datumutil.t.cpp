@@ -38,7 +38,7 @@ using bsl::endl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// This component is a utility operating on 'bldd::Datum' objects.
+// This component is a utility operating on `bldd::Datum` objects.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
 // [2] ostream& typedPrint(object, outputStream, level, spacesPerLevel)
@@ -101,9 +101,9 @@ typedef bdld::DatumUtil Util;
 //                              PRINT HELPERS
 //-----------------------------------------------------------------------------
 
+/// Simple wrapper type to print a string quoted and escaped so printouts
+/// are easy to visually compare.
 struct QuotedEscapedStringPrinterRef {
-    // Simple wrapper type to print a string quoted and escaped so printouts
-    // are easy to visually compare.
 
     // DATA
     const bsl::string_view d_str;
@@ -131,25 +131,25 @@ operator<<(bsl::ostream& os, const QuotedEscapedStringPrinterRef& obj)
 //                           VERIFICATION HELPERS
 //-----------------------------------------------------------------------------
 
+/// Return `true`, if the specified `safeResult` matches the specified
+/// `typedResult`, where both results are from the printing of the same non-
+/// self-referential data structures using `safeTypedPrint` and `typedPrint`
+/// respectively.  The function returns `false` in case the two strings do
+/// not match.  Since this is a test function it will follow a wide
+/// contract with what normally would be a `BSLS_ASSERT` just be test
+/// failures.  Passing an empty string for either arguments will return in
+/// such a test failure.
+///
+/// The safe-typed-print output matches a typed-print output when the data
+/// types, values, and indentations printed are the same, but the safe-print
+/// also contain an at sign '@' and hexadecimal identifier after the type
+/// for each possibly self-referential type, such as arrays, maps, and
+/// int-maps.  This method ignores the value of such identifiers except that
+/// it verifies that they are valid hexadecimal numbers, and that they do
+/// not repeat.  In case either of those errors a test failure will be
+/// generated (test `ASSERT`).
 bool safeAndNormalMatches(const bsl::string_view& safeResult,
                           const bsl::string_view& typedResult)
-    // Return 'true', if the specified 'safeResult' matches the specified
-    // 'typedResult', where both results are from the printing of the same non-
-    // self-referential data structures using 'safeTypedPrint' and 'typedPrint'
-    // respectively.  The function returns 'false' in case the two strings do
-    // not match.  Since this is a test function it will follow a wide
-    // contract with what normally would be a 'BSLS_ASSERT' just be test
-    // failures.  Passing an empty string for either arguments will return in
-    // such a test failure.
-    //
-    // The safe-typed-print output matches a typed-print output when the data
-    // types, values, and indentations printed are the same, but the safe-print
-    // also contain an at sign '@' and hexadecimal identifier after the type
-    // for each possibly self-referential type, such as arrays, maps, and
-    // int-maps.  This method ignores the value of such identifiers except that
-    // it verifies that they are valid hexadecimal numbers, and that they do
-    // not repeat.  In case either of those errors a test failure will be
-    // generated (test 'ASSERT').
 {
     ASSERT(!safeResult.empty());
     ASSERT(!typedResult.empty());
@@ -202,7 +202,7 @@ bool safeAndNormalMatches(const bsl::string_view& safeResult,
         // There *must* follow a value (array, map, or int-map)
         ASSERT(nextSafePos != k_NPOS);
         if (nextSafePos == k_NPOS) {
-            // Assume 'safeResult' ended prematurely
+            // Assume `safeResult` ended prematurely
             return false;                                             // RETURN
         }
 
@@ -217,19 +217,19 @@ bool safeAndNormalMatches(const bsl::string_view& safeResult,
     }
 }
 
+/// Return the next "@ ID" from the specified `string`, or a default
+/// constructed (empty) string-view.  Start searching for the '@' sign from
+/// the specified `position`.  Load, into `position` the position of the '@'
+/// sign, or load `npos` if there was no '@' sign found.
+///
+/// For brevity this function is used both to get the next ID and the next
+/// named placeholder, so it allows the ID to have any alphanumeric
+/// character, not just hexadecimal digits.  That verification is done by
+/// the caller.  This will work because the ID as well as the name will be
+/// naturally delimited by a '[' character for arrays, and a '{' character
+/// for maps.
 bsl::string_view getNextID(bsl::string_view::size_type *position,
                            const bsl::string_view&      string)
-    // Return the next "@ ID" from the specified 'string', or a default
-    // constructed (empty) string-view.  Start searching for the '@' sign from
-    // the specified 'position'.  Load, into 'position' the position of the '@'
-    // sign, or load 'npos' if there was no '@' sign found.
-    //
-    // For brevity this function is used both to get the next ID and the next
-    // named placeholder, so it allows the ID to have any alphanumeric
-    // character, not just hexadecimal digits.  That verification is done by
-    // the caller.  This will work because the ID as well as the name will be
-    // naturally delimited by a '[' character for arrays, and a '{' character
-    // for maps.
 {
     using bsl::string_view;
     typedef string_view::size_type SizeT;
@@ -248,10 +248,10 @@ bsl::string_view getNextID(bsl::string_view::size_type *position,
     return string.substr(atPos + 1, end - atPos  -1);
 }
 
+/// Return `true` if the specified `str` is not empty, and all its
+/// constituent characters are hexadecimal digits.  Otherwise, return
+/// `false`.
 bool isHexId(const bsl::string_view& str)
-    // Return 'true' if the specified 'str' is not empty, and all its
-    // constituent characters are hexadecimal digits.  Otherwise, return
-    // 'false'.
 {
     if (str.empty()) {
         return false;                                                 // RETURN
@@ -262,20 +262,20 @@ bool isHexId(const bsl::string_view& str)
                                                         bsl::string_view::npos;
 }
 
+/// Return `true`, if the specified `safeResult` matches the specified
+/// `expected` result, where the `expected` string has named placeholders
+/// for identifiers, not their expected values.  The function returns
+/// `false` in case the two strings do not match.  Since this is a test
+/// function it will follow a wide contract in regards to test-result
+/// arguments, but narrow contract in regards of the `expected` argument.
+///
+/// The safe-typed-print output matches the expected output when the data
+/// types, values, indentations printed are the same, the hexadecimal, and
+/// the matching hexadecimal identifiers are the same where the placeholder
+/// name in the `expected` string is the same, and different for different
+/// names.
 bool verifySafePrintResult(const bsl::string_view& safeResult,
                            const bsl::string_view& expected)
-    // Return 'true', if the specified 'safeResult' matches the specified
-    // 'expected' result, where the 'expected' string has named placeholders
-    // for identifiers, not their expected values.  The function returns
-    // 'false' in case the two strings do not match.  Since this is a test
-    // function it will follow a wide contract in regards to test-result
-    // arguments, but narrow contract in regards of the 'expected' argument.
-    //
-    // The safe-typed-print output matches the expected output when the data
-    // types, values, indentations printed are the same, the hexadecimal, and
-    // the matching hexadecimal identifiers are the same where the placeholder
-    // name in the 'expected' string is the same, and different for different
-    // names.
 {
     BSLS_ASSERT(!expected.empty());
 
@@ -343,7 +343,7 @@ bool verifySafePrintResult(const bsl::string_view& safeResult,
         }
         else {
             // If we have this ID with another name, that is an error in the
-            // 'safeTypedPrint' code.
+            // `safeTypedPrint` code.
             ASSERT(!alreadySeenThisID);
         }
 
@@ -359,16 +359,16 @@ bool verifySafePrintResult(const bsl::string_view& safeResult,
 
 ///Example 1: Showing the Difference Between an Integer and a Double Value
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// See 'main()'.
-//..
-//  Then, we create a shorthand for 'bdld::Datumutil::typedPrint':
-//..
+// See `main()`.
+// ```
+//  Then, we create a shorthand for `bdld::Datumutil::typedPrint`:
+// ```
     void printWithType(bsl::ostream& outStream, const bdld::Datum& object)
     {
         bdld::DatumUtil::typedPrint(outStream, object, 0, -1);
     }
-//..
-// See 'main()'.
+// ```
+// See `main()`.
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -384,7 +384,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    // CONCERN: Unexpected 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: Unexpected `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(bsls::Review::failByAbort);
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
@@ -399,14 +399,14 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -416,23 +416,23 @@ int main(int argc, char *argv[])
         {
 ///Example 1: Showing the Difference Between an Integer and a Double Value
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we are testing a system with operations that result in 'bdld::Datum'
+// Suppose we are testing a system with operations that result in `bdld::Datum`
 // values.  We verify that those results are what we have expected, *including*
 // that their type matches.  After a getting an unexpected value, we use normal
 // printing and get the following test failure: "Expected 1, got 1".
 // Obviously, the type difference is not visible.  Instead, we can use
-// 'bdld::DatumUtil::typedPrint' to display the type as well as the value.
+// `bdld::DatumUtil::typedPrint` to display the type as well as the value.
 //
-// First, let us define two 'bdld::Datum' objects that have the same value, but
+// First, let us define two `bdld::Datum` objects that have the same value, but
 // use different types to represent them:
-//..
+// ```
     bdld::Datum expected = bdld::Datum::createInteger(1);
     bdld::Datum actual   = bdld::Datum::createDouble(1.);
 
     ASSERT(expected != actual);
-//..
+// ```
 // Next, we demonstrate that printing these results in the same printout:
-//..
+// ```
     bsl::ostringstream os;
 
     os << expected;
@@ -444,19 +444,19 @@ int main(int argc, char *argv[])
     bsl::string actualStr = os.str();
 
     ASSERT(expectedStr == actualStr);  // "1" is equal to "1"
-//..
-//  Then, we create a shorthand for 'bdld::DatumUtil::typedPrint':
-//..
+// ```
+//  Then, we create a shorthand for `bdld::DatumUtil::typedPrint`:
+// ```
 //  void printWithType(ostream& outStream, const bdld::Datum& object)
 //  {
 //      bdld::Datumutil::typedPrint(outStream, object, 0, -1);
 //  }
-//..
-// The 0 'level' and -1 'spacesPerLevel' results in single-line printout
+// ```
+// The 0 `level` and -1 `spacesPerLevel` results in single-line printout
 // without a trailing newline, just like the stream output operator works.
 //
 // Finally, we verify that now we get a different printout for the two values:
-//..
+// ```
     os.str("");
     os.clear();
     printWithType(os, expected);
@@ -468,57 +468,57 @@ int main(int argc, char *argv[])
     actualStr = os.str();
 
     ASSERT(expectedStr != actualStr);  // "1i" is *not* equal to "1."
-//..
+// ```
       }  // close scope of example 1
       {
 ///Example 2: Avoiding Endless Printing of Data with Cycles
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we are testing a system that creates a complex data structure
-// that it stores is 'bdld::Datum' objects.  Suppose that such a system doesn't
-// use the fail-safe 'Datum' builders for optimization purposes (for example it
+// that it stores is `bdld::Datum` objects.  Suppose that such a system doesn't
+// use the fail-safe `Datum` builders for optimization purposes (for example it
 // stores all map entries in one big allocation), and so it may be able to
 // create a self-referential data structure.
 //
 // It is not easy to legitimately create self-referential data structures so we
 // won't even attempt it in a short example code.
 //
-// First, we use a 'bdld::DatumMaker' with a local allocator so we can ignore
+// First, we use a `bdld::DatumMaker` with a local allocator so we can ignore
 // any cleanup and allocation:
-//..
+// ```
     bdlma::LocalSequentialAllocator<1024> lsa;
     bdld::DatumMaker dm(&lsa);
-//..
+// ```
 // Next, we create two array datum's with a Nil element each:
-//..
+// ```
     bdld::Datum arr1 = dm.a(dm());
     bdld::Datum arr2 = dm.a(dm());
-//..
+// ```
 // Then, we circumvent the type system to initialize their single elements to
 // "contain" each other:
-//..
+// ```
     const_cast<bdld::Datum&>(arr1.theArray()[0]) = arr2;
     const_cast<bdld::Datum&>(arr2.theArray()[0]) = arr1;
-//..
+// ```
 // Finally, we use the safe printing on this trapdoor of an endless loop to
 // nevertheless safely print them:
-//..
+// ```
     bsl::ostringstream os;
     bdld::DatumUtil::safeTypedPrint(os, arr1);
-//..
+// ```
 // Were we to print the results standard out, say
-//..
+// ```
     if (verbose) {
         bdld::DatumUtil::safeTypedPrint(cout, arr2);
     }
-//..
+// ```
 // we would see something akin to:
-//..
+// ```
 //  <array@000000EFE4CFF928[
 //      <array@000000EFE4CFF908[
 //          <array@000000EFE4CFF928[!CYCLE!]>
 //      ]>
 //  ]>
-//..
+// ```
 // Where the hexadecimal numbers identify the arrays (and maps or int-maps) so
 // we can clearly see that the cycle "points" back to the top-level array.
       }  // close scope of example 2
@@ -528,24 +528,24 @@ int main(int argc, char *argv[])
         // SAFE PRINTING
         //
         // Concerns:
-        //: 1 Self-referential data does not cause endless loop/recursion.
-        //:
-        //: 2 "Normal" data printing was covered by previous test case.
-        //:
-        //: 3 Identifiers match when there is a self-reference.
+        // 1. Self-referential data does not cause endless loop/recursion.
+        //
+        // 2. "Normal" data printing was covered by previous test case.
+        //
+        // 3. Identifiers match when there is a self-reference.
         //
         // Plan:
-        //: 1 Table based testing with lines with varying values that are self-
-        //:   referential, and varying 'level' and 'spacesPerLevel' arguments.
-        //:
-        //: 2 'Datum' values are created using a 'DatumMaker' and a sequential-
-        //:   allocator to avoid having to deal with deallocations.
-        //:
-        //: 3 Printing is done into a string stream for comparison.
-        //:
-        //: 4 All scalars that cannot create self-references have been
-        //:   previously tested, this case is *only* for self-referential data
-        //:   structures.
+        // 1. Table based testing with lines with varying values that are self-
+        //    referential, and varying `level` and `spacesPerLevel` arguments.
+        //
+        // 2. `Datum` values are created using a `DatumMaker` and a sequential-
+        //    allocator to avoid having to deal with deallocations.
+        //
+        // 3. Printing is done into a string stream for comparison.
+        //
+        // 4. All scalars that cannot create self-references have been
+        //    previously tested, this case is *only* for self-referential data
+        //    structures.
         //
         // Testing:
         //   ostream& safeTypedPrint(object, outStream, level, spacesPerLevel)
@@ -557,8 +557,8 @@ int main(int argc, char *argv[])
         bdlma::LocalSequentialAllocator<1024> lsa(&ta);
         bdld::DatumMaker dm(&lsa);
 
-        // Self-referential types cannot be easily created using 'bdld', we use
-        // 'const_cast' here to create the input data for the test-table lines.
+        // Self-referential types cannot be easily created using `bdld`, we use
+        // `const_cast` here to create the input data for the test-table lines.
 
         // Self-referencing array
         bdld::Datum arr1 = dm.a(dm());
@@ -706,20 +706,20 @@ int main(int argc, char *argv[])
         // TYPED PRINTING
         //
         // Concerns:
-        //: 1 Each type is distinguished as intended.
-        //:
-        //: 2 'level' and 'spacesPerLevel' arguments are obeyed.
-        //:
-        //: 3 The scalar values themselves are printed properly.
+        // 1. Each type is distinguished as intended.
+        //
+        // 2. `level` and `spacesPerLevel` arguments are obeyed.
+        //
+        // 3. The scalar values themselves are printed properly.
         //
         // Plan:
-        //: 1 Table based testing with lines for each type with varying values,
-        //:   and varying 'level' and 'spacesPerLevel' arguments.
-        //:
-        //: 2 'Datum' values are created using a 'DatumMaker' and a sequential-
-        //:   allocator to avoid having to deal with deallocations.
-        //:
-        //: 3 Printing is done into a string stream for comparison.
+        // 1. Table based testing with lines for each type with varying values,
+        //    and varying `level` and `spacesPerLevel` arguments.
+        //
+        // 2. `Datum` values are created using a `DatumMaker` and a sequential-
+        //    allocator to avoid having to deal with deallocations.
+        //
+        // 3. Printing is done into a string stream for comparison.
         //
         // Testing:
         //   ostream& typedPrint(object, outputStream, level, spacesPerLevel)
@@ -824,7 +824,7 @@ int main(int argc, char *argv[])
 
             // === EXERCISE INDENTATION ===
 
-            // Variations on basic 'level' & 'spacesPerLevel' behavior
+            // Variations on basic `level` & `spacesPerLevel` behavior
             { L_, dm(), 0, 0,  "<nil>\n"     },
 
             { L_, dm(), 1, 0,  "<nil>\n"     },
@@ -842,7 +842,7 @@ int main(int argc, char *argv[])
             { L_, dm(), -5, 2,  "<nil>\n"    },
             { L_, dm(), -5, 4,  "<nil>\n"    },
 
-            // Variations on compound 'level' & 'spacesPerLevel' behavior
+            // Variations on compound `level` & `spacesPerLevel` behavior
             { L_, dm.a(dm.m("nil", dm.im(1848, "revolution"))),  0, 4,
                   "<array[\n"
                   "    <map{\n"
@@ -921,11 +921,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Call the utility functions to verify their existence and basics.
+        // 1. Call the utility functions to verify their existence and basics.
         //
         // Testing:
         //   BREATHING TEST

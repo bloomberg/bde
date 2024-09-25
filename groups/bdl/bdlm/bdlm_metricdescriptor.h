@@ -25,8 +25,8 @@ BSLS_IDENT("$Id$")
 // Name                   Type         Default
 // ------------------     -----------  -------
 // metricNamespace        bsl::string  [1]
-// metricName             bsl::string  ""     
-// instanceNumber         Uint64       0      
+// metricName             bsl::string  ""
+// instanceNumber         Uint64       0
 // objectTypeName         bsl::string  ""
 // objectTypeAbbreviation bsl::string  ""
 // objectIdentifier       bsl::string  [2]

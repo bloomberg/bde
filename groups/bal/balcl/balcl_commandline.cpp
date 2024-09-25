@@ -41,12 +41,12 @@ namespace u {
 using namespace BloombergLP;
 using namespace balcl;
 
+/// This `class` calls `getenv` or its Windows equivalent.  It is necessary
+/// for this to be a class and not just a function, since the windows
+/// version requires a large buffer present that will persist after the
+/// pointer to the environment variable value is returned, and we don't want
+/// that buffer to exist on Unix.
 class EnvironmentVariableAccessor {
-    // This 'class' calls 'getenv' or its Windows equivalent.  It is necessary
-    // for this to be a class and not just a function, since the windows
-    // version requires a large buffer present that will persist after the
-    // pointer to the environment variable value is returned, and we don't want
-    // that buffer to exist on Unix.
 
     // DATA
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -56,14 +56,16 @@ class EnvironmentVariableAccessor {
 
   public:
     // CREATORS
+
+    /// Look up the value of the specified `environmentVariableName` and
+    /// store it in this object.
     EnvironmentVariableAccessor(const char *environmentVariableName);
-        // Look up the value of the specified 'environmentVariableName' and
-        // store it in this object.
 
     // ACCESSORS
+
+    /// Return the value of the environment variable that was accessed
+    /// during construction of this object.
     const char *value() const;
-        // Return the value of the environment variable that was accessed
-        // during construction of this object.
 };
 
 // CREATORS
@@ -108,20 +110,20 @@ const char *EnvironmentVariableAccessor::value() const
                         // local functions format(. . .)
                         // =============================
 
+/// Output the specified `strings` sequence of words to the specified
+/// `stream`, separated by spaces, formatted to fit between the columns at
+/// the specified `start` and `end` indices in a greedy fashion, and
+/// returning to a new line prefixed by `start` spaces in case the words
+/// would write into the `end` column.  Optionally specify `col`, the
+/// current "column" position.  Note that a single word of length larger
+/// than `end - start` characters is printed on a single line at the `start`
+/// position, and is the only possibility for this stream to reach or exceed
+/// `end` characters on a single line.
 void format(bsl::size_t                     start,
             bsl::size_t                     end,
             const bsl::vector<bsl::string>& strings,
             bsl::ostream&                   stream,
             bsl::size_t                     col = 0)
-    // Output the specified 'strings' sequence of words to the specified
-    // 'stream', separated by spaces, formatted to fit between the columns at
-    // the specified 'start' and 'end' indices in a greedy fashion, and
-    // returning to a new line prefixed by 'start' spaces in case the words
-    // would write into the 'end' column.  Optionally specify 'col', the
-    // current "column" position.  Note that a single word of length larger
-    // than 'end - start' characters is printed on a single line at the 'start'
-    // position, and is the only possibility for this stream to reach or exceed
-    // 'end' characters on a single line.
 {
     if (0 == strings.size()) {
         return;                                                       // RETURN
@@ -149,21 +151,21 @@ void format(bsl::size_t                     start,
     }
 }
 
+/// Format the specified `string` to the specified `stream`, with words
+/// separated by spaces, formatted to fit between the columns at the
+/// specified `start` and `end` indices as specified by the previous
+/// function (in particular, returning to a new line prefixed by `start`
+/// spaces in case the words would write into the `end` column).  Optionally
+/// specify `col`, the current "column" position.  Note that words are
+/// delimited by either a space, tab, or newline character, but are rendered
+/// as separated by spaces (thus the original separating character is lost).
+/// Also note that `string` is passed by non-`const` reference and may be
+/// modified.
 void format(bsl::size_t   start,
             bsl::size_t   end,
             bsl::string&  string,
             bsl::ostream& stream,
             bsl::size_t   col = 0)
-    // Format the specified 'string' to the specified 'stream', with words
-    // separated by spaces, formatted to fit between the columns at the
-    // specified 'start' and 'end' indices as specified by the previous
-    // function (in particular, returning to a new line prefixed by 'start'
-    // spaces in case the words would write into the 'end' column).  Optionally
-    // specify 'col', the current "column" position.  Note that words are
-    // delimited by either a space, tab, or newline character, but are rendered
-    // as separated by spaces (thus the original separating character is lost).
-    // Also note that 'string' is passed by non-'const' reference and may be
-    // modified.
 {
     bsl::vector<bsl::string> strings;
 
@@ -182,21 +184,23 @@ void format(bsl::size_t   start,
                             // struct Ordinal
                             // ==============
 
+/// This `struct` assists in printing numbers as ordinals (1st, 2nd, etc.).
 struct Ordinal {
-    // This 'struct' assists in printing numbers as ordinals (1st, 2nd, etc.).
 
     bsl::size_t d_rank;  // rank (starting at 0)
 
     // CREATORS
+
+    /// Create an ordinal for the specified position `n` (starting at 0).
     explicit Ordinal(bsl::size_t n);
-        // Create an ordinal for the specified position 'n' (starting at 0).
 };
 
 // FREE OPERATORS
+
+/// Output the specified `position` (starting at 0) to the specified
+/// `stream` as an ordinal, mapping 0 to "1st", 1 to "2nd", 3 to "3rd", 4 to
+/// "4th", etc. following correct English usage.
 bsl::ostream& operator<<(bsl::ostream& stream, Ordinal position);
-    // Output the specified 'position' (starting at 0) to the specified
-    // 'stream' as an ordinal, mapping 0 to "1st", 1 to "2nd", 3 to "3rd", 4 to
-    // "4th", etc. following correct English usage.
 
                             // --------------
                             // struct Ordinal
@@ -253,16 +257,17 @@ namespace u {
 
 struct OptionValueUtil {
     // CLASS METHODS
+
+    /// Assign to the object at the specified `dst` the value of the
+    /// specified `src`.  The behavior is undefined unless
+    /// `OptionType::e_VOID != src.type()` and `dst` can be legally cast to
+    /// a `OptionType::EnumToType<src.type()>::type *` or, if the specified
+    /// `isOptionalLinkedVariable` is `true`, to
+    /// `bsl::optional<OptionType::EnumToType<src.type()>::type> *`.
     static void setLinkedVariableValue(
                                   void               *dst,
                                   bool                isOptionalLinkedVariable,
                                   const OptionValue&  src);
-        // Assign to the object at the specified 'dst' the value of the
-        // specified 'src'.  The behavior is undefined unless
-        // 'OptionType::e_VOID != src.type()' and 'dst' can be legally cast to
-        // a 'OptionType::EnumToType<src.type()>::type *' or, if the specified
-        // 'isOptionalLinkedVariable' is 'true', to
-        // 'bsl::optional<OptionType::EnumToType<src.type()>::type> *'.
 };
 
                         // ---------------------
@@ -334,13 +339,13 @@ void OptionValueUtil::setLinkedVariableValue(
     }
 }
 
+/// Return `true` if `environmentVariableName` is a acceptable environment
+/// variable name for an option, and `false` otherwise.  An environment
+/// variable name is valid if it is a non-empty string containing
+/// alphanumeric characters and `_`, and does not start with a number
+/// (similar to C++ variable names).
 bool isValidEnvironmentVariableName(
                                const bsl::string_view& environmentVariableName)
-    // Return 'true' if 'environmentVariableName' is a acceptable environment
-    // variable name for an option, and 'false' otherwise.  An environment
-    // variable name is valid if it is a non-empty string containing
-    // alphanumeric characters and '_', and does not start with a number
-    // (similar to C++ variable names).
 {
     if (environmentVariableName.empty()) {
         return false;                                                 // RETURN
@@ -360,13 +365,13 @@ bool isValidEnvironmentVariableName(
     return true;
 }
 
+/// Validate the specified `options` against the constraints described in
+/// {Valid `balcl::OptionInfo` Specifications} in the component-level
+/// documentation.  Return 0 if `options` are valid, and a non-zero value
+/// otherwise.  If `options` is invalid, a descriptive message is written to
+/// the specified `errorStream`.
 int validate(const bsl::vector<Option>& options,
              bsl::ostream&              errorStream)
-    // Validate the specified 'options' against the constraints described in
-    // {Valid 'balcl::OptionInfo' Specifications} in the component-level
-    // documentation.  Return 0 if 'options' are valid, and a non-zero value
-    // otherwise.  If 'options' is invalid, a descriptive message is written to
-    // the specified 'errorStream'.
 {
     int status = 0;
 
@@ -593,19 +598,19 @@ int validate(const bsl::vector<Option>& options,
     return status;
 }
 
+/// Parse the specified `input` (obtained from the environment) and populate
+/// the specified `optionValueResult`, whose type is described by the
+/// specified `option`; array types have their values separated by ` `; use
+/// the specified `errorStream` to write a text description of any errors
+/// that occur.  Specify `parseType` to indicate the nature of parsing and
+/// whether variables are to be set.  Return a negative value on failure,
+/// and the number of values populated in `optionValueResult` otherwise
+/// (which will be typically be 1, unless `option` is an array type).
 bsl::ptrdiff_t parseEnvironmentVariable(
                                 OptionValue             *optionValueResult,
                                 const bsl::string_view&  input,
                                 const Option&            option,
                                 bsl::ostream&            errorStream)
-    // Parse the specified 'input' (obtained from the environment) and populate
-    // the specified 'optionValueResult', whose type is described by the
-    // specified 'option'; array types have their values separated by ' '; use
-    // the specified 'errorStream' to write a text description of any errors
-    // that occur.  Specify 'parseType' to indicate the nature of parsing and
-    // whether variables are to be set.  Return a negative value on failure,
-    // and the number of values populated in 'optionValueResult' otherwise
-    // (which will be typically be 1, unless 'option' is an array type).
 {
     const TypeInfo::ParseInputSource e_ENV_VAR =
                                               TypeInfo::e_ENVIRONMENT_VARIABLE;
@@ -670,29 +675,27 @@ bsl::ptrdiff_t parseEnvironmentVariable(
 #undef U_REPORT_ERROR
 }
 
+/// Initialize the specified `data`, `positions`, and `nonOptionIndices`
+/// according to the specified `options`.  The initializations are:
+///
+/// * `data` is initialized with `option.size()` elements, each in the
+///   "null" state, and each having the same type as the corresponding
+///   option element in `options`.
+/// * `positions` is initialized with `options.size()` empty vectors of
+///   `int`.
+/// * `nonOptionIndices` is initialized with the indices in `options`, in
+///   ascending order, where non-option arguments are found, if any.
+///
+/// The behavior is undefined unless `data`, 'positions, and
+/// `nonOptionIndices` are empty, and unless `options` are valid according
+/// to the `validate` function.  Note that there is no guarantee that
+/// `data`, `positions`, and `nonOptionIndices` remain empty if a non-zero
+/// value is returned.
 void initialize(bsl::vector<OptionValue>       *data,
                 bsl::vector<bsl::vector<int> > *positions,
                 bsl::vector<int>               *nonOptionIndices,
                 bool                           *environmentVariablesPresent,
                 const bsl::vector<Option>&      options)
-    // Initialize the specified 'data', 'positions', and 'nonOptionIndices'
-    // according to the specified 'options'.  The initializations are:
-    //
-    //: o 'data' is initialized with 'option.size()' elements, each in the
-    //:   "null" state, and each having the same type as the corresponding
-    //:   option element in 'options'.
-    //:
-    //: o 'positions' is initialized with 'options.size()' empty vectors of
-    //:   'int'.
-    //:
-    //: o 'nonOptionIndices' is initialized with the indices in 'options', in
-    //:   ascending order, where non-option arguments are found, if any.
-    //
-    // The behavior is undefined unless 'data', 'positions, and
-    // 'nonOptionIndices' are empty, and unless 'options' are valid according
-    // to the 'validate' function.  Note that there is no guarantee that
-    // 'data', 'positions', and 'nonOptionIndices' remain empty if a non-zero
-    // value is returned.
 {
     BSLS_ASSERT(data);
     BSLS_ASSERT(positions);

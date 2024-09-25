@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Use the exact text of the usage example from the user
-        //   documentation, but change uses of 'assert' to 'ASSERT'.
+        //   documentation, but change uses of `assert` to `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -46,11 +46,11 @@ int main(int argc, char *argv[])
 
 // If a program wants to display the version of BBL used to build the
 // current executable, it can simply print the version string returned by
-// 'bblscm::Version::version()':
-//..
+// `bblscm::Version::version()`:
+// ```
     if (verbose) bsl::printf("BBL version: %s\n",
                              bblscm::Version::version());
-//..
+// ```
       } break;
       default: {
         bsl::fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

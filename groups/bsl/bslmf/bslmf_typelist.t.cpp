@@ -6,8 +6,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 
@@ -17,7 +17,7 @@ using namespace BloombergLP;
 //                              Overview
 //                              --------
 //  This test driver verifies each of the 21 typelist template classes provided
-//  by 'bslmf_typelist'.  Each template is instantiated with the appropriate
+//  by `bslmf_typelist`.  Each template is instantiated with the appropriate
 //  number of distinct types.  Each type will be test to ensure that the type
 //  defined by it's corresponding Type<N> typedef and TypeOf<N> typedef are
 //  correct.

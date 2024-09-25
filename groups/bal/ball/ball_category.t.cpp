@@ -33,18 +33,18 @@ using namespace bsl;
 // TBD
 //
 // Primary Manipulators:
-//: o TBD
+//  - TBD
 //
 // Basic Accessors:
-//: o TBD
+//  - TBD
 //
 // Global Concerns:
-//: o The test driver is robust w.r.t. reuse in other, similar components.
-//: o ACCESSOR methods are declared 'const'.
-//: o CREATOR/MANIPULATOR/OPERATOR ptr./ref. parameters are declared 'const'.
-//: o No memory is ever allocated from the global allocator.
-//: o No memory is ever allocated from the default allocator.
-//: o Precondition violations are detected in appropriate build modes.
+//  - The test driver is robust w.r.t. reuse in other, similar components.
+//  - ACCESSOR methods are declared `const`.
+//  - CREATOR/MANIPULATOR/OPERATOR ptr./ref. parameters are declared `const`.
+//  - No memory is ever allocated from the global allocator.
+//  - No memory is ever allocated from the default allocator.
+//  - Precondition violations are detected in appropriate build modes.
 // ----------------------------------------------------------------------------
 // CREATORS
 // [  ] Category();
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
 
     // CONCERN: This test driver is reusable w/other, similar components.
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -159,13 +159,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -175,19 +175,19 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-///Example 1: Basic Use of 'ball::Category'
+///Example 1: Basic Use of `ball::Category`
 /// - - - - - - - - - - - - - - - - - - - -
 // The following example demonstrates creating a category and accessing its
 // threshold information.
 //
 // Note that other components in the logging subsystem provide more user
-// focused examples of using categories (see {'ball_loggermanager'},
-// {'ball_administration'}, and 'ball_categorymanager'}).
+// focused examples of using categories (see {`ball_loggermanager`},
+// {`ball_administration`}, and `ball_categorymanager`}).
 //
-// First we create a simple category, 'example', that has the record-level,
+// First we create a simple category, `example`, that has the record-level,
 // trigger-level, and trigger-all thresholds set to OFF and the pass-level set
 // to WARN, and verify these values:
-//..
+// ```
     ball::Category example("example",
                            ball::Severity::e_OFF,
                            ball::Severity::e_WARN,
@@ -199,17 +199,17 @@ int main(int argc, char *argv[])
     ASSERT(ball::Severity::e_WARN == example.passLevel());
     ASSERT(ball::Severity::e_OFF  == example.triggerLevel());
     ASSERT(ball::Severity::e_OFF  == example.triggerAllLevel());
-//..
-// See {'ball_loggermanager'} for more information on the use of various
+// ```
+// See {`ball_loggermanager`} for more information on the use of various
 // thresholds levels.
 //
 // Finally, we test if a the category is enabled for log record recorded with
-// 'e_ERROR' severity:
-//..
+// `e_ERROR` severity:
+// ```
     if (example.isEnabled(ball::Severity::e_ERROR)) {
         // publish record
     }
-//..
+// ```
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -217,8 +217,8 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
         //

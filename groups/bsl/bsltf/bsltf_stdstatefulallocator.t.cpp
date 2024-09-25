@@ -35,7 +35,7 @@ using bsls::NameOf;
 #if defined(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND)
 # define BSL_DO_NOT_TEST_MOVE_FORWARDING 1
 // Some compilers produce ambiguities when trying to construct our test types
-// for 'emplace'-type functionality with the C++03 move-emulation.  This is a
+// for `emplace`-type functionality with the C++03 move-emulation.  This is a
 // compiler bug triggering in lower level components, so we simply disable
 // those aspects of testing, and rely on the extensive test coverage on other
 // platforms.
@@ -47,24 +47,24 @@ using bsls::NameOf;
 //                              Overview
 //                              --------
 // The component under test implements a value-semantic type,
-// 'bsltf::StdStatefulAllocator' whose value consists of a single pointer to a
-// 'bslma::TestAllocator' object (its underlying "mechanism").    It cannot be
+// `bsltf::StdStatefulAllocator` whose value consists of a single pointer to a
+// `bslma::TestAllocator` object (its underlying "mechanism").    It cannot be
 // reset, however, since normally an allocator does not change during the
-// lifetime of an object.  A 'bsltf::StdStatefulAllocator' is parameterized by
+// lifetime of an object.  A `bsltf::StdStatefulAllocator` is parameterized by
 // the type that it allocates, and that influences the behavior of several
 // manipulators and accessors, mainly depending on the size of that type.  The
-// same 'bsltf::StdStatefulAllocator' can be re-parameterized for another type
-// ("rebound") using the 'rebind' nested template.
+// same `bsltf::StdStatefulAllocator` can be re-parameterized for another type
+// ("rebound") using the `rebind` nested template.
 //
-// Although 'bsltf::StdStatefulAllocator' is a value-semantic type, the fact
+// Although `bsltf::StdStatefulAllocator` is a value-semantic type, the fact
 // that its value is fixed at construction and not permitted to change let us
 // relax the usual concerns of a typical value-semantic type.  Our specific
 // concerns are that an allocator constructed with a certain underlying
 // mechanism actually uses that mechanism to allocate memory, and that its
-// rebound versions also do.  Another concern is that the 'max_size' is the
+// rebound versions also do.  Another concern is that the `max_size` is the
 // maximum possible size for that type (i.e., it is impossible to meaningfully
-// pass in a larger size), and that the 'size_type' is unsigned, the
-// 'difference_type' is signed, and generally all the requirements of C++
+// pass in a larger size), and that the `size_type` is unsigned, the
+// `difference_type` is signed, and generally all the requirements of C++
 // standard allocators are met (20.1.2 [allocator.requirements]).
 //-----------------------------------------------------------------------------
 // class StdStatefulAllocator
@@ -153,11 +153,11 @@ void aSsErT(bool condition, const char *message, int line)
 #define TEST_TYPES_REGULAR BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR
 
 // TBD
-// For specific test cases, remove 'bsltf::TemplateTestFacility::FunctionPtr'
+// For specific test cases, remove `bsltf::TemplateTestFacility::FunctionPtr`
 // from the list of types to test on Linux to avoid:
 //   collect2: error: /opt/bb/bin/gnm returned 1 exit status
-// which occurs when 'gnm' is run on 'bsltf_stdstatefulallocator.t.cpp.1.o'.
-// Also see 'bslstl_deque.t.cpp'.
+// which occurs when `gnm` is run on `bsltf_stdstatefulallocator.t.cpp.1.o`.
+// Also see `bslstl_deque.t.cpp`.
 
 #if defined(BSLS_PLATFORM_OS_LINUX)
 #define REDUCED_TEST_TYPES_REGULAR                                            \
@@ -194,23 +194,23 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
+/// This leading branch is the preferred version for C++17, but the feature
+/// test macro is (currently) for documentation purposes only, and never
+/// defined.  This is the ideal (simplest) form for such declarations:
 # define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
     const BSLS_KEYWORD_CONSTEXPR bsl::bool_constant<EXPRESSION> NAME{}
-    // This leading branch is the preferred version for C++17, but the feature
-    // test macro is (currently) for documentation purposes only, and never
-    // defined.  This is the ideal (simplest) form for such declarations:
 #elif defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
 # define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
     constexpr bsl::integral_constant<bool, EXPRESSION> NAME{}
     // This is the preferred C++11 form for the definition of integral constant
-    // variables.  It assumes the presence of 'constexpr' in the compiler as an
+    // variables.  It assumes the presence of `constexpr` in the compiler as an
     // indication that brace-initialization and traits are available, as it has
     // historically been one of the last C++11 features to ship.
 #else
 # define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
     static const bsl::integral_constant<bool, EXPRESSION> NAME =              \
                  bsl::integral_constant<bool, EXPRESSION>()
-    // 'bsl::integral_constant' is not an aggregate prior to C++17 extending
+    // `bsl::integral_constant` is not an aggregate prior to C++17 extending
     // the rules, so a C++03 compiler must explicitly initialize integral
     // constant variables in a way that is unambiguously not a vexing parse
     // that declares a function instead.
@@ -245,22 +245,23 @@ typedef bsltf::CopyMoveState        CMS;
                             // class TestDriver
                             // ================
 
+/// Test driver class for `StdStatefulAllocator`
 template <class VALUE>
 class TestDriver {
-    // Test driver class for 'StdStatefulAllocator'
 
   private:
     // TYPES
+
+    /// type under testing
     typedef bsltf::StdStatefulAllocator<VALUE> Obj;
-        // type under testing
 
     // Legend
     // ------
-    // 'CC'   - PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION
-    // 'CA'   - PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT
-    // 'SWAP' - PROPAGATE_ON_CONTAINER_SWAP,
-    // 'MA'   - PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT
-    // 'IAE'  - IS_ALWAYS_EQUAL
+    // `CC`   - PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION
+    // `CA`   - PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT
+    // `SWAP` - PROPAGATE_ON_CONTAINER_SWAP,
+    // `MA`   - PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT
+    // `IAE`  - IS_ALWAYS_EQUAL
     //
     //                       TYPE   CC     CA     SWAP   MA     IAE
     //                       -----  -----  -----  -----  -----  ------
@@ -329,21 +330,23 @@ class TestDriver {
     typedef
         StdStatefulAllocator<VALUE, true,  true,  true,  true,  true>  Obj31;
 
+    /// Return the specified `t` moved.
     template <class T>
     static bslmf::MovableRef<T> testArg(T& t, bsl::true_type )
-        // Return the specified 't' moved.
     {
         return bslmf::MovableRefUtil::move(t);
     }
 
+    /// Return a reference providing non-modifiable access to the specified
+    /// `t`.
     template <class T>
     static const T&             testArg(T& t, bsl::false_type)
-        // Return a reference providing non-modifiable access to the specified
-        // 't'.
     {
         return t;
     }
 
+    /// Test forwarding of arguments in `construct` method and `construct`
+    /// method itself.
     template <int N_ARGS,
               int N01,
               int N02,
@@ -356,47 +359,46 @@ class TestDriver {
               int N09,
               int N10>
     static void testCase15_RunTest(Obj *target);
-        // Test forwarding of arguments in 'construct' method and 'construct'
-        // method itself.
 
   public:
 
     // TEST CASES
+
+    /// Test `max_size`.
     static void testCase16();
-        // Test 'max_size'.
 
+    /// Test `construct`.
     static void testCase15();
-        // Test 'construct'.
 
+    /// Test traits propagation.
     static void testCase14();
-        // Test traits propagation.
 
+    /// Test types aliases.
     static void testCase13();
-        // Test types aliases.
 
+    /// Test `select_on_container_copy_construction` member.
     static void testCase12();
-        // Test 'select_on_container_copy_construction' member.
 
+    /// Test `allocate` and `deallocate` members.
     static void testCase11();
-        // Test 'allocate' and 'deallocate' members.
 
+    /// Test copy assignment operator.
     static void testCase9();
-        // Test copy assignment operator.
 
+    /// Test copy constructors.
     static void testCase7();
-        // Test copy constructors.
 
+    /// Test equality operators (`operator==` and `operator!=`).
     static void testCase6();
-        // Test equality operators ('operator==' and 'operator!=').
 
+    /// Test basic accessors (`allocator`).
     static void testCase4();
-        // Test basic accessors ('allocator').
 
+    /// Test primary manipulators (value constructor and destructor).
     static void testCase2();
-        // Test primary manipulators (value constructor and destructor).
 
+    /// Breathing test.
     static void testCase1();
-        // Breathing test.
 };
 
 template <class VALUE>
@@ -584,30 +586,30 @@ template <class VALUE>
 void TestDriver<VALUE>::testCase16()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'max_size'
+    // TESTING `max_size`
     //
     // Concerns:
-    //: 1 The result of 'max_size' fits and represents the maximum possible
-    //:   number of bytes in a 'bslma::Allocator::size_type' for
-    //:   'StdStatefulAllocator' parametrized by type, having size equal to 1
-    //:   byte.
-    //:
-    //: 2 The result of 'max_size' represents the maximum possible number of
-    //:   objects of (template parameter) 'TYPE', that occupy no more memory
-    //:   (in bytes) than 'bslma::Allocator::size_type' maximum value.
+    // 1. The result of `max_size` fits and represents the maximum possible
+    //    number of bytes in a `bslma::Allocator::size_type` for
+    //    `StdStatefulAllocator` parametrized by type, having size equal to 1
+    //    byte.
+    //
+    // 2. The result of `max_size` represents the maximum possible number of
+    //    objects of (template parameter) `TYPE`, that occupy no more memory
+    //    (in bytes) than `bslma::Allocator::size_type` maximum value.
     //
     // Plan:
-    //: 1 Create a 'StdStatefulAllocator' object, parameterized with 'char'.
-    //:   Verify, that 'max_size' returns maximum value of
-    //:   'bslma::Allocator::size_type'.  (C-1)
-    //:
-    //: 2 Create a 'StdStatefulAllocator' object, parameterized with (function
-    //:   template parameter) 'VALUE'.  Verify, that 'max_size' returns
-    //:   positive value, that represents the number of objects that occupy no
-    //:   more memory(in bytes) than 'bslma::Allocator::size_type' maximum
-    //:   value.  Verify that 'max_size + 1' number of objects occupy more
-    //:   memory(in bytes) than 'bslma::Allocator::size_type' maximum value.
-    //:   (C-2)
+    // 1. Create a `StdStatefulAllocator` object, parameterized with `char`.
+    //    Verify, that `max_size` returns maximum value of
+    //    `bslma::Allocator::size_type`.  (C-1)
+    //
+    // 2. Create a `StdStatefulAllocator` object, parameterized with (function
+    //    template parameter) `VALUE`.  Verify, that `max_size` returns
+    //    positive value, that represents the number of objects that occupy no
+    //    more memory(in bytes) than `bslma::Allocator::size_type` maximum
+    //    value.  Verify that `max_size + 1` number of objects occupy more
+    //    memory(in bytes) than `bslma::Allocator::size_type` maximum value.
+    //    (C-2)
     //
     // Testing:
     //   size_type max_size() const;
@@ -655,40 +657,40 @@ template <class VALUE>
 void TestDriver<VALUE>::testCase15()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'construct'
+    // TESTING `construct`
     //
     // Concerns:
-    //: 1 The 'construct' correctly forwards arguments to the constructor of
-    //:   the object being constructed (up to 10 arguments).
-    //:
-    //: 2 No memory is allocated from default allocator or from the
-    //:   'StdStatefulAllocator' object.
-    //:
+    // 1. The `construct` correctly forwards arguments to the constructor of
+    //    the object being constructed (up to 10 arguments).
+    //
+    // 2. No memory is allocated from default allocator or from the
+    //    `StdStatefulAllocator` object.
+    //
     // Plan:
-    //: 1 This test makes material use of template method
-    //:   'testCase15_RunTest' with first integer template parameter
-    //:   indicating the number of arguments to use, the next 10 integer
-    //:   template parameters indicating '0' for copy, '1' for move, and
-    //:   '2' for not-applicable (i.e., beyond the number of arguments).
-    //:
-    //:   1 Create 'StdStatefulAllocator' object.
-    //:
-    //:   2 Create 10 unique argument values.
-    //:
-    //:   3 Based on (first) template parameter indicating the number of
-    //:     args to pass in, call 'construct' with the corresponding
-    //:     argument values, performing an explicit move of the argument if
-    //:     so indicated by the template parameter corresponding to the
-    //:     argument, all in the presence of injected exceptions.
-    //:
-    //:   4 Verify that the argument values were passed correctly.
-    //:
-    //:   5 Verify that the move-state for each argument is as expected.  (C-1)
-    //:
-    //:   6 Verify that no memory is allocated from default allocator.
-    //:
-    //:   7 Verify that no memory is allocated from the allocator, associated
-    //:     with current 'StdStatefulAllocator' object.  (C-2)
+    // 1. This test makes material use of template method
+    //    `testCase15_RunTest` with first integer template parameter
+    //    indicating the number of arguments to use, the next 10 integer
+    //    template parameters indicating '0' for copy, `1` for move, and
+    //    `2` for not-applicable (i.e., beyond the number of arguments).
+    //
+    //   1. Create `StdStatefulAllocator` object.
+    //
+    //   2. Create 10 unique argument values.
+    //
+    //   3. Based on (first) template parameter indicating the number of
+    //      args to pass in, call `construct` with the corresponding
+    //      argument values, performing an explicit move of the argument if
+    //      so indicated by the template parameter corresponding to the
+    //      argument, all in the presence of injected exceptions.
+    //
+    //   4. Verify that the argument values were passed correctly.
+    //
+    //   5. Verify that the move-state for each argument is as expected.  (C-1)
+    //
+    //   6. Verify that no memory is allocated from default allocator.
+    //
+    //   7. Verify that no memory is allocated from the allocator, associated
+    //      with current `StdStatefulAllocator` object.  (C-2)
     //
     // Testing:
     //   void construct(ELEMENT_TYPE *address, Args&&... arguments);
@@ -705,27 +707,27 @@ void TestDriver<VALUE>::testCase15()
     bslma::TestAllocatorMonitor  oam(&oa);
 
 #ifndef BSL_DO_NOT_TEST_MOVE_FORWARDING
-    if (verbose) printf("\tTesting 'construct' with no arguments\n");
+    if (verbose) printf("\tTesting `construct` with no arguments\n");
     testCase15_RunTest<0,2,2,2,2,2,2,2,2,2,2>(&mX);
 
-    if (verbose) printf("\tTesting 'construct' with 1 argument\n");
+    if (verbose) printf("\tTesting `construct` with 1 argument\n");
     testCase15_RunTest<1,0,2,2,2,2,2,2,2,2,2>(&mX);
     testCase15_RunTest<1,1,2,2,2,2,2,2,2,2,2>(&mX);
 
-    if (verbose) printf("\tTesting 'construct' with 2 arguments\n");
+    if (verbose) printf("\tTesting `construct` with 2 arguments\n");
     testCase15_RunTest<2,0,0,2,2,2,2,2,2,2,2>(&mX);
     testCase15_RunTest<2,0,1,2,2,2,2,2,2,2,2>(&mX);
     testCase15_RunTest<2,1,0,2,2,2,2,2,2,2,2>(&mX);
     testCase15_RunTest<2,1,1,2,2,2,2,2,2,2,2>(&mX);
 
-    if (verbose) printf("\tTesting 'construct' with 3 arguments\n");
+    if (verbose) printf("\tTesting `construct` with 3 arguments\n");
     testCase15_RunTest<3,0,0,0,2,2,2,2,2,2,2>(&mX);
     testCase15_RunTest<3,1,0,0,2,2,2,2,2,2,2>(&mX);
     testCase15_RunTest<3,0,1,0,2,2,2,2,2,2,2>(&mX);
     testCase15_RunTest<3,0,0,1,2,2,2,2,2,2,2>(&mX);
     testCase15_RunTest<3,1,1,1,2,2,2,2,2,2,2>(&mX);
 
-    if (verbose) printf("\tTesting 'construct' with 4 arguments\n");
+    if (verbose) printf("\tTesting `construct` with 4 arguments\n");
     testCase15_RunTest<4,0,0,0,0,2,2,2,2,2,2>(&mX);
     testCase15_RunTest<4,1,0,0,0,2,2,2,2,2,2>(&mX);
     testCase15_RunTest<4,0,1,0,0,2,2,2,2,2,2>(&mX);
@@ -733,7 +735,7 @@ void TestDriver<VALUE>::testCase15()
     testCase15_RunTest<4,0,0,0,1,2,2,2,2,2,2>(&mX);
     testCase15_RunTest<4,1,1,1,1,2,2,2,2,2,2>(&mX);
 
-    if (verbose) printf("\tTesting 'construct' with 5 arguments\n");
+    if (verbose) printf("\tTesting `construct` with 5 arguments\n");
     testCase15_RunTest<5,0,0,0,0,0,2,2,2,2,2>(&mX);
     testCase15_RunTest<5,1,0,0,0,0,2,2,2,2,2>(&mX);
     testCase15_RunTest<5,0,1,0,0,0,2,2,2,2,2>(&mX);
@@ -742,7 +744,7 @@ void TestDriver<VALUE>::testCase15()
     testCase15_RunTest<5,0,0,0,0,1,2,2,2,2,2>(&mX);
     testCase15_RunTest<5,1,1,1,1,1,2,2,2,2,2>(&mX);
 
-    if (verbose) printf("\tTesting 'construct' with 6 arguments\n");
+    if (verbose) printf("\tTesting `construct` with 6 arguments\n");
     testCase15_RunTest<6,0,0,0,0,0,0,2,2,2,2>(&mX);
     testCase15_RunTest<6,1,0,0,0,0,0,2,2,2,2>(&mX);
     testCase15_RunTest<6,0,1,0,0,0,0,2,2,2,2>(&mX);
@@ -752,7 +754,7 @@ void TestDriver<VALUE>::testCase15()
     testCase15_RunTest<6,0,0,0,0,0,1,2,2,2,2>(&mX);
     testCase15_RunTest<6,1,1,1,1,1,1,2,2,2,2>(&mX);
 
-    if (verbose) printf("\tTesting 'construct' with 7 arguments\n");
+    if (verbose) printf("\tTesting `construct` with 7 arguments\n");
     testCase15_RunTest<7,0,0,0,0,0,0,0,2,2,2>(&mX);
     testCase15_RunTest<7,1,0,0,0,0,0,0,2,2,2>(&mX);
     testCase15_RunTest<7,0,1,0,0,0,0,0,2,2,2>(&mX);
@@ -763,7 +765,7 @@ void TestDriver<VALUE>::testCase15()
     testCase15_RunTest<7,0,0,0,0,0,0,1,2,2,2>(&mX);
     testCase15_RunTest<7,1,1,1,1,1,1,1,2,2,2>(&mX);
 
-    if (verbose) printf("\tTesting 'construct' with 8 arguments\n");
+    if (verbose) printf("\tTesting `construct` with 8 arguments\n");
     testCase15_RunTest<8,0,0,0,0,0,0,0,0,2,2>(&mX);
     testCase15_RunTest<8,1,0,0,0,0,0,0,0,2,2>(&mX);
     testCase15_RunTest<8,0,1,0,0,0,0,0,0,2,2>(&mX);
@@ -778,7 +780,7 @@ void TestDriver<VALUE>::testCase15()
 #if 0
     // This section is disabled to avoid excessive template instantiation
     // that leads to build error. Temporary fix.
-    if (verbose) printf("\tTesting 'construct' with 9 arguments\n");
+    if (verbose) printf("\tTesting `construct` with 9 arguments\n");
     testCase15_RunTest<9,0,0,0,0,0,0,0,0,0,2>(&mX);
     testCase15_RunTest<9,1,0,0,0,0,0,0,0,0,2>(&mX);
     testCase15_RunTest<9,0,1,0,0,0,0,0,0,0,2>(&mX);
@@ -791,7 +793,7 @@ void TestDriver<VALUE>::testCase15()
     testCase15_RunTest<9,0,0,0,0,0,0,0,0,1,2>(&mX);
     testCase15_RunTest<9,1,1,1,1,1,1,1,1,1,2>(&mX);
 
-    if (verbose) printf("\tTesting 'construct' with 10 arguments\n");
+    if (verbose) printf("\tTesting `construct` with 10 arguments\n");
     testCase15_RunTest<10,0,0,0,0,0,0,0,0,0,0>(&mX);
     testCase15_RunTest<10,1,0,0,0,0,0,0,0,0,0>(&mX);
     testCase15_RunTest<10,0,1,0,0,0,0,0,0,0,0>(&mX);
@@ -832,20 +834,20 @@ void TestDriver<VALUE>::testCase14()
     //   The copy, move and swap behavior of the allocators of C++11
     //   containers is determined by three "propagation traits" that may
     //   be defined by the allocator, but are otherwise assumed to be
-    //   'false' i.e., do not propagate.  This component provides the
+    //   `false` i.e., do not propagate.  This component provides the
     //   ability to configure these traits for any given instantiation of
     //   this template.  These traits have no effect on the behavior of the
     //   allocator type itself, but exist solely to be queried by higher
     //   level components, such as containers.  If defined, they must be
-    //   an alias to 'bsl::true_type', 'bsl::false_type', or a type
+    //   an alias to `bsl::true_type`, `bsl::false_type`, or a type
     //   publicly and unambiguously derived from one of these two classes.
     //
     // Concerns:
-    //: 1 Template parameters are correctly transformed to the type traits.
-    //:
+    // 1. Template parameters are correctly transformed to the type traits.
+    //
     // Plan:
-    //: 1 Define several adaptor types with various combinations of template
-    //:   parameters and verify that traits are configured correctly.  (C-1)
+    // 1. Define several adaptor types with various combinations of template
+    //    parameters and verify that traits are configured correctly.  (C-1)
     //
     // Testing:
     //   propagate_on_container_copy_assignment
@@ -1091,35 +1093,35 @@ void TestDriver<VALUE>::testCase13()
     // SPURIOUS NESTED TYPES
     //   There are a number of frequently encountered type aliases that are
     //   often defined by an allocator type.  For a minimal C++11 allocator
-    //   these will be supplied automatically by the 'allocator_traits'
+    //   these will be supplied automatically by the `allocator_traits`
     //   template and so should *not* be defined for our minimal allocator.
-    //   However, the current 'bsl' implementation of 'allocator_traits'
+    //   However, the current `bsl` implementation of `allocator_traits`
     //   does not perform the necessary template metaprogramming to deduce
     //   these aliases if missing, so our initial implementation must also
     //   provide these names.  Once we have a more complete implementation
-    //   of 'allocator_traits', this test will instead confirm that these
+    //   of `allocator_traits`, this test will instead confirm that these
     //   popular type aliases do *not* exist for our template.
     //
     // Concerns:
-    //: 1 The 'typedef' aliases defined in this component are as specified
-    //:   by the C++11 standard for template instances parameterized on the
-    //:   different types.
-    //:
-    //: 2 'size_type' is unsigned while 'difference_type' is signed.
-    //:
-    //: 3 'rebind<BDE_OTHER_TYPE>::other' defines a template instance for
-    //:   'StdStatefulAllocator' parameterized on the 'BDE_OTHER_TYPE' type.
+    // 1. The `typedef` aliases defined in this component are as specified
+    //    by the C++11 standard for template instances parameterized on the
+    //    different types.
+    //
+    // 2. `size_type` is unsigned while `difference_type` is signed.
+    //
+    // 3. `rebind<BDE_OTHER_TYPE>::other` defines a template instance for
+    //    `StdStatefulAllocator` parameterized on the `BDE_OTHER_TYPE` type.
     //
     // Plan:
-    //: 1 Use the 'sizeof' operator to verify that 'size_type' and
-    //:   'difference_type' are the right size and verify they are
-    //:   unsigned and signed values.  (C-2)
-    //:
-    //: 2 For all other type aliases, use 'bsl::is_same' to verify that
-    //:   they are the expected types.  (C-1)
-    //:
-    //: 3 Verify using 'bsl::is_same' that 'rebind<U>::other' defines the
-    //:   correct type.  (C-3)
+    // 1. Use the `sizeof` operator to verify that `size_type` and
+    //    `difference_type` are the right size and verify they are
+    //    unsigned and signed values.  (C-2)
+    //
+    // 2. For all other type aliases, use `bsl::is_same` to verify that
+    //    they are the expected types.  (C-1)
+    //
+    // 3. Verify using `bsl::is_same` that `rebind<U>::other` defines the
+    //    correct type.  (C-3)
     //
     // Testing:
     //   value_type
@@ -1133,35 +1135,35 @@ void TestDriver<VALUE>::testCase13()
     if (verbose)
         printf("\nVALUE: %s\n", NameOf<VALUE>().name());
 
-    if (verbose) printf("\tTesting 'value_type'.\n");
+    if (verbose) printf("\tTesting `value_type`.\n");
     {
         ASSERT((bsl::is_same<typename Obj::value_type, VALUE>::value));
     }
 
-    if (verbose) printf("\tTesting 'size_type'.\n");
+    if (verbose) printf("\tTesting `size_type`.\n");
     {
         ASSERT(sizeof(typename Obj::size_type) == sizeof(VALUE*));
         ASSERT(0 < ~(typename Obj::size_type)0);
     }
 
-    if (verbose) printf("\tTesting 'difference_type'.\n");
+    if (verbose) printf("\tTesting `difference_type`.\n");
     {
         ASSERT(sizeof(typename Obj::difference_type) == sizeof(VALUE*));
         ASSERT(0 > ~(typename Obj::difference_type)0);
     }
 
-    if (verbose) printf("\tTesting 'pointer'.\n");
+    if (verbose) printf("\tTesting `pointer`.\n");
     {
         ASSERT((bsl::is_same<typename Obj::pointer, VALUE*>::value));
     }
 
-    if (verbose) printf("\tTesting 'const_pointer'.\n");
+    if (verbose) printf("\tTesting `const_pointer`.\n");
     {
         ASSERT((bsl::is_same<typename Obj::const_pointer,
                              const VALUE*>::value));
     }
 
-    if (verbose) printf("\tTesting 'rebind'.\n");
+    if (verbose) printf("\tTesting `rebind`.\n");
     {
         typedef typename Obj::template rebind<int  >::other ObjRebindI;
         typedef typename Obj::template rebind<float>::other ObjRebindF;
@@ -1175,36 +1177,36 @@ template <class VALUE>
 void TestDriver<VALUE>::testCase12()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'select_on_container_copy_construction'
+    // TESTING `select_on_container_copy_construction`
     //
     // Concerns:
-    //: 1 Return value depends only on
-    //:   'PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION' template parameter.
-    //:
-    //: 2 If 'PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION' template parameter is
-    //:   equal to 'true', copy of current object is returned.
-    //:
-    //: 3 If 'PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION' template parameter is
-    //:   equal to 'false', temporary object, delegating requests to the
-    //:   default allocator is returned.
-    //:
-    //: 4 If 'IS_ALWAYS_EQUAL' template parameter is
-    //:   equal to 'true', returned objects will always compare as equal to the
-    //:   current object, regardless of other parameter values.
+    // 1. Return value depends only on
+    //    `PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION` template parameter.
+    //
+    // 2. If `PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION` template parameter is
+    //    equal to `true`, copy of current object is returned.
+    //
+    // 3. If `PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION` template parameter is
+    //    equal to `false`, temporary object, delegating requests to the
+    //    default allocator is returned.
+    //
+    // 4. If `IS_ALWAYS_EQUAL` template parameter is
+    //    equal to `true`, returned objects will always compare as equal to the
+    //    current object, regardless of other parameter values.
     //
     // Plan:
-    //: 1 Create several 'StdStatefulAllocator' objects with different template
-    //:   parameters.
-    //:
-    //: 2 Use 'select_on_container_copy_construction' method to create new
-    //:   'StdStatefulAllocator' objects.
-    //:
-    //: 3 Verify that 'select_on_container_copy_construction' method returns a
-    //:   copy of origin object if the 'bool' template parameter
-    //:   'PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION' is true, and a copy of a
-    //:   'StdStatefulAllocator' object wrapping the default allocator
-    //:   otherwise (although this can only be determined when the 'bool'
-    //:   template parameter 'IS_ALWAYS_EQUAL' is false).  (C-1..3)
+    // 1. Create several `StdStatefulAllocator` objects with different template
+    //    parameters.
+    //
+    // 2. Use `select_on_container_copy_construction` method to create new
+    //    `StdStatefulAllocator` objects.
+    //
+    // 3. Verify that `select_on_container_copy_construction` method returns a
+    //    copy of origin object if the `bool` template parameter
+    //    `PROPAGATE_ON_CONTAINER_COPY_CONSTRUCTION` is true, and a copy of a
+    //    `StdStatefulAllocator` object wrapping the default allocator
+    //    otherwise (although this can only be determined when the `bool`
+    //    template parameter `IS_ALWAYS_EQUAL` is false).  (C-1..3)
     //
     // Testing:
     //   StdStatefulAllocator select_on_container_copy_construction() const
@@ -1285,9 +1287,9 @@ void TestDriver<VALUE>::testCase12()
     const Obj30 COPY30 = X30.select_on_container_copy_construction();
     const Obj31 COPY31 = X31.select_on_container_copy_construction();
 
-    // For the following cases, 'propogate_on_container_copy' is false, so a
+    // For the following cases, `propogate_on_container_copy` is false, so a
     // newly default constructed allocator is returned by
-    // 'select_on_container_copy_construction'.  As 'is_always_equal' is false,
+    // `select_on_container_copy_construction`.  As `is_always_equal` is false,
     // we can use the equality operator to test that the objects are different.
     ASSERT(X0  != COPY0 );
     ASSERT(X2  != COPY2 );
@@ -1298,11 +1300,11 @@ void TestDriver<VALUE>::testCase12()
     ASSERT(X12 != COPY12);
     ASSERT(X14 != COPY14);
 
-    // For the following cases, 'propogate_on_container_copy' is false, so a
+    // For the following cases, `propogate_on_container_copy` is false, so a
     // newly default constructed allocator is returned by
-    // 'select_on_container_copy_construction'.  However, as the
-    // 'is_always_equal' trait is true, the equality operator will return
-    // 'true' in all cases.
+    // `select_on_container_copy_construction`.  However, as the
+    // `is_always_equal` trait is true, the equality operator will return
+    // `true` in all cases.
     ASSERT(X1  == COPY1 ); // is_always_equal
     ASSERT(X3  == COPY3 ); // is_always_equal
     ASSERT(X5  == COPY5 ); // is_always_equal
@@ -1312,9 +1314,9 @@ void TestDriver<VALUE>::testCase12()
     ASSERT(X13 == COPY13); // is_always_equal
     ASSERT(X15 == COPY15); // is_always_equal
 
-    // For the following cases, 'propogate_on_container_copy' is false, so a
+    // For the following cases, `propogate_on_container_copy` is false, so a
     // copy of the allocator (obtained using the copy constructor) is returned
-    // by 'select_on_container_copy_construction'.  As they are the same
+    // by `select_on_container_copy_construction`.  As they are the same
     // object, the equality operator will return true.
     ASSERT(X16 == COPY16); // propagate_on_container_copy_construction
     ASSERT(X18 == COPY18); // propagate_on_container_copy_construction
@@ -1325,11 +1327,11 @@ void TestDriver<VALUE>::testCase12()
     ASSERT(X28 == COPY28); // propagate_on_container_copy_construction
     ASSERT(X30 == COPY30); // propagate_on_container_copy_construction
 
-    // For the following cases, 'propogate_on_container_copy' is false, so a
+    // For the following cases, `propogate_on_container_copy` is false, so a
     // copy of the allocator (obtained using the copy constructor) is returned
-    // by 'select_on_container_copy_construction'.  As they are the same
+    // by `select_on_container_copy_construction`.  As they are the same
     // object, the equality operator will return true.  Note, however that, as
-    // the 'is_always_equal' trait is true, the equality operator would have
+    // the `is_always_equal` trait is true, the equality operator would have
     // returned true regardless of whether the objects were the same.
     ASSERT(X17 == COPY17); // propagate_on_container_copy_construction
                            // && is_always_equal
@@ -1386,37 +1388,37 @@ template <class VALUE>
 void TestDriver<VALUE>::testCase11()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'allocate' AND 'deallocate'
+    // TESTING `allocate` AND `deallocate`
     //
     // Concerns:
-    //: 1 The 'allocate' method forwards allocation requests to the appropriate
-    //:   delegate allocator.
-    //:
-    //: 2 The 'deallocate' method forwards the deallocation requests to the
-    //:   appropriate delegate allocator.
-    //:
-    //: 3 The 'allocate' method returns the address that was returned by the
-    //:   allocation request to the appropriate delegate allocator.
-    //:
-    //: 4 The 'allocate' method allocates memory enough for storing requested
-    //:   number of elements.
-    //:
-    //: 5 The allocation request for zero elements has no effect on memory
-    //:   allocation and null pointer is returned.
-    //:
-    //: 6 The 'deallocate' method ignores 'numElements' parameter.
+    // 1. The `allocate` method forwards allocation requests to the appropriate
+    //    delegate allocator.
+    //
+    // 2. The `deallocate` method forwards the deallocation requests to the
+    //    appropriate delegate allocator.
+    //
+    // 3. The `allocate` method returns the address that was returned by the
+    //    allocation request to the appropriate delegate allocator.
+    //
+    // 4. The `allocate` method allocates memory enough for storing requested
+    //    number of elements.
+    //
+    // 5. The allocation request for zero elements has no effect on memory
+    //    allocation and null pointer is returned.
+    //
+    // 6. The `deallocate` method ignores `numElements` parameter.
     //
     // Plan:
-    //: 1 Create a 'bslma::Allocator' object and install it as the delegate
-    //:   allocator for 'StdStatefulAllocator'.
-    //:
-    //: 2 Create a new 'StdStatefulAllocator' object and invoke the 'allocate'
-    //:   method.  Verify that the correct amount of memory has been allocated
-    //:   from the delegate allocator and address of allocated memory has been
-    //:   returned.  (C-1, 3..5)
-    //:
-    //: 3 Invoke the 'deallocate' method and verify that the correct amount of
-    //:   memory has been deallocated from the delegate allocator. (C-2, 6)
+    // 1. Create a `bslma::Allocator` object and install it as the delegate
+    //    allocator for `StdStatefulAllocator`.
+    //
+    // 2. Create a new `StdStatefulAllocator` object and invoke the `allocate`
+    //    method.  Verify that the correct amount of memory has been allocated
+    //    from the delegate allocator and address of allocated memory has been
+    //    returned.  (C-1, 3..5)
+    //
+    // 3. Invoke the `deallocate` method and verify that the correct amount of
+    //    memory has been deallocated from the delegate allocator. (C-2, 6)
     //
     // Testing:
     //   pointer allocate(size_type numElements, const void *hint = 0);
@@ -1495,7 +1497,7 @@ void TestDriver<VALUE>::testCase11()
     ASSERTV(oa.numBytesInUse(), 0 == oa.numBytesInUse());
 
     if (verbose) {
-        printf("\tVerifying that 'numElements' parameter is ignored.\n");
+        printf("\tVerifying that `numElements` parameter is ignored.\n");
     }
     {
         const size_t  ALLOCATIONS_NUM = 5;
@@ -1527,42 +1529,42 @@ void TestDriver<VALUE>::testCase9()
     // COPY-ASSIGNMENT OPERATOR
     //
     // Concerns:
-    //: 1 The signature and return type are standard.
-    //:
-    //: 2 The assignment operator can change the value of any modifiable target
-    //:   object to that of any source object.
-    //:
-    //: 3 The reference returned is to the target object (i.e., '*this').
-    //:
-    //: 4 The value of the source object is not modified.
-    //:
-    //: 5 Assigning an object to itself behaves as expected (alias-safety).
+    // 1. The signature and return type are standard.
+    //
+    // 2. The assignment operator can change the value of any modifiable target
+    //    object to that of any source object.
+    //
+    // 3. The reference returned is to the target object (i.e., `*this`).
+    //
+    // 4. The value of the source object is not modified.
+    //
+    // 5. Assigning an object to itself behaves as expected (alias-safety).
     //
     // Plan:
-    //: 1 Use the address of 'operator=' to initialize a member-function
-    //:   pointer having the appropriate signature and return type for the
-    //:   copy-assignment operator defined in this component.  (C-1)
-    //:
-    //: 2 Create two 'StdStatefulAllocator' objects having the same value
-    //:   (source and control ones)
-    //:
-    //: 3 Use a const reference of the source object to assign it to itself and
-    //:   verify that it's value hasn't been changed.  (C-5)
-    //:
-    //: 4 Create a 'StdStatefulAllocator' object (target), having different
-    //:   value than the origin one.
-    //:
-    //: 5 Use a const reference of the source object to assign it to the target
-    //:   object.
-    //:
-    //: 6 Verify that the address of the return value is the same as that of
-    //:   target object.  (C-3)
-    //:
-    //: 7 Use equality-comparison operator to verify, that the target object
-    //:   has the same value as the source one.  (C-2)
-    //:
-    //: 8 Use equality-comparison operator to verify that source object remains
-    //:   unchanged.  (C-4)
+    // 1. Use the address of `operator=` to initialize a member-function
+    //    pointer having the appropriate signature and return type for the
+    //    copy-assignment operator defined in this component.  (C-1)
+    //
+    // 2. Create two `StdStatefulAllocator` objects having the same value
+    //    (source and control ones)
+    //
+    // 3. Use a const reference of the source object to assign it to itself and
+    //    verify that it's value hasn't been changed.  (C-5)
+    //
+    // 4. Create a `StdStatefulAllocator` object (target), having different
+    //    value than the origin one.
+    //
+    // 5. Use a const reference of the source object to assign it to the target
+    //    object.
+    //
+    // 6. Verify that the address of the return value is the same as that of
+    //    target object.  (C-3)
+    //
+    // 7. Use equality-comparison operator to verify, that the target object
+    //    has the same value as the source one.  (C-2)
+    //
+    // 8. Use equality-comparison operator to verify that source object remains
+    //    unchanged.  (C-4)
     //
     // Testing:
     //   StdStatefulAllocator& operator=(const StdStatefulAllocator& rhs);
@@ -1621,36 +1623,36 @@ void TestDriver<VALUE>::testCase7()
     // COPY CONSTRUCTORS
     //
     // Concerns:
-    //: 1 A 'StdStatefulAllocator' object can be copy constructed from a const
-    //:   reference of another object of the same type.
-    //:
-    //: 2 A 'StdStatefulAllocator' object can be copy constructed from a const
-    //:   reference of another object of the 'StdStatefulAllocator' template
-    //:   instance parameterized on a different type.
-    //:
-    //: 3 The value of the original object is unchanged.
+    // 1. A `StdStatefulAllocator` object can be copy constructed from a const
+    //    reference of another object of the same type.
+    //
+    // 2. A `StdStatefulAllocator` object can be copy constructed from a const
+    //    reference of another object of the `StdStatefulAllocator` template
+    //    instance parameterized on a different type.
+    //
+    // 3. The value of the original object is unchanged.
     //
     // Plan:
-    //: 1 Create two 'StdStatefulAllocator' objects having the same value
-    //:   (source and control ones).  Use a const reference of the source
-    //:   object to copy construct an object of the same type.
-    //:
-    //: 2 Use equality-comparison operator to verify, that created object has
-    //:   the same value as the source one.  (C-1)
-    //:
-    //: 3 Use equality-comparison operator to verify that source object remains
-    //:   unchanged.
-    //:
-    //: 4 Create two 'StdStatefulAllocator' objects having the same value
-    //:   (source and control ones).  Use a const reference of the source
-    //:   object to copy construct an object of the 'StdStatefulAllocator'
-    //:   template instant parameterized on a different type.
-    //:
-    //: 5 Use basic accessor to verify, that created object has the same value
-    //:   as the source one.  (C-2)
-    //:
-    //: 6 Use equality-comparison operator to verify that source object remains
-    //:   unchanged.  (C-3)
+    // 1. Create two `StdStatefulAllocator` objects having the same value
+    //    (source and control ones).  Use a const reference of the source
+    //    object to copy construct an object of the same type.
+    //
+    // 2. Use equality-comparison operator to verify, that created object has
+    //    the same value as the source one.  (C-1)
+    //
+    // 3. Use equality-comparison operator to verify that source object remains
+    //    unchanged.
+    //
+    // 4. Create two `StdStatefulAllocator` objects having the same value
+    //    (source and control ones).  Use a const reference of the source
+    //    object to copy construct an object of the `StdStatefulAllocator`
+    //    template instant parameterized on a different type.
+    //
+    // 5. Use basic accessor to verify, that created object has the same value
+    //    as the source one.  (C-2)
+    //
+    // 6. Use equality-comparison operator to verify that source object remains
+    //    unchanged.  (C-3)
     //
     // Testing:
     //   StdStatefulAllocator(const StdStatefulAllocator& original);
@@ -1694,35 +1696,35 @@ void TestDriver<VALUE>::testCase6()
 {
     // ------------------------------------------------------------------------
     // EQUALITY-COMPARISON OPERATORS
-    //   Ensure that '==' and '!=' are the operational definition of value.
+    //   Ensure that `==` and `!=` are the operational definition of value.
     //
     // Concerns:
-    //: 1 Two objects, 'X' and 'Y', compare equal if and only if their
-    //:   underlying allocator instances are equal.
-    //:
-    //: 2 'true == (X == X)'  (i.e., identity)
-    //:
-    //: 3 'false == (X != X)'  (i.e., identity)
-    //:
-    //: 4 'X == Y' if and only if 'Y == X'  (i.e., commutativity)
-    //:
-    //: 5 'X != Y' if and only if 'Y != X'  (i.e., commutativity)
-    //:
-    //: 6 'X != Y' if and only if '!(X == Y)'
-    //:
-    //: 7 Comparison is symmetric with respect to user-defined conversion
-    //:   (i.e., both comparison operators are free functions).
-    //:
-    //: 8 Non-modifiable objects can be compared (i.e., objects or references
-    //:   providing only non-modifiable access).
-    //:
-    //: 9 The above concerns apply when the allocators being compared are
-    //:   instantiated on different value types.
+    // 1. Two objects, `X` and `Y`, compare equal if and only if their
+    //    underlying allocator instances are equal.
+    //
+    // 2. `true == (X == X)`  (i.e., identity)
+    //
+    // 3. `false == (X != X)`  (i.e., identity)
+    //
+    // 4. `X == Y` if and only if `Y == X`  (i.e., commutativity)
+    //
+    // 5. `X != Y` if and only if `Y != X`  (i.e., commutativity)
+    //
+    // 6. `X != Y` if and only if `!(X == Y)`
+    //
+    // 7. Comparison is symmetric with respect to user-defined conversion
+    //    (i.e., both comparison operators are free functions).
+    //
+    // 8. Non-modifiable objects can be compared (i.e., objects or references
+    //    providing only non-modifiable access).
+    //
+    // 9. The above concerns apply when the allocators being compared are
+    //    instantiated on different value types.
     //
     // Plan:
-    //: 2 Create a few 'StdStatefulAllocator' objects of different template
-    //:   instances and verify the commutativity properties and the expected
-    //:   return values for both '==' and '!='.  (C-1..9)
+    // 2. Create a few `StdStatefulAllocator` objects of different template
+    //    instances and verify the commutativity properties and the expected
+    //    return values for both `==` and `!=`.  (C-1..9)
     //
     // Testing:
     //   bool operator==(const StdStatefulAllocator<T1>& lhs, SSA<T2>& rhs);
@@ -1776,16 +1778,16 @@ void TestDriver<VALUE>::testCase4()
     //   Ensure each basic accessor properly interprets object state.
     //
     // Concerns:
-    //: 1 The 'allocator' accessor returns the value of the corresponding
-    //:   attribute of the object.
-    //:
-    //: 2 The 'allocator' accessor method is declared 'const'.
+    // 1. The `allocator` accessor returns the value of the corresponding
+    //    attribute of the object.
+    //
+    // 2. The `allocator` accessor method is declared `const`.
     //
     // Plan:
-    //: 1 Use the value constructor, create an object having the expected
-    //:   attribute values.  Verify that the accessor for the 'allocator'
-    //:   attribute invoked on a reference providing non-modifiable access to
-    //:   the object return the expected value.  (C-1..2)
+    // 1. Use the value constructor, create an object having the expected
+    //    attribute values.  Verify that the accessor for the `allocator`
+    //    attribute invoked on a reference providing non-modifiable access to
+    //    the object return the expected value.  (C-1..2)
     //
     // Testing:
     //   bslma::TestAllocator *allocator() const;
@@ -1810,31 +1812,31 @@ void TestDriver<VALUE>::testCase2()
     // PRIMARY MANIPULATORS
     //
     // Concerns:
-    //: 1 The constructor sets the bslma::TestAllocator to which object
-    //:   delegates.
-    //:
-    //: 2 Object destruction has no effect on the underlying
-    //:   bslma::TestAllocator.
-    //:
-    //: 3 QoI: Asserted precondition violations are detected when enabled.
+    // 1. The constructor sets the bslma::TestAllocator to which object
+    //    delegates.
+    //
+    // 2. Object destruction has no effect on the underlying
+    //    bslma::TestAllocator.
+    //
+    // 3. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Create three 'bslma::TestAllocator' objects, and install one as the
-    //:   current default allocator (note that a ubiquitous test allocator is
-    //:   already installed as the global allocator).
-    //:
-    //: 2 Use the value constructor to dynamically create an object using
-    //:   second allocator in P-1 as a parameter; use third allocator in P-1
-    //:   for the object's footprint.
-    //:
-    //: 3 Verify that underlying allocator is set correctly.  (C-1)
-    //:
-    //: 4 Destroy the object and verify that underlying allocator remains
-    //:   unharmed.  (C-2)
-    //:
-    //: 5 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered for invalid values, but not triggered for adjacent valid
-    //:   ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-3)
+    // 1. Create three `bslma::TestAllocator` objects, and install one as the
+    //    current default allocator (note that a ubiquitous test allocator is
+    //    already installed as the global allocator).
+    //
+    // 2. Use the value constructor to dynamically create an object using
+    //    second allocator in P-1 as a parameter; use third allocator in P-1
+    //    for the object's footprint.
+    //
+    // 3. Verify that underlying allocator is set correctly.  (C-1)
+    //
+    // 4. Destroy the object and verify that underlying allocator remains
+    //    unharmed.  (C-2)
+    //
+    // 5. Verify that, in appropriate build modes, defensive checks are
+    //    triggered for invalid values, but not triggered for adjacent valid
+    //    ones (using the `BSLS_ASSERTTEST_*` macros).  (C-3)
     //
     // Testing:
     //   StdStatefulAllocator(bslma::TestAllocator *);
@@ -1890,11 +1892,11 @@ void TestDriver<VALUE>::testCase1()
     //   This case exercises (but does not fully test) basic functionality.
     //
     // Concerns:
-    //: 1 The class is sufficiently functional to enable comprehensive testing
-    //:   in subsequent test cases.
+    // 1. The class is sufficiently functional to enable comprehensive testing
+    //    in subsequent test cases.
     //
     // Plan:
-    //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
+    // 1. Perform and ad-hoc test of the primary modifiers and accessors.
     //
     // Testing:
     //   BREATHING TEST
@@ -1925,12 +1927,13 @@ void TestDriver<VALUE>::testCase1()
 //
 // First we define a simple container type intended to be used with a C++11
 // standard compliant allocator:
-//..
+// ```
+
+    /// This container type is parameterized on a standard allocator type
+    /// and contains a single object, always initialized, which can be
+    /// replaced and accessed.
     template <class TYPE, class ALLOCATOR>
     class MyContainer {
-        // This container type is parameterized on a standard allocator type
-        // and contains a single object, always initialized, which can be
-        // replaced and accessed.
 
         // DATA MEMBERS
         ALLOCATOR  d_allocator;  // allocator used to supply memory (held, not
@@ -1940,26 +1943,29 @@ void TestDriver<VALUE>::testCase1()
 
       public:
         // CREATORS
-        MyContainer(const TYPE& object, const ALLOCATOR& allocator);
-            // Create an container containing the specified 'object', using the
-            // specified 'allocator' to supply memory.
 
+        /// Create an container containing the specified `object`, using the
+        /// specified `allocator` to supply memory.
+        MyContainer(const TYPE& object, const ALLOCATOR& allocator);
+
+        /// Destroy this container.
         ~MyContainer();
-            // Destroy this container.
 
         // MANIPULATORS
+
+        /// Return a reference providing modifiable access to the object
+        /// contained in this container.
         TYPE& object();
-            // Return a reference providing modifiable access to the object
-            // contained in this container.
 
         // ACCESSORS
+
+        /// Return a reference providing non-modifiable access to the object
+        /// contained in this container.
         const TYPE& object() const;
-            // Return a reference providing non-modifiable access to the object
-            // contained in this container.
     };
-//..
-// Then, we define the member functions of 'MyContainer':
-//..
+// ```
+// Then, we define the member functions of `MyContainer`:
+// ```
     // CREATORS
     template <class TYPE, class ALLOCATOR>
     MyContainer<TYPE, ALLOCATOR>::MyContainer(const TYPE&      object,
@@ -1990,7 +1996,7 @@ void TestDriver<VALUE>::testCase1()
     {
         return *d_object_p;
     }
-//..
+// ```
 
 //=============================================================================
 //                                 MAIN PROGRAM
@@ -2019,13 +2025,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -2034,11 +2040,11 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-//..
-// Now, we use 'bsltf::StdStatefulAllocator' to implement a simple test for
-// 'MyContainer' to verify it correctly uses a parameterized allocator using
+// ```
+// Now, we use `bsltf::StdStatefulAllocator` to implement a simple test for
+// `MyContainer` to verify it correctly uses a parameterized allocator using
 // only the C++11 standard methods:
-//..
+// ```
     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
     {
         typedef MyContainer<int, bsltf::StdStatefulAllocator<int> > Obj;
@@ -2054,15 +2060,15 @@ int main(int argc, char *argv[])
     }
 
     ASSERT(0 == oa.numBytesInUse());
-//..
+// ```
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING 'max_size'
+        // TESTING `max_size`
         // --------------------------------------------------------------------
 
 #if !defined(BSLSTL_ALLOCATOR_TRAITS_SUPPORTS_ALL_CPP11_DEDUCTIONS)
-        if (verbose) printf("\nTESTING 'max_size'"
+        if (verbose) printf("\nTESTING `max_size`"
                             "\n==================\n");
 
         RUN_EACH_TYPE(TestDriver, testCase16, TEST_TYPES_REGULAR);
@@ -2070,10 +2076,10 @@ int main(int argc, char *argv[])
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // TESTING 'construct'
+        // TESTING `construct`
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'construct'"
+        if (verbose) printf("\nTESTING `construct`"
                             "\n===================\n");
 
         RUN_EACH_TYPE(TestDriver, testCase15, REDUCED_TEST_TYPES_REGULAR);
@@ -2100,21 +2106,21 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING 'select_on_container_copy_construction'
+        // TESTING `select_on_container_copy_construction`
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                        "\nTESTING 'select_on_container_copy_construction'"
+                        "\nTESTING `select_on_container_copy_construction`"
                         "\n===============================================\n");
 
         RUN_EACH_TYPE(TestDriver, testCase12, TEST_TYPES_REGULAR);
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'allocate' AND 'deallocate'
+        // TESTING `allocate` AND `deallocate`
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'allocate' AND 'deallocate'"
+        if (verbose) printf("\nTESTING `allocate` AND `deallocate`"
                             "\n===================================\n");
 
         RUN_EACH_TYPE(TestDriver, testCase11, TEST_TYPES_REGULAR);

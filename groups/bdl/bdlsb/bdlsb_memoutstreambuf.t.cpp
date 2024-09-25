@@ -44,9 +44,9 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // This test driver exercises all the protected virtual methods from the
-// 'basic_streambuf' protocol that are overridden by the derived concrete class
-// 'bdlsb::MemOutStreamBuf', as well as each new (non-protocol) public method
-// added in the 'bdlsb::MemOutStreamBuf' class.
+// `basic_streambuf` protocol that are overridden by the derived concrete class
+// `bdlsb::MemOutStreamBuf`, as well as each new (non-protocol) public method
+// added in the `bdlsb::MemOutStreamBuf` class.
 //
 // Our goal here is to ensure that the implementations comply exactly with the
 // IOStreams portion of the C++ standard where the standard explicitly defines
@@ -67,15 +67,15 @@ using namespace bsl;
 // case 3.
 //
 // Primary Constructors:
-//: o MemOutStreamBuf(bslma::Allocator *basicAllocator = 0);
+//  - MemOutStreamBuf(bslma::Allocator *basicAllocator = 0);
 //
 // Primary Manipulators:
-//: o void reserveCapacity(int numElements);
-//: o int sputc (char c);
+//  - void reserveCapacity(int numElements);
+//  - int sputc (char c);
 //
 // Basic Accessors:
-//: o const char_type *data();
-//: o streamsize length();
+//  - const char_type *data();
+//  - streamsize length();
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] MemOutStreamBuf(bslma::Allocator *basicAllocator = 0);
@@ -191,11 +191,12 @@ const size_t MAX_CAPACITY   = bsl::numeric_limits<size_t>::max();
                    // =====================================
 
 // FREE OPERATORS
+
+/// Write the contents of the specified `streamBuffer` (as well as a marker
+/// indicating eight bytes groupings) to the specified output `stream` in
+/// binary format, and return a reference to the modifiable `stream`.
 bsl::ostream& operator<<(bsl::ostream&                 stream,
                          const bdlsb::MemOutStreamBuf& streamBuffer);
-    // Write the contents of the specified 'streamBuffer' (as well as a marker
-    // indicating eight bytes groupings) to the specified output 'stream' in
-    // binary format, and return a reference to the modifiable 'stream'.
 
 bsl::ostream& operator<<(bsl::ostream&                 stream,
                          const bdlsb::MemOutStreamBuf& streamBuffer)
@@ -218,11 +219,11 @@ bsl::ostream& operator<<(bsl::ostream&                 stream,
     stream.flags(flags); // reset stream format flags
     return stream;
 }
+/// Write a sequence of characters to the specified `streamBuffer` until
+/// the stream buffer relocates its internal buffer and return the length
+/// of the stream buffer before the relocation.   Note that this function
+/// alters the content of the stream buffer.
 size_t estimateCurrentCapacity(bdlsb::MemOutStreamBuf& streamBuffer);
-    // Write a sequence of characters to the specified 'streamBuffer' until
-    // the stream buffer relocates its internal buffer and return the length
-    // of the stream buffer before the relocation.   Note that this function
-    // alters the content of the stream buffer.
 
 size_t estimateCurrentCapacity(bdlsb::MemOutStreamBuf& streamBuffer)
 {
@@ -237,7 +238,7 @@ size_t estimateCurrentCapacity(bdlsb::MemOutStreamBuf& streamBuffer)
 }
 
 class LimitsTestAllocator : public bslma::Allocator {
-  // This 'class' implements an allocator that can be used to test allocation
+  // This `class` implements an allocator that can be used to test allocation
   // of amounts of memory that are infeasible to allocate on a system.  It does
   // this by having a small initial buffer that it allocates exclusively out of
   // however, all statistics are updated to match allocating arbitrary amounts
@@ -295,72 +296,75 @@ class LimitsTestAllocator : public bslma::Allocator {
 
   public:
     // CREATORS
+
+    /// Create an instrumented "test" allocator, which does not allocate
+    /// memory.
     explicit
     LimitsTestAllocator(int verbose);
-        // Create an instrumented "test" allocator, which does not allocate
-        // memory.
 
+    /// Destroy this allocator.
     ~LimitsTestAllocator() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this allocator.
 
     // MANIPULATORS
-    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
-        // Return a newly-allocated block of memory of the specified 'size' (in
-        // bytes).  If 'size' is 0, a null pointer is returned.  Otherwise,
-        // invoke the 'allocate' method of the allocator supplied at
-        // construction, increment the number of currently (and cumulatively)
-        // allocated blocks, and increase the number of currently allocated
-        // bytes by 'size'.  Update all other fields accordingly.
 
+    /// Return a newly-allocated block of memory of the specified `size` (in
+    /// bytes).  If `size` is 0, a null pointer is returned.  Otherwise,
+    /// invoke the `allocate` method of the allocator supplied at
+    /// construction, increment the number of currently (and cumulatively)
+    /// allocated blocks, and increase the number of currently allocated
+    /// bytes by `size`.  Update all other fields accordingly.
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
+
+    /// Return the memory block at the specified `address` back to this
+    /// allocator.  If `address` is 0, this function has no effect (other
+    /// than to record relevant statistics).  Otherwise, if the memory at
+    /// `address` is consistent with being allocated from this test
+    /// allocator, decrement the number of currently allocated blocks, and
+    /// decrease the number of currently allocated bytes by the size (in
+    /// bytes) originally requested for the block.  Although technically
+    /// undefined behavior, if the memory can be determined not to have been
+    /// allocated from this test allocator, increment the number of
+    /// mismatches, and -- unless in quiet mode -- immediately report the
+    /// details of the mismatch to `stdout` (e.g., as an `bsl::hex` memory
+    /// dump) and abort.
     void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
-        // Return the memory block at the specified 'address' back to this
-        // allocator.  If 'address' is 0, this function has no effect (other
-        // than to record relevant statistics).  Otherwise, if the memory at
-        // 'address' is consistent with being allocated from this test
-        // allocator, decrement the number of currently allocated blocks, and
-        // decrease the number of currently allocated bytes by the size (in
-        // bytes) originally requested for the block.  Although technically
-        // undefined behavior, if the memory can be determined not to have been
-        // allocated from this test allocator, increment the number of
-        // mismatches, and -- unless in quiet mode -- immediately report the
-        // details of the mismatch to 'stdout' (e.g., as an 'bsl::hex' memory
-        // dump) and abort.
 
     // ACCESSORS
+
+    /// Return the cumulative number of allocation requests.  Note that this
+    /// number is incremented for every `allocate` invocation.
     bsls::Types::Int64 numAllocations() const;
-        // Return the cumulative number of allocation requests.  Note that this
-        // number is incremented for every 'allocate' invocation.
 
+    /// Return the number of blocks currently allocated from this object.
+    /// Note that `numBlocksInUse() <= numBlocksMax()`.
     bsls::Types::Int64 numBlocksInUse() const;
-        // Return the number of blocks currently allocated from this object.
-        // Note that 'numBlocksInUse() <= numBlocksMax()'.
 
+    /// Return the maximum number of blocks ever allocated from this object
+    /// at any one time.  Note that
+    /// `numBlocksInUse() <= numBlocksMax() <= numBlocksTotal()`.
     bsls::Types::Int64 numBlocksMax() const;
-        // Return the maximum number of blocks ever allocated from this object
-        // at any one time.  Note that
-        // 'numBlocksInUse() <= numBlocksMax() <= numBlocksTotal()'.
 
+    /// Return the cumulative number of blocks ever allocated from this
+    /// object.  Note that `numBlocksMax() <= numBlocksTotal()`.
     bsls::Types::Int64 numBlocksTotal() const;
-        // Return the cumulative number of blocks ever allocated from this
-        // object.  Note that 'numBlocksMax() <= numBlocksTotal()'.
 
+    /// Return the number of bytes currently allocated from this object.
+    /// Note that `numBytesInUse() <= numBytesMax()`.
     bsls::Types::Int64 numBytesInUse() const;
-        // Return the number of bytes currently allocated from this object.
-        // Note that 'numBytesInUse() <= numBytesMax()'.
 
+    /// Return the maximum number of bytes ever allocated from this object
+    /// at any one time.  Note that
+    /// `numBytesInUse() <= numBytesMax() <= numBytesTotal()`.
     bsls::Types::Int64 numBytesMax() const;
-        // Return the maximum number of bytes ever allocated from this object
-        // at any one time.  Note that
-        // 'numBytesInUse() <= numBytesMax() <= numBytesTotal()'.
 
+    /// Return the cumulative number of bytes ever allocated from this
+    /// object.  Note that `numBytesMax() <= numBytesTotal()`.
     bsls::Types::Int64 numBytesTotal() const;
-        // Return the cumulative number of bytes ever allocated from this
-        // object.  Note that 'numBytesMax() <= numBytesTotal()'.
 
+    /// Return the cumulative number of deallocation requests.  Note that
+    /// this number is incremented for every `deallocate` invocation,
+    /// regardless of the validity of the request.
     bsls::Types::Int64 numDeallocations() const;
-        // Return the cumulative number of deallocation requests.  Note that
-        // this number is incremented for every 'deallocate' invocation,
-        // regardless of the validity of the request.
 };
 // CREATORS
 LimitsTestAllocator::LimitsTestAllocator(int verbose)
@@ -489,24 +493,25 @@ namespace {
 ///-----
 // This section illustrates intended use of this component.
 //
-/// Example 1: Basic Use of 'bdlsb::MemOutStreamBuf'
+/// Example 1: Basic Use of `bdlsb::MemOutStreamBuf`
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates using a 'bdlsb::MemOutStreamBuf' in order to test
-// a user defined stream type, 'CapitalizingStream'.  In this example, we'll
-// define a simple example stream type 'CapitalizingStream' that capitalizing
+// This example demonstrates using a `bdlsb::MemOutStreamBuf` in order to test
+// a user defined stream type, `CapitalizingStream`.  In this example, we'll
+// define a simple example stream type `CapitalizingStream` that capitalizing
 // lower-case ASCII data written to the stream.  In order to test this
-// 'CapitalizingStream' type, we'll create an instance, and supply it a
-// 'bdlsb::MemOutStreamBuf' object as its stream buffer; after we write some
-// character data to the 'CapitalizingStream' we'll inspect the buffer of the
-// 'bdlsb::MemOutStreamBuf' and verify its contents match our expected output.
+// `CapitalizingStream` type, we'll create an instance, and supply it a
+// `bdlsb::MemOutStreamBuf` object as its stream buffer; after we write some
+// character data to the `CapitalizingStream` we'll inspect the buffer of the
+// `bdlsb::MemOutStreamBuf` and verify its contents match our expected output.
 // Note that to simplify the example, we do not include the functions for
 // streaming non-character data, e.g., numeric values.
 //
-// First, we define our example stream class, 'CapitalizingStream' (which we
+// First, we define our example stream class, `CapitalizingStream` (which we
 // will later test using 'bdlsb::MemOutStreamBuf):
-//..
+// ```
+
+    /// This class capitalizes lower-case ASCII characters that are output.
     class CapitalizingStream {
-        // This class capitalizes lower-case ASCII characters that are output.
 
         // DATA
         bsl::streambuf  *d_streamBuffer_p;   // pointer to a stream buffer
@@ -516,41 +521,44 @@ namespace {
                                               const char          *data);
       public:
         // CREATORS
+
+        /// Create a capitalizing stream using the specified `streamBuffer`
+        /// as underlying stream buffer to the stream.
         explicit CapitalizingStream(bsl::streambuf *streamBuffer);
-            // Create a capitalizing stream using the specified 'streamBuffer'
-            // as underlying stream buffer to the stream.
     };
 
     // FREE OPERATORS
+
+    /// Write the specified `data` in capitalized form to the specified
+    /// `stream`.
     CapitalizingStream& operator<<(CapitalizingStream&  stream,
                                    const char          *data);
-        // Write the specified 'data' in capitalized form to the specified
-        // 'stream'.
 
     CapitalizingStream::CapitalizingStream(bsl::streambuf *streamBuffer)
     : d_streamBuffer_p(streamBuffer)
     {
     }
-//..
+// ```
 // As is typical, the streaming operators are made friends of the class.
 //
-// Note that we cannot directly use 'bsl::toupper' to capitalize each
-// individual character, because 'bsl::toupper' operates on 'int' instead of
-// 'char'.  Instead, we call a function 'ucharToUpper' that works in terms of
-// 'unsigned char'.  some care must be made to avoid undefined and
-// implementation-specific behavior during the conversions to and from 'int'.
-// Therefore we wrap 'bsl::toupper' in an interface that works in terms of
-// 'unsigned char':
-//..
+// Note that we cannot directly use `bsl::toupper` to capitalize each
+// individual character, because `bsl::toupper` operates on `int` instead of
+// `char`.  Instead, we call a function `ucharToUpper` that works in terms of
+// `unsigned char`.  some care must be made to avoid undefined and
+// implementation-specific behavior during the conversions to and from `int`.
+// Therefore we wrap `bsl::toupper` in an interface that works in terms of
+// `unsigned char`:
+// ```
+
+    /// Return the upper-case equivalent to the specified `input` character.
     static unsigned char ucharToUpper(unsigned char input)
-        // Return the upper-case equivalent to the specified 'input' character.
     {
         return static_cast<unsigned char>(bsl::toupper(input));
     }
-//..
-// Finally, we use the 'transform' algorithm to convert lower-case characters
+// ```
+// Finally, we use the `transform` algorithm to convert lower-case characters
 // to upper-case.
-//..
+// ```
     // FREE OPERATORS
     CapitalizingStream& operator<<(CapitalizingStream&  stream,
                                    const char          *data)
@@ -563,7 +571,7 @@ namespace {
         stream.d_streamBuffer_p->sputn(tmp.data(), tmp.length());
         return stream;
     }
-//..
+// ```
 
 }  // close unnamed namespace
 
@@ -583,7 +591,7 @@ int main(int argc, char *argv[])
     (void) veryVeryVeryVerbose;
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
@@ -593,13 +601,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, and replace 'assert' with
-        //:   'ASSERT'.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, and replace `assert` with
+        //    `ASSERT`.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -608,25 +616,25 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "USAGE EXAMPLE" << endl
                                   << "=============" << endl;
         {
-// Now, we create an instance of 'bdlsb::MemOutStreamBuf' that will serve as
-// underlying stream buffer for our 'CapitalingStream':
-//..
+// Now, we create an instance of `bdlsb::MemOutStreamBuf` that will serve as
+// underlying stream buffer for our `CapitalingStream`:
+// ```
     bdlsb::MemOutStreamBuf streamBuffer;
-//..
-// Now, we test our 'CapitalingStream' by supplying the created instance of
-// 'bdlsb::MemOutStreamBuf' and using it to inspect the output of the stream:
-//..
+// ```
+// Now, we test our `CapitalingStream` by supplying the created instance of
+// `bdlsb::MemOutStreamBuf` and using it to inspect the output of the stream:
+// ```
     CapitalizingStream  testStream(&streamBuffer);
     testStream << "Hello world.";
-//..
+// ```
 // Finally, we verify that the streamed data has been capitalized and placed
 // into dynamically allocated buffer:
-//..
+// ```
     ASSERT(12 == streamBuffer.length());
     ASSERT(0  == bsl::strncmp("HELLO WORLD.",
                               streamBuffer.data(),
                               streamBuffer.length()));
-//..
+// ```
         }
       } break;
       case 8: {
@@ -634,33 +642,33 @@ int main(int argc, char *argv[])
         // RESET TEST
         //
         // Concerns:
-        //: 1 Calling 'reset' on a default-constructed streambuf has no effect.
-        //:
-        //: 2 Calling 'reset' for object with non-zero capacity deallocates
-        //:   reserved memory and sets internal pointers to null.
-        //:
-        //: 3 The streambuf works normally after 'reset' invocation.
+        // 1. Calling `reset` on a default-constructed streambuf has no effect.
+        //
+        // 2. Calling `reset` for object with non-zero capacity deallocates
+        //    reserved memory and sets internal pointers to null.
+        //
+        // 3. The streambuf works normally after `reset` invocation.
         //
         // Plan:
-        //: 1 Create a test allocator.
-        //:
-        //: 2 Default-construct and reset a streambuf and verify that no
-        //:   memory is allocated and that internal pointers are set to null.
-        //:   (C-1,3)
-        //:
-        //: 3 Do some output after reset to verify object validity.  (C-4)
-        //:
-        //: 4 Construct a streambuf with some initial capacity and then reset.
-        //:   Verify that allocated memory is returned and that internal
-        //:   pointers are set to null.  (C-2..3)
-        //:
-        //: 5 Do some output after reset to verify object validity.  (C-4)
-        //:
-        //: 6 Construct a streambuf, write some text to it, and then reset.
-        //:   Verify that allocated memory is returned and that internal
-        //:   pointers are set to null.  (C-2..3)
-        //:
-        //: 7 Do some output after reset to verify object validity.  (C-4)
+        // 1. Create a test allocator.
+        //
+        // 2. Default-construct and reset a streambuf and verify that no
+        //    memory is allocated and that internal pointers are set to null.
+        //    (C-1,3)
+        //
+        // 3. Do some output after reset to verify object validity.  (C-4)
+        //
+        // 4. Construct a streambuf with some initial capacity and then reset.
+        //    Verify that allocated memory is returned and that internal
+        //    pointers are set to null.  (C-2..3)
+        //
+        // 5. Do some output after reset to verify object validity.  (C-4)
+        //
+        // 6. Construct a streambuf, write some text to it, and then reset.
+        //    Verify that allocated memory is returned and that internal
+        //    pointers are set to null.  (C-2..3)
+        //
+        // 7. Do some output after reset to verify object validity.  (C-4)
         //
         // Testing:
         //   void reset();
@@ -744,46 +752,46 @@ int main(int argc, char *argv[])
       case 7: {
         // --------------------------------------------------------------------
         // SEEK TESTS
-        //   As the only action performed in 'seekpos' is the call for
-        //   'seekoff' with predetermined second parameter, then we can test
-        //   'seekpos' superficially.
-        //   Note that 'seekoff' and 'seekpos' methods are called by base class
-        //   methods 'pubseekoff' and 'pubseekpos'.
+        //   As the only action performed in `seekpos` is the call for
+        //   `seekoff` with predetermined second parameter, then we can test
+        //   `seekpos` superficially.
+        //   Note that `seekoff` and `seekpos` methods are called by base class
+        //   methods `pubseekoff` and `pubseekpos`.
         //
         // Concerns:
-        //: 1 Seeking uses the correct location from which to offset.
-        //:
-        //: 2 Both negative and positive offsets compute correctly.
-        //:
-        //: 3 Seeking sets the "cursor" (i.e., the base-class' pptr()) position
-        //:   to the correct location.
-        //:
-        //: 4 Seeking out of bounds is handled correctly and returns invalid
-        //:   value.
-        //:
-        //: 5 Trying to seek in the "get" area has no effect and returns
-        //:   invalid value.
+        // 1. Seeking uses the correct location from which to offset.
+        //
+        // 2. Both negative and positive offsets compute correctly.
+        //
+        // 3. Seeking sets the "cursor" (i.e., the base-class' pptr()) position
+        //    to the correct location.
+        //
+        // 4. Seeking out of bounds is handled correctly and returns invalid
+        //    value.
+        //
+        // 5. Trying to seek in the "get" area has no effect and returns
+        //    invalid value.
         //
         // Plan:
-        //: 1 Perform a variety of seeks, using representative test vectors
-        //:   from the cross-product of offset categories beginning-pointer,
-        //:   current-pointer and end-pointer, with direction categories
-        //:   negative-forcing-past-beginning, negative-falling-within-bounds,
-        //:   0, positive-falling-within bounds, and positive-forcing-past-end.
-        //:   (C-1..5)
-        //:
-        //: 2 Using the table-driven technique, specify a set of offsets for
-        //:   seek operations.
-        //:
-        //: 3 For each row 'R' in the table of P-2:
-        //:
-        //:   1 Create two identical 'bdlsb::MemOutStreamBuf' objects and fill
-        //:     their buffers with the same content.
-        //:
-        //:   2 Perform 'seekpos' operation for one object and 'seekoff'
-        //:     operation for another (reference sample) with specified offset.
-        //:
-        //:   3 Verify that two objects have the same state.  (C-1..5)
+        // 1. Perform a variety of seeks, using representative test vectors
+        //    from the cross-product of offset categories beginning-pointer,
+        //    current-pointer and end-pointer, with direction categories
+        //    negative-forcing-past-beginning, negative-falling-within-bounds,
+        //    0, positive-falling-within bounds, and positive-forcing-past-end.
+        //    (C-1..5)
+        //
+        // 2. Using the table-driven technique, specify a set of offsets for
+        //    seek operations.
+        //
+        // 3. For each row `R` in the table of P-2:
+        //
+        //   1. Create two identical `bdlsb::MemOutStreamBuf` objects and fill
+        //      their buffers with the same content.
+        //
+        //   2. Perform `seekpos` operation for one object and `seekoff`
+        //      operation for another (reference sample) with specified offset.
+        //
+        //   3. Verify that two objects have the same state.  (C-1..5)
         //
         // Testing:
         //   pos_type seekoff(off_type, seekdir, openmode);
@@ -795,7 +803,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "SEEK TESTS" << endl
                           << "==========" << endl;
-#ifdef IN // 'IN' and 'OUT'  are #define'd in a windows header
+#ifdef IN // `IN` and `OUT`  are #define'd in a windows header
 #undef IN
 #undef OUT
 #endif
@@ -1132,39 +1140,39 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // XSPUTN TEST
-        //   'xsputn' increases buffer size by calling 'grow' method in case of
+        //   `xsputn` increases buffer size by calling `grow` method in case of
         //   lack of space to write requested string.  We will test separately
-        //   string writing and memory allocation.  Method 'grow', in its turn,
+        //   string writing and memory allocation.  Method `grow`, in its turn,
         //   calculates necessary amount of memory and calls method
-        //   'reserveCapacity' that has been tested already.  So we need to
+        //   `reserveCapacity` that has been tested already.  So we need to
         //   test only memory amount calculation.
-        //   Note that protected 'xsputn' method is called by base class method
-        //   'sputn'.
+        //   Note that protected `xsputn` method is called by base class method
+        //   `sputn`.
         //
         // Concerns:
-        //: 1 String of varying lengths are written correctly.
-        //:
-        //: 2 Writing strings does not overwrite existing buffer contents.
-        //:
-        //: 3 No more than the specified number of characters are written.
-        //:
-        //: 4 Writing beyond existing capacity is handled correctly.
-        //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        // 1. String of varying lengths are written correctly.
+        //
+        // 2. Writing strings does not overwrite existing buffer contents.
+        //
+        // 3. No more than the specified number of characters are written.
+        //
+        // 4. Writing beyond existing capacity is handled correctly.
+        //
+        // 5. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create an object and write out several strings with sequentially
-        //:   increasing lengths.  Verify, that all strings have been written
-        //:   correctly.  (C-1..3)
-        //:
-        //: 2 Create an object and write out several strings with length
-        //:   exceeding current capacity.  Verify that enough memory for
-        //:   storing the string has been allocated.  (C-4)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when an attempt is made to perform operations with
-        //:   invalid input parameters values (using the 'BSLS_ASSERTTEST_*
-        //:   macros).  (C-5)
+        // 1. Create an object and write out several strings with sequentially
+        //    increasing lengths.  Verify, that all strings have been written
+        //    correctly.  (C-1..3)
+        //
+        // 2. Create an object and write out several strings with length
+        //    exceeding current capacity.  Verify that enough memory for
+        //    storing the string has been allocated.  (C-4)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered when an attempt is made to perform operations with
+        //    invalid input parameters values (using the 'BSLS_ASSERTTEST_*
+        //    macros).  (C-5)
         //
         // Testing:
         //   streamsize xsputn(const char_type *s, streamsize length);
@@ -1211,7 +1219,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\n\'grow\' method test." << endl;
+        if (verbose) cout << "\n`grow` method test." << endl;
         {
             const int IBMO  = INIT_BUFSIZE_MINUS_ONE;
             const int IBPO  = INIT_BUFSIZE_PLUS_ONE;
@@ -1298,43 +1306,43 @@ int main(int argc, char *argv[])
         // CAPACITY-RESERVING CONSTRUCTOR
         //
         // Concerns:
-        //: 1 Object can be created and "wired-up" properly with
-        //:   capacity-reserving constructor.
-        //:
-        //: 2 The default allocator comes from 'bslma::Default::allocator'.
-        //:
-        //: 3 The internal memory management system is hooked up properly
-        //:   so that internally allocated memory draws from a user-supplied
-        //:   allocator whenever one is specified.
-        //:
-        //: 4 The initial capacity for the constructed streambuf is equal to
-        //:   the requested non-zero positive initial capacity.
-        //:
-        //: 5 An implementation-defined initial capacity is used if null or
-        //:   negative capacity has been requested at object construction.
+        // 1. Object can be created and "wired-up" properly with
+        //    capacity-reserving constructor.
+        //
+        // 2. The default allocator comes from `bslma::Default::allocator`.
+        //
+        // 3. The internal memory management system is hooked up properly
+        //    so that internally allocated memory draws from a user-supplied
+        //    allocator whenever one is specified.
+        //
+        // 4. The initial capacity for the constructed streambuf is equal to
+        //    the requested non-zero positive initial capacity.
+        //
+        // 5. An implementation-defined initial capacity is used if null or
+        //    negative capacity has been requested at object construction.
         //
         // Plan:
-        //: 1 Construct three distinct objects, in turn, but configured
-        //:   differently: (a) without passing an allocator, (b) passing a null
-        //:   allocator address explicitly, and (c) passing the address of a
-        //:   test allocator distinct from the default.  Verify that right
-        //:   allocator is used to obtain memory in each case.  (C-2..3)
-        //:
-        //: 2 Using the table-driven technique, specify a set of requested
-        //:   capacity values for buffers and expected result values.
-        //:
-        //: 3 For each row 'R' in the table of P-2:
-        //:
-        //:   1 Create an 'bdlsb::MemOutStreamBuf' object with required
-        //:     capacity.
-        //:
-        //:   2 Verify, that allocated memory size is equal to expected
-        //:     streambuf capacity.  (C-4..5)
-        //:
-        //:   3 Using 'sputc' method write a symbol to streambuf.
-        //:
-        //:   4 Check the first byte of allocated memory to verify that all
-        //:     streambuf machinery has been set up properly.  (C-1)
+        // 1. Construct three distinct objects, in turn, but configured
+        //    differently: (a) without passing an allocator, (b) passing a null
+        //    allocator address explicitly, and (c) passing the address of a
+        //    test allocator distinct from the default.  Verify that right
+        //    allocator is used to obtain memory in each case.  (C-2..3)
+        //
+        // 2. Using the table-driven technique, specify a set of requested
+        //    capacity values for buffers and expected result values.
+        //
+        // 3. For each row `R` in the table of P-2:
+        //
+        //   1. Create an `bdlsb::MemOutStreamBuf` object with required
+        //      capacity.
+        //
+        //   2. Verify, that allocated memory size is equal to expected
+        //      streambuf capacity.  (C-4..5)
+        //
+        //   3. Using `sputc` method write a symbol to streambuf.
+        //
+        //   4. Check the first byte of allocated memory to verify that all
+        //      streambuf machinery has been set up properly.  (C-1)
         //
         // Testing:
         //   MemOutStreamBuf(int, bslma::Allocator *basicAllocator = 0);
@@ -1445,23 +1453,23 @@ int main(int argc, char *argv[])
         //   Verify the basic accessors functionality.
         //
         // Concerns:
-        //: 1 Accessors work off of references to 'const' objects.
-        //:
-        //: 2 'data' returns the address of the underlying character array.
-        //:
-        //: 3 'length' returns the number of characters written to the stream
-        //:   buffer.
+        // 1. Accessors work off of references to `const` objects.
+        //
+        // 2. `data` returns the address of the underlying character array.
+        //
+        // 3. `length` returns the number of characters written to the stream
+        //    buffer.
         //
         // Plan:
-        //: 1 Create an empty 'bdlsb::MemOutStreamBuf' and verify 'data' and
-        //:   'length' methods return values.  (C-2..3)
-        //:
-        //: 2 Create a constant reference to this object and verify 'data' and
-        //:   'length' methods return values.  (C-1)
-        //:
-        //: 3 Add some characters to the initial streambuf.  Verify 'length'
-        //:   return value and character buffer content, 'data' pointing to,
-        //:   after each 'sputc' call. (C-2..3)
+        // 1. Create an empty `bdlsb::MemOutStreamBuf` and verify `data` and
+        //    `length` methods return values.  (C-2..3)
+        //
+        // 2. Create a constant reference to this object and verify `data` and
+        //    `length` methods return values.  (C-1)
+        //
+        // 3. Add some characters to the initial streambuf.  Verify `length`
+        //    return value and character buffer content, `data` pointing to,
+        //    after each `sputc` call. (C-2..3)
         //
         // Testing:
         //   const char_type *data() const;
@@ -1512,27 +1520,27 @@ int main(int argc, char *argv[])
         //   provide human readable test traces.
         //
         // Concerns:
-        //: 1 Output operator formats the stream buffer correctly.
-        //:
-        //: 2 Output operator does not produce any trailing characters.
-        //:
-        //: 3 Output operator works on references to 'const' object.
-        //:
-        //: 4 Output operator returns a reference to the modifiable stream
-        //:   argument.
+        // 1. Output operator formats the stream buffer correctly.
+        //
+        // 2. Output operator does not produce any trailing characters.
+        //
+        // 3. Output operator works on references to `const` object.
+        //
+        // 4. Output operator returns a reference to the modifiable stream
+        //    argument.
         //
         // Plan:
-        //: 1 Create a 'bdlbs::MemOutStreamBuf' object and write some
-        //:   characters to it.  Use 'ostrstream' to write that object's value
-        //:   to two separate character buffers each with different initial
-        //:   values.  Compare the contents of these buffers with the literal
-        //:   expected output format and verify that the characters beyond the
-        //:   length of the streambuf contents are unaffected in both buffers.
-        //:   (C-1..3)
-        //:
-        //: 2 Create a 'bdlbs::MemOutStreamBuf' object.  Use 'ostrstream' to
-        //:   write that object's value and some characters in consecutive
-        //:   order.  (C-4)
+        // 1. Create a `bdlbs::MemOutStreamBuf` object and write some
+        //    characters to it.  Use `ostrstream` to write that object's value
+        //    to two separate character buffers each with different initial
+        //    values.  Compare the contents of these buffers with the literal
+        //    expected output format and verify that the characters beyond the
+        //    length of the streambuf contents are unaffected in both buffers.
+        //    (C-1..3)
+        //
+        // 2. Create a `bdlbs::MemOutStreamBuf` object.  Use `ostrstream` to
+        //    write that object's value and some characters in consecutive
+        //    order.  (C-4)
         //
         // Testing:
         //   TEST APPARATUS: ostream& operator<<(os&, const MemOutStreamBuf&);
@@ -1590,100 +1598,100 @@ int main(int argc, char *argv[])
         //   completely.
         //
         // Concerns:
-        //: 1 Object can be created and "wired-up" properly with value
-        //:   constructor.
-        //:
-        //: 2 The default allocator comes from 'bslma::Default::allocator'.
-        //:
-        //: 3 The internal memory management system is hooked up properly
-        //:   so that internally allocated memory draws from a user-supplied
-        //:   allocator whenever one is specified.
-        //:
-        //: 4 Method 'sputc' writes printing and non-printing characters
-        //:   correctly.
-        //:
-        //: 5 Method 'sputc' writes bytes with leading bit set correctly.
-        //:
-        //: 6 Method 'sputc' writes no more than one character.
-        //:
-        //: 7 Method 'reserveCapacity' obtains as much (total) capacity as
-        //:   specified.
-        //:
-        //: 8 Method 'capacity' returns correct amount of reserved memory.  We
-        //:   can't test private method directly, so we will check next
-        //:   statement: if the requested capacity is less than the current
-        //:   capacity (calculated by 'capacity' method, no internal state
-        //:   changes as a result of 'reserveCapacity' method execution (i.e.,
-        //:   it is effectively a no-op).
-        //:
-        //: 9 Method 'reserveCapacity' cautiously copies all data stored in
-        //:   buffer to the new allocated memory and sets up current location
-        //:   pointer correctly.
-        //:
-        //:10 Method 'reserveCapacity' deallocates memory previously allocated
-        //:   for buffer.
-        //:
-        //:11 The destructor works properly and releases allocated memory.
+        // 1. Object can be created and "wired-up" properly with value
+        //    constructor.
+        //
+        // 2. The default allocator comes from `bslma::Default::allocator`.
+        //
+        // 3. The internal memory management system is hooked up properly
+        //    so that internally allocated memory draws from a user-supplied
+        //    allocator whenever one is specified.
+        //
+        // 4. Method `sputc` writes printing and non-printing characters
+        //    correctly.
+        //
+        // 5. Method `sputc` writes bytes with leading bit set correctly.
+        //
+        // 6. Method `sputc` writes no more than one character.
+        //
+        // 7. Method `reserveCapacity` obtains as much (total) capacity as
+        //    specified.
+        //
+        // 8. Method `capacity` returns correct amount of reserved memory.  We
+        //    can't test private method directly, so we will check next
+        //    statement: if the requested capacity is less than the current
+        //    capacity (calculated by `capacity` method, no internal state
+        //    changes as a result of `reserveCapacity` method execution (i.e.,
+        //    it is effectively a no-op).
+        //
+        // 9. Method `reserveCapacity` cautiously copies all data stored in
+        //    buffer to the new allocated memory and sets up current location
+        //    pointer correctly.
+        //
+        // 10. Method `reserveCapacity` deallocates memory previously allocated
+        //    for buffer.
+        //
+        // 11. The destructor works properly and releases allocated memory.
         //
         // Plan:
-        //: 1 Create an object with constructor.  Verify values, received from
-        //:   the accessors.  (C-1)
-        //:
-        //: 2 Construct three distinct objects, in turn, but configured
-        //:   differently: (a) without passing an allocator, (b) passing a null
-        //:   allocator address explicitly, and (c) passing the address of a
-        //:   test allocator distinct from the default.  Verify that right
-        //:   allocator is used to obtain memory in each case.  (C-2..3)
-        //:
-        //: 3 Using the table-driven technique, specify a set of characters to
-        //:   write to the stream buffer.
-        //:
-        //: 4 For each row 'R' in the table of P-3:
-        //:
-        //:   1 Write character using the 'sputc' method, and verify that the
-        //:     bit pattern for that character is correct present and in the
-        //:     stream buffer.  (C-4..5)
-        //:
-        //:   2 Verify that no more than one symbol has been written.  (C-6)
+        // 1. Create an object with constructor.  Verify values, received from
+        //    the accessors.  (C-1)
         //
-        //: 5 Using the table-driven technique, specify a set of requested
-        //:   capacity values for buffers and expected result values.
-        //:
-        //: 6 For each row 'R' in the table of P-5:
-        //:
-        //:   1 Create an 'bdlsb::MemOutStreamBuf' object with default
-        //:     capacity.
-        //:
-        //:   2 Reserve requested amount of bytes.
-        //:
-        //:   3 Verify that correct memory amount has been allocated by
-        //:     allocator.  (C-7..8)
-        //:
-        //: 7 Using the table-driven technique, specify a set of requested
-        //:   capacity values for buffers and expected result values.
-        //:
-        //: 8 For each row 'R' in the table of P-7:
-        //:
-        //:   1 Create an 'bdlsb::MemOutStreamBuf' object and reserve capacity
-        //:     of one byte.
-        //:
-        //:   2 Reserve requested amount of bytes.
-        //:
-        //:   3 Verify that correct memory amount has been allocated by
-        //:     allocator.  (C-7..8)
-        //:
-        //: 9 Create an 'bdlsb::MemOutStreamBuf' object, reserve some memory
-        //:   and write some characters to the buffer.  Reserve bigger amount
-        //:   of memory and write one more character.  Verify that buffer
-        //:   contains all written characters in the right order.  (C-9)
-        //:
-        //:10 Create an 'bdlsb::MemOutStreamBuf' object and reserve some
-        //:   memory.  Reserve another amount of memory. Verify that previously
-        //:    allocated memory has been deallocated.  (C-10)
-        //:
-        //:11 Create an 'bdlsb::MemOutStreamBuf' object, reserve some capacity
-        //:   and let it go out of scope.  Verify that all memory has been
-        //:   released.  (C-11)
+        // 2. Construct three distinct objects, in turn, but configured
+        //    differently: (a) without passing an allocator, (b) passing a null
+        //    allocator address explicitly, and (c) passing the address of a
+        //    test allocator distinct from the default.  Verify that right
+        //    allocator is used to obtain memory in each case.  (C-2..3)
+        //
+        // 3. Using the table-driven technique, specify a set of characters to
+        //    write to the stream buffer.
+        //
+        // 4. For each row `R` in the table of P-3:
+        //
+        //   1. Write character using the `sputc` method, and verify that the
+        //      bit pattern for that character is correct present and in the
+        //      stream buffer.  (C-4..5)
+        //
+        //   2. Verify that no more than one symbol has been written.  (C-6)
+        //
+        // 5. Using the table-driven technique, specify a set of requested
+        //    capacity values for buffers and expected result values.
+        //
+        // 6. For each row `R` in the table of P-5:
+        //
+        //   1. Create an `bdlsb::MemOutStreamBuf` object with default
+        //      capacity.
+        //
+        //   2. Reserve requested amount of bytes.
+        //
+        //   3. Verify that correct memory amount has been allocated by
+        //      allocator.  (C-7..8)
+        //
+        // 7. Using the table-driven technique, specify a set of requested
+        //    capacity values for buffers and expected result values.
+        //
+        // 8. For each row `R` in the table of P-7:
+        //
+        //   1. Create an `bdlsb::MemOutStreamBuf` object and reserve capacity
+        //      of one byte.
+        //
+        //   2. Reserve requested amount of bytes.
+        //
+        //   3. Verify that correct memory amount has been allocated by
+        //      allocator.  (C-7..8)
+        //
+        // 9. Create an `bdlsb::MemOutStreamBuf` object, reserve some memory
+        //    and write some characters to the buffer.  Reserve bigger amount
+        //    of memory and write one more character.  Verify that buffer
+        //    contains all written characters in the right order.  (C-9)
+        //
+        // 10. Create an `bdlsb::MemOutStreamBuf` object and reserve some
+        //    memory.  Reserve another amount of memory. Verify that previously
+        //     allocated memory has been deallocated.  (C-10)
+        //
+        // 11. Create an `bdlsb::MemOutStreamBuf` object, reserve some capacity
+        //    and let it go out of scope.  Verify that all memory has been
+        //    released.  (C-11)
         //
         // Testing:
         //   MemOutStreamBuf(bslma::Allocator *basicAllocator = 0);
@@ -1733,7 +1741,7 @@ int main(int argc, char *argv[])
 
             const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
-            // This loop verifies that 'sputc' both:
+            // This loop verifies that `sputc` both:
             //    1. adds the character, and
             //    2. does not overwrite beyond the character.
 
@@ -1843,7 +1851,7 @@ int main(int argc, char *argv[])
                               << endl;
             {
                 // Data structure that contains testing data for testing
-                // 'reserveCapacity'.
+                // `reserveCapacity`.
                 static const struct {
                     int    d_line;          // line number
                     size_t d_requestAmount; // how many bytes to ask for
@@ -1890,7 +1898,7 @@ int main(int argc, char *argv[])
                               << endl;
             {
                 // Data structure that contains testing data for testing
-                // 'reserveCapacity'.
+                // `reserveCapacity`.
                 static const struct {
                     int d_line;          // line number
                     int d_requestAmount; // how many bytes to ask for
@@ -2108,11 +2116,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Developer test sandbox.  (C-1)
+        // 1. Developer test sandbox.  (C-1)
         //
         // Testing:
         //   BREATHING TEST
@@ -2123,7 +2131,7 @@ int main(int argc, char *argv[])
                           << "==============" << endl;
 
         if (verbose) cout <<
-            "\nMake sure we can create and use a 'bdlsb::MemOutStreamBuf'."
+            "\nMake sure we can create and use a `bdlsb::MemOutStreamBuf`."
                           << endl;
         {
             Obj mSB;  const Obj& SB = mSB;

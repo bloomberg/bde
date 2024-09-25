@@ -25,11 +25,11 @@
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
-#include <ctype.h>      // 'isalpha'
+#include <ctype.h>      // `isalpha`
 #include <stddef.h>
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
-#include <string.h>     // 'strlen'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
+#include <string.h>     // `strlen`
 
 #ifdef BSLS_PLATFORM_CMP_IBM
 #pragma report(disable, "1540-0216")
@@ -51,13 +51,13 @@ using namespace BloombergLP;
 // the class to be moved, by verifying that bitwise copy was used rather than
 // construction, assignment, or destruction, whenever traits demand so.
 // Finally, one more concern is with the possible overloading ambiguity when
-// using 'FWD_ITER' instead of pointer types to specify an input range.  We
+// using `FWD_ITER` instead of pointer types to specify an input range.  We
 // verify that there is no overloading ambiguity by instantiating (as well as
 // running) a comprehensive selection of overloads, taking care to have
 // standard as well as user conversions in the candidate selection.
 //
 // In order to facilitate the generation of test object instances, we make a
-// text object have the value semantics of a 'char', and generate an array of
+// text object have the value semantics of a `char`, and generate an array of
 // test objects from a string specification via a generating function
 // parameterized by the actual test object type.  This lets us reuse the same
 // test code for bitwise-copyable/moveable test types as well as those that do
@@ -82,7 +82,7 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 // [14] USAGE EXAMPLE
 // [13] CONCERN: Copy partially initialized objects without UB
-// [12] CONCERN: 'defaultConstruct' calls correct constructor for new elems
+// [12] CONCERN: `defaultConstruct` calls correct constructor for new elems
 // [11] Hyman's first test case
 // [ 1] BREATHING TEST
 
@@ -151,22 +151,23 @@ namespace {
 // elements when appropriate.  Another requirement is that the vector should
 // take advantage of the optimizations available for certain traits of the
 // contained element type.  For example, if the contained element type has the
-// 'bslmf::IsBitwiseMoveable' trait, moving an element in a vector can be done
-// using 'memcpy' instead of copy construction.
+// `bslmf::IsBitwiseMoveable` trait, moving an element in a vector can be done
+// using `memcpy` instead of copy construction.
 //
-// We can utilize the class methods provided by 'bslalg::ArrayPrimitives' to
-// satisfy the above requirements.  Unlike 'bslalg::ScalarPrimitives', which
-// operates on a single element, 'bslalg::ArrayPrimitives' operates on arrays,
+// We can utilize the class methods provided by `bslalg::ArrayPrimitives` to
+// satisfy the above requirements.  Unlike `bslalg::ScalarPrimitives`, which
+// operates on a single element, `bslalg::ArrayPrimitives` operates on arrays,
 // which will further help simplify our implementation.
 //
-// First, we create an elided definition of the class template 'MyVector':
-//..
+// First, we create an elided definition of the class template `MyVector`:
+// ```
+
+    /// This class implements a vector of elements of the (template
+    /// parameter) `TYPE`, which must be copy constructable.  Note that for
+    /// the brevity of the usage example, this class does not provide any
+    /// Exception-Safety guarantee.
     template <class TYPE>
     class MyVector {
-        // This class implements a vector of elements of the (template
-        // parameter) 'TYPE', which must be copy constructable.  Note that for
-        // the brevity of the usage example, this class does not provide any
-        // Exception-Safety guarantee.
 
         // DATA
         TYPE             *d_array_p;     // pointer to the allocated array
@@ -181,11 +182,12 @@ namespace {
             BloombergLP::bslmf::IsBitwiseMoveable);
 
         // CREATORS
+
+        /// Construct a `MyVector` object having a size of 0 and and a
+        /// capacity of 0.  Optionally specify a `basicAllocator` used to
+        /// supply memory.  If `basicAllocator` is 0, the currently
+        /// installed default allocator is used.
         explicit MyVector(bslma::Allocator *basicAllocator = 0)
-            // Construct a 'MyVector' object having a size of 0 and and a
-            // capacity of 0.  Optionally specify a 'basicAllocator' used to
-            // supply memory.  If 'basicAllocator' is 0, the currently
-            // installed default allocator is used.
         : d_array_p(0)
         , d_capacity(0)
         , d_size(0)
@@ -193,43 +195,45 @@ namespace {
         {
         }
 
+        /// Create a `MyVector` object having the same value as the
+        /// specified `original` object.  Optionally specify a
+        /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+        /// 0, the currently installed default allocator is used.
         MyVector(const MyVector&   original,
                  bslma::Allocator *basicAllocator = 0);
-            // Create a 'MyVector' object having the same value as the
-            // specified 'original' object.  Optionally specify a
-            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-            // 0, the currently installed default allocator is used.
 
         // ...
 
         // MANIPULATORS
-        void reserve(int minCapacity);
-            // Change the capacity of this vector to at least the specified
-            // 'minCapacity' if it is greater than the vector's current
-            // capacity.
 
+        /// Change the capacity of this vector to at least the specified
+        /// `minCapacity` if it is greater than the vector's current
+        /// capacity.
+        void reserve(int minCapacity);
+
+        /// Insert, into this vector, the specified `numElements` of the
+        /// specified `value` at the specified `dstIndex`.  The behavior is
+        /// undefined unless `0 <= dstIndex <= size()`.
         void insert(int dstIndex, int numElements, const TYPE& value);
-            // Insert, into this vector, the specified 'numElements' of the
-            // specified 'value' at the specified 'dstIndex'.  The behavior is
-            // undefined unless '0 <= dstIndex <= size()'.
 
         // ACCESSORS
+
+        /// Return a reference providing non-modifiable access to the
+        /// element at the specified `position` in this vector.
         const TYPE& operator[](int position) const
-            // Return a reference providing non-modifiable access to the
-            // element at the specified 'position' in this vector.
         {
             return d_array_p[position];
         }
 
+        /// Return the size of this vector.
         int size() const
-            // Return the size of this vector.
         {
             return d_size;
         }
     };
-//..
-// Then, we implement the copy constructor of 'MyVector':
-//..
+// ```
+// Then, we implement the copy constructor of `MyVector`:
+// ```
     template <class TYPE>
     MyVector<TYPE>::MyVector(const MyVector<TYPE>&  original,
                              bslma::Allocator      *basicAllocator)
@@ -239,12 +243,12 @@ namespace {
     , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         reserve(original.d_size);
-//..
-// Here, we call the 'bslalg::ArrayPrimitives::copyConstruct' class method to
-// copy each element from 'original.d_array_p' to 'd_array_p' (When
+// ```
+// Here, we call the `bslalg::ArrayPrimitives::copyConstruct` class method to
+// copy each element from `original.d_array_p` to `d_array_p` (When
 // appropriate, this class method passes this vector's allocator to the copy
-// constructor of 'TYPE' or uses bit-wise copy.):
-//..
+// constructor of `TYPE` or uses bit-wise copy.):
+// ```
         bslalg::ArrayPrimitives::copyConstruct(
                                           d_array_p,
                                           original.d_array_p,
@@ -253,9 +257,9 @@ namespace {
 
         d_size = original.d_size;
     }
-//..
-// Now, we implement the 'reserve' method of 'MyVector':
-//..
+// ```
+// Now, we implement the `reserve` method of `MyVector`:
+// ```
     template <class TYPE>
     void MyVector<TYPE>::reserve(int minCapacity)
     {
@@ -265,13 +269,13 @@ namespace {
         BloombergLP::bslma::Allocator::size_type(minCapacity * sizeof(TYPE))));
 
         if (d_array_p) {
-//..
-// Here, we call the 'bslalg::ArrayPrimitives::destructiveMove' class method to
-// copy each original element from 'd_array_p' to 'newArrayPtr' and then
+// ```
+// Here, we call the `bslalg::ArrayPrimitives::destructiveMove` class method to
+// copy each original element from `d_array_p` to `newArrayPtr` and then
 // destroy all the original elements (When appropriate, this class method
-// passes this vector's allocator to the copy constructor of 'TYPE' or uses
+// passes this vector's allocator to the copy constructor of `TYPE` or uses
 // bit-wise copy.):
-//..
+// ```
             bslalg::ArrayPrimitives::destructiveMove(newArrayPtr,
                                                      d_array_p,
                                                      d_array_p + d_size,
@@ -282,9 +286,9 @@ namespace {
         d_array_p = newArrayPtr;
         d_capacity = minCapacity;
     }
-//..
-// Finally, we implement the 'insert' method of 'MyVector':
-//..
+// ```
+// Finally, we implement the `insert` method of `MyVector`:
+// ```
     template <class TYPE>
     void
     MyVector<TYPE>::insert(int dstIndex, int numElements, const TYPE& value)
@@ -295,13 +299,13 @@ namespace {
             int newCapacity = d_capacity == 0 ? 2 : d_capacity * 2;
             reserve(newCapacity);
         }
-//..
-// Here, we call the 'bslalg::ArrayPrimitives::insert' class method to first
-// move each element after 'dstIndex' by 'numElements' and then copy construct
-// 'numElements' of 'value' at 'dstIndex'.  (When appropriate, this class
-// method passes this vector's allocator to the copy constructor of 'TYPE' or
+// ```
+// Here, we call the `bslalg::ArrayPrimitives::insert` class method to first
+// move each element after `dstIndex` by `numElements` and then copy construct
+// `numElements` of `value` at `dstIndex`.  (When appropriate, this class
+// method passes this vector's allocator to the copy constructor of `TYPE` or
 // uses bit-wise copy.):
-//..
+// ```
         bslalg::ArrayPrimitives::insert(d_array_p + dstIndex,
                                         d_array_p + d_size,
                                         value,
@@ -310,7 +314,7 @@ namespace {
 
         d_size = newSize;
     }
-//..
+// ```
 
 }  // close unnamed namespace
 
@@ -343,18 +347,18 @@ typedef int (*FuncPtrType)();
 template <int ADDITIONAL_FOOTPRINT>
 class LargeBitwiseMoveableTestType;
 
-typedef TestType                      T;    // uses 'bslma' allocators
-typedef TestTypeNoAlloc               TNA;  // does not use 'bslma' allocators
-typedef BitwiseMoveableTestType       BMT;  // uses 'bslma' allocators
-typedef BitwiseCopyableTestType       BCT;  // does not use 'bslma' allocators
-typedef FuncPtrType                   FPT;  // does not use 'bslma' allocators
+typedef TestType                      T;    // uses `bslma` allocators
+typedef TestTypeNoAlloc               TNA;  // does not use `bslma` allocators
+typedef BitwiseMoveableTestType       BMT;  // uses `bslma` allocators
+typedef BitwiseCopyableTestType       BCT;  // does not use `bslma` allocators
+typedef FuncPtrType                   FPT;  // does not use `bslma` allocators
 
-typedef LargeBitwiseMoveableTestType<8>   XXL8;   // uses 'bslma' allocators
-typedef LargeBitwiseMoveableTestType<16>  XXL16;  // uses 'bslma' allocators
-typedef LargeBitwiseMoveableTestType<24>  XXL24;  // uses 'bslma' allocators
-typedef LargeBitwiseMoveableTestType<32>  XXL32;  // uses 'bslma' allocators
-typedef LargeBitwiseMoveableTestType<64>  XXL64;  // uses 'bslma' allocators
-typedef LargeBitwiseMoveableTestType<128> XXL128; // uses 'bslma' allocators
+typedef LargeBitwiseMoveableTestType<8>   XXL8;   // uses `bslma` allocators
+typedef LargeBitwiseMoveableTestType<16>  XXL16;  // uses `bslma` allocators
+typedef LargeBitwiseMoveableTestType<24>  XXL24;  // uses `bslma` allocators
+typedef LargeBitwiseMoveableTestType<32>  XXL32;  // uses `bslma` allocators
+typedef LargeBitwiseMoveableTestType<64>  XXL64;  // uses `bslma` allocators
+typedef LargeBitwiseMoveableTestType<128> XXL128; // uses `bslma` allocators
 
 typedef bsls::Types::Int64      Int64;
 typedef bsls::Types::Uint64     Uint64;
@@ -387,7 +391,7 @@ int funcTemplate()
 
 FuncPtrType funcPtrArray[128];
 
-// Initialize 'funcPtrArray' so that 'funcPtrArray[N] == &funcTemplate<N>'.
+// Initialize `funcPtrArray` so that `funcPtrArray[N] == &funcTemplate<N>`.
 
 template <int FROM, int TO>
 struct InitFuncPtrArray {
@@ -778,25 +782,23 @@ struct ConstructEnabler {
                            // class InputIterator
                            // ===================
 
+/// This class provide a STL-conforming input iterator over values used for
+/// testing (see section [24.2.3 input.iterators] of the C++11 standard).
+/// An `InputIterator` provide access to elements of parameterized type
+/// `VALUE`.  An iterator is considered dereferenceable if all of the
+/// following are satisfied:
+/// 1. The iterator refers to a valid element (not `end`).
+/// 2. The iterator has not been dereferenced.
+/// 3. The iterator is not a copy of another iterator of which `operator++`
+///    have been invoked.
+/// An iterator is comparable if the iterator is not a copy of another
+/// iterator of which `operator++` have been invoked.
+///
+/// This class is *not* thread-safe: different iterator objects manipulate
+/// shared state without synchronization.  This is rarely a concern for the
+/// test scenarios supported by this component.
 template <class VALUE>
 class InputIterator {
-    // This class provide a STL-conforming input iterator over values used for
-    // testing (see section [24.2.3 input.iterators] of the C++11 standard).
-    // An 'InputIterator' provide access to elements of parameterized type
-    // 'VALUE'.  An iterator is considered dereferenceable if all of the
-    // following are satisfied:
-    //: 1 The iterator refers to a valid element (not 'end').
-    //:
-    //: 2 The iterator has not been dereferenced.
-    //:
-    //: 3 The iterator is not a copy of another iterator of which 'operator++'
-    //:   have been invoked.
-    // An iterator is comparable if the iterator is not a copy of another
-    // iterator of which 'operator++' have been invoked.
-    //
-    // This class is *not* thread-safe: different iterator objects manipulate
-    // shared state without synchronization.  This is rarely a concern for the
-    // test scenarios supported by this component.
 
     // DATA
     const VALUE *d_data_p;              // pointer to array of values (held,
@@ -820,62 +822,65 @@ class InputIterator {
     typedef VALUE         value_type;
     typedef ptrdiff_t     difference_type;
     typedef const VALUE  *pointer;
+
+    /// Standard iterator defined types [24.4.2].
     typedef const VALUE&  reference;
-        // Standard iterator defined types [24.4.2].
 
   public:
     // CREATORS
+
+    /// Create an iterator referring to the specified `object` for a
+    /// container with the specified `end`, with two arrays of boolean
+    /// referred to by the specified `dereferenceable` and `isValid` to
+    /// indicate whether this iterator and its subsequent values until
+    /// `end` is allowed to be dereferenced and is not yet invalidated
+    /// respectively.
     InputIterator(const VALUE *object, const VALUE *end);
-        // Create an iterator referring to the specified 'object' for a
-        // container with the specified 'end', with two arrays of boolean
-        // referred to by the specified 'dereferenceable' and 'isValid' to
-        // indicate whether this iterator and its subsequent values until
-        // 'end' is allowed to be dereferenced and is not yet invalidated
-        // respectively.
 
     InputIterator(const InputIterator& original);
 
     // MANIPULATORS
     InputIterator& operator=(const InputIterator& rhs);
 
+    /// Move this iterator to the next element in the container.  Any copies
+    /// of this iterator are no longer dereferenceable or comparable.  The
+    /// behavior is undefined unless this iterator refers to a valid value
+    /// in the container.
     InputIterator& operator++();
-        // Move this iterator to the next element in the container.  Any copies
-        // of this iterator are no longer dereferenceable or comparable.  The
-        // behavior is undefined unless this iterator refers to a valid value
-        // in the container.
 
+    /// Move this iterator to the next element in the container, and return
+    /// an object that can be dereferenced to refer to the same object that
+    /// this iterator initially points to.  Any copies of this iterator are
+    /// no longer dereferenceable or comparable.  The behavior is undefined
+    /// unless this iterator refers to a valid value in the container.
     InputIterator operator++(int);
-        // Move this iterator to the next element in the container, and return
-        // an object that can be dereferenced to refer to the same object that
-        // this iterator initially points to.  Any copies of this iterator are
-        // no longer dereferenceable or comparable.  The behavior is undefined
-        // unless this iterator refers to a valid value in the container.
 
     // ACCESSORS
-    const VALUE& operator *() const;
-        // Return the value referred to by this object.  This object is no
-        // longer dereferenceable after a call to this function.  The behavior
-        // is undefined unless this iterator is dereferenceable.
 
+    /// Return the value referred to by this object.  This object is no
+    /// longer dereferenceable after a call to this function.  The behavior
+    /// is undefined unless this iterator is dereferenceable.
+    const VALUE& operator *() const;
+
+    /// Return the address of the value (of the parameterized `VALUE_TYPE`)
+    /// of the element at which this iterator is positioned.  The behavior
+    /// is undefined unless this iterator dereferenceable.
     const VALUE *operator->() const;
-        // Return the address of the value (of the parameterized 'VALUE_TYPE')
-        // of the element at which this iterator is positioned.  The behavior
-        // is undefined unless this iterator dereferenceable.
 };
 
+/// Return `true` if the specified `lhs` and `rhs` iterators refer to the
+/// same element, and `false` otherwise.  The behavior is undefined unless
+/// `lhs` and `rhs` are comparable.
 template <class VALUE>
 bool operator==(const InputIterator<VALUE>& lhs,
                 const InputIterator<VALUE>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' iterators refer to the
-    // same element, and 'false' otherwise.  The behavior is undefined unless
-    // 'lhs' and 'rhs' are comparable.
 
+/// Return `true` if the specified `lhs` and `rhs` iterators do *not* refer
+/// to the same element, and `false` otherwise.  The behavior is undefined
+/// unless `lhs` and `rhs` are comparable.
 template <class VALUE>
 bool operator!=(const InputIterator<VALUE>& lhs,
                 const InputIterator<VALUE>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' iterators do *not* refer
-    // to the same element, and 'false' otherwise.  The behavior is undefined
-    // unless 'lhs' and 'rhs' are comparable.
 
                        // -------------------
                        // class InputIterator
@@ -972,10 +977,10 @@ bool operator!=(const InputIterator<VALUE>& lhs,
                        // class AmbiguousConvertibleType
                        // ==============================
 
+/// This type contains a `FuncPtrType`. We wish to test how ArrayPrimitives
+/// will handle a user-defined type with defined conversions to both a
+/// function pointer type and to `void *`.
 struct AmbiguousConvertibleType {
-    // This type contains a 'FuncPtrType'. We wish to test how ArrayPrimitives
-    // will handle a user-defined type with defined conversions to both a
-    // function pointer type and to 'void *'.
 
     // DATA
     FuncPtrType d_f;
@@ -1035,10 +1040,10 @@ char getValue(const AmbiguousConvertibleType& f)
                          // class FnPtrConvertibleType
                          // ==========================
 
+/// This type contains a `FuncPtrType`. We wish to test how ArrayPrimitives
+/// will handle user-defined type with a defined conversion to a function
+/// pointer type.
 struct FnPtrConvertibleType {
-    // This type contains a 'FuncPtrType'. We wish to test how ArrayPrimitives
-    // will handle user-defined type with a defined conversion to a function
-    // pointer type.
 
     // DATA
     FuncPtrType d_f;
@@ -1094,12 +1099,12 @@ char getValue(const FnPtrConvertibleType& f)
                                // class TestType
                                // ==============
 
+/// This test type contains a `char` in some allocated storage.  It counts
+/// the number of default and copy constructions, assignments, and
+/// destructions.  It has no traits other than using a `bslma` allocator.
+/// It could have the bit-wise moveable traits but we defer that trait to
+/// the `MoveableTestType`.
 class TestType {
-    // This test type contains a 'char' in some allocated storage.  It counts
-    // the number of default and copy constructions, assignments, and
-    // destructions.  It has no traits other than using a 'bslma' allocator.
-    // It could have the bit-wise moveable traits but we defer that trait to
-    // the 'MoveableTestType'.
 
   protected:
     char             *d_data_p;
@@ -1209,12 +1214,12 @@ bool operator==(const FnPtrConvertibleType& lhs,
                        // class TestTypeNoAlloc
                        // =====================
 
+/// This test type has footprint and interface identical to `TestType`.  It
+/// also counts the number of default and copy constructions, assignments,
+/// and destructions.  It does not allocate, and thus could have the
+/// bit-wise copyable trait, but we defer this to the
+/// `BitwiseCopyableTestType`.
 class TestTypeNoAlloc {
-    // This test type has footprint and interface identical to 'TestType'.  It
-    // also counts the number of default and copy constructions, assignments,
-    // and destructions.  It does not allocate, and thus could have the
-    // bit-wise copyable trait, but we defer this to the
-    // 'BitwiseCopyableTestType'.
 
   protected:
     // DATA
@@ -1305,9 +1310,9 @@ bool operator==(const TestTypeNoAlloc& lhs,
                        // class BitwiseMoveableTestType
                        // =============================
 
+/// This test type is identical to `TestType` except that it has the
+/// bit-wise moveable trait.  All members are inherited.
 class BitwiseMoveableTestType : public TestType {
-    // This test type is identical to 'TestType' except that it has the
-    // bit-wise moveable trait.  All members are inherited.
 
   public:
     // CREATORS
@@ -1360,9 +1365,9 @@ template <> struct IsBitwiseMoveable<BitwiseMoveableTestType>
                        // class BitwiseCopyableTestType
                        // =============================
 
+/// This test type is identical to `TestTypeNoAlloc` except that it has the
+/// bit-wise copyable trait.  All members are inherited.
 class BitwiseCopyableTestType : public TestTypeNoAlloc {
-    // This test type is identical to 'TestTypeNoAlloc' except that it has the
-    // bit-wise copyable trait.  All members are inherited.
 
   public:
     // CREATORS
@@ -1425,11 +1430,11 @@ template <> struct IsBitwiseCopyable<BitwiseCopyableTestType>
                        // class LargeBitwiseMoveableTestType
                        // ==================================
 
+/// This test type is identical to `TestType` except that it has the
+/// bit-wise moveable trait, and an additional parameterized `FOOTPRINT`.
+/// All members are inherited.
 template <int FOOTPRINT>
 class LargeBitwiseMoveableTestType : public TestType {
-    // This test type is identical to 'TestType' except that it has the
-    // bit-wise moveable trait, and an additional parameterized 'FOOTPRINT'.
-    // All members are inherited.
 
     // DATA
     int d_junk[FOOTPRINT];
@@ -1507,9 +1512,9 @@ struct IsBitwiseMoveable<LargeBitwiseMoveableTestType<FOOTPRINT> >
                        // class LargeBitwiseMoveableTestType
                        // ==================================
 
+/// This class accepts from 0 to 5 constructor arguments and counts how
+/// often each constructor is invoked.
 class Attrib5 {
-    // This class accepts from 0 to 5 constructor arguments and counts how
-    // often each constructor is invoked.
 
     static int d_ctor0Count;  // count of default constructor invocations
     static int d_ctor1Count;  // count of one argument constructor invocations
@@ -1600,8 +1605,8 @@ char getValue(const Attrib5& c)
                              // class UniqueInt
                              // ===============
 
+/// Unique int value set on construction.
 class UniqueInt {
-    // Unique int value set on construction.
 
     // CLASS DATA
     static int s_counter;
@@ -1611,20 +1616,22 @@ class UniqueInt {
 
   public:
     // CREATORS
+
+    /// Create a `UniqueInt` object.
     UniqueInt() : d_value(s_counter++)
-        // Create a 'UniqueInt' object.
     {
     }
 
     // FREE OPERATORS
+
+    /// Equality comparison.
     friend bool operator==(const UniqueInt &v1, const UniqueInt &v2)
-        // Equality comparison.
     {
         return v1.d_value == v2.d_value;
     }
 
+    /// Inequality comparison.
     friend bool operator!=(const UniqueInt &v1, const UniqueInt &v2)
-        // Inequality comparison.
     {
         return !(v1 == v2);
     }
@@ -1635,10 +1642,10 @@ int UniqueInt::s_counter = 0;
                              // class Partial
                              // =============
 
+/// This type will be used to test behavior of the copying of partially
+/// initialized objects.  Specifically - that the copy operation does not
+/// inspect the object representation (which would trigger UB).
 struct Partial {
-    // This type will be used to test behavior of the copying of partially
-    // initialized objects.  Specifically - that the copy operation does not
-    // inspect the object representation (which would trigger UB).
 
     union {
         bsls::Types::Int64  d_int64;
@@ -1655,16 +1662,16 @@ struct Partial {
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// This proctor is responsible to create, in an array specified at
+/// construction, a sequence according to some specification.  Upon
+/// destruction, it destroys elements in that array according to the current
+/// specifications.  For `0 <= i < strlen(spec)`, `array[i]` is destroyed if
+/// and only if `1 == isalpha(spec[i]) || spec[i] == '?'` and in addition,
+/// if a reference to an end pointer is specified at construction, if
+/// `i < *specEnd - spec`.  If a test succeeds, the specifications can be
+/// changed to allow for different (un)initialized elements.
 template <class TYPE>
 class CleanupGuard {
-    // This proctor is responsible to create, in an array specified at
-    // construction, a sequence according to some specification.  Upon
-    // destruction, it destroys elements in that array according to the current
-    // specifications.  For '0 <= i < strlen(spec)', 'array[i]' is destroyed if
-    // and only if '1 == isalpha(spec[i]) || spec[i] == '?'' and in addition,
-    // if a reference to an end pointer is specified at construction, if
-    // 'i < *specEnd - spec'.  If a test succeeds, the specifications can be
-    // changed to allow for different (un)initialized elements.
 
     // DATA
     TYPE        *d_array_p;
@@ -1715,11 +1722,11 @@ class CleanupGuard {
     }
 };
 
+/// Verify that elements in the specified `array` have values according to
+/// the specified `spec` and destroy elements in the `array` according to
+/// the `spec`.  For `0 <= i < strlen(spec)`, `array[i]` is destroyed if
+/// and only if `1 == isalpha(spec[i]) || spec[i] == '?'`.
 void cleanup(bool *array, const char *spec)
-    // Verify that elements in the specified 'array' have values according to
-    // the specified 'spec' and destroy elements in the 'array' according to
-    // the 'spec'.  For '0 <= i < strlen(spec)', 'array[i]' is destroyed if
-    // and only if '1 == isalpha(spec[i]) || spec[i] == '?''.
 {
     for (int i = 0; spec[i]; ++i) {
         const char c = spec[i];
@@ -1739,11 +1746,11 @@ void cleanup(bool *array, const char *spec)
     }
 }
 
+/// Verify that elements in the specified `array` have values according to
+/// the specified `spec` and destroy elements in the `array` according to
+/// the `spec`.  For `0 <= i < strlen(spec)`, `array[i]` is destroyed if
+/// and only if `1 == isalpha(spec[i]) || spec[i] == '?'`.
 void cleanup(char *array, const char *spec)
-    // Verify that elements in the specified 'array' have values according to
-    // the specified 'spec' and destroy elements in the 'array' according to
-    // the 'spec'.  For '0 <= i < strlen(spec)', 'array[i]' is destroyed if
-    // and only if '1 == isalpha(spec[i]) || spec[i] == '?''.
 {
     for (int i = 0; spec[i]; ++i) {
         char c = spec[i];
@@ -1761,12 +1768,12 @@ void cleanup(char *array, const char *spec)
     }
 }
 
+/// Verify that elements in the specified `array` have values according to
+/// the specified `spec` and destroy elements in the `array` according to
+/// the `spec`.  For `0 <= i < strlen(spec)`, `array[i]` is destroyed if
+/// and only if `1 == isalpha(spec[i]) || spec[i] == '?'`.
 template <class TYPE>
 void cleanup(TYPE *array, const char *spec)
-    // Verify that elements in the specified 'array' have values according to
-    // the specified 'spec' and destroy elements in the 'array' according to
-    // the 'spec'.  For '0 <= i < strlen(spec)', 'array[i]' is destroyed if
-    // and only if '1 == isalpha(spec[i]) || spec[i] == '?''.
 {
     for (int i = 0; spec[i]; ++i) {
         const char c = spec[i];
@@ -1785,11 +1792,11 @@ void cleanup(TYPE *array, const char *spec)
     }
 }
 
+/// Verify that elements in the specified `array` have values according to
+/// the specified `spec`.  Note that as `bool` has only two states, the
+/// matching rules accept a wider range of matches from an input character
+/// set of 128 values.
 void verify(bool *array, const char *spec)
-    // Verify that elements in the specified 'array' have values according to
-    // the specified 'spec'.  Note that as 'bool' has only two states, the
-    // matching rules accept a wider range of matches from an input character
-    // set of 128 values.
 {
     for (int i = 0; spec[i]; ++i) {
         const char c = spec[i];
@@ -1806,9 +1813,9 @@ void verify(bool *array, const char *spec)
     }
 }
 
+/// Verify that elements in the specified `array` have values according to
+/// the specified `spec`.
 void verify(char *array, const char *spec)
-    // Verify that elements in the specified 'array' have values according to
-    // the specified 'spec'.
 {
     for (int i = 0; spec[i]; ++i) {
         const char c = spec[i];
@@ -1824,10 +1831,10 @@ void verify(char *array, const char *spec)
     }
 }
 
+/// Verify that elements in the specified `array` have values according to
+/// the specified `spec`.
 template <class TYPE>
 void verify(TYPE *array, const char *spec)
-    // Verify that elements in the specified 'array' have values according to
-    // the specified 'spec'.
 {
     for (int i = 0; spec[i]; ++i) {
         const char c = spec[i];
@@ -1856,12 +1863,12 @@ void fillWithJunk(void *buf, int size)
 }
 
 //=============================================================================
-//              GENERATOR FUNCTIONS 'gg' AND 'ggg' FOR TESTING
+//              GENERATOR FUNCTIONS `gg` AND `ggg` FOR TESTING
 //-----------------------------------------------------------------------------
-// The following functions interpret the given 'spec' in order from left to
+// The following functions interpret the given `spec` in order from left to
 // right to configure an array according to a custom language.  Letters
 // [a .. z, A .. Z] correspond to arbitrary (but unique) char values used to
-// initialize elements of an array of 'T' objects.  An underscore ('_')
+// initialize elements of an array of `T` objects.  An underscore ('_')
 // indicates that an element should be left uninitialized.
 //
 // LANGUAGE SPECIFICATION
@@ -1890,17 +1897,17 @@ void fillWithJunk(void *buf, int size)
 // "a"          ...
 //-----------------------------------------------------------------------------
 
+/// Configure the specified `array` of objects of the parameterized `TYPE`
+/// (assumed to be uninitialized) according to the specified `spec`.
+/// Optionally specify a zero `verboseFlag` to suppress `spec` syntax error
+/// messages.  Return the index of the first invalid character, and a
+/// negative value otherwise.  Note that this function is used to implement
+/// `gg` as well as allow for verification of syntax error detection.
+///
+/// Note that this generator is used in exception tests, and thus need to be
+/// exception-safe.
 template <class TYPE>
 int ggg(TYPE *array, const char *spec, int verboseFlag = 1)
-    // Configure the specified 'array' of objects of the parameterized 'TYPE'
-    // (assumed to be uninitialized) according to the specified 'spec'.
-    // Optionally specify a zero 'verboseFlag' to suppress 'spec' syntax error
-    // messages.  Return the index of the first invalid character, and a
-    // negative value otherwise.  Note that this function is used to implement
-    // 'gg' as well as allow for verification of syntax error detection.
-    //
-    // Note that this generator is used in exception tests, and thus need to be
-    // exception-safe.
 {
     CleanupGuard<TYPE> guard(array, spec);
     guard.setLength(0);
@@ -1921,7 +1928,7 @@ int ggg(TYPE *array, const char *spec, int verboseFlag = 1)
         }
         else {
             if (verboseFlag) {
-                printf("Error, bad character ('%c') in spec \"%s\""
+                printf("Error, bad character (`%c`) in spec \"%s\""
                        " at position %d.\n", spec[i], spec, i);
             }
             return i;  // Discontinue processing this spec.           // RETURN
@@ -1931,11 +1938,11 @@ int ggg(TYPE *array, const char *spec, int verboseFlag = 1)
     return SUCCESS;
 }
 
+/// Return a reference to the modifiable first element of the specified
+/// `array` after the value of `array` has been adjusted according to the
+/// specified `spec`.
 template <class TYPE>
 TYPE& gg(TYPE *array, const char *spec)
-    // Return a reference to the modifiable first element of the specified
-    // 'array' after the value of 'array' has been adjusted according to the
-    // specified 'spec'.
 {
     ASSERT(ggg(array, spec) < 0);
     return *array;
@@ -2015,15 +2022,15 @@ bool isDefault(const AmbiguousConvertibleType& obj,
 #endif
 }
 
+/// This test function verifies that each element of an array, initialized
+/// by `defaultConstruct`, has the default-constructed value.
 template <class TYPE>
 void testDefaultConstruct(bool bitwiseMoveableFlag,
                           bool bitwiseCopyableFlag,
                           bool exceptionSafetyFlag = false)
-    // This test function verifies that each element of an array, initialized
-    // by 'defaultConstruct', has the default-constructed value.
 {
     // These parameters are not actually used, but allow the same signature to
-    // run through the 'GAUNTLET' macros.
+    // run through the `GAUNTLET` macros.
 
     (void)bitwiseMoveableFlag;
     (void)bitwiseCopyableFlag;
@@ -2088,24 +2095,24 @@ static const struct {
 };
 const size_t NUM_DATA_9DV = sizeof DATA_9DV / sizeof *DATA_9DV;
 
+/// Verify that, for (the template parameter) `TYPE` having the bitwise
+/// moveable trait if (and only if) the specified `bitwiseMoveableFlag` is
+/// `true`, and having the bitwise copyable trait if (and only if) the
+/// specified `bitwiseCopyableFlag` is `true`, for each of the elements of
+/// the `DATA_9DV` array, given an array of `TYPE` configured by the values
+/// denoted in the `d_spec` string, emplacing a new entry with the default
+/// values for `TYPE` at the `d_dst` index while shifting the entries
+/// between `d_dst` until the `d_end` indices in results in a buffer built
+/// according to the `d_expected` specifications.  The `d_lineNum` member is
+/// used to report errors.  New entries are constructed with the global
+/// allocator `Z` if allocator aware, and with their default constructor
+/// otherwise.  Optionally specify an `exceptionSafetyFlag` to test for the
+/// strong exception safety guarantee when performing `emplace` for
+/// allocator aware `TYPE`s.
 template <class TYPE>
 void testEmplaceDefaultValue(bool bitwiseMoveableFlag,
                              bool bitwiseCopyableFlag,
                              bool exceptionSafetyFlag = false)
-    // Verify that, for (the template parameter) 'TYPE' having the bitwise
-    // moveable trait if (and only if) the specified 'bitwiseMoveableFlag' is
-    // 'true', and having the bitwise copyable trait if (and only if) the
-    // specified 'bitwiseCopyableFlag' is 'true', for each of the elements of
-    // the 'DATA_9DV' array, given an array of 'TYPE' configured by the values
-    // denoted in the 'd_spec' string, emplacing a new entry with the default
-    // values for 'TYPE' at the 'd_dst' index while shifting the entries
-    // between 'd_dst' until the 'd_end' indices in results in a buffer built
-    // according to the 'd_expected' specifications.  The 'd_lineNum' member is
-    // used to report errors.  New entries are constructed with the global
-    // allocator 'Z' if allocator aware, and with their default constructor
-    // otherwise.  Optionally specify an 'exceptionSafetyFlag' to test for the
-    // strong exception safety guarantee when performing 'emplace' for
-    // allocator aware 'TYPE's.
 {
     const int MAX_SIZE = 16;
     static union {
@@ -2194,24 +2201,24 @@ static const struct {
 };
 const size_t NUM_DATA_9V = sizeof DATA_9V / sizeof *DATA_9V;
 
+/// Verify that, for (the template parameter) `TYPE` having the bitwise
+/// moveable trait if (and only if) the specified `bitwiseMoveableFlag` is
+/// `true`, and having the bitwise copyable trait if (and only if) the
+/// specified `bitwiseCopyableFlag` is `true`, for each of the elements of
+/// the `DATA_9V` array, given a buffer holding `TYPE` objects configured by
+/// the values denoted in the `d_spec` string, emplacing a new entry with
+/// the value associated with the identifier `V` for `TYPE` at the `d_dst`
+/// index while shifting the entries between `d_dst` until the `d_end`
+/// indices results in a buffer built according to the `d_expected`
+/// specifications.  The `d_lineNum` member is used to report errors.  New
+/// entries are constructed with the global allocator `Z` if allocator
+/// aware, and with their default constructor otherwise.  Optionally specify
+/// an `exceptionSafetyFlag` to test for the strong exception safety
+/// guarantee when performing `emplace` for allocator aware `TYPE`s.
 template <class TYPE>
 void testEmplaceValue(bool bitwiseMoveableFlag,
                       bool bitwiseCopyableFlag,
                       bool exceptionSafetyFlag = false)
-    // Verify that, for (the template parameter) 'TYPE' having the bitwise
-    // moveable trait if (and only if) the specified 'bitwiseMoveableFlag' is
-    // 'true', and having the bitwise copyable trait if (and only if) the
-    // specified 'bitwiseCopyableFlag' is 'true', for each of the elements of
-    // the 'DATA_9V' array, given a buffer holding 'TYPE' objects configured by
-    // the values denoted in the 'd_spec' string, emplacing a new entry with
-    // the value associated with the identifier 'V' for 'TYPE' at the 'd_dst'
-    // index while shifting the entries between 'd_dst' until the 'd_end'
-    // indices results in a buffer built according to the 'd_expected'
-    // specifications.  The 'd_lineNum' member is used to report errors.  New
-    // entries are constructed with the global allocator 'Z' if allocator
-    // aware, and with their default constructor otherwise.  Optionally specify
-    // an 'exceptionSafetyFlag' to test for the strong exception safety
-    // guarantee when performing 'emplace' for allocator aware 'TYPE's.
 {
     const int MAX_SIZE = 16;
     static union {
@@ -2285,18 +2292,18 @@ void testEmplaceValue(bool bitwiseMoveableFlag,
     ASSERT(0 == Z->numBytesInUse());
 }
 
+/// This test function verifies, for each of the `NUM_DATA_9V` elements of
+/// the `DATA_9V` array, that inserting the `d_ne` entries at the `d_dst`
+/// index while shifting the entries between `d_dst` until the `d_end`
+/// indices in a buffer built according to the `d_spec` specifications
+/// results in a buffer built according to the `d_expected` specifications.
+/// The `d_lineNum` member is used to report errors.
 void testEmplaceAttrib5(bool exceptionSafetyFlag,
                         char a = 0,
                         int  b = 0,
                         int  c = 0,
                         int  d = 0,
                         int  e = 0)
-    // This test function verifies, for each of the 'NUM_DATA_9V' elements of
-    // the 'DATA_9V' array, that inserting the 'd_ne' entries at the 'd_dst'
-    // index while shifting the entries between 'd_dst' until the 'd_end'
-    // indices in a buffer built according to the 'd_spec' specifications
-    // results in a buffer built according to the 'd_expected' specifications.
-    // The 'd_lineNum' member is used to report errors.
 {
     const int MAX_SIZE = 16;
     static union {
@@ -2630,19 +2637,19 @@ static const struct {
 };
 const size_t NUM_DATA_8 = sizeof DATA_8 / sizeof *DATA_8;
 
+/// This test function verifies, for each of the `NUM_DATA_8` elements of
+/// the `DATA_8` array, that rotating by `d_m` positions the entries between
+/// `d_begin` until the `d_end` indices in a buffer built according to the
+/// `d_spec` specifications results in a buffer built according to the
+/// `d_expected` specifications.  The `d_lineNum` member is used to report
+/// errors.  If the specified `bitwiseMoveableFlag` is `true`, check that no
+/// additional copies are made, nor destructors run.  If the optionally
+/// specified `exceptionSafetyFlag` is `true`, confirm that no memory is
+/// leaked and that the basic exception safety guarantee is honored.
 template <class TYPE>
 void testRotate(bool bitwiseMoveableFlag,
                 bool,
                 bool exceptionSafetyFlag = false)
-    // This test function verifies, for each of the 'NUM_DATA_8' elements of
-    // the 'DATA_8' array, that rotating by 'd_m' positions the entries between
-    // 'd_begin' until the 'd_end' indices in a buffer built according to the
-    // 'd_spec' specifications results in a buffer built according to the
-    // 'd_expected' specifications.  The 'd_lineNum' member is used to report
-    // errors.  If the specified 'bitwiseMoveableFlag' is 'true', check that no
-    // additional copies are made, nor destructors run.  If the optionally
-    // specified 'exceptionSafetyFlag' is 'true', confirm that no memory is
-    // leaked and that the basic exception safety guarantee is honored.
 {
     const int MAX_SIZE = 32;
     static union {
@@ -2712,7 +2719,7 @@ static const struct {
     int         d_end;       // end of data
     const char *d_expected;  // expected result array
 } DATA_7[] = {
-    //line spec         begin  ne    end     expected      ordered by 'ne'
+    //line spec         begin  ne    end     expected      ordered by `ne`
     //---- ----         -----  --    ---     --------      ---------------
     { L_,  "___",       1,     0,    1,      "___"         },  // 0
     { L_,  "_b_",       1,     0,    1,      "_b_"         },
@@ -2742,18 +2749,18 @@ static const struct {
 };
 const size_t NUM_DATA_7 = sizeof DATA_7 / sizeof *DATA_7;
 
+/// This test function verifies, for each of the `NUM_DATA_7` elements of
+/// the `DATA_7` array, that erasing the `d_ne` entries at the `d_begin`
+/// index while shifting the entries between `d_dst` until the `d_end`
+/// indices in a buffer built according to the `d_spec` specifications
+/// results in a buffer built according to the `d_expected` specifications.
+/// The `d_lineNum` member is used to report errors.  If the optionally
+/// specified `exceptionSafetyFlag` is `true`, confirm that no memory is
+/// leaked and that the basic exception safety guarantee is honored.
 template <class TYPE>
 void testErase(bool,
                bool,
                bool exceptionSafetyFlag = false)
-    // This test function verifies, for each of the 'NUM_DATA_7' elements of
-    // the 'DATA_7' array, that erasing the 'd_ne' entries at the 'd_begin'
-    // index while shifting the entries between 'd_dst' until the 'd_end'
-    // indices in a buffer built according to the 'd_spec' specifications
-    // results in a buffer built according to the 'd_expected' specifications.
-    // The 'd_lineNum' member is used to report errors.  If the optionally
-    // specified 'exceptionSafetyFlag' is 'true', confirm that no memory is
-    // leaked and that the basic exception safety guarantee is honored.
 {
     const int MAX_SIZE = 16;
     static union {
@@ -2900,16 +2907,16 @@ static const struct {
 };
 const size_t NUM_DATA_6V = sizeof DATA_6V / sizeof *DATA_6V;
 
+/// This test function verifies, for each of the `NUM_DATA_6V` elements of
+/// the `DATA_6V` array, that inserting the `d_ne` entries at the `d_dst`
+/// index while shifting the entries between `d_dst` until the `d_end`
+/// indices in a buffer built according to the `d_spec` specifications
+/// results in a buffer built according to the `d_expected` specifications.
+/// The `d_lineNum` member is used to report errors.
 template <class TYPE>
 void testDestructiveMoveAndInsertValueN(bool bitwiseMoveableFlag,
                                         bool bitwiseCopyableFlag,
                                         bool exceptionSafetyFlag = false)
-    // This test function verifies, for each of the 'NUM_DATA_6V' elements of
-    // the 'DATA_6V' array, that inserting the 'd_ne' entries at the 'd_dst'
-    // index while shifting the entries between 'd_dst' until the 'd_end'
-    // indices in a buffer built according to the 'd_spec' specifications
-    // results in a buffer built according to the 'd_expected' specifications.
-    // The 'd_lineNum' member is used to report errors.
 {
     const int MAX_SIZE = 16;
     static union {
@@ -3105,18 +3112,18 @@ static const struct {
 };
 const size_t NUM_DATA_6R = sizeof DATA_6R / sizeof *DATA_6R;
 
+/// This test function verifies, for each of the `NUM_DATA_6R` elements of
+/// the `DATA_6R` array, that inserting the `d_neInsert` entries at the
+/// `d_dst` index while shifting the `d_neMove` entries at and after the
+/// `d_dst` index in a buffer built according to the `d_spec` specifications
+/// results in a buffer built according to the `d_expected` specifications.
+/// The `d_lineNum` member is used to report errors.  In the presence of
+/// exceptions, check that the array has the same number of initialized
+/// entries (and no more), although their values are unspecified.
 template <class TYPE>
 void testDestructiveMoveAndInsertRange(bool bitwiseMoveableFlag,
                                        bool bitwiseCopyableFlag,
                                        bool exceptionSafetyFlag = false)
-    // This test function verifies, for each of the 'NUM_DATA_6R' elements of
-    // the 'DATA_6R' array, that inserting the 'd_neInsert' entries at the
-    // 'd_dst' index while shifting the 'd_neMove' entries at and after the
-    // 'd_dst' index in a buffer built according to the 'd_spec' specifications
-    // results in a buffer built according to the 'd_expected' specifications.
-    // The 'd_lineNum' member is used to report errors.  In the presence of
-    // exceptions, check that the array has the same number of initialized
-    // entries (and no more), although their values are unspecified.
 {
     const char INPUT[] = { "tuvwxyz" };
     enum { INPUT_LEN = sizeof INPUT / sizeof *INPUT };
@@ -3283,25 +3290,25 @@ void testDestructiveMoveAndInsertRange(bool bitwiseMoveableFlag,
     ASSERT(0 == Z->numBytesInUse());
 }
 
+/// This test function verifies, for each of the `NUM_DATA_6R` elements of
+/// the `DATA_6R` array, that inserting the `d_neInsert` entries at the
+/// `d_dst` index while shifting the `d_neMove` entries at and after the
+/// `d_dst` index in a buffer built according to the `d_spec` specifications
+/// results in a buffer built according to the `d_expected` specifications.
+/// The `d_lineNum` member is used to report errors.  In the presence of
+/// exceptions, check that the array has the same number of initialized
+/// entries (and no more), although their values are unspecified.  If the
+/// specified `bitwiseMoveableFlag` is `true`, check that no additional
+/// copies are made, nor destructors run.  If the optionally specified
+/// `exceptionSafetyFlag` is `true`, check that, if an exception is thrown
+/// from the `moveInsert` call, the array has the same number of initialized
+/// entries (and no more), although their values are unspecified, and
+/// confirm that no memory is leaked, i.e., that the basic exception safety
+/// guarantee is honored.
 template <class TYPE>
 void testDestructiveMoveAndMoveInsert(bool bitwiseMoveableFlag,
                                       bool,
                                       bool exceptionSafetyFlag = false)
-    // This test function verifies, for each of the 'NUM_DATA_6R' elements of
-    // the 'DATA_6R' array, that inserting the 'd_neInsert' entries at the
-    // 'd_dst' index while shifting the 'd_neMove' entries at and after the
-    // 'd_dst' index in a buffer built according to the 'd_spec' specifications
-    // results in a buffer built according to the 'd_expected' specifications.
-    // The 'd_lineNum' member is used to report errors.  In the presence of
-    // exceptions, check that the array has the same number of initialized
-    // entries (and no more), although their values are unspecified.  If the
-    // specified 'bitwiseMoveableFlag' is 'true', check that no additional
-    // copies are made, nor destructors run.  If the optionally specified
-    // 'exceptionSafetyFlag' is 'true', check that, if an exception is thrown
-    // from the 'moveInsert' call, the array has the same number of initialized
-    // entries (and no more), although their values are unspecified, and
-    // confirm that no memory is leaked, i.e., that the basic exception safety
-    // guarantee is honored.
 {
     const char *INPUT     = "tuvwxyz";
     const char *INPUT_EXP = "_______";  // after move
@@ -3462,19 +3469,19 @@ static const struct {
 };
 const size_t NUM_DATA_5V = sizeof DATA_5V / sizeof *DATA_5V;
 
+/// This test function verifies, for each of the `NUM_DATA_5V` elements of
+/// the `DATA_5V` array, that inserting the `d_ne` entries at the `d_dst`
+/// index while shifting the entries between `d_dst` until the `d_end`
+/// indices in a buffer built according to the `d_spec` specifications
+/// results in a buffer built according to the `d_expected` specifications.
+/// The `d_lineNum` member is used to report errors.
+///
+/// TBD: There is no testing of aliasing concerns, as the only object that
+/// is copied for each round of insertions is a local contant `V`.
 template <class TYPE>
 void testInsertValueN(bool bitwiseMoveableFlag,
                       bool bitwiseCopyableFlag,
                       bool exceptionSafetyFlag = false)
-    // This test function verifies, for each of the 'NUM_DATA_5V' elements of
-    // the 'DATA_5V' array, that inserting the 'd_ne' entries at the 'd_dst'
-    // index while shifting the entries between 'd_dst' until the 'd_end'
-    // indices in a buffer built according to the 'd_spec' specifications
-    // results in a buffer built according to the 'd_expected' specifications.
-    // The 'd_lineNum' member is used to report errors.
-    //
-    // TBD: There is no testing of aliasing concerns, as the only object that
-    // is copied for each round of insertions is a local contant 'V'.
 {
     const int MAX_SIZE = 16;
     static union {
@@ -3596,18 +3603,18 @@ static const struct {
 };
 const size_t NUM_DATA_5R = sizeof DATA_5R / sizeof *DATA_5R;
 
+/// This test function verifies, for each of the `NUM_DATA_5R` elements of
+/// the `DATA_5R` array, that inserting the `d_neInsert` entries at the
+/// `d_dst` index while shifting the `d_neMove` entries at and after the
+/// `d_dst` index in a buffer built according to the `d_spec` specifications
+/// results in a buffer built according to the `d_expected` specifications.
+/// The `d_lineNum` member is used to report errors.  In the presence of
+/// exceptions, check that the array has the same number of initialized
+/// entries (and no more), although their values are unspecified.
 template <class TYPE>
 void testInsertRange(bool bitwiseMoveableFlag,
                      bool bitwiseCopyableFlag,
                      bool exceptionSafetyFlag = false)
-    // This test function verifies, for each of the 'NUM_DATA_5R' elements of
-    // the 'DATA_5R' array, that inserting the 'd_neInsert' entries at the
-    // 'd_dst' index while shifting the 'd_neMove' entries at and after the
-    // 'd_dst' index in a buffer built according to the 'd_spec' specifications
-    // results in a buffer built according to the 'd_expected' specifications.
-    // The 'd_lineNum' member is used to report errors.  In the presence of
-    // exceptions, check that the array has the same number of initialized
-    // entries (and no more), although their values are unspecified.
 {
     const char INPUT[] = { "tuvwxyz" };
     enum { INPUT_LEN = sizeof INPUT / sizeof *INPUT };
@@ -3736,23 +3743,23 @@ void testInsertRange(bool bitwiseMoveableFlag,
     ASSERT(0 == Z->numBytesInUse());
 }
 
+/// This test function verifies, for each of the `NUM_DATA_5R` elements of
+/// the `DATA_5R` array, that inserting the `d_neInsert` entries at the
+/// `d_dst` index while shifting the `d_neMove` entries at and after the
+/// `d_dst` index in a buffer built according to the `d_spec` specifications
+/// results in a buffer built according to the `d_expected` specifications.
+/// The `d_lineNum` member is used to report errors.  If the specified
+/// `bitwiseMoveableFlag` is `true`, check that no additional copies are
+/// made, nor destructors run.  If the optionally specified
+/// `exceptionSafetyFlag` is `true`, check that, if an exception is thrown
+/// from the `moveInsert` call, the array has the same number of initialized
+/// entries (and no more), although their values are unspecified, and
+/// confirm that no memory is leaked, i.e., that the basic exception safety
+/// guarantee is honored.
 template <class TYPE>
 void testMoveInsert(bool bitwiseMoveableFlag,
                     bool,
                     bool exceptionSafetyFlag = false)
-    // This test function verifies, for each of the 'NUM_DATA_5R' elements of
-    // the 'DATA_5R' array, that inserting the 'd_neInsert' entries at the
-    // 'd_dst' index while shifting the 'd_neMove' entries at and after the
-    // 'd_dst' index in a buffer built according to the 'd_spec' specifications
-    // results in a buffer built according to the 'd_expected' specifications.
-    // The 'd_lineNum' member is used to report errors.  If the specified
-    // 'bitwiseMoveableFlag' is 'true', check that no additional copies are
-    // made, nor destructors run.  If the optionally specified
-    // 'exceptionSafetyFlag' is 'true', check that, if an exception is thrown
-    // from the 'moveInsert' call, the array has the same number of initialized
-    // entries (and no more), although their values are unspecified, and
-    // confirm that no memory is leaked, i.e., that the basic exception safety
-    // guarantee is honored.
 {
     const char *INPUT     = "tuvwxyz";
     const char *INPUT_EXP = "_______";  // after move
@@ -4273,15 +4280,15 @@ static const struct {
 };
 const size_t NUM_DATA_2 = sizeof DATA_2 / sizeof *DATA_2;
 
+/// This test function verifies, for each of the `NUM_DATA_2` elements of
+/// the `DATA_2` array, that initializing the `d_ne` entries starting from
+/// the `d_begin` index in a buffer built according to the `d_spec`
+/// specifications results in a buffer built according to the `d_expected`
+/// specifications.  The `d_lineNum` member is used to report errors.
 template <class TYPE>
 void testUninitializedFillN(bool, // bitwiseMoveableFlag
                             bool bitwiseCopyableFlag,
                             bool exceptionSafetyFlag = false)
-    // This test function verifies, for each of the 'NUM_DATA_2' elements of
-    // the 'DATA_2' array, that initializing the 'd_ne' entries starting from
-    // the 'd_begin' index in a buffer built according to the 'd_spec'
-    // specifications results in a buffer built according to the 'd_expected'
-    // specifications.  The 'd_lineNum' member is used to report errors.
 {
     const int MAX_SIZE = 26;
     static union {
@@ -4341,14 +4348,14 @@ void testUninitializedFillN(bool, // bitwiseMoveableFlag
     ASSERT(0 == Z->numBytesInUse());
 }
 
+/// This test function verifies that initializing a subset of a buffer
+/// initially filled with junk with a variable number of copies of the
+/// specified `value` of the parameterized `TYPE`, starting at a variable
+/// beginning position, results in the expected buffer (unmodified outside
+/// the subset, and each entry equal to `value` within the subset) in all
+/// cases.  The behavior is undefined unless `TYPE` is bitwise copyable.
 template <class TYPE>
 void testUninitializedFillNBCT(TYPE value)
-    // This test function verifies that initializing a subset of a buffer
-    // initially filled with junk with a variable number of copies of the
-    // specified 'value' of the parameterized 'TYPE', starting at a variable
-    // beginning position, results in the expected buffer (unmodified outside
-    // the subset, and each entry equal to 'value' within the subset) in all
-    // cases.  The behavior is undefined unless 'TYPE' is bitwise copyable.
 {
     const size_t MAX_SIZE    = 15;
     const size_t BUFFER_SIZE = MAX_SIZE * sizeof(TYPE);
@@ -4379,8 +4386,8 @@ void testUninitializedFillNBCT(TYPE value)
                 Obj::uninitializedFillN(&bufU[begin], numElements, value, Z);
 
                 // Note: since the untouched portion of the buffer is filled
-                // with junk, it doesn't make sense to compare as 'TYPE' since
-                // the result might be negative (two 'NaN's for instance always
+                // with junk, it doesn't make sense to compare as `TYPE` since
+                // the result might be negative (two `NaN`s for instance always
                 // compare negative, even if the bit pattern is identical).
                 {
                     int cmp = memcmp(bufU, bufV, begin * sizeof(TYPE));
@@ -4531,23 +4538,23 @@ bool operator!=(const HI<TYPE, BITS>& l, const HI<TYPE, BITS>& r)
 
 //=============================================================================
 //                          GAUNTLET MACRO
-// Passed 'func', which should be a template of a function whose single
+// Passed `func`, which should be a template of a function whose single
 // template parameter is the type to be stored into the array, and which takes
 // 3 boolean arguments telling
 //    - the template parameter is a bitwise moveable type
 //    - the template parameter is a bitwise copyable type
 //    - exception testing is to be done.
 //
-// Run 'func' on a whole gauntlet of different types.
-// Note that the 'GAUNTLET' still misses 4 fundamental types that should be
+// Run `func` on a whole gauntlet of different types.
+// Note that the `GAUNTLET` still misses 4 fundamental types that should be
 // properly tested, as there are overload sets that do special things for
 // fundamental types:
-//..
+// ```
 //  bool
 //  char16_t
 //  char32_t
 //  nullptr_t
-//..
+// ```
 //=============================================================================
 
 #define GAUNTLET(func) do {                                                   \
@@ -4611,28 +4618,28 @@ bool operator!=(const HI<TYPE, BITS>& l, const HI<TYPE, BITS>& r)
         if (verbose) printf("\t...with long double.\n");                      \
         func<long double>(true, true);                                        \
                                                                               \
-        if (verbose) printf("\t...with 'void *'.\n");                         \
+        if (verbose) printf("\t...with `void *`.\n");                         \
         func<void *>(true, true);                                             \
                                                                               \
-        if (verbose) printf("\t...with 'const void *'.\n");                   \
+        if (verbose) printf("\t...with `const void *`.\n");                   \
         func<const void *>(true, true);                                       \
                                                                               \
-        if (verbose) printf("\t...with 'int *'.\n");                          \
+        if (verbose) printf("\t...with `int *`.\n");                          \
         func<int *>(true, true);                                              \
                                                                               \
-        if (verbose) printf("\t...with 'const int *'.\n");                    \
+        if (verbose) printf("\t...with `const int *`.\n");                    \
         func<const int *>(true, true);                                        \
                                                                               \
-        if (verbose) printf("\t...with 'volatile int *'.\n");                    \
+        if (verbose) printf("\t...with `volatile int *`.\n");                    \
         func<volatile int *>(true, true);                                     \
                                                                               \
-        if (verbose) printf("\t...with 'const volatile int *'.\n");                    \
+        if (verbose) printf("\t...with `const volatile int *`.\n");                    \
         func<const volatile int*>(true, true);                                       \
                                                                               \
-        if (verbose) printf("\t...with 'FnPtrConvertibleType'.\n");           \
+        if (verbose) printf("\t...with `FnPtrConvertibleType`.\n");           \
         func<FnPtrConvertibleType>(false, false);                             \
                                                                               \
-        if (verbose) printf("\t...with 'AmbiguousConvertibleType'.\n");       \
+        if (verbose) printf("\t...with `AmbiguousConvertibleType`.\n");       \
         func<AmbiguousConvertibleType>(false, false);                         \
                                                                               \
         if (verbose) printf("\tException test.\n");                           \
@@ -4673,13 +4680,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -4689,7 +4696,7 @@ int main(int argc, char *argv[])
                             "\n=============\n");
 
 
-        // Do some ad-hoc breathing test for 'MyVector' type in the usage
+        // Do some ad-hoc breathing test for `MyVector` type in the usage
         // example.
 
         MyVector<int> v;
@@ -4717,14 +4724,14 @@ int main(int argc, char *argv[])
         // VECTOR OF PARTIALS TEST
         //
         // Concerns:
-        //: 1 Helper function 'uninitializedFillN' must not inspect any part of
-        //:   the object representation.
+        // 1. Helper function `uninitializedFillN` must not inspect any part of
+        //    the object representation.
         //
         // Plan:
-        //: 1 Construct partially initialized structure with unitialized union
-        //:   member and copy it with 'uninitializedFillN()'.
-        //: 2 Verify that the initialized parts of the source object were
-        //:   copied into destination object(s).
+        // 1. Construct partially initialized structure with unitialized union
+        //    member and copy it with `uninitializedFillN()`.
+        // 2. Verify that the initialized parts of the source object were
+        //    copied into destination object(s).
         //
         // Testing
         //  CONCERN: Copy partially initialized objects without UB
@@ -4735,8 +4742,8 @@ int main(int argc, char *argv[])
                    "=======================\n");
 
         Partial refVal;
-        // Do not initialize 'd_union' data member.  This way we do not start
-        // the active lifetime of the 'd_union' object.  This will trigger UB
+        // Do not initialize `d_union` data member.  This way we do not start
+        // the active lifetime of the `d_union` object.  This will trigger UB
         // if copy inspect any bytes of the object representation belonging to
         // the uninitialized part of the object.
 
@@ -4761,25 +4768,25 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // CONCERN: 'defaultConstruct' calls correct constructor for new elems
-        //   Test that 'defaultConstruct' calls the non-trivial default
+        // CONCERN: `defaultConstruct` calls correct constructor for new elems
+        //   Test that `defaultConstruct` calls the non-trivial default
         //   constructor for each new element (DRQS 170157583).
         //
         // Concerns:
-        //: 1 Non-trivial default constructor must be called for each new
-        //:   default-constructed element.
+        // 1. Non-trivial default constructor must be called for each new
+        //    default-constructed element.
         //
         // Plan:
-        //: 1 Every element gets a unique int value in the default constructor.
-        //:   All default-constructed elements must have different values.  If
-        //:   two elements have the same value, one is a copy of another.
+        // 1. Every element gets a unique int value in the default constructor.
+        //    All default-constructed elements must have different values.  If
+        //    two elements have the same value, one is a copy of another.
         //
         // Testing:
-        //  CONCERN: 'defaultConstruct' calls correct constructor for new elems
+        //  CONCERN: `defaultConstruct` calls correct constructor for new elems
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-        "\nCONCERN: 'defaultConstruct' calls correct constructor for new elems"
+        "\nCONCERN: `defaultConstruct` calls correct constructor for new elems"
         "\n==================================================================="
         "\n");
 
@@ -4797,12 +4804,12 @@ int main(int argc, char *argv[])
         // TESTING HYMAN'S TEST CASE 1
         //
         // Concerns
-        //: 1 A range of derived objects is correctly sliced when copied into
-        //:   an array of base objects.
-        //: 2 A range of derived objects is correctly sliced when inserted into
-        //:   an array of base objects.
-        //: 3 It does not matter whether the source-range is described by a
-        //:   pair of pointers, or a pair of user-defined iterators.
+        // 1. A range of derived objects is correctly sliced when copied into
+        //    an array of base objects.
+        // 2. A range of derived objects is correctly sliced when inserted into
+        //    an array of base objects.
+        // 3. It does not matter whether the source-range is described by a
+        //    pair of pointers, or a pair of user-defined iterators.
         //
         // Plan:
         //
@@ -4881,18 +4888,18 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'defaultConstruct'
+        // TESTING `defaultConstruct`
         //
         // Concerns:
         //
         // Plan:
-        //   emplace: order test data by increasing 'ne'.
+        //   emplace: order test data by increasing `ne`.
         //
         // Testing:
         //   void defaultConstruct(T *begin, size_type ne, ALLOCATOR a);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'defaultConstruct'"
+        if (verbose) printf("\nTESTING `defaultConstruct`"
                             "\n==========================\n");
 
         GAUNTLET(testDefaultConstruct);
@@ -4900,34 +4907,34 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'emplace'
+        // TESTING `emplace`
         //
         // Concerns:
         //
         // Plan:
-        //   emplace: order test data by increasing 'ne'.
+        //   emplace: order test data by increasing `ne`.
         //
         // Testing:
         //   void emplace(T *toBegin, T *toEnd, ALLOCATOR a, args...);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'emplace'"
+        if (verbose) printf("\nTESTING `emplace`"
                             "\n================\n");
 
         if (verbose) printf(
-                         "\nTesting 'emplace(T *toBegin, T *toEnd, alloc)'\n");
+                         "\nTesting `emplace(T *toBegin, T *toEnd, alloc)`\n");
 
         GAUNTLET(testEmplaceDefaultValue);
 
         if (verbose) printf(
-                   "\nTesting 'emplace(T *toBegin, T *toEnd, alloc, rval)'\n");
+                   "\nTesting `emplace(T *toBegin, T *toEnd, alloc, rval)`\n");
 
         GAUNTLET(testEmplaceValue);
 
         // Verify zero up to five arguments work as expected.
 
         if (verbose) printf(
-                "\nTesting 'emplace(T *toBegin, T *toEnd, alloc, args...)'\n");
+                "\nTesting `emplace(T *toBegin, T *toEnd, alloc, args...)`\n");
 
         testEmplaceAttrib5(false);
         testEmplaceAttrib5(true );
@@ -4950,13 +4957,13 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'rotate'
+        // TESTING `rotate`
         //
         // Concerns:
         //
         // Plan:
         //   Select size of range to rotate and all possible positions.
-        //   Due to the use of 'gcd' in the implementation, try all sizes <= 6,
+        //   Due to the use of `gcd` in the implementation, try all sizes <= 6,
         //   and in addition, for a small set of larger prime and non-prime
         //   sizes, try different positions in the range (relatively prime and
         //   non prime).
@@ -4965,12 +4972,12 @@ int main(int argc, char *argv[])
         //   void rotate(T *first, T *middle, T *last);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'rotate'"
+        if (verbose) printf("\nTESTING `rotate`"
                             "\n================\n");
 
         GAUNTLET(testRotate);
 
-        if (verbose) printf("\nTesting 'rotate'"
+        if (verbose) printf("\nTesting `rotate`"
                                    "...with VeryLargeBitwiseMoveableTypes.\n");
 
         if (verbose) printf("\t\t...with 8 extra bytes.\n");
@@ -4988,38 +4995,38 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'erase'
+        // TESTING `erase`
         //
         // Concerns:
         //
         // Plan:
-        //   Let ne = 'e' - 'b'.  Order test data by increasing ne.
+        //   Let ne = `e` - `b`.  Order test data by increasing ne.
         //
         // Testing:
         //   void erase(T *first, T *middle, T *last, ALLOCATOR a);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'erase'"
+        if (verbose) printf("\nTESTING `erase`"
                             "\n===============\n");
 
         GAUNTLET(testErase);
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'destructiveMoveAndInsert'
+        // TESTING `destructiveMoveAndInsert`
         //
         // Concerns:
         //
         // Plan:
-        //   insert #1: order test data by increasing 'ne'.
-        //   insert #2: order test data by increasing 'ne' + ('dstE' - 'dstB').
+        //   insert #1: order test data by increasing `ne`.
+        //   insert #2: order test data by increasing `ne` + (`dstE` - `dstB`).
         //
         // Testing:
         //   void destructiveMoveAndInsert(...);
         //   void destructiveMoveAndMoveInsert(...);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'destructiveMoveAndInsert'"
+        if (verbose) printf("\nTESTING `destructiveMoveAndInsert`"
                             "\n==================================\n");
 
         if (verbose)
@@ -5041,13 +5048,13 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'insert'
+        // TESTING `insert`
         //
         // Concerns:
         //
         // Plan:
-        //   insert #1: order test data by increasing 'ne'.
-        //   insert #2: order test data by increasing 'ne' + ('dstE' - 'dstB').
+        //   insert #1: order test data by increasing `ne`.
+        //   insert #2: order test data by increasing `ne` + (`dstE` - `dstB`).
         //
         // Testing:
         //   void insert(T *dstB, T *dstE, const T& v, ne, *a);
@@ -5055,7 +5062,7 @@ int main(int argc, char *argv[])
         //   void moveInsert(T *dstB, T *dstE, T **srcEp, srcB, srcE, ne, *a);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'insert'"
+        if (verbose) printf("\nTESTING `insert`"
                             "\n================\n");
 
         if (verbose)
@@ -5078,54 +5085,54 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'destructiveMove'
+        // TESTING `destructiveMove`
         //
         // Concerns:
         //
         // Plan:
-        //   Let ne = 'srcE' - 'srcB'.  Order test data by increasing ne.
-        //   Include test cases where (1) 'srcE' <= 'dstB', and
-        //   (2) 'dstB' + ne <= 'srcB'.
+        //   Let ne = `srcE` - `srcB`.  Order test data by increasing ne.
+        //   Include test cases where (1) `srcE` <= `dstB`, and
+        //   (2) `dstB` + ne <= `srcB`.
         //
         // Testing:
         //   void destructiveMove(T *dstB, T *srcB, T *srcE, ALLOCATOR a);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'destructiveMove'"
+        if (verbose) printf("\nTESTING `destructiveMove`"
                             "\n=========================\n");
 
         GAUNTLET(testDestructiveMove);
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'copyConstruct'
+        // TESTING `copyConstruct`
         //
         // Concerns:
         //
         // Plan:
-        //   Let ne = 'srcE' - 'srcB'.  Order test data by increasing ne.
-        //   Include test cases where (1) 'srcE' <= 'dstB', and
-        //   (2) 'dstB' + ne <= 'srcB'.
+        //   Let ne = `srcE` - `srcB`.  Order test data by increasing ne.
+        //   Include test cases where (1) `srcE` <= `dstB`, and
+        //   (2) `dstB` + ne <= `srcB`.
         //
         // Testing:
         //   void copyConstruct(T *dstB, FWD srcB, FWD srcE, ALLOCATOR a);
         //   void copyConstruct(T *dstB, S *srcB, S *srcE, ALLOCATOR a);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'copyConstruct'"
+        if (verbose) printf("\nTESTING `copyConstruct`"
                             "\n=======================\n");
 
         if (verbose) printf(
-                 "\nTesting 'copyConstruct(T *dstB, T *srcB, T *srcE, *a)'\n");
+                 "\nTesting `copyConstruct(T *dstB, T *srcB, T *srcE, *a)`\n");
         GAUNTLET(testCopyConstruct);
 
         if (verbose) printf(
-               "\nTesting 'copyConstruct(T *dstB, FWD_ITER, FWD_ITER, *a)'\n");
+               "\nTesting `copyConstruct(T *dstB, FWD_ITER, FWD_ITER, *a)`\n");
         GAUNTLET(testCopyConstructWithIterators);
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'uninitializedFillN'
+        // TESTING `uninitializedFillN`
         //
         // Concerns:
         //
@@ -5136,7 +5143,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
 
-        if (verbose) printf("\nTESTING 'uninitializedFillN'"
+        if (verbose) printf("\nTESTING `uninitializedFillN`"
                             "\n============================\n");
 
         GAUNTLET(testUninitializedFillN);
@@ -5265,12 +5272,12 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   It is unclear which of the implementations is the best for the
-        //   'uninitializedFillN' algorithms.
+        //   `uninitializedFillN` algorithms.
         //
-        // Plan:  Time all three implementations (exponential 'memcpy',
-        //   'memcpy' by blocks of 32 bytes, or single loop) for various
+        // Plan:  Time all three implementations (exponential `memcpy`,
+        //   `memcpy` by blocks of 32 bytes, or single loop) for various
         //   fundamental types and taking care to separate the care where
-        //   'memset' can be used (also time this fourth implementation).
+        //   `memset` can be used (also time this fourth implementation).
         //
         // Testing:
         //   uninitializedFillN(char *,...);

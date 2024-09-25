@@ -15,7 +15,7 @@
 // delimited regions of C++11 code, then this test driver is a minimal 'main'
 // program that tests nothing and is not '#include'd in the original.
 //
-// Generated on Thu Feb 22 14:05:08 2024
+// Generated on Sun Sep 29 11:29:08 2024
 // Command line: sim_cpp11_features.pl bdlc_flathashtable.t.cpp
 
 // Expanded test driver only when compiling bdlc_flathashtable.cpp
@@ -37,39 +37,39 @@ using namespace bsl;
 // instantiation for several types is a concern.
 //
 // Primary Manipulators:
-//: o 'clear'
-//: o 'erase(key)'
-//: o 'insert'
-//: o 'reset'
+//  - `clear`
+//  - `erase(key)`
+//  - `insert`
+//  - `reset`
 //
 // Basic Accessors:
-//: o 'allocator'
-//: o 'capacity'
-//: o 'controls'
-//: o 'entries'
-//: o 'hash_function'
-//: o 'key_eq'
-//: o 'max_load_factor'
-//: o 'size'
+//  - `allocator`
+//  - `capacity`
+//  - `controls`
+//  - `entries`
+//  - `hash_function`
+//  - `key_eq`
+//  - `max_load_factor`
+//  - `size`
 //
 // Certain standard value-semantic-type test cases are omitted:
-//: o [ 5] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
-//: o [ 5] ostream& operator<<(ostream& stream, const FlatHashTable& table);
-//: o [10] BDEX
+//  - [ 5] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
+//  - [ 5] ostream& operator<<(ostream& stream, const FlatHashTable& table);
+//  - [10] BDEX
 //
 // Global Concerns:
-//: o The test driver is robust w.r.t. reuse in other, similar components.
-//: o ACCESSOR methods are declared 'const'.
-//: o CREATOR & MANIPULATOR pointer/reference parameters are declared 'const'.
-//: o No memory is ever allocated from the global allocator.
-//: o Any allocated memory is always from the object allocator.
-//: o An object's value is independent of the allocator used to supply memory.
-//: o Injected exceptions are safely propagated during memory allocation.
-//: o Precondition violations are detected in appropriate build modes.
+//  - The test driver is robust w.r.t. reuse in other, similar components.
+//  - ACCESSOR methods are declared `const`.
+//  - CREATOR & MANIPULATOR pointer/reference parameters are declared `const`.
+//  - No memory is ever allocated from the global allocator.
+//  - Any allocated memory is always from the object allocator.
+//  - An object's value is independent of the allocator used to supply memory.
+//  - Injected exceptions are safely propagated during memory allocation.
+//  - Precondition violations are detected in appropriate build modes.
 //
 // Global Assumptions:
-//: o All explicit memory allocations are presumed to use the global, default,
-//:   or object allocator.
+//  - All explicit memory allocations are presumed to use the global, default,
+//    or object allocator.
 // ----------------------------------------------------------------------------
 // CREATORS
 // [ 2] FlatHashTable(size_t, const HASH&, const EQUAL&, Allocator * = 0);
@@ -135,11 +135,11 @@ using namespace bsl;
 // [ 1] BREATHING TEST
 // [ 3] FlatHashTable& gg(FlatHashTable *object, const char *spec);
 // [ 3] int ggg(FlatHashTable *object, const char *spec, int verboseFlag);
-// [ 2] CONCERN: 'isValid' works as expected
-// [12] CONCERN: 'FHTCI FHTCI::operator++()'
-// [12] CONCERN: 'const ENTRY& FHTCI::operator*()'
-// [12] CONCERN: 'bool operator==(FHTCI&, FHTCI&)'
-// [12] CONCERN: 'ENTRY& FHTI::operator*()'
+// [ 2] CONCERN: `isValid` works as expected
+// [12] CONCERN: `FHTCI FHTCI::operator++()`
+// [12] CONCERN: `const ENTRY& FHTCI::operator*()`
+// [12] CONCERN: `bool operator==(FHTCI&, FHTCI&)`
+// [12] CONCERN: `ENTRY& FHTI::operator*()`
 // [21] CONCERN: {DRQS 167125039} BASIC OPERATIONS OF MOVED-TO TABLES
 
 // ============================================================================
@@ -220,7 +220,7 @@ bool veryVeryVeryVerbose;
 //                             GLOBAL TEST DATA
 // ----------------------------------------------------------------------------
 
-// Define 'DEFAULT_DATA' used by test cases.
+// Define `DEFAULT_DATA` used by test cases.
 
 struct DefaultDataRow {
     int         d_lineNum;  // source line number
@@ -228,7 +228,7 @@ struct DefaultDataRow {
     const char *d_spec_p;   // specification string
 
     int         d_valueId;  // value identifier (two values are equal if and
-                            // only if their 'd_valueId' are equal)
+                            // only if their `d_valueId` are equal)
 };
 
 static const DefaultDataRow DEFAULT_DATA[] = {
@@ -334,14 +334,15 @@ const bsl::size_t EMPLACE_NUM_DATA = sizeof  EMPLACE_DATA
                             // struct IntZeroHash
                             // ==================
 
+/// This class provides a hash algorithm that always returns zero, useful
+/// for testing various methods of a flat hash table.
 class IntZeroHash {
-    // This class provides a hash algorithm that always returns zero, useful
-    // for testing various methods of a flat hash table.
 
   public:
     // ACCESSORS
+
+    /// Return zero.
     bsl::size_t operator()(const int) const
-        // Return zero.
     {
         return 0;
     }
@@ -351,16 +352,16 @@ class IntZeroHash {
                            // class IntValueIsHash
                            // ====================
 
+/// This class provides a hash algorithm that provides a simple mapping from
+/// key to hash, useful for testing various methods of a flat hash table.
 class IntValueIsHash {
-    // This class provides a hash algorithm that provides a simple mapping from
-    // key to hash, useful for testing various methods of a flat hash table.
 
   public:
+    /// Return a value having the same seven lowest-order bits as the
+    /// specified `key` and the highest-order byte the same as the second
+    /// lowest-order byte as the `key`.  All other bits in `key` are
+    /// ignored.
     bsl::size_t operator()(const int key) const
-        // Return a value having the same seven lowest-order bits as the
-        // specified 'key' and the highest-order byte the same as the second
-        // lowest-order byte as the 'key'.  All other bits in 'key' are
-        // ignored.
     {
         bsl::size_t k = static_cast<bsl::size_t>(key);
 
@@ -372,45 +373,48 @@ class IntValueIsHash {
                              // class SeedIsHash
                              // ================
 
+/// This class provides a hash algorithm that returns the specified seed
+/// value for all hash requests, useful for testing `FlatHashTable_Hash`.
 class SeedIsHash {
-    // This class provides a hash algorithm that returns the specified seed
-    // value for all hash requests, useful for testing 'FlatHashTable_Hash'.
 
     bsl::size_t d_seed;  // value to return for all hash requests
 
   public:
     // CREATORS
+
+    /// Create a `SeedIsHash` object having 0 as the seed value.
     SeedIsHash()
-        // Create a 'SeedIsHash' object having 0 as the seed value.
     : d_seed(0)
     {
     }
 
+    /// Create a `SeedIsHash` object having the specified `seed`.
     explicit SeedIsHash(bsl::size_t seed)
-        // Create a 'SeedIsHash' object having the specified 'seed'.
     : d_seed(seed)
     {
     }
 
+    /// Create a `SeedIsHash` object having the value of the specified
+    /// `original` object.
     SeedIsHash(const SeedIsHash& original)
-        // Create a 'SeedIsHash' object having the value of the specified
-        // 'original' object.
     : d_seed(original.d_seed)
     {
     }
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs`, and return a
+    /// reference providing modifiable access to this object.
     SeedIsHash& operator=(const SeedIsHash& rhs)
-        // Assign to this object the value of the specified 'rhs', and return a
-        // reference providing modifiable access to this object.
     {
         d_seed = rhs.d_seed;
         return *this;
     }
 
     // ACCESSORS
+
+    /// Return the provided-at-constuction seed value.
     bsl::size_t operator()(const int&) const
-        // Return the provided-at-constuction seed value.
     {
         return d_seed;
     }
@@ -420,18 +424,19 @@ class SeedIsHash {
                           // class TestValueIsHash
                           // =====================
 
+/// This class provides a hash algorithm that provides a simple mapping from
+/// `KEY` to hash, useful for testing various methods of a flat hash table.
 template <class KEY>
 class TestValueIsHash {
-    // This class provides a hash algorithm that provides a simple mapping from
-    // 'KEY' to hash, useful for testing various methods of a flat hash table.
 
   public:
     // ACCESSORS
+
+    /// Return a value having the same seven lowest-order bits as the
+    /// specified `key.data()` and the highest-order byte the same as the
+    /// second lowest-order byte as the `key.data()`.  All other bits in
+    /// `key` are ignored.
     bsl::size_t operator()(const KEY& key) const
-        // Return a value having the same seven lowest-order bits as the
-        // specified 'key.data()' and the highest-order byte the same as the
-        // second lowest-order byte as the 'key.data()'.  All other bits in
-        // 'key' are ignored.
     {
         bsl::size_t k = static_cast<bsl::size_t>(key.data());
 
@@ -443,10 +448,10 @@ class TestValueIsHash {
                            // struct TestEntryUtil
                            // ====================
 
+/// This templated utility provides methods to constuct an `ENTRY` having a
+/// specified integer key, and a method to extract the key from an `ENTRY`.
 template <class ENTRY>
 struct TestEntryUtil
-    // This templated utility provides methods to constuct an 'ENTRY' having a
-    // specified integer key, and a method to extract the key from an 'ENTRY'.
 {
     // CLASS METHODS
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -749,26 +754,26 @@ struct TestEntryUtil
 // }}} END GENERATED CODE
 #endif
 
+    /// Load into the specified `entry` the specified `key` value, using the
+    /// specified `allocator` to supply memory.
     static void constructFromKey(ENTRY             *entry,
                                  bslma::Allocator  *allocator,
                                  int                key)
-        // Load into the specified 'entry' the specified 'key' value, using the
-        // specified 'allocator' to supply memory.
     {
         bslma::ConstructionUtil::construct(entry, allocator, key);
     }
 
+    /// Return the key of the specified `entry`.
     static int key(const ENTRY& entry)
-        // Return the key of the specified 'entry'.
     {
         return entry.data();
     }
 };
 
+/// This utility provides methods to assign the integer value of an entry,
+/// and a method to extract the value from an entry.
 template <>
 struct TestEntryUtil<int>
-    // This utility provides methods to assign the integer value of an entry,
-    // and a method to extract the value from an entry.
 {
     // CLASS METHODS
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -1071,27 +1076,27 @@ struct TestEntryUtil<int>
 // }}} END GENERATED CODE
 #endif
 
+    /// Load into the specified `entry` the specified `key` value.
     static void constructFromKey(int               *entry,
                                  bslma::Allocator  *,
                                  int                key)
-        // Load into the specified 'entry' the specified 'key' value.
     {
         *entry = key;
     }
 
+    /// Return the key of the specified `entry`.
     static int key(const int& entry)
-        // Return the key of the specified 'entry'.
     {
         return entry;
     }
 };
 
+/// This utility provides methods to constuct a `bsl::pair<const int, int>`
+/// having the specified key as the `first` value and zero as the `second`
+/// value, and a method to extract the key from a
+/// `bsl::pair<const int, int>`.
 template <>
 struct TestEntryUtil<bsl::pair<const int, int> >
-    // This utility provides methods to constuct a 'bsl::pair<const int, int>'
-    // having the specified key as the 'first' value and zero as the 'second'
-    // value, and a method to extract the key from a
-    // 'bsl::pair<const int, int>'.
 {
     // CLASS METHODS
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -1394,18 +1399,18 @@ struct TestEntryUtil<bsl::pair<const int, int> >
 // }}} END GENERATED CODE
 #endif
 
+    /// Load into the specified `entry` the pair value comprised of the
+    /// value of the specified `key` and zero, using the specified
+    /// `allocator` to supply memory.
     static void constructFromKey(bsl::pair<const int, int> *entry,
                                  bslma::Allocator          *allocator,
                                  int                        key)
-        // Load into the specified 'entry' the pair value comprised of the
-        // value of the specified 'key' and zero, using the specified
-        // 'allocator' to supply memory.
     {
         bslma::ConstructionUtil::construct(entry, allocator, key, 0);
     }
 
+    /// Return the key of the specified `entry`.
     static const int& key(const bsl::pair<const int, int>& entry)
-        // Return the key of the specified 'entry'.
     {
         return entry.first;
     }
@@ -1415,11 +1420,11 @@ struct TestEntryUtil<bsl::pair<const int, int> >
                          // struct TestPairEntryUtil
                          // ========================
 
+/// This templated utility provides methods to constuct an `ENTRY` having a
+/// specified integer key value, and a method to extract the key from an
+/// `ENTRY`.
 template <class KEY, class ENTRY>
 struct TestPairEntryUtil
-    // This templated utility provides methods to constuct an 'ENTRY' having a
-    // specified integer key value, and a method to extract the key from an
-    // 'ENTRY'.
 {
     // CLASS METHODS
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -1722,14 +1727,14 @@ struct TestPairEntryUtil
 // }}} END GENERATED CODE
 #endif
 
+    /// Load into the first sub-value of the specified `entry` the specified
+    /// `key` value, and zero into the second sub-value, using the specified
+    /// `allocator` to supply memory.
     template <class KEY_TYPE>
     static void constructFromKey(
                         ENTRY                                       *entry,
                         bslma::Allocator                            *allocator,
                         BSLS_COMPILERFEATURES_FORWARD_REF(KEY_TYPE)  key)
-        // Load into the first sub-value of the specified 'entry' the specified
-        // 'key' value, and zero into the second sub-value, using the specified
-        // 'allocator' to supply memory.
     {
         bslma::ConstructionUtil::construct(
                                   entry,
@@ -1738,8 +1743,8 @@ struct TestPairEntryUtil
                                   0);
     }
 
+    /// Return the key of the specified `entry`.
     static const KEY& key(const ENTRY& entry)
-        // Return the key of the specified 'entry'.
     {
         return entry.first;
     }
@@ -1749,8 +1754,8 @@ struct TestPairEntryUtil
                            // struct IsValidResult
                            // ====================
 
+/// Return values for the global `isValid` method.
 struct IsValidResult
-    // Return values for the global 'isValid' method.
 {
     enum Enum {
         e_SUCCESS,
@@ -1765,26 +1770,27 @@ struct IsValidResult
                             // class IsValidGuard
                             // ==================
 
+/// This class implements a guard that automatically invokes `isValid` on
+/// the managed `TABLE` upon destruction, and asserts that the return value
+/// indicates success.
 template <class TABLE>
 class IsValidGuard
-    // This class implements a guard that automatically invokes 'isValid' on
-    // the managed 'TABLE' upon destruction, and asserts that the return value
-    // indicates success.
 {
     // DATA
     const TABLE *d_table_p;  // managed table
 
   public:
     // CREATORS
+
+    /// Create a guard that managed the specified `table`.
     explicit IsValidGuard(const TABLE *table)
-        // Create a guard that managed the specified 'table'.
     : d_table_p(table)
     {
     }
 
+    /// Destroy this object and invoke `isValid` on the managed table, and
+    /// assert the success of the `isValid` invocation.
     ~IsValidGuard()
-        // Destroy this object and invoke 'isValid' on the managed table, and
-        // assert the success of the 'isValid' invocation.
     {
         bsl::size_t errorIndex;
         ASSERT(IsValidResult::e_SUCCESS == isValid(&errorIndex, *d_table_p));
@@ -1792,14 +1798,14 @@ class IsValidGuard
 };
 
 // ============================================================================
-//               GENERATOR FUNCTIONS 'gg' AND 'ggg' FOR TESTING
+//               GENERATOR FUNCTIONS `gg` AND `ggg` FOR TESTING
 // ----------------------------------------------------------------------------
-// The following functions interpret the given 'spec' in order from left to
+// The following functions interpret the given `spec` in order from left to
 // right to configure the object according to a custom language.
 //
 // LANGUAGE SPECIFICATION:
 // -----------------------
-//..
+// ```
 // <SPEC> ::= <EMPTY>   | <LIST>
 //
 // <EMPTY> ::=
@@ -1813,18 +1819,18 @@ class IsValidGuard
 // <EMPTY_ELEMENT> ::= 'e'
 //
 // <ERASED_ELEMENT> ::= 'x'
-//..
+// ```
 
 enum { e_SUCCESS_EMPTY = -1, e_SUCCESS_ERASED = -2, e_SUCCESS_VALUE = -3 };
 
+/// Place into the specified `value` the value corresponding to the
+/// specified `specChar` and display errors to `cerr` if the specified
+/// `verboseFlag` is set.  Return `e_SUCCESS_EMPTY`, `e_SUCCESS_ERASED`, or
+/// `e_SUCCESS_VALUE` if operation successful, otherwise return a positive
+/// integer.  For `e_SUCCESS_VAUE`, `value` is the expected hashlet of the
+/// entry (to be combined with a position dependant component specifying
+/// insertion location).
 int getValue(int *value, char specChar, int verboseFlag)
-    // Place into the specified 'value' the value corresponding to the
-    // specified 'specChar' and display errors to 'cerr' if the specified
-    // 'verboseFlag' is set.  Return 'e_SUCCESS_EMPTY', 'e_SUCCESS_ERASED', or
-    // 'e_SUCCESS_VALUE' if operation successful, otherwise return a positive
-    // integer.  For 'e_SUCCESS_VAUE', 'value' is the expected hashlet of the
-    // entry (to be combined with a position dependant component specifying
-    // insertion location).
 {
     if ('e' == specChar) {
         return e_SUCCESS_EMPTY;                                       // RETURN
@@ -1847,14 +1853,14 @@ int getValue(int *value, char specChar, int verboseFlag)
     return 1;
 }
 
+/// Configure the specified `object` according to the specified `spec`,
+/// using only the primary manipulator functions.  Optionally specify a zero
+/// `verboseFlag` to suppress `spec` syntax error messages.  Return the
+/// index of the first invalid character, and a negative value otherwise.
+/// Note that this function is used to implement `gg` as well as allow for
+/// verification of syntax error detection.
 template <class OBJ>
 int ggg(OBJ *object, const char *spec, int verboseFlag = 1)
-    // Configure the specified 'object' according to the specified 'spec',
-    // using only the primary manipulator functions.  Optionally specify a zero
-    // 'verboseFlag' to suppress 'spec' syntax error messages.  Return the
-    // index of the first invalid character, and a negative value otherwise.
-    // Note that this function is used to implement 'gg' as well as allow for
-    // verification of syntax error detection.
 {
     typedef typename OBJ::entry_type ENTRY;
 
@@ -1965,10 +1971,10 @@ int ggg(OBJ *object, const char *spec, int verboseFlag = 1)
     return e_SUCCESS;
 }
 
+/// Return, by reference, the specified `object` with its value adjusted
+/// according to the specified `spec`.
 template <class OBJ>
 OBJ& gg(OBJ *object, const char *spec)
-    // Return, by reference, the specified 'object' with its value adjusted
-    // according to the specified 'spec'.
 {
     ASSERT(ggg(object, spec) < 0);
     return *object;
@@ -1978,13 +1984,13 @@ OBJ& gg(OBJ *object, const char *spec)
 //                      GLOBAL FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Print the specified `controls` values having the specified `capacity`,
+/// an indicator to the error at the specified `index`, and text describing
+/// the specified `result`.
 void printError(const bsl::uint8_t  *controls,
                 const bsl::size_t    capacity,
                 bsl::size_t          index,
                 IsValidResult::Enum  result)
-    // Print the specified 'controls' values having the specified 'capacity',
-    // an indicator to the error at the specified 'index', and text describing
-    // the specified 'result'.
 {
     static const char *hex = "0123456789abcdef";
 
@@ -2023,6 +2029,12 @@ void printError(const bsl::uint8_t  *controls,
     }
 }
 
+/// Return `IsValidResult::e_SUCCESS` if the specified `entries`,
+/// `controls`, `size`, and `capacity` represent a valid table assuming the
+/// specified `blockSize`, `hasher`, and `ENTRY_UTIL`; otherwise return an
+/// `IsValidResult::Enum` value indicating the found error and populate the
+/// specified `errorIndex` with the location of the error, or `capacity` if
+/// the error is not position specific.
 template <class ENTRY, class ENTRY_UTIL, class HASH>
 IsValidResult::Enum isValid(bsl::size_t        *errorIndex,
                             const ENTRY        *entries,
@@ -2032,12 +2044,6 @@ IsValidResult::Enum isValid(bsl::size_t        *errorIndex,
                             const bsl::size_t   capacity,
                             HASH                hasher,
                             ENTRY_UTIL          )
-    // Return 'IsValidResult::e_SUCCESS' if the specified 'entries',
-    // 'controls', 'size', and 'capacity' represent a valid table assuming the
-    // specified 'blockSize', 'hasher', and 'ENTRY_UTIL'; otherwise return an
-    // 'IsValidResult::Enum' value indicating the found error and populate the
-    // specified 'errorIndex' with the location of the error, or 'capacity' if
-    // the error is not position specific.
 {
     if (0 == entries && 0 == controls && 0 == capacity) {
         return IsValidResult::e_SUCCESS;                              // RETURN
@@ -2111,6 +2117,10 @@ IsValidResult::Enum isValid(bsl::size_t        *errorIndex,
     return IsValidResult::e_SUCCESS;
 }
 
+/// Return `IsValidResult::e_SUCCESS` if the specified `table` is valid;
+/// otherwise return an `IsValidResult::Enum` value indicating the found
+/// error and populate the specified `errorIndex` with the location of the
+/// error, or `table.capacity()` if the error is not position specific.
 template <class KEY, class ENTRY, class ENTRY_UTIL, class HASH, class EQUAL>
 IsValidResult::Enum isValid(bsl::size_t                       *errorIndex,
                             const bdlc::FlatHashTable<KEY,
@@ -2118,10 +2128,6 @@ IsValidResult::Enum isValid(bsl::size_t                       *errorIndex,
                                                       ENTRY_UTIL,
                                                       HASH,
                                                       EQUAL>&  table)
-    // Return 'IsValidResult::e_SUCCESS' if the specified 'table' is valid;
-    // otherwise return an 'IsValidResult::Enum' value indicating the found
-    // error and populate the specified 'errorIndex' with the location of the
-    // error, or 'table.capacity()' if the error is not position specific.
 {
     return isValid(errorIndex,
                    table.entries(),
@@ -2134,13 +2140,13 @@ IsValidResult::Enum isValid(bsl::size_t                       *errorIndex,
 }
 
 
+/// Address the key-based accessor and basic manipulator concerns of
+/// moved-to objects from test case 21 for the specified `id` value.  Note
+/// that, in case of a test failure, `id` can be used to determine `ENTRY`.
+/// See the test plan of case 21 for a description of the concerns checked
+/// by this function.
 template <class ENTRY>
 void testCase21OperationsWhenMoved(int id)
-    // Address the key-based accessor and basic manipulator concerns of
-    // moved-to objects from test case 21 for the specified 'id' value.  Note
-    // that, in case of a test failure, 'id' can be used to determine 'ENTRY'.
-    // See the test plan of case 21 for a description of the concerns checked
-    // by this function.
 {
     typedef TestEntryUtil<ENTRY>                                    EntryUtil;
     typedef IntValueIsHash                                          Hash;
@@ -2156,7 +2162,7 @@ void testCase21OperationsWhenMoved(int id)
     bslma::TestAllocator         da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
 
-    // Iterate over 'DEFAULT_DATA', which is used to provide specifications for
+    // Iterate over `DEFAULT_DATA`, which is used to provide specifications for
     // placing flat hash tables in various interesting states, e.g., having
     // certain entries inserted, removed, and never-inserted.
     for (bsl::size_t ti = 0; ti != NUM_DATA; ++ti) {
@@ -2175,31 +2181,31 @@ void testCase21OperationsWhenMoved(int id)
             // with the same allocator, and 4) move-assigning with a different
             // allocator.
             for (char cfg = 'a'; cfg <= 'd'; ++cfg) {
-                const char CONFIG = cfg; // Designate how we move 'mX' to 'mZ'.
+                const char CONFIG = cfg; // Designate how we move `mX` to `mZ`.
 
                 bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
                 bslma::TestAllocator za("different", veryVeryVeryVerbose);
 
-                // Generate an 'mX' to move from using 'gg'.  The call to 'gg'
-                // places 'mX' in a non-trivial state, which we will move into
-                // an object 'mZ'.
+                // Generate an `mX` to move from using `gg`.  The call to `gg`
+                // places `mX` in a non-trivial state, which we will move into
+                // an object `mZ`.
                 Obj mX(0, Hash(), Equal(), &sa); const Obj& X = mX;
                 gg(&mX, SPEC);
 
-                // Copy the generated 'mX' to an 'mY', in order verify the
-                // state of 'mZ' later.
+                // Copy the generated `mX` to an `mY`, in order verify the
+                // state of `mZ` later.
                 Obj mY(X, &sa);                  const Obj& Y = mY;
 
-                // Create an 'mZ' into which to move 'mX'.
+                // Create an `mZ` into which to move `mX`.
                 bsls::ObjectBuffer<Obj>     bufferZ;
                 bslma::DestructorGuard<Obj> guardZ(bufferZ.address());
 
                 Obj *pZ = bufferZ.address();
 
-                // Select the manner in which to move 'mX' to 'mZ'.
+                // Select the manner in which to move `mX` to `mZ`.
                 switch (CONFIG) {
                   case 'a': {
-                    // Move 'mX' to 'mZ' with the same allocator.
+                    // Move `mX` to `mZ` with the same allocator.
                     bslma::ConstructionUtil::construct(
                                               pZ,
                                               &sa,
@@ -2210,7 +2216,7 @@ void testCase21OperationsWhenMoved(int id)
                     LOOP3_ASSERT(id, ti, LINE, *pZ == Y);
                   } break;
                   case 'b': {
-                    // Move 'mX' to 'mZ' with a different allocator.
+                    // Move `mX` to `mZ` with a different allocator.
                     bslma::ConstructionUtil::construct(
                                               pZ,
                                               &za,
@@ -2221,7 +2227,7 @@ void testCase21OperationsWhenMoved(int id)
                     LOOP3_ASSERT(id, ti, LINE, *pZ == Y);
                   } break;
                   case 'c': {
-                    // Move-assign 'mX' to 'mZ' with the same allocator.
+                    // Move-assign `mX` to `mZ` with the same allocator.
                     bslma::ConstructionUtil::construct(
                         pZ, &sa, 0, Hash(), Equal());
                     *pZ = bslmf::MovableRefUtil::move(mX);
@@ -2231,7 +2237,7 @@ void testCase21OperationsWhenMoved(int id)
                     LOOP3_ASSERT(id, ti, LINE, *pZ == Y);
                   } break;
                   case 'd': {
-                    // Move-assign 'mX' to 'mZ' with a different allocator.
+                    // Move-assign `mX` to `mZ` with a different allocator.
                     bslma::ConstructionUtil::construct(
                         pZ, &za, 0, Hash(), Equal());
                     *pZ = bslmf::MovableRefUtil::move(mX);
@@ -2242,10 +2248,10 @@ void testCase21OperationsWhenMoved(int id)
                   } break;
                 }
 
-                // Get convenience aliases to 'mZ'.
+                // Get convenience aliases to `mZ`.
                 Obj& mZ = *pZ; const Obj& Z = mZ;
 
-                // Verify that the internal structure of 'mZ' is valid.
+                // Verify that the internal structure of `mZ` is valid.
                 bsl::size_t errorIndex = 0;
                 LOOP3_ASSERT(id,
                              ti,
@@ -2254,37 +2260,37 @@ void testCase21OperationsWhenMoved(int id)
                                  isValid(&errorIndex, Z));
 
                 // Calculate the number of groups that a flat hash table will
-                // have based on the 'SPEC'.  This is used to reconstruct the
+                // have based on the `SPEC`.  This is used to reconstruct the
                 // keys of entries that were inserted, removed, or left empty
-                // in the call to 'gg'.
+                // in the call to `gg`.
                 const bsl::uint64_t NUM_GROUPS = bsl::strlen(SPEC) / k_SIZE;
 
-                // If 'mZ' is empty, then there are no contents to check.
+                // If `mZ` is empty, then there are no contents to check.
                 if (0 == NUM_GROUPS) {
                     LOOP3_ASSERT(id, ti, LINE, Z.empty());
                     continue;                                       // CONTINUE
                 }
 
-                // 'nextErase' is a variable used to calculate the key of an
+                // `nextErase` is a variable used to calculate the key of an
                 // erased entry.
                 int nextErase = 0x100;
                 for (int value = 0; SPEC[value]; ++value) {
                     const char SPEC_CHAR = SPEC[value];
 
-                    // Determine if the 'value' has an entry in 'mZ', and if
+                    // Determine if the `value` has an entry in `mZ`, and if
                     // so, get its hashlet.  The hashlet is used to reconstruct
-                    // the key for the value specified by 'SPEC[value]' (as
-                    // used in 'gg').
+                    // the key for the value specified by `SPEC[value]` (as
+                    // used in `gg`).
                     int hashlet;
                     const int rc = getValue(&hashlet, SPEC_CHAR, veryVerbose);
                     const bool IS_KEY_IN_TABLE = (e_SUCCESS_VALUE == rc);
 
-                    // 'SHIFT' is a also a constant used to reconstruct the
-                    // key for 'value'.
+                    // `SHIFT` is a also a constant used to reconstruct the
+                    // key for `value`.
                     const bsl::size_t SHIFT =
                         16 - bdlb::BitUtil::log2(NUM_GROUPS);
 
-                    // Finally, calculate the key for 'value'.
+                    // Finally, calculate the key for `value`.
                     int KEY = 0;
                     if (e_SUCCESS_VALUE == rc) {
                         KEY = ((value / k_SIZE) << SHIFT) | hashlet;
@@ -2297,9 +2303,9 @@ void testCase21OperationsWhenMoved(int id)
                         nextErase++;
                     }
 
-                    // Given a key and an object 'mZ' in a non-trivial,
+                    // Given a key and an object `mZ` in a non-trivial,
                     // moved-to state, verify that the set of accessors, or the
-                    // basic manipulator, specified by 'OPERATION' functions
+                    // basic manipulator, specified by `OPERATION` functions
                     // correctly.
                     switch (OPERATION) {
                       case LOOKUP: {
@@ -2366,7 +2372,7 @@ void testCase21OperationsWhenMoved(int id)
                         }
                       } break;
                       case ERASE: {
-                        // Verify the 'erase' basic manipulator.
+                        // Verify the `erase` basic manipulator.
 
                         if (IS_KEY_IN_TABLE) {
                             // Verify that it erases the entry for the key if
@@ -2384,7 +2390,7 @@ void testCase21OperationsWhenMoved(int id)
                       } break;
                       case INSERT_COPY:                       BSLA_FALLTHROUGH;
                       case INSERT_MOVE: {
-                        // Verify the 'insert' basic manipulator.
+                        // Verify the `insert` basic manipulator.
 
                         // First, construct an entry for the key.
                         bsls::ObjectBuffer<ENTRY> entry;
@@ -2401,7 +2407,7 @@ void testCase21OperationsWhenMoved(int id)
                         bslma::DestructorGuard<ENTRY> guardEntryCopy(
                             entryCopy.address());
 
-                        // Then, insert it into 'mZ'.
+                        // Then, insert it into `mZ`.
                         bsl::pair<Iter, bool> INSERTION;
                         if (OPERATION == INSERT_COPY) {
                             INSERTION = mZ.insert(entry.object());
@@ -2411,7 +2417,7 @@ void testCase21OperationsWhenMoved(int id)
                                 bslmf::MovableRefUtil::move(entry.object()));
                         }
 
-                        // Verify that the entry in 'mZ' associated with the
+                        // Verify that the entry in `mZ` associated with the
                         // returned insertion result is equal to the entry that
                         // was inserted.
                         LOOP4_ASSERT(id,
@@ -2440,13 +2446,13 @@ void testCase21OperationsWhenMoved(int id)
     }
 }
 
+/// Address the copy `operator[]` concerns of test case 20 for the specified
+/// `id` value, for a type that allocates if the specified `allocates` is
+/// `true`, and allocates on rehash if the specified `allocatesOnRehash` is
+/// `true`.  Note that, in case of a test failure, `id` can be used to
+/// determine `ENTRY`.
 template <class ENTRY>
 void testCase20Bracket(int id, bool allocates, bool allocatesOnRehash)
-    // Address the copy 'operator[]' concerns of test case 20 for the specified
-    // 'id' value, for a type that allocates if the specified 'allocates' is
-    // 'true', and allocates on rehash if the specified 'allocatesOnRehash' is
-    // 'true'.  Note that, in case of a test failure, 'id' can be used to
-    // determine 'ENTRY'.
 {
     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -2519,12 +2525,12 @@ void testCase20Bracket(int id, bool allocates, bool allocatesOnRehash)
     ASSERT(0 == oa.numBytesInUse());
 }
 
+/// Address the move `operator[]` concerns of test case 20 for the specified
+/// `id` value, for a type that allocates if the specified `allocates` is
+/// `true`, and is moveable if the specified `moveable` is `true`.  Note
+/// that, in case of a test failure, `id` can be used to determine `ENTRY`.
 template <class KEY>
 void testCase20BracketMove(int id, bool allocates, bool moveable)
-    // Address the move 'operator[]' concerns of test case 20 for the specified
-    // 'id' value, for a type that allocates if the specified 'allocates' is
-    // 'true', and is moveable if the specified 'moveable' is 'true'.  Note
-    // that, in case of a test failure, 'id' can be used to determine 'ENTRY'.
 {
     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -2620,11 +2626,11 @@ void testCase20BracketMove(int id, bool allocates, bool moveable)
     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 }
 
+/// Address the `rehash` concerns of test case 19 for the specified `id`
+/// value.  Note that, in case of a test failure, `id` can be used to
+/// determine `ENTRY`.
 template <class ENTRY>
 void testCase19Rehash(int id)
-    // Address the 'rehash' concerns of test case 19 for the specified 'id'
-    // value.  Note that, in case of a test failure, 'id' can be used to
-    // determine 'ENTRY'.
 {
     typedef TestEntryUtil<ENTRY>                                    EntryUtil;
     typedef IntValueIsHash                                          Hash;
@@ -2729,11 +2735,11 @@ void testCase19Rehash(int id)
     }
 }
 
+/// Address the `erase` concerns of test case 17 for the specified `id`
+/// value.  Note that, in case of a test failure, `id` can be used to
+/// determine `ENTRY`.
 template <class ENTRY>
 void testCase17IteratorErase(int id)
-    // Address the 'erase' concerns of test case 17 for the specified 'id'
-    // value.  Note that, in case of a test failure, 'id' can be used to
-    // determine 'ENTRY'.
 {
     typedef TestEntryUtil<ENTRY>                                    EntryUtil;
     typedef IntValueIsHash                                          Hash;
@@ -2752,7 +2758,7 @@ void testCase17IteratorErase(int id)
         Obj        mZ(0, Hash(), Equal(), &oa);
         const Obj& Z = gg(&mZ, SPEC);
 
-        // Test with an 'iterator'.
+        // Test with an `iterator`.
 
         {
             typename Obj::const_iterator keyIter = Z.begin();
@@ -2784,7 +2790,7 @@ void testCase17IteratorErase(int id)
             }
         }
 
-        // Test with an 'const_iterator'.
+        // Test with an `const_iterator`.
 
         {
             typename Obj::const_iterator keyIter = Z.begin();
@@ -2818,11 +2824,11 @@ void testCase17IteratorErase(int id)
     }
 }
 
+/// Address the move assignment concerns of test case 15 for the specified
+/// `id` value.  Note that, in case of a test failure, `id` can be used to
+/// determine `ENTRY`.
 template <class ENTRY>
 void testCase15MoveAssignment(int id)
-    // Address the move assignment concerns of test case 15 for the specified
-    // 'id' value.  Note that, in case of a test failure, 'id' can be used to
-    // determine 'ENTRY'.
 {
     typedef TestEntryUtil<ENTRY>                                    EntryUtil;
     typedef IntValueIsHash                                          Hash;
@@ -3048,11 +3054,11 @@ void testCase15MoveAssignment(int id)
     }
 }
 
+/// Address the move constructor with allocator concerns of test case 14 for
+/// the specified `id` value.  Note that, in case of a test failure, `id`
+/// can be used to determine `ENTRY`.
 template <class ENTRY>
 void testCase14MoveConstructorWithAllocator(int id)
-    // Address the move constructor with allocator concerns of test case 14 for
-    // the specified 'id' value.  Note that, in case of a test failure, 'id'
-    // can be used to determine 'ENTRY'.
 {
     typedef TestEntryUtil<ENTRY>                                    EntryUtil;
     typedef IntValueIsHash                                          Hash;
@@ -3070,7 +3076,7 @@ void testCase14MoveConstructorWithAllocator(int id)
 
         bslma::TestAllocator scratchAllocator("scratch", veryVeryVeryVerbose);
 
-        // Create control object 'W'.
+        // Create control object `W`.
         Obj        mW(0, Hash(), Equal(), &scratchAllocator);
         const Obj& W = gg(&mW, SPEC);
 
@@ -3084,7 +3090,7 @@ void testCase14MoveConstructorWithAllocator(int id)
 
             bslma::DefaultAllocatorGuard dag(&da);
 
-            // Create source object 'Y'.
+            // Create source object `Y`.
             bsls::ObjectBuffer<Obj> bufferY;
 
             Obj *pY = bufferY.address();
@@ -3129,7 +3135,7 @@ void testCase14MoveConstructorWithAllocator(int id)
               }
             }
 
-            // Verify 'Y' is in a valid state.
+            // Verify `Y` is in a valid state.
             LOOP2_ASSERT(id,
                          LINE,
                          IsValidResult::e_SUCCESS == isValid(&errorIndex, Y));
@@ -3145,7 +3151,7 @@ void testCase14MoveConstructorWithAllocator(int id)
                          IsValidResult::e_SUCCESS == isValid(&errorIndex, X));
             LOOP2_ASSERT(id, LINE, X == W);
 
-            // Verify that 'X' and 'Y' have the correct allocator.
+            // Verify that `X` and `Y` have the correct allocator.
             LOOP2_ASSERT(id, LINE, &oa == X.allocator());
             LOOP2_ASSERT(id, LINE, &sa == Y.allocator());
 
@@ -3158,7 +3164,7 @@ void testCase14MoveConstructorWithAllocator(int id)
                 LOOP2_ASSERT(id, LINE, 0 < oa.numBlocksTotal());
             }
 
-            // Verify the validity and value of the object after modifying 'Y'.
+            // Verify the validity and value of the object after modifying `Y`.
             if (W.empty()) {
                 LOOP2_ASSERT(id, LINE, pY->empty());
                 LOOP2_ASSERT(id, LINE, *pY == W);
@@ -3180,7 +3186,7 @@ void testCase14MoveConstructorWithAllocator(int id)
             LOOP2_ASSERT(id, LINE, X == W);
 
             // Verify the validity and value of the object after destruction of
-            // 'Y'.
+            // `Y`.
 
             pY->~Obj();
 
@@ -3234,11 +3240,11 @@ void testCase14MoveConstructorWithAllocator(int id)
     }
 }
 
+/// Address the move constructor without allocator concerns of test case 13
+/// for the specified `id` value.  Note that, in case of a test failure,
+/// `id` can be used to determine `ENTRY`.
 template <class ENTRY>
 void testCase13MoveConstructorWithoutAllocator(int id)
-    // Address the move constructor without allocator concerns of test case 13
-    // for the specified 'id' value.  Note that, in case of a test failure,
-    // 'id' can be used to determine 'ENTRY'.
 {
     typedef TestEntryUtil<ENTRY>                                    EntryUtil;
     typedef IntValueIsHash                                          Hash;
@@ -3256,11 +3262,11 @@ void testCase13MoveConstructorWithoutAllocator(int id)
 
         bslma::TestAllocator oa("oa", veryVeryVeryVerbose);
 
-        // Create control object 'W'.
+        // Create control object `W`.
         Obj        mW(0, Hash(), Equal(), &oa);
         const Obj& W = gg(&mW, SPEC);
 
-        // Create source object 'Y' in an object buffer so it may be deleted.
+        // Create source object `Y` in an object buffer so it may be deleted.
         bsls::ObjectBuffer<Obj> objY;
         bslma::ConstructionUtil::construct(objY.address(), &oa, W);
         Obj& mY = objY.object();  const Obj& Y = mY;
@@ -3276,7 +3282,7 @@ void testCase13MoveConstructorWithoutAllocator(int id)
         LOOP2_ASSERT(id, LINE, &oa == Y.allocator());
 
         // Verify no memory was ever allocated (default and global allocators
-        // are checked in 'main').
+        // are checked in `main`).
 
         LOOP2_ASSERT(id, LINE, expNumAllocations == oa.numAllocations());
 
@@ -3291,11 +3297,11 @@ void testCase13MoveConstructorWithoutAllocator(int id)
         LOOP2_ASSERT(id, LINE,     X.key_eq()(0, 0) == W.key_eq()(0, 0));
         LOOP2_ASSERT(id, LINE,     X.key_eq()(0, 1) == W.key_eq()(0, 1));
 
-        // Verify 'Y' is valid.
+        // Verify `Y` is valid.
         LOOP2_ASSERT(id, LINE, IsValidResult::e_SUCCESS == isValid(&errorIndex,
                                                                    Y));
 
-        // Verify 'X' is valid after 'Y' is modified and still equal to 'W'.
+        // Verify `X` is valid after `Y` is modified and still equal to `W`.
 
         if (0 != W.size()) {
             LOOP2_ASSERT(id, LINE, Y != W);
@@ -3313,7 +3319,7 @@ void testCase13MoveConstructorWithoutAllocator(int id)
         LOOP2_ASSERT(id, LINE,     X.key_eq()(0, 0) == W.key_eq()(0, 0));
         LOOP2_ASSERT(id, LINE,     X.key_eq()(0, 1) == W.key_eq()(0, 1));
 
-        // Verify 'X' is valid after 'Y' is destroyed and still equal to 'W'.
+        // Verify `X` is valid after `Y` is destroyed and still equal to `W`.
 
         mY.~Obj();
 
@@ -3329,11 +3335,11 @@ void testCase13MoveConstructorWithoutAllocator(int id)
     }
 }
 
+/// Address the copy assignment concerns of test case 9 for the specified
+/// `id` value.  Note that, in case of a test failure, `id` can be used to
+/// determine `ENTRY`.
 template <class ENTRY>
 void testCase9CopyAssignment(int id)
-    // Address the copy assignment concerns of test case 9 for the specified
-    // 'id' value.  Note that, in case of a test failure, 'id' can be used to
-    // determine 'ENTRY'.
 {
     typedef TestEntryUtil<ENTRY>                                    EntryUtil;
     typedef IntValueIsHash                                          Hash;
@@ -3473,11 +3479,11 @@ void testCase9CopyAssignment(int id)
     }
 }
 
+/// Address the `swap` concerns of test case 8 for the specified `id` value.
+/// Note that, in case of a test failure, `id` can be used to determine
+/// `ENTRY`.
 template <class ENTRY>
 void testCase8Swap(int id)
-    // Address the 'swap' concerns of test case 8 for the specified 'id' value.
-    // Note that, in case of a test failure, 'id' can be used to determine
-    // 'ENTRY'.
 {
     typedef TestEntryUtil<ENTRY>                                    EntryUtil;
     typedef IntValueIsHash                                          Hash;
@@ -3534,7 +3540,7 @@ void testCase8Swap(int id)
             firstFlag = false;
         }
 
-        // member 'swap'
+        // member `swap`
 
         {
             bslma::TestAllocatorMonitor oam(&oa);
@@ -3546,7 +3552,7 @@ void testCase8Swap(int id)
             LOOP2_ASSERT(id, LINE1, oam.isTotalSame());
         }
 
-        // free function 'swap'
+        // free function `swap`
 
         {
             bslma::TestAllocatorMonitor oam(&oa);
@@ -3569,7 +3575,7 @@ void testCase8Swap(int id)
             const Obj& Y = gg(&mY, SPEC2);
             const Obj  YY(Y, &scratch);
 
-            // member 'swap'
+            // member `swap`
 
             {
                 bslma::TestAllocatorMonitor oam(&oa);
@@ -3583,7 +3589,7 @@ void testCase8Swap(int id)
                 LOOP3_ASSERT(id, LINE1, LINE2, oam.isTotalSame());
             }
 
-            // free function 'swap', same allocator
+            // free function `swap`, same allocator
 
             {
                 bslma::TestAllocatorMonitor oam(&oa);
@@ -3599,7 +3605,7 @@ void testCase8Swap(int id)
         }
     }
 
-    // Invoke free 'swap' function in a context where ADL is used.
+    // Invoke free `swap` function in a context where ADL is used.
 
     {
         bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
@@ -3626,7 +3632,7 @@ void testCase8Swap(int id)
 
     LOOP2_ASSERT(id, da.numBlocksTotal(), !da.numBlocksTotal());
 
-    // Free 'swap' function with different allocators.
+    // Free `swap` function with different allocators.
 
     for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
         const int         LINE1 = DATA[ti].d_lineNum;
@@ -3649,7 +3655,7 @@ void testCase8Swap(int id)
             const Obj& Y = gg(&mY, SPEC2);
             const Obj  YY(Y, &scratch);
 
-            // free function 'swap', different allocators
+            // free function `swap`, different allocators
             {
                 swap(mX, mY);
 
@@ -3679,11 +3685,11 @@ void testCase8Swap(int id)
     }
 }
 
+/// Address the copy constructor concerns of test case 7 for the specified
+/// `id` value.  Note that, in case of a test failure, `id` can be used to
+/// determine `ENTRY`.
 template <class ENTRY>
 void testCase7CopyConstructor(int id)
-    // Address the copy constructor concerns of test case 7 for the specified
-    // 'id' value.  Note that, in case of a test failure, 'id' can be used to
-    // determine 'ENTRY'.
 {
     typedef TestEntryUtil<ENTRY>                                    EntryUtil;
     typedef IntValueIsHash                                          Hash;
@@ -3763,12 +3769,12 @@ void testCase7CopyConstructor(int id)
 
             LOOP3_ASSERT(id, LINE, CONFIG, X == Z);
 
-            // Verify that the value of 'Z' has not changed.
+            // Verify that the value of `Z` has not changed.
 
             LOOP3_ASSERT(id, LINE, CONFIG, ZZ == Z);
 
-            // Also apply the object's 'allocator' accessor, as well as that of
-            // 'Z'.
+            // Also apply the object's `allocator` accessor, as well as that of
+            // `Z`.
 
             LOOP3_ASSERT(id, LINE, CONFIG, &oa == X.allocator());
 
@@ -3836,11 +3842,11 @@ void testCase7CopyConstructor(int id)
     }
 }
 
+/// Address the `insert` hash concerns of test case 2 for the specified `id`
+/// value.  Note that, in case of a test failure, `id` can be used to
+/// determine `ENTRY`.
 template <class HASH>
 void testCase2InsertHash(int id)
-    // Address the 'insert' hash concerns of test case 2 for the specified 'id'
-    // value.  Note that, in case of a test failure, 'id' can be used to
-    // determine 'ENTRY'.
 {
     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -3889,13 +3895,13 @@ void testCase2InsertHash(int id)
     }
 }
 
+/// Address the copy `insert` concerns of test case 2 for the specified `id`
+/// value, for a type that allocates if the specified `allocates` is `true`,
+/// and allocates on rehashes if the specified `allocatesOnRehash` is
+/// `true`.  Note that, in case of a test failure, `id` can be used to
+/// determine `ENTRY`.
 template <class ENTRY>
 void testCase2CopyInsert(int id, bool allocates, bool allocatesOnRehash)
-    // Address the copy 'insert' concerns of test case 2 for the specified 'id'
-    // value, for a type that allocates if the specified 'allocates' is 'true',
-    // and allocates on rehashes if the specified 'allocatesOnRehash' is
-    // 'true'.  Note that, in case of a test failure, 'id' can be used to
-    // determine 'ENTRY'.
 {
     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -3971,12 +3977,12 @@ void testCase2CopyInsert(int id, bool allocates, bool allocatesOnRehash)
     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 }
 
+/// Address the move `insert` concerns of test case 2 for the specified `id`
+/// value, for a type that allocates if the specified `allocates` is `true`,
+/// and can be moved if the specified `moveable` is `true`.  Note that, in
+/// case of a test failure, `id` can be used to determine `ENTRY`.
 template <class ENTRY>
 void testCase2MoveInsert(int id, bool allocates, bool moveable)
-    // Address the move 'insert' concerns of test case 2 for the specified 'id'
-    // value, for a type that allocates if the specified 'allocates' is 'true',
-    // and can be moved if the specified 'moveable' is 'true'.  Note that, in
-    // case of a test failure, 'id' can be used to determine 'ENTRY'.
 {
     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -4064,11 +4070,11 @@ void testCase2MoveInsert(int id, bool allocates, bool moveable)
     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 }
 
+/// Address the `clear` and `reset` concerns of test case 2 for the
+/// specified `id` value.  Note that, in case of a test failure, `id` can be
+/// used to determine `ENTRY`.
 template <class ENTRY>
 void testCase2ClearAndReset(int id)
-    // Address the 'clear' and 'reset' concerns of test case 2 for the
-    // specified 'id' value.  Note that, in case of a test failure, 'id' can be
-    // used to determine 'ENTRY'.
 {
     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -4142,11 +4148,11 @@ void testCase2ClearAndReset(int id)
     }
 }
 
+/// Address the `erase` and `insert` after `erase` concerns of test case 2
+/// for the specified `id` value.  Note that, in case of a test failure,
+/// `id` can be used to determine `ENTRY`.
 template <class ENTRY>
 void testCase2EraseAndReInsert(int id)
-    // Address the 'erase' and 'insert' after 'erase' concerns of test case 2
-    // for the specified 'id' value.  Note that, in case of a test failure,
-    // 'id' can be used to determine 'ENTRY'.
 {
     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -4175,17 +4181,17 @@ void testCase2EraseAndReInsert(int id)
                 entry.object().~ENTRY();
             }
 
-            // store 'controls' for later comparison
+            // store `controls` for later comparison
             bsl::uint8_t originalControls[128];
             bsl::memcpy(originalControls, X.controls(), X.capacity());
 
-            // erase the 'key'
+            // erase the `key`
             bsl::size_t numErased = mX.erase(key);
 
             LOOP2_ASSERT(id, i, 1 == numErased);
             LOOP2_ASSERT(id, i, i == static_cast<int>(X.size()));
 
-            // verify 'controls' changes as expected
+            // verify `controls` changes as expected
             for (bsl::size_t j = 0; j < X.capacity(); ++j) {
                 if (originalControls[j] != X.controls()[j]) {
                     LOOP2_ASSERT(id,
@@ -4201,7 +4207,7 @@ void testCase2EraseAndReInsert(int id)
                          i,
                          IsValidResult::e_SUCCESS == isValid(&errorIndex, X));
 
-            // attempt to 'erase' the 'key' again
+            // attempt to `erase` the `key` again
             numErased = mX.erase(key);
 
             LOOP2_ASSERT(id, i, 0 == numErased);
@@ -4273,34 +4279,34 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 22: {
         // --------------------------------------------------------------------
-        // 'try_emplace' AND 'emplace'
+        // `try_emplace` AND `emplace`
         //
-        // Ensure the 'try_emplace' method operates as expected.
+        // Ensure the `try_emplace` method operates as expected.
         //
         // Concerns:
-        //: 1 The methods 'emplace' and 'try_emplace' produce the expected
-        //:   return values, result in a valid state, increase capacity as
-        //:   needed, are exception neutral with respect to memory allocation,
-        //:   and use the supplied allocator.
-        //:
-        //: 2 The returned reference refers to the correct entry and is
-        //:   modifiable.
-        //:
-        //: 3 Memory is not leaked by any method and the destructor properly
-        //:   deallocates the residual allocated memory.
+        // 1. The methods `emplace` and `try_emplace` produce the expected
+        //    return values, result in a valid state, increase capacity as
+        //    needed, are exception neutral with respect to memory allocation,
+        //    and use the supplied allocator.
+        //
+        // 2. The returned reference refers to the correct entry and is
+        //    modifiable.
+        //
+        // 3. Memory is not leaked by any method and the destructor properly
+        //    deallocates the residual allocated memory.
         //
         // Plan:
-        //: 1 Create objects 'X' of varying value using the
-        //:   'bslma::TestAllocator'.  Modify 'X' with the methods 'emplace'
-        //:   and 'try_emplace' and verify the return referred to object has
-        //:   the correct key valued.  Use the 'isValid' global method to
-        //:   ensure 'X' is a valid table.  Also vary the test allocator's
-        //:   allocation limit to verify behavior in the presence of
-        //:   exceptions.  (C-1)
-        //:
-        //: 2 Use a supplied 'bslma::TestAllocator' that goes out-of-scope
-        //:   at the conclusion of each test to ensure all memory is returned
-        //:   to the allocator.  (C-4)
+        // 1. Create objects `X` of varying value using the
+        //    `bslma::TestAllocator`.  Modify `X` with the methods `emplace`
+        //    and `try_emplace` and verify the return referred to object has
+        //    the correct key valued.  Use the `isValid` global method to
+        //    ensure `X` is a valid table.  Also vary the test allocator's
+        //    allocation limit to verify behavior in the presence of
+        //    exceptions.  (C-1)
+        //
+        // 2. Use a supplied `bslma::TestAllocator` that goes out-of-scope
+        //    at the conclusion of each test to ensure all memory is returned
+        //    to the allocator.  (C-4)
         //
         // Testing:
         //   emplace(ARGS&&...);
@@ -4309,7 +4315,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "'try_emplace' AND 'emplace'" << endl
+                          << "`try_emplace` AND `emplace`" << endl
                           << "===========================" << endl;
 
         bsl::size_t                  errorIndex;
@@ -4325,7 +4331,7 @@ int main(int argc, char *argv[])
             typedef bdlc::FlatHashTable<int, int, Util, Hash, Equal> Obj;
             typedef bsl::pair<Obj::iterator, bool>                   Ret;
 
-            if (veryVerbose) cout << "Testing 'emplace'." << endl;
+            if (veryVerbose) cout << "Testing `emplace`." << endl;
             {
                 for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
                     const int            LINE = DATA[ti].d_lineNum;
@@ -4365,7 +4371,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (veryVerbose) cout << "Testing 'try_emplace' (lvalue)." << endl;
+            if (veryVerbose) cout << "Testing `try_emplace` (lvalue)." << endl;
             {
                 for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
                     const int            LINE = DATA[ti].d_lineNum;
@@ -4405,7 +4411,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (veryVerbose) cout << "Testing 'try_emplace' (rvalue)." << endl;
+            if (veryVerbose) cout << "Testing `try_emplace` (rvalue)." << endl;
             {
                 for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
                     const int            LINE = DATA[ti].d_lineNum;
@@ -4462,7 +4468,7 @@ int main(int argc, char *argv[])
                                   int, ValueType, Util, Hash, Equal> Obj;
             typedef bsl::pair<Obj::iterator, bool>                   Ret;
 
-            if (veryVerbose) cout << "Testing 'emplace'." << endl;
+            if (veryVerbose) cout << "Testing `emplace`." << endl;
             {
                 for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
                     const int            LINE = DATA[ti].d_lineNum;
@@ -4507,7 +4513,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (veryVerbose) cout << "Testing 'try_emplace' (lvalue)." << endl;
+            if (veryVerbose) cout << "Testing `try_emplace` (lvalue)." << endl;
             {
                 for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
                     const int            LINE = DATA[ti].d_lineNum;
@@ -4552,7 +4558,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (veryVerbose) cout << "Testing 'try_emplace' (rvalue)." << endl;
+            if (veryVerbose) cout << "Testing `try_emplace` (rvalue)." << endl;
             {
                 for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
                     const int            LINE = DATA[ti].d_lineNum;
@@ -4610,64 +4616,64 @@ int main(int argc, char *argv[])
         // Ensure that the key-based accessors and basic manipulators operate
         // as expected on moved-to objects.  This test case was created in
         // order to verify the fix for the regression identified in
-        // {DRQS 167125039}.  A change made to 'bdlc::FlatHashTable' introduced
+        // {DRQS 167125039}.  A change made to `bdlc::FlatHashTable` introduced
         // a regression in which lookup, insert, and erase operations applied
-        // to 'bdlc::FlatHashTable' objects that were move-constructed or
+        // to `bdlc::FlatHashTable` objects that were move-constructed or
         // move-assigned from a hash table having a different allocator could
         // return incorrect results or trigger segmentation faults.
         //
-        // In the concerns below, 'X' is a placeholder used to refer to a
-        // 'bdlc::FlatHashTable' object that has been move-constructed or
-        // move-assigned from another 'bdlc::FlatHashTable', 'Y'.  Each concern
-        // holds for the case when the allocators of 'X' and 'Y' are the same,
+        // In the concerns below, `X` is a placeholder used to refer to a
+        // `bdlc::FlatHashTable` object that has been move-constructed or
+        // move-assigned from another `bdlc::FlatHashTable`, `Y`.  Each concern
+        // holds for the case when the allocators of `X` and `Y` are the same,
         // and when they differ.
         //
         // Concerns:
-        //: 1 'X' is in a valid state.
-        //:
-        //: 2 The key-based accessors of 'X': 'contains', 'count',
-        //:   'equal_range', and 'find', produce the expected return value and
-        //:   leave 'X' in a valid state.  In no event do these accessors
-        //:   return invalid results or lead to undefined behavior when used in
-        //:   contract.
-        //:
-        //: 3 The copy and move 'insert' methods on 'X' produce the expected
-        //:   return value and leaves 'X' in a valid state.  Inserting an entry
-        //:   already present in 'X' results in a no-op.
-        //:
-        //: 4 The 'erase(key)' method on 'X' produces the expected return value
-        //:   and leaves 'X' in a valid state.
+        // 1. `X` is in a valid state.
+        //
+        // 2. The key-based accessors of `X`: `contains`, `count`,
+        //    `equal_range`, and `find`, produce the expected return value and
+        //    leave `X` in a valid state.  In no event do these accessors
+        //    return invalid results or lead to undefined behavior when used in
+        //    contract.
+        //
+        // 3. The copy and move `insert` methods on `X` produce the expected
+        //    return value and leaves `X` in a valid state.  Inserting an entry
+        //    already present in `X` results in a no-op.
+        //
+        // 4. The `erase(key)` method on `X` produces the expected return value
+        //    and leaves `X` in a valid state.
         //
         // Plan:
-        //: 1 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of widely varying object values (one per row) in
-        //:     terms of their individual attributes, including (a) first, the
-        //:     default value, (b) boundary values corresponding to every range
-        //:     of values that each individual attribute can independently
-        //:     attain, and (c) values that should require allocation from each
-        //:     individual attribute that can independently allocate memory.
-        //:
-        //: 2 For each row (representing a distinct object value, 'V') in the
-        //:   table described in P-1: (C-1..5)
-        //:
-        //:   1 Create a new object 'Y' moved from 'V' in one of 4 ways: via
-        //:     move construction with the same allocator, move construction
-        //:     with a different allocator, move assignment with the same
-        //:     allocator, and move assignment with a different allocator.
-        //:     With a fresh 'Y' in this state, perform each of the following:
-        //:
-        //:     1 Verify that the internal state of the 'Y' is valid (C-1)
-        //:
-        //:     2 Verify that each of the key-based accessors of 'Y':
-        //:      'contains', 'count', 'equal_range', and 'find', produce the
-        //:      expected results. (C-2)
-        //:
-        //:     3 Verify that the copy and move 'insert' methods leave 'Y' in a
-        //:       valid state and produce the expected results (C-3).
-        //:
-        //:     5 Verify that the 'erase(key)' method leave 'Y' in a valid
-        //:       state and produce the expected results (C-4).
+        // 1. Using the table-driven technique:
+        //
+        //   1. Specify a set of widely varying object values (one per row) in
+        //      terms of their individual attributes, including (a) first, the
+        //      default value, (b) boundary values corresponding to every range
+        //      of values that each individual attribute can independently
+        //      attain, and (c) values that should require allocation from each
+        //      individual attribute that can independently allocate memory.
+        //
+        // 2. For each row (representing a distinct object value, `V`) in the
+        //    table described in P-1: (C-1..5)
+        //
+        //   1. Create a new object `Y` moved from `V` in one of 4 ways: via
+        //      move construction with the same allocator, move construction
+        //      with a different allocator, move assignment with the same
+        //      allocator, and move assignment with a different allocator.
+        //      With a fresh `Y` in this state, perform each of the following:
+        //
+        //     1. Verify that the internal state of the `Y` is valid (C-1)
+        //
+        //     2. Verify that each of the key-based accessors of `Y`:
+        //       `contains`, `count`, `equal_range`, and `find`, produce the
+        //       expected results. (C-2)
+        //
+        //     3. Verify that the copy and move `insert` methods leave `Y` in a
+        //        valid state and produce the expected results (C-3).
+        //
+        //     5. Verify that the `erase(key)` method leave `Y` in a valid
+        //        state and produce the expected results (C-4).
         //
         // Testing
         //   {DRQS 167125039} BASIC OPERATIONS OF MOVED-TO TABLES
@@ -4698,64 +4704,64 @@ int main(int argc, char *argv[])
       } break;
       case 20: {
         // --------------------------------------------------------------------
-        // 'operator[]'
+        // `operator[]`
         //
-        // Ensure the 'operator[]' method operates as expected.
+        // Ensure the `operator[]` method operates as expected.
         //
         // Concerns:
-        //: 1 The copy 'operator[]' produces the expected return value,
-        //:   results in a valid state, increases capacity as needed, honors
-        //:   bitwise-copy/bitwise-move/move, is exception neutral with respect
-        //:   to memory allocation, and uses the supplied allocator.
-        //:
-        //: 2 The move 'operator[]' produces the expected return value,
-        //:   results in a valid state, increases capacity as needed, honors
-        //:   bitwise-copy/bitwise-move/move, is exception neutral with respect
-        //:   to memory allocation, and uses the supplied allocator.
-        //:
-        //: 3 The returned reference refers to the correct entry and is
-        //:   modifiable.
-        //:
-        //: 4 Memory is not leaked by any method and the destructor properly
-        //:   deallocates the residual allocated memory.
+        // 1. The copy `operator[]` produces the expected return value,
+        //    results in a valid state, increases capacity as needed, honors
+        //    bitwise-copy/bitwise-move/move, is exception neutral with respect
+        //    to memory allocation, and uses the supplied allocator.
+        //
+        // 2. The move `operator[]` produces the expected return value,
+        //    results in a valid state, increases capacity as needed, honors
+        //    bitwise-copy/bitwise-move/move, is exception neutral with respect
+        //    to memory allocation, and uses the supplied allocator.
+        //
+        // 3. The returned reference refers to the correct entry and is
+        //    modifiable.
+        //
+        // 4. Memory is not leaked by any method and the destructor properly
+        //    deallocates the residual allocated memory.
         //
         // Plan:
-        //: 1 Create objects 'X' of varying value using the
-        //:   'bslma::TestAllocator'.  Modify 'X' with the copy 'operator[]'
-        //:   and verify the return referred to object has the correct key
-        //:   value.  By using various 'bsltf' test types and verifying the
-        //:   number of allocations, confirm bitwise-copy/bitwise-move/move are
-        //:   honored.  Use the 'isValid' global method to ensure 'X' is a
-        //:   valid table.  Also vary the test allocator's allocation limit to
-        //:   verify behavior in the presence of exceptions.  (C-1)
-        //:
-        //: 2 Create objects 'X' of varying value using the
-        //:   'bslma::TestAllocator'.  Modify 'X' with the move 'operator[]'
-        //:   and verify the return referred to object has the correct key
-        //:   value.  By using various 'bsltf' test types and verifying the
-        //:   number of allocations, confirm bitwise-copy/bitwise-move/move are
-        //:   honored.  Use the 'isValid' global method to ensure 'X' is a
-        //:   valid table.  Also vary the test allocator's allocation limit to
-        //:   verify behavior in the presence of exceptions.  (C-2)
-        //:
-        //: 3 Create a table with an 'int' key and a
-        //:   'bsl::pair<const int, int>' entry.  Verify the returned
-        //:   modifiable reference can modify the second value in the pair
-        //:   without otherwise affecting the table.  (C-3)
-        //:
-        //: 4 Use a supplied 'bslma::TestAllocator' that goes out-of-scope
-        //:   at the conclusion of each test to ensure all memory is returned
-        //:   to the allocator.  (C-4)
+        // 1. Create objects `X` of varying value using the
+        //    `bslma::TestAllocator`.  Modify `X` with the copy `operator[]`
+        //    and verify the return referred to object has the correct key
+        //    value.  By using various `bsltf` test types and verifying the
+        //    number of allocations, confirm bitwise-copy/bitwise-move/move are
+        //    honored.  Use the `isValid` global method to ensure `X` is a
+        //    valid table.  Also vary the test allocator's allocation limit to
+        //    verify behavior in the presence of exceptions.  (C-1)
+        //
+        // 2. Create objects `X` of varying value using the
+        //    `bslma::TestAllocator`.  Modify `X` with the move `operator[]`
+        //    and verify the return referred to object has the correct key
+        //    value.  By using various `bsltf` test types and verifying the
+        //    number of allocations, confirm bitwise-copy/bitwise-move/move are
+        //    honored.  Use the `isValid` global method to ensure `X` is a
+        //    valid table.  Also vary the test allocator's allocation limit to
+        //    verify behavior in the presence of exceptions.  (C-2)
+        //
+        // 3. Create a table with an `int` key and a
+        //    `bsl::pair<const int, int>` entry.  Verify the returned
+        //    modifiable reference can modify the second value in the pair
+        //    without otherwise affecting the table.  (C-3)
+        //
+        // 4. Use a supplied `bslma::TestAllocator` that goes out-of-scope
+        //    at the conclusion of each test to ensure all memory is returned
+        //    to the allocator.  (C-4)
         //
         // Testing:
         //   ENTRY& operator[](FORWARD_REF(KEY_TYPE) key);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "'operator[]'" << endl
+                          << "`operator[]`" << endl
                           << "============" << endl;
 
-        if (verbose) cout << "Testing copy 'operator[]'." << endl;
+        if (verbose) cout << "Testing copy `operator[]`." << endl;
         {
             testCase20Bracket<int>(0, false, false);
             testCase20Bracket<bsltf::AllocBitwiseMoveableTestType>(1,
@@ -4772,7 +4778,7 @@ int main(int argc, char *argv[])
             testCase20Bracket<bsltf::NonOptionalAllocTestType>(8, true, true);
         }
 
-        if (verbose) cout << "Testing move 'operator[]'." << endl;
+        if (verbose) cout << "Testing move `operator[]`." << endl;
         {
             testCase20BracketMove<bsltf::AllocBitwiseMoveableTestType>(0,
                                                                        true,
@@ -4846,39 +4852,39 @@ int main(int argc, char *argv[])
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // 'rehash' AND 'reserve'
+        // `rehash` AND `reserve`
         //
-        // Ensure the 'rehash' and 'reserve' methods operate as expected.
+        // Ensure the `rehash` and `reserve` methods operate as expected.
         //
         // Concerns:
-        //: 1 A 'rehash' does not change the value of the table.
-        //:
-        //: 2 After a 'rehash', the capacity is zero or a power of two greater
-        //:   than or equal to the minimum capacity and the specified capacity.
-        //:   If the capacity is zero, the table is in the zero-capacity state.
-        //:
-        //: 3 After a 'rehash', the 'load_factor' is less than or equal to
-        //:   'max_load_factor'.
-        //:
-        //: 4 After a 'rehash', there are no erased entries.
-        //:
-        //: 5 Any memory allocation is exception neutral.
-        //:
-        //: 6 The 'reserve' method correctly forward to the 'rehash' method.
+        // 1. A `rehash` does not change the value of the table.
+        //
+        // 2. After a `rehash`, the capacity is zero or a power of two greater
+        //    than or equal to the minimum capacity and the specified capacity.
+        //    If the capacity is zero, the table is in the zero-capacity state.
+        //
+        // 3. After a `rehash`, the `load_factor` is less than or equal to
+        //    `max_load_factor`.
+        //
+        // 4. After a `rehash`, there are no erased entries.
+        //
+        // 5. Any memory allocation is exception neutral.
+        //
+        // 6. The `reserve` method correctly forward to the `rehash` method.
         //
         // Plan:
-        //: 1 Using the table-driven technique, create objects 'X' and 'Z'
-        //:   having the same generated value for a variety of object values.
-        //:   For a set of capacities, invoke 'rehash' on 'X', verify the
-        //:   capacity meets expectations, and verify the object invariants.
-        //:   Verify 'X == Z'.  Use 'controls' to verify there are no erased
-        //:   values in 'X'.  Vary the test allocator's allocation limit to
-        //:   verify behavior in the presence of exceptions.  Finally, invoke
-        //:   'X.clear()' and 'X.rehash(0) and verify the table is in the
-        //:   zero-capacity state.  (C-1..5)
-        //:
-        //: 2 Invoke 'reserve' on an empty object with a variety of values and
-        //:   directly verify the 'capacity' after each invocation.  (C-1..6)
+        // 1. Using the table-driven technique, create objects `X` and `Z`
+        //    having the same generated value for a variety of object values.
+        //    For a set of capacities, invoke `rehash` on `X`, verify the
+        //    capacity meets expectations, and verify the object invariants.
+        //    Verify `X == Z`.  Use `controls` to verify there are no erased
+        //    values in `X`.  Vary the test allocator's allocation limit to
+        //    verify behavior in the presence of exceptions.  Finally, invoke
+        //    `X.clear()` and 'X.rehash(0) and verify the table is in the
+        //    zero-capacity state.  (C-1..5)
+        //
+        // 2. Invoke `reserve` on an empty object with a variety of values and
+        //    directly verify the `capacity` after each invocation.  (C-1..6)
         //
         // Testing:
         //   void rehash(size_t);
@@ -4886,10 +4892,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "'rehash' AND 'reserve'" << endl
+                          << "`rehash` AND `reserve`" << endl
                           << "======================" << endl;
 
-        if (verbose) cout << "Testing 'rehash'." << endl;
+        if (verbose) cout << "Testing `rehash`." << endl;
         {
             testCase19Rehash<int>(0);
             testCase19Rehash<bsltf::AllocBitwiseMoveableTestType>(1);
@@ -4902,7 +4908,7 @@ int main(int argc, char *argv[])
             testCase19Rehash<bsltf::NonOptionalAllocTestType>(8);
         }
 
-        if (verbose) cout << "Testing 'reserve'." << endl;
+        if (verbose) cout << "Testing `reserve`." << endl;
         {
             typedef TestEntryUtil<int>                               Util;
             typedef IntValueIsHash                                   Hash;
@@ -4930,39 +4936,39 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // RANGE 'erase'
+        // RANGE `erase`
         //
-        // Ensure the range 'erase' method operates as expected.
+        // Ensure the range `erase` method operates as expected.
         //
         // Concerns:
-        //: 1 The range 'erase' method correctly forwards to 'erase'.
-        //:
-        //: 2 The range 'erase' return value is always the second iterator
-        //:   value.
-        //:
-        //: 3 The returned iterator is modifiable.
+        // 1. The range `erase` method correctly forwards to `erase`.
+        //
+        // 2. The range `erase` return value is always the second iterator
+        //    value.
+        //
+        // 3. The returned iterator is modifiable.
         //
         // Plan:
-        //: 1 Using the table-driven technique, for a set of identically
-        //:   constructed object values 'X' and 'Z', verify the results of
-        //:   range 'erase' for 'X.erase(X.begin(), X.begin())',
-        //:   'X.erase(X.end(), X.end())',
-        //:   'mX.erase(mX.begin(), ++mX.begin())', and
-        //:   'X.erase(X.begin(), X.end())' using 'Z' initially as a control
-        //:   value and later as an oracle for the table value resulting from
-        //:   'Z.erase(Z.begin())'.  (C-1,2)
-        //:
-        //: 2 Create a table with an 'int' key and a
-        //:   'bsl::pair<const int, int>' entry.  Verify the returned
-        //:   modifiable reference can modify the second value in the pair
-        //:   without otherwise affecting the table.  (C-3)
+        // 1. Using the table-driven technique, for a set of identically
+        //    constructed object values `X` and `Z`, verify the results of
+        //    range `erase` for `X.erase(X.begin(), X.begin())`,
+        //    `X.erase(X.end(), X.end())`,
+        //    `mX.erase(mX.begin(), ++mX.begin())`, and
+        //    `X.erase(X.begin(), X.end())` using `Z` initially as a control
+        //    value and later as an oracle for the table value resulting from
+        //    `Z.erase(Z.begin())`.  (C-1,2)
+        //
+        // 2. Create a table with an `int` key and a
+        //    `bsl::pair<const int, int>` entry.  Verify the returned
+        //    modifiable reference can modify the second value in the pair
+        //    without otherwise affecting the table.  (C-3)
         //
         // Testing:
         //   iterator erase(const_iterator, const_iterator);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "RANGE 'erase'" << endl
+                          << "RANGE `erase`" << endl
                           << "=============" << endl;
 
         const bsl::size_t            NUM_DATA  = DEFAULT_NUM_DATA;
@@ -4973,7 +4979,7 @@ int main(int argc, char *argv[])
         typedef bsl::equal_to<int>                               Equal;
         typedef bdlc::FlatHashTable<int, int, Util, Hash, Equal> Obj;
 
-        if (verbose) cout << "Testing range 'erase'." << endl;
+        if (verbose) cout << "Testing range `erase`." << endl;
         {
             for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
                 const int            LINE = DATA[ti].d_lineNum;
@@ -5056,39 +5062,39 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // ITERATOR 'erase'
+        // ITERATOR `erase`
         //
-        // Ensure the iterator 'erase' methods operates as expected.
+        // Ensure the iterator `erase` methods operates as expected.
         //
         // Concerns:
-        //: 1 The iterator 'erase' methods return the next available entry, or
-        //:   'end()' if the erased entry was the only entry.
-        //:
-        //: 2 The iterator 'erase' methods set the 'controls' value at the
-        //:   position to 'k_ERASED'.
-        //:
-        //: 3 The resultant object has the correct value.
-        //:
-        //: 4 The erased object is correctly destroyed.
-        //:
-        //: 5 The returned iterator is modifiable.
+        // 1. The iterator `erase` methods return the next available entry, or
+        //    `end()` if the erased entry was the only entry.
+        //
+        // 2. The iterator `erase` methods set the `controls` value at the
+        //    position to `k_ERASED`.
+        //
+        // 3. The resultant object has the correct value.
+        //
+        // 4. The erased object is correctly destroyed.
+        //
+        // 5. The returned iterator is modifiable.
         //
         // Plan:
-        //: 1 Using the table-driven technique, for a set of object values 'Z'
-        //:   verify the results of the iterator 'erase' methods on an
-        //:   identically constructed object 'X', by using the key 'erase'
-        //:   method on an identically constructed object 'EXP' for all
-        //:   entries in 'Z'.  Directly verify the return value and 'controls'
-        //:   position.  (C-1..3)
-        //:
-        //: 2 Use a variety of testing types and verify all allocated memory
-        //:   is returned, by allowing the used test allocator to go out of
-        //:   scope.  (C-4)
-        //:
-        //: 3 Create a table with an 'int' key and a
-        //:   'bsl::pair<const int, int>' entry.  Verify the returned
-        //:   modifiable reference can modify the second value in the pair
-        //:   without otherwise affecting the table.  (C-5)
+        // 1. Using the table-driven technique, for a set of object values `Z`
+        //    verify the results of the iterator `erase` methods on an
+        //    identically constructed object `X`, by using the key `erase`
+        //    method on an identically constructed object `EXP` for all
+        //    entries in `Z`.  Directly verify the return value and `controls`
+        //    position.  (C-1..3)
+        //
+        // 2. Use a variety of testing types and verify all allocated memory
+        //    is returned, by allowing the used test allocator to go out of
+        //    scope.  (C-4)
+        //
+        // 3. Create a table with an `int` key and a
+        //    `bsl::pair<const int, int>` entry.  Verify the returned
+        //    modifiable reference can modify the second value in the pair
+        //    without otherwise affecting the table.  (C-5)
         //
         // Testing:
         //   iterator erase(const_iterator);
@@ -5096,10 +5102,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "ITERATOR 'erase'" << endl
+                          << "ITERATOR `erase`" << endl
                           << "================" << endl;
 
-        if (verbose) cout << "Testing iterator 'erase'." << endl;
+        if (verbose) cout << "Testing iterator `erase`." << endl;
         {
             testCase17IteratorErase<int>(0);
             testCase17IteratorErase<bsltf::AllocBitwiseMoveableTestType>(1);
@@ -5154,35 +5160,35 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // RANGE 'insert'
+        // RANGE `insert`
         //
-        // Ensure the range 'insert' method operates as expected.
+        // Ensure the range `insert` method operates as expected.
         //
         // Concerns:
-        //: 1 The range 'insert' method correctly forwards to 'insert'.
-        //:
-        //: 2 The range 'insert' method can accept iterators from a differnt
-        //:   container type.
+        // 1. The range `insert` method correctly forwards to `insert`.
+        //
+        // 2. The range `insert` method can accept iterators from a differnt
+        //    container type.
         //
         // Plan:
-        //: 1 Using the table-driven technique, for a set of object values 'Z'
-        //:   verify the results of range 'insert' into an empty object 'X' for
-        //:   'X.insert(Z.begin(), Z.begin())', 'X.insert(Z.end(), Z.end())',
-        //:   and 'X.insert(X.begin(), X.end())'.  Note that the 'DATA' table
-        //:   includes entries of various lengths.  (C-1)
-        //:
-        //: 2 Create a 'bsl::vector' with three entries, 'Z', and verify the
-        //:   results of range 'insert' into an empty object 'X' for
-        //:   'X.insert(Z.begin(), Z.begin())', 'X.insert(Z.end(), Z.end())',
-        //:   and 'X.insert(X.begin(), X.end())'.  Note that the 'DATA' table
-        //:   includes entries of various lengths.  (C-1)
+        // 1. Using the table-driven technique, for a set of object values `Z`
+        //    verify the results of range `insert` into an empty object `X` for
+        //    `X.insert(Z.begin(), Z.begin())`, `X.insert(Z.end(), Z.end())`,
+        //    and `X.insert(X.begin(), X.end())`.  Note that the `DATA` table
+        //    includes entries of various lengths.  (C-1)
+        //
+        // 2. Create a `bsl::vector` with three entries, `Z`, and verify the
+        //    results of range `insert` into an empty object `X` for
+        //    `X.insert(Z.begin(), Z.begin())`, `X.insert(Z.end(), Z.end())`,
+        //    and `X.insert(X.begin(), X.end())`.  Note that the `DATA` table
+        //    includes entries of various lengths.  (C-1)
         //
         // Testing:
         //   void insert(INPUT_IT, INPUT_IT);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "'RANGE 'insert'" << endl
+                          << "`RANGE `insert'" << endl
                           << "===============" << endl;
 
         const bsl::size_t            NUM_DATA  = DEFAULT_NUM_DATA;
@@ -5193,7 +5199,7 @@ int main(int argc, char *argv[])
         typedef bsl::equal_to<int>                               Equal;
         typedef bdlc::FlatHashTable<int, int, Util, Hash, Equal> Obj;
 
-        if (verbose) cout << "Testing range 'insert'." << endl;
+        if (verbose) cout << "Testing range `insert`." << endl;
         {
             for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
                 const int            LINE = DATA[ti].d_lineNum;
@@ -5220,7 +5226,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "Testing inserting from a 'bsl::vector'." << endl;
+        if (verbose) cout << "Testing inserting from a `bsl::vector`." << endl;
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -5255,133 +5261,133 @@ int main(int argc, char *argv[])
         //   class to any object of the class.
         //
         // Concerns:
-        //: 1 The move assignment operator can change the value of any target
-        //:   object to that of any source object.
-        //:
-        //: 2 The address of the target object's allocator is unchanged.
-        //:
-        //: 3 There is no memory allocations when the source and destination
-        //:   allocators are identical.
-        //:
-        //: 4 The signature and return type are standard.
-        //:
-        //: 5 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 6 The source object is valid after the move assignment.
-        //:
-        //: 7 The allocator of the source object is not modified.
-        //:
-        //: 8 Assigning an object to itself behaves as expected (alias-safety).
-        //:
-        //: 9 Any memory allocation is exception neutral.
-        //:
-        //:10 The resultant value of the target object is as expected.
+        // 1. The move assignment operator can change the value of any target
+        //    object to that of any source object.
+        //
+        // 2. The address of the target object's allocator is unchanged.
+        //
+        // 3. There is no memory allocations when the source and destination
+        //    allocators are identical.
+        //
+        // 4. The signature and return type are standard.
+        //
+        // 5. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 6. The source object is valid after the move assignment.
+        //
+        // 7. The allocator of the source object is not modified.
+        //
+        // 8. Assigning an object to itself behaves as expected (alias-safety).
+        //
+        // 9. Any memory allocation is exception neutral.
+        //
+        // 10. The resultant value of the target object is as expected.
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a function pointer
-        //:   having the appropriate structure for the move assignment operator
-        //:   defined in this component.  (C-4)
-        //:
-        //: 2 Construct a 'bslma::TestAllocator' object and install it as the
-        //:   default allocator (note that a ubiquitous test allocator is
-        //:   already installed as the global allocator).
-        //:
-        //: 3 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of valid object values (one per row) in terms of
-        //:     their individual attributes, including (a) first, the default
-        //:     value, (b) boundary values corresponding to every range of
-        //:     values that each individual attribute can independently attain,
-        //:     and (c) values that should require allocation from each
-        //:     individual attribute that can independently allocate memory.
-        //:
-        //: 4 For each row 'R1' (representing a distinct object value, 'V') in
-        //:   the table described in P-3: (C-1..3, 5..9)
-        //:
-        //:   1 Use the value constructor to create two 'const' 'Obj', 'Z' and
-        //:     'ZZ', each having the value 'V' and using a "scratch"
-        //:     allocator.
-        //:
-        //:   2 Execute an inner loop that iterates over each row 'R2'
-        //:     (representing a distinct object value, 'W') in the table
-        //:     described in P-3:
-        //:
-        //:   3 For each of the iterations (P-4.2):
-        //:
-        //:     1 Construct a 'bslma::TestAllocator' object, 'oa'.
-        //:
-        //:     2 Use the value constructor to create a modifiable 'Obj', 'mX',
-        //:       using 'oa' and having the value 'W'.
-        //:
-        //:     3 Use the equality comparison operators to verify that the two
-        //:       objects, 'mX' and 'Z', are initially equal if and only if the
-        //:       table indices from P-4 and P-4.2 are the same.
-        //:
-        //:     4 Assign 'mX' from 'Z' in the presence of injected exceptions
-        //:       (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).
-        //:
-        //:     5 Verify that the address of the return value is the same as
-        //:       that of 'mX'.  (C-5)
-        //:
-        //:     6 Use the equality comparison operators to verify that: (C-1,
-        //:       6)
-        //:
-        //:       1 The target object, 'mX', now has the same value as 'ZZ'.
-        //:
-        //:       2 'Z' has a valid object value.
-        //:
-        //:     7 Use the 'allocator' accessor of both 'mX' and 'Z' to verify
-        //:       that both object allocators are unchanged.  (C-2, 7)
-        //:
-        //:     8 Use appropriate test allocators to verify that: (C-3, 8)
-        //:
-        //:       1 No additional memory is allocated by the source object.
-        //:
-        //:       2 All object memory is released when the object is destroyed.
-        //:
-        //: 5 Repeat steps similar to those described in P-2 except that, this
-        //:   time, there is no inner loop (as in P-4.2); instead, the source
-        //:   object, 'Z', is a reference to the target object, 'mX', and both
-        //:   'mX' and 'ZZ' are initialized to have the value 'V'.  For each
-        //:   row (representing a distinct object value, 'V') in the table
-        //:   described in P-3: (C-1..3, 5..10)
-        //:
-        //:   1 Construct a 'bslma::TestAllocator' object, 'oa'.
-        //:
-        //:   2 Use the value constructor to create a modifiable 'Obj' 'mX'
-        //:     using 'oa' and a 'const' 'Obj' 'ZZ' (using a distinct "scratch"
-        //:     allocator).
-        //:
-        //:   3 Let 'Z' be a reference providing only 'const' access to 'mX'.
-        //:
-        //:   4 Use the equality comparison operators to verify that the target
-        //:     object, 'mX', has the same value as 'ZZ'.
-        //:
-        //:   5 Assign 'mX' from 'Z' in the presence of injected exceptions
-        //:     (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).
-        //:     (C-9)
-        //:
-        //:   6 Verify that the address of the return value is the same as that
-        //:     of 'mX'.  (C-5)
-        //:
-        //:   7 Use the equality comparison operators to verify that the target
-        //:     object, 'mX', still has the same value as 'ZZ'.  (C-10)
-        //:
-        //:   8 Use the 'allocator' accessor of 'mX' to verify that it is still
-        //:     the object allocator.  (C-2)
-        //:
-        //:   9 Use appropriate test allocators to verify that: (C-3, 8)
-        //:
-        //:     1 Any memory that is allocated is from the object allocator.
-        //:
-        //:     2 No additional (e.g., temporary) object memory is allocated
-        //:       when assigning an object value that did NOT initially require
-        //:       allocated memory.
-        //:
-        //:     3 All object memory is released when the object is destroyed.
-        //:
-        //: 6 Use the test allocator from P-2 to verify that no memory is ever
-        //:   allocated from the default allocator.  (C-3)
+        // 1. Use the address of `operator=` to initialize a function pointer
+        //    having the appropriate structure for the move assignment operator
+        //    defined in this component.  (C-4)
+        //
+        // 2. Construct a `bslma::TestAllocator` object and install it as the
+        //    default allocator (note that a ubiquitous test allocator is
+        //    already installed as the global allocator).
+        //
+        // 3. Using the table-driven technique:
+        //
+        //   1. Specify a set of valid object values (one per row) in terms of
+        //      their individual attributes, including (a) first, the default
+        //      value, (b) boundary values corresponding to every range of
+        //      values that each individual attribute can independently attain,
+        //      and (c) values that should require allocation from each
+        //      individual attribute that can independently allocate memory.
+        //
+        // 4. For each row `R1` (representing a distinct object value, `V`) in
+        //    the table described in P-3: (C-1..3, 5..9)
+        //
+        //   1. Use the value constructor to create two `const` `Obj`, `Z` and
+        //      `ZZ`, each having the value `V` and using a "scratch"
+        //      allocator.
+        //
+        //   2. Execute an inner loop that iterates over each row `R2`
+        //      (representing a distinct object value, `W`) in the table
+        //      described in P-3:
+        //
+        //   3. For each of the iterations (P-4.2):
+        //
+        //     1. Construct a `bslma::TestAllocator` object, `oa`.
+        //
+        //     2. Use the value constructor to create a modifiable `Obj`, `mX`,
+        //        using `oa` and having the value `W`.
+        //
+        //     3. Use the equality comparison operators to verify that the two
+        //        objects, `mX` and `Z`, are initially equal if and only if the
+        //        table indices from P-4 and P-4.2 are the same.
+        //
+        //     4. Assign `mX` from `Z` in the presence of injected exceptions
+        //        (using the `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*` macros).
+        //
+        //     5. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-5)
+        //
+        //     6. Use the equality comparison operators to verify that: (C-1,
+        //        6)
+        //
+        //       1. The target object, `mX`, now has the same value as `ZZ`.
+        //
+        //       2. `Z` has a valid object value.
+        //
+        //     7. Use the `allocator` accessor of both `mX` and `Z` to verify
+        //        that both object allocators are unchanged.  (C-2, 7)
+        //
+        //     8. Use appropriate test allocators to verify that: (C-3, 8)
+        //
+        //       1. No additional memory is allocated by the source object.
+        //
+        //       2. All object memory is released when the object is destroyed.
+        //
+        // 5. Repeat steps similar to those described in P-2 except that, this
+        //    time, there is no inner loop (as in P-4.2); instead, the source
+        //    object, `Z`, is a reference to the target object, `mX`, and both
+        //    `mX` and `ZZ` are initialized to have the value `V`.  For each
+        //    row (representing a distinct object value, `V`) in the table
+        //    described in P-3: (C-1..3, 5..10)
+        //
+        //   1. Construct a `bslma::TestAllocator` object, `oa`.
+        //
+        //   2. Use the value constructor to create a modifiable `Obj` `mX`
+        //      using `oa` and a `const` `Obj` `ZZ` (using a distinct "scratch"
+        //      allocator).
+        //
+        //   3. Let `Z` be a reference providing only `const` access to `mX`.
+        //
+        //   4. Use the equality comparison operators to verify that the target
+        //      object, `mX`, has the same value as `ZZ`.
+        //
+        //   5. Assign `mX` from `Z` in the presence of injected exceptions
+        //      (using the `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*` macros).
+        //      (C-9)
+        //
+        //   6. Verify that the address of the return value is the same as that
+        //      of `mX`.  (C-5)
+        //
+        //   7. Use the equality comparison operators to verify that the target
+        //      object, `mX`, still has the same value as `ZZ`.  (C-10)
+        //
+        //   8. Use the `allocator` accessor of `mX` to verify that it is still
+        //      the object allocator.  (C-2)
+        //
+        //   9. Use appropriate test allocators to verify that: (C-3, 8)
+        //
+        //     1. Any memory that is allocated is from the object allocator.
+        //
+        //     2. No additional (e.g., temporary) object memory is allocated
+        //        when assigning an object value that did NOT initially require
+        //        allocated memory.
+        //
+        //     3. All object memory is released when the object is destroyed.
+        //
+        // 6. Use the test allocator from P-2 to verify that no memory is ever
+        //    allocated from the default allocator.  (C-3)
         //
         // Testing:
         //   FlatHashTable& operator=(FlatHashTable&&);
@@ -5410,65 +5416,65 @@ int main(int argc, char *argv[])
         // MOVE CONSTRUCTOR WITH ALLOCATOR
         //
         // Concerns:
-        //: 1 The newly created object has the same value as that of the
-        //:   original object before the call.
-        //:
-        //: 2 Any internal representation of a given value can be used to
-        //:   create a new object of equivalent value.
-        //:
-        //: 3 The allocator is propagated to the newly created object if (and
-        //:   only if) no allocator is specified in the call to the move
-        //:   constructor.
-        //:
-        //: 4 The original object is always left in a valid state and the
-        //:   allocator address held by the original object is unchanged.
-        //:
-        //: 5 Subsequent changes to or destruction of the original object have
-        //:   no effect on the move-constructed object and vice-versa.
-        //:
-        //: 6 The object has its internal memory management system hooked up
-        //:   properly so that *all* internally allocated memory draws from a
-        //:   user-supplied allocator whenever one is specified.
-        //:
-        //: 7 Every object releases any allocated memory at destruction.
+        // 1. The newly created object has the same value as that of the
+        //    original object before the call.
         //
-        //: 8 Any memory allocation is exception neutral (we have tested each
-        //:   of the code paths of this constructor).
+        // 2. Any internal representation of a given value can be used to
+        //    create a new object of equivalent value.
+        //
+        // 3. The allocator is propagated to the newly created object if (and
+        //    only if) no allocator is specified in the call to the move
+        //    constructor.
+        //
+        // 4. The original object is always left in a valid state and the
+        //    allocator address held by the original object is unchanged.
+        //
+        // 5. Subsequent changes to or destruction of the original object have
+        //    no effect on the move-constructed object and vice-versa.
+        //
+        // 6. The object has its internal memory management system hooked up
+        //    properly so that *all* internally allocated memory draws from a
+        //    user-supplied allocator whenever one is specified.
+        //
+        // 7. Every object releases any allocated memory at destruction.
+        //
+        // 8. Any memory allocation is exception neutral (we have tested each
+        //    of the code paths of this constructor).
         //
         // Plan:
-        //: 1 Specify a set 'S' of object values with substantial and varied
-        //:   differences, ordered by increasing length, to be used
-        //:   sequentially in the following tests; for each entry, create a
-        //:   control object.   (C-2)
-        //:
-        //: 2 Call the move constructor to create the container in all
-        //:   relevant use cases involving the allocator: 1) no allocator
-        //:   passed in, 2) a '0' is explicitly passed in as the allocator
-        //:   argument, 3) the same allocator as that of the original object
-        //:   is explicitly passed in, and 4) a different allocator than that
-        //:   of the original object is passed in.
-        //:
-        //: 3 For each of the object values (P-1) and for each configuration
-        //:   (P-2), verify the following:
-        //:
-        //:   1 Verify the newly created object has the same value as that of
-        //:     the original object before the call to the move constructor
-        //:     (control value).  (C-1)
-        //:
-        //:   2 Ensure that the new original, and control object continue to
-        //:     have the correct allocator and that all memory allocations come
-        //:     from the appropriate allocator.  (C-3,6)
-        //:
-        //:   3 Verify the original object (after the move construction) to
-        //:     is in a valid state, destroy it, and then verify newly created
-        //:     is in a valid state.  (C-4,5)
-        //:
-        //:   4 Verify all memory is released when the object is destroyed.
-        //:     (C-7)
-        //:
-        //: 4 Perform tests in the presence of exceptions during memory
-        //:   allocations using a 'bslma::TestAllocator' and varying its
-        //:   *allocation* *limit*.  (C-8)
+        // 1. Specify a set `S` of object values with substantial and varied
+        //    differences, ordered by increasing length, to be used
+        //    sequentially in the following tests; for each entry, create a
+        //    control object.   (C-2)
+        //
+        // 2. Call the move constructor to create the container in all
+        //    relevant use cases involving the allocator: 1) no allocator
+        //    passed in, 2) a `0` is explicitly passed in as the allocator
+        //    argument, 3) the same allocator as that of the original object
+        //    is explicitly passed in, and 4) a different allocator than that
+        //    of the original object is passed in.
+        //
+        // 3. For each of the object values (P-1) and for each configuration
+        //    (P-2), verify the following:
+        //
+        //   1. Verify the newly created object has the same value as that of
+        //      the original object before the call to the move constructor
+        //      (control value).  (C-1)
+        //
+        //   2. Ensure that the new original, and control object continue to
+        //      have the correct allocator and that all memory allocations come
+        //      from the appropriate allocator.  (C-3,6)
+        //
+        //   3. Verify the original object (after the move construction) to
+        //      is in a valid state, destroy it, and then verify newly created
+        //      is in a valid state.  (C-4,5)
+        //
+        //   4. Verify all memory is released when the object is destroyed.
+        //      (C-7)
+        //
+        // 4. Perform tests in the presence of exceptions during memory
+        //    allocations using a `bslma::TestAllocator` and varying its
+        //    *allocation* *limit*.  (C-8)
         //
         // Testing:
         //   FlatHashTable(FlatHashTable&&, Allocator *basicAllocator);
@@ -5504,49 +5510,49 @@ int main(int argc, char *argv[])
         // MOVE CONSTRUCTOR WITHOUT ALLOCATOR
         //
         // Concerns:
-        //: 1 The newly created object has the same value (using the equality
-        //:   operator) as that of the original object before the call.
-        //:
-        //: 2 Any internal representation of a given value can be used to
-        //:   create a new object of equivalent value, including the
-        //:   zero-capacity state.
-        //:
-        //: 3 The original object is left in a valid state and its allocator is
-        //:   unchanged.
-        //:
-        //: 4 Subsequent changes to or destruction of the original object have
-        //:   no effect on the move-constructed object and vice-versa.
-        //:
-        //: 5 The constructor does not allocate memory.
-        //:
-        //: 6 The allocator is propagated to the newly created object.
+        // 1. The newly created object has the same value (using the equality
+        //    operator) as that of the original object before the call.
+        //
+        // 2. Any internal representation of a given value can be used to
+        //    create a new object of equivalent value, including the
+        //    zero-capacity state.
+        //
+        // 3. The original object is left in a valid state and its allocator is
+        //    unchanged.
+        //
+        // 4. Subsequent changes to or destruction of the original object have
+        //    no effect on the move-constructed object and vice-versa.
+        //
+        // 5. The constructor does not allocate memory.
+        //
+        // 6. The allocator is propagated to the newly created object.
         //
         // Plan:
-        //: 1 Specify a set 'S' of object values with substantial and varied
-        //:   differences, ordered by increasing length, to be used
-        //:   sequentially in the following tests; for each entry, create a
-        //:   control object.  (C-2)
-        //:
-        //: 2 For each of the object values (P-1), verify the following:
-        //:
-        //:   1 Verify the newly created object has the same value as that of
-        //:     the original object before the call to the move constructor
-        //:     (control value).
-        //:
-        //:   2 After the move construction, verify the newly created object
-        //:     is equal to the control object, and ensure the original object
-        //:     is in a valid state and its allocator is unchanged.  (C-1,3)
-        //:
-        //:   3 Destroy the original object, and then ensure the newly created
-        //:     object is in a valid state and that its value is unchanged.
-        //:     (C-4)
-        //:
-        //: 3 The allocators used to create the objects will be verified to
-        //:   ensure that no memory was allocated during use of the constructor
-        //:   (note that this check may be done at the global level).  (C-5)
-        //:
-        //: 4 Verify the allocator in the resultant object is as expected.
-        //:   (C-6)
+        // 1. Specify a set `S` of object values with substantial and varied
+        //    differences, ordered by increasing length, to be used
+        //    sequentially in the following tests; for each entry, create a
+        //    control object.  (C-2)
+        //
+        // 2. For each of the object values (P-1), verify the following:
+        //
+        //   1. Verify the newly created object has the same value as that of
+        //      the original object before the call to the move constructor
+        //      (control value).
+        //
+        //   2. After the move construction, verify the newly created object
+        //      is equal to the control object, and ensure the original object
+        //      is in a valid state and its allocator is unchanged.  (C-1,3)
+        //
+        //   3. Destroy the original object, and then ensure the newly created
+        //      object is in a valid state and that its value is unchanged.
+        //      (C-4)
+        //
+        // 3. The allocators used to create the objects will be verified to
+        //    ensure that no memory was allocated during use of the constructor
+        //    (note that this check may be done at the global level).  (C-5)
+        //
+        // 4. Verify the allocator in the resultant object is as expected.
+        //    (C-6)
         //
         // Testing:
         //   FlatHashTable(FlatHashTable&&);
@@ -5582,53 +5588,53 @@ int main(int argc, char *argv[])
         // SEARCH METHODS AND ITERATORS
         //
         // Ensure the search methods and iterators operate as expected.  Since
-        // the iterators are implemented using 'bslstl::ForwardIterator',
+        // the iterators are implemented using `bslstl::ForwardIterator`,
         // verification that the iterators interpret object state correctly is
         // all that is required.
         //
         // Concerns:
-        //: 1 The 'begin' iterator methods correctly determine the first
-        //:   contained value.
-        //:
-        //: 2 Incrementing the 'begin' iterator 'size()' times visits all
-        //:   contained elements and results in the 'end' iterator.
-        //:
-        //: 3 The dereference operator for iterators works as expected.
-        //:
-        //: 4 The comparison 'operator==' for iterators works as expected.
-        //:
-        //: 5 The accessors 'contains', 'count', 'equal_range', and 'find'
-        //:   correctly reflect the presence of a key.
-        //:
-        //: 6 None of these accessor or iterator methods allocate memory.
+        // 1. The `begin` iterator methods correctly determine the first
+        //    contained value.
+        //
+        // 2. Incrementing the `begin` iterator `size()` times visits all
+        //    contained elements and results in the `end` iterator.
+        //
+        // 3. The dereference operator for iterators works as expected.
+        //
+        // 4. The comparison `operator==` for iterators works as expected.
+        //
+        // 5. The accessors `contains`, `count`, `equal_range`, and `find`
+        //    correctly reflect the presence of a key.
+        //
+        // 6. None of these accessor or iterator methods allocate memory.
         //
         // Plan:
-        //: 1 Using the basic accessors, verify the 'begin' methods return an
-        //:   iterator referencing the first populated entry and incrementing
-        //:   the 'begin' iterator 'size()' times visits all contained elements
-        //:   and results in the 'end' iterator.  For each visited element,
-        //:   directly verify the result of the dereference operator.  (C-1,2)
-        //:
-        //: 2 Using the table-driven technique, create objects 'X' and 'Y'
-        //:   having the same generated value.  For every iterator value
-        //:   obtained by iterating over the objects, ensure 'operator==' is
-        //:   'true' only when the object and iterator position are the same.
-        //:   (C-4)
-        //:
-        //: 3 Create a table with an 'int' key and a
-        //:   'bsl::pair<const int, int>' entry.  Verify the modifiable
-        //:   iterator can modify the second value in the pair without
-        //:   otherwise affecting the table.  (C-3)
-        //:
-        //: 4 Using the table-driven technique, compare the results of
-        //:   'contains', 'count', 'equal_range', and 'find' to a direct search
-        //:   for one of a set of key value using the basic accessors.  Use the
-        //:   iterator methods to verify the results of 'equal_range' and
-        //:   'find'.  (C-5)
-        //:
-        //: 5 The allocators used to create the objects will be verified to
-        //:   ensure that no memory was allocated during use of the accessors
-        //:   and iterators.  (C-6)
+        // 1. Using the basic accessors, verify the `begin` methods return an
+        //    iterator referencing the first populated entry and incrementing
+        //    the `begin` iterator `size()` times visits all contained elements
+        //    and results in the `end` iterator.  For each visited element,
+        //    directly verify the result of the dereference operator.  (C-1,2)
+        //
+        // 2. Using the table-driven technique, create objects `X` and `Y`
+        //    having the same generated value.  For every iterator value
+        //    obtained by iterating over the objects, ensure `operator==` is
+        //    `true` only when the object and iterator position are the same.
+        //    (C-4)
+        //
+        // 3. Create a table with an `int` key and a
+        //    `bsl::pair<const int, int>` entry.  Verify the modifiable
+        //    iterator can modify the second value in the pair without
+        //    otherwise affecting the table.  (C-3)
+        //
+        // 4. Using the table-driven technique, compare the results of
+        //    `contains`, `count`, `equal_range`, and `find` to a direct search
+        //    for one of a set of key value using the basic accessors.  Use the
+        //    iterator methods to verify the results of `equal_range` and
+        //    `find`.  (C-5)
+        //
+        // 5. The allocators used to create the objects will be verified to
+        //    ensure that no memory was allocated during use of the accessors
+        //    and iterators.  (C-6)
         //
         // Testing:
         //   bsl::pair<iterator, iterator> equal_range(const KEY&);
@@ -5643,10 +5649,10 @@ int main(int argc, char *argv[])
         //   const_iterator cbegin() const;
         //   const_iterator cend() const;
         //   const_iterator end() const;
-        //   CONCERN: 'FHTCI FHTCI::operator++()'
-        //   CONCERN: 'const ENTRY& FHTCI::operator*()'
-        //   CONCERN: 'bool operator==(FHTCI&, FHTCI&)'
-        //   CONCERN: 'ENTRY& FHTI::operator*()'
+        //   CONCERN: `FHTCI FHTCI::operator++()`
+        //   CONCERN: `const ENTRY& FHTCI::operator*()`
+        //   CONCERN: `bool operator==(FHTCI&, FHTCI&)`
+        //   CONCERN: `ENTRY& FHTI::operator*()`
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -5661,7 +5667,7 @@ int main(int argc, char *argv[])
         typedef bsl::equal_to<int>                               Equal;
         typedef bdlc::FlatHashTable<int, int, Util, Hash, Equal> Obj;
 
-        if (verbose) cout << "Testing 'begin' and iterator methods." << endl;
+        if (verbose) cout << "Testing `begin` and iterator methods." << endl;
         {
             for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
                 const int            LINE = DATA[ti].d_lineNum;
@@ -5716,7 +5722,7 @@ int main(int argc, char *argv[])
 
                     LOOP_ASSERT(LINE, iter == X.end());
 
-                    // testing 'operator=='
+                    // testing `operator==`
 
                     bsl::size_t xAt = 0;
 
@@ -5786,7 +5792,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "Testing 'contains', 'count', 'equal_range', and 'find'."
+            cout << "Testing `contains`, `count`, `equal_range`, and `find`."
                  << endl;
         }
         {
@@ -5876,24 +5882,24 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // 'empty' AND 'load_factor'
+        // `empty` AND `load_factor`
         //
         // Ensure the non-basic accessors and iterators operate as expected.
         //
         // Concerns:
-        //: 1 The accessors 'empty' and 'load_factor' are consistent with the
-        //:   results of 'size' and 'capacity'.
-        //:
-        //: 2 The methods do not allocate memory.
+        // 1. The accessors `empty` and `load_factor` are consistent with the
+        //    results of `size` and `capacity`.
+        //
+        // 2. The methods do not allocate memory.
         //
         // Plan:
-        //: 1 Using the table-driven technique, compare the results of 'empty'
-        //:   and 'load_factor' to the value expected given 'size' and
-        //:   'capacity' for a set of object values.  (C-1)
-        //:
-        //: 2 The allocators used to create the objects will be verified to
-        //:   ensure that no memory was allocated during use of the accessors
-        //:   and iterators.  (C-22)
+        // 1. Using the table-driven technique, compare the results of `empty`
+        //    and `load_factor` to the value expected given `size` and
+        //    `capacity` for a set of object values.  (C-1)
+        //
+        // 2. The allocators used to create the objects will be verified to
+        //    ensure that no memory was allocated during use of the accessors
+        //    and iterators.  (C-22)
         //
         // Testing:
         //   bool empty() const;
@@ -5901,7 +5907,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "'empty' AND 'load_factor'" << endl
+                          << "`empty` AND `load_factor`" << endl
                           << "=========================" << endl;
 
         const bsl::size_t            NUM_DATA  = DEFAULT_NUM_DATA;
@@ -5931,7 +5937,7 @@ int main(int argc, char *argv[])
                                              / static_cast<float>(X.capacity())
                                  : 0.0f;
 
-                // Note that since 'capacity' is a power of two, a simple check
+                // Note that since `capacity` is a power of two, a simple check
                 // suffices.
 
                 LOOP_ASSERT(LINE, loadFactor == X.load_factor());
@@ -5961,130 +5967,130 @@ int main(int argc, char *argv[])
         //   have the same value.
         //
         // Concerns:
-        //: 1 The assignment operator can change the value of any target object
-        //:   to that of any source object.
-        //:
-        //: 2 The address of the target object's allocator is unchanged.
-        //:
-        //: 3 Any memory allocation is from the target object's allocator.
-        //:
-        //: 4 The signature and return type are standard.
-        //:
-        //: 5 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 6 The value of the source object is not modified.
-        //:
-        //: 7 The allocator of the source object is not modified.
-        //:
-        //: 8 Any memory allocation is exception neutral.
-        //:
-        //: 9 Assigning an object to itself behaves as expected (alias-safety).
+        // 1. The assignment operator can change the value of any target object
+        //    to that of any source object.
+        //
+        // 2. The address of the target object's allocator is unchanged.
+        //
+        // 3. Any memory allocation is from the target object's allocator.
+        //
+        // 4. The signature and return type are standard.
+        //
+        // 5. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 6. The value of the source object is not modified.
+        //
+        // 7. The allocator of the source object is not modified.
+        //
+        // 8. Any memory allocation is exception neutral.
+        //
+        // 9. Assigning an object to itself behaves as expected (alias-safety).
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a function pointer
-        //:   having the appropriate structure for the copy assignment operator
-        //:   defined in this component.  (C-4)
-        //:
-        //: 2 Construct a 'bslma::TestAllocator' object and install it as the
-        //:   default allocator (note that a ubiquitous test allocator is
-        //:   already installed as the global allocator).
-        //:
-        //: 3 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of valid object values (one per row) in terms of
-        //:     their individual attributes, including (a) first, the default
-        //:     value, (b) boundary values corresponding to every range of
-        //:     values that each individual attribute can independently attain,
-        //:     and (c) values that should require allocation from each
-        //:     individual attribute that can independently allocate memory.
-        //:
-        //: 4 For each row 'R1' (representing a distinct object value, 'V') in
-        //:   the table described in P-3: (C-1..3, 5..9)
-        //:
-        //:   1 Use the value constructor to create two 'const' 'Obj', 'Z' and
-        //:     'ZZ', each having the value 'V' and using a "scratch"
-        //:     allocator.
-        //:
-        //:   2 Execute an inner loop that iterates over each row 'R2'
-        //:     (representing a distinct object value, 'W') in the table
-        //:     described in P-3:
-        //:
-        //:   3 For each of the iterations (P-4.2):
-        //:
-        //:     1 Construct a 'bslma::TestAllocator' object, 'oa'.
-        //:
-        //:     2 Use the value constructor to create a modifiable 'Obj', 'mX',
-        //:       using 'oa' and having the value 'W'.
-        //:
-        //:     3 Use the equality comparison operators to verify that the two
-        //:       objects, 'mX' and 'Z', are initially equal if and only if the
-        //:       table indices from P-4 and P-4.2 are the same.
-        //:
-        //:     4 Assign 'mX' from 'Z' in the presence of injected exceptions
-        //:       (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).
-        //:
-        //:     5 Verify that the address of the return value is the same as
-        //:       that of 'mX'.  (C-5)
-        //:
-        //:     6 Use the equality comparison operators to verify that: (C-1,
-        //:       6)
-        //:
-        //:       1 The target object, 'mX', now has the same value as 'Z'.
-        //:
-        //:       2 'Z' still has the same value as 'ZZ'.
-        //:
-        //:     7 Use the 'allocator' accessor of both 'mX' and 'Z' to verify
-        //:       that both object allocators are unchanged.  (C-2, 7)
-        //:
-        //:     8 Use appropriate test allocators to verify that: (C-3, 8)
-        //:
-        //:       1 No additional memory is allocated by the source object.
-        //:
-        //:       2 All object memory is released when the object is destroyed.
-        //:
-        //: 5 Repeat steps similar to those described in P-2 except that, this
-        //:   time, there is no inner loop (as in P-4.2); instead, the source
-        //:   object, 'Z', is a reference to the target object, 'mX', and both
-        //:   'mX' and 'ZZ' are initialized to have the value 'V'.  For each
-        //:   row (representing a distinct object value, 'V') in the table
-        //:   described in P-3: (C-1..3, 5..10)
-        //:
-        //:   1 Construct a 'bslma::TestAllocator' object, 'oa'.
-        //:
-        //:   2 Use the value constructor to create a modifiable 'Obj' 'mX'
-        //:     using 'oa' and a 'const' 'Obj' 'ZZ' (using a distinct "scratch"
-        //:     allocator).
-        //:
-        //:   3 Let 'Z' be a reference providing only 'const' access to 'mX'.
-        //:
-        //:   4 Use the equality comparison operators to verify that the target
-        //:     object, 'mX', has the same value as 'ZZ'.
-        //:
-        //:   5 Assign 'mX' from 'Z' in the presence of injected exceptions
-        //:     (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).
-        //:     (C-9)
-        //:
-        //:   6 Verify that the address of the return value is the same as that
-        //:     of 'mX'.  (C-5)
-        //:
-        //:   7 Use the equality comparison operators to verify that the target
-        //:     object, 'mX', still has the same value as 'ZZ'.  (C-10)
-        //:
-        //:   8 Use the 'allocator' accessor of 'mX' to verify that it is still
-        //:     the object allocator.  (C-2)
-        //:
-        //:   9 Use appropriate test allocators to verify that: (C-3, 8)
-        //:
-        //:     1 Any memory that is allocated is from the object allocator.
-        //:
-        //:     2 No additional (e.g., temporary) object memory is allocated
-        //:       when assigning an object value that did NOT initially require
-        //:       allocated memory.
-        //:
-        //:     3 All object memory is released when the object is destroyed.
-        //:
-        //: 6 Use the test allocator from P-2 to verify that no memory is ever
-        //:   allocated from the default allocator.  (C-3)
+        // 1. Use the address of `operator=` to initialize a function pointer
+        //    having the appropriate structure for the copy assignment operator
+        //    defined in this component.  (C-4)
+        //
+        // 2. Construct a `bslma::TestAllocator` object and install it as the
+        //    default allocator (note that a ubiquitous test allocator is
+        //    already installed as the global allocator).
+        //
+        // 3. Using the table-driven technique:
+        //
+        //   1. Specify a set of valid object values (one per row) in terms of
+        //      their individual attributes, including (a) first, the default
+        //      value, (b) boundary values corresponding to every range of
+        //      values that each individual attribute can independently attain,
+        //      and (c) values that should require allocation from each
+        //      individual attribute that can independently allocate memory.
+        //
+        // 4. For each row `R1` (representing a distinct object value, `V`) in
+        //    the table described in P-3: (C-1..3, 5..9)
+        //
+        //   1. Use the value constructor to create two `const` `Obj`, `Z` and
+        //      `ZZ`, each having the value `V` and using a "scratch"
+        //      allocator.
+        //
+        //   2. Execute an inner loop that iterates over each row `R2`
+        //      (representing a distinct object value, `W`) in the table
+        //      described in P-3:
+        //
+        //   3. For each of the iterations (P-4.2):
+        //
+        //     1. Construct a `bslma::TestAllocator` object, `oa`.
+        //
+        //     2. Use the value constructor to create a modifiable `Obj`, `mX`,
+        //        using `oa` and having the value `W`.
+        //
+        //     3. Use the equality comparison operators to verify that the two
+        //        objects, `mX` and `Z`, are initially equal if and only if the
+        //        table indices from P-4 and P-4.2 are the same.
+        //
+        //     4. Assign `mX` from `Z` in the presence of injected exceptions
+        //        (using the `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*` macros).
+        //
+        //     5. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-5)
+        //
+        //     6. Use the equality comparison operators to verify that: (C-1,
+        //        6)
+        //
+        //       1. The target object, `mX`, now has the same value as `Z`.
+        //
+        //       2. `Z` still has the same value as `ZZ`.
+        //
+        //     7. Use the `allocator` accessor of both `mX` and `Z` to verify
+        //        that both object allocators are unchanged.  (C-2, 7)
+        //
+        //     8. Use appropriate test allocators to verify that: (C-3, 8)
+        //
+        //       1. No additional memory is allocated by the source object.
+        //
+        //       2. All object memory is released when the object is destroyed.
+        //
+        // 5. Repeat steps similar to those described in P-2 except that, this
+        //    time, there is no inner loop (as in P-4.2); instead, the source
+        //    object, `Z`, is a reference to the target object, `mX`, and both
+        //    `mX` and `ZZ` are initialized to have the value `V`.  For each
+        //    row (representing a distinct object value, `V`) in the table
+        //    described in P-3: (C-1..3, 5..10)
+        //
+        //   1. Construct a `bslma::TestAllocator` object, `oa`.
+        //
+        //   2. Use the value constructor to create a modifiable `Obj` `mX`
+        //      using `oa` and a `const` `Obj` `ZZ` (using a distinct "scratch"
+        //      allocator).
+        //
+        //   3. Let `Z` be a reference providing only `const` access to `mX`.
+        //
+        //   4. Use the equality comparison operators to verify that the target
+        //      object, `mX`, has the same value as `ZZ`.
+        //
+        //   5. Assign `mX` from `Z` in the presence of injected exceptions
+        //      (using the `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*` macros).
+        //      (C-9)
+        //
+        //   6. Verify that the address of the return value is the same as that
+        //      of `mX`.  (C-5)
+        //
+        //   7. Use the equality comparison operators to verify that the target
+        //      object, `mX`, still has the same value as `ZZ`.  (C-10)
+        //
+        //   8. Use the `allocator` accessor of `mX` to verify that it is still
+        //      the object allocator.  (C-2)
+        //
+        //   9. Use appropriate test allocators to verify that: (C-3, 8)
+        //
+        //     1. Any memory that is allocated is from the object allocator.
+        //
+        //     2. No additional (e.g., temporary) object memory is allocated
+        //        when assigning an object value that did NOT initially require
+        //        allocated memory.
+        //
+        //     3. All object memory is released when the object is destroyed.
+        //
+        // 6. Use the test allocator from P-2 to verify that no memory is ever
+        //    allocated from the default allocator.  (C-3)
         //
         // Testing:
         //   FlatHashTable& operator=(const FlatHashTable&);
@@ -6115,133 +6121,133 @@ int main(int argc, char *argv[])
         //   that use the same allocator with the member function.
         //
         // Concerns:
-        //: 1 Both functions exchange the values of the (two) supplied objects.
-        //:
-        //: 2 The common object allocator address held by both objects is
-        //:   unchanged.
-        //:
-        //: 3 The member function does not allocate memory from any allocator;
-        //:   nor does the free function when the two objects being swapped use
-        //:   the same allocator.
-        //:
-        //: 4 The free function can be called with two objects that use
-        //:   different allocators.
-        //:
-        //: 5 Both functions have standard signatures and return types.
-        //:
-        //: 6 Using either function to swap an object with itself does not
-        //:   affect the value of the object (alias-safety).
-        //:
-        //: 7 The free 'swap' function is discoverable through ADL (Argument
-        //:   Dependent Lookup).
-        //:
-        //: 8 QoI: Asserted precondition violations are detected when enabled.
-        //:
-        //: 9 The above concerns are addressed for a variety of types.
+        // 1. Both functions exchange the values of the (two) supplied objects.
+        //
+        // 2. The common object allocator address held by both objects is
+        //    unchanged.
+        //
+        // 3. The member function does not allocate memory from any allocator;
+        //    nor does the free function when the two objects being swapped use
+        //    the same allocator.
+        //
+        // 4. The free function can be called with two objects that use
+        //    different allocators.
+        //
+        // 5. Both functions have standard signatures and return types.
+        //
+        // 6. Using either function to swap an object with itself does not
+        //    affect the value of the object (alias-safety).
+        //
+        // 7. The free `swap` function is discoverable through ADL (Argument
+        //    Dependent Lookup).
+        //
+        // 8. QoI: Asserted precondition violations are detected when enabled.
+        //
+        // 9. The above concerns are addressed for a variety of types.
         //
         // Plan:
-        //: 1 Use the addresses of the 'swap' member and free functions defined
-        //:   in this component to initialize, respectively, member-function
-        //:   and free-function pointers having the appropriate signatures and
-        //:   return types.  (C-5)
-        //:
-        //: 2 Create a 'bslma::TestAllocator' object, and install it as the
-        //:   default allocator (note that a ubiquitous test allocator is
-        //:   already installed as the global allocator).
-        //:
-        //: 3 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of (unique) valid object values (one per row) in
-        //:     terms of their individual attributes, including (a) first, the
-        //:     default value, (b) boundary values corresponding to every range
-        //:     of values that each individual attribute can independently
-        //:     attain, and (c) values that should require allocation from each
-        //:     individual attribute that can independently allocate memory.
-        //:
-        //:   2 Additionally, provide a (tri-valued) column, 'MEM', indicating
-        //:     the expectation of memory allocation for all typical
-        //:     implementations of individual attribute types: ('Y') "Yes",
-        //:     ('N') "No", or ('?') "implementation-dependent".
-        //:
-        //: 4 For each row 'R1' in the table of P-3:  (C-1..2, 6)
-        //:
-        //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
-        //:
-        //:   2 Use the value constructor and 'oa' to create a modifiable
-        //:     'Obj', 'mW', having the value described by 'R1'; also use the
-        //:     copy constructor and a "scratch" allocator to create a 'const'
-        //:     'Obj' 'XX' from 'mW'.
-        //:
-        //:   3 Use the member and free 'swap' functions to swap the value of
-        //:     'mW' with itself; verify, after each swap, that:  (C-6)
-        //:
-        //:     1 The value is unchanged.  (C-6)
-        //:
-        //:     2 The allocator address held by the object is unchanged.
-        //:
-        //:     3 There was no additional object memory allocation.
-        //:
-        //:   4 For each row 'R2' in the table of P-3:  (C-1..2)
-        //:
-        //:     1 Use the copy constructor and 'oa' to create a modifiable
-        //:       'Obj', 'mX', from 'XX' (P-4.2).
-        //:
-        //:     2 Use the value constructor and 'oa' to create a modifiable
-        //:       'Obj', 'mY', and having the value described by 'R2'; also use
-        //:       the copy constructor to create, using a "scratch" allocator,
-        //:       a 'const' 'Obj', 'YY', from 'Y'.
-        //:
-        //:     3 Use, in turn, the member and free 'swap' functions to swap
-        //:       the values of 'mX' and 'mY'; verify, after each swap, that:
-        //:       (C-1..2)
-        //:
-        //:       1 The values have been exchanged.  (C-1)
-        //:
-        //:       2 The common object allocator address held by 'mX' and 'mY'
-        //:         is unchanged in both objects.  (C-2)
-        //:
-        //:       3 There was no additional object memory allocation.
-        //:
-        //: 5 Verify that the free 'swap' function is discoverable through ADL:
-        //:   (C-7)
-        //:
-        //:   1 Create a set of attribute values, 'A', distinct from the values
-        //:     corresponding to the default-constructed object, choosing
-        //:     values that allocate memory if possible.
-        //:
-        //:   2 Create a 'bslma::TestAllocator' object, 'oa'.
-        //:
-        //:   3 Use the default constructor and 'oa' to create a modifiable
-        //:     'Obj' 'mX' (having default attribute values); also use the copy
-        //:     constructor and a "scratch" allocator to create a 'const' 'Obj'
-        //:     'XX' from 'mX'.
-        //:
-        //:   4 Use the value constructor and 'oa' to create a modifiable 'Obj'
-        //:     'mY' having the value described by the 'Ai' attributes; also
-        //:     use the copy constructor and a "scratch" allocator to create a
-        //:     'const' 'Obj' 'YY' from 'mY'.
-        //:
-        //:   5 Use the 'bslalg::SwapUtil' helper function template to swap the
-        //:     values of 'mX' and 'mY', using the free 'swap' function defined
-        //:     in this component, then verify that:  (C-7)
-        //:
-        //:     1 The values have been exchanged.
-        //:
-        //:     2 There was no additional object memory allocation.  (C-7)
-        //:
-        //: 6 Use the test allocator from P-2 to verify that no memory was
-        //:   allocated from the default allocator.  (C-3)
-        //:
-        //: 7 Verify that free 'swap' exchanges the values of any two objects
-        //:   that use different allocators.  (C-4)
-        //:
-        //: 8 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when, using the member 'swap' function, an attempt is
-        //:   made to swap objects that do not refer to the same allocator, but
-        //:   not when the allocators are the same (using the
-        //:   'BSLS_ASSERTTEST_*' macros).  (C-8)
-        //:
-        //: 9 Perform the above for a variety of test types.  (C-9)
+        // 1. Use the addresses of the `swap` member and free functions defined
+        //    in this component to initialize, respectively, member-function
+        //    and free-function pointers having the appropriate signatures and
+        //    return types.  (C-5)
+        //
+        // 2. Create a `bslma::TestAllocator` object, and install it as the
+        //    default allocator (note that a ubiquitous test allocator is
+        //    already installed as the global allocator).
+        //
+        // 3. Using the table-driven technique:
+        //
+        //   1. Specify a set of (unique) valid object values (one per row) in
+        //      terms of their individual attributes, including (a) first, the
+        //      default value, (b) boundary values corresponding to every range
+        //      of values that each individual attribute can independently
+        //      attain, and (c) values that should require allocation from each
+        //      individual attribute that can independently allocate memory.
+        //
+        //   2. Additionally, provide a (tri-valued) column, `MEM`, indicating
+        //      the expectation of memory allocation for all typical
+        //      implementations of individual attribute types: ('Y') "Yes",
+        //      ('N') "No", or ('?') "implementation-dependent".
+        //
+        // 4. For each row `R1` in the table of P-3:  (C-1..2, 6)
+        //
+        //   1. Create a `bslma::TestAllocator` object, `oa`.
+        //
+        //   2. Use the value constructor and `oa` to create a modifiable
+        //      `Obj`, `mW`, having the value described by `R1`; also use the
+        //      copy constructor and a "scratch" allocator to create a `const`
+        //      `Obj` `XX` from `mW`.
+        //
+        //   3. Use the member and free `swap` functions to swap the value of
+        //      `mW` with itself; verify, after each swap, that:  (C-6)
+        //
+        //     1. The value is unchanged.  (C-6)
+        //
+        //     2. The allocator address held by the object is unchanged.
+        //
+        //     3. There was no additional object memory allocation.
+        //
+        //   4. For each row `R2` in the table of P-3:  (C-1..2)
+        //
+        //     1. Use the copy constructor and `oa` to create a modifiable
+        //        `Obj`, `mX`, from `XX` (P-4.2).
+        //
+        //     2. Use the value constructor and `oa` to create a modifiable
+        //        `Obj`, `mY`, and having the value described by `R2`; also use
+        //        the copy constructor to create, using a "scratch" allocator,
+        //        a `const` `Obj`, `YY`, from `Y`.
+        //
+        //     3. Use, in turn, the member and free `swap` functions to swap
+        //        the values of `mX` and `mY`; verify, after each swap, that:
+        //        (C-1..2)
+        //
+        //       1. The values have been exchanged.  (C-1)
+        //
+        //       2. The common object allocator address held by `mX` and `mY`
+        //          is unchanged in both objects.  (C-2)
+        //
+        //       3. There was no additional object memory allocation.
+        //
+        // 5. Verify that the free `swap` function is discoverable through ADL:
+        //    (C-7)
+        //
+        //   1. Create a set of attribute values, `A`, distinct from the values
+        //      corresponding to the default-constructed object, choosing
+        //      values that allocate memory if possible.
+        //
+        //   2. Create a `bslma::TestAllocator` object, `oa`.
+        //
+        //   3. Use the default constructor and `oa` to create a modifiable
+        //      `Obj` `mX` (having default attribute values); also use the copy
+        //      constructor and a "scratch" allocator to create a `const` `Obj`
+        //      `XX` from `mX`.
+        //
+        //   4. Use the value constructor and `oa` to create a modifiable `Obj`
+        //      `mY` having the value described by the `Ai` attributes; also
+        //      use the copy constructor and a "scratch" allocator to create a
+        //      `const` `Obj` `YY` from `mY`.
+        //
+        //   5. Use the `bslalg::SwapUtil` helper function template to swap the
+        //      values of `mX` and `mY`, using the free `swap` function defined
+        //      in this component, then verify that:  (C-7)
+        //
+        //     1. The values have been exchanged.
+        //
+        //     2. There was no additional object memory allocation.  (C-7)
+        //
+        // 6. Use the test allocator from P-2 to verify that no memory was
+        //    allocated from the default allocator.  (C-3)
+        //
+        // 7. Verify that free `swap` exchanges the values of any two objects
+        //    that use different allocators.  (C-4)
+        //
+        // 8. Verify that, in appropriate build modes, defensive checks are
+        //    triggered when, using the member `swap` function, an attempt is
+        //    made to swap objects that do not refer to the same allocator, but
+        //    not when the allocators are the same (using the
+        //    `BSLS_ASSERTTEST_*` macros).  (C-8)
+        //
+        // 9. Perform the above for a variety of test types.  (C-9)
         //
         // Testing:
         //   void swap(FlatHashTable&);
@@ -6252,7 +6258,7 @@ int main(int argc, char *argv[])
                           << "SWAP MEMBER AND FREE FUNCTION" << endl
                           << "=============================" << endl;
 
-        if (verbose) cout << "Testing 'swap' methods." << endl;
+        if (verbose) cout << "Testing `swap` methods." << endl;
         {
             testCase8Swap<int>(0);
             testCase8Swap<bsltf::AllocBitwiseMoveableTestType>(1);
@@ -6272,112 +6278,112 @@ int main(int argc, char *argv[])
         //   other one, such that the two objects have the same value.
         //
         // Concerns:
-        //: 1 The copy constructor (with or without a supplied allocator)
-        //:   creates an object having the same value as the supplied original
-        //:   object.
-        //:
-        //: 2 If an allocator is *not* supplied to the copy constructor, the
-        //:   default allocator in effect at the time of construction becomes
-        //:   the object allocator for the resulting object (i.e., the
-        //:   allocator of the original object is never copied).
-        //:
-        //: 3 If an allocator is supplied to the copy constructor, that
-        //:   allocator becomes the object allocator for the resulting object.
-        //:
-        //: 4 Supplying a null allocator address has the same effect as not
-        //:   supplying an allocator.
-        //:
-        //: 5 Supplying an allocator to the copy constructor has no effect on
-        //:   subsequent object values.
-        //:
-        //: 6 Any memory allocation is from the object allocator, that is
-        //:   returned by the 'allocator' accessor method.
-        //:
-        //: 7 There is no temporary memory allocation from any allocator.
-        //:
-        //: 8 Every object releases any allocated memory at destruction.
-        //:
-        //: 9 The original object is passed as a reference providing
-        //:   non-modifiable access to the object.
-        //:
-        //:10 The value of the original object is unchanged.
-        //:
-        //:11 The allocator address of the original object is unchanged.
-        //:
-        //:12 Any memory allocation is exception neutral.
-        //:
-        //:13 The above concerns are addressed for a variety of types.
+        // 1. The copy constructor (with or without a supplied allocator)
+        //    creates an object having the same value as the supplied original
+        //    object.
+        //
+        // 2. If an allocator is *not* supplied to the copy constructor, the
+        //    default allocator in effect at the time of construction becomes
+        //    the object allocator for the resulting object (i.e., the
+        //    allocator of the original object is never copied).
+        //
+        // 3. If an allocator is supplied to the copy constructor, that
+        //    allocator becomes the object allocator for the resulting object.
+        //
+        // 4. Supplying a null allocator address has the same effect as not
+        //    supplying an allocator.
+        //
+        // 5. Supplying an allocator to the copy constructor has no effect on
+        //    subsequent object values.
+        //
+        // 6. Any memory allocation is from the object allocator, that is
+        //    returned by the `allocator` accessor method.
+        //
+        // 7. There is no temporary memory allocation from any allocator.
+        //
+        // 8. Every object releases any allocated memory at destruction.
+        //
+        // 9. The original object is passed as a reference providing
+        //    non-modifiable access to the object.
+        //
+        // 10. The value of the original object is unchanged.
+        //
+        // 11. The allocator address of the original object is unchanged.
+        //
+        // 12. Any memory allocation is exception neutral.
+        //
+        // 13. The above concerns are addressed for a variety of types.
         //
         // Plan:
-        //: 1 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of widely varying object values (one per row) in
-        //:     terms of their individual attributes, including (a) first, the
-        //:     default value, (b) boundary values corresponding to every range
-        //:     of values that each individual attribute can independently
-        //:     attain, and (c) values that should require allocation from each
-        //:     individual attribute that can independently allocate memory.
-        //:
-        //: 2 For each row (representing a distinct object value, 'V') in the
-        //:   table described in P-1: (C-1..12)
-        //:
-        //:   1 Use the value constructor to create two 'const' 'Obj', 'Z' and
-        //:     'ZZ', each having the value 'V' and using a "scratch"
-        //:     allocator.
-        //:
-        //:   2 Execute an inner loop creating three distinct objects in turn,
-        //:     each using the copy constructor on 'Z' from P-2.1, but
-        //:     configured differently: (a) without passing an allocator, (b)
-        //:     passing a null allocator address explicitly, and (c) passing
-        //:     the address of a test allocator distinct from the default.
-        //:
-        //:   3 For each of these three iterations (P-2.2): (C-1..12)
-        //:
-        //:     1 Construct three 'bslma::TestAllocator' objects and install
-        //:       one as the current default allocator (note that a ubiquitous
-        //:       test allocator is already installed as the global allocator).
-        //:
-        //:     2 Use the copy constructor to dynamically create an object 'X',
-        //:       supplying it the 'const' object 'Z' (see P-2.1), configured
-        //:       appropriately (see P-2.2) using a distinct test allocator for
-        //:       the object's footprint.  (C-9)
-        //:
-        //:     3 Use the equality comparison operators to verify that:
-        //:
-        //:       1 The newly constructed object, 'X', has the same value as
-        //:         'Z'.  (C-1, 5)
-        //:
-        //:       2 'Z' still has the same value as 'ZZ'.  (C-10)
-        //:
-        //:     4 Use the 'allocator' accessor of each underlying attribute
-        //:       capable of allocating memory to ensure that its object
-        //:       allocator is properly installed; also apply the object's
-        //:       'allocator' accessor, as well as that of 'Z'.  (C-6, 11)
-        //:
-        //:     5 Use appropriate test allocators to verify that: (C-2..4, 7,
-        //:       8, 12)
-        //:
-        //:       1 Memory is always allocated, and comes from the object
-        //:         allocator only (irrespective of the specific number of
-        //:         allocations or the total amount of memory allocated).
-        //:         (C-2, 4)
-        //:
-        //:       2 If an allocator was supplied at construction (P-2.1c), the
-        //:         current default allocator doesn't allocate any memory.
-        //:         (C-3)
-        //:
-        //:       3 No temporary memory is allocated from the object allocator.
-        //:         (C-7)
-        //:
-        //:       4 All object memory is released when the object is destroyed.
-        //:         (C-8)
-        //:
-        //: 3 Create an object as an automatic variable in the presence of
-        //:   injected exceptions (using the
-        //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros) and verify that no
-        //:   memory is leaked.  (C-12)
-        //:
-        //: 4 Perform the above for a variety of test types.  (C-13)
+        // 1. Using the table-driven technique:
+        //
+        //   1. Specify a set of widely varying object values (one per row) in
+        //      terms of their individual attributes, including (a) first, the
+        //      default value, (b) boundary values corresponding to every range
+        //      of values that each individual attribute can independently
+        //      attain, and (c) values that should require allocation from each
+        //      individual attribute that can independently allocate memory.
+        //
+        // 2. For each row (representing a distinct object value, `V`) in the
+        //    table described in P-1: (C-1..12)
+        //
+        //   1. Use the value constructor to create two `const` `Obj`, `Z` and
+        //      `ZZ`, each having the value `V` and using a "scratch"
+        //      allocator.
+        //
+        //   2. Execute an inner loop creating three distinct objects in turn,
+        //      each using the copy constructor on `Z` from P-2.1, but
+        //      configured differently: (a) without passing an allocator, (b)
+        //      passing a null allocator address explicitly, and (c) passing
+        //      the address of a test allocator distinct from the default.
+        //
+        //   3. For each of these three iterations (P-2.2): (C-1..12)
+        //
+        //     1. Construct three `bslma::TestAllocator` objects and install
+        //        one as the current default allocator (note that a ubiquitous
+        //        test allocator is already installed as the global allocator).
+        //
+        //     2. Use the copy constructor to dynamically create an object `X`,
+        //        supplying it the `const` object `Z` (see P-2.1), configured
+        //        appropriately (see P-2.2) using a distinct test allocator for
+        //        the object's footprint.  (C-9)
+        //
+        //     3. Use the equality comparison operators to verify that:
+        //
+        //       1. The newly constructed object, `X`, has the same value as
+        //          `Z`.  (C-1, 5)
+        //
+        //       2. `Z` still has the same value as `ZZ`.  (C-10)
+        //
+        //     4. Use the `allocator` accessor of each underlying attribute
+        //        capable of allocating memory to ensure that its object
+        //        allocator is properly installed; also apply the object's
+        //        `allocator` accessor, as well as that of `Z`.  (C-6, 11)
+        //
+        //     5. Use appropriate test allocators to verify that: (C-2..4, 7,
+        //        8, 12)
+        //
+        //       1. Memory is always allocated, and comes from the object
+        //          allocator only (irrespective of the specific number of
+        //          allocations or the total amount of memory allocated).
+        //          (C-2, 4)
+        //
+        //       2. If an allocator was supplied at construction (P-2.1c), the
+        //          current default allocator doesn't allocate any memory.
+        //          (C-3)
+        //
+        //       3. No temporary memory is allocated from the object allocator.
+        //          (C-7)
+        //
+        //       4. All object memory is released when the object is destroyed.
+        //          (C-8)
+        //
+        // 3. Create an object as an automatic variable in the presence of
+        //    injected exceptions (using the
+        //    `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*` macros) and verify that no
+        //    memory is leaked.  (C-12)
+        //
+        // 4. Perform the above for a variety of test types.  (C-13)
         //
         // Testing:
         //   FlatHashTable(const FlatHashTable&, Allocator *bA = 0);
@@ -6404,36 +6410,36 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // EQUALITY OPERATORS
-        //   Ensure that '==' and '!=' are the operational definition of value.
+        //   Ensure that `==` and `!=` are the operational definition of value.
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if each of
-        //:   their corresponding salient attributes (size and the set of
-        //:   values contained) respectively compare equal.  If 'X' and 'Y' do
-        //:   not compare equal, they must compare not-equal.
-        //:
-        //: 2 Non-modifiable objects can be compared (i.e., objects providing
-        //:   only non-modifiable access).
-        //:
-        //: 3 No memory allocation occurs as a result of comparison (e.g., the
-        //:   arguments are not passed by value).
-        //:
-        //: 4 Both functions have standard signatures and return types.
+        // 1. Two objects, `X` and `Y`, compare equal if and only if each of
+        //    their corresponding salient attributes (size and the set of
+        //    values contained) respectively compare equal.  If `X` and `Y` do
+        //    not compare equal, they must compare not-equal.
+        //
+        // 2. Non-modifiable objects can be compared (i.e., objects providing
+        //    only non-modifiable access).
+        //
+        // 3. No memory allocation occurs as a result of comparison (e.g., the
+        //    arguments are not passed by value).
+        //
+        // 4. Both functions have standard signatures and return types.
         //
         // Plan:
-        //: 1 Use the addresses of the free equality operators defined in this
-        //:   component to initialize, respectively, pointers having the
-        //:   appropriate signatures and return types.  (C-4)
-        //:
-        //: 2 Use an allocator for all object creation and verify the
-        //:   comparison operators do not allocate memory.  (C-3)
-        //:
-        //: 3 Specify a set of specifications for distinct object values.  For
-        //:   every item in the cross-product of this set with itself, verify
-        //:   the result of the operators on the item to itself and the item to
-        //:   every other item, using 'const' items exclusively.  Vary the
-        //:   allocator to ensure allocator is not part of the comparison.
-        //:   (C-1,2)
+        // 1. Use the addresses of the free equality operators defined in this
+        //    component to initialize, respectively, pointers having the
+        //    appropriate signatures and return types.  (C-4)
+        //
+        // 2. Use an allocator for all object creation and verify the
+        //    comparison operators do not allocate memory.  (C-3)
+        //
+        // 3. Specify a set of specifications for distinct object values.  For
+        //    every item in the cross-product of this set with itself, verify
+        //    the result of the operators on the item to itself and the item to
+        //    every other item, using `const` items exclusively.  Vary the
+        //    allocator to ensure allocator is not part of the comparison.
+        //    (C-1,2)
         //
         // Testing:
         //   bool operator==(const FlatHashTable&, const FlatHashTable&);
@@ -6461,10 +6467,10 @@ int main(int argc, char *argv[])
             // Due to the internal compiler bug the following two lines of code
             // fail to be compiled by the MSVC (version 19.30) with the
             // following errors:
-            //..
-            //  error C3861: '==': identifier not found
-            //  error C3861: '!=': identifier not found
-            //..
+            // ```
+            //  error C3861: `==`: identifier not found
+            //  error C3861: `!=`: identifier not found
+            // ```
             // The issue is reproduced with C++20 flag. This bug has been fixed
             // in compiler version 19.31.  See {DRQS 172604250}.
 
@@ -6555,23 +6561,23 @@ int main(int argc, char *argv[])
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 Each accessor returns the value of the corresponding attribute of
-        //:   the object.
-        //:
-        //: 2 Each accessor method is declared 'const'.
-        //:
-        //: 3 No accessor allocates memory.
+        // 1. Each accessor returns the value of the corresponding attribute of
+        //    the object.
+        //
+        // 2. Each accessor method is declared `const`.
+        //
+        // 3. No accessor allocates memory.
         //
         // Plan:
-        //: 1 Produce objects of arbitrary state and verify the accessors'
-        //:   return values against expected values.  (C-1)
-        //:
-        //: 2 The accessors will only be accessed from a 'const' reference to
-        //:   the created object.  (C-2)
-        //:
-        //: 3 The allocators used to create the objects will be verified to
-        //:   ensure that no memory was allocated during use of the accessors
-        //:   (note that this check may be done at the global level).  (C-3)
+        // 1. Produce objects of arbitrary state and verify the accessors'
+        //    return values against expected values.  (C-1)
+        //
+        // 2. The accessors will only be accessed from a `const` reference to
+        //    the created object.  (C-2)
+        //
+        // 3. The allocators used to create the objects will be verified to
+        //    ensure that no memory was allocated during use of the accessors
+        //    (note that this check may be done at the global level).  (C-3)
         //
         // Testing:
         //   size_t capacity() const;
@@ -6589,8 +6595,8 @@ int main(int argc, char *argv[])
                           << "===============" << endl;
 
         if (verbose) {
-            cout << "\nTesting 'capacity', 'hash_function', 'key_eq', "
-                 << "'max_load_factor', and 'allocator'."
+            cout << "\nTesting `capacity`, `hash_function`, `key_eq`, "
+                 << "`max_load_factor`, and `allocator`."
                  << endl;
         }
         {
@@ -6678,7 +6684,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "Testing 'controls', 'entries', and 'size'." << endl;
+            cout << "Testing `controls`, `entries`, and `size`." << endl;
         }
         {
             {
@@ -6772,21 +6778,21 @@ int main(int argc, char *argv[])
         //   in any state.
         //
         // Concerns:
-        //: 1 Valid syntax produces the expected results.
-        //:
-        //: 2 Any memory allocation is exception neutral.
-        //:
-        //: 3 Invalid syntax is detected and reported.
+        // 1. Valid syntax produces the expected results.
+        //
+        // 2. Any memory allocation is exception neutral.
+        //
+        // 3. Invalid syntax is detected and reported.
         //
         // Plan:
-        //: 1 Evaluate a series of test strings of increasing complexity to
-        //:   set the state of a newly created object and verify the returned
-        //:   object using the basic accessors.  Vary the test allocator's
-        //:   allocation limit to verify behavior in the presence of
-        //:   exceptions.  (C-1,2)
-        //:
-        //: 2 Evaluate the 'ggg' function with a series of test strings of
-        //:   increasing complexity and verify its return value.  (C-3)
+        // 1. Evaluate a series of test strings of increasing complexity to
+        //    set the state of a newly created object and verify the returned
+        //    object using the basic accessors.  Vary the test allocator's
+        //    allocation limit to verify behavior in the presence of
+        //    exceptions.  (C-1,2)
+        //
+        // 2. Evaluate the `ggg` function with a series of test strings of
+        //    increasing complexity and verify its return value.  (C-3)
         //
         // Testing:
         //   FlatHashTable& gg(FlatHashTable *object, const char *spec);
@@ -6886,85 +6892,85 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // PRIMARY MANIPULATORS TEST
         //   The constructor, the destructor, and the primary manipulators:
-        //:     o 'clear'
-        //:     o 'erase(key)'
-        //:     o 'insert'
-        //:     o 'reset'
+        //      - `clear`
+        //      - `erase(key)`
+        //      - `insert`
+        //      - `reset`
         //   operate as expected.
         //
         // Concerns:
-        //: 1 The global method 'isValid' checks the consistency of control
-        //:   and entry blocks, and returns the expected enumerated value.  The
-        //:   position (index) of the error, if any, is delivered by the output
-        //:   argument.
-        //:
-        //: 2 The constructor creates the correct initial value and has
-        //:   the hashing, equality, and internal memory management systems
-        //:   hooked up properly.  The resultant capacity is as expected.
-        //:
-        //: 3 The method 'insert' uses the hash function to determine placement
-        //:   of entries and stores the hashlet at the expected position in the
-        //:   control block.
-        //:
-        //: 4 The copy and move 'insert' methods produce the expected return
-        //:   value, results in a valid state, increases capacity as needed,
-        //:   honors bitwise-copy/bitwise-move/move, is exception neutral with
-        //:   respect to memory allocation, and uses the allocator.  Inserting
-        //:   an entry whose key is already present is a no-op.
-        //:
-        //: 5 The method 'clear' produces the expected value (empty) and does
-        //:   not affect capacity.  The method 'reset' returns the table to the
-        //:   zero-capacity state.
-        //:
-        //: 6 The method 'erase(key)' returns the number of removed entries,
-        //:   produces the expected state, and does not affect allocated
-        //:   memory.
-        //:
-        //: 7 Erased positions are repopulated by subsequent inserts.
-        //:
-        //: 8 Memory is not leaked by any method and the destructor properly
-        //:   deallocates the residual allocated memory.
+        // 1. The global method `isValid` checks the consistency of control
+        //    and entry blocks, and returns the expected enumerated value.  The
+        //    position (index) of the error, if any, is delivered by the output
+        //    argument.
+        //
+        // 2. The constructor creates the correct initial value and has
+        //    the hashing, equality, and internal memory management systems
+        //    hooked up properly.  The resultant capacity is as expected.
+        //
+        // 3. The method `insert` uses the hash function to determine placement
+        //    of entries and stores the hashlet at the expected position in the
+        //    control block.
+        //
+        // 4. The copy and move `insert` methods produce the expected return
+        //    value, results in a valid state, increases capacity as needed,
+        //    honors bitwise-copy/bitwise-move/move, is exception neutral with
+        //    respect to memory allocation, and uses the allocator.  Inserting
+        //    an entry whose key is already present is a no-op.
+        //
+        // 5. The method `clear` produces the expected value (empty) and does
+        //    not affect capacity.  The method `reset` returns the table to the
+        //    zero-capacity state.
+        //
+        // 6. The method `erase(key)` returns the number of removed entries,
+        //    produces the expected state, and does not affect allocated
+        //    memory.
+        //
+        // 7. Erased positions are repopulated by subsequent inserts.
+        //
+        // 8. Memory is not leaked by any method and the destructor properly
+        //    deallocates the residual allocated memory.
         //
         // Plan:
-        //: 1 Using the table-driven technique, verify the 'isValid' method
-        //:   works as expect.  (C-1)
-        //:
-        //: 2 Create various objects using the constructor with and without
-        //:   passing in an allocator, verify the stored items using the
-        //:   (untested) basic accessors, and verifying all allocations
-        //:   are done from the allocator and the hash function is used in
-        //:   future tests.  (C-2)
-        //:
-        //: 3 Create objects of various capacities and verify 'insert' uses the
-        //:   hash value correctly by using the 'ValueIsHash' hasher and
-        //:   examining the return value of the (untested) 'controls' basic
-        //:   accessor.  (C-3)
-        //:
-        //: 4 Create objects using the 'bslma::TestAllocator', use the 'insert'
-        //:   method with various values, verify the return value, and use the
-        //:   (untested) basic accessors in conjunction with the 'isValid'
-        //:   global method to verify the state of the object.  Use 'bsltf'
-        //:   test types to verify bitwise-copy/bitwise-move/move are honored.
-        //:   Also vary the test allocator's allocation limit to verify
-        //:   behavior in the presence of exceptions.  (C-4)
-        //:
-        //: 5 Create objects using the 'bslma::TestAllocator', use 'insert'
-        //:   to obtain various states, use 'clear' or 'reset', and verify the
-        //:   resultant state.  (C-5)
-        //:
-        //: 6 Create objects using the 'bslma::TestAllocator', use 'insert'
-        //:   to obtain various states, use 'erase', verify the return value,
-        //:   and use the (untested) basic accessors in conjunction with the
-        //:   'isValid' global method to verify the state of the object.  (C-6)
-        //:
-        //: 7 Create objects using the 'bslma::TestAllocator', use 'insert' and
-        //:   'erase' to obtain various states, use 'insert', and use the
-        //:   (untested) basic accessors in conjunction with the 'isValid'
-        //:   global method to verify the state of the object.  (C-7)
-        //:
-        //: 8 Use a supplied 'bslma::TestAllocator' that goes out-of-scope
-        //:   at the conclusion of each test to ensure all memory is returned
-        //:   to the allocator.  (C-8)
+        // 1. Using the table-driven technique, verify the `isValid` method
+        //    works as expect.  (C-1)
+        //
+        // 2. Create various objects using the constructor with and without
+        //    passing in an allocator, verify the stored items using the
+        //    (untested) basic accessors, and verifying all allocations
+        //    are done from the allocator and the hash function is used in
+        //    future tests.  (C-2)
+        //
+        // 3. Create objects of various capacities and verify `insert` uses the
+        //    hash value correctly by using the `ValueIsHash` hasher and
+        //    examining the return value of the (untested) `controls` basic
+        //    accessor.  (C-3)
+        //
+        // 4. Create objects using the `bslma::TestAllocator`, use the `insert`
+        //    method with various values, verify the return value, and use the
+        //    (untested) basic accessors in conjunction with the `isValid`
+        //    global method to verify the state of the object.  Use `bsltf`
+        //    test types to verify bitwise-copy/bitwise-move/move are honored.
+        //    Also vary the test allocator's allocation limit to verify
+        //    behavior in the presence of exceptions.  (C-4)
+        //
+        // 5. Create objects using the `bslma::TestAllocator`, use `insert`
+        //    to obtain various states, use `clear` or `reset`, and verify the
+        //    resultant state.  (C-5)
+        //
+        // 6. Create objects using the `bslma::TestAllocator`, use `insert`
+        //    to obtain various states, use `erase`, verify the return value,
+        //    and use the (untested) basic accessors in conjunction with the
+        //    `isValid` global method to verify the state of the object.  (C-6)
+        //
+        // 7. Create objects using the `bslma::TestAllocator`, use `insert` and
+        //    `erase` to obtain various states, use `insert`, and use the
+        //    (untested) basic accessors in conjunction with the `isValid`
+        //    global method to verify the state of the object.  (C-7)
+        //
+        // 8. Use a supplied `bslma::TestAllocator` that goes out-of-scope
+        //    at the conclusion of each test to ensure all memory is returned
+        //    to the allocator.  (C-8)
         //
         // Testing:
         //   FlatHashTable(size_t, const HASH&, const EQUAL&, Allocator * = 0);
@@ -6973,14 +6979,14 @@ int main(int argc, char *argv[])
         //   size_t erase(const KEY&);
         //   bsl::pair<iterator, bool> insert(FORWARD_REF(ENTRY_TYPE) entry)
         //   void reset();
-        //   CONCERN: 'isValid' works as expected
+        //   CONCERN: `isValid` works as expected
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PRIMARY MANIPULATORS TEST" << endl
                           << "=========================" << endl;
 
-        if (verbose) cout << "Testing 'isValid'." << endl;
+        if (verbose) cout << "Testing `isValid`." << endl;
         {
             const int k_CAPACITY = 16;
 
@@ -7069,7 +7075,7 @@ int main(int argc, char *argv[])
                 const IVR::Enum     EXP_RESULT      = DATA[i].d_expResult;
                 const bsl::size_t   EXP_ERROR_INDEX = DATA[i].d_expErrorIndex;
 
-                // decode 'ENTRIES_RAW' into values matching 'IntValueIsHash'
+                // decode `ENTRIES_RAW` into values matching `IntValueIsHash`
                 int ENTRIES[k_CAPACITY];
                 {
                     bsl::uint64_t numGroup = k_CAPACITY / BLOCK_SIZE;
@@ -7184,7 +7190,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "Testing 'insert' uses 'HASH'." << endl;
+        if (verbose) cout << "Testing `insert` uses `HASH`." << endl;
         {
             typedef TestEntryUtil<int>                               Util;
             typedef IntValueIsHash                                   Hash;
@@ -7233,7 +7239,7 @@ int main(int argc, char *argv[])
             testCase2InsertHash<IntValueIsHash>(2);
         }
 
-        if (verbose) cout << "Testing copy 'insert'." << endl;
+        if (verbose) cout << "Testing copy `insert`." << endl;
         {
             testCase2CopyInsert<int>(0, false, false);
             testCase2CopyInsert<bsltf::AllocBitwiseMoveableTestType>(1,
@@ -7256,7 +7262,7 @@ int main(int argc, char *argv[])
                                                                  true);
         }
 
-        if (verbose) cout << "Testing move 'insert'." << endl;
+        if (verbose) cout << "Testing move `insert`." << endl;
         {
             testCase2MoveInsert<int>(0, false, true);
             testCase2MoveInsert<bsltf::AllocBitwiseMoveableTestType>(1,
@@ -7282,7 +7288,7 @@ int main(int argc, char *argv[])
                                                                  false);
         }
 
-        if (verbose) cout << "Testing 'clear'." << endl;
+        if (verbose) cout << "Testing `clear`." << endl;
         {
             testCase2ClearAndReset<int>(0);
             testCase2ClearAndReset<bsltf::AllocTestType>(1);
@@ -7290,7 +7296,7 @@ int main(int argc, char *argv[])
             testCase2ClearAndReset<bsltf::BitwiseMoveableTestType>(3);
         }
 
-        if (verbose) cout << "Testing 'erase' and re-'insert'." << endl;
+        if (verbose) cout << "Testing `erase` and re-`insert`." << endl;
         {
             testCase2EraseAndReInsert<int>(0);
             testCase2EraseAndReInsert<bsltf::AllocTestType>(1);
@@ -7304,11 +7310,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Instantiate an object and verify basic functionality.  (C-1)
+        // 1. Instantiate an object and verify basic functionality.  (C-1)
         //
         // Testing:
         //   BREATHING TEST

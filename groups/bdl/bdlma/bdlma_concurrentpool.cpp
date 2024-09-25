@@ -21,12 +21,12 @@ namespace {
                                   // TYPES
                                   // -----
 
+/// This `struct` implements a link data structure that stores the address
+/// of the next link, used to implement the internal linked list of free
+/// memory blocks.  Note that this type is copied from
+/// `bdlma_concurrentpool.h` to provide access to this type from static
+/// methods.
 struct LLink {
-    // This 'struct' implements a link data structure that stores the address
-    // of the next link, used to implement the internal linked list of free
-    // memory blocks.  Note that this type is copied from
-    // 'bdlma_concurrentpool.h' to provide access to this type from static
-    // methods.
 
     union {
         bsls::AtomicOperations::AtomicTypes::Int d_refCount;
@@ -50,18 +50,18 @@ enum {
 
 // implementation details of private support functions
 
+/// Round up the specified `x` to the nearest whole integer multiple of the
+/// specified `y`.
 static inline
 bsls::Types::size_type roundUp(bsls::Types::size_type x,
                                bsls::Types::size_type y)
-    // Round up the specified 'x' to the nearest whole integer multiple of the
-    // specified 'y'.
 {
     return (x + y - 1) / y * y;
 }
 
+/// Return a linked-list link at the specified `address`.
 static inline
 LLink *toLink(char *address)
-    // Return a linked-list link at the specified 'address'.
 {
     // Note that a 'char *' cannot be converted directly to a 'LLink *'.
 
@@ -70,15 +70,15 @@ LLink *toLink(char *address)
 
 // private support functions
 
+/// Return the number of bytes that must be allocated to provide an aligned
+/// block of memory of the specified `blockSize` that can also be used to
+/// represent a `object` `LLink` (on the `bdlma::ConcurrentPool` objects
+/// free list).  Note that this value is the maximum of either the size of a
+/// `LLink` object or `blockSize` rounded up to the alignment required for a
+/// `LLink` object (i.e., the maximum platform alignment).
 static inline
 bsls::Types::size_type computeInternalBlockSize(
                                               bsls::Types::size_type blockSize)
-    // Return the number of bytes that must be allocated to provide an aligned
-    // block of memory of the specified 'blockSize' that can also be used to
-    // represent a 'object' 'LLink' (on the 'bdlma::ConcurrentPool' objects
-    // free list).  Note that this value is the maximum of either the size of a
-    // 'LLink' object or 'blockSize' rounded up to the alignment required for a
-    // 'LLink' object (i.e., the maximum platform alignment).
 {
     const bsls::Types::size_type HEADER_LENGTH  = offsetof(LLink, d_next_p);
     const bsls::Types::size_type MINIMUM_LENGTH = sizeof(LLink);
@@ -87,15 +87,15 @@ bsls::Types::size_type computeInternalBlockSize(
                    bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 }
 
+/// Append to the specified `nextList`, `numBlocks` free memory blocks each
+/// having the specified `blockSize`, using memory provided by the specified
+/// `blockList`.  The behavior is undefined unless `1 <= blockSize` and
+/// `1 <= numBlocks`.
 static
 void replenishImp(bsls::AtomicPointer<LLink>       *nextList,
                   bdlma::InfrequentDeleteBlockList *blockList,
                   bsls::Types::size_type            blockSize,
                   int                               numBlocks)
-    // Append to the specified 'nextList', 'numBlocks' free memory blocks each
-    // having the specified 'blockSize', using memory provided by the specified
-    // 'blockList'.  The behavior is undefined unless '1 <= blockSize' and
-    // '1 <= numBlocks'.
 {
     using namespace BloombergLP;
 

@@ -40,7 +40,7 @@
 #include <bsl_iostream.h>
 #include <bsl_map.h>
 
-#include <bsl_c_stdlib.h>   // 'putenv'
+#include <bsl_c_stdlib.h>   // `putenv`
 
 #if BSLS_PLATFORM_OS_UNIX
 # include <unistd.h>        // sleep
@@ -60,15 +60,15 @@ using bsl::ends;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'baltzo::DefaultZoneinfoCache' is a mechanism that implements the unique,
+// `baltzo::DefaultZoneinfoCache` is a mechanism that implements the unique,
 // process-wide, singleton time zone cache object.
 //
 // Global Concerns:
-//: o Precondition violations are detected in appropriate build modes.
+//  - Precondition violations are detected in appropriate build modes.
 //
 // Global Assumptions:
-//: o All explicit memory allocations are presumed to use the global or default
-//:   allocator.
+//  - All explicit memory allocations are presumed to use the global or default
+//    allocator.
 //-----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 3] const char *defaultZoneinfoDataLocation();
@@ -77,7 +77,7 @@ using bsl::ends;
 // [ 4] baltzo::ZoneinfoCache *setDefaultCache(baltzo::ZoneinfoCache *cache);
 //
 ////---------------------------------------------------------------------------
-// [ 1] BREATHING TEST: 'baltzo::DefaultZoneinfoCache'
+// [ 1] BREATHING TEST: `baltzo::DefaultZoneinfoCache`
 // [ 6] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 //=============================================================================
@@ -166,46 +166,47 @@ bool veryVeryVeryVerbose;
 //
 ///Example 1: Accessing the Default Zoneinfo Cache Object
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// A common application of the 'baltzo::DefaultZoneinfoCache' is to determine
+// A common application of the `baltzo::DefaultZoneinfoCache` is to determine
 // the appropriate time-zone information to use for an operation that accepts a
-// Zoneinfo cache as an optional argument (e.g., 'baltzo_timezoneutil').  Note
+// Zoneinfo cache as an optional argument (e.g., `baltzo_timezoneutil`).  Note
 // that this pattern is also seen for the default allocator (see
-// 'bslma_default').
+// `bslma_default`).
 //
-// First, we declare a function 'getLocalTimeDescriptor' that returns the
+// First, we declare a function `getLocalTimeDescriptor` that returns the
 // local-time descriptor for given time in a particular time zone.  This method
-// takes an optional 'baltzo::ZoneinfoCache' argument, 'zoneinfoCache', where,
-// if 'zoneinfoCache' is unspecified, the default Zoneinfo cache is used for
+// takes an optional `baltzo::ZoneinfoCache` argument, `zoneinfoCache`, where,
+// if `zoneinfoCache` is unspecified, the default Zoneinfo cache is used for
 // the operation:
-//..
+// ```
+
+    /// Load into the specified `result` the local time descriptor for the
+    /// that the UTC time specified by the specified `utcTime` for the time
+    /// zone identified by the specified `timeZoneId`.  Return 0 on success,
+    /// and a non-zero value otherwise.  Optionally specify a
+    /// `zoneinfoCache` used to retrieve time-zone information.  If
+    /// `zoneinfoCache` is 0, the currently installed default Zoneinfo cache
+    /// is used.
     int getLocalTimeDescriptor(baltzo::LocalTimeDescriptor *result,
                                const bdlt::Datetime&        utcTime,
                                const char                  *timeZoneId,
                                baltzo::ZoneinfoCache       *zoneinfoCache = 0)
-        // Load into the specified 'result' the local time descriptor for the
-        // that the UTC time specified by the specified 'utcTime' for the time
-        // zone identified by the specified 'timeZoneId'.  Return 0 on success,
-        // and a non-zero value otherwise.  Optionally specify a
-        // 'zoneinfoCache' used to retrieve time-zone information.  If
-        // 'zoneinfoCache' is 0, the currently installed default Zoneinfo cache
-        // is used.
     {
-//..
-// We call the 'baltzo::DefaultZoneinfoCache::defaultCache' method, which
-// returns 'zoneinfoCache' if 'zoneinfoCache' is not 0, and the currently
+// ```
+// We call the `baltzo::DefaultZoneinfoCache::defaultCache` method, which
+// returns `zoneinfoCache` if `zoneinfoCache` is not 0, and the currently
 // installed Zoneinfo cache otherwise.
-//..
+// ```
         baltzo::ZoneinfoCache *cache =
                      baltzo::DefaultZoneinfoCache::defaultCache(zoneinfoCache);
         ASSERT(0 != cache);
-//..
+// ```
 // Next, now that we have a of Zoneinfo cache object, we access the time-zone
-// data for the 'timeZoneId', and obtain the current local-time descriptor:
-//..
+// data for the `timeZoneId`, and obtain the current local-time descriptor:
+// ```
         const baltzo::Zoneinfo *zoneinfo = cache->getZoneinfo(timeZoneId);
         if (0 == zoneinfo) {
 
-            // Data for 'timeZoneId' is not available in the cache, so return
+            // Data for `timeZoneId` is not available in the cache, so return
             // an error.
 
             return 1;                                                 // RETURN
@@ -224,7 +225,7 @@ bool veryVeryVeryVerbose;
         *result = it->descriptor();
         return 0;
     }
-//..
+// ```
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -578,10 +579,10 @@ void writeData(const char *fileName, const char *data, int numBytes)
         bdls::PathUtil::popLeaf(&path);
         ASSERT(FUtil::exists(path));
     }
-//..
+// ```
 // Then we create a file for Bangkok and write the binary time zone data to
 // that file.
-//..
+// ```
     bsl::ofstream outputFile(fileName, bsl::ofstream::binary);
     ASSERT(outputFile.is_open());
     outputFile.write(reinterpret_cast<const char *>(data), numBytes);
@@ -645,7 +646,7 @@ void test2()
     Obj::loadDefaultZoneinfoDataLocations(&locations);
     LOOP2_ASSERT(L_, da.numAllocations(), 0 == da.numAllocations());
 
-    // Make sure 'locations' contains the same number of paths as expected.
+    // Make sure `locations` contains the same number of paths as expected.
 
     LOOP2_ASSERT(L_, locations.size(),
                  k_NUM_VALUES == locations.size());
@@ -670,7 +671,7 @@ void test2()
         bsls::AssertTestHandlerGuard hG;
 
         if (veryVerbose) cout <<
-                 "\t'CLASS METHOD 'loadDefaultZoneinfoDataLocations' " << endl;
+                 "\t'CLASS METHOD `loadDefaultZoneinfoDataLocations` " << endl;
         {
             VECTOR parameter, *nv = 0;
 
@@ -716,7 +717,7 @@ int main(int argc, char *argv[])
         char host[80];
         ASSERT(0 == ::gethostname(host, sizeof(host)));
 #else
-        const char *host = "win";     // 'gethostname' is difficult on
+        const char *host = "win";     // `gethostname` is difficult on
                                       // Windows, and we usually aren't using
                                       // nfs there anyway.
 #endif
@@ -735,7 +736,7 @@ int main(int argc, char *argv[])
         // these can usually be deleted if sufficient time has elapsed.  If
         // we're not able to clean it up now, old files may prevent the test
         // case we're running this time from working.  So we want this assert
-        // to fail to give the tester a 'heads-up' as to what went wrong.
+        // to fail to give the tester a `heads-up` as to what went wrong.
 
         ASSERTV(tmpWorkingDir, 0 == FUtil::remove(tmpWorkingDir, true));
     }
@@ -779,7 +780,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -789,10 +790,10 @@ int main(int argc, char *argv[])
                                   << "=====================" << endl;
 
 //
-// When the 'getLocalDescriptor' function is called without a specified
+// When the `getLocalDescriptor` function is called without a specified
 // Zoneinfo it obtains an answer from the binary files.  (Binary file
 // initialization is not shown).
-//..
+// ```
     baltzo::LocalTimeDescriptor result;
     int rc = getLocalTimeDescriptor(&result,
                                     bdlt::Datetime(bdlt::Date(2011, 03, 21),
@@ -802,107 +803,107 @@ int main(int argc, char *argv[])
     ASSERT("EDT"  == result.description());
     ASSERT(true   == result.dstInEffectFlag());
     ASSERT(-14400 == result.utcOffsetInSeconds());
-//..
+// ```
 ///Example 2: Installing the Default Zoneinfo Cache Object
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we demonstrate how to configure the default time-zone cache
 // for a process.  Note that many application may not need to explicitly
 // configure the default cache object, but can instead use the automatically
 // configured default object.  Also note that the default time-zone cache is
-// intended to be configured by the *owner* of 'main'.  The default object
+// intended to be configured by the *owner* of `main`.  The default object
 // should be set during the initialization of an application (while the task
 // has a single thread) and unset just prior to termination (when there is
 // similarly a single thread):
-//..
+// ```
 //  int main(int argc, const char *argv[])
 //  {
 //
 //      // ...
-//..
-// First, we create and configure a 'baltzo::DataFileLoader' object:
-//..
+// ```
+// First, we create and configure a `baltzo::DataFileLoader` object:
+// ```
         baltzo::DataFileLoader loader;
         loader.configureRootPath(".");
-//..
-// Next, we use 'loader' to initialize a 'baltzo::ZoneinfoCache' object:
-//..
+// ```
+// Next, we use `loader` to initialize a `baltzo::ZoneinfoCache` object:
+// ```
         baltzo::ZoneinfoCache  cache(&loader);
-//..
-// Then, we create a 'baltzo::DefaultZoneinfoCacheScopedGuard' to set the
+// ```
+// Then, we create a `baltzo::DefaultZoneinfoCacheScopedGuard` to set the
 // default Zoneinfo cache for the lifetime of the guard, and then verify the
 // value is correct.
-//..
+// ```
         {
             baltzo::DefaultZoneinfoCacheScopedGuard guard(&cache);
             ASSERT(&cache == baltzo::DefaultZoneinfoCache::defaultCache());
 
             // ...
-//..
-// At the end of this scope 'guard' is destroyed, and the default Zoneinfo
+// ```
+// At the end of this scope `guard` is destroyed, and the default Zoneinfo
 // cache is restored to its previous value.
-//..
+// ```
         }
         ASSERT(&cache != baltzo::DefaultZoneinfoCache::defaultCache());
 
         // ...
 
 //  }
-//..
+// ```
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // 'defaultCache' CLASS METHOD
+        // `defaultCache` CLASS METHOD
         //
         // Concerns:
-        //: 1 The installed global allocator does not allocate memory if
-        //:   'cache' is specified and non-0.
-        //:
-        //: 2 The installed global allocator does not allocate memory if
-        //:   'defaultCache' was previously called once with no argument.
-        //:
-        //: 3 The installed global allocator does not allocate memory if
-        //:   'setDefaultCache' was previously called, passing a non-0
-        //:   argument.
-        //:
-        //: 4 The installed global allocator does allocate memory if
-        //:  'defaultCache' is called with no argument and 'defaultCache' was
-        //:  not previously called,
-        //:
-        //: 5 Return the specified 'baltzo::ZoneinfoCache' address, if
-        //:   specified, or the address of the default cache otherwise.
-        //:
-        //: 6 Return the address of a valid 'baltzo::ZoneinfoCache' if 0 is
-        //:   passed in or no argument is specified, and 'setDefaultCache' was
-        //:   not previously invoked with a non-0 argument.
-        //:
-        //: 7 Return the address of 'baltzo::ZoneinfoCache' set with a previous
-        //:   call of 'setDefaultCache' if 0 is passed in or no argument is
-        //:   specified.
-        //:
-        //: 8 Return the address of a valid 'baltzo::ZoneinfoCache' if 0 or no
-        //:   argument are passed and 'setDefaultCache' was invoked with a 0
-        //:   argument.
+        // 1. The installed global allocator does not allocate memory if
+        //    `cache` is specified and non-0.
+        //
+        // 2. The installed global allocator does not allocate memory if
+        //    `defaultCache` was previously called once with no argument.
+        //
+        // 3. The installed global allocator does not allocate memory if
+        //    `setDefaultCache` was previously called, passing a non-0
+        //    argument.
+        //
+        // 4. The installed global allocator does allocate memory if
+        //   `defaultCache` is called with no argument and `defaultCache` was
+        //   not previously called,
+        //
+        // 5. Return the specified `baltzo::ZoneinfoCache` address, if
+        //    specified, or the address of the default cache otherwise.
+        //
+        // 6. Return the address of a valid `baltzo::ZoneinfoCache` if 0 is
+        //    passed in or no argument is specified, and `setDefaultCache` was
+        //    not previously invoked with a non-0 argument.
+        //
+        // 7. Return the address of `baltzo::ZoneinfoCache` set with a previous
+        //    call of `setDefaultCache` if 0 is passed in or no argument is
+        //    specified.
+        //
+        // 8. Return the address of a valid `baltzo::ZoneinfoCache` if 0 or no
+        //    argument are passed and `setDefaultCache` was invoked with a 0
+        //    argument.
         //
         // Plan:
-        //: 1 Invoking this method passing the address of a cache object, and
-        //:   verifying that the same address is returned and no memory is
-        //:   allocated by the global allocator.  (C-1, 5)
-        //:
-        //: 2 Invoke this method without passing the address of a cache object
-        //:   and verify that a new default default-cache object is allocated
-        //:   by the global allocator and its address is returned.  Also verify
-        //:   that the same address is returned if 0 is passed.  (C-4, 2, 6)
-        //:
-        //: 3 Invoke this method with no arguments or specifying 0, after
-        //:   setting a default cache with 'setDefaultCache', and verify that
-        //:   the cache returned is the one set with 'setDefaultCache' and that
-        //:   the global allocator does not allocate memory.  (C-3, 7)
-        //:
-        //: 4 Invoke this method with no arguments or specifying 0, after
-        //:   setting to 0 the default cache with 'setDefaultCache', and verify
-        //:   that the cache returned is the same default default-cache
-        //:   returned at point 2 and that the global allocator does not
-        //:   allocate memory.  (C-3, 7-8)
+        // 1. Invoking this method passing the address of a cache object, and
+        //    verifying that the same address is returned and no memory is
+        //    allocated by the global allocator.  (C-1, 5)
+        //
+        // 2. Invoke this method without passing the address of a cache object
+        //    and verify that a new default default-cache object is allocated
+        //    by the global allocator and its address is returned.  Also verify
+        //    that the same address is returned if 0 is passed.  (C-4, 2, 6)
+        //
+        // 3. Invoke this method with no arguments or specifying 0, after
+        //    setting a default cache with `setDefaultCache`, and verify that
+        //    the cache returned is the one set with `setDefaultCache` and that
+        //    the global allocator does not allocate memory.  (C-3, 7)
+        //
+        // 4. Invoke this method with no arguments or specifying 0, after
+        //    setting to 0 the default cache with `setDefaultCache`, and verify
+        //    that the cache returned is the same default default-cache
+        //    returned at point 2 and that the global allocator does not
+        //    allocate memory.  (C-3, 7-8)
         //
         // Testing:
         //   defaultCache(baltzo::ZoneinfoCache *cache = 0)
@@ -951,7 +952,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT (L_, GA_NUM_BYTES2 == globalAllocator.numBytesInUse());
         }
 
-        if (verbose) cout << "\nTesting after 'setDefaultCache'"
+        if (verbose) cout << "\nTesting after `setDefaultCache`"
                           << endl;
         {
             const bsls::Types::Int64 GA_NUM_BYTES =
@@ -979,7 +980,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT (L_, GA_NUM_BYTES4 == globalAllocator.numBytesInUse());
         }
 
-        if (verbose) cout << "\nTesting after 'setDefaultCache(0)'"
+        if (verbose) cout << "\nTesting after `setDefaultCache(0)`"
                           << endl;
         {
             const bsls::Types::Int64 GA_NUM_BYTES =
@@ -1003,20 +1004,20 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // 'setDefaultCache' CLASS METHOD
+        // `setDefaultCache` CLASS METHOD
         //
         // Concerns:
-        //: 1 The installed global allocator does not allocate memory.
-        //:
-        //: 2 Return the previously installed default 'baltzo::ZoneinfoCache'.
-        //:
-        //: 3 The cache passed in is set as the default one.
+        // 1. The installed global allocator does not allocate memory.
+        //
+        // 2. Return the previously installed default `baltzo::ZoneinfoCache`.
+        //
+        // 3. The cache passed in is set as the default one.
         //
         // Plan:
-        // 1 Set the default cache to 'cache' and verify that the global
+        // 1 Set the default cache to `cache` and verify that the global
         //   allocator did not allocate memory.  (C-1, 2)
         //
-        // 2 Set the default cache to 'cache2' and back to 'cache' and verify
+        // 2 Set the default cache to `cache2` and back to `cache` and verify
         //   that the address of the previously set default cache is returned.
         //   (C-2, 3)
         //
@@ -1033,7 +1034,7 @@ int main(int argc, char *argv[])
         baltzo::ZoneinfoCache cache(&loader);
         baltzo::ZoneinfoCache cache2(&loader);
 
-        if (verbose) cout << "\nTesting invoking 'setDefaultCache' and GA."
+        if (verbose) cout << "\nTesting invoking `setDefaultCache` and GA."
                           << endl;
         {
             const bsls::Types::Int64 GA_NUM_BYTES =
@@ -1043,7 +1044,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT (L_, GA_NUM_BYTES == globalAllocator.numBytesInUse());
         }
 
-        if (verbose) cout << "\nInvoking 'setDefaultCache' a second time."
+        if (verbose) cout << "\nInvoking `setDefaultCache` a second time."
                           << endl;
 
         {
@@ -1061,7 +1062,7 @@ int main(int argc, char *argv[])
             bsls::AssertTestHandlerGuard hG;
 
             if (veryVerbose) cout <<
-                 "\t'CLASS METHOD 'setDefaultCache' " << endl;
+                 "\t'CLASS METHOD `setDefaultCache` " << endl;
             {
                 baltzo::ZoneinfoCache cache(&loader);
 
@@ -1071,38 +1072,38 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'defaultZoneinfoDataLocation'
+        // CLASS METHOD `defaultZoneinfoDataLocation`
         //
         // Concerns:
-        //: 1 Return the path specified by the environment variable
-        //:   'BDE_ZONEINFO_ROOT_PATH' if set even if no Zoneinfo data is
-        //:   present.
-        //:
-        //: 2 Return one of the platform-dependent default paths for Zoneinfo
-        //:   data if 'BDE_ZONEINFO_ROOT_PATH' is not set and said directories
-        //:   exist even if no Zoneinfo data is present.
-        //:
-        //: 3 Return current path if 'BDE_ZONEINFO_ROOT_PATH' is not set and
-        //:   no default directories exist for the current platform.
-        //:
-        //: 4 The returned path is always null terminated.
-        //:
-        //: 5 A null pointer is never returned.
-        //:
-        //: 4 All memory allocation caused by the execution of this method is
-        //:   temporary.
+        // 1. Return the path specified by the environment variable
+        //    `BDE_ZONEINFO_ROOT_PATH` if set even if no Zoneinfo data is
+        //    present.
+        //
+        // 2. Return one of the platform-dependent default paths for Zoneinfo
+        //    data if `BDE_ZONEINFO_ROOT_PATH` is not set and said directories
+        //    exist even if no Zoneinfo data is present.
+        //
+        // 3. Return current path if `BDE_ZONEINFO_ROOT_PATH` is not set and
+        //    no default directories exist for the current platform.
+        //
+        // 4. The returned path is always null terminated.
+        //
+        // 5. A null pointer is never returned.
+        //
+        // 4. All memory allocation caused by the execution of this method is
+        //    temporary.
         //
         // Plan:
-        // 1 Invoke the method with 'BDE_ZONEINFO_ROOT_PATH' set to
+        // 1 Invoke the method with `BDE_ZONEINFO_ROOT_PATH` set to
         // "./defaultzictest" and verify that the returned value has the same
         // value.  Also verify that the memory allocated by the default
         // allocator did not increase.  (C-1, 4, 5)
         //
-        // 2 Invoke the method with 'BDE_ZONEINFO_ROOT_PATH' set to a path that
+        // 2 Invoke the method with `BDE_ZONEINFO_ROOT_PATH` set to a path that
         //   does not contain Zoneinfo data and verify that the value returned
-        //   is still the same as 'BDE_ZONEINFO_ROOT_PATH'.  (C-1, 4)
+        //   is still the same as `BDE_ZONEINFO_ROOT_PATH`.  (C-1, 4)
         //
-        // 3 Invoke the method with 'BDE_ZONEINFO_ROOT_PATH' unset and verify
+        // 3 Invoke the method with `BDE_ZONEINFO_ROOT_PATH` unset and verify
         //   that the value returned is one of the default paths for the
         //   platform if they exist or the current working directory.  Also
         //   verify that the memory allocated by the default allocator did not
@@ -1113,13 +1114,13 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "'defaultZoneinfoDataLocation' CLASS METHOD"
+                          << "`defaultZoneinfoDataLocation` CLASS METHOD"
                           << endl
                           << "==============================================="
                           << endl;
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
-        if (verbose) cout << "Testing with 'BDE_ZONEINFO_ROOT_PATH' set"
+        if (verbose) cout << "Testing with `BDE_ZONEINFO_ROOT_PATH` set"
                           << endl;
         {
             const bsls::Types::Int64 DA_NUM_BYTES =
@@ -1130,7 +1131,7 @@ int main(int argc, char *argv[])
                          DA_NUM_BYTES == defaultAllocator.numBytesInUse());
         }
 
-        if (verbose) cout << "Testing with 'BDE_ZONEINFO_ROOT_PATH' set to an "
+        if (verbose) cout << "Testing with `BDE_ZONEINFO_ROOT_PATH` set to an "
                           << "existing path not containing Zoneinfo data "
                           << "(expected to log a complaint)"
                           << endl;
@@ -1141,7 +1142,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(L_, RESULT, 0 == strcmp(RESULT, "/usr/bin/"));
         }
 
-        if (verbose) cout << "Testing with 'BDE_ZONEINFO_ROOT_PATH' unset"
+        if (verbose) cout << "Testing with `BDE_ZONEINFO_ROOT_PATH` unset"
                           << endl;
         {
             int rc = unsetenv("BDE_ZONEINFO_ROOT_PATH");
@@ -1169,7 +1170,7 @@ int main(int argc, char *argv[])
                          DA_NUM_BYTES == defaultAllocator.numBytesInUse());
         }
 #else
-        if (verbose) cout << "Testing with 'BDE_ZONEINFO_ROOT_PATH' set"
+        if (verbose) cout << "Testing with `BDE_ZONEINFO_ROOT_PATH` set"
                           << endl;
         {
             const bsls::Types::Int64 DA_NUM_BYTES =
@@ -1183,7 +1184,7 @@ int main(int argc, char *argv[])
                          DA_NUM_BYTES == defaultAllocator.numBytesInUse());
         }
 
-        if (verbose) cout << "Testing with 'BDE_ZONEINFO_ROOT_PATH' set to an "
+        if (verbose) cout << "Testing with `BDE_ZONEINFO_ROOT_PATH` set to an "
                           << "existing path not containing Zoneinfo data"
                           << endl;
         {
@@ -1200,7 +1201,7 @@ int main(int argc, char *argv[])
                          DA_NUM_BYTES == defaultAllocator.numBytesInUse());
         }
 
-        if (verbose) cout << "Testing with 'BDE_ZONEINFO_ROOT_PATH' unset"
+        if (verbose) cout << "Testing with `BDE_ZONEINFO_ROOT_PATH` unset"
                           << endl;
          {
             // TBD
@@ -1219,34 +1220,34 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'loadDefaultZoneinfoDataLocations'
+        // CLASS METHOD `loadDefaultZoneinfoDataLocations`
         //
         // Concerns:
-        //: 1 The correct sequence of data locations is loaded.
-        //:
-        //: 2 0 is never loaded in the vector.
-        //:
-        //: 3 On the windows platform the empty vector is loaded.
-        //:
-        //: 4 Memory is allocated only by the parameter allocator.
+        // 1. The correct sequence of data locations is loaded.
+        //
+        // 2. 0 is never loaded in the vector.
+        //
+        // 3. On the windows platform the empty vector is loaded.
+        //
+        // 4. Memory is allocated only by the parameter allocator.
         //
         // Plan:
-        //:1 Create a table of expected values and test the output of the
-        //:  operation (C-1,2).
-        //:
-        //:2 Install a test allocator in the output vector, and test the
-        //:  default allocator does not change the number of bytes in use
-        //:  before and after testing the operation (C-4)
-        //:
-        //:4 Test the vector is empty after the operation on windows (C-3)
-        //:
+        // 1. Create a table of expected values and test the output of the
+        //   operation (C-1,2).
+        //
+        // 2. Install a test allocator in the output vector, and test the
+        //   default allocator does not change the number of bytes in use
+        //   before and after testing the operation (C-4)
+        //
+        // 4. Test the vector is empty after the operation on windows (C-3)
+        //
         //
         // Testing:
         //   loadDefaultZoneinfoDataLocation()
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "'loadDefaultZoneinfoDataLocations' CLASS METHOD"
+                          << "`loadDefaultZoneinfoDataLocations` CLASS METHOD"
                           << endl
                           << "==============================================="
                           << endl;
@@ -1342,10 +1343,10 @@ int main(int argc, char *argv[])
     ASSERT(0 == FUtil::setWorkingDirectory(origWorkingDirectory));
     LOOP_ASSERT(tmpWorkingDir, FUtil::exists(tmpWorkingDir));
 
-    // Sometimes this delete won't work because of '.nfs*' gremlin files that
+    // Sometimes this delete won't work because of `.nfs*` gremlin files that
     // mysteriously get created in the directory.  Seems to especially happen
     // in TC 5 for some reason.  Leave the directory behind and move on.  Also
-    // remove twice, because sometimes the first 'remove' 'sorta' fails -- it
+    // remove twice, because sometimes the first `remove` `sorta` fails -- it
     // returns a negative status after successfully killing the gremlin file.
     // Worst case, leave the file there to be cleaned up in a sweep later.
 
@@ -1370,7 +1371,7 @@ int main(int argc, char *argv[])
         u::sleep(10);
     }
     ASSERTV(tmpWorkingDir, !FUtil::exists(tmpWorkingDir) &&
-                                            "unable to clean 'tmpWorkingDir'");
+                                            "unable to clean `tmpWorkingDir`");
 
     return testStatus;
 }

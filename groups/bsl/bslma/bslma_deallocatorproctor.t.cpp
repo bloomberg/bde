@@ -8,8 +8,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 #include <new>
 
@@ -22,19 +22,19 @@ using namespace BloombergLP;
 //                              --------
 // We are testing a proctor object to ensure that it deallocates the correct
 // memory address with the allocator it holds.  We achieve this goal by
-// utilizing the 'TestAllocator' allocator, whose 'deallocate' method is
+// utilizing the `TestAllocator` allocator, whose `deallocate` method is
 // instrumented to record the most recent memory address used to invoke the
-// method.  We initialize the 'bslma::DeallocatorProctor' proctor object with
+// method.  We initialize the `bslma::DeallocatorProctor` proctor object with
 // this allocator and verify that when the proctor object is destroyed the
-// expected memory address is recorded in the allocator.  Since 'TestAllocator'
-// is not derived from 'bslma::Allocator' and does not implement an 'allocate'
-// method, we ensure that this proctor works with any 'ALLOCATOR' object that
-// supports the required 'deallocate' method.  We also need to verify that when
-// the 'release' method is invoked on the proctor object the proctor does not
+// expected memory address is recorded in the allocator.  Since `TestAllocator`
+// is not derived from `bslma::Allocator` and does not implement an `allocate`
+// method, we ensure that this proctor works with any `ALLOCATOR` object that
+// supports the required `deallocate` method.  We also need to verify that when
+// the `release` method is invoked on the proctor object the proctor does not
 // deallocate its managed memory.  We achieve this goal by instrumenting the
-// allocator object with a flag that indicates whether its 'deallocate' method
+// allocator object with a flag that indicates whether its `deallocate` method
 // has ever been called, and ensure that this flag is in the proper state when
-// the proctor's 'release' method is called.
+// the proctor's `release` method is called.
 //-----------------------------------------------------------------------------
 // [3] bslma::DeallocatorProctor<ALLOCATOR>(memory, allocator);
 // [3] ~bslma::DeallocatorProctor<ALLOCATOR>();
@@ -42,8 +42,8 @@ using namespace BloombergLP;
 // [5] void reset(memory);
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
-// [2] HELPER CLASS: 'TestAllocator'
-// [3] CONCERN: the (non-virtual) 'deallocate' method for pools is also invoked
+// [2] HELPER CLASS: `TestAllocator`
+// [3] CONCERN: the (non-virtual) `deallocate` method for pools is also invoked
 // [6] USAGE EXAMPLE
 //=============================================================================
 
@@ -114,31 +114,34 @@ namespace {
 class TestAllocator {
 
     // DATA
-    bool  d_isDeallocateCalled;    // set if 'deallocate' has bee called
+    bool  d_isDeallocateCalled;    // set if `deallocate` has bee called
     void *d_lastDeallocateAddress; // last memory address deallocated
 
   public:
     // CREATORS
-    TestAllocator();
-        // Create this 'TestAllocator'.
 
+    /// Create this `TestAllocator`.
+    TestAllocator();
+
+    /// Destroy this `TestAllocator`.
     ~TestAllocator();
-        // Destroy this 'TestAllocator'.
 
     // MANIPULATORS
+
+    /// Record the specified `address` and set an internal flag to indicate
+    /// this method has been called.
     void deallocate(void *address);
-        // Record the specified 'address' and set an internal flag to indicate
-        // this method has been called.
 
     // ACCESSORS
-    bool isDeallocateCalled() const;
-        // Return 'true' if 'deallocate' has been called on this object, and
-        // 'false' otherwise.
 
+    /// Return `true` if `deallocate` has been called on this object, and
+    /// `false` otherwise.
+    bool isDeallocateCalled() const;
+
+    /// Return the last memory address that `deallocate` was invoked on, or
+    /// return null if `deallocate` has never been called on this
+    /// `TestAllocator`.
     void *lastDeallocateAddress() const;
-        // Return the last memory address that 'deallocate' was invoked on, or
-        // return null if 'deallocate' has never been called on this
-        // 'TestAllocator'.
 };
 
 // CREATORS
@@ -175,7 +178,7 @@ void *TestAllocator::lastDeallocateAddress() const
 //=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
-// The 'bslma::DeallocatorProctor' is normally used to achieve *exception*
+// The `bslma::DeallocatorProctor` is normally used to achieve *exception*
 // *safety* in an *exception *neutral* way by managing memory in a sequence of
 // continuous memory allocations.  Since each memory allocation may potentially
 // throw an exception, an instance of this proctor can be used to (temporarily)
@@ -184,17 +187,17 @@ void *TestAllocator::lastDeallocateAddress() const
 // proctor's destructor deallocates its managed memory, preventing a memory
 // leak.
 //
-// This example illustrate a typical use of 'bslma::DeallocatorProctor'.
+// This example illustrate a typical use of `bslma::DeallocatorProctor`.
 // Suppose we have an array class that stores an "in-place" representation of
-// objects of parameterized 'TYPE':
-//..
+// objects of parameterized `TYPE`:
+// ```
 // my_array.h
 // ...
 
+/// This class implements an "in-place" array of objects of
+/// parameterized `TYPE` stored contiguously in memory.
 template <class TYPE>
 class my_Array {
-    // This class implements an "in-place" array of objects of
-    // parameterized 'TYPE' stored contiguously in memory.
 
     // DATA
     TYPE             *d_array_p;      // dynamically allocated array
@@ -204,31 +207,32 @@ class my_Array {
 
   public:
     // CREATORS
+
+    /// Create a `my_Array` object.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+    /// 0, the currently installed default allocator is used.
     explicit my_Array(bslma::Allocator *basicAllocator = 0);
-        // Create a 'my_Array' object.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-        // 0, the currently installed default allocator is used.
 
     // ...
 
+    /// Destroy this `my_Array` object and all elements currently
+    /// stored.
     ~my_Array();
-        // Destroy this 'my_Array' object and all elements currently
-        // stored.
 
     // MANIPULATORS
     // ...
 
+    /// Append (a copy of) the specified `object` of parameterized
+    /// `TYPE` to (the end of) this array.
     void append(const TYPE& object);
-        // Append (a copy of) the specified 'object' of parameterized
-        // 'TYPE' to (the end of) this array.
 
     // ...
 };
-//..
-// Note that the rest of the 'my_Array' interface (above) and implementation
+// ```
+// Note that the rest of the `my_Array` interface (above) and implementation
 // (below) is omitted as the portion shown is sufficient to demonstrate the use
-// of 'bslma::DeallocatorProctor'.
-//..
+// of `bslma::DeallocatorProctor`.
+// ```
 // CREATORS
 template <class TYPE>
 inline
@@ -248,20 +252,20 @@ my_Array<TYPE>::~my_Array()
     }
     d_allocator_p->deallocate(d_array_p);
 }
-//..
-// In order to implement the 'append' function, we first have to introduce an
-// 'my_AutoDestructor' 'class', which automatically destroy a sequence of
-// managed objects upon destruction.  See 'bslma::AutoDestructor' for a similar
+// ```
+// In order to implement the `append` function, we first have to introduce an
+// `my_AutoDestructor` `class`, which automatically destroy a sequence of
+// managed objects upon destruction.  See `bslma::AutoDestructor` for a similar
 // component with full documentation:
-//..
+// ```
 // my_autodestructor.h
 // ...
 
+/// This class implements a range proctor that, unless its `release`
+/// method has previously been invoked, automatically invokes the
+/// destructor of each of sequence of objects it manages.
 template <class TYPE>
 class my_AutoDestructor {
-    // This class implements a range proctor that, unless its 'release'
-    // method has previously been invoked, automatically invokes the
-    // destructor of each of sequence of objects it manages.
 
     // DATA
     TYPE * d_origin_p;
@@ -269,19 +273,20 @@ class my_AutoDestructor {
 
   public:
     // CREATORS
+
+    /// Create an `my_AutoDestructor` to manage a contiguous sequence of
+    /// objects.
     my_AutoDestructor(TYPE *origin, int length)
-        // Create an 'my_AutoDestructor' to manage a contiguous sequence of
-        // objects.
     : d_origin_p(origin)
     , d_length(length)
     {
     }
 
+    /// Destroy this `my_AutoDestructor` and, unless its `release`
+    /// method has previously been invoked, destroy the sequence of
+    /// objects it manages by invoking the destructor of each of the
+    /// (managed) objects.
     ~my_AutoDestructor()
-        // Destroy this 'my_AutoDestructor' and, unless its 'release'
-        // method has previously been invoked, destroy the sequence of
-        // objects it manages by invoking the destructor of each of the
-        // (managed) objects.
     {
         if (d_length) {
             for (; d_length > 0; --d_length, ++d_origin_p) {
@@ -291,24 +296,25 @@ class my_AutoDestructor {
     }
 
     // MANIPULATORS
+
+    /// Increase by one the length of the sequence of objects managed by
+    /// this range proctor.
     my_AutoDestructor<TYPE>& operator++()
-        // Increase by one the length of the sequence of objects managed by
-        // this range proctor.
     {
         ++d_length;
         return *this;
     }
 
+    /// Release from management the sequence of objects currently
+    /// managed by this range proctor.
     void release()
-        // Release from management the sequence of objects currently
-        // managed by this range proctor.
     {
         d_length = 0;
     }
 };
-//..
-// We can now continue with our implementation of the 'my_Array' class:
-//..
+// ```
+// We can now continue with our implementation of the `my_Array` class:
+// ```
 // my_array.h
 // ...
 
@@ -321,14 +327,14 @@ void my_Array<TYPE>::append(const TYPE &object)
                                  d_size * 2 * sizeof(TYPE));  // possibly throw
 
         //*****************************************************************
-        // Note the use of the deallocator proctor on 'newArray' (below). *
+        // Note the use of the deallocator proctor on `newArray` (below). *
         //*****************************************************************
 
         bslma::DeallocatorProctor<bslma::Allocator> proctor(newArray,
                                                             d_allocator_p);
 
-        // Note use of 'my_AutoDestructor' here to protect the copy
-        // construction of 'TYPE' objects.
+        // Note use of `my_AutoDestructor` here to protect the copy
+        // construction of `TYPE` objects.
         my_AutoDestructor<TYPE> destructor(newArray, 0);
 
         for (int i = 0; i < d_length; ++i) {
@@ -354,39 +360,39 @@ void my_Array<TYPE>::append(const TYPE &object)
     new(&d_array_p[d_length]) TYPE(object, d_allocator_p);
     ++d_length;
 }
-//..
-// Both the use of 'bslma::DeallocatorProctor' and 'my_AutoDestructor' are
+// ```
+// Both the use of `bslma::DeallocatorProctor` and `my_AutoDestructor` are
 // necessary to implement exception safety.
 //
-// The 'append' method defined above potentially throws in two places.  If the
-// memory allocator held in 'd_allocator_p' where to throw while attempting to
-// allocate the new array of parameterized 'TYPE', no memory would be leaked.
-// But without subsequent use of the 'bslma::DeallocatorProctor', if the
+// The `append` method defined above potentially throws in two places.  If the
+// memory allocator held in `d_allocator_p` where to throw while attempting to
+// allocate the new array of parameterized `TYPE`, no memory would be leaked.
+// But without subsequent use of the `bslma::DeallocatorProctor`, if the
 // allocator subsequently throws while copy constructing the objects from the
 // old array to the new array, the newly allocated memory block would be
-// leaked.  Using the 'bslma::DeallocatorProctor' prevents the leak by
+// leaked.  Using the `bslma::DeallocatorProctor` prevents the leak by
 // deallocating the proctored memory automatically should the proctor go out
-// of scope before the 'release' method of the proctor is called (such as when
+// of scope before the `release` method of the proctor is called (such as when
 // the function exits prematurely due to an exception).
 //
 // Similarly, any resources acquired as a result of copy constructing the
 // objects from the old array to the new array would be leaked if the
-// constructor of 'TYPE' throws.  Using the 'my_AutoDestructor' prevents the
+// constructor of `TYPE` throws.  Using the `my_AutoDestructor` prevents the
 // leak by invoking the destructor of the proctored (and newly created) objects
-// in the new array should the 'my_AutoDestructor' goes out of scope before the
-// 'release' method of the proctor is called.
+// in the new array should the `my_AutoDestructor` goes out of scope before the
+// `release` method of the proctor is called.
 //
-// Note that the 'append' method assumes the copy constructor of 'TYPE' takes
+// Note that the `append` method assumes the copy constructor of `TYPE` takes
 // an allocator as a second argument.  In reality, a constructor proxy that
-// checks the traits of 'TYPE' (to see whether 'TYPE' uses 'bslma::Allocator')
-// should be used (see 'bslalg::ConstructorProxy').
+// checks the traits of `TYPE` (to see whether `TYPE` uses `bslma::Allocator`)
+// should be used (see `bslalg::ConstructorProxy`).
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //           Additional Functionality Needed to Complete Usage Test Case
 
+/// This object allocates memory at construction to assist in forcing
+/// exceptions due to allocations for the usage example test.
 class my_AllocatingClass {
-    // This object allocates memory at construction to assist in forcing
-    // exceptions due to allocations for the usage example test.
 
     // DATA
     void             *d_memory_p;     // memory allocated
@@ -394,26 +400,27 @@ class my_AllocatingClass {
 
   public:
     // CREATORS
+
+    /// Create a `my_AllocatingClass`, optionally specified
+    /// `basicAllocator`.  If `basicAllocator` is zero, the global default
+    /// allocator will be used to supply memory.
     explicit my_AllocatingClass(bslma::Allocator *basicAllocator = 0)
-        // Create a 'my_AllocatingClass', optionally specified
-        // 'basicAllocator'.  If 'basicAllocator' is zero, the global default
-        // allocator will be used to supply memory.
     : d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         d_memory_p = d_allocator_p->allocate(1);
     }
 
+    /// Create a `my_AllocatingClass` that as the same counter and allocator
+    /// as the specified `object`.
     my_AllocatingClass(const my_AllocatingClass&  /*object*/,
                        bslma::Allocator          *basicAllocator = 0)
-        // Create a 'my_AllocatingClass' that as the same counter and allocator
-        // as the specified 'object'.
     : d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         d_memory_p = d_allocator_p->allocate(1);
     }
 
+    /// Destroy this `my_AllocatingClass`.
     ~my_AllocatingClass()
-        // Destroy this 'my_AllocatingClass'.
     {
         d_allocator_p->deallocate(d_memory_p);
         d_memory_p = 0;
@@ -447,7 +454,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Run the usage example and exercise the creators and manipulators
-        //   of 'my_Array' using a 'bslma::TestAllocator' to verify that
+        //   of `my_Array` using a `bslma::TestAllocator` to verify that
         //   memory is allocated and deallocated properly.
         //
         // Testing:
@@ -493,17 +500,17 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // 'reset' TEST
+        // `reset` TEST
         //
         // Concerns:
-        //   Verify that when the 'reset' method is called, the proctor object
+        //   Verify that when the `reset` method is called, the proctor object
         //   properly manages a different block of memory.
         //
         // Plans:
-        //   Allocate a memory block using a 'bslma::TestAllocator'.  Next,
+        //   Allocate a memory block using a `bslma::TestAllocator`.  Next,
         //   allocate another memory block with different size using the same
-        //   test allocator.  Finally, initialize a 'bslma::DeallocatorProctor'
-        //   with the first memory block and the test allocator.  Call 'reset'
+        //   test allocator.  Finally, initialize a `bslma::DeallocatorProctor`
+        //   with the first memory block and the test allocator.  Call `reset`
         //   on the proctor with the second memory block before the proctor
         //   goes out of scope.  Once the proctor goes out of scope, verify
         //   that only the second memory block is deallocated (by checking the
@@ -516,7 +523,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n'reset' TEST"
                             "\n============\n");
 
-        if (verbose) printf("\nTesting the 'reset' method.\n");
+        if (verbose) printf("\nTesting the `reset` method.\n");
 
         bslma::TestAllocator allocator(veryVeryVeryVerbose);
         const bslma::TestAllocator& Z = allocator;
@@ -542,18 +549,18 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // 'release' TEST
+        // `release` TEST
         //
         // Concerns:
-        //   Verify that when the 'release' method is called, the proctor
+        //   Verify that when the `release` method is called, the proctor
         //   object properly releases from management the block of memory
         //   currently managed by this proctor.
         //
         // Plan:
-        //   Initialize a 'bslma::DeallocatorProctor' with static memory
-        //   address and a 'TestAllocator'.  Call 'release' on the proctor
-        //   before it goes out of scope.  Verify that 'deallocate' method of
-        //   the 'TestAllocator' is not called.
+        //   Initialize a `bslma::DeallocatorProctor` with static memory
+        //   address and a `TestAllocator`.  Call `release` on the proctor
+        //   before it goes out of scope.  Verify that `deallocate` method of
+        //   the `TestAllocator` is not called.
         //
         // Testing:
         //   void release();
@@ -562,7 +569,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n'release' TEST"
                             "\n==============\n");
 
-        if (verbose) printf("\nTesting the 'release' method.\n");
+        if (verbose) printf("\nTesting the `release` method.\n");
 
         TestAllocator t;    const TestAllocator& T = t;
 
@@ -591,38 +598,38 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   1) Verify that the proctor object properly invokes the
-        //      'deallocate' method of its held allocator (or pool) when the
+        //      `deallocate` method of its held allocator (or pool) when the
         //      proctor goes out of scope.
         //
         //   2) Verify that when an allocator (or pool) not inherited from
-        //      'bslma::Allocator' is supplied to the
-        //      'bslma::DeallocatorProctor', the deallocate method of the
+        //      `bslma::Allocator` is supplied to the
+        //      `bslma::DeallocatorProctor`, the deallocate method of the
         //      allocator (or pool) supplied is still invoked.
         //
-        //   3) Verify that the 'deallocate' method is not invoked when the
-        //      'bslma::DeallocatorProctor' is initialized with 'null' memory
+        //   3) Verify that the `deallocate` method is not invoked when the
+        //      `bslma::DeallocatorProctor` is initialized with `null` memory
         //      address.
         //
         // Plan:
-        //   For concern 1, create 'bslma::DeallocatorProctor' proctor objects
-        //   holding 'bslma::TestAllocator' objects and varying memory
+        //   For concern 1, create `bslma::DeallocatorProctor` proctor objects
+        //   holding `bslma::TestAllocator` objects and varying memory
         //   addresses allocated by the same test allocator.  Verify that when
         //   the proctor object goes out of scope the allocator object contains
         //   the expected memory address.
         //
-        //   For concern 2, create a 'TestAllocator', which does not inherit
-        //   from 'bslma::Allocator'.  Since the 'TestAllocator' does not
+        //   For concern 2, create a `TestAllocator`, which does not inherit
+        //   from `bslma::Allocator`.  Since the `TestAllocator` does not
         //   actually allocate memory, use pass static memory address to the
-        //   'bslma::DeallocatorProctor'.
+        //   `bslma::DeallocatorProctor`.
         //
-        //   For concern 3, initialize the 'bslma::DeallocatorProctor' with a
-        //   'null' memory address and the 'TestAllocator'.  Verify that the
-        //   'deallocate' method is not invoked.
+        //   For concern 3, initialize the `bslma::DeallocatorProctor` with a
+        //   `null` memory address and the `TestAllocator`.  Verify that the
+        //   `deallocate` method is not invoked.
         //
         // Testing:
         //   bslma::DeallocatorProctor(memory, allocator);
         //   ~bslma::DeallocatorProctor();
-        //   CONCERN: the (non-virtual) 'deallocate' method for pools is also
+        //   CONCERN: the (non-virtual) `deallocate` method for pools is also
         //            invoked
         // --------------------------------------------------------------------
 
@@ -717,27 +724,27 @@ int main(int argc, char *argv[])
         // HELPER CLASS TEST
         //
         // Concerns:
-        //   1) 'lastDeallocatedAddress' method properly returns the last
+        //   1) `lastDeallocatedAddress` method properly returns the last
         //      address deallocated.
         //
-        //   2) 'isDeallocateCalled()' returns whether the 'deallocate' method
-        //      of the 'TestAllocator' had been called.
+        //   2) `isDeallocateCalled()` returns whether the `deallocate` method
+        //      of the `TestAllocator` had been called.
         //
         // Plan:
-        //   Create a 'TestAllocator' object and call its 'deallocate' method
-        //   with varying memory address.  Verify that 'lastDeallocateAddress'
+        //   Create a `TestAllocator` object and call its `deallocate` method
+        //   with varying memory address.  Verify that `lastDeallocateAddress`
         //   returns the expected memory addresses.  Also verify that
-        //   'isDeallocateCalled' indicates the proper state of the
-        //   'TestAllocator' object before and after 'deallocate' is called.
+        //   `isDeallocateCalled` indicates the proper state of the
+        //   `TestAllocator` object before and after `deallocate` is called.
         //
         // Testing:
-        //   HELPER CLASS: 'TestAllocator'
+        //   HELPER CLASS: `TestAllocator`
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nHELPER CLASS TEST"
                             "\n=================\n");
 
-        if (verbose) printf("\nTesting 'TestAllocator'.\n");
+        if (verbose) printf("\nTesting `TestAllocator`.\n");
 
         const void *DATA[] = {(void *) 0, (void *) 1, (void *) 2, (void *) 3 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -759,15 +766,15 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   1) The 'bslma::DeallocatorProctor' can be constructed and
+        //   1) The `bslma::DeallocatorProctor` can be constructed and
         //      destructed gracefully.
-        //   2) The allocator's 'deallocate' method is invoked.
+        //   2) The allocator's `deallocate` method is invoked.
         //
         // Plan:
-        //   Allocate a block of memory with a 'bslma::TestAllocator' and
-        //   guard it with 'bslma::DeallocatorProctor' to show that the
-        //   'deallocate' method is called (by verifying all memory is returned
-        //   to the 'bslma::TestAllocator').
+        //   Allocate a block of memory with a `bslma::TestAllocator` and
+        //   guard it with `bslma::DeallocatorProctor` to show that the
+        //   `deallocate` method is called (by verifying all memory is returned
+        //   to the `bslma::TestAllocator`).
         //
         // Testing:
         //   BREATHING TEST

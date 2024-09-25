@@ -6,7 +6,7 @@
 
 #include <fcntl.h>
 #include <limits.h>    // PATH_MAX on linux, INT_MAX
-#include <stdio.h>     // 'snprintf', '_snprintf'
+#include <stdio.h>     // `snprintf`, `_snprintf`
 #include <stdlib.h>    // abort
 #include <string.h>    // strlen, strncpy
 #include <sys/types.h> // struct stat[64]: required on Sun and Windows only
@@ -36,13 +36,13 @@ using namespace BloombergLP;
 // write log messages.
 //
 // Global Concerns:
-//: o The test driver is robust w.r.t. reuse in other, similar components.
-//: o By default, the 'platformDefaultMessageHandler' is used.
-//: o Exceptions thrown in a log message handler are propagated.
-//: o Precondition violations are detected in appropriate build modes.
+//  - The test driver is robust w.r.t. reuse in other, similar components.
+//  - By default, the `platformDefaultMessageHandler` is used.
+//  - Exceptions thrown in a log message handler are propagated.
+//  - Precondition violations are detected in appropriate build modes.
 //
 // Global Assumptions:
-//: o Setting, retrieving, and invoking the log message handler is thread-safe.
+//  - Setting, retrieving, and invoking the log message handler is thread-safe.
 // ----------------------------------------------------------------------------
 // MACROS
 // [10] BSLS_LOG(severity, format, ...)
@@ -68,7 +68,7 @@ using namespace BloombergLP;
 // [ 4] static void stdoutMessageHandler(severity, file, line, message);
 // [ 4] static void stderrMessageHandler(severity, file, line, message);
 // ----------------------------------------------------------------------------
-// [ 5] Test Driver: 'fillBuffer(buffer, size)' and 'LargeTestData'
+// [ 5] Test Driver: `fillBuffer(buffer, size)` and `LargeTestData`
 // [ 3] WINDOWS DEBUG MESSAGE SINK
 // [ 2] TEST-DRIVER LOG MESSAGE HANDLER
 // [ 1] STREAM REDIRECTION APPARATUS
@@ -76,7 +76,7 @@ using namespace BloombergLP;
 // [ *] CONCERN: This test driver is reusable w/other, similar components.
 // [ *] CONCERN: Exceptions thrown in a log message handler are propagated.
 // [ *] CONCERN: Precondition violations are detected when enabled.
-// [ 8] CONCERN: By default, the 'platformDefaultMessageHandler' is used.
+// [ 8] CONCERN: By default, the `platformDefaultMessageHandler` is used.
 
 
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
@@ -134,7 +134,7 @@ typedef bsls::LogSeverity Severity;
 
 #ifndef SIZE_MAX
 #define SIZE_MAX (static_cast<size_t>(-1))
-    // 'SIZE_MAX' is only defined as part of C99, so it may not exist in some
+    // `SIZE_MAX` is only defined as part of C99, so it may not exist in some
     // pre-C++11 compilers.
 #endif
 
@@ -146,39 +146,40 @@ static const size_t PATH_BUFFER_SIZE = PATH_MAX + 1;
 #endif
 
 
+/// This represents the size of the buffer that will be used to store debug
+/// messages captured in the Windows debugger.  This should generally be at
+/// least `4092` (i.e. 4096 - sizeof(DWORD)), since this is the maximum
+/// string size that `OutputDebugString` will write.
 static const size_t WINDOWS_DEBUG_MESSAGE_SINK_BUFFER_SIZE = 4096;
-    // This represents the size of the buffer that will be used to store debug
-    // messages captured in the Windows debugger.  This should generally be at
-    // least '4092' (i.e. 4096 - sizeof(DWORD)), since this is the maximum
-    // string size that 'OutputDebugString' will write.
 
+/// This constant represents the name of the Windows `Event` that will be
+/// used for communication between the main test case and its subprocess so
+/// that the `OutputDebugString` functionality can be tested.  Both
+/// processes attempt to create an `Event` with the same name, and will
+/// therefore be able to communicate using this event.
 static const char * const WINDOWS_SUBPROCESS_EVENT_NAME    = "BSLS_LOG_TEST";
-    // This constant represents the name of the Windows 'Event' that will be
-    // used for communication between the main test case and its subprocess so
-    // that the 'OutputDebugString' functionality can be tested.  Both
-    // processes attempt to create an 'Event' with the same name, and will
-    // therefore be able to communicate using this event.
 
+/// This represents the size of the buffers used by the class
+/// `LogMessageSink` to store the file name and line number values received
+/// as part of the logging interface.
 static const size_t LOG_MESSAGE_SINK_BUFFER_SIZE           = 4096;
-    // This represents the size of the buffers used by the class
-    // 'LogMessageSink' to store the file name and line number values received
-    // as part of the logging interface.
 
+/// This represents the size of the buffer used by the class
+/// `OutputRedirector` to store the captured values loaded in the `stdout`
+/// and `stderr` error streams.
 static const size_t OUTPUT_REDIRECTOR_BUFFER_SIZE          = 4096;
-    // This represents the size of the buffer used by the class
-    // 'OutputRedirector' to store the captured values loaded in the 'stdout'
-    // and 'stderr' error streams.
 
-// Keep the below in sync with 'bsls_log.cpp'
+// Keep the below in sync with `bsls_log.cpp`
+
+/// This represents the size of the initial stack buffer used in the method
+/// `bsls::Log::platformDefaultMessageHandler` when it is writing output to
+/// `OutputDebugStringA`.  Keep this in sync with `bsls_log.cpp`
 static const size_t WINDOWS_DEBUG_STACK_BUFFER_SIZE        = 1024;
-    // This represents the size of the initial stack buffer used in the method
-    // 'bsls::Log::platformDefaultMessageHandler' when it is writing output to
-    // 'OutputDebugStringA'.  Keep this in sync with 'bsls_log.cpp'
 
+/// This represents the size of the initial stack buffer used in the method
+/// `bsls::Log::logFormattedMessage` when it is formatting its
+/// `printf`-style output.
 static const size_t LOG_FORMATTED_STACK_BUFFER_SIZE        = 1024;
-    // This represents the size of the initial stack buffer used in the method
-    // 'bsls::Log::logFormattedMessage' when it is formatting its
-    // 'printf'-style output.
 
 
 // Standard test driver globals:
@@ -206,7 +207,7 @@ const DefaultDataRow DEFAULT_DATA[] = {
     // This is a set of good, useful data that is the cross product of the sets
     // of situations in which the file name string is empty or non-empty, the
     // line is 0 or non-zero, and the message is empty or non-empty.  The file
-    // name and message strings may also have 'printf'-style format specifiers
+    // name and message strings may also have `printf`-style format specifiers
     // to ensure that no unwanted formatting is being done.
     //
     // All normal values:
@@ -278,7 +279,7 @@ static const size_t NUM_DEFAULT_DATA = sizeof(DEFAULT_DATA)
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
-// The Windows implementation of 'platformDefaultMessageHandler' has to format
+// The Windows implementation of `platformDefaultMessageHandler` has to format
 // data to a stack-local buffer, and if it does not fit, it has to allocate a
 // new buffer.  We need to test data that has a length around the size of the
 // buffer.
@@ -307,13 +308,13 @@ const size_t NUM_WINDOWS_LARGE_DATA_LENGTHS =
 //                       GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Fill the specified `size` - 1 number of characters in the specified
+/// `buffer` with a repeated sequence of ['A' - 'Z'], except for the last
+/// repetition in which the sequence will be truncated such that only
+/// `size` - 1 total characters will have been written.  Write a null byte
+/// to the final position in `buffer` (index @ `size` - 1).  The behavior is
+/// undefined unless `buffer` has at least `size` bytes available.
 static void fillBuffer(char * const buffer, const size_t size)
-    // Fill the specified 'size' - 1 number of characters in the specified
-    // 'buffer' with a repeated sequence of ['A' - 'Z'], except for the last
-    // repetition in which the sequence will be truncated such that only
-    // 'size' - 1 total characters will have been written.  Write a null byte
-    // to the final position in 'buffer' (index @ 'size' - 1).  The behavior is
-    // undefined unless 'buffer' has at least 'size' bytes available.
 {
 
     // Fill the substitution buffer with ['A' .. 'Z'] looping.  All of our
@@ -326,29 +327,29 @@ static void fillBuffer(char * const buffer, const size_t size)
 }
 
 
+/// This class provides a mechanism for generating a test message that
+/// will result in output of an expected size when published from
+/// `Log::stdoutMessageHandler`, `Log::stderrMessageHandler`, or
+/// `Log::platformDefaultMessageHandler`.  Such large test data is important
+/// for white-box testing the output mechanisms in `bsls_log` (which
+/// sometimes use stack buffers whose sizes are determined at compile time).
 class LargeTestData {
-    // This class provides a mechanism for generating a test message that
-    // will result in output of an expected size when published from
-    // 'Log::stdoutMessageHandler', 'Log::stderrMessageHandler', or
-    // 'Log::platformDefaultMessageHandler'.  Such large test data is important
-    // for white-box testing the output mechanisms in 'bsls_log' (which
-    // sometimes use stack buffers whose sizes are determined at compile time).
 
   public:
     // PUBLIC CONSTANTS
     static const char *k_LOG_FORMAT_STRING; // Format string for which the
-                                            // 'LargeTeestData' is sized.
+                                            // `LargeTeestData` is sized.
                                             // Note that it is used by
-                                            // 'stdoutMessageHandler',
-                                            // 'stderrMessageHandler', and
-                                            // 'platformDefaultMessageHandler'
+                                            // `stdoutMessageHandler`,
+                                            // `stderrMessageHandler`, and
+                                            // `platformDefaultMessageHandler`
 
   private:
     // DATA
     char       *d_expectedOutput;        // the expected logged output
-                                         // for 'message'
+                                         // for `message`
 
-    char       *d_message;               // the 'message' that, when
+    char       *d_message;               // the `message` that, when
                                          // logged, will generate
                                          // the expected output length
 
@@ -358,30 +359,30 @@ class LargeTestData {
                             const char              *file,
                             int                      line);
         // Create a large test data object that will provide a test message
-        // having expected output of the specified 'expectedOutputLength',
-        // when used with the 'stdoutMessageHandler', 'stderrMessageHandler',
-        // and 'platformDefaultMessageHandler' and suppling the specified
-        // 'severity', 'file', and 'line'.
+        // having expected output of the specified `expectedOutputLength`,
+        // when used with the `stdoutMessageHandler`, `stderrMessageHandler`,
+        // and `platformDefaultMessageHandler` and suppling the specified
+        // `severity`, `file`, and `line`.
 
+    /// Destroy this `LargeTestData` object.
     ~LargeTestData();
-        // Destroy this 'LargeTestData' object.
 
+    /// Return a message which, when supplied to `bsls::Log::logMessage`
+    /// will result in an log record having the expected length supplied
+    /// at construction.
     const char *message() const;
-        // Return a message which, when supplied to 'bsls::Log::logMessage'
-        // will result in an log record having the expected length supplied
-        // at construction.
 
+    /// Return the expected results of calling `bsls::Log::LogMessage` and
+    /// passing `message` with the `severity`, `file`, and `line` supplied
+    /// at construction.
     const char *expectedOutput() const;
-        // Return the expected results of calling 'bsls::Log::LogMessage' and
-        // passing 'message' with the 'severity', 'file', and 'line' supplied
-        // at construction.
 };
 
+/// This must be the same format string used by the
+/// `stdoutMessageHandler`, `stderrMessageHandler`, and
+/// `platformDefaultMessageHandler` to result in `LargeTestData`
+/// that generates appropriately sized messages.
 const char *LargeTestData::k_LOG_FORMAT_STRING = "%s %s:%d %s\n";
-    // This must be the same format string used by the
-    // 'stdoutMessageHandler', 'stderrMessageHandler', and
-    // 'platformDefaultMessageHandler' to result in 'LargeTestData'
-    // that generates appropriately sized messages.
 
 LargeTestData::LargeTestData(int                      expectedOutputLength,
                              bsls::LogSeverity::Enum  severity,
@@ -468,10 +469,10 @@ inline int fstatFunc(int fd, StatType *buf)
                          // class WindowsDebugMessageSink
                          // =============================
 
+/// This class provides a mechanism to allow the current process to act as a
+/// Windows debugger, capturing all logs written to the `OutputDebugString`
+/// Windows API function by other processes.
 class WindowsDebugMessageSink {
-    // This class provides a mechanism to allow the current process to act as a
-    // Windows debugger, capturing all logs written to the 'OutputDebugString'
-    // Windows API function by other processes.
 
   private:
     // TYPES
@@ -485,11 +486,11 @@ class WindowsDebugMessageSink {
 
     // DATA
     bool              d_enabled;                // are we enabled?
-    unsigned long     d_expectedPid;            // 'DWORD': our target PID
-    void             *d_dbWinMutexHandle;       // 'HANDLE' to 'DBWin' mutex
-    void             *d_dbWinDataReadyHandle;   // 'HANDLE' to Data Ready Event
-    void             *d_dbWinBufferReadyHandle; // 'HANDLE' to Buffer Ready
-    void             *d_dbWinBufferHandle;      // 'HANDLE' to Data Buffer
+    unsigned long     d_expectedPid;            // `DWORD`: our target PID
+    void             *d_dbWinMutexHandle;       // `HANDLE` to `DBWin` mutex
+    void             *d_dbWinDataReadyHandle;   // `HANDLE` to Data Ready Event
+    void             *d_dbWinBufferReadyHandle; // `HANDLE` to Buffer Ready
+    void             *d_dbWinBufferHandle;      // `HANDLE` to Data Buffer
     SharedMemoryData *d_sharedData_p;           // local mapping of data buffer
 
     char d_localBuffer[WINDOWS_DEBUG_MESSAGE_SINK_BUFFER_SIZE];
@@ -502,49 +503,52 @@ class WindowsDebugMessageSink {
 
   public:
     // CREATORS
-    WindowsDebugMessageSink();
-        // Create a 'WindowsDebugMessageSink' object that does not hold any
-        // OS-provided handles.
 
+    /// Create a `WindowsDebugMessageSink` object that does not hold any
+    /// OS-provided handles.
+    WindowsDebugMessageSink();
+
+    /// Destroy this object and de-register this process as the Windows
+    /// debugger.
     ~WindowsDebugMessageSink();
-        // Destroy this object and de-register this process as the Windows
-        // debugger.
 
     // MANIPULATORS
+
+    /// De-register this process as the Windows debugger.  The behavior is
+    /// undefined unless this function is called at most once during the
+    /// life of this object.
     void disable();
-        // De-register this process as the Windows debugger.  The behavior is
-        // undefined unless this function is called at most once during the
-        // life of this object.
 
+    /// Register this object as the Windows debugger.  If a log message is
+    /// being written, block until this object can be safely registered or
+    /// until the specified `timeoutMilliseconds` number of milliseconds
+    /// have passed.  Return `true` if this object has been successfully
+    /// enabled, or return `false` in case of a timeout or some other error.
+    /// The behavior is undefined unless unless this function is called at
+    /// most once during the life of this object.
     bool enable(const unsigned long timeoutMilliseconds);
-        // Register this object as the Windows debugger.  If a log message is
-        // being written, block until this object can be safely registered or
-        // until the specified 'timeoutMilliseconds' number of milliseconds
-        // have passed.  Return 'true' if this object has been successfully
-        // enabled, or return 'false' in case of a timeout or some other error.
-        // The behavior is undefined unless unless this function is called at
-        // most once during the life of this object.
 
+    /// Set this object to accept only debug messages of processes with the
+    /// specified `pid`.  Messages from other processes will be discarded.
+    /// The behavior is undefined unless `pid` is non-zero.
     void setTargetProcessId(const unsigned long pid);
-        // Set this object to accept only debug messages of processes with the
-        // specified 'pid'.  Messages from other processes will be discarded.
-        // The behavior is undefined unless 'pid' is non-zero.
 
+    /// Block until a debug message originating from the process with the
+    /// PID specified in `setTargetProcessID` or until the specified
+    /// `timeoutMilliseconds` have elapsed. Return `true` if data was found
+    /// and can be inspected through a later call to `message`.  Return
+    /// `false` if a timeout occurs or if some other error occurs.  The
+    /// behavior is undefined unless `enable` has been successfully called
+    /// and `setTargetProcessId` has been called.
     bool wait(const unsigned long timeoutMilliseconds);
-        // Block until a debug message originating from the process with the
-        // PID specified in 'setTargetProcessID' or until the specified
-        // 'timeoutMilliseconds' have elapsed. Return 'true' if data was found
-        // and can be inspected through a later call to 'message'.  Return
-        // 'false' if a timeout occurs or if some other error occurs.  The
-        // behavior is undefined unless 'enable' has been successfully called
-        // and 'setTargetProcessId' has been called.
 
     // ACCESSORS
+
+    /// Return the null-terminated message stored by the last call to
+    /// `wait`, if that call was successful.  The behavior is undefined
+    /// unless `wait` has been called and the last call to `wait` was
+    /// successful.
     const char *message();
-        // Return the null-terminated message stored by the last call to
-        // 'wait', if that call was successful.  The behavior is undefined
-        // unless 'wait' has been called and the last call to 'wait' was
-        // successful.
 
 };
 
@@ -610,13 +614,13 @@ void WindowsDebugMessageSink::disable()
 bool WindowsDebugMessageSink::enable(const unsigned long timeoutMilliseconds)
 {
     // First, we attempt to get a handle to the possibly-already-existing
-    // DBWinMutex.  We only need the 'SYNCHRONIZE' permission.  We use the 'A'
+    // DBWinMutex.  We only need the `SYNCHRONIZE` permission.  We use the `A`
     // version so that we can pass an ASCII string for the name.
     d_dbWinMutexHandle = OpenMutexA(SYNCHRONIZE, FALSE, "DBWinMutex");
     if(!d_dbWinMutexHandle) {
         // If the mutex did not exist, we must create it.  Why not call
-        // 'CreateMutexA' initially?  Simply because if the mutex exists, it
-        // will be opened in 'MUTEX_ALL_ACCESS' mode, which is not what we want
+        // `CreateMutexA` initially?  Simply because if the mutex exists, it
+        // will be opened in `MUTEX_ALL_ACCESS` mode, which is not what we want
         // since we may not have admin access.
         d_dbWinMutexHandle = CreateMutexA(NULL, FALSE, "DBWinMutex");
 
@@ -626,17 +630,17 @@ bool WindowsDebugMessageSink::enable(const unsigned long timeoutMilliseconds)
         }
     }
 
-    // Suppose that some program is currently executing 'OutputDebugString',
+    // Suppose that some program is currently executing `OutputDebugString`,
     // while we are attempting to do this setup.  There are various issues with
     // allowing this to occur, such as the fact that we may find that an event
     // does not exist and then the event may be created by the logging process
     // before we have a chance to create it.  If this happens, our call to
-    // 'CreateEventA' may fail, since calling the Create* functions when the
-    // item already exists requests the 'ALL_ACCESS' permission types, which we
+    // `CreateEventA` may fail, since calling the Create* functions when the
+    // item already exists requests the `ALL_ACCESS` permission types, which we
     // will not be able to get.  There is no way to prevent this when initially
-    // retrieving the mutex; the best we can do is first call 'OpenMutexA' and
+    // retrieving the mutex; the best we can do is first call `OpenMutexA` and
     // hope for the best.  However, we can solve this with the later calls once
-    // we have the mutex, since 'OutputDebugString' will block until it gets
+    // we have the mutex, since `OutputDebugString` will block until it gets
     // the mutex.  Other debuggers may cause us problems if they do not respect
     // the mutex, but there is really nothing we can do about this.
     const unsigned long oldTimeMilliseconds = GetTickCount();
@@ -646,7 +650,7 @@ bool WindowsDebugMessageSink::enable(const unsigned long timeoutMilliseconds)
     if(waitResult == WAIT_TIMEOUT || waitResult == WAIT_FAILED) {
         return false;                                                 // RETURN
     } else if(waitResult == WAIT_ABANDONED) {
-        // 'WAIT_ABANDONED' means that the owner of the mutex terminated before
+        // `WAIT_ABANDONED` means that the owner of the mutex terminated before
         // the mutex was released.  We should just try to get the mutex
         // ourselves, since we don't rely on the state of the buffer itself.
         const unsigned long timeDiff = GetTickCount() - oldTimeMilliseconds;
@@ -668,10 +672,10 @@ bool WindowsDebugMessageSink::enable(const unsigned long timeoutMilliseconds)
     // can.
 
 
-    // Now we will attempt to retrieve a handle to the 'DBWIN_DATA_READY'
-    // event, which is what 'OutputDebugString' uses to signal that it has
+    // Now we will attempt to retrieve a handle to the `DBWIN_DATA_READY`
+    // event, which is what `OutputDebugString` uses to signal that it has
     // successfully written its data to the buffer.  We only need the
-    // 'SYNCHRONIZE' permission because we are not responsible for setting the
+    // `SYNCHRONIZE` permission because we are not responsible for setting the
     // data ready event.
     d_dbWinDataReadyHandle = OpenEventA(SYNCHRONIZE,
                                         FALSE,
@@ -679,7 +683,7 @@ bool WindowsDebugMessageSink::enable(const unsigned long timeoutMilliseconds)
     if(!d_dbWinDataReadyHandle) {
         // If we have to create the event, we do not want to accidentally
         // signal to ourselves that the data is ready until OutputDebugString
-        // sets it.  Therefore, the initial state (third parameter) is 'FALSE'.
+        // sets it.  Therefore, the initial state (third parameter) is `FALSE`.
         d_dbWinDataReadyHandle = CreateEventA(NULL,
                                               FALSE,
                                               FALSE,
@@ -698,7 +702,7 @@ bool WindowsDebugMessageSink::enable(const unsigned long timeoutMilliseconds)
     if(!d_dbWinBufferReadyHandle) {
         // If we have to create the event, we do not want to signal that the
         // buffer is ready until we are completely sure everything is ready.
-        // Therefore, the initial state (third parameter) is 'FALSE'.
+        // Therefore, the initial state (third parameter) is `FALSE`.
         d_dbWinBufferReadyHandle = CreateEventA(NULL,
                                                 FALSE,
                                                 FALSE,
@@ -717,7 +721,7 @@ bool WindowsDebugMessageSink::enable(const unsigned long timeoutMilliseconds)
     if(!d_dbWinBufferHandle) {
         // If we have to create the event, we do not want to signal that the
         // buffer is ready until we are completely sure everything is ready.
-        // Therefore, the initial state (third parameter) is 'FALSE'.
+        // Therefore, the initial state (third parameter) is `FALSE`.
         d_dbWinBufferHandle = CreateFileMappingA(INVALID_HANDLE_VALUE,
                                                  NULL,
                                                  PAGE_READWRITE,
@@ -767,7 +771,7 @@ bool WindowsDebugMessageSink::wait(const unsigned long timeoutMilliseconds)
     // so there was no need to add complexity to the test driver.  If this
     // class is expanded, the contract (and test cases) should be widened to
     // allow a zero-PID being like a wildcard PID, as well as the ability to
-    // call 'enable' and 'disable' as many times as one wants.
+    // call `enable` and `disable` as many times as one wants.
 
     if(!d_enabled) {
         // It is too harmful to let this slide.  Even in non-assert mode, it is
@@ -802,7 +806,7 @@ bool WindowsDebugMessageSink::wait(const unsigned long timeoutMilliseconds)
 
         if(WaitForSingleObject(d_dbWinMutexHandle, newTimeoutMilliseconds)
            != WAIT_OBJECT_0) {
-            // In this case, we want to ignore the 'WAIT_ABANDONED' value
+            // In this case, we want to ignore the `WAIT_ABANDONED` value
             // because if the mutex was abandoned, the buffer will probably be
             // invalid.
             return false;                                             // RETURN
@@ -842,11 +846,11 @@ const char *WindowsDebugMessageSink::message()
                          // class LogMessageSink
                          // ====================
 
+/// This struct provides a namespace for a utility function,
+/// `testMessageHandler`, which is a valid log message handler
+/// (`bsls::Log::LogMessageHandler`) that will simply copy all arguments
+/// into a set of `public` `static` data members.
 struct LogMessageSink {
-    // This struct provides a namespace for a utility function,
-    // 'testMessageHandler', which is a valid log message handler
-    // ('bsls::Log::LogMessageHandler') that will simply copy all arguments
-    // into a set of 'public' 'static' data members.
 
     // This class is designed as fully static (instead of using a singleton) in
     // order to more easily support registration of the log message handler.
@@ -866,18 +870,19 @@ struct LogMessageSink {
     static char s_message[LOG_MESSAGE_SINK_BUFFER_SIZE]; // message buffer
 
     // CLASS METHODS
-    static void reset();
-        // Set 's_hasBeenCalled' to 'false', write a null byte to the beginning
-        // of 's_file', set 's_line' to 0, and write a null byte to the
-        // beginning of 's_message'.
 
+    /// Set `s_hasBeenCalled` to `false`, write a null byte to the beginning
+    /// of `s_file`, set `s_line` to 0, and write a null byte to the
+    /// beginning of `s_message`.
+    static void reset();
+
+    /// Copy the specified `severity`, `file`, `line`, and `message` to the
+    /// correspondng public data members of this `struct`.  The behavior is
+    /// undefined unless `line >= 0`.
     static void testMessageHandler(bsls::LogSeverity::Enum  severity,
                                    const char              *file,
                                    int                      line,
                                    const char              *message);
-        // Copy the specified 'severity', 'file', 'line', and 'message' to the
-        // correspondng public data members of this 'struct'.  The behavior is
-        // undefined unless 'line >= 0'.
 };
 
 // PUBLIC CLASS DATA
@@ -925,28 +930,28 @@ void LogMessageSink::testMessageHandler(bsls::LogSeverity::Enum  severity,
                          // ======================
 
 // Temp file creation and output redirection re-purposed from the pre-existing
-// module in 'bsls_bsltestutil.t.cpp'.
+// module in `bsls_bsltestutil.t.cpp`.
 
+/// This class provides a facility for redirecting `stdout` and `stderr` to
+/// temporary files, retrieving output from the respective temporary file
+/// and comparing the output to user-supplied character buffers.  An
+/// `OutputRedirector` object can be in an un-redirected state or a
+/// redirected state.  If it is a redirected state, it will redirect either
+/// `stdout` or `stderr`, but not both simultaneously.  An
+/// `OutputRedirector` object has the concept of a scratch buffer, where
+/// output captured from the process' `stdout` or `stderr` stream is stored
+/// when the `OutputRedirector` object is in the redirected state.
+/// Throughout this class, the term "captured output" refers to data that
+/// has been written to the `stdout` or `stderr` stream and is waiting to be
+/// loaded into the scratch buffer.  Each time the `load` method is called,
+/// the scratch buffer is truncated, and the captured output is moved into
+/// the scratch buffer.  When this is done, there is no longer any captured
+/// output.
 class OutputRedirector {
-    // This class provides a facility for redirecting 'stdout' and 'stderr' to
-    // temporary files, retrieving output from the respective temporary file
-    // and comparing the output to user-supplied character buffers.  An
-    // 'OutputRedirector' object can be in an un-redirected state or a
-    // redirected state.  If it is a redirected state, it will redirect either
-    // 'stdout' or 'stderr', but not both simultaneously.  An
-    // 'OutputRedirector' object has the concept of a scratch buffer, where
-    // output captured from the process' 'stdout' or 'stderr' stream is stored
-    // when the 'OutputRedirector' object is in the redirected state.
-    // Throughout this class, the term "captured output" refers to data that
-    // has been written to the 'stdout' or 'stderr' stream and is waiting to be
-    // loaded into the scratch buffer.  Each time the 'load' method is called,
-    // the scratch buffer is truncated, and the captured output is moved into
-    // the scratch buffer.  When this is done, there is no longer any captured
-    // output.
   public:
     // TYPES
     enum Stream {
-        // The 'enum' 'Stream' represents the specific stream which our object
+        // The `enum` `Stream` represents the specific stream which our object
         // is responsible for redirecting.
         STDOUT_STREAM,
         STDERR_STREAM
@@ -957,7 +962,7 @@ class OutputRedirector {
     char d_fileName[PATH_BUFFER_SIZE];        // name of temporary capture file
 
     char d_outputBuffer[OUTPUT_REDIRECTOR_BUFFER_SIZE];
-    // 'd_outputBuffer' is the buffer that will hold the captured output.
+    // `d_outputBuffer` is the buffer that will hold the captured output.
 
     const Stream     d_stream;                // the stream for which this
                                               // object is responsible
@@ -971,33 +976,34 @@ class OutputRedirector {
                                               // file?
 
     size_t           d_outputSize;            // size of output loaded into
-                                              // 'd_outputBuffer'
+                                              // `d_outputBuffer`
 
     StatType         d_originalStat;          // status information for
-                                              // 'stdout' or 'stderr' just
+                                              // `stdout` or `stderr` just
                                               // before redirection
 
     int              d_duplicatedOriginalFd;  // a file descriptor that is
                                               // associated with a duplicate of
                                               // the original target of the
                                               // redirected stream.  This is
-                                              // made by calling 'dup' on the
+                                              // made by calling `dup` on the
                                               // original stream before any
                                               // redirection happens
 
     // PRIVATE MANIPULATORS
+
+    /// If the redirector is in a redirected state, restore the original
+    /// target of the redirected stream.  If the temporary file has been
+    /// created, delete it.
     void cleanup();
-        // If the redirector is in a redirected state, restore the original
-        // target of the redirected stream.  If the temporary file has been
-        // created, delete it.
 
+    /// Delete the temporary file, if it has been created.
     void cleanupFiles();
-        // Delete the temporary file, if it has been created.
 
+    /// Load into `d_fileName` a file name string corresponding to the name
+    /// of a valid temp file on the system.  Return `true` if the name was
+    /// successfully loaded, or `false` otherwise.
     bool generateTempFileName();
-        // Load into 'd_fileName' a file name string corresponding to the name
-        // of a valid temp file on the system.  Return 'true' if the name was
-        // successfully loaded, or 'false' otherwise.
 
   private:
     // NOT IMPLEMENTED
@@ -1006,108 +1012,111 @@ class OutputRedirector {
 
   public:
     // CREATORS
-    explicit OutputRedirector(Stream which);
-        // Create an 'OutputRedirector' in an un-redirected state, and with an
-        // empty scratch buffer.  Upon a call to 'enable', this redirector will
-        // be responsible for redirecting the stream associated with the
-        // specified 'which' to a temporary file.  The behavior is undefined
-        // unless 'which' is equal to 'OutputRedirector::STDOUT_STREAM' or
-        // 'OutputRedirector::STDERR_STREAM'.
 
+    /// Create an `OutputRedirector` in an un-redirected state, and with an
+    /// empty scratch buffer.  Upon a call to `enable`, this redirector will
+    /// be responsible for redirecting the stream associated with the
+    /// specified `which` to a temporary file.  The behavior is undefined
+    /// unless `which` is equal to `OutputRedirector::STDOUT_STREAM` or
+    /// `OutputRedirector::STDERR_STREAM`.
+    explicit OutputRedirector(Stream which);
+
+    /// Destroy this `OutputRedirector` object.  If the object is in a
+    /// redirected state, the original stream will be restored to its
+    /// initial target and the temporary file to which the stream was
+    /// redirected will be deleted.
     ~OutputRedirector();
-        // Destroy this 'OutputRedirector' object.  If the object is in a
-        // redirected state, the original stream will be restored to its
-        // initial target and the temporary file to which the stream was
-        // redirected will be deleted.
 
     // MANIPULATORS
+
+    /// If the redirector is in a redirected state, restore the original
+    /// target of the redirected stream and close the temporary buffer.  If
+    /// the redirector is not in a redirected state, this method is a no-op.
+    /// Calling this method invalidates all output in the temporary file, so
+    /// a call to `load` after the next successful `enable` call will not
+    /// load any output that was previously written to the file.  This
+    /// method does not clear the scratch buffer, so one may call `load`
+    /// before calling `disable`, and the contents will be available after
+    /// `disable` is called. If `disable` fails to disable the redirection,
+    /// it will end the program by calling `std::abort`.
     void disable();
-        // If the redirector is in a redirected state, restore the original
-        // target of the redirected stream and close the temporary buffer.  If
-        // the redirector is not in a redirected state, this method is a no-op.
-        // Calling this method invalidates all output in the temporary file, so
-        // a call to 'load' after the next successful 'enable' call will not
-        // load any output that was previously written to the file.  This
-        // method does not clear the scratch buffer, so one may call 'load'
-        // before calling 'disable', and the contents will be available after
-        // 'disable' is called. If 'disable' fails to disable the redirection,
-        // it will end the program by calling 'std::abort'.
 
+    /// If the `Stream` specified at construction was `STDOUT_STREAM`,
+    /// redirect `stdout` to a temporary file.  If the `Stream` specified at
+    /// construction was `STDERR_STREAM`, redirect `stderr` to a temporary
+    /// file. The temporary file to which the stream is redirected will be
+    /// created the first time `enable` is called, and will be deleted when
+    /// this object is destroyed.  If `enable` fails to redirect either
+    /// `stdout` or `stderr` it will end the program by calling
+    /// `std::abort`.
     void enable();
-        // If the 'Stream' specified at construction was 'STDOUT_STREAM',
-        // redirect 'stdout' to a temporary file.  If the 'Stream' specified at
-        // construction was 'STDERR_STREAM', redirect 'stderr' to a temporary
-        // file. The temporary file to which the stream is redirected will be
-        // created the first time 'enable' is called, and will be deleted when
-        // this object is destroyed.  If 'enable' fails to redirect either
-        // 'stdout' or 'stderr' it will end the program by calling
-        // 'std::abort'.
 
+    /// Read captured output into the scratch buffer.  Return `true` if all
+    /// captured output was successfully loaded, and `false` otherwise.
+    /// Note that captured output is allowed to have zero length.  The
+    /// behavior is undefined unless `enable` has been previously called
+    /// successfully (after the latest call to `disable`, if `disable` has
+    /// been called successfully).
     bool load();
-        // Read captured output into the scratch buffer.  Return 'true' if all
-        // captured output was successfully loaded, and 'false' otherwise.
-        // Note that captured output is allowed to have zero length.  The
-        // behavior is undefined unless 'enable' has been previously called
-        // successfully (after the latest call to 'disable', if 'disable' has
-        // been called successfully).
 
+    /// Reset the scratch buffer to empty.  The behavior is undefined unless
+    /// `enable` has been previously called successfully (after the latest
+    /// call to `disable` if `disable` has been called successfully).
     void clear();
-        // Reset the scratch buffer to empty.  The behavior is undefined unless
-        // 'enable' has been previously called successfully (after the latest
-        // call to 'disable' if 'disable' has been called successfully).
 
     // ACCESSORS
+
+    /// Compare the character buffer pointed to by the specified pointer
+    /// `expected` with any output that has been loaded into the scratch
+    /// buffer.  The length of the `expected` buffer is supplied in the
+    /// specified `expectedLength`.  Return 0 if the `expected` buffer has
+    /// the same length and contents as the scratch buffer, and non-zero
+    /// otherwise.  Note that the `expected` buffer is allowed to contain
+    /// embedded nulls.  The behavior is undefined unless `enable` has
+    /// previously been called successfully.
     int compare(const char *expected, size_t expectedLength) const;
-        // Compare the character buffer pointed to by the specified pointer
-        // 'expected' with any output that has been loaded into the scratch
-        // buffer.  The length of the 'expected' buffer is supplied in the
-        // specified 'expectedLength'.  Return 0 if the 'expected' buffer has
-        // the same length and contents as the scratch buffer, and non-zero
-        // otherwise.  Note that the 'expected' buffer is allowed to contain
-        // embedded nulls.  The behavior is undefined unless 'enable' has
-        // previously been called successfully.
 
+    /// Compare the character buffer pointed to by the specified pointer
+    /// `expected` with any output that has been loaded into the scratch
+    /// buffer.  The `expected` buffer is assumed to be a NTBS, and its
+    /// length is taken to be the string length of the NTBS.  Return 0 if
+    /// the `expected` buffer has the same length and contents as the
+    /// scratch buffer, and non-zero otherwise.  The behavior is undefined
+    /// unless `enable` has previously been called successfully.
     int compare(const char *expected) const;
-        // Compare the character buffer pointed to by the specified pointer
-        // 'expected' with any output that has been loaded into the scratch
-        // buffer.  The 'expected' buffer is assumed to be a NTBS, and its
-        // length is taken to be the string length of the NTBS.  Return 0 if
-        // the 'expected' buffer has the same length and contents as the
-        // scratch buffer, and non-zero otherwise.  The behavior is undefined
-        // unless 'enable' has previously been called successfully.
 
+    /// Return the address of the scratch buffer.
     const char *getOutput() const;
-        // Return the address of the scratch buffer.
 
+    /// Return `true` if the captured output has been loaded into the
+    /// scratch buffer, and `false` otherwise.
     bool isOutputReady() const;
-        // Return 'true' if the captured output has been loaded into the
-        // scratch buffer, and 'false' otherwise.
 
+    /// Return `true` if `stdout` or `stderr` has been successfully
+    /// redirected, and `false` otherwise.
     bool isRedirecting() const;
-        // Return 'true' if 'stdout' or 'stderr' has been successfully
-        // redirected, and 'false' otherwise.
 
+    /// Return the value of the global `stdout` or `stderr` corresponding to
+    /// the stream that is not intended to be redirected by this object.
     FILE *nonRedirectedStream() const;
-        // Return the value of the global 'stdout' or 'stderr' corresponding to
-        // the stream that is not intended to be redirected by this object.
 
+    /// Return a reference to the status information for `stdout` collected
+    /// just before redirection.  This method is used only to test the
+    /// correctness of `OutputRedirector`.
     const StatType& originalStat() const;
-        // Return a reference to the status information for 'stdout' collected
-        // just before redirection.  This method is used only to test the
-        // correctness of 'OutputRedirector'.
 
+    /// Return the number of bytes currently loaded into the scratch buffer.
     size_t outputSize() const;
-        // Return the number of bytes currently loaded into the scratch buffer.
 
+    /// Return the value of the global `stdout` or `stderr` corresponding to
+    /// the stream that is intended to be redirected by this object.
     FILE *redirectedStream() const;
-        // Return the value of the global 'stdout' or 'stderr' corresponding to
-        // the stream that is intended to be redirected by this object.
 
+    /// Return `OutputRedirector::STDOUT_STREAM` if this object is
+    /// responsible for redirecting `stdout`, and
+    /// `OutputRedirector::STDERR_STREAM` if this object is responsible for
+    /// redirecting `stderr`.
     OutputRedirector::Stream redirectedStreamId() const;
-        // Return 'OutputRedirector::STDOUT_STREAM' if this object is
-        // responsible for redirecting 'stdout', and
-        // 'OutputRedirector::STDERR_STREAM' if this object is responsible for
-        // redirecting 'stderr'.
 };
 
 // PRIVATE MANIPULATORS
@@ -1165,11 +1174,11 @@ bool OutputRedirector::generateTempFileName()
 #endif
     if (veryVerbose) {
         fprintf(nonRedirectedStream(),
-                "\tUsing '%s' as a base filename.\n",
+                "\tUsing `%s` as a base filename.\n",
                 d_fileName);
         fflush(stdout);
     }
-    return '\0' != d_fileName[0]; // Ensure that 'd_fileName' is not empty
+    return '\0' != d_fileName[0]; // Ensure that `d_fileName` is not empty
 }
 
 // CREATORS
@@ -1214,7 +1223,7 @@ void OutputRedirector::disable()
     if(status < 0) {
         if (veryVerbose) {
             fprintf(nonRedirectedStream(),
-                    "Error " __FILE__ "(%d): Bad 'dup2' status.\n",
+                    "Error " __FILE__ "(%d): Bad `dup2` status.\n",
                     __LINE__);
         }
         cleanupFiles();
@@ -1253,7 +1262,7 @@ void OutputRedirector::enable()
     if(d_duplicatedOriginalFd < 0) {
         if (veryVerbose) {
                 fprintf(nonRedirectedStream(),
-                        "Error " __FILE__ "(%d): Bad 'dup' value.\n",
+                        "Error " __FILE__ "(%d): Bad `dup` value.\n",
                         __LINE__);
             }
         cleanup();
@@ -1283,7 +1292,7 @@ void OutputRedirector::enable()
         if (veryVerbose) {
             fprintf(nonRedirectedStream(),
                     "Error " __FILE__ "(%d): Failed to redirect stdout to"
-                    " temp file '%s'\n",
+                    " temp file `%s`\n",
                     __LINE__, d_fileName);
         }
         cleanup();
@@ -1292,8 +1301,8 @@ void OutputRedirector::enable()
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     // In Windows, we need to convert the stream to binary mode because Windows
-    // will automatically convert '\n' to '\r\n' in text mode output.  Normally
-    // this would not be a problem, since the '\r\n' would be converted back to
+    // will automatically convert '\n' to `\r\n` in text mode output.  Normally
+    // this would not be a problem, since the `\r\n` would be converted back to
     // '\n' when we read the file.  However, since we are using the size of the
     // written file to know how much to read, having extra characters will lead
     // to a faulty size reading.
@@ -1339,26 +1348,26 @@ bool OutputRedirector::load()
         // Protect against overflow or negative value
         if (veryVerbose) {
             fprintf(nonRedirectedStream(),
-                    "Bad value from 'ftell': %ld",
+                    "Bad value from `ftell`: %ld",
                     incremented);
         }
         return false;                                                 // RETURN
     }
 
-    // Conversion to 'unsigned long' is safe because 'incremented' > 0
+    // Conversion to `unsigned long` is safe because `incremented` > 0
     if(static_cast<unsigned long>(incremented) > SIZE_MAX) {
-        // Our 'incremented' will not fit in a size_t, so it is too big for our
+        // Our `incremented` will not fit in a size_t, so it is too big for our
         // buffer.
         if (veryVerbose) {
             fprintf(nonRedirectedStream(),
-                    "Bad value from 'ftell': %ld",
+                    "Bad value from `ftell`: %ld",
                     incremented);
         }
         return false;                                                 // RETURN
     }
 
-    // Conversion to 'size_t' is safe because 'tempOutputSize' is nonnegative
-    // and 'tempOutputSize'+1 is no larger than 'SIZE_MAX'.
+    // Conversion to `size_t` is safe because `tempOutputSize` is nonnegative
+    // and `tempOutputSize`+1 is no larger than `SIZE_MAX`.
     d_outputSize = static_cast<size_t>(tempOutputSize);
 
     if (static_cast<size_t>(incremented) > OUTPUT_REDIRECTOR_BUFFER_SIZE) {
@@ -1386,7 +1395,7 @@ bool OutputRedirector::load()
         // We failed to read all output from the capture file.
         if (veryVerbose) {
             if (ferror(redirectedStream())) {
-                // We encountered a file error, not 'EOF'.
+                // We encountered a file error, not `EOF`.
                 fprintf(nonRedirectedStream(),
                         "Error "
                             __FILE__
@@ -1404,7 +1413,7 @@ bool OutputRedirector::load()
             d_outputBuffer[0] = '\0';
         } else if(static_cast<unsigned long>(charsRead) >= d_outputSize) {
             // This case should never happen.  This assignment is safe because
-            // the total buffer size is enough to hold 'd_outputSize' + 1.
+            // the total buffer size is enough to hold `d_outputSize` + 1.
             d_outputBuffer[d_outputSize] = '\0';
         } else {
             d_outputBuffer[charsRead] = '\0';
@@ -1454,8 +1463,8 @@ OutputRedirector::compare(const char *expected, size_t expectedLength) const
         return -1;                                                    // RETURN
     }
 
-    // Use 'memcmp' instead of 'strncmp' to compare 'd_outputBuffer' to
-    // 'expected', because 'expected' is allowed to contain embedded nulls.
+    // Use `memcmp` instead of `strncmp` to compare `d_outputBuffer` to
+    // `expected`, because `expected` is allowed to contain embedded nulls.
 
     return static_cast<size_t>(d_outputSize) != expectedLength ||
            memcmp(d_outputBuffer, expected, expectedLength);
@@ -1521,23 +1530,23 @@ namespace UsageExamples {
 //
 ///Example 1: Logging Formatted Messages
 ///- - - - - - - - - - - - - - - - - - -
-// Suppose that we want to write a formatted log message using 'printf'-style
+// Suppose that we want to write a formatted log message using `printf`-style
 // format specifiers when the preconditions of a function are not met.  The
-// 'BSLS_LOG' macro can be used for this purpose.
+// `BSLS_LOG` macro can be used for this purpose.
 //
-// First, we begin to define a function, 'add', which will return the sum of
+// First, we begin to define a function, `add`, which will return the sum of
 // two positive integer values:
-//..
+// ```
 // myapp.cpp
 
+/// Return the sum of the specified `a` and the specified `b`.  The behavior
+/// is undefined unless `a` and `b` are not negative.
 unsigned int add(int a, int b)
-    // Return the sum of the specified 'a' and the specified 'b'.  The behavior
-    // is undefined unless 'a' and 'b' are not negative.
 {
-//..
-// Now, we check the precondition of the function, and use the 'BSLS_LOG_ERROR'
+// ```
+// Now, we check the precondition of the function, and use the `BSLS_LOG_ERROR`
 // macro to write a log message if one of the input parameters is less than 0:
-//..
+// ```
     if(a < 0 || b < 0) {
         BSLS_LOG_ERROR("Invalid input combination (%d, %d).", a, b);
         return 0;                                                     // RETURN
@@ -1545,68 +1554,69 @@ unsigned int add(int a, int b)
 
     return static_cast<unsigned int>(a) + static_cast<unsigned int>(b);
 }
-//..
+// ```
 //
-// Next, we may erroneously call the 'add' function with a negative argument:
-//..
+// Next, we may erroneously call the `add` function with a negative argument:
+// ```
 //  int x = add(3, -100);
-//..
+// ```
 // Finally, assuming the default log message handler is currently installed, we
-// observe the following output printed to 'stderr' or to the Windows debugger:
-//..
+// observe the following output printed to `stderr` or to the Windows debugger:
+// ```
 //  ERROR myapp.cpp:8 Invalid input combination (3, -100).
-//..
-// Note that an arbitrary string should never be passed to 'BSLS_LOG' as the
-// format string.  If the string happens to contain 'printf'-style format
+// ```
+// Note that an arbitrary string should never be passed to `BSLS_LOG` as the
+// format string.  If the string happens to contain `printf`-style format
 // specifiers but the expected substitutions are not present, it will lead to
 // undefined behavior.
 //
 ///Example 2: Logging Formatless Messages
 /// - - - - - - - - - - - - - - - - - - -
 // Suppose we want to write a raw string, which is not meant to be a
-// 'printf'-style format string, to the log.  We can use the macro
-// 'BSLS_LOG_SIMPLE' to do this.
+// `printf`-style format string, to the log.  We can use the macro
+// `BSLS_LOG_SIMPLE` to do this.
 //
 // First, we define a global association of error codes with error strings:
-//..
+// ```
 // myapp.cpp
 
 static const char *errorStrings[4] = {
-    "Invalid input value 'a'.",
-    "Invalid input value 'b'.",
+    "Invalid input value `a`.",
+    "Invalid input value `b`.",
     "Percentages add up to more than 100%.",
-    "Please use '%2f' for a slash character in a URI."
+    "Please use `%2f` for a slash character in a URI."
 };
-//..
+// ```
 // Notice that the fourth string has a sequence that could be misinterpreted as
-// a 'printf'-style format specifier.
+// a `printf`-style format specifier.
 //
 // Then, we define a function that handles error codes and logs an error based
 // on the error code:
-//..
+// ```
+
+/// Log the error message associated with the specified `code`.  The
+/// behavior is undefined unless `code` is in the range [0 .. 3].
 void handleError(int code)
-    // Log the error message associated with the specified 'code'.  The
-    // behavior is undefined unless 'code' is in the range [0 .. 3].
 {
-//..
+// ```
 //
 // In the case that we receive a valid error code, we would want to log the
-// string associated with this code.  We use the macro 'BSLS_LOG_SIMPLE' to
+// string associated with this code.  We use the macro `BSLS_LOG_SIMPLE` to
 // ensure that the true strings are logged and are not interpreted as format
 // strings:
-//..
+// ```
     BSLS_LOG_SIMPLE(bsls::LogSeverity::e_ERROR, errorStrings[code]);
 }
-//..
+// ```
 // A user may attempt to use error code '3':
-//..
+// ```
 //  handleError(3);
-//..
+// ```
 // Assuming the default log message handler is the currently installed handler,
-// the following line would be printed to 'stderr' or to the Windows debugger:
-//..
-//  ERROR myapp.cpp:14 Please use '%2f' for a slash character in a URI.
-//..
+// the following line would be printed to `stderr` or to the Windows debugger:
+// ```
+//  ERROR myapp.cpp:14 Please use `%2f` for a slash character in a URI.
+// ```
 //
 ///Example 3: Using a Different File Name or Line Number
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1617,7 +1627,7 @@ void handleError(int code)
 // function.
 //
 // First, we will mimic Example 2 by defining a global array of error strings:
-//..
+// ```
 // mylib.cpp
 
 static const char *errorStringsNew[4] = {
@@ -1626,38 +1636,39 @@ static const char *errorStringsNew[4] = {
     "Invalid username.",
     "Invalid password."
 };
-//..
+// ```
 // Then, we will define a function that takes in a file name and line number
 // along with the error code:
-//..
+// ```
+
+/// Log the error message associated with the specified `code`, using the
+/// specified `file` and the specified `line` as the source location for the
+/// error.  The behavior is undefined unless `file` is a null-terminated
+/// string, `line` is not negative, and `code` is in the range [0 .. 3].
 void handleErrorFlexible(const char *file, int line, int code)
-    // Log the error message associated with the specified 'code', using the
-    // specified 'file' and the specified 'line' as the source location for the
-    // error.  The behavior is undefined unless 'file' is a null-terminated
-    // string, 'line' is not negative, and 'code' is in the range [0 .. 3].
 {
-//..
-// We can bypass the macros by calling the function 'bsls::Log::logMessage'
+// ```
+// We can bypass the macros by calling the function `bsls::Log::logMessage`
 // directly, allowing us to pass in the given file name and line number:
-//..
+// ```
     bsls::Log::logMessage(bsls::LogSeverity::e_ERROR,
                           file,
                           line,
                           errorStringsNew[code]);
 }
-//..
+// ```
 // A user in a different file may now specify the original source of an error:
-//..
+// ```
 //  handleErrorFlexible(__FILE__, __LINE__, 2);
-//..
-// If this line of code were placed on line 5 of the file 'otherapp.cpp', the
-// following line would be printed to 'stderr' or to the Windows debugger:
-//..
+// ```
+// If this line of code were placed on line 5 of the file `otherapp.cpp`, the
+// following line would be printed to `stderr` or to the Windows debugger:
+// ```
 //  ERROR otherapp.cpp:5 Invalid username.
-//..
+// ```
 //
 // Users may wrap their error function in a macro to automatically fill in the
-// file name and line number parameters, as done by the 'BSLS_LOG*' macros.
+// file name and line number parameters, as done by the `BSLS_LOG*` macros.
 
 }  // close namespace UsageExamples
 
@@ -1682,19 +1693,19 @@ int main(int argc, char *argv[]) {
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage examples provided in the component header file compile,
-        //:   link, and run as shown.
+        // 1. The usage examples provided in the component header file compile,
+        //    link, and run as shown.
         //
         // Plan:
-        //: 1 Copy all parts of the component documentation that have any
-        //:   compilable code into the header of the test driver, within the
-        //:   namespace 'UsageExamples'.  Uncomment any usage example lines
-        //:   that do not need to execute any code and can exist outside of the
-        //:   'main' function.  For code that must be executed in 'main', copy
-        //:   it into a case of the test driver, after a declaration of
-        //:   'using namespace UsageExamples;'.  White-space may be changed so
-        //:   that the code may fit in an indented block.  Code may be
-        //:   prepended or appended to allow output to be suppressed.
+        // 1. Copy all parts of the component documentation that have any
+        //    compilable code into the header of the test driver, within the
+        //    namespace `UsageExamples`.  Uncomment any usage example lines
+        //    that do not need to execute any code and can exist outside of the
+        //    `main` function.  For code that must be executed in `main`, copy
+        //    it into a case of the test driver, after a declaration of
+        //    `using namespace UsageExamples;`.  White-space may be changed so
+        //    that the code may fit in an indented block.  Code may be
+        //    prepended or appended to allow output to be suppressed.
         //
         // Testing:
         //   USAGE EXAMPLES
@@ -1719,20 +1730,20 @@ int main(int argc, char *argv[]) {
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // MACRO 'BSLS_LOG_[LEVEL]'
+        // MACRO `BSLS_LOG_[LEVEL]`
         //
         //   Note that this is a white box test that confirms the
-        //   'BSLS_LOG_[LEVEL]' macros forward to 'BSLS_LOG' appropriately.
+        //   `BSLS_LOG_[LEVEL]` macros forward to `BSLS_LOG` appropriately.
         //
         // Concerns:
-        //: 1 'BSLS_LOG_[LEVEL]' forwards its arguments to 'BSLS_LOG'
-        //:    correctly, supplying 'LEVEL' as the severity (where 'LEVEL' is
-        //:    'FATAL', 'ERROR', 'WARN', 'INFO', 'DEBUG', or 'TRACE').
-        //:
+        // 1. `BSLS_LOG_[LEVEL]` forwards its arguments to `BSLS_LOG`
+        //     correctly, supplying `LEVEL` as the severity (where `LEVEL` is
+        //     `FATAL`, `ERROR`, `WARN`, `INFO`, `DEBUG`, or `TRACE`).
+        //
         // Plan:
-        //: 1 Use the log message sink to capture the arguments passed to
-        //:   'bsls::Log::logFormattedMessage' for each of the macros under
-        //:   test. (C-1)
+        // 1. Use the log message sink to capture the arguments passed to
+        //    `bsls::Log::logFormattedMessage` for each of the macros under
+        //    test. (C-1)
         //
         // Testing:
         //   BSLS_LOG_FATAL(format, ...)
@@ -1744,7 +1755,7 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
 
         if (verbose) {
-            printf("\nMACRO 'BSLS_LOG_[LEVEL]'"
+            printf("\nMACRO `BSLS_LOG_[LEVEL]`"
                    "\n=======================\n");
         }
 
@@ -1755,7 +1766,7 @@ int main(int argc, char *argv[]) {
 
         {
             if (verbose) {
-                puts("\nCalling 'BSLS_LOG_[LEVEL]' macros.\n");
+                puts("\nCalling `BSLS_LOG_[LEVEL]` macros.\n");
             }
 
             const char * const   testFile        = __FILE__;
@@ -1834,20 +1845,20 @@ int main(int argc, char *argv[]) {
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // CLASS METHODS 'setSeverityThreshold', 'severityThreshold'
+        // CLASS METHODS `setSeverityThreshold`, `severityThreshold`
         //
         // Concerns:
-        //: 1 That the default value for 'severityThreshold' is 'e_WARN'.
-        //:
-        //: 2 That 'setSeverityThreshold' sets 'severityThreshold' to the
-        //:   supplied 'severity'.
+        // 1. That the default value for `severityThreshold` is `e_WARN`.
+        //
+        // 2. That `setSeverityThreshold` sets `severityThreshold` to the
+        //    supplied `severity`.
         //
         // Plan:
-        //: 1 Manually test the default 'severityThreshold' value. (C-1)
-        //:
-        //: 2 Perform a loop-based test setting the threshold with
-        //:   'severityThreshold', and verifying the value is assigned
-        //:    correctly with 'severityThreshold. (C-2)
+        // 1. Manually test the default `severityThreshold` value. (C-1)
+        //
+        // 2. Perform a loop-based test setting the threshold with
+        //    `severityThreshold`, and verifying the value is assigned
+        //     correctly with 'severityThreshold. (C-2)
         //
         // Testing:
         //   void setSeverityThreshold(bsls::LogSeverity::Enum );
@@ -1855,14 +1866,14 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
 
         if (verbose) {
-            printf("\nCLASS METHODS 'setSeverityThreshold','severityThreshold'"
+            printf("\nCLASS METHODS `setSeverityThreshold`,`severityThreshold`"
                    "\n========================================================"
                    "\n");
         }
 
         {
             if (verbose) {
-                puts("\nTesting default 'severityThreshold'.\n");
+                puts("\nTesting default `severityThreshold`.\n");
             }
 
             ASSERTV(bsls::Log::severityThreshold(),
@@ -1871,7 +1882,7 @@ int main(int argc, char *argv[]) {
 
         {
             if (verbose) {
-                puts("\nTesting 'severityThreshold'.\n");
+                puts("\nTesting `severityThreshold`.\n");
             }
 
             Severity::Enum DATA[] = {
@@ -1892,75 +1903,75 @@ int main(int argc, char *argv[]) {
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'logFormattedMessage', MACRO 'BSLS_LOG'
+        // CLASS METHOD `logFormattedMessage`, MACRO `BSLS_LOG`
         //
         // Concerns:
-        //: 1 'logFormattedMessage' invokes the installed handler with a string
-        //:
-        //: 2 'logFormattedMessage' properly formats the format string
-        //:
-        //: 3 'logFormattedMessage' can be called with no variadic arguments
-        //:
-        //: 4 'logFormattedMessage' properly handles final formatted strings of
-        //:   length 0 and 1
-        //:
-        //: 5 'logFormattedMessage' properly handles final formatted strings of
-        //:   lengths above, below, and equal to the size of the initial
-        //:   stack-allocated buffer
-        //:
-        //: 6 'BSLS_LOG' properly invokes 'logFormattedMessage' with the
-        //:   current file name, the line number on which the macro was
-        //:   invoked, the format string, and any and all variadic arguments
-        //:
-        //: 7 'BSLS_LOG' can still be called with no variadic arguments
-        //:
+        // 1. `logFormattedMessage` invokes the installed handler with a string
+        //
+        // 2. `logFormattedMessage` properly formats the format string
+        //
+        // 3. `logFormattedMessage` can be called with no variadic arguments
+        //
+        // 4. `logFormattedMessage` properly handles final formatted strings of
+        //    length 0 and 1
+        //
+        // 5. `logFormattedMessage` properly handles final formatted strings of
+        //    lengths above, below, and equal to the size of the initial
+        //    stack-allocated buffer
+        //
+        // 6. `BSLS_LOG` properly invokes `logFormattedMessage` with the
+        //    current file name, the line number on which the macro was
+        //    invoked, the format string, and any and all variadic arguments
+        //
+        // 7. `BSLS_LOG` can still be called with no variadic arguments
+        //
         //
         // Plan:
-        //: 1 Install 'LogMessageSink::testMessageHandler' as the logger's
-        //:   handler.
-        //:
-        //: 2 Call 'logFormattedMessage' with a simple format string requiring
-        //:   no substitutions, and confirm that the log message sink has
-        //:   received the expected parameters.  (C-1)  (C-3)
-        //:
-        //: 3 Pass into 'logFormattedMessage' a format string and variadic
-        //:   arguments corresponding to very simple output.  (C-2)
-        //:
-        //: 4 Populate a sufficiently large buffer with a set of characters,
-        //:   followed by a null byte.  This will be used to ensure a formatted
-        //:   string of a specific length.
-        //:
-        //: 5 Pass into 'logFormattedMessage' the sets of arguments resulting
-        //:   in expected formatted strings with the following formatted
-        //:   lengths: 0, 1.  (C-4)
-        //:
-        //: 6 Pass into 'logFormattedMessage' the sets of arguments resulting
-        //:   in expected formatted strings with the following formatted
-        //:   lengths:
-        //:              ===================================
-        //:              LOG_FORMATTED_STACK_BUFFER_SIZE - 2
-        //:              LOG_FORMATTED_STACK_BUFFER_SIZE - 1
-        //:              LOG_FORMATTED_STACK_BUFFER_SIZE
-        //:              LOG_FORMATTED_STACK_BUFFER_SIZE + 1
-        //:              LOG_FORMATTED_STACK_BUFFER_SIZE + 2
-        //:              LOG_FORMATTED_STACK_BUFFER_SIZE * 2
-        //:              ===================================
-        //:   (C-5)
-        //:
-        //: 7 Call 'BSLS_LOG' with a simple format string and confirm that the
-        //:   log message sink has received the correct results.  Ensure that
-        //:   the line number is determined from the line of invocation.  Also
-        //:   confirm that the file name is the current file name and the
-        //:   expected formatted string has been received.  (C-6)
-        //:
-        //: 8 Call 'BSLS_LOG' with no variadic arguments.  (C-7)
+        // 1. Install `LogMessageSink::testMessageHandler` as the logger's
+        //    handler.
+        //
+        // 2. Call `logFormattedMessage` with a simple format string requiring
+        //    no substitutions, and confirm that the log message sink has
+        //    received the expected parameters.  (C-1)  (C-3)
+        //
+        // 3. Pass into `logFormattedMessage` a format string and variadic
+        //    arguments corresponding to very simple output.  (C-2)
+        //
+        // 4. Populate a sufficiently large buffer with a set of characters,
+        //    followed by a null byte.  This will be used to ensure a formatted
+        //    string of a specific length.
+        //
+        // 5. Pass into `logFormattedMessage` the sets of arguments resulting
+        //    in expected formatted strings with the following formatted
+        //    lengths: 0, 1.  (C-4)
+        //
+        // 6. Pass into `logFormattedMessage` the sets of arguments resulting
+        //    in expected formatted strings with the following formatted
+        //    lengths:
+        //               ===================================
+        //               LOG_FORMATTED_STACK_BUFFER_SIZE - 2
+        //               LOG_FORMATTED_STACK_BUFFER_SIZE - 1
+        //               LOG_FORMATTED_STACK_BUFFER_SIZE
+        //               LOG_FORMATTED_STACK_BUFFER_SIZE + 1
+        //               LOG_FORMATTED_STACK_BUFFER_SIZE + 2
+        //               LOG_FORMATTED_STACK_BUFFER_SIZE * 2
+        //               ===================================
+        //    (C-5)
+        //
+        // 7. Call `BSLS_LOG` with a simple format string and confirm that the
+        //    log message sink has received the correct results.  Ensure that
+        //    the line number is determined from the line of invocation.  Also
+        //    confirm that the file name is the current file name and the
+        //    expected formatted string has been received.  (C-6)
+        //
+        // 8. Call `BSLS_LOG` with no variadic arguments.  (C-7)
         //
         // Testing:
         //   static void logFormattedMessage(file, line, format, ...);
         //   BSLS_LOG(format, ...)
         // --------------------------------------------------------------------
         if (verbose) {
-            printf("\nCLASS METHOD 'logFormattedMessage', MACRO 'BSLS_LOG'"
+            printf("\nCLASS METHOD `logFormattedMessage`, MACRO `BSLS_LOG`"
                    "\n====================================================\n");
         }
 
@@ -1970,7 +1981,7 @@ int main(int argc, char *argv[]) {
 
         {
             if (verbose) {
-                puts("\nCall 'logFormattedMessage' with a simple string\n");
+                puts("\nCall `logFormattedMessage` with a simple string\n");
             }
             LogMessageSink::reset();
 
@@ -2008,7 +2019,7 @@ int main(int argc, char *argv[]) {
 
         {
             if (verbose) {
-                puts("\nCall 'logFormattedMessage' with a complex string\n");
+                puts("\nCall `logFormattedMessage` with a complex string\n");
             }
             LogMessageSink::reset();
 
@@ -2050,7 +2061,7 @@ int main(int argc, char *argv[]) {
         }
         {
             if (verbose) {
-                puts("\nCall 'logFormattedMessage' with various lengths.\n");
+                puts("\nCall `logFormattedMessage` with various lengths.\n");
             }
 
             const size_t EXPECTED_LENGTHS[] = { 0, 1 };
@@ -2097,7 +2108,7 @@ int main(int argc, char *argv[]) {
 
         {
             if (verbose) {
-                puts("\nCall 'logFormattedMessage' with various lengths.\n");
+                puts("\nCall `logFormattedMessage` with various lengths.\n");
             }
 
             const int EXPECTED_LENGTHS[] = {
@@ -2129,13 +2140,13 @@ int main(int argc, char *argv[]) {
 
                 LogMessageSink::reset();
 
-                // We use 'k_LOG_FORMAT_STRING' below to allow us to re-use
-                // 'LargeTestData' (which sizes its expected output according
-                // to the format string 'k_LOG_FORMAT_STRING').  However,
-                // where 'LargeTestData' is written to match the formatting
-                // performed by (for example) 'stdoutMessageHandler', we
+                // We use `k_LOG_FORMAT_STRING` below to allow us to re-use
+                // `LargeTestData` (which sizes its expected output according
+                // to the format string `k_LOG_FORMAT_STRING`).  However,
+                // where `LargeTestData` is written to match the formatting
+                // performed by (for example) `stdoutMessageHandler`, we
                 // actually provide that format string explicitly to
-                // 'logFormatedMessage' (note that 'LogMessageSink' provides no
+                // `logFormatedMessage` (note that `LogMessageSink` provides no
                 // formatting of its own).
 
                 bsls::Log::logFormattedMessage(
@@ -2170,7 +2181,7 @@ int main(int argc, char *argv[]) {
 
         {
             if (verbose) {
-                puts("\nCall 'BSLS_LOG'\n");
+                puts("\nCall `BSLS_LOG`\n");
             }
 
             LogMessageSink::reset();
@@ -2184,8 +2195,8 @@ int main(int argc, char *argv[]) {
             const char * const   expectedMessage = "Int: 17372, "
                                                  "String: Hello World!";
 
-            // We are expanding the '__LINE__' macro on the same line as the
-            // call to 'BSLS_LOG_SIMPLE' to ensure that the true line numbers
+            // We are expanding the `__LINE__` macro on the same line as the
+            // call to `BSLS_LOG_SIMPLE` to ensure that the true line numbers
             // match.
             int tl =__LINE__; BSLS_LOG(testSev, testFormat, subInt, subStr);
 
@@ -2221,8 +2232,8 @@ int main(int argc, char *argv[]) {
             const char * const   testFormat      = "Hello World";
             const char * const   expectedMessage = testFormat;
 
-            // We are expanding the '__LINE__' macro on the same line as the
-            // call to 'BSLS_LOG_SIMPLE' to ensure that the true line numbers
+            // We are expanding the `__LINE__` macro on the same line as the
+            // call to `BSLS_LOG_SIMPLE` to ensure that the true line numbers
             // match.
             const int testLine =__LINE__; BSLS_LOG(testSeverity, testFormat);
 
@@ -2248,48 +2259,48 @@ int main(int argc, char *argv[]) {
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'logMessage', MACRO 'BSLS_LOG_SIMPLE'
+        // CLASS METHOD `logMessage`, MACRO `BSLS_LOG_SIMPLE`
         //
         // Concerns:
-        //: 1 'logMessage' properly calls the currently installed handler
-        //:
-        //: 2 The macro 'BSLS_LOG_SIMPLE' properly calls 'logMessage' with the
-        //:   original line of instantiation, not any other line number
-        //:
-        //: 3 The macro 'BSLS_LOG_SIMPLE' does not interpret the message as a
-        //:   'printf'-style format string
-        //:
-        //: 4 That 'logMessage' only calls the installed handler if the
-        //:   supplied severity is as, or more, severe as the
-        //:   'severityThreshold'.
+        // 1. `logMessage` properly calls the currently installed handler
+        //
+        // 2. The macro `BSLS_LOG_SIMPLE` properly calls `logMessage` with the
+        //    original line of instantiation, not any other line number
+        //
+        // 3. The macro `BSLS_LOG_SIMPLE` does not interpret the message as a
+        //    `printf`-style format string
+        //
+        // 4. That `logMessage` only calls the installed handler if the
+        //    supplied severity is as, or more, severe as the
+        //    `severityThreshold`.
         //
         // Plan:
-        //: 1 Set the currently installed log message handler to
-        //:   'LogMessageSink::testMessageHandler'. (C-1)
-        //:
-        //: 2 Call 'bsls::Log::logMessage' with simple values. (C-1)
-        //:
-        //: 3 Confirm that the registered handler was called with the proper
-        //:   parameters. (C-1)
-        //:
-        //: 4 Perform a table based test to confirm that 'logMessage' writes
-        //:   a message only if it meets or exceeds the current threshold.
-        //:   (C-4)
-        //:
-        //: 5 Reset the sink.  Call 'BSLS_LOG_SIMPLE' with a simple message
-        //:   that includes 'printf'-style formats that should not be formatted
-        //:   (C-2) (C-3)
-        //:
-        //: 6 Confirm that the registered handler was again called, with the
-        //:   current file name, the proper line number, and the simple
-        //:   message. (C-2) (C-3)
+        // 1. Set the currently installed log message handler to
+        //    `LogMessageSink::testMessageHandler`. (C-1)
+        //
+        // 2. Call `bsls::Log::logMessage` with simple values. (C-1)
+        //
+        // 3. Confirm that the registered handler was called with the proper
+        //    parameters. (C-1)
+        //
+        // 4. Perform a table based test to confirm that `logMessage` writes
+        //    a message only if it meets or exceeds the current threshold.
+        //    (C-4)
+        //
+        // 5. Reset the sink.  Call `BSLS_LOG_SIMPLE` with a simple message
+        //    that includes `printf`-style formats that should not be formatted
+        //    (C-2) (C-3)
+        //
+        // 6. Confirm that the registered handler was again called, with the
+        //    current file name, the proper line number, and the simple
+        //    message. (C-2) (C-3)
         //
         // Testing:
         //   static void logMessage(file, line, message);
         //   BSLS_LOG_SIMPLE(message)
         // --------------------------------------------------------------------
         if (verbose) {
-            printf("\nCLASS METHOD 'logMessage', MACRO 'BSLS_LOG_SIMPLE'"
+            printf("\nCLASS METHOD `logMessage`, MACRO `BSLS_LOG_SIMPLE`"
                    "\n==================================================\n");
         }
 
@@ -2299,7 +2310,7 @@ int main(int argc, char *argv[]) {
 
         {
             if (verbose) {
-                puts("\nCalling 'logMessage'.\n");
+                puts("\nCalling `logMessage`.\n");
             }
             LogMessageSink::reset();
 
@@ -2334,11 +2345,11 @@ int main(int argc, char *argv[]) {
         }
         {
             if (verbose) {
-                puts("\nCalling 'logMessage' with a variety of severities.\n");
+                puts("\nCalling `logMessage` with a variety of severities.\n");
             }
 
             // Note that we perform a table based test to avoid duplicating
-            // the logic implemented in 'logMessage' for testing severity.
+            // the logic implemented in `logMessage` for testing severity.
 
             struct {
                  Severity::Enum d_threshold;
@@ -2409,8 +2420,8 @@ int main(int argc, char *argv[]) {
             const char * const   testFile  = __FILE__;
             const char * const   testMsg   = "Hello%d Wor%ld%s!";
 
-            // We are expanding the '__LINE__' macro on the same line as the
-            // call to 'BSLS_LOG_SIMPLE' to ensure that the true line numbers
+            // We are expanding the `__LINE__` macro on the same line as the
+            // call to `BSLS_LOG_SIMPLE` to ensure that the true line numbers
             // match.
             const int testLine =__LINE__; BSLS_LOG_SIMPLE(testSev, testMsg);
 
@@ -2440,15 +2451,15 @@ int main(int argc, char *argv[]) {
         // DEFAULT HANDLER CONFIRMATION
         //
         // Concerns:
-        //: 1 An initial call to 'logMessageHandler' will return
-        //:   the address of 'platformDefaultMessageHandler'
+        // 1. An initial call to `logMessageHandler` will return
+        //    the address of `platformDefaultMessageHandler`
         //
         // Plan:
-        //: 1 Confirm that 'logMessageHandler' returns the address of
-        //:   'platformDefaultMessageHandler'.
+        // 1. Confirm that `logMessageHandler` returns the address of
+        //    `platformDefaultMessageHandler`.
         //
         // Testing:
-        //   CONCERN: By default, the 'platformDefaultMessageHandler' is used.
+        //   CONCERN: By default, the `platformDefaultMessageHandler` is used.
         // --------------------------------------------------------------------
         if (verbose) {
             printf("\nDEFAULT HANDLER CONFIRMATION"
@@ -2465,30 +2476,30 @@ int main(int argc, char *argv[]) {
         //   expected.
         //
         // Concerns:
-        //: 1 The standard handlers ('stdoutMessageHandler',
-        //:   'stderrMessageHandler', 'platformDefaultMessageHandler') can be
-        //:   set and retrieved as the handler.
-        //:
-        //: 2 The handler defined in this test driver,
-        //:   'LogMessageSink::testMessageHandler' can be set and retrieved as
-        //:   the handler.
+        // 1. The standard handlers (`stdoutMessageHandler`,
+        //    `stderrMessageHandler`, `platformDefaultMessageHandler`) can be
+        //    set and retrieved as the handler.
+        //
+        // 2. The handler defined in this test driver,
+        //    `LogMessageSink::testMessageHandler` can be set and retrieved as
+        //    the handler.
         //
         // Plan:
-        //: 1 Call 'setLogMessageHandler' with 'stdoutMessageHandler' as a
-        //:   parameter, and confirm that 'logMessageHandler()' returns
-        //:   'stdoutMessageHandler'. (C-1)
-        //:
-        //: 2 Call 'setLogMessageHandler' with 'stderrMessageHandler' as a
-        //:   parameter, and confirm that 'logMessageHandler()' returns
-        //:   'stderrMessageHandler'. (C-1)
-        //:
-        //: 3 Call 'setLogMessageHandler' with 'platformDefaultMessageHandler'
-        //:   as a parameter, and confirm that 'logMessageHandler()' returns
-        //:   'platformDefaultMessageHandler'. (C-1)
-        //:
-        //: 4 Call 'setLogMessageHandler' with 'testMessageHandler' as a
-        //:   parameter, and confirm that 'logMessageHandler()' returns
-        //:   'testMessageHandler'. (C-1)
+        // 1. Call `setLogMessageHandler` with `stdoutMessageHandler` as a
+        //    parameter, and confirm that `logMessageHandler()` returns
+        //    `stdoutMessageHandler`. (C-1)
+        //
+        // 2. Call `setLogMessageHandler` with `stderrMessageHandler` as a
+        //    parameter, and confirm that `logMessageHandler()` returns
+        //    `stderrMessageHandler`. (C-1)
+        //
+        // 3. Call `setLogMessageHandler` with `platformDefaultMessageHandler`
+        //    as a parameter, and confirm that `logMessageHandler()` returns
+        //    `platformDefaultMessageHandler`. (C-1)
+        //
+        // 4. Call `setLogMessageHandler` with `testMessageHandler` as a
+        //    parameter, and confirm that `logMessageHandler()` returns
+        //    `testMessageHandler`. (C-1)
         //
         // Testing:
         //   static bsls::Log::LogMessageHandler logMessageHandler();
@@ -2522,43 +2533,43 @@ int main(int argc, char *argv[]) {
         // PLATFORM DEFAULT MESSAGE HANDLER
         //
         // Concerns:
-        //: 1 'platformDefaultMessageHandler' delegates log messages to
-        //:   'stderrMessageHandler', except in Windows non-console mode.
-        //:
-        //: 2 In Windows non-console mode, 'platformDefaultMessageHandler'
-        //:   writes a string to the Windows debugger.
-        //:
-        //: 3 In Windows non-console mode, the string formatted by
-        //:   'platformDefaultMessageHandler' can handle all of the elements
-        //:   in 'DEFAULT_DATA' with which all of the other handlers were
-        //:   tested, as well as final formatted strings equal to and near the
-        //:   internal stack-allocated buffer size.
+        // 1. `platformDefaultMessageHandler` delegates log messages to
+        //    `stderrMessageHandler`, except in Windows non-console mode.
+        //
+        // 2. In Windows non-console mode, `platformDefaultMessageHandler`
+        //    writes a string to the Windows debugger.
+        //
+        // 3. In Windows non-console mode, the string formatted by
+        //    `platformDefaultMessageHandler` can handle all of the elements
+        //    in `DEFAULT_DATA` with which all of the other handlers were
+        //    tested, as well as final formatted strings equal to and near the
+        //    internal stack-allocated buffer size.
         //
         // Plan:
-        //: 1 For all systems, write a simple message to
-        //:   'platformDefaultMessageHandler', capture 'stderr', and confirm
-        //:   that the captured output is as expected.  (C-1)
-        //:
-        //: 2 Under Windows:
-        //:
-        //:   1 Create the Windows 'Event' 'BSLS_LOG_TEST'.
-        //:
-        //:   2 Spawn a copy of this test driver, specifying the manual test
-        //:     case '-2'. [This test case will put itself into non-console
-        //:     mode and wait for further instructions from us.]
-        //:
-        //:   3 Declare a 'WindowsDebugMessageSink' object and 'enable' it.
-        //:
-        //:   4 For each element in 'DEFAULT_DATA', set the 'BSLS_LOG_TEST'
-        //:     event and confirm that the expected string was captured.  (C-2)
-        //:
-        //:   5 Fill the large-data buffer using 'fillBuffer()'.
-        //:
-        //:   6 For each length in 'WINDOWS_LARGE_DATA_LENGTHS', set the
-        //:     'BSLS_LOG_TEST' event and confirm that the expected string was
-        //:     captured.  (C-3).
-        //:
-        //:   7 Confirm that the sub-process exits with status '0'.
+        // 1. For all systems, write a simple message to
+        //    `platformDefaultMessageHandler`, capture `stderr`, and confirm
+        //    that the captured output is as expected.  (C-1)
+        //
+        // 2. Under Windows:
+        //
+        //   1. Create the Windows `Event` `BSLS_LOG_TEST`.
+        //
+        //   2. Spawn a copy of this test driver, specifying the manual test
+        //      case `-2`. [This test case will put itself into non-console
+        //      mode and wait for further instructions from us.]
+        //
+        //   3. Declare a `WindowsDebugMessageSink` object and `enable` it.
+        //
+        //   4. For each element in `DEFAULT_DATA`, set the `BSLS_LOG_TEST`
+        //      event and confirm that the expected string was captured.  (C-2)
+        //
+        //   5. Fill the large-data buffer using `fillBuffer()`.
+        //
+        //   6. For each length in `WINDOWS_LARGE_DATA_LENGTHS`, set the
+        //      `BSLS_LOG_TEST` event and confirm that the expected string was
+        //      captured.  (C-3).
+        //
+        //   7. Confirm that the sub-process exits with status `0`.
         //
         // Testing:
         //   static void platformDefaultMessageHandler(file, line, message);
@@ -2570,7 +2581,7 @@ int main(int argc, char *argv[]) {
 
         {
             if (verbose) {
-                fputs("\nConfirming 'stderr' behavior.\n",
+                fputs("\nConfirming `stderr` behavior.\n",
                       stdout);
             }
             OutputRedirector stderrRedirector(OutputRedirector::STDERR_STREAM);
@@ -2597,7 +2608,7 @@ int main(int argc, char *argv[]) {
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         {
-            if(verbose) printf("\nCreating event '%s'.\n",
+            if(verbose) printf("\nCreating event `%s`.\n",
                                                 WINDOWS_SUBPROCESS_EVENT_NAME);
             HANDLE event = CreateEventA(NULL,
                                         false,
@@ -2638,7 +2649,7 @@ int main(int argc, char *argv[]) {
                                                             commandLineBuffer);
 
             STARTUPINFOA startupInfo;
-            // MSDN docs say to use 'ZeroMemory'
+            // MSDN docs say to use `ZeroMemory`
             ZeroMemory(&startupInfo, sizeof(startupInfo));
             startupInfo.cb = sizeof(startupInfo);
 
@@ -2773,39 +2784,39 @@ int main(int argc, char *argv[]) {
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TEST APPARATUS: 'fillBuffer(buffer, size)' and 'LargeTestData'
+        // TEST APPARATUS: `fillBuffer(buffer, size)` and `LargeTestData`
         //
         // Concerns:
-        //: 1 Function fills a buffer appropriately
-        //:
-        //: 2 LargeTestData generates a buffer that formats to the
-        //:   expected size.
+        // 1. Function fills a buffer appropriately
+        //
+        // 2. LargeTestData generates a buffer that formats to the
+        //    expected size.
         //
         // Plan:
-        //: 1 Use 'fillBuffer' to fill a buffer, and compare the results with
-        //:   an expected value.  The size specified for the buffer should be
-        //:   less than its true size so that memory overflow sentinel values
-        //:   can be examined.
-        //:
-        //: 2 Use the output of 'LargeTestData' with 'snprintf' using the
-        //:   constant 'LOG_STRING_FORMAT', and verify the expected output.
-        //:
-        //: 3 Use the output of 'LargeTestData' with 'stderrMessageHandler'.
-        //:   Note that this uses a (as yet) untested function, but serves
-        //:   as a sanity check that 'LOG_STRING_FORMAT' is correct.
+        // 1. Use `fillBuffer` to fill a buffer, and compare the results with
+        //    an expected value.  The size specified for the buffer should be
+        //    less than its true size so that memory overflow sentinel values
+        //    can be examined.
+        //
+        // 2. Use the output of `LargeTestData` with `snprintf` using the
+        //    constant `LOG_STRING_FORMAT`, and verify the expected output.
+        //
+        // 3. Use the output of `LargeTestData` with `stderrMessageHandler`.
+        //    Note that this uses a (as yet) untested function, but serves
+        //    as a sanity check that `LOG_STRING_FORMAT` is correct.
         //
         // Testing:
         //    fillBuffer(buffer, size);
         //    LargeTestData
         // --------------------------------------------------------------------
         if (verbose) {
-            printf("\n'fillBuffer(buffer, size)' and 'LargeTestData'"
+            printf("\n'fillBuffer(buffer, size)` and `LargeTestData'"
                    "\n=============================================\n");
         }
 
         {
             if (verbose) {
-                fputs("\nTesting 'fillBuffer'.\n", stdout);
+                fputs("\nTesting `fillBuffer`.\n", stdout);
             }
 
             const char expectedValue[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -2831,13 +2842,13 @@ int main(int argc, char *argv[]) {
             // But that second to last sentinel value was change to '\0'
             ASSERT('\0' == buffer[bufferSize - 2]);
 
-            // Now do a 'strcmp':
+            // Now do a `strcmp`:
             ASSERT(0 == strcmp(expectedValue, buffer));
 
         }
         {
             if (verbose) {
-                fputs("\nTesting 'LargeTestData' with snprintf.\n", stdout);
+                fputs("\nTesting `LargeTestData` with snprintf.\n", stdout);
             }
 
             char buffer[102];
@@ -2859,7 +2870,7 @@ int main(int argc, char *argv[]) {
         }
         {
             if (verbose) {
-                fputs("\nTesting 'LargeTestData' with stderrMessageHandler."
+                fputs("\nTesting `LargeTestData` with stderrMessageHandler."
                       "\n", stdout);
             }
 
@@ -2895,35 +2906,35 @@ int main(int argc, char *argv[]) {
         //   string to their respective streams.
         //
         // Concerns:
-        //: 1 'stdoutMessageHandler' writes to 'stdout', and
-        //:   'stderrMessageHandler' writes to 'stderr'
-        //:
-        //: 2 Both methods format the output string with the same expected
-        //:   format
-        //:
-        //: 3 Both methods properly format strings with all combinations of:
-        //:   {empty file name, non-empty file name} X {zero line number,
-        //:   other line number} X {empty message string, non-empty message
-        //:   string}
-        //:
-        //: 4 Both methods handle different values for 'severity'.
-        //:
-        //: 5 Both methods properly handle the extreme value 'INT_MAX' for the
-        //:   line number.
+        // 1. `stdoutMessageHandler` writes to `stdout`, and
+        //    `stderrMessageHandler` writes to `stderr`
+        //
+        // 2. Both methods format the output string with the same expected
+        //    format
+        //
+        // 3. Both methods properly format strings with all combinations of:
+        //    {empty file name, non-empty file name} X {zero line number,
+        //    other line number} X {empty message string, non-empty message
+        //    string}
+        //
+        // 4. Both methods handle different values for `severity`.
+        //
+        // 5. Both methods properly handle the extreme value `INT_MAX` for the
+        //    line number.
         //
         // Plan:
-        //: 1 For each handler, write a simple string and capture its output.
-        //:   Ensure that the captured string matches what is expected. (C-1),
-        //:   (C-2,4)
-        //:
-        //: 2 For each handler, apply the more extensive format inputs and
-        //:   confirm that the output is formatted just like a predefined
-        //:   expected format string. (C-3,4)
-        //:
-        //: 3 For each handler, send it a normal file name and message, but
-        //:   send a line number of INT_MAX, and ensure that the captured
-        //:   output is as expected. (C-5)
-        //:
+        // 1. For each handler, write a simple string and capture its output.
+        //    Ensure that the captured string matches what is expected. (C-1),
+        //    (C-2,4)
+        //
+        // 2. For each handler, apply the more extensive format inputs and
+        //    confirm that the output is formatted just like a predefined
+        //    expected format string. (C-3,4)
+        //
+        // 3. For each handler, send it a normal file name and message, but
+        //    send a line number of INT_MAX, and ensure that the captured
+        //    output is as expected. (C-5)
+        //
         //
         // Testing:
         //   typedef void (*LogMessageHandler)(severity, file, line, message);
@@ -2952,9 +2963,9 @@ int main(int argc, char *argv[]) {
 
             if(veryVerbose) {
                 if(STREAM == OutputRedirector::STDOUT_STREAM) {
-                    puts("\nTesting 'stdoutMessageHandler'.\n");
+                    puts("\nTesting `stdoutMessageHandler`.\n");
                 } else {
-                    puts("\nTesting 'stderrMessageHandler'.\n");
+                    puts("\nTesting `stderrMessageHandler`.\n");
                 }
             }
 
@@ -3079,27 +3090,27 @@ int main(int argc, char *argv[]) {
       case 3: {
         // --------------------------------------------------------------------
         // WINDOWS DEBUG MESSAGE SINK
-        //   Ensure that objects of the class 'WindowsDebugMessageSink' capture
+        //   Ensure that objects of the class `WindowsDebugMessageSink` capture
         //   debug messages as expected.
         //
         // Concerns:
-        //: 1 A call to 'enable' takes no longer than the specified time-out
-        //:   limit (with an uncertainty).
-        //:
-        //: 2 After a successful call to 'enable', a call to 'wait' can be
-        //:   used to wait for or capture a currently available debug message.
-        //:
-        //: 3 A call to 'wait' takes no longer than the specified time-out
-        //:   limit (with an uncertainty).
-        //:
-        //: 4 After a successful call to 'wait', the captured message can be
-        //:   retrieved by calling 'message'.
-        //:
-        //: 5 'wait' will only capture messages with the process ID set in
-        //:   'setTargetProcessID'
-        //:
+        // 1. A call to `enable` takes no longer than the specified time-out
+        //    limit (with an uncertainty).
+        //
+        // 2. After a successful call to `enable`, a call to `wait` can be
+        //    used to wait for or capture a currently available debug message.
+        //
+        // 3. A call to `wait` takes no longer than the specified time-out
+        //    limit (with an uncertainty).
+        //
+        // 4. After a successful call to `wait`, the captured message can be
+        //    retrieved by calling `message`.
+        //
+        // 5. `wait` will only capture messages with the process ID set in
+        //    `setTargetProcessID`
+        //
         // Plan:
-        //:  1 TBD
+        //  1. TBD
         //
         // Testing:
         //   WINDOWS DEBUG MESSAGE SINK
@@ -3121,26 +3132,26 @@ int main(int argc, char *argv[]) {
       case 2: {
         // --------------------------------------------------------------------
         // TEST-DRIVER LOG MESSAGE HANDLER
-        //:  Ensure that the locally defined handler exhibits proper behavior.
-        //:
+        //   Ensure that the locally defined handler exhibits proper behavior.
+        //
         // Concerns:
-        //: 1 The 'static' state of 'LogMessageSink' is initialized as valid.
-        //:
-        //: 2 Calling 'LogMessageSink::testMessageHandler' results in the
-        //:   proper values being set.
-        //:
-        //: 3 Calling 'LogMessageSink::reset' resets all 'static' members to
-        //:   their state at initialization.
-        //:
+        // 1. The `static` state of `LogMessageSink` is initialized as valid.
+        //
+        // 2. Calling `LogMessageSink::testMessageHandler` results in the
+        //    proper values being set.
+        //
+        // 3. Calling `LogMessageSink::reset` resets all `static` members to
+        //    their state at initialization.
+        //
         // Plan:
-        //: 1 Confirm that all four 'static' members of 'LogMessageSink' are
-        //:   valid empty values.  (C-1)
-        //:
-        //: 2 Call 'LogMessageSink::testMessageHandler' with valid values, and
-        //:   confirm that the state variables are valid.  (C-2)
-        //:
-        //: 3 Call 'LogMessageSink::reset' and confirm that all variables are
-        //:   now empty again.  (C-3)
+        // 1. Confirm that all four `static` members of `LogMessageSink` are
+        //    valid empty values.  (C-1)
+        //
+        // 2. Call `LogMessageSink::testMessageHandler` with valid values, and
+        //    confirm that the state variables are valid.  (C-2)
+        //
+        // 3. Call `LogMessageSink::reset` and confirm that all variables are
+        //    now empty again.  (C-3)
         //
         // Testing:
         //   TEST-DRIVER LOG MESSAGE HANDLER
@@ -3195,141 +3206,141 @@ int main(int argc, char *argv[]) {
         // STREAM REDIRECTION APPARATUS
         //
         // Concerns:
-        //:  1 Object can be initialized for 'stderr' and is in a proper state
-        //:
-        //:  2 'redirectedStream' and 'nonRedirectedStream' work
-        //:
-        //:  3 'enable' works and can be called many times in order
-        //:
-        //:  4 Output is redirected
-        //:
-        //:  5 Captured output is readable
-        //:
-        //:  6 'load' works
-        //:
-        //:  7 'clear' works
-        //:
-        //:  8 'compare' works
-        //:
-        //:  9 Incorrect output is correctly diagnosed
-        //:
-        //: 10 Embedded newlines work
-        //:
-        //: 11 Empty output works
-        //:
-        //: 12 Embedded nulls work
-        //:
-        //: 13 Filesystem-dependent control sequences work
-        //:
-        //: 14 Calling 'enable' after any number of 'disable' calls produces
-        //:    consistent behavior
-        //:
-        //: 15 Object can be enabled for 'stdout' and is in a proper state
-        //:
-        //: 17 Output is redirected for 'stdout'
-        //:
-        //: 18 'compare' works for 'stdout'
-        //:
+        //  1. Object can be initialized for `stderr` and is in a proper state
+        //
+        //  2. `redirectedStream` and `nonRedirectedStream` work
+        //
+        //  3. `enable` works and can be called many times in order
+        //
+        //  4. Output is redirected
+        //
+        //  5. Captured output is readable
+        //
+        //  6. `load` works
+        //
+        //  7. `clear` works
+        //
+        //  8. `compare` works
+        //
+        //  9. Incorrect output is correctly diagnosed
+        //
+        // 10. Embedded newlines work
+        //
+        // 11. Empty output works
+        //
+        // 12. Embedded nulls work
+        //
+        // 13. Filesystem-dependent control sequences work
+        //
+        // 14. Calling `enable` after any number of `disable` calls produces
+        //     consistent behavior
+        //
+        // 15. Object can be enabled for `stdout` and is in a proper state
+        //
+        // 17. Output is redirected for `stdout`
+        //
+        // 18. `compare` works for `stdout`
+        //
         //
         // Plan:
-        //:  1 Initialize an 'OutputRedirector' object and ask it to redirect
-        //:    'stderr'.  Confirm that a call to 'redirectedStreamId' returns
-        //:    'STDERR_STREAM'. (C-1)
-        //:
-        //:  2 Confirm that 'redirectedStream' returns a pointer equal to
-        //:    'stderr', and 'nonRedirectedStream' returns a pointer equal to
-        //:    'stdout'. (C-2)
-        //:
-        //:  3 Call 'enable', and ensure that 'isRedirecting' returns 'true'.
-        //:    Again call 'enable' and ensure that 'isRedirecting' still
-        //:    returns 'true'. (C-3)
-        //:
-        //:  4 Confirm that 'ftell(stderr)' succeeds.  This demonstrates that
-        //:    'stderr' is a seekable file. (C-4)
-        //:
-        //:  5 Write a string to 'stderr', confirm that 'stderr's seek position
-        //:    has changed, read back the contents of 'stderr' and compare them
-        //:    to the original string. (C-5)
-        //:
-        //:  6 Write a string to 'stderr'.  Confirm that
-        //:    'OutputRedirector::load' changes the contents of the output
-        //:    buffer and that it changes the result of
-        //:    'OutputRedirector::isOutputReady' from 'false' to 'true'.
-        //:    Confirm that the contents of the output buffer match the
-        //:    original string. (C-6)
-        //:
-        //:  7 Write a string to 'stderr' and load it with
-        //:    'OutputRedirector::load'.  Confirm that
-        //:    'OutputRedirector::clear' rewinds 'stderr', changes the output
-        //:    of 'OutputRedirector::isOutputReady' from 'true' to 'false' and
-        //:    sets the length of the output buffer to 0. (C-7)
-        //:
-        //:  8 Write a string to 'stderr' and read it back with
-        //:    'OutputRedirector::load'.  Confirm that
-        //:    'OutputRedirector::compare' gives the correct results when the
-        //:    captured output is compared with the following data: (C-8)
-        //:
-        //:        Data                            Comparison Result
-        //:    ------------                    -------------------------
-        //:    input string                            true
-        //:    input string with appended data         false
-        //:    input string truncated                  false
-        //:    string different from input:
-        //:    at beginning                            false
-        //:    at end                                  false
-        //:    elsewhere                               false
-        //:
-        //:  9 Confirm that 'load' fails when there is more data in 'stderr'
-        //:    than can be fit in the capture buffer.  Confirm that 'compare'
-        //:    fails if 'load' has not been first called to read data into the
-        //:    capture buffer. (C-9)
-        //:
-        //: 10 Confirm that strings containing embedded newlines are correctly
-        //:    captured and correctly identified by 'compare'. (C-10)
-        //:
-        //: 11 Write an empty string to 'stderr'.  Confirm that it can be
-        //:    correctly loaded and compared with the original. (C-11)
-        //:
-        //: 12 Write a series of strings to 'stderr', containing '\0' at the
-        //:    beginning, end or interior of the string.  Confirm that the
-        //:    captured output can be correctly loaded and compared with the
-        //:    original input. (C-12)
-        //:
-        //: 13 Write a series of strings to 'stderr' containing '^D' and
-        //:    '<CRLF>' and confirm that these strings are correctly captured
-        //:    and loaded. (C-13)
-        //:
-        //: 14 Clear the scratch buffer.  Write a string to 'stderr'. Call
-        //:    'load'.  Confirm 'isOutputReady'.  Call 'compare'.  Call
-        //:    'disable'.  Confirm that 'isRedirecting' is false.  Call
-        //:    'disable' and again confirm that 'isRedirecting' is false.
-        //:    Confirm 'isOutputReady'.  Call 'compare'.  Call 'enable'.
-        //:    Confirm that 'isRedirecting' is true.  Confirm 'isOutputReady'.
-        //:    Call 'compare'.  Confirm that 'ftell(stderr)' succeeds.  This
-        //:    demonstrates that 'stderr' is a seekable file.  Call 'load'.
-        //:    Confirm 'isOutputReady'. Ensure that the buffer is now empty.
-        //:    (C-14)
-        //:
-        //: 15 Initialize an 'OutputRedirector' object and ask it to redirect
-        //:    'stdout'.  Confirm that a call to 'redirectedStreamId' returns
-        //:    'STDOUT_STREAM'.  Confirm that 'redirectedStream' returns a
-        //:    pointer equal to 'stdout', and 'nonRedirectedStream' returns a
-        //:    pointer equal to 'stderr'.  Call 'enable' and confirm
-        //:    'isRedirecting'.
-        //:
-        //: 17 Confirm that 'ftell(stdout)' succeeds.  This demonstrates that
-        //:    'stdout' is a seekable file.
-        //:
-        //: 18 Write a simple string to 'stdout' and read it back with
-        //:    'OutputRedirector::load'.  Confirm that
-        //:    'OutputRedirector::compare' gives the correct results.
+        //  1. Initialize an `OutputRedirector` object and ask it to redirect
+        //     `stderr`.  Confirm that a call to `redirectedStreamId` returns
+        //     `STDERR_STREAM`. (C-1)
+        //
+        //  2. Confirm that `redirectedStream` returns a pointer equal to
+        //     `stderr`, and `nonRedirectedStream` returns a pointer equal to
+        //     `stdout`. (C-2)
+        //
+        //  3. Call `enable`, and ensure that `isRedirecting` returns `true`.
+        //     Again call `enable` and ensure that `isRedirecting` still
+        //     returns `true`. (C-3)
+        //
+        //  4. Confirm that `ftell(stderr)` succeeds.  This demonstrates that
+        //     `stderr` is a seekable file. (C-4)
+        //
+        //  5. Write a string to `stderr`, confirm that `stderr`s seek position
+        //     has changed, read back the contents of `stderr` and compare them
+        //     to the original string. (C-5)
+        //
+        //  6. Write a string to `stderr`.  Confirm that
+        //     `OutputRedirector::load` changes the contents of the output
+        //     buffer and that it changes the result of
+        //     `OutputRedirector::isOutputReady` from `false` to `true`.
+        //     Confirm that the contents of the output buffer match the
+        //     original string. (C-6)
+        //
+        //  7. Write a string to `stderr` and load it with
+        //     `OutputRedirector::load`.  Confirm that
+        //     `OutputRedirector::clear` rewinds `stderr`, changes the output
+        //     of `OutputRedirector::isOutputReady` from `true` to `false` and
+        //     sets the length of the output buffer to 0. (C-7)
+        //
+        //  8. Write a string to `stderr` and read it back with
+        //     `OutputRedirector::load`.  Confirm that
+        //     `OutputRedirector::compare` gives the correct results when the
+        //     captured output is compared with the following data: (C-8)
+        //
+        //         Data                            Comparison Result
+        //     ------------                    -------------------------
+        //     input string                            true
+        //     input string with appended data         false
+        //     input string truncated                  false
+        //     string different from input:
+        //     at beginning                            false
+        //     at end                                  false
+        //     elsewhere                               false
+        //
+        //  9. Confirm that `load` fails when there is more data in `stderr`
+        //     than can be fit in the capture buffer.  Confirm that `compare`
+        //     fails if `load` has not been first called to read data into the
+        //     capture buffer. (C-9)
+        //
+        // 10. Confirm that strings containing embedded newlines are correctly
+        //     captured and correctly identified by `compare`. (C-10)
+        //
+        // 11. Write an empty string to `stderr`.  Confirm that it can be
+        //     correctly loaded and compared with the original. (C-11)
+        //
+        // 12. Write a series of strings to `stderr`, containing '\0' at the
+        //     beginning, end or interior of the string.  Confirm that the
+        //     captured output can be correctly loaded and compared with the
+        //     original input. (C-12)
+        //
+        // 13. Write a series of strings to `stderr` containing `^D` and
+        //     `<CRLF>` and confirm that these strings are correctly captured
+        //     and loaded. (C-13)
+        //
+        // 14. Clear the scratch buffer.  Write a string to `stderr`. Call
+        //     `load`.  Confirm `isOutputReady`.  Call `compare`.  Call
+        //     `disable`.  Confirm that `isRedirecting` is false.  Call
+        //     `disable` and again confirm that `isRedirecting` is false.
+        //     Confirm `isOutputReady`.  Call `compare`.  Call `enable`.
+        //     Confirm that `isRedirecting` is true.  Confirm `isOutputReady`.
+        //     Call `compare`.  Confirm that `ftell(stderr)` succeeds.  This
+        //     demonstrates that `stderr` is a seekable file.  Call `load`.
+        //     Confirm `isOutputReady`. Ensure that the buffer is now empty.
+        //     (C-14)
+        //
+        // 15. Initialize an `OutputRedirector` object and ask it to redirect
+        //     `stdout`.  Confirm that a call to `redirectedStreamId` returns
+        //     `STDOUT_STREAM`.  Confirm that `redirectedStream` returns a
+        //     pointer equal to `stdout`, and `nonRedirectedStream` returns a
+        //     pointer equal to `stderr`.  Call `enable` and confirm
+        //     `isRedirecting`.
+        //
+        // 17. Confirm that `ftell(stdout)` succeeds.  This demonstrates that
+        //     `stdout` is a seekable file.
+        //
+        // 18. Write a simple string to `stdout` and read it back with
+        //     `OutputRedirector::load`.  Confirm that
+        //     `OutputRedirector::compare` gives the correct results.
         //
         // Testing:
         //   STREAM REDIRECTION APPARATUS
         // --------------------------------------------------------------------
 
-        // Test cases re-purposed from 'OutputRedirector' test cases in
-        // 'bsls_bsltestutil.cpp'.
+        // Test cases re-purposed from `OutputRedirector` test cases in
+        // `bsls_bsltestutil.cpp`.
 
         if (verbose) {
             printf("\nSTREAM REDIRECTION APPARATUS"
@@ -3363,7 +3374,7 @@ int main(int argc, char *argv[]) {
         }
 
         {
-            // 3 'enable' works
+            // 3 `enable` works
             if (verbose) {
                 fputs("\nTESTING ENABLE CALL"
                       "\n-------------------\n",
@@ -3420,7 +3431,7 @@ int main(int argc, char *argv[]) {
         }
 
         {
-            // 6 'load' works
+            // 6 `load` works
             if (verbose) {
                 fputs("\nTESTING OUTPUT CAPTURE LOAD"
                       "\n---------------------------\n",
@@ -3445,7 +3456,7 @@ int main(int argc, char *argv[]) {
         }
 
         {
-            // 7 'clear' works
+            // 7 `clear` works
             if (verbose) {
                 fputs("\nTESTING OUTPUT CAPTURE RESET"
                       "\n----------------------------\n",
@@ -3468,7 +3479,7 @@ int main(int argc, char *argv[]) {
         }
 
         {
-            // 8 'compare' works
+            // 8 `compare` works
             if (verbose) {
                 fputs("\nTESTING OUTPUT CAPTURE VERIFICATION"
                       "\n-----------------------------------\n",
@@ -3628,7 +3639,7 @@ int main(int argc, char *argv[]) {
         }
 
         {
-            // 14 'disable' then 'enable' works
+            // 14 `disable` then `enable` works
             if (verbose) {
                 fputs("\nTESTING DISABLE THEN ENABLE"
                       "\n---------------------------\n",
@@ -3679,7 +3690,7 @@ int main(int argc, char *argv[]) {
         OutputRedirector stdoutRedirector(OutputRedirector::STDOUT_STREAM);;
 
         {
-            // 15 Object has valid state for 'stdout'
+            // 15 Object has valid state for `stdout`
             if (verbose) {
                 fputs("\nTESTING REDIRECTOR FOR STDOUT"
                       "\n-----------------------------\n",
@@ -3708,7 +3719,7 @@ int main(int argc, char *argv[]) {
         }
 
         {
-            // 17 'compare' works
+            // 17 `compare` works
             if (verbose) {
                 fputs("\nTESTING A SIMPLE STRING"
                       "\n-----------------------\n",
@@ -3727,16 +3738,16 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // WINDOWS DEBUG MESSAGE SINK SUB-PROCESS
         //   This test is automatically run as a sub-process by the
-        //   'WindowsDebugMessageSink' test case to assist with sub-process
+        //   `WindowsDebugMessageSink` test case to assist with sub-process
         //   interaction.  It should not be run manually.
         //
         // Concerns:
-        //: 1 TBD
-        //:
+        // 1. TBD
+        //
         //
         // Plan:
-        //: 1 TBD
-        //:
+        // 1. TBD
+        //
         //
         // Testing:
         //   WINDOWS DEBUG MESSAGE SINK [SUB-PROCESS]
@@ -3746,7 +3757,7 @@ int main(int argc, char *argv[]) {
                    "\n======================================\n");
         }
 
-        puts("\nWARNING: Case '-1' should not be run manually.\n");
+        puts("\nWARNING: Case `-1` should not be run manually.\n");
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         // TBD
@@ -3756,33 +3767,33 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // PLATFORM DEFAULT MESSAGE HANDLER SUB-PROCESS
         //   This test is automatically run as a sub-process by the
-        //   'platformDefaultMessageHandler' test case to allow the main test
+        //   `platformDefaultMessageHandler` test case to allow the main test
         //   case to act as a debugger.  This case should not be run manually.
-        //   Ensure that this case is in sync with 'case 6'.
+        //   Ensure that this case is in sync with `case 6`.
         //
         // Concerns:
-        //: 1 [See 'platformDefaultMessageHandler' test.]
-        //:
+        // 1. [See `platformDefaultMessageHandler` test.]
+        //
         //
         // Plan:
-        //: 1 Get spawned by test driver.
-        //:
-        //: 2 Delete 'stderr' handler so that 'platformDefaultMessageHandler'
-        //:   thinks we are in non-console mode.
-        //:
-        //: 3 Open the 'BSLS_LOG_TEST' event.
-        //:
-        //: 4 For each element in 'DEFAULT_DATA', wait for the 'BSLS_LOG_TEST'
-        //:   event to be set, and call 'platformDefaultMessageHandler' with
-        //:   the input values.
-        //:
-        //: 5 Fill the large-data buffer using 'fillBuffer()'.
-        //:
-        //: 6 For each length in 'WINDOWS_LARGE_DATA_LENGTHS', wait for the
-        //:   'BSLS_LOG_TEST' event and write a string of appropriate expected
-        //:   length to 'platformDefaultMessageHandler'.
-        //:
-        //: 7 Close the event and exit with status '0'.
+        // 1. Get spawned by test driver.
+        //
+        // 2. Delete `stderr` handler so that `platformDefaultMessageHandler`
+        //    thinks we are in non-console mode.
+        //
+        // 3. Open the `BSLS_LOG_TEST` event.
+        //
+        // 4. For each element in `DEFAULT_DATA`, wait for the `BSLS_LOG_TEST`
+        //    event to be set, and call `platformDefaultMessageHandler` with
+        //    the input values.
+        //
+        // 5. Fill the large-data buffer using `fillBuffer()`.
+        //
+        // 6. For each length in `WINDOWS_LARGE_DATA_LENGTHS`, wait for the
+        //    `BSLS_LOG_TEST` event and write a string of appropriate expected
+        //    length to `platformDefaultMessageHandler`.
+        //
+        // 7. Close the event and exit with status `0`.
         //
         // Testing:
         //   PLATFORM DEFAULT MESSAGE HANDLER [SUB-PROCESS]
@@ -3792,18 +3803,18 @@ int main(int argc, char *argv[]) {
                    "\n============================================\n");
         }
 
-        if(verbose) puts("\nWARNING: Case '-2' should not be run manually.\n");
+        if(verbose) puts("\nWARNING: Case `-2` should not be run manually.\n");
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         typedef bsls::LogSeverity LogSeverity;
         {
-            if(verbose) puts("\nDeleting 'stderr' handle.\n");
+            if(verbose) puts("\nDeleting `stderr` handle.\n");
             const HANDLE stderrHandle = GetStdHandle(STD_ERROR_HANDLE);
             ASSERT(CloseHandle(stderrHandle));
             ASSERT(SetStdHandle(STD_ERROR_HANDLE, NULL));
             ASSERT(NULL == GetStdHandle(STD_ERROR_HANDLE));
 
-            if(verbose) printf("\nOpening event '%s'.\n",
+            if(verbose) printf("\nOpening event `%s`.\n",
                                                 WINDOWS_SUBPROCESS_EVENT_NAME);
             HANDLE event = OpenEventA(SYNCHRONIZE,
                                       false,
@@ -3889,7 +3900,7 @@ int main(int argc, char *argv[]) {
       }
     }
 
-    // silence 'unused' warning
+    // silence `unused` warning
 
     (void) &WINDOWS_SUBPROCESS_EVENT_NAME;
     (void) &WINDOWS_DEBUG_STACK_BUFFER_SIZE;

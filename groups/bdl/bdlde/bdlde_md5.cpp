@@ -401,10 +401,10 @@ static void append(unsigned int *state, const unsigned char *data)
     bsl::memset(xArray, 0, sizeof(xArray));
 }
 
+/// Return the number of bytes in use in the buffer for the total specified
+/// `length`.
 inline
 static int getLengthInUse(bsls::Types::Int64 length)
-    // Return the number of bytes in use in the buffer for the total specified
-    // 'length'.
 {
     // Return value equivalent to 'length % BYTEBLOCKSIZE'.
     return length & 0x3f;

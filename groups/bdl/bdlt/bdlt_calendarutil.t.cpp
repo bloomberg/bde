@@ -29,10 +29,10 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'CalendarUtil' provided a suite of functions for manipulating on dates with
+// `CalendarUtil` provided a suite of functions for manipulating on dates with
 // the use of calendars.  These test must verify that each of the functions
 // behaves as documented, and works correctly on the full range of data that a
-// 'CalendarUtil' may be used.
+// `CalendarUtil` may be used.
 //-----------------------------------------------------------------------------
 // [ 9] int addBusinessDaysIfValid(bdlt::Date *result, orig, cdr, num);
 // [ 8] int nthBusinessDayOfMonthOrMaxIfValid(res, cal, year, month, n);
@@ -133,18 +133,18 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 typedef CalendarUtil Util;
 
-const int NV = -5; // value that is loaded to the 'result' before prior to call
+const int NV = -5; // value that is loaded to the `result` before prior to call
 
 // ============================================================================
 //                                TEST FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// Return the calendar value indicated by the specified `input` having the
+/// specified `startDate`, and containing a sequence of characters with
+/// symbol `n` representing non-business day, symbol `B` representing
+/// business day, symbol '.' representing date outside of calendar range and
+/// symbol '|' representing month boundaries.
 bdlt::Calendar parseCalendar(const char *input, const bdlt::Date& startDate)
-    // Return the calendar value indicated by the specified 'input' having the
-    // specified 'startDate', and containing a sequence of characters with
-    // symbol 'n' representing non-business day, symbol 'B' representing
-    // business day, symbol '.' representing date outside of calendar range and
-    // symbol '|' representing month boundaries.
 {
     BSLS_ASSERT(input);
 
@@ -199,13 +199,13 @@ bdlt::Calendar parseCalendar(const char *input, const bdlt::Date& startDate)
     return result;
 }
 
+/// Return the distance in characters (positive or negative) from the first
+/// occurrence in the specified `input` of `n` or `B` (holiday or business
+/// day) to the first occurrence of '|' (start of month).  If this distance
+/// happens to be negative (i.e calendar starts before the month), 1 is
+/// added to the returned value.  If there is no occurrence of `n` or `B`,
+/// return 999.
 int getStartDate(const char *input)
-    // Return the distance in characters (positive or negative) from the first
-    // occurrence in the specified 'input' of 'n' or 'B' (holiday or business
-    // day) to the first occurrence of '|' (start of month).  If this distance
-    // happens to be negative (i.e calendar starts before the month), 1 is
-    // added to the returned value.  If there is no occurrence of 'n' or 'B',
-    // return 999.
 {
     BSLS_ASSERT(input);
     int inputLen = static_cast<int>(strlen(input));
@@ -243,7 +243,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) {
@@ -256,7 +256,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -268,21 +268,21 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Manipulating Dates with 'CalendarUtil'
+///Example 1: Manipulating Dates with `CalendarUtil`
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to determine the actual interest payment date in
 // January 2014 from a US bond that pays on the 20th of each month and uses the
 // modified-following date-shifting convention.
 //
-// We create a calendar, 'calUS', that has the calendar information populated
-// for the US in 2014.  We then use the 'shiftIfValid' function, provided by
-// 'CalendarUtil', to compute the payment date.
+// We create a calendar, `calUS`, that has the calendar information populated
+// for the US in 2014.  We then use the `shiftIfValid` function, provided by
+// `CalendarUtil`, to compute the payment date.
 //
 // First, we create a date for January 1, 2014 that corresponds to the nominal
 // payment date (which happens to be holiday) and a calendar with valid range
 // from April 20, 2012 through April 20, 2014, typical weekend days, and the
 // holiday:
-//..
+// ```
     const bdlt::Date unadjustedDate(2014, 1, 20);
 
     const bdlt::Date startDate(2012, 4, 20);
@@ -292,50 +292,50 @@ int main(int argc, char *argv[])
     calUS.addWeekendDay(bdlt::DayOfWeek::e_SAT);
     calUS.addWeekendDay(bdlt::DayOfWeek::e_SUN);
     calUS.addHoliday(unadjustedDate);
-//..
-// Now, we determine the actual payment date by invoking the 'shiftIfValid'
+// ```
+// Now, we determine the actual payment date by invoking the `shiftIfValid`
 // function:
-//..
+// ```
     bdlt::Date result;
     int        status = CalendarUtil::shiftIfValid(
                                            &result,
                                            unadjustedDate,
                                            calUS,
                                            CalendarUtil::e_MODIFIED_FOLLOWING);
-//..
-// Notice that 'e_MODIFIED_FOLLOWING' is specified as an argument to
-// 'shiftIfValid' to indicate that we want to use the modified-following
+// ```
+// Notice that `e_MODIFIED_FOLLOWING` is specified as an argument to
+// `shiftIfValid` to indicate that we want to use the modified-following
 // date-shifting convention.
 //
 // Finally, we verify that the resulting date is correct:
-//..
+// ```
     const bdlt::Date expected(2014, 1, 21);
 
     ASSERT(0 == status);
     ASSERT(expected == result);
-//..
+// ```
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING '(add|subtract)BusinessDaysIfValid'
+        // TESTING `(add|subtract)BusinessDaysIfValid`
         //   Ensure that this function either loads the expected result and
         //   indicates a successful return value or the expected error code
         //   with an un-modified result.
         //
         // Concerns:
-        //: 1 If either the 'original' or resulting date is out of the valid
-        //:   range of the calendar, an error code is returned leaving the
-        //:   result unchanged, otherwise the expected value is loaded into the
-        //:   result and success indicated in return value.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        // 1. If either the `original` or resulting date is out of the valid
+        //    range of the calendar, an error code is returned leaving the
+        //    result unchanged, otherwise the expected value is loaded into the
+        //    result and success indicated in return value.
+        //
+        // 2. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use the table-driven approach, define a representative set of
-        //:   valid and invalid inputs to address the above concerns. (C-1)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for argument values.  (C-2)
+        // 1. Use the table-driven approach, define a representative set of
+        //    valid and invalid inputs to address the above concerns. (C-1)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for argument values.  (C-2)
         //
         // Testing:
         //   int addBusinessDays(bdlt::Date *result, orig, cdr, num);
@@ -347,7 +347,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "TESTING '(add|subtract)BusinessDaysIfValid'" << endl
+                 << "TESTING `(add|subtract)BusinessDaysIfValid`" << endl
                  << "================================" << endl;
         }
 
@@ -542,35 +542,35 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'nthBusinessDayOfMonthOrMaxIfValid'
+        // TESTING `nthBusinessDayOfMonthOrMaxIfValid`
         //   Ensure that this function correctly counts the number of business
         //   days starting either at the beginning or the end of the month.
         //   Also ensure that defensive checks are triggered for
         //   out-of-contract inputs.
         //
         // Concerns:
-        //: 1 If there are more than 'n' business days in the specified month,
-        //:   the 'n'th business day is returned counting forward or backward.
-        //:
-        //: 2 If there are fewer than 'n' business days in the specified month,
-        //:   the business day with maximum count is returned counting forward
-        //:   or backward.
-        //:
-        //: 3 The method is unsuccessful as expected.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. If there are more than `n` business days in the specified month,
+        //    the `n`th business day is returned counting forward or backward.
+        //
+        // 2. If there are fewer than `n` business days in the specified month,
+        //    the business day with maximum count is returned counting forward
+        //    or backward.
+        //
+        // 3. The method is unsuccessful as expected.
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use the table-driven approach, define a representative set of
-        //:   valid inputs to cover calendars with fewer, more, or exactly the
-        //:   specified number of business days in both forward and backward
-        //:   counting directions (C-1), (C-2)
-        //:
-        //: 2 Explicitly test situations were the method should be
-        //:   unsuccessful.  (C-3)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for argument values.  (C-4)
+        // 1. Use the table-driven approach, define a representative set of
+        //    valid inputs to cover calendars with fewer, more, or exactly the
+        //    specified number of business days in both forward and backward
+        //    counting directions (C-1), (C-2)
+        //
+        // 2. Explicitly test situations were the method should be
+        //    unsuccessful.  (C-3)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for argument values.  (C-4)
         //
         // Testing:
         //   int nthBusinessDayOfMonthOrMaxIfValid(res, cal, year, month, n);
@@ -581,7 +581,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'nthBusinessDayOfMonthOrMaxIfValid'" << endl
+                 << "TESTING `nthBusinessDayOfMonthOrMaxIfValid`" << endl
                  << "===========================================" << endl;
         }
 
@@ -590,7 +590,7 @@ int main(int argc, char *argv[])
             const char *d_input_p;  // input values
             int         d_month;    // month
             int         d_leap;     // is it a leap year
-            int         d_n;        // 'n'
+            int         d_n;        // `n`
             int         d_result;   // expected result
         } DATA[] = {
             // Different length months and full range with no holidays
@@ -753,7 +753,7 @@ int main(int argc, char *argv[])
 
             cdr.setValidRange(bdlt::Date(2000, 1, 1), bdlt::Date(2000, 1, 31));
 
-            // not in valid range of 'cdr'
+            // not in valid range of `cdr`
             ASSERT(0 != Util::nthBusinessDayOfMonthOrMaxIfValid(&OUTPUT,
                                                                 cdr,
                                                                 2000,
@@ -808,11 +808,11 @@ int main(int argc, char *argv[])
             ASSERT_PASS(Util::nthBusinessDayOfMonthOrMaxIfValid(
                                                    &OUTPUT, cdr, 2000,  1, 1));
 
-            // invalid 'n'
+            // invalid `n`
             ASSERT_FAIL(Util::nthBusinessDayOfMonthOrMaxIfValid(
                                                    &OUTPUT, cdr, 2000,  1, 0));
 
-            // valid 'n'
+            // valid `n`
             ASSERT_PASS(Util::nthBusinessDayOfMonthOrMaxIfValid(
                                                    &OUTPUT, cdr, 2000,  1, 1));
         }
@@ -821,27 +821,27 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'shiftIfValid'
+        // CLASS METHOD `shiftIfValid`
         //
         // Concerns:
-        //: 1 This method calls appropriate functions depending on the
-        //:   specified convention(s).
-        //:
-        //: 2 This method loads 'original' date to the 'result' if the used
-        //:   convention 'e_UNADJUSTED'.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. This method calls appropriate functions depending on the
+        //    specified convention(s).
+        //
+        // 2. This method loads `original` date to the `result` if the used
+        //    convention `e_UNADJUSTED`.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Test that, when convention is used content of the 'result' and
-        //:   the indication of success is the same as when calling
-        //:   corresponding function. (C-1)
-        //:
-        //: 2 Verify that, when 'e_UNADJUSTED' is used as the convention, the
-        //:   'result' contains the value of 'original' date. (C-2)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for argument values.  (C-3)
+        // 1. Test that, when convention is used content of the `result` and
+        //    the indication of success is the same as when calling
+        //    corresponding function. (C-1)
+        //
+        // 2. Verify that, when `e_UNADJUSTED` is used as the convention, the
+        //    `result` contains the value of `original` date. (C-2)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for argument values.  (C-3)
         //
         // Testing:
         //  shiftIfValid(bdlt::Date *result, orig, calendar, convention)
@@ -863,12 +863,12 @@ int main(int argc, char *argv[])
         calendar.addHoliday(bdlt::Date(2014, 1, 23));
 
         if (verbose) cout << endl
-                          << "CLASS METHOD 'shiftIfValid'" << endl
+                          << "CLASS METHOD `shiftIfValid`" << endl
                           << "===========================" << endl;
 
         if (verbose) {
             cout << endl
-                 << "'shiftIfValid (r, o, c, c)'" << endl
+                 << "`shiftIfValid (r, o, c, c)`" << endl
                  << "===========================" << endl;
         }
 
@@ -922,12 +922,12 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "'shiftIfValid(r, o, c, c, s, e, s)'" << endl
+                 << "`shiftIfValid(r, o, c, c, s, e, s)`" << endl
                  << "===================================" << endl;
         }
 
         // Add holidays that are will affect special processing and store these
-        // dates in 'specialDays'.
+        // dates in `specialDays`.
 
         bsl::set<bdlt::Date> specialDays;
         {
@@ -1099,34 +1099,34 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        //  TESTING 'shiftPrecedingIfValid'
-        //    Ensure 'shiftPrecedingIfValid' loads proper business day or
+        //  TESTING `shiftPrecedingIfValid`
+        //    Ensure `shiftPrecedingIfValid` loads proper business day or
         //    returns appropriate status in case of failure.
         //
         // Concerns:
-        //: 1 This method returns status with value '1' if 'original' date is
-        //:   out of range of a specified calendar, and returns status with
-        //:   value '2' if while looking for a business day withing the month,
-        //:   boundaries of the valid range of a 'calendar' were exceeded.
-        //:
-        //: 2 If 'original' date itself is a business day inside of the valid
-        //:   range, this method loads it to the 'result' and returns zero.
-        //:
-        //: 3 If 'original' date is not a business day, this methods loads
-        //:   the date of the chronologically latest business day preceding
-        //:   'original' date within the valid range of a 'calendar'.
-        //:
-        //: 4 If non-zero value is returned, result remains unchanged.
-        //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        // 1. This method returns status with value '1' if `original` date is
+        //    out of range of a specified calendar, and returns status with
+        //    value '2' if while looking for a business day withing the month,
+        //    boundaries of the valid range of a `calendar` were exceeded.
+        //
+        // 2. If `original` date itself is a business day inside of the valid
+        //    range, this method loads it to the `result` and returns zero.
+        //
+        // 3. If `original` date is not a business day, this methods loads
+        //    the date of the chronologically latest business day preceding
+        //    `original` date within the valid range of a `calendar`.
+        //
+        // 4. If non-zero value is returned, result remains unchanged.
+        //
+        // 5. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use the table-driven approach, define a representative set of
-        //:   valid inputs.  Verify that the function returns the correct
-        //:   value.  (C-1..4)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for argument values.  (C-5)
+        // 1. Use the table-driven approach, define a representative set of
+        //    valid inputs.  Verify that the function returns the correct
+        //    value.  (C-1..4)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for argument values.  (C-5)
         //
         // Testing:
         //  shiftPrecedingIfValid(bdlt::Date *result, orig, calendar)
@@ -1136,7 +1136,7 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
         if (verbose) cout << endl
-                          << "TESTING 'shiftPrecedingIfValid'" << endl
+                          << "TESTING `shiftPrecedingIfValid`" << endl
                           << "===============================" << endl;
 
         static const struct {
@@ -2280,34 +2280,34 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        //  TESTING 'shiftFollowingIfValid'
-        //    Ensure 'shiftFollowingIfValid' loads proper business day or
+        //  TESTING `shiftFollowingIfValid`
+        //    Ensure `shiftFollowingIfValid` loads proper business day or
         //    returns appropriate status in case of failure.
         //
         // Concerns:
-        //: 1 This method returns status with value '1' if 'original' date is
-        //:   out of range of a specified calendar, and returns status with
-        //:   value '2' if while looking for a business day withing the month,
-        //:   boundaries of the valid range of a 'calendar' were exceeded.
-        //:
-        //: 2 If 'original' date itself is a business day inside of the valid
-        //:   range, this method loads it to the 'result' and returns zero.
-        //:
-        //: 3 If 'original' date is not a business day, this methods loads
-        //:   the date of the chronologically earliest business day following
-        //:   'original' date within the valid range of a 'calendar'.
-        //:
-        //: 4 If non-zero value is returned, result remains unchanged.
-        //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        // 1. This method returns status with value '1' if `original` date is
+        //    out of range of a specified calendar, and returns status with
+        //    value '2' if while looking for a business day withing the month,
+        //    boundaries of the valid range of a `calendar` were exceeded.
+        //
+        // 2. If `original` date itself is a business day inside of the valid
+        //    range, this method loads it to the `result` and returns zero.
+        //
+        // 3. If `original` date is not a business day, this methods loads
+        //    the date of the chronologically earliest business day following
+        //    `original` date within the valid range of a `calendar`.
+        //
+        // 4. If non-zero value is returned, result remains unchanged.
+        //
+        // 5. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use the table-driven approach, define a representative set of
-        //:   valid inputs.  Verify that the function returns the correct
-        //:   value.  (C-1..4)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for argument values.  (C-5)
+        // 1. Use the table-driven approach, define a representative set of
+        //    valid inputs.  Verify that the function returns the correct
+        //    value.  (C-1..4)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for argument values.  (C-5)
         //
         // Testing:
         //  shiftFollowingIfValid(bdlt::Date *result, orig, calendar)
@@ -2317,7 +2317,7 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
         if (verbose) cout << endl
-                          << "TESTING 'shiftFollowingIfValid'" << endl
+                          << "TESTING `shiftFollowingIfValid`" << endl
                           << "===============================" << endl;
 
         static const struct {
@@ -3461,39 +3461,39 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        //  TESTING 'shiftModifiedFollowingIfValid'
-        //    Ensure 'shiftModifiedFollowingIfValid' loads proper business day
+        //  TESTING `shiftModifiedFollowingIfValid`
+        //    Ensure `shiftModifiedFollowingIfValid` loads proper business day
         //    or returns appropriate status in case of failure.
         //
         // Concerns:
-        //: 1 This method returns status with value '1' if 'original' date is
-        //:   out of range of a specified calendar, and returns status with
-        //:   value '2' if while looking for a business day withing the month,
-        //:   boundaries of the valid range of a 'calendar' were exceeded.
-        //:
-        //: 2 If 'original' date itself is a business day inside of the valid
-        //:   range, this method loads it to the 'result' and returns zero.
-        //:
-        //: 3 If 'original' date is not a business day, this methods loads
-        //:   the date of the chronologically earliest business day following
-        //:   'original' date if it can be found within the current month.
-        //:
-        //: 4 If 'original' date is not a business day and there is no business
-        //:   days withing this month that follow 'original' date, this method
-        //:   loads chronologically latest business day preceding 'original'
-        //:   date.
-        //:
-        //: 5 If non-zero value is returned, result remains unchanged.
-        //:
-        //: 6 QoI: Asserted precondition violations are detected when enabled.
+        // 1. This method returns status with value '1' if `original` date is
+        //    out of range of a specified calendar, and returns status with
+        //    value '2' if while looking for a business day withing the month,
+        //    boundaries of the valid range of a `calendar` were exceeded.
+        //
+        // 2. If `original` date itself is a business day inside of the valid
+        //    range, this method loads it to the `result` and returns zero.
+        //
+        // 3. If `original` date is not a business day, this methods loads
+        //    the date of the chronologically earliest business day following
+        //    `original` date if it can be found within the current month.
+        //
+        // 4. If `original` date is not a business day and there is no business
+        //    days withing this month that follow `original` date, this method
+        //    loads chronologically latest business day preceding `original`
+        //    date.
+        //
+        // 5. If non-zero value is returned, result remains unchanged.
+        //
+        // 6. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use the table-driven approach, define a representative set of
-        //:   valid inputs.  Verify that the function returns the correct
-        //:   value.  (C-1..5)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for argument values.  (C-6)
+        // 1. Use the table-driven approach, define a representative set of
+        //    valid inputs.  Verify that the function returns the correct
+        //    value.  (C-1..5)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for argument values.  (C-6)
         //
         // Testing:
         //  shiftModifiedFollowingIfValid(bdlt::Date *result, orig, calendar)
@@ -3503,7 +3503,7 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
         if (verbose) cout << endl
-                          << "TESTING 'shiftModifiedFollowingIfValid'" << endl
+                          << "TESTING `shiftModifiedFollowingIfValid`" << endl
                           << "=======================================" << endl;
 
         static const struct {
@@ -4651,39 +4651,39 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        //  TESTING 'shiftModifiedPrecedingIfValid'
-        //    Ensure 'shiftModifiedPrecedingIfValid' loads proper business day
+        //  TESTING `shiftModifiedPrecedingIfValid`
+        //    Ensure `shiftModifiedPrecedingIfValid` loads proper business day
         //    or returns appropriate status in case of failure.
         //
         // Concerns:
-        //: 1 This method returns status with value '1' if 'original' date is
-        //:   out of range of a specified calendar, and returns status with
-        //:   value '2' if while looking for a business day withing the month,
-        //:   boundaries of the valid range of a 'calendar' were exceeded.
-        //:
-        //: 2 If 'original' date itself is a business day inside of the valid
-        //:   range, this method loads it to the 'result' and returns zero.
-        //:
-        //: 3 If 'original' date is not a business day, this methods loads
-        //:   the date of the chronologically latest business day preceding
-        //:   'original' date if it can be found within the current month.
-        //:
-        //: 4 If 'original' date is not a business day and there is no business
-        //:   days withing this month that precede 'original' date, this method
-        //:   loads chronologically earliest business day following 'original'
-        //:   date.
-        //:
-        //: 5 If non-zero value is returned, result remains unchanged.
-        //:
-        //: 6 QoI: Asserted precondition violations are detected when enabled.
+        // 1. This method returns status with value '1' if `original` date is
+        //    out of range of a specified calendar, and returns status with
+        //    value '2' if while looking for a business day withing the month,
+        //    boundaries of the valid range of a `calendar` were exceeded.
+        //
+        // 2. If `original` date itself is a business day inside of the valid
+        //    range, this method loads it to the `result` and returns zero.
+        //
+        // 3. If `original` date is not a business day, this methods loads
+        //    the date of the chronologically latest business day preceding
+        //    `original` date if it can be found within the current month.
+        //
+        // 4. If `original` date is not a business day and there is no business
+        //    days withing this month that precede `original` date, this method
+        //    loads chronologically earliest business day following `original`
+        //    date.
+        //
+        // 5. If non-zero value is returned, result remains unchanged.
+        //
+        // 6. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use the table-driven approach, define a representative set of
-        //:   valid inputs.  Verify that the function returns the correct
-        //:   value.  (C-1..5)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for argument values.  (C-6)
+        // 1. Use the table-driven approach, define a representative set of
+        //    valid inputs.  Verify that the function returns the correct
+        //    value.  (C-1..5)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for argument values.  (C-6)
         //
         // Testing:
         //   shiftModifiedPrecedingIfValid(bdlt::Date *result, orig, calendar)
@@ -4693,7 +4693,7 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
         if (verbose) cout << endl
-                          << "TESTING 'shiftModifiedPrecedingIfValid'" << endl
+                          << "TESTING `shiftModifiedPrecedingIfValid`" << endl
                           << "=======================================" << endl;
 
         static const struct {
@@ -5841,22 +5841,22 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TEST APPARATUS 'getStartDate'
-        //   Ensure that 'getStartDate' reads any arbitrary sequence of
+        // TEST APPARATUS `getStartDate`
+        //   Ensure that `getStartDate` reads any arbitrary sequence of
         //   characters that represent a calendar and returns the start date of
         //   the calendar relative to the beginning of the month.
         //
         // Concerns:
-        //: 1 Function behaves correctly regardless of whether there are
-        //:   business days or non-business days before the month.
-        //:
-        //: 2 Function returns '999' when the sequence that get passed
-        //:    is empty or does not contain any valid days.
+        // 1. Function behaves correctly regardless of whether there are
+        //    business days or non-business days before the month.
+        //
+        // 2. Function returns `999` when the sequence that get passed
+        //     is empty or does not contain any valid days.
         //
         // Plan:
-        //: 1 Use the table-driven approach, define a representative set of
-        //:   valid inputs.  Verify that the function returns the correct
-        //:   value.  (C-1, C-2)
+        // 1. Use the table-driven approach, define a representative set of
+        //    valid inputs.  Verify that the function returns the correct
+        //    value.  (C-1, C-2)
         //
         // Testing:
         //  getStartDate(const char *)
@@ -5866,7 +5866,7 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
         if (verbose) cout << endl
-                          << "TEST APPARATUS 'getStartDate'" << endl
+                          << "TEST APPARATUS `getStartDate`" << endl
                           << "=============================" << endl;
 
         static const struct {
@@ -5922,25 +5922,25 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TEST APPARATUS 'parseCalendar'
-        //   Ensure that 'parseCalendar' parses the any arbitrary sequence of
+        // TEST APPARATUS `parseCalendar`
+        //   Ensure that `parseCalendar` parses the any arbitrary sequence of
         //   characters that represent a calendar.
         //
         // Concerns:
-        //: 1 Function parses input correctly regardless of a size and a
-        //:    content of the input sequence.
+        // 1. Function parses input correctly regardless of a size and a
+        //     content of the input sequence.
         //
         // Plan:
-        //: 1 Use the table-driven approach, define a representative set of
-        //:   valid inputs.  Verify that the function returns the correct
-        //:   value.  (C-1, C-2)
+        // 1. Use the table-driven approach, define a representative set of
+        //    valid inputs.  Verify that the function returns the correct
+        //    value.  (C-1, C-2)
         //
         // Testing:
         //   parseCalendar(const char *, const bdlt::Date&)
         // --------------------------------------------------------------------
         if (verbose) {
             cout << endl
-                 << "TEST APPARATUS 'parseCalendar'" << endl
+                 << "TEST APPARATUS `parseCalendar`" << endl
                  << "==============================" << endl;
         }
 

@@ -22,10 +22,11 @@ namespace {
 
 struct bsls_TimeInterval_Assertions {
     char assertion1[-3 / 2 == -1 ? 1 : -1];
+
+    /// Ensure that the compiler maintains the sign of the remainder (the
+    /// resulting sign is compiler implementation defined, though our
+    /// current production compilers maintain the sign).
     char assertion2[-5 % 4 == -1 ? 1 : -1];
-        // Ensure that the compiler maintains the sign of the remainder (the
-        // resulting sign is compiler implementation defined, though our
-        // current production compilers maintain the sign).
 };
 
 }  // close unnamed namespace
@@ -138,11 +139,11 @@ std::ostream& TimeInterval::print(std::ostream& stream,
         }
     }
 
+    /// The buffer must have enough space to fit the maximum output which is
+    /// four fixed characters "(, )" plus max ten for the nanoseconds plus
+    /// 19 characters for LLONG_MAX plus two for the sign plus one for
+    /// terminating NULL.  Sums up to 4 + 10 + 19 + 2 + 1 = 36.
     enum { k_BUFFER_SIZE = 64 };
-        // The buffer must have enough space to fit the maximum output which is
-        // four fixed characters "(, )" plus max ten for the nanoseconds plus
-        // 19 characters for LLONG_MAX plus two for the sign plus one for
-        // terminating NULL.  Sums up to 4 + 10 + 19 + 2 + 1 = 36.
 
     char buffer[k_BUFFER_SIZE] = { 0 };
 

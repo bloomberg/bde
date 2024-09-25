@@ -84,7 +84,7 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test defines an observer ('ball::FileObserver2') that
+// The component under test defines an observer (`ball::FileObserver2`) that
 // writes log records to a file.
 // ----------------------------------------------------------------------------
 // CREATORS
@@ -208,13 +208,13 @@ typedef bsls::Types::Int64   Int64;
 
 namespace {
 
+/// Enable file logging for the specified `observer` to the specified
+/// `fileName`.  Optionally specify `addTimestamp` to append timestamp to
+/// the filename.
 void enableFileLogging(
                     bsl::shared_ptr<ball::FileObserver2>& observer,
                     const bsl::string&                    fileName,
                     const bool                            addTimestamp = false)
-    // Enable file logging for the specified 'observer' to the specified
-    // 'fileName'.  Optionally specify 'addTimestamp' to append timestamp to
-    // the filename.
 {
     ASSERT(false == observer->isFileLoggingEnabled());
 
@@ -232,8 +232,8 @@ void enableFileLogging(
     }
 }
 
+/// Return current local time as a `bdlt::Datetime` value.
 bdlt::Datetime getCurrentLocalTime()
-    // Return current local time as a 'bdlt::Datetime' value.
 {
     time_t    currentTime = time(0);
     struct tm localtm;
@@ -248,8 +248,8 @@ bdlt::Datetime getCurrentLocalTime()
     return stamp;
 }
 
+/// Output the specified `record` into the specified `stream`.
 void logRecord1(bsl::ostream& stream, const ball::Record& record)
-    // Output the specified 'record' into the specified 'stream'.
 {
     ball::Severity::Level severityLevel =
         (ball::Severity::Level) record.fixedFields().severity();
@@ -284,8 +284,8 @@ void logRecord1(bsl::ostream& stream, const ball::Record& record)
     stream << '\n' << bsl::flush;
 }
 
+/// Output the specified `record` into the specified `stream`.
 void logRecord2(bsl::ostream& stream, const ball::Record& record)
-    // Output the specified 'record' into the specified 'stream'.
 {
     ball::Severity::Level severityLevel =
         (ball::Severity::Level) record.fixedFields().severity();
@@ -308,11 +308,11 @@ void logRecord2(bsl::ostream& stream, const ball::Record& record)
     stream << '\n' << bsl::flush;
 }
 
+/// Read the content of the specified `fileName` file into the specified
+/// `fileContent` string.  Return the number of lines read from the file.
 int readFileIntoString(int                lineNum,
                        const bsl::string& fileName,
                        bsl::string&       fileContent)
-    // Read the content of the specified 'fileName' file into the specified
-    // 'fileContent' string.  Return the number of lines read from the file.
 {
     bsl::ifstream fs;
 
@@ -342,12 +342,12 @@ int readFileIntoString(int                lineNum,
     return lines;
 }
 
+/// This class can be used as a functor matching the signature of
+/// `ball::FileObserver2::OnFileRotationCallback`.  This class records every
+/// invocation of the function-call operator, and is intended to test
+/// whether `ball::FileObserver2` calls the log-rotation callback
+/// appropriately.
 class LogRotationCallbackTester {
-    // This class can be used as a functor matching the signature of
-    // 'ball::FileObserver2::OnFileRotationCallback'.  This class records every
-    // invocation of the function-call operator, and is intended to test
-    // whether 'ball::FileObserver2' calls the log-rotation callback
-    // appropriately.
 
     // PRIVATE TYPES
     struct Rep {
@@ -366,9 +366,10 @@ class LogRotationCallbackTester {
         BSLMF_NESTED_TRAIT_DECLARATION(Rep, bslma::UsesBslmaAllocator);
 
         // CREATORS
+
+        /// Create an object with default attribute values.  Use the
+        /// specified `basicAllocator` to supply memory.
         explicit Rep(bslma::Allocator *basicAllocator)
-            // Create an object with default attribute values.  Use the
-            // specified 'basicAllocator' to supply memory.
         : d_invocations(0)
         , d_status(0)
         , d_rotatedFileName(basicAllocator)
@@ -386,27 +387,29 @@ class LogRotationCallbackTester {
   public:
 
     // CREATORS
+
+    /// Create a callback tester object with default attribute values.  Use
+    /// the specified `basicAllocator` to supply memory.
     explicit LogRotationCallbackTester(bslma::Allocator *basicAllocator)
-        // Create a callback tester object with default attribute values.  Use
-        // the specified 'basicAllocator' to supply memory.
     {
         d_rep.createInplace(basicAllocator, basicAllocator);
         reset();
     }
 
     // MANIPULATORS
+
+    /// Set the value at the status address supplied at construction to the
+    /// specified `status`, and set the value at the log file name address
+    /// supplied at construction to the specified `rotatedFileName`.
     void operator()(int status, const bsl::string& rotatedFileName)
-        // Set the value at the status address supplied at construction to the
-        // specified 'status', and set the value at the log file name address
-        // supplied at construction to the specified 'rotatedFileName'.
     {
         ++d_rep->d_invocations;
         d_rep->d_status          = status;
         d_rep->d_rotatedFileName = rotatedFileName;
     }
 
+    /// Reset the attributes of this object to their default values.
     void reset()
-        // Reset the attributes of this object to their default values.
     {
         d_rep->d_invocations     = 0;
         d_rep->d_status          = k_UNINITIALIZED;
@@ -414,20 +417,21 @@ class LogRotationCallbackTester {
     }
 
     // ACCESSORS
+
+    /// Return the number of times that the function-call operator has been
+    /// invoked since the most recent call to `reset`, or if `reset` has
+    /// not been called, since this objects construction.
     int numInvocations() const { return d_rep->d_invocations; }
-        // Return the number of times that the function-call operator has been
-        // invoked since the most recent call to 'reset', or if 'reset' has
-        // not been called, since this objects construction.
 
+    /// Return the status passed to the most recent invocation of the
+    /// function-call operation, or `k_UNINITIALIZED` if `numInvocations` is
+    /// 0.
     int status() const { return d_rep->d_status; }
-        // Return the status passed to the most recent invocation of the
-        // function-call operation, or 'k_UNINITIALIZED' if 'numInvocations' is
-        // 0.
 
+    /// Return a `const` reference to the file name supplied to the most
+    /// recent invocation of the function-call operator, or the empty string
+    /// if `numInvocations` is 0.
     const bsl::string& rotatedFileName() const
-        // Return a 'const' reference to the file name supplied to the most
-        // recent invocation of the function-call operator, or the empty string
-        // if 'numInvocations' is 0.
     {
         return d_rep->d_rotatedFileName;
     }
@@ -435,26 +439,26 @@ class LogRotationCallbackTester {
 
 typedef LogRotationCallbackTester RotCb;
 
+/// This class can be used as a functor matching the signature of
+/// `ball::FileObserver2::OnFileRotationCallback`.  This class implements
+/// the function-call operator, that will call `disableFileLogging` on the
+/// file observer supplied at construction.  Note that this type is intended
+/// to test whether the rotation callback is called in a way that allows the
+/// supplied file observer to be modified on the callback.
 class ReentrantRotationCallback {
-    // This class can be used as a functor matching the signature of
-    // 'ball::FileObserver2::OnFileRotationCallback'.  This class implements
-    // the function-call operator, that will call 'disableFileLogging' on the
-    // file observer supplied at construction.  Note that this type is intended
-    // to test whether the rotation callback is called in a way that allows the
-    // supplied file observer to be modified on the callback.
 
     Obj *d_observer_p;
 
   public:
 
+    /// Create a rotation callback for the specified `observer`.
     explicit ReentrantRotationCallback(Obj *observer)
-        // Create a rotation callback for the specified 'observer'.
     : d_observer_p(observer)
     {
     }
 
+    /// Disables file logging for the observer supplied at construction.
     void operator()(int, const bsl::string&);
-        // Disables file logging for the observer supplied at construction.
 };
 
 void ReentrantRotationCallback::operator()(int, const bsl::string& )
@@ -462,8 +466,8 @@ void ReentrantRotationCallback::operator()(int, const bsl::string& )
     d_observer_p->disableFileLogging();
 }
 
+/// Publish the specified `message` to the specified `observer` object.
 void publishRecord(Obj *observer, const char *message)
-    // Publish the specified 'message' to the specified 'observer' object.
 {
     ball::RecordAttributes attr(bdlt::CurrentTime::utc(),
                                1,
@@ -481,8 +485,8 @@ void publishRecord(Obj *observer, const char *message)
 }
 
 
+/// Return the number of lines in the file with the specified `fileName`.
 int getNumLines(const char *fileName)
-    // Return the number of lines in the file with the specified 'fileName'.
 {
     bsl::ifstream fs;
     fs.open(fileName, bsl::ifstream::in);
@@ -506,16 +510,17 @@ struct TestCurrentTimeCallback {
 
   public:
     // CLASS METHODS
-    static bsls::TimeInterval load();
-        // Return the value corresponding to the most recent call to the
-        // 'setTimeToReport' method.  The behavior is undefined unless
-        // 'setUtcTime' has been called.
 
+    /// Return the value corresponding to the most recent call to the
+    /// `setTimeToReport` method.  The behavior is undefined unless
+    /// `setUtcTime` has been called.
+    static bsls::TimeInterval load();
+
+    /// Set the specified `utcTime` as the value obtained (after conversion
+    /// to `bdlt::IntervalConversionUtil`) from calls to the `load` method.
+    /// The behavior is undefined unless
+    /// `bdlt::EpochUtil::epoch() <= utcTime`.
     static void setUtcDatetime(const bdlt::Datetime& utcTime);
-        // Set the specified 'utcTime' as the value obtained (after conversion
-        // to 'bdlt::IntervalConversionUtil') from calls to the 'load' method.
-        // The behavior is undefined unless
-        // 'bdlt::EpochUtil::epoch() <= utcTime'.
 };
 
 bsls::TimeInterval TestCurrentTimeCallback::s_utcTime;
@@ -541,19 +546,20 @@ struct TestLocalTimeOffsetCallback {
 
   public:
     // CLASS METHODS
-    static bsls::TimeInterval loadLocalTimeOffset(const bdlt::Datetime&);
-        // Return the local time offset that was set by the previous call to
-        // the 'setLocalTimeOffset' method.  If the 'setLocalTimeOffset' method
-        // has not been called, load 0.
 
+    /// Return the local time offset that was set by the previous call to
+    /// the `setLocalTimeOffset` method.  If the `setLocalTimeOffset` method
+    /// has not been called, load 0.
+    static bsls::TimeInterval loadLocalTimeOffset(const bdlt::Datetime&);
+
+    /// Set the specified `localTimeOffsetInSeconds` as the value loaded by
+    /// calls to the loadLocalTimeOffset' method.
     static void setLocalTimeOffset(
                                   bsls::Types::Int64 localTimeOffsetInSeconds);
-        // Set the specified 'localTimeOffsetInSeconds' as the value loaded by
-        // calls to the loadLocalTimeOffset' method.
 
+    /// Return the number of times the `loadLocalTimeOffset` method has been
+    /// called since the start of process.
     static int loadCount();
-        // Return the number of times the 'loadLocalTimeOffset' method has been
-        // called since the start of process.
 };
 
 bsls::Types::Int64 TestLocalTimeOffsetCallback::s_localTimeOffsetInSeconds = 0;
@@ -641,13 +647,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -663,52 +669,52 @@ int main(int argc, char *argv[])
 
 ///Example: Basic Usage
 /// - - - - - - - - - -
-// First, we create a 'ball::LoggerManagerConfiguration' object, 'lmConfig',
+// First, we create a `ball::LoggerManagerConfiguration` object, `lmConfig`,
 // and set the logging "pass-through" level -- the level at which log records
-// are published to registered observers -- to 'DEBUG':
-//..
+// are published to registered observers -- to `DEBUG`:
+// ```
         ball::LoggerManagerConfiguration lmConfig;
         lmConfig.setDefaultThresholdLevelsIfValid(ball::Severity::e_DEBUG);
-//..
-// Next, create a 'ball::LoggerManagerScopedGuard' object whose constructor
+// ```
+// Next, create a `ball::LoggerManagerScopedGuard` object whose constructor
 // takes the configuration object just created.  The guard will initialize the
 // logger manager singleton on creation and destroy the singleton upon
 // destruction.  This guarantees that any resources used by the logger manager
 // will be properly released when they are not needed:
-//..
+// ```
         ball::LoggerManagerScopedGuard guard(lmConfig);
         ball::LoggerManager& manager = ball::LoggerManager::singleton();
-//..
-// Next, we create a 'ball::FileObserver2' object and register it with the
-// 'ball' logging system;
-//..
+// ```
+// Next, we create a `ball::FileObserver2` object and register it with the
+// `ball` logging system;
+// ```
         bsl::shared_ptr<ball::FileObserver2> observer =
                                        bsl::make_shared<ball::FileObserver2>();
-//..
+// ```
 // Next, we configure the log file rotation rules:
-//..
+// ```
         // Rotate the file when its size becomes greater than or equal to 128
         // megabytes.
         observer->rotateOnSize(1024 * 128);
 
         // Rotate the file every 24 hours.
         observer->rotateOnTimeInterval(bdlt::DatetimeInterval(1));
-//..
+// ```
 // Note that in this configuration the user may end up with multiple log files
 // for a specific day (because of the rotation-on-size rule).
 //
 // Then, we enable logging to a file:
-//..
+// ```
         // Create and log records to a file named "/var/log/task/task.log".
         observer->enableFileLogging("/var/log/task/task.log");
-//..
+// ```
 // Finally, we register the file observer with the logger manager.  Upon
 // successful registration, the observer will start to receive log records via
-// the 'publish' method:
-//..
+// the `publish` method:
+// ```
         int rc = manager.registerObserver(observer, "default");
         ASSERT(0 == rc);
-//..
+// ```
 
       } break;
       case 13: {
@@ -716,15 +722,15 @@ int main(int argc, char *argv[])
         // REPRODUCE BUG FROM DRQS 123123158
         //
         // Concerns:
-        //: 1 On Solaris, logging "" wound up calling 'fstream::write(0, 0)'
-        //:   which Solaris did not deal with properly, and resulted in the
-        //:   fail bit of the stream being set and a (confusing) error message
-        //:   being written to the console by the file observer.
+        // 1. On Solaris, logging "" wound up calling `fstream::write(0, 0)`
+        //    which Solaris did not deal with properly, and resulted in the
+        //    fail bit of the stream being set and a (confusing) error message
+        //    being written to the console by the file observer.
         //
         // Plan:
-        //: 1 Log "" and assert that the file logging is still enabled
-        //:   afterward.  If the bug manifests itself, and error will be
-        //:   written to the console and the assert will fail.
+        // 1. Log "" and assert that the file logging is still enabled
+        //    afterward.  If the bug manifests itself, and error will be
+        //    written to the console and the assert will fail.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "REPRODUCE BUG FROM DRQS 123123158\n"
@@ -774,79 +780,79 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING CURRENT LOCAL-TIME OFFSET IN TIMESTAMP
         //   Per DRQS 13681097, log records observe DST time transitions when
-        //   the default logging functor is used and the 'publishInLocalTime'
-        //   attribute is 'true'.
+        //   the default logging functor is used and the `publishInLocalTime`
+        //   attribute is `true`.
         //
         // Concern:
-        //: 1 Log records show the current local time offset (possibly
-        //:   different from the local time offset in effect on construction),
-        //:   when 'true == isPublishInLocalTimeEnabled()'.
-        //:
-        //: 2 Log records show UTC when
-        //:   'false == isPublishInLocalTimeEnabled()'.
-        //:
-        //: 3 QoI: The local-time offset is obtained not more than once per log
-        //:   record.
-        //:
-        //: 4 The helper class 'TestCurrentTimeCallback' has a method, 'load',
-        //:   that loads the user-specified UTC time, and that method can be
-        //:   installed as the system-time callback of 'bdlt::CurrentTime'.
-        //:
-        //: 5 The helper class 'TestLocalTimeOffsetCallback' has a method,
-        //:   'loadLocalTimeOffset', that loads the user-specified local-time
-        //:   offset value, and that method can be installed as the local-time
-        //:   callback of 'bdlt::CurrentTime', and that the value loaded is not
-        //:   influenced by the user-specified 'utcDatetime'.
-        //:
-        //: 6 The helper class method 'TestLocalTimeOffsetCallback::loadCount'
-        //:   provides an accurate count of the calls to the
-        //:   'TestLocalTimeOffsetCallback::loadLocalTimeOffset' method.
+        // 1. Log records show the current local time offset (possibly
+        //    different from the local time offset in effect on construction),
+        //    when `true == isPublishInLocalTimeEnabled()`.
+        //
+        // 2. Log records show UTC when
+        //    `false == isPublishInLocalTimeEnabled()`.
+        //
+        // 3. QoI: The local-time offset is obtained not more than once per log
+        //    record.
+        //
+        // 4. The helper class `TestCurrentTimeCallback` has a method, `load`,
+        //    that loads the user-specified UTC time, and that method can be
+        //    installed as the system-time callback of `bdlt::CurrentTime`.
+        //
+        // 5. The helper class `TestLocalTimeOffsetCallback` has a method,
+        //    `loadLocalTimeOffset`, that loads the user-specified local-time
+        //    offset value, and that method can be installed as the local-time
+        //    callback of `bdlt::CurrentTime`, and that the value loaded is not
+        //    influenced by the user-specified `utcDatetime`.
+        //
+        // 6. The helper class method `TestLocalTimeOffsetCallback::loadCount`
+        //    provides an accurate count of the calls to the
+        //    `TestLocalTimeOffsetCallback::loadLocalTimeOffset` method.
         //
         // Plan:
-        //: 1 Test the helper 'TestCurrentTimeCallback' class (C-4):
-        //:
-        //:   1 Using the array-driven technique, confirm that the 'load'
-        //:     method obtains the value last set by the 'setUtcDatetime'
-        //:     method.  Use UTC values that do not coincide with the actual
-        //:     UTC datetime.
-        //:
-        //:   2 Install the 'TestCurrentTimeCallback::load' method as the
-        //:     system-time callback of system-time offset callback of
-        //:     'bdlt::CurrentTime', and run through the same values as used in
-        //:     P-1.1.  Confirm that values returned from 'bdlt::CurrentTime'
-        //:     match the user-specified values.
-        //:
-        //: 2 Test the helper 'TestLocalTimeOffsetCallback' class (C-5):
-        //:
-        //:   1 Using the array-driven technique, confirm that the
-        //:     'loadLocalTimeOffset' method obtains the value last set by the
-        //:     'setLocalTimeOffset' method.  At least one value should differ
-        //:     from the current, actual local-time offset.
-        //:
-        //:   2 Install the 'TestLocalTimeOffsetCallback::loadLocalTimeOffset'
-        //:     method as the local-time offset callback of
-        //:     'bdlt::CurrentTime', and run through the same same
-        //:     user-specified local time offsets as used in P-2.1.  Confirm
-        //:     that values returned from 'bdlt::CurrentTime' match the
-        //:     user-specified values.  Repeat the request for (widely)
-        //:     different UTC datetime values to confirm that the local time
-        //:     offset value remains that defined by the callback.
-        //:
-        //:   3 Confirm that the value returned by the 'loadCount' method
-        //:     increases by exactly 1 each time a local-time offset is
-        //:     obtained via 'bdlt::CurrentTime'.  (C-6)
-        //:
-        //: 3 Using an ad-hoc approach, confirm that the datetime field of a
-        //:   published log record is the expected (arbitrary) UTC datetime
-        //:   value when publishing in local-time is disabled.  Enable
-        //:   publishing in local-time and confirm that the published datetime
-        //:   field matches that of the (arbitrary) user-defined local-time
-        //:   offsets.  Disable publishing in local time, and confirm that log
-        //:   records are again published with the UTC datetime.  (C-1, C-2)
-        //:
-        //: 4 When publishing in local time is enabled, confirm that there
-        //:   exactly 1 request for local time offset for each published
-        //:   record.  (C-3)
+        // 1. Test the helper `TestCurrentTimeCallback` class (C-4):
+        //
+        //   1. Using the array-driven technique, confirm that the `load`
+        //      method obtains the value last set by the `setUtcDatetime`
+        //      method.  Use UTC values that do not coincide with the actual
+        //      UTC datetime.
+        //
+        //   2. Install the `TestCurrentTimeCallback::load` method as the
+        //      system-time callback of system-time offset callback of
+        //      `bdlt::CurrentTime`, and run through the same values as used in
+        //      P-1.1.  Confirm that values returned from `bdlt::CurrentTime`
+        //      match the user-specified values.
+        //
+        // 2. Test the helper `TestLocalTimeOffsetCallback` class (C-5):
+        //
+        //   1. Using the array-driven technique, confirm that the
+        //      `loadLocalTimeOffset` method obtains the value last set by the
+        //      `setLocalTimeOffset` method.  At least one value should differ
+        //      from the current, actual local-time offset.
+        //
+        //   2. Install the `TestLocalTimeOffsetCallback::loadLocalTimeOffset`
+        //      method as the local-time offset callback of
+        //      `bdlt::CurrentTime`, and run through the same same
+        //      user-specified local time offsets as used in P-2.1.  Confirm
+        //      that values returned from `bdlt::CurrentTime` match the
+        //      user-specified values.  Repeat the request for (widely)
+        //      different UTC datetime values to confirm that the local time
+        //      offset value remains that defined by the callback.
+        //
+        //   3. Confirm that the value returned by the `loadCount` method
+        //      increases by exactly 1 each time a local-time offset is
+        //      obtained via `bdlt::CurrentTime`.  (C-6)
+        //
+        // 3. Using an ad-hoc approach, confirm that the datetime field of a
+        //    published log record is the expected (arbitrary) UTC datetime
+        //    value when publishing in local-time is disabled.  Enable
+        //    publishing in local-time and confirm that the published datetime
+        //    field matches that of the (arbitrary) user-defined local-time
+        //    offsets.  Disable publishing in local time, and confirm that log
+        //    records are again published with the UTC datetime.  (C-1, C-2)
+        //
+        // 4. When publishing in local time is enabled, confirm that there
+        //    exactly 1 request for local time offset for each published
+        //    record.  (C-3)
         //
         // Testing:
         //   CONCERN: CURRENT LOCAL-TIME OFFSET IN TIMESTAMP
@@ -893,7 +899,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTest TestCurrentTimeCallback: Installed"
                           << endl;
         {
-            // Install callback from 'TestCurrentTimeCallback'.
+            // Install callback from `TestCurrentTimeCallback`.
 
             bdlt::CurrentTime::CurrentTimeCallback
                 originalCurrentTimeCallback =
@@ -997,12 +1003,12 @@ int main(int argc, char *argv[])
         // TESTING TIME CALLBACKS
         //
         // Concern:
-        //:  1 Time converting callbacks are invoked when log string is
-        //:    generated.
+        //  1. Time converting callbacks are invoked when log string is
+        //     generated.
         //
         // Plan:
-        //:  1 Call logging and verify that the installed test time callbacks
-        //:    are invoked as expected.
+        //  1. Call logging and verify that the installed test time callbacks
+        //     are invoked as expected.
         //
         // Testing:
         //   CONCERN: TIME CALLBACKS ARE CALLED
@@ -1235,21 +1241,21 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'rotateOnTimeInterval' AFTER 'enableFileLogging'
+        // TESTING `rotateOnTimeInterval` AFTER `enableFileLogging`
         //
         // Concern:
-        //: 1 'rotateOnTimeInterval' does not cause rotation immediately if
-        //:   invoked after 'enableFileLogging'.
+        // 1. `rotateOnTimeInterval` does not cause rotation immediately if
+        //    invoked after `enableFileLogging`.
         //
         // Plan:
-        //: 1 Invoke 'enableFileLogging' before 'rotateOnTimeInterval' and
-        //:   verify rotation does not occur.
+        // 1. Invoke `enableFileLogging` before `rotateOnTimeInterval` and
+        //    verify rotation does not occur.
         //
         // Testing:
         //   CONCERN: ROTATION CAN BE ENABLED AFTER FILE LOGGING
         // --------------------------------------------------------------------
         if (verbose) cout
-                << "\nTESTING 'rotateOnTimeInterval' AFTER 'enableFileLogging'"
+                << "\nTESTING `rotateOnTimeInterval` AFTER `enableFileLogging`"
                 << "\n========================================================"
                 << endl;
 
@@ -1308,21 +1314,21 @@ int main(int argc, char *argv[])
         // TESTING TIME-BASED ROTATION
         //
         // Concern:
-        //: 1 'rotateOnTimeInterval' accepts any valid datetime value as the
-        //:   reference time.
-        //:
-        //: 2 Reference time is interpreted as ether local or UTC time
-        //:   depending on the 'isPublishInLocalTime()'.
+        // 1. `rotateOnTimeInterval` accepts any valid datetime value as the
+        //    reference time.
+        //
+        // 2. Reference time is interpreted as ether local or UTC time
+        //    depending on the `isPublishInLocalTime()`.
         //
         // Plan:
-        //: 1 Setup test infrastructure.
-        //:
-        //: 2 Call 'rotateOnTimeInterval' with boundary values on the reference
-        //:   start time, and verify that rotation occurs on schedule.  (C-1)
-        //:
-        //: 3 Call 'rotateOnTimeInterval' with a large interval and a reference
-        //:   time such that the next rotation will occur soon.  Verify that
-        //:   rotation occurs on the scheduled time.  (C-2)
+        // 1. Setup test infrastructure.
+        //
+        // 2. Call `rotateOnTimeInterval` with boundary values on the reference
+        //    start time, and verify that rotation occurs on schedule.  (C-1)
+        //
+        // 3. Call `rotateOnTimeInterval` with a large interval and a reference
+        //    time such that the next rotation will occur soon.  Verify that
+        //    rotation occurs on the scheduled time.  (C-2)
         //
         // Testing:
         //  void rotateOnTimeInterval(const DtInterval& i, const Datetime& s);
@@ -1492,45 +1498,45 @@ int main(int argc, char *argv[])
         // TESTING TIME-BASED ROTATION
         //
         // Concern:
-        //: 1 Time-based rotation occurs as scheduled
-        //:
-        //: 2 Rotation schedule is not affected if the previous rotation was
-        //:   delayed because not record was published at the scheduled time
-        //:   of rotation.
-        //:
-        //: 3 A rotation that occurred between two scheduled rotations does
-        //:   not affect the schedule.
-        //:
-        //: 4 Disabling file logging does not affect rotation schedule.
-        //:
-        //: 5 'disableLifetimeRotation' prevents further time-base rotation.
-        //:
-        //: 6 A delay between 'enableFileLogging' and 'rotateOnTimeInterval',
-        //:   when 'rotateOnItemInterval' uses the current time as its
-        //:   reference start time, does not incur an erroneous rotation
-        //:   (DRQS 87930585).
+        // 1. Time-based rotation occurs as scheduled
+        //
+        // 2. Rotation schedule is not affected if the previous rotation was
+        //    delayed because not record was published at the scheduled time
+        //    of rotation.
+        //
+        // 3. A rotation that occurred between two scheduled rotations does
+        //    not affect the schedule.
+        //
+        // 4. Disabling file logging does not affect rotation schedule.
+        //
+        // 5. `disableLifetimeRotation` prevents further time-base rotation.
+        //
+        // 6. A delay between `enableFileLogging` and `rotateOnTimeInterval`,
+        //    when `rotateOnItemInterval` uses the current time as its
+        //    reference start time, does not incur an erroneous rotation
+        //    (DRQS 87930585).
         //
         // Plan:
-        //: 1 Configure rotation for 1 second.  Log a record before 1 second,
-        //:   and ensure that no rotation occurs.  Then log a record after the
-        //:   1 second and verify a rotation occurs.  (C-1)
-        //:
-        //: 2 Delay logging such that the rotation is delayed.  Then verify the
-        //:   schedule for the next rotation is not affected.  (C-2)
-        //:
-        //: 3 Cause a rotation to occur between scheduled rotations and verify
-        //:   that the rotation schedule is not affected.  (C-3)
-        //:
-        //: 4 Disable and then re-enable file logging and verify rotation
-        //:   schedule is not affect.  (C-4)
-        //:
-        //: 5 Call 'disableTimeIntervalRotation' and verify that time-based
-        //:   rotation is disabled.  (C-5)
-        //:
-        //: 6 Insert a delay between 'enableFileLogging' and
-        //:   'rotateOnTimeInterval' and verify the log file is not
-        //:    immediately rotated. (C-6)
-        //:
+        // 1. Configure rotation for 1 second.  Log a record before 1 second,
+        //    and ensure that no rotation occurs.  Then log a record after the
+        //   1. second and verify a rotation occurs.  (C-1)
+        //
+        // 2. Delay logging such that the rotation is delayed.  Then verify the
+        //    schedule for the next rotation is not affected.  (C-2)
+        //
+        // 3. Cause a rotation to occur between scheduled rotations and verify
+        //    that the rotation schedule is not affected.  (C-3)
+        //
+        // 4. Disable and then re-enable file logging and verify rotation
+        //    schedule is not affect.  (C-4)
+        //
+        // 5. Call `disableTimeIntervalRotation` and verify that time-based
+        //    rotation is disabled.  (C-5)
+        //
+        // 6. Insert a delay between `enableFileLogging` and
+        //    `rotateOnTimeInterval` and verify the log file is not
+        //     immediately rotated. (C-6)
+        //
         // Testing:
         //  void rotateOnTimeInterval(const DatetimeInterval& interval);
         //  void disableTimeIntervalRotation();
@@ -1693,8 +1699,8 @@ int main(int argc, char *argv[])
                               << "(DRQS 87930585)"
                               << bsl::endl;
         {
-            // Test if there is a delay between 'enableFileLogging' and
-            // 'rotateOnTimeInterval'.
+            // Test if there is a delay between `enableFileLogging` and
+            // `rotateOnTimeInterval`.
             bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
             bdls::TempDirectoryGuard tempDirGuard("ball_");
@@ -1711,7 +1717,7 @@ int main(int argc, char *argv[])
 
             // Delay, so that the time stamps for the file log and reference
             // start time (which is supplied by a default parameter value on
-            // 'rotateOnTimeInterval') differ by a small amount.
+            // `rotateOnTimeInterval`) differ by a small amount.
 
             bslmt::ThreadUtil::microSleep(0, 1);
             mX.rotateOnTimeInterval(bdlt::DatetimeInterval(0, 1));  // 1 hour
@@ -1733,22 +1739,22 @@ int main(int argc, char *argv[])
         // TESTING ROTATION CALLBACK WITH EXISTING FILE
         //
         // Concerns:
-        //: 1 'rotateOnSize' triggers a rotation as expected even if the log
-        //:   file already exist.
-        //:
-        //: 2 'suppressUniqueFileNameOnRotation(true)' suppresses unique
-        //:   filename generation for the rotated log file on rotation.
+        // 1. `rotateOnSize` triggers a rotation as expected even if the log
+        //    file already exist.
+        //
+        // 2. `suppressUniqueFileNameOnRotation(true)` suppresses unique
+        //    filename generation for the rotated log file on rotation.
         //
         // Plan:
-        //: 1 Set 'rotateOnSize' to 1k, create a file with approximately 0.5k.
-        //:
-        //: 2 Write another 0.5k to the file and verify that the file is
-        //:   rotated.  Ensure the log file name and rotated filename do not
-        //:   match. (C-1)
-        //:
-        //: 3 Call 'suppressUniqueFileNameOnRotation(true)'.  Write another
-        //:   0.5k to the file and verify that the rotation took place and the
-        //:   log file name and rotated filename are the same. (C-2)
+        // 1. Set `rotateOnSize` to 1k, create a file with approximately 0.5k.
+        //
+        // 2. Write another 0.5k to the file and verify that the file is
+        //    rotated.  Ensure the log file name and rotated filename do not
+        //    match. (C-1)
+        //
+        // 3. Call `suppressUniqueFileNameOnRotation(true)`.  Write another
+        //    0.5k to the file and verify that the rotation took place and the
+        //    log file name and rotated filename are the same. (C-2)
         //
         // Testing:
         //  CONCERN: ROTATION CALLBACK TRIGGERS CORRECTLY FOR EXISTING FILE
@@ -1884,13 +1890,13 @@ int main(int argc, char *argv[])
         // TESTING ROTATE ON SIZE ON EXISTING FILE
         //
         // Concerns:
-        //: 1 Rotate on size is based on file size and not the number of bytes
-        //:   written to the file.
+        // 1. Rotate on size is based on file size and not the number of bytes
+        //    written to the file.
         //
         // Plan:
-        //: 1 Disable any rotation and create a file over 1 KB and then disable
-        //:   file logging.  Enable 'rotateOnSize', start logging again and
-        //:   verify that the file is rotated on first log.  (C-1)
+        // 1. Disable any rotation and create a file over 1 KB and then disable
+        //    file logging.  Enable `rotateOnSize`, start logging again and
+        //    verify that the file is rotated on first log.  (C-1)
         //
         // Testing:
         //  CONCERN: ROTATION ON SIZE WORKS FOR EXISTING FILES
@@ -1969,42 +1975,42 @@ int main(int argc, char *argv[])
         // TESTING LOG FILE ROTATION CALLBACK
         //
         // Concerns:
-        //: 1 Rotation callback is invoked when a rotation occurs, regardless
-        //:   of the event that causes the rotation.
-        //:
-        //: 2 Setting a callback is not necessary for file rotation whether the
-        //:   rotation succeed or not.
-        //:
-        //: 3 Rotation callback is *not* invoked if a rotation did not occur.
-        //:
-        //: 4 Rotation callback supply the name of the rotated log file.
-        //:
-        //: 5 Rotation callback is invoked in such a way that the file observer
-        //:   is not locked during the callback.
+        // 1. Rotation callback is invoked when a rotation occurs, regardless
+        //    of the event that causes the rotation.
+        //
+        // 2. Setting a callback is not necessary for file rotation whether the
+        //    rotation succeed or not.
+        //
+        // 3. Rotation callback is *not* invoked if a rotation did not occur.
+        //
+        // 4. Rotation callback supply the name of the rotated log file.
+        //
+        // 5. Rotation callback is invoked in such a way that the file observer
+        //    is not locked during the callback.
         //
         // Plan:
-        //: 1 Call 'forceRotation' without setting the callback. (C-2)
-        //:
-        //: 2 Call 'forceRotation' when logging is not enable and verify that
-        //:   the callback is not invoked. (C-3)
-        //:
-        //: 3 Setup the test callback function.  Call 'enableFileLogging' with
-        //:   a pattern that produces unique log names.  Call 'forceRotation'
-        //:   and verify that the callback is invoked and the rotated log name
-        //:   is as expected.
-        //:
-        //: 4 Setup the test callback function.  Call 'enableFileLogging' with
-        //:   a pattern that produces logs with the same names.  Call
-        //:   'forceRotation' and verify that the callback is invoked and the
-        //:   rotated log name is changed.
-        //:
-        //: 5 Setup the test callback function.  Cause a rotation-on-size and
-        //:   rotation-on-time-interval, and verify that the callback is
-        //:   invoked.
-        //:
-        //: 6 Set file rotation callback with a function that will call
-        //:   'disableFileLogging'.  Call 'forceRotation' and verify it does
-        //:   not result in a deadlock.
+        // 1. Call `forceRotation` without setting the callback. (C-2)
+        //
+        // 2. Call `forceRotation` when logging is not enable and verify that
+        //    the callback is not invoked. (C-3)
+        //
+        // 3. Setup the test callback function.  Call `enableFileLogging` with
+        //    a pattern that produces unique log names.  Call `forceRotation`
+        //    and verify that the callback is invoked and the rotated log name
+        //    is as expected.
+        //
+        // 4. Setup the test callback function.  Call `enableFileLogging` with
+        //    a pattern that produces logs with the same names.  Call
+        //    `forceRotation` and verify that the callback is invoked and the
+        //    rotated log name is changed.
+        //
+        // 5. Setup the test callback function.  Cause a rotation-on-size and
+        //    rotation-on-time-interval, and verify that the callback is
+        //    invoked.
+        //
+        // 6. Set file rotation callback with a function that will call
+        //    `disableFileLogging`.  Call `forceRotation` and verify it does
+        //    not result in a deadlock.
         //
         // Testing:
         //    void setOnFileRotationCallback(const OnFileRotationCallback&);
@@ -2210,44 +2216,44 @@ int main(int argc, char *argv[])
         // TESTING ROTATED FILENAME
         //
         // Concerns:
-        //: 1 A timestamp is appended to the filename if the rotated file has
-        //:   the same name as the current log file.
-        //:
-        //: 2 The callback function is correctly supplied with the name of the
-        //:   rotated file.
-        //:
-        //: 3 The user specified '%p'-escape sequence expands to the to the
-        //:   process id (in decimal format) in the rotated file name.
-        //:
-        //: 4 The user specified escape sequences for time stamp (%Y, %M, %D,
-        //:   %h, %m, s, %T) are expanded to their corresponding time element
-        //:   (year, month, day, hour, minute, second, complete-timestamp,
-        //:   respectively)
-        //:
-        //: 5 That the time stamp elements of the file name are appended in
-        //:   localtime if 'isPublishInLocalTime' is 'true' and in UTC
-        //:   otherwise.
-        //:
+        // 1. A timestamp is appended to the filename if the rotated file has
+        //    the same name as the current log file.
+        //
+        // 2. The callback function is correctly supplied with the name of the
+        //    rotated file.
+        //
+        // 3. The user specified `%p`-escape sequence expands to the to the
+        //    process id (in decimal format) in the rotated file name.
+        //
+        // 4. The user specified escape sequences for time stamp (%Y, %M, %D,
+        //    %h, %m, s, %T) are expanded to their corresponding time element
+        //    (year, month, day, hour, minute, second, complete-timestamp,
+        //    respectively)
+        //
+        // 5. That the time stamp elements of the file name are appended in
+        //    localtime if `isPublishInLocalTime` is `true` and in UTC
+        //    otherwise.
+        //
         // Plans:
-        //: 1 Setup the test infrastructure, including a callback.
-        //:
-        //: 2 Create a table of patterns and the expected names.
-        //:
-        //: 3 For each row in the table:
-        //:   1 Enable file logging and ensure the time before and after call
-        //:     to 'enableFileLogging' is within the same second.  If not,
-        //:     disable and re-enable file logging again until we can get the
-        //:     log file timestamp with certainty.
-        //:
-        //:   2 Verify the correct log is created
-        //:
-        //:   3 Perform a force rotation and verify the rotated log has the
-        //:     correct filename.
-        //:
-        //: 4 Use 'enablePublishInLocalTime' and 'disablePublishInLocalTime'
-        //:   to configure the time stamp on the generated log file.  Enable
-        //:   file logging and verify the generated file name has a time stamp
-        //:   in local-time or UTC, respectively.
+        // 1. Setup the test infrastructure, including a callback.
+        //
+        // 2. Create a table of patterns and the expected names.
+        //
+        // 3. For each row in the table:
+        //   1. Enable file logging and ensure the time before and after call
+        //      to `enableFileLogging` is within the same second.  If not,
+        //      disable and re-enable file logging again until we can get the
+        //      log file timestamp with certainty.
+        //
+        //   2. Verify the correct log is created
+        //
+        //   3. Perform a force rotation and verify the rotated log has the
+        //      correct filename.
+        //
+        // 4. Use `enablePublishInLocalTime` and `disablePublishInLocalTime`
+        //    to configure the time stamp on the generated log file.  Enable
+        //    file logging and verify the generated file name has a time stamp
+        //    in local-time or UTC, respectively.
         //
         // Testing:
         //  CONCERN: ROTATED LOG FILENAMES ARE AS EXPECTED
@@ -2456,7 +2462,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout << "Testing filename time-stamp uses "
-                          << "'isPublishInLocalTimeEnabled'" << endl;
+                          << "`isPublishInLocalTimeEnabled`" << endl;
         {
             bdls::TempDirectoryGuard tempDirGuard("ball_");
 
@@ -2570,13 +2576,13 @@ int main(int argc, char *argv[])
         // TESTING LOGGING TO A FAILING STREAM
         //
         // Concerns:
-        //:  1 An error message is written to stderr when the stream fails.
+        //  1. An error message is written to stderr when the stream fails.
         //
         // Plan:
-        //:  1 Set the OS to limit the total size of any file we write to a
-        //:    fairly small amount, then use BALL to write more than that.
-        //:    While doing this, capture the stderr output and verify a message
-        //:    has been written.
+        //  1. Set the OS to limit the total size of any file we write to a
+        //     fairly small amount, then use BALL to write more than that.
+        //     While doing this, capture the stderr output and verify a message
+        //     has been written.
         //
         // Testing:
         //   CONCERN: LOGGING TO A FAILING STREAM
@@ -2586,7 +2592,7 @@ int main(int argc, char *argv[])
                           << "\n====================================" << endl;
 
 #if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_CYGWIN)
-        // 'setrlimit' is not implemented on Cygwin.
+        // `setrlimit` is not implemented on Cygwin.
 
         // Publish synchronously all messages regardless of their severity.
         // This configuration also guarantees that the observer will only see
@@ -2639,7 +2645,7 @@ int main(int argc, char *argv[])
 
             // we want to capture the error message that will be written to
             // stderr (not cerr).  Redirect stderr to a file.  We can't
-            // redirect it back; we'll have to use 'ASSERT2' (which outputs to
+            // redirect it back; we'll have to use `ASSERT2` (which outputs to
             // cout, not cerr) from now on and report a summary to cout at the
             // end of this case.
 
@@ -2689,21 +2695,21 @@ int main(int argc, char *argv[])
         // TESTING ROTATION METHODS
         //
         // Concerns:
-        //:  1 'rotateOnSize' triggers a rotation when expected.
-        //:
-        //:  2 'disableSizeRotation' disables rotation on size.
-        //:
-        //:  3 'forceRotation' triggers a rotation.
-        //:
-        //:  4 'rotateOnLifetime' triggers a rotation when expected.
-        //:
-        //:  5 'disableLifetimeRotation' disables rotation on lifetime.
+        //  1. `rotateOnSize` triggers a rotation when expected.
+        //
+        //  2. `disableSizeRotation` disables rotation on size.
+        //
+        //  3. `forceRotation` triggers a rotation.
+        //
+        //  4. `rotateOnLifetime` triggers a rotation when expected.
+        //
+        //  5. `disableLifetimeRotation` disables rotation on lifetime.
         //
         // Plan:
-        //:  1 We will exercise both rotation rules to verify that they work
-        //:    properly using glob to count the files and proper timing.  We
-        //:    will also verify that the size rule is followed by checking the
-        //:    size of log files.
+        //  1. We will exercise both rotation rules to verify that they work
+        //     properly using glob to count the files and proper timing.  We
+        //     will also verify that the size rule is followed by checking the
+        //     size of log files.
         //
         // Testing:
         //   void disableLifetimeRotation();
@@ -3028,24 +3034,24 @@ int main(int argc, char *argv[])
         // TESTING THRESHOLDS AND OUTPUT FORMATS
         //
         // Concerns:
-        //:  1 'publish' logs in the default format.
-        //:
-        //:  2 'publish' publishes all messages to a file if file logging is
-        //:    enabled.
-        //:
-        //:  3 The name of the log file should be in accordance with what is
-        //:    defined by the pattern if file logging is enabled by a pattern.
-        //:
-        //:  4 'setLogFileFunctor' can change the format effectively.
+        //  1. `publish` logs in the default format.
+        //
+        //  2. `publish` publishes all messages to a file if file logging is
+        //     enabled.
+        //
+        //  3. The name of the log file should be in accordance with what is
+        //     defined by the pattern if file logging is enabled by a pattern.
+        //
+        //  4. `setLogFileFunctor` can change the format effectively.
         //
         // Plan:
-        //:  1 We will set up the observer and check if logged messages are in
-        //:    the expected format and contain the expected data by comparing
-        //:    the output of this observer with 'ball::StreamObserver' with a
-        //:    record formatter matching the expected default format of
-        //:    'ball::FileObserver2'.  Then, we will use different manipulators
-        //:    and functors to affect output format and verify that it has
-        //:    changed where expected.
+        //  1. We will set up the observer and check if logged messages are in
+        //     the expected format and contain the expected data by comparing
+        //     the output of this observer with `ball::StreamObserver` with a
+        //     record formatter matching the expected default format of
+        //     `ball::FileObserver2`.  Then, we will use different manipulators
+        //     and functors to affect output format and verify that it has
+        //     changed where expected.
         //
         // Testing:
         //   FileObserver(ball::Severity::Level, bslma::Allocator);
@@ -3367,7 +3373,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == manager.deregisterObserver("testObserver"));
             }
 
-            if (verbose) cout << "Testing '%%' in file name pattern." << endl;
+            if (verbose) cout << "Testing `%%` in file name pattern." << endl;
             {
                 static const struct {
                     int         d_lineNum;           // source line number
@@ -3618,14 +3624,14 @@ int main(int argc, char *argv[])
         // LARGE FILE TEST
         //
         // Concern:
-        //: 1 'ball::FileObserver2' is able to write to a file over 2 GB.
+        // 1. `ball::FileObserver2` is able to write to a file over 2 GB.
         //
         // Plan:
-        //: 1 Keep logging to a file until it is over 5 GB.  Manually verify
-        //:   the file created is as expected.
+        // 1. Keep logging to a file until it is over 5 GB.  Manually verify
+        //    the file created is as expected.
         //
         // Testing:
-        //   CONCERN: 'ball::FileObserver2' is able to write to a file over 2GB
+        //   CONCERN: `ball::FileObserver2` is able to write to a file over 2GB
         // --------------------------------------------------------------------
 
         // This configuration guarantees that the logger manager will publish

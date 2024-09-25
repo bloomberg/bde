@@ -7,9 +7,9 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>     // 'sprintf', 'snprintf' [NOT '<cstdio>', which does not
-                       // include 'snprintf']
-#include <stdlib.h>    // 'atoi'
+#include <stdio.h>     // `sprintf`, `snprintf` [NOT `<cstdio>`, which does not
+                       // include `snprintf`]
+#include <stdlib.h>    // `atoi`
 
 using namespace BloombergLP;
 
@@ -24,14 +24,14 @@ using namespace BloombergLP;
 // exhaustive.
 //
 // Groups of operations tested:
-// * Basic ratio functionality - numerator/denominator/nested 'type'
+// * Basic ratio functionality - numerator/denominator/nested `type`
 // * SI prefixes - kilo, mega, milli, etc.
 // * Ratio comparisons - less/greater/equal, etc.
-// ** This includes the '_v' inline variables
+// ** This includes the `_v` inline variables
 // * Ratio operations - add/subtract/multiply/divide, etc.
-// ** There are no '_t' versions of these operations.
+// ** There are no `_t` versions of these operations.
 // ----------------------------------------------------------------------------
-// [ 1] '<ratio>' STL header
+// [ 1] `<ratio>` STL header
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -132,40 +132,40 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 1: {
         // --------------------------------------------------------------------
-        // VERIFYING '<ratio>' HEADER
+        // VERIFYING `<ratio>` HEADER
         //
         // Concerns:
-        //: 1 That the operations are successfully imported into the 'bsl'
-        //:   namespace from the underlying STL implementation.
-        //:
-        //: 2 That the short versions of the comparison operators, such as
-        //:   'ratio_less_v', exist for C++14 and C++17 modes (but not C++11).
+        // 1. That the operations are successfully imported into the `bsl`
+        //    namespace from the underlying STL implementation.
+        //
+        // 2. That the short versions of the comparison operators, such as
+        //    `ratio_less_v`, exist for C++14 and C++17 modes (but not C++11).
         //
         // Plan:
-        //: 1 Verify that the template 'ratio' exists in the 'bsl' namespace
-        //:   and that it behaves like 'std::ratio'.
-        //:
-        //: 2 Verify that the SI 'typedef's exist and have the correct
-        //:   numerator and denominator.
-        //:
-        //: 3 Verify that the comparison operations exist, and give expected
-        //:   results.  Check again for the '_v' versions.
-        //:
-        //: 4 Verify that the arithmetic operations exist, and give expected
-        //:   results.
+        // 1. Verify that the template `ratio` exists in the `bsl` namespace
+        //    and that it behaves like `std::ratio`.
+        //
+        // 2. Verify that the SI `typedef`s exist and have the correct
+        //    numerator and denominator.
+        //
+        // 3. Verify that the comparison operations exist, and give expected
+        //    results.  Check again for the `_v` versions.
+        //
+        // 4. Verify that the arithmetic operations exist, and give expected
+        //    results.
         //
         // Testing:
-        //   '<ratio>' STL header
+        //   `<ratio>` STL header
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nVERIFYING '<ratio>' HEADER"
+        if (verbose) printf("\nVERIFYING `<ratio>` HEADER"
                             "\n==========================\n");
 
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-        if (verbose) printf("Cannot test 'bsl::ratio' in pre-C++11 mode.\n");
+        if (verbose) printf("Cannot test `bsl::ratio` in pre-C++11 mode.\n");
         ASSERT(1);
 #else
-        if (verbose) printf("\tTest basic 'ratio' functionality.\n");
+        if (verbose) printf("\tTest basic `ratio` functionality.\n");
         {
             typedef bsl::ratio<0, 1> Zero;
             typedef bsl::ratio<2>    Two;
@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
             ASSERT(3 == Six4ths::num);
             ASSERT(2 == Six4ths::den);
 
-            // a nested 'typedef' named 'type'
+            // a nested `typedef` named `type`
             ASSERT((bsl::is_same<Zero, Zero::type>::value));
         }
 
@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
         #endif
         }
 
-        if (verbose) printf("\tTest 'ratio' comparisons.\n");
+        if (verbose) printf("\tTest `ratio` comparisons.\n");
         {
             typedef bsl::ratio<3, 2>  ThreeHalfs;
             typedef bsl::ratio<6, 4>  Six4ths;
@@ -273,7 +273,7 @@ int main(int argc, char *argv[])
             ASSERT(!(bsl::ratio_not_equal<ThreeHalfs, Six4ths>::value));
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-            // same tests, with using the '_v' suffix
+            // same tests, with using the `_v` suffix
             ASSERT( (bsl::ratio_less_v<NegTwo3rds, ThreeHalfs>));
             ASSERT( (bsl::ratio_less_v<NegTwo3rds, Zero>));
             ASSERT(!(bsl::ratio_less_v<ThreeHalfs, Zero>));
@@ -306,7 +306,7 @@ int main(int argc, char *argv[])
 #endif
         }
 
-        if (verbose) printf("\tTest 'ratio' arithmetic operations.\n");
+        if (verbose) printf("\tTest `ratio` arithmetic operations.\n");
         {
             typedef bsl::ratio<3, 2>  ThreeHalfs;
             typedef bsl::ratio<3, 2>  Six4ths;

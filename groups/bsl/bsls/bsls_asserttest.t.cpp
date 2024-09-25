@@ -2,9 +2,9 @@
 #include <bsls_asserttest.h>
 
 #include <stdio.h>
-// '<stdio.h>' **must** be included before anything else that may
-// '#include <cstdio>', otherwise, on SunOS, the headers in '/usr/include' will
-// hide 'popen'/'pclose' (as well as any name that is not in C++03).  Due
+// `<stdio.h>` **must** be included before anything else that may
+// `#include <cstdio>`, otherwise, on SunOS, the headers in `/usr/include` will
+// hide `popen`/`pclose` (as well as any name that is not in C++03).  Due
 // already existing type definitions it is not even possible to bring those
 // names in using header even if we undefined guard macros.
 
@@ -15,9 +15,9 @@
 #include <bsls_platform.h>
 
 // We limit ourselves to direct access to the standard C library for packages
-// in 'bsl'.  This also means no C++ '<cstdio>' etc headers as those may not be
+// in `bsl`.  This also means no C++ `<cstdio>` etc headers as those may not be
 // present (theoretically) or more often are broken enough that we can't use
-// them (see the long '#include <stdio.h>' comment above).
+// them (see the long `#include <stdio.h>` comment above).
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,7 +35,7 @@
 
 #ifdef BDE_VERIFY
 // Suppress some pedantic bde_verify checks in this test driver
-#pragma bde_verify -MN04   // Pointer members must end in '_p'
+#pragma bde_verify -MN04   // Pointer members must end in `_p`
 #endif
 
 using namespace BloombergLP;
@@ -49,9 +49,9 @@ using namespace BloombergLP;
 // testing of assertions.  Tests will be a mix of validating that those
 // functions work as expected with all inputs, and that the macros that call
 // them work in various build modes.  The macro tests are the most unorthodox
-// (similar to the tests for 'bsls_assert' and 'bsls_review') and involve
+// (similar to the tests for `bsls_assert` and `bsls_review`) and involve
 // numerous re-includes of this component's header after undefining the macros
-// (using 'bsls_asserttest_macroreset.h') and then defining many permutations
+// (using `bsls_asserttest_macroreset.h`) and then defining many permutations
 // of the macros that control assert header behavior.
 //-----------------------------------------------------------------------------
 // [ 9] BSLS_ASSERTTEST_ASSERT_SAFE_PASS(FUNCTION)
@@ -93,7 +93,7 @@ using namespace BloombergLP;
 // [ 1] BREATHING TEST
 // [ 2] STDIO MONITORING TEST
 // [14] Test case 1: vector
-// [14] Test case 2: 'PASS' macros
+// [14] Test case 2: `PASS` macros
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -145,9 +145,10 @@ void aSsErT(bool condition, const char *message, int line)
 
 static bool verbose;
 static bool veryVerbose;
+
+/// To enable free functions to follow BDE test driver verbosity guidelines
+/// without too much noise of extra arguments.
 static bool veryVeryVerbose;
-    // To enable free functions to follow BDE test driver verbosity guidelines
-    // without too much noise of extra arguments.
 
 //=============================================================================
 //                  GLOBAL HELPER MACROS FOR TESTING
@@ -168,11 +169,11 @@ static bool veryVeryVerbose;
 // These are named functions mostly to support better human readability of the
 // test code.
 
+/// Return `true` if the specified `c` is an element in the specified
+/// null-terminated `charset` excluding the null terminator, and `false`
+/// otherwise.
 static
 bool isOneOf(char c, const char *charset)
-    // Return 'true' if the specified 'c' is an element in the specified
-    // null-terminated 'charset' excluding the null terminator, and 'false'
-    // otherwise.
 {
     return c != 0 && strchr(charset, c) != 0;
 }
@@ -181,45 +182,45 @@ bool isOneOf(char c, const char *charset)
 //                    STDIO CAPTURE AND CONTROL MACHINERY
 //-----------------------------------------------------------------------------
 
-// IMPLEMENTATION NOTES and implementation details of the local 'stdio' capture
-// mechanisms are placed after 'main' to reduce distractions from the actual
+// IMPLEMENTATION NOTES and implementation details of the local `stdio` capture
+// mechanisms are placed after `main` to reduce distractions from the actual
 // test cases.
 
                           // ======================
                           // class StdIoTestMonitor
                           // ======================
 
+/// This non-copyable mechanism optionally monitors (captures and silences)
+/// a given `stdio` output stream.
+///
+/// An `StdIoTestMonitor` has 2 major capabilities.  One is capturing to
+/// determine the presence of output, the other is silencing (redirecting to
+/// a null device).  Both modes are prepared during construction.
+/// Monitoring/silencing can then be started and stopped with the
+/// correspondingly named functions.
+///
+/// SILENCING
+/// - - - - -
+/// Silencing is specified using a test-driver-convenient `bool verbose`
+/// parameter.  When verbosity is set (to `true`) the monitor will not
+/// reopen the monitored stream onto a null device, so anything printed to
+/// the stream will go to its original destination.  Silencing is provided
+/// so as to ensure the rule of "silent test drivers" where a test driver
+/// must not print anything to standard output or error unless a raised
+/// verbosity level have been specified on its command line, modulo the test
+/// case number printing and the message about missing test case.
+///
+/// CAPTURING
+/// - - - - -
+/// Capturing provides the basis for monitoring an `stdio` output stream.
+/// We "capture" the output stream by giving it our own stream buffer and
+/// letting it to write to that buffer.  Note that the buffer is specified
+/// externally so that the writer of the test driver can determine the
+/// necessary size for testing.  The buffer is filled with a "nul" character
+/// upon construction and afterwards with calls to `resetBuffer`.  (The
+/// "null character" is configurable, and it is the 0 value by default,
+/// which should suffice for any normal use case.)
 class StdIoTestMonitor {
-    // This non-copyable mechanism optionally monitors (captures and silences)
-    // a given 'stdio' output stream.
-    //
-    // An 'StdIoTestMonitor' has 2 major capabilities.  One is capturing to
-    // determine the presence of output, the other is silencing (redirecting to
-    // a null device).  Both modes are prepared during construction.
-    // Monitoring/silencing can then be started and stopped with the
-    // correspondingly named functions.
-    //
-    // SILENCING
-    // - - - - -
-    // Silencing is specified using a test-driver-convenient 'bool verbose'
-    // parameter.  When verbosity is set (to 'true') the monitor will not
-    // reopen the monitored stream onto a null device, so anything printed to
-    // the stream will go to its original destination.  Silencing is provided
-    // so as to ensure the rule of "silent test drivers" where a test driver
-    // must not print anything to standard output or error unless a raised
-    // verbosity level have been specified on its command line, modulo the test
-    // case number printing and the message about missing test case.
-    //
-    // CAPTURING
-    // - - - - -
-    // Capturing provides the basis for monitoring an 'stdio' output stream.
-    // We "capture" the output stream by giving it our own stream buffer and
-    // letting it to write to that buffer.  Note that the buffer is specified
-    // externally so that the writer of the test driver can determine the
-    // necessary size for testing.  The buffer is filled with a "nul" character
-    // upon construction and afterwards with calls to 'resetBuffer'.  (The
-    // "null character" is configurable, and it is the 0 value by default,
-    // which should suffice for any normal use case.)
 
   private:
     // PRIVATE TYPES
@@ -232,43 +233,46 @@ class StdIoTestMonitor {
 
       public:
         // CREATORS
-        explicit MallocedBuffer(int size, char nulChar = '\0');
-            // Create a 'MallocedBuffer' object of the specified 'size'.
-            // Optionally specify 'nulChar' that is used to indicate unwritten
-            // areas of the buffer.  When 'nulChar' is not specified use zero.
 
+        /// Create a `MallocedBuffer` object of the specified `size`.
+        /// Optionally specify `nulChar` that is used to indicate unwritten
+        /// areas of the buffer.  When `nulChar` is not specified use zero.
+        explicit MallocedBuffer(int size, char nulChar = '\0');
+
+        /// Release all resources owned by it, and then destroy this object.
         ~MallocedBuffer();
-            // Release all resources owned by it, and then destroy this object.
 
         // MANIPULATORS
-        int prepareBufferForHumans(int maxSize = -1);
-            // Prepare the optionally specified 'maxSize' bytes, or all of the
-            // bytes of the buffer for presenting it to humans by printing it
-            // by replacing characters that may not be presentable on a screen
-            // like control characters and characters with their top bit set
-            // (not 7 bit ASCII).  Return the number of characters that have
-            // been prepared for output.
 
+        /// Prepare the optionally specified `maxSize` bytes, or all of the
+        /// bytes of the buffer for presenting it to humans by printing it
+        /// by replacing characters that may not be presentable on a screen
+        /// like control characters and characters with their top bit set
+        /// (not 7 bit ASCII).  Return the number of characters that have
+        /// been prepared for output.
+        int prepareBufferForHumans(int maxSize = -1);
+
+        /// Fill the buffer of this object with the `nulChar`.
         void reset();
-            // Fill the buffer of this object with the 'nulChar'.
 
         // ACCESSORS
+
+        /// Retrun the `nulChar` used by this object.
         char nulChar() const;
-            // Retrun the 'nulChar' used by this object.
 
+        /// Return a non-const pointer to the first character of the buffer
+        /// of this object.
         char *ptr() const;
-            // Return a non-const pointer to the first character of the buffer
-            // of this object.
 
+        /// Return the size of the buffer of this object.
         int size() const;
-            // Return the size of the buffer of this object.
 
+        /// Return `true` if any of the characters stored in the entirety
+        /// of the capture buffer is unequal to the "null character".
+        /// Otherwise, if all characters in the buffer are the
+        /// "null character" return `false`.  The behavior is undefined
+        /// unless `d_ptr != 0`.
         bool wasThereAnyOutput() const;
-            // Return 'true' if any of the characters stored in the entirety
-            // of the capture buffer is unequal to the "null character".
-            // Otherwise, if all characters in the buffer are the
-            // "null character" return 'false'.  The behavior is undefined
-            // unless 'd_ptr != 0'.
     };
 
     // DATA
@@ -285,131 +289,136 @@ class StdIoTestMonitor {
     StdIoTestMonitor& operator=(const StdIoTestMonitor&);
 
     // PRIVATE MANIPULATORS
+
+    /// Initialize this object to monitor the specified output `stream`, and
+    /// silence it as well unless the specified `verbose` is `true`.
     void init(FILE *stream, bool  verbose);
-        // Initialize this object to monitor the specified output 'stream', and
-        // silence it as well unless the specified 'verbose' is 'true'.
 
+    /// Print the specified `msg` to `stderr` with standard `perror`, then
+    /// abort the program.
     void perrorAbort(const char *msg);
-        // Print the specified 'msg' to 'stderr' with standard 'perror', then
-        // abort the program.
 
+    /// Set the stream buffer of the monitored stream safely, regardless if
+    /// it is null or not, to this object's `d_buffer_p` with `d_bufSize`
+    /// size.
     void safeSetBuf();
-        // Set the stream buffer of the monitored stream safely, regardless if
-        // it is null or not, to this object's 'd_buffer_p' with 'd_bufSize'
-        // size.
 
+    /// Set the stream buffer of the monitored stream to this object's
+    /// `d_buffer_p` with `d_bufSize` size.  The behavior is undefined if
+    /// `d_buffer_p` is null.
     void setBuf();
-        // Set the stream buffer of the monitored stream to this object's
-        // 'd_buffer_p' with 'd_bufSize' size.  The behavior is undefined if
-        // 'd_buffer_p' is null.
 
+    /// The guts of stopping shared by `stop` and the destructor.
     void stopImpl();
-        // The guts of stopping shared by 'stop' and the destructor.
 
     // PRIVATE ACCESSORS
+
+    /// Return `true` if this monitor will capture characters into a buffer
+    /// when monitoring is started.  Otherwise, return `false` if capturing
+    /// is not enabled by the presence of a buffer.
     bool doesCapturing() const;
-        // Return 'true' if this monitor will capture characters into a buffer
-        // when monitoring is started.  Otherwise, return 'false' if capturing
-        // is not enabled by the presence of a buffer.
 
+    /// Return `true` if this monitor does silence its monitored stream when
+    /// `start`ed.  Otherwise, if this monitor does not silence its
+    /// monitored stream upon calling `start` return `false`.
     bool doesSilencing() const;
-        // Return 'true' if this monitor does silence its monitored stream when
-        // 'start'ed.  Otherwise, if this monitor does not silence its
-        // monitored stream upon calling 'start' return 'false'.
 
+    /// Return `true` if this monitor will not capture or silence when
+    /// `start`ed.  Otherwise, return `false` if either capturing or
+    /// silencing is possible with this object.
     bool isNoop() const;
-        // Return 'true' if this monitor will not capture or silence when
-        // 'start'ed.  Otherwise, return 'false' if either capturing or
-        // silencing is possible with this object.
 
+    /// Return `true` if this monitor does not silence its monitored stream.
+    /// Otherwise, if this monitor silences its monitored stream upon
+    /// calling `start`, return `false`.
     bool isVerbose() const;
-        // Return 'true' if this monitor does not silence its monitored stream.
-        // Otherwise, if this monitor silences its monitored stream upon
-        // calling 'start', return 'false'.
 
   public:
     // CREATORS
+
+    /// Initialize this object to monitor the specified output `stream`,
+    /// using a buffer of the specified `bufSize` for capturing output.  If
+    /// the specified `verbose` is `false` also prepare to redirect the
+    /// stream to a null device so we can run a silent test driver.
+    /// Optionally specify `nulChar` for the unlikely case that the output
+    /// may contain '\0' characters, in which case the value of `nulChar`
+    /// will be used (instead of zero) to fill the buffer (before detection)
+    /// by `resetBuffer`.  The behavior is undefined unless `stream` is a an
+    /// open output stream.  The behavior is also undefined unless this is
+    /// the only monitor instantiated on the `stream`.
     StdIoTestMonitor(FILE *stream,
                      int   bufSize,
                      bool  verbose,
                      char  nulChar = 0);
-        // Initialize this object to monitor the specified output 'stream',
-        // using a buffer of the specified 'bufSize' for capturing output.  If
-        // the specified 'verbose' is 'false' also prepare to redirect the
-        // stream to a null device so we can run a silent test driver.
-        // Optionally specify 'nulChar' for the unlikely case that the output
-        // may contain '\0' characters, in which case the value of 'nulChar'
-        // will be used (instead of zero) to fill the buffer (before detection)
-        // by 'resetBuffer'.  The behavior is undefined unless 'stream' is a an
-        // open output stream.  The behavior is also undefined unless this is
-        // the only monitor instantiated on the 'stream'.
 
+    /// Stop both capturing and redirecting (if any was ongoing), close all
+    /// files and streams opened by this object (if any) then destroy this
+    /// object.
     ~StdIoTestMonitor();
-        // Stop both capturing and redirecting (if any was ongoing), close all
-        // files and streams opened by this object (if any) then destroy this
-        // object.
 
     // MANIPULATORS
+
+    /// Return a non-const pointer to the capture buffer.  If zero buffer
+    /// size was used to initialize this object the capture buffer pointer
+    /// will be null.
     char *buffer();
-        // Return a non-const pointer to the capture buffer.  If zero buffer
-        // size was used to initialize this object the capture buffer pointer
-        // will be null.
 
+    /// Prepare the optionally specified `maxSize` bytes, or all of the
+    /// bytes of the buffer for presenting it to humans by printing it by
+    /// replacing characters that may not be presentable on a screen like
+    /// control characters and characters with their top bit set (not 7 bit
+    /// ASCII).  Return the number of characters that have been prepared for
+    /// output.
     int prepareBufferForHumans(int maxSize = -1);
-        // Prepare the optionally specified 'maxSize' bytes, or all of the
-        // bytes of the buffer for presenting it to humans by printing it by
-        // replacing characters that may not be presentable on a screen like
-        // control characters and characters with their top bit set (not 7 bit
-        // ASCII).  Return the number of characters that have been prepared for
-        // output.
 
+    /// If capturing is enabled (buffer is present) flush the monitored
+    /// stream, detach the buffer, fill the buffer with the
+    /// "null character", then reattach the buffer.  If capturing is
+    /// inactive do nothing.
     void resetBuffer();
-        // If capturing is enabled (buffer is present) flush the monitored
-        // stream, detach the buffer, fill the buffer with the
-        // "null character", then reattach the buffer.  If capturing is
-        // inactive do nothing.
 
+    /// Start monitoring the stream if capturing or silencing is requested.
+    /// The behavior is undefined if monitoring is already active.
     void start();
-        // Start monitoring the stream if capturing or silencing is requested.
-        // The behavior is undefined if monitoring is already active.
 
+    /// Stop monitoring.  The behavior is undefined if monitoring is not
+    /// active.
     void stop();
-        // Stop monitoring.  The behavior is undefined if monitoring is not
-        // active.
 
     // ACCESSORS
                             // Buffer Attributes
+
+    /// Returns a const pointer to the buffer.  If zero buffer size was used
+    /// to initialize this object the capture buffer pointer will be null.
     const char *buffer() const;
-        // Returns a const pointer to the buffer.  If zero buffer size was used
-        // to initialize this object the capture buffer pointer will be null.
 
+    /// Returns the size of the capture buffer.
     int bufferSize() const;
-        // Returns the size of the capture buffer.
 
+    /// Returns the "null character" that is used to pre-fill the buffer.
     char nulChar() const;
-        // Returns the "null character" that is used to pre-fill the buffer.
 
                            // Status Information
 
+    /// Return `true` if this monitor is actively enabling
     bool isActive() const;
-        // Return 'true' if this monitor is actively enabling
 
                     // monitor Characters' Information
 
+    /// Return `true` if any of the characters stored in the entirety of
+    /// this buffer is unequal to the "null character".  Otherwise, if all
+    /// characters in the buffer are the "null character" return `false`.
     bool wasThereAnyOutput() const;
-        // Return 'true' if any of the characters stored in the entirety of
-        // this buffer is unequal to the "null character".  Otherwise, if all
-        // characters in the buffer are the "null character" return 'false'.
 };
 
                       // =========================
                       // class StdIoTestMonitorDuo
                       // =========================
 
+/// This non-copyable mechanism is two `StdIoTestMonitor` objects monitoring
+/// `stdout` and `stderr`.  Please see `StdIoTestMonitor` for the concept,
+/// capabilities, limitations, and caveats.
 class StdIoTestMonitorDuo {
-    // This non-copyable mechanism is two 'StdIoTestMonitor' objects monitoring
-    // 'stdout' and 'stderr'.  Please see 'StdIoTestMonitor' for the concept,
-    // capabilities, limitations, and caveats.
 
   private:
     // DATA
@@ -424,205 +433,211 @@ class StdIoTestMonitorDuo {
 
   public:
     // CREATORS
+
+    /// Create an `StdIoTestMonitorDuo` object that with both `stdout`, and
+    /// `stderr` monitors initialized with 128 for buffer size, and the use
+    /// the specified `stdoutVerbose`, and `stderrVerbose` for verbosity,
+    /// respectively.
     StdIoTestMonitorDuo(bool stdoutVerbose,
                         bool stderrVerbose);
-        // Create an 'StdIoTestMonitorDuo' object that with both 'stdout', and
-        // 'stderr' monitors initialized with 128 for buffer size, and the use
-        // the specified 'stdoutVerbose', and 'stderrVerbose' for verbosity,
-        // respectively.
 
+    /// Create an `StdIoTestMonitorDuo` object that with both `stdout`, and
+    /// `stderr` monitors initialized with 128 for buffer size, and the
+    /// specified `verbosity` for both streams.
     explicit StdIoTestMonitorDuo(bool verbosity);
-        // Create an 'StdIoTestMonitorDuo' object that with both 'stdout', and
-        // 'stderr' monitors initialized with 128 for buffer size, and the
-        // specified 'verbosity' for both streams.
 
     // MANIPULATORS
                            // Monitoring Control
+
+    /// Start both monitors.  The behavior is undefined unless both of the
+    /// monitors are inactive.
     void start();
-        // Start both monitors.  The behavior is undefined unless both of the
-        // monitors are inactive.
 
+    /// Start monitoring on `stderr` only.  The behavior is undefined unless
+    /// both the `stderr` monitor is inactive.
     void startStderr();
-        // Start monitoring on 'stderr' only.  The behavior is undefined unless
-        // both the 'stderr' monitor is inactive.
 
+    /// Start monitoring on `stdout` only.  The behavior is undefined unless
+    /// both the `stdout` monitor is inactive.
     void startStdout();
-        // Start monitoring on 'stdout' only.  The behavior is undefined unless
-        // both the 'stdout' monitor is inactive.
 
+    /// Stop both monitors.  Note that stopping an inactive monitor does
+    /// nothing.
     void stop();
-        // Stop both monitors.  Note that stopping an inactive monitor does
-        // nothing.
 
+    /// Stop monitoring `stderr`.  Note that stopping an inactive monitor
+    /// does nothing.
     void stopStderr();
-        // Stop monitoring 'stderr'.  Note that stopping an inactive monitor
-        // does nothing.
 
+    /// Stop monitoring `stdout`.  Note that stopping an inactive monitor
+    /// does nothing.
     void stopStdout();
-        // Stop monitoring 'stdout'.  Note that stopping an inactive monitor
-        // does nothing.
 
                           // Buffer Control
 
+    /// Replace unprintable and control characters (assuming ASCII) at the
+    /// beginning of the `stderr` capture buffer up to the optionally
+    /// specified `maxSize` bytes, or all of the bytes of the buffer.
     int prepareStderrForHumans(int maxSize = -1);
-        // Replace unprintable and control characters (assuming ASCII) at the
-        // beginning of the 'stderr' capture buffer up to the optionally
-        // specified 'maxSize' bytes, or all of the bytes of the buffer.
 
+    /// Replace unprintable and control characters (assuming ASCII) at the
+    /// beginning of the `stdout` capture buffer up to the optionally
+    /// specified `maxSize` bytes, or all of the bytes of the buffer.
     int prepareStdoutForHumans(int maxSize = -1);
-        // Replace unprintable and control characters (assuming ASCII) at the
-        // beginning of the 'stdout' capture buffer up to the optionally
-        // specified 'maxSize' bytes, or all of the bytes of the buffer.
 
+    /// Reset both capture buffers.  See `StdIoTestMonitor::resetBuffer` for
+    /// specifics.
     void resetBuffers();
-        // Reset both capture buffers.  See 'StdIoTestMonitor::resetBuffer' for
-        // specifics.
 
+    /// Return a pointer to the non-const buffer provided during
+    /// construction for `stderr`, or a null pointer if zero buffer size was
+    /// requested at construction for `stderr` capture buffer.
     char *stderrBuffer();
-        // Return a pointer to the non-const buffer provided during
-        // construction for 'stderr', or a null pointer if zero buffer size was
-        // requested at construction for 'stderr' capture buffer.
 
+    /// Return a pointer to the non-const buffer provided during
+    /// construction for `stdout`, or a null pointer if zero buffer size was
+    /// requested at construction for `stdout` capture buffer.
     char *stdoutBuffer();
-        // Return a pointer to the non-const buffer provided during
-        // construction for 'stdout', or a null pointer if zero buffer size was
-        // requested at construction for 'stdout' capture buffer.
 
     // ACCESSORS
+
+    /// Return `true` if the `stderr` monitor is active (9)have been
+    /// `start`ed but not `stop`ped).  Otherwise, return `false` if the
+    /// `stderr` monitor has not been `start`ed or has since been `stop`ped.
     bool isStderrActive() const;
-        // Return 'true' if the 'stderr' monitor is active (9)have been
-        // 'start'ed but not 'stop'ped).  Otherwise, return 'false' if the
-        // 'stderr' monitor has not been 'start'ed or has since been 'stop'ped.
 
+    /// Return `true` if the `stdout` monitor is active (9)have been
+    /// `start`ed but not `stop`ped).  Otherwise, return `false` if the
+    /// `stdout` monitor has not been `start`ed or has since been `stop`ped.
     bool isStdoutActive() const;
-        // Return 'true' if the 'stdout' monitor is active (9)have been
-        // 'start'ed but not 'stop'ped).  Otherwise, return 'false' if the
-        // 'stdout' monitor has not been 'start'ed or has since been 'stop'ped.
 
+    /// Return either a null pointer or a pointer to a static error message
+    /// based on the specified `expectedOutputOnStdout`, and
+    /// `expectedOutputOnStderr` flags as well as the contents of the
+    /// buffers of the two corresponding monitors.  Null pointer is returned
+    /// if the presence of output on both streams matches the expectations
+    /// described by the argument "expected" arguments, or if those that do
+    /// not match expectations are ignored.  Otherwise, a pointer to a human
+    /// readable, English, but unspecified static error description is
+    /// returned.
     const char *monitorMessage(bool expectedOutputOnStdout,
                                bool expectedOutputOnStderr) const;
-        // Return either a null pointer or a pointer to a static error message
-        // based on the specified 'expectedOutputOnStdout', and
-        // 'expectedOutputOnStderr' flags as well as the contents of the
-        // buffers of the two corresponding monitors.  Null pointer is returned
-        // if the presence of output on both streams matches the expectations
-        // described by the argument "expected" arguments, or if those that do
-        // not match expectations are ignored.  Otherwise, a pointer to a human
-        // readable, English, but unspecified static error description is
-        // returned.
 
+    /// Return a pointer to const to the const buffer provided during
+    /// construction for `stderr`, or a null pointer if zero buffer size was
+    /// requested at construction for `stderr` capture buffer.
     const char *stderrBuffer() const;
-        // Return a pointer to const to the const buffer provided during
-        // construction for 'stderr', or a null pointer if zero buffer size was
-        // requested at construction for 'stderr' capture buffer.
 
+    /// Return the buffer size provided during construction for `stderr`.
+    /// Note that if zero is returned `stdoutBuffer()` will return a null
+    /// pointer regardless what buffer pointer was supplied at construction.
     int stderrBufferSize() const;
-        // Return the buffer size provided during construction for 'stderr'.
-        // Note that if zero is returned 'stdoutBuffer()' will return a null
-        // pointer regardless what buffer pointer was supplied at construction.
 
+    /// Return a pointer to const to the const buffer provided during
+    /// construction for `stdout`, or a null pointer if zero buffer size was
+    /// requested at construction for `stdout` capture buffer.
     const char *stdoutBuffer() const;
-        // Return a pointer to const to the const buffer provided during
-        // construction for 'stdout', or a null pointer if zero buffer size was
-        // requested at construction for 'stdout' capture buffer.
 
+    /// Return the buffer size provided during construction for `stdout`.
+    /// Note that if zero is returned `stdoutBuffer()` will return a null
+    /// pointer regardless what buffer pointer was supplied at construction.
     int stdoutBufferSize() const;
-        // Return the buffer size provided during construction for 'stdout'.
-        // Note that if zero is returned 'stdoutBuffer()' will return a null
-        // pointer regardless what buffer pointer was supplied at construction.
 
+    /// Return `true` if the `stderr` monitor has output-looking characters
+    /// in their buffers.  Otherwise, if all characters in the `stderr`
+    /// capture buffers are the "null character", return `false`,
     bool wasThereStderrOutput() const;
-        // Return 'true' if the 'stderr' monitor has output-looking characters
-        // in their buffers.  Otherwise, if all characters in the 'stderr'
-        // capture buffers are the "null character", return 'false',
 
+    /// Return `true` if the `stdout` monitor has output-looking characters
+    /// in their buffers.  Otherwise, if all characters in the `stdout`
+    /// capture buffers are the "null character", return `false`,
     bool wasThereStdoutOutput() const;
-        // Return 'true' if the 'stdout' monitor has output-looking characters
-        // in their buffers.  Otherwise, if all characters in the 'stdout'
-        // capture buffers are the "null character", return 'false',
 };
 
                         // =========================
                         // class MonitorExpectations
                         // =========================
 
+/// Little helper unconstrained attribute-class to make setting expectations
+/// for the monitor implementations used for testing `bsls_asserttest`.
 class MonitorExpectations {
-    // Little helper unconstrained attribute-class to make setting expectations
-    // for the monitor implementations used for testing 'bsls_asserttest'.
 
   private:
     // DATA
-    bool d_stdoutPrints;  // Do we expect 'stdout' to print?
-    bool d_stderrPrints;  // Do we expect 'stderr' to print?
+    bool d_stdoutPrints;  // Do we expect `stdout` to print?
+    bool d_stderrPrints;  // Do we expect `stderr` to print?
 
   public:
     // CREATORS
+
+    /// Create an object with `stdout` and `stderr` output expectations set
+    /// to `e_EXPECT_OUTPUT` if the specified `stdoutPrints`, and
+    /// `stderrPrints` value is `true`, while they are set to
+    /// `e_EXPECT_SILENCE` if their corresponding value is false.
     MonitorExpectations(bool stdoutPrints, bool stderrPrints)
-        // Create an object with 'stdout' and 'stderr' output expectations set
-        // to 'e_EXPECT_OUTPUT' if the specified 'stdoutPrints', and
-        // 'stderrPrints' value is 'true', while they are set to
-        // 'e_EXPECT_SILENCE' if their corresponding value is false.
     : d_stdoutPrints(stdoutPrints)
     , d_stderrPrints(stderrPrints)
     {}
 
+    /// Create an object with default expectations: eerie silence (on both
+    /// `stdout`, and `stderr`).
     MonitorExpectations()
-        // Create an object with default expectations: eerie silence (on both
-        // 'stdout', and 'stderr').
     : d_stdoutPrints(false), d_stderrPrints(false)
     {}
 
     // MANIPLUATORS
+
+    /// Set expectations to the default state: all silent.
     void reset()
-        // Set expectations to the default state: all silent.
     {
         d_stdoutPrints = d_stderrPrints = false;
     }
                          // Definite Output Expectations
 
+    /// Set output expectations exclusively to `stderr` if the specified
+    /// `isStderr` is `true`, or to `stdout` if `isStderr` is `false`.
     void select(bool isStderr)
-        // Set output expectations exclusively to 'stderr' if the specified
-        // 'isStderr' is 'true', or to 'stdout' if 'isStderr' is 'false'.
     {
         setOut(!isStderr);
         setErr(isStderr);
     }
 
+    /// Change output expectations of `stderr` according to the optionally
+    /// specified `value`.
     void setErr(bool value = true)
-        // Change output expectations of 'stderr' according to the optionally
-        // specified 'value'.
     {
         d_stderrPrints = value;
     }
 
+    /// Change output expectations of `stdout` according to the optionally
+    /// specified `value`.
     void setOut(bool value = true)
-        // Change output expectations of 'stdout' according to the optionally
-        // specified 'value'.
     {
         d_stdoutPrints = value;
     }
 
+    /// If the specified `noOut` is `true` set expectations to silence.
+    /// Otherwise, if `noOut` is `false`, always except output on `stdout`
+    /// and expect output on `stdErr` only if the specified `isStderr` is
+    /// `true`.
     void unlessStdoutStderrIf(bool noOut, bool isStderr)
-        // If the specified 'noOut' is 'true' set expectations to silence.
-        // Otherwise, if 'noOut' is 'false', always except output on 'stdout'
-        // and expect output on 'stdErr' only if the specified 'isStderr' is
-        // 'true'.
     {
         setOut(!noOut);
         setErr(isStderr && !noOut);
     }
 
     // ACCESSORS
+
+    /// Return `true` if `stderr` is expected to print, `false` if it is
+    /// expected to be silent.
     bool stderrPrints() const
-        // Return 'true' if 'stderr' is expected to print, 'false' if it is
-        // expected to be silent.
     {
         return d_stderrPrints;
     }
 
+    /// Return `true` if `stdout` is expected to print, `false` if it is
+    /// expected to be silent.
     bool stdoutPrints() const
-        // Return 'true' if 'stdout' is expected to print, 'false' if it is
-        // expected to be silent.
     {
         return d_stdoutPrints;
     }
@@ -632,74 +647,78 @@ class MonitorExpectations {
                         // class StdioAssertDebugInfo
                         // ==========================
 
+/// This class mainly exists just to be able to gather and pretty print
+/// location (and possibly later loop) information.
 class StdioAssertDebugInfo {
-    // This class mainly exists just to be able to gather and pretty print
-    // location (and possibly later loop) information.
 
   private:
     // DATA
     int d_callLine;
+
+    // Zero means no line info, as C and C++ numbers lines from 1.  If the
+    // `callLine` attribute is not set we consider the object empty.
     int d_dataLine;
-        // Zero means no line info, as C and C++ numbers lines from 1.  If the
-        // 'callLine' attribute is not set we consider the object empty.
 
   public:
     // CREATORS
+
+    /// Create an empty `StdioAssertDebugInfo` object.
     StdioAssertDebugInfo()
     : d_callLine(0), d_dataLine(0)
-        // Create an empty 'StdioAssertDebugInfo' object.
     {}
 
+    /// Create an `StdioAssertDebugInfo` object using the specified
+    /// `assertLine`, and zero for `dataLine`.
     explicit StdioAssertDebugInfo(int assertLine)
     : d_callLine(assertLine), d_dataLine(0)
-        // Create an 'StdioAssertDebugInfo' object using the specified
-        // 'assertLine', and zero for 'dataLine'.
     {
     }
 
+    /// Create an `StdioAssertDebugInfo` object using the specified
+    /// `assertLine`, and `dataLine`.
     StdioAssertDebugInfo(int assertLine, int dataLine)
     : d_callLine(assertLine), d_dataLine(dataLine)
-        // Create an 'StdioAssertDebugInfo' object using the specified
-        // 'assertLine', and 'dataLine'.
     {
     }
 
     // MANIPULATORS
+
+    /// Set this object to the empty state.
     void reset()
-        // Set this object to the empty state.
     {
         d_callLine = d_dataLine = 0;
     }
 
     // ACCESSORS
+
+    /// Return the `callLine` attribute of this object.
     int callLine() const
-        // Return the 'callLine' attribute of this object.
     {
         return d_callLine;
     }
 
+    /// Return the `dataLine` attribute of this object.
     int dataLine() const
-        // Return the 'dataLine' attribute of this object.
     {
         return d_dataLine;
     }
 
+    /// Return `true` if this object is in the empty state, or `false` if
+    /// at least the `callLine` attribute is not zero.
     bool empty() const
-        // Return 'true' if this object is in the empty state, or 'false' if
-        // at least the 'callLine' attribute is not zero.
     {
         return (d_callLine == 0);
     }
 
+    /// Return `!this->empty()`.
     bool isSet() const
-        // Return '!this->empty()'.
     {
         return (d_callLine != 0);
     }
 
+    /// Print the line information stored in the specified `obj` to help
+    /// identifying the cause of test driver `stdio` assertion failures.
     void print() const
-        // Print the line information stored in the specified 'obj' to help
-        // identifying the cause of test driver 'stdio' assertion failures.
     {
         if (this->empty()) {
             fputs("**NO LINE INFORMATION**", stdout);
@@ -713,9 +732,9 @@ class StdioAssertDebugInfo {
     }
 };
 
+/// Customization point for `bsls::BslTestUtil`: print the specified
+/// `object` to the standard output stream.
 void debugprint(const StdioAssertDebugInfo &object)
-    // Customization point for 'bsls::BslTestUtil': print the specified
-    // 'object' to the standard output stream.
 {
     object.print();
 }
@@ -724,9 +743,9 @@ void debugprint(const StdioAssertDebugInfo &object)
                         // class AssertTestMonitor
                         // =======================
 
+/// A mechanism to use with verifying `stdio` output of `BSLS_ASSERTTEST_*`
+/// macro invocations.
 class AssertTestMonitor {
-    // A mechanism to use with verifying 'stdio' output of 'BSLS_ASSERTTEST_*'
-    // macro invocations.
 
   private:
     // PROTECTED DATA
@@ -741,131 +760,135 @@ class AssertTestMonitor {
 
   private:
     // PRIVATE MANIPULATORS
+
+    /// Verify if expectations were met, if not, print out the offending
+    /// buffer and `ASSERT` (as in test driver assertion).
     void printIfErrorAndAssert();
-        // Verify if expectations were met, if not, print out the offending
-        // buffer and 'ASSERT' (as in test driver assertion).
 
   public:
     // CREATORS
+
+    /// Create an assert-test monitor that silences `stdout` and `stderr`,
+    /// or not according to the specified `verbosity`.
     explicit AssertTestMonitor(bool verbosity);
-        // Create an assert-test monitor that silences 'stdout' and 'stderr',
-        // or not according to the specified 'verbosity'.
 
     // MANIPULATORS
-    void start();
-        // Start monitoring 'stdout' and 'stderr'.
 
+    /// Start monitoring `stdout` and `stderr`.
+    void start();
+
+    /// Stop monitoring `stdout` and `stderr`, verify expectations, and
+    /// assert (with additional information) if the expectations were not
+    /// met.
     void stop();
-        // Stop monitoring 'stdout' and 'stderr', verify expectations, and
-        // assert (with additional information) if the expectations were not
-        // met.
 
                     // Setting Definite Output Expectations
 
+    /// Set debug info to indicate test run on the specified `assertLine`.
     AssertTestMonitor &l(int assertLine)
-        // Set debug info to indicate test run on the specified 'assertLine'.
     {
         d_debugInfoForAssert = StdioAssertDebugInfo(assertLine);
         return *this;
     }
 
+    /// Set debug info to indicate test run on the specified `assertLine`,
+    /// using data from the specified `dataLine`.
     AssertTestMonitor& ld(int assertLine, int dataLine)
-        // Set debug info to indicate test run on the specified 'assertLine',
-        // using data from the specified 'dataLine'.
     {
         d_debugInfoForAssert = StdioAssertDebugInfo(assertLine, dataLine);
         return *this;
     }
 
+    /// Set mutually exclusive output expectations for `stderr` or `stdout`,
+    /// selecting between them based on the specified `isErr` value.
     AssertTestMonitor& select(bool isErr)
-        // Set mutually exclusive output expectations for 'stderr' or 'stdout',
-        // selecting between them based on the specified 'isErr' value.
     {
         d_expectations.select(isErr);
         return *this;
     }
 
+    /// Set output expectations for `stdout` and `stderr` both.  Optionally
+    /// specify `prints` that is used to set output expectations.  If
+    /// `print` is not specified set output expectations to `true`.
     AssertTestMonitor& setBoth(bool prints = true)
-        // Set output expectations for 'stdout' and 'stderr' both.  Optionally
-        // specify 'prints' that is used to set output expectations.  If
-        // 'print' is not specified set output expectations to 'true'.
     {
         d_expectations.setOut(prints);
         d_expectations.setErr(prints);
         return *this;
     }
 
+    /// Set output expectations for `stderr`.  Optionally specify `prints`
+    /// that is used to set output expectations.  If `print` is not
+    /// specified set output expectations to `true`.
     AssertTestMonitor& setErr(bool prints = true)
-        // Set output expectations for 'stderr'.  Optionally specify 'prints'
-        // that is used to set output expectations.  If 'print' is not
-        // specified set output expectations to 'true'.
     {
         d_expectations.setErr(prints);
         return *this;
     }
 
+    /// Set output expectations for `stdout`.  Optionally specify `prints`
+    /// that is used to set output expectations.  If `print` is not
+    /// specified set output expectations to `true`.
     AssertTestMonitor& setOut(bool prints = true)
-        // Set output expectations for 'stdout'.  Optionally specify 'prints'
-        // that is used to set output expectations.  If 'print' is not
-        // specified set output expectations to 'true'.
     {
         d_expectations.setOut(prints);
         return *this;
     }
 
+    /// If the specified `noOut` is `true` set expectations to silence.
+    /// Otherwise, if `noOut` is `false`, always expect output on `stdout`
+    /// and expect output on `stdErr` only if the specified `isErr` is
+    /// `true`.
     AssertTestMonitor& unlessStdoutStderrIf(bool noOut, bool isErr)
-        // If the specified 'noOut' is 'true' set expectations to silence.
-        // Otherwise, if 'noOut' is 'false', always expect output on 'stdout'
-        // and expect output on 'stdErr' only if the specified 'isErr' is
-        // 'true'.
     {
         d_expectations.unlessStdoutStderrIf(noOut, isErr);
         return *this;
     }
 
     // ACCESSORS
+
+    /// Return `true` if this monitor would report unexpected output on
+    /// either `stdout` or `stderr` if it were stopped now.  Essentially
+    /// `return wouldBeExtraStdout() || wouldBeExtraStderr()`.
     bool wouldBeExtraOutput() const;
-        // Return 'true' if this monitor would report unexpected output on
-        // either 'stdout' or 'stderr' if it were stopped now.  Essentially
-        // 'return wouldBeExtraStdout() || wouldBeExtraStderr()'.
 
+    /// Return `true` if this monitor would report unexpected output on
+    /// `stderr` if it were stopped now.
     bool wouldBeExtraStderr() const;
-        // Return 'true' if this monitor would report unexpected output on
-        // 'stderr' if it were stopped now.
 
+    /// Return `true` if this monitor would report unexpected output on
+    /// `stdout` if it were stopped now.
     bool wouldBeExtraStdout() const;
-        // Return 'true' if this monitor would report unexpected output on
-        // 'stdout' if it were stopped now.
 
+    /// Return `true` if this monitor would report failure in case it would
+    /// be stopped now.  Essentially
+    /// `return wouldBeExtraOutput() || wouldOutputBeMissing();`.
     bool wouldFail() const;
-        // Return 'true' if this monitor would report failure in case it would
-        // be stopped now.  Essentially
-        // 'return wouldBeExtraOutput() || wouldOutputBeMissing();'.
 
+    /// Return `true` if this monitor would report failure of output to
+    /// appear on either `stdout` or `stderr` if it were stopped now.
+    /// Essentially
+    /// `return wouldStdoutBeMissing() || wouldStderrBeMissing();`.
     bool wouldOutputBeMissing() const;
-        // Return 'true' if this monitor would report failure of output to
-        // appear on either 'stdout' or 'stderr' if it were stopped now.
-        // Essentially
-        // 'return wouldStdoutBeMissing() || wouldStderrBeMissing();'.
 
+    /// Return `true` if this monitor would report failure of output to
+    /// appear on `stderr` if it were stopped now.
     bool wouldStderrBeMissing() const;
-        // Return 'true' if this monitor would report failure of output to
-        // appear on 'stderr' if it were stopped now.
 
+    /// Return `true` if this monitor would report failure of output to
+    /// appear on `stdout` if it were stopped now.
     bool wouldStdoutBeMissing() const;
-        // Return 'true' if this monitor would report failure of output to
-        // appear on 'stdout' if it were stopped now.
 };
 
                          // =======================
                          // class AssertTestProctor
                          // =======================
 
+/// A proctor used to automatically stop an `stdio` monitor (in case of an
+/// escaped exception or just leaving a scope), as well as allowing
+/// dedicated early stopping (and checked, as `stop` does that, too), should
+/// we need to allow the "calling" assertion macro to print.
 class AssertTestProctor  {
-    // A proctor used to automatically stop an 'stdio' monitor (in case of an
-    // escaped exception or just leaving a scope), as well as allowing
-    // dedicated early stopping (and checked, as 'stop' does that, too), should
-    // we need to allow the "calling" assertion macro to print.
   private:
     // DATA
     AssertTestMonitor *d_monitor_p;
@@ -877,33 +900,36 @@ class AssertTestProctor  {
 
   public:
     // CREATORS
+
+    /// Create a guard that stops the specified `monitor` upon its
+    /// destruction.
     explicit AssertTestProctor(AssertTestMonitor *monitor)
-        // Create a guard that stops the specified 'monitor' upon its
-        // destruction.
     : d_monitor_p(monitor)
     {
     }
 
+    /// Stop the guarded `monitor` if it hasn't been dismissed before, then
+    /// destroy this object.
     ~AssertTestProctor()
-        // Stop the guarded 'monitor' if it hasn't been dismissed before, then
-        // destroy this object.
     {
         if (d_monitor_p) d_monitor_p->stop();
     }
 
     // MANIPULATORS
+
+    /// Used in `ASSERT_WITH` macros this enables early verification and
+    /// stopping of monitoring allowing the outer `ASSERT_WITH` macros to
+    /// use `stdio` for printing their own errors.
     void verifyAndDismiss()
-        // Used in 'ASSERT_WITH' macros this enables early verification and
-        // stopping of monitoring allowing the outer 'ASSERT_WITH' macros to
-        // use 'stdio' for printing their own errors.
     {
         d_monitor_p->stop();
         d_monitor_p = 0;
     }
 
     // ACCESSORS
+
+    /// Return a non-const pointer to the guarded `monitor`.
     AssertTestMonitor *operator->() const
-        // Return a non-const pointer to the guarded 'monitor'.
     {
         return d_monitor_p;
     }
@@ -913,17 +939,17 @@ class AssertTestProctor  {
 //                    STDIO BEHAVIOR VERIFICATION MACROS
 //-----------------------------------------------------------------------------
 
+/// To avoid repetition in the macros below.
 #define PRE_STDIO_MONGUARD                                                    \
     do { AssertTestProctor stdioProctor(&monitor);                            \
          stdioProctor->ld(__LINE__ + 1, LINE);
-    // To avoid repetition in the macros below.
 
 #define EXPECT_SILENCE PRE_STDIO_MONGUARD  stdioProctor->start()
 
+/// Expect output on `stdout`, expect silence on `stderr` and start
+/// monitoring `stdio`.
 #define EXPECT_OUTPUT_ON_STDOUT                                               \
     PRE_STDIO_MONGUARD stdioProctor->setOut(); stdioProctor->start()
-    // Expect output on 'stdout', expect silence on 'stderr' and start
-    // monitoring 'stdio'.
 
 #if defined(BDE_BUILD_TARGET_EXC)
 #define EXPECT_OUTPUT_ON_STDOUT_IF_TARGET_EXC EXPECT_OUTPUT_ON_STDOUT
@@ -931,65 +957,65 @@ class AssertTestProctor  {
 #define EXPECT_OUTPUT_ON_STDOUT_IF_TARGET_EXC EXPECT_SILENCE
 #endif
 
+/// Expect output on `stderr`, expect silence on `stdout` and start
+/// monitoring `stdio`.
 #define EXPECT_OUTPUT_ON_STDERR                                               \
     PRE_STDIO_MONGUARD stdioProctor->setErr(); stdioProctor->start()
-    // Expect output on 'stderr', expect silence on 'stdout' and start
-    // monitoring 'stdio'.
 
+/// Conditionally expect output on `stdout` as determined by the specified
+/// `prints` argument, expect silence on `stderr` and start monitoring
+/// `stdio`.
 #define EXPECT_OUTPUT_ON_STDOUT_IF(prints)                                    \
     PRE_STDIO_MONGUARD stdioProctor->setOut(prints); stdioProctor->start()
-    // Conditionally expect output on 'stdout' as determined by the specified
-    // 'prints' argument, expect silence on 'stderr' and start monitoring
-    // 'stdio'.
 
+/// Conditionally expect output on `stderr` as determined by the specified
+/// `prints` argument, expect silence on `stdout` and start monitoring
+/// `stdio`.
 #define EXPECT_OUTPUT_ON_STDERR_IF(prints)                                    \
     PRE_STDIO_MONGUARD stdioProctor->setErr(prints); stdioProctor->start()
-    // Conditionally expect output on 'stderr' as determined by the specified
-    // 'prints' argument, expect silence on 'stdout' and start monitoring
-    // 'stdio'.
 
+/// Always expect output on `stdout`, and conditionally expect output on
+/// `stderr` as determined by the specified `prints` argument and start
+/// monitoring `stdio`.
 #define EXPECT_OUTPUT_ON_STDOUT_STDERR_IF(prints)                             \
     PRE_STDIO_MONGUARD stdioProctor->setOut().setErr(prints);                 \
     stdioProctor->start()
-    // Always expect output on 'stdout', and conditionally expect output on
-    // 'stderr' as determined by the specified 'prints' argument and start
-    // monitoring 'stdio'.
 
+/// Expect output on both `stdout`, and on `stderr` and start monitoring
+/// `stdio`.
 #define EXPECT_OUTPUT_ON_BOTH                                                 \
     PRE_STDIO_MONGUARD stdioProctor->setOut().setErr(); stdioProctor->start()
-    // Expect output on both 'stdout', and on 'stderr' and start monitoring
-    // 'stdio'.
 
+/// Expect output on both `stdout`, and on `stderr` IFF `isBoth` is defined
+/// and start monitoring `stdio`.
 #define EXPECT_OUTPUT_ON_BOTH_IF(isBoth)                                      \
     PRE_STDIO_MONGUARD stdioProctor->setBoth(isBoth); stdioProctor->start()
-    // Expect output on both 'stdout', and on 'stderr' IFF 'isBoth' is defined
-    // and start monitoring 'stdio'.
 
+/// Exclusively (either/or) expect output on one of the streams *`stdout` or
+/// `stderr`) as determined by the specified `isErr` (choses `stderr` if
+/// `true`, `stdout` when `false`) and start monitoring `stdio`.
 #define EXPECT_OUTPUT_ON_SELECTED(isStderr)                                   \
     PRE_STDIO_MONGUARD stdioProctor->select(isStderr); stdioProctor->start()
-    // Exclusively (either/or) expect output on one of the streams *'stdout' or
-    // 'stderr') as determined by the specified 'isErr' (choses 'stderr' if
-    // 'true', 'stdout' when 'false') and start monitoring 'stdio'.
 
+/// Exclusively (either/or) expect output on one of the streams (`stdout` or
+/// `stderr`) as determined by the specified `isErr` (choses `stderr` if
+/// `true`, `stdout` when `false`) *but* expect no output on `stdout` (when
+/// selected) when the specified `butOut` is `true`  and start monitoring
+/// `stdio`.  Notice this means that when `butOut` is `false` this macro
+/// works as `EXPECT_SELECTED` does.
 #define EXPECT_OUTPUT_UNLESS_STDOUT_STDERR_IF(noOut, isStderr)                \
     PRE_STDIO_MONGUARD stdioProctor->unlessStdoutStderrIf(noOut, isStderr);   \
     stdioProctor->start()
-    // Exclusively (either/or) expect output on one of the streams ('stdout' or
-    // 'stderr') as determined by the specified 'isErr' (choses 'stderr' if
-    // 'true', 'stdout' when 'false') *but* expect no output on 'stdout' (when
-    // selected) when the specified 'butOut' is 'true'  and start monitoring
-    // 'stdio'.  Notice this means that when 'butOut' is 'false' this macro
-    // works as 'EXPECT_SELECTED' does.
 
+/// Stop monitoring `stdio`, verify output expectations and assert if any
+/// has failed.  Place this macro *right after* the tested code line(s)!
 #define ASSERT_STDIO } while (false)
-    // Stop monitoring 'stdio', verify output expectations and assert if any
-    // has failed.  Place this macro *right after* the tested code line(s)!
 
-                      // 'ASSERT_WITH_STDIO' macros
+                      // `ASSERT_WITH_STDIO` macros
 
 // Set up expectations as usual (with the macros above) then use one of the
-// macros below (that are not imp detail) instead of the simple 'ASSERT_STDIO'
-// to do both "your other" assert and the verification of 'stdio' output.
+// macros below (that are not imp detail) instead of the simple `ASSERT_STDIO`
+// to do both "your other" assert and the verification of `stdio` output.
 
 #define ASSERT_WITH_STDIO(X)                                                  \
     const bool aSsErTcOnDiTiOn = !(X);                                        \
@@ -1057,14 +1083,14 @@ class AssertTestProctor  {
         BloombergLP::bsls::BslTestUtil::callDebugprint(N, #N ": ", "\n");     \
         aSsErT(aSsErTcOnDiTiOn, #X, __LINE__); } } while (false)
 
-// These 3 macros we hope will keep coming from '<bsls_bsltestutil.h>'
-//:#define BSLS_BSLTESTUTIL_EXPAND(X) X
-//:
-//:#define BSLS_BSLTESTUTIL_NUM_ARGS_IMPL(X6, X5, X4, X3, X2, X1, X0, N, ...) N
-//:
-//:#define BSLS_BSLTESTUTIL_NUM_ARGS(...)                                    \+
-//:    BSLS_BSLTESTUTIL_EXPAND(BSLS_BSLTESTUTIL_NUM_ARGS_IMPL(               \+
-//:                                      __VA_ARGS__, 6, 5, 4, 3, 2, 1, 0, ""))
+// These 3 macros we hope will keep coming from `<bsls_bsltestutil.h>`
+//#define BSLS_BSLTESTUTIL_EXPAND(X) X
+//
+//#define BSLS_BSLTESTUTIL_NUM_ARGS_IMPL(X6, X5, X4, X3, X2, X1, X0, N, ...) N
+//
+//#define BSLS_BSLTESTUTIL_NUM_ARGS(...)                                    \+
+//     BSLS_BSLTESTUTIL_EXPAND(BSLS_BSLTESTUTIL_NUM_ARGS_IMPL(               \+
+//                                       __VA_ARGS__, 6, 5, 4, 3, 2, 1, 0, ""))
 
 #define LOOPN_ASSERT_WITH_STDIO_IMPL(N, ...)                                  \
     BSLS_BSLTESTUTIL_EXPAND(LOOP ## N ## _ASSERT_WITH_STDIO(__VA_ARGS__))
@@ -1076,60 +1102,62 @@ class AssertTestProctor  {
     LOOPN_ASSERT_WITH_STDIO(BSLS_BSLTESTUTIL_NUM_ARGS(__VA_ARGS__),           \
                             __VA_ARGS__)
 
-              // 'LINE' variable to pick up when we have none
+              // `LINE` variable to pick up when we have none
 
+/// This is a hack so we do not need to write 2 sets of macros.  Test cases
+/// that do not have `LINE` defined for the source of test data will pick
+/// this up and due to its negative value the test machinery knows the value
+/// is "not present".
 static const int LINE = -1;
-    // This is a hack so we do not need to write 2 sets of macros.  Test cases
-    // that do not have 'LINE' defined for the source of test data will pick
-    // this up and due to its negative value the test machinery knows the value
-    // is "not present".
 
 //=============================================================================
 //             TEST MACHINERY FOR STDIO CAPTURE TESTING (POPEN)
 //-----------------------------------------------------------------------------
 
+/// Start up a process with `popen` using the specified `commandLine`, read
+/// its `stdout` into the specified `buffer` of the specified `size`, then
+/// return the actual number of characters read.  See implementation after
+/// the `main` function.
 int popeneer(const char *commandLine, char *buffer, int size);
-    // Start up a process with 'popen' using the specified 'commandLine', read
-    // its 'stdout' into the specified 'buffer' of the specified 'size', then
-    // return the actual number of characters read.  See implementation after
-    // the 'main' function.
 
+/// Call `popeneer` with the specified `commandLine`, `buffer`, and `BSIZE`.
 template <int BSIZE>
 int popeneer(const char *commandLine, char (&buffer)[BSIZE])
-    // Call 'popeneer' with the specified 'commandLine', 'buffer', and 'BSIZE'.
 {
     return popeneer(commandLine, buffer, BSIZE);
 }
 
 //=============================================================================
-//                    PRETTY PRINTERS FOR ASSERT AND 'P'
+//                    PRETTY PRINTERS FOR ASSERT AND `P`
 //-----------------------------------------------------------------------------
 
+/// Wrapper for printing non-printable characters as hexadecimal numbers.
 class PrettyChar {
-    // Wrapper for printing non-printable characters as hexadecimal numbers.
 
     // DATA
     char d_char;
 
   public:
     // CREATORS
+
+    /// Create a `PrettyChar` wrapper for the specified character `c`.
     explicit PrettyChar(char c)
-        // Create a 'PrettyChar' wrapper for the specified character 'c'.
     : d_char(c)
     {
     }
 
     // ACCESSORS
+
+    /// Return the character wrapped by this object.
     char theChar() const
-        // Return the character wrapped by this object.
     {
         return d_char;
     }
 };
 
+/// Pretty print the character stored in the specified `pch` by printing it
+/// in hexadecimal if its value is deemed not printable.
 void debugprint(PrettyChar pch)
-    // Pretty print the character stored in the specified 'pch' by printing it
-    // in hexadecimal if its value is deemed not printable.
 {
     const char c = pch.theChar();
 
@@ -1151,14 +1179,15 @@ void debugprint(PrettyChar pch)
 ///Example 1: Testing Assertions In A Simple Vector Implementation
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // First we will demonstrate how "negative testing" might be used to verify
-// that the correct assertions are in place on 'std::vector::operator[]'.  We
+// that the correct assertions are in place on `std::vector::operator[]`.  We
 // start by supplying a primitive vector-like class that offers the minimal set
 // of operations necessary to demonstrate the test case.
-//..
+// ```
+
+/// This class simulates a `std::vector` with a fixed capacity of 10
+/// elements.
 template <class T>
 class AssertTestVector {
-    // This class simulates a 'std::vector' with a fixed capacity of 10
-    // elements.
 
   private:
     // DATA
@@ -1167,23 +1196,26 @@ class AssertTestVector {
 
   public:
     // CREATORS
+
+    /// Create an empty `AssertTestVector` object.
     AssertTestVector();
-        // Create an empty 'AssertTestVector' object.
 
     // MANIPULATORS
+
+    /// Append the specified `value` to the back of this object.  The
+    /// behavior is undefined unless this method has been called fewer
+    /// than 10 times on this object.
     void push_back(const T& value);
-        // Append the specified 'value' to the back of this object.  The
-        // behavior is undefined unless this method has been called fewer
-        // than 10 times on this object.
 
     // ACCESSORS
+
+    /// Return a reference with non-modifiable access to the object at
+    /// the specified `index` in this object.
     const T& operator[](int index) const;
-        // Return a reference with non-modifiable access to the object at
-        // the specified 'index' in this object.
 };
-//..
+// ```
 // Next we implement the support functions.
-//..
+// ```
 template <class T>
 AssertTestVector<T>::AssertTestVector()
 : d_data()
@@ -1199,13 +1231,13 @@ void AssertTestVector<T>::push_back(const T& value)
     d_data[d_size] = value;
     ++d_size;
 }
-//..
+// ```
 // We conclude the definition of this support type with the implementation of
-// the 'operator[]' overload.  Note the use of 'BSLS_ASSERT_SAFE', which is
+// the `operator[]` overload.  Note the use of `BSLS_ASSERT_SAFE`, which is
 // typical for function template definitions and inline function definitions.
 // It is most appropriate in this case as the cost of evaluating each test is
 // significant (> ~20%) compared to simply returning a reference to the result.
-//..
+// ```
 template <class T>
 const T& AssertTestVector<T>::operator[](int index) const
 {
@@ -1214,25 +1246,25 @@ const T& AssertTestVector<T>::operator[](int index) const
 
     return d_data[index];
 }
-//..
-// Finally, we can write the function to test that the 'BSLS_ASSERT_SAFE'
-// macros placed in 'operator[]' work as expected.  We want to validate that
+// ```
+// Finally, we can write the function to test that the `BSLS_ASSERT_SAFE`
+// macros placed in `operator[]` work as expected.  We want to validate that
 // the assertions trigger when the function preconditions are violated; we
 // further want to validate that the assertion macros are enabled in the build
 // modes that we expect.  We start by defining some macro aliases that will
 // make the test driver more readable.  These macro aliases are a common
 // feature of test drivers.
-//..
+// ```
 #define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
 #define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
 #define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
-//..
+// ```
 // Then we implement the test function itself.  Note that we check that
 // exceptions are available in the current build mode, as the test macros rely
 // on the exception facility in order to return their diagnostic results.  If
 // exceptions are not available, there is nothing for a "negative test" to do.
-//..
+// ```
 void testVectorArrayAccess()
 {
 #ifdef BDE_BUILD_TARGET_EXC
@@ -1258,32 +1290,32 @@ void testVectorArrayAccess()
     ASSERT_PASS     ( A[ 0]);
     ASSERT_SAFE_FAIL( A[ 1]);
 #else  // defined(BDE_BUILD_TARGET_EXC)
-//..
+// ```
 // If exceptions are not available, then we write a diagnostic message to the
 // console alerting the user that this part of the test has not run, without
 // failing the test.
-//..
+// ```
     if (verbose) puts("\tDISABLED in this (non-exception) build mode.");
 #endif  // !defined(BDE_BUILD_TARGET_EXC)
 }
-//..
+// ```
 //
-///Example 2: Using 'PASS' macros to help with formatting
+///Example 2: Using `PASS` macros to help with formatting
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // When testing the various inputs to a function to be sure that some trigger
 // an assertion and some are in contract, it often helps to align the testing
 // macros so that the various arguments are easily readable in relation to one
 // another.  We start by defining additional macro aliases to match the
 // existing aliases already defined:
-//..
+// ```
 #define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
-//..
-// Considering the function 'testVectorArrayAccess' from {Example 1}, we could
-// instead implement it without padded white space by using 'ASSERT_SAFE_PASS'
-// to replace 'ASSERT_PASS', matching the existing 'ASSERT_SAFE_FAIL' tests,
+// ```
+// Considering the function `testVectorArrayAccess` from {Example 1}, we could
+// instead implement it without padded white space by using `ASSERT_SAFE_PASS`
+// to replace `ASSERT_PASS`, matching the existing `ASSERT_SAFE_FAIL` tests,
 // like this:
-//..
+// ```
 void testVectorArrayAccess2()
 {
 #ifdef BDE_BUILD_TARGET_EXC
@@ -1310,31 +1342,31 @@ void testVectorArrayAccess2()
     ASSERT_SAFE_FAIL( A[ 1]);
 #endif  // defined(BDE_BUILD_TARGET_EXC)
 }
-//..
+// ```
 
 //=============================================================================
 // Forward declaration of functions to support test cases that may be
-// implemented after 'main'.
+// implemented after `main`.
 
+/// Verify the `BSLS_ASSERTTEST_IS_ACTIVE` macro.
 void TestMacroBSLS_ASSERTTEST_IS_ACTIVE();
-    // Verify the 'BSLS_ASSERTTEST_IS_ACTIVE' macro.
 
+/// Verify the `BSLS_ASSERTTEST_ASSERT*_PASS`, and
+/// `BSLS_ASSERTTEST_ASSERT*_FAIL` macros, and use the specified `pMonitor`
+/// to verify/suppress output.
 void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL(AssertTestMonitor *pMonitor);
-    // Verify the 'BSLS_ASSERTTEST_ASSERT*_PASS', and
-    // 'BSLS_ASSERTTEST_ASSERT*_FAIL' macros, and use the specified 'pMonitor'
-    // to verify/suppress output.
 
+/// Verify the `BSLS_ASSERTTEST_ASSERT*_PASS_RAW`, and
+/// `BSLS_ASSERTTEST_ASSERT*_FAIL_RAW` macros, and use the specified
+/// `pMonitor` to verify/suppress output.
 void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW(AssertTestMonitor *pMonitor);
-    // Verify the 'BSLS_ASSERTTEST_ASSERT*_PASS_RAW', and
-    // 'BSLS_ASSERTTEST_ASSERT*_FAIL_RAW' macros, and use the specified
-    // 'pMonitor' to verify/suppress output.
 
+/// Verify that `BSLS_ASSERTTEST_ASSERT*_PASS`, and
+/// `BSLS_ASSERTTEST_ASSERT*_FAIL` macros are expanded/not expanded and
+/// therefore execute or do not execute their assertion expression in the
+/// different assertion-level modes.  Use the specified `pMonitor` to
+/// verify/suppress output.
 void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL(AssertTestMonitor *pMonitor);
-    // Verify that 'BSLS_ASSERTTEST_ASSERT*_PASS', and
-    // 'BSLS_ASSERTTEST_ASSERT*_FAIL' macros are expanded/not expanded and
-    // therefore execute or do not execute their assertion expression in the
-    // different assertion-level modes.  Use the specified 'pMonitor' to
-    // verify/suppress output.
 
 
 //=============================================================================
@@ -1363,15 +1395,15 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE #1
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Run the usage example.
+        // 1. Run the usage example.
         //
         // Testing:
         //   Test case 1: vector
-        //   Test case 2: 'PASS' macros
+        //   Test case 2: `PASS` macros
         // --------------------------------------------------------------------
         if (verbose) puts("\nUSAGE EXAMPLES"
                           "\n==============");
@@ -1385,11 +1417,11 @@ int main(int argc, char *argv[])
         // TESTING ASSERTTESTHANDLERGUARD
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Run the usage example.
+        // 1. Run the usage example.
         //
         // Testing:
         //   class AssertTestHandlerGuard
@@ -1420,28 +1452,28 @@ int main(int argc, char *argv[])
         // TESTING BAD INPUT TO TRY PROBES
         //
         // Concerns:
-        //: 1 Each probe function must return 'true' if passed 'P' and 'false'
-        //:   if passed 'F'.
-        //:
-        //: 2 Any other argument must return 'false' after writing a diagnostic
-        //:   message regarding the bad argument to the console.
-        //:
-        //: 3 Nothing is written to the console for the two recognized
-        //:   arguments, 'F' and 'P'.
-        //:
-        //: 4 The recognized values 'F' and 'P' are case sensitive.
-        //:
-        //: 5 Most of this test exists to generate desired output from the
-        //:   catch-probe functions, so this test should be run manually and
-        //:   have its output visually inspected.
+        // 1. Each probe function must return `true` if passed `P` and `false`
+        //    if passed `F`.
+        //
+        // 2. Any other argument must return `false` after writing a diagnostic
+        //    message regarding the bad argument to the console.
+        //
+        // 3. Nothing is written to the console for the two recognized
+        //    arguments, `F` and `P`.
+        //
+        // 4. The recognized values `F` and `P` are case sensitive.
+        //
+        // 5. Most of this test exists to generate desired output from the
+        //    catch-probe functions, so this test should be run manually and
+        //    have its output visually inspected.
         //
         // Plan:
-        //: 1 Invoke each probe with every possible 'char' value.  Test that
-        //;   'true' is returned for only the argument 'P', that nothing is
-        //:   written to the console when the argument is 'P' or 'F', and that
-        //:   something is written to the console for any other argument.  The
-        //:   diagnostic message will be validated interactively by the user
-        //:   reading the console.
+        // 1. Invoke each probe with every possible `char` value.  Test that
+        //    `true` is returned for only the argument `P`, that nothing is
+        //    written to the console when the argument is `P` or `F`, and that
+        //    something is written to the console for any other argument.  The
+        //    diagnostic message will be validated interactively by the user
+        //    reading the console.
         //
         // Testing:
         //   Testing try-probes that write diagnostics to the console
@@ -1455,18 +1487,18 @@ int main(int argc, char *argv[])
 
         for (char c = CHAR_MIN; c != CHAR_MAX; ++c) {
             if ('P' == c) {
-                //  expectedResult == 'P' should not print a diagnostic
+                //  expectedResult == `P` should not print a diagnostic
                 EXPECT_SILENCE;
                 ASSERT_WITH_STDIO(true == bsls::AssertTest::tryProbe(c, 'S'));
             }
             else if ('F' == c) {
-                // expectedResult == 'F' should print as this is a 'try' probe,
-                // it should never be reached with an 'F' (fail) argument.
+                // expectedResult == `F` should print as this is a `try` probe,
+                // it should never be reached with an `F` (fail) argument.
                 EXPECT_OUTPUT_ON_STDOUT;
                 ASSERT_WITH_STDIO(false == bsls::AssertTest::tryProbe(c, 'S'));
             }
             else {
-                // invalid character should print a diagnostic to 'stdout'
+                // invalid character should print a diagnostic to `stdout`
                 EXPECT_OUTPUT_ON_STDOUT;
                 ASSERTV_WITH_STDIO(PrettyChar(c),
                                    false == bsls::AssertTest::tryProbe(c,'S'));
@@ -1475,27 +1507,27 @@ int main(int argc, char *argv[])
 
         for (char c = CHAR_MIN; c != CHAR_MAX; ++c) {
             if ('S' == c) {
-                // expectedResult == 'S' should not print any diagnostic
+                // expectedResult == `S` should not print any diagnostic
                 EXPECT_SILENCE;
                 ASSERT_WITH_STDIO(true == bsls::AssertTest::tryProbe('P', c));
             }
             else if ('A' == c) {
-                // expectedResult == 'A' should not print any diagnostic
+                // expectedResult == `A` should not print any diagnostic
                 EXPECT_SILENCE;
                 ASSERT_WITH_STDIO(true == bsls::AssertTest::tryProbe('P', c));
             }
             else if ('O' == c) {
-                // expectedResult == 'O' should not print any diagnostic
+                // expectedResult == `O` should not print any diagnostic
                 EXPECT_SILENCE;
                 ASSERT_WITH_STDIO(true == bsls::AssertTest::tryProbe('P', c));
             }
             else if ('I' == c) {
-                // expectedResult == 'I' should not print any diagnostic
+                // expectedResult == `I` should not print any diagnostic
                 EXPECT_SILENCE;
                 ASSERT_WITH_STDIO(true == bsls::AssertTest::tryProbe('P', c));
             }
             else {
-                // invalid character should print a diagnostic to 'stdout'
+                // invalid character should print a diagnostic to `stdout`
                 EXPECT_OUTPUT_ON_STDOUT;
                 ASSERTV_WITH_STDIO(PrettyChar(c),
                                    false == bsls::AssertTest::tryProbe('P',c));
@@ -1507,20 +1539,20 @@ int main(int argc, char *argv[])
 
         for (char c = CHAR_MIN; c != CHAR_MAX; ++c) {
             if ('P' == c) {
-                // expectedResult == 'P' should not print any diagnostic
+                // expectedResult == `P` should not print any diagnostic
                 EXPECT_SILENCE;
                 ASSERT_WITH_STDIO(
                                 true == bsls::AssertTest::tryProbeRaw(c, 'S'));
             }
             else if ('F' == c) {
-                // expectedResult == 'F' should print as this is a 'try' probe,
-                // it should never be reached with an 'F' (fail) argument.
+                // expectedResult == `F` should print as this is a `try` probe,
+                // it should never be reached with an `F` (fail) argument.
                 EXPECT_OUTPUT_ON_STDOUT;
                 ASSERT_WITH_STDIO(
                                false == bsls::AssertTest::tryProbeRaw(c, 'S'));
             }
             else {
-                // invalid character should print a diagnostic to 'stdout'
+                // invalid character should print a diagnostic to `stdout`
                 EXPECT_OUTPUT_ON_STDOUT;
                 ASSERTV_WITH_STDIO(PrettyChar(c),
                                 false == bsls::AssertTest::tryProbeRaw(c,'S'));
@@ -1529,31 +1561,31 @@ int main(int argc, char *argv[])
 
         for (char c = CHAR_MIN; c != CHAR_MAX; ++c) {
             if ('S' == c) {
-                // expectedResult == 'S' should not print any diagnostic
+                // expectedResult == `S` should not print any diagnostic
                 EXPECT_SILENCE;
                 ASSERT_WITH_STDIO(
                                 true == bsls::AssertTest::tryProbeRaw('P', c));
             }
             else if ('A' == c) {
-                // expectedResult == 'A' should not print any diagnostic
+                // expectedResult == `A` should not print any diagnostic
                 EXPECT_SILENCE;
                 ASSERT_WITH_STDIO(
                                 true == bsls::AssertTest::tryProbeRaw('P', c));
             }
             else if ('O' == c) {
-                // expectedResult == 'O' should not print any diagnostic
+                // expectedResult == `O` should not print any diagnostic
                 EXPECT_SILENCE;
                 ASSERT_WITH_STDIO(
                                 true == bsls::AssertTest::tryProbeRaw('P', c));
             }
             else if ('I' == c) {
-                // expectedResult == 'I' should not print any diagnostic
+                // expectedResult == `I` should not print any diagnostic
                 EXPECT_SILENCE;
                 ASSERT_WITH_STDIO(
                                 true == bsls::AssertTest::tryProbeRaw('P', c));
             }
             else {
-                // invalid character should print a diagnostic to 'stdout'
+                // invalid character should print a diagnostic to `stdout`
                 EXPECT_OUTPUT_ON_STDOUT;
                 ASSERTV_WITH_STDIO(
                                PrettyChar(c),
@@ -1566,18 +1598,18 @@ int main(int argc, char *argv[])
         // TESTING BSLS_ASSERTTEST_CHECK_LEVEL MACRO
         //
         // Concerns:
-        //: 1 When 'BSLS_ASSERTTEST_CHECK_LEVEL' is enabled, the assert macros
-        //:   should fail if a The assert that fails is not of a matching
-        //:   level.
-        //:
-        //: 2 Earlier tests already thoroughly check that the macros behave
-        //:   properly regardless of assert level when level checking is not
-        //:   enabled.
+        // 1. When `BSLS_ASSERTTEST_CHECK_LEVEL` is enabled, the assert macros
+        //    should fail if a The assert that fails is not of a matching
+        //    level.
+        //
+        // 2. Earlier tests already thoroughly check that the macros behave
+        //    properly regardless of assert level when level checking is not
+        //    enabled.
         //
         // Plan:
-        //: 1 Manually re-include 'bsls_assserttest.h' header after changing
-        //:   build configurations with 'BSLS_ASSERTTEST_CHECK_LEVEL' defined,
-        //:   then check that the macros behave appropriately.
+        // 1. Manually re-include `bsls_assserttest.h` header after changing
+        //    build configurations with `BSLS_ASSERTTEST_CHECK_LEVEL` defined,
+        //    then check that the macros behave appropriately.
         //
         // Testing:
         //   BSLS_ASSERTTEST_CHECK_LEVEL
@@ -1594,27 +1626,27 @@ int main(int argc, char *argv[])
         // TESTING BSLS_ASSERT_TEST_*_RAW MACROS
         //
         // Concerns:
-        //: 1 Each macro must not evaluate the passed expression unless enabled
-        //:   by the assert level that is in effect.  A '_PASS' macro should
-        //:   fail if and only if the passed expression raises an assertion
-        //:   through a 'BSLS_ASSERT' macro.  A '_FAIL' macro should fail if
-        //:   the passed expression does not raise an assertion.  Failure
-        //:   should not depend on the file where the assertion is raised.
-        //:   Failure should be indicated by invoking an 'ASSERT' macro that is
-        //:   defined locally within the test driver.
+        // 1. Each macro must not evaluate the passed expression unless enabled
+        //    by the assert level that is in effect.  A `_PASS` macro should
+        //    fail if and only if the passed expression raises an assertion
+        //    through a `BSLS_ASSERT` macro.  A `_FAIL` macro should fail if
+        //    the passed expression does not raise an assertion.  Failure
+        //    should not depend on the file where the assertion is raised.
+        //    Failure should be indicated by invoking an `ASSERT` macro that is
+        //    defined locally within the test driver.
         //
         // Plan:
-        //: 1 The results of these macros depend on the initial definition of a
-        //:   number of configuration macros, normally passed on the command
-        //:   line.  In order to test the full set of potential interactions,
-        //:   we shall take the unusual step of '#undef'ining the header guard
-        //:   for both this component and 'bsls_assert.h', in order to
-        //:   repeatedly '#include' these headers after setting up a "clean"
-        //:   set of configuration macros for each such inclusion to test.
-        //:   Note that the test code is extracted into a function defined
-        //:   after main as we will be using the preprocessor to avoid
-        //:   impacting any following test case that does not have the same
-        //:   issue.
+        // 1. The results of these macros depend on the initial definition of a
+        //    number of configuration macros, normally passed on the command
+        //    line.  In order to test the full set of potential interactions,
+        //    we shall take the unusual step of `#undef`ining the header guard
+        //    for both this component and `bsls_assert.h`, in order to
+        //    repeatedly `#include` these headers after setting up a "clean"
+        //    set of configuration macros for each such inclusion to test.
+        //    Note that the test code is extracted into a function defined
+        //    after main as we will be using the preprocessor to avoid
+        //    impacting any following test case that does not have the same
+        //    issue.
         //
         // Testing:
         //   BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(FUNCTION)
@@ -1635,28 +1667,28 @@ int main(int argc, char *argv[])
         // TESTING BSLS_ASSERT_TEST_* API  MACROS
         //
         // Concerns:
-        //: 1 Each macro must not evaluate the passed expression unless enabled
-        //:   by the assert level that is in effect.  A '_PASS' macro should
-        //:   fail if and only if the passed expression raises an assertion
-        //:   through a 'BSLS_ASSERT' macro.  A '_FAIL' macro should fail if
-        //:   the passed expression does not raise an assertion, or if the
-        //:   raised assertion originates in a file with a name that does not
-        //:   correspond to the component under test.  Failure should be
-        //:   indicated by invoking an 'ASSERT' macro that is defined locally
-        //:   within the test driver.
+        // 1. Each macro must not evaluate the passed expression unless enabled
+        //    by the assert level that is in effect.  A `_PASS` macro should
+        //    fail if and only if the passed expression raises an assertion
+        //    through a `BSLS_ASSERT` macro.  A `_FAIL` macro should fail if
+        //    the passed expression does not raise an assertion, or if the
+        //    raised assertion originates in a file with a name that does not
+        //    correspond to the component under test.  Failure should be
+        //    indicated by invoking an `ASSERT` macro that is defined locally
+        //    within the test driver.
         //
         // Plan:
-        //: 1 The results of these macros depend on the initial definition of a
-        //:   number of configuration macros, normally passed on the command
-        //:   line.  In order to test the full set of potential interactions,
-        //:   we shall take the unusual step of '#undef'ining the header guard
-        //:   for both this component and 'bsls_assert.h', in order to
-        //:   repeatedly '#include' these headers after setting up a "clean"
-        //:   set of configuration macros for each such inclusion to test.
-        //:   Note that the test code is extracted into a function defined
-        //:   after main as we will be using the preprocessor to avoid
-        //:   impacting any following test case that does not have the same
-        //:   issue.
+        // 1. The results of these macros depend on the initial definition of a
+        //    number of configuration macros, normally passed on the command
+        //    line.  In order to test the full set of potential interactions,
+        //    we shall take the unusual step of `#undef`ining the header guard
+        //    for both this component and `bsls_assert.h`, in order to
+        //    repeatedly `#include` these headers after setting up a "clean"
+        //    set of configuration macros for each such inclusion to test.
+        //    Note that the test code is extracted into a function defined
+        //    after main as we will be using the preprocessor to avoid
+        //    impacting any following test case that does not have the same
+        //    issue.
         //
         // Testing:
         //   BSLS_ASSERTTEST_ASSERT_SAFE_PASS(FUNCTION)
@@ -1677,57 +1709,57 @@ int main(int argc, char *argv[])
         // TESTING CATCH PROBES
         //
         // Concerns:
-        //: 1 Each probe function must return 'true' if passed 'P' and 'false'
-        //:   if passed 'F'.  Any other argument must return 'false' after
-        //:   writing a diagnostic message regarding the bad argument to the
-        //:   console.  Nothing should be written to the console for the two
-        //:   recognized arguments.  The recognized values 'F' and 'P' are case
-        //:   sensitive.
-        //:
-        //: 2 Unless all three arguments to the catch-probe functions meet some
-        //:   validity constraints, the function must return 'false' and write
-        //:   a diagnostic message to the console.  Valid 'expectedResult' are
-        //:   either 'F' or 'P'.  Valid 'caughtException' attributes are a
-        //:   pointer to a non-empty null-terminated string for 'expression', a
-        //:   pointer to a non-empty null-terminated string for 'filename', and
-        //:   a non-negative 'lineNumber'.  Valid 'testDriverFileName' values
-        //:   are either a null pointer, or a pointer to a non-empty
-        //:   null-terminated string.
-        //:
-        //: 3 When passed valid arguments, a catch-probe shall return 'false'
-        //:   unless 'expectedResult' == 'F' and either 'testDriverFileName' is
-        //:   null, or 'testDriverFileName' points to a filename that
-        //:   corresponds to the same component as referenced by the 'filename'
-        //:   attribute of 'caughtException'.  Two filenames correspond to the
-        //:   same component if the file extension is either ".h", ".cpp",
-        //:   ".t.cpp", or ".g.cpp", and the filenames have the same value when
-        //:   stripped of both the extension and any leading pathname.
+        // 1. Each probe function must return `true` if passed `P` and `false`
+        //    if passed `F`.  Any other argument must return `false` after
+        //    writing a diagnostic message regarding the bad argument to the
+        //    console.  Nothing should be written to the console for the two
+        //    recognized arguments.  The recognized values `F` and `P` are case
+        //    sensitive.
+        //
+        // 2. Unless all three arguments to the catch-probe functions meet some
+        //    validity constraints, the function must return `false` and write
+        //    a diagnostic message to the console.  Valid `expectedResult` are
+        //    either `F` or `P`.  Valid `caughtException` attributes are a
+        //    pointer to a non-empty null-terminated string for `expression`, a
+        //    pointer to a non-empty null-terminated string for `filename`, and
+        //    a non-negative `lineNumber`.  Valid `testDriverFileName` values
+        //    are either a null pointer, or a pointer to a non-empty
+        //    null-terminated string.
+        //
+        // 3. When passed valid arguments, a catch-probe shall return `false`
+        //    unless `expectedResult` == `F` and either `testDriverFileName` is
+        //    null, or `testDriverFileName` points to a filename that
+        //    corresponds to the same component as referenced by the `filename`
+        //    attribute of `caughtException`.  Two filenames correspond to the
+        //    same component if the file extension is either ".h", ".cpp",
+        //    ".t.cpp", or ".g.cpp", and the filenames have the same value when
+        //    stripped of both the extension and any leading pathname.
         //
         // Plan:
-        //: 1 We will take a table driven approach, verifying that each catch-
-        //:   probe returns the correct result combination of valid and invalid
-        //:   arguments.  As an 'expectedResult' of 'P' must always return
-        //:   'false', the table contains only the remaining arguments, and the
-        //:   "EXPECTED RESULT" from calling this function with 'F' for
-        //:   'expectedResult'.  Each iteration of the loop will test with both
-        //:   potential 'expectedResult' arguments, 'F' and 'P'.
-        //:
-        //: 2 Invoke each probe with every possible 'char' value.  Test that
-        //:   'true' is returned for only the argument 'P', that nothing is
-        //:   written to the console when the argument is 'P' or 'F', and that
-        //:   something is written to the console for any other argument.  The
-        //:   diagnostic message will be validated interactively by the user
-        //:   reading the console.
-        //:
-        //: 3 Note that unless all three arguments to the catch-probe functions
-        //:   meet some validity constraints, the function will return 'false'
-        //:   and write a diagnostic message to the console.  As test drivers
-        //:   must run without such messages unless there is an error, we defer
-        //:   such test scenarios to test case -2.
-        //:
-        //: 4 By testing that two different sets of compatible names do not
-        //:   match each other, we do not need to add other valid component
-        //:   names into the set of potential invalid matches.
+        // 1. We will take a table driven approach, verifying that each catch-
+        //    probe returns the correct result combination of valid and invalid
+        //    arguments.  As an `expectedResult` of `P` must always return
+        //    `false`, the table contains only the remaining arguments, and the
+        //    "EXPECTED RESULT" from calling this function with `F` for
+        //    `expectedResult`.  Each iteration of the loop will test with both
+        //    potential `expectedResult` arguments, `F` and `P`.
+        //
+        // 2. Invoke each probe with every possible `char` value.  Test that
+        //    `true` is returned for only the argument `P`, that nothing is
+        //    written to the console when the argument is `P` or `F`, and that
+        //    something is written to the console for any other argument.  The
+        //    diagnostic message will be validated interactively by the user
+        //    reading the console.
+        //
+        // 3. Note that unless all three arguments to the catch-probe functions
+        //    meet some validity constraints, the function will return `false`
+        //    and write a diagnostic message to the console.  As test drivers
+        //    must run without such messages unless there is an error, we defer
+        //    such test scenarios to test case -2.
+        //
+        // 4. By testing that two different sets of compatible names do not
+        //    match each other, we do not need to add other valid component
+        //    names into the set of potential invalid matches.
         //
         // Testing:
         //   AssertTest::catchProbe(char, ...);
@@ -1809,9 +1841,9 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
+        // Use in every call.  No initializer as we *want* a warning if an
+        // `ASSERT` would read it without assignment.
         bool probeResult;
-            // Use in every call.  No initializer as we *want* a warning if an
-            // 'ASSERT' would read it without assignment.
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE           = DATA[ti].d_lineNumber;
@@ -1888,11 +1920,11 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, TLINE, probeResult, false == probeResult);
 
                     EXPECT_OUTPUT_ON_STDERR_IF(!CHECKS_RESULT);
-                    // We set expectations for 'stdout' "by hand" here because
+                    // We set expectations for `stdout` "by hand" here because
                     // there is no named macro that can handle this complexity.
                     // The next planned code update will make expectations a
                     // mini-language so the above will be something like:
-                    // 'IF(!CHECK_RESULT, BOTH) | IF(BAD_TEST_NAME, STDOUT)'.
+                    // `IF(!CHECK_RESULT, BOTH) | IF(BAD_TEST_NAME, STDOUT)`.
                     stdioProctor->setOut(BAD_TEST_NAME || !CHECKS_RESULT);
                     probeResult = bsls::AssertTest::catchProbe('F',
                                                                true,
@@ -1953,24 +1985,24 @@ int main(int argc, char *argv[])
         // TESTING TRY PROBES
         //
         // Concerns:
-        //: 1 Each probe function returns 'true' if passed 'P' and 'false' if
-        //:   passed 'F' for the 'expectedResult' parameter.
-        //:
-        //: 2 Any other argument returns 'false' after writing a diagnostic
-        //:   message regarding the bad argument(s) to the console.
-        //:
-        //: 3 Nothing is written to the console for the two recognized
-        //:   arguments, 'F' and 'P'.
-        //:
-        //: 4 The recognized values 'F' and 'P' are case sensitive.
+        // 1. Each probe function returns `true` if passed `P` and `false` if
+        //    passed `F` for the `expectedResult` parameter.
+        //
+        // 2. Any other argument returns `false` after writing a diagnostic
+        //    message regarding the bad argument(s) to the console.
+        //
+        // 3. Nothing is written to the console for the two recognized
+        //    arguments, `F` and `P`.
+        //
+        // 4. The recognized values `F` and `P` are case sensitive.
         //
         // Plan:
-        //: 1 A passing test case run in non-verbose mode should not write
-        //:   anything to the console, so the testing of all arguments other
-        //:   than 'F' or 'P' is deferred to the manually run test case, -1.
-        //:   Each try-probe function is called to confirm it produces the
-        //:   required value for the two supported arguments, 'F' must always
-        //:   return 'false' and 'P' must always return 'true'.
+        // 1. A passing test case run in non-verbose mode should not write
+        //    anything to the console, so the testing of all arguments other
+        //    than `F` or `P` is deferred to the manually run test case, -1.
+        //    Each try-probe function is called to confirm it produces the
+        //    required value for the two supported arguments, `F` must always
+        //    return `false` and `P` must always return `true`.
         //
         // Testing:
         //   AssertTest::tryProbe(char, char);
@@ -2002,21 +2034,21 @@ int main(int argc, char *argv[])
         // TESTING FAILTESTDRIVER
         //
         // Concerns:
-        //: 1 The function 'bsls::AssertTest::failTestDriver' can be installed
-        //:   as an assertion-failure handler with 'bsls::Assert'.
-        //: 2 The function throws an exception of type
-        //:   'bsls::AssertTestException' whose attributes exactly match the
-        //:   arguments to the function call.
-        //: 3 'failTestDriverByReview' should always call into 'failTestDriver'
-        //:   and behave in the same way, and can be installed as a
-        //:   review-failure-handler with 'bsls::Review'.
+        // 1. The function `bsls::AssertTest::failTestDriver` can be installed
+        //    as an assertion-failure handler with `bsls::Assert`.
+        // 2. The function throws an exception of type
+        //    `bsls::AssertTestException` whose attributes exactly match the
+        //    arguments to the function call.
+        // 3. `failTestDriverByReview` should always call into `failTestDriver`
+        //    and behave in the same way, and can be installed as a
+        //    review-failure-handler with `bsls::Review`.
         //
         // Plan:
-        //: 1 First, we will install 'bsls::AssertTest::failTestDriver' as the
-        //:   active assertion-failure handler function, demonstrating it has
-        //:   the required signature.  Then a table-driven approach will
-        //:   demonstrate that each call to the function throws an exception
-        //:   having the expected attributes.
+        // 1. First, we will install `bsls::AssertTest::failTestDriver` as the
+        //    active assertion-failure handler function, demonstrating it has
+        //    the required signature.  Then a table-driven approach will
+        //    demonstrate that each call to the function throws an exception
+        //    having the expected attributes.
         //
         // Testing:
         //   AssertTest::failTestDriver(const AssertViolation &);
@@ -2032,7 +2064,7 @@ int main(int argc, char *argv[])
         }
 #else
 
-        // First we install 'bsls::AssertTest::failTestDriver' as the active
+        // First we install `bsls::AssertTest::failTestDriver` as the active
         // assertion-failure handler, to verify it has the correct signature.
         bsls::AssertFailureHandlerGuard guard(
                                             &bsls::AssertTest::failTestDriver);
@@ -2100,27 +2132,27 @@ int main(int argc, char *argv[])
         // TESTING THE MACRO BSLS_ASSERTTEST_IS_ACTIVE
         //
         // Concerns:
-        //: 1 The macro expands to an expression that evaluates to either
-        //:   'true' or 'false', according to the current build mode and the
-        //:   string passed to the macro.
-        //: 2 There are six valid strings, "S", "A", "O", "S2", "A2", and "O2",
-        //:   each of which must be recognized, in all possible build modes.
+        // 1. The macro expands to an expression that evaluates to either
+        //    `true` or `false`, according to the current build mode and the
+        //    string passed to the macro.
+        // 2. There are six valid strings, "S", "A", "O", "S2", "A2", and "O2",
+        //    each of which must be recognized, in all possible build modes.
         //
         // Plan:
-        //: 1 The result of this macro depends on the initial definition of a
-        //:   number of configuration macros, normally passed on the command
-        //:   line.  In order to test the full set of potential interactions,
-        //:   we shall take the unusual step of '#undef'ining the header guard
-        //:   for both this component and 'bsls_assert.h', in order to
-        //:   repeatedly '#include' these headers after setting up a "clean"
-        //:   set of configuration macros for each such inclusion to test.
-        //:   Each configuration shall validate the macro for all 6 valid
-        //:   strings.
-        //:
-        //: 2 Note that the test code is extracted into a function defined
-        //:   after main as we will be using the preprocessor to avoid
-        //:   impacting any following test case that does not have the same
-        //:   issue.
+        // 1. The result of this macro depends on the initial definition of a
+        //    number of configuration macros, normally passed on the command
+        //    line.  In order to test the full set of potential interactions,
+        //    we shall take the unusual step of `#undef`ining the header guard
+        //    for both this component and `bsls_assert.h`, in order to
+        //    repeatedly `#include` these headers after setting up a "clean"
+        //    set of configuration macros for each such inclusion to test.
+        //    Each configuration shall validate the macro for all 6 valid
+        //    strings.
+        //
+        // 2. Note that the test code is extracted into a function defined
+        //    after main as we will be using the preprocessor to avoid
+        //    impacting any following test case that does not have the same
+        //    issue.
         //
         // Testing:
         //   BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG
@@ -2137,30 +2169,30 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'isValidExpected'
+        // TESTING `isValidExpected`
         //
         // Concerns:
-        //: 1 'isValidExpected' should return 'true' for only two possible
-        //:   values, 'F', and 'P'.
-        //:
-        //: 2 'isValidExpectedLevel' should return 'true' for only three
-        //:   possible values, 'S', 'O', 'A', and 'I'.
-        //:
-        //: 3 All other test values return false.
-        //:
-        //: 4 The function is case-sensitive.
+        // 1. `isValidExpected` should return `true` for only two possible
+        //    values, `F`, and `P`.
+        //
+        // 2. `isValidExpectedLevel` should return `true` for only three
+        //    possible values, `S`, `O`, `A`, and `I`.
+        //
+        // 3. All other test values return false.
+        //
+        // 4. The function is case-sensitive.
         //
         // Plan:
-        //: 1 As the set of characters is enumerable and small, iterate over
-        //:   all possible character values calling 'isValidExpected'.  The
-        //:   result may be 'true' for only two values, 'F' and 'P'.
+        // 1. As the set of characters is enumerable and small, iterate over
+        //    all possible character values calling `isValidExpected`.  The
+        //    result may be `true` for only two values, `F` and `P`.
         //
         // Testing:
         //   AssertTest::isValidExpected(char);
         //   AssertTest::isValidExpectedLevel(char);
         // --------------------------------------------------------------------
 
-        if (verbose) puts("\nTESTING \'isValidExpected\'"
+        if (verbose) puts("\nTESTING `isValidExpected`"
                           "\n=========================");
 
         for (char c = CHAR_MIN; c != CHAR_MAX; ++c) {
@@ -2188,23 +2220,23 @@ int main(int argc, char *argv[])
         // TESTING ISVALIDASSERTBUILD
         //
         // Concerns:
-        //: 1 The function returns 'true' for the six recognized string values,
-        //:   and false for all other strings.
-        //:
-        //: 2 The string comparison is case sensitive.
-        //:
-        //: 3 The order of the characters is significant for two character
-        //:   strings.
-        //:
-        //: 4 Neither leading nor trailing whitespace are valid.
-        //:
-        //: 5 The function gracefully handles edge cases like a null pointer,
-        //:   or the empty string, "".
+        // 1. The function returns `true` for the six recognized string values,
+        //    and false for all other strings.
+        //
+        // 2. The string comparison is case sensitive.
+        //
+        // 3. The order of the characters is significant for two character
+        //    strings.
+        //
+        // 4. Neither leading nor trailing whitespace are valid.
+        //
+        // 5. The function gracefully handles edge cases like a null pointer,
+        //    or the empty string, "".
         //
         // Plan:
-        //: 1 Using a basic test-table, test a representative sample of 0, 1, 2
-        //:   and 3 character strings, covering the valid values, and simple
-        //:   permutation of those valid values.
+        // 1. Using a basic test-table, test a representative sample of 0, 1, 2
+        //    and 3 character strings, covering the valid values, and simple
+        //    permutation of those valid values.
         //
         // Testing:
         //   AssertTest::isValidAssertBuild(const char *);
@@ -2216,7 +2248,7 @@ int main(int argc, char *argv[])
         static const struct {
             int         d_lineNumber;       // line # of the row in this table
             const char *d_assertBuildType;  // "S", "S2", "A", "A2", "O", "O2"
-            bool        d_expectedResult;   // 'true' or 'false'
+            bool        d_expectedResult;   // `true` or `false`
 
         } DATA[] = {
 
@@ -2280,27 +2312,27 @@ int main(int argc, char *argv[])
             // Validate test description.
             bool testResult = bsls::AssertTest::isValidAssertBuild(TYPE);
             ASSERTV(LINE, TYPE, RESULT, RESULT == testResult);
-        }  // table-driven 'for' loop
+        }  // table-driven `for` loop
       } break;
       case 2: {
         // --------------------------------------------------------------------
         // STDIO MONITORING TEST
         //
         // Concerns:
-        //: 1 We can silence both 'stdout' and 'stderr'.
-        //:
-        //: 2 We can detect writing to 'stdout' and 'stderr'.
+        // 1. We can silence both `stdout` and `stderr`.
+        //
+        // 2. We can detect writing to `stdout` and `stderr`.
         //
         // Plan:
-        //: 1 We cannot easily detect what happens to 'stderr' but we can do so
-        //:   for 'stdout' by running against ourselves and seeing if there is
-        //:   output from the child process.  To make sure the output is not
-        //:   just lost or a mess, we also start the child process with very,
-        //:   very verbose arguments and check that it indeed prints to
-        //:   'stdout' what is expected.
-        //:
-        //: 2 Plan is simple, we turn on the monitor, write, and check that is
-        //:   has been detected, and what we did not write to is not detected.
+        // 1. We cannot easily detect what happens to `stderr` but we can do so
+        //    for `stdout` by running against ourselves and seeing if there is
+        //    output from the child process.  To make sure the output is not
+        //    just lost or a mess, we also start the child process with very,
+        //    very verbose arguments and check that it indeed prints to
+        //    `stdout` what is expected.
+        //
+        // 2. Plan is simple, we turn on the monitor, write, and check that is
+        //    has been detected, and what we did not write to is not detected.
         //
         // Testing:
         //   STDIO MONITORING TEST
@@ -2400,14 +2432,14 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 Want to observe the basic operation of this component.  This test
-        //:   will be affected by the current build flags, and must produce the
-        //:   correct result in each case.
+        // 1. Want to observe the basic operation of this component.  This test
+        //    will be affected by the current build flags, and must produce the
+        //    correct result in each case.
         //
         // Plan:
-        //: 1 Install the negative testing assertion-failure handler, and then
-        //:   invoke the 'OPT' version of the test macros, as this is the form
-        //:   enabled in most build modes.
+        // 1. Install the negative testing assertion-failure handler, and then
+        //    invoke the `OPT` version of the test macros, as this is the form
+        //    enabled in most build modes.
         //
         // Testing:
         //   BREATHING TEST
@@ -2427,15 +2459,15 @@ int main(int argc, char *argv[])
         // CONDITIONALLY SILENCED OUTPUT TO STDOUT
         //
         // Concerns:
-        //: 1 We can silence both 'stdout' and 'stderr'.
+        // 1. We can silence both `stdout` and `stderr`.
         //
         // Plan:
-        //: 1 The test driver calls itself twice for case -2, with and without
-        //:   'veryVeryVerbose' set.  We drive silencing of the monitor with
-        //:   'veryVeryVerbose' (see top of 'main').  The calling code asserts
-        //:   if it can read something while expecting silence, and if it reads
-        //:   something other than what is expected when the -2 is run very,
-        //:   very verbose.
+        // 1. The test driver calls itself twice for case -2, with and without
+        //    `veryVeryVerbose` set.  We drive silencing of the monitor with
+        //    `veryVeryVerbose` (see top of `main`).  The calling code asserts
+        //    if it can read something while expecting silence, and if it reads
+        //    something other than what is expected when the -2 is run very,
+        //    very verbose.
         //
         // Testing:
         //   CONDITIONALLY SILENCED OUTPUT TO STDOUT
@@ -2502,13 +2534,13 @@ int popeneer(const char *commandLine, char *buffer, int size)
 //
 ///Why Make a Monitor
 /// - - - - - - - - -
-// The 'stdio' monitoring facilities are implemented here for 3 reasons.  The
-// first one is that 'bsls_asserttest' is a very, very low level component that
+// The `stdio` monitoring facilities are implemented here for 3 reasons.  The
+// first one is that `bsls_asserttest` is a very, very low level component that
 // cannot depend on any component that itself uses 'BSLS_ASSERT", because then
 // that component could not easily be tested.  That rules out using
-// 'bsls_outputredirector' as that component uses 'BSLS_ASSERT'.  Testing the
+// `bsls_outputredirector` as that component uses `BSLS_ASSERT`.  Testing the
 // assert-testing facility should also not depend on access to the file system.
-// 'bsls_outputredirector' uses temporary files.  We do not want testing of
+// `bsls_outputredirector` uses temporary files.  We do not want testing of
 // assert testing to fail because we are on a read only file system.  The
 // facilities implemented here use only the NUL/null service that can
 // reasonably be expected to exist even in a minimal chroot jail.  Last, but
@@ -2521,13 +2553,13 @@ int popeneer(const char *commandLine, char *buffer, int size)
 ///The Capture Buffer
 /// - - - - - - - - -
 // The monitor implementation uses a stream buffer to capture output.  The C
-// and POSIX standards guarantee almost nothing about 'stdio' buffers.  Namely,
+// and POSIX standards guarantee almost nothing about `stdio` buffers.  Namely,
 // there is no guarantee that a stream will use a buffer at all (when
 // requested), no guarantee if the buffer given to the stream will actually be
 // the buffer used, or that the whole size/length will be used for buffering,
 // or that the buffer is used to store stream output only.  In practice, this
 // results in 3 consequences only.  One is that on Linux at minimum a 128 bytes
-// buffer must be registered ('setvbuf'), otherwise the C library won't use it
+// buffer must be registered (`setvbuf`), otherwise the C library won't use it
 // at all.  The other is that we cannot guarantee for the long term that only
 // stream output will be placed into the buffer, so exact comparisons text may
 // prove fragile (although it is unlikely).  The third, most unfortunate but
@@ -2677,7 +2709,7 @@ void StdIoTestMonitor::init(FILE *stream, bool verbose)
 void StdIoTestMonitor::perrorAbort(const char *msg)
 {
     if (d_monitoredStream == stderr && d_active && d_dupOrigFD != -1) {
-        // Best effort trying to get 'stderr' back.  If it does not work, we
+        // Best effort trying to get `stderr` back.  If it does not work, we
         // have no way of reporting that problem as all output streams may be
         // silenced.
         (void)dup2(d_dupOrigFD, d_origFD);
@@ -2921,14 +2953,14 @@ StdIoTestMonitorDuo::monitorMessage(bool expectedOutputOnStdout,
     const bool hadStderrOutput = wasThereStderrOutput();
 
     enum {
-        //:   -=[ 4 bits are describing the situation: 3210 ]=-
-        //:
-        //: 3 - wanted 'stdout' to print (N - No,     W - Yes    )
-        //: 2 - 'stdout' has printed     (S - Silent, P - Printed)
-        //: 1 - wanted 'stderr' to print (N - No,     W - Yes    )
-        //: 0 - 'stderr' has printed     (S - Silent, P - Printed)
-        //:
-        //: Encoding of names: O[NW][SP]_E[NW][SP]
+        //    -=[ 4 bits are describing the situation: 3210 ]=-
+        //
+        // 3. - wanted `stdout` to print (N - No,     W - Yes    )
+        // 2. - `stdout` has printed     (S - Silent, P - Printed)
+        // 1. - wanted `stderr` to print (N - No,     W - Yes    )
+        // 0. - `stderr` has printed     (S - Silent, P - Printed)
+        //
+        //  Encoding of names: O[NW][SP]_E[NW][SP]
 
         ONS_ENS = 0x0,  // ____ -- GOOD
         ONS_ENP = 0x1,  // ___1 -- BAD  - stderr
@@ -2960,31 +2992,31 @@ StdIoTestMonitorDuo::monitorMessage(bool expectedOutputOnStdout,
 
       case ONS_ENP:
       case OWP_ENP:
-        return "Unexpected output on 'stderr'.";                      // RETURN
+        return "Unexpected output on `stderr`.";                      // RETURN
 
       case ONS_EWS:
       case OWP_EWS:
-        return "No output on 'stderr', but expected.";                // RETURN
+        return "No output on `stderr`, but expected.";                // RETURN
 
       case OWS_ENS:
       case OWS_EWP:
-        return "No output on 'stdout', but expected.";                // RETURN
+        return "No output on `stdout`, but expected.";                // RETURN
 
       case ONP_ENS:
       case ONP_EWP:
-        return "Unexpected output on 'stdout'";                       // RETURN
+        return "Unexpected output on `stdout`";                       // RETURN
 
       case ONP_ENP:
-        return "Unexpected output on both 'stderr' and 'stdout'.";    // RETURN
+        return "Unexpected output on both `stderr` and `stdout`.";    // RETURN
 
       case ONP_EWS:
-        return "Output on 'stdout' instead of 'stderr'.";             // RETURN
+        return "Output on `stdout` instead of `stderr`.";             // RETURN
 
       case OWS_ENP:
-        return "Output on 'stderr' instead of 'stdout'.";             // RETURN
+        return "Output on `stderr` instead of `stdout`.";             // RETURN
 
       case OWS_EWS:
-        return "No output on 'stdout' or 'stderr', both expected.";   // RETURN
+        return "No output on `stdout` or `stderr`, both expected.";   // RETURN
     }
 
     return "** INTERNAL ERROR: monitorMessage";
@@ -3129,7 +3161,7 @@ bool AssertTestMonitor::wouldBeExtraOutput() const
 inline
 bool AssertTestMonitor::wouldBeExtraStderr() const
 {
-    return !d_expectations.stderrPrints()      // Expected silence on 'stderr',
+    return !d_expectations.stderrPrints()      // Expected silence on `stderr`,
         && d_monitors.isStderrActive()         // it was monitored,
         && d_monitors.wasThereStderrOutput();  // but it wasn't silent.
 }
@@ -3137,7 +3169,7 @@ bool AssertTestMonitor::wouldBeExtraStderr() const
 inline
 bool AssertTestMonitor::wouldBeExtraStdout() const
 {
-    return !d_expectations.stdoutPrints()      // Expected silence on 'stdout',
+    return !d_expectations.stdoutPrints()      // Expected silence on `stdout`,
         && d_monitors.isStdoutActive()         // it was monitored,
         && d_monitors.wasThereStdoutOutput();  // but it wasn't silent.
 }
@@ -3154,14 +3186,14 @@ bool AssertTestMonitor::wouldOutputBeMissing() const
 
 bool AssertTestMonitor::wouldStderrBeMissing() const
 {
-    return d_expectations.stderrPrints()        // Expected output on 'stderr',
+    return d_expectations.stderrPrints()        // Expected output on `stderr`,
         && d_monitors.isStderrActive()          // it was monitored,
         && !d_monitors.wasThereStderrOutput();  // but it was actually silent.
 }
 
 bool AssertTestMonitor::wouldStdoutBeMissing() const
 {
-    return d_expectations.stdoutPrints()        // Expected output on 'stdout',
+    return d_expectations.stdoutPrints()        // Expected output on `stdout`,
         && d_monitors.isStdoutActive()          // it was monitored,
         && !d_monitors.wasThereStdoutOutput();  // but it was actually silent.
 }
@@ -3196,12 +3228,12 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
@@ -3229,7 +3261,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
         static const struct {
             int         d_lineNumber;       // line # of the row in this table
             const char *d_assertBuildType;  // "S", "S2", "A", "A2", "O", "O2"
-            bool        d_expectedResult;   // assertion: 'P'ass or 'F'ail
+            bool        d_expectedResult;   // assertion: `P`ass or `F`ail
         } DATA[] = {
             //LINE  TYPE  RESULT
             //----  ----  ------
@@ -3257,7 +3289,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             bool configResult = BSLS_ASSERTTEST_IS_ACTIVE(TYPE);
             ASSERTV(TYPE, RESULT, configResult, RESULT == configResult);
 
-        }  // table-driven 'for' loop
+        }  // table-driven `for` loop
     }
 
 //========================= SAFE_2 LEVEL_ASSERT_OPT =========================//
@@ -3272,12 +3304,12 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
@@ -3306,7 +3338,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
         static const struct {
             int         d_lineNumber;       // line # of the row in this table
             const char *d_assertBuildType;  // "S", "S2", "A", "A2", "O", "O2"
-            bool        d_expectedResult;   // assertion: 'P'ass or 'F'ail
+            bool        d_expectedResult;   // assertion: `P`ass or `F`ail
         } DATA[] = {
             //LINE  TYPE  RESULT
             //----  ----  ------
@@ -3334,7 +3366,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             bool configResult = BSLS_ASSERTTEST_IS_ACTIVE(TYPE);
             ASSERTV(TYPE, RESULT, configResult, RESULT == configResult);
 
-        }  // table-driven 'for' loop
+        }  // table-driven `for` loop
     }
 
 //=========================== SAFE_2 LEVEL_ASSERT ===========================//
@@ -3349,12 +3381,12 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
@@ -3382,7 +3414,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
         static const struct {
             int         d_lineNumber;       // line # of the row in this table
             const char *d_assertBuildType;  // "S", "S2", "A", "A2", "O", "O2"
-            bool        d_expectedResult;   // assertion: 'P'ass or 'F'ail
+            bool        d_expectedResult;   // assertion: `P`ass or `F`ail
         } DATA[] = {
             //LINE  TYPE  RESULT
             //----  ----  ------
@@ -3410,7 +3442,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             bool configResult = BSLS_ASSERTTEST_IS_ACTIVE(TYPE);
             ASSERTV(TYPE, RESULT, configResult, RESULT == configResult);
 
-        }  // table-driven 'for' loop
+        }  // table-driven `for` loop
     }
 
 //======================== SAFE_2 LEVEL_ASSERT_SAFE =========================//
@@ -3425,12 +3457,12 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
@@ -3458,7 +3490,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
         static const struct {
             int         d_lineNumber;       // line # of the row in this table
             const char *d_assertBuildType;  // "S", "S2", "A", "A2", "O", "O2"
-            bool        d_expectedResult;   // assertion: 'P'ass or 'F'ail
+            bool        d_expectedResult;   // assertion: `P`ass or `F`ail
         } DATA[] = {
             //LINE  TYPE  RESULT
             //----  ----  ------
@@ -3486,7 +3518,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             bool configResult = BSLS_ASSERTTEST_IS_ACTIVE(TYPE);
             ASSERTV(TYPE, RESULT, configResult, RESULT == configResult);
 
-        }  // table-driven 'for' loop
+        }  // table-driven `for` loop
     }
 
 //=============================== LEVEL_NONE ================================//
@@ -3500,12 +3532,12 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
@@ -3533,7 +3565,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
         static const struct {
             int         d_lineNumber;       // line # of the row in this table
             const char *d_assertBuildType;  // "S", "S2", "A", "A2", "O", "O2"
-            bool        d_expectedResult;   // assertion: 'P'ass or 'F'ail
+            bool        d_expectedResult;   // assertion: `P`ass or `F`ail
         } DATA[] = {
             //LINE  TYPE  RESULT
             //----  ----  ------
@@ -3561,7 +3593,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             bool configResult = BSLS_ASSERTTEST_IS_ACTIVE(TYPE);
             ASSERTV(TYPE, RESULT, configResult, RESULT == configResult);
 
-        }  // table-driven 'for' loop
+        }  // table-driven `for` loop
     }
 
 //============================ LEVEL_ASSERT_OPT =============================//
@@ -3575,12 +3607,12 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
@@ -3608,7 +3640,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
         static const struct {
             int         d_lineNumber;       // line # of the row in this table
             const char *d_assertBuildType;  // "S", "S2", "A", "A2", "O", "O2"
-            bool        d_expectedResult;   // assertion: 'P'ass or 'F'ail
+            bool        d_expectedResult;   // assertion: `P`ass or `F`ail
         } DATA[] = {
             //LINE  TYPE  RESULT
             //----  ----  ------
@@ -3636,7 +3668,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             bool configResult = BSLS_ASSERTTEST_IS_ACTIVE(TYPE);
             ASSERTV(TYPE, RESULT, configResult, RESULT == configResult);
 
-        }  // table-driven 'for' loop
+        }  // table-driven `for` loop
     }
 
 //============================== LEVEL_ASSERT ===============================//
@@ -3650,12 +3682,12 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
@@ -3683,7 +3715,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
         static const struct {
             int         d_lineNumber;       // line # of the row in this table
             const char *d_assertBuildType;  // "S", "S2", "A", "A2", "O", "O2"
-            bool        d_expectedResult;   // assertion: 'P'ass or 'F'ail
+            bool        d_expectedResult;   // assertion: `P`ass or `F`ail
         } DATA[] = {
             //LINE  TYPE  RESULT
             //----  ----  ------
@@ -3711,7 +3743,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             bool configResult = BSLS_ASSERTTEST_IS_ACTIVE(TYPE);
             ASSERTV(TYPE, RESULT, configResult, RESULT == configResult);
 
-        }  // table-driven 'for' loop
+        }  // table-driven `for` loop
     }
 
 //============================ LEVEL_ASSERT_SAFE ============================//
@@ -3725,12 +3757,12 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
@@ -3758,7 +3790,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
         static const struct {
             int         d_lineNumber;       // line # of the row in this table
             const char *d_assertBuildType;  // "S", "S2", "A", "A2", "O", "O2"
-            bool        d_expectedResult;   // assertion: 'P'ass or 'F'ail
+            bool        d_expectedResult;   // assertion: `P`ass or `F`ail
         } DATA[] = {
             //LINE  TYPE  RESULT
             //----  ----  ------
@@ -3786,15 +3818,15 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
             bool configResult = BSLS_ASSERTTEST_IS_ACTIVE(TYPE);
             ASSERTV(TYPE, RESULT, configResult, RESULT == configResult);
 
-        }  // table-driven 'for' loop
+        }  // table-driven `for` loop
     }
 //---------------------------------------------------------------------------//
 }
 
 // These macros provide an easy way of switching test filenames for the tests
-// that rely on the value of '__FILE__'.  Note that the macro
-// 'BSLS_ASSERTTEST_THIS_FILENAME' should have the same value as the string
-// literal returned by '__FILE__' before any '#line' directives are processed.
+// that rely on the value of `__FILE__`.  Note that the macro
+// `BSLS_ASSERTTEST_THIS_FILENAME` should have the same value as the string
+// literal returned by `__FILE__` before any `#line` directives are processed.
 #define BSLS_ASSERTTEST_SET_DIFFERENT_FILENAME \
     BSLS_MACROINCREMENT(__LINE__) "bsls_fictionaltestcomponent.t.cpp"
 #define BSLS_ASSERTTEST_RESET_THIS_FILENAME \
@@ -3805,7 +3837,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 // a single parameter, and supports 3 potential arguments for that parameter:
 // "PASS_OR_FAIL", "PASS_OR_FAIL_RAW", and "CHECK_LEVEL" to generate the bodies
 // of distinct test case functions.
-//..
+// ```
 //  #!/usr/bin/env python
 //
 //  # bsls_asserttest_gen.py
@@ -4012,7 +4044,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 //
 //          Args:
 //            exprdetails (tuple or None): the variable parts of the line
-//            need_ws (bool): The previous 'printexprdetails_' call did not
+//            need_ws (bool): The previous `printexprdetails_` call did not
 //                            print a newline.  This call needs to print either
 //                            a space or a newline before printing anything
 //                          else.
@@ -4194,12 +4226,12 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 //          echo("#define BSLS_ASSERTTEST_CHECK_LEVEL")
 //      echo(
 //          """
-//  // [3] Re-include the 'bsls_asserttest.h' header
+//  // [3] Re-include the `bsls_asserttest.h` header
 //
 //  #include <bsls_asserttest.h>
 //
-//  // [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//  //     'IS_ACTIVE' macros and their values we intend to test."""
+//  // [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//  //     `IS_ACTIVE` macros and their values we intend to test."""
 //      )
 //      printCheckDef("BDE_BUILD_TARGET_SAFE_2", "SAFE_2" in flags)
 //      printCheckDef("BSLS_ASSERT_OPT_IS_ACTIVE", results[0] == "X")
@@ -4208,7 +4240,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 //
 //      echo(
 //          """
-//  // [5] Confirm the values of the 'BSLS_ASSERTTEST' macros that should be
+//  // [5] Confirm the values of the `BSLS_ASSERTTEST` macros that should be
 //  // defined."""
 //      )
 //      printCheckVal("BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG", "SAFE_2" in flags)
@@ -4225,8 +4257,8 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 //
 //      echo(
 //          """
-//  // [6] Define a local struct 'Production' which makes use of the current
-//  //     definitions of the 'BSLS_ASSERT' macros."""
+//  // [6] Define a local struct `Production` which makes use of the current
+//  //     definitions of the `BSLS_ASSERT` macros."""
 //      )
 //      printLocalClasses()
 //      echo(
@@ -4286,8 +4318,8 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 //      echo("""    }
 //
 //  #line BSLS_ASSERTTEST_SET_DIFFERENT_FILENAME
-//  // [11] Define a local struct 'Production' which makes use of
-//  //     the current definitions of the 'BSLS_ASSERT' macros with an
+//  // [11] Define a local struct `Production` which makes use of
+//  //     the current definitions of the `BSLS_ASSERT` macros with an
 //  //     alternate filename in place."""
 //      )
 //      printLocalClasses()
@@ -4352,7 +4384,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 //      )
 //  print(f"//{'-' * (62 - len(testid))}END GENERATED: {sys.argv[1]}")
 //  print(f"//{'-' * 75}//")
-//..
+// ```
 //----------------------------------------------------------------END GENERATOR
 
 // We will be testing 8 macros, with a further test to handle the 8 RAW macros
@@ -4365,17 +4397,17 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 //   BSLS_ASSERTTEST_ASSERT_INVOKE_PASS(FUNCTION)
 //   BSLS_ASSERTTEST_ASSERT_INVOKE_FAIL(FUNCTION)
 
-// The Requirement to make each call is that a macro called 'ASSERT' is defined
-// to flag errors, if necessary, that are signaled by the 'Probe's.
+// The Requirement to make each call is that a macro called `ASSERT` is defined
+// to flag errors, if necessary, that are signaled by the `Probe`s.
 //
 // Concerns:
-//   The necessary 'ASSERT' macro correctly diagnoses pass/fail conditions
+//   The necessary `ASSERT` macro correctly diagnoses pass/fail conditions
 //   Each of the tested macros is available only in the supported build modes
 //   Each tested macro correctly identifies pass/fail conditions
 //
 // Test plan:
 //   Set up each possible build configuration in the tried-and-tested fashion.
-//   Install a new 'ASSERT' macro that will count expected fails, rather than
+//   Install a new `ASSERT` macro that will count expected fails, rather than
 //   the default one from this test driver, that flags all fails as unexpected.
 
 void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL(AssertTestMonitor *pMonitor)
@@ -4409,12 +4441,12 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL(AssertTestMonitor *pMonitor)
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
@@ -4436,7 +4468,7 @@ SunStudioOnlyPrintsWarningsForPoundError;
 SunStudioOnlyPrintsWarningsForPoundError;
 #endif
 
-// [5] Confirm the values of the 'BSLS_ASSERTTEST' macros that should be
+// [5] Confirm the values of the `BSLS_ASSERTTEST` macros that should be
 // defined.
     ASSERT(BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG)
     ASSERT(!BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)
@@ -4444,8 +4476,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     ASSERT(!BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)
     ASSERT(!BSLS_ASSERTTEST_CHECK_LEVEL_ARG)
 
-// [6] Define a local struct 'Production' which makes use of the current
-//     definitions of the 'BSLS_ASSERT' macros.
+// [6] Define a local struct `Production` which makes use of the current
+//     definitions of the `BSLS_ASSERT` macros.
     {
         struct Production {
             static void callOpt(bool pass) {
@@ -4647,8 +4679,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     }
 
 #line BSLS_ASSERTTEST_SET_DIFFERENT_FILENAME
-// [11] Define a local struct 'Production' which makes use of
-//     the current definitions of the 'BSLS_ASSERT' macros with an
+// [11] Define a local struct `Production` which makes use of
+//     the current definitions of the `BSLS_ASSERT` macros with an
 //     alternate filename in place.
     {
         struct Production {
@@ -4843,12 +4875,12 @@ SunStudioOnlyPrintsWarningsForPoundError;
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
@@ -4870,7 +4902,7 @@ SunStudioOnlyPrintsWarningsForPoundError;
 SunStudioOnlyPrintsWarningsForPoundError;
 #endif
 
-// [5] Confirm the values of the 'BSLS_ASSERTTEST' macros that should be
+// [5] Confirm the values of the `BSLS_ASSERTTEST` macros that should be
 // defined.
     ASSERT(BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG)
     ASSERT(BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)
@@ -4878,8 +4910,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     ASSERT(!BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)
     ASSERT(!BSLS_ASSERTTEST_CHECK_LEVEL_ARG)
 
-// [6] Define a local struct 'Production' which makes use of the current
-//     definitions of the 'BSLS_ASSERT' macros.
+// [6] Define a local struct `Production` which makes use of the current
+//     definitions of the `BSLS_ASSERT` macros.
     {
         struct Production {
             static void callOpt(bool pass) {
@@ -5147,8 +5179,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     }
 
 #line BSLS_ASSERTTEST_SET_DIFFERENT_FILENAME
-// [11] Define a local struct 'Production' which makes use of
-//     the current definitions of the 'BSLS_ASSERT' macros with an
+// [11] Define a local struct `Production` which makes use of
+//     the current definitions of the `BSLS_ASSERT` macros with an
 //     alternate filename in place.
     {
         struct Production {
@@ -5413,12 +5445,12 @@ SunStudioOnlyPrintsWarningsForPoundError;
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
@@ -5440,7 +5472,7 @@ SunStudioOnlyPrintsWarningsForPoundError;
 SunStudioOnlyPrintsWarningsForPoundError;
 #endif
 
-// [5] Confirm the values of the 'BSLS_ASSERTTEST' macros that should be
+// [5] Confirm the values of the `BSLS_ASSERTTEST` macros that should be
 // defined.
     ASSERT(BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG)
     ASSERT(BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)
@@ -5448,8 +5480,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     ASSERT(!BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)
     ASSERT(!BSLS_ASSERTTEST_CHECK_LEVEL_ARG)
 
-// [6] Define a local struct 'Production' which makes use of the current
-//     definitions of the 'BSLS_ASSERT' macros.
+// [6] Define a local struct `Production` which makes use of the current
+//     definitions of the `BSLS_ASSERT` macros.
     {
         struct Production {
             static void callOpt(bool pass) {
@@ -5783,8 +5815,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     }
 
 #line BSLS_ASSERTTEST_SET_DIFFERENT_FILENAME
-// [11] Define a local struct 'Production' which makes use of
-//     the current definitions of the 'BSLS_ASSERT' macros with an
+// [11] Define a local struct `Production` which makes use of
+//     the current definitions of the `BSLS_ASSERT` macros with an
 //     alternate filename in place.
     {
         struct Production {
@@ -6119,12 +6151,12 @@ SunStudioOnlyPrintsWarningsForPoundError;
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
@@ -6146,7 +6178,7 @@ SunStudioOnlyPrintsWarningsForPoundError;
 SunStudioOnlyPrintsWarningsForPoundError;
 #endif
 
-// [5] Confirm the values of the 'BSLS_ASSERTTEST' macros that should be
+// [5] Confirm the values of the `BSLS_ASSERTTEST` macros that should be
 // defined.
     ASSERT(BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG)
     ASSERT(BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)
@@ -6154,8 +6186,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     ASSERT(BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)
     ASSERT(!BSLS_ASSERTTEST_CHECK_LEVEL_ARG)
 
-// [6] Define a local struct 'Production' which makes use of the current
-//     definitions of the 'BSLS_ASSERT' macros.
+// [6] Define a local struct `Production` which makes use of the current
+//     definitions of the `BSLS_ASSERT` macros.
     {
         struct Production {
             static void callOpt(bool pass) {
@@ -6487,8 +6519,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     }
 
 #line BSLS_ASSERTTEST_SET_DIFFERENT_FILENAME
-// [11] Define a local struct 'Production' which makes use of
-//     the current definitions of the 'BSLS_ASSERT' macros with an
+// [11] Define a local struct `Production` which makes use of
+//     the current definitions of the `BSLS_ASSERT` macros with an
 //     alternate filename in place.
     {
         struct Production {
@@ -6822,12 +6854,12 @@ SunStudioOnlyPrintsWarningsForPoundError;
 
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
@@ -6849,7 +6881,7 @@ SunStudioOnlyPrintsWarningsForPoundError;
 SunStudioOnlyPrintsWarningsForPoundError;
 #endif
 
-// [5] Confirm the values of the 'BSLS_ASSERTTEST' macros that should be
+// [5] Confirm the values of the `BSLS_ASSERTTEST` macros that should be
 // defined.
     ASSERT(!BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG)
     ASSERT(!BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)
@@ -6857,8 +6889,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     ASSERT(!BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)
     ASSERT(!BSLS_ASSERTTEST_CHECK_LEVEL_ARG)
 
-// [6] Define a local struct 'Production' which makes use of the current
-//     definitions of the 'BSLS_ASSERT' macros.
+// [6] Define a local struct `Production` which makes use of the current
+//     definitions of the `BSLS_ASSERT` macros.
     {
         struct Production {
             static void callOpt(bool pass) {
@@ -7060,8 +7092,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     }
 
 #line BSLS_ASSERTTEST_SET_DIFFERENT_FILENAME
-// [11] Define a local struct 'Production' which makes use of
-//     the current definitions of the 'BSLS_ASSERT' macros with an
+// [11] Define a local struct `Production` which makes use of
+//     the current definitions of the `BSLS_ASSERT` macros with an
 //     alternate filename in place.
     {
         struct Production {
@@ -7255,12 +7287,12 @@ SunStudioOnlyPrintsWarningsForPoundError;
 
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
@@ -7282,7 +7314,7 @@ SunStudioOnlyPrintsWarningsForPoundError;
 SunStudioOnlyPrintsWarningsForPoundError;
 #endif
 
-// [5] Confirm the values of the 'BSLS_ASSERTTEST' macros that should be
+// [5] Confirm the values of the `BSLS_ASSERTTEST` macros that should be
 // defined.
     ASSERT(!BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG)
     ASSERT(BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)
@@ -7290,8 +7322,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     ASSERT(!BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)
     ASSERT(!BSLS_ASSERTTEST_CHECK_LEVEL_ARG)
 
-// [6] Define a local struct 'Production' which makes use of the current
-//     definitions of the 'BSLS_ASSERT' macros.
+// [6] Define a local struct `Production` which makes use of the current
+//     definitions of the `BSLS_ASSERT` macros.
     {
         struct Production {
             static void callOpt(bool pass) {
@@ -7559,8 +7591,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     }
 
 #line BSLS_ASSERTTEST_SET_DIFFERENT_FILENAME
-// [11] Define a local struct 'Production' which makes use of
-//     the current definitions of the 'BSLS_ASSERT' macros with an
+// [11] Define a local struct `Production` which makes use of
+//     the current definitions of the `BSLS_ASSERT` macros with an
 //     alternate filename in place.
     {
         struct Production {
@@ -7824,12 +7856,12 @@ SunStudioOnlyPrintsWarningsForPoundError;
 
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
@@ -7851,7 +7883,7 @@ SunStudioOnlyPrintsWarningsForPoundError;
 SunStudioOnlyPrintsWarningsForPoundError;
 #endif
 
-// [5] Confirm the values of the 'BSLS_ASSERTTEST' macros that should be
+// [5] Confirm the values of the `BSLS_ASSERTTEST` macros that should be
 // defined.
     ASSERT(!BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG)
     ASSERT(BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)
@@ -7859,8 +7891,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     ASSERT(!BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)
     ASSERT(!BSLS_ASSERTTEST_CHECK_LEVEL_ARG)
 
-// [6] Define a local struct 'Production' which makes use of the current
-//     definitions of the 'BSLS_ASSERT' macros.
+// [6] Define a local struct `Production` which makes use of the current
+//     definitions of the `BSLS_ASSERT` macros.
     {
         struct Production {
             static void callOpt(bool pass) {
@@ -8194,8 +8226,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     }
 
 #line BSLS_ASSERTTEST_SET_DIFFERENT_FILENAME
-// [11] Define a local struct 'Production' which makes use of
-//     the current definitions of the 'BSLS_ASSERT' macros with an
+// [11] Define a local struct `Production` which makes use of
+//     the current definitions of the `BSLS_ASSERT` macros with an
 //     alternate filename in place.
     {
         struct Production {
@@ -8529,12 +8561,12 @@ SunStudioOnlyPrintsWarningsForPoundError;
 
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
@@ -8556,7 +8588,7 @@ SunStudioOnlyPrintsWarningsForPoundError;
 SunStudioOnlyPrintsWarningsForPoundError;
 #endif
 
-// [5] Confirm the values of the 'BSLS_ASSERTTEST' macros that should be
+// [5] Confirm the values of the `BSLS_ASSERTTEST` macros that should be
 // defined.
     ASSERT(!BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG)
     ASSERT(BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)
@@ -8564,8 +8596,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     ASSERT(BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)
     ASSERT(!BSLS_ASSERTTEST_CHECK_LEVEL_ARG)
 
-// [6] Define a local struct 'Production' which makes use of the current
-//     definitions of the 'BSLS_ASSERT' macros.
+// [6] Define a local struct `Production` which makes use of the current
+//     definitions of the `BSLS_ASSERT` macros.
     {
         struct Production {
             static void callOpt(bool pass) {
@@ -8897,8 +8929,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     }
 
 #line BSLS_ASSERTTEST_SET_DIFFERENT_FILENAME
-// [11] Define a local struct 'Production' which makes use of
-//     the current definitions of the 'BSLS_ASSERT' macros with an
+// [11] Define a local struct `Production` which makes use of
+//     the current definitions of the `BSLS_ASSERT` macros with an
 //     alternate filename in place.
     {
         struct Production {
@@ -9224,7 +9256,7 @@ SunStudioOnlyPrintsWarningsForPoundError;
 //--------------------------------------------------END GENERATED: PASS_OR_FAIL
 //---------------------------------------------------------------------------//
 
-// Restore the default 'ASSERT' macro for this test driver.
+// Restore the default `ASSERT` macro for this test driver.
 #undef ASSERT
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 }
@@ -9270,12 +9302,12 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW(AssertTestMonitor *pMonitor)
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
@@ -9297,7 +9329,7 @@ SunStudioOnlyPrintsWarningsForPoundError;
 SunStudioOnlyPrintsWarningsForPoundError;
 #endif
 
-// [5] Confirm the values of the 'BSLS_ASSERTTEST' macros that should be
+// [5] Confirm the values of the `BSLS_ASSERTTEST` macros that should be
 // defined.
     ASSERT(BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG)
     ASSERT(!BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)
@@ -9305,8 +9337,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     ASSERT(!BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)
     ASSERT(!BSLS_ASSERTTEST_CHECK_LEVEL_ARG)
 
-// [6] Define a local struct 'Production' which makes use of the current
-//     definitions of the 'BSLS_ASSERT' macros.
+// [6] Define a local struct `Production` which makes use of the current
+//     definitions of the `BSLS_ASSERT` macros.
     {
         struct Production {
             static void callOpt(bool pass) {
@@ -9508,8 +9540,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     }
 
 #line BSLS_ASSERTTEST_SET_DIFFERENT_FILENAME
-// [11] Define a local struct 'Production' which makes use of
-//     the current definitions of the 'BSLS_ASSERT' macros with an
+// [11] Define a local struct `Production` which makes use of
+//     the current definitions of the `BSLS_ASSERT` macros with an
 //     alternate filename in place.
     {
         struct Production {
@@ -9700,12 +9732,12 @@ SunStudioOnlyPrintsWarningsForPoundError;
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
@@ -9727,7 +9759,7 @@ SunStudioOnlyPrintsWarningsForPoundError;
 SunStudioOnlyPrintsWarningsForPoundError;
 #endif
 
-// [5] Confirm the values of the 'BSLS_ASSERTTEST' macros that should be
+// [5] Confirm the values of the `BSLS_ASSERTTEST` macros that should be
 // defined.
     ASSERT(BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG)
     ASSERT(BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)
@@ -9735,8 +9767,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     ASSERT(!BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)
     ASSERT(!BSLS_ASSERTTEST_CHECK_LEVEL_ARG)
 
-// [6] Define a local struct 'Production' which makes use of the current
-//     definitions of the 'BSLS_ASSERT' macros.
+// [6] Define a local struct `Production` which makes use of the current
+//     definitions of the `BSLS_ASSERT` macros.
     {
         struct Production {
             static void callOpt(bool pass) {
@@ -10004,8 +10036,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     }
 
 #line BSLS_ASSERTTEST_SET_DIFFERENT_FILENAME
-// [11] Define a local struct 'Production' which makes use of
-//     the current definitions of the 'BSLS_ASSERT' macros with an
+// [11] Define a local struct `Production` which makes use of
+//     the current definitions of the `BSLS_ASSERT` macros with an
 //     alternate filename in place.
     {
         struct Production {
@@ -10264,12 +10296,12 @@ SunStudioOnlyPrintsWarningsForPoundError;
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
@@ -10291,7 +10323,7 @@ SunStudioOnlyPrintsWarningsForPoundError;
 SunStudioOnlyPrintsWarningsForPoundError;
 #endif
 
-// [5] Confirm the values of the 'BSLS_ASSERTTEST' macros that should be
+// [5] Confirm the values of the `BSLS_ASSERTTEST` macros that should be
 // defined.
     ASSERT(BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG)
     ASSERT(BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)
@@ -10299,8 +10331,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     ASSERT(!BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)
     ASSERT(!BSLS_ASSERTTEST_CHECK_LEVEL_ARG)
 
-// [6] Define a local struct 'Production' which makes use of the current
-//     definitions of the 'BSLS_ASSERT' macros.
+// [6] Define a local struct `Production` which makes use of the current
+//     definitions of the `BSLS_ASSERT` macros.
     {
         struct Production {
             static void callOpt(bool pass) {
@@ -10634,8 +10666,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     }
 
 #line BSLS_ASSERTTEST_SET_DIFFERENT_FILENAME
-// [11] Define a local struct 'Production' which makes use of
-//     the current definitions of the 'BSLS_ASSERT' macros with an
+// [11] Define a local struct `Production` which makes use of
+//     the current definitions of the `BSLS_ASSERT` macros with an
 //     alternate filename in place.
     {
         struct Production {
@@ -10962,12 +10994,12 @@ SunStudioOnlyPrintsWarningsForPoundError;
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
@@ -10989,7 +11021,7 @@ SunStudioOnlyPrintsWarningsForPoundError;
 SunStudioOnlyPrintsWarningsForPoundError;
 #endif
 
-// [5] Confirm the values of the 'BSLS_ASSERTTEST' macros that should be
+// [5] Confirm the values of the `BSLS_ASSERTTEST` macros that should be
 // defined.
     ASSERT(BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG)
     ASSERT(BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)
@@ -10997,8 +11029,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     ASSERT(BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)
     ASSERT(!BSLS_ASSERTTEST_CHECK_LEVEL_ARG)
 
-// [6] Define a local struct 'Production' which makes use of the current
-//     definitions of the 'BSLS_ASSERT' macros.
+// [6] Define a local struct `Production` which makes use of the current
+//     definitions of the `BSLS_ASSERT` macros.
     {
         struct Production {
             static void callOpt(bool pass) {
@@ -11330,8 +11362,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     }
 
 #line BSLS_ASSERTTEST_SET_DIFFERENT_FILENAME
-// [11] Define a local struct 'Production' which makes use of
-//     the current definitions of the 'BSLS_ASSERT' macros with an
+// [11] Define a local struct `Production` which makes use of
+//     the current definitions of the `BSLS_ASSERT` macros with an
 //     alternate filename in place.
     {
         struct Production {
@@ -11657,12 +11689,12 @@ SunStudioOnlyPrintsWarningsForPoundError;
 
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
@@ -11684,7 +11716,7 @@ SunStudioOnlyPrintsWarningsForPoundError;
 SunStudioOnlyPrintsWarningsForPoundError;
 #endif
 
-// [5] Confirm the values of the 'BSLS_ASSERTTEST' macros that should be
+// [5] Confirm the values of the `BSLS_ASSERTTEST` macros that should be
 // defined.
     ASSERT(!BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG)
     ASSERT(!BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)
@@ -11692,8 +11724,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     ASSERT(!BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)
     ASSERT(!BSLS_ASSERTTEST_CHECK_LEVEL_ARG)
 
-// [6] Define a local struct 'Production' which makes use of the current
-//     definitions of the 'BSLS_ASSERT' macros.
+// [6] Define a local struct `Production` which makes use of the current
+//     definitions of the `BSLS_ASSERT` macros.
     {
         struct Production {
             static void callOpt(bool pass) {
@@ -11895,8 +11927,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     }
 
 #line BSLS_ASSERTTEST_SET_DIFFERENT_FILENAME
-// [11] Define a local struct 'Production' which makes use of
-//     the current definitions of the 'BSLS_ASSERT' macros with an
+// [11] Define a local struct `Production` which makes use of
+//     the current definitions of the `BSLS_ASSERT` macros with an
 //     alternate filename in place.
     {
         struct Production {
@@ -12086,12 +12118,12 @@ SunStudioOnlyPrintsWarningsForPoundError;
 
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
@@ -12113,7 +12145,7 @@ SunStudioOnlyPrintsWarningsForPoundError;
 SunStudioOnlyPrintsWarningsForPoundError;
 #endif
 
-// [5] Confirm the values of the 'BSLS_ASSERTTEST' macros that should be
+// [5] Confirm the values of the `BSLS_ASSERTTEST` macros that should be
 // defined.
     ASSERT(!BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG)
     ASSERT(BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)
@@ -12121,8 +12153,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     ASSERT(!BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)
     ASSERT(!BSLS_ASSERTTEST_CHECK_LEVEL_ARG)
 
-// [6] Define a local struct 'Production' which makes use of the current
-//     definitions of the 'BSLS_ASSERT' macros.
+// [6] Define a local struct `Production` which makes use of the current
+//     definitions of the `BSLS_ASSERT` macros.
     {
         struct Production {
             static void callOpt(bool pass) {
@@ -12390,8 +12422,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     }
 
 #line BSLS_ASSERTTEST_SET_DIFFERENT_FILENAME
-// [11] Define a local struct 'Production' which makes use of
-//     the current definitions of the 'BSLS_ASSERT' macros with an
+// [11] Define a local struct `Production` which makes use of
+//     the current definitions of the `BSLS_ASSERT` macros with an
 //     alternate filename in place.
     {
         struct Production {
@@ -12649,12 +12681,12 @@ SunStudioOnlyPrintsWarningsForPoundError;
 
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
@@ -12676,7 +12708,7 @@ SunStudioOnlyPrintsWarningsForPoundError;
 SunStudioOnlyPrintsWarningsForPoundError;
 #endif
 
-// [5] Confirm the values of the 'BSLS_ASSERTTEST' macros that should be
+// [5] Confirm the values of the `BSLS_ASSERTTEST` macros that should be
 // defined.
     ASSERT(!BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG)
     ASSERT(BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)
@@ -12684,8 +12716,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     ASSERT(!BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)
     ASSERT(!BSLS_ASSERTTEST_CHECK_LEVEL_ARG)
 
-// [6] Define a local struct 'Production' which makes use of the current
-//     definitions of the 'BSLS_ASSERT' macros.
+// [6] Define a local struct `Production` which makes use of the current
+//     definitions of the `BSLS_ASSERT` macros.
     {
         struct Production {
             static void callOpt(bool pass) {
@@ -13019,8 +13051,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     }
 
 #line BSLS_ASSERTTEST_SET_DIFFERENT_FILENAME
-// [11] Define a local struct 'Production' which makes use of
-//     the current definitions of the 'BSLS_ASSERT' macros with an
+// [11] Define a local struct `Production` which makes use of
+//     the current definitions of the `BSLS_ASSERT` macros with an
 //     alternate filename in place.
     {
         struct Production {
@@ -13346,12 +13378,12 @@ SunStudioOnlyPrintsWarningsForPoundError;
 
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
@@ -13373,7 +13405,7 @@ SunStudioOnlyPrintsWarningsForPoundError;
 SunStudioOnlyPrintsWarningsForPoundError;
 #endif
 
-// [5] Confirm the values of the 'BSLS_ASSERTTEST' macros that should be
+// [5] Confirm the values of the `BSLS_ASSERTTEST` macros that should be
 // defined.
     ASSERT(!BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG)
     ASSERT(BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)
@@ -13381,8 +13413,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     ASSERT(BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)
     ASSERT(!BSLS_ASSERTTEST_CHECK_LEVEL_ARG)
 
-// [6] Define a local struct 'Production' which makes use of the current
-//     definitions of the 'BSLS_ASSERT' macros.
+// [6] Define a local struct `Production` which makes use of the current
+//     definitions of the `BSLS_ASSERT` macros.
     {
         struct Production {
             static void callOpt(bool pass) {
@@ -13714,8 +13746,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     }
 
 #line BSLS_ASSERTTEST_SET_DIFFERENT_FILENAME
-// [11] Define a local struct 'Production' which makes use of
-//     the current definitions of the 'BSLS_ASSERT' macros with an
+// [11] Define a local struct `Production` which makes use of
+//     the current definitions of the `BSLS_ASSERT` macros with an
 //     alternate filename in place.
     {
         struct Production {
@@ -14032,7 +14064,7 @@ SunStudioOnlyPrintsWarningsForPoundError;
     EXPECTED = true;
 //----------------------------------------------END GENERATED: PASS_OR_FAIL_RAW
 //---------------------------------------------------------------------------//
-// Restore the default 'ASSERT' macro for this test driver.
+// Restore the default `ASSERT` macro for this test driver.
 #undef ASSERT
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
@@ -14077,12 +14109,12 @@ void TestMacroBSLS_ASSERTTEST_CHECK_LEVEL(AssertTestMonitor *pMonitor)
 #define BSLS_ASSERT_LEVEL_NONE
 #define BSLS_ASSERTTEST_CHECK_LEVEL
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
@@ -14104,7 +14136,7 @@ SunStudioOnlyPrintsWarningsForPoundError;
 SunStudioOnlyPrintsWarningsForPoundError;
 #endif
 
-// [5] Confirm the values of the 'BSLS_ASSERTTEST' macros that should be
+// [5] Confirm the values of the `BSLS_ASSERTTEST` macros that should be
 // defined.
     ASSERT(BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG)
     ASSERT(!BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)
@@ -14112,8 +14144,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     ASSERT(!BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)
     ASSERT(BSLS_ASSERTTEST_CHECK_LEVEL_ARG)
 
-// [6] Define a local struct 'Production' which makes use of the current
-//     definitions of the 'BSLS_ASSERT' macros.
+// [6] Define a local struct `Production` which makes use of the current
+//     definitions of the `BSLS_ASSERT` macros.
     {
         struct Production {
             static void callOpt(bool pass) {
@@ -14315,8 +14347,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     }
 
 #line BSLS_ASSERTTEST_SET_DIFFERENT_FILENAME
-// [11] Define a local struct 'Production' which makes use of
-//     the current definitions of the 'BSLS_ASSERT' macros with an
+// [11] Define a local struct `Production` which makes use of
+//     the current definitions of the `BSLS_ASSERT` macros with an
 //     alternate filename in place.
     {
         struct Production {
@@ -14512,12 +14544,12 @@ SunStudioOnlyPrintsWarningsForPoundError;
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 #define BSLS_ASSERTTEST_CHECK_LEVEL
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
@@ -14539,7 +14571,7 @@ SunStudioOnlyPrintsWarningsForPoundError;
 SunStudioOnlyPrintsWarningsForPoundError;
 #endif
 
-// [5] Confirm the values of the 'BSLS_ASSERTTEST' macros that should be
+// [5] Confirm the values of the `BSLS_ASSERTTEST` macros that should be
 // defined.
     ASSERT(BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG)
     ASSERT(BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)
@@ -14547,8 +14579,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     ASSERT(!BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)
     ASSERT(BSLS_ASSERTTEST_CHECK_LEVEL_ARG)
 
-// [6] Define a local struct 'Production' which makes use of the current
-//     definitions of the 'BSLS_ASSERT' macros.
+// [6] Define a local struct `Production` which makes use of the current
+//     definitions of the `BSLS_ASSERT` macros.
     {
         struct Production {
             static void callOpt(bool pass) {
@@ -14819,8 +14851,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     }
 
 #line BSLS_ASSERTTEST_SET_DIFFERENT_FILENAME
-// [11] Define a local struct 'Production' which makes use of
-//     the current definitions of the 'BSLS_ASSERT' macros with an
+// [11] Define a local struct `Production` which makes use of
+//     the current definitions of the `BSLS_ASSERT` macros with an
 //     alternate filename in place.
     {
         struct Production {
@@ -15089,12 +15121,12 @@ SunStudioOnlyPrintsWarningsForPoundError;
 #define BSLS_ASSERT_LEVEL_ASSERT
 #define BSLS_ASSERTTEST_CHECK_LEVEL
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
@@ -15116,7 +15148,7 @@ SunStudioOnlyPrintsWarningsForPoundError;
 SunStudioOnlyPrintsWarningsForPoundError;
 #endif
 
-// [5] Confirm the values of the 'BSLS_ASSERTTEST' macros that should be
+// [5] Confirm the values of the `BSLS_ASSERTTEST` macros that should be
 // defined.
     ASSERT(BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG)
     ASSERT(BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)
@@ -15124,8 +15156,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     ASSERT(!BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)
     ASSERT(BSLS_ASSERTTEST_CHECK_LEVEL_ARG)
 
-// [6] Define a local struct 'Production' which makes use of the current
-//     definitions of the 'BSLS_ASSERT' macros.
+// [6] Define a local struct `Production` which makes use of the current
+//     definitions of the `BSLS_ASSERT` macros.
     {
         struct Production {
             static void callOpt(bool pass) {
@@ -15464,8 +15496,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     }
 
 #line BSLS_ASSERTTEST_SET_DIFFERENT_FILENAME
-// [11] Define a local struct 'Production' which makes use of
-//     the current definitions of the 'BSLS_ASSERT' macros with an
+// [11] Define a local struct `Production` which makes use of
+//     the current definitions of the `BSLS_ASSERT` macros with an
 //     alternate filename in place.
     {
         struct Production {
@@ -15806,12 +15838,12 @@ SunStudioOnlyPrintsWarningsForPoundError;
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 #define BSLS_ASSERTTEST_CHECK_LEVEL
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if !defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should be defined
@@ -15833,7 +15865,7 @@ SunStudioOnlyPrintsWarningsForPoundError;
 SunStudioOnlyPrintsWarningsForPoundError;
 #endif
 
-// [5] Confirm the values of the 'BSLS_ASSERTTEST' macros that should be
+// [5] Confirm the values of the `BSLS_ASSERTTEST` macros that should be
 // defined.
     ASSERT(BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG)
     ASSERT(BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)
@@ -15841,8 +15873,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     ASSERT(BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)
     ASSERT(BSLS_ASSERTTEST_CHECK_LEVEL_ARG)
 
-// [6] Define a local struct 'Production' which makes use of the current
-//     definitions of the 'BSLS_ASSERT' macros.
+// [6] Define a local struct `Production` which makes use of the current
+//     definitions of the `BSLS_ASSERT` macros.
     {
         struct Production {
             static void callOpt(bool pass) {
@@ -16179,8 +16211,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     }
 
 #line BSLS_ASSERTTEST_SET_DIFFERENT_FILENAME
-// [11] Define a local struct 'Production' which makes use of
-//     the current definitions of the 'BSLS_ASSERT' macros with an
+// [11] Define a local struct `Production` which makes use of
+//     the current definitions of the `BSLS_ASSERT` macros with an
 //     alternate filename in place.
     {
         struct Production {
@@ -16520,12 +16552,12 @@ SunStudioOnlyPrintsWarningsForPoundError;
 #define BSLS_ASSERT_LEVEL_NONE
 #define BSLS_ASSERTTEST_CHECK_LEVEL
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
@@ -16547,7 +16579,7 @@ SunStudioOnlyPrintsWarningsForPoundError;
 SunStudioOnlyPrintsWarningsForPoundError;
 #endif
 
-// [5] Confirm the values of the 'BSLS_ASSERTTEST' macros that should be
+// [5] Confirm the values of the `BSLS_ASSERTTEST` macros that should be
 // defined.
     ASSERT(!BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG)
     ASSERT(!BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)
@@ -16555,8 +16587,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     ASSERT(!BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)
     ASSERT(BSLS_ASSERTTEST_CHECK_LEVEL_ARG)
 
-// [6] Define a local struct 'Production' which makes use of the current
-//     definitions of the 'BSLS_ASSERT' macros.
+// [6] Define a local struct `Production` which makes use of the current
+//     definitions of the `BSLS_ASSERT` macros.
     {
         struct Production {
             static void callOpt(bool pass) {
@@ -16758,8 +16790,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     }
 
 #line BSLS_ASSERTTEST_SET_DIFFERENT_FILENAME
-// [11] Define a local struct 'Production' which makes use of
-//     the current definitions of the 'BSLS_ASSERT' macros with an
+// [11] Define a local struct `Production` which makes use of
+//     the current definitions of the `BSLS_ASSERT` macros with an
 //     alternate filename in place.
     {
         struct Production {
@@ -16954,12 +16986,12 @@ SunStudioOnlyPrintsWarningsForPoundError;
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 #define BSLS_ASSERTTEST_CHECK_LEVEL
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
@@ -16981,7 +17013,7 @@ SunStudioOnlyPrintsWarningsForPoundError;
 SunStudioOnlyPrintsWarningsForPoundError;
 #endif
 
-// [5] Confirm the values of the 'BSLS_ASSERTTEST' macros that should be
+// [5] Confirm the values of the `BSLS_ASSERTTEST` macros that should be
 // defined.
     ASSERT(!BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG)
     ASSERT(BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)
@@ -16989,8 +17021,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     ASSERT(!BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)
     ASSERT(BSLS_ASSERTTEST_CHECK_LEVEL_ARG)
 
-// [6] Define a local struct 'Production' which makes use of the current
-//     definitions of the 'BSLS_ASSERT' macros.
+// [6] Define a local struct `Production` which makes use of the current
+//     definitions of the `BSLS_ASSERT` macros.
     {
         struct Production {
             static void callOpt(bool pass) {
@@ -17261,8 +17293,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     }
 
 #line BSLS_ASSERTTEST_SET_DIFFERENT_FILENAME
-// [11] Define a local struct 'Production' which makes use of
-//     the current definitions of the 'BSLS_ASSERT' macros with an
+// [11] Define a local struct `Production` which makes use of
+//     the current definitions of the `BSLS_ASSERT` macros with an
 //     alternate filename in place.
     {
         struct Production {
@@ -17530,12 +17562,12 @@ SunStudioOnlyPrintsWarningsForPoundError;
 #define BSLS_ASSERT_LEVEL_ASSERT
 #define BSLS_ASSERTTEST_CHECK_LEVEL
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
@@ -17557,7 +17589,7 @@ SunStudioOnlyPrintsWarningsForPoundError;
 SunStudioOnlyPrintsWarningsForPoundError;
 #endif
 
-// [5] Confirm the values of the 'BSLS_ASSERTTEST' macros that should be
+// [5] Confirm the values of the `BSLS_ASSERTTEST` macros that should be
 // defined.
     ASSERT(!BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG)
     ASSERT(BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)
@@ -17565,8 +17597,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     ASSERT(!BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)
     ASSERT(BSLS_ASSERTTEST_CHECK_LEVEL_ARG)
 
-// [6] Define a local struct 'Production' which makes use of the current
-//     definitions of the 'BSLS_ASSERT' macros.
+// [6] Define a local struct `Production` which makes use of the current
+//     definitions of the `BSLS_ASSERT` macros.
     {
         struct Production {
             static void callOpt(bool pass) {
@@ -17905,8 +17937,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     }
 
 #line BSLS_ASSERTTEST_SET_DIFFERENT_FILENAME
-// [11] Define a local struct 'Production' which makes use of
-//     the current definitions of the 'BSLS_ASSERT' macros with an
+// [11] Define a local struct `Production` which makes use of
+//     the current definitions of the `BSLS_ASSERT` macros with an
 //     alternate filename in place.
     {
         struct Production {
@@ -18246,12 +18278,12 @@ SunStudioOnlyPrintsWarningsForPoundError;
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 #define BSLS_ASSERTTEST_CHECK_LEVEL
 
-// [3] Re-include the 'bsls_asserttest.h' header
+// [3] Re-include the `bsls_asserttest.h` header
 
 #include <bsls_asserttest.h>
 
-// [4] Confirm the value of the 'BDE_BUILD_TARGET_SAFE_2' macro and the 3
-//     'IS_ACTIVE' macros and their values we intend to test.
+// [4] Confirm the value of the `BDE_BUILD_TARGET_SAFE_2` macro and the 3
+//     `IS_ACTIVE` macros and their values we intend to test.
 
 #if defined(BDE_BUILD_TARGET_SAFE_2)
 #error BDE_BUILD_TARGET_SAFE_2 should not be defined
@@ -18273,7 +18305,7 @@ SunStudioOnlyPrintsWarningsForPoundError;
 SunStudioOnlyPrintsWarningsForPoundError;
 #endif
 
-// [5] Confirm the values of the 'BSLS_ASSERTTEST' macros that should be
+// [5] Confirm the values of the `BSLS_ASSERTTEST` macros that should be
 // defined.
     ASSERT(!BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG)
     ASSERT(BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)
@@ -18281,8 +18313,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     ASSERT(BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)
     ASSERT(BSLS_ASSERTTEST_CHECK_LEVEL_ARG)
 
-// [6] Define a local struct 'Production' which makes use of the current
-//     definitions of the 'BSLS_ASSERT' macros.
+// [6] Define a local struct `Production` which makes use of the current
+//     definitions of the `BSLS_ASSERT` macros.
     {
         struct Production {
             static void callOpt(bool pass) {
@@ -18619,8 +18651,8 @@ SunStudioOnlyPrintsWarningsForPoundError;
     }
 
 #line BSLS_ASSERTTEST_SET_DIFFERENT_FILENAME
-// [11] Define a local struct 'Production' which makes use of
-//     the current definitions of the 'BSLS_ASSERT' macros with an
+// [11] Define a local struct `Production` which makes use of
+//     the current definitions of the `BSLS_ASSERT` macros with an
 //     alternate filename in place.
     {
         struct Production {
@@ -18951,7 +18983,7 @@ SunStudioOnlyPrintsWarningsForPoundError;
 //---------------------------------------------------END GENERATED: CHECK_LEVEL
 //---------------------------------------------------------------------------//
 
-// Restore the default 'ASSERT' macro for this test driver.
+// Restore the default `ASSERT` macro for this test driver.
 #undef ASSERT
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 }

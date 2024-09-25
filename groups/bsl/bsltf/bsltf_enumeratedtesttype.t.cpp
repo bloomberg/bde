@@ -110,36 +110,36 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Using The Enumeration
 /// - - - - - - - - - - - - - - - -
-// First, we create an 'EnumeratedTestType::Enum' value and initialize it to
+// First, we create an `EnumeratedTestType::Enum` value and initialize it to
 // the first possible value:
-//..
+// ```
           EnumeratedTestType::Enum first = EnumeratedTestType::FIRST;
           ASSERT(static_cast<int>(first) == 0);
-//..
-// Finally, we create an 'EnumeratedTestType::Enum' value and initialize it to
+// ```
+// Finally, we create an `EnumeratedTestType::Enum` value and initialize it to
 // the last possible value:
-//..
+// ```
           EnumeratedTestType::Enum last = EnumeratedTestType::LAST;
           ASSERT(static_cast<int>(last) == 127);
-//..
+// ```
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'enum'
+        // TESTING `enum`
         //
         // Concerns:
-        //: 1 The 'enum' support conversion to and from integral values 0 to
-        //:   127.
+        // 1. The `enum` support conversion to and from integral values 0 to
+        //    127.
         //
         // Plan:
-        //: 1 Use a loop-based approach, verify that integral values from 0 to
-        //:   127 can be converted to the enumeration values.
+        // 1. Use a loop-based approach, verify that integral values from 0 to
+        //   127 can be converted to the enumeration values.
         //
         // Testing:
         //   enum Enum { ... };
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'enum'"
+        if (verbose) printf("\nTESTING `enum`"
                             "\n==============\n");
 
         for (int ti = 0; ti < 127; ++ti) {

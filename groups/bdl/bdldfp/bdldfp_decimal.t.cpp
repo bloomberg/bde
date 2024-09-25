@@ -48,88 +48,88 @@ using bsl::atoi;
 // a different precision.
 // ----------------------------------------------------------------------------
 // CREATORS
-//: o 'Decimal_Type32()'
-//: o 'Decimal_Type32(DecimalImplUtil::ValueType32)'
-//: o 'Decimal_Type32(Decimal64)'
-//: o 'Decimal_Type32(Decimal128)'
-//: o 'Decimal_Type32(float)'
-//: o 'Decimal_Type32(double)'
-//: o 'Decimal_Type32(long double)'
-//: o 'Decimal_Type32(int)'
-//: o 'Decimal_Type32(unsigned int)'
-//: o 'Decimal_Type32(long int)'
-//: o 'Decimal_Type32(unsigned long int)'
-//: o 'Decimal_Type32(long long)'
-//: o 'Decimal_Type32(unsigned long long)'
-//: o 'Decimal_Type64()'
-//: o 'Decimal_Type64(DecimalImplUtil::ValueType64)'
-//: o 'Decimal_Type64(Decimal32)'
-//: o 'Decimal_Type64(Decimal128)'
-//: o 'Decimal_Type64(float)'
-//: o 'Decimal_Type64(double)'
-//: o 'Decimal_Type64(long double)'
-//: o 'Decimal_Type64(int)'
-//: o 'Decimal_Type64(unsigned int)'
-//: o 'Decimal_Type64(long)'
-//: o 'Decimal_Type64(unsigned long)'
-//: o 'Decimal_Type64(long long)'
-//: o 'Decimal_Type64(unsigned long long)'
-//: o 'Decimal_Type128()'
-//: o 'Decimal_Type128(DecimalImplUtil::ValueType128)'
-//: o 'Decimal_Type128(Decimal32)'
-//: o 'Decimal_Type128(Decimal64)'
-//: o 'Decimal_Type128(float)'
-//: o 'Decimal_Type128(double)'
-//: o 'Decimal_Type128(long double)'
-//: o 'Decimal_Type128(int)'
-//: o 'Decimal_Type128(unsigned int)'
-//: o 'Decimal_Type128(long)'
-//: o 'Decimal_Type128(unsigned long)'
-//: o 'Decimal_Type128(long long)'
-//: o 'Decimal_Type128(unsigned long long)'
+//  - `Decimal_Type32()`
+//  - `Decimal_Type32(DecimalImplUtil::ValueType32)`
+//  - `Decimal_Type32(Decimal64)`
+//  - `Decimal_Type32(Decimal128)`
+//  - `Decimal_Type32(float)`
+//  - `Decimal_Type32(double)`
+//  - `Decimal_Type32(long double)`
+//  - `Decimal_Type32(int)`
+//  - `Decimal_Type32(unsigned int)`
+//  - `Decimal_Type32(long int)`
+//  - `Decimal_Type32(unsigned long int)`
+//  - `Decimal_Type32(long long)`
+//  - `Decimal_Type32(unsigned long long)`
+//  - `Decimal_Type64()`
+//  - `Decimal_Type64(DecimalImplUtil::ValueType64)`
+//  - `Decimal_Type64(Decimal32)`
+//  - `Decimal_Type64(Decimal128)`
+//  - `Decimal_Type64(float)`
+//  - `Decimal_Type64(double)`
+//  - `Decimal_Type64(long double)`
+//  - `Decimal_Type64(int)`
+//  - `Decimal_Type64(unsigned int)`
+//  - `Decimal_Type64(long)`
+//  - `Decimal_Type64(unsigned long)`
+//  - `Decimal_Type64(long long)`
+//  - `Decimal_Type64(unsigned long long)`
+//  - `Decimal_Type128()`
+//  - `Decimal_Type128(DecimalImplUtil::ValueType128)`
+//  - `Decimal_Type128(Decimal32)`
+//  - `Decimal_Type128(Decimal64)`
+//  - `Decimal_Type128(float)`
+//  - `Decimal_Type128(double)`
+//  - `Decimal_Type128(long double)`
+//  - `Decimal_Type128(int)`
+//  - `Decimal_Type128(unsigned int)`
+//  - `Decimal_Type128(long)`
+//  - `Decimal_Type128(unsigned long)`
+//  - `Decimal_Type128(long long)`
+//  - `Decimal_Type128(unsigned long long)`
 //
 // MANIPULATORS
-//: o 'operator='
-//: o 'operator++'
-//: o 'operator--'
-//: o 'operator+='
-//: o 'operator-='
-//: o 'operator*='
-//: o 'operator/='
-//: o 'data'
+//  - `operator=`
+//  - `operator++`
+//  - `operator--`
+//  - `operator+=`
+//  - `operator-=`
+//  - `operator*=`
+//  - `operator/=`
+//  - `data`
 //
 // ACCESSORS
-//: o 'data'
-//: o 'value'
-//: o 'print'
+//  - `data`
+//  - `value`
+//  - `print`
 //
 // FREE OPERATORS
-//: o 'operator+' -- Unary
-//: o 'operator++'
-//: o 'operator--'
-//: o 'operator+'
-//: o 'operator-'
-//: o 'operator*'
-//: o 'operator/'
-//: o 'operator=='
-//: o 'operator!='
-//: o 'operator<'
-//: o 'operator>'
-//: o 'operator<='
-//: o 'operator>='
-//: o 'operator>> (bsl::basic_istream<CHARTYPE, TRAITS>& stream...'
-//: o 'operator>> (bsl::basic_ostream<CHARTYPE, TRAITS>& stream...'
-//: o 'operator"" _d32 (const char *)
-//: o 'operator"" _d64 (const char *)
-//: o 'operator"" _d128(const char *)
-//: o 'operator"" _d32 (const char *, size_t)
-//: o 'operator"" _d64 (const char *, size_t)
-//: o 'operator"" _d128(const char *, size_t)
+//  - `operator+` -- Unary
+//  - `operator++`
+//  - `operator--`
+//  - `operator+`
+//  - `operator-`
+//  - `operator*`
+//  - `operator/`
+//  - `operator==`
+//  - `operator!=`
+//  - `operator<`
+//  - `operator>`
+//  - `operator<=`
+//  - `operator>=`
+//  - `operator>> (bsl::basic_istream<CHARTYPE, TRAITS>& stream...`
+//  - `operator>> (bsl::basic_ostream<CHARTYPE, TRAITS>& stream...`
+//  - 'operator"" _d32 (const char *)
+//  - 'operator"" _d64 (const char *)
+//  - 'operator"" _d128(const char *)
+//  - 'operator"" _d32 (const char *, size_t)
+//  - 'operator"" _d64 (const char *, size_t)
+//  - 'operator"" _d128(const char *, size_t)
 //
 // FREE FUNCTIONS
-//: o void hashAppend(HASHALG& hashAlg, const Decimal32& object);
-//: o void hashAppend(HASHALG& hashAlg, const Decimal64& object);
-//: o void hashAppend(HASHALG& hashAlg, const Decimal128& object);
+//  - void hashAppend(HASHALG& hashAlg, const Decimal32& object);
+//  - void hashAppend(HASHALG& hashAlg, const Decimal64& object);
+//  - void hashAppend(HASHALG& hashAlg, const Decimal128& object);
 //
 // ----------------------------------------------------------------------------
 // [ 1] Decimal32 Type
@@ -265,19 +265,19 @@ struct NulBuf : bsl::streambuf {
     }
 };
 
+/// Clip the specified `value` to fit segment between the specified `min`
+/// and the specified `max`.
 long long int clipValue(long long int value,
                         long long int min,
                         long long int max)
-    // Clip the specified 'value' to fit segment between the specified 'min'
-    // and the specified 'max'.
 {
     return static_cast<long long int>(
            (static_cast<unsigned long long int>(value)%(max - min + 1)) + min);
 }
 
+/// Return randomly generated Decimal32 object having finite value on
+/// success and infinity value otherwise.
 bdldfp::Decimal32 randomDecimal32()
-    // Return randomly generated Decimal32 object having finite value on
-    // success and infinity value otherwise.
 {
     int significand = 0;
     int exponent = 0;
@@ -301,9 +301,9 @@ bdldfp::Decimal32 randomDecimal32()
     return BDEC::DecimalImpUtil::makeDecimalRaw32(significand, exponent);
 }
 
+/// Return randomly generated Decimal64 object having finite value on
+/// success and infinity value otherwise.
 bdldfp::Decimal64 randomDecimal64()
-    // Return randomly generated Decimal64 object having finite value on
-    // success and infinity value otherwise.
 {
     long long int significand = 0;
     int           exponent = 0;
@@ -327,9 +327,9 @@ bdldfp::Decimal64 randomDecimal64()
     return BDEC::DecimalImpUtil::makeDecimalRaw64(significand, exponent);
 }
 
+/// Return randomly generated Decimal128 object having finite value on
+/// success and infinity value otherwise.
 bdldfp::Decimal128 randomDecimal128()
-    // Return randomly generated Decimal128 object having finite value on
-    // success and infinity value otherwise.
 {
     long long int significand = 0;
     int           exponent = 0;
@@ -349,12 +349,12 @@ bdldfp::Decimal128 randomDecimal128()
     return BDEC::DecimalImpUtil::makeDecimalRaw128(significand, exponent);
 }
 
+/// Return true if the specified `lhs` and `rhs` are the same value, even in
+/// the case of `NaN`.  Two `DECIMAL` objects are considered equal if either
+/// `lhs` and `rhs` are the same value, or both `lhs` and `rhs` are not
+/// equal to themselves (implying them both to be `NaN`).
 template <class DECIMAL>
 bool nanEqual(DECIMAL lhs, DECIMAL rhs)
-    // Return true if the specified 'lhs' and 'rhs' are the same value, even in
-    // the case of 'NaN'.  Two 'DECIMAL' objects are considered equal if either
-    // 'lhs' and 'rhs' are the same value, or both 'lhs' and 'rhs' are not
-    // equal to themselves (implying them both to be 'NaN').
 {
     return lhs == rhs || (lhs != lhs && rhs != rhs);
 }
@@ -363,10 +363,10 @@ bool nanEqual(DECIMAL lhs, DECIMAL rhs)
 //                      TEST DRIVER NAMESPACE CLASS
 //-----------------------------------------------------------------------------
 
+/// This class provides a namespace for the various test-case functions in
+/// the test driver main program.  This class is necessitated by
+/// compile-time performance issues on some platforms.
 struct TestDriver {
-    // This class provides a namespace for the various test-case functions in
-    // the test driver main program.  This class is necessitated by
-    // compile-time performance issues on some platforms.
 
     static void testCase10();
     static void testCase9();
@@ -388,13 +388,13 @@ void TestDriver::testCase10()
     //   Extracted from component header file.
     //
     // Concerns:
-    //: 1 The usage example provided in the component header file compiles,
-    //:   links, and runs as shown.
+    // 1. The usage example provided in the component header file compiles,
+    //    links, and runs as shown.
     //
     // Plan:
-    //: 1 Incorporate usage example from header into test driver, remove
-    //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-    //:   (C-1)
+    // 1. Incorporate usage example from header into test driver, remove
+    //    leading comment characters, and replace `assert` with `ASSERT`.
+    //    (C-1)
     //
     // Testing:
     //   USAGE EXAMPLE
@@ -421,7 +421,7 @@ void TestDriver::testCase10()
         // runtime-parsed solution otherwise.  The following code
         // demonstrates the use of these macros as well as mixed-type
         // arithmetics and comparisons:
-        //..
+        // ```
         bdldfp::Decimal32  d32( BDLDFP_DECIMAL_DF(0.1));
         bdldfp::Decimal64  d64( BDLDFP_DECIMAL_DD(0.2));
         bdldfp::Decimal128 d128(BDLDFP_DECIMAL_DL(0.3));
@@ -436,17 +436,17 @@ void TestDriver::testCase10()
                                << "Precise calculations with decimal "
                                << "values" << bsl::endl;
     {
-        //..
+        // ```
         // Suppose we need to add two (decimal) numbers and then tell if
         // the result is a particular decimal number or not.  That can get
         // difficult with binary floating-point, but easy with decimal:
-        //..
+        // ```
         if (std::numeric_limits<double>::radix == 2) {
            ASSERT(.1 + .2 != .3);
         }
         ASSERT(BDLDFP_DECIMAL_DD(0.1) +  BDLDFP_DECIMAL_DD(0.2) ==
                BDLDFP_DECIMAL_DD(0.3));
-        //..
+        // ```
     }
 }
 
@@ -456,13 +456,13 @@ void TestDriver::testCase9()
     // REGRESSIONS
     //
     // Concerns:
-    //: 1 'bdlb::NullableValue<Decimal128>' type compiles and behaves as
-    //:   expected. See {DRQS 171486531} - bdlb::NullableValue<Dec128>
-    //:   compile fails on GCC 32-bit.
+    // 1. `bdlb::NullableValue<Decimal128>` type compiles and behaves as
+    //    expected. See {DRQS 171486531} - bdlb::NullableValue<Dec128>
+    //    compile fails on GCC 32-bit.
     //
     // Plan:
-    //: 1 Create a variable of the offending type, verify it is empty, add
-    //:   a value, verify it is there. (C-1)
+    // 1. Create a variable of the offending type, verify it is empty, add
+    //    a value, verify it is there. (C-1)
     //
     // Testing:
     //   REGRESSIONS
@@ -480,31 +480,31 @@ void TestDriver::testCase9()
 void TestDriver::testCase8()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'operator""'
+    // TESTING `operator""`
     //
     // Concerns:
-    //: 1 That call of user-defined literal operators are properly forwarded to
-    //:   appropriate implementation.
-    //:
-    //: 2 That if argument value has an absolute value that exceeds maximum
-    //:   value supported by tested type then the value of the macro 'ERANGE'
-    //:   is stored into 'errno' and the resultant value is initialized to
-    //:   infinity with the same sign as argument.
-    //:
-    //: 3 That if argument value has an absolute value that is less than the
-    //:   smallest value supported by tested type then the value of the macro
-    //:   'ERANGE' is stored into 'errno' and the resultant value is
-    //:   initialized to zero with the same sign as argument.
-    //:
-    //: 4 That the quanta of the resultant value equals the number of decimal
-    //:   places in input string and does exceed the maximum digits necessary
-    //:   to differentiate all values of tested decimal type.
-    //:
+    // 1. That call of user-defined literal operators are properly forwarded to
+    //    appropriate implementation.
+    //
+    // 2. That if argument value has an absolute value that exceeds maximum
+    //    value supported by tested type then the value of the macro `ERANGE`
+    //    is stored into `errno` and the resultant value is initialized to
+    //    infinity with the same sign as argument.
+    //
+    // 3. That if argument value has an absolute value that is less than the
+    //    smallest value supported by tested type then the value of the macro
+    //    `ERANGE` is stored into `errno` and the resultant value is
+    //    initialized to zero with the same sign as argument.
+    //
+    // 4. That the quanta of the resultant value equals the number of decimal
+    //    places in input string and does exceed the maximum digits necessary
+    //    to differentiate all values of tested decimal type.
+    //
     //
     // Plan:
-    //: 1 A set of representative values for 32, 64, and 128-bit types will be
-    //:   created using user-defined literal operators and each compared
-    //:   against expected value.  (C-1..3)
+    // 1. A set of representative values for 32, 64, and 128-bit types will be
+    //    created using user-defined literal operators and each compared
+    //    against expected value.  (C-1..3)
     //
     // Testing:
     //   bdldfp::Decimal32  operator ""  _d32(const char *);
@@ -957,21 +957,21 @@ void TestDriver::testCase8()
 void TestDriver::testCase7()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'hashAppend'
+    // TESTING `hashAppend`
     //
     // Concerns:
-    //: 1 The 'hashAppend' function hashes objects with different values
-    //:   differently.
-    //:
-    //: 2 The 'hashAppend' function hashes objects with the same values
-    //:   identically irregardless their representations.
-    //:
-    //: 3 The 'hashAppend' function hashes 'const' and non-'const' objects.
+    // 1. The `hashAppend` function hashes objects with different values
+    //    differently.
+    //
+    // 2. The `hashAppend` function hashes objects with the same values
+    //    identically irregardless their representations.
+    //
+    // 3. The `hashAppend` function hashes `const` and non-`const` objects.
     //
     // Plan:
-    //: 1 Brute force test of a several hand picked and randomly generated
-    //:   values, ensuring that hashes of equivalent objects match and hashes
-    //:   of unequal objects do not.  (C-1..3)
+    // 1. Brute force test of a several hand picked and randomly generated
+    //    values, ensuring that hashes of equivalent objects match and hashes
+    //    of unequal objects do not.  (C-1..3)
     //
     // Testing:
     //   void hashAppend(HASHALG& hashAlg, const Decimal32& object);
@@ -980,7 +980,7 @@ void TestDriver::testCase7()
     // ------------------------------------------------------------------------
 
     if (verbose) bsl::cout << bsl::endl
-                           << "Testing 'hashAppend'" << bsl::endl
+                           << "Testing `hashAppend`" << bsl::endl
                            << "====================" << bsl::endl;
 
     typedef ::BloombergLP::bslh::Hash<> Hasher;
@@ -1085,7 +1085,7 @@ void TestDriver::testCase7()
             T_ T_ P(testData.size());
         }
 
-        // Testing 'hashAppend' function.
+        // Testing `hashAppend` function.
 
         TestDataVector::iterator iter1 = testData.begin();
 
@@ -1211,7 +1211,7 @@ void TestDriver::testCase7()
             T_ T_ P(testData.size());
         }
 
-        // Testing 'hashAppend' function.
+        // Testing `hashAppend` function.
 
         TestDataVector::iterator iter1 = testData.begin();
 
@@ -1339,7 +1339,7 @@ void TestDriver::testCase7()
             T_ T_ P(testData.size());
         }
 
-        // Testing 'hashAppend' function.
+        // Testing `hashAppend` function.
 
         TestDataVector::iterator iter1 = testData.begin();
 
@@ -1378,33 +1378,33 @@ void TestDriver::testCase6()
     //   invalid, incomplete, and corrupted), and exception neutrality.
     //
     // Concerns:
-    //: 1 The class method 'maxSupportedBdexVersion' returns the correct
-    //:   version to be used for the specified 'versionSelector'.
-    //:
-    //: 2 The 'bdexStreamOut' method is callable on a reference providing only
-    //:   non-modifiable access.
-    //:
-    //: 3 For valid streams, externalization and unexternalization are inverse
-    //:   operations.
-    //:
-    //: 4 For invalid streams, externalization leaves the stream invalid and
-    //:   unexternalization does not alter the value of the object and leaves
-    //:   the stream invalid.
-    //:
-    //: 5 Unexternalizing of incomplete, invalid, or corrupted data results in
-    //:   a valid object of unspecified value and an invalidated stream.
-    //:
-    //: 6 The wire format of the object is as expected.
-    //:
-    //: 7 All methods are exception neutral.
-    //:
-    //: 8 The 'bdexStreamIn' and 'bdexStreamOut' methods return a reference to
-    //:   the provided stream in all situations.
-    //:
-    //: 9 The initial value of the object has no affect on unexternalization.
-    //:
-    //:10 Streaming version 1 provides the expected compatibility between
-    //:   the two calendar modes.
+    // 1. The class method `maxSupportedBdexVersion` returns the correct
+    //    version to be used for the specified `versionSelector`.
+    //
+    // 2. The `bdexStreamOut` method is callable on a reference providing only
+    //    non-modifiable access.
+    //
+    // 3. For valid streams, externalization and unexternalization are inverse
+    //    operations.
+    //
+    // 4. For invalid streams, externalization leaves the stream invalid and
+    //    unexternalization does not alter the value of the object and leaves
+    //    the stream invalid.
+    //
+    // 5. Unexternalizing of incomplete, invalid, or corrupted data results in
+    //    a valid object of unspecified value and an invalidated stream.
+    //
+    // 6. The wire format of the object is as expected.
+    //
+    // 7. All methods are exception neutral.
+    //
+    // 8. The `bdexStreamIn` and `bdexStreamOut` methods return a reference to
+    //    the provided stream in all situations.
+    //
+    // 9. The initial value of the object has no affect on unexternalization.
+    //
+    // 10. Streaming version 1 provides the expected compatibility between
+    //    the two calendar modes.
     //
     // Testing:
     //   static int maxSupportedBdexVersion(int versionSelector);
@@ -1459,7 +1459,7 @@ void TestDriver::testCase6()
                        reinterpret_cast<Obj *>(0), VERSION_SELECTOR));
         }
 
-        // Direct initial trial of 'bdexStreamOut' and (valid) 'bdexStreamIn'
+        // Direct initial trial of `bdexStreamOut` and (valid) `bdexStreamIn`
         // functionality.
         const int VERSION = Obj::maxSupportedBdexVersion(0);
         {
@@ -1676,7 +1676,7 @@ void TestDriver::testCase6()
                        reinterpret_cast<Obj *>(0), VERSION_SELECTOR));
         }
 
-        // Direct initial trial of 'bdexStreamOut' and (valid) 'bdexStreamIn'
+        // Direct initial trial of `bdexStreamOut` and (valid) `bdexStreamIn`
         // functionality.
         const int VERSION = Obj::maxSupportedBdexVersion(0);
         {
@@ -1895,7 +1895,7 @@ void TestDriver::testCase6()
                        reinterpret_cast<Obj *>(0), VERSION_SELECTOR));
         }
 
-        // Direct initial trial of 'bdexStreamOut' and (valid) 'bdexStreamIn'
+        // Direct initial trial of `bdexStreamOut` and (valid) `bdexStreamIn`
         // functionality.
         const int VERSION = Obj::maxSupportedBdexVersion(0);
         {
@@ -2097,19 +2097,19 @@ void TestDriver::testCase5()
     // TESTING PRINT METHOD
     //
     // Concerns:
-    //: 1 The 'print' method writes the value to the specified 'ostream'.
-    //:
-    //: 2 The 'print' method write the value in the intended format.
-    //:
-    //: 3 The 'print' method uses the same underlying formatting function as
-    //:   'operator<<'.
-    //:
-    //: 4 The 'print' method's signature and return type are standard.
-    //:
-    //: 5 The 'print' method returns the supplied 'ostream'.
-    //:
-    //: 6 The optional 'level' and 'spacesPerLevel' parameters have the
-    //:   correct default values (0 and 4, respectively).
+    // 1. The `print` method writes the value to the specified `ostream`.
+    //
+    // 2. The `print` method write the value in the intended format.
+    //
+    // 3. The `print` method uses the same underlying formatting function as
+    //    `operator<<`.
+    //
+    // 4. The `print` method's signature and return type are standard.
+    //
+    // 5. The `print` method returns the supplied `ostream`.
+    //
+    // 6. The optional `level` and `spacesPerLevel` parameters have the
+    //    correct default values (0 and 4, respectively).
     //
     // Testing:
     //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
@@ -2193,61 +2193,61 @@ void TestDriver::testCase4()
     // TESTING IOSTREAM OPERATORS
     //
     // Concerns:
-    //: 1 Calling 'operator<<' on a 'Decimal32', 'Decimal64', 'Decimal128' type
-    //:   renders the decimals value to the appropriate stream.
-    //:
-    //: 2 That 'operator<<' renders a simple decimal value in a fixed point
-    //:   and scientific format using the correct digits of precision.
-    //:
-    //: 3 That 'operator<<' correctly renders infinity, and negative infinity.
-    //:
-    //: 4 That 'operator<<' correctly renders quiet and signaling NaN.
-    //:
-    //: 5 That 'operator<<' correctly handles a set width.
-    //:
-    //: 6 That 'operator<<' correctly handles 'bsl::fixed' manipulator.
-    //:
-    //: 7 That 'operator<<' correctly handles 'bsl::scientific' manipulator.
-    //:
-    //: 8 That 'operator<<' correctly handles 'bsl::setprecision' manipulator.
-    //:
-    //: 9 That 'operator<<' correctly handles 'bsl::showpos' manipulator.
-    //:
-    //:10 That 'operator<<' correctly handles a set width with either a left,
-    //:   internal, or right justification.
-    //:
-    //:11 That 'operator<<' correctly handles 'bsl::uppercase'.
-    //:
-    //:12 That 'operator<<' correctly handles 'bsl::fill' manipulator.
-    //:
-    //:13 That if a precision provided by 'bsl::setprecision' manipulator is
-    //:   less than precision of a decimal value then the number being written
-    //:   is "rounded-half-up" to fewer digits than it initially contains.
-    //:
-    //:14 That if a precision provided by 'bsl::setprecision' manipulator is
-    //:   bigger than precision of a decimal value then the number being
-    //:   written is filled up with trailing 0.
-    //:
-    //:15 That the 'print' method writes the value to the specified 'ostream'.
-    //:
-    //:16 That the 'print' method write the vlaue in the intended format.
-    //:
-    //:17 That the output using 's << obj' is the same as
-    //:   'obj.print(s, 0, -1)'.
-    //:
-    //:18 That 'operator<<' sets the fail and errors bit if the memory buffer
-    //:   in the supplied output stream is not large enough.
-    //:
-    //:19 That 'operator<<' correctly outputs decimal values to wide stream.
-    //:
-    //:20 That 'operator<<' outputs decimal values in natural notation by
-    //:   default.
+    // 1. Calling `operator<<` on a `Decimal32`, `Decimal64`, `Decimal128` type
+    //    renders the decimals value to the appropriate stream.
+    //
+    // 2. That `operator<<` renders a simple decimal value in a fixed point
+    //    and scientific format using the correct digits of precision.
+    //
+    // 3. That `operator<<` correctly renders infinity, and negative infinity.
+    //
+    // 4. That `operator<<` correctly renders quiet and signaling NaN.
+    //
+    // 5. That `operator<<` correctly handles a set width.
+    //
+    // 6. That `operator<<` correctly handles `bsl::fixed` manipulator.
+    //
+    // 7. That `operator<<` correctly handles `bsl::scientific` manipulator.
+    //
+    // 8. That `operator<<` correctly handles `bsl::setprecision` manipulator.
+    //
+    // 9. That `operator<<` correctly handles `bsl::showpos` manipulator.
+    //
+    // 10. That `operator<<` correctly handles a set width with either a left,
+    //    internal, or right justification.
+    //
+    // 11. That `operator<<` correctly handles `bsl::uppercase`.
+    //
+    // 12. That `operator<<` correctly handles `bsl::fill` manipulator.
+    //
+    // 13. That if a precision provided by `bsl::setprecision` manipulator is
+    //    less than precision of a decimal value then the number being written
+    //    is "rounded-half-up" to fewer digits than it initially contains.
+    //
+    // 14. That if a precision provided by `bsl::setprecision` manipulator is
+    //    bigger than precision of a decimal value then the number being
+    //    written is filled up with trailing 0.
+    //
+    // 15. That the `print` method writes the value to the specified `ostream`.
+    //
+    // 16. That the `print` method write the vlaue in the intended format.
+    //
+    // 17. That the output using `s << obj` is the same as
+    //    `obj.print(s, 0, -1)`.
+    //
+    // 18. That `operator<<` sets the fail and errors bit if the memory buffer
+    //    in the supplied output stream is not large enough.
+    //
+    // 19. That `operator<<` correctly outputs decimal values to wide stream.
+    //
+    // 20. That `operator<<` outputs decimal values in natural notation by
+    //    default.
     //
     // Plan:
     //  1 Create a test table, where each element contains a decimal value
     //    (including infinity, signaling and quiet NaN values), a set of
     //    formatting flags, and an expected output.  Iterate over the test
-    //    table for 'Decimal32', 'Decimal64', and 'Decimal128' types, and
+    //    table for `Decimal32`, `Decimal64`, and `Decimal128` types, and
     //    ensure the streamed output matches the expected value.
     //
     //  2 Create a test table, where each element contains max, min or
@@ -2305,7 +2305,7 @@ void TestDriver::testCase4()
             {  L_, DFP(-4.25),  2,    8,   ' ',  false,   'r',  "   -4.25"  },
 
             //-----------------------------------------------------------------
-            // Update 'd_showPos' attribute to test 'bsl::showpos' manipulator
+            // Update `d_showPos` attribute to test `bsl::showpos` manipulator
             // with all possible justification values.
             // C-9
             {  L_, DFP( 4.25),  2,    8,   ' ',  true,    'l',  "+4.25   "  },
@@ -2317,8 +2317,8 @@ void TestDriver::testCase4()
             {  L_, DFP(-4.25),  2,    8,   ' ',  true,    'r',  "   -4.25"  },
 
             //-----------------------------------------------------------------
-            // Update 'd_fill' attribute to test 'bsl::fill' manipulator with
-            // combination of 'showpos' and justification manipulators.
+            // Update `d_fill` attribute to test `bsl::fill` manipulator with
+            // combination of `showpos` and justification manipulators.
             // C-12
             {  L_, DFP( 4.25),  2,    8,   '_',  false,   'l',  "4.25____"  },
             {  L_, DFP( 4.25),  2,    8,   '_',  false,   'i',  "____4.25"  },
@@ -2337,8 +2337,8 @@ void TestDriver::testCase4()
             {  L_, DFP(-4.25),  2,    8,   '_',  true,    'r',  "___-4.25"  },
 
             //-----------------------------------------------------------------
-            // Update 'd_width' attribute to test 'bsl::width' manipulator with
-            // combination of 'fill', 'showpos' and justification manipulators.
+            // Update `d_width` attribute to test `bsl::width` manipulator with
+            // combination of `fill`, `showpos` and justification manipulators.
             // C-5
             {  L_, DFP( 4.25),  2,    9,   ' ',  false,   'l',  "4.25     " },
             {  L_, DFP( 4.25),  2,    9,   ' ',  false,   'i',  "     4.25" },
@@ -2373,8 +2373,8 @@ void TestDriver::testCase4()
             {  L_, DFP(-4.25),  2,    9,   '_',  true,    'r',  "____-4.25" },
 
             //-----------------------------------------------------------------
-            // Update 'd_precision' attribute to test 'bsl::setprecision'
-            // manipulator  with combination of 'width', 'fill', 'showpos' and
+            // Update `d_precision` attribute to test `bsl::setprecision`
+            // manipulator  with combination of `width`, `fill`, `showpos` and
             // justification manipulators.
             // C-8
             {  L_, DFP( 4.25),  3,    8,   ' ',  false,   'l',  "4.250   "  },
@@ -2607,7 +2607,7 @@ void TestDriver::testCase4()
      {  L_, DFP(-0.42),  1,    8,   ' ',  false,   false,  'i',  "-4.2e-01"  },
      {  L_, DFP(-0.42),  1,    8,   ' ',  false,   false,  'r',  "-4.2e-01"  },
      //------------------------------------------------------------------------
-     // Update 'd_uppercase' attribute to test 'bsl::uppercase' manipulator
+     // Update `d_uppercase` attribute to test `bsl::uppercase` manipulator
      // with all possible justification values.
      // C-9
      //------------------------------------------------------------------------
@@ -2619,8 +2619,8 @@ void TestDriver::testCase4()
      {  L_, DFP(-0.42),  1,    8,   ' ',  false,   true,   'i',  "-4.2E-01"  },
      {  L_, DFP(-0.42),  1,    8,   ' ',  false,   true,   'r',  "-4.2E-01"  },
      //------------------------------------------------------------------------
-     // Update 'd_showPos' attribute to test 'bsl::showpos' manipulator
-     // with all possible justification values and 'uppercase' manipulator.
+     // Update `d_showPos` attribute to test `bsl::showpos` manipulator
+     // with all possible justification values and `uppercase` manipulator.
      // C-9
      //------------------------------------------------------------------------
      {  L_, DFP( 0.42),  1,    8,   ' ',  true,    false,  'l',  "+4.2e-01"  },
@@ -2639,8 +2639,8 @@ void TestDriver::testCase4()
      {  L_, DFP(-0.42),  1,    8,   ' ',  true,    true,   'i',  "-4.2E-01"  },
      {  L_, DFP(-0.42),  1,    8,   ' ',  true,    true,   'r',  "-4.2E-01"  },
      //------------------------------------------------------------------------
-     // Update 'd_fill' attribute to test 'bsl::fill' manipulator with
-     // combination of 'showpos', 'uppercase' and justification manipulators.
+     // Update `d_fill` attribute to test `bsl::fill` manipulator with
+     // combination of `showpos`, `uppercase` and justification manipulators.
      // C-12
      //------------------------------------------------------------------------
      {  L_, DFP( 0.42),  1,    8,   '_',  false,   false,  'l',  "4.2e-01_"  },
@@ -2675,8 +2675,8 @@ void TestDriver::testCase4()
      {  L_, DFP(-0.42),  1,    8,   '_',  true,    true,   'i',  "-4.2E-01"  },
      {  L_, DFP(-0.42),  1,    8,   '_',  true,    true,   'r',  "-4.2E-01"  },
      //------------------------------------------------------------------------
-     // Update 'd_width' attribute to test 'bsl::width' manipulator with
-     // combination of 'fill', 'showpos', 'uppercase' and justification
+     // Update `d_width` attribute to test `bsl::width` manipulator with
+     // combination of `fill`, `showpos`, `uppercase` and justification
      // manipulators.  C-5
      //------------------------------------------------------------------------
      {  L_, DFP( 0.42),  1,    9,   ' ',  false,   false,  'l',  "4.2e-01  " },
@@ -2743,9 +2743,9 @@ void TestDriver::testCase4()
      {  L_, DFP(-0.42),  1,    9,   'x',  true,    true,   'i',  "-x4.2E-01" },
      {  L_, DFP(-0.42),  1,    9,   'x',  true,    true,   'r',  "x-4.2E-01" },
      //------------------------------------------------------------------------
-     // Update 'd_precision' attribute to test 'bsl::setprecision'
-     // manipulator  with combination of 'width', 'fill', 'showpos',
-     // 'uppercase' and justification manipulators.
+     // Update `d_precision` attribute to test `bsl::setprecision`
+     // manipulator  with combination of `width`, `fill`, `showpos`,
+     // `uppercase` and justification manipulators.
      // C-8
      //------------------------------------------------------------------------
      {  L_, DFP( 0.42),  2,    9,   ' ',  false,   false,  'l', "4.20e-01 "  },
@@ -3012,7 +3012,7 @@ void TestDriver::testCase4()
             //-----------------------------------------------------------------
             //-----------------------------------------------------------------
             // Test that rendering decimal with combination of
-            // 'bsl::setprecision' and 'bsl::width' manipulators produces
+            // `bsl::setprecision` and `bsl::width` manipulators produces
             // expected output.  C-5,8,13,14
             //-----------------------------------------------------------------
             // Fixed notation.
@@ -4022,12 +4022,12 @@ void TestDriver::testCase4()
         }
     }
 #undef DFP
-    // Bug in Studio Studio's C++ standard library: 'ostreambuf_iterator'
-    // doesn't set the 'failed' attribute when the iterator reaches the end of
-    // EOF of the 'streambuf'.  Therefore, 'operator<<' for the decimal types
-    // does not set the 'fail' and 'bad' bits when streaming to an 'ostream'
-    // with a 'streambuf' that is not large enough.  This is consistent with
-    // the behavior for 'int' and 'double'.  Note that the bug does not exist
+    // Bug in Studio Studio's C++ standard library: `ostreambuf_iterator`
+    // doesn't set the `failed` attribute when the iterator reaches the end of
+    // EOF of the `streambuf`.  Therefore, `operator<<` for the decimal types
+    // does not set the `fail` and `bad` bits when streaming to an `ostream`
+    // with a `streambuf` that is not large enough.  This is consistent with
+    // the behavior for `int` and `double`.  Note that the bug does not exist
     // when using stlport.
 
 #if (!defined(BSLS_PLATFORM_OS_SUNOS) &&                                      \
@@ -4176,23 +4176,23 @@ void TestDriver::testCase4()
 void TestDriver::testCase3()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'Decimal128'
-    //   Ensure that 'Decimal128' functions correctly
+    // TESTING `Decimal128`
+    //   Ensure that `Decimal128` functions correctly
     //
     // Concerns:
-    //: 1 'Decimal128' operations are properly forwarded to implementation
-    //: 2 All possible operand combinations work correctly.
+    // 1. `Decimal128` operations are properly forwarded to implementation
+    // 2. All possible operand combinations work correctly.
     //
     // Plan:
-    //: 1 Expected value testing will be used.
-    //:
-    //: 2 All forms of LHS and RHS combinations for all free operators will
-    //:   be tested.
-    //:
-    //: 3 Every member operator will be tested
+    // 1. Expected value testing will be used.
+    //
+    // 2. All forms of LHS and RHS combinations for all free operators will
+    //    be tested.
+    //
+    // 3. Every member operator will be tested
     //
     // Testing:
-    //   'class Decimal128'
+    //   `class Decimal128`
     // ------------------------------------------------------------------------
 
     if (verbose) bsl::cout << "\nTesting class Decimal128"
@@ -4397,8 +4397,8 @@ void TestDriver::testCase3()
     // TODO TBD: Note that I am testing with the maximum number of
     // significant digits and I actually expect stream output to do no
     // rounding.  That is wrong (see later why), but necessary to
-    // remote-test the 'format' function and make sure it does not lose
-    // digits or does some unwanted rounding.  When 'format' will be in the
+    // remote-test the `format` function and make sure it does not lose
+    // digits or does some unwanted rounding.  When `format` will be in the
     // lower utility, it will be tested directly.
     //
     // Expecting to see all digits is wrong because that is not how the
@@ -5404,23 +5404,23 @@ void TestDriver::testCase3()
 void TestDriver::testCase2()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'Decimal64'
-    //   Ensure that 'Decimal64' functions correctly
+    // TESTING `Decimal64`
+    //   Ensure that `Decimal64` functions correctly
     //
     // Concerns:
-    //: 1 'Decimal64' operations are properly forwarded to implementation
-    //: 2 All possible operand combinations work correctly.
+    // 1. `Decimal64` operations are properly forwarded to implementation
+    // 2. All possible operand combinations work correctly.
     //
     // Plan:
-    //: 1 Expected value testing will be used.
-    //:
-    //: 2 All forms of LHS and RHS combinations for all free operators will be
-    //:   tested.
-    //:
-    //: 3 Every member operator will be tested
+    // 1. Expected value testing will be used.
+    //
+    // 2. All forms of LHS and RHS combinations for all free operators will be
+    //    tested.
+    //
+    // 3. Every member operator will be tested
     //
     // Testing:
-    //   'class Decimal64'
+    //   `class Decimal64`
     // ------------------------------------------------------------------------
 
     if (verbose) bsl::cout << "\nTesting class Decimal64"
@@ -5580,8 +5580,8 @@ void TestDriver::testCase2()
     // TODO TBD: Note that I am testing with the maximum number of
     // significant digits and I actually expect stream output to do no
     // rounding.  That is wrong (see later why), but necessary to
-    // remote-test the 'format' function and make sure it does not lose
-    // digits or does some unwanted rounding.  When 'format' will be in the
+    // remote-test the `format` function and make sure it does not lose
+    // digits or does some unwanted rounding.  When `format` will be in the
     // lower utility, it will be tested directly.
     //
     // Expecting to see all digits is wrong because that is not how the
@@ -6611,28 +6611,28 @@ void TestDriver::testCase2()
 void TestDriver::testCase1()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'Decimal32'
-    //   Ensure that 'Decimal32' functions correctly
+    // TESTING `Decimal32`
+    //   Ensure that `Decimal32` functions correctly
     //
     // Concerns:
-    //: 1 'Decimal32' operations are properly forwarded to implementation
-    //:
-    //: 2 All possible operand combinations work correctly.
-    //:
-    //: 3 That the result of arithmetic operation fits Decimal32 precision when
-    //:   operands exceed it to ensure that operation is performed in higher
-    //:   precision.
+    // 1. `Decimal32` operations are properly forwarded to implementation
+    //
+    // 2. All possible operand combinations work correctly.
+    //
+    // 3. That the result of arithmetic operation fits Decimal32 precision when
+    //    operands exceed it to ensure that operation is performed in higher
+    //    precision.
     //
     // Plan:
-    //: 1 Expected value testing will be used.
-    //:
-    //: 2 All forms of LHS and RHS combinations for all free operators will be
-    //:   tested.
-    //:
-    //: 3 Every member operator will be tested
+    // 1. Expected value testing will be used.
+    //
+    // 2. All forms of LHS and RHS combinations for all free operators will be
+    //    tested.
+    //
+    // 3. Every member operator will be tested
     //
     // Testing:
-    //   'class Decimal32'
+    //   `class Decimal32`
     // ------------------------------------------------------------------------
     if (verbose) bsl::cout << bsl::endl
                            << "Testing class Decimal32" << bsl::endl
@@ -6750,8 +6750,8 @@ void TestDriver::testCase1()
     // TODO TBD: Note that I am testing with the maximum number of
     // significant digits and I actually expect stream output to do no
     // rounding.  That is wrong (see later why), but necessary to
-    // remote-test the 'format' function and make sure it does not lose
-    // digits or does some unwanted rounding.  When 'format' will be in the
+    // remote-test the `format` function and make sure it does not lose
+    // digits or does some unwanted rounding.  When `format` will be in the
     // lower utility, it will be tested directly.  Expecting to see all
     // digits is wrong because that is not how the stream output should
     // behave: it should print with the default precision as it would for

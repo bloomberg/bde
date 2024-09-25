@@ -22,23 +22,23 @@ using namespace bsl;
 // The component under test implements a mechanism.
 //
 // Primary Manipulators:
-// o 'submitReserved'
-// o 'cancelReserved'
+// o `submitReserved`
+// o `cancelReserved`
 //
 // Basic Accessors:
-// o 'ptr'
-// o 'unitsReserved'
+// o `ptr`
+// o `unitsReserved`
 //
 // This class also provides a value constructor capable of creating an object
 // having any parameters.
 //
 // Global Concerns:
-//: o ACCESSOR methods are declared 'const'.
-//: o CREATOR & MANIPULATOR pointer/reference parameters are declared 'const'.
-//: o Precondition violations are detected in appropriate build modes.
+//  - ACCESSOR methods are declared `const`.
+//  - CREATOR & MANIPULATOR pointer/reference parameters are declared `const`.
+//  - Precondition violations are detected in appropriate build modes.
 //
 // Global Assumptions:
-//: o ACCESSOR methods are 'const' thread-safe.
+//  - ACCESSOR methods are `const` thread-safe.
 //-----------------------------------------------------------------------------
 //
 // CREATORS
@@ -56,8 +56,8 @@ using namespace bsl;
 // [1] BREATHING TEST
 // [2] TEST APPARATUS
 // [7] USAGE EXAMPLE
-// [3] All accessor methods are declared 'const'.
-// [*] All creator/manipulator ptr./ref. parameters are 'const'.
+// [3] All accessor methods are declared `const`.
+// [*] All creator/manipulator ptr./ref. parameters are `const`.
 //=============================================================================
 
 //=============================================================================
@@ -113,7 +113,7 @@ static void aSsErT(int c, const char *s, int i)
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
+#define P_(X) cout << #X " = " << (X) << ", " << flush; // `P(X)` without '\n'
 #define T_ cout << "\t" << flush;             // Print tab w/o newline.
 #define L_ __LINE__                           // current Line number
 
@@ -130,9 +130,9 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// This class provides a mock rate controllering mechanism which conforms
+/// to the interface required by `balb::ReservationGuard`.
 class my_Reserve {
-    // This class provides a mock rate controllering mechanism which conforms
-    // to the interface required by 'balb::ReservationGuard'.
 
 
     // DATA
@@ -141,33 +141,36 @@ class my_Reserve {
 
 public:
     // CREATORS
+
+    /// Create a `my_Reserve` object having zero `unitsReserved` and
+    /// `unitsSubmitted`
     my_Reserve();
-        // Create a 'my_Reserve' object having zero 'unitsReserved' and
-        // 'unitsSubmitted'
 
     // MANIPULATORS
+
+    /// Add the specified `numUnits` to the `unitsReserved` counter.
     void reserve(bsls::Types::Uint64 numUnits);
-        // Add the specified 'numUnits' to the 'unitsReserved' counter.
 
+    /// Subtract the specified `numUnits` from `unitsReserved` and add it
+    /// to `unitsSubmitted`, if `numUnits` is less than `unitsReserved`.
+    /// Otherwise, add `unitsReserved` to `unitsSubmitted` and set
+    /// `unitsReserved` to 0.
     void submitReserved(bsls::Types::Uint64 numUnits);
-        // Subtract the specified 'numUnits' from 'unitsReserved' and add it
-        // to 'unitsSubmitted', if 'numUnits' is less than 'unitsReserved'.
-        // Otherwise, add 'unitsReserved' to 'unitsSubmitted' and set
-        // 'unitsReserved' to 0.
 
+    /// Subtract the specified `numUnits` from `unitsReserved` if `numUnits`
+    /// is less than `unitsReserved`; otherwise, set `unitsReserved` to 0.
     void cancelReserved(bsls::Types::Uint64 numUnits);
-        // Subtract the specified 'numUnits' from 'unitsReserved' if 'numUnits'
-        // is less than 'unitsReserved'; otherwise, set 'unitsReserved' to 0.
 
+    /// Reset this `my_Reserve` object to its default-constructed state.
     void reset();
-        // Reset this 'my_Reserve' object to its default-constructed state.
 
     // ACCESSORS
-    bsls::Types::Uint64 unitsReserved() const;
-        // Return the number of units reserved.
 
+    /// Return the number of units reserved.
+    bsls::Types::Uint64 unitsReserved() const;
+
+    /// Return the number of units submitted.
     bsls::Types::Uint64 unitsSubmitted() const;
-        // Return the number of units submitted.
 };
 
 // CREATORS
@@ -245,25 +248,26 @@ typedef unsigned int                       uint;
 ///Example 1: Guarding units reservation in operations with balb::LeakyBucket
 ///--------------------------------------------------------------------------
 // Suppose that we are limiting the rate of network traffic generation using a
-// 'balb::LeakyBucket' object.  We send data buffer over a network interface
-// using the 'mySendData' function:
-//..
+// `balb::LeakyBucket` object.  We send data buffer over a network interface
+// using the `mySendData` function:
+// ```
+
+/// Send a specified `dataSize` amount of data over the network.  Return
+/// the amount of data actually sent.  Throw an exception if a network
+/// failure is detected.
 static bsls::Types::Uint64 sendData(size_t dataSize)
-    // Send a specified 'dataSize' amount of data over the network.  Return
-    // the amount of data actually sent.  Throw an exception if a network
-    // failure is detected.
 
 {
-//..
+// ```
 // In our example we don`t deal with actual data sending, so we assume that the
 // function has sent certain amount of data (3/4 of the requested amount)
 // successfully.
-//..
+// ```
    return (dataSize*3)>>2;
 }
-//..
-// Notice that the 'mySendData' function may throw an exception; therefore, we
-// should wait until 'mySendData' returns before indicating the amount of data
+// ```
+// Notice that the `mySendData` function may throw an exception; therefore, we
+// should wait until `mySendData` returns before indicating the amount of data
 // sent to the leaky bucket.
 
 
@@ -303,59 +307,59 @@ int main(int argc, char *argv[]) {
 // data immediately after checking whether the leaky bucket has overflown and
 // submit the reserved amount after the data has been sent.  However, this
 // procedure could lead to a permanent loss of the leaky bucket capacity if
-// 'mySendData' throws an exception and the reserved units are not cancelled
-// -- the issue that 'balb::ReservationGuard' is designed to solve.
+// `mySendData` throws an exception and the reserved units are not cancelled
+// -- the issue that `balb::ReservationGuard` is designed to solve.
 //
 // First, we define the size of each data chunk and the total size of the data
 // to send:
-//..
+// ```
   const bsls::Types::Uint64 CHUNK_SIZE = 256;
   bsls::Types::Uint64       bytesSent  = 0;
   bsls::Types::Uint64       totalSize  = 10 * 1024; // in bytes
-//..
-// Then, we create a 'balb::LeakyBucket' object to limit the rate of data
+// ```
+// Then, we create a `balb::LeakyBucket` object to limit the rate of data
 // transmission:
-//..
+// ```
   bsls::Types::Uint64 rate     = 512;
   bsls::Types::Uint64 capacity = 1536;
   bsls::TimeInterval  now      = bdlt::CurrentTime::now();
   balb::LeakyBucket   bucket(rate, capacity, now);
-//..
+// ```
 // Next, we send the chunks of data using a loop.  For each iteration, we check
 // whether submitting another byte would cause the leaky bucket to overflow:
-//..
+// ```
   while (bytesSent < totalSize) {
 
       now = bdlt::CurrentTime::now();
       if (!bucket.wouldOverflow(now)) {
-//..
+// ```
 // Now, if the leaky bucket would not overflow, we create a
-// 'balb::ReservationGuard' object to reserve the amount of data to be sent:
-//..
+// `balb::ReservationGuard` object to reserve the amount of data to be sent:
+// ```
           balb::ReservationGuard<balb::LeakyBucket> guard(&bucket,
                                                           CHUNK_SIZE);
-//..
-// Then, we use the 'mySendData' function to send the data chunk over the
+// ```
+// Then, we use the `mySendData` function to send the data chunk over the
 // network.  After the data had been sent, we submit the amount of reserved
 // data that was actually sent:
-//..
+// ```
           bsls::Types::Uint64 result;
           result = sendData(CHUNK_SIZE);
           bytesSent += result;
           guard.submitReserved(result);
-//..
+// ```
 // Note that we do not have manually cancel any remaining units reserved by the
-// 'balb::ReservationGuard' object either because 'mySendData' threw an
+// `balb::ReservationGuard` object either because `mySendData` threw an
 // exception, or the data was only partially sent, because when the guard
 // object goes out of scope, all remaining reserved units will be automatically
 // cancelled.
-//..
+// ```
       }
-//..
+// ```
 // Finally, if submitting another byte will cause the leaky bucket to overflow,
 // then we wait until the submission will be allowed by waiting for an amount
-// time returned by the 'calculateTimeToSubmit' method:
-//..
+// time returned by the `calculateTimeToSubmit` method:
+// ```
       else {
           bsls::TimeInterval  timeToSubmit = bucket.calculateTimeToSubmit(now);
           bsls::Types::Uint64 uS = timeToSubmit.totalMicroseconds() +
@@ -363,26 +367,26 @@ int main(int argc, char *argv[]) {
           bslmt::ThreadUtil::microSleep(static_cast<int>(uS));
       }
   }
-//..
+// ```
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'cancelReserved'
+        // CLASS METHOD `cancelReserved`
         //
         // Concerns:
-        //: 1 The method cancels the specified number of units in the
-        //:   object specified at construction.
-        //:
-        //: 2 The method decrements 'unitsReserved' counter.
-        //:
-        //: 3 The method submits no units.
+        // 1. The method cancels the specified number of units in the
+        //    object specified at construction.
+        //
+        // 2. The method decrements `unitsReserved` counter.
+        //
+        // 3. The method submits no units.
         //
         // Testing:
         //   void cancelReserved(bsls::Types::Uint64 numOfUnits);
         //---------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "CLASS METHOD 'cancelReserved'" << endl
+                          << "CLASS METHOD `cancelReserved`" << endl
                           << "=============================" << endl;
 
         const Uint64 INIT_RESERVE = 42;
@@ -460,20 +464,20 @@ int main(int argc, char *argv[]) {
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'submitReserved'
+        // CLASS METHOD `submitReserved`
         //
         // Concerns:
-        //: 1 The method submits the specified number of units into the
-        //:   object specified at construction.
-        //:
-        //: 2 The method decrements the 'unitsReserved' counter.
+        // 1. The method submits the specified number of units into the
+        //    object specified at construction.
+        //
+        // 2. The method decrements the `unitsReserved` counter.
         //
         // Testing:
         //   void submitReserved(bsls::Types::Uint64 numOfUnits);
         //---------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "CLASS METHOD 'submitReserved'" << endl
+                          << "CLASS METHOD `submitReserved`" << endl
                           << "=============================" << endl;
 
         struct {
@@ -538,13 +542,13 @@ int main(int argc, char *argv[]) {
         // DTOR
         //
         // Concerns:
-        //: 1 DTOR cancels all 'unitsReserved' in the 'reserve' object,
-        //:   specified at the construction.
-        //:
-        //: 2 DTOR submits no units.
-        //:
-        //: 3 DTOR operates correctly if no units were reserved at
-        //:   creation.
+        // 1. DTOR cancels all `unitsReserved` in the `reserve` object,
+        //    specified at the construction.
+        //
+        // 2. DTOR submits no units.
+        //
+        // 3. DTOR operates correctly if no units were reserved at
+        //    creation.
         //
         // Testing:
         //   ~ReservationGuard();
@@ -598,19 +602,19 @@ int main(int argc, char *argv[]) {
         // PRIMARY MANIPULATOR (BOOTSTRAP)
         //
         // Concerns:
-        //: 1 Units in the specified 'reserve' are reserved during the
-        //:   construction
-        //:
-        //: 2 'ptr' returns pointer to the 'reserve' object, specified during
-        //:   the construction
-        //:
-        //: 3 'unitsReserved' return the number of units reserved in the
-        //:   specified 'reserve' object
-        //:
-        //: 4 'unitsReserved' is represented with 64-bit integral type
-        //:
-        //: 5 Specifying wrong parameters for constructor causes certain
-        //:   behavior in specific build configuration.
+        // 1. Units in the specified `reserve` are reserved during the
+        //    construction
+        //
+        // 2. `ptr` returns pointer to the `reserve` object, specified during
+        //    the construction
+        //
+        // 3. `unitsReserved` return the number of units reserved in the
+        //    specified `reserve` object
+        //
+        // 4. `unitsReserved` is represented with 64-bit integral type
+        //
+        // 5. Specifying wrong parameters for constructor causes certain
+        //    behavior in specific build configuration.
         //
         // Testing:
         //   ReservationGuard(TYPE* reserve, bsls::Types::Uint64 numOfUnits);
@@ -654,31 +658,31 @@ int main(int argc, char *argv[]) {
         // TEST APPARATUS
         //
         // Concerns:
-        //: 1 'Reserve' method adds units to 'unitsReserved'.
-        //:
-        //: 2 'Reserve' method does not affect 'unitsSubmitted'.
-        //:
-        //: 3 'submitReserved' method adds units to 'unitsSubmitted' and
-        //:   subtracts units from 'unitsReserved'.
-        //:
-        //: 4 'cancelReserved' method subtracts units from 'unitsReserved'.
-        //:
-        //: 5 'cancelReserved' method does not affect 'unitsSubmitted'.
-        //:
-        //: 6 'unitsSubmitted' is represented by 64-bit unsigned integral
-        //:   type.
-        //:
-        //: 7 'unitsReserved' is represented by 64-bit unsigned integral
-        //:   type.
-        //:
-        //: 8 'unitsReserved' and 'unitSubmitted' are wired to the
-        //:   different places.
-        //:
-        //: 9 'reset' method resets the object to its default-constructed
-        //:   state.
+        // 1. `Reserve` method adds units to `unitsReserved`.
+        //
+        // 2. `Reserve` method does not affect `unitsSubmitted`.
+        //
+        // 3. `submitReserved` method adds units to `unitsSubmitted` and
+        //    subtracts units from `unitsReserved`.
+        //
+        // 4. `cancelReserved` method subtracts units from `unitsReserved`.
+        //
+        // 5. `cancelReserved` method does not affect `unitsSubmitted`.
+        //
+        // 6. `unitsSubmitted` is represented by 64-bit unsigned integral
+        //    type.
+        //
+        // 7. `unitsReserved` is represented by 64-bit unsigned integral
+        //    type.
+        //
+        // 8. `unitsReserved` and `unitSubmitted` are wired to the
+        //    different places.
+        //
+        // 9. `reset` method resets the object to its default-constructed
+        //    state.
         //
         // Testing:
-        //   class 'my_Reserve'
+        //   class `my_Reserve`
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl

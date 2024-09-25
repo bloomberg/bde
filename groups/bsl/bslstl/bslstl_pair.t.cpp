@@ -2,7 +2,7 @@
 
 #include <bsls_platform.h>
 
-// the following suppresses warnings from '#include' inlined functions
+// the following suppresses warnings from `#include` inlined functions
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wfloat-conversion"
@@ -57,20 +57,20 @@
 #include <bsltf_templatetestfacility.h>
 
 #include <stddef.h>
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
-#include <string.h>     // 'strcmp'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
+#include <string.h>     // `strcmp`
 
-#include <algorithm>    // 'std::swap'
+#include <algorithm>    // `std::swap`
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
-#include <type_traits>  // No 'bslmf' support for 'is_constructible'
+#include <type_traits>  // No `bslmf` support for `is_constructible`
 #endif
 
 // Local macros to detect and work around compiler defects.
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-// We don't have a specific macro asserting that 'std::swap' implements array
+// We don't have a specific macro asserting that `std::swap` implements array
 // support, so proxy off the baseline macro until we prove we need more.
 # define BSLSTL_PAIR_SWAP_SUPPORTS_ARRAYS 1
 #endif
@@ -87,15 +87,15 @@
 // The presence of a default constructor of a pair is determined by the
 // default-constructibility of its constituent parts on sufficiently complete
 // C++11 or later compilers (in C++11 or later mode).  We need the presence of
-// the 'is_default_constructible' type trait to be able to test the
-// conditional presence of the 'pair' default constructor.  We should have
-// checked for 'BSLS_LIBRARYFEATURES_HAS_IS_DEFAULT_CONSTRUCTIBLE' instead of
-// 'BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER', but there is no such thing.
+// the `is_default_constructible` type trait to be able to test the
+// conditional presence of the `pair` default constructor.  We should have
+// checked for `BSLS_LIBRARYFEATURES_HAS_IS_DEFAULT_CONSTRUCTIBLE` instead of
+// `BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER`, but there is no such thing.
 // So if you are trying to build this on a new C++11 compiler (like an AIX or
-// a Solaris) and you get that 'std::is_default_constructible' does not exist,
+// a Solaris) and you get that `std::is_default_constructible` does not exist,
 // you will need to add some more conditions above.  On all C++11 compilers we
-// support in 2020, if '<type_traits>' exists it does define the required
-// 'is_default_constructible' trait and it is sufficiently functional.
+// support in 2020, if `<type_traits>` exists it does define the required
+// `is_default_constructible` trait and it is sufficiently functional.
 # define BSLSTL_PAIR_TEST_CONDITIONAL_DEFAULT_CTOR 1
 #endif
 
@@ -105,14 +105,14 @@ using bsls::NameOf;
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-// Because 'bsl::pair' is a simple struct containing two data members, there
+// Because `bsl::pair` is a simple struct containing two data members, there
 // are no real boundary conditions to test.  The main issue to be tested is
 // that the four variants of the class have working constructors.  The class
 // behaves differently when instantiated with types that use
-// 'bslma::Allocator'.  Testing consists mostly of testing all constructors
+// `bslma::Allocator`.  Testing consists mostly of testing all constructors
 // with every combination of allocator-using/non-allocator-using template
 // parameters.  The other combinatorial issue is the propagation of type traits
-// from template parameters to 'bsl::pair' specializations.  Since this is a
+// from template parameters to `bsl::pair` specializations.  Since this is a
 // compile-time computation, it is only necessary to instantiate a
 // representative combination of traits.
 //
@@ -195,17 +195,17 @@ using bsls::NameOf;
 // [27] CLASS TEMPLATE DEDUCTION GUIDES
 // [28] USAGE EXAMPLE
 // [ 3] Type Traits
-// [ 7] Concern: Can create a pointer-to-member for 'first' and 'second'
-// [ 8] Concern: Can assign to a 'pair' of references
-// [16] Concern: Methods marked 'noexcept' in standard are so implemented
+// [ 7] Concern: Can create a pointer-to-member for `first` and `second`
+// [ 8] Concern: Can assign to a `pair` of references
+// [16] Concern: Methods marked `noexcept` in standard are so implemented
 // [18] Concern: Fix for DRQS 122792538
 // [19] Concern: pairs of C++03 movable types work correctly
-// [20] Concern: pairs with 'const' members work correctly
+// [20] Concern: pairs with `const` members work correctly
 // [21] Concern: pairs of arrays work correctly
 // [22] Concern: pairs of references work correctly
-// [23] Concern: 'pair' constructors SFINAE when required by standard
-// [24] Concern: construct from '0' as null pointer literal
-// [25] Concern: 'return' by brace initialization
+// [23] Concern: `pair` constructors SFINAE when required by standard
+// [24] Concern: construct from `0` as null pointer literal
+// [25] Concern: `return` by brace initialization
 // [26] Concern: can construct pair of objects that are not copyable
 
 // Further, there are a number of behaviors that explicitly should not compile
@@ -303,21 +303,22 @@ class Base {
     Base(const Base& original) :d_data(original.d_data) {}
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    /// Destroy this object.
     ~Base() = default;
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs`, and return
+    /// a reference providing modifiable access to this object.
     Base& operator=(const Base&) = default;
-        // Assign to this object the value of the specified 'rhs', and return
-        // a reference providing modifiable access to this object.
 #endif
 
     // ACCESSORS
     operator int() const { return d_data; }
 };
 
+/// Like `Base`, except it thinks it allocates.
 class AlBase {
-    // Like 'Base', except it thinks it allocates.
 
     // DATA
     int              *d_data_p;
@@ -380,13 +381,13 @@ class AlBase {
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 
+/// This class is to test conversions from `Node` to `Base`, which are
+/// implicit, but less implicit than conversions from `Derived` to `Base`.
+/// It turns out that in a C++03 move, a conversion from `MovableRef<Node>`
+/// to `Base` takes too many steps to work, while in a C++11 move, the
+/// conversion from `Node&&` to `Base` works, so everything involving `Node`
+/// has to be conditionally compiled for C++11 only.
 class Node {
-    // This class is to test conversions from 'Node' to 'Base', which are
-    // implicit, but less implicit than conversions from 'Derived' to 'Base'.
-    // It turns out that in a C++03 move, a conversion from 'MovableRef<Node>'
-    // to 'Base' takes too many steps to work, while in a C++11 move, the
-    // conversion from 'Node&&' to 'Base' works, so everything involving 'Node'
-    // has to be conditionally compiled for C++11 only.
 
     // DATA
     int d_data;
@@ -465,26 +466,26 @@ template <class TYPE, int ALLOCATOR_ACCESSOR_CLASS =
                                 bsltf::WellBehavedMoveOnlyAllocTestType>::value
               || bsl::is_same<TYPE, AlBase>::value
               || bsl::is_same<TYPE, AlDerived>::value)
-              ? 1    // 'allocator()'
+              ? 1    // `allocator()`
               : 0>   // no accessor
 struct AllocatorMatchesImp {
 };
 
+/// The specified `TYPE` has no `allocator` accessor.  Dummy function.
 template <class TYPE>
 struct AllocatorMatchesImp<TYPE, 0> {
     bool operator()(const TYPE&, bslma::Allocator *) const
-        // The specified 'TYPE' has no 'allocator' accessor.  Dummy function.
     {
         return true;
     }
 };
 
+/// The specified `object` has an `allocator` accessor.  Check that the
+/// specified `alloc` matches the allocator of `object`.
 template <class TYPE>
 struct AllocatorMatchesImp<TYPE, 1> {
     bool operator()(const TYPE&       object,
                     bslma::Allocator *alloc) const
-        // The specified 'object' has an 'allocator' accessor.  Check that the
-        // specified 'alloc' matches the allocator of 'object'.
     {
         bool ret;
         ASSERTV(NameOf<TYPE>(), (ret = alloc == object.allocator()));
@@ -588,11 +589,11 @@ int valueOf(const TYPE& object)
     return TTF::getIdentifier(object);
 }
 
+/// Return the value of the specified pair `pr`.  A scalar value of a pair
+/// only makes sense if both members have correspondingsame values.  If they
+/// don't, return -1 (an illegal value -- legal values are in `[ 0, 128 )`.
 template <class U, class V>
 int valueOf(const bsl::pair<U, V>& pr)
-    // Return the value of the specified pair 'pr'.  A scalar value of a pair
-    // only makes sense if both members have correspondingsame values.  If they
-    // don't, return -1 (an illegal value -- legal values are in '[ 0, 128 )'.
 {
     const int f = valueOf<U>(pr.first);
     const int s = valueOf<V>(pr.second);
@@ -600,11 +601,11 @@ int valueOf(const bsl::pair<U, V>& pr)
     return f + k_VALUE_SHIFT == s ? f : -1;
 }
 
+/// Return the value of the specified pair `pr`.  A scalar value of a pair
+/// only makes sense if both members have correspondingsame values.  If they
+/// don't, return -1 (an illegal value -- legal values are in `[ 0, 128 )`.
 template <class U, class V>
 int valueOf(const std::pair<U, V>& pr)
-    // Return the value of the specified pair 'pr'.  A scalar value of a pair
-    // only makes sense if both members have correspondingsame values.  If they
-    // don't, return -1 (an illegal value -- legal values are in '[ 0, 128 )'.
 {
     const int f = valueOf<U>(pr.first);
     const int s = valueOf<V>(pr.second);
@@ -622,14 +623,14 @@ int valueOf<Node>(const Node& node)
 
 #endif
 
+/// Note that the specified `buffer` must be a pointer to an
+/// `bsls::ObjectBuffer<bsl::pair<U, V> >`.  Construct the `first` and
+/// `second` fields of the pair in the `buffer` according to the specified
+/// `value`, and pass the specified allocator `alloc` as appropriate.
 template <class PAIR, class ALLOCATOR>
 PAIR& initPair(bsls::ObjectBuffer<PAIR> *buffer,
                int                       value,
                ALLOCATOR                 alloc)
-    // Note that the specified 'buffer' must be a pointer to an
-    // 'bsls::ObjectBuffer<bsl::pair<U, V> >'.  Construct the 'first' and
-    // 'second' fields of the pair in the 'buffer' according to the specified
-    // 'value', and pass the specified allocator 'alloc' as appropriate.
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= value);  BSLS_ASSERT(value < 128);
@@ -682,6 +683,8 @@ struct PairGuard {
     }
 };
 
+/// This `struct` is just to be created to be passed to `NameOf` to display
+/// the template args.
 template <class ETYPE,
           int   NUM_FIRST_ARGS,
           int   NF1,
@@ -692,16 +695,14 @@ template <class ETYPE,
           int   NS2,
           int   NS3>
 struct DisplayType {
-    // This 'struct' is just to be created to be passed to 'NameOf' to display
-    // the template args.
 };
 
+/// This `struct` holds an argument type of the specified (template
+/// parameter) type `ARG`, which must be `bsltf::EmplacableTestType` or
+/// `bsltf::AllocEmplacableTestType`, and provides constructors taking a
+/// `bslma::Allocator*`, which can be conditionally ignored.
 template <class ARG>
 struct ArgHolder  {
-    // This 'struct' holds an argument type of the specified (template
-    // parameter) type 'ARG', which must be 'bsltf::EmplacableTestType' or
-    // 'bsltf::AllocEmplacableTestType', and provides constructors taking a
-    // 'bslma::Allocator*', which can be conditionally ignored.
 
   private:
     // DATA
@@ -713,16 +714,17 @@ struct ArgHolder  {
 
   public:
     // CREATORS
+
+    /// Construct `d_arg` using the specified `value`.
     ArgHolder(int value, bsl::false_type, bslma::Allocator*)
     : d_arg(value)
-        // Construct 'd_arg' using the specified 'value'.
     {
     }
 
+    /// Construct `d_arg` using the specified `value` and the specified
+    /// `basicAllocator`.
     ArgHolder(int value, bsl::true_type, bslma::Allocator *basicAllocator)
     : d_arg(value, basicAllocator)
-        // Construct 'd_arg' using the specified 'value' and the specified
-        // 'basicAllocator'.
     {
     }
 
@@ -737,10 +739,10 @@ struct ArgHolder  {
                          // class StrictlyAllocated
                          // =======================
 
+/// This class provides testing for a particularly awkward element in a
+/// `pair`, that does not have public copy or move constructors, but insists
+/// on the caller providing an allocator when making copies.
 class StrictlyAllocated {
-    // This class provides testing for a particularly awkward element in a
-    // 'pair', that does not have public copy or move constructors, but insists
-    // on the caller providing an allocator when making copies.
 
     // DATA
     int               d_index;
@@ -753,38 +755,41 @@ class StrictlyAllocated {
 
   public:
     // CREATORS
-    explicit StrictlyAllocated(bslma::Allocator *basicAllocator);
-        // Create a 'StrictlyAllocated' object having the index 0, using the
-        // specified 'basicAllocator'.  Note that no memory is actually
-        // allocator, the allocator is merely stored for test purposes.
 
+    /// Create a `StrictlyAllocated` object having the index 0, using the
+    /// specified `basicAllocator`.  Note that no memory is actually
+    /// allocator, the allocator is merely stored for test purposes.
+    explicit StrictlyAllocated(bslma::Allocator *basicAllocator);
+
+    /// Create a `StrictlyAllocated` object having an index with the
+    /// specified `columIndex` value and using the specified
+    /// `basicAllocator`.  Note that no memory is actually allocator, the
+    /// allocator is merely stored for test purposes.
     explicit StrictlyAllocated(int               columnIndex,
                                bslma::Allocator *basicAllocator);
-        // Create a 'StrictlyAllocated' object having an index with the
-        // specified 'columIndex' value and using the specified
-        // 'basicAllocator'.  Note that no memory is actually allocator, the
-        // allocator is merely stored for test purposes.
 
+    /// Create a copy of the specified `other` object using the specified
+    /// `basicAllocator`, having the same index value as the `other` object.
+    /// Note that no memory is actually allocator, the allocator is merely
+    /// stored for test purposes.
     StrictlyAllocated(const StrictlyAllocated&  other,
                       bslma::Allocator         *basicAllocator);
-        // Create a copy of the specified 'other' object using the specified
-        // 'basicAllocator', having the same index value as the 'other' object.
-        // Note that no memory is actually allocator, the allocator is merely
-        // stored for test purposes.
 
+    /// Destroy this `StrictlyAllocated` object.
     ~StrictlyAllocated();
-        // Destroy this 'StrictlyAllocated' object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     StrictlyAllocated& operator=(const StrictlyAllocated& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
     // ACCESSORS
-    int index() const;
-        // Return the 'index' attribute of this object.
 
+    /// Return the `index` attribute of this object.
+    int index() const;
+
+    /// Return the `allocator` used by this object.
     bslma::Allocator *allocator() const;
-        // Return the 'allocator' used by this object.
 };
 
                          // -----------------------
@@ -844,11 +849,11 @@ int StrictlyAllocated::index() const
                          // class VolatileMovableType
                          // =========================
 
+/// This class template declares a type, that supports copy and move
+/// semantics for volatile objects.  This class is primarily provided to
+/// unify testing of tuple-like APIs for `bsl::pair` objects, having
+/// ordinary, constant and volatile elements.
 class  VolatileMovableType {
-    // This class template declares a type, that supports copy and move
-    // semantics for volatile objects.  This class is primarily provided to
-    // unify testing of tuple-like APIs for 'bsl::pair' objects, having
-    // ordinary, constant and volatile elements.
 
   public:
     // TYPES
@@ -871,80 +876,84 @@ class  VolatileMovableType {
 
   public:
     // CREATORS
-    explicit  VolatileMovableType(bslma::Allocator *basicAllocator = 0);
-        // Create an 'VolatileMovableType' object having the (default)
-        // attribute value '-1'.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  Note that the default constructor does
-        // not allocate memory.
 
+    /// Create an `VolatileMovableType` object having the (default)
+    /// attribute value `-1`.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  Note that the default constructor does
+    /// not allocate memory.
+    explicit  VolatileMovableType(bslma::Allocator *basicAllocator = 0);
+
+    /// Create an `VolatileMovableType` object having the specified `value`.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.  The behavior is undefined unless `value >= 0`.
     explicit VolatileMovableType(int               value,
                                  bslma::Allocator *basicAllocator = 0);
-        // Create an 'VolatileMovableType' object having the specified 'value'.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined unless 'value >= 0'.
 
+    /// Create an `VolatileMovableType` object having the same value as the
+    /// specified `original`.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  Note that no memory is allocated if
+    /// `original` refers to a default-constructed object.
     VolatileMovableType(volatile VolatileMovableType&  original,
                         bslma::Allocator              *basicAllocator = 0);
-        // Create an 'VolatileMovableType' object having the same value as the
-        // specified 'original'.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  Note that no memory is allocated if
-        // 'original' refers to a default-constructed object.
 
+    /// Create an `VolatileMovableType` object having the same value as the
+    /// specified `original`.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  Note that no memory is allocated if
+    /// `original` refers to a default-constructed object.
     VolatileMovableType(
                       const volatile VolatileMovableType&  original,
                       bslma::Allocator                    *basicAllocator = 0);
-        // Create an 'VolatileMovableType' object having the same value as the
-        // specified 'original'.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  Note that no memory is allocated if
-        // 'original' refers to a default-constructed object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    /// Create an `VolatileMovableType` object having the same value as the
+    /// specified `original`.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     VolatileMovableType(volatile VolatileMovableType&&  original,
                         bslma::Allocator               *basicAllocator = 0);
-        // Create an 'VolatileMovableType' object having the same value as the
-        // specified 'original'.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create an `VolatileMovableType` object having the same value as the
+    /// specified `original`.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     VolatileMovableType(
                      const volatile VolatileMovableType&&  original,
                      bslma::Allocator                     *basicAllocator = 0);
-        // Create an 'VolatileMovableType' object having the same value as the
-        // specified 'original'.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 #endif
 
+    /// Destroy this object.
     ~VolatileMovableType();
-        // Destroy this object.
 
     // MANIPULATORS
-    VolatileMovableType& operator=(volatile VolatileMovableType& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
+    /// Assign to this object the value of the specified `rhs` object.
+    VolatileMovableType& operator=(volatile VolatileMovableType& rhs);
+
+    /// Assign to this object the value of the specified `rhs` object.  Note
+    /// that `rhs` is left in a valid but unspecified state.
     VolatileMovableType&
     operator=(bslmf::MovableRef<volatile VolatileMovableType> rhs);
-        // Assign to this object the value of the specified 'rhs' object.  Note
-        // that 'rhs' is left in a valid but unspecified state.
 
     // ACCESSORS
-    int value() const volatile;
-        // Return the value of this object.
 
+    /// Return the value of this object.
+    int value() const volatile;
+
+    /// Return the move state of this object as source of a move operation.
     Enum movedFrom() const volatile;
-        // Return the move state of this object as source of a move operation.
 };
 
 // FREE OPERATORS
+
+/// Return true if the specified `lhs` and `rhs` objects have the same
+/// value and false otherwise.  `lhs` has the same value as `rhs` if
+/// `lhs.value() == rhs.value()`.
 bool operator==(volatile VolatileMovableType& lhs,
                 volatile VolatileMovableType& rhs);
-    // Return true if the specified 'lhs' and 'rhs' objects have the same
-    // value and false otherwise.  'lhs' has the same value as 'rhs' if
-    // 'lhs.value() == rhs.value()'.
 
                         // -------------------------
                         // class VolatileMovableType
@@ -1100,29 +1109,29 @@ bool operator==(volatile VolatileMovableType& lhs,
     return lhs.value() == rhs.value();
 }
 
+/// This specialization of `isRefConstant` is called for const reference
+/// types and always returns `true`.  The function is used to check
+/// const qualifier of parameter, returned by bsl::get(bsl::pair<T1, T2>).
 template <class T>
 bool isRefConstant(const T&)
-    // This specialization of 'isRefConstant' is called for const reference
-    // types and always returns 'true'.  The function is used to check
-    // const qualifier of parameter, returned by bsl::get(bsl::pair<T1, T2>).
 {
     return true;
 }
 
+/// This specialization of `isRefConstant` is called for reference types and
+/// always returns `false`.  The function is used to check const qualifier
+/// of parameter, returned by bsl::get(bsl::pair<T1, T2>).
 template <class T>
 bool isRefConstant(T&)
-    // This specialization of 'isRefConstant' is called for reference types and
-    // always returns 'false'.  The function is used to check const qualifier
-    // of parameter, returned by bsl::get(bsl::pair<T1, T2>).
 {
     return false;
 }
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+/// This utility class template provides functions for testing tuple-like
+/// APIs.
 template<class T>
 struct TupleApiTestDriver
-    // This utility class template provides functions for testing tuple-like
-    // APIs.
 {
   private:
     // PRIVATE TYPES
@@ -1154,12 +1163,13 @@ struct TupleApiTestDriver
 
   public:
     // CLASS METHODS
+
+    /// Test `tuple_element` and `tuple_size` meta-functions.
     static void metaFunctionsTest()
-        // Test 'tuple_element' and 'tuple_size' meta-functions.
     {
         if (veryVeryVerbose) printf("\t\twith %s\n", NameOf<T>().name());
 
-        // Testing 'tuple_element'.
+        // Testing `tuple_element`.
 
         typedef std::tuple_element<0 ,   TIP >  TE0_TIP;
         typedef std::tuple_element<0 ,  CTIP >  TE0_CTIP;
@@ -1244,9 +1254,9 @@ struct TupleApiTestDriver
         ASSERT((bsl::is_same<C_T,  typename TE1_TCTP::type  >::value));
         ASSERT((bsl::is_same<V_T,  typename TE1_TVTP::type  >::value));
 
-        // Testing const and volatile objects.  Note that 'std::tuple_element'
-        // isn't specialized for 'const bsl::pair<T1, T2>',
-        // 'volatile bsl::pair<T1, T2>', or 'const volatile bsl::pair<T1, T2>',
+        // Testing const and volatile objects.  Note that `std::tuple_element`
+        // isn't specialized for `const bsl::pair<T1, T2>`,
+        // `volatile bsl::pair<T1, T2>`, or `const volatile bsl::pair<T1, T2>`,
         // so generic specializations for cv-qualified types are tested.
 
         ASSERT((bsl::is_same<C_T,  typename TE0_C_TIP::type >::value));
@@ -1273,7 +1283,7 @@ struct TupleApiTestDriver
         ASSERT((bsl::is_same<CV_T, typename TE1_CV_ITP::type>::value));
         ASSERT((bsl::is_same<CV_T, typename TE1_CV_TTP::type>::value));
 
-        // Testing 'tuple_size'.
+        // Testing `tuple_size`.
 
         typedef std::tuple_size< TIP> TS_TIP;
         typedef std::tuple_size<CTIP> TS_CTIP;
@@ -1313,9 +1323,9 @@ struct TupleApiTestDriver
         ASSERT((2u == TS_TCTP::value));
         ASSERT((2u == TS_TVTP::value));
 
-        // Testing const and volatile objects.  Note that 'std::tuple_size'
-        // isn't specialized for 'const bsl::pair<T1, T2>',
-        // 'volatile bsl::pair<T1, T2>', or 'const volatile bsl::pair<T1, T2>',
+        // Testing const and volatile objects.  Note that `std::tuple_size`
+        // isn't specialized for `const bsl::pair<T1, T2>`,
+        // `volatile bsl::pair<T1, T2>`, or `const volatile bsl::pair<T1, T2>`,
         // so generic specializations for cv-qualified types are tested.
 
 
@@ -1330,10 +1340,10 @@ struct TupleApiTestDriver
         ASSERT((2u == TS_CV_TTP::value));
     }
 
+    /// Test `bsl::get(bsl::pair<T1, T2>)` functions, that accept element
+    /// index as a template parameter and reference/const reference as a
+    /// parameter.
     static void getByIndexCopyTest()
-        // Test 'bsl::get(bsl::pair<T1, T2>)' functions, that accept element
-        // index as a template parameter and reference/const reference as a
-        // parameter.
     {
         if (veryVeryVerbose) printf("\t\twith %s\n", NameOf<T>().name());
 
@@ -1485,9 +1495,9 @@ struct TupleApiTestDriver
         ASSERT((C_TTP_COPY        ==                        c_ttp ));
     }
 
+    /// Test `bsl::get(bsl::pair<T1, T2>)` function, that accepts element
+    /// index as a template parameter and rvalue reference as a parameter.
     static void getByIndexMoveTest()
-        // Test 'bsl::get(bsl::pair<T1, T2>)' function, that accepts element
-        // index as a template parameter and rvalue reference as a parameter.
     {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         if (veryVeryVerbose) printf("\t\twith %s\n", NameOf<T>().name());
@@ -1563,10 +1573,10 @@ struct TupleApiTestDriver
 #endif
     }
 
+    /// Test `bsl::get(bsl::pair<T1, T2>)` function, that accepts element
+    /// index as a template parameter and rvalue reference to the pair,
+    /// having at least one volatile element, as a parameter.
     static void getByIndexVolatileMoveTest()
-        // Test 'bsl::get(bsl::pair<T1, T2>)' function, that accepts element
-        // index as a template parameter and rvalue reference to the pair,
-        // having at least one volatile element, as a parameter.
     {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         if (veryVeryVerbose) printf("\t\twith %s\n", NameOf<T>().name());
@@ -1601,10 +1611,10 @@ struct TupleApiTestDriver
 #endif
     }
 
+    /// Test `bsl::get(bsl::pair<T1, T2>)` function, that accepts element
+    /// type as a template parameter and reference/const reference as a
+    /// parameter.
     static void getByTypeCopyTest()
-        // Test 'bsl::get(bsl::pair<T1, T2>)' function, that accepts element
-        // type as a template parameter and reference/const reference as a
-        // parameter.
     {
         if (veryVeryVerbose) printf("\t\twith %s\n", NameOf<T>().name());
 
@@ -1707,10 +1717,10 @@ struct TupleApiTestDriver
         ASSERT((C_ITP_COPY        ==                        c_itp ));
     }
 
+    /// Test `bsl::get(bsl::pair<T1, T2>)` functions, that accept element
+    /// index as a template parameter and rvalue reference/const rvalue
+    /// reference as a parameter.
     static void getByTypeMoveTest()
-        // Test 'bsl::get(bsl::pair<T1, T2>)' functions, that accept element
-        // index as a template parameter and rvalue reference/const rvalue
-        // reference as a parameter.
     {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         if (veryVeryVerbose) printf("\t\twith %s\n", NameOf<T>().name());
@@ -1803,10 +1813,10 @@ struct TupleApiTestDriver
 #endif
     }
 
+    /// Test `bsl::get(bsl::pair<T1, T2>)` function, that accepts element
+    /// type as a template parameter and rvalue reference to the pair,
+    /// having at least one volatile element, as a parameter.
     static void getByTypeVolatileMoveTest()
-        // Test 'bsl::get(bsl::pair<T1, T2>)' function, that accepts element
-        // type as a template parameter and rvalue reference to the pair,
-        // having at least one volatile element, as a parameter.
     {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         if (veryVeryVerbose) printf("\t\twith %s\n", NameOf<T>().name());
@@ -1922,26 +1932,28 @@ void debugprint(const u::Base& base)
 
 ///Usage
 ///-----
-// A 'bsl::pair' is a very simple object when used without allocators.  Our
-// usage example concentrates on the use of allocators with 'bsl::pair'.
+// A `bsl::pair` is a very simple object when used without allocators.  Our
+// usage example concentrates on the use of allocators with `bsl::pair`.
 // First, we create a utility function that copies a null-terminated string
 // into memory allocated from a supplied allocator.  The allocator can conform
-// to either the 'bslma::Allocator' protocol or the STL allocator concept:
-//..
+// to either the `bslma::Allocator` protocol or the STL allocator concept:
+// ```
+
+    /// Copy the specified null-terminated string `s` into memory allocated
+    /// from the specified `*basicAllocator`
     template <class ALLOC>
     char *myStrDup(const char *s, ALLOC *basicAllocator)
-        // Copy the specified null-terminated string 's' into memory allocated
-        // from the specified '*basicAllocator'
     {
         char *result = (char*) basicAllocator->allocate(strlen(s) + 1);
         return strcpy(result, s);
     }
-//..
+// ```
 // We create a simple string class that holds strings allocated from a
-// supplied allocator.  It uses 'myStrDup' (above) in its implementation:
-//..
+// supplied allocator.  It uses `myStrDup` (above) in its implementation:
+// ```
+
+    /// Simple string class that uses a `bslma::Allocator` allocator.
     class my_String {
-        // Simple string class that uses a 'bslma::Allocator' allocator.
 
         bslma::Allocator *d_allocator_p;
         char             *d_data_p;
@@ -1949,31 +1961,31 @@ void debugprint(const u::Base& base)
       public:
         BSLMF_NESTED_TRAIT_DECLARATION(my_String, bslma::UsesBslmaAllocator);
 
+        /// Construct an empty string using the optionally specified
+        /// allocator `alloc`.
         explicit my_String(bslma::Allocator *alloc = 0);
-            // Construct an empty string using the optionally specified
-            // allocator 'alloc'.
 
+        /// Construct a string with contents specified in `s` using the
+        /// optionally-specified allocator `alloc`.
         my_String(const char* s, bslma::Allocator *alloc = 0);      // IMPLICIT
-            // Construct a string with contents specified in 's' using the
-            // optionally-specified allocator 'alloc'.
 
+        /// Construct a copy of the specified `original` string using the
+        /// optionally specified allocator `alloc`.
         my_String(const my_String& original, bslma::Allocator *alloc = 0);
-            // Construct a copy of the specified 'original' string using the
-            // optionally specified allocator 'alloc'.
 
+        /// Destroy this string.
         ~my_String();
-            // Destroy this string.
 
+        /// Copy specified `rhs` string value to this string.
         my_String& operator=(const my_String& rhs);
-            // Copy specified 'rhs' string value to this string.
 
+        /// Return the null-terminated character array for this string.
         const char* c_str() const;
-            // Return the null-terminated character array for this string.
 
+        /// Return the allocator used to construct this string or, if no
+        /// allocator was specified at construction, the default allocator
+        /// at the time of construction.
         bslma::Allocator *allocator() const;
-            // Return the allocator used to construct this string or, if no
-            // allocator was specified at construction, the default allocator
-            // at the time of construction.
     };
 
     bool operator==(const my_String& lhs, const my_String& rhs)
@@ -2052,22 +2064,22 @@ void debugprint(const u::Base& base)
     {
         return d_allocator_p;
     }
-//..
+// ```
 // Our main program creates a mapping from strings to integers.  Each node of
-// the mapping consists of a 'bsl::pair<my_String, int>'.  The program
+// the mapping consists of a `bsl::pair<my_String, int>`.  The program
 // allocates memory from a test allocator in order to ensure that there are no
 // leaks:
-//..
+// ```
     int usageExample()
     {
         typedef bsl::pair<my_String, int> Node;
 
         Node *mapping[3];
         bslma::TestAllocator alloc;
-//..
-// When constructing a 'Node', an allocator is supplied in addition to
-// parameters for the 'first' and 'second' data members.
-//..
+// ```
+// When constructing a `Node`, an allocator is supplied in addition to
+// parameters for the `first` and `second` data members.
+// ```
         {
             mapping[0] = new(alloc) Node("One", 1, &alloc);
             mapping[1] = new(alloc) Node("Three", 3, &alloc);
@@ -2083,9 +2095,9 @@ void debugprint(const u::Base& base)
         ASSERT(2 == mapping[2]->second);
 
         ASSERT(6 == alloc.numBlocksInUse());
-//..
+// ```
 // Clean up at end.
-//..
+// ```
         alloc.deleteObjectRaw(mapping[0]);
         alloc.deleteObjectRaw(mapping[1]);
         alloc.deleteObjectRaw(mapping[2]);
@@ -2094,19 +2106,19 @@ void debugprint(const u::Base& base)
 
         return 0;
     }
-//..
+// ```
 
                            // =======================
                            // class my_AllocArgString
                            // =======================
 
+/// Another simple string class that uses a user-supplied STL-style
+/// allocator that is provided to the constructor as the second argument,
+/// following an `bsl::allocator_arg_t` tag argument.  The behavior is
+/// undefined unless `ALLOC::value_type` is identical to `char`.
 template <class ALLOC>
 class my_AllocArgString
 {
-    // Another simple string class that uses a user-supplied STL-style
-    // allocator that is provided to the constructor as the second argument,
-    // following an 'bsl::allocator_arg_t' tag argument.  The behavior is
-    // undefined unless 'ALLOC::value_type' is identical to 'char'.
 
     ALLOC  d_alloc;
     char  *d_data_p;
@@ -2114,37 +2126,37 @@ class my_AllocArgString
   public:
     typedef ALLOC allocator_type;
 
+    /// Construct a string without supplying an allocator.
     my_AllocArgString();
     my_AllocArgString(const char* s);                               // IMPLICIT
     my_AllocArgString(const my_AllocArgString& original);
-        // Construct a string without supplying an allocator.
 
+    /// Construct an object the specified `a` allocator, following the
+    /// `allocator_arg_t` construction protocol.
     my_AllocArgString(bsl::allocator_arg_t, const ALLOC& a);
     my_AllocArgString(bsl::allocator_arg_t, const ALLOC& a, const char* s);
     my_AllocArgString(bsl::allocator_arg_t,
                       const ALLOC&             a,
                       const my_AllocArgString& string);
-        // Construct an object the specified 'a' allocator, following the
-        // 'allocator_arg_t' construction protocol.
 
+    /// Destroy this string.
     ~my_AllocArgString();
-        // Destroy this string.
 
+    /// Copy the specified `rhs` to this string.
     my_AllocArgString& operator=(const my_AllocArgString& rhs);
-        // Copy the specified 'rhs' to this string.
 
+    /// Return the length of this string, excluding the null terminator.
     size_t length() const;
-        // Return the length of this string, excluding the null terminator.
 
+    /// Return the null-terminated character array for this string. Never
+    /// returns a null pointer.
     const char* c_str() const;
-        // Return the null-terminated character array for this string. Never
-        // returns a null pointer.
 
+    /// Return the allocator used to construct this object.
     allocator_type get_allocator() const;
-        // Return the allocator used to construct this object.
 
+    /// Return the bslma mechanism within the STL allocator.
     bslma::Allocator* allocator() const;
-        // Return the bslma mechanism within the STL allocator.
 };
 
 template <class ALLOC>
@@ -2196,7 +2208,7 @@ template <class ALLOC>
 my_AllocArgString<ALLOC>::my_AllocArgString()
     : d_alloc(), d_data_p(myStrDup("", &d_alloc))
 {
-    // class invariant: 'd_data_p' is not null
+    // class invariant: `d_data_p` is not null
 }
 
 template <class ALLOC>
@@ -2217,7 +2229,7 @@ my_AllocArgString<ALLOC>::my_AllocArgString(bsl::allocator_arg_t,
                                                     const ALLOC& a)
     : d_alloc(a), d_data_p(myStrDup("", &d_alloc))
 {
-    // class invariant: 'd_data_p' is not null
+    // class invariant: `d_data_p` is not null
 }
 
 template <class ALLOC>
@@ -2295,10 +2307,10 @@ struct UsesBslmaAllocator<my_AllocArgString<ALLOC> > :
                            // class my_STLCharAlloc
                            // =====================
 
+/// STL-conforming allocator for `char` elements.  Cannot be rebound to
+/// allocate other types.
 class my_STLCharAlloc
 {
-    // STL-conforming allocator for 'char' elements.  Cannot be rebound to
-    // allocate other types.
 
     bslma::Allocator *d_bslmaAlloc_p;
 
@@ -2309,9 +2321,9 @@ class my_STLCharAlloc
 
     static bslma::TestAllocator *defaultMechanism();
 
+    /// Not convertible from `bslma::Allocator*`.
     my_STLCharAlloc();
     explicit my_STLCharAlloc(bslma::Allocator *bslmaAlloc_p);
-        // Not convertible from 'bslma::Allocator*'.
 
     //! my_STLCharAlloc(const my_STLCharAlloc&) = default;
     //! ~my_STLCharAlloc() = default;
@@ -2368,42 +2380,43 @@ typedef my_AllocArgString<bsl::allocator<char> > my_BslmaAllocArgStr;
                            // class my_NoAllocString
                            // ======================
 
+/// Another simple string class that does not use a user-supplied
+/// allocator.  All memory is allocated from a shared test allocator.  Will
+/// compile and run if an attempt is made to use a constructor that takes
+/// an allocator argument, but will report an assert failure.
 class my_NoAllocString : public my_AllocArgString<bsl::allocator<char> >
 {
-    // Another simple string class that does not use a user-supplied
-    // allocator.  All memory is allocated from a shared test allocator.  Will
-    // compile and run if an attempt is made to use a constructor that takes
-    // an allocator argument, but will report an assert failure.
 
     typedef my_AllocArgString<bsl::allocator<char> > Base;
 
   public:
     typedef void allocator_type;  // Don't inherit this type from base class
 
+    /// Construct a string the normal way.
     my_NoAllocString();
     my_NoAllocString(const char              *s);                   // IMPLICIT
     my_NoAllocString(const my_NoAllocString&  original);
-        // Construct a string the normal way.
 
+    /// Attempt to construct a string and specify a user-supplied allocator.
+    /// Reports an assert failure and ignores the specified `alloc`, but
+    /// otherwise compiles and runs.  These functions would be called if
+    /// bslstl_pair attempted to construct a `my_NoAllocString` incorrectly.
     explicit
     my_NoAllocString(bslma::Allocator        *alloc);
     my_NoAllocString(const char*              s,
                      bslma::Allocator        *alloc);
     my_NoAllocString(const my_NoAllocString&  original,
                      bslma::Allocator        *alloc);
-        // Attempt to construct a string and specify a user-supplied allocator.
-        // Reports an assert failure and ignores the specified 'alloc', but
-        // otherwise compiles and runs.  These functions would be called if
-        // bslstl_pair attempted to construct a 'my_NoAllocString' incorrectly.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    /// Destroy this object.
     ~my_NoAllocString() = default;
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs`, and return
+    /// a reference providing modifiable access to this object.
     my_NoAllocString& operator=(const my_NoAllocString& rhs) = default;
-        // Assign to this object the value of the specified 'rhs', and return
-        // a reference providing modifiable access to this object.
 #endif
 };
 
@@ -2451,10 +2464,10 @@ my_NoAllocString::my_NoAllocString(const my_NoAllocString&  original,
                            // class Values
                            // ============
 
+/// Namespace for sample values of non-integral `TYPE`
 template <class TYPE, bool = bsl::is_integral<TYPE>::value>
 struct Values
 {
-    // Namespace for sample values of non-integral 'TYPE'
 
     typedef TYPE Type;
 
@@ -2463,10 +2476,10 @@ struct Values
     static Type second() { return "World"; };
 };
 
+/// Namespace for sample values of integral `TYPE`
 template <class TYPE>
 struct Values<TYPE, true>
 {
-    // Namespace for sample values of integral 'TYPE'
 
     typedef TYPE Type;
 
@@ -2480,11 +2493,11 @@ struct Values<TYPE, true>
                            // struct my_(Traits...)
                            // =====================
 
+/// C++11 compilers will detect trivial classes, including empty classes, by
+/// default, so we establish a simple non-trivial class that can be used as
+/// the base class for our testing types, which will have trivial traits
+/// only if explicitly marked as trivial for the relevant `bsl` trait.
 struct my_NonTrivialBaseClass {
-    // C++11 compilers will detect trivial classes, including empty classes, by
-    // default, so we establish a simple non-trivial class that can be used as
-    // the base class for our testing types, which will have trivial traits
-    // only if explicitly marked as trivial for the relevant 'bsl' trait.
 
     my_NonTrivialBaseClass(){}
     my_NonTrivialBaseClass(const my_NonTrivialBaseClass& original)
@@ -2527,9 +2540,9 @@ template <>
 struct is_trivially_copyable<my_CopyTrivial>
      : bsl::true_type {};
 
-// The base class of 'my_CopyBitwise' has a do-nothing declared default c'tor,
+// The base class of `my_CopyBitwise` has a do-nothing declared default c'tor,
 // but contains no data, so we know it can be trivially default constructed.
-// 'pair' propagates 'is_trivially_default_constructible' so we explicitly
+// `pair` propagates `is_trivially_default_constructible` so we explicitly
 // declare the trait here for this test, since the compiler won't assume it.
 
 template <>
@@ -2544,7 +2557,7 @@ struct my_NoTraits : my_NonTrivialBaseClass {};
 namespace BloombergLP {
 namespace bslmf {
 
-// Empty classes are bitwise movable by default.  Specialize for 'my_NoTraits'
+// Empty classes are bitwise movable by default.  Specialize for `my_NoTraits`
 // to make it NOT bitwise movable.
 template<>
 struct IsBitwiseMoveable<my_NoTraits> : bsl::false_type {};
@@ -2583,11 +2596,11 @@ private:
     NonCopyable131875306 (const NonCopyable131875306 &rhs);
 
 public:
+    /// Construct an object containing a copy of the specified int `i`
     explicit NonCopyable131875306(int i) : d_val(i) {}
-        // Construct an object containing a copy of the specified int 'i'
 
+    /// return the contained value
     int get () const { return d_val; }
-        // return the contained value
 };
 
 //=============================================================================
@@ -2663,9 +2676,9 @@ struct TypeWithoutSwap {
 };
 
 
+/// Test `swap` method and free function for `bsl::pair<T1, T2>`.
 template <class T1, class T2>
 void swapTestHelper()
-    // Test 'swap' method and free function for 'bsl::pair<T1, T2>'.
 {
     typedef bsl::pair<T1, T2> test_pair;
 
@@ -2680,11 +2693,11 @@ void swapTestHelper()
     // swap copies with the free function
     swap(p1, p2);
 
-    // verify that 'swap' worked
+    // verify that `swap` worked
     ASSERT(p1 == orig_p2);
     ASSERT(p2 == orig_p1);
 
-    // verify that 'swap' member function was called
+    // verify that `swap` member function was called
     p1.first.assertSwapCalled();
     p1.second.assertSwapCalled();
     p2.first.assertSwapCalled();
@@ -2694,14 +2707,14 @@ void swapTestHelper()
     p1 = orig_p1;
     p2 = orig_p2;
 
-    // now use the 'swap' method
+    // now use the `swap` method
     p1.swap(p2);
 
-    // verify that 'swap' worked
+    // verify that `swap` worked
     ASSERT(p1 == orig_p2);
     ASSERT(p2 == orig_p1);
 
-    // verify that 'swap' member function was called
+    // verify that `swap` member function was called
     p1.first.assertSwapCalled();
     p1.second.assertSwapCalled();
     p2.first.assertSwapCalled();
@@ -2832,7 +2845,7 @@ void testBslmaStringConversionCtor()
     ASSERT(0 == ta2.numBlocksInUse());
     ASSERT(0 == ta3.numBlocksInUse());
 
-    if (veryVerbose) printf("Conversion from native 'std::pair'\n");
+    if (veryVerbose) printf("Conversion from native `std::pair`\n");
 
     if (veryVeryVerbose) printf("\tpair<STRING,int>, no explicit allocator\n");
     {
@@ -2940,7 +2953,7 @@ void testNonBslmaStringConversionCtor()
 {
     bslma::TestAllocator ta1(veryVeryVerbose);  // explicit allocator
     bslma::TestAllocator ta2(veryVeryVerbose);  // global default allocator
-    // Default mechanism for 'my_STLCharAlloc'
+    // Default mechanism for `my_STLCharAlloc`
     bslma::TestAllocator& ta3 = *my_STLCharAlloc::defaultMechanism();
 
     bslma::DefaultAllocatorGuard allocGuard(&ta2);
@@ -2951,7 +2964,7 @@ void testNonBslmaStringConversionCtor()
         // Default allocator when not supplied:
         ta4_p = dynamic_cast<bslma::TestAllocator *>(dummy.allocator());
     }
-    bslma::TestAllocator& ta4 = *ta4_p; // 'STRING's default allocator
+    bslma::TestAllocator& ta4 = *ta4_p; // `STRING`s default allocator
 
     ASSERT(0 == ta1.numBlocksInUse());
     ASSERT(0 == ta2.numBlocksInUse());
@@ -3013,7 +3026,7 @@ void testNonBslmaStringConversionCtor()
     ASSERT(0 == ta3.numBlocksInUse());
     ASSERT(0 == ta4.numBlocksInUse());
 
-    if (veryVerbose) printf("Conversion from native 'std::pair'\n");
+    if (veryVerbose) printf("Conversion from native `std::pair`\n");
 
     if (veryVeryVerbose) printf("\tpair<STRING,int>, no explicit allocator\n");
     {
@@ -3072,39 +3085,39 @@ void testNonBslmaStringConversionCtor()
     ASSERT(0 == ta4.numBlocksInUse());
 }
 
+/// Return true (for types that don't take a bslma::Allocator).
 template <class TYPE, bool = bslma::UsesBslmaAllocator<TYPE>::value>
 struct AllocatorMatcher
 {
     static bool match(const TYPE&, bslma::Allocator *) { return true; }
-        // Return true (for types that don't take a bslma::Allocator).
 };
 
+/// Return true if the specified `v` was constructed with the specified
+/// allocator `a`; otherwise false.
 template <class TYPE>
 struct AllocatorMatcher<TYPE, true>
 {
     static bool match(const TYPE& v, bslma::Allocator *a)
-        // Return true if the specified 'v' was constructed with the specified
-        // allocator 'a'; otherwise false.
         { return v.allocator() == a; }
 };
 
+/// Return true if the specified `v` was constructed with the specified
+/// allocator `a`; otherwise false.  If `TYPE` is not constructed with a
+/// `bslma::Allocator`, then always return true.
 template <class TYPE>
 inline
 bool matchAllocator(const TYPE& v, bslma::Allocator *a)
-    // Return true if the specified 'v' was constructed with the specified
-    // allocator 'a'; otherwise false.  If 'TYPE' is not constructed with a
-    // 'bslma::Allocator', then always return true.
 {
     return AllocatorMatcher<TYPE>::match(v, a);
 }
 
+/// Test functionality of `bsl::pair<T1,T2>`, with and without
+/// explicitly-specified `bslma::Allocator*` constructor arguments.  (If
+/// neither `T1` nor `T2` uses `bslma::Allocator`, then the allocator
+/// argument should be ignored when supplied, instead of resulting in a
+/// compilation error.)
 template <class T1, class T2>
 void testFunctionality()
-    // Test functionality of 'bsl::pair<T1,T2>', with and without
-    // explicitly-specified 'bslma::Allocator*' constructor arguments.  (If
-    // neither 'T1' nor 'T2' uses 'bslma::Allocator', then the allocator
-    // argument should be ignored when supplied, instead of resulting in a
-    // compilation error.)
 {
     typedef bsl::pair<T1, T2> Obj;
     ASSERT((bsl::is_same<T1, typename Obj::first_type>::value));
@@ -3279,10 +3292,10 @@ void testFunctionality()
                          // class CloneDisabledTestType
                          // ===========================
 
+/// This class provides a test object used to check that all members are
+/// created inplace during piecewise pair construction.  Methods making
+/// clones of its objects are disabled.
 class CloneDisabledTestType {
-    // This class provides a test object used to check that all members are
-    // created inplace during piecewise pair construction.  Methods making
-    // clones of its objects are disabled.
 
   public:
     // PUBLIC TYPES
@@ -3301,32 +3314,35 @@ class CloneDisabledTestType {
 
   public:
     // CREATORS
-    CloneDisabledTestType();
-        // Create an 'CloneDisabledTestType' object having the default
-        // attribute value '-1'.
 
+    /// Create an `CloneDisabledTestType` object having the default
+    /// attribute value `-1`.
+    CloneDisabledTestType();
+
+    /// Create a `CloneDisabledTestType` object having the specified `arg`
+    /// attribute value.
     explicit CloneDisabledTestType(ArgType arg);
-        // Create a 'CloneDisabledTestType' object having the specified 'arg'
-        // attribute value.
 
     // ACCESSORS
-    const ArgType& arg() const;
-        // Return the value of the argument that was passed to the constructor
-        // of this object.
 
+    /// Return the value of the argument that was passed to the constructor
+    /// of this object.
+    const ArgType& arg() const;
+
+    /// Return `true` if the specified `other` object has the same value as
+    /// this object, and `false` otherwise.  Two `CloneDisabledTestType`
+    /// objects have the same value if their corresponding attributes have
+    /// the same value.
     bool isEqual(const CloneDisabledTestType& other) const;
-        // Return 'true' if the specified 'other' object has the same value as
-        // this object, and 'false' otherwise.  Two 'CloneDisabledTestType'
-        // objects have the same value if their corresponding attributes have
-        // the same value.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `CloneDisabledTestType` objects have
+/// the same value if their corresponding attributes have the same value.
 bool operator==(const CloneDisabledTestType& lhs,
                 const CloneDisabledTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'CloneDisabledTestType' objects have
-    // the same value if their corresponding attributes have the same value.
 
                         // ---------------------------
                         // class CloneDisabledTestType
@@ -3361,42 +3377,49 @@ bool operator==(const CloneDisabledTestType& lhs,
 }
 
 
+/// This `class` is used for testing piecewise construction of `bsl::pair`
+/// object.
 class TupleTestDriver {
-    // This 'class' is used for testing piecewise construction of 'bsl::pair'
-    // object.
 
     // PRIVATE CLASS METHODS
+
+    /// If the second argument is a `true_type`, return the argument moved.
     template <class T>
     static bslmf::MovableRef<T> testArg(T& t, bsl::true_type)
-        // If the second argument is a 'true_type', return the argument moved.
     {
         return MoveUtil::move(t);
     }
 
+    /// If the second argument is a `false_type`, return a reference
+    /// providing non-modifiable access to the argument.
     template <class T>
     static const T& testArg(T& t, bsl::false_type)
-        // If the second argument is a 'false_type', return a reference
-        // providing non-modifiable access to the argument.
     {
         return t;
     }
 
+    /// If the second argument is a `true_type`, return the held argument,
+    /// moved.
     template <class T>
     static bslmf::MovableRef<T> testArg(u::ArgHolder<T>& t, bsl::true_type)
-        // If the second argument is a 'true_type', return the held argument,
-        // moved.
     {
         return MoveUtil::move(t.arg());
     }
 
+    /// If the second argument is a `false_type`, return a reference
+    /// providing non-modifiable access to the held argument.
     template <class T>
     static const T& testArg(u::ArgHolder<T>& t, bsl::false_type)
-        // If the second argument is a 'false_type', return a reference
-        // providing non-modifiable access to the held argument.
     {
         return t.arg();
     }
 
+    /// Passed as run time `int`s the template args to a `runTestAlloc` and
+    /// `runTestNoAlloc` routines, check for sanity, where the specified
+    /// `displayName` is the name of the passed display type.  The thinking
+    /// here is to shrink code size by handling this in a single,
+    /// non-inline, non-template routine called by all the different
+    /// template instantiations.
     static void checkArgs(const char *displayName,
                           int         numFirstArgs,
                           int         nf1,
@@ -3406,13 +3429,15 @@ class TupleTestDriver {
                           int         ns1,
                           int         ns2,
                           int         ns3);
-        // Passed as run time 'int's the template args to a 'runTestAlloc' and
-        // 'runTestNoAlloc' routines, check for sanity, where the specified
-        // 'displayName' is the name of the passed display type.  The thinking
-        // here is to shrink code size by handling this in a single,
-        // non-inline, non-template routine called by all the different
-        // template instantiations.
 
+    /// Construct a `bsl::pair<FIRST_TYPE, SECOND_TYPE>` with two tuples and
+    /// a `bslma`-style allocator argument, where the first tuple contains
+    /// `NUM_FIRST_ARGS` elements, and the second `NUM_SECOND_ARGS`
+    /// elements.  See the documentation of the public runTestAlloc below
+    /// for the meaning of `NF1`, `NF2`, `NF3`, `NS1`, `NS2`, and `NS3`.
+    /// The behavior is undefined unless each of `FIRST_TYPE` and
+    /// `SECOND_TYPE` is either `bsltf::EmplacableTestType` or
+    /// `bsltf::AllocEmplacableTestType`.
     template <class FIRST_TYPE,
               int NUM_FIRST_ARGS,
               int NF1,
@@ -3424,17 +3449,33 @@ class TupleTestDriver {
               int NS2,
               int NS3>
     static void runTestAllocImpl();
-        // Construct a 'bsl::pair<FIRST_TYPE, SECOND_TYPE>' with two tuples and
-        // a 'bslma'-style allocator argument, where the first tuple contains
-        // 'NUM_FIRST_ARGS' elements, and the second 'NUM_SECOND_ARGS'
-        // elements.  See the documentation of the public runTestAlloc below
-        // for the meaning of 'NF1', 'NF2', 'NF3', 'NS1', 'NS2', and 'NS3'.
-        // The behavior is undefined unless each of 'FIRST_TYPE' and
-        // 'SECOND_TYPE' is either 'bsltf::EmplacableTestType' or
-        // 'bsltf::AllocEmplacableTestType'.
 
   public:
     // CLASS METHODS
+
+    /// Call runTestAllocImpl once with every possible pair with element
+    /// types drawn from the set of `bsltf::EmplacableTestType` and
+    /// bsltf::AllocEmplacableTestType' (4 combinations total), in each case
+    /// constructing the pair type from two tuples (each with 0-3 elements)
+    /// and a `bslma`-style allocator.  The number of args for the first
+    /// tuple is the specified `NUM_FIRST_ARGS`, and the number for the
+    /// second is the specified `NUM_SECOND_ARGS`.  Interpret the values of
+    /// `NFi` and `NSi` as follows:
+    /// ```
+    /// NFi == 0 => forward the i'th `first` argument using copy semantics
+    /// NSi == 0 => forward the i'th `second` argument using copy semantics
+    ///
+    /// NFi == 1 => forward the i'th `first` argument using move semantics
+    /// NSi == 1 => forward the i'th `second` argument using move semantics
+    ///
+    /// NFi == 2 => don't forward a value for the i'th `first` argument
+    /// NSi == 2 => don't forward a value for the i'th `second` argument
+    /// ```
+    /// The behavior is undefined unless `0 <= NUM_FIRST_ARGS <= 3`,
+    /// `0 <= NUM_SECOND_ARGS <= 3`, all `[NF1 .. NF3]` and `[NS1 .. NS3]`
+    /// parameters are in the range `[0 .. 2]`, and for each `i` in the
+    /// range `[1 .. 3]`, `2 == NFi` if and only if `i > NUM_FIRST_ARGS`,
+    /// and `2 == NSi` if and only if `i > NUM_SECOND_ARGS`.
     template <int NUM_FIRST_ARGS,
               int NF1,
               int NF2,
@@ -3444,30 +3485,27 @@ class TupleTestDriver {
               int NS2,
               int NS3>
     static void runTestAlloc();
-        // Call runTestAllocImpl once with every possible pair with element
-        // types drawn from the set of 'bsltf::EmplacableTestType' and
-        // bsltf::AllocEmplacableTestType' (4 combinations total), in each case
-        // constructing the pair type from two tuples (each with 0-3 elements)
-        // and a 'bslma'-style allocator.  The number of args for the first
-        // tuple is the specified 'NUM_FIRST_ARGS', and the number for the
-        // second is the specified 'NUM_SECOND_ARGS'.  Interpret the values of
-        // 'NFi' and 'NSi' as follows:
-        //..
-        //  NFi == 0 => forward the i'th 'first' argument using copy semantics
-        //  NSi == 0 => forward the i'th 'second' argument using copy semantics
-        //
-        //  NFi == 1 => forward the i'th 'first' argument using move semantics
-        //  NSi == 1 => forward the i'th 'second' argument using move semantics
-        //
-        //  NFi == 2 => don't forward a value for the i'th 'first' argument
-        //  NSi == 2 => don't forward a value for the i'th 'second' argument
-        //..
-        // The behavior is undefined unless '0 <= NUM_FIRST_ARGS <= 3',
-        // '0 <= NUM_SECOND_ARGS <= 3', all '[NF1 .. NF3]' and '[NS1 .. NS3]'
-        // parameters are in the range '[0 .. 2]', and for each 'i' in the
-        // range '[1 .. 3]', '2 == NFi' if and only if 'i > NUM_FIRST_ARGS',
-        // and '2 == NSi' if and only if 'i > NUM_SECOND_ARGS'.
 
+    /// Construct one pair of `bsltf::EmplacableType` with two tuples, each
+    /// taking 0-3 args.  The number of args for the first tuple is the
+    /// specified `NUM_FIRST_ARGS`, the number for the second is the
+    /// specified `NUM_SECOND_ARGS`.  Interpret the values of `NFi` and
+    /// `NSi` as follows:
+    /// ```
+    /// NFi == 0 => forward the i'th `first` argument using copy semantics
+    /// NSi == 0 => forward the i'th `second` argument using copy semantics
+    ///
+    /// NFi == 1 => forward the i'th `first` argument using move semantics
+    /// NSi == 1 => forward the i'th `second` argument using move semantics
+    ///
+    /// NFi == 2 => don't forward a value for the i'th `first` argument
+    /// NSi == 2 => don't forward a value for the i'th `second` argument
+    /// ```
+    /// The behavior is undefined unless `0 <= NUM_FIRST_ARGS <= 3`,
+    /// `0 <= NUM_SECOND_ARGS <= 3`, all `[NF1 .. NF3]` and `[NS1 .. NS3]`
+    /// parameters are in the range `[0 .. 2]`, `2 == NF2` if `2 == NF1`,
+    /// `2 == NF3` if `2 == NF2`, `2 == NS2` if `2 == NS1`, and `2 == NS3`
+    /// if `2 == NS2`.
     template <int NUM_FIRST_ARGS,
               int NF1,
               int NF2,
@@ -3477,45 +3515,25 @@ class TupleTestDriver {
               int NS2,
               int NS3>
     static void runTestNoAlloc();
-        // Construct one pair of 'bsltf::EmplacableType' with two tuples, each
-        // taking 0-3 args.  The number of args for the first tuple is the
-        // specified 'NUM_FIRST_ARGS', the number for the second is the
-        // specified 'NUM_SECOND_ARGS'.  Interpret the values of 'NFi' and
-        // 'NSi' as follows:
-        //..
-        //  NFi == 0 => forward the i'th 'first' argument using copy semantics
-        //  NSi == 0 => forward the i'th 'second' argument using copy semantics
-        //
-        //  NFi == 1 => forward the i'th 'first' argument using move semantics
-        //  NSi == 1 => forward the i'th 'second' argument using move semantics
-        //
-        //  NFi == 2 => don't forward a value for the i'th 'first' argument
-        //  NSi == 2 => don't forward a value for the i'th 'second' argument
-        //..
-        // The behavior is undefined unless '0 <= NUM_FIRST_ARGS <= 3',
-        // '0 <= NUM_SECOND_ARGS <= 3', all '[NF1 .. NF3]' and '[NS1 .. NS3]'
-        // parameters are in the range '[0 .. 2]', '2 == NF2' if '2 == NF1',
-        // '2 == NF3' if '2 == NF2', '2 == NS2' if '2 == NS1', and '2 == NS3'
-        // if '2 == NS2'.
 
+    /// Construct one pair of (template parameter) `TYPE` with two tuples,
+    /// each taking one argument.  Interpret the values of (template
+    /// parameters) `NF` and `NS` as follows:
+    /// ```
+    /// NF == 0 => forward the `first` argument using copy semantics
+    /// NS == 0 => forward the `second` argument using copy semantics
+    ///
+    /// NF == 1 => forward the `first` argument using move semantics
+    /// NS == 1 => forward the `second` argument using move semantics
+    /// ```
+    /// The behavior is undefined unless  `NF` and `NS` parameters are in
+    /// the range `[0 .. 1]`.
     template <class TYPE, int NF, int NS>
     static void runTestInplaceMemberConstruction();
-        // Construct one pair of (template parameter) 'TYPE' with two tuples,
-        // each taking one argument.  Interpret the values of (template
-        // parameters) 'NF' and 'NS' as follows:
-        //..
-        //  NF == 0 => forward the 'first' argument using copy semantics
-        //  NS == 0 => forward the 'second' argument using copy semantics
-        //
-        //  NF == 1 => forward the 'first' argument using move semantics
-        //  NS == 1 => forward the 'second' argument using move semantics
-        //..
-        // The behavior is undefined unless  'NF' and 'NS' parameters are in
-        // the range '[0 .. 1]'.
 
+    /// Test correctness of allocator propagation performed by all forms of
+    /// `bsl::pair` piecewise constructor.
     static void runTestAllocatorPropagation();
-        // Test correctness of allocator propagation performed by all forms of
-        // 'bsl::pair' piecewise constructor.
 };
 
 void TupleTestDriver::checkArgs(const char *displayName,
@@ -3583,7 +3601,7 @@ void TupleTestDriver::runTestAllocImpl()
     checkArgs(name, NUM_FIRST_ARGS,  NF1, NF2, NF3,
                     NUM_SECOND_ARGS, NS1, NS2, NS3);
 
-    // In C++17, these become the simpler-to-name 'bool_constant'.
+    // In C++17, these become the simpler-to-name `bool_constant`.
 
     static const bsl::integral_constant<bool, NF1 == 1> MOVE_F1 = {};
     static const bsl::integral_constant<bool, NF2 == 1> MOVE_F2 = {};
@@ -3645,7 +3663,7 @@ void TupleTestDriver::runTestAllocImpl()
                           &aa);
               } break;
               default: {
-                // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+                // Invalid number of arguments (`BSLMF_ASSERT`ed on entry).
               } return;                                               // RETURN
             }
           } break;
@@ -3683,7 +3701,7 @@ void TupleTestDriver::runTestAllocImpl()
                           &aa);
               } break;
               default: {
-                // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+                // Invalid number of arguments (`BSLMF_ASSERT`ed on entry).
               } return;                                               // RETURN
             }
           } break;
@@ -3725,7 +3743,7 @@ void TupleTestDriver::runTestAllocImpl()
                           &aa);
               } break;
               default: {
-                // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+                // Invalid number of arguments (`BSLMF_ASSERT`ed on entry).
               } return;                                               // RETURN
             }
           } break;
@@ -3771,12 +3789,12 @@ void TupleTestDriver::runTestAllocImpl()
                           &aa);
               } break;
               default: {
-                // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+                // Invalid number of arguments (`BSLMF_ASSERT`ed on entry).
               } return;                                               // RETURN
             }
           } break;
           default: {
-            // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+            // Invalid number of arguments (`BSLMF_ASSERT`ed on entry).
           } return;                                                   // RETURN
         }
         u::PairGuard<Pair> pg(p);
@@ -3891,7 +3909,7 @@ void TupleTestDriver::runTestNoAlloc()
     checkArgs(name, NUM_FIRST_ARGS,  NF1, NF2, NF3,
                     NUM_SECOND_ARGS, NS1, NS2, NS3);
 
-    // In C++17, these become the simpler-to-name 'bool_constant'.
+    // In C++17, these become the simpler-to-name `bool_constant`.
 
     static const bsl::integral_constant<bool, NF1 == 1> MOVE_F1 = {};
     static const bsl::integral_constant<bool, NF2 == 1> MOVE_F2 = {};
@@ -3941,7 +3959,7 @@ void TupleTestDriver::runTestNoAlloc()
                                                       testArg(AS3, MOVE_S3)));
           } break;
           default: {
-            // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+            // Invalid number of arguments (`BSLMF_ASSERT`ed on entry).
           } return;                                                   // RETURN
         }
       } break;
@@ -3971,7 +3989,7 @@ void TupleTestDriver::runTestNoAlloc()
                                                testArg(AS3, MOVE_S3)));
           } break;
           default: {
-            // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+            // Invalid number of arguments (`BSLMF_ASSERT`ed on entry).
           } return;                                                   // RETURN
         }
       } break;
@@ -4005,7 +4023,7 @@ void TupleTestDriver::runTestNoAlloc()
                                                testArg(AS3, MOVE_S3)));
           } break;
           default: {
-            // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+            // Invalid number of arguments (`BSLMF_ASSERT`ed on entry).
           } return;                                                   // RETURN
         }
       } break;
@@ -4043,12 +4061,12 @@ void TupleTestDriver::runTestNoAlloc()
                                                testArg(AS3, MOVE_S3)));
           } break;
           default: {
-            // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+            // Invalid number of arguments (`BSLMF_ASSERT`ed on entry).
           } return;                                                   // RETURN
         }
       } break;
       default: {
-        // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+        // Invalid number of arguments (`BSLMF_ASSERT`ed on entry).
       } return;                                                       // RETURN
     }
     u::PairGuard<Pair> pg(p);
@@ -4097,7 +4115,7 @@ void TupleTestDriver::runTestInplaceMemberConstruction()
     ASSERTV(name, 0 <= NF && NF <= 1);
     ASSERTV(name, 0 <= NF && NF <= 1);
 
-    // In C++17, these become the simpler-to-name 'bool_constant'.
+    // In C++17, these become the simpler-to-name `bool_constant`.
 
     static const bsl::integral_constant<bool, NF == 1> MOVE_F = {};
     static const bsl::integral_constant<bool, NS == 1> MOVE_S = {};
@@ -4148,7 +4166,7 @@ void TupleTestDriver::runTestAllocatorPropagation()
     ASSERTV(oa.numBytesInUse(),   0 == oa.numBytesInUse());
     ASSERTV(dma->numBytesInUse(), 0 == dma->numBytesInUse());
     {
-        // 'my_NoAllocString' object uses 'my_STLCharAlloc::defaultMechanism()'
+        // `my_NoAllocString` object uses `my_STLCharAlloc::defaultMechanism()`
         // if allocator wasn't specified by client on construction.
 
         NoAllocPair    npa(std::piecewise_construct,
@@ -4160,7 +4178,7 @@ void TupleTestDriver::runTestAllocatorPropagation()
         ASSERTV(0   == strcmp("a", npa.first.c_str()));
         ASSERTV(0   == strcmp("b", npa.second.c_str()));
 
-        // 'my_String' object uses 'bslma::Default::defaultAllocator()' if
+        // `my_String` object uses `bslma::Default::defaultAllocator()` if
         // allocator wasn't specified by client on construction.
 
         BslmaAllocPair bpa(std::piecewise_construct,
@@ -4172,8 +4190,8 @@ void TupleTestDriver::runTestAllocatorPropagation()
         ASSERTV(0   == strcmp("c", bpa.first.c_str()));
         ASSERTV(0   == strcmp("d", bpa.second.c_str()));
 
-        // 'my_BslmaAllocArgStr' object uses
-        // 'bslma::Default::defaultAllocator()' if allocator wasn't specified
+        // `my_BslmaAllocArgStr` object uses
+        // `bslma::Default::defaultAllocator()` if allocator wasn't specified
         // by client on construction.
 
         ArgAllocPair   apa(std::piecewise_construct,
@@ -4196,8 +4214,8 @@ void TupleTestDriver::runTestAllocatorPropagation()
 
     {
         // The allocator argument in this case should be ignored since
-        // 'bslma::UsesBslmaAllocator<my_NoAllocString>' does not inherit from
-        // 'bsl::true_type'.
+        // `bslma::UsesBslmaAllocator<my_NoAllocString>` does not inherit from
+        // `bsl::true_type`.
         NoAllocPair    npa(std::piecewise_construct,
                            std::forward_as_tuple("c"),
                            std::forward_as_tuple("d"),
@@ -4264,10 +4282,10 @@ class TestDriver {
     typedef bsl::pair<ToFirst,   ToSecond>   ToPair;
     typedef bsl::pair<FromFirst, FromSecond> FromPair;
 
-    // 'ToPair' and 'FromPair' are two types of 'bsl::pair's, sometimes
+    // `ToPair` and `FromPair` are two types of `bsl::pair`s, sometimes
     // identical, sometimes different, but always such that the c'tor
-    // 'ToPair(FromPair&&)' and the assignment operator
-    // 'ToPair::operator=(FromPair&&)' are supported.
+    // `ToPair(FromPair&&)` and the assignment operator
+    // `ToPair::operator=(FromPair&&)` are supported.
 
     typedef bsl::integral_constant<
                        bool,
@@ -4285,54 +4303,56 @@ class TestDriver {
                       k_MOVE_1 = u::IsMoveAware<ToFirst>::value,
                       k_MOVE_2 = u::IsMoveAware<ToSecond>::value };
 
-                      // Note that the memory allocation property of 'ToFirst'
-                      // matches that of 'FromFirst', and that of 'ToSecond'
-                      // matches that of 'FromSecond', and the same goes for
+                      // Note that the memory allocation property of `ToFirst`
+                      // matches that of `FromFirst`, and that of `ToSecond`
+                      // matches that of `FromSecond`, and the same goes for
                       // the move awareness property.
 
-    // Organization of functions: It turns out that the c'tor for 'pair' only
-    // takes an allocator argument if the members of 'pair' allocate memory,
+    // Organization of functions: It turns out that the c'tor for `pair` only
+    // takes an allocator argument if the members of `pair` allocate memory,
     // so we have to write 2 versions of every test, one to call the c'tors
     // with an allocator and one to call them without.
     //
     // So we do 3 functions for each test:
-    //: 1 one, passed a 'false_type, which expects nothing in the pairs to
-    //:   allocate
-    //: 2 one, passed a 'true_type', which expects the pairs to
-    //:   allocate, and
-    //: 3 one, passed no argument, which determines through template logic
-    //:   which of the other two functions needs to be called.
+    // 1. one, passed a 'false_type, which expects nothing in the pairs to
+    //    allocate
+    // 2. one, passed a `true_type`, which expects the pairs to
+    //    allocate, and
+    // 3. one, passed no argument, which determines through template logic
+    //    which of the other two functions needs to be called.
     // Note that the types of the 2 pairs are set up so that if one of them
     // allocates, both do.
 
   public:
     // MANIPULATORS
+
+    /// Test constructor from `std::pair` in contexts with nested
+    /// pairs (reproducing / testing the fix for a known bug).
     static void testCase14(bsl::false_type pairAllocates);
     static void testCase14(bsl::true_type  pairAllocates);
     static void testCase14();
-        // Test constructor from 'std::pair' in contexts with nested
-        // pairs (reproducing / testing the fix for a known bug).
 
     static void testCase12_copy();
-    static void testCase12_move();
-        // Test move and copy assignment.  These must be in separate functions
-        // because we want to test move assignment with 'MoveonlyTestType' but
-        // copy assignment will fail to compile for that type.
 
+    /// Test move and copy assignment.  These must be in separate functions
+    /// because we want to test move assignment with `MoveonlyTestType` but
+    /// copy assignment will fail to compile for that type.
+    static void testCase12_move();
+
+    /// Testing constructors where one element is moved and the other
+    /// copied.  Also, testing both elements copied, and testing the whole
+    /// pair copied as a unit.  Must be separate from TC 10 as this cannot
+    /// handle the move only type.
     static void testCase11(bsl::false_type pairAllocates);
     static void testCase11(bsl::true_type  pairAllocates);
     static void testCase11();
-        // Testing constructors where one element is moved and the other
-        // copied.  Also, testing both elements copied, and testing the whole
-        // pair copied as a unit.  Must be separate from TC 10 as this cannot
-        // handle the move only type.
 
+    /// Testing move constructors moving the two elements of the pair into
+    /// the c'tor separately.
     static void testCase10();
-        // Testing move constructors moving the two elements of the pair into
-        // the c'tor separately.
 
+    /// Testing pair to pair move c'tors.
     static void testCase9();
-        // Testing pair to pair move c'tors.
 };
 
 template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
@@ -4354,7 +4374,7 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
     for (int bb = 0; bb < 2; ++bb) {
         const bool b = bb;
 
-        // pair in 'first' element
+        // pair in `first` element
 
         {
             bsls::ObjectBuffer<FromPair> ofp;
@@ -4420,7 +4440,7 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
         ASSERT(0 == tb.numAllocations());
         ASSERT(0 == da.numAllocations());
 
-        // pair in 'second' element
+        // pair in `second` element
 
         {
             bsls::ObjectBuffer<FromPair> ofp;
@@ -4508,7 +4528,7 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
     for (int bb = 0; bb < 2; ++bb) {
         const bool b = bb;
 
-        // pair in 'first' element
+        // pair in `first` element
 
         {
             bsls::ObjectBuffer<FromPair> ofp;
@@ -4598,7 +4618,7 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
         tbSoFar = tb.numAllocations();
         daSoFar = da.numAllocations();
 
-        // pair in 'second' element
+        // pair in `second` element
 
         {
             bsls::ObjectBuffer<FromPair> ofp;
@@ -5373,7 +5393,7 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase10()
 
     if (bsl::is_same<ToFirst, ToSecond>::value) {
         // TBD: clearly the following is just a simple test to ensure that the
-        // lvalue references to const and non-'const' values are being
+        // lvalue references to const and non-`const` values are being
         // processed correctly.
 
         {
@@ -5485,28 +5505,28 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase9()
     ASSERT(da.numAllocations() == numDeliberateDefaultAllocs);
 }
 
+/// We will try different combinations of type to be passed to the
+/// `TestDriver` class.
+///
+/// In practice, the `TestDriver` class will take the form
+///
+/// `TestDriver<ToFirst, ToSecond, FromFirst, FromSecond>`
+///
+/// where it creates two types of pairs:
+///
+/// * `ToPair` == `pair<ToFirst, ToSecond>`, and
+/// * `FromPair` == `pair<FromFirst, FromSecond>`
+///
+/// where `ToPair` should be implicitly convertible from a `FromPair`.  We
+/// will also be doing move conversions, which in C++03 only work if
+/// `ToPair` is trivially (as opposed to implicitly) convertible from
+/// `FromPair`, meaning that the respective `first_type`s and `second_type`s
+/// either match, or the form in `FromPair` is a derived class of the form
+/// in `ToPair`.  In C++11, where we are dealing with genuine rvalue
+/// references, we also allow the `From` types to be `u::Node`, which is
+/// implicitly convertible to `u::Base`, but is not derived from it.
 template <class TYPE>
 struct MetaTestDriver {
-    // We will try different combinations of type to be passed to the
-    // 'TestDriver' class.
-    //
-    // In practice, the 'TestDriver' class will take the form
-    //
-    // 'TestDriver<ToFirst, ToSecond, FromFirst, FromSecond>'
-    //
-    // where it creates two types of pairs:
-    //
-    //: o 'ToPair' == 'pair<ToFirst, ToSecond>', and
-    //: o 'FromPair' == 'pair<FromFirst, FromSecond>'
-    //
-    // where 'ToPair' should be implicitly convertible from a 'FromPair'.  We
-    // will also be doing move conversions, which in C++03 only work if
-    // 'ToPair' is trivially (as opposed to implicitly) convertible from
-    // 'FromPair', meaning that the respective 'first_type's and 'second_type's
-    // either match, or the form in 'FromPair' is a derived class of the form
-    // in 'ToPair'.  In C++11, where we are dealing with genuine rvalue
-    // references, we also allow the 'From' types to be 'u::Node', which is
-    // implicitly convertible to 'u::Base', but is not derived from it.
 
     typedef TestDriver<TYPE,      TYPE,      TYPE,         TYPE        > Dr00;
 
@@ -5536,7 +5556,7 @@ struct MetaTestDriver {
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 
-// Define our function to call the test driver, including using 'u::Node'.
+// Define our function to call the test driver, including using `u::Node`.
 
 #define u_META_FUNCTION(funcName)                                             \
 template <class TYPE>                                                         \
@@ -5562,7 +5582,7 @@ void MetaTestDriver<TYPE>::funcName()                                         \
 
 #else
 
-// Define our function to call the test driver, but don't use 'u::Node'.
+// Define our function to call the test driver, but don't use `u::Node`.
 
 #define u_META_FUNCTION(funcName)                                             \
 template <class TYPE>                                                         \
@@ -5594,13 +5614,14 @@ u_META_FUNCTION(testCase9)
 #undef u_META_FUNCTION
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+/// This utility class template provides functions for testing conversion to
+/// `std::tuple` operator.
+
+/// Formally test coversion operator.
 template<class T>
 struct TupleConversionDriver
-    // This utility class template provides functions for testing conversion to
-    // 'std::tuple' operator.
 {
     static void operatorTest()
-        // Formally test coversion operator.
     {
         if (veryVeryVerbose) printf("\t\twith %s\n", NameOf<T>().name());
 
@@ -5627,7 +5648,7 @@ struct TupleConversionDriver
         ASSERTV(i == std::get<1>(Y1));
         ASSERTV(i == std::get<0>(Y2));
 
-        // Changing 'bsl::pair'.
+        // Changing `bsl::pair`.
 
         t.setData(++value);
         mX1.first.setData(value);
@@ -5642,7 +5663,7 @@ struct TupleConversionDriver
         ASSERTV(i == std::get<1>(Y1));
         ASSERTV(i == std::get<0>(Y2));
 
-        // Changing 'std::tuple'.
+        // Changing `std::tuple`.
 
         t.setData(++value);
         std::get<0>(Y1).setData(value);
@@ -5658,8 +5679,8 @@ struct TupleConversionDriver
         ASSERTV(i == mX2.first);
     }
 
+    /// Check compatibility of `bsl::pair` with `std::tie()` function.
     static void tieTest()
-        // Check compatibility of 'bsl::pair' with 'std::tie()' function.
     {
         if (veryVeryVerbose) printf("\t\twith %s\n", NameOf<T>().name());
 
@@ -5749,32 +5770,32 @@ namespace IsDefaultConstructibleTestTypes {
 #endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+/// This struct provides a namespace for functions testing deduction guides.
+/// The tests are compile-time only; it is not necessary that these routines
+/// be called at run-time.  Note that the following constructors do not have
+/// associated deduction guides because the template parameters for
+/// `bsl::pair` cannot be deduced from the constructor parameters.
+/// ```
+/// pair()
+/// pair(bslma::Allocator *)
+/// pair(piecewise_construct_t, ...);
+/// pair(piecewise_construct_t, ..., bslma::Allocator *);
+/// All the converting constructors
+/// ```
 struct TestDeductionGuides {
-    // This struct provides a namespace for functions testing deduction guides.
-    // The tests are compile-time only; it is not necessary that these routines
-    // be called at run-time.  Note that the following constructors do not have
-    // associated deduction guides because the template parameters for
-    // 'bsl::pair' cannot be deduced from the constructor parameters.
-    //..
-    // pair()
-    // pair(bslma::Allocator *)
-    // pair(piecewise_construct_t, ...);
-    // pair(piecewise_construct_t, ..., bslma::Allocator *);
-    // All the converting constructors
-    //..
 
 #define ASSERT_SAME_TYPE(...) \
  static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
 
+    /// Test that constructing a `bsl::pair` from a `bsl::pair` and
+    /// (optionally) an allocator deduces the correct type.
+    /// ```
+    /// pair(const pair&  t) -> decltype(t)
+    /// pair(      pair&& t) -> decltype(t)
+    /// pair(const pair&  t, bslma::Allocator *) -> decltype(t)
+    /// pair(      pair&& t, bslma::Allocator *) -> decltype(t)
+    /// ```
     static void BslPairConstructors ()
-        // Test that constructing a 'bsl::pair' from a 'bsl::pair' and
-        // (optionally) an allocator deduces the correct type.
-        //..
-        // pair(const pair&  t) -> decltype(t)
-        // pair(      pair&& t) -> decltype(t)
-        // pair(const pair&  t, bslma::Allocator *) -> decltype(t)
-        // pair(      pair&& t, bslma::Allocator *) -> decltype(t)
-        //..
     {
         my_String             s ("abc");
         bslma::Allocator     *a1 = NULL;
@@ -5806,14 +5827,14 @@ struct TestDeductionGuides {
                                                   bsl::pair<double, long>>);
     }
 
+    /// Test that constructing a `bsl::pair` from a two arguments and
+    /// (optionally) an allocator deduces the correct type.
+    /// ```
+    /// pair(const T1&,  const T2& ) -> pair<T1, T2>
+    /// pair(      T1&&,       T2&&) -> pair<T1, T2>
+    /// pair(const T1&, const T2&, bslma::Allocator *) -> pair<T1, T2>
+    /// ```
     static void SimpleConstructors ()
-        // Test that constructing a 'bsl::pair' from a two arguments and
-        // (optionally) an allocator deduces the correct type.
-        //..
-        // pair(const T1&,  const T2& ) -> pair<T1, T2>
-        // pair(      T1&&,       T2&&) -> pair<T1, T2>
-        // pair(const T1&, const T2&, bslma::Allocator *) -> pair<T1, T2>
-        //..
     {
         int                   x = 42;
         my_String             s ("abc");
@@ -5842,15 +5863,15 @@ struct TestDeductionGuides {
 #endif
     }
 
+    /// Test that constructing a `bsl::pair` from a `std::pair` and
+    /// (optionally) an allocator deduces the correct type.
+    /// ```
+    /// pair(const std::pair<T1, T2>&)  -> pair<T1, T2>
+    /// pair(      std::pair<T1, T2>&&) -> pair<T1, T2>
+    /// pair(const std::pair<T1, T2>&,  bslma::Allocator *) -> pair<T1, T2>
+    /// pair(      std::pair<T1, T2>&&, bslma::Allocator *) -> pair<T1, T2>
+    /// ```
     static void StdPairConstructors ()
-        // Test that constructing a 'bsl::pair' from a 'std::pair' and
-        // (optionally) an allocator deduces the correct type.
-        //..
-        // pair(const std::pair<T1, T2>&)  -> pair<T1, T2>
-        // pair(      std::pair<T1, T2>&&) -> pair<T1, T2>
-        // pair(const std::pair<T1, T2>&,  bslma::Allocator *) -> pair<T1, T2>
-        // pair(      std::pair<T1, T2>&&, bslma::Allocator *) -> pair<T1, T2>
-        //..
     {
         my_String             s ("abc");
         bslma::Allocator     *a1 = NULL;
@@ -5909,11 +5930,11 @@ int& constructibilityTestCount()
     return i;
 }
 
+/// constructibilityTest should be called with the 4x4 cartesian product of
+/// four types.  This means each instantiation should be called exactly once
+/// and there should be 256 instantiations.
 template <class LeftFrom, class RightFrom, class LeftTo, class RightTo>
 bool constructibilityTest()
-    // constructibilityTest should be called with the 4x4 cartesian product of
-    // four types.  This means each instantiation should be called exactly once
-    // and there should be 256 instantiations.
 {
     static bool called = false;
     ASSERT(!called);
@@ -5951,13 +5972,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -5977,23 +5998,23 @@ int main(int argc, char *argv[])
         //   constructors.
         //
         // Concerns:
-        //: 1 Simple two argument constructors deduce the template arguments.
-        //:
-        //: 2 Providing an allocator as the third argument does not suppress
-        //:   deduction.
-        //:
-        //: 3 Constructing a 'pair' from 'std::pair' deduces the
-        //:   template arguments.
+        // 1. Simple two argument constructors deduce the template arguments.
         //
-        //: 4 Constructing a 'pair' from 'pair' (std or bsl) and an
-        //:   allocator deduces a pair + allocator, rather than a
-        //:   pair<pair, Allocator>.
+        // 2. Providing an allocator as the third argument does not suppress
+        //    deduction.
+        //
+        // 3. Constructing a `pair` from `std::pair` deduces the
+        //    template arguments.
+        //
+        // 4. Constructing a `pair` from `pair` (std or bsl) and an
+        //    allocator deduces a pair + allocator, rather than a
+        //    pair<pair, Allocator>.
         //
         // Plan:
-        //: 1 Create a pair by invoking the constructor without supplying the
-        //:   template arguments explicitly.
-        //:
-        //: 2 Verify that the deduced type is correct.
+        // 1. Create a pair by invoking the constructor without supplying the
+        //    template arguments explicitly.
+        //
+        // 2. Verify that the deduced type is correct.
         //
         // Testing:
         //   CLASS TEMPLATE DEDUCTION GUIDES
@@ -6015,15 +6036,15 @@ int main(int argc, char *argv[])
         //  This test case concerns report that a user was unable to emplace
         //  a non-copyable type into a bsl::unordered_map.  The fix was to
         //  rework the constraints on the converting constructor for
-        //  'bsl::pair'.
+        //  `bsl::pair`.
         //
         // Concerns:
-        //: 1 Pre-existing code does not fail to compile with thes changes.
+        // 1. Pre-existing code does not fail to compile with thes changes.
         //
         // Plan:
-        //: 1 Provide a minimal code example of the kind of valid code that was
-        //:   surprisingly failing to compile.  This test remains as a canary
-        //:   should a further regression introduce a similar problem.
+        // 1. Provide a minimal code example of the kind of valid code that was
+        //    surprisingly failing to compile.  This test remains as a canary
+        //    should a further regression introduce a similar problem.
         //
         // Testing:
         //   Concern: can construct pair of objects that are not copyable
@@ -6033,10 +6054,11 @@ int main(int argc, char *argv[])
                             "\n==============================\n");
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         bsl::pair<NonCopyable131875306, int> o1(1,2);
+
+        // These would fail to compile, reporting an attempt to access
+        // private constructors prior to applying the patch for the ticket
+        // above.
         bsl::pair<int, NonCopyable131875306> o2(1,2);
-            // These would fail to compile, reporting an attempt to access
-            // private constructors prior to applying the patch for the ticket
-            // above.
         ASSERT(1 == o1.first.get());
         ASSERT(2 == o1.second);
         ASSERT(1 == o2.first);
@@ -6047,19 +6069,19 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING CONCERN: RETURN BY BRACE INITIALIZATION
         //  This surprising test case arose when code stopped building after an
-        //  "obvious" simplification of 'pair'.  The syntax may not be BDE's
+        //  "obvious" simplification of `pair`.  The syntax may not be BDE's
         //  notion of good style, but is valid C++11 and should be supported.
         //
         // Concerns:
-        //: 1 'pair's can be constructed by providing brace-initializaers for
-        //:   each member, which should construct and move a temporary with
-        //:   that value.
+        // 1. `pair`s can be constructed by providing brace-initializaers for
+        //    each member, which should construct and move a temporary with
+        //    that value.
         //
         // Plan:
-        //: 1 ....
+        // 1. ....
         //
         // Testing:
-        //   Concern: 'return' by brace initialization
+        //   Concern: `return` by brace initialization
         // --------------------------------------------------------------------
 
         if (verbose) printf(
@@ -6082,25 +6104,25 @@ int main(int argc, char *argv[])
       } break;
       case 24: {
         // --------------------------------------------------------------------
-        // TESTING CONCERN: '0' AS NULL POINTER LITERAL
+        // TESTING CONCERN: `0` AS NULL POINTER LITERAL
         //  This surprising test case arose when code stopped building after an
-        //  "obvious" simplification of 'pair'.  The issue is that '0' becomes
-        //  an 'int' when passed through perfect-forwarding, even where the
+        //  "obvious" simplification of `pair`.  The issue is that `0` becomes
+        //  an `int` when passed through perfect-forwarding, even where the
         //  intent was that it be a null pointer.
         //
         // Concerns:
-        //: 1 Constructors for (appropriate) smart pointers should accept the
-        //:   zero literal, '0', as a valid null-pointer literal.
+        // 1. Constructors for (appropriate) smart pointers should accept the
+        //    zero literal, `0`, as a valid null-pointer literal.
         //
         // Plan:
-        //: 1 ....
+        // 1. ....
         //
         // Testing:
-        //   Concern: construct from '0' as null pointer literal
+        //   Concern: construct from `0` as null pointer literal
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                           "\nTESTING CONCERN: '0' AS NULL POINTER LITERAL"
+                           "\nTESTING CONCERN: `0` AS NULL POINTER LITERAL"
                            "\n============================================\n");
 
         {
@@ -6116,9 +6138,9 @@ int main(int argc, char *argv[])
             (void) mZ;
         }
 
-#if 0   // This test requires a 'bslmf' implementation of 'is_constructible' in
+#if 0   // This test requires a `bslmf` implementation of `is_constructible` in
         // order to properly constrain the constructor template that greedily
-        // matches '0' as an 'int'.
+        // matches `0` as an `int`.
         {
             typedef bsl::pair<const char *, bsltf::MoveOnlyAllocTestType> ObjL;
             typedef bsl::pair<const char *, bsltf::MoveOnlyAllocTestType> ObjR;
@@ -6136,18 +6158,18 @@ int main(int argc, char *argv[])
         // TESTING CONCERN: CONSTRUCTOR SFINAE
         //
         // Concerns:
-        //: 1 All 'pair' constructors for complete types should fail to compile
-        //:   by dropping out of the overload set in a SFINAE-friendly manner
-        //:   if they would otherwise not instantiate.
+        // 1. All `pair` constructors for complete types should fail to compile
+        //    by dropping out of the overload set in a SFINAE-friendly manner
+        //    if they would otherwise not instantiate.
         //
         // Plan:
-        //: 1 Use 'is_constructible' type trait to determine whether ill-formed
-        //:   constructors drop out of overload resolution through SFINAE.
-        //:   Note that this test may rely on the C++11 library implementation
-        //:   of <type_traits>.
+        // 1. Use `is_constructible` type trait to determine whether ill-formed
+        //    constructors drop out of overload resolution through SFINAE.
+        //    Note that this test may rely on the C++11 library implementation
+        //    of <type_traits>.
         //
         // Testing:
-        //   Concern: 'pair' constructors SFINAE when required by standard
+        //   Concern: `pair` constructors SFINAE when required by standard
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING CONCERN: CONSTRUCTOR SFINAE"
@@ -6186,8 +6208,8 @@ int main(int argc, char *argv[])
             typedef ConstructibleFromBase        T;
             typedef ConvertibleFromBase          V;
 
-// Using macros here to make the tests more readable and verifiable.  Using 'F'
-// for false, and 'TT' for true (double to make it stand out visually in the
+// Using macros here to make the tests more readable and verifiable.  Using `F`
+// for false, and `TT` for true (double to make it stand out visually in the
 // grid.
 #if defined(TT) || defined(F)
 #error TT or F is already a macro
@@ -6278,31 +6300,31 @@ int main(int argc, char *argv[])
         // TESTING CONCERN: PAIR OF REFERENCES
         //
         // Concerns:
-        //: 1 'pair' can be instantiated and constructed with elements that are
-        //:   references to (cv-qualified) complete object types.
-        //: 2 'pair' of reference to complete object type support copy and
-        //:   move assignment if the referenced object type supports copy and
-        //:   move assignment.
-        //: 3 'pair' of reference to base-class can be constructed and assigned
-        //:   to by objects and references to derived types, as long as the
-        //:   derived object/reference is no more cv-qualified than the base
-        //:   reference.
-        //: 4 'pair' of reference to incomplete type is supported and can be
-        //:   constructed and copied, although assignment and 'swap' would
-        //:   require the type to be complete before such calls.
-        //: 5 Concerns (3) and (4) apply when constructing/assigning from a
-        //:   type that is convertible to the corresponding reference type.
-        //: 6 'pair' of function references can be constructed and copied, but
-        //:   not assigned to or swapped.
-        //: 7 'pair' of reference to object type is swappable if both member
-        //:   types are swappable.  Note that member types nned not be complete
-        //:   to be swappable, as an appropriate 'swap' function may be
-        //:   discovered through ADL.
-        //: 8 Accessors and manipulators for reference members act on the
-        //:   bound (referenced) object, not on the reference itself.
+        // 1. `pair` can be instantiated and constructed with elements that are
+        //    references to (cv-qualified) complete object types.
+        // 2. `pair` of reference to complete object type support copy and
+        //    move assignment if the referenced object type supports copy and
+        //    move assignment.
+        // 3. `pair` of reference to base-class can be constructed and assigned
+        //    to by objects and references to derived types, as long as the
+        //    derived object/reference is no more cv-qualified than the base
+        //    reference.
+        // 4. `pair` of reference to incomplete type is supported and can be
+        //    constructed and copied, although assignment and `swap` would
+        //    require the type to be complete before such calls.
+        // 5. Concerns (3) and (4) apply when constructing/assigning from a
+        //    type that is convertible to the corresponding reference type.
+        // 6. `pair` of function references can be constructed and copied, but
+        //    not assigned to or swapped.
+        // 7. `pair` of reference to object type is swappable if both member
+        //    types are swappable.  Note that member types nned not be complete
+        //    to be swappable, as an appropriate `swap` function may be
+        //    discovered through ADL.
+        // 8. Accessors and manipulators for reference members act on the
+        //    bound (referenced) object, not on the reference itself.
         //
         // Plan:
-        //: 1 ...
+        // 1. ...
         //
         // Testing:
         //   Concern: pairs of references work correctly
@@ -6313,7 +6335,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\twith lvalue-references\n");
 
-        if (verbose) printf("\t\twith simple reference for 'first'\n");
+        if (verbose) printf("\t\twith simple reference for `first`\n");
         {
             typedef bsl::pair<int&, int> ObjL;
 
@@ -6343,7 +6365,7 @@ int main(int argc, char *argv[])
             ASSERTV(A.first,  42   == A.first);
             ASSERTV(A.second, 3.14 == A.second);
 
-            if (veryVerbose) printf("\t\tconverting 'pair' constructor\n");
+            if (veryVerbose) printf("\t\tconverting `pair` constructor\n");
 
             ObjL mD = mA;   const ObjL& D = mD;
 
@@ -6368,7 +6390,7 @@ int main(int argc, char *argv[])
 #endif
             // TDB Piecewise construction from native tuple of references
 
-            if (veryVerbose) printf("\t\tassign from 'pair'\n");
+            if (veryVerbose) printf("\t\tassign from `pair`\n");
 
             mA = B;
 
@@ -6378,7 +6400,7 @@ int main(int argc, char *argv[])
             ASSERTV(B.second, 42 == B.second);
 
 #if 0
-            if (veryVerbose) printf("\t\tmove-assign from 'pair'\n");
+            if (veryVerbose) printf("\t\tmove-assign from `pair`\n");
 
             mA = MoveUtil::move(F);
 
@@ -6406,7 +6428,7 @@ int main(int argc, char *argv[])
 #endif
         }
 
-        if (verbose) printf("\t\twith simple reference for 'second'\n");
+        if (verbose) printf("\t\twith simple reference for `second`\n");
         {
             typedef bsl::pair<int, int>  Obj;
             typedef bsl::pair<int, int&> ObjR;
@@ -6414,7 +6436,7 @@ int main(int argc, char *argv[])
             int a = 13;
             int b = 42;
 
-            if (veryVerbose) printf("\t\treference object without 'const'\n");
+            if (veryVerbose) printf("\t\treference object without `const`\n");
 
             Obj mA;         const Obj& A = mA;
 
@@ -6436,7 +6458,7 @@ int main(int argc, char *argv[])
             ASSERTV(C.second, 42 == C.second);
 
 #if 0
-            if (veryVerbose) printf("\t\tconverting 'pair' constructor\n");
+            if (veryVerbose) printf("\t\tconverting `pair` constructor\n");
 
             ObjR mD = mA;   const ObjR& D = mD;
 
@@ -6460,7 +6482,7 @@ int main(int argc, char *argv[])
 #endif
             // TDB Piecewise construction from native tuple of references
 
-            if (veryVerbose) printf("\t\tassign from 'pair'\n");
+            if (veryVerbose) printf("\t\tassign from `pair`\n");
 
             mA = B;
 
@@ -6470,7 +6492,7 @@ int main(int argc, char *argv[])
             ASSERTV(B.second, 42 == B.second);
 
 #if 0
-            if (veryVerbose) printf("\t\tmove-assign from 'pair'\n");
+            if (veryVerbose) printf("\t\tmove-assign from `pair`\n");
 
             mA = MoveUtil::move(F);
 
@@ -6505,7 +6527,7 @@ int main(int argc, char *argv[])
             int a = 13;
             int b = 42;
 
-            if (veryVerbose) printf("\t\treference object without 'const'\n");
+            if (veryVerbose) printf("\t\treference object without `const`\n");
 
             Obj mA;         const Obj& A = mA;
 
@@ -6527,7 +6549,7 @@ int main(int argc, char *argv[])
             ASSERTV(C.second, 42 == C.second);
 
 #if 0
-            if (veryVerbose) printf("\t\tconverting 'pair' constructor\n");
+            if (veryVerbose) printf("\t\tconverting `pair` constructor\n");
 
             ObjP mD = A;    const ObjP& D = mD;
 
@@ -6550,7 +6572,7 @@ int main(int argc, char *argv[])
 #endif
             // TDB Piecewise construction from native tuple of references
 
-            if (veryVerbose) printf("\t\tassign from 'pair'\n");
+            if (veryVerbose) printf("\t\tassign from `pair`\n");
 
             mA = B;
 
@@ -6559,7 +6581,7 @@ int main(int argc, char *argv[])
             ASSERTV(B.first,  13 == B.first);
             ASSERTV(B.second, 42 == B.second);
 #if 0
-            if (veryVerbose) printf("\t\tmove-assign from 'pair'\n");
+            if (veryVerbose) printf("\t\tmove-assign from `pair`\n");
 
             mA = MoveUtil::move(D);
 
@@ -6608,14 +6630,14 @@ int main(int argc, char *argv[])
         // move-emulating library, so these tests require true support for
         // rvalue-references.
 
-        if (verbose) printf("\t\twith move-only type as 'second'\n");
+        if (verbose) printf("\t\twith move-only type as `second`\n");
         {
             typedef bsltf::MoveOnlyAllocTestType MoveOnly;
 
             typedef bsl::pair<int&, MoveOnly>    ObjL;
 
             bslma::Allocator *const pDA = &defaultMainAllocator;
-            bslma::TestAllocator    ta("Managed 'first'", veryVeryVeryVerbose);
+            bslma::TestAllocator    ta("Managed `first`", veryVeryVeryVerbose);
 
             int a = 13;
             int b = 42;
@@ -6639,7 +6661,7 @@ int main(int argc, char *argv[])
             ASSERTV(pDA, E.second.allocator(), pDA == E.second.allocator());
             ASSERTV(E.second.data(), 42 == E.second.data());
 
-            if (veryVerbose) printf("\t\tmove-assign from 'pair'\n");
+            if (veryVerbose) printf("\t\tmove-assign from `pair`\n");
 
             mB = MoveUtil::move(mE);
 
@@ -6676,14 +6698,14 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf(
-                         "\t\twith well behaved move-only type as 'second'\n");
+                         "\t\twith well behaved move-only type as `second`\n");
         {
             typedef bsltf::WellBehavedMoveOnlyAllocTestType WBMoveOnly;
 
             typedef bsl::pair<int&, WBMoveOnly>    ObjL;
 
             bslma::Allocator *const pDA = &defaultMainAllocator;
-            bslma::TestAllocator    ta("Managed 'first'", veryVeryVeryVerbose);
+            bslma::TestAllocator    ta("Managed `first`", veryVeryVeryVerbose);
 
             int a = 13;
             int b = 42;
@@ -6707,7 +6729,7 @@ int main(int argc, char *argv[])
             ASSERTV(pDA, E.second.allocator(), pDA == E.second.allocator());
             ASSERTV(E.second.data(), 42 == E.second.data());
 
-            if (veryVerbose) printf("\t\tmove-assign from 'pair'\n");
+            if (veryVerbose) printf("\t\tmove-assign from `pair`\n");
 
             mB = MoveUtil::move(mE);
 
@@ -6744,14 +6766,14 @@ int main(int argc, char *argv[])
         }
 #endif
 
-        if (verbose) printf("\t\twith move-optimized type as 'second'\n");
+        if (verbose) printf("\t\twith move-optimized type as `second`\n");
         {
             typedef bsltf::MovableAllocTestType Movable;
 
             typedef bsl::pair<int&, Movable>    ObjL;
 
             bslma::Allocator *const pDA = &defaultMainAllocator;
-            bslma::TestAllocator    ta("Managed 'first'", veryVeryVeryVerbose);
+            bslma::TestAllocator    ta("Managed `first`", veryVeryVeryVerbose);
 
             int a = 13;
             int b = 42;
@@ -6791,7 +6813,7 @@ int main(int argc, char *argv[])
             ASSERTV(pDA, E.second.allocator(), pDA == E.second.allocator());
             ASSERTV(E.second.data(), 42 == E.second.data());
 
-            if (veryVerbose) printf("\t\tmove-assign from 'pair'\n");
+            if (veryVerbose) printf("\t\tmove-assign from `pair`\n");
 
             mB = MoveUtil::move(mE);
 
@@ -6842,25 +6864,25 @@ int main(int argc, char *argv[])
         //  Note the array types do not support "copy-construction" when passed
         //  an array argument by reference, so value-constructors will not be
         //  tested.  Those constructors should not be available if queried with
-        //  the 'is_constructible' trait.
+        //  the `is_constructible` trait.
         //
         // Concerns:
-        //: 1 A pair with an array type for one or both members can be
-        //:   constructed only by the default constructor, or a constructor
-        //:   that has the semantics of the default constructor.
-        //: 2 'pair's with array members can be copy and move constructed if
-        //:   the elements of the array-type (and other member) can be copy and
-        //:   move constructed.
-        //: 3 'pair's with array members can be swapped in C++11, where
-        //:   'std::swap' is overloaded for arrays.
-        //: 4 All of the accessors of 'pair' work as previously tested for
-        //:   'pair's having array data members.
+        // 1. A pair with an array type for one or both members can be
+        //    constructed only by the default constructor, or a constructor
+        //    that has the semantics of the default constructor.
+        // 2. `pair`s with array members can be copy and move constructed if
+        //    the elements of the array-type (and other member) can be copy and
+        //    move constructed.
+        // 3. `pair`s with array members can be swapped in C++11, where
+        //    `std::swap` is overloaded for arrays.
+        // 4. All of the accessors of `pair` work as previously tested for
+        //    `pair`s having array data members.
         //
         // Plan:
-        //: 1 Use 'is_constructible' type trait to determine whether ill-formed
-        //:   constructors drop out of overload resolution through SFINAE.
-        //:   Note that this test may rely on the C++11 library implementation
-        //:   of <type_traits>.
+        // 1. Use `is_constructible` type trait to determine whether ill-formed
+        //    constructors drop out of overload resolution through SFINAE.
+        //    Note that this test may rely on the C++11 library implementation
+        //    of <type_traits>.
         //
         // Testing:
         //   Concern: pairs of arrays work correctly
@@ -6871,7 +6893,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\twith no-allocating types\n");
 
-        if (verbose) printf("\t\twith array of 'int' for 'first'\n");
+        if (verbose) printf("\t\twith array of `int` for `first`\n");
         {
             typedef bsl::pair<int[3], int> ObjL;
 
@@ -6944,7 +6966,7 @@ int main(int argc, char *argv[])
 #endif
         }
 
-        if (verbose) printf("\t\twith array of 'int' for 'second'\n");
+        if (verbose) printf("\t\twith array of `int` for `second`\n");
         {
             typedef bsl::pair<int, int[3]> ObjR;
 
@@ -7017,7 +7039,7 @@ int main(int argc, char *argv[])
         }
 
 
-        if (verbose) printf("\t\twith two arrays of 'int'\n");
+        if (verbose) printf("\t\twith two arrays of `int`\n");
         {
             typedef bsl::pair<int[3], int[3]> ObjP;
 
@@ -7113,12 +7135,12 @@ int main(int argc, char *argv[])
 
 
 #if !defined(BSLSTL_PAIR_DISABLE_MOVEONLY_TESTING_ON_VC2013)
-        if (verbose) printf("\t\twith array of 'int' for 'first'\n");
+        if (verbose) printf("\t\twith array of `int` for `first`\n");
         {
             typedef bsl::pair<int[3], bsltf::MoveOnlyAllocTestType> ObjL;
 
             bslma::Allocator *const pDA = &defaultMainAllocator;
-            bslma::TestAllocator    ta("'first' array", veryVeryVeryVerbose);
+            bslma::TestAllocator    ta("`first` array", veryVeryVeryVerbose);
 
             if (veryVerbose) printf("\t\tdefault constructor\n");
 
@@ -7143,11 +7165,11 @@ int main(int argc, char *argv[])
 
             ObjL mC = MoveUtil::move(mA);     const ObjL& C = mC;
 
-            // moving an array of 'int's is the same as a copy
+            // moving an array of `int`s is the same as a copy
             for (int i = 0; i != 3; ++i) {
                 ASSERTV(i, A.first[i], C.first[i], A.first[i] == C.first[i]);
             }
-            // verify 'second' has moved correctly
+            // verify `second` has moved correctly
             ASSERTV(pDA, C.second.allocator(), pDA == C.second.allocator());
             ASSERTV(C.second.data(), 9999 == C.second.data());
             ASSERTV(pDA, A.second.allocator(), pDA == A.second.allocator());
@@ -7175,7 +7197,7 @@ int main(int argc, char *argv[])
             // test would fail to compile.
 
 #if 0   //  TBD: need to forward directly to the move-constructor for the
-        //  'FirstBase' class and not try to pass an array by reference as an
+        //  `FirstBase` class and not try to pass an array by reference as an
         //  argument, or this case will not compile.  Requires more work in the
         //  component header.
 
@@ -7183,11 +7205,11 @@ int main(int argc, char *argv[])
 
             ObjL mF(MoveUtil::move(mD), &ta);   const ObjL& F = mF;
 
-            // moving an array of 'int's is the same as a copy
+            // moving an array of `int`s is the same as a copy
             for (int i = 0; i != 3; ++i) {
                 ASSERTV(i, D.first[i], F.first[i], D.first[i] == F.first[i]);
             }
-            // verify 'second' has moved correctly
+            // verify `second` has moved correctly
             ASSERTV(pDA, F.second.allocator(), pDA == F.second.allocator());
             ASSERTV(F.second.data(), 8888 == F.second.data());
             ASSERTV(pDA, D.second.allocator(), pDA == D.second.allocator());
@@ -7198,13 +7220,13 @@ int main(int argc, char *argv[])
 #endif // BSLSTL_PAIR_DISABLE_MOVEONLY_TESTING_ON_VC2013
 
 #if !defined(BSLSTL_PAIR_DISABLE_MOVEONLY_TESTING_ON_VC2013)
-        if (verbose) printf("\t\twith array of 'int' for 'first'\n");
+        if (verbose) printf("\t\twith array of `int` for `first`\n");
         {
             typedef bsl::pair<int[3], bsltf::WellBehavedMoveOnlyAllocTestType>
                                                                           ObjL;
 
             bslma::Allocator *const pDA = &defaultMainAllocator;
-            bslma::TestAllocator    ta("'first' array", veryVeryVeryVerbose);
+            bslma::TestAllocator    ta("`first` array", veryVeryVeryVerbose);
 
             if (veryVerbose) printf("\t\tdefault constructor\n");
 
@@ -7229,11 +7251,11 @@ int main(int argc, char *argv[])
 
             ObjL mC = MoveUtil::move(mA);     const ObjL& C = mC;
 
-            // moving an array of 'int's is the same as a copy
+            // moving an array of `int`s is the same as a copy
             for (int i = 0; i != 3; ++i) {
                 ASSERTV(i, A.first[i], C.first[i], A.first[i] == C.first[i]);
             }
-            // verify 'second' has moved correctly
+            // verify `second` has moved correctly
             ASSERTV(pDA, C.second.allocator(), pDA == C.second.allocator());
             ASSERTV(C.second.data(), 9999 == C.second.data());
             ASSERTV(pDA, A.second.allocator(), pDA == A.second.allocator());
@@ -7261,7 +7283,7 @@ int main(int argc, char *argv[])
             // test would fail to compile.
 
 #if 0   //  TBD: need to forward directly to the move-constructor for the
-        //  'FirstBase' class and not try to pass an array by reference as an
+        //  `FirstBase` class and not try to pass an array by reference as an
         //  argument, or this case will not compile.  Requires more work in the
         //  component header.
 
@@ -7269,11 +7291,11 @@ int main(int argc, char *argv[])
 
             ObjL mF(MoveUtil::move(mD), &ta);   const ObjL& F = mF;
 
-            // moving an array of 'int's is the same as a copy
+            // moving an array of `int`s is the same as a copy
             for (int i = 0; i != 3; ++i) {
                 ASSERTV(i, D.first[i], F.first[i], D.first[i] == F.first[i]);
             }
-            // verify 'second' has moved correctly
+            // verify `second` has moved correctly
             ASSERTV(pDA, F.second.allocator(), pDA == F.second.allocator());
             ASSERTV(F.second.data(), 8888 == F.second.data());
             ASSERTV(pDA, D.second.allocator(), pDA == D.second.allocator());
@@ -7285,34 +7307,34 @@ int main(int argc, char *argv[])
       } break;
       case 20: {
         // --------------------------------------------------------------------
-        // TESTING CONCERN: PAIR OF 'const' MEMBERS
-        //  An important use-case for 'pair' is 'pair<const Key, Value' as the
-        //  element type of a 'map'.  Such 'pair's are neither assignable nor
+        // TESTING CONCERN: PAIR OF `const` MEMBERS
+        //  An important use-case for `pair` is `pair<const Key, Value` as the
+        //  element type of a `map`.  Such `pair`s are neither assignable nor
         //  swappable, but many other contracts still hold.
         //
         // Concerns:
-        //: 1 A pair with a 'const' member is default constructible as long as
-        //:   the 'const-qualified type is non-trivially default constructible.
-        //: 2 A pair with a 'const' member can be copy-constructed, holding a
-        //:   copy of the original value.
-        //: 3 A pair with a 'const' member may be move-constructed, as long as
-        //:   the 'const'-qualified member is copy constructible.
-        //: 4 All of the accessors of 'pair' work as previously tested for a
-        //:   'pair' having a 'const'-qualified member.
+        // 1. A pair with a `const` member is default constructible as long as
+        //    the 'const-qualified type is non-trivially default constructible.
+        // 2. A pair with a `const` member can be copy-constructed, holding a
+        //    copy of the original value.
+        // 3. A pair with a `const` member may be move-constructed, as long as
+        //    the `const`-qualified member is copy constructible.
+        // 4. All of the accessors of `pair` work as previously tested for a
+        //    `pair` having a `const`-qualified member.
         //
         // Plan:
-        //: 1 ...
+        // 1. ...
         //
         // Testing:
-        //   Concern: pairs with 'const' members work correctly
+        //   Concern: pairs with `const` members work correctly
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING CONCERN: PAIR OF 'const' MEMBERS"
+        if (verbose) printf("\nTESTING CONCERN: PAIR OF `const` MEMBERS"
                             "\n========================================\n");
 
         if (verbose) printf("\twith lvalue-references\n");
 
-        if (verbose) printf("\t\twith simple reference for 'first'\n");
+        if (verbose) printf("\t\twith simple reference for `first`\n");
         {
             typedef bsl::pair<int, int>       Obj;
             typedef bsl::pair<const int, int> ObjL;
@@ -7320,7 +7342,7 @@ int main(int argc, char *argv[])
             int a = 13;
             int b = 42;
 
-            if (veryVerbose) printf("\t\treference object without 'const'\n");
+            if (veryVerbose) printf("\t\treference object without `const`\n");
 
             Obj mA;         const Obj& A = mA;
 
@@ -7341,7 +7363,7 @@ int main(int argc, char *argv[])
             ASSERTV(C.first,  13 == C.first);
             ASSERTV(C.second, 42 == C.second);
 
-            if (veryVerbose) printf("\t\tconverting 'pair' constructor\n");
+            if (veryVerbose) printf("\t\tconverting `pair` constructor\n");
 
             ObjL mD = A;    const ObjL& D = mD;
 
@@ -7364,7 +7386,7 @@ int main(int argc, char *argv[])
 
             // TDB Piecewise construction from native tuple of references
 
-            if (veryVerbose) printf("\t\tassign from 'pair'\n");
+            if (veryVerbose) printf("\t\tassign from `pair`\n");
 
             mA = B;
 
@@ -7373,7 +7395,7 @@ int main(int argc, char *argv[])
             ASSERTV(B.first,  13 == B.first);
             ASSERTV(B.second, 42 == B.second);
 
-            if (veryVerbose) printf("\t\tmove-assign from 'pair'\n");
+            if (veryVerbose) printf("\t\tmove-assign from `pair`\n");
 
             mA = MoveUtil::move(mD);
 
@@ -7399,7 +7421,7 @@ int main(int argc, char *argv[])
             ASSERT( (B >  D));
         }
 
-        if (verbose) printf("\t\twith simple reference for 'second'\n");
+        if (verbose) printf("\t\twith simple reference for `second`\n");
         {
             typedef bsl::pair<int, int>       Obj;
             typedef bsl::pair<int, const int> ObjR;
@@ -7407,7 +7429,7 @@ int main(int argc, char *argv[])
             int a = 13;
             int b = 42;
 
-            if (veryVerbose) printf("\t\treference object without 'const'\n");
+            if (veryVerbose) printf("\t\treference object without `const`\n");
 
             Obj mA;         const Obj& A = mA;
 
@@ -7428,7 +7450,7 @@ int main(int argc, char *argv[])
             ASSERTV(C.first,  13 == C.first);
             ASSERTV(C.second, 42 == C.second);
 
-            if (veryVerbose) printf("\t\tconverting 'pair' constructor\n");
+            if (veryVerbose) printf("\t\tconverting `pair` constructor\n");
 
             ObjR mD = A;    const ObjR& D = mD;
 
@@ -7451,7 +7473,7 @@ int main(int argc, char *argv[])
 
             // TDB Piecewise construction from native tuple of references
 
-            if (veryVerbose) printf("\t\tassign from 'pair'\n");
+            if (veryVerbose) printf("\t\tassign from `pair`\n");
 
             mA = B;
 
@@ -7460,7 +7482,7 @@ int main(int argc, char *argv[])
             ASSERTV(B.first,  13 == B.first);
             ASSERTV(B.second, 42 == B.second);
 
-            if (veryVerbose) printf("\t\tmove-assign from 'pair'\n");
+            if (veryVerbose) printf("\t\tmove-assign from `pair`\n");
 
             mA = MoveUtil::move(mD);
 
@@ -7494,7 +7516,7 @@ int main(int argc, char *argv[])
             int a = 13;
             int b = 42;
 
-            if (veryVerbose) printf("\t\treference object without 'const'\n");
+            if (veryVerbose) printf("\t\treference object without `const`\n");
 
             Obj mA;         const Obj& A = mA;
 
@@ -7515,7 +7537,7 @@ int main(int argc, char *argv[])
             ASSERTV(C.first,  13 == C.first);
             ASSERTV(C.second, 42 == C.second);
 
-            if (veryVerbose) printf("\t\tconverting 'pair' constructor\n");
+            if (veryVerbose) printf("\t\tconverting `pair` constructor\n");
 
             ObjP mD = A;    const ObjP& D = mD;
 
@@ -7538,7 +7560,7 @@ int main(int argc, char *argv[])
 
             // TDB Piecewise construction from native tuple of references
 
-            if (veryVerbose) printf("\t\tassign from 'pair'\n");
+            if (veryVerbose) printf("\t\tassign from `pair`\n");
 
             mA = B;
 
@@ -7547,7 +7569,7 @@ int main(int argc, char *argv[])
             ASSERTV(B.first,  13 == B.first);
             ASSERTV(B.second, 42 == B.second);
 
-            if (veryVerbose) printf("\t\tmove-assign from 'pair'\n");
+            if (veryVerbose) printf("\t\tmove-assign from `pair`\n");
 
             mA = MoveUtil::move(mD);
 
@@ -7577,27 +7599,27 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING CONCERN: C++03 MOVABLE TYPES WORK CORRECTLY
         //  Prior to C++11, BDE supported move operations through types like
-        //  'bslma::ManagedPtr' that emulate move semantics in the same way
-        //  that 'std::auto_ptr' did.  Such code must still continue to compile
+        //  `bslma::ManagedPtr` that emulate move semantics in the same way
+        //  that `std::auto_ptr` did.  Such code must still continue to compile
         //  for Bloomberg with a C++11 library, even though the standard makes
         //  no such requirement.  Note that due to implementation details of
-        //  the 'pair' class, it is necessary to test support as 'first' and
-        //  'second' independently.
+        //  the `pair` class, it is necessary to test support as `first` and
+        //  `second` independently.
         //
         // Concerns:
-        //: 1 A 'pair' object with an instantiation of 'bslma::ManagedPtr' for
-        //:   either 'first', 'second', or both, can be default-constructed.
-        //: 2 A 'pair' object with an instantiation of 'bslma::ManagedPtr' for
-        //:   either 'first', 'second', or both, can be copy-constructed,
-        //:   copy-assigned, and swapped with the expected move-semantic
-        //:   behavior.
-        //: 3 A 'pair' object with an instantiation of 'bslma::ManagedPtr' for
-        //:   either 'first', 'second', or both, can be move-constructed,
-        //:   move-assigned, and swapped with the expected move-semantic
-        //:   behavior.
+        // 1. A `pair` object with an instantiation of `bslma::ManagedPtr` for
+        //    either `first`, `second`, or both, can be default-constructed.
+        // 2. A `pair` object with an instantiation of `bslma::ManagedPtr` for
+        //    either `first`, `second`, or both, can be copy-constructed,
+        //    copy-assigned, and swapped with the expected move-semantic
+        //    behavior.
+        // 3. A `pair` object with an instantiation of `bslma::ManagedPtr` for
+        //    either `first`, `second`, or both, can be move-constructed,
+        //    move-assigned, and swapped with the expected move-semantic
+        //    behavior.
         //
         // Plan:
-        //: 1 ...
+        // 1. ...
         //
         // Testing:
         //   Concern: pairs of C++03 movable types work correctly
@@ -7607,7 +7629,7 @@ int main(int argc, char *argv[])
                     "\nTESTING CONCERN: C++03 MOVABLE TYPES WORK CORRECTLY"
                     "\n===================================================\n");
 
-        if (verbose) printf("\twith movable type as 'first'\n");
+        if (verbose) printf("\twith movable type as `first`\n");
         {
             typedef bsl::pair<bslma::ManagedPtr<int>, int>  ObjL;
 
@@ -7643,7 +7665,7 @@ int main(int argc, char *argv[])
             ASSERTV(Y.second, 42 == Y.second);
         }
 
-        if (verbose) printf("\twith movable type as 'second'\n");
+        if (verbose) printf("\twith movable type as `second`\n");
         {
             typedef bsl::pair<int, bslma::ManagedPtr<int> > ObjR;
 
@@ -7721,15 +7743,15 @@ int main(int argc, char *argv[])
             // Note that we do not have an allocator aware implicit-movable
             // type for testing, so we test allocator-aware behavior for only
             // the other member.  This is needed to test the allocator-aware
-            // constructors and 'swap'
+            // constructors and `swap`
 
 #if !defined(BSLSTL_PAIR_DISABLE_MOVEONLY_TESTING_ON_VC2013)
-        if (verbose) printf("\t\twith move-only type as 'second'\n");
+        if (verbose) printf("\t\twith move-only type as `second`\n");
         {
             typedef bsl::pair<bslma::ManagedPtr<int>,
                               bsltf::MoveOnlyAllocTestType>  ObjL;
 
-            bslma::TestAllocator ta("Managed 'first'", veryVeryVeryVerbose);
+            bslma::TestAllocator ta("Managed `first`", veryVeryVeryVerbose);
 
             ObjL mX(&ta);   const ObjL& X = mX;
 
@@ -7774,12 +7796,12 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf(
-                         "\t\twith well-behaved move-only type as 'second'\n");
+                         "\t\twith well-behaved move-only type as `second`\n");
         {
             typedef bsl::pair<bslma::ManagedPtr<int>,
                               bsltf::WellBehavedMoveOnlyAllocTestType>  ObjL;
 
-            bslma::TestAllocator ta("Managed 'first'", veryVeryVeryVerbose);
+            bslma::TestAllocator ta("Managed `first`", veryVeryVeryVerbose);
 
             ObjL mX(&ta);   const ObjL& X = mX;
 
@@ -7824,12 +7846,12 @@ int main(int argc, char *argv[])
         }
 #endif // BSLSTL_PAIR_DISABLE_MOVEONLY_TESTING_ON_VC2013
 
-        if (verbose) printf("\t\twith move-optimized type as 'second'\n");
+        if (verbose) printf("\t\twith move-optimized type as `second`\n");
         {
             typedef bsl::pair<bslma::ManagedPtr<int>,
                               bsltf::MovableAllocTestType>  ObjL;
 
-            bslma::TestAllocator ta("Managed 'first'", veryVeryVeryVerbose);
+            bslma::TestAllocator ta("Managed `first`", veryVeryVeryVerbose);
 
             ObjL mX(&ta);   const ObjL& X = mX;
 
@@ -7877,12 +7899,12 @@ int main(int argc, char *argv[])
 #endif
         }
 
-        if (verbose) printf("\t\twith move-only type as 'first'\n");
+        if (verbose) printf("\t\twith move-only type as `first`\n");
         {
             typedef bsl::pair<bsltf::MoveOnlyAllocTestType,
                               bslma::ManagedPtr<int> >      ObjR;
 
-            bslma::TestAllocator ta("Managed 'second'", veryVeryVeryVerbose);
+            bslma::TestAllocator ta("Managed `second`", veryVeryVeryVerbose);
 
             ObjR mX(&ta);   const ObjR& X = mX;
 
@@ -7917,12 +7939,12 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf(
-                          "\t\twith well behaved move-only type as 'first'\n");
+                          "\t\twith well behaved move-only type as `first`\n");
         {
             typedef bsl::pair<bsltf::WellBehavedMoveOnlyAllocTestType,
                               bslma::ManagedPtr<int> >      ObjR;
 
-            bslma::TestAllocator ta("Managed 'second'", veryVeryVeryVerbose);
+            bslma::TestAllocator ta("Managed `second`", veryVeryVeryVerbose);
 
             ObjR mX(&ta);   const ObjR& X = mX;
 
@@ -7956,12 +7978,12 @@ int main(int argc, char *argv[])
             ASSERTV(X.second.get(), 0 == X.second.get());
         }
 
-        if (verbose) printf("\t\twith movable type as 'first'\n");
+        if (verbose) printf("\t\twith movable type as `first`\n");
         {
             typedef bsl::pair<bsltf::MovableAllocTestType,
                               bslma::ManagedPtr<int> >     ObjR;
 
-            bslma::TestAllocator ta("Managed 'second'", veryVeryVeryVerbose);
+            bslma::TestAllocator ta("Managed `second`", veryVeryVeryVerbose);
 
             ObjR mX(&ta);   const ObjR& X = mX;
 
@@ -8003,17 +8025,17 @@ int main(int argc, char *argv[])
         // TESTING FIX FOR DRQS 122792538
         //  This test case concerns a regression that fell out of the SFINAE
         //  rules for constructors applied as part of the C++14 upgrade for
-        //  'bsl::pair'.  The fix was to be more thorough about our treatment
+        //  `bsl::pair`.  The fix was to be more thorough about our treatment
         //  of SFINAE-friendly constructors.
         //
         // Concerns:
-        //: 1 Pre-existing code does not fail to compile with the C++14 upgrade
-        //:   to 'bsl::pair'.
+        // 1. Pre-existing code does not fail to compile with the C++14 upgrade
+        //    to `bsl::pair`.
         //
         // Plan:
-        //: 1 Provide a minimal code example of the kind of valid code that was
-        //:   surprisingly failing to compile.  This test remains as a canary
-        //:   should a further regression introduce a similar problem.
+        // 1. Provide a minimal code example of the kind of valid code that was
+        //    surprisingly failing to compile.  This test remains as a canary
+        //    should a further regression introduce a similar problem.
         //
         // Testing:
         //   Concern: Fix for DRQS 122792538
@@ -8039,43 +8061,43 @@ int main(int argc, char *argv[])
         ASSERTV(Y.second, 0 == Y.second);
 
         ASSERT((!bsl::is_nothrow_move_constructible<Obj>::value));
-            // The trait 'bsl::is_nothrow_move_constructible<Obj>' will fail to
+            // The trait `bsl::is_nothrow_move_constructible<Obj>` will fail to
             // instantiate, reporting an attempt to access private constructors
             // prior to applying the patch for the ticket above.
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING CONVERSION TO 'std::tuple'
+        // TESTING CONVERSION TO `std::tuple`
         //
         // Concerns:
-        //: 1 Operator returns a 'std::tuple', which members are references
-        //:   providing modifiable access to the elements of calling object.
-        //:
-        //: 2 Operator is implicitly called during assignment of 'bsl::pair'
-        //:   object to the result of 'std::tie' function, accepting two
-        //:   parameters.
-        //:
-        //: 3 Operator is able to convert 'bsl::pair' object to the
-        //:   'std::tuple', having one or both members of type of
-        //:   'std::ignore'.
+        // 1. Operator returns a `std::tuple`, which members are references
+        //    providing modifiable access to the elements of calling object.
+        //
+        // 2. Operator is implicitly called during assignment of `bsl::pair`
+        //    object to the result of `std::tie` function, accepting two
+        //    parameters.
+        //
+        // 3. Operator is able to convert `bsl::pair` object to the
+        //    `std::tuple`, having one or both members of type of
+        //    `std::ignore`.
         //
         // Plan:
-        //: 1 Create a 'bsl::pair' and convert it to 'std::tuple' using
-        //:   conversion operator.  Modify original 'bsl::pair' object and
-        //:   verify, that 'std::tuple' reflects these changes.  Then modify
-        //:   tuple's members and verify that pair's members are changed too.
-        //:   (C-1)
-        //:
-        //: 2 Assign 'bsl::pair' object to the result of 'std::tie' function
-        //:   accepting two parameters and verify, that values of variables,
-        //:   passed to the function are changed (if these variables are not
-        //:   'std:ignore' values).  (C-2..3)
+        // 1. Create a `bsl::pair` and convert it to `std::tuple` using
+        //    conversion operator.  Modify original `bsl::pair` object and
+        //    verify, that `std::tuple` reflects these changes.  Then modify
+        //    tuple's members and verify that pair's members are changed too.
+        //    (C-1)
+        //
+        // 2. Assign `bsl::pair` object to the result of `std::tie` function
+        //    accepting two parameters and verify, that values of variables,
+        //    passed to the function are changed (if these variables are not
+        //    `std:ignore` values).  (C-2..3)
         //
         // Testing:
         //   template <class U1, class U2> operator std::tuple<U1&, U2&>()
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING CONVERSION TO 'std::tuple'"
+        if (verbose) printf("\nTESTING CONVERSION TO `std::tuple`"
                             "\n==================================\n");
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
@@ -8114,41 +8136,41 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING 'noexcept' SPECIFICATIONS
+        // TESTING `noexcept` SPECIFICATIONS
         //
         // Concerns:
-        //: 1 The 'noexcept' specification has been applied to all class
-        //:   interfaces required by the standard.
+        // 1. The `noexcept` specification has been applied to all class
+        //    interfaces required by the standard.
         //
         // Plan:
-        //: 1 Apply the unary 'noexcept' operator to expressions that mimic
-        //:   those appearing in the standard and confirm that calculated
-        //:   boolean value matches the expected value.
-        //:
-        //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
-        //:   of the container, we need test for just one general type and any
-        //:   'TYPE' specializations.
+        // 1. Apply the unary `noexcept` operator to expressions that mimic
+        //    those appearing in the standard and confirm that calculated
+        //    boolean value matches the expected value.
+        //
+        // 2. Since the `noexcept` specification does not vary with the `TYPE`
+        //    of the container, we need test for just one general type and any
+        //    `TYPE` specializations.
         //
         // Testing:
-        //   Concern: Methods marked 'noexcept' in standard are so implemented
+        //   Concern: Methods marked `noexcept` in standard are so implemented
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'noexcept' SPECIFICATIONS"
+        if (verbose) printf("\nTESTING `noexcept` SPECIFICATIONS"
                             "\n=================================\n");
 
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-        if (verbose) printf("'noexcept' not supported on this platform\n");
+        if (verbose) printf("`noexcept` not supported on this platform\n");
 #else
         // N4594: 20.4: Pairs
 
         // pages 526-527: Class template pair
-        //..
+        // ```
         //  pair& operator=(pair&& p) noexcept (see below);
         //  void pair::swap(pair& p) noexcept (see below);
         //  void swap(pair& a, pair& b) noexcept (see below);
         //  T& get<N>(pair &) noexcept;  // for all 4 c-ref-qualifications
         //  T& get<T>(pair &) noexcept;  // for all 4 c-ref-qualifications
-        //..
+        // ```
 
         {
             bsl::pair<int, long> mX;
@@ -8191,40 +8213,40 @@ int main(int argc, char *argv[])
         // TESTING TUPLE-LIKE API
         //
         // Concerns:
-        //: 1 The partial specialization of 'std::tuple_size' for 'bsl::pair'
-        //:   always shows that there are two elements in pair, irrespectively
-        //:   of their types.
-        //:
-        //: 2 The partial specializations of 'std::tuple_element' for
-        //:   'bsl::pair' has 'type' attribute value equal to the type of the
-        //:   first pair's element, if 'INDEX' template parameter is equal to
-        //:   '0', and to the type of the second pair's element, if 'INDEX'
-        //:   template parameter is equal to '1'.
-        //:
-        //: 3 The index-based overloads of 'get' function return pair's element
-        //:   with requested index.
-        //:
-        //: 4 The type-based overloads of 'get' function return pair's element
-        //:   with requested type.
-        //:
-        //: 5 All tuple-like APIs work correctly with pairs, having constant
-        //:   and volatile elements.
-        //:
-        //: 6 There is no unexpected recursion when an element type is an
-        //:   instantiation of 'bsl::pair<T1, T2>'.
+        // 1. The partial specialization of `std::tuple_size` for `bsl::pair`
+        //    always shows that there are two elements in pair, irrespectively
+        //    of their types.
+        //
+        // 2. The partial specializations of `std::tuple_element` for
+        //    `bsl::pair` has `type` attribute value equal to the type of the
+        //    first pair's element, if `INDEX` template parameter is equal to
+        //    `0`, and to the type of the second pair's element, if `INDEX`
+        //    template parameter is equal to '1'.
+        //
+        // 3. The index-based overloads of `get` function return pair's element
+        //    with requested index.
+        //
+        // 4. The type-based overloads of `get` function return pair's element
+        //    with requested type.
+        //
+        // 5. All tuple-like APIs work correctly with pairs, having constant
+        //    and volatile elements.
+        //
+        // 6. There is no unexpected recursion when an element type is an
+        //    instantiation of `bsl::pair<T1, T2>`.
         //
         // Plan:
-        //: 1 Specify the set of types and verify attributes of 'tuple_size'
-        //:   and 'tuple_element' partial specializations, having 'bsl::pair'
-        //:   with elements of these types as template parameters.  (C-1..2, 6)
-        //:
-        //: 2 Specify the set of types and verify return values of 'bsl::get'
-        //:   function overloads, having 'bsl::pair' with ordinary and constant
-        //:   elements of these types as parameters.
-        //:
-        //: 4 Use special test class to verify return values of 'bsl::get'
-        //:   function overloads, having 'bsl::pair' with volatile elements of
-        //:   this type as parameters.  (C-3..5, 6)
+        // 1. Specify the set of types and verify attributes of `tuple_size`
+        //    and `tuple_element` partial specializations, having `bsl::pair`
+        //    with elements of these types as template parameters.  (C-1..2, 6)
+        //
+        // 2. Specify the set of types and verify return values of `bsl::get`
+        //    function overloads, having `bsl::pair` with ordinary and constant
+        //    elements of these types as parameters.
+        //
+        // 4. Use special test class to verify return values of `bsl::get`
+        //    function overloads, having `bsl::pair` with volatile elements of
+        //    this type as parameters.  (C-3..5, 6)
         //
         // Testing:
         //   std::tuple_element<bsl::pair<T1, T2> >
@@ -8238,27 +8260,27 @@ int main(int argc, char *argv[])
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
         if (verbose) printf(
-                "\tTesting meta-functions 'tuple_element' and 'tuple_size'\n");
+                "\tTesting meta-functions `tuple_element` and `tuple_size`\n");
 
         RUN_EACH_TYPE(TupleApiTestDriver,
                       metaFunctionsTest,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
-        // Use 'bsl::pair<int, int>' class as a template parameter to check
+        // Use `bsl::pair<int, int>` class as a template parameter to check
         // code for recursive problems.
 
         TupleApiTestDriver<bsl::pair<int, int> >::metaFunctionsTest();
 
 
         if (verbose) printf(
-                "\tTesting 'get' function, accepting index as a template"
+                "\tTesting `get` function, accepting index as a template"
                 " parameter\n");
 
         RUN_EACH_TYPE(TupleApiTestDriver,
                       getByIndexCopyTest,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
-        // Use 'bsl::pair<int, int>' class as a template parameter to check
+        // Use `bsl::pair<int, int>` class as a template parameter to check
         // code for recursive problems.
 
         TupleApiTestDriver<bsl::pair<int, int> >::getByIndexCopyTest();
@@ -8275,20 +8297,20 @@ int main(int argc, char *argv[])
                       VolatileMovableType);
 
         if (verbose) printf(
-                "\tTesting 'get' function, accepting type  as a template"
+                "\tTesting `get` function, accepting type  as a template"
                 " parameter\n");
 
-        // We test 'get' function for 'bsl::pair<T, int>' and
-        // 'bsl::pair<int, T>' objects.
-        // BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR contains 'size_t'
-        // type, but not 'int' type, so we will not hit the situation when pair
+        // We test `get` function for `bsl::pair<T, int>` and
+        // `bsl::pair<int, T>` objects.
+        // BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR contains `size_t`
+        // type, but not `int` type, so we will not hit the situation when pair
         // contains elements of the same type.
 
         RUN_EACH_TYPE(TupleApiTestDriver,
                       getByTypeCopyTest,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
-        // Use 'bsl::pair<int, int>' class as a template parameter to check
+        // Use `bsl::pair<int, int>` class as a template parameter to check
         // code for recursive problems.
 
         TupleApiTestDriver<bsl::pair<int, int> >::getByTypeCopyTest();
@@ -8313,43 +8335,43 @@ int main(int argc, char *argv[])
         //
         // This test case was written to expose a known problem, and verify its
         // fix, to do with pairs within pairs, and conversions between
-        // 'bsl::pair' and 'std::pair'.
+        // `bsl::pair` and `std::pair`.
         //
         // Concerns:
-        //: 1 In all cases, we will be dealing with cases where one member of
-        //:   the pair is a pair, and the other member is a boolean.  We will
-        //:   test everything in the cases
-        //:   o 'pair<pair, bool>'
-        //:   o 'pair<bool, pair>'
-        //:
-        //: 2 There is only a conversion from a 'std::pair' to a
-        //:   'bsl::pair', not the other way around, even in the case where
-        //:   'first_type' and 'second_type' match, so conversions from
-        //:   'bsl::pair' to 'std::pair' are *NOT* tested.
-        //:
-        //: 3 Test a conversion from a pair where the nested pair type of the
-        //:   source and destination match.
-        //:
-        //: 4 Test a conversation from a 'std::pair' to a 'bsl::pair'
-        //:   containing a nested 'bsl::pair'.
-        //:   o In the case where the destination and source 'bsl::pair' member
-        //:     are of matching type.
-        //:   o In the case where the destination and source 'bsl::pair' member
-        //:     is of type 'ToPair' and the matching source member is
-        //:     'FromPair'.
-        //:
-        //: 5 Test conversions where the inner pair goes from a 'FromPair' to a
-        //:   'ToPair'.
-        //:
-        //: 6 If none of the types under test allocate memory, observe that the
-        //:   default allocator is never used, even when no allocator is passed
-        //:   to the pair constructor.  Also observe that if an allocator is
-        //:   passed to the pair constructor, it isn't used.
-        //:
-        //: 7 If any of the types under test allocate memory, observe that the
-        //:   creation of a 'std::pair' makes use of the default
-        //:   allocator, and that the creation of 'bsl::pair' that has an
-        //:   allocator passed to the c'tor makes use of the passed allocator.
+        // 1. In all cases, we will be dealing with cases where one member of
+        //    the pair is a pair, and the other member is a boolean.  We will
+        //    test everything in the cases
+        //    - `pair<pair, bool>`
+        //    - `pair<bool, pair>`
+        //
+        // 2. There is only a conversion from a `std::pair` to a
+        //    `bsl::pair`, not the other way around, even in the case where
+        //    `first_type` and `second_type` match, so conversions from
+        //    `bsl::pair` to `std::pair` are *NOT* tested.
+        //
+        // 3. Test a conversion from a pair where the nested pair type of the
+        //    source and destination match.
+        //
+        // 4. Test a conversation from a `std::pair` to a `bsl::pair`
+        //    containing a nested `bsl::pair`.
+        //    - In the case where the destination and source `bsl::pair` member
+        //      are of matching type.
+        //    - In the case where the destination and source `bsl::pair` member
+        //      is of type `ToPair` and the matching source member is
+        //      `FromPair`.
+        //
+        // 5. Test conversions where the inner pair goes from a `FromPair` to a
+        //    `ToPair`.
+        //
+        // 6. If none of the types under test allocate memory, observe that the
+        //    default allocator is never used, even when no allocator is passed
+        //    to the pair constructor.  Also observe that if an allocator is
+        //    passed to the pair constructor, it isn't used.
+        //
+        // 7. If any of the types under test allocate memory, observe that the
+        //    creation of a `std::pair` makes use of the default
+        //    allocator, and that the creation of `bsl::pair` that has an
+        //    allocator passed to the c'tor makes use of the passed allocator.
         //
         // TESTING:
         //   pair(std::pair<*>, bool>)
@@ -8363,7 +8385,7 @@ int main(int argc, char *argv[])
                       testCase14,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
-                      // 'bsltf::MoveOnlyAllocTestType' test disabled as
+                      // `bsltf::MoveOnlyAllocTestType` test disabled as
                       // copy-assign is needed
       } break;
       case 13: {
@@ -8371,47 +8393,47 @@ int main(int argc, char *argv[])
         // TESTING TUPLE-BASED CONSTRUCTION
         //
         // Concerns:
-        //: 1 That the constructor of 'bsl::pair' can properly propagate
-        //:   complex argument types to a template constructors of its member
-        //:   types.
-        //:
-        //: 2 Members of 'bsl::pair' are created in-place during piecewise
-        //:   construction.
-        //:
-        //: 3 Allocators are correctly propagated to pair members
-        //:   irrespectively of their allocator traits.
+        // 1. That the constructor of `bsl::pair` can properly propagate
+        //    complex argument types to a template constructors of its member
+        //    types.
+        //
+        // 2. Members of `bsl::pair` are created in-place during piecewise
+        //    construction.
+        //
+        // 3. Allocators are correctly propagated to pair members
+        //    irrespectively of their allocator traits.
         //
         // Plan:
-        //: 1 Create a template function 'testArg' that will return an argument
-        //:   either copied or moved, depending upon a integral template
-        //:   argument.
-        //:
-        //: 2 Create the function 'runTestNoAlloc' which will take 8 integral
-        //:   template arguments to drive how to create 2 tuples to pass to the
-        //:   constructor of a 'bsl::pair' of 'bsltf::EmplacableType's.  After
-        //:   the pair is created, its value is assessed for accuracy.
-        //:
-        //: 3 Create the function 'runTestAlloc' which will take 8 integral
-        //:   template arguments to drive how to create 2 tuples to pass to the
-        //:   constructor of a 'bsl::pair' of 'bsltf::AllocEmplacableType's.
-        //:   After the pair is created, its value is assessed for accuracy and
-        //:   checks are done to ensure that memory was allocated from the
-        //:   passed allocator.
-        //:
-        //: 4 In 'main' call 'runTestAlloc' and 'runTestNoAlloc' with every
-        //:   possible valid combination of template arguments.
-        //:
-        //: 5 Call 'runTestInplaceMemberConstruction' function to create a pair
-        //:   of objects of 'CloneDisabledTestType' class, that has private
-        //:   copy and move constructors and assignment operators, to prove
-        //:   that members of pair are created in-place.
-        //:
-        //: 6 Construct several pairs of types, having different allocator
-        //:   traits (not taking allocators on construction, taking bslma
-        //:   allocators, taking allocators preceded by 'bsl::allocator_arg')
-        //:   with/without passing allocators on construction. Verify, that
-        //:   constructed members use default/passed on construction allocator
-        //:   to supply memory.
+        // 1. Create a template function `testArg` that will return an argument
+        //    either copied or moved, depending upon a integral template
+        //    argument.
+        //
+        // 2. Create the function `runTestNoAlloc` which will take 8 integral
+        //    template arguments to drive how to create 2 tuples to pass to the
+        //    constructor of a `bsl::pair` of `bsltf::EmplacableType`s.  After
+        //    the pair is created, its value is assessed for accuracy.
+        //
+        // 3. Create the function `runTestAlloc` which will take 8 integral
+        //    template arguments to drive how to create 2 tuples to pass to the
+        //    constructor of a `bsl::pair` of `bsltf::AllocEmplacableType`s.
+        //    After the pair is created, its value is assessed for accuracy and
+        //    checks are done to ensure that memory was allocated from the
+        //    passed allocator.
+        //
+        // 4. In `main` call `runTestAlloc` and `runTestNoAlloc` with every
+        //    possible valid combination of template arguments.
+        //
+        // 5. Call `runTestInplaceMemberConstruction` function to create a pair
+        //    of objects of `CloneDisabledTestType` class, that has private
+        //    copy and move constructors and assignment operators, to prove
+        //    that members of pair are created in-place.
+        //
+        // 6. Construct several pairs of types, having different allocator
+        //    traits (not taking allocators on construction, taking bslma
+        //    allocators, taking allocators preceded by `bsl::allocator_arg`)
+        //    with/without passing allocators on construction. Verify, that
+        //    constructed members use default/passed on construction allocator
+        //    to supply memory.
         //
         // Testing:
         //   pair(piecewise_construct_t, tuple, tuple);
@@ -8894,9 +8916,9 @@ int main(int argc, char *argv[])
         // TESTING MOVE AND COPY ASSIGNMENT
         //
         // Concerns:
-        //: 1 Construct two pairs, a 'ToPair' and a 'FromPair' (both types
-        //:   defined and docced within the 'TestDriver' class) with different
-        //:   types.
+        // 1. Construct two pairs, a `ToPair` and a `FromPair` (both types
+        //    defined and docced within the `TestDriver` class) with different
+        //    types.
         //
         // Testing:
         //   pair& operator=(pair<U1, U2>&& rhs);
@@ -8919,7 +8941,7 @@ int main(int argc, char *argv[])
                       testCase12_copy,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
-                      // 'bsltf::MoveOnlyAllocTestType' test disabled as
+                      // `bsltf::MoveOnlyAllocTestType` test disabled as
                       // copy-assign is needed
       } break;
       case 11: {
@@ -8927,32 +8949,32 @@ int main(int argc, char *argv[])
         // TESTING MOVE CONSTRUCTOR WITH ONE ELEMENT MOVED, ONE COPIED
         //
         // Concerns:
-        //: 1 That the constructors work properly in the case where one element
-        //:   is moved and the other copied.
-        //:
-        //: 2 That the constructors work properly in the case where two
-        //:   elements to be copied are passed.
-        //:
-        //: 3 That the constructors work properly in the case where a pair to
-        //:   be copied is passed.
+        // 1. That the constructors work properly in the case where one element
+        //    is moved and the other copied.
+        //
+        // 2. That the constructors work properly in the case where two
+        //    elements to be copied are passed.
+        //
+        // 3. That the constructors work properly in the case where a pair to
+        //    be copied is passed.
         //
         // Plan:
-        //: 1 In each case, first construct the source pair 'fp' using
-        //:   'initPair' and attach a proctor to it.  In between every pair of
-        //:   c'tor calls, destroy 'fp' through the proctor, then call
-        //:   'initPair' to initialize 'fp' again with a new value.
-        //:
-        //: 2 After each c'tor call, verify the value of the constructed
-        //:   object, and which allocator it uses if allocators were passed a
-        //:   construction, and very memory consumption by the allocators was
-        //:   as it should be.
-        //:
-        //: 3 Call both of the constructors taking a const ref as one argument
-        //:   and an rvalue as the other.
-        //:
-        //: 4 Call the constructor taking const refs to both members.
-        //:
-        //: 5 Call the constructor taking a const ref to a pair.
+        // 1. In each case, first construct the source pair `fp` using
+        //    `initPair` and attach a proctor to it.  In between every pair of
+        //    c'tor calls, destroy `fp` through the proctor, then call
+        //    `initPair` to initialize `fp` again with a new value.
+        //
+        // 2. After each c'tor call, verify the value of the constructed
+        //    object, and which allocator it uses if allocators were passed a
+        //    construction, and very memory consumption by the allocators was
+        //    as it should be.
+        //
+        // 3. Call both of the constructors taking a const ref as one argument
+        //    and an rvalue as the other.
+        //
+        // 4. Call the constructor taking const refs to both members.
+        //
+        // 5. Call the constructor taking a const ref to a pair.
         //
         // Testing:
         //   template <class U1, class U2> pair(U1&& a, const U2& b);
@@ -8981,7 +9003,7 @@ int main(int argc, char *argv[])
                       testCase11,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
-                      // 'bsltf::MoveOnlyAllocTestType' test disabled as
+                      // `bsltf::MoveOnlyAllocTestType` test disabled as
                       // copy-assign is needed
       } break;
       case 10: {
@@ -8989,24 +9011,24 @@ int main(int argc, char *argv[])
         // TESTING MOVE CONSTRUCTOR WITH 2 INDEPENDENTLY MOVED ELEMENTS
         //
         // Concerns:
-        //: 1 That the c'tors taking two arguments by rvalue work properly.
+        // 1. That the c'tors taking two arguments by rvalue work properly.
         //
         // Plan:
-        //: 1 Call the c'tor.
-        //:
-        //: 2 Check the state of the sources.
-        //:
-        //: 3 Check the state of the result.
-        //:
-        //: 4 Check the memory allocation behavior.
-        //:
-        //: 5 If either of the members of the pair allocate memory, repeat the
-        //:   process:
-        //:   o with no allocator passed to the c'tor
-        //:   o with an allocator passed to the c'tor that matches that used to
-        //:     create the sources
-        //:   o with an allocator passed to the c'tor that does not match that
-        //:     used to create the sources
+        // 1. Call the c'tor.
+        //
+        // 2. Check the state of the sources.
+        //
+        // 3. Check the state of the result.
+        //
+        // 4. Check the memory allocation behavior.
+        //
+        // 5. If either of the members of the pair allocate memory, repeat the
+        //    process:
+        //    - with no allocator passed to the c'tor
+        //    - with an allocator passed to the c'tor that matches that used to
+        //      create the sources
+        //    - with an allocator passed to the c'tor that does not match that
+        //      used to create the sources
         //
         // Testing:
         //   template <class U1, class U2> pair(U1&& a, U2&& b);
@@ -9035,24 +9057,24 @@ int main(int argc, char *argv[])
         // TESTING MOVE CONSTRUCTOR FOR DIFFERENT TYPE / SAME TYPE PAIR
         //
         // Concerns:
-        //: 1 That the c'tors taking a pair by rvalue work properly.
+        // 1. That the c'tors taking a pair by rvalue work properly.
         //
         // Plan:
-        //: 1 Call the c'tor.
-        //:
-        //: 2 Check the state of the sources.
-        //:
-        //: 3 Check the state of the result.
-        //:
-        //: 4 Check the memory allocation behavior.
-        //:
-        //: 5 If either of the members of the pair allocate memory, repeat the
-        //:   process:
-        //:   o with no allocator passed to the c'tor
-        //:   o with an allocator passed to the c'tor that matches that used to
-        //:     create the sources
-        //:   o with an allocator passed to the c'tor that does not match that
-        //:     used to create the sources
+        // 1. Call the c'tor.
+        //
+        // 2. Check the state of the sources.
+        //
+        // 3. Check the state of the result.
+        //
+        // 4. Check the memory allocation behavior.
+        //
+        // 5. If either of the members of the pair allocate memory, repeat the
+        //    process:
+        //    - with no allocator passed to the c'tor
+        //    - with an allocator passed to the c'tor that matches that used to
+        //      create the sources
+        //    - with an allocator passed to the c'tor that does not match that
+        //      used to create the sources
         //
         // Testing:
         //   template <class U1, class U2> pair(pair<U1, U2>&&)
@@ -9076,37 +9098,37 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING ASSIGNMENT TO 'pair' OF REFERENCES
+        // TESTING ASSIGNMENT TO `pair` OF REFERENCES
         //
         // Concerns:
-        //: 1 The assignment operator for a 'pair' of references is well-formed
-        //:   and assigns to the original objects referred to by the 'pair'.
+        // 1. The assignment operator for a `pair` of references is well-formed
+        //    and assigns to the original objects referred to by the `pair`.
         //
         // Plan:
-        //: 1 Create a target 'pair' holding:
-        //:   a) a reference in 'first' and a value for 'second'
-        //:   b) a reference in 'second' and a value for 'first'
-        //:   c) a reference in both 'first' and 'second'
-        //:
-        //: 2 Create a value pair of values corresponding to the types used by
-        //:   the target pairs above.
-        //:
-        //: 3 Assign from the value pair to the target pair, and confirm:
-        //:   a) the address of any reference members of the target pair does
-        //:      not change.
-        //:   b) the value of any object referred to by the target pair has
-        //:      changed
-        //:   c) the values held by the value-pair have not changed
-        //:
-        //: 4 Repeat step (3) with a reference pair, holding two references
-        //:   rather than two values.
+        // 1. Create a target `pair` holding:
+        //    a) a reference in `first` and a value for `second`
+        //    b) a reference in `second` and a value for `first`
+        //    c) a reference in both `first` and `second`
+        //
+        // 2. Create a value pair of values corresponding to the types used by
+        //    the target pairs above.
+        //
+        // 3. Assign from the value pair to the target pair, and confirm:
+        //    a) the address of any reference members of the target pair does
+        //       not change.
+        //    b) the value of any object referred to by the target pair has
+        //       changed
+        //    c) the values held by the value-pair have not changed
+        //
+        // 4. Repeat step (3) with a reference pair, holding two references
+        //    rather than two values.
         //
         // Testing:
         //   pair& operator=(const pair<U1, U2>& rhs)
-        //   Concern: Can assign to a 'pair' of references
+        //   Concern: Can assign to a `pair` of references
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING ASSIGNMENT TO 'pair' OF REFERENCES"
+        if (verbose) printf("\nTESTING ASSIGNMENT TO `pair` OF REFERENCES"
                             "\n==========================================\n");
 
         // data for pairs
@@ -9130,7 +9152,7 @@ int main(int argc, char *argv[])
         bsl::pair<int, double> value(i1, d1);
         bsl::pair<int, double> reference(i2, d2);
 
-        // test assign from 'value'
+        // test assign from `value`
 
         {
             bsl::pair<int&, double >  target(i3, d3);
@@ -9272,7 +9294,7 @@ int main(int argc, char *argv[])
         d3 = ORIGINAL_D3;
 
 
-        // test assign from 'reference'
+        // test assign from `reference`
 
         {
             bsl::pair<int&, double > target(i3, d3);
@@ -9375,14 +9397,14 @@ int main(int argc, char *argv[])
         // TEST FORMING A POINTER-TO-DATA-MEMBER
         //
         // Concerns:
-        //: 1 We can use pointer to members to access both 'first' and 'second'
+        // 1. We can use pointer to members to access both `first` and `second`
         //
         // Plan:
-        //: 1 Create pointer to member to both 'first' and 'second' and check
-        //:   that the behavior is as expected
+        // 1. Create pointer to member to both `first` and `second` and check
+        //    that the behavior is as expected
         //
         // Testing:
-        //   Concern: Can create a pointer-to-member for 'first' and 'second'
+        //   Concern: Can create a pointer-to-member for `first` and `second`
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTEST FORMING A POINTER-TO-DATA-MEMBER"
@@ -9426,33 +9448,33 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'hashAppend'
+        // TESTING `hashAppend`
         //
         // Concerns:
-        //: 1 Hashes different inputs differently
-        //:
-        //: 2 Hashes equal inputs identically
-        //:
-        //: 3 Works for 'const' and non-'const' pairs, members
-        //:
-        //: 4 'hashAppend' for 'pair' correctly uses 'hashAppend' implemented
-        //:   for the pair's template parameter types.
+        // 1. Hashes different inputs differently
+        //
+        // 2. Hashes equal inputs identically
+        //
+        // 3. Works for `const` and non-`const` pairs, members
+        //
+        // 4. `hashAppend` for `pair` correctly uses `hashAppend` implemented
+        //    for the pair's template parameter types.
         //
         // Plan:
-        //: 1 Create pairs, some equal and some not, some const, some not.
-        //:   Hash them all. Compare hashes, identifying those that should be
-        //:   equal and those that should not.  Call with different mixes of
-        //:   constness, to verify that all compile. (C-1..3)
-        //:
-        //: 2 Create a 'hashAppend' for 'my_String', create a set of pairs
-        //:   using 'my_String' values, and verify that pairs having the same
-        //:   'my_String' value produce the same hash code. (C-4)
+        // 1. Create pairs, some equal and some not, some const, some not.
+        //    Hash them all. Compare hashes, identifying those that should be
+        //    equal and those that should not.  Call with different mixes of
+        //    constness, to verify that all compile. (C-1..3)
+        //
+        // 2. Create a `hashAppend` for `my_String`, create a set of pairs
+        //    using `my_String` values, and verify that pairs having the same
+        //    `my_String` value produce the same hash code. (C-4)
         //
         // Testing:
         //   hashAppend(HASHALG& hashAlg, const pair<T1,T2>&  input);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'hashAppend'"
+        if (verbose) printf("\nTESTING `hashAppend`"
                             "\n====================\n");
 
         typedef ::BloombergLP::bslh::Hash<> Hasher;
@@ -9582,32 +9604,32 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'swap'
+        // TESTING `swap`
         //
         // Concerns:
-        // - 'swap' free function correctly swaps the values of 'pair::first'
-        //   and 'pair::second' data fields.
-        // - 'swap' member function correctly swaps the values of 'pair::first'
-        //   and 'pair::second' data fields.
-        // - If there is a 'swap' free functions defined for either of
-        //   'pair::first_type' or 'pair::second_type' types, 'pair::swap'
-        //   should use it (if the ADL lookup of 'swap' works correctly).
-        // - Otherwise 'pair::swap' should use the default 'std::swap'.
+        // - `swap` free function correctly swaps the values of `pair::first`
+        //   and `pair::second` data fields.
+        // - `swap` member function correctly swaps the values of `pair::first`
+        //   and `pair::second` data fields.
+        // - If there is a `swap` free functions defined for either of
+        //   `pair::first_type` or `pair::second_type` types, `pair::swap`
+        //   should use it (if the ADL lookup of `swap` works correctly).
+        // - Otherwise `pair::swap` should use the default `std::swap`.
         //
         // Plan:
-        // - Create two types: one with 'swap' method and free function
-        //   (TypeWithSwap), and another without 'swap' (TypeWithoutSwap).
-        // - Instantiate 'pair' with TypeWithSwap as T1 and TypeWithoutSwap as
+        // - Create two types: one with `swap` method and free function
+        //   (TypeWithSwap), and another without `swap` (TypeWithoutSwap).
+        // - Instantiate `pair` with TypeWithSwap as T1 and TypeWithoutSwap as
         //   T2, and the other way around.
-        // - Test both 'swap' method and free functions on the two
-        //   instantiations of 'pair' described above.
+        // - Test both `swap` method and free functions on the two
+        //   instantiations of `pair` described above.
         //
         // Testing:
         //   void pair::swap(pair& rhs);
         //   void swap(pair& lhs, pair& rhs);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'swap'"
+        if (verbose) printf("\nTESTING `swap`"
                             "\n==============\n");
 
         swapTestHelper<TypeWithSwapNamespace::TypeWithSwap, TypeWithoutSwap>();
@@ -9618,40 +9640,40 @@ int main(int argc, char *argv[])
         // TESTING CONVERSION CONSTRUCTORS
         //
         // Concerns:
-        // - Can construct a 'bsl::pair' from a different instantiation of
-        //   'pair' where each type is convertible.
-        // - If either type uses a 'bslma::Allocator', then an allocator can
+        // - Can construct a `bsl::pair` from a different instantiation of
+        //   `pair` where each type is convertible.
+        // - If either type uses a `bslma::Allocator`, then an allocator can
         //   be passed to the conversion constructor and is used to construct
         //   that member.
-        // - If neither type uses a 'bslma::allocator', then any allocator
+        // - If neither type uses a `bslma::allocator`, then any allocator
         //   argument is ignored.
         //
         // Plan:
-        // - Construct 'pair<int, double>' from 'pair<char, int>'
+        // - Construct `pair<int, double>` from `pair<char, int>`
         //   (including with an allocator argument, which should be ignored)
-        // - For each 'STRING' type in the list, 'my_String',
-        //   'my_BslmaAllocArgStr', 'my_STLAllocArgStr', 'my_NoAllocStr':
-        //   * Construct 'pair<STRING, int>' from 'pair<const char*, short>',
+        // - For each `STRING` type in the list, `my_String`,
+        //   `my_BslmaAllocArgStr`, `my_STLAllocArgStr`, `my_NoAllocStr`:
+        //   * Construct `pair<STRING, int>` from `pair<const char*, short>`,
         //     without supplying an allocator on construction.
-        //   * Construct 'pair<STRING, int>' from 'pair<const char*, short>',
-        //     supplying a 'bslma::Allocator*' on construction.
-        //   * Construct 'pair<int, STRING>' from 'pair<short, const char*>',
+        //   * Construct `pair<STRING, int>` from `pair<const char*, short>`,
+        //     supplying a `bslma::Allocator*` on construction.
+        //   * Construct `pair<int, STRING>` from `pair<short, const char*>`,
         //     without supplying an allocator on construction.
-        //   * Construct 'pair<int, STRING>' from 'pair<short, const char*>',
-        //     supplying a 'bslma::Allocator*' on construction.
-        //   * Construct 'pair<STRING, STRING>' from 'pair<char*,const char*>',
+        //   * Construct `pair<int, STRING>` from `pair<short, const char*>`,
+        //     supplying a `bslma::Allocator*` on construction.
+        //   * Construct `pair<STRING, STRING>` from `pair<char*,const char*>`,
         //     without supplying an allocator on construction.
-        //   * Construct 'pair<STRING, STRING>' from 'pair<char*,const char*>',
-        //     supplying a 'bslma::Allocator*' on construction.
+        //   * Construct `pair<STRING, STRING>` from `pair<char*,const char*>`,
+        //     supplying a `bslma::Allocator*` on construction.
         //   * Repeat the above except constructing 'bsl::pair from
-        //     'std::pair'.
+        //     `std::pair`.
         // - When an allocator is not supplied on construction, verify that
         //   the correct default is used by the STRING in the constructed pair.
-        // - When 'STRING' does not use a 'bslma::Allocator' and an allocator
-        //   is supplied on construction, verify that the 'STRING' value
+        // - When `STRING` does not use a `bslma::Allocator` and an allocator
+        //   is supplied on construction, verify that the `STRING` value
         //   in the constructed pair uses the appropriate default allocator.
-        // - When 'STRING' does use a 'bslma::Allocator' and an allocator
-        //   is supplied on construction, verify that the 'STRING' value
+        // - When `STRING` does use a `bslma::Allocator` and an allocator
+        //   is supplied on construction, verify that the `STRING` value
         //   in the constructed pair uses the supplied allocator.
         // - Verify that there are no memory leaks.
         //
@@ -9685,13 +9707,13 @@ int main(int argc, char *argv[])
             ASSERT(0 == ta3.numBlocksInUse());
         }
 
-        if (veryVerbose) printf("Convert to 'my_String'\n");
+        if (veryVerbose) printf("Convert to `my_String`\n");
         testBslmaStringConversionCtor<my_String>();
-        if (veryVerbose) printf("Convert to 'my_BslmaAllocArgStr'\n");
+        if (veryVerbose) printf("Convert to `my_BslmaAllocArgStr`\n");
         testBslmaStringConversionCtor<my_BslmaAllocArgStr>();
-        if (veryVerbose) printf("Convert to 'my_STLAllocArgStr'\n");
+        if (veryVerbose) printf("Convert to `my_STLAllocArgStr`\n");
         testNonBslmaStringConversionCtor<my_STLAllocArgStr>();
-        if (veryVerbose) printf("Convert to 'my_NoAllocString'\n");
+        if (veryVerbose) printf("Convert to `my_NoAllocString`\n");
         testNonBslmaStringConversionCtor<my_NoAllocString>();
 
       } break;
@@ -9700,11 +9722,11 @@ int main(int argc, char *argv[])
         // TRAITS TEST
         //
         // Concerns:
-        // - Instantiating a 'pair' on a pair of types produce a type
+        // - Instantiating a `pair` on a pair of types produce a type
         //   with type traits correctly derived from those types' traits.
         //
         // Plan:
-        // - Instantiate 'pair' with a number of types, each having one
+        // - Instantiate `pair` with a number of types, each having one
         //   or more of the type traits in which we are interested.
         // - Verify that the resulting instantiation has the following traits
         //   only if and only if both types on which it is instantiated have
@@ -9713,7 +9735,7 @@ int main(int argc, char *argv[])
         //   * bsl::is_trivially_copyable (implies IsBitwiseMoveable)
         //   * bsl::is_trivially_default_constructible
         // - Verify that the resulting instantiation has the trait
-        //   'bslma::UsesBslmaAllocator' if and only BOTH types have
+        //   `bslma::UsesBslmaAllocator` if and only BOTH types have
         //   this trait.
         //
         // Testing:
@@ -10099,7 +10121,7 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&           , int);
 
         if (veryVeryVerbose)
-            printf("Neither 'first' or 'second' is default constructible.\n");
+            printf("Neither `first` or `second` is default constructible.\n");
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault, DeletedDefault);
@@ -10227,51 +10249,51 @@ int main(int argc, char *argv[])
         // FUNCTIONALITY TEST
         //
         // Concerns:
-        //: 1 Can construct a 'pair' using the default constructor, constructor
-        //:   with two arguments and copy constructor with no allocator.
-        //: 2 If and only if one or both members of the 'pair' have the
-        //:   'bslma::UsesBslmaAllocator' trait, then the 'pair' also has that
-        //:   trait.
-        //: 3 If 'pair' has the 'bslma::UsesBslmaAllocator' trait, then each
-        //:   constructor can be passed a 'bslma::Allocator' pointer and that
-        //:   pointer is passed through to the member(s) that take it.
-        //: 4 Assignment works as designed.
-        //: 5 Operators ==, !=, <, >, <=, >=, and <=> work as designed.
-        //: 6 Constructors and relational operators are 'constexpr' under C++14
-        //:   mode.
+        // 1. Can construct a `pair` using the default constructor, constructor
+        //    with two arguments and copy constructor with no allocator.
+        // 2. If and only if one or both members of the `pair` have the
+        //    `bslma::UsesBslmaAllocator` trait, then the `pair` also has that
+        //    trait.
+        // 3. If `pair` has the `bslma::UsesBslmaAllocator` trait, then each
+        //    constructor can be passed a `bslma::Allocator` pointer and that
+        //    pointer is passed through to the member(s) that take it.
+        // 4. Assignment works as designed.
+        // 5. Operators ==, !=, <, >, <=, >=, and <=> work as designed.
+        // 6. Constructors and relational operators are `constexpr` under C++14
+        //    mode.
         //
         // Plan:
         // - Select a small set of interesting types:
-        //   'short'              - Fundamental type
-        //   'my_String'          - Uses 'bslma::Allocator' in constructor
-        //   'my_BslmaAllocArgStr - Uses 'bslma::Allocator' in constructor by
-        //                          means of the 'allocator_arg' idiom.
+        //   `short`              - Fundamental type
+        //   `my_String`          - Uses `bslma::Allocator` in constructor
+        //   `my_BslmaAllocArgStr - Uses `bslma::Allocator' in constructor by
+        //                          means of the `allocator_arg` idiom.
         //   'my_STLAllocArgStr   - Uses an STL-style allocator in constructor
-        //                          by means of the 'allocator_arg' idiom.
-        //   'my_NoAllocString'   - Doesn't use 'bslma::Allocator' in
+        //                          by means of the `allocator_arg` idiom.
+        //   `my_NoAllocString`   - Doesn't use `bslma::Allocator` in
         //                          constructor.
-        // - Instantiate 'pair' with each combination (25 total) of the
+        // - Instantiate `pair` with each combination (25 total) of the
         //   above types.
         // - For each instantiation, do the following:
-        //   * Verify that the 'first_type' and 'second_type' typedefs are the
+        //   * Verify that the `first_type` and `second_type` typedefs are the
         //     types specified in the template parameters.
         //   * Set the default allocator to a test allocator
         //   * Construct objects using the three non-allocator constructors.
-        //   * Verify that the 'first' and 'second' members are correct values.
+        //   * Verify that the `first` and `second` members are correct values.
         //   * Test the relationship operators
         //   * Test assignment
         //   * Test that the default allocator was used as expected.
-        //   * Test that the special 'my_NoAllocString' allocator was used or
+        //   * Test that the special `my_NoAllocString` allocator was used or
         //     not used as expected.
         //   * Verify that all memory is returned to the allocator(s) when the
         //     objects go out of scope.
         // - For instantiations where at least one member is of type
-        //   'my_String', also do the following:
+        //   `my_String`, also do the following:
         //   * Construct objects using the three constructors with allocators.
         //   * Verify that memory was used from the allocators as expected.
         //   * Verify that no memory was used from the default allocator.
         //   * Test assignment among the new objects
-        // - Use 'static_assert' to determine that the results of constructors
+        // - Use `static_assert` to determine that the results of constructors
         //   and relational operators are compile-time constant expressions.
         //
         // Testing:
@@ -10342,7 +10364,7 @@ int main(int argc, char *argv[])
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
 
-        // 'constexpr' tests
+        // `constexpr` tests
 
         using bsl::pair;
 
@@ -10353,127 +10375,127 @@ int main(int argc, char *argv[])
         constexpr pair<int, int> pairDefault;
 
         static_assert(pairDefault.second == 0,
-                      "Default constructor is not 'constexpr'.");
+                      "Default constructor is not `constexpr`.");
 
         constexpr pair<int, int> pairII(f, s);
 
-        static_assert(pairII.second == 2, "Constructor is not 'constexpr'.");
+        static_assert(pairII.second == 2, "Constructor is not `constexpr`.");
 
         // Relational operators
 
-        static_assert(  pairII == pairII,  "Operator == is not 'constexpr'.");
-        static_assert(  pairII >= pairII,  "Operator >= is not 'constexpr'.");
-        static_assert(  pairII <= pairII,  "Operator <= is not 'constexpr'.");
+        static_assert(  pairII == pairII,  "Operator == is not `constexpr`.");
+        static_assert(  pairII >= pairII,  "Operator >= is not `constexpr`.");
+        static_assert(  pairII <= pairII,  "Operator <= is not `constexpr`.");
 
-        static_assert(!(pairII != pairII), "Operator != is not 'constexpr'.");
-        static_assert(!(pairII >  pairII), "Operator > is not 'constexpr'.");
-        static_assert(!(pairII <  pairII), "Operator < is not 'constexpr'.");
+        static_assert(!(pairII != pairII), "Operator != is not `constexpr`.");
+        static_assert(!(pairII >  pairII), "Operator > is not `constexpr`.");
+        static_assert(!(pairII <  pairII), "Operator < is not `constexpr`.");
 
 #ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
         static_assert(pairII <=> pairII == 0,
-                      "Operator <=> is not 'constexpr'.");
+                      "Operator <=> is not `constexpr`.");
 #endif
 
         // Rvalue constructors
 
         static_assert(pair<int, int>(1, 2).second == 2,
-                      "Constructor is not 'constexpr'.");
+                      "Constructor is not `constexpr`.");
         static_assert(pair<int, int>(f, 2).second == 2,
-                      "Constructor is not 'constexpr'.");
+                      "Constructor is not `constexpr`.");
         static_assert(pair<int, int>(1, s).second == 2,
-                      "Constructor is not 'constexpr'.");
+                      "Constructor is not `constexpr`.");
         static_assert(pair<int, int>(f, s).second == 2,
-                      "Constructor is not 'constexpr'.");
+                      "Constructor is not `constexpr`.");
 
         // Both clang and gcc warn about integral truncation here, even though
         // this is all done at constexpr time and no truncation occurs.
         static_assert(pair<short, short>(1, 2).second == 2,
-                      "Converting constructor is not 'constexpr'.");
+                      "Converting constructor is not `constexpr`.");
         static_assert(pair<short, short>(f, 2).second == 2,
-                      "Converting constructor is not 'constexpr'.");
+                      "Converting constructor is not `constexpr`.");
         static_assert(pair<short, short>(1, s).second == 2,
-                      "Converting constructor is not 'constexpr'.");
+                      "Converting constructor is not `constexpr`.");
         static_assert(pair<short, short>(f, s).second == 2,
-                      "Converting constructor is not 'constexpr'.");
+                      "Converting constructor is not `constexpr`.");
 
         static_assert(pair<short, short>(pair<int, int>(1, 2)).second == 2,
-                      "Templated constructor is not 'constexpr'.");
+                      "Templated constructor is not `constexpr`.");
 
         static_assert(pair<int, int>(pair<int, int>(1, 2)).second == 2,
-                      "Move constructor is not 'constexpr'.");
+                      "Move constructor is not `constexpr`.");
 
         // Copying constructors
 
         static_assert(pair<short, short>(pairII).second == 2,
-                      "Templated constructor is not 'constexpr'.");
+                      "Templated constructor is not `constexpr`.");
 
         static_assert(pair<int, int>(pairII).second == 2,
-                      "Copy constructor is not 'constexpr'.");
+                      "Copy constructor is not `constexpr`.");
 
 
         // Repeat for pairs holding reference types, as they use different
-        // base class specializations for both 'first' and 'second'.
+        // base class specializations for both `first` and `second`.
 
         // Simple constructors
 
         static_assert(pair<const int&, const int&>(f, s).second == 2,
-                      "Constructor is not 'constexpr'.");
+                      "Constructor is not `constexpr`.");
 
         // Relational operators
 
         static_assert(pair<const int&, const int&>(f, s) ==
                       pair<const int&, const int&>(f, s),
-                      "Operator == is not 'constexpr'.");
+                      "Operator == is not `constexpr`.");
 
         static_assert(pair<const int&, const int&>(s, f) >=
                       pair<const int&, const int&>(f, s),
-                      "Operator >= is not 'constexpr'.");
+                      "Operator >= is not `constexpr`.");
 
         static_assert(pair<const int&, const int&>(s, f) >
                       pair<const int&, const int&>(f, s),
-                      "Operator > is not 'constexpr'.");
+                      "Operator > is not `constexpr`.");
 
         static_assert(pair<const int&, const int&>(s, f) !=
                       pair<const int&, const int&>(f, s),
-                      "Operator != is not 'constexpr'.");
+                      "Operator != is not `constexpr`.");
 
         static_assert(pair<const int&, const int&>(f, s) <=
                       pair<const int&, const int&>(f, s),
-                      "Operator <= is not 'constexpr'.");
+                      "Operator <= is not `constexpr`.");
         static_assert(pair<const int&, const int&>(f, s) <
                       pair<const int&, const int&>(s, f),
-                      "Operator < is not 'constexpr'.");
+                      "Operator < is not `constexpr`.");
         static_assert(pair<const int&, const int&>(f, s) !=
                       pair<const int&, const int&>(s, f),
-                      "Operator != is not 'constexpr'.");
+                      "Operator != is not `constexpr`.");
 
         // Rvalue constructors
 
         static_assert(pair<int&&, int&&>(1, 2).second == 2,
-                      "Constructor is not 'constexpr'.");
+                      "Constructor is not `constexpr`.");
 #if 0
         static_assert(pair<int&&, int&&>(f, 2).second == 2,
-                      "Constructor is not 'constexpr'.");
+                      "Constructor is not `constexpr`.");
         static_assert(pair<int&&, int&&>(1, s).second == 2,
-                      "Constructor is not 'constexpr'.");
+                      "Constructor is not `constexpr`.");
         static_assert(pair<int&&, int&&>(f, s).second == 2,
-                      "Constructor is not 'constexpr'.");
+                      "Constructor is not `constexpr`.");
 #endif
 
         static_assert(pair<short, short>(1, 2).second == 2,
-                      "Constructor is not 'constexpr'.");
+                      "Constructor is not `constexpr`.");
         static_assert(pair<short, short>(f, 2).second == 2,
-                      "Constructor is not 'constexpr'.");
+                      "Constructor is not `constexpr`.");
         static_assert(pair<short, short>(1, s).second == 2,
-                      "Constructor is not 'constexpr'.");
+                      "Constructor is not `constexpr`.");
         static_assert(pair<short, short>(f, s).second == 2,
-                      "Constructor is not 'constexpr'.");
+                      "Constructor is not `constexpr`.");
 
         static_assert(pair<short, short>(pair<int, int>(1, 2)).second == 2,
-                      "Templated constructor is not 'constexpr'.");
+                      "Templated constructor is not `constexpr`.");
         static_assert(
   pair<const int&, const int&>(pair<const int&, const int&>(f, s)).second == s,
-  "Move constructor is not 'constexpr'.");
+  "Move constructor is not `constexpr`.");
 
         // Copying constructors
 #if 0   // TBD Need further investigation why ref-binding is not constexpr
@@ -10482,10 +10504,10 @@ int main(int argc, char *argv[])
         constexpr pair<const int&, const int&> pairrr = paircc;
 
         static_assert(pair<short, short>(pairrr).second == 2,
-                      "Templated constructor is not 'constexpr'.");
+                      "Templated constructor is not `constexpr`.");
 
         static_assert(pair<const int&, const int&>(pairrr).second == 2,
-                      "Copy constructor is not 'constexpr'.");
+                      "Copy constructor is not `constexpr`.");
 #endif
 
 #endif // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
@@ -10499,16 +10521,16 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Instantiate 'pair' with a simple string class that uses
-        //:    'bslma::Allocator'.
-        //: 2 Construct a objects using the test allocator.
-        //: 3 Verify that object members have the correct value.
-        //: 4 Verify that the correct allocator was used.
-        //: 5 Verify that there are no memory leaks.
+        // 1. Instantiate `pair` with a simple string class that uses
+        //     `bslma::Allocator`.
+        // 2. Construct a objects using the test allocator.
+        // 3. Verify that object members have the correct value.
+        // 4. Verify that the correct allocator was used.
+        // 5. Verify that there are no memory leaks.
         //
         // Testing:
         //   BREATHING TEST

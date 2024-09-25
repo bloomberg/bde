@@ -37,13 +37,13 @@ using namespace bsl;
 //                              --------
 // This test plan follows the standard approach for components implementing
 // value-semantic containers.  We have chosen as *primary* *manipulators* the
-// 'pushBack', 'popFront', 'reserveCapacity' and 'removeAll' methods to be
-// used by the generator functions 'g' and 'gg'.  Additional helper functions
+// `pushBack`, `popFront`, `reserveCapacity` and `removeAll` methods to be
+// used by the generator functions `g` and `gg`.  Additional helper functions
 // are provided to facilitate perturbation of internal state (e.g., capacity).
 // Note that each manipulator must support aliasing, and those that perform
 // memory allocation must be tested for exception neutrality via the
-// 'bslma_testallocator' component.  Exception neutrality involving streaming
-// is verified using 'bslx_testinstream' (and 'bslx_testoutstream').
+// `bslma_testallocator` component.  Exception neutrality involving streaming
+// is verified using `bslx_testinstream` (and `bslx_testoutstream`).
 //
 // The extended list of primary manipulator (relative to, for example, arrays)
 // is required to obtain arbitrary white-box state.  Specifically, the data
@@ -201,7 +201,7 @@ const Element &V0 = VALUES[0], &VA = V0,  // V0, V1, ... are used in
               &V1 = VALUES[1], &VB = V1,  // conjunction with the VALUES queue.
               &V2 = VALUES[2], &VC = V2,
               &V3 = VALUES[3], &VD = V3,  // VA, VB, ... are used in
-              &V4 = VALUES[4], &VE = V4;  // conjunction with 'g' and 'gg'.
+              &V4 = VALUES[4], &VE = V4;  // conjunction with `g` and `gg`.
 
 const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
@@ -212,13 +212,13 @@ typedef bdlc::Queue<Element2> Obj2;
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Using only primary manipulators, rotate the initial `pushBack` location
+/// of the specified `object` by the specified `numPositions`.  The
+/// resulting value is not specified.  The behavior is undefined unless
+/// `0 <= numPositions`.
 template <class T>
 inline
 void rotate(T *object, int numPositions)
-    // Using only primary manipulators, rotate the initial 'pushBack' location
-    // of the specified 'object' by the specified 'numPositions'.  The
-    // resulting value is not specified.  The behavior is undefined unless
-    // '0 <= numPositions'.
 {
     ASSERT(object);
     ASSERT(0 <= numPositions);
@@ -228,12 +228,12 @@ void rotate(T *object, int numPositions)
     }
 }
 
+/// Using only primary manipulators, extend the length of the specified
+/// `object` by the specified `size`.  The resulting value is not specified.
+/// The behavior is undefined unless `0 <= size`.
 template <class T>
 inline
 void stretch(T *object, int size)
-    // Using only primary manipulators, extend the length of the specified
-    // 'object' by the specified 'size'.  The resulting value is not specified.
-    // The behavior is undefined unless '0 <= size'.
 {
     ASSERT(object);
     ASSERT(0 <= size);
@@ -243,12 +243,12 @@ void stretch(T *object, int size)
     ASSERT(object->length() >= size);
 }
 
+/// Using only primary manipulators, extend the capacity of the specified
+/// `object` to (at least) the specified `size`; then remove all elements
+/// leaving `object` empty.  The behavior is undefined unless `0 <= size`.
 template <class T>
 inline
 void stretchRemoveAll(T *object, int size)
-    // Using only primary manipulators, extend the capacity of the specified
-    // 'object' to (at least) the specified 'size'; then remove all elements
-    // leaving 'object' empty.  The behavior is undefined unless '0 <= size'.
 {
     ASSERT(object);
     ASSERT(0 <= size);
@@ -258,16 +258,16 @@ void stretchRemoveAll(T *object, int size)
 }
 
 // ============================================================================
-//              GENERATOR FUNCTIONS 'g' AND 'gg' FOR TESTING
+//              GENERATOR FUNCTIONS `g` AND `gg` FOR TESTING
 // ----------------------------------------------------------------------------
-// The following functions interpret the given 'spec' in order from left to
+// The following functions interpret the given `spec` in order from left to
 // right to configure the object according to a custom language.  Uppercase
-// letters 'A - E' correspond to arbitrary (but unique) double values to be
-// appended to the 'bdlc::Queue' object.  A tilde ('~') indicates that the
+// letters `A - E` correspond to arbitrary (but unique) double values to be
+// appended to the `bdlc::Queue` object.  A tilde ('~') indicates that the
 // logical (but not necessarily physical) state of the object is to be set to
-// its initial, empty state (via the 'removeAll' method).  The equals sign
+// its initial, empty state (via the `removeAll` method).  The equals sign
 // ('=') is used to reserve capacity of the specified amount (see below).  The
-// plus sign ('+') indicates that the position of the first 'pushBack' is
+// plus sign ('+') indicates that the position of the first `pushBack` is
 // rotated to the right (towards initially higher index positions) by the
 // specified amount (see below).  Amounts are specified by a sequence of digits
 // in base 10 notation.
@@ -324,15 +324,15 @@ void stretchRemoveAll(T *object, int size)
 //
 // ----------------------------------------------------------------------------
 
+/// Configure the specified `object` according to the specified `spec`,
+/// using only the primary manipulator function `append` and white-box
+/// manipulator `removeAll`.  Optionally specify a zero `verboseFlag` to
+/// suppress `spec` syntax error messages.  Return the index of the first
+/// invalid character, and a negative value otherwise.  Note that this
+/// function is used to implement `gg` as well as allow for verification of
+/// syntax error detection.
 template <class T>
 int ggg(T *object, const char *spec, int verboseFlag = 1)
-    // Configure the specified 'object' according to the specified 'spec',
-    // using only the primary manipulator function 'append' and white-box
-    // manipulator 'removeAll'.  Optionally specify a zero 'verboseFlag' to
-    // suppress 'spec' syntax error messages.  Return the index of the first
-    // invalid character, and a negative value otherwise.  Note that this
-    // function is used to implement 'gg' as well as allow for verification of
-    // syntax error detection.
 {
     enum { SUCCESS = -1 };
     int i;
@@ -387,26 +387,26 @@ error:
    return i;  // Discontinue processing this spec.
 }
 
+/// Return, by reference, the specified `object` with its value adjusted
+/// according to the specified `spec`.
 template <class T>
 inline
 T& gg(T *object, const char *spec)
-    // Return, by reference, the specified 'object' with its value adjusted
-    // according to the specified 'spec'.
 {
     ASSERT(ggg(object, spec) < 0);
     return *object;
 }
 
+/// Return, by value, a new object corresponding to the specified `spec`.
 Obj g(const char *spec)
-    // Return, by value, a new object corresponding to the specified 'spec'.
 {
     Obj object((bslma::Allocator *)0);
     return gg(&object, spec);
 }
 
+/// Return the expected length of the object created with the specified
+/// `spec`.
 static int specLength(const char *spec)
-    // Return the expected length of the object created with the specified
-    // 'spec'.
 {
     int len = 0;
     for (int i = 0; spec[i]; ++i) {
@@ -457,7 +457,7 @@ DEFINE_TEST_CASE(19) {
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -543,7 +543,7 @@ DEFINE_TEST_CASE(18) { // TBD doc here and above
         // --------------------------------------------------------------------
         // TESTING APPEND, PUSH*, INSERT, REMOVE, POP*
         //   Concerns:
-        //     For the 'append', 'push*', and 'insert' methods, the following
+        //     For the `append`, `push*`, and `insert` methods, the following
         //     properties must hold:
         //       1) The source is left unaffected (apart from aliasing).
         //       2) The subsequent existing of the source has no effect on the
@@ -558,23 +558,23 @@ DEFINE_TEST_CASE(18) { // TBD doc here and above
         //     "canonical state", but need not be repeated when concern 6
         //     ("white-box test") is addressed.
         //
-        //     For the 'remove' and 'pop*'methods, the concerns are simply to
+        //     For the `remove` and `pop*`methods, the concerns are simply to
         //     cover the full range of possible indices and numbers of
         //     elements.
         //
         // Plan:
         //   Use the enumeration technique to a depth of 5 for both the normal
-        //   and alias cases.  Data is tabulated explicitly for the 'insert'
+        //   and alias cases.  Data is tabulated explicitly for the `insert`
         //   method that takes a range from a source queue (or itself, for the
         //   aliasing test); other methods are tested using a subset of the
-        //   full test vector table.  In particular, the 'append' methods use
+        //   full test vector table.  In particular, the `append` methods use
         //   data where the destination index equals the destination length
         //   (strlen(D_SPEC) == DI).  All methods using the entire source
         //   object use test data where the source length equals the number of
         //   elements (strlen(S_SPEC) == NE), while the "scalar" methods use
         //   data where the number of elements equals 1 (1 == NE).  In
-        //   addition, the 'remove' methods switch the "d-queue" and "expected"
-        //   values from the 'insert' table.
+        //   addition, the `remove` methods switch the "d-queue" and "expected"
+        //   values from the `insert` table.
         //     - In the "canonical state" (black-box) tests, we confirm that
         //       the source is unmodified by the method call, and that its
         //       subsequent destruction has no effect on the destination
@@ -607,7 +607,7 @@ DEFINE_TEST_CASE(18) { // TBD doc here and above
         bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
-                << "Testing 'append', 'push*', 'insert', 'remove', and 'pop*'"
+                << "Testing `append`, `push*`, `insert`, `remove`, and `pop*`"
                 << endl
                 << "========================================================="
                 << endl;
@@ -1071,7 +1071,7 @@ DEFINE_TEST_CASE(18) { // TBD doc here and above
                         gg(&s, S_SPEC);
                         const Obj2& S = s;
                         if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
-                        x.insert(DI, s, SI, NE);        // source non-'const'
+                        x.insert(DI, s, SI, NE);        // source non-`const`
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, EE == X);
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
@@ -1090,7 +1090,7 @@ DEFINE_TEST_CASE(18) { // TBD doc here and above
                         gg(&s, S_SPEC);
                         const Obj2& S = s;
                         if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
-                        x.insert(DI, s);                // source non-'const'
+                        x.insert(DI, s);                // source non-`const`
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, EE == X);
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
@@ -1109,7 +1109,7 @@ DEFINE_TEST_CASE(18) { // TBD doc here and above
                         gg(&s, S_SPEC);
                         const Obj2& S = s;
                         if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
-                        x.insert(DI, s[SI]);            // source non-'const'
+                        x.insert(DI, s[SI]);            // source non-`const`
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, EE == X);
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
@@ -1130,7 +1130,7 @@ DEFINE_TEST_CASE(18) { // TBD doc here and above
                         gg(&s, S_SPEC);
                         const Obj2& S = s;
                         if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
-                        x.append(s, SI, NE);            // source non-'const'
+                        x.append(s, SI, NE);            // source non-`const`
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, EE == X);
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
@@ -1149,7 +1149,7 @@ DEFINE_TEST_CASE(18) { // TBD doc here and above
                         gg(&s, S_SPEC);
                         const Obj2& S = s;
                         if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
-                        x.append(s);                    // source non-'const'
+                        x.append(s);                    // source non-`const`
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, EE == X);
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
@@ -1168,7 +1168,7 @@ DEFINE_TEST_CASE(18) { // TBD doc here and above
                         gg(&s, S_SPEC);
                         const Obj2& S = s;
                         if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
-                        x.append(s[SI]);                // source non-'const'
+                        x.append(s[SI]);                // source non-`const`
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, EE == X);
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
@@ -1187,7 +1187,7 @@ DEFINE_TEST_CASE(18) { // TBD doc here and above
                         gg(&s, S_SPEC);
                         const Obj2& S = s;
                         if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
-                        x.pushBack(s[SI]);              // source non-'const'
+                        x.pushBack(s[SI]);              // source non-`const`
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, EE == X);
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
@@ -1206,7 +1206,7 @@ DEFINE_TEST_CASE(18) { // TBD doc here and above
                         gg(&s, S_SPEC);
                         const Obj2& S = s;
                         if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
-                        x.pushFront(s[SI]);             // source non-'const'
+                        x.pushFront(s[SI]);             // source non-`const`
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, EE == X);
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
@@ -1367,7 +1367,7 @@ DEFINE_TEST_CASE(18) { // TBD doc here and above
 
         //---------------------------------------------------------------------
 
-        if (verbose) cout << "\nAdditional 'remove' tests." << endl;
+        if (verbose) cout << "\nAdditional `remove` tests." << endl;
         {
             static const struct {
                 int         d_lineNum;  // source line number
@@ -2066,13 +2066,13 @@ DEFINE_TEST_CASE(17) {
         //       d) The internal memory management system is hooked up properly
         //          so that *all* internally allocated memory draws from a
         //          user-supplied allocator whenever one is specified.
-        //    2) 'reserveCapacity' method:
+        //    2) `reserveCapacity` method:
         //       a) The resulting value is correct (unchanged).
         //       b) The resulting capacity is correct (not less than initial).
         //       c) The method is exception neutral w.r.t. allocation.
         //       d) The resulting value is unchanged in the event of
         //          exceptions.
-        //    3) 'reserveCapacityRaw' method:
+        //    3) `reserveCapacityRaw` method:
         //       a) The resulting value is correct (unchanged).
         //       b) The resulting capacity is correct (not less than initial).
         //       c) The method is exception neutral w.r.t. allocation.
@@ -2082,26 +2082,26 @@ DEFINE_TEST_CASE(17) {
         //   objects with increasing initial capacity.  Verify that each object
         //   has the same value as a control default object.  Then, append as
         //   many values as the requested initial capacity, and use
-        //   'bslma::TestAllocator' to verify that no additional allocations
-        //   have occurred.  Perform each test in the standard 'bdema'
+        //   `bslma::TestAllocator` to verify that no additional allocations
+        //   have occurred.  Perform each test in the standard `bdema`
         //   exception-testing macro block.
         //
         //   Repeat the constructor test initially specifying no allocator and
         //   again, specifying a static buffer allocator.  These tests (without
-        //   specifying a 'bslma::TestAllocator') cannot confirm correct
+        //   specifying a `bslma::TestAllocator`) cannot confirm correct
         //   capacity-reserving behavior, but can test for rudimentary correct
         //   object behavior via the destructor and Purify, and, in
-        //   'veryVerbose' mode, via the print statements.
+        //   `veryVerbose` mode, via the print statements.
         //
-        //   To test 'reserveCapacity', specify a table of initial object
+        //   To test `reserveCapacity`, specify a table of initial object
         //   values and subsequent capacities to reserve.  Construct each
-        //   tabulated value, call 'reserveCapacity' with the tabulated number
+        //   tabulated value, call `reserveCapacity` with the tabulated number
         //   of elements, and confirm that the test object has the same value
         //   as a separately constructed control object.  Then, append as many
         //   values as required to bring the test object's length to the
-        //   specified number of elements, and use 'bslma::TestAllocator' to
+        //   specified number of elements, and use `bslma::TestAllocator` to
         //   verify that no additional allocations have occurred.  Perform each
-        //   test in the standard 'bdema' exception-testing macro block.
+        //   test in the standard `bdema` exception-testing macro block.
         //
         // Testing:
         //   bdlc::Queue(const InitialCapacity& ne, *ba = 0);
@@ -2116,8 +2116,8 @@ DEFINE_TEST_CASE(17) {
             << "==================================================" << endl;
 
         if (verbose) cout <<
-            "\nTesting 'bdlc::Queue(capacity, ba)' Constructor" << endl;
-        if (verbose) cout << "\twith a 'bslma::TestAllocator':" << endl;
+            "\nTesting `bdlc::Queue(capacity, ba)` Constructor" << endl;
+        if (verbose) cout << "\twith a `bslma::TestAllocator`:" << endl;
         {
             const Obj W(&testAllocator);  // control value
             const int MAX_NUM_ELEMS = 9;
@@ -2183,7 +2183,7 @@ DEFINE_TEST_CASE(17) {
              // internal allocators are not hooked up properly.
         }
 
-        // Test 'reserveCapacity' and 'reserveCapacityRaw' methods.
+        // Test `reserveCapacity` and `reserveCapacityRaw` methods.
 
         static const struct {
             int         d_lineNum;  // source line number
@@ -2247,7 +2247,7 @@ DEFINE_TEST_CASE(17) {
 
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout << "\nTesting the 'reserveCapacity' method" << endl;
+        if (verbose) cout << "\nTesting the `reserveCapacity` method" << endl;
         {
             for (int ti = 0; ti < NUM_DATA ; ++ti) {
               BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
@@ -2296,7 +2296,7 @@ DEFINE_TEST_CASE(17) {
             }
         }
 
-        if (verbose) cout << "\nTesting the 'reserveCapacityRaw' method"
+        if (verbose) cout << "\nTesting the `reserveCapacityRaw` method"
                           << endl;
         {
             for (int ti = 0; ti < NUM_DATA ; ++ti) {
@@ -2330,7 +2330,7 @@ DEFINE_TEST_CASE(17) {
 DEFINE_TEST_CASE(16) {
         // --------------------------------------------------------------------
         // TESTING SWAP METHOD:
-        //   We are concerned that, for an object of any length, 'swap' must
+        //   We are concerned that, for an object of any length, `swap` must
         //   exchange the values at any valid pair of index positions while
         //   leaving all other elements unaffected.  Note that, upon inspecting
         //   the implementation, we are explicitly not concerned about specific
@@ -2360,7 +2360,7 @@ DEFINE_TEST_CASE(16) {
         bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
-                          << "Testing 'swap' Method" << endl
+                          << "Testing `swap` Method" << endl
                           << "=====================" << endl;
 
         if (verbose) cout << "\nTesting swap(index1, index2)" << endl;
@@ -2460,9 +2460,9 @@ DEFINE_TEST_CASE(15) {
         //     - negative, 0, and positive levels.
         //     - 0 and non-zero spaces per level.
         // Plan:
-        //   For each of an enumerated set of object, 'level', and
-        //   'spacesPerLevel' values, ordered by increasing object length, use
-        //   'ostringstream' to 'print' that object's value, using the
+        //   For each of an enumerated set of object, `level`, and
+        //   `spacesPerLevel` values, ordered by increasing object length, use
+        //   `ostringstream` to `print` that object's value, using the
         //   tabulated parameters, to two separate character buffers each with
         //   different initial values.  Compare the contents of these buffers
         //   with the literal expected output format and verify that the
@@ -2476,10 +2476,10 @@ DEFINE_TEST_CASE(15) {
         bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
-                          << "Testing 'print' method" << endl
+                          << "Testing `print` method" << endl
                           << "======================" << endl;
 
-        if (verbose) cout << "\nTesting 'print' (ostream)." << endl;
+        if (verbose) cout << "\nTesting `print` (ostream)." << endl;
 #define NL "\n"
         {
             static const struct {
@@ -2600,29 +2600,29 @@ DEFINE_TEST_CASE(15) {
 
 DEFINE_TEST_CASE(14) {
         // --------------------------------------------------------------------
-        // TESTING REPLACE, 'operator[]', FRONT, AND BACK
+        // TESTING REPLACE, `operator[]`, FRONT, AND BACK
         //   Concerns:
-        //     For the 'replace' method, the following properties must hold:
+        //     For the `replace` method, the following properties must hold:
         //       1) The source is left unaffected (apart from aliasing).
         //       2) The subsequent existence of the source has no effect on the
         //          result object (apart from aliasing).
         //       3) The function is alias safe.
         //       4) The function preserves object invariants.
-        //     Note that the 'replace' methods cannot allocate, but is tested
+        //     Note that the `replace` methods cannot allocate, but is tested
         //     for exceptions anyway.                                 // ADJUST
         //
-        //     For 'operator[]', the method must be able to modify its indexed
+        //     For `operator[]`, the method must be able to modify its indexed
         //     element when used as an lvalue, but must not modify its indexed
         //     element when used as an rvalue.
         //
         // Plan:
         //   Use the enumeration technique to a depth of 5 for both the normal
-        //   and alias cases.  Data is tabulated explicitly for the 'replace'
+        //   and alias cases.  Data is tabulated explicitly for the `replace`
         //   method that takes a range from a source queue (or itself, for the
-        //   aliasing test); the "scalar" 'replace' test selects a subset of
-        //   the table by testing 'if (1 == NE)' where 'NE' is the tabulated
-        //   number of elements to replace.  'operator[]' is also tested using
-        //   the scalar 'replace' data, but using explicit assignment to
+        //   aliasing test); the "scalar" `replace` test selects a subset of
+        //   the table by testing `if (1 == NE)` where `NE` is the tabulated
+        //   number of elements to replace.  `operator[]` is also tested using
+        //   the scalar `replace` data, but using explicit assignment to
         //   achieve the "expected" result.
         //     - In the "canonical state" (black-box) tests, we confirm that
         //       the source is unmodified by the method call, and that its
@@ -2644,7 +2644,7 @@ DEFINE_TEST_CASE(14) {
         bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
-                << "Testing 'replace' and 'operator[]'" << endl
+                << "Testing `replace` and `operator[]`" << endl
                 << "==================================" << endl;
 
         if (verbose) cout <<
@@ -2984,7 +2984,7 @@ DEFINE_TEST_CASE(14) {
                     {
                         Obj s(SS, &testAllocator);  const Obj& S = s;
                         if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
-                        x.replace(DI, s, SI, NE);       // source non-'const'
+                        x.replace(DI, s, SI, NE);       // source non-`const`
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, EE == X);
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
@@ -3000,7 +3000,7 @@ DEFINE_TEST_CASE(14) {
                     {
                         Obj s(SS, &testAllocator);  const Obj& S = s;
                         if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
-                        x.replace(DI, s[SI]);           // source non-'const'
+                        x.replace(DI, s[SI]);           // source non-`const`
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, EE == X);
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
@@ -3018,7 +3018,7 @@ DEFINE_TEST_CASE(14) {
                         gg(&s, S_SPEC);
                         const Obj& S = s;
                         if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
-                        x[DI] = s[SI];                  // source non-'const'
+                        x[DI] = s[SI];                  // source non-`const`
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, EE == X);
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
@@ -3545,7 +3545,7 @@ DEFINE_TEST_CASE(13) {
         // --------------------------------------------------------------------
         // TESTING APPEND, PUSH*, INSERT, REMOVE, POP*
         //   Concerns:
-        //     For the 'append', 'push*', and 'insert' methods, the following
+        //     For the `append`, `push*`, and `insert` methods, the following
         //     properties must hold:
         //       1) The source is left unaffected (apart from aliasing).
         //       2) The subsequent existing of the source has no effect on the
@@ -3560,23 +3560,23 @@ DEFINE_TEST_CASE(13) {
         //     "canonical state", but need not be repeated when concern 6
         //     ("white-box test") is addressed.
         //
-        //     For the 'remove' and 'pop*'methods, the concerns are simply to
+        //     For the `remove` and `pop*`methods, the concerns are simply to
         //     cover the full range of possible indices and numbers of
         //     elements.
         //
         // Plan:
         //   Use the enumeration technique to a depth of 5 for both the normal
-        //   and alias cases.  Data is tabulated explicitly for the 'insert'
+        //   and alias cases.  Data is tabulated explicitly for the `insert`
         //   method that takes a range from a source queue (or itself, for the
         //   aliasing test); other methods are tested using a subset of the
-        //   full test vector table.  In particular, the 'append' methods use
+        //   full test vector table.  In particular, the `append` methods use
         //   data where the destination index equals the destination length
         //   (strlen(D_SPEC) == DI).  All methods using the entire source
         //   object use test data where the source length equals the number of
         //   elements (strlen(S_SPEC) == NE), while the "scalar" methods use
         //   data where the number of elements equals 1 (1 == NE).  In
-        //   addition, the 'remove' methods switch the "d-queue" and "expected"
-        //   values from the 'insert' table.
+        //   addition, the `remove` methods switch the "d-queue" and "expected"
+        //   values from the `insert` table.
         //     - In the "canonical state" (black-box) tests, we confirm that
         //       the source is unmodified by the method call, and that its
         //       subsequent destruction has no effect on the destination
@@ -3609,7 +3609,7 @@ DEFINE_TEST_CASE(13) {
         bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
-                << "Testing 'append', 'push*', 'insert', 'remove', and 'pop*'"
+                << "Testing `append`, `push*`, `insert`, `remove`, and `pop*`"
                 << endl
                 << "========================================================="
                 << endl;
@@ -4072,7 +4072,7 @@ DEFINE_TEST_CASE(13) {
                         gg(&s, S_SPEC);
                         const Obj& S = s;
                         if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
-                        x.insert(DI, s, SI, NE);        // source non-'const'
+                        x.insert(DI, s, SI, NE);        // source non-`const`
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, EE == X);
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
@@ -4090,7 +4090,7 @@ DEFINE_TEST_CASE(13) {
                         gg(&s, S_SPEC);
                         const Obj& S = s;
                         if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
-                        x.insert(DI, s);                // source non-'const'
+                        x.insert(DI, s);                // source non-`const`
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, EE == X);
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
@@ -4108,7 +4108,7 @@ DEFINE_TEST_CASE(13) {
                         gg(&s, S_SPEC);
                         const Obj& S = s;
                         if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
-                        x.insert(DI, s[SI]);            // source non-'const'
+                        x.insert(DI, s[SI]);            // source non-`const`
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, EE == X);
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
@@ -4128,7 +4128,7 @@ DEFINE_TEST_CASE(13) {
                         gg(&s, S_SPEC);
                         const Obj& S = s;
                         if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
-                        x.append(s, SI, NE);            // source non-'const'
+                        x.append(s, SI, NE);            // source non-`const`
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, EE == X);
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
@@ -4146,7 +4146,7 @@ DEFINE_TEST_CASE(13) {
                         gg(&s, S_SPEC);
                         const Obj& S = s;
                         if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
-                        x.append(s);                    // source non-'const'
+                        x.append(s);                    // source non-`const`
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, EE == X);
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
@@ -4164,7 +4164,7 @@ DEFINE_TEST_CASE(13) {
                         gg(&s, S_SPEC);
                         const Obj& S = s;
                         if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
-                        x.append(s[SI]);                // source non-'const'
+                        x.append(s[SI]);                // source non-`const`
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, EE == X);
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
@@ -4182,7 +4182,7 @@ DEFINE_TEST_CASE(13) {
                         gg(&s, S_SPEC);
                         const Obj& S = s;
                         if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
-                        x.pushBack(s[SI]);              // source non-'const'
+                        x.pushBack(s[SI]);              // source non-`const`
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, EE == X);
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
@@ -4200,7 +4200,7 @@ DEFINE_TEST_CASE(13) {
                         gg(&s, S_SPEC);
                         const Obj& S = s;
                         if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
-                        x.pushFront(s[SI]);             // source non-'const'
+                        x.pushFront(s[SI]);             // source non-`const`
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, EE == X);
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
@@ -4361,7 +4361,7 @@ DEFINE_TEST_CASE(13) {
 
         //---------------------------------------------------------------------
 
-        if (verbose) cout << "\nAdditional 'remove' tests." << endl;
+        if (verbose) cout << "\nAdditional `remove` tests." << endl;
         {
             static const struct {
                 int         d_lineNum;  // source line number
@@ -5056,7 +5056,7 @@ DEFINE_TEST_CASE(12) {
         //    - The resulting element values are correct when:
         //        new length <  initial length
         //        new length == initial length
-        //        new length >  initial length (undefined for 'setLengthRaw')
+        //        new length >  initial length (undefined for `setLengthRaw`)
         //   We are also concerned that the test data include sufficient
         //   differences in initial and final length that resizing is
         //   guaranteed to occur.  Beyond that, no explicit "white box" test is
@@ -5065,7 +5065,7 @@ DEFINE_TEST_CASE(12) {
         // Plan:
         //   Specify a set A of lengths.  For each a1 in A construct an object
         //   x of length a1 with each element in x initialized to an arbitrary
-        //   but known value V.  For each a2 in A use the 'setLength' method
+        //   but known value V.  For each a2 in A use the `setLength` method
         //   under test to set the length of x and potentially remove or set
         //   element values as per the method's contract.  Use the basic
         //   accessors to verify the length and element values of the modified
@@ -5083,7 +5083,7 @@ DEFINE_TEST_CASE(12) {
                           << "Testing Set-Length Functions" << endl
                           << "============================" << endl;
 
-        if (verbose) cout << "\nTesting 'setLengthRaw'" << endl;
+        if (verbose) cout << "\nTesting `setLengthRaw`" << endl;
         {
             const int lengths[] = { 0, 1, 2, 3, 4, 5, 7, 8, 9, 15, 16, 17 };
             const int NUM_TESTS = sizeof lengths / sizeof lengths[0];
@@ -5110,7 +5110,7 @@ DEFINE_TEST_CASE(12) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'setLength(int)'" << endl;
+        if (verbose) cout << "\nTesting `setLength(int)`" << endl;
         {
             const int lengths[] = { 0, 1, 2, 3, 4, 5, 7, 8, 9, 15, 16, 17 };
             const int NUM_TESTS = sizeof lengths / sizeof lengths[0];
@@ -5152,7 +5152,7 @@ DEFINE_TEST_CASE(12) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'setLength(int, double)'" << endl;
+        if (verbose) cout << "\nTesting `setLength(int, double)`" << endl;
         {
             const int lengths[] = { 0, 1, 2, 3, 4, 5, 7, 8, 9, 15, 16, 17 };
             const int NUM_TESTS = sizeof lengths / sizeof lengths[0];
@@ -5208,10 +5208,10 @@ DEFINE_TEST_CASE(11) {
         //   For each constructor we will create objects
         //    - With and without passing in an allocator.
         //    - In the presence of exceptions during memory allocations using
-        //        a 'bslma::TestAllocator' and varying its *allocation*
+        //        a `bslma::TestAllocator` and varying its *allocation*
         //        *limit*.
         //    - Where the object is constructed entirely in static memory
-        //        (using a 'bdlma::BufferedSequentialAllocator') and never
+        //        (using a `bdlma::BufferedSequentialAllocator`) and never
         //         destroyed.
         //   and use basic accessors to verify
         //      - length
@@ -5460,8 +5460,8 @@ DEFINE_TEST_CASE(10) {
         // --------------------------------------------------------------------
         // TESTING STREAMING FUNCTIONALITY:
         //   1) The available bdex stream functions are implemented
-        //      using the respective member functions 'streamOut' and
-        //      'streamIn'.
+        //      using the respective member functions `streamOut` and
+        //      `streamIn`.
         //   2) Streaming must be neutral to exceptions thrown as a result of
         //      either allocating memory or streaming in values.
         //   3) Ensure that streaming works under the following conditions:
@@ -5473,7 +5473,7 @@ DEFINE_TEST_CASE(10) {
         //
         //   Plan:
         //     First perform a trivial direct (breathing) test of the
-        //     'outStream' and 'inStream' methods (to address concern 1).  Note
+        //     `outStream` and `inStream` methods (to address concern 1).  Note
         //     that the rest of the testing will use the stream operators.
         //
         //     Next, specify a set S of unique object values with substantial
@@ -5533,8 +5533,8 @@ DEFINE_TEST_CASE(10) {
 
         const int VERSION_SELECTOR = 20130612;
         const int VERSION = Obj::maxSupportedBdexVersion(VERSION_SELECTOR);
-        if (verbose) cout << "\nDirect initial trial of 'streamOut' and"
-                             " (valid) 'streamIn' functionality." << endl;
+        if (verbose) cout << "\nDirect initial trial of `streamOut` and"
+                             " (valid) `streamIn` functionality." << endl;
         {
             const Obj X(g("ABC"), &testAllocator);
             if (veryVerbose) { cout << "\t   Value being streamed: "; P(X); }
@@ -5558,7 +5558,7 @@ DEFINE_TEST_CASE(10) {
         }
 
         if (verbose) cout <<
-            "\nTesting stream operators ('<<' and '>>')." << endl;
+            "\nTesting stream operators (`<<` and `>>`)." << endl;
 
         if (verbose) cout << "\tOn valid, non-empty stream data." << endl;
         {
@@ -5905,8 +5905,8 @@ DEFINE_TEST_CASE(9) {
         //   1.  The value represented by any instance can be assigned to any
         //         other instance regardless of how either value is represented
         //         internally.
-        //   2.  The 'rhs' value must not be affected by the operation.
-        //   3.  'rhs' going out of scope has no effect on the value of 'lhs'
+        //   2.  The `rhs` value must not be affected by the operation.
+        //   3.  `rhs` going out of scope has no effect on the value of `lhs`
         //       after the assignment.
         //   4.  Aliasing (x = x): The assignment operator must always work --
         //         even when the lhs and rhs are identically the same object.
@@ -5925,7 +5925,7 @@ DEFINE_TEST_CASE(9) {
         //   before the assignment that UU == u, VV == v, and v == u iff
         //   VV == UU.  After the assignment, assert that VV == u, VV == v,
         //   and, for grins, that v == u.  Let v go out of scope and confirm
-        //   that VV == u.  All of these tests are performed within the 'bdema'
+        //   that VV == u.  All of these tests are performed within the `bdema`
         //   exception testing apparatus.
         //
         //   As a separate exercise, we address 4 and 5 by constructing tests
@@ -6027,7 +6027,7 @@ DEFINE_TEST_CASE(9) {
                             LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N,  V == U);
                             //--v
                             }
-                            // 'mV' (and therefore 'V') now out of scope
+                            // `mV` (and therefore `V`) now out of scope
                             LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == U);
                           } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                         }
@@ -6096,21 +6096,21 @@ DEFINE_TEST_CASE(9) {
 DEFINE_TEST_CASE(8) {
         // --------------------------------------------------------------------
         // TESTING GENERATOR FUNCTION, g:
-        //   Since 'g' is implemented almost entirely using 'gg', we need to
-        //   verify only that the arguments are properly forwarded, that 'g'
-        //   does not affect the test allocator, and that 'g' returns an
+        //   Since `g` is implemented almost entirely using `gg`, we need to
+        //   verify only that the arguments are properly forwarded, that `g`
+        //   does not affect the test allocator, and that `g` returns an
         //   object by value.
         //
         // Plan:
         //   For each SPEC in a short list of specifications, compare the
-        //   object returned (by value) from the generator function, 'g(SPEC)'
+        //   object returned (by value) from the generator function, `g(SPEC)`
         //   with the value of a newly constructed OBJECT configured using
-        //   'gg(&OBJECT, SPEC)'.  Compare the results of calling the
-        //   allocator's 'numBlocksTotal' and 'numBytesInUse' methods before
-        //   and after calling 'g' in order to demonstrate that 'g' has no
-        //   effect on the test allocator.  Finally, use 'sizeof' to confirm
-        //   that the (temporary) returned by 'g' differs in size from that
-        //   returned by 'gg'.
+        //   `gg(&OBJECT, SPEC)`.  Compare the results of calling the
+        //   allocator's `numBlocksTotal` and `numBytesInUse` methods before
+        //   and after calling `g` in order to demonstrate that `g` has no
+        //   effect on the test allocator.  Finally, use `sizeof` to confirm
+        //   that the (temporary) returned by `g` differs in size from that
+        //   returned by `gg`.
         //
         // Testing:
         //   bdlc::Queue g(const char *spec);
@@ -6119,7 +6119,7 @@ DEFINE_TEST_CASE(8) {
         bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         if (verbose) cout << endl
-                          << "Testing Generator Function 'g'" << endl
+                          << "Testing Generator Function `g`" << endl
                           << "==============================" << endl;
 
         static const char *SPECS[] = {
@@ -6127,7 +6127,7 @@ DEFINE_TEST_CASE(8) {
         0}; // Null string required as last element.
 
         if (verbose) cout <<
-            "\nCompare values produced by 'g' and 'gg' for various inputs."
+            "\nCompare values produced by `g` and `gg` for various inputs."
                                                                        << endl;
         for (int ti = 0; SPECS[ti]; ++ti) {
             const char *spec = SPECS[ti];
@@ -6188,7 +6188,7 @@ DEFINE_TEST_CASE(7) {
         //   To address concerns 1 - 3, specify a set S of object values with
         //   substantial and varied differences, ordered by increasing length.
         //   For each value in S, initialize objects w and x, copy construct y
-        //   from x and use 'operator==' to verify that both x and y
+        //   from x and use `operator==` to verify that both x and y
         //   subsequently have the same value as w.  Let x go out of scope and
         //   again verify that w == x.  Repeat this test with x having the same
         //   *logical* value, but perturbed so as to have potentially different
@@ -6196,14 +6196,14 @@ DEFINE_TEST_CASE(7) {
         //
         //   To address concern 5, we will perform each of the above tests in
         //   the presence of exceptions during memory allocations using a
-        //   'bslma::TestAllocator' and varying its *allocation* *limit*.
+        //   `bslma::TestAllocator` and varying its *allocation* *limit*.
         //
         //   To address concern 6, we will repeat the above tests:
         //     - When passing in no allocator.
         //     - When passing in a null pointer: (bslma::Allocator *)0.
         //     - When passing in a test allocator (see concern 5).
         //     - Where the object is constructed entirely in static memory
-        //       (using a 'bdlma::BufferedSequentialAllocator') and never
+        //       (using a `bdlma::BufferedSequentialAllocator`) and never
         //         destroyed.
         //     - After the (dynamically allocated) source object is
         //       deleted and its footprint erased (see concern 4).
@@ -6293,7 +6293,7 @@ DEFINE_TEST_CASE(7) {
                             LOOP_ASSERT(SPEC, W == X);
                         }
 
-                        {                         // with 'original' destroyed
+                        {                         // with `original` destroyed
                             const Obj Y2(X, &testAllocator);
 
                             // testAllocator will erase the footprint of pX
@@ -6312,11 +6312,11 @@ DEFINE_TEST_CASE(7) {
 DEFINE_TEST_CASE(6) {
         // --------------------------------------------------------------------
         // TESTING EQUALITY OPERATORS:
-        //   Since 'operators==' is implemented in terms of basic accessors,
+        //   Since `operators==` is implemented in terms of basic accessors,
         //   it is sufficient to verify only that a difference in value of any
         //   one basic accessor for any two given objects implies inequality.
         //   However, to test that no other internal state information is
-        //   being considered, we want also to verify that 'operator==' reports
+        //   being considered, we want also to verify that `operator==` reports
         //   true when applied to any two objects whose internal
         //   representations may be different yet still represent the same
         //   (logical) value:
@@ -6324,14 +6324,14 @@ DEFINE_TEST_CASE(6) {
         //      - the position of the first data element
         //
         //   Note also that both equality operators must return either 1 or 0,
-        //   and neither 'lhs' nor 'rhs' value may be modified.
+        //   and neither `lhs` nor `rhs` value may be modified.
         //
         // Plan:
         //   First specify a set S of unique object values having various minor
         //   or subtle differences, ordered by non-decreasing length.  For each
         //   element of S construct a set of values of equal value but with
         //   different size and starting position.  Call the union of all these
-        //   values T.  Verify the correctness of 'operator==' and 'operator!='
+        //   values T.  Verify the correctness of `operator==` and `operator!=`
         //   (returning either 1 or 0) using all elements (u, v) of the cross
         //   product T X T.
         //
@@ -6424,7 +6424,7 @@ DEFINE_TEST_CASE(5) {
         //
         // Plan:
         //   For each of a small representative set of object values, ordered
-        //   by increasing length, use 'ostringstream' to write that object's
+        //   by increasing length, use `ostringstream` to write that object's
         //   value to two separate character buffers each with different
         //   initial values.  Compare the contents of these buffers with the
         //   literal expected output format and verify that the characters
@@ -6440,7 +6440,7 @@ DEFINE_TEST_CASE(5) {
                           << "Testing Output (<<) Operator" << endl
                           << "============================" << endl;
 
-        if (verbose) cout << "\nTesting 'operator<<' (ostream)." << endl;
+        if (verbose) cout << "\nTesting `operator<<` (ostream)." << endl;
         {
             static const struct {
                 int         d_lineNum;  // source line number
@@ -6536,7 +6536,7 @@ DEFINE_TEST_CASE(4) {
         // Plan:
         //   Specify a set S of representative object values ordered by
         //   increasing length.  For each value w in S, initialize a newly
-        //   constructed object x with w using 'gg' and verify that each basic
+        //   constructed object x with w using `gg` and verify that each basic
         //   accessor returns the expected result.  Repeat the same test on an
         //   object y after perturbing y so as to achieve an internal state
         //   representation of w that is potentially different from that of x:
@@ -6556,7 +6556,7 @@ DEFINE_TEST_CASE(4) {
                           << "Testing Basic Accessors" << endl
                           << "=======================" << endl;
 
-        if (verbose) cout << "\nTesting 'length' & 'operator[]'" << endl;
+        if (verbose) cout << "\nTesting `length` & `operator[]`" << endl;
         {
             const int SZ = 10;
             static const struct {
@@ -6654,23 +6654,23 @@ DEFINE_TEST_CASE(3) {
         //
         //   We want also to make trustworthy some additional test helper
         //   functionality that we will use within the first 10 test cases:
-        //    - 'rotate'
-        //    - 'stretch'          Tested separately to observe stretch occurs.
-        //    - 'stretchRemoveAll' Deliberately implemented using 'stretch'.
+        //    - `rotate`
+        //    - `stretch`          Tested separately to observe stretch occurs.
+        //    - `stretchRemoveAll` Deliberately implemented using `stretch`.
         //
         //   Finally we want to make sure that we can rationalize the internal
         //   memory management with respect to the primary manipulators (i.e.,
         //   precisely when new blocks are allocated and deallocated).
         //
         // Plan:
-        //   For each of an enumerated sequence of 'spec' values, ordered by
-        //   increasing 'spec' length, use the primitive generator function
-        //   'gg' to set the state of a newly created object.  Verify that 'gg'
+        //   For each of an enumerated sequence of `spec` values, ordered by
+        //   increasing `spec` length, use the primitive generator function
+        //   `gg` to set the state of a newly created object.  Verify that `gg`
         //   returns a valid reference to the modified argument object and,
         //   using basic accessors, that the value of the object is as
-        //   expected.  Repeat the test for a longer 'spec' generated by
+        //   expected.  Repeat the test for a longer `spec` generated by
         //   prepending a string ending in a '~' character (denoting
-        //   'removeAll').  Note that we are testing the parser only; the
+        //   `removeAll`).  Note that we are testing the parser only; the
         //   primary manipulators are already assumed to work.
         //
         //   To verify that the stretching functions work as expected (and to
@@ -6682,12 +6682,12 @@ DEFINE_TEST_CASE(3) {
         //   construct two identical objects X and Y and bring each to the
         //   initial state.  Assert that the memory allocation for the two
         //   operations are identical and consistent with the first expected
-        //   value.  Next apply the 'stretch' and 'stretchRemoveAll' functions
+        //   value.  Next apply the `stretch` and `stretchRemoveAll` functions
         //   to X and Y (respectively) and again compare the memory allocation
         //   characteristics for the two functions.  Note that we will track
         //   the *total* number of *blocks* allocated as well as the *current*
         //   number of *bytes* in use -- this to measure different aspects of
-        //   operation while remaining insensitive to the queue 'Element' size.
+        //   operation while remaining insensitive to the queue `Element` size.
         //
         // Testing:
         //   bdlc::Queue& gg(bdlc::Queue* object, const char *spec);
@@ -6702,7 +6702,7 @@ DEFINE_TEST_CASE(3) {
 
         if (verbose)
             cout << endl
-                 << "Testing Primitive Generator Function 'gg'" << endl
+                 << "Testing Primitive Generator Function `gg`" << endl
                  << "=========================================" << endl;
 
         if (verbose) cout << "\nTesting generator on valid specs without '=' "
@@ -6971,7 +6971,7 @@ DEFINE_TEST_CASE(3) {
         }
 
         if (verbose) cout <<
-            "\nTesting 'rotate'." << endl;
+            "\nTesting `rotate`." << endl;
         {
             const int RESERVE[] =  { 4, 7, 8, 15, 16, 17 };
             const int NUM_RESERVE = sizeof RESERVE / sizeof RESERVE[0];
@@ -7000,7 +7000,7 @@ DEFINE_TEST_CASE(3) {
         }
 
         if (verbose) cout <<
-            "\nTesting 'stretch' and 'stretchRemoveAll'." << endl;
+            "\nTesting `stretch` and `stretchRemoveAll`." << endl;
         {
             static const struct {
                 int         d_lineNum;       // source line number
@@ -7010,7 +7010,7 @@ DEFINE_TEST_CASE(3) {
                 int         d_secondResize;  // total blocks allocated
 
                 // Note: total blocks (first/second Resize) and whether or not
-                // 'removeAll' deallocates memory depends on 'Element' type.
+                // `removeAll` deallocates memory depends on `Element` type.
 
             } DATA[] = {
                 //line  spec            size    firstResize     secondResize
@@ -7173,20 +7173,20 @@ DEFINE_TEST_CASE(2) {
         //              one is specified.
         //    2) The destructor properly deallocates all allocated memory to
         //         its corresponding allocator from any attainable state.
-        //    3) 'pushBack'
+        //    3) `pushBack`
         //        3a) produces the expected value.
         //        3b) increases capacity as needed.
         //        3c) maintains valid internal state.
         //        3d) is exception neutral with respect to memory allocation.
-        //    4) 'removeAll'
+        //    4) `removeAll`
         //        4a) produces the expected value (empty).
         //        4b) properly destroys each contained element value.
         //        4c) maintains valid internal state.
         //        4d) does not allocate memory.
-        //    5) 'popFront'
+        //    5) `popFront`
         //        5a) produces the expected value.
         //        5b) maintains valid internal state.
-        //    6) 'reserveCapacity'
+        //    6) `reserveCapacity`
         //        6a) maintains the value.
         //        6b) maintains valid internal state.
         //        6c) resulting capacity is correct.
@@ -7196,10 +7196,10 @@ DEFINE_TEST_CASE(2) {
         //   constructor:
         //    - With and without passing in an allocator.
         //    - In the presence of exceptions during memory allocations using
-        //        a 'bslma::TestAllocator' and varying its *allocation*
+        //        a `bslma::TestAllocator` and varying its *allocation*
         //        *limit*.
         //    - Where the object is constructed entirely in static memory
-        //        (using a 'bdlma::BufferedSequentialAllocator') and never
+        //        (using a `bdlma::BufferedSequentialAllocator`) and never
         //         destroyed.
         //
         //   To address concerns 3a - 3c, construct a series of independent
@@ -7208,11 +7208,11 @@ DEFINE_TEST_CASE(2) {
         //   destructor asserts internal object invariants appropriately.
         //   After the final append operation in each test, use the (untested)
         //   basic accessors to cross-check the value of the object
-        //   and the 'bslma::TestAllocator' to confirm whether a resize has
+        //   and the `bslma::TestAllocator` to confirm whether a resize has
         //   occurred.
         //
         //   To address concerns 4a - 4c, construct a similar test, replacing
-        //   'append' with 'removeAll'; this time, however, use the test
+        //   `append` with `removeAll`; this time, however, use the test
         //   allocator to record *numBlocksInUse* rather than *numBlocksTotal*.
         //
         //   To address concerns 2, 3d, 4d, create a small "area" test that
@@ -7222,22 +7222,22 @@ DEFINE_TEST_CASE(2) {
         //
         //   Let S be the sequence of integers { 0 .. N - 1 }.
         //      (1) for each i in S, use the default constructor and
-        //          'pushBack' to create an instance of length i, confirm its
+        //          `pushBack` to create an instance of length i, confirm its
         //          value (using basic accessors), and let it leave scope.
-        //      (2) for each (i, j) in S X S, use 'append' to create an
-        //          instance of length i, use 'removeAll' to erase its value
-        //          and confirm (with 'length'), use append to set the instance
+        //      (2) for each (i, j) in S X S, use `append` to create an
+        //          instance of length i, use `removeAll` to erase its value
+        //          and confirm (with `length`), use append to set the instance
         //          to a value of length j, verify the value, and allow the
         //          instance to leave scope.
         //
-        //   The first test acts as a "control" in that 'removeAll' is not
+        //   The first test acts as a "control" in that `removeAll` is not
         //   called; if only the second test produces an error, we know that
-        //   'removeAll' is to blame.  We will rely on 'bslma::TestAllocator'
+        //   `removeAll` is to blame.  We will rely on `bslma::TestAllocator`
         //   and purify to address concern 2, and on the object invariant
         //   assertions in the destructor to address concerns 3d and 4d.
         //
         //   To address concerns 5a and 5b, construct a series of independent
-        //   objects, ordered by increasing length and then 'popFront' an item.
+        //   objects, ordered by increasing length and then `popFront` an item.
         //   In each test, allow the object to leave scope without further
         //   modification, so that the destructor asserts internal object
         //   invariants appropriately.  After the final operation in each test,
@@ -7246,8 +7246,8 @@ DEFINE_TEST_CASE(2) {
         //
         //   To address concerns 6a - 6b, construct a series of independent
         //   objects, ordered by increasing length.  Perform a
-        //   'reserveCapacity', ensure the value is maintained, and then
-        //   'pushBack' the number of elements reserved and ensure no
+        //   `reserveCapacity`, ensure the value is maintained, and then
+        //   `pushBack` the number of elements reserved and ensure no
         //   allocation was performed.
         //
         // Testing:
@@ -7306,7 +7306,7 @@ DEFINE_TEST_CASE(2) {
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'pushBack' (bootstrap)." << endl;
+        if (verbose) cout << "\nTesting `pushBack` (bootstrap)." << endl;
         {
             if (verbose) cout << "\tOn an object of initial length 0." << endl;
             Obj mX(&testAllocator);  const Obj& X = mX;
@@ -7404,7 +7404,7 @@ DEFINE_TEST_CASE(2) {
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'popFront' (bootstrap)." << endl;
+        if (verbose) cout << "\nTesting `popFront` (bootstrap)." << endl;
         {
             if (verbose) cout << "\tOn an object of initial length 1." << endl;
             Obj mX(&testAllocator);  const Obj& X = mX;
@@ -7478,7 +7478,7 @@ DEFINE_TEST_CASE(2) {
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'reserveCapacity' (bootstrap)."
+        if (verbose) cout << "\nTesting `reserveCapacity` (bootstrap)."
                           << endl;
         {
             if (verbose) cout << "\tOn an object of initial length 1." << endl;
@@ -7591,7 +7591,7 @@ DEFINE_TEST_CASE(2) {
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'removeAll'." << endl;
+        if (verbose) cout << "\nTesting `removeAll`." << endl;
         {
             if (verbose) cout << "\tOn an object of initial length 0." << endl;
             Obj mX(&testAllocator);  const Obj& X = mX;
@@ -7687,7 +7687,7 @@ DEFINE_TEST_CASE(2) {
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'removeAll'." << endl;
+        if (verbose) cout << "\nTesting `removeAll`." << endl;
         {
             if (verbose) cout << "\tOn an object of initial length 0." << endl;
             Obj mX(&testAllocator);  const Obj& X = mX;
@@ -7761,7 +7761,7 @@ DEFINE_TEST_CASE(2) {
         if (verbose) cout <<
           "\nTesting the destructor and exception neutrality." << endl;
 
-        if (verbose) cout << "\tWith 'pushBack' only" << endl;
+        if (verbose) cout << "\tWith `pushBack` only" << endl;
         {
             // For each lengths i up to some modest limit:
             //    1) create an instance
@@ -7791,7 +7791,7 @@ DEFINE_TEST_CASE(2) {
             }
         }
 
-        if (verbose) cout << "\tWith 'pushBack' and 'removeAll'" << endl;
+        if (verbose) cout << "\tWith `pushBack` and `removeAll`" << endl;
         {
             // For each pair of lengths (i, j) up to some modest limit:
             //    1) create an instance
@@ -7852,10 +7852,10 @@ DEFINE_TEST_CASE(1) {
         //   operation of the following methods and operators:
         //      - default and copy constructors (and also the destructor)
         //      - the assignment operator (including aliasing)
-        //      - equality operators: 'operator==' and 'operator!='
-        //      - the output operator: 'operator<<'
-        //      - primary manipulators: 'pushBack' and 'removeAll' methods
-        //      - basic accessors: 'length' and 'operator[]'
+        //      - equality operators: `operator==` and `operator!=`
+        //      - the output operator: `operator<<`
+        //      - primary manipulators: `pushBack` and `removeAll` methods
+        //      - basic accessors: `length` and `operator[]`
         //   In addition we would like to exercise objects with potentially
         //   different internal organizations representing the same value.
         //

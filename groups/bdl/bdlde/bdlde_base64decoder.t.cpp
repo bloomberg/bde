@@ -295,14 +295,14 @@ void aSsErT(bool condition, const char *message, int line)
 //                SEMI-STANDARD HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Create a visual display for a computation of the specified `length` and
+/// emit updates to `cerr` as appropriate for the specified `index`.
+/// Optionally specify the `size` of the display.  The behavior is undefined
+/// unless 0 <= index, 0 <= length, 0 < size, and index <= length.  Note
+/// that it is expected that indices will be presented in order from 0 to
+/// `length`, inclusive, without intervening output to `stderr`; however,
+/// intervening output to `stdout` may be redirected productively.
 void loopMeter(unsigned index, unsigned length, unsigned size = 50)
-    // Create a visual display for a computation of the specified 'length' and
-    // emit updates to 'cerr' as appropriate for the specified 'index'.
-    // Optionally specify the 'size' of the display.  The behavior is undefined
-    // unless 0 <= index, 0 <= length, 0 < size, and index <= length.  Note
-    // that it is expected that indices will be presented in order from 0 to
-    // 'length', inclusive, without intervening output to 'stderr'; however,
-    // intervening output to 'stdout' may be redirected productively.
 {
     ASSERT(0 < size);
     ASSERT(index <= length);
@@ -504,44 +504,46 @@ const char *testFileName = 0;
 namespace {
 namespace u {
 
+/// Random number generator using the high-order 32 bits of Donald Knuth's
+/// MMIX algorithm.
 class RandGen {
-    // Random number generator using the high-order 32 bits of Donald Knuth's
-    // MMIX algorithm.
 
     bsls::Types::Uint64 d_seed;
 
   public:
     // CREATORS
+
+    /// Initialize the generator with the optionally specified `startSeed`.
     explicit
     RandGen(int startSeed = 0);
-        // Initialize the generator with the optionally specified 'startSeed'.
 
     // MANIPULATORS
+
+    /// Return the next random number in the series;
     unsigned operator()();
-        // Return the next random number in the series;
 
+    /// Return the value of the "ignore' argument to be passed to the
+    /// decoder options that will result in no errors given the state of the
+    /// specified `injectGarbage` and `injectWhitespace` arguments.
     Ignore::Enum benignIgnore(bool injectGarbage, bool injectWhitespace);
-        // Return the value of the "ignore' argument to be passed to the
-        // decoder options that will result in no errors given the state of the
-        // specified 'injectGarbage' and 'injectWhitespace' arguments.
 
+    /// Return a random `char`.
     char getChar();
-        // Return a random 'char'.
 
+    /// Inject a random non-zero number of characters of illegal garbage
+    /// into the specified `result` at random indices, if the specified
+    /// `padIsGarbage` is `true`, consider '=' among the garbage characters
+    /// to be inserted.  If `url` is true, '+' and '/' are among the garbage
+    /// characters, otherwise '-' and '_' are among the garbage characters.
     void injectGarbage(bsl::string *result, bool padIsGarbage, bool url);
-        // Inject a random non-zero number of characters of illegal garbage
-        // into the specified 'result' at random indices, if the specified
-        // 'padIsGarbage' is 'true', consider '=' among the garbage characters
-        // to be inserted.  If 'url' is true, '+' and '/' are among the garbage
-        // characters, otherwise '-' and '_' are among the garbage characters.
 
+    /// Inject a random non-zero number of bytes of white space into the
+    /// specified `result` at random indices.
     void injectWhitespace(bsl::string *result);
-        // Inject a random non-zero number of bytes of white space into the
-        // specified 'result' at random indices.
 
+    /// Initialize the specified `result` with the specified `len` random
+    /// bytes (including `0x00`).
     void randString(bsl::string *result, int len);
-        // Initialize the specified 'result' with the specified 'len' random
-        // bytes (including '0x00').
 };
 
 // CREATORS
@@ -624,11 +626,11 @@ void RandGen::randString(bsl::string *result, int len)
     }
 }
 
+/// Return the specified `str`, with some or all characters translated into
+/// hexadecimal '\x' sequences.  If the specified `allInHex` is `true`,
+/// translate all characters to hex sequences, otherwise translate only
+/// non-printable or whitespace characters.
 bsl::string displayStr(const bsl::string& str, bool allInHex = true)
-    // Return the specified 'str', with some or all characters translated into
-    // hexadecimal '\x' sequences.  If the specified 'allInHex' is 'true',
-    // translate all characters to hex sequences, otherwise translate only
-    // non-printable or whitespace characters.
 {
     bsl::string ret;
 
@@ -652,9 +654,9 @@ bsl::string displayStr(const bsl::string& str, bool allInHex = true)
     return ret;
 }
 
+/// Translate the specified `*result` from an `e_BASIC` encoding to an
+/// `e_URL` encoding.
 void convertToUrlInput(bsl::string *result)
-    // Translate the specified '*result' from an 'e_BASIC' encoding to an
-    // 'e_URL' encoding.
 {
     for (unsigned idx = 0; idx < result->length(); ++idx) {
         char& c = (*result)[idx];
@@ -667,8 +669,8 @@ void convertToUrlInput(bsl::string *result)
     }
 }
 
+/// Remove all occurrences of '=' from the specified `*result`.
 void removePadding(bsl::string *result)
-    // Remove all occurrences of '=' from the specified '*result'.
 {
     for (unsigned uu = 0; uu < result->length(); ++uu) {
         if ('=' == (*result)[uu]) {
@@ -686,9 +688,9 @@ void removePadding(bsl::string *result)
                         // operator<< for enum State
                         // =========================
 
+/// Write the ascii representation of the specified State `enumerator`
+/// to the specified output `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, State enumerator)
-    // Write the ascii representation of the specified State 'enumerator'
-    // to the specified output 'stream'.
 {
     ASSERT(0 <= (int)enumerator); ASSERT((int)enumerator <= ERROR_STATE);
     return stream << STATE_NAMES[enumerator] << flush;
@@ -709,14 +711,14 @@ T myMin(const T& a, const T& b)
                         // Function printCharN
                         // ===================
 
+/// Print the specified character `sequence` of specified `length` to the
+/// specified `output` and return a reference to the modifiable `stream`
+/// (if a character is not graphical, its hexadecimal code is printed
+/// instead).  The behavior is undefined unless 0 <= `length` and sequence
+/// refers to a valid area of memory of size at least `length`.
 bsl::ostream& printCharN(bsl::ostream& output,
                          const char* sequence,
                          int length)
-    // Print the specified character 'sequence' of specified 'length' to the
-    // specified 'output' and return a reference to the modifiable 'stream'
-    // (if a character is not graphical, its hexadecimal code is printed
-    // instead).  The behavior is undefined unless 0 <= 'length' and sequence
-    // refers to a valid area of memory of size at least 'length'.
 {
     static char HEX[] = "0123456789ABCDEF";
 
@@ -750,14 +752,14 @@ bsl::string showCharN(const char  *sequence,
                         // Function setState
                         // =================
 
+/// Move the specified `object` from its initial (i.e., newly constructed)
+/// state to the specified `state` using 'A' and '=' characters for input
+/// as needed.  The behavior is undefined if `object` is not in its
+/// newly-constructed initial state.   Note that when this function is
+/// invoked on a newly constructed object, it is presumed that
+/// `isInitialState` has been sufficiently tested to ensure that it returns
+/// `true`.
 void setState(Obj *object, int state)
-    // Move the specified 'object' from its initial (i.e., newly constructed)
-    // state to the specified 'state' using 'A' and '=' characters for input
-    // as needed.  The behavior is undefined if 'object' is not in its
-    // newly-constructed initial state.   Note that when this function is
-    // invoked on a newly constructed object, it is presumed that
-    // 'isInitialState' has been sufficiently tested to ensure that it returns
-    // 'true'.
 {
     ASSERT(object); ASSERT(0 <= state); ASSERT(state < NUM_STATES);
 
@@ -923,35 +925,35 @@ void setState(Obj *object, int state)
                         // Function isState
                         // ================
 
+/// If set to true, will enable ASSERTs in `::isState` (for debugging).
 static bool globalAssertsEnabled = false;
-    // If set to true, will enable ASSERTs in '::isState' (for debugging).
 
+/// Enable/Disable `::isState` ASSERTs for current scope; restore status at
+/// end.  Note that guards can be nested.
 class EnabledGuard {
-    // Enable/Disable '::isState' ASSERTs for current scope; restore status at
-    // end.  Note that guards can be nested.
 
     bool d_state;
 
   public:
+    /// Create a guard to control the activation of individual assertions
+    /// in the `::isState` test helper function using the specified
+    /// enable `flag` value.  If `flag` is `true` individual false values
+    /// we be reported as assertion errors.
     explicit
     EnabledGuard(bool flag)
-        // Create a guard to control the activation of individual assertions
-        // in the '::isState' test helper function using the specified
-        // enable 'flag' value.  If 'flag' is 'true' individual false values
-        // we be reported as assertion errors.
     : d_state(globalAssertsEnabled) { globalAssertsEnabled = flag; }
 
     ~EnabledGuard() { globalAssertsEnabled = d_state; }
 };
 
+/// Return `true` if the specified `object` was initially in the specified
+/// `state`, and `false` otherwise.  Setting the global variable
+/// `globalAssertsEnabled` to `true` enables individual sub-conditions to
+/// be ASSERTed, which can be used to facilitate test driver debugging.
+/// Note that the final state of `object` may (and probably will) be
+/// modified arbitrarily from its initial state in order to distinguish
+/// similar states.
 bool isState(Obj *object, int state)
-    // Return 'true' if the specified 'object' was initially in the specified
-    // 'state', and 'false' otherwise.  Setting the global variable
-    // 'globalAssertsEnabled' to 'true' enables individual sub-conditions to
-    // be ASSERTed, which can be used to facilitate test driver debugging.
-    // Note that the final state of 'object' may (and probably will) be
-    // modified arbitrarily from its initial state in order to distinguish
-    // similar states.
 {
     ASSERT(object); ASSERT(0 <= state); ASSERT(state < NUM_STATES);
 
@@ -1453,9 +1455,9 @@ namespace u {
 
 typedef bool (*Filter)(char);
 
+/// Return `true` if the specified `c` is either '=', or not valid character
+/// in a base 64 `e_BASIC` sequence, and not white space.
 bool equalsOrNotBase64BasicAndNotWhitespace(char c)
-    // Return 'true' if the specified 'c' is either '=', or not valid character
-    // in a base 64 'e_BASIC' sequence, and not white space.
 {
     static bool match[256];
     static bool firstTime = true;
@@ -1471,9 +1473,9 @@ bool equalsOrNotBase64BasicAndNotWhitespace(char c)
     return match[static_cast<unsigned char>(c)];
 }
 
+/// Return `true` if the specified `c` is either '=', or not valid character
+/// in a base 64 `e_BASIC` sequence.
 bool equalsOrNotBase64Basic(char c)
-    // Return 'true' if the specified 'c' is either '=', or not valid character
-    // in a base 64 'e_BASIC' sequence.
 {
     static bool match[256];
     static bool firstTime = true;
@@ -1489,9 +1491,9 @@ bool equalsOrNotBase64Basic(char c)
     return match[static_cast<unsigned char>(c)];
 }
 
+/// Return `true` if the specified `c` is either '=', or not valid character
+/// in a base 64 `e_URL` sequence, and not white space.
 bool equalsOrNotBase64UrlAndNotWhitespace(char c)
-    // Return 'true' if the specified 'c' is either '=', or not valid character
-    // in a base 64 'e_URL' sequence, and not white space.
 {
     static bool match[256];
     static bool firstTime = true;
@@ -1507,9 +1509,9 @@ bool equalsOrNotBase64UrlAndNotWhitespace(char c)
     return match[static_cast<unsigned char>(c)];
 }
 
+/// Return `true` if the specified `c` is either '=', or not valid character
+/// in a base 64 `e_URL` sequence.
 bool equalsOrNotBase64Url(char c)
-    // Return 'true' if the specified 'c' is either '=', or not valid character
-    // in a base 64 'e_URL' sequence.
 {
     static bool match[256];
     static bool firstTime = true;
@@ -1525,9 +1527,9 @@ bool equalsOrNotBase64Url(char c)
     return match[static_cast<unsigned char>(c)];
 }
 
+/// Return `true` if the specified `c` is a valid character in a base 64
+/// `e_BASIC` sequence or '='.
 bool base64OrEqualsBasic(char c)
-    // Return 'true' if the specified 'c' is a valid character in a base 64
-    // 'e_BASIC' sequence or '='.
 {
     static bool match[256];
     static bool firstTime = true;
@@ -1544,9 +1546,9 @@ bool base64OrEqualsBasic(char c)
     return match[static_cast<unsigned char>(c)];
 }
 
+/// Return `true` if the specified `c` is a valid character in a base 64
+/// `e_BASIC` sequence.
 bool base64Basic(char c)
-    // Return 'true' if the specified 'c' is a valid character in a base 64
-    // 'e_BASIC' sequence.
 {
     static bool match[256];
     static bool firstTime = true;
@@ -1562,9 +1564,9 @@ bool base64Basic(char c)
     return match[static_cast<unsigned char>(c)];
 }
 
+/// Return `true` if the specified `c` is a valid character in a base 64
+/// `e_URL` sequence.
 bool base64OrEqualsUrl(char c)
-    // Return 'true' if the specified 'c' is a valid character in a base 64
-    // 'e_URL' sequence.
 {
     static bool match[256];
     static bool firstTime = true;
@@ -1581,9 +1583,9 @@ bool base64OrEqualsUrl(char c)
     return match[static_cast<unsigned char>(c)];
 }
 
+/// Return `true` if the specified `c` is a valid character in a base 64
+/// `e_URL` sequence.
 bool base64Url(char c)
-    // Return 'true' if the specified 'c' is a valid character in a base 64
-    // 'e_URL' sequence.
 {
     static bool match[256];
     static bool firstTime = true;
@@ -1619,9 +1621,9 @@ bool base64Url(char c)
 using bsl::uint8_t;
 
 extern "C"
+/// Use the specified `data` array of `size` bytes as input to methods of
+/// this component and return zero.
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
-    // Use the specified 'data' array of 'size' bytes as input to methods of
-    // this component and return zero.
 {
     static int run = 0;
 

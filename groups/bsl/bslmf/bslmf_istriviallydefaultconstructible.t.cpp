@@ -12,8 +12,8 @@
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 
@@ -23,12 +23,12 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 // The component under test defines a meta-function,
-// 'bsl::is_trivially_default_constructible' and a template variable
-// 'bsl::is_trivially_default_constructible_v', that determine whether a
+// `bsl::is_trivially_default_constructible` and a template variable
+// `bsl::is_trivially_default_constructible_v`, that determine whether a
 // template parameter type is trivially default-constructible.  By default, the
 // meta-function supports a restricted set of type categories, but can be
 // extended to support other types through either template specialization or
-// use of the 'BSLMF_NESTED_TRAIT_DECLARATION' macro.
+// use of the `BSLMF_NESTED_TRAIT_DECLARATION` macro.
 //
 // Thus, we need to ensure that the natively-supported types are correctly
 // identified by the meta-function by testing the meta-function with each of
@@ -42,8 +42,8 @@ using namespace BloombergLP;
 //
 // ----------------------------------------------------------------------------
 // [ 4] USAGE EXAMPLE
-// [ 3] TESTING: 'typedef struct {} X' ISSUE (AIX BUG, {DRQS 153975424})
-// [ 2] EXTENDING 'bsl::is_trivially_default_constructible'
+// [ 3] TESTING: `typedef struct {} X` ISSUE (AIX BUG, {DRQS 153975424})
+// [ 2] EXTENDING `bsl::is_trivially_default_constructible`
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -93,22 +93,22 @@ void aSsErT(bool condition, const char *message, int line)
 //-----------------------------------------------------------------------------
 
 // Each of the macros below will test the
-// 'bsl::is_trivially_default_constructible' trait with a set of variations on
+// `bsl::is_trivially_default_constructible` trait with a set of variations on
 // a type.  There are several layers of macros, as object types support the
 // full range of variation, but function types cannot form an array, nor be
-// cv-qualified.  Similarly, 'void' may be cv-qualified but still cannot form
+// cv-qualified.  Similarly, `void` may be cv-qualified but still cannot form
 // an array.  As macros are strictly text-substitution we must use the
-// appropriate 'add_decoration' traits to transform types in a manner that is
+// appropriate `add_decoration` traits to transform types in a manner that is
 // guaranteed to be syntactically valid.  Note that these are not
-// type-dependent contexts, so there is no need to use 'typename' when fetching
+// type-dependent contexts, so there is no need to use `typename` when fetching
 // the result from any of the queried traits.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+/// Test whether `bsl::is_trivially_default_constructible_v<TYPE>` has the
+/// same value as `bsl::is_trivially_default_constructible<TYPE>::value`.
 #define ASSERT_V_SAME(TYPE)                                                   \
     ASSERT(bsl::is_trivially_default_constructible  <TYPE>::value ==          \
            bsl::is_trivially_default_constructible_v<TYPE>)
-    // Test whether 'bsl::is_trivially_default_constructible_v<TYPE>' has the
-    // same value as 'bsl::is_trivially_default_constructible<TYPE>::value'.
 #else
 #define ASSERT_V_SAME(TYPE)
 #endif
@@ -162,10 +162,10 @@ struct MyNonTriviallyDefaultConstructibleType {
 
     int d_data;
 
+    /// Create a `MyNonTriviallyDefaultConstructibleType` object.  This user
+    /// defined constructor ensures that this class is not trivially default
+    /// constructible, while it is default constructible.
     MyNonTriviallyDefaultConstructibleType()
-        // Create a 'MyNonTriviallyDefaultConstructibleType' object.  This user
-        // defined constructor ensures that this class is not trivially default
-        // constructible, while it is default constructible.
     : d_data(1)
     {
     }
@@ -179,8 +179,8 @@ template <>
 struct is_trivially_default_constructible<
     MyTriviallyDefaultConstructibleType> : bsl::true_type {
         // This template specialization for
-        // 'is_trivially_default_constructible' indicates that
-        // 'MyTriviallyDefaultConstructibleType' is a trivially
+        // `is_trivially_default_constructible` indicates that
+        // `MyTriviallyDefaultConstructibleType` is a trivially
         // default-constructible type.
 };
 
@@ -188,32 +188,32 @@ struct is_trivially_default_constructible<
 
 namespace {
 
+/// This user-defined type, which is marked to be trivially
+/// default-constructible using template specialization (below), is used for
+/// testing.
 struct UserDefinedTdcTestType {
-    // This user-defined type, which is marked to be trivially
-    // default-constructible using template specialization (below), is used for
-    // testing.
 };
 
+/// This user-defined type, which is marked to be trivially
+/// default-constructible using the `BSLMF_NESTED_TRAIT_DECLARATION` macro,
+/// is used for testing.
 struct UserDefinedTdcTestType2 {
-    // This user-defined type, which is marked to be trivially
-    // default-constructible using the 'BSLMF_NESTED_TRAIT_DECLARATION' macro,
-    // is used for testing.
 
     BSLMF_NESTED_TRAIT_DECLARATION(UserDefinedTdcTestType2,
                                    bsl::is_trivially_default_constructible);
 };
 
+/// This user-defined type, which is not marked to be trivially
+/// default-constructible, is used for testing.
 struct UserDefinedNonTdcTestType {
-    // This user-defined type, which is not marked to be trivially
-    // default-constructible, is used for testing.
 };
 
 enum EnumTestType {
-    // This 'enum' type is used for testing.
+    // This `enum` type is used for testing.
 };
 
+/// This pointer to non-static function member type is used for testing.
 typedef int (UserDefinedNonTdcTestType::*MethodPtrTestType) ();
-    // This pointer to non-static function member type is used for testing.
 
 }  // close unnamed namespace
 
@@ -228,40 +228,40 @@ struct is_trivially_default_constructible<
 
 namespace {
     // Support types for test case
-    //      TESTING: 'typedef struct {} X' ISSUE (AIX BUG, {DRQS 153975424})
+    //      TESTING: `typedef struct {} X` ISSUE (AIX BUG, {DRQS 153975424})
 
+/// This user-defined type with a constructor with side-effects is used to
+/// guarantee that the type is detected as NOT
+/// `is_trivially_default_constructible` even by the native implementation.
 struct StructWithCtor {
-    // This user-defined type with a constructor with side-effects is used to
-    // guarantee that the type is detected as NOT
-    // 'is_trivially_default_constructible' even by the native implementation.
     StructWithCtor()
     {
         printf("default StructWithCtor\n");
     }
 };
 
+/// This user-defined type is used to check the expected behavior for a
+/// `well-behaved` non-copyable type.
 struct NamedStructWithNonPodMember {
-    // This user-defined type is used to check the expected behavior for a
-    // 'well-behaved' non-copyable type.
     StructWithCtor x;
 };
 
+/// This user-defined type is used to check the expected behavior for a
+/// `typedef struct` non-default-constructible type (checking to make sure
+/// we're not encountering AIX bug {DRQS 153975424}).
 typedef struct {
-    // This user-defined type is used to check the expected behavior for a
-    // 'typedef struct' non-default-constructible type (checking to make sure
-    // we're not encountering AIX bug {DRQS 153975424}).
     StructWithCtor x;
 } TypedefedStructWithNonPodMember;
 
+/// This user-defined type is used to check the expected behavior for a
+/// `well-behaved` POD type.
 struct NamedStructWithPodMember {
-    // This user-defined type is used to check the expected behavior for a
-    // 'well-behaved' POD type.
     int x;
 };
 
+/// This user-defined type is used to check the expected behavior for a
+/// `typedef struct` POD type.
 typedef struct {
-    // This user-defined type is used to check the expected behavior for a
-    // 'typedef struct' POD type.
     int x;
 } TypedefedStructWithPodMember;
 
@@ -293,13 +293,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -318,7 +318,7 @@ int main(int argc, char *argv[])
 // default-constructible.
 //
 // First, we define a set of types to evaluate:
-//..
+// ```
     typedef int MyFundamentalType;
     typedef int& MyFundamentalTypeReference;
 //
@@ -334,28 +334,28 @@ int main(int argc, char *argv[])
 //      {
 //      }
 //  };
-//..
+// ```
 // Then, since user-defined types cannot be automatically evaluated by
-// 'is_trivially_default_constructible', we define a template specialization to
-// specify that 'MyTriviallyDefaultConstructibleType' is trivially
+// `is_trivially_default_constructible`, we define a template specialization to
+// specify that `MyTriviallyDefaultConstructibleType` is trivially
 // default-constructible:
-//..
+// ```
 //  namespace bsl {
 //
 //  template <>
 //  struct is_trivially_default_constructible<
 //                      MyTriviallyDefaultConstructibleType> : bsl::true_type {
 //      // This template specialization for
-//      // 'is_trivially_default_constructible' indicates that
-//      // 'MyTriviallyDefaultConstructibleType' is a trivially
+//      // `is_trivially_default_constructible` indicates that
+//      // `MyTriviallyDefaultConstructibleType` is a trivially
 //      // default-constructible type.
 //  };
 //
 //  }  // close namespace bsl
-//..
+// ```
 // Now, we verify whether each type is trivially default-constructible using
-// 'bsl::is_trivially_default_constructible':
-//..
+// `bsl::is_trivially_default_constructible`:
+// ```
     ASSERT(true  ==
             bsl::is_trivially_default_constructible<MyFundamentalType>::value);
     ASSERT(false ==
@@ -367,10 +367,10 @@ int main(int argc, char *argv[])
     ASSERT(false ==
                  bsl::is_trivially_default_constructible<
                      MyNonTriviallyDefaultConstructibleType>::value);
-//..
+// ```
 // Note that if the current compiler supports the variable templates C++14
 // feature, then we can re-write the snippet of code above as follows:
-//..
+// ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
     ASSERT(true  == bsl::is_trivially_default_constructible_v<
                                                            MyFundamentalType>);
@@ -381,39 +381,39 @@ int main(int argc, char *argv[])
     ASSERT(false == bsl::is_trivially_default_constructible_v<
                                       MyNonTriviallyDefaultConstructibleType>);
 #endif
-//..
+// ```
 
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING: 'typedef struct {} X' ISSUE (AIX BUG, {DRQS 153975424})
+        // TESTING: `typedef struct {} X` ISSUE (AIX BUG, {DRQS 153975424})
         //   Ensure unnamed structs are handled correctly.
         //
         // Concerns:
-        //: 1 Ensure that named 'struct's and 'typedef'd anonymous 'struct's
+        // 1. Ensure that named `struct`s and `typedef`d anonymous `struct`s
         //    are handled identically.
         //
         // Plan:
-        //: 1 Verify 'is_trivially_dflt_ctible<StructWithCtor>' is 'false'.
-        //:
-        //: 2 Verify 'is_trivially_dflt_ctible<NSWNPM>' is 'false'.
-        //:
-        //: 3 Verify 'is_trivially_dflt_ctible<TSWNPM>' is 'false'.
-        //:
-        //: 4 Verify 'is_trivially_dflt_ctible<NSWPM>' is 'false' unless native
-        //:   traits are used.
-        //:
-        //: 5 Verify 'is_trivially_dflt_ctible<TSWPM>' is 'false' (C-1) unless
-        //:   native traits are used.
+        // 1. Verify `is_trivially_dflt_ctible<StructWithCtor>` is `false`.
+        //
+        // 2. Verify `is_trivially_dflt_ctible<NSWNPM>` is `false`.
+        //
+        // 3. Verify `is_trivially_dflt_ctible<TSWNPM>` is `false`.
+        //
+        // 4. Verify `is_trivially_dflt_ctible<NSWPM>` is `false` unless native
+        //    traits are used.
+        //
+        // 5. Verify `is_trivially_dflt_ctible<TSWPM>` is `false` (C-1) unless
+        //    native traits are used.
         //
         // Testing:
-        //   'typedef struct {} X' ISSUE (AIX BUG, {DRQS 153975424})
+        //   `typedef struct {} X` ISSUE (AIX BUG, {DRQS 153975424})
         //
         // --------------------------------------------------------------------
 
         if (verbose)
             printf(
-              "\nTESTING: 'typedef struct {} X' ISSUE (AIX BUG, {DRQS "
+              "\nTESTING: `typedef struct {} X` ISSUE (AIX BUG, {DRQS "
               "153975424})\n"
               "\n====================================================="
               "===========\n");
@@ -447,48 +447,48 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // EXTENDING 'bsl::is_trivially_default_constructible'
-        //   Ensure the 'bsl::is_trivially_default_constructible' meta-function
+        // EXTENDING `bsl::is_trivially_default_constructible`
+        //   Ensure the `bsl::is_trivially_default_constructible` meta-function
         //   returns the correct value for types explicitly specified to be
         //   trivially default constructible.
         //
         // Concerns:
-        //: 1 The meta-function returns 'false' for normal user-defined types
-        //:   when the standard trait is not present.
-        //:
-        //: 2 The meta-function returns 'true' for a user-defined type, if a
-        //:   specialization for 'bsl::is_trivially_default_constructible' on
-        //:   that type is defined to inherit from 'bsl::true_type'.
-        //:
-        //: 3 The meta-function returns 'true' for a user-defined type that
-        //:   specifies it has the trait using the
-        //:   'BSLMF_NESTED_TRAIT_DECLARATION' macro.
-        //:
-        //: 4 For cv-qualified types, the meta-function returns 'true' if the
-        //:   corresponding cv-unqualified type is trivially default
-        //:   constructible, and 'false' otherwise.
-        //:
-        //: 5 For array types, the meta-function returns 'true' if the array
-        //:   element is trivially default constructible, and 'false'
-        //:   otherwise.
+        // 1. The meta-function returns `false` for normal user-defined types
+        //    when the standard trait is not present.
+        //
+        // 2. The meta-function returns `true` for a user-defined type, if a
+        //    specialization for `bsl::is_trivially_default_constructible` on
+        //    that type is defined to inherit from `bsl::true_type`.
+        //
+        // 3. The meta-function returns `true` for a user-defined type that
+        //    specifies it has the trait using the
+        //    `BSLMF_NESTED_TRAIT_DECLARATION` macro.
+        //
+        // 4. For cv-qualified types, the meta-function returns `true` if the
+        //    corresponding cv-unqualified type is trivially default
+        //    constructible, and `false` otherwise.
+        //
+        // 5. For array types, the meta-function returns `true` if the array
+        //    element is trivially default constructible, and `false`
+        //    otherwise.
         //
         // Plan:
-        //:  1 Create a set of macros that will generate an 'ASSERT' test for
-        //:    all variants of a type:  (C4,5)
-        //:    o  reference and pointer types
-        //:    o  all cv-qualified combinations
-        //:    o  arrays, of fixed and runtime bounds, and multiple dimensions
-        //:
-        //:  2 For each category of type in concerns 1-3, use the appropriate
-        //:    test macro for confirm the correct result for a representative
-        //:    sample of types.
+        //  1. Create a set of macros that will generate an `ASSERT` test for
+        //     all variants of a type:  (C4,5)
+        //     o  reference and pointer types
+        //     o  all cv-qualified combinations
+        //     o  arrays, of fixed and runtime bounds, and multiple dimensions
+        //
+        //  2. For each category of type in concerns 1-3, use the appropriate
+        //     test macro for confirm the correct result for a representative
+        //     sample of types.
         //
         // Testing:
-        //   EXTENDING 'bsl::is_trivially_default_constructible'
+        //   EXTENDING `bsl::is_trivially_default_constructible`
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nEXTENDING 'bsl::is_trivially_default_constructible'"
+            printf("\nEXTENDING `bsl::is_trivially_default_constructible`"
                    "\n===================================================\n");
 
         // C-1
@@ -514,42 +514,42 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::is_trivially_default_constructible::value'
-        //   Ensure the 'bsl::is_trivially_default_constructible' meta-function
+        // `bsl::is_trivially_default_constructible::value`
+        //   Ensure the `bsl::is_trivially_default_constructible` meta-function
         //   returns the correct value for intrinsically supported types.
         //
         // Concerns:
-        //:  1 The meta-function returns 'true' for fundamental types.
-        //:
-        //:  2 The meta-function returns 'true' for enumerated types.
-        //:
-        //:  3 The meta-function returns 'true' for pointer to member types.
-        //:
-        //:  4 The meta-function returns 'false' for cv-qualified 'void' types.
-        //:
-        //:  5 The meta-function returns 'false' for function types.
+        //  1. The meta-function returns `true` for fundamental types.
         //
-        //:  6 The meta-function returns 'true' for pointer types.
-        //:
-        //:  7 The meta-function returns 'false' for reference types.
-        //:
-        //:  8 The meta-function returns the same result for array types as it
-        //:    would for the array's element type.
-        //:
-        //:  9 The meta-function returns the same result for cv-qualified
-        //:    types that it would return 'true' for the corresponding
-        //:    cv-unqualified type.
+        //  2. The meta-function returns `true` for enumerated types.
+        //
+        //  3. The meta-function returns `true` for pointer to member types.
+        //
+        //  4. The meta-function returns `false` for cv-qualified `void` types.
+        //
+        //  5. The meta-function returns `false` for function types.
+        //
+        //  6. The meta-function returns `true` for pointer types.
+        //
+        //  7. The meta-function returns `false` for reference types.
+        //
+        //  8. The meta-function returns the same result for array types as it
+        //     would for the array's element type.
+        //
+        //  9. The meta-function returns the same result for cv-qualified
+        //     types that it would return `true` for the corresponding
+        //     cv-unqualified type.
         //
         // Plan:
-        //:  1 Create a set of macros that will generate an 'ASSERT' test for
-        //:    all variants of a type:  (C6-9)
-        //:    o  reference and pointer types
-        //:    o  all cv-qualified combinations
-        //:    o  arrays, of fixed and runtime bounds, and multiple dimensions
-        //:
-        //:  2 For each category of type in concerns 1-5, use the appropriate
-        //:    test macro for confirm the correct result for a representative
-        //:    sample of types.
+        //  1. Create a set of macros that will generate an `ASSERT` test for
+        //     all variants of a type:  (C6-9)
+        //     o  reference and pointer types
+        //     o  all cv-qualified combinations
+        //     o  arrays, of fixed and runtime bounds, and multiple dimensions
+        //
+        //  2. For each category of type in concerns 1-5, use the appropriate
+        //     test macro for confirm the correct result for a representative
+        //     sample of types.
         //
         // Testing:
         //   bsl::is_trivially_default_constructible::value
@@ -573,7 +573,7 @@ int main(int argc, char *argv[])
                                                              MethodPtrTestType,
                                                              true);
 
-        // C-4 : 'void' is not an object type, but can be cv-qualified.
+        // C-4 : `void` is not an object type, but can be cv-qualified.
         ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_CV_TYPE(void, false);
 
         // C-5 : Function types are not object types, nor cv-qualifiable.

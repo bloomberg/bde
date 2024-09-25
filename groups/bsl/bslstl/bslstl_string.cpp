@@ -66,10 +66,10 @@ namespace {
 // including leading whitespace and (optionally) an immediately preceding '+'
 // or '-'.
 #if defined(BSLSTL_STRING_PLATFORM_NEEDS_GUIDANCE_FOR_0X_STRINGS)
+/// Return `true` if the specified `str` is an awkwardly represented "0x"
+/// zero in the specified `base`, and `false` otherwise.
 static
 bool isAwkwardZero(const bsl::string& str, int base)
-    // Return 'true' if the specified 'str' is an awkwardly represented "0x"
-    // zero in the specified 'base', and 'false' otherwise.
 {
     if (0 != base && 16 != base) {
         return false;                                                 // RETURN
@@ -110,10 +110,10 @@ bool isAwkwardZero(const bsl::string& str, int base)
     return false;                                                     // RETURN
 }
 
+/// Return `true` if the specified `str` is an awkwardly represented "0x"
+/// zero in the specified `base`, and `false` otherwise.
 static
 bool isAwkwardZero(const bsl::wstring& str, int base)
-    // Return 'true' if the specified 'str' is an awkwardly represented "0x"
-    // zero in the specified 'base', and 'false' otherwise.
 {
     if (0 != base && 16 != base) {
         return false;                                                 // RETURN

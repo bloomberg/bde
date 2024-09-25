@@ -14,9 +14,9 @@
 #include <bsls_stopwatch.h>
 #include <bsls_timeutil.h>
 
-#include <bsl_cstdlib.h>      // 'atoi'
-#include <bsl_cstring.h>      // 'strcmp'
-#include <bsl_c_stdlib.h>     // 'rand_r'
+#include <bsl_cstdlib.h>      // `atoi`
+#include <bsl_cstring.h>      // `strcmp`
+#include <bsl_c_stdlib.h>     // `rand_r`
 #include <bsl_iostream.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
@@ -598,13 +598,13 @@ void *testCase5_fn2(int threadNum, const MyTask& task)
 //  the first flag and waits on second flag.  The second thread sets
 //  the second flag and waits on the first.  Ensure that threads
 //  never have a deadlock.
-//  'Flag' means an atomic pointer to the synchronization object and
+//  `Flag` means an atomic pointer to the synchronization object and
 //  can be in one of three states:
-//  0    nor 'setFlag' neither 'waitOnFlag' have been called yet
-//  -1   'setFlag' was called before 'waitOnFlag', so there is no
-//        need for 'waitOnFlag' to wait on synchronization object
-//  XXX  'waitOnFlag' was called before 'setFlag' and waits on
-//        synchronization object with address 'XXX'.  'setFlag' must
+//  0    nor `setFlag` neither `waitOnFlag` have been called yet
+//  -1   `setFlag` was called before `waitOnFlag`, so there is no
+//        need for `waitOnFlag` to wait on synchronization object
+//  XXX  `waitOnFlag` was called before `setFlag` and waits on
+//        synchronization object with address `XXX`.  `setFlag` must
 //        post/signal/notify that synchronization object.
 //
 // ----------------------------------------------------------------------------
@@ -630,7 +630,7 @@ struct DataCase4 {
 
 void setFlag(bsls::AtomicPointer<Semaphore> *flag)
 {
-    // set '-1' if it was 0, and get the original value
+    // set `-1` if it was 0, and get the original value
     Semaphore *event = flag->testAndSwap(0, dummySemaphorePtr);
 
     if (event) {
@@ -882,68 +882,68 @@ void *testCase3a(int threadNum, const MyTask& task)
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using 'bslmt::QLock' to Implement a Thread-Safe Singleton
+///Example 1: Using `bslmt::QLock` to Implement a Thread-Safe Singleton
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // For this example, assume that we have the need to use the string "Hello"
-// repeatedly in the form of an 'bsl::string' object.  Rather than construct
+// repeatedly in the form of an `bsl::string` object.  Rather than construct
 // the string each time we use it, it would be nice to have only one copy so
 // that we can amortize the memory allocation and construction cost over all
 // the uses of the string.  It is thus logical to have a single, static
-// variable (a singleton) of type 'bsl::string' initialized with the value,
+// variable (a singleton) of type `bsl::string` initialized with the value,
 // "Hello".  Unfortunately, as this is a multithreaded application, there is
 // the danger that more than one thread will attempt to initialize the
 // singleton simultaneously, causing a memory leak at best and memory
-// corruption at worse.  To solve this problem, we use a 'bslmt::QLock' to
+// corruption at worse.  To solve this problem, we use a `bslmt::QLock` to
 // synchronize access to the singleton.
 //
 // We begin by wrapping the singleton in a function:
-//..
+// ```
     const bsl::string& helloString()
     {
-//..
+// ```
 // This function defines two static variables, a pointer to the singleton, and
 // a QLock to control access to the singleton.  Note that both of these
 // variables are statically initialized, so there is no need for a run-time
 // constructor and hence no danger of a race condition among threads.  The need
-// for static initialization is the main reason we choose to use 'bslmt::QLock'
-// over 'bslmt::Mutex':
-//..
+// for static initialization is the main reason we choose to use `bslmt::QLock`
+// over `bslmt::Mutex`:
+// ```
         static const bsl::string *singletonPtr = 0;
         static bslmt::QLock qlock = BSLMT_QLOCK_INITIALIZER;
-//..
+// ```
 // Before checking the status of the singleton pointer, we must make sure that
 // we are not accessing the pointer at the same time that some other thread is
 // modifying the pointer.  We do this by acquiring the lock by constructing a
-// 'bslmt::QLockGuard' object:
-//..
+// `bslmt::QLockGuard` object:
+// ```
         bslmt::QLockGuard qlockGuard(&qlock);
-//..
+// ```
 // Now we are inside the critical region.  If the pointer has not already been
 // set, we can initialize the singleton knowing that no other thread is
 // manipulating or accessing these variables at the same time.  Note that this
-// critical region involves constructing a variable of type 'bsl::string'.
+// critical region involves constructing a variable of type `bsl::string`.
 // This operation, while not ultra-expensive, is too lengthy for comfortably
-// holding a spinlock.  Again, the characteristics of 'bslmt::QLock' are
+// holding a spinlock.  Again, the characteristics of `bslmt::QLock` are
 // superior to the alternatives for this application.  (It is worth noting that
 // the QLock concept was created specifically to permit this kind of one-time
-// processing.  See also 'bslmt_once'.)
-//..
+// processing.  See also `bslmt_once`.)
+// ```
         if (! singletonPtr) {
             static bsl::string singleton("Hello");
             singletonPtr = &singleton;
         }
-//..
+// ```
 // Finally, we return a reference to the singleton.  The destructor for
-// 'bslmt::QLockGuard' will automatically unlock the QLock and allow another
+// `bslmt::QLockGuard` will automatically unlock the QLock and allow another
 // thread into the critical region.
-//..
+// ```
         return *singletonPtr;
     }
-//..
+// ```
 // The following test program shows how our singleton function can be called.
-// Note that 'hello1' and 'hello2' have the same address, demonstrating that
+// Note that `hello1` and `hello2` have the same address, demonstrating that
 // there was only one string created.
-//..
+// ```
     int usageExample1()
     {
         const bsl::string EXPECTED("Hello");
@@ -957,7 +957,7 @@ void *testCase3a(int threadNum, const MyTask& task)
 
         return 0;
     }
-//..
+// ```
 
 extern "C" void *testCase2(void *)
 {
@@ -1258,13 +1258,13 @@ int main(int argc, char *argv[])
         //  the first flag and waits on second flag.  The second thread sets
         //  the second flag and waits on the first.  Ensure that threads
         //  never have a deadlock.
-        //  'Flag' means an atomic pointer to the synchronization object and
+        //  `Flag` means an atomic pointer to the synchronization object and
         //  can be in one of three states:
-        //  0    nor 'setFlag' neither 'waitOnFlag' have been called yet
-        //  -1   'setFlag' was called before 'waitOnFlag', so there is no
-        //        need for 'waitOnFlag' to wait on synchronization object
-        //  XXX  'waitOnFlag' was called before 'setFlag' and waits on
-        //        synchronization object with address 'XXX'.  'setFlag' must
+        //  0    nor `setFlag` neither `waitOnFlag` have been called yet
+        //  -1   `setFlag` was called before `waitOnFlag`, so there is no
+        //        need for `waitOnFlag` to wait on synchronization object
+        //  XXX  `waitOnFlag` was called before `setFlag` and waits on
+        //        synchronization object with address `XXX`.  `setFlag` must
         //        post/signal/notify that synchronization object.
         //
         // --------------------------------------------------------------------

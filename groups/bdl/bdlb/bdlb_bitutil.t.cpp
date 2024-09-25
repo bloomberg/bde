@@ -34,7 +34,7 @@ using bsl::uint64_t;
 //                                Overview
 //                                --------
 // The component under test provides static methods that perform various bit
-// related computations.  The goal of this 'bdlb::BitUtil' test suite is to
+// related computations.  The goal of this `bdlb::BitUtil` test suite is to
 // verify that the methods return the expected values.  The test techniques
 // incorporated to obtain this goal are boundary value testing and depth
 // enumeration testing.
@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -154,14 +154,14 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -177,8 +177,8 @@ int main(int argc, char *argv[])
 // this component are used.  Note that, in all of these examples, the low-order
 // bit is considered bit 0 and resides on the right edge of the bit string.
 //
-// First, we use 'withBitSet' to demonstrate the ordering of bits:
-//..
+// First, we use `withBitSet` to demonstrate the ordering of bits:
+// ```
     ASSERT(static_cast<uint32_t>(0x00000001)
                    == bdlb::BitUtil::withBitSet(static_cast<uint32_t>(0),  0));
     ASSERT(static_cast<uint32_t>(0x00000008)
@@ -195,9 +195,9 @@ int main(int argc, char *argv[])
     | set bit 16:                                           1                 |
     | result:                                01100110011001110110011001100110 |
     +------------------------------------------------------------------------*/
-//..
-// Then, we count the number of set bits in a value with 'numBitsSet':
-//..
+// ```
+// Then, we count the number of set bits in a value with `numBitsSet`:
+// ```
     ASSERT(0 == bdlb::BitUtil::numBitsSet(static_cast<uint32_t>(0x00000000)));
     ASSERT(2 == bdlb::BitUtil::numBitsSet(static_cast<uint32_t>(0x00101000)));
     ASSERT(8 == bdlb::BitUtil::numBitsSet(static_cast<uint32_t>(0x30071101)));
@@ -208,10 +208,10 @@ int main(int argc, char *argv[])
     | input in binary:                       00110000000001110001000100000001 |
     | that has 8 bits set.  result: 8                                         |
     +------------------------------------------------------------------------*/
-//..
-// Finally, we use 'numLeadingUnsetBits' to determine the number of unset bits
+// ```
+// Finally, we use `numLeadingUnsetBits` to determine the number of unset bits
 // with a higher index than the first set bit:
-//..
+// ```
     ASSERT(32 ==
         bdlb::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(0x00000000)));
     ASSERT(31 ==
@@ -228,28 +228,28 @@ int main(int argc, char *argv[])
     | highest set bit:                              1                         |
     | number of unset bits leading this set bit == 7                          |
     +------------------------------------------------------------------------*/
-//..
+// ```
 
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'roundUp'
+        // TESTING `roundUp`
         //   Ensure the methods return the expected value.
         //
         // Concerns:
-        //: 1 The methods correctly perform the calculations.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods correctly perform the calculations.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Verify return value for input values 2^i - 1, 2^i, 2^i + 1 and
-        //:   all possible 'boundary' values where i = 1 .. 31 for 32-bit
-        //:   types and i = 1 .. 63 for 64-bit types.
-        //:
-        //: 2 Verify return values when all bits are set and all possible
-        //:   'boundary' values in the input value.  (C-1)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-2)
+        // 1. Verify return value for input values 2^i - 1, 2^i, 2^i + 1 and
+        //    all possible `boundary` values where i = 1 .. 31 for 32-bit
+        //    types and i = 1 .. 63 for 64-bit types.
+        //
+        // 2. Verify return values when all bits are set and all possible
+        //    `boundary` values in the input value.  (C-1)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //   unsigned int roundUp(unsigned int value, unsigned int boundary);
@@ -258,7 +258,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'roundUp'" << endl
+                          << "TESTING `roundUp`" << endl
                           << "=================" << endl;
 
         for (int b = 0; b < 32; ++b) {
@@ -267,7 +267,7 @@ int main(int argc, char *argv[])
                 for (int d = -1; d <= 1; ++d) {
                     unsigned int value32 = (1U << i) + d;
                     // NOTE: the only possible overflow scenario in the
-                    // following correctly results in 0 since 'boundary' is a
+                    // following correctly results in 0 since `boundary` is a
                     // power of two
                     const unsigned int EXP =
                                         (value32 % boundary
@@ -287,7 +287,7 @@ int main(int argc, char *argv[])
                 for (int d = -1; d <= 1; ++d) {
                     unsigned long long value64 = (1ULL << i) + d;
                     // NOTE: the only possible overflow scenario in the
-                    // following correctly results in 0 since 'boundary' is a
+                    // following correctly results in 0 since `boundary` is a
                     // power of two
                     const unsigned long long EXP =
                                         (value64 % boundary
@@ -307,7 +307,7 @@ int main(int argc, char *argv[])
                 for (int d = -1; d <= 1; ++d) {
                     unsigned long value32or64 = (1UL << i) + d;
                     // NOTE: the only possible overflow scenario in the
-                    // following correctly results in 0 since 'boundary' is a
+                    // following correctly results in 0 since `boundary` is a
                     // power of two
                     const unsigned long EXP =
                                     (value32or64 % boundary
@@ -362,7 +362,7 @@ int main(int argc, char *argv[])
         { // negative testing
             bsls::AssertTestHandlerGuard hG;
 
-            // one bit set in 'boundary'
+            // one bit set in `boundary`
             for (int b = 0; b < 32; ++b) {
                 unsigned int boundary = 1U << b;
                 if (veryVerbose) {
@@ -385,12 +385,12 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(Util::roundUp(0UL, boundary));
             }
 
-            // no bits set in 'boundary'
+            // no bits set in `boundary`
             ASSERT_SAFE_FAIL(Util::roundUp(0U, 0U));
             ASSERT_SAFE_FAIL(Util::roundUp(0UL, 0UL));
             ASSERT_SAFE_FAIL(Util::roundUp(0ULL, 0ULL));
 
-            // more than one bit set in 'boundary'
+            // more than one bit set in `boundary`
             ASSERT_SAFE_FAIL(Util::roundUp(0U, 3U));
             ASSERT_SAFE_FAIL(Util::roundUp(0UL, 3UL));
             ASSERT_SAFE_FAIL(Util::roundUp(0ULL, 3ULL));
@@ -399,29 +399,29 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'log2' & 'roundUpToBinaryPower'
+        // TESTING `log2` & `roundUpToBinaryPower`
         //   Ensure the methods return the expected value.
         //
         // Concerns:
-        //: 1 The methods correctly perform the calculations.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods correctly perform the calculations.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Verify return value for input values 1 and 2.
-        //:
-        //: 2 Verify return value for input values 2^i - 1, 2^i, 2^i + 1 where
-        //:   i = 2 .. 30 for 32-bit types and i = 2 .. 62 for 64-bit types.
-        //:
-        //: 3 For 'roundUpToBinaryPower', verify behavior at input value 0.
-        //:
-        //: 4 Verify return value for input values 2^x - 1, 2^x, 2^x + 1 where
-        //:   x = 31 for 32-bit types and x = 63 for 64-bit types.
-        //:
-        //: 5 Verify return values when all bits are set in the input value.
-        //:   (C-1)
-        //:
-        //: 6 Verify defensive checks are triggered for invalid values.  (C-2)
+        // 1. Verify return value for input values 1 and 2.
+        //
+        // 2. Verify return value for input values 2^i - 1, 2^i, 2^i + 1 where
+        //    i = 2 .. 30 for 32-bit types and i = 2 .. 62 for 64-bit types.
+        //
+        // 3. For `roundUpToBinaryPower`, verify behavior at input value 0.
+        //
+        // 4. Verify return value for input values 2^x - 1, 2^x, 2^x + 1 where
+        //    x = 31 for 32-bit types and x = 63 for 64-bit types.
+        //
+        // 5. Verify return values when all bits are set in the input value.
+        //    (C-1)
+        //
+        // 6. Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //   int log2(unsigned int value);
@@ -433,7 +433,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'log2' & 'roundUpToBinaryPower'" << endl
+                          << "TESTING `log2` & `roundUpToBinaryPower`" << endl
                           << "=======================================" << endl;
 
         { // verify values 1 and 2
@@ -634,8 +634,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        { // verify value 0 for 'roundUpToBinaryPower'
-            // NOTE: 0 is undefined for 'log2'; see negative testing
+        { // verify value 0 for `roundUpToBinaryPower`
+            // NOTE: 0 is undefined for `log2`; see negative testing
             ASSERT(0 == Util::roundUpToBinaryPower(0U));
             ASSERT(0 == Util::roundUpToBinaryPower(0UL));
             ASSERT(0 == Util::roundUpToBinaryPower(0ULL));
@@ -700,18 +700,18 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'num(*)UnsetBits'
+        // TESTING `num(*)UnsetBits`
         //   Ensure the methods return the expected value.
         //
         // Concerns:
-        //: 1 Methods correctly return the number of unset bits prior to a set
-        //:   bit for the specified direction.
+        // 1. Methods correctly return the number of unset bits prior to a set
+        //    bit for the specified direction.
         //
         // Plan:
-        //: 1 Verify return values for depth enumerated test vectors with known
-        //:   expected results.
-        //:
-        //: 2 Verify results for case where all bits are set.  (C-1)
+        // 1. Verify return values for depth enumerated test vectors with known
+        //    expected results.
+        //
+        // 2. Verify results for case where all bits are set.  (C-1)
         //
         // Testing:
         //   int numLeadingUnsetBits(unsigned int value);
@@ -723,11 +723,11 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'num(*)UnsetBits'" << endl
+                          << "TESTING `num(*)UnsetBits`" << endl
                           << "=========================" << endl;
 
         if (verbose) {
-            cout << "'bdlb::BitUtil::numLeadingUnsetBits(value)'"
+            cout << "`bdlb::BitUtil::numLeadingUnsetBits(value)`"
                  << endl;
         }
 
@@ -804,7 +804,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "'bdlb::BitUtil::numTrailingUnsetBits(value)'"
+            cout << "`bdlb::BitUtil::numTrailingUnsetBits(value)`"
                  << endl;
         }
 
@@ -884,17 +884,17 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'numBitsSet'
+        // TESTING `numBitsSet`
         //   Ensure the methods return the expected value.
         //
         // Concerns:
-        //: 1 'numBitsSet' correctly returns the number of set bits.
+        // 1. `numBitsSet` correctly returns the number of set bits.
         //
         // Plan:
-        //: 1 Verify return values for depth enumerated test vectors with known
-        //:   expected results.
-        //:
-        //: 2 Verify results for case where all bits are set.  (C-1)
+        // 1. Verify return values for depth enumerated test vectors with known
+        //    expected results.
+        //
+        // 2. Verify results for case where all bits are set.  (C-1)
         //
         // Testing:
         //   int numBitsSet(unsigned int value);
@@ -903,7 +903,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'numBitsSet'" << endl
+                          << "TESTING `numBitsSet`" << endl
                           << "====================" << endl;
 
         { // depth 0; no bits set
@@ -986,23 +986,23 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'withBitCleared' & 'withBitSet'
+        // TESTING `withBitCleared` & `withBitSet`
         //   Ensure the methods return the expected value.
         //
         // Concerns:
-        //: 1 The methods correctly adjust the bit in the specified index.
-        //:
-        //: 2 The methods do not adjust the bits in other index positions.
-        //:
-        //: 3 The methods work for all index positions.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods correctly adjust the bit in the specified index.
+        //
+        // 2. The methods do not adjust the bits in other index positions.
+        //
+        // 3. The methods work for all index positions.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Starting with the values 0 and all-bits-set, for every index
-        //:   perform both operations and verify the result values.  (C-1..3)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Starting with the values 0 and all-bits-set, for every index
+        //    perform both operations and verify the result values.  (C-1..3)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   unsigned int withBitCleared(unsigned int value, int index);
@@ -1014,7 +1014,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'withBitCleared' & 'withBitSet'" << endl
+                          << "TESTING `withBitCleared` & `withBitSet`" << endl
                           << "=======================================" << endl;
 
         { // starting from 0
@@ -1191,19 +1191,19 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'isBitSet'
+        // TESTING `isBitSet`
         //   Ensure the methods return the expected value.
         //
         // Concerns:
-        //: 1 'isBitSet' correctly returns the state of the specified bit.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. `isBitSet` correctly returns the state of the specified bit.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Verify return values for depth enumerated test vectors with known
-        //:   expected results.  (C-1)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
+        // 1. Verify return values for depth enumerated test vectors with known
+        //    expected results.  (C-1)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //   bool isBitSet(unsigned int value, int index);
@@ -1212,7 +1212,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'isBitSet'" << endl
+                          << "TESTING `isBitSet`" << endl
                           << "==================" << endl;
 
         { // depth 0; no bits set
@@ -1363,21 +1363,21 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'sizeInBits'
+        // TESTING `sizeInBits`
         //   Ensure the methods return the expected value.
         //
         // Concerns:
-        //: 1 'sizeInBits' correctly returns the size of variables in bits.
+        // 1. `sizeInBits` correctly returns the size of variables in bits.
         //
         // Plan:
-        //: 1 Verify results on types of various sizes.  (C-1)
+        // 1. Verify results on types of various sizes.  (C-1)
         //
         // Testing:
         //   int sizeInBits(INTEGER value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'sizeInBits'" << endl
+                          << "TESTING `sizeInBits`" << endl
                           << "====================" << endl;
 
         BSLMF_ASSERT(4 == sizeof(int32_t) && 8 == sizeof(int64_t));

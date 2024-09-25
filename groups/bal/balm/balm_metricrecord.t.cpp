@@ -31,7 +31,7 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The 'balm::MetricRecord' is a simple value object holding to
+// The `balm::MetricRecord` is a simple value object holding to
 // properties that can be written and accessed freely, i.e., there are no
 // constraints placed up their values.
 //
@@ -123,16 +123,17 @@ typedef balm::MetricDescription Desc;
 
 ///Usage
 ///-----
-// The following example demonstrates how a 'balm::MetricRecord' can be used
+// The following example demonstrates how a `balm::MetricRecord` can be used
 // to describe a set of metric values.  In the example we create a
-// 'RequestProcessor' class that collects information about the sizes of the
-// requests it has processed.  The 'RequestProcessor' also provides a
-// 'loadRequestSizeInformation' method that populates a 'balm::MetricRecord'
+// `RequestProcessor` class that collects information about the sizes of the
+// requests it has processed.  The `RequestProcessor` also provides a
+// `loadRequestSizeInformation` method that populates a `balm::MetricRecord`
 // object describing the sizes of the requests it has processed.
-//..
+// ```
+
+    /// This class defines a request processor that provides metric
+    /// information about the sizes of the requests it has processed.
     class RequestProcessor {
-        // This class defines a request processor that provides metric
-        // information about the sizes of the requests it has processed.
 
         // DATA
         unsigned int d_numRequests;       // number of requests processed
@@ -142,8 +143,9 @@ typedef balm::MetricDescription Desc;
 
       public:
         // CREATORS
+
+        /// Create this `RequestProcessor`.
         RequestProcessor()
-            // Create this 'RequestProcessor'.
         : d_numRequests(0)
         , d_totalRequestSize(0)
         , d_minRequestSize(INT_MAX)
@@ -154,8 +156,9 @@ typedef balm::MetricDescription Desc;
         // ...
 
         // MANIPULATORS
+
+        /// Process the specified `request`.
         void processRequest(const bsl::string& request)
-            // Process the specified 'request'.
         {
             ++d_numRequests;
             d_totalRequestSize += static_cast<unsigned int>(request.size());
@@ -166,14 +169,15 @@ typedef balm::MetricDescription Desc;
 
             // Process the request
         }
-//..
-// Now we declare a function that populates a 'balm::MetricRecord' describing
+// ```
+// Now we declare a function that populates a `balm::MetricRecord` describing
 // the sizes of the requests that the request processor has processed.
-//..
+// ```
         // ACCESSORS
+
+        /// Populate the specified `record` with information regarding
+        /// the sizes of the request processed by this request.
         void loadRequestSizeInformation(balm::MetricRecord *record) const
-            // Populate the specified 'record' with information regarding
-            // the sizes of the request processed by this request.
         {
             if (0 < d_numRequests) {
                 record->count()  = d_numRequests;
@@ -211,12 +215,12 @@ int main(int argc, char *argv[])
         // TESTING DEFAULT VALUES
         //
         // Concerns:
-        //   The hand-coded literals supplied for '(k_)DEFAULT_*' match the
-        //   corresponding values provided by 'bsl::numeric_limits'.
+        //   The hand-coded literals supplied for `(k_)DEFAULT_*` match the
+        //   corresponding values provided by `bsl::numeric_limits`.
         //
         // Plan:
-        //   Compare the values of the '(k_)DEFAULT_*' constants with the
-        //   values returned by 'bsl::numeric_limits'.
+        //   Compare the values of the `(k_)DEFAULT_*` constants with the
+        //   values returned by `bsl::numeric_limits`.
         //
         // Testing:
         //   CONCERN: DEFAULT VALUES
@@ -252,7 +256,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -261,53 +265,53 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Usage Example"
                           << "\n=====================" << endl;
 
-//..
-// We can create an instance of this 'RequestProcessor' class and use it to
+// ```
+// We can create an instance of this `RequestProcessor` class and use it to
 // process a couple requests.
-//..
+// ```
     RequestProcessor requestProcessor;
 
     requestProcessor.processRequest("123");
     requestProcessor.processRequest("12345");
-//..
-// Now we create 'balm::MetricRecord' to hold our aggregated metrics values.
-// Note that we create 'balm::MetricId' object by hand; however, in practice an
-// id should be obtained from a 'balm::MetricRegistry' object (such as the one
-// owned by a 'balm::MetricsManager').
-//..
+// ```
+// Now we create `balm::MetricRecord` to hold our aggregated metrics values.
+// Note that we create `balm::MetricId` object by hand; however, in practice an
+// id should be obtained from a `balm::MetricRegistry` object (such as the one
+// owned by a `balm::MetricsManager`).
+// ```
     balm::Category           myCategory("MyCategory");
     balm::MetricDescription  description(&myCategory, "RequestSize");
     balm::MetricId           requestSizeId(&description);
 
-    // In practice, get 'requestSizeId' from a 'balm::MetricRegistry' object.
+    // In practice, get `requestSizeId` from a `balm::MetricRegistry` object.
     balm::MetricRecord requestSize(requestSizeId);
-//..
+// ```
 // Finally we retrieve the information about the request sizes of the
-// requests processed by 'requestProcessor'.  Note that the count of requests
+// requests processed by `requestProcessor`.  Note that the count of requests
 // should be 2, the total size of the requests should be 8 (3 + 5), the
 // minimum size should be 3, and the maximum size should be 5.
-//..
+// ```
     requestProcessor.loadRequestSizeInformation(&requestSize);
         ASSERT(2 == requestSize.count());
         ASSERT(8 == requestSize.total());
         ASSERT(3 == requestSize.min());
         ASSERT(5 == requestSize.max());
-//..
+// ```
       } break;
       case 7: {
         // --------------------------------------------------------------------
         // TESTING PRINT AND OUTPUT (<<) OPERATOR:
         //
         // Plan:
-        //   Test that the 'print' method produces the expected results for
-        //   various values of 'level' and 'spacesPerLevel'.
+        //   Test that the `print` method produces the expected results for
+        //   various values of `level` and `spacesPerLevel`.
         //
         // Testing:
         //   ostream& print(ostream& os, int level = 0, int spl = 4) const;
         //   operator<<(ostream&, const balm::MetricRecord&);
         // --------------------------------------------------------------------
 
-        if (veryVerbose) cout << "Testing 'print'." << endl;
+        if (veryVerbose) cout << "Testing `print`." << endl;
         bsl::ostringstream buffer;
 
         struct {
@@ -488,8 +492,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Specify a set S of unique object values having various minor or
-        //   subtle differences.  Verify the correctness of 'operator==' and
-        //   'operator!=' using all elements (u, v) of the cross product
+        //   subtle differences.  Verify the correctness of `operator==` and
+        //   `operator!=` using all elements (u, v) of the cross product
         //    S X S.
         //
         // Testing:
@@ -691,10 +695,10 @@ int main(int argc, char *argv[])
         //   operation of the following methods and operators:
         //      - default and copy constructors (and also the destructor)
         //      - the assignment operator (including aliasing)
-        //      - equality operators: 'operator==()' and 'operator!=()'
-        //      - the (test-driver supplied) output operator: 'operator<<()'
-        //      - primary manipulators: 'push_back' and 'clear' methods
-        //      - basic accessors: 'size' and 'operator[]()'
+        //      - equality operators: `operator==()` and `operator!=()`
+        //      - the (test-driver supplied) output operator: `operator<<()`
+        //      - primary manipulators: `push_back` and `clear` methods
+        //      - basic accessors: `size` and `operator[]()`
         //   In addition we would like to exercise objects with potentially
         //   different internal organizations representing the same value.
         //

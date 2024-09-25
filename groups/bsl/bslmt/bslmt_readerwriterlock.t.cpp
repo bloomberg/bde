@@ -115,12 +115,12 @@ enum { k_NTHREADS = 5 };
 //                 HELPER CLASSES AND FUNCTIONS  FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// This class implements a condition variable object which compensates for
+/// spurious returns from the wait functions in bslmt_Condition.  The
+/// versions of the `wait` and `timedWait` functions provided here only
+/// return when the condition was actually signaled.  The class is used to
+/// simplify testing.
 class my_Condition {
-    // This class implements a condition variable object which compensates for
-    // spurious returns from the wait functions in bslmt_Condition.  The
-    // versions of the 'wait' and 'timedWait' functions provided here only
-    // return when the condition was actually signaled.  The class is used to
-    // simplify testing.
 
     // DATA
     bslmt::Condition d_cond;
@@ -129,28 +129,30 @@ class my_Condition {
     int              d_bcastCount;
   public:
     // CREATORS
-    my_Condition();
-        // Construct a my_Condition object.
 
+    /// Construct a my_Condition object.
+    my_Condition();
+
+    /// Destroy a my_Condition object.
     ~my_Condition();
-        // Destroy a my_Condition object.
 
     // MANIPULATORS
+
+    /// Unblock all threads that are waiting on this condition.
     void broadcast();
-        // Unblock all threads that are waiting on this condition.
 
+    /// Unblock a single thread that is waiting on this condition.
     void signal();
-        // Unblock a single thread that is waiting on this condition.
 
+    /// Block until this condition is signaled by a call to `signal` or
+    /// `broadcast`, or until the specified `absTime` (in abs time).  The
+    /// specified `mutex` is unlocked while blocking.  Return 0 if the
+    /// condition was signaled, and a value of -1 if a timeout occurred.
     int timedWait(bslmt::Mutex *mutex, const bsls::TimeInterval &absTime);
-        // Block until this condition is signaled by a call to 'signal' or
-        // 'broadcast', or until the specified 'absTime' (in abs time).  The
-        // specified 'mutex' is unlocked while blocking.  Return 0 if the
-        // condition was signaled, and a value of -1 if a timeout occurred.
 
+    /// Block until this condition is signaled by a call to `signal` or
+    /// `broadcast`.  The specified `mutex` is unlocked while blocking.
     void wait(bslmt::Mutex *mutex);
-        // Block until this condition is signaled by a call to 'signal' or
-        // 'broadcast'.  The specified 'mutex' is unlocked while blocking.
 };
 
 my_Condition::my_Condition()
@@ -212,10 +214,10 @@ void my_Condition::broadcast()
     d_mutex.unlock();
 }
 
+/// This structure provides a set of objects and counters used by various
+/// thread functions in this test driver.  It also provides a set of wait
+/// and signal methods.
 struct TestArguments {
-    // This structure provides a set of objects and counters used by various
-    // thread functions in this test driver.  It also provides a set of wait
-    // and signal methods.
 
     Obj             d_lock;
     my_Condition    d_cond1;
@@ -230,30 +232,30 @@ struct TestArguments {
     bslmt::Barrier  d_barrierAll;     // barrier for all threads
     bslmt::Barrier  d_barrier2;       // barrier for two threads
   public:
+    /// Construct a `TestArguments` object and initialize all counters to
+    /// zero, `d_iterations` to the optionally specified `iterations` and
+    /// `d_barrierAll` to the optionally specified `nThreads` + 1.
     TestArguments(int iterations = 0, int nThreads = k_NTHREADS);
-        // Construct a 'TestArguments' object and initialize all counters to
-        // zero, 'd_iterations' to the optionally specified 'iterations' and
-        // 'd_barrierAll' to the optionally specified 'nThreads' + 1.
 
+    /// clear the start indicator flag.
     void clearStart();
-        // clear the start indicator flag.
 
+    /// Block until the start condition is signaled(`signalStart`).
     void waitStart();
-        // Block until the start condition is signaled('signalStart').
 
+    /// Unblock a single thread that is waiting on the start condition(
+    /// `waitStart`).
     void signalStart();
-        // Unblock a single thread that is waiting on the start condition(
-        // 'waitStart').
 
+    /// Clear the stop indicator flag.
     void clearStop();
-        // Clear the stop indicator flag.
 
+    /// Block until the stop condition is signaled(`signalStop`)
     void waitStop();
-        // Block until the stop condition is signaled('signalStop')
 
+    /// Unblock a single thread that is waiting on the stop condition(
+    /// `waitStop`).
     void signalStop();
-        // Unblock a single thread that is waiting on the stop condition(
-        // 'waitStop').
 };
 
 TestArguments::TestArguments(int iterations, int nThreads)
@@ -311,13 +313,13 @@ void TestArguments::signalStop()
     d_mutex.unlock();
 }
 
+/// This function is used to test the `lockRead` and `unlock` methods.  It
+/// begins by invoking `wait` on the barrier for all the threads.  Then it
+/// signals the provided condition variable `d_cond1`.  Next it calls
+/// `lockRead` on the provided reader/writer lock.  Once it has acquired the
+/// lock, it again signals `d_cond1` and waits for `d_cond2` to be signaled.
+/// Finally it releases the reader/writer lock using the `unlock` method.
 void* TestReaderThread1(void *ptr)
-    // This function is used to test the 'lockRead' and 'unlock' methods.  It
-    // begins by invoking 'wait' on the barrier for all the threads.  Then it
-    // signals the provided condition variable 'd_cond1'.  Next it calls
-    // 'lockRead' on the provided reader/writer lock.  Once it has acquired the
-    // lock, it again signals 'd_cond1' and waits for 'd_cond2' to be signaled.
-    // Finally it releases the reader/writer lock using the 'unlock' method.
 {
     TestArguments *args=(TestArguments*)ptr;
     args->d_barrierAll.wait();
@@ -331,13 +333,13 @@ void* TestReaderThread1(void *ptr)
 }
 
 extern "C" {
+/// This function is used to test the `lockRead` and `unlock` methods.  It
+/// begins by invoking `wait` on the barrier for all the threads.  Then it
+/// signals the provided condition variable `d_cond1`.  Next it calls
+/// `lockRead` on the provided reader/writer lock.  Once it has acquired the
+/// lock, it again signals `d_cond1` and waits for `d_cond2` to be signaled.
+/// Finally it releases the reader/writer lock using the `unlock` method.
 void* TestReaderThread2(void *ptr)
-    // This function is used to test the 'lockRead' and 'unlock' methods.  It
-    // begins by invoking 'wait' on the barrier for all the threads.  Then it
-    // signals the provided condition variable 'd_cond1'.  Next it calls
-    // 'lockRead' on the provided reader/writer lock.  Once it has acquired the
-    // lock, it again signals 'd_cond1' and waits for 'd_cond2' to be signaled.
-    // Finally it releases the reader/writer lock using the 'unlock' method.
 {
     TestArguments *args=(TestArguments*)ptr;
     args->d_barrierAll.wait();
@@ -351,14 +353,14 @@ void* TestReaderThread2(void *ptr)
     return 0;
 }
 
+/// This function is used to test the `lockWrite` and `unlock` methods.  It
+/// begins by invoking `wait` on the barrier for all the threads.  Then it
+/// signals the provided condition variable `d_cond1`.  Next it calls
+/// `lockWrite` on the provided reader/writer lock.  Once it has acquired
+/// the lock, it again signals `d_cond1` and waits for `d_cond2` to be
+/// signaled.  Finally it releases the reader/writer lock using the
+/// `unlockWrite` method.
 void* TestWriterThread1(void *ptr)
-    // This function is used to test the 'lockWrite' and 'unlock' methods.  It
-    // begins by invoking 'wait' on the barrier for all the threads.  Then it
-    // signals the provided condition variable 'd_cond1'.  Next it calls
-    // 'lockWrite' on the provided reader/writer lock.  Once it has acquired
-    // the lock, it again signals 'd_cond1' and waits for 'd_cond2' to be
-    // signaled.  Finally it releases the reader/writer lock using the
-    // 'unlockWrite' method.
 {
     static bslmt::Mutex m;
     TestArguments *args=(TestArguments*)ptr;
@@ -374,14 +376,14 @@ void* TestWriterThread1(void *ptr)
     return 0;
 }
 
+/// This function is used to test the `lockReadReserveWrite` and `unlock`
+/// methods.  It begins by invoking `wait` on the barrier for all the
+/// threads.  Then it signals the provided condition variable `d_cond1`.
+/// Next it calls `lockReadReserveWrite` on the provided reader/writer lock.
+/// Once it has acquired the lock, it again signals `d_cond1` and waits for
+/// `d_cond2` to be signaled.  Finally it releases the reader/writer lock
+/// using the `unlock` method.
 void* TestWriterThread2(void *ptr)
-    // This function is used to test the 'lockReadReserveWrite' and 'unlock'
-    // methods.  It begins by invoking 'wait' on the barrier for all the
-    // threads.  Then it signals the provided condition variable 'd_cond1'.
-    // Next it calls 'lockReadReserveWrite' on the provided reader/writer lock.
-    // Once it has acquired the lock, it again signals 'd_cond1' and waits for
-    // 'd_cond2' to be signaled.  Finally it releases the reader/writer lock
-    // using the 'unlock' method.
 {
     TestArguments *args=(TestArguments*)ptr;
     args->d_barrierAll.wait();
@@ -398,15 +400,15 @@ void* TestWriterThread2(void *ptr)
     return 0;
 }
 
+/// This function is used to test the `lockReadReserveWrite` and
+/// `upgradeToWriteLock` methods.  It begins by invoking `wait` on the
+/// barrier for all the threads.  Then it signals the provided condition
+/// variable `d_cond1`.  Next it calls `lockReadReserveWrite` on the
+/// provided reader/writer lock.  Once it has acquired the lock, it again
+/// signals `d_cond1` and waits for `d_cond2` to be signaled.  Finally it
+/// upgrades the lock to a write lock using the `upgradeToWriteLock` method
+/// and releases the lock using the `unlock` method.
 void* TestWriterThread3(void *ptr)
-    // This function is used to test the 'lockReadReserveWrite' and
-    // 'upgradeToWriteLock' methods.  It begins by invoking 'wait' on the
-    // barrier for all the threads.  Then it signals the provided condition
-    // variable 'd_cond1'.  Next it calls 'lockReadReserveWrite' on the
-    // provided reader/writer lock.  Once it has acquired the lock, it again
-    // signals 'd_cond1' and waits for 'd_cond2' to be signaled.  Finally it
-    // upgrades the lock to a write lock using the 'upgradeToWriteLock' method
-    // and releases the lock using the 'unlock' method.
 {
     TestArguments *args=(TestArguments*)ptr;
     args->d_barrierAll.wait();
@@ -424,14 +426,14 @@ void* TestWriterThread3(void *ptr)
     return 0;
 }
 
+/// This function is used to test the `lockWrite` and `unlock` methods.  It
+/// begins by invoking `wait` on the barrier for all the threads.  Then it
+/// signals the provided condition variable `d_cond1`.  Next it calls
+/// `lockWrite` on the provided reader/writer lock.  Once it has acquired
+/// the lock, it again signals `d_cond1` and waits for `d_cond2` to be
+/// signaled.  Finally it releases the reader/writer lock using the
+/// `unlockWrite` method.
 void* TestWriterThread4(void *ptr)
-    // This function is used to test the 'lockWrite' and 'unlock' methods.  It
-    // begins by invoking 'wait' on the barrier for all the threads.  Then it
-    // signals the provided condition variable 'd_cond1'.  Next it calls
-    // 'lockWrite' on the provided reader/writer lock.  Once it has acquired
-    // the lock, it again signals 'd_cond1' and waits for 'd_cond2' to be
-    // signaled.  Finally it releases the reader/writer lock using the
-    // 'unlockWrite' method.
 {
     static bslmt::Mutex m;
     TestArguments *args=(TestArguments*)ptr;
@@ -448,15 +450,15 @@ void* TestWriterThread4(void *ptr)
     return 0;
 }
 
+/// This function is used to test the `' upgradeToWriteLock` methods.  It
+/// begins by invoking `wait` on the barrier for all the threads.  Then it
+/// signals the provided condition variable `d_cond1`.  Next it calls
+/// `lockReadReserveWrite` on the provided reader/writer lock.  Once it has
+/// acquired the lock, it again signals `d_cond1` and waits for `d_cond2` to
+/// be signaled.  Finally it upgrades the lock to a write lock using the
+/// `upgradeToWriteLock` method and releases the lock using the `unlock`
+/// method.
 void* TestUpgradeThread1(void *ptr)
-    // This function is used to test the '' upgradeToWriteLock' methods.  It
-    // begins by invoking 'wait' on the barrier for all the threads.  Then it
-    // signals the provided condition variable 'd_cond1'.  Next it calls
-    // 'lockReadReserveWrite' on the provided reader/writer lock.  Once it has
-    // acquired the lock, it again signals 'd_cond1' and waits for 'd_cond2' to
-    // be signaled.  Finally it upgrades the lock to a write lock using the
-    // 'upgradeToWriteLock' method and releases the lock using the 'unlock'
-    // method.
 {
     TestArguments *args=(TestArguments*)ptr;
     args->d_barrierAll.wait();
@@ -485,7 +487,7 @@ void* TestUpgradeThread1(void *ptr)
 // lock.  The sample implements a simple cache mechanism for user information.
 // We expect that the information is read very frequently, but only modified
 // when a user "badges" in or out, which should be relatively infrequent.
-//..
+// ```
     struct UserInfo{
         long               d_UserId;
         char               d_UserName[MAX_USER_NAME];
@@ -524,13 +526,13 @@ void* TestUpgradeThread1(void *ptr)
     int UserInfoCache::getUserInfo(int userId, UserInfo *userInfo)
     {
         int ret = 1;
-//..
+// ```
 // Getting the user info does not require any write access.  We do, however,
-// need read access to 'd_infoMap', which is controlled by 'd_lock'.  (Note
+// need read access to `d_infoMap`, which is controlled by `d_lock`.  (Note
 // that writers *will* block until this *read* *lock* is released, but
 // concurrent reads are allowed.)  The user info is copied into the
-// caller-owned location 'userInfo'.
-//..
+// caller-owned location `userInfo`.
+// ```
         d_lock.lockRead();
         InfoMap::iterator it = d_infoMap.find(userId);
         if (d_infoMap.end() != it) {
@@ -545,34 +547,34 @@ void* TestUpgradeThread1(void *ptr)
     int UserInfoCache::updateUserInfo(int userId, UserInfo *userInfo)
     {
         int ret = 1;
-//..
+// ```
 // Although we intend to update the information, we first acquire a *read*
 // *lock* to locate the item.  This allows other threads to read the list while
 // we find the item.  If we do not locate the item we can simply release the
 // *read* *lock* and return an error without causing any other *reading* thread
 // to block.  (Again, other writers *will* block until this *read* *lock* is
 // released.)
-//..
+// ```
         d_lock.lockRead();
         InfoMap::iterator it = d_infoMap.find(userId);
         if (d_infoMap.end() != it) {
-//..
-// Since 'it != end()', we found the item.  Now we need to upgrade to a *write*
+// ```
+// Since `it != end()`, we found the item.  Now we need to upgrade to a *write*
 // *lock*.  If we can't do this atomically, then we need to locate the item
-// again.  This is because another thread may have changed 'd_infoMap' during
+// again.  This is because another thread may have changed `d_infoMap` during
 // the time between our *read* and *write* locks.
-//..
+// ```
             if (d_lock.upgradeToWriteLock()) {
                 it = d_infoMap.find(userId);
             }
-//..
+// ```
 // This is a little more costly, but since we don't expect many concurrent
 // writes, it should not happen often.  In the (likely) event that we do
 // upgrade to a *write* *lock* atomically, then the second lookup above is not
 // performed.  In any case, we can now update the information and release the
 // lock, since we already have a pointer to the item and we know that the list
 // could not have been changed by anyone else.
-//..
+// ```
             if (d_infoMap.end() != it) {
                 it->second = *userInfo;
                 ret = 0;
@@ -612,7 +614,7 @@ void* TestUpgradeThread1(void *ptr)
         d_infoMap.erase(userId);
         d_lock.unlock();
     }
-//..
+// ```
 
 struct my_ThreadArgument
 {
@@ -895,29 +897,29 @@ int main(int argc, char *argv[])
         // COMPATIBILITY WITH GUARDS
         //
         // Concerns:
-        //: 1 That the component under test is compatible with
-        //:   'bslmt::ReadLockGuard'.
-        //:
-        //: 2 That the component under test is compatible with
-        //:   'bslmt::WriteLockGuard'.
+        // 1. That the component under test is compatible with
+        //    `bslmt::ReadLockGuard`.
+        //
+        // 2. That the component under test is compatible with
+        //    `bslmt::WriteLockGuard`.
         //
         // Plan:
-        //: 1 Create a 'bslmt::ReaderWriterLock' object.
-        //:
-        //: 2 Confirm that it is unlocked by calling all the 'isLocked*'
-        //:   methods.
-        //:
-        //: 3 In a block, lock the object for read with a guard, then confirm
-        //:   its state with the accessors.
-        //:
-        //: 4 Leave the block, and confirm that it is unlocked by calling all
-        //:   the 'isLocked*' methods.
-        //:
-        //: 5 In a block, lock the object for write with a guard, then confirm
-        //:   its state with the accessors.
-        //:
-        //: 6 Leave the block, and confirm that it is unlocked by calling all
-        //:   the 'isLocked*' methods.
+        // 1. Create a `bslmt::ReaderWriterLock` object.
+        //
+        // 2. Confirm that it is unlocked by calling all the `isLocked*`
+        //    methods.
+        //
+        // 3. In a block, lock the object for read with a guard, then confirm
+        //    its state with the accessors.
+        //
+        // 4. Leave the block, and confirm that it is unlocked by calling all
+        //    the `isLocked*` methods.
+        //
+        // 5. In a block, lock the object for write with a guard, then confirm
+        //    its state with the accessors.
+        //
+        // 6. Leave the block, and confirm that it is unlocked by calling all
+        //    the `isLocked*` methods.
         //
         // Testing:
         //   CONCERN: works with bslmt::ReadLockGuard<Obj>
@@ -964,17 +966,17 @@ int main(int argc, char *argv[])
         // ACCESSORS
         //
         // Concerns:
-        //: 1 Each accessor corre tly returns the known state of a lock object.
-        //:
-        //: 2 Each accessor is 'const' qualified.
+        // 1. Each accessor corre tly returns the known state of a lock object.
+        //
+        // 2. Each accessor is `const` qualified.
         //
         // Plan:
-        //: 1 An ad-hoc sequence of (previously tested) lock and unlock
-        //:   operations is used to put a test object into different states.
-        //:   The accessors are used to corroborate those states.  (C-1)
-        //:
-        //: 2 Each accessor invocation is done via a 'const'-reference to the
-        //:   object under test.  (C-2)
+        // 1. An ad-hoc sequence of (previously tested) lock and unlock
+        //    operations is used to put a test object into different states.
+        //    The accessors are used to corroborate those states.  (C-1)
+        //
+        // 2. Each accessor invocation is done via a `const`-reference to the
+        //    object under test.  (C-2)
         //
         // Testing:
         //   bool isLocked() const;
@@ -1153,7 +1155,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TEST: USAGE EXAMPLE
         //   The usage example demonstrates a sample class which uses
-        //   a 'bslmt::ReaderWriterLock' object.  By integrating the code
+        //   a `bslmt::ReaderWriterLock` object.  By integrating the code
         //   into this test driver, we have verified that it compiles.
         //   Next verify that the class can be instantiated.
         // Plan:
@@ -1195,7 +1197,7 @@ int main(int argc, char *argv[])
             lock.unlock();
         }
         if (veryVerbose) cout << endl
-                              << "Testing: 'lockReadReserveWrite'" << endl
+                              << "Testing: `lockReadReserveWrite`" << endl
                               << "-------------------------------" << endl;
         {
             TestArguments          args;
@@ -1262,7 +1264,7 @@ int main(int argc, char *argv[])
             }
         }
         if (veryVerbose) cout << endl
-                              << "Testing: 'unlock'" << endl
+                              << "Testing: `unlock`" << endl
                               << "-----------------" << endl;
         {
             TestArguments          args;
@@ -1296,7 +1298,7 @@ int main(int argc, char *argv[])
             }
         }
         if (veryVerbose) cout << endl
-                              << "Testing: 'upgradeToWriteLock'"
+                              << "Testing: `upgradeToWriteLock`"
                               << "-----------------------------"
                               << endl;
         {
@@ -1373,7 +1375,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose) cout << endl
-                              << "\tTesting: 'upgradeToWriteLock'" << endl
+                              << "\tTesting: `upgradeToWriteLock`" << endl
                               << "\t-----------------------------"
                               << endl;
         {
@@ -1434,7 +1436,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose) cout << endl
-                              << "Testing: 'lockRead', and 'unlock'"
+                              << "Testing: `lockRead`, and `unlock`"
                               << "---------------------------------"
                               << endl;
 
@@ -1508,7 +1510,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose) cout << endl
-                              << "Testing: 'lockWrite', and 'unlock'"
+                              << "Testing: `lockWrite`, and `unlock`"
                               << endl
                               << "----------------------------------"
                               << endl;
@@ -1565,9 +1567,9 @@ int main(int argc, char *argv[])
         //   primary manipulator [3, 6], copy constructor [2, 8], and
         //   assignment operator without [9, 10] and with [11] aliasing.  Use
         //   the direct accessors to verify the expected results.  Display
-        //   object values frequently in verbose mode.  Note that 'VA', 'VB',
-        //   and 'VC' denote unique, but otherwise arbitrary, object values,
-        //   while '0' denotes the default object value.
+        //   object values frequently in verbose mode.  Note that `VA`, `VB`,
+        //   and `VC` denote unique, but otherwise arbitrary, object values,
+        //   while `0` denotes the default object value.
         //
         //
         // Testing:

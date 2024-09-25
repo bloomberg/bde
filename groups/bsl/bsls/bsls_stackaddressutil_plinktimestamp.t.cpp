@@ -3,8 +3,8 @@
 #include <bsls_stackaddressutil_plinktimestamp.h>
 
 #include <bsls_bsltestutil.h>
-#include <cstdio>    // 'fprintf'
-#include <cstdlib>   // 'atoi'
+#include <cstdio>    // `fprintf`
+#include <cstdlib>   // `atoi`
 
 using namespace BloombergLP;
 using namespace std;
@@ -14,7 +14,7 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// This component will verify that the 'plink_timestamp___' defined by this
+// This component will verify that the `plink_timestamp___` defined by this
 // component is an array containing a single 0 value.  Note that this is only
 // testing the fallback case of a task linked without "pwhat strings."  Tests
 // for the interesting case have build dependencies which cannot be satisfied
@@ -93,11 +93,11 @@ int main(int argc, char *argv[])
         // PLINK_TIMESTAMP CONTENTS
         //
         // Concerns:
-        //: 1 The global variable 'plink_timestamp___' should start with a '0'
-        //:   value.
+        // 1. The global variable `plink_timestamp___` should start with a `0`
+        //    value.
         //
         // Plan:
-        //: 1 Check the value of 'plink_timestamp___'.
+        // 1. Check the value of `plink_timestamp___`.
         //
         // Testing:
         //   plink_timestamp___

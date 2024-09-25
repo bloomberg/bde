@@ -5,8 +5,8 @@
 #include <bsls_platform.h>
 #include <bsls_nullptr.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 
@@ -16,16 +16,16 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 // The component under test defines a meta-function,
-// 'bsl::is_member_object_pointer' and a template variable
-// 'bsl::is_member_object_pointer_v', that determine whether a template
+// `bsl::is_member_object_pointer` and a template variable
+// `bsl::is_member_object_pointer_v`, that determine whether a template
 // parameter type is a pointer to (non-static) data member type.  Thus, we
 // need to ensure that the value returned by this meta-function is correct for
 // each possible category of types.  Note that a few test cases will produce
 // awkward error messages on failure, but will always contain the full type
 // name through a macro expansion.  Alternative techniques have been explored,
-// such as using 'ASSERTV' with 'bsls::NameOf', but compile times for the test
+// such as using `ASSERTV` with `bsls::NameOf`, but compile times for the test
 // driver grow considerably, e.g., for Linux/gcc-C++17 builds, build time with
-// just adding the 'bsls::NameOf' call to each ASSERT grew from 10 seconds to
+// just adding the `bsls::NameOf` call to each ASSERT grew from 10 seconds to
 // 1'45.
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
@@ -86,7 +86,7 @@ void aSsErT(bool condition, const char *message, int line)
 # define BSLMF_ISMEMBEROBJECTPOINTER_NO_ABOMINABLE_TYPES 1
 #endif
 
-// Visual Studio 2017, 2019 and 2022 in C++17 mode (when 'noexcept' types are
+// Visual Studio 2017, 2019 and 2022 in C++17 mode (when `noexcept` types are
 // supported) run out of heap space under certain circumstances specified
 // below.  Factoring out the large test case (case 1) was attempted and it made
 // no difference.  The conditions below are structured so that they remove
@@ -159,34 +159,34 @@ void aSsErT(bool condition, const char *message, int line)
 #define INT_18 INT_17, int
 #define INT_19 INT_18, int
 #define INT_20 INT_19, int
+/// This set of macros will make it much simpler to declare function types
+/// with a specific number of parameters, and to clearly see that number
+/// without counting each individual parameter to audit coverage.  Various
+/// BDE metaprogramming utilities support 10, 14, 16, and 20 arguments, so
+/// provide a full set up to 21 in order to cover anticipated boundary
+/// conditions.
 #define INT_21 INT_20, int
-    // This set of macros will make it much simpler to declare function types
-    // with a specific number of parameters, and to clearly see that number
-    // without counting each individual parameter to audit coverage.  Various
-    // BDE metaprogramming utilities support 10, 14, 16, and 20 arguments, so
-    // provide a full set up to 21 in order to cover anticipated boundary
-    // conditions.
 
 
 // The following macros provide most of the test machinery used to validate the
 // trait under test in this test driver.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES)
+/// Test whether `bsl::is_member_object_pointer_v<TYPE>` value equals to
+/// `bsl::is_member_object_pointer<TYPE>::value`.
 # define ASSERT_V_EQ_VALUE(TYPE)                                              \
     ASSERT(bsl::is_member_object_pointer  <TYPE>::value ==                  \
            bsl::is_member_object_pointer_v<TYPE>)
-    // Test whether 'bsl::is_member_object_pointer_v<TYPE>' value equals to
-    // 'bsl::is_member_object_pointer<TYPE>::value'.
 #else
 # define ASSERT_V_EQ_VALUE(TYPE)
 #endif
 
+/// Test that the result of `META_FUNC` has the same value as the expected
+/// `result`.  Confirm that the result value of the `META_FUNC` and the
+/// value of the `META_FUNC_v` variable are the same.
 #define TYPE_ASSERT(META_FUNC, TYPE, result)                                  \
     ASSERT(result == META_FUNC<TYPE>::value);                                 \
     ASSERT_V_EQ_VALUE(TYPE)
-    // Test that the result of 'META_FUNC' has the same value as the expected
-    // 'result'.  Confirm that the result value of the 'META_FUNC' and the
-    // value of the 'META_FUNC_v' variable are the same.
 
 
 
@@ -239,7 +239,7 @@ void aSsErT(bool condition, const char *message, int line)
 #endif
 
 
-// Define the macro 'TEST_FUNCTION(META_FUNC, TYPE, result)' to incrementally
+// Define the macro `TEST_FUNCTION(META_FUNC, TYPE, result)` to incrementally
 // support testing of cv-qualified abominable functions, cv-ref qualified
 // abominable functions, and cv-ref-noexcept qualified abominable functions,
 // according to the level of support offered by the compiler.
@@ -371,19 +371,19 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// This template provides an easy way to obtain a `typedef` to the template
+/// parameter `TYPE_PARAMETER`.  This is most useful when the parameter type
+/// is a function or array type, as it is difficult to add pointer or
+/// reference qualifiers to such types with their regular syntax, but very
+/// simple to add a trailing '*' or '&' using this type.  E.g.,
+/// ```
+/// static_assert(is_same_v<Identity<int()>::type *, int(*)()>);
+/// ```
+/// It is very difficult to manipulate such types within macros, where all
+/// we have access to is a stream of tokens (source code) without type
+/// information.
 template <class TYPE_PARAMETER>
 struct Identity {
-    // This template provides an easy way to obtain a 'typedef' to the template
-    // parameter 'TYPE_PARAMETER'.  This is most useful when the parameter type
-    // is a function or array type, as it is difficult to add pointer or
-    // reference qualifiers to such types with their regular syntax, but very
-    // simple to add a trailing '*' or '&' using this type.  E.g.,
-    //..
-    //  static_assert(is_same_v<Identity<int()>::type *, int(*)()>);
-    //..
-    // It is very difficult to manipulate such types within macros, where all
-    // we have access to is a stream of tokens (source code) without type
-    // information.
 
     typedef TYPE_PARAMETER type;
 };
@@ -391,14 +391,14 @@ struct Identity {
 namespace {
 
 enum EnumTestType {
-    // This user-defined 'enum' type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::is_member_object_pointer'.
+    // This user-defined `enum` type is intended to be used for testing as the
+    // template parameter `TYPE` of `bsl::is_member_object_pointer`.
 };
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS)
 enum class EnumClassTestType {
-    // This user-defined 'enum' type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::is_member_object_pointer'.
+    // This user-defined `enum` type is intended to be used for testing as the
+    // template parameter `TYPE` of `bsl::is_member_object_pointer`.
 };
 #else
 enum EnumClassTestType {
@@ -407,29 +407,29 @@ enum EnumClassTestType {
 };
 #endif
 
+/// This user-defined `struct` type is intended to be used for testing as
+/// the template parameter `TYPE` of `bsl::is_member_object_pointer`.
 struct StructTestType {
-    // This user-defined 'struct' type is intended to be used for testing as
-    // the template parameter 'TYPE' of 'bsl::is_member_object_pointer'.
 };
 
+/// This user-defined `union` type is intended to be used for testing as the
+/// template parameter `TYPE` of `bsl::is_member_object_pointer`.
 union UnionTestType {
-    // This user-defined 'union' type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::is_member_object_pointer'.
 };
 
+/// This user-defined base class type is intended to be used for testing as
+/// the template parameter `TYPE` of `bsl::is_member_object_pointer`.
 class BaseClassTestType {
-    // This user-defined base class type is intended to be used for testing as
-    // the template parameter 'TYPE' of 'bsl::is_member_object_pointer'.
 };
 
+/// This user-defined derived class type is intended to be used for testing
+/// as the template parameter `TYPE` of `bsl::is_member_object_pointer`.
 class DerivedClassTestType : public BaseClassTestType {
-    // This user-defined derived class type is intended to be used for testing
-    // as the template parameter 'TYPE' of 'bsl::is_member_object_pointer'.
 };
 
 struct Incomplete;
-    // This incomplete 'struct' type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::is_member_object_pointer'.
+    // This incomplete `struct` type is intended to be used for testing as the
+    // template parameter `TYPE` of `bsl::is_member_object_pointer`.
 
 }  // close unnamed namespace
 
@@ -447,12 +447,12 @@ struct Incomplete;
 // Suppose that we want to assert whether a set of types are pointers to member
 // object types.
 //
-// First, we create a user-defined type 'MyStruct':
-//..
+// First, we create a user-defined type `MyStruct`:
+// ```
     struct MyStruct
     {
     };
-//..
+// ```
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -480,13 +480,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -495,117 +495,117 @@ int main(int argc, char *argv[])
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 
-//..
-// Now, we create a 'typedef' for a member object pointer type:
-//..
+// ```
+// Now, we create a `typedef` for a member object pointer type:
+// ```
     typedef int MyStruct::* DataMemPtr;
-//..
-// Finally, we instantiate the 'bsl::is_member_object_pointer' template for a
-// non-member data type and the 'MyStructDataPtr' type, and assert the 'value'
+// ```
+// Finally, we instantiate the `bsl::is_member_object_pointer` template for a
+// non-member data type and the `MyStructDataPtr` type, and assert the `value`
 // static data member of each instantiation:
-//..
+// ```
     ASSERT(false == bsl::is_member_object_pointer<int*>::value);
     ASSERT(true  == bsl::is_member_object_pointer<DataMemPtr>::value);
-//..
+// ```
 // Note that if the current compiler supports the variable templates C++14
 // feature then we can re-write the snippet of code above using the
-// 'bsl::is_member_object_pointer_v' variable as follows:
-//..
+// `bsl::is_member_object_pointer_v` variable as follows:
+// ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
     ASSERT(false == bsl::is_member_object_pointer_v<int*>);
     ASSERT(true  == bsl::is_member_object_pointer_v<DataMemPtr>);
 #endif
-//..
+// ```
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'bsl::is_member_object_pointer::value'
-        //   Ensure that the static data member 'value' of
-        //   'bsl::is_member_object_pointer<TYPE>' instantiations having
-        //    various (template parameter) 'TYPE's has the correct value.
+        // TESTING `bsl::is_member_object_pointer::value`
+        //   Ensure that the static data member `value` of
+        //   `bsl::is_member_object_pointer<TYPE>` instantiations having
+        //    various (template parameter) `TYPE`s has the correct value.
         //
         // Concerns:
-        //:  1 'is_member_object_pointer::value' is 'false' when 'TYPE' is a
-        //:    (possibly cv-qualified) primitive type or reference to such.
-        //:  2 'is_member_object_pointer::value' is 'false' when 'TYPE' is a
-        //:    (possibly cv-qualified) user-defined type or reference to such.
-        //:  3 'is_member_object_pointer::value' is 'false' when 'TYPE' is a
-        //:    (possibly cv-qualified) pointer type or reference to such.
-        //:  4 'is_member_object_pointer::value' is 'false' when 'TYPE' is an
-        //:    array type or reference to such, or pointer to such.
-        //:  5 'is_member_object_pointer::value' is 'false' when 'TYPE' is a
-        //:    (possibly cv-qualified) function type or reference to function
-        //:    type, including abominable function types.
-        //:  6 'is_member_object_pointer::value' is 'true' when 'TYPE' is a
-        //:    (possibly cv-qualified) pointer to non-static data member type.
-        //:    However, if 'TYPE' is a reference or pointer to such a type, or
-        //:    an array of such a type, then the result is 'false.
-        //:  7 'is_member_object_pointer::value' is 'false' when 'TYPE' is a
-        //:    pointer to pointer to data member or a member pointer to pointer
-        //:    to data member.  This should be a superfluous concern, but you
-        //:    never know what compiler corner cases you might uncover.
-        //:  8 'is_member_object_pointer::value' is 'false' when 'TYPE' is a
-        //:    (possibly cv-qualified) pointer to non-static member function
-        //:    type, or a pointer or reference to such a type, or an array of
-        //:    such a type.  Allow for the full range of function types
-        //:    including zero and multiple arguments, C-style elipses, trailing
-        //:    cv-qualifiers, reference-qualifiers for C++11, and 'noexcept'
-        //:    specifications in C++17.
-        //:  9 Concern 8 applies when the member function (not the pointer) is
-        //:    cv-qualified.
-        //: 10 Concern 8 applies when the member function (not the pointer) is
-        //:    ref-qualified (in C++11 and later).
-        //: 11 That 'is_member_object_pointer<T>::value' has the same value
-        //:    as 'is_member_object_pointer_v<T>'.
+        //  1. `is_member_object_pointer::value` is `false` when `TYPE` is a
+        //     (possibly cv-qualified) primitive type or reference to such.
+        //  2. `is_member_object_pointer::value` is `false` when `TYPE` is a
+        //     (possibly cv-qualified) user-defined type or reference to such.
+        //  3. `is_member_object_pointer::value` is `false` when `TYPE` is a
+        //     (possibly cv-qualified) pointer type or reference to such.
+        //  4. `is_member_object_pointer::value` is `false` when `TYPE` is an
+        //     array type or reference to such, or pointer to such.
+        //  5. `is_member_object_pointer::value` is `false` when `TYPE` is a
+        //     (possibly cv-qualified) function type or reference to function
+        //     type, including abominable function types.
+        //  6. `is_member_object_pointer::value` is `true` when `TYPE` is a
+        //     (possibly cv-qualified) pointer to non-static data member type.
+        //     However, if `TYPE` is a reference or pointer to such a type, or
+        //     an array of such a type, then the result is 'false.
+        //  7. `is_member_object_pointer::value` is `false` when `TYPE` is a
+        //     pointer to pointer to data member or a member pointer to pointer
+        //     to data member.  This should be a superfluous concern, but you
+        //     never know what compiler corner cases you might uncover.
+        //  8. `is_member_object_pointer::value` is `false` when `TYPE` is a
+        //     (possibly cv-qualified) pointer to non-static member function
+        //     type, or a pointer or reference to such a type, or an array of
+        //     such a type.  Allow for the full range of function types
+        //     including zero and multiple arguments, C-style elipses, trailing
+        //     cv-qualifiers, reference-qualifiers for C++11, and `noexcept`
+        //     specifications in C++17.
+        //  9. Concern 8 applies when the member function (not the pointer) is
+        //     cv-qualified.
+        // 10. Concern 8 applies when the member function (not the pointer) is
+        //     ref-qualified (in C++11 and later).
+        // 11. That `is_member_object_pointer<T>::value` has the same value
+        //     as `is_member_object_pointer_v<T>`.
         //
         // Plan:
-        //: 1 Create a set of test macros that can verify the expected result
-        //:   of 'value' member of the 'is_member_object_pointer' trait for
-        //:   the distinct syntax patterns of object types, array types,
-        //:   function types, pointer-to-data-member types, and
-        //:   pointer-to-member-function types; such macros should also handle
-        //:   (recursively) cv-qualified versions of such types, and
-        //:   (cv-qualified) pointers and references to such types.  Those
-        //:   macros should also verify the 'bool' value of the
-        //:   'is_member_object_pointer_v' variable template on build
-        //:   configurations that support it.
-        //: 2 Use the test macro for object types to verify the trait(s) for a
-        //:   representative cross-section of fundamental types.  Note that
-        //:   cv-qualified 'void' types must be tested fairly directly, due to
-        //:   the lack of support for reference-to-'void' types that would fall
-        //:   out of most top-level test macro invocations.
-        //: 3 Use the test macro for object types to verify the trait(s) for a
-        //:   representative cross-section of user-defined types, including
-        //:   enumerations, class types, union types, and incomplete class
-        //:   types.
-        //: 4 Use the test macro for array types to verify the trait(s) for a
-        //:   representative cross-section of types that can be stored in an
-        //:   array.
-        //: 5 Use the test macro for function types to verify the trait(s) for
-        //:   a representative cross-section of function types, including all
-        //:   abominable (cv-ref-qualified) function types supported by the
-        //:   current build mode; parameter lists that cover the boundaries
-        //:   around common meta-programming limits used in BDE code (10, 14,
-        //:   16, and 20); and functions with C-style elipses; and functions
-        //:   with 'noexcept' specifications (when supported).  Such macros
-        //:   should recursively handle pointers and references to such typs
-        //:   (where valid), and array od pointers.
-        //: 6 Use the test macro for pointer-to-data-member types to verify the
-        //:   trait(s) for a representative cross-section of
-        //:   pointer-to-data-member types.  While there is a surprisingly
-        //:   sparse set of obviously interesting types to test, special
-        //:   attention should be given to types that that may be confused as
-        //:   pointer-to-member-pbject types by old compilers.  The test macros
-        //:   should also test pointers and references to such types, arrays of
-        //:   such types, and recursively pointers and references to arrays of
-        //:   such types.
-        //: 7 Finally, use the test macro for pointer-to-member-function types
-        //:   to verify the trait(s) for a representative cross-section of
-        //:   pointer-to-member-function types.  Test for the same variety of
-        //:   parameters as highlighed for regular (and abominable) function
-        //:   types, and verify that pointers and references to such types do
-        //:   *not* satisfy the trait(s), nor do arrays of such types.
+        // 1. Create a set of test macros that can verify the expected result
+        //    of `value` member of the `is_member_object_pointer` trait for
+        //    the distinct syntax patterns of object types, array types,
+        //    function types, pointer-to-data-member types, and
+        //    pointer-to-member-function types; such macros should also handle
+        //    (recursively) cv-qualified versions of such types, and
+        //    (cv-qualified) pointers and references to such types.  Those
+        //    macros should also verify the `bool` value of the
+        //    `is_member_object_pointer_v` variable template on build
+        //    configurations that support it.
+        // 2. Use the test macro for object types to verify the trait(s) for a
+        //    representative cross-section of fundamental types.  Note that
+        //    cv-qualified `void` types must be tested fairly directly, due to
+        //    the lack of support for reference-to-`void` types that would fall
+        //    out of most top-level test macro invocations.
+        // 3. Use the test macro for object types to verify the trait(s) for a
+        //    representative cross-section of user-defined types, including
+        //    enumerations, class types, union types, and incomplete class
+        //    types.
+        // 4. Use the test macro for array types to verify the trait(s) for a
+        //    representative cross-section of types that can be stored in an
+        //    array.
+        // 5. Use the test macro for function types to verify the trait(s) for
+        //    a representative cross-section of function types, including all
+        //    abominable (cv-ref-qualified) function types supported by the
+        //    current build mode; parameter lists that cover the boundaries
+        //    around common meta-programming limits used in BDE code (10, 14,
+        //    16, and 20); and functions with C-style elipses; and functions
+        //    with `noexcept` specifications (when supported).  Such macros
+        //    should recursively handle pointers and references to such typs
+        //    (where valid), and array od pointers.
+        // 6. Use the test macro for pointer-to-data-member types to verify the
+        //    trait(s) for a representative cross-section of
+        //    pointer-to-data-member types.  While there is a surprisingly
+        //    sparse set of obviously interesting types to test, special
+        //    attention should be given to types that that may be confused as
+        //    pointer-to-member-pbject types by old compilers.  The test macros
+        //    should also test pointers and references to such types, arrays of
+        //    such types, and recursively pointers and references to arrays of
+        //    such types.
+        // 7. Finally, use the test macro for pointer-to-member-function types
+        //    to verify the trait(s) for a representative cross-section of
+        //    pointer-to-member-function types.  Test for the same variety of
+        //    parameters as highlighed for regular (and abominable) function
+        //    types, and verify that pointers and references to such types do
+        //    *not* satisfy the trait(s), nor do arrays of such types.
         //
         // Testing:
         //   bsl::is_member_object_pointer::value
@@ -613,7 +613,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                           "TESTING 'bsl::is_member_object_pointer::value'\n"
+                           "TESTING `bsl::is_member_object_pointer::value`\n"
                            "==============================================\n");
 
         // C-1, 3
@@ -627,7 +627,7 @@ int main(int argc, char *argv[])
         TEST_MEMPTR(bsl::is_member_object_pointer, bsl::nullptr_t);
 #endif
 
-        // Test 'void' separately as cannot form reference to cv-'void'.
+        // Test `void` separately as cannot form reference to cv-`void`.
 
         TYPE_ASSERT(bsl::is_member_object_pointer, void, false);
         TYPE_ASSERT(bsl::is_member_object_pointer, const void, false);

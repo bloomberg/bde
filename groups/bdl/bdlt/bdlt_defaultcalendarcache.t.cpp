@@ -16,10 +16,10 @@
 #include <bsls_keyword.h>
 #include <bsls_platform.h>
 
-#include <bsl_cstdlib.h>      // 'atoi'
-#include <bsl_cstring.h>      // 'strcmp'
+#include <bsl_cstdlib.h>      // `atoi`
+#include <bsl_cstring.h>      // `strcmp`
 #include <bsl_iostream.h>
-#include <bsl_memory.h>       // 'bsl::shared_ptr'
+#include <bsl_memory.h>       // `bsl::shared_ptr`
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
@@ -38,11 +38,11 @@ using namespace bsl;
 //                              --------
 // The utility under test has an especially simple interface and a similarly
 // straightforward implementation.  The primary concerns are that the allocator
-// passed to 'initialize' is hooked up properly and that the 'initialize' and
-// 'destroy' methods are thread-safe.
+// passed to `initialize` is hooked up properly and that the `initialize` and
+// `destroy` methods are thread-safe.
 //
 // Global Concerns:
-//: o Precondition violations are detected in appropriate build modes.
+//  - Precondition violations are detected in appropriate build modes.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 2] static void destroy();
@@ -52,7 +52,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 4] USAGE EXAMPLE
-// [ 3] CONCERN: 'initialize' and 'destroy' are thread-safe.
+// [ 3] CONCERN: `initialize` and `destroy` are thread-safe.
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -141,11 +141,11 @@ extern "C" {
 //                  HELPER CLASSES AND FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Create a thread whose entry point is the specified `function` that is
+/// supplied with the specified `arg` list, and return the id of the new
+/// thread.
 static
 ThreadId createThread(ThreadFunction function, void *arg)
-    // Create a thread whose entry point is the specified 'function' that is
-    // supplied with the specified 'arg' list, and return the id of the new
-    // thread.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     return CreateThread(0, 0, (LPTHREAD_START_ROUTINE)function, arg, 0, 0);
@@ -156,9 +156,9 @@ ThreadId createThread(ThreadFunction function, void *arg)
 #endif
 }
 
+/// Join with the thread having the specified `id`.
 static
 void joinThread(ThreadId id)
-    // Join with the thread having the specified 'id'.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     WaitForSingleObject(id, INFINITE);
@@ -168,9 +168,9 @@ void joinThread(ThreadId id)
 #endif
 }
 
+/// Sleep for the specified number of `seconds`.
 static
 void sleepSeconds(int seconds)
-    // Sleep for the specified number of 'seconds'.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     Sleep(seconds * 1000);
@@ -230,7 +230,7 @@ extern "C" void *threadFunctionC(void *arg)
 //                                USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
-// Define the 'MyCalendarLoader' class that is used in the Usage example.
+// Define the `MyCalendarLoader` class that is used in the Usage example.
 
 class MyCalendarLoader : public bdlt::CalendarLoader {
 
@@ -241,17 +241,18 @@ class MyCalendarLoader : public bdlt::CalendarLoader {
 
   public:
     // CREATORS
-    MyCalendarLoader();
-        // Create a 'MyCalendarLoader' object.
 
+    /// Create a `MyCalendarLoader` object.
+    MyCalendarLoader();
+
+    /// Destroy this object.
     ~MyCalendarLoader() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this object.
 
     // MANIPULATORS
     int load(bdlt::PackedCalendar *result, const char *calendarName)
                                                          BSLS_KEYWORD_OVERRIDE;
-        // Load, into the specified 'result', the calendar identified by the
-        // specified 'calendarName'.  Return 0 on success, and a non-zero value
+        // Load, into the specified `result`, the calendar identified by the
+        // specified `calendarName`.  Return 0 on success, and a non-zero value
         // otherwise.
 };
 
@@ -293,7 +294,7 @@ int MyCalendarLoader::load(bdlt::PackedCalendar *result,
     }
 }
 
-// Use 'MyCalendarLoader' in other test cases.
+// Use `MyCalendarLoader` in other test cases.
 
 typedef MyCalendarLoader TestLoader;
 
@@ -325,13 +326,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -343,14 +344,14 @@ int main(int argc, char *argv[])
 
 ///Usage
 ///-----
-// The following example illustrates how to use 'bdlt::DefaultCalendarCache'.
+// The following example illustrates how to use `bdlt::DefaultCalendarCache`.
 //
-///Example 1: Using 'bdlt::DefaultCalendarCache'
+///Example 1: Using `bdlt::DefaultCalendarCache`
 ///- - - - - - - - - - - - - - - - - - - - - - -
-// 'bdlt::DefaultCalendarCache' has a particularly simple interface.  This
+// `bdlt::DefaultCalendarCache` has a particularly simple interface.  This
 // example shows how to use each of its three methods.
 //
-// A hypothetical calendar loader is assumed, 'MyCalendarLoader', the details
+// A hypothetical calendar loader is assumed, `MyCalendarLoader`, the details
 // of which are not important other than that it supports calendars identified
 // by "DE", "FR", and "US", which nominally identify the major holidays in
 // Germany, France, and the United States, respectively.  Furthermore, we cite
@@ -358,82 +359,82 @@ int main(int argc, char *argv[])
 // (Independence Day), but not in France, and 2011/07/14, which was a holiday
 // in France (Bastille Day), but not in the US.
 //
-// First, we create a calendar loader, an instance of 'MyCalendarLoader', and
+// First, we create a calendar loader, an instance of `MyCalendarLoader`, and
 // use it, in turn, to initialize the default calendar cache.  A memory
-// allocator must also be explicitly supplied to the 'initialize' method.  The
-// global allocator is suitable in this case (see 'bslma_default'):
-//..
+// allocator must also be explicitly supplied to the `initialize` method.  The
+// global allocator is suitable in this case (see `bslma_default`):
+// ```
     static MyCalendarLoader loader;
 
     int rc = bdlt::DefaultCalendarCache::initialize(
                                             &loader,
                                             bslma::Default::globalAllocator());
     ASSERT(!rc);
-//..
-// Note that declaring 'loader' to be 'static' ensures that it remains valid
+// ```
+// Note that declaring `loader` to be `static` ensures that it remains valid
 // until the cache is destroyed.  Also note that initialization of the cache
-// would typically be done in 'main' before other threads have been created.
+// would typically be done in `main` before other threads have been created.
 //
 // Next, we obtain the address of the default calendar cache using the
-// 'instance' class method:
-//..
+// `instance` class method:
+// ```
     bdlt::CalendarCache *cachePtr = bdlt::DefaultCalendarCache::instance();
     ASSERT(cachePtr);
-//..
+// ```
 // Then, we retrieve the calendar identified by "US" from the default cache,
 // and verify that 2011/07/04 is recognized as a holiday in the "US" calendar,
 // whereas 2011/07/14 is not:
-//..
+// ```
     bsl::shared_ptr<const bdlt::Calendar> us = cachePtr->getCalendar("US");
     ASSERT( us->isHoliday(bdlt::Date(2011, 7,  4)));
     ASSERT(!us->isHoliday(bdlt::Date(2011, 7, 14)));
-//..
+// ```
 // Next, we fetch the calendar identified by "FR", this time verifying that
 // 2011/07/14 is recognized as a holiday in the "FR" calendar, but 2011/07/04
 // is not:
-//..
+// ```
     bsl::shared_ptr<const bdlt::Calendar> fr = cachePtr->getCalendar("FR");
     ASSERT(!fr->isHoliday(bdlt::Date(2011, 7,  4)));
     ASSERT( fr->isHoliday(bdlt::Date(2011, 7, 14)));
-//..
+// ```
 // Finally, we destroy the default calendar cache:
-//..
+// ```
     bdlt::DefaultCalendarCache::destroy();
     ASSERT(!bdlt::DefaultCalendarCache::instance());
-//..
-// Note that destruction of the default cache would typically be done in 'main'
+// ```
+// Note that destruction of the default cache would typically be done in `main`
 // just prior to program termination.
 
       } break;
       case 3: {
         // --------------------------------------------------------------------
         // CONCURRENCY TEST
-        //   Ensure that 'initialize' and 'destroy' can be executed
+        //   Ensure that `initialize` and `destroy` can be executed
         //   concurrently.
         //
         // Concerns:
-        //: 1 That 'initialize' and 'destroy' are thread-safe.
+        // 1. That `initialize` and `destroy` are thread-safe.
         //
         // Plan:
-        //: 1 Create a test loader and a test allocator, both of which are used
-        //:   to initialize the default calendar cache.
-        //:
-        //: 2 Create three threads, 'A', 'B', and 'C', each of which iterates
-        //:   'N' times.  During each iteration, thread 'A' first calls
-        //:   'initialize', then calls 'destroy'; thread 'B' first calls
-        //:   'destroy', then calls 'initialize'; thread 'C' calls, in order,
-        //:   'initialize', 'destroy', 'initialize'.
-        //:
-        //: 3 Join with threads 'A', 'B', and 'C'.
-        //:
-        //: 4 If the default calendar cache is in the initialized state after
-        //:   the join, verify that a calendar can be successfully accessed
-        //:   from the cache, then destroy the cache.
-        //:
-        //: 5 Repeat P-2..4 'N' times.  (C-1)
+        // 1. Create a test loader and a test allocator, both of which are used
+        //    to initialize the default calendar cache.
+        //
+        // 2. Create three threads, `A`, `B`, and `C`, each of which iterates
+        //    `N` times.  During each iteration, thread `A` first calls
+        //    `initialize`, then calls `destroy`; thread `B` first calls
+        //    `destroy`, then calls `initialize`; thread `C` calls, in order,
+        //    `initialize`, `destroy`, `initialize`.
+        //
+        // 3. Join with threads `A`, `B`, and `C`.
+        //
+        // 4. If the default calendar cache is in the initialized state after
+        //    the join, verify that a calendar can be successfully accessed
+        //    from the cache, then destroy the cache.
+        //
+        // 5. Repeat P-2..4 `N` times.  (C-1)
         //
         // Testing:
-        //   CONCERN: 'initialize' and 'destroy' are thread-safe.
+        //   CONCERN: `initialize` and `destroy` are thread-safe.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -491,56 +492,56 @@ int main(int argc, char *argv[])
         //   absence of concurrency.
         //
         // Concerns:
-        //: 1 That the allocator passed to 'initialize' is hooked up correctly.
-        //:
-        //: 2 That 'initialize' returns the expected status value.
-        //:
-        //: 3 That a cache timeout is in effect if any only if one is supplied
-        //:   to 'initialize'.
-        //:
-        //: 4 That 'instance' returns non-zero if and only if the default
-        //:   calendar cache is in the initialized state.
-        //:
-        //: 5 That the address returned by 'instance' provides modifiable
-        //:   access to the default calendar cache.
-        //:
-        //: 6 That 'destroy' indeed destroys the default calendar cache, with
-        //:   associated memory being reclaimed by the allocator supplied to
-        //:   'initialize'.
-        //:
-        //: 7 That the default calendar cache can be initialized and destroyed
-        //:   multiple times.
-        //:
-        //: 8 QoI: Asserted precondition violations are detected when enabled.
+        // 1. That the allocator passed to `initialize` is hooked up correctly.
+        //
+        // 2. That `initialize` returns the expected status value.
+        //
+        // 3. That a cache timeout is in effect if any only if one is supplied
+        //    to `initialize`.
+        //
+        // 4. That `instance` returns non-zero if and only if the default
+        //    calendar cache is in the initialized state.
+        //
+        // 5. That the address returned by `instance` provides modifiable
+        //    access to the default calendar cache.
+        //
+        // 6. That `destroy` indeed destroys the default calendar cache, with
+        //    associated memory being reclaimed by the allocator supplied to
+        //    `initialize`.
+        //
+        // 7. That the default calendar cache can be initialized and destroyed
+        //    multiple times.
+        //
+        // 8. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create a test calendar loader and three test allocators.  Set one
-        //:   allocator to be the default allocator and another allocator to be
-        //:   the global allocator.
-        //:
-        //: 2 Supply the loader and the third allocator, but no timeout, to the
-        //:   'initialize' method.  Verify that there is no memory allocated
-        //:   from either allocator, that 'initialize' returns the expected
-        //:   value, and that the 'instance' method returns the expected result
-        //:   before and after initialization.
-        //:
-        //: 3 Access a calendar from the default cache and verify that memory
-        //:   use from the three allocators created in P-1 is as expected.
-        //:
-        //: 4 Call 'initialize' again and verify that it returns the expected
-        //:   value.
-        //:
-        //: 5 Destroy the default cache.  Verify that memory is reclaimed by
-        //:   the supplied allocator, and that 'instance' returns the expected
-        //:   result after destruction.
-        //:
-        //: 6 Repeat P-2..5, this time supplying a timeout value to the
-        //:   'initialize' method.  (C-1..2, C-4..7)
-        //:
-        //: 7 Provide a separate test for the timeout feature.  (C-3)
-        //:
-        //: 8 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).  (C-8)
+        // 1. Create a test calendar loader and three test allocators.  Set one
+        //    allocator to be the default allocator and another allocator to be
+        //    the global allocator.
+        //
+        // 2. Supply the loader and the third allocator, but no timeout, to the
+        //    `initialize` method.  Verify that there is no memory allocated
+        //    from either allocator, that `initialize` returns the expected
+        //    value, and that the `instance` method returns the expected result
+        //    before and after initialization.
+        //
+        // 3. Access a calendar from the default cache and verify that memory
+        //    use from the three allocators created in P-1 is as expected.
+        //
+        // 4. Call `initialize` again and verify that it returns the expected
+        //    value.
+        //
+        // 5. Destroy the default cache.  Verify that memory is reclaimed by
+        //    the supplied allocator, and that `instance` returns the expected
+        //    result after destruction.
+        //
+        // 6. Repeat P-2..5, this time supplying a timeout value to the
+        //    `initialize` method.  (C-1..2, C-4..7)
+        //
+        // 7. Provide a separate test for the timeout feature.  (C-3)
+        //
+        // 8. Verify that, in appropriate build modes, defensive checks are
+        //    triggered (using the `BSLS_ASSERTTEST_*` macros).  (C-8)
         //
         // Testing:
         //   static void destroy();
@@ -563,7 +564,7 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator         sa("supplied", veryVeryVeryVerbose);
 
-        int rc;  // for 'initialize' return status
+        int rc;  // for `initialize` return status
 
         // "initialize (without timeout), access, destroy" for the first time
         {
@@ -654,9 +655,9 @@ int main(int argc, char *argv[])
         }
 
         // Ensure that the timeout parameter is passed to the underlying
-        // 'bdlt::CalendarCache' correctly.
+        // `bdlt::CalendarCache` correctly.
 
-        // First 'initialize' without a timeout.
+        // First `initialize` without a timeout.
         {
             rc = Util::initialize(&mL, &sa);               ASSERT(!rc);
 
@@ -678,7 +679,7 @@ int main(int argc, char *argv[])
             Util::destroy();
         }
 
-        // Then 'initialize' *with* a timeout.
+        // Then `initialize` *with* a timeout.
         {
             rc = Util::initialize(&mL, Interval(2), &sa);  ASSERT(!rc);
 
@@ -758,24 +759,24 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create a test calendar loader and a test allocator, and supply
-        //:   them to the 'initialize' method.  Verify the expected result of
-        //:   the 'instance' method before and after initialization of the
-        //:   default calendar cache.  Also verify that no memory is allocated
-        //:   from the supplied allocator.
-        //:
-        //: 2 Obtain the address of the default cache via the 'instance' method
-        //:   and verify that a calendar may be accessed from the cache.  Also
-        //:   verify that the test allocator that was supplied to 'initialize'
-        //:   in P-1 now has outstanding memory.
-        //:
-        //: 3 Invoke 'destroy'.  Verify that 'instance' now returns 0 and that
-        //:   all memory has been reclaimed by the test allocator that was
-        //:   supplied to 'initialize' in P-1.  (C-1)
+        // 1. Create a test calendar loader and a test allocator, and supply
+        //    them to the `initialize` method.  Verify the expected result of
+        //    the `instance` method before and after initialization of the
+        //    default calendar cache.  Also verify that no memory is allocated
+        //    from the supplied allocator.
+        //
+        // 2. Obtain the address of the default cache via the `instance` method
+        //    and verify that a calendar may be accessed from the cache.  Also
+        //    verify that the test allocator that was supplied to `initialize`
+        //    in P-1 now has outstanding memory.
+        //
+        // 3. Invoke `destroy`.  Verify that `instance` now returns 0 and that
+        //    all memory has been reclaimed by the test allocator that was
+        //    supplied to `initialize` in P-1.  (C-1)
         //
         // Testing:
         //   BREATHING TEST

@@ -22,28 +22,28 @@ namespace BloombergLP {
                         // union bslma_MallocFreeAllocator_Singleton
                         // -----------------------------------------
 
+/// `A bslma_MallocFreeAllocator_Singleton` is a buffer with the right size
+/// and alignment to hold a `bslma::MallocFreeAllocator` object.
 typedef bsls::ObjectBuffer<bslma::MallocFreeAllocator>
                                            bslma_MallocFreeAllocator_Singleton;
-    // 'A bslma_MallocFreeAllocator_Singleton' is a buffer with the right size
-    // and alignment to hold a 'bslma::MallocFreeAllocator' object.
 
+/// A global static buffer to hold the singleton.
 static bslma_MallocFreeAllocator_Singleton g_mallocFreeAllocatorSingleton;
-    // A global static buffer to hold the singleton.
 
+/// A global static pointer to the singleton, which is *statically*
+/// initialized to zero.
 static bsls::AtomicOperations::AtomicTypes::Pointer
                                         g_mallocFreeAllocatorSingleton_p = {0};
-    // A global static pointer to the singleton, which is *statically*
-    // initialized to zero.
 
                         // -----------------------------
                         // static inline helper function
                         // -----------------------------
 
+/// Construct a `bslma::MallocFreeAllocator` at the location specified by
+/// `p` in a thread-safe way.  Return `p`.
 static inline
 bslma::MallocFreeAllocator *initSingleton(
                                         bslma_MallocFreeAllocator_Singleton *p)
-    // Construct a 'bslma::MallocFreeAllocator' at the location specified by
-    // 'p' in a thread-safe way.  Return 'p'.
 {
     // Thread-safe initialization of singleton.
     //

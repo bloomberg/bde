@@ -12,8 +12,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 #include <string.h>
 #include <new>
 
@@ -32,11 +32,11 @@ using namespace bsl;
 //                                Overview
 //                                --------
 // The component under test defines a meta-function,
-// 'bslmf::IsBitwiseMoveable', that determines whether a template parameter
+// `bslmf::IsBitwiseMoveable`, that determines whether a template parameter
 // type is bitwise movable.  By default, the meta-function supports a
 // restricted set of type categories and can be extended to support other types
 // through either template specialization or use of the
-// 'BSLMF_NESTED_TRAIT_DECLARATION' macro.
+// `BSLMF_NESTED_TRAIT_DECLARATION` macro.
 //
 // Thus, we need to ensure that the natively supported types are correctly
 // identified by the meta-function by testing the meta-function with each of
@@ -51,8 +51,8 @@ using namespace bsl;
 // [ 1] bslmf::IsBitwiseMoveable::value
 // ----------------------------------------------------------------------------
 // [ 4] USAGE EXAMPLE
-// [ 3] TESTING: 'typedef struct {} X' ISSUE (AIX BUG, {DRQS 153975424})
-// [ 2] EXTENDING 'bslmf::IsBitwiseMoveable'
+// [ 3] TESTING: `typedef struct {} X` ISSUE (AIX BUG, {DRQS 153975424})
+// [ 2] EXTENDING `bslmf::IsBitwiseMoveable`
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -101,14 +101,14 @@ void aSsErT(bool condition, const char *message, int line)
 //                  COMPONENT-SPECIFIC MACROS FOR TESTING
 //-----------------------------------------------------------------------------
 
-// Each of the macros below will test the 'bslmf::IsBitwiseMoveable' trait with
+// Each of the macros below will test the `bslmf::IsBitwiseMoveable` trait with
 // a set of variations on a type.  There are several layers of macros, as
 // object types support the full range of variation, but function types cannot
-// form an array, nor be cv-qualified.  Similarly, 'void' may be cv-qualified
+// form an array, nor be cv-qualified.  Similarly, `void` may be cv-qualified
 // but still cannot form an array.  As macros are strictly text-substitution we
-// must use the appropriate 'add_decoration' traits to transform types in a
+// must use the appropriate `add_decoration` traits to transform types in a
 // manner that is guaranteed to be syntactically valid.  Note that these are
-// not type-dependent contexts, so there is no need to use 'typename' when
+// not type-dependent contexts, so there is no need to use `typename` when
 // fetching the result from any of the queried traits.
 
 #define ASSERT_IS_BITWISE_MOVEABLE_TYPE(TYPE, RESULT)                         \
@@ -123,7 +123,7 @@ void aSsErT(bool condition, const char *message, int line)
     ASSERT_IS_BITWISE_MOVEABLE_TYPE(bsl::add_volatile<TYPE>::type, RESULT);   \
     ASSERT_IS_BITWISE_MOVEABLE_TYPE(bsl::add_cv<TYPE>::type, RESULT);
 
-// Two additional macros will allow testing on old MSVC compilers when 'TYPE'
+// Two additional macros will allow testing on old MSVC compilers when `TYPE`
 // is an array of unknown bound.
 
 #define ASSERT_IS_BITWISE_MOVEABLE_TYPE_NO_REF(TYPE, RESULT)                  \
@@ -163,27 +163,27 @@ void aSsErT(bool condition, const char *message, int line)
 
 namespace {
 
+/// This user-defined type, which is marked to be bitwise movable using
+/// template specialization (below), is used for testing.
 struct UserDefinedBwmTestType {
-    // This user-defined type, which is marked to be bitwise movable using
-    // template specialization (below), is used for testing.
 };
 
+/// This user-defined type, which is marked to be bitwise movable using the
+/// `BSLMF_NESTED_TRAIT_DECLARATION` macro, is used for testing.
 struct UserDefinedBwmTestType2 {
-    // This user-defined type, which is marked to be bitwise movable using the
-    // 'BSLMF_NESTED_TRAIT_DECLARATION' macro, is used for testing.
 
     BSLMF_NESTED_TRAIT_DECLARATION(UserDefinedBwmTestType2,
                                    BloombergLP::bslmf::IsBitwiseMoveable);
 };
 
+/// One-byte simple structs should typically be bitwise moveable.
 struct UserDefinedOneByteTestType {
-    // One-byte simple structs should typically be bitwise moveable.
     bool d_dummy;
 };
 
+/// One-byte, non-trivially copyable type (used to test the one-byte
+/// bitwise-movable heuristic)
 struct UserDefinedNotTriviallyCopyableOneByteTestType {
-    // One-byte, non-trivially copyable type (used to test the one-byte
-    // bitwise-movable heuristic)
 
     bool d_dummy;
 
@@ -199,32 +199,32 @@ static_assert(!bsl::is_trivially_copyable<
               "Incorrect test type declaration.");
 #endif
 
+/// This user-defined type, which is marked to be trivially copyable using
+/// template specialization (below), is used for testing.  Note that
+/// trivially copyable types are bitwise movable by default.  Also note that
+/// `empty` or small types are implicitly bitwise movable, so we add a
+/// trivial data member to make this type large enough to avoid the size
+/// base implicitly bitwise-movable test.
 struct UserDefinedTcTestType {
-    // This user-defined type, which is marked to be trivially copyable using
-    // template specialization (below), is used for testing.  Note that
-    // trivially copyable types are bitwise movable by default.  Also note that
-    // 'empty' or small types are implicitly bitwise movable, so we add a
-    // trivial data member to make this type large enough to avoid the size
-    // base implicitly bitwise-movable test.
 
     char d_dummy[4];
 };
 
+/// This user-defined type, which is marked to be trivially copyable using
+/// the `BSLMF_NESTED_TRAIT_DECLARATION` macro, is used for testing.  Note
+/// that trivially copyable types are bitwise movable by default.
 struct UserDefinedTcTestType2 {
-    // This user-defined type, which is marked to be trivially copyable using
-    // the 'BSLMF_NESTED_TRAIT_DECLARATION' macro, is used for testing.  Note
-    // that trivially copyable types are bitwise movable by default.
 
     BSLMF_NESTED_TRAIT_DECLARATION(UserDefinedTcTestType2,
                                    bsl::is_trivially_copyable);
 };
 
+/// This user-defined type, which is not marked to be trivially copyable, is
+/// used for testing.  Note that trivially copyable types are bitwise
+/// movable by default.  Also note that, as `empty` or small types are
+/// implicitly bitwise movable, we add a trivial data member to make this
+/// type large enough to remain non-bitwise-movable.
 struct UserDefinedNonTcTestType {
-    // This user-defined type, which is not marked to be trivially copyable, is
-    // used for testing.  Note that trivially copyable types are bitwise
-    // movable by default.  Also note that, as 'empty' or small types are
-    // implicitly bitwise movable, we add a trivial data member to make this
-    // type large enough to remain non-bitwise-movable.
     UserDefinedNonTcTestType() : d_dummy() {}
     UserDefinedNonTcTestType(const UserDefinedNonTcTestType&)
     : d_dummy()
@@ -234,11 +234,11 @@ struct UserDefinedNonTcTestType {
 };
 
 enum EnumTestType {
-    // This 'enum' type is used for testing.
+    // This `enum` type is used for testing.
 };
 
+/// This pointer to non-static function member type is used for testing.
 typedef int (UserDefinedNonTcTestType::*MethodPtrTestType) ();
-    // This pointer to non-static function member type is used for testing.
 
 struct UserDefinedFakeTriviallyCopyableTestType {
     bool d_dummy;
@@ -271,21 +271,21 @@ template <>
 struct is_trivially_copyable<UserDefinedTcTestType> : bsl::true_type {
 };
 
+/// This is a lie.  The type has a defined copy c'tor, so
+/// `std::is_trivially_copyable` will not be `true`.
 template <>
 struct is_trivially_copyable<UserDefinedFakeTriviallyCopyableTestType> :
                                                                bsl::true_type {
-    // This is a lie.  The type has a defined copy c'tor, so
-    // 'std::is_trivially_copyable' will not be 'true'.
 };
 
 }  // close namespace bsl
 
 namespace {
 
+/// This user-defined type with constructors with side-effects and a data
+/// member is used to guarantee that the type is detected as NOT
+/// `IsBitwiseMoveable` even by the native-assisted implementation.
 struct StructWithCtor {
-    // This user-defined type with constructors with side-effects and a data
-    // member is used to guarantee that the type is detected as NOT
-    // 'IsBitwiseMoveable' even by the native-assisted implementation.
     StructWithCtor()
     {
         printf("default StructWithCtor\n");
@@ -299,29 +299,29 @@ struct StructWithCtor {
     double d_d;
 };
 
+/// This user-defined type is used to check the expected behaviour for a
+/// `well-behaved` non-copyable type.
 struct NamedStructWithNonPodMember {
-    // This user-defined type is used to check the expected behaviour for a
-    // 'well-behaved' non-copyable type.
     StructWithCtor x;
 };
 
+/// This user-defined type is used to check the expected behaviour for a
+/// `typedef struct` non-copyable type (checking to make sure we're not
+/// encountering AIX bug {DRQS 153975424}).
 typedef struct {
-    // This user-defined type is used to check the expected behaviour for a
-    // 'typedef struct' non-copyable type (checking to make sure we're not
-    // encountering AIX bug {DRQS 153975424}).
     StructWithCtor x;
 } TypedefedStructWithNonPodMember;
 
+/// This user-defined type is used to check the expected behaviour for a
+/// `well-behaved` `IsBitwiseMoveable` type.
 struct NamedStructWithPodMember {
-    // This user-defined type is used to check the expected behaviour for a
-    // 'well-behaved' 'IsBitwiseMoveable' type.
     int x;
 };
 
+/// This user-defined type is used to check the expected behaviour for a
+/// `typedef struct` copyable type (checking to make sure we're not
+/// encountering AIX bug {DRQS 153975424}).
 typedef struct {
-    // This user-defined type is used to check the expected behaviour for a
-    // 'typedef struct' copyable type (checking to make sure we're not
-    // encountering AIX bug {DRQS 153975424}).
     int x;
 } TypedefedStructWithPodMember;
 
@@ -347,13 +347,13 @@ typedef struct {
 
 ///Example 1: Using the trait to implement `destructiveMoveArray`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Here, we use this trait in a simple algorithm called 'destructiveMoveArray',
+// Here, we use this trait in a simple algorithm called `destructiveMoveArray`,
 // which moves elements from one array to another.  The algorithm is
 // implemented using two implementation functions, one for types that are known
 // to be bitwise moveable, and one for other types.  The first takes an extra
-// function argument of type 'true_type', the second takes and extra function
-// argument of type 'false_type':
-//..
+// function argument of type `true_type`, the second takes and extra function
+// argument of type `false_type`:
+// ```
     namespace BloombergLP {
 
     template <class TYPE>
@@ -362,7 +362,7 @@ typedef struct {
                                  int   size,
                                  bsl::true_type)
     {
-        // Bitwise moveable types can be moved using 'memcpy'.
+        // Bitwise moveable types can be moved using `memcpy`.
         memcpy(static_cast<void *>(to), from, size * sizeof(TYPE));
     }
 
@@ -377,23 +377,23 @@ typedef struct {
             from[i].~TYPE();
         }
     }
-//..
+// ```
 // Now we can dispatch between the two Imp functions, using the
-// 'IsBitwiseMoveable' trait metafunction to determine at compile time which of
+// `IsBitwiseMoveable` trait metafunction to determine at compile time which of
 // the implementations should be used:
-//..
+// ```
     template <class TYPE>
     void destructiveMoveArray(TYPE *to, TYPE *from, int size)
     {
         destructiveMoveArrayImp(to, from, size,
                                 bslmf::IsBitwiseMoveable<TYPE>());
     }
-//..
+// ```
 // Next, to check our work, we create three classes that we will use to
-// instantiate 'destructiveMoveArray'.  All of the classes will log the number
+// instantiate `destructiveMoveArray`.  All of the classes will log the number
 // of constructor and destructor calls.  The first class will not be decorated
-// with the 'IsBitwiseMoveable' trait:
-//..
+// with the `IsBitwiseMoveable` trait:
+// ```
     class NonMoveableClass
     {
       private:
@@ -416,10 +416,10 @@ typedef struct {
 
     int NonMoveableClass::d_ctorCount = 0;
     int NonMoveableClass::d_dtorCount = 0;
-//..
+// ```
 // The second class is similar except that we declare it to be bit-wise
-// moveable by specializing 'IsBitwiseMoveable':
-//..
+// moveable by specializing `IsBitwiseMoveable`:
+// ```
     class MoveableClass1
     {
       private:
@@ -447,10 +447,10 @@ typedef struct {
         template <> struct IsBitwiseMoveable<MoveableClass1> : bsl::true_type {
         };
     }  // close namespace bslmf
-//..
+// ```
 // The third class is also declared to be bitwise moveable, but this time we do
-// it using the 'BSLMF_NESTED_TRAIT_DECLARATION' macro:
-//..
+// it using the `BSLMF_NESTED_TRAIT_DECLARATION` macro:
+// ```
     class MoveableClass2
     {
       private:
@@ -476,16 +476,16 @@ typedef struct {
 
     int MoveableClass2::d_ctorCount = 0;
     int MoveableClass2::d_dtorCount = 0;
-//..
-// Finally, invoke 'destructiveMoveArray' on arrays of all three classes:
-//..
+// ```
+// Finally, invoke `destructiveMoveArray` on arrays of all three classes:
+// ```
     enum MoveableEnum { A_VALUE };
 
     int usageExample1()
     {
         using namespace bslmf;
 
-        // First, check the basic operation of 'IsBitwiseMoveable':
+        // First, check the basic operation of `IsBitwiseMoveable`:
         ASSERT(  IsBitwiseMoveable<int>::value);
         ASSERT(  IsBitwiseMoveable<int*>::value);
         ASSERT(  IsBitwiseMoveable<const int*>::value);
@@ -608,16 +608,16 @@ typedef struct {
     }
 
     }  // close enterprise namespace
-//..
+// ```
 //
 ///Example 2: Associating a Trait with a Class Template
 /// - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we associate a trait not with a class, but with a class
 // *template*.  We create three class templates, each of which uses a different
-// mechanisms for being associated with the 'IsBitwiseMoveable' trait, plus a
+// mechanisms for being associated with the `IsBitwiseMoveable` trait, plus a
 // "control" template that is not bitwise moveable.  First, we define the
-// non-bitwise-moveable template, 'NonMoveableTemplate':
-//..
+// non-bitwise-moveable template, `NonMoveableTemplate`:
+// ```
     namespace BloombergLP {
 
     template <class TYPE>
@@ -625,11 +625,11 @@ typedef struct {
     {
         TYPE d_p;
     };
-//..
-// Second, we define a 'MoveableTemplate1', which uses partial template
-// specialization to associate the 'IsBitwiseMoveable' trait with each
+// ```
+// Second, we define a `MoveableTemplate1`, which uses partial template
+// specialization to associate the `IsBitwiseMoveable` trait with each
 // instantiation:
-//..
+// ```
     template <class TYPE>
     struct MoveableTemplate1
     {
@@ -641,11 +641,11 @@ typedef struct {
         struct IsBitwiseMoveable<MoveableTemplate1<TYPE> > : bsl::true_type {
         };
     }  // close namespace bslmf
-//..
-// Third, we define 'MoveableTemplate2', which uses the
-// 'BSLMF_NESTED_TRAIT_DECLARATION' macro to associate the 'IsBitwiseMoveable'
+// ```
+// Third, we define `MoveableTemplate2`, which uses the
+// `BSLMF_NESTED_TRAIT_DECLARATION` macro to associate the `IsBitwiseMoveable`
 // trait with each instantiation:
-//..
+// ```
     template <class TYPE>
     struct MoveableTemplate2
     {
@@ -654,12 +654,12 @@ typedef struct {
         BSLMF_NESTED_TRAIT_DECLARATION(MoveableTemplate2,
                                        bslmf::IsBitwiseMoveable);
     };
-//..
-// Fourth, we define 'MoveableTemplate3', which is bitwise moveable iff its
-// 'TYPE' template parameter is bitwise moveable.  There is no way to get this
-// effect using 'BSLMF_NESTED_TRAIT_DECLARATION', so we use partial
-// specialization combined with inheritance to "inherit" the trait from 'TYPE':
-//..
+// ```
+// Fourth, we define `MoveableTemplate3`, which is bitwise moveable iff its
+// `TYPE` template parameter is bitwise moveable.  There is no way to get this
+// effect using `BSLMF_NESTED_TRAIT_DECLARATION`, so we use partial
+// specialization combined with inheritance to "inherit" the trait from `TYPE`:
+// ```
     template <class TYPE>
     struct MoveableTemplate3
     {
@@ -671,11 +671,11 @@ typedef struct {
         struct IsBitwiseMoveable<MoveableTemplate3<TYPE> > :
             IsBitwiseMoveable<TYPE>::type { };
     }  // close namespace bslmf
-//..
+// ```
 // Now, we check that the traits are correctly associated by instantiating each
 // class with both bitwise moveable and non-moveable types and verifying the
-// value of 'IsBitwiseMoveable<T>::value':
-//..
+// value of `IsBitwiseMoveable<T>::value`:
+// ```
     int usageExample2()
     {
         using namespace bslmf;
@@ -704,36 +704,37 @@ typedef struct {
     }
 
     }  // close enterprise namespace
-//..
+// ```
 //
 ///Example 3: Avoiding False Positives on One-Byte Classes
 /// -- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we define an empty class that has a non-trivial copy
 // constructor that has a global side effect.  The side effect should not be
-// omitted, even in a destructive-move situation, so 'IsBitwiseMoveable' should
+// omitted, even in a destructive-move situation, so `IsBitwiseMoveable` should
 // be false.  However, the heuristic described above would deduce any one-byte
 // class (including an empty class) as bitwise-moveable by default, so we must
 // take specific action to set the trait to false in this (rare) case.
 //
 // First, we declare a normal empty class which *is* bitwise moveable:
-//..
+// ```
     namespace BloombergLP {
     namespace xyza {
 
+    /// This class is implicitly moveable by virtue of being only one byte
+    /// in size.
     class MoveableEmptyClass
     {
-        // This class is implicitly moveable by virtue of being only one byte
-        // in size.
     };
-//..
+// ```
 // The class above requires no special treatment.  Next, we define an empty
 // class that is not bitwise moveable:
-//..
+// ```
+
+    /// This class is empty, which normally would imply bitwise moveability.
+    /// However, because it has a non-trivial move/copy constructor, it
+    /// should not be bitwise moved.
     class NonMoveableEmptyClass
     {
-        // This class is empty, which normally would imply bitwise moveability.
-        // However, because it has a non-trivial move/copy constructor, it
-        // should not be bitwise moved.
 
         static int d_count;
 
@@ -745,11 +746,11 @@ typedef struct {
     int NonMoveableEmptyClass::d_count = 0;
 
     }  // close package namespace
-//..
-// Now, we specialize the 'IsBitwiseMoveable' trait so that
-// 'NonMoveableEmptyClass' is not incorrectly flagged by trait deduction as
-// having the 'IsBitwiseMoveable' trait:
-//..
+// ```
+// Now, we specialize the `IsBitwiseMoveable` trait so that
+// `NonMoveableEmptyClass` is not incorrectly flagged by trait deduction as
+// having the `IsBitwiseMoveable` trait:
+// ```
     namespace bslmf {
 
     template <>
@@ -758,10 +759,10 @@ typedef struct {
     };
 
     }  // close namespace bslmf
-//..
-// Finally, we show that the first class has the 'IsBitwiseMoveable' trait and
+// ```
+// Finally, we show that the first class has the `IsBitwiseMoveable` trait and
 // the second class does not:
-//..
+// ```
     int usageExample3()
     {
         using namespace bslmf;
@@ -772,7 +773,7 @@ typedef struct {
     }
 
     }  // close enterprise namespace
-//..
+// ```
 
 //=============================================================================
 //                              TEST CLASSES
@@ -807,13 +808,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -829,32 +830,32 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING: 'typedef struct {} X' ISSUE (AIX BUG, {DRQS 153975424})
+        // TESTING: `typedef struct {} X` ISSUE (AIX BUG, {DRQS 153975424})
         //   Ensure unnamed structs are handled correctly.
         //
         // Concerns:
-        //: 1 Ensure that named 'struct's and 'typedef'd anonymous 'struct's
+        // 1. Ensure that named `struct`s and `typedef`d anonymous `struct`s
         //    are handled identically.
         //
         // Plan:
-        //: 1 Verify 'bslmf::IsBitwiseMoveable<StructWithCtor>' is 'false'.
-        //:
-        //: 2 Verify 'bslmf::IsBitwiseMoveable<NSWNPM>' is 'false'.
-        //:
-        //: 3 Verify 'bslmf::IsBitwiseMoveable<TSWNPM>' is 'false'.
-        //:
-        //: 4 Verify 'bslmf::IsBitwiseMoveable<NSWPM>' is as expected.
-        //:
-        //: 5 Verify 'bslmf::IsBitwiseMoveable<TSWPM>' is as expected (C-1).
+        // 1. Verify `bslmf::IsBitwiseMoveable<StructWithCtor>` is `false`.
+        //
+        // 2. Verify `bslmf::IsBitwiseMoveable<NSWNPM>` is `false`.
+        //
+        // 3. Verify `bslmf::IsBitwiseMoveable<TSWNPM>` is `false`.
+        //
+        // 4. Verify `bslmf::IsBitwiseMoveable<NSWPM>` is as expected.
+        //
+        // 5. Verify `bslmf::IsBitwiseMoveable<TSWPM>` is as expected (C-1).
         //
         // Testing:
-        //   'typedef struct {} X' ISSUE (AIX BUG, {DRQS 153975424})
+        //   `typedef struct {} X` ISSUE (AIX BUG, {DRQS 153975424})
         //
         // --------------------------------------------------------------------
 
         if (verbose)
             printf(
-              "\nTESTING: 'typedef struct {} X' ISSUE (AIX BUG, {DRQS "
+              "\nTESTING: `typedef struct {} X` ISSUE (AIX BUG, {DRQS "
               "153975424})\n"
               "\n====================================================="
               "===========\n");
@@ -894,56 +895,56 @@ int main(int argc, char *argv[])
 
       case 2: {
         // --------------------------------------------------------------------
-        // EXTENDING 'bslmf::IsBitwiseMoveable'
-        //   Ensure the 'bslmf::IsBitwiseMoveable' meta-function returns the
+        // EXTENDING `bslmf::IsBitwiseMoveable`
+        //   Ensure the `bslmf::IsBitwiseMoveable` meta-function returns the
         //   correct value for types explicitly specialized to support this
         //   trait.
         //
         // Concerns:
-        //: 1 The meta-function returns 'false' for normal user-defined types.
-        //:
-        //: 2 The meta-function returns 'true' for a user-defined type, if a
-        //:   specialization for 'bslmf::IsBitwiseMoveable' on that type is
-        //:   defined to inherit from 'bsl::true_type'.
-        //:
-        //: 3 The meta-function returns 'true' for a user-defined type that
-        //:   specifies it has the trait using the
-        //:   'BSLMF_NESTED_TRAIT_DECLARATION' macro.
-        //:
-        //: 4 The meta-function returns 'true' for a user-defined type, if a
-        //:   specialization for 'bslmf::IsBitwiseMoveable' on that type is
-        //:   defined to inherit from 'bsl::true_type'.
-        //:
-        //: 5 For cv-qualified types, the meta-function returns 'true' if the
-        //:   corresponding cv-unqualified type is bitwise movable, and
-        //:   'false' otherwise.
-        //:
-        //: 6 For array types, the meta-function returns 'true' if the array
-        //:   element is bitwise movable, and 'false' otherwise.
-        //:
-        //: 7 A static assertion is not generated in C++11 builds because of a
-        //:   false positive IsBitwiseMoveable for a one-byte type. (I.e., the
-        //:   C++03 heuristic never gives a false positive, when compared
-        //:   to the compiler defined trait).  See 'bslmf_isbitwisemoveable.h'
-        //:   'k_ValueWithoutOnebyteHeuristic'.
+        // 1. The meta-function returns `false` for normal user-defined types.
+        //
+        // 2. The meta-function returns `true` for a user-defined type, if a
+        //    specialization for `bslmf::IsBitwiseMoveable` on that type is
+        //    defined to inherit from `bsl::true_type`.
+        //
+        // 3. The meta-function returns `true` for a user-defined type that
+        //    specifies it has the trait using the
+        //    `BSLMF_NESTED_TRAIT_DECLARATION` macro.
+        //
+        // 4. The meta-function returns `true` for a user-defined type, if a
+        //    specialization for `bslmf::IsBitwiseMoveable` on that type is
+        //    defined to inherit from `bsl::true_type`.
+        //
+        // 5. For cv-qualified types, the meta-function returns `true` if the
+        //    corresponding cv-unqualified type is bitwise movable, and
+        //    `false` otherwise.
+        //
+        // 6. For array types, the meta-function returns `true` if the array
+        //    element is bitwise movable, and `false` otherwise.
+        //
+        // 7. A static assertion is not generated in C++11 builds because of a
+        //    false positive IsBitwiseMoveable for a one-byte type. (I.e., the
+        //    C++03 heuristic never gives a false positive, when compared
+        //    to the compiler defined trait).  See `bslmf_isbitwisemoveable.h`
+        //    `k_ValueWithoutOnebyteHeuristic`.
         //
         // Plan:
-        //:  1 Create a set of macros that will generate an 'ASSERT' test for
-        //:    all variants of a type:  (C5,6)
-        //:    o  reference and pointer types
-        //:    o  all cv-qualified combinations
-        //:    o  arrays, of fixed and runtime bounds, and multiple dimensions
-        //:
-        //:  2 For each category of type in concerns 1-4, use the appropriate
-        //:    test macro for confirm the correct result for a representative
-        //:    sample of types.
+        //  1. Create a set of macros that will generate an `ASSERT` test for
+        //     all variants of a type:  (C5,6)
+        //     o  reference and pointer types
+        //     o  all cv-qualified combinations
+        //     o  arrays, of fixed and runtime bounds, and multiple dimensions
+        //
+        //  2. For each category of type in concerns 1-4, use the appropriate
+        //     test macro for confirm the correct result for a representative
+        //     sample of types.
         //
         // Testing:
-        //   EXTENDING 'bslmf::IsBitwiseMoveable'
+        //   EXTENDING `bslmf::IsBitwiseMoveable`
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nEXTENDING 'bslmf::IsBitwiseMoveable'"
+            printf("\nEXTENDING `bslmf::IsBitwiseMoveable`"
                    "\n====================================\n");
 
         // C-1
@@ -969,42 +970,42 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bslmf::IsBitwiseMoveable::value'
-        //   Ensure the 'bslmf::IsBitwiseMoveable' meta-function
+        // `bslmf::IsBitwiseMoveable::value`
+        //   Ensure the `bslmf::IsBitwiseMoveable` meta-function
         //   returns the correct value for intrinsically supported types.
         //
         // Concerns:
-        //:  1 The meta-function returns 'true' for fundamental types.
-        //:
-        //:  2 The meta-function returns 'true' for enumerated types.
-        //:
-        //:  3 The meta-function returns 'true' for pointer to member types.
-        //:
-        //:  4 The meta-function returns 'false' for cv-qualified 'void' types.
-        //:
-        //:  5 The meta-function returns 'false' for function types.
+        //  1. The meta-function returns `true` for fundamental types.
         //
-        //:  6 The meta-function returns 'true' for pointer types.
-        //:
-        //:  7 The meta-function returns 'false' for reference types.
-        //:
-        //:  8 The meta-function returns the same result for array types as it
-        //:    would for the array's element type.
-        //:
-        //:  9 The meta-function returns the same result for cv-qualified
-        //:    types that it would return 'true' for the corresponding
-        //:    cv-unqualified type.
+        //  2. The meta-function returns `true` for enumerated types.
+        //
+        //  3. The meta-function returns `true` for pointer to member types.
+        //
+        //  4. The meta-function returns `false` for cv-qualified `void` types.
+        //
+        //  5. The meta-function returns `false` for function types.
+        //
+        //  6. The meta-function returns `true` for pointer types.
+        //
+        //  7. The meta-function returns `false` for reference types.
+        //
+        //  8. The meta-function returns the same result for array types as it
+        //     would for the array's element type.
+        //
+        //  9. The meta-function returns the same result for cv-qualified
+        //     types that it would return `true` for the corresponding
+        //     cv-unqualified type.
         //
         // Plan:
-        //:  1 Create a set of macros that will generate an 'ASSERT' test for
-        //:    all variants of a type:  (C6-9)
-        //:    o  reference and pointer types
-        //:    o  all cv-qualified combinations
-        //:    o  arrays, of fixed and runtime bounds, and multiple dimensions
-        //:
-        //:  2 For each category of type in concerns 1-5, use the appropriate
-        //:    test macro for confirm the correct result for a representative
-        //:    sample of types.
+        //  1. Create a set of macros that will generate an `ASSERT` test for
+        //     all variants of a type:  (C6-9)
+        //     o  reference and pointer types
+        //     o  all cv-qualified combinations
+        //     o  arrays, of fixed and runtime bounds, and multiple dimensions
+        //
+        //  2. For each category of type in concerns 1-5, use the appropriate
+        //     test macro for confirm the correct result for a representative
+        //     sample of types.
         //
         // Testing:
         //   bslmf::IsBitwiseMoveable::value
@@ -1025,7 +1026,7 @@ int main(int argc, char *argv[])
         // C-3
         ASSERT_IS_BITWISE_MOVEABLE_OBJECT_TYPE(MethodPtrTestType, true);
 
-        // C-4 : 'void' is not an object type, but can be cv-qualified.
+        // C-4 : `void` is not an object type, but can be cv-qualified.
         ASSERT_IS_BITWISE_MOVEABLE_CV_TYPE(void, false);
 
         // C-5 : Function types are not object types, nor cv-qualifiable.

@@ -48,9 +48,9 @@ using namespace bslstl;
 //                              --------
 //
 // Global Concerns:
-//: o Pointer/reference parameters are declared 'const'.
-//: o No memory is ever allocated.
-//: o Precondition violations are detected in appropriate build modes.
+//  - Pointer/reference parameters are declared `const`.
+//  - No memory is ever allocated.
+//  - Precondition violations are detected in appropriate build modes.
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] explicit TreeNodePool(const ALLOCATOR& allocator);
@@ -148,14 +148,14 @@ typedef bslalg::RbTreeNode RbNode;
 
 namespace {
 
+/// Return `true` if the container is expected to allocate memory on the
+/// specified `n`th element, and `false` otherwise.
 bool expectToAllocate(int n)
-    // Return 'true' if the container is expected to allocate memory on the
-    // specified 'n'th element, and 'false' otherwise.
 {
     if (n > 32) {
         return (0 == n % 32);                                         // RETURN
     }
-    return (((n - 1) & n) == 0);  // Allocate when 'n' is a power of 2
+    return (((n - 1) & n) == 0);  // Allocate when `n` is a power of 2
 }
 
 }  // close unnamed namespace
@@ -328,10 +328,10 @@ class Stack
     }
 };
 
+/// Allocator type that propagates on copy, move, and swap.
 template <class TYPE>
 class PropagatingAllocator : public bsl::allocator<TYPE>
 {
-    // Allocator type that propagates on copy, move, and swap.
 
     typedef bsl::allocator<TYPE> Base;
 
@@ -372,18 +372,19 @@ class PropagatingAllocator : public bsl::allocator<TYPE>
 };
 
 
+/// This parameterized `struct` provides a namespace for testing the `map`
+/// container.  The (template parameter) `VALUE` specifies the value type
+/// for this class.  Each "testCase*" method tests a specific aspect of
+/// `SimplePool<VALUE>`.  Every test case should be invoked with various
+/// types to fully test the container.
 template <class VALUE>
 class TestDriver {
-    // This parameterized 'struct' provides a namespace for testing the 'map'
-    // container.  The (template parameter) 'VALUE' specifies the value type
-    // for this class.  Each "testCase*" method tests a specific aspect of
-    // 'SimplePool<VALUE>'.  Every test case should be invoked with various
-    // types to fully test the container.
 
   private:
     // TYPES
+
+    /// Type under testing.
     typedef bslstl::TreeNodePool<VALUE, bsl::allocator<VALUE> > Obj;
-        // Type under testing.
 
     typedef bslstl::TreeNode<VALUE> ValueNode;
 
@@ -402,50 +403,51 @@ class TestDriver {
 
   public:
     // TEST CASES
+
+    /// Test other accessors.
     static void testCase15();
-        // Test other accessors.
 
     // static void testCase14();
         // Reserved for BSLX.
 
+    /// Test usage example.
     static void testCase14();
-        // Test usage example.
 
+    /// Test `emplaceIntoNewNode(P&&)`.
     static void testCase13();
-        // Test 'emplaceIntoNewNode(P&&)'.
 
+    /// Test `emplaceIntoNewNode`.
     static void testCase12();
-        // Test 'emplaceIntoNewNode'.
 
+    /// Test `emplaceIntoNewNode<MovableRef<VALUE> value)`.
     static void testCase11();
-        // Test 'emplaceIntoNewNode<MovableRef<VALUE> value)'.
 
+    /// Test move assignment operator.
     static void testCase10();
-        // Test move assignment operator.
 
+    /// Test move constructor.
     static void testCase9();
-        // Test move constructor.
 
+    /// Test `swap` member.
     static void testCase8();
-        // Test 'swap' member.
 
+    /// Test `release`.
     static void testCase7();
-        // Test 'release'.
 
+    /// Test `reserveNodes*`.
     static void testCase6();
-        // Test 'reserveNodes*'.
 
+    /// Test `deallocate`.
     static void testCase5();
-        // Test 'deallocate'.
 
+    /// Test basic accessors (`allocator`).
     static void testCase4();
-        // Test basic accessors ('allocator').
 
+    /// Test generator functions `ggg`, and `gg`.
     static void testCase3();
-        // Test generator functions 'ggg', and 'gg'.
 
+    /// Test primary manipulators.
     static void testCase2();
-        // Test primary manipulators.
 };
 
 template <class VALUE>
@@ -512,30 +514,30 @@ void TestDriver<VALUE>::testCase15()
     // OTHER ACCESSOR
     //
     // Concerns:
-    //: 1 The accessor method returns a value that reflects the addition of
-    //:   and distribution of nodes from the free list.
-    //:
-    //: 2 The accessor is declared 'const'.
-    //:
-    //: 3 The accessor does not allocate memory from any allocator.
-    //:
-    //: 4 The implementation of this method returns the values obtained from
-    //:   their analogous method in 'bdlst::SimplePool'.
+    // 1. The accessor method returns a value that reflects the addition of
+    //    and distribution of nodes from the free list.
+    //
+    // 2. The accessor is declared `const`.
+    //
+    // 3. The accessor does not allocate memory from any allocator.
+    //
+    // 4. The implementation of this method returns the values obtained from
+    //    their analogous method in `bdlst::SimplePool`.
     //
     // Plan:
-    //: 1 For a series of objects, each censtructed using a different
-    //:   expression of the default constructor, for a range of node requests:
-    //:
-    //:   1 Call the 'reserveNodes' method for the current size node request.
-    //:   2 Confirm that the accessor shows the expected values before and
-    //:     after the call to the 'reserveNodes' method.
-    //:   3 Confirm that the pool invokes its allocator for memory when there
-    //:     are no free nodes and 'allocate' is called.
-    //:
-    //: 2 The accessor is always called via a 'const' alias to the pool.
-    //:
-    //: 3 A test allocator is used to confirm that no memory is allocated for
-    //:   the accessor call.
+    // 1. For a series of objects, each censtructed using a different
+    //    expression of the default constructor, for a range of node requests:
+    //
+    //   1. Call the `reserveNodes` method for the current size node request.
+    //   2. Confirm that the accessor shows the expected values before and
+    //      after the call to the `reserveNodes` method.
+    //   3. Confirm that the pool invokes its allocator for memory when there
+    //      are no free nodes and `allocate` is called.
+    //
+    // 2. The accessor is always called via a `const` alias to the pool.
+    //
+    // 3. A test allocator is used to confirm that no memory is allocated for
+    //    the accessor call.
     //
     // Testing:
     //   bool hasFreeNodes() const;
@@ -731,57 +733,57 @@ template<class VALUE>
 void TestDriver<VALUE>::testCase8()
 {
     // ------------------------------------------------------------------------
-    // MANIPULATORS 'swap', 'swap[Exchange|Retain]Allocators'
+    // MANIPULATORS `swap`, `swap[Exchange|Retain]Allocators`
     //
     // Concerns:
-    //: 1 Invoking either of the three swap methods exchanges the free lists
-    //:   and chunk lists of the objects.
-    //:
-    //: 2 The common object allocator address held by both objects is unchanged
-    //:   after either 'swapRetainAllocators' or 'swap' is invoked.
-    //:
-    //: 3 The object allocator addresses of the two objects are exchanged after
-    //:   'swapExchangeAllocators' is invoked.
-    //:
-    //: 4 No memory is allocated from any allocator.
-    //:
-    //: 5 Swapping an object with itself does not affect the value of the
-    //:   object (alias-safety).
-    //:
-    //: 6 Memory is deallocated on the destruction of the object.
-    //:
-    //: 7 QoI: Asserted precondition violations are detected when enabled.
+    // 1. Invoking either of the three swap methods exchanges the free lists
+    //    and chunk lists of the objects.
+    //
+    // 2. The common object allocator address held by both objects is unchanged
+    //    after either `swapRetainAllocators` or `swap` is invoked.
+    //
+    // 3. The object allocator addresses of the two objects are exchanged after
+    //    `swapExchangeAllocators` is invoked.
+    //
+    // 4. No memory is allocated from any allocator.
+    //
+    // 5. Swapping an object with itself does not affect the value of the
+    //    object (alias-safety).
+    //
+    // 6. Memory is deallocated on the destruction of the object.
+    //
+    // 7. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Using a table-based approach:
-    //:
-    //:   1 Create two objects of which memory has been allocated and
-    //:     deallocated a various number of times using the same allocator.
-    //:
-    //:   2 Using the 'swapRetainAllocators' method to swap the two objects,
-    //:     verify the allocator is not changed.  (C-2)
-    //:
-    //:   3 Verify no memory is allocated (C-4)
-    //:
-    //:   4 Verify the free lists of the objects have been swapped by calling
-    //:     'allocate' and checking the addresses of the allocated memory
-    //:     blocks.
-    //:
-    //:   5 Delete one of the objects and verify the memory of the other has
-    //:     not been deallocated.  (C-1, 6)
-    //:
-    //:   6 Swap an object with itself and verify the object is unchanged.
-    //:     (C-5)
-    //:
-    //:   7 Repeat P-1.1..6 using two objects created using different
-    //:     allocators, except this time use the 'swapExchangeAllocators'
-    //:     method and verify that the allocators are exchanged.  (C-1, 3..6)
-    //:
-    //: 2 Repeat P-1.1..6, except this time use the 'swap' member function
-    //:   instead of the 'swapRetainAllocators' method.  (C-1..2, 4..8)
-    //:
-    //: 3 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).  (C-7)
+    // 1. Using a table-based approach:
+    //
+    //   1. Create two objects of which memory has been allocated and
+    //      deallocated a various number of times using the same allocator.
+    //
+    //   2. Using the `swapRetainAllocators` method to swap the two objects,
+    //      verify the allocator is not changed.  (C-2)
+    //
+    //   3. Verify no memory is allocated (C-4)
+    //
+    //   4. Verify the free lists of the objects have been swapped by calling
+    //      `allocate` and checking the addresses of the allocated memory
+    //      blocks.
+    //
+    //   5. Delete one of the objects and verify the memory of the other has
+    //      not been deallocated.  (C-1, 6)
+    //
+    //   6. Swap an object with itself and verify the object is unchanged.
+    //      (C-5)
+    //
+    //   7. Repeat P-1.1..6 using two objects created using different
+    //      allocators, except this time use the `swapExchangeAllocators`
+    //      method and verify that the allocators are exchanged.  (C-1, 3..6)
+    //
+    // 2. Repeat P-1.1..6, except this time use the `swap` member function
+    //    instead of the `swapRetainAllocators` method.  (C-1..2, 4..8)
+    //
+    // 3. Verify that, in appropriate build modes, defensive checks are
+    //    triggered (using the `BSLS_ASSERTTEST_*` macros).  (C-7)
     //
     // Testing:
     //   void swap(TreeNodePool& other);
@@ -884,8 +886,8 @@ void TestDriver<VALUE>::testCase8()
                         }
                     }
 
-                    // 'Y' is now destroyed, its blocks should be deallocated.
-                    // Verify Blocks in 'X' (which used to be in 'Y' before the
+                    // `Y` is now destroyed, its blocks should be deallocated.
+                    // Verify Blocks in `X` (which used to be in `Y` before the
                     // swap) is not deallocated.
 
                     char SCRIBBLED_MEMORY[sizeof(VALUE)];
@@ -901,8 +903,8 @@ void TestDriver<VALUE>::testCase8()
                     }
                 }
                 {
-                    // To test 'swapExchangeAllocators', we use an allocator
-                    // that is swappable ('bsl::allocator' is not).
+                    // To test `swapExchangeAllocators`, we use an allocator
+                    // that is swappable (`bsl::allocator` is not).
                     typedef bslstl::TreeNodePool<VALUE,
                                              PropagatingAllocator<VALUE> > Obj;
 
@@ -961,8 +963,8 @@ void TestDriver<VALUE>::testCase8()
                         }
                     }
 
-                    // 'Y' is now destroyed, its blocks should be deallocated.
-                    // Verify Blocks in 'X' (which used to be in 'Y' before the
+                    // `Y` is now destroyed, its blocks should be deallocated.
+                    // Verify Blocks in `X` (which used to be in `Y` before the
                     // swap) is not deallocated.
 
                     char SCRIBBLED_MEMORY[sizeof(VALUE)];
@@ -1049,8 +1051,8 @@ void TestDriver<VALUE>::testCase8()
                     }
                 }
 
-                // 'Y' is now destroyed; its blocks should be deallocated.
-                //  Verify blocks in 'X' (which used to be in 'Y' before the
+                // `Y` is now destroyed; its blocks should be deallocated.
+                //  Verify blocks in `X` (which used to be in `Y` before the
                 // swap) were not deallocated.
 
                 char SCRIBBLED_MEMORY[sizeof(VALUE)];
@@ -1106,44 +1108,44 @@ template<class VALUE>
 void TestDriver<VALUE>::testCase7()
 {
     // -----------------------------------------------------------------------
-    // MANIPULATOR 'emplaceIntoNewNode'
+    // MANIPULATOR `emplaceIntoNewNode`
     //
     // Concerns:
-    //: 1 'emplaceIntoNewNode' taking a single lvalue argument invokes the copy
-    //:   constructor of the (template parameter) 'TYPE'
-    //:
-    //: 2 Any memory allocation is from the object allocator.
-    //:
-    //: 3 There is no temporary allocation from any allocator.
-    //:
-    //: 4 Every object releases any allocated memory at destruction.
+    // 1. `emplaceIntoNewNode` taking a single lvalue argument invokes the copy
+    //    constructor of the (template parameter) `TYPE`
+    //
+    // 2. Any memory allocation is from the object allocator.
+    //
+    // 3. There is no temporary allocation from any allocator.
+    //
+    // 4. Every object releases any allocated memory at destruction.
     //
     // Plan:
-    //: 1 Create an array of distinct object.  For each object in the array:
-    //:
-    //:   1 Invoke 'emplaceIntoNewNode' on the object.
-    //:
-    //:   2 Verify memory is allocated only when expected.  (C-2..3)
-    //:
-    //:   3 Verify the new node contains a copy of the object.
-    //:
-    //: 2 Create another 'TreeNodePool'.
-    //:
-    //: 3 For each node that was created:
-    //:
-    //:   1 Invoke 'emplaceIntoNewNode' on the node that was created previously
-    //:
-    //:   2 Verify the newly created node has the same value as the old one.
-    //:     (C-1)
-    //:
-    //: 4 Verify all memory is released on destruction.  (C-4)
+    // 1. Create an array of distinct object.  For each object in the array:
+    //
+    //   1. Invoke `emplaceIntoNewNode` on the object.
+    //
+    //   2. Verify memory is allocated only when expected.  (C-2..3)
+    //
+    //   3. Verify the new node contains a copy of the object.
+    //
+    // 2. Create another `TreeNodePool`.
+    //
+    // 3. For each node that was created:
+    //
+    //   1. Invoke `emplaceIntoNewNode` on the node that was created previously
+    //
+    //   2. Verify the newly created node has the same value as the old one.
+    //      (C-1)
+    //
+    // 4. Verify all memory is released on destruction.  (C-4)
     //
     // Testing:
     //   bslalg::RbTreeNode *cloneNode(const bslalg::RbTreeNode& original);
     //   bslalg::RbTreeNode *emplaceIntoNewNode(const VALUE& value);
     // -----------------------------------------------------------------------
 
-    if (verbose) printf("\nMANIPULATOR 'emplaceIntoNewNode'"
+    if (verbose) printf("\nMANIPULATOR `emplaceIntoNewNode`"
                         "\n========================\n");
 
 
@@ -1224,45 +1226,45 @@ template<class VALUE>
 void TestDriver<VALUE>::testCase6()
 {
     // --------------------------------------------------------------------
-    // MANIPULATOR 'reserveNodes*'
+    // MANIPULATOR `reserveNodes*`
     //
     // Concerns:
-    //: 1 'reserve' allocate exactly the specified number of blocks such that
-    //:   subsequent 'allocate' does not get memory from the heap.
-    //:
-    //: 2 Free blocks that was allocated before 'reserve' is not destroyed.
-    //:
-    //: 3 All memory allocation comes from the object allocator.
-    //:
-    //: 4 Memory is deallocated on the destruction of the object.
-    //:
-    //: 5 QoI: Asserted precondition violations are detected when enabled.
+    // 1. `reserve` allocate exactly the specified number of blocks such that
+    //    subsequent `allocate` does not get memory from the heap.
+    //
+    // 2. Free blocks that was allocated before `reserve` is not destroyed.
+    //
+    // 3. All memory allocation comes from the object allocator.
+    //
+    // 4. Memory is deallocated on the destruction of the object.
+    //
+    // 5. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 For each different values of i from 1 to 7:
-    //:
-    //:   1 For each different values of j from 0 to 7:
-    //:
-    //:     1 Create 'j' memory blocks in the free list.
-    //:
-    //:     2 Call 'reserveNode' for 'i' blocks.
-    //:
-    //:     3 Invoke 'emplaceIntoNewNode' 'i + j' times, and verify no memory
-    //:       is allocated.
-    //:
-    //:     4 Invoke 'emplaceIntoNewNode' again and verify memory is allocated
-    //:       from the heap.  (C-1..3)
-    //:
-    //: 2 Verify all memory is deallocated on destruction.  (C-4)
-    //:
-    //: 3 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
+    // 1. For each different values of i from 1 to 7:
+    //
+    //   1. For each different values of j from 0 to 7:
+    //
+    //     1. Create `j` memory blocks in the free list.
+    //
+    //     2. Call `reserveNode` for `i` blocks.
+    //
+    //     3. Invoke `emplaceIntoNewNode` `i + j` times, and verify no memory
+    //        is allocated.
+    //
+    //     4. Invoke `emplaceIntoNewNode` again and verify memory is allocated
+    //        from the heap.  (C-1..3)
+    //
+    // 2. Verify all memory is deallocated on destruction.  (C-4)
+    //
+    // 3. Verify that, in appropriate build modes, defensive checks are
+    //    triggered (using the `BSLS_ASSERTTEST_*` macros).  (C-5)
     //
     // Testing:
     //   void reserveNodes(size_type numNodes);
     // --------------------------------------------------------------------
 
-    if (verbose) printf("\nMANIPULATOR 'reserve'"
+    if (verbose) printf("\nMANIPULATOR `reserve`"
                         "\n======================\n");
 
     const int TYPE_ALLOC = bslma::UsesBslmaAllocator<
@@ -1323,45 +1325,45 @@ template<class VALUE>
 void TestDriver<VALUE>::testCase5()
 {
     // --------------------------------------------------------------------
-    // MANIPULATOR 'deleteNode'
+    // MANIPULATOR `deleteNode`
     //
     // Concerns:
-    //: 1 'deleteNode' invokes the destructor of the value in the node.
-    //:
-    //: 2 'emplaceIntoNewNode()' does not allocate from the heap when there are
-    //:   still blocks in the free list.
-    //:
-    //: 3 'emplaceIntoNewNode()' retrieve the last block that was deallocated.
-    //:
-    //: 4 'allocate' will retrieve memory from the heap once so that the next
-    //:   allocation will not allocate from the heap.
-    //:
-    //: 5 'deleteNode' does not allocate or release any memory other than those
-    //:   caused by the destructor of the value.
-    //:
-    //: 6 QoI: Asserted precondition violations are detected when enabled.
+    // 1. `deleteNode` invokes the destructor of the value in the node.
+    //
+    // 2. `emplaceIntoNewNode()` does not allocate from the heap when there are
+    //    still blocks in the free list.
+    //
+    // 3. `emplaceIntoNewNode()` retrieve the last block that was deallocated.
+    //
+    // 4. `allocate` will retrieve memory from the heap once so that the next
+    //    allocation will not allocate from the heap.
+    //
+    // 5. `deleteNode` does not allocate or release any memory other than those
+    //    caused by the destructor of the value.
+    //
+    // 6. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Create a list of sequences to allocate and deallocate memory.  For
-    //:   each sequence:
-    //:
-    //:   1 Invoke 'emplaceIntoNewNode()' and 'deleteNode' according to the
-    //:     sequence.
-    //:
-    //:   2 Verify that each allocate returns the last block that was
-    //:     deallocated if 'deleteNode' was called.  (C-1..3)
-    //:
-    //:   3 Verify no memory was allocated from the heap on 'deleteNode'.
-    //:     (C-5)
-    //:
-    //:   4 Verify 'emplaceIntoNewNode()' will get memory from the heap only
-    //:     when expected.
-    //:
-    //: 2 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
+    // 1. Create a list of sequences to allocate and deallocate memory.  For
+    //    each sequence:
+    //
+    //   1. Invoke `emplaceIntoNewNode()` and `deleteNode` according to the
+    //      sequence.
+    //
+    //   2. Verify that each allocate returns the last block that was
+    //      deallocated if `deleteNode` was called.  (C-1..3)
+    //
+    //   3. Verify no memory was allocated from the heap on `deleteNode`.
+    //      (C-5)
+    //
+    //   4. Verify `emplaceIntoNewNode()` will get memory from the heap only
+    //      when expected.
+    //
+    // 2. Verify that, in appropriate build modes, defensive checks are
+    //    triggered (using the `BSLS_ASSERTTEST_*` macros).  (C-6)
     // --------------------------------------------------------------------
 
-    if (verbose) printf("\nMANIPULATOR 'deleteNode'"
+    if (verbose) printf("\nMANIPULATOR `deleteNode`"
                         "\n========================");
 
     const int TYPE_ALLOC = bslma::UsesBslmaAllocator<
@@ -1468,21 +1470,21 @@ void TestDriver<VALUE>::testCase4()
     // BASIC ACCESSORS
     //
     // Concerns:
-    //: 1 'allocator' returns the allocator that was supplied on construction.
-    //:
-    //: 2 The accessor is declared 'const'.
-    //:
-    //: 3 The accessor does not allocate any memory from any allocator.
+    // 1. `allocator` returns the allocator that was supplied on construction.
+    //
+    // 2. The accessor is declared `const`.
+    //
+    // 3. The accessor does not allocate any memory from any allocator.
     //
     // Plan:
-    //: 1 For each allocator configuration:
-    //:
-    //:   1 Create a 'bslstl_TreeNodePool' with an allocator.
-    //:
-    //:   2 Use the basic accessor to verify the allocator is installed
-    //:     properly.  (C-1..2)
-    //:
-    //:   3 Verify no memory is allocated from any allocator.  (C-3)
+    // 1. For each allocator configuration:
+    //
+    //   1. Create a `bslstl_TreeNodePool` with an allocator.
+    //
+    //   2. Use the basic accessor to verify the allocator is installed
+    //      properly.  (C-1..2)
+    //
+    //   3. Verify no memory is allocated from any allocator.  (C-3)
     //
     // Testing:
     //   AllocatorType& allocator();
@@ -1567,37 +1569,37 @@ void TestDriver<VALUE>::testCase2()
     //   thorough testing, and use the destructor to destroy it safely.
     //
     // Concerns:
-    //: 1 An object created with the constructor has the specified
-    //:   allocator.
-    //:
-    //: 2 Any memory allocation is from the object allocator.
-    //:
-    //: 3 There is no temporary allocation from any allocator.
-    //:
-    //: 4 Every object releases any allocated memory at destruction.
-    //:
-    //: 5 Allocation starts at one block, up to a maximum of 32 blocks.
-    //:
-    //: 6 Constructor allocates no memory.
-    //:
-    //: 7 Any memory allocation is exception neutral.
+    // 1. An object created with the constructor has the specified
+    //    allocator.
+    //
+    // 2. Any memory allocation is from the object allocator.
+    //
+    // 3. There is no temporary allocation from any allocator.
+    //
+    // 4. Every object releases any allocated memory at destruction.
+    //
+    // 5. Allocation starts at one block, up to a maximum of 32 blocks.
+    //
+    // 6. Constructor allocates no memory.
+    //
+    // 7. Any memory allocation is exception neutral.
     //
     // Plan:
-    //: 1 For each allocator configuration:
-    //:
-    //:   1 Create a pool object and verify no memory is allocated.  (C-1, 8)
-    //:
-    //:   2 Call 'allocate' 96 times in the presence of exception, for each
-    //:     time:
-    //:
-    //:     1 Verify memory is only allocated from object allocator and only
-    //:       when expected.  (C-2..3, 6, 9)
-    //:
-    //:     2 If memory is not allocated, the address is the max of
-    //:       'sizeof(VALUE)' and 'sizeof(void *) larger than the previous
-    //:       address.  (C-7)
-    //:
-    //:   3 Delete the object and verify all memory is deallocated.  (C-4)
+    // 1. For each allocator configuration:
+    //
+    //   1. Create a pool object and verify no memory is allocated.  (C-1, 8)
+    //
+    //   2. Call `allocate` 96 times in the presence of exception, for each
+    //      time:
+    //
+    //     1. Verify memory is only allocated from object allocator and only
+    //        when expected.  (C-2..3, 6, 9)
+    //
+    //     2. If memory is not allocated, the address is the max of
+    //        `sizeof(VALUE)` and 'sizeof(void *) larger than the previous
+    //        address.  (C-7)
+    //
+    //   3. Delete the object and verify all memory is deallocated.  (C-4)
     //
     // Testing:
     //   explicit TreeNodePool(const ALLOCATOR& allocator);
@@ -1711,23 +1713,25 @@ void TestDriver<VALUE>::testCase2()
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Creating a 'IntSet' Container
+///Example 1: Creating a `IntSet` Container
 /// - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to create a container type, 'IntSet' using
-// 'bslalg::RbTreeUtil'.
+// This example demonstrates how to create a container type, `IntSet` using
+// `bslalg::RbTreeUtil`.
 //
 // First, we define a comparison functor for comparing a
-// 'bslstl::RbTreeNode<int>' object and an 'int' value.  This functor conforms
-// to the requirements of 'bslalg::RbTreeUtil':
-//..
+// `bslstl::RbTreeNode<int>` object and an `int` value.  This functor conforms
+// to the requirements of `bslalg::RbTreeUtil`:
+// ```
+
+    /// This class defines a comparator providing comparison operations
+    /// between `bslstl::TreeNode<int>` objects, and `int` values.
     struct IntNodeComparator {
-        // This class defines a comparator providing comparison operations
-        // between 'bslstl::TreeNode<int>' objects, and 'int' values.
 //
       private:
         // PRIVATE TYPES
+
+        /// Alias for a node type containing an `int` value.
         typedef bslstl::TreeNode<int> Node;
-            // Alias for a node type containing an 'int' value.
 //
       public:
         // CLASS METHODS
@@ -1741,17 +1745,17 @@ void TestDriver<VALUE>::testCase2()
             return lhs < static_cast<const Node&>(rhs).value();
         }
     };
-//..
-// Then, we define the public interface of 'IntSet'.  Note that it contains a
-// 'TreeNodePool' that will be used by 'bslalg::RbTreeUtil' as a 'FACTORY' to
+// ```
+// Then, we define the public interface of `IntSet`.  Note that it contains a
+// `TreeNodePool` that will be used by `bslalg::RbTreeUtil` as a `FACTORY` to
 // create and delete nodes.  Also note that a number of simplifications have
 // been made for the purpose of illustration.  For example, this implementation
 // provides only a minimal set of critical operations, and it does not use the
 // empty base-class optimization for the comparator.
-//..
+// ```
     template <class ALLOCATOR = bsl::allocator<int> >
     class IntSet {
-//      // This class implements a set of (unique) 'int' values.
+//      // This class implements a set of (unique) `int` values.
 //
         // PRIVATE TYPES
         typedef bslstl::TreeNodePool<int, ALLOCATOR> TreeNodePool;
@@ -1766,33 +1770,38 @@ void TestDriver<VALUE>::testCase2()
 //
       public:
         // CREATORS
+
+        /// Create an empty set.  Optionally specify an `allocator` used to
+        /// supply memory.  If `allocator` is not specified, a default
+        /// constructed `ALLOCATOR` object is used.
         IntSet(const ALLOCATOR& allocator = ALLOCATOR());
-            // Create an empty set.  Optionally specify an 'allocator' used to
-            // supply memory.  If 'allocator' is not specified, a default
-            // constructed 'ALLOCATOR' object is used.
 //
         //! ~IntSet() = 0;
             // Destroy this object.
 //
         // MANIPULATORS
+
+        /// Insert the specified `value` into this set.
         void insert(int value);
-            // Insert the specified 'value' into this set.
 //
+
+        /// If `value` is a member of this set, then remove it from the set
+        /// and return `true`.  Otherwise, return `false` with no effect.
         bool remove(int value);
-            // If 'value' is a member of this set, then remove it from the set
-            // and return 'true'.  Otherwise, return 'false' with no effect.
 //
         // ACCESSORS
+
+        /// Return `true` if the specified `value` is a member of this set,
+        /// and `false` otherwise.
         bool isElement(int value) const;
-            // Return 'true' if the specified 'value' is a member of this set,
-            // and 'false' otherwise.
 //
+
+        /// Return the number of elements in this set.
         int numElements() const;
-            // Return the number of elements in this set.
     };
-//..
-// Now, we implement the methods of 'IntSet' using 'RbTreeUtil'.
-//..
+// ```
+// Now, we implement the methods of `IntSet` using `RbTreeUtil`.
+// ```
     // CREATORS
     template <class ALLOCATOR>
     inline
@@ -1814,10 +1823,10 @@ void TestDriver<VALUE>::testCase2()
                                                          &d_tree,
                                                          comp,
                                                          value);
-//..
-// Here we use the 'TreeNodePool' object, 'd_nodePool', to create the node that
+// ```
+// Here we use the `TreeNodePool` object, `d_nodePool`, to create the node that
 // was inserted into the set.
-//..
+// ```
         if (0 != comparisonResult) {
             bslalg::RbTreeNode *node = d_nodePool.emplaceIntoNewNode(value);
             bslalg::RbTreeUtil::insertAt(&d_tree,
@@ -1833,10 +1842,10 @@ void TestDriver<VALUE>::testCase2()
         IntNodeComparator comparator;
         bslalg::RbTreeNode *node =
                   bslalg::RbTreeUtil::find(d_tree, comparator, value);
-//..
-// Here we use the 'TreeNodePool' object, 'd_nodePool', to delete a node that
+// ```
+// Here we use the `TreeNodePool` object, `d_nodePool`, to delete a node that
 // was removed from the set.
-//..
+// ```
         if (node) {
             bslalg::RbTreeUtil::remove(&d_tree, node);
             d_nodePool.deleteNode(node);
@@ -1859,7 +1868,7 @@ void TestDriver<VALUE>::testCase2()
     {
         return d_tree.numNodes();
     }
-//..
+// ```
 
 //=============================================================================
 //                                 MAIN PROGRAM
@@ -1883,10 +1892,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-// Finally, we create a sample 'IntSet' object and insert 3 values into the
-// 'IntSet'.  We verify the attributes of the 'Set' before and after each
+// Finally, we create a sample `IntSet` object and insert 3 values into the
+// `IntSet`.  We verify the attributes of the `Set` before and after each
 // insertion.
-//..
+// ```
     bslma::TestAllocator defaultAllocator("defaultAllocator");
     bslma::DefaultAllocatorGuard defaultGuard(&defaultAllocator);
 //
@@ -1912,7 +1921,7 @@ int main(int argc, char *argv[])
 //
     ASSERT(0 == defaultAllocator.numBytesInUse());
     ASSERT(0 <  objectAllocator.numBytesInUse());
-//..
+// ```
       } break;
       case 13: {
         TestDriver<bsltf::AllocTestType>::testCase13();

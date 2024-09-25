@@ -26,7 +26,7 @@
 # include <unistd.h>
 #endif
 
-// Ensure that the 'BDLS_TESTUTIL_*' macros do not require:
+// Ensure that the `BDLS_TESTUTIL_*` macros do not require:
 //  using namespace bsl;
 
 using namespace BloombergLP;
@@ -38,12 +38,12 @@ using namespace BloombergLP::bsltf;
 //                              Overview
 //                              --------
 // The component under test implements a set of macros that writes to the
-// standard out and a set of overloads for the input operator ('<<') to write
-// objects of 'bsltf' test types to output streams.
+// standard out and a set of overloads for the input operator (`<<`) to write
+// objects of `bsltf` test types to output streams.
 //
 // The macros provided by the component under test mirror the standard test
 // macros normally used in test drivers.  The intention is that the standard
-// test macros should be implemented as aliases of the 'BDLS_TESTUTIL_*'
+// test macros should be implemented as aliases of the `BDLS_TESTUTIL_*`
 // macros, as illustrated in the first usage example.  As a result, the
 // identifiers normally used in a test driver conflict with the identifiers
 // used in the usage example.  Therefore, this test driver avoids the standard
@@ -51,19 +51,19 @@ using namespace BloombergLP::bsltf;
 //
 //  STANDARD              BDLS_TESTUTIL.T.CPP
 //  --------              -------------------
-//  'LOOP_ASSERT'         'REALLOOP1_ASSERT'
-//  'LOOP2_ASSERT'        'REALLOOP2_ASSERT'
-//  'LOOP3_ASSERT'        'REALLOOP3_ASSERT'
-//  'LOOP4_ASSERT'        'REALLOOP4_ASSERT'
-//  'LOOP5_ASSERT'        not used
-//  'LOOP6_ASSERT'        not used
-//  'Q'                   not used
-//  'P'                   'REALP'
-//  'P_'                  'REALT_'
-//  'T_'                  'REALT_'
-//  'L_'                  not used
-//  'void aSsErT()'       'void realaSsErT()'
-//  'int testStatus'      'int realTestStatus'
+//  `LOOP_ASSERT`         `REALLOOP1_ASSERT`
+//  `LOOP2_ASSERT`        `REALLOOP2_ASSERT`
+//  `LOOP3_ASSERT`        `REALLOOP3_ASSERT`
+//  `LOOP4_ASSERT`        `REALLOOP4_ASSERT`
+//  `LOOP5_ASSERT`        not used
+//  `LOOP6_ASSERT`        not used
+//  `Q`                   not used
+//  `P`                   `REALP`
+//  `P_`                  `REALT_`
+//  `T_`                  `REALT_`
+//  `L_`                  not used
+//  `void aSsErT()`       `void realaSsErT()`
+//  `int testStatus`      `int realTestStatus`
 //
 // All of the methods write output to stdout and do nothing more.  Therefore,
 // there are no Primary Manipulators or Basic Accessors to test.  All of the
@@ -72,9 +72,9 @@ using namespace BloombergLP::bsltf;
 // The main difficulty with writing the test driver is capturing the output of
 // the methods under test so that it can be checked for accuracy.  In addition,
 // error messages and other output produced by the test driver itself must
-// still appear on 'stdout' for compatibility with the standard build and
-// testing scripts.  For this purpose, a support class named 'OutputRedirector'
-// is provided.  'OutputRedirector' will redirect 'stdout' to a temporary file
+// still appear on `stdout` for compatibility with the standard build and
+// testing scripts.  For this purpose, a support class named `OutputRedirector`
+// is provided.  `OutputRedirector` will redirect `stdout` to a temporary file
 // and verify that the contents of the temporary file match the character
 // buffers provided by the user.
 //-----------------------------------------------------------------------------
@@ -114,13 +114,13 @@ using namespace BloombergLP::bsltf;
 //                VARIATIONS ON STANDARD BDE ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 //
-// In order to accommodate the use of the identifiers 'testStatus' and 'aSsErT'
+// In order to accommodate the use of the identifiers `testStatus` and `aSsErT`
 // in the usage example, the rest of the test driver uses the identifiers
-// 'realTestStatus' and 'realaSsErT' instead.
+// `realTestStatus` and `realaSsErT` instead.
 //
 // Additionally, in order to allow capturing the output of the
-// 'BDLS_TESTUTIL_*' macros, the standard macros output to 'stderr' instead of
-// 'stdout'.
+// `BDLS_TESTUTIL_*` macros, the standard macros output to `stderr` instead of
+// `stdout`.
 
 static int realTestStatus = 0;
 
@@ -132,7 +132,7 @@ static void realaSsErT(bool b, const char *s, int i)
         if (realTestStatus >= 0 && realTestStatus <= 100) ++realTestStatus;
     }
 }
-// The standard 'ASSERT' macro definition is deferred until after the usage
+// The standard `ASSERT` macro definition is deferred until after the usage
 // example code
 
 // #define ASSERT(X) { realaSsErT(!(X), #X, __LINE__); }
@@ -195,12 +195,12 @@ namespace {
 // First, we write a component to test, which provides a utility class:
     namespace bdlabc {
 
+    /// This utility class provides sample functionality to demonstrate how
+    /// a test driver might be written validating its only method.
     struct BdlExampleUtil {
-        // This utility class provides sample functionality to demonstrate how
-        // a test driver might be written validating its only method.
 
+        /// Return the integer value `42`.
         static int fortyTwo();
-            // Return the integer value '42'.
     };
 
     inline
@@ -210,10 +210,10 @@ namespace {
     }
 
     }  // close namespace bdlabc
-//..
+// ```
 // Then, we can write a test driver for this component.  We start by providing
 // the standard BDE assert test macro:
-//..
+// ```
     //=========================================================================
     //                       STANDARD BDE ASSERT TEST MACRO
     //-------------------------------------------------------------------------
@@ -227,10 +227,10 @@ namespace {
             if (testStatus >= 0 && testStatus <= 100) ++testStatus;
         }
     }
-//..
-// Next, we define the standard print and 'LOOP_ASSERT' macros, as aliases to
+// ```
+// Next, we define the standard print and `LOOP_ASSERT` macros, as aliases to
 // the macros defined by this component:
-//..
+// ```
     //=========================================================================
     //                       STANDARD BDE TEST DRIVER MACROS
     //-------------------------------------------------------------------------
@@ -251,23 +251,23 @@ namespace {
     #define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
     #define L_  BDLS_TESTUTIL_L_  // current Line number
 
-//..
+// ```
 // Now, using the (standard) abbreviated macro names we have just defined, we
-// write a test function for the 'static' 'fortyTwo' method, to be called from
+// write a test function for the `static` `fortyTwo` method, to be called from
 // a test case in a test driver.
-//..
+// ```
     void testFortyTwo(bool verbose)
     {
         const int value = bdlabc::BdlExampleUtil::fortyTwo();
         if (verbose) P(value);
         LOOP_ASSERT(value, 42 == value);
     }
-    //..
-// Finally, when 'testFortyTwo' is called from a test case in verbose mode we
+    // ```
+// Finally, when `testFortyTwo` is called from a test case in verbose mode we
 // observe the console output:
-//..
+// ```
 //  value = 42
-//..
+// ```
 
 }  // close unnamed namespace
 
@@ -334,12 +334,12 @@ int fstatFunc(int fd, StatType *buf)
 #endif
 }
 
+/// Create a temporary file and store its name in the user-supplied buffer
+/// at the address pointed to by the specified `result`.  Return `true` if
+/// the temporary file was successfully created, and `false` otherwise.  The
+/// behavior is undefined unless the buffer pointed to by `result` is at
+/// least `k_PATH_BUFFER_SIZE` bytes long.
 bool tempFileName(char *result)
-    // Create a temporary file and store its name in the user-supplied buffer
-    // at the address pointed to by the specified 'result'.  Return 'true' if
-    // the temporary file was successfully created, and 'false' otherwise.  The
-    // behavior is undefined unless the buffer pointed to by 'result' is at
-    // least 'k_PATH_BUFFER_SIZE' bytes long.
 {
     ASSERT(result);
 
@@ -359,7 +359,7 @@ bool tempFileName(char *result)
     }
 #endif
 
-    if (veryVerbose) printf("\tUse '%s' as a base filename.\n", result);
+    if (veryVerbose) printf("\tUse `%s` as a base filename.\n", result);
 
     ASSERT('\0' != result[0]); // result not empty
 
@@ -368,24 +368,24 @@ bool tempFileName(char *result)
 
 
 
+/// This class provides a facility for redirecting `stdout` to a temporary
+/// file, retrieving output from the temporary file and comparing the output
+/// to user-supplied character buffers.  An `OutputRedirector` object can
+/// exist in one of two states, un-redirected or redirected.  In the
+/// un-redirected state, the process' `stdout` and `stderr` are connected to
+/// their normal targets.  In the redirected state, the process' `stdout` is
+/// connected to a temporary file, and the process' `stderr` is connected to
+/// the original target of `stdout`.  The redirected state of an
+/// `OutputRedirector` object can be tested by calling `isRedirected`.  An
+/// `OutputRedirector` object has the concept of a scratch buffer, where
+/// output captured from the process' `stdout` stream is stored when the
+/// `OutputRedirector` object is in the redirected state.  Throughout this
+/// class, the term "captured output" refers to data that has been written
+/// to the `stdout` stream and is waiting to be loaded into the scratch
+/// buffer.  Each time the `load` method is called, the scratch buffer is
+/// truncated, and the captured output is moved into the scratch buffer.
+/// When this is done, there is no longer any captured output.
 class OutputRedirector {
-    // This class provides a facility for redirecting 'stdout' to a temporary
-    // file, retrieving output from the temporary file and comparing the output
-    // to user-supplied character buffers.  An 'OutputRedirector' object can
-    // exist in one of two states, un-redirected or redirected.  In the
-    // un-redirected state, the process' 'stdout' and 'stderr' are connected to
-    // their normal targets.  In the redirected state, the process' 'stdout' is
-    // connected to a temporary file, and the process' 'stderr' is connected to
-    // the original target of 'stdout'.  The redirected state of an
-    // 'OutputRedirector' object can be tested by calling 'isRedirected'.  An
-    // 'OutputRedirector' object has the concept of a scratch buffer, where
-    // output captured from the process' 'stdout' stream is stored when the
-    // 'OutputRedirector' object is in the redirected state.  Throughout this
-    // class, the term "captured output" refers to data that has been written
-    // to the 'stdout' stream and is waiting to be loaded into the scratch
-    // buffer.  Each time the 'load' method is called, the scratch buffer is
-    // truncated, and the captured output is moved into the scratch buffer.
-    // When this is done, there is no longer any captured output.
 
   private:
     // DATA
@@ -395,7 +395,7 @@ class OutputRedirector {
     char d_outputBuffer[k_OUTPUT_BUFFER_SIZE]; // Scratch buffer for holding
                                                // captured output
 
-    bool d_isRedirectedFlag;                   // Has 'stdout' been redirected
+    bool d_isRedirectedFlag;                   // Has `stdout` been redirected
 
     bool d_isFileCreatedFlag;                  // Has a temp file been created
 
@@ -403,19 +403,19 @@ class OutputRedirector {
                                                // temp file
 
     long d_outputSize;                         // Size of output loaded into
-                                               // 'd_outputBuffer'
+                                               // `d_outputBuffer`
 
     StatType d_originalStdoutStat;             // Status information for
-                                               // 'stdout' just before
+                                               // `stdout` just before
                                                // redirection.
 
+    /// Redirect the specified stream `from` to the specified stream `to`,
+    /// returning 0 for success and a negative value on failure.
     static int redirectStream(FILE *from, FILE *to);
-        // Redirect the specified stream 'from' to the specified stream 'to',
-        // returning 0 for success and a negative value on failure.
 
+    /// Close `stdout`, if redirected, and delete the temporary output
+    /// capture file.
     void cleanup();
-        // Close 'stdout', if redirected, and delete the temporary output
-        // capture file.
 
   private:
     // NOT IMPLEMENTED
@@ -424,77 +424,80 @@ class OutputRedirector {
 
   public:
     // CREATORS
-    explicit OutputRedirector();
-        // Create an 'OutputRedirector' in an un-redirected state, and an empty
-        // scratch buffer.
 
+    /// Create an `OutputRedirector` in an un-redirected state, and an empty
+    /// scratch buffer.
+    explicit OutputRedirector();
+
+    /// Destroy this `OutputRedirector` object.  If the object is in a
+    /// redirected state, `stdout` will be closed and the temporary file to
+    /// which `stdout` was redirected will be deleted.
     ~OutputRedirector();
-        // Destroy this 'OutputRedirector' object.  If the object is in a
-        // redirected state, 'stdout' will be closed and the temporary file to
-        // which 'stdout' was redirected will be deleted.
 
     // MANIPULATORS
+
+    /// Redirect `stdout` to a temp file, and stderr to the original
+    /// `stdout`, putting this `OutputRedirector` object into the
+    /// `redirected` state.  The temp file to which `stdout` is redirected
+    /// will be created the first time `redirect` is called, and will be
+    /// deleted when this object is destroyed.  Subsequent calls to
+    /// `redirect` will have no effect on `stdout` and `stderr`.  If
+    /// `redirect` fails to redirect either `stdout` or `stderr` it will end
+    /// the program by calling `std::abort`.
     void redirect();
-        // Redirect 'stdout' to a temp file, and stderr to the original
-        // 'stdout', putting this 'OutputRedirector' object into the
-        // 'redirected' state.  The temp file to which 'stdout' is redirected
-        // will be created the first time 'redirect' is called, and will be
-        // deleted when this object is destroyed.  Subsequent calls to
-        // 'redirect' will have no effect on 'stdout' and 'stderr'.  If
-        // 'redirect' fails to redirect either 'stdout' or 'stderr' it will end
-        // the program by calling 'std::abort'.
 
+    /// Reset the scratch buffer to empty.  The behavior is undefined unless
+    /// `redirect` has been previously been called successfully.
     void reset();
-        // Reset the scratch buffer to empty.  The behavior is undefined unless
-        // 'redirect' has been previously been called successfully.
 
+    /// Read captured output into the scratch buffer.  Return `true` if all
+    /// captured output was successfully loaded, and `false` otherwise.
+    /// Note that captured output is allowed to have zero length.  The
+    /// behavior is undefined unless `redirect` has been previously been
+    /// called successfully.
     bool load();
-        // Read captured output into the scratch buffer.  Return 'true' if all
-        // captured output was successfully loaded, and 'false' otherwise.
-        // Note that captured output is allowed to have zero length.  The
-        // behavior is undefined unless 'redirect' has been previously been
-        // called successfully.
 
     // ACCESSORS
+
+    /// Return `true` if `stdout` and `stderr` have been successfully
+    /// redirected, and `false` otherwise.
     bool isRedirected();
-        // Return 'true' if 'stdout' and 'stderr' have been successfully
-        // redirected, and 'false' otherwise.
 
+    /// Return `true` if captured output been loaded into the scratch
+    /// buffer, and `false` otherwise.
     bool isOutputReady();
-        // Return 'true' if captured output been loaded into the scratch
-        // buffer, and 'false' otherwise.
 
+    /// Return the address of the scratch buffer.  This method is only used
+    /// for error reporting and to test the correctness of
+    /// `OutputRedirector`.
     char *getOutput();
-        // Return the address of the scratch buffer.  This method is only used
-        // for error reporting and to test the correctness of
-        // 'OutputRedirector'.
 
+    /// Return the number of bytes currently loaded into the scratch buffer.
     size_t outputSize();
-        // Return the number of bytes currently loaded into the scratch buffer.
 
+    /// Compare the character buffer pointed to by the specified pointer
+    /// `expected` with any output that has been loaded into the scratch
+    /// buffer.  The length of the `expected` buffer is supplied in the
+    /// specified `expectedLength`.  Return 0 if the `expected` buffer has
+    /// the same length and contents as the scratch buffer, and non-zero
+    /// otherwise.  Note that the `expected` buffer is allowed to contain
+    /// embedded nulls.  The behavior is undefined unless `redirect` has
+    /// been previously been called successfully.
     int compare(const char *expected, size_t expectedLength);
-        // Compare the character buffer pointed to by the specified pointer
-        // 'expected' with any output that has been loaded into the scratch
-        // buffer.  The length of the 'expected' buffer is supplied in the
-        // specified 'expectedLength'.  Return 0 if the 'expected' buffer has
-        // the same length and contents as the scratch buffer, and non-zero
-        // otherwise.  Note that the 'expected' buffer is allowed to contain
-        // embedded nulls.  The behavior is undefined unless 'redirect' has
-        // been previously been called successfully.
 
+    /// Compare the character buffer pointed to by the specified pointer
+    /// `expected` with any output that has been loaded into the scratch
+    /// buffer.  The `expected` buffer is assumed to be a NTBS, and and its
+    /// length is taken to be the string length of the NTBS.  Return 0 if
+    /// the `expected` buffer has the same length and contents as the
+    /// scratch buffer, and non-zero otherwise.  The behavior is undefined
+    /// unless `redirect` has been previously been called successfully.
     int compare(const char *expected);
-        // Compare the character buffer pointed to by the specified pointer
-        // 'expected' with any output that has been loaded into the scratch
-        // buffer.  The 'expected' buffer is assumed to be a NTBS, and and its
-        // length is taken to be the string length of the NTBS.  Return 0 if
-        // the 'expected' buffer has the same length and contents as the
-        // scratch buffer, and non-zero otherwise.  The behavior is undefined
-        // unless 'redirect' has been previously been called successfully.
 
+    /// Return a reference to the status information for `stdout` collected
+    /// just before redirection.  This method is used only to test the
+    /// correctness of `OutputRedirector`.
     const StatType& originalStdoutStat();
-        // Return a reference to the status information for 'stdout' collected
-        // just before redirection.  This method is used only to test the
-        // correctness of 'OutputRedirector'.
 };
 
 OutputRedirector::OutputRedirector()
@@ -517,10 +520,10 @@ int OutputRedirector::redirectStream(FILE *from, FILE *to)
     ASSERT(from);
     ASSERT(to);
 
-    // The canonical way to redirect 'stderr' to 'stdout' is
-    // 'ASSERT(freopen("/dev/stdout", "w", stderr));', but we use dup2 instead
-    // of 'freopen', because 'freopen' fails on AIX with errno 13
-    // 'Permission denied' when redirecting stderr.
+    // The canonical way to redirect `stderr` to `stdout` is
+    // `ASSERT(freopen("/dev/stdout", "w", stderr));`, but we use dup2 instead
+    // of `freopen`, because `freopen` fails on AIX with errno 13
+    // `Permission denied` when redirecting stderr.
 
 #if defined(BSLS_PLATFORM_OS_AIX)
     const int redirected = dup2(fileno(to), fileno(from));
@@ -558,7 +561,7 @@ void OutputRedirector::redirect()
         return;                                                       // RETURN
     }
 
-    // Retain information about original 'stdout' file descriptor for use in
+    // Retain information about original `stdout` file descriptor for use in
     // later tests.
 
     const int originalStdoutFD = fileno(stdout);
@@ -566,15 +569,15 @@ void OutputRedirector::redirect()
     ASSERT(0 == fstatFunc(originalStdoutFD, &d_originalStdoutStat));
 
     if (0 != redirectStream(stderr, stdout)) {
-        // Redirect 'stderr' to 'stdout;.
+        // Redirect `stderr` to 'stdout;.
 
-        // We want 'stderr' to point to 'stdout', so we have to redirect it
-        // before we change the meaning of 'stdout'.
+        // We want `stderr` to point to `stdout`, so we have to redirect it
+        // before we change the meaning of `stdout`.
 
         if (veryVerbose) {
 
-            // Note that we print this error message on 'stdout' instead of
-            // 'stderr', because 'stdout' has not been redirected.
+            // Note that we print this error message on `stdout` instead of
+            // `stderr`, because `stdout` has not been redirected.
 
             fprintf(stdout,
                     "Error " __FILE__ "(%d): Failed to redirect stderr\n",
@@ -589,8 +592,8 @@ void OutputRedirector::redirect()
 
         if (veryVerbose) {
 
-            // Note that we print this error message on 'stdout' instead of
-            // 'stderr', because 'stdout' has not been redirected.
+            // Note that we print this error message on `stdout` instead of
+            // `stderr`, because `stdout` has not been redirected.
 
             fprintf(stdout,
                     "Error "
@@ -603,12 +606,12 @@ void OutputRedirector::redirect()
 
     if (! freopen(d_fileName, "w+", stdout)) {
 
-        // Redirect 'stdout'
+        // Redirect `stdout`
 
         if (veryVerbose) {
 
-            // Note that we print this error message on 'stderr', because we
-            // have just redirected 'stdout' to the capture file.
+            // Note that we print this error message on `stderr`, because we
+            // have just redirected `stdout` to the capture file.
 
             REALP(d_fileName);
             fprintf(stderr,
@@ -619,7 +622,7 @@ void OutputRedirector::redirect()
         std::abort();
     }
 
-    // 'stderr' and 'stdout' have been successfully redirected.
+    // `stderr` and `stdout` have been successfully redirected.
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
     if (-1 == _setmode(_fileno(stdout), _O_BINARY)) {
@@ -634,13 +637,13 @@ void OutputRedirector::redirect()
 
     if (EOF == fflush(stdout)) {
 
-        // Not flushing 'stdout' is not a fatal condition, so we print out a
+        // Not flushing `stdout` is not a fatal condition, so we print out a
         // warning, but do not abort.
 
         if (veryVerbose) {
 
-            // Note that we print this error message on 'stderr', because we
-            // have just redirected 'stdout' to the capture file.
+            // Note that we print this error message on `stderr`, because we
+            // have just redirected `stdout` to the capture file.
 
             perror("Error message: ");
             fprintf(stderr,
@@ -698,7 +701,7 @@ bool OutputRedirector::load()
             REALP_(d_outputSize); REALP(charsRead);
             if (ferror(stdout)) {
 
-                // We encountered a file error, not 'EOF'.
+                // We encountered a file error, not `EOF`.
 
                 perror("\tError message: ");
                 clearerr(stdout);
@@ -771,8 +774,8 @@ int OutputRedirector::compare(const char *expected, size_t expectedLength)
         return -1;                                                    // RETURN
     }
 
-    // Use 'memcmp' instead of 'strncmp' to compare 'd_outputBuffer' to
-    // 'expected', because 'expected' is allowed to contain embedded nulls.
+    // Use `memcmp` instead of `strncmp` to compare `d_outputBuffer` to
+    // `expected`, because `expected` is allowed to contain embedded nulls.
 
     return d_outputSize != static_cast<long>(expectedLength) ||
            memcmp(d_outputBuffer, expected, expectedLength);
@@ -796,7 +799,7 @@ int main(int argc, char *argv[])
     veryVerbose     = argc > 3;
     veryVeryVerbose = argc > 4;
 
-    // Capture 'stdout', and send 'stderr' to 'stdout', unless we are running
+    // Capture `stdout`, and send `stderr` to `stdout`, unless we are running
     // the usage example.
     OutputRedirector output;
     if (test != 8 && test != 0) {
@@ -811,13 +814,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -833,37 +836,37 @@ int main(int argc, char *argv[])
 ///Example 2: Print The Value of A Test Type
 ///- - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to print the value of an object of a test type defined the
-// 'bsltf' package using 'bsl::cout'.  This component supplies the necessary
+// `bsltf` package using `bsl::cout`.  This component supplies the necessary
 // overloads of the insertion operator for this to be done directly.
 //
 // First, include the header of this component:
-//..
+// ```
 //  #include <bdls_testutil.h>
-//..
-// Now, we construct a 'SimpleTestType' object and stream its value to
-// 'bsl::cout' using the '<<' operator:
-//..
+// ```
+// Now, we construct a `SimpleTestType` object and stream its value to
+// `bsl::cout` using the `<<` operator:
+// ```
     bsltf::SimpleTestType a(10);
     bsl::cout << a;
-//..
+// ```
 // Finally, we observe the following console output:
-//..
+// ```
 //  10
-//..
+// ```
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // INPUT ('<<') OPERATORS
+        // INPUT (`<<`) OPERATORS
         //
         // Concerns:
-        //: 1 The input operators correctly streams the value of an object of
-        //:   any test type in the 'bsltf' package into a specified stream.
+        // 1. The input operators correctly streams the value of an object of
+        //    any test type in the `bsltf` package into a specified stream.
         //
         // Plan:
-        //: 1 For each 'bsltf' test type, create an object of such a type
-        //:   having an unique value and stream its value into a
-        //:   'bsl::stringstream'.  Verify that the string stored in the
-        //:   string has the expected value.  (C-1)
+        // 1. For each `bsltf` test type, create an object of such a type
+        //    having an unique value and stream its value into a
+        //    `bsl::stringstream`.  Verify that the string stored in the
+        //    string has the expected value.  (C-1)
         //
         // Testing:
         //   bsl::ostream& operator<<(s, EnumeratedTestType::Enum& obj)
@@ -880,7 +883,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cerr << bsl::endl
-                               << "INPUT ('<<') OPERATORS" << bsl::endl
+                               << "INPUT (`<<`) OPERATORS" << bsl::endl
                                << "======================" << bsl::endl;
 
         EnumeratedTestType::Enum o1 =
@@ -970,34 +973,34 @@ int main(int argc, char *argv[])
         // BDLS_TESTUTIL_LOOP*_ASSERT AND BDLS_ASSERTV MACROS
         //
         // Concerns:
-        //: 1 Macros do not call 'aSsErT' and emit no output when the assertion
-        //:   is 'true'.
-        //:
-        //: 2 Macros call 'aSsErT' and emit output each time the assertion is
-        //:   'false'.
-        //:
-        //: 3 Macros emit properly formatted output for each loop variable
-        //:   supplied.
+        // 1. Macros do not call `aSsErT` and emit no output when the assertion
+        //    is `true`.
+        //
+        // 2. Macros call `aSsErT` and emit output each time the assertion is
+        //    `false`.
+        //
+        // 3. Macros emit properly formatted output for each loop variable
+        //    supplied.
         //
         // Plan:
-        //: 1 Loop through an arbitrary number of iterations, calling one of
-        //:   the loop assert macros with distinct values for each loop
-        //:   variable and an assertion that evaluates to 'true'.  Confirm that
-        //:   the value of 'testStatus' does not change, and that no output is
-        //:   captured by the output redirection apparatus.  (C-1)
-        //:
-        //: 2 Loop through an arbitrary number of iterations, calling one of
-        //:   the loop assert macros with distinct values for each loop
-        //:   variable and an assertion that evaluates to 'false'.  Confirm
-        //:   that 'testStatus' increments each time the loop assert macro is
-        //:   called, and that the expected error output is captured by the
-        //:   output redirection apparatus.  Note that using distinct values
-        //:   for each loop variable allows us to detect omissions, repetitions
-        //:   or mis-ordering of the loop assert macro's arguments.  Also note
-        //:   that we test the loop assert macro with only one set of variable
-        //:   types, since we test separately in test case 3 the ability of the
-        //:   underlying apparatus to identify and correctly format each
-        //:   primitive type.  (C-2,3)
+        // 1. Loop through an arbitrary number of iterations, calling one of
+        //    the loop assert macros with distinct values for each loop
+        //    variable and an assertion that evaluates to `true`.  Confirm that
+        //    the value of `testStatus` does not change, and that no output is
+        //    captured by the output redirection apparatus.  (C-1)
+        //
+        // 2. Loop through an arbitrary number of iterations, calling one of
+        //    the loop assert macros with distinct values for each loop
+        //    variable and an assertion that evaluates to `false`.  Confirm
+        //    that `testStatus` increments each time the loop assert macro is
+        //    called, and that the expected error output is captured by the
+        //    output redirection apparatus.  Note that using distinct values
+        //    for each loop variable allows us to detect omissions, repetitions
+        //    or mis-ordering of the loop assert macro's arguments.  Also note
+        //    that we test the loop assert macro with only one set of variable
+        //    types, since we test separately in test case 3 the ability of the
+        //    underlying apparatus to identify and correctly format each
+        //    primitive type.  (C-2,3)
         //
         // Testing:
         //     BDLS_TESTUTIL_LOOP_ASSERT(I,X)
@@ -1029,7 +1032,7 @@ int main(int argc, char *argv[])
                                                       // output that will be
                                                       // compared to real
                                                       // output captured from
-                                                      // 'stdout'
+                                                      // `stdout`
 
         // BDLS_TESTUTIL_LOOP_ASSERT(I,X)
         {
@@ -1418,13 +1421,13 @@ int main(int argc, char *argv[])
                 output.reset();
 
                 // On AIX, the printed line number from the
-                // 'BDLS_TESTUTIL_ASSERTV' macro is the line number of the
+                // `BDLS_TESTUTIL_ASSERTV` macro is the line number of the
                 // first line of the call statement, even if the statement is
                 // split over multiple lines.  This behavior is different from
                 // the equivalent loop-assert alternative, which prints the
                 // last line of the statmenet.  The behavior of assertv and
                 // regular loop-assert is consistent on other platforms.  So
-                // here, we make sure that the call to 'BDLS_TESTUTIL_ASSERTV'
+                // here, we make sure that the call to `BDLS_TESTUTIL_ASSERTV`
                 // fit on a single line to make sure that the output is the
                 // same on all platforms.
                 const int LINE = __LINE__ + 1;
@@ -1539,25 +1542,25 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // 'Q' (IDENTIFIER OUTPUT MACRO)
+        // `Q` (IDENTIFIER OUTPUT MACRO)
         //
         // Concerns:
-        //: 1 Identifier output macro emits the correct output:
-        //: '<| [macroargument] |>', where '[macroargument]' is the
-        //: tokenization of the text supplied as argument to the macro.
+        // 1. Identifier output macro emits the correct output:
+        //  `<| [macroargument] |>`, where `[macroargument]` is the
+        //  tokenization of the text supplied as argument to the macro.
         //
         // Plan:
-        //: 1 Call 'BDLS_TESTUTIL_Q' with a series of arbitrary identifiers
-        //:   containing single, and multiple tokens, with an without initial,
-        //:   final, and repeated whitespace and compare each captured output
-        //:   to the expected output.  (C-1)
+        // 1. Call `BDLS_TESTUTIL_Q` with a series of arbitrary identifiers
+        //    containing single, and multiple tokens, with an without initial,
+        //    final, and repeated whitespace and compare each captured output
+        //    to the expected output.  (C-1)
         //
         // Testing:
         //    BDLS_TESTUTIL_Q(X)
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cerr << bsl::endl
-                               << "'Q' (IDENTIFIER OUTPUT MACRO)" << bsl::endl
+                               << "`Q` (IDENTIFIER OUTPUT MACRO)" << bsl::endl
                                << "=============================" << bsl::endl;
         {
             output.reset();
@@ -1589,24 +1592,24 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // 'P' AND 'P_' (VALUE OUTPUT MACROS)
+        // `P` AND `P_` (VALUE OUTPUT MACROS)
         //
         // Concerns:
-        //: 1 Value output macros emit output.
-        //:
-        //: 2 Output emitted is in correct format for the standard 'P' and 'P_'
-        //:   macros, i.e. 'identifier = value' (with following newline in the
-        //:   case of 'BDLS_TESTUTIL__P') where 'identifier' is the name of
-        //:   the argument supplied to the macro, and 'value' is the value of
-        //:   that argument.
+        // 1. Value output macros emit output.
+        //
+        // 2. Output emitted is in correct format for the standard `P` and `P_`
+        //    macros, i.e. `identifier = value` (with following newline in the
+        //    case of `BDLS_TESTUTIL__P`) where `identifier` is the name of
+        //    the argument supplied to the macro, and `value` is the value of
+        //    that argument.
         //
         // Plan
-        //: 1 Call the value output macros on a variable of known value, and
-        //:   confirm that the captured output is in the correct format.  Note
-        //:   that it is only necessary to conduct this test once with a single
-        //:   variable type, because the underlying type-differentiation and
-        //:   formatting mechanisms are handled by the input operators.
-        //:   (C-1,2)
+        // 1. Call the value output macros on a variable of known value, and
+        //    confirm that the captured output is in the correct format.  Note
+        //    that it is only necessary to conduct this test once with a single
+        //    variable type, because the underlying type-differentiation and
+        //    formatting mechanisms are handled by the input operators.
+        //    (C-1,2)
         //
         // Testing:
         //    BDLS_TESTUTIL_P(X)
@@ -1614,7 +1617,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cerr << bsl::endl
-                               << "'P' AND 'P_' (VALUE OUTPUT MACROS)"
+                               << "`P` AND `P_` (VALUE OUTPUT MACROS)"
                                << bsl::endl
                                << "=================================="
                                << bsl::endl;
@@ -1643,19 +1646,19 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // 'L_' AND 'T_' (STATIC MACROS)
+        // `L_` AND `T_` (STATIC MACROS)
         //
         // Concerns:
-        //: 1 Line number macro has the correct value.
-        //:
-        //: 2 Tab output macro emits output.
-        //:
-        //: 3 Tab output macro output emitted is in correct format.
+        // 1. Line number macro has the correct value.
+        //
+        // 2. Tab output macro emits output.
+        //
+        // 3. Tab output macro output emitted is in correct format.
         //
         // Plan
-        //: 1 Compare the value of the line number macro to '__LINE__'.  (C-1)
-        //: 2 Call the tab output macro, and confirm that the captured output
-        //:   is in the correct format.  (C-2,3)
+        // 1. Compare the value of the line number macro to `__LINE__`.  (C-1)
+        // 2. Call the tab output macro, and confirm that the captured output
+        //    is in the correct format.  (C-2,3)
         //
         // Testing:
         //    BDLS_TESTUTIL_L_
@@ -1663,7 +1666,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cerr << bsl::endl
-                               << "'L_' AND 'T_' (STATIC MACROS)" << bsl::endl
+                               << "`L_` AND `T_` (STATIC MACROS)" << bsl::endl
                                << "=============================" << bsl::endl;
 
         // BDLS_TESTUTIL_L_
@@ -1697,87 +1700,87 @@ int main(int argc, char *argv[])
         // TEST APPARATUS
         //
         // Concerns:
-        //:  1 Output is redirected
-        //:
-        //:  2 Captured output is readable
-        //:
-        //:  3 'load' works
-        //:
-        //:  4 'reset' works
-        //:
-        //:  5 'compare' works
-        //:
-        //:  6 Incorrect output is correctly diagnosed
-        //:
-        //:  7 Embedded newlines work
-        //:
-        //:  8 Empty output works
-        //:
-        //:  9 Embedded nulls work
-        //:
-        //: 10 Filesystem-dependent control sequences work
-        //:
-        //: 11 stderr points to original target of 'stdout'
+        //  1. Output is redirected
+        //
+        //  2. Captured output is readable
+        //
+        //  3. `load` works
+        //
+        //  4. `reset` works
+        //
+        //  5. `compare` works
+        //
+        //  6. Incorrect output is correctly diagnosed
+        //
+        //  7. Embedded newlines work
+        //
+        //  8. Empty output works
+        //
+        //  9. Embedded nulls work
+        //
+        // 10. Filesystem-dependent control sequences work
+        //
+        // 11. stderr points to original target of `stdout`
         //
         // Plan:
-        //:  1 Confirm that 'ftell(stdout)' succeeds.  This demonstrates that
-        //:    'stdout' is a seekable file.  (C-1)
-        //:
-        //:  2 Write a string to 'stdout', confirm that 'stdout's seek position
-        //:    has changed, read back the contents of 'stdout' and compare them
-        //:    to the original string.  (C-2)
-        //:
-        //:  3 Write a string to 'stdout'.  Confirm that
-        //:    'OutputRedirector::load' changes the contents of the output
-        //:    buffer and that it changes the result of
-        //:    'OutputRedirector::isOutputReady' from 'false' to 'true'.
-        //:    Confirm that the contents of the output buffer match the
-        //:    original string.  (C-3)
-        //:
-        //:  4 Write a string to 'stdout' and load it with
-        //:    'OutputRedirector::load'.  Confirm that
-        //:    'OutputRedirector::reset' rewinds 'stdout', changes the output
-        //:    of 'OutputRedirector::isOutputReady' from 'true' to 'false' and
-        //:    sets the length of the output buffer to 0.  (C-4)
-        //:
-        //:  5 Write a string to 'stdout' and read it back with
-        //:    'OutputRedirector::load'.  Confirm that
-        //:    'OutputRedirector::compare' gives the correct results when the
-        //:    captured output is compared with the following data:  (C-5)
-        //:
-        //:        Data                           Comparison Result
-        //:    ------------                   -------------------------
-        //:    input string                           true
-        //:    input string with appended data        false
-        //:    input string truncated                 false
-        //:    string different from input:
-        //:    at beginning                           false
-        //:    at end                                 false
-        //:    elsewhere                              false
-        //:
-        //:  6 Confirm that 'load' fails when there is more data in 'stdout'
-        //:    than can be fit in the capture buffer.  Confirm that 'compare'
-        //:    fails if 'load' has not been first called to read data into the
-        //:    capture buffer.  (C-6)
-        //:
-        //:  7 Confirm that strings containing embedded newlines are correctly
-        //:    captured and correctly identified by 'compare'.  (C-7)
-        //:
-        //:  8 Write an empty string to 'stdout'.  Confirm that it can be
-        //:    correctly loaded and compared with the original.  (C-8)
-        //:
-        //:  9 Write a series of strings to 'stdout', containing '\0' at the
-        //:    beginning, end or interior of the string.  Confirm that the
-        //:    captured output can be correctly loaded and compared with the
-        //:    original input.  (C-9)
-        //:
-        //: 10 Write a series of strings to 'stdout' containing '^D' and
-        //:    '<CRLF>' and confirm that these strings are correctly captured
-        //:    and loaded.  (C-10)
-        //:
-        //: 11 Use 'fstat[64]' to find out the device and inode of the current
-        //:    (post-redirection) 'stderr'.  Compare these values to the device
-        //:    and inode of 'stdout' before redirection.  (C-11)
+        //  1. Confirm that `ftell(stdout)` succeeds.  This demonstrates that
+        //     `stdout` is a seekable file.  (C-1)
+        //
+        //  2. Write a string to `stdout`, confirm that `stdout`s seek position
+        //     has changed, read back the contents of `stdout` and compare them
+        //     to the original string.  (C-2)
+        //
+        //  3. Write a string to `stdout`.  Confirm that
+        //     `OutputRedirector::load` changes the contents of the output
+        //     buffer and that it changes the result of
+        //     `OutputRedirector::isOutputReady` from `false` to `true`.
+        //     Confirm that the contents of the output buffer match the
+        //     original string.  (C-3)
+        //
+        //  4. Write a string to `stdout` and load it with
+        //     `OutputRedirector::load`.  Confirm that
+        //     `OutputRedirector::reset` rewinds `stdout`, changes the output
+        //     of `OutputRedirector::isOutputReady` from `true` to `false` and
+        //     sets the length of the output buffer to 0.  (C-4)
+        //
+        //  5. Write a string to `stdout` and read it back with
+        //     `OutputRedirector::load`.  Confirm that
+        //     `OutputRedirector::compare` gives the correct results when the
+        //     captured output is compared with the following data:  (C-5)
+        //
+        //         Data                           Comparison Result
+        //     ------------                   -------------------------
+        //     input string                           true
+        //     input string with appended data        false
+        //     input string truncated                 false
+        //     string different from input:
+        //     at beginning                           false
+        //     at end                                 false
+        //     elsewhere                              false
+        //
+        //  6. Confirm that `load` fails when there is more data in `stdout`
+        //     than can be fit in the capture buffer.  Confirm that `compare`
+        //     fails if `load` has not been first called to read data into the
+        //     capture buffer.  (C-6)
+        //
+        //  7. Confirm that strings containing embedded newlines are correctly
+        //     captured and correctly identified by `compare`.  (C-7)
+        //
+        //  8. Write an empty string to `stdout`.  Confirm that it can be
+        //     correctly loaded and compared with the original.  (C-8)
+        //
+        //  9. Write a series of strings to `stdout`, containing '\0' at the
+        //     beginning, end or interior of the string.  Confirm that the
+        //     captured output can be correctly loaded and compared with the
+        //     original input.  (C-9)
+        //
+        // 10. Write a series of strings to `stdout` containing `^D` and
+        //     `<CRLF>` and confirm that these strings are correctly captured
+        //     and loaded.  (C-10)
+        //
+        // 11. Use `fstat[64]` to find out the device and inode of the current
+        //     (post-redirection) `stderr`.  Compare these values to the device
+        //     and inode of `stdout` before redirection.  (C-11)
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cerr << bsl::endl
@@ -1816,7 +1819,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            // 3 'load' works
+            // 3 `load` works
             const char   *testString       = "This is output";
             const size_t  testStringLength = strlen(testString);
 
@@ -1835,7 +1838,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            // 4 'reset' works
+            // 4 `reset` works
             const char *testString = "This is output";
             const size_t testStringLength = strlen(testString);
 
@@ -1852,7 +1855,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            // 5 'compare' works
+            // 5 `compare` works
             const char *testString            = "This is output";
             const char *longString            = "This is outputA";
             const char *shortString           = "This is outpu";
@@ -1977,7 +1980,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            //: 11 stderr points to original target of stdout
+            // 11. stderr points to original target of stdout
             const int newStderrFD = fileno(stderr);
             ASSERT(-1 != newStderrFD);
             StatType stderrStat;

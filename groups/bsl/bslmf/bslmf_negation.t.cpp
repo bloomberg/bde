@@ -87,24 +87,24 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING CLASS TEMPLATE 'bsl::negation'
+        // TESTING CLASS TEMPLATE `bsl::negation`
         //
         // Concerns:
-        //:  1 'negation<B>::value' is 'true' iff 'B::value == false'.
-        //:
-        //:  2 'negation_v<B>' has the same value as 'negation<B>::value'.
+        //  1. `negation<B>::value` is `true` iff `B::value == false`.
+        //
+        //  2. `negation_v<B>` has the same value as `negation<B>::value`.
         //
         // Plan:
-        //:  1 Verify the result for all possible argument values.
-        //:
-        //:  2 Repeat the same tests with 'negation_v'.
+        //  1. Verify the result for all possible argument values.
+        //
+        //  2. Repeat the same tests with `negation_v`.
         //
         // Testing:
         //   bsl::negation
         //   bsl::negation_v
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING CLASS TEMPLATE 'bsl::negation'"
+        if (verbose) printf("\nTESTING CLASS TEMPLATE `bsl::negation`"
                             "\n======================================\n");
 
         using bsl::negation;
@@ -125,10 +125,10 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 The provided utilities are sufficiently functional.
+        // 1. The provided utilities are sufficiently functional.
         //
         // Plan:
-        //: 1 Write any code with 'bsl::negation' here.
+        // 1. Write any code with `bsl::negation` here.
         //
         // Testing:
         //   BREATHING TEST

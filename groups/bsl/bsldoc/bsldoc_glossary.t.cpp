@@ -1,7 +1,7 @@
 // bsldoc_glossary.t.cpp                                              -*-C++-*-
 #include <bsldoc_glossary.h>
 
-#include <cstdlib>     // 'atoi'
+#include <cstdlib>     // `atoi`
 #include <iostream>
 
 using namespace std;

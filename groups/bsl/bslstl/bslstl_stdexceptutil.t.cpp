@@ -99,14 +99,14 @@ int veryVerbose;
 ///Usage
 ///-----
 // First we declare a function template that wants to throw a standard
-// exception.  Note that the 'stdexcept' header is not included at this
+// exception.  Note that the `stdexcept` header is not included at this
 // point.
-//..
+// ```
   # include <bslstl_stdexceptutil.h>
 
+  ///  Throw a standard exception according to the specified `selector`.
   template<class T>
   void testFunction(int selector)
-      //  Throw a standard exception according to the specified 'selector'.
   {
     switch(selector) {
       case 1: {
@@ -120,10 +120,10 @@ int veryVerbose;
       } break;
     }
   }
-//..
+// ```
 // However, if client code wishes to catch the exception, the .cpp file
 // must #include the appropriate header.
-//..
+// ```
   #include <stdexcept>
 
   void callTestFunction()
@@ -144,7 +144,7 @@ int veryVerbose;
       ASSERT(0 == std::strcmp(ex.what(), "sample message 2"));
     }
   }
-//..
+// ```
 #endif // defined BDE_BUILD_TARGET_EXC
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -178,13 +178,13 @@ void failAssert(const char *, const char *)
     BSLS_ASSERT_INVOKE_NORETURN("fail");
 }
 
+/// Verify that the specified `exc` is actually a reference to an
+/// `EXCEPTION` object, using the specified `line` and `exceptionName`
+/// to report errors.
 template <class t_EXCEPTION>
 void verifyExceptionType(int                    line,
                          const std::exception&  exc,
                          const char            *exceptionName)
-    // Verify that the specified 'exc' is actually a reference to an
-    // 'EXCEPTION' object, using the specified 'line' and 'exceptionName'
-    // to report errors.
 {
     ASSERTV(line, exceptionName, dynamic_cast<const t_EXCEPTION *>(&exc));
 }
@@ -208,7 +208,7 @@ void checkLoggedMessage(bsls::LogSeverity::Enum  severity,
     ASSERTV(bsls::LogSeverity::e_WARN == severity);
 
     // The file name should be the imp file of this component.  Verify that by
-    // starting with '__FILE__' and substituting ".cpp" for ".t.cpp".
+    // starting with `__FILE__` and substituting ".cpp" for ".t.cpp".
 
     char expectedFileName[] = { __FILE__ };
     char *pc = strstr(expectedFileName, ".t.cpp");
@@ -227,41 +227,41 @@ void checkLoggedMessage(bsls::LogSeverity::Enum  severity,
     strcat(aboutBuf, TC::exceptionName);
     ASSERTV(message, aboutBuf, strstr(message, aboutBuf));
 
-    // Verify 'message' contains 'topLevelThrowMessage', which is the 'message'
-    // passed to 'bslstl::StdExceptUtil::throw...'.
+    // Verify `message` contains `topLevelThrowMessage`, which is the `message`
+    // passed to `bslstl::StdExceptUtil::throw...`.
 
     ASSERTV(strstr(message, TC::topLevelThrowMessage));
 
-    // Verify 'message' mentions 'showfunc.tsk'.
+    // Verify `message` mentions `showfunc.tsk`.
 
     ASSERTV(message, strstr(message, "/bb/bin/showfunc.tsk "));
 
-    // There will be a substring in double quotes in 'message' of the form
+    // There will be a substring in double quotes in `message` of the form
     // "/bb/bin/showfunc.tsk <executable name> <hex address>...".  Count the
     // spaces before the hex addresses, each of which represents a stack
     // frame.  We expect at least 9 stack frames:
     //
-    //: o 'bslstl::StdExceptUtil::logCheapStackTrace'
-    //:
-    //: o 'u::ExceptionSource<t_EXCEPTION>::doThrow' in the imp file but we
-    //:   don't count on it because it's often inlined.
-    //:
-    //: o 'bslstl::StdExceptUtil::throw...'
-    //:
-    //: o 'throwAndCatchExceptionsAndCheckLogging'
-    //:
-    //: o 5 instances of 'recurser'
-    //:
-    //: o 'main'
-    //:
-    //: o There are usually additional frames below 'main', but we don't want
-    //:   to count on them.
+    //  - `bslstl::StdExceptUtil::logCheapStackTrace`
     //
-    // However, on Windows 'bsls::StackAddressUtil' seems to malfunction and
+    //  - `u::ExceptionSource<t_EXCEPTION>::doThrow` in the imp file but we
+    //    don't count on it because it's often inlined.
+    //
+    //  - `bslstl::StdExceptUtil::throw...`
+    //
+    //  - `throwAndCatchExceptionsAndCheckLogging`
+    //
+    //  - 5 instances of `recurser`
+    //
+    //  - `main`
+    //
+    //  - There are usually additional frames below `main`, but we don't want
+    //    to count on them.
+    //
+    // However, on Windows `bsls::StackAddressUtil` seems to malfunction and
     // return fewer stack frames (even though 10 frames are visible in the
-    // debugger).  '/bb/bin/showfunc.tsk' doesn't exist on Windows to examine
+    // debugger).  `/bb/bin/showfunc.tsk` doesn't exist on Windows to examine
     // which frames showed up.  I would expect 4 identical return addresses
-    // within the 'recurser' calls, but there are no duplicated addresses in
+    // within the `recurser` calls, but there are no duplicated addresses in
     // the cheapstack, so we tweak it here to expect fewer frames on Windows.
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -343,7 +343,7 @@ int throwAndCatchExceptionsAndCheckLogging(const char *message)
             (*DATA[tj].d_setHookFunc)(&TC::failAssert);
         }
 
-        // Set all the test state in 'TC' to failing.
+        // Set all the test state in `TC` to failing.
 
         TC::exceptionName             = LOG ? EXCEPTION_NAME : 0;
         TC::topLevelThrowMessage      = LOG ? message : 0;
@@ -375,18 +375,18 @@ int throwAndCatchExceptionsAndCheckLogging(const char *message)
     return 1;
 }
 
+/// Recurse to the specified `depth` and then call `func`, which will be
+/// passed `throwAndCatchExceptionsAndCheckLogging`.
+///
+/// We want to recurse several times here so that the stack trace will have
+/// some depth to traverse.  This is non-trivial because optimizers are very
+/// motivated to inline function calls and replace calls at the end of
+/// functions with simple jumps.  Most of the manipulation and checking of
+/// the `depth` variable after the function calls are intended to force the
+/// optimizer to do function calls and return from them rather than simply
+/// chaining.
 template <class FUNC_PTR>
 int recurser(int *depth, FUNC_PTR func, const char *message)
-    // Recurse to the specified 'depth' and then call 'func', which will be
-    // passed 'throwAndCatchExceptionsAndCheckLogging'.
-    //
-    // We want to recurse several times here so that the stack trace will have
-    // some depth to traverse.  This is non-trivial because optimizers are very
-    // motivated to inline function calls and replace calls at the end of
-    // functions with simple jumps.  Most of the manipulation and checking of
-    // the 'depth' variable after the function calls are intended to force the
-    // optimizer to do function calls and return from them rather than simply
-    // chaining.
 {
     const int depthIn = *depth;
 
@@ -426,7 +426,7 @@ int main(int argc, char *argv[])
         //   compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //   Simply invoke the functions 'addSecurity' and 'removeSecurity' to
+        //   Simply invoke the functions `addSecurity` and `removeSecurity` to
         //   ensure the code compiles.
         //
         // Testing:
@@ -447,17 +447,17 @@ int main(int argc, char *argv[])
         // NORETURN TEST
         //
         // Concerns:
-        //: 1 That a function that returns a value and has a code path ending
-        //:   with 'Util::throw*Error(...)' will compile successfully.
+        // 1. That a function that returns a value and has a code path ending
+        //    with `Util::throw*Error(...)` will compile successfully.
         //
         // Plan:
-        //: 1 Have a function 'maybeReturn' that the compiler believes might
-        //:   return a value but in fact always ends with a call to
-        //:   'bslstl::throwLogicError'.  If the compiler ignores the
-        //:   'BSLA_NORETURN' annotation, the function might not compile.
-        //:
-        //: 2 Call 'maybeReturn' in a try-catch block and observe the behavior
-        //:   is as expected.
+        // 1. Have a function `maybeReturn` that the compiler believes might
+        //    return a value but in fact always ends with a call to
+        //    `bslstl::throwLogicError`.  If the compiler ignores the
+        //    `BSLA_NORETURN` annotation, the function might not compile.
+        //
+        // 2. Call `maybeReturn` in a try-catch block and observe the behavior
+        //    is as expected.
         //
         // Testing:
         //   NORETURN
@@ -488,26 +488,26 @@ int main(int argc, char *argv[])
         // HOOK / STACKTRACE TEST
         //
         // Concerns:
-        //: 1 That the 'set*Hook' functions work.
-        //:
-        //: 2 That 'logCheapStackTrace' works.
+        // 1. That the `set*Hook` functions work.
+        //
+        // 2. That `logCheapStackTrace` works.
         //
         // Plan:
-        //: 1 Set the 'bsls::Log' message handler to 'TC::checkLoggedMessage'
-        //:   to check that the arguments to the call to 'bsls::Log' are as
-        //:   expected.
-        //:
-        //: 2 Call 'TC::recurser' which will recurse a few times and then
-        //:   call 'TC::throwAndCatchExceptionsAndCheckLogging'.
-        //:
-        //: 3 'TC::throwAndCatchExceptionsAndCheckLogging' does a table-driven
-        //:   iteration through all the supported exception types, one at a
-        //:   time, setting the pre throw hook for the exception type under
-        //:   test (and only that type) to 'logCheapStackTrace', and then
-        //:   throwing the exception, which is then caught as a reference to
-        //:   base class 'std::excption', and then verified through dynamic
-        //:   cast to be of the exception type expected.  The output of
-        //:   'logCheapStackTrace' is then checked and verified to be correct
+        // 1. Set the `bsls::Log` message handler to `TC::checkLoggedMessage`
+        //    to check that the arguments to the call to `bsls::Log` are as
+        //    expected.
+        //
+        // 2. Call `TC::recurser` which will recurse a few times and then
+        //    call `TC::throwAndCatchExceptionsAndCheckLogging`.
+        //
+        // 3. `TC::throwAndCatchExceptionsAndCheckLogging` does a table-driven
+        //    iteration through all the supported exception types, one at a
+        //    time, setting the pre throw hook for the exception type under
+        //    test (and only that type) to `logCheapStackTrace`, and then
+        //    throwing the exception, which is then caught as a reference to
+        //    base class `std::excption`, and then verified through dynamic
+        //    cast to be of the exception type expected.  The output of
+        //    `logCheapStackTrace` is then checked and verified to be correct
         //
         // Testing:
         //   void logCheapStackTrace(const char *, const char *);

@@ -18,12 +18,12 @@
 #include <bsls_asserttest.h>
 #include <bsls_review.h>
 
-#include <bsl_cstddef.h>  // 'bsl::size_t'
-#include <bsl_cstdlib.h>  // 'bsl::atoi'
-#include <bsl_cstring.h>  // 'bsl::strlen'
-#include <bsl_ios.h>      // 'bsl::ios::badbit'
+#include <bsl_cstddef.h>  // `bsl::size_t`
+#include <bsl_cstdlib.h>  // `bsl::atoi`
+#include <bsl_cstring.h>  // `bsl::strlen`
+#include <bsl_ios.h>      // `bsl::ios::badbit`
 #include <bsl_iostream.h>
-#include <bsl_sstream.h>  // 'bsl::ostringstream'
+#include <bsl_sstream.h>  // `bsl::ostringstream`
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -38,7 +38,7 @@ using bsl::endl;
 // The component under test is a utility that supplies functions that convert
 // arbitrary UTF-8 strings to JSON-compatible strings, and back.  The
 // implementations are independent the order of testing the encoding and
-// decoding functionality is somewhat arbitrary: encoding ('writeString') is
+// decoding functionality is somewhat arbitrary: encoding (`writeString`) is
 // done first.
 //
 // Testing is complicated by the fact that input to the decoding functions are
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -142,13 +142,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -167,29 +167,29 @@ int main(int argc, char *argv[])
 ///Example 1: Encoding and Decoding a JSON String
 /// - - - - - - - - - - - - - - - - - - - - - - -
 /// First, we initialize a string with a valid sequence of UTF-8 codepoints.
-//..
+// ```
     bsl::string initial("Does the name \"Ivan Pavlov\" ring a bell\a?\n");
     ASSERT(bdlde::Utf8Util::isValid(initial));
-//..
+// ```
 // Notice that, as required by C++ syntax, several characters are represented
 // by their two-character escape sequence: double quote (twice), bell, and
 // newline.
 //
 // Then, we examine the string as output:
-//..
+// ```
     bsl::cout << initial << bsl::endl;
-//..
+// ```
 // and observe:
-//..
+// ```
 //  Does the name "Ivan Pavlov" ring a bell?
 //
-//..
+// ```
 // Notice that the backslash characters (having served their purpose of giving
 // special meaning to the subsequent character) are not shown.  The BELL and
 // NEWLINE characters are output but are not visible.
 //
-// Now, we generate JSON string equivalent of the 'initial' string.
-//..
+// Now, we generate JSON string equivalent of the `initial` string.
+// ```
     bsl::ostringstream oss;
 
     int rcEncode = bdljsn::StringUtil::writeString(oss, initial);
@@ -197,20 +197,20 @@ int main(int argc, char *argv[])
 
     bsl::string  jsonCompatibleString = oss.str();
     bsl::cout << jsonCompatibleString << bsl::endl;
-//..
-// and observed how the 'initial' string is represented for JSON:
-//..
+// ```
+// and observed how the `initial` string is represented for JSON:
+// ```
 //  "Does the name \"Ivan Pavlov\" ring a bell\u0007?\n"
-//..
+// ```
 // Notice that:
-//: o The entire string is delimited by double quotes.
-//: o The interior double quotes and new line are represented by two character
-//:   escape sequences (as they were in the C++ string literal.
-//: o Since JSON does not have a two character escape sequence for the BELL
-//:   character, '\u0007', the 6-byte Unicode representation is used.
+//  - The entire string is delimited by double quotes.
+//  - The interior double quotes and new line are represented by two character
+//    escape sequences (as they were in the C++ string literal.
+//  - Since JSON does not have a two character escape sequence for the BELL
+//    character, `\u0007`, the 6-byte Unicode representation is used.
 //
-// Finally, we convert the 'jsonCompatibleString' back to its original content:
-//..
+// Finally, we convert the `jsonCompatibleString` back to its original content:
+// ```
     bsl::string fromJsonString;
     const int   rcDecode = bdljsn::StringUtil::readString(
                                                          &fromJsonString,
@@ -219,68 +219,68 @@ int main(int argc, char *argv[])
     ASSERT(initial == fromJsonString);
 
     bsl::cout << fromJsonString << bsl::endl;
-//..
+// ```
 // and observe (again):
-//..
+// ```
 //  Does the name "Ivan Pavlov" ring a bell?
 //
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
         // DECODING STRINGS
         //
         // Concerns:
-        //: 1 Values in the valid range, including the maximum and minimum
-        //:   values for this type, are parsed correctly, for 'readString' and
-        //:   'readUnquotedString'.
-        //:
-        //: 2 The passed in variable is unmodified if the data is not valid.
-        //:
-        //: 3 For 'readUnquotedString', embedded unescaped '"' characters are
-        //:   placed in the result.
-        //:
-        //: 4 The return code is 0 on success and non-zero on failure.
-        //:
-        //: 5 The 'readString' converts the output of 'writeString' back to the
-        //:   original contents.
-        //:
-        //: 6 Escape sequences starting with '\U' are rejected when the
-        //:   optional 'flags' argument is omitted, or specified as 'e_NONE',
-        //:   and are accepted when 'flags' is set to
-        //:   'e_ACCEPT_CAPITAL_UNICODE_ESCAPE'.  Escape sequences starting
-        //:   with '\u' are always accepted, irrespective of 'flags'.
+        // 1. Values in the valid range, including the maximum and minimum
+        //    values for this type, are parsed correctly, for `readString` and
+        //    `readUnquotedString`.
+        //
+        // 2. The passed in variable is unmodified if the data is not valid.
+        //
+        // 3. For `readUnquotedString`, embedded unescaped '"' characters are
+        //    placed in the result.
+        //
+        // 4. The return code is 0 on success and non-zero on failure.
+        //
+        // 5. The `readString` converts the output of `writeString` back to the
+        //    original contents.
+        //
+        // 6. Escape sequences starting with '\U' are rejected when the
+        //    optional `flags` argument is omitted, or specified as `e_NONE`,
+        //    and are accepted when `flags` is set to
+        //    `e_ACCEPT_CAPITAL_UNICODE_ESCAPE`.  Escape sequences starting
+        //    with '\u' are always accepted, irrespective of `flags`.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct rows
-        //:   of string value, expected parsed value, and return code.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Provide the string value and a variable to be parsed into to
-        //:     the 'readString' function.  The variable is assigned a sentinel
-        //:     value before invoking the function.
-        //:
-        //:   2 If the parsing should succeed then verify that the variable
-        //:     value matches the expected value.  Otherwise confirm that the
-        //:     variable value is unmodified.
-        //:
-        //:   3 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.
-        //:
-        //:   4 Call 'readString', making sure the result is identical in
-        //:     return code and/or value.
-        //:
-        //:   5 Call 'readUnquotedString', making sure the result (if
-        //:     successful) includes the extra outer '"'.
-        //:
-        //:   6 When the input is valid, confirm that the expected output can
-        //:     be passed through 'writeString' and then 'readString' without
-        //:     change.
-        //:
-        //: 3 Using the table-driven technique, specify a different set of
-        //:   distinct rows of string value, expected parse value, and return
-        //:   code for testing 'readUnquotedString'.
+        // 1. Using the table-driven technique, specify a set of distinct rows
+        //    of string value, expected parsed value, and return code.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Provide the string value and a variable to be parsed into to
+        //      the `readString` function.  The variable is assigned a sentinel
+        //      value before invoking the function.
+        //
+        //   2. If the parsing should succeed then verify that the variable
+        //      value matches the expected value.  Otherwise confirm that the
+        //      variable value is unmodified.
+        //
+        //   3. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.
+        //
+        //   4. Call `readString`, making sure the result is identical in
+        //      return code and/or value.
+        //
+        //   5. Call `readUnquotedString`, making sure the result (if
+        //      successful) includes the extra outer '"'.
+        //
+        //   6. When the input is valid, confirm that the expected output can
+        //      be passed through `writeString` and then `readString` without
+        //      change.
+        //
+        // 3. Using the table-driven technique, specify a different set of
+        //    distinct rows of string value, expected parse value, and return
+        //    code for testing `readUnquotedString`.
         //
         // Testing:
         //   static int readString        (bsl::string *, bsl::string_view);
@@ -392,7 +392,7 @@ int main(int argc, char *argv[])
                 {  L_, "\"ab\"cd\"",     -1, "ab",                    -1, 0  },
                 {  L_, "\"abcd\"\"",     -1, "abcd",                  -1, 0  },
 
-                // Values that 'strtol' accepts - '{DRQS 162368243}'.
+                // Values that `strtol` accepts - `{DRQS 162368243}`.
                 {  L_, "\"\\U0xFF\"",    -1, ERROR_VALUE,             -1, 0  },
                 {  L_, "\"\\U   4\"",    -1, ERROR_VALUE,             -1, 0  },
                 {  L_, "\"\\U  -1\"",    -1, ERROR_VALUE,             -1, 0  },
@@ -401,7 +401,7 @@ int main(int argc, char *argv[])
                 {  L_, "\"\\ud83d\\u  -1\"", -1, ERROR_VALUE,         -1, 0  },
 
                 // These error strings were copied from
-                // 'bdlde_charconvertutf32' test driver.
+                // `bdlde_charconvertutf32` test driver.
 
                 // Values that are not valid Unicode because they are in the
                 // lower UTF-16 bit plane.
@@ -556,7 +556,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "Test 'flags'" << endl;
+        if (verbose) cout << "Test `flags`" << endl;
         {
             struct {
                 int         d_line;
@@ -622,28 +622,28 @@ int main(int argc, char *argv[])
         // ENCODING STRINGS
         //
         // Concerns:
-        //: 1 Character are encoded as a single character string.
-        //:
-        //: 2 All escape characters are encoded corrected.
-        //:
-        //: 3 Control characters are encoded as hex.
-        //:
-        //: 4 Invalid UTF-8 strings are rejected and return code is '-2'.
-        //:
-        //: 5 The input can have embedded null ('\0') characters.
-        //:
-        //: 6 Writing to an 'ostream' in a "bad" state fails with return code
-        //:   of '-1'.
+        // 1. Character are encoded as a single character string.
+        //
+        // 2. All escape characters are encoded corrected.
+        //
+        // 3. Control characters are encoded as hex.
+        //
+        // 4. Invalid UTF-8 strings are rejected and return code is `-2`.
+        //
+        // 5. The input can have embedded null ('\0') characters.
+        //
+        // 6. Writing to an `ostream` in a "bad" state fails with return code
+        //    of `-1`.
         //
         // Plan:
-        //: 1 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of values that include all escaped characters and
-        //:     some control characters.
-        //:
-        //:   2 Encode the value and verify the results.
-        //:
-        //: 2 Repeat for strings and Customized type.
+        // 1. Using the table-driven technique:
+        //
+        //   1. Specify a set of values that include all escaped characters and
+        //      some control characters.
+        //
+        //   2. Encode the value and verify the results.
+        //
+        // 2. Repeat for strings and Customized type.
         //
         // Testing:
         //  static int writeString(bsl::ostream& s, const bsl::string_view&);
@@ -732,7 +732,7 @@ int main(int argc, char *argv[])
                 const char *const VALUE    = DATA[ti].d_value_p;
                 const char *const EXPECTED = DATA[ti].d_result_p;
 
-                if (veryVeryVerbose) cout << "Test 'char *'" << endl;
+                if (veryVeryVerbose) cout << "Test `char *`" << endl;
                 {
                     bsl::ostringstream oss;
                     ASSERTV(LINE, 0 == Util::writeString(oss, VALUE));
@@ -741,7 +741,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, result, EXPECTED, result == EXPECTED);
                 }
 
-                if (veryVeryVerbose) cout << "Test 'string'" << endl;
+                if (veryVeryVerbose) cout << "Test `string`" << endl;
                 {
                     bsl::ostringstream oss;
                     ASSERTV(LINE, 0 == Util::writeString(oss,
@@ -775,13 +775,13 @@ int main(int argc, char *argv[])
                 const int         LINE  = DATA[ti].d_line;
                 const char *const VALUE = DATA[ti].d_value_p;
 
-                if (veryVeryVerbose) cout << "Test 'char *'" << endl;
+                if (veryVeryVerbose) cout << "Test `char *`" << endl;
                 {
                     bsl::ostringstream oss;
                     ASSERTV(LINE, 0 != Util::writeString(oss, VALUE));
                 }
 
-                if (veryVeryVerbose) cout << "Test 'string'" << endl;
+                if (veryVeryVerbose) cout << "Test `string`" << endl;
                 {
                     bsl::ostringstream oss;
                     ASSERTV(LINE, -2 == Util::writeString(oss,
@@ -816,7 +816,7 @@ int main(int argc, char *argv[])
                                                             == jsonEmbedded0s);
         }
 
-        if (verbose) cout << "Write to a \"bad\" 'ostream'" << endl;
+        if (verbose) cout << "Write to a \"bad\" `ostream`" << endl;
         {
             bsl::ostringstream oss;
             oss.setstate(bsl::ios::badbit);

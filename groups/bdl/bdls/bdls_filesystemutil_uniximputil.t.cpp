@@ -36,12 +36,12 @@
 //                                 Overview
 //                                 --------
 // The component under test provides a class template,
-// 'bdls::FilesystemUtil_UnixImpUtil', that acts as a namespace template for a
+// `bdls::FilesystemUtil_UnixImpUtil`, that acts as a namespace template for a
 // suite of functions that provide file-system operations on top of those
 // provided by its class-type template parameter, which must be a namespace
 // struct that provides a suite of primitive file-system operations.  Thus, in
 // order to test this component, we will supply
-// 'bdls::FilesystemUtil_UnixImpUtil' with synthetic primitive file-system
+// `bdls::FilesystemUtil_UnixImpUtil` with synthetic primitive file-system
 // operations that record all input and output, in order to verify this
 // component correctly operates a Unix system.
 // ----------------------------------------------------------------------------
@@ -148,10 +148,10 @@ struct Stat64Imp {
                          // struct TestUnixFunctionId
                          // =========================
 
+/// This `struct` provides a namespace for enumerating a set of
+/// identifiers that denote some functions provided by Unix operating
+/// systems in the large-file environment.
 struct TestUnixFunctionId {
-    // This 'struct' provides a namespace for enumerating a set of
-    // identifiers that denote some functions provided by Unix operating
-    // systems in the large-file environment.
 
     enum Enum {
         e_FSTAT
@@ -162,15 +162,16 @@ struct TestUnixFunctionId {
                         // struct TestUnixInterfaceCall
                         // ============================
 
+/// This in-core, aggregate-like `struct` provides a representation of the
+/// arguments of a call to a Unix function in the large-file environment.
 struct TestUnixInterfaceCall {
-    // This in-core, aggregate-like 'struct' provides a representation of the
-    // arguments of a call to a Unix function in the large-file environment.
 
     // TYPES
+
+    /// `FunctionId` is an alias to an enumeration for a set of identifiers
+    /// that denote some functions provided by Unix operating systems in the
+    /// large-file environment.
     typedef TestUnixFunctionId FunctionId;
-        // 'FunctionId' is an alias to an enumeration for a set of identifiers
-        // that denote some functions provided by Unix operating systems in the
-        // large-file environment.
 
     struct FstatCall {
         // PUBLIC DATA
@@ -185,36 +186,39 @@ struct TestUnixInterfaceCall {
     };
 
     // CREATORS
-    TestUnixInterfaceCall();
-        // Create a 'TestUnixInterfaceCall' object having indeterminate value.
 
+    /// Create a `TestUnixInterfaceCall` object having indeterminate value.
+    TestUnixInterfaceCall();
+
+    /// Create a `TestUnixInterfaceCall` object having the same value as the
+    /// specified `other`.  The behavior is undefined if `other` has
+    /// indeterminate value or the active member of its union does not
+    /// correspond to the value of its `d_functionId` data member.
     TestUnixInterfaceCall(const TestUnixInterfaceCall& other);
-        // Create a 'TestUnixInterfaceCall' object having the same value as the
-        // specified 'other'.  The behavior is undefined if 'other' has
-        // indeterminate value or the active member of its union does not
-        // correspond to the value of its 'd_functionId' data member.
 
     // MANIPULATORS
+
+    /// Assign to this object the specified `other` value and return a
+    /// reference to this object.  The behavior is undefined if `other` has
+    /// indeterminate value or the active member of its union does not
+    /// correspond to the value of its `d_functionId` data member.
     BSLA_MAYBE_UNUSED
     TestUnixInterfaceCall& operator=(const TestUnixInterfaceCall& other) ;
-        // Assign to this object the specified 'other' value and return a
-        // reference to this object.  The behavior is undefined if 'other' has
-        // indeterminate value or the active member of its union does not
-        // correspond to the value of its 'd_functionId' data member.
 };
                       // ================================
                       // struct TestUnixInterfaceResponse
                       // ================================
 
+/// This in-core, aggregate-like `struct` provides a representation of the
+/// results of a call to a Unix function in the large-file environment.
 struct TestUnixInterfaceResponse {
-    // This in-core, aggregate-like 'struct' provides a representation of the
-    // results of a call to a Unix function in the large-file environment.
 
     // TYPES
+
+    /// `FunctionId` is an alias to an enumeration for a set of identifiers
+    /// that denote some functions provided by Unix operating systems in the
+    /// large-file environment.
     typedef TestUnixFunctionId FunctionId;
-        // 'FunctionId' is an alias to an enumeration for a set of identifiers
-        // that denote some functions provided by Unix operating systems in the
-        // large-file environment.
 
     struct FstatResponse {
         // PUBLIC DATA
@@ -230,67 +234,72 @@ struct TestUnixInterfaceResponse {
     };
 
     // CREATORS
-    TestUnixInterfaceResponse();
-        // Create a 'TestUnixInterfaceResponse' object having indeterminate
-        // value.
 
+    /// Create a `TestUnixInterfaceResponse` object having indeterminate
+    /// value.
+    TestUnixInterfaceResponse();
+
+    /// Create a `TestUnixInterfaceResponse` object having the same value as
+    /// the specified `other`.  The behavior is undefined if `other` has
+    /// indeterminate value or the active member of its union does not
+    /// correspond to the value of its `d_functionId` data member.
     TestUnixInterfaceResponse(const TestUnixInterfaceResponse& other);
-        // Create a 'TestUnixInterfaceResponse' object having the same value as
-        // the specified 'other'.  The behavior is undefined if 'other' has
-        // indeterminate value or the active member of its union does not
-        // correspond to the value of its 'd_functionId' data member.
 
     // MANIPULATORS
+
+    /// Assign to this object the specified `other` value and return a
+    /// reference to this object.  The behavior is undefined if `other` has
+    /// indeterminate value or the active member of its union does not
+    /// correspond to the value of its `d_functionId` data member.
     BSLA_MAYBE_UNUSED
     TestUnixInterfaceResponse& operator=(
                                        const TestUnixInterfaceResponse& other);
-        // Assign to this object the specified 'other' value and return a
-        // reference to this object.  The behavior is undefined if 'other' has
-        // indeterminate value or the active member of its union does not
-        // correspond to the value of its 'd_functionId' data member.
 };
                           // =======================
                           // class TestUnixInterface
                           // =======================
 
+/// This mechanism class provides a set of member functions that mock
+/// corresponding Unix system functions in the large-file environment.  It
+/// records the arguments to these functions in a queue, which clients
+/// retrieve with `popFrontCall`, and returns results from a queue that
+/// clients populate with `pushFrontResponse`.
 class TestUnixInterface {
-    // This mechanism class provides a set of member functions that mock
-    // corresponding Unix system functions in the large-file environment.  It
-    // records the arguments to these functions in a queue, which clients
-    // retrieve with 'popFrontCall', and returns results from a queue that
-    // clients populate with 'pushFrontResponse'.
 
   public:
     // TYPES
+
+    /// `Call` is an alias to an in-core, aggregate-like `struct` that
+    /// provides a representation of the arguments of a call to a Unix
+    /// function in the large-file environment.
     typedef TestUnixInterfaceCall Call;
-        // 'Call' is an alias to an in-core, aggregate-like 'struct' that
-        // provides a representation of the arguments of a call to a Unix
-        // function in the large-file environment.
 
+    /// `Response` is an alias to an in-core, aggregate-like `struct` that
+    /// provides a representation of the results of a call to a Unix
+    /// function in the large-file environment.
     typedef TestUnixInterfaceResponse Response;
-        // 'Response' is an alias to an in-core, aggregate-like 'struct' that
-        // provides a representation of the results of a call to a Unix
-        // function in the large-file environment.
 
+    /// `allocator_type` is an alias to the type of allocator that supplies
+    /// memory to `TestUnixInterface` objects.
     typedef bsl::allocator<char> allocator_type;
-        // 'allocator_type' is an alias to the type of allocator that supplies
-        // memory to 'TestUnixInterface' objects.
 
   private:
     // PRIVATE TYPES
+
+    /// `FunctionId` is an alias to an enumeration for a set of identifiers
+    /// that denote some functions provided by Unix operating systems in the
+    /// large-file environment.
     typedef TestUnixFunctionId FunctionId;
-        // 'FunctionId' is an alias to an enumeration for a set of identifiers
-        // that denote some functions provided by Unix operating systems in the
-        // large-file environment.
 
     // DATA
-    bsl::deque<Call>     d_calls;
-        // queue of call records that 'fstat' populates and 'popFrontCall'
-        // drains
 
+    // queue of call records that `fstat` populates and `popFrontCall`
+    // drains
+    bsl::deque<Call>     d_calls;
+
+    // queue of response records that `pushBackResponse` populates and
+    // `fstat` drains
     bsl::deque<Response> d_responses;
-        // queue of response records that 'pushBackResponse' populates and
-        // 'fstat' drains
 
     // NOT IMPLEMENTED
     TestUnixInterface(const TestUnixInterface&);
@@ -298,98 +307,104 @@ class TestUnixInterface {
 
   public:
     // CREATORS
+
+    /// Create a `TestUnixInterface` object that has empty call and response
+    /// queues.  Optionally specify an `allocator` used to supply memory;
+    /// otherwise, the default allocator is used.
     TestUnixInterface();
     BSLA_MAYBE_UNUSED
     explicit TestUnixInterface(const allocator_type& allocator);
-        // Create a 'TestUnixInterface' object that has empty call and response
-        // queues.  Optionally specify an 'allocator' used to supply memory;
-        // otherwise, the default allocator is used.
 
     // MANIPULATORS
+
+    /// Push a `Call` to the call queue that has a `FunctionId::e_FSTAT`
+    /// `d_functionId`, a `d_fildes` equal to the specified `fildes`, and a
+    /// `d_buf` equal to the specified `buf`, load the `d_buf` into `buf`
+    /// and return the `d_result` of the next queued response.  The behavior
+    /// is undefined if the response queue is empty or the `d_functionId` of
+    /// the next queued response is not `FunctionId::e_FSTAT`.
     int fstat(int fildes, stat *buf);
-        // Push a 'Call' to the call queue that has a 'FunctionId::e_FSTAT'
-        // 'd_functionId', a 'd_fildes' equal to the specified 'fildes', and a
-        // 'd_buf' equal to the specified 'buf', load the 'd_buf' into 'buf'
-        // and return the 'd_result' of the next queued response.  The behavior
-        // is undefined if the response queue is empty or the 'd_functionId' of
-        // the next queued response is not 'FunctionId::e_FSTAT'.
 
+    /// Load the next queued call into the specified `call` and remove it
+    /// from the queue.  The behavior is undefined if the call queue is
+    /// empty.
     void popFrontCall(Call *call);
-        // Load the next queued call into the specified 'call' and remove it
-        // from the queue.  The behavior is undefined if the call queue is
-        // empty.
 
+    /// Push the specified `response` to the response queue.
     void pushBackResponse(const Response& response);
-        // Push the specified 'response' to the response queue.
 
     // ACCESSORS
+
+    /// Return the number of calls in the call queue.
     BSLA_MAYBE_UNUSED
     int numCalls() const;
-        // Return the number of calls in the call queue.
 
+    /// Return the number of responses in the response queue.
     BSLA_MAYBE_UNUSED
     int numResponses() const;
-        // Return the number of responses in the response queue.
 };
 
                         // ============================
                         // struct TestUnixInterfaceUtil
                         // ============================
 
+/// This utility `struct` provides an implementation of the requirements for
+/// the `UNIX_INTERFACE` template parameter of the functions provided by
+/// `FilesystemUtil_UnixImplUtil` in terms of mock Unix interface calls in
+/// the large-file environment.
 struct TestUnixInterfaceUtil {
-    // This utility 'struct' provides an implementation of the requirements for
-    // the 'UNIX_INTERFACE' template parameter of the functions provided by
-    // 'FilesystemUtil_UnixImplUtil' in terms of mock Unix interface calls in
-    // the large-file environment.
 
     // TYPES
+
+    /// `off_t` is an alias to the `off_t` type provided by the
+    /// `sys/types.h` header.  It is a signed integral type used to
+    /// represent quantities of bytes.  Note that, depending on the build
+    /// configuration, this type may have 32 or 64 bits.
     typedef ::BloombergLP::u::off_t off_t;
-        // 'off_t' is an alias to the 'off_t' type provided by the
-        // 'sys/types.h' header.  It is a signed integral type used to
-        // represent quantities of bytes.  Note that, depending on the build
-        // configuration, this type may have 32 or 64 bits.
 
+    /// `stat` is an alias to the `stat` `struct` provided by the
+    /// `sys/stat.h` header.
     typedef ::BloombergLP::u::stat stat;
-        // 'stat' is an alias to the 'stat' 'struct' provided by the
-        // 'sys/stat.h' header.
 
+    /// `time_t` is an alias to the `time_t` type provided by the
+    /// `sys/types.h` header.  It represents a time point as number of
+    /// seconds since January 1st 1970 in Coordinated Universal Time.
     typedef ::BloombergLP::u::time_t time_t;
-        // 'time_t' is an alias to the 'time_t' type provided by the
-        // 'sys/types.h' header.  It represents a time point as number of
-        // seconds since January 1st 1970 in Coordinated Universal Time.
 
   private:
     // CLASS DATA
+
+    // the currently-installed mock Unix interface mechanism
     static TestUnixInterface *s_interface_p;
-        // the currently-installed mock Unix interface mechanism
 
   public:
     // CLASS METHODS
+
+    /// Return the value of the `st_mtim.tv_nsec` member of the specified
+    /// `stat` if present.
     static long get_st_mtim_nsec(const stat& stat);
-        // Return the value of the 'st_mtim.tv_nsec' member of the specified
-        // 'stat' if present.
 
+    /// Return the value of the `st_mtime` member of the specified `stat`.
     static time_t get_st_mtime(const stat& stat);
-        // Return the value of the 'st_mtime' member of the specified 'stat'.
 
+    /// Return the value of the `st_size` member of the specified `stat`.
     static off_t get_st_size(const stat& stat);
-        // Return the value of the 'st_size' member of the specified 'stat'.
 
+    /// Push a `Call` to the interface's call queue that has a
+    /// `FunctionId::e_FSTAT` `d_functionId`, a `d_fildes` equal to the
+    /// specified `fildes`, and a `d_buf` equal to the specified `buf`, load
+    /// the `d_buf` into `buf` and return the `d_result` of the interface's
+    /// next queued response.  The behavior is undefined if the response
+    /// queue is empty or the `d_functionId` of the next queued response is
+    /// not `FunctionId::e_FSTAT`.
     static int fstat(int fildes, stat *buf);
-        // Push a 'Call' to the interface's call queue that has a
-        // 'FunctionId::e_FSTAT' 'd_functionId', a 'd_fildes' equal to the
-        // specified 'fildes', and a 'd_buf' equal to the specified 'buf', load
-        // the 'd_buf' into 'buf' and return the 'd_result' of the interface's
-        // next queued response.  The behavior is undefined if the response
-        // queue is empty or the 'd_functionId' of the next queued response is
-        // not 'FunctionId::e_FSTAT'.
 
+    /// Set the interface to the specified `interface`.
     static void setInterface(TestUnixInterface *interface);
-        // Set the interface to the specified 'interface'.
 
+    /// Return the interface.
     BSLA_MAYBE_UNUSED
     static TestUnixInterface *interface();
-        // Return the interface.
 };
 
 // ============================================================================
@@ -591,7 +606,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     using namespace bdls;
@@ -611,58 +626,58 @@ int main(int argc, char *argv[])
     switch(test) { case 0:
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'getLastModificationTime'
+        // TESTING `getLastModificationTime`
         //   This case verifies, using a mock Unix interface', that
-        //   'getLastModificationTime' correctly converts the values of its
+        //   `getLastModificationTime` correctly converts the values of its
         //   arguments into the values required by the underlying Unix system
         //   operation, converts the results of the operation to
-        //   'getLastModificationTime's results, and invokes no undefined
+        //   `getLastModificationTime`s results, and invokes no undefined
         //   behavior when given or producing values near their limits.
         //
         // Concerns:
-        //: 1 Invalid file descriptor values of 'descriptor' are forwarded to
-        //:   the underlying 'fstat' call.
-        //:
-        //: 2 Non-zero return codes from 'fstat' calls result in a non-zero
-        //:   return value.
-        //:
-        //: 3 Upon success, the value loaded to the 'st_mtime' field of the
-        //:   'stat' struct is converted to the 'bdlt::Datetime' result that
-        //:   represents the same value as the 'st_mtime', if a
-        //:   'bdlt::Datetime' is capable of representing the value, and a
-        //:   non-zero value is returned otherwise.
+        // 1. Invalid file descriptor values of `descriptor` are forwarded to
+        //    the underlying `fstat` call.
+        //
+        // 2. Non-zero return codes from `fstat` calls result in a non-zero
+        //    return value.
+        //
+        // 3. Upon success, the value loaded to the `st_mtime` field of the
+        //    `stat` struct is converted to the `bdlt::Datetime` result that
+        //    represents the same value as the `st_mtime`, if a
+        //    `bdlt::Datetime` is capable of representing the value, and a
+        //    non-zero value is returned otherwise.
         //
         // Plan:
-        //: 1 Create a table that enumerates several combinations of values for
-        //:   'descriptor', as well as return codes and 'stat' struct values to
-        //:   use as results from an underlying call to 'fstat', where the
-        //:   numeric limits of each are present, and values known to be near
-        //:   the limits of the corresponding results for
-        //:   'getLastModificationTime'.
-        //:
-        //: 2 For each combination 'C' of the set of combinations, do the
-        //:   following:
-        //:
-        //:   1 Prime a mock Unix interface to expect a call to 'fstat' with
-        //:     the file descriptor in 'C' and to provide the return code and
-        //:     'stat' struct values from 'C' as results to the call to
-        //:     'fstat'.
-        //:
-        //:   2 Invoke 'getLastModificationTime' with the file descriptor from
-        //:     'C'.
-        //:
-        //:   3 Verify that the results of the call to
-        //:     'getLastModificationTime' satisfy the properties defined by each
-        //:     concern relating to the particular result.
-        //:
-        //:   4 Verify that one and only one call to 'fstat' was made.
+        // 1. Create a table that enumerates several combinations of values for
+        //    `descriptor`, as well as return codes and `stat` struct values to
+        //    use as results from an underlying call to `fstat`, where the
+        //    numeric limits of each are present, and values known to be near
+        //    the limits of the corresponding results for
+        //    `getLastModificationTime`.
+        //
+        // 2. For each combination `C` of the set of combinations, do the
+        //    following:
+        //
+        //   1. Prime a mock Unix interface to expect a call to `fstat` with
+        //      the file descriptor in `C` and to provide the return code and
+        //      `stat` struct values from `C` as results to the call to
+        //      `fstat`.
+        //
+        //   2. Invoke `getLastModificationTime` with the file descriptor from
+        //      `C`.
+        //
+        //   3. Verify that the results of the call to
+        //      `getLastModificationTime` satisfy the properties defined by each
+        //      concern relating to the particular result.
+        //
+        //   4. Verify that one and only one call to `fstat` was made.
         //
         // Testing:
         //   Offset getLastModificationTime(bdlt::Datetime *, FileDescriptor);
         // --------------------------------------------------------------------
 
         if (verbose) {
-            bsl::cout << bsl::endl << "TESTING 'getLastModificationTime'"
+            bsl::cout << bsl::endl << "TESTING `getLastModificationTime`"
                       << bsl::endl << "================================="
                       << bsl::endl;
         }
@@ -702,35 +717,35 @@ int main(int argc, char *argv[])
         const int MIN = bsl::numeric_limits<int>::min();
         const int MAX = bsl::numeric_limits<int>::max();
 
+        /// the line number
         const struct {
             int                d_line;
-                // the line number
 
+            /// the argument to `getLastModificationTime`
             FileDescriptor     d_fileDescriptor;
-                // the argument to 'getLastModificationTime'
 
+            /// the expected `fildes` argument to `fstat`
             int                d_fildes;
-                // the expected 'fildes' argument to 'fstat'
 
+            /// what to return from the mock `fstat` call
             int                d_fstatResult;
-                // what to return from the mock 'fstat' call
 
+            /// what to load into the `st_mtime` field of the `stat` from
+            /// the mock `fstat` call
             bsls::Types::Int64 d_st_mtime64;
-                // what to load into the 'st_mtime' field of the 'stat' from
-                // the mock 'fstat' call
 
+            /// the expected value of `time` after the call to
+            /// `getLastModificationTime`
             bdlt::Datetime     d_time;
-                // the expected value of 'time' after the call to
-                // 'getLastModificationTime'
 
+            /// the expected `getLastModificationTime` return value
             int                d_result;
-                // the expected 'getLastModificationTime' return value
           } DATA[] = {
  { L_, INVALID_FD,  -1, -1,             NA, DT_NA                       , -1 },
 //{ L_, INVALID_FD,  -1,  0, MIN_TIME64    , DT_NA                       , -1 }
-// Note that as of September 25th, 2020, there is a bug in 'bdlt_datetime' in
-// which the behavior of invoking 'bdlt::Datetime::addSecondsIfValid' with an
-// argument of 'bsl::numeric_limits<bsls::Types::Int64>::min()' is undefined.
+// Note that as of September 25th, 2020, there is a bug in `bdlt_datetime` in
+// which the behavior of invoking `bdlt::Datetime::addSecondsIfValid` with an
+// argument of `bsl::numeric_limits<bsls::Types::Int64>::min()` is undefined.
  { L_, INVALID_FD,  -1,  0, MIN_TIME64 + 1, DT_NA                       , -1 },
  { L_, INVALID_FD,  -1,  0, -62135769601LL, DT_NA                       , -1 },
  { L_, INVALID_FD,  -1,  0, -62135769600LL, DT(   1,  1,  1,  0,  0,  0),  0 },
@@ -823,87 +838,87 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'getFileSize'
+        // TESTING `getFileSize`
         //   This case verifies, using a mock Unix interface, that
-        //   'getFileSize' correctly converts the values of its arguments into
+        //   `getFileSize` correctly converts the values of its arguments into
         //   the values required by the underlying Unix system operation,
-        //   converts the results of the operation to 'getFileSize's results,
+        //   converts the results of the operation to `getFileSize`s results,
         //   and invokes no undefined behavior when given or producing values
         //   near their limits.
         //
         // Concerns:
-        //: 1 Invalid file descriptor values of 'descriptor' are forwarded to
-        //:   the underlying 'fstat' call.
-        //:
-        //: 2 File descriptors at the numeric limits of the type are forwarded
-        //:   to the underlying 'fstat' call unmodified.
-        //:
-        //: 3 Non-zero return codes from 'fstat' calls result in a negative
-        //:   return value.
-        //:
-        //: 4 Upon success, the numeric value loaded to the 'st_size' field of
-        //:   the 'stat' struct is returned without modification, even at the
-        //:   numeric limits of its type.
+        // 1. Invalid file descriptor values of `descriptor` are forwarded to
+        //    the underlying `fstat` call.
+        //
+        // 2. File descriptors at the numeric limits of the type are forwarded
+        //    to the underlying `fstat` call unmodified.
+        //
+        // 3. Non-zero return codes from `fstat` calls result in a negative
+        //    return value.
+        //
+        // 4. Upon success, the numeric value loaded to the `st_size` field of
+        //    the `stat` struct is returned without modification, even at the
+        //    numeric limits of its type.
         //
         // Plan:
-        //: 1 Create a table that enumerates several combinations of values for
-        //:   'descriptor', as well as return codes and 'stat' struct values to
-        //:   use as results from an underlying call to 'fstat', where the
-        //:   numeric limits of each are present.
-        //:
-        //: 2 For each combination 'C' of the set of combinations, do the
-        //:   following:
-        //:
-        //:   1 Prime a mock Unix interface to expect a call to 'fstat' with
-        //:     the file descriptor in 'C', and to provide the return code and
-        //:     'stat' struct values from 'C' as results to the call to
-        //:     'fstat'.
-        //:
-        //:   2 Invoke 'getFileSize' with the file descriptor from 'C'.
-        //:
-        //:   3 Verify that the results of the call to 'getFileSize' satisfy
-        //:     the properties defined by each concern relating to the
-        //:     particular result.
-        //:
-        //:   4 Verify that one and only one call to 'fstat' was made.
+        // 1. Create a table that enumerates several combinations of values for
+        //    `descriptor`, as well as return codes and `stat` struct values to
+        //    use as results from an underlying call to `fstat`, where the
+        //    numeric limits of each are present.
+        //
+        // 2. For each combination `C` of the set of combinations, do the
+        //    following:
+        //
+        //   1. Prime a mock Unix interface to expect a call to `fstat` with
+        //      the file descriptor in `C`, and to provide the return code and
+        //      `stat` struct values from `C` as results to the call to
+        //      `fstat`.
+        //
+        //   2. Invoke `getFileSize` with the file descriptor from `C`.
+        //
+        //   3. Verify that the results of the call to `getFileSize` satisfy
+        //      the properties defined by each concern relating to the
+        //      particular result.
+        //
+        //   4. Verify that one and only one call to `fstat` was made.
         //
         // Testing:
         //   Offset getFileSize(FileDescriptor);
         // --------------------------------------------------------------------
 
         if (verbose) {
-            bsl::cout << bsl::endl << "TESTING 'getFileSize'"
+            bsl::cout << bsl::endl << "TESTING `getFileSize`"
                       << bsl::endl << "=====================" << bsl::endl;
 
         }
 
         {
             // This block tests all code paths through the Unix implementation
-            // of 'getFileSize', as well as boundary values for its input and
+            // of `getFileSize`, as well as boundary values for its input and
             // output, using a mock Unix interface.
 
             const int      MAX_INT = bsl::numeric_limits<int>::max();
             const u::off_t MAX_OFF = bsl::numeric_limits<u::off_t>::max();
 
+            /// the line number
             const struct {
                 int            d_line;
-                    // the line number
 
+                /// the argument to `getFileSize`
                 FileDescriptor d_fileDescriptor;
-                    // the argument to 'getFileSize'
 
+                /// the expected `fildes` argument to `fstat`
                 int            d_fildes;
-                    // the expected 'fildes' argument to 'fstat'
 
+                /// what to return from the mock `fstat` call
                 int            d_fstatResult;
-                    // what to return from the mock 'fstat' call
 
+                /// what to load into the `st_size` field of the `stat` from
+                /// the mock `fstat` call
                 u::off_t       d_st_size;
-                    // what to load into the 'st_size' field of the 'stat' from
-                    // the mock 'fstat' call
 
+                /// the expected `getFileSize` result
                 Offset         d_result;
-                    // the expected 'getFileSize' result
             } DATA[] = {
                 //   LINE                    FSTAT RESULT
                 //  .----                   .------------

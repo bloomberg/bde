@@ -144,14 +144,14 @@ class MaxConcurrencyCounter {
    public:
      // CREATORS
     MaxConcurrencyCounter(int *count, int *max, bsls::SpinLock *lock);
-         // Acquire the specified 'lock' and increment the specified 'count'.
-         // If the resulting value is larger than the specified 'max',
-         // load it into 'max'. Release 'lock' and create a scoped guard to
-         // decrement 'count' on destruction.
+         // Acquire the specified `lock` and increment the specified `count`.
+         // If the resulting value is larger than the specified `max`,
+         // load it into `max`. Release `lock` and create a scoped guard to
+         // decrement `count` on destruction.
 
+     /// Acquire the lock specified at construction, decrement the count
+     /// variable, and release the lock.
      ~MaxConcurrencyCounter();
-         // Acquire the lock specified at construction, decrement the count
-         // variable, and release the lock.
 };
 
 MaxConcurrencyCounter::MaxConcurrencyCounter(int            *count,
@@ -175,10 +175,10 @@ static int            usageExampleThreadCount = 0;
 static int            usageExampleMaxThreads = 0;
 static bsls::SpinLock usageExampleThreadLock = BSLS_SPINLOCK_UNLOCKED;
 
+/// Next, by creating a `MaxConcurrencyCounter` object, each thread
+/// entering the block of code uses the `SpinLock` to synchronize
+/// manipulation of the static count variables:
 extern "C" void *usageExampleFn(void *) {
-    // Next, by creating a 'MaxConcurrencyCounter' object, each thread
-    // entering the block of code uses the 'SpinLock' to synchronize
-    // manipulation of the static count variables:
 
     MaxConcurrencyCounter counter(&usageExampleThreadCount,
                                   &usageExampleMaxThreads,
@@ -186,7 +186,7 @@ extern "C" void *usageExampleFn(void *) {
 
     sleepSeconds(1);
 
-    // Finally, closing the block synchronizes on the 'SpinLock' again
+    // Finally, closing the block synchronizes on the `SpinLock` again
     // to decrement the thread count. Any intervening code can run in
     // parallel.
     return 0;
@@ -216,11 +216,12 @@ void busyWork(bsls::Types::Int64 busyWorkAmount)
 // In particular, imagine we want a threadsafe "multi-queue". In this case,
 // we would have an array of queues, each with a SpinLock member for
 // fine-grained locking.  First, we define the type to be held in the array.
+
+/// This type implements a threadsafe queue with a small memory
+/// footprint and low initialization costs. It is designed for
+/// low-contention use only.
 template <class TYPE>
 class LightweightThreadsafeQueue {
-    // This type implements a threadsafe queue with a small memory
-    // footprint and low initialization costs. It is designed for
-    // low-contention use only.
 
     // TYPES
     struct Node {
@@ -237,30 +238,32 @@ class LightweightThreadsafeQueue {
 
   public:
     // CREATORS
-    LightweightThreadsafeQueue();
-        // Create an empty queue.
 
+    /// Create an empty queue.
+    LightweightThreadsafeQueue();
+
+    /// Destroy this object.
     ~LightweightThreadsafeQueue();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Remove the element at the front of the queue and load it into the
+    /// specified `value`. Return `0` on success, or a nonzero value if the
+    /// queue is empty.
     int dequeue(TYPE* value);
-        // Remove the element at the front of the queue and load it into the
-        // specified 'value'. Return '0' on success, or a nonzero value if the
-        // queue is empty.
 
+    /// Add the specified `value` to the back of the queue.
     void enqueue(const TYPE& value);
-        // Add the specified 'value' to the back of the queue.
 
+    /// Add the specified `value` to the back of the queue and simulate
+    /// doing work for the specified `busyWorkAmount`.  The queue uses
+    /// backoff if the specified `backoffFlag` is set, and does not
+    /// otherwise.
     void enqueueWL(const TYPE& value, int backoffFlag, int busyWorkAmount);
-        // Add the specified 'value' to the back of the queue and simulate
-        // doing work for the specified 'busyWorkAmount'.  The queue uses
-        // backoff if the specified 'backoffFlag' is set, and does not
-        // otherwise.
 };
 
 // Next, we implement the creators. Note that a different idiom is used
-// to initialize member variables of 'SpinLock' type than is used for static
+// to initialize member variables of `SpinLock` type than is used for static
 // variables:
 template <class TYPE>
 LightweightThreadsafeQueue<TYPE>::LightweightThreadsafeQueue()
@@ -278,7 +281,7 @@ LightweightThreadsafeQueue<TYPE>::~LightweightThreadsafeQueue() {
     }
 }
 
-// Then we implement the manipulator functions using 'SpinLockGuard' to ensure
+// Then we implement the manipulator functions using `SpinLockGuard` to ensure
 // thread safety.
 template <class TYPE>
 int LightweightThreadsafeQueue<TYPE>::dequeue(TYPE* value) {
@@ -409,19 +412,19 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLES
         //
         // Concern:
-        //: 1 The usage examples provided in the component header file compile,
-        //:   link, and run as shown.
+        // 1. The usage examples provided in the component header file compile,
+        //    link, and run as shown.
         //
         // Plan:
-        //: 1 Place the block of code from usage example 1 in a function
-        //:   to be executed by N threads. In the parallelizable region, sleep
-        //:   for a second. This should allow all N threads to be in that
-        //:   region concurrently. Validate that the "maxThreads" count is N
-        //:   after the threads are joined.
-        //:
-        //: 2 Execute usage example 2, validating that all elements from all
-        //:   threads are present in the multiqueue after joining the worker
-        //:   threads.
+        // 1. Place the block of code from usage example 1 in a function
+        //    to be executed by N threads. In the parallelizable region, sleep
+        //    for a second. This should allow all N threads to be in that
+        //    region concurrently. Validate that the "maxThreads" count is N
+        //    after the threads are joined.
+        //
+        // 2. Execute usage example 2, validating that all elements from all
+        //    threads are present in the multiqueue after joining the worker
+        //    threads.
 
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
@@ -490,15 +493,15 @@ int main(int argc, char *argv[])
         // TEST PERFORMANCE
         //
         // Concern:
-        //: 1 Use a modified version of the multiqueue usage example to test
-        //:   the difference in performance with and without backoff logic.
+        // 1. Use a modified version of the multiqueue usage example to test
+        //    the difference in performance with and without backoff logic.
         //
         // Plan:
-        //: 1 Use the following parameters:
-        //:   2nd parameter: 1-with backoff, 0-without
-        //:   3rd parameter: number of threads; defaults to 8
-        //:   4th parameter: number of queues; defaults to 10
-        //:   5th parameter: amount of busyWork; defaults to 1000
+        // 1. Use the following parameters:
+        //    2nd parameter: 1-with backoff, 0-without
+        //    3rd parameter: number of threads; defaults to 8
+        //    4th parameter: number of queues; defaults to 10
+        //    5th parameter: amount of busyWork; defaults to 1000
 
         if (argc < 3) {
             printf("Usage: bsls_spinlock.t -1 <backoff flag> [numThreads(8)]"

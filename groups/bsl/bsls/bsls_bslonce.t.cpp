@@ -45,7 +45,7 @@ using namespace bsls;
 //
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 4] CONCERN: CONCURRENT CALLS TO 'enter'
+// [ 4] CONCERN: CONCURRENT CALLS TO `enter`
 // [ 5] USAGE EXAMPLE
 
 // ============================================================================
@@ -98,9 +98,9 @@ extern "C" {
 typedef void* (*THREAD_ENTRY)(void *arg);
 }
 
+/// This class implements a cross-platform mutual exclusion primitive
+/// similar to posix mutexes.
 class my_Mutex {
-    // This class implements a cross-platform mutual exclusion primitive
-    // similar to posix mutexes.
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     HANDLE d_mutex;
 #else
@@ -108,23 +108,24 @@ class my_Mutex {
 #endif
 
   public:
+    /// Construct a `my_Mutex` object.
     my_Mutex();
-        // Construct a 'my_Mutex' object.
+
+    /// Destroy a `my_Mutex` object.
     ~my_Mutex();
-        // Destroy a 'my_Mutex' object.
 
+    /// Lock this mutex.
     void lock();
-        // Lock this mutex.
 
+    /// Unlock this mutex;
     void unlock();
-        // Unlock this mutex;
 };
 
+/// This class implements a cross-platform waitable state indicator used for
+/// testing.  It has two states, signaled and non-signaled.  Once
+/// signaled(`signal`), the state will persist until explicitly `reset`.
+/// Calls to wait, when the state is signaled, will succeed immediately.
 class my_Conditional {
-    // This class implements a cross-platform waitable state indicator used for
-    // testing.  It has two states, signaled and non-signaled.  Once
-    // signaled('signal'), the state will persist until explicitly 'reset'.
-    // Calls to wait, when the state is signaled, will succeed immediately.
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     HANDLE d_cond;
 #else
@@ -134,87 +135,90 @@ class my_Conditional {
 #endif
 
   public:
+    /// Create a conditional object.
     my_Conditional();
-        // Create a conditional object.
 
+    /// Destroy this object/
     ~my_Conditional();
-        // Destroy this object/
 
+    /// Reset the state of this indicator to non-signaled.
     void reset();
-        // Reset the state of this indicator to non-signaled.
 
+    /// Signal the state of the indicator and unblock any threads waiting
+    /// for the state to be signaled.
     void signal();
-        // Signal the state of the indicator and unblock any threads waiting
-        // for the state to be signaled.
 
+    /// Wait until the state of this indicator becomes signaled.  If the
+    /// state is already signaled then return immediately.
     void wait();
-        // Wait until the state of this indicator becomes signaled.  If the
-        // state is already signaled then return immediately.
 
+    /// Wait until the state of this indicator becomes signaled or until or
+    /// for the specified `timeout`(in milliseconds).  Return 0 if the state
+    /// is signaled, non-zero if the timeout has expired.  If the state is
+    /// already signaled then return immediately.
     int  timedWait(int timeout);
-        // Wait until the state of this indicator becomes signaled or until or
-        // for the specified 'timeout'(in milliseconds).  Return 0 if the state
-        // is signaled, non-zero if the timeout has expired.  If the state is
-        // already signaled then return immediately.
 };
 
+/// This class defines a barrier for synchronizing multiple threads.  A
+/// barrier is initialized with the number of threads to expect.  Each
+/// invocation of `wait()` will block the active thread until the expected
+/// number of threads have entered the barrier, at which point all threads
+/// are released and return from `wait()`.
+///
+/// *NOTE*: The `my_Conditional` operation `wait` does *not* take a mutex,
+/// so it cannot be atomically combined with another operation (e.g.,
+/// incrementing the `d_waiting` counter), it also does not provide a
+/// `broadcast` method, so each thread must be signaled individually.
 class my_Barrier {
-    // This class defines a barrier for synchronizing multiple threads.  A
-    // barrier is initialized with the number of threads to expect.  Each
-    // invocation of 'wait()' will block the active thread until the expected
-    // number of threads have entered the barrier, at which point all threads
-    // are released and return from 'wait()'.
-    //
-    // *NOTE*: The 'my_Conditional' operation 'wait' does *not* take a mutex,
-    // so it cannot be atomically combined with another operation (e.g.,
-    // incrementing the 'd_waiting' counter), it also does not provide a
-    // 'broadcast' method, so each thread must be signaled individually.
 
     // DATA
     my_Conditional d_waitCondition;  // waiting threads wait on this condition
-    my_Mutex       d_waitMutex;      // mutex for 'd_waiting' counter
-    my_Mutex       d_awakeMutex;     // mutex for 'd_awake' counter
+    my_Mutex       d_waitMutex;      // mutex for `d_waiting` counter
+    my_Mutex       d_awakeMutex;     // mutex for `d_awake` counter
     int            d_waiting;        // # of threads blocked on d_waitCondition
-    int            d_awake;          // # of threads exited 'wait'
+    int            d_awake;          // # of threads exited `wait`
     AtomicOpInt    d_genCounter;     // generation counter
     const int      d_expected;       // number of threads to expected
 
   public:
     // CREATORS
-    explicit my_Barrier(int numThreads);
-        // Create a barrier that will synchronize the specified 'numThreads'
-        // number of threads.  The behavior is undefined unless
-        // '0 < expectedThreads'.
 
+    /// Create a barrier that will synchronize the specified `numThreads`
+    /// number of threads.  The behavior is undefined unless
+    /// `0 < expectedThreads`.
+    explicit my_Barrier(int numThreads);
+
+    /// Destroy this barrier.
     ~my_Barrier();
-        // Destroy this barrier.
 
     // MANIPULATORS
+
+    /// Block the current thread until the number of expectedThreads,
+    /// supplied at construction, have entered this barrier's `wait()`
+    /// method, then return (all blocked threads, including the current
+    /// thread).
     void wait();
-        // Block the current thread until the number of expectedThreads,
-        // supplied at construction, have entered this barrier's 'wait()'
-        // method, then return (all blocked threads, including the current
-        // thread).
 };
 
 
+/// A scoped guard for calling `lock` and `unlock` on an object of
+/// parameterized type `LOCK` (presumably a mutex).
 template <class LOCK>
 class LockGuard {
-    // A scoped guard for calling 'lock' and 'unlock' on an object of
-    // parameterized type 'LOCK' (presumably a mutex).
 
     // DATA
     LOCK *d_lock;
 
   public:
     // CREATORS
-    explicit LockGuard(LOCK *lock) : d_lock(lock) { d_lock->lock(); }
-        // Construct a lock guard for the specified 'lock', and call 'lock()'
-        // on 'lock'.
 
+    /// Construct a lock guard for the specified `lock`, and call `lock()`
+    /// on `lock`.
+    explicit LockGuard(LOCK *lock) : d_lock(lock) { d_lock->lock(); }
+
+    /// Destroy this lock guard and call `unlock()` on the object supplied
+    /// at construction.
     ~LockGuard() { d_lock->unlock(); }
-        // Destroy this lock guard and call 'unlock()' on the object supplied
-        // at construction.
 };
 
 
@@ -341,12 +345,12 @@ void my_Conditional::wait()
 #endif
 }
 
+/// Create a thread beginning execution at the specified `aEntry` function
+/// having the specified `arg` function arguments, and load the specified
+/// `aHandle` to the thread so it can be joined later.
 static int myCreateThread(my_thread_t  *aHandle,
                           THREAD_ENTRY  aEntry,
                           void         *arg )
-    // Create a thread beginning execution at the specified 'aEntry' function
-    // having the specified 'arg' function arguments, and load the specified
-    // 'aHandle' to the thread so it can be joined later.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     *aHandle = CreateThread( 0, 0, (LPTHREAD_START_ROUTINE)aEntry,arg,0,0);
@@ -356,8 +360,8 @@ static int myCreateThread(my_thread_t  *aHandle,
 #endif
 }
 
+/// Join the specified `aHandle`.
 static void  myJoinThread(my_thread_t aHandle)
-    // Join the specified 'aHandle'.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     WaitForSingleObject(aHandle,INFINITE);
@@ -367,8 +371,8 @@ static void  myJoinThread(my_thread_t aHandle)
 #endif
 }
 
+/// Sleep for the specified `milliseconds`.
 static void mySleep(int milliseconds)
-    // Sleep for the specified 'milliseconds'.
 {
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
     ::SleepEx(milliseconds, 0);
@@ -396,15 +400,15 @@ my_Barrier::~my_Barrier()
 // MANIPULATORS
 void my_Barrier::wait()
 {
-    // *NOTE*: The 'my_Conditional' operation 'wait' does *not* take a mutex,
+    // *NOTE*: The `my_Conditional` operation `wait` does *not* take a mutex,
     // so it cannot be atomically combined with another operation (e.g.,
-    // incrementing the 'd_waiting' counter), it also does not provide
-    // 'broadcast' method, so each thread must be signaled individually.
+    // incrementing the `d_waiting` counter), it also does not provide
+    // `broadcast` method, so each thread must be signaled individually.
 
-    // For the first 'd_expected - 1' threads, increment the 'd_waiting'
+    // For the first `d_expected - 1` threads, increment the `d_waiting`
     // counter, wait on the condition variable, and then increment the
-    // 'd_awake' counter.  For the last thread, loop signaling the condition
-    // variable until all threads are awake (i.e., 'd_awake == d_expected - 1')
+    // `d_awake` counter.  For the last thread, loop signaling the condition
+    // variable until all threads are awake (i.e., `d_awake == d_expected - 1`)
     d_waitMutex.lock();
     int generation = AtomicOp::getInt(&d_genCounter);
     if (d_waiting < d_expected - 1) {
@@ -467,9 +471,9 @@ struct ConcurrencyTest {
    BslOnce      d_onces[TEST_ITERATIONS];
 
 
+   /// Initialize this test data with the specified `mutex` and specified
+   /// `barrier`.
    ConcurrencyTest(my_Mutex *mutex, my_Barrier *barrier)
-       // Initialize this test data with the specified 'mutex' and specified
-       // 'barrier'.
    : d_mutex(mutex)
    , d_barrier(barrier)
    {
@@ -482,23 +486,23 @@ struct ConcurrencyTest {
 
 };
 
+/// Perform a concurrency test using the specified `args`.  The behavior is
+/// undefined unless `args` points to a `ConcurrencyTest` object.
 extern "C" void* concurrencyTest(void* args)
-    // Perform a concurrency test using the specified 'args'.  The behavior is
-    // undefined unless 'args' points to a 'ConcurrencyTest' object.
 {
 
     // Plan:
-    //: 1 Iterate through a sequence of 'BslOnce' objects, using a barrier to
-    //:   ensure the test threads are iterating through the array in
-    //:   lock-stop.  On each iteration:
-    //:
-    //:   1 Call 'enter' on a 'BslOnce' object.
-    //:
-    //:   2 If the 'BslOnce' is successfully entered, set 'entered' to 'true'
-    //:     and verify that 'entered' was previously set to 'false'.
-    //:
-    //:   3 If the 'BslOnce' is not successfully entered, verify that
-    //:     'entered' had previously been set to 'true'.
+    // 1. Iterate through a sequence of `BslOnce` objects, using a barrier to
+    //    ensure the test threads are iterating through the array in
+    //    lock-stop.  On each iteration:
+    //
+    //   1. Call `enter` on a `BslOnce` object.
+    //
+    //   2. If the `BslOnce` is successfully entered, set `entered` to `true`
+    //      and verify that `entered` was previously set to `false`.
+    //
+    //   3. If the `BslOnce` is not successfully entered, verify that
+    //      `entered` had previously been set to `true`.
 
     ConcurrencyTest *data      = static_cast<ConcurrencyTest *>(args);
     my_Barrier      *barrier   = data->d_barrier;
@@ -508,16 +512,16 @@ extern "C" void* concurrencyTest(void* args)
 
     for (int i = 0; i < TEST_ITERATIONS; ++i) {
 
-        // This barrier is required to reset 'entered' prior to beginning the
+        // This barrier is required to reset `entered` prior to beginning the
         // test (so the previous iteration does not see the updated value).
 
         barrier->wait();
 
-        // Sanity check on the 'barrier'.
+        // Sanity check on the `barrier`.
         int testIteration = AtomicOp::testAndSwapInt(iteration, i, i + 1);
         ASSERTV(i == testIteration || i == testIteration - 1);
 
-        // Set the 'entered' flag to false.
+        // Set the `entered` flag to false.
         AtomicOp::setInt(entered, 0);
 
         barrier->wait();
@@ -542,13 +546,13 @@ extern "C" void* concurrencyTest(void* args)
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-///Example 1: Using 'bsls::BslOnce' to Perform a Singleton Initialization
+///Example 1: Using `bsls::BslOnce` to Perform a Singleton Initialization
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// The following example demonstrates using 'bsls::BslOnce' to initialize a
+// The following example demonstrates using `bsls::BslOnce` to initialize a
 // singleton object.
 //
-// First we declare a 'struct', 'MySingleton', whose definition is elided:
-//..
+// First we declare a `struct`, `MySingleton`, whose definition is elided:
+// ```
     struct MySingleton {
 //
       // PUBLIC DATA
@@ -556,33 +560,34 @@ extern "C" void* concurrencyTest(void* args)
 //
       // ...
     };
-//..
+// ```
 // Notice that the data members are public because we want to avoid dynamic
 // runtime initialize (i.e., initialization at run-time before the start of
-// 'main') when an object of this type is declared in a static context.
+// `main`) when an object of this type is declared in a static context.
 //
-// Now we implement a function 'getSingleton' that returns a singleton object.
-// 'getSingleton' uses 'BslOnce' to ensure the singleton is initialized only
+// Now we implement a function `getSingleton` that returns a singleton object.
+// `getSingleton` uses `BslOnce` to ensure the singleton is initialized only
 // once, and that the singleton is initialized before the function returns:
-//..
+// ```
+
+    /// Return a reference to a modifiable singleton object.
     MySingleton *getSingleton()
-        // Return a reference to a modifiable singleton object.
     {
        static MySingleton singleton = { 0 };
        static BslOnce     once      = BSLS_BSLONCE_INITIALIZER;
 //
        BslOnceGuard onceGuard;
        if (onceGuard.enter(&once)) {
-         // Initialize 'singleton'.  Note that this code is executed exactly
+         // Initialize `singleton`.  Note that this code is executed exactly
          // once.
 //
        }
        return &singleton;
     }
-//..
-// Notice that 'BslOnce' must be initialized to 'BSLS_BSLONCE_INITIALIZER', and
-// that 'singleton' is a function scoped static variable to avoid allocating
-// it on the 'heap' (which might be reported as leaked memory).
+// ```
+// Notice that `BslOnce` must be initialized to `BSLS_BSLONCE_INITIALIZER`, and
+// that `singleton` is a function scoped static variable to avoid allocating
+// it on the `heap` (which might be reported as leaked memory).
 
 // ============================================================================
 //                          MAIN PROGRAM
@@ -604,14 +609,14 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -626,35 +631,35 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // CONCERN: CONCURRENT CALLS TO 'enter'
-        //   Test the concurrency of 'BslOnceGuard'.
+        // CONCERN: CONCURRENT CALLS TO `enter`
+        //   Test the concurrency of `BslOnceGuard`.
         //
         // Concerns:
-        //: 1 'enter' will only return 'true' once when called concurrently
-        //:   from multiple threads.
-        //:
-        //: 2 'enter' will not return until the thread that first entered the
-        //:   one-time execution block has called 'leave'.
+        // 1. `enter` will only return `true` once when called concurrently
+        //    from multiple threads.
+        //
+        // 2. `enter` will not return until the thread that first entered the
+        //    one-time execution block has called `leave`.
         //
         // Plan:
-        //: 1 Iterate through a sequence of 'BslOnce' objects, using a barrier
-        //:   to ensure the test threads are iterating through the array in
-        //:   lock-stop.  On each iteration:
-        //:
-        //:   1 Call 'enter' on a 'BslOnce' object.
-        //:
-        //:   2 If the 'BslOnce' is successfully entered, set 'entered' to
-        //:     'true' and verify that 'entered' was previously set to
-        //:     'false'.
-        //:
-        //:   3 If the 'BslOnce' is not successfully entered, verify that
-        //:     'entered' had previously been set to 'true'.
+        // 1. Iterate through a sequence of `BslOnce` objects, using a barrier
+        //    to ensure the test threads are iterating through the array in
+        //    lock-stop.  On each iteration:
+        //
+        //   1. Call `enter` on a `BslOnce` object.
+        //
+        //   2. If the `BslOnce` is successfully entered, set `entered` to
+        //      `true` and verify that `entered` was previously set to
+        //      `false`.
+        //
+        //   3. If the `BslOnce` is not successfully entered, verify that
+        //      `entered` had previously been set to `true`.
         //
         // Testing:
-        //   CONCERN: CONCURRENT CALLS TO 'enter'
+        //   CONCERN: CONCURRENT CALLS TO `enter`
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nCONCERN: CONCURRENT CALLS TO 'enter'"
+        if (verbose) printf("\nCONCERN: CONCURRENT CALLS TO `enter`"
                             "\n====================================\n");
 
         {
@@ -677,28 +682,28 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING: PRIMARY MANIPULATORS ('BslOnceGuard')
-        //   Test the operations on 'BslOnceGuard'.
+        // TESTING: PRIMARY MANIPULATORS (`BslOnceGuard`)
+        //   Test the operations on `BslOnceGuard`.
         //
         // Concerns:
-        //: 1 'enter' will only return 'true' on the first invocation.
-        //:
-        //: 3 'BslOnceGuard' will leave the supplied 'BslOnce' on its
-        //:    destruction.
-        //:
-        //: 2 'leave' can be called after 'enter'
-        //:
-        //: 4 Destroying a 'BslOnceGuard' after 'leave' has no effect.
-        //:
-        //: 5 'enter' returns 'false', and leaves the guard unmodified, if
-        //:   the 'BslOnce' has already been 'enter'ed.
+        // 1. `enter` will only return `true` on the first invocation.
+        //
+        // 3. `BslOnceGuard` will leave the supplied `BslOnce` on its
+        //     destruction.
+        //
+        // 2. `leave` can be called after `enter`
+        //
+        // 4. Destroying a `BslOnceGuard` after `leave` has no effect.
+        //
+        // 5. `enter` returns `false`, and leaves the guard unmodified, if
+        //    the `BslOnce` has already been `enter`ed.
         //
         // Plan:
-        //: 1 Call 'enter' on a newly constructed object and verify it returns
-        //:   'true' (C-1)
-        //:
-        //: 2 Call 'enter', then 'leave' on a newly constructed object and
-        //:   verify subsequent calls to 'enter' return 'false' (C-2)
+        // 1. Call `enter` on a newly constructed object and verify it returns
+        //    `true` (C-1)
+        //
+        // 2. Call `enter`, then `leave` on a newly constructed object and
+        //    verify subsequent calls to `enter` return `false` (C-2)
         //
         // Testing:
         //   BslOnceGuard();
@@ -707,7 +712,7 @@ int main(int argc, char *argv[])
         //   void leave();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING: PRIMARY MANIPULATORS ('BslOnceGuard')"
+        if (verbose) printf("\nTESTING: PRIMARY MANIPULATORS (`BslOnceGuard`)"
                             "\n=============================================="
                             "\n");
 
@@ -718,7 +723,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (veryVerbose) printf("\nCalling 'enter' with a guard\n");
+        if (veryVerbose) printf("\nCalling `enter` with a guard\n");
         {
             Obj x = BSLS_BSLONCE_INITIALIZER;
             {
@@ -732,7 +737,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (veryVerbose) printf("\nCalling 'leave' with a guard\n");
+        if (veryVerbose) printf("\nCalling `leave` with a guard\n");
         {
             Obj x = BSLS_BSLONCE_INITIALIZER;
             {
@@ -751,42 +756,42 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING: PRIMARY MANIPULATORS ('BslOnce')
-        //   Test the operations on 'BslOnce'.  Note that one key concern not
-        //   tested is that if 'enter' returns 'true', other threads calling
-        //   'enter' will block until the original thread calls 'leave' (that
-        //   is tested in 'CONCERN: CONCURRENT CALLS TO 'enter').
+        // TESTING: PRIMARY MANIPULATORS (`BslOnce`)
+        //   Test the operations on `BslOnce`.  Note that one key concern not
+        //   tested is that if `enter` returns `true`, other threads calling
+        //   `enter` will block until the original thread calls `leave` (that
+        //   is tested in `CONCERN: CONCURRENT CALLS TO `enter').
         //
         // Concerns:
-        //: 1 'enter' will only return 'true' on the first invocation.
-        //:
-        //: 2 'leave' can be called after 'enter'
-        //:
-        //: 3 Calls to 'enter' after a call to 'leave' return 'false'.
+        // 1. `enter` will only return `true` on the first invocation.
+        //
+        // 2. `leave` can be called after `enter`
+        //
+        // 3. Calls to `enter` after a call to `leave` return `false`.
         //
         // Plan:
-        //: 1 Call 'enter' on a newly constructed object and verify it returns
-        //:   'true' (C-1)
-        //:
-        //: 2 Call 'enter', then 'leave' on a newly constructed object and
-        //:   verify subsequent calls to 'enter' return 'false' (C-2)
+        // 1. Call `enter` on a newly constructed object and verify it returns
+        //    `true` (C-1)
+        //
+        // 2. Call `enter`, then `leave` on a newly constructed object and
+        //    verify subsequent calls to `enter` return `false` (C-2)
         //
         // Testing:
         //   bool enter();
         //   void leave();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING: PRIMARY MANIPULATORS ('BslOnce')"
+        if (verbose) printf("\nTESTING: PRIMARY MANIPULATORS (`BslOnce`)"
                             "\n=========================================\n");
 
-        if (veryVerbose) printf("\nCalling 'enter' the first time\n");
+        if (veryVerbose) printf("\nCalling `enter` the first time\n");
         {
             Obj x = BSLS_BSLONCE_INITIALIZER;
 
             ASSERT(true == x.enter());
         }
 
-        if (veryVerbose) printf("\nCalling 'enter' after 'leave'\n");
+        if (veryVerbose) printf("\nCalling `enter` after `leave`\n");
         {
             Obj x = BSLS_BSLONCE_INITIALIZER;
 
@@ -802,12 +807,12 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Use 'BslOnce' in some simple contexts and and verify it allows
-        //:   'enter' to be called once successfully.
+        // 1. Use `BslOnce` in some simple contexts and and verify it allows
+        //    `enter` to be called once successfully.
         //
         // Testing:
         //   BREATHING TEST

@@ -12,11 +12,11 @@
 #include <bsls_keyword.h>
 #include <bsls_protocoltest.h>
 
-#include <cstdio>   // 'printf'
-#include <cstdlib>  // 'atoi'
-#include <new>      // placement 'new'
+#include <cstdio>   // `printf`
+#include <cstdlib>  // `atoi`
+#include <new>      // placement `new`
 
-#include <stdint.h>  // 'uintptr_t' (not in namespace 'std')
+#include <stdint.h>  // `uintptr_t` (not in namespace `std`)
 
 #ifdef BDE_VERIFY
 // Suppress some pedantic bde_verify checks in this test driver
@@ -34,7 +34,7 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 //                                   Overview
 //                                   --------
-// The 'bsl::memory_resource' class is a pure abstract class.  Its public
+// The `bsl::memory_resource` class is a pure abstract class.  Its public
 // interface comprises three non-virtual functions that simply pass through to
 // corresponding private virtual functions.  The test driver employs a modified
 // protocol test that accesses the virtual functions through their public
@@ -107,11 +107,11 @@ int veryVeryVeryVerbose = 0; // For test allocators
 // ----------------------------------------------------------------------------
 
 // If using the native C++17 pmr::memory_resource, the default alignment for
-// memory blocks when not otherwise specified is 'alignof(std::max_align_t)';
-// otherwise, it's 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'.  On most
+// memory blocks when not otherwise specified is `alignof(std::max_align_t)`;
+// otherwise, it's `bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT`.  On most
 // platforms, these values are the same, but on 32-bit Linux using libc++, the
-// former is larger than the latter, even though 'malloc' and 'operator new' do
-// not honor the stronger alignment of 'std::max_align_t'.
+// former is larger than the latter, even though `malloc` and `operator new` do
+// not honor the stronger alignment of `std::max_align_t`.
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
 const std::size_t k_DEFAULT_ALIGNMENT = alignof(std::max_align_t);
 #else
@@ -119,10 +119,10 @@ const std::size_t k_DEFAULT_ALIGNMENT =
                                        bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 #endif
 
+/// This class is used with `bsls::ProtocolTest` to test the
+/// `bsl::memory_resource` protocol.
 class MemoryResourceProtocolTest
     : public bsls::ProtocolTestImp<bsl::memory_resource> {
-    // This class is used with 'bsls::ProtocolTest' to test the
-    // 'bsl::memory_resource' protocol.
 
   protected:
     void* do_allocate(std::size_t, std::size_t) BSLS_KEYWORD_OVERRIDE;
@@ -149,16 +149,16 @@ bool MemoryResourceProtocolTest::do_is_equal(const bsl::memory_resource&) const
     return markDone();
 }
 
+/// Class to test that pass-through functions correctly pass their arguments
+/// through to the private virtual functions.
 class PassthroughTest : public bsl::memory_resource {
-    // Class to test that pass-through functions correctly pass their arguments
-    // through to the private virtual functions.
 
     // DATA
     int                    d_buffer[4];         // buffer to allocate from
-    std::size_t            d_lastBytesArg;      // most recent 'bytes' argument
-    std::size_t            d_lastAlignmentArg;  // most recent 'alignment' arg
+    std::size_t            d_lastBytesArg;      // most recent `bytes` argument
+    std::size_t            d_lastAlignmentArg;  // most recent `alignment` arg
     void                  *d_lastBlock_p;       // most recent memory block
-    mutable const memory_resource *d_lastOther_p; // most recent 'other' addr
+    mutable const memory_resource *d_lastOther_p; // most recent `other` addr
 
     // PRIVATE MANIPULATORS
     void* do_allocate(size_t bytes, size_t alignment) BSLS_KEYWORD_OVERRIDE;
@@ -210,29 +210,29 @@ bool PassthroughTest::do_is_equal(const memory_resource& other) const
 
 ///Usage
 ///-----
-// The 'bsl::memory_resource' protocol provided in this component defines a
+// The `bsl::memory_resource` protocol provided in this component defines a
 // bilateral contract between suppliers and consumers of raw memory.  The
 // following subsections illustrate (1) implementation of a concrete resource
-// drived from the abstract 'bsl::memory_resource' base class and (2) use of a
-// 'bsl::memory_resource'.
+// drived from the abstract `bsl::memory_resource` base class and (2) use of a
+// `bsl::memory_resource`.
 //
 ///Example 1: a counting memory resource
 ///- - - - - - - - - - - - - - - - - - -
-// In this example, we derive a concrete 'CountingResource' class from
-// 'bsl::memory_resource', overriding and providing concrete implementations
+// In this example, we derive a concrete `CountingResource` class from
+// `bsl::memory_resource`, overriding and providing concrete implementations
 // for all of the virtual functions declared in the base class.  This resource
 // keeps track of the number of blocks of memory that were allocated from the
 // resource but not yet returned to the resource.
 //
-// First, we define the 'CountingResource' class with a single private data
+// First, we define the `CountingResource` class with a single private data
 // member to keep track of the number of blocks outstanding.  We don't want
 // this type to be copyable, so we disable copying here, too.
-//..
+// ```
 //  #include <bslmf_movableref.h>
 //  #include <bsls_assert.h>
 //  #include <bsls_keyword.h>
 //  #include <bsls_exceptionutil.h>
-//  #include <stdint.h>  // 'uintptr_t'
+//  #include <stdint.h>  // `uintptr_t`
 
     class CountingResource : public bsl::memory_resource {
 
@@ -242,10 +242,10 @@ bool PassthroughTest::do_is_equal(const memory_resource& other) const
         CountingResource(const CountingResource&) BSLS_KEYWORD_DELETED;
         CountingResource& operator=(const CountingResource&)
                                                           BSLS_KEYWORD_DELETED;
-//..
+// ```
 // Next, we declare the protected virtual functions that override the
 // base-class virtual functions:
-//..
+// ```
       protected:
         // PROTECTED MANIPULATORS
         void* do_allocate(std::size_t bytes,
@@ -256,11 +256,11 @@ bool PassthroughTest::do_is_equal(const memory_resource& other) const
         // PROTECTED ACCESSORS
         bool do_is_equal(const bsl::memory_resource& other) const
                                    BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
-//..
+// ```
 // Now we can declare the public interface, comprising the default constructor,
 // the destructor, and an accessor to return the current block count; all other
 // public members are inherited from the base class:
-//..
+// ```
       public:
         // CREATORS
         CountingResource() : d_blocksOutstanding(0) { }
@@ -269,13 +269,13 @@ bool PassthroughTest::do_is_equal(const memory_resource& other) const
         // ACCESSORS
         int blocksOutstanding() const { return d_blocksOutstanding; }
     };
-//..
-// Next, we implement the 'do_allocate' method to allocate memory using
-// 'operator new', then increment the block counter.  We cannot, in C++11,
-// force 'operator new' to return memory that is more than maximally aligned,
-// so we throw an exception if the specified 'alignment' is not met; other
-// resources can use the 'alignment' argument more productively.
-//..
+// ```
+// Next, we implement the `do_allocate` method to allocate memory using
+// `operator new`, then increment the block counter.  We cannot, in C++11,
+// force `operator new` to return memory that is more than maximally aligned,
+// so we throw an exception if the specified `alignment` is not met; other
+// resources can use the `alignment` argument more productively.
+// ```
     void *CountingResource::do_allocate(std::size_t bytes,
                                         std::size_t alignment)
     {
@@ -287,39 +287,39 @@ bool PassthroughTest::do_is_equal(const memory_resource& other) const
         ++d_blocksOutstanding;
         return ret;
     }
-//..
-// Next, we implement 'do_deallocate', which returns the memory referenced by
-// 'p' to the heap and decrements the block counter.  The 'bytes' and
-// 'alignment' arguments are ignored:
-//..
+// ```
+// Next, we implement `do_deallocate`, which returns the memory referenced by
+// `p` to the heap and decrements the block counter.  The `bytes` and
+// `alignment` arguments are ignored:
+// ```
     void CountingResource::do_deallocate(void* p, std::size_t, std::size_t)
     {
         ::operator delete(p);
         --d_blocksOutstanding;
     }
-//..
-// Next, we implement 'do_is_equal', which determines if the specified 'other'
+// ```
+// Next, we implement `do_is_equal`, which determines if the specified `other`
 // resource is equal to this one.  For this and most other resource types,
-// 'do_is_equal' returns 'true' if and only if the two resources are the same
+// `do_is_equal` returns `true` if and only if the two resources are the same
 // object:
-//..
+// ```
     bool CountingResource::do_is_equal(const bsl::memory_resource& other) const
                                                           BSLS_KEYWORD_NOEXCEPT
     {
         return this == &other;
     }
-//..
+// ```
 // Next, we implement the destructor, which simply asserts that the block count
 // is zero upon destruction:
-//..
+// ```
     CountingResource::~CountingResource()
     {
         BSLS_ASSERT(0 == d_blocksOutstanding);
     }
-//..
-// Finally, we construct an object of 'CountingResource' and verify that
+// ```
+// Finally, we construct an object of `CountingResource` and verify that
 // allocation, deallocation, and equality testing work as expected.
-//..
+// ```
     void usageExample1()
     {
         CountingResource obj;
@@ -337,23 +337,23 @@ bool PassthroughTest::do_is_equal(const memory_resource& other) const
         ASSERT(obj == obj);
         ASSERT(obj != obj2);
     }
-//..
+// ```
 //
 ///Example 2: A class that allocates memory
 ///- - - - - - - - - - - - - - - - - - - -
-// In this example, we define a class template, 'Holder<TYPE>', that holds a
-// single instance of 'TYPE' on the heap.  'Holder' is designed such that its
+// In this example, we define a class template, `Holder<TYPE>`, that holds a
+// single instance of `TYPE` on the heap.  `Holder` is designed such that its
 // memory use can be customized by supplying an appropriate memory resource.  A
-// holder object can be empty and it can be move-constructed even if 'TYPE' is
-// not movable.  In addition, the footprint of a 'Holder' object is the same
-// (typically the size of 2 pointers), regardless of the size of 'TYPE'.
+// holder object can be empty and it can be move-constructed even if `TYPE` is
+// not movable.  In addition, the footprint of a `Holder` object is the same
+// (typically the size of 2 pointers), regardless of the size of `TYPE`.
 //
 // First, we define a simple class template modeled after the C++17 standard
-// library 'std::pmr::polymorphic_allocator' template, which is a thin wrapper
-// around a 'memory_resource' pointer.  By wrapping the pointer in a class, we
+// library `std::pmr::polymorphic_allocator` template, which is a thin wrapper
+// around a `memory_resource` pointer.  By wrapping the pointer in a class, we
 // avoid some the problems of raw pointers such as accidental use of a null
 // pointer:
-//..
+// ```
 //  #include <bsls_alignmentfromtype.h>
 
     template <class TYPE>
@@ -373,22 +373,22 @@ bool PassthroughTest::do_is_equal(const memory_resource& other) const
         // ACCESSORS
         bsl::memory_resource *resource() const { return d_resource_p; }
     };
-//..
-// Next, we implement the constructor for 'PolymorphicAllocator', which stores
+// ```
+// Next, we implement the constructor for `PolymorphicAllocator`, which stores
 // the pointer argument and defensively checks that it is not null:
-//..
+// ```
     template <class TYPE>
     PolymorphicAllocator<TYPE>::PolymorphicAllocator(bsl::memory_resource *r)
         : d_resource_p(r)
     {
         BSLS_ASSERT(0 != r);
     }
-//..
+// ```
 // Next, we implement the allocation and deallocation functions by forwarding
 // to the corresponding function of the memory resource.  Note that the size
-// and alignment of 'TYPE' are used to compute the appropriate number of bytes
+// and alignment of `TYPE` are used to compute the appropriate number of bytes
 // and alignment to request from the memory resource:
-//..
+// ```
     template <class TYPE>
     TYPE *PolymorphicAllocator<TYPE>::allocate(std::size_t n)
     {
@@ -403,23 +403,23 @@ bool PassthroughTest::do_is_equal(const memory_resource& other) const
         d_resource_p->deallocate(p, n * sizeof(TYPE),
                                  bsls::AlignmentFromType<TYPE>::VALUE);
     }
-//..
-// Now we define our actual 'Holder' template with with data members to hold
+// ```
+// Now we define our actual `Holder` template with with data members to hold
 // the memory allocator and a pointer to the contained object:
-//..
+// ```
     template <class TYPE>
     class Holder {
         PolymorphicAllocator<TYPE>  d_allocator;
         TYPE                       *d_data_p;
-//..
+// ```
 // Next, we declare the constructors.  Following the pattern for
 // allocator-aware types used in BDE, the public interface contains an
-// 'allocator_type' typedef that can be passed to each constructor.
+// `allocator_type` typedef that can be passed to each constructor.
 // Typically, the allocator constructor argument would be optional, but,
-// because our 'PolymorphicAllocator' has no default constructor (unlike the
-// 'std::pmr::polymorphic_allocator'), the allocator is *required* for all
+// because our `PolymorphicAllocator` has no default constructor (unlike the
+// `std::pmr::polymorphic_allocator`), the allocator is *required* for all
 // constructors except the move constructor:
-//..
+// ```
       public:
         // TYPES
         typedef PolymorphicAllocator<TYPE> allocator_type;
@@ -432,10 +432,10 @@ bool PassthroughTest::do_is_equal(const memory_resource& other) const
         Holder(bslmf::MovableRef<Holder> other,
                const allocator_type&     allocator);
         ~Holder();
-//..
-// Next, we declare the manipulators and accessors, allowing a 'Holder' to be
+// ```
+// Next, we declare the manipulators and accessors, allowing a `Holder` to be
 // assigned and giving a client access to its value and allocator:
-//..
+// ```
         // MANIPULATORS
         Holder& operator=(const Holder& rhs);
         Holder& operator=(bslmf::MovableRef<Holder> rhs);
@@ -446,23 +446,23 @@ bool PassthroughTest::do_is_equal(const memory_resource& other) const
         const TYPE& value() const { return *d_data_p; }
         allocator_type get_allocator() const { return d_allocator; }
     };
-//..
+// ```
 // Next, we'll implement the first constructor, which creates an empty object;
 // its only job is to store the allocator:
-//..
+// ```
     template <class TYPE>
     Holder<TYPE>::Holder(const allocator_type& allocator)
         : d_allocator(allocator)
         , d_data_p(0)
     {
     }
-//..
+// ```
 // Next, we'll implement the second constructor, which allocates memory and
-// constructs an object in it.  The 'try'/'catch' block is needed to free the
-// memory in case the constructor for 'TYPE' throws and exception.  An
+// constructs an object in it.  The `try`/`catch` block is needed to free the
+// memory in case the constructor for `TYPE` throws and exception.  An
 // alternative implementation would use an RAII object to automatically free
-// the memory in the case of an exception (see 'bslma_deallocatorproctor'):
-//..
+// the memory in the case of an exception (see `bslma_deallocatorproctor`):
+// ```
     template <class TYPE>
     Holder<TYPE>::Holder(const TYPE& value, const allocator_type& allocator)
         : d_allocator(allocator)
@@ -477,10 +477,10 @@ bool PassthroughTest::do_is_equal(const memory_resource& other) const
             BSLS_RETHROW;
         }
     }
-//..
+// ```
 // Next, we'll implement a destructor that deletes the value object and
 // deallocates the allocated memory:
-//..
+// ```
     template <class TYPE>
     Holder<TYPE>::~Holder()
     {
@@ -489,15 +489,15 @@ bool PassthroughTest::do_is_equal(const memory_resource& other) const
             d_allocator.deallocate(d_data_p, 1);  // Deallocate memory.
         }
     }
-//..
-// Finally, we've implemented enough of 'Holder' to demonstrate its use.
-// Below, we pass the 'CountingResource' from Example 1 to the constructors
-// several 'Holder' objects.  Each non-empty 'Holder' allocates one block of
+// ```
+// Finally, we've implemented enough of `Holder` to demonstrate its use.
+// Below, we pass the `CountingResource` from Example 1 to the constructors
+// several `Holder` objects.  Each non-empty `Holder` allocates one block of
 // memory, which is reflected in the outstanding block count.  Note that the
 // address of the resource can be passed directly to the constructors because
-// 'PolymorphicAllocator' is implicitly convertible from 'bsl::memory_resource
+// `PolymorphicAllocator` is implicitly convertible from 'bsl::memory_resource
 // *':
-//..
+// ```
     void usageExample2()
     {
         CountingResource rsrc;
@@ -518,7 +518,7 @@ bool PassthroughTest::do_is_equal(const memory_resource& other) const
 
         ASSERT(0 == rsrc.blocksOutstanding());  // Destructors freed memory
     }
-//..
+// ```
 
 }  // close unnamed namespace
 
@@ -542,12 +542,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLES
         //
         // Concerns:
-        //: 1 That the usage examples shown in the component-level
-        //:   documentation compile and run as described.
+        // 1. That the usage examples shown in the component-level
+        //    documentation compile and run as described.
         //
         // Plan:
-        //: 1 Copy the usage examples from the component header, changing
-        //    'assert' to 'ASSERT' and execute them.
+        // 1. Copy the usage examples from the component header, changing
+        //    `assert` to `ASSERT` and execute them.
         //
         // Testing:
         //     USAGE EXAMPLES
@@ -563,25 +563,25 @@ int main(int argc, char *argv[])
 
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'is_equal'
+        // TESTING `is_equal`
         //
         // Concerns:
-        //: 1 A call to 'is_equal' passes its argument to the
-        //:   'do_is_equal' virtual function and returns the result.
+        // 1. A call to `is_equal` passes its argument to the
+        //    `do_is_equal` virtual function and returns the result.
         //
         // Plan:
-        //: 1 Using a test resource that tracks the argument values and return
-        //:   values of virtual member function calls, invoke 'is_equal' and
-        //:   verify that the argument to 'do_is_equal' matches the
-        //:   argument passed to 'is_equal'.  Also verify that the return value
-        //:   of 'is_equal' is 'true' when comparing a test resource to itself
-        //:   and 'false' otherwise.  (C-1)
+        // 1. Using a test resource that tracks the argument values and return
+        //    values of virtual member function calls, invoke `is_equal` and
+        //    verify that the argument to `do_is_equal` matches the
+        //    argument passed to `is_equal`.  Also verify that the return value
+        //    of `is_equal` is `true` when comparing a test resource to itself
+        //    and `false` otherwise.  (C-1)
         //
         // Testing:
         //    bool is_equal(const memory_resource& other) const noexcept;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'is_equal'"
+        if (verbose) printf("\nTESTING `is_equal`"
                             "\n==================\n");
 
         PassthroughTest  obj, other;
@@ -598,28 +598,28 @@ int main(int argc, char *argv[])
 
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'deallocate'
+        // TESTING `deallocate`
         //
         // Concerns:
-        //: 1 A call to 'deallocate' passes its arguments to the
-        //:   'do_deallocate' virtual function.
-        //: 2 If the 'alignment' argument is omitted, the the default platform
-        //:   alignment is used.
+        // 1. A call to `deallocate` passes its arguments to the
+        //    `do_deallocate` virtual function.
+        // 2. If the `alignment` argument is omitted, the the default platform
+        //    alignment is used.
         //
         // Plan:
-        //: 1 Using a test resource that tracks the argument values and return
-        //:   values of virtual member function calls, invoke 'deallocate' and
-        //:   verify that the three arguments to 'do_deallocate' match the
-        //:   three arguments passed to 'deallocate'.  (C-1)
-        //: 2 Repeat step 1 but omit the 'alignment' argument to 'deallocate'.
-        //:   Verify that the alignment passed to 'do_deallocate' is the
-        //:   default alignment for the platform.  (C-2)
+        // 1. Using a test resource that tracks the argument values and return
+        //    values of virtual member function calls, invoke `deallocate` and
+        //    verify that the three arguments to `do_deallocate` match the
+        //    three arguments passed to `deallocate`.  (C-1)
+        // 2. Repeat step 1 but omit the `alignment` argument to `deallocate`.
+        //    Verify that the alignment passed to `do_deallocate` is the
+        //    default alignment for the platform.  (C-2)
         //
         // Testing:
         //    void deallocate(void *p, size_t bytes, size_t alignment);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'deallocate'"
+        if (verbose) printf("\nTESTING `deallocate`"
                             "\n====================\n");
 
         PassthroughTest  obj;
@@ -641,29 +641,29 @@ int main(int argc, char *argv[])
 
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'allocate'
+        // TESTING `allocate`
         //
         // Concerns:
-        //: 1 A call to 'allocate' passes its arguments to the 'do_allocate'
-        //:   virtual function and returns its result.
-        //: 2 If the 'alignment' argument is omitted, the the maximum platform
-        //:   alignment is used.
+        // 1. A call to `allocate` passes its arguments to the `do_allocate`
+        //    virtual function and returns its result.
+        // 2. If the `alignment` argument is omitted, the the maximum platform
+        //    alignment is used.
         //
         // Plan:
-        //: 1 Using a test resource that tracks the argument values and return
-        //:   values of virtual member function calls, invoke 'allocate' and
-        //:   verify that the two arguments to 'do_allocate' match the
-        //:   two arguments passed to 'allocate' and that the return value of
-        //:   'allocate' matches the return value from 'do_allocate'.  (C-1)
-        //: 2 Repeat step 1 but omit the 'alignment' argument to 'allocate'.
-        //:   Verify that the alignment passed to 'do_allocate' is the maximum
-        //:   alignment for the platform.  (C-2)
+        // 1. Using a test resource that tracks the argument values and return
+        //    values of virtual member function calls, invoke `allocate` and
+        //    verify that the two arguments to `do_allocate` match the
+        //    two arguments passed to `allocate` and that the return value of
+        //    `allocate` matches the return value from `do_allocate`.  (C-1)
+        // 2. Repeat step 1 but omit the `alignment` argument to `allocate`.
+        //    Verify that the alignment passed to `do_allocate` is the maximum
+        //    alignment for the platform.  (C-2)
         //
         // Testing:
         //    void *allocate(size_t bytes, size_t alignment);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'allocate'"
+        if (verbose) printf("\nTESTING `allocate`"
                             "\n==================\n");
 
         PassthroughTest  obj;
@@ -686,29 +686,29 @@ int main(int argc, char *argv[])
         //   Ensure this class is a properly defined protocol.
         //
         // Concerns:
-        //: 1 The protocol is abstract: no objects of it can be created.
-        //: 2 The protocol has no data members.
-        //: 3 The protocol has a virtual destructor.
-        //: 4 All methods of the protocol are pure virtual.
-        //: 5 All methods of the protocol are available through publicly
-        //:   accessible pass-through functions.
+        // 1. The protocol is abstract: no objects of it can be created.
+        // 2. The protocol has no data members.
+        // 3. The protocol has a virtual destructor.
+        // 4. All methods of the protocol are pure virtual.
+        // 5. All methods of the protocol are available through publicly
+        //    accessible pass-through functions.
         //
         // Plan:
-        //: 1 Define a concrete derived implementation of
-        //:   'bsl::memory_resource', 'MemoryResourceProtocolTest'.
-        //: 2 Create an object of the 'bsls::ProtocolTest' class template
-        //:   parameterized by 'MemoryResourceProtocolTest', and use it to
-        //:   verify that:
-        //:
-        //:   1 The protocol is abstract. (C-1)
-        //:   2 The protocol has no data members. (C-2)
-        //:   3 The protocol has a virtual destructor. (C-3)
-        //:
-        //: 3 Use the 'BSLS_PROTOCOLTEST_ASSERT' macro to verify that
-        //:   non-creator methods of the protocol are:
-        //:
-        //:   1 virtual, (C-4)
-        //:   2 publicly accessible through pass-through functions. (C-5)
+        // 1. Define a concrete derived implementation of
+        //    `bsl::memory_resource`, `MemoryResourceProtocolTest`.
+        // 2. Create an object of the `bsls::ProtocolTest` class template
+        //    parameterized by `MemoryResourceProtocolTest`, and use it to
+        //    verify that:
+        //
+        //   1. The protocol is abstract. (C-1)
+        //   2. The protocol has no data members. (C-2)
+        //   3. The protocol has a virtual destructor. (C-3)
+        //
+        // 3. Use the `BSLS_PROTOCOLTEST_ASSERT` macro to verify that
+        //    non-creator methods of the protocol are:
+        //
+        //   1. virtual, (C-4)
+        //   2. publicly accessible through pass-through functions. (C-5)
         //
         // Testing:
         //      ~memory_resource();
@@ -726,10 +726,10 @@ int main(int argc, char *argv[])
         ASSERT(testObj.testNoDataMembers());
         ASSERT(testObj.testVirtualDestructor());
 
-        // Create a reference to 'memory_resource' to test protocol.
+        // Create a reference to `memory_resource` to test protocol.
         const bsl::memory_resource& other = MemoryResourceProtocolTest();
 
-        // The first argument to 'deallocate' cannot be null, so 'buffer' is
+        // The first argument to `deallocate` cannot be null, so `buffer` is
         // just something to point at.
         char buffer[8];
         void *p = buffer;

@@ -23,24 +23,24 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The 'bdlf::MemFn' class holds a pointer to a member function, and the
-// 'bdlf::MemFnInstance' holds the same plus an object which either has pointer
+// The `bdlf::MemFn` class holds a pointer to a member function, and the
+// `bdlf::MemFnInstance` holds the same plus an object which either has pointer
 // semantics.  Our main objective is to make sure that the member function
 // wrapper object can be initialized with different kinds of invocables,
 // including smart-pointer like objects which have pointer semantics, that the
 // wrapper forwards invocation arguments properly, and returns the correct
-// value.  In addition, we want to verify that the 'bslmf_MemFnInstance'
+// value.  In addition, we want to verify that the `bslmf_MemFnInstance`
 // wrapper propagates its allocator to the instance it holds, if that instance
-// takes a 'bslma' allocator.  Finally, we also have concerns that
-// 'const'-correctness is respected, i.e., a non-'const' member function cannot
+// takes a `bslma` allocator.  Finally, we also have concerns that
+// `const`-correctness is respected, i.e., a non-`const` member function cannot
 // be involved on a non-modifiable instance.
 //-----------------------------------------------------------------------------
-// [ 2] 'bdlf::MemFn' INVOCATION WITH POINTER TO MODIFIABLE OBJECT
-// [ 3] 'bdlf::MemFn' INVOCATION WITH POINTER TO NON-MODIFIABLE OBJECT
-// [ 4] 'bdlf::MemFn' INVOCATION WITH REFERENCE TO MODIFIABLE OBJECT
-// [ 5] 'bdlf::MemFn' INVOCATION WITH REFERENCE TO NON-MODIFIABLE OBJECT
-// [ 6] 'bdlf::MemFnInstance' INVOCATION WITH PTR TO MODIFIABLE OBJECT
-// [ 7] 'bdlf::MemFnInstance' INVOCATION WITH NON-MODIFIABLE INSTANCE
+// [ 2] `bdlf::MemFn` INVOCATION WITH POINTER TO MODIFIABLE OBJECT
+// [ 3] `bdlf::MemFn` INVOCATION WITH POINTER TO NON-MODIFIABLE OBJECT
+// [ 4] `bdlf::MemFn` INVOCATION WITH REFERENCE TO MODIFIABLE OBJECT
+// [ 5] `bdlf::MemFn` INVOCATION WITH REFERENCE TO NON-MODIFIABLE OBJECT
+// [ 6] `bdlf::MemFnInstance` INVOCATION WITH PTR TO MODIFIABLE OBJECT
+// [ 7] `bdlf::MemFnInstance` INVOCATION WITH NON-MODIFIABLE INSTANCE
 // [ 8] INSTANCES WITH POINTER SEMANTICS
 // [ 9] IMPLICIT CONVERSION FROM POINTER-TO-TYPE (DRQS 13973002)
 //-----------------------------------------------------------------------------
@@ -176,13 +176,13 @@ L14(M)
                             // class InplaceTestObj
                             // ====================
 
+/// This class is an invocable with any number from 0 up to 14 arguments, of
+/// distinct types `TestArg1` up to `TestArg14`.  Invoking the test function
+/// with `N` arguments on a modifiable (resp., non-modifiable) instance will
+/// set the first `N` instance (resp., class) data members.  The class data
+/// members can be reset to -1 (their default value) using the `reset` class
+/// method.
 class InplaceTestObj {
-    // This class is an invocable with any number from 0 up to 14 arguments, of
-    // distinct types 'TestArg1' up to 'TestArg14'.  Invoking the test function
-    // with 'N' arguments on a modifiable (resp., non-modifiable) instance will
-    // set the first 'N' instance (resp., class) data members.  The class data
-    // members can be reset to -1 (their default value) using the 'reset' class
-    // method.
 
     // DATA
 #undef M
@@ -406,21 +406,21 @@ int globalVerbose = 0;
 ///Basic Usage
 ///- - - - - -
 // To illustrate basic usage more concretely, let us introduce a generic type:
-//..
+// ```
     class MyObject {
       public:
         void doSomething(int x, const char* s) {
             if (globalVerbose) printf("%d: %s\n", x, s);
         }
     };
-//..
-// The following function invokes the member function 'doSomething' on the
-// specified 'objectPtr', with the two arguments 100 and "Hello", in two
-// different ways.  In both cases, 'object' is passed as parameter to a
-// function, and a wrapper is built containing a pointer to the 'doSomething'
-// member function.  In the 'bdlf::MemFn' case, the wrapper can be built once,
-// so we make it a 'static' local variable:
-//..
+// ```
+// The following function invokes the member function `doSomething` on the
+// specified `objectPtr`, with the two arguments 100 and "Hello", in two
+// different ways.  In both cases, `object` is passed as parameter to a
+// function, and a wrapper is built containing a pointer to the `doSomething`
+// member function.  In the `bdlf::MemFn` case, the wrapper can be built once,
+// so we make it a `static` local variable:
+// ```
    void doSomethingWithMemFn(MyObject *objectPtr)
    {
        typedef bdlf::MemFn<void (MyObject::*)(int, const char*)> MemFnType;
@@ -428,10 +428,10 @@ int globalVerbose = 0;
 
        if (globalVerbose) func(objectPtr, 100, "Hello");
    }
-//..
-// In the 'bdlf::MemFnInstance' case, the wrapper needs to contain the object
+// ```
+// In the `bdlf::MemFnInstance` case, the wrapper needs to contain the object
 // as well, so it must be built dynamically:
-//..
+// ```
     void doSomethingWithMemFnInstance(MyObject *objectPtr)
     {
         typedef bdlf::MemFnInstance<void (MyObject::*)(int, const char*),
@@ -439,22 +439,22 @@ int globalVerbose = 0;
         MemFnInstanceType func(&MyObject::doSomething, objectPtr);
         if (globalVerbose) func(100, "Hello");
     }
-//..
+// ```
 // This latter example is for exposition only.  It would be much easier to
 // invoke the member function directly.  Note that both function calls
 // ultimately result in the member function call:
-//..
+// ```
 //  objectPtr->doSomething(100, "Hello");
-//..
+// ```
 //
 ///Usage With Standard Algorithms
 /// - - - - - - - - - - - - - - -
-// The following example demonstrates the use of 'bdlf::MemFn' with the
-// standard algorithms 'find_if' and 'for_each'.  First we declare the
-// 'MyConnection' and 'MyConnectionManager' classes used in the example,
+// The following example demonstrates the use of `bdlf::MemFn` with the
+// standard algorithms `find_if` and `for_each`.  First we declare the
+// `MyConnection` and `MyConnectionManager` classes used in the example,
 // keeping the class definitions short to highlight the member functions for
 // which we will later build wrappers:
-//..
+// ```
     class MyConnection {
 
         // DATA
@@ -511,14 +511,14 @@ int globalVerbose = 0;
         // ACCESSORS
         MyConnection *nextAvailable() const;
     };
-//..
-// The 'nextAvailable' function returns the next 'MyConnection' object that is
-// available.  The 'find_if' algorithm is used to search the list for the first
-// 'MyConnection' object that is available.  'find_if' invokes the provided
+// ```
+// The `nextAvailable` function returns the next `MyConnection` object that is
+// available.  The `find_if` algorithm is used to search the list for the first
+// `MyConnection` object that is available.  `find_if` invokes the provided
 // function object for each item in the list until a true result is returned or
-// the end of the list is reached.  A 'bdlf::MemFn' object bound to the
-// 'MyConnection::isAvailable' member function is used as the test functor:
-//..
+// the end of the list is reached.  A `bdlf::MemFn` object bound to the
+// `MyConnection::isAvailable` member function is used as the test functor:
+// ```
     MyConnection *MyConnectionManager::nextAvailable() const
     {
         MyConnectionList::const_iterator it =
@@ -527,18 +527,18 @@ int globalVerbose = 0;
                          bdlf::MemFnUtil::memFn(&MyConnection::isAvailable));
         return it == d_list.end() ? 0 : *it;
     }
-//..
-// The 'disconnectAll' function calls 'disconnect' on each 'MyConnection'
-// object in the list.  The 'for_each' algorithm is used to iterate through
-// each 'MyConnection' object in the list and invoke the 'disconnect' method:
-//..
+// ```
+// The `disconnectAll` function calls `disconnect` on each `MyConnection`
+// object in the list.  The `for_each` algorithm is used to iterate through
+// each `MyConnection` object in the list and invoke the `disconnect` method:
+// ```
     void MyConnectionManager::disconnectAll()
     {
         bsl::for_each(d_list.begin(),
                       d_list.end(),
                       bdlf::MemFnUtil::memFn(&MyConnection::disconnect));
     }
-//..
+// ```
 
 // ============================================================================
 //                                TEST CASES
@@ -554,7 +554,7 @@ DEFINE_TEST_CASE(11) {
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -584,16 +584,16 @@ DEFINE_TEST_CASE(10) {
         // --------------------------------------------------------------------
         // TESTING TRAITS
         //
-        // Concern: That the type traits associated with 'MemFn' and
-        // 'MemFnInstance' are correct.
+        // Concern: That the type traits associated with `MemFn` and
+        // `MemFnInstance` are correct.
         //
         // Plan:
-        //   Typedef some 'MemFn' and 'MemFnInstance' types and observe the
-        //   traits.  Note: test with 'ASSERT', not 'BSLMF_ASSERT' because we
+        //   Typedef some `MemFn` and `MemFnInstance` types and observe the
+        //   traits.  Note: test with `ASSERT`, not `BSLMF_ASSERT` because we
         //   want failures to show up at run time, not compile time.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Check class 'bdlf::MemFn':" << endl;
+        if (verbose) cout << "Check class `bdlf::MemFn`:" << endl;
         {
             TestObject x;
 
@@ -612,7 +612,7 @@ DEFINE_TEST_CASE(10) {
             ASSERT(false == bslma::UsesBslmaAllocator<MF>::value);
         }
 
-        if (verbose) cout << "Check bw movable 'bdlf::MemFnInstance':\n";
+        if (verbose) cout << "Check bw movable `bdlf::MemFnInstance`:\n";
         {
             typedef bool (ConstructibleFromPointerToSelf::* Prototype)();
             typedef bdlf::MemFnInstance<
@@ -635,7 +635,7 @@ DEFINE_TEST_CASE(10) {
             ASSERT(func());
         }
 
-        if (verbose) cout << "Check !bw movable 'bdlf::MemFnInstance':\n";
+        if (verbose) cout << "Check !bw movable `bdlf::MemFnInstance`:\n";
         {
             typedef bool (NotBitwiseMoveable::*Prototype)() const;
             typedef bdlf::MemFnInstance<Prototype,
@@ -667,7 +667,7 @@ DEFINE_TEST_CASE(9) {
         //   class has an implicit conversion from pointer-to-type.
         //
         // Plan:
-        //   Instantiate a 'bdlf::MemFnInstance' with a member function of a
+        //   Instantiate a `bdlf::MemFnInstance` with a member function of a
         //   class that has an implicit conversion from pointer-to-type.  For
         //   added bonus, construct such a wrapper with an instance of the
         //   type and check that the function returns as expected.
@@ -681,7 +681,7 @@ DEFINE_TEST_CASE(9) {
                  << "\n================================================="
                  << endl;
 
-        if (verbose) cout << "Check class 'bdlf::MemFn':" << endl;
+        if (verbose) cout << "Check class `bdlf::MemFn`:" << endl;
         {
             typedef BloombergLP::bdlf::MemFn<
                         bool (ConstructibleFromPointerToSelf::*)()> MemFnType;
@@ -700,7 +700,7 @@ DEFINE_TEST_CASE(9) {
             ASSERT(!func(&mY));
         }
 
-        if (verbose) cout << "Check class 'bdlf::MemFnInstance':" << endl;
+        if (verbose) cout << "Check class `bdlf::MemFnInstance`:" << endl;
         {
             typedef BloombergLP::bdlf::MemFnInstance<
                         bool (ConstructibleFromPointerToSelf::*)(),
@@ -726,15 +726,15 @@ DEFINE_TEST_CASE(8) {
         //
         // Concern:
         //   1. that classes which have pointer-like semantics (as indicated by
-        //      the 'bslmf::HasPointerSemantics') are treated properly and that
-        //      'const'-correctness is respected.
-        //   2. that if such classes take 'bblma' allocators, the copy stored
-        //      inside the 'bdlf::MemFnInstance' object is propagated the
-        //      allocator passed at construction of the 'bdlf::MemFnInstance'.
+        //      the `bslmf::HasPointerSemantics`) are treated properly and that
+        //      `const`-correctness is respected.
+        //   2. that if such classes take `bblma` allocators, the copy stored
+        //      inside the `bdlf::MemFnInstance` object is propagated the
+        //      allocator passed at construction of the `bdlf::MemFnInstance`.
         //
         // Plan:
-        //   Instantiate 'bdlf::MemFn' and 'bdlf::MemFnInstance' wrapper with a
-        //   'TestPtrWrapper' that has pointer-like semantics and holds a
+        //   Instantiate `bdlf::MemFn` and `bdlf::MemFnInstance` wrapper with a
+        //   `TestPtrWrapper` that has pointer-like semantics and holds a
         //   pointer to a test object.  Check that invocation succeeds and
         //   returns as expected.  Note that it suffices to make sure that it
         //   works with a single invocation argument.
@@ -757,9 +757,9 @@ DEFINE_TEST_CASE(8) {
 
         static const TestArg1 V1(1);
 
-        if (verbose) cout << "Testing 'bdlf::MemFn':" << endl;
+        if (verbose) cout << "Testing `bdlf::MemFn`:" << endl;
 
-        if (verbose) cout << "\tnon-'const' member functions..." << endl;
+        if (verbose) cout << "\tnon-`const` member functions..." << endl;
         {
             typedef bdlf::MemFn<int (InplaceTestObj::*)(TestArg1)> MemFnType;
 
@@ -797,7 +797,7 @@ DEFINE_TEST_CASE(8) {
                         EXP == InplaceTestObj::statics());
         }
 
-        if (verbose) cout << "\tnon-'const' noexcept member functions..."
+        if (verbose) cout << "\tnon-`const` noexcept member functions..."
                           << endl;
         {
             typedef bdlf::MemFn<
@@ -840,9 +840,9 @@ DEFINE_TEST_CASE(8) {
                         EXP == InplaceTestObj::statics());
         }
 
-        if (verbose) cout << "Testing 'bdlf::MemFnInstance':" << endl;
+        if (verbose) cout << "Testing `bdlf::MemFnInstance`:" << endl;
 
-        if (verbose) cout << "\tnon-'const' member functions..." << endl;
+        if (verbose) cout << "\tnon-`const` member functions..." << endl;
         {
             typedef bdlf::MemFnInstance<int (InplaceTestObj::*)(TestArg1),
                                        TestPtrWrapper<InplaceTestObj>
@@ -899,7 +899,7 @@ DEFINE_TEST_CASE(8) {
         }
 
         if (verbose)
-            cout << "\t'const' member functions and non-'const' instances..."
+            cout << "\t'const' member functions and non-`const` instances..."
                  << endl;
         {
             typedef bdlf::MemFnInstance<
@@ -929,7 +929,7 @@ DEFINE_TEST_CASE(8) {
                         EXP == InplaceTestObj::statics());
         }
 
-        if (verbose) cout << "\tnon-'const' noexcept member functions..."
+        if (verbose) cout << "\tnon-`const` noexcept member functions..."
                           << endl;
         {
             typedef bdlf::MemFnInstance<
@@ -990,7 +990,7 @@ DEFINE_TEST_CASE(8) {
 
         if (verbose)
             cout << "\t'const' noexcept member functions and "
-                 << "non-'const' instances..."
+                 << "non-`const` instances..."
                  << endl;
         {
             typedef bdlf::MemFnInstance<
@@ -1025,7 +1025,7 @@ DEFINE_TEST_CASE(8) {
 
 DEFINE_TEST_CASE(7) {
         // --------------------------------------------------------------------
-        // TESTING 'bdlf::MemFnInstance' WITH NON-MODIFIABLE INSTANCE
+        // TESTING `bdlf::MemFnInstance` WITH NON-MODIFIABLE INSTANCE
         //
         // Concern:
         //   That one may create a member function wrapper with a
@@ -1061,7 +1061,7 @@ DEFINE_TEST_CASE(7) {
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTESTING 'bdlf::MemFnInstance' WITH NON-MODIFIABLE "
+            cout << "\nTESTING `bdlf::MemFnInstance` WITH NON-MODIFIABLE "
                     "INSTANCE"
                     "\n=================================================="
                     "========\n";
@@ -1094,7 +1094,7 @@ DEFINE_TEST_CASE(7) {
                         EXP == InplaceTestObj::statics());
         }
 
-        if (verbose) cout << "\tno argument, 'noexcept'..." << endl;
+        if (verbose) cout << "\tno argument, `noexcept`..." << endl;
         {
             InplaceTestObj::reset();
             static const InplaceTestObj EXP;
@@ -1130,7 +1130,7 @@ DEFINE_TEST_CASE(7) {
 #define N(n) V##n
 #undef M
 #define M(n)                                                                  \
-        if (verbose) cout << "\t" << n << " argument(s), 'noexcept'...\n";    \
+        if (verbose) cout << "\t" << n << " argument(s), `noexcept`...\n";    \
         {                                                                     \
             InplaceTestObj::reset();                                          \
             static const InplaceTestObj EXP(C##n(N));                         \
@@ -1150,7 +1150,7 @@ DEFINE_TEST_CASE(7) {
 
 DEFINE_TEST_CASE(6) {
         // --------------------------------------------------------------------
-        // TESTING 'bdlf::MemFnInstance' WITH PTR TO MODIFIABLE OBJECT
+        // TESTING `bdlf::MemFnInstance` WITH PTR TO MODIFIABLE OBJECT
         //
         // Concern:
         //   That one may create a member function wrapper with the address of
@@ -1186,7 +1186,7 @@ DEFINE_TEST_CASE(6) {
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTESTING 'bdlf::MemFnInstance' WITH PTR TO MODIFIABLE "
+            cout << "\nTESTING `bdlf::MemFnInstance` WITH PTR TO MODIFIABLE "
                     "OBJECT"
                     "\n====================================================="
                     "======\n";
@@ -1218,7 +1218,7 @@ DEFINE_TEST_CASE(6) {
             LOOP_ASSERT(X, EXP == X);
         }
 
-        if (verbose) cout << "\tno argument, 'noexcept'..." << endl;
+        if (verbose) cout << "\tno argument, `noexcept`..." << endl;
         {
             InplaceTestObj x; InplaceTestObj const &X=x;
             static const InplaceTestObj EXP;
@@ -1252,7 +1252,7 @@ DEFINE_TEST_CASE(6) {
 #define N(n) V##n
 #undef M
 #define M(n)                                                                  \
-        if (verbose) cout << "\t" << n << " argument(s), 'noexcept'...\n";    \
+        if (verbose) cout << "\t" << n << " argument(s), `noexcept`...\n";    \
         {                                                                     \
             InplaceTestObj x; InplaceTestObj const &X=x;                      \
             static const InplaceTestObj EXP(C##n(N));                         \
@@ -1271,7 +1271,7 @@ DEFINE_TEST_CASE(6) {
 
 DEFINE_TEST_CASE(5) {
         // --------------------------------------------------------------------
-        // TESTING 'bdlf::MemFn' WITH REFERENCE TO NON-MODIFIABLE OBJECT
+        // TESTING `bdlf::MemFn` WITH REFERENCE TO NON-MODIFIABLE OBJECT
         //
         // Concern:
         //   That one may create a member function wrapper, and that such
@@ -1307,7 +1307,7 @@ DEFINE_TEST_CASE(5) {
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTESTING 'bdlf::MemFn' WITH REFERENCE TO "
+            cout << "\nTESTING `bdlf::MemFn` WITH REFERENCE TO "
                     "NON-MODIFIABLE OBJECT"
                     "\n========================================"
                     "=====================\n";
@@ -1340,7 +1340,7 @@ DEFINE_TEST_CASE(5) {
                         EXP == InplaceTestObj::statics());
         }
 
-        if (verbose) cout << "\tno argument, 'noexcept'..." << endl;
+        if (verbose) cout << "\tno argument, `noexcept`..." << endl;
         {
             InplaceTestObj::reset();
             static const InplaceTestObj EXP;
@@ -1376,7 +1376,7 @@ DEFINE_TEST_CASE(5) {
 #define N(n) V##n
 #undef M
 #define M(n)                                                                  \
-        if (verbose) cout << "\t" << n << " argument(s), 'noexcept'...\n";    \
+        if (verbose) cout << "\t" << n << " argument(s), `noexcept`...\n";    \
         {                                                                     \
             InplaceTestObj::reset();                                          \
             static const InplaceTestObj EXP(C##n(N));                         \
@@ -1396,7 +1396,7 @@ DEFINE_TEST_CASE(5) {
 
 DEFINE_TEST_CASE(4) {
         // --------------------------------------------------------------------
-        // TESTING 'bdlf::MemFn' WITH REFERENCE TO MODIFIABLE OBJECT
+        // TESTING `bdlf::MemFn` WITH REFERENCE TO MODIFIABLE OBJECT
         //
         // Concern:
         //   That one may create a member function wrapper, that such wrapper
@@ -1432,7 +1432,7 @@ DEFINE_TEST_CASE(4) {
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTESTING 'bdlf::MemFn' WITH REFERENCE TO MODIFIABLE "
+            cout << "\nTESTING `bdlf::MemFn` WITH REFERENCE TO MODIFIABLE "
                     "OBJECT"
                     "\n==================================================="
                     "======\n";
@@ -1463,7 +1463,7 @@ DEFINE_TEST_CASE(4) {
             LOOP_ASSERT(X, EXP == X);
         }
 
-        if (verbose) cout << "\tno argument, 'noexcept'..." << endl;
+        if (verbose) cout << "\tno argument, `noexcept`..." << endl;
         {
             InplaceTestObj x; InplaceTestObj const &X=x;
             static const InplaceTestObj EXP;
@@ -1496,7 +1496,7 @@ DEFINE_TEST_CASE(4) {
 #define N(n) V##n
 #undef M
 #define M(n)                                                                  \
-        if (verbose) cout << "\t" << n << " argument(s), 'noexcept'...\n";    \
+        if (verbose) cout << "\t" << n << " argument(s), `noexcept`...\n";    \
         {                                                                     \
             InplaceTestObj x; InplaceTestObj const &X=x;                      \
             static const InplaceTestObj EXP(C##n(N));                         \
@@ -1514,7 +1514,7 @@ DEFINE_TEST_CASE(4) {
 
 DEFINE_TEST_CASE(3) {
         // --------------------------------------------------------------------
-        // TESTING 'bdlf::MemFn' WITH POINTER TO NON-MODIFIABLE OBJECT
+        // TESTING `bdlf::MemFn` WITH POINTER TO NON-MODIFIABLE OBJECT
         //
         // Concern:
         //   That one may create a member function wrapper, that such
@@ -1551,7 +1551,7 @@ DEFINE_TEST_CASE(3) {
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTESTING 'bdlf::MemFn' WITH POINTER TO NON-MODIFIABLE "
+            cout << "\nTESTING `bdlf::MemFn` WITH POINTER TO NON-MODIFIABLE "
                     "OBJECT"
                     "\n====================================================="
                     "======\n";
@@ -1584,7 +1584,7 @@ DEFINE_TEST_CASE(3) {
                         EXP == InplaceTestObj::statics());
         }
 
-        if (verbose) cout << "\tno argument, 'noexcept'..." << endl;
+        if (verbose) cout << "\tno argument, `noexcept`..." << endl;
         {
             InplaceTestObj::reset();
             static const InplaceTestObj EXP;
@@ -1620,7 +1620,7 @@ DEFINE_TEST_CASE(3) {
 #define N(n) V##n
 #undef M
 #define M(n)                                                                  \
-        if (verbose) cout << "\t" << n << " argument(s), 'noexcept'...\n";    \
+        if (verbose) cout << "\t" << n << " argument(s), `noexcept`...\n";    \
         {                                                                     \
             InplaceTestObj::reset();                                          \
             static const InplaceTestObj EXP(C##n(N));                         \
@@ -1640,7 +1640,7 @@ DEFINE_TEST_CASE(3) {
 
 DEFINE_TEST_CASE(2) {
         // --------------------------------------------------------------------
-        // TESTING 'bdlf::MemFn' INVOCATION WITH POINTER TO MODIFIABLE OBJECT
+        // TESTING `bdlf::MemFn` INVOCATION WITH POINTER TO MODIFIABLE OBJECT
         //
         // Concern:
         //   That one may create a member function wrapper, that such
@@ -1677,7 +1677,7 @@ DEFINE_TEST_CASE(2) {
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTESTING 'bdlf::MemFn::operator()(&x, ...)'."
+            cout << "\nTESTING `bdlf::MemFn::operator()(&x, ...)`."
                  << "\n=========================================" << endl;
 
         static const TestArg1 V1(1);
@@ -1707,7 +1707,7 @@ DEFINE_TEST_CASE(2) {
             LOOP_ASSERT(X, EXP == X);
         }
 
-        if (verbose) cout << "\tno argument, 'noexcept'..." << endl;
+        if (verbose) cout << "\tno argument, `noexcept`..." << endl;
         {
             InplaceTestObj x; InplaceTestObj const &X=x;
             static const InplaceTestObj EXP;
@@ -1741,7 +1741,7 @@ DEFINE_TEST_CASE(2) {
 #define N(n) V##n
 #undef M
 #define M(n)                                                                  \
-        if (verbose) cout << "\t" << n << " argument(s), 'noexcept'...\n";    \
+        if (verbose) cout << "\t" << n << " argument(s), `noexcept`...\n";    \
         {                                                                     \
             InplaceTestObj x; InplaceTestObj const &X=x;                      \
             static const InplaceTestObj EXP(C##n(N));                         \

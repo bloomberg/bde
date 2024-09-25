@@ -164,15 +164,15 @@ class ThreadChecker {
 
 ///Usage
 ///-----
-// The following usage example illustrates how 'bslmt::ThreadGroup' might be
+// The following usage example illustrates how `bslmt::ThreadGroup` might be
 // used in a typical test driver to simplify the execution of a common function
 // in multiple threads.  Suppose that we are interested in creating a
-// stress-test for the 'bslmt::Mutex' class.  The test is controlled by two
-// parameters: the number of executions (defined by subsequent calls to 'lock'
-// and 'unlock', and the amount of contention, defined by the number of threads
+// stress-test for the `bslmt::Mutex` class.  The test is controlled by two
+// parameters: the number of executions (defined by subsequent calls to `lock`
+// and `unlock`, and the amount of contention, defined by the number of threads
 // accessing the mutex.  The test can be expressed as two functions.  The first
 // is executed in each thread via a functor object:
-//..
+// ```
     class MutexTestJob {
         int           d_numIterations;
         int          *d_value_p;
@@ -193,7 +193,7 @@ class ThreadChecker {
             }
         }
     };
-//..
+// ```
 
 class MutexTestSyncJob : private MutexTestJob {
     bslmt::Semaphore *d_startSemaphore_p;
@@ -295,9 +295,9 @@ int main(int argc, char *argv[])
         // Plan:
         //   Incorporate the usage example from the header file into the test
         //   driver.  Make use of existing test apparatus by instantiating
-        //   objects with a 'bslma::TestAllocator' object where applicable.
-        //   Additionally, replace all calls to 'assert' in the usage example
-        //   with calls to 'ASSERT'.  This now becomes the source, which is
+        //   objects with a `bslma::TestAllocator` object where applicable.
+        //   Additionally, replace all calls to `assert` in the usage example
+        //   with calls to `ASSERT`.  This now becomes the source, which is
         //   then "copied" back to the header file by reversing the above
         //   process.
         //
@@ -311,7 +311,7 @@ int main(int argc, char *argv[])
         }
 
 // The second executes the main body of the test:
-//..
+// ```
     {
         const int NUM_ITERATIONS = 10000;
         const int NUM_THREADS    = 8;
@@ -330,7 +330,7 @@ int main(int argc, char *argv[])
     }
     ASSERT(0 <  ta.numAllocations());
     ASSERT(0 == ta.numBytesInUse());
-//..
+// ```
       }  break;
       case 4: {
         // --------------------------------------------------------------------
@@ -391,7 +391,7 @@ int main(int argc, char *argv[])
         }
 
         // There is the possibility of a delay between the threads posting to
-        // 'doneSemaphore' and the underlying managed pointers reclaiming the
+        // `doneSemaphore` and the underlying managed pointers reclaiming the
         // memory from the threads.  Since the threads are detached, there is
         // no way to determine when the threads have had their memory returned.
         // As such, a short loop will be allowed before the strict tests are
@@ -414,15 +414,15 @@ int main(int argc, char *argv[])
         // CONCERN: FUNCTOR LIFETIME
         //
         // Concerns:
-        //  That the functor passed to both the 'addThread' and 'addThreads'
+        //  That the functor passed to both the `addThread` and `addThreads`
         //  methods may safely go out of scope before the thread begins
         //  executing.
         //
         // Plan:
-        //  Create a thread by passing a functor object to the 'addThread'
+        //  Create a thread by passing a functor object to the `addThread`
         //  method.  Ensure that the functor goes out of scope before the
         //  thread begins executing.  Check that the thread executes properly.
-        //  Repeat, substituting the 'addThreads' method as the means of adding
+        //  Repeat, substituting the `addThreads` method as the means of adding
         //  a thread to the thread group.
         //
         // Testing:
@@ -449,7 +449,7 @@ int main(int argc, char *argv[])
             int value = 0;
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // Testing 'addThread'
+            // Testing `addThread`
             {
                 u::MutexTestSyncJob testFunc(&value, &mutex, NUM_ITERATIONS,
                                              &startSemaphore);
@@ -462,7 +462,7 @@ int main(int argc, char *argv[])
             ASSERT(NUM_ITERATIONS == value);
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // Testing 'addThreads'
+            // Testing `addThreads`
 
             value = 0;
 
@@ -549,17 +549,17 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   Exercise the basic functionality of the 'bslmt::ThreadGroup'
+        //   Exercise the basic functionality of the `bslmt::ThreadGroup`
         //   class.  We want to ensure that thread groups can be instantiated
         //   and destroyed.  We also want to exercise the primary manipulators
         //   and accessors.
         //
         // Plan:
-        //   Create a 'bslmt::ThreadGroup', 'mX', and a
-        //   non-modifiable reference to 'mX' named 'X'.  Add multiple threads
-        //   by calling 'addThread' on 'mX', and verify the number of threads
-        //   by calling 'numThreads' on 'X'.  Call 'joinAll' on 'mX', and
-        //   verify the number of remaining threads on 'X'.
+        //   Create a `bslmt::ThreadGroup`, `mX`, and a
+        //   non-modifiable reference to `mX` named `X`.  Add multiple threads
+        //   by calling `addThread` on `mX`, and verify the number of threads
+        //   by calling `numThreads` on `X`.  Call `joinAll` on `mX`, and
+        //   verify the number of remaining threads on `X`.
         //
         // Testing:
         //   Exercise basic functionality.
@@ -578,7 +578,7 @@ int main(int argc, char *argv[])
            bslmt::Mutex startBarrier;
 
            // Perform two iterations to ensure the object behaves correctly
-           // after 'joinAll' is called.
+           // after `joinAll` is called.
            for (int i = 0; i < 2; ++i) {
                u::ThreadChecker checker(&startBarrier);
                startBarrier.lock();

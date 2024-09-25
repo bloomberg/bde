@@ -12,10 +12,10 @@
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 
-#include <bsl_cctype.h>      // 'bsl::isspace'
+#include <bsl_cctype.h>      // `bsl::isspace`
 #include <bsl_cstddef.h>
-#include <bsl_cstdlib.h>     // 'atoi'
-#include <bsl_cstring.h>     // 'bsl::strcmp', 'bsl::memset'
+#include <bsl_cstdlib.h>     // `atoi`
+#include <bsl_cstring.h>     // `bsl::strcmp`, `bsl::memset`
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #pragma warning(disable:4312)
@@ -104,7 +104,7 @@ typedef bdlb::Print Util;
 //              SUPPORTING FUNCTIONS USED FOR TESTING
 // ----------------------------------------------------------------------------
 // expectedOut[X] denotes the expected output for the input buffer of length
-// 'X' (used in cases 5 and 6).
+// `X` (used in cases 5 and 6).
 
 bsl::string expectedOut[] = {
                                                                            "",
@@ -190,13 +190,13 @@ static const bsl::string ASCII_HEX_PRESENTATION[256] = {
 "F0","F1","F2","F3","F4","F5","F6","F7","F8","F9","FA","FB","FC","FD","FE","FF"
 };
 
+/// Load into the specified `result` a string that is the uppercase hex
+/// representation of the specified `input` string of the specified
+/// `length`.  Return the number of characters written.  Note that we will
+/// use this function as an oracle.
 bsl::size_t generateHexRepresentation(char        *result,
                                       const char  *input,
                                       bsl::size_t  length)
-    // Load into the specified 'result' a string that is the uppercase hex
-    // representation of the specified 'input' string of the specified
-    // 'length'.  Return the number of characters written.  Note that we will
-    // use this function as an oracle.
 {
     bsl::size_t ret = 0;
     for (bsl::size_t i = 0; i < length; ++i) {
@@ -211,11 +211,11 @@ bsl::size_t generateHexRepresentation(char        *result,
     return ret;
 }
 
+/// Load into the specified `result` the specified `length` number of bytes
+/// pseudo-randomly generated using the specified `seed`.
 void generatePseudoRandomInputBufferData(char         *result,
                                          bsl::size_t   length,
                                          unsigned int  seed)
-    // Load into the specified 'result' the specified 'length' number of bytes
-    // pseudo-randomly generated using the specified 'seed'.
 {
     static unsigned int value = seed;
     for (bsl::size_t i = 0; i < length; ++i) {
@@ -277,27 +277,27 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'PrintStringSingleLineHexDumper' CLASS
+        // TESTING `PrintStringSingleLineHexDumper` CLASS
         //
         // Concerns:
-        //: 1 Dumping via the class results in the same output as if done to
-        //:   the stream directly.
+        // 1. Dumping via the class results in the same output as if done to
+        //    the stream directly.
         //
         // Plan:
-        //: 1 Ad hoc test.
+        // 1. Ad hoc test.
         //
         // Testing:
         //  struct PrintStringSingleLineHexDumper;
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-              "\n" "TESTING 'PrintStringSingleLineHexDumper' CLASS" "\n"
+              "\n" "TESTING `PrintStringSingleLineHexDumper` CLASS" "\n"
                    "==============================================" "\n";
 
         static const char   SOME_STRING[]   = "ABCDefghIJKLmnopQRSTuvwXYZ";
@@ -317,18 +317,18 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'singleLineHexDump' METHODS
+        // TESTING `singleLineHexDump` METHODS
         //
         // Concerns:
-        //: 1 All ASCII character values (printable and non-printable) get
-        //:   encoded correctly;
-        //: 2 Exactly 'length' characters get dumped.
+        // 1. All ASCII character values (printable and non-printable) get
+        //    encoded correctly;
+        // 2. Exactly `length` characters get dumped.
         //
         // Plan:
-        //: 1 Build up a table of the hex representations of all 256 different
-        //:   byte patterns.  After some preliminary tests, mechanically create
-        //:   the expected output from the input and verify that each of the
-        //:   functions performs the same way.
+        // 1. Build up a table of the hex representations of all 256 different
+        //    byte patterns.  After some preliminary tests, mechanically create
+        //    the expected output from the input and verify that each of the
+        //    functions performs the same way.
         //
         // Testing:
         //   singleLineHexDump(ostream& s, INPUT_ITER b, INPUT_ITER e);
@@ -336,7 +336,7 @@ int main(int argc, char *argv[])
         //   singleLineHexDump(ostream& s, const char *b, int l);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\n" "TESTING 'singleLineHexDump' METHODS" "\n"
+        if (verbose) cout << "\n" "TESTING `singleLineHexDump` METHODS" "\n"
                                   "===================================" "\n";
 
         static const char   LONG_STR[]   =
@@ -471,30 +471,30 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'printString' METHOD
-        //   This will test the 'printString' method
+        // TESTING `printString` METHOD
+        //   This will test the `printString` method
         //
         // Concerns:
-        //: 1 Non-printable characters must be printed using their hexadecimal
-        //:   representation.
-        //:
-        //: 2 Interleaved printable and non-printable characters must work as
-        //:   expected.
-        //:
-        //: 3 Printing with bad streams should be a no-op.
-        //:
-        //: 4 If the expandBackSlash is 'false' (default case) then '\' is not
-        //:   output as '\\', else it is.
+        // 1. Non-printable characters must be printed using their hexadecimal
+        //    representation.
+        //
+        // 2. Interleaved printable and non-printable characters must work as
+        //    expected.
+        //
+        // 3. Printing with bad streams should be a no-op.
+        //
+        // 4. If the expandBackSlash is `false` (default case) then '\' is not
+        //    output as '\\', else it is.
         //
         // Plan:
-        //: 1 For a series of values print the test string to an 'ostream' and
-        //:   verify that the result is as expected.
+        // 1. For a series of values print the test string to an `ostream` and
+        //    verify that the result is as expected.
         //
         // Testing:
         //   printString(ostream& s, const char *s, int l, bool ebs = 0);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\n" "TESTING 'printString' METHOD" "\n"
+        if (verbose) cout << "\n" "TESTING `printString` METHOD" "\n"
                                   "============================" "\n";
         static const struct {
             int         d_lineNum;
@@ -635,45 +635,45 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'hexDump' (MULTIPLE BUFFERS)
+        // TESTING `hexDump` (MULTIPLE BUFFERS)
         //
         // Concerns:
-        //: 1 When multiple buffers are printed out, on the border where one
-        //:   buffer ends and a second buffer begins must have a seemless
-        //:   transition, one should not be able to tell where one buffer ends
-        //:   and the next begins.
-        //:
-        //:   1 Small buffers test: Test when a supplied buffer is smaller than
-        //:     'CHAR_PER_LINE', resulting in multiple buffers printed out per
-        //:     line.
-        //:
-        //:   2 Variable sizes buffer test: Test when supplied buffers are not
-        //:     all the same size.
-        //:
-        //:   3 Buffer endpoint test: Test when buffer size end in the middle
-        //:     of a line, and when it ends at the end of a line.
+        // 1. When multiple buffers are printed out, on the border where one
+        //    buffer ends and a second buffer begins must have a seemless
+        //    transition, one should not be able to tell where one buffer ends
+        //    and the next begins.
+        //
+        //   1. Small buffers test: Test when a supplied buffer is smaller than
+        //      `CHAR_PER_LINE`, resulting in multiple buffers printed out per
+        //      line.
+        //
+        //   2. Variable sizes buffer test: Test when supplied buffers are not
+        //      all the same size.
+        //
+        //   3. Buffer endpoint test: Test when buffer size end in the middle
+        //      of a line, and when it ends at the end of a line.
         //
         // Plan:
-        //: 1 Small buffers test: Create a number of small static buffers, such
-        //:   that for each line, multiple buffers will be used.  Pass these
-        //:   into the function and verify output is correct.
-        //:
-        //: 2 Variable sizes buffer test: Create a number of different sized
-        //:   static buffers.  Pass these into the function and verify output
-        //:   is correct.
-        //:
-        //: 3 Buffer endpoint test: Create a number of buffers of size
-        //:   'CHAR_PER_LINE * 1.5'.  The end of the first buffer must end at
-        //:   the middle of the line, where the second buffer will be used to
-        //:   finish the line.  The next buffer will end precisely at the end
-        //:   of the third line, so this will test buffers that end exactly at
-        //:   the end of a line as well.  Verify that output is correct.
+        // 1. Small buffers test: Create a number of small static buffers, such
+        //    that for each line, multiple buffers will be used.  Pass these
+        //    into the function and verify output is correct.
+        //
+        // 2. Variable sizes buffer test: Create a number of different sized
+        //    static buffers.  Pass these into the function and verify output
+        //    is correct.
+        //
+        // 3. Buffer endpoint test: Create a number of buffers of size
+        //    `CHAR_PER_LINE * 1.5`.  The end of the first buffer must end at
+        //    the middle of the line, where the second buffer will be used to
+        //    finish the line.  The next buffer will end precisely at the end
+        //    of the third line, so this will test buffers that end exactly at
+        //    the end of a line as well.  Verify that output is correct.
         //
         // Testing:
         //    hexDump(ostream& s, bsl::pair<const char *, int> *b, int nb)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\n" "TESTING 'hexDump' (MULTIPLE BUFFERS)" "\n"
+        if (verbose) cout << "\n" "TESTING `hexDump` (MULTIPLE BUFFERS)" "\n"
                                   "====================================" "\n";
 
         {
@@ -736,7 +736,7 @@ int main(int argc, char *argv[])
         {
             if (verbose) cout << "c.  Buffer endpoint test."  << endl;
             enum { k_NUM_STATIC_BUFFERS =    4 ,
-                   k_CHAR_PER_LINE      =   16,  // defined in 'bdlb_print'
+                   k_CHAR_PER_LINE      =   16,  // defined in `bdlb_print`
                    k_SIZE               = 1024
             };
 
@@ -771,20 +771,20 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'PrintStringHexDumper'
+        // TESTING `PrintStringHexDumper`
         //
         // Concerns:
-        //: 1 That the output resulting from the use of this struct and its
-        //:   output operator is the same as the corresponding dump method.
+        // 1. That the output resulting from the use of this struct and its
+        //    output operator is the same as the corresponding dump method.
         //
         // Plan:
-        //: 1 Use the same test input and expected output as in case 5.
+        // 1. Use the same test input and expected output as in case 5.
         //
         // Testing:
         //   struct PrintStringHexDumper;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\n" "TESTING 'PrintStringHexDumper'" "\n"
+        if (verbose) cout << "\n" "TESTING `PrintStringHexDumper`" "\n"
                                   "==============================" "\n";
         {
             const int SIZE = 256;
@@ -842,20 +842,20 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'hexDump'
+        // TESTING `hexDump`
         //
         // Concerns:
-        //: 1 The input buffer is formatted correctly.
+        // 1. The input buffer is formatted correctly.
         //
         // Plan:
-        //: 2 Use the format array at the top of this file to test inputs of
-        //:   varying length from 0 to 16.
+        // 2. Use the format array at the top of this file to test inputs of
+        //    varying length from 0 to 16.
         //
         // Testing:
         //   hexDump(ostream& s, const char *b, int l);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\n" "TESTING 'hexDump'" "\n"
+        if (verbose) cout << "\n" "TESTING `hexDump`" "\n"
                                   "=================" "\n";
         {
             const int k_SIZE = 256;
@@ -914,21 +914,21 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'newLineAndIndent'
+        // TESTING `newLineAndIndent`
         //
         // Concerns:
-        //: 1 Ensure that the newlineAndIndent method prints properly for:
-        //:   1 Negative, 0, and positive levels.
-        //:   2 Negative, 0, and positive spaces per level.
+        // 1. Ensure that the newlineAndIndent method prints properly for:
+        //   1. Negative, 0, and positive levels.
+        //   2. Negative, 0, and positive spaces per level.
         //
         // Plan:
-        //: 1 Specifying a set of test vectors and verify the return value.
+        // 1. Specifying a set of test vectors and verify the return value.
         //
         // Testing:
         //   newlineAndIndent(ostream& s, int l, int spl = 4)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\n" "TESTING 'newLineAndIndent'" "\n"
+        if (verbose) cout << "\n" "TESTING `newLineAndIndent`" "\n"
                                   "==========================" "\n";
 
         {
@@ -962,10 +962,10 @@ int main(int argc, char *argv[])
 
             const char Z1 = static_cast<char>(0xff);
                                            // Used to represent an unset
-                                           // 'char'.
+                                           // `char`.
 
             const char Z2 = 0x00;          // Value 2 used to represent an
-                                           // unset 'char'.
+                                           // unset `char`.
 
             char        mCtrlBuf1[SIZE];  bsl::memset(mCtrlBuf1, Z1, SIZE);
             char        mCtrlBuf2[SIZE];  bsl::memset(mCtrlBuf2, Z2, SIZE);
@@ -1016,21 +1016,21 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'indent'
+        // TESTING `indent`
         //
         // Concerns:
-        //: 1 The indent method prints properly for:
-        //:   1 Negative, 0, and positive levels.
-        //:   2 Negative, 0, and positive spaces per level.
+        // 1. The indent method prints properly for:
+        //   1. Negative, 0, and positive levels.
+        //   2. Negative, 0, and positive spaces per level.
         //
         // Plan:
-        //: 1 Specifying a set of test vectors and verify the return value.
+        // 1. Specifying a set of test vectors and verify the return value.
         //
         // Testing:
         //   indent(ostream& s, int l, int spl = 4);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\n" "TESTING 'indent'" "\n"
+        if (verbose) cout << "\n" "TESTING `indent`" "\n"
                                   "================" "\n";
 
         {
@@ -1068,10 +1068,10 @@ int main(int argc, char *argv[])
 
             const char Z1   = static_cast<char>(0xff);
                                            // Used to represent an unset
-                                           // 'char'.
+                                           // `char`.
 
             const char Z2   = 0x00;        // Value 2 used to represent an
-                                           // unset 'char'.
+                                           // unset `char`.
 
             char mCtrlBuf1[SIZE];  bsl::memset(mCtrlBuf1, Z1, SIZE);
             char mCtrlBuf2[SIZE];  bsl::memset(mCtrlBuf2, Z2, SIZE);
@@ -1119,25 +1119,25 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'printPtr'
+        // TESTING `printPtr`
         //
         // Concerns:
-        //: 1 Leading zeros are suppressed.
-        //: 2 Embedded zeros are displayed.
-        //: 3 Values do not get confused for negative numbers.
-        //: 4 Case is always lower case for a, b, c, d, e, and f.
-        //: 5 Upper and lower 32-bits treated the same.
+        // 1. Leading zeros are suppressed.
+        // 2. Embedded zeros are displayed.
+        // 3. Values do not get confused for negative numbers.
+        // 4. Case is always lower case for a, b, c, d, e, and f.
+        // 5. Upper and lower 32-bits treated the same.
         //
         // Plan:
-        //: 1 Create a table consisting of high an low 32-bit address values
-        //:   and the expected print value.  Depending on the architecture test
-        //:   all the addresses or just those with the upper 32-bit values 0.
+        // 1. Create a table consisting of high an low 32-bit address values
+        //    and the expected print value.  Depending on the architecture test
+        //    all the addresses or just those with the upper 32-bit values 0.
         //
         // Testing:
         //   printPtr(ostream& stream, const void *value);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\n" "TESTING 'printPtr'" "\n"
+        if (verbose) cout << "\n" "TESTING `printPtr`" "\n"
                                   "==================" "\n";
 
         static const struct {
@@ -1241,13 +1241,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -1256,17 +1256,17 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "USAGE EXAMPLE" << endl
                                   << "=============" << endl;
 
-        if (verbose) cout << "\nTesting 'printPtr' function" << endl;
+        if (verbose) cout << "\nTesting `printPtr` function" << endl;
 ///Usage
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: Using 'printPtr'
+///Example 1: Using `printPtr`
 ///- - - - - - - - - - - - - -
 // The default output produced from pointer values is non-standard across
-// vendor platforms.  The 'printPtr' method addresses this inconsistency by
+// vendor platforms.  The `printPtr` method addresses this inconsistency by
 // always producing a consistent format for a given pointer size:
-//..
+// ```
     const void *a = reinterpret_cast<void *>(0x0);
     const void *b = reinterpret_cast<void *>(0xf2ff);
     const void *c = reinterpret_cast<void *>(0x0123);
@@ -1283,16 +1283,16 @@ int main(int argc, char *argv[])
            "f2ff"     "\n"
            "123"      "\n"
            "f1f2abc9" "\n" == out1.str());
-//..
+// ```
 //
 ///Example 2: Using the Helper Classes
 ///- - - - - - - - - - - - - - - - - -
 // The two helper classes allow users to stream a hexadecimal representation
 // of a sequence of bytes into an output stream.
 //
-// The 'bdlb::PrintStringHexDumper' provides a formatted, possibly multi-line
+// The `bdlb::PrintStringHexDumper` provides a formatted, possibly multi-line
 // representation:
-//..
+// ```
     char buf[] = "abcdefghijklmnopqrstuvwxyz";
 
     bsl::ostringstream out2a;
@@ -1305,13 +1305,13 @@ int main(int argc, char *argv[])
 
     bsl::ostringstream out2b;
     out2b << bdlb::PrintStringSingleLineHexDumper(buf, sizeof buf);
-//..
-// The 'bdlb::PrintStringSingleLineHexDumper' provides a simple, single-line
+// ```
+// The `bdlb::PrintStringSingleLineHexDumper` provides a simple, single-line
 // representation.
-//..
+// ```
     ASSERT("6162636465666768696A6B6C6D6E6F707172737475767778797A00"
         == out2b.str());
-//..
+// ```
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

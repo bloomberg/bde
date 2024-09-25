@@ -15,7 +15,7 @@
 // delimited regions of C++11 code, then this test driver is a minimal 'main'
 // program that tests nothing and is not '#include'd in the original.
 //
-// Generated on Thu Oct 21 10:11:37 2021
+// Generated on Mon Sep 30 12:40:22 2024
 // Command line: sim_cpp11_features.pl bslmf_nthparameter.t.cpp
 
 // Expanded test driver only when compiling bslmf_nthparameter.cpp
@@ -99,6 +99,7 @@ int integerConstTypeToInt(bsl::integral_constant<int, V>) { return V; }
 #ifndef BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A
 #define BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A BSLMF_NTHPARAMETER_VARIADIC_LIMIT
 #endif
+
 template <
 #if BSLMF_NTHPARAMETER_VARIADIC_LIMIT_A >= 0
 class ELEMS_0 = BSLS_COMPILERFEATURES_NILT
@@ -530,6 +531,7 @@ template <class ELEMS_01,
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
+
    template <class... ELEMS>
    class my_tuple {
    };
@@ -602,18 +604,18 @@ int main(int argc, char *argv[])
         // FULL TEST
         //
         // Concerns
-        //  o 'bslmf::NthParameter' can handle from 1 to 10 type arguments.
-        //  o 'bslmf::NthParameter' produces the correct 'Type' for 'N' in
+        //  o `bslmf::NthParameter` can handle from 1 to 10 type arguments.
+        //  o `bslmf::NthParameter` produces the correct `Type` for `N` in
         //    range 0 to 9.
         //
         // Plan:
-        //  o Use 'integral_constant' to create 10 different types 'T0' to 'T9'
-        //    as aliases for 'integral_constant<int, 0>' to
-        //    'integral_constant<int, 9>', respectively.
-        //  o Instantiate 'bslmf::NthParameter<0, T0>' and verify that the
-        //    resulting 'Type' is 'T0'.
+        //  o Use `integral_constant` to create 10 different types `T0` to `T9`
+        //    as aliases for `integral_constant<int, 0>` to
+        //    `integral_constant<int, 9>`, respectively.
+        //  o Instantiate `bslmf::NthParameter<0, T0>` and verify that the
+        //    resulting `Type` is `T0`.
         //  o Repeat the test with an ever longer list of type arguments and
-        //    with every valid value of 'N' until we've tested
+        //    with every valid value of `N` until we've tested
         //    bslmf::NthParameter<9, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>'.
         //
         // Testing:
@@ -704,9 +706,9 @@ int main(int argc, char *argv[])
         //
         // Concerns: Exercise basic functionality of component
         //
-        // Plan: Invoke 'NthParameter' metafunction with a few different
+        // Plan: Invoke `NthParameter` metafunction with a few different
         //   combinations of parameters and confirm that it yields the
-        //   expected 'Type' data member.
+        //   expected `Type` data member.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
@@ -748,7 +750,7 @@ int main() {
 #endif // defined(COMPILING_BSLMF_NTHPARAMETER_T_CPP)
 
 // ----------------------------------------------------------------------------
-// Copyright 2021 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

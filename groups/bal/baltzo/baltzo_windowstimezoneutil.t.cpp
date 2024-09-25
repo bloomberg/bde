@@ -38,11 +38,11 @@ using namespace bsl;
 // time-zone identifiers to Zoneinfo time-zone identifiers; the other mapping
 // Zoneinfo time-zone identifiers to Windows time-zone identifiers.  These
 // tables were semi-mechanically generated from a mapping table obtained from
-// 'unicode.org'.  As a check on that transformation, the tests here use as a
-// reference, a separate copy of the 'unicode.org' table, that has been
-// minimally transformed into a C-compatible table, 'DEFAULT_DATA'.  Each row
+// `unicode.org`.  As a check on that transformation, the tests here use as a
+// reference, a separate copy of the `unicode.org` table, that has been
+// minimally transformed into a C-compatible table, `DEFAULT_DATA`.  Each row
 // and column has the same data, in the same order as the original
-// 'unicode.org'.  The only changes has be the conversion of 'html' tags to
+// `unicode.org`.  The only changes has be the conversion of `html` tags to
 // double quotes, commas, etc.
 //
 // ----------------------------------------------------------------------------
@@ -877,15 +877,15 @@ static const unsigned char ASIA_SAIGON_DATA[] = {
 static int loadTimezoneObsoleteFlag(bool        *isTimezoneObsoleteFlag,
                                     const HKEY&  zonesKey,
                                     const char  *timezone)
-    // Load, into the specified 'isTimezoneObsolete', 'true' if the specified
-    // 'timezone' in the registry under the specified 'zonesKey' has an
-    // 'IsObsolete' value of 0x00000001, and 'false' otherwise.  Return 0 on
+    // Load, into the specified `isTimezoneObsolete`, `true` if the specified
+    // `timezone` in the registry under the specified `zonesKey` has an
+    // `IsObsolete` value of 0x00000001, and `false` otherwise.  Return 0 on
     // success, and a non-zero value otherwise, with no other effect.  Note
     // that this part of the registry is described in:
-    //..
+    // ```
     //  http://cldr.unicode.org/development/development-process/
     //                      design-proposals/extended-windows-olson-zid-mapping
-    //..
+    // ```
 {
     ASSERT(isTimezoneObsoleteFlag);
     ASSERT(timezone);
@@ -912,7 +912,7 @@ static int loadTimezoneObsoleteFlag(bool        *isTimezoneObsoleteFlag,
                           reinterpret_cast<LPBYTE>(&obsoleteValue),
                           &obsoleteValueSize);
     if (ERROR_SUCCESS != res && ERROR_FILE_NOT_FOUND != res) {
-        ASSERT(0 == "error querying value of 'IsObsolete'\n");
+        ASSERT(0 == "error querying value of `IsObsolete`\n");
         RegCloseKey(zoneSubKey);
         return -1;                                                    // RETURN
     }
@@ -923,7 +923,7 @@ static int loadTimezoneObsoleteFlag(bool        *isTimezoneObsoleteFlag,
     return 0;
 }
 static int loadTimezonesFromRegistry(vector<string> *timezones)
-    // Load, into the specified 'timezones', a list of the timezone
+    // Load, into the specified `timezones`, a list of the timezone
     // identifiers found in the "Time Zones"  Registry.  Those identifiers are
     // the keys under "Time Zones".  Identifiers for obsolete time zones are
     // not loaded.  Return 0 on success, and a non-zero value otherwise.
@@ -1058,13 +1058,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -1084,9 +1084,9 @@ int main(int argc, char *argv[])
 // for a given Windows time-zone identifier, and the inverse operation.
 //
 // First, given the "Central Standard Time (Mexico)" Windows time-zone
-// identifier, use the 'getZoneinfoId' method to find the corresponding
+// identifier, use the `getZoneinfoId` method to find the corresponding
 // Zoneinfo time-zone identifier.
-//..
+// ```
     int         rc;
     const char *timeZoneId;
     const char *windowsTimeZoneId;
@@ -1096,33 +1096,33 @@ int main(int argc, char *argv[])
                                              "Central Standard Time (Mexico)");
     ASSERT(0 == rc);
     ASSERT(0 == bsl::strcmp("America/Mexico_City", timeZoneId));
-//..
+// ```
 // Notice that the corresponding Zoneinfo time-zone identifier is
 // "America/Mexico_City".
 //
-// Next, use 'getWindowsTimeZoneId' method to find the Windows time-zone
+// Next, use `getWindowsTimeZoneId` method to find the Windows time-zone
 // identifier corresponding to "America/Mexico_City".
-//..
+// ```
     rc = baltzo::WindowsTimeZoneUtil::getWindowsTimeZoneId(
                                                         &windowsTimeZoneId,
                                                         "America/Mexico_City");
     ASSERT(0 == rc);
     ASSERT(0 == bsl::strcmp("Central Standard Time (Mexico)",
                              windowsTimeZoneId));
-//..
+// ```
 // Notice that the time zone returned is "Central Standard Time (Mexico)", the
 // original time-zone identifier.
             }
 //
             {
-///Example 2: Creating a 'baltzo::LocalDatetime' Object on Windows
+///Example 2: Creating a `baltzo::LocalDatetime` Object on Windows
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following example demonstrates how to create on a Windows platform a
-// 'baltzo::LocalDatetime' object with the value of the current time.
+// `baltzo::LocalDatetime` object with the value of the current time.
 //
-// First, use the Windows 'GetTimeZoneInformation' function to load a
-// 'TIME_ZONE_INFORMATION' structure.
-//..
+// First, use the Windows `GetTimeZoneInformation` function to load a
+// `TIME_ZONE_INFORMATION` structure.
+// ```
     int                    rc;
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     TIME_ZONE_INFORMATION tzi;
@@ -1131,22 +1131,22 @@ int main(int argc, char *argv[])
         || TIME_ZONE_ID_STANDARD == rc
         || TIME_ZONE_ID_DAYLIGHT == rc);
 #endif
-//..
-// The 'StandardName' member of the structure, of type 'WCHAR[32]', contains
+// ```
+// The `StandardName` member of the structure, of type `WCHAR[32]`, contains
 // the Windows time-zone identifier for Standard Time for the system's local
 // time zone.
 //
-// Next, use the 'wcstombs_s' function to convert the wide string in the
-// 'StandardName' member to its multi-byte equivalent in the 'standardName'
-// buffer, and assign the result to 'localTimezone'.  Note that every Windows
+// Next, use the `wcstombs_s` function to convert the wide string in the
+// `StandardName` member to its multi-byte equivalent in the `standardName`
+// buffer, and assign the result to `localTimezone`.  Note that every Windows
 // time-zone identifier mapped by this component consists entirely of 7-bit
 // ASCII characters.
-//..
+// ```
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     bsl::string localTimezone;
 
     {
-        // Convert 'StandardName' field ('WCHAR[32]') to 'bsl::string'.
+        // Convert `StandardName` field (`WCHAR[32]`) to `bsl::string`.
 
         char    standardName[sizeof(tzi.StandardName) * 2 + 1] = { '\0' };
         errno_t error = wcstombs_s(NULL,
@@ -1164,24 +1164,24 @@ int main(int argc, char *argv[])
     bsl::string localTimezone("Arab Standard Time");
 #endif
     ASSERT("Arab Standard Time" == localTimezone);
-//..
-// Now, use the 'getZoneinfoId' method to find the corresponding Zoneinfo
+// ```
+// Now, use the `getZoneinfoId` method to find the corresponding Zoneinfo
 // time-zone identifier.
-//..
+// ```
     const char *zoneinfoId;
     rc = baltzo::WindowsTimeZoneUtil::getZoneinfoId(&zoneinfoId,
                                                    localTimezone.c_str());
     ASSERT(0 == rc);
     ASSERT(0 == bsl::strcmp("Asia/Riyadh", zoneinfoId));
-//..
-// Then, use the Windows 'GetSystemTime' function to load an 'SYSTEMTIME'
+// ```
+// Then, use the Windows `GetSystemTime` function to load an `SYSTEMTIME`
 // structure with UTC time information.  The returned information includes
-// year, month ('[1 .. 12]'), day-of-month ('[1 .. 31]'), and hour-of-day
-// ('[0 .. 23]').  Note 'bdlt_date' and 'bdlt_time' use the same numerical
+// year, month (`[1 .. 12]`), day-of-month (`[1 .. 31]`), and hour-of-day
+// (`[0 .. 23]`).  Note `bdlt_date` and `bdlt_time` use the same numerical
 // values to represent month, day, etc.  The range of years is different but
 // practically the same as they overlap for several centuries around the
 // current time.
-//..
+// ```
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     SYSTEMTIME systemTime;
     GetSystemTime(&systemTime);
@@ -1197,10 +1197,10 @@ int main(int argc, char *argv[])
            0   // wMilliseconds
     };
 #endif
-//..
+// ```
 // Finally, use these Windows SystemTime values and the calculated Zoneinfo
-// time-zone identifier to set the value of a 'baltzo::LocalDatetime' object.
-//..
+// time-zone identifier to set the value of a `baltzo::LocalDatetime` object.
+// ```
     baltzo::LocalDatetime localDatetime;
 
     rc = baltzo::TimeZoneUtil::convertUtcToLocalTime(
@@ -1212,7 +1212,7 @@ int main(int argc, char *argv[])
                                                   systemTime.wHour));
     ASSERT(0             == rc);
     ASSERT("Asia/Riyadh" == localDatetime.timeZoneId());
-//..
+// ```
             }
       } break;
       case 3: {
@@ -1220,21 +1220,21 @@ int main(int argc, char *argv[])
         // MAPPING TABLE COVERAGE
         //
         // Concerns:
-        //:
-        //: 1 The set of Windows time-zone identifiers accepted by the
-        //:   'getZoneId' method is useful for the business needs of Bloomberg
-        //:   LP.
+        //
+        // 1. The set of Windows time-zone identifiers accepted by the
+        //    `getZoneId` method is useful for the business needs of Bloomberg
+        //    LP.
         //
         // Plan:
-        //:
-        //: 1 The {TZDF<GO>} function provides information on a set of time
-        //:   zones of interest to Bloomberg customers.  Check that these are
-        //:   found in the registry of the Windows test platform and that they
-        //:   are successfully mapped to Zoneinfo time-zone identifiers.
-        //:
-        //: 2 Confirm that the current time-zone of the Windows test platform
-        //:   can be mapped to a Zoneinfo time-zone identifier.
-        //:   identifier in turn.  Expect a successfull return from each call.
+        //
+        // 1. The {TZDF<GO>} function provides information on a set of time
+        //    zones of interest to Bloomberg customers.  Check that these are
+        //    found in the registry of the Windows test platform and that they
+        //    are successfully mapped to Zoneinfo time-zone identifiers.
+        //
+        // 2. Confirm that the current time-zone of the Windows test platform
+        //    can be mapped to a Zoneinfo time-zone identifier.
+        //    identifier in turn.  Expect a successfull return from each call.
         //
         // Testing:
         //   MAPPING TABLE COVERAGE
@@ -1257,7 +1257,7 @@ int main(int argc, char *argv[])
             const struct {
                 int         d_line;
                 const char *d_windowsTid;
-                const char *d_zoneInfoTid; // known to 'bsitzo_timezoneutil'.
+                const char *d_zoneInfoTid; // known to `bsitzo_timezoneutil`.
             } DATA [] = {
           // LI  WINDOWS TIME-ZONE IDENTIFIER      ZONEINFO TID
           // --  --------------------------------  ----------------------
@@ -1336,7 +1336,7 @@ int main(int argc, char *argv[])
 
             string localTimezone;
 
-            {   // Convert 'StandardName' field ('WCHAR[32]') to 'bsl::string'.
+            {   // Convert `StandardName` field (`WCHAR[32]`) to `bsl::string`.
                 char    standardName[sizeof(tzi.StandardName) * 2 + 1] =
                                                                       { '\0' };
                 errno_t error = wcstombs_s(NULL,
@@ -1361,40 +1361,40 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'getWindowsTimeZoneId'
+        // CLASS METHOD `getWindowsTimeZoneId`
         //
         // Concerns:
-        //: 1 The sorted static table mapping Zoneinfo time-zone identifiers to
-        //:   Windows time-zone identifiers is sorted, has a single record for
-        //:   each Zoneinfo time-zone identifier for each entry of the
-        //:   'unicode.org' table, and that entry has the correct,
-        //:   corresponding Windows time-zone identifier.
-        //:
-        //: 2 The table has no entries other than those described in C-1.
-        //:
-        //: 3 When given an invalid Zoneinfo time-zone identifier, the method
-        //:   returns a value indicating non-success, and has no other effect.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The sorted static table mapping Zoneinfo time-zone identifiers to
+        //    Windows time-zone identifiers is sorted, has a single record for
+        //    each Zoneinfo time-zone identifier for each entry of the
+        //    `unicode.org` table, and that entry has the correct,
+        //    corresponding Windows time-zone identifier.
+        //
+        // 2. The table has no entries other than those described in C-1.
+        //
+        // 3. When given an invalid Zoneinfo time-zone identifier, the method
+        //    returns a value indicating non-success, and has no other effect.
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For each Zoneinfo time-zone identifier the 'DEFAULT_DATA',
-        //:   confirm that the method returns success and loads the
-        //:   corresponding Windows time-zone identifier.  (C-1)
-        //:
-        //: 2 Compile-time asserts in the implementation check that the number
-        //:   of entries of the internal table matches that of 'DEFAULT_DATA'.
-        //:   (C-2)
-        //:
-        //: 3 Use a table-driven test to confirm that for several classes of
-        //:   invalid Zoneinfo time-zone identifiers, the method returns a
-        //:   value indicating failure, and that the contents of the given load
-        //:   address for the Windows time-zone identifier is unchanged.  (C-3)
-        //:
-        //: 4 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-4)
+        // 1. For each Zoneinfo time-zone identifier the `DEFAULT_DATA`,
+        //    confirm that the method returns success and loads the
+        //    corresponding Windows time-zone identifier.  (C-1)
+        //
+        // 2. Compile-time asserts in the implementation check that the number
+        //    of entries of the internal table matches that of `DEFAULT_DATA`.
+        //    (C-2)
+        //
+        // 3. Use a table-driven test to confirm that for several classes of
+        //    invalid Zoneinfo time-zone identifiers, the method returns a
+        //    value indicating failure, and that the contents of the given load
+        //    address for the Windows time-zone identifier is unchanged.  (C-3)
+        //
+        // 4. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-4)
         //
         // Testing:
         //   getWindowsTimeZoneId(const char **, const char *);
@@ -1402,7 +1402,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout
                 << endl
-                << "CLASS METHOD 'getWindowsTimeZoneId'" << endl
+                << "CLASS METHOD `getWindowsTimeZoneId`" << endl
                 << "===================================" << endl;
 
         if (verbose) cout << "\nTest Good Zoneinfo Identifiers" << endl;
@@ -1474,41 +1474,41 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'getZoneinfoId'
+        // CLASS METHOD `getZoneinfoId`
         //
         // Concerns:
-        //: 1 The sorted static table mapping Windows time-zone identifiers to
-        //:   Zoneinfo time-zone identifiers is sorted, has a single record for
-        //:   each Windows time-zone identifier for each entry of the
-        //:   'unicode.org' table, and that entry has the correct,
-        //:   corresponding Zoneinfo time-zone identifier.
-        //:
-        //: 2 The table has no entries other than those described in C-1.
-        //:
-        //: 3 When given an invalid Windows time-zone identifier, the method
-        //:   returns a value indicating non-success, and has no other effect.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The sorted static table mapping Windows time-zone identifiers to
+        //    Zoneinfo time-zone identifiers is sorted, has a single record for
+        //    each Windows time-zone identifier for each entry of the
+        //    `unicode.org` table, and that entry has the correct,
+        //    corresponding Zoneinfo time-zone identifier.
+        //
+        // 2. The table has no entries other than those described in C-1.
+        //
+        // 3. When given an invalid Windows time-zone identifier, the method
+        //    returns a value indicating non-success, and has no other effect.
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For each Windows time-zone identifier the 'DEFAULT_DATA', confirm
-        //:   that the method returns success and loads the corresponding
-        //:   Zoneinfo time-zone identifier.  (C-1)
-        //:
-        //: 2 Compile-time asserts in the implementation check that the number
-        //:   of entries of the internal table matches that of 'DEFAULT_DATA'.
-        //:   (C-2)
-        //:
-        //: 3 Use a table-driven test to confirm that for several classes of
-        //:   invalid Windows time-zone identifiers, the method returns a value
-        //:   indicating failure, and that the contents of the given load
-        //:   address for the Zoneinfo time-zone identifier is unchanged.
-        //:   (C-3)
-        //:
-        //: 4 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-4)
+        // 1. For each Windows time-zone identifier the `DEFAULT_DATA`, confirm
+        //    that the method returns success and loads the corresponding
+        //    Zoneinfo time-zone identifier.  (C-1)
+        //
+        // 2. Compile-time asserts in the implementation check that the number
+        //    of entries of the internal table matches that of `DEFAULT_DATA`.
+        //    (C-2)
+        //
+        // 3. Use a table-driven test to confirm that for several classes of
+        //    invalid Windows time-zone identifiers, the method returns a value
+        //    indicating failure, and that the contents of the given load
+        //    address for the Zoneinfo time-zone identifier is unchanged.
+        //    (C-3)
+        //
+        // 4. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-4)
         //
         // Testing:
         //   getZoneinfoId(const char **, const char *);
@@ -1516,7 +1516,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout
                 << endl
-                << "CLASS METHOD 'getZoneinfoId'" << endl
+                << "CLASS METHOD `getZoneinfoId`" << endl
                 << "============================" << endl;
 
         if (verbose) cout << "\nTest Good Windows Time-Zone Identifiers"
@@ -1593,18 +1593,18 @@ int main(int argc, char *argv[])
         // WINDOWS PLATFORM CHECKS
         //
         // Concerns:
-        //:
-        //: 1 Each non-obsolete Windows time-zone identifier on the Windows
-        //:   platforms of interest can be mapped to a Zoneinfo identifier by
-        //:   the 'getZoneinfoId' method.
+        //
+        // 1. Each non-obsolete Windows time-zone identifier on the Windows
+        //    platforms of interest can be mapped to a Zoneinfo identifier by
+        //    the `getZoneinfoId` method.
         //
         // Plan:
-        //:
-        //: 1 Obtain the set of Windows time-zone identifiers from the Windows
-        //:   registry using the 'loadTimezonesFromRegistry' helper function.
-        //:
-        //: 2 Call the 'getZoneinfoId' method for each Windows time-zone
-        //:   identifier in turn.  Expect a successfull return from each call.
+        //
+        // 1. Obtain the set of Windows time-zone identifiers from the Windows
+        //    registry using the `loadTimezonesFromRegistry` helper function.
+        //
+        // 2. Call the `getZoneinfoId` method for each Windows time-zone
+        //    identifier in turn.  Expect a successfull return from each call.
         //
         // Testing:
         //   WINDOWS PLATFORM CHECKS

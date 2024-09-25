@@ -11,7 +11,7 @@
 
 #include <bsls_asserttest.h>
 
-#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstdlib.h>     // `atoi`
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -96,13 +96,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -116,37 +116,37 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Adapting 'bbldc::BasicIsma30360'
+///Example 1: Adapting `bbldc::BasicIsma30360`
 ///- - - - - - - - - - - - - - - - - - - - - -
 // This example shows the procedure for using
-// 'bbldc::BasicBasicDayCountAdapter' to adapt the 'bbldc::BasicIsma30360'
-// day-count convention to the 'bbldc::BasicDayCount' protocol, and then the
+// `bbldc::BasicBasicDayCountAdapter` to adapt the `bbldc::BasicIsma30360`
+// day-count convention to the `bbldc::BasicDayCount` protocol, and then the
 // use of the day-count methods.  First, we define an instance of the adapted
-// day-count convention and obtain a reference to the 'bbldc::BasicDayCount':
-//..
+// day-count convention and obtain a reference to the `bbldc::BasicDayCount`:
+// ```
     const bbldc::BasicBasicDayCountAdapter<bbldc::BasicIsma30360> myDcc =
                      bbldc::BasicBasicDayCountAdapter<bbldc::BasicIsma30360>();
     const bbldc::BasicDayCount&                                   dcc = myDcc;
-//..
-// Then, create two 'bdlt::Date' variables, 'd1' and 'd2', with which to use
+// ```
+// Then, create two `bdlt::Date` variables, `d1` and `d2`, with which to use
 // the day-count convention methods:
-//..
+// ```
     const bdlt::Date d1(2003, 10, 18);
     const bdlt::Date d2(2003, 12, 31);
-//..
+// ```
 // Now, use the base-class reference to compute the day count between the two
 // dates:
-//..
+// ```
     const int daysDiff = dcc.daysDiff(d1, d2);
     ASSERT(72 == daysDiff);
-//..
+// ```
 // Finally, use the base-class reference to compute the year fraction between
 // the two dates:
-//..
+// ```
     const double yearsDiff = dcc.yearsDiff(d1, d2);
-    // Need fuzzy comparison since 'yearsDiff' is a 'double'.
+    // Need fuzzy comparison since `yearsDiff` is a `double`.
     ASSERT(0.1999 < yearsDiff && 0.2001 > yearsDiff);
-//..
+// ```
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -154,18 +154,18 @@ int main(int argc, char *argv[])
         //   Verify the inheritance mechanism works as expected.
         //
         // Concerns:
-        //: 1 The adaptation of a day-count convention class compiles and links
-        //:   (all virtual functions are defined).
-        //:
-        //: 2 The functions are in fact virtual and accessible from the
-        //:  'bbldc::BasicDayCount' base class.
+        // 1. The adaptation of a day-count convention class compiles and links
+        //    (all virtual functions are defined).
+        //
+        // 2. The functions are in fact virtual and accessible from the
+        //   `bbldc::BasicDayCount` base class.
         //
         // Plan:
-        //: 1 Construct an adapted object of a class (which is derived from
-        //:  'bbldc::BasicDayCount') and bind a 'bbldc::BasicDayCount'
-        //:  reference to the object.  Using the base class reference, invoke
-        //:  the 'daysDiff' and 'yearsDiff' methods.  Verify that the correct
-        //:  implementations of the methods are called.  (C-1..2)
+        // 1. Construct an adapted object of a class (which is derived from
+        //   `bbldc::BasicDayCount`) and bind a `bbldc::BasicDayCount`
+        //   reference to the object.  Using the base class reference, invoke
+        //   the `daysDiff` and `yearsDiff` methods.  Verify that the correct
+        //   implementations of the methods are called.  (C-1..2)
         //
         // Testing:
         //   int daysDiff(beginDate, endDate) const;
@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
         bdlt::Date DATE3(2003,  2, 28);
         bdlt::Date DATE4(2004,  2, 29);
 
-        if (verbose) cout << "\nTesting 'daysDiff(date1, date2)'" << endl;
+        if (verbose) cout << "\nTesting `daysDiff(date1, date2)`" << endl;
         {
             {
                 bbldc::BasicBasicDayCountAdapter<bbldc::BasicIsdaActualActual>
@@ -203,7 +203,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'yearsDiff(date1, date2)'" << endl;
+        if (verbose) cout << "\nTesting `yearsDiff(date1, date2)`" << endl;
         {
             {
                 bbldc::BasicBasicDayCountAdapter<bbldc::BasicIsdaActualActual>

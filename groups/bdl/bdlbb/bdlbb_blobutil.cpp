@@ -22,15 +22,16 @@ namespace BloombergLP {
 namespace {
 
 // HELPER FUNCTION
+
+/// Copy the specified `length` bytes, starting at the specified `place` in
+/// the specified `srcBlob`, to the specified `dstBuffer`.  The behavior of
+/// this function is undefined unless `0 < length`, `place` represents an
+/// actual character position in `srcBlob`, `srcBlob` has at least `length`
+/// bytes starting at `place`, and `dstBuffer` has room for `length` bytes.
 void copyFromPlace(char                *dstBuffer,
                    const bdlbb::Blob&   srcBlob,
                    bsl::pair<int, int>  place,
                    int                  length)
-    // Copy the specified 'length' bytes, starting at the specified 'place' in
-    // the specified 'srcBlob', to the specified 'dstBuffer'.  The behavior of
-    // this function is undefined unless '0 < length', 'place' represents an
-    // actual character position in 'srcBlob', 'srcBlob' has at least 'length'
-    // bytes starting at 'place', and 'dstBuffer' has room for 'length' bytes.
 {
     BSLS_ASSERT(place.first < srcBlob.numBuffers());
     BSLS_ASSERT(place.second < srcBlob.buffer(place.first).size());
@@ -53,16 +54,16 @@ void copyFromPlace(char                *dstBuffer,
     } while (copied < length);
 }
 
+/// Output to the specified `stream` the specified `numBytes` of data from
+/// the specified `source` starting from the blob buffer having the
+/// specified `bufferIndex` and return a reference to the modifiable
+/// `stream`.  The behavior is undefined unless `0 <= bufferIndex`,
+/// `0 <= numBytes`, and the incrementing `bufferIndex` does not reach the
+/// number of data buffers.
 bsl::ostream& asciiDumpFromBufferStart(bsl::ostream&      stream,
                                        const bdlbb::Blob& source,
                                        int                bufferIndex,
                                        int                numBytes)
-    // Output to the specified 'stream' the specified 'numBytes' of data from
-    // the specified 'source' starting from the blob buffer having the
-    // specified 'bufferIndex' and return a reference to the modifiable
-    // 'stream'.  The behavior is undefined unless '0 <= bufferIndex',
-    // '0 <= numBytes', and the incrementing 'bufferIndex' does not reach the
-    // number of data buffers.
 {
     BSLS_ASSERT(0 <= bufferIndex);
     BSLS_ASSERT(0 <= numBytes);

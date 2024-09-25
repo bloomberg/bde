@@ -35,16 +35,16 @@ using bsls::NameOf;
 // test values.  We need to ensure that it can be constructed and all elements
 // can be accessed.  This container is implemented in the form of a class
 // template, and thus its proper instantiation for several types is a concern.
-// Also we need to test an iterator class 'TestValuesArrayIterator' providing
-// access to elements in a 'TestValuesArray' object.
+// Also we need to test an iterator class `TestValuesArrayIterator` providing
+// access to elements in a `TestValuesArray` object.
 //
 // Primary Manipulators:
-//: o TestValuesArray(const char *spec);
-//: o TestValuesArray(const char *spec, ALLOCATOR basicAllocator);
+//  - TestValuesArray(const char *spec);
+//  - TestValuesArray(const char *spec, ALLOCATOR basicAllocator);
 //
 // Basic Accessors:
-//: o const VALUE *data() const;
-//: o size_t size() const;
+//  - const VALUE *data() const;
+//  - size_t size() const;
 //
 //-----------------------------------------------------------------------------
 //                      // -----------------------------
@@ -110,7 +110,7 @@ using bsls::NameOf;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [17] USAGE EXAMPLE
-// [16] CONCERN: all values in the array are printable with 'P()' macro
+// [16] CONCERN: all values in the array are printable with `P()` macro
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -217,25 +217,27 @@ const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
                             // ===================
                             // class TestConverter
                             // ===================
+
+/// This `struct` provides a namespace that contains two class method
+/// templates, `createInplace` and `getIdentifier`, that respectively
+/// provide a consistent interface to (1) create a specified object of the
+/// (template parameter) type `VALUE` from a char identifier and (2) get
+/// the identifier value of a specified object.
 template <class VALUE, class ALLOCATOR>
 struct TestConverter
-    // This 'struct' provides a namespace that contains two class method
-    // templates, 'createInplace' and 'getIdentifier', that respectively
-    // provide a consistent interface to (1) create a specified object of the
-    // (template parameter) type 'VALUE' from a char identifier and (2) get
-    // the identifier value of a specified object.
 {
     // CLASS METHODS
-    static void createInplace(VALUE *objPtr, char value, ALLOCATOR allocator);
-        // Create an object of the (template parameter) type 'VALUE' at the
-        // specified 'objPtr' address whose state is unique for the specified
-        // 'value'.  Use the specified 'allocator' to supply memory.  The
-        // behavior is undefined unless '0 <= value' and 'VALUE' is contained
-        // in the macro 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL'.
 
+    /// Create an object of the (template parameter) type `VALUE` at the
+    /// specified `objPtr` address whose state is unique for the specified
+    /// `value`.  Use the specified `allocator` to supply memory.  The
+    /// behavior is undefined unless `0 <= value` and `VALUE` is contained
+    /// in the macro `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL`.
+    static void createInplace(VALUE *objPtr, char value, ALLOCATOR allocator);
+
+    /// Return the integer identifier that uniquely identifies the specified
+    /// `obj`.
     static int getIdentifier(const VALUE& obj);
-        // Return the integer identifier that uniquely identifies the specified
-        // 'obj'.
 };
 
                             // -------------------
@@ -266,19 +268,20 @@ int TestConverter<VALUE, ALLOCATOR>::getIdentifier(const VALUE& obj)
                             // class TestDriver
                             // ================
 
+/// Test driver class for `TestValuesArray`.
 template <class VALUE,
           class ALLOCATOR = bsl::allocator<VALUE>,
           class CONVERTER = TestConverter<VALUE, ALLOCATOR> >
 class TestDriver
-    // Test driver class for 'TestValuesArray'.
 {
   private:
     // TYPES
-    typedef bsltf::TestValuesArray<VALUE, ALLOCATOR, CONVERTER> Obj;
-        // The type under testing.
 
+    /// The type under testing.
+    typedef bsltf::TestValuesArray<VALUE, ALLOCATOR, CONVERTER> Obj;
+
+    /// The iterator for the type under testing.
     typedef TestValuesArrayIterator<VALUE> Iterator;
-        // The iterator for the type under testing.
 
     enum { k_IS_BSL_ALLOCATOR = bsl::is_same<ALLOCATOR,
                                              bsl::allocator<VALUE> >::value,
@@ -286,53 +289,54 @@ class TestDriver
 
   public:
     // TEST CASES
+
+    /// TESTING PRINT CONCERNS.
     static void testCase16();
-        // TESTING PRINT CONCERNS.
 
+    /// TESTING MANIPULATORS.
     static void testCase15();
-        // TESTING MANIPULATORS.
 
+    /// ITERATOR STRUCTURE DEREFERENCE OPERATOR.
     static void testCase14();
-        // ITERATOR STRUCTURE DEREFERENCE OPERATOR.
 
+    /// ITERATOR POST-INCREMENT OPERATOR.
     static void testCase13();
-        // ITERATOR POST-INCREMENT OPERATOR.
 
+    /// ITERATOR COPY-ASSIGNMENT OPERATOR.
     static void testCase12();
-        // ITERATOR COPY-ASSIGNMENT OPERATOR.
 
+    /// ITERATOR COPY CONSTRUCTOR.
     static void testCase11();
-        // ITERATOR COPY CONSTRUCTOR.
 
+    /// ITERATOR EQUALITY-COMPARISON OPERATORS.
     static void testCase10();
-        // ITERATOR EQUALITY-COMPARISON OPERATORS.
 
+    /// ITERATOR BASIC ACCESSORS.
     static void testCase9();
-        // ITERATOR BASIC ACCESSORS.
 
+    /// ITERATOR PRIMARY MANIPULATORS.
     static void testCase8();
-        // ITERATOR PRIMARY MANIPULATORS.
 
+    /// TESTING POST-INCREMENT POINTER.
     static void testCase7();
-        // TESTING POST-INCREMENT POINTER.
 
+    /// TESTING SUBSCRIPT OPERATOR.
     static void testCase6();
-        // TESTING SUBSCRIPT OPERATOR.
 
+    /// CONSTRUCTORS.
     static void testCase5();
-        // CONSTRUCTORS.
 
+    /// BASIC ACCESSORS.
     static void testCase4();
-        // BASIC ACCESSORS.
 
+    /// PRIMARY MANIPULATORS.
     static void testCase3();
-        // PRIMARY MANIPULATORS.
 
+    /// TESTING DEFAULT CONVERTER.
     static void testCase2();
-        // TESTING DEFAULT CONVERTER.
 
+    /// BREATHING TEST.
     static void testCase1();
-        // BREATHING TEST.
 };
 
                               // ----------
@@ -346,24 +350,24 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase16()
     // TESTING PRINT CONCERNS
     //
     // Concerns:
-    //: 1 The standard test values that support 'debugprint' can be printed
-    //:   using the standard test-driver 'P' and 'P_' macros.
-    //:
-    //: 2 The printed values are correct when inspected by hand, running this
-    //:   test case in 'verbose' mode.
+    // 1. The standard test values that support `debugprint` can be printed
+    //    using the standard test-driver `P` and `P_` macros.
+    //
+    // 2. The printed values are correct when inspected by hand, running this
+    //    test case in `verbose` mode.
     //
     // Plan:
-    //: 1 Create a constant TestValuesArray object, passing a value
-    //:   specification.
-    //:
-    //: 2 Loop over all the values, and in verbose mode print the values, and
-    //:   the corresponding 'SPEC' character, using the 'P_' and 'P' macros.
-    //:
-    //: 3 Run in verbose mode to inspect the printed value, and confirm all the
-    //:   printed stings have the expected values.
+    // 1. Create a constant TestValuesArray object, passing a value
+    //    specification.
+    //
+    // 2. Loop over all the values, and in verbose mode print the values, and
+    //    the corresponding `SPEC` character, using the `P_` and `P` macros.
+    //
+    // 3. Run in verbose mode to inspect the printed value, and confirm all the
+    //    printed stings have the expected values.
     //
     // Testing:
-    //  CONCERN: all values in the array are printable with 'P()' macro
+    //  CONCERN: all values in the array are printable with `P()` macro
     // ------------------------------------------------------------------------
 
     if (verbose) printf("\nVALUE: %s\n", NameOf<VALUE>().name());
@@ -416,12 +420,12 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase16()
             }
 
             if (bsl::is_member_pointer<VALUE>::value) {
-                // There is no 'debugprint' overload for member-pointers.
-                // Instead, member-pointers match the overload for 'bool' with
+                // There is no `debugprint` overload for member-pointers.
+                // Instead, member-pointers match the overload for `bool` with
                 // a built-in conversion, so we expect the output to be simply
                 // "true" for a non-null value, and "false" for a null member
                 // pointer.  We can spot the latter case as it has the testing
-                // framework gives null the identifier '0'.
+                // framework gives null the identifier `0`.
 
                 if (0 == bsltf::TemplateTestFacility::getIdentifier(VALUES[i]))
                 {
@@ -436,16 +440,16 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase16()
             else {
                 // For types other than member-pointer, the output format is an
                 // integer, potentially quoted, potentially in hexadecimal
-                // format, that can be parsed simply with 'strtol'.  Note that
+                // format, that can be parsed simply with `strtol`.  Note that
                 // we should check that some output was consumed by the call to
-                // 'strtol', otherwise we might be fooled if '0' is a valid
-                // result (as happens for 'const char *').
+                // `strtol`, otherwise we might be fooled if `0` is a valid
+                // result (as happens for `const char *`).
 
                 char *result = 0;
 
                 // Note that pointer values are usually printed as hex, but IBM
-                // fails to precede the hex-string with '0x', forcing use of
-                // the explicit hexadecimal radix.  Note that 'const char *'
+                // fails to precede the hex-string with `0x`, forcing use of
+                // the explicit hexadecimal radix.  Note that `const char *`
                 // values are actually string representations, holding the
                 // decimal string representation of the corresponding ID.
 
@@ -500,54 +504,54 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase15()
     // TESTING MANIPULATORS
     //
     // Concerns:
-    //: 1 The 'begin()' returns an iterator, referring to the first value in
-    //:   the array.
-    //:
-    //: 2 The 'end()' returns an  iterator, referring to the address, following
-    //:   the last value in the array.
-    //:
-    //: 3 The 'index()' returns an iterator, referring to the value with index,
-    //:   passed as a parameter.
-    //:
-    //: 4 The 'resetIterators()' makes all values accessible through iterators
-    //:   again.
-    //:
-    //: 5 QoI: Asserted precondition violations are detected when enabled.
+    // 1. The `begin()` returns an iterator, referring to the first value in
+    //    the array.
+    //
+    // 2. The `end()` returns an  iterator, referring to the address, following
+    //    the last value in the array.
+    //
+    // 3. The `index()` returns an iterator, referring to the value with index,
+    //    passed as a parameter.
+    //
+    // 4. The `resetIterators()` makes all values accessible through iterators
+    //    again.
+    //
+    // 5. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Using the table-driven technique:
-    //:
-    //:   1 Specify a set of (unique) valid object values.
-    //:
-    //: 2 For each row (representing a distinct object value, 'V') in the table
-    //:   described in P-1:
-    //:
-    //:   1 Create an object, passing a value specification.
-    //:
-    //:   2 Use 'begin()' to obtain an iterator, referring to the first value
-    //:     in the object and verify this iterator.  (C-1)
-    //:
-    //:   3 Iterate through the whole TestValuesArray and verify iterator
-    //:     values.  (C-2)
-    //:
-    //: 3 For each row (representing a distinct object value, 'V') in the table
-    //:   described in P-1:
-    //:
-    //:   1 Create an object, passing a value specification.
-    //:
-    //:   2 Use 'index()' to obtain iterators, referring to each element with
-    //:     index from 0 to number of values in consecutive order and verify
-    //:     value of this iterator.  (C-3)
-    //:
-    //: 4 For each row (representing a distinct object value, 'V') in the table
-    //:   described in P-1:
-    //:
-    //:   1 Create an object, passing a value specification.
-    //:
-    //:   2 Use 'operator++' and 'operator *' to dereference all values.
-    //:     Verify, that 'resetIterators' restores all flags.  (C-4)
-    //:
-    //: 5 Verify defensive checks are triggered for invalid values.  (C-5)
+    // 1. Using the table-driven technique:
+    //
+    //   1. Specify a set of (unique) valid object values.
+    //
+    // 2. For each row (representing a distinct object value, `V`) in the table
+    //    described in P-1:
+    //
+    //   1. Create an object, passing a value specification.
+    //
+    //   2. Use `begin()` to obtain an iterator, referring to the first value
+    //      in the object and verify this iterator.  (C-1)
+    //
+    //   3. Iterate through the whole TestValuesArray and verify iterator
+    //      values.  (C-2)
+    //
+    // 3. For each row (representing a distinct object value, `V`) in the table
+    //    described in P-1:
+    //
+    //   1. Create an object, passing a value specification.
+    //
+    //   2. Use `index()` to obtain iterators, referring to each element with
+    //      index from 0 to number of values in consecutive order and verify
+    //      value of this iterator.  (C-3)
+    //
+    // 4. For each row (representing a distinct object value, `V`) in the table
+    //    described in P-1:
+    //
+    //   1. Create an object, passing a value specification.
+    //
+    //   2. Use `operator++` and `operator *` to dereference all values.
+    //      Verify, that `resetIterators` restores all flags.  (C-4)
+    //
+    // 5. Verify defensive checks are triggered for invalid values.  (C-5)
     //
     // Testing:
     //  iterator begin();
@@ -559,7 +563,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase15()
     if (verbose)
         printf("\nVALUE: %s\n", NameOf<VALUE>().name());
 
-    if (verbose) printf("\tTesting 'begin' and 'end'.\n");
+    if (verbose) printf("\tTesting `begin` and `end`.\n");
     {
         for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int     LINE = DATA[ti].d_line;
@@ -583,7 +587,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase15()
         }
     }
 
-    if (verbose) printf("\tTesting 'index'.\n");
+    if (verbose) printf("\tTesting `index`.\n");
     {
         for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int     LINE = DATA[ti].d_line;
@@ -607,7 +611,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase15()
         }
     }
 
-    if (verbose) printf("\tTesting 'resetIterators'.\n");
+    if (verbose) printf("\tTesting `resetIterators`.\n");
     {
         for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int     LINE = DATA[ti].d_line;
@@ -621,7 +625,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase15()
 
             Iterator shuttle = mX.begin();
             for (size_t i = 0; i < SIZE; ++i) {
-                // Dereference the iterator 'shuttle', so any attempts to
+                // Dereference the iterator `shuttle`, so any attempts to
                 // dereference it again will lead to undefined behavior (and
                 // trigger defensive checks in the appropriate build modes).
 
@@ -646,7 +650,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase15()
                 ++shuttle;
             }
 
-            // Verify that 'resetIterators' reset all flags simultaneously.
+            // Verify that `resetIterators` reset all flags simultaneously.
 
             mX.resetIterators();
 
@@ -681,39 +685,39 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase14()
     // ITERATOR DEREFERENCE OPERATOR
     //
     // Concerns:
-    //: 1 The 'operator->' returns the address of the element referred by this
-    //:   object.
-    //:
-    //: 2 The 'operator->' modifies 'dereferenceable' flag of the element
-    //:   referred by this object.
-    //:
-    //: 3 QoI: Asserted precondition violations are detected when enabled.
+    // 1. The `operator->` returns the address of the element referred by this
+    //    object.
+    //
+    // 2. The `operator->` modifies `dereferenceable` flag of the element
+    //    referred by this object.
+    //
+    // 3. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Using the table-driven technique:
-    //:
-    //:   1 Specify a set of (unique) valid TestValuesArray object values.
-    //:
-    //: 2 For each row (representing a distinct TestValuesArray object value,
-    //:   'V') in the table described in P-1:
-    //:
-    //:   1 Create a constant TestValuesArray object, passing a value
-    //:     specification.
-    //:
-    //:   2 Create two boolean arrays, having the same size as the
-    //:     TestValuesArray object, to emulate TestValuesArray's
-    //:     'dereferenceable' and 'validIterator' arrays.
-    //:
-    //:   3 Create an iterator, referring to the first element in the
-    //:     TestValuesArray and two arrays, specified in P-2.2.
-    //:
-    //:   4 Iterate through the whole TestValuesArray and verify that
-    //:     'operator->' returns correct values.  (C-1)
-    //:
-    //:   5 Having direct access to boolean arrays, specified in P-2.2, verify
-    //:     that 'operator->' modifies value's flags correctly.  (C-2)
-    //:
-    //: 3 Verify defensive checks are triggered for invalid values.  (C-3)
+    // 1. Using the table-driven technique:
+    //
+    //   1. Specify a set of (unique) valid TestValuesArray object values.
+    //
+    // 2. For each row (representing a distinct TestValuesArray object value,
+    //    `V`) in the table described in P-1:
+    //
+    //   1. Create a constant TestValuesArray object, passing a value
+    //      specification.
+    //
+    //   2. Create two boolean arrays, having the same size as the
+    //      TestValuesArray object, to emulate TestValuesArray's
+    //      `dereferenceable` and `validIterator` arrays.
+    //
+    //   3. Create an iterator, referring to the first element in the
+    //      TestValuesArray and two arrays, specified in P-2.2.
+    //
+    //   4. Iterate through the whole TestValuesArray and verify that
+    //      `operator->` returns correct values.  (C-1)
+    //
+    //   5. Having direct access to boolean arrays, specified in P-2.2, verify
+    //      that `operator->` modifies value's flags correctly.  (C-2)
+    //
+    // 3. Verify defensive checks are triggered for invalid values.  (C-3)
     //
     // Testing:
     //  const VALUE *TestValuesArrayIterator::operator->() const;
@@ -724,7 +728,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase14()
 
     if (verbose) printf("\tTesting behavior.\n");
     {
-        // We need to exclude empty specification, since 'VALUE' array is not
+        // We need to exclude empty specification, since `VALUE` array is not
         // created in this case.
 
         for (size_t ti = 1; ti < NUM_DATA; ++ti) {
@@ -782,8 +786,8 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase14()
         bool        fBV = false;  // false boolean value
         const Obj   V(SPEC);
 
-        // We need to deceive constructor to create 'INVALID' and
-        // 'DEREFERENCED' objects.
+        // We need to deceive constructor to create `INVALID` and
+        // `DEREFERENCED` objects.
 
         fBV = true;
 
@@ -791,7 +795,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase14()
         const Iterator DEREFERENCED(V.data(), V.data(), &fBV, &tBV);
         const Iterator VALID       (V.data(), V.data(), &tBV, &tBV);
 
-        // Make 'INVALID' and 'DEREFERENCED' iterators invalid for indirection
+        // Make `INVALID` and `DEREFERENCED` iterators invalid for indirection
         // operator.
 
         fBV = false;
@@ -809,37 +813,37 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase13()
     // ITERATOR POST-INCREMENT OPERATOR
     //
     // Concerns:
-    //: 1 The post-increment operator changes the value of the object to
-    //:   refer to the next element in the arrays, supplied at the
-    //:   construction.
-    //:
-    //: 2 The returned pointer refers to the value, that iterator has referred
-    //:   to prior to the operator call.
-    //:
-    //: 3 QoI: Asserted precondition violations are detected when enabled.
+    // 1. The post-increment operator changes the value of the object to
+    //    refer to the next element in the arrays, supplied at the
+    //    construction.
+    //
+    // 2. The returned pointer refers to the value, that iterator has referred
+    //    to prior to the operator call.
+    //
+    // 3. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Using the table-driven technique:
-    //:
-    //:   1 Specify a set of (unique) valid TestValuesArray object values.
-    //:
-    //: 2 For each row (representing a distinct TestValuesArray object value,
-    //:   'V') in the table described in P-1:
-    //:
-    //:   1 Create a constant TestValuesArray object, passing a value
-    //:     specification.
-    //:
-    //:   2 Create two boolean arrays, having the same size as the
-    //:     TestValuesArray object, to emulate TestValuesArray's
-    //:     'dereferenceable' and 'validIterator' arrays.
-    //:
-    //:   3 Create an iterator, referring to the first value in the
-    //:     TestValuesArray and two arrays, specified in P-2.2.
-    //:
-    //:   4 Use 'operator++(int)' to iterate through the whole TestValuesArray
-    //:     and verify that it returns correct values. (C-1..2)
-    //:
-    //: 3 Verify defensive checks are triggered for invalid values.  (C-3)
+    // 1. Using the table-driven technique:
+    //
+    //   1. Specify a set of (unique) valid TestValuesArray object values.
+    //
+    // 2. For each row (representing a distinct TestValuesArray object value,
+    //    `V`) in the table described in P-1:
+    //
+    //   1. Create a constant TestValuesArray object, passing a value
+    //      specification.
+    //
+    //   2. Create two boolean arrays, having the same size as the
+    //      TestValuesArray object, to emulate TestValuesArray's
+    //      `dereferenceable` and `validIterator` arrays.
+    //
+    //   3. Create an iterator, referring to the first value in the
+    //      TestValuesArray and two arrays, specified in P-2.2.
+    //
+    //   4. Use `operator++(int)` to iterate through the whole TestValuesArray
+    //      and verify that it returns correct values. (C-1..2)
+    //
+    // 3. Verify defensive checks are triggered for invalid values.  (C-3)
     //
     // Testing:
     //  TestValuesArray_PostIncrementPtr<VALUE> operator++(int);
@@ -850,7 +854,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase13()
 
     if (verbose) printf("\tTesting behavior.\n");
     {
-        // We need to exclude empty specification, since 'VALUE' array is not
+        // We need to exclude empty specification, since `VALUE` array is not
         // created in this case.
 
         for (size_t ti = 1; ti < NUM_DATA; ++ti) {
@@ -904,7 +908,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase13()
         bool        fBV = false;  // false boolean value
         const Obj   V(SPEC);
 
-        // We need to deceive constructor to create 'invalid' object.
+        // We need to deceive constructor to create `invalid` object.
 
         fBV = true;
 
@@ -912,7 +916,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase13()
         Iterator end    (V.data(), V.data(),     &tBV, &tBV);
         Iterator valid  (V.data(), V.data() + 1, &tBV, &tBV);
 
-        // Make 'invalid' iterator invalid.
+        // Make `invalid` iterator invalid.
 
         fBV = false;
 
@@ -929,63 +933,63 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase12()
     // ITERATOR COPY-ASSIGNMENT OPERATOR
     //
     // Concerns:
-    //: 1 The assignment operator can change the value of any modifiable target
-    //:   object to that of any source object.
-    //:
-    //: 2 The target object gets the same value as the source object.
-    //:
-    //: 3 The signature and return type are standard.
-    //:
-    //: 4 The reference returned is to the target object (i.e., '*this').
-    //:
-    //: 5 The value of the source object is not modified.
-    //:
-    //: 6 Assigning an object to itself behaves as expected (alias-safety).
-    //:
-    //: 7 QoI: Asserted precondition violations are detected when enabled.
+    // 1. The assignment operator can change the value of any modifiable target
+    //    object to that of any source object.
+    //
+    // 2. The target object gets the same value as the source object.
+    //
+    // 3. The signature and return type are standard.
+    //
+    // 4. The reference returned is to the target object (i.e., `*this`).
+    //
+    // 5. The value of the source object is not modified.
+    //
+    // 6. Assigning an object to itself behaves as expected (alias-safety).
+    //
+    // 7. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Use the address of 'operator=' to initialize a member-function
-    //:   pointer having the appropriate signature and return type for the
-    //:   copy-assignment operator defined in this component.  (C-3)
-    //:
-    //: 2 Create two distinct TestValuesArray objects, passing value
-    //:   specifications.
-    //:
-    //: 3 Create two boolean arrays, having the same size as the
-    //:   TestValuesArray object, to emulate TestValuesArray's
-    //:   'dereferenceable' and 'validIterator' arrays.
-    //:
-    //: 4 Create source iterator, 'mX', and target iterator, 'mY', referring to
-    //:   the first values of the different TestValuesArrays and four arrays,
-    //:   specified in P-3.2 (each iterator referring to two distinct arrays).
-    //:
-    //: 5 Assign 'mY' from 'mX'.  (C-1)
-    //:
-    //: 6 Verify that the address of the return value is the same as
-    //:   that of 'mY'.  (C-4)
-    //:
-    //: 7 Use the equality-comparison operator and strict access to the arrays,
-    //:   specified in P-3, to verify that the target object, 'mY', now has the
-    //:   same value as that of 'X'.  (C-2)
-    //:
-    //: 8 Verify that 'X' still has the same value'.  (C-5)
+    // 1. Use the address of `operator=` to initialize a member-function
+    //    pointer having the appropriate signature and return type for the
+    //    copy-assignment operator defined in this component.  (C-3)
     //
-    //: 9 Create a constant TestValuesArray object.
-    //:
-    //:10 Create two boolean arrays, having the same size as the
-    //:   TestValuesArray object, to emulate TestValuesArray's
-    //:   'dereferenceable' and 'validIterator' arrays.
-    //:
-    //:11 Create an iterator, 'mX', referring to the first value in
-    //:   the TestValuesArray, specified in P-9 and two arrays, specified in
-    //:   P-10.
-    //:
-    //:12 Assign 'mX' from 'X'.  (C-1)
-    //:
-    //:13 Verify that 'X' still has the same value.  (C-6)
-    //:
-    //:14 Verify defensive checks are triggered for invalid values.  (C-7)
+    // 2. Create two distinct TestValuesArray objects, passing value
+    //    specifications.
+    //
+    // 3. Create two boolean arrays, having the same size as the
+    //    TestValuesArray object, to emulate TestValuesArray's
+    //    `dereferenceable` and `validIterator` arrays.
+    //
+    // 4. Create source iterator, `mX`, and target iterator, `mY`, referring to
+    //    the first values of the different TestValuesArrays and four arrays,
+    //    specified in P-3.2 (each iterator referring to two distinct arrays).
+    //
+    // 5. Assign `mY` from `mX`.  (C-1)
+    //
+    // 6. Verify that the address of the return value is the same as
+    //    that of `mY`.  (C-4)
+    //
+    // 7. Use the equality-comparison operator and strict access to the arrays,
+    //    specified in P-3, to verify that the target object, `mY`, now has the
+    //    same value as that of `X`.  (C-2)
+    //
+    // 8. Verify that `X` still has the same value'.  (C-5)
+    //
+    // 9. Create a constant TestValuesArray object.
+    //
+    // 10. Create two boolean arrays, having the same size as the
+    //    TestValuesArray object, to emulate TestValuesArray's
+    //    `dereferenceable` and `validIterator` arrays.
+    //
+    // 11. Create an iterator, `mX`, referring to the first value in
+    //    the TestValuesArray, specified in P-9 and two arrays, specified in
+    //    P-10.
+    //
+    // 12. Assign `mX` from `X`.  (C-1)
+    //
+    // 13. Verify that `X` still has the same value.  (C-6)
+    //
+    // 14. Verify defensive checks are triggered for invalid values.  (C-7)
     //
     // Testing:
     //  TestValuesArrayIterator& operator=(const TestValuesArrayIterator&);
@@ -1055,8 +1059,8 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase12()
         ASSERT(true == isValidArray);
         ASSERT(SPEC[0] == CONVERTER::getIdentifier(*X));
 
-        // The inderection operator changes 'dereferenceable' status of
-        // 'VALUE' object, iterator pointing to, to 'false', so we need to
+        // The inderection operator changes `dereferenceable` status of
+        // `VALUE` object, iterator pointing to, to `false`, so we need to
         // restore it, to check state of the iterator by it's incrementing.
 
         isDerefArray = true;
@@ -1101,8 +1105,8 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase12()
         ASSERTV(true == isValidArray);
         ASSERTV(SPEC[0] == CONVERTER::getIdentifier(*X));
 
-        // The inderection operator changes 'dereferenceable' status of
-        // 'VALUE' object, iterator pointing to, to 'false', so we need to
+        // The inderection operator changes `dereferenceable` status of
+        // `VALUE` object, iterator pointing to, to `false`, so we need to
         // restore it, to check state of the iterator by it's incrementing.
 
         isDerefArray = true;
@@ -1125,14 +1129,14 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase12()
         bool        fBV = false;  // false boolean value
         const Obj   V(SPEC);
 
-        // We need to deceive constructor to create 'INVALID' object.
+        // We need to deceive constructor to create `INVALID` object.
 
         fBV = true;
 
         const Iterator VALID(V.data(), V.data(), &tBV, &tBV);
         const Iterator INVALID(V.data(), V.data(), &tBV, &fBV);
 
-        // Make 'INVALID' iterator invalid.
+        // Make `INVALID` iterator invalid.
 
         fBV = false;
 
@@ -1150,33 +1154,33 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase11()
     // ITERATOR COPY CONSTRUCTOR
     //
     // Concerns:
-    //: 1 The new object's value is the same as that of the original object.
-    //:
-    //: 2 The value of the original object is left unaffected.
-    //:
-    //: 3 QoI: Asserted precondition violations are detected when enabled.
+    // 1. The new object's value is the same as that of the original object.
+    //
+    // 2. The value of the original object is left unaffected.
+    //
+    // 3. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Create a constant TestValuesArray object, passing a value
-    //:   specification.
-    //:
-    //: 2 Create two boolean arrays, having the same size as the
-    //:   TestValuesArray object, to emulate TestValuesArray's
-    //:   'dereferenceable' and 'validIterator' arrays for two different
-    //:   iterators.
-    //:
-    //: 3 Create a const source iterator, 'X', referring to the first value in
-    //:   the TestValuesArray and two arrays, specified in P-2.2.
-    //:
-    //: 4 Use the copy constructor to create an iterator 'Y', supplying it the
-    //:   'const' object 'X'.
-    //:
-    //: 5 Verify that the newly constructed object 'Y', has the same
-    //:   value as that of 'X'.  (C-1)
-    //:
-    //: 6 Verify that 'X' is left unaffected.  (C-2)
-    //:
-    //: 7 Verify defensive checks are triggered for invalid values.  (C-3)
+    // 1. Create a constant TestValuesArray object, passing a value
+    //    specification.
+    //
+    // 2. Create two boolean arrays, having the same size as the
+    //    TestValuesArray object, to emulate TestValuesArray's
+    //    `dereferenceable` and `validIterator` arrays for two different
+    //    iterators.
+    //
+    // 3. Create a const source iterator, `X`, referring to the first value in
+    //    the TestValuesArray and two arrays, specified in P-2.2.
+    //
+    // 4. Use the copy constructor to create an iterator `Y`, supplying it the
+    //    `const` object `X`.
+    //
+    // 5. Verify that the newly constructed object `Y`, has the same
+    //    value as that of `X`.  (C-1)
+    //
+    // 6. Verify that `X` is left unaffected.  (C-2)
+    //
+    // 7. Verify defensive checks are triggered for invalid values.  (C-3)
     //
     // Testing:
     //  TestValuesArrayIterator(const TestValuesArrayIterator& original);
@@ -1217,8 +1221,8 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase11()
         ASSERTV(true == isValidArray);
         ASSERTV(SPEC[0] == CONVERTER::getIdentifier(*X));
 
-        // The inderection operator changes 'dereferenceable' status of
-        // 'VALUE' object, iterator pointing to, to 'false', so we need to
+        // The inderection operator changes `dereferenceable` status of
+        // `VALUE` object, iterator pointing to, to `false`, so we need to
         // restore it, to check state of the newly created iterator.
 
         isDerefArray = true;
@@ -1241,14 +1245,14 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase11()
         bool        fBV = false;  // false boolean value
         const Obj   V(SPEC);
 
-        // We need to deceive constructor to create 'INVALID' object.
+        // We need to deceive constructor to create `INVALID` object.
 
         fBV = true;
 
         const Iterator VALID(V.data(), V.data(), &tBV, &tBV);
         const Iterator INVALID(V.data(), V.data(), &tBV, &fBV);
 
-        // Make 'INVALID' iterator invalid.
+        // Make `INVALID` iterator invalid.
 
         fBV = false;
 
@@ -1262,61 +1266,61 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase10()
 {
     // --------------------------------------------------------------------
     // ITERATOR EQUALITY-COMPARISON OPERATORS
-    //   Ensure that '==' and '!=' are the operational definition of value.
+    //   Ensure that `==` and `!=` are the operational definition of value.
     //
     // Concerns:
-    //: 1 Two objects, 'X' and 'Y', compare equal if and only if they point
-    //:   to the same object.
-    //:
-    //: 2 'true  == (X == X)'  (i.e., identity)
-    //:
-    //: 3 'false == (X != X)'  (i.e., identity)
-    //:
-    //: 4 'X == Y' if and only if 'Y == X'  (i.e., commutativity)
-    //:
-    //: 5 'X != Y' if and only if 'Y != X'  (i.e., commutativity)
-    //:
-    //: 6 'X != Y' if and only if '!(X == Y)'
-    //:
-    //: 7 Comparison is symmetric with respect to user-defined conversion
-    //:   (i.e., both comparison operators are free functions).
-    //:
-    //: 8 Non-modifiable objects can be compared (i.e., objects or
-    //:   references providing only non-modifiable access).
-    //:
-    //; 9 QoI: Asserted precondition violations are detected when enabled.
+    // 1. Two objects, `X` and `Y`, compare equal if and only if they point
+    //    to the same object.
+    //
+    // 2. `true  == (X == X)`  (i.e., identity)
+    //
+    // 3. `false == (X != X)`  (i.e., identity)
+    //
+    // 4. `X == Y` if and only if `Y == X`  (i.e., commutativity)
+    //
+    // 5. `X != Y` if and only if `Y != X`  (i.e., commutativity)
+    //
+    // 6. `X != Y` if and only if `!(X == Y)`
+    //
+    // 7. Comparison is symmetric with respect to user-defined conversion
+    //    (i.e., both comparison operators are free functions).
+    //
+    // 8. Non-modifiable objects can be compared (i.e., objects or
+    //    references providing only non-modifiable access).
+    //
+    // 9.QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-    //:   initialize function pointers having the appropriate signatures
-    //:   and return types for the two homogeneous, free equality-
-    //:   comparison operators defined in this component.
-    //:   (C-7..10)
-    //:
-    //: 2 Using the table-driven technique:
-    //:
-    //:   1 Specify a set of (unique) valid TestValuesArray object values.
-    //:
-    //: 3 For each row (representing a distinct TestValuesArray object value,
-    //:   'V') in the table described in P-2:
-    //:
-    //:   1 Create a constant TestValuesArray object, passing a value
-    //:     specification.
-    //:
-    //:   2 Create four boolean arrays, having the same size as the
-    //:     TestValuesArray object, to emulate TestValuesArray's
-    //:     'dereferenceable' and 'validIterator' arrays for two different
-    //:     iterators.
-    //:
-    //:   3 Create two iterators, referring to the first value in the
-    //:     TestValuesArray and four arrays, specified in P-3.2 (each iterator
-    //:     referring to two individual arrays).
-    //:
-    //:   4 Increment both iterators in turn and verify the commutativity
-    //:     property and the expected return value for both '==' and '!='.
-    //:     (C-1..8)
-    //:
-    //: 4 Verify defensive checks are triggered for invalid values.  (C-9)
+    // 1. Use the respective addresses of `operator==` and `operator!=` to
+    //    initialize function pointers having the appropriate signatures
+    //    and return types for the two homogeneous, free equality-
+    //    comparison operators defined in this component.
+    //    (C-7..10)
+    //
+    // 2. Using the table-driven technique:
+    //
+    //   1. Specify a set of (unique) valid TestValuesArray object values.
+    //
+    // 3. For each row (representing a distinct TestValuesArray object value,
+    //    `V`) in the table described in P-2:
+    //
+    //   1. Create a constant TestValuesArray object, passing a value
+    //      specification.
+    //
+    //   2. Create four boolean arrays, having the same size as the
+    //      TestValuesArray object, to emulate TestValuesArray's
+    //      `dereferenceable` and `validIterator` arrays for two different
+    //      iterators.
+    //
+    //   3. Create two iterators, referring to the first value in the
+    //      TestValuesArray and four arrays, specified in P-3.2 (each iterator
+    //      referring to two individual arrays).
+    //
+    //   4. Increment both iterators in turn and verify the commutativity
+    //      property and the expected return value for both `==` and `!=`.
+    //      (C-1..8)
+    //
+    // 4. Verify defensive checks are triggered for invalid values.  (C-9)
     //
     // Testing:
     //   bool operator==(lhs, rhs);
@@ -1328,7 +1332,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase10()
 
     if (verbose) printf("\tTesting behavior.\n");
     {
-        // We need to exclude empty specification, since 'VALUE' array is not
+        // We need to exclude empty specification, since `VALUE` array is not
         // created in this case.
 
         for (size_t ti = 1; ti < NUM_DATA; ++ti) {
@@ -1414,14 +1418,14 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase10()
         bool        fBV = false;  // false boolean value
         const Obj   V(SPEC);
 
-        // We need to deceive constructor to create 'INVALID' object.
+        // We need to deceive constructor to create `INVALID` object.
 
         fBV = true;
 
         const Iterator VALID(V.data(), V.data(), &tBV, &tBV);
         const Iterator INVALID(V.data(), V.data(), &tBV, &fBV);
 
-        // Make 'INVALID' iterator invalid.
+        // Make `INVALID` iterator invalid.
 
         fBV = false;
 
@@ -1444,38 +1448,38 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase9()
     // ITERATOR BASIC ACCESSORS
     //
     // Concerns:
-    //: 1 Dereferencing an iterator refers to the expected element.
-    //:
-    //: 2 Dereferencing an iterator modifies 'dereferenceable' flag of the
-    //:   expected element.
-    //:
-    //: 3 QoI: Asserted precondition violations are detected when enabled.
+    // 1. Dereferencing an iterator refers to the expected element.
+    //
+    // 2. Dereferencing an iterator modifies `dereferenceable` flag of the
+    //    expected element.
+    //
+    // 3. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Using the table-driven technique:
-    //:
-    //:   1 Specify a set of (unique) valid TestValuesArray object values.
-    //:
-    //: 2 For each row (representing a distinct TestValuesArray object value,
-    //:   'V') in the table described in P-1:
-    //:
-    //:   1 Create a constant TestValuesArray object, passing a value
-    //:     specification.
-    //:
-    //:   2 Create two boolean arrays, having the same size as the
-    //:     TestValuesArray object, to emulate TestValuesArray's
-    //:     'dereferenceable' and 'validIterator' arrays.
-    //:
-    //:   3 Create an iterator, referring to the first value in the
-    //:     TestValuesArray and two arrays, specified in P-2.2.
-    //:
-    //:   4 Iterate through the whole TestValuesArray and verify that
-    //:     'operator *' returns correct values.  (C-1)
-    //:
-    //:   5 Having direct access to boolean arrays, specified in P-2.2, verify
-    //:     that 'operator *' modifies value's flags correctly.  (C-2)
-    //:
-    //: 3 Verify defensive checks are triggered for invalid values.  (C-3)
+    // 1. Using the table-driven technique:
+    //
+    //   1. Specify a set of (unique) valid TestValuesArray object values.
+    //
+    // 2. For each row (representing a distinct TestValuesArray object value,
+    //    `V`) in the table described in P-1:
+    //
+    //   1. Create a constant TestValuesArray object, passing a value
+    //      specification.
+    //
+    //   2. Create two boolean arrays, having the same size as the
+    //      TestValuesArray object, to emulate TestValuesArray's
+    //      `dereferenceable` and `validIterator` arrays.
+    //
+    //   3. Create an iterator, referring to the first value in the
+    //      TestValuesArray and two arrays, specified in P-2.2.
+    //
+    //   4. Iterate through the whole TestValuesArray and verify that
+    //      `operator *` returns correct values.  (C-1)
+    //
+    //   5. Having direct access to boolean arrays, specified in P-2.2, verify
+    //      that `operator *` modifies value's flags correctly.  (C-2)
+    //
+    // 3. Verify defensive checks are triggered for invalid values.  (C-3)
     //
     // Testing:
     //  const VALUE& operator *() const;
@@ -1486,7 +1490,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase9()
 
     if (verbose) printf("\tTesting behavior.\n");
     {
-        // We need to exclude empty specification, since 'VALUE' array is not
+        // We need to exclude empty specification, since `VALUE` array is not
         // created in this case.
 
         for (size_t ti = 1; ti < NUM_DATA; ++ti) {
@@ -1540,8 +1544,8 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase9()
         bool        fBV = false;  // false boolean value
         const Obj   V(SPEC);
 
-        // We need to deceive constructor to create 'INVALID' and
-        // 'DEREFERENCED' objects.
+        // We need to deceive constructor to create `INVALID` and
+        // `DEREFERENCED` objects.
 
         fBV = true;
 
@@ -1549,7 +1553,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase9()
         const Iterator DEREFERENCED(V.data(), V.data(), &fBV, &tBV);
         const Iterator VALID       (V.data(), V.data(), &tBV, &tBV);
 
-        // Make 'INVALID' and 'DEREFERENCED' iterators invalid for indirection
+        // Make `INVALID` and `DEREFERENCED` iterators invalid for indirection
         // operator.
 
         fBV = false;
@@ -1568,45 +1572,45 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase8()
     // ITERATOR PRIMARY MANIPULATORS
     //
     // Concerns:
-    //: 1 An object created with the value constructor have the
-    //:   contractually specified value.
-    //:
-    //: 2 An object initialized using a value constructor to a valid
-    //:   'TestValuesArray' can be incremented using the 'operator++'.
-    //:
-    //: 3 An object can be used to traverse all values in the array in
-    //:   order using the value constructor and the 'operator++'.
-    //:
-    //: 4 QoI: Asserted precondition violations are detected when enabled.
+    // 1. An object created with the value constructor have the
+    //    contractually specified value.
+    //
+    // 2. An object initialized using a value constructor to a valid
+    //    `TestValuesArray` can be incremented using the `operator++`.
+    //
+    // 3. An object can be used to traverse all values in the array in
+    //    order using the value constructor and the `operator++`.
+    //
+    // 4. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Using the table-driven technique:
-    //:
-    //:   1 Specify a set of (unique) valid TestValuesArray object values.
-    //:
-    //: 2 For each row (representing a distinct TestValuesArray object value,
-    //:   'V') in the table described in P-1:
-    //:
-    //:   1 Create a constant TestValuesArray object, passing a value
-    //:     specification.
-    //:
-    //:   2 Create two boolean arrays, having the same size as the
-    //:     TestValuesArray object, to emulate TestValuesArray's
-    //:     'dereferenceable' and 'validIterator' arrays.
-    //:
-    //:   3 Create an iterator, referring to the first value in the
-    //:     TestValuesArray and two arrays, specified in P-2.2.
-    //:
-    //:   4 Use 'operator++'  to iterate through the all TestValuesArray values
-    //:      and (untested) 'operator *' to verify that object's value pointers
-    //:      are installed properly and 'operator++' behavior is correct.
-    //:      (C-3)
-    //:
-    //:   5 Having direct access to boolean arrays, specified in P-2.2, verify
-    //:     that 'dereferenceable' and 'isValid' object's pointers are
-    //:     installed properly and 'operator++' behavior is correct.  (C-1..2)
-    //:
-    //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
+    // 1. Using the table-driven technique:
+    //
+    //   1. Specify a set of (unique) valid TestValuesArray object values.
+    //
+    // 2. For each row (representing a distinct TestValuesArray object value,
+    //    `V`) in the table described in P-1:
+    //
+    //   1. Create a constant TestValuesArray object, passing a value
+    //      specification.
+    //
+    //   2. Create two boolean arrays, having the same size as the
+    //      TestValuesArray object, to emulate TestValuesArray's
+    //      `dereferenceable` and `validIterator` arrays.
+    //
+    //   3. Create an iterator, referring to the first value in the
+    //      TestValuesArray and two arrays, specified in P-2.2.
+    //
+    //   4. Use `operator++`  to iterate through the all TestValuesArray values
+    //       and (untested) `operator *` to verify that object's value pointers
+    //       are installed properly and `operator++` behavior is correct.
+    //       (C-3)
+    //
+    //   5. Having direct access to boolean arrays, specified in P-2.2, verify
+    //      that `dereferenceable` and `isValid` object's pointers are
+    //      installed properly and `operator++` behavior is correct.  (C-1..2)
+    //
+    // 3. Verify defensive checks are triggered for invalid values.  (C-4)
     //
     // Testing:
     //  TestValuesArrayIterator(const VALUE *, const VALUE *, bool *, bool *);
@@ -1618,7 +1622,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase8()
 
     if (verbose) printf("\tTesting behavior.\n");
     {
-        // We need to exclude empty specification, since 'VALUE' array is not
+        // We need to exclude empty specification, since `VALUE` array is not
         // created in this case.
 
         for (size_t ti = 1; ti < NUM_DATA; ++ti) {
@@ -1652,8 +1656,8 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase8()
                 ASSERTV(LINE, SPEC[i],
                         SPEC[i] == CONVERTER::getIdentifier(*X));
 
-                // The indirection operator changes 'dereferenceable' status of
-                // 'VALUE' object, iterator pointing to, to 'false', so we need
+                // The indirection operator changes `dereferenceable` status of
+                // `VALUE` object, iterator pointing to, to `false`, so we need
                 // to restore it, to check behavior of the increment operator.
 
                 ASSERTV(LINE, SPEC[i], false == isDerefArray[i]);
@@ -1697,7 +1701,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase8()
 
         // Increment operator testing.
         {
-            // We need to deceive constructor to create 'invalid' object.
+            // We need to deceive constructor to create `invalid` object.
 
             fBV = true;
 
@@ -1705,7 +1709,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase8()
             Iterator end    (V.data(), V.data(),     &tBV, &tBV);
             Iterator valid  (V.data(), V.data() + 1, &tBV, &tBV);
 
-            // Make 'invalid' iterator invalid.
+            // Make `invalid` iterator invalid.
 
             fBV = false;
 
@@ -1724,32 +1728,32 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase7()
     // TESTING POST-INCREMENT POINTER
     //
     // Concerns:
-    //: 1 The TestValuesArray_PostIncrementPtr object is properly initialized
-    //:   upon construction.
-    //:
-    //: 2 The 'operator*' returns the reference providing non-modifiable access
-    //:   to the value of the entity to which this object refers.
-    //:
-    //: 3 QoI: asserted precondition violations are detected when enabled.
+    // 1. The TestValuesArray_PostIncrementPtr object is properly initialized
+    //    upon construction.
+    //
+    // 2. The `operator*` returns the reference providing non-modifiable access
+    //    to the value of the entity to which this object refers.
+    //
+    // 3. QoI: asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Using the table-driven technique:
-    //:
-    //:   1 Specify a set of (unique) valid TestValuesArray object values.
-    //:
-    //: 2 For each row (representing a distinct TestValuesArray object value,
-    //:   'V') in the table described in P-1:
-    //:
-    //:   1 Create a constant TestValuesArray object, passing a value
-    //:     specification.
-    //:
-    //:   2 Use address of each value, held in the array, to create a
-    //:     TestValuesArray_PostIncrementPtr object.
-    //:
-    //:   3 Using the 'operator*', verify that TestValuesArray_PostIncrementPtr
-    //:     object is properly initialized.  (C-1..2)
-    //:
-    //: 3 Verify defensive checks are triggered for invalid values.  (C-3)
+    // 1. Using the table-driven technique:
+    //
+    //   1. Specify a set of (unique) valid TestValuesArray object values.
+    //
+    // 2. For each row (representing a distinct TestValuesArray object value,
+    //    `V`) in the table described in P-1:
+    //
+    //   1. Create a constant TestValuesArray object, passing a value
+    //      specification.
+    //
+    //   2. Use address of each value, held in the array, to create a
+    //      TestValuesArray_PostIncrementPtr object.
+    //
+    //   3. Using the `operator*`, verify that TestValuesArray_PostIncrementPtr
+    //      object is properly initialized.  (C-1..2)
+    //
+    // 3. Verify defensive checks are triggered for invalid values.  (C-3)
     //
     // Testing:
     //  explicit TestValuesArray_PostIncrementPtr(const VALUE* ptr);
@@ -1805,24 +1809,24 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase6()
     //  TESTING SUBSCRIPT OPERATOR
     //
     // Concerns:
-    //: 1 The 'operator[]' returns correct reference.
-    //:
-    //: 2 QoI: asserted precondition violations are detected when enabled.
+    // 1. The `operator[]` returns correct reference.
+    //
+    // 2. QoI: asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Using the table-driven technique:
-    //:
-    //:   1 Specify a set of (unique) valid object values.
-    //:
-    //: 2 For each row (representing a distinct object value, 'V') in the table
-    //:   described in P-1:
-    //:
-    //:   1 Create an object, passing a value specification.
-    //:
-    //:   2 Obtain elements with index from 0 to size - 1 in consecutive
-    //:     order and verify their values.  (C-1)
-    //:
-    //: 3 Verify defensive checks are triggered for invalid values.  (C-2)
+    // 1. Using the table-driven technique:
+    //
+    //   1. Specify a set of (unique) valid object values.
+    //
+    // 2. For each row (representing a distinct object value, `V`) in the table
+    //    described in P-1:
+    //
+    //   1. Create an object, passing a value specification.
+    //
+    //   2. Obtain elements with index from 0 to size - 1 in consecutive
+    //      order and verify their values.  (C-1)
+    //
+    // 3. Verify defensive checks are triggered for invalid values.  (C-2)
     //
     // Testing:
     //  const VALUE& operator[](size_t index) const;
@@ -1877,52 +1881,52 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase5()
     // TESTING OTHER CONSTRUCTORS
     //
     // Concerns:
-    //: 1 An object created with the default constructor (with or without a
-    //:   supplied allocator) has the contractually specified default value.
-    //:
-    //: 2 If an allocator is NOT supplied to the default constructor, the
-    //:   default allocator in effect at the time of construction becomes the
-    //:   object allocator for the resulting object.
-    //:
-    //: 3 If an allocator IS supplied to the default constructor, that
-    //:   allocator becomes the object allocator for the resulting object.
-    //:
-    //: 4 Any memory allocation is from the object allocator.
-    //:
-    //: 5 Every object releases any allocated memory at destruction.
+    // 1. An object created with the default constructor (with or without a
+    //    supplied allocator) has the contractually specified default value.
+    //
+    // 2. If an allocator is NOT supplied to the default constructor, the
+    //    default allocator in effect at the time of construction becomes the
+    //    object allocator for the resulting object.
+    //
+    // 3. If an allocator IS supplied to the default constructor, that
+    //    allocator becomes the object allocator for the resulting object.
+    //
+    // 4. Any memory allocation is from the object allocator.
+    //
+    // 5. Every object releases any allocated memory at destruction.
     //
     // Plan:
-    //: 1 Execute a loop creating two distinct objects, in turn, each object
-    //:   configured differently identified by 'CONFIG':
-    //:
-    //:   'a': passing a value specification, but without passing an allocator;
-    //:
-    //:   'b': passing a value specification, and the test allocator distinct
-    //:        from the default allocator.
-    //:
-    //: 2 For each of the two iterations in P-1:
-    //:
-    //:   1 Create three 'bslma_TestAllocator' objects, and install one as the
-    //:     current default allocator (note that a ubiquitous test allocator is
-    //:     already installed as the global allocator).
-    //:
-    //:   2 Choose the constructor depending on 'CONFIG' to dynamically create
-    //:     an object, with its object allocator configured appropriately (see
-    //:     P-1); use a distinct test allocator for the object's footprint.
-    //:
-    //:   3 Use the appropriate test allocator to verify that:
-    //:
-    //:     1 If an allocator was not supplied at construction (P-1a), the
-    //:       non-object allocator doesn't allocate any memory.  (C-2,4)
-    //:
-    //:     2 If an allocator was supplied at construction (P-1b), all memory
-    //:       is allocated from it.  (C-3..4)
-    //:
-    //:   4 Verify that all of the attributes of each object have their
-    //:     expected values.  (C-1)
-    //:
-    //:   5 Destroy target object and verify, that all memory has been
-    //:     released.  (C-5)
+    // 1. Execute a loop creating two distinct objects, in turn, each object
+    //    configured differently identified by `CONFIG`:
+    //
+    //    `a`: passing a value specification, but without passing an allocator;
+    //
+    //    `b`: passing a value specification, and the test allocator distinct
+    //         from the default allocator.
+    //
+    // 2. For each of the two iterations in P-1:
+    //
+    //   1. Create three `bslma_TestAllocator` objects, and install one as the
+    //      current default allocator (note that a ubiquitous test allocator is
+    //      already installed as the global allocator).
+    //
+    //   2. Choose the constructor depending on `CONFIG` to dynamically create
+    //      an object, with its object allocator configured appropriately (see
+    //      P-1); use a distinct test allocator for the object's footprint.
+    //
+    //   3. Use the appropriate test allocator to verify that:
+    //
+    //     1. If an allocator was not supplied at construction (P-1a), the
+    //        non-object allocator doesn't allocate any memory.  (C-2,4)
+    //
+    //     2. If an allocator was supplied at construction (P-1b), all memory
+    //        is allocated from it.  (C-3..4)
+    //
+    //   4. Verify that all of the attributes of each object have their
+    //      expected values.  (C-1)
+    //
+    //   5. Destroy target object and verify, that all memory has been
+    //      released.  (C-5)
     //
     // Testing:
     //  explicit TestValuesArray();
@@ -1971,9 +1975,9 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase5()
               } break;
             }
 
-            // Verify no allocation from the default allocator, unless 'VALUE'
-            // uses 'bslma::Allocator' and the 'ALLOCATOR' template argument is
-            // not 'bsl::allocator'.
+            // Verify no allocation from the default allocator, unless `VALUE`
+            // uses `bslma::Allocator` and the `ALLOCATOR` template argument is
+            // not `bsl::allocator`.
 
             ASSERTV(NameOf<Obj>(), CONFIG, doa.numBlocksTotal(),
                     (!k_IS_BSL_ALLOCATOR && k_VALUE_USES_BSLMA) ||
@@ -1992,7 +1996,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase5()
                         0 == soa.numBytesInUse());
             } else {
                 // We can't calculate exact size of allocated memory, as
-                // 'VALUE' objects can allocate some extra memory in their
+                // `VALUE` objects can allocate some extra memory in their
                 // constructors.
 
                 ASSERTV(CONFIG, soa.numBytesInUse(),
@@ -2032,31 +2036,31 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase4()
     // BASIC ACCESSORS
     //
     // Concerns:
-    //: 1 Each accessor returns the value of the correct property of the
-    //:   object.
-    //:
-    //: 2 Each accessor method is declared 'const'.
-    //:
-    //: 3 No accessor allocates any memory.
+    // 1. Each accessor returns the value of the correct property of the
+    //    object.
+    //
+    // 2. Each accessor method is declared `const`.
+    //
+    // 3. No accessor allocates any memory.
     //
     // Plan:
-    //: 1 Using the table-driven technique:
-    //:
-    //:   1 Specify a set of (unique) valid object values.
-    //:
-    //: 2 For each row (representing a distinct object value, 'V') in the table
-    //:   described in P-1:
-    //:
-    //:   1 Create an object, passing a value specification.
-    //:
-    //:   2 Use 'size' to verify the object contains the expected number of
-    //:     elements.  (C-1..2)
-    //:
-    //:   3 Use 'data' to verify the values are as expected. (C-1..2)
-    //:
-    //:   4 Monitor the memory allocated from object allocator before and after
-    //:     calling the accessor and verify that there is no change in total
-    //:     memory allocation.  (C-3)
+    // 1. Using the table-driven technique:
+    //
+    //   1. Specify a set of (unique) valid object values.
+    //
+    // 2. For each row (representing a distinct object value, `V`) in the table
+    //    described in P-1:
+    //
+    //   1. Create an object, passing a value specification.
+    //
+    //   2. Use `size` to verify the object contains the expected number of
+    //      elements.  (C-1..2)
+    //
+    //   3. Use `data` to verify the values are as expected. (C-1..2)
+    //
+    //   4. Monitor the memory allocated from object allocator before and after
+    //      calling the accessor and verify that there is no change in total
+    //      memory allocation.  (C-3)
     //
     // Testing:
     //  const VALUE *data() const;
@@ -2105,67 +2109,67 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase3()
     // PRIMARY MANIPULATORS
     //
     // Concerns:
-    //: 1 An object created with the constructor (with or without a supplied
-    //:   allocator) has the value, configured according to the specified
-    //:   'spec'.
-    //:
-    //: 2 If an allocator is NOT supplied to the constructor, the
-    //:   default allocator in effect at the time of construction becomes the
-    //:   object allocator for the resulting object.
-    //:
-    //: 3 If an allocator IS supplied to the constructor, that allocator
-    //:   becomes the object allocator for the resulting object.
-    //:
-    //: 4 Any memory allocation is from the object allocator.
-    //:
-    //: 5 Every object releases any allocated memory at destruction.
-    //:
-    //: 6 QoI: asserted precondition violations are detected when enabled.
+    // 1. An object created with the constructor (with or without a supplied
+    //    allocator) has the value, configured according to the specified
+    //    `spec`.
+    //
+    // 2. If an allocator is NOT supplied to the constructor, the
+    //    default allocator in effect at the time of construction becomes the
+    //    object allocator for the resulting object.
+    //
+    // 3. If an allocator IS supplied to the constructor, that allocator
+    //    becomes the object allocator for the resulting object.
+    //
+    // 4. Any memory allocation is from the object allocator.
+    //
+    // 5. Every object releases any allocated memory at destruction.
+    //
+    // 6. QoI: asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Using the table-driven technique:
-    //:
-    //:   1 Specify a set of (unique) valid object values.
-    //:
-    //: 2 For each row (representing a distinct object value, 'V') in the table
-    //:   described in P-1:
-    //:
-    //:   1 Execute an inner loop creating two distinct objects, in turn, each
-    //:     object having the same value, 'V', but configured differently
-    //:     identified by 'CONFIG':
-    //:
-    //:     'a': passing a value specification, but without passing an
-    //:          allocator;
-    //:
-    //:     'b': passing a value specification, and the test allocator distinct
-    //:          from the default allocator.
-    //:
-    //:   2 For each of the two iterations in P-2.1:
-    //:
-    //:     1 Create three 'bslma_TestAllocator' objects, and install one as
-    //:       the current default allocator (note that a ubiquitous test
-    //:       allocator is already installed as the global allocator).
-    //:
-    //:     2 Choose the value constructor depending on 'CONFIG' to dynamically
-    //:       create an object using a value specification, with its object
-    //:       allocator configured appropriately (see P-2.2.1); use a distinct
-    //:       test allocator for the object's footprint.
-    //:
-    //:     3 Use the appropriate test allocator to verify that:
-    //:
-    //:       1 If an allocator was not supplied at construction (P-2.1a), the
-    //:         non-object allocator doesn't allocate any memory.  (C-2,4)
-    //:
-    //:       2 If an allocator was supplied at construction (P-2.1b), all
-    //:         memory is allocated from it.  (C-3..4)
-    //:
-    //:     4 Use the (untested) basic accessors to verify that all of the
-    //:       attributes of each object have their expected values.  (C-1)
-    //:
-    //:     5 Destroy target object and verify, that all memory has been
-    //:       released.  (C-5)
-    //:
-    //: 3 Verify defensive checks are triggered for invalid values.  (C-6)
+    // 1. Using the table-driven technique:
+    //
+    //   1. Specify a set of (unique) valid object values.
+    //
+    // 2. For each row (representing a distinct object value, `V`) in the table
+    //    described in P-1:
+    //
+    //   1. Execute an inner loop creating two distinct objects, in turn, each
+    //      object having the same value, `V`, but configured differently
+    //      identified by `CONFIG`:
+    //
+    //      `a`: passing a value specification, but without passing an
+    //           allocator;
+    //
+    //      `b`: passing a value specification, and the test allocator distinct
+    //           from the default allocator.
+    //
+    //   2. For each of the two iterations in P-2.1:
+    //
+    //     1. Create three `bslma_TestAllocator` objects, and install one as
+    //        the current default allocator (note that a ubiquitous test
+    //        allocator is already installed as the global allocator).
+    //
+    //     2. Choose the value constructor depending on `CONFIG` to dynamically
+    //        create an object using a value specification, with its object
+    //        allocator configured appropriately (see P-2.2.1); use a distinct
+    //        test allocator for the object's footprint.
+    //
+    //     3. Use the appropriate test allocator to verify that:
+    //
+    //       1. If an allocator was not supplied at construction (P-2.1a), the
+    //          non-object allocator doesn't allocate any memory.  (C-2,4)
+    //
+    //       2. If an allocator was supplied at construction (P-2.1b), all
+    //          memory is allocated from it.  (C-3..4)
+    //
+    //     4. Use the (untested) basic accessors to verify that all of the
+    //        attributes of each object have their expected values.  (C-1)
+    //
+    //     5. Destroy target object and verify, that all memory has been
+    //        released.  (C-5)
+    //
+    // 3. Verify defensive checks are triggered for invalid values.  (C-6)
     //
     // Testing:
     //  explicit TestValuesArray(const char *spec);
@@ -2237,7 +2241,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase3()
                             0 == soa.numBytesInUse());
                 } else {
                     // We can't calculate exact size of allocated memory, as
-                    // 'VALUE' objects can allocate some extra memory in their
+                    // `VALUE` objects can allocate some extra memory in their
                     // constructors.
 
                     ASSERTV(LINE, CONFIG, soa.numBytesInUse(),
@@ -2292,22 +2296,22 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase2()
     // TESTING DEFAULT CONVERTER
     //
     // Concerns:
-    //: 1 For all test types, invoking the
-    //:   'TestValuesArray_DefaultConverter::createInplace' class method
-    //:   passing in a char value return a new object of that type.
+    // 1. For all test types, invoking the
+    //    `TestValuesArray_DefaultConverter::createInplace` class method
+    //    passing in a char value return a new object of that type.
     //
-    //: 2 For all test types, the
-    //:   'TestValuesArray_DefaultConverter::createInplace' method supports
-    //:   char values from 0 to 127.
+    // 2. For all test types, the
+    //    `TestValuesArray_DefaultConverter::createInplace` method supports
+    //    char values from 0 to 127.
     //
     // Plan:
-    //: 1 Create a buffer, sufficient for storing an object of the (template
+    // 1. Create a buffer, sufficient for storing an object of the (template
     //    parameter) type and do the following: For each char value from 0 to
     //    127, create an object using
-    //    'TestValuesArray_DefaultConverter::createInplace' passing in the char
+    //    `TestValuesArray_DefaultConverter::createInplace` passing in the char
     //    value.  Verify that the integer value returned from
-    //    'TemplateTestFacility::getIdentifier' compare equal to the value
-    //    passed to 'createInplace'.  (C-1..2)
+    //    `TemplateTestFacility::getIdentifier` compare equal to the value
+    //    passed to `createInplace`.  (C-1..2)
     //
     // Testing:
     //   createInplace(VALUE *objPtr, char value, ALLOCATOR allocator);
@@ -2329,7 +2333,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase2()
     VALUE                     *address = buffer.address();
 
     for (int ti = 0; ti != 128; ++ti) {
-        // Note that 'char' might not be able to represent 128
+        // Note that `char` might not be able to represent 128
 
         Converter::createInplace(address,
                                  static_cast<char>(ti),
@@ -2356,11 +2360,11 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase1()
     //   This case exercises (but does not fully test) basic functionality.
     //
     // Concerns:
-    //: 1 The class is sufficiently functional to enable comprehensive
-    //:   testing in subsequent test cases.
+    // 1. The class is sufficiently functional to enable comprehensive
+    //    testing in subsequent test cases.
     //
     // Plan:
-    //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
+    // 1. Perform and ad-hoc test of the primary modifiers and accessors.
     //
     // Testing:
     //   BREATHING TEST
@@ -2384,9 +2388,9 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase1()
     ASSERTV(IT == Y.end());
 }
 
-// Create a version of 'TestDriver' that uses the 'StdStatefulAllocator'
-// instead of 'bsl::allocator' in order to run some of our tests and make sure
-// that the 'TestValuesArray' is compatible with the standard stateful
+// Create a version of `TestDriver` that uses the `StdStatefulAllocator`
+// instead of `bsl::allocator` in order to run some of our tests and make sure
+// that the `TestValuesArray` is compatible with the standard stateful
 // allocator.
 
 template <class VALUE>
@@ -2408,13 +2412,14 @@ struct StatefulTestDriver : public TestDriver<VALUE,
 // in that range.
 //
 // First, we define the function we would like to test:
-//..
+// ```
+
+    /// Return the largest value referred to by the iterators in the range
+    /// beginning at the specified `first` and up to, but not including, the
+    /// specified `last`.  The behavior is undefined unless [first, last)
+    /// specifies a valid range and `first != last`.
     template <class VALUE, class INPUT_ITERATOR>
     VALUE myMaxValue(INPUT_ITERATOR first, INPUT_ITERATOR last)
-        // Return the largest value referred to by the iterators in the range
-        // beginning at the specified 'first' and up to, but not including, the
-        // specified 'last'.  The behavior is undefined unless [first, last)
-        // specifies a valid range and 'first != last'.
     {
         ASSERT(first != last);
 
@@ -2429,17 +2434,18 @@ struct StatefulTestDriver : public TestDriver<VALUE,
         }
         return largestValue;
     }
-//..
-// Next, we implement a test function 'runTest' that allows the function to be
+// ```
+// Next, we implement a test function `runTest` that allows the function to be
 // tested with different types:
-//..
+// ```
+
+    /// Test driver.
     template <class VALUE>
     void runTest()
-        // Test driver.
     {
-//..
+// ```
 //  Then, we define a set of test values and expected results:
-//..
+// ```
         struct {
             const char *d_spec;
             const char  d_result;
@@ -2450,10 +2456,10 @@ struct StatefulTestDriver : public TestDriver<VALUE,
             { "EDCBA", 'E' }
         };
         const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
-//..
+// ```
 //  Now, for each set of test values, verify that the function return the
 //  expected result.
-//..
+// ```
         for (size_t i = 0; i < NUM_DATA; ++i) {
             const char *const SPEC = DATA[i].d_spec;
             const VALUE       EXP  =
@@ -2463,7 +2469,7 @@ struct StatefulTestDriver : public TestDriver<VALUE,
             ASSERT(EXP == myMaxValue<VALUE>(values.begin(), values.end()));
         }
     }
-//..
+// ```
 
 //=============================================================================
 //                                 MAIN PROGRAM
@@ -2485,13 +2491,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -2501,11 +2507,11 @@ int main(int argc, char *argv[])
                             "\n=============\n");
 
 // Finally, we invoke the test function to verify our function is implemented
-// correctly.  The test function to run without triggering the 'assert'
+// correctly.  The test function to run without triggering the `assert`
 // statement:
-//..
+// ```
     runTest<char>();
-//..
+// ```
       } break;
       case 16: {
         // --------------------------------------------------------------------

@@ -7,14 +7,14 @@
 #include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-// This component implements a relatively simple metafunction 'bsl::is_empty'
-// and a template variable 'bsl::is_empty_v' that compute a true/false result.
+// This component implements a relatively simple metafunction `bsl::is_empty`
+// and a template variable `bsl::is_empty_v` that compute a true/false result.
 // The only type that will yield a true result is an empty struct or class.
 // All other types, including fundamental types, enumerations, and non-empty
 // classes will yield false.  Testing involves simply evaluating the
@@ -102,10 +102,10 @@ void aSsErT(bool condition, const char *message, int line)
 
 struct EmptyStruct {};
 
+/// Empty struct with constructor, destructor, member function and static
+/// data member, but no non-static data members other than a zero-width bit
+/// field.
 class EmptyClassWithMembers {
-    // Empty struct with constructor, destructor, member function and static
-    // data member, but no non-static data members other than a zero-width bit
-    // field.
 
     int :0;  // Unnamed, zero-width bit-field
     static int s_data;
@@ -119,28 +119,28 @@ class EmptyClassWithMembers {
 
 int EmptyClassWithMembers::s_data = 0;
 
+/// Empty class with (empty) base-class
 class EmptyDerivedClass : public EmptyStruct {
-    // Empty class with (empty) base-class
 };
 
 struct NonEmptyStruct {
     char d_data;
 };
 
+/// Struct that would be empty except for having a virtual function
 struct StructWithVirtualDestructor {
-    // Struct that would be empty except for having a virtual function
     virtual ~StructWithVirtualDestructor();
 };
 
 StructWithVirtualDestructor::~StructWithVirtualDestructor() {
 }
 
+/// Class that would be empty except for having a virtual base class.
 class ClassWithVirtualBase : virtual public EmptyStruct {
-    // Class that would be empty except for having a virtual base class.
 };
 
+/// Derived class with non-empty base class but no other members
 class ClassWithNonEmptyBase : public NonEmptyStruct {
-    // Derived class with non-empty base class but no other members
 };
 
 union UnionType {
@@ -158,14 +158,14 @@ typedef void function_type();
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
+/// This empty final struct is used to test compatibility of `is_empty` with
+/// final classes.
 struct EmptyFinalStruct final {
-    // This empty final struct is used to test compatibility of 'is_empty' with
-    // final classes.
 };
 
+/// This non-empty final struct is used to test compatibility of `is_empty`
+/// with final classes.
 struct NonEmptyFinalStruct final {
-    // This non-empty final struct is used to test compatibility of 'is_empty'
-    // with final classes.
 
     // PUBLIC DATA
     char d_data;
@@ -174,9 +174,9 @@ struct NonEmptyFinalStruct final {
 #endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+/// `ASSERT` that `is_empty_v` has the same value as `is_empty::value`.
 #define ASSERT_V_SAME(TYPE)                                                   \
     ASSERT( bsl::is_empty <TYPE>::value == bsl::is_empty_v<TYPE>)
-    // 'ASSERT' that 'is_empty_v' has the same value as 'is_empty::value'.
 #else
 #define ASSERT_V_SAME(TYPE)
 #endif
@@ -197,23 +197,23 @@ struct NonEmptyFinalStruct final {
 ///Example: Compute storage requirements for a type
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we wish to create a generic function that will allocate a record
-// comprising a value of specified 'TYPE' and a description in the form of a
+// comprising a value of specified `TYPE` and a description in the form of a
 // null-terminated character string.  First, we declare the function prototype:
-//..
+// ```
     template <class TYPE>
     void *makeRecord(const TYPE& value, const char* description);
-//..
-// Next, we implement the function so that the copy of 'value' takes up no
-// space if 'TYPE' is an empty class.  We manage this by computing a zero
-// storage requirement if 'is_empty<TYPE>::value' is true:
-//..
+// ```
+// Next, we implement the function so that the copy of `value` takes up no
+// space if `TYPE` is an empty class.  We manage this by computing a zero
+// storage requirement if `is_empty<TYPE>::value` is true:
+// ```
     #include <cstring>
     #include <new>
 
     template <class TYPE>
     void *makeRecord(const TYPE& value, const char* description)
     {
-        // 'ValueSize' is computed at compile time.
+        // `ValueSize` is computed at compile time.
         static const std::size_t ValueSize = bsl::is_empty<TYPE>::value ?
             0 : sizeof(TYPE);
 
@@ -229,15 +229,15 @@ struct NonEmptyFinalStruct final {
 
         return mem;
     }
-//..
-// Finally, we use 'makeRecord' with both an empty and non-empty value type:
-//..
+// ```
+// Finally, we use `makeRecord` with both an empty and non-empty value type:
+// ```
     struct EmptyMarker { };
 
     int usageExample1()
     {
         void *record1 = makeRecord(9999, "four nines");
-        // Value takes 'sizeof(int)' bytes at front of record.
+        // Value takes `sizeof(int)` bytes at front of record.
         ASSERT(9999 == *static_cast<int*>(record1));
         ASSERT(0 == std::strcmp(static_cast<char*>(record1) + sizeof(int),
                                 "four nines"));
@@ -251,7 +251,7 @@ struct NonEmptyFinalStruct final {
 
         return 0;
     }
-//..
+// ```
 
 // BDE_VERIFY pragma: pop
 
@@ -279,13 +279,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -300,44 +300,44 @@ int main(int argc, char *argv[])
 
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'is_empty<TYPE>::value'
+        // TESTING `is_empty<TYPE>::value`
         //
         // Concerns:
-        //: 1 'is_empty<T>::value' is true if 'T' is an empty class,
-        //:   an empty class with members but no non-static data members,
-        //:   or an empty class that derives from another empty class.
-        //: 2 'is_empty<T>::value' is false if 'T' is a fundamental type,
-        //:   pointer type, reference type, or enum type.
-        //: 3 'is_empty<T>::value' is false if 'T' is a non-empty class,
-        //:   a class that inherits from a non-empty class, a class with
-        //:   a virtual member function, or a class with a virtual base class.
-        //: 4 'is_empty<cvq T>::value == is_empty<T>::value' for any cv
-        //:   qualifier, 'cvq'.
-        //: 5 'is_empty<T>' is able to detect emptiness of final classes.
-        //: 6  That 'is_empty<T>::value' has the same value as 'is_empty_v<T>'
-        //:    for a variety of template parameter types.
+        // 1. `is_empty<T>::value` is true if `T` is an empty class,
+        //    an empty class with members but no non-static data members,
+        //    or an empty class that derives from another empty class.
+        // 2. `is_empty<T>::value` is false if `T` is a fundamental type,
+        //    pointer type, reference type, or enum type.
+        // 3. `is_empty<T>::value` is false if `T` is a non-empty class,
+        //    a class that inherits from a non-empty class, a class with
+        //    a virtual member function, or a class with a virtual base class.
+        // 4. `is_empty<cvq T>::value == is_empty<T>::value` for any cv
+        //    qualifier, `cvq`.
+        // 5. `is_empty<T>` is able to detect emptiness of final classes.
+        // 6.  That `is_empty<T>::value` has the same value as `is_empty_v<T>`
+        //     for a variety of template parameter types.
         //
         // Plan:
-        //: 1 For concern 1, instantiate 'is_empty' with various types of
-        //:   empty classes and verify that the 'value' member is true.
-        //: 2 For concern 2, instantiate 'is_empty' with fundamental types,
-        //:   pointer types, reference types, and enum types, and verify that
-        //:   the 'value' member is false.
-        //: 3 For concern 3, instantiate 'is_empty' with various kinds of
-        //:   non-empty classes and verify that the 'value' member is false.
-        //: 4 For concern 4, perform all of steps 1-3 using a macro that tests
-        //:   every combination of const and volatile qualifiers on the type
-        //:   being tested.
-        //: 5 For concern 5, instantiate 'is_empty' with empty and non-empty
-        //:   final classes and verify that the 'value' member is true for
-        //:   empty class and false for the other.
+        // 1. For concern 1, instantiate `is_empty` with various types of
+        //    empty classes and verify that the `value` member is true.
+        // 2. For concern 2, instantiate `is_empty` with fundamental types,
+        //    pointer types, reference types, and enum types, and verify that
+        //    the `value` member is false.
+        // 3. For concern 3, instantiate `is_empty` with various kinds of
+        //    non-empty classes and verify that the `value` member is false.
+        // 4. For concern 4, perform all of steps 1-3 using a macro that tests
+        //    every combination of const and volatile qualifiers on the type
+        //    being tested.
+        // 5. For concern 5, instantiate `is_empty` with empty and non-empty
+        //    final classes and verify that the `value` member is true for
+        //    empty class and false for the other.
         //
         // Testing:
         //     is_empty<TYPE>::value
         //     is_empty_v<TYPE>
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'is_empty<TYPE>::value'"
+        if (verbose) printf("\nTESTING `is_empty<TYPE>::value`"
                             "\n===============================\n");
 
         // Concern 4,6:
@@ -351,19 +351,19 @@ int main(int argc, char *argv[])
         ASSERT_V_SAME(T       volatile);                      \
         ASSERT_V_SAME(T const volatile)
         // Macro to add cv qualifiers and test
-        // 'is_empty<T>::value == is_empty_v<T>'
+        // `is_empty<T>::value == is_empty_v<T>`
 
 #define TEST_IS_EMPTY_NO_CV(T, EXP)                           \
         ASSERT(EXP == bsl::is_empty<               T>::value);\
         ASSERT_V_SAME(               T)
         // Macro to test whether a non-ccv-qualifiable type is empty, and that
-        // 'is_empty<T>::value == is_empty_v<T>'
+        // `is_empty<T>::value == is_empty_v<T>`
 
         // Concern 1: empty classes
         TEST_IS_EMPTY(EmptyStruct, true);
         TEST_IS_EMPTY(EmptyDerivedClass, true);
 #if !defined(BSLS_PLATFORM_CMP_IBM)
-    //  As a QoI issue, IBM does not treat 'EmptyClassWithMembers' as a type
+    //  As a QoI issue, IBM does not treat `EmptyClassWithMembers` as a type
     //  eligible for the empty-base optimization, and our trait implementation
     //  correctly recognizes that.
         TEST_IS_EMPTY(EmptyClassWithMembers, true);
@@ -390,7 +390,7 @@ int main(int argc, char *argv[])
         TEST_IS_EMPTY(ClassWithVirtualBase, false);
         TEST_IS_EMPTY(ClassWithNonEmptyBase, false);
 
-        // Unions and C++11 'final' types need special handling to avoid errors
+        // Unions and C++11 `final` types need special handling to avoid errors
         // implementing the test for emptiness.
 
         TEST_IS_EMPTY(UnionType, false);
@@ -411,13 +411,13 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 The basic functionality of 'is_empty' works as expected.
+        // 1. The basic functionality of `is_empty` works as expected.
         //
         // Plan:
-        //: 1 Instantiate 'is_empty' with several combinations of types.  For
-        //:   each combination, verify that the static 'value' member has
-        //:   the expected value and that the 'type' member exists and
-        //:   has the same static 'value' member.
+        // 1. Instantiate `is_empty` with several combinations of types.  For
+        //    each combination, verify that the static `value` member has
+        //    the expected value and that the `type` member exists and
+        //    has the same static `value` member.
         //
         // Testing:
         //    BREATHING TEST

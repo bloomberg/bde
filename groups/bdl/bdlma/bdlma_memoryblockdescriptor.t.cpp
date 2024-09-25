@@ -11,15 +11,15 @@
 #include <bsls_review.h>
 
 #include <bsl_cstdio.h>
-#include <bsl_cstdlib.h>   // 'atoi'
-#include <bsl_cstring.h>   // 'memcpy'
+#include <bsl_cstdlib.h>   // `atoi`
+#include <bsl_cstring.h>   // `memcpy`
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
-#include <bsl_c_stdio.h>   // 'snprintf' (<cstdio> doesn't declare 'snprintf')
+#include <bsl_c_stdio.h>   // `snprintf` (<cstdio> doesn't declare `snprintf`)
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-#include <unistd.h>             // 'pipe', 'close' and 'dup'.
+#include <unistd.h>             // `pipe`, `close` and `dup`.
 #endif
 
 using namespace BloombergLP;
@@ -36,12 +36,12 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The 'bdlma::MemoryBlockDescriptor' is a simple value object holding to
+// The `bdlma::MemoryBlockDescriptor` is a simple value object holding to
 // properties that can be written and accessed freely, i.e., there are no
 // constraints placed up their values.
 //
 // The basic manipulators for a memory block descriptor are the default
-// constructor and the 'ptr' and 'size' operations.
+// constructor and the `ptr` and `size` operations.
 //-----------------------------------------------------------------------------
 // [ 3] bdlma::MemoryBlockDescriptor();
 // [ 3] bdlma::MemoryBlockDescriptor(void *, bsl::size_t);
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator         talloc;
@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -163,8 +163,8 @@ int main(int argc, char *argv[])
 ///Usage
 ///-----
 // This example demonstrates how to create and test the state of a
-// 'bdlma::MemoryBlockDescriptor'.
-//..
+// `bdlma::MemoryBlockDescriptor`.
+// ```
      char buffer[100];
 
      bdlma::MemoryBlockDescriptor a(buffer, sizeof buffer);
@@ -184,7 +184,7 @@ int main(int argc, char *argv[])
                                  ASSERT(sizeof buffer  == b.size());
                                  ASSERT(a              == b);
 
-//..
+// ```
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   For each of a small representative set of object values, use
-        //   'ostrstream' to write that object's value to a character buffer
+        //   `ostrstream` to write that object's value to a character buffer
         //   and then compare the contents of that buffer with the expected
         //   output format.
         //
@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
         //   ostream& print(ostream&);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'print' (ostream)." << endl;
+        if (verbose) cout << "\nTesting `print` (ostream)." << endl;
 
 // The following code uses pipe() and fork(), so only works on Unix.
 #ifdef BSLS_PLATFORM_OS_UNIX
@@ -233,10 +233,10 @@ int main(int argc, char *argv[])
             snprintf(mExp, BUF_SZ, "[%p, %d]",
                      VALUES[i].d_address, static_cast<int>(VALUES[i].d_size));
 
-            // Because 'bdema' is a low-level utility, 'MemoryBlockDescriptor'
+            // Because `bdema` is a low-level utility, `MemoryBlockDescriptor`
             // does not have a function to print to ostream, and thus cannot
-            // print to a 'strstream'.  The print() member function always
-            // prints to 'stdout'.  The code below forks a process and captures
+            // print to a `strstream`.  The print() member function always
+            // prints to `stdout`.  The code below forks a process and captures
             // stdout to a memory buffer
             const char *EXP = mExp;
             int pipes[2];
@@ -253,7 +253,7 @@ int main(int argc, char *argv[])
                 dup(pipes[1]);
 
                 // This call print() function sends its output to the pipe,
-                // which is in turn read into 'buf' by the parent process.
+                // which is in turn read into `buf` by the parent process.
                 X.print();
 
                 exit(0);
@@ -290,7 +290,7 @@ int main(int argc, char *argv[])
         //   bool isNull() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\tTesting 'isNull'." << endl;
+        if (verbose) cout << "\tTesting `isNull`." << endl;
 
         int addr1;
 
@@ -439,8 +439,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Specify a set S of unique object values having various minor or
-        //   subtle differences.  Verify the correctness of 'operator==' and
-        //   'operator!=' using all elements (u, v) of the cross product
+        //   subtle differences.  Verify the correctness of `operator==` and
+        //   `operator!=` using all elements (u, v) of the cross product
         //    S X S.
         //
         // Testing:
@@ -557,7 +557,7 @@ int main(int argc, char *argv[])
         //   size_type size() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'ptr' and 'size'." << endl;
+        if (verbose) cout << "\nTesting `ptr` and `size`." << endl;
 
         int addr1;
         int addr2;
@@ -605,27 +605,27 @@ int main(int argc, char *argv[])
         //   primary manipulator [3, 6], copy constructor [2, 5], and
         //   assignment operator without [7, 8] and with [9] aliasing.  Use the
         //   basic accessors to verify the expected results.  Display object
-        //   values frequently in verbose mode.  Note that 'VA', 'VB', and 'VC'
-        //   denote unique, but otherwise arbitrary, object values, while 'U'
+        //   values frequently in verbose mode.  Note that `VA`, `VB`, and `VC`
+        //   denote unique, but otherwise arbitrary, object values, while `U`
         //   denotes the valid, but "unknown", default object value.
         //
-        //: 1.  Create an object x1 (init. to VA).  { x1:VA }
-        //:
-        //: 2.  Create an object x2 (copy from x1).  { x1:VA x2:VA }
-        //:
-        //: 3.  Set x1 to VB.  { x1:VB x2:VA }
-        //:
-        //: 4.  Create an object x3 (default ctor).  { x1:VB x2:VA x3:U }
-        //:
-        //: 5.  Create an object x4 (copy from x3).  { x1:VB x2:VA x3:U x4:U }
-        //:
-        //: 6.  Set x3 to 'VC'. { x1:VB x2:VA x3:VC x4:U }
-        //:
-        //: 7.  Assign x2 = x1.  { x1:VB x2:VB x3:VC x4:U }
-        //:
-        //: 8.  Assign x2 = x3.  { x1:VB x2:VC x3:VC x4:U }
-        //:
-        //: 9.  Assign x1 = x1 (aliasing).  { x1:VB x2:VB x3:VC x4:U }
+        //  1.  Create an object x1 (init. to VA).  { x1:VA }
+        //
+        //  2.  Create an object x2 (copy from x1).  { x1:VA x2:VA }
+        //
+        //  3.  Set x1 to VB.  { x1:VB x2:VA }
+        //
+        //  4.  Create an object x3 (default ctor).  { x1:VB x2:VA x3:U }
+        //
+        //  5.  Create an object x4 (copy from x3).  { x1:VB x2:VA x3:U x4:U }
+        //
+        //  6.  Set x3 to `VC`. { x1:VB x2:VA x3:VC x4:U }
+        //
+        //  7.  Assign x2 = x1.  { x1:VB x2:VB x3:VC x4:U }
+        //
+        //  8.  Assign x2 = x3.  { x1:VB x2:VC x3:VC x4:U }
+        //
+        //  9.  Assign x1 = x1 (aliasing).  { x1:VB x2:VB x3:VC x4:U }
         //
         // Testing:
         //   This Test Case exercises basic value-semantic functionality.
@@ -639,9 +639,9 @@ int main(int argc, char *argv[])
         char VA[1];
         char VB[5];
         char VC[10];
-        void *AA = VA; const int SA = sizeof(VA);  // address & size for 'VA'
-        void *AB = VB; const int SB = sizeof(VB);  // address & size for 'VB'
-        void *AC = VC; const int SC = sizeof(VC);  // address & size for 'VC'
+        void *AA = VA; const int SA = sizeof(VA);  // address & size for `VA`
+        void *AB = VB; const int SB = sizeof(VB);  // address & size for `VB`
+        void *AC = VC; const int SC = sizeof(VC);  // address & size for `VC`
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 1. Create an object x1 (init. to VA)."

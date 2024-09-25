@@ -72,19 +72,19 @@ enum { PLAT_EXC = 0 };
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// This component provides a thread-enabled proxy to the 'bsl::deque'
+// This component provides a thread-enabled proxy to the `bsl::deque`
 // container.  The purpose of this test driver is to assert that each operation
-// is properly "hooked up" to its respective 'bsl::deque' operation, and that
+// is properly "hooked up" to its respective `bsl::deque` operation, and that
 // the locking mechanisms work as expected when the boundary conditions on
 // length and high water mark are reached.  In addition, although all the
-// memory allocated is allocated by the underlying 'bsl::deque', we want to
+// memory allocated is allocated by the underlying `bsl::deque`, we want to
 // make sure that the allocator is correctly passed to it.  The component is
 // tested in a single thread by the breathing test.  In the rest of the test
 // cases, we use multiple threads and test the locking and concurrency
 // mechanisms:
 //
-// Single threaded tests are marked '- st', multi-threaded tests are marked
-// '- mt'.
+// Single threaded tests are marked `- st`, multi-threaded tests are marked
+// `- mt`.
 //
 //-----------------------------------------------------------------------------
 // TYPES
@@ -335,12 +335,12 @@ enum VecType { e_BEGIN,
                e_END
 };
 
+/// Provide access similar to `vector::data()`.  According to
+/// cppreference.com, the `vector::data()` manipulator is provided on all
+/// versions of C++, but we find that it is supported on neither Solaris nor
+/// AIX.
 template <class VECTOR>
 typename VECTOR::value_type *vData(VECTOR *v)
-    // Provide access similar to 'vector::data()'.  According to
-    // cppreference.com, the 'vector::data()' manipulator is provided on all
-    // versions of C++, but we find that it is supported on neither Solaris nor
-    // AIX.
 {
     return v->empty() ? 0 : &(*v)[0];
 }
@@ -354,10 +354,10 @@ namespace bsltf {
                         // class MoveCopyAllocTestType
                         // ===========================
 
+/// This `class` is to behave like `bsltf::MovableAllocTestType`, except
+/// that, if moved in a context where source and destination allocators
+/// don't match, it does a non-moving copy construct or copy assign.
 class MoveCopyAllocTestType {
-    // This 'class' is to behave like 'bsltf::MovableAllocTestType', except
-    // that, if moved in a context where source and destination allocators
-    // don't match, it does a non-moving copy construct or copy assign.
 
     // DATA
     int                    *d_data_p;       // pointer to the data value
@@ -371,105 +371,110 @@ class MoveCopyAllocTestType {
 
   public:
     // CREATORS
-    explicit MoveCopyAllocTestType(bslma::Allocator *basicAllocator = 0);
-        // Create a 'MoveCopyAllocTestType' object having the (default)
-        // attribute values:
-        //..
-        //  data() == -1
-        //..
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Create a `MoveCopyAllocTestType` object having the (default)
+    /// attribute values:
+    /// ```
+    /// data() == -1
+    /// ```
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
+    explicit MoveCopyAllocTestType(bslma::Allocator *basicAllocator = 0);
+
+    /// Create a `MoveCopyAllocTestType` object having the specified `data`
+    /// attribute value.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     explicit MoveCopyAllocTestType(int               data,
                                    bslma::Allocator *basicAllocator = 0);
-        // Create a 'MoveCopyAllocTestType' object having the specified 'data'
-        // attribute value.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Move-construct this objectt from the specified `original`.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If no
+    /// allocator is specified or if `basicAllocator` matches the allocator
+    /// of `original`, then `original` is left in a valid but unspecified
+    /// state, if `basicAllocator` is specified and does not match
+    /// `original`, the `original` is copied without modification.
     MoveCopyAllocTestType(
                      bslmf::MovableRef<MoveCopyAllocTestType>  original);
     MoveCopyAllocTestType(
                      bslmf::MovableRef<MoveCopyAllocTestType>  original,
                      bslma::Allocator                         *basicAllocator);
-        // Move-construct this objectt from the specified 'original'.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If no
-        // allocator is specified or if 'basicAllocator' matches the allocator
-        // of 'original', then 'original' is left in a valid but unspecified
-        // state, if 'basicAllocator' is specified and does not match
-        // 'original', the 'original' is copied without modification.
 
+    /// Create a `MoveCopyAllocTestType` object having the same value as the
+    /// specified `original` object.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
     MoveCopyAllocTestType(const MoveCopyAllocTestType&  original,
                           bslma::Allocator             *basicAllocator = 0);
-        // Create a 'MoveCopyAllocTestType' object having the same value as the
-        // specified 'original' object.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
 
+    /// Destroy this object.
     ~MoveCopyAllocTestType();
-        // Destroy this object.
 
     // MANIPULATORS
-    MoveCopyAllocTestType& operator=(const MoveCopyAllocTestType& rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
 
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.
+    MoveCopyAllocTestType& operator=(const MoveCopyAllocTestType& rhs);
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.  If
+    /// the allocators of `*this` and `rhs` match, `rhs` is left in a valid
+    /// but unspecified state, otherwise `rhs` is copied without
+    /// modification.
     MoveCopyAllocTestType& operator=(
                                  bslmf::MovableRef<MoveCopyAllocTestType> rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.  If
-        // the allocators of '*this' and 'rhs' match, 'rhs' is left in a valid
-        // but unspecified state, otherwise 'rhs' is copied without
-        // modification.
 
+    /// Set the `data` attribute of this object to the specified `value`.
     void setData(int value);
-        // Set the 'data' attribute of this object to the specified 'value'.
 
+    /// Set the moved-into state of this object to the specified `value`.
     void setMovedInto(MoveState::Enum value);
-        // Set the moved-into state of this object to the specified 'value'.
 
     // ACCESSORS
+
+    /// Return the value of the `data` attribute of this object.
     int data() const;
-        // Return the value of the 'data' attribute of this object.
 
+    /// Return the move state of this object as target of a move operation.
     MoveState::Enum movedInto() const;
-        // Return the move state of this object as target of a move operation.
 
+    /// Return the move state of this object as source of a move operation.
     MoveState::Enum movedFrom() const;
-        // Return the move state of this object as source of a move operation.
 
                                   // Aspects
 
+    /// Return the allocator used by this object to supply memory.
     bslma::Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `MoveCopyAllocTestType` objects have
+/// the same if their `data` attributes are the same.
+/// TBD: think about the behavior when specified on an object that was
+/// moved-from on this as well as other functions/methods if appropriate.
 bool operator==(const MoveCopyAllocTestType& lhs,
                 const MoveCopyAllocTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'MoveCopyAllocTestType' objects have
-    // the same if their 'data' attributes are the same.
-    // TBD: think about the behavior when specified on an object that was
-    // moved-from on this as well as other functions/methods if appropriate.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `MoveCopyAllocTestType` objects
+/// do not have the same value if their `data` attributes are not the same.
 bool operator!=(const MoveCopyAllocTestType& lhs,
                 const MoveCopyAllocTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'MoveCopyAllocTestType' objects
-    // do not have the same value if their 'data' attributes are not the same.
 
 // FREE FUNCTIONS
+
+/// Return the move-from state of the specified `object`.
 MoveState::Enum getMovedFrom(const MoveCopyAllocTestType& object);
-    // Return the move-from state of the specified 'object'.
 
+/// Return the move-into state of the specified `object`.
 MoveState::Enum getMovedInto(const MoveCopyAllocTestType& object);
-    // Return the move-into state of the specified 'object'.
 
+/// Set the moved-into state of the specified `object` to the specified
+/// `value`.
 void setMovedInto(MoveCopyAllocTestType *object, MoveState::Enum value);
-    // Set the moved-into state of the specified 'object' to the specified
-    // 'value'.
 
 // MANIPULATORS
 inline
@@ -785,8 +790,8 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MCElement& d)
     return stream;
 }
 
+/// Output the specified `x` to the specified `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const Obj& x)
-    // Output the specified 'x' to the specified 'stream'.
 {
     Obj::ConstProctor          cp(&x);
     const bsl::deque<Element>& d = *cp;
@@ -800,8 +805,8 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Obj& x)
     return stream;
 }
 
+/// Output the specified `x` to the specified `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const AObj& x)
-    // Output the specified 'x' to the specified 'stream'.
 {
     AObj::ConstProctor          cp(&x);
     const bsl::deque<AElement>& d = *cp;
@@ -815,8 +820,8 @@ bsl::ostream& operator<<(bsl::ostream& stream, const AObj& x)
     return stream;
 }
 
+/// Output the specified `x` to the specified `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const MObj& x)
-    // Output the specified 'x' to the specified 'stream'.
 {
     MObj::ConstProctor          cp(&x);
     const bsl::deque<MElement>& d = *cp;
@@ -830,8 +835,8 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MObj& x)
     return stream;
 }
 
+/// Output the specified `x` to the specified `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const MCObj& x)
-    // Output the specified 'x' to the specified 'stream'.
 {
     MCObj::ConstProctor          cp(&x);
     const bsl::deque<MCElement>& d = *cp;
@@ -845,8 +850,8 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MCObj& x)
     return stream;
 }
 
+/// Output the specified `d` to the specified `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const bsl::deque<Element>& d)
-    // Output the specified 'd' to the specified 'stream'.
 {
     stream << "[";
     for (unsigned ii = 0; ii < d.size(); ++ii) {
@@ -857,8 +862,8 @@ bsl::ostream& operator<<(bsl::ostream& stream, const bsl::deque<Element>& d)
     return stream;
 }
 
+/// Output the specified `d` to the specified `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const bsl::deque<AElement>& d)
-    // Output the specified 'd' to the specified 'stream'.
 {
     stream << "[";
     for (unsigned ii = 0; ii < d.size(); ++ii) {
@@ -869,8 +874,8 @@ bsl::ostream& operator<<(bsl::ostream& stream, const bsl::deque<AElement>& d)
     return stream;
 }
 
+/// Output the specified `d` to the specified `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const bsl::deque<MElement>& d)
-    // Output the specified 'd' to the specified 'stream'.
 {
     stream << "[";
     for (unsigned ii = 0; ii < d.size(); ++ii) {
@@ -881,8 +886,8 @@ bsl::ostream& operator<<(bsl::ostream& stream, const bsl::deque<MElement>& d)
     return stream;
 }
 
+/// Output the specified `d` to the specified `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const bsl::deque<MCElement>& d)
-    // Output the specified 'd' to the specified 'stream'.
 {
     stream << "[";
     for (unsigned ii = 0; ii < d.size(); ++ii) {
@@ -913,8 +918,8 @@ bsl::ostream& operator<<(bsl::ostream& stream, u::VecType value)
 
 namespace u {
 
+/// Return the current time, as a `TimeInterval`.
 bsls::TimeInterval now()
-    // Return the current time, as a 'TimeInterval'.
 {
     return bsls::SystemTime::nowRealtimeClock();
 }
@@ -1001,10 +1006,10 @@ const void *p(long unsigned u)
     return reinterpret_cast<const void *>(u);
 }
 
+/// This `struct` enables us to have an allocator with all the functionality
+/// of a test allocator with a different place to put breakpoints on
+/// `allocate`.
 struct BreakTestAllocator : public bslma::TestAllocator {
-    // This 'struct' enables us to have an allocator with all the functionality
-    // of a test allocator with a different place to put breakpoints on
-    // 'allocate'.
 
     // CREATORS
     explicit
@@ -1033,22 +1038,23 @@ struct BreakTestAllocator : public bslma::TestAllocator {
                     basicAllocator)
     {}
         // Create an instrumented "break test" allocator.  Optionally specify a
-        // 'name' (associated with this object) to be included in diagnostic
-        // messages written to 'stdout', thereby distinguishing this test
+        // `name` (associated with this object) to be included in diagnostic
+        // messages written to `stdout`, thereby distinguishing this test
         // allocator from others that might be used in the same program.  If
-        // 'name' is 0 (or not specified), no distinguishing name is
-        // incorporated in diagnostics.  Optionally specify a 'verboseFlag'
+        // `name` is 0 (or not specified), no distinguishing name is
+        // incorporated in diagnostics.  Optionally specify a `verboseFlag`
         // indicating whether this test allocator should automatically report
-        // all allocation/deallocation events to 'stdout' and print accumulated
-        // statistics on destruction.  If 'verboseFlag' is 'false' (or not
+        // all allocation/deallocation events to `stdout` and print accumulated
+        // statistics on destruction.  If `verboseFlag` is `false` (or not
         // specified), allocation/deallocation and summary messages will not be
-        // written automatically.  Optionally specify a 'basicAllocator' used
-        // to supply memory.  If 'basicAllocator' is 0, the
-        // 'MallocFreeAllocator' singleton is used.
+        // written automatically.  Optionally specify a `basicAllocator` used
+        // to supply memory.  If `basicAllocator` is 0, the
+        // `MallocFreeAllocator` singleton is used.
 
     // MANIPULATOR
+
+    /// Call the base class's `allocate` function with the specified `size`.
     void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
-        // Call the base class's 'allocate' function with the specified 'size'.
 };
 
 void *BreakTestAllocator::allocate(size_type size)
@@ -1056,10 +1062,10 @@ void *BreakTestAllocator::allocate(size_type size)
     return this->bslma::TestAllocator::allocate(size);
 }
 
+/// Return, by value, the value of the back elament on the specified `d`.
+/// The behavior is undefined if `d` is empty.
 template <class TYPE>
 const TYPE& myBack(const bdlcc::Deque<TYPE>& d)
-    // Return, by value, the value of the back elament on the specified 'd'.
-    // The behavior is undefined if 'd' is empty.
 {
     typename bdlcc::Deque<TYPE>::ConstProctor proctor(&d);
     ASSERT(!proctor->empty());
@@ -1067,10 +1073,10 @@ const TYPE& myBack(const bdlcc::Deque<TYPE>& d)
     return proctor->back();
 }
 
+/// Return, by value, the value of the front elament on the specified `d`.
+/// The behavior is undefined if `d` is empty.
 template <class TYPE>
 const TYPE& myFront(const bdlcc::Deque<TYPE>& d)
-    // Return, by value, the value of the front elament on the specified 'd'.
-    // The behavior is undefined if 'd' is empty.
 {
     typename bdlcc::Deque<TYPE>::ConstProctor proctor(&d);
     ASSERT(!proctor->empty());
@@ -1078,11 +1084,11 @@ const TYPE& myFront(const bdlcc::Deque<TYPE>& d)
     return proctor->front();
 }
 
+/// Check that the `length` accessor returns the correct length of the
+/// specified `d`, and return the length.  The behavior is undefined if
+/// other threads are simulataneously modifying 'd.
 template <class TYPE>
 size_t myLength(const bdlcc::Deque<TYPE>& d)
-    // Check that the 'length' accessor returns the correct length of the
-    // specified 'd', and return the length.  The behavior is undefined if
-    // other threads are simulataneously modifying 'd.
 {
     size_t ret = d.length();
 
@@ -1093,28 +1099,28 @@ size_t myLength(const bdlcc::Deque<TYPE>& d)
     return ret;
 }
 
+/// Load all of the elements from the specified array `src` into the
+/// specified object `dst`.
 template <int NUM>
 void loadFromArray(Obj *dst, const Element (&src)[NUM])
-    // Load all of the elements from the specified array 'src' into the
-    // specified object 'dst'.
 {
     Obj::Proctor proctor(dst);
     proctor->assign(src + 0, src + NUM);
 }
 
+/// Random number generator using the high-order 32 bits of Donald Knuth's
+/// MMIX algorithm.
 class RandGen {
-    // Random number generator using the high-order 32 bits of Donald Knuth's
-    // MMIX algorithm.
 
     bsls::Types::Uint64 d_seed;
 
   public:
+    /// Initialize the generator with the specified `startSeed`.
     explicit
     RandGen(int startSeed);
-        // Initialize the generator with the specified 'startSeed'.
 
+    /// Return the next random number in the series;
     unsigned operator()();
-        // Return the next random number in the series;
 };
 
 // CREATOR
@@ -1135,28 +1141,28 @@ unsigned RandGen::operator()()
     return static_cast<unsigned>(d_seed >> 32);
 }
 
+/// Provide random, alpha numeric characters for values for test cases.  All
+/// the types employed in numerous test cases can have their values set to
+/// values analogous to ascii characters, this `class` will provide random,
+/// human-readable ascii values for these test cases.
 class RandChar {
-    // Provide random, alpha numeric characters for values for test cases.  All
-    // the types employed in numerous test cases can have their values set to
-    // values analogous to ascii characters, this 'class' will provide random,
-    // human-readable ascii values for these test cases.
 
     // DATA
     RandGen d_randGen;
 
   public:
+    /// Initialize the generator with the optionally specified `startSeed`.
     explicit
     RandChar(int startSeed = 12345)
     : d_randGen(startSeed)
-        // Initialize the generator with the optionally specified 'startSeed'.
     {
         (void) d_randGen();
         (void) d_randGen();
         (void) d_randGen();
     }
 
+    /// Return the next random number in the series;
     char operator()()
-        // Return the next random number in the series;
     {
         int x = d_randGen() % 62;
         x = x < 26
@@ -1169,10 +1175,10 @@ class RandChar {
     }
 };
 
+/// Populate the specified `*buffer` with the specified `numChars` distinct
+/// alphanumeric `char` values, using the specified `seed` as the random
+/// number seed.
 void populateRandCharVec(bsl::vector<char> *buffer, int numChars, int seed)
-    // Populate the specified '*buffer' with the specified 'numChars' distinct
-    // alphanumeric 'char' values, using the specified 'seed' as the random
-    // number seed.
 {
     BSLS_ASSERT(buffer->empty());
     BSLS_ASSERT(numChars <= 62);
@@ -1196,25 +1202,27 @@ void populateRandCharVec(bsl::vector<char> *buffer, int numChars, int seed)
     }
 }
 
+/// This `class` is a stateful random number generator that will generate
+/// random values of type `Element`.
 class RandElement {
-    // This 'class' is a stateful random number generator that will generate
-    // random values of type 'Element'.
 
     // DATA
     u::RandGen d_randGen;
 
   public:
     // CREATOR
+
+    /// Initialize the random number generator will the specified `seed`.
     explicit
     RandElement(unsigned seed)
     : d_randGen(seed)
-        // Initialize the random number generator will the specified 'seed'.
     {
     }
 
     // MANIPULATOR
+
+    /// Return an `Element` object with random state.
     Element operator()();
-        // Return an 'Element' object with random state.
 };
 
 Element RandElement::operator()()
@@ -1229,9 +1237,9 @@ Element RandElement::operator()()
     return (div & divDenom) ? ret : -ret;
 }
 
+/// This `class` is a stateful random number generator that will generate
+/// random values in the range `[1 .. 8]`.
 class Rand1To8 {
-    // This 'class' is a stateful random number generator that will generate
-    // random values in the range '[1 .. 8]'.
 
     // DATA
     RandGen   d_randGen;
@@ -1240,20 +1248,22 @@ class Rand1To8 {
 
   public:
     // CREATOR
+
+    /// Create a random number generator starting with the specified `seed`.
     explicit
     Rand1To8(unsigned seed)
     : d_randGen(seed)
     , d_rand(0)
     , d_bitsInDRand(0)
-        // Create a random number generator starting with the specified 'seed'.
     {
     }
 
     // MANIPULATOR
+
+    /// Return a random number in the range `[1 .. 8]`.
     unsigned operator()()
-        // Return a random number in the range '[1 .. 8]'.
     {
-        // Leverage off 'randGen', that uses MMIX, but call it infrequently
+        // Leverage off `randGen`, that uses MMIX, but call it infrequently
         // because we only need 3 random bits per call.
 
         if (d_bitsInDRand < 3) {
@@ -1269,12 +1279,12 @@ class Rand1To8 {
     }
 };
 
+/// This `class` will, upon destruction, compare the two `Deque<ELEMENT>`s
+/// passed to it upon construction and assert that they are equal, unless
+/// the `release` method has been called, in which case the c'tor becomes a
+/// no-op.  `ELEMENT` can be any streamable, equality comparable type.
 template <class ELEMENT>
 class ObjChecker {
-    // This 'class' will, upon destruction, compare the two 'Deque<ELEMENT>'s
-    // passed to it upon construction and assert that they are equal, unless
-    // the 'release' method has been called, in which case the c'tor becomes a
-    // no-op.  'ELEMENT' can be any streamable, equality comparable type.
 
     // TYPES
     typedef typename bdlcc::Deque<ELEMENT>::ConstProctor ConstProctor;
@@ -1286,21 +1296,22 @@ class ObjChecker {
 
   public:
     // CREATORS
+
+    /// Create a checker that will compare the values of the `bsl::deque`s
+    /// contained in the specified `toBeModified` and `toBeCompared`.  Store
+    /// `line`, the line number where the checker is created, to be part of
+    /// the warning message if the comparison fails.
     ObjChecker(const bdlcc::Deque<ELEMENT>& toBeModified,
                const bdlcc::Deque<ELEMENT>& toBeCompared,
                int                          line)
-        // Create a checker that will compare the values of the 'bsl::deque's
-        // contained in the specified 'toBeModified' and 'toBeCompared'.  Store
-        // 'line', the line number where the checker is created, to be part of
-        // the warning message if the comparison fails.
     : d_toBeModified_p(&toBeModified)
     , d_toBeCompared_p(&toBeCompared)
     , d_line(line)
     {}
 
+    /// Unless the `release` method has been called in the lifetime of this
+    /// object, compare the two containers tracked by this object.
     ~ObjChecker()
-        // Unless the 'release' method has been called in the lifetime of this
-        // object, compare the two containers tracked by this object.
     {
         if (d_toBeModified_p) {
             ConstProctor               tbmProc(d_toBeModified_p);
@@ -1313,8 +1324,9 @@ class ObjChecker {
     }
 
     // MANIPULATORS
+
+    /// Cancel the checking this object will do at destruction.
     void release()
-        // Cancel the checking this object will do at destruction.
     {
         d_toBeModified_p = 0;
     }
@@ -1328,21 +1340,22 @@ struct VecChecker {
     int                         d_line;
 
     // CREATORS
+
+    /// Create a checker that will compare the values of the specified
+    /// `toBeModified` and `toBeCompared`.  Store `line`, the line number
+    /// where the checker is created, to be part of the warning message if
+    /// the comparison fails.
     VecChecker(const bsl::vector<ELEMENT>& toBeModified,
                const bsl::vector<ELEMENT>& toBeCompared,
                int                         line)
     : d_toBeModified_p(&toBeModified)
     , d_toBeCompared_p(&toBeCompared)
     , d_line(line)
-        // Create a checker that will compare the values of the specified
-        // 'toBeModified' and 'toBeCompared'.  Store 'line', the line number
-        // where the checker is created, to be part of the warning message if
-        // the comparison fails.
     {}
 
+    /// Unless the `release` method has been called in the lifetime of this
+    /// object, compare the two containers tracked by this object.
     ~VecChecker()
-        // Unless the 'release' method has been called in the lifetime of this
-        // object, compare the two containers tracked by this object.
     {
         if (d_toBeModified_p) {
             if (*d_toBeModified_p != *d_toBeCompared_p) {
@@ -1366,8 +1379,9 @@ struct VecChecker {
     }
 
     // MANIPULATORS
+
+    /// Cancel the checking this object will do at destruction.
     void release()
-        // Cancel the checking this object will do at destruction.
     {
         d_toBeModified_p = 0;
     }
@@ -1381,18 +1395,18 @@ struct VecChecker {
 //-----------------------------------------------------------------------------
 
 // This macro pair injects exceptions based on the allocator belonging to the
-// specified 'TEST_CONTAINER', which is of type 'bdlcc::Deque<ELEM_TYPE>'.  The
+// specified `TEST_CONTAINER`, which is of type `bdlcc::Deque<ELEM_TYPE>`.  The
 // macros verify that
-//:
-//: 1 The allocator used by the container under test is a test allocator.
-//:
-//: 2 When an exception is thrown, 'EXCEP_TEST_AOBJ_TBM' has been restored to
-//:   its original value.
-//:
-//: 3 When the exception block is exited, if exceptions are enabled, at least
-//:   one exception was thrown.
 //
-// Note that the macro will cause an 'ASSERT' failure if at least one
+// 1. The allocator used by the container under test is a test allocator.
+//
+// 2. When an exception is thrown, `EXCEP_TEST_AOBJ_TBM` has been restored to
+//    its original value.
+//
+// 3. When the exception block is exited, if exceptions are enabled, at least
+//    one exception was thrown.
+//
+// Note that the macro will cause an `ASSERT` failure if at least one
 // allocation doesn't happen within the exception block.
 
 #define BEGIN_EXCEP_TEST_OBJ(EXCEP_TEST_ELEM_TYPE, EXCEP_TEST_OBJ_OBJ)        \
@@ -1416,18 +1430,18 @@ struct VecChecker {
     }
 
 // This macro pair injects exceptions based on the allocator belonging to the
-// specified 'EXCEP_TEST_OBJ_OBJ', which must be an 'MObj' container.  The
-// specified 'EXCEP_TEST_OBJ_VEC' is to be a vector, which is being populated
+// specified `EXCEP_TEST_OBJ_OBJ`, which must be an `MObj` container.  The
+// specified `EXCEP_TEST_OBJ_VEC` is to be a vector, which is being populated
 // by the operation performed in the block.  The macros very that
-//:
-//: 1 Both containers under test use the same allocator, and it's a test
-//:   allocator.
-//:
-//: 2 When an exception is thrown, both containers have been restored to
-//:   their original values.
-//:
-//: 3 When the exception block is exited, if exceptions are enabled, at least
-//:   one exception was thrown.
+//
+// 1. Both containers under test use the same allocator, and it's a test
+//    allocator.
+//
+// 2. When an exception is thrown, both containers have been restored to
+//    their original values.
+//
+// 3. When the exception block is exited, if exceptions are enabled, at least
+//    one exception was thrown.
 
 #define BEGIN_EXCEP_TEST_OBJ_VEC(EXCEP_TEST_ELEM_TYPE,                        \
                                  EXCEP_TEST_OBJ_OBJ,                          \
@@ -1467,8 +1481,8 @@ namespace USAGE_EXAMPLE_2 {
 //
 ///Example 2: A Queue of Events
 /// - - - - - - - - - - - - - -
-// First, we declare the 'Event' type, that will be contained in our
-// 'bdlcc::Deque' object.
+// First, we declare the `Event` type, that will be contained in our
+// `bdlcc::Deque` object.
 
     struct Event {
         enum EventType {
@@ -1485,7 +1499,7 @@ namespace USAGE_EXAMPLE_2 {
 
     const int k_NUM_TO_PUSH = 5;
 
-// Next, we declare our 'WorkerFunctor' type, that will push 'k_NUM_TO_PUSH'
+// Next, we declare our `WorkerFunctor` type, that will push `k_NUM_TO_PUSH`
 // events into the deque.
 
     struct WorkerFunctor {
@@ -1493,13 +1507,13 @@ namespace USAGE_EXAMPLE_2 {
         bdlcc::Deque<Event> *d_deque_p;
         bslmt::Barrier      *d_barrier_p;
 
+        /// All the threads will block on the same barrier so they all start
+        /// at once to maximize concurrency.
         void operator()()
-            // All the threads will block on the same barrier so they all start
-            // at once to maximize concurrency.
         {
             d_barrier_p->wait();
 
-            // Loop to push 'k_NUM_TO_PUSH - 1' events onto the deque.
+            // Loop to push `k_NUM_TO_PUSH - 1` events onto the deque.
 
             int evnum = 1;
             while (evnum < k_NUM_TO_PUSH) {
@@ -1535,7 +1549,7 @@ namespace USAGE_EXAMPLE_2 {
             d_deque_p->pushBack(ev);
         }
     };
-//..
+// ```
 
 }  // close namespace USAGE_EXAMPLE_2
 
@@ -1551,26 +1565,28 @@ namespace USAGE_EXAMPLE_1 {
 //
 ///Example 1: A Queue of Work Requests
 ///- - - - - - - - - - - - - - - - - -
-// First, declarer the struct 'WordData'.  Imagine it contains some data one
+// First, declarer the struct `WordData`.  Imagine it contains some data one
 // wants to process:
-//..
+// ```
+
+    /// work data...
     struct WorkData {
-        // work data...
     };
-//..
-// Then, create the function that will produce a 'WorkData' object:
-//..
+// ```
+// Then, create the function that will produce a `WorkData` object:
+// ```
+
+    /// Dummy implementation of `getWorkData` function required by the usage
+    /// example.
     bool getWorkData(WorkData *)
-        // Dummy implementation of 'getWorkData' function required by the usage
-        // example.
     {
         static bsls::AtomicInt i(1);
         return ++i < 1000;
     }
-//..
-// Next, declare 'WorkRequest', the type of object that will be stored in
+// ```
+// Next, declare `WorkRequest`, the type of object that will be stored in
 // the container:
-//..
+// ```
     struct WorkRequest {
         // PUBLIC TYPES
         enum RequestType {
@@ -1582,35 +1598,38 @@ namespace USAGE_EXAMPLE_1 {
         RequestType d_type;
         WorkData d_data;
     };
-//..
-// Then, create the function that will do work on a 'WorkRequest' object:
-//..
+// ```
+// Then, create the function that will do work on a `WorkRequest` object:
+// ```
+
+    /// Function that pretends to do work on the specified `workData`.
     void doWork(WorkData *workData)
-        // Function that pretends to do work on the specified 'workData'.
     {
-        // do some stuff with '*workData' ...
+        // do some stuff with `*workData` ...
 
         (void) workData;
     }
-//..
+// ```
 // Next, create the functor that will be run in the consumer threads:
-//..
+// ```
     struct ConsumerFunctor {
         // DATA
         bdlcc::Deque<WorkRequest> *d_deque_p;
 
         // CREATORS
+
+        /// Create a `'ConsumerFunctor` object that will consumer work
+        /// requests from the specified `container`.
         explicit
         ConsumerFunctor(bdlcc::Deque<WorkRequest> *container)
-            // Create a ''ConsumerFunctor' object that will consumer work
-            // requests from the specified 'container'.
         : d_deque_p(container)
         {}
 
         // MANIPULATORS
+
+        /// Pop work requests off the deque and process them until an
+        /// `e_STOP` request is encountered.
         void operator()()
-            // Pop work requests off the deque and process them until an
-            // 'e_STOP' request is encountered.
         {
             WorkRequest item;
 
@@ -1622,25 +1641,27 @@ namespace USAGE_EXAMPLE_1 {
             } while (WorkRequest::e_STOP != item.d_type);
         }
     };
-//..
+// ```
 // Then, create the functor that will be run in the producer threads:
-//..
+// ```
     struct ProducerFunctor {
         // DATA
         bdlcc::Deque<WorkRequest> *d_deque_p;
 
         // CREATORS
+
+        /// Create a `ProducerFunctor` object that will enqueue work
+        /// requests into the specified `container`.
         explicit
         ProducerFunctor(bdlcc::Deque<WorkRequest> *container)
-            // Create a 'ProducerFunctor' object that will enqueue work
-            // requests into the specified 'container'.
         : d_deque_p(container)
         {}
 
         // MANIPULATORS
+
+        /// Enqueue work requests to the container until `getWorkData`
+        /// returns `false`, then enqueue an `e_STOP` request.
         void operator()()
-            // Enqueue work requests to the container until 'getWorkData'
-            // returns 'false', then enqueue an 'e_STOP' request.
         {
             WorkRequest item;
             WorkData    workData;
@@ -1655,7 +1676,7 @@ namespace USAGE_EXAMPLE_1 {
             d_deque_p->pushBack(item);
         }
     };
-//..
+// ```
 
 }  // close namespace USAGE_EXAMPLE_1
 
@@ -1665,11 +1686,11 @@ namespace USAGE_EXAMPLE_1 {
 
 namespace TEST_CASE_26 {
 
+/// Functor to do a couple of `timedPopBack` on the `Deque<ELEMENT>` passed
+/// at construction.  Sometimes the main thread will push an item to the
+/// `Deque` for us to pop, other times it won't so that we will time out.
 template <class ELEMENT>
 class TimedPopRecordBack {
-    // Functor to do a couple of 'timedPopBack' on the 'Deque<ELEMENT>' passed
-    // at construction.  Sometimes the main thread will push an item to the
-    // 'Deque' for us to pop, other times it won't so that we will time out.
 
     // DATA
     bdlcc::Deque<ELEMENT> *d_deque_p;
@@ -1679,6 +1700,11 @@ class TimedPopRecordBack {
 
   public:
     // CREATORS
+
+    /// Create a test object that will access the specified `*deque` and
+    /// with the specified `val` and the specified `timeout` and block on
+    /// the specified `*barrier`.  After popping, confirm the value popped
+    /// equals the specified `value`.
     TimedPopRecordBack(bdlcc::Deque<ELEMENT> *deque,
                        bslmt::Barrier        *barrier,
                        bsls::TimeInterval     timeout,
@@ -1687,17 +1713,14 @@ class TimedPopRecordBack {
     , d_barrier_p(barrier)
     , d_timeout(timeout)
     , d_expected(value)
-        // Create a test object that will access the specified '*deque' and
-        // with the specified 'val' and the specified 'timeout' and block on
-        // the specified '*barrier'.  After popping, confirm the value popped
-        // equals the specified 'value'.
     {
     }
 
     // MANIPULATORS
+
+    /// Do two pushes, the first of which will timeout, the second of which
+    /// will succeed without timing out.
     void operator()()
-        // Do two pushes, the first of which will timeout, the second of which
-        // will succeed without timing out.
     {
         bsl::vector<ELEMENT> resultFootprint(d_deque_p->allocator());
         resultFootprint.resize(1);
@@ -1751,11 +1774,11 @@ class TimedPopRecordBack {
     }
 };
 
+/// Functor to do a couple of `timedPopFront` on the `Deque<ELEMENT>` passed
+/// at construction.  Sometimes the main thread will push an item to the
+/// `Deque` for us to pop, other times it won't so that we will time out.
 template <class ELEMENT>
 class TimedPopRecordFront {
-    // Functor to do a couple of 'timedPopFront' on the 'Deque<ELEMENT>' passed
-    // at construction.  Sometimes the main thread will push an item to the
-    // 'Deque' for us to pop, other times it won't so that we will time out.
 
     // DATA
     bdlcc::Deque<ELEMENT> *d_deque_p;
@@ -1765,6 +1788,11 @@ class TimedPopRecordFront {
 
   public:
     // CREATORS
+
+    /// Create a test object that will access the specified `*deque` and
+    /// with the specified `val` and the specified `timeout` and block on
+    /// the specified `*barrier`.  After popping, confirm the value popped
+    /// equals `value`.
     TimedPopRecordFront(bdlcc::Deque<ELEMENT> *deque,
                         bslmt::Barrier        *barrier,
                         bsls::TimeInterval     timeout,
@@ -1773,17 +1801,14 @@ class TimedPopRecordFront {
     , d_barrier_p(barrier)
     , d_timeout(timeout)
     , d_expected(value)
-        // Create a test object that will access the specified '*deque' and
-        // with the specified 'val' and the specified 'timeout' and block on
-        // the specified '*barrier'.  After popping, confirm the value popped
-        // equals 'value'.
     {
     }
 
     // MANIPULATORS
+
+    /// Do two pushes, the first of which will timeout, the second of which
+    /// will succeed without timing out.
     void operator()()
-        // Do two pushes, the first of which will timeout, the second of which
-        // will succeed without timing out.
     {
         bsl::vector<ELEMENT> resultFootprint(d_deque_p->allocator());
         resultFootprint.resize(1);
@@ -1864,7 +1889,7 @@ void testTimedPushPopMove()
                                  ? e_MOVED
                                  : e_UNKNOWN;
 
-    if (verbose) cout << "\tWith 'timedPopBack'" << endl;
+    if (verbose) cout << "\tWith `timedPopBack`" << endl;
     {
         bsls::TimeInterval T3(3 * DECI_SEC);          // 0.3s
 
@@ -1928,7 +1953,7 @@ void testTimedPushPopMove()
     }
     ASSERT(0 == da.numAllocations());
 
-    if (verbose) cout << "\tWith 'timedPopFront'" << endl;
+    if (verbose) cout << "\tWith `timedPopFront`" << endl;
     {
         bsls::TimeInterval T3(3 * DECI_SEC);          // 0.3s
 
@@ -2011,12 +2036,13 @@ void testSingleMovingPushesPops()
     bslma::TestAllocator ta(veryVeryVeryVerbose);
 
     Int64 expDaNumBlocksTotal = da.numBlocksTotal();
+
+    // The number of default allocations done by a return-by-value depends
+    // heavily on whether the compiler does the return value optimizations,
+    // which varies unpredictably with different compilers and optimization
+    // levels, so we'll have to set this variable empirically on the first
+    // pop returning by value.
     Int64 numPopValueAllocs;
-        // The number of default allocations done by a return-by-value depends
-        // heavily on whether the compiler does the return value optimizations,
-        // which varies unpredictably with different compilers and optimization
-        // levels, so we'll have to set this variable empirically on the first
-        // pop returning by value.
 
     // Expected Assign Movestate
 
@@ -2070,7 +2096,7 @@ void testSingleMovingPushesPops()
         bdlcc::Deque<ELEMENT> x(&ta);    const bdlcc::Deque<ELEMENT>& X = x;
 
         for (int tryPush = 0; tryPush < 2; ++tryPush) {
-            if (verbose) cout << "\t\t'pushBack' && 'length'\n";
+            if (verbose) cout << "\t\t'pushBack' && `length`\n";
             {
                 ASSERT(0 == u::myLength(X));
 
@@ -2116,7 +2142,7 @@ void testSingleMovingPushesPops()
             ASSERTV(da.numBlocksTotal() - expDaNumBlocksTotal,
                                0 == da.numBlocksTotal() - expDaNumBlocksTotal);
 
-            if (verbose) cout << "\t\t'popBack' && 'length'\n";
+            if (verbose) cout << "\t\t'popBack' && `length`\n";
             {
                 ASSERT(2 == u::myLength(X));
                 const ELEMENT& rv = x.popBack();
@@ -2155,7 +2181,7 @@ void testSingleMovingPushesPops()
                                      da.numBlocksTotal() - expDaNumBlocksTotal,
                                0 == da.numBlocksTotal() - expDaNumBlocksTotal);
 
-            if (verbose) cout << "\t\t'pushFront' && 'length'\n";
+            if (verbose) cout << "\t\t'pushFront' && `length`\n";
             {
                 ASSERT(0 == u::myLength(X));
 
@@ -2198,7 +2224,7 @@ void testSingleMovingPushesPops()
             ASSERTV(da.numBlocksTotal() - expDaNumBlocksTotal,
                                0 == da.numBlocksTotal() - expDaNumBlocksTotal);
 
-            if (verbose) cout << "\t\t'popFront' && 'length'\n";
+            if (verbose) cout << "\t\t'popFront' && `length`\n";
             {
                 ASSERT(2 == u::myLength(X));
                 const ELEMENT& rv = x.popFront();
@@ -2243,7 +2269,7 @@ void testSingleMovingPushesPops()
 
     if (verbose) cout << "\t2. Random pushes and pops\n";
     {
-        // In this block, we have 3 parallel containers 'x', 'xB', and 'd', to
+        // In this block, we have 3 parallel containers `x`, `xB`, and `d`, to
         // which we apply identical pushes and pops, and observe their behavior
         // is always the same.
 
@@ -2276,7 +2302,7 @@ void testSingleMovingPushesPops()
                     ASSERT(expectedLength == u::myLength(X));
                     ASSERT(expectedLength == u::myLength(XB));
 
-                    // Generate a fairly random double using 'generate15'.
+                    // Generate a fairly random double using `generate15`.
 
                     const char c = randChar();
                     bsl::vector<ELEMENT> vFootprint(&ta);
@@ -2406,7 +2432,7 @@ void testSingleMovingPushesPops()
         int numThrows;
         const ELEMENT *back_p, *front_p;
 
-        if (verbose) cout << "\t\t'pushBack' && 'length', matching\n";
+        if (verbose) cout << "\t\t'pushBack' && `length`, matching\n";
         {
             ASSERT(0 == u::myLength(X));
 
@@ -2449,7 +2475,7 @@ void testSingleMovingPushesPops()
             vTa[1] = V[1];
         }
 
-        if (verbose) cout << "\t\t'pushBack' && 'length', non-matching\n";
+        if (verbose) cout << "\t\t'pushBack' && `length`, non-matching\n";
         {
             ASSERT(2 == u::myLength(X));
 
@@ -2495,7 +2521,7 @@ void testSingleMovingPushesPops()
             vSa[3] = V[3];
         }
 
-        if (verbose) cout << "\t\t'popBack' && 'length' -- matching\n";
+        if (verbose) cout << "\t\t'popBack' && `length` -- matching\n";
         {
             ASSERT(4 == u::myLength(X));
             {
@@ -2526,7 +2552,7 @@ void testSingleMovingPushesPops()
             ASSERT(0 == u::myLength(X));
         }
 
-        if (verbose) cout << "\t\t'popBack' && 'length' -- non-matching\n";
+        if (verbose) cout << "\t\t'popBack' && `length` -- non-matching\n";
         {
             ASSERT(0 == u::myLength(X));
             x.pushBack(V[0]);
@@ -2561,7 +2587,7 @@ void testSingleMovingPushesPops()
             ASSERT(0 == u::myLength(X));
         }
 
-        if (verbose) cout << "\t\t'pushFront' && 'length', matching\n";
+        if (verbose) cout << "\t\t'pushFront' && `length`, matching\n";
         {
             ASSERT(0 == u::myLength(X));
 
@@ -2604,7 +2630,7 @@ void testSingleMovingPushesPops()
             vTa[1] = V[1];
         }
 
-        if (verbose) cout << "\t\t'pushFront' && 'length', non-matching\n";
+        if (verbose) cout << "\t\t'pushFront' && `length`, non-matching\n";
         {
             ASSERT(2 == u::myLength(X));
 
@@ -2650,7 +2676,7 @@ void testSingleMovingPushesPops()
             vSa[3] = V[3];
         }
 
-        if (verbose) cout << "\t\t'popFront' && 'length' -- matching\n";
+        if (verbose) cout << "\t\t'popFront' && `length` -- matching\n";
         {
             ASSERT(4 == u::myLength(X));
             {
@@ -2681,7 +2707,7 @@ void testSingleMovingPushesPops()
             ASSERT(0 == u::myLength(X));
         }
 
-        if (verbose) cout << "\t\t'popFront' && 'length' -- non-matching\n";
+        if (verbose) cout << "\t\t'popFront' && `length` -- non-matching\n";
         {
             ASSERT(0 == u::myLength(X));
             x.pushFront(V[0]);
@@ -2759,6 +2785,10 @@ class BufferedPopper {
 
   public:
     // CREATOR
+
+    /// Create a `BufferedPopper` object that will pop from the specified
+    /// `*container`, with the end to pop from specified by `popFromFront`,
+    /// using the specified allocator `alloc` for allocating the buffer.
     BufferedPopper(bdlcc::Deque<unsigned> *container,
                    bool                    popFromFront,
                    bslma::Allocator       *alloc)
@@ -2767,17 +2797,15 @@ class BufferedPopper {
     , d_rand1To8(20)
     , d_popFromFront(popFromFront)
     , d_currentIndex(0)
-        // Create a 'BufferedPopper' object that will pop from the specified
-        // '*container', with the end to pop from specified by 'popFromFront',
-        // using the specified allocator 'alloc' for allocating the buffer.
     {}
 
     // MANIPULATOR
+
+    /// Return a single value from the container, using `d_buffer` to read
+    /// several at a time and keep them around.  From the caller's point of
+    /// view, we're just popping a single element from the container each
+    /// time.
     unsigned operator()()
-        // Return a single value from the container, using 'd_buffer' to read
-        // several at a time and keep them around.  From the caller's point of
-        // view, we're just popping a single element from the container each
-        // time.
     {
         bool firstTime = true;
         while (isEmpty()) {
@@ -2791,7 +2819,7 @@ class BufferedPopper {
                 bslmt::ThreadUtil::yield();
             }
 
-            const size_t limit = d_rand1To8() + 4;    // '[5 .. 12]'
+            const size_t limit = d_rand1To8() + 4;    // `[5 .. 12]`
 
             ASSERT(d_container.length() <= HIGH_WATER_MARK);
             if (d_popFromFront) {
@@ -2806,9 +2834,10 @@ class BufferedPopper {
     }
 
     // ACCESSOR
+
+    /// Return `true` if this object contains no items to return without
+    /// replenishing itself from `d_container`.
     bool isEmpty() const
-        // Return 'true' if this object contains no items to return without
-        // replenishing itself from 'd_container'.
     {
         const size_t bs = d_buffer.size();
         ASSERT(d_currentIndex <= bs);
@@ -2817,7 +2846,7 @@ class BufferedPopper {
     }
 };
 
-// The objects pushed to the deque are 32 bit 'unsigned's.  The high order 2
+// The objects pushed to the deque are 32 bit `unsigned`s.  The high order 2
 // bits identify which of 4 pusher threads pushed the object.  The low order 16
 // bits increase in sequence for any pusher, and the popper checks the
 // sequence.
@@ -2825,17 +2854,21 @@ class BufferedPopper {
 class MultiThreadedRangeTryPushTest {
     // DATA
     bdlcc::Deque<unsigned>& d_container;       // Container under test, will do
-                                               // range-based 'tryPush*' on
+                                               // range-based `tryPush*` on
                                                // both ends.
     bdlcc::Deque<unsigned>& d_endDeque;        // Not under test, always
-                                               // 'pushBack' and 'popFront'.
+                                               // `pushBack` and `popFront`.
     unsigned                d_hiId;            // high-order bits indicate
                                                // which of 4 pushers we are.
     unsigned                d_id;              // low-order bits are same as
-                                               // high-order bits of 'd_hiId'.
+                                               // high-order bits of `d_hiId`.
 
   public:
     // CREATOR
+
+    /// Create a `MultiThreadedForcePushTest` object that will access the
+    /// specified `container` and have the unique specified `id`.  The
+    /// specified `endDeque` is to be used to contain `end` items.
     MultiThreadedRangeTryPushTest(bdlcc::Deque<unsigned>    *container,
                                   unsigned                   id,
                                   bdlcc::Deque<unsigned>    *endDeque)
@@ -2843,17 +2876,15 @@ class MultiThreadedRangeTryPushTest {
     , d_endDeque(*endDeque)
     , d_hiId(id << ID_SHIFT)
     , d_id(id)
-        // Create a 'MultiThreadedForcePushTest' object that will access the
-        // specified 'container' and have the unique specified 'id'.  The
-        // specified 'endDeque' is to be used to contain 'end' items.
     {
         BSLS_ASSERT(id < NUM_THREADS);
     }
 
     // MANIPULATOR
+
+    /// Push 64K `unsigned`s to the back the of `*d_container_p`, then push
+    /// 64K to the front.
     void operator()()
-        // Push 64K 'unsigned's to the back the of '*d_container_p', then push
-        // 64K to the front.
     {
         u::Rand1To8 rand1To8(d_id);
         unsigned array[8];
@@ -2920,7 +2951,7 @@ class MultiThreadedRangeTryPushTest {
 namespace BloombergLP {
 namespace bslma {
 
-// This is really unnecessary because the 'BufferedPopper' type is never
+// This is really unnecessary because the `BufferedPopper` type is never
 // contained in anything else.  We're just doing this to shut bde verify up.
 
 template <>
@@ -3149,9 +3180,9 @@ bslmt::Barrier barrier(5);
 const unsigned startEndMask = 1 << 29;
 const unsigned sequenceMask = 0xffff;
 
-// The objects pushed to the deque are 32 bit 'unsigned's.  The high order 2
+// The objects pushed to the deque are 32 bit `unsigned`s.  The high order 2
 // bits identify which of 4 pusher threads pushed the object.  The bit below
-// that (bit 29) is the 'start-end' bit, if multiple objects are pushed by a
+// that (bit 29) is the `start-end` bit, if multiple objects are pushed by a
 // single range push, the first and last objects pushed by that single action
 // have this bit set, indicating that the popper is to ensure that all the
 // object arrived into the queue as a unit without interruption by any other
@@ -3165,19 +3196,19 @@ class MultiThreadedForcePushTest {
     u::Rand1To8   d_rand1To8;
 
   public:
+    /// Create a `MultiThreadedForcePushTest` object that will access the
+    /// specified `container` and have the unique specified `id`.
     MultiThreadedForcePushTest(Container *container, unsigned id)
     : d_container_p(container)
     , d_id(id << 30)
     , d_rand1To8(id)
-        // Create a 'MultiThreadedForcePushTest' object that will access the
-        // specified 'container' and have the unique specified 'id'.
     {
         BSLS_ASSERT(id < 4);
     }
 
+    /// Push 64K `unsigned`s to the back the of `*d_container_p`, then push
+    /// 64K to the front.
     void operator()()
-        // Push 64K 'unsigned's to the back the of '*d_container_p', then push
-        // 64K to the front.
     {
         unsigned array[8];
 
@@ -3185,13 +3216,13 @@ class MultiThreadedForcePushTest {
         if (veryVerbose) bsl::printf(
                                "Producer %u forward pass start\n", d_id >> 30);
 
-        // Do pushes of 'unsigned's to the back of the container.  3 Types of
+        // Do pushes of `unsigned`s to the back of the container.  3 Types of
         // pushes will be made:
-        //: o A move-push of a single item3725
-        //: o A copy-push of a single item
-        //: o A range-copy-push of 2-7 items
-        // The nature of the push is determined by 'len', then number of items,
-        // and 'move', if it's a move.
+        //  - A move-push of a single item3725
+        //  - A copy-push of a single item
+        //  - A range-copy-push of 2-7 items
+        // The nature of the push is determined by `len`, then number of items,
+        // and `move`, if it's a move.
         //
         // We push the loop counter as the value, bitwise-ored with a 2-bit
         // thread id.
@@ -3234,13 +3265,13 @@ class MultiThreadedForcePushTest {
         if (veryVerbose) bsl::printf(
                               "Producer %u backward pass start\n", d_id >> 30);
 
-        // Do pushes of 'unsigned's to the back of the container.  3 Types of
+        // Do pushes of `unsigned`s to the back of the container.  3 Types of
         // pushes will be made:
-        //: o A move-push of a single item
-        //: o A copy-push of a single item
-        //: o A range-copy-push of 2-7 items
-        // The nature of the push is determined by 'len', then number of items,
-        // and 'move', if it's a move.
+        //  - A move-push of a single item
+        //  - A copy-push of a single item
+        //  - A range-copy-push of 2-7 items
+        // The nature of the push is determined by `len`, then number of items,
+        // and `move`, if it's a move.
         //
         // We push the loop counter as the value, bitwise-ored with a 2-bit
         // thread id.
@@ -3289,17 +3320,19 @@ struct FATHWMStressTest {
     bslmt::Barrier *d_barrier_p;
 
     // CREATOR
+
+    /// Create a test object that will access the specified `*container` and
+    /// wait on the specified `*barrier`.
     FATHWMStressTest(Obj *container, bslmt::Barrier *barrier)
     : d_container_p(container)
     , d_barrier_p(barrier)
-        // Create a test object that will access the specified '*container' and
-        // wait on the specified '*barrier'.
     {}
 
     // ACCESSOR
+
+    /// Do 3 sequences of push's, using alternating `tryPush*` and `push*`,
+    /// and make sure that all branches were visited.
     void operator()() const
-        // Do 3 sequences of push's, using alternating 'tryPush*' and 'push*',
-        // and make sure that all branches were visited.
     {
         const unsigned len = static_cast<unsigned>(d_container_p->length());
         ASSERT(len < 40);
@@ -3332,8 +3365,8 @@ struct FATHWMStressTest {
 
         d_barrier_p->wait();
 
-        // Second run: container was prepopulated by 'forcePushBack' and
-        // 'tryPushBack's.
+        // Second run: container was prepopulated by `forcePushBack` and
+        // `tryPushBack`s.
 
         tryFlag = true;
         for (Element e = len; e < 40; ++e) {
@@ -3352,8 +3385,8 @@ struct FATHWMStressTest {
 
         d_barrier_p->wait();
 
-        // Third run: container was prepopulated by 'forcePushFront' and
-        // 'tryPushFront's.
+        // Third run: container was prepopulated by `forcePushFront` and
+        // `tryPushFront`s.
 
         tryFlag = true;
         for (Element e = len; e < 40; ++e) {
@@ -3388,17 +3421,19 @@ struct HWMStressTest {
     bslmt::Barrier *d_barrier_p;
 
     // CREATOR
+
+    /// Create an `HWMStressTest` object referring to the specified
+    /// `container` and the specified `barrier`.
     HWMStressTest(Obj *container, bslmt::Barrier *barrier)
     : d_container_p(container)
     , d_barrier_p(barrier)
-        // Create an 'HWMStressTest' object referring to the specified
-        // 'container' and the specified 'barrier'.
     {}
 
     // ACCESSOR
+
+    /// Push a fixed number of elements to the back, then the front of the
+    /// queue to evaluate whether the high water mark is respected.
     void operator()() const
-        // Push a fixed number of elements to the back, then the front of the
-        // queue to evaluate whether the high water mark is respected.
     {
         for (int ii = 0; ii < 40; ++ii) {
             if (ii & 1) {
@@ -3444,8 +3479,8 @@ struct Item {
 
 typedef bdlcc::Deque<Item>::Proctor Proctor;
 
-// 'pusherTotals' are the sums of the numbers pusher by each pusher, aggregated
-// by the pushers themselves.  'popperTotalsByPusher' are the same sums, only
+// `pusherTotals` are the sums of the numbers pusher by each pusher, aggregated
+// by the pushers themselves.  `popperTotalsByPusher` are the same sums, only
 // aggregated by the poppers.  If any item gets lost, duplicated, or garbled in
 // the deque, the two values will not be equal.  If the container performs as
 // it should, the numbers will be equal.
@@ -3461,9 +3496,9 @@ bsls::AtomicInt             pusherIdxMain(0);
 
 bslmt::Barrier              barrier(NUM_PUSHERS + NUM_POPPERS);
 
+/// Push `NUM_TO_PUSH` items randomly to the deque.
 struct PusherThread {
     void operator()();
-        // Push 'NUM_TO_PUSH' items randomly to the deque.
 };
 
 void PusherThread::operator()()
@@ -3503,9 +3538,9 @@ void PusherThread::operator()()
     pusherTotals[item.d_pusherIdx] = localTotal;
 }
 
+/// Pop `NUM_TO_POP` items randomly from the deque.
 struct PopperThread {
     void operator()();
-        // Pop 'NUM_TO_POP' items randomly from the deque.
 };
 
 void PopperThread::operator()()
@@ -3593,8 +3628,8 @@ bdlcc::Deque<Item> *container;
 
 bool                backwards;       // If true, push front and pop back,
                                      // otherwise push back and pop front.
-bool                popThroughPtr;   // If true, use 'pop...(&item)', otherwise
-                                     // use item == 'pop...()'.
+bool                popThroughPtr;   // If true, use `pop...(&item)`, otherwise
+                                     // use item == `pop...()`.
 
 bslmt::Barrier     *barrier;
 
@@ -3604,9 +3639,9 @@ int                 numPushers;
 bsls::AtomicInt     nextThreadId;
 bsls::AtomicInt     numPopped;
 
+/// Push `NUM_ITERATIONS` items onto one end of the queue.
 struct PusherThread {
     void operator()() const;
-        // Push 'NUM_ITERATIONS' items onto one end of the queue.
 };
 
 void PusherThread::operator()() const
@@ -3648,9 +3683,9 @@ void PusherThread::operator()() const
     }
 }
 
+/// Pop items off of one end of the queue until `numPopped >= numToPop`.
 struct PopperThread {
     void operator()() const;
-        // Pop items off of one end of the queue until 'numPopped >= numToPop'.
 };
 
 void PopperThread::operator()() const
@@ -3735,19 +3770,19 @@ class TestPopFront {
     bslma::TestAllocator  *d_alloc_p;
 
   public:
+    /// Create a `TestPopFront` object accessing the specified `mX` and
+    /// using the specified `alloc`.
     TestPopFront(bdlcc::Deque<ELEMENT> *mX,
                  bslma::TestAllocator  *alloc)
-        // Create a 'TestPopFront' object accessing the specified 'mX' and
-        // using the specified 'alloc'.
     : d_mX_p(mX)
     , d_alloc_p(alloc)
     {
         ASSERT(d_mX_p->allocator() == d_alloc_p);
     }
 
+    /// Pop 50 items off the front with `tryPopFront` and verify their
+    /// values are as expected.
     void operator()()
-        // Pop 50 items off the front with 'tryPopFront' and verify their
-        // values are as expected.
     {
         int                    expectedVal  = 0;
         ProxyVector            pv(d_alloc_p);
@@ -3818,19 +3853,19 @@ class TestPopBack {
     bslma::TestAllocator  *d_alloc_p;
 
   public:
+    /// Create a `TestPopBack` object accessing the specified `mX` and using
+    /// the specified `alloc`.
     TestPopBack(bdlcc::Deque<ELEMENT> *mX,
                 bslma::TestAllocator  *alloc)
-        // Create a 'TestPopBack' object accessing the specified 'mX' and using
-        // the specified 'alloc'.
     : d_mX_p(mX)
     , d_alloc_p(alloc)
     {
         ASSERT(d_mX_p->allocator() == d_alloc_p);
     }
 
+    /// Pop 50 items off the back with `tryPopBack` and verify their values
+    /// are as expected.
     void operator()()
-        // Pop 50 items off the back with 'tryPopBack' and verify their values
-        // are as expected.
     {
         int                    expectedVal  = 0;
         ProxyVector            pv(d_alloc_p);
@@ -4009,10 +4044,10 @@ class HighWaterMarkFunctor {
     bsls::TimeInterval     d_timeout;
 
   public:
+    /// Create a `HighWaterMarkFunctor` object accessing the specified
+    /// `deque`.
     explicit
     HighWaterMarkFunctor(bdlcc::Deque<ELEMENT> *deque)
-        // Create a 'HighWaterMarkFunctor' object accessing the specified
-        // 'deque'.
     : d_deque_p(deque)
     {
         // have everything time out 2 seconds after thread object creation
@@ -4020,22 +4055,22 @@ class HighWaterMarkFunctor {
         d_timeout = u::now() + bsls::TimeInterval(4.0);
     }
 
+    /// make sure we did not wait until timeout
     ~HighWaterMarkFunctor()
-        // make sure we did not wait until timeout
     {
         ASSERT(u::now() < d_timeout);
     }
 
+    /// thread function
     void operator()()
-        // thread function
     {
         const char *name = NameOf<ELEMENT>();
 
-        // Push 32 objects to the front and back of the 'Deque', the objects
-        // pushed to the front should have value 'FRONT_VAL', the objects
-        // pushed to the back should the value 'BACK_VAL'.  We use 8 different
+        // Push 32 objects to the front and back of the `Deque`, the objects
+        // pushed to the front should have value `FRONT_VAL`, the objects
+        // pushed to the back should the value `BACK_VAL`.  We use 8 different
         // pushes, half of them moves.  The timed pushes should never time out.
-        // The main thread will pop off the front and back of the 'Deque',
+        // The main thread will pop off the front and back of the `Deque`,
         // observing that values are as expected.
 
         // The popping thread will be sleeping periodically, and there is a
@@ -4203,12 +4238,12 @@ class EmptyDequeFunctor {
     bsls::TimeInterval  d_timeout;
 
   public:
+    /// Create a test object that will access the specified `*deque`, block
+    /// on the specified `*barrier`, and assign an exit status to the
+    /// specified `status`.  The exit status is set to 0 when an element
+    /// having the `TERMINATE` value is found on `deque` and a non-zero
+    /// value if a blocking operation on `deque` or `barrier` times out.
     EmptyDequeFunctor(Obj *deque, bslmt::Barrier *barrier, int *status)
-        // Create a test object that will access the specified '*deque', block
-        // on the specified '*barrier', and assign an exit status to the
-        // specified 'status'.  The exit status is set to 0 when an element
-        // having the 'TERMINATE' value is found on 'deque' and a non-zero
-        // value if a blocking operation on 'deque' or 'barrier' times out.
     : d_deque_p(deque)
     , d_barrier_p(barrier)
     , d_status_p(status)
@@ -4222,14 +4257,14 @@ class EmptyDequeFunctor {
         d_timeout = u::now() + bsls::TimeInterval(4.0);
     }
 
+    /// make sure we did not wait until timeout
     ~EmptyDequeFunctor()
-        // make sure we did not wait until timeout
     {
         ASSERT(u::now() < d_timeout);
     }
 
+    /// thread function
     void operator()()
-        // thread function
     {
         Element e;
         int     sts;
@@ -4383,7 +4418,7 @@ void testSingleThreadedTryPop()
             mX.tryPopFront(4, &v);
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         if (u::e_BSL == vecType) {
-            // Note that we only do this check when we know that 'v' is a bsl
+            // Note that we only do this check when we know that `v` is a bsl
             // vector.  Whether the move c'tors of standard library vectors
             // pass allocator args varies by platform.  We similarly do this
             // check only for bsl vectors below.
@@ -4577,10 +4612,10 @@ BSLMF_ASSERT(0 == k_TOTAL_TO_POP % k_NUM_POPPERS);
 
 bsl::size_t maxDstSize = 0, maxSrcSize = 0;
 
+/// This `class` has is created in one of three types, as specified by the
+/// `workerType` arg to the c'tor.  When `operator()` is called, it calls
+/// one worker function according to its type.
 class ProctorTestFunctor {
-    // This 'class' has is created in one of three types, as specified by the
-    // 'workerType' arg to the c'tor.  When 'operator()' is called, it calls
-    // one worker function according to its type.
 
     // DATA
     Obj                   *d_dst_p;
@@ -4591,45 +4626,47 @@ class ProctorTestFunctor {
 
   public:
     // CREATORS
+
+    /// Create a `ProctorTestFunctor` object attached to the specified
+    /// `*dst_p` and the specified `*src_p` containers, of specified worker
+    /// type `workerType`, with specified index `workerIdx` (that is
+    /// ignored unless `e_PUSHER == workerType`, If the specified `backWard`
+    /// is `false`, items will be pushed to the back of deques and popped
+    /// from the front of them, if `backWard` is `true` the direction is
+    /// reverrsed.
     ProctorTestFunctor(Obj        *dst_p,
                        Obj        *src_p,
                        WorkerType  workerType,
                        int         workerIdx,
                        bool        backWard);
-        // Create a 'ProctorTestFunctor' object attached to the specified
-        // '*dst_p' and the specified '*src_p' containers, of specified worker
-        // type 'workerType', with specified index 'workerIdx' (that is
-        // ignored unless 'e_PUSHER == workerType', If the specified 'backWard'
-        // is 'false', items will be pushed to the back of deques and popped
-        // from the front of them, if 'backWard' is 'true' the direction is
-        // reverrsed.
 
     // ACCESSORS
+
+    /// switch off the `d_workType` field to dispatch to a specific worker
+    /// function.
     void operator()() const;
-        // switch off the 'd_workType' field to dispatch to a specific worker
-        // function.
 
+    /// Direct pusher worker function.  Push many elements in decreasing
+    /// order, ending with `d_workerIdx + t`, to the back or front of
+    /// `*d_dst_p`, depending upon the polarity of `d_backWard`.
     void directPusher() const;
-        // Direct pusher worker function.  Push many elements in decreasing
-        // order, ending with 'd_workerIdx + t', to the back or front of
-        // '*d_dst_p', depending upon the polarity of 'd_backWard'.
 
+    /// Popper worker function.  Pop many elements from the front or back of
+    /// `*d_dst_p`, depending on the polarity of `d_backward`.
     void popper() const;
-        // Popper worker function.  Pop many elements from the front or back of
-        // '*d_dst_p', depending on the polarity of 'd_backward'.
 
+    /// Pusher worker function.  Push many elements in decreasing order,
+    /// ending with `d_workerIdx + t`, to the back or front of `*d_src_p`,
+    /// depending upon the polarity of `d_backWard`.
     void srcPusher() const;
-        // Pusher worker function.  Push many elements in decreasing order,
-        // ending with 'd_workerIdx + t', to the back or front of '*d_src_p',
-        // depending upon the polarity of 'd_backWard'.
 
+    /// Transferrer worker function.  Transfer all elements from `*d_src_p`
+    /// to `*d_dst_p`, taking care to remove elements from the opposite end
+    /// of `*d_src_p` from the end to which the pusher function pushed
+    /// elements, and add them to the opposite end of `*d_dst_p` from the
+    /// end from which the popper function pops elements.  Do block
+    /// transferrs by accessing both deques via proctors.
     void transferrer() const;
-        // Transferrer worker function.  Transfer all elements from '*d_src_p'
-        // to '*d_dst_p', taking care to remove elements from the opposite end
-        // of '*d_src_p' from the end to which the pusher function pushed
-        // elements, and add them to the opposite end of '*d_dst_p' from the
-        // end from which the popper function pops elements.  Do block
-        // transferrs by accessing both deques via proctors.
 };
 
 // CREATOR
@@ -4652,9 +4689,10 @@ ProctorTestFunctor::ProctorTestFunctor(Obj        *dst_p,
 }
 
 // ACCESSORS
+
+/// Dispatch function -- switch on `d_workerType` to call the appropriate
+/// worker function.
 void ProctorTestFunctor::operator()() const
-    // Dispatch function -- switch on 'd_workerType' to call the appropriate
-    // worker function.
 {
     switch (d_workerType) {
       case e_SRC_PUSHER: {
@@ -4758,8 +4796,8 @@ void ProctorTestFunctor::transferrer() const
                 thisTransfer = bsl::min(dstFull - dstSize,
                                         thisTransfer);
 
-                // We can't delete the oldest 'thisTransferred' elements from
-                // 'srcProctor' because 'srcProctor' is a 'ConstProctor'.
+                // We can't delete the oldest `thisTransferred` elements from
+                // `srcProctor` because `srcProctor` is a `ConstProctor`.
 
                 if (d_backWard) {
                     const_iterator end = srcProctor->end();
@@ -4773,7 +4811,7 @@ void ProctorTestFunctor::transferrer() const
                     const_iterator beg = srcProctor->begin();
                     const_iterator end = beg + thisTransfer;
 
-                    // Note 'deque' has no 'append' modifier.
+                    // Note `deque` has no `append` modifier.
 
                     dstProctor->insert(dstProctor->end(), beg, end);
 
@@ -4785,7 +4823,7 @@ void ProctorTestFunctor::transferrer() const
         srcProctor.release();
 
         if (0 == thisTransfer) {
-            // This means '*d_dst_p' is full or '*d_src_p' is empty, or we have
+            // This means `*d_dst_p` is full or `*d_src_p` is empty, or we have
             // an insignificant number of elements to transfer.  Give the
             // pushers and poppers some time to run.
 
@@ -4795,11 +4833,11 @@ void ProctorTestFunctor::transferrer() const
         else {
             Obj::Proctor trimProctor(d_src_p);
 
-            // Now we can delete the oldest 'thisTransfer' elements from
-            // '*d_src_p' because they were just transferred out.  Note that
-            // some new elements might have been pushed into '*d_src_p' since
-            // the 'ConstProctor' was destroyed, but they will be at the
-            // opposite end and not affected by this 'erase'.
+            // Now we can delete the oldest `thisTransfer` elements from
+            // `*d_src_p` because they were just transferred out.  Note that
+            // some new elements might have been pushed into `*d_src_p` since
+            // the `ConstProctor` was destroyed, but they will be at the
+            // opposite end and not affected by this `erase`.
 
             ASSERT(trimProctor->size() >= thisTransfer);
 
@@ -4839,20 +4877,22 @@ class TimedHWMRecordBack {
 
   public:
     // CREATORS
+
+    /// Create a test object accessing the specified `*deque`, that will
+    /// push the specified `value`, with the specified `timeout`.
     TimedHWMRecordBack(bdlcc::Deque<AElement> *deque,
                        bsls::TimeInterval      timeout,
                        const AElement&         value)
     : d_deque_p(deque)
     , d_timeout(timeout)
     , d_toBeInserted(value)
-        // Create a test object accessing the specified '*deque', that will
-        // push the specified 'value', with the specified 'timeout'.
     {
     }
 
     // MANIPULATORS
+
+    /// Do the `timedPushBack` with the values specified at construction.
     void operator()()
-        // Do the 'timedPushBack' with the values specified at construction.
     {
         waitingFlag = 1;
         ASSERT(0 == d_deque_p->timedPushBack(
@@ -4868,20 +4908,22 @@ class TimedHWMRecordFront {
 
   public:
     // CREATORS
+
+    /// Create a test object accessing the specified `*deque`, that will
+    /// push the specified `value`, with the specified `timeout`.
     TimedHWMRecordFront(bdlcc::Deque<AElement> *deque,
                         bsls::TimeInterval      timeout,
                         const AElement&         value)
     : d_deque_p(deque)
     , d_timeout(timeout)
     , d_toBeInserted(value)
-        // Create a test object accessing the specified '*deque', that will
-        // push the specified 'value', with the specified 'timeout'.
     {
     }
 
     // MANIPULATORS
+
+    /// Do the `timedPushFront` with the values specified at construction.
     void operator()()
-        // Do the 'timedPushFront' with the values specified at construction.
     {
         waitingFlag = 1;
         ASSERT(0 == d_deque_p->timedPushFront(d_toBeInserted,
@@ -4889,16 +4931,16 @@ class TimedHWMRecordFront {
     }
 };
 
+/// Cast the specified `arg` to a `TimedHWMPushBack` and call it.
 extern "C" void *doTimedHWMRecordBack(void *arg)
-    // Cast the specified 'arg' to a 'TimedHWMPushBack' and call it.
 {
     (*static_cast<TimedHWMRecordBack *>(arg))();
 
     return 0;
 }
 
+/// Cast the specified `arg` to a `TimedHWMPushFront` and call it.
 extern "C" void *doTimedHWMRecordFront(void *arg)
-    // Cast the specified 'arg' to a 'TimedHWMPushFront' and call it.
 {
     (*static_cast<TimedHWMRecordFront *>(arg))();
 
@@ -4923,19 +4965,21 @@ class StraightHWMFunctorBack {
 
   public:
     // CREATORS
+
+    /// Create a test object accessing the specified `*deque` with the
+    /// specified `value`.
     StraightHWMFunctorBack(bdlcc::Deque<Element> *deque,
                            const Element&         value)
     : d_deque_p(deque)
     , d_toBeInserted(value)
-        // Create a test object accessing the specified '*deque' with the
-        // specified 'value'.
     {
         waitingFlag = 0;
     }
 
     // MANIPULATORS
+
+    /// Do the `pushBack`.
     void operator()()
-        // Do the 'pushBack'.
     {
         waitingFlag = 1;
         d_deque_p->pushBack(d_toBeInserted);
@@ -4951,19 +4995,21 @@ class StraightHWMFunctorFront {
 
   public:
     // CREATORS
+
+    /// Create a test object accessing the specified `*deque` with the
+    /// specified `value`.
     StraightHWMFunctorFront(bdlcc::Deque<Element> *deque,
                             const Element&         value)
     : d_deque_p(deque)
     , d_toBeInserted(value)
-        // Create a test object accessing the specified '*deque' with the
-        // specified 'value'.
     {
         waitingFlag = 0;
     }
 
     // MANIPULATORS
+
+    /// Do the `pushFront`.
     void operator()()
-        // Do the 'pushFront'.
     {
         waitingFlag = 1;
         d_deque_p->pushFront(d_toBeInserted);
@@ -4990,6 +5036,10 @@ class TimedPopRecordBack {
 
   public:
     // CREATORS
+
+    /// Create a test object that will access the specified `*deque` and
+    /// with the specified `val` and the specified `timeout` and block on
+    /// the specified `*barrier`.
     TimedPopRecordBack(bdlcc::Deque<AElement> *deque,
                        bslmt::Barrier         *barrier,
                        bsls::TimeInterval      timeout,
@@ -5000,16 +5050,14 @@ class TimedPopRecordBack {
     , d_timeoutFlag(0)
     , d_waitingFlag(1)
     , d_expected(val)
-        // Create a test object that will access the specified '*deque' and
-        // with the specified 'val' and the specified 'timeout' and block on
-        // the specified '*barrier'.
     {
     }
 
     // MANIPULATORS
+
+    /// Do two pushes, the first of which will timeout, the second of which
+    /// will succeed without timing out.
     void operator()()
-        // Do two pushes, the first of which will timeout, the second of which
-        // will succeed without timing out.
     {
         AElement result('Z', d_deque_p->allocator());
 
@@ -5046,14 +5094,15 @@ class TimedPopRecordBack {
     }
 
     // ACCESSORS
+
+    /// Return the value of the time out flag.
     int  timeOutFlag() const
-        // Return the value of the time out flag.
     {
         return d_timeoutFlag;
     }
 
+    /// Return the value of the waiting flag.
     int  waitingFlag() const
-        // Return the value of the waiting flag.
     {
         return d_waitingFlag;
     }
@@ -5071,6 +5120,10 @@ class TimedPopRecordFront {
 
   public:
     // CREATORS
+
+    /// Create a test object that will access the specified `*deque` and
+    /// with the specified `val` and the specified `timeout` and block on
+    /// the specified `*barrier`, and expect to pop the specified `value`.
     TimedPopRecordFront(bdlcc::Deque<AElement> *deque,
                         bslmt::Barrier         *barrier,
                         bsls::TimeInterval      timeout,
@@ -5081,16 +5134,14 @@ class TimedPopRecordFront {
     , d_timeoutFlag(0)
     , d_waitingFlag(1)
     , d_expected(value)
-        // Create a test object that will access the specified '*deque' and
-        // with the specified 'val' and the specified 'timeout' and block on
-        // the specified '*barrier', and expect to pop the specified 'value'.
     {
     }
 
     // MANIPULATORS
+
+    /// Do two pushes, the first of which will timeout, the second of which
+    /// will succeed without timing out.
     void operator()()
-        // Do two pushes, the first of which will timeout, the second of which
-        // will succeed without timing out.
     {
         AElement result('Z', d_deque_p->allocator());
 
@@ -5127,25 +5178,26 @@ class TimedPopRecordFront {
     }
 
     // ACCESSORS
+
+    /// Return the value of the timeout flag.
     int timeOutFlag() const
-        // Return the value of the timeout flag.
     {
         return d_timeoutFlag;
     }
 
+    /// Return the value of the waiting flag.
     int waitingFlag() const
-        // Return the value of the waiting flag.
     {
         return d_waitingFlag;
     }
 };
 
-// We could just feed 'TimedPopRecord{Front,Back}' objects into
-// 'bslmt::ThreadUtil::create', but that would use the default allocator.
+// We could just feed `TimedPopRecord{Front,Back}` objects into
+// `bslmt::ThreadUtil::create`, but that would use the default allocator.
 
 extern "C"
+/// Cast the specified `arg` to a test object and call it.
 void *testClass4BackCaller(void *arg)
-    // Cast the specified 'arg' to a test object and call it.
 {
     TimedPopRecordBack *pt = (TimedPopRecordBack *) arg;
     (*pt)();
@@ -5153,8 +5205,8 @@ void *testClass4BackCaller(void *arg)
 }
 
 extern "C"
+/// Cast the specified `arg` to a test object and call it.
 void *testClass4FrontCaller(void *arg)
-    // Cast the specified 'arg' to a test object and call it.
 {
     TimedPopRecordFront *pt = (TimedPopRecordFront *) arg;
     (*pt)();
@@ -5180,6 +5232,10 @@ class PushPopRecordBack {
 
   public:
     // CREATORS
+
+    /// Create a test object that will pop from the back of the specified
+    /// `*deque` with the pop style determined by the specified `popMode`
+    /// and expect the specified `value`.
     PushPopRecordBack(bdlcc::Deque<Element> *deque,
                       const Element&         value,
                       PopMode                popMode)
@@ -5187,15 +5243,13 @@ class PushPopRecordBack {
     , d_waitingFlag(0)
     , d_expected(value)
     , d_popMode(popMode)
-        // Create a test object that will pop from the back of the specified
-        // '*deque' with the pop style determined by the specified 'popMode'
-        // and expect the specified 'value'.
     {
     }
 
     // MANIPULATORS
+
+    /// manipulate the flags and pop from the deque back
     void callback()
-        // manipulate the flags and pop from the deque back
     {
         d_waitingFlag = 1;
         Element e;
@@ -5211,8 +5265,9 @@ class PushPopRecordBack {
     }
 
     // ACCESSORS
+
+    /// reveal waiting flag
     int waitingFlag()
-        // reveal waiting flag
     {
         return d_waitingFlag;
     }
@@ -5227,6 +5282,10 @@ class PushPopRecordFront {
 
   public:
     // CREATORS
+
+    /// Create a test object that will pop from the front of the specified
+    /// `*deque` with the pop style determined by the specified `popMode`
+    /// and expect the specified `value`.
     PushPopRecordFront(bdlcc::Deque<Element> *deque,
                        const Element&         value,
                        PopMode                popMode)
@@ -5234,15 +5293,13 @@ class PushPopRecordFront {
     , d_waitingFlag(0)
     , d_expected(value)
     , d_popMode(popMode)
-        // Create a test object that will pop from the front of the specified
-        // '*deque' with the pop style determined by the specified 'popMode'
-        // and expect the specified 'value'.
     {
     }
 
     // MANIPULATORS
+
+    /// manipulate the flags and pop from the deque front
     void callback()
-        // manipulate the flags and pop from the deque front
     {
         d_waitingFlag = 1;
         Element e;
@@ -5258,17 +5315,18 @@ class PushPopRecordFront {
     }
 
     // ACCESSORS
+
+    /// reveal waiting flag
     int waitingFlag()
-        // reveal waiting flag
     {
         return d_waitingFlag;
     }
 };
 
 extern "C"
+/// The specified `arg` refers to a test object, call its specified
+/// `callback`.
 void *pushPopFunctionBack(void *arg)
-    // The specified 'arg' refers to a test object, call its specified
-    // 'callback'.
 {
     PushPopRecordBack *x = (PushPopRecordBack*)arg;
     x->callback();
@@ -5276,9 +5334,9 @@ void *pushPopFunctionBack(void *arg)
 }
 
 extern "C"
+/// The specified `arg` refers to a test object, call its specified
+/// `callback`.
 void *pushPopFunctionFront(void *arg)
-    // The specified 'arg' refers to a test object, call its specified
-    // 'callback'.
 {
     PushPopRecordFront *x = (PushPopRecordFront*)arg;
     x->callback();
@@ -5301,7 +5359,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator         da(veryVeryVeryVerbose);
@@ -5317,17 +5375,17 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 2
         //
-        //: 1 The second usage example compiles and works as expected.
+        // 1. The second usage example compiles and works as expected.
         //
         // Plan:
-        //: 1 Create a multi-threaded deque of 'Event's.
-        //: 2 Create a set of an arbitrary number of 'myWorker' threads, where
-        //:   each 'myWorker' thread simulates a single task.
-        //: 3 Each 'myWorker' thread generates and endeques multiple
-        //:   'Event's.  Upon completion, each 'myWorker' thread endeques a
-        //:   TASK_COMPLETE event.
-        //: 4 Count the TASK_COMPLETE events until all threads are complete;
-        //:   then "join" each thread.
+        // 1. Create a multi-threaded deque of `Event`s.
+        // 2. Create a set of an arbitrary number of `myWorker` threads, where
+        //    each `myWorker` thread simulates a single task.
+        // 3. Each `myWorker` thread generates and endeques multiple
+        //    `Event`s.  Upon completion, each `myWorker` thread endeques a
+        //    TASK_COMPLETE event.
+        // 4. Count the TASK_COMPLETE events until all threads are complete;
+        //    then "join" each thread.
         //
         // Testing:
         //   USAGE EXAMPLE 2
@@ -5339,33 +5397,33 @@ int main(int argc, char *argv[])
                              "===============\n";
 
         {
-// Next, in 'main', define the number of threads:
-//..
+// Next, in `main`, define the number of threads:
+// ```
     const int k_NUM_THREADS = 10;
-//..
-// Then, declare out 'bdlcc::Deque' object, the set of handles of the
+// ```
+// Then, declare out `bdlcc::Deque` object, the set of handles of the
 // subthreads, and our barrier object:
-//..
+// ```
     bdlcc::Deque<Event>       myDeque;
     bslmt::ThreadUtil::Handle handles[k_NUM_THREADS];
     bslmt::Barrier            barrier(k_NUM_THREADS + 1);
-//..
+// ```
 // Next, spawn the worker threads:
-//..
+// ```
     for (int ti = 0; ti < k_NUM_THREADS; ++ti) {
         WorkerFunctor functor = { ti, &myDeque, &barrier };
 
         bslmt::ThreadUtil::create(&handles[ti], functor);
     }
-//..
+// ```
 // Then, wait on the barrier, that will set all the subthreads running:
-//..
+// ```
     barrier.wait();
-//..
+// ```
 // Now, loop to pop the events off the deque, and keep track of how many
-// 'e_COMPLETE' events have been popped.  When this equals the number of
+// `e_COMPLETE` events have been popped.  When this equals the number of
 // subthreads, we are done.
-//..
+// ```
     int numCompleted = 0, numEvents = 0;
     while (numCompleted < k_NUM_THREADS) {
         Event ev = myDeque.popFront();
@@ -5381,12 +5439,12 @@ int main(int argc, char *argv[])
             ASSERT(!rc);
         }
     }
-//..
+// ```
 // Finally, perform some sanity checks:
-//..
+// ```
     ASSERT(k_NUM_THREADS * k_NUM_TO_PUSH == numEvents);
     ASSERT(0 == myDeque.length());
-//..
+// ```
         }
       } break;
       case 27: {
@@ -5394,10 +5452,10 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE 1
         //
         // Concerns:
-        //: 1 That the first usage example compiles and runs correctly.
+        // 1. That the first usage example compiles and runs correctly.
         //
         // Plan:
-        //: 1 Build the usage and run it.
+        // 1. Build the usage and run it.
         //
         // Testing:
         //   USAGE EXAMPLE 1
@@ -5408,23 +5466,23 @@ int main(int argc, char *argv[])
         if (verbose) cout << "USAGE EXAMPLE 1\n"
                              "===============\n";
 
-// Next, in 'main', define the number of consumer and producer threads (these
+// Next, in `main`, define the number of consumer and producer threads (these
 // numbers must be equal).
-//..
+// ```
     enum { k_NUM_CONSUMER_THREADS = 10,
            k_NUM_PRODUCER_THREADS = k_NUM_CONSUMER_THREADS };
-//..
+// ```
 // Then, create our container:
-//..
+// ```
     bdlcc::Deque<WorkRequest> deque;
-//..
+// ```
 // Next, create the array of thread handles for the threads we will spawn:
-//..
+// ```
     bslmt::ThreadUtil::Handle handles[k_NUM_CONSUMER_THREADS +
                                       k_NUM_PRODUCER_THREADS];
-//..
+// ```
 // Now, spawn all the consumers and producers:
-//..
+// ```
     int ti = 0, rc;
     while (ti < k_NUM_CONSUMER_THREADS) {
         rc = bslmt::ThreadUtil::create(&handles[ti++],
@@ -5436,28 +5494,28 @@ int main(int argc, char *argv[])
                                        ProducerFunctor(&deque));
         ASSERT(0 == rc);
     }
-//..
+// ```
 // Finally, join all the threads after they finish and confirm the container is
 // empty afterward:
-//..
+// ```
     while (ti > 0) {
         rc = bslmt::ThreadUtil::join(handles[--ti]);
         ASSERT(0 == rc);
     }
     ASSERT(0 == deque.length());
-//..
+// ```
       } break;
       case 26: {
         // --------------------------------------------------------------------
         // TESTING TIMED POP & TIMED PUSH FUNCTIONS -- MOVE SEMANTICS
         //
         // Concerns:
-        //: 1 Test the concerns of TC 4 with emphasis on move semantics.
+        // 1. Test the concerns of TC 4 with emphasis on move semantics.
         //
         // Plan:
-        //: 1 Repeat TC 4 using 'MElement' instead of 'AElement', track the
-        //:   memory allocation behavior very closely, and test 'timedPush*'
-        //:   as well as 'timedPop*'.
+        // 1. Repeat TC 4 using `MElement` instead of `AElement`, track the
+        //    memory allocation behavior very closely, and test `timedPush*`
+        //    as well as `timedPop*`.
         //
         // Testing:
         //   int timedPopBack(TYPE *, const TimeInterval&); - move semantics
@@ -5482,13 +5540,13 @@ int main(int argc, char *argv[])
         // SINGLE-THREADED TESTING SINGLE MOVING PUSHES, POPS
         //
         // Concerns:
-        //: 1 Examine all the issues examined in TC 2, except that this time
-        //:   we are testing move semantics.
+        // 1. Examine all the issues examined in TC 2, except that this time
+        //    we are testing move semantics.
         //
         // Plan:
-        //: 1 Repeat everything tested in TC 2 with single pushes and pops,
-        //:   but moving objects into the pushes, and observe whether objects
-        //:   we moved or not.
+        // 1. Repeat everything tested in TC 2 with single pushes and pops,
+        //    but moving objects into the pushes, and observe whether objects
+        //    we moved or not.
         //
         // Testing:
         //   void pushFront(TYPE&&); - st
@@ -5517,17 +5575,17 @@ int main(int argc, char *argv[])
         // TESTING PROCTOR LIFETIME
         //
         // Concerns:
-        //: 1 The C++ language definition specifies that a temporary created
-        //:   within a statement will not outlive the statement unless bound to
-        //:   a reference.  On some old compilers, notably Solaris, temporaries
-        //:   could survive until the end of the block.  Ensure that on all
-        //:   platforms we port to, proctors are being deleted at the end of
-        //:   the statement.
+        // 1. The C++ language definition specifies that a temporary created
+        //    within a statement will not outlive the statement unless bound to
+        //    a reference.  On some old compilers, notably Solaris, temporaries
+        //    could survive until the end of the block.  Ensure that on all
+        //    platforms we port to, proctors are being deleted at the end of
+        //    the statement.
         //
         // Plan:
-        //: 1 Create several proctors, as temporaries, within the same block.
-        //:   The fact that the mutex was able to be acquired multiple times
-        //:   will establish that old proctors were being destroyed (C-1).
+        // 1. Create several proctors, as temporaries, within the same block.
+        //    The fact that the mutex was able to be acquired multiple times
+        //    will establish that old proctors were being destroyed (C-1).
         //
         // Testing:
         //    PROCTOR LIFETIME
@@ -5591,20 +5649,20 @@ int main(int argc, char *argv[])
         // TESTING ALL C'TORS
         //
         // Concerns:
-        //: 1 That all c'tors work as specced.
+        // 1. That all c'tors work as specced.
         //
         // Plan:
-        //: 1 Iterate through a loop, create 'bdlcc::Deque' objects with
-        //:   varying c'tors and arguments.
-        //:
-        //: 2 After creation, set 'bool's to indicate which arguments were
-        //:   passed to the c'tor.
-        //:
-        //: 3 Determine, through accessors and minor manipulation, that the
-        //:   object was correctly created (C-1).
-        //:
-        //: 4 Run the c'tors with exceptions injected, to insure that no
-        //:   memory is leaked.
+        // 1. Iterate through a loop, create `bdlcc::Deque` objects with
+        //    varying c'tors and arguments.
+        //
+        // 2. After creation, set `bool`s to indicate which arguments were
+        //    passed to the c'tor.
+        //
+        // 3. Determine, through accessors and minor manipulation, that the
+        //    object was correctly created (C-1).
+        //
+        // 4. Run the c'tors with exceptions injected, to insure that no
+        //    memory is leaked.
         //
         // Testing:
         //   Deque();
@@ -5714,7 +5772,7 @@ int main(int argc, char *argv[])
 
                 Obj& mX = *pMX;    const Obj& X = mX;
 
-                // At the time of this writing, even an empty 'bsl::deque' does
+                // At the time of this writing, even an empty `bsl::deque` does
                 // 2 allocations in the c'tor.
 
                 ASSERTV(PLAT_EXC == (1 < numPasses));
@@ -5756,10 +5814,10 @@ int main(int argc, char *argv[])
         // TESTING TYPE TRAITS
         //
         // Concern:
-        //: 1 That the class has the 'UsesBslmaAllocator' type trait.
+        // 1. That the class has the `UsesBslmaAllocator` type trait.
         //
         // Plan:
-        //: 2 Evaluate the type traits.
+        // 2. Evaluate the type traits.
         //
         // Testing
         //   bslma::UsesBslmaAllocator
@@ -5784,10 +5842,10 @@ int main(int argc, char *argv[])
         // TEST SIMPLE RANGE C'TOR
         //
         // Concerns:
-        //: 1 That the range constructor initializes the container correctly.
+        // 1. That the range constructor initializes the container correctly.
         //
         // Plan:
-        //: 1 Construct a container with that c'tor and verify its contents.
+        // 1. Construct a container with that c'tor and verify its contents.
         //
         // Testing:
         //   Deque(INPUT_ITER, INPUT_ITER, Alloc *);
@@ -5815,79 +5873,79 @@ int main(int argc, char *argv[])
         // MULTITHREADED RANGE TRY PUSH TEST
         //
         // Concerns:
-        //: 1 The items pushed by a single 'tryPush*' appear contiguously in
-        //:   the container.
-        //:
-        //: 2 The integral value returned by the 'tryPush*' correctly
-        //:   represents the number of items pushed.
-        //:
-        //: 3 The items pushed are always the first items in the range
-        //:   sequence.
-        //:
-        //: 4 That range try pushes never violate the high water mark.
-        //:
-        //: 5 Test over a range of lengths of ranges pushed, that is, don't
-        //:   always just wind up pushing 1 or 2 items per call.
+        // 1. The items pushed by a single `tryPush*` appear contiguously in
+        //    the container.
+        //
+        // 2. The integral value returned by the `tryPush*` correctly
+        //    represents the number of items pushed.
+        //
+        // 3. The items pushed are always the first items in the range
+        //    sequence.
+        //
+        // 4. That range try pushes never violate the high water mark.
+        //
+        // 5. Test over a range of lengths of ranges pushed, that is, don't
+        //    always just wind up pushing 1 or 2 items per call.
         //
         // Plan:
-        //: 1 The idea here is to have multiple created pusher threads push to
-        //:   one end of a 'bdlcc::deque', named 'container', while the main
-        //:   thread pops off the other end.
-        //:
-        //: 2 The items pushed are of type 'unsigned'.  The high-order bits of
-        //:   of an item identify that pusher thread pushed it, where pusher
-        //:   threads have an 'id' in the range '[0 .. NUM_THREADS - 1]'.  The
-        //:   low-order 16 bits are incremented between successive items.
-        //:
-        //: 3 There is a separate 'endDeque' for each thread.  Each thread
-        //:   pushes to the back of its 'endDeque' and the main (popper) thread
-        //:   pops from the front of it.  To ensure that all items pushed by a
-        //:   single 'tryPush*' to 'containter' are adjacent to each other,
-        //:   when a push is finished, if it succeeded in pushing at least one
-        //:   item, the sequence number after the last number pushed to
-        //:   'container' is pushed to 'endDeque'.
-        //:
-        //: 4 When the main (popper) thread pops an item off of 'container', it
-        //:   looks at the high-order bits to determine which thread popped it.
-        //:   It then pops the item 'end' off of that thread's 'endDeque'.  We
-        //:   then expect the low-order 16-bit sequece values of the next
-        //:   several values in the container to be the range
-        //:   '[item .. end - 1]', and we verify this.  If this is not the
-        //:   case, then the contiguous pushing of elements via 'tryPush*' was
-        //:   violated, or the return value of 'tryPush*' did not accurately
-        //:   represent the number of items pushed.  (C-1) (C-2) (C-3)
-        //:
-        //: 5 To make sure we vary the number of items to be pushed, we use the
-        //:   random number generator 'class' 'Rand1To8' to generate random
-        //:   numbers in the range '[1 .. 8]' that we are to try to push.  But
-        //:   there is still a worry that the situation will devolve to
-        //:   'container' being always nearly full, so that in practice only 1
-        //:   or 2 items get successfully pushed per calls.  It would be nice
-        //:   to pop a bunch of items at a time to a vector, leaving ample
-        //:   clearance under the high water mark for many items to be pushed.
-        //:   To avoid this greatly complicating the popper loop in 'main', we
-        //:   also create 'class' 'BufferedPopper', that contains a
-        //:   'bsl::vector' buffer to pop to, and a reference to 'container',
-        //:   and an instance of 'Rand1To8'.  The 'Rand1To8' object is called
-        //:   to return a value in the range '[5 .. 12]' of items to be popped
-        //:   in a call, that are then attempted to be popped via 'tryPop*'.
-        //:   This will leave plenty of room below the high water mark so that
-        //:   pushes immediately following it will be able to push long ranges
-        //:   successfully.  We also track how many items were pushed each call
-        //:   in the mask 'visitFlags', setting the bit of 'visitFlags'
-        //:   corresponding to each number of items pushed.  At the end of the
-        //:   pass, we verify that ll bits of 'visitFlags' in the range
-        //:   '[0 .. 8]' are set (a mask value of 0x1ff).
-        //:
-        //: 6 Normally, a minimum of 2 items must be pushed -- a value pushed
-        //:   to 'container', and the subsequent value to the pusher's
-        //:   'endDeque'.  This becomes problematic if we are near the end of
-        //:   the sequence of values to be pushed, with only 1 value left to
-        //:   go.  In this case we push a 'nullItem', that is a value that
-        //:   will correspond to no other valid item, and terminate the pusher
-        //:   pass.  The popper will check each popped item to see if it is a
-        //:   'nullItem' and not expect a given sequence value or a
-        //:   corresponding value in an 'endDeque' in that case.
+        // 1. The idea here is to have multiple created pusher threads push to
+        //    one end of a `bdlcc::deque`, named `container`, while the main
+        //    thread pops off the other end.
+        //
+        // 2. The items pushed are of type `unsigned`.  The high-order bits of
+        //    of an item identify that pusher thread pushed it, where pusher
+        //    threads have an `id` in the range `[0 .. NUM_THREADS - 1]`.  The
+        //    low-order 16 bits are incremented between successive items.
+        //
+        // 3. There is a separate `endDeque` for each thread.  Each thread
+        //    pushes to the back of its `endDeque` and the main (popper) thread
+        //    pops from the front of it.  To ensure that all items pushed by a
+        //    single `tryPush*` to `containter` are adjacent to each other,
+        //    when a push is finished, if it succeeded in pushing at least one
+        //    item, the sequence number after the last number pushed to
+        //    `container` is pushed to `endDeque`.
+        //
+        // 4. When the main (popper) thread pops an item off of `container`, it
+        //    looks at the high-order bits to determine which thread popped it.
+        //    It then pops the item `end` off of that thread's `endDeque`.  We
+        //    then expect the low-order 16-bit sequece values of the next
+        //    several values in the container to be the range
+        //    `[item .. end - 1]`, and we verify this.  If this is not the
+        //    case, then the contiguous pushing of elements via `tryPush*` was
+        //    violated, or the return value of `tryPush*` did not accurately
+        //    represent the number of items pushed.  (C-1) (C-2) (C-3)
+        //
+        // 5. To make sure we vary the number of items to be pushed, we use the
+        //    random number generator `class` `Rand1To8` to generate random
+        //    numbers in the range `[1 .. 8]` that we are to try to push.  But
+        //    there is still a worry that the situation will devolve to
+        //    `container` being always nearly full, so that in practice only 1
+        //    or 2 items get successfully pushed per calls.  It would be nice
+        //    to pop a bunch of items at a time to a vector, leaving ample
+        //    clearance under the high water mark for many items to be pushed.
+        //    To avoid this greatly complicating the popper loop in `main`, we
+        //    also create `class` `BufferedPopper`, that contains a
+        //    `bsl::vector` buffer to pop to, and a reference to `container`,
+        //    and an instance of `Rand1To8`.  The `Rand1To8` object is called
+        //    to return a value in the range `[5 .. 12]` of items to be popped
+        //    in a call, that are then attempted to be popped via `tryPop*`.
+        //    This will leave plenty of room below the high water mark so that
+        //    pushes immediately following it will be able to push long ranges
+        //    successfully.  We also track how many items were pushed each call
+        //    in the mask `visitFlags`, setting the bit of `visitFlags`
+        //    corresponding to each number of items pushed.  At the end of the
+        //    pass, we verify that ll bits of `visitFlags` in the range
+        //    `[0 .. 8]` are set (a mask value of 0x1ff).
+        //
+        // 6. Normally, a minimum of 2 items must be pushed -- a value pushed
+        //    to `container`, and the subsequent value to the pusher's
+        //    `endDeque`.  This becomes problematic if we are near the end of
+        //    the sequence of values to be pushed, with only 1 value left to
+        //    go.  In this case we push a `nullItem`, that is a value that
+        //    will correspond to no other valid item, and terminate the pusher
+        //    pass.  The popper will check each popped item to see if it is a
+        //    `nullItem` and not expect a given sequence value or a
+        //    corresponding value in an `endDeque` in that case.
         //
         // Testing:
         //   void tryPushBack(INPUT_ITER, INPUT_ITER); - mt
@@ -5924,7 +5982,7 @@ int main(int argc, char *argv[])
                                            isForward ? "forward" : "backward");
 
             unsigned numNulls = 0;
-            int      ii = 0;    // total popped from 'bp' and all 'endDeques'
+            int      ii = 0;    // total popped from `bp` and all `endDeques`
             while (ii < POPS_IN_MAIN) {
                 unsigned u = bp();
                 ++ii;
@@ -5981,14 +6039,14 @@ int main(int argc, char *argv[])
         // SINGLE-THREADED SINGLE ITEM FORCE PUSH TEST
         //
         // Concerns:
-        //: 1 That single-item 'forcePushFront' and 'forcePushBack' satisfy
-        //:   the strong exception guarantee.
+        // 1. That single-item `forcePushFront` and `forcePushBack` satisfy
+        //    the strong exception guarantee.
         //
         // Plan:
-        //: 1 Do some 'forcePushBack's and 'forcePushFront's on a container
-        //:   with injected exceptions, testing that the strong guarantee is
-        //:   satisfied.
-        //:   o Do them on empty and non-empty containers.
+        // 1. Do some `forcePushBack`s and `forcePushFront`s on a container
+        //    with injected exceptions, testing that the strong guarantee is
+        //    satisfied.
+        //    - Do them on empty and non-empty containers.
         //
         // Testing:
         //   void forcePushBack(const T&); - st
@@ -6013,39 +6071,39 @@ int main(int argc, char *argv[])
         // SINGLE-THREADED RANGE TRY & FORCE PUSH TEST
         //
         // Concerns:
-        //: 1 That range-based 'tryPush*' don't violate the high water mark.
-        //:
-        //: 2 If the number of elements in the range exceeds the number of
-        //:   vacancies in the container before the high water mark is reached,
-        //:   the high water mark will be reached exactly.
-        //:
-        //: 3 if the number of elements in the range is less than is necessary
-        //:   to reach the high water mark, all elements are pushed.
-        //:
-        //: 4 That the elements in the container after the push have the
-        //:   correct values.
+        // 1. That range-based `tryPush*` don't violate the high water mark.
+        //
+        // 2. If the number of elements in the range exceeds the number of
+        //    vacancies in the container before the high water mark is reached,
+        //    the high water mark will be reached exactly.
+        //
+        // 3. if the number of elements in the range is less than is necessary
+        //    to reach the high water mark, all elements are pushed.
+        //
+        // 4. That the elements in the container after the push have the
+        //    correct values.
         //
         // Plan:
-        //: 1 Iterate, creating 'bdlcc::Deque' objects with high water marks
-        //:   ranging from 1 to 9.
-        //:
-        //: 2 Within that, iterate 'numToPrePush' from 0 to 4.
-        //:
-        //: 3 Within that, iterate 'numToPush' from 'numToPrePush' to 20.
-        //:
-        //: 4 Do a forced range push of 'numToPrePush' elements.
-        //:
-        //: 5 Do a 'tryPush*' of the next 'numToPush - numToPrePush' elements
-        //:   as a range.
-        //:
-        //: 6 Calculate the expected length of the container and verify it.
-        //:   (C-1) (C-2) (C-3)
-        //:
-        //: 7 Pop the contents out of the container and verify they are as
-        //:   expected.  (C-4)
-        //:
-        //: 8 Inject exceptions into the calls of each of the manipulators
-        //:   under test to verify that they provide the strong guarantee.
+        // 1. Iterate, creating `bdlcc::Deque` objects with high water marks
+        //    ranging from 1 to 9.
+        //
+        // 2. Within that, iterate `numToPrePush` from 0 to 4.
+        //
+        // 3. Within that, iterate `numToPush` from `numToPrePush` to 20.
+        //
+        // 4. Do a forced range push of `numToPrePush` elements.
+        //
+        // 5. Do a `tryPush*` of the next `numToPush - numToPrePush` elements
+        //    as a range.
+        //
+        // 6. Calculate the expected length of the container and verify it.
+        //    (C-1) (C-2) (C-3)
+        //
+        // 7. Pop the contents out of the container and verify they are as
+        //    expected.  (C-4)
+        //
+        // 8. Inject exceptions into the calls of each of the manipulators
+        //    under test to verify that they provide the strong guarantee.
         //
         // Testing:
         //   void tryPushBack(INPUT_ITER, INPUT_ITER); - st
@@ -6150,67 +6208,67 @@ int main(int argc, char *argv[])
         // MULTITHREADED FORCED PUSH TEST
         //
         // Concerns:
-        //: 1 That forced pushes, both range pushes and single pushes, always
-        //:   succeed.
-        //:
-        //: 2 That in the case of range pushes, all elements in the range
-        //:   wind up being contiguous in the container.
-        //:
-        //: 3 That the values pushed are preserved until popped.
+        // 1. That forced pushes, both range pushes and single pushes, always
+        //    succeed.
+        //
+        // 2. That in the case of range pushes, all elements in the range
+        //    wind up being contiguous in the container.
+        //
+        // 3. That the values pushed are preserved until popped.
         //
         // Plan:
-        //: 1 In this test, we shall have 4 pusher subthreads pushing onto one
-        //:   container under test, and the main thread will pop items from
-        //:   the container.
-        //:
-        //: 2 The items pushed and popped are of type 'unsigned', that is split
-        //:   into 3 fields:
-        //:   o The high-order 2 bits (bits 30 and 31), that indicate which of
-        //:     4 pusher threads pushed the item.  These are the 'source' bits.
-        //:   o The next lowest bit (bit 29), that indicates that the item is
-        //:     the first or last of a sequence of at least 2 items pushed by a
-        //:     single range push.  This is the 'start-end' bit.
-        //:   o The low-order 16 bits, that are the 'sequence' bits that
-        //:     represent a number.  For any pusher thread, the number
-        //:     represented by the sequence bits is incremented with every
-        //:     object that is pushed.
-        //:   o The other bits are unused.
-        //:
-        //: 3 The pusher thread iterates, doing one push per loop.
-        //:
-        //: 4 At the beginning of the pusher loop the 'Rand1To8' random number
-        //:   generator 'class' is used to generate a number, 'len', in the
-        //:   range '[1 .. 8]' to determine how many items are to be pushed
-        //:   this iteration.  All elements pushed have their 'source' bits
-        //:   set to indicate the index of the pusher.
-        //:   o If '1 == len', a single, non-range 'forcePush*' is used, and
-        //:     the 'start-end' bit of the value pushed is not set.
-        //:   o If 'len' has any other value, a range 'forcePush*' is used.
-        //:     Only the first and last elements of the range pushed have their
-        //:     'start-end' bits set.
-        //:
-        //: 5 In the main (popper) thread, there is an array of 4 'expecteds'
-        //:   unsigned values, that start out at zero.  For a thread 'ii',
-        //:   'expecteds[ii]' is the value expected for the sequence bits of
-        //:   the next item received from that thread to have.
-        //:
-        //: 5 The popper loop iterates until it has received 4 times as many
-        //:   items as one pusher thread pushes.
-        //:
-        //: 6 At the beginning of the popper loop, the first element is popped.
-        //:   The source bits are separated out, and used to accessed the
-        //:   member of 'expecteds' corresponding to the thread that pushed the
-        //:   item.  The sequence bits are verified to match the
-        //:   'expecteds[source]' value.
-        //:
-        //: 7 If the 'start-end' bit was set, then we know the item was the
-        //:   first in a range.  We continue popping more elements, verifying
-        //:   that the sequence bits increase by 1 each time, until we
-        //:   encounter an item whose 'start-end' bit is set, and then we know
-        //:   we have received the whole range pushed.  During this sequence we
-        //:   verify that all items have the same source bits. (C-2)
-        //:
-        //: 8 Plan parts 6 and 7 together establish (C-1) (C-3)
+        // 1. In this test, we shall have 4 pusher subthreads pushing onto one
+        //    container under test, and the main thread will pop items from
+        //    the container.
+        //
+        // 2. The items pushed and popped are of type `unsigned`, that is split
+        //    into 3 fields:
+        //    - The high-order 2 bits (bits 30 and 31), that indicate which of
+        //     4. pusher threads pushed the item.  These are the `source` bits.
+        //    - The next lowest bit (bit 29), that indicates that the item is
+        //      the first or last of a sequence of at least 2 items pushed by a
+        //      single range push.  This is the `start-end` bit.
+        //    - The low-order 16 bits, that are the `sequence` bits that
+        //      represent a number.  For any pusher thread, the number
+        //      represented by the sequence bits is incremented with every
+        //      object that is pushed.
+        //    - The other bits are unused.
+        //
+        // 3. The pusher thread iterates, doing one push per loop.
+        //
+        // 4. At the beginning of the pusher loop the `Rand1To8` random number
+        //    generator `class` is used to generate a number, `len`, in the
+        //    range `[1 .. 8]` to determine how many items are to be pushed
+        //    this iteration.  All elements pushed have their `source` bits
+        //    set to indicate the index of the pusher.
+        //    - If `1 == len`, a single, non-range `forcePush*` is used, and
+        //      the `start-end` bit of the value pushed is not set.
+        //    - If `len` has any other value, a range `forcePush*` is used.
+        //      Only the first and last elements of the range pushed have their
+        //      `start-end` bits set.
+        //
+        // 5. In the main (popper) thread, there is an array of 4 `expecteds`
+        //    unsigned values, that start out at zero.  For a thread `ii`,
+        //    `expecteds[ii]` is the value expected for the sequence bits of
+        //    the next item received from that thread to have.
+        //
+        // 5. The popper loop iterates until it has received 4 times as many
+        //    items as one pusher thread pushes.
+        //
+        // 6. At the beginning of the popper loop, the first element is popped.
+        //    The source bits are separated out, and used to accessed the
+        //    member of `expecteds` corresponding to the thread that pushed the
+        //    item.  The sequence bits are verified to match the
+        //    `expecteds[source]` value.
+        //
+        // 7. If the `start-end` bit was set, then we know the item was the
+        //    first in a range.  We continue popping more elements, verifying
+        //    that the sequence bits increase by 1 each time, until we
+        //    encounter an item whose `start-end` bit is set, and then we know
+        //    we have received the whole range pushed.  During this sequence we
+        //    verify that all items have the same source bits. (C-2)
+        //
+        // 8. Plan parts 6 and 7 together establish (C-1) (C-3)
         //
         // Testing:
         //   void forcePushBack(const T&); - mt
@@ -6306,40 +6364,40 @@ int main(int argc, char *argv[])
         // STRESS-TEST HIGH WATER MARK WITH FORCING
         //
         // Concerns:
-        //: 1 That normal pushes never result in the high water mark being
-        //:   violated.
-        //: 2 That range construction can violate the high water mark.
-        //: 3 That single-element forced pushes can violate the high water
-        //:   mark.
-        //: 4 That range forced pushes can violate the high water mark.
-        //: 5 That 'tryPush{Front,Back}' never violate the high water mark.
+        // 1. That normal pushes never result in the high water mark being
+        //    violated.
+        // 2. That range construction can violate the high water mark.
+        // 3. That single-element forced pushes can violate the high water
+        //    mark.
+        // 4. That range forced pushes can violate the high water mark.
+        // 5. That `tryPush{Front,Back}` never violate the high water mark.
         //
         // Plan:
-        //: 1 Have 3 passes, the first two are 'forward', pushing to the back
-        //:   of the queue and reading from the front, and the third backwards.
-        //:   o In the first pass, pre-populate the queue with some initial
-        //:     values from a range construct, and then observe that the queue
-        //:     is the desired length, that will sometimes be greater than the
-        //:     high water mark.  (C-2) (C-3) (C-4)
-        //:   o In the second two passes, pre-populate the queue with some
-        //:     initial values via a combination of 'tryPush*', single-element
-        //:     'forcePush*', and range 'forcePush*'.  If the queue is filled
-        //:     to or above the high water mark, Attempt another 'tryPush*' and
-        //:     verify that it fails.  (C-5)
-        //: 2 Have a background thread push more elements to the queue.  The
-        //:   elements in the queue are always ranging from 0 to 39, in
-        //:   sequence.  The background thread is to alternate pushing with
-        //:   'tryPush*' and 'push*'.
-        //: 3 Have the main thread pop the 40 elements from the opposite end of
-        //:   the queue from the end they were pushed to, and verify the values
-        //:   increase in sequence.  Have the main thread pause periodically to
-        //:   ensure that the background thread is able to fill the queue to
-        //:   the high water mark.
-        //: 4 Since none of the pushes following the initial pre-population of
-        //:   the queue are forced pushes, then once the queue length decreases
-        //:   to the high water mark, it should never increase past the high
-        //:   water mark again.  Have the main thread verify this.  (C-1)
-        //:   (C-5)
+        // 1. Have 3 passes, the first two are `forward`, pushing to the back
+        //    of the queue and reading from the front, and the third backwards.
+        //    - In the first pass, pre-populate the queue with some initial
+        //      values from a range construct, and then observe that the queue
+        //      is the desired length, that will sometimes be greater than the
+        //      high water mark.  (C-2) (C-3) (C-4)
+        //    - In the second two passes, pre-populate the queue with some
+        //      initial values via a combination of `tryPush*`, single-element
+        //      `forcePush*`, and range `forcePush*`.  If the queue is filled
+        //      to or above the high water mark, Attempt another `tryPush*` and
+        //      verify that it fails.  (C-5)
+        // 2. Have a background thread push more elements to the queue.  The
+        //    elements in the queue are always ranging from 0 to 39, in
+        //    sequence.  The background thread is to alternate pushing with
+        //    `tryPush*` and `push*`.
+        // 3. Have the main thread pop the 40 elements from the opposite end of
+        //    the queue from the end they were pushed to, and verify the values
+        //    increase in sequence.  Have the main thread pause periodically to
+        //    ensure that the background thread is able to fill the queue to
+        //    the high water mark.
+        // 4. Since none of the pushes following the initial pre-population of
+        //    the queue are forced pushes, then once the queue length decreases
+        //    to the high water mark, it should never increase past the high
+        //    water mark again.  Have the main thread verify this.  (C-1)
+        //    (C-5)
         //
         // Testing
         //   Deque(INPUT_ITER, INPUT_ITER, size_t, Alloc *);
@@ -6538,14 +6596,14 @@ int main(int argc, char *argv[])
         // STRESS-TEST HIGH WATER MARK
         //
         // Concerns:
-        //: 1 That normal pushes never result in the high water mark being
-        //:   violated.
+        // 1. That normal pushes never result in the high water mark being
+        //    violated.
         //
         // Plan:
-        //: 1 Have one thread aggressively push to the queue, and another
-        //:   thread read from the queue, occasionally pausing, verify that
-        //:   the correct values are obtained from the queue, and that the
-        //:   high water mark is never violated.  (C-1)
+        // 1. Have one thread aggressively push to the queue, and another
+        //    thread read from the queue, occasionally pausing, verify that
+        //    the correct values are obtained from the queue, and that the
+        //    high water mark is never violated.  (C-1)
         //
         // Testing
         //   void pushFront(const TYPE&); - mt
@@ -6641,23 +6699,23 @@ int main(int argc, char *argv[])
         // RANDOM_PUSH_POP_TEST
         //
         // Concerns:
-        //: 1 That the container functions correctly with simultaneous
-        //:   contention of pushes and pops from the same end.  The preceding
-        //:   sequence constraint test tested the integrity of the container
-        //:   well, but it did not test simultaneous push/pop contention from
-        //:   the same end.
+        // 1. That the container functions correctly with simultaneous
+        //    contention of pushes and pops from the same end.  The preceding
+        //    sequence constraint test tested the integrity of the container
+        //    well, but it did not test simultaneous push/pop contention from
+        //    the same end.
         //
         // Plan:
-        //: 1 Have many threads that push to the container, and half as many
-        //:   threads that pop from the container.  Each item pushed contains a
-        //:   'threadIdx' to indicate which pusher thread pushed it, and a
-        //:   random number.  Each pusher pthread sums all the random numbers
-        //:   it pushes, and each popper thread keeps separate sums for the
-        //:   numbers popped from each pushers.  At the end, the poppers
-        //:   aggregate their sums for each pusher into the global
-        //:   'popperTotalsByPusher' array, and after the threads are joined
-        //:   this array is compared to the sums aggregated by the pushers
-        //:   themselves (C-1).
+        // 1. Have many threads that push to the container, and half as many
+        //    threads that pop from the container.  Each item pushed contains a
+        //    `threadIdx` to indicate which pusher thread pushed it, and a
+        //    random number.  Each pusher pthread sums all the random numbers
+        //    it pushes, and each popper thread keeps separate sums for the
+        //    numbers popped from each pushers.  At the end, the poppers
+        //    aggregate their sums for each pusher into the global
+        //    `popperTotalsByPusher` array, and after the threads are joined
+        //    this array is compared to the sums aggregated by the pushers
+        //    themselves (C-1).
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -6691,30 +6749,30 @@ int main(int argc, char *argv[])
         // SEQUENCE CONSTRAINT TEST
         //
         // Concerns:
-        //: 1 Test the deque, pushing into one end and popping from the other,
-        //:   under heavy contention (up to 16 threads accessing the container
-        //:   simultaneously).
-        //: 2 Test it forward and backward.
-        //: 3 Test popping with return-by-value, and popping with
-        //:   return-through-pointer.
-        //: 4 Do proctor access while the container is under contention from
-        //:   other threads, both for pushing and popping objects.
+        // 1. Test the deque, pushing into one end and popping from the other,
+        //    under heavy contention (up to 16 threads accessing the container
+        //    simultaneously).
+        // 2. Test it forward and backward.
+        // 3. Test popping with return-by-value, and popping with
+        //    return-through-pointer.
+        // 4. Do proctor access while the container is under contention from
+        //    other threads, both for pushing and popping objects.
         //
         // Plan:
-        //: 1 The whole test always tests the container under heavy contention.
-        //:   (C-1).
-        //: 2 Have a boolean 'backwards' to determine whether the container is
-        //:   run forward or backward (C-2).
-        //: 3 Have a boolean 'popThroughPtr' to determine whether pops through
-        //:   a pointer occur, or pops that return by value (C-3)
-        //: 4 Iterate through all 4 possible states of 'backwards' and
-        //:   'popThroughPtr'.
-        //: 5 Vary through all cominations of 1-8 pushers and 1-8 poppers.
-        //: 6 Each pusher is to push thousands of elements into the container,
-        //:   each popper is to pop from it until the expected number of
-        //:   elements have been popped.
-        //: 7 Both the pusher and popper, periodically, access the container
-        //:   through proctors (C-4).
+        // 1. The whole test always tests the container under heavy contention.
+        //    (C-1).
+        // 2. Have a boolean `backwards` to determine whether the container is
+        //    run forward or backward (C-2).
+        // 3. Have a boolean `popThroughPtr` to determine whether pops through
+        //    a pointer occur, or pops that return by value (C-3)
+        // 4. Iterate through all 4 possible states of `backwards` and
+        //    `popThroughPtr`.
+        // 5. Vary through all cominations of 1-8 pushers and 1-8 poppers.
+        // 6. Each pusher is to push thousands of elements into the container,
+        //    each popper is to pop from it until the expected number of
+        //    elements have been popped.
+        // 7. Both the pusher and popper, periodically, access the container
+        //    through proctors (C-4).
         // --------------------------------------------------------------------
 
         if (verbose) cout << "SEQUENCE CONSTRAINT TEST\n"
@@ -6772,18 +6830,18 @@ int main(int argc, char *argv[])
         // MULTITHREADED TEST OF TRYPOPFRONT, TRYPOPBACK
         //
         // Concern:
-        //: 1 That tryPopFront, tryPopBack will work in a multithreaded
-        //:   context.
-        //:
-        //: 2 That elements are moved or copied as expected.
+        // 1. That tryPopFront, tryPopBack will work in a multithreaded
+        //    context.
+        //
+        // 2. That elements are moved or copied as expected.
         //
         // Plan:
-        //: 1 Have two functors, TestPopFront and TestPopBack.  Each functor
-        //:   will pop items off the deque and verify that the values are in
-        //:   the expected sequence.  Simultaneously, the main thread will push
-        //:   the sequence of values to the deque, frequently pausing.
-        //:
-        //: 2 Use 'MCElement' and query items popped for their move state.
+        // 1. Have two functors, TestPopFront and TestPopBack.  Each functor
+        //    will pop items off the deque and verify that the values are in
+        //    the expected sequence.  Simultaneously, the main thread will push
+        //    the sequence of values to the deque, frequently pausing.
+        //
+        // 2. Use `MCElement` and query items popped for their move state.
         //
         // Testing:
         //   int tryPopFront(TYPE *); - mt
@@ -6809,12 +6867,12 @@ int main(int argc, char *argv[])
         // TEST HIGH WATER MARK BLOCKING
         //
         // Concern:
-        //: 1 That the deque blocks pushes properly when it is at the high
-        //:   watermark.
+        // 1. That the deque blocks pushes properly when it is at the high
+        //    watermark.
         //
         // Plan:
-        //: 1  Call both forms of push... with the deque in a variety of
-        //:   states and observe the results.
+        // 1.  Call both forms of push... with the deque in a variety of
+        //    states and observe the results.
         //
         // Testing:
         //   void pushFront(const TYPE&); - mt
@@ -6842,11 +6900,11 @@ int main(int argc, char *argv[])
         // TEST BLOCKING ON EMPTY DEQUE
         //
         // Concern:
-        //: 1 Does the deques block pops properly when it is empty.
+        // 1. Does the deques block pops properly when it is empty.
         //
         // Plan:
-        //: 1 Call both forms of 'timedPop*' with the deque in a variety of
-        //:   states and observe the results.
+        // 1. Call both forms of `timedPop*` with the deque in a variety of
+        //    states and observe the results.
         //
         // Testing:
         //   int timedPopBack(TYPE *, const bsls::TimeInterval&);
@@ -6916,7 +6974,7 @@ int main(int argc, char *argv[])
             void *sts;
             bslmt::ThreadUtil::join(handle, &sts);
             ASSERTV(sts,    !sts);
-            ASSERTV(status, 0 == status);  // Expected after 'TERMINATE'.
+            ASSERTV(status, 0 == status);  // Expected after `TERMINATE`.
         }
 
         ASSERT(u::now() < timeout);
@@ -6926,16 +6984,16 @@ int main(int argc, char *argv[])
         // TEST TRYPOPFRONT, TRYPOPBACK -- SINGLE THREAD
         //
         // Concern:
-        //: 1 That tryPopFront and tryPopBack work as designed in a single -
-        //:   threaded context.
+        // 1. That tryPopFront and tryPopBack work as designed in a single -
+        //    threaded context.
         //
         // Plan:
-        //: 1 Call both forms of tryPop... both with an empty deque and with
-        //:   a deque containing items, verify that return values (if any)
-        //:   are correct and that correct data is returned.
-        //:
-        //: 2 Inject exceptions into the calls of each of the manipulators
-        //:   under test to verify that they provide the strong guarantee.
+        // 1. Call both forms of tryPop... both with an empty deque and with
+        //    a deque containing items, verify that return values (if any)
+        //    are correct and that correct data is returned.
+        //
+        // 2. Inject exceptions into the calls of each of the manipulators
+        //    under test to verify that they provide the strong guarantee.
         //
         // Testing:
         //   int tryPopFront(TYPE *); - st
@@ -6971,26 +7029,26 @@ int main(int argc, char *argv[])
         // TESTING REMOVEALL
         //
         // Concerns:
-        //: 1 That 'removeAll' empties the deque, that it saves the elements in
-        //:   proper order into the specified buffer if one is provided, and
-        //:   destroys them properly otherwise.
-        //: 2 That 'removeAll' properly signals threads waiting for the
-        //:   'notFullCondition'.
+        // 1. That `removeAll` empties the deque, that it saves the elements in
+        //    proper order into the specified buffer if one is provided, and
+        //    destroys them properly otherwise.
+        // 2. That `removeAll` properly signals threads waiting for the
+        //    `notFullCondition`.
         //
         // Plan:
-        //: 1 Create a deque object with multiple elements endequed.
-        //:
-        //: 2 Invoke 'removeAll' and verify that the deque is empty and that
-        //:   all elements have been copied to the optionally specified buffer
-        //:   in the proper order.
-        //:
-        //: 3 Finally, create a deque with a high watermark, and fill it, then
-        //:   create a thread to push into it, verify that thread is blocked.
-        //:   In the main thread, invoke 'removeAll' and verifies that pushing
-        //:   thread is unblocked.
-        //:
-        //: 4 Inject exceptions into the calls of 'removeAll' to 'vector' to
-        //:   verify that it provides the strong guarantee.
+        // 1. Create a deque object with multiple elements endequed.
+        //
+        // 2. Invoke `removeAll` and verify that the deque is empty and that
+        //    all elements have been copied to the optionally specified buffer
+        //    in the proper order.
+        //
+        // 3. Finally, create a deque with a high watermark, and fill it, then
+        //    create a thread to push into it, verify that thread is blocked.
+        //    In the main thread, invoke `removeAll` and verifies that pushing
+        //    thread is unblocked.
+        //
+        // 4. Inject exceptions into the calls of `removeAll` to `vector` to
+        //    verify that it provides the strong guarantee.
         //
         // Testing:
         //   removeAll();
@@ -7140,44 +7198,44 @@ int main(int argc, char *argv[])
         // TESTING PROCTORS
         //
         // Concerns:
-        //: 1 That proctors work as specified, and that they operate correctly
-        //:   under heavy multi-threaded contention.
+        // 1. That proctors work as specified, and that they operate correctly
+        //    under heavy multi-threaded contention.
         //
         // Plan:
-        //: 1 Create a 'bdlcc::Deque' object and populate it with a few values.
-        //: 2 Single-Threaded 'ConstProctor'.
-        //:   o Lock our 'bdlcc::Deque' with a 'ConstProctor' 'PR' and access
-        //:     it through 'PR'.
-        //: 3 Single-Threaded 'Proctor'.
-        //:   o Lock our 'Bdlcc::Deque' with a 'Proctor' 'pr', access it, and
-        //:     modify it thourhg 'pr'.
-        //:   o Destroy the proctor.
-        //:   o Pop the remaining elements out of the container and observe the
-        //:     state is as expected, using thrad-safe modificrs and
-        //:     accesssors.
-        //: 4 Multi-threaded Proctor Testing
-        //:   o Create 2 'bdlcc::Deque' objects, a source and a destination,
-        //:     both with high water marks.
-        //:   o Create 5 popper threads, that will pop elements from the dest
-        //:     deque.
-        //:   o Create 1 transferrer thread, that will use 3 proctors, one of
-        //:     which is a const proctor, that will use proctor access to
-        //:     transfer elements from the source deque to the dest deque, then
-        //:     erase them from the source deque.  Note this transfer will
-        //:     violate the high water mark, and we will observe this does not
-        //:     create a problem (ie by signalling of condtions becoming
-        //:     confused) and we will observe that no deadlock happens in spite
-        //:     of heavy contention on the dest deque while the high water mark
-        //:     is sometimes being violated.
-        //:   o Create 5 direct pusher threads, that will push elements to the
-        //:     dest deque, blocking when they reach the high water mark.
-        //:   o Create 5 source pusher threads, that will push elements to the
-        //:     dest deque, blocking when they reach the high water mark.
-        //:   o Join all the threads (all of the threads are set up to process
-        //:     a specefic number of elements, so after they have processed
-        //:     their respective numbers of elements, they will just exit.
-        //:   o Observe that both deques are empty after the threads are
-        //:     joined.
+        // 1. Create a `bdlcc::Deque` object and populate it with a few values.
+        // 2. Single-Threaded `ConstProctor`.
+        //    - Lock our `bdlcc::Deque` with a `ConstProctor` `PR` and access
+        //      it through `PR`.
+        // 3. Single-Threaded `Proctor`.
+        //    - Lock our `Bdlcc::Deque` with a `Proctor` `pr`, access it, and
+        //      modify it thourhg `pr`.
+        //    - Destroy the proctor.
+        //    - Pop the remaining elements out of the container and observe the
+        //      state is as expected, using thrad-safe modificrs and
+        //      accesssors.
+        // 4. Multi-threaded Proctor Testing
+        //    - Create 2 `bdlcc::Deque` objects, a source and a destination,
+        //      both with high water marks.
+        //    - Create 5 popper threads, that will pop elements from the dest
+        //      deque.
+        //    - Create 1 transferrer thread, that will use 3 proctors, one of
+        //      which is a const proctor, that will use proctor access to
+        //      transfer elements from the source deque to the dest deque, then
+        //      erase them from the source deque.  Note this transfer will
+        //      violate the high water mark, and we will observe this does not
+        //      create a problem (ie by signalling of condtions becoming
+        //      confused) and we will observe that no deadlock happens in spite
+        //      of heavy contention on the dest deque while the high water mark
+        //      is sometimes being violated.
+        //    - Create 5 direct pusher threads, that will push elements to the
+        //      dest deque, blocking when they reach the high water mark.
+        //    - Create 5 source pusher threads, that will push elements to the
+        //      dest deque, blocking when they reach the high water mark.
+        //    - Join all the threads (all of the threads are set up to process
+        //      a specefic number of elements, so after they have processed
+        //      their respective numbers of elements, they will just exit.
+        //    - Observe that both deques are empty after the threads are
+        //      joined.
         //
         // Testing:
         //   ConstProctor
@@ -7379,7 +7437,7 @@ int main(int argc, char *argv[])
                 ASSERT(!pr.isNull());
                 ASSERT(!PR.isNull());
 
-                // Modify 'mX' to show that it's now unlocked.
+                // Modify `mX` to show that it's now unlocked.
 
                 ASSERT(VB == mX.popFront());
                 mX.pushFront(VB);
@@ -7505,27 +7563,27 @@ int main(int argc, char *argv[])
         // TESTING TIMED PUSH & POP FUNCTIONS WITH A HIGH WATER MARK
         //
         // Concerns:
-        //: 1 That the 'timedPushBack' and 'timedPushFront' functions properly
-        //:   time out unless the deque has fewer items than the high-water
-        //:   mark
+        // 1. That the `timedPushBack` and `timedPushFront` functions properly
+        //    time out unless the deque has fewer items than the high-water
+        //    mark
         //
         // Plan:
-        //: 1 Create a deque object with a positive high-water mark, then push
-        //:   that many items on the deque and verify that none of the push
-        //:   operations block, then in a different thread add one more item
-        //:   and verify that it now times out.  Then if the high-water mark is
-        //:   positive, again add one more item in second thread, and in the
-        //:   main thread, after half the timeout (or less, for margin), pop
-        //:   one item and verify that the other thread is now unblocked and
-        //:   that the element has been added to the deque.
-        //:
-        //: 2 Inject exceptions into the calls of each of the manipulators
-        //:   under test to verify that they provide the strong guarantee.
-        //:
-        //: 3 Do a separate, single-threaded test of 'timedPop{Front,Back}'
-        //:   with exceptions injected.  This can't be done in the main
-        //:   multithreaded test because exceptions get injected into the
-        //:   wrong threads where they are not caught.
+        // 1. Create a deque object with a positive high-water mark, then push
+        //    that many items on the deque and verify that none of the push
+        //    operations block, then in a different thread add one more item
+        //    and verify that it now times out.  Then if the high-water mark is
+        //    positive, again add one more item in second thread, and in the
+        //    main thread, after half the timeout (or less, for margin), pop
+        //    one item and verify that the other thread is now unblocked and
+        //    that the element has been added to the deque.
+        //
+        // 2. Inject exceptions into the calls of each of the manipulators
+        //    under test to verify that they provide the strong guarantee.
+        //
+        // 3. Do a separate, single-threaded test of `timedPop{Front,Back}`
+        //    with exceptions injected.  This can't be done in the main
+        //    multithreaded test because exceptions get injected into the
+        //    wrong threads where they are not caught.
         //
         // Testing:
         //   int timedPopBack( TYPE *, const bsls::TimeInterval&);
@@ -7566,7 +7624,7 @@ int main(int argc, char *argv[])
 
         bsls::Stopwatch sw;
 
-        if (verbose) cout << "\tWith 'timed{Pop,Push}Back'" << endl;
+        if (verbose) cout << "\tWith `timed{Pop,Push}Back`" << endl;
 
         for (size_t ti = 0; ti < NUM_VALUES; ++ti) {
             const unsigned int HIGH_WATER_MARK = VALUES[ti].d_highWaterMark;
@@ -7680,7 +7738,7 @@ int main(int argc, char *argv[])
             TC::waitingFlag = 0;
         }
 
-        if (verbose) cout << "\tWith 'timed{Pop,Push}Front'" << endl;
+        if (verbose) cout << "\tWith `timed{Pop,Push}Front`" << endl;
 
         for (unsigned ti = 0; ti < NUM_VALUES; ++ti) {
             const unsigned int HIGH_WATER_MARK = VALUES[ti].d_highWaterMark;
@@ -7795,7 +7853,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-                    "Single-threaded 'timedPop{Front,Back}' with exceptions\n";
+                    "Single-threaded `timedPop{Front,Back}` with exceptions\n";
         for (int ti = 0; ti < 2; ++ti) {
             bool doFront = ti;
 
@@ -7891,17 +7949,17 @@ int main(int argc, char *argv[])
         // TESTING PUSH FUNCTIONS WITH HIGH WATER MARK
         //
         // Concerns:
-        //: 1 That the 'pushBack' and 'pushFront' functions properly block
-        //:   unless the deque has fewer items than the high-water mark.
+        // 1. That the `pushBack` and `pushFront` functions properly block
+        //    unless the deque has fewer items than the high-water mark.
         //
         // Plan:
-        //: 1 Create a deque object with a positive high-water mark, then push
-        //:   that many items on the deque and verify that none of the push
-        //:   operations block, then in a different thread add one more item
-        //:   and verify that it now blocks.  In the main thread, pop one item
-        //:   and verify that the other thread is now unblocked and that the
-        //:   element has been added to the deque.  When creating without high
-        //:   water mark, many insertions should never block.
+        // 1. Create a deque object with a positive high-water mark, then push
+        //    that many items on the deque and verify that none of the push
+        //    operations block, then in a different thread add one more item
+        //    and verify that it now blocks.  In the main thread, pop one item
+        //    and verify that the other thread is now unblocked and that the
+        //    element has been added to the deque.  When creating without high
+        //    water mark, many insertions should never block.
         //
         // Testing:
         //   Deque(int highWaterMark, Alloc *alloc = 0);
@@ -7930,7 +7988,7 @@ int main(int argc, char *argv[])
         const Element VA = 1.2;
         const Element VB = -5.7;
 
-        if (verbose) cout << "\tWith 'pushBack'" << endl;
+        if (verbose) cout << "\tWith `pushBack`" << endl;
         for (size_t i = 0; i< NUM_VALUES; ++i)
         {
             {
@@ -7978,7 +8036,7 @@ int main(int argc, char *argv[])
             ASSERTV(i, 0 == ta.numBytesInUse());
         }
 
-        if (verbose) cout << "\tWith 'push_front'" << endl;
+        if (verbose) cout << "\tWith `push_front`" << endl;
         for (unsigned i = 0; i< NUM_VALUES; ++i)
         {
             {
@@ -8033,16 +8091,16 @@ int main(int argc, char *argv[])
         // TESTING TIMED POP FUNCTIONS -- MT
         //
         // Concerns:
-        //: 1 That the 'timedPopBack' and 'timedPopFront' functions block
-        //:   properly when an item is not available.
-        //: 2 That they time out properly when no item is available.
+        // 1. That the `timedPopBack` and `timedPopFront` functions block
+        //    properly when an item is not available.
+        // 2. That they time out properly when no item is available.
         //
         // Plan:
-        //: 1 Create a deque object, pop within a different thread, verify that
-        //:   thread is waiting and times out, then signal the other thread and
-        //:   wait for half its timeout (or less, for margin) to push an
-        //:   object, go to sleep and verify upon waking up that the other
-        //:   thread has popped the object properly.
+        // 1. Create a deque object, pop within a different thread, verify that
+        //    thread is waiting and times out, then signal the other thread and
+        //    wait for half its timeout (or less, for margin) to push an
+        //    object, go to sleep and verify upon waking up that the other
+        //    thread has popped the object properly.
         //
         // Testing:
         //   int timedPopBack(TYPE *, const TimeInterval&); - mt
@@ -8054,7 +8112,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING TIMED POP FUNCTIONS -- MT\n"
                              "=================================\n";
 
-        if (verbose) cout << "\tWith 'timedPopBack'" << endl;
+        if (verbose) cout << "\tWith `timedPopBack`" << endl;
         bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             bsls::TimeInterval T10(10 * DECI_SEC);          // 1s
@@ -8088,7 +8146,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == da.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
 
-        if (verbose) cout << "\tWith 'timedPopFront'" << endl;
+        if (verbose) cout << "\tWith `timedPopFront`" << endl;
         {
             bsls::TimeInterval T10(10 * DECI_SEC); // 1s
 
@@ -8155,13 +8213,13 @@ int main(int argc, char *argv[])
         // TESTING PUSH AND POP FUNCTIONS IN MT
         //
         // Concerns:
-        //: 1 That the 'popBack' and 'popFront' functions properly block until
-        //:   an item is available.
+        // 1. That the `popBack` and `popFront` functions properly block until
+        //    an item is available.
         //
         // Plan:
-        //: 1 Create a deque object, pop within a different thread, verify that
-        //:   second thread is waiting, then push an object and verify that
-        //:   the second thread has correctly popped the object and unblocked.
+        // 1. Create a deque object, pop within a different thread, verify that
+        //    second thread is waiting, then push an object and verify that
+        //    the second thread has correctly popped the object and unblocked.
         //
         // Testing:
         //   T popBack(); - mt
@@ -8177,7 +8235,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING PUSH AND POP FUNCTIONS IN MT\n"
                              "====================================\n";
 
-        if (verbose) cout << "\tWith 'popBack'" << endl;
+        if (verbose) cout << "\tWith `popBack`" << endl;
         bslma::TestAllocator ta(veryVeryVeryVerbose);
         for (int ti = 0; ti < 2; ++ti) {
             const int T = 1 * MICRO_100TH_SEC; // in microseconds
@@ -8190,10 +8248,10 @@ int main(int argc, char *argv[])
             bslmt::ThreadUtil::create(&thread, pushPopFunctionBack, &testObj);
 
             // Yielding is not bullet-proof because it does not ENSURE that
-            // 'testObj' is blocking on the 'popFront', so we make sure by
+            // `testObj` is blocking on the `popFront`, so we make sure by
             // waiting as long as necessary -- to prevent failure in high loads
-            // should the 'pushBack' below execute before 'popFront' in
-            // 'testObj'.
+            // should the `pushBack` below execute before `popFront` in
+            // `testObj`.
 
             int iter = 100;
             while (0 == testObj.waitingFlag() && 0 < --iter) {
@@ -8216,7 +8274,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == da.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
 
-        if (verbose) cout << "\tWith 'popFront'" << endl;
+        if (verbose) cout << "\tWith `popFront`" << endl;
         for (int ti = 0; ti < 2; ++ti) {
             const int T = 1 * MICRO_100TH_SEC; // in microseconds
             Obj       x(&ta);
@@ -8255,81 +8313,81 @@ int main(int argc, char *argv[])
         // SINGLE-THREADED TESTING SINGLE PUSHES, POPS, AND LENGTH
         //
         // Concerns:
-        //: 1 That for a 'bdlcc::Dueue' 'd', 'd.length() == proctor->leNGTH()'
-        //:   always.  This is verified by the 'myLength' function, that
-        //:   measures the length both ways and asserts they match.  Since it
-        //:   is usually impossible to test manipulators without calling
-        //:   accessors, or accessors without calling manipulators, this
-        //:   testing will take place while the manipulators are being tested
-        //:   rather than in a separate section.  Also implement 'myFront' and
-        //:   'myBack' that access the front and back of the 'bsl::deque' by
-        //:   value via proctors.
-        //:
-        //: 2 That 'pushBack' has the same effect on the deque as calling
-        //:   'push_back on the underlying 'bsl::deque'.
-        //:
-        //: 3 That 'popBack' calls 'pop_back' on the underlying 'bsl::deque',
-        //:   except it also returns the popped value.
-        //:
-        //: 4 That 'pushFront' has the same effect on the deque as calling
-        //:   'push_front on the underlying 'bsl::deque'.
-        //:
-        //: 5 That 'popFront' calls 'pop_front' on the underlying 'bsl::deque',
-        //:   except it also returns the popped value.
+        // 1. That for a `bdlcc::Dueue` `d`, `d.length() == proctor->leNGTH()`
+        //    always.  This is verified by the `myLength` function, that
+        //    measures the length both ways and asserts they match.  Since it
+        //    is usually impossible to test manipulators without calling
+        //    accessors, or accessors without calling manipulators, this
+        //    testing will take place while the manipulators are being tested
+        //    rather than in a separate section.  Also implement `myFront` and
+        //    `myBack` that access the front and back of the `bsl::deque` by
+        //    value via proctors.
+        //
+        // 2. That `pushBack` has the same effect on the deque as calling
+        //    `push_back on the underlying `bsl::deque'.
+        //
+        // 3. That `popBack` calls `pop_back` on the underlying `bsl::deque`,
+        //    except it also returns the popped value.
+        //
+        // 4. That `pushFront` has the same effect on the deque as calling
+        //    `push_front on the underlying `bsl::deque'.
+        //
+        // 5. That `popFront` calls `pop_front` on the underlying `bsl::deque`,
+        //    except it also returns the popped value.
         //
         // Plan:
-        //: 1 Testing 'pushBack', 'popBack', 'pushFront', and 'popFront':
-        //:
-        //:   o Push a couple of different values into 'x', the deque, with
-        //:     'pushBack', monitoring the length of the deque with 'myLength'
-        //:     and monitoring the contents of the deque with 'myFront' and
-        //:     'myBack'.  C-2, C-1.
-        //:
-        //:   o Pop the two values from the 'x', the deque, using 'popBack',
-        //:     observing that the correct values are returned, and monitoring
-        //:     the length of the deque with 'myLength' and monitoring the
-        //:     contents of the deque with 'myBack()' and 'myFront()'.  C-3,
-        //:     C-1.
-        //:
-        //:   o Push a couple of new, different values into 'x', the deque,
-        //:     with 'pushFront', monitoring the length of the deque with
-        //:     'myLength' and monitoring the contents of the deque with
-        //:     'myBack()' and 'myFront()'.  C-4, C-1.
-        //:
-        //:   o Pop the two values from the 'x', the deque, using 'popFront',
-        //:     observing that the correct values are returned, and monitoring
-        //:     the length of the deque with 'myLength' and monitoring the
-        //:     contents of the deque with 'myBack()' and 'myFront()'.  C-5,
-        //:     C-1.
-        //:
-        //: 2 Iterate, randomly choosing a deque length in the range 0-7.  This
-        //:   test tests C-1, C-2, C-3, C-4, and C-5, just more thoroughly.
-        //:
-        //:   o If the chosen length is longer than the existing deque length,
-        //:     grow the deque to the desired deque length by random choosing
-        //:     'pushFront' or 'pushBack', and pushing random doubles into the
-        //:     deque.  Simultaneously push the same value onto the same end of
-        //:     a 'bsl::deque' kept in parallel.
-        //:
-        //:   o If the chosen length is shorter than the existing deque, shrink
-        //:     the deque to the designated deque length by randomly calling
-        //:     'popFront' or 'popBack'.  Simultaneously do a similar pop from
-        //:     the parallel 'bsl::deque', and observe the values popped are
-        //:     identical.
-        //:
-        //:   o Each iteration, whether growing or shrinking, frequently check
-        //:     the length is as expected, via 'myLength', but also verify it
-        //:     matches the length of the 'bsl::deque'. check the length of the
-        //:     deque, and call 'length()' on the deque and observe that all
-        //:     three lengths match with the expected value.
-        //:
-        //: 3 Repeat step 2, only with the container containing a type that
-        //:   allocates, and perform all actions that provide the strong
-        //:   exception guarantee with exceptions, ensuring that they do in
-        //:   fact provide that guarantee.
-        //:
-        //: 4 Inject exceptions into the calls of each of the manipulators
-        //:   under test to verify that they provide the strong guarantee.
+        // 1. Testing `pushBack`, `popBack`, `pushFront`, and `popFront`:
+        //
+        //    - Push a couple of different values into `x`, the deque, with
+        //      `pushBack`, monitoring the length of the deque with `myLength`
+        //      and monitoring the contents of the deque with `myFront` and
+        //      `myBack`.  C-2, C-1.
+        //
+        //    - Pop the two values from the `x`, the deque, using `popBack`,
+        //      observing that the correct values are returned, and monitoring
+        //      the length of the deque with `myLength` and monitoring the
+        //      contents of the deque with `myBack()` and `myFront()`.  C-3,
+        //      C-1.
+        //
+        //    - Push a couple of new, different values into `x`, the deque,
+        //      with `pushFront`, monitoring the length of the deque with
+        //      `myLength` and monitoring the contents of the deque with
+        //      `myBack()` and `myFront()`.  C-4, C-1.
+        //
+        //    - Pop the two values from the `x`, the deque, using `popFront`,
+        //      observing that the correct values are returned, and monitoring
+        //      the length of the deque with `myLength` and monitoring the
+        //      contents of the deque with `myBack()` and `myFront()`.  C-5,
+        //      C-1.
+        //
+        // 2. Iterate, randomly choosing a deque length in the range 0-7.  This
+        //    test tests C-1, C-2, C-3, C-4, and C-5, just more thoroughly.
+        //
+        //    - If the chosen length is longer than the existing deque length,
+        //      grow the deque to the desired deque length by random choosing
+        //      `pushFront` or `pushBack`, and pushing random doubles into the
+        //      deque.  Simultaneously push the same value onto the same end of
+        //      a `bsl::deque` kept in parallel.
+        //
+        //    - If the chosen length is shorter than the existing deque, shrink
+        //      the deque to the designated deque length by randomly calling
+        //      `popFront` or `popBack`.  Simultaneously do a similar pop from
+        //      the parallel `bsl::deque`, and observe the values popped are
+        //      identical.
+        //
+        //    - Each iteration, whether growing or shrinking, frequently check
+        //      the length is as expected, via `myLength`, but also verify it
+        //      matches the length of the `bsl::deque`. check the length of the
+        //      deque, and call `length()` on the deque and observe that all
+        //      three lengths match with the expected value.
+        //
+        // 3. Repeat step 2, only with the container containing a type that
+        //    allocates, and perform all actions that provide the strong
+        //    exception guarantee with exceptions, ensuring that they do in
+        //    fact provide that guarantee.
+        //
+        // 4. Inject exceptions into the calls of each of the manipulators
+        //    under test to verify that they provide the strong guarantee.
         //
         // Testing:
         //   Deque(bslma::Allocator *basicAllocator = 0);
@@ -8379,7 +8437,7 @@ int main(int argc, char *argv[])
             Obj        x(&ta);
             const Obj& X = x;
 
-            if (verbose) cout << "\t\t'pushBack' && 'length'\n";
+            if (verbose) cout << "\t\t'pushBack' && `length`\n";
             {
                 ASSERT(0 == u::myLength(X));
 
@@ -8395,7 +8453,7 @@ int main(int argc, char *argv[])
                 ASSERT(V[1] == u::myBack( X));
             }
 
-            if (verbose) cout << "\t\t'popBack' && 'length'\n";
+            if (verbose) cout << "\t\t'popBack' && `length`\n";
             {
                 ASSERT(2 == u::myLength(X));
                 ASSERT(V[1] == x.popBack());
@@ -8416,7 +8474,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == u::myLength(X));
             }
 
-            if (verbose) cout << "\t\t'pushFront' && 'length'\n";
+            if (verbose) cout << "\t\t'pushFront' && `length`\n";
             {
                 ASSERT(0 == u::myLength(X));
 
@@ -8432,7 +8490,7 @@ int main(int argc, char *argv[])
                 ASSERT(V[2] == u::myBack( X));
             }
 
-            if (verbose) cout << "\t\t'popFront' && 'length'\n";
+            if (verbose) cout << "\t\t'popFront' && `length`\n";
             {
                 ASSERT(2 == u::myLength(X));
                 ASSERT(V[3] == x.popFront());
@@ -8457,7 +8515,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\t2. Random pushes and pops\n";
         {
-            // In this block, we have 3 parallel containers 'x', 'xB', and 'd',
+            // In this block, we have 3 parallel containers `x`, `xB`, and `d`,
             // to which we apply identical pushes and pops, and observe their
             // behavior is always the same.
 
@@ -8489,7 +8547,7 @@ int main(int argc, char *argv[])
                         ASSERT(expectedLength == u::myLength(X));
                         ASSERT(expectedLength == u::myLength(XB));
 
-                        // Generate a fairly random double using 'generate15'.
+                        // Generate a fairly random double using `generate15`.
 
                         const Element v = randElement();
 
@@ -8582,7 +8640,7 @@ int main(int argc, char *argv[])
             AObj        x(&ta);
             const AObj& X = x;
 
-            if (verbose) cout << "\t\t'pushBack' && 'length'\n";
+            if (verbose) cout << "\t\t'pushBack' && `length`\n";
             {
                 ASSERT(0 == u::myLength(X));
 
@@ -8602,7 +8660,7 @@ int main(int argc, char *argv[])
                 ASSERT(V[1] == u::myBack( X));
             }
 
-            if (verbose) cout << "\t\t'popBack' && 'length'\n";
+            if (verbose) cout << "\t\t'popBack' && `length`\n";
             {
                 ASSERT(2 == u::myLength(X));
                 {
@@ -8631,7 +8689,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == u::myLength(X));
             }
 
-            if (verbose) cout << "\t\t'pushFront' && 'length'\n";
+            if (verbose) cout << "\t\t'pushFront' && `length`\n";
             {
                 ASSERT(0 == u::myLength(X));
 
@@ -8651,7 +8709,7 @@ int main(int argc, char *argv[])
                 ASSERT(V[2] == u::myBack( X));
             }
 
-            if (verbose) cout << "\t\t'popFront' && 'length'\n";
+            if (verbose) cout << "\t\t'popFront' && `length`\n";
             {
                 ASSERT(2 == u::myLength(X));
                 {
@@ -8695,19 +8753,19 @@ int main(int argc, char *argv[])
         //   Exercise the basic functionality
         //
         // Concerns:
-        //: 1 That basic essential functionality is operational for one thread
+        // 1. That basic essential functionality is operational for one thread
         //
         // Plan:
-        //: 1 Create a deque object using the various constructors, 'pushBack'
-        //:   three elements and verify that 'popFront'ing them results in same
-        //:   order, then 'pushBack' three elements again and verify that
-        //:   'popBack'ing them results in opposite order.  Verify that
-        //:   'timedPopFront' will time out, then 'pushFront' another item,
-        //:   verify that 'timedPopFront' pops the item, then 'pushFront'
-        //:   another item and verify that 'timedPopFront' pops the item.
-        //:   Finally, verify that one can gain modifiable access to the mutex,
-        //:   condition variable, and deque, perform same operations and
-        //:   release the mutex.
+        // 1. Create a deque object using the various constructors, `pushBack`
+        //    three elements and verify that `popFront`ing them results in same
+        //    order, then `pushBack` three elements again and verify that
+        //    `popBack`ing them results in opposite order.  Verify that
+        //    `timedPopFront` will time out, then `pushFront` another item,
+        //    verify that `timedPopFront` pops the item, then `pushFront`
+        //    another item and verify that `timedPopFront` pops the item.
+        //    Finally, verify that one can gain modifiable access to the mutex,
+        //    condition variable, and deque, perform same operations and
+        //    release the mutex.
         //
         // Testing:
         //   BREATHING TEST
@@ -9059,7 +9117,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == da.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
 
-        if (verbose) cout << "Exercising 'highWaterMark'\n";
+        if (verbose) cout << "Exercising `highWaterMark`\n";
         {
             const bsl::size_t HIGH_WATER_MARK = 10;
             Obj               x(&ta);

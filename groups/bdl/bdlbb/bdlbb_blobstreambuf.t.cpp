@@ -16,9 +16,9 @@
 #include <bsls_review.h>
 
 #include <bsl_algorithm.h>
-#include <bsl_cctype.h>      // 'isdigit' 'isupper' 'islower'
-#include <bsl_cstdlib.h>     // 'atoi'
-#include <bsl_cstring.h>     // 'memset'/memcmp()
+#include <bsl_cctype.h>      // `isdigit` `isupper` `islower`
+#include <bsl_cstdlib.h>     // `atoi`
+#include <bsl_cstring.h>     // `memset`/memcmp()
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -187,28 +187,28 @@ int main(int argc, char *argv[])
         // TESTING CONCERN: EOF IS STREAMED CORRECTLY
         //
         // Concerns:
-        //   * That 'xsputn' copies EOF when it appears within a buffer
+        //   * That `xsputn` copies EOF when it appears within a buffer
         //     boundary.
         //
-        //   * That 'xsputn' copies EOF when it appears as the first character
+        //   * That `xsputn` copies EOF when it appears as the first character
         //     in a buffer (i.e., when it crosses a buffer boundary).
         //
         // Plan:
         // Iterate over a set of test vectors varying in buffer size and length
         // of data to write.  For each test vector, instantiate a
-        // 'bdlbb::PooledBlobBufferFactory', 'mF', allocate a 'bdlbb::Blob',
-        // 'mC', and use 'mC' to instantiate a 'bdlbb::BlobStreamBuf', 'mX'.
-        // Write the specified number of bytes to 'mX' using 'sputn', and
-        // verify the length of 'mC'.  Read the specified number of buffers
-        // from 'mX', and verify the result, and the get area offset of 'mX'.
+        // `bdlbb::PooledBlobBufferFactory`, `mF`, allocate a `bdlbb::Blob`,
+        // `mC`, and use `mC` to instantiate a `bdlbb::BlobStreamBuf`, `mX`.
+        // Write the specified number of bytes to `mX` using `sputn`, and
+        // verify the length of `mC`.  Read the specified number of buffers
+        // from `mX`, and verify the result, and the get area offset of `mX`.
         //
-        // Instantiate a 'bdlbb::PooledBlobBufferFactory', 'mF', allocate a
-        // 'bdlbb::Blob', 'mC', and use 'mC' to instantiate a
-        // 'bdlbb::BlobStreamBuf, 'mX'.  Iterate over an input buffer whose
-        // length is more than the size of 'mC', but less than twice the size
-        // of 'mC'.  On each iteration, write the input buffer into 'mX',
+        // Instantiate a `bdlbb::PooledBlobBufferFactory`, `mF`, allocate a
+        // `bdlbb::Blob`, `mC`, and use `mC` to instantiate a
+        // `bdlbb::BlobStreamBuf, `mX'.  Iterate over an input buffer whose
+        // length is more than the size of `mC`, but less than twice the size
+        // of `mC`.  On each iteration, write the input buffer into `mX`,
         // substituting the i'th character for EOF.  Read back the data form
-        // 'mX', and verify the result.
+        // `mX`, and verify the result.
         //
         // Testing:
         //   Concern: EOF is streamed correctly
@@ -327,30 +327,30 @@ int main(int argc, char *argv[])
       }  break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'xsgetn' AND 'xsputn' FUNCTIONS
+        // TESTING `xsgetn` AND `xsputn` FUNCTIONS
         //
         // Concerns:
-        //   * That 'xsputn' returns the requested number of bytes when that
+        //   * That `xsputn` returns the requested number of bytes when that
         //     number is less than the current buffer capacity.
         //
-        //   * That 'xsputn' returns the requested number of bytes when that
+        //   * That `xsputn` returns the requested number of bytes when that
         //     number is greater than the current buffer capacity.
         //
-        //   * That 'xsgetn' returns the requested number of bytes when that
+        //   * That `xsgetn` returns the requested number of bytes when that
         //     number is less than the current buffer capacity.
         //
-        //   * That 'xsgetn' returns the requested number of bytes when that
+        //   * That `xsgetn` returns the requested number of bytes when that
         //     number is greater than the current buffer capacity.
         //
         // Plan:
         //   Iterate over a set of test vectors varying in buffer size and
         //   length of data to write.  For each test vector, instantiate a
-        //   'bdlbb::PooledBlobBufferFactory', 'mF', allocate a
-        //   'bdlbb::Blob', 'mC', and use 'mC' to instantiate a
-        //   'bdlbb::BlobStreamBuf', 'mX'.  Write the specified
-        //   number of bytes to 'mX' using 'sputn', and verify the length of
-        //   'mC'.  Read the specified number of buffers from 'mX', and verify
-        //   the result, and the get area offset of 'mX'.
+        //   `bdlbb::PooledBlobBufferFactory`, `mF`, allocate a
+        //   `bdlbb::Blob`, `mC`, and use `mC` to instantiate a
+        //   `bdlbb::BlobStreamBuf`, `mX`.  Write the specified
+        //   number of bytes to `mX` using `sputn`, and verify the length of
+        //   `mC`.  Read the specified number of buffers from `mX`, and verify
+        //   the result, and the get area offset of `mX`.
         //
         // Testing:
         //   bsl::streamsize xsgetn(char_type       *destination,
@@ -360,7 +360,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "Testing 'xsgetn' and 'xsputn' Functions" << endl
+            cout << "Testing `xsgetn` and `xsputn` Functions" << endl
                  << "=======================================" << endl;
         }
 
@@ -433,34 +433,34 @@ int main(int argc, char *argv[])
       }  break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'reset' FUNCTION
+        // TESTING `reset` FUNCTION
         //
         // Concerns:
-        //   * That 'reset' called with the default argument resets the get
+        //   * That `reset` called with the default argument resets the get
         //     and put areas, but does not affect the underlying buffer chain.
         //
-        //   * That 'reset' called with a buffer chain argument both resets
+        //   * That `reset` called with a buffer chain argument both resets
         //     the underlying buffer chain to the specified buffer chain, and
         //     resets the get and put areas.
         //
         // Plan:
-        //   Create two modifiable 'bdlbb::Blob' objects, 'mCa'
-        //   and 'mCb'.  Create a modifiable 'bdlbb::BlobStreamBuf'
-        //   'mX', instantiated with 'mCa', and a non-modifiable reference to
-        //   'mX' named 'X'.  Using 'X', verify that 'mX' is supported by
-        //   'mCa'.  Adjust the get and put areas by calling 'pubseekpos' on
-        //   'mX'.  Call 'reset' with the default argument on 'mX', and verify
-        //   using 'X', and by calling 'pubseekoff' on 'mX', that the get and
-        //   put areas have been reset.  Call 'reset' with argument 'mCb' on
-        //   'mX', and verify as before that the get and put areas have been
-        //   reset.  Additionally verify that 'mX' is not supported by 'mCb'.
+        //   Create two modifiable `bdlbb::Blob` objects, `mCa`
+        //   and `mCb`.  Create a modifiable `bdlbb::BlobStreamBuf`
+        //   `mX`, instantiated with `mCa`, and a non-modifiable reference to
+        //   `mX` named `X`.  Using `X`, verify that `mX` is supported by
+        //   `mCa`.  Adjust the get and put areas by calling `pubseekpos` on
+        //   `mX`.  Call `reset` with the default argument on `mX`, and verify
+        //   using `X`, and by calling `pubseekoff` on `mX`, that the get and
+        //   put areas have been reset.  Call `reset` with argument `mCb` on
+        //   `mX`, and verify as before that the get and put areas have been
+        //   reset.  Additionally verify that `mX` is not supported by `mCb`.
         //
         // Testing:
         //   void reset(bdlbb::Blob *blob);
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "Testing 'reset' Function" << endl
+            cout << "Testing `reset` Function" << endl
                  << "========================" << endl;
         }
 
@@ -635,19 +635,19 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   * That it is possible to instantiate a
-        //     'bdlbb::BlobStreamBuf' object with a variety of
-        //     'bdlbb::Blob' parameters.
+        //     `bdlbb::BlobStreamBuf` object with a variety of
+        //     `bdlbb::Blob` parameters.
         //
-        //   * That 'sync' and 'overflow' update the chain length.
+        //   * That `sync` and `overflow` update the chain length.
         //
         // Plan:
         //   Iterate over a set of test vectors varying in buffer size.  For
         //   each test vector, instantiate a modifiable
-        //   'bdlbb::BlobStreamBuf', 'mX', and a non-modifiable
-        //   reference to 'mX' named 'X'.  Write data of length 3 times the
-        //   specified buffer size to 'mX' in chunks of buffer size, 'sync'ing
-        //   'mX' after each write, and verifying the chain length and number
-        //   of buffers using 'X'.
+        //   `bdlbb::BlobStreamBuf`, `mX`, and a non-modifiable
+        //   reference to `mX` named `X`.  Write data of length 3 times the
+        //   specified buffer size to `mX` in chunks of buffer size, `sync`ing
+        //   `mX` after each write, and verifying the chain length and number
+        //   of buffers using `X`.
         //
         // Testing:
         //   bdlbb::BlobStreamBuf(bdlbb::Blob *blob);

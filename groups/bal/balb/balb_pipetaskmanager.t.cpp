@@ -24,25 +24,25 @@
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 
-#include <bsl_cstddef.h>   // 'bsl::size_t'
-#include <bsl_cstdlib.h>   // 'bsl::atoi'
+#include <bsl_cstddef.h>   // `bsl::size_t`
+#include <bsl_cstdlib.h>   // `bsl::atoi`
 #include <bsl_iostream.h>
-#include <bsl_memory.h>    // 'bsl::shared_ptr', 'bsl::(make|allocate)_shared'
-#include <bsl_ostream.h>   // 'operator<<'
-#include <bsl_sstream.h>   // 'bsl::ostringstring'
-#include <bsl_streambuf.h> // 'bsl::streambuf'
+#include <bsl_memory.h>    // `bsl::shared_ptr`, `bsl::(make|allocate)_shared`
+#include <bsl_ostream.h>   // `operator<<`
+#include <bsl_sstream.h>   // `bsl::ostringstring`
+#include <bsl_streambuf.h> // `bsl::streambuf`
 #include <bsl_string.h>
 #include <bsl_string_view.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     #include <windows.h>
 #else
-    #include <fcntl.h>   // 'open',  'O_WRONLY'
-    #include <unistd.h>  // 'write', 'close'
+    #include <fcntl.h>   // `open`,  `O_WRONLY`
+    #include <unistd.h>  // `write`, `close`
 
-    #include <stdio.h>   // 'perror'
+    #include <stdio.h>   // `perror`
     #include <errno.h>
-    #include <stdlib.h>  // 'unsetenv'
+    #include <stdlib.h>  // `unsetenv`
 #endif
 
 using namespace BloombergLP;
@@ -54,8 +54,8 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-// This component is implemented 'balb::PipeTaskManager' (PTM) by combining two
-// existing classes: 'balb::ControlManager and 'balb::PipeControlChannel'.
+// This component is implemented `balb::PipeTaskManager` (PTM) by combining two
+// existing classes: `balb::ControlManager and `balb::PipeControlChannel'.
 // Accordingly, most of the tests here address determine whether or not those
 // other classes are configured as expected and are forwarded the correct
 // information.
@@ -68,7 +68,7 @@ using namespace bsl;
 // main thread simply sleeps (implicit race condition); in other cases, an
 // entire scenario is run and the cumulative results are checked once the PTM
 // has been stopped.  Even the later case has a possible race condition, as the
-// 'stop' method does not guarantee that messages in the pipe have been
+// `stop` method does not guarantee that messages in the pipe have been
 // handled.
 //
 // ----------------------------------------------------------------------------
@@ -157,9 +157,9 @@ typedef ControlManager  CM;
 // ----------------------------------------------------------------------------
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
+// Write to the specified `handle` the specified `message` having the specified
+// `length`.
 void mswrite(HANDLE handle, const char *message, int length)
-    // Write to the specified 'handle' the specified 'message' having the
-    // specified 'length'.
 {
     DWORD dummy;
     bool  result = WriteFile(handle, message, length, &dummy, 0);
@@ -179,46 +179,46 @@ void mswrite(HANDLE handle, const char *message, int length)
 }
 #endif
 
+/// Fail the test.  Note that in the absence of errors this callback is
+/// never invoked.
 void noop(const bsl::string_view& , bsl::istream& )
-    // Fail the test.  Note that in the absence of errors this callback is
-    // never invoked.
 {
     ASSERT(0 == "called");
 }
 
+/// Assign `1` to the specified `*rc`.
 void rc1cb(const bsl::string_view& , bsl::istream&, int *rc)
-    // Assign '1' to the specified '*rc'.
 {
     *rc = 1;
 }
 
+/// Assign `2` to the specified `*rc`.
 void rc2cb(const bsl::string_view& , bsl::istream&, int *rc)
-    // Assign '2' to the specified '*rc'.
 {
     *rc = 2;
 }
 
+/// Wait two seconds and then shutdown the specified `obj`.
 void sleep2shutdown(Obj *obj)
-    // Wait two seconds and then shutdown the specified 'obj'.
 {
     bslmt::ThreadUtil::microSleep(0, 2);
     obj->shutdown();
 }
 
+/// Append to the specified `vec` an element having the value `1`.
 void vec1cb(const bsl::string_view& , bsl::istream& , bsl::vector<int> *vec)
-    // Append to the specified 'vec' an element having the value '1'.
 {
     vec->push_back(1);
 }
 
+/// Append to the specified `vec` an element having the value `2`.
 void vec2cb(const bsl::string_view& , bsl::istream&, bsl::vector<int> *vec)
-    // Append to the specified 'vec' an element having the value '2'.
 {
     vec->push_back(2);
 }
 
+/// Invoke the `shutdown` method of the specified `obj`.
 void onExit(const bsl::string_view& , bsl::istream&, Obj *obj)
-    // Invoke the 'shutdown' method of the specified 'obj'.
 {
     obj->shutdown();
 }
@@ -241,9 +241,9 @@ namespace Usage {
 // its logging verbosity level, resetting to its initial state, to shutdown
 // cleanly, and the listing a description of supported messages.
 //
-// The 'balb::PipeTaskManager' class can be used to provide support for
+// The `balb::PipeTaskManager` class can be used to provide support for
 // messages that are sent via a named pipe and have the syntax shown below:
-//..
+// ```
 //  Supported messages:
 //      EXIT no arguments
 //          Terminate the application.
@@ -253,70 +253,72 @@ namespace Usage {
 //          Get/set verbosity level.
 //      RESTART no arguments
 //          Restart the application.
-//..
+// ```
 // Note that the above description corresponds to the output produced by our
 // application in response to a "HELP" message.
 //
 // First, define several global, atomic variables that will be used to exchange
 // information between the thread that monitors the named pipe and the other
 // threads of the application.
-//..
+// ```
     static bsls::AtomicBool done(false);
     static bsls::AtomicInt  progress(0);
     static bsls::AtomicInt  myLoggingManagerLevel(0);
-//..
-// Then, we define helper functions 'myLoggingManagerGet' and
-// 'myLoggingManagerSet' so that the handler for "LOG" messages can delegate
+// ```
+// Then, we define helper functions `myLoggingManagerGet` and
+// `myLoggingManagerSet` so that the handler for "LOG" messages can delegate
 // processing the "GET" and "SET" subcommands.  The other defined messages have
 // minimal syntax so use of a delegation pattern is overkill in those cases.
-//..
+// ```
+
+    /// Print the current log level to the console.
     void myLoggingManagerGet()
-        // Print the current log level to the console.
     {
         bsl::cout << "LOG LEVEL IS NOW"    << ": "
                   << myLoggingManagerLevel << bsl::endl;
     }
 
+    /// Set the log level to the value obtained from the specified
+    /// `message` and print that value to the console.
     void myLoggingManagerSet(bsl::istream& message)
-        // Set the log level to the value obtained from the specified
-        // 'message' and print that value to the console.
     {
         int newLogLevel;
-        message >> newLogLevel; // Cannot stream to an 'bsls::AtomicInt'.
+        message >> newLogLevel; // Cannot stream to an `bsls::AtomicInt`.
 
         myLoggingManagerLevel = newLogLevel;
 
         bsl::cout << "LOG LEVEL SET TO"    << ": "
                   << myLoggingManagerLevel << bsl::endl;
     }
-//..
+// ```
 // Next, define handler functions for the "EXIT", "RESTART", and "LOG"
 // messages.
-//..
+// ```
+
+    /// Handle a "EXIT" message.
     void onExit(const bsl::string_view& , bsl::istream& )
-        // Handle a "EXIT" message.
     {
         bsl::cout << "onExit" << bsl::endl;
         done = true;
     }
 
+    /// Handle a "RESTART" message.
     void onRestart(const bsl::string_view& , bsl::istream& )
-        // Handle a "RESTART" message.
     {
         bsl::cout << "onRestart" << bsl::endl;
         progress = 0;
     }
 
+    /// Handle a "LOG" message supporting sub command "GET" and "SET".  If
+    /// the subcommand is "SET" the new log level is obtained from the
+    /// specified `message`.
     void onLog(const bsl::string_view& , bsl::istream& message)
-        // Handle a "LOG" message supporting sub command "GET" and "SET".  If
-        // the subcommand is "SET" the new log level is obtained from the
-        // specified 'message'.
     {
         bsl::cout << "onLog" << bsl::endl;
 
         bsl::string subCommand;
         message >> subCommand;
-            // See the registration of the 'onLog' handler below for the
+            // See the registration of the `onLog` handler below for the
             // details of the supported sub commands and their arguments.
 
         if ("GET" == subCommand) {
@@ -331,16 +333,17 @@ namespace Usage {
                       << subCommand           << bsl::endl;
         }
     }
-//..
+// ```
 // Notice that no handler is yet defined for the "HELP" message.  That
 // functionally can be provided using methods of the contained
-// 'balb::ControlManager' object.  See below.
+// `balb::ControlManager` object.  See below.
 //
-// Then, create a 'balb::PipeTaskManger' object and register the above
+// Then, create a `balb::PipeTaskManger` object and register the above
 // functions as handlers:
-//..
+// ```
+
+    /// Run Application1 and return status;
     int myApplication1()
-        // Run Application1 and return status;
     {
         balb::PipeTaskManager taskManager;
 
@@ -364,18 +367,18 @@ namespace Usage {
                                                   "Get/set verbosity level.",
                                                   onLog);
         ASSERT(0 == rc);
-//..
+// ```
 // and add an additional handler that provides a list of the registered
 // messages and the syntax for using them:
-//..
+// ```
         rc = taskManager.controlManager().registerUsageHandler(bsl::cout);
         ASSERT(0 == rc);
-//..
+// ```
 // Next, if we are on a Unix system, we confirm that our named pipes will be
-// created in the directory named by the 'TMPDIR' environment variable:
-//..
+// created in the directory named by the `TMPDIR` environment variable:
+// ```
     #if   defined(BSLS_PLATFORM_OS_UNIX)
-        rc = unsetenv("SOCKDIR"); // 'SOCKDIR' has precedence over 'TMPDIR'.
+        rc = unsetenv("SOCKDIR"); // `SOCKDIR` has precedence over `TMPDIR`.
         ASSERT(0 == rc);
 
         const char *expectedDirectory = getenv("TMPDIR");
@@ -384,16 +387,16 @@ namespace Usage {
     #else
         #error "Unexpected platform."
     #endif
-//..
+// ```
 // Then, start listening for incoming messages at pipe having the name based on
 // on the name "MyApplication.CTRL".
-//..
+// ```
         rc = taskManager.start("MyApplication.CTRL");
         ASSERT(0 == rc);
-//..
+// ```
 // Next, for expository purposes, confirm that a pipe of that name exists in
 // the expected directory and is open for reading.
-//..
+// ```
         const bsl::string_view pipeName = taskManager.pipeName();
 
         ASSERT(bdls::PathUtil::isAbsolute      (pipeName));
@@ -408,12 +411,12 @@ namespace Usage {
 
         ASSERT(0 == bsl::strcmp(expectedDirectory, canonicalDirname.c_str()));
         ASSERT("myapplication.ctrl" == canonicalLeafName);
-//..
-// Notice that given 'baseName' has been canonically converted to lowercase.
+// ```
+// Notice that given `baseName` has been canonically converted to lowercase.
 //
 // Now, our application can continue doing useful work while the background
 // thread monitors the named pipe for incoming messages:
-//..
+// ```
         while (!done) {
             // Do useful work while background thread responds to incoming
             // commands from the named pipe.
@@ -421,14 +424,15 @@ namespace Usage {
 
         return 0;
     }
-//..
-// Finally, in some other programming context, say 'mySender', a context in
-// another process that has been passed the value of 'pipeName', control
-// messages can be sent to 'myApplication1' above.
-//..
+// ```
+// Finally, in some other programming context, say `mySender`, a context in
+// another process that has been passed the value of `pipeName`, control
+// messages can be sent to `myApplication1` above.
+// ```
+
+    /// Write control messages into the pipe named by the specified
+    /// `pipeName`.
     void mySender(const bsl::string& pipeName)
-        // Write control messages into the pipe named by the specified
-        // 'pipeName'.
     {
         int rc;
         rc = bdls::PipeUtil::send(pipeName, "LoG GET\n");
@@ -446,25 +450,25 @@ namespace Usage {
         rc = bdls::PipeUtil::send(pipeName, "EXIT\n");
         ASSERT(0 == rc);
     }
-//..
+// ```
 // Notice that:
 //
-//: o Each message must be terminated by a newline character.
-//:
-//: o Although each registered message prefix was all capital letters, the
-//:   prefix field in the sent message is case insensitive -- "LoG", "Log", and
-//:   "log" all invoke the intended handler.  If we wanted case insensitivity
-//:   for the subcommands "GET" and "SET" we would change of implementation of
-//:   'onLog' accordingly.
-//:
-//: o The empty message and the unregistered "RESET" message are silently
-//:   ignored.  The console output (see below) shows no indication that these
-//:   were sent.
+//  - Each message must be terminated by a newline character.
+//
+//  - Although each registered message prefix was all capital letters, the
+//    prefix field in the sent message is case insensitive -- "LoG", "Log", and
+//    "log" all invoke the intended handler.  If we wanted case insensitivity
+//    for the subcommands "GET" and "SET" we would change of implementation of
+//    `onLog` accordingly.
+//
+//  - The empty message and the unregistered "RESET" message are silently
+//    ignored.  The console output (see below) shows no indication that these
+//    were sent.
 //
 // The console log of our application shows the response for each received
 // control message.  In general, these messages will be interleaved with the
-// output of the "useful work" done in the 'for' loop of 'myApplicaton1.
-//..
+// output of the "useful work" done in the `for` loop of 'myApplicaton1.
+// ```
 //  onLog
 //  LOG LEVEL IS NOW: 0
 //  onLog
@@ -473,7 +477,7 @@ namespace Usage {
 //  LOG LEVEL IS NOW: 4
 //  onRestart
 //  onExit
-//..
+// ```
 
 // BDE_VERIFY pragma: +FABC01 //  not in alphanumeric order
 
@@ -500,13 +504,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -525,38 +529,38 @@ int main(int argc, char *argv[])
         bsl::streambuf *errStreamBuf = cerr.rdbuf();
 
         if (!verbose) {
-            cout.rdbuf(ossOut.rdbuf());  // Redirect 'cout'
-            cerr.rdbuf(ossOut.rdbuf());  // Redirect 'cerr'
+            cout.rdbuf(ossOut.rdbuf());  // Redirect `cout`
+            cerr.rdbuf(ossOut.rdbuf());  // Redirect `cerr`
         }
 
         Usage::done = true; // avoid infinite loop in {Example 1}.
         ASSERT(0 == Usage::myApplication1());                           // TEST
 
         if (!verbose) {
-            cout.rdbuf(outStreamBuf);  // Restore 'cout'
-            cerr.rdbuf(errStreamBuf);  // Restore 'cerr'
+            cout.rdbuf(outStreamBuf);  // Restore `cout`
+            cerr.rdbuf(errStreamBuf);  // Restore `cerr`
         }
 
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // SHARED 'balb::ControlManager'
+        // SHARED `balb::ControlManager`
         //
         // Concerns:
-        //: 1 A 'PipeTaskManager' constructed using a shared 'ControlManager'
-        //:   as single allocation -- just one block for the owned
-        //:   'PipeControlChannel' object -- from the intended allocator.
-        //:
-        //: 2 The shared 'ControlManager' can use an different allocator than
-        //:   that by the 'PipeTaskmanager'.
+        // 1. A `PipeTaskManager` constructed using a shared `ControlManager`
+        //    as single allocation -- just one block for the owned
+        //    `PipeControlChannel` object -- from the intended allocator.
+        //
+        // 2. The shared `ControlManager` can use an different allocator than
+        //    that by the `PipeTaskmanager`.
         //
         // Plan:
-        //: 1 Use the "footprint" idiom to confirm the intended installation
-        //:   allocator is installed when 'basicAllocator' is supplied, not
-        //:   supplied, and explicitly supplied as '0'.  In each case,
-        //:   use a shared 'ControlManager' that uses a different allocator
-        //:   and confirm its installation using the 'allocator' method of
-        //:   'ControlManager'.  (C-1..2)
+        // 1. Use the "footprint" idiom to confirm the intended installation
+        //    allocator is installed when `basicAllocator` is supplied, not
+        //    supplied, and explicitly supplied as `0`.  In each case,
+        //    use a shared `ControlManager` that uses a different allocator
+        //    and confirm its installation using the `allocator` method of
+        //    `ControlManager`.  (C-1..2)
         //
         // Testing:
         //   explicit PipeTaskManager(shared_ptr<ControlManager>& cm, *bA = 0);
@@ -564,7 +568,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "SHARED 'balb::ControlManager'" << endl
+                 << "SHARED `balb::ControlManager`" << endl
                  << "=============================" << endl;
         }
 
@@ -616,7 +620,7 @@ int main(int argc, char *argv[])
             ASSERTV(CONFIG, &oa == X.allocator());
             ASSERTV(CONFIG, &ca == X.controlManager().allocator());
 
-            ASSERTV(CONFIG, 1 ==  oa.numBlocksTotal()); // 'PipeControlChannel'
+            ASSERTV(CONFIG, 1 ==  oa.numBlocksTotal()); // `PipeControlChannel`
             ASSERTV(CONFIG, 0 == noa.numBlocksTotal());
 
             fa.deleteObject(objPtr);
@@ -710,13 +714,13 @@ int main(int argc, char *argv[])
         // CONCERN: WRITING TO THE PIPE INVOKES CALLBACKS
         //
         // Concerns:
-        //: 1 Writing to the named pipe invokes registered callbacks
+        // 1. Writing to the named pipe invokes registered callbacks
         //
         // Plan:
-        //: 1 Start a task manager.
-        //:
-        //: 2 Write to the pipe using the name obtained from 'pipeName', and
-        //:   verify that the associated callback is invoked.
+        // 1. Start a task manager.
+        //
+        // 2. Write to the pipe using the name obtained from `pipeName`, and
+        //    verify that the associated callback is invoked.
         //
         // Testing:
         //   CONCERN: Writing to the named pipe invokes intended callbacks.
@@ -791,38 +795,38 @@ int main(int argc, char *argv[])
         // TESTING START, SHUTDOWN, AND STOP
         //
         // Concerns:
-        //: 1 'shutdown and 'stop' are idempotent.
-        //:
-        //: 2 Pipe names are normalized to unique names.
-        //:
-        //: 3 'start' fails if the manager is already started.
-        //:
-        //: 4 Once started, 'start' fails unless 'stop' is called.
-        //:
-        //: 5 Multiple managers can be started simultaneously.
-        //:
-        //: 6 'stop' blocks until 'shutdown' is called.
-        //;
-        //: 7 'stop' removes the named pipe.
-        //:
-        //: 8 A stopped PTM can be restarted.
+        // 1. `shutdown and `stop' are idempotent.
+        //
+        // 2. Pipe names are normalized to unique names.
+        //
+        // 3. `start` fails if the manager is already started.
+        //
+        // 4. Once started, `start` fails unless `stop` is called.
+        //
+        // 5. Multiple managers can be started simultaneously.
+        //
+        // 6. `stop` blocks until `shutdown` is called.
+        //
+        // 7. `stop` removes the named pipe.
+        //
+        // 8. A stopped PTM can be restarted.
         //
         // Plan:
-        //: 1 Create and start a single manager.
-        //:
-        //: 2 Verify that once started, the manager cannot be started again
-        //:   using the same pipe name, or one with an alternate spelling until
-        //:   it has been stopped.
-        //:
-        //: 3 Create and start multiple managers with different pipe names.
-        //:
-        //: 4 Verify that they can be stopped independently.
-        //:
-        //: 5 Verify that once a manager is started, calling 'stop' blocks
-        //:   until 'shutdown' is called.
-        //:
-        //: 6 Verify that 'start' creates a named pipe and open its and that
-        //:   'stop' removes that named pipe.
+        // 1. Create and start a single manager.
+        //
+        // 2. Verify that once started, the manager cannot be started again
+        //    using the same pipe name, or one with an alternate spelling until
+        //    it has been stopped.
+        //
+        // 3. Create and start multiple managers with different pipe names.
+        //
+        // 4. Verify that they can be stopped independently.
+        //
+        // 5. Verify that once a manager is started, calling `stop` blocks
+        //    until `shutdown` is called.
+        //
+        // 6. Verify that `start` creates a named pipe and open its and that
+        //    `stop` removes that named pipe.
         //
         // Testing:
         //   int start(const bsl::string_view& pipeBasename);
@@ -994,39 +998,39 @@ int main(int argc, char *argv[])
         // DEFAULT CONSTRUCTOR, BASIC ACCESSORS, AND DESTRUCTOR
         //
         // Concerns:
-        //: 1 A default constructed 'PipeTaskManager' makes two allocations --
-        //:   one for the owned 'ControlManager' and one for the owned
-        //:   'PipeControlChannel' objects -- from the intended allocator.
-        //:
-        //: 2 A default constructed 'PipeTaskManger' has a 'ControlManager'
-        //:   with no registered messages and configured with the same
-        //:   allocator as the 'PipeTaskManager'
-        //:
-        //: 3 The tested accessors are all 'const' qualified.
-        //:
-        //: 4 The 'controlManager' manipulator method provides a non-'const'
-        //:   reference to the owned 'ControlManager'.
+        // 1. A default constructed `PipeTaskManager` makes two allocations --
+        //    one for the owned `ControlManager` and one for the owned
+        //    `PipeControlChannel` objects -- from the intended allocator.
+        //
+        // 2. A default constructed `PipeTaskManger` has a `ControlManager`
+        //    with no registered messages and configured with the same
+        //    allocator as the `PipeTaskManager`
+        //
+        // 3. The tested accessors are all `const` qualified.
+        //
+        // 4. The `controlManager` manipulator method provides a non-`const`
+        //    reference to the owned `ControlManager`.
         //
         // Plan:
-        //: 1 Use the "footprint" idiom to confirm the intended installation
-        //:   allocator is installed when 'basicAllocator' is supplied, not
-        //:   supplied, and explicitly supplied as '0'.  (C-1)
-        //:
-        //: 2 Confirm the 'const'-ness of accessors by invoking them on
-        //:   'const'-qualified objects.  (C-3)
+        // 1. Use the "footprint" idiom to confirm the intended installation
+        //    allocator is installed when `basicAllocator` is supplied, not
+        //    supplied, and explicitly supplied as `0`.  (C-1)
         //
-        //: 3 Confirm that 'printUsage' shows the output expected of an empty
-        //:   'ControlManager'.  (C-2)
-        //:
-        //: 4 Confirm that in a non-'const' context, the 'controlManager'
-        //:   method provides a reference that allows invocation of the
-        //:   'registerHandler' and 'deregisterHandler' methods of the owned
-        //:   'ControlManager'.  (C-4).
-        //:
-        //:   o Incidentally, the usage scenario of the 'ControlManager' tests
-        //:     several features of that class such as:
-        //:     o Redefinition of the handler for a registered prefix.
-        //:     o Case insensitivity of the prefix in messages.
+        // 2. Confirm the `const`-ness of accessors by invoking them on
+        //    `const`-qualified objects.  (C-3)
+        //
+        // 3. Confirm that `printUsage` shows the output expected of an empty
+        //    `ControlManager`.  (C-2)
+        //
+        // 4. Confirm that in a non-`const` context, the `controlManager`
+        //    method provides a reference that allows invocation of the
+        //    `registerHandler` and `deregisterHandler` methods of the owned
+        //    `ControlManager`.  (C-4).
+        //
+        //    - Incidentally, the usage scenario of the `ControlManager` tests
+        //      several features of that class such as:
+        //      - Redefinition of the handler for a registered prefix.
+        //      - Case insensitivity of the prefix in messages.
         //
         // Testing:
         //   explicit PipeTaskManager(*bA = 0);
@@ -1087,13 +1091,13 @@ int main(int argc, char *argv[])
             ASSERTV(CONFIG, &oa == X.controlManager().allocator());     // TEST
 
             ASSERTV(CONFIG, 2 ==  oa.numBlocksTotal());
-                              // owned 'ControlManager' and PipeControlChannel'
+                              // owned `ControlManager` and PipeControlChannel'
             ASSERTV(CONFIG, 0 == noa.numBlocksTotal());
 
             bslma::TestAllocator outputAlloc("output", veryVeryVeryVerbose);
             bsl::ostringstream   oss(&outputAlloc);
 
-            // String returned from 'oss' must not upset the counts of default
+            // String returned from `oss` must not upset the counts of default
             // allocator usage.
 
             const char PREAMBLE[] = "is empty";
@@ -1189,14 +1193,14 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create and start a 'balb::PipeTaskManager' instance.
-        //:
-        //: 2 In the main thread, exercise various 'balb::PipeTaskManager'
-        //:   manipulators and accessors.
+        // 1. Create and start a `balb::PipeTaskManager` instance.
+        //
+        // 2. In the main thread, exercise various `balb::PipeTaskManager`
+        //    manipulators and accessors.
         //
         // Testing:
         //   BREATHING TEST

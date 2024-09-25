@@ -19,7 +19,7 @@ using namespace bslmf;
 //                                Overview
 //                                --------
 // The component under test defines meta-functions that represent an integer
-// sequence make-function 'bslmf::MakeIntegerSequence'.  Thus, we need to
+// sequence make-function `bslmf::MakeIntegerSequence`.  Thus, we need to
 // ensure that an integer sequence returned by the factory function represents
 // enumerated collection of increasing integer values of the specified length
 // starting with 0 value.
@@ -84,17 +84,18 @@ namespace {
                               // struct LargeSequenceUtil
                               //=========================
 
+/// This class template provides a namespace for utility operations on
+/// integer sequences having large index numbers to test performance
+/// characteristics and ensure that instantiation of this class for types
+/// with `numeric_limits<T>::max() >= 1023` does not hit internal recursion
+/// limits.
+
+/// Ensure that `MakeIntegerSequence<T, 1023>` factory-function
+/// generates correct integer sequence type.
 template <class T, bool EXCEED_LIMIT = std::numeric_limits<T>::max() >= 1023>
 struct LargeSequenceUtil
-    // This class template provides a namespace for utility operations on
-    // integer sequences having large index numbers to test performance
-    // characteristics and ensure that instantiation of this class for types
-    // with 'numeric_limits<T>::max() >= 1023' does not hit internal recursion
-    // limits.
 {
     static void test()
-        // Ensure that 'MakeIntegerSequence<T, 1023>' factory-function
-        // generates correct integer sequence type.
     {
         using Obj = MakeIntegerSequence<T, 1023>;
         using SEQ_TYPE = IntegerSequence<T,
@@ -209,32 +210,33 @@ struct LargeSequenceUtil
     }
 };
 
+/// This class template declares an interface for a meta-function that tests
+/// the `bslmf::IntegerSequences` instantiated for the specified template
+/// parameter `T` which `std::numeric_limits<T>::max()` value does not
+/// exceed 1024.
 template <class T,
           class MAX =
             typename bsl::integral_constant<T, std::numeric_limits<T>::max()> >
 struct LargeSequenceUtil_Impl;
-    // This class template declares an interface for a meta-function that tests
-    // the 'bslmf::IntegerSequences' instantiated for the specified template
-    // parameter 'T' which 'std::numeric_limits<T>::max()' value does not
-    // exceed 1024.
 
+/// This partial specialization of `LargeSequenceUtil` tests performance
+/// characteristics and recursion limits for types with
+/// `numeric_limits<T>::max() < 1023`.
 template <class T>
 struct LargeSequenceUtil<T, false> : LargeSequenceUtil_Impl<T>
-    // This partial specialization of 'LargeSequenceUtil' tests performance
-    // characteristics and recursion limits for types with
-    // 'numeric_limits<T>::max() < 1023'.
 {
 };
 
+/// This partial specialization of `LargeSequenceUtil_Impl` tests
+/// performance characteristics and internal recursion limits for types
+/// that `std::numeric_limits<T>::max() == 127`.
+
+/// Ensure that `MakeIntegerSequence<T, 1023>` factory-function
+/// generates correct integer sequence type.
 template <class T>
 struct LargeSequenceUtil_Impl<T, bsl::integral_constant<T, 127> >
-    // This partial specialization of 'LargeSequenceUtil_Impl' tests
-    // performance characteristics and internal recursion limits for types
-    // that 'std::numeric_limits<T>::max() == 127'.
 {
     static void test()
-        // Ensure that 'MakeIntegerSequence<T, 1023>' factory-function
-        // generates correct integer sequence type.
     {
         using Obj = MakeIntegerSequence<T, 127>;
         using SEQ_TYPE = IntegerSequence<T,
@@ -259,15 +261,16 @@ struct LargeSequenceUtil_Impl<T, bsl::integral_constant<T, 127> >
     }
 };
 
+/// This partial specialization of `LargeSequenceUtil_Impl` tests
+/// performance characteristics and internal recursion limits for types
+/// that `std::numeric_limits<T>::max() == 255`.
+
+/// Ensure that `MakeIntegerSequence<T, 1023>` factory-function
+/// generates correct integer sequence type.
 template <class T>
 struct LargeSequenceUtil_Impl<T, bsl::integral_constant<T, 255> >
-    // This partial specialization of 'LargeSequenceUtil_Impl' tests
-    // performance characteristics and internal recursion limits for types
-    // that 'std::numeric_limits<T>::max() == 255'.
 {
     static void test()
-        // Ensure that 'MakeIntegerSequence<T, 1023>' factory-function
-        // generates correct integer sequence type.
     {
         using Obj = MakeIntegerSequence<T, 255>;
         using SEQ_TYPE = IntegerSequence<T,
@@ -312,32 +315,32 @@ struct LargeSequenceUtil_Impl<T, bsl::integral_constant<T, 255> >
 template <class T>
 void testCase2()
     // ------------------------------------------------------------------------
-    // 'bslmf::MakeIntegerSequence'
+    // `bslmf::MakeIntegerSequence`
     //
     // Concerns:
-    //: 1 That the 'bslmf::MakeIntegerSequence' resultant type represent
-    //:   enumerated collection of increasing integer values of the specified
-    //:   length 'N' starting with 0 value.
-    //:
-    //: 2 That 'T' can be any integer type.
-    //:
-    //: 3 That an instantiation of the 'bslmf::MakeIntegerSequence' template on
-    //:   large index number does not hit internal recursion limit.
+    // 1. That the `bslmf::MakeIntegerSequence` resultant type represent
+    //    enumerated collection of increasing integer values of the specified
+    //    length `N` starting with 0 value.
+    //
+    // 2. That `T` can be any integer type.
+    //
+    // 3. That an instantiation of the `bslmf::MakeIntegerSequence` template on
+    //    large index number does not hit internal recursion limit.
     //
     // Plan:
-    //: 1 Define a number of index sequences having distinct lengths and
-    //:   ensure that these sequences represent collections of integer
-    //:   values having the specified length.
-    //:
-    //: 2 Define integer sequences having the length in a range [0..8] to test
-    //:   the template function specializations.
-    //:
-    //: 3 Define integer sequences having the length 9, 10, 11 to catch edges
-    //:   cases and rounding.
-    //:
-    //: 4 Define integer sequences having the length 15, 16, 17, 18, 19 that
-    //:   will handle edge conditions recursing beyond the specializations,
-    //:   and find rounding errors.
+    // 1. Define a number of index sequences having distinct lengths and
+    //    ensure that these sequences represent collections of integer
+    //    values having the specified length.
+    //
+    // 2. Define integer sequences having the length in a range [0..8] to test
+    //    the template function specializations.
+    //
+    // 3. Define integer sequences having the length 9, 10, 11 to catch edges
+    //    cases and rounding.
+    //
+    // 4. Define integer sequences having the length 15, 16, 17, 18, 19 that
+    //    will handle edge conditions recursing beyond the specializations,
+    //    and find rounding errors.
     //
     // Testing:
     //   bslmf::IntegerSequence<size_t N>
@@ -467,31 +470,31 @@ void testCase2()
 ///Example 1: Pass C-array as a parameter to a function with variadic template
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //
-// Suppose we want to initialize a C-Array of known size 'N' with data read
+// Suppose we want to initialize a C-Array of known size `N` with data read
 // from a data source using a library class that provides a variadic template
 // interface that loads a data of variable length into the supplied parameter
 // pack.
 //
-// First, define a class template 'DataReader',
-//..
+// First, define a class template `DataReader`,
+// ```
 template <std::size_t N>
 class DataReader {
   public:
-//..
-// Then, implement a method that loads the specified parameter pack 'args' with
+// ```
+// Then, implement a method that loads the specified parameter pack `args` with
 // data read from a data source.
-//..
+// ```
     template <class ...T>
     void read(T*... args) const
     {
         static_assert(sizeof...(args) == N, "");
         read_impl(args...);
     }
-//..
+// ```
 // Next, for the test purpose provide simple implementation of the recursive
-// variadic 'read_impl' function that streams the number of the C-Array's
-// element to 'stdout'.
-//..
+// variadic `read_impl` function that streams the number of the C-Array's
+// element to `stdout`.
+// ```
 private:
     template <class U, class ...T>
     void read_impl(U*, T*... args) const
@@ -500,18 +503,18 @@ private:
                static_cast<int>(N - 1 - sizeof...(args)));
         read_impl(args...);
     }
-//..
+// ```
 // Then, implement the recursion break condition:
-//..
+// ```
     void read_impl() const
     {
     }
 };
-//..
-// Next, define a helper function template 'readData' that expands the
-// parameter pack of indices 'I' and invokes the variadic template 'read'
-// method of the specified 'reader' object.
-//..
+// ```
+// Next, define a helper function template `readData` that expands the
+// parameter pack of indices `I` and invokes the variadic template `read`
+// method of the specified `reader` object.
+// ```
 namespace {
 template<class R, class T, std::size_t... I>
 void readData(const R&  reader,
@@ -527,14 +530,14 @@ void readData(const R&  reader,
         //             &data[N-1]);
 }
 }
-//..
-// Now, define function template 'readData' that invokes the helper function
-// Note, that the 'bslmf::MakeIntegerSequence<std::size_t, N>' function
+// ```
+// Now, define function template `readData` that invokes the helper function
+// Note, that the `bslmf::MakeIntegerSequence<std::size_t, N>` function
 // generates an object of an integer sequence class instantiated with a
 // template parameter pack of integers that will be expanded and used as an
 // array's indices in the helper function when calling the
-// 'Reader::read(T*...)' variadic template function.
-//..
+// `Reader::read(T*...)` variadic template function.
+// ```
 template<class T, std::size_t N>
 void readData(const DataReader<N>& reader, T *data)
 {
@@ -569,13 +572,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -584,37 +587,37 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE\n"
                               "=============\n");
 
-// Finally, define a 'data' C-Array and 'reader' variables and pass them to the
-// 'readData' function as parameters.
-//..
+// Finally, define a `data` C-Array and `reader` variables and pass them to the
+// `readData` function as parameters.
+// ```
         constexpr int      k_SIZE = 5;
         DataReader<k_SIZE> reader;
         int                data[k_SIZE] = {0};
 
         readData(reader, data);
-//..
-// The streaming operator produces output in the following format on 'stdout':
-//..
+// ```
+// The streaming operator produces output in the following format on `stdout`:
+// ```
 // read element #0
 // read element #1
 // read element #2
 // read element #3
 // read element #4
-//..
+// ```
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bslmf::MakeIntegerSequence'
+        // `bslmf::MakeIntegerSequence`
         //
         // Concerns:
-        //: 1 That the 'bslmf::MakeIntegerSequence' resultant type represent
-        //:   enumerated collection of increasing integer values of the
-        //:   specified length 'N' starting with 0 value.
-        //:
-        //: 2 That 'T' can be any integer type.
+        // 1. That the `bslmf::MakeIntegerSequence` resultant type represent
+        //    enumerated collection of increasing integer values of the
+        //    specified length `N` starting with 0 value.
+        //
+        // 2. That `T` can be any integer type.
         //
         // Plan:
-        //: 1 Invoke 'testCase2' for each integer type.
+        // 1. Invoke `testCase2` for each integer type.
         //
         // Testing:
         //   bslmf::IntegerSequence<size_t N>
@@ -680,9 +683,9 @@ int main(int argc, char *argv[])
     (void) argc;
     (void) argv;
 
-    ASSERT(true); // remove unused warning for 'aSsErT'
+    ASSERT(true); // remove unused warning for `aSsErT`
 
-    printf("Cannot test 'bslmf::IntegerSequence' in pre-C++11 mode.\n");
+    printf("Cannot test `bslmf::IntegerSequence` in pre-C++11 mode.\n");
     return -1;
 }
 

@@ -18,15 +18,15 @@ using namespace bsl;
 //                             Overview
 //                             --------
 // The component under test implements a random number generator based on the
-// PCG (Permuted Congruential Generator) algorithm.  Operators '==' and '!='
+// PCG (Permuted Congruential Generator) algorithm.  Operators `==` and `!=`
 // provide the operational definition of value.
 //
 // Primary Manipulators:
-//: o 'seed'
-//: o 'generate'
+//  - `seed`
+//  - `generate`
 //
-// This mechanism class  provides a 'seed' function that takes as parameters 2
-// values: an 'initState' and a 'streamSelector'.
+// This mechanism class  provides a `seed` function that takes as parameters 2
+// values: an `initState` and a `streamSelector`.
 //
 // ----------------------------------------------------------------------------
 //
@@ -108,15 +108,17 @@ class Die {
 
   public:
     // CREATORS
+
+    /// Create an object used to simulate a single die, using the specified
+    /// `initialState` and `streamSelector`.
     Die(bsl::uint64_t initialState, bsl::uint64_t streamSelector);
-        // Create an object used to simulate a single die, using the specified
-        // 'initialState' and 'streamSelector'.
 
     // MANIPULATORS
+
+    /// Return the next pseudo-random value in the range `[1 .. 6]`, based
+    /// on the sequence of values established by the `initialState` and
+    /// `streamSelector` values supplied at construction.
     int roll();
-        // Return the next pseudo-random value in the range '[1 .. 6]', based
-        // on the sequence of values established by the 'initialState' and
-        // 'streamSelector' values supplied at construction.
 };
 
                     // ---------
@@ -141,15 +143,16 @@ int Die::roll()
 
     return result + 1;
 }
-//..
-// Now, we can use our 'Dice' class to get the random numbers needed to
+// ```
+// Now, we can use our `Dice` class to get the random numbers needed to
 // simulate a game of craps.  Note that the game of craps requires two dice.
 //
-// We can instantiate a single 'Die' and role it twice,
-//..
+// We can instantiate a single `Die` and role it twice,
+// ```
+
+    /// Create a single Die instance and print two pseudo-random values in
+    /// the range `[1 .. 6]` to standard output.
     void rollOneDieTwice()
-        // Create a single Die instance and print two pseudo-random values in
-        // the range '[1 .. 6]' to standard output.
     {
         Die a(123, 456);
 
@@ -158,13 +161,14 @@ int Die::roll()
 
         cout << "d1 = " << d1 << ", d2 = " << d2 << endl;  // d1 = 3, d2 = 5
     }
-//..
-// Alternatively, we could create two instances of 'Die', with separate initial
+// ```
+// Alternatively, we could create two instances of `Die`, with separate initial
 // states/sequences, and role each one once:
-//..
+// ```
+
+    /// Create two Die instances and print two pseudo-random values in the
+    /// range `[1 .. 6]` to standard output.
     void rollTwoDice()
-        // Create two Die instances and print two pseudo-random values in the
-        // range '[1 .. 6]' to standard output.
     {
         Die a(123, 123);
         Die b(456, 456);
@@ -174,15 +178,16 @@ int Die::roll()
 
         cout << "d1 = " << d1 << ", d2 = " << d2 << endl;  // d1 = 3, d2 = 1
     }
-//..
+// ```
 // Note that the specification of separate seeds is important to produce a
 // proper distribution for our game.  If we had shared the seed value each die
 // would always produce the same sequence of values as the other.
-//..
+// ```
+
+    /// Create two Die instances with the identical initial state and stream
+    /// selector and print two pseudo-random values in the range `[1 .. 6]`
+    /// to standard output.  The produced values should be the same.
     void shareStateAndSequence()
-        // Create two Die instances with the identical initial state and stream
-        // selector and print two pseudo-random values in the range '[1 .. 6]'
-        // to standard output.  The produced values should be the same.
     {
         Die a(123, 456);  // BAD IDEA
         Die b(123, 456);  // BAD IDEA
@@ -191,7 +196,7 @@ int Die::roll()
         int d2 = b.roll();
         ASSERT(d2 == d1);
     }
-//..
+// ```
 }  // close unnamed namespace
 
 // ============================================================================
@@ -217,13 +222,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -240,30 +245,30 @@ int main(int argc, char *argv[])
         // SEED, GENERATE, AND EQUALITY-COMPARISON OPERATORS
         //
         // Concerns:
-        //: 1 The implementation conforms to the reference PCG implementation.
-        //:
-        //: 2 Default constructor arguments behavior:
-        //:   'Obj() == Obj(0, 0)'.
-        //:
-        //: 3 Objects seeded with different values generate different output.
-        //:
-        //: 4 The '==' and '!=' are defined properly to compare the internal
-        //:   state of the RNG.
+        // 1. The implementation conforms to the reference PCG implementation.
+        //
+        // 2. Default constructor arguments behavior:
+        //    `Obj() == Obj(0, 0)`.
+        //
+        // 3. Objects seeded with different values generate different output.
+        //
+        // 4. The `==` and `!=` are defined properly to compare the internal
+        //    state of the RNG.
         //
         // Plan:
-        //: 1 Initialize an RNG from this library and a separate reference
-        //:   implementation and compare output.
-        //:
-        //: 2 Create an RNG with no arguments, and two arguments (the default
-        //:   'initState' and 'streamSelector'), and ensure that they are
-        //:   equal.
-        //:
-        //: 3 Create two RNG instances with different seeds and ensure
-        //:   that they do not generate the same values at the same time.
-        //:
-        //: 4 Create two RNG instances with same seeds and different stream
-        //:   selectors and ensure that they do not generate the same values
-        //:   at the same time.
+        // 1. Initialize an RNG from this library and a separate reference
+        //    implementation and compare output.
+        //
+        // 2. Create an RNG with no arguments, and two arguments (the default
+        //    `initState` and `streamSelector`), and ensure that they are
+        //    equal.
+        //
+        // 3. Create two RNG instances with different seeds and ensure
+        //    that they do not generate the same values at the same time.
+        //
+        // 4. Create two RNG instances with same seeds and different stream
+        //    selectors and ensure that they do not generate the same values
+        //    at the same time.
         //
         // Testing:
         //   PcgRandomGenerator();
@@ -328,7 +333,7 @@ int main(int argc, char *argv[])
             }
         }
         if (verbose)
-            cout << "Testing that 'Obj() == Obj(0, 0)'."
+            cout << "Testing that `Obj() == Obj(0, 0)`."
                  << endl;
         {
             ASSERT(Obj() == Obj(0, 0));

@@ -670,52 +670,56 @@ const unsigned int k_CRC_TABLE_IL8_O88[256] =
                         // class Crc32cCalculator
                         //=======================
 
+/// This class represents a singleton that detects if the current processor
+/// supports hardware instructions to help calculate CRC32-C and initializes
+/// a global variable with a pointer to a function that uses those
+/// instructions, or provides software implementation otherwise.
 class Crc32cCalculator {
-    // This class represents a singleton that detects if the current processor
-    // supports hardware instructions to help calculate CRC32-C and initializes
-    // a global variable with a pointer to a function that uses those
-    // instructions, or provides software implementation otherwise.
 
     // TYPES
+
+    /// `Crc32cFn` is an alias for a functional type that defines a
+    /// signature of a function for the calculation of CRC32-C.
     typedef unsigned int (*Crc32cFn)(const unsigned char *data,
                                      bsl::size_t          length,
                                      unsigned int         crc);
-        // 'Crc32cFn' is an alias for a functional type that defines a
-        // signature of a function for the calculation of CRC32-C.
 
     // CLASS DATA
+
+    // A global CRC32-C calculator function to compute CRC32-C checksum.
     static Crc32cFn s_crc32cFn;
-        // A global CRC32-C calculator function to compute CRC32-C checksum.
 
     // CREATORS
+
+    /// Create an instance of this class.
     Crc32cCalculator();
-        // Create an instance of this class.
 
     // NOT IMPLEMENTED
     Crc32cCalculator(const Crc32cCalculator&);             // = delete;
     Crc32cCalculator& operator=(const Crc32cCalculator&);  // = delete;
 
   public:
+    /// Return a reference to the singleton object.
     static Crc32cCalculator& instance();
-        // Return a reference to the singleton object.
 
     // ACCESSORS
+
+    /// Invoke the global function that calculates CRC32-C passing to this
+    /// function the specified `data`, `length` and `crc` parameters.  Note
+    /// that if `data` is 0, then `length` must also be 0.
     unsigned int operator()(const unsigned char *data,
                             bsl::size_t          length,
                             unsigned int         crc) const;
-        // Invoke the global function that calculates CRC32-C passing to this
-        // function the specified 'data', 'length' and 'crc' parameters.  Note
-        // that if 'data' is 0, then 'length' must also be 0.
 };
 
+/// Return the CRC32-C value calculated in software for the specified `data`
+/// over the specified `length` number of bytes, using the specified `crc`
+/// value as the starting point for the calculation.  Note that the `data`
+/// is permitted to be null if the `length` is 0.
 inline
 unsigned int calculateCrc32c(const unsigned char *data,
                              bsl::size_t          length,
                              unsigned int         crc)
-    // Return the CRC32-C value calculated in software for the specified 'data'
-    // over the specified 'length' number of bytes, using the specified 'crc'
-    // value as the starting point for the calculation.  Note that the 'data'
-    // is permitted to be null if the 'length' is 0.
 {
     BSLS_ASSERT(data || 0 == length);
 
@@ -761,13 +765,13 @@ unsigned int sparcHardware(const unsigned char *data,
 }
 #endif  // BSLS_PLATFORM_CPU_SPARC && BDLDE_SUPPORT_SPARC_HARDWARE_OPTIMIZATION
 
+/// Return the CRC32-C value calculated in software for the specified `data`
+/// over the specified `length` number of bytes, using the specified `crc`
+/// value as the starting point for the calculation.  Note that the `data`
+/// is permitted to be null if the `length` is 0.
 unsigned int crc32cSoftware(const unsigned char *data,
                             bsl::size_t          length,
                             unsigned int         crc)
-    // Return the CRC32-C value calculated in software for the specified 'data'
-    // over the specified 'length' number of bytes, using the specified 'crc'
-    // value as the starting point for the calculation.  Note that the 'data'
-    // is permitted to be null if the 'length' is 0.
 {
     BSLS_ASSERT(data || 0 == length);
 
@@ -779,10 +783,10 @@ unsigned int crc32cSoftware(const unsigned char *data,
                                     reinterpret_cast<bsls::Types::IntPtr>(data)
                                   & (sizeof(bsls::Types::IntPtr) - 1);
 
+    // No. of bytes from `data` to next alignment boundary
     bsl::size_t adj = misaligned
         ? static_cast<unsigned>(sizeof(bsls::Types::IntPtr) - misaligned)
         : 0;
-        // No. of bytes from 'data' to next alignment boundary
     if (adj > length) {
         // the specified length to process is less than the distance from
         // 'data' to the next alignment boundary.
@@ -794,8 +798,9 @@ unsigned int crc32cSoftware(const unsigned char *data,
     length -= adj;
 
     // [2] Process 8 bytes at a time until we have fewer than 8 bytes left.
+
+    // end of last 8-byte block
     const unsigned char *end = data + (length & (~0x7));
-        // end of last 8-byte block
     for (; data < end; data += 4)
     {
         // read two little endian integers
@@ -841,14 +846,14 @@ unsigned int crc32cSoftware(const unsigned char *data,
 
 #  ifdef BSLS_PLATFORM_CPU_64_BIT
 
+/// Return the CRC32-C value calculated using builtin functions for the
+/// specified `data` over the specified `length` number of bytes, using the
+/// specified `crc` value as the starting point for the calculation.  Note
+/// that the `data` is permitted to be null if the `length` is 0.
 inline
 unsigned int calculateBuiltin32Crc(const unsigned char *data,
                                    bsl::size_t          length,
                                    unsigned int         crc)
-    // Return the CRC32-C value calculated using builtin functions for the
-    // specified 'data' over the specified 'length' number of bytes, using the
-    // specified 'crc' value as the starting point for the calculation.  Note
-    // that the 'data' is permitted to be null if the 'length' is 0.
 {
     BSLS_ASSERT(data || 0 == length);
 
@@ -878,14 +883,14 @@ unsigned int calculateBuiltin32Crc(const unsigned char *data,
     return crc;
 }
 
+/// Calculate the CRC32-C value (calculated in slices of 8 bytes) using SSE
+/// intrinsic for the specified `data` over the specified `length` number
+/// of bytes, using the specified `crc` value as the starting point for the
+/// calculation.  Note that the `data` is permitted to be null if the
+/// `length` is 0.
 unsigned int crc32c8s(const unsigned char *data,
                       bsl::size_t          length,
                       unsigned int         crc)
-    // Calculate the CRC32-C value (calculated in slices of 8 bytes) using SSE
-    // intrinsic for the specified 'data' over the specified 'length' number
-    // of bytes, using the specified 'crc' value as the starting point for the
-    // calculation.  Note that the 'data' is permitted to be null if the
-    // 'length' is 0.
 {
     BSLS_ASSERT(data || 0 == length);
 
@@ -897,10 +902,10 @@ unsigned int crc32c8s(const unsigned char *data,
                                     reinterpret_cast<bsls::Types::IntPtr>(data)
                                   & (sizeof(bsls::Types::IntPtr) - 1);
 
+    // No. of bytes from `data` to next alignment boundary
     bsl::size_t adj = misaligned
         ? static_cast<unsigned>(sizeof(bsls::Types::IntPtr) - misaligned)
         : 0;
-        // No. of bytes from 'data' to next alignment boundary
     if (adj > length) {
         // the specified length to process is less than the distance from
         // 'data' to the next alignment boundary.
@@ -946,16 +951,16 @@ bsls::Types::Uint64 unalignedBuiltinCrc32diOffset(bsls::Types::Uint64 initial,
                                   data + sizeof(bsls::Types::Uint64) * offset);
 }
 
+/// Calculate the CRC32-C value (using SSE intrinsics) for the specified
+/// `data` over exactly 1024 bytes, using the specified `crc` value as the
+/// starting point for the calculation.  Behavior is undefined unless the
+/// buffer pointed to by `data` contains at least 1024 bytes.  Note that
+/// `data` need not be at an alignment boundary.  See Intel White Paper for
+/// details: "Fast CRC Computation for iSCSI Polynomial Using CRC32
+/// Instruction" (http://www.intel.com/content/dam/www/public/us/en/
+/// documents/white-papers/crc-iscsi-polynomial-crc32-instruction-paper.pdf)
 unsigned int crc32c1024SseInt(const unsigned char *data,
                               unsigned int         crc)
-    // Calculate the CRC32-C value (using SSE intrinsics) for the specified
-    // 'data' over exactly 1024 bytes, using the specified 'crc' value as the
-    // starting point for the calculation.  Behavior is undefined unless the
-    // buffer pointed to by 'data' contains at least 1024 bytes.  Note that
-    // 'data' need not be at an alignment boundary.  See Intel White Paper for
-    // details: "Fast CRC Computation for iSCSI Polynomial Using CRC32
-    // Instruction" (http://www.intel.com/content/dam/www/public/us/en/
-    // documents/white-papers/crc-iscsi-polynomial-crc32-instruction-paper.pdf)
 {
     BSLS_ASSERT(data);
 
@@ -1134,16 +1139,16 @@ unsigned int crc32c1024SseInt(const unsigned char *data,
 #undef C
 }
 
+/// Calculate the CRC32-C value (using SSE intrinsics) for the specified
+/// `data` over the specified `length` number of bytes, using the specified
+/// `crc` value as the starting point for the calculation.  Processing is 8
+/// or 1024 bytes at a time, depending on `length`, and lookup tables are
+/// used for recombination.  Note that the `data` is permitted to be null if
+/// the `length` is 0.
 inline
 unsigned int crc32cSse64bit(const unsigned char *data,
                             bsl::size_t          length,
                             unsigned int         crc)
-    // Calculate the CRC32-C value (using SSE intrinsics) for the specified
-    // 'data' over the specified 'length' number of bytes, using the specified
-    // 'crc' value as the starting point for the calculation.  Processing is 8
-    // or 1024 bytes at a time, depending on 'length', and lookup tables are
-    // used for recombination.  Note that the 'data' is permitted to be null if
-    // the 'length' is 0.
 {
     BSLS_ASSERT(data || 0 == length);
 
@@ -1168,15 +1173,15 @@ unsigned int crc32cSse64bit(const unsigned char *data,
 
 #  endif // BSLS_PLATFORM_CPU_64_BIT
 
+/// Calculate the CRC32-C value (using SSE intrinsic) for the specified
+/// `data` over the specified `length` number of bytes, using the specified
+/// `crc` value as the starting point for the calculation.  Unlike
+/// `crc32cSse64bit`, this function does not leverage instruction level
+/// parallelism, but rather calculates consecutive CRCs in "serial".  Note
+/// that the `data` is permitted to be null if the `length` is 0.
 unsigned int crc32cHardwareSerial(const unsigned char *data,
                                   bsl::size_t          length,
                                   unsigned int         crc)
-    // Calculate the CRC32-C value (using SSE intrinsic) for the specified
-    // 'data' over the specified 'length' number of bytes, using the specified
-    // 'crc' value as the starting point for the calculation.  Unlike
-    // 'crc32cSse64bit', this function does not leverage instruction level
-    // parallelism, but rather calculates consecutive CRCs in "serial".  Note
-    // that the 'data' is permitted to be null if the 'length' is 0.
 {
     BSLS_ASSERT(data || 0 == length);
 

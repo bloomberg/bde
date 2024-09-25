@@ -10,16 +10,16 @@
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM
 #include <bsl_filesystem.h>  // TC -1
 #endif
-#include <bsl_cstdlib.h>  // 'bsl::atoi'
-#include <bsl_cstring.h>  // 'bsl::strcmp', 'bsl::strlen'
+#include <bsl_cstdlib.h>  // `bsl::atoi`
+#include <bsl_cstring.h>  // `bsl::strcmp`, `bsl::strlen`
 #include <bsl_fstream.h>
-#include <bsl_iomanip.h>  // 'bsl::setw'
+#include <bsl_iomanip.h>  // `bsl::setw`
 #include <bsl_ios.h>
-#include <bsl_iostream.h> // 'bsl::cout', 'bsl::cerr', 'bsl::error'
+#include <bsl_iostream.h> // `bsl::cout`, `bsl::cerr`, `bsl::error`
 #include <bsl_set.h>
-#include <bsl_sstream.h>  // 'bsl::ostringstream'
+#include <bsl_sstream.h>  // `bsl::ostringstream`
 #include <bsl_string.h>
-#include <bsl_utility.h>  // 'bsl::pair'
+#include <bsl_utility.h>  // `bsl::pair`
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
@@ -36,13 +36,13 @@ using bsl::endl;
 // conformance test suite.  Than validating the usage example, there is no
 // automatic test.
 //
-// The manually-run test case '-1' is provided to confirm that the test data
+// The manually-run test case `-1` is provided to confirm that the test data
 // defined in this table is byte-identical to the content to the downloaded
 // files of the test suite.  This test case also provides warnings of
 // downloaded files having no table entry and table entries that have no
 // corresponding file.
 //
-// The path to the directory of the downloaded 'test_parsing' files (see
+// The path to the directory of the downloaded `test_parsing` files (see
 // https://github.com/nst/JSONTestSuite/tree/master/test_parsing) must be
 // provided as a command line argument (immediately following the test case
 // number) when running the test driver.
@@ -132,13 +132,13 @@ int main(int argc, char *argv[])
         //   First usage example extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -158,17 +158,17 @@ int main(int argc, char *argv[])
 /// - - - - - - - - - -
 // Generally, BDE table-drive testing uses tables defined locally in the test
 // driver.  To conveniently use the table defined in the
-// 'bdljsn_jsontestsuiteutil' component, some small adaptation to the test
+// `bdljsn_jsontestsuiteutil` component, some small adaptation to the test
 // driver is recommended.
 //
 // First, create aliases for symbols conventionally used in BDE table-driven
 // tests:
-//..
+// ```
     typedef bdljsn::JsonTestSuiteUtil           JTSU;
     typedef bdljsn::JsonTestSuiteUtil::Expected Expected;
-//..
-// Now, use these symbols in a typical table-driven 'for'-loop:
-//..
+// ```
+// Now, use these symbols in a typical table-driven `for`-loop:
+// ```
     for (bsl::size_t ti = 0; ti < JTSU::numData(); ++ti) {
         const int         LINE      = JTSU::data(ti)->d_line;
         const char *const TEST_NAME = JTSU::data(ti)->d_testName_p;
@@ -184,7 +184,7 @@ int main(int argc, char *argv[])
 
         // testing code...
     }
-//..
+// ```
 
       } break;
       case 1: {
@@ -192,14 +192,14 @@ int main(int argc, char *argv[])
         // LARGE INPUT SANITY CHECK
         //
         // Concern:
-        //: 1 The two "large" input test cases are initialized to their
-        //:   expected values.
+        // 1. The two "large" input test cases are initialized to their
+        //    expected values.
         //
         // Plan:
-        //: 1 Compare the 'd_JSON_p' and 'd_length' fields to the expected
-        //:   values.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Compare the `d_JSON_p` and `d_length` fields to the expected
+        //    values.
+        //
+        // 2. QoI: Asserted precondition violations are detected when enabled.
         //
         // Testing:
         //   CONCERN: LARGE INPUT SANITY CHECK
@@ -286,41 +286,41 @@ int main(int argc, char *argv[])
         // CONTENT VALIDATION
         //
         // Concerns:
-        //: 1 The 'd_JSON_p' member of each test-point entry matches the
-        //:   contents of the JSON Conformance Standard file that is named by
-        //:   the 'd_testName_p' member.
-        //:
-        //:   o The directory of the test files must be supplied as the first
-        //:     command-line argument.
-        //:
-        //: 2 The Conformance test conventions on filenames are preserved by
-        //:   the test-point entries.
-        //:
-        //:   o The leading letters of 'd_testName_p' are either 'y_' or 'n_'
-        //:     (we do not use 'i_' files)->
-        //:
-        //:   o The 'd_isValid' value (expected test result) aligns with the
-        //:     first letter of the file name.
+        // 1. The `d_JSON_p` member of each test-point entry matches the
+        //    contents of the JSON Conformance Standard file that is named by
+        //    the `d_testName_p` member.
+        //
+        //    - The directory of the test files must be supplied as the first
+        //      command-line argument.
+        //
+        // 2. The Conformance test conventions on filenames are preserved by
+        //    the test-point entries.
+        //
+        //    - The leading letters of `d_testName_p` are either `y_` or `n_`
+        //      (we do not use `i_` files)->
+        //
+        //    - The `d_isValid` value (expected test result) aligns with the
+        //      first letter of the file name.
         //
         // Plan:
-        //: 1 The directory containing the 'test_parser' files of the test
-        //:   suite is provided as the second command line argument (i.e., the
-        //:   argument following test case number).
-        //:
-        //: 2 Compare strings constructed from the file contents and the
-        //:   'd_JSON_p' members, respectively.  (C-1)
-        //:
-        //: 3 Confirm that table entries with test names beginning with
-        //:   'y_'/'n_'/'i_' have 'd_expected' values that are
-        //:   'e_ACCEPT'/'e_REJECT'/'e_EITHER'. respectively.
-        //:
-        //: 3 Check that every entry in the test suite directory has an entry
-        //:   and vice versa.
-        //:
-        //:   o The table entry with the name
-        //:     'y_henry_verschell_smiley_surrogate_smiley.json' is *not* part
-        //:     of the official test suite.  Expect one error to be generated
-        //:     due to the absence of this file.
+        // 1. The directory containing the `test_parser` files of the test
+        //    suite is provided as the second command line argument (i.e., the
+        //    argument following test case number).
+        //
+        // 2. Compare strings constructed from the file contents and the
+        //    `d_JSON_p` members, respectively.  (C-1)
+        //
+        // 3. Confirm that table entries with test names beginning with
+        //    `y_`/`n_`/`i_` have `d_expected` values that are
+        //    `e_ACCEPT`/`e_REJECT`/`e_EITHER`. respectively.
+        //
+        // 3. Check that every entry in the test suite directory has an entry
+        //    and vice versa.
+        //
+        //    - The table entry with the name
+        //      `y_henry_verschell_smiley_surrogate_smiley.json` is *not* part
+        //      of the official test suite.  Expect one error to be generated
+        //      due to the absence of this file.
         //
         // Testing:
         //   CONCERN: CONTENT VALIDATION
@@ -331,7 +331,7 @@ int main(int argc, char *argv[])
                           << "==================" << endl;
 
         if (argc < 3) {
-            cerr << "Usage: -1 <'test_parsing' dir> [1] ... # verbosity"
+            cerr << "Usage: -1 <`test_parsing` dir> [1] ... # verbosity"
                  << endl;
             testStatus = -2;
             break;
@@ -372,14 +372,14 @@ int main(int argc, char *argv[])
                 // Per:
                 // https://github.com/nst/JSONTestSuite/blob/master/README.md
                 //
-                // '/test_parsing/'
+                // `/test_parsing/`
                 // ----------------
                 // The name of these files tell if their contents should be
                 // accepted or rejected.
                 //
-                //: o 'y_' content must be accepted by parsers
-                //: o 'n_' content must be rejected by parsers
-                //: o 'i_' parsers are free to accept or reject content
+                //  - `y_` content must be accepted by parsers
+                //  - `n_` content must be rejected by parsers
+                //  - `i_` parsers are free to accept or reject content
 
                 switch (TEST_NAME[0]) {
                   case 'y': { ASSERTV(EXPECTED, Util::e_ACCEPT == EXPECTED);
@@ -392,7 +392,7 @@ int main(int argc, char *argv[])
                   } break;
                 }
             } else {
-                ASSERTV(TEST_NAME, 0 == "well-formed 'TEST_NAME'");
+                ASSERTV(TEST_NAME, 0 == "well-formed `TEST_NAME`");
             }
 
             bsl::string PATH = testParsingDir + "/" + bsl::string(TEST_NAME);
@@ -548,8 +548,8 @@ int main(int argc, char *argv[])
 #else
         if (veryVerbose) {
             cout << "\t"   "SKIPPED: Requires:"                          "\n"
-                    "\t\t" "'BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM'" "\n"
-                    "\t\t" "'BSLS_PLATFORM_OS_UNIX'"                 << endl;
+                    "\t\t" "`BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM`" "\n"
+                    "\t\t" "`BSLS_PLATFORM_OS_UNIX`"                 << endl;
         }
 #endif
       } break;

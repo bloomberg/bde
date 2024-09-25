@@ -23,13 +23,13 @@ using namespace bsl;
 //                              --------
 // Standard enumeration test plan.
 //
-// 'ball::Trans' is sometimes used in the documentation as an abbreviation for
-// 'ball::Transmission'.
+// `ball::Trans` is sometimes used in the documentation as an abbreviation for
+// `ball::Transmission`.
 //-----------------------------------------------------------------------------
-// 'ball::Transmission' private methods (tested indirectly):
+// `ball::Transmission` private methods (tested indirectly):
 // [ 1] print(bsl::ostream& stream, ball::Transmission::Cause value);
 //
-// 'ball::Transmission' public interface:
+// `ball::Transmission` public interface:
 // [ 1] enum Cause { ... };
 // [ 1] enum { LENGTH = ... };
 // [ 1] char *toAscii(ball::Transmission::Cause value);
@@ -171,8 +171,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.  Suppress
-        //   all 'cout' statements in non-verbose mode, and add streaming to
+        //   comment characters, and replace `assert` with `ASSERT`.  Suppress
+        //   all `cout` statements in non-verbose mode, and add streaming to
         //   a buffer to test programmatically the printing examples.
         //
         // Testing:
@@ -232,12 +232,12 @@ int main(int argc, char *argv[])
         // Plan:
         //   Ensure enumerator values are consecutive integers in the range
         //   [0 .. LENGTH - 1] and that all names are unique.  Verify that the
-        //   'toAscii' function produces strings that are identical to their
+        //   `toAscii` function produces strings that are identical to their
         //   respective enumerator symbols.  Verify that the output operator
         //   produces the same respective string values that would be produced
-        //   by 'toAscii' (note that this is testing streams convertible to
-        //   standard 'ostream' streams and the 'print' method).  Also verify
-        //   the ascii representation and 'ostream' output for invalid
+        //   by `toAscii` (note that this is testing streams convertible to
+        //   standard `ostream` streams and the `print` method).  Also verify
+        //   the ascii representation and `ostream` output for invalid
         //   enumerator values.
         //
         // Testing:
@@ -307,7 +307,7 @@ int main(int argc, char *argv[])
 
         for (i = -1; i < DATA_LENGTH + 1; ++i) {  // also check UNKNOWN_FMT
             char buf[SIZE];
-            memcpy(buf, CTRL_BUF, SIZE);  // Preset buf to 'unset' char values.
+            memcpy(buf, CTRL_BUF, SIZE);  // Preset buf to `unset` char values.
 
             const char *const FMT = 0 <= i && i < DATA_LENGTH
                                     ? DATA[i].d_ascii : UNKNOWN_FMT;

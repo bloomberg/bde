@@ -8,9 +8,9 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_keyword.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
-#include <string.h>     // 'memcpy', 'strcmp'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
+#include <string.h>     // `memcpy`, `strcmp`
 
 using namespace BloombergLP;
 
@@ -29,7 +29,7 @@ using namespace BloombergLP;
 // [1] int numBytes() const;
 // [2] const char *what() const BSLS_EXCEPTION_VIRTUAL_NOTHROW;
 //-----------------------------------------------------------------------------
-// [2] CONCERN: 'bslma::TestAllocatorException' is-an 'std::bad_alloc'
+// [2] CONCERN: `bslma::TestAllocatorException` is-an `std::bad_alloc`
 // [3] USAGE TEST - Make sure main usage example compiles and works.
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
@@ -130,8 +130,8 @@ void *my_Allocator::allocate(size_type size)
 
 class my_ShortArray {
     short *d_array_p; // dynamically-allocated array of short integers
-    int d_size;       // physical size of the 'd_array_p' array (elements)
-    int d_length;     // logical length of the 'd_array_p' array (elements)
+    int d_size;       // physical size of the `d_array_p` array (elements)
+    int d_length;     // logical length of the `d_array_p` array (elements)
     bslma::Allocator *d_allocator_p; // holds (but does not own) allocator
 
   private:
@@ -139,10 +139,11 @@ class my_ShortArray {
 
   public:
     // CREATORS
+
+    /// Create a empty array.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, global operators `new` and
+    /// `delete` are used.
     explicit my_ShortArray(bslma::Allocator *basicAllocator = 0);
-        // Create a empty array.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, global operators 'new' and
-        // 'delete' are used.
      // ...
 
     ~my_ShortArray();
@@ -194,17 +195,17 @@ inline void my_ShortArray::append(short value)
     d_array_p[d_length++] = value;
 }
 
+/// Reallocate memory in the specified `array` to the specified `newSize`
+/// using the specified `basicAllocator`, or, if `basicAllocator` is 0,
+/// global operators `new` and `delete`.  The specified `length` number of
+/// leading elements are preserved.  Since the class invariant requires that
+/// the physical capacity of the container may grow but never shrink; the
+/// behavior is undefined unless `length <= newSize`.
 inline static
 void reallocate(short            **array,
                 int                newSize,
                 int                length,
                 bslma::Allocator  *basicAllocator)
-    // Reallocate memory in the specified 'array' to the specified 'newSize'
-    // using the specified 'basicAllocator', or, if 'basicAllocator' is 0,
-    // global operators 'new' and 'delete'.  The specified 'length' number of
-    // leading elements are preserved.  Since the class invariant requires that
-    // the physical capacity of the container may grow but never shrink; the
-    // behavior is undefined unless 'length <= newSize'.
 {
     ASSERT(array);
     ASSERT(1 <= newSize);
@@ -280,7 +281,7 @@ void debugprint(const my_ShortArray& array)
                         bslmaExceptionCounter, e.numBytes());               \
                 }                                                           \
                 else if (0 == bslmaExceptionLimit) {                        \
-                    printf(" [ Note: 'bslmaExceptionLimit' reached. ]\n");  \
+                    printf(" [ Note: `bslmaExceptionLimit` reached. ]\n");  \
                 }                                                           \
             }                                                               \
             testAllocator.setAllocationLimit(++bslmaExceptionCounter);      \
@@ -314,9 +315,9 @@ const Element &V0 = VALUES[0], &VA = V0,
               &V3 = VALUES[3], &VD = V3,
               &V4 = VALUES[4], &VE = V4;
 
+/// Return `true` if the specified initial `numElement` in the specified
+/// `array1` and `array2` have the same values, and `false` otherwise.
 static bool areEqual(const short *array1, const short *array2, int numElement)
-    // Return 'true' if the specified initial 'numElement' in the specified
-    // 'array1' and 'array2' have the same values, and 'false' otherwise.
 {
     for (int i = 0; i < numElement; ++i) {
         if (array1[i] != array2[i]) return false;                     // RETURN
@@ -386,13 +387,13 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // BAD_ALLOC TEST
-        //   Verify that 'bslma::TestAllocatorException' is-an
-        //   'std::bad_alloc'.  Verify that the 'what' method works as
-        //   expected.  Verify also that 'bslma::TestAllocatorException' can be
-        //   caught as an 'std::bad_alloc', if exceptions are enabled.
+        //   Verify that `bslma::TestAllocatorException` is-an
+        //   `std::bad_alloc`.  Verify that the `what` method works as
+        //   expected.  Verify also that `bslma::TestAllocatorException` can be
+        //   caught as an `std::bad_alloc`, if exceptions are enabled.
         //
         // Testing:
-        //   CONCERN: 'bslma::TestAllocatorException' is-an 'std::bad_alloc'
+        //   CONCERN: `bslma::TestAllocatorException` is-an `std::bad_alloc`
         //   const char *what() const BSLS_EXCEPTION_VIRTUAL_NOTHROW;
         // --------------------------------------------------------------------
 
@@ -420,9 +421,9 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BASIC TEST
-        //   Create 'bslma::TestAllocatorException' objects with varying
+        //   Create `bslma::TestAllocatorException` objects with varying
         //   initial value.  Verify that each object contains the expected
-        //   value using basic accessor 'numBytes'.
+        //   value using basic accessor `numBytes`.
         //
         // Testing:
         //   bslma::Testallocatorexception(int numBytes);

@@ -8,10 +8,10 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
-#include <algorithm>  // 'lexicographical_compare_three_way'
+#include <algorithm>  // `lexicographical_compare_three_way`
 #include <list>
 #include <stdio.h>
-#include <stdlib.h>  // 'atoi'
+#include <stdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 #ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
@@ -23,7 +23,7 @@ typedef bslalg::SynthThreeWayUtil Obj;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test provides utilities for 'operator<=>'
+// The component under test provides utilities for `operator<=>`
 // implementation.
 //-----------------------------------------------------------------------------
 // [ 2] SynthThreeWayUtil::compare
@@ -120,8 +120,8 @@ namespace {
                            // class TypeWithSpaceship
                            // =======================
 
+/// Type with `<=>` operator.
 struct TypeWithSpaceship {
-    // Type with '<=>' operator.
 
     int d_value;
 
@@ -132,8 +132,8 @@ struct TypeWithSpaceship {
                            // class TypeWithLessOnly
                            // ======================
 
+/// Type with '<' operator.
 struct TypeWithLessOnly {
-    // Type with '<' operator.
 
     int d_value;
 };
@@ -147,10 +147,10 @@ bool operator<(const TypeWithLessOnly& lhs, const TypeWithLessOnly& rhs)
                            // class Wrapped
                            // =============
 
+/// Type with `<=>` operator defined in terms of comparisons defined for
+/// `t_TYPE`.
 template <class t_TYPE>
 struct Wrapped {
-    // Type with '<=>' operator defined in terms of comparisons defined for
-    // 't_TYPE'.
 
     t_TYPE d_value;
 };
@@ -162,9 +162,9 @@ Obj::Result<t_TYPE> operator<=>(const Wrapped<t_TYPE>& lhs,
     return Obj::compare(lhs.d_value, rhs.d_value);
 }
 
+/// Verify sanity of the defined comparison operators.
 template <class t_TYPE, class t_COMPARISON_CATEGORY>
 void testCase3()
-    // Verify sanity of the defined comparison operators.
 {
     Wrapped<t_TYPE> v1{1}, v2{2};
 
@@ -205,12 +205,12 @@ namespace bsl { using std::lexicographical_compare_three_way; }
 ///-----
 // This section illustrates intended use of this component.
 //
-// Example 1: Implementing '<=>' For a Sequence Container
+// Example 1: Implementing `<=>` For a Sequence Container
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In the following example we use 'bslalg::SynthThreeWayUtil' to implement the
-// three-way comparison operator ('<=>') for a list container (whose details
+// In the following example we use `bslalg::SynthThreeWayUtil` to implement the
+// three-way comparison operator (`<=>`) for a list container (whose details
 // have been elided):
-//..
+// ```
 template <class T, class A>
 bslalg::SynthThreeWayUtil::Result<T> operator<=>(const list<T,A>& lhs,
                                                  const list<T,A>& rhs)
@@ -222,7 +222,7 @@ bslalg::SynthThreeWayUtil::Result<T> operator<=>(const list<T,A>& lhs,
                                        rhs.end(),
                                        bslalg::SynthThreeWayUtil::compare);
 }
-//..
+// ```
 
 #endif  // BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
 
@@ -250,11 +250,11 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate the usage example from header into test driver.
+        // 1. Incorporate the usage example from header into test driver.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -275,31 +275,31 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'SynthThreeWayUtil::compare'
+        // TESTING `SynthThreeWayUtil::compare`
         //
         // Concerns:
-        //: 1 The function uses 'operator<=>' if available.
-        //:
-        //: 2 Otherwise the function uses 'operator<' if available.
+        // 1. The function uses `operator<=>` if available.
+        //
+        // 2. Otherwise the function uses `operator<` if available.
         //
         // Plan:
-        //: 1 Create a class template 'Wrapped' that holds a value of the
-        //:   specified (wrapped) type and defines the '<=>' operator using the
-        //:   wrapped value and 'SynthThreeWayUtil::compare'.
-        //:
-        //: 2 Create a type that wraps 'int' value and defines the '<=>'
-        //:   operator - 'TypeWithSpaceship'.
-        //:
-        //: 3 Create a type that wraps 'int' value and defines the '<'
-        //:   operator - 'TypeWithLessOnly'.
-        //:
-        //: 4 Verify that the comparison operators are defined correctly for
-        //:   'Wrapped<TypeWithSpaceship>' and 'Wrapped<TypeLessOnly>'.
+        // 1. Create a class template `Wrapped` that holds a value of the
+        //    specified (wrapped) type and defines the `<=>` operator using the
+        //    wrapped value and `SynthThreeWayUtil::compare`.
+        //
+        // 2. Create a type that wraps `int` value and defines the `<=>`
+        //    operator - `TypeWithSpaceship`.
+        //
+        // 3. Create a type that wraps `int` value and defines the '<'
+        //    operator - `TypeWithLessOnly`.
+        //
+        // 4. Verify that the comparison operators are defined correctly for
+        //    `Wrapped<TypeWithSpaceship>` and `Wrapped<TypeLessOnly>`.
         //
         // Testing:
         //   SynthThreeWayUtil::compare
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING 'SynthThreeWayUtil::compare'"
+        if (verbose) printf("\nTESTING `SynthThreeWayUtil::compare`"
                             "\n===================================\n");
 
 #ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
@@ -312,10 +312,10 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 The provided utilities are sufficiently functional.
+        // 1. The provided utilities are sufficiently functional.
         //
         // Plan:
-        //: 1 Write any code with 'bslalg::SynthThreeWayUtil' here.
+        // 1. Write any code with `bslalg::SynthThreeWayUtil` here.
         //
         // Testing:
         //   BREATHING TEST

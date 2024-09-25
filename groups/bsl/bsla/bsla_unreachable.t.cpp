@@ -6,7 +6,7 @@
 
 #include <algorithm>
 #include <stdio.h>
-#include <stdlib.h>  // 'atoi'
+#include <stdlib.h>  // `atoi`
 
 // Set this preprocessor macro to 1 to enable compile warnings being generated,
 // 0 to disable them.
@@ -21,22 +21,22 @@
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
 // test driver using a compliant compiler, each time defining different values
-// of the boolean 'U_TRIGGER_ERRORS' preprocessor macro.  In each case, the
+// of the boolean `U_TRIGGER_ERRORS` preprocessor macro.  In each case, the
 // concerns are:
 //
-//: o Did the build succeed or not?
-//:
-//: o Was the expected warning observed or not?
-//:
-//: o Was the expected suppression of some warning suppressed or not?
-//:
-//: o For annotations taking arguments, do the results show if the arguments
-//:   were properly passed to the underlying compiler directives?
+//  - Did the build succeed or not?
+//
+//  - Was the expected warning observed or not?
+//
+//  - Was the expected suppression of some warning suppressed or not?
+//
+//  - For annotations taking arguments, do the results show if the arguments
+//    were properly passed to the underlying compiler directives?
 //
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
 // does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor macro is 'U_TRIGGER_ERRORS', which, if set to
+// The controlling preprocessor macro is `U_TRIGGER_ERRORS`, which, if set to
 // 1, provokes all the compiler warnings caused by the macros under test.  If
 // set to 0, prevents any warnings from happening.
 //
@@ -47,11 +47,11 @@
 // right-most column appear as comments throughout this test driver.  They can
 // be used as an aid to navigation to the test code for each annotation, and an
 // aid to assuring test coverage.
-//..
+// ```
 //  Annotation                            Result
 //  ------------------------------------  --------
 //  BSLA_UNREACHABLE                      Suppresses Error
-//..
+// ```
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 // [ 1] BREATHING TEST
@@ -116,10 +116,10 @@ void aSsErT(bool condition, const char *message, int line)
 //
 ///Example 1: Indicating That a Statement is Intended to be Unreachable
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// First, we define a function, 'directoriesInPath', that counts the number of
-// directories in the 'PATH' environment variable.  If 'PATH' is not set, the
-// program dumps core by calling 'BSLS_ASSERT_OPT':
-//..
+// First, we define a function, `directoriesInPath`, that counts the number of
+// directories in the `PATH` environment variable.  If `PATH` is not set, the
+// program dumps core by calling `BSLS_ASSERT_OPT`:
+// ```
 #if U_TRIGGER_ERRORS
 namespace triggerErrors {
     int directoriesInPath()
@@ -137,17 +137,17 @@ namespace triggerErrors {
     }
 }  // close namespace triggerErrors
 #endif
-//..
+// ```
 // Then, we observe a compile error because the compiler expects the
-// 'BSLA_ASSERT_OPT' to return and the function to run off the end and return
-// 'void', while the function is declated to return 'int'.
-//..
-//  .../bsla_unreachable.t.cpp(141) : error C4715: 'directoriesInPath': not all
+// `BSLA_ASSERT_OPT` to return and the function to run off the end and return
+// `void`, while the function is declated to return `int`.
+// ```
+//  .../bsla_unreachable.t.cpp(141) : error C4715: `directoriesInPath`: not all
 //  control paths return a value
-//..
-// Now, we put a 'BSLA_UNREACHABLE' statement after the 'BSLS_ASSERT_OPT',
+// ```
+// Now, we put a `BSLA_UNREACHABLE` statement after the `BSLS_ASSERT_OPT`,
 // which tells the compiler that that point in the code is unreachable:
-//..
+// ```
 #if BSLA_UNREACHABLE_IS_ACTIVE
     int directoriesInPath()
     {
@@ -165,7 +165,7 @@ namespace triggerErrors {
         BSLA_UNREACHABLE;
     }
 #endif
-//..
+// ```
 // Finally, we observe that the compiler error is silenced and the build is
 // successful.
 
@@ -197,11 +197,11 @@ namespace triggerErrors {
 //                              HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// Print a diagnostic message to standard output if any of the preprocessor
+/// flags of interest are defined, and their value if a value had been set.
+/// An "Enter" and "Leave" message is printed unconditionally so there is
+/// some report even if all of the flags are undefined.
 static void printFlags()
-    // Print a diagnostic message to standard output if any of the preprocessor
-    // flags of interest are defined, and their value if a value had been set.
-    // An "Enter" and "Leave" message is printed unconditionally so there is
-    // some report even if all of the flags are undefined.
 {
     printf("printFlags: Enter\n");
 
@@ -270,21 +270,21 @@ int main(int argc, char **argv)
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 This test driver fails to build with all expected compiler error
-        //:   messages and no unexpected warnings when the 'U_TRIGGER_ERRORS'
-        //:   preprocessor variable is defined to 1.
-        //:
-        //: 2 When 'U_TRIGGER_ERRORS' is defined to 0, the compile is
-        //:   successful and with no warnings.
+        // 1. This test driver fails to build with all expected compiler error
+        //    messages and no unexpected warnings when the `U_TRIGGER_ERRORS`
+        //    preprocessor variable is defined to 1.
+        //
+        // 2. When `U_TRIGGER_ERRORS` is defined to 0, the compile is
+        //    successful and with no warnings.
         //
         // Plan:
-        //: 1 Build with 'U_TRIGGER_ERRORS' defined to 1 and externally examine
-        //:   compiler output for expected error messages.
-        //:
-        //: 2 Build with 'U_TRIGGER_ERRORS' defined to 0 and observe that the
-        //:   compile is successful with no warnings.
-        //:
-        //: 3 Run with 'verbose' to get a listing of macro expansions.
+        // 1. Build with `U_TRIGGER_ERRORS` defined to 1 and externally examine
+        //    compiler output for expected error messages.
+        //
+        // 2. Build with `U_TRIGGER_ERRORS` defined to 0 and observe that the
+        //    compile is successful with no warnings.
+        //
+        // 3. Run with `verbose` to get a listing of macro expansions.
         //
         // Testing:
         //   BREATHING TEST
@@ -300,7 +300,7 @@ int main(int argc, char **argv)
 
             if (!veryVeryVerbose) printFlags();
 
-            ASSERT(true); // remove unused warning for 'aSsErT'
+            ASSERT(true); // remove unused warning for `aSsErT`
         }
 
       } break;

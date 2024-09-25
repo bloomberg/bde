@@ -33,8 +33,8 @@ using namespace BloombergLP::bdld;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test is a utility for building 'Datum' objects holding
-// maps (owning keys) of 'Datum' objects.
+// The component under test is a utility for building `Datum` objects holding
+// maps (owning keys) of `Datum` objects.
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 4] DatumMapOwningKeysBuilder(const allocator_type& allocator);
@@ -128,7 +128,7 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 typedef DatumMapOwningKeysBuilder Obj;
-typedef Obj::allocator_type       AllocType;  // Test 'allocator_type' exists.
+typedef Obj::allocator_type       AllocType;  // Test `allocator_type` exists.
 
 DatumMapEntry values[] = {
     DatumMapEntry(StringRef("a"),     Datum::createInteger(1)),
@@ -155,9 +155,10 @@ BSLMF_ASSERT((bsl::uses_allocator<Obj, bsl::allocator<char> >::value));
 //=============================================================================
 //               GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
+/// Return `true` if key in the specified `lhs` is greater than key in the
+/// specified `rhs` and `false` otherwise.
 bool compareGreater(const DatumMapEntry& lhs, const DatumMapEntry& rhs)
-    // Return 'true' if key in the specified 'lhs' is greater than key in the
-    // specified 'rhs' and 'false' otherwise.
 {
     return lhs.key() > rhs.key();
 }
@@ -194,13 +195,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -218,10 +219,10 @@ int main(int argc, char *argv[])
 // Suppose we need a map for some personal data.  The values in that map can be
 // different types and keys must be protected from destruction as this map
 // object can be passed out of scope.  The following code illustrates how to
-// use 'bdld::DatumMapOwningKeysBuilder' to create such map easily.
+// use `bdld::DatumMapOwningKeysBuilder` to create such map easily.
 //
 // First, we need data to fill our map:
-//..
+// ```
     bslma::TestAllocator ta("test", veryVeryVerbose);
 
     bsl::string firstName = "firstName";
@@ -241,26 +242,26 @@ int main(int argc, char *argv[])
                             + lastName.length()
                             + gender.length()
                             + age.length();
-//..
-// Next, we create an object of 'DatumMapOwningKeysBuilder' class with initial
+// ```
+// Next, we create an object of `DatumMapOwningKeysBuilder` class with initial
 // capacity sufficient for storing all our data:
-//..
+// ```
     DatumMapOwningKeysBuilder builder(DATA_SIZE, KEYS_SIZE, &ta);
-//..
+// ```
 // Then, we load our builder with these data:
-//..
+// ```
     for (size_t i = 0; i < DATA_SIZE; ++i) {
         builder.pushBack(bartData[i].key(), bartData[i].value());
     }
-//..
-// Next, we adopt the map, held by our builder, by newly created 'Datum'
+// ```
+// Next, we adopt the map, held by our builder, by newly created `Datum`
 // object:
-//..
+// ```
     Datum bart = builder.commit();
-//..
+// ```
 // Now, we can check that all data have been correctly added to the map at the
 // required order:
-//..
+// ```
     ASSERT(true == bart.isMap());
     ASSERT(DATA_SIZE == bart.theMap().size());
 
@@ -279,23 +280,23 @@ int main(int argc, char *argv[])
     ASSERT("age"       == bart.theMap()[3].key());
     ASSERT(true        == bart.theMap()[3].value().isInteger());
     ASSERT(10          == bart.theMap()[3].value().theInteger());
-//..
-// Finally, we destroy the 'Datum' object to release all allocated memory
+// ```
+// Finally, we destroy the `Datum` object to release all allocated memory
 // correctly:
-//..
+// ```
     Datum::destroy(bart, &ta);
     ASSERT(0 == ta.numBytesInUse());
-//..
+// ```
       } break;
       case 8: {
         // --------------------------------------------------------------------
         // TESTING TRAITS
         //
         // Concerns:
-        //: 1 bslma::UsesBslmaAllocator is true for DatumMapOwningKeysBuilder.
+        // 1. bslma::UsesBslmaAllocator is true for DatumMapOwningKeysBuilder.
         //
         // Plan:
-        //: 1 Assert trait.  (C-1)
+        // 1. Assert trait.  (C-1)
         //
         // Testing:
         //   bslma::UsesBslmaAllocator
@@ -308,41 +309,41 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'sortAndCommit'
+        // TESTING `sortAndCommit`
         //
         // Concerns:
-        //: 1 'sortAndCommit' doesn't sort empty map.  Adopted map is marked as
-        //:   unsorted.
-        //:
-        //: 2 'sortAndCommit' sorts the elements of non-empty map before
-        //:   adopting.  Adopted map is marked as sorted.
-        //:
-        //: 3 No memory leak occur during map sorting and adoption.
+        // 1. `sortAndCommit` doesn't sort empty map.  Adopted map is marked as
+        //    unsorted.
+        //
+        // 2. `sortAndCommit` sorts the elements of non-empty map before
+        //    adopting.  Adopted map is marked as sorted.
+        //
+        // 3. No memory leak occur during map sorting and adoption.
         //
         // Plan:
-        //: 1 Create a 'DatumMapOwningKeysBuilder' object using specified
-        //:   allocator.  Get a 'Datum' object by calling 'sortAndCommit' and
-        //:   verify it's status.  (C-1)
-        //:
-        //: 2 Create a 'DatumMapOwningKeysBuilder' object using specified
-        //:   allocator.  Append few elements to the map.  Get a 'Datum' object
-        //:   by calling 'sortAndCommit' and verify it's status.  Also verify
-        //:   that the elements in the map have been sorted.  (C-2)
-        //:
-        //: 3 After all objects deletion verify that no memory from specified
-        //:   allocator is used.  (C-3)
+        // 1. Create a `DatumMapOwningKeysBuilder` object using specified
+        //    allocator.  Get a `Datum` object by calling `sortAndCommit` and
+        //    verify it's status.  (C-1)
+        //
+        // 2. Create a `DatumMapOwningKeysBuilder` object using specified
+        //    allocator.  Append few elements to the map.  Get a `Datum` object
+        //    by calling `sortAndCommit` and verify it's status.  Also verify
+        //    that the elements in the map have been sorted.  (C-2)
+        //
+        // 3. After all objects deletion verify that no memory from specified
+        //    allocator is used.  (C-3)
         //
         // Testing:
         //    Datum sortAndCommit();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'sortAndCommit'" << endl
+                          << "TESTING `sortAndCommit`" << endl
                           << "=======================" << endl;
         {
             bslma::TestAllocator ta("test", veryVeryVerbose);
 
-            if (verbose) cout << "\nTesting 'sortAndCommit' with empty map."
+            if (verbose) cout << "\nTesting `sortAndCommit` with empty map."
                               << endl;
             {
                 Obj          mB(&ta);
@@ -356,7 +357,7 @@ int main(int argc, char *argv[])
             }
 
             if (verbose) cout
-                    << "\nTesting 'sortAndCommit' with non-empty map." << endl;
+                    << "\nTesting `sortAndCommit` with non-empty map." << endl;
             {
                 bslma::TestAllocator ta("test", veryVeryVerbose);
 
@@ -401,39 +402,39 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'setSorted'
+        // TESTING `setSorted`
         //
         // Concerns:
-        //: 1 'setSorted' sets the sort flag of empty map to 'false' anyway.
-        //:
-        //: 2 'setSorted' sets given value to the sort flag of non-empty map.
+        // 1. `setSorted` sets the sort flag of empty map to `false` anyway.
+        //
+        // 2. `setSorted` sets given value to the sort flag of non-empty map.
         //
         // Plan:
-        //: 1 Create a 'DatumMapOwningKeysBuilder' object with empty capacity.
-        //:   Set the sort flag to 'true'.  Get a 'Datum' object by calling
-        //:   'commit' and verify that map is marked as unsorted.  (C-1)
-        //:
-        //: 2 Create a 'DatumMapOwningKeysBuilder' object.  Append few elements
-        //:   to the map in a sorted order.  Set the sort flag.  Get a 'Datum'
-        //:   object by calling 'commit' and verify that map is marked as
-        //:   sorted.  Also verify that the elements in the map are still in
-        //:   sorted order.  (C-2)
-        //:
-        //: 3 Create another 'DatumMapOwningKeysBuilder' object.  Append few
-        //:   elements to map.  Set the sort flag and then reset it.  Get a
-        //:   'Datum' object by calling 'commit' and verify that map is marked
-        //:   as unsorted.  Also verify that the elements in the map are still
-        //:   in the order specified on the map creation.  (C-3)
+        // 1. Create a `DatumMapOwningKeysBuilder` object with empty capacity.
+        //    Set the sort flag to `true`.  Get a `Datum` object by calling
+        //    `commit` and verify that map is marked as unsorted.  (C-1)
+        //
+        // 2. Create a `DatumMapOwningKeysBuilder` object.  Append few elements
+        //    to the map in a sorted order.  Set the sort flag.  Get a `Datum`
+        //    object by calling `commit` and verify that map is marked as
+        //    sorted.  Also verify that the elements in the map are still in
+        //    sorted order.  (C-2)
+        //
+        // 3. Create another `DatumMapOwningKeysBuilder` object.  Append few
+        //    elements to map.  Set the sort flag and then reset it.  Get a
+        //    `Datum` object by calling `commit` and verify that map is marked
+        //    as unsorted.  Also verify that the elements in the map are still
+        //    in the order specified on the map creation.  (C-3)
         //
         // Testing:
         //    void setSorted(bool);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'setSorted'" << endl
+                          << "TESTING `setSorted`" << endl
                           << "===================" << endl;
 
-        if (verbose) cout << "\nTesting 'setSorted' with empty map." << endl;
+        if (verbose) cout << "\nTesting `setSorted` with empty map." << endl;
         {
             bslma::TestAllocator ta("test", veryVeryVerbose);
 
@@ -452,7 +453,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == ta.numBytesInUse());
         }
 
-        if (verbose) cout << "\nTesting 'setSorted' with sorted map." << endl;
+        if (verbose) cout << "\nTesting `setSorted` with sorted map." << endl;
         {
             bslma::TestAllocator ta("test", veryVeryVerbose);
 
@@ -501,7 +502,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == ta.numBytesInUse());
         }
 
-        if (verbose) cout << "\nTesting 'setSorted' with unsorted map."
+        if (verbose) cout << "\nTesting `setSorted` with unsorted map."
                           << endl;
         {
             bslma::TestAllocator ta("test", veryVeryVerbose);
@@ -530,38 +531,38 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'pushBack'
+        // TESTING `pushBack`
         //
         // Concerns:
-        //: 1 The 'pushBack' method appends 'Datum' value with the specified
-        //:   key to the end of the map.
-        //:
-        //: 2 The 'pushBack' method grows the map, only if it is filled to the
-        //:   capacity.
-        //:
-        //: 3 The 'pushBack' method grows the keys storage, only if it is
-        //:    filled to the capacity.
-        //:
-        //: 3 The 'pushBack' method uses allocator, passed at the construction,
-        //:   to grow the map.
+        // 1. The `pushBack` method appends `Datum` value with the specified
+        //    key to the end of the map.
+        //
+        // 2. The `pushBack` method grows the map, only if it is filled to the
+        //    capacity.
+        //
+        // 3. The `pushBack` method grows the keys storage, only if it is
+        //     filled to the capacity.
+        //
+        // 3. The `pushBack` method uses allocator, passed at the construction,
+        //    to grow the map.
         //
         // Plan:
-        //: 1 Create a 'DatumMapOwningKeysBuilder' object.  Push back few
-        //:   elements to the map and verify that the capacities have increased
-        //:   only if there is no place for new items.  Verify that memory is
-        //:   allocated by the allocator passed on the builder construction.
-        //:   (C-2..4)
-        //:
-        //: 2 Get a 'Datum' object by committing the map and verify it contains
-        //:   item in the same order as they has been passed to the pushBack
-        //:   method.  (C-1)
+        // 1. Create a `DatumMapOwningKeysBuilder` object.  Push back few
+        //    elements to the map and verify that the capacities have increased
+        //    only if there is no place for new items.  Verify that memory is
+        //    allocated by the allocator passed on the builder construction.
+        //    (C-2..4)
+        //
+        // 2. Get a `Datum` object by committing the map and verify it contains
+        //    item in the same order as they has been passed to the pushBack
+        //    method.  (C-1)
         //
         // Testing:
         //    void pushBack(const bslstl::StringRef&, const Datum&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'pushBack'" << endl
+                          << "TESTING `pushBack`" << endl
                           << "==================" << endl;
 
         {
@@ -636,14 +637,14 @@ int main(int argc, char *argv[])
         // SECONDARY CONSTRUCTOR
         //
         // Concerns:
-        //: 1 The constructor correctly sets null values for capacity, keys
-        //:   capacity and binds given allocator with created object.
+        // 1. The constructor correctly sets null values for capacity, keys
+        //    capacity and binds given allocator with created object.
         //
         // Plan:
-        //: 1 Create a 'DatumMapOwningKeysBuilder' object. verify that the
-        //:   capacities are represented correctly.  Append few elements to the
-        //:   map and verify, that memory has been allocated by the passed
-        //:   allocator.  (C-1)
+        // 1. Create a `DatumMapOwningKeysBuilder` object. verify that the
+        //    capacities are represented correctly.  Append few elements to the
+        //    map and verify, that memory has been allocated by the passed
+        //    allocator.  (C-1)
         //
         // Testing:
         //   DatumMapOwningKeysBuilder(const allocator_type& allocator);
@@ -680,20 +681,20 @@ int main(int argc, char *argv[])
         // BASIC ACCESSORS
         //
         // Concerns:
-        //: 1 The 'allocator' method returns the 'basicAllocator' specified at
-        //:   construction time.
-        //:
-        //: 2 The 'capacity' method returns the capacity of the datum map.
-        //:
-        //: 3 The 'keysCapacity' method returns the keys capacity of the datum
-        //:    map.
-        //:
-        //: 4 The 'size' method returns the current size of the datum map.
+        // 1. The `allocator` method returns the `basicAllocator` specified at
+        //    construction time.
+        //
+        // 2. The `capacity` method returns the capacity of the datum map.
+        //
+        // 3. The `keysCapacity` method returns the keys capacity of the datum
+        //     map.
+        //
+        // 4. The `size` method returns the current size of the datum map.
         //
         // Plan:
-        //: 1 Create a 'DatumMapOwningKeysBuilder' object. Append few elements
-        //:    to the map and verify that the 'capacity', 'keysCapacity' and
-        //:    'size' methods return expected values.  (C-1..4)
+        // 1. Create a `DatumMapOwningKeysBuilder` object. Append few elements
+        //     to the map and verify that the `capacity`, `keysCapacity` and
+        //     `size` methods return expected values.  (C-1..4)
         //
         // Testing:
         //   SizeType          capacity() const;
@@ -707,8 +708,8 @@ int main(int argc, char *argv[])
                           << "===============" << endl;
 
         if (verbose)
-            cout << "\nTesting 'allocator', 'capacity', 'keysCapacity'"
-                    " and 'size'." << endl;
+            cout << "\nTesting `allocator`, `capacity`, `keysCapacity`"
+                    " and `size`." << endl;
 
         {
             bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
@@ -759,67 +760,67 @@ int main(int argc, char *argv[])
         // PRIMARY MANIPULATORS
         //
         // Concerns:
-        //: 1 The constructor correctly sets required capacity, keys capacity
-        //:   and binds given allocator with created object.
-        //:
-        //: 2 The 'append' method appends 'Datum' value with the specified
-        //:   key to the end of the map and insert key value to key storage.
-        //:
-        //: 3 The 'append' method grows the map or key storage, only if there
-        //:   is no place to store passed objects.
-        //:
-        //: 4 The 'append' method uses allocator, passed at the construction,
-        //:   to grow the map or key storage.
-        //:
-        //: 5 The 'commit' method creates a 'Datum' object holding a map of
-        //:   'Datum' objects.
-        //:
-        //: 6 The destructor releases all memory, allocated during map or it's
-        //:   items creation, if map hasn't been committed.
-        //:
-        //: 7 The destructor doesn't affect committed map.
-        //:
-        //: 8 Asserted precondition violations are detected when enabled.
+        // 1. The constructor correctly sets required capacity, keys capacity
+        //    and binds given allocator with created object.
+        //
+        // 2. The `append` method appends `Datum` value with the specified
+        //    key to the end of the map and insert key value to key storage.
+        //
+        // 3. The `append` method grows the map or key storage, only if there
+        //    is no place to store passed objects.
+        //
+        // 4. The `append` method uses allocator, passed at the construction,
+        //    to grow the map or key storage.
+        //
+        // 5. The `commit` method creates a `Datum` object holding a map of
+        //    `Datum` objects.
+        //
+        // 6. The destructor releases all memory, allocated during map or it's
+        //    items creation, if map hasn't been committed.
+        //
+        // 7. The destructor doesn't affect committed map.
+        //
+        // 8. Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create a  'DatumMapOwningKeysBuilder' object with null capacity
-        //:   and keys capacity values.  Verify that object fields have been
-        //:   correctly initialized and no memory has been allocated by the
-        //:   specified allocator.  (C-1)
-        //:
-        //: 2 Create a 'DatumMapOwningKeysBuilderDatumMapBuilder' object with
-        //:   non-zero user-defined capacities and allocator.  Verify that
-        //:   enough memory to store required number of elements has been
-        //:   allocated by allocator, given on object creation.  (C-1)
-        //:
-        //: 3 Create a 'DatumMapOwningKeysBuilder' object.  Append few elements
-        //:   to the map and verify that the capacities have been increased
-        //:   only if there is no place for new items.  Verify that memory is
-        //:   allocated by the allocator passed on the builder construction.
-        //:   (C-3..4)
-        //:
-        //: 4 Create a 'DatumMapOwningKeysBuilder' object and get a 'Datum'
-        //:   object by committing the map.  Verify that acquired object
-        //:   contains empty map.  (C-5)
-        //:
-        //: 5 Create a 'DatumMapOwningKeysBuilder' object.  Append few elements
-        //:   to the map and get a 'Datum' object by committing it.  Verify
-        //:   that received object contains items in the same order as they has
-        //:   been passed to the 'append' method.  (C-2,5)
-        //:
-        //: 6 Create a 'DatumMapOwningKeysBuilder' object.  Append few elements
-        //:   to the map and let the object leave the scope.  Verify no memory,
-        //:   allocated by allocator, given on object creation, is used.  (C-6)
-        //:
-        //: 7 Create a 'DatumMapOwningKeysBuilder' object.  Append few elements
-        //:   to the map and get a 'Datum' object by committing it.  Let the
-        //:   builder leave the scope.  Verify that 'Datum' object hasn't been
-        //:   changed.  (C-7)
-        //:
-        //: 8 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-8)
+        // 1. Create a  `DatumMapOwningKeysBuilder` object with null capacity
+        //    and keys capacity values.  Verify that object fields have been
+        //    correctly initialized and no memory has been allocated by the
+        //    specified allocator.  (C-1)
+        //
+        // 2. Create a `DatumMapOwningKeysBuilderDatumMapBuilder` object with
+        //    non-zero user-defined capacities and allocator.  Verify that
+        //    enough memory to store required number of elements has been
+        //    allocated by allocator, given on object creation.  (C-1)
+        //
+        // 3. Create a `DatumMapOwningKeysBuilder` object.  Append few elements
+        //    to the map and verify that the capacities have been increased
+        //    only if there is no place for new items.  Verify that memory is
+        //    allocated by the allocator passed on the builder construction.
+        //    (C-3..4)
+        //
+        // 4. Create a `DatumMapOwningKeysBuilder` object and get a `Datum`
+        //    object by committing the map.  Verify that acquired object
+        //    contains empty map.  (C-5)
+        //
+        // 5. Create a `DatumMapOwningKeysBuilder` object.  Append few elements
+        //    to the map and get a `Datum` object by committing it.  Verify
+        //    that received object contains items in the same order as they has
+        //    been passed to the `append` method.  (C-2,5)
+        //
+        // 6. Create a `DatumMapOwningKeysBuilder` object.  Append few elements
+        //    to the map and let the object leave the scope.  Verify no memory,
+        //    allocated by allocator, given on object creation, is used.  (C-6)
+        //
+        // 7. Create a `DatumMapOwningKeysBuilder` object.  Append few elements
+        //    to the map and get a `Datum` object by committing it.  Let the
+        //    builder leave the scope.  Verify that `Datum` object hasn't been
+        //    changed.  (C-7)
+        //
+        // 8. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-8)
         //
         // Testing:
         //   DatumMapOwningKeysBuilder(SizeType, SizeType, const allocator_t&);
@@ -898,7 +899,7 @@ int main(int argc, char *argv[])
                 ASSERT(NUM_ALLOCATED_BYTES == ta.numBytesInUse());
             }
         }
-        if (verbose) cout << "\nTesting 'append'." << endl;
+        if (verbose) cout << "\nTesting `append`." << endl;
         {
             bslma::TestAllocator ta("test", veryVeryVerbose);
 
@@ -938,7 +939,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == ta.numBytesInUse());
         }
 
-        if (verbose) cout << "\nTesting 'commit'." << endl;
+        if (verbose) cout << "\nTesting `commit`." << endl;
         {
             bslma::TestAllocator ta("test", veryVeryVerbose);
 
@@ -1108,7 +1109,7 @@ int main(int argc, char *argv[])
 
             bsls::AssertTestHandlerGuard hG;
 
-            if (verbose) cout << "\tTesting 'append'." << endl;
+            if (verbose) cout << "\tTesting `append`." << endl;
             {
                 Obj           mB(0, 0, &ta);
                 DatumMapEntry entry(StringRef("first"),
@@ -1120,7 +1121,7 @@ int main(int argc, char *argv[])
                 ASSERT_PASS(mB.append(&entry, 1));
             }
 
-            if (verbose) cout << "\tTesting 'commit'." << endl;
+            if (verbose) cout << "\tTesting `commit`." << endl;
             {
                 DatumMapEntry first (StringRef("first"),
                                      Datum::createInteger(1));
@@ -1139,12 +1140,12 @@ int main(int argc, char *argv[])
                 unsorted.append(&second, 1);
                 unsorted.append(&first, 1);
 
-                // Obtained map has 'sorted' flag set to 'false' by default.
-                // To test assertion we need to change its value.  'setSorted'
+                // Obtained map has `sorted` flag set to `false` by default.
+                // To test assertion we need to change its value.  `setSorted`
                 // hasn't been tested yet, but there is no other method to
-                // setup 'sorted' flag of map.  And to test 'setSorted' we have
-                // to use 'commit' method to obtain map with its accessor.  So
-                // 'setSorted' is bootstrapped as simpler method.
+                // setup `sorted` flag of map.  And to test `setSorted` we have
+                // to use `commit` method to obtain map with its accessor.  So
+                // `setSorted` is bootstrapped as simpler method.
 
                 realSorted.setSorted(true);
                 fakeSorted.setSorted(true);
@@ -1158,7 +1159,7 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_FAIL(fakeSortedMap = fakeSorted.commit());
                 ASSERT_SAFE_PASS(unsortedMap   = unsorted.commit());
 
-                fakeSortedMap = Datum::createInteger(0);  // for safe 'destroy'
+                fakeSortedMap = Datum::createInteger(0);  // for safe `destroy`
 
                 Datum::destroy(realSortedMap, &ta);
                 Datum::destroy(fakeSortedMap, &ta);
@@ -1173,11 +1174,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Developer test sandbox.  (C-1)
+        // 1. Developer test sandbox.  (C-1)
         //
         // Testing:
         //   BREATHING TEST

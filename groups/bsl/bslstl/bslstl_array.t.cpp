@@ -44,7 +44,7 @@
 using namespace BloombergLP;
 using namespace bslstl;
 
-// BDE_VERIFY pragma: -TP06  // 'Testing' section should contain this item
+// BDE_VERIFY pragma: -TP06  // `Testing` section should contain this item
 
 //=============================================================================
 //                              TEST PLAN
@@ -53,11 +53,11 @@ using namespace bslstl;
 //                              --------
 //
 // Primary Manipulators:
-//: o 'operator[]'
+//  - `operator[]`
 //
 // Basic Accessors:
-//: o 'operator[]'
-//: o 'size()'
+//  - `operator[]`
+//  - `size()`
 //
 // We will follow our standard 10-case approach to testing value-semantic
 // types, with the default constructor and primary manipulators tested fully in
@@ -67,15 +67,15 @@ using namespace bslstl;
 // expected.
 //
 // Global Concerns:
-//: o ACCESSOR methods are declared 'const'.
-//: o CREATOR & MANIPULATOR pointer/reference parameters are declared 'const'.
-//: o Modifying array elements produces expected results.
-//: o No memory is every allocated.
+//  - ACCESSOR methods are declared `const`.
+//  - CREATOR & MANIPULATOR pointer/reference parameters are declared `const`.
+//  - Modifying array elements produces expected results.
+//  - No memory is every allocated.
 //
 // Global Assumptions:
-//: o ACCESSOR methods are 'const' thread-safe.
-//: o The 'VALUE_TYPE' of the array is assignable, default constructable, and
-//:   supports operator==.
+//  - ACCESSOR methods are `const` thread-safe.
+//  - The `VALUE_TYPE` of the array is assignable, default constructable, and
+//    supports operator==.
 // ----------------------------------------------------------------------------
 // TRAITS:
 // [24] bslalg::HasStlIterators
@@ -140,9 +140,9 @@ using namespace bslstl;
 // [ 1] BREATHING TEST
 // [29] USAGE EXAMPLE
 // [28] CONCERN: TESTING basic interoperability with C++20 ranges
-// [27] CONCERN: 'array' IS A C++20 RANGE
+// [27] CONCERN: `array` IS A C++20 RANGE
 // [25] CLASS TEMPLATE DEDUCTION GUIDES
-// [23] CONCERN: 'constexpr' FUNCTIONS ARE USABLE IN CONSTANT EVALUATION
+// [23] CONCERN: `constexpr` FUNCTIONS ARE USABLE IN CONSTANT EVALUATION
 
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(array<TYPE,SIZE> *object, const char *spec, bool verboseFlag);
@@ -203,7 +203,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -SP01:  //  Misspelled word 'printf'
+// BDE_VERIFY pragma: -SP01:  //  Misspelled word `printf`
 
 // ============================================================================
 //                  PRINTF FORMAT MACRO ABBREVIATIONS
@@ -241,7 +241,7 @@ static bool veryVeryVeryVerbose;
 // BDE_VERIFY pragma: -FD01   // Function contracts are descriptive text
 // BDE_VERIFY pragma: -AC02   // Implicit copy ctor is not allocator-aware
 
-// suppress comparison of 'unsigned' expression is always false warnings
+// suppress comparison of `unsigned` expression is always false warnings
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wtype-limits"
@@ -280,11 +280,11 @@ void debugprint(const array<TYPE, SIZE>& v)
 //                      TEST APPARATUS: GENERATOR FUNCTIONS
 //-----------------------------------------------------------------------------
 
-// The generating functions interpret the given 'spec' in order from left to
+// The generating functions interpret the given `spec` in order from left to
 // right to configure the object according to a custom language.  Uppercase
 // letters [A .. E] correspond to arbitrary (but unique) char values to be
-// created in the 'bsl::array<TYPE, SIZE>' object.
-//..
+// created in the `bsl::array<TYPE, SIZE>` object.
+// ```
 // LANGUAGE SPECIFICATION:
 // -----------------------
 //
@@ -304,9 +304,9 @@ void debugprint(const array<TYPE, SIZE>& v)
 // "ABC"        Set three values corresponding to A, B, and C at indices 0, 1,
 //              and 2 respectively.
 //-----------------------------------------------------------------------------
-//..
+// ```
 
-// suppress comparison of 'unsigned' expression is always false warnings
+// suppress comparison of `unsigned` expression is always false warnings
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wtype-limits"
@@ -323,18 +323,18 @@ void resetMovedInto(bsl::array<TYPE, SIZE> *object)
     }
 }
 
+/// Configure the specified `object` according to the specified `spec`,
+/// using only the primary manipulator function `operator[]`.  Optionally
+/// specify `false` for `verboseFlag` to suppress `spec` syntax error
+/// messages.  Return the index of the first invalid character, and a
+/// negative value otherwise.  Note that this function is used to implement
+/// `gg` as well as allow for verification of syntax error detection.  Any
+/// elements in the array beyond the `spec` string length will be assigned
+/// the value generated by `TestFacility::create<TYPE>(0)`.
 template <class TYPE, size_t SIZE>
 int ggg(bsl::array<TYPE, SIZE> *object,
         const char             *spec,
         bool                    verboseFlag = true)
-    // Configure the specified 'object' according to the specified 'spec',
-    // using only the primary manipulator function 'operator[]'.  Optionally
-    // specify 'false' for 'verboseFlag' to suppress 'spec' syntax error
-    // messages.  Return the index of the first invalid character, and a
-    // negative value otherwise.  Note that this function is used to implement
-    // 'gg' as well as allow for verification of syntax error detection.  Any
-    // elements in the array beyond the 'spec' string length will be assigned
-    // the value generated by 'TestFacility::create<TYPE>(0)'.
 {
     enum { SUCCESS = -1 };
     typedef bsltf::TemplateTestFacility TestFacility;
@@ -363,17 +363,17 @@ int ggg(bsl::array<TYPE, SIZE> *object,
     return SUCCESS;
 }
 
+/// Return, by reference, the specified `object` with its value adjusted
+/// according to the specified `spec`.
 template <class TYPE, size_t SIZE>
 bsl::array<TYPE, SIZE>& gg(bsl::array<TYPE, SIZE> *object,
                            const char             *spec)
-    // Return, by reference, the specified 'object' with its value adjusted
-    // according to the specified 'spec'.
 {
     ASSERT(ggg(object, spec) < 0);
     return *object;
 }
 
-// suppress comparison of 'unsigned' expression is always false warnings
+// suppress comparison of `unsigned` expression is always false warnings
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic pop
 #endif
@@ -386,9 +386,9 @@ bsl::array<TYPE, SIZE>& gg(bsl::array<TYPE, SIZE> *object,
                             // class CountedDefault
                             // ====================
 
+///Wrapper class to track number of times constructor and destructor called.
 template<class TYPE>
 class CountedDefault
-    //Wrapper class to track number of times constructor and destructor called.
 {
   private:
     // CLASS DATA
@@ -440,8 +440,8 @@ CountedDefault<TYPE>::~CountedDefault()
                             // class LessThanTestType
                             // ======================
 
+/// Class that supports only `operator<`.
 class LessThanTestType
-    // Class that supports only 'operator<'.
  {
   private:
     // DATA
@@ -477,8 +477,8 @@ bool LessThanTestType::operator<(const LessThanTestType& other) const
                              // class CountedSwap
                              // =================
 
+/// Wrapper class to track number of times swap is called.
 class CountedSwap {
-    // Wrapper class to track number of times swap is called.
 
   private:
     // CLASS DATA
@@ -541,10 +541,10 @@ void swap(CountedSwap& a, CountedSwap& b)
                             // struct AggregateTest
                             // ====================
 
+/// This `struct` provides a namespace for utility functions that generate
+/// arrays using aggregate initialization for `testCase13()`.
 template<class TYPE, size_t SIZE>
 struct AggregateTest
-    // This 'struct' provides a namespace for utility functions that generate
-    // arrays using aggregate initialization for 'testCase13()'.
 {
     static void testAggregate(const char* spec)
     {
@@ -553,10 +553,10 @@ struct AggregateTest
     }
 };
 
+/// This `struct` provides a namespace for utility functions that generate
+/// arrays using aggregate initialization for `testCase13()`.
 template<class TYPE>
 struct AggregateTest<TYPE, 5>
-    // This 'struct' provides a namespace for utility functions that generate
-    // arrays using aggregate initialization for 'testCase13()'.
 {
     typedef bsltf::TemplateTestFacility TestFacility;
     typedef bsl::array<TYPE, 5>         Obj;
@@ -643,10 +643,10 @@ struct AggregateTest<TYPE, 5>
     }
 };
 
+/// This `struct` provides a namespace for utility functions that generate
+/// arrays using aggregate initialization for `testCase13()`.
 template<class TYPE>
 struct AggregateTest<TYPE, 4>
-    // This 'struct' provides a namespace for utility functions that generate
-    // arrays using aggregate initialization for 'testCase13()'.
 {
     typedef bsltf::TemplateTestFacility TestFacility;
     typedef bsl::array<TYPE, 4>         Obj;
@@ -710,10 +710,10 @@ struct AggregateTest<TYPE, 4>
     }
 };
 
+/// This `struct` provides a namespace for utility functions that generate
+/// arrays using aggregate initialization for `testCase13()`.
 template<class TYPE>
 struct AggregateTest<TYPE, 3>
-    // This 'struct' provides a namespace for utility functions that generate
-    // arrays using aggregate initialization for 'testCase13()'.
 {
     typedef bsltf::TemplateTestFacility TestFacility;
     typedef bsl::array<TYPE, 3>         Obj;
@@ -761,10 +761,10 @@ struct AggregateTest<TYPE, 3>
     }
 };
 
+/// This `struct` provides a namespace for utility functions that generate
+/// arrays using aggregate initialization for `testCase13()`.
 template<class TYPE>
 struct AggregateTest<TYPE, 2>
-    // This 'struct' provides a namespace for utility functions that generate
-    // arrays using aggregate initialization for 'testCase13()'.
 {
     typedef bsltf::TemplateTestFacility TestFacility;
     typedef bsl::array<TYPE, 2>         Obj;
@@ -799,10 +799,10 @@ struct AggregateTest<TYPE, 2>
     }
 };
 
+/// This `struct` provides a namespace for utility functions that generate
+/// arrays using aggregate initialization for `testCase13()`.
 template<class TYPE>
 struct AggregateTest<TYPE, 1>
-    // This 'struct' provides a namespace for utility functions that generate
-    // arrays using aggregate initialization for 'testCase13()'.
 {
     typedef bsltf::TemplateTestFacility TestFacility;
     typedef bsl::array<TYPE, 1>         Obj;
@@ -827,10 +827,10 @@ struct AggregateTest<TYPE, 1>
     }
 };
 
+/// This `struct` provides a namespace for utility functions that generate
+/// arrays using aggregate initialization for `testCase13()`.
 template<class TYPE>
 struct AggregateTest<TYPE, 0>
-    // This 'struct' provides a namespace for utility functions that generate
-    // arrays using aggregate initialization for 'testCase13()'.
 {
     typedef bsltf::TemplateTestFacility TestFacility;
     typedef bsl::array<TYPE, 0>         Obj;
@@ -846,60 +846,60 @@ struct AggregateTest<TYPE, 0>
     }
 };
 
+/// This specialization of `isPtrConstant` is called for const pointer types
+/// and always returns `true`.
 template <class TYPE>
 bool isPtrConstant(const TYPE *)
-    // This specialization of 'isPtrConstant' is called for const pointer types
-    // and always returns 'true'.
 {
     return true;
 }
 
+/// This specialization of `isPtrConstant` is called for pointer types and
+/// always returns `false`.
 template <class TYPE>
 bool isPtrConstant(TYPE *)
-    // This specialization of 'isPtrConstant' is called for pointer types and
-    // always returns 'false'.
 {
     return false;
 }
 
+/// This specialization of `isRefConstant` is called for const reference
+/// types and always returns `true`.
 template <class TYPE>
 bool isRefConstant(const TYPE&)
-    // This specialization of 'isRefConstant' is called for const reference
-    // types and always returns 'true'.
 {
     return true;
 }
 
+/// This specialization of `isRefConstant` is called for reference types and
+/// always returns `false`.
 template <class TYPE>
 bool isRefConstant(TYPE&)
-    // This specialization of 'isRefConstant' is called for reference types and
-    // always returns 'false'.
 {
     return false;
 }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+/// This specialization of `isRefConstant` is called for const rvalue
+/// reference types and always returns `true`.
 template <class TYPE>
 bool isRefConstant(const TYPE&&)
-    // This specialization of 'isRefConstant' is called for const rvalue
-    // reference types and always returns 'true'.
 {
     return true;
 }
 
+/// This specialization of `isRefConstant` is called for rvalue reference
+/// types and always returns `false`.
 template <class TYPE>
 bool isRefConstant(TYPE&&)
-    // This specialization of 'isRefConstant' is called for rvalue reference
-    // types and always returns 'false'.
 {
     return false;
 }
 #endif
 
+/// This `struct` provides a namespace for utility function that test
+/// tuple-API for bsl::arrays.
 template<class TYPE, size_t SIZE>
 struct TupleApiTest
-    // This 'struct' provides a namespace for utility function that test
-    // tuple-API for bsl::arrays.
 {
     typedef bsltf::TemplateTestFacility TestFacility;
 
@@ -909,10 +909,10 @@ struct TupleApiTest
     }
 };
 
+/// This specialization of `TupleApiTest` provides a namespace for utility
+/// function that test tuple-API for bsl::arrays of size 5.
 template<class TYPE>
 struct TupleApiTest<TYPE, 5>
-    // This specialization of 'TupleApiTest' provides a namespace for utility
-    // function that test tuple-API for bsl::arrays of size 5.
 {
     static void testTupleApi()
     {
@@ -936,7 +936,7 @@ struct TupleApiTest<TYPE, 5>
         typedef const volatile bsl::array<const    TYPE, 5>  CV_CTA;
         typedef const volatile bsl::array<volatile TYPE, 5>  CV_VTA;
 
-        // Testing 'tuple_size'.
+        // Testing `tuple_size`.
         {
             typedef std::tuple_size< TA     > TS_TA    ;
             typedef std::tuple_size< CTA    > TS_CTA   ;
@@ -965,7 +965,7 @@ struct TupleApiTest<TYPE, 5>
             ASSERT((5u == TS_CV_VTA::value));
         }
 
-        // Testing 'tuple_element'.
+        // Testing `tuple_element`.
         {
             typedef std::tuple_element< 0 ,     TA > TE0_TA    ;
             typedef std::tuple_element< 0 ,    CTA > TE0_CTA   ;
@@ -1104,7 +1104,7 @@ struct TupleApiTest<TYPE, 5>
         }
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 
-        // Testing 'TYPE& get(array&)' and 'const TYPE& get(const array&)'.
+        // Testing `TYPE& get(array&)` and `const TYPE& get(const array&)`.
         {
             TA        mX;
             const TA& X = mX;
@@ -1135,7 +1135,7 @@ struct TupleApiTest<TYPE, 5>
         }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-        // Testing 'TYPE&& get(array&&)' and 'const TYPE&& get(const array&&)'.
+        // Testing `TYPE&& get(array&&)` and `const TYPE&& get(const array&&)`.
         {
             typedef bslmf::MovableRefUtil MoveUtil;
 
@@ -1177,10 +1177,10 @@ struct TupleApiTest<TYPE, 5>
     }
 };
 
+/// This specialization of `TupleApiTest` provides a namespace for utility
+/// function that test tuple-API for bsl::arrays of size 4.
 template<class TYPE>
 struct TupleApiTest<TYPE, 4>
-    // This specialization of 'TupleApiTest' provides a namespace for utility
-    // function that test tuple-API for bsl::arrays of size 4.
 {
     static void testTupleApi()
     {
@@ -1202,7 +1202,7 @@ struct TupleApiTest<TYPE, 4>
         typedef const volatile bsl::array<const    TYPE, 4>  CV_CTA;
         typedef const volatile bsl::array<volatile TYPE, 4>  CV_VTA;
 
-        // Testing 'tuple_size'.
+        // Testing `tuple_size`.
         {
             typedef std::tuple_size< TA     > TS_TA    ;
             typedef std::tuple_size< CTA    > TS_CTA   ;
@@ -1231,7 +1231,7 @@ struct TupleApiTest<TYPE, 4>
             ASSERT((4u == TS_CV_VTA::value));
         }
 
-        // Testing 'tuple_element'.
+        // Testing `tuple_element`.
         {
             typedef std::tuple_element< 0 ,     TA > TE0_TA    ;
             typedef std::tuple_element< 0 ,    CTA > TE0_CTA   ;
@@ -1346,7 +1346,7 @@ struct TupleApiTest<TYPE, 4>
         }
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 
-        // Testing 'TYPE& get(array&)' and 'const TYPE& get(const array&)'.
+        // Testing `TYPE& get(array&)` and `const TYPE& get(const array&)`.
         {
             TA        mX;
             const TA& X = mX;
@@ -1373,7 +1373,7 @@ struct TupleApiTest<TYPE, 4>
         }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-        // Testing 'TYPE&& get(array&&)' and 'const TYPE&& get(const array&&)'.
+        // Testing `TYPE&& get(array&&)` and `const TYPE&& get(const array&&)`.
         {
             typedef bslmf::MovableRefUtil MoveUtil;
 
@@ -1410,10 +1410,10 @@ struct TupleApiTest<TYPE, 4>
     }
 };
 
+/// This specialization of `TupleApiTest` provides a namespace for utility
+/// function that test tuple-API for bsl::arrays of size 3.
 template<class TYPE>
 struct TupleApiTest<TYPE, 3>
-    // This specialization of 'TupleApiTest' provides a namespace for utility
-    // function that test tuple-API for bsl::arrays of size 3.
 {
     static void testTupleApi()
     {
@@ -1435,7 +1435,7 @@ struct TupleApiTest<TYPE, 3>
         typedef const volatile bsl::array<const    TYPE, 3>  CV_CTA;
         typedef const volatile bsl::array<volatile TYPE, 3>  CV_VTA;
 
-        // Testing 'tuple_size'.
+        // Testing `tuple_size`.
         {
             typedef std::tuple_size< TA     > TS_TA    ;
             typedef std::tuple_size< CTA    > TS_CTA   ;
@@ -1463,7 +1463,7 @@ struct TupleApiTest<TYPE, 3>
             ASSERT((3u == TS_CV_CTA::value));
             ASSERT((3u == TS_CV_VTA::value));
         }
-        // Testing 'tuple_element'.
+        // Testing `tuple_element`.
         {
             typedef std::tuple_element< 0 ,     TA > TE0_TA    ;
             typedef std::tuple_element< 0 ,    CTA > TE0_CTA   ;
@@ -1554,7 +1554,7 @@ struct TupleApiTest<TYPE, 3>
         }
 #endif // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 
-        // Testing 'TYPE& get(array&)' and 'const TYPE& get(const array&)'.
+        // Testing `TYPE& get(array&)` and `const TYPE& get(const array&)`.
         {
             TA        mX;
             const TA& X = mX;
@@ -1577,7 +1577,7 @@ struct TupleApiTest<TYPE, 3>
         }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-        // Testing 'TYPE&& get(array&&)' and 'const TYPE&& get(const array&&)'.
+        // Testing `TYPE&& get(array&&)` and `const TYPE&& get(const array&&)`.
         {
             typedef bslmf::MovableRefUtil MoveUtil;
 
@@ -1609,10 +1609,10 @@ struct TupleApiTest<TYPE, 3>
     }
 };
 
+/// This specialization of `TupleApiTest` provides a namespace for utility
+/// function that test tuple-API for bsl::arrays of size 2.
 template<class TYPE>
 struct TupleApiTest<TYPE, 2>
-    // This specialization of 'TupleApiTest' provides a namespace for utility
-    // function that test tuple-API for bsl::arrays of size 2.
 {
     static void testTupleApi()
     {
@@ -1634,7 +1634,7 @@ struct TupleApiTest<TYPE, 2>
         typedef const volatile bsl::array<const    TYPE, 2>  CV_CTA;
         typedef const volatile bsl::array<volatile TYPE, 2>  CV_VTA;
 
-        // Testing 'tuple_size'.
+        // Testing `tuple_size`.
         {
             typedef std::tuple_size< TA     > TS_TA    ;
             typedef std::tuple_size< CTA    > TS_CTA   ;
@@ -1663,7 +1663,7 @@ struct TupleApiTest<TYPE, 2>
             ASSERT((2u == TS_CV_VTA::value));
         }
 
-        // Testing 'tuple_element'.
+        // Testing `tuple_element`.
         {
             typedef std::tuple_element< 0 ,     TA > TE0_TA    ;
             typedef std::tuple_element< 0 ,    CTA > TE0_CTA   ;
@@ -1730,7 +1730,7 @@ struct TupleApiTest<TYPE, 2>
         }
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 
-        // Testing 'TYPE& get(array&)' and 'const TYPE& get(const array&)'.
+        // Testing `TYPE& get(array&)` and `const TYPE& get(const array&)`.
         {
             TA        mX;
             const TA& X = mX;
@@ -1749,7 +1749,7 @@ struct TupleApiTest<TYPE, 2>
         }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-        // Testing 'TYPE&& get(array&&)' and 'const TYPE&& get(const array&&)'.
+        // Testing `TYPE&& get(array&&)` and `const TYPE&& get(const array&&)`.
         {
             typedef bslmf::MovableRefUtil MoveUtil;
 
@@ -1776,10 +1776,10 @@ struct TupleApiTest<TYPE, 2>
     }
 };
 
+/// This specialization of `TupleApiTest` provides a namespace for utility
+/// function that test tuple-API for bsl::arrays of size 1.
 template<class TYPE>
 struct TupleApiTest<TYPE, 1>
-    // This specialization of 'TupleApiTest' provides a namespace for utility
-    // function that test tuple-API for bsl::arrays of size 1.
 {
     static void testTupleApi()
     {
@@ -1800,7 +1800,7 @@ struct TupleApiTest<TYPE, 1>
         typedef const volatile bsl::array<         TYPE, 1>  CV_TA ;
         typedef const volatile bsl::array<const    TYPE, 1>  CV_CTA;
         typedef const volatile bsl::array<volatile TYPE, 1>  CV_VTA;
-        // Testing 'tuple_size'.
+        // Testing `tuple_size`.
         {
             typedef std::tuple_size< TA     > TS_TA    ;
             typedef std::tuple_size< CTA    > TS_CTA   ;
@@ -1829,7 +1829,7 @@ struct TupleApiTest<TYPE, 1>
             ASSERT((1u == TS_CV_VTA::value));
         }
 
-        // Testing 'tuple_element'.
+        // Testing `tuple_element`.
         {
             typedef std::tuple_element< 0 ,     TA > TE0_TA    ;
             typedef std::tuple_element< 0 ,    CTA > TE0_CTA   ;
@@ -1872,7 +1872,7 @@ struct TupleApiTest<TYPE, 1>
         }
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 
-        // Testing 'TYPE& get(array&)' and 'const TYPE& get(const array&)'.
+        // Testing `TYPE& get(array&)` and `const TYPE& get(const array&)`.
         {
             TA        mX;
             const TA& X = mX;
@@ -1887,7 +1887,7 @@ struct TupleApiTest<TYPE, 1>
         }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-        // Testing 'TYPE&& get(array&&)' and 'const TYPE&& get(const array&&)'.
+        // Testing `TYPE&& get(array&&)` and `const TYPE&& get(const array&&)`.
         {
             typedef bslmf::MovableRefUtil MoveUtil;
 
@@ -1909,10 +1909,10 @@ struct TupleApiTest<TYPE, 1>
     }
 };
 
+/// This specialization of `TupleApiTest` provides a namespace for utility
+/// function that test tuple-API for bsl::arrays of size 0`.
 template<class TYPE>
 struct TupleApiTest<TYPE, 0>
-    // This specialization of 'TupleApiTest' provides a namespace for utility
-    // function that test tuple-API for bsl::arrays of size 0`.
 {
     static void testTupleApi()
     {
@@ -1932,7 +1932,7 @@ struct TupleApiTest<TYPE, 0>
         typedef const volatile bsl::array<         TYPE, 0>  CV_TA ;
         typedef const volatile bsl::array<const    TYPE, 0>  CV_CTA;
         typedef const volatile bsl::array<volatile TYPE, 0>  CV_VTA;
-        // Testing 'tuple_size'.
+        // Testing `tuple_size`.
         {
             typedef std::tuple_size< TA     > TS_TA    ;
             typedef std::tuple_size< CTA    > TS_CTA   ;
@@ -1964,13 +1964,13 @@ struct TupleApiTest<TYPE, 0>
     }
 };
 
+/// Compare the specified `array1` and `array2` and return `true` if they
+/// are equal (populated based on the same specification (the specified
+/// `specsAreEqual` is true)) and `false` otherwise.
 template <class TYPE, size_t SIZE>
 bool testEqualityComparison(const bsl::array<TYPE, SIZE>& array1,
                             const bsl::array<TYPE, SIZE>& array2,
                             bool                          specsAreEqual)
-    // Compare the specified 'array1' and 'array2' and return 'true' if they
-    // are equal (populated based on the same specification (the specified
-    // 'specsAreEqual' is true)) and 'false' otherwise.
 {
     bool result = true;
     if (specsAreEqual) {
@@ -2006,40 +2006,41 @@ struct CopyState {
                              // class CopyOnlyTestType
                              // ======================
 
+/// This class, that does not support move constructors, provides an
+/// unconstrained (value-semantic) attribute type that records when copy
+/// semantics have been invoked with the object instance as the source
+/// parameter.  Each instance also records if it was default-constructed.
 class CopyOnlyTestType {
-    // This class, that does not support move constructors, provides an
-    // unconstrained (value-semantic) attribute type that records when copy
-    // semantics have been invoked with the object instance as the source
-    // parameter.  Each instance also records if it was default-constructed.
 
     // DATA
     int                     d_value;       // object's value
     mutable CopyState::Enum d_copiedFrom;  // copied-from state
     mutable CopyState::Enum d_copiedInto;  // copied-into state
     bool                    d_defaultConstructed;
-                                           // 'true' if default constructed
+                                           // `true` if default constructed
 
   public:
     // CREATORS
+
+    /// Create an object having the null value.
     CopyOnlyTestType()
-        // Create an object having the null value.
     : d_value(0)
     , d_copiedFrom(CopyState::e_NOT_COPIED)
     , d_copiedInto(CopyState::e_NOT_COPIED)
     , d_defaultConstructed(true)
     {}
 
+    /// Create an object that has the specified `value`.
     explicit CopyOnlyTestType(int value)
-        // Create an object that has the specified 'value'.
     : d_value(value)
     , d_copiedFrom(CopyState::e_NOT_COPIED)
     , d_copiedInto(CopyState::e_NOT_COPIED)
     , d_defaultConstructed(false)
     {}
 
+    /// Create an object having the value of the specified `original`
+    /// object.
     CopyOnlyTestType(const CopyOnlyTestType& original)
-        // Create an object having the value of the specified 'original'
-        // object.
     : d_value(original.d_value)
     , d_copiedFrom(CopyState::e_NOT_COPIED)
     , d_copiedInto(CopyState::e_COPIED)
@@ -2076,27 +2077,28 @@ class CopyOnlyTestType {
     }
 
     // ACCESSORS
+
+    /// Return the value of this object.
     int value() const
-        // Return the value of this object.
     {
         return d_value;
     }
 
+    /// Return the copy state of this object as target of a copy operation.
     CopyState::Enum copiedInto() const
-        // Return the copy state of this object as target of a copy operation.
     {
         return d_copiedInto;
     }
 
+    /// Return the copy state of this object as source of a copy operation.
     CopyState::Enum copiedFrom() const
-        // Return the copy state of this object as source of a copy operation.
     {
         return d_copiedFrom;
     }
 
+    /// Return `true` if the default constructor was used to create this
+    /// object.
     bool defaultConstructed() const
-        // Return 'true' if the default constructor was used to create this
-        // object.
     {
         return d_defaultConstructed;
     }
@@ -2104,11 +2106,11 @@ class CopyOnlyTestType {
 };
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14)
+/// Use the bracket operator of `bsl::array` that returns a non-`const`
+/// reference to each element and (incidentally) return 0.  The compilation
+/// of this `constexpr` function demonstrates that the operator is itself
+/// `constexpr`-qualified as intended.
 constexpr int testConstexprForNonConstBracketOperator()
-    // Use the bracket operator of 'bsl::array' that returns a non-'const'
-    // reference to each element and (incidentally) return 0.  The compilation
-    // of this 'constexpr' function demonstrates that the operator is itself
-    // 'constexpr'-qualified as intended.
 {
     typedef bsl::array<int, 7> Obj;
     Obj mX = { 3, 1, 4, 1, 5, 9, 3 };
@@ -2124,11 +2126,11 @@ constexpr int testConstexprForNonConstBracketOperator()
     return 0;
 }
 
+/// Use the `at` manipulator of `bsl::array` that returns a non-`const`
+/// reference to each element and (incidentally) return 0.  The compilation
+/// of this `constexpr` function demonstrates that the manipulator is itself
+/// `constexpr`-qualified as intended.
 constexpr int testConstexprForNonConstAt()
-    // Use the 'at' manipulator of 'bsl::array' that returns a non-'const'
-    // reference to each element and (incidentally) return 0.  The compilation
-    // of this 'constexpr' function demonstrates that the manipulator is itself
-    // 'constexpr'-qualified as intended.
 {
     typedef bsl::array<int, 7> Obj;
     Obj mX = { 3, 1, 4, 1, 5, 9, 3 };
@@ -2144,11 +2146,11 @@ constexpr int testConstexprForNonConstAt()
     return 0;
 }
 
+/// Use the `front` manipulator of `bsl::array` that returns a non-`const`
+/// reference to the first element and (incidentally) return 0.  The
+/// compilation of this `constexpr` function demonstrates that the
+/// manipulator is itself `constexpr`-qualified as intended.
 constexpr int testConstexprForNonConstFront()
-    // Use the 'front' manipulator of 'bsl::array' that returns a non-'const'
-    // reference to the first element and (incidentally) return 0.  The
-    // compilation of this 'constexpr' function demonstrates that the
-    // manipulator is itself 'constexpr'-qualified as intended.
 {
     typedef bsl::array<int, 7> Obj;
     Obj mX = { 3, 1, 4, 1, 5, 9, 3 };
@@ -2158,11 +2160,11 @@ constexpr int testConstexprForNonConstFront()
     return 0;
 }
 
+/// Use the `back` manipulator of `bsl::array` that returns a non-`const`
+/// reference to the last element and (incidentally) return 0.  The
+/// compilation of this `constexpr` function demonstrates that the
+/// manipulator is itself `constexpr`-qualified as intended.
 constexpr int testConstexprForNonConstBack()
-    // Use the 'back' manipulator of 'bsl::array' that returns a non-'const'
-    // reference to the last element and (incidentally) return 0.  The
-    // compilation of this 'constexpr' function demonstrates that the
-    // manipulator is itself 'constexpr'-qualified as intended.
 {
     typedef bsl::array<int, 7> Obj;
     Obj mX = { 3, 1, 4, 1, 5, 9, 3 };
@@ -2172,11 +2174,11 @@ constexpr int testConstexprForNonConstBack()
     return 0;
 }
 
+/// Use the `data` manipulator of `bsl::array` that returns a non-`const`
+/// pointer to the first element and (incidentally) return 0.  The
+/// compilation of this `constexpr` function demonstrates that the
+/// manipulator is itself `constexpr`-qualified as intended.
 constexpr int testConstexprForNonConstData()
-    // Use the 'data' manipulator of 'bsl::array' that returns a non-'const'
-    // pointer to the first element and (incidentally) return 0.  The
-    // compilation of this 'constexpr' function demonstrates that the
-    // manipulator is itself 'constexpr'-qualified as intended.
 {
     typedef bsl::array<int, 7> Obj;
     Obj mX = { 3, 1, 4, 1, 5, 9, 3 };
@@ -2192,12 +2194,12 @@ constexpr int testConstexprForNonConstData()
     return 0;
 }
 
+/// Use the `begin` and `end` manipulators of `bsl::array` that return a
+/// non-`const` iteator to the first element and one past the last element,
+/// respectively, and (incidentally) return 0.  The compilation of this
+/// `constexpr` function demonstrates that the manipulators are themselves
+/// `constexpr`-qualified as intended.
 constexpr int testConstexprForNonConstBeginAndEnd()
-    // Use the 'begin' and 'end' manipulators of 'bsl::array' that return a
-    // non-'const' iteator to the first element and one past the last element,
-    // respectively, and (incidentally) return 0.  The compilation of this
-    // 'constexpr' function demonstrates that the manipulators are themselves
-    // 'constexpr'-qualified as intended.
 {
     typedef bsl::array<int, 7> Obj;
     Obj mX = { 3, 1, 4, 1, 5, 9, 3 };
@@ -2211,11 +2213,11 @@ constexpr int testConstexprForNonConstBeginAndEnd()
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17)
+/// Use the `rbegin` manipulator of `bsl::array` that returns a non-`const`
+/// reverse-iterator to the last element and (incidentally) return 0.  The
+/// compilation of this `constexpr` function demonstrates that the
+/// manipulator is itself `constexpr`-qualified as intended.
 constexpr int testConstexprForNonConstRbegin()
-    // Use the 'rbegin' manipulator of 'bsl::array' that returns a non-'const'
-    // reverse-iterator to the last element and (incidentally) return 0.  The
-    // compilation of this 'constexpr' function demonstrates that the
-    // manipulator is itself 'constexpr'-qualified as intended.
 {
     typedef bsl::array<int, 7> Obj;
     Obj mX = { 3, 1, 4, 1, 5, 9, 3 };
@@ -2225,12 +2227,12 @@ constexpr int testConstexprForNonConstRbegin()
     return 0;
 }
 
+/// Use the `rend` manipulator of `bsl::array` that returns a non-`const`
+/// reverse-iterator to one before the first element and (incidentally) return
+/// 0.  The compilation of this `constexpr` function demonstrates that the
+/// manipulator is itself `constexpr`-qualified as intended.
 constexpr int testConstexprForNonConstRend()
 {
-    // Use the 'rend' manipulator of 'bsl::array' that returns a non-'const'
-    // reverse-iterator to one before the first element and (incidentally)
-    // return 0.  The compilation of this 'constexpr' function demonstrates
-    // that the manipulator is itself 'constexpr'-qualified as intended.
     typedef bsl::array<int, 7> Obj;
     Obj mX = { 3, 1, 4, 1, 5, 9, 3 };
 
@@ -2261,172 +2263,172 @@ struct TestDriver {
     typedef bsltf::TestValuesArray<TYPE>         TestValues;
     typedef bsltf::TemplateTestFacility          TestFacility;
 
+    /// TEST basic interoperability with C++20 ranges
     static void testCase28();
-        // TEST basic interoperability with C++20 ranges
 
+    /// Test whether `array` is a C++20 range.
     static void testCase27_isRange();
-        // Test whether 'array' is a C++20 range.
 
+    /// Test `to_array`.
     static void testCase26();
-        // Test 'to_array'.
 
+    /// Test type traits.
     static void testCase24();
-        // Test type traits.
 
+    /// Test `hashAppend`.
     static void testCase22();
-        // Test 'hashAppend'.
 
+    /// Test tuple interface.
     static void testCase21();
-        // Test tuple interface.
 
+    /// Test `data` member.
     static void testCase20();
-        // Test 'data' member.
 
+    /// Test `front` and `back` members.
     static void testCase19();
-        // Test 'front' and 'back' members.
 
+    /// Test `at` member.
     static void testCase18();
-        // Test 'at' member.
 
+    /// Test `empty` and `max_size` members.
     static void testCase17();
-        // Test 'empty' and 'max_size' members.
 
+    /// Test comparison operators.
     static void testCase16();
-        // Test comparison operators.
 
+    /// Test aggregate initialization.
     static void testCase15();
-        // Test aggregate initialization.
 
+    /// Test iterators.
     static void testCase14();
-        // Test iterators.
 
+    /// Test `fill` member.
     static void testCase13();
-        // Test 'fill' member.
 
+    /// Test move assignment operator.
     static void testCase12();
-        // Test move assignment operator.
 
+    /// Test move constructor.
     static void testCase11();
-        // Test move constructor.
 
+    /// Test streaming functionality.  This test case tests nothing.
     static void testCase10();
-        // Test streaming functionality.  This test case tests nothing.
 
+    /// Test assignment operator (`operator=`).
     static void testCase9();
-        // Test assignment operator ('operator=').
 
+    /// Test `swap` member.
     static void testCase8();
-        // Test 'swap' member.
 
+    /// Test copy constructor.
     static void testCase7();
-        // Test copy constructor.
 
+    /// Test equality operator (`operator==`).
     static void testCase6();
-        // Test equality operator ('operator==').
 
+    /// Test output (<<) operator.  This test case tests nothing.
     static void testCase5();
-        // Test output (<<) operator.  This test case tests nothing.
 
+    /// Test basic accessors (`size` and `operator[]`).
     static void testCase4();
-        // Test basic accessors ('size' and 'operator[]').
 
+    /// Test generator functions `ggg` and `gg`.
     static void testCase3();
-        // Test generator functions 'ggg' and 'gg'.
 
+    /// Test primary manipulators.
     static void testCase2();
-        // Test primary manipulators.
 
+    /// Breathing Test.  Exercises basic functionality.
     static void testCase1();
-        // Breathing Test.  Exercises basic functionality.
 };
 
 template<class TYPE>
 struct TestDriverWrapper{
 
+    /// TEST basic interoperability with C++20 ranges
     static void testCase28();
-        // TEST basic interoperability with C++20 ranges
 
+    /// Test whether `array` is a C++20 range.
     static void testCase27_isRange();
-        // Test whether 'array' is a C++20 range.
 
+    /// Test `to_array`.
     static void testCase26();
-        // Test 'to_array'.
 
+    /// Test type traits.
     static void testCase24();
-        // Test type traits.
 
+    /// Test `hashAppend`.
     static void testCase22();
-        // Test 'hashAppend'.
 
+    /// Test tuple interface.
     static void testCase21();
-        // Test tuple interface.
 
+    /// Test `data` member.
     static void testCase20();
-        // Test 'data' member.
 
+    /// Test `front` and `back` members.
     static void testCase19();
-        // Test 'front' and 'back' members.
 
+    /// Test `at` member.
     static void testCase18();
-        // Test 'at' member.
 
+    /// Test `empty` and `max_size` members.
     static void testCase17();
-        // Test 'empty' and 'max_size' members.
 
+    /// Test comparison operators.
     static void testCase16();
-        // Test comparison operators.
 
+    /// Test aggregate initialization.
     static void testCase15();
-        // Test aggregate initialization.
 
+    /// Test iterators.
     static void testCase14();
-        // Test iterators.
 
+    /// Test `fill` member.
     static void testCase13();
-        // Test 'fill' member.
 
+    /// Test move assignment operator.
     static void testCase12();
-        // Test move assignment operator.
 
+    /// Test move constructor.
     static void testCase11();
-        // Test move constructor.
 
+    /// Test streaming functionality.  This test case tests nothing.
     static void testCase10();
-        // Test streaming functionality.  This test case tests nothing.
 
+    /// Test assignment operator (`operator=`).
     static void testCase9();
-        // Test assignment operator ('operator=').
 
+    /// Test `swap` member.
     static void testCase8();
-        // Test 'swap' member.
 
+    /// Test copy constructor.
     static void testCase7();
-        // Test copy constructor.
 
+    /// Test equality operator (`operator==`).
     static void testCase6();
-        // Test equality operator ('operator==').
 
+    /// Test output (<<) operator.  This test case tests nothing.
     static void testCase5();
-        // Test output (<<) operator.  This test case tests nothing.
 
+    /// Test basic accessors (`size` and `operator[]`).
     static void testCase4();
-        // Test basic accessors ('size' and 'operator[]').
 
+    /// Test generator functions `ggg` and `gg`.
     static void testCase3();
-        // Test generator functions 'ggg' and 'gg'.
 
+    /// Test primary manipulators.
     static void testCase2();
-        // Test primary manipulators.
 
+    /// Breathing Test.  Exercises basic functionality.
     static void testCase1();
-        // Breathing Test.  Exercises basic functionality.
 };
 
                                 // ----------
                                 // Test Cases
                                 // ----------
 
-// suppress comparison of 'unsigned' expression is always false warnings
+// suppress comparison of `unsigned` expression is always false warnings
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wtype-limits"
@@ -2437,7 +2439,7 @@ void TestDriverWrapper<TYPE>::testCase28()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: `%s`\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 1>::testCase28();
     TestDriver<TYPE, 2>::testCase28();
@@ -2541,35 +2543,35 @@ template <class TYPE, size_t SIZE>
 void TestDriver<TYPE, SIZE>::testCase26()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'to_array'
-    //   Ensure that the 'to_array' free functions work correctly.
+    // TESTING `to_array`
+    //   Ensure that the `to_array` free functions work correctly.
     //
     // Concerns:
-    //: 1 Built-in arrays of copyable types result in all of the elements
-    //:   being copied over.
-    //:
-    //: 2 Built-in arrays of move-only types result in all of the elements
-    //:   being moved over (if supported).
-    //:
-    //: 3 Attempts to call 'to_array' on a multi-dimensional built-in array
-    //:   fail.
+    // 1. Built-in arrays of copyable types result in all of the elements
+    //    being copied over.
+    //
+    // 2. Built-in arrays of move-only types result in all of the elements
+    //    being moved over (if supported).
+    //
+    // 3. Attempts to call `to_array` on a multi-dimensional built-in array
+    //    fail.
     //
     // Plan:
-    //: 1 Call 'to_array' on an lvalue of a built-in array of copyable values
-    //:   and make sure the values were copied.
-    //:
-    //: 2 Call 'to_array' on an rvalue of a built-in array of move-only values
-    //:   and make sure the values were moved.
-    //:
-    //: 3 Under a #define, call 'to_array' on a multi-dimensional built-in
-    //:   array, expecting a compilation failure.
+    // 1. Call `to_array` on an lvalue of a built-in array of copyable values
+    //    and make sure the values were copied.
+    //
+    // 2. Call `to_array` on an rvalue of a built-in array of move-only values
+    //    and make sure the values were moved.
+    //
+    // 3. Under a #define, call `to_array` on a multi-dimensional built-in
+    //    array, expecting a compilation failure.
     //
     // Testing:
     //      array<TYPE, SIZE> to_array(TYPE (&src)[SIZE]);
     //      array<TYPE, SIZE> to_array(TYPE (&&src)[SIZE]);
     // ------------------------------------------------------------------------
 
-    if (verbose) printf("\nTESTING 'to_array' of size %d"
+    if (verbose) printf("\nTESTING `to_array` of size %d"
                         "\n============================\n", int(SIZE));
 
     enum { k_ARR_SIZE = SIZE };
@@ -2606,7 +2608,7 @@ void TestDriver<TYPE, SIZE>::testCase26()
             ASSERTV(
                   i,
                   bsltf::MoveState::e_NOT_MOVED == builtin_arr[i].movedFrom());
-            // Note that the result may be 'movedInto' if the compiler chooses
+            // Note that the result may be `movedInto` if the compiler chooses
             // to move the resulting array.
         }
     }
@@ -2631,7 +2633,7 @@ void TestDriver<TYPE, SIZE>::testCase26()
      defined(BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES)) ||            \
    defined(BSLS_ARRAY_TEST_ASSUMING_NO_RVO)
             // Earlier Sun compilers and recent Sun compiliers in debug mode
-            // copy-construct the result of 'to_array' into 'bsl_arr' rather
+            // copy-construct the result of `to_array` into `bsl_arr` rather
             // than using RVO like other C++03 compilers.
             ASSERTV(i, !bsl_arr[i].defaultConstructed());
 #else
@@ -2642,7 +2644,7 @@ void TestDriver<TYPE, SIZE>::testCase26()
 
 #if defined(BSLSTL_ARRAY_CHECK_MULTIDIM_TO_ARRAY_FAILURE)
     // Negative compilation check.  This block fails to compile, validating
-    // the restriction that 'TYPE' shall not itself be a built-in array.
+    // the restriction that `TYPE` shall not itself be a built-in array.
 
     std::size_t builtin_size_t_multi_arr[k_ARR_SIZE][k_ARR_SIZE];
 
@@ -2687,7 +2689,7 @@ void TestDriver<TYPE, SIZE>::testCase26()
     if (veryVerbose)
         printf("...testing copy of NonDefaultConstructibleTestType\n");
     {
-        // Note that this test does not depend on 'SIZE' due to the need
+        // Note that this test does not depend on `SIZE` due to the need
         // for an initializer list.
         bsltf::NonDefaultConstructibleTestType builtin_arr[4] = {
             bsltf::NonDefaultConstructibleTestType(1),
@@ -2708,7 +2710,7 @@ void TestDriverWrapper<TYPE>::testCase24()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: `%s`\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase24();
     TestDriver<TYPE, 1>::testCase24();
@@ -2725,11 +2727,11 @@ void TestDriver<TYPE, SIZE>::testCase24()
     // TESTING TYPE TRAITS
     //
     // Concerns:
-    //: 1 That the array has the 'bslalg::HasStlIterators' trait.
+    // 1. That the array has the `bslalg::HasStlIterators` trait.
     //
     // Plan:
-    //: 1 Test each of the above traits and compare their values to the
-    //:   expected values.
+    // 1. Test each of the above traits and compare their values to the
+    //    expected values.
     //
     // Testing:
     //   bslalg::HasStlIterators
@@ -2746,7 +2748,7 @@ void TestDriverWrapper<TYPE>::testCase22()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: `%s`\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase22();
     TestDriver<TYPE, 1>::testCase22();
@@ -2760,19 +2762,19 @@ template <class TYPE, size_t SIZE>
 void TestDriver<TYPE, SIZE>::testCase22()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'hashAppend'
+    // TESTING `hashAppend`
     //
     // Concerns:
-    //: 1 Objects constructed with the same values hash as equal.
-    //:
-    //: 2 Unequal objects hash as unequal (not required, but we can hope).
+    // 1. Objects constructed with the same values hash as equal.
+    //
+    // 2. Unequal objects hash as unequal (not required, but we can hope).
     //
     // Plan:
-    //: 1 Specify a set S of unique object values having various minor or
-    //:   subtle differences.
-    //:
-    //: 2 Verify the correctness of hash values matching using all elements of
-    //:   the cross product S X S.  (C-1..2)
+    // 1. Specify a set S of unique object values having various minor or
+    //    subtle differences.
+    //
+    // 2. Verify the correctness of hash values matching using all elements of
+    //    the cross product S X S.  (C-1..2)
     //
     // Testing:
     //   void hashAppend(HASH_ALGORITHM&, const bsl::array<TYPE, SIZE>&);
@@ -2834,7 +2836,7 @@ void TestDriverWrapper<TYPE>::testCase21()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: `%s`\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase21();
     TestDriver<TYPE, 1>::testCase21();
@@ -2851,16 +2853,16 @@ void TestDriver<TYPE, SIZE>::testCase21()
     // TESTING TUPLE INTERFACE
     //
     // Concerns:
-    //: 1 The 'get' function returns array's element with requested index.
-    //:
+    // 1. The `get` function returns array's element with requested index.
+    //
     // Plan:
-    //: 1 Create an array from spec string.
-    //:
-    //: 2 Test that 'get' free function returns correct value on all overloads.
-    //:
-    //: 3 Test that 'get' free function returns correct type for rvalue
-    //:   references.  (C-1)
-    //:
+    // 1. Create an array from spec string.
+    //
+    // 2. Test that `get` free function returns correct value on all overloads.
+    //
+    // 3. Test that `get` free function returns correct type for rvalue
+    //    references.  (C-1)
+    //
     // Testing:
     //   std::tuple_element<bsl::array<TYPE, SIZE> >
     //   std::tuple_size<bsl::array<TYPE, SIZE> >
@@ -2880,7 +2882,7 @@ void TestDriverWrapper<TYPE>::testCase20()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: `%s`\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase20();
     TestDriver<TYPE, 1>::testCase20();
@@ -2894,19 +2896,19 @@ template <class TYPE, size_t SIZE>
 void TestDriver<TYPE, SIZE>::testCase20()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'data'
+    // TESTING `data`
     //
     // Concerns:
-    //: 1 'data' member returns a pointer to the raw array in the object.
-    //:
-    //: 2 'data' has the correct signature when used on a const object.
-    //:
+    // 1. `data` member returns a pointer to the raw array in the object.
+    //
+    // 2. `data` has the correct signature when used on a const object.
+    //
     // Plan:
-    //: 1 Using special function verify that 'data()' returns constant pointer
-    //:   for the constant objects and non-constant pointer otherwise.  (C-2)
-    //:
-    //: 2 Test 'data' member returns a pointer to the array member variable.
-    //:   (C-1)
+    // 1. Using special function verify that `data()` returns constant pointer
+    //    for the constant objects and non-constant pointer otherwise.  (C-2)
+    //
+    // 2. Test `data` member returns a pointer to the array member variable.
+    //    (C-1)
     //
     // Testing:
     //  pointer data();
@@ -2934,7 +2936,7 @@ void TestDriverWrapper<TYPE>::testCase19()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: `%s`\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 1>::testCase19();
     TestDriver<TYPE, 2>::testCase19();
@@ -2947,25 +2949,25 @@ template <class TYPE, size_t SIZE>
 void TestDriver<TYPE, SIZE>::testCase19()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'front' AND 'back'
+    // TESTING `front` AND `back`
     //
     // Concerns:
-    //: 1 'front' member accesses first elememt of object correctly.
-    //:
-    //: 2 'back' member accesses last elememt of object correctly.
-    //:
-    //: 3 Asserted precondition violations are detected when enabled.
+    // 1. `front` member accesses first elememt of object correctly.
+    //
+    // 2. `back` member accesses last elememt of object correctly.
+    //
+    // 3. Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Generate an array from a spec string
-    //:
-    //: 2 Verify that the address of the referenced element returned from
-    //:   'front' and 'back' are the addresses of the first and last elements.
-    //:   (C-1..2)
-    //:
-    //: 3 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered for invalid attribute values, but not triggered for
-    //:   adjacent valid ones.  (C-3)
+    // 1. Generate an array from a spec string
+    //
+    // 2. Verify that the address of the referenced element returned from
+    //    `front` and `back` are the addresses of the first and last elements.
+    //    (C-1..2)
+    //
+    // 3. Verify that, in appropriate build modes, defensive checks are
+    //    triggered for invalid attribute values, but not triggered for
+    //    adjacent valid ones.  (C-3)
     //
     // Testing:
     //  reference front();
@@ -3031,7 +3033,7 @@ void TestDriverWrapper<TYPE>::testCase18()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: `%s`\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase18();
     TestDriver<TYPE, 1>::testCase18();
@@ -3045,25 +3047,25 @@ template <class TYPE, size_t SIZE>
 void TestDriver<TYPE, SIZE>::testCase18()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'at'
+    // TESTING `at`
     //
     // Concerns:
-    //: 1 The 'at' method accesses each element both as a reference offering
-    //:   modifiable access and as a const-reference.
-    //:
-    //: 2 Elements can be set using 'at' for any type that supports the
-    //:   assignment operator.
+    // 1. The `at` method accesses each element both as a reference offering
+    //    modifiable access and as a const-reference.
+    //
+    // 2. Elements can be set using `at` for any type that supports the
+    //    assignment operator.
     //
     // Plan:
-    //: 1 Construct an array from the spec string and verify all values are
-    //:   accessed as expected.
-    //:
-    //: 2 Verify that the address of the referenced element returned from 'at'
-    //:   is the same as that return by adding the specified index to the
-    //:   'd_data' pointer.  (C-1..2)
-    //:
-    //: 3 Verify that 'out_of_range' exception thrown when 'pos >= size()'.
-    //:   (C-3)
+    // 1. Construct an array from the spec string and verify all values are
+    //    accessed as expected.
+    //
+    // 2. Verify that the address of the referenced element returned from `at`
+    //    is the same as that return by adding the specified index to the
+    //    `d_data` pointer.  (C-1..2)
+    //
+    // 3. Verify that `out_of_range` exception thrown when `pos >= size()`.
+    //    (C-3)
     //
     // Testing:
     //  reference at();
@@ -3075,7 +3077,7 @@ void TestDriver<TYPE, SIZE>::testCase18()
     const char* SPEC = "ABCDEFGHIJKLMNOPQRSTUV";
 
     if (veryVerbose)
-        printf("\t\t\tTesting 'at' accesses state of object correctly\n");
+        printf("\t\t\tTesting `at` accesses state of object correctly\n");
     {
         Obj mX; const Obj& X = gg(&mX, SPEC);
 
@@ -3093,12 +3095,12 @@ void TestDriver<TYPE, SIZE>::testCase18()
 
 #if defined(BDE_BUILD_TARGET_NO_EXC)
     if (veryVerbose) {
-        printf("\t\t\tNo testing for 'out_of_range' as exceptions are"
+        printf("\t\t\tNo testing for `out_of_range` as exceptions are"
                " disabled.\n");
     }
 #else
     if (veryVerbose)
-        printf("\t\t\tTesting for out_of_range exceptions thrown by 'at()' "
+        printf("\t\t\tTesting for out_of_range exceptions thrown by `at()` "
                "when pos >= size().\n");
     {
         Obj        mX;
@@ -3106,8 +3108,8 @@ void TestDriver<TYPE, SIZE>::testCase18()
 
         const int NUM_TRIALS = 2;
 
-        // Check exception behavior for non-'const' version of 'at()'.
-        // Checking the behavior for 'pos == size()' and 'pos > size()'.
+        // Check exception behavior for non-`const` version of `at()`.
+        // Checking the behavior for `pos == size()` and `pos > size()`.
 
         int exceptions = 0;
         int trials;
@@ -3153,7 +3155,7 @@ void TestDriverWrapper<TYPE>::testCase17()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: `%s`\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase17();
     TestDriver<TYPE, 1>::testCase17();
@@ -3170,19 +3172,19 @@ void TestDriver<TYPE, SIZE>::testCase17()
     // TESTING CAPACITY
     //
     // Concerns:
-    //: 1 'empty' returns 'true' if and only if the array has a size of 0.
-    //:
-    //: 2 'max_size' returns a value equal to the size of the array.
-    //:
+    // 1. `empty` returns `true` if and only if the array has a size of 0.
+    //
+    // 2. `max_size` returns a value equal to the size of the array.
+    //
     //
     // Plan:
-    //: 1 Create two arrays using default constructor and populate one of them.
-    //:
-    //: 2 Test that if 'empty()' returns 'true' if the arrays have size 0 and
-    //:   'false' otherwise.  (C-1)
-    //:
-    //: 3 Test that 'max_size()' returns a value equal to 'SIZE' for both
-    //:   arrays.  (C-2)
+    // 1. Create two arrays using default constructor and populate one of them.
+    //
+    // 2. Test that if `empty()` returns `true` if the arrays have size 0 and
+    //    `false` otherwise.  (C-1)
+    //
+    // 3. Test that `max_size()` returns a value equal to `SIZE` for both
+    //    arrays.  (C-2)
     //
     // Testing:
     //  bool empty() const;
@@ -3209,7 +3211,7 @@ void TestDriverWrapper<TYPE>::testCase16()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: `%s`\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase16();
     TestDriver<TYPE, 1>::testCase16();
@@ -3225,23 +3227,23 @@ void TestDriver<TYPE, SIZE>::testCase16()
     // TESTING COMPARISON OPERATORS
     //
     // Concerns:
-    //: 1 '<', '>', '<=', '>=' operators lexicographically compare arrays of
-    //:   types supporting the '<' operator.
-    //:
-    //: 2 Comparison operators work on 0 length arrays.
-    //:
-    //: 3 Only operator '<' is used to perform comparisons.
-    //:
-    //: 4 Operator '<=>' is defined when available.
+    // 1. `<`, `>`, `<=`, `>=` operators lexicographically compare arrays of
+    //    types supporting the '<' operator.
+    //
+    // 2. Comparison operators work on 0 length arrays.
+    //
+    // 3. Only operator '<' is used to perform comparisons.
+    //
+    // 4. Operator `<=>` is defined when available.
     //
     // Plan:
-    //: 1 Create a variety of spec strings for each length.
-    //:
-    //: 2 Test that every operator gives expected results for each combination
-    //:   of arrays generated by the spec strings of the length being tested.
-    //:
-    //: 3 Perform step P-2 for arrays of objects of special type, that supports
-    //:   only 'operator<'.  (C-1..3)
+    // 1. Create a variety of spec strings for each length.
+    //
+    // 2. Test that every operator gives expected results for each combination
+    //    of arrays generated by the spec strings of the length being tested.
+    //
+    // 3. Perform step P-2 for arrays of objects of special type, that supports
+    //    only `operator<`.  (C-1..3)
     //
     // Testing:
     //  bool operator<(const array& lhs, const array& rhs);
@@ -3315,7 +3317,7 @@ void TestDriverWrapper<TYPE>::testCase15()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: `%s`\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase15();
     TestDriver<TYPE, 1>::testCase15();
@@ -3333,19 +3335,19 @@ void TestDriver<TYPE, SIZE>::testCase15()
     // TESTING AGGREGATE INITIALIZATION
     //
     // Concerns:
-    //: 1 Aggregate initialization correctly sets all values.
-    //:
-    //: 2 If not all values are provided check remaining elements are value
-    //:   initialized.
-    //:
+    // 1. Aggregate initialization correctly sets all values.
+    //
+    // 2. If not all values are provided check remaining elements are value
+    //    initialized.
+    //
     //
     // Plan:
-    //: 1 Use aggregate initialization to create arrays of a variety of sizes.
-    //:
-    //: 2 Ensure elements all have expected values.  (C-1)
-    //:
-    //: 3 Ensure any elements not provided in braces were default value
-    //:   initialized.  (C-2)
+    // 1. Use aggregate initialization to create arrays of a variety of sizes.
+    //
+    // 2. Ensure elements all have expected values.  (C-1)
+    //
+    // 3. Ensure any elements not provided in braces were default value
+    //    initialized.  (C-2)
     //
     // Testing:
     //  array<V> a = {vt1, vt2, vt3}
@@ -3363,7 +3365,7 @@ void TestDriverWrapper<TYPE>::testCase14()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: `%s`\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase14();
     TestDriver<TYPE, 1>::testCase14();
@@ -3379,32 +3381,32 @@ void TestDriver<TYPE, SIZE>::testCase14()
     // TESTING ITERATORS
     //
     // Concerns:
-    //: 1 'iterator' is a pointer to 'TYPE'.
-    //:
-    //: 2 'const_iterator' is a pointer to 'const TYPE'.
-    //:
-    //: 3 The ranges '[begin(), end())' and '[cbegin(), cend())' traverse the
-    //:   elements of the array in index order.
-    //:
-    //: 4 'reverse_iterator' and 'const_reverse_iterator' are implemented by
-    //:   the (fully-tested) 'bslstl::ReverseIterator' over a pointer to 'TYPE'
-    //:   or 'const TYPE'.
-    //:
-    //: 5 The ranges '[rbegin(), rend())' and '[crbegin(), crend())' traverse
-    //:   the elements of the array in reverse index order.
+    // 1. `iterator` is a pointer to `TYPE`.
+    //
+    // 2. `const_iterator` is a pointer to `const TYPE`.
+    //
+    // 3. The ranges `[begin(), end())` and `[cbegin(), cend())` traverse the
+    //    elements of the array in index order.
+    //
+    // 4. `reverse_iterator` and `const_reverse_iterator` are implemented by
+    //    the (fully-tested) `bslstl::ReverseIterator` over a pointer to `TYPE`
+    //    or `const TYPE`.
+    //
+    // 5. The ranges `[rbegin(), rend())` and `[crbegin(), crend())` traverse
+    //    the elements of the array in reverse index order.
     //
     // Plan:
-    //: 1 Use 'bsl::is_same' trait to verify iterator types.  (C-1,2,4)
-    //:
-    //: 2 Construct an array from the 'SPEC'.
-    //:
-    //: 3 Access each element using iterators, and verify that iterators point
-    //:   to the expected addresses.
-    //:
-    //: 4 Repeat step P-2 with reverse iterators.
-    //:
-    //: 5 Access each element of a const array using const iterators and const
-    //:   reverse iterators to ensure the addresses are as expected.  (C-3,5)
+    // 1. Use `bsl::is_same` trait to verify iterator types.  (C-1,2,4)
+    //
+    // 2. Construct an array from the `SPEC`.
+    //
+    // 3. Access each element using iterators, and verify that iterators point
+    //    to the expected addresses.
+    //
+    // 4. Repeat step P-2 with reverse iterators.
+    //
+    // 5. Access each element of a const array using const iterators and const
+    //    reverse iterators to ensure the addresses are as expected.  (C-3,5)
     //
     // Testing:
     //  iterator begin();
@@ -3498,7 +3500,7 @@ void TestDriverWrapper<TYPE>::testCase13()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: `%s`\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase13();
     TestDriver<TYPE, 1>::testCase13();
@@ -3512,26 +3514,26 @@ template <class TYPE, size_t SIZE>
 void TestDriver<TYPE, SIZE>::testCase13()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'fill'
+    // TESTING `fill`
     //
     // Concerns:
-    //: 1 Fill function sets all elements in the array to the supplied value.
-    //:
-    //: 2 Fill works on default constructed arrays.
-    //:
-    //: 3 Fill works on arrays that already contain non-default values.
-    //:
-    //: 4 Fill can be called without effect on arrays of length 0.
+    // 1. Fill function sets all elements in the array to the supplied value.
+    //
+    // 2. Fill works on default constructed arrays.
+    //
+    // 3. Fill works on arrays that already contain non-default values.
+    //
+    // 4. Fill can be called without effect on arrays of length 0.
     //
     // Plan:
-    //: 1 Default construct an array X1.
-    //:
-    //: 2 Construct an array X2 from the 'SPEC'.
-    //:
-    //: 3 Use 'fill()' to modify value of each element of arrays with some
-    //:   value 'v'.
-    //:
-    //: 4 Verify values of elements of arrays.  (C-1..4)
+    // 1. Default construct an array X1.
+    //
+    // 2. Construct an array X2 from the `SPEC`.
+    //
+    // 3. Use `fill()` to modify value of each element of arrays with some
+    //    value `v`.
+    //
+    // 4. Verify values of elements of arrays.  (C-1..4)
     //
     // Testing:
     //   void fill(const TYPE& value)
@@ -3574,7 +3576,7 @@ void TestDriverWrapper<TYPE>::testCase12()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: `%s`\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase12();
     TestDriver<TYPE, 1>::testCase12();
@@ -3591,26 +3593,26 @@ void TestDriver<TYPE, SIZE>::testCase12()
     // TESTING MOVE ASSIGNMENT
     //
     // Concerns:
-    //: 1 The move assignment operator calls copy assignment operator for each
-    //:   element of type without move assignment operator.
-    //:
-    //: 2 The move assignment operator calls move assignment operator for each
-    //:   element of type having move assignment operator.
-    //:
+    // 1. The move assignment operator calls copy assignment operator for each
+    //    element of type without move assignment operator.
+    //
+    // 2. The move assignment operator calls move assignment operator for each
+    //    element of type having move assignment operator.
+    //
     //
     // Plan:
-    //: 1 Construct two arrays (source and target) using default constructor
-    //:   and populate them with different values.  Call the move-assignment
-    //:   operator and verify the values of the target object.
-    //:
-    //: 2 Call the move-assignment operator for two arrays with elements of a
-    //:   special type allowing to track down movement of each element and
-    //:   verify that all elements of the source object are moved.  (C-2)
-    //:
-    //: 3 Call the move-assignment operator for two arrays with elements of a
-    //:   special type without move assignment operator allowing to track down
-    //:   copying of each element and verify that all elements of the source
-    //:   object are copied.  (C-1)
+    // 1. Construct two arrays (source and target) using default constructor
+    //    and populate them with different values.  Call the move-assignment
+    //    operator and verify the values of the target object.
+    //
+    // 2. Call the move-assignment operator for two arrays with elements of a
+    //    special type allowing to track down movement of each element and
+    //    verify that all elements of the source object are moved.  (C-2)
+    //
+    // 3. Call the move-assignment operator for two arrays with elements of a
+    //    special type without move assignment operator allowing to track down
+    //    copying of each element and verify that all elements of the source
+    //    object are copied.  (C-1)
     //
     // Testing:
     //   array& operator=(array&& other);
@@ -3731,7 +3733,7 @@ void TestDriverWrapper<TYPE>::testCase11()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: `%s`\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase11();
     TestDriver<TYPE, 1>::testCase11();
@@ -3748,24 +3750,24 @@ void TestDriver<TYPE, SIZE>::testCase11()
     // TESTING MOVE CONSTRUCTOR
     //
     // Concerns:
-    //: 1 The move constructor calls copy constructor for each element of type
-    //:   without move constructor.
-    //:
-    //: 2 The move constructor calls move constructor for each element of type
-    //:   having move constructor.
-    //:
+    // 1. The move constructor calls copy constructor for each element of type
+    //    without move constructor.
+    //
+    // 2. The move constructor calls move constructor for each element of type
+    //    having move constructor.
+    //
     //
     // Plan:
-    //: 1 Move construct an array of a type with a default generated move
-    //:   constructor.  Ensure the new array has the expected values.
-    //:
-    //: 2 Move construct an array of a special type allowing to track down
-    //:   movement of each element and verify that all elements are moved.
-    //:   (C-2)
-    //:
-    //: 3 Move construct an array of a special type without move constructor
-    //:   allowing to track down copying of each element and verify that all
-    //:   elements are copied.  (C-1)
+    // 1. Move construct an array of a type with a default generated move
+    //    constructor.  Ensure the new array has the expected values.
+    //
+    // 2. Move construct an array of a special type allowing to track down
+    //    movement of each element and verify that all elements are moved.
+    //    (C-2)
+    //
+    // 3. Move construct an array of a special type without move constructor
+    //    allowing to track down copying of each element and verify that all
+    //    elements are copied.  (C-1)
     //
     // Testing:
     //   array(array&& original);
@@ -3864,7 +3866,7 @@ void TestDriverWrapper<TYPE>::testCase9()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: `%s`\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase9();
     TestDriver<TYPE, 1>::testCase9();
@@ -3881,35 +3883,35 @@ void TestDriver<TYPE, SIZE>::testCase9()
     // TESTING COPY ASSIGNMENT
     //
     // Concerns:
-    //: 1 The value of any array can be assigned to any other array of the same
-    //:   type and size as long as the element type is assignable.
-    //:
-    //: 2 The source object must not be affected by the operation.
-    //:
-    //: 3 The source object going out of scope has no effect on the value of
-    //:   the target object after the assignment and vice versa.
-    //:
-    //: 4 Modifications to the source object have no effect on the value of the
-    //:   target object after the assignment and vice versa.
-    //:
-    //: 5 Aliasing ('x = x'): The assignment operator must always work -- even
-    //:   when the target object and the source object are the same object.
+    // 1. The value of any array can be assigned to any other array of the same
+    //    type and size as long as the element type is assignable.
+    //
+    // 2. The source object must not be affected by the operation.
+    //
+    // 3. The source object going out of scope has no effect on the value of
+    //    the target object after the assignment and vice versa.
+    //
+    // 4. Modifications to the source object have no effect on the value of the
+    //    target object after the assignment and vice versa.
+    //
+    // 5. Aliasing (`x = x`): The assignment operator must always work -- even
+    //    when the target object and the source object are the same object.
     //
     // Plan:
-    //: 1 Construct two pairs (object - source) of arrays having different
-    //:   values and assign them in pairs.
-    //:
-    //: 2 Verify that returned values point to target objects, and the values
-    //:   of target object are become equal to the source objects.  (C-1)
-    //:
-    //: 3 In the first pair modify and then destroy the target object and
-    //:   verify that the source object remains unchanged.  (C-2..3)
-    //:
-    //: 4 In the second pair modify and then let the source object go out of
-    //:   scope and verify that the target object remains unchanged.  (C-4)
-    //:
-    //: 5 Create an array and assign it to itself.  Verify that its value
-    //:   remains unchanged.  (C-5)
+    // 1. Construct two pairs (object - source) of arrays having different
+    //    values and assign them in pairs.
+    //
+    // 2. Verify that returned values point to target objects, and the values
+    //    of target object are become equal to the source objects.  (C-1)
+    //
+    // 3. In the first pair modify and then destroy the target object and
+    //    verify that the source object remains unchanged.  (C-2..3)
+    //
+    // 4. In the second pair modify and then let the source object go out of
+    //    scope and verify that the target object remains unchanged.  (C-4)
+    //
+    // 5. Create an array and assign it to itself.  Verify that its value
+    //    remains unchanged.  (C-5)
     //
     // Testing:
     //   array& operator=(const array& rhs);
@@ -4025,18 +4027,18 @@ void testCase8_elementADL()
     // TESTING SWAP ELEMENT ADL
     //
     // Concerns:
-    //: 1 The element's 'swap' is discovered through ADL when swapping arrays.
+    // 1. The element's `swap` is discovered through ADL when swapping arrays.
     //
     // Plan:
-    //: 1 Construct arrays 'X1' and 'X2' of 'CountedSwap' elements.
-    //:
-    //: 3 Use the free 'swap' function to swap X1 and X2, then confirm that
-    //:   number of ADL-discovered swaps recorded by 'CountedSwap' equals to
-    //:   array size.
-    //:
-    //: 4 Use the member 'swap' function to swap X1 and X2, then confirm that
-    //:   number of ADL-discovered swaps recorded by 'CountedSwap' equals to
-    //:   array size.
+    // 1. Construct arrays `X1` and `X2` of `CountedSwap` elements.
+    //
+    // 3. Use the free `swap` function to swap X1 and X2, then confirm that
+    //    number of ADL-discovered swaps recorded by `CountedSwap` equals to
+    //    array size.
+    //
+    // 4. Use the member `swap` function to swap X1 and X2, then confirm that
+    //    number of ADL-discovered swaps recorded by `CountedSwap` equals to
+    //    array size.
     //
     // Testing:
     //   void swap(array&);
@@ -4054,14 +4056,14 @@ void testCase8_elementADL()
     Obj mX2; gg(&mX2, SPEC2);
 
     if (veryVerbose)
-        printf("\t\t\tTesting element ADL of free 'swap' function\n");
+        printf("\t\t\tTesting element ADL of free `swap` function\n");
 
     CountedSwap::resetNumSwaps();
     swap(mX1, mX2);
     ASSERTV(SIZE, SIZE == CountedSwap::numSwaps());
 
     if (veryVerbose)
-        printf("\t\t\tTesting element ADL of member 'swap' function\n");
+        printf("\t\t\tTesting element ADL of member `swap` function\n");
 
     CountedSwap::resetNumSwaps();
     mX1.swap(mX2);
@@ -4073,7 +4075,7 @@ void TestDriverWrapper<TYPE>::testCase8()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: `%s`\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase8();
     TestDriver<TYPE, 1>::testCase8();
@@ -4093,23 +4095,23 @@ void TestDriver<TYPE, SIZE>::testCase8()
     // interpretation of the ISO standard.
     //
     // Concerns:
-    //: 1 Both functions exchange the values of the two supplied objects.
-    //:
-    //: 2 The free 'swap' function is discoverable through ADL.
-    //:
+    // 1. Both functions exchange the values of the two supplied objects.
+    //
+    // 2. The free `swap` function is discoverable through ADL.
+    //
     //
     // Plan:
-    //: 1 Construct arrays 'W1' (control) and 'X1' based on the same spec
-    //:   string.
-    //:
-    //: 2 Construct arrays 'W2' (control) and 'X2' constructed from the same
-    //:   spec string different from the P-1 spec.
-    //:
-    //: 3 Use the free 'swap' function to swap X1 and X2, then confirm that
-    //:   'W1 == X2' and 'W2 == X1' respectively.
-    //:
-    //: 4 Use the member 'swap' function to swap X1 and X2, then confirm that
-    //:   'W1 == X1' and 'W2 == X2' respectively.
+    // 1. Construct arrays `W1` (control) and `X1` based on the same spec
+    //    string.
+    //
+    // 2. Construct arrays `W2` (control) and `X2` constructed from the same
+    //    spec string different from the P-1 spec.
+    //
+    // 3. Use the free `swap` function to swap X1 and X2, then confirm that
+    //    `W1 == X2` and `W2 == X1` respectively.
+    //
+    // 4. Use the member `swap` function to swap X1 and X2, then confirm that
+    //    `W1 == X1` and `W2 == X2` respectively.
     //
     // Testing:
     //   void swap(array&);
@@ -4133,13 +4135,13 @@ void TestDriver<TYPE, SIZE>::testCase8()
     ASSERTV(SIZE, W1 == X1);
     ASSERTV(SIZE, W2 == X2);
 
-    if (veryVerbose) printf("\t\t\tTesting free 'swap' function\n");
+    if (veryVerbose) printf("\t\t\tTesting free `swap` function\n");
 
     swap(mX1, mX2);
     ASSERTV(SIZE, W1 == X2);
     ASSERTV(SIZE, W2 == X1);
 
-    if (veryVerbose) printf("\t\t\tTesting member 'swap' function\n");
+    if (veryVerbose) printf("\t\t\tTesting member `swap` function\n");
 
 #if BSLS_KEYWORD_NOEXCEPT_AVAILABLE
     const bool isSwapNoexcept = bsl::is_nothrow_swappable<TYPE>::value;
@@ -4163,7 +4165,7 @@ void TestDriverWrapper<TYPE>::testCase7()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: `%s`\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase7();
     TestDriver<TYPE, 1>::testCase7();
@@ -4180,41 +4182,41 @@ void TestDriver<TYPE, SIZE>::testCase7()
     // TESTING COPY CONSTRUCTOR
     //
     // Concerns:
-    //: 1 The new object's value is the same as that of the original object
-    //:   (relying on the equality operator).
-    //:
-    //: 2 All internal representations of a given value can be used to create a
-    //:   new object of equivalent value.
-    //:
-    //: 3 The value of the original object is left unaffected.
-    //:
-    //: 4 Changes to or the destruction of the original object do not affect
-    //:   the copy-constructed object
-    //:
-    //: 5 Changes to or the destruction of the copy-constructed object do not
-    //:   affect the original object
+    // 1. The new object's value is the same as that of the original object
+    //    (relying on the equality operator).
+    //
+    // 2. All internal representations of a given value can be used to create a
+    //    new object of equivalent value.
+    //
+    // 3. The value of the original object is left unaffected.
+    //
+    // 4. Changes to or the destruction of the original object do not affect
+    //    the copy-constructed object
+    //
+    // 5. Changes to or the destruction of the copy-constructed object do not
+    //    affect the original object
     //
     // Plan:
-    //: 1 Construct two pairs of array(W1, X1 and W2, X2) based on the 'SPEC1'
-    //:   and 'SPEC2' respectively.
-    //:
-    //: 2 Copy-construct arrays Y1 and Y2 from the arrays X1 and X2
-    //:   respectively.
-    //:
-    //: 3 Verify that the array X1 is equal to Y1 and X2 is equal to Y2.
-    //:   (C-1..2)
-    //:
-    //: 4 Verify that the array W1 is equal to X1 and W2 is equal to X2.  (C-3)
-    //:
-    //: 5 Modify the source array X1 and verify that W1 and Y1 are still equal.
-    //:
-    //: 6 Modify the copy-constructed array Y2 and check that W2 and X2 are
-    //:   still equal.
-    //:
-    //: 7 Destroy X1 and verify that W1 and Y1 are still equal.  (C-4)
-    //:
-    //: 8 Allow Y2 to go out of scope and verify that W2 and X2 are still
-    //:   equal.  (C-5)
+    // 1. Construct two pairs of array(W1, X1 and W2, X2) based on the `SPEC1`
+    //    and `SPEC2` respectively.
+    //
+    // 2. Copy-construct arrays Y1 and Y2 from the arrays X1 and X2
+    //    respectively.
+    //
+    // 3. Verify that the array X1 is equal to Y1 and X2 is equal to Y2.
+    //    (C-1..2)
+    //
+    // 4. Verify that the array W1 is equal to X1 and W2 is equal to X2.  (C-3)
+    //
+    // 5. Modify the source array X1 and verify that W1 and Y1 are still equal.
+    //
+    // 6. Modify the copy-constructed array Y2 and check that W2 and X2 are
+    //    still equal.
+    //
+    // 7. Destroy X1 and verify that W1 and Y1 are still equal.  (C-4)
+    //
+    // 8. Allow Y2 to go out of scope and verify that W2 and X2 are still
+    //    equal.  (C-5)
     //
     // Testing:
     //   array<TYPE,SIZE>(const array<TYPE,SIZE>& original);
@@ -4295,7 +4297,7 @@ void TestDriverWrapper<TYPE>::testCase6()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: `%s`\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase6();
     TestDriver<TYPE, 1>::testCase6();
@@ -4312,22 +4314,22 @@ void TestDriver<TYPE, SIZE>::testCase6()
     // TESTING COMPARISON OPERATORS
     //
     // Concerns:
-    //: 1 Arrays constructed with the same values are returned as equal.
-    //:
-    //: 2 Unequal arrays are always returned as unequal
+    // 1. Arrays constructed with the same values are returned as equal.
+    //
+    // 2. Unequal arrays are always returned as unequal
     //
     // Plan:
-    //: 1 Default construct two instances of the array having certain (template
-    //:   parameter) SIZE.
-    //:
-    //: 2 Populate the arrays based on two SPECs using the 'gg' function.
-    //:
-    //: 3 Verify that 'operator==' returns 'true' and 'operator!=' returns
-    //:   'false' when comparing equal arrays (based on the same spec) or the
-    //:   same arrays.  (C-1)
-    //:
-    //: 4 Verify that 'operator==' returns false and 'operator!=' returns
-    //:   'true' when comparing unequal arrays.  (C-2)
+    // 1. Default construct two instances of the array having certain (template
+    //    parameter) SIZE.
+    //
+    // 2. Populate the arrays based on two SPECs using the `gg` function.
+    //
+    // 3. Verify that `operator==` returns `true` and `operator!=` returns
+    //    `false` when comparing equal arrays (based on the same spec) or the
+    //    same arrays.  (C-1)
+    //
+    // 4. Verify that `operator==` returns false and `operator!=` returns
+    //    `true` when comparing unequal arrays.  (C-2)
     //
     // Testing:
     //   bool operator==(const array& rhs, const array& lhs);
@@ -4387,7 +4389,7 @@ void TestDriverWrapper<TYPE>::testCase4()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: `%s`\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase4();
     TestDriver<TYPE, 1>::testCase4();
@@ -4404,26 +4406,26 @@ void TestDriver<TYPE, SIZE>::testCase4()
     // TESTING BASIC ACCESSORS
     //
     // Concerns:
-    //: 1 Each accessor returns the value of the correct property of the
-    //:   object.
-    //:
-    //: 2 Each accessor method is declared 'const'.
-    //:
-    //: 3 Asserted precondition violations are detected when enabled.
+    // 1. Each accessor returns the value of the correct property of the
+    //    object.
+    //
+    // 2. Each accessor method is declared `const`.
+    //
+    // 3. Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Use 'gg' function to populate an object based on the spec string and
-    //:   obtain constant reference to this object.
-    //:
-    //: 2 Using 'size()' verify the object contains the expected number of
-    //:   elements.
-    //:
-    //: 3 Iterate through all elements using 'operator[]' and verify the values
-    //:   are as expected.  (C-1..2)
-    //:
-    //: 4 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered for invalid attribute values, but not triggered for
-    //:   adjacent valid ones.  (C-3)
+    // 1. Use `gg` function to populate an object based on the spec string and
+    //    obtain constant reference to this object.
+    //
+    // 2. Using `size()` verify the object contains the expected number of
+    //    elements.
+    //
+    // 3. Iterate through all elements using `operator[]` and verify the values
+    //    are as expected.  (C-1..2)
+    //
+    // 4. Verify that, in appropriate build modes, defensive checks are
+    //    triggered for invalid attribute values, but not triggered for
+    //    adjacent valid ones.  (C-3)
     //
     // Testing:
     //   reference operator[](size_type position) const;
@@ -4435,7 +4437,7 @@ void TestDriver<TYPE, SIZE>::testCase4()
     const char*      SPEC = "ABCDEFGHIJKLMNOPQRSTUV";
     const TestValues EXP(SPEC);
 
-    if (veryVerbose) printf("\t\t\tTesting 'operator[]'.\n");
+    if (veryVerbose) printf("\t\t\tTesting `operator[]`.\n");
 
     {
         Obj        mX;
@@ -4452,7 +4454,7 @@ void TestDriver<TYPE, SIZE>::testCase4()
         }
     }
 
-    if (veryVerbose) printf ("\t\t\tTesting 'size()'.\n");
+    if (veryVerbose) printf ("\t\t\tTesting `size()`.\n");
     {
         Obj        mX;
         const Obj& X = mX;
@@ -4482,7 +4484,7 @@ void TestDriverWrapper<TYPE>::testCase3()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: `%s`\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase3();
     TestDriver<TYPE, 1>::testCase3();
@@ -4497,29 +4499,29 @@ void TestDriver<TYPE, SIZE>::testCase3()
 {
     // ------------------------------------------------------------------------
     // TESTING GENERATOR FUNCTIONS
-    //   Ensure that the 'gg' and 'ggg' function work as expected and that
+    //   Ensure that the `gg` and `ggg` function work as expected and that
     //   valid generator syntax produced the expected results.
     //
     // Concerns:
-    //: 1 Valid generator syntax produces expected results.
-    //:
-    //: 2 Invalid syntax is detected and reported.
+    // 1. Valid generator syntax produces expected results.
+    //
+    // 2. Invalid syntax is detected and reported.
     //
     // Plan:
-    //: 1 For the sequence of valid 'spec' values with length equal to the
-    //:   length of the array type to be tested, adjust a default constructed
-    //:   array using the 'gg' function.
-    //:
-    //: 2 Verify that the element at any index is equal to the element at the
-    //:   same index in the corresponding test values array 'EXP' which was
-    //:   constructed by the same 'spec' string.  (C-1)
-    //:
-    //: 3 For the sequence of invalid 'spec' values with length equal to the
-    //:   length of the array type to be tested, adjust an array using the 'gg'
-    //:   function.
-    //:
-    //: 4 Verify that invalid symbol is determined correctly and array
-    //:   adjustment is finished at that symbol.  (C-2)
+    // 1. For the sequence of valid `spec` values with length equal to the
+    //    length of the array type to be tested, adjust a default constructed
+    //    array using the `gg` function.
+    //
+    // 2. Verify that the element at any index is equal to the element at the
+    //    same index in the corresponding test values array `EXP` which was
+    //    constructed by the same `spec` string.  (C-1)
+    //
+    // 3. For the sequence of invalid `spec` values with length equal to the
+    //    length of the array type to be tested, adjust an array using the `gg`
+    //    function.
+    //
+    // 4. Verify that invalid symbol is determined correctly and array
+    //    adjustment is finished at that symbol.  (C-2)
     //
     // Testing:
     //   int ggg(array<TYPE,SIZE> *object, const char *spec, bool verboseFlag);
@@ -4640,7 +4642,7 @@ void TestDriverWrapper<TYPE>::testCase2()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: `%s`\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase2();
     TestDriver<TYPE, 1>::testCase2();
@@ -4657,39 +4659,39 @@ void TestDriver<TYPE, SIZE>::testCase2()
     // TESTING PRIMARY MANIPULATORS
     //
     // Concerns:
-    //: 1 An object created with the default constructor defalt constructs a
-    //:   number of elements equal to the size of the array with the exception
-    //:   of 0 length arrays that will construct 1 element.
-    //:
-    //: 2 Destructor calls the destructor of every element.
-    //:
-    //: 3 Elements can be set using 'operator[]' for any type that supports the
-    //:   assignment operator.
-    //:
-    //: 4 Asserted precondition violations are detected when enabled.
+    // 1. An object created with the default constructor defalt constructs a
+    //    number of elements equal to the size of the array with the exception
+    //    of 0 length arrays that will construct 1 element.
+    //
+    // 2. Destructor calls the destructor of every element.
+    //
+    // 3. Elements can be set using `operator[]` for any type that supports the
+    //    assignment operator.
+    //
+    // 4. Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 For each array of different length:
-    //:
-    //:   1 Use default constructor to create an array of elements of special
-    //:     type, counting the number of constructor and destructor
-    //:     invocations.
-    //:
-    //:   2 Verify the size of the constructed array, using 'size()', that
-    //:     hasn't been tested yet.
-    //:
-    //:   3 Verify that the correct number of elements was constructed.  (C-1)
-    //:
-    //:   4 Verify all elements are deleted when the array is destroyed.  (C-2)
-    //:
-    //:   5 Create an array and modify it using 'operator[]'.
-    //:
-    //:   6 Verify that the value of each element is correct by inspecting
-    //:     d_data.  (C-3)
-    //:
-    //:   7 Verify that, in appropriate build modes, defensive checks are
-    //:     triggered for invalid attribute values, but not triggered for
-    //:     adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-4)
+    // 1. For each array of different length:
+    //
+    //   1. Use default constructor to create an array of elements of special
+    //      type, counting the number of constructor and destructor
+    //      invocations.
+    //
+    //   2. Verify the size of the constructed array, using `size()`, that
+    //      hasn't been tested yet.
+    //
+    //   3. Verify that the correct number of elements was constructed.  (C-1)
+    //
+    //   4. Verify all elements are deleted when the array is destroyed.  (C-2)
+    //
+    //   5. Create an array and modify it using `operator[]`.
+    //
+    //   6. Verify that the value of each element is correct by inspecting
+    //      d_data.  (C-3)
+    //
+    //   7. Verify that, in appropriate build modes, defensive checks are
+    //      triggered for invalid attribute values, but not triggered for
+    //      adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).  (C-4)
     //
     // Testing:
     //   array();
@@ -4799,7 +4801,7 @@ void TestDriverWrapper<TYPE>::testCase1()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: `%s`\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase1();
     TestDriver<TYPE, 1>::testCase1();
@@ -4816,14 +4818,14 @@ void TestDriver<TYPE, SIZE>::testCase1()
     //  This case exercises (buit does not fully test) basic functionality.
     //
     // Concerns:
-    //: 1 The class is sufficiently functional to enable comprehensive testing
-    //:   in subsequent test cases.
+    // 1. The class is sufficiently functional to enable comprehensive testing
+    //    in subsequent test cases.
     //
     // Plan:
-    //: 1 Create an object 'x' (default ctor).           { x:D           }
-    //: 2 Test mutation methods on 'x'.                  { x:D           }
-    //: 3 Create an object 'y' (copy from 'x').          { x:D y:V       }
-    //: 4 Test comparison methods on 'x' and 'y'.        { x:D y:V       }
+    // 1. Create an object `x` (default ctor).           { x:D           }
+    // 2. Test mutation methods on `x`.                  { x:D           }
+    // 3. Create an object `y` (copy from `x`).          { x:D y:V       }
+    // 4. Test comparison methods on `x` and `y`.        { x:D y:V       }
     //
     // Testing:
     //   BREATHING TEST
@@ -4833,7 +4835,7 @@ void TestDriver<TYPE, SIZE>::testCase1()
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    if (veryVerbose) printf("\t\t1. Create an object 'x' (default ctor)."
+    if (veryVerbose) printf("\t\t1. Create an object `x` (default ctor)."
                             "\t\t{ x:D           }\n");
 
     Obj mX; const Obj& X = mX;
@@ -4848,7 +4850,7 @@ void TestDriver<TYPE, SIZE>::testCase1()
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    if (veryVerbose) printf("\t\t2. Test mutation methods on 'x' "
+    if (veryVerbose) printf("\t\t2. Test mutation methods on `x` "
                             "\t\t{ x:D y:V        }\n");
 
     for (size_t i = 0; i < SIZE; ++i) {
@@ -4859,7 +4861,7 @@ void TestDriver<TYPE, SIZE>::testCase1()
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    if (veryVerbose) printf("\t\t3. Create an object 'y' (copy from 'x') "
+    if (veryVerbose) printf("\t\t3. Create an object `y` (copy from `x`) "
                             "\t\t{ x:D y:V        }\n");
 
     Obj mY(mX); const Obj& Y = mY;
@@ -4870,7 +4872,7 @@ void TestDriver<TYPE, SIZE>::testCase1()
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    if (veryVerbose) printf("\t\t4. Test comparison methods on 'x' and 'y'"
+    if (veryVerbose) printf("\t\t4. Test comparison methods on `x` and `y`"
                             "\t\t{ x:D y:V        }\n");
 
     ASSERT(Y == X);
@@ -4899,12 +4901,12 @@ namespace UsageExample {
 //
 ///Example 1: Returning an array from a function
 ///- - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we want to define a function that will return an array of 'float's.
+// Suppose we want to define a function that will return an array of `float`s.
 // If a raw array were used, the size would need to be tracked separately
 // because raw arrays decay to pointers when passed as function arguments, or
-// returned by-value.  'bsl::array' does not decay, and so provides a simple
+// returned by-value.  `bsl::array` does not decay, and so provides a simple
 // solution to this problem.
-//..
+// ```
 typedef bsl::array<float, 3> Point;
 
 Point createPoint(float f1, float f2, float f3)
@@ -4912,10 +4914,10 @@ Point createPoint(float f1, float f2, float f3)
     bsl::array<float, 3> ret = {f1, f2, f3};
     return ret;
 }
-//..
+// ```
 // Create a bsl::array object containing three values set to the specified
-// 'f1', 'f2', 'f3'.
-//..
+// `f1`, `f2`, `f3`.
+// ```
 void usageExample()
 {
     Point p1 = createPoint(1.0, 1.0, 1.0);
@@ -4930,9 +4932,9 @@ void usageExample()
         }
     }
 }
-//..
+// ```
 // Use the createPoint function to generate three arrays of floats.  The arrays
-// are returned by copy and the 'size()' member function is used to access the
+// are returned by copy and the `size()` member function is used to access the
 // size of the arrays that could not be done with a raw array.
 
 }  // close namespace UsageExample
@@ -4940,27 +4942,27 @@ void usageExample()
 // BDE_VERIFY pragma: pop  // End of usage example-example relaxed rules
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+/// This struct provides a namespace for functions testing deduction guides.
+/// The tests are compile-time only; it is not necessary that these routines
+/// be called at run-time.  Note that the following constructors do not have
+/// associated deduction guides because the template parameters for
+/// `bsl::array` cannot be deduced from the constructor parameters.
+/// ```
+/// array()
+/// ```
 struct TestDeductionGuides {
-    // This struct provides a namespace for functions testing deduction guides.
-    // The tests are compile-time only; it is not necessary that these routines
-    // be called at run-time.  Note that the following constructors do not have
-    // associated deduction guides because the template parameters for
-    // 'bsl::array' cannot be deduced from the constructor parameters.
-    //..
-    // array()
-    //..
 
 #define ASSERT_SAME_TYPE(...) \
  static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
 
+    /// Test that constructing a `bsl::array` from various combinations of
+    /// arguments deduces the correct type.
+    /// ```
+    /// array(/*braces*/);
+    /// array(const array<T>&);
+    /// array(      array<T>&&);
+    /// ```
     static void SimpleConstructors ()
-        // Test that constructing a 'bsl::array' from various combinations of
-        // arguments deduces the correct type.
-        //..
-        // array(/*braces*/);
-        // array(const array<T>&);
-        // array(      array<T>&&);
-        //..
     {
         bsl::array a1a{12, 23, 34, 45, 56};
         bsl::array a1b{12L, 23L, 34L, 45L};
@@ -5014,10 +5016,10 @@ int main(int argc, char *argv[])
 
 // BDE_VERIFY pragma: push   // Usage examples relax rules for doc clarity
 // BDE_VERIFY pragma: -TP05  // Test doc is in delegated functions
-// BDE_VERIFY pragma: -TP12  // Comment should contain a 'Testing:' section
+// BDE_VERIFY pragma: -TP12  // Comment should contain a `Testing:` section
 // BDE_VERIFY pragma: -TP17  // No test-banners in a switch statement
-// BDE_VERIFY pragma: -TP30  // Comment should contain a 'Concerns:' section
-// BDE_VERIFY pragma: -TP33  // Comment should contain a 'Plan:' section
+// BDE_VERIFY pragma: -TP30  // Comment should contain a `Concerns:` section
+// BDE_VERIFY pragma: -TP33  // Comment should contain a `Plan:` section
 
     switch (test) { case 0:
       case 29: {
@@ -5025,13 +5027,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -5046,12 +5048,13 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // CONCERN: TESTING BASIC INTEROPERABILITY WITH C++20 RANGES
         //
-        // Concerns: The functions in the 'ranges::' namespace, 'begin, 'end',
-        // 'cbegin, 'cend', 'rbegin', crbegin', crenmd', 'size', 'empy', 'data'
-        // all serve as an alias to the corresponding function in the 'array'
+        // Concerns: The functions in the `ranges::` namespace, `begin`, `end`,
+        // `cbegin`, `cend`, `rbegin`, `crbegin`, `crend`, `size`, `empty`,
+        // `data` all serve as an alias to the corresponding function in the
+        // `array`
         //
         // Plan:
-        //: 1 For each of the above-mentioned functions, verify that each of
+        // 1. For each of the above-mentioned functions, verify that each of
         // the corresponding pair of functions returns the same value.
         //
         // Testing:
@@ -5071,30 +5074,30 @@ int main(int argc, char *argv[])
       } break;
       case 27: {
         // --------------------------------------------------------------------
-        // CONCERN: 'array' IS A C++20 RANGE
+        // CONCERN: `array` IS A C++20 RANGE
         //
         // Concerns:
-        //: 1 'array' models 'ranges::common_range' concept.
-        //:
-        //: 2 'array' models 'ranges::contiguous_range' concept.
-        //:
-        //: 3 'array' models 'ranges::sized_range' concept.
-        //:
-        //: 4 'array' models 'ranges::viewable_range' concept.
-        //:
-        //: 5 'array' doesn't model 'ranges::view' concept.
-        //:
-        //: 6 'array' doesn't model 'ranges::borrowed_range' concept.
+        // 1. `array` models `ranges::common_range` concept.
+        //
+        // 2. `array` models `ranges::contiguous_range` concept.
+        //
+        // 3. `array` models `ranges::sized_range` concept.
+        //
+        // 4. `array` models `ranges::viewable_range` concept.
+        //
+        // 5. `array` doesn't model `ranges::view` concept.
+        //
+        // 6. `array` doesn't model `ranges::borrowed_range` concept.
         //
         // Plan:
-        //: 1 'static_assert' every above-mentioned concept for different 'T'
-        //:   and sizes.
+        // 1. `static_assert` every above-mentioned concept for different `T`
+        //    and sizes.
         //
         // Testing:
-        //   CONCERN: 'array' IS A C++20 RANGE
+        //   CONCERN: `array` IS A C++20 RANGE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nCONCERN: 'array' IS A C++20 RANGE"
+        if (verbose) printf("\nCONCERN: `array` IS A C++20 RANGE"
                             "\n=================================\n");
 
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
@@ -5104,20 +5107,20 @@ int main(int argc, char *argv[])
       } break;
       case 26: {
         //---------------------------------------------------------------------
-        // TESTING 'to_array'
-        //   Ensure that the 'to_array' free functions work correctly.
+        // TESTING `to_array`
+        //   Ensure that the `to_array` free functions work correctly.
         //
         // Concerns:
-        //: 1 Built-in arrays of copyable types result in all of the elements
-        //:   being copied over.
-        //:
-        //: 2 Built-in arrays of move-only types result in all of the elements
-        //:   being moved over (if supported).
+        // 1. Built-in arrays of copyable types result in all of the elements
+        //    being copied over.
+        //
+        // 2. Built-in arrays of move-only types result in all of the elements
+        //    being moved over (if supported).
         //
         // Plan:
-        //: 1 Call 'to_array' on a built-in array of copyable values.
-        //:
-        //: 2 Call 'to_array' on a built-in array of move-only values.
+        // 1. Call `to_array` on a built-in array of copyable values.
+        //
+        // 2. Call `to_array` on a built-in array of move-only values.
         //
         // Testing:
         //      array<TYPE, SIZE> to_array(TYPE (&src)[SIZE]);
@@ -5134,14 +5137,14 @@ int main(int argc, char *argv[])
         //   constructors.
         //
         // Concerns:
-        //: 1 Argument lists of mixed type deduce the type of the array from
-        //:   the type of the first element.
+        // 1. Argument lists of mixed type deduce the type of the array from
+        //    the type of the first element.
         //
         // Plan:
-        //: 1 Create a pair by invoking the constructor without supplying the
-        //:   template arguments explicitly.
-        //:
-        //: 2 Verify that the deduced type is correct.
+        // 1. Create a pair by invoking the constructor without supplying the
+        //    template arguments explicitly.
+        //
+        // 2. Verify that the deduced type is correct.
         //
         // Testing:
         //   CLASS TEMPLATE DEDUCTION GUIDES
@@ -5171,66 +5174,66 @@ int main(int argc, char *argv[])
       } break;
       case 23: {
         // --------------------------------------------------------------------
-        // TESTING 'constexpr' EVALUATION
-        //  This component provides many 'constexpr' functions whose runtime
+        // TESTING `constexpr` EVALUATION
+        //  This component provides many `constexpr` functions whose runtime
         //  behavior has already been validated by earlier calls, but need
-        //  additional tests to ensure that the 'constexpr' behavior is
-        //  respected for arrays of literal types.  Testing all 'constexpr'
-        //  methods for 'array<int, 7>' should suffice.  For testing purposes,
-        //  we will assume any compiler that supports 'constexpr' has long
-        //  since supported 'static_assert'.
+        //  additional tests to ensure that the `constexpr` behavior is
+        //  respected for arrays of literal types.  Testing all `constexpr`
+        //  methods for `array<int, 7>` should suffice.  For testing purposes,
+        //  we will assume any compiler that supports `constexpr` has long
+        //  since supported `static_assert`.
         //
         // Concerns:
-        //: 1 All methods defined with the 'BSLS_KEYWORD_CONSTEXPR' macro can
-        //:   be used in constant evaluation on a C++11 compiler (or later).
-        //:   o empty
-        //:   o max_size
-        //:   o size
-        //:   o get  (x2)
-        //:
-        //: 2 All methods defined with the 'BSLS_KEYWORD_CONSTEXPR_CPP14' macro
-        //:   can be used in constant evaluation on a C++14 compiler (or
-        //:   later).
-        //:   o operator[] (const)
-        //:   o at
-        //:   o front
-        //:   o back
-        //:   o get  (x2)
-        //:
-        //: 3 All methods defined with the 'BSLS_KEYWORD_CONSTEXPR_CPP17' macro
-        //:   can be used in constant evaluation on a C++17 compiler (or
-        //:   later).
-        //:   o operator[] (non-const)
+        // 1. All methods defined with the `BSLS_KEYWORD_CONSTEXPR` macro can
+        //    be used in constant evaluation on a C++11 compiler (or later).
+        //    - empty
+        //    - max_size
+        //    - size
+        //    - get  (x2)
+        //
+        // 2. All methods defined with the `BSLS_KEYWORD_CONSTEXPR_CPP14` macro
+        //    can be used in constant evaluation on a C++14 compiler (or
+        //    later).
+        //    - operator[] (const)
+        //    - at
+        //    - front
+        //    - back
+        //    - get  (x2)
+        //
+        // 3. All methods defined with the `BSLS_KEYWORD_CONSTEXPR_CPP17` macro
+        //    can be used in constant evaluation on a C++17 compiler (or
+        //    later).
+        //    - operator[] (non-const)
         //
         // Plan:
-        //: 1 Call each of the listed 'constexpr' functions from a
-        //:   'static_assert' expression, guarded by a macro check that C++11
-        //:   'constexpr' is available.
-        //:   o empty
-        //:   o max_size
-        //:   o size
-        //:   o get
-        //:   (C-1)
-        //:
-        //: 2 Call each of the listed 'constexpr' functions from a
-        //:   'static_assert' expression, guarded by a macro check that C++14
-        //:   'constexpr' is available.
-        //:   o operator[] (const)
-        //:   o at
-        //:   o front
-        //:   o back
-        //:   (C-2)
-        //:
-        //: 3 Call each of the listed 'constexpr' functions from a
-        //:   'static_assert' expression, guarded by a macro check that C++17
-        //:   'constexpr' is available.
-        //:   o operator[] (non-const)
+        // 1. Call each of the listed `constexpr` functions from a
+        //    `static_assert` expression, guarded by a macro check that C++11
+        //    `constexpr` is available.
+        //    - empty
+        //    - max_size
+        //    - size
+        //    - get
+        //    (C-1)
+        //
+        // 2. Call each of the listed `constexpr` functions from a
+        //    `static_assert` expression, guarded by a macro check that C++14
+        //    `constexpr` is available.
+        //    - operator[] (const)
+        //    - at
+        //    - front
+        //    - back
+        //    (C-2)
+        //
+        // 3. Call each of the listed `constexpr` functions from a
+        //    `static_assert` expression, guarded by a macro check that C++17
+        //    `constexpr` is available.
+        //    - operator[] (non-const)
         //
         // Testing:
-        //   CONCERN: 'constexpr' FUNCTIONS ARE USABLE IN CONSTANT EVALUATION
+        //   CONCERN: `constexpr` FUNCTIONS ARE USABLE IN CONSTANT EVALUATION
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'constexpr' EVALUATION"
+        if (verbose) printf("\nTESTING `constexpr` EVALUATION"
                             "\n==============================\n");
 
         typedef bsl::array<int, 7> Obj;
@@ -5239,18 +5242,18 @@ int main(int argc, char *argv[])
                                                       { 1, 1, 2, 3, 5, 8, 13 };
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
-        static_assert(7 == X.size(),     "Bad value for 'size'");
-        static_assert(7 == X.max_size(), "Bad value for 'max_size'");
+        static_assert(7 == X.size(),     "Bad value for `size`");
+        static_assert(7 == X.max_size(), "Bad value for `max_size`");
 
         static_assert(!X.empty(),        "Array should not be empty");
 
-        static_assert( 1 == bsl::get<0>(X), "Bad value for 'get' at index 0");
-        static_assert( 1 == bsl::get<1>(X), "Bad value for 'get' at index 1");
-        static_assert( 2 == bsl::get<2>(X), "Bad value for 'get' at index 2");
-        static_assert( 3 == bsl::get<3>(X), "Bad value for 'get' at index 3");
-        static_assert( 5 == bsl::get<4>(X), "Bad value for 'get' at index 4");
-        static_assert( 8 == bsl::get<5>(X), "Bad value for 'get' at index 5");
-        static_assert(13 == bsl::get<6>(X), "Bad value for 'get' at index 6");
+        static_assert( 1 == bsl::get<0>(X), "Bad value for `get` at index 0");
+        static_assert( 1 == bsl::get<1>(X), "Bad value for `get` at index 1");
+        static_assert( 2 == bsl::get<2>(X), "Bad value for `get` at index 2");
+        static_assert( 3 == bsl::get<3>(X), "Bad value for `get` at index 3");
+        static_assert( 5 == bsl::get<4>(X), "Bad value for `get` at index 4");
+        static_assert( 8 == bsl::get<5>(X), "Bad value for `get` at index 5");
+        static_assert(13 == bsl::get<6>(X), "Bad value for `get` at index 6");
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14)
@@ -5262,31 +5265,31 @@ int main(int argc, char *argv[])
         static_assert( 8 == X[5], "Bad value at index 5");
         static_assert(13 == X[6], "Bad value at index 6");
 
-        static_assert( 1 == *(X.begin()),  "Bad value at '*(begin())'");
-        static_assert(13 == *(X.end()-1),  "Bad value at '*(end()-1)'");
-        static_assert( 1 == *(X.cbegin()), "Bad value at '*(cbegin())'");
-        static_assert(13 == *(X.cend()-1), "Bad value at '*(cend()-1)'");
+        static_assert( 1 == *(X.begin()),  "Bad value at `*(begin())`");
+        static_assert(13 == *(X.end()-1),  "Bad value at `*(end()-1)`");
+        static_assert( 1 == *(X.cbegin()), "Bad value at `*(cbegin())`");
+        static_assert(13 == *(X.cend()-1), "Bad value at `*(cend()-1)`");
 
-        static_assert( 1 == X.data()[0], "Bad value via 'data' at index 0");
-        static_assert( 1 == X.data()[1], "Bad value via 'data' at index 1");
-        static_assert( 2 == X.data()[2], "Bad value via 'data' at index 2");
-        static_assert( 3 == X.data()[3], "Bad value via 'data' at index 3");
-        static_assert( 5 == X.data()[4], "Bad value via 'data' at index 4");
-        static_assert( 8 == X.data()[5], "Bad value via 'data' at index 5");
-        static_assert(13 == X.data()[6], "Bad value via 'data' at index 6");
+        static_assert( 1 == X.data()[0], "Bad value via `data` at index 0");
+        static_assert( 1 == X.data()[1], "Bad value via `data` at index 1");
+        static_assert( 2 == X.data()[2], "Bad value via `data` at index 2");
+        static_assert( 3 == X.data()[3], "Bad value via `data` at index 3");
+        static_assert( 5 == X.data()[4], "Bad value via `data` at index 4");
+        static_assert( 8 == X.data()[5], "Bad value via `data` at index 5");
+        static_assert(13 == X.data()[6], "Bad value via `data` at index 6");
 
 # if !defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VERSION >= 60000
-        static_assert( 1 == X.at(0), "Bad value 'at' index 0");
-        static_assert( 1 == X.at(1), "Bad value 'at' index 1");
-        static_assert( 2 == X.at(2), "Bad value 'at' index 2");
-        static_assert( 3 == X.at(3), "Bad value 'at' index 3");
-        static_assert( 5 == X.at(4), "Bad value 'at' index 4");
-        static_assert( 8 == X.at(5), "Bad value 'at' index 5");
-        static_assert(13 == X.at(6), "Bad value 'at' index 6");
+        static_assert( 1 == X.at(0), "Bad value `at` index 0");
+        static_assert( 1 == X.at(1), "Bad value `at` index 1");
+        static_assert( 2 == X.at(2), "Bad value `at` index 2");
+        static_assert( 3 == X.at(3), "Bad value `at` index 3");
+        static_assert( 5 == X.at(4), "Bad value `at` index 4");
+        static_assert( 8 == X.at(5), "Bad value `at` index 5");
+        static_assert(13 == X.at(6), "Bad value `at` index 6");
 # endif
 
-        static_assert( 1 == X.front(), "Bad value at 'front' of array");
-        static_assert(13 == X.back(),  "Bad value at 'back' of array");
+        static_assert( 1 == X.front(), "Bad value at `front` of array");
+        static_assert(13 == X.back(),  "Bad value at `back` of array");
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14)
@@ -5318,10 +5321,10 @@ int main(int argc, char *argv[])
       } break;
       case 22: {
         // --------------------------------------------------------------------
-        // TESTING 'hashAppend'
+        // TESTING `hashAppend`
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'hashAppend'"
+        if (verbose) printf("\nTESTING `hashAppend`"
                             "\n====================\n");
 
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper
@@ -5346,10 +5349,10 @@ int main(int argc, char *argv[])
       } break;
       case 20: {
         // --------------------------------------------------------------------
-        // TESTING 'data'
+        // TESTING `data`
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'data'"
+        if (verbose) printf("\nTESTING `data`"
                             "\n==============\n");
 
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
@@ -5358,10 +5361,10 @@ int main(int argc, char *argv[])
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // TESTING 'front' AND 'back'
+        // TESTING `front` AND `back`
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'front' AND 'back'"
+        if (verbose) printf("\nTESTING `front` AND `back`"
                             "\n==========================\n");
 
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
@@ -5370,10 +5373,10 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING 'at'
+        // TESTING `at`
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'at'"
+        if (verbose) printf("\nTESTING `at`"
                             "\n============\n");
 
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
@@ -5388,7 +5391,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING CAPACITY"
                             "\n================\n");
 
-        // Test 'empty' and 'max_size' members.
+        // Test `empty` and `max_size` members.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase17,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
@@ -5436,10 +5439,10 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'fill'
+        // TESTING `fill`
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'fill'"
+        if (verbose) printf("\nTESTING `fill`"
                             "\n==============\n");
 
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
@@ -5500,26 +5503,26 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING COPY ASSIGNMENT"
                             "\n=======================\n");
 
-        // Test assignment operator ('operator=').
+        // Test assignment operator (`operator=`).
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase9,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'swap'
+        // TESTING `swap`
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'swap'"
+        if (verbose) printf("\nTESTING `swap`"
                             "\n==============\n");
 
-        // Test 'swap' member.
+        // Test `swap` member.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase8,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
         if (verbose)
-            printf("Testing element 'swap' ADL\n");
+            printf("Testing element `swap` ADL\n");
 
         testCase8_elementADL<0>();
         testCase8_elementADL<1>();

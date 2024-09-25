@@ -29,11 +29,11 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The 'balm::DefaultMetricsManager' is a namespace for a related set of
-// functions of managing an instance of the 'balm::MetricsManager' they are
+// The `balm::DefaultMetricsManager` is a namespace for a related set of
+// functions of managing an instance of the `balm::MetricsManager` they are
 // interrelated and must be tested together.
 //
-// The 'balm::DefaultMetricsManagerScopedGuard' is a simple scoped guard with
+// The `balm::DefaultMetricsManagerScopedGuard` is a simple scoped guard with
 // only a single constructor and destructor and can be test with a single
 // case.
 // ----------------------------------------------------------------------------
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -140,42 +140,42 @@ int main(int argc, char *argv[])
 ///Usage
 ///-----
 // The following examples demonstrate how to create, configure, and destroy
-// the default 'balm::MetricsManager' instance.
+// the default `balm::MetricsManager` instance.
 //
-///Example 1 - Create and Access the Default 'balm::MetricsManager' Instance
+///Example 1 - Create and Access the Default `balm::MetricsManager` Instance
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to create the default 'balm::MetricManager'
+// This example demonstrates how to create the default `balm::MetricManager`
 // instance and publish a single metric to the console.  See the documentation
-// of 'balm_metric' and 'balm_metricsmanager' for information on how to record
+// of `balm_metric` and `balm_metricsmanager` for information on how to record
 // metrics.
 //
-// First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages
+// First we create a `balm::DefaultMetricsManagerScopedGuard`, which manages
 // the lifetime of the default metrics manager instance.  At construction, we
-// provide the 'balm::DefaultMetricsManagerScopedGuard' an output stream
-// ('stdout') to which it will publish metrics.  Note that the default metrics
-// manager is intended to be created and destroyed by the *owner* of 'main'.
+// provide the `balm::DefaultMetricsManagerScopedGuard` an output stream
+// (`stdout`) to which it will publish metrics.  Note that the default metrics
+// manager is intended to be created and destroyed by the *owner* of `main`.
 // The instance should be created during the initialization of an application
 // (while the task has a single thread) and destroyed just prior to termination
 // (when there is similarly a single thread).
-//..
+// ```
 //  int main(int argc, char *argv[])
     {
 
         // ...
 
         balm::DefaultMetricsManagerScopedGuard managerGuard(bsl::cout);
-//..
+// ```
 // Once the default instance has been created, it can be accessed using the
-// static 'instance' method.
-//..
+// static `instance` method.
+// ```
        balm::MetricsManager *manager = balm::DefaultMetricsManager::instance();
        ASSERT(0 != manager);
-//..
+// ```
 // The default metrics manager, by default, is configured with a
-// 'balm::StreamPublisher' object that will publish all recorded metrics to the
-// consoled.  We use the default 'manager' instance to update the collector
+// `balm::StreamPublisher` object that will publish all recorded metrics to the
+// consoled.  We use the default `manager` instance to update the collector
 // for a single metric, and then publish all metrics.
-//..
+// ```
         balm::Collector *myMetric =
                         manager->collectorRepository().getDefaultCollector(
                                                      "MyCategory", "MyMetric");
@@ -184,17 +184,17 @@ int main(int argc, char *argv[])
 
         // ... rest of program elided ...
     }
-//..
+// ```
 // The output of this example would look similar to:
-//..
+// ```
 // 05FEB2009_19:20:12.697+0000 1 Records
 //    Elapsed Time: 0.009311s
 //            MyCategory.MyMetric [ count = 1, total = 10, min = 10, max = 10 ]
-//..
-// Note that the default metrics manager will be destroyed when 'managerGuard'
+// ```
+// Note that the default metrics manager will be destroyed when `managerGuard`
 // exits this scope and is destroyed.  Clients that choose to explicitly call
-// 'balm::DefaultMetricsManager::create()' must also explicitly call
-// 'balm::DefaultMetricsManager::destroy()'.
+// `balm::DefaultMetricsManager::create()` must also explicitly call
+// `balm::DefaultMetricsManager::destroy()`.
 
         ASSERT(0 == balm::DefaultMetricsManager::instance());
 
@@ -350,7 +350,7 @@ int main(int argc, char *argv[])
         //    That the manager function behaves as described.
         //
         // Plan:
-        //    Invoke 'manager' with both a valid pointer and 0, ensure the
+        //    Invoke `manager` with both a valid pointer and 0, ensure the
         //    values returned is correct.  Perform that test both with and
         //    without a default instance of the metrics manager created.
         //
@@ -394,7 +394,7 @@ int main(int argc, char *argv[])
         // CLASS METHOD TEST: create(bool, bslma::Allocator *);
         //
         // Concerns:
-        //    That the 'create' method behaves as documented
+        //    That the `create` method behaves as documented
         //
         // Plan:
         //
@@ -516,7 +516,7 @@ int main(int argc, char *argv[])
         // PRIMARY CLASS METHOD TEST:
         //
         // Concerns:
-        //    That the primary functions, 'create', 'instance', and 'release'
+        //    That the primary functions, `create`, `instance`, and `release`
         //    all behave as documented.
         //
         // Plan:

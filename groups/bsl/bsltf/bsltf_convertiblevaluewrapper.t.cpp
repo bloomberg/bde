@@ -148,10 +148,10 @@ int main(int argc, char *argv[])
         ASSERT( Y == mY);
         ASSERT(13 == mX);
 
+        /// Dummy function to simply take a value convertible from an
+        /// `int`.  Note that there is no observable behavior.
         struct LocalFunction {
             static void call(const bsltf::ConvertibleValueWrapper<int> &) {}
-                // Dummy function to simply take a value convertible from an
-                // 'int'.  Note that there is no observable behavior.
         };
 
         LocalFunction::call(42);

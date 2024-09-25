@@ -8,8 +8,8 @@
 #include <bsls_keyword.h>
 #include <bsls_platform.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 #include <string.h>
 
 #include <new>
@@ -35,14 +35,14 @@ using namespace BloombergLP;
 // destroyed, we verify that the corresponding counters of the objects managed
 // by the proctor are modified.
 //
-// We achieve the second goal by using the 'TestAllocator' allocator, whose
-// 'deallocate' method is instrumented to record all memory addresses with
+// We achieve the second goal by using the `TestAllocator` allocator, whose
+// `deallocate` method is instrumented to record all memory addresses with
 // which the method is invoked.  We then initialize the proctor object with
 // this allocator and verify that when the proctor is destroyed the expected
 // memory addresses are recorded in the allocator.  Note that since
-// 'TestAllocator' is not derived from 'bslma::Allocator' and does not
-// implement an 'allocate' method, we ensure that this proctor works with any
-// 'ALLOCATOR' object that supports the required 'deallocate' method.
+// `TestAllocator` is not derived from `bslma::Allocator` and does not
+// implement an `allocate` method, we ensure that this proctor works with any
+// `ALLOCATOR` object that supports the required `deallocate` method.
 //-----------------------------------------------------------------------------
 // [3] bslma::AutoRawDeleter<TYPE, ALLOCATOR>(origin, allocator, length = 0);
 // [3] ~bslma::AutoRawDeleter<TYPE, ALLOCATOR>();
@@ -54,8 +54,8 @@ using namespace BloombergLP;
 // [3] void release();
 // [4] explicit test of some or all proctored elements being NULL
 //-----------------------------------------------------------------------------
-// [1] Ensure helper classes 'my_Class' and 'TestAllocator' work
-// [2] Ensure helper functions 'areEqual' and 'countNonZero' work
+// [1] Ensure helper classes `my_Class` and `TestAllocator` work
+// [2] Ensure helper functions `areEqual` and `countNonZero` work
 // [5] USAGE EXAMPLE
 
 // ============================================================================
@@ -105,7 +105,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                      CUSTOM TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
 #define PA(X, L) printf( #X " = "); printArray(X, L); printf("\n");
-                                              // Print array 'X' of length 'L'
+                                              // Print array `X` of length `L`
 #define PA_(X, L) printf( #X " = "); printArray(X, L); printf(", ");
                                               // PA(X, L) without '\n'
 
@@ -129,11 +129,11 @@ static int minInt(int x, int y)
     return x < y ? x : y;
 }
 
+/// Compare the specified initial `numElements` of the specified integer
+/// arrays `array1` and `array2`.  Return `true` if the contents are equal,
+/// and `false` otherwise.  The behavior is undefined unless
+/// `0 <= numElements`.
 static bool areEqual(const int *array1, const int *array2, int numElements)
-    // Compare the specified initial 'numElements' of the specified integer
-    // arrays 'array1' and 'array2'.  Return 'true' if the contents are equal,
-    // and 'false' otherwise.  The behavior is undefined unless
-    // '0 <= numElements'.
 {
     ASSERT(array1);
     ASSERT(array2);
@@ -146,9 +146,9 @@ static bool areEqual(const int *array1, const int *array2, int numElements)
     return true;
 }
 
+/// Write the specified initial `numElements` of the specified `array` in a
+/// single-line format.  The behavior is undefined unless 0 <= numElements.
 static void printArray(const int *array, int numElements)
-    // Write the specified initial 'numElements' of the specified 'array' in a
-    // single-line format.  The behavior is undefined unless 0 <= numElements.
 {
     ASSERT(array);
     ASSERT(0 <= numElements);
@@ -159,10 +159,10 @@ static void printArray(const int *array, int numElements)
     printf("]");
 }
 
+/// Return the number of non-zero values in the specified initial
+/// `numElements` of the specified `array`.  The behavior is undefined
+/// unless 0 <= numElements.
 static int countNonZero(const int *array, int numElements)
-    // Return the number of non-zero values in the specified initial
-    // 'numElements' of the specified 'array'.  The behavior is undefined
-    // unless 0 <= numElements.
 {
     ASSERT(array);
     ASSERT(0 <= numElements);
@@ -178,32 +178,33 @@ static int countNonZero(const int *array, int numElements)
 //                         HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// This instrumented test object increments its held counter (provided at
+/// construction) upon destruction, thus indicating that its destructor has
+/// been called.
 class my_Class {
-    // This instrumented test object increments its held counter (provided at
-    // construction) upon destruction, thus indicating that its destructor has
-    // been called.
   private:
     int *d_counter_p; // Counter to be incremented at destruction
 
   public:
     // CREATORS
-    explicit my_Class(int *counter) : d_counter_p(counter) {}
-        // Create this object and initialize it with the address of the
-        // specified 'counter' to be held.
 
+    /// Create this object and initialize it with the address of the
+    /// specified `counter` to be held.
+    explicit my_Class(int *counter) : d_counter_p(counter) {}
+
+    /// Destroy this object.  Also increment this object's counter if it is
+    /// not `null`.
     ~my_Class() { if (d_counter_p) ++*d_counter_p; }
-        // Destroy this object.  Also increment this object's counter if it is
-        // not 'null'.
 };
 
+/// This allocator does *not* actually allocate/deallocate memory.  It
+/// records (in sequence) the memory addresses with which its `deallocate`
+/// method is invoked.  Note that this allocator can only record up to
+/// `MAX_DEALLOCATE_CNT` memory addresses.
 class TestAllocator {
-    // This allocator does *not* actually allocate/deallocate memory.  It
-    // records (in sequence) the memory addresses with which its 'deallocate'
-    // method is invoked.  Note that this allocator can only record up to
-    // 'MAX_DEALLOCATE_CNT' memory addresses.
 
+    /// Maximum number of memory addresses recorded by this allocator.
     enum { MAX_DEALLOCATE_CNT = 1000 };
-        // Maximum number of memory addresses recorded by this allocator.
 
     void *d_deallocatedMemory[MAX_DEALLOCATE_CNT]; // Deallocated memory addr.
     int   d_numDeallocated; // Number of memory addresses deallocated so far
@@ -214,22 +215,24 @@ class TestAllocator {
     ~TestAllocator() {}
 
     // MANIPULATORS
+
+    /// Record the specified `address` in this allocator.  The order of
+    /// addresses stored is undefined.
     void deallocate(void *address);
-        // Record the specified 'address' in this allocator.  The order of
-        // addresses stored is undefined.
 
     // ACCESSORS
+
+    /// Return the memory address stored at the specified `index` in the
+    /// internal array.  The behavior is undefined unless
+    /// index < MAX_DEALLOCATE_CNT.
     void *deallocatedMemory(int index) const;
-        // Return the memory address stored at the specified 'index' in the
-        // internal array.  The behavior is undefined unless
-        // index < MAX_DEALLOCATE_CNT.
 
+    /// Return `true` if the specified `memory` has been recorded by this
+    /// allocator, and `false` otherwise.
     bool isMemoryDeallocated(const void *memory) const;
-        // Return 'true' if the specified 'memory' has been recorded by this
-        // allocator, and 'false' otherwise.
 
+    /// Return the number of memory addresses deallocated by this allocator.
     int numDeallocated() const { return d_numDeallocated; }
-        // Return the number of memory addresses deallocated by this allocator.
 };
 
 TestAllocator::TestAllocator()
@@ -260,11 +263,11 @@ bool TestAllocator::isMemoryDeallocated(const void *memory) const
 
 // my_autodeallocator.h
 
+/// This proctor object automatically deallocates its managed memory
+/// (provided at construction) if its `release` method is not explicitly
+/// invoked.
 template <class ALLOCATOR>
 class my_AutoDeallocator {
-    // This proctor object automatically deallocates its managed memory
-    // (provided at construction) if its 'release' method is not explicitly
-    // invoked.
 
   private:
     void      *d_memory_p;
@@ -306,7 +309,7 @@ class my_Array2 {
     enum {
         INITIAL_SIZE = 1, // initial physical capacity
         GROW_FACTOR = 2   // multiplicative factor by which to grow
-                          // 'd_size'
+                          // `d_size`
     };
 
     static int calculateSufficientSize(int minLength, int size);
@@ -342,12 +345,12 @@ int my_Array2<TYPE>::nextSize(int size)
     return size * GROW_FACTOR;
 }
 
+/// Geometrically grow the specified current `size` value while it is less
+/// than the specified `minLength` value.  Return the new size value.  The
+/// behavior is undefined unless 1 <= size and 0 <= minLength.  Note that
+/// if minLength <= size then `size` is returned.
 template <class TYPE> inline
 int my_Array2<TYPE>::calculateSufficientSize(int minLength, int size)
-    // Geometrically grow the specified current 'size' value while it is less
-    // than the specified 'minLength' value.  Return the new size value.  The
-    // behavior is undefined unless 1 <= size and 0 <= minLength.  Note that
-    // if minLength <= size then 'size' is returned.
 {
     while (size < minLength) {
         size = nextSize(size);
@@ -355,18 +358,18 @@ int my_Array2<TYPE>::calculateSufficientSize(int minLength, int size)
     return size;
 }
 
+/// Reallocate memory in the specified `array` using the specified
+/// `basicAllocator` and update the specified size to the specified
+/// `newSize`.  The specified `length` number of leading elements are
+/// preserved.  If `new` should throw an exception, this function has no
+/// effect.  The behavior is undefined unless 1 <= newSize, 0 <= length,
+/// and newSize <= length.
 template <class TYPE> inline
 void my_Array2<TYPE>::reallocate(TYPE             ***array,
                                  int                *size,
                                  int                 newSize,
                                  int                 length,
                                  bslma::Allocator   *basicAllocator)
-    // Reallocate memory in the specified 'array' using the specified
-    // 'basicAllocator' and update the specified size to the specified
-    // 'newSize'.  The specified 'length' number of leading elements are
-    // preserved.  If 'new' should throw an exception, this function has no
-    // effect.  The behavior is undefined unless 1 <= newSize, 0 <= length,
-    // and newSize <= length.
 {
     TYPE **tmp = *array;
     *array = (TYPE **) basicAllocator->allocate(newSize * sizeof **array);
@@ -439,7 +442,7 @@ void my_Array2<TYPE>::insert(int dstIndex, const my_Array2<TYPE>& srcArray)
                 d_array_p + dstIndex, numShifted * sizeof *d_array_p);
     }
 
-    // Shorten 'd_length' and use auto deleter to proctor tail elements.
+    // Shorten `d_length` and use auto deleter to proctor tail elements.
     d_length = dstIndex;
     bslma::AutoRawDeleter<TYPE, bslma::Allocator>
                      tailDeleter(d_array_p + dstIndex + srcLength,
@@ -500,9 +503,9 @@ void debugprint(const my_Array2<TYPE>& array)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // my_mallocfreeallocator.h
 
+/// This allocator object allocates memory using the global `malloc`
+/// function and deallocates the memory using the global `free` function.
 class my_MallocFreeAllocator : public bslma::Allocator {
-    // This allocator object allocates memory using the global 'malloc'
-    // function and deallocates the memory using the global 'free' function.
 
   private: // not implemented.
     my_MallocFreeAllocator(const my_MallocFreeAllocator&);
@@ -527,8 +530,8 @@ class my_MallocFreeAllocator : public bslma::Allocator {
 
 // my_string.h
 
+/// This is a simple implementation of a string object.
 class my_String {
-    // This is a simple implementation of a string object.
 
     char *d_string_p;
     size_t d_length;
@@ -605,14 +608,14 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
-        //   Create a 'my_Array2' array parameterized with 'my_String' and
-        //   initialized with a 'my_MallocFreeAllocator'.  Invoke its 'append'
+        //   Create a `my_Array2` array parameterized with `my_String` and
+        //   initialized with a `my_MallocFreeAllocator`.  Invoke its `append`
         //   method with varying values and verify that the resulting array
-        //   contains the expected contents.  Create a second 'my_Array2' array
-        //   and append varying values to it.  Invoke its 'insert' method with
+        //   contains the expected contents.  Create a second `my_Array2` array
+        //   and append varying values to it.  Invoke its `insert` method with
         //   the first array as the source array.  Verify that the resulting
-        //   array contains the expected contents.  Create a third 'my_Array2'
-        //   array and append varying values to it.  Invoke its 'insert' method
+        //   array contains the expected contents.  Create a third `my_Array2`
+        //   array and append varying values to it.  Invoke its `insert` method
         //   with itself as the source array.  Verify that the resulting array
         //   contains the expected contents.
         //   Note it is not necessary to independently test all the types used
@@ -629,7 +632,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-        if (verbose) printf("\nTesting 'my_Array2::append'.\n");
+        if (verbose) printf("\nTesting `my_Array2::append`.\n");
 
         const char *DATA[] = { "A", "B", "C", "D", "E" };
         const int NUM_ELEM = sizeof DATA / sizeof *DATA;
@@ -650,7 +653,7 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) printf("\nTesting 'my_Array2::insert'.\n");
+        if (verbose) printf("\nTesting `my_Array2::insert`.\n");
 
         const char *EXP[] = { "A", "B", "A", "B", "C",
                               "D", "E", "C", "D", "E" };
@@ -670,7 +673,7 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) printf("\nTesting 'my_Array2::insert' self.\n");
+        if (verbose) printf("\nTesting `my_Array2::insert` self.\n");
         my_Array2<my_String> mZ(&a);       const my_Array2<my_String>& Z = mZ;
         for (i = 0; i < NUM_ELEM; ++i) {
             my_String s(DATA[i], &a);
@@ -698,13 +701,13 @@ int main(int argc, char *argv[])
         //   one or more proctored elements to null values.
         //
         //   In particular, we construct an array of "null masks" to "mask out"
-        //   corresponding 'my_Class' objects in the proctored array.  The
-        //   (non-'release') test block from case 3 is repeated, but with
-        //   selected elements of the proctored 'myClassArray' set to 0 as per
-        //   the null mask.  The expected ('EXP') values for the integer
-        //   counters (which are incremented by 'my_Class' on destruction) are
+        //   corresponding `my_Class` objects in the proctored array.  The
+        //   (non-`release`) test block from case 3 is repeated, but with
+        //   selected elements of the proctored `myClassArray` set to 0 as per
+        //   the null mask.  The expected (`EXP`) values for the integer
+        //   counters (which are incremented by `my_Class` on destruction) are
         //   logically ANDed with the null mask to ensure the proper results in
-        //   the 'ASSERT' statements.
+        //   the `ASSERT` statements.
         //
         // Testing:
         //   behavior when one or more proctored elements are null
@@ -780,7 +783,7 @@ int main(int argc, char *argv[])
 
         int nullMask[][NUM_ELEM] = {
             // In each array, the value 0 indicates that the corresponding
-            // 'myClassArray' element should be NULL, while the value 1
+            // `myClassArray` element should be NULL, while the value 1
             // indicates that that element should address a properly
             // constructed object.  A small number of test vectors is
             // sufficient, and the test data selection is a bit arbitrary.
@@ -869,23 +872,23 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // CTOR/OPERATORS TEST
         // Concerns:
-        //   That the c'tor and d'tor, operators ++ and --, and the 'release'
+        //   That the c'tor and d'tor, operators ++ and --, and the `release`
         //   method work.
         //
         // Plan:
         //   Iterate over a set of table-generated test vectors and perform
-        //   independent tests.  For each test, create an array of 'my_Class'
+        //   independent tests.  For each test, create an array of `my_Class`
         //   objects and a corresponding array of counters.  Initialize each
-        //   element in the array of 'my_Class' objects with the element in the
+        //   element in the array of `my_Class` objects with the element in the
         //   array of counters at the respective index position.  Create a
-        //   'bslma::AutoRawDeleter' proctor initialized with 'd_origin' and
-        //   'd_proctorLength' as specified in the test vector to manage a
-        //   sequence of 'my_Class' objects.  Also initialize the proctor with
-        //   a 'TestAllocator' object to trace memory deallocation.  Increment
-        //   or decrement the proctor according to 'd_incDec' in the test
+        //   `bslma::AutoRawDeleter` proctor initialized with `d_origin` and
+        //   `d_proctorLength` as specified in the test vector to manage a
+        //   sequence of `my_Class` objects.  Also initialize the proctor with
+        //   a `TestAllocator` object to trace memory deallocation.  Increment
+        //   or decrement the proctor according to `d_incDec` in the test
         //   vector.  Destroy the proctor and verify that the array of counters
         //   contains the expected contents, and that the memory addresses held
-        //   by the deleted (by the proctor) 'my_Class' objects are deallocated
+        //   by the deleted (by the proctor) `my_Class` objects are deallocated
         //   and recorded in the allocator.
         //
         // Testing:
@@ -967,7 +970,7 @@ int main(int argc, char *argv[])
         const int SIZE = sizeof DATA / sizeof *DATA;
 
         if (verbose)
-            printf("\nTesting ctor, 'operator++' and 'operator--'.\n");
+            printf("\nTesting ctor, `operator++` and `operator--`.\n");
 
         for (int i = 0; i < SIZE; ++i) {
             const int   LINE   = DATA[i].d_line;
@@ -1016,7 +1019,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("\nTesting 'reset', 'setLength', and 'length'\n");
+        if (verbose) printf("\nTesting `reset`, `setLength`, and `length`\n");
 
         for (int i = 0; i < SIZE; ++i) {
             const int   LINE   = DATA[i].d_line;
@@ -1072,7 +1075,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("\nTesting 'release'.\n");
+        if (verbose) printf("\nTesting `release`.\n");
 
         for (int i = 0; i < SIZE; ++i) {
             const int   LINE   = DATA[i].d_line;
@@ -1111,7 +1114,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("\nC'tor with 'length' defaulting to 0\n");
+        if (verbose) printf("\nC'tor with `length` defaulting to 0\n");
 
         for (int i = 0; i < SIZE; ++i) {
             const int   LINE   = DATA[i].d_line;
@@ -1147,7 +1150,7 @@ int main(int argc, char *argv[])
         // FILE-STATIC FUNCTIONS TEST
         //
         // Concerns:
-        //   That file-static functions 'areEqual' and 'countNonZero' work.
+        //   That file-static functions `areEqual` and `countNonZero` work.
         //
         // Plan:
         //   For each static function test, iterate over a set of tabulated
@@ -1162,7 +1165,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nFILE-STATIC FUNCTIONS TEST"
                             "\n==========================\n");
 
-        if (verbose) printf("\nTesting 'areEqual'.\n");
+        if (verbose) printf("\nTesting `areEqual`.\n");
         {
             const int SZ = 5;
             struct {
@@ -1198,7 +1201,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("\nTesting 'countNonZero'.\n");
+        if (verbose) printf("\nTesting `countNonZero`.\n");
         {
             const int SZ = 100;   // maximum number of elements in an array
             struct {
@@ -1237,17 +1240,17 @@ int main(int argc, char *argv[])
         // HELPER CLASSES TEST
         //
         // Concerns:
-        //   That testing helper classes 'my_Class' and 'TestAllocator' work.
+        //   That testing helper classes `my_Class` and `TestAllocator` work.
         //
         // Plan:
-        //   For testing 'my_Class', create 'my_Class' objects initialized with
+        //   For testing `my_Class`, create `my_Class` objects initialized with
         //   a *counter* variable.  Verify that the counter is incremented
         //   after each object is destroyed.
-        //   For testing 'TestAllocator', create a 'TestAllocator' object and
-        //   call its 'deallocate' method with varying memory addresses.
-        //   Verify that 'numDeallocated' method returns the expected number of
-        //   times that 'deallocate' has been invoked, and that
-        //   'isMemoryDeallocated' method properly indicates the status of
+        //   For testing `TestAllocator`, create a `TestAllocator` object and
+        //   call its `deallocate` method with varying memory addresses.
+        //   Verify that `numDeallocated` method returns the expected number of
+        //   times that `deallocate` has been invoked, and that
+        //   `isMemoryDeallocated` method properly indicates the status of
         //   whether a memory address has been deallocated and recorded.
         //
         // Testing:
@@ -1263,7 +1266,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nHELPER CLASSES TEST"
                             "\n===================\n");
 
-        if (verbose) printf("\nTesting 'my_Class'.\n");
+        if (verbose) printf("\nTesting `my_Class`.\n");
 
         if (verbose) printf("\tTesting default ctor and dtor.\n");
         {
@@ -1276,7 +1279,7 @@ int main(int argc, char *argv[])
             ASSERT(NUM_TEST == counter);
         }
 
-        if (verbose) printf("\nTesting 'TestAllocator'.\n");
+        if (verbose) printf("\nTesting `TestAllocator`.\n");
 
         const bsls::Types::IntPtr DATA[] = { 1, 10, 100, -1, -100 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;

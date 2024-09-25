@@ -8,9 +8,9 @@
 #include <limits>
 #include <cfloat>
 
-#include <stdio.h>     // 'sprintf', 'snprintf' [NOT '<cstdio>', which does not
-                       // include 'snprintf']
-#include <stdlib.h>    // 'atoi'
+#include <stdio.h>     // `sprintf`, `snprintf` [NOT `<cstdio>`, which does not
+                       // include `snprintf`]
+#include <stdlib.h>    // `atoi`
 
 using namespace BloombergLP;
 
@@ -20,7 +20,7 @@ using namespace BloombergLP;
 //                              Overview
 //                              --------
 // The component under test provides a set of user-defined literal operators
-// that forms a 'bsl::complex' objects having various ranges of values.  This
+// that forms a `bsl::complex` objects having various ranges of values.  This
 // test driver tests each implemented UDL operator.
 //-----------------------------------------------------------------------------
 // FREE OPERATORS
@@ -130,12 +130,12 @@ int main(int argc, char *argv[])
         // TESTING USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters.
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -151,19 +151,19 @@ int main(int argc, char *argv[])
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Basic 'bsl'-complex's UDLs Usage
+///Example 1: Basic `bsl`-complex's UDLs Usage
 /// - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates basic use of user-defined literal operators.
 //
-// First, we provide an access to 'bsl'-complex's UDLs.
+// First, we provide an access to `bsl`-complex's UDLs.
 
         using namespace bsl::complex_literals;
 
-// Then, we construct a 'bsl::complex' object 'z'.
+// Then, we construct a `bsl::complex` object `z`.
 
         auto z = 1.0 + 1_i;
 
-// Finally, stream the magnitude of the complex number 'z' to 'stdout':
+// Finally, stream the magnitude of the complex number `z` to `stdout`:
 
         printf("abs(%.1f,%.1f) = %f\n", z.real(), z.imag(), bsl::abs(z));
 #else
@@ -178,22 +178,22 @@ int main(int argc, char *argv[])
       // TESTING User-defined literal operators
       //
       // Concerns:
-      //: 1 That UDL operators correctly forward arguments to corresponding
-      //:   constructors of the 'bsl::complex<T>' type.
-      //:
-      //: 2 That UDL operators correctly cast the argument's type to the
-      //:   the 'value_type' of the resultant 'bsl::complex<T>' type.
-      //:
-      //: 3 That an access to UDL operators can be gained using either
-      //:   'bsl::literals', 'bsl::complex_literals' or
-      //:   'bsl::literals::complex_literals' namespaces.
+      // 1. That UDL operators correctly forward arguments to corresponding
+      //    constructors of the `bsl::complex<T>` type.
+      //
+      // 2. That UDL operators correctly cast the argument's type to the
+      //    the `value_type` of the resultant `bsl::complex<T>` type.
+      //
+      // 3. That an access to UDL operators can be gained using either
+      //    `bsl::literals`, `bsl::complex_literals` or
+      //    `bsl::literals::complex_literals` namespaces.
       //
       // Plan:
-      //: 1 Verify that all UDL operators create expected 'bsl::complex<T>'
-      //:   type objects having the expected values.
-      //:
-      //: 2 Using table-driven technique test that UDL operators produce the
-      //:   expected 'bsl::complex<T>' objects for the various values.
+      // 1. Verify that all UDL operators create expected `bsl::complex<T>`
+      //    type objects having the expected values.
+      //
+      // 2. Using table-driven technique test that UDL operators produce the
+      //    expected `bsl::complex<T>` objects for the various values.
       //
       // Testing:
       //   bsl::complex<double>      operator "" _i (unsigned long long);

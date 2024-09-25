@@ -33,8 +33,8 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-// A 'balm::MetricId' is a simple in-core value semantic class whose value is
-// the address of a (non-modifiable) 'balm::MetricDescription'.  The class also
+// A `balm::MetricId` is a simple in-core value semantic class whose value is
+// the address of a (non-modifiable) `balm::MetricDescription`.  The class also
 // provides auxiliary accessors for accessing the value of the underlying
 // metric description.
 // ----------------------------------------------------------------------------
@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -166,21 +166,21 @@ int main(int argc, char *argv[])
 
 ///Usage
 ///-----
-// The following example demonstrates how to create and use a 'balm::MetricId'
+// The following example demonstrates how to create and use a `balm::MetricId`
 // object.  We start by creating two metric description objects:
-//..
+// ```
     balm::Category category("MyCategory");
     balm::MetricDescription descriptionA(&category, "MetricA");
     balm::MetricDescription descriptionB(&category, "MetricB");
-//..
-// Now we create three 'balm::MetricId' objects.
-//..
+// ```
+// Now we create three `balm::MetricId` objects.
+// ```
     balm::MetricId invalidId;
     balm::MetricId metricIdA(&descriptionA);
     balm::MetricId metricIdB(&descriptionB);
-//..
+// ```
 // We can access and verify their properties:
-//..
+// ```
     ASSERT(!invalidId.isValid());
     ASSERT( metricIdA.isValid());
     ASSERT( metricIdB.isValid());
@@ -192,30 +192,30 @@ int main(int argc, char *argv[])
     ASSERT(invalidId != metricIdA);
     ASSERT(invalidId != metricIdB);
     ASSERT(metricIdA != metricIdB);
-//..
+// ```
 // We now verify that copies of a metric id have the same value as the
 // original.
-//..
+// ```
     balm::MetricId copyMetricIdA(metricIdA);
 
     ASSERT(metricIdA == copyMetricIdA);
-//..
-// Note that two 'balm::MetricId' objects that have different
-// 'balm::MetricDescription' object addresses are *not* equal, *even* if the
+// ```
+// Note that two `balm::MetricId` objects that have different
+// `balm::MetricDescription` object addresses are *not* equal, *even* if the
 // descriptions have the same name and category.
-//..
+// ```
     balm::MetricDescription newDescriptionB(&category, "MetricB");
     balm::MetricId          differentIdB(&newDescriptionB);
 
     ASSERT(0 == bsl::strcmp(differentIdB.metricName(),metricIdB.metricName()));
     ASSERT(differentIdB.category() == metricIdB.category());
 
-    ASSERT(metricIdB != differentIdB);   // The 'balm::MetricDescription'
+    ASSERT(metricIdB != differentIdB);   // The `balm::MetricDescription`
                                          // object addresses are not equal!
     } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING LESS OPERATOR: 'operator<'
+        // TESTING LESS OPERATOR: `operator<`
         //
         // Concerns:
         //   The less-than operator properly compares to ids
@@ -223,12 +223,12 @@ int main(int argc, char *argv[])
         // Plan:
         //   For each of a small representative set of object values, use
         //   the less than operator to compare the values.  Test the values
-        //   match 'description() < description()'.
+        //   match `description() < description()`.
         //
         // Testing:
         // bool operator<(const balm::MetricId&, const balm::MetricId&);
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTesting 'operator<'" << endl;
+        if (verbose) cout << "\nTesting `operator<`" << endl;
 
         struct {
             const Desc* d_description;
@@ -267,7 +267,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   For each of a small representative set of object values, use
-        //   'ostrstream' to write that object's value to a character buffer
+        //   `ostrstream` to write that object's value to a character buffer
         //   and then compare the contents of that buffer with the expected
         //   output format.
         //
@@ -313,7 +313,7 @@ int main(int argc, char *argv[])
         // TESTING ACCESSORS: metricName()
         //
         // Concerns:
-        //   'metricName()' returns 'description()->metricName()'..
+        //   `metricName()` returns `description()->metricName()`..
         //
         // Plan:
         //   Specify a set S of (unique) objects with substantial and varied
@@ -324,7 +324,7 @@ int main(int argc, char *argv[])
         //   const char *metricName() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\tTesting 'metricName'." << endl;
+        if (verbose) cout << "\tTesting `metricName`." << endl;
 
         struct {
             const Desc* d_description;
@@ -350,12 +350,12 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING ACCESSORS: category(), categoryName(), and 'metricName()'
+        // TESTING ACCESSORS: category(), categoryName(), and `metricName()`
         //
         // Concerns:
-        //   'category()' returns the 'balm::Category' address of the
-        //   'balm::MetricDescription' object underlying a 'balm::MetricId',
-        //   and 'categoryName()' returns 'category()->categoryName()'.
+        //   `category()` returns the `balm::Category` address of the
+        //   `balm::MetricDescription` object underlying a `balm::MetricId`,
+        //   and `categoryName()` returns `category()->categoryName()`.
         //
         // Plan:
         //   Specify a set S of (unique) objects with substantial and varied
@@ -367,7 +367,7 @@ int main(int argc, char *argv[])
         //   const char *categoryName() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\tTesting 'category' and 'categoryName'."
+        if (verbose) cout << "\tTesting `category` and `categoryName`."
                           << endl;
 
         struct {
@@ -517,15 +517,15 @@ int main(int argc, char *argv[])
         //   equality operators are invoked.
         //
         //   This test must verify comparisons are made on the *address* of
-        //   the underlying 'description()' (not the value).
+        //   the underlying `description()` (not the value).
         //
         // Plan:
         //   Specify a set S of unique object values having various minor or
-        //   subtle differences.  Verify the correctness of 'operator==' and
-        //   'operator!=' using all elements (u, v) of the cross product
+        //   subtle differences.  Verify the correctness of `operator==` and
+        //   `operator!=` using all elements (u, v) of the cross product
         //    S X S.
         //
-        //   Use different addresses to the same 'balm::MetricDescription'
+        //   Use different addresses to the same `balm::MetricDescription`
         //   value to verify comparisons are made by address (rather than by
         //   value).
         //
@@ -696,10 +696,10 @@ int main(int argc, char *argv[])
         //   operation of the following methods and operators:
         //      - default and copy constructors (and also the destructor)
         //      - the assignment operator (including aliasing)
-        //      - equality operators: 'operator==()' and 'operator!=()'
-        //      - the (test-driver supplied) output operator: 'operator<<()'
-        //      - primary manipulators: 'push_back' and 'clear' methods
-        //      - basic accessors: 'size' and 'operator[]()'
+        //      - equality operators: `operator==()` and `operator!=()`
+        //      - the (test-driver supplied) output operator: `operator<<()`
+        //      - primary manipulators: `push_back` and `clear` methods
+        //      - basic accessors: `size` and `operator[]()`
         //   In addition we would like to exercise objects with potentially
         //   different internal organizations representing the same value.
         //

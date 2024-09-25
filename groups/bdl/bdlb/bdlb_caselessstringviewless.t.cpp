@@ -32,19 +32,19 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// 'bdlb::CaselessStringViewLess' provides a stateless type and thus very
+// `bdlb::CaselessStringViewLess` provides a stateless type and thus very
 // little to test.  The primary concern is that function call operator compares
 // string views correctly.  CREATORS can be tested only for mechanical
 // functioning.  And BSL traits presence should be checked as we declare that
-// 'bdlb::CaselessStringViewLess' is an empty POD.
+// `bdlb::CaselessStringViewLess` is an empty POD.
 //
 // The tests for this component are table based, i.e., testing actual results
 // against a table of expected results.
 //
 // Global Concerns:
-//: o No memory is ever allocated from the global allocator.
-//: o No memory is ever allocated from the default allocator.
-//: o Precondition violations are detected in appropriate build modes.
+//  - No memory is ever allocated from the global allocator.
+//  - No memory is ever allocated from the default allocator.
+//  - Precondition violations are detected in appropriate build modes.
 // ----------------------------------------------------------------------------
 // [ 3] operator()(bsl::string_view, bsl::string_view) const;
 // [ 2] Obj();
@@ -103,9 +103,9 @@ typedef bdlb::CaselessStringViewLess Obj;
 namespace {
 namespace u {
 
+/// If the character pointed at by the specified `pc` is upper or lower
+/// case, toggle the case of the character.
 void toggleCase(char *pc)
-    // If the character pointed at by the specified 'pc' is upper or lower
-    // case, toggle the case of the character.
 {
     if (bdlb::CharType::isUpper(*pc)) {
         *pc = bdlb::CharType::toLower(*pc);
@@ -115,19 +115,19 @@ void toggleCase(char *pc)
     }
 }
 
+/// Random number generator using the high-order 32 bits of Donald Knuth's
+/// MMIX algorithm.
 class RandGen {
-    // Random number generator using the high-order 32 bits of Donald Knuth's
-    // MMIX algorithm.
 
     bsls::Types::Uint64 d_seed;
 
   public:
+    /// Default-construct the generator.
     explicit
     RandGen();
-        // Default-construct the generator.
 
+    /// Return the next random number in the series;
     unsigned operator()();
-        // Return the next random number in the series;
 };
 
 // CREATOR
@@ -225,13 +225,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -243,29 +243,29 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'bdlb::CaselessStringViewLess'
+///Example 1: Basic Use of `bdlb::CaselessStringViewLess`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we need a container to store set of unique strings.  The following
-// code illustrates how to use 'bdlb::CaselessStringViewLess' as a comparator
-// for the standard container 'set', to create a set of unique case-insensitive
+// code illustrates how to use `bdlb::CaselessStringViewLess` as a comparator
+// for the standard container `set`, to create a set of unique case-insensitive
 // string values.
 //
 // First, we create several strings:
-//..
+// ```
     const bsl::string newYork        = "NY";
     const bsl::string losAngeles     = "LA";
     const bsl::string newJersey      = "NJ";
     const bsl::string sanFrancisco   = "SF";
     const bsl::string anotherNewYork = "ny";
-//..
+// ```
 // Next, we create two containers, one with default comparator and another
-// using 'bdlb::CstringLess' as a comparator:
-//..
+// using `bdlb::CstringLess` as a comparator:
+// ```
     bsl::set<bsl::string>                               caseSensitiveSet;
     bsl::set<bsl::string, bdlb::CaselessStringViewLess> caseInsensitiveSet;
-//..
+// ```
 // Then, we fill containers with the same contents:
-//..
+// ```
     caseSensitiveSet.insert(newYork);
     caseSensitiveSet.insert(losAngeles);
     caseSensitiveSet.insert(newJersey);
@@ -277,16 +277,16 @@ int main(int argc, char *argv[])
     caseInsensitiveSet.insert(newJersey);
     caseInsensitiveSet.insert(sanFrancisco);
     caseInsensitiveSet.insert(anotherNewYork);
-//..
-// Next, we observe that the container created with 'CaselessStringViewLess'
-// ('caseInsensitiveSet') contains the correct number of unique string values
+// ```
+// Next, we observe that the container created with `CaselessStringViewLess`
+// (`caseInsensitiveSet`) contains the correct number of unique string values
 // (4), while the container using the default comparator does not:
-//..
+// ```
     ASSERT(5 == caseSensitiveSet.size());
     ASSERT(4 == caseInsensitiveSet.size());
-//..
+// ```
 // Now, we observe the members of the case-sensitive set:
-//..
+// ```
     ASSERT( caseSensitiveSet.count("NY"));
     ASSERT(!caseSensitiveSet.count("nY"));
     ASSERT(!caseSensitiveSet.count("Ny"));
@@ -296,10 +296,10 @@ int main(int argc, char *argv[])
     ASSERT(!caseSensitiveSet.count("sF"));
     ASSERT(!caseSensitiveSet.count("Sf"));
     ASSERT(!caseSensitiveSet.count("sf"));
-//..
+// ```
 // Finally, we observe that we can do case-insensitive access to
-// 'caseInsensiveSet':
-//..
+// `caseInsensiveSet`:
+// ```
     ASSERT( caseInsensitiveSet.count("NY"));
     ASSERT( caseInsensitiveSet.count("nY"));
     ASSERT( caseInsensitiveSet.count("Ny"));
@@ -324,43 +324,43 @@ int main(int argc, char *argv[])
     ASSERT(!caseInsensitiveSet.count("gA"));
     ASSERT(!caseInsensitiveSet.count("Ga"));
     ASSERT(!caseInsensitiveSet.count("ga"));
-//..
+// ```
       } break;
       case 3: {
         // --------------------------------------------------------------------
         // FUNCTION CALL OPERATOR
         //
         // Concerns:
-        //: 1 Objects of type 'bdlb::CaselessStringViewLess' can be invoked as
-        //:   a binary predicate returning 'bool' and taking two
-        //:   'bsl::string_view' arguments.
-        //:
-        //: 2 The function call operator can be invoked on constant objects.
-        //:
-        //: 3 The function call returns 'true' or 'false' indicating whether
-        //:   the two supplied string arguments are supplied in lexical order.
-        //:
-        //: 4 No memory is allocated from the default allocator.
+        // 1. Objects of type `bdlb::CaselessStringViewLess` can be invoked as
+        //    a binary predicate returning `bool` and taking two
+        //    `bsl::string_view` arguments.
+        //
+        // 2. The function call operator can be invoked on constant objects.
+        //
+        // 3. The function call returns `true` or `false` indicating whether
+        //    the two supplied string arguments are supplied in lexical order.
+        //
+        // 4. No memory is allocated from the default allocator.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of 'bsl::string's
-        //:   for comparison.
-        //:
-        //: 2 Iterate 'LHS' through the set of strings in the table.
-        //:
-        //: 3 In a nested loop, iterate 'rhs' through the set of strings in
-        //:   the table, and 'const bsl::string& RHS = rhs':
-        //:   o Iterate several times.
-        //:     1 Compare 'LHS' to 'rhs' with 'CaselessStringViewEqualTo' and
-        //:       observe that we get 'true' only when both loops are on the
-        //:       same line.
-        //:
-        //:     2 Randomly perturb the case of one character of 'rhs'.
-        //:
-        //: 4 Conduct some tests on a default-constructed string view.
-        //:
-        //: 5 Verify that no memory have been allocated from the default
-        //:   allocator.  (C-4)
+        // 1. Using the table-driven technique, specify a set of `bsl::string`s
+        //    for comparison.
+        //
+        // 2. Iterate `LHS` through the set of strings in the table.
+        //
+        // 3. In a nested loop, iterate `rhs` through the set of strings in
+        //    the table, and `const bsl::string& RHS = rhs`:
+        //    - Iterate several times.
+        //     1. Compare `LHS` to `rhs` with `CaselessStringViewEqualTo` and
+        //        observe that we get `true` only when both loops are on the
+        //        same line.
+        //
+        //     2. Randomly perturb the case of one character of `rhs`.
+        //
+        // 4. Conduct some tests on a default-constructed string view.
+        //
+        // 5. Verify that no memory have been allocated from the default
+        //    allocator.  (C-4)
         //
         // Testing:
         //   operator()(bsl::string_view, bsl::string_view) const;
@@ -430,7 +430,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINEI, LINEJ, LHS, rhs, EXP, tk,
                                                        EXP == Obj()(LHS, RHS));
 
-                    // toggle the case of one character of 'rhs', chosen at
+                    // toggle the case of one character of `rhs`, chosen at
                     // random
 
                     if (!rhs.empty()) {
@@ -482,42 +482,42 @@ int main(int argc, char *argv[])
         //   expected expressions all compile.
         //
         // Concerns:
-        //: 1 Objects can be created using the default constructor.
-        //:
-        //: 2 Objects can be created using the copy constructor.
-        //:
-        //: 3 The copy constructor is not declared as explicit.
-        //:
-        //: 4 Objects can be assigned to from constant objects.
-        //:
-        //: 5 Assignments operations can be chained.
-        //:
-        //: 6 Objects can be destroyed.
-        //:
-        //: 7 No memory is allocated by the default allocator.
+        // 1. Objects can be created using the default constructor.
+        //
+        // 2. Objects can be created using the copy constructor.
+        //
+        // 3. The copy constructor is not declared as explicit.
+        //
+        // 4. Objects can be assigned to from constant objects.
+        //
+        // 5. Assignments operations can be chained.
+        //
+        // 6. Objects can be destroyed.
+        //
+        // 7. No memory is allocated by the default allocator.
         //
         // Plan:
-        //: 1 Verify the default constructor exists and is publicly accessible
-        //:   by default-constructing a 'const bdlb::CaselessStringViewLess'
-        //:   object.  (C-1)
-        //:
-        //: 2 Verify the copy constructor is publicly accessible and not
-        //:   'explicit' by using the copy-initialization syntax to create a
-        //:   second 'bdlb::CaselessStringViewLess' from the first.  (C-2..3)
-        //:
-        //: 3 Assign the value of the first ('const') object to the second.
-        //:   (C-4)
-        //:
-        //: 4 Chain the assignment of the value of the first ('const') object
-        //:   to the second, into a self-assignment of the second object to
-        //:   itself.  (C-5)
-        //:
-        //: 5 Verify the destructor is publicly accessible by allowing the two
-        //:   'bdlb::CaselessStringViewLess' object to leave scope and be
-        //:   destroyed.  (C-6)
-        //:
-        //: 6 Verify that no memory have been allocated from the default
-        //:   allocator.  (C-7)
+        // 1. Verify the default constructor exists and is publicly accessible
+        //    by default-constructing a `const bdlb::CaselessStringViewLess`
+        //    object.  (C-1)
+        //
+        // 2. Verify the copy constructor is publicly accessible and not
+        //    `explicit` by using the copy-initialization syntax to create a
+        //    second `bdlb::CaselessStringViewLess` from the first.  (C-2..3)
+        //
+        // 3. Assign the value of the first (`const`) object to the second.
+        //    (C-4)
+        //
+        // 4. Chain the assignment of the value of the first (`const`) object
+        //    to the second, into a self-assignment of the second object to
+        //    itself.  (C-5)
+        //
+        // 5. Verify the destructor is publicly accessible by allowing the two
+        //    `bdlb::CaselessStringViewLess` object to leave scope and be
+        //    destroyed.  (C-6)
+        //
+        // 6. Verify that no memory have been allocated from the default
+        //    allocator.  (C-7)
         //
         // Testing:
         //   Obj();
@@ -556,17 +556,17 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an object 'less' using the default ctor.
-        //:
-        //: 2 Call the 'less' functor with two string literals in lexical
-        //:   order.
-        //:
-        //: 3 Call the 'less' functor with two string literals in reverse
-        //:   lexical order.
+        // 1. Create an object `less` using the default ctor.
+        //
+        // 2. Call the `less` functor with two string literals in lexical
+        //    order.
+        //
+        // 3. Call the `less` functor with two string literals in reverse
+        //    lexical order.
         //
         // Testing:
         //   BREATHING TEST

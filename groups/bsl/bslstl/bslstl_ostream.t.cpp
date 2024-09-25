@@ -9,7 +9,7 @@
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>
-#include <stdlib.h>  // 'atoi'
+#include <stdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -19,9 +19,9 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test mostly just imports 'std' names to the 'bsl'.  The
-// exceptions at the moment are the 'emit_on_flush', 'noemit_on_flush', and
-// 'flush_emit' manipulators.  They has been available only since C++20 but we
+// The component under test mostly just imports `std` names to the `bsl`.  The
+// exceptions at the moment are the `emit_on_flush`, `noemit_on_flush`, and
+// `flush_emit` manipulators.  They has been available only since C++20 but we
 // provide it as an extension to C++03 mode as well.
 // ----------------------------------------------------------------------------
 // [ 1] basic_ostream& emit_on_flush(basic_ostream& os);
@@ -127,25 +127,25 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'osyncstream' MANIPULATORS
+        // TESTING `osyncstream` MANIPULATORS
         //
         // Concerns:
-        //: 1 The 'emit_on_flush' manipulator calls 'set_emit_on_sync(true)'
-        //:   when applied to 'osyncstream'.
-        //:
-        //: 2 The 'noemit_on_flush' manipulator calls 'set_emit_on_sync(false)'
-        //:   when applied to 'osyncstream'.
-        //:
-        //: 3 The 'flush_emit' manipulator flushes the content of 'syncbuf'.
+        // 1. The `emit_on_flush` manipulator calls `set_emit_on_sync(true)`
+        //    when applied to `osyncstream`.
+        //
+        // 2. The `noemit_on_flush` manipulator calls `set_emit_on_sync(false)`
+        //    when applied to `osyncstream`.
+        //
+        // 3. The `flush_emit` manipulator flushes the content of `syncbuf`.
         //
         // Plan:
-        //: 1 Since there is no accessor to check "emit-on-sync" flag, the
-        //:   'flush' call will be used instead.  The pending output is flushed
-        //:   on the 'flush' ('sync') call only if "emit-on-sync" flag is
-        //:   'true'.  Verify this for both values of "emit-on-sync".
-        //:
-        //: 2 Write to 'osyncstream' then apply the 'flush_emit' manipulator.
-        //:   Verify that all the output is flushed to the wrapped 'streambuf'.
+        // 1. Since there is no accessor to check "emit-on-sync" flag, the
+        //    `flush` call will be used instead.  The pending output is flushed
+        //    on the `flush` (`sync`) call only if "emit-on-sync" flag is
+        //    `true`.  Verify this for both values of "emit-on-sync".
+        //
+        // 2. Write to `osyncstream` then apply the `flush_emit` manipulator.
+        //    Verify that all the output is flushed to the wrapped `streambuf`.
         //
         // Testing:
         //   basic_ostream& emit_on_flush(basic_ostream& os);
@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
         //   basic_ostream& flush_emit(basic_ostream& os);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'osyncstream' MANIPULATORS"
+        if (verbose) printf("\nTESTING `osyncstream` MANIPULATORS"
                             "\n==================================\n");
 
         stringbuf wrapped;

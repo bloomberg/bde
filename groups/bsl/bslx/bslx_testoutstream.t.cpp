@@ -26,7 +26,7 @@ using namespace bslx;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// We are testing a "test" implementation of the BDEX 'OutStream' protocol.
+// We are testing a "test" implementation of the BDEX `OutStream` protocol.
 // This implementation inserts additional "informational data" into the output
 // stream to identify the type (and size, for arrays) of the externalized
 // values.
@@ -169,7 +169,7 @@ void debugprint(const TestOutStream& object)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-// Type codes from 'bslx::TypeCode' as bytes in string representation
+// Type codes from `bslx::TypeCode` as bytes in string representation
 #define INT8_TC    "\xe0"
 #define UINT8_TC   "\xe1"
 #define INT16_TC   "\xe2"
@@ -243,14 +243,14 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -265,25 +265,25 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Basic Externalization
 ///- - - - - - - - - - - - - - - -
-// A 'bslx::TestOutStream' can be used to externalize values in a
-// platform-neutral way.  Writing out fundamental C++ types and 'bsl::string'
+// A `bslx::TestOutStream` can be used to externalize values in a
+// platform-neutral way.  Writing out fundamental C++ types and `bsl::string`
 // requires no additional work on the part of the client; the client can simply
 // use the stream directly.  The following code serializes a few representative
-// values using a 'bslx::TestOutStream', compares the contents of this stream
+// values using a `bslx::TestOutStream`, compares the contents of this stream
 // to the expected value, and then writes the contents of this stream's buffer
-// to 'stdout'.
+// to `stdout`.
 //
-// First, we create a 'bslx::TestOutStream' with an arbitrary value for its
-// 'versionSelector' and externalize some values:
-//..
+// First, we create a `bslx::TestOutStream` with an arbitrary value for its
+// `versionSelector` and externalize some values:
+// ```
     bslx::TestOutStream outStream(20131127);
     outStream.putInt32(1);
     outStream.putInt32(2);
     outStream.putInt8('c');
     outStream.putString(bsl::string("hello"));
-//..
+// ```
 // Then, we compare the contents of the stream to the expected value:
-//..
+// ```
     const char  *theChars = outStream.data();
     bsl::size_t  length   = outStream.length();
     ASSERT(24 == length);
@@ -291,9 +291,9 @@ int main(int argc, char *argv[])
                              "\xE6\x00\x00\x00\x01\xE6\x00\x00\x00\x02\xE0"
                                         "c\xE0\x05\xE1\x00\x00\x00\x05""hello",
                              length));
-//..
-// Finally, we print the stream's contents to 'bsl::cout'.
-//..
+// ```
+// Finally, we print the stream's contents to `bsl::cout`.
+// ```
     if (veryVerbose)
     for (bsl::size_t i = 0; i < length; ++i) {
         if(bsl::isalnum(static_cast<unsigned char>(theChars[i]))) {
@@ -305,9 +305,9 @@ int main(int argc, char *argv[])
                       << bsl::endl;
         }
     }
-//..
+// ```
 // Executing the above code results in the following output:
-//..
+// ```
 //  nextByte (int): -26
 //  nextByte (int): 0
 //  nextByte (int): 0
@@ -328,31 +328,31 @@ int main(int argc, char *argv[])
 //  nextByte (char): l
 //  nextByte (char): l
 //  nextByte (char): o
-//..
+// ```
 // Note the negative numeric values indicate the "type" of the data that
-// follows (see 'bslx_typecode').
+// follows (see `bslx_typecode`).
 //
-// See the 'bslx_testinstream' component usage example for a more practical
+// See the `bslx_testinstream` component usage example for a more practical
 // example of using this test output stream.
 
       } break;
       case 27: {
         // --------------------------------------------------------------------
         // EXTERNALIZATION FREE OPERATOR
-        //   Verify 'operator<<' works correctly.
+        //   Verify `operator<<` works correctly.
         //
         // Concerns:
-        //: 1 The method inline-forwards to the implementation correctly.
-        //:
-        //: 2 Invocations of the method can be chained.
+        // 1. The method inline-forwards to the implementation correctly.
+        //
+        // 2. Invocations of the method can be chained.
         //
         // Plan:
-        //: 1 Externalize a set of values and ensure the resultant buffer
-        //:   matches the one produced by the oracle implementation (the one
-        //:   forwarded to).  (C-1)
-        //:
-        //: 2 Externalize a set of values to the stream in one code line.
-        //:   (C-2)
+        // 1. Externalize a set of values and ensure the resultant buffer
+        //    matches the one produced by the oracle implementation (the one
+        //    forwarded to).  (C-1)
+        //
+        // 2. Externalize a set of values to the stream in one code line.
+        //    (C-2)
         //
         // Testing:
         //   TestOutStream& operator<<(TestOutStream&, const TYPE& value);
@@ -421,18 +421,18 @@ int main(int argc, char *argv[])
         //   Verify the method externalizes the expected bytes.
         //
         // Concerns:
-        //: 1 The method externalizes the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 'makeNextInvalid' works correctly with this method.
+        // 1. The method externalizes the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. `makeNextInvalid` works correctly with this method.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify results when using 'makeNextInvalid' before invoking this
-        //:   method.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify results when using `makeNextInvalid` before invoking this
+        //    method.  (C-3)
         //
         // Testing:
         //   putString(const bsl::string& value);
@@ -443,7 +443,7 @@ int main(int argc, char *argv[])
                           << "===============" << endl;
 
 
-        if (verbose) cout << "\nTesting 'putString'." << endl;
+        if (verbose) cout << "\nTesting `putString`." << endl;
         {
             const bsl::string DATA = "hello";
 
@@ -480,7 +480,7 @@ int main(int argc, char *argv[])
             mX.reset();
             ASSERT(&mX == &mX.putString(DATA));
         }
-        if (verbose) cout << "\nTesting 'putString' with 'makeNextInvalid'."
+        if (verbose) cout << "\nTesting `putString` with `makeNextInvalid`."
                           << endl;
         {
             const bsl::string DATA = "hello";
@@ -514,22 +514,22 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 'makeNextInvalid' works correctly with these methods.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. `makeNextInvalid` works correctly with these methods.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify results when using 'makeNextInvalid' before invoking these
-        //:   methods.  (C-3)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify results when using `makeNextInvalid` before invoking these
+        //    methods.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putLength(int length);
@@ -543,7 +543,7 @@ int main(int argc, char *argv[])
         }
         {
             if (verbose) {
-                cout << "\nTesting 'putLength'." << endl;
+                cout << "\nTesting `putLength`." << endl;
             }
             {
                 Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -580,7 +580,7 @@ int main(int argc, char *argv[])
             }
 
             if (verbose)
-                cout << "\nTesting 'putLength' w/ 'makeNextInvalid'." << endl;
+                cout << "\nTesting `putLength` w/ `makeNextInvalid`." << endl;
             {
                 Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
                 mX.makeNextInvalid();
@@ -605,7 +605,7 @@ int main(int argc, char *argv[])
             const int SIZE = SIZEOF_INT8;
 
             if (verbose) {
-                cout << "\nTesting 'putVersion'." << endl;
+                cout << "\nTesting `putVersion`." << endl;
             }
             {
                 Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -642,7 +642,7 @@ int main(int argc, char *argv[])
             }
 
             if (verbose)
-                cout << "\nTesting 'putVersion' w/ 'makeNextInvalid'." << endl;
+                cout << "\nTesting `putVersion` w/ `makeNextInvalid`." << endl;
             {
                 Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
                 ASSERT(0 == X.length());
@@ -681,22 +681,22 @@ int main(int argc, char *argv[])
         //   Verify the method externalizes the expected bytes.
         //
         // Concerns:
-        //: 1 The method externalizes the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 'makeNextInvalid' works correctly with this method.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The method externalizes the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. `makeNextInvalid` works correctly with this method.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify results when using 'makeNextInvalid' before invoking these
-        //:   methods.  (C-3)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify results when using `makeNextInvalid` before invoking these
+        //    methods.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putArrayFloat64(const double *values, int numValues);
@@ -711,7 +711,7 @@ int main(int argc, char *argv[])
         const int SIZE = SIZEOF_FLOAT64;
 
         if (verbose) {
-            cout << "\nTesting 'putArrayFloat64'." << endl;
+            cout << "\nTesting `putArrayFloat64`." << endl;
         }
         {
             const double DATA[] = {1, 2, 3};
@@ -755,7 +755,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putArrayFloat64' w/ 'makeNextInvalid'." <<endl;
+            cout << "\nTesting `putArrayFloat64` w/ `makeNextInvalid`." <<endl;
         }
         {
             const double DATA[] = {1, 2, 3};
@@ -802,22 +802,22 @@ int main(int argc, char *argv[])
         //   Verify the method externalizes the expected bytes.
         //
         // Concerns:
-        //: 1 The method externalizes the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 'makeNextInvalid' works correctly with this method.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The method externalizes the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. `makeNextInvalid` works correctly with this method.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes
-        //:   (C-1..2)
-        //:
-        //: 2 Verify results when using 'makeNextInvalid' before invoking these
-        //:   methods.  (C-3)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Externalize values at different offsets and verify the bytes
+        //    (C-1..2)
+        //
+        // 2. Verify results when using `makeNextInvalid` before invoking these
+        //    methods.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putArrayFloat32(const float *values, int numValues);
@@ -832,7 +832,7 @@ int main(int argc, char *argv[])
         const int SIZE = SIZEOF_FLOAT32;
 
         if (verbose) {
-            cout << "\nTesting 'putArrayFloat32'." << endl;
+            cout << "\nTesting `putArrayFloat32`." << endl;
         }
         {
             const float DATA[] = {1, 2, 3};
@@ -876,7 +876,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putArrayFloat32' w/ 'makeNextInvalid'." <<endl;
+            cout << "\nTesting `putArrayFloat32` w/ `makeNextInvalid`." <<endl;
         }
         {
             const float DATA[] = {1, 2, 3};
@@ -923,22 +923,22 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 'makeNextInvalid' works correctly with these methods.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. `makeNextInvalid` works correctly with these methods.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify results when using 'makeNextInvalid' before invoking these
-        //:   methods.  (C-3)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify results when using `makeNextInvalid` before invoking these
+        //    methods.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putArrayInt64(const bsls::Types::Int64 *values, int numValues);
@@ -954,7 +954,7 @@ int main(int argc, char *argv[])
         const int SIZE = SIZEOF_INT64;
 
         if (verbose) {
-            cout << "\nTesting 'putArrayInt64'." << endl;
+            cout << "\nTesting `putArrayInt64`." << endl;
         }
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
@@ -998,7 +998,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putArrayInt64' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putArrayInt64` w/ `makeNextInvalid`." << endl;
         }
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
@@ -1028,7 +1028,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "\nTesting 'putArrayUint64'." << endl;
+            cout << "\nTesting `putArrayUint64`." << endl;
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
@@ -1072,7 +1072,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putArrayUint64' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putArrayUint64` w/ `makeNextInvalid`." << endl;
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
@@ -1130,22 +1130,22 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 'makeNextInvalid' works correctly with these methods.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. `makeNextInvalid` works correctly with these methods.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify results when using 'makeNextInvalid' before invoking these
-        //:   methods.  (C-3)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify results when using `makeNextInvalid` before invoking these
+        //    methods.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putArrayInt56(const bsls::Types::Int64 *values, int numValues);
@@ -1161,7 +1161,7 @@ int main(int argc, char *argv[])
         const int SIZE = SIZEOF_INT56;
 
         if (verbose) {
-            cout << "\nTesting 'putArrayInt56'." << endl;
+            cout << "\nTesting `putArrayInt56`." << endl;
         }
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
@@ -1205,7 +1205,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putArrayInt56' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putArrayInt56` w/ `makeNextInvalid`." << endl;
         }
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
@@ -1235,7 +1235,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "\nTesting 'putArrayUint56'." << endl;
+            cout << "\nTesting `putArrayUint56`." << endl;
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
@@ -1279,7 +1279,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putArrayUint56' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putArrayUint56` w/ `makeNextInvalid`." << endl;
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
@@ -1337,22 +1337,22 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 'makeNextInvalid' works correctly with these methods.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. `makeNextInvalid` works correctly with these methods.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify results when using 'makeNextInvalid' before invoking these
-        //:   methods.  (C-3)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify results when using `makeNextInvalid` before invoking these
+        //    methods.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putArrayInt48(const bsls::Types::Int64 *values, int numValues);
@@ -1368,7 +1368,7 @@ int main(int argc, char *argv[])
         const int SIZE = SIZEOF_INT48;
 
         if (verbose) {
-            cout << "\nTesting 'putArrayInt48'." << endl;
+            cout << "\nTesting `putArrayInt48`." << endl;
         }
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
@@ -1412,7 +1412,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putArrayInt48' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putArrayInt48` w/ `makeNextInvalid`." << endl;
         }
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
@@ -1442,7 +1442,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "\nTesting 'putArrayUint48'." << endl;
+            cout << "\nTesting `putArrayUint48`." << endl;
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
@@ -1486,7 +1486,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putArrayUint48' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putArrayUint48` w/ `makeNextInvalid`." << endl;
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
@@ -1544,22 +1544,22 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 'makeNextInvalid' works correctly with these methods.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. `makeNextInvalid` works correctly with these methods.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify results when using 'makeNextInvalid' before invoking these
-        //:   methods.  (C-3)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify results when using `makeNextInvalid` before invoking these
+        //    methods.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putArrayInt40(const bsls::Types::Int64 *values, int numValues);
@@ -1575,7 +1575,7 @@ int main(int argc, char *argv[])
         const int SIZE = SIZEOF_INT40;
 
         if (verbose) {
-            cout << "\nTesting 'putArrayInt40'." << endl;
+            cout << "\nTesting `putArrayInt40`." << endl;
         }
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
@@ -1619,7 +1619,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putArrayInt40' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putArrayInt40` w/ `makeNextInvalid`." << endl;
         }
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
@@ -1649,7 +1649,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "\nTesting 'putArrayUint40'." << endl;
+            cout << "\nTesting `putArrayUint40`." << endl;
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
@@ -1693,7 +1693,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putArrayUint40' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putArrayUint40` w/ `makeNextInvalid`." << endl;
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
@@ -1751,22 +1751,22 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 'makeNextInvalid' works correctly with these methods.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. `makeNextInvalid` works correctly with these methods.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify results when using 'makeNextInvalid' before invoking these
-        //:   methods.  (C-3)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify results when using `makeNextInvalid` before invoking these
+        //    methods.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putArrayInt32(const int *values, int numValues);
@@ -1782,7 +1782,7 @@ int main(int argc, char *argv[])
         const int SIZE = SIZEOF_INT32;
 
         if (verbose) {
-            cout << "\nTesting 'putArrayInt32'." << endl;
+            cout << "\nTesting `putArrayInt32`." << endl;
         }
         {
             const int DATA[] = {1, 2, 3};
@@ -1826,7 +1826,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putArrayInt32' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putArrayInt32` w/ `makeNextInvalid`." << endl;
         }
         {
             const int DATA[] = {1, 2, 3};
@@ -1856,7 +1856,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "\nTesting 'putArrayUint32'." << endl;
+            cout << "\nTesting `putArrayUint32`." << endl;
         }
         {
             const unsigned int DATA[] = {1, 2, 3};
@@ -1900,7 +1900,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putArrayUint32' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putArrayUint32` w/ `makeNextInvalid`." << endl;
         }
         {
             const unsigned int DATA[] = {1, 2, 3};
@@ -1958,22 +1958,22 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 'makeNextInvalid' works correctly with these methods.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. `makeNextInvalid` works correctly with these methods.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify results when using 'makeNextInvalid' before invoking these
-        //:   methods.  (C-3)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify results when using `makeNextInvalid` before invoking these
+        //    methods.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putArrayInt24(const int *values, int numValues);
@@ -1989,7 +1989,7 @@ int main(int argc, char *argv[])
         const int SIZE = SIZEOF_INT24;
 
         if (verbose) {
-            cout << "\nTesting 'putArrayInt24'." << endl;
+            cout << "\nTesting `putArrayInt24`." << endl;
         }
         {
             const int DATA[] = {1, 2, 3};
@@ -2033,7 +2033,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putArrayInt24' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putArrayInt24` w/ `makeNextInvalid`." << endl;
         }
         {
             const int DATA[] = {1, 2, 3};
@@ -2063,7 +2063,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "\nTesting 'putArrayUint24'." << endl;
+            cout << "\nTesting `putArrayUint24`." << endl;
         }
         {
             const unsigned int DATA[] = {1, 2, 3};
@@ -2107,7 +2107,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putArrayUint24' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putArrayUint24` w/ `makeNextInvalid`." << endl;
         }
         {
             const unsigned int DATA[] = {1, 2, 3};
@@ -2165,22 +2165,22 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 'makeNextInvalid' works correctly with these methods.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. `makeNextInvalid` works correctly with these methods.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes
-        //:   (C-1..2)
-        //:
-        //: 2 Verify results when using 'makeNextInvalid' before invoking these
-        //:   methods.  (C-3)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Externalize values at different offsets and verify the bytes
+        //    (C-1..2)
+        //
+        // 2. Verify results when using `makeNextInvalid` before invoking these
+        //    methods.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putArrayInt16(const short *values, int numValues);
@@ -2196,7 +2196,7 @@ int main(int argc, char *argv[])
         const int SIZE = SIZEOF_INT16;
 
         if (verbose) {
-            cout << "\nTesting 'putArrayInt16'." << endl;
+            cout << "\nTesting `putArrayInt16`." << endl;
         }
         {
             const short DATA[] = {1, 2, 3};
@@ -2234,7 +2234,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putArrayInt16' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putArrayInt16` w/ `makeNextInvalid`." << endl;
         }
         {
             const short DATA[] = {1, 2, 3};
@@ -2261,7 +2261,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "\nTesting 'putArrayUint16'." << endl;
+            cout << "\nTesting `putArrayUint16`." << endl;
         }
         {
             const unsigned short DATA[] = {1, 2, 3};
@@ -2299,7 +2299,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putArrayUint16' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putArrayUint16` w/ `makeNextInvalid`." << endl;
         }
         {
             const unsigned short DATA[] = {1, 2, 3};
@@ -2354,22 +2354,22 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 'makeNextInvalid' works correctly with these methods.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. `makeNextInvalid` works correctly with these methods.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify results when using 'makeNextInvalid' before invoking these
-        //:   methods.  (C-3)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify results when using `makeNextInvalid` before invoking these
+        //    methods.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putArrayInt8(const char *values, int numValues);
@@ -2387,7 +2387,7 @@ int main(int argc, char *argv[])
         const int SIZE = SIZEOF_INT8;
 
         if (verbose) {
-            cout << "\nTesting 'putArrayInt8(char*)'." << endl;
+            cout << "\nTesting `putArrayInt8(char*)`." << endl;
         }
         {
             const char DATA[] = {1, 2, 3};
@@ -2425,8 +2425,8 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putArrayInt8(char*)' w/ "
-                          << "'makeNextInvalid'." << endl;
+            cout << "\nTesting `putArrayInt8(char*)` w/ "
+                          << "`makeNextInvalid`." << endl;
         }
         {
             const char DATA[] = {1, 2, 3};
@@ -2453,7 +2453,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "\nTesting 'putArrayInt8(signed char*)'." << endl;
+            cout << "\nTesting `putArrayInt8(signed char*)`." << endl;
         }
         {
             const signed char DATA[] = {1, 2, 3};
@@ -2491,8 +2491,8 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putArrayInt8(signed char*)' w/ "
-                          << "'makeNextInvalid'." << endl;
+            cout << "\nTesting `putArrayInt8(signed char*)` w/ "
+                          << "`makeNextInvalid`." << endl;
         }
         {
             const signed char DATA[] = {1, 2, 3};
@@ -2519,7 +2519,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "\nTesting 'putArrayUint8(char*)'." << endl;
+            cout << "\nTesting `putArrayUint8(char*)`." << endl;
         }
         {
             const char DATA[] = {1, 2, 3};
@@ -2557,8 +2557,8 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putArrayUint8(char*)' w/ "
-                          << "'makeNextInvalid'." << endl;
+            cout << "\nTesting `putArrayUint8(char*)` w/ "
+                          << "`makeNextInvalid`." << endl;
         }
         {
             const char DATA[] = {1, 2, 3};
@@ -2585,7 +2585,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "\nTesting 'putArrayUint8(unsigned char*)'."
+            cout << "\nTesting `putArrayUint8(unsigned char*)`."
                           << endl;
         }
         {
@@ -2623,8 +2623,8 @@ int main(int argc, char *argv[])
             ASSERT(&mX == &mX.putArrayUint8(DATA, 3));
         }
         if (verbose) {
-            cout << "\nTesting 'putArrayUint8(unsigned char*)' w/ "
-                          << "'makeNextInvalid'." << endl;
+            cout << "\nTesting `putArrayUint8(unsigned char*)` w/ "
+                          << "`makeNextInvalid`." << endl;
         }
         {
             const unsigned char DATA[] = {1, 2, 3};
@@ -2701,18 +2701,18 @@ int main(int argc, char *argv[])
         //   Verify the method externalizes the expected bytes.
         //
         // Concerns:
-        //: 1 The method externalizes the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 'makeNextInvalid' works correctly with this method.
+        // 1. The method externalizes the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. `makeNextInvalid` works correctly with this method.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify results when using 'makeNextInvalid' before invoking these
-        //:   methods.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify results when using `makeNextInvalid` before invoking these
+        //    methods.  (C-3)
         //
         // Testing:
         //   putFloat64(double value);
@@ -2727,7 +2727,7 @@ int main(int argc, char *argv[])
         const int SIZE = SIZEOF_FLOAT64;
 
         if (verbose) {
-            cout << "\nTesting 'putFloat64'." << endl;
+            cout << "\nTesting `putFloat64`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -2763,7 +2763,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putFloat64' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putFloat64` w/ `makeNextInvalid`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -2790,18 +2790,18 @@ int main(int argc, char *argv[])
         //   Verify the method externalizes the expected bytes.
         //
         // Concerns:
-        //: 1 The method externalizes the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 'makeNextInvalid' works correctly with this method.
+        // 1. The method externalizes the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. `makeNextInvalid` works correctly with this method.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify results when using 'makeNextInvalid' before invoking these
-        //:   methods.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify results when using `makeNextInvalid` before invoking these
+        //    methods.  (C-3)
         //
         // Testing:
         //   putFloat32(float value);
@@ -2816,7 +2816,7 @@ int main(int argc, char *argv[])
         const int SIZE = SIZEOF_FLOAT32;
 
         if (verbose) {
-            cout << "\nTesting 'putFloat32'." << endl;
+            cout << "\nTesting `putFloat32`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -2852,7 +2852,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putFloat32' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putFloat32` w/ `makeNextInvalid`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -2879,18 +2879,18 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 'makeNextInvalid' works correctly with these methods.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. `makeNextInvalid` works correctly with these methods.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify results when using 'makeNextInvalid' before invoking these
-        //:   methods.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify results when using `makeNextInvalid` before invoking these
+        //    methods.  (C-3)
         //
         // Testing:
         //   putInt64(bsls::Types::Int64 value);
@@ -2906,7 +2906,7 @@ int main(int argc, char *argv[])
         const int SIZE = SIZEOF_INT64;
 
         if (verbose) {
-            cout << "\nTesting 'putInt64'." << endl;
+            cout << "\nTesting `putInt64`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -2942,7 +2942,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putInt64' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putInt64` w/ `makeNextInvalid`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -2966,7 +2966,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "\nTesting 'putUint64'." << endl;
+            cout << "\nTesting `putUint64`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -3002,7 +3002,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putUint64' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putUint64` w/ `makeNextInvalid`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -3029,18 +3029,18 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 'makeNextInvalid' works correctly with these methods.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. `makeNextInvalid` works correctly with these methods.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify results when using 'makeNextInvalid' before invoking these
-        //:   methods.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify results when using `makeNextInvalid` before invoking these
+        //    methods.  (C-3)
         //
         // Testing:
         //   putInt56(bsls::Types::Int64 value);
@@ -3056,7 +3056,7 @@ int main(int argc, char *argv[])
         const int SIZE = SIZEOF_INT56;
 
         if (verbose) {
-            cout << "\nTesting 'putInt56'." << endl;
+            cout << "\nTesting `putInt56`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -3092,7 +3092,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putInt56' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putInt56` w/ `makeNextInvalid`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -3116,7 +3116,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "\nTesting 'putUint56'." << endl;
+            cout << "\nTesting `putUint56`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -3152,7 +3152,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putUint56' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putUint56` w/ `makeNextInvalid`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -3179,18 +3179,18 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 'makeNextInvalid' works correctly with these methods.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. `makeNextInvalid` works correctly with these methods.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify results when using 'makeNextInvalid' before invoking these
-        //:   methods.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify results when using `makeNextInvalid` before invoking these
+        //    methods.  (C-3)
         //
         // Testing:
         //   putInt48(bsls::Types::Int64 value);
@@ -3206,7 +3206,7 @@ int main(int argc, char *argv[])
         const int SIZE = SIZEOF_INT48;
 
         if (verbose) {
-            cout << "\nTesting 'putInt48'." << endl;
+            cout << "\nTesting `putInt48`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -3242,7 +3242,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putInt48' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putInt48` w/ `makeNextInvalid`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -3266,7 +3266,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "\nTesting 'putUint48'." << endl;
+            cout << "\nTesting `putUint48`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -3302,7 +3302,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putUint48' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putUint48` w/ `makeNextInvalid`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -3329,18 +3329,18 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 'makeNextInvalid' works correctly with these methods.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. `makeNextInvalid` works correctly with these methods.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify results when using 'makeNextInvalid' before invoking these
-        //:   methods.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify results when using `makeNextInvalid` before invoking these
+        //    methods.  (C-3)
         //
         // Testing:
         //   putInt40(bsls::Types::Int64 value);
@@ -3356,7 +3356,7 @@ int main(int argc, char *argv[])
         const int SIZE = SIZEOF_INT40;
 
         if (verbose) {
-            cout << "\nTesting 'putInt40'." << endl;
+            cout << "\nTesting `putInt40`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -3392,7 +3392,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putInt40' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putInt40` w/ `makeNextInvalid`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -3416,7 +3416,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "\nTesting 'putUint40'." << endl;
+            cout << "\nTesting `putUint40`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -3452,7 +3452,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putUint40' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putUint40` w/ `makeNextInvalid`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -3479,18 +3479,18 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 'makeNextInvalid' works correctly with these methods.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. `makeNextInvalid` works correctly with these methods.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify results when using 'makeNextInvalid' before invoking these
-        //:   methods.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify results when using `makeNextInvalid` before invoking these
+        //    methods.  (C-3)
         //
         // Testing:
         //   putInt32(int value);
@@ -3506,7 +3506,7 @@ int main(int argc, char *argv[])
         const int SIZE = SIZEOF_INT32;
 
         if (verbose) {
-            cout << "\nTesting 'putInt32'." << endl;
+            cout << "\nTesting `putInt32`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -3542,7 +3542,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putInt32' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putInt32` w/ `makeNextInvalid`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -3566,7 +3566,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "\nTesting 'putUint32'." << endl;
+            cout << "\nTesting `putUint32`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -3602,7 +3602,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putUint32' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putUint32` w/ `makeNextInvalid`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -3629,18 +3629,18 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 'makeNextInvalid' works correctly with these methods.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. `makeNextInvalid` works correctly with these methods.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify results when using 'makeNextInvalid' before invoking these
-        //:   methods.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify results when using `makeNextInvalid` before invoking these
+        //    methods.  (C-3)
         //
         // Testing:
         //   putInt24(int value);
@@ -3656,7 +3656,7 @@ int main(int argc, char *argv[])
         const int SIZE = SIZEOF_INT24;
 
         if (verbose) {
-            cout << "\nTesting 'putInt24'." << endl;
+            cout << "\nTesting `putInt24`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -3692,7 +3692,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putInt24' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putInt24` w/ `makeNextInvalid`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -3716,7 +3716,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "\nTesting 'putUint24'." << endl;
+            cout << "\nTesting `putUint24`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -3752,7 +3752,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putUint24' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putUint24` w/ `makeNextInvalid`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -3779,18 +3779,18 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 'makeNextInvalid' works correctly with these methods.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. `makeNextInvalid` works correctly with these methods.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify results when using 'makeNextInvalid' before invoking these
-        //:   methods.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Verify results when using `makeNextInvalid` before invoking these
+        //    methods.  (C-3)
         //
         // Testing:
         //   putInt16(int value);
@@ -3806,7 +3806,7 @@ int main(int argc, char *argv[])
         const int SIZE = SIZEOF_INT16;
 
         if (verbose) {
-            cout << "\nTesting 'putInt16'." << endl;
+            cout << "\nTesting `putInt16`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -3842,7 +3842,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putInt16' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putInt16` w/ `makeNextInvalid`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -3866,7 +3866,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "\nTesting 'putUint16'." << endl;
+            cout << "\nTesting `putUint16`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -3902,7 +3902,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'putUint16' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putUint16` w/ `makeNextInvalid`." << endl;
         }
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
@@ -3929,12 +3929,12 @@ int main(int argc, char *argv[])
         //   Verify the method produces the expected output format.
         //
         // Concerns:
-        //: 1 The method produces expected output format.
+        // 1. The method produces expected output format.
         //
         // Plan:
-        //: 1 For a small set of objects, use 'ostringstream' to write the
-        //:   object's value to a string buffer and then compare to expected
-        //:   output format.  (C-1)
+        // 1. For a small set of objects, use `ostringstream` to write the
+        //    object's value to a string buffer and then compare to expected
+        //    output format.  (C-1)
         //
         // Testing:
         //   ostream& operator<<(ostream& stream, const TestOutStream&);
@@ -4059,16 +4059,16 @@ int main(int argc, char *argv[])
         //   Verify that the validity methods work correctly.
         //
         // Concerns:
-        //: 1 The stream initializes valid.
-        //:
-        //: 2 'invalidate' marks the stream invalid.
-        //:
-        //: 3 Both validity accessors return the correct validity state.
+        // 1. The stream initializes valid.
+        //
+        // 2. `invalidate` marks the stream invalid.
+        //
+        // 3. Both validity accessors return the correct validity state.
         //
         // Plan:
-        //: 1 Initialize a stream and verify the accessors' values.  (C-1)
-        //:
-        //: 2 'invalidate' the stream and verify the values.  (C-2..3)
+        // 1. Initialize a stream and verify the accessors' values.  (C-1)
+        //
+        // 2. `invalidate` the stream and verify the values.  (C-2..3)
         //
         // Testing:
         //   void invalidate();
@@ -4098,17 +4098,17 @@ int main(int argc, char *argv[])
         //   Verify functionality of the basic accessors.
         //
         // Concerns:
-        //: 1 'length' and 'data' methods return correct values.
-        //:
-        //: 2 'bdexVersionSelector' returns correct value.
+        // 1. `length` and `data` methods return correct values.
+        //
+        // 2. `bdexVersionSelector` returns correct value.
         //
         // Plan:
-        //: 1 Create an empty object, use 'putInt8' to modify state, and
-        //:   verify the expected values for the methods.  (C-1)
-        //:
-        //: 2 Create empty objects with different 'versionSelector' constructor
-        //:   values and verify the 'bdexVersionSelector' method's return
-        //:   value.  (C-2)
+        // 1. Create an empty object, use `putInt8` to modify state, and
+        //    verify the expected values for the methods.  (C-1)
+        //
+        // 2. Create empty objects with different `versionSelector` constructor
+        //    values and verify the `bdexVersionSelector` method's return
+        //    value.  (C-2)
         //
         // Testing:
         //   int bdexVersionSelector() const;
@@ -4123,7 +4123,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'length' and 'data'." << endl;
+            cout << "\nTesting `length` and `data`." << endl;
         }
 
         const char *DATA[] = {
@@ -4163,41 +4163,41 @@ int main(int argc, char *argv[])
         //   Verify functionality of primary manipulators.
         //
         // Concerns:
-        //: 1 'putInt8' and 'putUint8' produce the expected results.
-        //:
-        //: 2 The initial capacity constructor allocates if needed.
-        //:
-        //: 3 'reserveCapacity' allocates if needed.
-        //:
-        //: 4 'makeNextInvalid' works correctly with the primary manipulators.
-        //:
-        //: 5 'reset' validates and removes all data from the object.
-        //:
-        //: 6 The destructor functions properly.
+        // 1. `putInt8` and `putUint8` produce the expected results.
+        //
+        // 2. The initial capacity constructor allocates if needed.
+        //
+        // 3. `reserveCapacity` allocates if needed.
+        //
+        // 4. `makeNextInvalid` works correctly with the primary manipulators.
+        //
+        // 5. `reset` validates and removes all data from the object.
+        //
+        // 6. The destructor functions properly.
         //
         // Plan:
-        //: 1 Verify allocation occurrences by using a test allocator.
-        //:
-        //: 2 Externalize data with the primary manipulator and verify the
-        //:   produced output using the basic accessors 'length' and 'data'.
-        //:   (C-1)
-        //:
-        //: 3 Construct with the initial capacity constructor and verify
-        //:   allocation occurred.  (C-2)
-        //:
-        //: 4 Use 'reserveCapacity' to set a larger required capacity, verify
-        //:   allocation occurred, use the method again to request a smaller
-        //:   capacity, and verify no allocation occurs.  (C-3)
-        //:
-        //: 5 Verify results when using 'makeNextInvalid' before invoking the
-        //:   primary manipulators.  (C-4)
-        //:
-        //: 6 Execute 'reset' on objects with varying length and verify
-        //:   the object is emptied.  Also execute 'reset' on invalid objects.
-        //:   (C-5)
-        //:
-        //: 7 Verify the functionality of the destructor using test allocators.
-        //:   (C-6)
+        // 1. Verify allocation occurrences by using a test allocator.
+        //
+        // 2. Externalize data with the primary manipulator and verify the
+        //    produced output using the basic accessors `length` and `data`.
+        //    (C-1)
+        //
+        // 3. Construct with the initial capacity constructor and verify
+        //    allocation occurred.  (C-2)
+        //
+        // 4. Use `reserveCapacity` to set a larger required capacity, verify
+        //    allocation occurred, use the method again to request a smaller
+        //    capacity, and verify no allocation occurs.  (C-3)
+        //
+        // 5. Verify results when using `makeNextInvalid` before invoking the
+        //    primary manipulators.  (C-4)
+        //
+        // 6. Execute `reset` on objects with varying length and verify
+        //    the object is emptied.  Also execute `reset` on invalid objects.
+        //    (C-5)
+        //
+        // 7. Verify the functionality of the destructor using test allocators.
+        //    (C-6)
         //
         // Testing:
         //   TestOutStream(int sV, *ba = 0);
@@ -4351,7 +4351,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTesting 'putInt8' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putInt8` w/ `makeNextInvalid`." << endl;
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             ASSERT(0 == X.length());
@@ -4411,7 +4411,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTesting 'putUint8' w/ 'makeNextInvalid'." << endl;
+            cout << "\nTesting `putUint8` w/ `makeNextInvalid`." << endl;
         {
             Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             ASSERT(0 == X.length());
@@ -4465,15 +4465,15 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create 'TestOutStream' objects using the default constructor.
-        //:
-        //: 2 Exercise these objects using various methods.
-        //:
-        //: 3 Verify expected values throughout.  (C-1)
+        // 1. Create `TestOutStream` objects using the default constructor.
+        //
+        // 2. Exercise these objects using various methods.
+        //
+        // 3. Verify expected values throughout.  (C-1)
         //
         // Testing:
         //   BREATHING TEST

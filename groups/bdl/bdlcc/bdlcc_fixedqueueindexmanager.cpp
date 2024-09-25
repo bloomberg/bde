@@ -166,8 +166,8 @@ enum ElementState {
     e_READING  = 3    // element is reserved for reading
 };
 
+/// Return a 0-terminated description of the specified `state`.
 const char *toString(ElementState state)
-    // Return a 0-terminated description of the specified 'state'.
 {
     switch (state) {
       case e_EMPTY:   return "EMPTY";
@@ -224,32 +224,32 @@ static const unsigned int k_NUM_REPRESENTABLE_COMBINED_INDICES =
 // The following operations are used to encode and decode the 'ElementState'
 // and generation count from 'd_states' elements.
 
+/// Return an encoded state value comprising the specified `generation` and
+/// the specified `indexState`.  Note that the resulting encoded value is
+/// appropriate for storage in the `d_states` array.
 inline
 static unsigned int encodeElementState(unsigned int generation,
                                        ElementState indexState)
-    // Return an encoded state value comprising the specified 'generation' and
-    // the specified 'indexState'.  Note that the resulting encoded value is
-    // appropriate for storage in the 'd_states' array.
 {
     return (generation << k_GENERATION_COUNT_SHIFT) | indexState;
 }
 
+/// Return the generation count of the specified `encodedState`.  The
+/// behavior is undefined unless `value` was encoded by
+/// `encodeElementState`.  Note that `encodedState` is typically obtained
+/// from the `d_states` array.
 inline
 static unsigned int decodeGenerationFromElementState(unsigned int encodedState)
-    // Return the generation count of the specified 'encodedState'.  The
-    // behavior is undefined unless 'value' was encoded by
-    // 'encodeElementState'.  Note that 'encodedState' is typically obtained
-    // from the 'd_states' array.
 {
     return encodedState >> k_GENERATION_COUNT_SHIFT;
 }
 
+/// Return the element state of the specified `encodedState`.  The behavior
+/// is undefined unless `encodedState` was encoded by `encodeElementState`.
+/// Note that `encodedState` is typically obtained from the `d_states`
+/// array.
 inline
 static ElementState decodeStateFromElementState(unsigned int encodedState)
-    // Return the element state of the specified 'encodedState'.  The behavior
-    // is undefined unless 'encodedState' was encoded by 'encodeElementState'.
-    // Note that 'encodedState' is typically obtained from the 'd_states'
-    // array.
 {
     return ElementState(encodedState & k_ELEMENT_STATE_MASK);
 }
@@ -259,18 +259,18 @@ static ElementState decodeStateFromElementState(unsigned int encodedState)
 // The following operations are used to manipulate 'd_index' and 'd_popIndex'
 // members.
 
+/// Return `true` if the specified `encodedPushIndex` has the disabled flag
+/// set, and 'false otherwise.
 inline
 static bool isDisabledFlagSet(unsigned int encodedPushIndex)
-    // Return 'true' if the specified 'encodedPushIndex' has the disabled flag
-    // set, and 'false otherwise.
 {
     return (encodedPushIndex & k_DISABLED_STATE_MASK);
 }
 
+/// Return the push-index of the specified `encodedPushIndex`, discarding
+/// the disabled flag.
 inline
 static unsigned int discardDisabledFlag(unsigned int encodedPushIndex)
-    // Return the push-index of the specified 'encodedPushIndex', discarding
-    // the disabled flag.
 {
     return (encodedPushIndex & ~k_DISABLED_STATE_MASK);
 }

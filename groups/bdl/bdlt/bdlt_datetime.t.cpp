@@ -25,8 +25,8 @@
 #include <bslx_testoutstream.h>
 #include <bslx_versionfunctions.h>
 
-#include <bsl_algorithm.h>  // 'min', 'max'
-#include <bsl_cstdlib.h>    // 'atoi'
+#include <bsl_algorithm.h>  // `min`, `max`
+#include <bsl_cstdlib.h>    // `atoi`
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -39,10 +39,10 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                                   Overview
 //                                   --------
-// The component under test is implemented using contained 'bdlt::Date' and
-// 'bdlt::Time' objects.  As such, many concerns of a typical value-semantic
+// The component under test is implemented using contained `bdlt::Date` and
+// `bdlt::Time` objects.  As such, many concerns of a typical value-semantic
 // component may be relaxed.  In particular, aside from BDEX streaming, there
-// are only two accessors, 'date' and 'time', which permit the user to invoke
+// are only two accessors, `date` and `time`, which permit the user to invoke
 // the underlying accessors directly; minimal testing is required of these.
 // Similarly, most of the datetime manipulators are implemented using the
 // underlying contained-object manipulators; only the collaboration between
@@ -53,26 +53,26 @@ using namespace bsl;
 // altered.
 //
 // Primary Manipulators:
-//: o 'setYearMonthDay'
-//: o 'setTime'
+//  - `setYearMonthDay`
+//  - `setTime`
 //
 // Basic Accessors
-//: o 'date'
-//: o 'time'
+//  - `date`
+//  - `time`
 //
 // Global Concerns:
-//: o ACCESSOR methods are declared 'const'.
-//: o CREATOR & MANIPULATOR pointer/reference parameters are declared 'const'.
-//: o No memory is ever allocated from the global allocator.
-//: o No memory is ever allocated from the default allocator.
-//: o Precondition violations are detected in appropriate build modes.
+//  - ACCESSOR methods are declared `const`.
+//  - CREATOR & MANIPULATOR pointer/reference parameters are declared `const`.
+//  - No memory is ever allocated from the global allocator.
+//  - No memory is ever allocated from the default allocator.
+//  - Precondition violations are detected in appropriate build modes.
 //
 // Global Assumptions:
-//: o ACCESSOR methods are 'const' thread-safe.
-//:
-//: o Individual attribute types are presumed to be *alias-safe*; hence, only
-//:   certain methods require the testing of this property:
-//:   o copy-assignment
+//  - ACCESSOR methods are `const` thread-safe.
+//
+//  - Individual attribute types are presumed to be *alias-safe*; hence, only
+//    certain methods require the testing of this property:
+//    - copy-assignment
 //
 // ----------------------------------------------------------------------------
 // CLASS METHODS
@@ -185,9 +185,9 @@ using namespace bsl;
 // [ *] CONCERN: In no case does memory come from the default allocator.
 // [ *] CONCERN: In no case does memory come from the global allocator.
 // [ *] CONCERN: There is no temporary allocation from any allocator.
-// [ *] CONCERN: All creator/manipulator ptr./ref. parameters are 'const'.
-// [ 4] CONCERN: All accessor methods are declared 'const'.
-// [ 8] Reserved for 'swap' testing.
+// [ *] CONCERN: All creator/manipulator ptr./ref. parameters are `const`.
+// [ 4] CONCERN: All accessor methods are declared `const`.
+// [ 8] Reserved for `swap` testing.
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -273,7 +273,7 @@ typedef bslx::TestOutStream    Out;
 //                             GLOBAL TEST DATA
 // ----------------------------------------------------------------------------
 
-// Define 'DEFAULT_DATA' used by test cases 7, 8, 9, and 11.
+// Define `DEFAULT_DATA` used by test cases 7, 8, 9, and 11.
 
 struct DefaultDataRow {
     int d_line;
@@ -348,7 +348,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the default allocator.
@@ -374,26 +374,26 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 30: {
         // --------------------------------------------------------------------
-        // TESTING 'setTimeIfValid'
+        // TESTING `setTimeIfValid`
         //
         // Concerns:
-        //: 1 'setTimeIfValid' forwards its input to the (fully-tested) member
-        //:   object "time".
-        //:
-        //: 2 The default arguments for 'setTimeIfValid' have the expected
-        //:   value (0).
-        //:
-        //: 3 Valid input returns 0.  Invalid input returns non-zero.
+        // 1. `setTimeIfValid` forwards its input to the (fully-tested) member
+        //    object "time".
+        //
+        // 2. The default arguments for `setTimeIfValid` have the expected
+        //    value (0).
+        //
+        // 3. Valid input returns 0.  Invalid input returns non-zero.
         //
         // Plan:
-        //: 1 Define a sequence of independent test values that explore the
-        //:   boundaries of valid values for the "time" parts of the object.
-        //:   Use 'setTimeIfValid' to set its value, and the basic accessors to
-        //:   verify its value.  (C-1,3)
-        //:
-        //: 2 Define a sequence of independent test values that has "time"
-        //:   parts set to zero, or left as default, and verify that the
-        //:   objects are equal.  (C-2)
+        // 1. Define a sequence of independent test values that explore the
+        //    boundaries of valid values for the "time" parts of the object.
+        //    Use `setTimeIfValid` to set its value, and the basic accessors to
+        //    verify its value.  (C-1,3)
+        //
+        // 2. Define a sequence of independent test values that has "time"
+        //    parts set to zero, or left as default, and verify that the
+        //    objects are equal.  (C-2)
         //
         // Testing:
         //   int setTimeIfValid(int h, int m=0, int s=0, int ms=0, int us=0);
@@ -401,10 +401,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout
              << endl
-             << "TESTING 'setTimeIfValid'" << endl
+             << "TESTING `setTimeIfValid`" << endl
              << "========================" << endl;
 
-        if (verbose) cout << "\nTesting 'setTimeIfValid'." << endl;
+        if (verbose) cout << "\nTesting `setTimeIfValid`." << endl;
         {
             static const struct {
                 int d_hour;
@@ -515,60 +515,60 @@ int main(int argc, char *argv[])
       } break;
       case 29: {
         // --------------------------------------------------------------------
-        // TEST INDIVIDUAL TIME-'set*IfValid' MANIPULATORS
+        // TEST INDIVIDUAL TIME-`set*IfValid` MANIPULATORS
         //
         // Concerns:
-        //: 1 Each of the time-only manipulators correctly forwards its
-        //:   arguments to the appropriate manipulator of the constituent
-        //:   'Time' object.
-        //:
-        //:   1 When the "time" part has a non-default value, each of the time-
-        //:     setting manipulators changes it's intended time field (e.g.,
-        //:     hours, milliseconds) and no other (see C-2)
-        //:
-        //:   2 None of the time-setting manipulators change the "date" part.
-        //:
-        //: 2 None of these manipulators, alters the "date" part of the object.
-        //:
-        //: 3 The methods have the same effect regardless of the object's
-        //:   initial value.
-        //:
-        //: 4 These methods have no effect on the object if the supplied
-        //:   "time" value is out of the valid range.
-        //:
-        //: 5 'set*IfValid' returns 0 on success, and a non-zero value on
-        //:   failure.
+        // 1. Each of the time-only manipulators correctly forwards its
+        //    arguments to the appropriate manipulator of the constituent
+        //    `Time` object.
+        //
+        //   1. When the "time" part has a non-default value, each of the time-
+        //      setting manipulators changes it's intended time field (e.g.,
+        //      hours, milliseconds) and no other (see C-2)
+        //
+        //   2. None of the time-setting manipulators change the "date" part.
+        //
+        // 2. None of these manipulators, alters the "date" part of the object.
+        //
+        // 3. The methods have the same effect regardless of the object's
+        //    initial value.
+        //
+        // 4. These methods have no effect on the object if the supplied
+        //    "time" value is out of the valid range.
+        //
+        // 5. `set*IfValid` returns 0 on success, and a non-zero value on
+        //    failure.
         //
         // Plan:
-        //: 1 For a set of independent test values that do not include the
-        //:   default 'Time' value (24:00:00.000), use the default constructor
-        //:   to create an object and use the time-only "set" manipulators to
-        //:   set its value.  Verify the value using the basic accessors after
-        //:   each individual "time" field is set.  Repeat the tests for a
-        //:   series of objects that span the range of valid 'Datetime' values,
-        //:   but excluding the default constructed object (see P-2).
-        //:
-        //: 2 Create a series of objects having a time "part" equal to 'Time()'
-        //:   (24:00:00.000) and confirm using values from the valid bounding
-        //:   range of each "time" field that using any of the individual
-        //:   time-setting manipulators both sets the specified value (e.g.,
-        //:   minute, second) *and* sets the hour field to 0.  Then create an
-        //:   object having non-zero values for "time" fields and confirm that
-        //:   'setHour(24)' sets that specified value *and* sets all other
-        //:   fields to 0.  (C-1..2)
-        //:
-        //: 3 For each set of values used in testing the seven-argument value
-        //:   constructor, create and compare two objects for equality.  One is
-        //:   created by the value constructor (proven earlier), the other by
-        //:   using the seven-argument 'setDatetime' method of a test object.
-        //:   Use a series of test objects that span the range of valid
-        //:   'Datetime' values, *including* the default constructed object.
-        //:   (C-3)
-        //:
-        //: 5 Verify that, when an attempt is made to invoke methods with
-        //:   arguments that are outside the valid ranges defined in the
-        //:   contracts, the object is unchanged, and the return code is
-        //:   non-zero.  (C-4..5)
+        // 1. For a set of independent test values that do not include the
+        //    default `Time` value (24:00:00.000), use the default constructor
+        //    to create an object and use the time-only "set" manipulators to
+        //    set its value.  Verify the value using the basic accessors after
+        //    each individual "time" field is set.  Repeat the tests for a
+        //    series of objects that span the range of valid `Datetime` values,
+        //    but excluding the default constructed object (see P-2).
+        //
+        // 2. Create a series of objects having a time "part" equal to `Time()`
+        //    (24:00:00.000) and confirm using values from the valid bounding
+        //    range of each "time" field that using any of the individual
+        //    time-setting manipulators both sets the specified value (e.g.,
+        //    minute, second) *and* sets the hour field to 0.  Then create an
+        //    object having non-zero values for "time" fields and confirm that
+        //    `setHour(24)` sets that specified value *and* sets all other
+        //    fields to 0.  (C-1..2)
+        //
+        // 3. For each set of values used in testing the seven-argument value
+        //    constructor, create and compare two objects for equality.  One is
+        //    created by the value constructor (proven earlier), the other by
+        //    using the seven-argument `setDatetime` method of a test object.
+        //    Use a series of test objects that span the range of valid
+        //    `Datetime` values, *including* the default constructed object.
+        //    (C-3)
+        //
+        // 5. Verify that, when an attempt is made to invoke methods with
+        //    arguments that are outside the valid ranges defined in the
+        //    contracts, the object is unchanged, and the return code is
+        //    non-zero.  (C-4..5)
         //
         // Testing:
         //   int setHourIfValid(int hour);
@@ -580,7 +580,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout
                    << endl
-                   << "TEST INDIVIDUAL TIME-'set*IfValid' MANIPULATORS\n"
+                   << "TEST INDIVIDUAL TIME-`set*IfValid` MANIPULATORS\n"
                    << "===============================================\n";
 
         const Date RD(2000, 2, 3);       // Ref date (02FEB2000)
@@ -601,7 +601,7 @@ int main(int argc, char *argv[])
         const int NUM_ARRAY1 =
                               static_cast<int>(sizeof ARRAY1 / sizeof *ARRAY1);
 
-        if (verbose) cout << "\nTesting time-'set*IfValid' methods." << endl;
+        if (verbose) cout << "\nTesting time-`set*IfValid` methods." << endl;
         if (verbose) cout << "\tFor ordinary computational values." << endl;
 
         for (int i = 0; i < NUM_ARRAY1; ++i) {
@@ -846,83 +846,83 @@ int main(int argc, char *argv[])
       } break;
       case 28: {
         // --------------------------------------------------------------------
-        // TESTING 'add*IfValid' TIME METHODS
+        // TESTING `add*IfValid` TIME METHODS
         //
         // Concerns:
-        //: 1 Each 'add' method correctly forwards its arguments to the
-        //:   corresponding operation on the "time" part.
-        //:
-        //: 2 Changes to the "time" part that cross day boundaries correctly
-        //:   propagate to the "date" part.
-        //:
-        //: 3 The 'addTimeIfValid' method can be used as an oracle for testing
-        //:   the other 'add' methods.
-        //:
-        //: 4 The optional arguments to 'addTimeIfValid' have the expected
-        //:   default values.
-        //:
-        //: 5 Invocations of these methods on default constructed objects
-        //:   behave as if the object had been constructed with a 'Time' value
-        //:   of 00:00:00.000.
-        //:
-        //: 6 These methods have no effect on the object if the supplied
-        //:   "time" value added to the object's "time" part results in an
-        //:   invalid date.
-        //:
-        //: 7 'add*IfValid' returns 0 on success, and a non-zero value on
-        //:   failure.
+        // 1. Each `add` method correctly forwards its arguments to the
+        //    corresponding operation on the "time" part.
+        //
+        // 2. Changes to the "time" part that cross day boundaries correctly
+        //    propagate to the "date" part.
+        //
+        // 3. The `addTimeIfValid` method can be used as an oracle for testing
+        //    the other `add` methods.
+        //
+        // 4. The optional arguments to `addTimeIfValid` have the expected
+        //    default values.
+        //
+        // 5. Invocations of these methods on default constructed objects
+        //    behave as if the object had been constructed with a `Time` value
+        //    of 00:00:00.000.
+        //
+        // 6. These methods have no effect on the object if the supplied
+        //    "time" value added to the object's "time" part results in an
+        //    invalid date.
+        //
+        // 7. `add*IfValid` returns 0 on success, and a non-zero value on
+        //    failure.
         //
         // Plan:
-        //: 1 Thoroughly test the 'addTimeIfValid' method, then use that method
-        //:   as an oracle for tests of 'addHoursIfValid', 'addMinutesIfValid',
-        //:   'addSecondsIfValid', 'addMillisecondsIfValid', and
-        //:   'addMicrosecondsIfValid' methods.  (C-1,3)
-        //:
-        //:   1 Using a table-driven test, perform a series of 'addTimeIfValid'
-        //:     invocations on a object created from a single, reference date,
-        //:     and compare the result to the calculated expected value.
-        //:
-        //:   2 The 'hour', 'minute', 'second', 'millisecond', and
-        //:     'microsecond' values used include positive, negative, and 0
-        //:     values.  The non-zero values used are of sufficient magnitude
-        //:     to demonstrate propagation of changes to the other "time"
-        //:     fields and, in some cases, to the "date" part.
-        //:
-        //: 2 Using loop-based tests: (C-1,2,7)
-        //:
-        //:   1 Apply equivalent time adjustments to two newly constructed
-        //:     objects having the same reference datetime value.  Use
-        //:     'addTimeIfValid' method for one object and the
-        //:     'addHoursIfValid' method for the other then compare for
-        //:     equality.  The set of time adjustments include positive,
-        //:     negative, and 0 values, and are of sufficient magnitude to
-        //:     cross date boundaries.
-        //:
-        //:   2 Perform tests analogous to P-1.1 for the 'addMinutesIfValid',
-        //:     'addSecondsIfValid', 'addMillisecondsIfValid', and
-        //:     'addMicrosecondsIfValid' methods.
-        //:
-        //:   3 Verify that the resulting return code is 0.
-        //:
-        //: 4 Create a series of object pairs having the same reference
-        //:   datetime value and identically adjust the time value of each of
-        //:   those pairs using the 'setTime' method. Construct and then set
-        //:   the values of "date" and "time" parts using the 'setDatetime'
-        //:   method.  As we go through the five pairs of objects, we invoke
-        //:   the 'setTime' method with one fewer of the optional arguments for
-        //:   one of the objects and invoke 'setTime' with the expected default
-        //:   values for the other object.  The two objects must compare equal.
-        //:   (C-3)
-        //:
-        //: 5 For each of the methods under test, construct a pair of objects:
-        //:   one default constructed, the other constructed with the value
-        //:   "0001/01/01_00:00:00.000".  Use the method under test to perform
-        //:   a non-zero adjustment both of these objects and compare the
-        //:   objects for equality.  (C-4)
-        //:
-        //: 6 Verify that, when an attempt is made to perform operations that
-        //:   would overflow the valid range of 'Datetime' values, the object
-        //:   is unchanged, and the return code is non-zero.  (C-5..6)
+        // 1. Thoroughly test the `addTimeIfValid` method, then use that method
+        //    as an oracle for tests of `addHoursIfValid`, `addMinutesIfValid`,
+        //    `addSecondsIfValid`, `addMillisecondsIfValid`, and
+        //    `addMicrosecondsIfValid` methods.  (C-1,3)
+        //
+        //   1. Using a table-driven test, perform a series of `addTimeIfValid`
+        //      invocations on a object created from a single, reference date,
+        //      and compare the result to the calculated expected value.
+        //
+        //   2. The `hour`, `minute`, `second`, `millisecond`, and
+        //      `microsecond` values used include positive, negative, and 0
+        //      values.  The non-zero values used are of sufficient magnitude
+        //      to demonstrate propagation of changes to the other "time"
+        //      fields and, in some cases, to the "date" part.
+        //
+        // 2. Using loop-based tests: (C-1,2,7)
+        //
+        //   1. Apply equivalent time adjustments to two newly constructed
+        //      objects having the same reference datetime value.  Use
+        //      `addTimeIfValid` method for one object and the
+        //      `addHoursIfValid` method for the other then compare for
+        //      equality.  The set of time adjustments include positive,
+        //      negative, and 0 values, and are of sufficient magnitude to
+        //      cross date boundaries.
+        //
+        //   2. Perform tests analogous to P-1.1 for the `addMinutesIfValid`,
+        //      `addSecondsIfValid`, `addMillisecondsIfValid`, and
+        //      `addMicrosecondsIfValid` methods.
+        //
+        //   3. Verify that the resulting return code is 0.
+        //
+        // 4. Create a series of object pairs having the same reference
+        //    datetime value and identically adjust the time value of each of
+        //    those pairs using the `setTime` method. Construct and then set
+        //    the values of "date" and "time" parts using the `setDatetime`
+        //    method.  As we go through the five pairs of objects, we invoke
+        //    the `setTime` method with one fewer of the optional arguments for
+        //    one of the objects and invoke `setTime` with the expected default
+        //    values for the other object.  The two objects must compare equal.
+        //    (C-3)
+        //
+        // 5. For each of the methods under test, construct a pair of objects:
+        //    one default constructed, the other constructed with the value
+        //    "0001/01/01_00:00:00.000".  Use the method under test to perform
+        //    a non-zero adjustment both of these objects and compare the
+        //    objects for equality.  (C-4)
+        //
+        // 6. Verify that, when an attempt is made to perform operations that
+        //    would overflow the valid range of `Datetime` values, the object
+        //    is unchanged, and the return code is non-zero.  (C-5..6)
         //
         // Testing:
         //   int addTimeIfValid(hours, mins, secs, msecs, usecs);
@@ -934,7 +934,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'add*IfValid' TIME METHODS" << endl
+                          << "TESTING `add*IfValid` TIME METHODS" << endl
                           << "==================================" << endl;
 
         {
@@ -1007,7 +1007,7 @@ int main(int argc, char *argv[])
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
-            if (verbose) cout << "\nTesting: 'addTimeIfValid'" << endl;
+            if (verbose) cout << "\nTesting: `addTimeIfValid`" << endl;
 
             const int REFERENCE_YEAR  = 2000;
             const int REFERENCE_MONTH =    1;
@@ -1056,10 +1056,10 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout
-           << "\nCheck 'addTimeIfValid' default values of optional parameters."
+           << "\nCheck `addTimeIfValid` default values of optional parameters."
            << endl;
         {
-            // Reference 'Datetime'
+            // Reference `Datetime`
 
             const int YEAR   = 2;  // arbitrary, non-default values
             const int MONTH  = 3;
@@ -1121,7 +1121,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout
-             << "\nTest 'add*IfValid' methods on default constructed objects."
+             << "\nTest `add*IfValid` methods on default constructed objects."
              << endl;
         {
             // Adjustment Values, none corresponding to the default values.
@@ -1188,7 +1188,7 @@ int main(int argc, char *argv[])
             const Date ID(REFERENCE_YEAR, REFERENCE_MONTH, REFERENCE_DAY);
             const Time IT(0, 0, 0, 0);
 
-            if (verbose) cout << "\nTesting: 'addHoursIfValid'" << endl;
+            if (verbose) cout << "\nTesting: `addHoursIfValid`" << endl;
 
             const int START_HOURS = -250;
             const int STOP_HOURS  =  250;
@@ -1208,7 +1208,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(hi, Y == X);
             }
 
-            if (verbose) cout << "\nTesting: 'addMinutesIfValid'" << endl;
+            if (verbose) cout << "\nTesting: `addMinutesIfValid`" << endl;
 
             const int START_MINS  = -15000;
             const int STOP_MINS   =  15000;
@@ -1228,7 +1228,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(mi, Y == X);
             }
 
-            if (verbose) cout << "\nTesting: 'addSecondsIfValid'" << endl;
+            if (verbose) cout << "\nTesting: `addSecondsIfValid`" << endl;
 
             const int START_SECS = -900000;
             const int STOP_SECS  =  900000;
@@ -1247,7 +1247,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(si, Y == X);
             }
 
-            if (verbose) cout << "\nTesting: 'addMillisecondsIfValid'" << endl;
+            if (verbose) cout << "\nTesting: `addMillisecondsIfValid`" << endl;
 
             const int START_MSECS = -900000000;
             const int STOP_MSECS  =  900000000;
@@ -1267,7 +1267,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(msi, Y == X);
             }
 
-            if (verbose) cout << "\nTesting: 'addMicrosecondsIfValid'" << endl;
+            if (verbose) cout << "\nTesting: `addMicrosecondsIfValid`" << endl;
 
             const int START_USECS = -900000000;
             const int STOP_USECS  =  900000000;
@@ -1411,48 +1411,48 @@ int main(int argc, char *argv[])
       } break;
       case 27: {
         // --------------------------------------------------------------------
-        // TESTING 'addDaysIfValid'
+        // TESTING `addDaysIfValid`
         //
         // Concerns:
-        //: 1 The method changes the object's "date" part by the specified
-        //:   number of days.
-        //:
-        //: 2 The method works irrespective of the initial state of the object.
-        //:
-        //: 3 The method does not change the "time" part.
-        //:
-        //: 4 'addDaysIfValid' has no effect on the object if the supplied
-        //:   'days' added to the object's "date" part results in an invalid
-        //:   date.
-        //:
-        //: 5 'addDaysIfValid' returns 0 on success, and a non-zero value on
-        //:   failure.
+        // 1. The method changes the object's "date" part by the specified
+        //    number of days.
+        //
+        // 2. The method works irrespective of the initial state of the object.
+        //
+        // 3. The method does not change the "time" part.
+        //
+        // 4. `addDaysIfValid` has no effect on the object if the supplied
+        //    `days` added to the object's "date" part results in an invalid
+        //    date.
+        //
+        // 5. `addDaysIfValid` returns 0 on success, and a non-zero value on
+        //    failure.
         //
         // Plan:
-        //: 1 Construct a table of substantial and varied differences in value
-        //:   that spans the range of 'Datetime' values and includes the
-        //:   default value.  The table will be used to create a series of test
-        //:   objects.  Also construct an array of integer values that will be
-        //:   used as argument methods.
-        //:
-        //: 2 Test the cross product of the objects defined by the table (P-1)
-        //:   and day (delta) values.  Vet the values against overflow of the
-        //:   epoch and adjust accordingly.  Invoke the object's 'addDays'
-        //:   method with the (possibly adjusted) days value and confirm that
-        //:   the date has been increased (decreased) by the expected number of
-        //:   days.  Also confirm that the "time" part equals that of the
-        //:   original value.  (C-1..3)
-        //:
-        //: 3 Verify that, if an attempt is made to perform operations that
-        //:   would overflow the valid range of 'Datetime' values, the object
-        //:   is unchanged, and the return code is non-zero.  (C-4..5)
+        // 1. Construct a table of substantial and varied differences in value
+        //    that spans the range of `Datetime` values and includes the
+        //    default value.  The table will be used to create a series of test
+        //    objects.  Also construct an array of integer values that will be
+        //    used as argument methods.
+        //
+        // 2. Test the cross product of the objects defined by the table (P-1)
+        //    and day (delta) values.  Vet the values against overflow of the
+        //    epoch and adjust accordingly.  Invoke the object's `addDays`
+        //    method with the (possibly adjusted) days value and confirm that
+        //    the date has been increased (decreased) by the expected number of
+        //    days.  Also confirm that the "time" part equals that of the
+        //    original value.  (C-1..3)
+        //
+        // 3. Verify that, if an attempt is made to perform operations that
+        //    would overflow the valid range of `Datetime` values, the object
+        //    is unchanged, and the return code is non-zero.  (C-4..5)
         //
         // Testing:
         //   int addDaysIfValid(int days);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'addDaysIfValid'" << endl
+                          << "TESTING `addDaysIfValid`" << endl
                           << "========================" << endl;
 
         static const struct {
@@ -1569,92 +1569,92 @@ int main(int argc, char *argv[])
       } break;
       case 26: {
         // --------------------------------------------------------------------
-        // CONDITIONAL 'setYear*IfValid' SETTERS
+        // CONDITIONAL `setYear*IfValid` SETTERS
         //   Ensure that the methods correctly discriminate between valid and
         //   invalid date representations.
         //
         // Concerns:
-        //: 1 The 'isValidYearDay' method correctly categorizes every
-        //:   '(year, dayOfYear)' pair as either a valid or an invalid
-        //:   year/day-of-year date.
-        //:
-        //: 2 The 'isValidYearMonthDay' method correctly categorizes every
-        //:   '(year, month, day)' triple as either a valid or an invalid
-        //:   year/month/day date.
-        //:
-        //: 3 'setYearDayIfValid' can set an object to have any valid date
-        //:   value.
-        //:
-        //: 4 'setYearDayIfValid' is not affected by the state of the object on
-        //:   entry.
-        //:
-        //: 5 'setYearDayIfValid' has no effect on the object if the supplied
-        //:   '(year, dayOfYear)' pair is not a valid year/day-of-year date.
-        //:
-        //: 6 'setYearDayIfValid' returns 0 on success, and a non-zero value on
-        //:   failure.
-        //:
-        //: 7 'setYearMonthDayIfValid' can set an object to have any valid date
-        //:   value.
-        //:
-        //: 8 'setYearMonthDayIfValid' is not affected by the state of the
-        //:   object on entry.
-        //:
-        //: 9 'setYearMonthDayIfValid' has no effect on the object if the
-        //:   supplied (year, month, day) triple is not a valid year/month/day
-        //:   date.
-        //:
-        //:10 'setYearMonthDayIfValid' returns 0 on success, and a non-zero
-        //:   value on failure.
+        // 1. The `isValidYearDay` method correctly categorizes every
+        //    `(year, dayOfYear)` pair as either a valid or an invalid
+        //    year/day-of-year date.
+        //
+        // 2. The `isValidYearMonthDay` method correctly categorizes every
+        //    `(year, month, day)` triple as either a valid or an invalid
+        //    year/month/day date.
+        //
+        // 3. `setYearDayIfValid` can set an object to have any valid date
+        //    value.
+        //
+        // 4. `setYearDayIfValid` is not affected by the state of the object on
+        //    entry.
+        //
+        // 5. `setYearDayIfValid` has no effect on the object if the supplied
+        //    `(year, dayOfYear)` pair is not a valid year/day-of-year date.
+        //
+        // 6. `setYearDayIfValid` returns 0 on success, and a non-zero value on
+        //    failure.
+        //
+        // 7. `setYearMonthDayIfValid` can set an object to have any valid date
+        //    value.
+        //
+        // 8. `setYearMonthDayIfValid` is not affected by the state of the
+        //    object on entry.
+        //
+        // 9. `setYearMonthDayIfValid` has no effect on the object if the
+        //    supplied (year, month, day) triple is not a valid year/month/day
+        //    date.
+        //
+        // 10. `setYearMonthDayIfValid` returns 0 on success, and a non-zero
+        //    value on failure.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   *candidate* year/day-of-year date representations, and a flag
-        //:   value indicating whether the year/day-of-year values represent a
-        //:   valid date object.
-        //:
-        //: 2 For each row 'R' in the table of P-1:  (C-1, 3..6)
-        //:
-        //:   1 Verify that the 'isValidYearDay' method, when invoked on the
-        //:     year/day-of-year values from 'R', returns the expected value.
-        //:     (C-1)
-        //:
-        //:   2 Use the 2-argument value constructor to create a modifiable
-        //:     object, 'mX', having a value distinct from any of the (valid)
-        //:     values in 'R'.
-        //:
-        //:   3 Verify that the 'setYearDayIfValid' method, when invoked on
-        //:     'mX' and passed the year/day-of-year values from 'R', returns
-        //:     the expected value.  (C-6)
-        //:
-        //:   4 Verify, using the equality-comparison operator, that 'mX' has
-        //:     the expected value, i.e., 'mX' has the value from 'R' when
-        //:     'setYearDayIfValid' returns 0, and its value is unchanged
-        //:     otherwise.  (C-3..5)
-        //:
-        //: 3 Using the table-driven technique, specify a set of distinct
-        //:   *candidate* year/month/day date representations, and a flag
-        //:   value indicating whether the year/month/day values represent a
-        //:   valid date object.
-        //:
-        //: 4 For each row 'R' in the table of P-3:  (C-2, 7..10)
-        //:
-        //:   1 Verify that the 'isValidYearMonthDay' method, when invoked on
-        //:     the year/month/day values from 'R', returns the expected value.
-        //:     (C-2)
-        //:
-        //:   2 Use the 3-argument value constructor to create a modifiable
-        //:     object, 'mX', having a value distinct from any of the (valid)
-        //:     values in 'R'.
-        //:
-        //:   3 Verify that the 'setYearMonthDayIfValid' method, when invoked
-        //:     on 'mX' and passed the year/month/day values from 'R', returns
-        //:     the expected value.  (C-10)
-        //:
-        //:   4 Verify, using the equality-comparison operator, that 'mX' has
-        //:     the expected value, i.e., 'mX' has the value from 'R' when
-        //:     'setYearMonthDayIfValid' returns 0, and its value is unchanged
-        //:     otherwise.  (C-7..9)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    *candidate* year/day-of-year date representations, and a flag
+        //    value indicating whether the year/day-of-year values represent a
+        //    valid date object.
+        //
+        // 2. For each row `R` in the table of P-1:  (C-1, 3..6)
+        //
+        //   1. Verify that the `isValidYearDay` method, when invoked on the
+        //      year/day-of-year values from `R`, returns the expected value.
+        //      (C-1)
+        //
+        //   2. Use the 2-argument value constructor to create a modifiable
+        //      object, `mX`, having a value distinct from any of the (valid)
+        //      values in `R`.
+        //
+        //   3. Verify that the `setYearDayIfValid` method, when invoked on
+        //      `mX` and passed the year/day-of-year values from `R`, returns
+        //      the expected value.  (C-6)
+        //
+        //   4. Verify, using the equality-comparison operator, that `mX` has
+        //      the expected value, i.e., `mX` has the value from `R` when
+        //      `setYearDayIfValid` returns 0, and its value is unchanged
+        //      otherwise.  (C-3..5)
+        //
+        // 3. Using the table-driven technique, specify a set of distinct
+        //    *candidate* year/month/day date representations, and a flag
+        //    value indicating whether the year/month/day values represent a
+        //    valid date object.
+        //
+        // 4. For each row `R` in the table of P-3:  (C-2, 7..10)
+        //
+        //   1. Verify that the `isValidYearMonthDay` method, when invoked on
+        //      the year/month/day values from `R`, returns the expected value.
+        //      (C-2)
+        //
+        //   2. Use the 3-argument value constructor to create a modifiable
+        //      object, `mX`, having a value distinct from any of the (valid)
+        //      values in `R`.
+        //
+        //   3. Verify that the `setYearMonthDayIfValid` method, when invoked
+        //      on `mX` and passed the year/month/day values from `R`, returns
+        //      the expected value.  (C-10)
+        //
+        //   4. Verify, using the equality-comparison operator, that `mX` has
+        //      the expected value, i.e., `mX` has the value from `R` when
+        //      `setYearMonthDayIfValid` returns 0, and its value is unchanged
+        //      otherwise.  (C-7..9)
         //
         // Testing:
         //   static bool isValidYearDay(int year, int dayOfYear);
@@ -1664,11 +1664,11 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "CONDITIONAL 'setYear*IfValid' SETTERS" << endl
+                          << "CONDITIONAL `setYear*IfValid` SETTERS" << endl
                           << "=====================================" << endl;
 
         if (verbose)
-            cout << "\nTesting 'setYearDayIfValid'."
+            cout << "\nTesting `setYearDayIfValid`."
                  << endl;
         {
             static const struct {
@@ -1771,7 +1771,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\nTesting 'setYearMonthDayIfValid'."
+            cout << "\nTesting `setYearMonthDayIfValid`."
                  << endl;
         {
             static const struct {
@@ -1947,20 +1947,20 @@ int main(int argc, char *argv[])
         // TESTING: hashAppend
         //
         // Concerns:
-        //: 1 Hope that different inputs hash differently
-        //: 2 Verify that equal inputs hash identically
-        //: 3 Works for 'const' and non-'const' values
+        // 1. Hope that different inputs hash differently
+        // 2. Verify that equal inputs hash identically
+        // 3. Works for `const` and non-`const` values
         //
         // Plan:
-        //: 1 Use a table specifying a set of distinct objects, verify that
-        //:   hashes of equivalent objects match and hashes on unequal objects
-        //:   do not.
+        // 1. Use a table specifying a set of distinct objects, verify that
+        //    hashes of equivalent objects match and hashes on unequal objects
+        //    do not.
         //
         // Testing:
         //    void hashAppend(HASHALG&, const Datetime&);
         // --------------------------------------------------------------------
         if (verbose)
-            cout << "\nTESTING 'hashAppend'"
+            cout << "\nTESTING `hashAppend`"
                  << "\n====================\n";
 
         typedef ::BloombergLP::bslh::Hash<> Hasher;
@@ -2122,13 +2122,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -2143,11 +2143,11 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -
-// Values represented by objects of type 'bdlt::Datetime' are used widely in
+// Values represented by objects of type `bdlt::Datetime` are used widely in
 // practice.  The values of the individual attributes resulting from a
-// default-constructed 'bdlt::Datetime' object, 'dt', are
+// default-constructed `bdlt::Datetime` object, `dt`, are
 // "0001/01/01_24:00:00.000000":
-//..
+// ```
     bdlt::Datetime dt;          ASSERT( 1 == dt.date().year());
                                 ASSERT( 1 == dt.date().month());
                                 ASSERT( 1 == dt.date().day());
@@ -2156,10 +2156,10 @@ int main(int argc, char *argv[])
                                 ASSERT( 0 == dt.second());
                                 ASSERT( 0 == dt.millisecond());
                                 ASSERT( 0 == dt.microsecond());
-//..
-// We can then set 'dt' to have a specific value, say, 8:43pm on January 6,
+// ```
+// We can then set `dt` to have a specific value, say, 8:43pm on January 6,
 // 2013:
-//..
+// ```
     dt.setDatetime(2013, 1, 6, 20, 43);
                                 ASSERT(2013 == dt.date().year());
                                 ASSERT(   1 == dt.date().month());
@@ -2169,10 +2169,10 @@ int main(int argc, char *argv[])
                                 ASSERT(   0 == dt.second());
                                 ASSERT(   0 == dt.millisecond());
                                 ASSERT(   0 == dt.microsecond());
-//..
+// ```
 // Now suppose we add 6 hours and 9 seconds to this value.  There is more than
 // one way to do it:
-//..
+// ```
     bdlt::Datetime dt2(dt);
     dt2.addHours(6);
     dt2.addSeconds(9);
@@ -2188,10 +2188,10 @@ int main(int argc, char *argv[])
     bdlt::Datetime dt3(dt);
     dt3.addTime(6, 0, 9);
                                 ASSERT(dt2 == dt3);
-//..
+// ```
 // Notice that (in both cases) the date changed as a result of adding time;
 // however, changing just the date never affects the time:
-//..
+// ```
     dt3.addDays(10);
                                 ASSERT(2013 == dt3.date().year());
                                 ASSERT(   1 == dt3.date().month());
@@ -2201,34 +2201,34 @@ int main(int argc, char *argv[])
                                 ASSERT(   9 == dt3.second());
                                 ASSERT(   0 == dt3.millisecond());
                                 ASSERT(   0 == dt3.microsecond());
-//..
+// ```
 // We can also add more than a day's worth of time:
-//..
+// ```
     dt2.addHours(240);
                                 ASSERT(dt3 == dt2);
-//..
+// ```
 // The individual arguments can also be negative:
-//..
+// ```
     dt2.addTime(-246, 0, -10, 1000);  // -246 h, -10 s, +1000 ms
                                 ASSERT(dt == dt2);
-//..
-// Finally, we stream the value of 'dt2' to 'stdout':
-//..
+// ```
+// Finally, we stream the value of `dt2` to `stdout`:
+// ```
 if (veryVerbose) {
     bsl::cout << dt2 << bsl::endl;
 }
-//..
-// The streaming operator produces the following output on 'stdout':
-//..
+// ```
+// The streaming operator produces the following output on `stdout`:
+// ```
 //  06JAN2013_20:43:00.000000
-//..
+// ```
 //
 ///Example 2: Creating a Schedule of Equal Time Intervals
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Calculations involving date and time values are difficult to get correct
 // manually; consequently, people tend to schedule events on natural time
 // boundaries (e.g., on the hour) even if that is sub-optimal.  Having a class
-// such as 'bdlt::Datetime' makes doing date and time calculations trivial.
+// such as `bdlt::Datetime` makes doing date and time calculations trivial.
 //
 // Suppose one wants to divide into an arbitrary interval such as the time
 // between sunset and sunrise into an arbitrary number (say 7) of equal
@@ -2237,32 +2237,32 @@ if (veryVerbose) {
 //
 // First, we create objects containing values for the start and end of the time
 // interval:
-//..
+// ```
     bdlt::Datetime  sunset(2014, 6, 26, 20, 31, 23); // New York City
     bdlt::Datetime sunrise(2014, 6, 27,  5, 26, 51); // New York City
-//..
+// ```
 // Then, we calculate the length of each shift in milliseconds (for good
 // precision -- we may be synchronizing astronomical instruments).  Note that
-// the difference of 'sunrise' and 'sunset' creates a temporary
-// 'bdlt::DatetimeInterval' object:
-//..
+// the difference of `sunrise` and `sunset` creates a temporary
+// `bdlt::DatetimeInterval` object:
+// ```
     const int                numShifts = 7;
     const bsls::Types::Int64 shiftLengthInMsec
                                        = (sunrise - sunset).totalMilliseconds()
                                        / numShifts;
-//..
-// Now, we calculate (and print to 'stdout') the beginning and end times for
+// ```
+// Now, we calculate (and print to `stdout`) the beginning and end times for
 // each shift:
-//..
+// ```
     for (int i = 0; i <= numShifts; ++i) {
         bdlt::Datetime startOfShift(sunset);
         startOfShift.addMilliseconds(shiftLengthInMsec * i);
 if (veryVerbose)
         bsl::cout << startOfShift << bsl::endl;
     }
-//..
+// ```
 // Finally, we observe:
-//..
+// ```
 //  26JUN2014_20:31:23.000000
 //  26JUN2014_21:47:52.714000
 //  26JUN2014_23:04:22.428000
@@ -2271,7 +2271,7 @@ if (veryVerbose)
 //  27JUN2014_02:53:51.570000
 //  27JUN2014_04:10:21.284000
 //  27JUN2014_05:26:50.998000
-//..
+// ```
 // Notice how our objects (since they manage both "date" and "time of day"
 // parts of each point in time) seamlessly handle the transition between the
 // two days.
@@ -2283,23 +2283,23 @@ if (veryVerbose)
         // TESTING DEPRECATED MANIPULATORS
         //
         // Concerns:
-        //: 1 The DEPRECATED 'date' manipulator method returns a reference
-        //:   (providing modifiable access) to the same date object that is
-        //:   returned (by value) from the 'date' accessor method.
-        //:
-        //: 2 The DEPRECATED 'validateAndSetDatetime' method behaves the same
-        //:   as 'setDatetimeIfValid', its successor method.  Their contracts
-        //:   are identical.
+        // 1. The DEPRECATED `date` manipulator method returns a reference
+        //    (providing modifiable access) to the same date object that is
+        //    returned (by value) from the `date` accessor method.
+        //
+        // 2. The DEPRECATED `validateAndSetDatetime` method behaves the same
+        //    as `setDatetimeIfValid`, its successor method.  Their contracts
+        //    are identical.
         //
         // Plan:
-        //: 1 Use the 'date' manipulator to obtain a reference providing
-        //:   modifiable access to the "date" part of 'Datetime' object.  Use
-        //:   that reference to increment the "date" part of that object.
-        //:   Confirm that the value accessed via the reference matches the
-        //:   value obtained by the 'date' accessor.
-        //:
-        //: 2 Mirror the tests of 'setDatetimeIfValid' (case 18) using the
-        //:   DEPRECATED 'validateAndSetDatetime' method.  (C-2)
+        // 1. Use the `date` manipulator to obtain a reference providing
+        //    modifiable access to the "date" part of `Datetime` object.  Use
+        //    that reference to increment the "date" part of that object.
+        //    Confirm that the value accessed via the reference matches the
+        //    value obtained by the `date` accessor.
+        //
+        // 2. Mirror the tests of `setDatetimeIfValid` (case 18) using the
+        //    DEPRECATED `validateAndSetDatetime` method.  (C-2)
         //
         // Testing:
         //   Date& date();
@@ -2310,7 +2310,7 @@ if (veryVerbose)
                           << "TESTING DEPRECATED MANIPULATORS" << endl
                           << "===============================" << endl;
 
-        if (verbose) cout << "\nTesting 'validateAndSetDatetime'" << endl;
+        if (verbose) cout << "\nTesting `validateAndSetDatetime`" << endl;
 
         const Date RD(2000, 2, 3);       // Ref date (02FEB2000)
         const Time RT(23, 22, 21, 209);  // Ref time (21:22:21.209)
@@ -2480,50 +2480,50 @@ if (veryVerbose)
       } break;
       case 21: {
         // --------------------------------------------------------------------
-        // TESTING 'addDays'
+        // TESTING `addDays`
         //
         // Concerns:
-        //: 1 The method changes the object's "date" part by the specified
-        //:   number of days.
-        //:
-        //: 2 The method works irrespective of the initial state of the object.
-        //:
-        //: 3 The method does not change the "time" part.
+        // 1. The method changes the object's "date" part by the specified
+        //    number of days.
         //
-        //: 4 The method returns the expected value.
-        //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        // 2. The method works irrespective of the initial state of the object.
+        //
+        // 3. The method does not change the "time" part.
+        //
+        // 4. The method returns the expected value.
+        //
+        // 5. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Construct a table of substantial and varied differences in value
-        //:   that spans the range of 'Datetime' values and includes the
-        //:   default value.  The table will be used to create a series of test
-        //:   objects.  Also construct an array of integer values that will be
-        //:   used as argument methods.
-        //:
-        //: 2 Test the cross product of the objects defined by the table (P-1)
-        //:   and day (delta) values.  Vet the values against overflow of the
-        //:   epoch and adjust accordingly.  Invoke the object's 'addDays'
-        //:   method with the (possibly adjusted) days value and confirm that
-        //:   the date has been increased (decreased) by the expected number of
-        //:   days.  Also confirm that the "time" part equals that of the
-        //:   original value.  (C-1..3)
-        //:
-        //: 3 For each invocation of the 'addDays' method, compare the address
-        //:   of the objected referenced by the return value to the address of
-        //:   the object under test.  (C-4)
-        //:
-        //: 4 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when an attempt is made to perform operations that
-        //:   would overflow the valid range of 'Datetime' values.
-        //:   (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
+        // 1. Construct a table of substantial and varied differences in value
+        //    that spans the range of `Datetime` values and includes the
+        //    default value.  The table will be used to create a series of test
+        //    objects.  Also construct an array of integer values that will be
+        //    used as argument methods.
+        //
+        // 2. Test the cross product of the objects defined by the table (P-1)
+        //    and day (delta) values.  Vet the values against overflow of the
+        //    epoch and adjust accordingly.  Invoke the object's `addDays`
+        //    method with the (possibly adjusted) days value and confirm that
+        //    the date has been increased (decreased) by the expected number of
+        //    days.  Also confirm that the "time" part equals that of the
+        //    original value.  (C-1..3)
+        //
+        // 3. For each invocation of the `addDays` method, compare the address
+        //    of the objected referenced by the return value to the address of
+        //    the object under test.  (C-4)
+        //
+        // 4. Verify that, in appropriate build modes, defensive checks are
+        //    triggered when an attempt is made to perform operations that
+        //    would overflow the valid range of `Datetime` values.
+        //    (using the `BSLS_ASSERTTEST_*` macros).  (C-5)
         //
         // Testing:
         //   void addDays(int days);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'addDays'" << endl
+                          << "TESTING `addDays`" << endl
                           << "=================" << endl;
 
         static const struct {
@@ -2641,37 +2641,37 @@ if (veryVerbose)
       } break;
       case 20: {
         // --------------------------------------------------------------------
-        // TESTING 'setDate' AND 'setTime'
+        // TESTING `setDate` AND `setTime`
         //
         // Concerns:
-        //: 1 The 'setDate' and 'setTime' methods work for all values of 'Date'
-        //:   and 'Time', respectively.
-        //:
-        //: 2 The methods work irrespective of the initial state of the object.
-        //:
-        //: 3 The 'setDate' method does not change the "time" part, and the
-        //:   'setTime' method does not change the "date" part.
-        //:
-        //: 4 The methods are alias-safe.
+        // 1. The `setDate` and `setTime` methods work for all values of `Date`
+        //    and `Time`, respectively.
+        //
+        // 2. The methods work irrespective of the initial state of the object.
+        //
+        // 3. The `setDate` method does not change the "time" part, and the
+        //    `setTime` method does not change the "date" part.
+        //
+        // 4. The methods are alias-safe.
         //
         // Plan:
-        //: 1 Construct a table of substantial and varied differences in value
-        //:   that spans the range of 'Datetime' values and includes the
-        //:   default value.  The table will be used to create a series of test
-        //:   objects.  The table also provides a meaningful and convenient
-        //:   source of date and time values to be used as arguments to the
-        //:   'setDate' and 'setTime' methods, respectively.
-        //:
-        //: 2 For each value specified by the table (P-1), create a test object
-        //:   and invoke the 'setDate' ('setTime') method using each of the
-        //:   date (time) values from the table.  In each case confirm that the
-        //:   "date" and "time" parts of the test object have the expected
-        //:   values.  (C-1..3)
-        //:
-        //: 3 For each value specified by the table (P-1), create an object and
-        //:   invoke its 'setDate' ('setTime') method using the "date" ("time")
-        //:   part of that object as an argument.  Confirm that the object
-        //:   value is unchanged.  (C-4)
+        // 1. Construct a table of substantial and varied differences in value
+        //    that spans the range of `Datetime` values and includes the
+        //    default value.  The table will be used to create a series of test
+        //    objects.  The table also provides a meaningful and convenient
+        //    source of date and time values to be used as arguments to the
+        //    `setDate` and `setTime` methods, respectively.
+        //
+        // 2. For each value specified by the table (P-1), create a test object
+        //    and invoke the `setDate` (`setTime`) method using each of the
+        //    date (time) values from the table.  In each case confirm that the
+        //    "date" and "time" parts of the test object have the expected
+        //    values.  (C-1..3)
+        //
+        // 3. For each value specified by the table (P-1), create an object and
+        //    invoke its `setDate` (`setTime`) method using the "date" ("time")
+        //    part of that object as an argument.  Confirm that the object
+        //    value is unchanged.  (C-4)
         //
         // Testing:
         //   void setDate(const Date& date);
@@ -2679,7 +2679,7 @@ if (veryVerbose)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'setDate' AND 'setTime'" << endl
+                          << "TESTING `setDate` AND `setTime`" << endl
                           << "===============================" << endl;
 
         static const struct {
@@ -2719,7 +2719,7 @@ if (veryVerbose)
         const int NUM_VALUES =
                               static_cast<int>(sizeof VALUES / sizeof *VALUES);
 
-        if (verbose) cout << "\nTesting 'setDate' and 'setTime'" << endl;
+        if (verbose) cout << "\nTesting `setDate` and `setTime`" << endl;
 
         for (int i = 0; i < NUM_VALUES; ++i) {
             const int YEAR1   = VALUES[i].d_year;
@@ -2786,7 +2786,7 @@ if (veryVerbose)
             }
         }
 
-        if (verbose) cout << "\nTesting 'setDate' and 'setTime' Aliasing."
+        if (verbose) cout << "\nTesting `setDate` and `setTime` Aliasing."
                           << endl;
 
         for (int i = 0; i < NUM_VALUES; ++i) {
@@ -2824,25 +2824,25 @@ if (veryVerbose)
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // TESTING 'setYearDay' AND 'setYearMonthDay'
+        // TESTING `setYearDay` AND `setYearMonthDay`
         //
         // Concerns:
-        //: 1 Each method sets the intended date value.
-        //:
-        //: 2 Each method leaves the time value unchanged.
-        //:
-        //: 3 The original value of the object is not relevant.
+        // 1. Each method sets the intended date value.
+        //
+        // 2. Each method leaves the time value unchanged.
+        //
+        // 3. The original value of the object is not relevant.
         //
         // Plan:
-        //: 1 Construct a table of valid inputs and compare results with the
-        //:   expected values.  (C-1)
-        //:
-        //: 2 Confirm that the time value of the test object is not changed.
-        //:   (C-2)
-        //:
-        //: 3 Repeat the tests for a series of test objects that span the range
-        //:   of valid 'Datetime' values and include the default constructed
-        //:   object.
+        // 1. Construct a table of valid inputs and compare results with the
+        //    expected values.  (C-1)
+        //
+        // 2. Confirm that the time value of the test object is not changed.
+        //    (C-2)
+        //
+        // 3. Repeat the tests for a series of test objects that span the range
+        //    of valid `Datetime` values and include the default constructed
+        //    object.
         //
         // Testing:
         //   void setYearMonthDay(int year, int month, int day);
@@ -2851,7 +2851,7 @@ if (veryVerbose)
 
         if (verbose) cout
                        <<  endl
-                       << "TESTING 'setYearDay' AND 'setYearMonthDay'" << endl
+                       << "TESTING `setYearDay` AND `setYearMonthDay`" << endl
                        << "==========================================" << endl;
 
         const Date RD(2000, 2, 3);       // Ref date (02FEB2000)
@@ -2937,39 +2937,39 @@ if (veryVerbose)
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING 'setDatetimeIfValid' x2
+        // TESTING `setDatetimeIfValid` x2
         //
         // Concerns:
-        //: 1 Each of the arguments independently contribute to the calculation
-        //:   of validity.
-        //:
-        //: 2 The return value on success is 0.
-        //:
-        //: 3 If the arguments are valid, the object is set accordingly;
-        //:   otherwise, the object is unchanged.
-        //:
-        //: 4 The return value on failure is non-zero.
-        //:
-        //: 5 The results are identical irrespective of the initial value of
-        //:   the object.
-        //:
-        //: 6 Each optional argument is set to the expected value (0).
-        //:
+        // 1. Each of the arguments independently contribute to the calculation
+        //    of validity.
+        //
+        // 2. The return value on success is 0.
+        //
+        // 3. If the arguments are valid, the object is set accordingly;
+        //    otherwise, the object is unchanged.
+        //
+        // 4. The return value on failure is non-zero.
+        //
+        // 5. The results are identical irrespective of the initial value of
+        //    the object.
+        //
+        // 6. Each optional argument is set to the expected value (0).
+        //
         //
         // Plan:
-        //: 1 Construct a table of valid and invalid inputs.
-        //:
-        //: 2 For a series of test objects that span the range of valid
-        //:   'Datetime' values, including a default constructed object, invoke
-        //:   the method under test using the values from the table in P-1, and
-        //:   verify the results are as expected.  (C-1..5)
-        //:
-        //: 3 Construct a series of object pairs.  For each pair, invoke the
-        //:   'setDatetimeIfValid' method by explicitly specifying the expected
-        //:   default value for an optional argument for one object, and by not
-        //:   omitting the optional argument for the other object.  The two
-        //:   objects should compare equal.  For each pair of the series, omit
-        //:   one more of the four optional arguments.  (C-6)
+        // 1. Construct a table of valid and invalid inputs.
+        //
+        // 2. For a series of test objects that span the range of valid
+        //    `Datetime` values, including a default constructed object, invoke
+        //    the method under test using the values from the table in P-1, and
+        //    verify the results are as expected.  (C-1..5)
+        //
+        // 3. Construct a series of object pairs.  For each pair, invoke the
+        //    `setDatetimeIfValid` method by explicitly specifying the expected
+        //    default value for an optional argument for one object, and by not
+        //    omitting the optional argument for the other object.  The two
+        //    objects should compare equal.  For each pair of the series, omit
+        //    one more of the four optional arguments.  (C-6)
         //
         // Testing:
         //   int setDatetimeIfValid(int, int, int, int, int, int, int, int);
@@ -2977,7 +2977,7 @@ if (veryVerbose)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'setDatetimeIfValid' x2" << endl
+                          << "TESTING `setDatetimeIfValid` x2" << endl
                           << "===============================" << endl;
 
         const Date RD(2000, 2, 3);       // Ref date (02FEB2000)
@@ -3018,7 +3018,7 @@ if (veryVerbose)
             //line year   mo   day   hr  min  sec  msec  usec  valid
             //---- ----   --   ---   --  ---  ---  ----  ----  -----
 
-            // valid 'Obj' arguments
+            // valid `Obj` arguments
             { L_,     1,   1,   1,   24,   0,   0,    0,    0,   1 },
 
             { L_,     1,   1,   1,    0,   0,   0,    0,    0,   1 },
@@ -3037,7 +3037,7 @@ if (veryVerbose)
 
             { L_,     1,   1,   2,   24,   0,   0,    0,    0,   1 },
 
-            // invalid 'Obj' arguments
+            // invalid `Obj` arguments
             { L_,     1,   1,   1,    0,   0,   0,    0,   -1,   0 },
             { L_,     1,   1,   1,    0,   0,   0,   -1,    0,   0 },
             { L_,     1,   1,   1,    0,   0,  -1,    0,    0,   0 },
@@ -3235,23 +3235,23 @@ if (veryVerbose)
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING 'isValid'
+        // TESTING `isValid`
         //
         // Concerns:
-        //: 1 Each of the seven arguments contribute to the 'isValid'
-        //:   calculation.
-        //:
+        // 1. Each of the seven arguments contribute to the `isValid`
+        //    calculation.
+        //
         // Plan:
-        //: 1 Construct a table of valid and invalid inputs and compare results
-        //:   to the expected return value of 'isValid'.  The table entries
-        //:   test the range limits for each field.  (C-1)
+        // 1. Construct a table of valid and invalid inputs and compare results
+        //    to the expected return value of `isValid`.  The table entries
+        //    test the range limits for each field.  (C-1)
         //
         // Testing:
         //   bool isValid(y, m, d, h, m, s, ms, us);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'isValid'" << endl
+                          << "TESTING `isValid`" << endl
                           << "=================" << endl;
 
         static const struct {
@@ -3269,7 +3269,7 @@ if (veryVerbose)
             //line year   mo   day   hr  min  sec  msec  usec  exp
             //---- ----   --   ---   --  ---  ---  ----  ----  ---
 
-            // valid 'Obj' arguments
+            // valid `Obj` arguments
             { L_,     1,   1,   1,   24,   0,   0,    0,    0,   1 },
 
             { L_,     1,   1,   1,    0,   0,   0,    0,    0,   1 },
@@ -3288,7 +3288,7 @@ if (veryVerbose)
 
             { L_,     1,   1,   2,   24,   0,   0,    0,    0,   1 },
 
-            // invalid 'Obj' arguments
+            // invalid `Obj` arguments
             { L_,     1,   1,   1,    0,   0,   0,    0,   -1,   0 },
             { L_,     1,   1,   1,    0,   0,   0,   -1,    0,   0 },
             { L_,     1,   1,   1,    0,   0,  -1,    0,    0,   0 },
@@ -3353,47 +3353,47 @@ if (veryVerbose)
         // TESTING ADDITION AND SUBTRACTION OPERATORS
         //
         // Concerns:
-        //: 1 The signature and return type of both addition and assignment
-        //:   operator functions are as expected.
-        //:
-        //: 2 The addition operation is commutative for the allowed inputs.
-        //:
-        //: 3 The subtraction operation of 'Datetime' objects is
-        //:   anticommutative for the allowed inputs
-        //:
-        //: 4 The addition and subtraction operations work for the maximum
-        //:   values.
-        //:
-        //: 5 The addition and subtraction operations change 'hour()' from
-        //:   24 to 0 before modifying the value.
+        // 1. The signature and return type of both addition and assignment
+        //    operator functions are as expected.
+        //
+        // 2. The addition operation is commutative for the allowed inputs.
+        //
+        // 3. The subtraction operation of `Datetime` objects is
+        //    anticommutative for the allowed inputs
+        //
+        // 4. The addition and subtraction operations work for the maximum
+        //    values.
+        //
+        // 5. The addition and subtraction operations change `hour()` from
+        //   24. to 0 before modifying the value.
         //
         // Plan:
-        //: 1 Use the addresses of the addition and subtraction operator
-        //:   functions to initialize function pointers having the appropriate
-        //:   signatures and return types.  (C-1)
-        //:
-        //: 2 Create tables of date value pairs and time value pairs.
-        //:
-        //:   1 The entries include pairs whose differences cross field
-        //:     boundaries of the "date" and "time" parts.
-        //:
-        //:   2 The entries include pairs with no differences.
-        //:
-        //: 3 Use the pairs of date and time values to construct 'Datetime'
-        //:   objects.
-        //:
-        //:   1 Take calculate the differences between those objects (in
-        //:     different orders) and verify that each result matches the
-        //:     difference expected from their constituent date and time
-        //:     values.  (C-3)
-        //:
-        //:   2 Apply the differences calculated in P-3.1 to reconstruct the
-        //:     original objects (C-2).
-        //:
-        //: 4 Calculate the interval between the largest and smallest
-        //:   'Datetime' values, then, in a series of ad hoc tests, confirm
-        //:   that adding that value to the smallest 'Datetime' results in the
-        //:   largest, and *vice* *versa*.  (C-4)
+        // 1. Use the addresses of the addition and subtraction operator
+        //    functions to initialize function pointers having the appropriate
+        //    signatures and return types.  (C-1)
+        //
+        // 2. Create tables of date value pairs and time value pairs.
+        //
+        //   1. The entries include pairs whose differences cross field
+        //      boundaries of the "date" and "time" parts.
+        //
+        //   2. The entries include pairs with no differences.
+        //
+        // 3. Use the pairs of date and time values to construct `Datetime`
+        //    objects.
+        //
+        //   1. Take calculate the differences between those objects (in
+        //      different orders) and verify that each result matches the
+        //      difference expected from their constituent date and time
+        //      values.  (C-3)
+        //
+        //   2. Apply the differences calculated in P-3.1 to reconstruct the
+        //      original objects (C-2).
+        //
+        // 4. Calculate the interval between the largest and smallest
+        //    `Datetime` values, then, in a series of ad hoc tests, confirm
+        //    that adding that value to the smallest `Datetime` results in the
+        //    largest, and *vice* *versa*.  (C-4)
         //
         // Testing:
         //   Datetime operator+(const Datetime&, const TimeInterval&);
@@ -3716,66 +3716,66 @@ if (veryVerbose)
         // TESTING ARITHMETIC ASSIGNMENT OPERATORS
         //
         // Concerns:
-        //: 1 The signature and return type of both arithmetic assignment
-        //:   operator functions are standard.
-        //:
-        //: 2 The value of 'Datetime' object can be changed by an arbitrary
-        //:   'DatetimeInterval' and 'bsls::TimeInterval' (valid) value,
-        //:   subject to the constraint that the valid 'Datetime' range is not
-        //:   exceeded.
-        //:
-        //:   1 Differences in "time" part are propagated to the "date" part as
-        //:     needed.
-        //:
-        //:   2 The arithmetic assignment operators work for the largest
-        //:     possible changes in the value.
-        //:
-        //: 3 The arithmetic assignment operations are inverse functions.
-        //:
-        //: 4 The addition and subtraction operations change 'hour()' from
-        //:   24 to 0 before modifying the value.
-        //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The signature and return type of both arithmetic assignment
+        //    operator functions are standard.
+        //
+        // 2. The value of `Datetime` object can be changed by an arbitrary
+        //    `DatetimeInterval` and `bsls::TimeInterval` (valid) value,
+        //    subject to the constraint that the valid `Datetime` range is not
+        //    exceeded.
+        //
+        //   1. Differences in "time" part are propagated to the "date" part as
+        //      needed.
+        //
+        //   2. The arithmetic assignment operators work for the largest
+        //      possible changes in the value.
+        //
+        // 3. The arithmetic assignment operations are inverse functions.
+        //
+        // 4. The addition and subtraction operations change `hour()` from
+        //   24. to 0 before modifying the value.
+        //
+        // 5. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use the addresses of the two arithmetic assignment operator
-        //:   functions to initialize function pointers having the appropriate
-        //:   signatures and return types.  (C-1)
-        //:
-        //: 2 Using a table-driven test, iterate through the cross product of
-        //:   representative sets 'Datetime' values and 'DatetimeInterval' /
-        //:   'bsls::TimeInterval' values (to be applied as a "delta" to the
-        //:   'Datetime' values).   The resulting values cover the (valid)
-        //:   range of 'Datetime' values (C-2) and include cases that trigger
-        //:   changes in the "date" part (C-2.1).
-        //:
-        //:   1 For each pair, use 'operator+=' to apply the delta to the base
-        //:     value and compare the result to that obtained by adding the
-        //:     equivalent number of milliseconds using the 'addMilliseconds'
-        //:     method (fully tested in case 14).
-        //:
-        //:   2 Apply the delta using 'operator-=' and confirm that the
-        //:     original value is recovered.
-        //:
-        //:   3 Repeat the sequence in reverse order 'operator-=', the
-        //:     'operator+='.  (C-3)
-        //:
-        //:   4 Vet each calculation against overflow of the valid range of
-        //:     'Datetime'.
-        //:
-        //: 3 Calculate the interval between the largest and smallest
-        //:   'Datetime' values, then confirm that adding that value to the
-        //:   smallest 'Datetime' results in the largest, and *vice* *versa*.
-        //:   (C-2.2)
-        //:
-        //: 4 Use ad hoc tests to convert 'Datetime()' to
-        //:   'Datetime(1, 1, 1, 0, 0, 0, 0)' by adding (subtracting) a zero
-        //:   interval.  (C-4)
-        //:
-        //: 5 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when an attempt is made to perform operations that
-        //:   would overflow the valid range of 'Datetime' values.
-        //:   (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
+        // 1. Use the addresses of the two arithmetic assignment operator
+        //    functions to initialize function pointers having the appropriate
+        //    signatures and return types.  (C-1)
+        //
+        // 2. Using a table-driven test, iterate through the cross product of
+        //    representative sets `Datetime` values and `DatetimeInterval` /
+        //    `bsls::TimeInterval` values (to be applied as a "delta" to the
+        //    `Datetime` values).   The resulting values cover the (valid)
+        //    range of `Datetime` values (C-2) and include cases that trigger
+        //    changes in the "date" part (C-2.1).
+        //
+        //   1. For each pair, use `operator+=` to apply the delta to the base
+        //      value and compare the result to that obtained by adding the
+        //      equivalent number of milliseconds using the `addMilliseconds`
+        //      method (fully tested in case 14).
+        //
+        //   2. Apply the delta using `operator-=` and confirm that the
+        //      original value is recovered.
+        //
+        //   3. Repeat the sequence in reverse order `operator-=`, the
+        //      `operator+=`.  (C-3)
+        //
+        //   4. Vet each calculation against overflow of the valid range of
+        //      `Datetime`.
+        //
+        // 3. Calculate the interval between the largest and smallest
+        //    `Datetime` values, then confirm that adding that value to the
+        //    smallest `Datetime` results in the largest, and *vice* *versa*.
+        //    (C-2.2)
+        //
+        // 4. Use ad hoc tests to convert `Datetime()` to
+        //    `Datetime(1, 1, 1, 0, 0, 0, 0)` by adding (subtracting) a zero
+        //    interval.  (C-4)
+        //
+        // 5. Verify that, in appropriate build modes, defensive checks are
+        //    triggered when an attempt is made to perform operations that
+        //    would overflow the valid range of `Datetime` values.
+        //    (using the `BSLS_ASSERTTEST_*` macros).  (C-5)
         //
         // Testing:
         //   Datetime& operator+=(const bsls::TimeInterval& rhs);
@@ -3813,7 +3813,7 @@ if (veryVerbose)
             (void)operatorMinusEquals;
         }
 
-        if (verbose) cout << "\nCreate table of 'Datetime' values." << endl;
+        if (verbose) cout << "\nCreate table of `Datetime` values." << endl;
 
         static const struct {
             int d_year;
@@ -3890,7 +3890,7 @@ if (veryVerbose)
         const Obj   endOfEpoch(9999, 12, 31,  23, 59, 59, 999, 999);
 
         if (verbose) cout
-              << "\nApply each interval to each 'Datetime'." << endl;
+              << "\nApply each interval to each `Datetime`." << endl;
 
         for (int i = 0; i < NUM_INIT_VALUES; ++i) {
             const int YEAR   = INITIAL_VALUES[i].d_year;
@@ -3906,7 +3906,7 @@ if (veryVerbose)
 
             if (veryVerbose) P(R);
 
-            // Test 'bsls::TimeInterval'.
+            // Test `bsls::TimeInterval`.
 
             for (int j = 0; j < NUM_INTERVAL_VALUES; ++j) {
                 const int DAYS    = INTERVAL_VALUES[i].d_days;
@@ -3929,7 +3929,7 @@ if (veryVerbose)
 
                 if (veryVerbose) { P(delta); }
 
-                x += delta; // 'operator+='
+                x += delta; // `operator+=`
 
                 y.addMicroseconds(delta.totalMicroseconds());
 
@@ -3937,7 +3937,7 @@ if (veryVerbose)
 
                 LOOP2_ASSERT(i, j, Y == X);
 
-                x -= delta; // 'operator-=' to undo the change, yielding 'R'
+                x -= delta; // `operator-=` to undo the change, yielding `R`
 
                 LOOP2_ASSERT(i, j, R == X);
 
@@ -3945,7 +3945,7 @@ if (veryVerbose)
                 Obj u(R);  const Obj& U = u;
                 Obj v(R);  const Obj& V = v;
 
-                u -= delta;  // 'operator-='
+                u -= delta;  // `operator-=`
 
                 v.addMicroseconds(-delta.totalMicroseconds());
 
@@ -3953,12 +3953,12 @@ if (veryVerbose)
 
                 LOOP2_ASSERT(i, j, V == U);
 
-                u += delta;  // 'operator+=' to undo the change, yielding 'R'
+                u += delta;  // `operator+=` to undo the change, yielding `R`
 
                 LOOP2_ASSERT(i, j, R == U);
             }
 
-            // Test 'DatetimeInterval'.
+            // Test `DatetimeInterval`.
 
             for (int j = 0; j < NUM_INTERVAL_VALUES; ++j) {
                 const int DAYS    = INTERVAL_VALUES[i].d_days;
@@ -3987,7 +3987,7 @@ if (veryVerbose)
                     ASSERT(minDelta < delta);
                 }
 
-                x += delta; // 'operator+='
+                x += delta; // `operator+=`
 
                 y.addMicroseconds(delta.totalMicroseconds());
 
@@ -3995,7 +3995,7 @@ if (veryVerbose)
 
                 LOOP2_ASSERT(i, j, Y == X);
 
-                x -= delta; // 'operator-=' to undo the change, yielding 'R'
+                x -= delta; // `operator-=` to undo the change, yielding `R`
 
                 LOOP2_ASSERT(i, j, R == X);
 
@@ -4011,7 +4011,7 @@ if (veryVerbose)
                     ASSERT(minDelta < delta);
                 }
 
-                u -= delta;  // 'operator-='
+                u -= delta;  // `operator-=`
 
                 v.addMicroseconds(-delta.totalMicroseconds());
 
@@ -4019,7 +4019,7 @@ if (veryVerbose)
 
                 LOOP2_ASSERT(i, j, V == U);
 
-                u += delta;  // 'operator+=' to undo the change, yielding 'R'
+                u += delta;  // `operator+=` to undo the change, yielding `R`
 
                 LOOP2_ASSERT(i, j, R == U);
             }
@@ -4180,80 +4180,80 @@ if (veryVerbose)
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING 'add' METHODS
+        // TESTING `add` METHODS
         //
         // Concerns:
-        //: 1 Each 'add' method correctly forwards its arguments to the
-        //:   corresponding operation on the "time" part.
-        //:
-        //: 2 Changes to the "time" part that cross day boundaries correctly
-        //:   propagate to the "date" part.
-        //:
-        //: 3 The 'addTime' method can be used as an oracle for testing the
-        //:   other 'add' methods.
-        //:
-        //: 3 The optional arguments to 'addTime' have the expected default
-        //:   values.
-        //:
-        //: 4 Invocations of these methods on default constructed objects
-        //:   behave as if the object had been constructed with a 'Time' value
-        //:   of 00:00:00.000.
-        //:
-        //: 5 Invocations of these methods return the expected value.
-        //:
-        //: 6 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Each `add` method correctly forwards its arguments to the
+        //    corresponding operation on the "time" part.
+        //
+        // 2. Changes to the "time" part that cross day boundaries correctly
+        //    propagate to the "date" part.
+        //
+        // 3. The `addTime` method can be used as an oracle for testing the
+        //    other `add` methods.
+        //
+        // 3. The optional arguments to `addTime` have the expected default
+        //    values.
+        //
+        // 4. Invocations of these methods on default constructed objects
+        //    behave as if the object had been constructed with a `Time` value
+        //    of 00:00:00.000.
+        //
+        // 5. Invocations of these methods return the expected value.
+        //
+        // 6. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Thoroughly test the 'addTime' method, then use that method as an
-        //:   oracle for tests of 'addHours', 'addMinutes', 'addSeconds',
-        //:   'addMilliseconds', and 'addMicroseconds' methods.  (C-1,3)
-        //:
-        //:   1 Using a table-driven test, perform a series of 'addTime'
-        //:     invocations on a object created from a single, reference date,
-        //:     and compare the result to the calculated expected value.
-        //:
-        //:   2 The 'hour', 'minute', 'second', 'millisecond', and
-        //:     'microsecond' values used include positive, negative, and 0
-        //:     values.  The non-zero values used are of sufficient magnitude
-        //:     to demonstrate propagation of changes to the other "time"
-        //:     fields and, in some cases, to the "date" part.
-        //:
-        //: 2 Using loop-based tests: (C-1,2)
-        //:
-        //:   1 Apply equivalent time adjustments to two newly constructed
-        //:     objects having the same reference datetime value.  Use
-        //:     'addTime' method for one object and the 'addHours' method for
-        //:     the other then compare for equality.  The set of time
-        //:     adjustments include positive, negative, and 0 values, and are
-        //:     of sufficient magnitude to cross date boundaries.
-        //:
-        //:   2 Perform tests analogous to P-1.1 for the 'addMinutes',
-        //:     'addSeconds', 'addMilliseconds', and 'addMicroseconds' methods.
-        //:
-        //: 4 Create a series of object pairs having the same reference
-        //:   datetime value and identically adjust the time value of each of
-        //:   those pairs using the 'setTime' method. Construct and then set
-        //:   the values of "date" and "time" parts using the 'setDatetime'
-        //:   method.  As we go through the five pairs of objects, we invoke
-        //:   the 'setTime' method with one fewer of the optional arguments for
-        //:   one of the objects and invoke 'setTime' with the expected default
-        //:   values for the other object.  The two objects must compare equal.
-        //:   (C-3)
-        //:
-        //: 5 For each of the methods under test, construct a pair of objects:
-        //:   one default constructed, the other constructed with the value
-        //:   "0001/01/01_00:00:00.000".  Use the method under test to perform
-        //:   a non-zero adjustment both of these objects and compare the
-        //:   objects for equality.  (C-4)
+        // 1. Thoroughly test the `addTime` method, then use that method as an
+        //    oracle for tests of `addHours`, `addMinutes`, `addSeconds`,
+        //    `addMilliseconds`, and `addMicroseconds` methods.  (C-1,3)
         //
-        //: 6 On each invocation of a method under test compare the address of
-        //:   the objected referenced by the return value to the address of the
-        //:   object under test.  (C-5)
-        //:
-        //: 7 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when an attempt is made to perform operations that
-        //:   would overflow the valid range of 'Datetime' values.
-        //:   (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
+        //   1. Using a table-driven test, perform a series of `addTime`
+        //      invocations on a object created from a single, reference date,
+        //      and compare the result to the calculated expected value.
+        //
+        //   2. The `hour`, `minute`, `second`, `millisecond`, and
+        //      `microsecond` values used include positive, negative, and 0
+        //      values.  The non-zero values used are of sufficient magnitude
+        //      to demonstrate propagation of changes to the other "time"
+        //      fields and, in some cases, to the "date" part.
+        //
+        // 2. Using loop-based tests: (C-1,2)
+        //
+        //   1. Apply equivalent time adjustments to two newly constructed
+        //      objects having the same reference datetime value.  Use
+        //      `addTime` method for one object and the `addHours` method for
+        //      the other then compare for equality.  The set of time
+        //      adjustments include positive, negative, and 0 values, and are
+        //      of sufficient magnitude to cross date boundaries.
+        //
+        //   2. Perform tests analogous to P-1.1 for the `addMinutes`,
+        //      `addSeconds`, `addMilliseconds`, and `addMicroseconds` methods.
+        //
+        // 4. Create a series of object pairs having the same reference
+        //    datetime value and identically adjust the time value of each of
+        //    those pairs using the `setTime` method. Construct and then set
+        //    the values of "date" and "time" parts using the `setDatetime`
+        //    method.  As we go through the five pairs of objects, we invoke
+        //    the `setTime` method with one fewer of the optional arguments for
+        //    one of the objects and invoke `setTime` with the expected default
+        //    values for the other object.  The two objects must compare equal.
+        //    (C-3)
+        //
+        // 5. For each of the methods under test, construct a pair of objects:
+        //    one default constructed, the other constructed with the value
+        //    "0001/01/01_00:00:00.000".  Use the method under test to perform
+        //    a non-zero adjustment both of these objects and compare the
+        //    objects for equality.  (C-4)
+        //
+        // 6. On each invocation of a method under test compare the address of
+        //    the objected referenced by the return value to the address of the
+        //    object under test.  (C-5)
+        //
+        // 7. Verify that, in appropriate build modes, defensive checks are
+        //    triggered when an attempt is made to perform operations that
+        //    would overflow the valid range of `Datetime` values.
+        //    (using the `BSLS_ASSERTTEST_*` macros).  (C-6)
         //
         // Testing:
         //   void addTime(hours, mins, secs, msecs, usecs);
@@ -4265,7 +4265,7 @@ if (veryVerbose)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'add' METHODS" << endl
+                          << "TESTING `add` METHODS" << endl
                           << "=====================" << endl;
 
         {
@@ -4338,7 +4338,7 @@ if (veryVerbose)
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
-            if (verbose) cout << "\nTesting: 'addTime'" << endl;
+            if (verbose) cout << "\nTesting: `addTime`" << endl;
 
             const int REFERENCE_YEAR  = 2000;
             const int REFERENCE_MONTH =    1;
@@ -4390,10 +4390,10 @@ if (veryVerbose)
         }
 
         if (verbose) cout
-                  << "\nCheck 'addTime' default values of optional parameters."
+                  << "\nCheck `addTime` default values of optional parameters."
                   << endl;
         {
-            // Reference 'Datetime'
+            // Reference `Datetime`
 
             const int YEAR   = 2;  // arbitrary, non-default values
             const int MONTH  = 3;
@@ -4445,7 +4445,7 @@ if (veryVerbose)
         }
 
         if (verbose) cout
-             << "\nTest 'add' methods on default constructed objects." << endl;
+             << "\nTest `add` methods on default constructed objects." << endl;
         {
             // Adjustment Values, none corresponding to the default values.
             const int HOURS   = 100;
@@ -4511,7 +4511,7 @@ if (veryVerbose)
             const Date ID(REFERENCE_YEAR, REFERENCE_MONTH, REFERENCE_DAY);
             const Time IT(0, 0, 0, 0);
 
-            if (verbose) cout << "\nTesting: 'addHours'" << endl;
+            if (verbose) cout << "\nTesting: `addHours`" << endl;
 
             const int START_HOURS = -250;
             const int STOP_HOURS  =  250;
@@ -4531,7 +4531,7 @@ if (veryVerbose)
                 LOOP_ASSERT(hi, Y == X);
             }
 
-            if (verbose) cout << "\nTesting: 'addMinutes'" << endl;
+            if (verbose) cout << "\nTesting: `addMinutes`" << endl;
 
             const int START_MINS  = -15000;
             const int STOP_MINS   =  15000;
@@ -4551,7 +4551,7 @@ if (veryVerbose)
                 LOOP_ASSERT(mi, Y == X);
             }
 
-            if (verbose) cout << "\nTesting: 'addSeconds'" << endl;
+            if (verbose) cout << "\nTesting: `addSeconds`" << endl;
 
             const int START_SECS = -900000;
             const int STOP_SECS  =  900000;
@@ -4570,7 +4570,7 @@ if (veryVerbose)
                 LOOP_ASSERT(si, Y == X);
             }
 
-            if (verbose) cout << "\nTesting: 'addMilliseconds'" << endl;
+            if (verbose) cout << "\nTesting: `addMilliseconds`" << endl;
 
             const int START_MSECS = -900000000;
             const int STOP_MSECS  =  900000000;
@@ -4590,7 +4590,7 @@ if (veryVerbose)
                 LOOP_ASSERT(msi, Y == X);
             }
 
-            if (verbose) cout << "\nTesting: 'addMicroseconds'" << endl;
+            if (verbose) cout << "\nTesting: `addMicroseconds`" << endl;
 
             const int START_USECS = -900000000;
             const int STOP_USECS  =  900000000;
@@ -4696,51 +4696,51 @@ if (veryVerbose)
         // TESTING RELATIONAL OPERATORS
         //
         // Concerns:
-        //: 1 The signature and return type of each relational operator
-        //:   function are standard.
-        //:
-        //: 2 Each relational operator function reports the intended logical
-        //:   relationship.
-        //:
-        //: 3 Each field of the constituent "date" and "time" parts contributes
-        //:   to the calculation of the logical relationships.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The signature and return type of each relational operator
+        //    function are standard.
+        //
+        // 2. Each relational operator function reports the intended logical
+        //    relationship.
+        //
+        // 3. Each field of the constituent "date" and "time" parts contributes
+        //    to the calculation of the logical relationships.
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use the addresses of the four relational operator functions to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types.  (C-1)
-        //:
-        //: 2 Specify an array of unique object values such that:
-        //:
-        //:   1 The elements are sorted in increasing order, thereby allowing
-        //:     us to calculate from the indexes of any two elements in the
-        //:     array their expected logical relation.  (C-2)
-        //:
-        //:   2 The sequence of object values contain some elements that differ
-        //:     in only one of the seven fields.
-        //:
-        //:   4 The start and end of the range of valid 'Date' and 'Time'
-        //:     values are included.
-        //:
-        //:   5 The default object value is *not* included in the array because
-        //:     relational comparisons for objects having the default 'Time'
-        //:     value are not defined.
-        //:
-        //: 3 Use each pair of element values in the array to construct
-        //:   elements, calculate each of the four supported relational values
-        //:   for those elements, and compare that result with the expected
-        //:   result based on the relative position in the array of the
-        //:   objects' element values.
-        //:
-        //: 4 Note that ubiquitous test allocators are already installed as the
-        //:   global allocator and the default allocator.
-        //:
-        //: 5 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when an attempt is made to relationally compare objects
-        //:   having the default constructed value.  (using the
-        //:   'BSLS_ASSERTTEST_*' macros).  (C-5)
+        // 1. Use the addresses of the four relational operator functions to
+        //    initialize function pointers having the appropriate signatures
+        //    and return types.  (C-1)
+        //
+        // 2. Specify an array of unique object values such that:
+        //
+        //   1. The elements are sorted in increasing order, thereby allowing
+        //      us to calculate from the indexes of any two elements in the
+        //      array their expected logical relation.  (C-2)
+        //
+        //   2. The sequence of object values contain some elements that differ
+        //      in only one of the seven fields.
+        //
+        //   4. The start and end of the range of valid `Date` and `Time`
+        //      values are included.
+        //
+        //   5. The default object value is *not* included in the array because
+        //      relational comparisons for objects having the default `Time`
+        //      value are not defined.
+        //
+        // 3. Use each pair of element values in the array to construct
+        //    elements, calculate each of the four supported relational values
+        //    for those elements, and compare that result with the expected
+        //    result based on the relative position in the array of the
+        //    objects' element values.
+        //
+        // 4. Note that ubiquitous test allocators are already installed as the
+        //    global allocator and the default allocator.
+        //
+        // 5. Verify that, in appropriate build modes, defensive checks are
+        //    triggered when an attempt is made to relationally compare objects
+        //    having the default constructed value.  (using the
+        //    `BSLS_ASSERTTEST_*` macros).  (C-5)
         //
         // Testing:
         //  bool operator< (const Datetime& lhs, const Datetime& rhs);
@@ -4899,74 +4899,74 @@ if (veryVerbose)
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING INDIVIDUAL TIME-'set'-ING MANIPULATORS
+        // TESTING INDIVIDUAL TIME-`set`-ING MANIPULATORS
         //
         // Concerns:
-        //: 1 Each of the time-only manipulators correctly forwards its
-        //:   arguments to the appropriate manipulator of the constituent
-        //:   'Time' object.
-        //:
-        //:   1 When the "time" part has a non-default value, each of the time-
-        //:     setting manipulators changes it's intended time field (e.g.,
-        //:     hours, milliseconds) and no other (see C-2)
-        //:
-        //:   2 None of the time-setting manipulators change the "date" part.
-        //:
-        //: 2 None of these manipulators, except the 'setDatetime' method,
-        //:   alters the "date" part of the object.
-        //:
-        //: 3 The 'setDatetime' method correctly forwards its arguments to the
-        //:   appropriate manipulators of the constituent 'Date' and 'Time'
-        //:   objects.
-        //:
-        //: 4 The 'setDatetime' method defines the same optional parameters and
-        //:   provides the same default values as the seven-argument value
-        //:   constructor.
-        //:
-        //: 5 The methods have the same effect regardless of the object's
-        //:   initial value.
-        //:
-        //: 6 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Each of the time-only manipulators correctly forwards its
+        //    arguments to the appropriate manipulator of the constituent
+        //    `Time` object.
+        //
+        //   1. When the "time" part has a non-default value, each of the time-
+        //      setting manipulators changes it's intended time field (e.g.,
+        //      hours, milliseconds) and no other (see C-2)
+        //
+        //   2. None of the time-setting manipulators change the "date" part.
+        //
+        // 2. None of these manipulators, except the `setDatetime` method,
+        //    alters the "date" part of the object.
+        //
+        // 3. The `setDatetime` method correctly forwards its arguments to the
+        //    appropriate manipulators of the constituent `Date` and `Time`
+        //    objects.
+        //
+        // 4. The `setDatetime` method defines the same optional parameters and
+        //    provides the same default values as the seven-argument value
+        //    constructor.
+        //
+        // 5. The methods have the same effect regardless of the object's
+        //    initial value.
+        //
+        // 6. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For a set of independent test values that do not include the
-        //:   default 'Time' value (24:00:00.000), use the default constructor
-        //:   to create an object and use the time-only "set" manipulators to
-        //:   set its value.  Verify the value using the basic accessors after
-        //:   each individual "time" field is set.  Repeat the tests for a
-        //:   series of objects that span the range of valid 'Datetime' values,
-        //:   but excluding the default constructed object (see P-2).
-        //:
-        //: 2 Create a series of objects having a time "part" equal to 'Time()'
-        //:   (24:00:00.000) and confirm using values from the valid bounding
-        //:   range of each "time" field that using any of the individual
-        //:   time-setting manipulators both sets the specified value (e.g.,
-        //:   minute, second) *and* sets the hour field to 0.  Then create an
-        //:   object having non-zero values for "time" fields and confirm that
-        //:   'setHour(24)' sets that specified value *and* sets all other
-        //:   fields to 0.  (C-1..2)
-        //:
-        //: 3 For each set of values used in testing the seven-argument value
-        //:   constructor, create and compare two objects for equality.  One is
-        //:   created by the value constructor (proven earlier), the other by
-        //:   using the seven-argument 'setDatetime' method of a test object.
-        //:   Use a series of test objects that span the range of valid
-        //:   'Datetime' values, *including* the default constructed object.
-        //:   (C-3, 5)
-        //:
-        //: 4 Create a series of five object pairs using the default
-        //:   constructor and then set the values of the "date" and "time"
-        //:   parts using the 'setDatetime' method.  As we go through the five
-        //:   pairs of objects, we invoke the 'setDatetime' method with one
-        //:   fewer of the four optional arguments for one of the objects and
-        //:   invoke 'setDatetime' with the expected default values (of the
-        //:   optional arguments) for the other object.  Verify that the two
-        //:   objects compare equal.  (C-4)
-        //:
-        //: 5 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when an attempt is made to invoke methods with
-        //:   arguments that are outside the valid ranges defined in the
-        //:   contracts (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
+        // 1. For a set of independent test values that do not include the
+        //    default `Time` value (24:00:00.000), use the default constructor
+        //    to create an object and use the time-only "set" manipulators to
+        //    set its value.  Verify the value using the basic accessors after
+        //    each individual "time" field is set.  Repeat the tests for a
+        //    series of objects that span the range of valid `Datetime` values,
+        //    but excluding the default constructed object (see P-2).
+        //
+        // 2. Create a series of objects having a time "part" equal to `Time()`
+        //    (24:00:00.000) and confirm using values from the valid bounding
+        //    range of each "time" field that using any of the individual
+        //    time-setting manipulators both sets the specified value (e.g.,
+        //    minute, second) *and* sets the hour field to 0.  Then create an
+        //    object having non-zero values for "time" fields and confirm that
+        //    `setHour(24)` sets that specified value *and* sets all other
+        //    fields to 0.  (C-1..2)
+        //
+        // 3. For each set of values used in testing the seven-argument value
+        //    constructor, create and compare two objects for equality.  One is
+        //    created by the value constructor (proven earlier), the other by
+        //    using the seven-argument `setDatetime` method of a test object.
+        //    Use a series of test objects that span the range of valid
+        //    `Datetime` values, *including* the default constructed object.
+        //    (C-3, 5)
+        //
+        // 4. Create a series of five object pairs using the default
+        //    constructor and then set the values of the "date" and "time"
+        //    parts using the `setDatetime` method.  As we go through the five
+        //    pairs of objects, we invoke the `setDatetime` method with one
+        //    fewer of the four optional arguments for one of the objects and
+        //    invoke `setDatetime` with the expected default values (of the
+        //    optional arguments) for the other object.  Verify that the two
+        //    objects compare equal.  (C-4)
+        //
+        // 5. Verify that, in appropriate build modes, defensive checks are
+        //    triggered when an attempt is made to invoke methods with
+        //    arguments that are outside the valid ranges defined in the
+        //    contracts (using the `BSLS_ASSERTTEST_*` macros).  (C-6)
         //
         // Testing:
         //   void setHour(int hour);
@@ -4979,7 +4979,7 @@ if (veryVerbose)
 
         if (verbose) cout
                    << endl
-                   << "TESTING INDIVIDUAL TIME-'set'-ING MANIPULATORS" << endl
+                   << "TESTING INDIVIDUAL TIME-`set`-ING MANIPULATORS" << endl
                    << "==============================================" << endl;
 
         const Date RD(2000, 2, 3);       // Ref date (02FEB2000)
@@ -5000,7 +5000,7 @@ if (veryVerbose)
         const int NUM_ARRAY1 =
                               static_cast<int>(sizeof ARRAY1 / sizeof *ARRAY1);
 
-        if (verbose) cout << "\nTesting time-'set' methods." << endl;
+        if (verbose) cout << "\nTesting time-`set` methods." << endl;
         if (verbose) cout << "\tFor ordinary computational values." << endl;
 
         for (int i = 0; i < NUM_ARRAY1; ++i) {
@@ -5184,7 +5184,7 @@ if (veryVerbose)
         }
 
         if (verbose)
-            cout << "\nTesting: 'setDatetime(8 x int)'" << endl;
+            cout << "\nTesting: `setDatetime(8 x int)`" << endl;
 
         Obj ARRAY2[] = {
                     Obj(),                                   // default value
@@ -5397,54 +5397,54 @@ if (veryVerbose)
         // TESTING VALUE CONSTRUCTORS
         //
         // Concerns:
-        //: 1 An object created by any of the value constructors has the same
-        //:   value as a default created object whose attributes have been set
-        //:   to those same values.
-        //:
-        //: 2 All optional constructor parameters have their expected values.
-        //:
-        //: 3 A 'Date' object can be converted to a 'Datetime' object having
-        //:   the expected value.  (The single-value value constructor is
-        //:   not 'explicit'.)
+        // 1. An object created by any of the value constructors has the same
+        //    value as a default created object whose attributes have been set
+        //    to those same values.
+        //
+        // 2. All optional constructor parameters have their expected values.
+        //
+        // 3. A `Date` object can be converted to a `Datetime` object having
+        //    the expected value.  (The single-value value constructor is
+        //    not `explicit`.)
         //
         // Plan:
-        //: 1 Specify a set of (unique) valid object values (one per row) in
-        //:   terms of their individual attributes, including (a) first, the
-        //:   default value, and (b) boundary values corresponding to every
-        //:   range of values that each individual attribute can independently
-        //:   attain.
-        //:
-        //: 2 For each row 'R1' (representing a distinct object value, 'V') in
-        //:   the table described in P-1:  (C-1)
-        //:
-        //:   1 Create a 'const' 'Obj' 'X', using the default constructor and
-        //:     primary manipulators, as a reference for objects created using
-        //:     the value constructors.
-        //:
-        //:   2 Use the row attributes to create 'const' objects 'A', 'B', and
-        //:     'C' using the three value constructors.
-        //:
-        //:   3 Compare 'A', 'B', and 'C' with 'X' using the equality operator.
-        //:
-        //: 3 Create a series of object pairs using the value constructor that
-        //:   allows optional parameters.  The initial object of the series has
-        //:   no value parameter equal to the corresponding default parameter.
-        //:   For each subsequent pair in the series, we omit an additional
-        //:   optional parameter then compare to an object created by
-        //:   explicitly specifying the expected default values in the value
-        //:   constructor.  The two objects, one created with omitted optional
-        //:   parameters, the other created with all parameters explicitly
-        //:   specified, must compare equal.  (C-2)
-        //:
-        //: 4 Assign a 'Date' object to a 'Datetime' object.  As there is no
-        //:   such assignment operator, the 'Date' object must be converted to
-        //:   a 'Datetime' object for the assignment to compile.  Confirm that
-        //:   the "time" part has the expected value, "00:00:00.000".
-        //:
-        //: 5 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when an attempt is made to construct objects from both
-        //:   valid and invalid combinations of attributes.  (using the
-        //:   'BSLS_ASSERTTEST_*' macros).  (C-7)
+        // 1. Specify a set of (unique) valid object values (one per row) in
+        //    terms of their individual attributes, including (a) first, the
+        //    default value, and (b) boundary values corresponding to every
+        //    range of values that each individual attribute can independently
+        //    attain.
+        //
+        // 2. For each row `R1` (representing a distinct object value, `V`) in
+        //    the table described in P-1:  (C-1)
+        //
+        //   1. Create a `const` `Obj` `X`, using the default constructor and
+        //      primary manipulators, as a reference for objects created using
+        //      the value constructors.
+        //
+        //   2. Use the row attributes to create `const` objects `A`, `B`, and
+        //      `C` using the three value constructors.
+        //
+        //   3. Compare `A`, `B`, and `C` with `X` using the equality operator.
+        //
+        // 3. Create a series of object pairs using the value constructor that
+        //    allows optional parameters.  The initial object of the series has
+        //    no value parameter equal to the corresponding default parameter.
+        //    For each subsequent pair in the series, we omit an additional
+        //    optional parameter then compare to an object created by
+        //    explicitly specifying the expected default values in the value
+        //    constructor.  The two objects, one created with omitted optional
+        //    parameters, the other created with all parameters explicitly
+        //    specified, must compare equal.  (C-2)
+        //
+        // 4. Assign a `Date` object to a `Datetime` object.  As there is no
+        //    such assignment operator, the `Date` object must be converted to
+        //    a `Datetime` object for the assignment to compile.  Confirm that
+        //    the "time" part has the expected value, "00:00:00.000".
+        //
+        // 5. Verify that, in appropriate build modes, defensive checks are
+        //    triggered when an attempt is made to construct objects from both
+        //    valid and invalid combinations of attributes.  (using the
+        //    `BSLS_ASSERTTEST_*` macros).  (C-7)
         //
         // Testing:
         //   Datetime(const Date& date);
@@ -5539,14 +5539,14 @@ if (veryVerbose)
             ASSERT(E0 == E1);
         }
 
-        if (verbose) cout << "\nTest conversion from 'Date'." << endl;
+        if (verbose) cout << "\nTest conversion from `Date`." << endl;
         {
             const Date DATE(2014, 10, 11);   // arbitrary value
             const Time TIME(0, 0, 0, 0);
 
              Obj x;  const Obj& X = x;
 
-             x = DATE;  // 'Date' converted to 'Datetime' and assigned.
+             x = DATE;  // `Date` converted to `Datetime` and assigned.
 
              ASSERT(DATE == X.date());
              ASSERT(TIME == X.time());
@@ -5579,83 +5579,83 @@ if (veryVerbose)
         //   neutrality.
         //
         // Concerns:
-        //: 1 The class method 'maxSupportedBdexVersion' returns the correct
-        //:   version to be used for the specified 'versionSelector'.
-        //:
-        //: 2 The 'bdexStreamOut' method is callable on a reference providing
-        //:   only non-modifiable access.
-        //:
-        //: 3 For valid streams, externalization and unexternalization are
-        //:   inverse operations.
-        //:
-        //: 4 For invalid streams, externalization leaves the stream invalid
-        //:   and unexternalization does not alter the value of the object and
-        //:   leaves the stream invalid.
-        //:
-        //: 5 Unexternalizing of incomplete, invalid, or corrupted data results
-        //:   in a valid object of unspecified value and an invalidated stream.
-        //:
-        //: 6 The wire format of the object is as expected.
-        //:
-        //: 7 All methods are exception neutral.
-        //:
-        //: 8 The 'bdexStreamIn' and 'bdexStreamOut' methods return a reference
-        //:   to the provided stream in all situations.
-        //:
-        //: 9 The initial value of the object has no affect on
-        //:   unexternalization.
+        // 1. The class method `maxSupportedBdexVersion` returns the correct
+        //    version to be used for the specified `versionSelector`.
+        //
+        // 2. The `bdexStreamOut` method is callable on a reference providing
+        //    only non-modifiable access.
+        //
+        // 3. For valid streams, externalization and unexternalization are
+        //    inverse operations.
+        //
+        // 4. For invalid streams, externalization leaves the stream invalid
+        //    and unexternalization does not alter the value of the object and
+        //    leaves the stream invalid.
+        //
+        // 5. Unexternalizing of incomplete, invalid, or corrupted data results
+        //    in a valid object of unspecified value and an invalidated stream.
+        //
+        // 6. The wire format of the object is as expected.
+        //
+        // 7. All methods are exception neutral.
+        //
+        // 8. The `bdexStreamIn` and `bdexStreamOut` methods return a reference
+        //    to the provided stream in all situations.
+        //
+        // 9. The initial value of the object has no affect on
+        //    unexternalization.
         //
         // Plan:
-        //: 1 Test 'maxSupportedBdexVersion' explicitly.  (C-1)
-        //:
-        //: 2 All calls to the 'bdexStreamOut' accessor will be done from a
-        //:   'const' object or reference and all calls to the 'bdexStreamOut'
-        //:   free function (provided by 'bslx') will be supplied a 'const'
-        //:   object or reference.  (C-2)
-        //:
-        //: 3 Perform a direct test of the 'bdexStreamOut' and 'bdexStreamIn'
-        //:   methods (the rest of the testing will use the free functions
-        //:   'bslx::OutStreamFunctions::bdexStreamOut' and
-        //:   'bslx::InStreamFunctions::bdexStreamIn').
-        //:
-        //: 4 Define a set 'S' of test values to be used throughout the test
-        //:   case.
-        //:
-        //: 5 For all '(u, v)' in the cross product 'S X S', stream the value
-        //:   of 'u' into (a temporary copy of) 'v', 'T', and assert 'T == u'.
-        //:   (C-3, 9)
-        //:
-        //: 6 For all 'u' in 'S', create a copy of 'u' and attempt to stream
-        //:   into it from an invalid stream.  Verify after each attempt that
-        //:   the object is unchanged and that the stream is invalid.  (C-4)
-        //:
-        //: 7 Write 3 distinct objects to an output stream buffer of total
-        //:   length 'N'.  For each partial stream length from 0 to 'N - 1',
-        //:   construct an input stream and attempt to read into objects
-        //:   initialized with distinct values.  Verify values of objects
-        //:   that are either successfully modified or left entirely
-        //:   unmodified, and that the stream became invalid immediately after
-        //:   the first incomplete read.  Finally, ensure that each object
-        //:   streamed into is in some valid state.
-        //:
-        //: 8 Use the underlying stream package to simulate a typical valid
-        //:   (control) stream and verify that it can be streamed in
-        //:   successfully.  Then for each data field in the stream (beginning
-        //:   with the version number), provide one or more similar tests with
-        //:   that data field corrupted.  After each test, verify that the
-        //:   object is in some valid state after streaming, and that the
-        //:   input stream has become invalid.  (C-5)
-        //:
-        //: 9 Explicitly test the wire format.  (C-6)
-        //:
-        //:10 In all cases, confirm exception neutrality using the specially
-        //:   instrumented 'bslx::TestInStream' and a pair of standard macros,
-        //:   'BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN' and
-        //:   'BSLX_TESTINSTREAM_EXCEPTION_TEST_END', which configure the
-        //:   'bslx::TestInStream' object appropriately in a loop.  (C-7)
-        //:
-        //:11 In all cases, verify the return value of the tested method.
-        //:   (C-8)
+        // 1. Test `maxSupportedBdexVersion` explicitly.  (C-1)
+        //
+        // 2. All calls to the `bdexStreamOut` accessor will be done from a
+        //    `const` object or reference and all calls to the `bdexStreamOut`
+        //    free function (provided by `bslx`) will be supplied a `const`
+        //    object or reference.  (C-2)
+        //
+        // 3. Perform a direct test of the `bdexStreamOut` and `bdexStreamIn`
+        //    methods (the rest of the testing will use the free functions
+        //    `bslx::OutStreamFunctions::bdexStreamOut` and
+        //    `bslx::InStreamFunctions::bdexStreamIn`).
+        //
+        // 4. Define a set `S` of test values to be used throughout the test
+        //    case.
+        //
+        // 5. For all `(u, v)` in the cross product `S X S`, stream the value
+        //    of `u` into (a temporary copy of) `v`, `T`, and assert `T == u`.
+        //    (C-3, 9)
+        //
+        // 6. For all `u` in `S`, create a copy of `u` and attempt to stream
+        //    into it from an invalid stream.  Verify after each attempt that
+        //    the object is unchanged and that the stream is invalid.  (C-4)
+        //
+        // 7. Write 3 distinct objects to an output stream buffer of total
+        //    length `N`.  For each partial stream length from 0 to `N - 1`,
+        //    construct an input stream and attempt to read into objects
+        //    initialized with distinct values.  Verify values of objects
+        //    that are either successfully modified or left entirely
+        //    unmodified, and that the stream became invalid immediately after
+        //    the first incomplete read.  Finally, ensure that each object
+        //    streamed into is in some valid state.
+        //
+        // 8. Use the underlying stream package to simulate a typical valid
+        //    (control) stream and verify that it can be streamed in
+        //    successfully.  Then for each data field in the stream (beginning
+        //    with the version number), provide one or more similar tests with
+        //    that data field corrupted.  After each test, verify that the
+        //    object is in some valid state after streaming, and that the
+        //    input stream has become invalid.  (C-5)
+        //
+        // 9. Explicitly test the wire format.  (C-6)
+        //
+        // 10. In all cases, confirm exception neutrality using the specially
+        //    instrumented `bslx::TestInStream` and a pair of standard macros,
+        //    `BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN` and
+        //    `BSLX_TESTINSTREAM_EXCEPTION_TEST_END`, which configure the
+        //    `bslx::TestInStream` object appropriately in a loop.  (C-7)
+        //
+        // 11. In all cases, verify the return value of the tested method.
+        //    (C-8)
         //
         // Testing:
         //   static int maxSupportedBdexVersion(int versionSelector);
@@ -5697,7 +5697,7 @@ if (veryVerbose)
                               static_cast<int>(sizeof VALUES / sizeof *VALUES);
 
         if (verbose) {
-            cout << "\nTesting 'maxSupportedBdexVersion'." << endl;
+            cout << "\nTesting `maxSupportedBdexVersion`." << endl;
         }
         {
             ASSERT(1 == Obj::maxSupportedBdexVersion(0));
@@ -5734,8 +5734,8 @@ if (veryVerbose)
             }
 
             if (verbose) {
-                cout << "\tDirect initial trial of 'bdexStreamOut' and "
-                     << "(valid) 'bdexStreamIn'." << endl;
+                cout << "\tDirect initial trial of `bdexStreamOut` and "
+                     << "(valid) `bdexStreamIn`." << endl;
             }
             {
                 const Obj X(VC);
@@ -5762,13 +5762,13 @@ if (veryVerbose)
                 ASSERT(in.isEmpty());
             }
 
-            // We will use the stream free functions provided by 'bslx', as
-            // opposed to the class member functions, since the 'bslx'
+            // We will use the stream free functions provided by `bslx`, as
+            // opposed to the class member functions, since the `bslx`
             // implementation gives priority to the free function
             // implementations; we want to test what will be used.
             // Furthermore, toward making this test case more reusable in other
-            // components, from here on we generally use the 'bdexStreamIn' and
-            // 'bdexStreamOut' free functions that are defined in the 'bslx'
+            // components, from here on we generally use the `bdexStreamIn` and
+            // `bdexStreamOut` free functions that are defined in the `bslx`
             // package rather than call the like-named member functions
             // directly.
 
@@ -5977,7 +5977,7 @@ if (veryVerbose)
                             LOOP_ASSERT(i, !in);
                             LOOP_ASSERT(i, W3 == T3);
                         }
-                        else {  // 'LOD2 <= i < LOD3'
+                        else {  // `LOD2 <= i < LOD3`
                             In& rvIn1 = bdexStreamIn(in, mT1, VERSION);
                             LOOP_ASSERT(i, &in == &rvIn1);
                             LOOP_ASSERT(i,  in);
@@ -6136,7 +6136,7 @@ if (veryVerbose)
             cout << "\t\tBad version." << endl;
         }
         {
-            const char version = 0; // too small ('version' must be >= 1)
+            const char version = 0; // too small (`version` must be >= 1)
 
             Out out(VERSION_SELECTOR, &allocator);
 
@@ -6382,75 +6382,75 @@ if (veryVerbose)
         // TESTING ASSIGNMENT OPERATOR
         //
         // Concerns:
-        //: 1 The assignment operator can change the value of any modifiable
-        //:   target object to that of any source object.
-        //:
-        //: 2 The signature and return type are standard.
-        //:
-        //: 3 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 4 The value of the source object is not modified.
-        //:
-        //: 5 Assigning an object to itself behaves as expected (alias-safety).
+        // 1. The assignment operator can change the value of any modifiable
+        //    target object to that of any source object.
+        //
+        // 2. The signature and return type are standard.
+        //
+        // 3. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 4. The value of the source object is not modified.
+        //
+        // 5. Assigning an object to itself behaves as expected (alias-safety).
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a member-function
-        //:   pointer having the appropriate signature and return type for the
-        //:   copy-assignment operator defined in this component.  (C-2)
-        //:
-        //: 2 Specify a set of (unique) valid object values (one per row) in
-        //:   terms of their individual attributes, including (a) first, the
-        //:   default value, and (b) boundary values corresponding to every
-        //:   range of values that each individual attribute can independently
-        //:   attain.
-        //:
-        //: 3 For each row 'R1' (representing a distinct object value, 'V') in
-        //:   the table described in P-2:
-        //:
-        //:   1 Use the default constructor, primary manipulators, and the
-        //:     copy-constructor create two 'const' 'Obj', 'Z' and 'ZZ', each
-        //:     having the value 'V'.
-        //:
-        //:   2 Execute an inner loop that iterates over each row 'R2'
-        //:     (representing a distinct object value, 'W') in the table
-        //:     described in P-2:
-        //:
-        //:   3 For each of the iterations (P-3.2):
-        //:
-        //:     1 Use the default constructor and primary manipulators to
-        //:       create a modifiable 'Obj', 'mX', having the value 'W'.
-        //:
-        //:     2 Assign 'mX' from 'Z'.
-        //:
-        //:     3 Verify that the address of the return value is the same as
-        //:       that of 'mX'.  (C-3)
-        //:
-        //:     4 Use the equality-comparison operator to verify that:
-        //:
-        //:       1 The target object, 'mX', now has the same value as that of
-        //:         'Z'.  (C-1)
-        //:
-        //:       2 'Z' still has the same value as that of 'ZZ'.  (C-4)
-        //:
-        //: 4 Repeat steps similar to those described in P-2 except that, this
-        //:   time, there is no inner loop (as in P-4.2); instead, the source
-        //:   object, 'Z', is a reference to the target object, 'mX', and both
-        //:   'mX' and 'ZZ' are initialized to have the value 'V'.  For each
-        //:   row (representing a distinct object value, 'V') in the table
-        //:   described in P-3: (C-5)
-        //:
-        //:   1 Use the default constructor and primary manipulators to create
-        //:     a modifiable 'Obj' 'mX' and a 'const' 'Obj' 'ZZ'.
-        //:
-        //:   2 Let 'Z' be a reference providing only 'const' access to 'mX'.
-        //:
-        //:   3 Assign 'mX' from 'Z'.
-        //:
-        //:   4 Verify that the address of the return value is the same as that
-        //:     of 'mX'.  (C-1)
-        //:
-        //:   5 Use the equality-comparison operator to verify that the target
-        //:     object, 'Z', still has the same value as that of 'ZZ'.  (C-4)
+        // 1. Use the address of `operator=` to initialize a member-function
+        //    pointer having the appropriate signature and return type for the
+        //    copy-assignment operator defined in this component.  (C-2)
+        //
+        // 2. Specify a set of (unique) valid object values (one per row) in
+        //    terms of their individual attributes, including (a) first, the
+        //    default value, and (b) boundary values corresponding to every
+        //    range of values that each individual attribute can independently
+        //    attain.
+        //
+        // 3. For each row `R1` (representing a distinct object value, `V`) in
+        //    the table described in P-2:
+        //
+        //   1. Use the default constructor, primary manipulators, and the
+        //      copy-constructor create two `const` `Obj`, `Z` and `ZZ`, each
+        //      having the value `V`.
+        //
+        //   2. Execute an inner loop that iterates over each row `R2`
+        //      (representing a distinct object value, `W`) in the table
+        //      described in P-2:
+        //
+        //   3. For each of the iterations (P-3.2):
+        //
+        //     1. Use the default constructor and primary manipulators to
+        //        create a modifiable `Obj`, `mX`, having the value `W`.
+        //
+        //     2. Assign `mX` from `Z`.
+        //
+        //     3. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-3)
+        //
+        //     4. Use the equality-comparison operator to verify that:
+        //
+        //       1. The target object, `mX`, now has the same value as that of
+        //          `Z`.  (C-1)
+        //
+        //       2. `Z` still has the same value as that of `ZZ`.  (C-4)
+        //
+        // 4. Repeat steps similar to those described in P-2 except that, this
+        //    time, there is no inner loop (as in P-4.2); instead, the source
+        //    object, `Z`, is a reference to the target object, `mX`, and both
+        //    `mX` and `ZZ` are initialized to have the value `V`.  For each
+        //    row (representing a distinct object value, `V`) in the table
+        //    described in P-3: (C-5)
+        //
+        //   1. Use the default constructor and primary manipulators to create
+        //      a modifiable `Obj` `mX` and a `const` `Obj` `ZZ`.
+        //
+        //   2. Let `Z` be a reference providing only `const` access to `mX`.
+        //
+        //   3. Assign `mX` from `Z`.
+        //
+        //   4. Verify that the address of the return value is the same as that
+        //      of `mX`.  (C-1)
+        //
+        //   5. Use the equality-comparison operator to verify that the target
+        //      object, `Z`, still has the same value as that of `ZZ`.  (C-4)
         //
         // Testing:
         //   Datetime& operator=(const Datetime& rhs);
@@ -6568,7 +6568,7 @@ if (veryVerbose)
       case 8: {
         // --------------------------------------------------------------------
         // SWAP MEMBER AND FREE FUNCTIONS
-        //   Ensure that, when member and free 'swap' are implemented, we can
+        //   Ensure that, when member and free `swap` are implemented, we can
         //   exchange the values of any two objects.
         //
         // Concerns:
@@ -6578,14 +6578,14 @@ if (veryVerbose)
         //   N/A
         //
         // Testing:
-        //  Reserved for 'swap' testing.
+        //  Reserved for `swap` testing.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "SWAP MEMBER AND FREE FUNCTIONS" << endl
                           << "==============================" << endl;
 
-        if (verbose) cout << "Not implemented for 'bdlt::Datetime'." << endl;
+        if (verbose) cout << "Not implemented for `bdlt::Datetime`." << endl;
 
       } break;
       case 7: {
@@ -6595,39 +6595,39 @@ if (veryVerbose)
         //   other one, such that the two objects have the same value.
         //
         // Concerns:
-        //: 1 The copy constructor creates an object having the same value as
-        //:   that of the supplied original object.
-        //:
-        //: 2 The original object is passed as a reference providing
-        //:   non-modifiable access to that object.
-        //:
-        //: 3 The value of the original object is unchanged.
+        // 1. The copy constructor creates an object having the same value as
+        //    that of the supplied original object.
+        //
+        // 2. The original object is passed as a reference providing
+        //    non-modifiable access to that object.
+        //
+        // 3. The value of the original object is unchanged.
         //
         // Plan:
-        //: 1 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of (unique) valid object values (one per row) in
-        //:     terms of their individual attributes, including (a) first, the
-        //:     default value, (b) boundary values corresponding to every range
-        //:     of values that each individual attribute can independently
-        //:     attain.
-        //:
-        //: 2 For each row (representing a distinct object value, 'V') in the
-        //:   table described in P-1: (C-1..12)
-        //:
-        //:   1 Use the default constructor and the primary manipulators to
-        //:     create two 'const' 'Obj', 'Z' and 'ZZ', each having the value
-        //:     'V'.
-        //:
-        //:   2 Use 'const' 'Obj' 'Z' to copy-construct object 'X'.  Using a
-        //:     'const' object as the source is a compile-time check of C-2.
-        //:
-        //:   3 Use the equality-comparison operator to verify that:
-        //:
-        //:       1 The newly constructed object, 'X', has the same value as
-        //:         that of 'Z'.  (C-1)
-        //:
-        //:       2 'Z' still has the same value as that of 'ZZ'.  (C-3)
+        // 1. Using the table-driven technique:
+        //
+        //   1. Specify a set of (unique) valid object values (one per row) in
+        //      terms of their individual attributes, including (a) first, the
+        //      default value, (b) boundary values corresponding to every range
+        //      of values that each individual attribute can independently
+        //      attain.
+        //
+        // 2. For each row (representing a distinct object value, `V`) in the
+        //    table described in P-1: (C-1..12)
+        //
+        //   1. Use the default constructor and the primary manipulators to
+        //      create two `const` `Obj`, `Z` and `ZZ`, each having the value
+        //      `V`.
+        //
+        //   2. Use `const` `Obj` `Z` to copy-construct object `X`.  Using a
+        //      `const` object as the source is a compile-time check of C-2.
+        //
+        //   3. Use the equality-comparison operator to verify that:
+        //
+        //       1. The newly constructed object, `X`, has the same value as
+        //          that of `Z`.  (C-1)
+        //
+        //       2. `Z` still has the same value as that of `ZZ`.  (C-3)
         //
         // Testing:
         //   Datetime(const Datetime& original);
@@ -6685,77 +6685,77 @@ if (veryVerbose)
       case 6: {
         // --------------------------------------------------------------------
         // TESTING EQUALITY-COMPARISON OPERATORS
-        //   Ensure that '==' and '!=' are the operational definition of value.
+        //   Ensure that `==` and `!=` are the operational definition of value.
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if each of
-        //:   their corresponding salient attributes respectively compares
-        //:   equal.
-        //:
-        //: 2 All salient attributes participate in the comparison.
-        //:
-        //: 3 'true  == (X == X)' (i.e., identity)
-        //:
-        //: 4 'false == (X != X)' (i.e., identity)
-        //:
-        //: 5 'X == Y' if and only if 'Y == X' (i.e., commutativity)
-        //:
-        //: 6 'X != Y' if and only if 'Y != X' (i.e., commutativity)
-        //:
-        //: 7 'X != Y' if and only if '!(X == Y)'
-        //:
-        //: 8 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., both comparison operators are free functions).
-        //:
-        //: 9 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //:10 No memory allocation occurs as a result of comparison (e.g., the
-        //:   arguments are not passed by value).
-        //:
-        //:11 The equality operator's signature and return type are standard.
-        //:
-        //:12 The inequality operator's signature and return type are standard.
+        // 1. Two objects, `X` and `Y`, compare equal if and only if each of
+        //    their corresponding salient attributes respectively compares
+        //    equal.
+        //
+        // 2. All salient attributes participate in the comparison.
+        //
+        // 3. `true  == (X == X)` (i.e., identity)
+        //
+        // 4. `false == (X != X)` (i.e., identity)
+        //
+        // 5. `X == Y` if and only if `Y == X` (i.e., commutativity)
+        //
+        // 6. `X != Y` if and only if `Y != X` (i.e., commutativity)
+        //
+        // 7. `X != Y` if and only if `!(X == Y)`
+        //
+        // 8. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., both comparison operators are free functions).
+        //
+        // 9. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        // 10. No memory allocation occurs as a result of comparison (e.g., the
+        //    arguments are not passed by value).
+        //
+        // 11. The equality operator's signature and return type are standard.
+        //
+        // 12. The inequality operator's signature and return type are standard.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the two homogeneous, free equality-
-        //:   comparison operators defined in this component.  (C-8..9, 11..12)
-        //:
-        //: 2 Note that ubiquitous test allocators are already installed as the
-        //:   global allocator and the default allocator.
-        //:
-        //: 3 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their individual salient
-        //:   attributes such that for each salient attribute, there exists a
-        //:   pair of rows that differ (slightly) in only the column
-        //:   corresponding to that attribute (subject to the [complex]
-        //:   constraints on those attributes).  Note that none of the
-        //:   attributes of these objects allocate memory.
-        //:
-        //: 4 For each row 'R1' in the table of P-3: (C-1..7)
-        //:
-        //:   1 Create a single object and use it to verify the reflexive
-        //:     (anti-reflexive) property of equality (inequality) in the
-        //:     presence of aliasing.  (C-3..4)
-        //:
-        //:   2 For each row 'R2' in the table of P-3: (C-1..2, 5..7)
-        //:
-        //:     1 Record, in 'EXP', whether or not distinct objects created
-        //:       from 'R1' and 'R2', respectively, are expected to have the
-        //:       same value.
-        //:
-        //:     2 Create an object 'X', having the value 'R1'.
-        //:
-        //:     3 Create an object 'Y', having the value 'R2'.
-        //:
-        //:     4 Verify the commutative property and expected return value for
-        //:       both '==' and '!='.  (C-1..2, 5..7)
-        //:
-        //: 3 As for all test cases, the default and global allocators defined
-        //:   just under 'main' are checked for any use by objects under test.
-        //:   (C-10)
+        // 1. Use the respective addresses of `operator==` and `operator!=` to
+        //    initialize function pointers having the appropriate signatures
+        //    and return types for the two homogeneous, free equality-
+        //    comparison operators defined in this component.  (C-8..9, 11..12)
+        //
+        // 2. Note that ubiquitous test allocators are already installed as the
+        //    global allocator and the default allocator.
+        //
+        // 3. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their individual salient
+        //    attributes such that for each salient attribute, there exists a
+        //    pair of rows that differ (slightly) in only the column
+        //    corresponding to that attribute (subject to the [complex]
+        //    constraints on those attributes).  Note that none of the
+        //    attributes of these objects allocate memory.
+        //
+        // 4. For each row `R1` in the table of P-3: (C-1..7)
+        //
+        //   1. Create a single object and use it to verify the reflexive
+        //      (anti-reflexive) property of equality (inequality) in the
+        //      presence of aliasing.  (C-3..4)
+        //
+        //   2. For each row `R2` in the table of P-3: (C-1..2, 5..7)
+        //
+        //     1. Record, in `EXP`, whether or not distinct objects created
+        //        from `R1` and `R2`, respectively, are expected to have the
+        //        same value.
+        //
+        //     2. Create an object `X`, having the value `R1`.
+        //
+        //     3. Create an object `Y`, having the value `R2`.
+        //
+        //     4. Verify the commutative property and expected return value for
+        //        both `==` and `!=`.  (C-1..2, 5..7)
+        //
+        // 3. As for all test cases, the default and global allocators defined
+        //    just under `main` are checked for any use by objects under test.
+        //    (C-10)
         //
         // Testing:
         //   bool operator==(const Datetime& lhs, const Datetime& rhs);
@@ -6884,92 +6884,92 @@ if (veryVerbose)
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // PRINT, OUTPUT OPERATOR, AND 'printToBuffer'
+        // PRINT, OUTPUT OPERATOR, AND `printToBuffer`
         //   Ensure that the value of the object can be formatted appropriately
-        //   on an 'ostream' in some standard, human-readable form.
+        //   on an `ostream` in some standard, human-readable form.
         //
         // Concerns:
-        //: 1 The 'print' method writes the value to the specified 'ostream'.
-        //:
-        //: 2 The 'print' method writes the value in the intended format.  In
-        //:   particular:
-        //:
-        //:   1 The two attributes (i.e, the "date" and "time" portions) always
-        //:     appear on a single line, separated by a '_' character.
-        //:
-        //:   2 A negative value of 'level' always suppresses all indentation
-        //:     (since there is never a second line to indent).,
-        //:
-        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)'.
-        //:
-        //: 4 The 'print' method signature and return type are standard.
-        //:
-        //: 5 The 'print' method returns the supplied 'ostream'.
-        //:
-        //: 6 The optional 'level' and 'spacesPerLevel' parameters have the
-        //:   correct default values.
-        //:
-        //: 7 The output 'operator<<' signature and return type are standard.
-        //:
-        //: 8 The output 'operator<<' returns the supplied 'ostream'.
-        //:
-        //: 9 The 'printToBuffer' method:
-        //:   1 Writes in the expected format.
-        //:   2 Never writes more than the specified limit.
-        //:   3 Writes in the specified buffer.
-        //:   4 QoI: Asserted precondition violations are detected when
-        //:     enabled.
+        // 1. The `print` method writes the value to the specified `ostream`.
+        //
+        // 2. The `print` method writes the value in the intended format.  In
+        //    particular:
+        //
+        //   1. The two attributes (i.e, the "date" and "time" portions) always
+        //      appear on a single line, separated by a '_' character.
+        //
+        //   2. A negative value of `level` always suppresses all indentation
+        //      (since there is never a second line to indent).,
+        //
+        // 3. The output using `s << obj` is the same as `obj.print(s, 0, -1)`.
+        //
+        // 4. The `print` method signature and return type are standard.
+        //
+        // 5. The `print` method returns the supplied `ostream`.
+        //
+        // 6. The optional `level` and `spacesPerLevel` parameters have the
+        //    correct default values.
+        //
+        // 7. The output `operator<<` signature and return type are standard.
+        //
+        // 8. The output `operator<<` returns the supplied `ostream`.
+        //
+        // 9. The `printToBuffer` method:
+        //   1. Writes in the expected format.
+        //   2. Never writes more than the specified limit.
+        //   3. Writes in the specified buffer.
+        //   4. QoI: Asserted precondition violations are detected when
+        //      enabled.
         //
         // Plan:
-        //: 1 Use the addresses of the 'print' member function and 'operator<<'
-        //:   free function defined in this component to initialize,
-        //:   respectively, member-function and free-function pointers having
-        //:   the appropriate signatures and return types.  (C-4, 7)
-        //:
-        //: 2 Using the table-driven technique: (C-1..3, 5..6, 8)
-        //:
-        //:   1 Define fourteen carefully selected combinations of (two) object
-        //:     values ('A' and 'B'), having distinct values for each
-        //:     corresponding salient attribute, and various values for the two
-        //:     formatting parameters, along with the expected output.
-        //:
-        //:     ( 'value' x  'level'   x 'spacesPerLevel' ):
-        //:     1 { A } x { 0 } x { 0, 1, -1, -8 } --> 3 expected o/ps
-        //:     2 { A } x { 3, -3 } x { 0, 2, -2, -8 } --> 6 expected o/ps
-        //:     3 { B } x { 2 } x { 3 } --> 1 expected o/p
-        //:     4 { A B } x { -8 } x { -8 } --> 2 expected o/ps
-        //:     5 { A B } x { -9 } x { -9 } --> 2 expected o/ps
-        //:
-        //:   2 For each row in the table defined in P-2.1: (C-1..3, 5..6, 8)
-        //:
-        //:     1 Using a 'const' 'Obj', supply each object value and pair of
-        //:       formatting parameters to 'print', omitting the 'level' or
-        //:       'spacesPerLevel' parameter if the value of that argument is
-        //:       '-8'.  If the parameters are, arbitrarily, (-9, -9), then
-        //:       invoke the 'operator<<' instead.
-        //:
-        //:     2 Use a standard 'ostringstream' to capture the actual output.
-        //:
-        //:     3 Verify the address of what is returned is that of the
-        //:       supplied stream.  (C-5, 8)
-        //:
-        //:     4 Compare the contents captured in P-2.2.2 with what is
-        //:       expected.  (C-1..3, 6)
-        //:
-        //:   3 Test 'printToBuffer' using a table-driven approach.  (C-9)
-        //:
-        //:     1 Define an assortment of different input values and limits on
-        //:       the number of bytes written.
-        //:
-        //:     2 For each input value, write the result into an over-sized
-        //:       buffer that is pre-filled with an "unset" character.  Data is
-        //:       written into the middle of the buffer.  After writing,
-        //:       confirm that all characters outside the targeted range have
-        //:       their initial value.
-        //:
-        //:     4 Verify that, in appropriate build modes, defensive checks are
-        //:       triggered for invalid attribute values, but not triggered for
-        //:       adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+        // 1. Use the addresses of the `print` member function and `operator<<`
+        //    free function defined in this component to initialize,
+        //    respectively, member-function and free-function pointers having
+        //    the appropriate signatures and return types.  (C-4, 7)
+        //
+        // 2. Using the table-driven technique: (C-1..3, 5..6, 8)
+        //
+        //   1. Define fourteen carefully selected combinations of (two) object
+        //      values (`A` and `B`), having distinct values for each
+        //      corresponding salient attribute, and various values for the two
+        //      formatting parameters, along with the expected output.
+        //
+        //      ( `value` x  `level`   x `spacesPerLevel` ):
+        //     1. { A } x { 0 } x { 0, 1, -1, -8 } --> 3 expected o/ps
+        //     2. { A } x { 3, -3 } x { 0, 2, -2, -8 } --> 6 expected o/ps
+        //     3. { B } x { 2 } x { 3 } --> 1 expected o/p
+        //     4. { A B } x { -8 } x { -8 } --> 2 expected o/ps
+        //     5. { A B } x { -9 } x { -9 } --> 2 expected o/ps
+        //
+        //   2. For each row in the table defined in P-2.1: (C-1..3, 5..6, 8)
+        //
+        //     1. Using a `const` `Obj`, supply each object value and pair of
+        //        formatting parameters to `print`, omitting the `level` or
+        //        `spacesPerLevel` parameter if the value of that argument is
+        //        `-8`.  If the parameters are, arbitrarily, (-9, -9), then
+        //        invoke the `operator<<` instead.
+        //
+        //     2. Use a standard `ostringstream` to capture the actual output.
+        //
+        //     3. Verify the address of what is returned is that of the
+        //        supplied stream.  (C-5, 8)
+        //
+        //     4. Compare the contents captured in P-2.2.2 with what is
+        //        expected.  (C-1..3, 6)
+        //
+        //   3. Test `printToBuffer` using a table-driven approach.  (C-9)
+        //
+        //     1. Define an assortment of different input values and limits on
+        //        the number of bytes written.
+        //
+        //     2. For each input value, write the result into an over-sized
+        //        buffer that is pre-filled with an "unset" character.  Data is
+        //        written into the middle of the buffer.  After writing,
+        //        confirm that all characters outside the targeted range have
+        //        their initial value.
+        //
+        //     4. Verify that, in appropriate build modes, defensive checks are
+        //        triggered for invalid attribute values, but not triggered for
+        //        adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
         //
         // Testing:
         //   ostream& print(ostream& os, int level = 0, int spl = 4) const;
@@ -6979,11 +6979,11 @@ if (veryVerbose)
 
         if (verbose) cout
                       << endl
-                      << "PRINT, OUTPUT OPERATOR, AND 'printToBuffer'" << endl
+                      << "PRINT, OUTPUT OPERATOR, AND `printToBuffer`" << endl
                       << "===========================================" << endl;
 
-        if (verbose) cout << "\nAssign the addresses of 'print' and "
-                             "the output 'operator<<' to variables." << endl;
+        if (verbose) cout << "\nAssign the addresses of `print` and "
+                             "the output `operator<<` to variables." << endl;
         {
             typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
             typedef ostream& (*operatorPtr)(ostream&, const Obj&);
@@ -7126,7 +7126,7 @@ if (veryVerbose)
 
                 // Verify output is formatted as expected.
 
-                // Avoid invoking 'ss.str()' which returns a string by value
+                // Avoid invoking `ss.str()` which returns a string by value
                 // and may introduce use of the default allocator.
 
                 bsl::string result(bsl::istreambuf_iterator<char>(ss),
@@ -7139,7 +7139,7 @@ if (veryVerbose)
             }
         }
 
-        if (verbose) cout << "\nTesting 'printToBuffer'." << endl;
+        if (verbose) cout << "\nTesting `printToBuffer`." << endl;
         {
             static const struct {
                 int         d_line;
@@ -7238,7 +7238,7 @@ if (veryVerbose)
 
                 char buf[BUF_SIZE];
 
-                // Preset 'buf' to "unset" values.
+                // Preset `buf` to "unset" values.
                 memset(buf, XX, sizeof(buf));
 
                 Obj x;  const Obj& X = x;
@@ -7301,39 +7301,39 @@ if (veryVerbose)
         // TESTING ACCESSORS
         //
         // Concerns:
-        //: 1 All ACCESSOR methods are declared 'const'.
-        //:
-        //: 2 The two basic accessors provide appropriate references to the
-        //:   (fully-tested) contained "date" and "time" parts.
-        //:
-        //: 3 The nine accessors to the fields of the "date" and "time" parts
-        //:   are forwarded to the accessors of those parts.
-        //:
-        //: 4 The 'getTime' accessor works as expected.
+        // 1. All ACCESSOR methods are declared `const`.
+        //
+        // 2. The two basic accessors provide appropriate references to the
+        //    (fully-tested) contained "date" and "time" parts.
+        //
+        // 3. The nine accessors to the fields of the "date" and "time" parts
+        //    are forwarded to the accessors of those parts.
+        //
+        // 4. The `getTime` accessor works as expected.
         //
         // Plan:
-        //: 1 Invoke each ACCESSOR via a reference providing non-modifiable
-        //:   access to the object.  Compilation of this test driver confirms
-        //:   that each ACCESS is 'const'-qualified.
-        //:
-        //: 2 Define a sequence of 'int' values for 'year', 'month', ...
-        //:   'second', 'millisecond', each valid for its corresponding field
-        //:   in the "date" or "time" part.
-        //:
-        //:   1 Create a default object and use the primary manipulators to set
-        //:     its value.
-        //:
-        //:   2 Confirm that the 'date()' and 'time()' methods refer to an
-        //:     object equal to one independently created from those same 'int'
-        //:     input values.  (C-2)
-        //:
-        //:   3 Confirm that the nine field accessors return values that match
-        //:     the corresponding fields of the "date" and "time" parts of the
-        //:     object.  (C-3)
-        //:
-        //:   4 Confirm that the 'getTime' accessor return values that match
-        //:     the corresponding fields of the "time" part of the object.
-        //:     (C-4)
+        // 1. Invoke each ACCESSOR via a reference providing non-modifiable
+        //    access to the object.  Compilation of this test driver confirms
+        //    that each ACCESS is `const`-qualified.
+        //
+        // 2. Define a sequence of `int` values for `year`, `month`, ...
+        //    `second`, `millisecond`, each valid for its corresponding field
+        //    in the "date" or "time" part.
+        //
+        //   1. Create a default object and use the primary manipulators to set
+        //      its value.
+        //
+        //   2. Confirm that the `date()` and `time()` methods refer to an
+        //      object equal to one independently created from those same `int`
+        //      input values.  (C-2)
+        //
+        //   3. Confirm that the nine field accessors return values that match
+        //      the corresponding fields of the "date" and "time" parts of the
+        //      object.  (C-3)
+        //
+        //   4. Confirm that the `getTime` accessor return values that match
+        //      the corresponding fields of the "time" part of the object.
+        //      (C-4)
         //
         // Testing:
         //   Date date() const;
@@ -7349,14 +7349,14 @@ if (veryVerbose)
         //   int second() const;
         //   int millisecond() const;
         //   int microsecond() const;
-        //   CONCERN: All accessor methods are declared 'const'.
+        //   CONCERN: All accessor methods are declared `const`.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "TESTING ACCESSORS" << endl
                           << "=================" << endl;
 
-        if (verbose) cout << "\nTesting: 'date', 'time', ..." << endl;
+        if (verbose) cout << "\nTesting: `date`, `time`, ..." << endl;
         {
             static const struct {
                 int d_year;
@@ -7462,8 +7462,8 @@ if (veryVerbose)
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING GENERATOR FUNCTION 'gg'
-        //   Void for 'bdlt::Datetime'.
+        // TESTING GENERATOR FUNCTION `gg`
+        //   Void for `bdlt::Datetime`.
         //
         // Concerns:
         //   N/A
@@ -7472,14 +7472,14 @@ if (veryVerbose)
         //   N/A
         //
         // Testing:
-        //   Reserved for testing generator function 'gg' .
+        //   Reserved for testing generator function `gg` .
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING GENERATOR FUNCTION 'gg'" << endl
+                          << "TESTING GENERATOR FUNCTION `gg`" << endl
                           << "===============================" << endl;
 
-        if (verbose) cout << "void for 'bdlt::Datetime'." << endl;
+        if (verbose) cout << "void for `bdlt::Datetime`." << endl;
 
       } break;
       case 2: {
@@ -7487,43 +7487,43 @@ if (veryVerbose)
         // TESTING DEFAULT CTOR, DTOR, AND PRIMARY MANIPULATORS
         //
         // Concerns:
-        //: 1 A default constructed object has the expected value.
-        //:
-        //: 2 Each primary manipulator forwards its input to the corresponding
-        //:   (fully-tested) member object ("date" or "time", as appropriate).
-        //:
-        //: 3 The default arguments for 'setTime' have the expected value (0).
-        //:
-        //: 4 Each primary manipulator sets one part of the object ("date" or
-        //:   "time", as appropriate) and has no effect on the other.
-        //:
-        //: 5 The object can be destroyed.
+        // 1. A default constructed object has the expected value.
+        //
+        // 2. Each primary manipulator forwards its input to the corresponding
+        //    (fully-tested) member object ("date" or "time", as appropriate).
+        //
+        // 3. The default arguments for `setTime` have the expected value (0).
+        //
+        // 4. Each primary manipulator sets one part of the object ("date" or
+        //    "time", as appropriate) and has no effect on the other.
+        //
+        // 5. The object can be destroyed.
         //
         // Plan:
-        //: 1 Default construct an object and check its value using the basic
-        //:   accessors.  (C-1)
-        //:
-        //: 2 Define a sequence of independent test values that explore the
-        //:   boundaries of valid values for the "date" and "time" parts of the
-        //:   object.  Use the default constructor to create an object, the
-        //:   primary manipulators to set its value, and the basic accessors to
-        //:   verify its value.  (C-2)
-        //:
-        //:   1 For each test, confirm that the value of the "other part"
-        //:     remains unchanged.  (C-4)
-        //:
-        //: 3 Confirm that each primary manipulator leaves the other "part"
-        //:   unchanged.
-        //:
-        //: 4 The destructor is exercised on each test object as it leaves
-        //:   scope.  (C-5)
-        //:
-        //: 5 Construct a series of object pairs.  For each pair, invoke the
-        //:   'setDatetimeIfValid' method by explicitly specifying the expected
-        //:   default value for an optional argument for one object, and by not
-        //:   omitting the optional argument for the other object.  The two
-        //:   objects should compare equal.  For each pair of the series, omit
-        //:   one or more of the four optional arguments.  (C-3)
+        // 1. Default construct an object and check its value using the basic
+        //    accessors.  (C-1)
+        //
+        // 2. Define a sequence of independent test values that explore the
+        //    boundaries of valid values for the "date" and "time" parts of the
+        //    object.  Use the default constructor to create an object, the
+        //    primary manipulators to set its value, and the basic accessors to
+        //    verify its value.  (C-2)
+        //
+        //   1. For each test, confirm that the value of the "other part"
+        //      remains unchanged.  (C-4)
+        //
+        // 3. Confirm that each primary manipulator leaves the other "part"
+        //    unchanged.
+        //
+        // 4. The destructor is exercised on each test object as it leaves
+        //    scope.  (C-5)
+        //
+        // 5. Construct a series of object pairs.  For each pair, invoke the
+        //    `setDatetimeIfValid` method by explicitly specifying the expected
+        //    default value for an optional argument for one object, and by not
+        //    omitting the optional argument for the other object.  The two
+        //    objects should compare equal.  For each pair of the series, omit
+        //    one or more of the four optional arguments.  (C-3)
         //
         // Testing:
         //   Datetime();
@@ -7550,7 +7550,7 @@ if (veryVerbose)
         ASSERT( 0 == X.time().millisecond());
         ASSERT( 0 == X.microsecond());
 
-        if (verbose) cout << "\nTesting 'setTime'." << endl;
+        if (verbose) cout << "\nTesting `setTime`." << endl;
         {
             static const struct {
                 int d_hour;
@@ -7639,7 +7639,7 @@ if (veryVerbose)
             ASSERT(E0 == E1);
         }
 
-        if (verbose) cout << "\nTesting 'setYearMonthDay'." << endl;
+        if (verbose) cout << "\nTesting `setYearMonthDay`." << endl;
         {
             static const struct {
                 int d_year;
@@ -7741,22 +7741,22 @@ if (veryVerbose)
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an object 'w' (init to 'A').   { w:A }
-        //: 2 Create an object 'x' (copy from 'w'). { w:A x:A }
-        //: 3 Set 'w' to 'B'.                       { w:B x:A }
-        //: 4 Create an object 'y' (default ctor).  { w:B x:A y:D }
-        //: 5 Create an object 'z' (copy from 'y'). { w:B x:A y:D z:D}
-        //: 6 Set 'y' to 'C'.                       { w:B x:A y:C z:D}
-        //: 7 Assign 'x' from 'w'.                  { w:B x:B y:C z:D}
-        //: 8 Assign 'x' from 'y'.                  { w:B x:C y:C z:D}
-        //: 9 Assign 'w' from 'w' (aliasing).       { w:B x:B y:C z:D}
-        //:10 Exercise the constructor that takes a 'Date' object, but sets the
-        //:   time to the default value.  Confirm that the time can
-        //:   subsequently be set to a new value.
+        // 1. Create an object `w` (init to `A`).   { w:A }
+        // 2. Create an object `x` (copy from `w`). { w:A x:A }
+        // 3. Set `w` to `B`.                       { w:B x:A }
+        // 4. Create an object `y` (default ctor).  { w:B x:A y:D }
+        // 5. Create an object `z` (copy from `y`). { w:B x:A y:D z:D}
+        // 6. Set `y` to `C`.                       { w:B x:A y:C z:D}
+        // 7. Assign `x` from `w`.                  { w:B x:B y:C z:D}
+        // 8. Assign `x` from `y`.                  { w:B x:C y:C z:D}
+        // 9. Assign `w` from `w` (aliasing).       { w:B x:B y:C z:D}
+        // 10. Exercise the constructor that takes a `Date` object, but sets the
+        //    time to the default value.  Confirm that the time can
+        //    subsequently be set to a new value.
         //
         // Testing:
         //   BREATHING TEST
@@ -7785,18 +7785,18 @@ if (veryVerbose)
                    TB(HRB, MIB, SCB, MSB),
                    TC(HRC, MIC, SCC, MSC);
 
-        int year, month, day;              // reusable variables for 'get' call
-        int h, m, s, ms;                   // reusable variables for 'get' call
+        int year, month, day;              // reusable variables for `get` call
+        int h, m, s, ms;                   // reusable variables for `get` call
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 1. Create an object 'w' (init to 'A')."
+        if (verbose) cout << "\n 1. Create an object `w` (init to `A`)."
                              "\t\t{ w:A }" << endl;
 
         Obj mX1(DA, TA);  const Obj& X1 = mX1;
         if (verbose) { T_  P(X1); }
 
-        if (veryVerbose) cout << "\ta. Check initial state of 'w'." << endl;
+        if (veryVerbose) cout << "\ta. Check initial state of `w`." << endl;
 
         year = 0;  month = 0;  day = 0;  h = 0;  m = 0;  s = 0;  ms = 0;
         X1.date().getYearMonthDay(&year, &month, &day);
@@ -7813,20 +7813,20 @@ if (veryVerbose)
         ASSERT(MSA == X1.time().millisecond());
 
         if (veryVerbose) cout <<
-            "\tb. Try equality operators: 'w' <op> 'w'." << endl;
+            "\tb. Try equality operators: `w` <op> `w`." << endl;
 
         ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 2. Create an object 'x' (copy from 'w')."
+        if (verbose) cout << "\n 2. Create an object `x` (copy from `w`)."
                              "\t\t{ w:A x:A }" << endl;
 
         Obj mX2(X1);  const Obj& X2 = mX2;
         if (verbose) { T_  P(X2); }
 
         if (veryVerbose) cout <<
-                                "\ta. Check the initial state of 'x'." << endl;
+                                "\ta. Check the initial state of `x`." << endl;
 
         year = 0;  month = 0;  day = 0;  h = 0;  m = 0;  s = 0;  ms = 0;
         X2.date().getYearMonthDay(&year, &month, &day);
@@ -7843,14 +7843,14 @@ if (veryVerbose)
         ASSERT(MSA == X2.time().millisecond());
 
         if (veryVerbose) cout <<
-                     "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
+                     "\tb. Try equality operators: `x` <op> `w`, `x`." << endl;
 
         ASSERT(1 == (X2 == X1));        ASSERT(0 == (X2 != X1));
         ASSERT(1 == (X2 == X2));        ASSERT(0 == (X2 != X2));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 3. Set 'w' to a new value 'B'."
+        if (verbose) cout << "\n 3. Set `w` to a new value `B`."
                              "\t\t\t{ w:B x:A }" << endl;
 
         mX1.setDate(DB);
@@ -7858,7 +7858,7 @@ if (veryVerbose)
 
         if (veryVeryVerbose) { T_  P(X1); }
 
-        if (veryVerbose) cout << "\ta. Check new state of 'w'." << endl;
+        if (veryVerbose) cout << "\ta. Check new state of `w`." << endl;
 
         year = 0;  month = 0;  day = 0;  h = 0;  m = 0;  s = 0;  ms = 0;
         X1.date().getYearMonthDay(&year, &month, &day);
@@ -7875,19 +7875,19 @@ if (veryVerbose)
         ASSERT(MSB == X1.time().millisecond());
 
         if (veryVerbose) cout <<
-            "\tb. Try equality operators: 'w' <op> 'w', 'x'." << endl;
+            "\tb. Try equality operators: `w` <op> `w`, `x`." << endl;
 
         ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
         ASSERT(0 == (X1 == X2));        ASSERT(1 == (X1 != X2));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\n 4. Create a default object 'y()'."
+        if (verbose) cout << "\n 4. Create a default object `y()`."
                              "\t\t{ w:B x:A y:D }" << endl;
 
         Obj mX3;  const Obj& X3 = mX3;
         if (veryVeryVerbose) { T_  P(X3); }
 
-        if (veryVerbose) cout << "\ta. Check initial state of 'y'." << endl;
+        if (veryVerbose) cout << "\ta. Check initial state of `y`." << endl;
 
         year = 0;  month = 0;  day = 0;  h = 0;  m = 0;  s = 0;  ms = 0;
         X3.date().getYearMonthDay(&year, &month, &day);
@@ -7896,7 +7896,7 @@ if (veryVerbose)
         ASSERT(24 == h);  ASSERT(0 == m);  ASSERT(0 == s);  ASSERT(0 == ms);
 
         if (veryVerbose) cout <<
-            "\tb. Try equality operators: 'y' <op> 'w', 'x', 'y'." << endl;
+            "\tb. Try equality operators: `y` <op> `w`, `x`, `y`." << endl;
 
         ASSERT(0 == (X3 == X1));        ASSERT(1 == (X3 != X1));
         ASSERT(0 == (X3 == X2));        ASSERT(1 == (X3 != X2));
@@ -7904,14 +7904,14 @@ if (veryVerbose)
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 5. Create an object 'z' (copy from 'y')."
+        if (verbose) cout << "\n 5. Create an object `z` (copy from `y`)."
                              "\t\t{ w:A x:A y:D  z:D }" << endl;
 
         Obj mX4(X3);  const Obj& X4 = mX4;
 
         if (veryVeryVerbose) { T_  P(X4); }
 
-        if (veryVerbose) cout << "\ta. Check initial state of 'z'." << endl;
+        if (veryVerbose) cout << "\ta. Check initial state of `z`." << endl;
 
         year = 0;  month = 0;  day = 0;  h = 0;  m = 0;  s = 0;  ms = 0;
         X4.date().getYearMonthDay(&year, &month, &day);
@@ -7920,7 +7920,7 @@ if (veryVerbose)
         ASSERT(24 == h);  ASSERT(0 == m);  ASSERT(0 == s);  ASSERT(0 == ms);
 
         if (veryVerbose) cout
-            << "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'."
+            << "\tb. Try equality operators: `z` <op> `w`, `x`, `y`, `z`."
             << endl;
 
         ASSERT(0 == (X4 == X1));        ASSERT(1 == (X4 != X1));
@@ -7930,7 +7930,7 @@ if (veryVerbose)
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 6. Set 'y' to a new value 'C'."
+        if (verbose) cout << "\n 6. Set `y` to a new value `C`."
                              "\t\t\t{ w:B x:A y:C z:D }" << endl;
 
         mX3.setDate(DC);
@@ -7938,7 +7938,7 @@ if (veryVerbose)
 
         if (verbose) { T_  P(X3); }
 
-        if (veryVerbose) cout << "\ta. Check new state of 'y'." << endl;
+        if (veryVerbose) cout << "\ta. Check new state of `y`." << endl;
 
         year = 0;  month = 0;  day = 0;  h = 0;  m = 0;  s = 0;  ms = 0;
         X3.date().getYearMonthDay(&year, &month, &day);
@@ -7955,7 +7955,7 @@ if (veryVerbose)
         ASSERT(MSC == X3.time().millisecond());
 
         if (veryVerbose) cout
-             << "\tb. Try equality operators: 'y' <op> 'w', 'x', 'y', 'z'."
+             << "\tb. Try equality operators: `y` <op> `w`, `x`, `y`, `z`."
              << endl;
 
         ASSERT(0 == (X3 == X1));        ASSERT(1 == (X3 != X1));
@@ -7965,13 +7965,13 @@ if (veryVerbose)
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 7. Assign 'x' from 'w'."
+        if (verbose) cout << "\n 7. Assign `x` from `w`."
                              "\t\t\t\t{ w:B x:B y:C z:D }" << endl;
 
         mX2 = X1;
         if (veryVeryVerbose) { T_  P(X2); }
 
-        if (veryVerbose) cout << "\ta. Check new state of 'x'." << endl;
+        if (veryVerbose) cout << "\ta. Check new state of `x`." << endl;
 
         year = 0;  month = 0;  day = 0;  h = 0;  m = 0;  s = 0;  ms = 0;
         X2.date().getYearMonthDay(&year, &month, &day);
@@ -7988,7 +7988,7 @@ if (veryVerbose)
         ASSERT(MSB == X2.time().millisecond());
 
         if (veryVerbose) cout
-            << "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'."
+            << "\tb. Try equality operators: `x` <op> `w`, `x`, `y`, `z`."
             << endl;
 
         ASSERT(1 == (X2 == X1));        ASSERT(0 == (X2 != X1));
@@ -7998,13 +7998,13 @@ if (veryVerbose)
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 8. Assign 'x' from 'y'."
+        if (verbose) cout << "\n 8. Assign `x` from `y`."
                              "\t\t\t\t{ w:B x:C y:C z:D }" << endl;
 
         mX2 = X3;
         if (veryVeryVerbose) { T_  P(X2); }
 
-        if (veryVerbose) cout << "\ta. Check new state of 'x'." << endl;
+        if (veryVerbose) cout << "\ta. Check new state of `x`." << endl;
 
         year = 0;  month = 0;  day = 0;  h = 0;  m = 0;  s = 0;  ms = 0;
         X2.date().getYearMonthDay(&year, &month, &day);
@@ -8030,14 +8030,14 @@ if (veryVerbose)
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 9. Assign 'w' from 'w' (aliasing)."
+        if (verbose) cout << "\n 9. Assign `w` from `w` (aliasing)."
                              "\t\t\t{ w:B x:C y:C z:D }" << endl;
 
         mX1 = X1;
 
         if (veryVeryVerbose) { T_  P(X1); }
 
-        if (veryVerbose) cout << "\ta. Check new state of 'w'." << endl;
+        if (veryVerbose) cout << "\ta. Check new state of `w`." << endl;
 
         year = 0;  month = 0;  day = 0;  h = 0;  m = 0;  s = 0;  ms = 0;
         X1.date().getYearMonthDay(&year, &month, &day);
@@ -8054,7 +8054,7 @@ if (veryVerbose)
         ASSERT(MSB == X1.time().millisecond());
 
         if (veryVerbose) cout
-            << "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'."
+            << "\tb. Try equality operators: `w` <op> `w`, `x`, `y`, `z`."
             << endl;
 
         ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
@@ -8065,14 +8065,14 @@ if (veryVerbose)
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         if (verbose) cout <<
-                     "\n10. Create an object 'x5' initialized to a "
+                     "\n10. Create an object `x5` initialized to a "
                      "date, but with the time value \"00:00:00.000\"." << endl;
 
         Obj mX5(DB);  const Obj &X5 = mX5;
 
         if (veryVeryVerbose) { T_  P(X5); }
 
-        if (veryVerbose) cout << "\ta. Check the state of 'x5'." << endl;
+        if (veryVerbose) cout << "\ta. Check the state of `x5`." << endl;
 
         year = 0;  month = 0;  day = 0;  h = 0;  m = 0;  s = 0;  ms = 0;
         X5.date().getYearMonthDay(&year, &month, &day);
@@ -8088,7 +8088,7 @@ if (veryVerbose)
         ASSERT(  0 == X5.time().second());
         ASSERT(  0 == X5.time().millisecond());
 
-        if (veryVerbose) cout << "\tb. Modify the time field of 'x5'." << endl;
+        if (veryVerbose) cout << "\tb. Modify the time field of `x5`." << endl;
 
         mX5.setTime(HRB, MIB, SCB, MSB);
         if (verbose) { T_  P(X5); }

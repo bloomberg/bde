@@ -28,8 +28,8 @@ using namespace bsl;
 // provide an interface for loading time zones.
 //
 // Global Concerns:
-//: o The test driver is robust w.r.t. reuse in other, similar components.
-//: o It is possible to create a concrete implementation the protocol.
+//  - The test driver is robust w.r.t. reuse in other, similar components.
+//  - It is possible to create a concrete implementation the protocol.
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 1] virtual ~baltzo::Loader();
@@ -95,43 +95,46 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 ///-----
 // This section illustrates intended usage of this component.
 //
-///Example 1: Implementing 'baltzo::Loader'
+///Example 1: Implementing `baltzo::Loader`
 ///- - - - - - - - - - - - - - - - - - - -
-// This example demonstrates an implementation of 'baltzo::Loader' that can
+// This example demonstrates an implementation of `baltzo::Loader` that can
 // only return data for "America/New_York".
 //
-// Note that in general, an implementation of 'baltzo::Loader' should obtain
+// Note that in general, an implementation of `baltzo::Loader` should obtain
 // time-zone information from an external data source (see
-// 'baltzo_datafileloader').
+// `baltzo_datafileloader`).
 //
 // First, we define the interface of our implementation:
-//..
+// ```
+
+    /// This class provides a concrete implementation of the
+    /// `baltzo::Loader` protocol (an abstract interface) for obtaining a
+    /// time zone.  This test implementation contains only partial data of
+    /// the "America/New_York" time zone, and is unable to obtain time-zone
+    /// information for any other time zones.
     class MyLoaderImp : public baltzo::Loader {
-        // This class provides a concrete implementation of the
-        // 'baltzo::Loader' protocol (an abstract interface) for obtaining a
-        // time zone.  This test implementation contains only partial data of
-        // the "America/New_York" time zone, and is unable to obtain time-zone
-        // information for any other time zones.
 
       public:
         // CREATORS
-        MyLoaderImp();
-            // Create a 'MyLoaderImp' object.
 
+        /// Create a `MyLoaderImp` object.
+        MyLoaderImp();
+
+        /// Destroy this object.
         ~MyLoaderImp() BSLS_KEYWORD_OVERRIDE;
-            // Destroy this object.
 
         // MANIPULATORS
+
+        /// Load into the specified `result` the "Zoneinfo" time zone
+        /// information for the time zone identified by the specified
+        /// `timeZoneId`.  Return 0 on success, and non-zero otherwise.
         int loadTimeZone(baltzo::Zoneinfo *result,
                          const char       *timeZoneId) BSLS_KEYWORD_OVERRIDE;
-            // Load into the specified 'result' the "Zoneinfo" time zone
-            // information for the time zone identified by the specified
-            // 'timeZoneId'.  Return 0 on success, and non-zero otherwise.
     };
-//..
+// ```
 // Then, we implement the creators, trivially, as this class contains no
 // instance data members.
-//..
+// ```
     MyLoaderImp::MyLoaderImp()
     {
     }
@@ -139,30 +142,30 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
     MyLoaderImp::~MyLoaderImp()
     {
     }
-//..
-// Next, we implement the 'loadTimeZone' function:
-//..
+// ```
+// Next, we implement the `loadTimeZone` function:
+// ```
     int MyLoaderImp::loadTimeZone(baltzo::Zoneinfo *result,
                                    const char      *timeZoneId)
     {
-//..
-// Then, we check the 'timeZoneId' equals to "America/New_York' as this
+// ```
+// Then, we check the `timeZoneId` equals to "America/New_York' as this
 // implementation is designed to demonstrate only one time zone:
-//..
+// ```
         if (0 != strcmp("America/New_York", timeZoneId)) {
             return 1;                                                 // RETURN
         }
-//..
-// Next, we load 'result' with the time zone identifier for New York
-//..
+// ```
+// Next, we load `result` with the time zone identifier for New York
+// ```
         result->setIdentifier("America/New_York");
-//..
+// ```
 // Then, we create two local-time descriptors, one for standard time and one
 // for daylight-saving time.
-//..
+// ```
         baltzo::LocalTimeDescriptor edt(-14400, true, "EDT");
         baltzo::LocalTimeDescriptor est(-18000, false, "EST");
-//..
+// ```
 // Next, we create a series of transitions between these local time descriptors
 // for the years 2007-2011.  Note that the United States transitions to
 // daylight saving time on the second Sunday in March, at 2am local time (7am
@@ -170,7 +173,7 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 // at 2am local time (6am UTC), resulting in an even number of transitions.
 // Also note that, the rules for generating these transitions were changed in
 // 2007, and may be changed again at some point in the future.
-//..
+// ```
         static const bdlt::Datetime TRANSITION_TIMES[] = {
             bdlt::Datetime(2007,  3, 11, 7),
             bdlt::Datetime(2007, 11,  4, 6),
@@ -198,15 +201,15 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
         }
         return 0;
     }
-//..
-// Finally, we define a function 'f' that instantiates an object of type
-// 'MyLoaderImp':
-//..
+// ```
+// Finally, we define a function `f` that instantiates an object of type
+// `MyLoaderImp`:
+// ```
     void f()
     {
         MyLoaderImp a;
     }
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -226,12 +229,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -241,38 +244,38 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-///Example 2: Using a 'baltzo::Loader'
+///Example 2: Using a `baltzo::Loader`
 /// - - - - - - - - - - - - - - - - -
-// In this example we use a 'MyLoaderImp' to load the data for one time zone,
+// In this example we use a `MyLoaderImp` to load the data for one time zone,
 // and print the time transitions, contained in the obtained time zone data, to
 // standard output.  Note that, the implementation of this example is for
 // illustrative purpose only, and in general, clients should use an
 // implementation that loads data from an external data source (e.g.,
-// 'baltzo_datafileloader').
+// `baltzo_datafileloader`).
 //
-// First, we create a loader 'myLoader' using the class 'MyLoaderImp' defined
-// in the previous example, and obtain a 'bdlma::AlignedAllocator' pointer to
+// First, we create a loader `myLoader` using the class `MyLoaderImp` defined
+// in the previous example, and obtain a `bdlma::AlignedAllocator` pointer to
 // it:
-//..
+// ```
     MyLoaderImp myLoader;
     baltzo::Loader& loader = myLoader;
-//..
+// ```
 // Now, we load the time zone data for New York:
-//..
+// ```
     baltzo::Zoneinfo nyTimeZone;
     if (0 != loader.loadTimeZone(&nyTimeZone, "America/New_York")) {
        bsl::cout << "Failed to find time zone data." << bsl::endl;
        return -1;                                                     // RETURN
     }
-//..
+// ```
 // Then, we verify some basic properties of the time zone:
-//..
+// ```
     ASSERT("America/New_York" == nyTimeZone.identifier());
-//..
+// ```
 // Finally, we write to standard output the information about the
 // daylight-saving time transitions of the loaded time zone, in New York local
 // time:
-//..
+// ```
     baltzo::Zoneinfo::TransitionConstIterator tIt =
                                                  nyTimeZone.beginTransitions();
     for (; tIt != nyTimeZone.endTransitions(); ++tIt) {
@@ -288,9 +291,9 @@ int main(int argc, char *argv[])
                      << bsl::endl;
        }
     }
-//..
+// ```
 // The resulting output will look like:
-//..
+// ```
 //  transition to EDT at 11MAR2007_07:00:00.000 UTC
 //  transition to EST at 04NOV2007_06:00:00.000 UTC
 //  transition to EDT at 09MAR2008_07:00:00.000 UTC
@@ -301,7 +304,7 @@ int main(int argc, char *argv[])
 //  transition to EST at 07NOV2010_06:00:00.000 UTC
 //  transition to EDT at 13MAR2011_07:00:00.000 UTC
 //  transition to EST at 06NOV2011_06:00:00.000 UTC
-//..
+// ```
 
       } break;
       case 1: {
@@ -310,36 +313,36 @@ int main(int argc, char *argv[])
         //   Ensure this class is a properly defined protocol.
         //
         // Concerns:
-        //: 1 The protocol is abstract: no objects of it can be created.
-        //:
-        //: 2 The protocol has no data members.
-        //:
-        //: 3 The protocol has a virtual destructor.
-        //:
-        //: 4 All methods of the protocol are pure virtual.
-        //:
-        //: 5 All methods of the protocol are publicly accessible.
+        // 1. The protocol is abstract: no objects of it can be created.
+        //
+        // 2. The protocol has no data members.
+        //
+        // 3. The protocol has a virtual destructor.
+        //
+        // 4. All methods of the protocol are pure virtual.
+        //
+        // 5. All methods of the protocol are publicly accessible.
         //
         // Plan:
-        //: 1 Define a concrete derived implementation, 'ProtocolClassTestImp',
-        //:   of the protocol.
-        //:
-        //: 2 Create an object of the 'bsls::ProtocolTest' class template
-        //:   parameterized by 'ProtocolClassTestImp', and use it to verify
-        //:   that:
-        //:
-        //:   1 The protocol is abstract. (C-1)
-        //:
-        //:   2 The protocol has no data members. (C-2)
-        //:
-        //:   3 The protocol has a virtual destructor. (C-3)
-        //:
-        //: 3 Use the 'BSLS_PROTOCOLTEST_ASSERT' macro to verify that
-        //:   non-creator methods of the protocol are:
-        //:
-        //:   1 virtual, (C-4)
-        //:
-        //:   2 publicly accessible. (C-5)
+        // 1. Define a concrete derived implementation, `ProtocolClassTestImp`,
+        //    of the protocol.
+        //
+        // 2. Create an object of the `bsls::ProtocolTest` class template
+        //    parameterized by `ProtocolClassTestImp`, and use it to verify
+        //    that:
+        //
+        //   1. The protocol is abstract. (C-1)
+        //
+        //   2. The protocol has no data members. (C-2)
+        //
+        //   3. The protocol has a virtual destructor. (C-3)
+        //
+        // 3. Use the `BSLS_PROTOCOLTEST_ASSERT` macro to verify that
+        //    non-creator methods of the protocol are:
+        //
+        //   1. virtual, (C-4)
+        //
+        //   2. publicly accessible. (C-5)
         //
         // Testing:
         //   virtual ~baltzo::Loader();

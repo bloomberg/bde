@@ -35,9 +35,9 @@
 
 #include <bsltf_templatetestfacility.h>
 
-#include <bsl_cstddef.h>  // 'bsl::size_t'
-#include <bsl_cstdlib.h>  // 'bsl::atoi'
-#include <bsl_cstring.h>  // 'bsl::strlen', 'bsl::memcpy', 'bsl::strcmp'
+#include <bsl_cstddef.h>  // `bsl::size_t`
+#include <bsl_cstdlib.h>  // `bsl::atoi`
+#include <bsl_cstring.h>  // `bsl::strlen`, `bsl::memcpy`, `bsl::strcmp`
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
@@ -56,8 +56,8 @@ using namespace BloombergLP;
 //                                 --------
 // The component under test provide a utility for working with JSON number text
 // format.  As a state-less utility, the functions can largely be tested
-// independently.  However, 'isValidNumber' is fundamental to the other
-// functions (most require 'isValidNumber' as a precondition), so that is
+// independently.  However, `isValidNumber` is fundamental to the other
+// functions (most require `isValidNumber` as a precondition), so that is
 // tested here first.
 // ----------------------------------------------------------------------------
 //
@@ -89,9 +89,9 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [13] USAGE EXAMPLE
-// [ 3] CONCERN: 'IsValidNumber' functor can be used as an oracle.
+// [ 3] CONCERN: `IsValidNumber` functor can be used as an oracle.
 // [ 2] CONCERN: Test Machinery
-// [  ] CONCERN: 'BSLS_REVIEW' failures should lead to test failures
+// [  ] CONCERN: `BSLS_REVIEW` failures should lead to test failures
 // [-1] BENCHMARK: asDecimal64Exact vs asDecimal64ExactOracle
 
 // ============================================================================
@@ -174,22 +174,24 @@ BSLA_MAYBE_UNUSED bool veryVeryVeryVerbose;
                            // class IsValidNumber
                            // ===================
 
+/// This functor class matches the textual pattern of a valid JSON number.
 class IsValidNumber {
-    // This functor class matches the textual pattern of a valid JSON number.
 
     // DATA
     bdlpcre::RegEx d_regEx;
 
   public:
     // CREATORS
+
+    /// Create an `IsValidNumber` functor object that is ready to match the
+    /// textual pattern of a valid JSON number.
     IsValidNumber();
-        // Create an 'IsValidNumber' functor object that is ready to match the
-        // textual pattern of a valid JSON number.
 
     // ACCESSORS
+
+    /// Return `true` if the specified `text` matches the pattern of a valid
+    /// JSON number, and `false` otherwise.
     bool operator()(const bsl::string_view& text) const;
-        // Return 'true' if the specified 'text' matches the pattern of a valid
-        // JSON number, and 'false' otherwise.
 };
 
                            // -------------------
@@ -224,18 +226,19 @@ bool IsValidNumber::operator()(const bsl::string_view& text) const
 //                             HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// Return the absolute value of the specified `input`.
 template <class FP_TYPE>
 FP_TYPE fabsval(FP_TYPE input)
-    // Return the absolute value of the specified 'input'.
 {
     return input >= FP_TYPE(0) ? input : -input;
 }
 
 // CLASS METHODS
+
+/// Return `true` if the specified `a` and `b` are approximately the same
+/// floating point value, and `false` otherwise'.
 template <class FP_TYPE>
 int fuzzyCompare(FP_TYPE a, FP_TYPE b)
-    // Return 'true' if the specified 'a' and 'b' are approximately the same
-    // floating point value, and 'false' otherwise'.
 {
     const FP_TYPE S_REL_TOL = FP_TYPE(1e-12);  // Default relative and
     const FP_TYPE S_ABS_TOL = FP_TYPE(1e-24);  // absolute tolerances.
@@ -261,36 +264,36 @@ int fuzzyCompare(FP_TYPE a, FP_TYPE b)
     return (difference <= S_ABS_TOL || difference / average <= S_REL_TOL);
 }
 
+/// Load the specified `result` with the specified `value`.  Note that these
+/// function overloads provide a common interface for converting JSON number
+/// text to an in-process number type that can be called generically.
 int convertValue(double *result, const bsl::string_view& value)
-    // Load the specified 'result' with the specified 'value'.  Note that these
-    // function overloads provide a common interface for converting JSON number
-    // text to an in-process number type that can be called generically.
 {
   *result = Obj::NumberUtil::asDouble(value);
   return 0;
 }
 
+/// Load the specified `result` with the specified `value`.  Note that these
+/// function overloads provide a common interface for converting JSON number
+/// text to an in-process number type that can be called generically.
 int convertValue(bdldfp::Decimal64 *result, const bsl::string_view& value)
-    // Load the specified 'result' with the specified 'value'.  Note that these
-    // function overloads provide a common interface for converting JSON number
-    // text to an in-process number type that can be called generically.
 {
     *result = Obj::NumberUtil::asDecimal64(value);
     return 0;
 }
 
+/// Load the specified `result` with the specified `value`.  Note that these
+/// function overloads provide a common interface for converting JSON number
+/// text to an in-process number type that can be called generically.
 template <class t_INTEGER_TYPE>
 int convertValue(t_INTEGER_TYPE *result, const bsl::string_view& value)
-    // Load the specified 'result' with the specified 'value'.  Note that these
-    // function overloads provide a common interface for converting JSON number
-    // text to an in-process number type that can be called generically.
 {
   return Obj::NumberUtil::asInteger(result, value);
 }
 
+/// Load the specified `significand` from the specified `value`.
 void extractSignificand(bsl::string             *significand,
                         const bsl::string_view&  value)
-    // Load the specified 'significand' from the specified 'value'.
 {
     BSLS_ASSERT(Obj::isValidNumber(value));
     typedef bsl::string_view::size_type size_type;
@@ -335,16 +338,16 @@ void extractSignificand(bsl::string             *significand,
     }
 }
 
+/// Load into the specified `result` strings with equivalent numeric values
+/// to the specified `value` with different exponents, starting from the
+/// specified `minExponent` up to and including the specified `maxExponent`.
+/// If `value` already has an exponent, its exponent will be adjusted in the
+/// range `minExponent` to `maxExponent`.  For example, (-1, 1, "1e1") will
+/// produce the strings ["10e0", "1e1", "0.1e2"].
 void generateEquivalenceSet(bsl::vector<bsl::string> *result,
                             Int64                     minExponent,
                             Int64                     maxExponent,
                             const bsl::string_view&   value)
-    // Load into the specified 'result' strings with equivalent numeric values
-    // to the specified 'value' with different exponents, starting from the
-    // specified 'minExponent' up to and including the specified 'maxExponent'.
-    // If 'value' already has an exponent, its exponent will be adjusted in the
-    // range 'minExponent' to 'maxExponent'.  For example, (-1, 1, "1e1") will
-    // produce the strings ["10e0", "1e1", "0.1e2"].
 {
     BSLS_ASSERT(Obj::isValidNumber(value));
 
@@ -452,8 +455,8 @@ void generateEquivalenceSet(bsl::vector<bsl::string> *result,
     }
 }
 
+/// Remove any trailing `0` characters from the specified `value`.
 void removeTrailingZeros(bsl::string *value)
-    // Remove any trailing '0' characters from the specified 'value'.
 {
     bsl::string::size_type end = value->find_last_not_of('0');
     if (end == bsl::string::npos) {
@@ -463,12 +466,12 @@ void removeTrailingZeros(bsl::string *value)
     *value = value->substr(0, end + 1);
 }
 
+/// Return 0 if the specified  `value` is represented exactly as a
+/// `Decimal64` and `DecimalUtil::k_INEXACT` if `value` is not represented
+/// exactly.  Note that this function is used as a sanity check for the test
+/// data for testing `asDecimal64Exact`, providing an alternative
+/// implementation to verify the expected status.
 int verifyDecimal64Exactness(const char *value)
-    // Return 0 if the specified  'value' is represented exactly as a
-    // 'Decimal64' and 'DecimalUtil::k_INEXACT' if 'value' is not represented
-    // exactly.  Note that this function is used as a sanity check for the test
-    // data for testing 'asDecimal64Exact', providing an alternative
-    // implementation to verify the expected status.
 {
     enum {
         k_NOT_PRECISE = 0
@@ -505,18 +508,18 @@ int verifyDecimal64Exactness(const char *value)
     return Obj::k_INEXACT;
 }
 
+/// Load the specified `result` with the specified `value`, and return 0 if
+/// `result` is an exact representation of value.  Note that this is an
+/// alternative implementation of `NumberUtil::asDecimal64` that, rather
+/// than entirely relying on the underlying `inteldfp` library, converts the
+/// digits and then uses `makeDecimal64Raw` to pack the digits into a
+/// `Decimal64`.  This implementation might eventually be preferred because
+/// it avoids a bug with 0 values with large or small exponents (e.g.,
+/// "0e200") being treated as an inexact conversion, and also avoids the
+/// need for a 0 terminated string except in cases where the conversion is
+/// inexact (which we expect to be rare).  See benchmark in case -1.
 int asDecimal64ExactOracle(bdldfp::Decimal64       *result,
                            const bsl::string_view&  value)
-    // Load the specified 'result' with the specified 'value', and return 0 if
-    // 'result' is an exact representation of value.  Note that this is an
-    // alternative implementation of 'NumberUtil::asDecimal64' that, rather
-    // than entirely relying on the underlying 'inteldfp' library, converts the
-    // digits and then uses 'makeDecimal64Raw' to pack the digits into a
-    // 'Decimal64'.  This implementation might eventually be preferred because
-    // it avoids a bug with 0 values with large or small exponents (e.g.,
-    // "0e200") being treated as an inexact conversion, and also avoids the
-    // need for a 0 terminated string except in cases where the conversion is
-    // inexact (which we expect to be rare).  See benchmark in case -1.
 {
     BSLS_ASSERT(Obj::isValidNumber(value));
 
@@ -549,14 +552,14 @@ int asDecimal64ExactOracle(bdldfp::Decimal64       *result,
 
     int rc = ImpUtil::appendDigits(&uExponent, 0, exponentStr);
 
-    // The 'exponentBias' is determined by the number of leading or trailing
+    // The `exponentBias` is determined by the number of leading or trailing
     // 0s, an ridiculously high value should not be possible.  Note we negate
-    // 'exponentBias' below.
+    // `exponentBias` below.
 
     BSLS_ASSERT(exponentBias != INT_MIN_VALUE);  (void)INT_MIN_VALUE;
 
     // Determine the maximum valid exponent that the arithmetic below can
-    // support (because 'uExponent' is converted to a signed integer).
+    // support (because `uExponent` is converted to a signed integer).
 
     Uint64 maxComputableExponent = UINT_MAX_VALUE -
                                    static_cast<Uint64>((exponentBias > 0)
@@ -622,17 +625,17 @@ int asDecimal64ExactOracle(bdldfp::Decimal64       *result,
 //                          TEMPLATED TEST CASE 10
 // ----------------------------------------------------------------------------
 
+/// Provide a `bsltf_templatetestfacility` compatible test case for testing
+/// `asIntegral`.
 template <class t_INTEGRAL_TYPE>
 struct AsIntegralTest {
-    // Provide a 'bsltf_templatetestfacility' compatible test case for testing
-    // 'asIntegral'.
 
     // CONSTANTS
     static const bool d_isSignedType =
               BloombergLP::bdljsn::NumberUtil_IsSigned<t_INTEGRAL_TYPE>::value;
 
+    /// See documentation for test case 10.
     static void testCase10()
-        // See documentation for test case 10.
 
     {
         t_INTEGRAL_TYPE k_MAX_VALUE =
@@ -645,8 +648,8 @@ struct AsIntegralTest {
 
         const Uint64 k_MAX = bsl::numeric_limits<Uint64>::max();
 
-        // 'd_result' is held in a 'Uint64' to allow for testing 'Uint64', but
-        // requires holding a separate 'd_isNegative' flag.
+        // `d_result` is held in a `Uint64` to allow for testing `Uint64`, but
+        // requires holding a separate `d_isNegative` flag.
 
         struct Data {
             int         d_line;
@@ -698,7 +701,7 @@ struct AsIntegralTest {
             { L_, OK,    "18446744073709551615", P, k_MAX                  },
 
                 // test values whose expected values can't be represented
-                // 'd_expected' should not be used.
+                // `d_expected` should not be used.
 
             { L_,    EOVER,   "1e184467440737095516160", P,    k_UNSET },
             { L_,    EOVER,      "18446744073709551616", P,    k_UNSET },
@@ -744,7 +747,7 @@ struct AsIntegralTest {
             int             rc = Obj::asInteger(&result, INPUT);
 
             // The following logic computes the expected result and expectedRc
-            // for 't_INTEGRAL_TYPE'.
+            // for `t_INTEGRAL_TYPE`.
 
             Uint64 maxAsU64 = static_cast<Uint64>(k_MAX_VALUE);
             Uint64 minAsU64 = (d_isSignedType) ? maxAsU64 + 1 : 0;
@@ -753,23 +756,23 @@ struct AsIntegralTest {
             int             expectedRc = (STATUS == ENOTINT) ? ENOTINT : 0;
 
             if (!ISNEG && (EXPECTED_U64 > maxAsU64 || STATUS == EOVER)) {
-                // The 'INPUT' is a positive value, and its 'VALUE' is above
+                // The `INPUT` is a positive value, and its `VALUE` is above
                 // the maximum representable value for this type (or outside
-                // the range 'EXPECTED_U64' can represent).
+                // the range `EXPECTED_U64` can represent).
 
                 expectedRc = Obj::k_OVERFLOW;
                 expected   = bsl::numeric_limits<t_INTEGRAL_TYPE>::max();
             }
             else if (ISNEG && (EXPECTED_U64 > minAsU64 || STATUS == EOVER)) {
-                // The 'INPUT' is a negative value, and its 'VALUE' is below
+                // The `INPUT` is a negative value, and its `VALUE` is below
                 // the minimum representable value for this type (or outside
-                // the range 'EXPECTED_U64' can represent).
+                // the range `EXPECTED_U64` can represent).
 
                 expectedRc = Obj::k_UNDERFLOW;
                 expected   = bsl::numeric_limits<t_INTEGRAL_TYPE>::min();
             }
             else {
-                // The expected result can be represented in 't_INTEGRAL_TYPE'.
+                // The expected result can be represented in `t_INTEGRAL_TYPE`.
 
                 expected = static_cast<t_INTEGRAL_TYPE>(EXPECTED_U64);
                 t_INTEGRAL_TYPE min =
@@ -846,11 +849,11 @@ static bool isValidJSonSuiteFileData(const bsl::string_view& fname) {
         || tag == 'i';   // implementation defined, we support all
 }
 
+/// Using the specified `hayStack and `needle':
+///    return bdlb::StringViewUtil::strstrCaseless(hayStack, needle) !=
+///                                                      bsl::string_view();
 static bool containsCaseless(const bsl::string_view& hayStack,
                              const bsl::string_view& needle)
-    // Using the specified 'hayStack and 'needle':
-    //:   return bdlb::StringViewUtil::strstrCaseless(hayStack, needle) !=
-    //:                                                     bsl::string_view();
 {
     return bdlb::StringViewUtil::strstrCaseless(hayStack, needle) !=
                                                             bsl::string_view();
@@ -990,7 +993,7 @@ const char *JSONTESTSUITE_PYTHON_SCRIPT =
 "        description=DESCRIPTION,"                                           NL
 "        formatter_class=argparse.RawDescriptionHelpFormatter)"              NL
 ""                                                                           NL
-"    parser.add_argument('directory',type=str,"                              NL
+"    parser.add_argument(`directory`,type=str,"                              NL
 "                        help=\"directory location containing json examples \""
                                                                              NL
 "                        \"(JSONTestSuite/test_parsing)\")"                  NL
@@ -1003,7 +1006,7 @@ const char *JSONTESTSUITE_PYTHON_SCRIPT =
 "        if filename.endswith(\".json\"):"                                   NL
 "            success = filename.startswith("                                 NL
 "                \"y_\") or filename.startswith(\"i_\")"                     NL
-"            with open(os.path.join(directory, file), 'rb') as input:"       NL
+"            with open(os.path.join(directory, file), `rb`) as input:"       NL
 "                json = input.read()"                                        NL
 "            if len(json) > 100:"                                            NL
 "                json = b\"Skipped Too Long\""                               NL
@@ -1023,7 +1026,7 @@ const char *JSONTESTSUITE_PYTHON_SCRIPT =
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The following function, 'LLVMFuzzerTestOneInput', is the entry point for the
+// The following function, `LLVMFuzzerTestOneInput`, is the entry point for the
 // clang fuzz testing facility.  See {http://bburl/BDEFuzzTesting} for details
 // on how to build and run with fuzz testing enabled.
 // ----------------------------------------------------------------------------
@@ -1033,9 +1036,9 @@ const char *JSONTESTSUITE_PYTHON_SCRIPT =
 #endif
 
 extern "C"
+/// Use the specified `data` array of `size` bytes as input to methods of
+/// this component and return zero.
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
-    // Use the specified 'data' array of 'size' bytes as input to methods of
-    // this component and return zero.
 {
     const char *FUZZ  = reinterpret_cast<const char *>(data);
     const int  LENGTH = static_cast<int>(size);
@@ -1081,7 +1084,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -1095,13 +1098,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -1122,13 +1125,13 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Interpreting a JSON Number String
 /// - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates using 'bdljsn::NumberUtil' to work with a JSON
+// This example demonstrates using `bdljsn::NumberUtil` to work with a JSON
 // number string.  Imagine we are given and array of strings for numbers we
 // expect to be integers, for each string we want to render some properties for
 // that number.
 //
 // First, we define an interesting set of example data:
-//..
+// ```
     const char *EXAMPLE_DATA[] = {
        // value                               converted int value & notes
        // -----                               ---------------------------
@@ -1140,11 +1143,11 @@ int main(int argc, char *argv[])
        "1.5e27",                             // INT64_MAX, overflow
     };
     const int NUM_DATA = sizeof(EXAMPLE_DATA) / sizeof(*EXAMPLE_DATA);
-//..
+// ```
 // Then, for each number, we first check whether it is a valid JSON Number
 // (note that the behavior for the other methods is undefined unless the text
 // is a valid JSON Number):
-//..
+// ```
     for (int i = 0; i < NUM_DATA; ++i) {
         const char *EXAMPLE = EXAMPLE_DATA[i];
         bsl::cout << "\"" << EXAMPLE << "\": " << bsl::endl;
@@ -1152,19 +1155,19 @@ int main(int argc, char *argv[])
             bsl::cout << "  * is NOT a JSON Number" << bsl::endl;
             continue;                                               // CONTINUE
         }
-//..
+// ```
 // Next we verify that the number is an integer.  This will return an accurate
 // result even when the integer cannot be represented.
-//..
+// ```
         if (bdljsn::NumberUtil::isIntegralNumber(EXAMPLE)) {
             bsl::cout << "  * is an integer" << bsl::endl;
         }
         else {
             bsl::cout << "  * is not an integer" << bsl::endl;
         }
-//..
+// ```
 // Finally, we convert that number to an integer:
-//..
+// ```
         bsls::Types::Int64 value;
         int rc = bdljsn::NumberUtil::asInt64(&value, EXAMPLE);
 //
@@ -1181,9 +1184,9 @@ int main(int argc, char *argv[])
         }
         bsl::cout << bsl::endl;
     }
-//..
+// ```
 // This will output the text:
-//..
+// ```
 //  "NaN":
 //    * is NOT a JSON Number
 //  "INF":
@@ -1200,7 +1203,7 @@ int main(int argc, char *argv[])
 //  "1.5e27":
 //    * is an integer
 //    * value: 9223372036854775807  (overflow)
-//..
+// ```
 
         bsl::cout.rdbuf(savedStreambuf_p);
         if (verbose) {
@@ -1212,20 +1215,20 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING: stringify
         //   This is a white box test, the methods under test all simply
-        //   forward to 'NumericFormatterUtil' and 'DecimalUtil'
+        //   forward to `NumericFormatterUtil` and `DecimalUtil`
         //
         //Concerns:
-        //: 1 That 'stringify' correctly renders strings for a range of input.
-        //:
-        //: 2 That the resulting numbers can be converted back to an
-        //:   equivalent in-process representation.
+        // 1. That `stringify` correctly renders strings for a range of input.
+        //
+        // 2. That the resulting numbers can be converted back to an
+        //    equivalent in-process representation.
         //
         //Plan:
-        //: 1 For each of the types, create a small set of test data checking
-        //:   a range of values.  stringify the input, and verify the expected
-        //:   result.  Then convert the string back to the original
-        //:   representation and verify the round-tripped value is equal to the
-        //:   original.
+        // 1. For each of the types, create a small set of test data checking
+        //    a range of values.  stringify the input, and verify the expected
+        //    result.  Then convert the string back to the original
+        //    representation and verify the round-tripped value is equal to the
+        //    original.
         //
         // Testing:
         //   void stringify(bsl::string *, Int64 );
@@ -1401,25 +1404,25 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING: as[Ui|I]nt[64]
         //   This is a white box test, the methods under test all simply
-        //   forward to 'asInteger' which was previously tested.
+        //   forward to `asInteger` which was previously tested.
         //
         //Concerns:
-        //: 1 That 'asInt', 'asUint', and 'asInt64' delegate to 'asInteger'
-        //:   correctly.
-        //:
-        //: 2 That input at the boundaries of the valid range of the type are
-        //:   correct
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. That `asInt`, `asUint`, and `asInt64` delegate to `asInteger`
+        //    correctly.
+        //
+        // 2. That input at the boundaries of the valid range of the type are
+        //    correct
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         //Plan:
-        //: 1 For each of the types, create a small set of test data checking
-        //:   all possible error codes, and the boundaries of the
-        //:   representable range of the type.  Verify the expected results
-        //:   are returned for each input.
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when.
+        // 1. For each of the types, create a small set of test data checking
+        //    all possible error codes, and the boundaries of the
+        //    representable range of the type.  Verify the expected results
+        //    are returned for each input.
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered when.
         //
         // Testing:
         //   int asInt(int *, const bsl::string_view& );
@@ -1582,43 +1585,43 @@ int main(int argc, char *argv[])
       case 10: {
         // --------------------------------------------------------------------
         // TESTING: asInteger
-        //   This is a white box test. 'asInteger' delegates to 'asUint64' and
+        //   This is a white box test. `asInteger` delegates to `asUint64` and
         //   then performs appropriate bounds checks for the result type.
         //
         //Concerns:
-        //: 1 For integers between bsl::numeric_limits<T> min and max,
-        //:   that number and a status of 0 are returned.
-        //:
-        //: 2 For values with fractions between bsl::numeric_limits<T> min and
-        //:   max, the truncated integer a status of k_NOT_INTEGER are
-        //:   returned.
-        //:
-        //: 3 For numbers outside of the range bsl::numeric_limits<T> min and
-        //:   max, that the min or max value (respectively) is returned with a
-        //:   status of k_UNDERFLOW or k_OVERFLOW (respectively).
-        //:
-        //: 4 That negative values are correctly handled.
-        //:
-        //: 5 That input with a large number of digits is correctly handled.
-        //:
-        //: 6 That input with very large (or small) exponents is correctly
-        //:   handled.
-        //:
-        //: 7 QoI: Asserted precondition violations are detected when enabled.
+        // 1. For integers between bsl::numeric_limits<T> min and max,
+        //    that number and a status of 0 are returned.
+        //
+        // 2. For values with fractions between bsl::numeric_limits<T> min and
+        //    max, the truncated integer a status of k_NOT_INTEGER are
+        //    returned.
+        //
+        // 3. For numbers outside of the range bsl::numeric_limits<T> min and
+        //    max, that the min or max value (respectively) is returned with a
+        //    status of k_UNDERFLOW or k_OVERFLOW (respectively).
+        //
+        // 4. That negative values are correctly handled.
+        //
+        // 5. That input with a large number of digits is correctly handled.
+        //
+        // 6. That input with very large (or small) exponents is correctly
+        //    handled.
+        //
+        // 7. QoI: Asserted precondition violations are detected when enabled.
         //
         //Plan:
-        //: 1 Use the 'bsltf_templatetestfacility' to apply the test over
-        //:   a range of signed and unsigned integral types.  For a test table
-        //:   that tests a range of varied input, compute the expected result
-        //:   from the canonical expected result in the test table, and verify
-        //:   'asInteger' returns the computed expected result.
-        //:
-        //:   1 For each test point, generate a set of equivalent
-        //:     representations with varying exponents, and verify the same
-        //:     result is returned.
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when.
+        // 1. Use the `bsltf_templatetestfacility` to apply the test over
+        //    a range of signed and unsigned integral types.  For a test table
+        //    that tests a range of varied input, compute the expected result
+        //    from the canonical expected result in the test table, and verify
+        //    `asInteger` returns the computed expected result.
+        //
+        //   1. For each test point, generate a set of equivalent
+        //      representations with varying exponents, and verify the same
+        //      result is returned.
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered when.
         //
         // Testing:
         //   int asInteger(t_INTEGER_TYPE *, const bsl::string_view& );
@@ -1655,40 +1658,40 @@ int main(int argc, char *argv[])
         // TESTING: isIntegerNumber
         //
         //Concerns:
-        //: 1 That 'isIntegerNumber' returns 'true' when the text supplied for
-        //:   the arguments represents an integer, and 'false' otherwise.
-        //:
-        //: 2 That 'isIntegerNumber' correctly handles a wide variety of
-        //:   representations for 0.
-        //:
-        //: 3 That 'isIntegerNumber' correctly handles positive and negative
-        //:   numbers.
-        //:
-        //: 4 That 'isIntegerNumber' correctly handles positive and negative
-        //:   exponents.
-        //:
-        //: 5 That 'isIntegerNumber' correctly handles very large numbers of
-        //:   significand digits.
-        //:
-        //: 6 That 'isIntegerNumber' correctly handles very large, and very
-        //:   small exponents.
-        //:
-        //: 7 QoI: Asserted precondition violations are detected when enabled.
+        // 1. That `isIntegerNumber` returns `true` when the text supplied for
+        //    the arguments represents an integer, and `false` otherwise.
+        //
+        // 2. That `isIntegerNumber` correctly handles a wide variety of
+        //    representations for 0.
+        //
+        // 3. That `isIntegerNumber` correctly handles positive and negative
+        //    numbers.
+        //
+        // 4. That `isIntegerNumber` correctly handles positive and negative
+        //    exponents.
+        //
+        // 5. That `isIntegerNumber` correctly handles very large numbers of
+        //    significand digits.
+        //
+        // 6. That `isIntegerNumber` correctly handles very large, and very
+        //    small exponents.
+        //
+        // 7. QoI: Asserted precondition violations are detected when enabled.
         //
         //Plan:
-        //: 1 For a test table that tests a range of varied input,
-        //:   verify that 'isIntegerNumber' returns the expected value.
-        //:
-        //:   1 For each test point, generate a set of equivalent
-        //:     representations with varying exponents, and verify the same
-        //:     result is returned.
-        //:
-        //: 2 For the same test table, test a couple extreme points from the
-        //:   equivalence set with thousands of '0' characters.  Verify the
-        //:   same result is returned.
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when.
+        // 1. For a test table that tests a range of varied input,
+        //    verify that `isIntegerNumber` returns the expected value.
+        //
+        //   1. For each test point, generate a set of equivalent
+        //      representations with varying exponents, and verify the same
+        //      result is returned.
+        //
+        // 2. For the same test table, test a couple extreme points from the
+        //    equivalence set with thousands of `0` characters.  Verify the
+        //    same result is returned.
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered when.
         //
         // Testing:
         //   bool isIntegralNumber(const bsl::string_view& );
@@ -1818,40 +1821,40 @@ int main(int argc, char *argv[])
         // TESTING: areEqual
         //
         //Concerns:
-        //: 1 That 'areEqual' returns 'true' when the text supplied for
-        //:   the arguments is the same.
-        //:
-        //: 2 That 'areEqual' returns 'true' when the text supplied for the
-        //:   arguments is different, but the numeric values are the same.
-        //:
-        //: 3 That 'areEqual' returns 'false' when the values of numeric
-        //:   arguments is different.
-        //:
-        //: 4 That 'areEqual' returns textual equality if the exponent of one
-        //:   of the values cannot be represented in a 64-bit integer.
-        //:
-        //: 6 That 'areEqual' correctly handles very large numbers of digits in
-        //: the representation or exponent.
-        //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        // 1. That `areEqual` returns `true` when the text supplied for
+        //    the arguments is the same.
+        //
+        // 2. That `areEqual` returns `true` when the text supplied for the
+        //    arguments is different, but the numeric values are the same.
+        //
+        // 3. That `areEqual` returns `false` when the values of numeric
+        //    arguments is different.
+        //
+        // 4. That `areEqual` returns textual equality if the exponent of one
+        //    of the values cannot be represented in a 64-bit integer.
+        //
+        // 6. That `areEqual` correctly handles very large numbers of digits in
+        //  the representation or exponent.
+        //
+        // 5. QoI: Asserted precondition violations are detected when enabled.
         //
         //Plan:
-        //: 1 For a test table that tests a range of varied input broken down
+        // 1. For a test table that tests a range of varied input broken down
         //    into equivalence groups, perform a double-nested iteration,
         //    comparing values in the test table against each other using the
         //    equivalence group to determine the expected result.
-        //:
-        //:   1 For each test point, generate a set of equivalent
-        //:     representations with varying exponents, and verify the same
-        //:     result is returned.
-        //:
-        //: 2 For the JSONTestSuite number data, for those numbers that are
-        //:   valid, perform a double-nested iteration comparing values
-        //:   against each other.  Use the iterator position and
-        //:   'asDecimal64[Exact]' to determine the expected result.
-        //:
-        //: 4 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when.
+        //
+        //   1. For each test point, generate a set of equivalent
+        //      representations with varying exponents, and verify the same
+        //      result is returned.
+        //
+        // 2. For the JSONTestSuite number data, for those numbers that are
+        //    valid, perform a double-nested iteration comparing values
+        //    against each other.  Use the iterator position and
+        //    `asDecimal64[Exact]` to determine the expected result.
+        //
+        // 4. Verify that, in appropriate build modes, defensive checks are
+        //    triggered when.
         //
         // Testing:
         //   bool areEqual(const string_view& , const string_view& );
@@ -2014,54 +2017,54 @@ int main(int argc, char *argv[])
       case 7: {
         // --------------------------------------------------------------------
         // TESTING: asDecimal64
-        //   This is a white box test. 'asDecimal64' delegates to
-        //   'DecimalUtil' which we assume to be correct.  This
+        //   This is a white box test. `asDecimal64` delegates to
+        //   `DecimalUtil` which we assume to be correct.  This
         //   test primarily looks for edge cases in the JSON number
         //   specification that might result in strtod reporting an error.
         //
         //Concerns:
-        //: 1 That 'asDecimal64[Exact]' returns the closest decimal floating
-        //:   point representation of the input text.
-        //:
-        //: 2 That 'asDecimal64[Exact]' behaves correctly for numbers with
-        //:   extremely large or small exponents
-        //:
-        //: 3 That 'asDecimal64[Exact]' returns +INF and -INF if the input is
-        //    outside of the range that can be represented by a 'double'.
+        // 1. That `asDecimal64[Exact]` returns the closest decimal floating
+        //    point representation of the input text.
         //
-        //: 4 That 'asDecimal64Exact' returns a 0 status if the number has 16
+        // 2. That `asDecimal64[Exact]` behaves correctly for numbers with
+        //    extremely large or small exponents
+        //
+        // 3. That `asDecimal64[Exact]` returns +INF and -INF if the input is
+        //    outside of the range that can be represented by a `double`.
+        //
+        // 4. That `asDecimal64Exact` returns a 0 status if the number has 16
         //    or fewer significant digits, and its exponent is between
         //    [-398, 369] (inclusive).
         //
-        //: 5 That 'asDecimal64Exact' returns a status 'k_NOT_EXACT' if the
+        // 5. That `asDecimal64Exact` returns a status `k_NOT_EXACT` if the
         //    input is above or below the representable range of values, and
         //    returns a value of +INF or -INFO respective.
         //
-        //: 6 That 'asDecimal64Exact' returns a status 'k_NOT_EXACT' if the
+        // 6. That `asDecimal64Exact` returns a status `k_NOT_EXACT` if the
         //    input is in the representable range but has too many significant
         //    digits to represent exactly.
         //
-        //: 7 QoI: Asserted precondition violations are detected when enabled.
+        // 7. QoI: Asserted precondition violations are detected when enabled.
         //
         //Plan:
-        //: 1 For a test table that tests a range of varied input,
-        //:   verify that 'asDecimal64[Exact]' returns the expected result,
-        //:   and, in addition, 'asDecimal64Exact' returns the expected status.
-        //:
-        //:   1 For each test point, generate a set of equivalent
-        //:     representations with varying exponents, and verify the same
-        //:     result and status are returned.
-        //:
-        //: 2 For the same test table, test a couple extreme points from the
-        //:   equivalence set with thousands of '0' characters.  Verify the
-        //:   same results and status are returned.
-        //:
-        //: 3 For the JSONTestSuite number data, for those numbers that are
-        //:   valid verify 'asDecimal64[Exact]' returns the same result as an
-        //:   'oracle' (in this). We use 'NumberUtil::asDouble' as an oracle.
-        //:
-        //: 4 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when.
+        // 1. For a test table that tests a range of varied input,
+        //    verify that `asDecimal64[Exact]` returns the expected result,
+        //    and, in addition, `asDecimal64Exact` returns the expected status.
+        //
+        //   1. For each test point, generate a set of equivalent
+        //      representations with varying exponents, and verify the same
+        //      result and status are returned.
+        //
+        // 2. For the same test table, test a couple extreme points from the
+        //    equivalence set with thousands of `0` characters.  Verify the
+        //    same results and status are returned.
+        //
+        // 3. For the JSONTestSuite number data, for those numbers that are
+        //    valid verify `asDecimal64[Exact]` returns the same result as an
+        //    `oracle` (in this). We use `NumberUtil::asDouble` as an oracle.
+        //
+        // 4. Verify that, in appropriate build modes, defensive checks are
+        //    triggered when.
         //
         // Testing:
         //   bdldfp::Decimal64 asDecimal64(const bsl::string_view& );
@@ -2160,7 +2163,7 @@ int main(int argc, char *argv[])
                 P_(LINE); P(INPUT);
             }
 
-            // Test 'asDecimal64' and 'asDecimal64Exact'.
+            // Test `asDecimal64` and `asDecimal64Exact`.
 
             result = Obj::asDecimal64(INPUT);
             ASSERTV(LINE, INPUT, EXPECTED, result, EXPECTED == result);
@@ -2284,45 +2287,45 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // TESTING: asDouble, asFloat
-        //   This is a white box test. 'asDouble' delegates to
+        //   This is a white box test. `asDouble` delegates to
         //   NumericParseUtil, which delegates to the standard library, which
         //   we assume to be correct.  This test primarily looks for edge cases
         //   in the JSON number specification that might result in strtod
         //   reporting an error.
         //
         //Concerns:
-        //: 1 That 'asDouble' returns the closest binary floating point
-        //:   representation of the input text.
-        //:
-        //: 2 That 'asDouble' behaves correctly for numbers with extremely
-        //:   large or small exponents
-        //:
-        //: 3 That 'asDouble' returns +INF and -INF if the input is outside of
-        //:   the range that can be represented by a 'double'.
-        //:
-        //: 4 That 'asFloat' returns the same value as 'asDouble' casted to a
-        //:   'float'.
+        // 1. That `asDouble` returns the closest binary floating point
+        //    representation of the input text.
         //
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        // 2. That `asDouble` behaves correctly for numbers with extremely
+        //    large or small exponents
+        //
+        // 3. That `asDouble` returns +INF and -INF if the input is outside of
+        //    the range that can be represented by a `double`.
+        //
+        // 4. That `asFloat` returns the same value as `asDouble` casted to a
+        //    `float`.
+        //
+        // 5. QoI: Asserted precondition violations are detected when enabled.
         //
         //Plan:
-        //: 1 For a test table that tests a range of varied input,
-        //:   verify that 'asDouble' returns the expected value.
-        //:
-        //:   1 For each test point, generate a set of equivalent
-        //:     representations with varying exponents, and verify the same
-        //:     result is returned.
-        //:
-        //: 2 For the same test table, test a couple extreme points from the
-        //:   equivalence set with thousands of '0' characters.  Verify the
-        //:   same result is returned.
-        //:
-        //: 3 For the JSONTestSuite number data, for those numbers that are
-        //:   valid verify 'asDouble' returns the same value as an 'oracle' (in
-        //:   this).  We use 'NumberUtil::asDouble' as an oracle.
-        //:
-        //: 4 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when.
+        // 1. For a test table that tests a range of varied input,
+        //    verify that `asDouble` returns the expected value.
+        //
+        //   1. For each test point, generate a set of equivalent
+        //      representations with varying exponents, and verify the same
+        //      result is returned.
+        //
+        // 2. For the same test table, test a couple extreme points from the
+        //    equivalence set with thousands of `0` characters.  Verify the
+        //    same result is returned.
+        //
+        // 3. For the JSONTestSuite number data, for those numbers that are
+        //    valid verify `asDouble` returns the same value as an `oracle` (in
+        //    this).  We use `NumberUtil::asDouble` as an oracle.
+        //
+        // 4. Verify that, in appropriate build modes, defensive checks are
+        //    triggered when.
         //
         // Testing:
         //   float asFloat(const bsl::string_view& );
@@ -2452,11 +2455,11 @@ int main(int argc, char *argv[])
             bsl::vector<bsl::string> equivalentData;
 
             // Both MSVC and MacOS have limits to the number of digits that can
-            // be handled by the standard library 'strtod' or 'from_chars' used
-            // by 'parseDouble', thus limiting the size of the possible input
+            // be handled by the standard library `strtod` or `from_chars` used
+            // by `parseDouble`, thus limiting the size of the possible input
             // data to only a few thousand characters.  The limit for the
-            // for 'strtod' on MacOS is 19,999 digits as of MacOS Monterey 12.6
-            // and Apple clang version 14.0.0.  'from_chars' from MSVC limits
+            // for `strtod` on MacOS is 19,999 digits as of MacOS Monterey 12.6
+            // and Apple clang version 14.0.0.  `from_chars` from MSVC limits
             // the accepted exponent value range (instead of string length).
             generateEquivalenceSet(&equivalentData, -2000, -1999, INPUT);
             generateEquivalenceSet(&equivalentData,  1999,  2000, INPUT);
@@ -2514,45 +2517,45 @@ int main(int argc, char *argv[])
         // TESTING: asUint64
         //
         // Concerns:
-        //: 1 For basic integral text input in the [0, k_MAX] return that
-        //:   number and a status of 0.
-        //:
-        //: 2 For integrals in the range [0, UINT64_MAX] that any alternative
-        //:   equivalent JSON Number rendering for the number (e.g., for "1",
-        //:  "1e-1", "0.1e1" etc) will correctly return that integer and a
-        //:   status of 0.
-        //:
-        //: 3 That for input in the range [0, k_MAX] that has a fraction,
-        //:   that the truncated integer value is returned with a status of
-        //:   'k_NOT_INTEGER'.
-        //:
-        //: 4 That for negative input the value 0 is returned with a status of
-        //:   'k_UNDERFLOW'.
-        //:
-        //: 5 That for positive input above k_MAX, that k_MAX is
-        //:   returned with a status 'k_OVERFLOW'.
-        //:
-        //: 6 QoI: Asserted precondition violations are detected when enabled.
+        // 1. For basic integral text input in the [0, k_MAX] return that
+        //    number and a status of 0.
+        //
+        // 2. For integrals in the range [0, UINT64_MAX] that any alternative
+        //    equivalent JSON Number rendering for the number (e.g., for "1",
+        //   "1e-1", "0.1e1" etc) will correctly return that integer and a
+        //    status of 0.
+        //
+        // 3. That for input in the range [0, k_MAX] that has a fraction,
+        //    that the truncated integer value is returned with a status of
+        //    `k_NOT_INTEGER`.
+        //
+        // 4. That for negative input the value 0 is returned with a status of
+        //    `k_UNDERFLOW`.
+        //
+        // 5. That for positive input above k_MAX, that k_MAX is
+        //    returned with a status `k_OVERFLOW`.
+        //
+        // 6. QoI: Asserted precondition violations are detected when enabled.
         //
         //Plan:
-        //: 1 For a test table that tests a range of varied input,
-        //:   verify that 'asUint64' returns the expected value and expected
-        //:   status.
-        //:
-        //:   1 For each test point, generate a set of equivalent
-        //:     representations with varying exponents, and verify the same
-        //:     result and status are returned.
-        //:
-        //: 2 For the same test table, test a couple extreme points from the
-        //:   equivalence set with thousands of '0' characters.  Verify the
-        //:   same results and status are returned.
-        //:
-        //: 3 For the JSONTestSuite number data, for those numbers that are
-        //:   valid verify 'asUint64' returns the same value as an 'oracle'
-        //:   (in this).  We use NumberUtil::parseDouble as an oracle.
-        //:
-        //: 4 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when.
+        // 1. For a test table that tests a range of varied input,
+        //    verify that `asUint64` returns the expected value and expected
+        //    status.
+        //
+        //   1. For each test point, generate a set of equivalent
+        //      representations with varying exponents, and verify the same
+        //      result and status are returned.
+        //
+        // 2. For the same test table, test a couple extreme points from the
+        //    equivalence set with thousands of `0` characters.  Verify the
+        //    same results and status are returned.
+        //
+        // 3. For the JSONTestSuite number data, for those numbers that are
+        //    valid verify `asUint64` returns the same value as an `oracle`
+        //    (in this).  We use NumberUtil::parseDouble as an oracle.
+        //
+        // 4. Verify that, in appropriate build modes, defensive checks are
+        //    triggered when.
         //
         // Testing:
         //   int asUint64(Uint64 *, const bsl::string_view& );
@@ -2720,7 +2723,7 @@ int main(int argc, char *argv[])
             }
 
             // The following compares the result of a conversion to double
-            // using 'NumberParseUtil', with 'asUint64' for the JSONTestSuite
+            // using `NumberParseUtil`, with `asUint64` for the JSONTestSuite
             // data related to numbers.  This is a fuzzy test just to verify
             // sane results with a separate set of test data.  We allow success
             // if the comparison is successful, either when converting both
@@ -2762,56 +2765,56 @@ int main(int argc, char *argv[])
         // TESTING: decompose
         //
         // Concerns:
-        //: 1 'isNegative' correctly returns whether the text begins with '-'.
-        //:
-        //: 2 'integerBegin' and 'integerEnd' correctly returns the integer
-        //:    part of the representation
-        //:
-        //: 3 'fractionBegin' and 'fractionEnd' correctly return the fraction
-        //:    part of the representation.
-        //:
-        //: 4 If there is no fraction part, 'fractionBegin' and 'fractionEnd'
-        //:   are both equal to 'exponentBegin'.
-        //:
-        //: 4 That generateEquivalenceSet loads an array for the range of
-        //:   adjustments.
-        //:
-        //: 5 'isExponentNegative' correctly returns whether the exponent
-        //:    begins with '-'.
-        //:
-        //: 6 'exponentBegin' correctly returns the exponent part of the
-        //:    representation.
-        //:
-        //: 7 If there is no exponent part of the representation,
-        //:   'exponentBegin' returns the end iterator.
-        //:
-        //: 8 If there is no exponent part of the representation,
-        //:   'fractionBegin' and 'fractionEnd' equal 'exponentBegin'.
+        // 1. `isNegative` correctly returns whether the text begins with '-'.
         //
-        //: 9 'significantDigitsBegin' and 'significantDigitsEnd' returns the
-        //:   range of significant digits (which may or may not include a '.'
-        //:   separator)
-        //:
-        //: 10 If this is a 0 representation, the significantDigits range is a
-        //:   single '0' character.
-        //:
-        //: 11 Any leading and trailing 0s are removed from the
-        //:    significantDigits range.
-        //:
-        //: 12 'significantDigitsBias' provides a value, that when treated as
-        //:    an exponent of the digits in the signigicantDigits range
-        //:    (ignoring the '.' character), the original numeric value is
-        //:    restored.
-        //:
-        //: 13 QoI: Asserted precondition violations are detected when enabled.
+        // 2. `integerBegin` and `integerEnd` correctly returns the integer
+        //     part of the representation
+        //
+        // 3. `fractionBegin` and `fractionEnd` correctly return the fraction
+        //     part of the representation.
+        //
+        // 4. If there is no fraction part, `fractionBegin` and `fractionEnd`
+        //    are both equal to `exponentBegin`.
+        //
+        // 4. That generateEquivalenceSet loads an array for the range of
+        //    adjustments.
+        //
+        // 5. `isExponentNegative` correctly returns whether the exponent
+        //     begins with '-'.
+        //
+        // 6. `exponentBegin` correctly returns the exponent part of the
+        //     representation.
+        //
+        // 7. If there is no exponent part of the representation,
+        //    `exponentBegin` returns the end iterator.
+        //
+        // 8. If there is no exponent part of the representation,
+        //    `fractionBegin` and `fractionEnd` equal `exponentBegin`.
+        //
+        // 9. `significantDigitsBegin` and `significantDigitsEnd` returns the
+        //    range of significant digits (which may or may not include a '.'
+        //    separator)
+        //
+        // 10. If this is a 0 representation, the significantDigits range is a
+        //    single `0` character.
+        //
+        // 11. Any leading and trailing 0s are removed from the
+        //     significantDigits range.
+        //
+        // 12. `significantDigitsBias` provides a value, that when treated as
+        //     an exponent of the digits in the signigicantDigits range
+        //     (ignoring the '.' character), the original numeric value is
+        //     restored.
+        //
+        // 13. QoI: Asserted precondition violations are detected when enabled.
         //
         //Plan:
-        //: 1 For a test table that tests a range of varied input,
-        //:   verify that decompose returns values that match the expected
-        //:   results.
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when.
+        // 1. For a test table that tests a range of varied input,
+        //    verify that decompose returns values that match the expected
+        //    results.
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered when.
         //
         // Testing:
         //   void decompose(...);
@@ -2916,8 +2919,8 @@ int main(int argc, char *argv[])
         if (verbose)
             bsl::cout << "\tTest problematic empty fraction." << bsl::endl;
         {
-            // Verify that 'fractionBegin' and 'fractionEnd' are placed before
-            // 'exponentBegin' if there is no fraction.
+            // Verify that `fractionBegin` and `fractionEnd` are placed before
+            // `exponentBegin` if there is no fraction.
 
             bool                        isNeg, isExpNeg;
             bsl::string_view            intPart, fracPart, expPart, sigPart;
@@ -2972,65 +2975,65 @@ int main(int argc, char *argv[])
         // TESTING: isValidNumber
         //
         // Concerns:
-        //: 1 'isValidNumber' rejects text with preceding or trailing white
-        //:   space.
-        //:
-        //: 2 'isValidNumber' rejects text starting with '+'
-        //:
-        //: 3 'isValidNumber' rejects text with non-numeric characters except
-        //:   "+-eE."
-        //:
-        //: 4 'isValidNumber' rejects text starting with '.'
-        //:
-        //: 5 'isValidNumber' rejects text with multiple consecutive "+-eE."
-        //:    characters
-        //:
-        //: 6 'isValidNumber' rejects numbers with multiple (non-consecutive)
-        //:   '.' characters
-        //:
-        //: 7 'isValidNumber' rejects numbers with embedded 0 characters
-        //:
-        //: 8 'isValidNumber' accepts numbers that match the regular
-        //:   expression:
-        //:   "/^-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][-+]?[0-9]+)?\z/"
-        //:   Note that "\z" matches end-of-string but not a preceding '\n'.
-        //:
-        //: 9 'isValidNumber' accepts characters with a huge number of integer
-        //:    digits.
-        //:
-        //: 10 'isValidNumber' accepts characters with a huge number of
-        //:    fraction digits.
-        //:
-        //: 12 'isValidNumber' accepts characters with a huge number of
-        //:    exponent digits.
-        //:
-        //: 13 'isValidNumber' does not reference data past the end of the
-        //:    given input.
-        //:
-        //: 14 The 'IsValidNumber' functor produces the same result as the
-        //:    'isValidNumber' function.
+        // 1. `isValidNumber` rejects text with preceding or trailing white
+        //    space.
+        //
+        // 2. `isValidNumber` rejects text starting with '+'
+        //
+        // 3. `isValidNumber` rejects text with non-numeric characters except
+        //    "+-eE."
+        //
+        // 4. `isValidNumber` rejects text starting with '.'
+        //
+        // 5. `isValidNumber` rejects text with multiple consecutive "+-eE."
+        //     characters
+        //
+        // 6. `isValidNumber` rejects numbers with multiple (non-consecutive)
+        //    '.' characters
+        //
+        // 7. `isValidNumber` rejects numbers with embedded 0 characters
+        //
+        // 8. `isValidNumber` accepts numbers that match the regular
+        //    expression:
+        //    "/^-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][-+]?[0-9]+)?\z/"
+        //    Note that "\z" matches end-of-string but not a preceding '\n'.
+        //
+        // 9. `isValidNumber` accepts characters with a huge number of integer
+        //     digits.
+        //
+        // 10. `isValidNumber` accepts characters with a huge number of
+        //     fraction digits.
+        //
+        // 12. `isValidNumber` accepts characters with a huge number of
+        //     exponent digits.
+        //
+        // 13. `isValidNumber` does not reference data past the end of the
+        //     given input.
+        //
+        // 14. The `IsValidNumber` functor produces the same result as the
+        //     `isValidNumber` function.
         //
         // Plan:
-        //: 1 For a test table that tests a range of varied input,
-        //:   call 'isValidNumber', and verify it against an
-        //:   expected result.
-        //:
-        //: 2 For a test table derived from JSONTestSuite, call 'isValidNumber'
-        //:   ad verify it against an expected result.
-        //:
-        //: 3 Test strings with embedded 0s return 'false'.
-        //:
-        //: 4 For each test of 'isValidNumber' provide input in memory acquired
-        //:   from 'bslma::GuardingAllocator' configured so that any reference
-        //:   past the end of the valid input triggers a segmentation fault.
-        //:
-        //: 5 Call the 'IsValidNumber' functor with each data point used in
-        //:   P-1..3 and confirm that the result matches that from
-        //:   'isValidNumber'.
+        // 1. For a test table that tests a range of varied input,
+        //    call `isValidNumber`, and verify it against an
+        //    expected result.
+        //
+        // 2. For a test table derived from JSONTestSuite, call `isValidNumber`
+        //    ad verify it against an expected result.
+        //
+        // 3. Test strings with embedded 0s return `false`.
+        //
+        // 4. For each test of `isValidNumber` provide input in memory acquired
+        //    from `bslma::GuardingAllocator` configured so that any reference
+        //    past the end of the valid input triggers a segmentation fault.
+        //
+        // 5. Call the `IsValidNumber` functor with each data point used in
+        //    P-1..3 and confirm that the result matches that from
+        //    `isValidNumber`.
         //
         // Testing:
         //   bool isValidNumber(const bsl::string_view& );
-        //   CONCERN: 'IsValidNumber' functor can be used as an oracle.
+        //   CONCERN: `IsValidNumber` functor can be used as an oracle.
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -3207,27 +3210,27 @@ int main(int argc, char *argv[])
         // CONCERN: Test Machinery
         //
         // Concerns:
-        //: 1 That generateEquivalenceSet can correctly adjust the exponent
-        //:   in a "positive" direction (moving the decimal point right, and
-        //:   adding to the exponent).
-        //:
-        //: 2 That generateEquivalenceSet can correctly adjust the exponent
-        //:   in a "negative" direction (moving the decimal point left, and
-        //:   subtracting from the exponent).
-        //:
-        //: 3 That generateEquivalenceSet supplied a 0 adjustment does not
-        //:   change the exponent
-        //:
-        //: 4 That generateEquivalenceSet loads an array for the range of
-        //:   adjustments.
+        // 1. That generateEquivalenceSet can correctly adjust the exponent
+        //    in a "positive" direction (moving the decimal point right, and
+        //    adding to the exponent).
+        //
+        // 2. That generateEquivalenceSet can correctly adjust the exponent
+        //    in a "negative" direction (moving the decimal point left, and
+        //    subtracting from the exponent).
+        //
+        // 3. That generateEquivalenceSet supplied a 0 adjustment does not
+        //    change the exponent
+        //
+        // 4. That generateEquivalenceSet loads an array for the range of
+        //    adjustments.
         //
         // Plan:
-        //: 1 For a test table that tests a range of varied adjustments,
-        //:   create a single adjusted value, and verify it against an
-        //:   expected result.
-        //:
-        //: 2 Test a range of values, verify a result is returned for each
-        //:   value in the range.
+        // 1. For a test table that tests a range of varied adjustments,
+        //    create a single adjusted value, and verify it against an
+        //    expected result.
+        //
+        // 2. Test a range of values, verify a result is returned for each
+        //    value in the range.
         //
         // Testing:
         //   CONCERN: Test Machinery
@@ -3317,15 +3320,15 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases
         //
         // Plan:
-        //: 1 For the various supported numerical strings, use 'getValue' to
-        //:   convert them to the various compatible numerical types, then
-        //:   'stringify' the values, checking that the results are as
-        //:   expected.  Note that round-trip correctness is NOT necessarily
-        //:   checked.
+        // 1. For the various supported numerical strings, use `getValue` to
+        //    convert them to the various compatible numerical types, then
+        //    `stringify` the values, checking that the results are as
+        //    expected.  Note that round-trip correctness is NOT necessarily
+        //    checked.
         //
         // Testing:
         //   BREATHING TEST
@@ -3628,10 +3631,10 @@ int main(int argc, char *argv[])
         //---------------------------------------------------------------------
         // BENCHMARK: asDecimal64Exact vs asDecimal64ExactOracle
         //
-        // This benchmark compares the current 'asDecimal64Exact' function
-        // which delegates entirely to 'inteldfp' parsing, to a "homebrewn"
+        // This benchmark compares the current `asDecimal64Exact` function
+        // which delegates entirely to `inteldfp` parsing, to a "homebrewn"
         // implementation that parses the string into digits to use with
-        // 'makeDecimla64Raw' (falling back to 'inteldfp' parsing for inexact
+        // `makeDecimla64Raw` (falling back to `inteldfp` parsing for inexact
         // conversions)
         //---------------------------------------------------------------------
 

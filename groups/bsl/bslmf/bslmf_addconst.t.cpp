@@ -16,8 +16,8 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines meta-functions 'bsl::add_const' and
-// 'bsl::add_const_t', that add a top-level 'const'-qualifier to a template
+// The component under test defines meta-functions `bsl::add_const` and
+// `bsl::add_const_t`, that add a top-level `const`-qualifier to a template
 // parameter type.  Thus, we need to ensure that the values returned by the
 // meta-function are correct for each possible category of types.
 //
@@ -80,18 +80,18 @@ namespace {
 
 struct TestType {
    // This user-defined type is intended to be used during testing as an
-   // argument for the template parameter 'TYPE' of 'bsl::add_const'.
+   // argument for the template parameter `TYPE` of `bsl::add_const`.
 };
 
+/// This non-static function member type is intended to be used during
+/// testing as an argument for the template parameter `TYPE` of
+/// `bsl::add_const`.
 typedef void (TestType::*MethodPtrTestType) ();
-    // This non-static function member type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::add_const'.
 
+/// This class public data member pointer type is intended to be used during
+/// testing as an argument as an argument for the template parameter `TYPE`
+/// of `bsl::add_const`.
 typedef int TestType::* PMD;
-    // This class public data member pointer type is intended to be used during
-    // testing as an argument as an argument for the template parameter 'TYPE'
-    // of 'bsl::add_const'.
 
 }  // close unnamed namespace
 
@@ -121,13 +121,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -140,59 +140,59 @@ int main(int argc, char *argv[])
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Adding the 'const'-qualifier to A Type
+///Example 1: Adding the `const`-qualifier to A Type
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to add a 'const'-qualifier to a particular type.
+// Suppose that we want to add a `const`-qualifier to a particular type.
 //
-// First, we create two 'typedef's -- a 'const'-qualified type ('MyConstType')
-// and the same type without the 'const'-qualifier ('MyType'):
-//..
+// First, we create two `typedef`s -- a `const`-qualified type (`MyConstType`)
+// and the same type without the `const`-qualifier (`MyType`):
+// ```
         typedef int       MyType;
         typedef const int MyConstType;
-//..
-// Now, we add a 'const'-qualifier to 'MyType' using 'bsl::add_const' and
-// verify that the resulting type is the same as 'MyConstType':
-//..
+// ```
+// Now, we add a `const`-qualifier to `MyType` using `bsl::add_const` and
+// verify that the resulting type is the same as `MyConstType`:
+// ```
         ASSERT(true == (bsl::is_same<bsl::add_const<MyType>::type,
                                                          MyConstType>::value));
-//..
+// ```
 // Finally, if the current compiler supports alias templates C++11 feature, we
-// add a 'const'-qualifier to 'MyType' using 'bsl::add_const_t' and verify that
-// the resulting type is the same as 'MyConstType':
-//..
+// add a `const`-qualifier to `MyType` using `bsl::add_const_t` and verify that
+// the resulting type is the same as `MyConstType`:
+// ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
         ASSERT(true ==
                  (bsl::is_same<bsl::add_const_t<MyType>, MyConstType>::value));
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-//..
+// ```
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::add_const::type'
-        //   Ensure that the 'typedef' 'type' of 'bsl::add_const' has the
+        // `bsl::add_const::type`
+        //   Ensure that the `typedef` `type` of `bsl::add_const` has the
         //   correct type for a variety of template parameter types.
         //
-        //   Ensure that the 'bsl::add_const_t' represents the return type of
-        //   'bsl::add_const' meta-function.
+        //   Ensure that the `bsl::add_const_t` represents the return type of
+        //   `bsl::add_const` meta-function.
         //
         // Concerns:
-        //: 1 'bsl::add_const' adds a top-level 'const'-qualifier only to
-        //:   primitive types, pointer types, and user-defined types.
-        //:
-        //: 2 'bsl::add_const' does not add a 'const'-qualifier to reference
-        //:   types, function types, or types that are already
-        //:   'const'-qualified.
-        //:
-        //: 3 'bsl::add_const_t' represents the return type of 'bsl::add_const'
-        //:   meta-function for a variety of template parameter types.
+        // 1. `bsl::add_const` adds a top-level `const`-qualifier only to
+        //    primitive types, pointer types, and user-defined types.
+        //
+        // 2. `bsl::add_const` does not add a `const`-qualifier to reference
+        //    types, function types, or types that are already
+        //    `const`-qualified.
+        //
+        // 3. `bsl::add_const_t` represents the return type of `bsl::add_const`
+        //    meta-function for a variety of template parameter types.
         //
         // Plan:
-        //  1 Verify that 'bsl::add_const::type' has the correct type for each
+        //  1 Verify that `bsl::add_const::type` has the correct type for each
         //    concern. (C1-2)
         //
-        //  2 Verify that 'bsl::add_cons_t' has the same type as the return
-        //    type of 'bsl::add_const' for a variety of template parameter
+        //  2 Verify that `bsl::add_cons_t` has the same type as the return
+        //    type of `bsl::add_const` for a variety of template parameter
         //    types. (C-3)
         //
         // Testing:

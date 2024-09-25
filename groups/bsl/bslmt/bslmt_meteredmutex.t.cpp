@@ -25,9 +25,9 @@ using namespace bsl;
 // Testing bslmt::MeteredMutex is divided into 3 parts (apart from usage and
 // breathing test).
 //   (1) Testing mutex behavior, it is tested in [ 2].
-//   (2) Testing 'holdTime' and 'waitTime' (specially in the presence
+//   (2) Testing `holdTime` and `waitTime` (specially in the presence
 //       of multiple threads), this is tested in [ 3].
-//   (3) Testing 'lastResetTime' and 'resetMetrics' (specially the in
+//   (3) Testing `lastResetTime` and `resetMetrics` (specially the in
 //       presence of multiple threads), this is tested in [ 4].
 //-----------------------------------------------------------------------------
 // CREATORS
@@ -114,14 +114,14 @@ bslmt::Mutex printLock; // lock needed for non thread-safe macro (P, P_ etc)
 //
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
-// In the following example, we have 'NUM_THREADS' threads (that are
-// sequentially numbered from '0' to 'NUM_THREADS-1') and two counters
-// 'evenCount' and 'oddCount'.  'evenCount' is incremented by the even numbered
-// threads and 'oddCount' is incremented by the odd ones.  We considers two
+// In the following example, we have `NUM_THREADS` threads (that are
+// sequentially numbered from `0` to `NUM_THREADS-1`) and two counters
+// `evenCount` and `oddCount`.  `evenCount` is incremented by the even numbered
+// threads and `oddCount` is incremented by the odd ones.  We considers two
 // strategies to increment these counters.  In the first strategy (strategy1),
 // we use two mutexes (one for each counter) and in the second strategy
 // (strategy2), we use a single mutex for both counters.
-//..
+// ```
     int oddCount = 0;
     int evenCount = 0;
 
@@ -133,12 +133,12 @@ bslmt::Mutex printLock; // lock needed for non thread-safe macro (P, P_ etc)
     enum { k_USAGE_NUM_THREADS = 4, k_USAGE_SLEEP_TIME = 100000 };
     bslmt::Barrier usageBarrier(k_USAGE_NUM_THREADS);
 
+    /// Create the specified `numThreads`, each executing the specified
+    /// `function`.  Number each thread (sequentially from 0 to
+    /// `numThreads - 1`) by passing i to i'th thread.  Finally join all the
+    /// threads.
     void executeInParallel(int                               numThreads,
                            bslmt::ThreadUtil::ThreadFunction function)
-        // Create the specified 'numThreads', each executing the specified
-        // 'function'.  Number each thread (sequentially from 0 to
-        // 'numThreads - 1') by passing i to i'th thread.  Finally join all the
-        // threads.
     {
         bslmt::ThreadUtil::Handle *threads =
                                      new bslmt::ThreadUtil::Handle[numThreads];
@@ -198,7 +198,7 @@ bslmt::Mutex printLock; // lock needed for non thread-safe macro (P, P_ etc)
             return NULL;
         }
     } // extern "C"
-//..
+// ```
 
 // ============================================================================
 //                          CASE 4 RELATED ENTITIES
@@ -325,8 +325,8 @@ int main(int argc, char *argv[])
                           << "TESTING USAGE EXAMPLE" << endl
                           << "=====================" << endl;
 
-// Then in the application 'main':
-//..
+// Then in the application `main`:
+// ```
     executeInParallel(k_USAGE_NUM_THREADS, strategy1);
     bsls::Types::Int64 waitTimeForStrategy1 =
                                     oddMutex.waitTime() + evenMutex.waitTime();
@@ -339,28 +339,28 @@ int main(int argc, char *argv[])
         P(waitTimeForStrategy1);
         P(waitTimeForStrategy2);
     }
-//..
+// ```
 // We measured the wait times for each strategy.  Intuitively, the wait time
 // for the second strategy should be greater than that of the first.  The
 // output was consistent with our expectation.
-//..
+// ```
 // waitTimeForStrategy1 = 400787000
 // waitTimeForStrategy2 = 880765000
-//..
+// ```
       break;  }
       case 4: {
         // --------------------------------------------------------------------
         // TESTING LAST_RESET_TIME AND RESET_METRICS:
-        //   Testing that 'lastResetTime' and 'resetMetrics' work correctly.
+        //   Testing that `lastResetTime` and `resetMetrics` work correctly.
         //
         // Concerns:
-        //   That the 'lastResetTime' and 'resetMetrics' work correctly in
+        //   That the `lastResetTime` and `resetMetrics` work correctly in
         //   presence of multiple threads.
         //
         // Plan:
-        //   main thread spans 'k_NUM_THREADS4' threads, each of which calls
-        //   'resetMetrics' and 'lastResetTime' in a loop.  Verify that for
-        //   each thread, values returned by 'lastResetTime' are in
+        //   main thread spans `k_NUM_THREADS4` threads, each of which calls
+        //   `resetMetrics` and `lastResetTime` in a loop.  Verify that for
+        //   each thread, values returned by `lastResetTime` are in
         //   increasing order.
         //
         // Tactics:
@@ -371,10 +371,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing 'lastResetTime', 'resetMetrics'" << endl
+                          << "Testing `lastResetTime`, `resetMetrics`" << endl
                           << "=======================================" << endl;
 
-        // TBD: Since 'bsls::TimeUtil::getTimer' is not monotonic on hp, this
+        // TBD: Since `bsls::TimeUtil::getTimer` is not monotonic on hp, this
         // test case will not work on hp.
 
         // executeInParallel(k_NUM_THREADS4, resetTest);
@@ -382,10 +382,10 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TESTING HOLDTIME AND WAITTIME:
-        //   Testing that the 'holdTime' and 'waitTime' work correctly.
+        //   Testing that the `holdTime` and `waitTime` work correctly.
         //
         // Concerns:
-        //   That the 'holdTime' and 'waitTime' work correctly, in presence
+        //   That the `holdTime` and `waitTime` work correctly, in presence
         //   of multiple threads.
         //
         //   That the hold and wait time are accumulated correctly, when
@@ -393,9 +393,9 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   main thread spans k_NUM_THREADS3, each of which (in a loop, that
-        //   runs 'k_NUM_ACQUIRE3' times) acquires the lock, sleeps for a while
+        //   runs `k_NUM_ACQUIRE3` times) acquires the lock, sleeps for a while
         //   releases the lock.  Finally main thread joins all these threads
-        //   and verifies that the 'holdTime' and 'waitTime' give the
+        //   and verifies that the `holdTime` and `waitTime` give the
         //   expected results.
         //
         // Tactics:
@@ -406,14 +406,14 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing 'holdTime' and 'waitTime'" << endl
+                          << "Testing `holdTime` and `waitTime`" << endl
                           << "=================================" << endl;
 
         executeInParallel(k_NUM_THREADS3, timesTest);
 
-        // we have 'k_NUM_THREADS3' threads, each of which holds the lock for
-        // 'k_SLEEP_TIME3' time in one iteration of loop (and we have
-        // 'k_NUM_ACQUIRE3' iterations in the loop).
+        // we have `k_NUM_THREADS3` threads, each of which holds the lock for
+        // `k_SLEEP_TIME3` time in one iteration of loop (and we have
+        // `k_NUM_ACQUIRE3` iterations in the loop).
         bsls::Types::Int64 holdTime =  k_NUM_ACQUIRE
                                        *  k_NUM_THREADS3
                                        *  k_SLEEP_TIME3
@@ -422,8 +422,8 @@ int main(int argc, char *argv[])
 
         // In an iteration, after the barrier, the first thread to acquire the
         //  lock waits for no time, the second thread to acquire the lock waits
-        // for 'k_SLEEP_TIME3' time, the third thread to acquire the lock waits
-        // for '2 * k_SLEEP_TIME3' and so on.  Thus the wait time accumulated
+        // for `k_SLEEP_TIME3` time, the third thread to acquire the lock waits
+        // for `2 * k_SLEEP_TIME3` and so on.  Thus the wait time accumulated
         // during one iteration = 0*k_SLEEP_TIME3 + 1*k_SLEEP_TIME3 +
         // 2*k_SLEEP_TIME3 ..........+ (k_NUM_THREADS3-1)*k_SLEEP_TIME3 =
         // ((k_NUM_THREADS3-1)*k_NUM_THREADS3)/2.0 * k_SLEEP_TIME3.  We have
@@ -452,23 +452,23 @@ int main(int argc, char *argv[])
         //   constructed.
         //
         //   That only one thread can acquire the lock at a time (either
-        //   through 'lock' or 'tryLock').
+        //   through `lock` or `tryLock`).
         //
         //   That after the lock is released, it should be possible to acquire
         //   the lock.
         //
         // Plan:
-        //   Initialize a global variable 'state' with 'e_VALID'.  Create
-        //   'k_NUM_THREADS' (sequentially numbered from 0 to k_NUM_THREADS)
+        //   Initialize a global variable `state` with `e_VALID`.  Create
+        //   `k_NUM_THREADS` (sequentially numbered from 0 to k_NUM_THREADS)
         //   threads.  Each thread attempts to acquire the lock (such that
-        //   odd numbered threads acquires the lock using 'lock' and even
+        //   odd numbered threads acquires the lock using `lock` and even
         //   numbered threads acquires the lock using repetitive calls to
-        //   'tryLock', until they succeed), verifies
-        //   that the invariant 'state == e_VALID' is true, makes the invariant
-        //   false by setting the 'state' to 'e_INVALID', sleeps for a while
-        //   (to allow other threads to run), sets the 'state' to 'e_VALID',
+        //   `tryLock`, until they succeed), verifies
+        //   that the invariant `state == e_VALID` is true, makes the invariant
+        //   false by setting the `state` to `e_INVALID`, sleeps for a while
+        //   (to allow other threads to run), sets the `state` to `e_VALID`,
         //   unlocks the mutex and returns.  Finally, join all the threads and
-        //   verity that the invariant 'state == e_VALID' is still true.
+        //   verity that the invariant `state == e_VALID` is still true.
         //
         // Tactics:
         //
@@ -497,13 +497,13 @@ int main(int argc, char *argv[])
         // Plan:
         //   Create an object and verify that all accessors works as expected.
         //
-        //   Lock the mutex using 'lock', sleep for a while, unlock and then
-        //   verify that the 'holdTime' works correctly.
+        //   Lock the mutex using `lock`, sleep for a while, unlock and then
+        //   verify that the `holdTime` works correctly.
         //
-        //   Call 'resetMetrics' and verify that all accessors works correctly.
+        //   Call `resetMetrics` and verify that all accessors works correctly.
         //
-        //   Lock the mutex using 'tryLock', sleep for half second, unlock and
-        //   then verify that the 'holdTime' works correctly.
+        //   Lock the mutex using `tryLock`, sleep for half second, unlock and
+        //   then verify that the `holdTime` works correctly.
         //
         // Tactics:
         //
@@ -537,7 +537,7 @@ int main(int argc, char *argv[])
         mutex.unlock();
         ASSERT(mutex.holdTime() >= (bsls::Types::Int64)(
                                           k_SLEEP_TIME * 1000 * ERROR_MARGIN));
-        // 'holdTime()' reports in nanoseconds
+        // `holdTime()` reports in nanoseconds
         if (veryVerbose) {
             P(mutex.holdTime());
             P(mutex.waitTime());
@@ -561,7 +561,7 @@ int main(int argc, char *argv[])
         mutex.unlock();
         ASSERT(mutex.holdTime() >= (bsls::Types::Int64)(
                                          k_SLEEP_TIME * 1000  * ERROR_MARGIN));
-        // 'holdTime()' reports in nanoseconds
+        // `holdTime()` reports in nanoseconds
         if (veryVerbose) {
             P(mutex.holdTime());
             P(mutex.waitTime());

@@ -16,10 +16,10 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test contains the simple meta-function 'bslmf::If'.  The
-// meta-function is tested by enumeration of all combinations of (1) 'true' and
-// 'false' conditions, and (2) defaulting of zero, one, or two of the type
-// arguments to 'bslmf::Nil'.
+// The component under test contains the simple meta-function `bslmf::If`.  The
+// meta-function is tested by enumeration of all combinations of (1) `true` and
+// `false` conditions, and (2) defaulting of zero, one, or two of the type
+// arguments to `bslmf::Nil`.
 //-----------------------------------------------------------------------------
 // [ 1] bslmf::If<CONDITION, IF_TRUE_TYPE, IF_FALSE_TYPE>
 
@@ -72,8 +72,8 @@ void aSsErT(bool condition, const char *message, int line)
 
 namespace {
 
-    // 'SizeOf' is a meta-function that returns the non-zero size of its type
-    // argument, or 0 for 'bslmf::Nil'.
+    // `SizeOf` is a meta-function that returns the non-zero size of its type
+    // argument, or 0 for `bslmf::Nil`.
 
     template <class T>
     struct SizeOf {
@@ -141,17 +141,17 @@ namespace {
 
 ///Usage
 //------
-// The following snippets of code illustrate basic use of the 'bslmf::If'
+// The following snippets of code illustrate basic use of the `bslmf::If`
 // meta-function.  The examples make use of the following declarations to
 // identify the type that is selected by a given constant integral expression:
-//..
+// ```
     enum TypeCode { T_UNKNOWN = 0, T_CHAR = 1, T_INT = 2, T_NIL = 3 };
 
     TypeCode whatType(char)       { return T_CHAR; }
     TypeCode whatType(int)        { return T_INT; }
     TypeCode whatType(bslmf::Nil) { return T_NIL; }
     TypeCode whatType(...)        { return T_UNKNOWN; }
-//..
+// ```
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -193,48 +193,48 @@ int main(int argc, char *argv[])
                             "\n=============\n");
 
 // In the following example, the meta-function condition (the first argument to
-// 'bslmf::If') evaluates to true (non-zero).  Thus, 'bslmf::If<...>::Type' is
-// a synonym for 'int'; i.e., it "evaluates" (at compile time) to 'int':
-//..
+// `bslmf::If`) evaluates to true (non-zero).  Thus, `bslmf::If<...>::Type` is
+// a synonym for `int`; i.e., it "evaluates" (at compile time) to `int`:
+// ```
      typedef int  T1;  ASSERT(1 <  sizeof(T1));
      typedef char T2;  ASSERT(1 == sizeof(T2));
 
      typedef bslmf::If<(sizeof(T1) > sizeof(T2)), T1, T2>::Type LargerType;
      ASSERT(T_INT == whatType(LargerType()));
-//..
+// ```
 // In the next example, the condition argument evaluates to false (zero).  In
-// this case, 'bslmf::If<...>::Type' evaluates to 'bslmf::Nil' since the third
+// this case, `bslmf::If<...>::Type` evaluates to `bslmf::Nil` since the third
 // template argument (the "else" type) is not explicitly specified:
-//..
+// ```
      typedef bslmf::If<(sizeof(T2) > 1), int>::Type Type2;
      ASSERT(T_NIL == whatType(Type2()));
-//..
+// ```
 
       } break;
 
       case 1: {
         // --------------------------------------------------------------------
         // TESTING BSLMF_IF
-        //   Test the 'bslmf::If' meta-function.
+        //   Test the `bslmf::If` meta-function.
         //
         // Concerns:
-        //   - That 'true' and 'false' conditions select the first and second
+        //   - That `true` and `false` conditions select the first and second
         //     type arguments, respectively.
         //   - That selected types that are not explicitly specified resolve to
-        //     the default 'bslmf::Nil' type.
+        //     the default `bslmf::Nil` type.
         //
         // Plan:
-        //   - Provide distinct type arguments with both 'true' and 'false'
+        //   - Provide distinct type arguments with both `true` and `false`
         //     conditions and verify that the correct type is selected.
         //   - Repeat the tests such that:
-        //      1. The second type parameter (only) defaults to 'bslmf::Nil'.
-        //      2. Both type parameters default to 'bslmf::Nil'.
+        //      1. The second type parameter (only) defaults to `bslmf::Nil`.
+        //      2. Both type parameters default to `bslmf::Nil`.
         //
         // Testing:
         //   bslmf::If<CONDITION, IF_TRUE_TYPE, IF_FALSE_TYPE>
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'bslmf::If'\n"
+        if (verbose) printf("\nTESTING `bslmf::If`\n"
                             "\n===================\n");
 
         ASSERT(1 == True);

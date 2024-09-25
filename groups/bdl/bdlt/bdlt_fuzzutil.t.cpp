@@ -23,7 +23,7 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'bdlt::FuzzUtil' provides a suite of functions for producing dates from fuzz
+// `bdlt::FuzzUtil` provides a suite of functions for producing dates from fuzz
 // data.  This test driver tests each implemented utility function
 // independently.
 //
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test)  { case 0:  // Zero is always the leading case.
@@ -122,13 +122,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
-        //:
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
+        //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -141,57 +141,57 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Provide 'bdlt::Datetime' within a Range
+///Example 1: Provide `bdlt::Datetime` within a Range
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // The provided fuzz data is here represented by an array of bytes:
-//..
+// ```
    const uint8_t data[] = {0x8A, 0x19, 0x0D, 0x44, 0x37, 0x0D,
                            0x38, 0x5E, 0x9B, 0xAA, 0xF3, 0xDA};
-//..
-// First, we default construct a 'bslim::FuzzDataView' object, 'fdv':
-//..
+// ```
+// First, we default construct a `bslim::FuzzDataView` object, `fdv`:
+// ```
    bslim::FuzzDataView fdv(data, sizeof(data));
 //
    ASSERT(12 == fdv.length());
-//..
-// Next, we construct 'Date' objects to represent the 'begin' and 'end' of the
-// time interval in which we wish to construct our new 'Date' from the fuzz
+// ```
+// Next, we construct `Date` objects to represent the `begin` and `end` of the
+// time interval in which we wish to construct our new `Date` from the fuzz
 // data:
-//..
+// ```
    bdlt::Date begin(1833, 5, 7);
    bdlt::Date end(1897, 4, 3);
-//..
-// Finally, we crate a 'Date' object, 'within', by employing 'bdlt_fuzzutil':
-//..
+// ```
+// Finally, we crate a `Date` object, `within`, by employing `bdlt_fuzzutil`:
+// ```
    bdlt::Date within = Util::consumeDateInRange(&fdv, begin, end);
 //
    ASSERT(begin  <= within);
    ASSERT(within <= end);
-//..
+// ```
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'consumeDate'
+        // TESTING `consumeDate`
         //
         // Concerns:
-        //: 1 The function returns valid 'Date' values.
-        //:
-        //: 2 The function uses the expected number of bytes (i.e., 3) of fuzz
-        //:   data to produce the 'Date'.
+        // 1. The function returns valid `Date` values.
+        //
+        // 2. The function uses the expected number of bytes (i.e., 3) of fuzz
+        //    data to produce the `Date`.
         //
         // Plan:
-        //: 1 Create a data array of size 30 bytes to simulate fuzz data.
-        //:
-        //: 2 Create a 'FuzzDataView' from the fuzz data array.
-        //:
-        //: 3 Repeat the following steps 10 times.  (C-1..2)
-        //:
-        //:   1 Create a 'Date' object using the 'FuzzDataView'.
-        //:
-        //:   2 Verify that the function returns valid 'Date' values.  (C-1)
-        //:
-        //:   3 Verify that the number of bytes consumed is what was expected.
-        //:     (C-2)
+        // 1. Create a data array of size 30 bytes to simulate fuzz data.
+        //
+        // 2. Create a `FuzzDataView` from the fuzz data array.
+        //
+        // 3. Repeat the following steps 10 times.  (C-1..2)
+        //
+        //   1. Create a `Date` object using the `FuzzDataView`.
+        //
+        //   2. Verify that the function returns valid `Date` values.  (C-1)
+        //
+        //   3. Verify that the number of bytes consumed is what was expected.
+        //      (C-2)
         //
         // Testing:
         //   Date consumeDate(FuzzDataView *);
@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "TESTING 'consumeDate'" << endl
+                 << "TESTING `consumeDate`" << endl
                  << "====================" << endl;
 
         const bsl::uint8_t FUZZ_DATA[] = {0x43, 0x19, 0x0D, 0x44, 0x37, 0x0D,
@@ -228,38 +228,38 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'consumeDateInRange'
+        // TESTING `consumeDateInRange`
         //
         // Concerns:
-        //: 1 The function returns valid 'Date' values within the specified
-        //:   range.
-        //:
-        //: 2 The function uses the expected number of bytes of fuzz data to
-        //:    produce the 'Date'.
+        // 1. The function returns valid `Date` values within the specified
+        //    range.
+        //
+        // 2. The function uses the expected number of bytes of fuzz data to
+        //     produce the `Date`.
         //
         // Plan:
-        //: 1 Create a data array of size 30 bytes to simulate fuzz data.
-        //:
-        //: 2 Create a 'FuzzDataView' from the fuzz data array.
-        //:
-        //: 3 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of valid date ranges in columns 'BEGIN' and
-        //:     'END'.
-        //:
-        //:   2 Additionally, provide a column, 'NUM_BYTES', for the expected
-        //:     number of consumed bytes.
-        //:
-        //: 4 For each row in the table described in P-3:  (C-1..2)
-        //:
-        //:   1 Create a 'Date' object by invoking 'consumeDateInRange' with
-        //:     the 'FuzzDataView' and the date range from the row.
-        //:
-        //:   2 Verify that the function returns dates within the specified
-        //:     date range.  (C-1)
-        //:
-        //:   3 Verify that the number of bytes consumed is what was specified
-        //:     in the table.  (C-2)
+        // 1. Create a data array of size 30 bytes to simulate fuzz data.
+        //
+        // 2. Create a `FuzzDataView` from the fuzz data array.
+        //
+        // 3. Using the table-driven technique:
+        //
+        //   1. Specify a set of valid date ranges in columns `BEGIN` and
+        //      `END`.
+        //
+        //   2. Additionally, provide a column, `NUM_BYTES`, for the expected
+        //      number of consumed bytes.
+        //
+        // 4. For each row in the table described in P-3:  (C-1..2)
+        //
+        //   1. Create a `Date` object by invoking `consumeDateInRange` with
+        //      the `FuzzDataView` and the date range from the row.
+        //
+        //   2. Verify that the function returns dates within the specified
+        //      date range.  (C-1)
+        //
+        //   3. Verify that the number of bytes consumed is what was specified
+        //      in the table.  (C-2)
         //
         // Testing:
         //   Date consumeDateInRange(FuzzDataView *, begin, end);
@@ -267,7 +267,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "TESTING 'consumeDateInRange'" << endl
+                 << "TESTING `consumeDateInRange`" << endl
                  << "===========================" << endl;
 
         const bsl::uint8_t  FUZZ_DATA[] = {0x43, 0x19, 0x0D, 0x44, 0x37, 0x0D,
@@ -322,11 +322,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform a test of the primary utilities.
+        // 1. Perform a test of the primary utilities.
         //
         // Testing:
         //   BREATHING TEST
@@ -347,7 +347,7 @@ int main(int argc, char *argv[])
             ASSERTV(30 == fdv.length());
 
             if (veryVerbose) {
-                cout << "Testing 'consumeDate'" << endl;
+                cout << "Testing `consumeDate`" << endl;
             }
             for (int j = 0; j < testIters; ++j) {
                 bdlt::Date date = Util::consumeDate(&fdv);
@@ -367,7 +367,7 @@ int main(int argc, char *argv[])
             bdlt::Date end(1750, 7, 28);
 
             if (veryVerbose) {
-                cout << "Testing 'consumeDateInRange'" << endl;
+                cout << "Testing `consumeDateInRange`" << endl;
             }
             for (int j = 0; j < testIters; ++j) {
                 bdlt::Date d = Util::consumeDateInRange(&fdv, begin, end);

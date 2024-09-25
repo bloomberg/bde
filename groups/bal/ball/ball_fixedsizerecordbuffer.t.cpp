@@ -32,30 +32,30 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                                   Overview
 //                                   --------
-// Testing 'ball::FixedSizeRecordBuffer' is divided into following parts (apart
+// Testing `ball::FixedSizeRecordBuffer` is divided into following parts (apart
 // from breathing test and usage example).
 //   Testing in presence of single thread.  This is further divided into
 //   following subparts.
-//     Testing primary manipulator 'pushBack'.  This is tested in [2].  In this
-//     test case, we do not consider the effect of 'maxTotalSize' parameter
+//     Testing primary manipulator `pushBack`.  This is tested in [2].  In this
+//     test case, we do not consider the effect of `maxTotalSize` parameter
 //     (provided at buffer creation); that is tested in a later test case.
 //
-//     Testing manipulators 'popBack', 'popFront', 'pushFront', 'removeAll'.
+//     Testing manipulators `popBack`, `popFront`, `pushFront`, `removeAll`.
 //     They are tested in [3], [12], [13] and [4] respectively.
 //
-//     Testing accessors 'back' 'front' and 'length'.  They are tested in
+//     Testing accessors `back` `front` and `length`.  They are tested in
 //     [5], [11] and [6] respectively.
 //
-//     Testing 'pushBack' considering the effect of 'maxTotalSize' parameter.
+//     Testing `pushBack` considering the effect of `maxTotalSize` parameter.
 //     This is tested in [7].
 //
 //   Testing in presence of multiple thread.  This is further divided into
 //   following subparts.
-//     Testing concurrent access to the buffer by manipulators 'pushBack',
-//     'back' and 'removeAll'.  This is tested in [8].
+//     Testing concurrent access to the buffer by manipulators `pushBack`,
+//     `back` and `removeAll`.  This is tested in [8].
 //
 //     Testing that a thread gets exclusive access to the buffer between the
-//     calls to 'beginSequence' and 'endSequence'.  This is tested in [9]
+//     calls to `beginSequence` and `endSequence`.  This is tested in [9]
 //     and [10].
 //-----------------------------------------------------------------------------
 // CREATORS
@@ -77,9 +77,9 @@ using namespace bsl;
 // [11] const bsl::shared_ptr<ball::Record>& front() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 7] TESTING 'PUSHBACK' CONSIDERING THE EFFECT OF 'MAX_TOTAL_SIZE' PARAMETER
-// [ 8] CONCURRENCY TEST FOR 'PUSHBACK', 'POPBACK', 'REMOVE_ALL' AND 'LENGTH'
-// [ 9] CONCURRENCY TEST-1 FOR 'BEGIN_SEQUENCE' AND 'END_SEQUENCE'
+// [ 7] TESTING `PUSHBACK` CONSIDERING THE EFFECT OF `MAX_TOTAL_SIZE` PARAMETER
+// [ 8] CONCURRENCY TEST FOR `PUSHBACK`, `POPBACK`, `REMOVE_ALL` AND `LENGTH`
+// [ 9] CONCURRENCY TEST-1 FOR `BEGIN_SEQUENCE` AND `END_SEQUENCE`
 // [14] STRESS TEST
 // [15] USAGE EXAMPLE
 //=============================================================================
@@ -182,10 +182,11 @@ static int veryVerbose;
 //=============================================================================
 //                   HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
+/// Create the specified `numThreads`, each executing the specified `func`.
+/// Number each thread (sequentially from 0 to `numThreads-1`) by passing
+/// `i` to i'th thread.  Finally join all the threads.
 void executeInParallel(int numThreads, bslmt::ThreadUtil::ThreadFunction func)
-    // Create the specified 'numThreads', each executing the specified 'func'.
-    // Number each thread (sequentially from 0 to 'numThreads-1') by passing
-    // 'i' to i'th thread.  Finally join all the threads.
 {
     bslmt::ThreadUtil::Handle *threads =
                                new bslmt::ThreadUtil::Handle[numThreads];
@@ -201,12 +202,12 @@ void executeInParallel(int numThreads, bslmt::ThreadUtil::ThreadFunction func)
     delete [] threads;
 }
 
+/// Create the specified `numThreads`, each executing the specified `func`.
+/// Pass `handle[i]` to i'th created thread where `i` ranges from 0 to
+/// `numThreads`.  Finally join all the threads.
 void executeInParallel(int                                numThreads,
                        bslmt::ThreadUtil::ThreadFunction  func,
                        Handle                            *handles)
-    // Create the specified 'numThreads', each executing the specified 'func'.
-    // Pass 'handle[i]' to i'th created thread where 'i' ranges from 0 to
-    // 'numThreads'.  Finally join all the threads.
 {
     bslmt::ThreadUtil::Handle *threads =
                                new bslmt::ThreadUtil::Handle[numThreads];
@@ -539,10 +540,10 @@ int main(int argc, char *argv[])
         //   records.
         //
         // Plan:
-        //   Create a record buffer, 'pushFront' a large number of records
+        //   Create a record buffer, `pushFront` a large number of records
         //   and verify the state (specifically after pushing all the
         //   records, the buffer should not be empty).  Repeat above with
-        //   'pushBack'.
+        //   `pushBack`.
         //
         // Testing:
         // --------------------------------------------------------------------
@@ -574,10 +575,10 @@ int main(int argc, char *argv[])
                                       alloc);
         Handle H(R, alloc, alloc);
 
-        // stress test for 'pushFront'
+        // stress test for `pushFront`
         // --------------------------
         if (verbose) cout << endl
-                          << "STRESS TEST FOR 'pushFront'" << endl
+                          << "STRESS TEST FOR `pushFront`" << endl
                           << "===========================" << endl;
 
         for (int iter = 0; iter < NUM_ITERATIONS; ++iter) {
@@ -593,10 +594,10 @@ int main(int argc, char *argv[])
 
         LOOP_ASSERT(rb.length(), rb.length() > 0);
 
-        // stress test for 'pushBack'
+        // stress test for `pushBack`
         // --------------------------
         if (verbose) cout << endl
-                          << "STRESS TEST FOR 'pushBack'" << endl
+                          << "STRESS TEST FOR `pushBack`" << endl
                           << "==========================" << endl;
 
         ball::FixedSizeRecordBuffer rb1(MAX_TOTAL_SIZE, alloc);
@@ -618,30 +619,30 @@ int main(int argc, char *argv[])
 
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'pushFront':
-        //   Verify 'pushFront' without considering the effect of
-        //   'maxTotalSize'.
+        // TESTING `pushFront`:
+        //   Verify `pushFront` without considering the effect of
+        //   `maxTotalSize`.
         //
         // Concerns:
-        //   That 'pushFront' works correctly in variety of white-box states.
+        //   That `pushFront` works correctly in variety of white-box states.
         //   In this test case.
         //
         // Plan:
         //   Create a record buffer.
         //
-        //   Invoke 'pushFront' on the empty buffer and verify the state.
+        //   Invoke `pushFront` on the empty buffer and verify the state.
         //
-        //   Invoke 'pushFront' on the buffer while it has 1 record in it and
+        //   Invoke `pushFront` on the buffer while it has 1 record in it and
         //   verify the state.
         //
-        //   Invoke 'pushFront' on the buffer while it has 2 record in it and
+        //   Invoke `pushFront` on the buffer while it has 2 record in it and
         //   verify the state.
         //
         // Testing:
         //   int pushFront(const bsl::shared_ptr<ball::Record>& handle);
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'pushFront'" << endl
+                          << "TESTING `pushFront`" << endl
                           << "===================" << endl;
 
         using namespace TestCase13;
@@ -795,30 +796,30 @@ int main(int argc, char *argv[])
 
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING 'popFront':
-        //   Verify 'popFront'.
+        // TESTING `popFront`:
+        //   Verify `popFront`.
         //
         // Concerns:
-        //   That 'popFront' works correctly in variety of white-box states.
+        //   That `popFront` works correctly in variety of white-box states.
         //
         // Plan:
-        //   Ensure that 'popFront' works correctly when the record buffer
+        //   Ensure that `popFront` works correctly when the record buffer
         //   has 1, 2 and 3 records.  This is achieved by following.
         //
-        //   Create a record buffer, push back 1 record, invoke 'popFront' and
+        //   Create a record buffer, push back 1 record, invoke `popFront` and
         //   verify the state.
         //
         //   Remove all the records from the record buffer, push back 2
-        //   records, invoke 'popFront' and verify the state.
+        //   records, invoke `popFront` and verify the state.
         //
         //   Remove all the records from the record buffer, push back 3
-        //   records, invoke 'popFront' and verify the state.
+        //   records, invoke `popFront` and verify the state.
         //
         // Testing:
         //   void popFront();
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'popFront'" << endl
+                          << "TESTING `popFront`" << endl
                           << "==================" << endl;
 
         using namespace TestCase12;
@@ -903,7 +904,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == rb.pushBack(H1));
 
         if (verbose)
-            cout << "\tinvoking 'popFront' on a buffer with one record"
+            cout << "\tinvoking `popFront` on a buffer with one record"
                  << endl;
         rb.popFront();
         LOOP_ASSERT(rb.length(), rb.length() == 0);
@@ -914,7 +915,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == rb.pushBack(H3));
 
         if (verbose)
-            cout << "\tinvoking 'popFront' on a buffer with two records"
+            cout << "\tinvoking `popFront` on a buffer with two records"
                  << endl;
         rb.popFront();
         LOOP_ASSERT(rb.length(), rb.length() == 1);
@@ -930,7 +931,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == rb.pushBack(H6));
 
         if (verbose)
-            cout << "\tinvoking 'popFront' on a buffer with three records"
+            cout << "\tinvoking `popFront` on a buffer with three records"
                  << endl;
         rb.popFront();
         LOOP_ASSERT(rb.length(), rb.length() == 2);
@@ -942,22 +943,22 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'FRONT':
-        //   Verify 'front'.
+        // TESTING `FRONT`:
+        //   Verify `front`.
         //
         // Concerns:
-        //   That 'front' works correctly in variety of white-box states.
+        //   That `front` works correctly in variety of white-box states.
         //
         // Plan:
-        //   Ensure that 'front' works correctly when the record buffer has 1,
+        //   Ensure that `front` works correctly when the record buffer has 1,
         //   2 and 3 records.  This is achieved by pushing back 3 records and
-        //   invoking 'front' after each push back.
+        //   invoking `front` after each push back.
         //
         // Testing:
         //   const ball::Record& front() const;
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'FRONT'" << endl
+                          << "TESTING `FRONT`" << endl
                           << "==============" << endl;
 
         using namespace TestCase11;
@@ -1008,7 +1009,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == rb.pushBack(H1));
         if (verbose)
-            cout << "\tinvoking 'front' on a buffer with one record"
+            cout << "\tinvoking `front` on a buffer with one record"
                  << endl;
         ASSERT(*rb.front() == *R1);
         if (veryVerbose) cout << "\t*rb.front()==>\n\t\t" << *rb.front()
@@ -1017,7 +1018,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == rb.pushBack(H2));
         if (verbose)
-            cout << "\tinvoking 'front' on a buffer with two record" << endl;
+            cout << "\tinvoking `front` on a buffer with two record" << endl;
         ASSERT(*rb.front() == *R1);
         if (veryVerbose) cout << "\t*rb.front()==>\n\t\t" << *rb.front()
                               << "\n\n"
@@ -1025,7 +1026,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == rb.pushBack(H3));
         if (verbose)
-            cout << "\tinvoking 'front' on a buffer with three record"
+            cout << "\tinvoking `front` on a buffer with three record"
                  << endl;
         ASSERT(*rb.front() == *R1);
         if (veryVerbose) cout << "\t*rb.front()==>\n\t\t" << *rb.front()
@@ -1036,22 +1037,22 @@ int main(int argc, char *argv[])
 
       case 10: {
         // --------------------------------------------------------------------
-        // CONCURRENCY TEST-2 FOR 'BEGIN_SEQUENCE' AND 'END_SEQUENCE':
-        //   Verify 'beginSequence' and 'endSequence'.
+        // CONCURRENCY TEST-2 FOR `BEGIN_SEQUENCE` AND `END_SEQUENCE`:
+        //   Verify `beginSequence` and `endSequence`.
         //
         // Concerns:
         //   That a thread gets exclusive access to the buffer
-        //   between the calls to 'beginSequence' and 'endSequence'.
+        //   between the calls to `beginSequence` and `endSequence`.
         //
         // Plan:
         //   Create 2 threads.  The first thread runs a loop; in each
         //   iteration, it first pushes back 5 records and then removes all of
-        //   them (by invoking 'removeAll' in even numbered iterations and
-        //   by invoking 'popBack' five times in odd ones).  The second thread
-        //   runs a loop; in each iteration, it invokes 'beginSequence',
+        //   them (by invoking `removeAll` in even numbered iterations and
+        //   by invoking `popBack` five times in odd ones).  The second thread
+        //   runs a loop; in each iteration, it invokes `beginSequence`,
         //   saves record buffer length in a local variable, sleeps for a
         //   while (thus allowing first thread to run), verify that record
-        //   buffer length is unchanged and then invoke 'endSequence'.
+        //   buffer length is unchanged and then invoke `endSequence`.
         //
         // Testing:
         //   void beginSequence();
@@ -1059,7 +1060,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         if (verbose) cout
           << endl
-          << "CONCURRENCY TEST-2 FOR 'BEGIN_SEQUENCE' AND 'END_SEQUENCE'"
+          << "CONCURRENCY TEST-2 FOR `BEGIN_SEQUENCE` AND `END_SEQUENCE`"
           << endl
           << "=========================================================="
           << endl;
@@ -1094,22 +1095,22 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // CONCURRENCY TEST-1 FOR 'BEGIN_SEQUENCE' AND 'END_SEQUENCE':
-        //   Verify 'beginSequence' and 'endSequence'.
+        // CONCURRENCY TEST-1 FOR `BEGIN_SEQUENCE` AND `END_SEQUENCE`:
+        //   Verify `beginSequence` and `endSequence`.
         //
         // Concerns:
         //   That a thread gets exclusive access to the buffer
-        //   between the calls to 'beginSequence' and 'endSequence'.
+        //   between the calls to `beginSequence` and `endSequence`.
         //
         // Plan:
-        //   Initialize a global variable 'state' with 'VALID'.  Create
-        //   'NUM_THREADS' (sequentially numbered from 0 to NUM_THREADS)
-        //   threads.  Each thread invokes 'beginSequence' and then verifies
-        //   that the invariant 'state == VALID' is true, makes the
-        //   invariant false by setting the 'state' to 'INVALID', sleeps for
-        //   a while (to allow other threads to run), sets the 'state' to
-        //   'VALID', invoke 'endSequence' and returns.  Finally, join all
-        //   the threads and verity that the invariant 'state == VALID' is
+        //   Initialize a global variable `state` with `VALID`.  Create
+        //   `NUM_THREADS` (sequentially numbered from 0 to NUM_THREADS)
+        //   threads.  Each thread invokes `beginSequence` and then verifies
+        //   that the invariant `state == VALID` is true, makes the
+        //   invariant false by setting the `state` to `INVALID`, sleeps for
+        //   a while (to allow other threads to run), sets the `state` to
+        //   `VALID`, invoke `endSequence` and returns.  Finally, join all
+        //   the threads and verity that the invariant `state == VALID` is
         //   still true.
         //
         // Testing:
@@ -1118,7 +1119,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         if (verbose) cout
           << endl
-          << "CONCURRENCY TEST-1 FOR 'BEGIN_SEQUENCE' AND 'END_SEQUENCE'"
+          << "CONCURRENCY TEST-1 FOR `BEGIN_SEQUENCE` AND `END_SEQUENCE`"
           << endl
           << "=========================================================="
           << endl;
@@ -1131,23 +1132,23 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // CONCURRENCY TEST FOR 'PUSHBACK', 'POPBACK', 'REMOVE_ALL', 'LENGTH':
-        //   Verify the concurrent access by 'pushBack', 'popBack', 'removeAll'
-        //   and 'length'.
+        // CONCURRENCY TEST FOR `PUSHBACK`, `POPBACK`, `REMOVE_ALL`, `LENGTH`:
+        //   Verify the concurrent access by `pushBack`, `popBack`, `removeAll`
+        //   and `length`.
         //
         // Concerns:
-        //   That concurrent manipulations of record buffer (by 'pushBack',
-        //   'popBack' and 'removeAll') do not introduce inconsistencies.
+        //   That concurrent manipulations of record buffer (by `pushBack`,
+        //   `popBack` and `removeAll`) do not introduce inconsistencies.
         //
         // Plan:
-        //   Create a record buffer.  Create 'NUM_THREADS' threads, each
+        //   Create a record buffer.  Create `NUM_THREADS` threads, each
         //   of which runs a loop.  Each thread, in every iteration, push
-        //   back a record, verify the state using 'length', removes the record
-        //   using 'popBack' and verify the state using 'length'.  Finally join
+        //   back a record, verify the state using `length`, removes the record
+        //   using `popBack` and verify the state using `length`.  Finally join
         //   all the threads and verify the state.
         //
-        //   Repeat above, but this time invoke 'removeAll' instead of 1
-        //   'popBack' to remove the records.
+        //   Repeat above, but this time invoke `removeAll` instead of 1
+        //   `popBack` to remove the records.
         //
         // Testing:
         //   void popBack();
@@ -1157,7 +1158,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         if (verbose) cout
          << endl
-         << "CONCURRENCY TEST FOR 'PUSHBACK', 'POPBACK', 'REMOVE_ALL','LENGTH'"
+         << "CONCURRENCY TEST FOR `PUSHBACK`, `POPBACK`, `REMOVE_ALL`,`LENGTH`"
          << endl
          << "================================================================="
          << endl;
@@ -1215,12 +1216,12 @@ int main(int argc, char *argv[])
       case 7: {
         // TBD
         // --------------------------------------------------------------------
-        // TESTING 'PUSHBACK' CONSIDERING THE EFFECT OF 'MAX_TOTAL_SIZE':
-        //   Verify 'pushBack' considering the effect of 'maxTotalSize'.
+        // TESTING `PUSHBACK` CONSIDERING THE EFFECT OF `MAX_TOTAL_SIZE`:
+        //   Verify `pushBack` considering the effect of `maxTotalSize`.
         //
         // Concerns:
-        //   That 'pushBack' works correctly in variety of white-box states.
-        //   Specifically we consider the effect of 'maxTotalSize'.
+        //   That `pushBack` works correctly in variety of white-box states.
+        //   Specifically we consider the effect of `maxTotalSize`.
         //
         // Plan:
         //
@@ -1229,7 +1230,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         if (verbose) cout
        << endl
-       << "TESTING 'PUSHBACK' CONSIDERING THE EFFECT OF 'MAX_TOTAL_SIZE'"
+       << "TESTING `PUSHBACK` CONSIDERING THE EFFECT OF `MAX_TOTAL_SIZE`"
        << endl
        << "============================================================="
        << endl;
@@ -1239,22 +1240,22 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'LENGTH':
-        //   Verify 'length'.
+        // TESTING `LENGTH`:
+        //   Verify `length`.
         //
         // Concerns:
-        //   That 'length' works correctly in variety of white-box states.
+        //   That `length` works correctly in variety of white-box states.
         //
         // Plan:
-        //   Ensure that 'length' works correctly when the record buffer has
+        //   Ensure that `length` works correctly when the record buffer has
         //   0, 1, 2 and 3 records.  This is achieved by pushBacking 3
-        //   records and invoking 'length' after each push back.
+        //   records and invoking `length` after each push back.
         //
         // Testing:
         //   int length() const;
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'LENGTH'" << endl
+                          << "TESTING `LENGTH`" << endl
                           << "================" << endl;
 
         using namespace TestCase6;
@@ -1304,25 +1305,25 @@ int main(int argc, char *argv[])
         Handle H3(R3, alloc, alloc);
 
         if (verbose)
-            cout << "\tinvoking 'length' on an empty buffer" << endl;
+            cout << "\tinvoking `length` on an empty buffer" << endl;
         LOOP_ASSERT(rb.length(), rb.length() == 0);
         if (veryVerbose) cout << "\trb.length() = " << rb.length() << endl;
 
         ASSERT(0 == rb.pushBack(H1));
         if (verbose)
-            cout << "\tinvoking 'length' on a buffer with one record" << endl;
+            cout << "\tinvoking `length` on a buffer with one record" << endl;
         LOOP_ASSERT(rb.length(), rb.length() == 1);
         if (veryVerbose) cout << "\trb.length() = " << rb.length() << endl;
 
         ASSERT(0 == rb.pushBack(H2));
         if (verbose)
-            cout << "\tinvoking 'length' on a buffer with two record" << endl;
+            cout << "\tinvoking `length` on a buffer with two record" << endl;
         LOOP_ASSERT(rb.length(), rb.length() == 2);
         if (veryVerbose) cout << "\trb.length() = " << rb.length() << endl;
 
         ASSERT(0 == rb.pushBack(H3));
         if (verbose)
-            cout << "\tinvoking 'length' on a buffer with three record"
+            cout << "\tinvoking `length` on a buffer with three record"
                  << endl;
         LOOP_ASSERT(rb.length(), rb.length() == 3);
         if (veryVerbose) cout << "\trb.length() = " << rb.length() << endl;
@@ -1330,22 +1331,22 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'BACK':
-        //   Verify 'back'.
+        // TESTING `BACK`:
+        //   Verify `back`.
         //
         // Concerns:
-        //   That 'back' works correctly in variety of white-box states.
+        //   That `back` works correctly in variety of white-box states.
         //
         // Plan:
-        //   Ensure that 'back' works correctly when the record buffer has 1,
+        //   Ensure that `back` works correctly when the record buffer has 1,
         //   2 and 3 records.  This is achieved by pushing back 3 records and
-        //   invoking 'back' after each push back.
+        //   invoking `back` after each push back.
         //
         // Testing:
         //   const bsl::shared_ptr<const ball::Record>& back() const;
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'BACK'" << endl
+                          << "TESTING `BACK`" << endl
                           << "==============" << endl;
 
         using namespace TestCase5;
@@ -1396,7 +1397,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == rb.pushBack(H1));
         if (verbose)
-            cout << "\tinvoking 'back' on a buffer with one record"
+            cout << "\tinvoking `back` on a buffer with one record"
                  << endl;
         ASSERT(*rb.back() == *R1);
         if (veryVerbose)
@@ -1405,7 +1406,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == rb.pushBack(H2));
         if (verbose)
-            cout << "\tinvoking 'back' on a buffer with two record" << endl;
+            cout << "\tinvoking `back` on a buffer with two record" << endl;
         ASSERT(*rb.back() == *R2);
         if (veryVerbose)
                 cout << "\t*rb.back()==>\n\t\t" << *rb.back() << "\n\n"
@@ -1413,7 +1414,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == rb.pushBack(H3));
         if (verbose)
-            cout << "\tinvoking 'back' on a buffer with three record"
+            cout << "\tinvoking `back` on a buffer with three record"
                  << endl;
         ASSERT(*rb.back() == *R3);
         if (veryVerbose)
@@ -1423,30 +1424,30 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'REMOVE_ALL':
+        // TESTING `REMOVE_ALL`:
         //   Verify removeAll'.
         //
         // Concerns:
-        //   That 'removeAll' works correctly in variety of white-box
+        //   That `removeAll` works correctly in variety of white-box
         //   states.
         //
         // Plan:
-        //   Ensure that 'removeAll' works correctly when the record buffer
+        //   Ensure that `removeAll` works correctly when the record buffer
         //   has 0, 1, 2 and 3 records.  This is achieved by following.
         //
-        //   Create a record buffer, invoke 'removeAll' and verify the state.
+        //   Create a record buffer, invoke `removeAll` and verify the state.
         //
-        //   Push back 1 records, invoke 'removeAll' and verify the state.
+        //   Push back 1 records, invoke `removeAll` and verify the state.
         //
-        //   Push back 2 records, invoke 'removeAll' and verify the state.
+        //   Push back 2 records, invoke `removeAll` and verify the state.
         //
-        //   Push back 3 records, invoke 'removeAll' and verify the state.
+        //   Push back 3 records, invoke `removeAll` and verify the state.
         //
         // Testing:
         //   void removeAll();
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'REMOVE_ALL'" << endl
+                          << "TESTING `REMOVE_ALL`" << endl
                           << "====================" << endl;
 
         using namespace TestCase4;
@@ -1529,14 +1530,14 @@ int main(int argc, char *argv[])
         Handle H6(R6, alloc, alloc);
 
         if (verbose)
-            cout << "\tinvoking 'removeAll' on a an empty buffer" << endl;
+            cout << "\tinvoking `removeAll` on a an empty buffer" << endl;
         rb.removeAll();
         LOOP_ASSERT(rb.length(), rb.length() == 0);
         if (veryVerbose) cout << "\trb.length() = " << rb.length() << endl;
 
         ASSERT(0 == rb.pushBack(H1));
         if (verbose)
-            cout << "\tinvoking 'removeAll' on a buffer with one record"
+            cout << "\tinvoking `removeAll` on a buffer with one record"
                  << endl;
         rb.removeAll();
         LOOP_ASSERT(rb.length(), rb.length() == 0);
@@ -1545,7 +1546,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == rb.pushBack(H2));
         ASSERT(0 == rb.pushBack(H3));
         if (verbose)
-            cout << "\tinvoking 'removeAll' on a buffer with two record"
+            cout << "\tinvoking `removeAll` on a buffer with two record"
                  << endl;
         rb.removeAll();
         LOOP_ASSERT(rb.length(), rb.length() == 0);
@@ -1555,7 +1556,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == rb.pushBack(H5));
         ASSERT(0 == rb.pushBack(H6));
         if (verbose)
-            cout << "\tinvoking 'removeAll' on a buffer with three record"
+            cout << "\tinvoking `removeAll` on a buffer with three record"
                  << endl;
         rb.removeAll();
         LOOP_ASSERT(rb.length(), rb.length() == 0);
@@ -1564,30 +1565,30 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'POPBACK':
-        //   Verify 'popBack'.
+        // TESTING `POPBACK`:
+        //   Verify `popBack`.
         //
         // Concerns:
-        //   That 'popBack' works correctly in variety of white-box states.
+        //   That `popBack` works correctly in variety of white-box states.
         //
         // Plan:
-        //   Ensure that 'popBack' works correctly when the record buffer
+        //   Ensure that `popBack` works correctly when the record buffer
         //   has 1, 2 and 3 records.  This is achieved by following.
         //
-        //   Create a record buffer, push back 1 record, invoke 'popBack' and
+        //   Create a record buffer, push back 1 record, invoke `popBack` and
         //   verify the state.
         //
         //   Remove all the records from the record buffer, push back 2
-        //   records, invoke 'popBack' and verify the state.
+        //   records, invoke `popBack` and verify the state.
         //
         //   Remove all the records from the record buffer, push back 3
-        //   records, invoke 'popBack' and verify the state.
+        //   records, invoke `popBack` and verify the state.
         //
         // Testing:
         //   void popBack();
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'POPBACK'" << endl
+                          << "TESTING `POPBACK`" << endl
                           << "=================" << endl;
 
         using namespace TestCase3;
@@ -1672,7 +1673,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == rb.pushBack(H1));
 
         if (verbose)
-            cout << "\tinvoking 'popBack' on a buffer with one record"
+            cout << "\tinvoking `popBack` on a buffer with one record"
                  << endl;
         rb.popBack();
         LOOP_ASSERT(rb.length(), rb.length() == 0);
@@ -1683,7 +1684,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == rb.pushBack(H3));
 
         if (verbose)
-            cout << "\tinvoking 'popBack' on a buffer with two records"
+            cout << "\tinvoking `popBack` on a buffer with two records"
                  << endl;
         rb.popBack();
         LOOP_ASSERT(rb.length(), rb.length() == 1);
@@ -1699,7 +1700,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == rb.pushBack(H6));
 
         if (verbose)
-            cout << "\tinvoking 'popBack' on a buffer with three records"
+            cout << "\tinvoking `popBack` on a buffer with three records"
                  << endl;
         rb.popBack();
         LOOP_ASSERT(rb.length(), rb.length() == 2);
@@ -1712,14 +1713,14 @@ int main(int argc, char *argv[])
 
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'PUSHBACK':
-        //   Verify 'pushBack' without considering the effect of
-        //   'maxTotalSize'.
+        // TESTING `PUSHBACK`:
+        //   Verify `pushBack` without considering the effect of
+        //   `maxTotalSize`.
         //
         // Concerns:
-        //   That 'pushBack' works correctly in variety of white-box states.
+        //   That `pushBack` works correctly in variety of white-box states.
         //   In this testcase, we do not consider the
-        //   effect of 'maxTotalSize' parameter i.e., we always push back the
+        //   effect of `maxTotalSize` parameter i.e., we always push back the
         //   record successfully.
         //
         // Plan:
@@ -1900,11 +1901,11 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Create a record buffer, push back 3 records, verify the state,
-        //   invoke 'popBack' two times verifying the state after each
-        //   invocation, invoke 'removeAll' and verify the state.
+        //   invoke `popBack` two times verifying the state after each
+        //   invocation, invoke `removeAll` and verify the state.
         //
         //   Repeat above, but this time all the code is executed between
-        //   the invocation to 'beginSequence' and 'endSequence'.
+        //   the invocation to `beginSequence` and `endSequence`.
         //
         // Testing:
         //   This Test Case exercises basic functionality.

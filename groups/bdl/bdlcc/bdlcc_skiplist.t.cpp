@@ -52,8 +52,8 @@
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
-#include <bsl_algorithm.h>    // 'min'
-#include <bsl_cmath.h>        // 'floor', 'ceil'
+#include <bsl_algorithm.h>    // `min`
+#include <bsl_cmath.h>        // `floor`, `ceil`
 #include <bsl_cstdlib.h>
 #include <bsl_functional.h>
 #include <bsl_iomanip.h>
@@ -62,7 +62,7 @@
 #include <bsl_string.h>
 
 #include <bsl_c_ctype.h>
-#include <bsl_c_stdlib.h>     // 'rand_r'
+#include <bsl_c_stdlib.h>     // `rand_r`
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -138,14 +138,14 @@ typedef bsls::Types::IntPtr         IntPtr;
 
 #define U_RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
 
-    // This macro is 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE' with a
+    // This macro is `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE` with a
     // couple of problematic types removed.  The removed types were hard to
-    // accomodate because 'bdlcc::SkipList' lacks a 'comparator' functor
-    // template parameter to override the use of 'operator<'.
+    // accomodate because `bdlcc::SkipList` lacks a `comparator` functor
+    // template parameter to override the use of `operator<`.
     //
     // MISSING:
-    //: o 'const char *'
-    //: o bsltf::TemplateTestFacility::MethodPtr
+    //  - `const char *`
+    //  - bsltf::TemplateTestFacility::MethodPtr
 
 #define U_TEST_TYPES_PRIMITIVE                                                \
         signed char,                                                          \
@@ -154,12 +154,12 @@ typedef bsls::Types::IntPtr         IntPtr;
         bsltf::TemplateTestFacility::FunctionPtr
 
     // The Windows compiler was complaining that this test driver was too big,
-    // so define our own, smaller, 'U_WINDOWS_TEST_TYPES_USER_DEFINED':
+    // so define our own, smaller, `U_WINDOWS_TEST_TYPES_USER_DEFINED`:
     //
     // MISSING:
-    //: o bsltf::SimpleTestType
-    //: o bsltf::BitwiseCopyableTestType
-    //: o bsltf::MovableTestType
+    //  - bsltf::SimpleTestType
+    //  - bsltf::BitwiseCopyableTestType
+    //  - bsltf::MovableTestType
 
 #define U_WINDOWS_TEST_TYPES_USER_DEFINED                                     \
     bsltf::EnumeratedTestType::Enum,                                          \
@@ -196,7 +196,7 @@ bsls::AtomicInt masterThreadId(0);
 enum AddMode {
     e_BEGIN = 0,
 
-    // The following enumeration indicate which 'add*' method is used to add
+    // The following enumeration indicate which `add*` method is used to add
     // nodes to the container.
 
     e_ADD = e_BEGIN,                                 // exists
@@ -228,8 +228,8 @@ enum AddMode {
     k_ADD_MODE_MOD = e_END - e_BEGIN,
 
     // The following enumeration is to be the last one used in the iteration,
-    // it indicates that nodes are added with 'add', and in this case and only
-    // in this case, 'removeAll' is called with a vector of pair handles.  This
+    // it indicates that nodes are added with `add`, and in this case and only
+    // in this case, `removeAll` is called with a vector of pair handles.  This
     // overload will use the default allocator for an internal temp vector.  We
     // expect all previous iterations not to use the default allocator at all.
 
@@ -239,10 +239,10 @@ enum AddMode {
 
 BSLMF_ASSERT(e_ADD_WITH_REMOVEALL_HANDLES == e_END2 - 1);
 
+/// Return `true` if the specified `mode` is a unique add.  The behavior is
+/// undefined if `e_ADD_WITH_REMOVEALL_HANDLES` or an invalid value of the
+/// enum is specified.
 bool isUniqueAdd(AddMode mode)
-    // Return 'true' if the specified 'mode' is a unique add.  The behavior is
-    // undefined if 'e_ADD_WITH_REMOVEALL_HANDLES' or an invalid value of the
-    // enum is specified.
 {
     switch (mode) {
       case e_ADD_AT_LEVEL_UNIQUE_RAW_PAIR:    BSLA_FALLTHROUGH;
@@ -303,8 +303,8 @@ bool isLevelAddMode(AddMode mode)
     }
 }
 
+/// Return the absolute value of the specified `x`.
 double myAbs(double x)
-    // Return the absolute value of the specified 'x'.
 {
     return x < 0 ? -x : x;
 }
@@ -348,25 +348,27 @@ class CountedDelete {
 
   public:
     // CLASS METHOD
+
+    /// Yield the number of times this object has been destroyed.
     static int getDeleteCount()
-        // Yield the number of times this object has been destroyed.
     {
         return s_deleteCount;
     }
 
     // CREATORS
+
+    /// Default c'tor
     CountedDelete() : d_isTemp(true)
-        // Default c'tor
     {}
 
+    /// Copy c'tor
     CountedDelete(const CountedDelete& original) : d_isTemp(false)
-        // Copy c'tor
     {
         (void) original;
     }
 
+    /// d'tor
     ~CountedDelete()
-        // d'tor
     {
         if (!d_isTemp) {
             ++s_deleteCount;
@@ -374,8 +376,9 @@ class CountedDelete {
     }
 
     // MANIPULATORS
+
+    /// Assignment.
     CountedDelete& operator=(const CountedDelete&)
-        // Assignment.
     {
         d_isTemp = false;
         return *this;
@@ -388,10 +391,10 @@ bsls::AtomicInt CountedDelete::s_deleteCount(0);
                                 // TestObject
                                 // ==========
 
+/// The intention of this `class` is to allow any TTF test type to be able
+/// to be easily created with an `int` value.
 template <class TYPE>
 class TestObject {
-    // The intention of this 'class' is to allow any TTF test type to be able
-    // to be easily created with an 'int' value.
 
     // DATA
     bsls::ObjectBuffer<TYPE>  d_ob;
@@ -492,28 +495,28 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Disp& disp)
                                 // class RandGen
                                 // =============
 
+/// Random number generator using the high-order 32 bits of Donald Knuth's
+/// MMIX algorithm.
 class RandGen {
-    // Random number generator using the high-order 32 bits of Donald Knuth's
-    // MMIX algorithm.
 
     bsls::Types::Uint64    d_seed;
     unsigned               d_bits;
     static bsls::AtomicInt s_globalSeed;
 
   public:
+    /// Initialize the generator with the global seed, and modify the global
+    /// seed.
     RandGen();
-        // Initialize the generator with the global seed, and modify the global
-        // seed.
 
+    /// Initialize the generator with the specified `startSeed`.
     explicit
     RandGen(int startSeed);
-        // Initialize the generator with the specified 'startSeed'.
 
+    /// Return the next random number in the series;
     unsigned operator()();
-        // Return the next random number in the series;
 
+    /// Return the specified number of random bits;
     unsigned bits(unsigned numBits);
-        // Return the specified number of random bits;
 };
 
 // DATA
@@ -581,12 +584,12 @@ struct RandGenMod {
     // DATA
     static unsigned char s_shift;
 
+    /// Create this object.
     RandGenMod();
-        // Create this object.
 
+    /// Return an random `EnumType` value with an even distribution over
+    /// `[ 0 .. MOD )`.
     EnumType operator()(RandGen *randGen_p);
-        // Return an random 'EnumType' value with an even distribution over
-        // '[ 0 .. MOD )'.
 };
 
 template <class EnumType, unsigned MOD>
@@ -620,11 +623,11 @@ unsigned char RandGenMod<EnumType, MOD>::s_shift;
                             // class VectorRandGen
                             // ===================
 
+/// This `class` seeks to be a higher-speed random number generator, by
+/// populating a vector with a large number of random numbers generated
+/// at creation (before the clock starts) and then just cycling through
+/// them.
 class VectorRandGen {
-    // This 'class' seeks to be a higher-speed random number generator, by
-    // populating a vector with a large number of random numbers generated
-    // at creation (before the clock starts) and then just cycling through
-    // them.
 
     // DATA
     bsl::vector<unsigned> d_randTable;
@@ -744,7 +747,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, ValueSemanticTest::LMode mode)
       CASE(LEVELS_DIFFERENT);
       CASE(LEVELS_END);
       default: {
-        stream << "Invalid 'LMode': " << int(mode);
+        stream << "Invalid `LMode`: " << int(mode);
         ASSERT(0 && "invalid mode");
       }
     }
@@ -766,7 +769,7 @@ namespace bsltf {
 // just fine.
 
                           // =========================
-                          // 'operator<' for TTF types
+                          // `operator<` for TTF types
                           // =========================
 
 bool operator<(const bsltf::UnionTestType& lhs,
@@ -823,8 +826,8 @@ bool operator<(const bsltf::NonTypicalOverloadsTestType& lhs,
     return TTF::getIdentifier(lhs) < TTF::getIdentifier(rhs);
 }
 
-// For some reason it was very difficult to get 'operator<' for
-// 'TTF::MethodPtr' working, decided it wasn't worth it.
+// For some reason it was very difficult to get `operator<` for
+// `TTF::MethodPtr` working, decided it wasn't worth it.
 
 }  // close namespace bsltf
 }  // close enterprise namespace
@@ -833,14 +836,14 @@ bool operator<(const bsltf::NonTypicalOverloadsTestType& lhs,
                             // TestDriver_TableRecord
                             // ======================
 
+/// One record in a table to indicate the integral values of the `KEY` and
+/// `DATA` components of an element in a `SkipList`.  Usually these records
+/// occur in an array that is passed to the `populate` and `verify*` methods
+/// of `TestDriver`.  An array of these records will indicate how a
+/// `SkipList` is to be populated, and then the contents of the `SkipList`
+/// can be checked against the array with the `verify` and `verifyR`
+/// methods.
 struct TestDriver_TableRecord {
-    // One record in a table to indicate the integral values of the 'KEY' and
-    // 'DATA' components of an element in a 'SkipList'.  Usually these records
-    // occur in an array that is passed to the 'populate' and 'verify*' methods
-    // of 'TestDriver'.  An array of these records will indicate how a
-    // 'SkipList' is to be populated, and then the contents of the 'SkipList'
-    // can be checked against the array with the 'verify' and 'verifyR'
-    // methods.
 
     // DATA
     int d_line;
@@ -874,13 +877,31 @@ class TestDriver {
                              bslma::UsesBslmaAllocator<DATA_TYPE>::value,
            k_ADD_BY_MODE_MAX_LEVEL = 8,
            k_CHECK_CONTAINER_VALUE_OFFSET = 10,
-                // Difference between 'key' element values and 'data' element
+                // Difference between `key` element values and `data` element
                 // values to verify that both aren't being assigned the same
                 // value.
            k_KEY_VALUE_MOD = 128 - k_CHECK_CONTAINER_VALUE_OFFSET
     };
 
     // PRIVATE CLASS METHODS
+
+    /// Call the `add` method indicated by the specified `addMode`, and do
+    /// extensive checking that the `add` succeeded.  The specified `dst` is
+    /// the skip list to be added to.  The key object passed to the `add`
+    /// function will be initialized to `keyValue`, the data' value will be
+    /// initialized to `keyValue + 10`.  Pass the specified `numPreExisting`
+    /// the number of items already in the skip list with the same value of
+    /// `key`.  If the number of pre existing nodes is unknown (as is the
+    /// case in a multithreaded test), pass -1.  Pass `randGen`, the random
+    /// number generator to be used when generating levels to be passed to
+    /// the add method.  Pass `alloc` as the allocator to the `key` and
+    /// `data` objects to be passed to the `add` method.  The specified
+    /// `randGen` is to be used for generating levels.  If the specified
+    /// `checkFront` is true, if the `add*` method called returns
+    /// `newFrontFlag == true`, then verify that the new node is on the
+    /// front of the list (this should not be done on multithreaded tests).
+    /// The behavior is undefined unless `!*ph_p` and `!*pr_p` at the
+    /// beginning of the call.
     static
     int addByMode(Obj              *dst,
                   u::AddMode        addMode,
@@ -889,24 +910,15 @@ class TestDriver {
                   u::RandGen       *randGen,
                   bool              checkFront,
                   bslma::Allocator *alloc);
-        // Call the 'add' method indicated by the specified 'addMode', and do
-        // extensive checking that the 'add' succeeded.  The specified 'dst' is
-        // the skip list to be added to.  The key object passed to the 'add'
-        // function will be initialized to 'keyValue', the data' value will be
-        // initialized to 'keyValue + 10'.  Pass the specified 'numPreExisting'
-        // the number of items already in the skip list with the same value of
-        // 'key'.  If the number of pre existing nodes is unknown (as is the
-        // case in a multithreaded test), pass -1.  Pass 'randGen', the random
-        // number generator to be used when generating levels to be passed to
-        // the add method.  Pass 'alloc' as the allocator to the 'key' and
-        // 'data' objects to be passed to the 'add' method.  The specified
-        // 'randGen' is to be used for generating levels.  If the specified
-        // 'checkFront' is true, if the 'add*' method called returns
-        // 'newFrontFlag == true', then verify that the new node is on the
-        // front of the list (this should not be done on multithreaded tests).
-        // The behavior is undefined unless '!*ph_p' and '!*pr_p' at the
-        // beginning of the call.
 
+    /// The specified `numNodesForKeyVal` has, for each index, the number of
+    /// nodes that should be in the container with that key value.  Each
+    /// corresponding data element should have a value of
+    /// `keyValue + k_CHECK_CONTAINER_VALUE_OFFSET`.  There should be no
+    /// elements in the container with values outside the range
+    /// `[ 0 .. k_KEY_VALUE_MOD )`.  This function traverses the
+    /// skip list twice, once forward and once backward, verifyhing that
+    /// right number of nodes with each value are present.
     static
     void checkContainer(
                   const Obj&  mX,
@@ -915,127 +927,119 @@ class TestDriver {
     void checkContainer(
                   const Obj&              mX,
                   const bsls::AtomicInt (&numNodesForKeyVal)[k_KEY_VALUE_MOD]);
-        // The specified 'numNodesForKeyVal' has, for each index, the number of
-        // nodes that should be in the container with that key value.  Each
-        // corresponding data element should have a value of
-        // 'keyValue + k_CHECK_CONTAINER_VALUE_OFFSET'.  There should be no
-        // elements in the container with values outside the range
-        // '[ 0 .. k_KEY_VALUE_MOD )'.  This function traverses the
-        // skip list twice, once forward and once backward, verifyhing that
-        // right number of nodes with each value are present.
 
+    /// Populate the specified `dst` according to the specified `spec`,
+    /// which consists of hexadecimal digits with which the `key` and
+    /// `value` of the added nodes are to be set.  If the specified `level`
+    /// is non-negative, it is used for the new nodes, if it is negative,
+    /// the levels for the new nodes are auto-generated.
     static
     Obj& hexGg(Obj *dst, const char *spec, int level);
-        // Populate the specified 'dst' according to the specified 'spec',
-        // which consists of hexadecimal digits with which the 'key' and
-        // 'value' of the added nodes are to be set.  If the specified 'level'
-        // is non-negative, it is used for the new nodes, if it is negative,
-        // the levels for the new nodes are auto-generated.
 
+    /// Examine the specified `src`, and return `true` if the values in it
+    /// match the specified `spec`, where the `key` value of a node
+    /// corresponds to the hex value of a character of `spec`, and the
+    /// corresponding `data` value has the key value plus one.  Note that
+    /// for `true` to be returned, the nodes in `src` must be in the same
+    /// order as their corresponding characters in 'spec.
     static
     bool hexVerify(const Obj & src, const char *spec);
-        // Examine the specified 'src', and return 'true' if the values in it
-        // match the specified 'spec', where the 'key' value of a node
-        // corresponds to the hex value of a character of 'spec', and the
-        // corresponding 'data' value has the key value plus one.  Note that
-        // for 'true' to be returned, the nodes in 'src' must be in the same
-        // order as their corresponding characters in 'spec.
 
+    /// Populate the specified `dst` with values indicated by the specified
+    /// `array` of the specified length `length`.
+    ///
+    /// Note: I attempted to pass `array` as `array[N]` where `N` is an
+    /// `int` template parameter, but the Sun CC compiler seems to have a
+    /// bug where it can't deal with it.  It worked fine on Linux and Aix.
     static
     void populate(Obj               *dst,
                   const TableRecord *array,
                   const bsl::size_t  length);
-        // Populate the specified 'dst' with values indicated by the specified
-        // 'array' of the specified length 'length'.
-        //
-        // Note: I attempted to pass 'array' as 'array[N]' where 'N' is an
-        // 'int' template parameter, but the Sun CC compiler seems to have a
-        // bug where it can't deal with it.  It worked fine on Linux and Aix.
 
+    /// Print the specified `list`, as integer `key, value` pairs, to
+    /// `cout`, followed by the contents of `table` in the same format.  If
+    /// the specified `table` is 0, omit printing the table.
     static
     void dump(const Obj&         list,
               const TableRecord *table = 0,
               bsl::size_t        tableSize = 0);
-        // Print the specified 'list', as integer 'key, value' pairs, to
-        // 'cout', followed by the contents of 'table' in the same format.  If
-        // the specified 'table' is 0, omit printing the table.
 
+    /// Add nodes with key value 0 and data value
+    /// `k_CHECK_CONTAINER_VALUE_OFFSET` to the specified `*dst` to
+    /// eventually raise the maximum node level accepted by `*dst` to
+    /// `k_ADD_BY_MODE_MAX_LEVEL`, and return the number of such nodes added
+    /// in the process.
     static
     int raiseMaximumLevel(Obj *dst);
-        // Add nodes with key value 0 and data value
-        // 'k_CHECK_CONTAINER_VALUE_OFFSET' to the specified '*dst' to
-        // eventually raise the maximum node level accepted by '*dst' to
-        // 'k_ADD_BY_MODE_MAX_LEVEL', and return the number of such nodes added
-        // in the process.
 
+    /// Traverse the nodes in the specified `list` from front to back and
+    /// simultaneously traverse the records in the specified `array` of
+    /// specified length `length` and check with asserts that the nodes in
+    /// `list` match those in `array`.  If an assert fails, print out the
+    /// specified `line` as part of the report.
     static
     void verify(const Obj&         list,
                 const TableRecord *array,
                 const bsl::size_t  length,
                 const int          line);
-        // Traverse the nodes in the specified 'list' from front to back and
-        // simultaneously traverse the records in the specified 'array' of
-        // specified length 'length' and check with asserts that the nodes in
-        // 'list' match those in 'array'.  If an assert fails, print out the
-        // specified 'line' as part of the report.
 
+    /// Traverse the nodes in the specified `list` from back to front and
+    /// simultaneously traverse the records in the specified `array` of
+    /// specified length `length` in reverse order and check with asserts
+    /// that the nodes in `list` match those in `array`.  If an assert
+    /// fails, print out the specified `line` as part of the report.
+    ///
+    /// Note that for a given `list` and a given `array`, both `verify` and
+    /// `verifyR` should have the same result.
     static
     void verifyR(const Obj&         list,
                  const TableRecord *array,
                  const bsl::size_t  length,
                  const int          line);
-        // Traverse the nodes in the specified 'list' from back to front and
-        // simultaneously traverse the records in the specified 'array' of
-        // specified length 'length' in reverse order and check with asserts
-        // that the nodes in 'list' match those in 'array'.  If an assert
-        // fails, print out the specified 'line' as part of the report.
-        //
-        // Note that for a given 'list' and a given 'array', both 'verify' and
-        // 'verifyR' should have the same result.
 
   public:
     // CLASS METHODS
 
+    /// Iterate through all add modes supported by `addByMode`, and for each
+    /// one, create an `Obj` and then add values from a table to it using
+    /// that one add mode and observe the result.
     static void testIndependentAddFunctions();
-        // Iterate through all add modes supported by 'addByMode', and for each
-        // one, create an 'Obj' and then add values from a table to it using
-        // that one add mode and observe the result.
 
+    /// Many times, create an `Obj` and then add a sequence of values to it
+    /// from a table using a rotating choice of add modes.
     static void testMultiAddFunctions();
-        // Many times, create an 'Obj' and then add a sequence of values to it
-        // from a table using a rotating choice of add modes.
 
                     // Many Threads Random Modes on One SkipList Test
 
                     // Run many threads all of which add to the same skip list
                     // at the same time.  Keep sums of how many nodes have been
-                    // added for every key value in 'numNodesForKeyValue',
-                    // which will be used by a call to 'checkContainer' at the
+                    // added for every key value in `numNodesForKeyValue`,
+                    // which will be used by a call to `checkContainer` at the
                     // end to verify that the state of the skip list is as we
                     // think it is.
 
+    /// `manyThreadsRandomModesOnOneSkipListMain` creates an object of type
+    /// `Obj` and spawns subthreads running
+    /// `manyThreadsRandomModesOnOneSkipListThread`.
     static void manyThreadsRandomModesOnOneSkipListMain();
-        // 'manyThreadsRandomModesOnOneSkipListMain' creates an object of type
-        // 'Obj' and spawns subthreads running
-        // 'manyThreadsRandomModesOnOneSkipListThread'.
 
+    /// Do many adds calling random `add` methods to add nodes with random
+    /// keys to the specified `*mX_p`, and keep a tally of how many nodes
+    /// were added in the specified array `numNodesForKeyVal` of length
+    /// `k_KEY_VALUE_MOD`.  Block on the specified `barrier` at the
+    /// beginning, and loop until the specified `*doneFlag` is set.
     static void manyThreadsRandomModesOnOneSkipListThread(
                                            Obj              *mX_p,
                                            bsls::AtomicInt  *numNodesForKeyVal,
                                            bslmt::Barrier   *barrier,
                                            bsls::AtomicBool *doneFlag);
-        // Do many adds calling random 'add' methods to add nodes with random
-        // keys to the specified '*mX_p', and keep a tally of how many nodes
-        // were added in the specified array 'numNodesForKeyVal' of length
-        // 'k_KEY_VALUE_MOD'.  Block on the specified 'barrier' at the
-        // beginning, and loop until the specified '*doneFlag' is set.
 
+    /// Test the equality and inequality comparitors, and verify that the
+    /// `levels` of nodes are not a salient attribute of the container.
     static void valueSemanticTest();
-        // Test the equality and inequality comparitors, and verify that the
-        // 'levels' of nodes are not a salient attribute of the container.
 
+    /// Testing `skipBackward*` and `skipForward*`.
     static void skipTest();
-        // Testing 'skipBackward*' and 'skipForward*'.
 
     static void updateRTest();
 
@@ -1456,11 +1460,11 @@ int TestDriver<KEY_TYPE, DATA_TYPE>::raiseMaximumLevel(Obj *dst)
 {
     // The skiplist maintains a maximum node level, which starts out at
     // zero and increments by one each time an attempt is made to add a
-    // node at a higher level than the maximum node level.  'addByMode'
+    // node at a higher level than the maximum node level.  `addByMode`
     // attempts to add at levels up to level 8, and when it does an
     // add at level, expects to get the level it added at.  So attempt a
     // bunch of add at levels at 8 to get the maxium node level up to the
-    // point where 'addByMode' will get the level it asks for.
+    // point where `addByMode` will get the level it asks for.
 
     typedef bdlcc::SkipList_Node<KEY_TYPE, DATA_TYPE> Node;
 
@@ -1619,8 +1623,8 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::verifyR(const Obj&         list,
         handleMisses += KEY  != pvPh.key();
         handleMisses += DATA != pvPh.data();
 
-        // If we are at the head of the list, 'skipBackward' will return 0 but
-        // reset 'skPh'.  'previous' will set 'pvPh' to the head node, but
+        // If we are at the head of the list, `skipBackward` will return 0 but
+        // reset `skPh`.  `previous` will set `pvPh` to the head node, but
         // return non-zero.
 
         int rcPr = list.skipBackwardRaw(&pr);
@@ -1786,29 +1790,29 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::manyThreadsRandomModesOnOneSkipListMain()
     // THOROUGH MULTI-THREADED ADD TEST
     //
     // Concern:
-    //: 1 Need to test doing adds and carefully examining the state of the
-    //:   container after the add is completed, for all 'add' functions under
-    //:   multithreaded conditions.
+    // 1. Need to test doing adds and carefully examining the state of the
+    //    container after the add is completed, for all `add` functions under
+    //    multithreaded conditions.
     //
     // Plan:
-    //: 1 Use the function 'addByMode' which will call one of the 'add*'
-    //:   functions to attempt to add a node to the container, and then
-    //:   exhaustively check out the state of the container after the 'add'.
-    //:
-    //: 2 Spawn many threads with differently seeded random number generators
-    //:   to driver 'addByMode'.
-    //:
-    //: 3 Have all the threads attempt to add nodes to the container, and keep
-    //:   track of how many nodes with each key value were successfully added
-    //:   in an array of 'bsls::AtomicInt's.
-    //:
-    //: 4 After the threads have been joined, call 'checkContainer' to verify
-    //:   that exactly the number of nodes for each key value expected were
-    //:   present.
-    //..
+    // 1. Use the function `addByMode` which will call one of the `add*`
+    //    functions to attempt to add a node to the container, and then
+    //    exhaustively check out the state of the container after the `add`.
+    //
+    // 2. Spawn many threads with differently seeded random number generators
+    //    to driver `addByMode`.
+    //
+    // 3. Have all the threads attempt to add nodes to the container, and keep
+    //    track of how many nodes with each key value were successfully added
+    //    in an array of `bsls::AtomicInt`s.
+    //
+    // 4. After the threads have been joined, call `checkContainer` to verify
+    //    that exactly the number of nodes for each key value expected were
+    //    present.
+    // ```
     // Main Function:      manyThreadsRandomModesOnOneSkipListMain
     // Subthread Function: manyThreadsRandomModesOnOneSkipListThread
-    ///..
+    /// ```
     // ------------------------------------------------------------------------
 
     if (verbose) COUT << "manyThreadsRandomModesOnOneSkipListMain<" <<
@@ -1905,38 +1909,38 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::valueSemanticTest()
 // Value-semantic tests
 //
 // Concerns:
-//: 1 The levels of the nodes in a container have no influence on the semantic
-//:   value of the container.
-//:
-//: 2 The equality and inequality operators reflect the semantic value of the
-//:   container.
+// 1. The levels of the nodes in a container have no influence on the semantic
+//    value of the container.
+//
+// 2. The equality and inequality operators reflect the semantic value of the
+//    container.
 //
 // Plan:
-//: 1 Have an 'enum' type, 'LMode', specifying 3 modes of testing
-//:   o levels match
-//:
-//:   o levels different
-//:
-//:   o levels random
-//:
-//: 2 Iterate two nested loops, each through all rows in the 'DATA' table and
-//:   all values of 'LMode'.
-//:
-//: 3 Use the 'hexGg' function to create containers mX and mY, one for the
-//:   specification and level arg of each loop.
-//:
-//: 4 Compare the two containers with '==' and '!=' and observe that they match
-//:   when and only when they are both constructed from the same row of 'DATA'.
-//:
-//: 5 Copy construct container 'mZ' from 'X' and observe the two compare equal.
-//:
-//: 6 Assign 'Y' to 'mZ' and observe that now THOSE two containers compare
-//:   equal.
-//:
-//: 7 Add a couple of nodes to 'mY' and observe that 'Y' and 'Z' no longer
-//:   match.
-//:
-//: 8 Remove the new nodes from 'mY' and observe that 'Y' and 'Z' match again.
+// 1. Have an `enum` type, `LMode`, specifying 3 modes of testing
+//    - levels match
+//
+//    - levels different
+//
+//    - levels random
+//
+// 2. Iterate two nested loops, each through all rows in the `DATA` table and
+//    all values of `LMode`.
+//
+// 3. Use the `hexGg` function to create containers mX and mY, one for the
+//    specification and level arg of each loop.
+//
+// 4. Compare the two containers with `==` and `!=` and observe that they match
+//    when and only when they are both constructed from the same row of `DATA`.
+//
+// 5. Copy construct container `mZ` from `X` and observe the two compare equal.
+//
+// 6. Assign `Y` to `mZ` and observe that now THOSE two containers compare
+//    equal.
+//
+// 7. Add a couple of nodes to `mY` and observe that `Y` and `Z` no longer
+//    match.
+//
+// 8. Remove the new nodes from `mY` and observe that `Y` and `Z` match again.
 // ----------------------------------------------------------------------------
 {
     if (verbose) cout << "valueSemanticTest<" << bsls::NameOf<KEY_TYPE>() <<
@@ -2009,7 +2013,7 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::valueSemanticTest()
 
             Obj mY(&ta);    const Obj& Y = mY;
 
-            // Add a node to 'mY' and delete it so that if both containers are
+            // Add a node to `mY` and delete it so that if both containers are
             // randomizing levels, their respective random number generators
             // will be out of sync.
 
@@ -2119,19 +2123,19 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::valueSemanticTest()
 template <class KEY_TYPE, class DATA_TYPE>
 void TestDriver<KEY_TYPE, DATA_TYPE>::skipTest()
 // ----------------------------------------------------------------------------
-// Testing 'skipBackward*' and 'skipForward*'
+// Testing `skipBackward*` and `skipForward*`
 //
-// Test appropriate behavior of 'skipBackward' and 'skipForward' and
+// Test appropriate behavior of `skipBackward` and `skipForward` and
 // their "raw" variants in a single-threaded environment.
 //
 // Concerns:
-//: 1 skipping returns 0 if the item is in the container and 'e_NOT_FOUND'
-//:   otherwise.
-//:
-//: 2 skipping off the front/end resets the handle (as appropriate) and returns
-//:   0.
-//:
-//: 3 reference counting is correct
+// 1. skipping returns 0 if the item is in the container and `e_NOT_FOUND`
+//    otherwise.
+//
+// 2. skipping off the front/end resets the handle (as appropriate) and returns
+//    0.
+//
+// 3. reference counting is correct
 // ----------------------------------------------------------------------------
 {
     if (verbose) cout << "skipTest<" << bsls::NameOf<KEY_TYPE>() <<
@@ -2252,7 +2256,7 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::skipTest()
 
     // The above loop should have released all references to node 3, which
     // is no longer in the list, which should have resulted in deallocations if
-    // 'KEY_TYPE' or 'DATA_TYPE' do allocations.  Note that the node itself
+    // `KEY_TYPE` or `DATA_TYPE` do allocations.  Note that the node itself
     // will be reclaimed by the skip list's pool, which will not in itself
     // result in any deallocation.
 
@@ -2274,22 +2278,22 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::updateRTest()
 // UPDATER TEST
 //
 // Concerns:
-//: 1 Update on an item that's been removed returns e_NOT_FOUND.
-//:
-//: 2 Update to an existing position returns e_DUPLICATE if allowDuplicates is
-//:   false.
-//:
-//: 3 Update updates the key value stored on the node.
-//:
-//: 4 After an update, the data can be looked up by its new value but not by
-//:   its old value.
-//:
-//: 5 Update to an existing position succeeds if allowDuplicates is true.
+// 1. Update on an item that's been removed returns e_NOT_FOUND.
+//
+// 2. Update to an existing position returns e_DUPLICATE if allowDuplicates is
+//    false.
+//
+// 3. Update updates the key value stored on the node.
+//
+// 4. After an update, the data can be looked up by its new value but not by
+//    its old value.
+//
+// 5. Update to an existing position succeeds if allowDuplicates is true.
 //
 // Plan:
-//: 1 Update an item to a new location and verify C-2 through C-4
-//:
-//: 2 Check C-1 and C-5.
+// 1. Update an item to a new location and verify C-2 through C-4
+//
+// 2. Check C-1 and C-5.
 //
 // Note that We want to ensure that we move both *to* and *from* the beginning,
 // middle, and end of the test.
@@ -2399,31 +2403,31 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::addRTest()
 // ADDR TEST
 //
 // Concern:
-//: 1 'addR' adds a node to the container.
-//:
-//: 2 Nodes with redundant keys added via 'addR' add the new node after
-//:   previously present nodes with the same key.
-//:
-//: 3 Nodes with redundant keys added via 'addR' add the new node before
-//:   previously present nodes with the same key.
+// 1. `addR` adds a node to the container.
+//
+// 2. Nodes with redundant keys added via `addR` add the new node after
+//    previously present nodes with the same key.
+//
+// 3. Nodes with redundant keys added via `addR` add the new node before
+//    previously present nodes with the same key.
 //
 // Plan:
-//: 1 Add numerous non-redundant nodes via 'addR' and confirm that the
-//:   contents of the container are as expected.
-//:
-//: 2 Add a node with a redundant 'key' value to the node on the front of the
-//:   list (but with a different 'data' value) using 'addR' and observe, via
-//:   the 'newFront' flag and by skipping backward from the returned pair
-//:   handle, that the new node was positioned immediately after the
-//:   pre-existing node with the same key.
-//:
-//: 3 Add a node with a redundant 'key' value to the node on the front of the
-//:   list (but with a different 'data' value) using 'add' (not 'addR') and
-//:   observe, via the 'newFront' flag and by skipping forward from the
-//:   returned pair handle, that the new node was positioned immediately before
-//:   all pre-existing nodes with the same key.
-//:
-//: 4 Observe that the default allocator was never used.
+// 1. Add numerous non-redundant nodes via `addR` and confirm that the
+//    contents of the container are as expected.
+//
+// 2. Add a node with a redundant `key` value to the node on the front of the
+//    list (but with a different `data` value) using `addR` and observe, via
+//    the `newFront` flag and by skipping backward from the returned pair
+//    handle, that the new node was positioned immediately after the
+//    pre-existing node with the same key.
+//
+// 3. Add a node with a redundant `key` value to the node on the front of the
+//    list (but with a different `data` value) using `add` (not `addR`) and
+//    observe, via the `newFront` flag and by skipping forward from the
+//    returned pair handle, that the new node was positioned immediately before
+//    all pre-existing nodes with the same key.
+//
+// 4. Observe that the default allocator was never used.
 // ----------------------------------------------------------------------------
 {
     if (verbose) cout << "addRTest<" << bsls::NameOf<KEY_TYPE>() <<
@@ -2582,7 +2586,7 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::addRTest()
         ASSERT(ph.key()  == KVS[0]);
         ASSERT(ph.data() == DVS[1]);
 
-        // 'addR' of redundant node adds after existing nodes with the same
+        // `addR` of redundant node adds after existing nodes with the same
         // value.
 
         mX.addR(&ph, KVS[0], DVS[6], &newFront);
@@ -2596,7 +2600,7 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::addRTest()
         ASSERT(ph.key()  == KVS[0]);
         ASSERT(ph.data() == DVS[1]);
 
-        // 'add' (not 'addR') of redundant node adds before existing nodes with
+        // `add` (not `addR`) of redundant node adds before existing nodes with
         // the same value.
 
         mX.add(&ph, KVS[0], DVS[10], &newFront);
@@ -2667,8 +2671,8 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::removeAllTestByVecType()
     const int LEN = U_LENGTH(VALUES1);
     ASSERT(U_LENGTH(VALUES2) == LEN);
 
-    // Note that 'removeAll' to a vector first gathers a temporary vector of
-    // 'Pair *'s which it then copies to a vector of 'PairHandle's.
+    // Note that `removeAll` to a vector first gathers a temporary vector of
+    // `Pair *`s which it then copies to a vector of `PairHandle`s.
 
     bslma::TestAllocator va(veryVeryVerbose);
     bslma::TestAllocator ta(veryVeryVerbose);
@@ -2738,32 +2742,32 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::removeAllTest()
 // REMOVEALL TEST
 //
 // Concerns:
-//: 1 That the function 'removeAll' empties the container.
-//:
-//: 2 If a vector is passed to 'removeAll', the container is emptied but the
-//:   vector is populated with pair handles referring to all the deleted nodes
-//:   from the container.
+// 1. That the function `removeAll` empties the container.
+//
+// 2. If a vector is passed to `removeAll`, the container is emptied but the
+//    vector is populated with pair handles referring to all the deleted nodes
+//    from the container.
 //
 // Plan:
-//: 1 Create a container and populate it from the non-sorted table 'VALUES1',
-//:
-//: 2 Use the function 'verify' to traverse the container and compare it with
-//:   table 'VALUES2', which has the same data as 'VALUES1', only sorted.
-//:
-//: 3 Call 'removeAll' with no args, and verify that it empties the container.
-//:
-//: 4 Re-populate and check the conainter again as in steps '1' and '2'.
-//:
-//: 5 Create a vector of pair handles and put one pair handle in it.
-//:
-//: 6 Call 'removeAll' passing it the vector, and observe that the container
-//:   is emptied.
-//:
-//: 7 Examine the contents of the vector and observe that it has the handle
-//:   that was originally there, with the other handles from the container
-//:   appended to that, in the correct order.
-//:
-//: 8 Don't check the default allocator -- 'removeAll' uses it.
+// 1. Create a container and populate it from the non-sorted table `VALUES1`,
+//
+// 2. Use the function `verify` to traverse the container and compare it with
+//    table `VALUES2`, which has the same data as `VALUES1`, only sorted.
+//
+// 3. Call `removeAll` with no args, and verify that it empties the container.
+//
+// 4. Re-populate and check the conainter again as in steps '1' and '2'.
+//
+// 5. Create a vector of pair handles and put one pair handle in it.
+//
+// 6. Call `removeAll` passing it the vector, and observe that the container
+//    is emptied.
+//
+// 7. Examine the contents of the vector and observe that it has the handle
+//    that was originally there, with the other handles from the container
+//    appended to that, in the correct order.
+//
+// 8. Don't check the default allocator -- `removeAll` uses it.
 // ----------------------------------------------------------------------------
 {
     if (verbose) cout << "removeAllTest<" <<
@@ -2783,43 +2787,43 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::findTest()
 // FIND TEST
 //
 // Concerns:
-//: 1 That the return value of 'find' correctly indicates whether an element
-//:   with a given 'key' is in the list.
-//:
-//: 2 If duplicate matches for 'key' exist in the list, 'find' returns the
-//:   first one.
+// 1. That the return value of `find` correctly indicates whether an element
+//    with a given `key` is in the list.
+//
+// 2. If duplicate matches for `key` exist in the list, `find` returns the
+//    first one.
 //
 // Plan:
-//: 1 Create a container and populate it from the non-sorted table 'init',
-//:
-//: 2 Use the function 'verify' to traverse the container and compare it with
-//:   table 'initCheck', which has the same data as 'init', only sorted.
-//:
-//: 3 Do several calls to 'find' on the containers, with keys that are present
-//:   and some that are not, and observe that the return values are correct.
-//:
-//: 4 Remove the element found by one of the 'find's, using its pair handle.
-//:
-//: 5 Call 'verify' on the container with table 'deletedCheck' to verify that
-//:   the deleted node is no longer in the container.
-//:
-//: 6 Examine the 'key' and 'data' values of the deleted node still held by the
-//:   pair handle to show that the node is not released yet.
-//:
-//: 7 Release the pair handle.
-//:
-//: 8 Start over, create another list where the 'data' element increments with
-//:   every node, but the 'key' element increases only every three nodes, so
-//:   there are duplicates.
-//:
-//: 9 Call 'find' on every key value in the list, and observe that:
-//:   o the 'data' value of the node found indicates that it's the first on the
-//:     list with that 'key' value'.
-//:
-//:   o skip backward, and observe that the 'key' value of the new node does
-//:     not match.
-//:
-//: 10 Observe that the default allocator was never used.
+// 1. Create a container and populate it from the non-sorted table `init`,
+//
+// 2. Use the function `verify` to traverse the container and compare it with
+//    table `initCheck`, which has the same data as `init`, only sorted.
+//
+// 3. Do several calls to `find` on the containers, with keys that are present
+//    and some that are not, and observe that the return values are correct.
+//
+// 4. Remove the element found by one of the `find`s, using its pair handle.
+//
+// 5. Call `verify` on the container with table `deletedCheck` to verify that
+//    the deleted node is no longer in the container.
+//
+// 6. Examine the `key` and `data` values of the deleted node still held by the
+//    pair handle to show that the node is not released yet.
+//
+// 7. Release the pair handle.
+//
+// 8. Start over, create another list where the `data` element increments with
+//    every node, but the `key` element increases only every three nodes, so
+//    there are duplicates.
+//
+// 9. Call `find` on every key value in the list, and observe that:
+//    - the `data` value of the node found indicates that it's the first on the
+//      list with that `key` value'.
+//
+//    - skip backward, and observe that the `key` value of the new node does
+//      not match.
+//
+// 10. Observe that the default allocator was never used.
 // ---------------------------------------------------------------------------
 {
     const char *keyType  = bsls::NameOf<KEY_TYPE>();
@@ -2991,44 +2995,44 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::findRTest()
 // FINDR TEST
 //
 // Concerns:
-//: 1 That the return value of 'findR' correctly indicates whether an element
-//:   with a given 'key' is in the list.
-//:
-//: 2 If duplicate matches for 'key' exist in the list, 'find' returns the
-//:   last one.
+// 1. That the return value of `findR` correctly indicates whether an element
+//    with a given `key` is in the list.
+//
+// 2. If duplicate matches for `key` exist in the list, `find` returns the
+//    last one.
 //
 // Plan:
-//: 1 Create a container and populate it from the non-sorted table 'init',
-//:
-//: 2 Use the function 'verify' to traverse the container and compare it with
-//:   table 'initCheck', which has the same data as 'init', only sorted.
-//:
-//: 3 Do several calls to 'findR' on the containers, with keys that are present
-//:   and some that are not, and observe that the return values are correct.
-//:
-//: 4 Remove the element found by one of the 'findR's, using its pair handle.
-//:
-//: 5 Erase the row in 'initCheck' corresponding to the removed element, and
-//:   call 'verify' on the container with table 'initCheck' to verify that the
-//:   deleted node is no longer in the container.
-//:
-//: 6 Examine the 'key' and 'data' values of the deleted node still held by the
-//:   pair handle to show that the node is not released yet.
-//:
-//: 7 Observe that the default allocator was never used.
-//:
-//: 8 Start over, create another list where the 'data' element increments with
-//:   every node, but the 'key' element increases only every three nodes, so
-//:   there are duplicates.
-//:
-//: 9 Call 'findR' on every key value in the list, and observe that:
-//:   o the 'data' value of the node found indicates that it's the last on the
-//:     list with that 'key' value'.
-//:
-//:   o skip forward, and observe that the 'key' value of the new node does not
-//:     match.
-//:
-//: 10 Observe that the default allocator was never used.
+// 1. Create a container and populate it from the non-sorted table `init`,
+//
+// 2. Use the function `verify` to traverse the container and compare it with
+//    table `initCheck`, which has the same data as `init`, only sorted.
+//
+// 3. Do several calls to `findR` on the containers, with keys that are present
+//    and some that are not, and observe that the return values are correct.
+//
+// 4. Remove the element found by one of the `findR`s, using its pair handle.
+//
+// 5. Erase the row in `initCheck` corresponding to the removed element, and
+//    call `verify` on the container with table `initCheck` to verify that the
+//    deleted node is no longer in the container.
+//
+// 6. Examine the `key` and `data` values of the deleted node still held by the
+//    pair handle to show that the node is not released yet.
+//
+// 7. Observe that the default allocator was never used.
+//
+// 8. Start over, create another list where the `data` element increments with
+//    every node, but the `key` element increases only every three nodes, so
+//    there are duplicates.
+//
+// 9. Call `findR` on every key value in the list, and observe that:
+//    - the `data` value of the node found indicates that it's the last on the
+//      list with that `key` value'.
+//
+//    - skip forward, and observe that the `key` value of the new node does not
+//      match.
+//
+// 10. Observe that the default allocator was never used.
 // ---------------------------------------------------------------------------
 {
     const char *keyType  = bsls::NameOf<KEY_TYPE>();
@@ -3216,14 +3220,14 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::iterationTest()
 // ITERATION TEST
 //
 // Concerns:
-//: 1 That iterators between elements of the container work.
+// 1. That iterators between elements of the container work.
 //
 // Plan:
-//: 1 Create a container and populate it from the non-sorted table 'VALUES1',
-//:
-//: 2 Use the functions 'verify' and 'verifyR', which use iterators, to
-//:   traverse the container forward and backward, and compare it with table
-//:   'VALUES2', which has the same data as 'VALUES1', only sorted.
+// 1. Create a container and populate it from the non-sorted table `VALUES1`,
+//
+// 2. Use the functions `verify` and `verifyR`, which use iterators, to
+//    traverse the container forward and backward, and compare it with table
+//    `VALUES2`, which has the same data as `VALUES1`, only sorted.
 // ---------------------------------------------------------------------------
 {
     if (verbose) cout << "iterationTest<" << bsls::NameOf<KEY_TYPE>() <<
@@ -3273,24 +3277,24 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::updateTest()
 // UPDATE TEST
 //
 // Concerns:
-//: 1 Update on an item that's been removed returns e_NOT_FOUND.
-//:
-//: 2 Update to an existing position returns e_DUPLICATE if allowDuplicates is
-//:   false
-//:
-//: 3 Update updates the key value stored on the node.
-//:
-//: 4 After an update, the data can be looked up by its new value but not by
-//:   its old value.
-//:
-//: 5 Update to an existing position succeeds if allowDuplicates is true
-//:
-//: 6 That when 'update' is called and the destination will create a duplicate,
-//:   the moved node is after the other nodes with the same key value.
-//:
-//: 7 That when 'updateR' is called and the destination will create a
-//:   duplicate, the moved node is after the other nodes with the same key
-//:   value.
+// 1. Update on an item that's been removed returns e_NOT_FOUND.
+//
+// 2. Update to an existing position returns e_DUPLICATE if allowDuplicates is
+//    false
+//
+// 3. Update updates the key value stored on the node.
+//
+// 4. After an update, the data can be looked up by its new value but not by
+//    its old value.
+//
+// 5. Update to an existing position succeeds if allowDuplicates is true
+//
+// 6. That when `update` is called and the destination will create a duplicate,
+//    the moved node is after the other nodes with the same key value.
+//
+// 7. That when `updateR` is called and the destination will create a
+//    duplicate, the moved node is after the other nodes with the same key
+//    value.
 //
 // Plan: each test step will update an item to a new location and
 // verify 2 through 4 (we'll check (1) and (5) separately afterwards).
@@ -3300,8 +3304,8 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::updateTest()
 // Note that an important feature of the "parameters" set is that
 // executing it returns the list to its original state.
 //
-// Start with a table where all nodes are unique, and do 'update's and
-// 'updateR's on the table to create duplicate keys, and observe that the
+// Start with a table where all nodes are unique, and do `update`s and
+// `updateR`s on the table to create duplicate keys, and observe that the
 // ordering of the moved nodes is as expected.
 // ---------------------------------------------------------------------------
 {
@@ -3696,23 +3700,23 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::newFrontTest()
     // NEWFRONT TEST
     //
     // Concern:
-    //: 1 'add' and 'update' correctly up the 'newFront' boolean arg if it's
-    //:   passed to the list.
+    // 1. `add` and `update` correctly up the `newFront` boolean arg if it's
+    //    passed to the list.
     //
     // Plan:
-    //: 1 Add a few objects to the container.
-    //:
-    //: 2 Add another element that will not be at the front, observe that the
-    //:   'isNewFront' boolean passed is 'false'.
-    //:
-    //: 3 Add another element that will nbe at the front, observe that the
-    //:   'isNewFront' boolean passed is 'true'.
-    //:
-    //: 4 Update an element in such a way that it will not land at the front,
-    //:   observe that the 'isNewFront' boolean passed is 'false'.
-    //:
-    //: 5 Update an element in such a way that it will land at the front,
-    //:   observe that the 'isNewFront' boolean passed is 'true'.
+    // 1. Add a few objects to the container.
+    //
+    // 2. Add another element that will not be at the front, observe that the
+    //    `isNewFront` boolean passed is `false`.
+    //
+    // 3. Add another element that will nbe at the front, observe that the
+    //    `isNewFront` boolean passed is `true`.
+    //
+    // 4. Update an element in such a way that it will not land at the front,
+    //    observe that the `isNewFront` boolean passed is `false`.
+    //
+    // 5. Update an element in such a way that it will land at the front,
+    //    observe that the `isNewFront` boolean passed is `true`.
     // ------------------------------------------------------------------------
 {
     // -
@@ -3797,14 +3801,14 @@ void TestDriver<KEY_TYPE, DATA_TYPE>::allocationTest()
     // ALLLOCATION TEST
     //
     // Concern:
-    //: 1 Memory comes from the correct allocator.
+    // 1. Memory comes from the correct allocator.
     //
     // Plan:
-    //: 1 Add a few objects to the container, the pop them out.
-    //:
-    //: 2 Observe that no memory was allocated by the default allocator.
-    //:
-    //: 3 Observe that memory was allocated by the container's allocator.
+    // 1. Add a few objects to the container, the pop them out.
+    //
+    // 2. Observe that no memory was allocated by the default allocator.
+    //
+    // 3. Observe that memory was allocated by the container's allocator.
     // ------------------------------------------------------------------------
 {
     if (verbose) cout << "ALLOCATION TEST\n"
@@ -4030,8 +4034,8 @@ void removeAllSafetyFunc(Obj        *list,
         }
 
         if (u::e_ADD_WITH_REMOVEALL_HANDLES == mode) {
-            // 'e_ADD_WITH_REMOVEALL_HANDLES' is the last mode tested.  This
-            // overload of 'removeAll' uses the default allocator for an
+            // `e_ADD_WITH_REMOVEALL_HANDLES` is the last mode tested.  This
+            // overload of `removeAll` uses the default allocator for an
             // internal temporary vector.  All previous modes should not use
             // the default allocator.
 
@@ -4144,21 +4148,21 @@ namespace USAGE {
 //
 ///Example 1: Creating a Scheduler
 ///- - - - - - - - - - - - - - - -
-// The "R" methods of 'bdlcc::SkipList' make it ideal for use in a scheduler,
+// The "R" methods of `bdlcc::SkipList` make it ideal for use in a scheduler,
 // in which events are likely to be scheduled after existing events.  In such
 // an implementation, events are stored in the list with their scheduled
-// execution times as 'KEY' objects: Searching near the end of the list for the
+// execution times as `KEY` objects: Searching near the end of the list for the
 // right location for new events, and removing events from the front of the
 // list for execution, are very efficient operations.  Being thread- enabled
-// also makes 'bdlcc::SkipList' well-suited to use in a scheduler - a
+// also makes `bdlcc::SkipList` well-suited to use in a scheduler - a
 // "dispatcher" thread can safety use the list at the same time that events are
 // being scheduled from other threads.  The following is an implementation of a
-// simple scheduler class using 'bdlcc::SkipList'.  Note that the mutex in the
+// simple scheduler class using `bdlcc::SkipList`.  Note that the mutex in the
 // scheduler is used only in connection with the scheduler's condition variable
-// - thread-safe access to the 'bdlcc::SkipList' object does *not* require any
+// - thread-safe access to the `bdlcc::SkipList` object does *not* require any
 // synchronization.
 //
-//..
+// ```
     class SimpleScheduler
     {
         // TYPES
@@ -4179,8 +4183,9 @@ namespace USAGE {
 
       private:
         // PRIVATE MANIPULATORS
+
+        /// Run a thread that executes functions off `d_list`.
         void dispatcherThread()
-            // Run a thread that executes functions off 'd_list'.
         {
             d_startBarrier.wait();
 
@@ -4231,12 +4236,13 @@ namespace USAGE {
 
       public:
         // CREATORS
+
+        /// Creator.
         explicit
         SimpleScheduler(bslma::Allocator *basicAllocator = 0)
         : d_list(basicAllocator)
         , d_startBarrier(2)
         , d_doneFlag(false)
-            // Creator.
         {
             int rc = bslmt::ThreadUtil::create(
                     &d_dispatcher,
@@ -4246,15 +4252,16 @@ namespace USAGE {
             d_startBarrier.wait();
         }
 
+        /// d'tor
         ~SimpleScheduler()
-            // d'tor
         {
             stop();
         }
 
         // MANIPULATORS
+
+        /// Block until the scheduler has no jobs.
         void drain()
-            // Block until the scheduler has no jobs.
         {
             bslmt::LockGuard<bslmt::Mutex> guard(&d_condMutex);
 
@@ -4263,11 +4270,11 @@ namespace USAGE {
             }
         }
 
+        /// Schedule the specified `event` to occur at the specified `when`.
         void scheduleEvent(const bsl::function<void()>& event,
                            const bdlt::Datetime&        when)
-            // Schedule the specified 'event' to occur at the specified 'when'.
         {
-            // Use 'addR' since this event will probably be placed near the end
+            // Use `addR` since this event will probably be placed near the end
             // of the list.
 
             bool newFrontFlag;
@@ -4280,8 +4287,8 @@ namespace USAGE {
             }
         }
 
+        /// Stop the scheduler.
         void stop()
-            // Stop the scheduler.
         {
             bslmt::LockGuard<bslmt::Mutex> guard(&d_condMutex);
 
@@ -4301,13 +4308,14 @@ namespace USAGE {
             }
         }
     };
-//..
-// We can verify the correct behavior of 'SimpleScheduler'.  First, we need a
+// ```
+// We can verify the correct behavior of `SimpleScheduler`.  First, we need a
 // wrapper around vector<int>::push_back, since this function is overloaded and
 // cannot be bound directly:
-//..
+// ```
+
+    /// Push the specified `item` onto the specified `vector`.
     void pushBackWrapper(bsl::vector<int> *vector, int item)
-        // Push the specified 'item' onto the specified 'vector'.
     {
         vector->push_back(item);
     }
@@ -4326,16 +4334,18 @@ class KeyValue {
 
   public:
     // CREATOR
+
+    /// Create an object whose value is the specified `i`.
     explicit
     KeyValue(int i)
     : d_i(i)
-        // Create an object whose value is the specified 'i'.
     {}
 
     // ACCESSOR
+
+    /// Return `true` if this object is less than the specified `rhs` and
+    /// `false` otherwise.
     bool operator<(const KeyValue rhs) const
-        // Return 'true' if this object is less than the specified 'rhs' and
-        // 'false' otherwise.
     {
         return d_i < rhs.d_i;
     }
@@ -4359,9 +4369,9 @@ int numThreads            =   16;
 int numNodesPerThread     = 1000;
 int barrierTimeoutSeconds =   60;
 
+/// Add `numNodesPerThread` nodes to the skip list.  Ensure threads run
+/// simultaneously by waiting on the specified `barrier`.
 void addNodes(bslmt::Barrier *barrier)
-    // Add 'numNodesPerThread' nodes to the skip list.  Ensure threads run
-    // simultaneously by waiting on the specified 'barrier'.
 {
     bsls::TimeInterval timeout(bsls::SystemTime::now(barrier->clockType()));
     timeout.addSeconds(barrierTimeoutSeconds);
@@ -4407,9 +4417,9 @@ struct IDATA {
     int level;
 };
 
+/// While the specified `done` is `false`, produce nodes on the specified
+/// `list`.
 void case16Produce (bdlcc::SkipList<int, int> *list, bsls::AtomicInt *done)
-    // While the specified 'done' is 'false', produce nodes on the specified
-    // 'list'.
 {
     int count = 0;
     while (!(*done)) {
@@ -4423,9 +4433,9 @@ void case16Produce (bdlcc::SkipList<int, int> *list, bsls::AtomicInt *done)
     }
 }
 
+/// While the specified `done` is `false`, from nodes from the specified
+/// `list`.
 void case16Consume(bdlcc::SkipList<int, int> *list, bsls::AtomicInt *done)
-    // While the specified 'done' is 'false', from nodes from the specified
-    // 'list'.
 {
     while (!(*done)) {
         bdlcc::SkipList<int, int>::Pair *h1;
@@ -4440,34 +4450,34 @@ void case16Consume(bdlcc::SkipList<int, int> *list, bsls::AtomicInt *done)
     }
 }
 
+/// Add the specified `length` items from the specified `array` to the
+/// specified `list`.
 template<class SKIPLIST, class ARRAY>
 void populate(SKIPLIST *list, const ARRAY& array, int length)
-    // Add the specified 'length' items from the specified 'array' to the
-    // specified 'list'.
 {
     for (int i=0; i<length; i++) {
         list->add(array[i].key, array[i].data);
     }
 }
 
+/// Add the specified `length` items from the specified `array` to the
+/// specified `list`, taking the `level` field into account.
 template<class SKIPLIST, class ARRAY>
 void populateEx(SKIPLIST *list, const ARRAY& array, int length)
-    // Add the specified 'length' items from the specified 'array' to the
-    // specified 'list', taking the 'level' field into account.
 {
     for (int i=0; i<length; i++) {
         list->addAtLevelRaw(0, array[i].level, array[i].key, array[i].data);
     }
 }
 
+/// Verify that the contents of the specified `list` match those of the
+/// specified `array` of the specified `length`.  If a mismatch occurs,
+/// have the asserts show the specified `line` in the trace.
 template<class SKIPLIST, class ARRAY>
 void verify(SKIPLIST *list, const ARRAY& array, int length, int line)
-    // Verify that the contents of the specified 'list' match those of the
-    // specified 'array' of the specified 'length'.  If a mismatch occurs,
-    // have the asserts show the specified 'line' in the trace.
 {
-    // scan forward using 'raw' and 'skip' methods; and also using 'front' and
-    // 'next' (non-raw) methods, in parallel.
+    // scan forward using `raw` and `skip` methods; and also using `front` and
+    // `next` (non-raw) methods, in parallel.
     typename SKIPLIST::Pair *p;
     typename SKIPLIST::PairHandle h;
     list->frontRaw(&p);
@@ -4497,17 +4507,17 @@ void verify(SKIPLIST *list, const ARRAY& array, int length, int line)
     ASSERT_L(p==0, line);
 }
 
+/// Verify that the contents of the specified `list` match those of the
+/// specified `array` of the specified `length` by doing a backward
+/// traversal of both.  If a mismatch occurs, have the asserts show the
+/// specified `line` in the trace.
 template<class SKIPLIST, class ARRAY>
 void verifyReverse(const SKIPLIST& list,
                    const ARRAY&    array,
                    int             length,
                    int             line)
-    // Verify that the contents of the specified 'list' match those of the
-    // specified 'array' of the specified 'length' by doing a backward
-    // traversal of both.  If a mismatch occurs, have the asserts show the
-    // specified 'line' in the trace.
 {
-    // scan backward using 'skip' and also 'previous', in parallel
+    // scan backward using `skip` and also `previous`, in parallel
 
     typename SKIPLIST::PairHandle p, p2;
     list.back(&p);
@@ -4533,11 +4543,11 @@ void verifyReverse(const SKIPLIST& list,
     ASSERT_L(p==0, line);
 }
 
+/// Verify that the contents of the specified `list` match those of the
+/// specified `array` of the specified `length`.  If a mismatch occurs,
+/// have the asserts show the specified `line` in the trace.
 template<class SKIPLIST, class ARRAY>
 void verifyEx(SKIPLIST* list, const ARRAY& array, int length, int line)
-    // Verify that the contents of the specified 'list' match those of the
-    // specified 'array' of the specified 'length'.  If a mismatch occurs,
-    // have the asserts show the specified 'line' in the trace.
 {
     typename SKIPLIST::Pair *p;
     list->frontRaw(&p);
@@ -4651,7 +4661,7 @@ void run()
 namespace SKIPLIST_REPRODUCE_DRQS_167644288 {
 
 // This test case is addressing a data race found in DRQS 167644288, between
-// 'update' and 'removeAll'.
+// `update` and `removeAll`.
 
 enum { k_MILLION                = 1000 * 1000,
        k_NUM_UPDATE_THREADS     = 10,
@@ -4659,8 +4669,8 @@ enum { k_MILLION                = 1000 * 1000,
 
 typedef bdlcc::SkipList<int, int> Obj;
 
+/// Randomly add, find, and update nodes.
 void updateNodes(bslmt::Barrier *barrier_p, Obj *skiplist_p)
-    // Randomly add, find, and update nodes.
 {
     barrier_p->wait();
 
@@ -4680,8 +4690,8 @@ void updateNodes(bslmt::Barrier *barrier_p, Obj *skiplist_p)
     }
 }
 
+/// Repeatedly call `Skiplist::removeAll`.
 void removeAll(bslmt::Barrier *barrier_p, Obj *skiplist_p)
-    // Repeatedly call 'Skiplist::removeAll'.
 {
     barrier_p->wait();
 
@@ -4690,9 +4700,9 @@ void removeAll(bslmt::Barrier *barrier_p, Obj *skiplist_p)
     }
 }
 
+/// Spawn many thread that repeatly call `update`, and simultaneously spawn
+/// many threads that repeatedly call `removeAll`.
 void test()
-    // Spawn many thread that repeatly call 'update', and simultaneously spawn
-    // many threads that repeatedly call 'removeAll'.
 {
     if (verbose) cout << "Data race update vs removeAll\n";
 
@@ -4722,8 +4732,8 @@ enum { k_NUM_REMOVE_NODE_THREADS = 10,
 
 typedef bdlcc::SkipList<int, int> Obj;
 
+/// Randomly add, find, and remove nodes.
 void removeNodes(bslmt::Barrier *barrier_p, Obj *skiplist_p)
-    // Randomly add, find, and remove nodes.
 {
     barrier_p->wait();
 
@@ -4743,8 +4753,8 @@ void removeNodes(bslmt::Barrier *barrier_p, Obj *skiplist_p)
     }
 }
 
+/// Repeatedly call `Skiplist::removeAll`.
 void releaseAll(bslmt::Barrier *barrier_p, Obj *skiplist_p)
-    // Repeatedly call 'Skiplist::removeAll'.
 {
     barrier_p->wait();
 
@@ -4753,9 +4763,9 @@ void releaseAll(bslmt::Barrier *barrier_p, Obj *skiplist_p)
     }
 };
 
+/// Spawn many thread that repeatly call `remove`, and simultaneously spawn
+/// many threads that repeatedly call `removeAll`.
 void test()
-    // Spawn many thread that repeatly call 'remove', and simultaneously spawn
-    // many threads that repeatedly call 'removeAll'.
 {
     if (verbose) cout << "Data race removeNode vs removeAll\n";
 
@@ -4785,7 +4795,7 @@ void test()
 // list in such a way as to do as little as possible other than add and remove
 // nodes at random.  Concern was expressed that the Heavy Thrash test might
 // have been spending too much time in the random number generator, so we
-// introduced 'u::VectorRandGen' which generates a vector of random numbers
+// introduced `u::VectorRandGen` which generates a vector of random numbers
 // before the clock starts, and then just reads from them in a loop.
 // ----------------------------------------------------------------------------
 
@@ -4896,18 +4906,20 @@ struct ThrashFunctor {
     u::RandGen   d_rand;
 
     // CREATORS
+
+    /// Create an object bound to the specified `list`.
     explicit
     ThrashFunctor(Obj *list);
-        // Create an object bound to the specified 'list'.
 
+    /// Copy the specified `original` to the object, except use a unique
+    /// random number seed obtained from `masterRandSeed`.
     ThrashFunctor(const ThrashFunctor& original);
-        // Copy the specified 'original' to the object, except use a unique
-        // random number seed obtained from 'masterRandSeed'.
 
     // MANIPULATOR
+
+    /// Iterate until `doneFlag` is set, doing random operations on the
+    /// `*d_list_p`.
     void operator()();
-        // Iterate until 'doneFlag' is set, doing random operations on the
-        // '*d_list_p'.
 };
 
 // CREATORS
@@ -5065,65 +5077,70 @@ class ThrashFunctor {
 
 
     // PRIVATE CLASS METHODS
+
+    /// Return the expected value of `data` for the specified `key`.
     int dataForKey(int key);
-        // Return the expected value of 'data' for the specified 'key'.
 
+    /// For the element `*h`, check that the `data` field is appropriate
+    /// given its `key` field and return its key.  If the specified `key` is
+    /// non-negative, then assert that `h->key() == key`.  If `flatten` is
+    /// `true`, return `key` with the toggle bit masked out, otherwise
+    /// return `h->key()`.
     int cmpKeyAndData(const Pair *h, int key = -1, bool flatten = false);
-        // For the element '*h', check that the 'data' field is appropriate
-        // given its 'key' field and return its key.  If the specified 'key' is
-        // non-negative, then assert that 'h->key() == key'.  If 'flatten' is
-        // 'true', return 'key' with the toggle bit masked out, otherwise
-        // return 'h->key()'.
 
+    /// For the element referred to by `ph`, check that the `data` field is
+    /// appropriate given its `key` field and return its key.  If the
+    /// specified `key` is non-negative, then assert that `ph.key() == key`.
+    /// If `flatten` is `true`, return `key` with the toggle bit masked out,
+    /// otherwise return `ph.key()`.
     int cmpKeyAndData(const PairHandle ph, int key = -1, bool flatten = false);
-        // For the element referred to by 'ph', check that the 'data' field is
-        // appropriate given its 'key' field and return its key.  If the
-        // specified 'key' is non-negative, then assert that 'ph.key() == key'.
-        // If 'flatten' is 'true', return 'key' with the toggle bit masked out,
-        // otherwise return 'ph.key()'.
 
     // PRIVATE MANIPULATORS
+
+    /// Call a randomly selected `add*` method to add a single node to
+    /// `*d_skipList_p`.  If an `addUnique` method was selected and
+    /// it fails, randomly choose a new key and a new `add*` method and
+    /// keep iterating until the add succeeds.  Return the key of the
+    /// newly-added element'.
     int  addRand();
-        // Call a randomly selected 'add*' method to add a single node to
-        // '*d_skipList_p'.  If an 'addUnique' method was selected and
-        // it fails, randomly choose a new key and a new 'add*' method and
-        // keep iterating until the add succeeds.  Return the key of the
-        // newly-added element'.
 
+    /// Do a major operation on `*d_list_p` -- either `removeAll`, copy
+    /// construct, or copy assign.  In the case of copy construct or
+    /// copy assign, apply `operator==` and `operator!=` to the results.
     void changeMajor();
-        // Do a major operation on '*d_list_p' -- either 'removeAll', copy
-        // construct, or copy assign.  In the case of copy construct or
-        // copy assign, apply 'operator==' and 'operator!=' to the results.
 
+    /// Attempt to pop an element off the front of `*d_list_p`.
     void changeMinor();
-        // Attempt to pop an element off the front of '*d_list_p'.
 
     void findChangeMinorHandle(int key);
+
+    /// Attempt an exact `find*` on the specified `key`.  If that fails, use
+    /// a `vague` find such as `findUpperBound*` or `findLowerBound`.  Once
+    /// an element has been found, go to the next or previous element with a
+    /// randomly selected method.  Once that is done, either remove or
+    /// update the found element.
+    ///
+    /// In the case of `findChangeMinorHandle`, access the found element
+    /// using a `PairHandle`, in the case of `findChangeMinorRaw`, access
+    /// the found element using a `Pair *`.
     void findChangeMinorRaw(int key);
-        // Attempt an exact 'find*' on the specified 'key'.  If that fails, use
-        // a 'vague' find such as 'findUpperBound*' or 'findLowerBound'.  Once
-        // an element has been found, go to the next or previous element with a
-        // randomly selected method.  Once that is done, either remove or
-        // update the found element.
-        //
-        // In the case of 'findChangeMinorHandle', access the found element
-        // using a 'PairHandle', in the case of 'findChangeMinorRaw', access
-        // the found element using a 'Pair *'.
 
   public:
     // CREATORS
+
+    /// Create an object bound to the specified `list` and `barrier`.
     explicit
     ThrashFunctor(Obj *list, bslmt::Barrier *barrier);
-        // Create an object bound to the specified 'list' and 'barrier'.
 
+    /// Copy the specified `original` to the object, except use a unique
+    /// random number seed obtained from `masterRandSeed`.
     ThrashFunctor(const ThrashFunctor& original);
-        // Copy the specified 'original' to the object, except use a unique
-        // random number seed obtained from 'masterRandSeed'.
 
     // MANIPULATOR
+
+    /// Iterate until `doneFlag` is set, doing random operations on the
+    /// `*d_list_p`.
     void operator()();
-        // Iterate until 'doneFlag' is set, doing random operations on the
-        // '*d_list_p'.
 };
 
 // PRIVATE CLASS METHODS
@@ -5189,7 +5206,7 @@ int ThrashFunctor::addRand()
 
         level = -1;
         if (u::isLevelAddMode(mode)) {
-            // randomly generate 'level' in the range '[ 0 .. 31 ]', biased
+            // randomly generate `level` in the range `[ 0 .. 31 ]`, biased
             // toward lower values.
 
             level = k_LEVEL_MASK;
@@ -5863,7 +5880,7 @@ void ThrashFunctor::operator()()
             key = -1;
         }
 
-        // Random numbers are generated in the range '[ 0 .. 1023 ]'.  These
+        // Random numbers are generated in the range `[ 0 .. 1023 ]`.  These
         // 3 thresholds are varied with the number of elements in the
         // container to make increasing its size more likely if there are few
         // elements and to make decreasing its size more likely if there are
@@ -5948,15 +5965,15 @@ enum {
     k_DELAY = 500
 };
 
+/// Thread function, operate on the specified `timeQueue` for the specified
+/// `numIterations`, each iteration adding `sendCount` objects to
+/// `timeQueue` and removing `releaseCount` objects.  Add the specified
+/// `delay` to the `value` elements in the skiplist nodes.
 void threadFunc(TimeQ *timeQueue,
                 int    numIterations,
                 int    sendCount,
                 int    receiveCount,
                 int    delay)
-    // Thread function, operate on the specified 'timeQueue' for the specified
-    // 'numIterations', each iteration adding 'sendCount' objects to
-    // 'timeQueue' and removing 'releaseCount' objects.  Add the specified
-    // 'delay' to the 'value' elements in the skiplist nodes.
 {
     bsl::vector<TimeQ::Pair*> timers;
     timers.resize(sendCount);
@@ -6019,8 +6036,8 @@ void threadFunc(TimeQ *timeQueue,
     }
 }
 
+/// run
 void run()
-    // run
 {
     if (verbose) cout << endl
                       << "The router simulation (kind of) test" << endl
@@ -6264,7 +6281,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -6273,18 +6290,18 @@ int main(int argc, char *argv[])
         // DELIBERATELY LEAK A NODE
         //
         // Concerns:
-        //: 1 That the 'U_FAIL_ON_LEAKED_NODES' testing in the imp file is
-        //:   disabled when this component is shipped.  It is possible for
-        //:   client who obtains a node via the 'raw' methods, or even via a
-        //:   'PairHandle' that outlives the skip list, will have leaked nodes,
-        //:   and our existing user base probably has many such clients, so it
-        //:   is important that we never ship this component with that
-        //:   assert enabled.
+        // 1. That the `U_FAIL_ON_LEAKED_NODES` testing in the imp file is
+        //    disabled when this component is shipped.  It is possible for
+        //    client who obtains a node via the `raw` methods, or even via a
+        //    `PairHandle` that outlives the skip list, will have leaked nodes,
+        //    and our existing user base probably has many such clients, so it
+        //    is important that we never ship this component with that
+        //    assert enabled.
         //
         // Plan:
-        //: 1 Deliberately leak a node so that when the check is enabled this
-        //:   test will fail, providing a heads-up in the matrix build and in
-        //:   the nightly build that this component is not ready for shipping.
+        // 1. Deliberately leak a node so that when the check is enabled this
+        //    test will fail, providing a heads-up in the matrix build and in
+        //    the nightly build that this component is not ready for shipping.
         //
         // Testing:
         //   DELIBERATELY LEAK A NODE
@@ -6335,29 +6352,29 @@ int main(int argc, char *argv[])
         // SIMPLE THRASH TEST
         //
         // History
-        //: o This component, when originally written, did not detect leaked
-        //:   nodes.
-        //:
-        //: o During maintenance, examination of the node freeing algorithm,
-        //:   which was a convoluted lockless algorithm, raised suspicions that
-        //:   it was leaking nodes, and when the imp was intrumented, many
-        //:   leaked nodes were detected under heavy contention.  The tests
-        //:   were complex, and it was possible that the leaks were caused by
-        //:   errors in the tests, so the goal here was to create heavy
-        //:   contention in a simple test that we could be sure contained no
-        //:   errors causing leaks.
-        //:
-        //: o This confirmed that the lockless node allocation algorithm was
-        //:   leaking nodes like a sieve.  The allocator pools were replaced
-        //:   with a mutex-based algorithm that ran just as fast and did not
-        //:   leak.
+        //  - This component, when originally written, did not detect leaked
+        //    nodes.
+        //
+        //  - During maintenance, examination of the node freeing algorithm,
+        //    which was a convoluted lockless algorithm, raised suspicions that
+        //    it was leaking nodes, and when the imp was intrumented, many
+        //    leaked nodes were detected under heavy contention.  The tests
+        //    were complex, and it was possible that the leaks were caused by
+        //    errors in the tests, so the goal here was to create heavy
+        //    contention in a simple test that we could be sure contained no
+        //    errors causing leaks.
+        //
+        //  - This confirmed that the lockless node allocation algorithm was
+        //    leaking nodes like a sieve.  The allocator pools were replaced
+        //    with a mutex-based algorithm that ran just as fast and did not
+        //    leak.
         //
         // Concern:
-        //: o Provide a simple test to observe leaks.
+        //  - Provide a simple test to observe leaks.
         //
         // Plan:
-        //: 1 Create 24 threads which randomly create and delete individual
-        //:   nodes.
+        // 1. Create 24 threads which randomly create and delete individual
+        //    nodes.
         //
         // Testing:
         //   SIMPLE THRASH TEST
@@ -6411,29 +6428,29 @@ int main(int argc, char *argv[])
         // HEAVY THRASH TEST
         //
         // Concern:
-        //: 1 Heavily test the component to find data races.
+        // 1. Heavily test the component to find data races.
         //
         // Plan:
-        //: 1 Run a large number of threads, each with its own random number
-        //:   generator, and all of the random number generators on the threads
-        //:   seeded differently.  All threads operate on a single, shared
-        //:   'SkipList'.
-        //:
-        //: 2 Each thread iterates, and in each iteration, randomly choose an
-        //:   operation to perform on the shared skip list.  The set of
-        //:   possible operations contains every manipulator in the 'class',
-        //:   and every 'find*' operation in the 'class'.
-        //:
-        //: 3 Vary the parameters of the random selection of operations so
-        //:   that, when the 'length()' of the skip list is high, operations
-        //:   that remove elements are more likely, and when the 'length()' is
-        //:   low, operations that add elements are more likely.  But for any
-        //:   value of 'length()', any operation is possible.
-        //:
-        //; 4 Run the test for a configurable number of seconds, then set an
-        //:   atomic flag to coordinate all the threads terminating.  Record
-        //:   'TC::totalIterations', the total number of operations performed
-        //:   by all threads on the skip list.
+        // 1. Run a large number of threads, each with its own random number
+        //    generator, and all of the random number generators on the threads
+        //    seeded differently.  All threads operate on a single, shared
+        //    `SkipList`.
+        //
+        // 2. Each thread iterates, and in each iteration, randomly choose an
+        //    operation to perform on the shared skip list.  The set of
+        //    possible operations contains every manipulator in the `class`,
+        //    and every `find*` operation in the `class`.
+        //
+        // 3. Vary the parameters of the random selection of operations so
+        //    that, when the `length()` of the skip list is high, operations
+        //    that remove elements are more likely, and when the `length()` is
+        //    low, operations that add elements are more likely.  But for any
+        //    value of `length()`, any operation is possible.
+        //
+        //  4 Run the test for a configurable number of seconds, then set an
+        //    atomic flag to coordinate all the threads terminating.  Record
+        //    `TC::totalIterations`, the total number of operations performed
+        //    by all threads on the skip list.
         //
         // Testing:
         //   All Manipulators
@@ -6518,15 +6535,15 @@ int main(int argc, char *argv[])
         // Reproduce data race in DRQS 167644288
         //
         // Concern:
-        //: 1 DRQS 167644288 identified a data race between 'removeAll' and
-        //:   'update'.  This was actually a data race between 'removeAll' and
-        //:   many parts of the component.  This test case was to reproduce the
-        //:   bug, and then verify the fix.
+        // 1. DRQS 167644288 identified a data race between `removeAll` and
+        //    `update`.  This was actually a data race between `removeAll` and
+        //    many parts of the component.  This test case was to reproduce the
+        //    bug, and then verify the fix.
         //
         // Plan:
-        //: 1 Run many threads that repeatedly add and update individual
-        //:   nodes, and many other threads that call 'removeAll', and see
-        //:   if any segfaults happen.
+        // 1. Run many threads that repeatedly add and update individual
+        //    nodes, and many other threads that call `removeAll`, and see
+        //    if any segfaults happen.
         // --------------------------------------------------------------------
 
         namespace TC = SKIPLIST_REPRODUCE_DRQS_167644288;
@@ -6538,15 +6555,15 @@ int main(int argc, char *argv[])
         // Reproduce data race in DRQS 167716470
         //
         // Concern:
-        //: 1 DRQS 167644288 identified a data race between 'removeAll' and
-        //:   'removeNode'.  This was actually a data race between 'removeAll'
-        //:   and many parts of the component.  This test case was to reproduce
-        //:   the bug, and then verify the fix.
+        // 1. DRQS 167644288 identified a data race between `removeAll` and
+        //    `removeNode`.  This was actually a data race between `removeAll`
+        //    and many parts of the component.  This test case was to reproduce
+        //    the bug, and then verify the fix.
         //
         // Plan:
-        //: 1 Run many threads that repeatedly add and remove individual
-        //:   nodes, and many other threads that call 'removeAll', and see
-        //:   if any segfaults happen.
+        // 1. Run many threads that repeatedly add and remove individual
+        //    nodes, and many other threads that call `removeAll`, and see
+        //    if any segfaults happen.
         // --------------------------------------------------------------------
 
         namespace TC = SKIPLIST_REPRODUCE_DRQS_167716470;
@@ -6558,35 +6575,35 @@ int main(int argc, char *argv[])
         // THOROUGH MULTI-THREADED ADD TEST
         //
         // Concern:
-        //: 1 Need to test doing adds and carefully examining the state of the
-        //:   container after the add is completed, for all 'add' functions
-        //:   under multithreaded conditions.
+        // 1. Need to test doing adds and carefully examining the state of the
+        //    container after the add is completed, for all `add` functions
+        //    under multithreaded conditions.
         //
         // Plan:
-        //: 1 Use the function 'addByMode' which will call one of the 'add*'
-        //:   functions to attempt to add a node to the container, and then
-        //:   exhaustively check out the state of the container after the
-        //:   'add'.
-        //:
-        //: 2 Spawn many threads with differently seeded random number
-        //:   generators to driver 'addByMode'.
-        //:
-        //: 3 Have all the threads attempt to add nodes to the container, and
-        //:   keep track of how many nodes with each key value were
-        //:   successfully added in an array of 'bsls::AtomicInt's.
-        //:
-        //: 4 After the threads have been joined, call 'checkContainer' to
-        //:   verify that exactly the number of nodes for each key value
-        //:   expected were present.
+        // 1. Use the function `addByMode` which will call one of the `add*`
+        //    functions to attempt to add a node to the container, and then
+        //    exhaustively check out the state of the container after the
+        //    `add`.
+        //
+        // 2. Spawn many threads with differently seeded random number
+        //    generators to driver `addByMode`.
+        //
+        // 3. Have all the threads attempt to add nodes to the container, and
+        //    keep track of how many nodes with each key value were
+        //    successfully added in an array of `bsls::AtomicInt`s.
+        //
+        // 4. After the threads have been joined, call `checkContainer` to
+        //    verify that exactly the number of nodes for each key value
+        //    expected were present.
         // --------------------------------------------------------------------
 
         U_RUN_EACH_TYPE(TestDriver,
                         manyThreadsRandomModesOnOneSkipListMain,
                         U_TEST_TYPES_REGULAR);
 
-        // With the exceptio of 'TTF::MethodPtr', all these 'DATA' types are
-        // already covered by 'U_TEST_TYPES_REGULAR', we just want to do
-        // some tests where 'KEY' & 'DATA' are different types.
+        // With the exceptio of `TTF::MethodPtr`, all these `DATA` types are
+        // already covered by `U_TEST_TYPES_REGULAR`, we just want to do
+        // some tests where `KEY` & `DATA` are different types.
 
         TestDriver<int, TTF::MethodPtr>::
                                      manyThreadsRandomModesOnOneSkipListMain();
@@ -6602,25 +6619,25 @@ int main(int argc, char *argv[])
         // THOROUGH SINGLE-THREADED ADD TEST
         //
         // Concern:
-        //: 1 Need to test doing adds and carefully examining the state of the
-        //:   container after the add is completed, for all 'add' functions.
+        // 1. Need to test doing adds and carefully examining the state of the
+        //    container after the add is completed, for all `add` functions.
         //
         // Plan:
-        //: 1 In the first pass, for every 'add' function, create a skip list
-        //:   and then add values from a table to it using that one add
-        //:   function.
-        //:
-        //: 2 In the second pass, iterate, creating an add function, then
-        //:   perform a sequence of adds to it, adding values from a table, and
-        //:   rotating which 'add' method is used each time.
-        //:
-        //: 3 In both '1' and '2' above, the table contains many redundant
-        //:   values to test the 'unique' functions.
-        //:
-        //: 4 In both '1' and '2' above, keep an array 'numNodesPerKeyVal'
-        //:   which keeps a tally of how many nodes have been added for a given
-        //:   key value.  At the end, 'checkContainer' is called which verifies
-        //:   that these tallies are correct.
+        // 1. In the first pass, for every `add` function, create a skip list
+        //    and then add values from a table to it using that one add
+        //    function.
+        //
+        // 2. In the second pass, iterate, creating an add function, then
+        //    perform a sequence of adds to it, adding values from a table, and
+        //    rotating which `add` method is used each time.
+        //
+        // 3. In both '1' and '2' above, the table contains many redundant
+        //    values to test the `unique` functions.
+        //
+        // 4. In both '1' and '2' above, keep an array `numNodesPerKeyVal`
+        //    which keeps a tally of how many nodes have been added for a given
+        //    key value.  At the end, `checkContainer` is called which verifies
+        //    that these tallies are correct.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "THOROUGH SINGLE-THREADED ADD TEST\n"
@@ -6633,9 +6650,9 @@ int main(int argc, char *argv[])
                         testIndependentAddFunctions,
                         U_TEST_TYPES_REGULAR);
 
-        // With the exceptio of 'TTF::MethodPtr', all these 'DATA' types are
-        // already covered by 'U_TEST_TYPES_REGULAR', we just want to do
-        // some tests where 'KEY' & 'DATA' are different types.
+        // With the exceptio of `TTF::MethodPtr`, all these `DATA` types are
+        // already covered by `U_TEST_TYPES_REGULAR`, we just want to do
+        // some tests where `KEY` & `DATA` are different types.
 
         TestDriver<int, TTF::MethodPtr>::testIndependentAddFunctions();
         TestDriver<int, bsltf::AllocTestType>::testIndependentAddFunctions();
@@ -6650,9 +6667,9 @@ int main(int argc, char *argv[])
                         testMultiAddFunctions,
                         U_TEST_TYPES_REGULAR);
 
-        // With the exceptio of 'TTF::MethodPtr', all these 'DATA' types are
-        // already covered by 'U_TEST_TYPES_REGULAR', we just want to do
-        // some tests where 'KEY' & 'DATA' are different types.
+        // With the exceptio of `TTF::MethodPtr`, all these `DATA` types are
+        // already covered by `U_TEST_TYPES_REGULAR`, we just want to do
+        // some tests where `KEY` & `DATA` are different types.
 
         TestDriver<int, TTF::MethodPtr>::testMultiAddFunctions();
         TestDriver<int, bsltf::AllocTestType>::testMultiAddFunctions();
@@ -6664,13 +6681,13 @@ int main(int argc, char *argv[])
         // REPRODUCE BUG / VERIFY FIX OF DRQS 145745492
         //
         // Concern:
-        //: 1 The DRQS complains that recent changes to skiplist made it
-        //:   require default c'tors for the key and value types.  Reproduce
-        //:   bug.
+        // 1. The DRQS complains that recent changes to skiplist made it
+        //    require default c'tors for the key and value types.  Reproduce
+        //    bug.
         //
         // Plan:
-        //: 1 Declare a 'KeyValue' type with no default and use it to create
-        //:   a 'SkipList'.
+        // 1. Declare a `KeyValue` type with no default and use it to create
+        //    a `SkipList`.
         //
         // Testing:
         //   REPRODUCE BUG / VERIFY FIX OF DRQS 145745492
@@ -6688,13 +6705,13 @@ int main(int argc, char *argv[])
         // REPRODUCE BUG FROM DRQS 144652915
         //
         // Concerns:
-        //: 1 DRQS illustrated a problem when many threads were adding items
-        //:   simultaneously
+        // 1. DRQS illustrated a problem when many threads were adding items
+        //    simultaneously
         //
         // Plan:
-        //: 1 Have 16 threads each simultaneously add 1000 items to the skip
-        //:   list, and observe whether any of the threads throws
-        //:   'std::bad_alloc'.
+        // 1. Have 16 threads each simultaneously add 1000 items to the skip
+        //    list, and observe whether any of the threads throws
+        //    `std::bad_alloc`.
         //
         // Testing:
         //   DRQS 144652915
@@ -6741,21 +6758,21 @@ int main(int argc, char *argv[])
       } break;
       case 23: {
         // --------------------------------------------------------------------
-        // TESTING 'allocator' ACCESSOR
+        // TESTING `allocator` ACCESSOR
         //
         // Concern:
-        //   That the 'allocator' accessor correctly returns the allocator
+        //   That the `allocator` accessor correctly returns the allocator
         //   suplied at construction.
         //
         // Plan:
         //   Create objects with different allocators, and verify that the
-        //   value returned by the 'allocator' accessor is as expected.
+        //   value returned by the `allocator` accessor is as expected.
         //
         // Testing:
         //   bslma::Allocator *allocator() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'allocator' ACCESSOR\n"
+        if (verbose) cout << "TESTING `allocator` ACCESSOR\n"
                              "============================\n";
 
         typedef bdlcc::SkipList<int, bsl::string> Obj;
@@ -7252,7 +7269,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // Value-semantic tests
         //
-        // Doc box at beginning of defintion of function 'valueSemanticTest'.
+        // Doc box at beginning of defintion of function `valueSemanticTest`.
         // --------------------------------------------------------------------
 
         U_RUN_EACH_TYPE(TestDriver,
@@ -7266,9 +7283,9 @@ int main(int argc, char *argv[])
       }  break;
       case 17: {
         // --------------------------------------------------------------------
-        // Testing 'skipBackward*' and 'skipForward*'
+        // Testing `skipBackward*` and `skipForward*`
         //
-        // Doc box at beginning of defintion of function 'skipTest'.
+        // Doc box at beginning of defintion of function `skipTest`.
         // --------------------------------------------------------------------
 
         U_RUN_EACH_TYPE(TestDriver,
@@ -7282,7 +7299,7 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
         // ----------------------------------------------------
-        // 'addPairReferenceRaw' thread safety test
+        // `addPairReferenceRaw` thread safety test
         // ----------------------------------------------------
         if (verbose) cout << endl
                           << "addPairReferenceRaw Safety test" << endl
@@ -7337,7 +7354,7 @@ int main(int argc, char *argv[])
       } break;
       case 15: {
         // ------------------------------------
-        // 'removeAll' thread safety test
+        // `removeAll` thread safety test
         // ------------------------------------
 
         namespace TC = RemoveAllSafetyTest;
@@ -7439,8 +7456,8 @@ int main(int argc, char *argv[])
 
             totalCollisions += TC::collisions;
 
-            // 'e_ADD_WITH_REMOVEALL_HANDLES' is the last mode tested.  This
-            // overload of 'removeAll' uses the default allocator for an
+            // `e_ADD_WITH_REMOVEALL_HANDLES` is the last mode tested.  This
+            // overload of `removeAll` uses the default allocator for an
             // internal temporary vector.  All previous modes should not use
             // the default allocator.
 
@@ -7459,7 +7476,7 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // ------------------------------------
-        // 'remove' test
+        // `remove` test
         // ------------------------------------
 
         if (verbose) cout << endl
@@ -7535,7 +7552,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // updateR
         //
-        // Doc box at beginning of defintion of function 'updateRTest'.
+        // Doc box at beginning of defintion of function `updateRTest`.
         // --------------------------------------------------------------------
 
         U_RUN_EACH_TYPE(TestDriver,
@@ -7551,7 +7568,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // ADDR TEST
         //
-        // Doc box at beginning of defintion of function 'addRTest'.
+        // Doc box at beginning of defintion of function `addRTest`.
         // --------------------------------------------------------------------
 
         U_RUN_EACH_TYPE(TestDriver,
@@ -7567,7 +7584,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // REMOVEALL TEST
         //
-        // Doc box at beginning of defintion of function 'removeAllTest'.
+        // Doc box at beginning of defintion of function `removeAllTest`.
         // --------------------------------------------------------------------
 
         U_RUN_EACH_TYPE(TestDriver,
@@ -7583,7 +7600,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // findR test
         //
-        // Doc box at beginning of defintion of function 'findRTest'.
+        // Doc box at beginning of defintion of function `findRTest`.
         // --------------------------------------------------------------------
 
         U_RUN_EACH_TYPE(TestDriver,
@@ -7599,7 +7616,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // FIND TEST
         //
-        // Doc box at beginning of defintion of function 'findTest'.
+        // Doc box at beginning of defintion of function `findTest`.
         // --------------------------------------------------------------------
 
         U_RUN_EACH_TYPE(TestDriver,
@@ -7615,8 +7632,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TIMER TEST
         //
-        // Apparently just test that the anticipated 'EventTimeQueue' type
-        // based on a skip list calling the 'add' method can compile.
+        // Apparently just test that the anticipated `EventTimeQueue` type
+        // based on a skip list calling the `add` method can compile.
         // --------------------------------------------------------------------
         if (verbose) cout << endl
                           << "timer test" << endl
@@ -7637,7 +7654,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // ITERATION TEST
         //
-        // Doc box at beginning of defintion of function 'iterationTest'.
+        // Doc box at beginning of defintion of function `iterationTest`.
         // --------------------------------------------------------------------
 
         U_RUN_EACH_TYPE(TestDriver,
@@ -7653,7 +7670,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // UPDATE TEST
         //
-        // Doc box at beginning of defintion of function 'updateTest'.
+        // Doc box at beginning of defintion of function `updateTest`.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -7673,7 +7690,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // NEWFRONT TEST
         //
-        // Doc box at beginning of defintion of function 'newFrontTest'.
+        // Doc box at beginning of defintion of function `newFrontTest`.
         // --------------------------------------------------------------------
 
         U_RUN_EACH_TYPE(TestDriver,
@@ -7689,7 +7706,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // Allocation Test
         //
-        // Doc box at beginning of defintion of function 'allocationTest'.
+        // Doc box at beginning of defintion of function `allocationTest`.
         // --------------------------------------------------------------------
 
         U_RUN_EACH_TYPE(TestDriver,
@@ -7714,18 +7731,18 @@ int main(int argc, char *argv[])
         using namespace USAGE;
 
         {
-//..
-// Now, in 'main', verify that the scheduler executes events when expected:
-//..
+// ```
+// Now, in `main`, verify that the scheduler executes events when expected:
+// ```
     SimpleScheduler      scheduler;
 
     bsl::vector<int>     values;
 
     const bdlt::Datetime start = bdlt::CurrentTime::utc();
     bdlt::Datetime       scheduleTime;
-//..
+// ```
 // Add events out of sequence and ensure they are executed in the proper order.
-//..
+// ```
 if (veryVerbose) cout << "Start:      " << start << endl;
 
     scheduleTime = start;
@@ -7765,9 +7782,9 @@ if (veryVerbose) cout << "Finish:     " << finish << endl;
     ASSERT(elapsed < 2.75);
 
 if (veryVerbose) cout << "Elapsed: " << elapsed << " seconds\n";
-//..
-// Note that the destructor of 'scheduler' will call 'stop()'.
-//..
+// ```
+// Note that the destructor of `scheduler` will call `stop()`.
+// ```
         }
       } break;
       case 1: {
@@ -8115,11 +8132,11 @@ if (veryVerbose) cout << "Elapsed: " << elapsed << " seconds\n";
         // TEST MACHINERY
         //
         // Concern:
-        //: 1 That the bitwise random number generator works properly
+        // 1. That the bitwise random number generator works properly
         //
         // Plan:
-        //: 1 Generate a large number of random numbers and observe the
-        //:   distribution.
+        // 1. Generate a large number of random numbers and observe the
+        //    distribution.
         // --------------------------------------------------------------------
 
         namespace TC = SKIPLIST_TEST_CASE_MINUS_102;

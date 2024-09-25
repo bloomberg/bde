@@ -24,7 +24,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'bdlb::Guid' provides a value-semantic type for representing Globally Unique
+// `bdlb::Guid` provides a value-semantic type for representing Globally Unique
 // Identifiers (GUID), without providing the functionality to create a GUID.
 // The tests for this component are table based, i.e., testing actual results
 // against a table of expected results.  Most tests construct objects and
@@ -175,7 +175,7 @@ const Element &V0 = VALUES[0],            // V0, V1, ... are used in
               &V1 = VALUES[1], &VA = V1,  // conjunction with the VALUES array.
               &V2 = VALUES[2], &VB = V2,
               &V3 = VALUES[3], &VC = V3,  // VA, VB, ... are used in
-              &V4 = VALUES[4], &VD = V4,  // conjunction with 'g' and 'gg'.
+              &V4 = VALUES[4], &VD = V4,  // conjunction with `g` and `gg`.
               &V5 = VALUES[5], &VE = V5,
               &V6 = VALUES[6], &VF = V6,
               &V7 = VALUES[7], &VG = V7,
@@ -184,8 +184,8 @@ const Element &V0 = VALUES[0],            // V0, V1, ... are used in
 namespace BloombergLP {
 namespace bdlb {
 
+/// Print the specified Guid `v` to bsl::cout.
 void debugprint(const Obj& v)
-    // Print the specified Guid 'v' to bsl::cout.
 {
     v.print(bsl::cout);
 }
@@ -203,14 +203,16 @@ void debugprint(const Obj& v)
 //
 // First, let us define the core types needed, the first of which is a utility
 // to allocate GUIDs.
-//..
+// ```
+
+/// This struct provides a namespace for methods to generate GUIDs.
 struct MyGuidGeneratorUtil {
-    // This struct provides a namespace for methods to generate GUIDs.
 
     // CLASS METHODS
+
+    /// Generate a version 1 GUID placing the value into the specified
+    /// `guid` pointer.  Return 0 on success, non-zero otherwise.
     static int generate(bdlb::Guid *guid);
-        // Generate a version 1 GUID placing the value into the specified
-        // 'guid' pointer.  Return 0 on success, non-zero otherwise.
 };
 
 // CLASS METHODS
@@ -253,17 +255,18 @@ int MyGuidGeneratorUtil::generate(bdlb::Guid *guid)
     }
     return rval;
 }
-//..
+// ```
 // Next, we create a utility to create unique strings.
-//..
-struct UniqueStringGenerator {
-    // This struct provides methods to create globally unique strings.
+// ```
 
+/// This struct provides methods to create globally unique strings.
+struct UniqueStringGenerator {
+
+    /// Create a globally unique string from the specified non-unique
+    /// `base` string placing the result into the specified `unique` string
+    /// pointer.
     static int uniqueStringFromBase(bsl::string        *unique,
                                     const bsl::string&  base);
-        // Create a globally unique string from the specified non-unique
-        // 'base' string placing the result into the specified 'unique' string
-        // pointer.
 };
 
 int
@@ -280,15 +283,15 @@ UniqueStringGenerator::uniqueStringFromBase(bsl::string        *unique,
     }
     return rval;
 }
-//..
+// ```
 
 //=============================================================================
-//              GENERATOR FUNCTIONS 'g' AND 'gg' FOR TESTING
+//              GENERATOR FUNCTIONS `g` AND `gg` FOR TESTING
 //-----------------------------------------------------------------------------
-// The following functions interpret the given 'spec' in order from left to
+// The following functions interpret the given `spec` in order from left to
 // right to configure the object according to a custom language.  Uppercase
 // letters [A .. H] correspond to arbitrary (but unique) unsigned char [16]
-// values with which to construct the object.  The character '0' refers to the
+// values with which to construct the object.  The character `0` refers to the
 // value of a default-constructed object.
 //
 // LANGUAGE SPECIFICATION:
@@ -304,13 +307,13 @@ UniqueStringGenerator::uniqueStringFromBase(bsl::string        *unique,
 //                                      // unique but otherwise arbitrary
 //-----------------------------------------------------------------------------
 
+/// Configure the specified `object` according to the specified `spec`,
+/// using only the default and value assignment.  Optionally specify a zero
+/// `verboseFlag` to suppress `spec` syntax error messages.  Return the
+/// index of the first invalid character, and a negative value otherwise.
+/// Note that this function is used to implement `gg` as well as allow for
+/// verification of syntax error detection.
 int ggg(Obj *object, const char *spec, int verboseFlag = 1)
-    // Configure the specified 'object' according to the specified 'spec',
-    // using only the default and value assignment.  Optionally specify a zero
-    // 'verboseFlag' to suppress 'spec' syntax error messages.  Return the
-    // index of the first invalid character, and a negative value otherwise.
-    // Note that this function is used to implement 'gg' as well as allow for
-    // verification of syntax error detection.
 {
     int rcode = 2;
     enum { SUCCESS = -1 };
@@ -348,16 +351,16 @@ int ggg(Obj *object, const char *spec, int verboseFlag = 1)
     return rcode;
 }
 
+/// Return, by reference, the specified `object` with its value adjusted
+/// according to the specified `spec`.
 Obj& gg(Obj *object, const char *spec)
-    // Return, by reference, the specified 'object' with its value adjusted
-    // according to the specified 'spec'.
 {
     ASSERT(ggg(object, spec) < 0);
     return *object;
 }
 
+/// Return, by value, a new object corresponding to the specified `spec`.
 Obj g(const char *spec)
-    // Return, by value, a new object corresponding to the specified 'spec'.
 {
     Obj object;
     return gg(&object, spec);
@@ -377,7 +380,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test)  { case 0:
@@ -387,13 +390,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, and replace 'assert' with
-        //:   'ASSERT'.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, and replace `assert` with
+        //    `ASSERT`.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -403,7 +406,7 @@ int main(int argc, char *argv[])
                           << "=============" << endl;
 //  Finally, we implement a program to generate unique names for a code
 //  auto-generator.
-//..
+// ```
         bsl::string baseFileName = "foo.cpp";
         bsl::string uniqueFileName;
         bsl::string previousFileName;
@@ -415,34 +418,34 @@ int main(int argc, char *argv[])
             ASSERT(previousFileName != uniqueFileName);
             previousFileName = uniqueFileName;
         }
-//..
+// ```
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING 'format' METHOD
+        // TESTING `format` METHOD
         //
         // Concerns:
-        //: 1 The format method formats the value of the object directly from
-        //:   the underlying state information according to supplied arguments.
-        //:
-        //: 2 The format method results in the correct representation of any
-        //:   given GUID.
+        // 1. The format method formats the value of the object directly from
+        //    the underlying state information according to supplied arguments.
+        //
+        // 2. The format method results in the correct representation of any
+        //    given GUID.
         //
         // Plan:
-        //: 1 For each of an enumerated set of object values, use 'format' to
-        //:   format that object's value, to two separate character buffers
-        //:   each with different initial values.  Also use 'print' to format
-        //:   the object's value.  Compare the contents of these buffers with
-        //:   each other and with the literal expected output format and verify
-        //:   that the characters beyond the formatted span are unaffected in
-        //:   both buffers.  (C-1,2)
+        // 1. For each of an enumerated set of object values, use `format` to
+        //    format that object's value, to two separate character buffers
+        //    each with different initial values.  Also use `print` to format
+        //    the object's value.  Compare the contents of these buffers with
+        //    each other and with the literal expected output format and verify
+        //    that the characters beyond the formatted span are unaffected in
+        //    both buffers.  (C-1,2)
         //
         // Testing:
         //   void format(bsl::span<char, k_GUID_NUM_CHARS> s) const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'format' METHOD" << endl
+                          << "TESTING `format` METHOD" << endl
                           << "=======================" << endl;
 
         {
@@ -528,24 +531,24 @@ int main(int argc, char *argv[])
         // TESTING HASH FUNCTION
         //
         // Concerns:
-        //: 1 A guid object can be hashed by instances of
-        //:   'bsl::hash<bdlb::Guid>'.
-        //:
-        //: 2 A small sample of different guid objects produce different
-        //:   hashes.
-        //:
-        //: 3 Invoking 'bsl::hash<bdlb::Guid>' is identical to invoking
-        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the guid
-        //:   object.
+        // 1. A guid object can be hashed by instances of
+        //    `bsl::hash<bdlb::Guid>`.
+        //
+        // 2. A small sample of different guid objects produce different
+        //    hashes.
+        //
+        // 3. Invoking `bsl::hash<bdlb::Guid>` is identical to invoking
+        //    `bslh::DefaultHashAlgorithm` on the underlying data of the guid
+        //    object.
         //
         // Plan:
-        //: 1 Hash some different guid objects and verify that the result of
-        //:   using 'bsl::hash<bdlb::Guid>' is identical to invoking
-        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the guid
-        //:   object.
-        //:
-        //: 2 Hash a number of different guid objects and verify that they
-        //:   produce distinct hashes.
+        // 1. Hash some different guid objects and verify that the result of
+        //    using `bsl::hash<bdlb::Guid>` is identical to invoking
+        //    `bslh::DefaultHashAlgorithm` on the underlying data of the guid
+        //    object.
+        //
+        // 2. Hash a number of different guid objects and verify that they
+        //    produce distinct hashes.
         //
         // Testing:
         //   bsl::hash<bdlb::Guid>
@@ -573,18 +576,18 @@ int main(int argc, char *argv[])
         // TESTING RFC 4122 ACCESS
         //
         // Concerns:
-        //: 1 A guid object can be constructed using field values as specified
-        //:   by RFC 4122.
-        //:
-        //: 2 RFC 4122-based field accessors return the values with which the
-        //:   guid was constructed.
-        //:
-        //: 3 Verify that only the least significant 48 bits of the 'node'
-        //:   argument are used to construct the guid.
+        // 1. A guid object can be constructed using field values as specified
+        //    by RFC 4122.
+        //
+        // 2. RFC 4122-based field accessors return the values with which the
+        //    guid was constructed.
+        //
+        // 3. Verify that only the least significant 48 bits of the `node`
+        //    argument are used to construct the guid.
         //
         // Plan:
-        //: 1 Construct a guid using arbitrary values for the field-based
-        //:   arguments and verify that they can be retrieved correctly.
+        // 1. Construct a guid using arbitrary values for the field-based
+        //    arguments and verify that they can be retrieved correctly.
         //
         // Testing:
         //   bdlb::Guid(ul, us, us, uc, uc, u64);
@@ -638,11 +641,11 @@ int main(int argc, char *argv[])
         // TESTING TRAITS
         //
         // Concerns:
-        //: 1 bslmf::IsBitwiseEqualityComparable is true for Guid.
-        //: 2 bsl::is_trivially_copyable is true for Guid.
+        // 1. bslmf::IsBitwiseEqualityComparable is true for Guid.
+        // 2. bsl::is_trivially_copyable is true for Guid.
         //
         // Plan:
-        //: 1 Assert each trait.
+        // 1. Assert each trait.
         //
         // Testing:
         //   bslmf::IsBitwiseEqualityComparable
@@ -661,12 +664,12 @@ int main(int argc, char *argv[])
         // TESTING COMPARISON OPERATORS
         //
         // Concerns:
-        //: 1 'operator<' returns the lexicographic comparison of two 'guid's.
-        //: 2 Each operator implements a strict total order.
+        // 1. `operator<` returns the lexicographic comparison of two `guid`s.
+        // 2. Each operator implements a strict total order.
         //
         // Plan:
-        //: 1 Construct objects in increasing order, and compare them to each
-        //:   other in all combinations verifying the expected return value.
+        // 1. Construct objects in increasing order, and compare them to each
+        //    other in all combinations verifying the expected return value.
         //
         // Testing:
         //   bool operator< (const bdlb::Guid& lhs, const bdlb::Guid& rhs);
@@ -725,33 +728,33 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'print' METHOD
+        // TESTING `print` METHOD
         //
         // Concerns:
-        //: 1 The print method formats the value of the object directly from
-        //:   the underlying state information according to supplied arguments.
-        //:
-        //: 2 Ensure that the method formats properly for:
-        //:   - empty and non-empty values
-        //:   - negative, 0, and positive levels.
-        //:   - 0 and non-zero spaces per level.
+        // 1. The print method formats the value of the object directly from
+        //    the underlying state information according to supplied arguments.
+        //
+        // 2. Ensure that the method formats properly for:
+        //    - empty and non-empty values
+        //    - negative, 0, and positive levels.
+        //    - 0 and non-zero spaces per level.
         //
         // Plan:
-        //: 1 For each of an enumerated set of object, 'level', and
-        //:   'spacesPerLevel' values, ordered by increasing object length, use
-        //:   'ostringstream' to 'print' that object's value, using the
-        //:   tabulated parameters, to two separate character buffers each with
-        //:   different initial values.  Compare the contents of these buffers
-        //:   with the literal expected output format and verify that the
-        //:   characters beyond the null characters are unaffected in both
-        //:   buffers.
+        // 1. For each of an enumerated set of object, `level`, and
+        //    `spacesPerLevel` values, ordered by increasing object length, use
+        //    `ostringstream` to `print` that object's value, using the
+        //    tabulated parameters, to two separate character buffers each with
+        //    different initial values.  Compare the contents of these buffers
+        //    with the literal expected output format and verify that the
+        //    characters beyond the null characters are unaffected in both
+        //    buffers.
         //
         // Testing:
         //   ostream& print(ostream& stream, int level, int sp) const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'print' METHOD" << endl
+                          << "TESTING `print` METHOD" << endl
                           << "======================" << endl;
 
         {
@@ -852,59 +855,59 @@ int main(int argc, char *argv[])
         // TESTING STREAMING FUNCTIONALITY
         //
         // Concerns:
-        //:  1 'maxSupportedBdexVersion' returns the correct version.
-        //:
-        //:  2 Ensure that streaming works under the following conditions:
-        //:     VALID      - may contain any sequence of valid values.
-        //:     EMPTY      - valid, but contains no data.
-        //:     INVALID    - may or may not be empty.
-        //:     INCOMPLETE - the stream is truncated, but otherwise valid.
-        //:     CORRUPTED  - the data contains explicitly inconsistent fields.
+        //  1. `maxSupportedBdexVersion` returns the correct version.
+        //
+        //  2. Ensure that streaming works under the following conditions:
+        //      VALID      - may contain any sequence of valid values.
+        //      EMPTY      - valid, but contains no data.
+        //      INVALID    - may or may not be empty.
+        //      INCOMPLETE - the stream is truncated, but otherwise valid.
+        //      CORRUPTED  - the data contains explicitly inconsistent fields.
         //
         // Plan:
-        //: 1 First test 'maxSupportedBdexVersion' explicitly, and then
-        //:   perform a trivial direct (breathing) test of the 'bdexStreamOut'
-        //:   and 'bdexStreamIn' methods.
-        //:
-        //: 2 Next, specify a set S of unique object values with substantial
-        //:   and varied differences, ordered by increasing length.
-        //:
-        //: 3 VALID STREAMS (and exceptions)
-        //:    Using all combinations of (u, v) in S X S, stream-out the value
-        //:    of u into a buffer and stream it back into (an independent
-        //:    instance of) v, and assert that u == v.
-        //:
-        //: 4 EMPTY AND INVALID STREAMS
-        //:    For each x in S, attempt to stream into (a temporary copy of) x
-        //:    from an empty and then invalid stream.  Verify after each try
-        //:    that the object is unchanged and that the stream is invalid.
-        //:
-        //: 5 INCOMPLETE (BUT OTHERWISE VALID) DATA
-        //:    Write 3 distinct objects to an output stream buffer of total
-        //:    length N.  For each partial stream length from 0 to N - 1,
-        //:    construct a truncated input stream and attempt to read into
-        //:    objects initialized with distinct values.  Verify values of
-        //:    objects that are either successfully modified or left entirely
-        //:    unmodified,  and that the stream became invalid immediately
-        //:    after the first incomplete read.  Finally ensure that each
-        //:    object streamed into is in some valid state by creating a copy
-        //:    and then assigning a known value to that copy; allow the
-        //:    original instance to leave scope without further modification,
-        //:    so that the destructor asserts internal object invariants
-        //:    appropriately.
-        //:
-        //: 6 CORRUPTED DATA
-        //:    We will assume that the incomplete test fail every field,
-        //:    including a char (multi-byte representation) hence we need
-        //:    only to produce values that are inconsistent with a valid
-        //:    value and verify that they are detected.  Use the underlying
-        //:    stream package to simulate an instance of a typical valid
-        //:    (control) stream and verify that it can be streamed in
-        //:    successfully.  Then for each data field in the stream (beginning
-        //:    with the version number), provide one or more similar tests with
-        //:    that data field corrupted.  After each test, verify that the
-        //:    object is in some valid state after streaming, and that the
-        //:    input stream has gone invalid.
+        // 1. First test `maxSupportedBdexVersion` explicitly, and then
+        //    perform a trivial direct (breathing) test of the `bdexStreamOut`
+        //    and `bdexStreamIn` methods.
+        //
+        // 2. Next, specify a set S of unique object values with substantial
+        //    and varied differences, ordered by increasing length.
+        //
+        // 3. VALID STREAMS (and exceptions)
+        //     Using all combinations of (u, v) in S X S, stream-out the value
+        //     of u into a buffer and stream it back into (an independent
+        //     instance of) v, and assert that u == v.
+        //
+        // 4. EMPTY AND INVALID STREAMS
+        //     For each x in S, attempt to stream into (a temporary copy of) x
+        //     from an empty and then invalid stream.  Verify after each try
+        //     that the object is unchanged and that the stream is invalid.
+        //
+        // 5. INCOMPLETE (BUT OTHERWISE VALID) DATA
+        //     Write 3 distinct objects to an output stream buffer of total
+        //     length N.  For each partial stream length from 0 to N - 1,
+        //     construct a truncated input stream and attempt to read into
+        //     objects initialized with distinct values.  Verify values of
+        //     objects that are either successfully modified or left entirely
+        //     unmodified,  and that the stream became invalid immediately
+        //     after the first incomplete read.  Finally ensure that each
+        //     object streamed into is in some valid state by creating a copy
+        //     and then assigning a known value to that copy; allow the
+        //     original instance to leave scope without further modification,
+        //     so that the destructor asserts internal object invariants
+        //     appropriately.
+        //
+        // 6. CORRUPTED DATA
+        //     We will assume that the incomplete test fail every field,
+        //     including a char (multi-byte representation) hence we need
+        //     only to produce values that are inconsistent with a valid
+        //     value and verify that they are detected.  Use the underlying
+        //     stream package to simulate an instance of a typical valid
+        //     (control) stream and verify that it can be streamed in
+        //     successfully.  Then for each data field in the stream (beginning
+        //     with the version number), provide one or more similar tests with
+        //     that data field corrupted.  After each test, verify that the
+        //     object is in some valid state after streaming, and that the
+        //     input stream has gone invalid.
         //
         // Testing:
         //   int maxSupportedBdexVersion() const;
@@ -921,30 +924,30 @@ int main(int argc, char *argv[])
         // TESTING ASSIGNMENT OPERATOR
         //
         // Concerns:
-        //:  1 The value represented by any instance can be assigned to any
-        //:    other instance.
-        //:
-        //:  2 The 'rhs' value must not be affected by the operation.
-        //:
-        //:  3 'rhs' going out of scope has no effect on the value of 'lhs'
-        //:    after the assignment.
-        //:
-        //:  4 Aliasing (x = x): The assignment operator must always work --
-        //:    even when the lhs and rhs are the same object.
+        //  1. The value represented by any instance can be assigned to any
+        //     other instance.
+        //
+        //  2. The `rhs` value must not be affected by the operation.
+        //
+        //  3. `rhs` going out of scope has no effect on the value of `lhs`
+        //     after the assignment.
+        //
+        //  4. Aliasing (x = x): The assignment operator must always work --
+        //     even when the lhs and rhs are the same object.
         //
         // Plan:
-        //:  1 Specify a set S of unique object values with substantial and
-        //:   varied differences, ordered by increasing length.  To address
-        //:   concerns 1 - 3, construct tests u = v for all (u, v) in S X S.
-        //:   Using canonical controls UU and VV, assert before the assignment
-        //:   that UU == u, VV == v, and v == u if and only if and only if
-        //:   VV == UU.  After the assignment, assert that VV == u, VV == v,
-        //:   and, for grins, that v == u.  Let v go out of scope and confirm
-        //:   that VV == u.
-        //:
-        //:  2 As a separate exercise, we address 4 by constructing tests
-        //:    y = y for all y in S.  Using a canonical control X, we will
-        //:    verify that X == y before and after the assignment.
+        //  1. Specify a set S of unique object values with substantial and
+        //    varied differences, ordered by increasing length.  To address
+        //    concerns 1 - 3, construct tests u = v for all (u, v) in S X S.
+        //    Using canonical controls UU and VV, assert before the assignment
+        //    that UU == u, VV == v, and v == u if and only if and only if
+        //    VV == UU.  After the assignment, assert that VV == u, VV == v,
+        //    and, for grins, that v == u.  Let v go out of scope and confirm
+        //    that VV == u.
+        //
+        //  2. As a separate exercise, we address 4 by constructing tests
+        //     y = y for all y in S.  Using a canonical control X, we will
+        //     verify that X == y before and after the assignment.
         //
         // Testing:
         //   bdlb::Guid& operator=(const bdlb::Guid& rhs);
@@ -995,7 +998,7 @@ int main(int argc, char *argv[])
                         LOOP2_ASSERT(U_SPEC, V_SPEC,  V == U);
                     }
 
-                    // 'mV' (and therefore 'V') now out of scope
+                    // `mV` (and therefore `V`) now out of scope
                     LOOP2_ASSERT(U_SPEC, V_SPEC, VV == U);
                 }
             }
@@ -1029,27 +1032,27 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING GENERATOR FUNCTION 'g'
+        // TESTING GENERATOR FUNCTION `g`
         //
         // Concerns:
-        //: 1 Since 'g' is implemented almost entirely using 'gg', we need to
-        //:   verify only that the arguments are properly forwarded, and that
-        //:   'g' returns an object by value.
+        // 1. Since `g` is implemented almost entirely using `gg`, we need to
+        //    verify only that the arguments are properly forwarded, and that
+        //    `g` returns an object by value.
         //
         // Plan:
-        //: 2 For each SPEC in a short list of specifications, compare the
-        //:   object returned (by value) from the generator function, 'g(SPEC)'
-        //:   with the value of a newly constructed OBJECT configured using
-        //:   'gg(&OBJECT, SPEC)'.  Finally, use 'sizeof' to confirm that the
-        //:   (temporary) returned by 'g' differs in size from that returned by
-        //:   'gg'.
+        // 2. For each SPEC in a short list of specifications, compare the
+        //    object returned (by value) from the generator function, `g(SPEC)`
+        //    with the value of a newly constructed OBJECT configured using
+        //    `gg(&OBJECT, SPEC)`.  Finally, use `sizeof` to confirm that the
+        //    (temporary) returned by `g` differs in size from that returned by
+        //    `gg`.
         //
         // Testing:
         //   bdlb::Guid g(const char *spec);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING GENERATOR FUNCTION 'g'" << endl
+                          << "TESTING GENERATOR FUNCTION `g`" << endl
                           << "==============================" << endl;
 
         static const char *SPECS[] = {
@@ -1057,7 +1060,7 @@ int main(int argc, char *argv[])
         };
 
         if (verbose) cout <<
-            "\nCompare values produced by 'g' and 'gg' for various inputs."
+            "\nCompare values produced by `g` and `gg` for various inputs."
                                                                        << endl;
         for (int ti = 0; SPECS[ti]; ++ti) {
             const char *spec = SPECS[ti];
@@ -1091,21 +1094,21 @@ int main(int argc, char *argv[])
         // TESTING COPY CONSTRUCTOR
         //
         // Concerns:
-        //: 1 The new object's value is the same as that of the original
-        //:   object (relying on the previously tested equality operators).
-        //:
-        //: 2 The value of the original object is left unaffected.
-        //:
-        //: 3 Subsequent changes in or destruction of the source object have
+        // 1. The new object's value is the same as that of the original
+        //    object (relying on the previously tested equality operators).
+        //
+        // 2. The value of the original object is left unaffected.
+        //
+        // 3. Subsequent changes in or destruction of the source object have
         //    no effect on the copy-constructed object.
         //
         // Plan:
-        //: 1 To address concerns 1 and 2, specify a set S of object values
-        //:   with substantial and varied differences, ordered by increasing
-        //:   length.  For each value in S, initialize objects w and x, copy
-        //:   construct y from x and use 'operator==' to verify that both x and
-        //:   y subsequently have the same value as w.  Let x go out of scope
-        //:   and again verify that w == y.
+        // 1. To address concerns 1 and 2, specify a set S of object values
+        //    with substantial and varied differences, ordered by increasing
+        //    length.  For each value in S, initialize objects w and x, copy
+        //    construct y from x and use `operator==` to verify that both x and
+        //    y subsequently have the same value as w.  Let x go out of scope
+        //    and again verify that w == y.
         //
         // Testing:
         //   bdlb::Guid(const bdlb::Guid& original);
@@ -1154,15 +1157,15 @@ int main(int argc, char *argv[])
         // TESTING EQUALITY OPERATORS
         //
         // Concerns:
-        //: 1 Since 'operators==' is implemented in terms of basic accessors,
-        //:   it is sufficient to verify only that a difference in value of any
-        //:   one basic accessor for any two given objects implies inequality.
-        //:
+        // 1. Since `operators==` is implemented in terms of basic accessors,
+        //    it is sufficient to verify only that a difference in value of any
+        //    one basic accessor for any two given objects implies inequality.
+        //
         // Plan:
-        //: 1 First specify a set S of unique object values having various
-        //:   minor or subtle differences, ordered by non-decreasing length.
-        //:   Verify the correctness of 'operator==' and 'operator!=' using all
-        //:   elements (u, v) of the cross product S X S.
+        // 1. First specify a set S of unique object values having various
+        //    minor or subtle differences, ordered by non-decreasing length.
+        //    Verify the correctness of `operator==` and `operator!=` using all
+        //    elements (u, v) of the cross product S X S.
         //
         // Testing:
         //   bool operator==(const bdlb::Guid& lhs, const bdlb::Guid& rhs);
@@ -1239,20 +1242,20 @@ int main(int argc, char *argv[])
         // TESTING OUTPUT (<<) OPERATOR
         //
         // Concerns:
-        //: 1 Since the output operator is layered on basic accessors, it is
-        //:   sufficient to test only the output format (and to ensure that no
-        //:   additional characters are written past the terminating null).
+        // 1. Since the output operator is layered on basic accessors, it is
+        //    sufficient to test only the output format (and to ensure that no
+        //    additional characters are written past the terminating null).
         //
         // Plan:
-        //: 1 For each of a small representative set of object values, ordered
-        //:   by increasing length, use 'ostringstream' to write that object's
-        //:   value to two separate character buffers each with different
-        //:   initial values.  Compare the contents of these buffers with the
-        //:   literal expected output format and verify that the characters
-        //:   beyond the null characters are unaffected in both buffers.  Note
-        //:   that the output ordering is not guaranteed and the function
-        //:   'arePrintedValuesEquivalent' is used to validate equality of the
-        //:   output to the expected output.
+        // 1. For each of a small representative set of object values, ordered
+        //    by increasing length, use `ostringstream` to write that object's
+        //    value to two separate character buffers each with different
+        //    initial values.  Compare the contents of these buffers with the
+        //    literal expected output format and verify that the characters
+        //    beyond the null characters are unaffected in both buffers.  Note
+        //    that the output ordering is not guaranteed and the function
+        //    `arePrintedValuesEquivalent` is used to validate equality of the
+        //    output to the expected output.
         //
         // Testing:
         //   bsl::ostream& operator<<(bsl::ostream& stream, const Guid& guid);
@@ -1261,7 +1264,7 @@ int main(int argc, char *argv[])
                           << "TESTING OUTPUT (<<) OPERATOR" << endl
                           << "============================" << endl;
 
-        if (verbose) cout << "\nTesting 'operator<<' (ostream)." << endl;
+        if (verbose) cout << "\nTesting `operator<<` (ostream)." << endl;
 
         {
             static const struct {
@@ -1331,22 +1334,22 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING PRIMITIVE GENERATOR FUNCTION 'gg'
+        // TESTING PRIMITIVE GENERATOR FUNCTION `gg`
         //
         // Concerns:
-        //: 1 Having demonstrated that our primary manipulators work as
-        //:   expected under normal conditions, we want to verify that valid
-        //:   generator syntax produces expected results and that invalid
-        //:   syntax is detected and reported.
+        // 1. Having demonstrated that our primary manipulators work as
+        //    expected under normal conditions, we want to verify that valid
+        //    generator syntax produces expected results and that invalid
+        //    syntax is detected and reported.
         //
         // Plan:
-        //: 1 For each of an enumerated sequence of 'spec' values, ordered by
-        //:   increasing 'spec' length, use the primitive generator function
-        //:   'gg' to set the state of a newly created object.  Verify that
-        //:   'gg' returns a valid reference to the modified argument object
-        //:   and, using basic accessors, that the value of the object is as
-        //:   expected.  Note that we are testing the parser only; the primary
-        //:   manipulators are already assumed to work.
+        // 1. For each of an enumerated sequence of `spec` values, ordered by
+        //    increasing `spec` length, use the primitive generator function
+        //    `gg` to set the state of a newly created object.  Verify that
+        //    `gg` returns a valid reference to the modified argument object
+        //    and, using basic accessors, that the value of the object is as
+        //    expected.  Note that we are testing the parser only; the primary
+        //    manipulators are already assumed to work.
         //
         // Testing:
         //   bdlb::Guid& gg(bdlb::Guid *object, const char *spec);
@@ -1354,7 +1357,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         if (verbose)
             cout << endl
-                 << "TESTING PRIMITIVE GENERATOR FUNCTION 'gg'" << endl
+                 << "TESTING PRIMITIVE GENERATOR FUNCTION `gg`" << endl
                  << "=========================================" << endl;
 
         if (verbose) cout << "\nTesting generator on valid specs." << endl;
@@ -1436,11 +1439,11 @@ int main(int argc, char *argv[])
         // TESTING ARRAY ASSIGNMENT OPERATOR
         //
         // Concerns:
-        //: 1 The resulting guid after assignment relates equal to the original
-        //:   array when compared byte-wise.
+        // 1. The resulting guid after assignment relates equal to the original
+        //    array when compared byte-wise.
         //
         // Plan:
-        //: 1 Assign one Guid object to another and compare them byte-for-byte.
+        // 1. Assign one Guid object to another and compare them byte-for-byte.
         //
         // Testing:
         //     Guid& operator=(unsigned char buffer[k_GUID_NUM_BYTES]);
@@ -1461,7 +1464,7 @@ int main(int argc, char *argv[])
           {L_,     &V1},
           {L_,     &V8},
 
-      // GUIDs generated by 'uuid_generate()'
+      // GUIDs generated by `uuid_generate()`
           {L_,     &V2},
           {L_,     &V3},
           {L_,     &V4},
@@ -1505,26 +1508,26 @@ int main(int argc, char *argv[])
         // CONSTRUCTORS / ACCESSORS TEST
         //
         // Concerns:
-        //: 1  A default-constructed 'Guid' is initialized to all 0s.
-        //:
-        //: 2 A value constructed guid compares equal to specified array.
-        //:
-        //: 3 A the reference returned by operator[] is unmodifiable.
-        //:
-        //: 4 The reference returned by operator[] is suitable for iteration.
-        //:
-        //: 5 The address of the object is equal to the address of the first
-        //:   element.
-        //:
-        //: 6 The 'begin' and 'data' accessors point to the first element.
-        //:
-        //: 7 The 'end' accessor points one past the last element.
+        // 1.  A default-constructed `Guid` is initialized to all 0s.
+        //
+        // 2. A value constructed guid compares equal to specified array.
+        //
+        // 3. A the reference returned by operator[] is unmodifiable.
+        //
+        // 4. The reference returned by operator[] is suitable for iteration.
+        //
+        // 5. The address of the object is equal to the address of the first
+        //    element.
+        //
+        // 6. The `begin` and `data` accessors point to the first element.
+        //
+        // 7. The `end` accessor points one past the last element.
         //
         // Plan:
-        //: 1 Construct a default-constructed Guid and use 'operator[]' to
-        //:   access the individual bytes and verify they expected values.
-        //:   Then, using a tabular approach value, construct a Guid and check
-        //:   each of the above concerns in order.
+        // 1. Construct a default-constructed Guid and use `operator[]` to
+        //    access the individual bytes and verify they expected values.
+        //    Then, using a tabular approach value, construct a Guid and check
+        //    each of the above concerns in order.
         //
         // Testing:
         //   const unsigned char& operator[](unsigned int offset) const;
@@ -1542,7 +1545,7 @@ int main(int argc, char *argv[])
 
         Obj g;
         for (bsl::size_t i = 0; i < Obj::k_GUID_NUM_BYTES; ++i) {
-            // 1.  A default-constructed 'Guid' is initialized to all 0s.
+            // 1.  A default-constructed `Guid` is initialized to all 0s.
             if (veryVeryVerbose) {
                 cout << hex << static_cast<unsigned int>(g[i]);
             }
@@ -1561,7 +1564,7 @@ int main(int argc, char *argv[])
           {L_,     &V1},
           {L_,     &V8},
 
-      // GUIDs generated by 'uuid_generate()'
+      // GUIDs generated by `uuid_generate()`
           {L_,     &V2},
           {L_,     &V3},
           {L_,     &V4},
@@ -1615,12 +1618,12 @@ int main(int argc, char *argv[])
                 --end;
             }
 
-            //   6. The 'begin' and 'data' accessors point to the first
+            //   6. The `begin` and `data` accessors point to the first
             //      element.
             ASSERT(&x[0] == x.begin());
             ASSERT(&x[0] == x.data());
 
-            //   7. The 'end' accessor points one past the last element.
+            //   7. The `end` accessor points one past the last element.
             ASSERT(x.end() == x.begin() + Obj::k_GUID_NUM_BYTES);
         }
       } break;
@@ -1629,40 +1632,40 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 We want to exercise basic value-semantic functionality.  In
-        //:   particular we want to demonstrate a base-line level of correct
-        //:   operation of the following methods and operators:
-        //:      - default and copy constructors (and also the destructor)
-        //:      - the assignment operator (including aliasing)
-        //:      - equality operators: 'operator==' and 'operator!='
-        //:      - the output operator: 'operator<<'
-        //:      - primary manipulators: 'operator='
-        //:      - basic accessors: 'length' and 'operator[]'
-        //:   In addition we would like to exercise objects with potentially
-        //:   different internal organizations representing the same value.
+        // 1. We want to exercise basic value-semantic functionality.  In
+        //    particular we want to demonstrate a base-line level of correct
+        //    operation of the following methods and operators:
+        //       - default and copy constructors (and also the destructor)
+        //       - the assignment operator (including aliasing)
+        //       - equality operators: `operator==` and `operator!=`
+        //       - the output operator: `operator<<`
+        //       - primary manipulators: `operator=`
+        //       - basic accessors: `length` and `operator[]`
+        //    In addition we would like to exercise objects with potentially
+        //    different internal organizations representing the same value.
         //
         // Plan:
-        //: 1 Create four objects using both the default and copy constructors.
-        //:   Exercise these objects using primary manipulators, basic
-        //:   accessors, equality operators, and the assignment operator.
-        //:   Invoke the primary manipulator [1&5], copy constructor [2&8], and
-        //:   assignment operator [9&10] in situations where the internal data
-        //:   (i) must *not* and (ii) *must* be resized.  Try aliasing with
-        //:   assignment for a non-empty instance [11] and allow the result to
-        //:   leave scope, enabling the destructor to assert internal object
-        //:   invariants.  Display object values frequently in verbose mode:
-        //:
-        //:   Create an object x1 (default ctor)       { x1: }
-        //:   Create a second object x2 (copy from x1) { x1: x2: }
-        //:   Add an element value A to x1             { x1:A x2: }
-        //:   Add the same element value A to x2       { x1:A x2:A }
-        //:   Add another element value B to x2        { x1:A x2:AB }
-        //:   Remove all elements from x1              { x1: x2:AB }
-        //:   Create a third object x3 (default ctor)  { x1: x2:AB x3: }
-        //:   Create a fourth object x4 (copy of x2)   { x1: x2:AB x3: x4:AB }
-        //:   Assign x2 = x1 (non-empty becomes empty) { x1: x2: x3: x4:AB }
-        //:   Assign x3 = x4 (empty becomes non-empty) { x1: x2: x3:AB x4:AB }
-        //:   Assign x4 = x4 (aliasing)                { x1: x2: x3:AB x4:AB }
+        // 1. Create four objects using both the default and copy constructors.
+        //    Exercise these objects using primary manipulators, basic
+        //    accessors, equality operators, and the assignment operator.
+        //    Invoke the primary manipulator [1&5], copy constructor [2&8], and
+        //    assignment operator [9&10] in situations where the internal data
+        //    (i) must *not* and (ii) *must* be resized.  Try aliasing with
+        //    assignment for a non-empty instance [11] and allow the result to
+        //    leave scope, enabling the destructor to assert internal object
+        //    invariants.  Display object values frequently in verbose mode:
+        //
+        //    Create an object x1 (default ctor)       { x1: }
+        //    Create a second object x2 (copy from x1) { x1: x2: }
+        //    Add an element value A to x1             { x1:A x2: }
+        //    Add the same element value A to x2       { x1:A x2:A }
+        //    Add another element value B to x2        { x1:A x2:AB }
+        //    Remove all elements from x1              { x1: x2:AB }
+        //    Create a third object x3 (default ctor)  { x1: x2:AB x3: }
+        //    Create a fourth object x4 (copy of x2)   { x1: x2:AB x3: x4:AB }
+        //    Assign x2 = x1 (non-empty becomes empty) { x1: x2: x3: x4:AB }
+        //    Assign x3 = x4 (empty becomes non-empty) { x1: x2: x3:AB x4:AB }
+        //    Assign x4 = x4 (aliasing)                { x1: x2: x3:AB x4:AB }
         //
         // Testing:
         //   BREATHING TEST
@@ -1799,7 +1802,7 @@ int main(int argc, char *argv[])
         ASSERT(!(X4 == X3));          ASSERT(  X4 != X3);
         ASSERT(X4 == X4);             ASSERT(!(X4 != X4));
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\nTrying the 'print' method..." << endl;
+        if (verbose) cout << "\nTrying the `print` method..." << endl;
         if (verbose) {
             cout << endl;
             X4.print(cout);
@@ -1817,7 +1820,7 @@ int main(int argc, char *argv[])
             cout << X4 << endl;
         }
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        if (verbose) cout << "\nTrying 'operator<<'..." << endl;
+        if (verbose) cout << "\nTrying `operator<<`..." << endl;
         if (verbose) {
             cout << endl;
             cout << X4 << endl;

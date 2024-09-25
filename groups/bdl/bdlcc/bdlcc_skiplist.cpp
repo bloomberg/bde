@@ -70,9 +70,9 @@ namespace bdlcc {
                          // class SkipList_PoolManager
                          // ==========================
 
+/// Operate a set of `k_MAX_POOLS` memory pools, each of which allocates
+/// memory chunks of a certain size.
 class SkipList_PoolManager {
-    // Operate a set of 'k_MAX_POOLS' memory pools, each of which allocates
-    // memory chunks of a certain size.
 
     // PRIVATE TYPES
     enum {
@@ -115,54 +115,56 @@ class SkipList_PoolManager {
 
   public:
     // CLASS METHOD
+
+    /// Cast the specified pointer `p` to `Node *`.
     template <class TYPE>
     static Node *toNode(TYPE *p);
-        // Cast the specified pointer 'p' to 'Node *'.
 
     // CREATORS
+
+    /// Create a pool manager having the specified `numPools` pools, with
+    /// the specified `objectSizes` being an array of `numPools` object
+    /// sizes for the respective pools.  Use the specified `basicAllocator`
+    /// for memory allocation.  The behavior is undefined if
+    /// `numPools > k_MAX_POOLS`.
     explicit SkipList_PoolManager(int              *objectSizes,
                                   int               numPools,
                                   bslma::Allocator *basicAllocator);
-        // Create a pool manager having the specified 'numPools' pools, with
-        // the specified 'objectSizes' being an array of 'numPools' object
-        // sizes for the respective pools.  Use the specified 'basicAllocator'
-        // for memory allocation.  The behavior is undefined if
-        // 'numPools > k_MAX_POOLS'.
 
+    /// d'tor -- if `BSLS_REVIEW_IS_ACTIVE` is defined, fail a review
+    /// if any nodes are leaked.
     ~SkipList_PoolManager();
-        // d'tor -- if 'BSLS_REVIEW_IS_ACTIVE' is defined, fail a review
-        // if any nodes are leaked.
 
   public:
     // MANIPULATORS
 
                                 // pool manipulators
 
+    /// Allocate a standard chunk of memory from the specified `pool`.
+    /// Return a pointer to the allocated node.
     void *allocate(Pool *pool);
-        // Allocate a standard chunk of memory from the specified 'pool'.
-        // Return a pointer to the allocated node.
 
+    /// Free the specified `node` and return it to the list of the specified
+    /// `pool`.
     void deallocate(Pool *pool, void *node);
-        // Free the specified 'node' and return it to the list of the specified
-        // 'pool'.
 
+    /// Initialize the specified `pool` with the specified `level` and
+    /// `objectSize`.  Note that we don't want to make this a constructor
+    /// because the `pool` objects are created in an array and we want to
+    /// pass `level` and `objectSize` at initialization.
     void initPool(Pool *pool, int level, int objectSize);
-        // Initialize the specified 'pool' with the specified 'level' and
-        // 'objectSize'.  Note that we don't want to make this a constructor
-        // because the 'pool' objects are created in an array and we want to
-        // pass 'level' and 'objectSize' at initialization.
 
+    /// Allocate a new block for the specified `pool`.
     void replenish(Pool *pool);
-        // Allocate a new block for the specified 'pool'.
 
                             // pool manager manipulators
 
+    /// Allocate and return a node of the size appropriate for the specified
+    /// `level`.
     void *allocate(int level);
-        // Allocate and return a node of the size appropriate for the specified
-        // 'level'.
 
+    /// Free the specified `node` and return it to its appropriate pool.
     void deallocate(void *node);
-        // Free the specified 'node' and return it to its appropriate pool.
 };
                             // --------------------
                             // SkipList_PoolManager

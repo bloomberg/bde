@@ -29,7 +29,7 @@ using namespace bslx;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The primary concerns are that the 'typedef' is correct and that the usage
+// The primary concerns are that the `typedef` is correct and that the usage
 // example works correctly.
 // ----------------------------------------------------------------------------
 // [ 1] TYPEDEF
@@ -111,14 +111,14 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -133,34 +133,34 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Basic Externalization
 ///- - - - - - - - - - - - - - - -
-// A 'bslx::StreambufOutStream' can be used to externalize values in a
-// platform-neutral way.  Writing out fundamental C++ types and 'bsl::string'
+// A `bslx::StreambufOutStream` can be used to externalize values in a
+// platform-neutral way.  Writing out fundamental C++ types and `bsl::string`
 // requires no additional work on the part of the client; the client can simply
 // use the stream directly.  The following code serializes a few representative
-// values using a 'bslx::StreambufOutStream', compares the contents of this
+// values using a `bslx::StreambufOutStream`, compares the contents of this
 // stream to the expected value, and then writes the contents of this stream's
-// buffer to 'stdout'.
+// buffer to `stdout`.
 //
-// First, we create a 'bslx::StreambufOutStream' with an arbitrary value for
-// its 'versionSelector' and externalize some values:
-//..
+// First, we create a `bslx::StreambufOutStream` with an arbitrary value for
+// its `versionSelector` and externalize some values:
+// ```
     bsl::stringbuf           buffer;
     bslx::StreambufOutStream outStream(&buffer, 20131127);
     outStream.putInt32(1);
     outStream.putInt32(2);
     outStream.putInt8('c');
     outStream.putString(bsl::string("hello"));
-//..
+// ```
 // Then, we compare the contents of the stream to the expected value:
-//..
+// ```
     bsl::string  theChars = buffer.str();
     ASSERT(15 == theChars.size());
     ASSERT( 0 == bsl::memcmp(theChars.data(),
                              "\x00\x00\x00\x01\x00\x00\x00\x02""c\x05""hello",
                              15));
-//..
-// Finally, we print the stream's contents to 'bsl::cout'.
-//..
+// ```
+// Finally, we print the stream's contents to `bsl::cout`.
+// ```
     if (veryVerbose)
     for (bsl::size_t i = 0; i < theChars.size(); ++i) {
         if (bsl::isalnum(static_cast<unsigned char>(theChars[i]))) {
@@ -172,9 +172,9 @@ int main(int argc, char *argv[])
                       << bsl::endl;
         }
     }
-//..
+// ```
 // Executing the above code results in the following output:
-//..
+// ```
 //  nextByte (int): 0
 //  nextByte (int): 0
 //  nextByte (int): 0
@@ -190,23 +190,23 @@ int main(int argc, char *argv[])
 //  nextByte (char): l
 //  nextByte (char): l
 //  nextByte (char): o
-//..
-// See the 'bslx_byteinstream' component usage example for a more practical
-// example of using 'bslx' streams.
+// ```
+// See the `bslx_byteinstream` component usage example for a more practical
+// example of using `bslx` streams.
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // TYPEDEF
-        //   Verify the 'typedef' is correct.
+        //   Verify the `typedef` is correct.
         //
         // Concerns:
-        //: 1 The 'typedef' is correct.
+        // 1. The `typedef` is correct.
         //
         // Plan:
-        //: 1 Externalize a few items with 'bslx::StreambufOutStream' (using a
-        //:   'bsl::stringbuf') and 'bslx::GenericOutStream', and verify the
-        //:   results are the same.
+        // 1. Externalize a few items with `bslx::StreambufOutStream` (using a
+        //    `bsl::stringbuf`) and `bslx::GenericOutStream`, and verify the
+        //    results are the same.
         //
         // Testing:
         //   TYPEDEF

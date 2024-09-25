@@ -13,7 +13,7 @@
 #include <bsl_string.h>
 
 #include <bsl_cstddef.h>
-#include <bsl_cstdlib.h>                  // 'bsl::atoi'
+#include <bsl_cstdlib.h>                  // `bsl::atoi`
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
@@ -26,20 +26,20 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-// The component under the test is an attribute class 'bdld::DatumUdt'.
+// The component under the test is an attribute class `bdld::DatumUdt`.
 //
-// Create a 'DatumUdt' object and verify that values were correctly passed down
-// to the 'd_data_p' and 'd_type' data members.  Also exercise the copy
+// Create a `DatumUdt` object and verify that values were correctly passed down
+// to the `d_data_p` and `d_type` data members.  Also exercise the copy
 // construction and assignment operator functionality and verify using the
 // equality operator that these objects have the same value.  Verify that all
 // comparison operators work as expected.  Verify that streaming operator
 // outputs the correctly formatted value.
 //
-//: o Primary Manipulators:
-//:   - DatumUdt(void* data, int type);
-//: o Basic Accessors:
-//:   - void *data() const;
-//:   - int type() const;
+//  - Primary Manipulators:
+//    - DatumUdt(void* data, int type);
+//  - Basic Accessors:
+//    - void *data() const;
+//    - int type() const;
 //
 //-----------------------------------------------------------------------------
 // CREATORS
@@ -171,13 +171,13 @@ int main(int argc, char **argv)
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -189,15 +189,15 @@ int main(int argc, char **argv)
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic 'DatumUdt' usage
+///Example 1: Basic `DatumUdt` usage
 ///- - - - - - - - - - - - - - - - -
-// Imagine we are using 'Datum' within an expression evaluation subsystem.
+// Imagine we are using `Datum` within an expression evaluation subsystem.
 // Within that subsystem, along with the set of types defined by
-// 'Datum::DataType' we also need to hold 'Sequence' and 'Choice' types within
-// 'Datum' values (which are not natively represented by 'Datum').  First, we
+// `Datum::DataType` we also need to hold `Sequence` and `Choice` types within
+// `Datum` values (which are not natively represented by `Datum`).  First, we
 // define the set of types used by our subsystem that are an extension to the
-// types in 'DatumType':
-//..
+// types in `DatumType`:
+// ```
     struct Sequence {
         struct Sequence *d_next_p;
         int              d_value;
@@ -207,20 +207,20 @@ int main(int argc, char **argv)
         e_SEQUENCE = 5,
         e_CHOICE = 6
     };
-//..
-// Notice that the numeric values will be provided as the 'type' attribute to
-// 'DatumUdt'.
+// ```
+// Notice that the numeric values will be provided as the `type` attribute to
+// `DatumUdt`.
 //
-// Then we create a 'Sequence' object, and create a 'DatumUdt' to hold it (note
+// Then we create a `Sequence` object, and create a `DatumUdt` to hold it (note
 // that we've created the object on the stack for clarity):
-//..
+// ```
     Sequence sequence;
     {
         const bdld::DatumUdt udt(&sequence, e_SEQUENCE);
         ASSERT(e_SEQUENCE == udt.type());
         ASSERT(&sequence  == udt.data());
     }
-//..
+// ```
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -229,10 +229,10 @@ int main(int argc, char **argv)
         //   type traits to reflect this.
         //
         // Concerns:
-        //: 1 The class has the bsl::is_trivially_copyable trait.
+        // 1. The class has the bsl::is_trivially_copyable trait.
         //
         // Plan:
-        //: 1 ASSERT the presence of each trait required by the type.  (C-1)
+        // 1. ASSERT the presence of each trait required by the type.  (C-1)
         //
         // Testing:
         //   TYPE TRAITS
@@ -249,13 +249,13 @@ int main(int argc, char **argv)
         // TESTING STREAM OUTPUT
         //
         // Concerns:
-        //: 1 Stream output operator and 'print' method put object's value to
-        //:   the specified stream in expected format.
+        // 1. Stream output operator and `print` method put object's value to
+        //    the specified stream in expected format.
         //
         // Plan:
-        //: 1 Create several 'DatumUdt' objects with different values, put
-        //:   their values to the stream / print their values and verify that
-        //:   stream contains data in expected format.  (C-1)
+        // 1. Create several `DatumUdt` objects with different values, put
+        //    their values to the stream / print their values and verify that
+        //    stream contains data in expected format.  (C-1)
         //
         // Testing:
         //   ostream& print(ostream& s, int level, int spacesPerLevel) const;
@@ -269,7 +269,7 @@ int main(int argc, char **argv)
         void * const ADDRESS = &udt;
         const int    TYPE    = 15;
 
-        if (verbose) cout << "\nTesting 'print'." << endl;
+        if (verbose) cout << "\nTesting `print`." << endl;
         {
 
             if (veryVerbose) cout << "\tSingle line, indent = [0, -1]" << endl;
@@ -334,7 +334,7 @@ int main(int argc, char **argv)
                 ASSERTV(out.str(), exp.str() == out.str());
             }
         }
-        if (veryVerbose) cout << "\nTesting 'operator<<'" << endl;
+        if (veryVerbose) cout << "\nTesting `operator<<`" << endl;
         {
             Obj        mU(ADDRESS, TYPE);
             const Obj& U = mU;
@@ -355,30 +355,30 @@ int main(int argc, char **argv)
         //   assignment work as expected.
         //
         // Concerns:
-        //: 1 The copy-constructor sets the same value as has original object
-        //:   to the newly created one.
-        //:
-        //: 2 The copy-constructor leaves the value of the original object
-        //:   unaffected.
-        //:
-        //: 3 The value represented by any instance can be assigned to any
-        //:   other instance.
-        //:
-        //: 4 The 'rhs' value must not be affected by the assignment operation.
-        //:
-        //: 5 Aliasing (x = x): The assignment operator must always work --
-        //:   even when the lhs and rhs are the same object.
+        // 1. The copy-constructor sets the same value as has original object
+        //    to the newly created one.
+        //
+        // 2. The copy-constructor leaves the value of the original object
+        //    unaffected.
+        //
+        // 3. The value represented by any instance can be assigned to any
+        //    other instance.
+        //
+        // 4. The `rhs` value must not be affected by the assignment operation.
+        //
+        // 5. Aliasing (x = x): The assignment operator must always work --
+        //    even when the lhs and rhs are the same object.
         //
         // Plan:
-        //: 1 Create 'DatumUdt' object and it's copy.  Verify sameness of two
-        //:   objects.  Verify that origin object is unaffected.  (C-1..2)
-        //:
-        //: 2 Create 'DatumUdt' object and assign it to another one.  Verify
-        //:   sameness of two objects.  Verify that assigned object is
-        //:   unaffected.  (C-3..4)
-        //:
-        //: 3 Assign object to itself.  Verify that object is unaffected.
-        //:   (C-5)
+        // 1. Create `DatumUdt` object and it's copy.  Verify sameness of two
+        //    objects.  Verify that origin object is unaffected.  (C-1..2)
+        //
+        // 2. Create `DatumUdt` object and assign it to another one.  Verify
+        //    sameness of two objects.  Verify that assigned object is
+        //    unaffected.  (C-3..4)
+        //
+        // 3. Assign object to itself.  Verify that object is unaffected.
+        //    (C-5)
         //
         // Testing:
         //   DatumUdt(const DatumUdt&) = default;
@@ -414,7 +414,7 @@ int main(int argc, char **argv)
             ASSERT(U1 == U3);
         }
 
-        if (verbose) cout << "Testing 'operator='." << endl;
+        if (verbose) cout << "Testing `operator=`." << endl;
         {
             int       udt  = 0xdeadbeef;
             const int type = 15;
@@ -455,35 +455,35 @@ int main(int argc, char **argv)
         // TESTING COMPARISON OPERATORS
         //
         // Concerns:
-        //: 1 Two objects compare equal if and only if sizes of their binary
-        //:   data and binary data itself are compare equal.
-        //:
-        //: 2 Each relational operator function reports the intended logical
-        //:   relationship.
-        //:
-        //: 3 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., all relational-comparison operators are free functions).
-        //:
-        //: 4 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //: 5 The equality-comparison operators' signatures and return types
-        //:   are standard.
-        //:
-        //: 6 The relational-comparison operators' signatures and return types
-        //:   are standard.
+        // 1. Two objects compare equal if and only if sizes of their binary
+        //    data and binary data itself are compare equal.
+        //
+        // 2. Each relational operator function reports the intended logical
+        //    relationship.
+        //
+        // 3. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., all relational-comparison operators are free functions).
+        //
+        // 4. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        // 5. The equality-comparison operators' signatures and return types
+        //    are standard.
+        //
+        // 6. The relational-comparison operators' signatures and return types
+        //    are standard.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of
-        //:   'DatumUdt' object pairs , and a flag value indicating their
-        //:   relationship.
-        //:
-        //: 2 For each row 'R' in the table of P-1 verify that each tested
-        //:   operator returns the expected value.  (C-1..4)
-        //:
-        //: 3 Use the respective addresses of operators to initialize function
-        //:   pointers having the appropriate signatures and return types for
-        //:   the operators defined in this component.  (C-5..6)
+        // 1. Using the table-driven technique, specify a set of
+        //    `DatumUdt` object pairs , and a flag value indicating their
+        //    relationship.
+        //
+        // 2. For each row `R` in the table of P-1 verify that each tested
+        //    operator returns the expected value.  (C-1..4)
+        //
+        // 3. Use the respective addresses of operators to initialize function
+        //    pointers having the appropriate signatures and return types for
+        //    the operators defined in this component.  (C-5..6)
         //
         // Testing:
         //   bool operator==(const DatumUdt&, const DatumUdt&);
@@ -620,20 +620,20 @@ int main(int argc, char **argv)
         //   accessors are working as expected also.
         //
         // Concerns:
-        //: 1 All (including internal) relevant states can be reached with
-        //:   primary manipulators.
-        //:
-        //: 2 Accessors return expected values.
-        //:
-        //: 3 'DatumUdt' object can be destroyed.  Destruction doesn't
-        //:   affect data, object has pointed to.
+        // 1. All (including internal) relevant states can be reached with
+        //    primary manipulators.
+        //
+        // 2. Accessors return expected values.
+        //
+        // 3. `DatumUdt` object can be destroyed.  Destruction doesn't
+        //    affect data, object has pointed to.
         //
         // Plan:
-        //: 1 Create an 'DatumUdt' value using the value constructors and
-        //:   verify that all data members are initialized correctly.  (C-1..2)
-        //:
-        //: 2 Let the 'DatumUdt' object go out the scope.  Verify that data
-        //:   isn't affected.  (C-3)
+        // 1. Create an `DatumUdt` value using the value constructors and
+        //    verify that all data members are initialized correctly.  (C-1..2)
+        //
+        // 2. Let the `DatumUdt` object go out the scope.  Verify that data
+        //    isn't affected.  (C-3)
         //
         // Testing:
         //   DatumUdt(void *data, int type);
@@ -672,11 +672,11 @@ int main(int argc, char **argv)
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Developer test sandbox. (C-1)
+        // 1. Developer test sandbox. (C-1)
         //
         // Testing:
         //   BREATHING TEST

@@ -4,8 +4,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 
@@ -93,15 +93,15 @@ void aSsErT(bool condition, const char *message, int line)
 // propagated to the held object.
 //
 // First, we define a simple allocator class hierarchy with an abstract
-// 'xyzma::Allocator' base class and two derived classes:
-// 'xyzma::NewDeleteAllocator' and 'xyzma::TestAllocator':
-//..
+// `xyzma::Allocator` base class and two derived classes:
+// `xyzma::NewDeleteAllocator` and `xyzma::TestAllocator`:
+// ```
     #include <cstddef>
 
     namespace xyzma {
 
+    /// Abstract allocator base class
     class Allocator {
-        // Abstract allocator base class
       public:
         virtual ~Allocator() { }
 
@@ -109,12 +109,12 @@ void aSsErT(bool condition, const char *message, int line)
         virtual void deallocate(void *ptr) = 0;
     };
 
+    /// Concrete allocator that uses operators `new` and `delete`
     class NewDeleteAllocator : public Allocator {
-        // Concrete allocator that uses operators 'new' and 'delete'
 
       public:
+        /// Returns a singleton instance of this class
         static NewDeleteAllocator* singleton();
-            // Returns a singleton instance of this class
 
         virtual void *allocate(std::size_t nbytes);
         virtual void deallocate(void *ptr);
@@ -133,9 +133,9 @@ void aSsErT(bool condition, const char *message, int line)
         ::operator delete(ptr);
     }
 
+    /// Concrete allocator that keeps track of number of blocks allocated
+    /// and deallocated.
     class TestAllocator : public Allocator {
-        // Concrete allocator that keeps track of number of blocks allocated
-        // and deallocated.
 
         std::size_t d_allocatedBlocks;
         std::size_t d_deallocatedBlocks;
@@ -165,7 +165,7 @@ void aSsErT(bool condition, const char *message, int line)
     }
 
     }  // close namespace xyzma
-//..
+// ```
 // Next, we define our nullable class template, declaring two constructors: one
 // that constructs the null object, and one that constructs a non-null object
 // using the specified constructor argument.  For flexibility, the second
@@ -173,7 +173,7 @@ void aSsErT(bool condition, const char *message, int line)
 // the object without necessarily invoking the copy constructor.  (Ideally,
 // this second constructor would be variadic, but that is not necessary for
 // this example.):
-//..
+// ```
     #include <new>
 
     namespace xyzutl {
@@ -185,71 +185,76 @@ void aSsErT(bool condition, const char *message, int line)
 
       public:
         // CREATORS
-        Nullable();
-            // Construct a null object.  Note: this is ctor A.
 
+        /// Construct a null object.  Note: this is ctor A.
+        Nullable();
+
+        /// Construct a non-null object using the specified `arg` as the
+        /// constructor argument for the `TYPE` object.  Note: this is ctor
+        /// B.
         template <class ARG>
         Nullable(const ARG& arg);
-            // Construct a non-null object using the specified 'arg' as the
-            // constructor argument for the 'TYPE' object.  Note: this is ctor
-            // B.
-//..
+// ```
 // Next, we want to add constructors that supply an allocator for use by the
-// 'Nullable' object.  Our first thought is to add two more constructors like
+// `Nullable` object.  Our first thought is to add two more constructors like
 // the two above, but with an additional allocator argument at the end:
-//..
+// ```
         // Nullable(xyzma::Allocator *alloc);
             // ctor C
 
         // template <class ARG>
         // Nullable(const ARG& arg, xyzma::Allocator *alloc);
             // ctor D
-//..
+// ```
 // However, ctor C is difficult to invoke, because ctor B is almost always a
 // better match.  Nor can we use SFINAE to disqualify ctor B in cases where
-// ARG is 'xyzma::Allocator*' because 'xyzma::Allocator*' is a perfectly valid
-// constructor argument for many 'TYPE's.
+// ARG is `xyzma::Allocator*` because `xyzma::Allocator*` is a perfectly valid
+// constructor argument for many `TYPE`s.
 //
-// We solve this problem by using 'allocator_arg_t' to explicitly tag the
+// We solve this problem by using `allocator_arg_t` to explicitly tag the
 // constructor that takes an allocator argument:
-//..
+// ```
+
+        /// Construct a null object with the specified `alloc` allocator.
+        /// Note: this is ctor E
         Nullable(bsl::allocator_arg_t, xyzma::Allocator *alloc);
-            // Construct a null object with the specified 'alloc' allocator.
-            // Note: this is ctor E
-//..
-// The 'allocator_arg_t' argument disambiguates the constructor.
+// ```
+// The `allocator_arg_t` argument disambiguates the constructor.
 //
 // Next, to make things consistent (which is important for generic
-// programming), we use the 'allocator_arg_t' tag in the other allocator-aware
+// programming), we use the `allocator_arg_t` tag in the other allocator-aware
 // constructor, as well:
-//..
+// ```
+
+        /// Construct a non-null object using the specified `arg` as the
+        /// constructor argument for the `TYPE` object, and the specified
+        /// `alloc` allocator.  Note: this is ctor F.
         template <class ARG>
         Nullable(bsl::allocator_arg_t,
                  xyzma::Allocator *alloc,
                  const ARG&        arg);
-            // Construct a non-null object using the specified 'arg' as the
-            // constructor argument for the 'TYPE' object, and the specified
-            // 'alloc' allocator.  Note: this is ctor F.
-//..
+// ```
 // Next, we finish the class interface and implementation:
-//..
+// ```
         ~Nullable();
 
         // MANIPULATORS
-        Nullable& operator=(const Nullable& rhs);
-            // Copy assign this object from the specified 'rhs'.
 
+        /// Copy assign this object from the specified `rhs`.
+        Nullable& operator=(const Nullable& rhs);
+
+        /// Construct a non-null object holding a copy of the specified
+        /// `rhs` object.
         Nullable& operator=(const TYPE& rhs);
-            // Construct a non-null object holding a copy of the specified
-            // 'rhs' object.
 
         // ACCESSORS
-        const TYPE& value() const { return *d_object_p; }
-            // Return the object stored in this Nullable. The behavior is
-            // undefined if this is null.
 
+        /// Return the object stored in this Nullable. The behavior is
+        /// undefined if this is null.
+        const TYPE& value() const { return *d_object_p; }
+
+        /// Returns true if this object is not null.
         bool isNull() const { return ! d_object_p; }
-            // Returns true if this object is not null.
 
         xyzma::Allocator *allocator() const { return d_alloc_p; }
     };
@@ -309,7 +314,7 @@ void aSsErT(bool condition, const char *message, int line)
             d_object_p = 0;
         }
         else if (/* isNull() && */ !rhs.isNull()) {
-            // Allocate and copy from 'rhs'
+            // Allocate and copy from `rhs`
             d_object_p = static_cast<TYPE*>(d_alloc_p->allocate(sizeof(TYPE)));
             ::new(d_object_p) TYPE(*rhs.d_object_p);
         }
@@ -332,10 +337,10 @@ void aSsErT(bool condition, const char *message, int line)
     }
 
     }  // close namespace xyzutl
-//..
+// ```
 // Now, for testing purposes, we define a class that takes an allocator
 // constructor argument:
-//..
+// ```
     class Obj {
         xyzma::Allocator *d_alloc_p;
         int               d_count;
@@ -361,11 +366,11 @@ void aSsErT(bool condition, const char *message, int line)
     bool operator!=(const Obj& a, const Obj& b) {
         return a.count() != b.count();
     }
-//..
+// ```
 // Finally, we test that our nullable type can be constructed with and without
 // an allocator pointer and that the allocator pointer can unambiguously be
 // used for the object's allocator.
-//..
+// ```
     int usageExample() {
 
         using xyzutl::Nullable;
@@ -394,7 +399,7 @@ void aSsErT(bool condition, const char *message, int line)
         ASSERT(4 == no4.value());
         ASSERT(0 == no4.value().allocator());
 
-        // '&ta' used by 'Obj', not by 'Nullable'.
+        // `&ta` used by `Obj`, not by `Nullable`.
         Nullable<Obj> no5(&ta);
         ASSERT(! no5.isNull());
         ASSERT(xyzma::NewDeleteAllocator::singleton() == no5.allocator());
@@ -402,7 +407,7 @@ void aSsErT(bool condition, const char *message, int line)
         ASSERT(0 == no5.value());
         ASSERT(&ta == no5.value().allocator());
 
-        // '&ta' used by both 'Nullable' and by 'Obj'
+        // `&ta` used by both `Nullable` and by `Obj`
         Nullable<Obj> no6(bsl::allocator_arg, &ta, &ta);
         ASSERT(! no6.isNull());
         ASSERT(&ta == no6.allocator());
@@ -412,7 +417,7 @@ void aSsErT(bool condition, const char *message, int line)
 
         return 0;
     }
-//..
+// ```
 
 // BDE_VERIFY pragma: pop  // end of usage example-example relaxed rules
 
@@ -440,12 +445,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example compiles and runs.
-        //: 2 'allocator_arg_t' can disambiguate constructors.
+        // 1. The usage example compiles and runs.
+        // 2. `allocator_arg_t` can disambiguate constructors.
         //
         // Plan:
-        //: 1 For concern 1, copy the usage example from the header file.
-        //: 2 The usage example is designed to address concern 2.
+        // 1. For concern 1, copy the usage example from the header file.
+        // 2. The usage example is designed to address concern 2.
         //
         // Testing:
         //   struct bsl::allocator_arg_t

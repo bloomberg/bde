@@ -25,9 +25,9 @@ typedef Util::ssize_t                 ssize_t;
                           // class Iso8601Util_Impl
                           // ======================
 
+/// This `class` is private to this component and not to be called from
+/// outside it.
 class Impl {
-    // This 'class' is private to this component and not to be called from
-    // outside it.
 
     // PRIVATE TYPES
     typedef BloombergLP::bdlt::Iso8601Util Util;
@@ -44,6 +44,16 @@ class Impl {
 
   public:
     // CLASS METHODS
+
+    /// Load the ISO 8601 representation of the specified `object` into the
+    /// specified `string`.  Optionally specify a `configuration` to affect
+    /// the format of the generated string.  If `configuration` is not
+    /// supplied, the process-wide default value
+    /// `Iso8601UtilConfiguration::defaultConfiguration()` is used.
+    /// `STRING` must be `bsl::string`, `std::string`, or
+    /// `std::pmr::string`.  Return the number of characters in the
+    /// formatted string.  The previous contents of `string` (if any) are
+    /// discarded.
     template <class STRING>
     static int generate(STRING                          *string,
                         const bsls::TimeInterval&        object,
@@ -84,15 +94,6 @@ class Impl {
     static int generate(STRING                            *string,
                         const Util::DatetimeOrDatetimeTz&  object,
                         const GenerateConfiguration&       configuration);
-        // Load the ISO 8601 representation of the specified 'object' into the
-        // specified 'string'.  Optionally specify a 'configuration' to affect
-        // the format of the generated string.  If 'configuration' is not
-        // supplied, the process-wide default value
-        // 'Iso8601UtilConfiguration::defaultConfiguration()' is used.
-        // 'STRING' must be 'bsl::string', 'std::string', or
-        // 'std::pmr::string'.  Return the number of characters in the
-        // formatted string.  The previous contents of 'string' (if any) are
-        // discarded.
 };
 
                           // -----------------------
@@ -307,18 +308,18 @@ int Impl::generate(STRING                            *string,
     return len;
 }
 
+/// Convert the (unsigned) ASCII decimal integer starting at the specified
+/// `begin` and ending anywhere before the specified `end` into its
+/// corresponding `int` value, load the value into the specified `result`,
+/// and set the specified `*nextPos` to the address immediately after the
+/// last digit parsed.  Return 0 if there was at least one digit parsed, and
+/// a non-zero value (with no effect) otherwise.  The behavior is undefined
+/// unless `begin < end` and the parsed value does not exceed the maximum
+/// value allowed in a value of type `bsls::Types::Int64`.
 int asciiPrefixToInt64(const char         **nextPos,
                        bsls::Types::Int64  *result,
                        const char          *begin,
                        const char          *end)
-    // Convert the (unsigned) ASCII decimal integer starting at the specified
-    // 'begin' and ending anywhere before the specified 'end' into its
-    // corresponding 'int' value, load the value into the specified 'result',
-    // and set the specified '*nextPos' to the address immediately after the
-    // last digit parsed.  Return 0 if there was at least one digit parsed, and
-    // a non-zero value (with no effect) otherwise.  The behavior is undefined
-    // unless 'begin < end' and the parsed value does not exceed the maximum
-    // value allowed in a value of type 'bsls::Types::Int64'.
 {
     BSLS_ASSERT(nextPos);
     BSLS_ASSERT(result);
@@ -346,17 +347,17 @@ int asciiPrefixToInt64(const char         **nextPos,
     return 0;
 }
 
+/// Convert the (unsigned) ASCII decimal integer starting at the specified
+/// `begin` and ending immediately before the specified `end` into its
+/// corresponding `int` value, load the value into the specified `result`,
+/// and set the specified `*nextPos` to `end`.  Return 0 on success, and a
+/// non-zero value (with no effect) otherwise.  All characters in the range
+/// `[begin .. end)` must be decimal digits.  The behavior is undefined
+/// unless `begin < end` and the parsed value does not exceed `INT_MAX`.
 int asciiToInt(const char **nextPos,
                int         *result,
                const char  *begin,
                const char  *end)
-    // Convert the (unsigned) ASCII decimal integer starting at the specified
-    // 'begin' and ending immediately before the specified 'end' into its
-    // corresponding 'int' value, load the value into the specified 'result',
-    // and set the specified '*nextPos' to 'end'.  Return 0 on success, and a
-    // non-zero value (with no effect) otherwise.  All characters in the range
-    // '[begin .. end)' must be decimal digits.  The behavior is undefined
-    // unless 'begin < end' and the parsed value does not exceed 'INT_MAX'.
 {
     BSLS_ASSERT(nextPos);
     BSLS_ASSERT(result);
@@ -378,6 +379,17 @@ int asciiToInt(const char **nextPos,
     return 0;
 }
 
+/// Parse the date, represented in the "YYYY-MM-DD" or "YYYYMMDD" ISO 8601
+/// extended format, from the string starting at the specified `begin` and
+/// ending before the specified `end`, load into the specified `year`,
+/// `month`, and `day` their respective parsed values, using the `basic`
+/// attribute of the specified `configuration`, and set the specified
+/// `*nextPos` to the location one past the last parsed character.  The
+/// value of the specified `configuration.basic()`, if `true`, means that
+/// dashes are not expected, otherwise they are expected.  Return 0 on
+/// success, and a non-zero value (with no effect on `*nextPos`) otherwise.
+/// The behavior is undefined unless `begin <= end`.  Note that successfully
+/// parsing a date before `end` is reached is not an error.
 int parseDateRaw(const char        **nextPos,
                  int                *year,
                  int                *month,
@@ -385,17 +397,6 @@ int parseDateRaw(const char        **nextPos,
                  const char         *begin,
                  const char         *end,
                  ParseConfiguration  configuration = ParseConfiguration())
-    // Parse the date, represented in the "YYYY-MM-DD" or "YYYYMMDD" ISO 8601
-    // extended format, from the string starting at the specified 'begin' and
-    // ending before the specified 'end', load into the specified 'year',
-    // 'month', and 'day' their respective parsed values, using the 'basic'
-    // attribute of the specified 'configuration', and set the specified
-    // '*nextPos' to the location one past the last parsed character.  The
-    // value of the specified 'configuration.basic()', if 'true', means that
-    // dashes are not expected, otherwise they are expected.  Return 0 on
-    // success, and a non-zero value (with no effect on '*nextPos') otherwise.
-    // The behavior is undefined unless 'begin <= end'.  Note that successfully
-    // parsing a date before 'end' is reached is not an error.
 {
     BSLS_ASSERT(nextPos);
     BSLS_ASSERT(year);
@@ -439,22 +440,22 @@ int parseDateRaw(const char        **nextPos,
     return 0;
 }
 
+/// Parse the fractional second starting at the specified `begin` and ending
+/// before the specified `end`, load into the specified `nanosecond` the
+/// parsed value (in nanoseconds) rounded to the closest multiple of the
+/// specified `roundNanoseconds`, and set the specified `*nextPos` to the
+/// location one past the last parsed character (necessarily a decimal
+/// digit).  Return 0 on success, and a non-zero value (with no effect)
+/// otherwise.  There must be at least one digit, only the first ten digits
+/// are significant, and all digits beyond the first ten are parsed but
+/// ignored.  The behavior is undefined unless `begin <= end` and
+/// `0 <= roundNanoseconds < 1000000000`.  Note that successfully parsing a
+/// fractional second before `end` is reached is not an error.
 int parseFractionalSecond(const char         **nextPos,
                           bsls::Types::Int64  *nanosecond,
                           const char          *begin,
                           const char          *end,
                           int                  roundNanoseconds)
-    // Parse the fractional second starting at the specified 'begin' and ending
-    // before the specified 'end', load into the specified 'nanosecond' the
-    // parsed value (in nanoseconds) rounded to the closest multiple of the
-    // specified 'roundNanoseconds', and set the specified '*nextPos' to the
-    // location one past the last parsed character (necessarily a decimal
-    // digit).  Return 0 on success, and a non-zero value (with no effect)
-    // otherwise.  There must be at least one digit, only the first ten digits
-    // are significant, and all digits beyond the first ten are parsed but
-    // ignored.  The behavior is undefined unless 'begin <= end' and
-    // '0 <= roundNanoseconds < 1000000000'.  Note that successfully parsing a
-    // fractional second before 'end' is reached is not an error.
 {
     BSLS_ASSERT(nextPos);
     BSLS_ASSERT(nanosecond);
@@ -505,6 +506,20 @@ int parseFractionalSecond(const char         **nextPos,
     return 0;
 }
 
+/// Parse the time, represented in the "hh:mm:ss[.s+]" or "hhmmss[.s+]" ISO
+/// 8601 extended format, from the string starting at the specified `begin`
+/// and ending before the specified `end`, using the `basic` attribute of
+/// the specified `configuration`, load into the specified `hour`, `minute`,
+/// `second`, `millisecond`, and `microsecond` their respective parsed
+/// values with the fractional second rounded to the closest multiple of the
+/// specified `roundMicroseconds`, set the specified `hasLeapSecond` flag to
+/// `true` if a leap second was indicated and `false` otherwise, and set the
+/// specified `*nextPos` to the location one past the last parsed character.
+/// If `configuration.basic()` is `true`, colons are not expected,
+/// otherwise, they are expected.  Return 0 on success, and a non-zero value
+/// (with no effect on `*nextPos`) otherwise.  The behavior is undefined
+/// unless `begin <= end` and `0 <= roundMicroseconds < 1000000`.  Note that
+/// successfully parsing a time before `end` is reached is not an error.
 int parseTimeRaw(const char         **nextPos,
                  int                 *hour,
                  int                 *minute,
@@ -516,20 +531,6 @@ int parseTimeRaw(const char         **nextPos,
                  const char          *end,
                  int                  roundMicroseconds,
                  ParseConfiguration   configuration = ParseConfiguration())
-    // Parse the time, represented in the "hh:mm:ss[.s+]" or "hhmmss[.s+]" ISO
-    // 8601 extended format, from the string starting at the specified 'begin'
-    // and ending before the specified 'end', using the 'basic' attribute of
-    // the specified 'configuration', load into the specified 'hour', 'minute',
-    // 'second', 'millisecond', and 'microsecond' their respective parsed
-    // values with the fractional second rounded to the closest multiple of the
-    // specified 'roundMicroseconds', set the specified 'hasLeapSecond' flag to
-    // 'true' if a leap second was indicated and 'false' otherwise, and set the
-    // specified '*nextPos' to the location one past the last parsed character.
-    // If 'configuration.basic()' is 'true', colons are not expected,
-    // otherwise, they are expected.  Return 0 on success, and a non-zero value
-    // (with no effect on '*nextPos') otherwise.  The behavior is undefined
-    // unless 'begin <= end' and '0 <= roundMicroseconds < 1000000'.  Note that
-    // successfully parsing a time before 'end' is reached is not an error.
 {
     BSLS_ASSERT(nextPos);
     BSLS_ASSERT(hour);
@@ -611,19 +612,19 @@ int parseTimeRaw(const char         **nextPos,
     return 0;
 }
 
+/// Parse the zone designator, represented in the "Z|(+|-)hh:mm" ISO 8601
+/// extended format, from the string starting at the specified `begin` and
+/// ending before the specified `end`, load into the specified
+/// `minuteOffset` the indicated offset (in minutes) from UTC, and set the
+/// specified `*nextPos` to the location one past the last parsed character.
+/// Return 0 on success, and a non-zero value (with no effect on `*nextPos`)
+/// otherwise.  The behavior is undefined unless `begin <= end`.  Note that
+/// successfully parsing a zone designator before `end` is reached is not an
+/// error.  Also note that the `:` is optional.
 int parseZoneDesignator(const char **nextPos,
                         int         *minuteOffset,
                         const char  *begin,
                         const char  *end)
-    // Parse the zone designator, represented in the "Z|(+|-)hh:mm" ISO 8601
-    // extended format, from the string starting at the specified 'begin' and
-    // ending before the specified 'end', load into the specified
-    // 'minuteOffset' the indicated offset (in minutes) from UTC, and set the
-    // specified '*nextPos' to the location one past the last parsed character.
-    // Return 0 on success, and a non-zero value (with no effect on '*nextPos')
-    // otherwise.  The behavior is undefined unless 'begin <= end'.  Note that
-    // successfully parsing a zone designator before 'end' is reached is not an
-    // error.  Also note that the ':' is optional.
 {
     BSLS_ASSERT(nextPos);
     BSLS_ASSERT(minuteOffset);
@@ -687,21 +688,21 @@ int parseZoneDesignator(const char **nextPos,
     return 0;
 }
 
+/// Parse the specified initial `length` characters of the specified ISO
+/// 8601 `string` using the `basic` attribute of the specified
+/// `configuration`, as a `Date` value, and load the value into the
+/// specified `date`.  If `configuration.basic()` argument is `true`, dashes
+/// are not expected in the input, otherwise, they are expected.  If zone
+/// designator is presented in the input, load into the specified `tzOffset`
+/// the indicated offset (in minutes) from UTC and set the variable pointed
+/// by the specified `hasZoneDesignator` to `true`.  Return 0 on success,
+/// and a non-zero value (with no effect on the `date`) otherwise.
 int parseDate(Date               *date,
               int                *tzOffset,
               bool               *hasZoneDesignator,
               const char         *string,
               ssize_t             length,
               ParseConfiguration  configuration = ParseConfiguration())
-    // Parse the specified initial 'length' characters of the specified ISO
-    // 8601 'string' using the 'basic' attribute of the specified
-    // 'configuration', as a 'Date' value, and load the value into the
-    // specified 'date'.  If 'configuration.basic()' argument is 'true', dashes
-    // are not expected in the input, otherwise, they are expected.  If zone
-    // designator is presented in the input, load into the specified 'tzOffset'
-    // the indicated offset (in minutes) from UTC and set the variable pointed
-    // by the specified 'hasZoneDesignator' to 'true'.  Return 0 on success,
-    // and a non-zero value (with no effect on the 'date') otherwise.
 {
     // Sample ISO 8601 date: "2005-01-31+04:00"
     //
@@ -754,21 +755,21 @@ int parseDate(Date               *date,
     return 0;
 }
 
+/// Parse the specified initial `length` characters of the specified ISO
+/// 8601 `string` as a `Time` value using the `basic` attribute of the
+/// specified `congiruation`, and load the value into the specified `time`.
+/// If `configuration.basic()` is `true`, colons are not expected,
+/// otherwise, they are expected.  If zone designator is presented in the
+/// input, load into the specified `tzOffset` the indicated offset (in
+/// minutes) from UTC and set the variable pointed by the specified
+/// `hasZoneDesignator` to `true`.  Return 0 on success, and a non-zero
+/// value (with no effect on the `time`) otherwise.
 int parseTime(Time               *time,
               int                *tzOffset,
               bool               *hasZoneDesignator,
               const char         *string,
               ssize_t             length,
               ParseConfiguration  configuration = ParseConfiguration())
-    // Parse the specified initial 'length' characters of the specified ISO
-    // 8601 'string' as a 'Time' value using the 'basic' attribute of the
-    // specified 'congiruation', and load the value into the specified 'time'.
-    // If 'configuration.basic()' is 'true', colons are not expected,
-    // otherwise, they are expected.  If zone designator is presented in the
-    // input, load into the specified 'tzOffset' the indicated offset (in
-    // minutes) from UTC and set the variable pointed by the specified
-    // 'hasZoneDesignator' to 'true'.  Return 0 on success, and a non-zero
-    // value (with no effect on the 'time') otherwise.
 {
     // Sample ISO 8601 time: "08:59:59.999999-04:00"
     //
@@ -852,25 +853,25 @@ int parseTime(Time               *time,
     return 0;
 }
 
+/// Parse the specified initial `length` characters of the specified ISO
+/// 8601 `string` as a `Datetime` value, using the specified
+/// `configuration`, and load the value into the specified `datetime`.  If
+/// `configuration.basic()` is `false`, dashes and colons are expected,
+/// otherwise, they are not.  If `configuration.relaxed()` is `false`, the
+/// character separating the date and time must be `T` or `t`, otherwise,
+/// `T`, `t`, or ` ` are allowed.  If zone designator is presented in the
+/// input, load into the specified `tzOffset` the indicated offset (in
+/// minutes) from UTC and set the variable pointed by the specified
+/// `hasZoneDesignator` to `true`.  Optionally specify a
+/// `allowSpaceInsteadOfT` to allow usage of a SPACE character instead of
+/// `T`.  Return 0 on success, and a non-zero value (with no effect on the
+/// `datetime`) otherwise.
 int parseDatetime(Datetime           *datetime,
                   int                *tzOffset,
                   bool               *hasZoneDesignator,
                   const char         *string,
                   ssize_t             length,
                   ParseConfiguration  configuration = ParseConfiguration())
-    // Parse the specified initial 'length' characters of the specified ISO
-    // 8601 'string' as a 'Datetime' value, using the specified
-    // 'configuration', and load the value into the specified 'datetime'.  If
-    // 'configuration.basic()' is 'false', dashes and colons are expected,
-    // otherwise, they are not.  If 'configuration.relaxed()' is 'false', the
-    // character separating the date and time must be 'T' or 't', otherwise,
-    // 'T', 't', or ' ' are allowed.  If zone designator is presented in the
-    // input, load into the specified 'tzOffset' the indicated offset (in
-    // minutes) from UTC and set the variable pointed by the specified
-    // 'hasZoneDesignator' to 'true'.  Optionally specify a
-    // 'allowSpaceInsteadOfT' to allow usage of a SPACE character instead of
-    // 'T'.  Return 0 on success, and a non-zero value (with no effect on the
-    // 'datetime') otherwise.
 {
     // Sample ISO 8601 datetime: "2005-01-31T08:59:59.999999-04:00"
     //
@@ -1019,18 +1020,18 @@ int parseDatetime(Datetime           *datetime,
     return 0;
 }
 
+/// Parse the specified `string` of length `length` into the specified
+/// `*result`, using the specified `configuration`.  If
+/// `configuration.basic()` is `false`, expect `-` and `:` in the `Datetime`
+/// parsed, otherwise they must not be present.  If
+/// `configuration.relaxed()` is `true`, the date and time may be separated
+/// by `T`, `t`, ` `, otherwise the separator must be `T` or `t`.  If a time
+/// zone is parsed, add it into 'result.  Return 0 for success and a
+/// non-zero value otherwise.
 int parseImp(Datetime           *result,
              const char         *string,
              ssize_t             length,
              ParseConfiguration  configuration = ParseConfiguration())
-    // Parse the specified 'string' of length 'length' into the specified
-    // '*result', using the specified 'configuration'.  If
-    // 'configuration.basic()' is 'false', expect '-' and ':' in the 'Datetime'
-    // parsed, otherwise they must not be present.  If
-    // 'configuration.relaxed()' is 'true', the date and time may be separated
-    // by 'T', 't', ' ', otherwise the separator must be 'T' or 't'.  If a time
-    // zone is parsed, add it into 'result.  Return 0 for success and a
-    // non-zero value otherwise.
 {
     // Sample ISO 8601 datetime if the specified 'basic' is 'false':
     // "2005-01-31T08:59:59.999999-04:00"
@@ -1089,17 +1090,17 @@ int parseImp(Datetime           *result,
     return 0;
 }
 
+/// Parse the specified `string` of length `length` into the specified
+/// `*result`, using the specified `configuration`.  If
+/// `configuration.basic()` is `false`, expect `-` and `:` in the `Datetime`
+/// parsed, otherwise they must not be present.  If
+/// `configuration.relaxed()` is `true`, the date and time may be separated
+/// by `T`, `t`, ` `, otherwise the separator must be `T` or `t`.  Return 0
+/// for success and a non-zero value otherwise.
 int parseImp(DatetimeTz         *result,
              const char         *string,
              ssize_t             length,
              ParseConfiguration  configuration = ParseConfiguration())
-    // Parse the specified 'string' of length 'length' into the specified
-    // '*result', using the specified 'configuration'.  If
-    // 'configuration.basic()' is 'false', expect '-' and ':' in the 'Datetime'
-    // parsed, otherwise they must not be present.  If
-    // 'configuration.relaxed()' is 'true', the date and time may be separated
-    // by 'T', 't', ' ', otherwise the separator must be 'T' or 't'.  Return 0
-    // for success and a non-zero value otherwise.
 {
     Datetime localDatetime;
     int      tzOffset          = 0;      // minutes from UTC
@@ -1119,20 +1120,20 @@ int parseImp(DatetimeTz         *result,
     return 0;
 }
 
+/// Parse the specified `string` of length `length` into the specified
+/// `*result`, using the specified `configuration`.  If
+/// `configuration.basic()` is `false`, expect `-` and `:` in the `Datetime`
+/// parsed, otherwise they must not be present.  If
+/// `configuration.relaxed()` is `true`, the date and time may be separated
+/// by `T`, `t`, ` `, otherwise the separator must be `T` or `t`.  If a time
+/// zone is present, set the result to a `DatetimeTz`, otherwise set the
+/// result to a `Datetime`.  Return 0 for success and a non-zero value
+/// otherwise.
 int parseImp(Iso8601Util::DatetimeOrDatetimeTz *result,
              const char                        *string,
              ssize_t                            length,
              ParseConfiguration                 configuration =
                                                           ParseConfiguration())
-    // Parse the specified 'string' of length 'length' into the specified
-    // '*result', using the specified 'configuration'.  If
-    // 'configuration.basic()' is 'false', expect '-' and ':' in the 'Datetime'
-    // parsed, otherwise they must not be present.  If
-    // 'configuration.relaxed()' is 'true', the date and time may be separated
-    // by 'T', 't', ' ', otherwise the separator must be 'T' or 't'.  If a time
-    // zone is present, set the result to a 'DatetimeTz', otherwise set the
-    // result to a 'Datetime'.  Return 0 for success and a non-zero value
-    // otherwise.
 {
     Datetime localDatetime;
     int      tzOffset          = 0;      // minutes from UTC
@@ -1157,11 +1158,11 @@ int parseImp(Iso8601Util::DatetimeOrDatetimeTz *result,
     return 0;
 }
 
+/// Write, to the specified `buffer`, the decimal string representation of
+/// the specified `value` and return the number of bytes written.  `buffer`
+/// is NOT null-terminated.  The behavior is undefined unless `0 <= value`
+/// and `buffer` has sufficient capacity.
 int generateUnpaddedInt(char *buffer, bsls::Types::Int64 value)
-    // Write, to the specified 'buffer', the decimal string representation of
-    // the specified 'value' and return the number of bytes written.  'buffer'
-    // is NOT null-terminated.  The behavior is undefined unless '0 <= value'
-    // and 'buffer' has sufficient capacity.
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= value);
@@ -1178,12 +1179,12 @@ int generateUnpaddedInt(char *buffer, bsls::Types::Int64 value)
     return static_cast<int>(current - buffer);
 }
 
+/// Write, to the specified `buffer`, the decimal string representation of
+/// the specified `value` followed by the specified `separator` character,
+/// and return the number of bytes written.  `buffer` is NOT null-
+/// terminated.  The behavior is undefined unless `0 <= value` and `buffer`
+/// has sufficient capacity.
 int generateUnpaddedInt(char *buffer, bsls::Types::Int64 value, char separator)
-    // Write, to the specified 'buffer', the decimal string representation of
-    // the specified 'value' followed by the specified 'separator' character,
-    // and return the number of bytes written.  'buffer' is NOT null-
-    // terminated.  The behavior is undefined unless '0 <= value' and 'buffer'
-    // has sufficient capacity.
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= value);
@@ -1198,15 +1199,15 @@ int generateUnpaddedInt(char *buffer, bsls::Types::Int64 value, char separator)
     return separatorOffset;
 }
 
+/// Write, to the specified `buffer`, the decimal string representation of
+/// the specified `value` padded with leading zeros to the specified
+/// `paddedLen`, and return `paddedLen`.  `buffer` is NOT null-terminated.
+/// The behavior is undefined unless `0 <= value`, `0 <= paddedLen`, and
+/// `buffer` has sufficient capacity to hold `paddedLen` characters.  Note
+/// that if the decimal string representation of `value` is more than
+/// `paddedLen` digits, only the low-order `paddedLen` digits of `value` are
+/// output.
 int generateInt(char *buffer, int value, ssize_t paddedLen)
-    // Write, to the specified 'buffer', the decimal string representation of
-    // the specified 'value' padded with leading zeros to the specified
-    // 'paddedLen', and return 'paddedLen'.  'buffer' is NOT null-terminated.
-    // The behavior is undefined unless '0 <= value', '0 <= paddedLen', and
-    // 'buffer' has sufficient capacity to hold 'paddedLen' characters.  Note
-    // that if the decimal string representation of 'value' is more than
-    // 'paddedLen' digits, only the low-order 'paddedLen' digits of 'value' are
-    // output.
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= value);
@@ -1222,16 +1223,16 @@ int generateInt(char *buffer, int value, ssize_t paddedLen)
     return static_cast<int>(paddedLen);
 }
 
+/// Write, to the specified `buffer`, the decimal string representation of
+/// the specified `value` padded with leading zeros to the specified
+/// `paddedLen` followed by the specified `separator` character, and return
+/// `paddedLen + 1`.  `buffer` is NOT null-terminated.  The behavior is
+/// undefined unless `0 <= value`, `0 <= paddedLen`, and `buffer` has
+/// sufficient capacity to hold `paddedLen` characters.  Note that if the
+/// decimal string representation of `value` is more than `paddedLen`
+/// digits, only the low-order `paddedLen` digits of `value` are output.
 inline
 int generateInt(char *buffer, int value, ssize_t paddedLen, char separator)
-    // Write, to the specified 'buffer', the decimal string representation of
-    // the specified 'value' padded with leading zeros to the specified
-    // 'paddedLen' followed by the specified 'separator' character, and return
-    // 'paddedLen + 1'.  'buffer' is NOT null-terminated.  The behavior is
-    // undefined unless '0 <= value', '0 <= paddedLen', and 'buffer' has
-    // sufficient capacity to hold 'paddedLen' characters.  Note that if the
-    // decimal string representation of 'value' is more than 'paddedLen'
-    // digits, only the low-order 'paddedLen' digits of 'value' are output.
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= value);
@@ -1243,13 +1244,13 @@ int generateInt(char *buffer, int value, ssize_t paddedLen, char separator)
     return static_cast<int>(paddedLen + 1);
 }
 
+/// Write, to the specified `buffer`, the formatted zone designator
+/// indicated by the specified `tzOffset` and `configuration`, and return
+/// the number of bytes written.  The behavior is undefined unless `buffer`
+/// has sufficient capacity and `-(24 * 60) < tzOffset < 24 * 60`.
 int generateZoneDesignator(char                            *buffer,
                            int                              tzOffset,
                            const GenerateConfiguration&     configuration)
-    // Write, to the specified 'buffer', the formatted zone designator
-    // indicated by the specified 'tzOffset' and 'configuration', and return
-    // the number of bytes written.  The behavior is undefined unless 'buffer'
-    // has sufficient capacity and '-(24 * 60) < tzOffset < 24 * 60'.
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(-(24 * 60) < tzOffset);
@@ -1411,12 +1412,12 @@ int generatedLengthForTimeTzObject(
 }
 #endif
 
+/// Copy, to the specified `dst` buffer having the specified `dstLen`, the
+/// specified initial `srcLen` characters in the specified `src` string if
+/// `dstLen >= srcLen`, and copy `dstLen` characters otherwise.  Include a
+/// null terminator if and only if `dstLen > srcLen`.  The behavior is
+/// undefined unless `0 <= dstLen` and `0 <= srcLen`.
 void copyBuf(char *dst, ssize_t dstLen, const char *src, ssize_t srcLen)
-    // Copy, to the specified 'dst' buffer having the specified 'dstLen', the
-    // specified initial 'srcLen' characters in the specified 'src' string if
-    // 'dstLen >= srcLen', and copy 'dstLen' characters otherwise.  Include a
-    // null terminator if and only if 'dstLen > srcLen'.  The behavior is
-    // undefined unless '0 <= dstLen' and '0 <= srcLen'.
 {
     BSLS_ASSERT(dst);
     BSLS_ASSERT(0 <= dstLen);
@@ -1432,6 +1433,20 @@ void copyBuf(char *dst, ssize_t dstLen, const char *src, ssize_t srcLen)
     }
 }
 
+/// Parse the specified initial `length` characters of the specified ISO
+/// 8601 `string` and load the values into the specified `weeks`, `days`,
+/// `hours`, `minutes`, `seconds`, and `nanoseconds`.  Nothing is written
+/// into a value that does not have a corresponding component in `string`.
+/// Return 0 on success, and a non-zero value (with no effect) otherwise.
+/// `string` is assumed to be of the form:
+/// ```
+/// P{w+W}{d+D}{T{h+H}{m+M}s+(.|,)s+S}
+/// ```
+/// *Exactly* `length` characters are parsed; parsing will fail if a proper
+/// prefix of `string` matches the expected format, but the entire `length`
+/// characters do not.  If an optional fractional second having more than
+/// nine digits is present in `string`, it is rounded to the nearest value
+/// in nanoseconds.  The behavior is undefined unless `0 <= length`.
 int parseIntervalImpl(bsls::Types::Int64 *weeks,
                       bsls::Types::Int64 *days,
                       bsls::Types::Int64 *hours,
@@ -1440,20 +1455,6 @@ int parseIntervalImpl(bsls::Types::Int64 *weeks,
                       bsls::Types::Int64 *nanoseconds,
                       const char         *string,
                       ssize_t             length)
-    // Parse the specified initial 'length' characters of the specified ISO
-    // 8601 'string' and load the values into the specified 'weeks', 'days',
-    // 'hours', 'minutes', 'seconds', and 'nanoseconds'.  Nothing is written
-    // into a value that does not have a corresponding component in 'string'.
-    // Return 0 on success, and a non-zero value (with no effect) otherwise.
-    // 'string' is assumed to be of the form:
-    //..
-    //  P{w+W}{d+D}{T{h+H}{m+M}s+(.|,)s+S}
-    //..
-    // *Exactly* 'length' characters are parsed; parsing will fail if a proper
-    // prefix of 'string' matches the expected format, but the entire 'length'
-    // characters do not.  If an optional fractional second having more than
-    // nine digits is present in 'string', it is rounded to the nearest value
-    // in nanoseconds.  The behavior is undefined unless '0 <= length'.
 {
     BSLS_ASSERT(weeks);
     BSLS_ASSERT(days);

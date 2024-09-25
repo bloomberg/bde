@@ -32,9 +32,9 @@ namespace {
                           // struct Vector_Base
                           // ------------------
 
+/// This `struct` must have the same layout as `bsl::vectorBase` (defined in
+/// the .h file).
 struct Vector_Base {
-    // This 'struct' must have the same layout as 'bsl::vectorBase' (defined in
-    // the .h file).
 
     // PUBLIC DATA
     void        *d_dataBegin_p;

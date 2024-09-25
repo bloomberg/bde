@@ -24,8 +24,8 @@
 #include <bsls_asserttest.h>
 #include <bsls_review.h>
 
-#include <bsl_climits.h>     // 'INT_MIN', 'INT_MAX'
-#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_climits.h>     // `INT_MIN`, `INT_MAX`
+#include <bsl_cstdlib.h>     // `atoi`
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
@@ -51,19 +51,19 @@ using namespace bsl;
 // attributes.
 //
 // Global Concerns:
-//: o The test driver is robust w.r.t. reuse in other, similar components.
-//: o ACCESSOR methods are declared 'const'.
-//: o CREATOR & MANIPULATOR pointer/reference parameters are declared 'const'.
-//: o No memory is ever allocated from the global allocator.
-//: o Any allocated memory is always from the object allocator.
-//: o An object's value is independent of the allocator used to supply memory.
-//: o Injected exceptions are safely propagated during memory allocation.
-//: o Precondition violations are detected in appropriate build modes.
+//  - The test driver is robust w.r.t. reuse in other, similar components.
+//  - ACCESSOR methods are declared `const`.
+//  - CREATOR & MANIPULATOR pointer/reference parameters are declared `const`.
+//  - No memory is ever allocated from the global allocator.
+//  - Any allocated memory is always from the object allocator.
+//  - An object's value is independent of the allocator used to supply memory.
+//  - Injected exceptions are safely propagated during memory allocation.
+//  - Precondition violations are detected in appropriate build modes.
 //
 // Global Assumptions:
-//: o All explicit memory allocations are presumed to use the global, default,
-//:   or object allocator.
-//: o ACCESSOR methods are 'const' thread-safe.
+//  - All explicit memory allocations are presumed to use the global, default,
+//    or object allocator.
+//  - ACCESSOR methods are `const` thread-safe.
 // ----------------------------------------------------------------------------
 // CREATORS
 // [ 2] ball::AttributeCollectorRegistry();
@@ -165,9 +165,9 @@ BSLMF_ASSERT((bsl::uses_allocator<Obj, bsl::allocator<char> >::value));
 
 namespace USAGE_EXAMPLE {
 
+/// Write the value of the specified `attribute` to the specified output
+/// `stream` in a human-readable format.
 void printAttribute(bsl::ostream *stream, const ball::Attribute& attribute)
-    // Write the value of the specified 'attribute' to the specified output
-    // 'stream' in a human-readable format.
 {
     *stream << attribute.name() << "=" << attribute.value() << " ";
 }
@@ -181,11 +181,11 @@ void printAttribute(bsl::ostream *stream, const ball::Attribute& attribute)
 // In this example we will collect a set of application properties and perform
 // some manipulation of the collected data.
 //
-//..
+// ```
 // First, we define a few collector functions that will collect the application
 // properties from various parts of application and call the specified visitor
 // functor for every collected attribute:
-//..
+// ```
     void userInfo(
                    const bsl::function<void(const ball::Attribute &)>& visitor)
     {
@@ -207,7 +207,7 @@ void printAttribute(bsl::ostream *stream, const ball::Attribute& attribute)
     {
 //  Then, we register collector functions with the attribute collector
 //  registry:
-//..
+// ```
         ball::AttributeCollectorRegistry registry;
 
         int rc = registry.addCollector(&userInfo, "userInfoCollector");
@@ -217,10 +217,10 @@ void printAttribute(bsl::ostream *stream, const ball::Attribute& attribute)
         ASSERT(0 == rc);
         ASSERT(true == registry.hasCollector("threadInfoCollector"));
         ASSERT(2 == registry.numCollectors());
-//..
+// ```
 //  Next, we print every attribute gathered by all registered attribute
 //  collectors in the registry:
-//..
+// ```
         bsl::stringstream output1;
 
         registry.collect(bdlf::BindUtil::bind(&printAttribute,
@@ -229,9 +229,9 @@ void printAttribute(bsl::ostream *stream, const ball::Attribute& attribute)
 
         ASSERT("myLib.uuid=12345 myLib.user=proxy myLib.threadId=87654 "
                == output1.str());
-//..
+// ```
 //  Finally, we remove one of the collectors and collect attributes again:
-//..
+// ```
         rc = registry.removeCollector("threadInfoCollector");
         ASSERT(0 == rc);
         ASSERT(false == registry.hasCollector("threadInfoCollectory"));
@@ -245,47 +245,47 @@ void printAttribute(bsl::ostream *stream, const ball::Attribute& attribute)
 
         ASSERT("myLib.uuid=12345 myLib.user=proxy " == output2.str());
     }
-//..
+// ```
 
 }  // close namespace USAGE_EXAMPLE
 
 namespace u {
     // Collection of collectors and visitors used throughout the test.
 
+/// Pass a simple attribute to the specified `visitor`.
 void testCollector(const bsl::function<void(const ball::Attribute&)>& visitor)
-    // Pass a simple attribute to the specified 'visitor'.
 {
     visitor(ball::Attribute("test", 1234));
 }
 
+/// Pass a simple attribute to the specified `visitor`.
 void uuidCollector(const bsl::function<void(const ball::Attribute&)>& visitor)
-    // Pass a simple attribute to the specified 'visitor'.
 {
     visitor(ball::Attribute("uuid", 2345));
 }
 
+/// Pass a simple attribute to the specified `visitor`.
 void spanCollector(const bsl::function<void(const ball::Attribute&)>& visitor)
-    // Pass a simple attribute to the specified 'visitor'.
 {
     visitor(ball::Attribute("span", "1234-5678-0123-4567"));
 }
 
+/// Do nothing with the specified `attribute`.
 void noopVisitor(const ball::Attribute& attribute)
-    // Do nothing with the specified 'attribute'.
 {
     (void)attribute;
 }
 
+/// Must not be called.
 void assertVisitor(const ball::Attribute& attribute)
-    // Must not be called.
 {
     (void)attribute;
     ASSERTV(0);
 }
 
+/// Add the specified `attribute` to the specified `vector`.
 void collectingVisitor(bsl::vector<ball::ManagedAttribute>  *vector,
                        const ball::Attribute&                attribute)
-    // Add the specified 'attribute' to the specified 'vector'.
 {
     vector->push_back(ball::ManagedAttribute(attribute));
 }
@@ -310,7 +310,7 @@ int main(int argc, char *argv[])
 
     // CONCERN: This test driver is reusable w/other, similar components.
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -325,13 +325,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -344,25 +344,25 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'collect' METHOD
+        // TESTING `collect` METHOD
         //
         // Concerns:
-        //: 1 All registered collectors are called.
-        //:
-        //: 2 'collect' method is declared 'const'.
-        //:
-        //: 3 Collectors called in the order they had been registered.
+        // 1. All registered collectors are called.
+        //
+        // 2. `collect` method is declared `const`.
+        //
+        // 3. Collectors called in the order they had been registered.
         //
         // Plan:
-        //: 1 Initialize the object with a set of test collectors and invoke
-        //:   'collect' method.
-        //:
-        //: 2 Verify that all collectors had been invoked in the right order.
+        // 1. Initialize the object with a set of test collectors and invoke
+        //    `collect` method.
+        //
+        // 2. Verify that all collectors had been invoked in the right order.
         //
         // Testing:
         //   void collect(const Visitor& visitor) const;
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTESTING 'collect' METHOD"
+        if (verbose) cout << "\nTESTING `collect` METHOD"
                           << "\n========================" << endl;
 
         Obj mX; const Obj& X = mX;
@@ -427,16 +427,16 @@ int main(int argc, char *argv[])
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 Each accessor returns the value of the corresponding attribute
-        //:   of the object.
-        //:
-        //: 2 Each accessor method is declared 'const'.
-        //:
-        //: 3 No accessor allocates any memory.
-        //:
-        //: 4 Accessors for attributes that can allocate memory (i.e., those
-        //:   that take an allocator in their constructor) return a 'const'
-        //:   reference.
+        // 1. Each accessor returns the value of the corresponding attribute
+        //    of the object.
+        //
+        // 2. Each accessor method is declared `const`.
+        //
+        // 3. No accessor allocates any memory.
+        //
+        // 4. Accessors for attributes that can allocate memory (i.e., those
+        //    that take an allocator in their constructor) return a `const`
+        //    reference.
         //
         // Plan:
         //   In case 2 we demonstrated that all basic accessors work properly
@@ -445,26 +445,26 @@ int main(int argc, char *argv[])
         //   which were fully tested in case 2, to further corroborate that
         //   these accessors are properly interpreting object state.
         //
-        //: 1 Create two 'bslma::TestAllocator' objects, and install one as
-        //:   the current default allocator (note that a ubiquitous test
-        //:   allocator is already installed as the global allocator).
-        //:
-        //: 2 Use the default constructor, using the other test allocator
-        //:   from P-1, to create an object (having default attribute values).
-        //:
-        //: 3 Verify that each basic accessor, invoked on a 'const' reference
-        //:   to the object created in P-2, returns the expected value.  (C-2)
-        //:
-        //: 4 For each salient attribute (contributing to value):  (C-1, 3..4)
-        //:   1 Use the corresponding primary manipulator to set the attribute
-        //:     to a unique value, making sure to allocate memory if possible.
-        //:
-        //:   2 Use the corresponding basic accessor to verify the new
-        //:     expected value.  (C-1)
-        //:
-        //:   3 Monitor the memory allocated from both the default and object
-        //:     allocators before and after calling the accessor; verify that
-        //:     there is no change in total memory allocation.  (C-3..4)
+        // 1. Create two `bslma::TestAllocator` objects, and install one as
+        //    the current default allocator (note that a ubiquitous test
+        //    allocator is already installed as the global allocator).
+        //
+        // 2. Use the default constructor, using the other test allocator
+        //    from P-1, to create an object (having default attribute values).
+        //
+        // 3. Verify that each basic accessor, invoked on a `const` reference
+        //    to the object created in P-2, returns the expected value.  (C-2)
+        //
+        // 4. For each salient attribute (contributing to value):  (C-1, 3..4)
+        //   1. Use the corresponding primary manipulator to set the attribute
+        //      to a unique value, making sure to allocate memory if possible.
+        //
+        //   2. Use the corresponding basic accessor to verify the new
+        //      expected value.  (C-1)
+        //
+        //   3. Monitor the memory allocated from both the default and object
+        //      allocators before and after calling the accessor; verify that
+        //      there is no change in total memory allocation.  (C-3..4)
         //
         // Testing:
         //   allocator_type get_allocator() const;
@@ -594,78 +594,78 @@ int main(int argc, char *argv[])
         //   thorough testing, and use the destructor to destroy it safely.
         //
         // Concerns:
-        //: 1 An object created with the default constructor (with or without
-        //:   a supplied allocator) has the contractually specified default
-        //:   value.
-        //:
-        //: 2 If an allocator is NOT supplied to the default constructor, the
-        //:   default allocator in effect at the time of construction becomes
-        //:   the object allocator for the resulting object.
-        //:
-        //: 3 If an allocator IS supplied to the default constructor, that
-        //:   allocator becomes the object allocator for the resulting object.
-        //:
-        //: 4 Supplying a default-constructed allocator has the same effect as
-        //:   not supplying an allocator.
-        //:
-        //: 5 Supplying an allocator to the default constructor has no effect
-        //:   on subsequent object values.
-        //:
-        //: 6 Any memory allocation is from the object allocator.
-        //:
-        //: 7 There is no temporary allocation from any allocator.
-        //:
-        //: 8 Every object releases any allocated memory at destruction.
-        //:
-        //: 9 QoI: The default constructor allocates no memory.
-        //:
-        //:10 Any memory allocation is exception neutral.
+        // 1. An object created with the default constructor (with or without
+        //    a supplied allocator) has the contractually specified default
+        //    value.
+        //
+        // 2. If an allocator is NOT supplied to the default constructor, the
+        //    default allocator in effect at the time of construction becomes
+        //    the object allocator for the resulting object.
+        //
+        // 3. If an allocator IS supplied to the default constructor, that
+        //    allocator becomes the object allocator for the resulting object.
+        //
+        // 4. Supplying a default-constructed allocator has the same effect as
+        //    not supplying an allocator.
+        //
+        // 5. Supplying an allocator to the default constructor has no effect
+        //    on subsequent object values.
+        //
+        // 6. Any memory allocation is from the object allocator.
+        //
+        // 7. There is no temporary allocation from any allocator.
+        //
+        // 8. Every object releases any allocated memory at destruction.
+        //
+        // 9. QoI: The default constructor allocates no memory.
+        //
+        // 10. Any memory allocation is exception neutral.
         //
         // Plan:
-        //: 1 Create three sets of attribute values for the object: ('D')
-        //:   values corresponding to the default-constructed object, ('A')
-        //:   values that allocate memory if possible, and ('B') other values
-        //:   that do not cause additional memory allocation beyond that which
-        //:   may be incurred by 'A'.  Both the 'A' and 'B' attribute values
-        //:   should be chosen to be boundary values where possible.  If an
-        //:   attribute can be supplied via alternate C++ types (e.g., 'string'
-        //:   instead of 'char *'), use the alternate type for 'B'.
-        //:
-        //: 2 Execute an inner loop that creates an object by
-        //:   default-construction, but invokes the default constructor
-        //:   differently in each iteration: (a) without passing an allocator,
-        //:   (b) passing a default-constructed allocator explicitly (c)
-        //:   passing the address of a test allocator distinct from the
-        //:   default, and (d) passing in an allocator constructed from the
-        //:   address of a test allocator distinct from the default.  For each
-        //:   of these iterations: (C-1..14)
-        //:
-        //:   1 Create three 'bslma::TestAllocator' objects, and install one as
-        //:     as the current default allocator (note that a ubiquitous test
-        //:     allocator is already installed as the global allocator).
-        //:
-        //:   2 Use the default constructor to dynamically create an object
-        //:     'X', with its object allocator configured appropriately (see
-        //:     P-2); use a distinct test allocator for the object's footprint.
-        //:
-        //:   3 Use the 'get_allocator' accessor of each underlying attribute
-        //:     capable of allocating memory to ensure that its object
-        //:     allocator is properly installed; also invoke the (as yet
-        //:     unproven) 'get_allocator' accessor of the object under test.
-        //:     (C-2..4)
-        //:
-        //:   4 Use the appropriate test allocators to verify that no memory
-        //:     is allocated by the default constructor.  (C-9)
-        //:
-        //:   5 Use the individual (as yet unproven) salient attribute
-        //:     accessors to verify the default-constructed value.  (C-1)
-        //:
-        //:   6 Verify that no temporary memory is allocated from the object
-        //:     allocator.  (C-7)
-        //:
-        //:   7 Verify that all object memory is released when the object is
-        //:     destroyed.  (C-8)
-        //:
+        // 1. Create three sets of attribute values for the object: (`D`)
+        //    values corresponding to the default-constructed object, (`A`)
+        //    values that allocate memory if possible, and (`B`) other values
+        //    that do not cause additional memory allocation beyond that which
+        //    may be incurred by `A`.  Both the `A` and `B` attribute values
+        //    should be chosen to be boundary values where possible.  If an
+        //    attribute can be supplied via alternate C++ types (e.g., `string`
+        //    instead of `char *`), use the alternate type for `B`.
+        //
+        // 2. Execute an inner loop that creates an object by
+        //    default-construction, but invokes the default constructor
+        //    differently in each iteration: (a) without passing an allocator,
+        //    (b) passing a default-constructed allocator explicitly (c)
+        //    passing the address of a test allocator distinct from the
+        //    default, and (d) passing in an allocator constructed from the
+        //    address of a test allocator distinct from the default.  For each
+        //    of these iterations: (C-1..14)
+        //
+        //   1. Create three `bslma::TestAllocator` objects, and install one as
+        //      as the current default allocator (note that a ubiquitous test
+        //      allocator is already installed as the global allocator).
+        //
+        //   2. Use the default constructor to dynamically create an object
+        //      `X`, with its object allocator configured appropriately (see
+        //      P-2); use a distinct test allocator for the object's footprint.
+        //
+        //   3. Use the `get_allocator` accessor of each underlying attribute
+        //      capable of allocating memory to ensure that its object
+        //      allocator is properly installed; also invoke the (as yet
+        //      unproven) `get_allocator` accessor of the object under test.
+        //      (C-2..4)
+        //
+        //   4. Use the appropriate test allocators to verify that no memory
+        //      is allocated by the default constructor.  (C-9)
+        //
+        //   5. Use the individual (as yet unproven) salient attribute
+        //      accessors to verify the default-constructed value.  (C-1)
+        //
+        //   6. Verify that no temporary memory is allocated from the object
+        //      allocator.  (C-7)
+        //
+        //   7. Verify that all object memory is released when the object is
+        //      destroyed.  (C-8)
+        //
         //
         // Testing:
         //   ball::AttributeCollectorRegistry();
@@ -723,7 +723,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator&  oa = *objAllocatorPtr;
             bslma::TestAllocator& noa = (&da == &oa) ? sa : da;
 
-            // Also invoke the object's 'get_allocator' accessor.
+            // Also invoke the object's `get_allocator` accessor.
             ASSERTV(CONFIG, &oa, ALLOC_OF(X), &oa == X.get_allocator());
 
             // Verify no allocations from the object allocator (list)
@@ -797,11 +797,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an object 'w' (default ctor)
+        // 1. Create an object `w` (default ctor)
         //
         // Testing:
         //   BREATHING TEST

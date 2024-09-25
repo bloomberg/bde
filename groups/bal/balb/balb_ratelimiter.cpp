@@ -47,12 +47,12 @@ RateLimiter::~RateLimiter()
 
 // CLASS METHODS
 namespace {
+/// Return `true` if the specified `limit` and `window` are legal values
+/// with which to initialize a `balb::LeakyBucket` object, and if so,
+/// whether a `balb::LeakyBucket` object so initialized would preserve the
+/// value of `window`.
 bool supportsExactly(bsls::Types::Uint64       limit,
                      const bsls::TimeInterval& window)
-    // Return 'true' if the specified 'limit' and 'window' are legal values
-    // with which to initialize a 'balb::LeakyBucket' object, and if so,
-    // whether a 'balb::LeakyBucket' object so initialized would preserve the
-    // value of 'window'.
 {
     // Aside from checking that the capacity calculated from 'window' and
     // 'limit' can back out the same 'window' value, we also include checks on

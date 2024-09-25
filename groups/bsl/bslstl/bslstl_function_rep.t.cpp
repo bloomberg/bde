@@ -22,15 +22,15 @@
 
 #include <bsltf_templatetestfacility.h>
 
-#include <climits>  // 'INT_MIN'
-#include <cstdio>   // 'printf'
-#include <cstdlib>  // 'atoi'
+#include <climits>  // `INT_MIN`
+#include <cstdio>   // `printf`
+#include <cstdlib>  // `atoi`
 
 #ifdef BDE_VERIFY
 // Suppress some pedantic bde_verify checks in this test driver
 #pragma bde_verify -AL01   // Class needs allocator() method
 #pragma bde_verify -AP02   // Class needs d_allocator_p member
-#pragma bde_verify -AQK01  // Need #include <c-include> for 'symbol'
+#pragma bde_verify -AQK01  // Need #include <c-include> for `symbol`
 #pragma bde_verify -FD01   // Function declaration requires contract
 #pragma bde_verify -IND01  // Possibly mis-indented line
 #pragma bde_verify -MN01   // Class data members must be private
@@ -50,28 +50,28 @@ using namespace BloombergLP;
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
-// This component contains a single class, 'bslstl::Function_Rep', a
+// This component contains a single class, `bslstl::Function_Rep`, a
 // quasi-value-semantic private class holding the representation of a
-// 'bsl::function'.  The salient attributes of a 'Function_Rep' are the type
+// `bsl::function`.  The salient attributes of a `Function_Rep` are the type
 // and value of the target object that it wraps.  Non-salient attributes are
 // the allocator and the *invoker* *pointer*, a function pointer supplied by
-// the client of this component.  The primitive manipulators are 'installFunc',
-// which sets the target object and invoker and 'makeEmpty', which clears them.
+// the client of this component.  The primitive manipulators are `installFunc`,
+// which sets the target object and invoker and `makeEmpty`, which clears them.
 //
-// Although 'Function_Rep' doesn't have a (public) copy constructor or move
+// Although `Function_Rep` doesn't have a (public) copy constructor or move
 // constructor, it does have copy- and move-initialization functions that
-// 'bsl::function' uses to implement its own copy and move operations.  This
+// `bsl::function` uses to implement its own copy and move operations.  This
 // test driver follows the basic structure of an in-memory value-semantic type,
 // to the degree that it makes sense.  Because this is a private component not
 // intended for public use, a usage example is not necessary.  The main
 // perturbations that we must test are:
 //
-//: o Does the wrapped object fit in the small object buffer?
-//: o Is the wrapped object type nothrow move constructible?
-//: o Is the wrapped object type bitwise movable?
-//: o Does the wrapped object use an allocator?
+//  - Does the wrapped object fit in the small object buffer?
+//  - Is the wrapped object type nothrow move constructible?
+//  - Is the wrapped object type bitwise movable?
+//  - Does the wrapped object use an allocator?
 //
-// In the last case, we must test the 'Function_Rep''s allocator is
+// In the last case, we must test the `Function_Rep`'s allocator is
 // propagated to the wrapped object.
 // ----------------------------------------------------------------------------
 // CREATORS
@@ -186,18 +186,18 @@ static const std::size_t k_SMALL_OBJECT_BUFFER_SIZE =
 typedef bslstl::Function_Rep                     Obj;
 typedef bslstl::Function_SmallObjectOptimization Soo;
 
+/// Do-nothing invoker.  Only the address of this function is used.
 void testInvoker1()
-    // Do-nothing invoker.  Only the address of this function is used.
 {
 }
 
+/// Do-nothing invoker.  Only the address of this function is used.
 void testInvoker2()
-    // Do-nothing invoker.  Only the address of this function is used.
 {
 }
 
+/// A simple functor that holds an `int` and returns it when called.
 class SimpleFunctor {
-    // A simple functor that holds an 'int' and returns it when called.
     int d_value;
 
   public:
@@ -218,24 +218,24 @@ class SimpleFunctor {
                 // Class TrackableValue
                 // --------------------
 
+/// This class tracks a value through a series of move and copy operations
+/// and has an easily-testable moved-from state.  An instance stores an
+/// unsigned integer value and a pair of bits, one indicating if the value
+/// was copied, another if it was moved (or neither or both).  When assigned
+/// a value at construction, via assignment, or via a mutating operation
+/// (such as +=), the `isMoved` and `isCopied` bits are cleared, indicating
+/// that the new value has been neither moved nor copied.  When assigned a
+/// new value via copy construction or copy assignment, the `isCopied` bit
+/// is set and the `isMoved` bit is cleared.  When assigned a new value via
+/// move construction, move assignment, or swap, the `isCopied` bit is
+/// transferred from the original value and the `isMoved` bit is set.  Thus
+/// a value that is copied then moved will have both bits set but a value
+/// that is moved then copied has only the copy bit set.  The copy and
+/// `isMoved` bits are not salient attributes of the value and are thus not
+/// used for testing equality.  When a `TrackableValue` is the argument to a
+/// move constructor or move-assignment operator, it is given the
+/// `isMovedFrom` value, which is not a bit but a singular state.
 class TrackableValue {
-    // This class tracks a value through a series of move and copy operations
-    // and has an easily-testable moved-from state.  An instance stores an
-    // unsigned integer value and a pair of bits, one indicating if the value
-    // was copied, another if it was moved (or neither or both).  When assigned
-    // a value at construction, via assignment, or via a mutating operation
-    // (such as +=), the 'isMoved' and 'isCopied' bits are cleared, indicating
-    // that the new value has been neither moved nor copied.  When assigned a
-    // new value via copy construction or copy assignment, the 'isCopied' bit
-    // is set and the 'isMoved' bit is cleared.  When assigned a new value via
-    // move construction, move assignment, or swap, the 'isCopied' bit is
-    // transferred from the original value and the 'isMoved' bit is set.  Thus
-    // a value that is copied then moved will have both bits set but a value
-    // that is moved then copied has only the copy bit set.  The copy and
-    // 'isMoved' bits are not salient attributes of the value and are thus not
-    // used for testing equality.  When a 'TrackableValue' is the argument to a
-    // move constructor or move-assignment operator, it is given the
-    // 'isMovedFrom' value, which is not a bit but a singular state.
 
     // PRIVATE CONSTANTS
     enum {
@@ -260,13 +260,13 @@ class TrackableValue {
     // PRIVATE DATA
     int d_valueAndFlags;
 
+    /// Set the value to the specified `v`.  Optionally specify `movedFlag`
+    /// for setting the `isMoved()` flag and optionally specify `copiedFlag`
+    /// for setting the `isCopied()` flag; otherwise each flag defaults to
+    /// false.
     TrackableValue& setValue(int  v,
                              bool movedFlag = false,
                              bool copiedFlag = false);
-        // Set the value to the specified 'v'.  Optionally specify 'movedFlag'
-        // for setting the 'isMoved()' flag and optionally specify 'copiedFlag'
-        // for setting the 'isCopied()' flag; otherwise each flag defaults to
-        // false.
 
   public:
     // TRAITS
@@ -279,55 +279,57 @@ class TrackableValue {
     };
 
     // CREATORS
+
+    /// Create an object.  Set the value to the optionally specified `v`
+    /// (default 0) and set `isMoved()` and `isCopied()` to false.
     TrackableValue(int v = 0)                                       // IMPLICIT
-        // Create an object.  Set the value to the optionally specified 'v'
-        // (default 0) and set 'isMoved()' and 'isCopied()' to false.
         { setValue(v); }
 
+    /// Create an object with the value copied from the specified
+    /// `original`.  Set `isMoved()` to false and `isCopied()` to true.
     TrackableValue(const TrackableValue& original)
-        // Create an object with the value copied from the specified
-        // 'original'.  Set 'isMoved()' to false and 'isCopied()' to true.
         { setValue(original.value(), false, true); }
 
+    /// Create an object with the value moved from the specified `original`.
+    /// Set `isMoved()` to true and `isCopied()` to `original.isCopied()`,
+    /// then set `original` to the moved-from state.
     TrackableValue(bslmf::MovableRef<TrackableValue> original)
                                                           BSLS_KEYWORD_NOEXCEPT
-        // Create an object with the value moved from the specified 'original'.
-        // Set 'isMoved()' to true and 'isCopied()' to 'original.isCopied()',
-        // then set 'original' to the moved-from state.
         { *this = bslmf::MovableRefUtil::move(original); }
 
     //! ~TrackableValue() = default;
 
     // MANIPULATORS
+
+    /// Set value to the specified `v` and set `isMoved()` and `isCopied()`
+    /// to false; then return `*this`.
     TrackableValue& operator=(int v)
-        // Set value to the specified 'v' and set 'isMoved()' and 'isCopied()'
-        // to false; then return '*this'.
         { return setValue(v); }
 
+    /// Set value to the specified `rhs.value()` and set `isMoved()` to
+    /// false and `isCopied()` to true; then return `*this`.
     TrackableValue& operator=(const TrackableValue& rhs)
-        // Set value to the specified 'rhs.value()' and set 'isMoved()' to
-        // false and 'isCopied()' to true; then return '*this'.
         { return setValue(rhs.value(), false, true); }
 
+    /// Move value from the specified `rhs`, set `isMoved()` to true, and
+    /// set `isCopied()` to `rhs.isCopied()`, then assign `rhs` the value
+    /// `e_MOVED_FROM_VAL` and return `*this`.
     TrackableValue& operator=(bslmf::MovableRef<TrackableValue> rhs)
                                                          BSLS_KEYWORD_NOEXCEPT;
-        // Move value from the specified 'rhs', set 'isMoved()' to true, and
-        // set 'isCopied()' to 'rhs.isCopied()', then assign 'rhs' the value
-        // 'e_MOVED_FROM_VAL' and return '*this'.
 
+    /// Set the constituent parts of this object to the specified
+    /// `copiedFlag`, specified `movedFlag`, or specified `v`, without
+    /// modifying the other parts.  It is up to the caller to ensure that
+    /// the flags are set consistently.
     void setValueRaw(int v);
-        // Set the constituent parts of this object to the specified
-        // 'copiedFlag', specified 'movedFlag', or specified 'v', without
-        // modifying the other parts.  It is up to the caller to ensure that
-        // the flags are set consistently.
 
+    /// Exchange the values AND `isCopied()` flags of `*this` and the
+    /// specified `other` object, then set the `isMoved()` flag of both
+    /// objects to true.
     void swap(TrackableValue& other);
-        // Exchange the values AND 'isCopied()' flags of '*this' and the
-        // specified 'other' object, then set the 'isMoved()' flag of both
-        // objects to true.
 
+    /// Set `isMoved()` and 'isCopied() to false.
     void resetMoveCopiedFlags()
-        // Set 'isMoved()' and 'isCopied() to false.
         { d_valueAndFlags &= e_VALUE_MASK; }
 
     // ACCESSORS
@@ -381,8 +383,8 @@ void TrackableValue::setValueRaw(int v) {
     d_valueAndFlags |= v * e_VALUE_MULTIPLIER;
 }
 
+/// Don't use std::swap<int> because don't want to #include <algorithm>
 void TrackableValue::swap(TrackableValue& other) {
-    // Don't use std::swap<int> because don't want to #include <algorithm>
     int tmp = d_valueAndFlags;
     d_valueAndFlags = other.d_valueAndFlags;
     other.d_valueAndFlags = tmp;
@@ -412,14 +414,14 @@ enum FunctorQualities {
 template <bool HAS_ALLOCATOR>
 class TestFunctorMembers;
 
+/// Base class holding members of a test allocator with no allocator,
+/// providing dummy allocator mechanisms for an allocatorless test functor.
 template <>
 class TestFunctorMembers<false> {
-    // Base class holding members of a test allocator with no allocator,
-    // providing dummy allocator mechanisms for an allocatorless test functor.
 
   protected:
+    /// Private non-allocator type
     struct Alloc {
-        // Private non-allocator type
         bsl::true_type operator==(const Alloc&) const
             { return bsl::true_type(); }
         bsl::false_type operator!=(const Alloc&) const
@@ -429,17 +431,18 @@ class TestFunctorMembers<false> {
     TrackableValue    d_value;
 
     Alloc privateAllocator() const { return Alloc(); }
+
+    /// These setters/getters are no-ops and exist only to allow generic
+    /// code to compile.
     void setPrivateAllocator(const Alloc&) { }
-        // These setters/getters are no-ops and exist only to allow generic
-        // code to compile.
 
   public:
     bool verifyAllocator(const bsl::allocator<char>&) const { return true; }
 };
 
+/// Base class holding members of a test functor, including an allocator.
 template <>
 class TestFunctorMembers<true> {
-    // Base class holding members of a test functor, including an allocator.
 
   protected:
     typedef bsl::allocator<char> Alloc;
@@ -455,8 +458,9 @@ class TestFunctorMembers<true> {
     typedef bsl::allocator<char> allocator_type;
 
     bslma::Allocator     *allocator()     const { return d_allocator_p; }
+
+    /// Return the current allocator (old and new style, respectively).
     bsl::allocator<char>  get_allocator() const { return d_allocator_p; }
-        // Return the current allocator (old and new style, respectively).
 
     bool verifyAllocator(const bsl::allocator<char>& exp) const
         { return exp == d_allocator_p; }
@@ -465,17 +469,17 @@ class TestFunctorMembers<true> {
 template <bool HAS_ALLOCATOR, int SIZE_QUALITY>
 class TestFunctorBase;
 
+/// Base class holding data members for a minimum-sized stateful functor.
 template <bool HAS_ALLOCATOR>
 class TestFunctorBase<HAS_ALLOCATOR, e_SMALL_FUNCTOR>
     : public TestFunctorMembers<HAS_ALLOCATOR> {
-    // Base class holding data members for a minimum-sized stateful functor.
 };
 
+/// Base class holding data members for a functor along with padding such
+/// that just fits in the small-object buffer.
 template <bool HAS_ALLOCATOR>
 class TestFunctorBase<HAS_ALLOCATOR, e_MEDIUM_FUNCTOR>
     : public TestFunctorMembers<HAS_ALLOCATOR> {
-    // Base class holding data members for a functor along with padding such
-    // that just fits in the small-object buffer.
 
     typedef TestFunctorMembers<HAS_ALLOCATOR>               Members;
     typedef typename bsls::AlignmentFromType<Members>::Type MembersAlign;
@@ -486,11 +490,11 @@ class TestFunctorBase<HAS_ALLOCATOR, e_MEDIUM_FUNCTOR>
     };
 };
 
+/// Base class holding data members for a functor along with enough padding
+/// such that it does not fit in the small-object buffer.
 template <bool HAS_ALLOCATOR>
 class TestFunctorBase<HAS_ALLOCATOR, e_LARGE_FUNCTOR>
     : public TestFunctorMembers<HAS_ALLOCATOR> {
-    // Base class holding data members for a functor along with enough padding
-    // such that it does not fit in the small-object buffer.
 
     typedef TestFunctorMembers<HAS_ALLOCATOR>               Members;
     typedef typename bsls::AlignmentFromType<Members>::Type MembersAlign;
@@ -510,12 +514,13 @@ class TestFunctor
     enum { k_HAS_ALLOCATOR = bool(QUALITIES & e_HAS_ALLOCATOR) };
 
     // PRIVATE MEMBER FUNCTIONS
+
+    /// If `QUALITIES & e_BITWISE_MOVABLE` is false, return an encoding of
+    /// the specified `value` such that, it the result is stored in
+    /// `d_value`, then an accidental bitwise move to a different copy of
+    /// `TestFunctor` can be detected; otherwise return `value` unchanged.
+    /// This encoding is its own inverse; i.e., `encode(encode(v)) == v`.
     int encode(int value) const
-        // If 'QUALITIES & e_BITWISE_MOVABLE' is false, return an encoding of
-        // the specified 'value' such that, it the result is stored in
-        // 'd_value', then an accidental bitwise move to a different copy of
-        // 'TestFunctor' can be detected; otherwise return 'value' unchanged.
-        // This encoding is its own inverse; i.e., 'encode(encode(v)) == v'.
     {
         if (QUALITIES & e_IS_BITWISE_MOVABLE) {
             return value;                                             // RETURN
@@ -531,10 +536,10 @@ class TestFunctor
     typedef typename TestFunctorMembers<k_HAS_ALLOCATOR>::Alloc Alloc;
 
   public:
-    // General, customized functor for testing.  The specified 'QUALITIES'
+    // General, customized functor for testing.  The specified `QUALITIES`
     // parameter indicates size, allocator usage, and movability and is
     // encoded as the inclusive-or of the appropriate enumerations in
-    // 'FunctorQualities'.
+    // `FunctorQualities`.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(TestFunctor,
@@ -556,33 +561,33 @@ class TestFunctor
         this->setValue(value);
     }
 
+    /// Copy construct from the specified `original` using the
+    /// optionally specified `alloc` allocator (if any).
     TestFunctor(const TestFunctor& original,
                 const Alloc&       alloc = Alloc())
-        // Copy construct from the specified 'original' using the
-        // optionally specified 'alloc' allocator (if any).
     {
         this->setPrivateAllocator(alloc);
         operator=(original);
     }
 
+    /// Move construct from the specified `original` using the allocator
+    /// from `original`.
     TestFunctor(bslmf::MovableRef<TestFunctor> original)            // IMPLICIT
-        // Copy value from 'original', set 'isMoved()' to false and
-        // 'isCopied()' to true.
+        // Copy value from `original`, set `isMoved()` to false and
+        // `isCopied()` to true.
         BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(bool(QUALITIES &
                                                  e_IS_NOTHROW_MOVABLE))
-        // Move construct from the specified 'original' using the allocator
-        // from 'original'.
     {
         TestFunctor& originalRef = original;
         this->setPrivateAllocator(originalRef.privateAllocator());
         operator=(bslmf::MovableRefUtil::move(originalRef));
     }
 
+    /// Extended move construct from the specified `original` using the
+    /// specified `alloc`.  If `original.get_allocator() == alloc`, the
+    /// behavior is identical to move construction, otherwise it is
+    /// identical to extended copy construction.
     TestFunctor(bslmf::MovableRef<TestFunctor> original, const Alloc& alloc)
-        // Extended move construct from the specified 'original' using the
-        // specified 'alloc'.  If 'original.get_allocator() == alloc', the
-        // behavior is identical to move construction, otherwise it is
-        // identical to extended copy construction.
     {
         TestFunctor& originalRef = original;
         this->setPrivateAllocator(alloc);
@@ -594,7 +599,7 @@ class TestFunctor
     // MANIPULATORS
     TestFunctor& operator=(const TestFunctor& rhs) {
         TrackableValue temp(encode(rhs.value()));
-        this->d_value = temp;  // Invoke copy assignment on 'TrackableValue'
+        this->d_value = temp;  // Invoke copy assignment on `TrackableValue`
         return *this;
     }
 
@@ -602,7 +607,7 @@ class TestFunctor
         TestFunctor& rhsRef = rhs;
         if (this->privateAllocator() == rhsRef.privateAllocator()) {
             int value = rhsRef.value();
-            // Invoke move assignment on 'TrackableValue'
+            // Invoke move assignment on `TrackableValue`
             this->d_value = bslmf::MovableRefUtil::move(rhsRef.d_value);
             // Re-encode value:
             this->d_value.setValueRaw(encode(value));
@@ -645,9 +650,9 @@ int simpleFunc(int x)
     return x + 1;
 }
 
+/// Structure with a data member and function member, for generating
+/// pointer-to-member values.
 struct SimpleStruct {
-    // Structure with a data member and function member, for generating
-    // pointer-to-member values.
     int  d_dataMember;
     void functionMember();
 };
@@ -658,52 +663,52 @@ typedef int                (*PtrToFunc_t)(int);
 typedef int   SimpleStruct::*PtrToMemData_t;
 typedef void (SimpleStruct::*PtrToMemFunc_t)();
 
+/// Namespace for methods used to generate values of the specified
+/// `TYPE`.  This primary template works for any `TYPE` that can be
+/// initialized from an integer.
 template <class TYPE>
 struct TargetValueGen {
-    // Namespace for methods used to generate values of the specified
-    // 'TYPE'.  This primary template works for any 'TYPE' that can be
-    // initialized from an integer.
 
+    /// Return a value that can be used to initialize `TYPE`.
     static int initializer()
-        // Return a value that can be used to initialize 'TYPE'.
         { return 99; }
 };
 
+/// Specialization for pointer-to-function value
 template <>
 struct TargetValueGen<PtrToFunc_t> {
-    // Specialization for pointer-to-function value
 
     static PtrToFunc_t initializer() { return &simpleFunc; }
 };
 
+/// Specialization for pointer-to-data member value
 template <>
 struct TargetValueGen<PtrToMemData_t> {
-    // Specialization for pointer-to-data member value
 
     static PtrToMemData_t initializer() { return &SimpleStruct::d_dataMember; }
 };
 
+/// Specialization for pointer-to-data member value
 template <>
 struct TargetValueGen<PtrToMemFunc_t> {
-    // Specialization for pointer-to-data member value
 
     static PtrToMemFunc_t initializer()
         { return &SimpleStruct::functionMember; }
 };
 
+/// Specialization for `NothrowMovableWrapper` instantiations.
 template <class TYPE>
 struct TargetValueGen<bslalg::NothrowMovableWrapper<TYPE> > {
-    // Specialization for 'NothrowMovableWrapper' instantiations.
 
     static TYPE initializer()
         { return TYPE(TargetValueGen<TYPE>::initializer()); }
 };
 
+/// Namespace of methods to verify various attributes of an object of
+/// `TYPE`.  For types that are not specializations of `TestFunctor`, most
+/// of the qualities are simply assumed true.
 template <class TYPE>
 struct TargetVerifier {
-    // Namespace of methods to verify various attributes of an object of
-    // 'TYPE'.  For types that are not specializations of 'TestFunctor', most
-    // of the qualities are simply assumed true.
 
     typedef TYPE            TargType;
     typedef bsl::false_type UsesAlloc;
@@ -719,10 +724,10 @@ struct TargetVerifier {
     static bool verifyMovedFrom(const TargType&, bool) { return true; }
 };
 
+/// Specialization of `TargetVerifier` for type that are specializations of
+/// `TestFunctor`.
 template <int QUALITIES>
 struct TargetVerifier<TestFunctor<QUALITIES> > {
-    // Specialization of 'TargetVerifier' for type that are specializations of
-    // 'TestFunctor'.
 
     typedef TestFunctor<QUALITIES>                                  TargType;
     typedef bsl::integral_constant<bool,
@@ -757,7 +762,7 @@ enum {
 // List of types used for most tests
 #if MSVC_2013
 // MSVC 2013 miscompiles function templates that return pointers to data
-// members.  For this reason, 'bslstl_function_rep' cannot support targets that
+// members.  For this reason, `bslstl_function_rep` cannot support targets that
 // are reference wrappers of pointers to data members.
 # define FUNCTION_PTR_TYPES \
     PtrToFunc_t,            \
@@ -770,8 +775,8 @@ enum {
 #endif
 
 // Generate a list functor types with the specified size and has-allocator
-// quality ('e_SMALL_FUNCTOR', 'e_MEDIUM_FUNCTOR' or 'e_LARGE_FUNCTOR',
-// possibly ORed with 'e_HAS_ALLOCATOR') and each combination of bitwise
+// quality (`e_SMALL_FUNCTOR`, `e_MEDIUM_FUNCTOR` or `e_LARGE_FUNCTOR`,
+// possibly ORed with `e_HAS_ALLOCATOR`) and each combination of bitwise
 // movable and nothrow move-constructible qualities.
 #define GEN_FUNCTOR_TYPES(SIZE_ALLOC)               \
     TestFunctor<SIZE_ALLOC                       >, \
@@ -792,7 +797,7 @@ enum {
     TestFunctor<e_LRG                                 >, \
     TestFunctor<e_LRG | e_ALLOC | e_BITWISE | e_NTMOVE>
 
-// A few callable types wrapped in 'bslalg::NothrowMovableUtil'.  The small and
+// A few callable types wrapped in `bslalg::NothrowMovableUtil`.  The small and
 // medium ones are the only ones where behavior would change.
 #define NTWRAP_T(V) bslalg::NothrowMovableWrapper<V >
 #define NTMOVE_FUNCTOR_TYPES                                       \
@@ -834,9 +839,9 @@ enum {
     TestFunctor<e_LRG | e_ALLOC | e_BITWISE           >, \
     TestFunctor<e_LRG | e_ALLOC | e_BITWISE | e_NTMOVE>
 
+/// Namespace to test `Function_Rep` for target of specified `TYPE`.
 template <class TYPE>
 class TestDriver {
-    // Namespace to test 'Function_Rep' for target of specified 'TYPE'.
 
     typedef bslalg::NothrowMovableUtil NothrowMovableUtil;
 
@@ -849,10 +854,10 @@ class TestDriver {
     typedef TargetValueGen<TargType>                      ValGen;
     typedef TargetVerifier<NTUnwrpType>                   Verifier;
 
+    /// Namespace for two-demensional tests for targets of specified `TYPE`
+    /// and `TYPE2`.
     template <class TYPE2>
     struct TwoDTests {
-        // Namespace for two-demensional tests for targets of specified 'TYPE'
-        // and 'TYPE2'.
 
         typedef TYPE2                                          TargType2;
         typedef typename
@@ -868,9 +873,9 @@ class TestDriver {
             k_IS_BITWISE_MOVABLE2 = bslmf::IsBitwiseMoveable<TYPE2>::value
         };
 
+        /// Test `swap` between objects with targets of type `TYPE` and
+        /// `TYPE2`.
         static void swapImp();
-            // Test 'swap' between objects with targets of type 'TYPE' and
-            // 'TYPE2'.
     };
 
     enum {
@@ -878,36 +883,36 @@ class TestDriver {
         k_IS_BITWISE_MOVABLE = bslmf::IsBitwiseMoveable<TYPE>::value
     };
 
+    /// Use the specified `ta1` to construct a `bsl::function`
+    /// object.  Use the specified `ta2` to construct the object that
+    /// will become the argument to `installFunction`.  Run the basic
+    /// manipulators test with the results.
     static void basicManipulatorsImp(bslma::TestAllocator *ta1,
                                      bslma::TestAllocator *ta2);
-        // Use the specified 'ta1' to construct a 'bsl::function'
-        // object.  Use the specified 'ta2' to construct the object that
-        // will become the argument to 'installFunction'.  Run the basic
-        // manipulators test with the results.
 
     static void moveInitImp(bslma::TestAllocator *ta1,
                             bslma::TestAllocator *ta2);
 
   public:
+    /// Test basic manipulators and accessors.  This function is best suited
+    /// for use when `TYPE` is not allocator-aware.
     static void basicManipulators();
-        // Test basic manipulators and accessors.  This function is best suited
-        // for use when 'TYPE' is not allocator-aware.
 
+    /// Test basic manipulators and accessors.  This function requires
+    /// `TYPE` to be allocator-aware, as it tests `installFunc` when the
+    /// input argument uses the same or a different allocator than the
+    /// eventual target within the `Function_Rep` object.
     static void basicManipulatorsWithAlloc();
-        // Test basic manipulators and accessors.  This function requires
-        // 'TYPE' to be allocator-aware, as it tests 'installFunc' when the
-        // input argument uses the same or a different allocator than the
-        // eventual target within the 'Function_Rep' object.
 
+    /// Test the `copyInit` manipulator.
     static void copyInit();
-        // Test the 'copyInit' manipulator.
 
+    /// Test the `moveInit` manipulator.
     static void moveInit();
-        // Test the 'moveInit' manipulator.
 
+    /// Test `swap` between objects with targets of type `TYPE` and
+    /// objects with a number of other target types.
     static void swap();
-        // Test 'swap' between objects with targets of type 'TYPE' and
-        // objects with a number of other target types.
 };
 
 template <class TYPE>
@@ -1038,7 +1043,7 @@ void TestDriver<TYPE>::basicManipulatorsImp(bslma::TestAllocator *ta1,
             ASSERT(&unwrappedTarget == &callableObj1);
             ASSERT((target == F.targetRaw<RefWrap, true>()));
             ASSERT(Verifier::verifyAllocator(unwrappedTarget, ta2));
-            // With 'reference_wrapper', callable object is neither moved nor
+            // With `reference_wrapper`, callable object is neither moved nor
             // copied, only the wrapper is moved.
             ASSERT(Verifier::verifyMoved(unwrappedTarget, false));
             ASSERT(Verifier::verifyCopied(unwrappedTarget, false));
@@ -1080,7 +1085,7 @@ void TestDriver<TYPE>::basicManipulatorsImp(bslma::TestAllocator *ta1,
             ASSERT(&unwrappedTarget == &callableObj1);
             ASSERT((target == F.targetRaw<RefWrap, true>()));
             ASSERT(Verifier::verifyAllocator(unwrappedTarget, ta2));
-            // With 'reference_wrapper', callable object is neither moved nor
+            // With `reference_wrapper`, callable object is neither moved nor
             // copied, only the wrapper is moved.
             ASSERT(Verifier::verifyMoved(unwrappedTarget, false));
             ASSERT(Verifier::verifyCopied(unwrappedTarget, false));
@@ -1137,8 +1142,8 @@ void TestDriver<TYPE>::basicManipulators()
         ASSERT(F2.get_allocator()       == &ta1        );
     }
 
-    // Test using the same allocator for the 'Function_Rep' object and for the
-    // argument to 'installFunc'.
+    // Test using the same allocator for the `Function_Rep` object and for the
+    // argument to `installFunc`.
     basicManipulatorsImp(&ta1, &ta1);
 }
 
@@ -1148,12 +1153,12 @@ void TestDriver<TYPE>::basicManipulatorsWithAlloc()
     bslma::TestAllocator ta1("Obj alloc", veryVeryVeryVerbose);
     bslma::TestAllocator ta2("Argument alloc", veryVeryVeryVerbose);
 
-    // Test using the same allocator for the 'Function_Rep' object and for the
-    // argument to 'installFunc'.
+    // Test using the same allocator for the `Function_Rep` object and for the
+    // argument to `installFunc`.
     basicManipulatorsImp(&ta1, &ta1);
 
-    // Test again using different allocators for the 'Function_Rep' object and
-    // for the argument to 'installFunc'.
+    // Test again using different allocators for the `Function_Rep` object and
+    // for the argument to `installFunc`.
     basicManipulatorsImp(&ta1, &ta2);
 }
 
@@ -1221,7 +1226,7 @@ void TestDriver<TYPE>::moveInitImp(bslma::TestAllocator *ta1,
         NTUnwrpType *sourceTarget = source.target<NTUnwrpType>();
         Verifier::clearFlags(sourceTarget);
 
-        // Move to 'dest'
+        // Move to `dest`
         dest.moveInit(&source);
 
         if (expXfer) {
@@ -1360,7 +1365,7 @@ void TestDriver<TYPE>::swap()
             ASSERT((target2Post == target1Pre) || ! expXfer);
         }
 
-        // Test swap again, but this time 'x1' starts out empty and 'x2' starts
+        // Test swap again, but this time `x1` starts out empty and `x2` starts
         // out non-empty.
         x1.swap(x2);
         ASSERT(! x1.isEmpty());
@@ -1410,57 +1415,57 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'swap'
+        // TESTING `swap`
         //
         // Concerns:
-        //: 1 Swapping two 'Function_Rep' objects has the same affect as
-        //:   generating the same objects but with the 'installFunc' arguments
-        //:   to one substituted for the 'installFunc' arguments to the other.
-        //:   Note that the allocators must be the same as a precondition to
-        //:   'swap'.  This concern applies if either or both 'Function_Rep'
-        //:   objects are initially empty.
-        //:
-        //: 2 Memory consumption, both from allocators and from the global
-        //:   heap, is unchanged by the swap operation.
-        //:
-        //: 3 The above concerns apply for each of the different types of
-        //:   wrapped functors.  The wrapped types of the two objects being
-        //:   swapped need not be the same nor have the same attributes wrt to
-        //:   size, allocator-awareness, bitwise movabiliy, etc.
-        //:
-        //: 4 The above concerns apply to 'Function_Rep's constructed with
-        //:   nothrow wrappers.
+        // 1. Swapping two `Function_Rep` objects has the same affect as
+        //    generating the same objects but with the `installFunc` arguments
+        //    to one substituted for the `installFunc` arguments to the other.
+        //    Note that the allocators must be the same as a precondition to
+        //    `swap`.  This concern applies if either or both `Function_Rep`
+        //    objects are initially empty.
+        //
+        // 2. Memory consumption, both from allocators and from the global
+        //    heap, is unchanged by the swap operation.
+        //
+        // 3. The above concerns apply for each of the different types of
+        //    wrapped functors.  The wrapped types of the two objects being
+        //    swapped need not be the same nor have the same attributes wrt to
+        //    size, allocator-awareness, bitwise movabiliy, etc.
+        //
+        // 4. The above concerns apply to `Function_Rep`s constructed with
+        //    nothrow wrappers.
         //
         // Plan:
-        //: 1 Create two different 'Function_Rep' objects, 'x1' and 'x2', using
-        //:   the same allocator, and wrapping callable objects of type 'TYPE'
-        //:   and 'TYPE2', respectively.  Call 'x1.swap(x2)', then verify that
-        //:   the target and invoker of 'x1' and 'x2' have been exchanged.
-        //:   Also verify that if the original target of 'x1' qualifies for the
-        //:   small-object optimization, that the new target of 'x2' is in a
-        //:   moved-from state; otherwise it was transfered without invoking
-        //:   the move constructor (and conversely for the original target of
-        //:   'x2' moved to 'x1').  Check that the allocators of both objects
-        //:   compare equal to their original values and that the wrapped
-        //:   objects' allocators (if any) continue to reflect proper allocator
-        //:   propagation.  (Since the allocators of 'x1' and 'x2' were the
-        //:   same before the swap, it is unimportant whether the allocators
-        //:   are swapped or not.)  (C-1)
-        //:
-        //: 2 Verify that the amount of memory in use after the swap is the
-        //:   same as before the swap.  (C-2)
-        //:
-        //: 3 Create objects 'x1' and 'x2' using types from a list, producing a
-        //:   two-dimensional set of tests.  Ensure that the type lists contain
-        //:   representative target types, including some types wrapped in
-        //:   'bslalg::NothrowMovableWrapper'.  Repeat steps 1 and 2 for the
-        //:   cross product of types in the two lists.  (C-3, 4)
+        // 1. Create two different `Function_Rep` objects, `x1` and `x2`, using
+        //    the same allocator, and wrapping callable objects of type `TYPE`
+        //    and `TYPE2`, respectively.  Call `x1.swap(x2)`, then verify that
+        //    the target and invoker of `x1` and `x2` have been exchanged.
+        //    Also verify that if the original target of `x1` qualifies for the
+        //    small-object optimization, that the new target of `x2` is in a
+        //    moved-from state; otherwise it was transfered without invoking
+        //    the move constructor (and conversely for the original target of
+        //    `x2` moved to `x1`).  Check that the allocators of both objects
+        //    compare equal to their original values and that the wrapped
+        //    objects' allocators (if any) continue to reflect proper allocator
+        //    propagation.  (Since the allocators of `x1` and `x2` were the
+        //    same before the swap, it is unimportant whether the allocators
+        //    are swapped or not.)  (C-1)
+        //
+        // 2. Verify that the amount of memory in use after the swap is the
+        //    same as before the swap.  (C-2)
+        //
+        // 3. Create objects `x1` and `x2` using types from a list, producing a
+        //    two-dimensional set of tests.  Ensure that the type lists contain
+        //    representative target types, including some types wrapped in
+        //    `bslalg::NothrowMovableWrapper`.  Repeat steps 1 and 2 for the
+        //    cross product of types in the two lists.  (C-3, 4)
         //
         // Testing
         //  void swap(Function_Rep& other) noexcept;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'swap'"
+        if (verbose) printf("\nTESTING `swap`"
                             "\n==============\n");
 
         // Swap two empty objects
@@ -1475,7 +1480,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == ta.numBlocksInUse());
         }
 
-        // Test 'swap' with a representative list of types
+        // Test `swap` with a representative list of types
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
             TestDriver,
             swap,
@@ -1487,94 +1492,94 @@ int main(int argc, char *argv[])
 
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'moveInit'
-        //   The 'moveInit' manipulator is similar to a move constructor but it
+        // TESTING `moveInit`
+        //   The `moveInit` manipulator is similar to a move constructor but it
         //   is called *after* an object has already been constructed.  The
-        //   'Function_Rep' being modified must be empty.
+        //   `Function_Rep` being modified must be empty.
         //
         // Concerns:
-        //: 1 Moving from an empty 'Function_Rep' yields an empty
-        //:   'Function_Rep' object.
-        //:
-        //: 2 Moving from a non-empty 'Function_Rep' yields a non-empty
-        //:   'Function_Rep' object.  The 'target_type' and 'target' attributes
-        //:   of the moved-to 'Function_Rep' match the pre-move attributes
-        //:   of the moved-from 'Function_Rep'.  The moved-from 'Function_Rep'
-        //:   will be empty after the call.
-        //:
-        //: 3 The allocator in the destination is the same as the allocator
-        //:   specified on construction of the destination, regardless of the
-        //:   allocator of the source object.  The allocator (if any) used by
-        //:   the moved-to target object matches the allocator of the
-        //:   moved-to 'Function_Rep'.
-        //:
-        //: 4 If the target type qualifies for the small-object optimization,
-        //:   then it is moved using the extended move constructor.  If the
-        //:   target type is allocator-aware and the source and destination
-        //:   allocators are different, this typically means that the target is
-        //:   copy-constructed; otherwise it is move-constructed.  Conversely,
-        //:   if the target type does not qualify for the small-object
-        //:   optimization, then, if the source and destination allocators are
-        //:   different, the target is copy-constructed; otherwise it is
-        //:   transfered without invoking its move or copy constructor.
-        //:
-        //: 5 The memory owned by the moved-to 'Function_Rep' after the move is
-        //:   the same as the memory owned by the moved-from 'Function_Rep'
-        //:   before the move.
-        //:
-        //: 6 The above concerns apply to targets of type pointer-to-function,
-        //:   pointer-to-member function, pointer to member data, and functor
-        //:   classes (of various sizes, allocator-aware or not, bitwise
-        //:   movable and not, with and without throwing move constructors).
-        //:
-        //: 7 The above concerns apply if the moved-from 'Function_Rep' is
-        //:   holding an object of type 'bslalg::NothrowMovableWrapper'.
-        //:   Specifically, if the nothrow wrapper results in an otherwise
-        //:   ineligible functor becoming eligible for the small object
-        //:   optimization, then the moved-to 'Function_Rep' will also use the
-        //:   small object optimization.
+        // 1. Moving from an empty `Function_Rep` yields an empty
+        //    `Function_Rep` object.
+        //
+        // 2. Moving from a non-empty `Function_Rep` yields a non-empty
+        //    `Function_Rep` object.  The `target_type` and `target` attributes
+        //    of the moved-to `Function_Rep` match the pre-move attributes
+        //    of the moved-from `Function_Rep`.  The moved-from `Function_Rep`
+        //    will be empty after the call.
+        //
+        // 3. The allocator in the destination is the same as the allocator
+        //    specified on construction of the destination, regardless of the
+        //    allocator of the source object.  The allocator (if any) used by
+        //    the moved-to target object matches the allocator of the
+        //    moved-to `Function_Rep`.
+        //
+        // 4. If the target type qualifies for the small-object optimization,
+        //    then it is moved using the extended move constructor.  If the
+        //    target type is allocator-aware and the source and destination
+        //    allocators are different, this typically means that the target is
+        //    copy-constructed; otherwise it is move-constructed.  Conversely,
+        //    if the target type does not qualify for the small-object
+        //    optimization, then, if the source and destination allocators are
+        //    different, the target is copy-constructed; otherwise it is
+        //    transfered without invoking its move or copy constructor.
+        //
+        // 5. The memory owned by the moved-to `Function_Rep` after the move is
+        //    the same as the memory owned by the moved-from `Function_Rep`
+        //    before the move.
+        //
+        // 6. The above concerns apply to targets of type pointer-to-function,
+        //    pointer-to-member function, pointer to member data, and functor
+        //    classes (of various sizes, allocator-aware or not, bitwise
+        //    movable and not, with and without throwing move constructors).
+        //
+        // 7. The above concerns apply if the moved-from `Function_Rep` is
+        //    holding an object of type `bslalg::NothrowMovableWrapper`.
+        //    Specifically, if the nothrow wrapper results in an otherwise
+        //    ineligible functor becoming eligible for the small object
+        //    optimization, then the moved-to `Function_Rep` will also use the
+        //    small object optimization.
         //
         // Plan:
-        //: 1 Use 'moveInit' to move an empty 'Function_Rep' into another empty
-        //:   'Function_Rep'.  Verify that no attributes of either object
-        //:   change.  (C-1)
-        //:
-        //: 2 Use 'moveInit' to move a non-empty 'Function_Rep' into an empty
-        //:   'Function_Rep'.  Verify that the latter object after the call is
-        //:   has the same target attributes as the moved-from object did
-        //:   before the call and that the moved-from object is now empty.
-        //:   (C-2)
-        //:
-        //: 3 Verify that the allocator in the moved-to object does not change.
-        //:   Verify that the allocator (if any) used by the target of the
-        //:   moved-to 'Function_Rep' is the same as the allocator used by the
-        //:   'Function_Rep' itself. (C-3)
-        //:
-        //: 4 Construct source and destination objects with the same allocator
-        //:   and verify the expected move behavior of the target.  Repeat
-        //:   using different allocators and verify the expected behavior.
-        //:   (C-4)
-        //:
-        //: 5 Measure the amount of memory used when constructing the
-        //:   moved-from object.  Verify that the same amount of memory is
-        //:   used by the moved-to object after the move.  (C-5)
-        //:
-        //: 6 Use a list-driven approach to repeat steps 2 to 5 with callable
-        //:   object types belonging to the categories described in concern
-        //:   (C-6).
-        //:
-        //: 7 Include in the list for step 7 several
-        //:   'bslalg::NothrowMovableWrappeer' instantiations, including some
-        //:   that make an otherwise ineligible type eligible for the small
-        //:   object optimization.  Verify that the source and destination
-        //:   objects produce the same result for 'isInplace' in all cases.
-        //:   (C-7)
+        // 1. Use `moveInit` to move an empty `Function_Rep` into another empty
+        //    `Function_Rep`.  Verify that no attributes of either object
+        //    change.  (C-1)
+        //
+        // 2. Use `moveInit` to move a non-empty `Function_Rep` into an empty
+        //    `Function_Rep`.  Verify that the latter object after the call is
+        //    has the same target attributes as the moved-from object did
+        //    before the call and that the moved-from object is now empty.
+        //    (C-2)
+        //
+        // 3. Verify that the allocator in the moved-to object does not change.
+        //    Verify that the allocator (if any) used by the target of the
+        //    moved-to `Function_Rep` is the same as the allocator used by the
+        //    `Function_Rep` itself. (C-3)
+        //
+        // 4. Construct source and destination objects with the same allocator
+        //    and verify the expected move behavior of the target.  Repeat
+        //    using different allocators and verify the expected behavior.
+        //    (C-4)
+        //
+        // 5. Measure the amount of memory used when constructing the
+        //    moved-from object.  Verify that the same amount of memory is
+        //    used by the moved-to object after the move.  (C-5)
+        //
+        // 6. Use a list-driven approach to repeat steps 2 to 5 with callable
+        //    object types belonging to the categories described in concern
+        //    (C-6).
+        //
+        // 7. Include in the list for step 7 several
+        //    `bslalg::NothrowMovableWrappeer` instantiations, including some
+        //    that make an otherwise ineligible type eligible for the small
+        //    object optimization.  Verify that the source and destination
+        //    objects produce the same result for `isInplace` in all cases.
+        //    (C-7)
         //
         // Testing:
         //  void moveInit(Function_Rep *from);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'moveInit'"
+        if (verbose) printf("\nTESTING `moveInit`"
                             "\n==================\n");
 
         bslma::TestAllocator ta1("Source alloc", veryVeryVeryVerbose);
@@ -1609,74 +1614,74 @@ int main(int argc, char *argv[])
 
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'copyInit'
-        //   The 'copyInit' manipulator is similar to a copy constructor but it
+        // TESTING `copyInit`
+        //   The `copyInit` manipulator is similar to a copy constructor but it
         //   is called *after* an object has already been constructed.  The
-        //   'Function_Rep' being modified must be empty.
+        //   `Function_Rep` being modified must be empty.
         //
         // Concerns:
-        //: 1 Copying from an empty 'Function_Rep' yields an empty
-        //:   'Function_Rep' object.
-        //:
-        //: 2 Copying from a non-empty 'Function_Rep' yields a non-empty
-        //:   'Function_Rep' object.  The 'target_type' and 'target' attributes
-        //:   of the copied-to 'Function_Rep' match the corresponding
-        //:   attributes of the copied-from 'Function_Rep'.
-        //:
-        //: 3 The allocator in the destination is the same as the allocator
-        //:   specified on construction of the destination, regardless of the
-        //:   allocator of the source object.  The allocator (if any) used by
-        //:   the copied-to target object matches the allocator for the
-        //:   destination 'Function_Rep'.
-        //:
-        //: 4 The memory allocated for the copy is the same as the memory
-        //:   allocated by the copied-from object.
-        //:
-        //: 5 The above concerns apply to targets of type pointer-to-function,
-        //:   pointer-to-member function, pointer to member data, and functor
-        //:   classes (of various sizes, allocator-aware or not, bitwise
-        //:   movable and not, with and without throwing move constructors).
-        //:
-        //: 6 The above concerns apply if the copied-from 'Function_Rep' is
-        //:   holding an object of type 'bslalg::NothrowMovableWrapper'.
-        //:   Specifically, if the nothrow wrapper results in an otherwise
-        //:   ineligible functor becoming eligible for the small object
-        //:   optimization, then the copy will also use the small object
-        //:   optimization.
+        // 1. Copying from an empty `Function_Rep` yields an empty
+        //    `Function_Rep` object.
+        //
+        // 2. Copying from a non-empty `Function_Rep` yields a non-empty
+        //    `Function_Rep` object.  The `target_type` and `target` attributes
+        //    of the copied-to `Function_Rep` match the corresponding
+        //    attributes of the copied-from `Function_Rep`.
+        //
+        // 3. The allocator in the destination is the same as the allocator
+        //    specified on construction of the destination, regardless of the
+        //    allocator of the source object.  The allocator (if any) used by
+        //    the copied-to target object matches the allocator for the
+        //    destination `Function_Rep`.
+        //
+        // 4. The memory allocated for the copy is the same as the memory
+        //    allocated by the copied-from object.
+        //
+        // 5. The above concerns apply to targets of type pointer-to-function,
+        //    pointer-to-member function, pointer to member data, and functor
+        //    classes (of various sizes, allocator-aware or not, bitwise
+        //    movable and not, with and without throwing move constructors).
+        //
+        // 6. The above concerns apply if the copied-from `Function_Rep` is
+        //    holding an object of type `bslalg::NothrowMovableWrapper`.
+        //    Specifically, if the nothrow wrapper results in an otherwise
+        //    ineligible functor becoming eligible for the small object
+        //    optimization, then the copy will also use the small object
+        //    optimization.
         //
         // Plan:
-        //: 1 Use 'copyInit' to copy an empty 'Function_Rep' into another empty
-        //:   'Function_Rep'.  Verify that no attributes of either object
-        //:   change.  (C-1)
-        //:
-        //: 2 Use 'copyInit' to copy a non-empty 'Function_Rep' into an empty
-        //:   'Function_Rep'.  Verify that the latter object after the call is
-        //:   a faithful copy of the original.  (C-2)
-        //:
-        //: 3 Verify that the allocator in the copied-to object does not
-        //:   change.  Verify that the allocator (if any) used by the target is
-        //:   the same as the allocator used by the copied-to object.  (C-3)
-        //:
-        //: 4 Measure the amount of memory used when constructing the
-        //:   copied-from object.  Verify that the same amount of memory is
-        //:   used when constructing the copied-to object.  (C-4)
-        //:
-        //: 5 Use a list-driven approach to repeat steps 2 to 4 with callable
-        //:   object types belonging to the categories described in concern
-        //:   (C-5).
-        //:
-        //: 6 Include in the list for step 5 several
-        //:   'bslalg::NothrowMovableWrappeer' instantiations, including some
-        //:   that make an otherwise ineligible type eligible for the small
-        //:   object optimization.  Verify that the source and destination
-        //:   objects produce the same result for 'isInplace' in all cases.
-        //:   (C-6)
+        // 1. Use `copyInit` to copy an empty `Function_Rep` into another empty
+        //    `Function_Rep`.  Verify that no attributes of either object
+        //    change.  (C-1)
+        //
+        // 2. Use `copyInit` to copy a non-empty `Function_Rep` into an empty
+        //    `Function_Rep`.  Verify that the latter object after the call is
+        //    a faithful copy of the original.  (C-2)
+        //
+        // 3. Verify that the allocator in the copied-to object does not
+        //    change.  Verify that the allocator (if any) used by the target is
+        //    the same as the allocator used by the copied-to object.  (C-3)
+        //
+        // 4. Measure the amount of memory used when constructing the
+        //    copied-from object.  Verify that the same amount of memory is
+        //    used when constructing the copied-to object.  (C-4)
+        //
+        // 5. Use a list-driven approach to repeat steps 2 to 4 with callable
+        //    object types belonging to the categories described in concern
+        //    (C-5).
+        //
+        // 6. Include in the list for step 5 several
+        //    `bslalg::NothrowMovableWrappeer` instantiations, including some
+        //    that make an otherwise ineligible type eligible for the small
+        //    object optimization.  Verify that the source and destination
+        //    objects produce the same result for `isInplace` in all cases.
+        //    (C-6)
         //
         // Testing:
         //  void copyInit(const Function_Rep& original);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'copyInit'"
+        if (verbose) printf("\nTESTING `copyInit`"
                             "\n==================\n");
 
         bslma::TestAllocator ta1("Source alloc", veryVeryVeryVerbose);
@@ -1714,91 +1719,91 @@ int main(int argc, char *argv[])
         // CONSTRUCTOR AND BASIC MANIPULATORS
         //
         // Concerns:
-        //: 1 Constructing a 'Function_Rep' with allocator 'a' yields an empty
-        //:   object with the correct allocator.  Passing a null invoker to
-        //:   'installFunc' leaves the (empty) object unchanged.
-        //:
-        //: 2 Passing a pointer to a callable object to 'installFunc' yields a
-        //:   'Function_Rep' whose target is a copy of the callable object.
-        //:
-        //: 3 If the callable object type qualifies for the small-object
-        //:   optimization (see 'bslstl_function_smallobjectoptimization'),
-        //:   then no memory is allocated; otherwise exactly one block is
-        //:   allocated (to hold the non-inplace target).  The 'isInplace'
-        //:   method will return true if the small-object optimization applies.
-        //:
-        //: 4 If the callable object uses an allocator, the 'Function_Rep''s
-        //:   allocator is passed to the target's constructor.
-        //:
-        //: 5 The argument to 'installFunc' is moved into the target; no copies
-        //:   are made unless the 'Function_Rep''s allocator differs from the
-        //:   argument's allocator.
-        //:
-        //: 6 The 'makeEmpty' method destroys the target and leaves the
-        //:   'Function_Rep' empty.
-        //:
-        //: 7 The destructor destroys the target.
-        //:
-        //: 8 The above concerns apply to targets of type pointer-to-function,
-        //:   pointer-to-member function, pointer to member data, and functor
-        //:   classes (of various sizes, allocator-aware or not, bitwise
-        //:   movable and not, with and without throwing move constructors).
-        //:
-        //: 9 If the argument to 'installFunc' is wrapped using
-        //:   'bslalg::NothrowMovableWrapper', then the behavior is as though
-        //:   it were not wrapped except that small object optimization will
-        //:   apply for small functors that have throwing move constructors
-        //:   (when otherwise it wouldn't).
-        //:
-        //: 10 If the argument to 'installFunc' is wrapped in a
-        //:   'bsl::reference_wrapper', then the small object optimization will
-        //:   always apply.  Only the 'reference_wrapper' will be moved into
-        //:   the 'Function_Rep', not the object to which it will refer.
-        //:
-        //: 11 If the template argument to 'target' is a function (not
-        //:   pointer-to-function) type, it always returns null.
+        // 1. Constructing a `Function_Rep` with allocator `a` yields an empty
+        //    object with the correct allocator.  Passing a null invoker to
+        //    `installFunc` leaves the (empty) object unchanged.
+        //
+        // 2. Passing a pointer to a callable object to `installFunc` yields a
+        //    `Function_Rep` whose target is a copy of the callable object.
+        //
+        // 3. If the callable object type qualifies for the small-object
+        //    optimization (see `bslstl_function_smallobjectoptimization`),
+        //    then no memory is allocated; otherwise exactly one block is
+        //    allocated (to hold the non-inplace target).  The `isInplace`
+        //    method will return true if the small-object optimization applies.
+        //
+        // 4. If the callable object uses an allocator, the `Function_Rep`'s
+        //    allocator is passed to the target's constructor.
+        //
+        // 5. The argument to `installFunc` is moved into the target; no copies
+        //    are made unless the `Function_Rep`'s allocator differs from the
+        //    argument's allocator.
+        //
+        // 6. The `makeEmpty` method destroys the target and leaves the
+        //    `Function_Rep` empty.
+        //
+        // 7. The destructor destroys the target.
+        //
+        // 8. The above concerns apply to targets of type pointer-to-function,
+        //    pointer-to-member function, pointer to member data, and functor
+        //    classes (of various sizes, allocator-aware or not, bitwise
+        //    movable and not, with and without throwing move constructors).
+        //
+        // 9. If the argument to `installFunc` is wrapped using
+        //    `bslalg::NothrowMovableWrapper`, then the behavior is as though
+        //    it were not wrapped except that small object optimization will
+        //    apply for small functors that have throwing move constructors
+        //    (when otherwise it wouldn't).
+        //
+        // 10. If the argument to `installFunc` is wrapped in a
+        //    `bsl::reference_wrapper`, then the small object optimization will
+        //    always apply.  Only the `reference_wrapper` will be moved into
+        //    the `Function_Rep`, not the object to which it will refer.
+        //
+        // 11. If the template argument to `target` is a function (not
+        //    pointer-to-function) type, it always returns null.
         //
         // Plan:
-        //: 1 Construct a 'Function_Rep' with a test allocator.  Verify that
-        //:   the accessors all return the expected value: 'get_allocator'
-        //:   returns the allocator, 'isEmpty' returns 'true', 'invoker'
-        //:   returns null, 'target_type' returns 'typeid(void)', and 'target'
-        //:   returns null.  Create a callable object to pass to 'installFunc',
-        //:   but use a null invoker pointer.  Verify that the 'Function_Rep'
-        //:   is still empty.  (C-1)
-        //:
-        //: 2 Create a callable object.  If the callable object is
-        //:   allocator-aware, supply a test allocator to its constructor.
-        //:
-        //: 3 Using an no-op invoker function (just to get a unique invoker
-        //:   pointer), pass the address of the callable object from step 2 to
-        //:   'installFunc'.  Verify that the object is no longer empty and
-        //:   that the accessors now refer to the new target.  (C-2)
-        //:
-        //: 4 Use a list-driven approach to repeat steps 1 to 3 with callable
-        //:   object types belonging to the categories described in concern
-        //:   (C-8).  If the object type is allocator-aware, test the case
-        //:   where the allocator supplied to the 'Function_Rep' created in
-        //:   step 1 is the same as the allocator supplied to the callable
-        //:   object created in step 2 as well as the case where they are
-        //:   different.  Verify the expected memory allocation and result of
-        //:   'isInplace' (C-3), target allocator (C-4), and number of expected
-        //:   moves and copies (C-5).
-        //:
-        //: 5 Call 'clear' on the 'Function_Rep' object and test that the
-        //:   target was destroyed and memory was freed.  Call 'installFunc'
-        //:   again, then let the 'Function_Rep' go out of scope (invoking its
-        //:   destructor), again verifying verify that the target was destroyed
-        //:   and memory was returned to the test allocator.  (C-6, 7)
-        //:
-        //: 6 Add functors wrapped in 'bslalg::NothrowMovableWrapper' to the
-        //:   list in step 4.  (C-9)
-        //:
-        //: 7 For each type, 'X', in step 4, also test
-        //:   'bsl::reference_wrapper<X>'.  (C-10)
-        //:
-        //: 8 Invoke 'target' with a function type template argument and verify
-        //:   that it compiles and returns a null pointer.
+        // 1. Construct a `Function_Rep` with a test allocator.  Verify that
+        //    the accessors all return the expected value: `get_allocator`
+        //    returns the allocator, `isEmpty` returns `true`, `invoker`
+        //    returns null, `target_type` returns `typeid(void)`, and `target`
+        //    returns null.  Create a callable object to pass to `installFunc`,
+        //    but use a null invoker pointer.  Verify that the `Function_Rep`
+        //    is still empty.  (C-1)
+        //
+        // 2. Create a callable object.  If the callable object is
+        //    allocator-aware, supply a test allocator to its constructor.
+        //
+        // 3. Using an no-op invoker function (just to get a unique invoker
+        //    pointer), pass the address of the callable object from step 2 to
+        //    `installFunc`.  Verify that the object is no longer empty and
+        //    that the accessors now refer to the new target.  (C-2)
+        //
+        // 4. Use a list-driven approach to repeat steps 1 to 3 with callable
+        //    object types belonging to the categories described in concern
+        //    (C-8).  If the object type is allocator-aware, test the case
+        //    where the allocator supplied to the `Function_Rep` created in
+        //    step 1 is the same as the allocator supplied to the callable
+        //    object created in step 2 as well as the case where they are
+        //    different.  Verify the expected memory allocation and result of
+        //    `isInplace` (C-3), target allocator (C-4), and number of expected
+        //    moves and copies (C-5).
+        //
+        // 5. Call `clear` on the `Function_Rep` object and test that the
+        //    target was destroyed and memory was freed.  Call `installFunc`
+        //    again, then let the `Function_Rep` go out of scope (invoking its
+        //    destructor), again verifying verify that the target was destroyed
+        //    and memory was returned to the test allocator.  (C-6, 7)
+        //
+        // 6. Add functors wrapped in `bslalg::NothrowMovableWrapper` to the
+        //    list in step 4.  (C-9)
+        //
+        // 7. For each type, `X`, in step 4, also test
+        //    `bsl::reference_wrapper<X>`.  (C-10)
+        //
+        // 8. Invoke `target` with a function type template argument and verify
+        //    that it compiles and returns a null pointer.
         //
         // Testing:
         //  explicit Function_Rep(const allocator_type& allocator);
@@ -1841,7 +1846,7 @@ int main(int argc, char *argv[])
             basicManipulators,
             NTMOVE_FUNCTOR_TYPES);
 
-        // Test 'target' with function type, installed with a movable
+        // Test `target` with function type, installed with a movable
         // reference of a pointer-to-function object.
         {
             bslma::TestAllocator ta;
@@ -1855,7 +1860,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == rep.target<int (int)>());
         }
 
-        // Test 'target' with a function type, installed with an lvalue of
+        // Test `target` with a function type, installed with an lvalue of
         // pointer-to-function type.
         {
             bslma::TestAllocator ta;
@@ -1869,7 +1874,7 @@ int main(int argc, char *argv[])
         }
 
 #ifndef BSLS_PLATFORM_CMP_IBM
-        // Test 'target' with a function type, installed with an lvalue of
+        // Test `target` with a function type, installed with an lvalue of
         // function type.
         {
             bslma::TestAllocator ta;
@@ -1889,16 +1894,16 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Construct a 'Function_Rep'.  Verify that it is empty.
-        //:
-        //: 2 Use 'installFunc' to set the target to a simple Functor.
-        //:   Verify that it is no longer empty and that the target was set.
-        //:
-        //: 3 Use 'makeEmpty' to return the 'Function_Rep' to the empty state.
+        // 1. Construct a `Function_Rep`.  Verify that it is empty.
+        //
+        // 2. Use `installFunc` to set the target to a simple Functor.
+        //    Verify that it is no longer empty and that the target was set.
+        //
+        // 3. Use `makeEmpty` to return the `Function_Rep` to the empty state.
         //
         // Testing:
         //  BREATHING TEST

@@ -10,7 +10,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
-#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstdlib.h>     // `atoi`
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
 
@@ -127,13 +127,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -148,66 +148,66 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// The following snippets of code illustrate how to use 'bbldc::CalendarBus252'
-// methods.  First, create two 'bdlt::Date' variables, 'd1' and 'd2':
-//..
+// The following snippets of code illustrate how to use `bbldc::CalendarBus252`
+// methods.  First, create two `bdlt::Date` variables, `d1` and `d2`:
+// ```
     const bdlt::Date d1(2003, 10, 19);
     const bdlt::Date d2(2003, 12, 31);
-//..
-// Then, create a 'calendar' with a valid range spanning 2003 and typical
+// ```
+// Then, create a `calendar` with a valid range spanning 2003 and typical
 // weekend days:
-//..
+// ```
     bdlt::Calendar calendar;
     calendar.setValidRange(bdlt::Date(2003, 1, 1), bdlt::Date(2003, 12, 31));
     calendar.addWeekendDay(bdlt::DayOfWeek::e_SUN);
     calendar.addWeekendDay(bdlt::DayOfWeek::e_SAT);
-//..
-// Next, compute the day count between 'd1' and 'd2':
-//..
+// ```
+// Next, compute the day count between `d1` and `d2`:
+// ```
     const int daysDiff = bbldc::CalendarBus252::daysDiff(d1, d2, calendar);
     ASSERT(52 == daysDiff);
-//..
+// ```
 // Finally, compute the year fraction between the two dates:
-//..
+// ```
     const double yearsDiff = bbldc::CalendarBus252::yearsDiff(d1,
                                                               d2,
                                                               calendar);
-    // Need fuzzy comparison since 'yearsDiff' is a 'double'.
+    // Need fuzzy comparison since `yearsDiff` is a `double`.
     ASSERT(yearsDiff > 0.2063 && yearsDiff < 0.2064);
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'yearsDiff'
+        // TESTING `yearsDiff`
         //   Verify the method correctly computes the number of years between
         //   two dates.
         //
         // Concerns:
-        //: 1 The 'yearsDiff' method produces the correct results.
-        //:
-        //: 2 Reversing the date parameters negates the returned value.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The `yearsDiff` method produces the correct results.
+        //
+        // 2. Reversing the date parameters negates the returned value.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Specify a set S of {pairs of dates (d1, d2), a schedule of
-        //:   periods P, and the difference in years D}.  For the method under
-        //:   test, in a loop over the elements of S, apply the method to dates
-        //:   having the values d1 and d2 with the periods P and 1.0 for the
-        //:   'periodYearDiff' and confirm the result using the value D with a
-        //:   fuzzy comparison (since the return value is a floating-point
-        //:   number).   (C-1)
-        //:
-        //: 2 Also verify the result is negated when the date parameters are
-        //:   reversed.  (C-2)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Specify a set S of {pairs of dates (d1, d2), a schedule of
+        //    periods P, and the difference in years D}.  For the method under
+        //    test, in a loop over the elements of S, apply the method to dates
+        //    having the values d1 and d2 with the periods P and 1.0 for the
+        //    `periodYearDiff` and confirm the result using the value D with a
+        //    fuzzy comparison (since the return value is a floating-point
+        //    number).   (C-1)
+        //
+        // 2. Also verify the result is negated when the date parameters are
+        //    reversed.  (C-2)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //  double yearsDiff(beginDate, endDate, calendar);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'yearsDiff'" << endl
+                          << "TESTING `yearsDiff`" << endl
                           << "===================" << endl;
 
         {
@@ -219,8 +219,8 @@ int main(int argc, char *argv[])
                 int d_year2;         // endDate year
                 int d_month2;        // endDate month
                 int d_day2;          // endDate day
-                double d_numYearsA;  // result # of years for calendar 'CA'
-                double d_numYearsB;  // result # of years for calendar 'CB'
+                double d_numYearsA;  // result # of years for calendar `CA`
+                double d_numYearsB;  // result # of years for calendar `CB`
             } DATA[] = {
                 //      - - - first- -  - - second - -
                 //line  year  mon  day  year  mon  day    YA      YB
@@ -267,7 +267,7 @@ int main(int argc, char *argv[])
         }
         {
             if (verbose) cout <<
-                "\nTesting: 'yearsDiff(date, date)'" << endl;
+                "\nTesting: `yearsDiff(date, date)`" << endl;
 
             const bdlt::Date startDate = bdlt::Date(1900,  1,  1);
             const bdlt::Date endDate   = bdlt::Date(2200, 12, 31);
@@ -304,41 +304,41 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'daysDiff'
+        // TESTING `daysDiff`
         //   Verify the method correctly computes the number of days between
         //   two dates.
         //
         // Concerns:
-        //: 1 The 'daysDiff' method produces the correct results.
-        //:
-        //: 2 Reversing the date parameters negates the returned value.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The `daysDiff` method produces the correct results.
+        //
+        // 2. Reversing the date parameters negates the returned value.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Define two calendars, 'A' and 'B', such that 'A != B'.  Specify a
-        //:   set 'S' of {pairs of dates ('d1', 'd2') and their difference in
-        //:   days 'DA' for calendar 'A' and their difference in days 'DB' for
-        //:   calendar 'B'}.  For the method under test, in a loop over the
-        //:   elements of 'S', apply the method to dates having the values 'd1'
-        //:   and 'd2' and confirm the result using the value 'DA' when the
-        //:   method is invoked with 'A' and the value 'DB' when the method is
-        //:   invoked with 'B'.  (C-1)
-        //:
-        //: 2 Also verify the result is negated when the date parameters are
-        //:   reversed.  (C-2)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Define two calendars, `A` and `B`, such that `A != B`.  Specify a
+        //    set `S` of {pairs of dates (`d1`, `d2`) and their difference in
+        //    days `DA` for calendar `A` and their difference in days `DB` for
+        //    calendar `B`}.  For the method under test, in a loop over the
+        //    elements of `S`, apply the method to dates having the values `d1`
+        //    and `d2` and confirm the result using the value `DA` when the
+        //    method is invoked with `A` and the value `DB` when the method is
+        //    invoked with `B`.  (C-1)
+        //
+        // 2. Also verify the result is negated when the date parameters are
+        //    reversed.  (C-2)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   int daysDiff(beginDate, endDate, calendar);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'daysDiff'" << endl
+                          << "TESTING `daysDiff`" << endl
                           << "==================" << endl;
 
-        if (verbose) cout << "\nTesting: 'daysDiff(beginDate, endDate)'"
+        if (verbose) cout << "\nTesting: `daysDiff(beginDate, endDate)`"
                           << "\n======================================="
                           << endl;
 
@@ -351,8 +351,8 @@ int main(int argc, char *argv[])
                 int d_year2;     // endDate year
                 int d_month2;    // endDate month
                 int d_day2;      // endDate day
-                int d_numDaysA;  // result number of days for calendar 'CA'
-                int d_numDaysB;  // result number of days for calendar 'CB'
+                int d_numDaysA;  // result number of days for calendar `CA`
+                int d_numDaysB;  // result number of days for calendar `CB`
             } DATA[] = {
                 //      - - - first- -  - - second - -
                 //line  year  mon  day  year  mon  day  DA  DB

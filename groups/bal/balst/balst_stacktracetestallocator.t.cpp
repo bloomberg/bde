@@ -46,7 +46,7 @@
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
-// 'getStackAddresses' will not be able to trace through our stack frames if
+// `getStackAddresses` will not be able to trace through our stack frames if
 // we're optimized on Windows
 
 # pragma optimize("", off)
@@ -68,26 +68,26 @@ using bsl::flush;
 // The component under test is a thread-safe mechanism non value type.
 //
 // Manipulators:
-//: o allocate
-//: o deallocate
-//: o release
-//: o setNoAbort
+//  - allocate
+//  - deallocate
+//  - release
+//  - setNoAbort
 //
 // Accessors
-//: o numBlocksInUse
-//: o reportBlocksInUse
+//  - numBlocksInUse
+//  - reportBlocksInUse
 //
 //-----------------------------------------------------------------------------
 // [23] o usage example
 // [22] o CONCERN: Exception Test Loop Compatibility
-// [21] o block header test -- use 'my_BlockHeader' to test
+// [21] o block header test -- use `my_BlockHeader` to test
 //      o magic number
 //      o pointer to allocator
 //      o validity of next block
 //      o validity of pointer from prev block
 // [20] o testing for undefined behavior with setjmp/longjmp
-//      o 'numRecordedFrames >= 2'
-//      o 'name == 0' is handled by substituting "<unnamed>" form 'name'.
+//      o `numRecordedFrames >= 2`
+//      o `name == 0` is handled by substituting "<unnamed>" form `name`.
 // [19] o stack depth testing
 //      o verify that the stack depth reported is exactly what
 //        was specified at construction.
@@ -100,9 +100,9 @@ using bsl::flush;
 // [17] o alignment & min size test
 //      o allocate blocks from 0 byte to 100 bytes long, several blocks for
 //        each size.  Calculate alignment
-//        via 'bsls::AlignmentUtil::calculateAlignmentFromSize', and verify
+//        via `bsls::AlignmentUtil::calculateAlignmentFromSize`, and verify
 //        that the block return always satisfies the alignment requirement.
-//        Write over the full length of the block.  Use 'bslma::TestAllocator'
+//        Write over the full length of the block.  Use `bslma::TestAllocator`
 //        as the underlying allocator as it will detect overruns if the any of
 //        the blocks were smaller than requested.
 //      o fill blocks with random byte, verify they still contain this byte
@@ -111,30 +111,30 @@ using bsl::flush;
 //      o have array of blocks, use a random number generator to determine
 //        which is allocated or freed next.  Maintain count of existing
 //        blocks so never exceed available slots and only free when there is
-//        something to be freed.  Also monitor 'numBlocksInUse' during this
+//        something to be freed.  Also monitor `numBlocksInUse` during this
 //        and make sure it is accurate.
 // [16] o demanglingPreferredFlag
 //      o #ifdef appropriate for platform, do reports with & without
-//        'demanglingPreferredFlag' by searching for
-//        'BloombergLP::balst::StackTraceTestAllocator::' in the report -- it
+//        `demanglingPreferredFlag` by searching for
+//        `BloombergLP::balst::StackTraceTestAllocator::` in the report -- it
 //        will be present if demangling is done, it won't if not
 // [15] o Underrun detection
 //      o Verify that writing before the beginning of the buffer from 1 byte
 //        to the size of 4 pointers (a) is always detected, and (b) does not
 //        result in segfaults, and (c) results in failure handling appropriate
-//        for 'failureHandler'
+//        for `failureHandler`
 //      o Verify the same thing for single-byte writes up to the size of 1 ptr
 //        before the start -- such writes will always hit the magic number.
 // [14] Deallocation errors test
-//      o repeat all tests with and without 'noAbort'
-//      o attempt to deallocate blocks allocated with 'malloc' and
-//        global 'new' (actually, since we override 'new' to call 'malloc'
-//        for the sake of other tests, we can only check 'malloc').
-//      o Attempt to free blocks created by 'bslma::TestAllocator' and
-//        'bslma::TestAllocator'
+//      o repeat all tests with and without `noAbort`
+//      o attempt to deallocate blocks allocated with `malloc` and
+//        global `new` (actually, since we override `new` to call `malloc`
+//        for the sake of other tests, we can only check `malloc`).
+//      o Attempt to free blocks created by `bslma::TestAllocator` and
+//        `bslma::TestAllocator`
 //      o Pass a pointer that is not pointer-aligned, triggering alignment
 //        error detection
-// [13] Calling 'release' successfully frees all allocated blocks
+// [13] Calling `release` successfully frees all allocated blocks
 //      o add test to verify that calling it when no blocks are outstanding
 //        does no harm
 //      o call it with 0 through 100 blocks outstanding
@@ -143,7 +143,7 @@ using bsl::flush;
 //        provide a more meaningful core dump)
 // [12] Thread-safety test
 //      o Overhaul so that threads do less work and more allocating.
-//      o Create allocator that 'has-a' test allocator, and specifically keeps
+//      o Create allocator that `has-a` test allocator, and specifically keeps
 //        a count of how many times allocate or deallocate is currently
 //        happening, and asserts they're never happening at once.
 //      o Have test set up a barrier before allocating, allocates, a bunch of
@@ -157,48 +157,48 @@ using bsl::flush;
 // [ 6] Equality comparisons (N/A)
 // [ 5] Print and output operator (N/A)
 // [ 4] All accessors
-//      o verify that if 'reportBlocksInUse' is called with no args, it writes
+//      o verify that if `reportBlocksInUse` is called with no args, it writes
 //        its report to the stream specified at construction of the allocator.
-//      o verify that if 'reportBlocksInUse' is called with no memory
+//      o verify that if `reportBlocksInUse` is called with no memory
 //        outstanding, it produces no output.
 // [ 3] Value c'tor (N/A)
 // [ 2] All constructors, destructor, all manipulators
 //      o Verify that underlying testallocator passed is providing memory, and
-//        freeing memory when 'deallocate' is called.
+//        freeing memory when `deallocate` is called.
 //      o Verify that the default allocator is not used when no allocator is
 //        passed to the STTA at construction.
 //      X Instrument new/delete like mallocfreeallocator.t.cpp to verify
 //        default allocator configuration not coming from new/delete.  (Effort
-//        was abandoned -- stringstream uses global 'new' & 'delete', even when
-//        an allocator is passed.o -- huge number of calls to 'new' & 'delete'
+//        was abandoned -- stringstream uses global `new` & `delete`, even when
+//        an allocator is passed.o -- huge number of calls to `new` & `delete`
 //        beyond our control)
 //      o assert there is no output about leaked blocks before d'tor is
 //        called
 //      o repeat all tests with and without abort flag (no abort is expected
 //        in this case
-//      o call 'ASSERT(oss.str().empty());' before d'tor is called
+//      o call `ASSERT(oss.str().empty());` before d'tor is called
 //      o create one object, destroy it with no memory outstanding, verify no
 //        report written by d'tor
 //      o verify allocator name in report
 //      o verify operation of release with & without memory allocated.
 // [ 1] Breathing test
-//      o use 'leakTwiceA', verify order of 'leakTwice{C,B,A}' in trace.
+//      o use `leakTwiceA`, verify order of `leakTwice{C,B,A}` in trace.
 //-----------------------------------------------------------------------------
 //
 //                        ----------------------------
-//                        Note on 'setjmp' / 'longjmp'
+//                        Note on `setjmp` / `longjmp`
 //                        ----------------------------
 //
 // It was hoped that having failure handlers and assert handlers that do
-// 'longjmp's would provide a flexible, portable testing mechanism that would
+// `longjmp`s would provide a flexible, portable testing mechanism that would
 // work even when exceptions were disabled.  This turned out to work very well
-// on Unix, but on Windows 'longjmp' turned out to be very flaky and caused
+// on Unix, but on Windows `longjmp` turned out to be very flaky and caused
 // unpredictable crashes, so we had to go through the test driver and disable
-// the many places 'longjmp' was called on Windows.  Fortunately, 'setjmp' by
+// the many places `longjmp` was called on Windows.  Fortunately, `setjmp` by
 // itself turned out to be reasonably benign and we did not have to circumvent
-// the 'setjmp' calls on Windows.
+// the `setjmp` calls on Windows.
 //
-// It is inadvisable to use 'setjmp' / 'longjmp' in future test drivers.
+// It is inadvisable to use `setjmp` / `longjmp` in future test drivers.
 //
 //                      ---------------------------------
 //                      Note on Foiling compiler inlining
@@ -209,7 +209,7 @@ using bsl::flush;
 // stack traces.  To foil this, function pointers are stored in arrays of
 // function pointers and looked up at run time.  We also pass these pointers
 // through an identity transform in another module using
-// 'bslim::TestUtil::makeFunctionCallNonInline' which, because it's in another
+// `bslim::TestUtil::makeFunctionCallNonInline` which, because it's in another
 // module, the compiler doesn't know that it's an identity transform and can't
 // inline the call.
 //
@@ -312,22 +312,24 @@ static bool narcissictStack = false;         // On Windows, the stack trace
 //                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
-// In this example, we will define a class 'ShipsCrew' that does something,
+// In this example, we will define a class `ShipsCrew` that does something,
 // but leaks memory, and then we will demonstrate the use of the stack trace
 // test allocator to locate the leak.
 //
-// First, we define 'ShipsCrew', a class that will read the names of a ship's
+// First, we define `ShipsCrew`, a class that will read the names of a ship's
 // crew from a file at construction, and make the results available through
 // accessors:
-//..
+// ```
+
+/// This struct will, at construction, read and parse a file describing
+/// the names of the crew of a ship.
 struct ShipsCrew {
-    // This struct will, at construction, read and parse a file describing
-    // the names of the crew of a ship.
 
   private:
     // PRIVATE TYPES
+
+    /// Functor to compare two `const char *`s in alphabetical order.
     struct CharStrLess {
-        // Functor to compare two 'const char *'s in alphabetical order.
 
         bool operator()(const char *a, const char *b) const
         {
@@ -346,61 +348,64 @@ struct ShipsCrew {
 
   private:
     // PRIVATE MANIPULATORS
+
+    /// Add the specified `name` to the set of sailor's names.  Redundant
+    /// names are ignored.
     void addSailor(const bsl::string& name);
-        // Add the specified 'name' to the set of sailor's names.  Redundant
-        // names are ignored.
 
+    /// Allocate memory for a copy of the specified `str` as a char array,
+    /// copy the contents of `str` into it, and return a pointer to the
+    /// new copy.
     const char *copy(const bsl::string& str);
-        // Allocate memory for a copy of the specified 'str' as a char array,
-        // copy the contents of 'str' into it, and return a pointer to the
-        // new copy.
 
+    /// If `0 != str`, deallocate `*str` using the allocator associated with
+    /// this object and set `*str` to 0, otherwise do nothing.  The behavior
+    /// is undefined if `0 == str`.
     void free(const char **str);
-        // If '0 != str', deallocate '*str' using the allocator associated with
-        // this object and set '*str' to 0, otherwise do nothing.  The behavior
-        // is undefined if '0 == str'.
 
+    /// Set the name of the ship's captain to the specified `name`.
     void setCaptain(const bsl::string& name);
-        // Set the name of the ship's captain to the specified 'name'.
 
+    /// Set the name of the ship's cook to the specified `name`.
     void setCook(const bsl::string& name);
-        // Set the name of the ship's cook to the specified 'name'.
 
+    /// Set the name of the ship's first mate to the specified `name`.
     void setFirstMate(const bsl::string& name);
-        // Set the name of the ship's first mate to the specified 'name'.
 
   public:
     // CREATORS
+
+    /// Read the names of the ship's crew in from the file with the
+    /// specified name `crewFileName`.
     explicit
     ShipsCrew(const char *crewFileName, bslma::Allocator *basicAllocator = 0);
-        // Read the names of the ship's crew in from the file with the
-        // specified name 'crewFileName'.
 
+    /// Destroy this object and free memory.
     ~ShipsCrew();
-        // Destroy this object and free memory.
 
     // ACCESSORS
+
+    /// Return the captain's name.
     const char *captain();
-        // Return the captain's name.
 
+    /// Return the cook's name.
     const char *cook();
-        // Return the cook's name.
 
+    /// Return the first mate's name.
     const char *firstMate();
-        // Return the first mate's name.
 
+    /// Return the name of the sailor whose name is alphabetically the first
+    /// in the list.
     const char *firstSailor();
-        // Return the name of the sailor whose name is alphabetically the first
-        // in the list.
 
+    /// Return the next sailor alphabetically after the specified
+    /// `currentSailor`, or 0 if `currentSailor` is the last in the list or
+    /// not found.  The behavior is undefined if `0 == currentSailor`.
     const char *nextSailor(const char *currentSailor);
-        // Return the next sailor alphabetically after the specified
-        // 'currentSailor', or 0 if 'currentSailor' is the last in the list or
-        // not found.  The behavior is undefined if '0 == currentSailor'.
 };
-//..
+// ```
 // Then, we implement the private manipulators of the class:
-//..
+// ```
 // PRIVATE MANIPULATORS
 void ShipsCrew::addSailor(const bsl::string& name)
 {
@@ -446,9 +451,9 @@ void ShipsCrew::setFirstMate(const bsl::string& name)
 
     d_firstMate = copy(name);
 }
-//..
+// ```
 // Next, we implement the creators:
-//..
+// ```
 // CREATORS
 ShipsCrew::ShipsCrew(const char       *crewFileName,
                      bslma::Allocator *basicAllocator)
@@ -482,7 +487,7 @@ ShipsCrew::ShipsCrew(const char       *crewFileName,
                 addSailor(name);
             }
             else {
-                cerr << "Unrecognized field '" << field << "' in line '" <<
+                cerr << "Unrecognized field '" << field << "` in line `" <<
                                                                  line << "'\n";
             }
         }
@@ -500,8 +505,8 @@ if (!verbose) {
 free(&d_cook);
 }
 
-    // Note that deallocating the strings will invalidate 'd_sailors' -- any
-    // manipulation of 'd_sailors' other than destruction after this would lead
+    // Note that deallocating the strings will invalidate `d_sailors` -- any
+    // manipulation of `d_sailors` other than destruction after this would lead
     // to undefined behavior.
 
     const NameSet::iterator end = d_sailors.end();
@@ -509,9 +514,9 @@ free(&d_cook);
         d_allocator_p->deallocate(const_cast<char *>(*it));
     }
 }
-//..
+// ```
 // Then, we implement the public accessors:
-//..
+// ```
 // ACCESSORS
 const char *ShipsCrew::captain()
 {
@@ -543,14 +548,14 @@ const char *ShipsCrew::nextSailor(const char *currentSailor)
     }
     return d_sailors.end() == it ? 0 : *it;
 }
-//..
+// ```
 // ============================================================================
-//                           RETOOL 'NEW' & 'DELETE'
+//                           RETOOL `NEW` & `DELETE`
 // ============================================================================
 
 #if 0
 // This experiment was abandoned -- it turned out the stringstreams were
-// calling global 'new' & 'delete' quite a bit, even when passed an allocator,
+// calling global `new` & `delete` quite a bit, even when passed an allocator,
 // and there's not anything this component can do about it.
 
 static int numGlobalNewCalls    = 0;
@@ -585,7 +590,7 @@ void operator delete(void *address)
 //                                my_jmpAbort
 // ============================================================================
 
-jmp_buf my_setJmpBuf;    // Note 'jmp_buf' is an array type
+jmp_buf my_setJmpBuf;    // Note `jmp_buf` is an array type
 
 void my_assertHandlerLongJmp(const char *,  // text
                              const char *,  // fail
@@ -652,19 +657,19 @@ const UintPtr my_HIGH_ONES = 0;
 
 const UintPtr my_BLOCK_MAGIC = 1222222221 + my_HIGH_ONES;
 
+/// It was felt that we should go totally white box and test the internal
+/// data structures of this component, even though that is not generally
+/// done in bde.
+///
+/// This is an exact copy of the private `BlockHeader` `struct` in the
+/// imp file.
 struct my_BlockHeader {
-    // It was felt that we should go totally white box and test the internal
-    // data structures of this component, even though that is not generally
-    // done in bde.
-    //
-    // This is an exact copy of the private 'BlockHeader' 'struct' in the
-    // imp file.
 
     // DATA
     my_BlockHeader                *d_next_p;      // next object in the
                                                   // doubly-linked list
 
-    my_BlockHeader               **d_prevNext_p;  // pointer to the 'd_next_p'
+    my_BlockHeader               **d_prevNext_p;  // pointer to the `d_next_p`
                                                   // field of the previous
                                                   // object, or the head ptr of
                                                   // the linked list if there
@@ -708,9 +713,9 @@ void recurser()
 
 namespace AlignAndFillTest {
 
+/// Boolean operator for search arrays of ints to find if any element does
+/// not equal the value this `struct` is initialized with.
 struct NotEqual {
-    // Boolean operator for search arrays of ints to find if any element does
-    // not equal the value this 'struct' is initialized with.
 
     char d_value;
 
@@ -732,9 +737,9 @@ struct NotEqual {
 
 namespace MultiThreadedTest {
 
+/// This is a thread-unsafe allocator that will detect any attempt to do
+/// thread-unsafe allocation or deallocation.
 class TouchyAllocator : public bslma::Allocator {
-    // This is a thread-unsafe allocator that will detect any attempt to do
-    // thread-unsafe allocation or deallocation.
 
     bsls::AtomicBool          d_inUse;
     mutable bslma::Allocator *d_allocator;
@@ -772,8 +777,8 @@ class TouchyAllocator : public bslma::Allocator {
     }
 };
 
+/// Multithreaded operator.
 struct Functor {
-    // Multithreaded operator.
 
     enum { NUM_THREADS = 10 };
 
@@ -845,10 +850,10 @@ struct Functor {
         d_alloced.pop_back();
     }
 
+    /// Free a random number of blocks in random order, but never free if
+    /// there are less than 5 blocks -- so if there are >= 4 blocks when we
+    /// start, there will be >= 4 blocks when we finish.
     void freeSome()
-        // Free a random number of blocks in random order, but never free if
-        // there are less than 5 blocks -- so if there are >= 4 blocks when we
-        // start, there will be >= 4 blocks when we finish.
     {
         int sz = (int) d_alloced.size();
         int maxNumToFree = bsl::max(0, bsl::min(sz / 2, sz - 4));
@@ -1040,7 +1045,7 @@ int main(int argc, char *argv[])
         bsls::Assert::permitOutOfPolicyReturningFailureHandler();
     }
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator da;
@@ -1068,7 +1073,7 @@ int main(int argc, char *argv[])
 
     if (e_WINDOWS) {
         // Windows intermittently has a narcissist stack, that is,
-        // 'k_IGNORE_FRAMES' should be 1 higher than it is.
+        // `k_IGNORE_FRAMES` should be 1 higher than it is.
 
         balst::StackTrace st;
         int rc = balst::StackTraceUtil::loadStackTraceFromStack(&st, 1, false);
@@ -1086,22 +1091,22 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-//..
-// Next, we create our file './shipscrew.txt' describing the crew of the ship.
+// ```
+// Next, we create our file `./shipscrew.txt` describing the crew of the ship.
 // Note that the order of crew members is not important:
-//..
+// ```
         {
             bsl::ofstream outFile("shipscrew.txt");
 
@@ -1113,11 +1118,11 @@ int main(int argc, char *argv[])
                     << "first mate:Sally Chandler\n"
                     << "sailor:Joe Owens\n";
         }
-//..
-// Then, we set up a test case to test our 'ShipsCrew' class.  We do not use
-// the stack trace test allocator yet, we just use a 'bslma::TestAllocator' to
+// ```
+// Then, we set up a test case to test our `ShipsCrew` class.  We do not use
+// the stack trace test allocator yet, we just use a `bslma::TestAllocator` to
 // get memory usage statistics and determine whether any leakage occurred.
-//..
+// ```
         {
             bslma::TestAllocator ta("Bslma Test Allocator");
             ta.setNoAbort(true);
@@ -1144,30 +1149,30 @@ int main(int argc, char *argv[])
                 cout << bytesLeaked << " bytes of memory were leaked!\n";
             }
         }
-//..
+// ```
 // The program generates the following output in non-verbose mode, telling us
 // that one segment of 10 bytes was leaked:
-//..
+// ```
 //  10 bytes of memory were leaked!
 //  MEMORY_LEAK from Bslma Test Allocator:
 //  Number of blocks in use = 1
 //  Number of bytes in use = 10
-//..
+// ```
 // Next, we would like to use stack trace test allocator to tell us WHERE the
 // memory leak is, but we have a problem: our test case not only uses
-// 'bslma::TestAllocator', but it calls the 'numBytesInUse' accessor, which is
+// `bslma::TestAllocator`, but it calls the `numBytesInUse` accessor, which is
 // not available from stack trace test allocator.  We are also using
-// 'bslma::TestAllocatorMonitor', which will only work with
-// 'bslma::TestAllocator'.  So if we were to just substitute the stack trace
+// `bslma::TestAllocatorMonitor`, which will only work with
+// `bslma::TestAllocator`.  So if we were to just substitute the stack trace
 // test allocator for the bslma test allocator, it would break our test case in
 // several ways.  To instrument our test with a minimal change to the code, we
 // create a stack test test allocator and feed that allocator to the
 // constructor to bslma test allocator.  The rest of our example will now work
 // without modification.  (Note that it is important to call
-// 'ta.setNoAbort(true)' when we use this method, otherwise the bslma test
-// allocator will bomb out before the destructor for 'stta' is able to generate
+// `ta.setNoAbort(true)` when we use this method, otherwise the bslma test
+// allocator will bomb out before the destructor for `stta` is able to generate
 // its report).
-//..
+// ```
         {
             balst::StackTraceTestAllocator stta;
             stta.setName("stta");
@@ -1202,18 +1207,18 @@ int main(int argc, char *argv[])
             }
         }
 
-        cout << "Note msg 'Error: memory leaked' deliberately generated"
+        cout << "Note msg `Error: memory leaked` deliberately generated"
                                                          " in usage example\n";
-//..
+// ```
 // Now, this generates the following report:
-//..
+// ```
 //  10 bytes of memory were leaked!
 //  MEMORY_LEAK from Bslma Test Allocator:
 //    Number of blocks in use = 1
 //     Number of bytes in use = 10
 //  ===========================================================================
 //  Error: memory leaked:
-//  1 block(s) in allocator 'stta' in use.
+//  1 block(s) in allocator `stta` in use.
 //  Block(s) allocated from 1 trace(s).
 //  ---------------------------------------------------------------------------
 //  Allocation trace 1, 1 block(s) in use.
@@ -1233,16 +1238,16 @@ int main(int argc, char *argv[])
 //  (5): main+0x53c at 0x804d55e in balst_stacktracetestallocator.t.dbg_exc_mt
 //  (6): __libc_start_main+0xdc at 0x182e9c in /lib/libc.so.6
 //  (7): --unknown-- at 0x804c1d1 in balst_stacktracetestallocator.t.dbg_exc_mt
-//..
+// ```
 // Finally, Inspection shows that frame (3) of the stack trace from the
-// allocation of the leaked segment was from 'ShipsCrew::setCook'.  Inspection
-// of the code shows that we neglected to free 'd_cook' in the destructor and
+// allocation of the leaked segment was from `ShipsCrew::setCook`.  Inspection
+// of the code shows that we neglected to free `d_cook` in the destructor and
 // we can now easily fix our leak.
 
         bdls::FilesystemUtil::remove("shipscrew.txt");
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-        // 'remove' above uses the default allocator on Windows, so suppress
+        // `remove` above uses the default allocator on Windows, so suppress
         // the default allocator check at the end.
 
         expectedDefaultAllocations = -1;
@@ -1252,40 +1257,40 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // CONCERN: Exception Test Loop Compatibility
         //   Verify that the object works together with the
-        //   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' and
-        //   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END' macros.
+        //   `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN` and
+        //   `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END` macros.
         //
         // Concerns:
-        //: 1 If 'allocate' causes the allocator to throw a
-        //:   'bslma::TestAllocatorException' that exception is propagated to
-        //:   the caller.
-        //:
-        //: 2 No resources are leaked if the allocator throws.
-        //:
-        //: 3 The number of allocations and number of allocated blocks counters
-        //:   are updated properly on allocation's that throw.
+        // 1. If `allocate` causes the allocator to throw a
+        //    `bslma::TestAllocatorException` that exception is propagated to
+        //    the caller.
+        //
+        // 2. No resources are leaked if the allocator throws.
+        //
+        // 3. The number of allocations and number of allocated blocks counters
+        //    are updated properly on allocation's that throw.
         //
         // Plan:
-        //: 1 Create a 'StackTraceTestAllocator' to use as exception test
-        //:   allocator.
-        //:
-        //: 2 Within a 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST' loop:
-        //:   1 Allocate a few bytes from the second allocator.
-        //:   2 Deallocate the allocated bytes.
-        //:   3 Allocate and deallocate 0 bytes.
-        //:   4 Perform one more allocation and deallocation.
-        //:
-        //: 3 Verify that no allocated blocks remain allocated from the
-        //:   allocator once the exception loop succeeds.  (C-2)
-        //:
-        //: 4 Verify that the exception loop ran three iterations,
-        //:   indicating that all exceptions have occurred and been propagated
-        //:   to the caller.  (C-1)
-        //:
-        //: 5 Verify that the two counters are the expected values.  (C-3)
-        //:
-        //: 6 Repeat with more allocations, and deallocations happening at the
-        //:   end of the loop
+        // 1. Create a `StackTraceTestAllocator` to use as exception test
+        //    allocator.
+        //
+        // 2. Within a `BSLMA_TESTALLOCATOR_EXCEPTION_TEST` loop:
+        //   1. Allocate a few bytes from the second allocator.
+        //   2. Deallocate the allocated bytes.
+        //   3. Allocate and deallocate 0 bytes.
+        //   4. Perform one more allocation and deallocation.
+        //
+        // 3. Verify that no allocated blocks remain allocated from the
+        //    allocator once the exception loop succeeds.  (C-2)
+        //
+        // 4. Verify that the exception loop ran three iterations,
+        //    indicating that all exceptions have occurred and been propagated
+        //    to the caller.  (C-1)
+        //
+        // 5. Verify that the two counters are the expected values.  (C-3)
+        //
+        // 6. Repeat with more allocations, and deallocations happening at the
+        //    end of the loop
         //
         // Testing:
         //   CONCERN: Exception Test Loop Compatibility
@@ -1378,9 +1383,9 @@ int main(int argc, char *argv[])
         //   deallocated.
         //
         // Plan:
-        //: 1 Allocate two blocks, and use Use the 'my_BlockHeader'
-        //:   redefinition of the block header to examine the block header on
-        //:   an allocated blocks.
+        // 1. Allocate two blocks, and use Use the `my_BlockHeader`
+        //    redefinition of the block header to examine the block header on
+        //    an allocated blocks.
         //---------------------------------------------------------------------
 
         if (verbose) cout << "WHITE-BOX EXAMINATION OF BLOCK HEADER\n"
@@ -1410,22 +1415,22 @@ int main(int argc, char *argv[])
         //
         // Concern:
         //   That the constructor properly checks arguments passed in.  The
-        //   only things you could get wrong are passing 0 to 'name', and
-        //   specifying 'maxNumRecordedFrames < 2'.  In the case of passing '0'
-        //   to 'name', it's not an error per se, 'name' just defaults to
-        //   '<unnamed>', the same as if 'name' were unspecified.
+        //   only things you could get wrong are passing 0 to `name`, and
+        //   specifying `maxNumRecordedFrames < 2`.  In the case of passing `0`
+        //   to `name`, it's not an error per se, `name` just defaults to
+        //   `<unnamed>`, the same as if `name` were unspecified.
         //
         // Plan:
-        //: 1 Create an STTA, specifying 0 to the 'name' c'tor argument, leak
-        //:   some memory and do a report, and observe that the allocator name
-        //:   reported is '<unnamed>'.
-        //: 2 Set the assert handler for 'BSLS_ASSERT' to do a 'longjmp'.
-        //: 3 Attempt to create an 'STTA' with no name specified, passing '1'
-        //:   'maxNumRecordedFrames'.  Observe that the c'tor doesn't return
-        //:   and 'longjmp' is invoked.
-        //: 4 Attempt to create an 'STTA' with a name specified, passing '1'
-        //:   'maxNumRecordedFrames'.  Observe that the c'tor doesn't return
-        //:   and 'longjmp' is invoked.
+        // 1. Create an STTA, specifying 0 to the `name` c'tor argument, leak
+        //    some memory and do a report, and observe that the allocator name
+        //    reported is `<unnamed>`.
+        // 2. Set the assert handler for `BSLS_ASSERT` to do a `longjmp`.
+        // 3. Attempt to create an `STTA` with no name specified, passing '1'
+        //    `maxNumRecordedFrames`.  Observe that the c'tor doesn't return
+        //    and `longjmp` is invoked.
+        // 4. Attempt to create an `STTA` with a name specified, passing '1'
+        //    `maxNumRecordedFrames`.  Observe that the c'tor doesn't return
+        //    and `longjmp` is invoked.
         //---------------------------------------------------------------------
 
         if (verbose) cout << "TESTING INVATIANTS OF CONSTRUCTOR\n"
@@ -1481,23 +1486,23 @@ int main(int argc, char *argv[])
         //   configured at construction.
         //
         // Plan:
-        //: 1 Loop over varying values of 'depth'.  For each loop:
-        //:   o Set a variable 'RECORDED_FRAMES' substantially less than
-        //:     'depth'.
-        //:   o Create an STTA configured with 'RECORDED_FRAMES' specified to
-        //:     the 'maxRecordedFrames' argument.
-        //:   o Initialize the static variable 'recurserAllocator' to point to
-        //:     the object under test, and the static variable 'recurseDepth'
-        //:     to the value of 'depth'.  These two variables will be used by
-        //:     the 'recurser' function.
-        //:   o Call the 'recurser' function.  It will recurse at least
-        //:     'recurseDepth' times, then leak some memory allocated by the
-        //:     object under test.
-        //:   o Call 'reportBlocksInUse' to get the report about the leaked
-        //:     block.
-        //:   o Count the number of times the function name 'recurser' occurs
-        //:     in the report created by 'reportBlocksInUse', and verify that
-        //:     this number is one less than 'RECORDED_FRAMES'.
+        // 1. Loop over varying values of `depth`.  For each loop:
+        //    - Set a variable `RECORDED_FRAMES` substantially less than
+        //      `depth`.
+        //    - Create an STTA configured with `RECORDED_FRAMES` specified to
+        //      the `maxRecordedFrames` argument.
+        //    - Initialize the static variable `recurserAllocator` to point to
+        //      the object under test, and the static variable `recurseDepth`
+        //      to the value of `depth`.  These two variables will be used by
+        //      the `recurser` function.
+        //    - Call the `recurser` function.  It will recurse at least
+        //      `recurseDepth` times, then leak some memory allocated by the
+        //      object under test.
+        //    - Call `reportBlocksInUse` to get the report about the leaked
+        //      block.
+        //    - Count the number of times the function name `recurser` occurs
+        //      in the report created by `reportBlocksInUse`, and verify that
+        //      this number is one less than `RECORDED_FRAMES`.
         //---------------------------------------------------------------------
 
         if (verbose) cout << "CONFIGURED STACK DEPTH TEST\n"
@@ -1560,18 +1565,18 @@ int main(int argc, char *argv[])
         //   possible, once they've allocated any memory, to get them to
         //   release it unless they're destroyed.
         //
-        //: 1 Use the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_{BEGIN,END}' macros
-        //:   to test an STTA object for exception safety.
-        //:   o Pass the bslma test allocator to the object at construction,
-        //:     with the bslma test allocator configured to throw exceptions.
-        //:   o Also have the default allocator be the configured bslma test
-        //:     allocator.  If any memory is leaked due to exceptions being
-        //:     unsafe, we'll find out about it when we destroy the bslma test
-        //:     allocator.
-        //:   o Allocate a block and call 'reportBlocksInUse' with a
-        //:     stringstream that uses 'sta'.  We create a new stringstream for
-        //:     this purpose so all it's memory will be released when
-        //:     subsequent exceptions are thrown.
+        // 1. Use the `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_{BEGIN,END}` macros
+        //    to test an STTA object for exception safety.
+        //    - Pass the bslma test allocator to the object at construction,
+        //      with the bslma test allocator configured to throw exceptions.
+        //    - Also have the default allocator be the configured bslma test
+        //      allocator.  If any memory is leaked due to exceptions being
+        //      unsafe, we'll find out about it when we destroy the bslma test
+        //      allocator.
+        //    - Allocate a block and call `reportBlocksInUse` with a
+        //      stringstream that uses `sta`.  We create a new stringstream for
+        //      this purpose so all it's memory will be released when
+        //      subsequent exceptions are thrown.
         //---------------------------------------------------------------------
 
         if (verbose) cout << "TEST ALLOCATOR LIMIT\n"
@@ -1609,31 +1614,31 @@ int main(int argc, char *argv[])
         // ALIGNMENT & RANDOM ALLOCATE / FREE TEST
         //
         // Concerns:
-        //: o That allocated blocks are properly aligned
-        //: o That the allocator functions properly when a large number of
-        //:   blocks of varying sizes are allocated and freed in random order
+        //  - That allocated blocks are properly aligned
+        //  - That the allocator functions properly when a large number of
+        //    blocks of varying sizes are allocated and freed in random order
         //
         // Plan:
-        //: 1 Maintain a large array of objects of 'struct' 'Block', where
-        //:   'Block' defines a record that will store a length, an expected
-        //:   alignment, a randomly-generated fill char, a pointer to an
-        //:   allocated block, and a state flag to indicate whether the block
-        //:   has been allocated or not.
-        //: 2 Define the 'length' field ('d_len') to have values which will
-        //:   provoke all possible alignments, and the 'alignment' field
-        //:   ('d_align') to have the alignment requirement appropriate for
-        //:   'd_len'.
-        //: 3 Iterate 128K times, randomly chosing whether to allocate or free
-        //:   each iteration.
-        //:   o Upon allocating, fill each block with a random byte, and save
-        //:     the byte.  Check that the block meets the alignment requirement
-        //:     appropriate for its length.
-        //:   o When freeing, verify the block is still filled with the byte it
-        //:     was filled with when allocated.
-        //:   o Check the 'numBlocksInUse' accessor to verify that it properly
-        //:     tracks its expected value.
-        //:   o Check the 'numAllocations' accessor to verify that it properly
-        //:     tracks its expected value.
+        // 1. Maintain a large array of objects of `struct` `Block`, where
+        //    `Block` defines a record that will store a length, an expected
+        //    alignment, a randomly-generated fill char, a pointer to an
+        //    allocated block, and a state flag to indicate whether the block
+        //    has been allocated or not.
+        // 2. Define the `length` field (`d_len`) to have values which will
+        //    provoke all possible alignments, and the `alignment` field
+        //    (`d_align`) to have the alignment requirement appropriate for
+        //    `d_len`.
+        // 3. Iterate 128K times, randomly chosing whether to allocate or free
+        //    each iteration.
+        //    - Upon allocating, fill each block with a random byte, and save
+        //      the byte.  Check that the block meets the alignment requirement
+        //      appropriate for its length.
+        //    - When freeing, verify the block is still filled with the byte it
+        //      was filled with when allocated.
+        //    - Check the `numBlocksInUse` accessor to verify that it properly
+        //      tracks its expected value.
+        //    - Check the `numAllocations` accessor to verify that it properly
+        //      tracks its expected value.
         //---------------------------------------------------------------------
 
         if (verbose) cout << "ALIGNMENT & RANDOM ALLOCATE / FREE TEST\n"
@@ -1654,12 +1659,12 @@ int main(int argc, char *argv[])
             bool  d_alloced;
         } blocks[MAX_NUM_BLOCKS];
 
-        // Initialize the 'd_len', 'd_align', and 'd_fill' fields.
+        // Initialize the `d_len`, `d_align`, and `d_fill` fields.
 
         const int ptrAlign = bsls::AlignmentUtil::calculateAlignmentFromSize(
                                                                sizeof(void *));
 
-        // The 'ia' loop is to create 'Obj ta' with both c'tors.
+        // The `ia` loop is to create `Obj ta` with both c'tors.
 
         for (int ia = 0; ia < 2; ++ia) {
             memset(blocks, 0, sizeof(blocks));
@@ -1667,7 +1672,7 @@ int main(int argc, char *argv[])
                 Block& s = blocks[i];
                 s.d_len = i / 2;
 
-                // 'AlignmentUtil' fails if passed an argument of 0
+                // `AlignmentUtil` fails if passed an argument of 0
 
                 s.d_align = !s.d_len
                           ? 8
@@ -1804,24 +1809,24 @@ int main(int argc, char *argv[])
         // Plan:
         // The character ':' does not occur in mangled names, but it will occur
         // in demangled names.  Since the method
-        // 'BloombergLP::balst::StackTraceTestAllocator::allocator' will always
+        // `BloombergLP::balst::StackTraceTestAllocator::allocator` will always
         // be in a stack trace, we can verify that demangling was successful by
         // searching the stack trace for
-        // 'BloombergLP::balst::StackTraceTestAllocator::'.  (Note that the
-        // routine name 'allocator' gets distorted to '.allocator' on AIX).
+        // `BloombergLP::balst::StackTraceTestAllocator::`.  (Note that the
+        // routine name `allocator` gets distorted to `.allocator` on AIX).
         //
-        //: 1 Iterate through both values of the boolean variable
-        //:   'demangleExpected'.  However, since demangling ALWAYS happens on
-        //:   Windows and NEVER on Solaris CC, the variable must be overridden
-        //:   on those platforms.
-        //: 2 Create an STTA, specifying 'demangleExpected' to the c'tor and
-        //:   with a stringstream specified to the 'ostream' argument.
-        //: 3 Allocate a block
-        //: 4 Call 'reportBlocksInUse'
-        //: 5 Release memory and destroy the STTA.
-        //: 6 Observe that whether the substring
-        //:   'BloombergLP::balst::StackTraceTestAllocator' is found is
-        //:   consistent with 'demangleExpected'.
+        // 1. Iterate through both values of the boolean variable
+        //    `demangleExpected`.  However, since demangling ALWAYS happens on
+        //    Windows and NEVER on Solaris CC, the variable must be overridden
+        //    on those platforms.
+        // 2. Create an STTA, specifying `demangleExpected` to the c'tor and
+        //    with a stringstream specified to the `ostream` argument.
+        // 3. Allocate a block
+        // 4. Call `reportBlocksInUse`
+        // 5. Release memory and destroy the STTA.
+        // 6. Observe that whether the substring
+        //    `BloombergLP::balst::StackTraceTestAllocator` is found is
+        //    consistent with `demangleExpected`.
         //---------------------------------------------------------------------
 
         if (verbose) cout << "Demangling Test\n"
@@ -1869,13 +1874,13 @@ int main(int argc, char *argv[])
         // UNDERRUN DETECTION
         //
         // Concern:
-        //: That the allocator will detect certain types of underruns.  Two
-        //: specific types are tested:
-        //: 1 Continuous underruns, writing continuously from the first byte
-        //:   before the block start to up to 4 pointer sizes before the first
-        //:   byte start.
-        //: 2 Single-byte wild writes, at any byte up to one pointer size
-        //:   before the start of the block.
+        //  That the allocator will detect certain types of underruns.  Two
+        //  specific types are tested:
+        // 1. Continuous underruns, writing continuously from the first byte
+        //    before the block start to up to 4 pointer sizes before the first
+        //    byte start.
+        // 2. Single-byte wild writes, at any byte up to one pointer size
+        //    before the start of the block.
         //
         // Plan:
         //   Underruns are detected via a magic number that is flush against
@@ -1885,30 +1890,30 @@ int main(int argc, char *argv[])
         //   guarantee that corruption of these pointers will be detectable.
         //
         //   The most likely garbage bytes to occur, therefore the most likely
-        //   bytes to be accidentally written in an underrun, are '0', '1', and
-        //   '0xff'.  Therefore all continuous underruns and wild writes will
+        //   bytes to be accidentally written in an underrun, are `0`, '1', and
+        //   `0xff`.  Therefore all continuous underruns and wild writes will
         //   be repeatedly tested for those 3 values, verifying that they do
         //   not naturally occur anywhere in the magic numbers.
         //
-        //: 1 Allocate a block
-        //: 2 Record the number of blocks in use from the STTA with the
-        //:   'numBlocksInUse' method.
-        //: 3 Write either a contiguous area before the start of the block, or
-        //:   a wild write to a single byte, after first saving the value of
-        //:   the area that will be over written.
-        //: 4 Repeat each test with the two possible boolean values of the
-        //:   ABORT variable, in one case with 'deallocate' calling a failure
-        //:   handler that does a longjmp, in the other the failure handler is
-        //:   'Noop' and the deallocate returns without freeing anything.
-        //: 5 After the 'deallocate' call, verify that either a 'longjmp'
-        //:   occurred or the 'deallocate' returned, as expected, depending on
-        //:   the value of the 'ABORT' variable.
-        //: 6 Verify that a report was written mentioning the corruption.
-        //: 7 Verify that no memory was freed by the 'deallocate' call using
-        //:   the 'numBlocksInUse' accessor.
-        //: 8 Restore the state of the memory that was corrupted to its
-        //:   pre-corrupted state.
-        //: 9 Deallocate the block, which should be successful.
+        // 1. Allocate a block
+        // 2. Record the number of blocks in use from the STTA with the
+        //    `numBlocksInUse` method.
+        // 3. Write either a contiguous area before the start of the block, or
+        //    a wild write to a single byte, after first saving the value of
+        //    the area that will be over written.
+        // 4. Repeat each test with the two possible boolean values of the
+        //    ABORT variable, in one case with `deallocate` calling a failure
+        //    handler that does a longjmp, in the other the failure handler is
+        //    `Noop` and the deallocate returns without freeing anything.
+        // 5. After the `deallocate` call, verify that either a `longjmp`
+        //    occurred or the `deallocate` returned, as expected, depending on
+        //    the value of the `ABORT` variable.
+        // 6. Verify that a report was written mentioning the corruption.
+        // 7. Verify that no memory was freed by the `deallocate` call using
+        //    the `numBlocksInUse` accessor.
+        // 8. Restore the state of the memory that was corrupted to its
+        //    pre-corrupted state.
+        // 9. Deallocate the block, which should be successful.
         //---------------------------------------------------------------------
 
         if (verbose) cout << "UNDERRUN DETECTION\n"
@@ -1925,7 +1930,7 @@ int main(int argc, char *argv[])
 
         const unsigned char fillChars[] = { 0, 1, 0xff };
 
-        // 'volatile' avoids clobbered warning
+        // `volatile` avoids clobbered warning
         volatile const unsigned char * volatile end =
                                                  fillChars + sizeof(fillChars);
 
@@ -1996,7 +2001,7 @@ int main(int argc, char *argv[])
 
         if (verbose) Q(Single-byte Underruns);
         {
-            // atomic and 'volatile' avoid clobbered warning
+            // atomic and `volatile` avoid clobbered warning
             for (bsls::AtomicInt a(0); a < ABORT_LIMIT; ++a) {
                 const bool ABORT = a;
 
@@ -2063,56 +2068,56 @@ int main(int argc, char *argv[])
         // DEALLOCATION ERROR TEST
         //
         // Concern:
-        //: That the stack trace test allocator properly detects certain
-        //: classes of errors at deallocation:
-        //: 1 Deallocating same block twice.
-        //: 2 Freeing a STTA allocated block by another STTA
-        //: 3 Freeing a 'malloc' allocated block by an STTA
-        //: 4 Freeing a 'new[]' allocated block by an STTA
-        //: 5 Freeing a 'new' allocated block by an STTA
-        //: 6 Freeing a 'bslma::TestAllocator' allocated block by an STTA
-        //: 7 Freeing a 'bslma::TestAllocator' allocated block by an STTA
-        //: 8 Freeing a misaligned segment
+        //  That the stack trace test allocator properly detects certain
+        //  classes of errors at deallocation:
+        // 1. Deallocating same block twice.
+        // 2. Freeing a STTA allocated block by another STTA
+        // 3. Freeing a `malloc` allocated block by an STTA
+        // 4. Freeing a `new[]` allocated block by an STTA
+        // 5. Freeing a `new` allocated block by an STTA
+        // 6. Freeing a `bslma::TestAllocator` allocated block by an STTA
+        // 7. Freeing a `bslma::TestAllocator` allocated block by an STTA
+        // 8. Freeing a misaligned segment
         //
         // Plan:
-        //: 1 Iterate through both values of the boolean ABORT
-        //:   o For each of the categories 1-7 in 'Concerns':
-        //:     1 Install a 'setjmp' handler
-        //:     2 Install a failure handler in the STTA
-        //:       o If 'ABORT' is set, install a 'Longjmp' handler
-        //:       o If 'ABORT' is not set, install a "Noop' handler
-        //:     3 Allocate a block of memory, the source depending on which of
-        //:       test cases 1-7 we're in.
-        //:     4 Note the number of blocks allocated by the STTA
-        //:     5 Attempt to 'deallocate' the block with the STTA
-        //:     6 Verify that either a longjmp occurred or the deallocate
-        //:       returned, depending on the value of 'ABORT'
-        //:     7 Verify that no memory was freed using 'numBlocksInUse'
-        //:     8 Verify that the expected report of the problem (1-7) under
-        //:       'Concerns' above was written to the stream passed to the STTA
-        //:       at its construction.
-        //:     9 Wipe the string stream clean and properly deallocate the
-        //:       block allocated in step 1.
-        //:   o Category 8 in 'Concerns" -- misaligned blocks.
-        //:     1 Allocate a block of memory from the STTA, store it in a
-        //:       pointer 'cPtr' of type 'char *'
-        //:     2 Iterate the variable 'offset' from
-        //:       '[ 1 .. sizeof(void *) - 1 ]'
-        //:       o Install a setjmp handling block
-        //:       o Install a failure handler in the STTA
-        //:         1 If 'ABORT' is set, install a 'Longjmp' handler
-        //:         2 If 'ABORT' is not set, install a "Noop' handler
-        //:       o Note the number of blocks allocated by the STTA
-        //:       o Attempt to deallocate 'cPtr + offset', which will be
-        //:         misaligned, with the STTA
-        //:       o Verify that either a longjmp occurred or the deallocate
-        //:         returned, depending on the value of 'ABORT'
-        //:       o Verify that no memory was freed, using 'numBlocksInUse'
-        //:       o Verify that the expected report of the problem (1-7) under
-        //:         'Concerns' above was written to the stream passed to the
-        //:         STTA at its construction.
-        //:       o Wipe the string stream clean
-        //:     3 Properly deallocate the block allocated in step 1.
+        // 1. Iterate through both values of the boolean ABORT
+        //    - For each of the categories 1-7 in `Concerns`:
+        //     1. Install a `setjmp` handler
+        //     2. Install a failure handler in the STTA
+        //        o If `ABORT` is set, install a `Longjmp` handler
+        //        o If `ABORT` is not set, install a "Noop' handler
+        //     3. Allocate a block of memory, the source depending on which of
+        //        test cases 1-7 we're in.
+        //     4. Note the number of blocks allocated by the STTA
+        //     5. Attempt to `deallocate` the block with the STTA
+        //     6. Verify that either a longjmp occurred or the deallocate
+        //        returned, depending on the value of `ABORT`
+        //     7. Verify that no memory was freed using `numBlocksInUse`
+        //     8. Verify that the expected report of the problem (1-7) under
+        //        `Concerns` above was written to the stream passed to the STTA
+        //        at its construction.
+        //     9. Wipe the string stream clean and properly deallocate the
+        //        block allocated in step 1.
+        //    - Category 8 in 'Concerns" -- misaligned blocks.
+        //     1. Allocate a block of memory from the STTA, store it in a
+        //        pointer `cPtr` of type `char *`
+        //     2. Iterate the variable `offset` from
+        //        `[ 1 .. sizeof(void *) - 1 ]`
+        //        o Install a setjmp handling block
+        //        o Install a failure handler in the STTA
+        //         1. If `ABORT` is set, install a `Longjmp` handler
+        //         2. If `ABORT` is not set, install a "Noop' handler
+        //        o Note the number of blocks allocated by the STTA
+        //        o Attempt to deallocate `cPtr + offset`, which will be
+        //          misaligned, with the STTA
+        //        o Verify that either a longjmp occurred or the deallocate
+        //          returned, depending on the value of `ABORT`
+        //        o Verify that no memory was freed, using `numBlocksInUse`
+        //        o Verify that the expected report of the problem (1-7) under
+        //          `Concerns` above was written to the stream passed to the
+        //          STTA at its construction.
+        //        o Wipe the string stream clean
+        //     3. Properly deallocate the block allocated in step 1.
         //---------------------------------------------------------------------
 
         expectedDefaultAllocations = -1;    // turn off default alloc checking
@@ -2137,7 +2142,7 @@ int main(int argc, char *argv[])
                 // We use a special underlying allocator in this place, because
                 // if the underlying OS writes over freed memory, we cannot
                 // detect redundant frees as such.  We use a
-                // 'bdlma::BufferedSequentialAllocator' because it won't
+                // `bdlma::BufferedSequentialAllocator` because it won't
                 // actually write over a freed block, nor will it turn it over
                 // to the underlying OS which may do uncontrollable things with
                 // it.
@@ -2148,7 +2153,7 @@ int main(int argc, char *argv[])
                 tba.setName("beta");
                 tba.setOstream(&oss);
 
-                // 'volatile' avoids clobbered warning
+                // `volatile` avoids clobbered warning
                 volatile unsigned int tbaBlocks;
                 if (setjmp(my_setJmpBuf)) {
                     if (veryVerbose) Q(Abort: deallocating same block twice);
@@ -2195,7 +2200,7 @@ int main(int argc, char *argv[])
 
             if (verbose) Q(Check freeing by wrong allocator of right type)
             {
-                // 'volatile' avoids clobbered warning
+                // `volatile` avoids clobbered warning
                 volatile void * volatile ptr;
                 volatile unsigned int taBlocks;
                 if (setjmp(my_setJmpBuf)) {
@@ -2248,7 +2253,7 @@ int main(int argc, char *argv[])
 
             if (verbose) Q(Check freeing of block allocated with malloc);
             {
-                // 'volatile' avoids clobbered warning
+                // `volatile` avoids clobbered warning
                 volatile void * volatile ptr;
 
                 volatile unsigned int taBlocks;
@@ -2292,7 +2297,7 @@ int main(int argc, char *argv[])
 
             if (verbose) Q(Check freeing of array alloced with new[]);
             {
-                // 'volatile' avoids clobbered warning
+                // `volatile` avoids clobbered warning
                 volatile char * volatile ptr;
 
                 volatile unsigned int taBlocks;
@@ -2336,7 +2341,7 @@ int main(int argc, char *argv[])
 
             if (verbose) Q(Check freeing of array alloced with new);
             {
-                // 'volatile' avoids clobbered warning
+                // `volatile` avoids clobbered warning
                 volatile int * volatile ptr;
 
                 volatile unsigned int taBlocks;
@@ -2382,7 +2387,7 @@ int main(int argc, char *argv[])
             {
                 bslma::TestAllocator     taBsl;
 
-                // 'volatile' avoids clobbered warning
+                // `volatile` avoids clobbered warning
                 volatile void * volatile ptr;
                 volatile unsigned int    numBlocks;
 
@@ -2428,7 +2433,7 @@ int main(int argc, char *argv[])
             {
                 bslma::TestAllocator     taBce;
 
-                // 'volatile' avoids clobbered warning
+                // `volatile` avoids clobbered warning
                 volatile void * volatile ptr;
                 volatile unsigned int    numBlocks;
 
@@ -2474,7 +2479,7 @@ int main(int argc, char *argv[])
             {
                 char *cPtr = (char *) ta.allocate(100);
 
-                // atomic and 'volatile' avoid clobbered warning
+                // atomic and `volatile` avoid clobbered warning
                 volatile unsigned int numBlocks;
 
                 for (bsls::AtomicUint offset = 1;
@@ -2526,52 +2531,52 @@ int main(int argc, char *argv[])
         // RELEASE AND DESTRUCTOR TEST
         //
         // Concern:
-        //: o That the 'release' function properly frees all outstanding
-        //:   blocks.
-        //: o If the destructor is called with memory outstanding, and the
-        //:   failure handler returns without aborting or throwing, the d'tor
-        //:   reports and frees all outstanding memory.
-        //: o That the destructor reports, but does not free memory, before
-        //:   calling the failure handler.
+        //  - That the `release` function properly frees all outstanding
+        //    blocks.
+        //  - If the destructor is called with memory outstanding, and the
+        //    failure handler returns without aborting or throwing, the d'tor
+        //    reports and frees all outstanding memory.
+        //  - That the destructor reports, but does not free memory, before
+        //    calling the failure handler.
         //
         // Plan:
-        //: 1 Release test.  Loop for 'numAllocs' from 0 to 100:
-        //:   o Create a 'bslma::TestAllocator', and a stack trace test
-        //:     allocator based on that 'bslma::TestAllocator'.
-        //:   o Allocate 'numAllocs' blocks.
-        //:   o Verify the number of outstanding memory blocks is 'numAllocs'.
-        //:   o Call 'release'.
-        //:   o Verify, with the 'numBlocksInUse' allocator, that the memory
-        //:     has been freed.
-        //:   o Destroy the stack trace test allocator and verify that no
-        //:     report is written.
-        //:   o Destroy the 'bslma::TestAllocator' to further verify that all
-        //:     memory was freed.
-        //: 2 D'tor with 'Noop' failure handler: Loop for 'numAllocs' from 0 to
-        //:   100:
-        //:   o Create a 'bslma::TestAllocator', and a stack trace test
-        //:     allocator based on that 'bslma::TestAllocator'.
-        //:   o Allocate 'numAllocs' blocks.
-        //:   o Verify the number of outstanding memory blocks is 'numAllocs'.
-        //:   o Install the 'Noop' failure assert handler.
-        //:   o Destroy the stack trace test allocator.
-        //:   o Verify that a report was written if 'numAllocs > 0'.
-        //:   o Verify with the 'numBlocksInUse' accessor of the
-        //:     'bslma::Allocator' that all memory has been freed.
-        //: 3 D'tor with 'longjmp' failure handler: Loop for 'numAllocs' from
-        //:   one to 100:
-        //:   o Create a 'bslma::TestAllocator', and a stack trace test
-        //:     allocator based on that 'bslma::TestAllocator'.
-        //:   o Allocate 'numAllocs' blocks.
-        //:   o Verify the number of outstanding memory blocks is 'numAllocs'.
-        //:   o Install the 'longjmp' failure assert handler.
-        //:   o Attempt to destroy the stack trace test allocator.
-        //:   o Verify that the d'tor did a longjmp.
-        //:   o Verify that a report was written
-        //:   o Verify with the 'numBlocksInUse' accessor of both allocators
-        //:     that *NO* memory has been freed.
-        //:   o 'release' the remaining memory and destroy the stack trace test
-        //:     allocator.
+        // 1. Release test.  Loop for `numAllocs` from 0 to 100:
+        //    - Create a `bslma::TestAllocator`, and a stack trace test
+        //      allocator based on that `bslma::TestAllocator`.
+        //    - Allocate `numAllocs` blocks.
+        //    - Verify the number of outstanding memory blocks is `numAllocs`.
+        //    - Call `release`.
+        //    - Verify, with the `numBlocksInUse` allocator, that the memory
+        //      has been freed.
+        //    - Destroy the stack trace test allocator and verify that no
+        //      report is written.
+        //    - Destroy the `bslma::TestAllocator` to further verify that all
+        //      memory was freed.
+        // 2. D'tor with `Noop` failure handler: Loop for `numAllocs` from 0 to
+        //    100:
+        //    - Create a `bslma::TestAllocator`, and a stack trace test
+        //      allocator based on that `bslma::TestAllocator`.
+        //    - Allocate `numAllocs` blocks.
+        //    - Verify the number of outstanding memory blocks is `numAllocs`.
+        //    - Install the `Noop` failure assert handler.
+        //    - Destroy the stack trace test allocator.
+        //    - Verify that a report was written if `numAllocs > 0`.
+        //    - Verify with the `numBlocksInUse` accessor of the
+        //      `bslma::Allocator` that all memory has been freed.
+        // 3. D'tor with `longjmp` failure handler: Loop for `numAllocs` from
+        //    one to 100:
+        //    - Create a `bslma::TestAllocator`, and a stack trace test
+        //      allocator based on that `bslma::TestAllocator`.
+        //    - Allocate `numAllocs` blocks.
+        //    - Verify the number of outstanding memory blocks is `numAllocs`.
+        //    - Install the `longjmp` failure assert handler.
+        //    - Attempt to destroy the stack trace test allocator.
+        //    - Verify that the d'tor did a longjmp.
+        //    - Verify that a report was written
+        //    - Verify with the `numBlocksInUse` accessor of both allocators
+        //      that *NO* memory has been freed.
+        //    - `release` the remaining memory and destroy the stack trace test
+        //      allocator.
         //---------------------------------------------------------------------
 
         if (verbose) cout << "Release Test\n"
@@ -2600,7 +2605,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(ss.str().empty());
 
-                // Destruction of 'sta' confirms that all memory was freed.
+                // Destruction of `sta` confirms that all memory was freed.
             }
 
             ASSERT(ss.str().empty());
@@ -2645,7 +2650,7 @@ int main(int argc, char *argv[])
 
                 ss.str("");
 
-                // Successful destruction of 'sta' proves all memory was freed.
+                // Successful destruction of `sta` proves all memory was freed.
             }
         }
 
@@ -2655,8 +2660,8 @@ int main(int argc, char *argv[])
 #if defined(BSLS_PLATFORM_OS_SOLARIS) && defined(BSLS_PLATFORM_CMP_GNU) &&    \
     defined(BDE_BUILD_TARGET_OPT)
         // There seems to be a compiler bug in Solaris GNU compilers where,
-        // with the optimizer on, the 'longjmp' here corrupts a nearby
-        // automatic variable.  Let's face it -- doing a 'longjmp' out of a
+        // with the optimizer on, the `longjmp` here corrupts a nearby
+        // automatic variable.  Let's face it -- doing a `longjmp` out of a
         // d'tor is not a very important test.
 
         break;
@@ -2733,37 +2738,37 @@ int main(int argc, char *argv[])
         //   is used in a multithreaded context.
         //
         // Plan:
-        //: 1 Create a type, 'TouchyAllocator', derived from
-        //:   'bslma::Allocator', which will hold a pointer to a
-        //:   bslma::Allocator and provide 'allocate' and 'deallocate' methods
-        //:   which will propagate to the 'allocate' and 'deallocate' methods
-        //:   of the held allocator, only before and after the called methods
-        //:   they will assert to make sure that there is no simultaneous
-        //:   calling of 'allocate' or 'deallocate' by multiple threads.
-        //: 2 Create a stack trace test allocator with a 'TouchyAllocator'
-        //:   passed as the underlying allocator.
-        //: 3 Create a functor object.  The function 'Functor::operator()' will
-        //:   nest several routine calls deep, then frequently allocate and
-        //:   deallocate blocks in random order from an allocator passed at
-        //:   construction.
-        //: 4 Start many threads, all calling 'Functor::operator()', all
-        //:   sharing a stack trace test allocator whose underlying allocator
-        //:   is a 'TouchyAllocator'.
-        //: 5 Set up barriers before the first few allocations by the threads
-        //:   to encourage the threads to all try to allocate at the same time,
-        //:   maximizing contention.
-        //: 6 The subthreads will all reach a barrier after they are done
-        //:   allocating and freeing.
-        //: 7 After the threads have done a lot of allocating and freeing, have
-        //:   them pause with some memory outstanding.  While they are paused,
-        //:   generate a report from the main thread of the stack trace from
-        //:   the outstanding blocks (which should all be allocated from the
-        //:   same point in the code) and verify that the report is as
-        //:   expected.
-        //: 8 Allow the paused threads to continue and join them.
-        //: 9 Verify that the expected amount of memory is still outstanding,
-        //:   'release' it, destroy the stack trace test allocator, and verify
-        //:   that no report was written upon destruction.
+        // 1. Create a type, `TouchyAllocator`, derived from
+        //    `bslma::Allocator`, which will hold a pointer to a
+        //    bslma::Allocator and provide `allocate` and `deallocate` methods
+        //    which will propagate to the `allocate` and `deallocate` methods
+        //    of the held allocator, only before and after the called methods
+        //    they will assert to make sure that there is no simultaneous
+        //    calling of `allocate` or `deallocate` by multiple threads.
+        // 2. Create a stack trace test allocator with a `TouchyAllocator`
+        //    passed as the underlying allocator.
+        // 3. Create a functor object.  The function `Functor::operator()` will
+        //    nest several routine calls deep, then frequently allocate and
+        //    deallocate blocks in random order from an allocator passed at
+        //    construction.
+        // 4. Start many threads, all calling `Functor::operator()`, all
+        //    sharing a stack trace test allocator whose underlying allocator
+        //    is a `TouchyAllocator`.
+        // 5. Set up barriers before the first few allocations by the threads
+        //    to encourage the threads to all try to allocate at the same time,
+        //    maximizing contention.
+        // 6. The subthreads will all reach a barrier after they are done
+        //    allocating and freeing.
+        // 7. After the threads have done a lot of allocating and freeing, have
+        //    them pause with some memory outstanding.  While they are paused,
+        //    generate a report from the main thread of the stack trace from
+        //    the outstanding blocks (which should all be allocated from the
+        //    same point in the code) and verify that the report is as
+        //    expected.
+        // 8. Allow the paused threads to continue and join them.
+        // 9. Verify that the expected amount of memory is still outstanding,
+        //    `release` it, destroy the stack trace test allocator, and verify
+        //    that no report was written upon destruction.
         //---------------------------------------------------------------------
 
         if (verbose) cout << "Multithreaded Test\n"
@@ -2783,7 +2788,7 @@ int main(int argc, char *argv[])
         // Note: The Aix optimizer is doing something generally insane here.
         // Some of these functions wind up being called twice in the same stack
         // trace for no apparent reason, and the original stack depth of 8 was
-        // exhausted before the trace reached back to 'nest1'.  Increased the
+        // exhausted before the trace reached back to `nest1`.  Increased the
         // stack depth to 16, test passes again.  Still really don't understand
         // what that optimizer is doing, though.
 
@@ -2872,7 +2877,7 @@ int main(int argc, char *argv[])
 
         touchy.deleteObject(pta);
 
-        ASSERT(ss.str().empty());     // nothing written to 'ss' by d'tor of ta
+        ASSERT(ss.str().empty());     // nothing written to `ss` by d'tor of ta
       }  break;
       case 11: {
         //---------------------------------------------------------------------
@@ -2882,17 +2887,17 @@ int main(int argc, char *argv[])
         //   allocator issues no complaints and leaks no memory of its own.
         //
         // Plan:
-        //: In 2 blocks, for named and unnamed allocators:
-        //: 1 Create a 'stringstream' 'ss'.
-        //: 2 Create an allocator 'ta', named or unnamed, depending on which
-        //:   block we're in, with output redirected to 'ss'.
-        //: 3 Allocate 100 blocks.
-        //: 4 Create a 'stringstream' 'otherSs' and write a report to it with
-        //:   'reportBlocksInUse', verify it reports the outstanding memory.
-        //: 5 Free the 100 blocks.
-        //: 6 Destroy 'ta'.
-        //: 7 Verify that nothing was written to 'ss' since no memory was
-        //:   outstanding when 'ta' was destroyed.
+        //  In 2 blocks, for named and unnamed allocators:
+        // 1. Create a `stringstream` `ss`.
+        // 2. Create an allocator `ta`, named or unnamed, depending on which
+        //    block we're in, with output redirected to `ss`.
+        // 3. Allocate 100 blocks.
+        // 4. Create a `stringstream` `otherSs` and write a report to it with
+        //    `reportBlocksInUse`, verify it reports the outstanding memory.
+        // 5. Free the 100 blocks.
+        // 6. Destroy `ta`.
+        // 7. Verify that nothing was written to `ss` since no memory was
+        //    outstanding when `ta` was destroyed.
         //---------------------------------------------------------------------
 
         if (verbose) cout << "SUCCESSFUL FREEING TEST\n"
@@ -2976,9 +2981,9 @@ int main(int argc, char *argv[])
             ASSERT(0 == ta.numBlocksInUse());
         }
 
-        ASSERT(ss.str().empty());     // nothing written to 'ss' by d'tor of ta
+        ASSERT(ss.str().empty());     // nothing written to `ss` by d'tor of ta
 
-        // Upon destruction, 'sta' will verify that 'ta' didn't leak anything.
+        // Upon destruction, `sta` will verify that `ta` didn't leak anything.
       }  break;
       case 10: {
         //---------------------------------------------------------------------
@@ -3027,40 +3032,40 @@ int main(int argc, char *argv[])
         // BASIC ACCESSORS
         //
         // Concern:
-        //   That 'failureHandler', 'numBlocksInUse', and 'reportBlocksInUse'
+        //   That `failureHandler`, `numBlocksInUse`, and `reportBlocksInUse`
         //   function properly.
         //
         // Plan:
-        //: 1 Create a 'stringstream' 'taOss'.
-        //: 2 Create a stack trace test allocator 'ta' with its output
-        //:   redirected to 'taOss'.
-        //: 3 Manipulate 'ta's failure handler with 'setFailureHandler' and
-        //:   observe its value with the 'failurehandler' accessor.
-        //: 4 Declare a second 'stringstream' 'oss'.
-        //: 5 Call the 'reportBlocksInUse' accessor with no memory allocated.
-        //:   o The first time, call it with output redirected to 'oss'.
-        //:     Nothing should be written to 'oss'.  Verify this.
-        //:   o The second time, call the 'reportBlocksInUse' accessor with
-        //:     output defaulting to 'taOss'.  Nothing should be written to
-        //:     'taOss'.  Verify this.
-        //: 6 Loop 100 times
-        //:   o Allocate blocks of random lengths, keeping pointers to up to
-        //:     4 blocks.
-        //:   o Freeing one of the 4 blocks in random order
-        //:   o After every allocate or free, verify that the 'numBlocksInUse'
-        //:     accessor accurately tracks the number of unfreed blocks in
-        //:     existence.
-        //: 7 After the loop, 3 blocks should remain allocated.  Verify this.
-        //: 8 Call 'reportBlocksInUse' twice.
-        //:   o The first time, call it with output redirected to 'oss'.
-        //:   o The second time, call it with output defaulting to 'taOss.
-        //:   o Examine 'oss.str()' to see it reports the 3 outstanding blocks
-        //:     properly, and the name of the allocator.
-        //:   o Verify 'oss.str() == taOss.str()'.
-        //: 9 Free the remaining blocks.
-        //:10 Call 'reportBlocksInUse' twice again, with output going to 'oss'
-        //:   and 'taOss', and verify that this time no output is written.
-        //:11 Destroy 'ta' and verify that nothing is written to 'taOss'.
+        // 1. Create a `stringstream` `taOss`.
+        // 2. Create a stack trace test allocator `ta` with its output
+        //    redirected to `taOss`.
+        // 3. Manipulate `ta`s failure handler with `setFailureHandler` and
+        //    observe its value with the `failurehandler` accessor.
+        // 4. Declare a second `stringstream` `oss`.
+        // 5. Call the `reportBlocksInUse` accessor with no memory allocated.
+        //    - The first time, call it with output redirected to `oss`.
+        //      Nothing should be written to `oss`.  Verify this.
+        //    - The second time, call the `reportBlocksInUse` accessor with
+        //      output defaulting to `taOss`.  Nothing should be written to
+        //      `taOss`.  Verify this.
+        // 6. Loop 100 times
+        //    - Allocate blocks of random lengths, keeping pointers to up to
+        //     4. blocks.
+        //    - Freeing one of the 4 blocks in random order
+        //    - After every allocate or free, verify that the `numBlocksInUse`
+        //      accessor accurately tracks the number of unfreed blocks in
+        //      existence.
+        // 7. After the loop, 3 blocks should remain allocated.  Verify this.
+        // 8. Call `reportBlocksInUse` twice.
+        //    - The first time, call it with output redirected to `oss`.
+        //    - The second time, call it with output defaulting to 'taOss.
+        //    - Examine `oss.str()` to see it reports the 3 outstanding blocks
+        //      properly, and the name of the allocator.
+        //    - Verify `oss.str() == taOss.str()`.
+        // 9. Free the remaining blocks.
+        // 10. Call `reportBlocksInUse` twice again, with output going to `oss`
+        //    and `taOss`, and verify that this time no output is written.
+        // 11. Destroy `ta` and verify that nothing is written to `taOss`.
         //---------------------------------------------------------------------
 
         expectedDefaultAllocations = -1;    // turn off default allocator
@@ -3181,85 +3186,85 @@ int main(int argc, char *argv[])
         // Concern: Need to test creators and all manipulators
         //
         // Plan:
-        //: 1 Monitor use of the default allocator throughout this example,
-        //:   updating 'expectedDefaultAllocations' every time we deliberately
-        //:   use it (only for getting the string value of a 'stringstream'
-        //:   object), to verify that the object under test never uses the
-        //:   default allocator.
-        //: 2 Create a 'bslma::TestAllocator' object 'ota' for use by the
-        //:   allocator and the stringstream we will sometimes route its output
-        //:   to.
-        //: 3 Using a loop-based approach, loop through all possible
-        //:   combinations of two booleans:
-        //:   o CLEAN_DESTROY: if true, no memory will be outstanding when the
-        //:     stack trace test allocator object is destroyed, and no report
-        //:     is expected.
-        //:   o FAILURE_LONGJMP: if true, the stack trace test allocator
-        //:     object's failure handler is set to a function that will call
-        //:     'longjmp'.  If false, the handler is set to the 'Noop' handler,
-        //:     which will just return without doing anything.
-        //:   o Using a loop-based approach, create a stack trace test
-        //:     allocator object 'ta' using each of 10 possible combinations of
-        //:     args to the stack trace test allocator constructor.
-        //:     1 Use the 'setFailureHandler' manipulator to manipulate the
-        //:       failure handler, and verify the value of the changed value
-        //:       with the 'failureHandler' accessor.
-        //:     2 Call the 'release' manipulator.  Since no memory has been
-        //:       allocator using 'ta', it should make no difference to the
-        //:       number of blocks allocated by 'ta' or 'ota', observe this
-        //:       with the 'numBlocksInUse' accessors of 'ta' and 'ota'.
-        //:     3 Allocate a block of memory.  Observe the difference using the
-        //:       'numBlocksInUse' accessors of 'ta' and 'ota'.  Deallocate the
-        //:       block again and observe via the 'numBlocksInUse' accessors
-        //:       that the memory usage by 'ta' and 'ota' returns to what it
-        //:       previously was.
-        //:     4 Allocate another block, then call the 'release' manipulator
-        //:       of 'ta' and observe that the memory usage of 'ta' and 'ota'
-        //:       is restored to what it was before the memory was allocated.
-        //:     5 Allocate 100 blocks, then call the 'release' manipulator of
-        //:       'ta' and observe that the memory usage of 'ta' and 'ota' is
-        //:       restored to what it was before the memory was allocated.
-        //:     6 Allocate one block, and if the 'CLEAN_DESTROY' flag is set,
-        //:       deallocate it again.
-        //:     7 Call 'setjmp' to install a block as the handler if a
-        //:       'longjmp' occurs.  The block is described beginning in
-        //:       section 11.
-        //:     8 If 'FAILURE_LONGJMP' set the failure handler to a handler
-        //:       that will call 'longjmp', otherwise set it to a 'Noop'
-        //:       handler that will do nothing.
-        //:     9 Attempt to delete 'pta'.  If
-        //:       '!CLEAN_DESTROY && FAILURE_LONGJMP', the destructor should
-        //:       call 'longjmp' before any memory is freed.
-        //:    10 If 'deleteObject' returns, assert
-        //:       'CLEAN_DESTROY || !FAILURE_LONGJMP'.
-        //:    11 In the longjmp handling block, first assert '!CLEAN_DESTROY'
-        //:       and assert 'FAILURE_LONGJMP'.
-        //:    12 Set the failure handler to 'abort'.
-        //:    13 Verify that the memory allocated by 'ta' was not freed by the
-        //:       destructor before the failure handler was called.
-        //:    14 Depending on which constructor was used to create 'ta', and
-        //:       whether any memory was outstanding, compute boolean
-        //:       'OSS_REPORT' which is true if the destructor should have
-        //:       written a report to stringstream 'oss' and 'false' otherwise.
-        //:    15 Examine 'oss.str()' and verify that it meets our expectations
-        //:       of the report generated by the destructor.
-        //:    16 If the destructor called 'longjmp', release memory allocated
-        //:       by the object and successfully destroy it.
-        //: 4 Start a second block which will verify the capture of default
-        //:   output to 'cout'
-        //:   1 Define an assert macro 'ASSERT_STDERR' that will do its output
-        //:     to 'cerr' since we will be capturing 'cout's output to a
-        //:     stringstream.
-        //:   2 Define a stringstream 'oss' and redirect 'cout's output to
-        //:     'oss'.
-        //:   3 In both branches of an if statement
-        //:     o Create an object 'ta' with one of the two c'tors of 'Obj'
-        //:       that don't take an argument for 'ostream'.
-        //:     o Allocate a block.
-        //:     o Set the failure handler to 'Noop'.
-        //:     o Destroy 'ta'.
-        //:   4 Examine oss.str() to verify that it meets expectations, using
-        //:     'ASSERT_STDERR'.
+        // 1. Monitor use of the default allocator throughout this example,
+        //    updating `expectedDefaultAllocations` every time we deliberately
+        //    use it (only for getting the string value of a `stringstream`
+        //    object), to verify that the object under test never uses the
+        //    default allocator.
+        // 2. Create a `bslma::TestAllocator` object `ota` for use by the
+        //    allocator and the stringstream we will sometimes route its output
+        //    to.
+        // 3. Using a loop-based approach, loop through all possible
+        //    combinations of two booleans:
+        //    - CLEAN_DESTROY: if true, no memory will be outstanding when the
+        //      stack trace test allocator object is destroyed, and no report
+        //      is expected.
+        //    - FAILURE_LONGJMP: if true, the stack trace test allocator
+        //      object's failure handler is set to a function that will call
+        //      `longjmp`.  If false, the handler is set to the `Noop` handler,
+        //      which will just return without doing anything.
+        //    - Using a loop-based approach, create a stack trace test
+        //      allocator object `ta` using each of 10 possible combinations of
+        //      args to the stack trace test allocator constructor.
+        //     1. Use the `setFailureHandler` manipulator to manipulate the
+        //        failure handler, and verify the value of the changed value
+        //        with the `failureHandler` accessor.
+        //     2. Call the `release` manipulator.  Since no memory has been
+        //        allocator using `ta`, it should make no difference to the
+        //        number of blocks allocated by `ta` or `ota`, observe this
+        //        with the `numBlocksInUse` accessors of `ta` and `ota`.
+        //     3. Allocate a block of memory.  Observe the difference using the
+        //        `numBlocksInUse` accessors of `ta` and `ota`.  Deallocate the
+        //        block again and observe via the `numBlocksInUse` accessors
+        //        that the memory usage by `ta` and `ota` returns to what it
+        //        previously was.
+        //     4. Allocate another block, then call the `release` manipulator
+        //        of `ta` and observe that the memory usage of `ta` and `ota`
+        //        is restored to what it was before the memory was allocated.
+        //     5. Allocate 100 blocks, then call the `release` manipulator of
+        //        `ta` and observe that the memory usage of `ta` and `ota` is
+        //        restored to what it was before the memory was allocated.
+        //     6. Allocate one block, and if the `CLEAN_DESTROY` flag is set,
+        //        deallocate it again.
+        //     7. Call `setjmp` to install a block as the handler if a
+        //        `longjmp` occurs.  The block is described beginning in
+        //        section 11.
+        //     8. If `FAILURE_LONGJMP` set the failure handler to a handler
+        //        that will call `longjmp`, otherwise set it to a `Noop`
+        //        handler that will do nothing.
+        //     9. Attempt to delete `pta`.  If
+        //        `!CLEAN_DESTROY && FAILURE_LONGJMP`, the destructor should
+        //        call `longjmp` before any memory is freed.
+        //    10. If `deleteObject` returns, assert
+        //        `CLEAN_DESTROY || !FAILURE_LONGJMP`.
+        //    11. In the longjmp handling block, first assert `!CLEAN_DESTROY`
+        //        and assert `FAILURE_LONGJMP`.
+        //    12. Set the failure handler to `abort`.
+        //    13. Verify that the memory allocated by `ta` was not freed by the
+        //        destructor before the failure handler was called.
+        //    14. Depending on which constructor was used to create `ta`, and
+        //        whether any memory was outstanding, compute boolean
+        //        `OSS_REPORT` which is true if the destructor should have
+        //        written a report to stringstream `oss` and `false` otherwise.
+        //    15. Examine `oss.str()` and verify that it meets our expectations
+        //        of the report generated by the destructor.
+        //    16. If the destructor called `longjmp`, release memory allocated
+        //        by the object and successfully destroy it.
+        // 4. Start a second block which will verify the capture of default
+        //    output to `cout`
+        //   1. Define an assert macro `ASSERT_STDERR` that will do its output
+        //      to `cerr` since we will be capturing `cout`s output to a
+        //      stringstream.
+        //   2. Define a stringstream `oss` and redirect `cout`s output to
+        //      `oss`.
+        //   3. In both branches of an if statement
+        //      - Create an object `ta` with one of the two c'tors of `Obj`
+        //        that don't take an argument for `ostream`.
+        //      - Allocate a block.
+        //      - Set the failure handler to `Noop`.
+        //      - Destroy `ta`.
+        //   4. Examine oss.str() to verify that it meets expectations, using
+        //      `ASSERT_STDERR`.
         //---------------------------------------------------------------------
 
         if (verbose) cout << "DEFAULT C'TOR, PRIMARY MANIPULATORS, D'TOR\n"
@@ -3270,7 +3275,7 @@ int main(int argc, char *argv[])
 
         if (verbose) Q("Loop to exercise all c'tors");
 
-        // atomic and 'volatile' avoids clobbered warning
+        // atomic and `volatile` avoids clobbered warning
         for (bsls::AtomicInt i(0); i < 2 * ABORT_LIMIT; ++i) {
             const bool CLEAN_DESTROY   = i %  2;
             const bool FAILURE_LONGJMP = i >= 2;
@@ -3285,8 +3290,8 @@ int main(int argc, char *argv[])
 
                 bsl::stringstream oss(&ssTa);
 
-                // Note that 'Obj's that are constructed without an allocator
-                // arg use the gmalloc allocator singleton, not 'da'
+                // Note that `Obj`s that are constructed without an allocator
+                // arg use the gmalloc allocator singleton, not `da`
 
                 bool otaPassed = false;
                 switch (c) {
@@ -3317,7 +3322,7 @@ int main(int argc, char *argv[])
                 ta.setFailureHandler(&Obj::failNoop);
                 ta.setFailureHandler(saveFail);
 
-                // No blocks are allocated.  Verify 'release' has no effect.
+                // No blocks are allocated.  Verify `release` has no effect.
 
                 const int otaNumBlocks = (int) ota.numBlocksInUse();
                 ASSERT(0 == ta.numBlocksInUse());
@@ -3357,8 +3362,8 @@ int main(int argc, char *argv[])
                     ta.deallocate(block);
                 }
 
-                // If 'CLEAN_DESTROY' there will be no blocks in use and the
-                // d'tor will not write a report.  Otherwise, 'block' will
+                // If `CLEAN_DESTROY` there will be no blocks in use and the
+                // d'tor will not write a report.  Otherwise, `block` will
                 // still be unfreed and a report will be written.
 
                 ASSERT(! CLEAN_DESTROY == ta.numBlocksInUse());
@@ -3467,23 +3472,23 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concern:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 For varying values of 'maxDepths[d]':
-        //:   o Declare a stack trace test allocator object, directing output
-        //:     to a stringstream.  Call 'leakTwiceA', which will leak memory
-        //:     in two places.
-        //:   o If not 'veryVerbose', set the failure handler to '...Noop'.
-        //:   o Destroy the stack trace allocator object.  If 'veryVerbose',
-        //:     this will cause an abort due to leaked memory.
-        //:   o Examine the trace written to the stringstream and verity that
-        //:     it is as expected.
+        // 1. For varying values of `maxDepths[d]`:
+        //    - Declare a stack trace test allocator object, directing output
+        //      to a stringstream.  Call `leakTwiceA`, which will leak memory
+        //      in two places.
+        //    - If not `veryVerbose`, set the failure handler to `...Noop`.
+        //    - Destroy the stack trace allocator object.  If `veryVerbose`,
+        //      this will cause an abort due to leaked memory.
+        //    - Examine the trace written to the stringstream and verity that
+        //      it is as expected.
         //
         // Additional Instructions:
-        //: o Set 'veryVerbose' to make this test abort when the test allocator
-        //:   is destructed.
+        //  - Set `veryVerbose` to make this test abort when the test allocator
+        //    is destructed.
         //---------------------------------------------------------------------
 
         if (verbose) cout << "BREATHING TEST\n"
@@ -3500,8 +3505,8 @@ int main(int argc, char *argv[])
                 // This test requires us to see the top 4 frames to work.
 
                 // On some, but not all, versions of the Windows compiler,
-                // 'StackAddressUtil::k_IGNORE_FRAMES' is one too low so we
-                // waste a frame on 'StackAddressUtil::getStackAddresses', so
+                // `StackAddressUtil::k_IGNORE_FRAMES` is one too low so we
+                // waste a frame on `StackAddressUtil::getStackAddresses`, so
                 // we need at least 5 frames to work.
 
                 break;
@@ -3569,7 +3574,7 @@ int main(int argc, char *argv[])
     }
 
 #if 0
-    // Tracking calls to global 'new' & 'delete' was abandoned -- see comment
+    // Tracking calls to global `new` & `delete` was abandoned -- see comment
     // above.
 
     LOOP_ASSERT(numGlobalNewCalls,    0 == numGlobalNewCalls);

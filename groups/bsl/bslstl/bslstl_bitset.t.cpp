@@ -15,11 +15,11 @@
 #include <cstdlib>
 #include <iostream>
 
-#include <cmath>  // 'std::sqrt'
+#include <cmath>  // `std::sqrt`
 
 #include <stdio.h>
-#include <stdlib.h>      // 'atoi'
-#include <string.h>      // 'strcmp', 'strcpy'
+#include <stdlib.h>      // `atoi`
+#include <string.h>      // `strcmp`, `strcpy`
 
 using namespace BloombergLP;
 using namespace std;    // still using iostream
@@ -38,36 +38,36 @@ using namespace std;    // still using iostream
 //                                  Overview
 //                                  --------
 // The component under test implements a single (value-semantic) class.  The
-// Primary Manipulators are 'operator[]' and 'bitset(bsl::string), and the
-// Basic Accessors are 'operator[] const' and 'size'.
+// Primary Manipulators are `operator[]` and 'bitset(bsl::string), and the
+// Basic Accessors are `operator[] const` and `size`.
 //
 // Primary Manipulators:
-//: o 'operator[]'
+//  - `operator[]`
 //
 // Basic Accessors:
-//: o 'operator[]'
-//: o 'size'
+//  - `operator[]`
+//  - `size`
 //
 // This particular attribute class also provides a value constructor capable of
 // creating an object in any state relevant for thorough testing, obviating the
-// primitive generator function, 'gg', normally used for this purpose.  We will
+// primitive generator function, `gg`, normally used for this purpose.  We will
 // therefore follow our standard 10-case approach to testing value-semantic
 // types except that we will test the value constructor in case 3 (in lieu of
 // the generator function), with the default constructor and primary
 // manipulators tested fully in case 2.
 //
 // Certain standard value-semantic-type test cases are omitted:
-//: o [10] -- BSLX streaming is not (yet) implemented for this class.
+//  - [10] -- BSLX streaming is not (yet) implemented for this class.
 //
 // Global Concerns:
-//: o The test driver is robust w.r.t. reuse in other, similar components.
-//: o ACCESSOR methods are declared 'const'.
-//: o CREATOR & MANIPULATOR pointer/reference parameters are declared 'const'.
-//: o No memory is ever allocated from the global allocator.
-//: o Precondition violations are detected in appropriate build modes.
+//  - The test driver is robust w.r.t. reuse in other, similar components.
+//  - ACCESSOR methods are declared `const`.
+//  - CREATOR & MANIPULATOR pointer/reference parameters are declared `const`.
+//  - No memory is ever allocated from the global allocator.
+//  - Precondition violations are detected in appropriate build modes.
 //
 // Global Assumptions:
-//: o ACCESSOR methods are 'const' thread-safe.
+//  - ACCESSOR methods are `const` thread-safe.
 //
 // ----------------------------------------------------------------------------
 // CREATORS:
@@ -119,7 +119,7 @@ using namespace std;    // still using iostream
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [13] USAGE EXAMPLE
-// [12] CONCERN: Methods qualified 'noexcept' in standard are so defined.
+// [12] CONCERN: Methods qualified `noexcept` in standard are so defined.
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -230,13 +230,13 @@ void changeBitString(StringType* str, char zeroChar, char oneChar)
     }
 }
 
+/// Return true if the specified bitset `obj` has the bit pattern described
+/// by the first `N` characters of the specified `expected` string, where
+/// the `char` value '0' corresponds to an unset bit, and the char value '1'
+/// corresponds to a set bit, and return false otherwise.  The behavior is
+/// undefined unless `expected` has at least `N` characters.
 template <size_t N>
 bool verifyBitset(const bsl::bitset<N> obj, const char *expected)
-    // Return true if the specified bitset 'obj' has the bit pattern described
-    // by the first 'N' characters of the specified 'expected' string, where
-    // the 'char' value '0' corresponds to an unset bit, and the char value '1'
-    // corresponds to a set bit, and return false otherwise.  The behavior is
-    // undefined unless 'expected' has at least 'N' characters.
 {
     for (size_t i = 0; i != N; ++i) {
         ASSERT(expected[i] == '1' || expected[i] == '0');
@@ -462,58 +462,59 @@ void testCase3(bool verbose, bool veryVerbose, bool /* veryVeryVerbose */)
 //
 // When implementing this classic algorithm, we need an efficient way of
 // representing a flag for each potential prime number.  The following
-// illustrates how we can use 'bsl::bitset' to accomplish this result, provided
+// illustrates how we can use `bsl::bitset` to accomplish this result, provided
 // we know an upper bound on supplied candidate values at compile time.
 //
 // First, we begin to define a function template that will determine whether or
 // not a given candidate value is prime:
-//..
+// ```
+
+/// Return `true` if the specified `candidate` value is a prime number, and
+/// `false` otherwise.  The behavior is undefined unless
+/// `2 <= candidate <= MAX_VALUE`
 template <unsigned int MAX_VALUE>
 bool isPrime(int candidate)
-    // Return 'true' if the specified 'candidate' value is a prime number, and
-    // 'false' otherwise.  The behavior is undefined unless
-    // '2 <= candidate <= MAX_VALUE'
 {
     BSLMF_ASSERT(2 <= MAX_VALUE);
     BSLS_ASSERT(2 <= candidate);
     BSLS_ASSERT((unsigned int) candidate <= MAX_VALUE);
-//..
-// Then, we declare a 'bsl::bitset', 'compositeFlags', that will contain flags
+// ```
+// Then, we declare a `bsl::bitset`, `compositeFlags`, that will contain flags
 // indicating whether a value corresponding to a given index is known to be
-// composite ('true') or is still potentially prime ('false') up to and
-// including the compile-time constant template parameter, 'MAX_VALUE'.
-//..
-    // Candidate primes in the '[2 .. MAX_VALUE]' range.
+// composite (`true`) or is still potentially prime (`false`) up to and
+// including the compile-time constant template parameter, `MAX_VALUE`.
+// ```
+    // Candidate primes in the `[2 .. MAX_VALUE]` range.
 
     bsl::bitset<MAX_VALUE + 1> compositeFlags;
-//..
-// Next, we observe that a default-constructed 'bsl::bitset' has no flags set,
-// which we can verify by asserting that the 'none' method returns true, by
-// asserting that the 'any' method returns false, or by asserting that the
-// 'count' of set bits is 0:
-//..
+// ```
+// Next, we observe that a default-constructed `bsl::bitset` has no flags set,
+// which we can verify by asserting that the `none` method returns true, by
+// asserting that the `any` method returns false, or by asserting that the
+// `count` of set bits is 0:
+// ```
     ASSERT(true  == compositeFlags.none());
     ASSERT(false == compositeFlags.any());
     ASSERT(0     == compositeFlags.count());
-//..
-// Then, we note that a 'bsl::bitset' has a fixed 'size' (the set can't be
-// grown or shrunk) and verify that 'size' is the same as the template argument
-// used to create the 'bsl::bitset':
-//..
+// ```
+// Then, we note that a `bsl::bitset` has a fixed `size` (the set can't be
+// grown or shrunk) and verify that `size` is the same as the template argument
+// used to create the `bsl::bitset`:
+// ```
    ASSERT(MAX_VALUE + 1 == compositeFlags.size());
-//..
-// Next, we compute 'sqrt(candidate)', which is as far as we need to look:
-//..
-    // We need to cast the 'sqrt' argument to avoid an overload ambiguity.
+// ```
+// Next, we compute `sqrt(candidate)`, which is as far as we need to look:
+// ```
+    // We need to cast the `sqrt` argument to avoid an overload ambiguity.
     const int sqrtOfCandidate = static_cast<int>(
                                       std::sqrt(static_cast<double>(candidate))
                                                 + 0.01);  // fudge factor
-//..
-// Now, we loop from 2 to 'sqrtOfCandidate', and use the sieve algorithm to
+// ```
+// Now, we loop from 2 to `sqrtOfCandidate`, and use the sieve algorithm to
 // eliminate non-primes:
-//..
-    // Note that we treat 'false' values as potential primes, since that is how
-    // 'bsl::bitset' is default-initialized.
+// ```
+    // Note that we treat `false` values as potential primes, since that is how
+    // `bsl::bitset` is default-initialized.
 
     for (int i = 2; i <= sqrtOfCandidate; ++i) {
         if (compositeFlags[i]) {
@@ -537,8 +538,8 @@ bool isPrime(int candidate)
 
     return true;
 }
-//..
-// Notice that if we don't return 'false' from the loop, none of the lower
+// ```
+// Notice that if we don't return `false` from the loop, none of the lower
 // numbers evenly divided the candidate value; hence, it is a prime number.
 
 
@@ -577,13 +578,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -592,9 +593,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-// Finally, we can exercise our 'isPrime' function with an upper bound of
+// Finally, we can exercise our `isPrime` function with an upper bound of
 // 10,000:
-//..
+// ```
     enum { UPPER_BOUND = 10000 };
 
     ASSERT(1 == isPrime<UPPER_BOUND>(2));
@@ -610,44 +611,44 @@ int main(int argc, char *argv[])
     ASSERT(1 == isPrime<UPPER_BOUND>(9973));
     ASSERT(0 == isPrime<UPPER_BOUND>(9975));
     ASSERT(0 == isPrime<UPPER_BOUND>(10000));
-//..
+// ```
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING 'noexcept' SPECIFICATION
+        // TESTING `noexcept` SPECIFICATION
         //
         // Concerns:
-        //: 1 The 'noexcept' specification has been applied to all class
-        //:   interfaces required by the standard.
+        // 1. The `noexcept` specification has been applied to all class
+        //    interfaces required by the standard.
         //
         // Plan:
-        //: 1 Apply the unary 'noexcept' operator to expressions that mimic
-        //:   those appearing in the standard and confirm that calculated
-        //:   boolean value matches the expected value.
-        //:
-        //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
-        //:   of the container, we need test for just one general type and any
-        //:   'TYPE' specializations.
+        // 1. Apply the unary `noexcept` operator to expressions that mimic
+        //    those appearing in the standard and confirm that calculated
+        //    boolean value matches the expected value.
+        //
+        // 2. Since the `noexcept` specification does not vary with the `TYPE`
+        //    of the container, we need test for just one general type and any
+        //    `TYPE` specializations.
         //
         // Testing:
-        //   CONCERN: Methods qualified 'noexcept' in standard are so defined.
+        //   CONCERN: Methods qualified `noexcept` in standard are so defined.
         // --------------------------------------------------------------------
 
 
-        if (verbose) printf("\nTESTING 'noexcept' SPECIFICATION"
+        if (verbose) printf("\nTESTING `noexcept` SPECIFICATION"
                             "\n================================\n");
 
         // N4594: 20.8 Class template bitset
 
         // page 556: 20.8.4 bitset operators
-        //..
+        // ```
         //  template <size_t N>
         //    bitset<N> operator&(const bitset<N>&, const bitset<N>&) noexcept;
         //  template <size_t N>
         //    bitset<N> operator|(const bitset<N>&, const bitset<N>&) noexcept;
         //  template <size_t N>
         //    bitset<N> operator^(const bitset<N>&, const bitset<N>&) noexcept;
-        //..
+        // ```
         {
             bsl::bitset<32> lhs;
             bsl::bitset<32> rhs;
@@ -661,7 +662,7 @@ int main(int argc, char *argv[])
         }
 
         // page 557
-        //..
+        // ```
         //  class reference {
         //    friend class bitset;
         //  public:
@@ -672,7 +673,7 @@ int main(int argc, char *argv[])
         //    operator bool() const noexcept;
         //    reference& flip() noexcept;
         //  }
-        //..
+        // ```
         {
             bsl::bitset<32> b;
             size_t          i = 0;
@@ -680,10 +681,10 @@ int main(int argc, char *argv[])
 
             BSLA_MAYBE_UNUSED bool x = true;
 
-            // The only public way to construct 'reference' objects is to call
-            // 'operator[]' on a bitset, which is not 'noexcept' itself.
-            // Therefore, we must construct 'reference' objects outside the
-            // expressions tested with the 'noexcept' operator.
+            // The only public way to construct `reference` objects is to call
+            // `operator[]` on a bitset, which is not `noexcept` itself.
+            // Therefore, we must construct `reference` objects outside the
+            // expressions tested with the `noexcept` operator.
 
             BSLA_MAYBE_UNUSED bsl::bitset<32>::reference       ref = b[i];
             BSLA_MAYBE_UNUSED const bsl::bitset<32>::reference REF = b[j];
@@ -700,25 +701,25 @@ int main(int argc, char *argv[])
 
             ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
                 == BSLS_KEYWORD_NOEXCEPT_OPERATOR(ref = x));
-                                                           // 'operator=(bool)'
+                                                           // `operator=(bool)`
             ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
                 == BSLS_KEYWORD_NOEXCEPT_OPERATOR(ref = REF));
-                                               // 'operator=(const reference&)'
+                                               // `operator=(const reference&)`
 
             ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(~REF));        // 'operator~'
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(~REF));        // `operator~`
             ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
                 == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x = REF));
-                                                           // 'operator bool()'
+                                                           // `operator bool()`
             ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(ref.flip()));     // 'flip()'
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(ref.flip()));     // `flip()`
         }
 
         // page 557: 20.8.1 constructors:
-        //..
+        // ```
         //  constexpr bitset() noexcept;
         //  constexpr bitset(unsigned long long val) noexcept;
-        //..
+        // ```
         {
             BSLA_MAYBE_UNUSED unsigned long long val = 1;
 
@@ -729,7 +730,7 @@ int main(int argc, char *argv[])
         }
 
         // page 557: 20.8.2 bitset operations:
-        //..
+        // ```
         //  bitset<N>& operator&=(const bitset<N>& rhs) noexcept;
         //  bitset<N>& operator|=(const bitset<N>& rhs) noexcept;
         //  bitset<N>& operator^=(const bitset<N>& rhs) noexcept;
@@ -739,7 +740,7 @@ int main(int argc, char *argv[])
         //  bitset<N>& reset() noexcept;
         //  bitset<N> operator~() const noexcept;
         //  bitset<N>& flip() noexcept;
-        //..
+        // ```
         {
             bsl::bitset<32> b;
             bsl::bitset<32> rhs;
@@ -769,7 +770,7 @@ int main(int argc, char *argv[])
         }
 
         // page 557-558: element access:
-        //..
+        // ```
         // size_t count() const noexcept;
         // constexpr size_t size() const noexcept;
         //
@@ -780,7 +781,7 @@ int main(int argc, char *argv[])
         // bool none() const noexcept;
         // bitset<N> operator<<(size_t pos) const noexcept;
         // bitset<N> operator>>(size_t pos) const noexcept;
-        //..
+        // ```
         {
             bsl::bitset<32> b;
             bsl::bitset<32> rhs;
@@ -815,15 +816,15 @@ int main(int argc, char *argv[])
         // TESTING SHIFT OPERATORS
         //
         // Concerns:
-        //: 1 That a bitset can be shifted across word boundaries.
-        //:
-        //: 2 That a bitset get filled by 0s for the most significant 'pos'
-        //:   bits if shifted right, or the least significant 'pos' bits if
-        //:   shifted left.
+        // 1. That a bitset can be shifted across word boundaries.
+        //
+        // 2. That a bitset get filled by 0s for the most significant `pos`
+        //    bits if shifted right, or the least significant `pos` bits if
+        //    shifted left.
         //
         // Plan:
-        //: 1 Using the table-driven technique, construct a bitset.  Then shift
-        //:   the bitset and verify the value is as expected.
+        // 1. Using the table-driven technique, construct a bitset.  Then shift
+        //    the bitset and verify the value is as expected.
         //
         // Testing:
         //   bitset& operator<<=(std::size_t pos);
@@ -1078,11 +1079,11 @@ int main(int argc, char *argv[])
         //   and bslstl strings.
         //
         // Plan:
-        //   Using the table-driven technique, construct a bitset, 'X', from
+        //   Using the table-driven technique, construct a bitset, `X`, from
         //   both native and bslstl strings.  Verify the value of the
         //   constructed bitset is as expected. Then transform those strings so
         //   that they use different characters to represent '0' and '1'. For
-        //   each transformed string construct a bitset 'Y' and verify its
+        //   each transformed string construct a bitset `Y` and verify its
         //   value.
         //
         // Testing:
@@ -1094,7 +1095,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING STRING CONSTRUCTORS"
                             "\n===========================\n");
 
-        const int TESTSIZE = 32;  // 'bitset' size.
+        const int TESTSIZE = 32;  // `bitset` size.
         typedef bsl::bitset<TESTSIZE> Obj;
 
         static const struct {
@@ -1188,7 +1189,7 @@ int main(int argc, char *argv[])
             const Obj& X = mX;
             if (veryVeryVerbose) { T_ T_ P(X) }
 
-            // Shorten these type names so that an explicit call to 'to_string'
+            // Shorten these type names so that an explicit call to `to_string`
             // can fit on a single 79-char line.
             typedef bsl::string::traits_type    TraitsType;
             typedef bsl::string::allocator_type AllocType;
@@ -1231,20 +1232,20 @@ int main(int argc, char *argv[])
 
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'unsigned long long' CONSTRUCTOR
-        //   Ensure that the 'unsigned long long' constructor leaves the object
+        // TESTING `unsigned long long` CONSTRUCTOR
+        //   Ensure that the `unsigned long long` constructor leaves the object
         //   in the expected state for different initial sizes.
         //
         // Concerns:
-        //: 1 All 'N' bits in a 'bitset<N>(k)'-constructed bitset match the N
-        //:   low bits of 'k'.
-        //:
-        //: 2 (C++11 only) 'bitset<N>(k)' can be used in a constant expression.
+        // 1. All `N` bits in a `bitset<N>(k)`-constructed bitset match the N
+        //    low bits of `k`.
+        //
+        // 2. (C++11 only) `bitset<N>(k)` can be used in a constant expression.
         //
         // Plan:
         //   Construct bitsets of different sizes with different
-        //   'unsigned long long' arguments 'k', and check that all 'N' bits in
-        //   the bitset match the 'N' lowest bits of 'k'. Then repeat the same
+        //   `unsigned long long` arguments `k`, and check that all `N` bits in
+        //   the bitset match the `N` lowest bits of `k`. Then repeat the same
         //   process except that the construction and checks are done at
         //   compile time (C++11 only).
         //
@@ -1253,7 +1254,7 @@ int main(int argc, char *argv[])
         //  constexpr bool operator[](std::size_t pos) const;
         //---------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'unsigned long long' CONSTRUCTOR"
+        if (verbose) printf("\nTESTING `unsigned long long` CONSTRUCTOR"
                             "\n========================================\n");
 
 //      testCase3<0>(verbose, veryVerbose, veryVeryVerbose);   // bad test code
@@ -1285,21 +1286,21 @@ int main(int argc, char *argv[])
         //   expected state for different initial sizes.
         //
         // Concerns:
-        //: 1 All 'N' bits in a default-constructed 'bitset<N>' are initially
-        //:   0.
-        //:
-        //: 2 'bitset<N>' implies 'N == size()'.
-        //:
-        //: 3 'bitset<N>' has a constexpr default constructor.
-        //:
-        //: 4 'bitset<0>' is a valid type that satisfies all contracts.
+        // 1. All `N` bits in a default-constructed `bitset<N>` are initially
+        //    0.
+        //
+        // 2. `bitset<N>` implies `N == size()`.
+        //
+        // 3. `bitset<N>` has a constexpr default constructor.
+        //
+        // 4. `bitset<0>` is a valid type that satisfies all contracts.
         //
         // Plan:
-        //   Default construct bitsets of different sizes and check 'size',
-        //   'none', and 'any', then modify the first and last bits back and
-        //   forth and make sure 'none' and 'any' report the expected results.
+        //   Default construct bitsets of different sizes and check `size`,
+        //   `none`, and `any`, then modify the first and last bits back and
+        //   forth and make sure `none` and `any` report the expected results.
         //   Also default construct the bitsets as constant expressions and use
-        //   the constexpr members 'size()' and 'operator[0]' to check the
+        //   the constexpr members `size()` and `operator[0]` to check the
         //   invariants in a static_assert.
         //
         // Testing:
@@ -1347,9 +1348,9 @@ int main(int argc, char *argv[])
         //   We want to demonstrate a base-line level of correct operation of
         //   the following methods and operators:
         //     - default and value constructors.
-        //     - equality operators: 'operator==' and 'operator!='.
-        //     - primary manipulators: 'reset' and 'operator|='.
-        //     - basic accessors: 'operator[]'.
+        //     - equality operators: `operator==` and `operator!=`.
+        //     - primary manipulators: `reset` and `operator|=`.
+        //     - basic accessors: `operator[]`.
         //
         // Plan:
         //   Create four test objects using the default, initializing, and copy
@@ -1357,15 +1358,15 @@ int main(int argc, char *argv[])
         //   equality operators using the test objects.  Invoke the primary
         //   manipulator [5, 6, 7].  Use the basic accessors to verify the
         //   expected results.  Display object values frequently in verbose
-        //   mode.  Note that 'VA', 'VB' and 'VC' denote unique, but otherwise
-        //   arbitrary, object values, while 'U' denotes the valid, but
+        //   mode.  Note that `VA`, `VB` and `VC` denote unique, but otherwise
+        //   arbitrary, object values, while `U` denotes the valid, but
         //   "unknown", default object value.
         //
         //    1. Create an object x1 (init to VA)   { x1:VA       }
         //    3. Create an object x3 (default ctor) { x1:VA x3:U  }
-        //    5. Set x3 using 'update' (set to VB)  { x1:VA x3:VB }
-        //    6. Change x1 using 'reset'            { x1:U  x3:VB }
-        //    7. Change x1 ('update', set to VC)    { x1:VC x3:VB }
+        //    5. Set x3 using `update` (set to VB)  { x1:VA x3:VB }
+        //    6. Change x1 using `reset`            { x1:U  x3:VB }
+        //    7. Change x1 (`update`, set to VC)    { x1:VC x3:VB }
         //
         // Testing:
         //   BREATHING TEST
@@ -1374,7 +1375,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        const int TESTSIZE = 32;  // 'bitset' size.
+        const int TESTSIZE = 32;  // `bitset` size.
         typedef bsl::bitset<TESTSIZE> Obj;
 
         static const struct {
@@ -1445,7 +1446,7 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) printf(
-              "\n 6. Change x1 using 'reset'.\t\t{ x1:U x2:SA x3:SB x4:U }\n");
+              "\n 6. Change x1 using `reset`.\t\t{ x1:U x2:SA x3:SB x4:U }\n");
         mX1.reset();
         if (verbose) { T_ P(X1); }
 

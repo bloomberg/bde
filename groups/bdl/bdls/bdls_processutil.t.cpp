@@ -117,11 +117,11 @@ enum { e_UNIX = false };
 const char slash = '\\';
 #endif
 
+/// On Unix, return `true` if the file at the specified `path` exists, is
+/// not a directory, and is executable (or is a symbolic link to such a
+/// file) and `false` otherwise.  On Windows, return `true` if the file
+/// exists and is not a directory.
 bool isExecutable(const bsl::string& path)
-    // On Unix, return 'true' if the file at the specified 'path' exists, is
-    // not a directory, and is executable (or is a symbolic link to such a
-    // file) and 'false' otherwise.  On Windows, return 'true' if the file
-    // exists and is not a directory.
 {
 #if defined BSLS_PLATFORM_OS_UNIX
     const int executableBits = S_IXUSR | S_IXGRP | S_IXOTH;
@@ -208,9 +208,9 @@ int main(int argc, char *argv[])
     bslma::TestAllocator         da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard daGuard(&da);
 
-    // 'hostName' is used in multiple test cases in combination with process id
-    // to make reliably unique temporary file names.  '$HOSTNAME' is not set in
-    // matrix builds, so we can't access the hostname through 'getenv'.
+    // `hostName` is used in multiple test cases in combination with process id
+    // to make reliably unique temporary file names.  `$HOSTNAME` is not set in
+    // matrix builds, so we can't access the hostname through `getenv`.
 
 #if BSLS_PLATFORM_OS_WINDOWS
     const char * const hostName = "windowshost";
@@ -240,10 +240,10 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concern:
-        //: 1 That the usage example compiles and works.
+        // 1. That the usage example compiles and works.
         //
         // Plan:
-        //: 1 Run the usage example.
+        // 1. Run the usage example.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -256,40 +256,40 @@ int main(int argc, char *argv[])
                                                             // default alloc.
 
 // Get the current process ID:
-//..
+// ```
     const int pid = bdls::ProcessUtil::getProcessId();
-//..
-// All calls to 'getProcessId' will yield the same value:
-//..
+// ```
+// All calls to `getProcessId` will yield the same value:
+// ```
     ASSERT(bdls::ProcessUtil::getProcessId() == pid);
-//..
+// ```
 // Get the current process name:
-//..
+// ```
     bsl::string processName;
     int rc = bdls::ProcessUtil::getProcessName(&processName);
     if (0 != rc) {
         processName = "unknown";
     }
-//..
-// All calls to 'getProcessName' will yield the same value.  Note that if
-// the call does not succeed, 'processNameB' will not be modified.
-//..
+// ```
+// All calls to `getProcessName` will yield the same value.  Note that if
+// the call does not succeed, `processNameB` will not be modified.
+// ```
     bsl::string processNameB("unknown");
     (void) bdls::ProcessUtil::getProcessName(&processNameB);
 //
     ASSERT(processNameB == processName);
-//..
+// ```
       } break;
       case 5: {
         // --------------------------------------------------------------------
         // LEAKING FILE DESCRIPTORS TEST
         //
         // Concern:
-        //: 1 Reproduce bug where 'getProcessName' is leaking file descriptors.
+        // 1. Reproduce bug where `getProcessName` is leaking file descriptors.
         //
         // Plan:
-        //: 1 Call all functions in this component many times and see if we run
-        //:   out of file descriptors.
+        // 1. Call all functions in this component many times and see if we run
+        //    out of file descriptors.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "LEAKING FILE DESCRIPTORS TEST\n"
@@ -336,35 +336,35 @@ int main(int argc, char *argv[])
         // CONCERN: RELATIVE PATH, SYMLINKS, SPACES
         //
         // This test case is concerned with difficult cases for
-        // 'getProcessName' and 'getExecutableName'.  In order to test
+        // `getProcessName` and `getExecutableName`.  In order to test
         // situations where, for example, an executable name has a space, this
-        // test case uses 'system' to run a shell script that copies the test
+        // test case uses `system` to run a shell script that copies the test
         // driver to a new file, and runs case -1, and captures the result.
         // Case -1 contains the body of the test performed.
         //
         // Concerns:
-        //: 1 That 'getPathToExecutable' will reliably deliver a path through
-        //:   which the executable can be accessed, even under difficult
-        //:   conditions.
-        //:   o The executable is invoked with a relative path
-        //:   o When the working directory has been changed since task startup.
-        //:   o When the executable name contains spaces.
+        // 1. That `getPathToExecutable` will reliably deliver a path through
+        //    which the executable can be accessed, even under difficult
+        //    conditions.
+        //    - The executable is invoked with a relative path
+        //    - When the working directory has been changed since task startup.
+        //    - When the executable name contains spaces.
         //
         // Plan:
-        //: 1 Create a temp file that is to be a unix or DOS shell script.  In
-        //:   it:
-        //:   o Create a test directory.
-        //:   o Copy 'argv[0]' into a file in the test directory.  If we expect
-        //:     to be able to cope with spaces in the file name, choose a file
-        //:     name with spaces.
-        //:   o chdir into that directory.
-        //:   o Run the previous test case (which tests 'getPathToExecutable',
-        //:     with the same verbosity flags passed to this test case.
-        //:
-        //: 2 Use 'system' to run the shell script and observe the return
-        //:   value, which will indicate whether that test case passed, and
-        //:   incorporate that value into the value of 'testStatus' for this
-        //:   test driver.
+        // 1. Create a temp file that is to be a unix or DOS shell script.  In
+        //    it:
+        //    - Create a test directory.
+        //    - Copy `argv[0]` into a file in the test directory.  If we expect
+        //      to be able to cope with spaces in the file name, choose a file
+        //      name with spaces.
+        //    - chdir into that directory.
+        //    - Run the previous test case (which tests `getPathToExecutable`,
+        //      with the same verbosity flags passed to this test case.
+        //
+        // 2. Use `system` to run the shell script and observe the return
+        //    value, which will indicate whether that test case passed, and
+        //    incorporate that value into the value of `testStatus` for this
+        //    test driver.
         //
         // Testing:
         //   CONCERN: RELATIVE PATH, SYMLINKS, SPACES
@@ -379,8 +379,8 @@ int main(int argc, char *argv[])
                                           test, hostName, Obj::getProcessId());
 
         {
-            // 'FUtil::remove' uses the default allocator on directories, and
-            // 'FUtil::createDirectories' uses the default allocator.
+            // `FUtil::remove` uses the default allocator on directories, and
+            // `FUtil::createDirectories` uses the default allocator.
 
             bslma::DefaultAllocatorGuard guard(&ta);
             (void) FUtil::remove(directoryName, true);
@@ -464,7 +464,7 @@ int main(int argc, char *argv[])
         if (!u::e_UNIX) {
             // Windows needs a few seconds after the script finishes to be
             // allowed to delete the script and the executable at
-            // 'copiedExecutablePath' and the directory 'directoryName'
+            // `copiedExecutablePath` and the directory `directoryName`
             // containing them.
 
             bslmt::ThreadUtil::microSleep(0, 5);    // 5 seconds
@@ -478,48 +478,48 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'getPathToExecutable'
+        // TESTING `getPathToExecutable`
         //
         // Concerns:
-        //: 1 Ensure that 'getPathToExecutable' can find the executable, before
-        //:   and after changing the current dirrectory.  Note that some
-        //:   platforms will not be able to cope with this.
+        // 1. Ensure that `getPathToExecutable` can find the executable, before
+        //    and after changing the current dirrectory.  Note that some
+        //    platforms will not be able to cope with this.
         //
         // Plan:
-        //: 1 Determine if 'argv[0]' is relative.  This is still a useful test
-        //:   if 'argv[0]' is absolute, but it's a better test if it's
-        //:   relative, so the next test case runs this test case with a
-        //:   relative 'argv[0]'.
-        //:
-        //: 2 Get the current working directory.
-        //:
-        //: 3 Read the executable name with 'getPathToExecutable'.  Verify that
-        //:   it's a valid, executable file.
-        //:
-        //: 4 Change to the parent of the current directory.
-        //:
-        //: 5 Determine, based upon the platform and whether the directory
-        //:   "/proc" is available, whether we expect 'getPathToExecutable' to
-        //:   now be able to give us a usable path to the executable, and set
-        //:   the 'bool' 'expFindExec' accordingly.
-        //:
-        //: 6 Call 'getPathToExecutable' again.
-        //:
-        //: 7 If we expect the post-chdir tests for the current platform, check
-        //:   whether the return code was 0, whether a file exists at the
-        //:   returned path, whether the file at the returned path was
-        //:   executable, and whether the observed size of the file at the
-        //:   returned path matches that taken of 'argv[0]' before changing
-        //:   directories.
-        //:
-        //: 8 If we don't expect the post-chdir tests to pass and they do, emit
-        //:   traces accordingly but don't fail.
+        // 1. Determine if `argv[0]` is relative.  This is still a useful test
+        //    if `argv[0]` is absolute, but it's a better test if it's
+        //    relative, so the next test case runs this test case with a
+        //    relative `argv[0]`.
+        //
+        // 2. Get the current working directory.
+        //
+        // 3. Read the executable name with `getPathToExecutable`.  Verify that
+        //    it's a valid, executable file.
+        //
+        // 4. Change to the parent of the current directory.
+        //
+        // 5. Determine, based upon the platform and whether the directory
+        //    "/proc" is available, whether we expect `getPathToExecutable` to
+        //    now be able to give us a usable path to the executable, and set
+        //    the `bool` `expFindExec` accordingly.
+        //
+        // 6. Call `getPathToExecutable` again.
+        //
+        // 7. If we expect the post-chdir tests for the current platform, check
+        //    whether the return code was 0, whether a file exists at the
+        //    returned path, whether the file at the returned path was
+        //    executable, and whether the observed size of the file at the
+        //    returned path matches that taken of `argv[0]` before changing
+        //    directories.
+        //
+        // 8. If we don't expect the post-chdir tests to pass and they do, emit
+        //    traces accordingly but don't fail.
         //
         // Testing:
         //   int getPathToExecutable(bsl::string *);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'getPathToExecutable'\n"
+        if (verbose) cout << "TESTING `getPathToExecutable`\n"
                              "===========================\n";
 
         ASSERTV(argv0, FUtil::exists(argv0));
@@ -642,26 +642,26 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'getProcessName'
+        // TESTING `getProcessName`
         //
         // Concerns:
-        //: 1 That 'getProcessName' always succeeds.
-        //:
-        //: 2 That the component name (which will be part of the executable
-        //:   file name under normal testing) is part of the found process
-        //:   name.
+        // 1. That `getProcessName` always succeeds.
+        //
+        // 2. That the component name (which will be part of the executable
+        //    file name under normal testing) is part of the found process
+        //    name.
         //
         // Plan:
-        //: 1 Call 'getProcessName'.
-        //:
-        //: 2 Verify that the value returned includes the component name as
-        //:   a substring.
+        // 1. Call `getProcessName`.
+        //
+        // 2. Verify that the value returned includes the component name as
+        //    a substring.
         //
         // Testing:
         //   int getProcessName(bsl::string *);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'getProcessName'\n"
+        if (verbose) cout << "TESTING `getProcessName`\n"
                              "========================\n";
 
         bsl::string name(&ta);
@@ -733,7 +733,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // CONCERN: RELATIVE PATH, SYMLINKS, SPACES (SUB TEST)
         //
-        // This test case is executed via 'system' from test case 4 to verify
+        // This test case is executed via `system` from test case 4 to verify
         // that the renamed test-driver executable works correct.  See case
         // 4 for concerns and plan.
         // --------------------------------------------------------------------
@@ -795,7 +795,7 @@ int main(int argc, char *argv[])
         ASSERT(!processName.empty());
 
         // Whether the process named returned is exected to be the name of a
-        // symlink.  This is 'true' on most UNIX platforms, except MacOS.
+        // symlink.  This is `true` on most UNIX platforms, except MacOS.
         // This is false on Windows (no symlinks) and Darwin (where the
         // proc_getpidpath function returns the path of the process the
         // symlink referred to).
@@ -825,12 +825,12 @@ int main(int argc, char *argv[])
         // MANUAL TEST: LONG PROCESS NAME (> 128 CHARACTERS)
         //
         // Concern:
-        //: 1 Reproduce bug where 'getProcessName' truncates the process name
-        //:   without returning an error (negative value).
+        // 1. Reproduce bug where `getProcessName` truncates the process name
+        //    without returning an error (negative value).
         //
         // Plan:
-        //: 1 Rename the test driver by hand.  Then run it with -1 test case
-        //:   and see if 'getProcessName' reports the same as 'argv[0]'.
+        // 1. Rename the test driver by hand.  Then run it with -1 test case
+        //    and see if `getProcessName` reports the same as `argv[0]`.
         // --------------------------------------------------------------------
 
         if (verbose) cout <<

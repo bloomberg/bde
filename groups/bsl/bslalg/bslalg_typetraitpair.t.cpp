@@ -6,8 +6,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 using namespace BloombergLP;
 
@@ -16,8 +16,8 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// Verify that the trait under test can be detected using 'bslalg::HasTrait'
-// whether the trait is ascribed using 'BSLMF_NESTED_TRAIT_DECLARATION' or
+// Verify that the trait under test can be detected using `bslalg::HasTrait`
+// whether the trait is ascribed using `BSLMF_NESTED_TRAIT_DECLARATION` or
 // using the (preferred) C++11 idiom for defining traits.
 //-----------------------------------------------------------------------------
 
@@ -122,10 +122,10 @@ int main(int argc, char *argv[])
         // TESTING TRAIT CLASS
         //
         // Concerns:
-        //: 1 The name of the trait class does not change over time.
+        // 1. The name of the trait class does not change over time.
         //
         // Plan:
-        //: 1 Create an instance of the trait class.
+        // 1. Create an instance of the trait class.
         //
         // Testing:
         //   class bslalg::TypeTraitPair;
@@ -140,11 +140,11 @@ int main(int argc, char *argv[])
         ASSERT(( bslalg::HasTrait<PairLike,        Obj>::value));
         ASSERT((!bslalg::HasTrait<NotAPair,        Obj>::value));
 
-        // As written, 'bslmf::IsPair' cannot be detected by 'bslalg::HasTrait'
-        // if it is ascribed to a type using 'BSLMF_NESTED_TRAIT_DECLARATION'.
-        // To "fix" 'bslmf::IsPair' for this, 'bslmf_ispair' would have to
-        // depend on 'bslmf_detectnestedtrait', which is not desirable.  See
-        // the implementation of 'bslalg::HasStlIterators' for an example of
+        // As written, `bslmf::IsPair` cannot be detected by `bslalg::HasTrait`
+        // if it is ascribed to a type using `BSLMF_NESTED_TRAIT_DECLARATION`.
+        // To "fix" `bslmf::IsPair` for this, `bslmf_ispair` would have to
+        // depend on `bslmf_detectnestedtrait`, which is not desirable.  See
+        // the implementation of `bslalg::HasStlIterators` for an example of
         // the "fix".
 
         ASSERT((!bslalg::HasTrait<AnotherPairLike, Obj>::value));

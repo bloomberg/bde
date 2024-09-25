@@ -43,17 +43,17 @@
 #include <bsls_buildtarget.h>
 #include <bsls_nameof.h>
 #include <bsls_timeutil.h>
-#include <bsls_types.h>     // 'BloombergLP::bsls::Types::Int64'
+#include <bsls_types.h>     // `BloombergLP::bsls::Types::Int64`
 
-#include <bsl_algorithm.h>  // 'count'
-#include <bsl_climits.h>    // 'INT_MAX'
-#include <bsl_cstdlib.h>    // 'atoi'
-#include <bsl_cmath.h>      // 'sqrt'
-#include <bsl_cstdio.h>     // 'sprintf'
+#include <bsl_algorithm.h>  // `count`
+#include <bsl_climits.h>    // `INT_MAX`
+#include <bsl_cstdlib.h>    // `atoi`
+#include <bsl_cmath.h>      // `sqrt`
+#include <bsl_cstdio.h>     // `sprintf`
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
-#include <bsl_memory.h>     // 'allocate_shared'
-#include <bsl_ostream.h>    // 'operator<<'
+#include <bsl_memory.h>     // `allocate_shared`
+#include <bsl_ostream.h>    // `operator<<`
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
@@ -72,43 +72,43 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // The component under test provides a fully thread safe container template,
-// 'bdlcc::StripedUnorderedContainerImpl', that provides a common
-// implementation for 'bdlcc::StripedUnorderedMap' and
-// 'bdlcc::StripedUnorderedMultiMap' container templates.  By design these
+// `bdlcc::StripedUnorderedContainerImpl`, that provides a common
+// implementation for `bdlcc::StripedUnorderedMap` and
+// `bdlcc::StripedUnorderedMultiMap` container templates.  By design these
 // containers do not implement equality comparison, an assignment operator,
-// copy constructor, or even a 'print' method.  Thus, they are classified as
-// *irregular* value-semantic types, even if their 'KEY' and 'VALUE' types are
+// copy constructor, or even a `print` method.  Thus, they are classified as
+// *irregular* value-semantic types, even if their `KEY` and `VALUE` types are
 // are VSTs and, test drivers of other (value-semantic) containers are of
 // limited use here.  This test driver will *not* be provide the canonical
 // (first) ten test cases typically used for VSTs.  Still, the fundamental
 // principles of test case ordering will, of course, be followed.
 //
 // This fully thread-safe container template should be able to handle any type
-// that is acceptable to the standard containers 'bsl::unorderedmap' and
-// 'bsl::unorderedmultimap'.  Consequently, our tests be run for the same set
+// that is acceptable to the standard containers `bsl::unorderedmap` and
+// `bsl::unorderedmultimap`.  Consequently, our tests be run for the same set
 // of types used in our test of those standard templates: primarily the types
-// defined in the 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR' macro and
+// defined in the `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR` macro and
 // other types in special cases.
 //
 // Single-threaded behavior is tested in test cases [1 .. 19].  Multi-threaded
 // issues are addressed in test cases [20 .. 22].  Two techniques are used:
 //
-//: 1 The component defines a component "private" class, a 'friend' of the hash
-//:   map, that allows users to explicitly lock and unlock specified stripes.
-//:   This helper class is used (after testing) to confirm that each locking
-//:   method of the hash map sets a lock of the flavor dictated by the design.
-//:
-//: 2 Stress testing by multiple threads operating at random intervals,
-//:   followed by consistency tests.
+// 1. The component defines a component "private" class, a `friend` of the hash
+//    map, that allows users to explicitly lock and unlock specified stripes.
+//    This helper class is used (after testing) to confirm that each locking
+//    method of the hash map sets a lock of the flavor dictated by the design.
+//
+// 2. Stress testing by multiple threads operating at random intervals,
+//    followed by consistency tests.
 //
 // Global Concerns:
-//: o All allocations from the intended allocator.
-//: o The global allocator is never used.
-//: o There are no temporary allocations.
-//: o All memory is returned on destruction.
-//: o Rehash is started whenever necessary.
-//: o Critical sections are appropriately locked (i.e., read vs. write lock).
-//: o Exceptions leave the hash map in an unlocked state.
+//  - All allocations from the intended allocator.
+//  - The global allocator is never used.
+//  - There are no temporary allocations.
+//  - All memory is returned on destruction.
+//  - Rehash is started whenever necessary.
+//  - Critical sections are appropriately locked (i.e., read vs. write lock).
+//  - Exceptions leave the hash map in an unlocked state.
 // ----------------------------------------------------------------------------
 // CREATORS
 // [ 2] StripedUnorderedContainerImpl(numInitialBuckets, numStripes, *ba);
@@ -283,22 +283,25 @@ typedef bdlcc::StripedUnorderedContainerImpl_TestUtil<int, bsl::string>
 typedef bsls::Types::Int64                            TimeType;
 typedef bsl::pair<int, bsl::string>                   PairType;
 
+/// Pointer to StripedUnorderedContainerImpl_TestUtil object
 typedef struct ThreadData {
     Strip_TestUtilType *d_stripTestUtil_p;
-        // Pointer to StripedUnorderedContainerImpl_TestUtil object
-    int                 d_sleep;
-        // sleep time, microsec
-    char                d_lockType;
-        // 'R' - Read, 'W' - Write
-    int                 d_key;
-        // Key to lock
 
+    /// sleep time, microsec
+    int                 d_sleep;
+
+    /// 'R' - Read, 'W' - Write
+    char                d_lockType;
+
+    /// Key to lock
+    int                 d_key;
+
+    /// Create a `ThreadData` object with the specified `stripTestUtil_p`,
+    /// `sleep`, `lockType`, and `key`.
     ThreadData(Strip_TestUtilType *stripTestUtil_p,
                int                 sleep,
                char                lockType,
                int                 key)
-        // Create a 'ThreadData' object with the specified 'stripTestUtil_p',
-        // 'sleep', 'lockType', and 'key'.
     : d_stripTestUtil_p(stripTestUtil_p)
     , d_sleep(sleep)
     , d_lockType(lockType)
@@ -333,48 +336,48 @@ extern "C" void *workThread(void *arg)
     return 0;
 }
 
+/// Test the locking methods in
+/// `bdlcc::StripedUnorderedContainerImpl_TestUtil`.
 void testTestingUtil()
-    // Test the locking methods in
-    // 'bdlcc::StripedUnorderedContainerImpl_TestUtil'.
 {
     // ------------------------------------------------------------------------
     // TEST HELPER CLASS
-    //   The 'bdlcc::StripedUnorderedContainerImpl_TestUtil' class is a
-    //   'friend' of 'bdlcc:StripedUnorderedContainerImpl' that allows users to
+    //   The `bdlcc::StripedUnorderedContainerImpl_TestUtil` class is a
+    //   `friend` of `bdlcc:StripedUnorderedContainerImpl` that allows users to
     //   explicitly lock and unlock stripes of a hash map.  This helper class
     //   is tested here and used in later tests.
     //
     // Concerns:
-    //: 1 The four methods 'lockRead', 'lockWrite', 'unlockRead', and
-    //:   'unLockWrite' each acquire (or release) the intended lock on the
-    //:   intended stripe.
-    //:
-    //: 2 Other threads are blocked (or not) according to the flavor of lock
-    //:   (i.e., "read" or "write").
-    //:
-    //: Plan:
-    //: 1 The interactions of these four methods will be explored by two
-    //:   threads:' the "main" thread and the "spawned" thread.
-    //:
-    //:   1 One thread ("spawned") will acquire a lock, sleep for a short
-    //:     period, release the lock.
-    //:   2 The other thread ("main") will measure the time it takes to acquire
-    //:     that same lock.
-    //:
-    //: 2 Repeat P-1 for both flavors of lock ("read" and "write") invoked by
-    //:   the main and spawned thread; four combinations in all.
-    //:
-    //:   1 The time to acquire a read lock when a reach lock is in place
-    //:     should be very small.  Concurrent readers are allowed, so no block.
-    //:
-    //:   2 In all other combinations, the thread trying to acquire an already
-    //:     locked stripe must wait until that lock is released.  The wait time
-    //:     should be the same (or somewhat larger) than the sleep time of the
-    //:     thread holding the lock.
-    //:
-    //: 3 Empirical tests will be run manually to determine effective sleep
-    //:   times and margins of error to effectively distinguish successful
-    //:   locking scenarios from lock failures.
+    // 1. The four methods `lockRead`, `lockWrite`, `unlockRead`, and
+    //    `unLockWrite` each acquire (or release) the intended lock on the
+    //    intended stripe.
+    //
+    // 2. Other threads are blocked (or not) according to the flavor of lock
+    //    (i.e., "read" or "write").
+    //
+    //  Plan:
+    // 1. The interactions of these four methods will be explored by two
+    //    threads:' the "main" thread and the "spawned" thread.
+    //
+    //   1. One thread ("spawned") will acquire a lock, sleep for a short
+    //      period, release the lock.
+    //   2. The other thread ("main") will measure the time it takes to acquire
+    //      that same lock.
+    //
+    // 2. Repeat P-1 for both flavors of lock ("read" and "write") invoked by
+    //    the main and spawned thread; four combinations in all.
+    //
+    //   1. The time to acquire a read lock when a reach lock is in place
+    //      should be very small.  Concurrent readers are allowed, so no block.
+    //
+    //   2. In all other combinations, the thread trying to acquire an already
+    //      locked stripe must wait until that lock is released.  The wait time
+    //      should be the same (or somewhat larger) than the sleep time of the
+    //      thread holding the lock.
+    //
+    // 3. Empirical tests will be run manually to determine effective sleep
+    //    times and margins of error to effectively distinguish successful
+    //    locking scenarios from lock failures.
     //
     // Testing:
     //   void bdlcc::StripedUnorderedContainerImpl_TestUtil::lockRead();
@@ -465,15 +468,15 @@ void testTestingUtil()
 
         ASSERT(durationRR < k_SLEEP_PERIOD / 2);
     }
-} // END 'testTestingUtil'
+} // END `testTestingUtil`
 
+/// Updater to the test `bdlcc:StripedUnorderedContainerImpl` in
+/// `testLocking`.
 struct TestUpdater {
-    // Updater to the test 'bdlcc:StripedUnorderedContainerImpl' in
-    // 'testLocking'.
 
+    /// `VisitorFunction` function for testing `update` using the specified
+    /// `value` and `key`.  Always returns `true`.
     bool operator() (bsl::string* value, int key)
-        // 'VisitorFunction' function for testing 'update' using the specified
-        // 'value' and 'key'.  Always returns 'true'.
     {
         // Print out key and value
         if (veryVerbose) {
@@ -487,13 +490,13 @@ struct TestUpdater {
     }
 };
 
+/// Functor to the test accessors `bdlcc:StripedUnorderedContainerImpl` in
+/// `testLocking`.
 struct TestReader {
-    // Functor to the test accessors 'bdlcc:StripedUnorderedContainerImpl' in
-    // 'testLocking'.
 
+    /// `RedOnlyVisitorFunction` function for testing `visitReadOnly` using
+    /// the specified `value` and `key`.  Always returns `true`.
     bool operator() (const bsl::string& value, int key)
-        // 'RedOnlyVisitorFunction' function for testing 'visitReadOnly' using
-        // the specified 'value' and 'key'.  Always returns 'true'.
     {
         // Print out key and value
         if (veryVerbose) {
@@ -507,13 +510,13 @@ struct TestReader {
     }
 };
 
+/// Functor to the test `bdlcc:StripedUnorderedContainerImpl` in
+/// `testLocking`.
 struct TestComputedValueUpdater {
-    // Functor to the test 'bdlcc:StripedUnorderedContainerImpl' in
-    // 'testLocking'.
 
+    /// `VisitorFunction` functor for testing `setComputedValue` using the
+    /// specified `value` and `key`.
     bool operator() (bsl::string* value, int key)
-        // 'VisitorFunction' functor for testing 'setComputedValue' using the
-        // specified 'value' and 'key'.
     {
         // Print out key and value
         if (veryVerbose) {
@@ -526,17 +529,17 @@ struct TestComputedValueUpdater {
     }
 };
 
+/// Test locking for the various `bdlcc:StripedUnorderedContainerImpl`
+///methods.
 void testLocking()
-    // Test locking for the various 'bdlcc:StripedUnorderedContainerImpl'
-    //methods.
 {
     // ------------------------------------------------------------------------
-    // TEST LOCKING OF 'bdlcc:StripedUnorderedContainerImpl' METHODS
+    // TEST LOCKING OF `bdlcc:StripedUnorderedContainerImpl` METHODS
     //
     // Concerns:
-    //: 1 Each of the following methods of 'StripedUnorderedContainerImpl'
-    //:   acquires the expected flavor of lock:
-    //..
+    // 1. Each of the following methods of `StripedUnorderedContainerImpl`
+    //    acquires the expected flavor of lock:
+    // ```
     //  Method                      Lock Type
     //  --------------------------- ---------
     //  clear                       write
@@ -555,57 +558,57 @@ void testLocking()
     //  visit(key, visitor)         write
     //  visitReadOnly(visitor)      READ
     //  visitReadOnly(key, visitor) READ
-    //..
+    // ```
     //
-    //: 2 The lock is applied for any arbitrary stripe.
-    //:
-    //: 3 The lock is released by the method.
+    // 2. The lock is applied for any arbitrary stripe.
+    //
+    // 3. The lock is released by the method.
     //
     // Plan:
-    //: 1 For each method, spawn a thread that uses the
-    //:   'bdlcc::StripedUnorderedContainerImpl_TestUtil' helper class to
-    //:   acquire a lock on an arbitrary stripe of a hash map and then sleep
-    //:   for a short period.  The flavor of lock set is chosen so that the
-    //:   type of lock acquired by the main thread (see P-2) can be inferred by
-    //:   the time it must wait to acquire its lock on that same stripe.  That
-    //:   time is approximated by the time needed complete the method.
+    // 1. For each method, spawn a thread that uses the
+    //    `bdlcc::StripedUnorderedContainerImpl_TestUtil` helper class to
+    //    acquire a lock on an arbitrary stripe of a hash map and then sleep
+    //    for a short period.  The flavor of lock set is chosen so that the
+    //    type of lock acquired by the main thread (see P-2) can be inferred by
+    //    the time it must wait to acquire its lock on that same stripe.  That
+    //    time is approximated by the time needed complete the method.
     //
-    //: 2 When signaled, the main thread invokes the method on an element in
-    //:   the stripe that was locked by the spawned thread (see P-1).  The
-    //:   duration of wait time informs us if a lock of the expected flavor was
-    //:   acquired by the method.
-    //:
-    //:   o If the main thread waits a period comparable to the sleep time of
-    //:     the spawned thread, then the main thread was blocked waiting for
-    //:     exclusive access to the stripe, i.e., a "write" lock.
-    //:
-    //: 3 Confirming that a method is acquiring a "read" lock requests two
-    //:   stages:
-    //:
-    //:   1 The spawned thread stages a "read" lock and the main thread
-    //:     completes almost immediately.  This is expected because the "read"
-    //:     lock allows concurrent access; however, it is possible that the
-    //:     method did not apply any lock -- the observed behavior (immediate
-    //:     return) would be the same.
-    //:
-    //:   2 The spawned thread stages an "write" (exclusive) lock.  If the
-    //:     method execution approximates spawned thread's sleep time, then we
-    //:     know that the method is acquiring a lock.  This fact, combined with
-    //:     P-3-1 informs that lock is a "read" lock.
-    //:
-    //: 4 We know that each method releases its lock because subsequent locking
-    //:   tests work as expected.
-    //:
-    //: 5 We know that locks are acquired once because these locks are not
-    //:   recursive and attempting require a lock already held would deadlock.
+    // 2. When signaled, the main thread invokes the method on an element in
+    //    the stripe that was locked by the spawned thread (see P-1).  The
+    //    duration of wait time informs us if a lock of the expected flavor was
+    //    acquired by the method.
+    //
+    //    - If the main thread waits a period comparable to the sleep time of
+    //      the spawned thread, then the main thread was blocked waiting for
+    //      exclusive access to the stripe, i.e., a "write" lock.
+    //
+    // 3. Confirming that a method is acquiring a "read" lock requests two
+    //    stages:
+    //
+    //   1. The spawned thread stages a "read" lock and the main thread
+    //      completes almost immediately.  This is expected because the "read"
+    //      lock allows concurrent access; however, it is possible that the
+    //      method did not apply any lock -- the observed behavior (immediate
+    //      return) would be the same.
+    //
+    //   2. The spawned thread stages an "write" (exclusive) lock.  If the
+    //      method execution approximates spawned thread's sleep time, then we
+    //      know that the method is acquiring a lock.  This fact, combined with
+    //      P-3-1 informs that lock is a "read" lock.
+    //
+    // 4. We know that each method releases its lock because subsequent locking
+    //    tests work as expected.
+    //
+    // 5. We know that locks are acquired once because these locks are not
+    //    recursive and attempting require a lock already held would deadlock.
     //
     // Testing:
-    //   TEST LOCKING OF 'bdlcc:StripedUnorderedContainerImpl' METHODS
+    //   TEST LOCKING OF `bdlcc:StripedUnorderedContainerImpl` METHODS
     // ------------------------------------------------------------------------
 
     if (verbose) cout
              << endl
-             << "TEST LOCKING OF 'bdlcc:StripedUnorderedContainerImpl' METHODS"
+             << "TEST LOCKING OF `bdlcc:StripedUnorderedContainerImpl` METHODS"
              << endl
              << "----------------------------------------------------" << endl;
 
@@ -619,10 +622,10 @@ void testLocking()
     ThreadData          tdRead( &strip_TestUtil, k_SLEEP_PERIOD, 'R', key);
 
     if (veryVerbose) cout <<
-        "LockRead / 'insertUnique(const KEY& key, const VALUE& value)'"
+        "LockRead / `insertUnique(const KEY& key, const VALUE& value)`"
                           << endl;
     {
-        // Time the duration how long it took to run 'insert'.
+        // Time the duration how long it took to run `insert`.
         TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
@@ -637,10 +640,10 @@ void testLocking()
     }
 
     if (veryVerbose) cout <<
-          "LockRead / 'insertUnique(const KEY& key, VALUE&& value)'"
+          "LockRead / `insertUnique(const KEY& key, VALUE&& value)`"
                           << endl;
     {
-        // Time the duration how long it took to run 'insert'.
+        // Time the duration how long it took to run `insert`.
         TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
@@ -655,9 +658,9 @@ void testLocking()
         ASSERT(duration > k_SLEEP_PERIOD / 2);
     }
 
-    if (veryVerbose) cout << "LockRead  / 'insertBulk'" << endl;
+    if (veryVerbose) cout << "LockRead  / `insertBulk`" << endl;
     {
-        // Time the duration how long it took to run 'insertBulk'.
+        // Time the duration how long it took to run `insertBulk`.
         TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
@@ -674,9 +677,9 @@ void testLocking()
         ASSERT(duration > k_SLEEP_PERIOD / 2);
     }
 
-    if (veryVerbose) cout << "LockRead  / 'erase'" << endl;
+    if (veryVerbose) cout << "LockRead  / `erase`" << endl;
     {
-        // Time the duration how long it took to run 'erase'
+        // Time the duration how long it took to run `erase`
         TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
@@ -690,9 +693,9 @@ void testLocking()
         ASSERT(duration > k_SLEEP_PERIOD / 2);
     }
 
-    if (veryVerbose) cout << "LockRead  / 'eraseBulk'" << endl;
+    if (veryVerbose) cout << "LockRead  / `eraseBulk`" << endl;
     {
-        // Time the duration how long it took to run 'eraseBulk'
+        // Time the duration how long it took to run `eraseBulk`
         TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
@@ -709,9 +712,9 @@ void testLocking()
         ASSERT(duration > k_SLEEP_PERIOD / 2);
     }
 
-    if (veryVerbose) cout << "LockRead  / 'clear'" << endl;
+    if (veryVerbose) cout << "LockRead  / `clear`" << endl;
     {
-        // Time the duration how long it took to run 'clear'
+        // Time the duration how long it took to run `clear`
         TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
@@ -726,10 +729,10 @@ void testLocking()
     }
 
     if (veryVerbose) cout <<
-          "LockRead  / 'setValueFirst(const KEY& key, const VALUE& value)'"
+          "LockRead  / `setValueFirst(const KEY& key, const VALUE& value)`"
                           << endl;
     {
-        // Time the duration how long it took to run 'setValue'
+        // Time the duration how long it took to run `setValue`
         TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
@@ -744,10 +747,10 @@ void testLocking()
     }
 
     if (veryVerbose) cout <<
-             "LockRead  / 'setComputedValueFirst(const KEY& key, visitor)'"
+             "LockRead  / `setComputedValueFirst(const KEY& key, visitor)`"
                           << endl;
     {
-        // Time the duration how long it took to run 'setValue'
+        // Time the duration how long it took to run `setValue`
         TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
@@ -762,10 +765,10 @@ void testLocking()
         ASSERT(duration > k_SLEEP_PERIOD / 2);
     }
 
-    if (veryVerbose) cout << "LockRead  / 'update(const KEY& key, visitor)'"
+    if (veryVerbose) cout << "LockRead  / `update(const KEY& key, visitor)`"
                           << endl;
     {
-        // Time the duration how long it took to run 'update'.
+        // Time the duration how long it took to run `update`.
         TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
@@ -780,10 +783,10 @@ void testLocking()
         ASSERT(duration > k_SLEEP_PERIOD / 2);
     }
 
-    if (veryVerbose) cout << "LockRead  / 'visit(const VisitorFunction&)'"
+    if (veryVerbose) cout << "LockRead  / `visit(const VisitorFunction&)`"
                           << endl;
     {
-        // Time the duration how long it took to run 'visit'
+        // Time the duration how long it took to run `visit`
         TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
@@ -798,9 +801,9 @@ void testLocking()
         ASSERT(duration > k_SLEEP_PERIOD / 2);
     }
 
-    if (veryVerbose) cout << "LockRead  / 'rehash(numBuckets)'" << endl;
+    if (veryVerbose) cout << "LockRead  / `rehash(numBuckets)`" << endl;
     {
-        // Time the duration how long it took to run 'setValue'
+        // Time the duration how long it took to run `setValue`
         TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
@@ -814,9 +817,9 @@ void testLocking()
         ASSERT(duration > k_SLEEP_PERIOD / 2);
     }
 
-    if (veryVerbose) cout << "LockWrite / 'getValue'" << endl;
+    if (veryVerbose) cout << "LockWrite / `getValue`" << endl;
     {
-        // Time the duration how long it took to run 'getValue'
+        // Time the duration how long it took to run `getValue`
         TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdWrite);
         smp.wait();
@@ -832,11 +835,11 @@ void testLocking()
         ASSERT(duration > k_SLEEP_PERIOD / 2);
     }
 
-    if (veryVerbose) cout << "LockRead  / 'getValue'" << endl;
+    if (veryVerbose) cout << "LockRead  / `getValue`" << endl;
     {
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
-        // Time the duration how long it took to run 'getValue'
+        // Time the duration how long it took to run `getValue`
         TimeType startTime = bsls::TimeUtil::getTimer();
 
         bsl::string value;
@@ -850,9 +853,9 @@ void testLocking()
         ASSERT(duration < k_SLEEP_PERIOD / 2);
     }
 
-    if (veryVerbose) cout << "LockWrite / 'getValue' vector" << endl;
+    if (veryVerbose) cout << "LockWrite / `getValue` vector" << endl;
     {
-        // Time the duration how long it took to run 'getValue'
+        // Time the duration how long it took to run `getValue`
         TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdWrite);
         smp.wait();
@@ -868,9 +871,9 @@ void testLocking()
         ASSERT(duration > k_SLEEP_PERIOD / 2);
     }
 
-    if (veryVerbose) cout << "LockWrite / 'getValue' vector" << endl;
+    if (veryVerbose) cout << "LockWrite / `getValue` vector" << endl;
     {
-        // Time the duration how long it took to run 'getValue'
+        // Time the duration how long it took to run `getValue`
         TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdWrite);
         smp.wait();
@@ -887,9 +890,9 @@ void testLocking()
     }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
-    if (veryVerbose) cout << "LockWrite / 'getValue' vector" << endl;
+    if (veryVerbose) cout << "LockWrite / `getValue` vector" << endl;
     {
-        // Time the duration how long it took to run 'getValue'
+        // Time the duration how long it took to run `getValue`
         TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdWrite);
         smp.wait();
@@ -906,11 +909,11 @@ void testLocking()
     }
 #endif
 
-    if (veryVerbose) cout << "LockRead  / 'getValue' vector" << endl;
+    if (veryVerbose) cout << "LockRead  / `getValue` vector" << endl;
     {
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
-        // Time the duration how long it took to run 'getValue'
+        // Time the duration how long it took to run `getValue`
         TimeType startTime = bsls::TimeUtil::getTimer();
 
         bsl::vector<bsl::string> values;
@@ -924,9 +927,9 @@ void testLocking()
         ASSERT(duration < k_SLEEP_PERIOD / 2);
     }
 
-    if (veryVerbose) cout << "LockWrite / 'visitReadOnly(visitor)'" << endl;
+    if (veryVerbose) cout << "LockWrite / `visitReadOnly(visitor)`" << endl;
     {
-        // Time the duration how long it took to run 'visit'
+        // Time the duration how long it took to run `visit`
         TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdWrite);
         smp.wait();
@@ -941,11 +944,11 @@ void testLocking()
         ASSERT(duration > k_SLEEP_PERIOD / 2);
     }
 
-    if (veryVerbose) cout << "LockRead  / 'visitReadOnly(visitor)'" << endl;
+    if (veryVerbose) cout << "LockRead  / `visitReadOnly(visitor)`" << endl;
     {
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
-        // Time the duration how long it took to run 'visit'
+        // Time the duration how long it took to run `visit`
         TimeType startTime = bsls::TimeUtil::getTimer();
 
         TestReader func;
@@ -958,10 +961,10 @@ void testLocking()
         ASSERT(duration < k_SLEEP_PERIOD / 2);
     }
 
-    if (veryVerbose) cout << "LockWrite / 'visitReadOnly(key, visitor)'"
+    if (veryVerbose) cout << "LockWrite / `visitReadOnly(key, visitor)`"
                           << endl;
     {
-        // Time the duration how long it took to run 'visit'
+        // Time the duration how long it took to run `visit`
         TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdWrite);
         smp.wait();
@@ -976,12 +979,12 @@ void testLocking()
         ASSERT(duration > k_SLEEP_PERIOD / 2);
     }
 
-    if (veryVerbose) cout << "LockRead  / 'visitReadOnly(key, visitor)'"
+    if (veryVerbose) cout << "LockRead  / `visitReadOnly(key, visitor)`"
                           << endl;
     {
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
-        // Time the duration how long it took to run 'visit'
+        // Time the duration how long it took to run `visit`
         TimeType startTime = bsls::TimeUtil::getTimer();
 
         TestReader func;
@@ -1009,9 +1012,9 @@ struct ThreadArg {
     int              d_numWorkers;
 };
 
+/// Worker thread function for multi threaded stress test with the specified
+/// `arg`.
 void worker(ThreadArg *arg)
-    // Worker thread function for multi threaded stress test with the specified
-    // 'arg'.
 {
     int seed;
     int rc = bdlb::RandomDevice::getRandomBytesNonBlocking(
@@ -1085,8 +1088,8 @@ extern "C" void *workerThread(void *v_arg)
     return (void*) v_arg;
 }
 
+/// Multi threaded stress test.
 void threadedTest1()
-    // Multi threaded stress test.
 {
     // ------------------------------------------------------------------------
     // MULTI-THREADED STRESS TEST
@@ -1095,28 +1098,28 @@ void threadedTest1()
     //    our design); however, questions remain.
     //
     // Concerns:
-    //: 1 Each method invokes an appropriate lock (i.e., "read" or "write" as
-    //:   needed by the context) and that lock protects all of the critical
-    //:   code sections that require protection.
+    // 1. Each method invokes an appropriate lock (i.e., "read" or "write" as
+    //    needed by the context) and that lock protects all of the critical
+    //    code sections that require protection.
     //
     // Plan:
-    //: 1 Create a hash map and a set of threads that for a specified period
-    //:   perform several actions at random intervals.  Those actions are:
-    //:   o the insertion of elements: 'insert' and 'setValue'
-    //:   o fetching the value (attribute) of elements: 'getValue'
-    //:   o the increment of element values (attributes): 'insert' and
-    //:     'setValue'
-    //:
-    //: 2 At the end of the test period, confirm that value (attribute) each
-    //:   element matches the expected value (according to thread activity).
-    //:
-    //: 3 Confirm that hash map's number of buckets has increased during the
-    //:   test run: an indication that rehash ran concurrently with the other
-    //:   activity at some point.
-    //:
-    //: 4 This test is basic sanity test of what are deemed to be the most
-    //:   heavily used methods, and *not* a comprehensive test that all
-    //:   multi-threaded scenarios, involving all methods, will run correctly.
+    // 1. Create a hash map and a set of threads that for a specified period
+    //    perform several actions at random intervals.  Those actions are:
+    //    - the insertion of elements: `insert` and `setValue`
+    //    - fetching the value (attribute) of elements: `getValue`
+    //    - the increment of element values (attributes): `insert` and
+    //      `setValue`
+    //
+    // 2. At the end of the test period, confirm that value (attribute) each
+    //    element matches the expected value (according to thread activity).
+    //
+    // 3. Confirm that hash map's number of buckets has increased during the
+    //    test run: an indication that rehash ran concurrently with the other
+    //    activity at some point.
+    //
+    // 4. This test is basic sanity test of what are deemed to be the most
+    //    heavily used methods, and *not* a comprehensive test that all
+    //    multi-threaded scenarios, involving all methods, will run correctly.
     //
     // Testing:
     //   MULTI-THREADED STRESS TEST
@@ -1182,29 +1185,30 @@ namespace {
 
 bslma::TestAllocator defaultAllocator("default-static", false);
 
+/// Convert an `int` value to a `bsl::pair` of the template parameter `KEY`
+/// and `VALUE` types.
 template <class KEY, class VALUE, class ALLOC>
 struct IntToPairConverter {
-    // Convert an 'int' value to a 'bsl::pair' of the template parameter 'KEY'
-    // and 'VALUE' types.
 
     // CLASS METHODS
+
+    /// Create a new `pair<KEY, VALUE>` object at the specified `address`,
+    /// passing the specified `value` to the `KEY` and `VALUE` constructors
+    /// and using the specified `allocator` to supply memory.  The behavior
+    /// is undefined unless `0 < value < 128`.
     static void
     createInplace(bsl::pair<KEY, VALUE> *address,
                   int                    value,
                   ALLOC                  allocator)
-        // Create a new 'pair<KEY, VALUE>' object at the specified 'address',
-        // passing the specified 'value' to the 'KEY' and 'VALUE' constructors
-        // and using the specified 'allocator' to supply memory.  The behavior
-        // is undefined unless '0 < value < 128'.
     {
         BSLS_ASSERT(address);
         BSLS_ASSERT(    0 < value);
         BSLS_ASSERT(value < 128);
 
-        // If creating the 'key' and 'value' temporary objects requires an
+        // If creating the `key` and `value` temporary objects requires an
         // allocator, it should not be the default allocator as that will
         // confuse the arithmetic of our test machinery.  Therefore, we will
-        // use the 'bslma::MallocFreeAllocator', as being the simplest, least
+        // use the `bslma::MallocFreeAllocator`, as being the simplest, least
         // obtrusive allocator that is also unlikely to be employed by an end
         // user.
 
@@ -1229,104 +1233,106 @@ struct IntToPairConverter {
     }
 };
 
+/// This test class provides a mechanism that defines a function-call
+/// operator that compares two objects of the parameterized `TYPE`.  The
+/// function-call operator is implemented with integer comparison using
+/// integers converted from objects of `TYPE` by the class method
+/// `TemplateTestFacility::getIdentifier`.
 template <class TYPE>
 class TestHashFunctor {
-    // This test class provides a mechanism that defines a function-call
-    // operator that compares two objects of the parameterized 'TYPE'.  The
-    // function-call operator is implemented with integer comparison using
-    // integers converted from objects of 'TYPE' by the class method
-    // 'TemplateTestFacility::getIdentifier'.
 
     // DATA
     int d_id;
 
   public:
+    /// Create `TestHashFunctor` object with the optionally specified `id`.
     explicit TestHashFunctor(int id = 0)
-        // Create 'TestHashFunctor' object with the optionally specified 'id'.
     : d_id(id)
     {}
 
     // ACCESSORS
+
+    /// Return the has value of the specified `obj`.
     bsl::size_t operator() (const TYPE& obj) const
-        // Return the has value of the specified 'obj'.
     {
         return  bsltf::TemplateTestFacility::getIdentifier(obj);
     }
 
+    /// Return `true` if the specified `rhs` equals this `TestHashFunctor`.
     bool operator==(const TestHashFunctor& rhs) const
-        // Return 'true' if the specified 'rhs' equals this 'TestHashFunctor'.
     {
         return d_id == rhs.d_id;
     }
 
+    /// Return the `id` attribute of this `TestHashFunctor`.
     int id() const
-        // Return the 'id' attribute of this 'TestHashFunctor'.
     {
         return d_id;
     }
 };
 
+/// Return `true` if the ID of the specified `lhs` and `rhs` is equal, and
+/// `false` otherwise.
 template <class TYPE>
 bool areEqual(const TYPE& lhs, const TYPE& rhs)
-    // Return 'true' if the ID of the specified 'lhs' and 'rhs' is equal, and
-    // 'false' otherwise.
 {
     return bsltf::TemplateTestFacility::getIdentifier(lhs)
         == bsltf::TemplateTestFacility::getIdentifier(rhs);
 }
 
+/// This test class provides a mechanism that defines a function-call
+/// operator that compares two objects of the parameterized `TYPE`.  The
+/// function-call operator is implemented with integer comparison using
+/// integers converted from objects of `TYPE` by the class method
+/// `TemplateTestFacility::getIdentifier`.
 template <class TYPE>
 class TestEqualityComparator {
-    // This test class provides a mechanism that defines a function-call
-    // operator that compares two objects of the parameterized 'TYPE'.  The
-    // function-call operator is implemented with integer comparison using
-    // integers converted from objects of 'TYPE' by the class method
-    // 'TemplateTestFacility::getIdentifier'.
 
     // DATA
     int d_id;
 
   public:
+    /// Create `TestEqualityComparator` object with the optionally specified
+    /// `id`.
     explicit TestEqualityComparator(int id = 0)
-        // Create 'TestEqualityComparator' object with the optionally specified
-        // 'id'.
     : d_id(id)
     {}
 
     // ACCESSORS
+
+    /// Increment a counter that records the number of times this method is
+    /// called.   Return `true` if the integer representation of the
+    /// specified `lhs` is less than integer representation of the specified
+    /// `rhs`.
     bool operator() (const TYPE& lhs, const TYPE& rhs) const
-        // Increment a counter that records the number of times this method is
-        // called.   Return 'true' if the integer representation of the
-        // specified 'lhs' is less than integer representation of the specified
-        // 'rhs'.
     {
         return areEqual(lhs, rhs);
     }
 
+    /// Return `true` if the specified `rhs` equals this `TestHashFunctor`.
     bool operator==(const TestEqualityComparator& rhs) const
-        // Return 'true' if the specified 'rhs' equals this 'TestHashFunctor'.
     {
         return d_id == rhs.d_id;
     }
 
+    /// Return the `id` attribute of this `TestHashFunctor`.
     int id() const
-        // Return the 'id' attribute of this 'TestHashFunctor'.
     {
         return d_id;
     }
 };
 
+/// This templatized struct provide a namespace for testing `bdlcc::Hash`.
+/// The parameterized `KEY`, `VALUE`, `HASH`, `EQUAL` specifies the key
+/// type, the mapped type, the hash functor, the equality comparator type
+/// respectively.  Each "testCase*" method test a specific aspect of
+/// `bdlcc:Hash<KEY, VALUE, HASH, EQUAL>`.  Every test cases should be
+/// invoked with various parameterized type to fully test the hash.
 template <class KEY,
           class VALUE = KEY,
           class HASH  = TestHashFunctor<KEY>,
           class EQUAL = TestEqualityComparator<KEY> >
 class TestDriver {
-    // This templatized struct provide a namespace for testing 'bdlcc::Hash'.
-    // The parameterized 'KEY', 'VALUE', 'HASH', 'EQUAL' specifies the key
-    // type, the mapped type, the hash functor, the equality comparator type
-    // respectively.  Each "testCase*" method test a specific aspect of
-    // 'bdlcc:Hash<KEY, VALUE, HASH, EQUAL>'.  Every test cases should be
-    // invoked with various parameterized type to fully test the hash.
 
   private:
     // TYPES
@@ -1343,114 +1349,126 @@ class TestDriver {
                                                 KEY,
                                                 VALUE,
                                                 PairStdAllocator> > TestValues;
+
+    /// Functor for testCase23 - eraseIfValuePredicate.
     struct TestCase23ValuePredicate {
-        // Functor for testCase23 - eraseIfValuePredicate.
 
         // DATA
-        VALUE d_value;  // Functor will store the specified 'd_value'.
+        VALUE d_value;  // Functor will store the specified `d_value`.
 
         // CREATORS
+
+        /// Create a `TestCase23ValuePredicate` with the specified `value`.
         explicit TestCase23ValuePredicate(const VALUE& value);
-            // Create a 'TestCase23ValuePredicate' with the specified 'value'.
 
         // COMPARATORS
+
+        /// Return `true` when specified `value` compares equal to the value
+        /// provided upon construction, otherwise returns `false`
         bool operator()(const VALUE& value);
-            // Return 'true' when specified 'value' compares equal to the value
-            // provided upon construction, otherwise returns 'false'
     };
 
+    /// Functor for testCase19 - visitReadOnly.
     struct TestCase19Reader {
-        // Functor for testCase19 - visitReadOnly.
 
         // DATA
         bsl::size_t       d_numSuccess;  // Functor will succeed for the first
-                                         // 'd_numSuccess' times, and fail
+                                         // `d_numSuccess` times, and fail
                                          // after.
 
         const TestValues& d_values;      // Test values array, size 52
 
         // CREATORS
+
+        /// Create a `TestCase19Reader` with the specified `numSuccess` and
+        /// a reference to the specified `values`.  Functor calls will
+        /// succeed the first `numSuccess` times and fail afterwards.
         explicit TestCase19Reader(bsl::size_t       numSuccess,
                                   const TestValues& values);
-            // Create a 'TestCase19Reader' with the specified 'numSuccess' and
-            // a reference to the specified 'values'.  Functor calls will
-            // succeed the first 'numSuccess' times and fail afterwards.
 
         // MANIPULATORS
+
+        /// Register a visit of the specified `value` related to the
+        /// specified `key`.  Return `true` for the first `d_numSuccess`
+        /// calls, and `false` afterwards.
         bool operator()(const VALUE& value, const KEY& key);
-            // Register a visit of the specified 'value' related to the
-            // specified 'key'.  Return 'true' for the first 'd_numSuccess'
-            // calls, and 'false' afterwards.
     };
 
+    /// Functor for testCase15 - setComputedValue in rehash.
     struct TestCase15Updater {
-        // Functor for testCase15 - setComputedValue in rehash.
 
         // DATA
-        VALUE d_value; // Value to assign if 'found' is 'false'.
+        VALUE d_value; // Value to assign if `found` is `false`.
 
         // CREATORS
+
+        /// Create a `TestCase15Updater` with the specified `value`.
         explicit TestCase15Updater(const VALUE &value);
-            // Create a 'TestCase15Updater' with the specified 'value'.
 
         // MANIPULATORS
+
+        /// If the specified `value` equals VALUE(), set `value` to the
+        /// constructor provided `value`.  Ignore the specified `key`.
         bool operator()(VALUE *value, const KEY& key);
-            // If the specified 'value' equals VALUE(), set 'value' to the
-            // constructor provided 'value'.  Ignore the specified 'key'.
     };
 
+    /// Functor for testCase14 - visit(visitor).
     struct TestCase14Updater {
-        // Functor for testCase14 - visit(visitor).
 
         // DATA
         int         d_numSuccess; // Functor will succeed for the first
-                                  // 'd_numSuccess' times, and fail after.
+                                  // `d_numSuccess` times, and fail after.
         const TestValues &d_values;     // Test values array, size 52
 
         // CREATORS
+
+        /// Create a `TestCase14Updater` with the specified `numSuccess` and
+        /// a reference to the specified `values`.  Functor calls will
+        /// succeed the first `numSuccess` times and fail afterwards.
         explicit TestCase14Updater(int numSuccess, const TestValues& values);
-            // Create a 'TestCase14Updater' with the specified 'numSuccess' and
-            // a reference to the specified 'values'.  Functor calls will
-            // succeed the first 'numSuccess' times and fail afterwards.
 
         // MANIPULATORS
+
+        /// Update the specified `value` with the value related to the key
+        /// after the specified `key`.  Return `true` for the first
+        /// `d_numSuccess` calls, and `false` afterwards.
         bool operator()(VALUE      *value,
                         const KEY&  key);
-            // Update the specified 'value' with the value related to the key
-            // after the specified 'key'.  Return 'true' for the first
-            // 'd_numSuccess' calls, and 'false' afterwards.
     };
 
+    /// Functor for testCase13 - visit(key, visitor).
     struct TestCase13Updater {
-        // Functor for testCase13 - visit(key, visitor).
 
         // DATA
-        bool d_success; // Set to 'false' if functor is to fail, or 'true'
+        bool d_success; // Set to `false` if functor is to fail, or `true`
                         // otherwise;
         // CREATORS
+
+        /// Create a `TestCase13Updater` with the specified `success`.
+        /// Functor calls will return the same value as `success`.
         explicit TestCase13Updater(bool success);
-            // Create a 'TestCase13Updater' with the specified 'success'.
-            // Functor calls will return the same value as 'success'.
 
         // MANIPULATORS
+
+        /// Set the specified `key` to the static s_testCase13_key.  Set the
+        /// identifier in the value pointed by the specified `value` to the
+        /// static s_testCase13_valueId.  Copy the static s_testCase13_value
+        /// to `value`.  Return the boolean value in `d_success`.
         bool operator()(VALUE *value, const KEY& key);
-            // Set the specified 'key' to the static s_testCase13_key.  Set the
-            // identifier in the value pointed by the specified 'value' to the
-            // static s_testCase13_valueId.  Copy the static s_testCase13_value
-            // to 'value'.  Return the boolean value in 'd_success'.
     };
 
+    /// Functor for `testCase12` - `setComputedValue`.
     struct TestCase12Updater {
-        // Functor for 'testCase12' - 'setComputedValue'.
 
         // MANIPULATORS
+
+        /// Set the specified `key` to the static `s_testCase12_key`.  If
+        /// the specified `value` does not equal VALUE(), set the identifier
+        /// in the value pointed by `value` to the static
+        /// `s_testCase12_valueId` and `s_testCase12_found` to `true`,
+        /// otherwise set `s_testCase12_found` to `true`.  Copy the static
+        /// `s_testCase12_value` to `value`.
         bool operator()(VALUE *value, const KEY& key);
-            // Set the specified 'key' to the static 's_testCase12_key'.  If
-            // the specified 'value' does not equal VALUE(), set the identifier
-            // in the value pointed by 'value' to the static
-            // 's_testCase12_valueId' and 's_testCase12_found' to 'true',
-            // otherwise set 's_testCase12_found' to 'true'.  Copy the static
-            // 's_testCase12_value' to 'value'.
     };
 
     // PUBLIC DATA
@@ -1458,30 +1476,33 @@ class TestDriver {
     static KEY               s_testCase12_key;
     static int               s_testCase12_valueId;
     static VALUE             s_testCase12_value;
+
+    // Places for the test case 12 functor to put a copy of its `found`
+    // input, `key` input, the identifier of its `*value` input, and to
+    // obtain a value to be set to `*value`, respectively.  `alloc` - if
+    // non-null - is used by the test case 12 functor to allocate and
+    // deallocate a single byte, which acts as a hook for testing exception
+    // safety using `BSLMA_TESTALLOCATOR_EXCEPTION_TEST`.
     static bslma::Allocator *s_testCase12_alloc;
-        // Places for the test case 12 functor to put a copy of its 'found'
-        // input, 'key' input, the identifier of its '*value' input, and to
-        // obtain a value to be set to '*value', respectively.  'alloc' - if
-        // non-null - is used by the test case 12 functor to allocate and
-        // deallocate a single byte, which acts as a hook for testing exception
-        // safety using 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST'.
 
     static KEY   s_testCase13_key;
     static int   s_testCase13_valueId;
-    static VALUE s_testCase13_value;
-        // Places for the test case 13 functor to put a copy of its 'key'
-        // input. to put a copy of the identifier of its '*value' input, to
-        // obtain a value to be set to its '*value', and to keep a counter of
-        // calls, respectively.
 
+    // Places for the test case 13 functor to put a copy of its `key`
+    // input. to put a copy of the identifier of its `*value` input, to
+    // obtain a value to be set to its `*value`, and to keep a counter of
+    // calls, respectively.
+    static VALUE s_testCase13_value;
+
+    // Place for the test case 14 functor to put a number of visited
+    // values.
     static int s_testCase14_count;
-        // Place for the test case 14 functor to put a number of visited
-        // values.
 
     static bsl::size_t     s_testCase19_count;
+
+    // Places for the test case 19 functor to put a number of visited
+    // values and copies of its `key` input and its `*value` input.
     static VisitedElements s_testCase19_visitedElements;
-        // Places for the test case 19 functor to put a number of visited
-        // values and copies of its 'key' input and its '*value' input.
 
   public:
     static void testCase1();
@@ -1506,8 +1527,9 @@ class TestDriver {
     static void testCase18();
     static void testCase19();
     static void testCase20();
+
+    /// Code for test cases 1 to 23.
     static void testCase23();
-        // Code for test cases 1 to 23.
 };
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
@@ -1648,8 +1670,8 @@ bool TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase12Updater::operator()(
     if (s_testCase12_alloc) {
         // Allocate and deallocate a single byte.  This operation acts as a
         // hook for testing exception safety using
-        // 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST' where 'allocate' would throw a
-        // 'bad_alloc'.
+        // `BSLMA_TESTALLOCATOR_EXCEPTION_TEST` where `allocate` would throw a
+        // `bad_alloc`.
         s_testCase12_alloc->deallocate(s_testCase12_alloc->allocate(1));
     }
     return true;
@@ -1693,63 +1715,63 @@ template <class KEY, class VALUE, class HASH, class EQUAL>
 void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase19()
 {
     // ------------------------------------------------------------------------
-    // TEST 'visitReadOnly'
+    // TEST `visitReadOnly`
     //
     // Concerns:
-    //: 1 The given functor is executed and is called with the expected
-    //:   arguments (i.e. the value at 'value' is the value attribute
-    //:   associated with 'key').
-    //:
-    //: 2 The functor is called for every element in the hash map irrespective
-    //:   of the bucket in which it resides by 'common' overload (i.e.
-    //:   'visitReadOnly(const ReadOnlyVisitorFunction& v)').  The functor is
-    //:   called for every element in the hash map having the given 'key' by
-    //:   'single-key' overload (i.e.
-    //:   'visitReadOnly(const KEY& k, const ReadOnlyVisitorFunction& v)'.
-    //:
-    //: 3 The 'visit' methods return the number of values visited.
-    //:
-    //: 4 The "tour" is halted prematurely when the functor returns 'false'.
-    //:
-    //:   1 The number of elements visited is less than the size of the hash
-    //:     map.
-    //:
-    //:   2 The return value is negative.
-    //:
-    //: 5 The methods work if the hash map is empty.
-    //:
-    //: 6 Object under the test remains unaffected.
-    //:
-    //: 7 QoI: There is no temporary memory allocation from any allocator.
+    // 1. The given functor is executed and is called with the expected
+    //    arguments (i.e. the value at `value` is the value attribute
+    //    associated with `key`).
+    //
+    // 2. The functor is called for every element in the hash map irrespective
+    //    of the bucket in which it resides by `common` overload (i.e.
+    //    `visitReadOnly(const ReadOnlyVisitorFunction& v)`).  The functor is
+    //    called for every element in the hash map having the given `key` by
+    //    `single-key` overload (i.e.
+    //    `visitReadOnly(const KEY& k, const ReadOnlyVisitorFunction& v)`.
+    //
+    // 3. The `visit` methods return the number of values visited.
+    //
+    // 4. The "tour" is halted prematurely when the functor returns `false`.
+    //
+    //   1. The number of elements visited is less than the size of the hash
+    //      map.
+    //
+    //   2. The return value is negative.
+    //
+    // 5. The methods work if the hash map is empty.
+    //
+    // 6. Object under the test remains unaffected.
+    //
+    // 7. QoI: There is no temporary memory allocation from any allocator.
     //
     // Plan:
-    //: 1 Test the empty hash map in a standalone case.  (C-5)
-    //:
-    //: 2 For hash maps of varying lengths with unique values and for hash maps
-    //:   of varying lengths with duplicate values and, we:
-    //:   1 Run a visitor that always succeeds and a visitor that fails after
-    //:     half the elements.
-    //:   2 Store every key and value passed to functor to mark element as
-    //:     visited.
-    //:   3 Confirm that there was no temporary memory allocation from the
-    //:     default and object allocators.  (C-7)
-    //:   4 Confirm that the return value is correct.  (C-3..4)
-    //:   5 Confirm that object itself remains unaffected.  (C-6)
-    //:   6 Confirm that the functor was called the expected number of times.
-    //:   7 Confirm that the expected number of elements has been visited.
-    //:   8 Confirm that only the expected elements have been visited.
-    //:     (C-1..2)
+    // 1. Test the empty hash map in a standalone case.  (C-5)
+    //
+    // 2. For hash maps of varying lengths with unique values and for hash maps
+    //    of varying lengths with duplicate values and, we:
+    //   1. Run a visitor that always succeeds and a visitor that fails after
+    //      half the elements.
+    //   2. Store every key and value passed to functor to mark element as
+    //      visited.
+    //   3. Confirm that there was no temporary memory allocation from the
+    //      default and object allocators.  (C-7)
+    //   4. Confirm that the return value is correct.  (C-3..4)
+    //   5. Confirm that object itself remains unaffected.  (C-6)
+    //   6. Confirm that the functor was called the expected number of times.
+    //   7. Confirm that the expected number of elements has been visited.
+    //   8. Confirm that only the expected elements have been visited.
+    //      (C-1..2)
     //
     // Testing:
     //   int visitReadOnly(const ReadOnlyVisitorFunction& visitor) const;
     //   int visitReadOnly(const KEY&, const ReadOnlyVisitorFunction&) const;
     // ------------------------------------------------------------------------
 
-    // Test is equivalent to 'testCase18' in 'StripedUnorderedMap' and to
-    // 'testCase22' in 'StripedUnorderedMultiMap'.
+    // Test is equivalent to `testCase18` in `StripedUnorderedMap` and to
+    // `testCase22` in `StripedUnorderedMultiMap`.
 
     if (verbose) cout << endl
-                      << "TEST 'visitReadOnly'" << endl
+                      << "TEST `visitReadOnly`" << endl
                       << "====================" << endl;
 
     if (veryVeryVerbose) {
@@ -1783,7 +1805,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase19()
 
         typename Obj::ReadOnlyVisitorFunction visitor(testCase19Reader);
 
-        dam.reset(); // 'bsl::function' constructor allocates from the default
+        dam.reset(); // `bsl::function` constructor allocates from the default
                      // allocator.
 
         int rc = mX.visitReadOnly(visitor);
@@ -1820,7 +1842,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase19()
         TestCase19Reader testCase19Reader(INT_MAX, VALUES);
 
         typename Obj::ReadOnlyVisitorFunction visitor(testCase19Reader);
-        dam.reset(); // 'bsl::function' constructor allocates from the default
+        dam.reset(); // `bsl::function` constructor allocates from the default
                      // allocator.
 
         bslma::TestAllocatorMonitor oam(&oa);
@@ -1891,7 +1913,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase19()
         const int         EXP_RESULT     = -(static_cast<int>(LENGTH) / 2 + 1);
 
         typename Obj::ReadOnlyVisitorFunction visitor(testCase19Reader);
-        dam.reset(); // 'bsl::function' constructor allocates from the default
+        dam.reset(); // `bsl::function` constructor allocates from the default
                      // allocator.
 
         bslma::TestAllocatorMonitor oam(&oa);
@@ -1967,7 +1989,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase19()
         TestCase19Reader testCase19Reader(INT_MAX, VALUES);
 
         typename Obj::ReadOnlyVisitorFunction visitor(testCase19Reader);
-        dam.reset(); // 'bsl::function' constructor allocates from the default
+        dam.reset(); // `bsl::function` constructor allocates from the default
                      // allocator.
 
         bslma::TestAllocatorMonitor oam(&oa);
@@ -2050,7 +2072,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase19()
         const int         EXP_RESULT     = -(static_cast<int>(LENGTH) + 1);
 
         typename Obj::ReadOnlyVisitorFunction visitor(testCase19Reader);
-        dam.reset(); // 'bsl::function' constructor allocates from the default
+        dam.reset(); // `bsl::function` constructor allocates from the default
                      // allocator.
 
         bslma::TestAllocatorMonitor oam(&oa);
@@ -2137,7 +2159,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase19()
 
         typename Obj::ReadOnlyVisitorFunction visitor(testCase19Reader);
 
-        dam.reset(); // 'bsl::function' constructor allocates from the default
+        dam.reset(); // `bsl::function` constructor allocates from the default
                      // allocator.
 
         int rc = mX.visitReadOnly(VALUES[0].first, visitor);
@@ -2174,7 +2196,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase19()
         TestCase19Reader testCase19Reader(INT_MAX, VALUES);
 
         typename Obj::ReadOnlyVisitorFunction visitor(testCase19Reader);
-        dam.reset(); // 'bsl::function' constructor allocates from the default
+        dam.reset(); // `bsl::function` constructor allocates from the default
                      // allocator.
 
         bslma::TestAllocatorMonitor oam(&oa);
@@ -2258,7 +2280,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase19()
         TestCase19Reader testCase19Reader(INT_MAX, VALUES);
 
         typename Obj::ReadOnlyVisitorFunction visitor(testCase19Reader);
-        dam.reset(); // 'bsl::function' constructor allocates from the default
+        dam.reset(); // `bsl::function` constructor allocates from the default
                      // allocator.
 
         bslma::TestAllocatorMonitor oam(&oa);
@@ -2314,8 +2336,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase19()
         s_testCase19_count = 0;
         s_testCase19_visitedElements.clear();
 
-        dam.reset();  // We used default allocator for 'firstValue' and
-                      // 'secondValue' creation.
+        dam.reset();  // We used default allocator for `firstValue` and
+                      // `secondValue` creation.
 
         rc = mX.visitReadOnly(VALUES[LENGTH + 1].first, visitor);
         ASSERTV(rc, 0 == rc);
@@ -2342,7 +2364,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase19()
             for (bsl::size_t tk = 0; tk < LENGTH; ++tk) {
                 if (INDEX == tk) {
                     for (bsl::size_t tl = 0; tl < LENGTH; ++tl) {
-                        // Put 'LENGTH' values with the same key
+                        // Put `LENGTH` values with the same key
                         mX.insertAlways(VALUES[tk].first,
                                         VALUES[LENGTH - tl - 1].second);
                     }
@@ -2367,7 +2389,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase19()
                                            -(static_cast<int>(LENGTH / 2) + 1);
 
             typename Obj::ReadOnlyVisitorFunction visitor(testCase19Reader);
-            dam.reset(); // 'bsl::function' constructor allocates from the
+            dam.reset(); // `bsl::function` constructor allocates from the
                          // default allocator.
 
             bslma::TestAllocatorMonitor oam(&oa);
@@ -2461,61 +2483,61 @@ template <class KEY, class VALUE, class HASH, class EQUAL>
 void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase18()
 {
     // ------------------------------------------------------------------------
-    // TEST MOVABLE 'insert'
+    // TEST MOVABLE `insert`
     //
     // Concerns:
-    //: 1 When 'insert' adds an element, the element has the expected key
-    //:   and value, and returns 1.
-    //:
-    //: 2 When a hash map has one or more elements having the given key,
-    //:   exactly one element is updated.  Elements having other keys and other
-    //:   elements having the same key are not changed.  The return value is 0.
-    //:
-    //: 3 Elements having the specified 'key' are found irrespective of the
-    //:   bucket in which they reside.
-    //:
-    //: 4 When an element is added, the memory allocated increases, the
-    //:   number of elements increases by 1, and the number of elements in the
-    //:   target bucket increases by 1.
-    //:
-    //: 5 Any memory allocation is exception neutral.
-    //:
-    //: 6 The method works as expected when the hash map is empty.
-    //:
-    //: 7 QoI: When element(s) are updated, and the 'VALUE' type is
-    //:   non-allocating, no memory is allocated or deallocated.
-    //:
-    //: 8 QoI: There is no temporary memory allocation from any allocator.
+    // 1. When `insert` adds an element, the element has the expected key
+    //    and value, and returns 1.
+    //
+    // 2. When a hash map has one or more elements having the given key,
+    //    exactly one element is updated.  Elements having other keys and other
+    //    elements having the same key are not changed.  The return value is 0.
+    //
+    // 3. Elements having the specified `key` are found irrespective of the
+    //    bucket in which they reside.
+    //
+    // 4. When an element is added, the memory allocated increases, the
+    //    number of elements increases by 1, and the number of elements in the
+    //    target bucket increases by 1.
+    //
+    // 5. Any memory allocation is exception neutral.
+    //
+    // 6. The method works as expected when the hash map is empty.
+    //
+    // 7. QoI: When element(s) are updated, and the `VALUE` type is
+    //    non-allocating, no memory is allocated or deallocated.
+    //
+    // 8. QoI: There is no temporary memory allocation from any allocator.
     //
     // Plan:
-    //: 1 Test the empty hash map in a standalone case.
-    //:
-    //: 2 For hash maps of varying lengths, we:
-    //:   1 Update one existing key.
-    //:   2 Confirm that the return value is 0.
-    //:   3 The size of the container does not change.
-    //:   4 The size of the bucket does not change.
-    //:   5 Memory in use does not change if 'VALUE' type is non-allocating.
-    //:   6 Confirm that the value(s) associated with the key were updated to
-    //:     the new value.
-    //:   7 Confirm that no other elements have changed.
-    //:   8 Insert one missing key.
-    //:   9 Confirm that the return value is 1.
-    //:  10 The size of the container increases by 1.
-    //:  11 The size of the bucket increases by 1.
-    //:  12 Memory in use has increased.
-    //:  13 Confirm that the new element has the given key and value.
-    //:  14 Confirm that no other elements have changed.
-    //:
-    //: 3 P-2 is repeated for containers having different configurations:
-    //:   1 Unique keys, 'insertUnique'
-    //:   2 Duplicate keys, 'insertUnique'
-    //:   3 Unique keys, 'insertAlways'
-    //:   4 Duplicate keys, 'insertAlways'
-    //:
-    //: 4 Each 'insert' test call is wrapped with the
-    //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' and
-    //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END' macros.
+    // 1. Test the empty hash map in a standalone case.
+    //
+    // 2. For hash maps of varying lengths, we:
+    //   1. Update one existing key.
+    //   2. Confirm that the return value is 0.
+    //   3. The size of the container does not change.
+    //   4. The size of the bucket does not change.
+    //   5. Memory in use does not change if `VALUE` type is non-allocating.
+    //   6. Confirm that the value(s) associated with the key were updated to
+    //      the new value.
+    //   7. Confirm that no other elements have changed.
+    //   8. Insert one missing key.
+    //   9. Confirm that the return value is 1.
+    //  10. The size of the container increases by 1.
+    //  11. The size of the bucket increases by 1.
+    //  12. Memory in use has increased.
+    //  13. Confirm that the new element has the given key and value.
+    //  14. Confirm that no other elements have changed.
+    //
+    // 3. P-2 is repeated for containers having different configurations:
+    //   1. Unique keys, `insertUnique`
+    //   2. Duplicate keys, `insertUnique`
+    //   3. Unique keys, `insertAlways`
+    //   4. Duplicate keys, `insertAlways`
+    //
+    // 4. Each `insert` test call is wrapped with the
+    //    `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN` and
+    //    `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END` macros.
     //
     // Testing:
     //  void insertAlways(const KEY& key, VALUE&& value);
@@ -2523,12 +2545,12 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase18()
     //   bsl::size_t insert(const KEY& key, VALUE&& value, multiplicity);
     // ------------------------------------------------------------------------
 
-    // Testing of 'insertUnique' is equivalent to 'testCase17' in
-    // 'StripedUnorderedMap', and 'insertAlways' to 'testCase21' in
-    // 'StripedUnorderedMultiMap'.
+    // Testing of `insertUnique` is equivalent to `testCase17` in
+    // `StripedUnorderedMap`, and `insertAlways` to `testCase21` in
+    // `StripedUnorderedMultiMap`.
 
     if (verbose) cout << endl
-                      << "TEST MOVABLE 'insert'" << endl
+                      << "TEST MOVABLE `insert`" << endl
                       << "=====================" << endl;
 
     if (veryVeryVerbose) {
@@ -2572,7 +2594,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase18()
         ASSERTV(areEqual(value, VALUES[0].second));
     }
 
-    // Test updating unique keys, 'insertUnique'.
+    // Test updating unique keys, `insertUnique`.
     for (bsl::size_t ti = 1; ti < MAX_LENGTH; ++ti) {
         const bsl::size_t LENGTH = ti;
 
@@ -2610,7 +2632,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase18()
         ASSERTV(1 == rc);
         ASSERTV(areEqual(value, VALUES[LENGTH].second));
 
-        // No change in memory allocation if 'VALUE' is non-allocating.
+        // No change in memory allocation if `VALUE` is non-allocating.
         if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
@@ -2667,9 +2689,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase18()
                             MoveUtil::move(val1));
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
-    } // END Test updating unique keys, 'e_INSERT_UNIQUE'
+    } // END Test updating unique keys, `e_INSERT_UNIQUE`
 
-    // Test updating duplicate keys, 'e_INSERT_UNIQUE'.
+    // Test updating duplicate keys, `e_INSERT_UNIQUE`.
     for (bsl::size_t ti = 1; ti < MAX_LENGTH; ++ti) {
         const bsl::size_t LENGTH = ti;
 
@@ -2710,7 +2732,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase18()
         bool val1Eq = areEqual(values[1], VALUES[LENGTH].second);
         ASSERTV((val0Eq && !val1Eq) || (!val0Eq && val1Eq));
 
-        // No change in memory allocation if 'VALUE' is non-allocating.
+        // No change in memory allocation if `VALUE` is non-allocating.
         if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
@@ -2771,9 +2793,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase18()
                             MoveUtil::move(val1));
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
-    } // END Test updating duplicate keys, 'insertUnique'
+    } // END Test updating duplicate keys, `insertUnique`
 
-    // Test updating unique keys, 'insertAlways'.
+    // Test updating unique keys, `insertAlways`.
     for (bsl::size_t ti = 1; ti < MAX_LENGTH; ++ti) {
         const bsl::size_t LENGTH = ti;
 
@@ -2866,9 +2888,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase18()
             mX.insertAlways(VALUES[LENGTH + 2].first, MoveUtil::move(val1));
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
-    } // END Test updating unique keys, 'e_INSERT_ALWAYS'
+    } // END Test updating unique keys, `e_INSERT_ALWAYS`
 
-    // Test updating duplicate keys, 'e_INSERT_ALWAYS'.
+    // Test updating duplicate keys, `e_INSERT_ALWAYS`.
     for (bsl::size_t ti = 1; ti < MAX_LENGTH; ++ti) {
         const bsl::size_t LENGTH = ti;
 
@@ -2968,7 +2990,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase18()
             mX.insertAlways(VALUES[LENGTH + 1].first, MoveUtil::move(val1));
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
-    } // END Test updating duplicate keys, 'insertAlways'
+    } // END Test updating duplicate keys, `insertAlways`
 
     // CONCERN: In no case does memory come from the default allocator.
     ASSERT(dam.isTotalSame());
@@ -2978,70 +3000,70 @@ template <class KEY, class VALUE, class HASH, class EQUAL>
 void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase17()
 {
     // ------------------------------------------------------------------------
-    // TEST MOVABLE 'setValue'
-    //   Note that movable 'setValue' testing is equivalent to 'setValueFirst'.
+    // TEST MOVABLE `setValue`
+    //   Note that movable `setValue` testing is equivalent to `setValueFirst`.
     //
     // Concerns:
-    //: 1 When 'setValue' adds an element, the element has the expected key
-    //:   and value, and returns 0.
-    //:
-    //: 2 When a hash map has one or more elements having the given key,
-    //:   exactly one element is updated.  Elements having other keys and other
-    //:   elements having the same key are not changed.  The return value is 1.
-    //:
-    //: 3 Elements having the specified 'key' are found irrespective of the
-    //:   bucket in which they reside.
-    //:
-    //: 4 When an element is added, the memory allocated increases, the
-    //:   number of elements increases by 1, and the number of elements in the
-    //:   target bucket increases by 1.
-    //:
-    //: 5 Any memory allocation is exception neutral.
-    //:
-    //: 6 The method works as expected when the hash map is empty.
-    //:
-    //: 7 QoI: When element(s) are updated, and the 'VALUE' type is
-    //:   non-allocating, no memory is allocated or deallocated.
-    //:
-    //: 8 QoI: There is no temporary memory allocation from any allocator.
+    // 1. When `setValue` adds an element, the element has the expected key
+    //    and value, and returns 0.
+    //
+    // 2. When a hash map has one or more elements having the given key,
+    //    exactly one element is updated.  Elements having other keys and other
+    //    elements having the same key are not changed.  The return value is 1.
+    //
+    // 3. Elements having the specified `key` are found irrespective of the
+    //    bucket in which they reside.
+    //
+    // 4. When an element is added, the memory allocated increases, the
+    //    number of elements increases by 1, and the number of elements in the
+    //    target bucket increases by 1.
+    //
+    // 5. Any memory allocation is exception neutral.
+    //
+    // 6. The method works as expected when the hash map is empty.
+    //
+    // 7. QoI: When element(s) are updated, and the `VALUE` type is
+    //    non-allocating, no memory is allocated or deallocated.
+    //
+    // 8. QoI: There is no temporary memory allocation from any allocator.
     //
     // Plan:
-    //: 1 Test the empty hash map in a standalone case.
-    //:
-    //: 2 For hash maps of varying lengths, we:
-    //:   1 Update one existing key.
-    //:   2 Confirm that the return value is 1.
-    //:   3 The size of the container does not change.
-    //:   4 The size of the bucket does not change.
-    //:   5 Memory in use does not change if 'VALUE' type is non-allocating.
-    //:   6 Confirm that the value(s) associated with the key were updated to
-    //:     the new value.
-    //:   7 Confirm that no other elements have changed.
-    //:   8 Insert one missing key.
-    //:   9 Confirm that the return value is correct.
-    //:  10 The size of the container increases by 1.
-    //:  11 The size of the bucket increases by 1.
-    //:  12 Memory in use has increased.
-    //:  13 Confirm that the new element has the given key and value.
-    //:  14 Confirm that no other elements have changed.
-    //:
-    //: 3 P-2 is repeated for containers having different configurations:
-    //:   1 Unique keys
-    //:   2 Duplicate keys
-    //:
-    //: 4 Each 'setValue' test call is wrapped with the
-    //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' and
-    //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END' macros.
+    // 1. Test the empty hash map in a standalone case.
+    //
+    // 2. For hash maps of varying lengths, we:
+    //   1. Update one existing key.
+    //   2. Confirm that the return value is 1.
+    //   3. The size of the container does not change.
+    //   4. The size of the bucket does not change.
+    //   5. Memory in use does not change if `VALUE` type is non-allocating.
+    //   6. Confirm that the value(s) associated with the key were updated to
+    //      the new value.
+    //   7. Confirm that no other elements have changed.
+    //   8. Insert one missing key.
+    //   9. Confirm that the return value is correct.
+    //  10. The size of the container increases by 1.
+    //  11. The size of the bucket increases by 1.
+    //  12. Memory in use has increased.
+    //  13. Confirm that the new element has the given key and value.
+    //  14. Confirm that no other elements have changed.
+    //
+    // 3. P-2 is repeated for containers having different configurations:
+    //   1. Unique keys
+    //   2. Duplicate keys
+    //
+    // 4. Each `setValue` test call is wrapped with the
+    //    `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN` and
+    //    `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END` macros.
     //
     // Testing:
     //   bsl::size_t setValueFirst(const KEY& key, VALUE&& value);
     // ------------------------------------------------------------------------
 
-    // Test is equivalent to 'testCase16' in 'StripedUnorderedMap' and to
-    // 'testCase20' in 'StripedUnorderedMultiMap'.
+    // Test is equivalent to `testCase16` in `StripedUnorderedMap` and to
+    // `testCase20` in `StripedUnorderedMultiMap`.
 
     if (verbose) cout << endl
-                      << "TEST MOVABLE 'setValue'" << endl
+                      << "TEST MOVABLE `setValue`" << endl
                       << "=======================" << endl;
 
     if (veryVeryVerbose) {
@@ -3122,7 +3144,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase17()
         ASSERTV(1 == rc);
         ASSERTV(areEqual(value, VALUES[LENGTH].second));
 
-        // No change in memory allocation if 'VALUE' is non-allocating.
+        // No change in memory allocation if `VALUE` is non-allocating.
         if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
@@ -3219,7 +3241,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase17()
         bool val1Eq = areEqual(values[1], VALUES[LENGTH].second);
         ASSERTV((val0Eq && !val1Eq) || (!val0Eq && val1Eq));
 
-        // No change in memory allocation if 'VALUE' is non-allocating.
+        // No change in memory allocation if `VALUE` is non-allocating.
         if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
@@ -3290,17 +3312,17 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase16()
     // TYPE TRAITS
     //
     // Concerns:
-    //: 1 The object has the 'bslma::UsesBslmaAllocator' trait.
+    // 1. The object has the `bslma::UsesBslmaAllocator` trait.
     //
     // Plan:
-    //: 1 Use 'BSLMF_ASSERT' to verify all the type traits exists.
+    // 1. Use `BSLMF_ASSERT` to verify all the type traits exists.
     //
     // Testing:
     //   TYPE TRAITS
     // --------------------------------------------------------------------
 
-    // Test is equivalent to 'testCase15' in 'StripedUnorderedMap' and to
-    // 'testCase19' in 'StripedUnorderedMultiMap'.
+    // Test is equivalent to `testCase15` in `StripedUnorderedMap` and to
+    // `testCase19` in `StripedUnorderedMultiMap`.
 
     if (verbose) cout << endl
                       << "TYPE TRAITS: Compile Time Test" << endl
@@ -3323,73 +3345,73 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase15()
     // TEST REHASHING FUNCTIONS
     //
     // Concerns:
-    //: 1 Adding elements increases the load factor irrespective of the method
-    //:   used (e.g., 'insert', 'setValue').
-    //:
-    //: 2 After rehashing, the hash map shows the expected values for size (the
-    //:   same) number of buckets, and placement of elements within buckets.
-    //:
-    //: 2 Pushing the load factor above the maximum load factor triggers a
-    //:   rehash.
-    //:
-    //: 4 Lowering the maximum load factor below the current load factor
-    //:   triggers a rehash.
-    //:
-    //: 5 The 'disableRehash' method prevents prevents rehash in any of
-    //:   scenario where rehash would otherwise occur.
-    //:
-    //: 6 The 'enableRehash' method triggers a rehash is warranted when called.
-    //:   That is, rehash events are not latched while rehashing is disabled.
-    //:
-    //: 7 The accessor functions:
-    //:   1 Provide values that are predictive of rehash events.
-    //:   2 Do not allocate memory.
-    //:   3 Are 'const' qualified.
-    //:
-    //: 8 The rehash process is exception safe.
-    //:
-    //: 9 The initial value of 'maxLoadFactor' is 1.0.
-    //:
-    //:10 Initially 'isRehashingEnabled()' returns 'true'.
+    // 1. Adding elements increases the load factor irrespective of the method
+    //    used (e.g., `insert`, `setValue`).
+    //
+    // 2. After rehashing, the hash map shows the expected values for size (the
+    //    same) number of buckets, and placement of elements within buckets.
+    //
+    // 2. Pushing the load factor above the maximum load factor triggers a
+    //    rehash.
+    //
+    // 4. Lowering the maximum load factor below the current load factor
+    //    triggers a rehash.
+    //
+    // 5. The `disableRehash` method prevents prevents rehash in any of
+    //    scenario where rehash would otherwise occur.
+    //
+    // 6. The `enableRehash` method triggers a rehash is warranted when called.
+    //    That is, rehash events are not latched while rehashing is disabled.
+    //
+    // 7. The accessor functions:
+    //   1. Provide values that are predictive of rehash events.
+    //   2. Do not allocate memory.
+    //   3. Are `const` qualified.
+    //
+    // 8. The rehash process is exception safe.
+    //
+    // 9. The initial value of `maxLoadFactor` is 1.0.
+    //
+    // 10. Initially `isRehashingEnabled()` returns `true`.
     //
     // Plan:
-    //: 1 For different initial bucket sizes and insertion methods ('insert',
-    //:   'setValue', and 'setComputedValue'), create a hash map and insert
-    //:   elements:
-    //:
-    //:   1 When the hash map is created, confirm that 'maxLoadFactor' is 1.0,
-    //:     and the 'isRehashingEnabled() is 'true'.
-    //:
-    //:   2 Confirm that loadFactor increases when elements are added, if the
-    //:     number of buckets did not change.
-    //:
-    //:   3 The number of buckets doubles when we reach number of elements
-    //:     higher by one than the initial number of buckets.  Confirm the
-    //:     size.  Confirm that the number of elements in each of the two
-    //:     buckets that an old bucket was split into are equal to the number
-    //:     of elements in the old bucket, except for the bucket where the last
-    //:     element was added.
-    //:
-    //: 2 For different initial bucket sizes, create a hash map and insert
-    //:   elements:
-    //:
-    //:   1 Disable rehashing, and check that the number of buckets does not
-    //:     change when it should (i.e., a rehash does not happen).  Enable
-    //:     rehashing, and verify that rehashing does not spontaneously happen.
-    //:
-    //:   2 Verify that 'loadFactor' is bigger than the current
-    //:     'maxLoadFactor.'
-    //:
-    //:   3 Set 'maxLoadFactor' to a large number and confirm that the number
-    //:     of buckets does not change.
-    //:
-    //:   4 Set 'maxLoadFactor' to its previous value (1.0), which is smaller
-    //:     than the current loadFactor, and confirm that the number of buckets
-    //:     does change.
-    //:
-    //:   5 Directly call 'rehash' with double the number of the existing
-    //:     buckets, and confirm that the number of buckets doubled.  Wrap the
-    //:     call with 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST' macro.
+    // 1. For different initial bucket sizes and insertion methods (`insert`,
+    //    `setValue`, and `setComputedValue`), create a hash map and insert
+    //    elements:
+    //
+    //   1. When the hash map is created, confirm that `maxLoadFactor` is 1.0,
+    //      and the `isRehashingEnabled() is `true'.
+    //
+    //   2. Confirm that loadFactor increases when elements are added, if the
+    //      number of buckets did not change.
+    //
+    //   3. The number of buckets doubles when we reach number of elements
+    //      higher by one than the initial number of buckets.  Confirm the
+    //      size.  Confirm that the number of elements in each of the two
+    //      buckets that an old bucket was split into are equal to the number
+    //      of elements in the old bucket, except for the bucket where the last
+    //      element was added.
+    //
+    // 2. For different initial bucket sizes, create a hash map and insert
+    //    elements:
+    //
+    //   1. Disable rehashing, and check that the number of buckets does not
+    //      change when it should (i.e., a rehash does not happen).  Enable
+    //      rehashing, and verify that rehashing does not spontaneously happen.
+    //
+    //   2. Verify that `loadFactor` is bigger than the current
+    //      `maxLoadFactor.`
+    //
+    //   3. Set `maxLoadFactor` to a large number and confirm that the number
+    //      of buckets does not change.
+    //
+    //   4. Set `maxLoadFactor` to its previous value (1.0), which is smaller
+    //      than the current loadFactor, and confirm that the number of buckets
+    //      does change.
+    //
+    //   5. Directly call `rehash` with double the number of the existing
+    //      buckets, and confirm that the number of buckets doubled.  Wrap the
+    //      call with `BSLMA_TESTALLOCATOR_EXCEPTION_TEST` macro.
     //
     // Testing:
     //   void rehash(bsl::size_t numBuckets);
@@ -3402,8 +3424,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase15()
     //   float loadFactor() const;
     // ------------------------------------------------------------------------
 
-    // Test is equivalent to 'testCase14' in 'StripedUnorderedMap' and to
-    // 'testCase18' in 'StripedUnorderedMultiMap'.
+    // Test is equivalent to `testCase14` in `StripedUnorderedMap` and to
+    // `testCase18` in `StripedUnorderedMultiMap`.
 
     if (verbose) cout << endl
                       << "TEST REHASHING FUNCTIONS" << endl
@@ -3502,18 +3524,18 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase15()
                     TestCase15Updater testCase15Updater(VALUES[tj].second);
 
                     typename Obj::VisitorFunction func(testCase15Updater);
-                    dam.reset(); // 'bsl::function' constructor allocates from
+                    dam.reset(); // `bsl::function` constructor allocates from
                                  // the default allocator.
 
                     int rc = mX.setComputedValueFirst(VALUES[tj].first, func);
                     ASSERTV(0 == rc)
                   } break;
-                } // END 'switch'
+                } // END `switch`
 
-                // 'insertBulk' (i.e., 'i == 4') intentionally uses the default
+                // `insertBulk` (i.e., `i == 4`) intentionally uses the default
                 // allocator.
                 //
-                // 'setComputedValue' (i.e., 'i == 5) copies values and some
+                // `setComputedValue` (i.e., 'i == 5) copies values and some
                 // may use the default allocator.
 
                 if (i == 4 ||
@@ -3527,7 +3549,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase15()
                     // Verify that the number of buckets has not changed.
                     ASSERTV(initialNumBuckets == X.bucketCount());
 
-                    // Verify that 'loadFactor' increased.
+                    // Verify that `loadFactor` increased.
                     float newLoadFactor = X.loadFactor();
                     ASSERTV(newLoadFactor > oldLoadFactor);
 
@@ -3565,7 +3587,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase15()
     } // END Loop on bucket sizes
     ASSERT(dam.isTotalSame());
 
-    // Test 'disable', 'enable', 'maxLoadFactor', and explicit 'rehash'.
+    // Test `disable`, `enable`, `maxLoadFactor`, and explicit `rehash`.
     //
     // Note that we skip initial bucket count of 64, as it will not rehash for
     // the test values we use here.
@@ -3602,14 +3624,14 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase15()
                 X.bucketCount(),
                 initialNumBuckets == X.bucketCount());
 
-        // Confirm that 'loadFactor' is bigger than 'maxLoadFactor'.
+        // Confirm that `loadFactor` is bigger than `maxLoadFactor`.
         ASSERTV(LENG, X.loadFactor() > X.maxLoadFactor());
 
-        // Confirm that no memory was allocated in 'enableRehash',
-        // 'loadFactor', and 'maxLoadFactor'.
+        // Confirm that no memory was allocated in `enableRehash`,
+        // `loadFactor`, and `maxLoadFactor`.
         ASSERTV(sam.isTotalSame());
 
-        // Set 'maxLoadFactor' to a large value, and confirm no rehash
+        // Set `maxLoadFactor` to a large value, and confirm no rehash
         // happened.
         float curMaxLoadFactor = X.maxLoadFactor();
         mX.maxLoadFactor(1e6);
@@ -3618,14 +3640,14 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase15()
                 X.bucketCount(),
                 initialNumBuckets == X.bucketCount());
 
-        // Set 'maxLoadFactor' to its original value, and confirm rehash
+        // Set `maxLoadFactor` to its original value, and confirm rehash
         // happened.
         mX.maxLoadFactor(curMaxLoadFactor);
         ASSERTV(LENG,
                 X.bucketCount(),
                 initialNumBuckets < X.bucketCount());
 
-        // Directly call 'rehash', doubling the number of buckets, within
+        // Directly call `rehash`, doubling the number of buckets, within
         // exception macros, and confirm that the number of buckets doubled.
         bsl::size_t curBucketCount = X.bucketCount();
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(supplied) {
@@ -3643,82 +3665,82 @@ template <class KEY, class VALUE, class HASH, class EQUAL>
 void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase14()
 {
     // ------------------------------------------------------------------------
-    // TEST 'visit'
+    // TEST `visit`
     //
     // Concerns:
-    //: 1 The given functor is executed and is called with the expected
-    //:   arguments:
-    //:
-    //:   1 The value at 'value' is the value attribute associated with
-    //:     'key'.
-    //:
-    //:   2 A change at 'value' changes the element associated with 'key'.
-    //:
-    //: 2 The functor is called for every element in the hash map irrespective
-    //:   of the bucket in which it resides.
-    //:
-    //: 3 The 'visit' method returns the number of keys visited.
-    //:
-    //: 4 The "tour" is halted prematurely when the functor returns 'false'.
-    //:
-    //:   1 The number of elements visited is less than the size of the hash
-    //:     map.
-    //:
-    //:   2 The return value is negative.
-    //:
-    //: 5 The method works if the hash map is empty.
-    //:
-    //: 6 QoI: When element(s) are updated, and the 'VALUE' type is
-    //:   non-allocating, no memory is allocated or deallocated.
-    //:
-    //: 7 QoI: There is no temporary memory allocation from any allocator.
+    // 1. The given functor is executed and is called with the expected
+    //    arguments:
+    //
+    //   1. The value at `value` is the value attribute associated with
+    //      `key`.
+    //
+    //   2. A change at `value` changes the element associated with `key`.
+    //
+    // 2. The functor is called for every element in the hash map irrespective
+    //    of the bucket in which it resides.
+    //
+    // 3. The `visit` method returns the number of keys visited.
+    //
+    // 4. The "tour" is halted prematurely when the functor returns `false`.
+    //
+    //   1. The number of elements visited is less than the size of the hash
+    //      map.
+    //
+    //   2. The return value is negative.
+    //
+    // 5. The method works if the hash map is empty.
+    //
+    // 6. QoI: When element(s) are updated, and the `VALUE` type is
+    //    non-allocating, no memory is allocated or deallocated.
+    //
+    // 7. QoI: There is no temporary memory allocation from any allocator.
     //
     // Plan:
-    //: 1 Test the empty hash map in a standalone case.
-    //:
-    //: 2 For hash maps of varying lengths with unique keys, we:
-    //:   1 Run a visitor that always succeeds.
-    //:   2 Update the value of a key with the value of the next key.
-    //:   3 Confirm that the return value is correct.
-    //:   4 Confirm that the functor was called the correct number of times.
-    //:   5 The size of the container does not change.
-    //:   6 The sizes of all buckets do not change.
-    //:   7 Memory in use does not change if 'VALUE' type is non-allocating.
-    //:   8 Confirm that the value associated with each key were updated to
-    //:     the new value.
-    //:
-    //: 3 For hash maps of varying lengths with unique keys, we:
-    //:   1 Run a visitor that fails after half the elements.
-    //:   2 Update the value of a key with the value of the next key.
-    //:   3 Confirm that the return value is correct.
-    //:   4 Confirm that the functor was called the correct number of times.
-    //:   5 The size of the container does not change.
-    //:   6 The sizes of all buckets do not change.
-    //:   7 Memory in use does not change if 'VALUE' type is non-allocating.
-    //:   8 Confirm that the value associated with each key were updated to
-    //:     the new value.
-    //:   9 Confirm that the second half of the elements have not changed.
-    //:
-    //: 3 For hash maps of varying lengths with duplicate keys, we:
-    //:   1 Run a visitor that always succeeds.
-    //:   2 Update both values of a key with values of the next key.
-    //:   3 Confirm that the return value is correct.
-    //:   4 Confirm that the functor was called the correct number of times.
-    //:   5 The size of the container does not change.
-    //:   6 The sizes of all buckets do not change.
-    //:   7 Memory in use does not change if 'VALUE' type is non-allocating.
-    //:   8 Confirm that the values associated with the key were updated to
-    //:     the new values.
+    // 1. Test the empty hash map in a standalone case.
+    //
+    // 2. For hash maps of varying lengths with unique keys, we:
+    //   1. Run a visitor that always succeeds.
+    //   2. Update the value of a key with the value of the next key.
+    //   3. Confirm that the return value is correct.
+    //   4. Confirm that the functor was called the correct number of times.
+    //   5. The size of the container does not change.
+    //   6. The sizes of all buckets do not change.
+    //   7. Memory in use does not change if `VALUE` type is non-allocating.
+    //   8. Confirm that the value associated with each key were updated to
+    //      the new value.
+    //
+    // 3. For hash maps of varying lengths with unique keys, we:
+    //   1. Run a visitor that fails after half the elements.
+    //   2. Update the value of a key with the value of the next key.
+    //   3. Confirm that the return value is correct.
+    //   4. Confirm that the functor was called the correct number of times.
+    //   5. The size of the container does not change.
+    //   6. The sizes of all buckets do not change.
+    //   7. Memory in use does not change if `VALUE` type is non-allocating.
+    //   8. Confirm that the value associated with each key were updated to
+    //      the new value.
+    //   9. Confirm that the second half of the elements have not changed.
+    //
+    // 3. For hash maps of varying lengths with duplicate keys, we:
+    //   1. Run a visitor that always succeeds.
+    //   2. Update both values of a key with values of the next key.
+    //   3. Confirm that the return value is correct.
+    //   4. Confirm that the functor was called the correct number of times.
+    //   5. The size of the container does not change.
+    //   6. The sizes of all buckets do not change.
+    //   7. Memory in use does not change if `VALUE` type is non-allocating.
+    //   8. Confirm that the values associated with the key were updated to
+    //      the new values.
     //
     // Testing:
     //   int visit(const VisitorFunction& visitor);
     // ------------------------------------------------------------------------
 
-    // Test is equivalent to 'testCase13' in 'StripedUnorderedMap' and to
-    // 'testCase17' in 'StripedUnorderedMultiMap'.
+    // Test is equivalent to `testCase13` in `StripedUnorderedMap` and to
+    // `testCase17` in `StripedUnorderedMultiMap`.
 
     if (verbose) cout << endl
-                      << "TEST 'visit'" << endl
+                      << "TEST `visit`" << endl
                       << "============" << endl;
 
     if (veryVeryVerbose) {
@@ -3746,7 +3768,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase14()
         TestCase14Updater testCase14UpdaterSuccess(10, VALUES);
 
         typename Obj::VisitorFunction visitor(testCase14UpdaterSuccess);
-        dam.reset(); // 'bsl::function' constructor allocates from the default
+        dam.reset(); // `bsl::function` constructor allocates from the default
                      // allocator.
 
         int rc = mX.visit(visitor);
@@ -3779,7 +3801,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase14()
         TestCase14Updater testCase14UpdaterSuccess(INT_MAX, VALUES);
 
         typename Obj::VisitorFunction visitor(testCase14UpdaterSuccess);
-        dam.reset(); // 'bsl::function' constructor allocates from the default
+        dam.reset(); // `bsl::function` constructor allocates from the default
                      // allocator.
 
         bslma::TestAllocatorMonitor sam(&supplied);
@@ -3801,7 +3823,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase14()
             ASSERTV(bucketSizes[i] == X.bucketSize(i));
         }
 
-        // No change in memory allocation if 'VALUE' is non-allocating.
+        // No change in memory allocation if `VALUE` is non-allocating.
         if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
@@ -3838,7 +3860,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase14()
                 testCase14UpdaterSuccess(static_cast<int>(LENGTH / 2), VALUES);
 
         typename Obj::VisitorFunction visitor(testCase14UpdaterSuccess);
-        dam.reset(); // 'bsl::function' constructor allocates from the default
+        dam.reset(); // `bsl::function` constructor allocates from the default
                      // allocator.
 
         bslma::TestAllocatorMonitor sam(&supplied);
@@ -3860,7 +3882,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase14()
             ASSERTV(bucketSizes[i] == X.bucketSize(i));
         }
 
-        // No change in memory allocation if 'VALUE' is non-allocating.
+        // No change in memory allocation if `VALUE` is non-allocating.
         if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
@@ -3900,7 +3922,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase14()
         TestCase14Updater testCase14UpdaterSuccess(INT_MAX, VALUES);
 
         typename Obj::VisitorFunction visitor(testCase14UpdaterSuccess);
-        dam.reset(); // 'bsl::function' constructor allocates from the default
+        dam.reset(); // `bsl::function` constructor allocates from the default
                      // allocator.
 
         bslma::TestAllocatorMonitor sam(&supplied);
@@ -3922,7 +3944,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase14()
             ASSERTV(bucketSizes[i] == X.bucketSize(i));
         }
 
-        // No change in memory allocation if 'VALUE' is non-allocating.
+        // No change in memory allocation if `VALUE` is non-allocating.
         if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
@@ -3948,79 +3970,79 @@ template <class KEY, class VALUE, class HASH, class EQUAL>
 void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase13()
 {
     // ------------------------------------------------------------------------
-    // TEST 'visit(key, visitor)'
+    // TEST `visit(key, visitor)`
     //
     // Concerns:
-    //: 1 The given functor is executed and is called with the expected
-    //:   arguments:
-    //:
-    //:   1 The value at 'value' is the value attribute associated with
-    //:     'key'.
-    //:
-    //:   2 A change at 'value' changes the element associated with 'key'.
-    //:
-    //: 2 The functor is called for every element in the hash map having the
-    //:   given 'key'.
-    //:
-    //: 3 The 'visit(key, visitor)' method returns the number of keys visited
-    //:   if the functor returns 'true' in all invocations.
-    //:
-    //: 4 The "tour" is halted prematurely when the functor returns 'false'.
-    //:
-    //:   1 The number of elements visited is less than the size of the hash
-    //:     map.
-    //:
-    //:   2 The return value is negative.
-    //:
-    //: 5 The method works if 'key' is not in the hash map.
-    //:
-    //: 6 The method works if the hash map is empty.
-    //:
-    //: 7 QoI: When element(s) are updated, and the 'VALUE' type is
-    //:   non-allocating, no memory is allocated or deallocated.
-    //:
-    //: 8 QoI: There is no temporary memory allocation from any allocator.
+    // 1. The given functor is executed and is called with the expected
+    //    arguments:
+    //
+    //   1. The value at `value` is the value attribute associated with
+    //      `key`.
+    //
+    //   2. A change at `value` changes the element associated with `key`.
+    //
+    // 2. The functor is called for every element in the hash map having the
+    //    given `key`.
+    //
+    // 3. The `visit(key, visitor)` method returns the number of keys visited
+    //    if the functor returns `true` in all invocations.
+    //
+    // 4. The "tour" is halted prematurely when the functor returns `false`.
+    //
+    //   1. The number of elements visited is less than the size of the hash
+    //      map.
+    //
+    //   2. The return value is negative.
+    //
+    // 5. The method works if `key` is not in the hash map.
+    //
+    // 6. The method works if the hash map is empty.
+    //
+    // 7. QoI: When element(s) are updated, and the `VALUE` type is
+    //    non-allocating, no memory is allocated or deallocated.
+    //
+    // 8. QoI: There is no temporary memory allocation from any allocator.
     //
     // Plan:
-    //: 1 Test the empty hash map in a standalone case.
-    //:
-    //: 2 For hash maps of varying lengths with unique keys, we:
-    //:   1 Update one existing key.
-    //:   2 Confirm that the return value is correct.
-    //:   3 The size of the container does not change.
-    //:   4 The size of the bucket does not change.
-    //:   5 Memory in use does not change if 'VALUE' type is non-allocating.
-    //:   6 Confirm that the value(s) associated with the key were updated to
-    //:     the new value.
-    //:   7 Confirm that no other elements have changed.
-    //:
-    //: 3 For hash maps of varying lengths with duplicate keys, we:
-    //:   1 Update one existing key with a functor that return always 'true'.
-    //:   2 Confirm that the return value is correct.
-    //:   3 The size of the container does not change.
-    //:   4 The size of the bucket does not change.
-    //:   5 Memory in use does not change if 'VALUE' type is non-allocating.
-    //:   6 Confirm that the values associated with the key were updated to
-    //:     the new value.
-    //:   7 Confirm that no other elements have changed.
-    //:   8 Update one existing key with a functor that return always 'false'.
-    //:   9 Confirm that the return value is correct.
-    //:  10 The size of the container does not change.
-    //:  11 The size of the bucket does not change.
-    //:  12 Memory in use does not change if 'VALUE' type is non-allocating.
-    //:  13 Confirm that one of the values associated with the key was updated
-    //:     to the new value.
-    //:  14 Confirm that no other elements have changed.
+    // 1. Test the empty hash map in a standalone case.
+    //
+    // 2. For hash maps of varying lengths with unique keys, we:
+    //   1. Update one existing key.
+    //   2. Confirm that the return value is correct.
+    //   3. The size of the container does not change.
+    //   4. The size of the bucket does not change.
+    //   5. Memory in use does not change if `VALUE` type is non-allocating.
+    //   6. Confirm that the value(s) associated with the key were updated to
+    //      the new value.
+    //   7. Confirm that no other elements have changed.
+    //
+    // 3. For hash maps of varying lengths with duplicate keys, we:
+    //   1. Update one existing key with a functor that return always `true`.
+    //   2. Confirm that the return value is correct.
+    //   3. The size of the container does not change.
+    //   4. The size of the bucket does not change.
+    //   5. Memory in use does not change if `VALUE` type is non-allocating.
+    //   6. Confirm that the values associated with the key were updated to
+    //      the new value.
+    //   7. Confirm that no other elements have changed.
+    //   8. Update one existing key with a functor that return always `false`.
+    //   9. Confirm that the return value is correct.
+    //  10. The size of the container does not change.
+    //  11. The size of the bucket does not change.
+    //  12. Memory in use does not change if `VALUE` type is non-allocating.
+    //  13. Confirm that one of the values associated with the key was updated
+    //      to the new value.
+    //  14. Confirm that no other elements have changed.
     //
     // Testing:
     //   int visit(const KEY& key, const VisitorFunction& functor);
     // ------------------------------------------------------------------------
 
-    // Test is equivalent to 'testCase12' in 'StripedUnorderedMap' and to
-    // 'testCase16' in 'StripedUnorderedMultiMap'.
+    // Test is equivalent to `testCase12` in `StripedUnorderedMap` and to
+    // `testCase16` in `StripedUnorderedMultiMap`.
 
     if (verbose) cout << endl
-                      << "TEST 'visit(key, visitor)'" << endl
+                      << "TEST `visit(key, visitor)`" << endl
                       << "==========================" << endl;
 
     if (veryVeryVerbose) {
@@ -4091,7 +4113,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase13()
         ASSERTV(1 == rc1);
         ASSERTV(areEqual(value, VALUES[LENGTH].second));
 
-        // No change in memory allocation if 'VALUE' is non-allocating.
+        // No change in memory allocation if `VALUE` is non-allocating.
         if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
@@ -4211,7 +4233,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase13()
                 areEqual(values[1], VALUES[LENGTH - 2].second) ||
                 areEqual(values[1], VALUES[1].second));
 
-        // No change in memory allocation if 'VALUE' is non-allocating.
+        // No change in memory allocation if `VALUE` is non-allocating.
         if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
@@ -4268,79 +4290,79 @@ template <class KEY, class VALUE, class HASH, class EQUAL>
 void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase13_update()
 {
     // ------------------------------------------------------------------------
-    // TEST 'update' (DEPRECATED)
+    // TEST `update` (DEPRECATED)
     //
     // Concerns:
-    //: 1 The given functor is executed and is called with the expected
-    //:   arguments:
-    //:
-    //:   1 The value at 'value' is the value attribute associated with
-    //:     'key'.
-    //:
-    //:   2 A change at 'value' changes the element associated with 'key'.
-    //:
-    //: 2 The functor is called for every element in the hash map having the
-    //:   given 'key'.
-    //:
-    //: 3 The 'update' method returns the number of keys visited if the functor
-    //:   returns 'true' in all invocations.
-    //:
-    //: 4 The "tour" is halted prematurely when the functor returns 'false'.
-    //:
-    //:   1 The number of elements visited is less than the size of the hash
-    //:     map.
-    //:
-    //:   2 The return value is negative.
-    //:
-    //: 5 The method works if 'key' is not in the hash map.
-    //:
-    //: 6 The method works if the hash map is empty.
-    //:
-    //: 7 QoI: When element(s) are updated, and the 'VALUE' type is
-    //:   non-allocating, no memory is allocated or deallocated.
-    //:
-    //: 8 QoI: There is no temporary memory allocation from any allocator.
+    // 1. The given functor is executed and is called with the expected
+    //    arguments:
+    //
+    //   1. The value at `value` is the value attribute associated with
+    //      `key`.
+    //
+    //   2. A change at `value` changes the element associated with `key`.
+    //
+    // 2. The functor is called for every element in the hash map having the
+    //    given `key`.
+    //
+    // 3. The `update` method returns the number of keys visited if the functor
+    //    returns `true` in all invocations.
+    //
+    // 4. The "tour" is halted prematurely when the functor returns `false`.
+    //
+    //   1. The number of elements visited is less than the size of the hash
+    //      map.
+    //
+    //   2. The return value is negative.
+    //
+    // 5. The method works if `key` is not in the hash map.
+    //
+    // 6. The method works if the hash map is empty.
+    //
+    // 7. QoI: When element(s) are updated, and the `VALUE` type is
+    //    non-allocating, no memory is allocated or deallocated.
+    //
+    // 8. QoI: There is no temporary memory allocation from any allocator.
     //
     // Plan:
-    //: 1 Test the empty hash map in a standalone case.
-    //:
-    //: 2 For hash maps of varying lengths with unique keys, we:
-    //:   1 Update one existing key.
-    //:   2 Confirm that the return value is correct.
-    //:   3 The size of the container does not change.
-    //:   4 The size of the bucket does not change.
-    //:   5 Memory in use does not change if 'VALUE' type is non-allocating.
-    //:   6 Confirm that the value(s) associated with the key were updated to
-    //:     the new value.
-    //:   7 Confirm that no other elements have changed.
-    //:
-    //: 3 For hash maps of varying lengths with duplicate keys, we:
-    //:   1 Update one existing key with a functor that return always 'true'.
-    //:   2 Confirm that the return value is correct.
-    //:   3 The size of the container does not change.
-    //:   4 The size of the bucket does not change.
-    //:   5 Memory in use does not change if 'VALUE' type is non-allocating.
-    //:   6 Confirm that the values associated with the key were updated to
-    //:     the new value.
-    //:   7 Confirm that no other elements have changed.
-    //:   8 Update one existing key with a functor that return always 'false'.
-    //:   9 Confirm that the return value is correct.
-    //:  10 The size of the container does not change.
-    //:  11 The size of the bucket does not change.
-    //:  12 Memory in use does not change if 'VALUE' type is non-allocating.
-    //:  13 Confirm that one of the values associated with the key was updated
-    //:     to the new value.
-    //:  14 Confirm that no other elements have changed.
+    // 1. Test the empty hash map in a standalone case.
+    //
+    // 2. For hash maps of varying lengths with unique keys, we:
+    //   1. Update one existing key.
+    //   2. Confirm that the return value is correct.
+    //   3. The size of the container does not change.
+    //   4. The size of the bucket does not change.
+    //   5. Memory in use does not change if `VALUE` type is non-allocating.
+    //   6. Confirm that the value(s) associated with the key were updated to
+    //      the new value.
+    //   7. Confirm that no other elements have changed.
+    //
+    // 3. For hash maps of varying lengths with duplicate keys, we:
+    //   1. Update one existing key with a functor that return always `true`.
+    //   2. Confirm that the return value is correct.
+    //   3. The size of the container does not change.
+    //   4. The size of the bucket does not change.
+    //   5. Memory in use does not change if `VALUE` type is non-allocating.
+    //   6. Confirm that the values associated with the key were updated to
+    //      the new value.
+    //   7. Confirm that no other elements have changed.
+    //   8. Update one existing key with a functor that return always `false`.
+    //   9. Confirm that the return value is correct.
+    //  10. The size of the container does not change.
+    //  11. The size of the bucket does not change.
+    //  12. Memory in use does not change if `VALUE` type is non-allocating.
+    //  13. Confirm that one of the values associated with the key was updated
+    //      to the new value.
+    //  14. Confirm that no other elements have changed.
     //
     // Testing:
     //   int update(const KEY& key, const VisitorFunction& functor);
     // ------------------------------------------------------------------------
 
-    // Test is equivalent to 'testCase12' in 'StripedUnorderedMap' and to
-    // 'testCase16' in 'StripedUnorderedMultiMap'.
+    // Test is equivalent to `testCase12` in `StripedUnorderedMap` and to
+    // `testCase16` in `StripedUnorderedMultiMap`.
 
     if (verbose) cout << endl
-                      << "TEST 'update' (DEPRECATED)" << endl
+                      << "TEST `update` (DEPRECATED)" << endl
                       << "==========================" << endl;
 
     if (veryVeryVerbose) {
@@ -4411,7 +4433,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase13_update()
         ASSERTV(1 == rc1);
         ASSERTV(areEqual(value, VALUES[LENGTH].second));
 
-        // No change in memory allocation if 'VALUE' is non-allocating.
+        // No change in memory allocation if `VALUE` is non-allocating.
         if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
@@ -4531,7 +4553,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase13_update()
                 areEqual(values[1], VALUES[LENGTH - 2].second) ||
                 areEqual(values[1], VALUES[1].second));
 
-        // No change in memory allocation if 'VALUE' is non-allocating.
+        // No change in memory allocation if `VALUE` is non-allocating.
         if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
             ASSERTV(sam.isInUseSame());
         }
@@ -4590,63 +4612,63 @@ template <class KEY, class VALUE, class HASH, class EQUAL>
 void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12()
 {
     // ------------------------------------------------------------------------
-    // TEST 'setComputedValue'
+    // TEST `setComputedValue`
     //
     // Concerns:
-    //: 1 When 'setComputedValue' adds an element, the element has the expected
-    //:   key and value, and returns 0 for the number of updated elements.
-    //:
-    //: 2 When 'setComputedValue' updates element(s), all elements with that
-    //:   given key, and no others, are updated to the given value, and the
-    //:   number of elements updated is returned.
-    //:
-    //: 3 Elements having the specified 'key' are found irrespective of the
-    //:   bucket in which they reside.
-    //:
-    //: 4 When an element is added, the memory allocated increases, the number
-    //:   of elements increases by 1, and the number of elements in the target
-    //:   bucket increases by 1.
-    //:
-    //: 5 The expected 'functor' is called with the expected arguments.
-    //:   1 If 'found' is 'true', the value of the existing element is found at
-    //:     the provided address.
-    //:   2 If 'found' is 'false', 'VALUE()' is found
-    //:
-    //: 6 When the 'functor' changes the value of the provide value address,
-    //:   the element has its value changed.
-    //:
-    //: 7 Any memory allocation is exception neutral.
-    //:
-    //: 8 QoI: When element(s) are updated, and the 'VALUE' type is
-    //:   non-allocating, no memory is allocated or deallocated.
-    //:
-    //: 9 QoI: There is no temporary memory allocation from any allocator.
+    // 1. When `setComputedValue` adds an element, the element has the expected
+    //    key and value, and returns 0 for the number of updated elements.
+    //
+    // 2. When `setComputedValue` updates element(s), all elements with that
+    //    given key, and no others, are updated to the given value, and the
+    //    number of elements updated is returned.
+    //
+    // 3. Elements having the specified `key` are found irrespective of the
+    //    bucket in which they reside.
+    //
+    // 4. When an element is added, the memory allocated increases, the number
+    //    of elements increases by 1, and the number of elements in the target
+    //    bucket increases by 1.
+    //
+    // 5. The expected `functor` is called with the expected arguments.
+    //   1. If `found` is `true`, the value of the existing element is found at
+    //      the provided address.
+    //   2. If `found` is `false`, `VALUE()` is found
+    //
+    // 6. When the `functor` changes the value of the provide value address,
+    //    the element has its value changed.
+    //
+    // 7. Any memory allocation is exception neutral.
+    //
+    // 8. QoI: When element(s) are updated, and the `VALUE` type is
+    //    non-allocating, no memory is allocated or deallocated.
+    //
+    // 9. QoI: There is no temporary memory allocation from any allocator.
     //
     // Plan:
-    //: 1 Test the empty hash map in a standalone case.
-    //:
-    //: 2 For hash maps of varying lengths, we:
-    //:   1 Update one existing key.
-    //:   2 Confirm that the return value is correct.
-    //:   3 The size of the container does not change.
-    //:   4 The size of the bucket does not change.
-    //:   5 Memory in use does not change if 'VALUE' type is non-allocating.
-    //:   6 Confirm that the value(s) associated with the key were updated to
-    //:     the new value.
-    //:   7 Confirm that no other elements have changed.
-    //:   8 Insert one missing key.
-    //:   9 Confirm that the return value is correct.
-    //:  10 The size of the container increases by 1.
-    //:  11 The size of the bucket increases by 1.
-    //:  12 Memory in use has increased.
-    //:  13 Confirm that the new element has the given key and value.
-    //:  14 Confirm that no other elements have changed.
-    //:
-    //: 3 P-2 is repeated for containers having different configurations:
-    //:   1 Unique keys, 'setComputedValueFirst'
-    //:   2 Unique keys, 'setComputedValueAll'
-    //:   3 Duplicate keys, 'setComputedValueAll'
-    //:   4 Duplicate keys, 'setComputedValueFirst'
+    // 1. Test the empty hash map in a standalone case.
+    //
+    // 2. For hash maps of varying lengths, we:
+    //   1. Update one existing key.
+    //   2. Confirm that the return value is correct.
+    //   3. The size of the container does not change.
+    //   4. The size of the bucket does not change.
+    //   5. Memory in use does not change if `VALUE` type is non-allocating.
+    //   6. Confirm that the value(s) associated with the key were updated to
+    //      the new value.
+    //   7. Confirm that no other elements have changed.
+    //   8. Insert one missing key.
+    //   9. Confirm that the return value is correct.
+    //  10. The size of the container increases by 1.
+    //  11. The size of the bucket increases by 1.
+    //  12. Memory in use has increased.
+    //  13. Confirm that the new element has the given key and value.
+    //  14. Confirm that no other elements have changed.
+    //
+    // 3. P-2 is repeated for containers having different configurations:
+    //   1. Unique keys, `setComputedValueFirst`
+    //   2. Unique keys, `setComputedValueAll`
+    //   3. Duplicate keys, `setComputedValueAll`
+    //   4. Duplicate keys, `setComputedValueFirst`
     //
     // Testing:
     //   int setComputedValueAll(const KEY& key, functor);
@@ -4654,7 +4676,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12()
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
-                      << "TEST 'setComputedValue'" << endl
+                      << "TEST `setComputedValue`" << endl
                       << "=======================" << endl;
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -4664,11 +4686,11 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12()
     // CONCERN: In no case does memory come from the default allocator.
     bslma::TestAllocatorMonitor dam(&defaultAllocator);
 
-    // This is equivalent to 'testCase11' in 'StripedUnorderedMap' and
-    // 'testCase14' in 'StripedUnorderedMultiMap.
+    // This is equivalent to `testCase11` in `StripedUnorderedMap` and
+    // `testCase14` in 'StripedUnorderedMultiMap.
     {
         if (veryVerbose) cout << endl
-                          << "Test 'setComputedValueFirst'" << endl;
+                          << "Test `setComputedValueFirst`" << endl;
 
         if (veryVeryVerbose) {
             cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
@@ -4686,7 +4708,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12()
         {
             Obj mX(8, 4, &supplied);  const Obj& X = mX;
 
-            // Check missing value for 'setComputedValueFirst'.
+            // Check missing value for `setComputedValueFirst`.
             int rc1 = mX.setComputedValueFirst(VALUES[0].first,
                                                testCase12Updater);
             ASSERTV(rc1, 0 == rc1);
@@ -4696,7 +4718,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12()
             ASSERTV(1 == rc);
             ASSERTV(areEqual(value, VALUE()));
 
-            // Check missing value for 'setComputedValueAll'.
+            // Check missing value for `setComputedValueAll`.
             rc1 = mX.setComputedValueAll(VALUES[1].first,
                                          testCase12Updater);
             ASSERTV(rc1, 0 == rc1);
@@ -4710,7 +4732,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12()
             ASSERT(dam.isTotalSame());
         }
 
-        // Testing 'e_FIRST' with unique values.
+        // Testing `e_FIRST` with unique values.
         for (bsl::size_t ti = 1; ti < MAX_LENGTH; ++ti) {
             const bsl::size_t LENGTH = ti;
 
@@ -4813,17 +4835,17 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12()
                                          testCase12Updater);
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
             s_testCase12_alloc = 0;
-        } // END Testing 'setComputedValueFirst' with unique values
-    } // END 'setComputedValueFirst'
-    // No change in default memory allocation if 'VALUE' is non-allocating.
+        } // END Testing `setComputedValueFirst` with unique values
+    } // END `setComputedValueFirst`
+    // No change in default memory allocation if `VALUE` is non-allocating.
     if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
         ASSERT(dam.isTotalSame());
     }
 
-    // This is equivalent to 'testCase15' in 'StripedUnorderedMultiMap'.
+    // This is equivalent to `testCase15` in `StripedUnorderedMultiMap`.
     {
         if (veryVerbose) cout << endl
-                          << "Test 'setComputedValueAll'" << endl;
+                          << "Test `setComputedValueAll`" << endl;
 
         const TestValues     VALUES; // contains 52 distinct increasing values
         const bsl::size_t    MAX_LENGTH = 9;
@@ -4935,7 +4957,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12()
                                        testCase12Updater);
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
             s_testCase12_alloc = 0;
-        } // END Testing 'e_ALL' with unique values
+        } // END Testing `e_ALL` with unique values
         if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
             ASSERT(dam.isTotalSame());
         }
@@ -4983,7 +5005,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12()
             ASSERTV(areEqual(values[0], VALUES[LENGTH].second));
             ASSERTV(areEqual(values[1], VALUES[LENGTH].second));
 
-            // No change in memory allocation if 'VALUE' is non-allocating.
+            // No change in memory allocation if `VALUE` is non-allocating.
             if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
                 ASSERTV(sam.isInUseSame());
             }
@@ -5048,16 +5070,16 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12()
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
             s_testCase12_alloc = 0;
         } // END Test updating duplicate keys.
-    } // END 'setComputedValueAll'
+    } // END `setComputedValueAll`
     if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
         ASSERT(dam.isTotalSame());
     }
 
     // This can happen in "multimap", as we test duplicate keys ("multimap")
-    // with 'setComputedValueFirst'.
+    // with `setComputedValueFirst`.
     {
         if (veryVerbose) cout << endl
-                          << "Test 'setComputedValueFirst'" << endl;
+                          << "Test `setComputedValueFirst`" << endl;
 
         const TestValues     VALUES; // contains 52 distinct increasing values
         const bsl::size_t    MAX_LENGTH = 9;
@@ -5108,7 +5130,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12()
             ASSERTV(areEqual(values[0], VALUES[LENGTH].second) ||
                     areEqual(values[1], VALUES[LENGTH].second));
 
-            // No change in memory allocation if 'VALUE' is non-allocating.
+            // No change in memory allocation if `VALUE` is non-allocating.
             if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
                 ASSERTV(sam.isInUseSame());
             }
@@ -5174,7 +5196,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12()
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
             s_testCase12_alloc = 0;
         } // END Test updating duplicate keys.
-    } // END 'setComputedValueFirst' with duplicate keys
+    } // END `setComputedValueFirst` with duplicate keys
 
     // CONCERN: In no case does memory come from the default allocator.
     if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
@@ -5186,61 +5208,61 @@ template <class KEY, class VALUE, class HASH, class EQUAL>
 void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12_noncopyable()
 {
     // ------------------------------------------------------------------------
-    // TEST 'setComputedValue' for noncopyable values
+    // TEST `setComputedValue` for noncopyable values
     //
     // Concerns:
-    //: 1 When 'setComputedValue' adds an element, the element has the expected
-    //:   key and value, and returns 0 for the number of updated elements.
-    //:
-    //: 2 When 'setComputedValue' updates an element, all elements with that
-    //:   given key, and no others, are updated to the given value, and the
-    //:   number of elements updated is returned.
-    //:
-    //: 3 Elements having the specified 'key' are found irrespective of the
-    //:   bucket in which they reside.
-    //:
-    //: 4 When an element is added, the memory allocated increases, the number
-    //:   of elements increases by 1, and the number of elements in the target
-    //:   bucket increases by 1.
-    //:
-    //: 5 The expected 'functor' is called with the expected arguments.
-    //:   1 If 'found' is 'true', the value of the existing element is found at
-    //:     the provided address.
-    //:   2 If 'found' is 'false', 'VALUE()' is found
-    //:
-    //: 6 When the 'functor' changes the value of the provide value address,
-    //:   the element has its value changed.
-    //:
-    //: 7 Any memory allocation is exception neutral.
-    //:
-    //: 8 QoI: When element(s) are updated, and the 'VALUE' type is
-    //:   non-allocating, no memory is allocated or deallocated.
-    //:
-    //: 9 QoI: There is no temporary memory allocation from any allocator.
+    // 1. When `setComputedValue` adds an element, the element has the expected
+    //    key and value, and returns 0 for the number of updated elements.
+    //
+    // 2. When `setComputedValue` updates an element, all elements with that
+    //    given key, and no others, are updated to the given value, and the
+    //    number of elements updated is returned.
+    //
+    // 3. Elements having the specified `key` are found irrespective of the
+    //    bucket in which they reside.
+    //
+    // 4. When an element is added, the memory allocated increases, the number
+    //    of elements increases by 1, and the number of elements in the target
+    //    bucket increases by 1.
+    //
+    // 5. The expected `functor` is called with the expected arguments.
+    //   1. If `found` is `true`, the value of the existing element is found at
+    //      the provided address.
+    //   2. If `found` is `false`, `VALUE()` is found
+    //
+    // 6. When the `functor` changes the value of the provide value address,
+    //    the element has its value changed.
+    //
+    // 7. Any memory allocation is exception neutral.
+    //
+    // 8. QoI: When element(s) are updated, and the `VALUE` type is
+    //    non-allocating, no memory is allocated or deallocated.
+    //
+    // 9. QoI: There is no temporary memory allocation from any allocator.
     //
     // Plan:
-    //: 1 Test the empty hash map in a standalone case.
-    //:
-    //: 2 For hash maps of varying lengths, we:
-    //:   1 Update one existing key.
-    //:   2 Confirm that the return value is correct.
-    //:   3 The size of the container does not change.
-    //:   4 The size of the bucket does not change.
-    //:   5 Memory in use does not change if 'VALUE' type is non-allocating.
-    //:   6 Confirm that the value(s) associated with the key were updated to
-    //:     the new value.
-    //:   7 Confirm that no other elements have changed.
-    //:   8 Insert one missing key.
-    //:   9 Confirm that the return value is correct.
-    //:  10 The size of the container increases by 1.
-    //:  11 The size of the bucket increases by 1.
-    //:  12 Memory in use has increased.
-    //:  13 Confirm that the new element has the given key and value.
-    //:  14 Confirm that no other elements have changed.
-    //:
-    //: 3 P-2 is repeated for containers having different configurations:
-    //:   1 Unique keys, 'setComputedValueFirst'
-    //:   2 Unique keys, 'setComputedValueAll'
+    // 1. Test the empty hash map in a standalone case.
+    //
+    // 2. For hash maps of varying lengths, we:
+    //   1. Update one existing key.
+    //   2. Confirm that the return value is correct.
+    //   3. The size of the container does not change.
+    //   4. The size of the bucket does not change.
+    //   5. Memory in use does not change if `VALUE` type is non-allocating.
+    //   6. Confirm that the value(s) associated with the key were updated to
+    //      the new value.
+    //   7. Confirm that no other elements have changed.
+    //   8. Insert one missing key.
+    //   9. Confirm that the return value is correct.
+    //  10. The size of the container increases by 1.
+    //  11. The size of the bucket increases by 1.
+    //  12. Memory in use has increased.
+    //  13. Confirm that the new element has the given key and value.
+    //  14. Confirm that no other elements have changed.
+    //
+    // 3. P-2 is repeated for containers having different configurations:
+    //   1. Unique keys, `setComputedValueFirst`
+    //   2. Unique keys, `setComputedValueAll`
     //
     // Testing:
     //   int setComputedValueAll(const KEY& key, functor);
@@ -5248,7 +5270,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12_noncopyable()
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
-        << "TEST 'setComputedValue'" << endl
+        << "TEST `setComputedValue`" << endl
         << "=======================" << endl;
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -5258,11 +5280,11 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12_noncopyable()
     // CONCERN: In no case does memory come from the default allocator.
     bslma::TestAllocatorMonitor dam(&defaultAllocator);
 
-    // This is equivalent to 'testCase11' in 'StripedUnorderedMap' and
-    // 'testCase14' in 'StripedUnorderedMultiMap.
+    // This is equivalent to `testCase11` in `StripedUnorderedMap` and
+    // `testCase14` in 'StripedUnorderedMultiMap.
     {
         if (veryVerbose) cout << endl
-            << "Test 'setComputedValueFirst'" << endl;
+            << "Test `setComputedValueFirst`" << endl;
 
         if (veryVeryVerbose) {
             cout << "KEY  " << ": " << bsls::NameOf<KEY>() << "\n"
@@ -5283,7 +5305,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12_noncopyable()
         {
             Obj mX(8, 4, &supplied);  const Obj& X = mX;
 
-            // Check missing value for 'setComputedValueFirst'.
+            // Check missing value for `setComputedValueFirst`.
             int rc1 = mX.setComputedValueFirst(KEYS[0],
                 testCase12Updater);
             ASSERTV(rc1, 0 == rc1);
@@ -5293,7 +5315,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12_noncopyable()
             ASSERTV(1 == rc);
             ASSERTV(areEqual(value, VALUE()));
 
-            // Check missing value for 'setComputedValueAll'.
+            // Check missing value for `setComputedValueAll`.
             rc1 = mX.setComputedValueAll(KEYS[1],
                 testCase12Updater);
             ASSERTV(rc1, 0 == rc1);
@@ -5307,14 +5329,14 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12_noncopyable()
             ASSERT(dam.isTotalSame());
         }
 
-        // Testing 'e_FIRST' with unique values.
+        // Testing `e_FIRST` with unique values.
         for (bsl::size_t ti = 1; ti < MAX_LENGTH; ++ti) {
             const bsl::size_t LENGTH = ti;
 
             Obj mX(8, 4, &supplied);  const Obj& X = mX;
 
             for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
-                // Do not use 'insert' for non-copyable value types
+                // Do not use `insert` for non-copyable value types
                 s_testCase12_value = VALUES[tj];
                 mX.setComputedValueFirst(KEYS[tj], testCase12Updater);
             }
@@ -5412,17 +5434,17 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12_noncopyable()
                     testCase12Updater);
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
             s_testCase12_alloc = 0;
-        } // END Testing 'setComputedValueFirst' with unique values
-    } // END 'setComputedValueFirst'
-    // No change in default memory allocation if 'VALUE' is non-allocating.
+        } // END Testing `setComputedValueFirst` with unique values
+    } // END `setComputedValueFirst`
+    // No change in default memory allocation if `VALUE` is non-allocating.
     if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
         ASSERT(dam.isTotalSame());
     }
 
-    // This is equivalent to 'testCase15' in 'StripedUnorderedMultiMap'.
+    // This is equivalent to `testCase15` in `StripedUnorderedMultiMap`.
     {
         if (veryVerbose) cout << endl
-            << "Test 'setComputedValueAll'" << endl;
+            << "Test `setComputedValueAll`" << endl;
 
         // contains 52 distinct increasing values
         bsltf::TestValuesArray<KEY>   KEYS;
@@ -5439,7 +5461,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12_noncopyable()
             Obj  mX(128, 8, &supplied);  const Obj& X = mX;
 
             for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
-                // Do not use 'insert' for non-copyable value types
+                // Do not use `insert` for non-copyable value types
                 s_testCase12_value = VALUES[tj];
                 mX.setComputedValueFirst(KEYS[tj], testCase12Updater);
             }
@@ -5539,11 +5561,11 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase12_noncopyable()
                     testCase12Updater);
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
             s_testCase12_alloc = 0;
-        } // END Testing 'e_ALL' with unique values
+        } // END Testing `e_ALL` with unique values
         if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
             ASSERT(dam.isTotalSame());
         }
-    } // END 'setComputedValueAll'
+    } // END `setComputedValueAll`
 
     // CONCERN: In no case does memory come from the default allocator.
     if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
@@ -5555,62 +5577,62 @@ template <class KEY, class VALUE, class HASH, class EQUAL>
 void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase11()
 {
     // ------------------------------------------------------------------------
-    // TEST 'setValue'
-    //   Note that 'setValueFirst' was effectively tested in test
-    //   case 2, as it mainly consists of a call to the bucket 'setValue'
-    //   method, and is the same as 'insertUnique'.
+    // TEST `setValue`
+    //   Note that `setValueFirst` was effectively tested in test
+    //   case 2, as it mainly consists of a call to the bucket `setValue`
+    //   method, and is the same as `insertUnique`.
     //
     // Concerns:
-    //: 1 When 'setValue' adds an element, the element has the expected key
-    //:   and value, and returns 0.
-    //:
-    //: 2 When 'setValue' updates element(s), all elements with that given
-    //:   key, and no others, are updated to the given value, and the number
-    //:   of elements updated is returned.
-    //:
-    //: 3 Elements having the specified 'key' are found irrespective of the
-    //:   bucket in which they reside.
-    //:
-    //: 4 When an element is added, the memory allocated increases, the
-    //:   number of elements increases by 1, and the number of elements in the
-    //:   target bucket increases by 1.
-    //:
-    //: 5 Any memory allocation is exception neutral.
-    //:
-    //: 6 The method works as expected when the hash map is empty.
-    //:
-    //: 7 QoI: When element(s) are updated, and the 'VALUE' type is
-    //:   non-allocating, no memory is allocated or deallocated.
-    //:
-    //: 8 QoI: There is no temporary memory allocation from any allocator.
+    // 1. When `setValue` adds an element, the element has the expected key
+    //    and value, and returns 0.
+    //
+    // 2. When `setValue` updates element(s), all elements with that given
+    //    key, and no others, are updated to the given value, and the number
+    //    of elements updated is returned.
+    //
+    // 3. Elements having the specified `key` are found irrespective of the
+    //    bucket in which they reside.
+    //
+    // 4. When an element is added, the memory allocated increases, the
+    //    number of elements increases by 1, and the number of elements in the
+    //    target bucket increases by 1.
+    //
+    // 5. Any memory allocation is exception neutral.
+    //
+    // 6. The method works as expected when the hash map is empty.
+    //
+    // 7. QoI: When element(s) are updated, and the `VALUE` type is
+    //    non-allocating, no memory is allocated or deallocated.
+    //
+    // 8. QoI: There is no temporary memory allocation from any allocator.
     //
     // Plan:
-    //: 1 Test the empty hash map in a standalone case.
-    //:
-    //: 2 For hash maps of varying lengths, we:
-    //:   1 Update one existing key.
-    //:   2 Confirm that the return value is correct.
-    //:   3 The size of the container does not change.
-    //:   4 The size of the bucket does not change.
-    //:   5 Memory in use does not change if 'VALUE' type is non-allocating.
-    //:   6 Confirm that the value(s) associated with the key were updated to
-    //:     the new value.
-    //:   7 Confirm that no other elements have changed.
-    //:   8 Insert one missing key.
-    //:   9 Confirm that the return value is correct.
-    //:  10 The size of the container increases by 1.
-    //:  11 The size of the bucket increases by 1.
-    //:  12 Memory in use has increased.
-    //:  13 Confirm that the new element has the given key and value.
-    //:  14 Confirm that no other elements have changed.
-    //:
-    //: 3 P-2 is repeated for containers having different configurations:
-    //:   1 Unique keys
-    //:   2 Duplicate keys
-    //:
-    //: 4 Each 'setValue' test call is wrapped with the
-    //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' and
-    //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END' macros.
+    // 1. Test the empty hash map in a standalone case.
+    //
+    // 2. For hash maps of varying lengths, we:
+    //   1. Update one existing key.
+    //   2. Confirm that the return value is correct.
+    //   3. The size of the container does not change.
+    //   4. The size of the bucket does not change.
+    //   5. Memory in use does not change if `VALUE` type is non-allocating.
+    //   6. Confirm that the value(s) associated with the key were updated to
+    //      the new value.
+    //   7. Confirm that no other elements have changed.
+    //   8. Insert one missing key.
+    //   9. Confirm that the return value is correct.
+    //  10. The size of the container increases by 1.
+    //  11. The size of the bucket increases by 1.
+    //  12. Memory in use has increased.
+    //  13. Confirm that the new element has the given key and value.
+    //  14. Confirm that no other elements have changed.
+    //
+    // 3. P-2 is repeated for containers having different configurations:
+    //   1. Unique keys
+    //   2. Duplicate keys
+    //
+    // 4. Each `setValue` test call is wrapped with the
+    //    `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN` and
+    //    `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END` macros.
     //
     // Testing:
     //   bsl::size_t setValueAll(const KEY& key, const VALUE& value);
@@ -5618,10 +5640,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase11()
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
-                      << "TEST 'setValue'" << endl
+                      << "TEST `setValue`" << endl
                       << "===============" << endl;
 
-    // This is equivalent to 'testCase13' in 'StripedUnorderedMultiMap'.
+    // This is equivalent to `testCase13` in `StripedUnorderedMultiMap`.
 
     if (veryVeryVerbose) {
         cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
@@ -5856,81 +5878,81 @@ template <class KEY, class VALUE, class HASH, class EQUAL>
 void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
 {
     // ------------------------------------------------------------------------
-    // TEST 'insertBulk'
-    //   Note that 'insertBulk' is implemented independently of 'insert' (for
-    //   performance), hence all the concerns of 'insert' have to be retested
+    // TEST `insertBulk`
+    //   Note that `insertBulk` is implemented independently of `insert` (for
+    //   performance), hence all the concerns of `insert` have to be retested
     //   independently.
     //
     // Concerns:
-    //: 1 Each element between 'first' (inclusive) and 'last' (exclusive) is
-    //:   inserted, irrespective of the distance between 'first' and 'last'.
-    //:   In particular:
-    //:   o 'last - first == 0'
-    //:   o 'last - first == 1'
-    //:   o 'last - first == 2'
-    //:   o 'last - first >  2'
-    //:
-    //: 2 Insertion using 'insertBulkUnique' updates the values of existing
-    //:   elements having 'key'.
-    //:
-    //: 3 Updates of existing elements occurs irrespective of their bucket.
-    //:
-    //: 4 The addition of new elements is reflected in the size of the
-    //:   element's bucket and the overall size of the container.
-    //:
-    //: 5 The "insertion" of elements (addition of, or update of elements) has
-    //:   do not change elements that do not have the specified 'key' value.
-    //:
-    //: 6 Elements can be inserted into an empty hash map.
-    //:
-    //: 7 The update of existing elements and addition of new elements are each
-    //:   exception safe.
-    //:
-    //: 8 The iterator arguments need provide read-only access.
-    //:
-    //: 9 QoI: Asserted precondition violations are detected when enabled.
-    //:
-    //:10 QoI: Insert allocates memory from the allocator.
-    //:
-    //:11 QoI: Temporary allocation are taken from the default allocator.
+    // 1. Each element between `first` (inclusive) and `last` (exclusive) is
+    //    inserted, irrespective of the distance between `first` and `last`.
+    //    In particular:
+    //    - `last - first == 0`
+    //    - `last - first == 1`
+    //    - `last - first == 2`
+    //    - `last - first >  2`
+    //
+    // 2. Insertion using `insertBulkUnique` updates the values of existing
+    //    elements having `key`.
+    //
+    // 3. Updates of existing elements occurs irrespective of their bucket.
+    //
+    // 4. The addition of new elements is reflected in the size of the
+    //    element's bucket and the overall size of the container.
+    //
+    // 5. The "insertion" of elements (addition of, or update of elements) has
+    //    do not change elements that do not have the specified `key` value.
+    //
+    // 6. Elements can be inserted into an empty hash map.
+    //
+    // 7. The update of existing elements and addition of new elements are each
+    //    exception safe.
+    //
+    // 8. The iterator arguments need provide read-only access.
+    //
+    // 9. QoI: Asserted precondition violations are detected when enabled.
+    //
+    // 10. QoI: Insert allocates memory from the allocator.
+    //
+    // 11. QoI: Temporary allocation are taken from the default allocator.
     //
     // Plan:
-    //: 1 Test the empty hash map in a standalone case.
-    //:
-    //: 2 For hash maps of varying lengths, we:
-    //:   1 Bulk insert:
-    //:     1 Using different range lengths: i.e., one a key one at a time, two
-    //:       at a time, and three at a time.  Also try to insert 0 keys.
-    //:     2 Show that elements can be added/updated in every bucket of the
-    //:       hash map.
-    //:   2 Confirm that the return value is correct.
-    //:   3 The size of the container increases by the expected amount.
-    //:   4 The size of the associated buckets increase by the expected amount.
-    //:   5 Memory in use has increased.
-    //:   6 Trying to insert an existing key when in 'e_INSERT_UNIQUE' results
-    //:     in an update.
-    //:   7 Existing keys having other keys are not changed.
-    //:   8 Existing keys having with inserted or updated keys show the correct
-    //:     value(s).
-    //:   9 For a non empty range of keys, temporary memory is allocated from
-    //:     the default allocator.
-    //:
-    //: 3 P-2 is repeated for containers having different configurations:
-    //:   1 Unique keys, 'insertBulkUnique'
-    //:   2 Unique keys, 'insertBulkAlways'
-    //:   3 Duplicate keys, 'insertBulkUnique'
-    //:   4 Duplicate keys, 'insertBulkAlways'
-    //:
-    //: 4 In each instance, 'const'-interators are provided to the method.
-    //:
-    //: 5 Verify that, within 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros
-    //:   'insertBulk' does not leak memory, and that if it completed, and
-    //:   the number of elements of the hash map increased, some memory has
-    //:   been allocated.
-    //:
-    //: 6 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered for invalid indexes, but not triggered for adjacent valid
-    //:   ones (using the 'BSLS_ASSERTTEST_*' macros).
+    // 1. Test the empty hash map in a standalone case.
+    //
+    // 2. For hash maps of varying lengths, we:
+    //   1. Bulk insert:
+    //     1. Using different range lengths: i.e., one a key one at a time, two
+    //        at a time, and three at a time.  Also try to insert 0 keys.
+    //     2. Show that elements can be added/updated in every bucket of the
+    //        hash map.
+    //   2. Confirm that the return value is correct.
+    //   3. The size of the container increases by the expected amount.
+    //   4. The size of the associated buckets increase by the expected amount.
+    //   5. Memory in use has increased.
+    //   6. Trying to insert an existing key when in `e_INSERT_UNIQUE` results
+    //      in an update.
+    //   7. Existing keys having other keys are not changed.
+    //   8. Existing keys having with inserted or updated keys show the correct
+    //      value(s).
+    //   9. For a non empty range of keys, temporary memory is allocated from
+    //      the default allocator.
+    //
+    // 3. P-2 is repeated for containers having different configurations:
+    //   1. Unique keys, `insertBulkUnique`
+    //   2. Unique keys, `insertBulkAlways`
+    //   3. Duplicate keys, `insertBulkUnique`
+    //   4. Duplicate keys, `insertBulkAlways`
+    //
+    // 4. In each instance, `const`-interators are provided to the method.
+    //
+    // 5. Verify that, within `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*` macros
+    //    `insertBulk` does not leak memory, and that if it completed, and
+    //    the number of elements of the hash map increased, some memory has
+    //    been allocated.
+    //
+    // 6. Verify that, in appropriate build modes, defensive checks are
+    //    triggered for invalid indexes, but not triggered for adjacent valid
+    //    ones (using the `BSLS_ASSERTTEST_*` macros).
     //
     // Testing:
     //   void insertBulkAlways(RANDOMIT first, last);
@@ -5938,17 +5960,17 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
-                      << "TEST 'insertBulk'" << endl
+                      << "TEST `insertBulk`" << endl
                       << "=================" << endl;
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
     bslma::TestAllocatorMonitor dam(&defaultAllocator);
 
-    // This is equivalent to 'testCase9' in 'StripedUnorderedMap'.
+    // This is equivalent to `testCase9` in `StripedUnorderedMap`.
     {
         if (veryVerbose) cout << endl
-                              << "Test 'insertBulkUnique'" << endl;
+                              << "Test `insertBulkUnique`" << endl;
 
         if (veryVeryVerbose) {
             cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
@@ -5965,11 +5987,11 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
 
         bsl::size_t rc;
 
-        // Try to insert into an empty hash map, 'einsertBulkUnique'.
+        // Try to insert into an empty hash map, `einsertBulkUnique`.
         {
             Obj mX(8, 4, &supplied);  const Obj& X = mX;
 
-            // Keys to be inserted with 'insertBulk'
+            // Keys to be inserted with `insertBulk`
             bsl::vector<typename Obj::KVType> insertVec(&supplied);
             for (bsl::size_t tj = 0; tj < MAX_LENGTH; ++tj) {
                 typename Obj::KVType item(VALUES[tj].first,
@@ -5990,7 +6012,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
             }
         }
 
-        // Test unique keys, 'insertBulkUnique'.
+        // Test unique keys, `insertBulkUnique`.
         for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
             const bsl::size_t LENGTH = ti;
 
@@ -6006,7 +6028,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
 
                 bslma::TestAllocatorMonitor sam(&supplied);
 
-                // Loop on the length of the key vector passed to 'insertBulk'.
+                // Loop on the length of the key vector passed to `insertBulk`.
                 bsl::size_t tkOffset = 0;
                 for (bsl::size_t tk = 0; tk <= 3 && tk <= LENGTH; ++tk) {
 
@@ -6022,15 +6044,15 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
                         continue;
                     }
 
-                    // Here: '1 <= tk <= 3'
+                    // Here: `1 <= tk <= 3`
                     //
-                    // Insert a group of 'tk' elements with the same key as
+                    // Insert a group of `tk` elements with the same key as
                     // existing ones but different values, and check:
-                    //: 1 The 'insertBulk' returned the correct return code.
-                    //: 2 No elements were added.
-                    //: 3 Bucket sizes have not changed.
-                    //: 4 Some temporary memory was allocated.
-                    //: 5 If the value type is not allocating, the allocator
+                    // 1. The `insertBulk` returned the correct return code.
+                    // 2. No elements were added.
+                    // 3. Bucket sizes have not changed.
+                    // 4. Some temporary memory was allocated.
+                    // 5. If the value type is not allocating, the allocator
                     //    did not allocate.
 
                     ASSERTV(ti, tj, tk, tkOffset, X.size(),
@@ -6066,7 +6088,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
                     // Confirm temporary memory usage of default allocator
                     ASSERTV(dam.isTotalUp());
 
-                    // No change in memory allocation if 'VALUE' is
+                    // No change in memory allocation if `VALUE` is
                     // non-allocating.
                     if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
                         ASSERTV(sam.isInUseSame());
@@ -6080,15 +6102,15 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
                         ASSERTV(bucketSizes[j] == X.bucketSize(j));
                     }
 
-                    // Here: '1 <= tk <= 3'
+                    // Here: `1 <= tk <= 3`
                     //
-                    // Insert a group of 'tk' elements with a different key
+                    // Insert a group of `tk` elements with a different key
                     // from existing ones, and check:
-                    //: 1 The 'insertBulk' returned the correct return code.
-                    //: 2 'tk' elements were added.
-                    //: 3 The total size of buckets increased by 'tk'.
-                    //: 4 Some temporary memory was allocated.
-                    //: 5 Some memory was allocated.
+                    // 1. The `insertBulk` returned the correct return code.
+                    // 2. `tk` elements were added.
+                    // 3. The total size of buckets increased by `tk`.
+                    // 4. Some temporary memory was allocated.
+                    // 5. Some memory was allocated.
 
                     bsl::vector<typename Obj::KVType> insertVec1(&supplied);
                     for (bsl::size_t i = 0; i < tk; ++i) {
@@ -6104,7 +6126,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
                     rc = mX.insertBulkUnique(insertVec1.cbegin(),
                                              insertVec1.cend());
 
-                    // Confirm 'tk' new records.
+                    // Confirm `tk` new records.
                     ASSERTV(tk == rc);
 
                     // Confirm temporary memory usage of default allocator.
@@ -6148,7 +6170,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
                     }
 
                     tkOffset += tk;
-                } // END Loop on 'tk'
+                } // END Loop on `tk`
 
                 // Confirm that the untouched keys have the same values.
                 for (bsl::size_t i = tkOffset; i < LENGTH; ++i) {
@@ -6157,10 +6179,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
                     ASSERTV(1 == rc);
                     ASSERTV(areEqual(value, VALUES[i].second));
                 }
-            } // END Loop on 'tj'
-        } // END test for unique keys, 'insertBulkUnique'
+            } // END Loop on `tj`
+        } // END test for unique keys, `insertBulkUnique`
 
-        // Test duplicate keys, 'insertBulkUnique'.  This cannot happen in
+        // Test duplicate keys, `insertBulkUnique`.  This cannot happen in
         // either "map" or "multimap".
 
         for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
@@ -6180,7 +6202,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
 
                 bslma::TestAllocatorMonitor sam(&supplied);
 
-                // Loop on the length of the key vector passed to 'insertBulk'.
+                // Loop on the length of the key vector passed to `insertBulk`.
                 bsl::size_t tkOffset = 0;
                 for (bsl::size_t tk = 0; tk <= 3 && tk <= LENGTH; ++tk) {
 
@@ -6196,15 +6218,15 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
                         continue;
                     }
 
-                    // Here: '1 <= tk <= 3'
+                    // Here: `1 <= tk <= 3`
                     //
-                    // Insert a group of 'tk' elements with the same key as
+                    // Insert a group of `tk` elements with the same key as
                     // existing ones but different values, and check:
-                    //: 1 The 'insertBulk' returned the correct return code.
-                    //: 2 No elements were added.
-                    //: 3 The bucket sizes have not changed.
-                    //: 4 Some temporary memory was allocated.
-                    //: 5 If the value type is not allocating, the allocator
+                    // 1. The `insertBulk` returned the correct return code.
+                    // 2. No elements were added.
+                    // 3. The bucket sizes have not changed.
+                    // 4. Some temporary memory was allocated.
+                    // 5. If the value type is not allocating, the allocator
                     //    did not allocate.
 
                     ASSERTV(ti, tj, tk, tkOffset, X.size(),
@@ -6240,7 +6262,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
                     // Confirm temporary memory usage of default allocator.
                     ASSERTV(dam.isTotalUp());
 
-                    // No change in memory allocation if 'VALUE' is
+                    // No change in memory allocation if `VALUE` is
                     // non-allocating type.
                     if (false == bslma::UsesBslmaAllocator<VALUE>::value) {
                         ASSERTV(sam.isInUseSame());
@@ -6254,15 +6276,15 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
                         ASSERTV(bucketSizes[j] == X.bucketSize(j));
                     }
 
-                    // Here: '1 <= tk <= 3'
+                    // Here: `1 <= tk <= 3`
                     //
-                    // Insert a group of 'tk' elements with a different key
+                    // Insert a group of `tk` elements with a different key
                     // from existing ones, and check:
-                    //: 1 The 'insertBulk' call returned the correct value.
-                    //: 2 'tk' elements were added.
-                    //: 3 The total size of buckets increased by 'tk'.
-                    //: 4 Some temporary memory was allocated.
-                    //: 5 Some memory was allocated.
+                    // 1. The `insertBulk` call returned the correct value.
+                    // 2. `tk` elements were added.
+                    // 3. The total size of buckets increased by `tk`.
+                    // 4. Some temporary memory was allocated.
+                    // 5. Some memory was allocated.
 
                     bsl::vector<typename Obj::KVType> insertVec1(&supplied);
                     for (bsl::size_t i = 0; i < tk; ++i) {
@@ -6321,7 +6343,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
                     }
 
                     tkOffset += tk;
-                } // END Loop on 'tk'
+                } // END Loop on `tk`
 
                 // Confirm that the untouched keys have the same values
                 for (bsl::size_t i = tkOffset; i < LENGTH; ++i) {
@@ -6333,15 +6355,15 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
                     ASSERT(areEqual(values[1], VALUES[i]             .second)
                         || areEqual(values[1], VALUES[LENGTH - i - 1].second));
                 }
-            } // END Loop on 'tj'
-        } // END test for duplicate keys, 'insertBulkUnique'
+            } // END Loop on `tj`
+        } // END test for duplicate keys, `insertBulkUnique`
 
-    } // END 'insertBulkUnique' testing
+    } // END `insertBulkUnique` testing
 
-    // This is equivalent to 'testCase11' in 'StripedUnorderedMultiMap'.
+    // This is equivalent to `testCase11` in `StripedUnorderedMultiMap`.
     {
         if (veryVerbose) cout << endl
-                          << "Test 'insertBulkAlways'" << endl;
+                          << "Test `insertBulkAlways`" << endl;
 
         if (veryVeryVerbose) {
             cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
@@ -6358,11 +6380,11 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
 
         bsl::size_t rc;
 
-        // Try to insert into an empty hash map, 'e_INSERT_ALWAYS'.
+        // Try to insert into an empty hash map, `e_INSERT_ALWAYS`.
         {
             Obj mX(8, 4, &supplied);  const Obj& X = mX;
 
-            // Keys to be inserted with 'insertBulk'
+            // Keys to be inserted with `insertBulk`
             bsl::vector<typename Obj::KVType> insertVec(&supplied);
             for (bsl::size_t tj = 0; tj < MAX_LENGTH; ++tj) {
                 typename Obj::KVType item(VALUES[tj].first,
@@ -6382,7 +6404,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
             }
         }
 
-        // Test unique keys, 'insertBulkAlways'.
+        // Test unique keys, `insertBulkAlways`.
         for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
             const bsl::size_t LENGTH = ti;
 
@@ -6398,7 +6420,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
 
                 bslma::TestAllocatorMonitor sam(&supplied);
 
-                // Loop on the length of the key vector passed to 'insertBulk'.
+                // Loop on the length of the key vector passed to `insertBulk`.
                 bsl::size_t tkOffset = 0;
                 for (bsl::size_t tk = 0; tk <= 3 && tk <= LENGTH; ++tk) {
 
@@ -6413,15 +6435,15 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
                         ASSERTV(sam.isInUseSame());
                         continue;
                     }
-                    // Here: '1 <= tk <= 3'
+                    // Here: `1 <= tk <= 3`
                     //
-                    // Insert a group of 'tk' elements with the same key as
+                    // Insert a group of `tk` elements with the same key as
                     // existing ones but different values, and check:
-                    //: 1 The 'insertBulk' returned the correct value.
-                    //: 2 'tk' elements were added.
-                    //: 3 The total size of buckets increased by 'tk'.
-                    //: 4 Some temporary memory was allocated.
-                    //: 5 Some memory was allocated.
+                    // 1. The `insertBulk` returned the correct value.
+                    // 2. `tk` elements were added.
+                    // 3. The total size of buckets increased by `tk`.
+                    // 4. Some temporary memory was allocated.
+                    // 5. Some memory was allocated.
 
                     ASSERTV(ti, tj, tk, tkOffset, X.size(),
                             LENGTH + 2 * tkOffset == X.size());
@@ -6470,15 +6492,15 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
                         ASSERTV(oldSumBucketSize + tk == newSumBucketSize);
                     }
 
-                    // Here: '1 <= tk <= 3'
+                    // Here: `1 <= tk <= 3`
                     //
-                    // Insert a group of 'tk' elements with a different key
+                    // Insert a group of `tk` elements with a different key
                     // from existing ones, and check:
-                    //: 1 That 'insertBulk' returned the correct value.
-                    //: 2 'tk' elements were added.
-                    //: 3 The total size of buckets increased by 'tk'.
-                    //: 4 Some temporary memory was allocated.
-                    //: 5 Some memory was allocated.
+                    // 1. That `insertBulk` returned the correct value.
+                    // 2. `tk` elements were added.
+                    // 3. The total size of buckets increased by `tk`.
+                    // 4. Some temporary memory was allocated.
+                    // 5. Some memory was allocated.
 
                     bsl::vector<typename Obj::KVType> insertVec1(&supplied);
                     for (bsl::size_t i = 0; i < tk; ++i) {
@@ -6540,7 +6562,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
                     }
 
                     tkOffset += tk;
-                } // END Loop on 'tk'
+                } // END Loop on `tk`
 
                 // Confirm that the untouched keys have the same values.
                 for (bsl::size_t i = tkOffset; i < LENGTH; ++i) {
@@ -6549,10 +6571,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
                     ASSERTV(1 == rc);
                     ASSERTV(areEqual(value, VALUES[i].second));
                 }
-            } // END Loop on 'tj'
-        } // END test for unique keys, 'insertBulkAlways'
+            } // END Loop on `tj`
+        } // END test for unique keys, `insertBulkAlways`
 
-        // Test duplicate keys, 'insertBulkAlways'.
+        // Test duplicate keys, `insertBulkAlways`.
         for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
             const bsl::size_t LENGTH = ti;
 
@@ -6570,7 +6592,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
 
                 bslma::TestAllocatorMonitor sam(&supplied);
 
-                // Loop on the length of the key vector passed to 'insertBulk'.
+                // Loop on the length of the key vector passed to `insertBulk`.
                 bsl::size_t tkOffset = 0;
                 for (bsl::size_t tk = 0; tk <= 3 && tk <= LENGTH; ++tk) {
 
@@ -6586,15 +6608,15 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
                         continue;
                     }
 
-                    // Here: '1 <= tk <= 3'
+                    // Here: `1 <= tk <= 3`
                     //
-                    // Insert a group of 'tk' elements with the same key as
+                    // Insert a group of `tk` elements with the same key as
                     // existing ones but different values, and check:
-                    //: 1 The 'insertBulk' returned the correct value;
-                    //: 2 'tk' elements were added.
-                    //: 3 The Total size of buckets increased by 'tk'.
-                    //: 4 Some temporary memory was allocated.
-                    //: 5 Some memory was allocated.
+                    // 1. The `insertBulk` returned the correct value;
+                    // 2. `tk` elements were added.
+                    // 3. The Total size of buckets increased by `tk`.
+                    // 4. Some temporary memory was allocated.
+                    // 5. Some memory was allocated.
 
                     ASSERTV(ti, tj, tk, tkOffset, X.size(),
                             2 * LENGTH + 2 * tkOffset == X.size());
@@ -6643,15 +6665,15 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
                         ASSERTV(oldSumBucketSize + tk == newSumBucketSize);
                     }
 
-                    // Here: '1 <= tk <= 3'
+                    // Here: `1 <= tk <= 3`
                     //
-                    // Insert a group of 'tk' elements with a different key
+                    // Insert a group of `tk` elements with a different key
                     // from existing ones, and check:
-                    //: 1 The 'insertBulk' returned the correct value.
-                    //: 2 'tk' elements were added.
-                    //: 3 The total size of buckets increased by 'tk'.
-                    //: 4 Some temporary memory was allocated.
-                    //: 5 Some memory was allocated.
+                    // 1. The `insertBulk` returned the correct value.
+                    // 2. `tk` elements were added.
+                    // 3. The total size of buckets increased by `tk`.
+                    // 4. Some temporary memory was allocated.
+                    // 5. Some memory was allocated.
 
                     bsl::vector<typename Obj::KVType> insertVec1(&supplied);
                     for (bsl::size_t i = 0; i < tk; ++i) {
@@ -6716,7 +6738,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
                     }
 
                     tkOffset += tk;
-                } // END Loop on 'tk'
+                } // END Loop on `tk`
 
                 // Confirm that the untouched keys have the same values.
                 for (bsl::size_t i = tkOffset; i < LENGTH; ++i) {
@@ -6730,11 +6752,11 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
                            areEqual(values[1], VALUES[i].second) ||
                            areEqual(values[1], VALUES[LENGTH - i - 1].second));
                 }
-            } // END Loop on 'tj'
-        } // END test for duplicate keys, 'insertBulkAlways'
-    } // END 'insertBulkAlways' testing
+            } // END Loop on `tj`
+        } // END test for duplicate keys, `insertBulkAlways`
+    } // END `insertBulkAlways` testing
 
-    if (verbose) cout << "Exception Testing - 'insertBulkUnique'" << endl;
+    if (verbose) cout << "Exception Testing - `insertBulkUnique`" << endl;
     {
         bslma::TestAllocator        supplied("supplied", veryVeryVeryVerbose);
         bslma::TestAllocatorMonitor sam(&supplied);
@@ -6745,7 +6767,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
 
             Obj mX(8, 4, &supplied);
 
-            // Keys to be inserted with 'insertBulk'
+            // Keys to be inserted with `insertBulk`
             bsl::vector<typename Obj::KVType> insertVec(&supplied);
             for (bsl::size_t tj = 0; tj < 2; ++tj) {
                 typename Obj::KVType item(VALUES[tj].first,
@@ -6773,7 +6795,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
     }
 
-    if (verbose) cout << "Exception Testing - 'insertBulkAlways'" << endl;
+    if (verbose) cout << "Exception Testing - `insertBulkAlways`" << endl;
     {
         bslma::TestAllocator        supplied("supplied", veryVeryVeryVerbose);
         bslma::TestAllocatorMonitor sam(&supplied);
@@ -6785,7 +6807,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase10()
 
             Obj mX(8, 4, &supplied);
 
-            // Keys to be inserted with 'insertBulk'
+            // Keys to be inserted with `insertBulk`
             bsl::vector<typename Obj::KVType> insertVec(&supplied);
             for (bsl::size_t tj = 0; tj < 2; ++tj) {
                 typename Obj::KVType item(VALUES[tj].first,
@@ -6850,35 +6872,35 @@ template <class KEY, class VALUE, class HASH, class EQUAL>
 void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase9()
 {
     // ------------------------------------------------------------------------
-    // TEST 'clear'
+    // TEST `clear`
     //
     // Concerns:
-    //: 1 The 'clear' removes all items from the hash map irrespective of
-    //:   bucket.
-    //:
-    //: 2 QoI: 'clear' bring the memory allocated to its initial state, if no
-    //:   rehash.
-    //:
-    //: 3 The 'clear' method is idempotent.
+    // 1. The `clear` removes all items from the hash map irrespective of
+    //    bucket.
+    //
+    // 2. QoI: `clear` bring the memory allocated to its initial state, if no
+    //    rehash.
+    //
+    // 3. The `clear` method is idempotent.
     //
     // Plan:
-    //: 1 Using the loop based approach, call 'clear' for objects having
-    //:   different lengths and verify that size dropped to 0, and memory was
-    //:   returned.
-    //:
-    //: 2 Verify that a second call to 'clear' does not change the state.
-    //:
-    //: 3 Some of our test objects have elements in every bucket.
+    // 1. Using the loop based approach, call `clear` for objects having
+    //    different lengths and verify that size dropped to 0, and memory was
+    //    returned.
+    //
+    // 2. Verify that a second call to `clear` does not change the state.
+    //
+    // 3. Some of our test objects have elements in every bucket.
     //
     // Testing:
     //   void clear();
     // ------------------------------------------------------------------------
 
-    // This is equivalent to 'testCase8' in 'StripedUnorderedMap' and to
-    // 'testCase10' in 'StripedUnorderedMultiMap'.
+    // This is equivalent to `testCase8` in `StripedUnorderedMap` and to
+    // `testCase10` in `StripedUnorderedMultiMap`.
 
     if (verbose) cout << endl
-                      << "TEST 'clear'" << endl
+                      << "TEST `clear`" << endl
                       << "============" << endl;
 
     if (veryVeryVerbose) {
@@ -6912,7 +6934,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase9()
 
         mX.clear();
         ASSERTV(0 == X.size());
-        // If anything was allocated, 'clear' releases some memory.  Otherwise,
+        // If anything was allocated, `clear` releases some memory.  Otherwise,
         // no change.
         if (LENGTH > 0) {
             ASSERTV(sam1.isInUseDown());
@@ -6938,61 +6960,61 @@ template <class KEY, class VALUE, class HASH, class EQUAL>
 void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase8()
 {
     // ------------------------------------------------------------------------
-    // TEST 'eraseBulk'
-    //   Note that 'eraseBulk' is implemented independently of 'erase' (for
-    //   performance), hence all the concerns of 'erase' have to be retested
+    // TEST `eraseBulk`
+    //   Note that `eraseBulk` is implemented independently of `erase` (for
+    //   performance), hence all the concerns of `erase` have to be retested
     //   independently.
     //
     // Concerns:
-    //: 1 The 'eraseBulk' method removes the specified keys from the hash.
-    //:   The method returns the number of items removed.
-    //:
-    //: 2 Erasure occurs for every key between 'first' (inclusive) and 'last'
-    //:   (exclusive), and no other.
-    //:
-    //: 3 Erasure occurs irrespective of the bucket in which an target element
-    //:   resides.
-    //:
-    //: 4 Erasure is reflected in the size of the element's bucket and the size
-    //:   of the container.
-    //:
-    //: 5 There is no error if there are no elements having any of the key
-    //:   values.  Including an empty hash map, and an empty range.
-    //:
-    //: 6 The iterator arguments need provide read-only access.
-    //:
-    //: 7 QoI: Asserted precondition violations are detected when enabled.
-    //:
-    //: 9 QoI: Erasure returns memory to the allocator.
-    //:
-    //:10 QoI: Temporary allocation are taken from the default allocator.
+    // 1. The `eraseBulk` method removes the specified keys from the hash.
+    //    The method returns the number of items removed.
+    //
+    // 2. Erasure occurs for every key between `first` (inclusive) and `last`
+    //    (exclusive), and no other.
+    //
+    // 3. Erasure occurs irrespective of the bucket in which an target element
+    //    resides.
+    //
+    // 4. Erasure is reflected in the size of the element's bucket and the size
+    //    of the container.
+    //
+    // 5. There is no error if there are no elements having any of the key
+    //    values.  Including an empty hash map, and an empty range.
+    //
+    // 6. The iterator arguments need provide read-only access.
+    //
+    // 7. QoI: Asserted precondition violations are detected when enabled.
+    //
+    // 9. QoI: Erasure returns memory to the allocator.
+    //
+    // 10. QoI: Temporary allocation are taken from the default allocator.
     //
     // Plan:
-    //: 1 Test the empty hash map in a standalone case.
-    //:
-    //: 2 For hash maps of varying lengths, we:
-    //:   1 Erase each key one at a time, two at a time, and three at a time.
-    //:   2 Confirm that the return value is correct.
-    //:   3 The size of the container decreases by the expected amount.
-    //:   4 The size of the associated buckets decrease by the expected amount.
-    //:   5 Memory in use has decreased.
-    //:   6 Erasing a non-existent key fails, and does not change memory in
-    //:     use.
-    //:   7 We iterate until the hash map is empty.
-    //:   8 For a non empty range of keys, temporary memory is allocated from
-    //:     the default allocator.
-    //:
-    //: 3 P-2 is repeated for containers having different configurations:
-    //:   1 Unique keys, 'eraseBulkFirst'
-    //:   2 Unique keys, 'eraseBulkAll'
-    //:   3 Duplicate keys, 'eraseBulkAll'
-    //:   4 Duplicate keys, 'eraseBulkFirst'
-    //:
-    //: 4 In each instance, 'const'-interators are provided to the method.
-    //:
-    //: 5 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered for invalid indexes, but not triggered for adjacent valid
-    //:   ones (using the 'BSLS_ASSERTTEST_*' macros).
+    // 1. Test the empty hash map in a standalone case.
+    //
+    // 2. For hash maps of varying lengths, we:
+    //   1. Erase each key one at a time, two at a time, and three at a time.
+    //   2. Confirm that the return value is correct.
+    //   3. The size of the container decreases by the expected amount.
+    //   4. The size of the associated buckets decrease by the expected amount.
+    //   5. Memory in use has decreased.
+    //   6. Erasing a non-existent key fails, and does not change memory in
+    //      use.
+    //   7. We iterate until the hash map is empty.
+    //   8. For a non empty range of keys, temporary memory is allocated from
+    //      the default allocator.
+    //
+    // 3. P-2 is repeated for containers having different configurations:
+    //   1. Unique keys, `eraseBulkFirst`
+    //   2. Unique keys, `eraseBulkAll`
+    //   3. Duplicate keys, `eraseBulkAll`
+    //   4. Duplicate keys, `eraseBulkFirst`
+    //
+    // 4. In each instance, `const`-interators are provided to the method.
+    //
+    // 5. Verify that, in appropriate build modes, defensive checks are
+    //    triggered for invalid indexes, but not triggered for adjacent valid
+    //    ones (using the `BSLS_ASSERTTEST_*` macros).
     //
     // Testing:
     //   bsl::size_t eraseBulkAll(RANDOMIT first, last);
@@ -7000,7 +7022,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase8()
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
-                      << "TEST 'eraseBulk'" << endl
+                      << "TEST `eraseBulk`" << endl
                       << "================" << endl;
 
     if (veryVeryVerbose) {
@@ -7014,21 +7036,21 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase8()
 
     bslma::TestAllocatorMonitor dam(&defaultAllocator);
 
-    // This is equivalent to 'testCase7' in 'StripedUnorderedMap'.
+    // This is equivalent to `testCase7` in `StripedUnorderedMap`.
     {
         if (veryVerbose) cout << endl
-                              << "Test 'eraseBulk' First" << endl;
+                              << "Test `eraseBulk` First" << endl;
 
         const TestValues     VALUES; // contains 52 distinct increasing values
         const bsl::size_t    MAX_LENGTH = 15;
         bslma::TestAllocator supplied("supplied", veryVeryVeryVerbose);
 
-        // Try to erase from an empty hash map, 'e_FIRST'.
+        // Try to erase from an empty hash map, `e_FIRST`.
 
         {
             Obj mX(8, 4, &supplied);  const Obj& X = mX;
 
-            // Keys to be erased with 'eraseBulk'.
+            // Keys to be erased with `eraseBulk`.
             bsl::vector<KEY> eraseKeys(&scratch);
             for (bsl::size_t v = 0; v < MAX_LENGTH; ++v) {
                 eraseKeys.push_back(VALUES[v].first);
@@ -7114,14 +7136,14 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase8()
             ASSERT(sam.isInUseSame());
         }
 
-        // Test unique keys, 'eraseBulkFirst'.
+        // Test unique keys, `eraseBulkFirst`.
 
         for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
             const bsl::size_t LENGTH = ti;
 
             for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
 
-                // Loop on the length of the key vector passed to 'eraseBulk'.
+                // Loop on the length of the key vector passed to `eraseBulk`.
                 for (bsl::size_t tk = 0; tk <= 3 && tk <= LENGTH; ++tk) {
 
                     // arbitrary number of buckets and stripes
@@ -7147,10 +7169,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase8()
                         continue;
                     }
 
-                    // Here: '1 <= tk <= 3'
+                    // Here: `1 <= tk <= 3`
                     //
-                    // In a loop, erase all elements in groups of 'tk'
-                    // elements, check that each 'eraseBulk' is successful, and
+                    // In a loop, erase all elements in groups of `tk`
+                    // elements, check that each `eraseBulk` is successful, and
                     // that the final number of elements is 0.  The last step
                     // may contain keys that were already removed.
 
@@ -7158,7 +7180,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase8()
                     for (bsl::size_t v = 0; v < LENGTH; v += tk) {
                         bsl::vector<KEY> eraseKeys(tk, &scratch);
                         // Index and size of buckets related to the keys in the
-                        // current 'eraseKeys' vector.
+                        // current `eraseKeys` vector.
                         bsl::vector<bsl::size_t> bucketIdxs (tk, &scratch);
                         bsl::vector<bsl::size_t> bucketSizes(tk, &scratch);
                         for (bsl::size_t i = 0; i < tk; ++i) {
@@ -7199,18 +7221,18 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase8()
                                 dam.isTotalUp());
                     }
                     ASSERTV(0 == X.size());
-                } // END Loop on 'tk'
-            } // END Loop on 'tj'
-        } // END test for unique keys, 'eraseBulkFirst'
+                } // END Loop on `tk`
+            } // END Loop on `tj`
+        } // END test for unique keys, `eraseBulkFirst`
 
-        // Test duplicate keys, 'eraseBulkFirst'; this cannot happen in either
+        // Test duplicate keys, `eraseBulkFirst`; this cannot happen in either
         // "map" or "multimap".
         for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
             const bsl::size_t LENGTH = ti;
 
             for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
 
-                // Loop on the length of the key vector passed to 'eraseBulk'.
+                // Loop on the length of the key vector passed to `eraseBulk`.
                 for (bsl::size_t tk = 0; tk <= 3 && tk <= LENGTH; ++tk) {
 
                     // arbitrary number of buckets and stripes
@@ -7237,7 +7259,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase8()
                         continue;
                     }
 
-                    // Here: '1 <= tk <= 3'
+                    // Here: `1 <= tk <= 3`
                     //
                     // Erase all elements in a loop in groups of tk elements,
                     // and check that each eraseBulk is successful, and that
@@ -7248,7 +7270,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase8()
                     for (bsl::size_t v = 0; v < LENGTH; v += tk) {
                         bsl::vector<KEY> eraseKeys(tk, &scratch);
                         // Index and size of buckets related to the keys in the
-                        // current 'eraseKeys' vector.
+                        // current `eraseKeys` vector.
                         bsl::vector<bsl::size_t> bucketIdxs (tk, &scratch);
                         bsl::vector<bsl::size_t> bucketSizes(tk, &scratch);
                         for (bsl::size_t i = 0; i < tk; ++i) {
@@ -7291,25 +7313,25 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase8()
                         ASSERTV(ti, tj, tk, v, rc, expNumErased,
                                 dam.isTotalUp());
                     }
-                } // END Loop on 'tk'
-            } // END Loop on 'tj'
-        } // END test for duplicate keys, 'eraseBulkFirst'
-    } // END 'eraseBulkFirst' testing
+                } // END Loop on `tk`
+            } // END Loop on `tj`
+        } // END test for duplicate keys, `eraseBulkFirst`
+    } // END `eraseBulkFirst` testing
 
-    // This is equivalent to 'testCase9' in 'StripedUnorderedMultiMap'.
+    // This is equivalent to `testCase9` in `StripedUnorderedMultiMap`.
     {
         if (veryVerbose) cout << endl
-                              << "Test 'eraseBulkAll'" << endl;
+                              << "Test `eraseBulkAll`" << endl;
 
         const TestValues     VALUES; // contains 52 distinct increasing values
         const bsl::size_t    MAX_LENGTH = 15;
         bslma::TestAllocator supplied("supplied", veryVeryVeryVerbose);
 
-        // Try to erase from an empty hash map, 'eraseBulkAll'.
+        // Try to erase from an empty hash map, `eraseBulkAll`.
         {
             Obj mX(8, 4, &supplied);  const Obj& X = mX;
 
-            // Keys to be erased with 'eraseBulk'
+            // Keys to be erased with `eraseBulk`
             bsl::vector<KEY> eraseKeys(&scratch);
             for (bsl::size_t v = 0; v < MAX_LENGTH; ++v) {
                 eraseKeys.push_back(VALUES[v].first);
@@ -7320,13 +7342,13 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase8()
             ASSERTV(0 == X.size());
         }
 
-        // Test unique keys, 'eraseBulkAll'.
+        // Test unique keys, `eraseBulkAll`.
         for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
             const bsl::size_t LENGTH = ti;
 
             for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
 
-                // Loop on the length of the key vector passed to 'eraseBulk'.
+                // Loop on the length of the key vector passed to `eraseBulk`.
                 for (bsl::size_t tk = 0; tk <= 3 && tk <= LENGTH; ++tk) {
 
                     // arbitrary number of buckets and stripes
@@ -7352,7 +7374,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase8()
                         continue;
                     }
 
-                    // Here: '1 <= tk <= 3'
+                    // Here: `1 <= tk <= 3`
                     //
                     // Erase all elements in a loop in groups of tk elements,
                     // and check that each eraseBulk is successful, and that
@@ -7405,17 +7427,17 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase8()
                                 dam.isTotalUp());
                     }
                     ASSERTV(0 == X.size());
-                } // END Loop on 'tk'
-            } // END Loop on 'tj'
-        } // END test for unique keys, 'eraseBulkAll'
+                } // END Loop on `tk`
+            } // END Loop on `tj`
+        } // END test for unique keys, `eraseBulkAll`
 
-        // Test duplicate keys, 'eraseBulkAll'.
+        // Test duplicate keys, `eraseBulkAll`.
         for (bsl::size_t ti = 0; ti < MAX_LENGTH; ++ti) {
             const bsl::size_t LENGTH = ti;
 
             for (bsl::size_t tj = 0; tj < LENGTH; ++tj) {
 
-                // Loop on the length of the key vector passed to 'eraseBulk'.
+                // Loop on the length of the key vector passed to `eraseBulk`.
                 for (bsl::size_t tk = 0; tk <= 3 && tk <= LENGTH; ++tk) {
 
                     // arbitrary number of buckets and stripes
@@ -7442,10 +7464,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase8()
                         continue;
                     }
 
-                    // Here: '1 <= tk <= 3'
+                    // Here: `1 <= tk <= 3`
                     //
-                    // In a loop, erase all elements in groups of 'tk'
-                    // elements, check that each 'eraseBulk' is successful, and
+                    // In a loop, erase all elements in groups of `tk`
+                    // elements, check that each `eraseBulk` is successful, and
                     // that the final number of elements is 0.  The last step
                     // may contain keys that were already removed.
 
@@ -7453,7 +7475,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase8()
                     for (bsl::size_t v = 0; v < LENGTH; v += tk) {
                         bsl::vector<KEY> eraseKeys(tk, &scratch);
                         // Index and size of buckets related to the keys in the
-                        // current 'eraseKeys' vector.
+                        // current `eraseKeys` vector.
                         bsl::vector<bsl::size_t> bucketIdxs (tk, &scratch);
                         bsl::vector<bsl::size_t> bucketSizes(tk, &scratch);
                         for (bsl::size_t i = 0; i < tk; ++i) {
@@ -7499,10 +7521,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase8()
                                 dam.isTotalUp());
                     }
                     ASSERTV(0 == X.size());
-                } // END Loop on 'tk'
-            } // END Loop on 'tj'
-        } // END test for duplicate keys, 'eraseBulkAll'
-    } // END 'eraseBulkAll' testing
+                } // END Loop on `tk`
+            } // END Loop on `tj`
+        } // END test for duplicate keys, `eraseBulkAll`
+    } // END `eraseBulkAll` testing
 
     if (verbose) cout << "Negative Testing" << endl;
     {
@@ -7538,16 +7560,16 @@ template <class KEY, class VALUE, class HASH, class EQUAL>
 void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase23()
 {
     // ------------------------------------------------------------------------
-    // TEST 'eraseIf'
+    // TEST `eraseIf`
     //
     // Concerns:
-    //: 1 Erased elements are no longer found in the container.
+    // 1. Erased elements are no longer found in the container.
     //
     // Plan:
-    //: 1 Test the empty hash map in a standalone case.
-    //: 2 Test erasing all the elements leaves the container empty.
-    //: 3 Test erasing no elements leaves the container in the same state.
-    //: 4 Test erasing some elements but not others correctly removes just
+    // 1. Test the empty hash map in a standalone case.
+    // 2. Test erasing all the elements leaves the container empty.
+    // 3. Test erasing no elements leaves the container in the same state.
+    // 4. Test erasing some elements but not others correctly removes just
     //    those elements from the container, and no others
     //
     // Testing:
@@ -7557,7 +7579,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase23()
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
-                      << "TEST 'eraseIf'" << endl
+                      << "TEST `eraseIf`" << endl
                       << "==============" << endl;
 
     bslma::TestAllocator ia("ignored", veryVeryVeryVerbose);
@@ -7586,7 +7608,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase23()
 
     {
         if (veryVerbose) cout << endl
-                              << "Test 'eraseFirstIf'" << endl;
+                              << "Test `eraseFirstIf`" << endl;
 
         // Try to erase from an empty hash map.
         {
@@ -7659,7 +7681,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase23()
 
     {
         if (veryVerbose) cout << endl
-                          << "Test 'eraseAllIf'" << endl;
+                          << "Test `eraseAllIf`" << endl;
 
         // Try to erase from an empty hash map.
         {
@@ -7738,45 +7760,45 @@ template <class KEY, class VALUE, class HASH, class EQUAL>
 void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase7()
 {
     // ------------------------------------------------------------------------
-    // TEST 'erase'
+    // TEST `erase`
     //
     // Concerns:
-    //: 1 Erased elements are no longer found in the container.
-    //:
-    //: 2 Elements having keys other than the specified 'key' are not changed.
-    //:
-    //: 3 Erased elements are reflected by a reduction in the 'size()' of the
-    //:   container.
-    //:
-    //: 4 Erased elements reflected by a reduction in the size of the bucket
-    //:   where they resided.
-    //:
-    //: 5 The return value equals the number of elements erased.
-    //:
-    //: 6 Elements can be erased from any bucket.
-    //:
-    //: 7 Erase fails (returns 0) on an empty container.
-    //:
-    //: 8 QoI: Erasing an element returns memory to the allocator.
+    // 1. Erased elements are no longer found in the container.
+    //
+    // 2. Elements having keys other than the specified `key` are not changed.
+    //
+    // 3. Erased elements are reflected by a reduction in the `size()` of the
+    //    container.
+    //
+    // 4. Erased elements reflected by a reduction in the size of the bucket
+    //    where they resided.
+    //
+    // 5. The return value equals the number of elements erased.
+    //
+    // 6. Elements can be erased from any bucket.
+    //
+    // 7. Erase fails (returns 0) on an empty container.
+    //
+    // 8. QoI: Erasing an element returns memory to the allocator.
     //
     // Plan:
-    //: 1 Test the empty hash map in a standalone case.
-    //:
-    //: 2 For hash maps of varying lengths, we:
-    //:   1 Erase each key one at a time.
-    //:   2 Confirm that the return value is correct.
-    //:   3 The size of the container decreases by the expected amount.
-    //:   4 The size of the bucket decreases by the expected amount.
-    //:   5 Memory in use has decreased.
-    //:   6 Erasing a non-existent key fails, and does not change memory in
-    //:     use.
-    //:   7 We iterate until the hash map is empty.
-    //:
-    //: 3 P-2 is repeated for containers having different configurations:
-    //:   1 Unique keys, 'eraseFirst'
-    //:   2 Unique keys, 'eraseAll'
-    //:   3 Duplicate keys, 'eraseAll'
-    //:   4 Duplicate keys, 'eraseFirst'
+    // 1. Test the empty hash map in a standalone case.
+    //
+    // 2. For hash maps of varying lengths, we:
+    //   1. Erase each key one at a time.
+    //   2. Confirm that the return value is correct.
+    //   3. The size of the container decreases by the expected amount.
+    //   4. The size of the bucket decreases by the expected amount.
+    //   5. Memory in use has decreased.
+    //   6. Erasing a non-existent key fails, and does not change memory in
+    //      use.
+    //   7. We iterate until the hash map is empty.
+    //
+    // 3. P-2 is repeated for containers having different configurations:
+    //   1. Unique keys, `eraseFirst`
+    //   2. Unique keys, `eraseAll`
+    //   3. Duplicate keys, `eraseAll`
+    //   4. Duplicate keys, `eraseFirst`
     //
     // Testing:
     //   bsl::size_t eraseAll(const KEY& key);
@@ -7784,11 +7806,11 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase7()
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
-                      << "TEST 'erase'" << endl
+                      << "TEST `erase`" << endl
                       << "============" << endl;
 
-    // This is equivalent to 'testCase6' in 'StripedUnorderedMap', and to
-    // 'testCase7' in 'StripedUnorderedMultiMap'.
+    // This is equivalent to `testCase6` in `StripedUnorderedMap`, and to
+    // `testCase7` in `StripedUnorderedMultiMap`.
 
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
@@ -7797,7 +7819,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase7()
 
     {
         if (veryVerbose) cout << endl
-                                  << "Test 'eraseFirst'" << endl;
+                                  << "Test `eraseFirst`" << endl;
 
         if (veryVeryVerbose) {
             cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
@@ -7931,11 +7953,11 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase7()
         }
     }
 
-    // This is equivalent to 'testCase7' in 'StripedUnorderedMultiMap'.
+    // This is equivalent to `testCase7` in `StripedUnorderedMultiMap`.
 
     {
         if (veryVerbose) cout << endl
-                          << "Test 'eraseAll'" << endl;
+                          << "Test `eraseAll`" << endl;
 
         const TestValues     VALUES; // contains 52 distinct increasing values
         const bsl::size_t    MAX_LENGTH = 9;
@@ -8039,7 +8061,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase7()
     // ("multimap") with eraseFirst.
     {
         if (veryVerbose) cout << endl
-                          << "Test 'eraseFirst' against duplicates" << endl;
+                          << "Test `eraseFirst` against duplicates" << endl;
 
         const TestValues     VALUES; // contains 52 distinct increasing values
         const bsl::size_t    MAX_LENGTH = 9;
@@ -8113,51 +8135,51 @@ template <class KEY, class VALUE, class HASH, class EQUAL>
 void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase6()
 {
     // ------------------------------------------------------------------------
-    // TEST 'getValue' VECTOR
+    // TEST `getValue` VECTOR
     //
     // Concerns:
-    //: 1 'getValue' succeeds only if the key is in hash map, and then returns
-    //:   the correct value.
-    //:
-    //: 2 'getValue' fails if the key is not in the hash map.
-    //:
-    //: 3 'getValue' allocates no memory.
-    //:
-    //: 4 'getValue' is 'const' qualified.
-    //:
-    //: 5 'getValue' works irrespective of which bucket/stripe the element
-    //:   resides.
-    //:
-    //: 6 'getValue' works as expected when there are multiple instances of the
-    //:   'key' in the hash map.
+    // 1. `getValue` succeeds only if the key is in hash map, and then returns
+    //    the correct value.
+    //
+    // 2. `getValue` fails if the key is not in the hash map.
+    //
+    // 3. `getValue` allocates no memory.
+    //
+    // 4. `getValue` is `const` qualified.
+    //
+    // 5. `getValue` works irrespective of which bucket/stripe the element
+    //    resides.
+    //
+    // 6. `getValue` works as expected when there are multiple instances of the
+    //    `key` in the hash map.
     //
     // Plan:
-    //: 1 Test that calling 'getValue' on an empty object fails.
-    //:
-    //: 2 Create objects of different lengths having unique key values.
-    //:   1 Confirm that all inserted keys are found by 'getValue'.
-    //:   2 Confirm that 'getValue' fails to find keys that were not inserted.
-    //:   3 Insert the keys that were not found, and confirm that they are now
-    //:     found.
-    //:
-    //: 3 In some cases we have an element in every bucket and confirm that all
-    //:   buckets are searched.
-    //:
-    //: 4 Create objects of different lengths having duplicate keys.  In some
-    //:   cases the associated values are the same, and in some are different.
-    //:   1 Confirm that all inserted keys are found by 'getValue'.
-    //:   2 Confirm that all values for the searched key are returned.
-    //:
-    //: 5 'getValue' is call against a 'const' alias to the object under test.
+    // 1. Test that calling `getValue` on an empty object fails.
+    //
+    // 2. Create objects of different lengths having unique key values.
+    //   1. Confirm that all inserted keys are found by `getValue`.
+    //   2. Confirm that `getValue` fails to find keys that were not inserted.
+    //   3. Insert the keys that were not found, and confirm that they are now
+    //      found.
+    //
+    // 3. In some cases we have an element in every bucket and confirm that all
+    //    buckets are searched.
+    //
+    // 4. Create objects of different lengths having duplicate keys.  In some
+    //    cases the associated values are the same, and in some are different.
+    //   1. Confirm that all inserted keys are found by `getValue`.
+    //   2. Confirm that all values for the searched key are returned.
+    //
+    // 5. `getValue` is call against a `const` alias to the object under test.
     //
     // Testing:
     //   bsl::size_t getValue(*valuesVector, key) const;
     // ------------------------------------------------------------------------
 
-    // This is equivalent to 'testCase6' in StripedUnorderedMultiMap'.
+    // This is equivalent to `testCase6` in StripedUnorderedMultiMap'.
 
     if (verbose) cout << endl
-                      << "TEST 'getValue' VECTOR" << endl
+                      << "TEST `getValue` VECTOR" << endl
                       << "======================" << endl;
 
     if (veryVeryVerbose) {
@@ -8300,52 +8322,52 @@ template <class KEY, class VALUE, class HASH, class EQUAL>
 void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase5()
 {
     // ------------------------------------------------------------------------
-    // TEST 'getValue'
+    // TEST `getValue`
     //
     // Concerns:
-    //: 1 'getValue' succeeds only if the key is in hash map, and then returns
-    //:   the correct value.
-    //:
-    //: 2 'getValue' fails if the key is not in the hash map.
-    //:
-    //: 3 'getValue' allocates no memory.
-    //:
-    //: 4 'getValue' is 'const' qualified.
-    //:
-    //: 5 'getValue' works irrespective of which bucket/stripe the element
-    //:   resides.
-    //:
-    //: 6 'getValue' works as expected when there are multiple instances of the
-    //:   'key' in the hash map.
+    // 1. `getValue` succeeds only if the key is in hash map, and then returns
+    //    the correct value.
+    //
+    // 2. `getValue` fails if the key is not in the hash map.
+    //
+    // 3. `getValue` allocates no memory.
+    //
+    // 4. `getValue` is `const` qualified.
+    //
+    // 5. `getValue` works irrespective of which bucket/stripe the element
+    //    resides.
+    //
+    // 6. `getValue` works as expected when there are multiple instances of the
+    //    `key` in the hash map.
     //
     // Plan:
-    //: 1 Test that calling 'getValue' on an empty object fails.
-    //:
-    //: 2 Create objects of different lengths having unique key values.
-    //:   1 Confirm that all inserted keys are found by 'getValue'.
-    //:   2 Confirm that 'getValue' fails to find keys that were not inserted.
-    //:   3 Insert the keys that were not found, and confirm that they are now
-    //:     found.
-    //:
-    //: 3 In some cases we have an element in every bucket and confirm that all
-    //:   buckets are searched.
-    //:
-    //: 4 Create objects of different lengths having duplicate keys.  In some
-    //:   cases the associated values are the same, and in some are different.
-    //:   1 Confirm that all inserted keys are found by 'getValue'.
-    //:   2 Confirm that the value returned is the expected value (one of the
-    //:     expected values).
-    //:
-    //: 5 'getValue' is called using a 'const' alias to the object under test.
+    // 1. Test that calling `getValue` on an empty object fails.
+    //
+    // 2. Create objects of different lengths having unique key values.
+    //   1. Confirm that all inserted keys are found by `getValue`.
+    //   2. Confirm that `getValue` fails to find keys that were not inserted.
+    //   3. Insert the keys that were not found, and confirm that they are now
+    //      found.
+    //
+    // 3. In some cases we have an element in every bucket and confirm that all
+    //    buckets are searched.
+    //
+    // 4. Create objects of different lengths having duplicate keys.  In some
+    //    cases the associated values are the same, and in some are different.
+    //   1. Confirm that all inserted keys are found by `getValue`.
+    //   2. Confirm that the value returned is the expected value (one of the
+    //      expected values).
+    //
+    // 5. `getValue` is called using a `const` alias to the object under test.
     //
     // Testing:
     //   bsl::size_t getValue(VALUE *value, key) const;
     // ------------------------------------------------------------------------
 
-    // This is similar to 'testCase5' in 'StripedUnordered*Map'.
+    // This is similar to `testCase5` in `StripedUnordered*Map`.
 
     if (verbose) cout << endl
-                      << "TEST 'getValue'" << endl
+                      << "TEST `getValue`" << endl
                       << "===============" << endl;
 
     if (veryVeryVerbose) {
@@ -8487,37 +8509,37 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase4()
     // BASIC ACCESSORS
     //
     // Concerns:
-    //: 1 Each accessor method is declared 'const'.
-    //:
-    //: 2 Accessors that take arguments can take 'const'-qualified arguments.
-    //:
-    //: 3 No accessor allocates any memory.
-    //:
-    //: 4 Each accessor returns the expected value.
-    //:
-    //: 5 QoI: 'bucketSize()': Asserted precondition violations are detected
-    //:   when enabled.
+    // 1. Each accessor method is declared `const`.
+    //
+    // 2. Accessors that take arguments can take `const`-qualified arguments.
+    //
+    // 3. No accessor allocates any memory.
+    //
+    // 4. Each accessor returns the expected value.
+    //
+    // 5. QoI: `bucketSize()`: Asserted precondition violations are detected
+    //    when enabled.
     //
     // Plan:
-    //: 1 Except for 'hashFunction' and 'equalFunction', the BOOTSTRAP tests in
-    //:   case 3 have demonstrated that all basic accessors return values that
-    //:   are consistent with the operations on the hash map.  What remains:
-    //:
-    //:   1 Demonstrate that these methods are 'const'-qualified by invoking
-    //:     them on a 'const' alias to a hash map.
-    //:
-    //:   2 Demonstrate that accessors that take arguments can take
-    //:     'const'-qualified arguments, but remains is to confirm that these
-    //:
-    //: 2 Demonstrate that the 'hashFunction' and 'equalFunction' methods
-    //:   return the expected results by confirming that the objects they
-    //:   return have the expected 'id' attribute.
-    //:
-    //: 3 Confirm that no memory has been allocated by any allocator.
-    //:
-    //: 4 'bucket_size': Verify that, in appropriate build modes, defensive
-    //:    checks are triggered for invalid indexes, but not triggered for
-    //:    adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+    // 1. Except for `hashFunction` and `equalFunction`, the BOOTSTRAP tests in
+    //    case 3 have demonstrated that all basic accessors return values that
+    //    are consistent with the operations on the hash map.  What remains:
+    //
+    //   1. Demonstrate that these methods are `const`-qualified by invoking
+    //      them on a `const` alias to a hash map.
+    //
+    //   2. Demonstrate that accessors that take arguments can take
+    //      `const`-qualified arguments, but remains is to confirm that these
+    //
+    // 2. Demonstrate that the `hashFunction` and `equalFunction` methods
+    //    return the expected results by confirming that the objects they
+    //    return have the expected `id` attribute.
+    //
+    // 3. Confirm that no memory has been allocated by any allocator.
+    //
+    // 4. `bucket_size`: Verify that, in appropriate build modes, defensive
+    //     checks are triggered for invalid indexes, but not triggered for
+    //     adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
     //
     // Testing:
     //   HASH hashFunction() const;
@@ -8531,7 +8553,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase4()
     //   bslma::Allocator *allocator() const;
     // ------------------------------------------------------------------------
 
-    // This is identical to 'testCase4' in 'StripedUnordered*Map'.
+    // This is identical to `testCase4` in `StripedUnordered*Map`.
 
     if (verbose) cout << endl
                       << "BASIC ACCESSORS" << endl
@@ -8601,60 +8623,60 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
     // INSERT (SINGLE KEY/VALUE)
     //
     // Concerns:
-    //: 1 The 'insert' method works as expected irrespective of the parameters
-    //:   specified on construction of the hash map.
-    //:
-    //: 2 Allocations by the 'insert' method are taken from the allocator
-    //:   specified on construction of the hash map.
+    // 1. The `insert` method works as expected irrespective of the parameters
+    //    specified on construction of the hash map.
     //
-    //: 3 QoI: There is no temporary memory allocation from any allocator.
-    //:
-    //: 4 Any memory allocation is exception neutral.
-    //:
-    //: 5 Every hash map releases any allocated memory at destruction.
-    //:
-    //: 6 Expectations of 'insert' operations consist of:
-    //:   1 The return value.
-    //:   2 The creation of new element or update of existing according to
-    //:     existing elements of the hash map and the 'multiplicity' argument.
-    //:   3 The placement of any new element in the expected bucket.
-    //:   4 Appropriate increases in size of hash map and size of bucket.
-    //:   5 The lack of unintended changes to other elements in the hash map,
-    //:     if any.
+    // 2. Allocations by the `insert` method are taken from the allocator
+    //    specified on construction of the hash map.
+    //
+    // 3. QoI: There is no temporary memory allocation from any allocator.
+    //
+    // 4. Any memory allocation is exception neutral.
+    //
+    // 5. Every hash map releases any allocated memory at destruction.
+    //
+    // 6. Expectations of `insert` operations consist of:
+    //   1. The return value.
+    //   2. The creation of new element or update of existing according to
+    //      existing elements of the hash map and the `multiplicity` argument.
+    //   3. The placement of any new element in the expected bucket.
+    //   4. Appropriate increases in size of hash map and size of bucket.
+    //   5. The lack of unintended changes to other elements in the hash map,
+    //      if any.
     //
     // Plan:
-    //: 1 Each test is repeated for several hash maps, each constructed with
-    //:   different, representative arguments.  In different iterations each
-    //:   construction parameter is set to its minimal allowed value and to an
-    //:   incremented (i.e., non-minimal) value.
-    //:
-    //: 2 This test follows the depth-ordered enumeration test pattern.  We
-    //:   fully test each level before proceeding to the next, where each
-    //:   level corresponds to the number of elements held by the hash map
-    //:   before invocation of 'insert'.  Testing to level 2 (i.e., up to three
-    //:   elements after 'insert' was deemed sufficient.  That allows test
-    //:   cases where one or two elements may be effected while there is
-    //:   an uninvolved element that is shown to be unchanged.
-    //:
-    //: 3 Each 'insert' test call is wrapped with the
-    //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' and
-    //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END' macros.  The 'loopCount' is
-    //:   checked for multiple iterations and the hash map allocator is checked
-    //:   for the allocation of memory and the return of all allocated memory.
-    //:
-    //: 4 Each 'insert' test call has an associated test allocator monitor that
-    //:   is wired to the default allocator.  That monitor is checked for zero
-    //:   allocations after the test call.
-    //:
-    //: 5 BOOTSTRAP: Basic accessors (see case 4) are checked for consistency
-    //:   with expect results for each operation.
+    // 1. Each test is repeated for several hash maps, each constructed with
+    //    different, representative arguments.  In different iterations each
+    //    construction parameter is set to its minimal allowed value and to an
+    //    incremented (i.e., non-minimal) value.
+    //
+    // 2. This test follows the depth-ordered enumeration test pattern.  We
+    //    fully test each level before proceeding to the next, where each
+    //    level corresponds to the number of elements held by the hash map
+    //    before invocation of `insert`.  Testing to level 2 (i.e., up to three
+    //    elements after `insert` was deemed sufficient.  That allows test
+    //    cases where one or two elements may be effected while there is
+    //    an uninvolved element that is shown to be unchanged.
+    //
+    // 3. Each `insert` test call is wrapped with the
+    //    `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN` and
+    //    `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END` macros.  The `loopCount` is
+    //    checked for multiple iterations and the hash map allocator is checked
+    //    for the allocation of memory and the return of all allocated memory.
+    //
+    // 4. Each `insert` test call has an associated test allocator monitor that
+    //    is wired to the default allocator.  That monitor is checked for zero
+    //    allocations after the test call.
+    //
+    // 5. BOOTSTRAP: Basic accessors (see case 4) are checked for consistency
+    //    with expect results for each operation.
     //
     // Testing:
     //   void insertAlways(const KEY& key, const VALUE& value);
     //   bsl::size_t insertUnique(const KEY& key, const VALUE& value);
     // ------------------------------------------------------------------------
 
-    // This is similar to 'testCase3' in 'StripedUnordered*Map'.
+    // This is similar to `testCase3` in `StripedUnordered*Map`.
 
     if (verbose) cout
                     << endl
@@ -8729,7 +8751,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                 const int   valueCode = INSERTS0[tj].d_value;
                 const KEY   cKEY      = TstFacility::create<KEY  >(  keyCode);
                 const VALUE cVALUE    = TstFacility::create<VALUE>(valueCode);
-                dam.reset(); // 'TstFacility::create' allocates from the
+                dam.reset(); // `TstFacility::create` allocates from the
                              // default allocator.
 
                 (void)LINE;
@@ -8855,7 +8877,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                 const int   valueCode = INSERTS1[tj].d_value;
                 const KEY   cKEY      = TstFacility::create<KEY  >(  keyCode);
                 const VALUE cVALUE    = TstFacility::create<VALUE>(valueCode);
-                dam.reset(); // 'TstFacility::create' allocates from the
+                dam.reset(); // `TstFacility::create` allocates from the
                              // default allocator.
 
                 bool isUnique = INSERTS1[tj].d_multiplicity == 'U';
@@ -8889,7 +8911,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
 
                     ///CREATE TEST OBJECT
                     ///------------------
-                    // Depth 1 test objects: 'A' and 'B', each have one element
+                    // Depth 1 test objects: `A` and `B`, each have one element
                     // that reside in different buckets.
 
                     Obj mA(NUM_BUCKETS, NUM_STRIPES, &sa);
@@ -9006,10 +9028,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
 
             ///Recurring Pattern of Inserts:
             ///-----------------------------
-            //: o Insert    matches existing key  and       value.
-            //: o Insert    matches existing key  but not   value.
-            //: o Insert mismatches existing keys but same  bucket
-            //: o Insert mismatches existing keys and other bucket.
+            //  - Insert    matches existing key  and       value.
+            //  - Insert    matches existing key  but not   value.
+            //  - Insert mismatches existing keys but same  bucket
+            //  - Insert mismatches existing keys and other bucket.
 
             // UNIQUE INSERTS
 
@@ -9222,7 +9244,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                     // Create Arguments for Insertion Test
                     const KEY   I_KEY    = TstFacility::create<KEY  >(IKEY);
                     const VALUE I_VALUE  = TstFacility::create<VALUE>(IVALUE);
-                    dam.reset(); // 'TstFacility::create' allocates from the
+                    dam.reset(); // `TstFacility::create` allocates from the
                                  // default allocator.
 
                     mX.insertAlways(E1_KEY, E1_VALUE);
@@ -9232,7 +9254,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
 
                     bool isUnique = IMULT == 'U';
 
-                    // Test 'insert'
+                    // Test `insert`
                     bslma::TestAllocatorMonitor dam1(&da);
 
                     if (isUnique) {
@@ -9270,14 +9292,14 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                         if (veryVeryVerbose)  cout << endl;
 
                         const KEY cKEY = TstFacility::create<KEY>(key);
-                        dam.reset(); // 'TstFacility::create' allocates from
+                        dam.reset(); // `TstFacility::create` allocates from
                                      // the default allocator.
 
                         bsl::vector<VALUE> foundValues(&scratch);
                         bsl::size_t        rc = X.getValue(&foundValues, cKEY);
                         ASSERT(rc == foundValues.size());
 
-                        // Convert returned values to 'int' representation.
+                        // Convert returned values to `int` representation.
 
                         bsl::vector<int> foundValuesAsInt(&scratch);
 
@@ -9332,45 +9354,45 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase2()
     // CONSTRUCTOR AND DESTRUCTOR
     //
     // Concerns:
-    //: 1 The constructed container has the expected attributes.
-    //:
-    //:   o Allocator:
-    //:     If an allocator is not specified (i.e., 'basicAllocator' set to 0
-    //:     or not supplied) the currently installed default allocator is used.
-    //:
-    //:   o Number of buckets and stripes:
-    //:     o Expected default values assigned when the arguments are
-    //:       unspecified.
-    //:     o Arguments that are not powers of two are rounded up.
-    //:     o Arguments that are too small are rounded up.
-    //:
-    //: 2 A newly constructed hash map is empty.
-    //:
-    //: 3 QoI: There is no temporary memory allocation from any allocator.
-    //:
-    //: 4 Any memory allocation is exception neutral.
-    //:
-    //: 5 Every hash map releases any allocated memory at destruction.
+    // 1. The constructed container has the expected attributes.
+    //
+    //    - Allocator:
+    //      If an allocator is not specified (i.e., `basicAllocator` set to 0
+    //      or not supplied) the currently installed default allocator is used.
+    //
+    //    - Number of buckets and stripes:
+    //      - Expected default values assigned when the arguments are
+    //        unspecified.
+    //      - Arguments that are not powers of two are rounded up.
+    //      - Arguments that are too small are rounded up.
+    //
+    // 2. A newly constructed hash map is empty.
+    //
+    // 3. QoI: There is no temporary memory allocation from any allocator.
+    //
+    // 4. Any memory allocation is exception neutral.
+    //
+    // 5. Every hash map releases any allocated memory at destruction.
     //
     // Plan:
-    //: 1 The "footprint" idiom is used to create container objects using a
-    //:   variety of different "configurations" of arguments: arguments
-    //:   specified and arguments allowed to default; arguments that are valid
-    //:   and arguments that must be adjusted (internally) before use.
-    //:
-    //: 2 Several accessors (as yet untested) are used.  This usage is
-    //:   considered "BOOTSTRAP" tests of those methods.
-    //:
-    //: 3 Exception tests follow the conventional BDE idiom using the
-    //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' and
-    //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END' macros.
-    //:
+    // 1. The "footprint" idiom is used to create container objects using a
+    //    variety of different "configurations" of arguments: arguments
+    //    specified and arguments allowed to default; arguments that are valid
+    //    and arguments that must be adjusted (internally) before use.
+    //
+    // 2. Several accessors (as yet untested) are used.  This usage is
+    //    considered "BOOTSTRAP" tests of those methods.
+    //
+    // 3. Exception tests follow the conventional BDE idiom using the
+    //    `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN` and
+    //    `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END` macros.
+    //
     // Testing:
     //   StripedUnorderedContainerImpl(numInitialBuckets, numStripes, *ba);
     //   ~StripedUnorderedContainerImpl();
     // ------------------------------------------------------------------------
 
-    // This is identical to 'testCase2' in 'StripedUnordered*Map'.
+    // This is identical to `testCase2` in `StripedUnordered*Map`.
 
     if (verbose) cout << endl
                       << "CONSTRUCTOR AND DESTRUCTOR" << endl
@@ -9596,8 +9618,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase1()
     //   This case exercises (but does not fully test) basic functionality.
     //
     // Concerns:
-    //: 1 The class is sufficiently functional to enable comprehensive testing
-    //:   in subsequent test cases.
+    // 1. The class is sufficiently functional to enable comprehensive testing
+    //    in subsequent test cases.
     //
     // Testing:
     //   BREATHING TEST

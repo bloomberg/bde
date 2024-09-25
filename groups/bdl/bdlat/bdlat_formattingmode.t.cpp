@@ -102,19 +102,19 @@ int main(int argc, char *argv[])
         // TEST ENUMERATORS
         //
         // Concerns
-        //: 1 When BDE_OMIT_INTERNAL_DEPRECATED is not defined, the BDEAT_...
-        //:   enumeration literals should exist and evaluate to their e_...
-        //:   equivalents.
-        //:
-        //: 2 When BDE_OMIT_INTERNAL_DEPRECATED is defined, the BDEAT_...
-        //:   enumeration literals should not exist.
+        // 1. When BDE_OMIT_INTERNAL_DEPRECATED is not defined, the BDEAT_...
+        //    enumeration literals should exist and evaluate to their e_...
+        //    equivalents.
+        //
+        // 2. When BDE_OMIT_INTERNAL_DEPRECATED is defined, the BDEAT_...
+        //    enumeration literals should not exist.
         //
         // Plan
-        //: 1 When BDE_OMIT_INTERNAL_DEPRECATED is not defined, check that the
-        //:   BDEAT_... enumeration literals evaluate to their e_...
-        //:   equivalents.  (C-1)
-        //:
-        //: 2 We cannot check for (C-2), so hope for the best.
+        // 1. When BDE_OMIT_INTERNAL_DEPRECATED is not defined, check that the
+        //    BDEAT_... enumeration literals evaluate to their e_...
+        //    equivalents.  (C-1)
+        //
+        // 2. We cannot check for (C-2), so hope for the best.
         //
         // Testing:
         //   ENUMERATORS
@@ -269,8 +269,8 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_FLAG_MODES; ++i) {
             const int FLAG_MODE1 = FLAG_MODES[i];
 
-            // Verify that FLAG_MODE1 is within the 'e_FLAGS_MASK' bit-mask
-            // and does not overlap the 'e_TYPE_MASK'.
+            // Verify that FLAG_MODE1 is within the `e_FLAGS_MASK` bit-mask
+            // and does not overlap the `e_TYPE_MASK`.
             LOOP_ASSERT(FLAG_MODE1,
                         FLAG_MODE1 == (FLAG_MODE1 & FM::e_FLAGS_MASK));
             LOOP_ASSERT(FLAG_MODE1,

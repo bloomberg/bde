@@ -21,18 +21,18 @@ using namespace bsl;
 // TBD
 //
 // Primary Manipulators:
-//: o TBD
+//  - TBD
 //
 // Basic Accessors:
-//: o TBD
+//  - TBD
 //
 // Global Concerns:
-//: o No memory is allocated.
-//: o TBD
+//  - No memory is allocated.
+//  - TBD
 //
 // Global Assumptions:
-//: o ACCESSOR methods are 'const' thread-safe.
-//: o TBD
+//  - ACCESSOR methods are `const` thread-safe.
+//  - TBD
 // ----------------------------------------------------------------------------
 // CLASS METHODS
 // [  ] TBD
@@ -114,14 +114,14 @@ static void aSsErT(int c, const char *s, int i)
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
 
+/// Print expression and value.
 #define P(expX) cout << #expX " = " << (expX) << endl;
-    // Print expression and value.
 
+/// Quote expression literally.
 #define Q(expX) cout << "<| " #expX " |>" << endl;
-    // Quote expression literally.
 
+/// `P(expX)` without '\n'
 #define P_(expX) cout << #expX " = " << (expX) << ", " << flush;
-    // 'P(expX)' without '\n'
 
 #define T_ cout << "\t" << flush;             // Print tab w/o newline.
 #define L_ __LINE__                           // current Line number
@@ -137,8 +137,8 @@ static void aSsErT(int c, const char *s, int i)
 //                                USEFUL MACROS
 // ----------------------------------------------------------------------------
 
-// The following macros may be used to print an expression 'X' at different
-// levels of verbosity.  Note that 'X' is not surrounded with parentheses so
+// The following macros may be used to print an expression `X` at different
+// levels of verbosity.  Note that `X` is not surrounded with parentheses so
 // that expressions containing output stream operations can be supported.
 
 #define PV(X)   if         (verbose) cout << endl << X << endl;
@@ -187,13 +187,13 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases
+        //
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases
         //
         // Plan:
-        //:
-        //: 1 TBD
+        //
+        // 1. TBD
         //
         // Testing:
         //   BREATHING TEST
@@ -226,7 +226,7 @@ int main(int argc, char *argv[])
         std::pmr::string pmrResult("garbage", &ta);
 #endif
 
-        // 'bsl::string_view' input
+        // `bsl::string_view` input
         {
             const bsl::string_view  inVue(inArray, sizeof(inArray) - 1);
 
@@ -243,7 +243,7 @@ int main(int argc, char *argv[])
 #endif
         }
 
-        // 'bslstl::StringRef' input
+        // `bslstl::StringRef` input
         {
             const bslstl::StringRef inRef(inArray, sizeof(inArray) - 1);
 
@@ -266,7 +266,7 @@ int main(int argc, char *argv[])
 #endif
         }
 
-        // 'bsl::string' input
+        // `bsl::string` input
         {
             const bsl::string inBsl(inArray, sizeof(inArray) - 1, &ta);
 
@@ -289,7 +289,7 @@ int main(int argc, char *argv[])
 #endif
         }
 
-        // 'std::string' input
+        // `std::string` input
         {
             const std::string inStd(inArray, sizeof(inArray) - 1);
 
@@ -312,7 +312,7 @@ int main(int argc, char *argv[])
 #endif
         }
 
-        // 'std::pmr::string' input
+        // `std::pmr::string` input
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
         {
             const std::pmr::string inPmr(inArray, sizeof(inArray) - 1, &ta);

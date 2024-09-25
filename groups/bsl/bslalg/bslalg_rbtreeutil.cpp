@@ -16,8 +16,8 @@ BSLS_IDENT("$Id$ $CSID$")
 namespace BloombergLP {
 namespace bslalg {
 
+/// Return `true` if `node` is 0 or colored black, and `false` otherwise.
 static inline bool isBlackOrNull(const RbTreeNode *node)
-    // Return 'true' if 'node' is 0 or colored black, and 'false' otherwise.
 {
     return !node || node->isBlack();
 }

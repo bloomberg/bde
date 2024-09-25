@@ -47,7 +47,7 @@ BSLS_IDENT("$Id: $")
 // ///
 // /// The `EQUALS` template parameter must a function with a function
 // /// whose signature is
-// /// ```.
+// ///...
 // ///  bool operator()(const TYPE& lhs, const TYPE& rhs) const;
 // /// ```
 // /// and which returns `true` if `lhs` and `rhs` are equivalent and

@@ -31,9 +31,9 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'bslim::FuzzUtil' provides a suite of functions for consuming basic types
+// `bslim::FuzzUtil` provides a suite of functions for consuming basic types
 // from fuzz data.  This test driver tests each implemented utility function
-// independently.  Because the 'consumeNumber' and 'consumeNumberInRange' are
+// independently.  Because the `consumeNumber` and `consumeNumberInRange` are
 // function templates, they are tested for each possible type for which they
 // might be instantiated.  Furthermore, because of the different boundary
 // conditions -- among other considerations -- these two function families are
@@ -58,7 +58,7 @@ using bsl::flush;
 // [ 1] BREATHING TEST
 // [ 2] void gg(vector<uint8_t> *buf, string_view& spec);
 // [ 2] int ggg(vector<uint8_t> *buf, string_view& spec, bool vF = true);
-// [-1] NEGATIVE ASAN TEST 'consumeRandomLengthChars'
+// [-1] NEGATIVE ASAN TEST `consumeRandomLengthChars`
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -131,37 +131,38 @@ static int veryVeryVeryVerbose;
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Load into the specified `buffer` of the specified `bufLen` a total of
+/// the specified `numBytes` random bytes.  The behavior is undefined unless
+/// `numBytes <= bufLen`.
 void generateBytes(bsl::uint8_t *buffer,
                    bsl::size_t   bufLen,
                    bsl::size_t   numBytes)
-    // Load into the specified 'buffer' of the specified 'bufLen' a total of
-    // the specified 'numBytes' random bytes.  The behavior is undefined unless
-    // 'numBytes <= bufLen'.
 {
     ASSERT(buffer);
     ASSERT(numBytes <= bufLen);
     bsl::generate_n(buffer, numBytes, bsl::rand);
 }
 
+/// This `struct` holds a single input for testing `consumeNumberInRange`
+/// for the (parameterized) `INTEGRAL` type.
 template <class INTEGRAL>
 struct ConsumeIntegralTestCases
-    // This 'struct' holds a single input for testing 'consumeNumberInRange'
-    // for the (parameterized) 'INTEGRAL' type.
 {
     int         d_line;             // line number
-    bsl::size_t d_numBytes;         // passed to 'FuzzDataView' 'size'
+    bsl::size_t d_numBytes;         // passed to `FuzzDataView` `size`
     INTEGRAL    d_min;              // passed to function under test
     INTEGRAL    d_max;              // "      "     "      "
     bsl::size_t d_numBytesRequired; // number of bytes needed to produce a
-                                    //   value within 'd_min' and 'd_max'
+                                    //   value within `d_min` and `d_max`
 };
 
+/// This `struct` is used by test cases for testing `consumeNumber` and
+/// `consumeNumberInRange` for the (parameterized) `INTEGRAL` type.
 template <class INTEGRAL>
 struct ConsumeIntegralTest {
-    // This 'struct' is used by test cases for testing 'consumeNumber' and
-    // 'consumeNumberInRange' for the (parameterized) 'INTEGRAL' type.
+
+    /// Perform test for (template type) INTEGRAL passed as an argument.
     static void testConsumeIntegral()
-        // Perform test for (template type) INTEGRAL passed as an argument.
     {
         if (verbose)
             cout << endl
@@ -197,11 +198,11 @@ struct ConsumeIntegralTest {
         }
     }
 
+    /// Perform test for (template type) INTEGRAL passed as an argument on
+    /// the specified `DATA` of specified `NUM_DATA` size.
     static void testConsumeIntegralInRange(
                                   ConsumeIntegralTestCases<INTEGRAL> *DATA,
                                   int                                 NUM_DATA)
-        // Perform test for (template type) INTEGRAL passed as an argument on
-        // the specified 'DATA' of specified 'NUM_DATA' size.
     {
         const int    BUFLEN = 128;
         bsl::uint8_t FUZZ_BUF[BUFLEN];
@@ -244,18 +245,18 @@ struct ConsumeIntegralTest {
 };
 
 //=============================================================================
-//              GENERATOR FUNCTIONS 'gg' AND 'ggg' FOR TESTING
+//              GENERATOR FUNCTIONS `gg` AND `ggg` FOR TESTING
 //-----------------------------------------------------------------------------
-// The following functions interpret the given 'spec' in order from left to
+// The following functions interpret the given `spec` in order from left to
 // right to configure the buffer according to a custom language.  Digits 1-9
 // correspond to the number of times to generate in the output the character
 // that immediately follows the digit.  '|' corresponds to the backslash
 // character.  '\' is forbidden.  Note that in order to embed '\0' in the spec,
-// we employ a function, 'makeStringView', and use string literal
+// we employ a function, `makeStringView`, and use string literal
 // concatenation.  This is in order to prevent the interpretation of it as an
-// octal value.  So, we write 'makeStringView("1a2\0" "3t")' instead of
-// 'makeStringView("1a2\03t")' (which does not work) or
-// 'makeStringView("1a2\0003t")' (in which '\000' is octal Null).
+// octal value.  So, we write `makeStringView("1a2\0" "3t")` instead of
+// `makeStringView("1a2\03t")` (which does not work) or
+// `makeStringView("1a2\0003t")` (in which `\000` is octal Null).
 //
 // LANGUAGE SPECIFICATION: -----------------------
 //
@@ -277,15 +278,16 @@ struct ConsumeIntegralTest {
 //                  // '|' represents the backslash character (i.e., 0x5C).
 //                  // '\' is forbidden.
 //-----------------------------------------------------------------------------
+
+/// Configure the specified `buf` according to the specified `spec`.
+/// Optionally specify a `false` `verboseFlag` to suppress `spec` syntax
+/// error messages.  Return the index of the first invalid character, and a
+/// negative value otherwise.  `buf->clear()` is called on entry.  Note that
+/// this function is used to implement `gg` as well as allow for
+/// verification of syntax error detection.
 int ggg(bsl::vector<bsl::uint8_t> *buf,
         const bsl::string_view&    spec,
         bool                       verboseFlag = true)
-    // Configure the specified 'buf' according to the specified 'spec'.
-    // Optionally specify a 'false' 'verboseFlag' to suppress 'spec' syntax
-    // error messages.  Return the index of the first invalid character, and a
-    // negative value otherwise.  'buf->clear()' is called on entry.  Note that
-    // this function is used to implement 'gg' as well as allow for
-    // verification of syntax error detection.
 {
     ASSERT(buf);
     buf->clear();
@@ -325,18 +327,18 @@ int ggg(bsl::vector<bsl::uint8_t> *buf,
     return SUCCESS;
 }
 
+/// Load into the specified `buf` an object with its value populated
+/// according to the specified `spec`.
 void gg(bsl::vector<bsl::uint8_t> *buf,
         const bsl::string_view&    spec)
-    // Load into the specified 'buf' an object with its value populated
-    // according to the specified 'spec'.
 {
     ASSERT(ggg(buf, spec, true) < 0);
 }
 
+/// Return a `bsl::string_view` based on the specified `str` and (template
+/// parameter) LENGTH.
 template <int LENGTH>
 bsl::string_view makeStringView(const char (&str)[LENGTH])
-    // Return a 'bsl::string_view' based on the specified 'str' and (template
-    // parameter) LENGTH.
 {
     return bsl::string_view(str, LENGTH - 1);
 }
@@ -368,13 +370,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -390,19 +392,21 @@ int main(int argc, char *argv[])
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we wish to fuzz test a function with preconditions.
 //
-// First, we define the 'TradingInterfaceUnderTest' 'struct':
-//..
+// First, we define the `TradingInterfaceUnderTest` `struct`:
+// ```
+
+    /// This utility class provides sample functionality to demonstrate how
+    /// fuzz data might be used.
     struct TradingInterfaceUnderTest {
-        // This utility class provides sample functionality to demonstrate how
-        // fuzz data might be used.
 
         // CLASS METHODS
+
+        /// Return a value containing the number of earnings announcements
+        /// in the specified `year` and `month`.  The behavior is undefined
+        /// unless `1950 < year < 2030` and `month` is in `[1 .. 12]`.  Note
+        /// that the values here are arbitrary, and in the real-world this
+        /// data would be obtained from a database or an API.
         static int numEarningsAnnouncements(int year, int month)
-            // Return a value containing the number of earnings announcements
-            // in the specified 'year' and 'month'.  The behavior is undefined
-            // unless '1950 < year < 2030' and 'month' is in '[1 .. 12]'.  Note
-            // that the values here are arbitrary, and in the real-world this
-            // data would be obtained from a database or an API.
         {
             BSLS_ASSERT(1950 <  year  && year  < 2030);
             BSLS_ASSERT(   1 <= month && month <=  12);
@@ -413,85 +417,85 @@ int main(int argc, char *argv[])
             return 6;
         }
     };
-//..
+// ```
 // Then, we need a block of raw bytes.  This would normally come from a fuzz
-// harness (e.g., the 'LLVMFuzzerTestOneInput' entry point function from
-// 'libFuzzer').  Since 'libFuzzer' is not available here, we initialize a
-// 'myFuzzData' array that we will use instead.
-//..
+// harness (e.g., the `LLVMFuzzerTestOneInput` entry point function from
+// `libFuzzer`).  Since `libFuzzer` is not available here, we initialize a
+// `myFuzzData` array that we will use instead.
+// ```
     const bsl::uint8_t  myFuzzData[] = {0x43, 0x19, 0x0D, 0x44, 0x37, 0x0D,
                                         0x38, 0x5E, 0x9B, 0xAA, 0xF3, 0xDA};
-//..
-// Next, we create a 'FuzzDataView' to wrap the raw bytes.
-//..
+// ```
+// Next, we create a `FuzzDataView` to wrap the raw bytes.
+// ```
     bslim::FuzzDataView fdv(myFuzzData, sizeof myFuzzData);
-//..
-// Now, we pass this 'FuzzDataView' to 'FuzzUtil' to generate values within the
+// ```
+// Now, we pass this `FuzzDataView` to `FuzzUtil` to generate values within the
 // permissible range of the function under test:
-//..
+// ```
     int month = bslim::FuzzUtil::consumeNumberInRange<int>(&fdv,    1,   12);
     int year  = bslim::FuzzUtil::consumeNumberInRange<int>(&fdv, 1951, 2029);
     ASSERT(   1 <= month && month <=   12);
     ASSERT(1951 <= year  && year  <= 2029);
-//..
-// Finally, we can use these 'int' values to pass to a function that returns
+// ```
+// Finally, we can use these `int` values to pass to a function that returns
 // the number of earnings announcements scheduled in a given month.
-//..
+// ```
     int numEarnings =
         TradingInterfaceUnderTest::numEarningsAnnouncements(year, month);
     (void) numEarnings;
-//..
+// ```
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // METHOD 'consumeRandomLengthChars'
+        // METHOD `consumeRandomLengthChars`
         //
         // Concerns:
-        //: 1 That if the 'fuzzDataView' has fewer bytes than 'maxLength', we
-        //:   load at most 'fuzzDataView->length()' bytes into the 'output'.
-        //:
-        //: 2 That if the 'fuzzDataView' contains two successive backslash
-        //:   characters, they are converted to a single backslash character
-        //:   in the 'output'.
-        //:
-        //: 3 That if a single backslash character is encountered, the
-        //:   following byte, if there is one, is consumed, and further
-        //:   consumption is terminated.
-        //:
-        //: 4 That if 'consumeRandomLengthChars' is passed a 'maxLength'
-        //:   argument that is less than the length of the 'fuzzDataView', only
-        //:   a maximum of 'maxLength' bytes are returned.
-        //:
-        //: 5 That the function under test works properly for each of its
-        //:   overloaded types (i.e., 'bsl::vector<char>', 'std::vector<char>',
-        //:   and 'std::pmr::vector<char>').
+        // 1. That if the `fuzzDataView` has fewer bytes than `maxLength`, we
+        //    load at most `fuzzDataView->length()` bytes into the `output`.
+        //
+        // 2. That if the `fuzzDataView` contains two successive backslash
+        //    characters, they are converted to a single backslash character
+        //    in the `output`.
+        //
+        // 3. That if a single backslash character is encountered, the
+        //    following byte, if there is one, is consumed, and further
+        //    consumption is terminated.
+        //
+        // 4. That if `consumeRandomLengthChars` is passed a `maxLength`
+        //    argument that is less than the length of the `fuzzDataView`, only
+        //    a maximum of `maxLength` bytes are returned.
+        //
+        // 5. That the function under test works properly for each of its
+        //    overloaded types (i.e., `bsl::vector<char>`, `std::vector<char>`,
+        //    and `std::pmr::vector<char>`).
         //
         // Plan:
-        //: 1 Using a Generator Function with the table-driven technique:
-        //:
-        //:   1 Bring a 'fuzzDataView' into a state with a single byte
-        //:     remaining, request more than a single byte, and verify that
-        //:     a single byte was loaded into the 'output'.  (C-1)
-        //:
-        //:   2 Bring a 'fuzzDataView' into a state with two successive
-        //:     backslash characters as its beginning, and verify that they are
-        //:     converted into a single backslash in 'output'.  (C-2)
-        //:
-        //:   3 Bring a 'fuzzDataView' into a state with a single backslash
-        //:     character at or near its beginning, and verify that when the
-        //:     backslash is encountered, any following byte is consumed,
-        //:     and further consumption of bytes terminates.  Also, test the
-        //:     with a single backslash at the end.  (C-3)
-        //:
-        //:   4 Verify that invoking 'consumeRandomLengthChars' with a
-        //:     'maxLength' less than the length of the fuzz buffer produces
-        //:     a 'vector<char>' of no greater than 'maxLength'.  (C-4)
-        //:
-        //:   5 Construct three 'fuzzDataView' objects -- one each for
-        //:     'bsl::vector<char>', 'std::vector<char>', and
-        //:     'std::pmr::vector<char>' -- with the same underlying byte
-        //:     array, and verify that the above concerns are addressed in each
-        //:     case.  (C-5)
+        // 1. Using a Generator Function with the table-driven technique:
+        //
+        //   1. Bring a `fuzzDataView` into a state with a single byte
+        //      remaining, request more than a single byte, and verify that
+        //      a single byte was loaded into the `output`.  (C-1)
+        //
+        //   2. Bring a `fuzzDataView` into a state with two successive
+        //      backslash characters as its beginning, and verify that they are
+        //      converted into a single backslash in `output`.  (C-2)
+        //
+        //   3. Bring a `fuzzDataView` into a state with a single backslash
+        //      character at or near its beginning, and verify that when the
+        //      backslash is encountered, any following byte is consumed,
+        //      and further consumption of bytes terminates.  Also, test the
+        //      with a single backslash at the end.  (C-3)
+        //
+        //   4. Verify that invoking `consumeRandomLengthChars` with a
+        //      `maxLength` less than the length of the fuzz buffer produces
+        //      a `vector<char>` of no greater than `maxLength`.  (C-4)
+        //
+        //   5. Construct three `fuzzDataView` objects -- one each for
+        //      `bsl::vector<char>`, `std::vector<char>`, and
+        //      `std::pmr::vector<char>` -- with the same underlying byte
+        //      array, and verify that the above concerns are addressed in each
+        //      case.  (C-5)
         //
         // Testing:
         //   void consumeRandomLengthChars(bsl::vector<char>*,FDV*,maxLen);
@@ -500,7 +504,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         if (verbose)
             cout << endl
-                 << "METHOD 'consumeRandomLengthChars'" << endl
+                 << "METHOD `consumeRandomLengthChars`" << endl
                  << "=================================" << endl;
 
         static const struct {
@@ -595,53 +599,53 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // METHOD 'consumeRandomLengthString'
+        // METHOD `consumeRandomLengthString`
         //
         // Concerns:
-        //: 1 That if the 'fuzzDataView' has fewer bytes than 'maxLength', we
-        //:   load at most 'fuzzDataView->length()' bytes into the 'output'.
-        //:
-        //: 2 That if the 'fuzzDataView' contains two successive backslash
-        //:   characters, they are converted to a single backslash character
-        //:   in the 'output'.
-        //:
-        //: 3 That if a single backslash character is encountered, the
-        //:   following byte, if there is one, is consumed, and further
-        //:   consumption is terminated.
-        //:
-        //: 4 That if 'consumeRandomLengthString' is passed a 'maxLength'
-        //:   argument that is less than the length of the 'fuzzDataView', only
-        //:   a maximum of 'maxLength' bytes are returned.
-        //:
-        //: 5 That the function under test works properly for each of its
-        //:   overloaded types (i.e., 'bsl::string', 'std::string', and
-        //:   'std::pmr::string').
+        // 1. That if the `fuzzDataView` has fewer bytes than `maxLength`, we
+        //    load at most `fuzzDataView->length()` bytes into the `output`.
+        //
+        // 2. That if the `fuzzDataView` contains two successive backslash
+        //    characters, they are converted to a single backslash character
+        //    in the `output`.
+        //
+        // 3. That if a single backslash character is encountered, the
+        //    following byte, if there is one, is consumed, and further
+        //    consumption is terminated.
+        //
+        // 4. That if `consumeRandomLengthString` is passed a `maxLength`
+        //    argument that is less than the length of the `fuzzDataView`, only
+        //    a maximum of `maxLength` bytes are returned.
+        //
+        // 5. That the function under test works properly for each of its
+        //    overloaded types (i.e., `bsl::string`, `std::string`, and
+        //    `std::pmr::string`).
         //
         // Plan:
-        //: 1 Using a Generator Function with the table-driven technique:
-        //:
-        //:   1 Bring a 'fuzzDataView' into a state with a single byte
-        //:     remaining, request more than a single byte, and verify that
-        //:     a single byte was loaded into the 'output'.  (C-1)
-        //:
-        //:   2 Bring a 'fuzzDataView' into a state with two successive
-        //:     backslash characters as its beginning, and verify that they are
-        //:     converted into a single backslash in 'output'.  (C-2)
-        //:
-        //:   3 Bring a 'fuzzDataView' into a state with a single backslash
-        //:     character at or near its beginning, and verify that when the
-        //:     backslash is encountered, any following byte is consumed,
-        //:     and further consumption of bytes terminates.  Also, test the
-        //:     with a single backslash at the end.  (C-3)
-        //:
-        //:   4 Verify that invoking 'consumeRandomLengthString' with a
-        //:     'maxLength' less than the length of the fuzz buffer produces
-        //:     a string of no greater than 'maxLength'.  (C-4)
-        //:
-        //:   5 Construct three 'fuzzDataView' objects -- one each for
-        //:     'bsl::string', 'std::string', and 'std::pmr::string' -- with
-        //:     the same underlying byte array, and verify that the above
-        //:     concerns are addressed in each case.  (C-5)
+        // 1. Using a Generator Function with the table-driven technique:
+        //
+        //   1. Bring a `fuzzDataView` into a state with a single byte
+        //      remaining, request more than a single byte, and verify that
+        //      a single byte was loaded into the `output`.  (C-1)
+        //
+        //   2. Bring a `fuzzDataView` into a state with two successive
+        //      backslash characters as its beginning, and verify that they are
+        //      converted into a single backslash in `output`.  (C-2)
+        //
+        //   3. Bring a `fuzzDataView` into a state with a single backslash
+        //      character at or near its beginning, and verify that when the
+        //      backslash is encountered, any following byte is consumed,
+        //      and further consumption of bytes terminates.  Also, test the
+        //      with a single backslash at the end.  (C-3)
+        //
+        //   4. Verify that invoking `consumeRandomLengthString` with a
+        //      `maxLength` less than the length of the fuzz buffer produces
+        //      a string of no greater than `maxLength`.  (C-4)
+        //
+        //   5. Construct three `fuzzDataView` objects -- one each for
+        //      `bsl::string`, `std::string`, and `std::pmr::string` -- with
+        //      the same underlying byte array, and verify that the above
+        //      concerns are addressed in each case.  (C-5)
         //
         // Testing:
         //   void consumeRandomLengthString(bsl::string*,FDV*,maxLen);
@@ -650,7 +654,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         if (verbose)
             cout << endl
-                 << "METHOD 'consumeRandomLengthString'" << endl
+                 << "METHOD `consumeRandomLengthString`" << endl
                  << "==================================" << endl;
 
         static const struct {
@@ -744,38 +748,38 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // METHOD 'consumeNumberInRange<FLOATING_POINT>'
+        // METHOD `consumeNumberInRange<FLOATING_POINT>`
         //
         // Concerns:
-        //: 1 The value returned is within the specified range.
-        //:
-        //: 2 The method under test works for different floating point types
-        //:   (i.e., 'float', 'double').
-        //:
-        //: 3 If 0 bytes are available in the 'FuzzDataView', 'min' is
-        //:   returned.
-        //:
-        //: 4 The number of bytes consumed is at most '1 + sizeof(TYPE)'.
-        //:
-        //: 5 The values returned are distributed uniformly within the range.
+        // 1. The value returned is within the specified range.
+        //
+        // 2. The method under test works for different floating point types
+        //    (i.e., `float`, `double`).
+        //
+        // 3. If 0 bytes are available in the `FuzzDataView`, `min` is
+        //    returned.
+        //
+        // 4. The number of bytes consumed is at most `1 + sizeof(TYPE)`.
+        //
+        // 5. The values returned are distributed uniformly within the range.
         //
         // Plan:
-        //: 1 Using the table-driven approach, define a representative set of
-        //:   valid inputs.  Verify that the function returns values within
-        //:   the specified range.  (C-1).
-        //:
-        //: 2 Use the above approach for 'double' and 'float'.  (C-2)
-        //:
-        //: 3 Verify that, if there are 0 bytes to consume, the value returned
-        //:   is 'min'.  (C-3)
-        //:
-        //: 4 Check that the number of bytes consumed is what is expected.
-        //:   (C-4)
-        //:
-        //: 5 Perform a basic statistical test on the output values to
-        //:   determine if they are distributed uniformly. The results will
-        //:   vary depending upon the sample size and the actual fuzz data
-        //:   used.  (C-5)
+        // 1. Using the table-driven approach, define a representative set of
+        //    valid inputs.  Verify that the function returns values within
+        //    the specified range.  (C-1).
+        //
+        // 2. Use the above approach for `double` and `float`.  (C-2)
+        //
+        // 3. Verify that, if there are 0 bytes to consume, the value returned
+        //    is `min`.  (C-3)
+        //
+        // 4. Check that the number of bytes consumed is what is expected.
+        //    (C-4)
+        //
+        // 5. Perform a basic statistical test on the output values to
+        //    determine if they are distributed uniformly. The results will
+        //    vary depending upon the sample size and the actual fuzz data
+        //    used.  (C-5)
         //
         // Testing:
         //   TYPE consumeNumberInRange<FLOATING_POINT>(FDV *, min, max);
@@ -783,7 +787,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "METHOD 'consumeNumberInRange<FLOATING_POINT>'" << endl
+                 << "METHOD `consumeNumberInRange<FLOATING_POINT>`" << endl
                  << "=============================================" << endl;
 
         {
@@ -795,9 +799,9 @@ int main(int argc, char *argv[])
             static const struct {
                 int                 d_line;      // source line number
                 bsl::size_t         d_numBytes;  // number of bytes passed
-                                                 //   to the 'FuzzDataView'
-                double              d_min;       // 'min' method argument
-                double              d_max;       // 'max' method argument
+                                                 //   to the `FuzzDataView`
+                double              d_min;       // `min` method argument
+                double              d_max;       // `max` method argument
                 size_t              d_expBytes;  // num expected bytes consumed
             } DATA[] = {
                 //LINE     NUM_BYTES     MIN             MAX   EXP
@@ -847,9 +851,9 @@ int main(int argc, char *argv[])
             static const struct {
                 int                 d_line;      // source line number
                 size_t              d_numBytes;  // number of bytes passed
-                                                 //   to the 'FuzzDataView'
-                float               d_min;       // 'min' method argument
-                float               d_max;       // 'max' method argument
+                                                 //   to the `FuzzDataView`
+                float               d_min;       // `min` method argument
+                float               d_max;       // `max` method argument
             } DATA[] = {//LINE     NUM_BYTES     MIN             MAX
                         //----     ---------     ---             ---
                         {L_,          0,         0,              0},
@@ -901,38 +905,38 @@ int main(int argc, char *argv[])
             mean /= NUM_TIMES;
             variance = (variance - mean * mean * NUM_TIMES) / NUM_TIMES;
             if (veryVerbose) {
-                // If uniformly distributed, 'mean' should be ~.5 and
-                // 'variance' should be ~.083.
+                // If uniformly distributed, `mean` should be ~.5 and
+                // `variance` should be ~.083.
                 T_ P_(mean) P_(variance) P(NUM_TIMES);
             }
         }
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // METHOD 'consumeNumber<FLOATING_POINT>'
+        // METHOD `consumeNumber<FLOATING_POINT>`
         //
         // Concerns:
-        //: 1 The method under test works for different floating point types
-        //:   (i.e., 'double', 'float').
-        //:
-        //: 2 If 0 bytes are available in the 'FuzzDataView',
-        //:   '-bsl::numeric_limits<TYPE>::max()' returned.
-        //:
-        //: 3 The number of bytes consumed is <= the size of the view.
-        //:
-        //: 4 The number of bytes consumed is at most '1 + sizeof(TYPE)'.
+        // 1. The method under test works for different floating point types
+        //    (i.e., `double`, `float`).
+        //
+        // 2. If 0 bytes are available in the `FuzzDataView`,
+        //    `-bsl::numeric_limits<TYPE>::max()` returned.
+        //
+        // 3. The number of bytes consumed is <= the size of the view.
+        //
+        // 4. The number of bytes consumed is at most `1 + sizeof(TYPE)`.
         //
         // Plan:
-        //: 1 Generate 1024 random bytes in a buffer. Using the random data,
-        //:   consume an integer between 0 .. 15 (for 'double') and 0 .. 7 (for
-        //:   'float') and to pass as the length of the view. This enables
-        //:   testing of proper behavior when fewer or greater bytes are
-        //:   available.  (C-1)
-        //:
-        //: 2 If there are 0 bytes to consume, verify tha the value returned
-        //:   is '-bsl::numeric_limits<TYPE>::max()'.  (C-2)
-        //:
-        //: 3 Check that the number of bytes consumed is what is expected.
+        // 1. Generate 1024 random bytes in a buffer. Using the random data,
+        //    consume an integer between 0 .. 15 (for `double`) and 0 .. 7 (for
+        //    `float`) and to pass as the length of the view. This enables
+        //    testing of proper behavior when fewer or greater bytes are
+        //    available.  (C-1)
+        //
+        // 2. If there are 0 bytes to consume, verify tha the value returned
+        //    is `-bsl::numeric_limits<TYPE>::max()`.  (C-2)
+        //
+        // 3. Check that the number of bytes consumed is what is expected.
         //    (C-3, C-4)
         //
         // Testing:
@@ -941,7 +945,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "METHOD 'consumeNumber<FLOATING_POINT>'" << endl
+                 << "METHOD `consumeNumber<FLOATING_POINT>`" << endl
                  << "======================================" << endl;
         {
             // Double
@@ -1004,28 +1008,28 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // METHOD 'consumeBool'
+        // METHOD `consumeBool`
         //
         // Concerns:
-        //: 1 The method under test returns the expected value.  (C-1)
-        //:
-        //: 2 If 'FuzzDataView' is not empty, exactly one byte is consumed.
-        //:   (C-2)
-        //:
-        //: 3 If the 'FuzzDataView' is empty, the method returns 'false'.
-        //:    (C-3)
+        // 1. The method under test returns the expected value.  (C-1)
+        //
+        // 2. If `FuzzDataView` is not empty, exactly one byte is consumed.
+        //    (C-2)
+        //
+        // 3. If the `FuzzDataView` is empty, the method returns `false`.
+        //     (C-3)
         //
         // Plan:
-        //: 1 Using the table-driven approach, define a set of inputs and
-        //:   verify that the function returns the expected values.
-        //:   (C-1).
-        //:
-        //: 2 Verify that the number of bytes in the view decreases by exactly
-        //:   one after invoking the method under test.  (C-2)
-        //:
-        //: 3 Verify that when a 'FuzzDataView' with 'length() ==0' is passed
-        //:   to the method that the resulting value is 'false'.
-        //:   (C-3)
+        // 1. Using the table-driven approach, define a set of inputs and
+        //    verify that the function returns the expected values.
+        //    (C-1).
+        //
+        // 2. Verify that the number of bytes in the view decreases by exactly
+        //    one after invoking the method under test.  (C-2)
+        //
+        // 3. Verify that when a `FuzzDataView` with `length() ==0` is passed
+        //    to the method that the resulting value is `false`.
+        //    (C-3)
         //
         // Testing:
         //   bool consumeBool(FDV *);
@@ -1033,7 +1037,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "METHOD 'consumeBool'" << endl
+                 << "METHOD `consumeBool`" << endl
                  << "====================" << endl;
 
         const bsl::size_t NUM_ITERATIONS = 256;
@@ -1060,27 +1064,27 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // METHOD 'consumeNumber<INTEGRAL>'
+        // METHOD `consumeNumber<INTEGRAL>`
         //
         // Concerns:
-        //: 1 The method under test works for all integral types.
-        //:
-        //: 2 The method under test consumes the appropriate number of bytes
-        //:   for any type (e.g., for type 'int', the method consumes 4 bytes;
-        //:   'char', the method consumes 1 byte, etc.).
+        // 1. The method under test works for all integral types.
+        //
+        // 2. The method under test consumes the appropriate number of bytes
+        //    for any type (e.g., for type `int`, the method consumes 4 bytes;
+        //    `char`, the method consumes 1 byte, etc.).
         //
         // Plan:
-        //: 1 Perform the tests for all integral types.  (C-1)
-        //:
-        //: 2 Verify that, when consuming an 'int', 4 bytes are consumed; and
-        //:   for a 'char', 1 byte is consumed, and so on.  (C-2)
+        // 1. Perform the tests for all integral types.  (C-1)
+        //
+        // 2. Verify that, when consuming an `int`, 4 bytes are consumed; and
+        //    for a `char`, 1 byte is consumed, and so on.  (C-2)
         //
         // Testing:
         //   TYPE consumeNumber<INTEGRAL>(FDV *);
         // --------------------------------------------------------------------
         if (verbose)
             cout << endl
-                 << "METHOD 'consumeNumber<INTEGRAL>'" << endl
+                 << "METHOD `consumeNumber<INTEGRAL>`" << endl
                  << "================================" << endl;
 
         RUN_EACH_TYPE(ConsumeIntegralTest,
@@ -1099,34 +1103,34 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // METHOD 'consumeNumberInRange<INTEGRAL>'
+        // METHOD `consumeNumberInRange<INTEGRAL>`
         //
         // Concerns:
-        //: 1 The value returned is within the specified range.
-        //:
-        //: 2 The method under test works for all integral types (N.B. it is
-        //:   explicitely disallowed for 'bool').
-        //:
-        //: 3 If 0 bytes are available in the 'FuzzDataView', 'min' is
-        //:   returned.
-        //:
-        //: 4 Only the number of bytes necessary to produce a value in the
-        //:   range are consumed.
+        // 1. The value returned is within the specified range.
+        //
+        // 2. The method under test works for all integral types (N.B. it is
+        //    explicitely disallowed for `bool`).
+        //
+        // 3. If 0 bytes are available in the `FuzzDataView`, `min` is
+        //    returned.
+        //
+        // 4. Only the number of bytes necessary to produce a value in the
+        //    range are consumed.
         //
         // Plan:
-        //: 1 Using the table-driven approach, define a representative set of
-        //:   valid inputs.  Then, using a templated function,
-        //:   'ConsumeIntegralTest<INTEGRAL>::testConsumeIntegralInRange',
-        //:   verify that the function under test returns values within the
-        //:   specified range for each integral type.  (C-1).
-        //:
-        //: 2 Perform the tests for all integral types.  (C-2)
-        //:
-        //: 3 Verify that, if there are 0 bytes to consume, the value returned
-        //:   is 'min'.  (C-3)
-        //:
-        //: 4 Verify that, only enough bytes to produce a value within the
-        //:   range are consumed.  (C-4)
+        // 1. Using the table-driven approach, define a representative set of
+        //    valid inputs.  Then, using a templated function,
+        //    `ConsumeIntegralTest<INTEGRAL>::testConsumeIntegralInRange`,
+        //    verify that the function under test returns values within the
+        //    specified range for each integral type.  (C-1).
+        //
+        // 2. Perform the tests for all integral types.  (C-2)
+        //
+        // 3. Verify that, if there are 0 bytes to consume, the value returned
+        //    is `min`.  (C-3)
+        //
+        // 4. Verify that, only enough bytes to produce a value within the
+        //    range are consumed.  (C-4)
         //
         // Testing:
         //   TYPE consumeNumberInRange<INTEGRAL>(FDV *, min, max);
@@ -1134,7 +1138,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "METHOD 'consumeNumberInRange<INTEGRAL>'" << endl
+                 << "METHOD `consumeNumberInRange<INTEGRAL>`" << endl
                  << "=======================================" << endl;
         {
             if (verbose) cout << endl << "<int>" << endl;
@@ -1449,20 +1453,20 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING GENERATOR FUNCTION 'ggg'
+        // TESTING GENERATOR FUNCTION `ggg`
         //
         // Concerns:
-        //: 1 That valid generator syntax produces expected results.
-        //:
-        //: 2 That invalid syntax is detected and reported. This includes
-        //:   invalid specifications as well as not enough buffer space.
+        // 1. That valid generator syntax produces expected results.
+        //
+        // 2. That invalid syntax is detected and reported. This includes
+        //    invalid specifications as well as not enough buffer space.
         //
         // Plan:
-        //: 1 For each of an enumerated sequence of 'spec' values, use the
-        //:   generator function 'ggg' to set the state of a buffer.  The first
-        //:   set of tests employ valid 'spec' values, and the second set
-        //:   employ invalid 'spec' values.  Verify that 'ggg' returns a status
-        //:   as expected.  (C-1, C-2)
+        // 1. For each of an enumerated sequence of `spec` values, use the
+        //    generator function `ggg` to set the state of a buffer.  The first
+        //    set of tests employ valid `spec` values, and the second set
+        //    employ invalid `spec` values.  Verify that `ggg` returns a status
+        //    as expected.  (C-1, C-2)
         //
         // Testing:
         //   void gg(vector<uint8_t> *buf, string_view& spec);
@@ -1470,14 +1474,14 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         if (verbose)
             cout << endl
-                 << "TESTING GENERATOR FUNCTION 'ggg'" << endl
+                 << "TESTING GENERATOR FUNCTION `ggg`" << endl
                  << "================================" << endl;
 
         static const struct {
             int              d_lineNum;  // source line number
             bsl::string_view d_spec;     // specification string
-            const bool       d_isValid;  // is valid generator 'spec'
-            bsl::string_view d_expected; // expected output from 'gg'
+            const bool       d_isValid;  // is valid generator `spec`
+            bsl::string_view d_expected; // expected output from `gg`
         } DATA[] = {
 #define makeSV makeStringView
             //LINE      SPEC           VALID     EXPECTED
@@ -1528,11 +1532,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform a test of the primary utilities.
+        // 1. Perform a test of the primary utilities.
         //
         // Testing:
         //   BREATHING TEST
@@ -1555,7 +1559,7 @@ int main(int argc, char *argv[])
             ASSERT(1024 == fdv.length());
 
             if (veryVerbose) {
-                cout << "Testing 'consumeNumberInRange<INTEGRAL>' 0, 0"
+                cout << "Testing `consumeNumberInRange<INTEGRAL>` 0, 0"
                      << endl;
                 cout << "\tfdv.length(): " << fdv.length() << endl;
             }
@@ -1568,7 +1572,7 @@ int main(int argc, char *argv[])
             }
 
             if (veryVerbose) {
-                cout << "Testing 'consumeNumberInRange<INTEGRAL>' 1, 1000"
+                cout << "Testing `consumeNumberInRange<INTEGRAL>` 1, 1000"
                      << endl;
                 cout << "\tfdv.length(): " << fdv.length() << endl;
             }
@@ -1581,7 +1585,7 @@ int main(int argc, char *argv[])
             }
 
             if (veryVerbose) {
-                cout << "Testing 'consumeNumberInRange<INTEGRAL>' -1000, 1"
+                cout << "Testing `consumeNumberInRange<INTEGRAL>` -1000, 1"
                      << endl;
                 cout << "\tfdv.length(): " << fdv.length() << endl;
             }
@@ -1594,13 +1598,13 @@ int main(int argc, char *argv[])
             }
 
             if (veryVerbose) {
-                cout << "Testing 'consumeNumberInRange<INTEGRAL>' -10000, "
+                cout << "Testing `consumeNumberInRange<INTEGRAL>` -10000, "
                         "-1000"
                      << endl;
                 cout << "\tfdv.length(): " << fdv.length() << endl;
             }
             for (int j = 0; j < testIters; ++j) {
-                // both 'min' and 'max' are negative
+                // both `min` and `max` are negative
                 int i = Util::consumeNumberInRange<int>(&fdv, -10000, -1000);
                 ASSERT(-1000 >= i && -10000 <= i);
                 if (veryVeryVerbose) {
@@ -1612,7 +1616,7 @@ int main(int argc, char *argv[])
             bslim::FuzzDataView fdv(KB_DATA, sizeof(KB_DATA));
 
             if (veryVerbose) {
-                cout << "Testing 'consumeNumber<INTEGRAL>'" << endl;
+                cout << "Testing `consumeNumber<INTEGRAL>`" << endl;
                 cout << "\tfdv.length(): " << fdv.length() << endl;
             }
 
@@ -1626,7 +1630,7 @@ int main(int argc, char *argv[])
         {
             bslim::FuzzDataView fdv(smallData, 0);
             if (veryVerbose) {
-                cout << "Testing 'consumeNumber<INTEGRAL>' with 0 byte "
+                cout << "Testing `consumeNumber<INTEGRAL>` with 0 byte "
                         "buffer: "
                      << endl;
                 cout << "\tfdv.length(): " << fdv.length() << endl;
@@ -1637,7 +1641,7 @@ int main(int argc, char *argv[])
         }
         {
             if (veryVerbose) {
-                cout << "Testing 'consumeNumber<INTEGRAL>' with 3 byte "
+                cout << "Testing `consumeNumber<INTEGRAL>` with 3 byte "
                         "buffer: "
                      << endl;
             }
@@ -1648,7 +1652,7 @@ int main(int argc, char *argv[])
         }
         {
             if (veryVerbose) {
-                cout << "Testing 'consumeNumber<FLOATING_POINT>' with 0 byte "
+                cout << "Testing `consumeNumber<FLOATING_POINT>` with 0 byte "
                         "buffer: "
                      << endl;
             }
@@ -1659,7 +1663,7 @@ int main(int argc, char *argv[])
         }
         {
             if (veryVerbose) {
-                cout << "Testing 'consumeNumber<FLOATING_POINT>' with 3 byte "
+                cout << "Testing `consumeNumber<FLOATING_POINT>` with 3 byte "
                         "buffer: "
                      << endl;
             }
@@ -1670,7 +1674,7 @@ int main(int argc, char *argv[])
         }
         {
             if (veryVerbose) {
-                cout << "Testing creation of a 'bsl::string': " << endl;
+                cout << "Testing creation of a `bsl::string`: " << endl;
             }
             bslim::FuzzDataView fdv(stringData, sizeof(stringData));
             bslim::FuzzDataView v2 = fdv.removePrefix(3);
@@ -1681,7 +1685,7 @@ int main(int argc, char *argv[])
         }
         {
             if (veryVerbose) {
-                cout << "Testing 'consumeNumber<FLOATING_POINT>': " << endl;
+                cout << "Testing `consumeNumber<FLOATING_POINT>`: " << endl;
             }
             bslim::FuzzDataView fdv(KB_DATA, sizeof(KB_DATA));
             double              d = Util::consumeNumber<double>(&fdv);
@@ -1692,7 +1696,7 @@ int main(int argc, char *argv[])
         {
             if (veryVerbose) {
                 cout << "Testing removing all remaining bytes and creating "
-                        "'bsl::vector': "
+                        "`bsl::vector`: "
                      << endl;
             }
             bslim::FuzzDataView        fdv(KB_DATA, sizeof(KB_DATA));
@@ -1709,7 +1713,7 @@ int main(int argc, char *argv[])
         }
         {
             if (veryVerbose) {
-                cout << "Testing 'consumeRandomLengthString': " << endl;
+                cout << "Testing `consumeRandomLengthString`: " << endl;
             }
             bslim::FuzzDataView fdv(KB_DATA, sizeof(KB_DATA));
             bsl::string s;
@@ -1721,7 +1725,7 @@ int main(int argc, char *argv[])
         }
         {
             if (veryVerbose) {
-                cout << "Testing 'consumeRandomLengthChars': " << endl;
+                cout << "Testing `consumeRandomLengthChars`: " << endl;
             }
             bslim::FuzzDataView fdv(KB_DATA, sizeof(KB_DATA));
             bsl::vector<char> v;
@@ -1736,32 +1740,32 @@ int main(int argc, char *argv[])
 #if defined(BDE_BUILD_TARGET_ASAN)
       case -1: {
         // --------------------------------------------------------------------
-        // NEGATIVE ASAN TEST 'consumeRandomLengthChars'
+        // NEGATIVE ASAN TEST `consumeRandomLengthChars`
         //
         // Concerns:
-        //: 1 That ASan will detect overruns when a 'string_view' generated
-        //:   from a 'vector' returned by 'consumeRandomLengthChars' is
-        //:   accessed.
+        // 1. That ASan will detect overruns when a `string_view` generated
+        //    from a `vector` returned by `consumeRandomLengthChars` is
+        //    accessed.
         //
         // Plan:
-        //: 1 Implement a rudimentary version of 'strlen' and pass it a
-        //:   'string_view' obtained from a 'vector' returned by
-        //:   'consumeRandomLengthChars'.
-        //:
-        //:   1 Create a buffer and use it to construct a 'FuzzDataView'.
-        //:
-        //:   2 Fill a 'vector' using 'consumeRandomLengthChars'.
-        //:
-        //:   3 Create a 'string_view' from this 'vector'.
-        //:
-        //:   4 Verify that ASan catches the attempt to access beyond the end
-        //:     of 'vector'.
+        // 1. Implement a rudimentary version of `strlen` and pass it a
+        //    `string_view` obtained from a `vector` returned by
+        //    `consumeRandomLengthChars`.
+        //
+        //   1. Create a buffer and use it to construct a `FuzzDataView`.
+        //
+        //   2. Fill a `vector` using `consumeRandomLengthChars`.
+        //
+        //   3. Create a `string_view` from this `vector`.
+        //
+        //   4. Verify that ASan catches the attempt to access beyond the end
+        //      of `vector`.
         //
         // Testing:
         //   void consumeRandomLengthChars(bsl::vector<char>*,FDV*,maxLen);
         // --------------------------------------------------------------------
         if (verbose)
-            cout << "NEGATIVE ASAN TEST 'consumeRandomLengthChars'" << endl
+            cout << "NEGATIVE ASAN TEST `consumeRandomLengthChars`" << endl
                  << "=============================================" << endl;
         uint8_t ASAN_DATA[] = {0x41, 0x53, 0x41, 0x4E};
 
@@ -1770,7 +1774,7 @@ int main(int argc, char *argv[])
         Util::consumeRandomLengthChars(&v, &fdv, sizeof(ASAN_DATA));
         bsl::string_view sv(v.data(), v.size());
 
-        // rudimentary 'strlen'
+        // rudimentary `strlen`
         const char *c = sv.data();
         while (*c) {
             c++;

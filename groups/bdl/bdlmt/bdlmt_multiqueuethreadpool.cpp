@@ -28,15 +28,15 @@ BSLS_IDENT_RCSID(bdlmt_multiqueuethreadpool_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace {
 
+/// Construct at the specified `arena` a `bdlmt::MultiQueueThreadPool_Queue`
+/// initialized with the specified `multiQueueThreadPool` and using the
+/// specified `allocator`.  Note that this function may be used as the
+/// function required for the non-default object creation in
+/// `bdlcc::ObjectPool`.
 void createMultiQueueThreadPool_Queue(
                              void                        *arena,
                              bslma::Allocator            *allocator,
                              bdlmt::MultiQueueThreadPool *multiQueueThreadPool)
-    // Construct at the specified 'arena' a 'bdlmt::MultiQueueThreadPool_Queue'
-    // initialized with the specified 'multiQueueThreadPool' and using the
-    // specified 'allocator'.  Note that this function may be used as the
-    // function required for the non-default object creation in
-    // 'bdlcc::ObjectPool'.
 {
     new (arena) bdlmt::MultiQueueThreadPool_Queue(multiQueueThreadPool,
                                                   allocator);

@@ -27,10 +27,10 @@ using namespace BloombergLP;
 //                                  --------
 // The component under test is a standards-conformant hashing algorithm
 // functor.  The component will be tested for conformance to the interface
-// requirements on 'std::hash', outlined in the C++ Standard.  The output of
+// requirements on `std::hash`, outlined in the C++ Standard.  The output of
 // the component will also be tested to check that it matches the expected
 // output of the underlying hashing algorithms.  This component also contains
-// 'hashAppend' free functions written for fundamental types.  These free
+// `hashAppend` free functions written for fundamental types.  These free
 // functions will be tested to ensure they properly pass data into the hashing
 // algorithms they are given.
 //-----------------------------------------------------------------------------
@@ -146,19 +146,19 @@ void aSsErT(bool condition, const char *message, int line)
 //                  PLATFORM SPECIFIC TEST SUPPORT MACROS
 // ----------------------------------------------------------------------------
 
+/// `operator++` is supported for `bool` variables (but deprecated) in early
+/// C++ dialects (including the original 1998 standard) and support is
+/// finally removed in C++17.  Define this macro to retain positive-sense of
+/// feature tests, just like for `BSLS_COMPILERFEATURES` macros, where this
+/// support should migrate if we ever find a second use-case for such a
+/// macro.  Prefer to keep this work-around macro local to one component
+/// though, than provide a public feature that may be misinterpreted as
+/// promoting the use of `operator++` on `bool` variables.
 #define BSLS_HASH_HAS_BOOL_INCREMENT                           1
-    // 'operator++' is supported for 'bool' variables (but deprecated) in early
-    // C++ dialects (including the original 1998 standard) and support is
-    // finally removed in C++17.  Define this macro to retain positive-sense of
-    // feature tests, just like for 'BSLS_COMPILERFEATURES' macros, where this
-    // support should migrate if we ever find a second use-case for such a
-    // macro.  Prefer to keep this work-around macro local to one component
-    // though, than provide a public feature that may be misinterpreted as
-    // promoting the use of 'operator++' on 'bool' variables.
 
 #if __cplusplus >= 201703L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L)
     // Microsoft does not always report the language dialect properly in the
-    // '__cplusplus' macro, therefore we need to use the Microsoft specific
+    // `__cplusplus` macro, therefore we need to use the Microsoft specific
     // predefined macro.  See https://goo.gl/ikfyDw and
     // https://docs.microsoft.com/en-us/cpp/preprocessor/predefined-macros
 # undef BSLS_HASH_HAS_BOOL_INCREMENT
@@ -174,22 +174,23 @@ void aSsErT(bool condition, const char *message, int line)
 //
 ///Example 1: Keying a hash table with a user defined type
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we have a value-semantic type, 'Box', that contains attributes that
+// Suppose we have a value-semantic type, `Box`, that contains attributes that
 // are salient to hashing as well as attributes that are not salient to
 // hashing.  Some of these attributes are themselves user defined types.  We
-// want to store objects of type 'Box' in a hash table, so we need to be able
-// to produce hash values that represent instances of 'Box'.  We don't want to
+// want to store objects of type `Box` in a hash table, so we need to be able
+// to produce hash values that represent instances of `Box`.  We don't want to
 // write our own hashing or hash combine algorithm, because we know it is very
 // difficult and labor-intensive to write a proper hashing algorithm.  In order
-// to hash this 'Box', we will use the modular hashing system supplied in
-// 'bslh'.
+// to hash this `Box`, we will use the modular hashing system supplied in
+// `bslh`.
 //
-// First, we define 'Point', a class that allows us to identify a location on a
+// First, we define `Point`, a class that allows us to identify a location on a
 // two dimensional Cartesian plane.
-//..
+// ```
+
+    /// This class is a value-semantic type that represents a two
+    /// dimensional location on a Cartesian plane.
     class Point {
-        // This class is a value-semantic type that represents a two
-        // dimensional location on a Cartesian plane.
 
       private:
         int    d_x;
@@ -199,17 +200,17 @@ void aSsErT(bool condition, const char *message, int line)
                                // time.
 
       public:
+        /// Create a `Point` having the specified `x` and `y` coordinates.
         Point (int x, int y);
-            // Create a 'Point' having the specified 'x' and 'y' coordinates.
 
+        /// Return the distance from the origin (0, 0) to this point.
         double distanceToOrigin() const;
-            // Return the distance from the origin (0, 0) to this point.
 
+        /// Return the x coordinate of this point.
         int getX() const;
-            // Return the x coordinate of this point.
 
+        /// Return the y coordinate of this point.
         int getY() const;
-            // Return the y coordinate of this point.
     };
 
     inline
@@ -238,42 +239,45 @@ void aSsErT(bool condition, const char *message, int line)
     {
         return d_y;
     }
-//..
-// Then, we define 'operator=='.  Notice how it checks only attributes that we
+// ```
+// Then, we define `operator==`.  Notice how it checks only attributes that we
 // would want to incorporate into the hashed value.  Note that attributes that
 // are salient to hashing tend to be the same as or a subset of the attributes
-// that are checked in 'operator=='.
-//..
+// that are checked in `operator==`.
+// ```
+
+    /// Return true if the specified `lhs` and `rhs` have the same value.
+    /// Two `Point` objects have the same value if they have the same x and
+    /// y coordinates.
     bool operator==(const Point& lhs, const Point& rhs)
-        // Return true if the specified 'lhs' and 'rhs' have the same value.
-        // Two 'Point' objects have the same value if they have the same x and
-        // y coordinates.
     {
         return (lhs.getX() == rhs.getX()) && (lhs.getY() == rhs.getY());
     }
-//..
-// Next, we define 'hashAppend'.  This function will allow any hashing
-// algorithm that meets the 'bslh' hashing algorithm requirements to be applied
-// to 'Point'.  This is the full extent of the work that needs to be done by
+// ```
+// Next, we define `hashAppend`.  This function will allow any hashing
+// algorithm that meets the `bslh` hashing algorithm requirements to be applied
+// to `Point`.  This is the full extent of the work that needs to be done by
 // type creators.  They do not need to implement any algorithms, they just need
 // to call out the attributes that are salient to hashing by calling
-// 'hashAppend' on them.
-//..
+// `hashAppend` on them.
+// ```
+
+    /// Apply the specified `hashAlg` to the specified `point`
     template <class HASH_ALGORITHM>
     void hashAppend(HASH_ALGORITHM& hashAlg, const Point& point)
-        // Apply the specified 'hashAlg' to the specified 'point'
     {
         using bslh::hashAppend;
         hashAppend(hashAlg, point.getX());
         hashAppend(hashAlg, point.getY());
     }
-//..
-// Then, we declare another value-semantic type, 'Box' that will have a 'Point'
+// ```
+// Then, we declare another value-semantic type, `Box` that will have a `Point`
 // as one of its attributes that are salient to hashing.
-//..
+// ```
+
+    /// This class is a value-semantic type that represents a box drawn on
+    /// to a Cartesian plane.
     class Box {
-        // This class is a value-semantic type that represents a box drawn on
-        // to a Cartesian plane.
 
       private:
         Point d_position;
@@ -281,19 +285,19 @@ void aSsErT(bool condition, const char *message, int line)
         int d_width;
 
       public:
+        /// Create a box having the specified `length` and `width`, with its
+        /// upper left corner at the specified `position`
         Box(Point position, int length, int width);
-            // Create a box having the specified 'length' and 'width', with its
-            // upper left corner at the specified 'position'
 
+        /// Return the length of this box.
         int getLength() const;
-            // Return the length of this box.
 
+        /// Return a `Point` representing the upper left corner of this box
+        /// on a Cartesian plane
         Point getPosition() const;
-            // Return a 'Point' representing the upper left corner of this box
-            // on a Cartesian plane
 
+        /// Return the width of this box.
         int getWidth() const;
-            // Return the width of this box.
     };
 
     inline
@@ -316,104 +320,110 @@ void aSsErT(bool condition, const char *message, int line)
     {
         return d_width;
     }
-//..
-// Then, we define 'operator=='.  This time all of the data members are salient
+// ```
+// Then, we define `operator==`.  This time all of the data members are salient
 // to equality.
-//..
+// ```
+
+    /// Return true if the specified `lhs` and `rhs` have the same value.
+    /// Two `Box` objects have the same value if they have the same length,
+    /// width, and position.
     bool operator==(const Box& lhs, const Box& rhs)
-        // Return true if the specified 'lhs' and 'rhs' have the same value.
-        // Two 'Box' objects have the same value if they have the same length,
-        // width, and position.
     {
         return (lhs.getPosition() == rhs.getPosition()) &&
                (lhs.getLength()   == rhs.getLength()) &&
                (lhs.getWidth()    == rhs.getWidth());
     }
-//..
-// Next, we define 'hashAppend' for 'Box'.  Notice how as well as calling
-// 'hashAppend' on fundamental types, we can also call it with our user defined
-// type 'Point'.  Calling 'hashAppend' with 'Point' will propogate a reference
-// to the hashing algorithm functor 'hashAlg' down to the fundamental types
-// that make up 'Point', and those types will then be passed into the
+// ```
+// Next, we define `hashAppend` for `Box`.  Notice how as well as calling
+// `hashAppend` on fundamental types, we can also call it with our user defined
+// type `Point`.  Calling `hashAppend` with `Point` will propogate a reference
+// to the hashing algorithm functor `hashAlg` down to the fundamental types
+// that make up `Point`, and those types will then be passed into the
 // referenced algorithm functor.
-//..
+// ```
+
+    /// Apply the specified `hashAlg` to the specified `box`
     template <class HASH_ALGORITHM>
     void hashAppend(HASH_ALGORITHM& hashAlg, const Box& box)
-        // Apply the specified 'hashAlg' to the specified 'box'
     {
         using bslh::hashAppend;
         hashAppend(hashAlg, box.getPosition());
         hashAppend(hashAlg, box.getLength());
         hashAppend(hashAlg, box.getWidth());
     }
-//..
+// ```
 // Then, we declare our hash table (implementation elided).  We simplify the
 // problem by requiring the caller to supply an array.  Our hash table takes
-// two type parameters: 'TYPE' (the type being referenced) and 'HASHER' (a
-// functor that produces the hash).  'HASHER' will default to 'bslh::Hash<>'.
-//..
+// two type parameters: `TYPE` (the type being referenced) and `HASHER` (a
+// functor that produces the hash).  `HASHER` will default to `bslh::Hash<>`.
+// ```
+
+    /// This class template implements a hash table providing fast lookup of
+    /// an external, non-owned, array of values of (template parameter)
+    /// `TYPE`.
+    ///
+    /// The (template parameter) `TYPE` shall have a transitive, symmetric
+    /// `operator==` function and it will be hashable using `bslh::Hash`.
+    /// Note that there is no requirement that it have any kind of creator
+    /// defined.
+    ///
+    /// The `HASHER` template parameter type must be a functor with a method
+    /// having the following signature:
+    /// ```
+    /// size_t operator()(TYPE)  const;
+    ///                  -OR-
+    /// size_t operator()(const TYPE&) const;
+    /// ```
+    /// and `HASHER` shall have a publicly accessible default constructor
+    /// and destructor.  Here we use `bslh::Hash` as our default template
+    /// argument.  This allows us to hash any type for which `hashAppend`
+    /// has been implemented.
+    ///
+    /// Note that this hash table has numerous simplifications because we
+    /// know the size of the array and never have to resize the table.
     template <class TYPE, class HASHER = bslh::Hash<> >
     class HashTable {
-        // This class template implements a hash table providing fast lookup of
-        // an external, non-owned, array of values of (template parameter)
-        // 'TYPE'.
-        //
-        // The (template parameter) 'TYPE' shall have a transitive, symmetric
-        // 'operator==' function and it will be hashable using 'bslh::Hash'.
-        // Note that there is no requirement that it have any kind of creator
-        // defined.
-        //
-        // The 'HASHER' template parameter type must be a functor with a method
-        // having the following signature:
-        //..
-        //  size_t operator()(TYPE)  const;
-        //                   -OR-
-        //  size_t operator()(const TYPE&) const;
-        //..
-        // and 'HASHER' shall have a publicly accessible default constructor
-        // and destructor.  Here we use 'bslh::Hash' as our default template
-        // argument.  This allows us to hash any type for which 'hashAppend'
-        // has been implemented.
-        //
-        // Note that this hash table has numerous simplifications because we
-        // know the size of the array and never have to resize the table.
 
         // DATA
         const TYPE       *d_values;             // Array of values table is to
                                                 // hold
-        size_t            d_numValues;          // Length of 'd_values'.
+        size_t            d_numValues;          // Length of `d_values`.
         const TYPE      **d_bucketArray;        // Contains ptrs into
-                                                // 'd_values'
-        size_t            d_bucketArrayMask;    // Will always be '2^N - 1'.
+                                                // `d_values`
+        size_t            d_bucketArrayMask;    // Will always be `2^N - 1`.
         HASHER            d_hasher;
 
       private:
         // PRIVATE ACCESSORS
+
+        /// Look up the specified `value`, having the specified `hashValue`,
+        /// and load its index in `d_bucketArray` into the specified `idx`.
+        /// If not found, return the vacant entry in `d_bucketArray` where
+        /// it should be inserted.  Return `true` if `value` is found and
+        /// `false` otherwise.
         bool lookup(size_t      *idx,
                     const TYPE&  value,
                     size_t       hashValue) const;
-            // Look up the specified 'value', having the specified 'hashValue',
-            // and load its index in 'd_bucketArray' into the specified 'idx'.
-            // If not found, return the vacant entry in 'd_bucketArray' where
-            // it should be inserted.  Return 'true' if 'value' is found and
-            // 'false' otherwise.
 
       public:
         // CREATORS
+
+        /// Create a hash table referring to the specified `valuesArray`
+        /// having length of the specified `numValues`.  No value in
+        /// `valuesArray` shall have the same value as any of the other
+        /// values in `valuesArray`
         HashTable(const TYPE *valuesArray,
                   size_t      numValues);
-            // Create a hash table referring to the specified 'valuesArray'
-            // having length of the specified 'numValues'.  No value in
-            // 'valuesArray' shall have the same value as any of the other
-            // values in 'valuesArray'
 
+        /// Free up memory used by this hash table.
         ~HashTable();
-            // Free up memory used by this hash table.
 
         // ACCESSORS
+
+        /// Return true if the specified `value` is found in the table and
+        /// false otherwise.
         bool contains(const TYPE& value) const;
-            // Return true if the specified 'value' is found in the table and
-            // false otherwise.
     };
 
 //=============================================================================
@@ -484,8 +494,8 @@ bool HashTable<TYPE, HASHER>::contains(const TYPE& value) const
 
 typedef bslh::Hash<> Obj;
 
+/// Print out the specified `size` bytes of `data` in hex encoded numbers.
 static void printAsHex(const char *data, size_t size)
-    // Print out the specified 'size' bytes of 'data' in hex encoded numbers.
 {
     for (size_t i = 0; i < size; ++i) {
         printf("%hhx\t", data[i]);
@@ -493,9 +503,9 @@ static void printAsHex(const char *data, size_t size)
     printf("\n");
 }
 
+/// Return the number of bytes from the begining of the specified `d1` and
+/// `d2` until the first byte at which they differ.
 static size_t findNumberOfBytesBeforePadding(long double *d1, long double *d2)
-    // Return the number of bytes from the begining of the specified 'd1' and
-    // 'd2' until the first byte at which they differ.
 {
     const volatile unsigned char *c1 =
         reinterpret_cast<const volatile unsigned char *>(d1);
@@ -508,10 +518,10 @@ static size_t findNumberOfBytesBeforePadding(long double *d1, long double *d2)
     return i;
 }
 
+/// Return the result of a comparison of the binary representation of the
+/// specified `size` number of bytes of the data pointed to by the specified
+/// `first` and `second`.
 static bool binaryCompare(const char *first, const char *second, size_t size)
-    // Return the result of a comparison of the binary representation of the
-    // specified 'size' number of bytes of the data pointed to by the specified
-    // 'first' and 'second'.
 {
     for (size_t i = 0; i < size; ++i) {
         if (!(first[i] == second[i])) {
@@ -632,14 +642,19 @@ struct PortableHash {
     typedef uint32_t result_type;
 
     // CREATORS
+
+    /// Create a `PortableHash` object.
     PortableHash() : d_value(0) {}
-        // Create a 'PortableHash' object.
 
     // MANIPULATORS
-    void operator()(const void *data, size_t numBytes);
-        // Hash the specified 'numBytes' bytes beginning at the specified
-        // 'data'.
 
+    /// Hash the specified `numBytes` bytes beginning at the specified
+    /// `data`.
+    void operator()(const void *data, size_t numBytes);
+
+    /// Hash the specified `value` which is an integral, of length
+    /// `numBytes`.  (For the purposes of this test, `value` and `numBytes`
+    /// are ignored and `d_value` is just set to `k_INT_EXPECTED`.
     template <class TYPE>
     typename bsl::enable_if<bsl::is_integral<TYPE>::value
                             && !bsl::is_same<TYPE, bool>::value
@@ -649,29 +664,26 @@ struct PortableHash {
                             && !bsl::is_same<TYPE, int8_t>::value
                             && !bsl::is_same<TYPE, uint8_t>::value>::type
     operator()(const TYPE *value, size_t numBytes);
-        // Hash the specified 'value' which is an integral, of length
-        // 'numBytes'.  (For the purposes of this test, 'value' and 'numBytes'
-        // are ignored and 'd_value' is just set to 'k_INT_EXPECTED'.
 
+    /// Hash the specified `value` which is an enum type, of length
+    /// `numBytes`.  (For the purposes of this test, `value` and `numBytes`
+    /// are ignored and `d_value` is just set to `k_ENUM_EXPECTED`.
     template <class TYPE>
     typename bsl::enable_if<bsl::is_enum<TYPE>::value>::type
     operator()(const TYPE *value, size_t numBytes);
-        // Hash the specified 'value' which is an enum type, of length
-        // 'numBytes'.  (For the purposes of this test, 'value' and 'numBytes'
-        // are ignored and 'd_value' is just set to 'k_ENUM_EXPECTED'.
 
+    /// Hash the specified `value` which is a bool type, of length
+    /// `numBytes`.  (For the purposes of this test, `value` and `numBytes`
+    /// are ignored and `d_value` is just set to `k_BOOL_EXPECTED`.
     void operator()(const bool *value, size_t numBytes);
-        // Hash the specified 'value' which is a bool type, of length
-        // 'numBytes'.  (For the purposes of this test, 'value' and 'numBytes'
-        // are ignored and 'd_value' is just set to 'k_BOOL_EXPECTED'.
 
+    /// Hash the specified `value` which is a unsigned char type, of length
+    /// `numBytes`.  (For the purposes of this test, `value` and `numBytes`
+    /// are ignored and `d_value` is just set to `k_UC_EXPECTED`.
     void operator()(const unsigned char *value, size_t numBytes);
-        // Hash the specified 'value' which is a unsigned char type, of length
-        // 'numBytes'.  (For the purposes of this test, 'value' and 'numBytes'
-        // are ignored and 'd_value' is just set to 'k_UC_EXPECTED'.
 
+    /// Return `d_value`.
     result_type computeHash();
-        // Return 'd_value'.
 };
 
 void PortableHash::operator()(const void *data, size_t numBytes)
@@ -734,30 +746,30 @@ PortableHash::result_type PortableHash::computeHash()
 namespace BloombergLP {
 namespace bslh {
 
+/// This class implements a mock hashing algorithm that provides a way to
+/// examine data that is being passed into hashing algorithms by
+/// `hashAppend`.
 class MockHashingAlgorithm {
-    // This class implements a mock hashing algorithm that provides a way to
-    // examine data that is being passed into hashing algorithms by
-    // 'hashAppend'.
 
     char   *d_data;   // Data we were asked to hash
     size_t  d_length; // Length of the data we were asked to hash
 
   public:
+    /// Create a new `MockHashingAlgorithm`
     MockHashingAlgorithm()
     : d_length(0)
-        // Create a new 'MockHashingAlgorithm'
     {
         d_data = new char[0];
     }
 
+    /// Destroy this object
     ~MockHashingAlgorithm()
-        // Destroy this object
     {
         delete [] d_data;
     }
 
+    /// Store the specified `voidPtr` and `length` for inspection later.
     void operator()(const void *voidPtr, size_t length)
-        // Store the specified 'voidPtr' and 'length' for inspection later.
     {
         const char *ptr = reinterpret_cast<const char *>(voidPtr);
         delete [] d_data;
@@ -766,46 +778,46 @@ class MockHashingAlgorithm {
         d_length = length;
     }
 
+    /// Return the pointer stored by `operator()`.  The behaviour is
+    /// undefined if `operator()` has not been called.
     const char *getData()
-        // Return the pointer stored by 'operator()'.  The behaviour is
-        // undefined if 'operator()' has not been called.
     {
         return d_data;
     }
 
+    /// Return the length stored by `operator()`.  The behaviour is
+    /// undefined if `operator()` has not been called.
     size_t getLength()
-        // Return the length stored by 'operator()'.  The behaviour is
-        // undefined if 'operator()' has not been called.
     {
         return d_length;
     }
 };
 
 
+/// This class implements a mock hashing algorithm that provides a way to
+/// accumulate and then examine data that is being passed into hashing
+/// algorithms by `hashAppend`.
 class MockAccumulatingHashingAlgorithm {
-    // This class implements a mock hashing algorithm that provides a way to
-    // accumulate and then examine data that is being passed into hashing
-    // algorithms by 'hashAppend'.
 
     char   *d_data;   // Data we were asked to hash
     size_t  d_length; // Length of the data we were asked to hash
 
   public:
+    /// Create a new `MockAccumulatingHashingAlgorithm`
     MockAccumulatingHashingAlgorithm()
     : d_length(0)
-        // Create a new 'MockAccumulatingHashingAlgorithm'
     {
         d_data = new char[0];
     }
 
+    /// Destroy this object
     ~MockAccumulatingHashingAlgorithm()
-        // Destroy this object
     {
         delete [] d_data;
     }
 
+    /// Store the specified `voidPtr` and `length` for inspection later.
     void operator()(const void *voidPtr, size_t length)
-        // Store the specified 'voidPtr' and 'length' for inspection later.
     {
         const char *ptr = reinterpret_cast<const char *>(voidPtr);
         char *newPtr = new char [d_length + length];
@@ -819,16 +831,16 @@ class MockAccumulatingHashingAlgorithm {
         d_length += length;
     }
 
+    /// Return the pointer stored by `operator()`.  The behaviour is
+    /// undefined if `operator()` has not been called.
     const char *getData()
-        // Return the pointer stored by 'operator()'.  The behaviour is
-        // undefined if 'operator()' has not been called.
     {
         return d_data;
     }
 
+    /// Return the length stored by `operator()`.  The behaviour is
+    /// undefined if `operator()` has not been called.
     size_t getLength()
-        // Return the length stored by 'operator()'.  The behaviour is
-        // undefined if 'operator()' has not been called.
     {
         return d_length;
     }
@@ -840,18 +852,18 @@ class MockAccumulatingHashingAlgorithm {
 using bslh::MockHashingAlgorithm;
 using bslh::MockAccumulatingHashingAlgorithm;
 
+/// This class implements a test driver that can run tests on any type.
 template<class TYPE>
 class TestDriver {
-    // This class implements a test driver that can run tests on any type.
     union {
         typename bsls::AlignmentFromType<TYPE>::Type d_align; //force alignment
         char d_data[sizeof(TYPE)];                            // Arbitrary data
     };
 
+    /// Test `hashAppend` on `CV_TYPE`, using the specified `line` in a
+    /// `ASSERTV`.
     template<class CV_TYPE>
     void testHashAppendPassThroughCV(int line)
-        // Test 'hashAppend' on 'CV_TYPE', using the specified 'line' in a
-        // 'ASSERTV'.
     {
         MockHashingAlgorithm alg;
         TYPE input = *static_cast<TYPE *>(static_cast<void *>(d_data));
@@ -867,8 +879,8 @@ class TestDriver {
     }
 
   public:
+    /// Construct a `TestDriver`
     TestDriver()
-        // Construct a 'TestDriver'
     {
         srand(37);
         for (unsigned int i = 0; i < sizeof(TYPE); ++i) {
@@ -876,11 +888,11 @@ class TestDriver {
         }
     }
 
+    /// Test `hashAppend` on the (template parameter) `TYPE` ensuring that
+    /// both 0 and -0 will hash to the same value.  This is intended to test
+    /// floating point numbers where 0.0 and -0.0 have different binary
+    /// representations.
     void testHashAppendNegativeZero()
-        // Test 'hashAppend' on the (template parameter) 'TYPE' ensuring that
-        // both 0 and -0 will hash to the same value.  This is intended to test
-        // floating point numbers where 0.0 and -0.0 have different binary
-        // representations.
     {
         TYPE zero = 0;
         TYPE negativeZero = -zero;
@@ -893,10 +905,10 @@ class TestDriver {
         MockHashingAlgorithm negativeZeroAlg;
         hashAppend(negativeZeroAlg, negativeZero);
 
-        // Note that we're going to binaryCompare 'getLength()' bytes rather
-        // than 'sizeof(TYPE)' bytes, since for 'long double' only 10 bytes of
+        // Note that we're going to binaryCompare `getLength()` bytes rather
+        // than `sizeof(TYPE)` bytes, since for `long double` only 10 bytes of
         // the footprint are significant on some platforms.  See comments in
-        // the 'long double' overload of 'hashAppend' in 'bslh_hash.h' for more
+        // the `long double` overload of `hashAppend` in `bslh_hash.h` for more
         // details.
 
         ASSERT(zeroAlg.getLength() == negativeZeroAlg.getLength());
@@ -905,11 +917,11 @@ class TestDriver {
                              zeroAlg.getLength()));
     }
 
+    /// Test `hashAppend` on the (template parameter) `TYPE` ensuring that
+    /// negative infinity always hashes to the same value and positive
+    /// infinity always hashes to the same value.  This is intended to test
+    /// floating point numbers.
     void testHashAppendInfinity()
-        // Test 'hashAppend' on the (template parameter) 'TYPE' ensuring that
-        // negative infinity always hashes to the same value and positive
-        // infinity always hashes to the same value.  This is intended to test
-        // floating point numbers.
     {
         if (std::numeric_limits<TYPE>::has_infinity) {
             for (float i = -1; i <= 1; i +=2) {
@@ -959,49 +971,49 @@ class TestDriver {
         }
     }
 
+    /// Test `hashAppend` on `TYPE`, using the specified `line` in a
+    /// `ASSERTV`.
     void testHashAppendPassThrough(int line)
-        // Test 'hashAppend' on 'TYPE', using the specified 'line' in a
-        // 'ASSERTV'.
     {
         testHashAppendPassThroughCV<TYPE>(line);
         testHashAppendPassThroughCV<const TYPE>(line);
     }
 };
 
+/// This function is used only for testing function pointers
 int testFunction1()
-    // This function is used only for testing function pointers
 {
     return 1;
 }
 
+/// This function is used only for testing function pointers
 int testFunction2()
-    // This function is used only for testing function pointers
 {
     return 1;
 }
 
+/// This function is used only for testing function pointers
 int testFunction3()
-    // This function is used only for testing function pointers
 {
     return 3;
 }
 
+/// Provides a member function to determine if passed data is of the same
+/// type as the (template parameter) `EXPECTED_TYPE`
 template<class EXPECTED_TYPE>
 class TypeChecker {
-    // Provides a member function to determine if passed data is of the same
-    // type as the (template parameter) 'EXPECTED_TYPE'
   public:
+    /// Return true if the specified `type` is of the same type as the
+    /// (template parameter) `EXPECTED_TYPE`.
     static bool isCorrectType(EXPECTED_TYPE type);
     template<class BDE_OTHER_TYPE>
     static bool isCorrectType(BDE_OTHER_TYPE type);
-        // Return true if the specified 'type' is of the same type as the
-        // (template parameter) 'EXPECTED_TYPE'.
 
+    /// Return true if the specified `type` is of the same type as the
+    /// (template parameter) `EXPECTED_TYPE`.
     static bool isCorrectTypeRef(const EXPECTED_TYPE& type);
     template<class BDE_OTHER_TYPE>
     static bool isCorrectTypeRef(const BDE_OTHER_TYPE& type);
-        // Return true if the specified 'type' is of the same type as the
-        // (template parameter) 'EXPECTED_TYPE'.
 };
 
 template<class EXPECTED_TYPE>
@@ -1029,16 +1041,16 @@ bool TypeChecker<EXPECTED_TYPE>::isCorrectTypeRef(
 }
 
 namespace X {
+    /// Empty struct for testing.
     struct A
-        // Empty struct for testing.
     {
     };
 
+    /// Do nothing with the specified `hashAlg` and `a`. This is a test
+    /// `hashAppend` to ensure that the correct `hashAppend` is picked up by
+    /// ADL.
     template<class HASH_ALGORITHM>
     void hashAppend(HASH_ALGORITHM& hashAlg, A a)
-        // Do nothing with the specified 'hashAlg' and 'a'. This is a test
-        // 'hashAppend' to ensure that the correct 'hashAppend' is picked up by
-        // ADL.
     {
         (void) hashAlg;
         (void) &a;
@@ -1046,17 +1058,17 @@ namespace X {
 }  // close namespace X
 
 namespace XX {
+    /// Empty struct for testing.
     struct A
-        // Empty struct for testing.
     {
     };
 
+    /// Check that `hashAlg` is `DefaultHashAlgorithm`.  This is to check
+    /// that `bslh::Hash<>()(a)` will pick up the right `hashAppend`.
     template<class HASH_ALGORITHM>
     void hashAppend(HASH_ALGORITHM& hashAlg, A a)
-        // Check that 'hashAlg' is 'DefaultHashAlgorithm'.  This is to check
-        // that 'bslh::Hash<>()(a)' will pick up the right 'hashAppend'.
     {
-        // We have to use 'isCorrectTypeRef' and not 'isCorrectType' because
+        // We have to use `isCorrectTypeRef` and not `isCorrectType` because
         // the default hash algorithm has no copy c'tor.
 
         ASSERT(TypeChecker<bslh::DefaultHashAlgorithm>::
@@ -1066,31 +1078,31 @@ namespace XX {
 }  // close namespace X
 
 namespace Y {
+    /// Do nothing with the specified `hashAlg` and `a`. This is a test
+    /// `hashAppend` that should not be picked up by ADL.
     template<class HASH_ALGORITHM>
     void hashAppend(HASH_ALGORITHM& hashAlg, X::A a)
-        // Do nothing with the specified 'hashAlg' and 'a'. This is a test
-        // 'hashAppend' that should not be picked up by ADL.
     {
-        ASSERT(0 == "ADL picked the wrong 'hashAppend'");
+        ASSERT(0 == "ADL picked the wrong `hashAppend`");
         (void) hashAlg;
         (void) &a;
     }
 }  // close namespace Y
 
 namespace Z {
+    /// Test that ADL is able to pick up the correct `hashAppend` when it is
+    /// in another namespace.
     void testHashAppendADL()
-        // Test that ADL is able to pick up the correct 'hashAppend' when it is
-        // in another namespace.
     {
         X::A a = X::A();
         MockHashingAlgorithm alg = MockHashingAlgorithm();
         hashAppend(alg, a);  // Should compile and not assert
     }
 
+    /// Test that `bslh::Hash<>()(a)` picks up the `hashAppend` in `a`s
+    /// namespace, and that it uses the `DefaultHashAlgorithm` and not
+    /// `Hash_AdlWrapper<DefaultHashAlgorithm>`.
     void testHashDefault()
-        // Test that 'bslh::Hash<>()(a)' picks up the 'hashAppend' in 'a's
-        // namespace, and that it uses the 'DefaultHashAlgorithm' and not
-        // 'Hash_AdlWrapper<DefaultHashAlgorithm>'.
     {
         XX::A a;
         (void) bslh::Hash<>()(a);
@@ -1123,11 +1135,11 @@ int main(int argc, char *argv[])
         //   tables.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Run the usage example (C-1)
+        // 1. Run the usage example (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -1136,10 +1148,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 
-//..
+// ```
 // Next, we will create an array of boxes that we want to store in our hash
 // table.
-//..
+// ```
 
         Box boxes[] = { Box(Point(1, 1), 3, 2),
                         Box(Point(3, 1), 4, 2),
@@ -1150,10 +1162,10 @@ int main(int argc, char *argv[])
                         Box(Point(1, 0), 3, 1)};
         enum { NUM_BOXES = sizeof boxes / sizeof *boxes };
 
-//..
-// Then, we create our hash table 'hashTable'.  We pass we use the default
-// functor which will pick up the 'hashAppend' function we created:
-//..
+// ```
+// Then, we create our hash table `hashTable`.  We pass we use the default
+// functor which will pick up the `hashAppend` function we created:
+// ```
 
         HashTable<Box> hashTable(boxes, NUM_BOXES);
 
@@ -1175,40 +1187,40 @@ int main(int argc, char *argv[])
         // TESTING ALIEN NAMESPACE CUSTOM INTEGRAL HASH CASE
         //
         // Concern:
-        //: 1 When the change to add the AdlWrapper was released, it failed to
-        //:   properly hash integral types with the
-        //:   'AlienNamespace::PortableHash' hash object with several overloads
-        //:   of 'operator()' for hashing different types, so we re-create that
-        //:   scenario here to test it.
+        // 1. When the change to add the AdlWrapper was released, it failed to
+        //    properly hash integral types with the
+        //    `AlienNamespace::PortableHash` hash object with several overloads
+        //    of `operator()` for hashing different types, so we re-create that
+        //    scenario here to test it.
         //
         // Plan:
-        //: 1 Define 'AlienNamespace::PortableHash' with the following
-        //:   overloads:
-        //:   o 'void operator()(const void *, size_t)' which will set
-        //:     'd_value' to 'k_VOID_EXPECTED', ignoring the inputs.
-        //:
-        //:   o 'void operator()(const integral type *, size_t)' which will set
-        //:     'd_value' to 'k_INT_EXPECTED', ignoring the inputs.
-        //:
-        //:   o 'void operator()(const enum type *, size_t)' which will set
-        //:     'd_value' to 'k_ENUM_EXPECTED', ignoring the inputs.
-        //:
-        //:   o 'void operator()(const unsigned char *, size_t)' which will set
-        //:     'd_value' to 'k_UC_EXPECTED', ignoring the inputs.
-        //:
-        //:   o 'void operator()(const bool *, size_t)' which will set
-        //:     'd_value' to 'k_BOOL_EXPECTED', ignoring the inputs.
-        //:
-        //: 2 Call 'bsl::Hash<AlienNamespace::PortableHash>::operator()' on
-        //:   variables of integral type, enum type, unsigned char, and observe
-        //:   that the results are their respective 'k_...._EXPECTED' values.
-        //:
-        //: 3 Call 'bsl::Hash<AlienNamespace::PortableHash>::operator()' on a
-        //:   'bool' variable and observe that the result is NOT
-        //:   'k_BOOL_EXPECTED'. but rather 'k_VOID_EXPECTED'.
-        //:
-        //: 4 Call 'AlienNamespace::PortableHash::operator()' directly on a
-        //:   'bool' variable and observe that the result is 'k_BOOL_EXPECTED'.
+        // 1. Define `AlienNamespace::PortableHash` with the following
+        //    overloads:
+        //    - `void operator()(const void *, size_t)` which will set
+        //      `d_value` to `k_VOID_EXPECTED`, ignoring the inputs.
+        //
+        //    - `void operator()(const integral type *, size_t)` which will set
+        //      `d_value` to `k_INT_EXPECTED`, ignoring the inputs.
+        //
+        //    - `void operator()(const enum type *, size_t)` which will set
+        //      `d_value` to `k_ENUM_EXPECTED`, ignoring the inputs.
+        //
+        //    - `void operator()(const unsigned char *, size_t)` which will set
+        //      `d_value` to `k_UC_EXPECTED`, ignoring the inputs.
+        //
+        //    - `void operator()(const bool *, size_t)` which will set
+        //      `d_value` to `k_BOOL_EXPECTED`, ignoring the inputs.
+        //
+        // 2. Call `bsl::Hash<AlienNamespace::PortableHash>::operator()` on
+        //    variables of integral type, enum type, unsigned char, and observe
+        //    that the results are their respective `k_...._EXPECTED` values.
+        //
+        // 3. Call `bsl::Hash<AlienNamespace::PortableHash>::operator()` on a
+        //    `bool` variable and observe that the result is NOT
+        //    `k_BOOL_EXPECTED`. but rather `k_VOID_EXPECTED`.
+        //
+        // 4. Call `AlienNamespace::PortableHash::operator()` directly on a
+        //    `bool` variable and observe that the result is `k_BOOL_EXPECTED`.
         //
         // Testing:
         //   ALIEN NAMESPACE CUSTOM INTEGRAL HASH CASE
@@ -1272,21 +1284,21 @@ int main(int argc, char *argv[])
         // TESTING HASH_ADLWRAPPER
         //
         // Concerns:
-        //: 1 That 'bslh::Hash' can hash an object where the object's type is
-        //:   in some namespace that is neither 'std' nor 'bslh', the hash
-        //:   algorithm is in neither 'bslh' nor the namespace where the type
-        //:   being hashed is declared, and the 'hashAppend' function is in
-        //:   bslh.
+        // 1. That `bslh::Hash` can hash an object where the object's type is
+        //    in some namespace that is neither `std` nor `bslh`, the hash
+        //    algorithm is in neither `bslh` nor the namespace where the type
+        //    being hashed is declared, and the `hashAppend` function is in
+        //    bslh.
         //
         // Plan:
-        //: 1 Define a bslh-style hash algorithm in the namespace 'WeirdPlace'.
-        //:
-        //: 2 Define a type 'StrangeStruct' in namespace 'OtherWeirdPlace'.
-        //:
-        //: 3 Define a 'hashAppend' function for
-        //:   'OtherWeirdPlace::StrangeStruct' in namespace 'bslh'.
-        //:
-        //: 4 See if 'bslh::Hash' can cope.
+        // 1. Define a bslh-style hash algorithm in the namespace `WeirdPlace`.
+        //
+        // 2. Define a type `StrangeStruct` in namespace `OtherWeirdPlace`.
+        //
+        // 3. Define a `hashAppend` function for
+        //    `OtherWeirdPlace::StrangeStruct` in namespace `bslh`.
+        //
+        // 4. See if `bslh::Hash` can cope.
         //
         // Testing:
         //   bslh::Hash_AdlWrapper
@@ -1338,21 +1350,21 @@ int main(int argc, char *argv[])
         //   compilers that support it.
         //
         // Concerns:
-        //: 1 class 'Hash' does not increase the size of an object when used as
-        //:   a base class.
-        //:
-        //: 2 'Hash' does increase the size of an object when used as a data
-        //:   member.
+        // 1. class `Hash` does not increase the size of an object when used as
+        //    a base class.
+        //
+        // 2. `Hash` does increase the size of an object when used as a data
+        //    member.
         //
         // Plan:
-        //: 1 Define two non-empty classes with no padding, one of which is
-        //:   derived from 'hash'.  Assert that both classes have the same
-        //:   size.  (C-1).
-        //:
-        //: 2 Create a third class, with identical structure to the previous
-        //:   two, but with 'Hash' additional data member.  Assert that the
-        //:   class with 'Hash' as a member is larger than the other classes.
-        //:   (C-2)
+        // 1. Define two non-empty classes with no padding, one of which is
+        //    derived from `hash`.  Assert that both classes have the same
+        //    size.  (C-1).
+        //
+        // 2. Create a third class, with identical structure to the previous
+        //    two, but with `Hash` additional data member.  Assert that the
+        //    class with `Hash` as a member is larger than the other classes.
+        //    (C-2)
         //
         // Testing:
         //   QoI: Support for empty base optimization
@@ -1364,7 +1376,7 @@ int main(int argc, char *argv[])
         typedef bslh::DefaultHashAlgorithm TYPE;
 
         if (verbose) printf("Define two non-empty classes with no padding, one"
-                            " of which is derived from 'hash'.  Assert that"
+                            " of which is derived from `hash`.  Assert that"
                             " both classes have the same size. (C-1).\n");
         {
             struct TwoInts {
@@ -1382,8 +1394,8 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Create a third class, with identical structure to"
-                            " the previous two, but with 'Hash' additional"
-                            " data member.  Assert that the class with 'Hash'"
+                            " the previous two, but with `Hash` additional"
+                            " data member.  Assert that the class with `Hash`"
                             " as a member is larger than the other classes."
                             "(C-2)\n");
         {
@@ -1405,13 +1417,13 @@ int main(int argc, char *argv[])
         //   type traits to reflect this.
         //
         // Concerns:
-        //: 1 The class is bitwise moveable.
-        //: 2 The class has the trivial copyable trait.
-        //: 3 The class has the trivial default constructor trait.
+        // 1. The class is bitwise moveable.
+        // 2. The class has the trivial copyable trait.
+        // 3. The class has the trivial default constructor trait.
         //
         // Plan:
-        //: 1 ASSERT the presence of each trait using the 'bslalg::HasTrait'
-        //:   metafunction. (C-1..3)
+        // 1. ASSERT the presence of each trait using the `bslalg::HasTrait`
+        //    metafunction. (C-1..3)
         //
         // Testing:
         //   IsBitwiseMovable trait
@@ -1423,7 +1435,7 @@ int main(int argc, char *argv[])
                             "\n==================\n");
 
         if (verbose) printf("ASSERT the presence of each trait using the"
-                            " 'bslalg::HasTrait' metafunction. (C-1..3)\n");
+                            " `bslalg::HasTrait` metafunction. (C-1..3)\n");
         {
             ASSERT(bslmf::IsBitwiseMoveable<bslh::Hash<> >::value);
             ASSERT(bsl::is_trivially_copyable<bslh::Hash<> >::value);
@@ -1434,38 +1446,38 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'result_type' TYPEDEF
-        //   Verify that the struct hashes the proper 'typedef's.
+        // TESTING `result_type` TYPEDEF
+        //   Verify that the struct hashes the proper `typedef`s.
         //
         // Concerns:
-        //: 1 The typedef 'result_type' is publicly accessible and an alias for
-        //:   'size_t'.
-        //:
-        //: 2 'result_type' is 'size_t' even when the algorithm returns a
-        //:   'result_type' of a different size
-        //:
-        //: 3 'operator()' returns 'result_type'
+        // 1. The typedef `result_type` is publicly accessible and an alias for
+        //    `size_t`.
+        //
+        // 2. `result_type` is `size_t` even when the algorithm returns a
+        //    `result_type` of a different size
+        //
+        // 3. `operator()` returns `result_type`
         //
         //
         // Plan:
-        //: 1 ASSERT the 'typedef' accessibly aliases the correct type using
-        //:   'bslmf::IsSame' for a number of algorithms of different result
-        //:   types. (C-1,2)
-        //:
-        //: 2 Invoke 'operator()' and verify the return type is 'result_type'.
-        //:   (C-3)
+        // 1. ASSERT the `typedef` accessibly aliases the correct type using
+        //    `bslmf::IsSame` for a number of algorithms of different result
+        //    types. (C-1,2)
+        //
+        // 2. Invoke `operator()` and verify the return type is `result_type`.
+        //    (C-3)
         //
         // Testing:
         //   typedef size_t result_type;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'result_type' TYPEDEF"
+        if (verbose) printf("\nTESTING `result_type` TYPEDEF"
                             "\n=============================\n");
 
         using namespace bslh;
 
-        if (verbose) printf("ASSERT the 'typedef' accessibly aliases the"
-                            " correct type using 'bslmf::IsSame' for a number"
+        if (verbose) printf("ASSERT the `typedef` accessibly aliases the"
+                            " correct type using `bslmf::IsSame` for a number"
                             " of algorithms of different result types."
                             " (C-1,2)\n");
         {
@@ -1488,8 +1500,8 @@ int main(int argc, char *argv[])
                                                          result_type>::value));
         }
 
-        if (verbose) printf("Invoke 'operator()' and verify the return type is"
-                            " 'result_type'. (C-3)\n");
+        if (verbose) printf("Invoke `operator()` and verify the return type is"
+                            " `result_type`. (C-3)\n");
         {
 
             ASSERT(TypeChecker<Hash<>::result_type>::isCorrectType(
@@ -1508,26 +1520,26 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'operator()'
+        // TESTING `operator()`
         //   Verify that the struct offers the ability to invoke it with some
         //   bytes and a length, and that it return a hash.
         //
         // Concerns:
-        //: 1 The function call operator will return the expected value
-        //:   according to the canonical implementation of the algorithm being
-        //:   used.
-        //:
-        //: 2 The function call operator can be invoked on constant objects.
+        // 1. The function call operator will return the expected value
+        //    according to the canonical implementation of the algorithm being
+        //    used.
+        //
+        // 2. The function call operator can be invoked on constant objects.
         //
         // Plan:
-        //: 1 Create 'const' ints and hash them.  Compare the results against
-        //:   known good values. (C-1,2)
+        // 1. Create `const` ints and hash them.  Compare the results against
+        //    known good values. (C-1,2)
         //
         // Testing:
         //   operator()(const T&) const
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'operator()'"
+        if (verbose) printf("\nTESTING `operator()`"
                             "\n====================\n");
 
         static const struct {
@@ -1572,7 +1584,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) printf("Create 'const' strings and hash them.  Compare"
+        if (verbose) printf("Create `const` strings and hash them.  Compare"
                             " the results against known good values."
                             " (C-1,2)\n");
         {
@@ -1617,77 +1629,77 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'hashAppend'
-        //   Verify that the 'hashAppend' free functions have been implemented
+        // TESTING `hashAppend`
+        //   Verify that the `hashAppend` free functions have been implemented
         //   for all of the fundamental types and don't truncate or pass extra
         //   data into the algorithms.
         //
         // Concerns:
-        //: 1 'hashAppend' has been implemented for the fundamental types.
-        //:
-        //: 2 Floating point values -0.0 and +0.0 result in the same bytes
-        //:   being passed into the hashing algorithm.
-        //:
-        //: 3 'bool' values result in one of two different binary states being
-        //:   passed into the algorithms (doesn't need to be 00000000 and
-        //:   00000001, but it does need to be consistent).
-        //:
-        //: 4 Function pointers and object pointers are hashed as pointers, NOT
-        //:   the data they point to.
-        //:
-        //: 5 'long double' is properly truncated on all platforms where there
-        //:   is garbage in the binary representation.
-        //:
-        //: 6 'hashAppend' passes the bytes it is given into the hashing
-        //:   algorithm without truncation or appends for all types (with the
-        //:   exceptions outlined above).
-        //:
-        //: 7 Infinite floating point values that compare equal result in the
-        //:   same data being passed to the hashing algorithm.
-        //:
-        //: 8 'hashAppend' will not accept types that are convertable to
-        //:   fundamental types (i.e. some type convertable to bool will not be
-        //:   automatically hashed as a bool).
-        //:
-        //: 9 'hashAppend' can be called with 'const' qualified types.
-        //:
-        //: 10 'hashAppend' is correctly detected by ADL.
-        //:
-        //: 11 'bslh::Hash<>()' uses the default allocator.
+        // 1. `hashAppend` has been implemented for the fundamental types.
+        //
+        // 2. Floating point values -0.0 and +0.0 result in the same bytes
+        //    being passed into the hashing algorithm.
+        //
+        // 3. `bool` values result in one of two different binary states being
+        //    passed into the algorithms (doesn't need to be 00000000 and
+        //    00000001, but it does need to be consistent).
+        //
+        // 4. Function pointers and object pointers are hashed as pointers, NOT
+        //    the data they point to.
+        //
+        // 5. `long double` is properly truncated on all platforms where there
+        //    is garbage in the binary representation.
+        //
+        // 6. `hashAppend` passes the bytes it is given into the hashing
+        //    algorithm without truncation or appends for all types (with the
+        //    exceptions outlined above).
+        //
+        // 7. Infinite floating point values that compare equal result in the
+        //    same data being passed to the hashing algorithm.
+        //
+        // 8. `hashAppend` will not accept types that are convertable to
+        //    fundamental types (i.e. some type convertable to bool will not be
+        //    automatically hashed as a bool).
+        //
+        // 9. `hashAppend` can be called with `const` qualified types.
+        //
+        // 10. `hashAppend` is correctly detected by ADL.
+        //
+        // 11. `bslh::Hash<>()` uses the default allocator.
         //
         // Plan:
-        //: 1 Use a mock hashing algorithm to test that 'hashAppend' inputs the
-        //:   same bytes when given -0.0 or +0.0 floating point numbers. (C-2)
-        //:
-        //: 2 Use a mock hashing algorithm to test that 'hashAppend' inputs one
-        //:   of two possible byte representations of boolean values into the
-        //:   hashing algorithm it is given.  Attempt to permute the boolean
-        //:   input using '++' and assignment.  Test with 'const' and
-        //:   non-'const' 'bool'.  (C-3,9)
-        //:
-        //: 3 Hash different pointers pointing to different data in different
-        //:   locations, the same data in different locations, and the same
-        //:   location, and verify all behave as expected. (C-4)
-        //:
-        //: 4 Check if there is garbage in the binary representation of 'long
-        //:   double' if there is, ASSERT that all data including and after the
-        //:   garbage is ignored by 'hashAppend'.
-        //:
-        //: 5 Copy a known bitsequence into each fundamental type and pass it
-        //:   into 'hashAppend' with a mocked hashing algorithm.  Verify that
-        //:   the data input into the hashing algorithm matches the known
-        //:   input bitsequence.  Test with 'const' types.  (C-1,6,9)
-        //:
-        //: 6 Generate positive infinity in a number of ways and call
-        //:   'hashAppend' with each infinity and ASSERT that the data passed
-        //:   into the hashing algorithm is always the same. Repeat with
-        //:   negative infinity. (C-7)
-        //:
-        //: 7 Create an 'ifdef'ed test case that should fail to compile when
-        //:   manually tested.
-        //:
-        //: 8 Declare types and 'hashAppend's in various namespaces, and ensure
-        //:   the correct ones are used.  (C-10)
+        // 1. Use a mock hashing algorithm to test that `hashAppend` inputs the
+        //    same bytes when given -0.0 or +0.0 floating point numbers. (C-2)
+        //
+        // 2. Use a mock hashing algorithm to test that `hashAppend` inputs one
+        //    of two possible byte representations of boolean values into the
+        //    hashing algorithm it is given.  Attempt to permute the boolean
+        //    input using `++` and assignment.  Test with `const` and
+        //    non-`const` `bool`.  (C-3,9)
+        //
+        // 3. Hash different pointers pointing to different data in different
+        //    locations, the same data in different locations, and the same
+        //    location, and verify all behave as expected. (C-4)
+        //
+        // 4. Check if there is garbage in the binary representation of 'long
+        //    double' if there is, ASSERT that all data including and after the
+        //    garbage is ignored by `hashAppend`.
+        //
+        // 5. Copy a known bitsequence into each fundamental type and pass it
+        //    into `hashAppend` with a mocked hashing algorithm.  Verify that
+        //    the data input into the hashing algorithm matches the known
+        //    input bitsequence.  Test with `const` types.  (C-1,6,9)
+        //
+        // 6. Generate positive infinity in a number of ways and call
+        //    `hashAppend` with each infinity and ASSERT that the data passed
+        //    into the hashing algorithm is always the same. Repeat with
+        //    negative infinity. (C-7)
+        //
+        // 7. Create an `ifdef`ed test case that should fail to compile when
+        //    manually tested.
+        //
+        // 8. Declare types and `hashAppend`s in various namespaces, and ensure
+        //    the correct ones are used.  (C-10)
         //
         // Testing:
         //   void hashAppend(HASHALG& hashAlg, bool input);
@@ -1714,11 +1726,11 @@ int main(int argc, char *argv[])
         //   void hashAppend(HASHALG& hashAlg, RT (*input)(ARGS...));
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'hashAppend'"
+        if (verbose) printf("\nTESTING `hashAppend`"
                             "\n====================\n");
 
         if (verbose) printf("Use a mock hashing algorithm to test that"
-                            " 'hashAppend' inputs the same bytes when given"
+                            " `hashAppend` inputs the same bytes when given"
                             " -0.0 or +0.0 floating point numbers. (C-2)\n");
         {
             TestDriver<float> floatDriver;
@@ -1732,12 +1744,12 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Use a mock hashing algorithm to test that"
-                            " 'hashAppend' inputs one of two possible byte"
+                            " `hashAppend` inputs one of two possible byte"
                             " representations of boolean values into the"
                             " hashing algorithm it is given.  Attempt to"
-                            " permute the boolean input using '++' and"
-                            " assignment.  Test with 'const' and non-'const'"
-                            " 'bool'.  (C-3,9)\n");
+                            " permute the boolean input using `++` and"
+                            " assignment.  Test with `const` and non-`const`"
+                            " `bool`.  (C-3,9)\n");
         {
             MockHashingAlgorithm defaultAlg;
             hashAppend(defaultAlg, true);
@@ -1767,7 +1779,7 @@ int main(int argc, char *argv[])
             MockHashingAlgorithm assignedAlg;
             hashAppend(assignedAlg, assignedBool);
 
-            // All various 'true's are the same
+            // All various `true`s are the same
             ASSERT(defaultAlg.getLength() == sizeof(bool));
 #if defined(BSLS_HASH_HAS_BOOL_INCREMENT)
             ASSERT(defaultAlg.getLength() == incrementedAlg.getLength());
@@ -1785,7 +1797,7 @@ int main(int argc, char *argv[])
             MockHashingAlgorithm falseAlg;
             hashAppend(falseAlg, false);
 
-            // 'true' and 'false' are different
+            // `true` and `false` are different
             ASSERT(defaultAlg.getLength() == falseAlg.getLength());
             ASSERT(!binaryCompare(defaultAlg.getData(),
                                   falseAlg.getData(),
@@ -1802,7 +1814,7 @@ int main(int argc, char *argv[])
             const char *ptr1Loc1Val1 = "asdf";
             const char *ptr2Loc1Val1 = ptr1Loc1Val1;
 
-            // 'temp' is required to prevent 'ptr1Loc1Val1' and 'ptr3Loc2Val1'
+            // `temp` is required to prevent `ptr1Loc1Val1` and `ptr3Loc2Val1`
             // from being optimized to point to the same location.
             char temp[] = "zxcv";
             const char *ptr3Loc2Val1 = temp;
@@ -1891,11 +1903,11 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Check if there is garbage in the binary"
-                            " representation of 'long double' if there is,"
+                            " representation of `long double` if there is,"
                             " ASSERT that all data including and after the"
-                            " garbage is ignored by 'hashAppend'.\n");
+                            " garbage is ignored by `hashAppend`.\n");
         {
-            // Test a number of equal 'long double's to find out if they
+            // Test a number of equal `long double`s to find out if they
             // contain any garbage bytes.
             long double d0;
             long double d1;
@@ -1976,13 +1988,13 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Copy a known bitsequence into each fundamental"
-                            " type and pass it into 'hashAppend' with a mocked"
+                            " type and pass it into `hashAppend` with a mocked"
                             " hashing algorithm.  Verify that the data input"
                             " into the hashing algorithm matches the known"
-                            " input bitsequence.  Test with 'const' types."
+                            " input bitsequence.  Test with `const` types."
                             "  (C-1,6,9)\n");
         {
-            // 'bool' has already been tested and we explicitly DO NOT want it
+            // `bool` has already been tested and we explicitly DO NOT want it
             // to preserve its bitwise representation.
 
             TestDriver<char> charDriver;
@@ -2037,8 +2049,8 @@ int main(int argc, char *argv[])
             TestDriver<double> doubleDriver;
             doubleDriver.testHashAppendPassThrough(L_);
 
-            // Special case for 'long double' because of hack required to get
-            // around how 'long double' is represented on Linux x86-64 in Clang
+            // Special case for `long double` because of hack required to get
+            // around how `long double` is represented on Linux x86-64 in Clang
             // and GCC.
             MockHashingAlgorithm alg;
             const long double input = 34532453453247347.45343274578458l;
@@ -2155,7 +2167,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Generate positive infinity in a number of ways"
-                            " and call 'hashAppend' with each infinity and"
+                            " and call `hashAppend` with each infinity and"
                             " ASSERT that the data passed into the hashing"
                             " algorithm is always the same. Repeat with"
                             " negative infinity. (C-7)\n");
@@ -2171,7 +2183,7 @@ int main(int argc, char *argv[])
         }
 
 #ifdef TEST_COMPILE_FAILS
-        if (verbose) printf("Create an 'ifdef'ed test case that should fail to"
+        if (verbose) printf("Create an `ifdef`ed test case that should fail to"
                             " compile when manually tested.\n");
         {
             class ConvertibleClass {
@@ -2189,14 +2201,14 @@ int main(int argc, char *argv[])
 
         }
 #endif
-        if (verbose) printf("Declare types and 'hashAppend's in various"
+        if (verbose) printf("Declare types and `hashAppend`s in various"
                             " namespaces, and ensure the correct ones are"
                             " used.  (C-10)\n");
         {
             Z::testHashAppendADL();
         }
 
-        if (verbose) printf("Check that 'bslh::Hash<>()' selects the default"
+        if (verbose) printf("Check that `bslh::Hash<>()` selects the default"
                             " allocator.  (C-11)\n");
         {
             Z::testHashDefault();
@@ -2212,31 +2224,31 @@ int main(int argc, char *argv[])
         //   compile.
         //
         // Concerns:
-        //: 1 Objects can be created using the default constructor.
-        //:
-        //: 2 Objects can be created using the copy constructor.
-        //:
-        //: 3 The copy constructor is not declared as explicit.
-        //:
-        //: 4 Objects can be assigned to from constant objects.
-        //:
-        //: 5 Assignments operations can be chained.
-        //:
-        //: 6 Objects can be destroyed.
+        // 1. Objects can be created using the default constructor.
+        //
+        // 2. Objects can be created using the copy constructor.
+        //
+        // 3. The copy constructor is not declared as explicit.
+        //
+        // 4. Objects can be assigned to from constant objects.
+        //
+        // 5. Assignments operations can be chained.
+        //
+        // 6. Objects can be destroyed.
         //
         // Plan:
-        //: 1 Create a default constructed 'Hash' and allow it to leave scope
-        //:   to be destroyed. (C-1,6)
-        //:
-        //: 2 Use the copy-initialization syntax to create a new instance of
-        //:   'Hash' from an existing instance. (C-2,3)
-        //:
-        //: 3 Assign the value of the one (const) instance of 'Hash' to a
-        //:   second. (C-4)
-        //:
-        //: 4 Chain the assignment of the value of the one instance of 'Hash'
-        //:   to a second instance of 'Hash', into a self-assignment of the
-        //:   second object. (C-5)
+        // 1. Create a default constructed `Hash` and allow it to leave scope
+        //    to be destroyed. (C-1,6)
+        //
+        // 2. Use the copy-initialization syntax to create a new instance of
+        //    `Hash` from an existing instance. (C-2,3)
+        //
+        // 3. Assign the value of the one (const) instance of `Hash` to a
+        //    second. (C-4)
+        //
+        // 4. Chain the assignment of the value of the one instance of `Hash`
+        //    to a second instance of `Hash`, into a self-assignment of the
+        //    second object. (C-5)
         //
         // Testing:
         //   Hash()
@@ -2249,7 +2261,7 @@ int main(int argc, char *argv[])
             printf("\nTESTING IMPLICITLY DEFINED OPERATIONS"
                    "\n=====================================\n");
 
-        if (verbose) printf("Create a default constructed 'Hash' and allow it"
+        if (verbose) printf("Create a default constructed `Hash` and allow it"
                             " to leave scope to be destroyed. (C-1,6)\n");
         {
             Obj alg1 = Obj();
@@ -2258,7 +2270,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Use the copy-initialization syntax to create a"
-                            " new instance of 'Hash' from an existing"
+                            " new instance of `Hash` from an existing"
                             " instance. (C-2,3)\n");
         {
             const Obj alg1 = Obj();
@@ -2268,7 +2280,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Assign the value of the one (const) instance of"
-                            " 'Hash' to a second. (C-4)\n");
+                            " `Hash` to a second. (C-4)\n");
         {
             const Obj alg1 = Obj();
             Obj alg2 = alg1;
@@ -2277,8 +2289,8 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Chain the assignment of the value of the one"
-                            " instance of 'Hash' to a second instance of"
-                            " 'Hash', into a self-assignment of the second"
+                            " instance of `Hash` to a second instance of"
+                            " `Hash`, into a self-assignment of the second"
                             " object. (C-5)\n");
         {
             const Obj alg1 = Obj();
@@ -2293,15 +2305,15 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an instance of 'bslh::Hash<>'. (C-1)
-        //:
-        //: 2 Verify different hashes are produced for different ints. (C-1)
-        //:
-        //: 3 Verify the same hashes are produced for the same ints. (C-1)
+        // 1. Create an instance of `bslh::Hash<>`. (C-1)
+        //
+        // 2. Verify different hashes are produced for different ints. (C-1)
+        //
+        // 3. Verify the same hashes are produced for the same ints. (C-1)
         //
         // Testing:
         //   BREATHING TEST
@@ -2310,7 +2322,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        if (verbose) printf("Instantiate 'bslh::Hash'\n");
+        if (verbose) printf("Instantiate `bslh::Hash`\n");
         {
             Obj hashAlg;
 

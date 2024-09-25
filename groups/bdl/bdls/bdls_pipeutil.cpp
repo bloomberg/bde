@@ -42,10 +42,10 @@ namespace {
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 
+/// open an appropriate working directory
 template <class STRING_TYPE>
 inline
 void getPipeDir(STRING_TYPE *dir)
-    // open an appropriate working directory
 {
     BSLS_ASSERT(dir);
 

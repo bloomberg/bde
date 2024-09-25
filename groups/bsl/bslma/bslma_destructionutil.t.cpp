@@ -15,10 +15,10 @@
 #include <bsls_objectbuffer.h>
 #include <bsls_types.h>
 
-#include <ctype.h>      // 'isalpha'
+#include <ctype.h>      // `isalpha`
 #include <stdio.h>
-#include <stdlib.h>     // 'atoi'
-#include <string.h>     // 'strlen'
+#include <stdlib.h>     // `atoi`
+#include <string.h>     // `strlen`
 #include <new>
 
 using namespace BloombergLP;
@@ -34,7 +34,7 @@ using namespace BloombergLP;
 // copyable.
 //
 // In order to facilitate the generation of test object instances, we make a
-// text object have the value semantics of a 'char', and generate an scalar of
+// text object have the value semantics of a `char`, and generate an scalar of
 // test objects from a string specification via a generating function
 // parameterized by the actual test object type.  This lets us reuse the same
 // test code for bitwise-copyable/moveable test types as well as those that do
@@ -111,9 +111,9 @@ class TestType;
 class TestTypeNoAlloc;
 class BitwiseCopyableTestType;
 
-typedef TestType                       T;    // uses 'bslma' allocators
-typedef TestTypeNoAlloc                TNA;  // does not use 'bslma' allocators
-typedef BitwiseCopyableTestType        BCT;  // does not use 'bslma' allocators
+typedef TestType                       T;    // uses `bslma` allocators
+typedef TestTypeNoAlloc                TNA;  // does not use `bslma` allocators
+typedef BitwiseCopyableTestType        BCT;  // does not use `bslma` allocators
 
 typedef bsls::Types::Int64             Int64;
 typedef bsls::Types::Uint64            Uint64;
@@ -131,12 +131,12 @@ bslma::TestAllocator *Z;  // initialized at the start of main()
                                // class TestType
                                // ==============
 
+/// This test type contains a `char` in some allocated storage.  It counts
+/// the number of default and copy constructions, assignments, and
+/// destructions.  It has no traits other than using a `bslma` allocator.
+/// It could have the bit-wise moveable traits but we defer that trait to
+/// the `MoveableTestType`.
 class TestType {
-    // This test type contains a 'char' in some allocated storage.  It counts
-    // the number of default and copy constructions, assignments, and
-    // destructions.  It has no traits other than using a 'bslma' allocator.
-    // It could have the bit-wise moveable traits but we defer that trait to
-    // the 'MoveableTestType'.
 
     char             *d_data_p;
     bslma::Allocator *d_allocator_p;
@@ -235,12 +235,12 @@ bool operator==(const TestType& lhs, const TestType& rhs)
                        // class TestTypeNoAlloc
                        // =====================
 
+/// This test type has footprint and interface identical to `TestType`.  It
+/// also counts the number of default and copy constructions, assignments,
+/// and destructions.  It does not allocate, and thus could have the
+/// bit-wise copyable trait, but we defer this to the
+/// `BitwiseCopyableTestType`.
 class TestTypeNoAlloc {
-    // This test type has footprint and interface identical to 'TestType'.  It
-    // also counts the number of default and copy constructions, assignments,
-    // and destructions.  It does not allocate, and thus could have the
-    // bit-wise copyable trait, but we defer this to the
-    // 'BitwiseCopyableTestType'.
 
     // DATA
     union {
@@ -310,9 +310,9 @@ bool operator==(const TestTypeNoAlloc& lhs,
                        // class BitwiseCopyableTestType
                        // =============================
 
+/// This test type is identical to `TestTypeNoAlloc` except that it has the
+/// bit-wise copyable trait.  All members are inherited.
 class BitwiseCopyableTestType : public TestTypeNoAlloc {
-    // This test type is identical to 'TestTypeNoAlloc' except that it has the
-    // bit-wise copyable trait.  All members are inherited.
 
   public:
     // CREATORS
@@ -345,16 +345,16 @@ template <> struct IsBitwiseCopyable<BitwiseCopyableTestType>
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// This proctor is responsible to create, in an array specified at
+/// construction, a sequence according to some specification.  Upon
+/// destruction, it destroys elements in that array according to the current
+/// specifications.  For `0 <= i < strlen(spec)`, `array[i]` is destroyed if
+/// and only if `1 == isalpha(spec[i])` and in addition, if a reference to
+/// an end pointer is specified at construction, if `i < *specEnd - spec`.
+/// If a tests succeeds, the specifications can be changed to allow for
+/// different (un)initialized elements.
 template <class TYPE>
 class CleanupGuard {
-    // This proctor is responsible to create, in an array specified at
-    // construction, a sequence according to some specification.  Upon
-    // destruction, it destroys elements in that array according to the current
-    // specifications.  For '0 <= i < strlen(spec)', 'array[i]' is destroyed if
-    // and only if '1 == isalpha(spec[i])' and in addition, if a reference to
-    // an end pointer is specified at construction, if 'i < *specEnd - spec'.
-    // If a tests succeeds, the specifications can be changed to allow for
-    // different (un)initialized elements.
 
     // DATA
     TYPE        *d_array_p;
@@ -405,11 +405,11 @@ class CleanupGuard {
     }
 };
 
+/// Destroy elements in the specified `scalar` according to the specified
+/// `spec`.  For `0 <= i < strlen(spec)`, `scalar[i]` is destroyed if and
+/// only if `1 == isalpha(spec[i])`.
 template <class TYPE>
 void cleanup(TYPE *scalar, const char *spec)
-    // Destroy elements in the specified 'scalar' according to the specified
-    // 'spec'.  For '0 <= i < strlen(spec)', 'scalar[i]' is destroyed if and
-    // only if '1 == isalpha(spec[i])'.
 {
     for (int i = 0; spec[i]; ++i) {
         char c = spec[i];
@@ -423,10 +423,10 @@ void cleanup(TYPE *scalar, const char *spec)
     }
 }
 
+/// Verify that elements in the specified `scalar` have values according to
+/// the specified `spec`.
 template <class TYPE>
 void verify(TYPE *scalar, const char *spec)
-    // Verify that elements in the specified 'scalar' have values according to
-    // the specified 'spec'.
 {
     for (int i = 0; spec[i]; ++i) {
         char c = spec[i];
@@ -451,12 +451,12 @@ void fillWithJunk(void *buf, int size)
 }
 
 //=============================================================================
-//              GENERATOR FUNCTIONS 'gg' AND 'ggg' FOR TESTING
+//              GENERATOR FUNCTIONS `gg` AND `ggg` FOR TESTING
 //-----------------------------------------------------------------------------
-// The following functions interpret the given 'spec' in order from left to
+// The following functions interpret the given `spec` in order from left to
 // right to configure an scalar according to a custom language.  Letters
 // [a .. z, A .. Z] correspond to arbitrary (but unique) char values used to
-// initialize elements of an scalar of 'T' objects.  An underscore ('_')
+// initialize elements of an scalar of `T` objects.  An underscore ('_')
 // indicates that an element should be left uninitialized.
 //
 // LANGUAGE SPECIFICATION
@@ -485,17 +485,17 @@ void fillWithJunk(void *buf, int size)
 // "a"          ...
 //-----------------------------------------------------------------------------
 
+/// Configure the specified `scalar` of objects of the parameterized `TYPE`
+/// (assumed to be uninitialized) according to the specified `spec`.
+/// Optionally specify a zero `verboseFlag` to suppress `spec` syntax error
+/// messages.  Return the index of the first invalid character, and a
+/// negative value otherwise.  Note that this function is used to implement
+/// `gg` as well as allow for verification of syntax error detection.
+///
+/// Note that this generator is used in exception tests, and thus need to be
+/// exception-safe.
 template <class TYPE>
 int ggg(TYPE *scalar, const char *spec, int verboseFlag = 1)
-    // Configure the specified 'scalar' of objects of the parameterized 'TYPE'
-    // (assumed to be uninitialized) according to the specified 'spec'.
-    // Optionally specify a zero 'verboseFlag' to suppress 'spec' syntax error
-    // messages.  Return the index of the first invalid character, and a
-    // negative value otherwise.  Note that this function is used to implement
-    // 'gg' as well as allow for verification of syntax error detection.
-    //
-    // Note that this generator is used in exception tests, and thus need to be
-    // exception-safe.
 {
     CleanupGuard<TYPE> guard(scalar, spec);
     guard.setLength(0);
@@ -512,7 +512,7 @@ int ggg(TYPE *scalar, const char *spec, int verboseFlag = 1)
         }
         else {
             if (verboseFlag) {
-                printf("Error, bad character ('%c') in spec \"%s\""
+                printf("Error, bad character (`%c`) in spec \"%s\""
                        " at position %d.\n", spec[i], spec, i);
             }
             // Discontinue processing this spec.
@@ -523,11 +523,11 @@ int ggg(TYPE *scalar, const char *spec, int verboseFlag = 1)
     return SUCCESS;
 }
 
+/// Return a reference to the modifiable first element of the specified
+/// `scalar` after the value of `scalar` has been adjusted according to the
+/// specified `spec`.
 template <class TYPE>
 TYPE& gg(TYPE *scalar, const char *spec)
-    // Return a reference to the modifiable first element of the specified
-    // 'scalar' after the value of 'scalar' has been adjusted according to the
-    // specified 'spec'.
 {
     ASSERT(ggg(scalar, spec) < 0);
     return *scalar;
@@ -544,7 +544,7 @@ static const struct {
     int         d_ne;        // number of elements (ne = end - begin).
     const char *d_expected;  // expected result scalar
 } DATA_2[] = {
-    // Order test data by increasing 'ne'.
+    // Order test data by increasing `ne`.
 
     //line spec         begin    ne      expected
     //---- ----         -----    --      --------
@@ -613,39 +613,41 @@ namespace UsageExample {
 ///Usage
 ///-----
 // In this section we show intended use of this component.  Note that this
-// component is for use by the 'bslstl' package.  Other clients should use the
-// STL algorithms (in header '<algorithm>' and '<memory>').
+// component is for use by the `bslstl` package.  Other clients should use the
+// STL algorithms (in header `<algorithm>` and `<memory>`).
 //
-///Example 1: Destroy 'int' and an Integer Wrapper
+///Example 1: Destroy `int` and an Integer Wrapper
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// In this example, we will use 'bslma::DestructionUtil' to destroy both a
-// scalar integer and a 'MyInteger' type object.  Calling the 'destory' method
-// on a scalar integer is a no-op while calling the 'destroy' method on an
-// object of 'MyInteger' class invokes the destructor of the object.
+// In this example, we will use `bslma::DestructionUtil` to destroy both a
+// scalar integer and a `MyInteger` type object.  Calling the `destory` method
+// on a scalar integer is a no-op while calling the `destroy` method on an
+// object of `MyInteger` class invokes the destructor of the object.
 //
-// First, we define a 'MyInteger' class that represents an integer value:
-//..
+// First, we define a `MyInteger` class that represents an integer value:
+// ```
+
+/// This class represents an integer value.
 class MyInteger {
-    // This class represents an integer value.
 
     // DATA
     int d_intValue;  // integer value
 
   public:
     // CREATORS
+
+    /// Create a `MyInteger` object having integer value `0`.
     MyInteger();
-        // Create a 'MyInteger' object having integer value '0'.
 
+    /// Create a `MyInteger` object having the specified `value`.
     explicit MyInteger(int value);
-        // Create a 'MyInteger' object having the specified 'value'.
 
+    /// Destroy this object.
     ~MyInteger();
-        // Destroy this object.
 
     // ACCESSORS
     int getValue() const;
 };
-//..
+// ```
 
 // CREATORS
 MyInteger::MyInteger()
@@ -703,44 +705,44 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Usage Example"
                             "\n=====================\n");
         using namespace UsageExample;
-// Then, we create an object, 'myInteger', of type 'MyInteger':
-//..
+// Then, we create an object, `myInteger`, of type `MyInteger`:
+// ```
     bsls::ObjectBuffer<MyInteger> buffer;
     MyInteger *myInteger = &buffer.object();
     new (myInteger) MyInteger(1);
-//..
-// Notice that we use an 'ObjectBuffer' to allow us to safely invoke the
+// ```
+// Notice that we use an `ObjectBuffer` to allow us to safely invoke the
 // destructor explicitly.
 //
 // Now, we define a primitive integer:
-//..
+// ```
     int scalarInteger = 2;
-//..
-// Finally, we use the uniform 'bslma::DestructionUtil::destroy' method to
-// destroy both 'myInteger' and 'scalarInteger':
-//..
+// ```
+// Finally, we use the uniform `bslma::DestructionUtil::destroy` method to
+// destroy both `myInteger` and `scalarInteger`:
+// ```
     bslma::DestructionUtil::destroy(myInteger);
     bslma::DestructionUtil::destroy(&scalarInteger);
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
         // TESTING destroy
         //
         // Concerns:
-        //: 1. The 'destroy' acts as a uniform interface to destroy objects of
-        //:    different types as expected.
+        //  1. The `destroy` acts as a uniform interface to destroy objects of
+        //     different types as expected.
         //
         // Plan:
-        //: 1. Construct objects of types that have different type traits
-        //:    declared.  Call the 'destroy' method on them and verify they
-        //:    are destroyed as expected.
+        //  1. Construct objects of types that have different type traits
+        //     declared.  Call the `destroy` method on them and verify they
+        //     are destroyed as expected.
         //
         // Testing:
         //   void destroy(T *dst);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting 'destroy'\n");
+        if (verbose) printf("\nTesting `destroy`\n");
 
         if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
         testDestroy<TNA>(false);
@@ -756,12 +758,12 @@ int main(int argc, char *argv[])
             bsls::AssertTestHandlerGuard guard;
 
             int * null = 0;
-            (void) null;  // Suppress 'unused variable' warnings
+            (void) null;  // Suppress `unused variable` warnings
                           // in non-SAFE modes
             ASSERT_SAFE_FAIL(Obj::destroy(null));
 
             int x = 0;
-            (void) x;     // Suppress 'unused variable' warnings
+            (void) x;     // Suppress `unused variable` warnings
                           // in non-SAFE modes
             ASSERT_SAFE_PASS(Obj::destroy(&x));
         }
@@ -771,11 +773,11 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1. That the basic 'destroy' algorithm works as intended.
+        //  1. That the basic `destroy` algorithm works as intended.
         //
         // Plan:
-        //: 1. Construct objects in a range and use 'destroy' to destroy
-        //:    them.  Make sure all memory is deallocated.
+        //  1. Construct objects in a range and use `destroy` to destroy
+        //     them.  Make sure all memory is deallocated.
         //
         // Testing:
         //   This test exercises the component but tests nothing.

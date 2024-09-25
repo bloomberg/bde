@@ -31,19 +31,19 @@ using namespace bsl;  // automatically added by script
 //                                  --------
 // The test plan for this component is fairly straightforward:
 //
-//: o First do a short breathing test [1].
-//: o Then thoroughly test the specialized print method for
-//:   'bsl::vector<char, ALLOC>' [2].
-//: o Then test each of the 'print' method implementation functions
-//:   individually [3,4,5,6].
-//: o Then thoroughly test the trait detection meta-function to make sure it
-//:   returns the correct print method selector [7].
-//: o Then test the generic print method to make sure it uses the trait
-//:   detector correctly and calls the correct print implementation method [8].
-//: o Then test 'bsl::vector' '<<' output stream operator to make sure it
-//:   successfully calls the print method to print on a single line and
-//:   suppress indentation [9]
-//: o Finally, test the usage example to make sure it compiles and runs [10].
+//  - First do a short breathing test [1].
+//  - Then thoroughly test the specialized print method for
+//    `bsl::vector<char, ALLOC>` [2].
+//  - Then test each of the `print` method implementation functions
+//    individually [3,4,5,6].
+//  - Then thoroughly test the trait detection meta-function to make sure it
+//    returns the correct print method selector [7].
+//  - Then test the generic print method to make sure it uses the trait
+//    detector correctly and calls the correct print implementation method [8].
+//  - Then test `bsl::vector` `<<` output stream operator to make sure it
+//    successfully calls the print method to print on a single line and
+//    suppress indentation [9]
+//  - Finally, test the usage example to make sure it compiles and runs [10].
 // ----------------------------------------------------------------------------
 // [ 4] bdlb::PrintMethods_Imp<TYPE, bdlb::HasPrintMethod>::print(...);
 // [ 6] bdlb::PrintMethods_Imp<TYPE, bslalg::HasStlIterators>::print(...);
@@ -372,9 +372,9 @@ static const char *printableCharacters[256]=
     "\\xff"   // 255  ff
 };
 
+/// Specialize for `char *`.  Need to expand '\r', '\n', '\t' and surround
+/// with `DQUOTE` characters.
 void printValue(ostream& out, const char* value)
-    // Specialize for 'char *'.  Need to expand '\r', '\n', '\t' and surround
-    // with 'DQUOTE' characters.
 {
     out << '"';
 
@@ -386,8 +386,8 @@ void printValue(ostream& out, const char* value)
     out << '"';
 }
 
+/// Need to expand '\r', '\n', '\t' and surround with `DQUOTE` characters.
 void printValue(ostream& out, const string& value)
-    // Need to expand '\r', '\n', '\t' and surround with 'DQUOTE' characters.
 {
     printValue(out, value.c_str());
 }
@@ -396,15 +396,15 @@ void printValue(ostream& out, const string& value)
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// This type is used for testing the component for types that have a
+/// `print` method.
 class TestType_PrintMethod {
-    // This type is used for testing the component for types that have a
-    // 'print' method.
 
     // PRIVATE DATA MEMBERS
-    mutable bsl::ostream *d_stream;          // stream passed to 'print'
-    mutable int           d_level;           // level passed to 'print'
+    mutable bsl::ostream *d_stream;          // stream passed to `print`
+    mutable int           d_level;           // level passed to `print`
     mutable int           d_spacesPerLevel;  // spaces per level passed to
-                                             // 'print'
+                                             // `print`
 
   public:
 
@@ -444,54 +444,54 @@ class TestType_PrintMethod {
     }
 };
 
+/// This type is used for testing the trait detection meta-function.  This
+/// type declares `bdlb::TypeTraitHasPrintMethod` and
+/// `bslalg::HasStlIterators`.  Note that the traits just need to be
+/// declared but the functionality does not need to be implemented, because
+/// they will not be used at run-time.
 class TestType_PrintMethod_StlIterators {
-    // This type is used for testing the trait detection meta-function.  This
-    // type declares 'bdlb::TypeTraitHasPrintMethod' and
-    // 'bslalg::HasStlIterators'.  Note that the traits just need to be
-    // declared but the functionality does not need to be implemented, because
-    // they will not be used at run-time.
 };
 
+/// This type is used for testing the trait detection meta-function.  This
+/// type declares `bdlb::TypeTraitHasPrintMethod` and `bslmf::IsPair`.  Note
+/// that the traits just need to be declared but the functionality does not
+/// need to be implemented, because they will not be used at run-time in
+/// this test driver.
 class TestType_PrintMethod_Pair {
-    // This type is used for testing the trait detection meta-function.  This
-    // type declares 'bdlb::TypeTraitHasPrintMethod' and 'bslmf::IsPair'.  Note
-    // that the traits just need to be declared but the functionality does not
-    // need to be implemented, because they will not be used at run-time in
-    // this test driver.
 };
 
+/// This type is used for testing the trait detection meta-function.  This
+/// type declares `bdlb::TypeTraitHasPrintMethod`,
+/// `bslalg::HasStlIterators`, and `bslmf::IsPair`.  Note that the traits
+/// just need to be declared but the functionality does not need to be
+/// implemented, because they will not be used at run-time.
 class TestType_PrintMethod_StlIterators_Pair {
-    // This type is used for testing the trait detection meta-function.  This
-    // type declares 'bdlb::TypeTraitHasPrintMethod',
-    // 'bslalg::HasStlIterators', and 'bslmf::IsPair'.  Note that the traits
-    // just need to be declared but the functionality does not need to be
-    // implemented, because they will not be used at run-time.
 };
 
+/// This type is used for testing the trait detection meta-function.  This
+/// type declares `bslalg::HasStlIterators`.  Note that the traits just need
+/// to be declared but the functionality does not need to be implemented,
+/// because they will not be used at run-time.
 class TestType_StlIterators {
-    // This type is used for testing the trait detection meta-function.  This
-    // type declares 'bslalg::HasStlIterators'.  Note that the traits just need
-    // to be declared but the functionality does not need to be implemented,
-    // because they will not be used at run-time.
 };
 
+/// This type is used for testing the trait detection meta-function.  This
+/// type declares `bslalg::HasStlIterators` and `bslmf::IsPair`.  Note that
+/// the traits just need to be declared but the functionality does not need
+/// to be implemented, because they will not be used at run-time.
 class TestType_StlIterators_Pair {
-    // This type is used for testing the trait detection meta-function.  This
-    // type declares 'bslalg::HasStlIterators' and 'bslmf::IsPair'.  Note that
-    // the traits just need to be declared but the functionality does not need
-    // to be implemented, because they will not be used at run-time.
 };
 
+/// This type is used for testing the trait detection meta-function.  This
+/// type declares `bslmf::IsPair`.  Note that the traits just need to be
+/// declared but the functionality does not need to be implemented, because
+/// they will not be used at run-time.
 class TestType_Pair {
-    // This type is used for testing the trait detection meta-function.  This
-    // type declares 'bslmf::IsPair'.  Note that the traits just need to be
-    // declared but the functionality does not need to be implemented, because
-    // they will not be used at run-time.
 };
 
+/// This type is used for testing the trait detection meta-function.  This
+/// type does not have any traits.
 class TestType_NoTraits {
-    // This type is used for testing the trait detection meta-function.  This
-    // type does not have any traits.
 };
 
 // The following template specializations declare the traits for the above
@@ -535,19 +535,19 @@ template <> struct IsPair<TestType_PrintMethod_StlIterators_Pair> :
 //                             HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// Return `true` if the specified `result` is the same as that obtained by
+/// passing the specified `containedValue` to the (appropriate overload of)
+/// `bdlb::PrintMethods::print` with the specified `level` and
+/// `spacesPerLevel`.  If `level` or `spacesPerLevel` equals the specified
+/// `useDefault` then that parameter is not provided in the call to the
+/// `print` method.  Note that, per C++ syntax, when `level` is not
+/// provided, neither is `spacesPerLevel`.
 template <class TYPE>
 bool  testContainedValue(const TYPE&        containedValue,
                          const std::string& result,
                          int                level,
                          int                spacesPerLevel,
                          int                useDefault)
-    // Return 'true' if the specified 'result' is the same as that obtained by
-    // passing the specified 'containedValue' to the (appropriate overload of)
-    // 'bdlb::PrintMethods::print' with the specified 'level' and
-    // 'spacesPerLevel'.  If 'level' or 'spacesPerLevel' equals the specified
-    // 'useDefault' then that parameter is not provided in the call to the
-    // 'print' method.  Note that, per C++ syntax, when 'level' is not
-    // provided, neither is 'spacesPerLevel'.
 {
     std::ostringstream ssContained;
 
@@ -583,11 +583,11 @@ bool  testContainedValue(const TYPE&        containedValue,
                         // class MyDate
                         // ============
 
+/// This class is used as an example of a conventional BDE value-semantic
+/// type.  Accordingly, this type implements a `print` method; albeit a stub
+/// function.
 class MyDate
 {
-    // This class is used as an example of a conventional BDE value-semantic
-    // type.  Accordingly, this type implements a 'print' method; albeit a stub
-    // function.
 
   public:
     // TRAITS
@@ -633,17 +633,17 @@ bsl::ostream& MyDate::print(bsl::ostream& stream,
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Supplying a 'print' Method for a Parameterized Class
+///Example 1: Supplying a `print` Method for a Parameterized Class
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we must create a value-semantic class that holds an object of
-// parameterized 'TYPE' and, per BDE convention for VSTs, provides a 'print'
+// parameterized `TYPE` and, per BDE convention for VSTs, provides a `print`
 // method that shows the value in some human-readable format.
 //
 // First, we define the wrapper class:
-//..
+// ```
     template <class TYPE>
     class MyWrapper {
-      // An example wrapper class for a 'TYPE' object.
+      // An example wrapper class for a `TYPE` object.
 
       // PRIVATE DATA MEMBERS
       TYPE d_obj;  // wrapped object
@@ -661,26 +661,27 @@ bsl::ostream& MyDate::print(bsl::ostream& stream,
         // ... assignment operator, etc. ...
 
         // ACCESSORS
+
+        /// Format the contained `TYPE` to the specified output `stream` at
+        /// the (absolute value of) the optionally specified indentation
+        /// `level` and return a reference to `stream`.  If `level` is
+        /// specified, optionally specify `spacesPerLevel`, the number of
+        /// spaces per indentation level for this and all of its nested
+        /// objects.  If `level` is negative, suppress indentation of the
+        /// first line.  If `spacesPerLevel` is negative, format the entire
+        /// output on one line, suppressing all but the initial indentation
+        /// (as governed by `level`).  If `stream` is not valid on entry,
+        /// this operation has no effect.
         bsl::ostream& print(bsl::ostream& stream,
                             int           level          = 0,
                             int           spacesPerLevel = 4) const;
-            // Format the contained 'TYPE' to the specified output 'stream' at
-            // the (absolute value of) the optionally specified indentation
-            // 'level' and return a reference to 'stream'.  If 'level' is
-            // specified, optionally specify 'spacesPerLevel', the number of
-            // spaces per indentation level for this and all of its nested
-            // objects.  If 'level' is negative, suppress indentation of the
-            // first line.  If 'spacesPerLevel' is negative, format the entire
-            // output on one line, suppressing all but the initial indentation
-            // (as governed by 'level').  If 'stream' is not valid on entry,
-            // this operation has no effect.
     };
-//..
-// Now, we implement the 'print' method of 'MyWrapper' using the
-// 'bdlb::PrintMethods' utility.  Doing so gives us a method that produces
-// results both when 'TYPE' defines a 'print' method and when it does not.  In
-// the latter case 'TYPE::operator<<' is used.
-//..
+// ```
+// Now, we implement the `print` method of `MyWrapper` using the
+// `bdlb::PrintMethods` utility.  Doing so gives us a method that produces
+// results both when `TYPE` defines a `print` method and when it does not.  In
+// the latter case `TYPE::operator<<` is used.
+// ```
     template <class TYPE>
     bsl::ostream& MyWrapper<TYPE>::print(bsl::ostream& stream,
                                          int           level,
@@ -688,11 +689,11 @@ bsl::ostream& MyDate::print(bsl::ostream& stream,
     {
         return bdlb::PrintMethods::print(stream, d_obj, level, spacesPerLevel);
     }
-//..
-// Finally, we exercise our 'MyWrapper' class using several representative
-// types, starting with 'MyDate' (not shown) a class that implements a 'print'
+// ```
+// Finally, we exercise our `MyWrapper` class using several representative
+// types, starting with `MyDate` (not shown) a class that implements a `print`
 // method.
-//..
+// ```
     static void usingMyWrapper()
     {
         BSLMF_ASSERT(bdlb::HasPrintMethod<MyDate>::value);
@@ -704,25 +705,25 @@ bsl::ostream& MyDate::print(bsl::ostream& stream,
 
         bsl::ostringstream oss1;
         myWrapperForMyDate.print(oss1); // No problem expected since
-                                        // 'bsls::TimeInterval' has a 'print'
+                                        // `bsls::TimeInterval` has a `print`
                                         // method.
         ASSERT("01JAN0001\n" == oss1.str());
-//..
-// Using an 'int' type shows how 'bdlb::PrintMethods::print' transparently
-// handles types that do not provide 'print' methods:
-//..
+// ```
+// Using an `int` type shows how `bdlb::PrintMethods::print` transparently
+// handles types that do not provide `print` methods:
+// ```
         int            myInt = 123;
         MyWrapper<int> myWrapperForInt(myInt);
 
         bsl::ostringstream oss2;
-        myWrapperForInt.print(oss2);    // 'int' has no 'print' method.
+        myWrapperForInt.print(oss2);    // `int` has no `print` method.
                                         // Problem?
         ASSERT("123\n" == oss2.str());  // No problem!
-//..
-// Lastly, since 'MyWrapper' itself is a type that implements 'print' -- and
-// sets the 'bdlb::TypeTraitHasPrintMethod' trait -- one instance of the
-// 'MyWrapper' type can be wrapped by another.
-//..
+// ```
+// Lastly, since `MyWrapper` itself is a type that implements `print` -- and
+// sets the `bdlb::TypeTraitHasPrintMethod` trait -- one instance of the
+// `MyWrapper` type can be wrapped by another.
+// ```
         BSLMF_ASSERT(bdlb::HasPrintMethod<MyWrapper<int> >::value);
 
         MyWrapper<MyWrapper<int> > myWrappedWrapper;
@@ -731,8 +732,8 @@ bsl::ostream& MyDate::print(bsl::ostream& stream,
         myWrappedWrapper.print(oss3);
         ASSERT("0\n" == oss3.str());
     }
-//..
-// See the {'bslmf_nestedtraitdeclaration'} component for more information
+// ```
+// See the {`bslmf_nestedtraitdeclaration`} component for more information
 // about declaring traits for user-defined classes.
 
 // ============================================================================
@@ -756,13 +757,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -775,66 +776,66 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TEST SUPPORT FOR 'std::optional' AND 'std::variant'
+        // TEST SUPPORT FOR `std::optional` AND `std::variant`
         //   Overloads are provided to handle cases when the template argument
-        //   'TYPE' is an instance of 'std::optional' or 'std::variant'.
+        //   `TYPE` is an instance of `std::optional` or `std::variant`.
         //   Overloads are needed since neither of these Standard types
         //   provides the infrastructure expected by 'bdlb::PrintMethods (i.e.,
-        //   an 'operator<<' or a 'print' method and corresponding trait).
+        //   an `operator<<` or a `print` method and corresponding trait).
         //
         // Concerns:
-        //: 1 The result generated to the output stream matches the expected
-        //:   value.
-        //:
-        //:   1 For the default constructed 'std::optional' the result is
-        //:     "EMPTY".
+        // 1. The result generated to the output stream matches the expected
+        //    value.
+        //
+        //   1. For the default constructed `std::optional` the result is
+        //      "EMPTY".
         // ;
-        //:   2 For a 'std::variant' member 'std::monotonic' the result is
-        //:     "MONOTONIC".
-        //:
-        //:   3 Otherwise, the result is the same as the 'print' result of the
-        //:     contained value of 'std::optional' and 'std::variant'.
-        //:
-        //: 2 The return value of these 'print' overloads refer to the same
-        //:   'bsl::ostream' object passed (by reference) as the first
-        //:   argument.
-        //:
-        //: 3 The result is formatted as specified by the 'level' and
-        //:   'spacesPerLevel' arguments.
-        //:
-        //: 4 These overloads each specify a default value of 4 for
-        //:   'spacesPerLevel' and 0 for 'level'.
+        //   2. For a `std::variant` member `std::monotonic` the result is
+        //      "MONOTONIC".
+        //
+        //   3. Otherwise, the result is the same as the `print` result of the
+        //      contained value of `std::optional` and `std::variant`.
+        //
+        // 2. The return value of these `print` overloads refer to the same
+        //    `bsl::ostream` object passed (by reference) as the first
+        //    argument.
+        //
+        // 3. The result is formatted as specified by the `level` and
+        //    `spacesPerLevel` arguments.
+        //
+        // 4. These overloads each specify a default value of 4 for
+        //    `spacesPerLevel` and 0 for `level`.
         //
         // Plan:
-        //: 1 This test defines a table, 'DATA', that specifies the expected
-        //:   level of indentation and suffix (empty string or newline) for a
-        //:   representative set of 'level' and 'spacesPerLevel' values.
-        //:   Additionally, an other wise unused value 'DFT' is used to inform
-        //:   the test code when 'spacesPerLevel' or both 'level' and
-        //:   'spacesPerLevel' should defaulted in the call to the 'print'
-        //:   overload.
-        //:
-        //: 2 Representative instances of the two standard types are used in
-        //:   these tests:
-        //:   1 'std::optional<int>'
-        //:   2 'std::variant' allowing an assortment of integral types,
-        //:     'double', 'std::string', and 'std::monotonic'.
-        //:
-        //: 3 Each of the representative instances describe in in P-2 is
-        //:   tested for one value in each of its possible stats.  (C-1.1,1.2)
-        //:   1 'std::optional' is tested when empty and not.
-        //:   2 'std::variant' is tested for each of the types is allows.
-        //:
-        //: 3 The result of the 'print' overloads is checked by comparing
-        //:   the address of the object returned (by reference) to the address
-        //:   of the first argument.  (C-2)
-        //:
-        //: 4 The result of each 'print' call is compared for equality to the
-        //:   (hard-coded) expected result and also to the 'print' result for
-        //:   the contained value.  Each value is tested for each combination
-        //:   of 'level' and 'spacesPerLevel' in the 'DATA' table described
-        //:   in P-1.  Note that these calls to 'print' are account for 'DFT'
-        //:   values in certain table entries.  (C-1.3,3,4)
+        // 1. This test defines a table, `DATA`, that specifies the expected
+        //    level of indentation and suffix (empty string or newline) for a
+        //    representative set of `level` and `spacesPerLevel` values.
+        //    Additionally, an other wise unused value `DFT` is used to inform
+        //    the test code when `spacesPerLevel` or both `level` and
+        //    `spacesPerLevel` should defaulted in the call to the `print`
+        //    overload.
+        //
+        // 2. Representative instances of the two standard types are used in
+        //    these tests:
+        //   1. `std::optional<int>`
+        //   2. `std::variant` allowing an assortment of integral types,
+        //      `double`, `std::string`, and `std::monotonic`.
+        //
+        // 3. Each of the representative instances describe in in P-2 is
+        //    tested for one value in each of its possible stats.  (C-1.1,1.2)
+        //   1. `std::optional` is tested when empty and not.
+        //   2. `std::variant` is tested for each of the types is allows.
+        //
+        // 3. The result of the `print` overloads is checked by comparing
+        //    the address of the object returned (by reference) to the address
+        //    of the first argument.  (C-2)
+        //
+        // 4. The result of each `print` call is compared for equality to the
+        //    (hard-coded) expected result and also to the `print` result for
+        //    the contained value.  Each value is tested for each combination
+        //    of `level` and `spacesPerLevel` in the `DATA` table described
+        //    in P-1.  Note that these calls to `print` are account for `DFT`
+        //    values in certain table entries.  (C-1.3,3,4)
         //
         // Testing:
         //   bdlb::PrintMethods::print(..., const optional<TYPE>, ...);
@@ -843,7 +844,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-              << "TEST SUPPORT FOR 'std::optional' AND 'std::variant'" << endl
+              << "TEST SUPPORT FOR `std::optional` AND `std::variant`" << endl
               << "===================================================" << endl;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
@@ -899,7 +900,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout << "Using 'std::optional<int>'." << bsl::endl;
+        if (verbose) cout << "Using `std::optional<int>`." << bsl::endl;
         {
             using Type = std::optional<int>;
 
@@ -911,7 +912,7 @@ int main(int argc, char *argv[])
 
                 switch (CONFIG) {
                   case 'a': {
-                    // 'VALUE' is left in default constructed state.
+                    // `VALUE` is left in default constructed state.
                     EXPECTED_VALUE = "EMPTY";
                   } break;
                   case 'b': {
@@ -966,7 +967,7 @@ int main(int argc, char *argv[])
                         ++countSpecify2;
                     } else if (DFT != LEVEL) {
 
-                        ASSERT(DFT != LEVEL);            // Specify 'level'
+                        ASSERT(DFT != LEVEL);            // Specify `level`
                         ASSERT(DFT == SPACES_PER_LEVEL); // Default SPL
 
                         ASSERT(&ss == &bdlb::PrintMethods::print(ss,
@@ -976,7 +977,7 @@ int main(int argc, char *argv[])
                         ++countSpecify1;
                     } else {
 
-                        ASSERT(DFT == LEVEL);            // Default 'LEVEL'
+                        ASSERT(DFT == LEVEL);            // Default `LEVEL`
                         ASSERT(DFT == SPACES_PER_LEVEL); // Default SPL
 
                         ASSERT(&ss == &bdlb::PrintMethods::print(ss,
@@ -1023,7 +1024,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "Using 'std::variant'." << bsl::endl;
+        if (verbose) cout << "Using `std::variant`." << bsl::endl;
         {
             using Type = std::variant<std::monostate,
                                       char,
@@ -1048,7 +1049,7 @@ int main(int argc, char *argv[])
 
                 switch (CONFIG) {
                   case  0: {
-                    // 'VALUE' is left in default constucted state.
+                    // `VALUE` is left in default constucted state.
                     EXPECTED_VALUE = "MONOSTATE";
                   } break;
                   case 1: {
@@ -1123,7 +1124,7 @@ int main(int argc, char *argv[])
                         ++countSpecify2;
                     } else if (DFT != LEVEL) {
 
-                        ASSERT(DFT != LEVEL);            // Specify 'level'
+                        ASSERT(DFT != LEVEL);            // Specify `level`
                         ASSERT(DFT == SPACES_PER_LEVEL); // Default SPL
 
                         ASSERT(&ss ==&bdlb::PrintMethods::print(ss,
@@ -1133,7 +1134,7 @@ int main(int argc, char *argv[])
                         ++countSpecify1;
                     } else {
 
-                        ASSERT(DFT == LEVEL);            // Default 'LEVEL'
+                        ASSERT(DFT == LEVEL);            // Default `LEVEL`
                         ASSERT(DFT == SPACES_PER_LEVEL); // Default SPL
 
                         ASSERT(&ss ==&bdlb::PrintMethods::print(ss,
@@ -1209,7 +1210,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "Using 'std::monostate'." << bsl::endl;
+        if (verbose) cout << "Using `std::monostate`." << bsl::endl;
         {
             using Type = std::monostate;
 
@@ -1285,41 +1286,41 @@ int main(int argc, char *argv[])
         }
 #else
         if (verbose) cout << "SKIP: Not Available: "
-                             "'std::optional', 'std::variant'" << endl;
+                             "`std::optional`, `std::variant`" << endl;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING GENERIC 'print' METHOD
-        //   This will test the generic 'print' method for arbitrary types.
+        // TESTING GENERIC `print` METHOD
+        //   This will test the generic `print` method for arbitrary types.
         //
         // Concerns:
-        //: 1 Since each 'bdlb' has-trait meta-function and each print
-        //:   implementation function have already been thoroughly tested, we
-        //:   only need to make sure that the meta-function is used correctly
-        //:   and that it correctly forwards arguments to the appropriate print
-        //:   implementation function.
-        //:
-        //: 2 That our output of 'char' and 'unsigned char' is as we expect for
-        //:   all possible values of 'char' and 'unsigned char'.
+        // 1. Since each `bdlb` has-trait meta-function and each print
+        //    implementation function have already been thoroughly tested, we
+        //    only need to make sure that the meta-function is used correctly
+        //    and that it correctly forwards arguments to the appropriate print
+        //    implementation function.
+        //
+        // 2. That our output of `char` and `unsigned char` is as we expect for
+        //    all possible values of `char` and `unsigned char`.
         //
         // Plan:
-        //: 1 Use a selection of test data from test cases 3, 4, 5, and 6 and
-        //:   exercise this method to make sure the correct traits are detected
-        //:   and the correct print implementation function is called with the
-        //:   correct arguments.
-        //:
-        //: 2 In an inner loop, iterate through all possible values of 'char'
-        //:   and 'unsigned char' and test them.
+        // 1. Use a selection of test data from test cases 3, 4, 5, and 6 and
+        //    exercise this method to make sure the correct traits are detected
+        //    and the correct print implementation function is called with the
+        //    correct arguments.
+        //
+        // 2. In an inner loop, iterate through all possible values of `char`
+        //    and `unsigned char` and test them.
         //
         // Testing:
         //   bdlb::PrintMethods::print(..., const TYPE&, ...);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING GENERIC 'print' METHOD" << endl
+        if (verbose) cout << "TESTING GENERIC `print` METHOD" << endl
                           << "==============================" << endl;
 
-        if (verbose) cout << "\nUsing 'operator<<'." << endl;
+        if (verbose) cout << "\nUsing `operator<<`." << endl;
         {
             static const struct {
                 int         d_lineNum;
@@ -1362,7 +1363,7 @@ int main(int argc, char *argv[])
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            if (veryVerbose) cout << "\tUsing 'char', signed & unsigned.\n";
+            if (veryVerbose) cout << "\tUsing `char`, signed & unsigned.\n";
             {
                 for (int i = 0; i < NUM_DATA; ++i) {
                     const int   LINE             = DATA[i].d_lineNum;
@@ -1372,7 +1373,7 @@ int main(int argc, char *argv[])
                     const char *EXPECTED_SUFFIX  = DATA[i].d_expectedSuffix;
 
                     if (veryVeryVerbose) cout <<
-                                    "All values of 'unsigned char' & 'char'\n";
+                                    "All values of `unsigned char` & `char`\n";
 
                     for (unsigned int j = 0; j < 256; ++j) {
                         // unsigned char
@@ -1450,7 +1451,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (veryVerbose) cout << "\tUsing 'int'." << bsl::endl;
+            if (veryVerbose) cout << "\tUsing `int`." << bsl::endl;
             {
                 typedef int Type;
 
@@ -1481,7 +1482,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (veryVerbose) cout << "\tUsing 'bsl::string'." << bsl::endl;
+            if (veryVerbose) cout << "\tUsing `bsl::string`." << bsl::endl;
             {
                 typedef bsl::string Type;
 
@@ -1520,7 +1521,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (veryVerbose) cout << "\tUsing 'bool'." << bsl::endl;
+            if (veryVerbose) cout << "\tUsing `bool`." << bsl::endl;
             {
                 const bool TRUE_VAL  = true;
                 const bool FALSE_VAL = false;
@@ -1559,7 +1560,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'PrintMethods'." << endl;
+        if (verbose) cout << "\nUsing `PrintMethods`." << endl;
         {
             static const struct {
                 int d_lineNum;
@@ -1625,7 +1626,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsl::pair'." << endl;
+        if (verbose) cout << "\nUsing `bsl::pair`." << endl;
         {
             typedef pair<int, double> Type;
 
@@ -1743,7 +1744,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'Using Standard Iterators'." << endl;
+        if (verbose) cout << "\nUsing `Using Standard Iterators`." << endl;
         {
             typedef vector<int> Type;
 
@@ -1864,35 +1865,35 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'HasStlIterators' PRINT IMPLEMENTATION
+        // TESTING `HasStlIterators` PRINT IMPLEMENTATION
         //   This will test the print implementation function for types that
         //   have STL iterators.  The test plan is very similar to the test
-        //   plan for testing the 'IsPair' print implementation function (test
+        //   plan for testing the `IsPair` print implementation function (test
         //   case 5).
         //
         // Concerns:
-        //: 1 Indenting should work as expected.
-        //: 2 The appropriate print method should be called for each element.
-        //: 3 Printing with bad streams should be a no-op.
+        // 1. Indenting should work as expected.
+        // 2. The appropriate print method should be called for each element.
+        // 3. Printing with bad streams should be a no-op.
         //
         // Plan:
-        //: 1 First, test indenting using simple types such as 'vector<int>'.
-        //: 2 Then, test using vectors of increasing size.
-        //: 3 Next, to test that this function routes to the correct print
-        //:   method for the contained elements, test types that contain
-        //:   objects that invoke different print methods, i.e., use the
-        //:   following types:
-        //:   o 'vector<vector<char> >'
-        //:   o 'vector<vector<int> >'
-        //:   o 'vector<pair<int, double> >'
-        //:   o 'vector<TestType_PrintMethod>'
+        // 1. First, test indenting using simple types such as `vector<int>`.
+        // 2. Then, test using vectors of increasing size.
+        // 3. Next, to test that this function routes to the correct print
+        //    method for the contained elements, test types that contain
+        //    objects that invoke different print methods, i.e., use the
+        //    following types:
+        //    - `vector<vector<char> >`
+        //    - `vector<vector<int> >`
+        //    - `vector<pair<int, double> >`
+        //    - `vector<TestType_PrintMethod>`
         //
         // Testing:
         //   bdlb::PrintMethods_Imp<TYPE, bslalg::HasStlIterators>::print(...);
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\n" "TESTING 'HasStlIterators' PRINT IMPLEMENTATION"
+            cout << "\n" "TESTING `HasStlIterators` PRINT IMPLEMENTATION"
                  << "\n" "=============================================="
                  << endl;
 
@@ -2098,7 +2099,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting with 'vector<char>' elements." << endl;
+        if (verbose) cout << "\nTesting with `vector<char>` elements." << endl;
         {
             typedef vector<char>     ElemType;
             typedef vector<ElemType> Type;
@@ -2162,7 +2163,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting with 'vector<int>' elements." << endl;
+        if (verbose) cout << "\nTesting with `vector<int>` elements." << endl;
         {
             typedef vector<int>      ElemType;
             typedef vector<ElemType> Type;
@@ -2233,7 +2234,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting with 'pair<...>' elements." << endl;
+        if (verbose) cout << "\nTesting with `pair<...>` elements." << endl;
         {
             typedef pair<int, double> ElemType;
             typedef vector<ElemType>  Type;
@@ -2292,7 +2293,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting with 'TestType_PrintMethod' elements."
+        if (verbose) cout << "\nTesting with `TestType_PrintMethod` elements."
                           << endl;
         {
             typedef TestType_PrintMethod ElemType;
@@ -2394,31 +2395,31 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'IsPair' PRINT IMPLEMENTATION
+        // TESTING `IsPair` PRINT IMPLEMENTATION
         //   This will test the print implementation function for pairs.
         //
         // Concerns:
-        //: 1 Indenting should work as expected.
-        //: 2 The appropriate print method should be called for each element.
-        //: 2 Printing with bad streams should be a no-op.
+        // 1. Indenting should work as expected.
+        // 2. The appropriate print method should be called for each element.
+        // 3. Printing with bad streams should be a no-op.
         //
         // Plan:
-        //: 1 First, test indenting using simple types, like 'int' and
-        //:   'double'.
-        //: 2 Then, to test that this function routes to the correct print
-        //:   method for the contained elements, test pairs that contain
-        //:   objects that invoke different print methods, i.e., use the
-        //:   following pair types:
-        //:   o 'pair<vector<char>, vector<char> >'
-        //:   o 'pair<vector<int>, vector<int> >'
-        //:   o 'pair<pair<int, int>, pair<double, double> >'
-        //:   o 'pair<TestType_PrintMethod, TestType_PrintMethod>'
+        // 1. First, test indenting using simple types, like `int` and
+        //    `double`.
+        // 2. Then, to test that this function routes to the correct print
+        //    method for the contained elements, test pairs that contain
+        //    objects that invoke different print methods, i.e., use the
+        //    following pair types:
+        //    - `pair<vector<char>, vector<char> >`
+        //    - `pair<vector<int>, vector<int> >`
+        //    - `pair<pair<int, int>, pair<double, double> >`
+        //    - `pair<TestType_PrintMethod, TestType_PrintMethod>`
         //
         // Testing:
         //   bdlb::PrintMethods_Imp<TYPE, bslmf::IsPair>::print(...);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\n" "TESTING 'IsPair' PRINT IMPLEMENTATION"
+        if (verbose) cout << "\n" "TESTING `IsPair` PRINT IMPLEMENTATION"
                           << "\n" "====================================="
                           << endl;
 
@@ -2544,7 +2545,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting with 'vector<char>' elements." << endl;
+        if (verbose) cout << "\nTesting with `vector<char>` elements." << endl;
         {
             typedef pair<vector<char>, vector<char> > Type;
             typedef bslmf::SelectTraitCase<bslmf::IsPair>::Type
@@ -2603,7 +2604,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting with 'vector<int>' elements." << endl;
+        if (verbose) cout << "\nTesting with `vector<int>` elements." << endl;
         {
             typedef pair<vector<int>, vector<int> > Type;
             typedef bslmf::SelectTraitCase<bslmf::IsPair>::Type
@@ -2669,7 +2670,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting with 'pair<...>' elements." << endl;
+        if (verbose) cout << "\nTesting with `pair<...>` elements." << endl;
         {
             typedef pair<int, int>            IntPair;
             typedef pair<double, double>      DoublePair;
@@ -2725,7 +2726,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting with 'TestType_PrintMethod' elements."
+        if (verbose) cout << "\nTesting with `TestType_PrintMethod` elements."
                           << endl;
         {
             typedef pair<TestType_PrintMethod, TestType_PrintMethod> Type;
@@ -2832,24 +2833,24 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'HasPrintMethod' PRINT IMPLEMENTATION
+        // TESTING `HasPrintMethod` PRINT IMPLEMENTATION
         //   This will test the print implementation function that uses the
-        //   object's 'print' method.
+        //   object's `print` method.
         //
         // Concerns:
-        //: 1 The arguments should be passed correctly.
+        // 1. The arguments should be passed correctly.
         //
         // Plan:
-        //: 1 Use the 'TestType_PrintMethod' class to test the values passed to
-        //:   the 'print' method.
-        //: 2 Use varying values for 'level' and 'spacesPerLevel'.
+        // 1. Use the `TestType_PrintMethod` class to test the values passed to
+        //    the `print` method.
+        // 2. Use varying values for `level` and `spacesPerLevel`.
         //
         // Testing:
         //   bdlb::PrintMethods_Imp<TYPE, bdlb::HasPrintMethod>::print(...);
         // --------------------------------------------------------------------
 
         if (verbose) cout
-                        << "\n" "TESTING 'HasPrintMethod' PRINT IMPLEMENTATION"
+                        << "\n" "TESTING `HasPrintMethod` PRINT IMPLEMENTATION"
                         << "\n" "============================================="
                         << endl;
 
@@ -2918,26 +2919,26 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'operator<<'-BASED PRINT IMPLEMENTATION
+        // TESTING `operator<<`-BASED PRINT IMPLEMENTATION
         //   This will test the print implementation function that uses the
-        //   '<<' output stream operator.
+        //   `<<` output stream operator.
         //
         // Concerns:
-        //: 1 Indentation should work as expected.
-        //: 2 Printing with bad streams should be a no-op.
+        // 1. Indentation should work as expected.
+        // 2. Printing with bad streams should be a no-op.
         //
         // Plan:
-        //: 1 Using a string stream, test the print implementation method using
-        //:   'int', 'double' and 'bsl::string' objects, using varying
-        //:   level &  spacesPerLevel values.  Check that the results are as
-        //:   expected.
+        // 1. Using a string stream, test the print implementation method using
+        //    `int`, `double` and `bsl::string` objects, using varying
+        //    level &  spacesPerLevel values.  Check that the results are as
+        //    expected.
         //
         // Testing:
         //   bdlb::PrintMethods_Imp<TYPE, bsl::false_type>::print(...);
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\n" "TESTING 'operator<<'-BASED PRINT IMPLEMENTATION"
+            cout << "\n" "TESTING `operator<<`-BASED PRINT IMPLEMENTATION"
                  << "\n" "==============================================="
                  << endl;
 
@@ -2985,7 +2986,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout << "\nUsing 'int' object." << endl;
+        if (verbose) cout << "\nUsing `int` object." << endl;
         {
             typedef int Type;
 
@@ -3018,7 +3019,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'double' object." << endl;
+        if (verbose) cout << "\nUsing `double` object." << endl;
         {
             typedef double Type;
 
@@ -3052,7 +3053,7 @@ int main(int argc, char *argv[])
         }
 
 #if 0
-        if (verbose) cout << "\nUsing 'bsl::string' object." << endl;
+        if (verbose) cout << "\nUsing `bsl::string` object." << endl;
         {
             typedef bsl::string Type;
 
@@ -3109,29 +3110,29 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'vector<char>' 'print' METHOD
-        //   This will test the specialized 'print' method for 'vector<char>'
+        // TESTING `vector<char>` `print` METHOD
+        //   This will test the specialized `print` method for `vector<char>`
         //   objects.
         //
         // Concerns:
-        //: 1 Output should be enclosed in double quotes.
-        //: 2 Indentation should work as expected.
-        //: 3 Non-printable characters must be printed using their hexadecimal
-        //:   representation.
-        //: 4 Interleaved printable and non-printable characters must work as
-        //:   expected.
-        //: 5 Printing with bad streams should be a no-op.
+        // 1. Output should be enclosed in double quotes.
+        // 2. Indentation should work as expected.
+        // 3. Non-printable characters must be printed using their hexadecimal
+        //    representation.
+        // 4. Interleaved printable and non-printable characters must work as
+        //    expected.
+        // 5. Printing with bad streams should be a no-op.
         //
         // Plan:
-        //: 1 For each vector in an array of 'vector<char>' objects, print the
-        //:   vector to a string stream and verify that the results are as
-        //:   expected.
+        // 1. For each vector in an array of `vector<char>` objects, print the
+        //    vector to a string stream and verify that the results are as
+        //    expected.
         //
         // Testing:
         //   bdlb::PrintMethods::print(..., const vector<char, ALLOC>, ...);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\n" "TESTING 'vector<char>' 'print' METHOD"
+        if (verbose) cout << "\n" "TESTING `vector<char>` `print` METHOD"
                           << "\n" "====================================="
                           << endl;
 
@@ -3277,12 +3278,12 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Print a selection of different types to an output string stream
-        //:   and verify that the results are as expected.
+        // 1. Print a selection of different types to an output string stream
+        //    and verify that the results are as expected.
         //
         // Testing:
         //   BREATHING TEST
@@ -3293,7 +3294,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nWith Fundamental Types." << endl;
         {
-            if (veryVerbose) cout << "\tWith 'int'." << endl;
+            if (veryVerbose) cout << "\tWith `int`." << endl;
             {
                 const int  VALUE             =  123;
                 const char EXPECTED_OUTPUT[] = "123";
@@ -3305,7 +3306,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(ss.str(), EXPECTED_OUTPUT == ss.str());
             }
 
-            if (veryVerbose) cout << "\tWith 'double'." << endl;
+            if (veryVerbose) cout << "\tWith `double`." << endl;
             {
                 const double VALUE             =  123.456;
                 const char   EXPECTED_OUTPUT[] = "123.456";
@@ -3388,7 +3389,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(ss.str(), EXPECTED_OUTPUT == ss.str());
         }
 
-        if (verbose) cout << "\nWith 'print' Method." << endl;
+        if (verbose) cout << "\nWith `print` Method." << endl;
         {
             const TestType_PrintMethod VALUE;
             const int LEVEL            = 4;

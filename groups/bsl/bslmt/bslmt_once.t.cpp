@@ -24,7 +24,7 @@ using namespace bsl;
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-// Testing the linear mechanics of 'bslmt::Once' and 'bslmt::OnceGuard' is
+// Testing the linear mechanics of `bslmt::Once` and `bslmt::OnceGuard` is
 // straight-forward.  However, because this component is intended to produce
 // thread-safe behavior in the presence of thread contention, testing must
 // focus on deliberately creating contention and verifying the integrity of the
@@ -41,8 +41,8 @@ using namespace bsl;
 // In each test we create contention by starting multiple threads and having
 // them wait at a barrier so that they all arrive at the once-code as close to
 // simultaneously as possible.  Using this technique, we can test the basic
-// 'enter', 'leave', and 'cancel' functionality of 'bslmt::Once', the
-// 'bslmt::OnceGuard' class, and the 'BSLMT_ONCE_DO' macro.  We round out the
+// `enter`, `leave`, and `cancel` functionality of `bslmt::Once`, the
+// `bslmt::OnceGuard` class, and the `BSLMT_ONCE_DO` macro.  We round out the
 // tests with a breathing test and usage example.
 //-----------------------------------------------------------------------------
 // [ 3] void bslmt::Once::cancel(OnceLock *onceLock);
@@ -108,8 +108,8 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // Allow compilation of individual test-cases (for test drivers that take a
-// very long time to compile).  Specify '-DSINGLE_TEST=<testcase>' to compile
-// only the '<testcase>' test case.
+// very long time to compile).  Specify `-DSINGLE_TEST=<testcase>` to compile
+// only the `<testcase>` test case.
 #define TEST_IS_ENABLED(num) (! defined(SINGLE_TEST) || SINGLE_TEST == (num))
 
 // ============================================================================
@@ -130,9 +130,9 @@ typedef bslmt::ThreadUtil       TU;
 typedef bslmt::ThreadAttributes TA;
 typedef bslmt::Barrier          BAR;
 
+/// This structure defines a general set or arguments used to communicate
+/// with test functions.
 struct my_BreathingTestArg {
-    // This structure defines a general set or arguments used to communicate
-    // with test functions.
     BAR           *d_barrier_p;
 
     my_BreathingTestArg(BAR *barrier)
@@ -154,8 +154,8 @@ void breathingOnceFunc()
 }
 
 extern "C"
+/// Thread function for breathing test
 void *breathingThreadFunc(void *ptr)
-    // Thread function for breathing test
 {
     my_BreathingTestArg *arg = (my_BreathingTestArg*)ptr;
     ASSERT(arg != 0);
@@ -187,9 +187,9 @@ struct my_TestRecord {
 };
 
 extern "C"
+/// Thread function for testing `bslmt::Once::enter` and
+/// `bslmt::Once::leave`
 void *enterLeaveTest(void *ptr)
-    // Thread function for testing 'bslmt::Once::enter' and
-    // 'bslmt::Once::leave'
 {
     my_TestRecord *testRec = static_cast<my_TestRecord*>(ptr);
     ASSERT(testRec != 0);
@@ -208,7 +208,7 @@ void *enterLeaveTest(void *ptr)
         *testRec->d_winner_p = testRec->d_id;
 
         if (testRec->d_sleepTime) {
-            // Sleep 'testRec->d_sleepTime' milliseconds.
+            // Sleep `testRec->d_sleepTime` milliseconds.
             bsls::TimeInterval sleepInterval(0);
             sleepInterval.addMilliseconds(testRec->d_sleepTime);
             TU::sleep(sleepInterval);
@@ -228,8 +228,8 @@ void *enterLeaveTest(void *ptr)
 }
 
 extern "C"
+/// Thread function for testing `bslmt::Once::cancel`
 void *enterCancelTest(void *ptr)
-    // Thread function for testing 'bslmt::Once::cancel'
 {
     my_TestRecord *testRec = static_cast<my_TestRecord*>(ptr);
     ASSERT(testRec != 0);
@@ -245,7 +245,7 @@ void *enterCancelTest(void *ptr)
         ASSERT(! testRec->d_isWinner);
 
         if (testRec->d_sleepTime) {
-            // Sleep 'testRec->d_sleepTime' milliseconds.
+            // Sleep `testRec->d_sleepTime` milliseconds.
             bsls::TimeInterval sleepInterval(0);
             sleepInterval.addMilliseconds(testRec->d_sleepTime);
             TU::sleep(sleepInterval);
@@ -279,8 +279,8 @@ void *enterCancelTest(void *ptr)
 }
 
 extern "C"
+/// Thread function for testing `bslmt::OnceGuard`
 void *guardTest(void *ptr)
-    // Thread function for testing 'bslmt::OnceGuard'
 {
     my_TestRecord *testRec = static_cast<my_TestRecord*>(ptr);
     ASSERT(testRec != 0);
@@ -302,7 +302,7 @@ void *guardTest(void *ptr)
             *testRec->d_winner_p = testRec->d_id;
 
             if (testRec->d_sleepTime) {
-                // Sleep 'testRec->d_sleepTime' milliseconds.
+                // Sleep `testRec->d_sleepTime` milliseconds.
                 bsls::TimeInterval sleepInterval(0);
                 sleepInterval.addMilliseconds(testRec->d_sleepTime);
                 TU::sleep(sleepInterval);
@@ -323,8 +323,8 @@ void *guardTest(void *ptr)
 }
 
 extern "C"
+/// Thread function for testing `bslmt::OnceGuard::cancel`
 void *guardCancelTest(void *ptr)
-    // Thread function for testing 'bslmt::OnceGuard::cancel'
 {
     my_TestRecord *testRec = static_cast<my_TestRecord*>(ptr);
     ASSERT(testRec != 0);
@@ -343,7 +343,7 @@ void *guardCancelTest(void *ptr)
             ASSERT(! testRec->d_isWinner);
 
             if (testRec->d_sleepTime) {
-                // Sleep 'testRec->d_sleepTime' milliseconds.
+                // Sleep `testRec->d_sleepTime` milliseconds.
                 bsls::TimeInterval sleepInterval(0);
                 sleepInterval.addMilliseconds(testRec->d_sleepTime);
                 TU::sleep(sleepInterval);
@@ -379,8 +379,8 @@ void *guardCancelTest(void *ptr)
 }
 
 extern "C"
+/// Thread function for testing the `BSLMT_ONCE_DO` macro
 void *macroTest(void *ptr)
-    // Thread function for testing the 'BSLMT_ONCE_DO' macro
 {
     my_TestRecord *testRec = static_cast<my_TestRecord*>(ptr);
     ASSERT(testRec != 0);
@@ -398,7 +398,7 @@ void *macroTest(void *ptr)
         *testRec->d_winner_p = testRec->d_id;
 
         if (testRec->d_sleepTime) {
-            // Sleep 'testRec->d_sleepTime' milliseconds.
+            // Sleep `testRec->d_sleepTime` milliseconds.
             bsls::TimeInterval sleepInterval(0);
             sleepInterval.addMilliseconds(testRec->d_sleepTime);
             TU::sleep(sleepInterval);
@@ -414,8 +414,8 @@ void *macroTest(void *ptr)
 }
 
 extern "C"
+/// Thread function for testing the `BSLMT_ONCE_CANCEL` macro
 void *macroCancelTest(void *ptr)
-    // Thread function for testing the 'BSLMT_ONCE_CANCEL' macro
 {
     my_TestRecord *testRec = static_cast<my_TestRecord*>(ptr);
     ASSERT(testRec != 0);
@@ -430,7 +430,7 @@ void *macroCancelTest(void *ptr)
         ASSERT(! testRec->d_isWinner);
 
         if (testRec->d_sleepTime) {
-            // Sleep 'testRec->d_sleepTime' milliseconds.
+            // Sleep `testRec->d_sleepTime` milliseconds.
             bsls::TimeInterval sleepInterval(0);
             sleepInterval.addMilliseconds(testRec->d_sleepTime);
             TU::sleep(sleepInterval);
@@ -468,21 +468,21 @@ void *macroCancelTest(void *ptr)
 ///-----
 // Typically, the facilities in this component are used to implement a
 // thread-safe singleton.  Below, we implement the a singleton four ways,
-// illustrating the two ways to directly use 'bslmt::Once', the use of
-// 'bslmt::OnceGuard', and the use of 'BSLMT_ONCE_DO'.  In each example, the
-// singleton functions take a C-string ('const char*') argument and return a
-// reference to a 'bsl::string' object constructed from the input string.  Only
+// illustrating the two ways to directly use `bslmt::Once`, the use of
+// `bslmt::OnceGuard`, and the use of `BSLMT_ONCE_DO`.  In each example, the
+// singleton functions take a C-string (`const char*`) argument and return a
+// reference to a `bsl::string` object constructed from the input string.  Only
 // the first call to each singleton function affect the contents of the
 // singleton string.  (The argument is ignored on subsequent calls.)
 //
 ///First Implementation
 /// - - - - - - - - - -
-// Our first implementation uses the 'BSLMT_ONCE_DO' construct, the
+// Our first implementation uses the `BSLMT_ONCE_DO` construct, the
 // recommended way to use this component.  The function is a variation of the
-// singleton pattern described by Scott Meyers, except that the 'BSLMT_ONCE_DO'
+// singleton pattern described by Scott Meyers, except that the `BSLMT_ONCE_DO`
 // macro is used to handle multiple entries to the function in a thread-safe
 // manner:
-//..
+// ```
     const bsl::string& singleton0(const char *s)
     {
         static bsl::string *theSingletonPtr = 0;
@@ -493,21 +493,21 @@ void *macroCancelTest(void *ptr)
         }
         return *theSingletonPtr;
     }
-//..
-// The 'BSLMT_ONCE_DO' mechanism suffices for most situations; however, if more
+// ```
+// The `BSLMT_ONCE_DO` mechanism suffices for most situations; however, if more
 // flexibility is required, review the remaining examples in this series for
 // more design choices.  The next example will use the lowest-level facilities
-// of 'bslmt::Once'.  The two following examples use progressively higher-level
+// of `bslmt::Once`.  The two following examples use progressively higher-level
 // facilities to produce simpler singleton implementations (though none as
-// simple as the 'BSLMT_ONCE_DO' example above).
+// simple as the `BSLMT_ONCE_DO` example above).
 //
 ///Second Implementation
 ///- - - - - - - - - - -
-// The next singleton function implementation directly uses the 'doOnce' method
-// of 'bslmt::Once'.  We begin by declaring a functor type that does most of
+// The next singleton function implementation directly uses the `doOnce` method
+// of `bslmt::Once`.  We begin by declaring a functor type that does most of
 // the work of the singleton, i.e., constructing the string and setting a
 // (static) pointer to the string:
-//..
+// ```
     static bsl::string *theSingletonPtr = 0;
 
     class SingletonInitializer {
@@ -524,106 +524,106 @@ void *macroCancelTest(void *ptr)
            theSingletonPtr = &theSingleton;
         }
     };
-//..
+// ```
 // The function call operator of the type above is *not* thread-safe.  Firstly,
-// many threads might attempt to simultaneously construct the 'theSingleton'
-// object.  Secondly, once 'theSingletonPtr' is set by one thread, other
+// many threads might attempt to simultaneously construct the `theSingleton`
+// object.  Secondly, once `theSingletonPtr` is set by one thread, other
 // threads still might not see the change (and try to initialize the singleton
 // again).
 //
-// The 'singleton1' function, below, invokes 'SingletonInitializer::operator()'
-// via the 'callOnce' method of 'bslmt::Once' to ensure that 'operator()' is
+// The `singleton1` function, below, invokes `SingletonInitializer::operator()`
+// via the `callOnce` method of `bslmt::Once` to ensure that `operator()` is
 // called by only one thread and that the result is visible to all threads.  We
-// start by creating and initializing a static object of type 'bslmt::Once':
-//..
+// start by creating and initializing a static object of type `bslmt::Once`:
+// ```
     const bsl::string& singleton1(const char *s)
     {
         static bslmt::Once once = BSLMT_ONCE_INITIALIZER;
-//..
-// We construct a 'SingletonInitializer' instance, effectively "binding" the
-// argument 's' so that it may be used in a function invoked by 'callOnce',
+// ```
+// We construct a `SingletonInitializer` instance, effectively "binding" the
+// argument `s` so that it may be used in a function invoked by `callOnce`,
 // which takes only a no-argument functor (or function).  The first thread (and
-// only the first thread) entering this section of code will set 'theSingleton'.
-//..
+// only the first thread) entering this section of code will set `theSingleton`.
+// ```
         once.callOnce(SingletonInitializer(s));
         return *theSingletonPtr;
     }
-//..
-// Once we return from 'callOnce', the appropriate memory barrier has been
-// executed so that the change to 'theSingletonPtr' is visible to all threads.
-// A thread calling 'callOnce' after the initialization has completed would
-// immediately return from the call.  A thread calling 'callOnce' while
+// ```
+// Once we return from `callOnce`, the appropriate memory barrier has been
+// executed so that the change to `theSingletonPtr` is visible to all threads.
+// A thread calling `callOnce` after the initialization has completed would
+// immediately return from the call.  A thread calling `callOnce` while
 // initialization is still in progress would block until initialization
 // completes and then return.
 //
 // *Implementation* *Note*: As an optimization, developers sometimes pre-check
-// the value to be set, 'theSingletonPtr' in this case, to avoid (heavy) memory
+// the value to be set, `theSingletonPtr` in this case, to avoid (heavy) memory
 // barrier operations; however, that practice is not recommended here.  First,
 // the value of the string may be cached by a different CPU, even though the
 // pointer has already been updated on the common memory bus.  Second, The
-// implementation of the 'callOnce' method is fast enough that a pre-check
+// implementation of the `callOnce` method is fast enough that a pre-check
 // would not provide any performance benefit.
 //
 // The one advantage of this implementation over the previous one is that an
-// exception thrown from within 'singletonImp' will cause the 'bslmt::Once'
+// exception thrown from within `singletonImp` will cause the `bslmt::Once`
 // object to be restored to its original state, so that the next entry into the
 // singleton will retry the operation.
 //
 ///Third Implementation
 /// - - - - - - - - - -
-// Our next implementation, 'singleton2', eliminates the need for the
-// 'singletonImp' function and thereby does away with the use of the
+// Our next implementation, `singleton2`, eliminates the need for the
+// `singletonImp` function and thereby does away with the use of the
 // a functor type to "bind" the initialization parameter; however, it does
-// require use of 'bslmt::Once::OnceLock', created on each thread's stack and
-// passed to the methods of 'bslmt::Once'.  First, we declare a static
-// 'bslmt::Once' object as before, and also declare a static pointer to
-// 'bsl::string':
-//..
+// require use of `bslmt::Once::OnceLock`, created on each thread's stack and
+// passed to the methods of `bslmt::Once`.  First, we declare a static
+// `bslmt::Once` object as before, and also declare a static pointer to
+// `bsl::string`:
+// ```
     const bsl::string& singleton2(const char *s)
     {
         static bslmt::Once once = BSLMT_ONCE_INITIALIZER;
         static bsl::string *theSingletonPtr = 0;
-//..
-// Next, we define a local 'bslmt::Once::OnceLock' object and pass it to the
-// 'enter' method:
-//..
+// ```
+// Next, we define a local `bslmt::Once::OnceLock` object and pass it to the
+// `enter` method:
+// ```
         bslmt::Once::OnceLock onceLock;
         if (once.enter(&onceLock)) {
-//..
-// If the 'enter' method returns true, we proceed with the initialization of
+// ```
+// If the `enter` method returns true, we proceed with the initialization of
 // the singleton, as before.
-//..
+// ```
             static bsl::string theSingleton(s);
             theSingletonPtr = &theSingleton;
-//..
-// When initialization is complete, the 'leave' method is called for the same
-// context cookie previously used in the call to 'enter':
-//..
+// ```
+// When initialization is complete, the `leave` method is called for the same
+// context cookie previously used in the call to `enter`:
+// ```
             once.leave(&onceLock);
         }
-//..
+// ```
 // When any thread reaches this point, initialization has been complete and
 // initialized string is returned:
-//..
+// ```
         return *theSingletonPtr;
     }
-//..
+// ```
 //
 ///Fourth Implementation
 ///- - - - - - - - - - -
-// Our final implementation, 'singleton3', uses 'bslmt::OnceGuard' to simplify
-// the previous implementation by using 'bslmt::OnceGuard' to hide (automate)
-// the use of 'bslmt::Once::OnceLock'.  We begin as before, defining a static
-// 'bslmt::Once' object and a static 'bsl::string' pointer:
-//..
+// Our final implementation, `singleton3`, uses `bslmt::OnceGuard` to simplify
+// the previous implementation by using `bslmt::OnceGuard` to hide (automate)
+// the use of `bslmt::Once::OnceLock`.  We begin as before, defining a static
+// `bslmt::Once` object and a static `bsl::string` pointer:
+// ```
     const bsl::string& singleton3(const char *s)
     {
         static bslmt::Once  once            = BSLMT_ONCE_INITIALIZER;
         static bsl::string *theSingletonPtr = 0;
-//..
-// We then declare a local 'bslmt::OnceGuard' object and associate it with the
-// 'bslmt::Once' object before entering the one-time initialization region:
-//..
+// ```
+// We then declare a local `bslmt::OnceGuard` object and associate it with the
+// `bslmt::Once` object before entering the one-time initialization region:
+// ```
         bslmt::OnceGuard onceGuard(&once);
         if (onceGuard.enter()) {
             static bsl::string theSingleton(s);
@@ -631,8 +631,8 @@ void *macroCancelTest(void *ptr)
         }
         return *theSingletonPtr;
     }
-//..
-// Note that it is unnecessary to call 'onceGuard.leave()' because that is
+// ```
+// Note that it is unnecessary to call `onceGuard.leave()` because that is
 // called automatically before the function returns.  This machinery makes the
 // code more robust in the presence of, e.g., return statements in the
 // initialization code.
@@ -641,13 +641,13 @@ void *macroCancelTest(void *ptr)
 // the guard and the initialization code should be enclosed in an extra block
 // so that the guard is destroyed as soon as validly possible and allow other
 // threads waiting on the initialization to continue.  Alternatively, one can
-// call 'onceGuard.leave()' explicitly at the end of the initialization.
+// call `onceGuard.leave()` explicitly at the end of the initialization.
 //
 ///Using the Semaphore Implementations
 ///- - - - - - - - - - - - - - - - - -
-// The following pair of functions, 'thread1func' and 'thread2func' which will
+// The following pair of functions, `thread1func` and `thread2func` which will
 // be run by different threads:
-//..
+// ```
     void *thread1func(void *)
     {
         const bsl::string& s0 = singleton0("0 hello");
@@ -679,7 +679,7 @@ void *macroCancelTest(void *ptr)
         // ... lots more code goes here
         return 0;
     }
-//..
+// ```
 // Both threads attempt to initialize the four singletons.  In our example,
 // each thread passes a distinct argument to the singleton, allowing us to
 // identify the thread that initializes the singleton.  (In practice, the
@@ -689,7 +689,7 @@ void *macroCancelTest(void *ptr)
 // Assuming that the first thread function wins all of the races to initialize
 // the singletons, the first singleton is set to "0 hello", the second
 // singleton to "1 hello", etc.
-//..
+// ```
     int usageExample1()
     {
         void startThread1();
@@ -705,7 +705,7 @@ void *macroCancelTest(void *ptr)
 
         return 0;
     }
-//..
+// ```
 
 void startThread1() { thread1func(0); }
 void startThread2() { thread2func(0); }
@@ -742,7 +742,7 @@ int main(int argc, char *argv[])
         // Concerns: That the usage examples documented in the header file
         //    compile and run as described.
         //
-        // Plan: Copy the usage example verbatim, changing 'assert' to 'ASSERT'
+        // Plan: Copy the usage example verbatim, changing `assert` to `ASSERT`
         //
         // Testing:
         //      USAGE EXAMPLE
@@ -762,21 +762,21 @@ int main(int argc, char *argv[])
         // TESTING BSLMT_ONCE_CANCEL
         //
         // Concerns:
-        //   - Calling 'BSLMT_ONCE_CANCEL' within a 'BSLMT_ONCE_DO' construct
+        //   - Calling `BSLMT_ONCE_CANCEL` within a `BSLMT_ONCE_DO` construct
         //     will leave the one-time code region in a restartable state.
-        //   - Exactly one thread that is waiting on the 'BSLMT_ONCE_DO' will
+        //   - Exactly one thread that is waiting on the `BSLMT_ONCE_DO` will
         //     be admitted into the one-time region.
         //   - When any thread completes the one-time code, all other threads
         //     will be unblocked and will not execute the one-time code.
         //
         // Plan:
         //   - Create an array of data records with one element per thread.
-        //   - Create a function that, using 'BSLMT_ONCE_DO',
+        //   - Create a function that, using `BSLMT_ONCE_DO`,
         //     sets an entry in a shared array of "winner" flags then, if this
         //     is the first thread to enter the one-time region, calls
-        //     'BSLMT_ONCE_CANCEL', but if this is the second thread to enter,
+        //     `BSLMT_ONCE_CANCEL`, but if this is the second thread to enter,
         //     sets its own winner flag lets the guard go out of scope.
-        //   - For a small number, 'n' (minimum 4), start 'n' threads, all of
+        //   - For a small number, `n` (minimum 4), start `n` threads, all of
         //     which will synchronize on a barrier and attempt to run the
         //     "once" function simultaneously.
         //   - Verify that *two* entries were filled in the array of winner
@@ -788,7 +788,7 @@ int main(int argc, char *argv[])
         //   - Verify that the remaining threads considered the second winner
         //     to be *the* winner.
         //   - Test cannot be repeated in the same execution because the
-        //     'BSLMT_ONCE_DO' macro uses a hidden static 'bslmt::Once' object
+        //     `BSLMT_ONCE_DO` macro uses a hidden static `bslmt::Once` object
         //     that cannot be reset.
         //
         // Testing:
@@ -848,7 +848,7 @@ int main(int argc, char *argv[])
         ASSERT(winners[1] == testRecords[winners[1]].d_foundWinner);
 
         // Verify expected results of all threads.  At this point
-        // 'winnerElapsed' refers to the 2nd winner
+        // `winnerElapsed` refers to the 2nd winner
         for (int i = 0; i < numThreads; ++i) {
 
             LOOP2_ASSERT(i, numThreads, testRecords[i].d_threadRan);
@@ -870,17 +870,17 @@ int main(int argc, char *argv[])
         // TESTING BSLMT_ONCE_DO
         //
         // Concerns:
-        //   - 'BSLMT_ONCE_DO' can fully automate use of 'bslmt::Once'.
-        //   - 'BSLMT_ONCE_DO' can be used twice in the same block.
+        //   - `BSLMT_ONCE_DO` can fully automate use of `bslmt::Once`.
+        //   - `BSLMT_ONCE_DO` can be used twice in the same block.
         //
         // Plan:
         //   - Create an array of data records with one element per thread.
-        //   - Create a function that uses 'BSLMT_ONCE_DO' to enter the
+        //   - Create a function that uses `BSLMT_ONCE_DO` to enter the
         //     one-time code, set a "winner" flag within a specified record
         //     and a shared "winner" flag, then destroys the guard by exiting
         //     the scope.
-        //   - In the thread function, verify that 'isInProgress' reflects the
-        //     current state of the 'bslmt::OnceGuard' object.
+        //   - In the thread function, verify that `isInProgress` reflects the
+        //     current state of the `bslmt::OnceGuard` object.
         //   - Start a few threads, all of which will
         //     synchronize on a barrier and attempt to run the "once" function
         //     simultaneously.
@@ -890,8 +890,8 @@ int main(int argc, char *argv[])
         //   - Verify that only one thread set its "winner" flag.
         //   - Rerun the threads and verify that none of the threads are
         //     winners the second time.  (Test cannot be reset and repeated in
-        //     the same execution because the 'BSLMT_ONCE_DO' macro uses a
-        //     hidden static 'bslmt::Once' object that cannot be reset.)
+        //     the same execution because the `BSLMT_ONCE_DO` macro uses a
+        //     hidden static `bslmt::Once` object that cannot be reset.)
         //   - Create two, non-nested BSLMT_ONCE_DO constructs within a
         //     for-loop block, each incrementing a different counter.  Verify
         //     that compilation is successful (i.e., they do not conflict with
@@ -1043,36 +1043,36 @@ int main(int argc, char *argv[])
         // TESTING BSLMT_ONCEGUARD::SETONCE
         //
         // Concerns:
-        //    - After calling 'leave' on a 'bslmt::OnceGuard', it can be
-        //      associated with a new 'bslmt::Once' object and re-used.
+        //    - After calling `leave` on a `bslmt::OnceGuard`, it can be
+        //      associated with a new `bslmt::Once` object and re-used.
         //
         //
         // Plan:
-        //    - Because a 'bslmt::OnceGuard' object is not itself shared
+        //    - Because a `bslmt::OnceGuard` object is not itself shared
         //      among threads and because the underlying thread-safe access to
-        //      the 'bslmt::Once' object has already been verified by other
+        //      the `bslmt::Once` object has already been verified by other
         //      test cases, there is no need even to spawn threads in this
         //      test case.
-        //    - Create a 'bslmt::Once' object.
-        //    - Construct a 'bslmt::OnceGuard' using the 'bslmt::Once' object.
-        //    - Call 'enter' on the guard and verify that it returns true.
-        //    - Verify that the guard 'isInProgress' returns true.
-        //    - Call 'leave' on the guard.
-        //    - Verify that the guard 'isInProgress' now returns false.
-        //    - Create a second 'bslmt::Once' object.
-        //    - Call 'setOnce' on the guard to associated it with the second
-        //      'bslmt::Once' object.
-        //    - Call 'enter' on the guard and verify that it returns true.
-        //    - Verify that the guard 'isInProgress' returns true.
-        //    - Call 'leave' on the guard.
-        //    - Verify that the guard 'isInProgress' now returns false.
-        //    - Create a third 'bslmt::Once' object.
-        //    - Call 'enter' and 'leave' on the third 'bslmt::Once' object to
+        //    - Create a `bslmt::Once` object.
+        //    - Construct a `bslmt::OnceGuard` using the `bslmt::Once` object.
+        //    - Call `enter` on the guard and verify that it returns true.
+        //    - Verify that the guard `isInProgress` returns true.
+        //    - Call `leave` on the guard.
+        //    - Verify that the guard `isInProgress` now returns false.
+        //    - Create a second `bslmt::Once` object.
+        //    - Call `setOnce` on the guard to associated it with the second
+        //      `bslmt::Once` object.
+        //    - Call `enter` on the guard and verify that it returns true.
+        //    - Verify that the guard `isInProgress` returns true.
+        //    - Call `leave` on the guard.
+        //    - Verify that the guard `isInProgress` now returns false.
+        //    - Create a third `bslmt::Once` object.
+        //    - Call `enter` and `leave` on the third `bslmt::Once` object to
         //      put it into a "done" state.
-        //    - Call 'setOnce' on the guard to associate it with the third
-        //      'bslmt::Once' object.
-        //    - Verify that 'enter' still returns false (because the
-        //      'bslmt::Once' object has already been used).
+        //    - Call `setOnce` on the guard to associate it with the third
+        //      `bslmt::Once` object.
+        //    - Verify that `enter` still returns false (because the
+        //      `bslmt::Once` object has already been used).
         //
         // Testing:
         //      void bslmt::OnceGuard::setOnce(bslmt::Once *once);
@@ -1113,27 +1113,27 @@ int main(int argc, char *argv[])
         // TESTING BSLMT_ONCEGUARD::LEAVE
         //
         // Concerns:
-        //    - Calling 'leave' on a 'bslmt::OnceGuard' will put the
-        //      associated 'bslmt::Once' object into a "done" state.
-        //    - The 'isInProgress' method returns 'false' after 'leave' is
+        //    - Calling `leave` on a `bslmt::OnceGuard` will put the
+        //      associated `bslmt::Once` object into a "done" state.
+        //    - The `isInProgress` method returns `false` after `leave` is
         //      called.
         //
         // Plan:
-        //    - Because a 'bslmt::OnceGuard' object is not itself shared
+        //    - Because a `bslmt::OnceGuard` object is not itself shared
         //      among threads and because the underlying thread-safe access to
-        //      the 'bslmt::Once' object has already been verified by other
+        //      the `bslmt::Once` object has already been verified by other
         //      test cases, there is no need even to spawn threads in this
         //      test case.
-        //    - Create a 'bslmt::Once' object.
-        //    - Construct a 'bslmt::OnceGuard' using the 'bslmt::Once' object.
-        //    - Call 'enter' on the guard and verify that it returns true.
-        //    - Verify that the guard 'isInProgress' returns true.
-        //    - Call 'leave' on the guard.
-        //    - Verify that the guard 'isInProgress' now returns false.
-        //    - Again, call 'enter' on the guard and verify that it now
+        //    - Create a `bslmt::Once` object.
+        //    - Construct a `bslmt::OnceGuard` using the `bslmt::Once` object.
+        //    - Call `enter` on the guard and verify that it returns true.
+        //    - Verify that the guard `isInProgress` returns true.
+        //    - Call `leave` on the guard.
+        //    - Verify that the guard `isInProgress` now returns false.
+        //    - Again, call `enter` on the guard and verify that it now
         //      returns false.
-        //    - Verify that the guard 'isInProgress' returns false.
-        //    - Call 'leave' on the original 'bslmt::Once' object and verify
+        //    - Verify that the guard `isInProgress` returns false.
+        //    - Call `leave` on the original `bslmt::Once` object and verify
         //      that it returns false.
         //
         // Testing:
@@ -1162,22 +1162,22 @@ int main(int argc, char *argv[])
         // TESTING BSLMT_ONCEGUARD::CANCEL
         //
         // Concerns:
-        //   - Calling 'cancel' on a 'bslmt::OnceGuard' object will leave the
+        //   - Calling `cancel` on a `bslmt::OnceGuard` object will leave the
         //     one-time code region in a restartable state.
-        //   - Exactly one thread that is waiting on the 'bslmt::Once' will
+        //   - Exactly one thread that is waiting on the `bslmt::Once` will
         //     be admitted into the one-time region.
         //   - When any thread completes the one-time code, all other threads
         //     will be unblocked and will not execute the one-time code.
         //
         // Plan:
         //   - Create an array of data records with one element per thread.
-        //   - Create a function that, using a 'bslmt::OnceGuard' on a shared
-        //     'bslmt::Once' object, sets an entry in a shared array of
+        //   - Create a function that, using a `bslmt::OnceGuard` on a shared
+        //     `bslmt::Once` object, sets an entry in a shared array of
         //     "winner" flags then, if this is the first thread to enter the
-        //     one-time region, calls 'cancel' on the guard but if this is the
+        //     one-time region, calls `cancel` on the guard but if this is the
         //     second thread to enter, sets its own winner flag lets the guard
         //     go out of scope.
-        //   - For a small number, 'n' (minimum 4), start 'n' threads, all of
+        //   - For a small number, `n` (minimum 4), start `n` threads, all of
         //     which will synchronize on a barrier and attempt to run the
         //     "once" function simultaneously.
         //   - Verify that *two* entries were filled in the array of winner
@@ -1253,7 +1253,7 @@ int main(int argc, char *argv[])
                         winners[1] == testRecords[winners[1]].d_foundWinner);
 
             // Verify expected results of all threads.  At this point
-            // 'winnerElapsed' refers to the 2nd winner
+            // `winnerElapsed` refers to the 2nd winner
             for (int i = 0; i < numThreads; ++i) {
 
                 LOOP2_ASSERT(i, numThreads, testRecords[i].d_threadRan);
@@ -1276,18 +1276,18 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING BSLMT_ONCEGUARD
         //
-        // Concerns: That the 'bslmt::OnceGuard' can automate the 'leave'
-        //   some of the functionality of 'bslmt::Once'.  In particular,
-        //   'leave' is called automatically on destruction.
+        // Concerns: That the `bslmt::OnceGuard` can automate the `leave`
+        //   some of the functionality of `bslmt::Once`.  In particular,
+        //   `leave` is called automatically on destruction.
         //
         // Plan:
         //   - Create an array of data records with one element per thread.
-        //   - Create a function that uses a 'bslmt::Once' guard to enter the
+        //   - Create a function that uses a `bslmt::Once` guard to enter the
         //     one-time code, set a "winner" flag within a specified record
         //     and a shared "winner" flag, then destroys the guard by exiting
         //     the scope.
-        //   - In the thread function, verify that 'isInProgress' reflects the
-        //     current state of the 'bslmt::OnceGuard' object.
+        //   - In the thread function, verify that `isInProgress` reflects the
+        //     current state of the `bslmt::OnceGuard` object.
         //   - Start a few threads, all of which will
         //     synchronize on a barrier and attempt to run the "once" function
         //     simultaneously.
@@ -1297,10 +1297,10 @@ int main(int argc, char *argv[])
         //   - Verify that only one thread set its "winner" flag.
         //   - Repeat the test without resetting the bslmt::Once structure.
         //   - Verify that none of the threads are winners the second time.
-        //   - Reset the 'bslmt::Once' object and repeat this test several
+        //   - Reset the `bslmt::Once` object and repeat this test several
         //     times to maximize the chance of exposing unhandled race
         //     conditions.
-        //   - Repeat the entire test with two separate 'bslmt::Once' objects
+        //   - Repeat the entire test with two separate `bslmt::Once` objects
         //     such that half the threads access one object and the other half
         //     access the other object.
         //
@@ -1317,7 +1317,7 @@ int main(int argc, char *argv[])
         static const int MAX_THREADS = 5;
         static const int SLEEP_TIME  = 0; // milliseconds
 
-        if (verbose) bsl::cout << "Testing with one 'bslmt::Once' object"
+        if (verbose) bsl::cout << "Testing with one `bslmt::Once` object"
                                << bsl::endl;
 
         int numThreads = MAX_THREADS;
@@ -1407,7 +1407,7 @@ int main(int argc, char *argv[])
 
         } // end for (repetition)
 
-        if (verbose) bsl::cout << "Testing with two 'bslmt::Once' objects"
+        if (verbose) bsl::cout << "Testing with two `bslmt::Once` objects"
                                << bsl::endl;
 
         for (int repetition = 0; repetition < REPEAT_COUNT; ++repetition) {
@@ -1423,7 +1423,7 @@ int main(int argc, char *argv[])
 
             // Initialize the test records
             for (int i = 0; i < numThreads; ++i) {
-                // 'x' is true for half the threads
+                // `x` is true for half the threads
                 bool x = i < numThreads / 2;
                 testRecords[i].d_barrier_p   = &barrier;
                 testRecords[i].d_id          = i;
@@ -1530,22 +1530,22 @@ int main(int argc, char *argv[])
         // TESTING CANCEL
         //
         // Concerns:
-        //   - Calling 'cancel' on a 'bslmt::Once' object will leave the
+        //   - Calling `cancel` on a `bslmt::Once` object will leave the
         //     one-time code region in a restartable state.
-        //   - Exactly one thread that is waiting on a 'bslmt::Once' will
+        //   - Exactly one thread that is waiting on a `bslmt::Once` will
         //     be admitted into the one-time region.
         //   - When any thread completes the one-time code, all other threads
         //     will be unblocked and will not execute the one-time code.
         //
         // Plan:
         //   - Create an array of data records with one element per thread.
-        //   - Create a function that, using 'enter' on a shared 'bslmt::Once'
+        //   - Create a function that, using `enter` on a shared `bslmt::Once`
         //     object, sets an entry in a shared array of "winner" flags,
         //     sleeps for 200 milliseconds, then, if this is the first thread
-        //     to enter the one-time region, calls 'cancel' but if this is the
+        //     to enter the one-time region, calls `cancel` but if this is the
         //     second thread to enter, sets its own winner flag and calls
-        //     'leave'.
-        //   - For a small number, 'n' (minimum 4), start 'n' threads, all of
+        //     `leave`.
+        //   - For a small number, `n` (minimum 4), start `n` threads, all of
         //     which will synchronize on a barrier and attempt to run the
         //     "once" function simultaneously.
         //   - Verify that *two* entries were filled in the array of winner
@@ -1656,7 +1656,7 @@ int main(int argc, char *argv[])
             }
 
             // Verify expected results of all threads.  At this point
-            // 'winnerElapsed' refers to the 2nd winner
+            // `winnerElapsed` refers to the 2nd winner
             for (int i = 0; i < numThreads; ++i) {
 
                 LOOP2_ASSERT(i, numThreads, testRecords[i].d_threadRan);
@@ -1691,9 +1691,9 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING ENTER AND LEAVE
         //
-        // Concerns: Given 'n' threads attempting to simultaneously execute
+        // Concerns: Given `n` threads attempting to simultaneously execute
         //   the same one-time execution code, which is protected by a
-        //   'bslmt::Once' object using the 'enter' and 'leave' methods, the
+        //   `bslmt::Once` object using the `enter` and `leave` methods, the
         //   following occurs:
         //   - Only one thread (the "winner") actually executes the code.
         //   - The remaining threads (the "losers") wait for the winner to
@@ -1707,17 +1707,17 @@ int main(int argc, char *argv[])
         //   - The above concerns are met for as few as 1 and as many as 15
         //     threads.  (It is assumed that more than 15 threads will not
         //     change the behavior.)
-        //   - If there are two ore more 'bslmt::Once' objects, then they are
+        //   - If there are two ore more `bslmt::Once` objects, then they are
         //     independent of one-another and access to one does not block or
         //     significantly slow down access to the other.
         //
         // Plan:
         //   - Create an array of data records with one element per thread.
-        //   - Create a function that, using 'enter' on a shared 'bslmt::Once'
+        //   - Create a function that, using `enter` on a shared `bslmt::Once`
         //     object, sets a "winner" flag within a specified record and a
         //     shared "winner" flag, sleeps for 200 milliseconds, then calls
-        //     'leave'.
-        //   - For 'n' = 1 to 15, start 'n' threads, all of which will
+        //     `leave`.
+        //   - For `n` = 1 to 15, start `n` threads, all of which will
         //     synchronize on a barrier and attempt to run the "once" function
         //     simultaneously.
         //   - Verify that, after the once-time code, the "done" flag is set to
@@ -1733,9 +1733,9 @@ int main(int argc, char *argv[])
         //   - Verify that it takes almost no time for each thread to complete.
         //   - Verify that the state of initialization is consistent at each
         //     step.
-        //   - Reset the 'bslmt::Once' object and repeat this test many times
+        //   - Reset the `bslmt::Once` object and repeat this test many times
         //     to maximize the chance of exposing unhandled race conditions.
-        //   - Repeat the entire test with two separate 'bslmt::Once' objects
+        //   - Repeat the entire test with two separate `bslmt::Once` objects
         //     such that half the threads access one object and the other half
         //     access the other object.
         //
@@ -1758,7 +1758,7 @@ int main(int argc, char *argv[])
         // Losers may each finish up to 75ms behind winner
         static const int MAX_NOOP_DELAY = 75;
 
-        if (verbose) bsl::cout << "Testing with one 'bslmt::Once' object"
+        if (verbose) bsl::cout << "Testing with one `bslmt::Once` object"
                                << bsl::endl;
 
         static const int THREAD_COUNT1[] = { 1, 2, 3, 4, 8, 12, 15 };
@@ -1908,7 +1908,7 @@ int main(int argc, char *argv[])
             } // end for (repetition)
         } // end for (numThreads)
 
-        if (verbose) bsl::cout << "Testing with two 'bslmt::Once' objects"
+        if (verbose) bsl::cout << "Testing with two `bslmt::Once` objects"
                                << bsl::endl;
 
         static const int THREAD_COUNT2[] = { 2, 4, 8, 12, 20 };
@@ -1942,7 +1942,7 @@ int main(int argc, char *argv[])
 
                 // Initialize the test records
                 for (int i = 0; i < numThreads; ++i) {
-                    // 'x' is true for half the threads
+                    // `x` is true for half the threads
                     bool x = i < numThreads / 2;
                     testRecords[i].d_barrier_p   = &barrier;
                     testRecords[i].d_id          = i;

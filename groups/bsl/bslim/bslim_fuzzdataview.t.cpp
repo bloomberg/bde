@@ -16,8 +16,8 @@
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
 
-// On some older platforms, 'bsl_cstdint.h' does not define 'SIZE_MAX'.  On
-// these platforms, define 'SIZE_MAX' using 'numeric_limits'.
+// On some older platforms, `bsl_cstdint.h` does not define `SIZE_MAX`.  On
+// these platforms, define `SIZE_MAX` using `numeric_limits`.
 
 #if !defined(SIZE_MAX)
     #include <bsl_limits.h>
@@ -39,8 +39,8 @@ using bsl::flush;
 // fuzz data bytes.  This test driver tests each implemented function.
 //
 // Global Concerns:
-//: o ACCESSOR methods are declared 'const'.
-//: o No memory is ever allocated from the global allocator.
+//  - ACCESSOR methods are declared `const`.
+//  - No memory is ever allocated from the global allocator.
 //-----------------------------------------------------------------------------
 // CREATOR
 // [ 2] FuzzDataView(const bsl::uint8_t *data, bsl::size_t size);
@@ -122,12 +122,12 @@ static int veryVerbose;
 static int veryVeryVerbose;
 static int veryVeryVeryVerbose;
 
+/// Load into the specified `buffer` of the specified `bufLen` a total of
+/// `numBytes` random bytes.  The behavior is undefined unless
+/// `numBytes <= bufLen`.
 void generateBytes(bsl::uint8_t *buffer,
                    bsl::size_t   bufLen,
                    bsl::size_t   numBytes)
-    // Load into the specified 'buffer' of the specified 'bufLen' a total of
-    // 'numBytes' random bytes.  The behavior is undefined unless
-    // 'numBytes <= bufLen'.
 {
     ASSERT(numBytes <= bufLen);
     bsl::generate_n(buffer, numBytes, bsl::rand);
@@ -166,13 +166,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -184,97 +184,97 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Creating a 'bsl::string'
+///Example 1: Creating a `bsl::string`
 ///- - - - - - - - - - - - - - - - - -
-// The following example demonstrates how to create a 'bsl::string' object from
-// a 'FuzzDataView'.
+// The following example demonstrates how to create a `bsl::string` object from
+// a `FuzzDataView`.
 //
-// First, we construct a 'FuzzDataView' object, 'view0', from an array of
+// First, we construct a `FuzzDataView` object, `view0`, from an array of
 // bytes:
-//..
+// ```
    const uint8_t data[] = {0x8A, 0x19, 0x0D, 0x44, 0x37, 0x0D,
                            0x38, 0x5E, 0x9B, 0xAA, 0xF3, 0xDA};
 //
    bslim::FuzzDataView view0(data, sizeof(data));
 //
    ASSERT(12 == view0.length());
-//..
-// Next, we take the first 3 bytes from 'view0' and store them in a new
-// 'FuzzDataView' object, 'view1':
-//..
+// ```
+// Next, we take the first 3 bytes from `view0` and store them in a new
+// `FuzzDataView` object, `view1`:
+// ```
    bslim::FuzzDataView view1 = view0.removePrefix(3);
 //
    ASSERT(3 == view1.length());
    ASSERT(9 == view0.length());
-//..
-// We confirm that 'removePrefix(3)' removed 3 bytes from 'view0' and
-// that 'view1' has length 3.
+// ```
+// We confirm that `removePrefix(3)` removed 3 bytes from `view0` and
+// that `view1` has length 3.
 //
-// Then, we create a 'bsl::string' object from 'view1':
-//..
+// Then, we create a `bsl::string` object from `view1`:
+// ```
    bsl::string s1(view1.begin(), view1.end());
 
    ASSERT(3 == s1.length());
-//..
-// Finally, we create another 'bsl::string' with the remaining bytes of
-// 'view0':
-//..
+// ```
+// Finally, we create another `bsl::string` with the remaining bytes of
+// `view0`:
+// ```
    bsl::string s2(view0.begin(), view0.end());
 
    ASSERT(9 == s2.length());
-//..
+// ```
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // METHOD 'removeSuffix'
+        // METHOD `removeSuffix`
         //
         // Concerns:
-        //: 1 That the source object has the 'min(numBytes, source.length())'
-        //:   last bytes removed.
-        //:
-        //: 2 That the object returned has those bytes that were removed.
-        //:
-        //: 3 That if we try to remove more bytes than contained in the source,
-        //:   the method will return all bytes contained in the source.
-        //:
-        //: 4 That corner cases of removing 0 bytes and SIZE_MAX are handled
-        //:   appropriately.
-        //:
-        //: 5 That no bytes in the original data buffer are modified.
-        //:
-        //: 6 That the function behaves as expected if the source object was
-        //:   created with (0, 0).
+        // 1. That the source object has the `min(numBytes, source.length())`
+        //    last bytes removed.
+        //
+        // 2. That the object returned has those bytes that were removed.
+        //
+        // 3. That if we try to remove more bytes than contained in the source,
+        //    the method will return all bytes contained in the source.
+        //
+        // 4. That corner cases of removing 0 bytes and SIZE_MAX are handled
+        //    appropriately.
+        //
+        // 5. That no bytes in the original data buffer are modified.
+        //
+        // 6. That the function behaves as expected if the source object was
+        //    created with (0, 0).
         //
         // Plan:
-        //: 1 First, using the table-driven approach, define a representative
-        //:   set of valid inputs.  Verify that the function returns the
-        //:   correct value.  (C-2)
-        //:
-        //: 2 Verify that 'min(numBytes, source.length())' bytes were removed
-        //:   from the source object.  (C-1)
-        //:
-        //: 3 Before invoking 'removeSuffix', make a copy of the original
-        //:   and then verify that the returned bytes are those expected.
-        //:   (C-2)
-        //:
-        //: 4 Compute the expected number of bytes (i.e., min(NUM_BYTES,
-        //:   length()) and verify that this number of bytes was consumed.
-        //:   (C-3)
-        //:
-        //: 5 Using the table-driven approach, test the corner cases of
-        //:   removing 0 and SIZE_MAX bytes.  (C-4)
-        //:
-        //: 6 Generate random fuzz data buffers and exercise the function
-        //:   with random data.  Verify that if we try to remove more bytes
-        //:   than contained in the source, the method will return all bytes
-        //:   contained in the source.  (C-3)
-        //:
-        //: 7 For each iteration through the table, create a source object with
-        //:   null data and size of 0, and verify that the function behaves as
-        //:   expected.  (C-6)
-        //:
-        //: 8 Using 'bsl::equal', verify that no bytes in the original data
-        //:   buffer were modified.  (C-5)
+        // 1. First, using the table-driven approach, define a representative
+        //    set of valid inputs.  Verify that the function returns the
+        //    correct value.  (C-2)
+        //
+        // 2. Verify that `min(numBytes, source.length())` bytes were removed
+        //    from the source object.  (C-1)
+        //
+        // 3. Before invoking `removeSuffix`, make a copy of the original
+        //    and then verify that the returned bytes are those expected.
+        //    (C-2)
+        //
+        // 4. Compute the expected number of bytes (i.e., min(NUM_BYTES,
+        //    length()) and verify that this number of bytes was consumed.
+        //    (C-3)
+        //
+        // 5. Using the table-driven approach, test the corner cases of
+        //    removing 0 and SIZE_MAX bytes.  (C-4)
+        //
+        // 6. Generate random fuzz data buffers and exercise the function
+        //    with random data.  Verify that if we try to remove more bytes
+        //    than contained in the source, the method will return all bytes
+        //    contained in the source.  (C-3)
+        //
+        // 7. For each iteration through the table, create a source object with
+        //    null data and size of 0, and verify that the function behaves as
+        //    expected.  (C-6)
+        //
+        // 8. Using `bsl::equal`, verify that no bytes in the original data
+        //    buffer were modified.  (C-5)
         //
         // Testing:
         //   FuzzDataView removeSuffix(bsl::size_t numBytes);
@@ -282,7 +282,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "METHOD 'removeSuffix'" << endl
+                 << "METHOD `removeSuffix`" << endl
                  << "=====================" << endl;
 
         static const struct {
@@ -344,7 +344,7 @@ int main(int argc, char *argv[])
         }
         {
             if (verbose) {
-                cout << "\nTesting 'removeSuffix' with FuzzDataView(0, 0)"
+                cout << "\nTesting `removeSuffix` with FuzzDataView(0, 0)"
                      << endl;
             }
             Obj        mX(0, 0);
@@ -375,55 +375,55 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // METHOD 'removePrefix'
+        // METHOD `removePrefix`
         //
         // Concerns:
-        //: 1 That the source object has the 'min(numBytes, source.length())'
-        //:   first bytes removed.
-        //:
-        //: 2 That the object returned has those bytes that were removed.
-        //:
-        //: 3 That if we try to remove more bytes than contained in the source,
-        //:   the method will return all bytes contained in the source.
-        //:
-        //: 4 That corner cases of removing 0 bytes and SIZE_MAX are handled
-        //:   appropriately.
-        //:
-        //: 5 That no bytes in the original data buffer are modified.
-        //:
-        //: 6 That the function behaves as expected if the source object was
-        //:   created with (0, 0).
+        // 1. That the source object has the `min(numBytes, source.length())`
+        //    first bytes removed.
+        //
+        // 2. That the object returned has those bytes that were removed.
+        //
+        // 3. That if we try to remove more bytes than contained in the source,
+        //    the method will return all bytes contained in the source.
+        //
+        // 4. That corner cases of removing 0 bytes and SIZE_MAX are handled
+        //    appropriately.
+        //
+        // 5. That no bytes in the original data buffer are modified.
+        //
+        // 6. That the function behaves as expected if the source object was
+        //    created with (0, 0).
         //
         // Plan:
-        //: 1 First, using the table-driven approach, define a representative
-        //:   set of valid inputs.  Verify that the function returns the
-        //:   correct value.  (C-2)
-        //:
-        //: 2 Verify that 'min(numBytes, source.length())' bytes were removed
-        //:   from the source object.  (C-1)
-        //:
-        //: 3 Before invoking 'removePrefix', make a copy of the original
-        //:   and then verify that the returned bytes are those expected.
-        //:   (C-2)
-        //:
-        //: 4 Compute the expected number of bytes (i.e., min(NUM_BYTES,
-        //:   length()) and verify that this number of bytes was consumed.
-        //:   (C-3)
-        //:
-        //: 5 Using the table-driven approach, test the corner cases of
-        //:   removing 0 and SIZE_MAX bytes.  (C-4)
-        //:
-        //: 6 Generate random fuzz data buffers and exercise the function
-        //:   with random data.  Verify that if we try to remove more bytes
-        //:   than contained in the source, the method will return all bytes
-        //:   contained in the source.  (C-3)
-        //:
-        //: 7 For each iteration through the table, create a source object with
-        //:   null data and size of 0, and verify that the function behaves as
-        //:   expected.  (C-6)
-        //:
-        //: 8 Using 'bsl::equal', verify that no bytes in the original data
-        //:   buffer were modified.  (C-5)
+        // 1. First, using the table-driven approach, define a representative
+        //    set of valid inputs.  Verify that the function returns the
+        //    correct value.  (C-2)
+        //
+        // 2. Verify that `min(numBytes, source.length())` bytes were removed
+        //    from the source object.  (C-1)
+        //
+        // 3. Before invoking `removePrefix`, make a copy of the original
+        //    and then verify that the returned bytes are those expected.
+        //    (C-2)
+        //
+        // 4. Compute the expected number of bytes (i.e., min(NUM_BYTES,
+        //    length()) and verify that this number of bytes was consumed.
+        //    (C-3)
+        //
+        // 5. Using the table-driven approach, test the corner cases of
+        //    removing 0 and SIZE_MAX bytes.  (C-4)
+        //
+        // 6. Generate random fuzz data buffers and exercise the function
+        //    with random data.  Verify that if we try to remove more bytes
+        //    than contained in the source, the method will return all bytes
+        //    contained in the source.  (C-3)
+        //
+        // 7. For each iteration through the table, create a source object with
+        //    null data and size of 0, and verify that the function behaves as
+        //    expected.  (C-6)
+        //
+        // 8. Using `bsl::equal`, verify that no bytes in the original data
+        //    buffer were modified.  (C-5)
         //
         // Testing:
         //   FuzzDataView removePrefix(bsl::size_t numBytes);
@@ -431,7 +431,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "METHOD 'removePrefix'" << endl
+                 << "METHOD `removePrefix`" << endl
                  << "=====================" << endl;
 
         static const struct {
@@ -495,7 +495,7 @@ int main(int argc, char *argv[])
         }
         {
             if (verbose) {
-                cout << "\nTesting 'removePrefix' with FuzzDataView(0, 0)"
+                cout << "\nTesting `removePrefix` with FuzzDataView(0, 0)"
                      << endl;
             }
             Obj        mX(0, 0);
@@ -529,26 +529,26 @@ int main(int argc, char *argv[])
         // CTOR, ACCESSORS, & DTOR
         //
         // Concerns:
-        //: 1 An object is correctly constructed from the given data.
-        //:
-        //: 2 Accessor methods return the correct values.
-        //:
-        //: 3 No bytes were modified in the original data buffer.
-        //:
-        //: 4 An object can be created with 'size == 0' as well as both
-        //:   'data == 0' and 'size == 0'.  The resulting object behaves as
-        //:   expected.
+        // 1. An object is correctly constructed from the given data.
+        //
+        // 2. Accessor methods return the correct values.
+        //
+        // 3. No bytes were modified in the original data buffer.
+        //
+        // 4. An object can be created with `size == 0` as well as both
+        //    `data == 0` and `size == 0`.  The resulting object behaves as
+        //    expected.
         //
         // Plan:
-        //: 1 Using the table-driven approach,define a representative set of
-        //:   valid inputs.  Verify that the function returns the correct
-        //:   value and that the source object is correct.  (C-1..2)
-        //:
-        //: 2 Using 'bsl::equal' verify that the original data buffer used to
-        //:   construct the 'FuzzDataView' has not been modified.  (C-3)
-        //:
-        //: 3 Create objects passing '0' for 'size' as well as '0, 0' to the
-        //:   constructor ('data' and 'size').  Invoke the accessors. (C-4)
+        // 1. Using the table-driven approach,define a representative set of
+        //    valid inputs.  Verify that the function returns the correct
+        //    value and that the source object is correct.  (C-1..2)
+        //
+        // 2. Using `bsl::equal` verify that the original data buffer used to
+        //    construct the `FuzzDataView` has not been modified.  (C-3)
+        //
+        // 3. Create objects passing `0` for `size` as well as `0, 0` to the
+        //    constructor (`data` and `size`).  Invoke the accessors. (C-4)
         //
         // Testing:
         //   FuzzDataView(const bsl::uint8_t *data, bsl::size_t size);
@@ -607,7 +607,7 @@ int main(int argc, char *argv[])
         }
         {
             if (verbose)
-                cout << "\nTesting 'FuzzDataView(0, 0)'." << endl;
+                cout << "\nTesting `FuzzDataView(0, 0)`." << endl;
             Obj        mX(0, 0);
             const Obj& X = mX;
 
@@ -634,14 +634,14 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
-        //: 2 Create an object from an array of bytes and its size.
-        //: 3 Exercise all of the ACCESSORS: 'begin', 'end', 'length', 'data'
-        //: 4 Exercise the MANIPULATORS: 'removePrefix' and 'removeSuffix'
+        // 1. Perform and ad-hoc test of the primary modifiers and accessors.
+        // 2. Create an object from an array of bytes and its size.
+        // 3. Exercise all of the ACCESSORS: `begin`, `end`, `length`, `data`
+        // 4. Exercise the MANIPULATORS: `removePrefix` and `removeSuffix`
         //
         // Testing:
         //   BREATHING TEST
@@ -669,7 +669,7 @@ int main(int argc, char *argv[])
             }
         }
         {
-            if (verbose) cout << "\n Testing CTOR and 'removePrefix'" << endl;
+            if (verbose) cout << "\n Testing CTOR and `removePrefix`" << endl;
             const bsl::size_t viewLen = 12;
             generateBytes(FUZZ_BUF, BUFLEN, viewLen);
             Obj           view0(FUZZ_BUF, viewLen);
@@ -689,7 +689,7 @@ int main(int argc, char *argv[])
             ASSERT(11 == s2.length());
         }
         {
-            if (verbose) cout << "\n Testing CTOR and 'removeSuffix'" << endl;
+            if (verbose) cout << "\n Testing CTOR and `removeSuffix`" << endl;
             const bsl::size_t viewLen = 12;
             generateBytes(FUZZ_BUF, BUFLEN, viewLen);
             Obj           view0(FUZZ_BUF, viewLen);

@@ -51,17 +51,17 @@ using bsl::flush;
 //                                  Overview
 //                                  --------
 //  The component under test is a scheduling mechanism that uses a
-//  'bdlmt::TimerEventScheduler' supplied at construction to providing
-//  scheduling events.  This test driver defines a generator language 'gg' to
+//  `bdlmt::TimerEventScheduler` supplied at construction to providing
+//  scheduling events.  This test driver defines a generator language `gg` to
 //  easily describe a sequence of scheduling operations.   The primary
 //  manipulators and accessors are verified by comparing their results against
-//  an "oracle" 'CategorySchedule' (a bsl::map of category to frequency), for
+//  an "oracle" `CategorySchedule` (a bsl::map of category to frequency), for
 //  a set of test cases defined using the generator language.  The more
 //  difficult test cases (4 & 5), verify that the correct clocks are
 //  registered with the underlying timer event scheduler, and that the correct
 //  set of categories are published for each timer event.  For those test
-//  cases we define a helper class, 'TestPublisher', and use it to record the
-//  invocations of the 'balm::MetricsManager' object's 'publish' method over a
+//  cases we define a helper class, `TestPublisher`, and use it to record the
+//  invocations of the `balm::MetricsManager` object's `publish` method over a
 //  period of time and compare those to their expected values.
 // ----------------------------------------------------------------------------
 // CREATORS
@@ -92,8 +92,8 @@ using bsl::flush;
 // [ 9] bsl::ostream& print(bsl::ostream&, int, spacesPerLevel ) const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] 'gg', 'TestPublisher'                       (generator, helper classes)
-// [ 4] PRIVATE METHOD TEST: 'publish'              (private method)
+// [ 2] `gg`, `TestPublisher`                       (generator, helper classes)
+// [ 4] PRIVATE METHOD TEST: `publish`              (private method)
 // [ 5] AUXILIARY TEST: SCHEDULING FREQUENCY        (behavior matches schedule)
 // [11] BALM ALLOCATION EXCEPTION TEST
 // [12] CONCURRENCY TEST
@@ -138,14 +138,14 @@ static void aSsErT(int c, const char *s, int i)
 //                      *NON* STANDARD BALM TEST MACROS
 // ----------------------------------------------------------------------------
 
-// Code defined between the 'BALM_BEGIN_RETRY_TEST' and 'BALM_END_RETRY_TEST'
+// Code defined between the `BALM_BEGIN_RETRY_TEST` and `BALM_END_RETRY_TEST`
 // macros will executed once, and, if there is a test failure, executed again
-// up to the specified number of 'ATTEMPTS'.  These macros are used to bracket
+// up to the specified number of `ATTEMPTS`.  These macros are used to bracket
 // code that may intermittently fail: tests that depend on operating system
 // timers that, under heavy load, are unreliable.  If the bracketed test
-// code succeeds in under 'ATTEMPTS' iterations, the test is successful and
-// 'testStatus' will not be modified (though error messages may be reported to
-// the console), otherwise the test will fail and 'testStatus' will not be 0.
+// code succeeds in under `ATTEMPTS` iterations, the test is successful and
+// `testStatus` will not be modified (though error messages may be reported to
+// the console), otherwise the test will fail and `testStatus` will not be 0.
 #define BALM_BEGIN_RETRY_TEST_IMP(ATTEMPTS, QUIET) {                          \
     {                                                                         \
         static int firstTime = 1;                                             \
@@ -211,11 +211,11 @@ enum {
 // ----------------------------------------------------------------------------
 
 // Note that the following exception test macros are similar to the standard
-// 'BSLMA_EXCEPTION_TEST' macros but, perform additional tests to verify the
+// `BSLMA_EXCEPTION_TEST` macros but, perform additional tests to verify the
 // internal state of the publication scheduler is reset when an exception
 // occurs when modifying the scheduler.  The macros require expect a
-// 'bdlmt::TimerEventScheduler' object named 'timer' and
-// 'balm::PublicationScheduler' named 'MX'.
+// `bdlmt::TimerEventScheduler` object named `timer` and
+// `balm::PublicationScheduler` named `MX`.
 
 #ifdef BDE_BUILD_TARGET_EXC
 #define BEGIN_BALM_EXCEPTION_TEST {                                       \
@@ -249,7 +249,7 @@ enum {
                     << "last alloc size = " << e.numBytes();              \
                 }                                                         \
                 else if (0 == balmExceptionLimit) {                      \
-                    cout << " [ Note: 'balmExceptionLimit' reached. ]";  \
+                    cout << " [ Note: `balmExceptionLimit` reached. ]";  \
                 }                                                         \
                 cout << endl;                                             \
             }                                                             \
@@ -306,17 +306,18 @@ struct IsPair {
            || bsl::is_same<PAIR, std::pair<FirstType, SecondType> >::value;
 };
 
-// from 'bdlmt_timereventscheduler.t.cpp'.
+// from `bdlmt_timereventscheduler.t.cpp`.
+
+/// Sleep for *at* *least* the specified `seconds` and `microseconds`.  This
+/// function is used for testing only.  It uses the function
+/// `bslmt::ThreadUtil::microSleep` but interleaves calls to `yield` to give
+/// a chance to the event scheduler to process its dispatching thread.
+/// Without this, there have been a large number of unpredictable
+/// intermittent failures by this test driver, especially on AIX with
+/// xlc-8.0, in the nightly builds (i.e., when the load is higher than
+/// running the test driver by hand).  It was noticed that calls to `yield`
+/// helped, and this routine centralizes this as a mechanism.
 void microSleep(int microSeconds, int seconds)
-    // Sleep for *at* *least* the specified 'seconds' and 'microseconds'.  This
-    // function is used for testing only.  It uses the function
-    // 'bslmt::ThreadUtil::microSleep' but interleaves calls to 'yield' to give
-    // a chance to the event scheduler to process its dispatching thread.
-    // Without this, there have been a large number of unpredictable
-    // intermittent failures by this test driver, especially on AIX with
-    // xlc-8.0, in the nightly builds (i.e., when the load is higher than
-    // running the test driver by hand).  It was noticed that calls to 'yield'
-    // helped, and this routine centralizes this as a mechanism.
 {
     bslmt::ThreadUtil::microSleep(microSeconds / 2, seconds / 2);
     bslmt::ThreadUtil::yield();
@@ -324,11 +325,11 @@ void microSleep(int microSeconds, int seconds)
     bslmt::ThreadUtil::yield();
 }
 
+/// Return `true` if the specified `value` is within the specified
+/// `windowMs` (milliseconds) of the specified `expectedValue`.
 bool withinWindow(const bsls::TimeInterval& value,
                   const bsls::TimeInterval& expectedValue,
                   int                      windowMs)
-    // Return 'true' if the specified 'value' is within the specified
-    // 'windowMs' (milliseconds) of the specified 'expectedValue'.
 {
     bsls::TimeInterval window(0, windowMs * NANOSECS_PER_MILLISEC);
     bool withinWindow = (expectedValue - window) < value
@@ -344,44 +345,44 @@ bool withinWindow(const bsls::TimeInterval& value,
                             // class TestPublisher
                             // ===================
 
+/// This class defines a test implementation of the `balm::Publisher`
+/// protocol that can be used to record information about invocations of a
+/// `balm::MetricsManager` object's `publish` method.  Each `TestPublisher`
+/// instance tracks the number of times `publish` has been called, and
+/// maintains `lastElapsedTime()` and `lastTimeStamp()` values holding the
+/// elapsed time and time stamp values of the last published
+/// `balm::MetricSample` object.  In addition, the `TestPublisher` maintains
+/// a map of invocation information.  Each `balm::MetricSample` passed to
+/// the `publish` method is identified by the *set* of *categories* that
+/// appear in the sequence of records held by that sample.  For each unique
+/// set of categories passed to the `publish` method (via a
+/// `balm::MetricSample` object) a `TestPublisher` object will record: the
+/// number of times the `publish` method has been invoked with that set of
+/// categories, as well as the time stamp and elapsed time of the last
+/// metric sample passed to `publish` with that identifying set of
+/// categories.  Note that the invocation information is explicitly designed
+/// to test the `balm::PublicationScheduler::publish` method, which invokes
+/// `balm::MetricsManager::publish` with a unique set of categories for the
+/// supplied time interval.
 class TestPublisher : public balm::Publisher {
-    // This class defines a test implementation of the 'balm::Publisher'
-    // protocol that can be used to record information about invocations of a
-    // 'balm::MetricsManager' object's 'publish' method.  Each 'TestPublisher'
-    // instance tracks the number of times 'publish' has been called, and
-    // maintains 'lastElapsedTime()' and 'lastTimeStamp()' values holding the
-    // elapsed time and time stamp values of the last published
-    // 'balm::MetricSample' object.  In addition, the 'TestPublisher' maintains
-    // a map of invocation information.  Each 'balm::MetricSample' passed to
-    // the 'publish' method is identified by the *set* of *categories* that
-    // appear in the sequence of records held by that sample.  For each unique
-    // set of categories passed to the 'publish' method (via a
-    // 'balm::MetricSample' object) a 'TestPublisher' object will record: the
-    // number of times the 'publish' method has been invoked with that set of
-    // categories, as well as the time stamp and elapsed time of the last
-    // metric sample passed to 'publish' with that identifying set of
-    // categories.  Note that the invocation information is explicitly designed
-    // to test the 'balm::PublicationScheduler::publish' method, which invokes
-    // 'balm::MetricsManager::publish' with a unique set of categories for the
-    // supplied time interval.
 
   public:
 
+    /// Invocations of `TestPublisher::publish` are identified by the set
+    /// of categories contained in sequence of records of the published the
+    /// `balm::MetricSample`.
     typedef bsl::set<const Category *> InvocationId;
-        // Invocations of 'TestPublisher::publish' are identified by the set
-        // of categories contained in sequence of records of the published the
-        // 'balm::MetricSample'.
 
+    /// This struct provides an value semantic type for holding summary
+    /// information about a "unique" invocation of a `TestPublisher`.  Each
+    /// invocation of the `TestPublisher::publish` method is identified by
+    /// the *set* of categories found in the records of the
+    /// `balm::MetricSample` passed to the `publish` method.  An
+    /// `InvocationSummary` object holds: the number of times that the
+    /// unique set of categories was published, the time stamp of the most
+    /// recent metric sample with that set of categories, and the elapsed
+    /// time of the most recent metric sample with that set of categories.
     struct InvocationSummary {
-        // This struct provides an value semantic type for holding summary
-        // information about a "unique" invocation of a 'TestPublisher'.  Each
-        // invocation of the 'TestPublisher::publish' method is identified by
-        // the *set* of categories found in the records of the
-        // 'balm::MetricSample' passed to the 'publish' method.  An
-        // 'InvocationSummary' object holds: the number of times that the
-        // unique set of categories was published, the time stamp of the most
-        // recent metric sample with that set of categories, and the elapsed
-        // time of the most recent metric sample with that set of categories.
 
         int                             d_numInvocations; // # of invocations
 
@@ -391,29 +392,30 @@ class TestPublisher : public balm::Publisher {
 
          // CREATORS
          InvocationSummary();
-            // Create a 'InvocationSummary' object whose number of invocations
+            // Create a `InvocationSummary` object whose number of invocations
             // is 0.
     };
 
   private:
     // PRIVATE TYPES
-    struct InvocationIdLess {
-        // This structure provides an ordering on sets of category addresses
-        // allowing them to be sorted and used in sorted containers such as
-        // 'bsl::map'.
 
+    /// This structure provides an ordering on sets of category addresses
+    /// allowing them to be sorted and used in sorted containers such as
+    /// `bsl::map`.
+    struct InvocationIdLess {
+
+        /// Return `true` if the specified `lhs` is less than, i.e., ordered
+        /// before, the specified `rhs` and `false` otherwise.
         bool operator()(const bsl::set<const balm::Category *>& lhs,
                         const bsl::set<const balm::Category *>& rhs) const;
-            // Return 'true' if the specified 'lhs' is less than, i.e., ordered
-            // before, the specified 'rhs' and 'false' otherwise.
     };
 
+    /// An `InvocationMap` maintains a map a set of categories that
+    /// identifies an invocation, to the summary of the invocation
+    /// information for that identifying set of categories.
     typedef bsl::map<InvocationId,
                      InvocationSummary,
                      InvocationIdLess> InvocationMap;
-        // An 'InvocationMap' maintains a map a set of categories that
-        // identifies an invocation, to the summary of the invocation
-        // information for that identifying set of categories.
 
     // DATA
     bsls::AtomicInt              d_numInvocations; // # of invocations
@@ -432,68 +434,71 @@ class TestPublisher : public balm::Publisher {
   public:
 
     // CREATORS
-    TestPublisher(bslma::Allocator *allocator);
-        // Create a test publisher with 0 'invocations()' and the default
-        // constructed 'lastSample()' using the specified 'allocator' to
-        // supply memory.
 
+    /// Create a test publisher with 0 `invocations()` and the default
+    /// constructed `lastSample()` using the specified `allocator` to
+    /// supply memory.
+    TestPublisher(bslma::Allocator *allocator);
+
+    /// Destroy this test publisher.
     ~TestPublisher() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this test publisher.
 
     // MANIPULATORS
-    void publish(const balm::MetricSample& sample) BSLS_KEYWORD_OVERRIDE;
-        // Increment the number of 'invocations()', set the
-        // 'lastElapsedTime()' and 'lastTimeStamp()' equal to the elapsed time
-        // and time stamp of the specified 'sample', and set 'lastRecords()'
-        // to be the list of sequence in 'sample' in *sorted* order.
 
+    /// Increment the number of `invocations()`, set the
+    /// `lastElapsedTime()` and `lastTimeStamp()` equal to the elapsed time
+    /// and time stamp of the specified `sample`, and set `lastRecords()`
+    /// to be the list of sequence in `sample` in *sorted* order.
+    void publish(const balm::MetricSample& sample) BSLS_KEYWORD_OVERRIDE;
+
+    /// Set `invocations()` to 0, clear the invocation information.
     void reset();
-        // Set 'invocations()' to 0, clear the invocation information.
 
     // ACCESSORS
+
+    /// Return the number of times the `publish` method has been invoked
+    /// since this test publisher was constructed or the most recent call to
+    /// `reset()`.
     int invocations() const;
-        // Return the number of times the 'publish' method has been invoked
-        // since this test publisher was constructed or the most recent call to
-        // 'reset()'.
 
+    /// Return the number of unique *sets* of categories found in the
+    /// `balm::MetricSample` objects passed to `publish` since this test
+    /// publisher was created or the most recent call to `reset()`.
     int uniqueInvocations() const;
-        // Return the number of unique *sets* of categories found in the
-        // 'balm::MetricSample' objects passed to 'publish' since this test
-        // publisher was created or the most recent call to 'reset()'.
 
+    /// Return the address of the non-modifiable `Invocation` corresponding
+    /// to the specified set of `categories`, or 0 if `publish` has not
+    /// been invoked with a `balm::MetricSample` containing `categories`.
     const InvocationSummary *findInvocation(
                      const bsl::set<const balm::Category *>& categories) const;
-        // Return the address of the non-modifiable 'Invocation' corresponding
-        // to the specified set of 'categories', or 0 if 'publish' has not
-        // been invoked with a 'balm::MetricSample' containing 'categories'.
 
+    /// Return a reference to the non-modifiable elapsed time value of the
+    /// last sample passed to the `publish` method.  This method will
+    /// `ASSERT` if the last `balm::MetricSample` passed to the `publish`
+    /// method contained more than one unique time interval.  The behavior
+    /// is undefined unless the `publish` method has invoked since this
+    /// object was created or last reset.
     const bsls::TimeInterval& lastElapsedTime() const;
-        // Return a reference to the non-modifiable elapsed time value of the
-        // last sample passed to the 'publish' method.  This method will
-        // 'ASSERT' if the last 'balm::MetricSample' passed to the 'publish'
-        // method contained more than one unique time interval.  The behavior
-        // is undefined unless the 'publish' method has invoked since this
-        // object was created or last reset.
 
+    /// Return a reference to the non-modifiable time stamp of the last
+    /// sample passed to the `publish` method.  The behavior is undefined
+    /// unless the `publish` method has invoked since this object was
+    /// created or last reset.
     const bdlt::DatetimeTz& lastTimeStamp() const;
-        // Return a reference to the non-modifiable time stamp of the last
-        // sample passed to the 'publish' method.  The behavior is undefined
-        // unless the 'publish' method has invoked since this object was
-        // created or last reset.
 
+    /// Print a formatted string describing the "unique" invocations on this
+    /// publisher to the specified `stream` at the (absolute value of) the
+    /// optionally specified indentation `level` and return a reference to
+    /// `stream`.  If `level` is specified, optionally specify
+    /// `spacesPerLevel`, the number of spaces per indentation level for
+    /// this and all of its nested objects.  If `level` is negative,
+    /// suppress indentation of the first line.  If `spacesPerLevel` is
+    /// negative, suppress all indentation AND format the entire output on
+    /// one line.  If `stream` is not valid on entry, this operation has no
+    /// effect.
     bsl::ostream& print(bsl::ostream&   stream,
                         int             level = 0,
                         int             spacesPerLevel = 4) const;
-        // Print a formatted string describing the "unique" invocations on this
-        // publisher to the specified 'stream' at the (absolute value of) the
-        // optionally specified indentation 'level' and return a reference to
-        // 'stream'.  If 'level' is specified, optionally specify
-        // 'spacesPerLevel', the number of spaces per indentation level for
-        // this and all of its nested objects.  If 'level' is negative,
-        // suppress indentation of the first line.  If 'spacesPerLevel' is
-        // negative, suppress all indentation AND format the entire output on
-        // one line.  If 'stream' is not valid on entry, this operation has no
-        // effect.
 
 };
 
@@ -655,12 +660,12 @@ bsl::ostream& TestPublisher::print(bsl::ostream&   stream,
 
 class Action {
      // This class defines a value semantic type used to describe a
-     // scheduling action to be performed on a 'balm::PublicationScheduler'.
-     // Each action is either a call to 'scheduleCategory' or
-     // 'setDefaultSchedule' and contain the time interval to schedule for and,
-     // optionally (if the type() is 'SCHEDULE_CATEGORY'), the address of the
-     // 'balm::Category' object to schedule.  Note that this class is designed
-     // to work with the 'gg' generator function defined below.
+     // scheduling action to be performed on a `balm::PublicationScheduler`.
+     // Each action is either a call to `scheduleCategory` or
+     // `setDefaultSchedule` and contain the time interval to schedule for and,
+     // optionally (if the type() is `SCHEDULE_CATEGORY`), the address of the
+     // `balm::Category` object to schedule.  Note that this class is designed
+     // to work with the `gg` generator function defined below.
      //
      // IMPLEMENTATION NOTE: This class uses the default compiler supplied
      // copy and assignment operators.
@@ -669,9 +674,9 @@ class Action {
     // PRIVATE TYPES
     enum Type {
         // Describes the type of action to perform on the
-        // 'balm::PublicationScheduler'.  'SCHEDULE_CATEGORY' corresponds to
-        // calling the 'scheduleCategory' method, while 'SCHEDULE_DEFAULT'
-        // corresponds to calling 'setDefaultSchedule'.
+        // `balm::PublicationScheduler`.  `SCHEDULE_CATEGORY` corresponds to
+        // calling the `scheduleCategory` method, while `SCHEDULE_DEFAULT`
+        // corresponds to calling `setDefaultSchedule`.
 
         SCHEDULE_CATEGORY,
         SCHEDULE_DEFAULT
@@ -685,32 +690,33 @@ class Action {
   public:
      // CLASS METHODS
      static const char *typeString(Type type);
-        // Return a string describing the specified 'type'.
+        // Return a string describing the specified `type`.
 
      // CREATORS
      Action(Type type, const balm::Category *category, int interval);
-        // Create an 'Action' with the specified 'type', 'category', and
-        // 'interval'.
+        // Create an `Action` with the specified `type`, `category`, and
+        // `interval`.
 
      // ACCESSORS
+
+     ///  Return the type of action to perform on a
+     ///  `balm::PublicationScheduler` object.  A value of
+     ///  `SCHEDULE_CATEGORY` indicates a call to the `scheduleCategory`
+     ///  method, while the value `SCHEDULE_DEFAULT` indicates a call to
+     ///  `setDefaultSchedule`.
      Type type() const;
-         //  Return the type of action to perform on a
-         //  'balm::PublicationScheduler' object.  A value of
-         //  'SCHEDULE_CATEGORY' indicates a call to the 'scheduleCategory'
-         //  method, while the value 'SCHEDULE_DEFAULT' indicates a call to
-         //  'setDefaultSchedule'.
 
      const balm::Category *category() const;
         // Return the address of the non modifiable category to schedule or 0
-        // if 'type() == SCHEDULE_DEFAULT'.
+        // if `type() == SCHEDULE_DEFAULT`.
 
      int interval() const;
         // Return the amount of time to schedule.  Note that the value is a
         // relative time value, and no specific unit of time is implied.
 };
 
+/// Write the specified `action` to the specified `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const Action& action)
-    // Write the specified 'action' to the specified 'stream'.
 {
     stream << "[ " << Action::typeString(action.type()) << " "
            << (action.category() ? action.category()->name() : "")
@@ -718,9 +724,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Action& action)
     return stream;
 }
 
+/// Write the specified `actions` to the specified `stream`.
 bsl::ostream& operator<<(bsl::ostream&              stream,
                          const bsl::vector<Action>& actions)
-    // Write the specified 'actions' to the specified 'stream'.
 {
     bsl::vector<Action>::const_iterator it = actions.begin();
     stream << "[ ";
@@ -774,12 +780,12 @@ int Action::interval() const
                            // class ConcurrencyTest
                            // =====================
 
+/// Populate the specified `resultId` with a null-terminated string
+/// identifier containing the specified `heading` concatenated with the
+/// specified `value`.  The behavior is undefined if the resulting
+/// identifier would be larger than 100 (including the null terminating
+/// character).
 void stringId(bsl::string *resultId, const char *heading, int value)
-    // Populate the specified 'resultId' with a null-terminated string
-    // identifier containing the specified 'heading' concatenated with the
-    // specified 'value'.  The behavior is undefined if the resulting
-    // identifier would be larger than 100 (including the null terminating
-    // character).
 {
     char buffer[100];
     int rc = snprintf(buffer, 100, "%s-%d", heading, value);
@@ -789,15 +795,15 @@ void stringId(bsl::string *resultId, const char *heading, int value)
     *resultId = buffer;
 }
 
+/// Populate the specified `resultId` with a null-terminated string
+/// identifier containing the specified `heading` concatenated with the
+/// specified `value1` and `value2`.  The behavior is undefined if the
+/// resulting identifier would be larger than 100 (including the null
+/// terminating character).
 void stringId(bsl::string *resultId,
               const char  *heading,
               int          value1,
               int          value2)
-    // Populate the specified 'resultId' with a null-terminated string
-    // identifier containing the specified 'heading' concatenated with the
-    // specified 'value1' and 'value2'.  The behavior is undefined if the
-    // resulting identifier would be larger than 100 (including the null
-    // terminating character).
 {
     char buffer[100];
     int rc = snprintf(buffer, 100, "%s-%d-%d", heading, value1, value2);
@@ -807,8 +813,8 @@ void stringId(bsl::string *resultId,
     *resultId = buffer;
 }
 
+/// Invoke a set of operations operations synchronously.
 class ConcurrencyTest {
-    // Invoke a set of operations operations synchronously.
 
     // DATA
     bdlmt::FixedThreadPool        d_pool;
@@ -818,9 +824,10 @@ class ConcurrencyTest {
     bslma::Allocator             *d_allocator_p;
 
     // PRIVATE MANIPULATORS
+
+    /// Execute a single test.  Note that this method contains the actual
+    /// test code.
     void execute();
-        // Execute a single test.  Note that this method contains the actual
-        // test code.
 
   public:
 
@@ -841,8 +848,9 @@ class ConcurrencyTest {
     ~ConcurrencyTest() {}
 
     //  MANIPULATORS
+
+    /// Run the test.
     void runTest();
-        // Run the test.
 };
 
 void ConcurrencyTest::execute()
@@ -1017,17 +1025,17 @@ void ConcurrencyTest::runTest()
 //                             Helper Functions
 // ============================================================================
 
+/// Return the value used to indicate an invalid schedule interval.
 inline bsls::TimeInterval invalidInterval()
-    // Return the value used to indicate an invalid schedule interval.
 {
     return bsls::TimeInterval(-1, 0);
 }
 
+/// Return the number unique time intervals values in the set of time
+/// intervals in the specified `scheduleOracle` unioned with
+/// `defaultInterval` (if `defaultInterval` is valid).
 int countUniqueIntervals(const CategoryScheduleOracle& scheduleOracle,
                          const bsls::TimeInterval&      defaultInterval)
-    // Return the number unique time intervals values in the set of time
-    // intervals in the specified 'scheduleOracle' unioned with
-    // 'defaultInterval' (if 'defaultInterval' is valid).
 {
     bsl::set<bsls::TimeInterval> intervals;
     if (defaultInterval != invalidInterval()) {
@@ -1040,14 +1048,14 @@ int countUniqueIntervals(const CategoryScheduleOracle& scheduleOracle,
     return static_cast<int>(intervals.size());
 }
 
+/// Return `true` if the specified `oracle` schedule is equivalent to the
+/// specified `scheduler`.  The two values are considered equal if they
+/// have the same number of elements and and that for each
+/// (category address, interval) pair in `schedule` there is an equivalent
+/// pair in `oracle`.
 template <class SCHEDULE>
 bool equalSchedule(const CategoryScheduleOracle& oracle,
                    const SCHEDULE&               schedule)
-    // Return 'true' if the specified 'oracle' schedule is equivalent to the
-    // specified 'scheduler'.  The two values are considered equal if they
-    // have the same number of elements and and that for each
-    // (category address, interval) pair in 'schedule' there is an equivalent
-    // pair in 'oracle'.
 {
     BSLMF_ASSERT(IsVector<SCHEDULE>::value);
 
@@ -1076,11 +1084,11 @@ bool equalSchedule(const CategoryScheduleOracle& oracle,
     return true;
 }
 
+/// Return `true` if the specified `expectedValue` equals the specified
+/// `actualValue`, otherwise return `false` and output to the console
+/// information about the lowest index where the two values differ.
 bool stringDiff(const bsl::string& expectedValue,
                 const bsl::string& actualValue)
-    // Return 'true' if the specified 'expectedValue' equals the specified
-    // 'actualValue', otherwise return 'false' and output to the console
-    // information about the lowest index where the two values differ.
 {
     const char *exp = expectedValue.c_str();
     const char *act = actualValue.c_str();
@@ -1104,7 +1112,7 @@ bool stringDiff(const bsl::string& expectedValue,
 //                        GENERATOR LANGUAGE FOR gg
 //=============================================================================
 //
-// The gg function interprets a given 'spec' in order from left to right to
+// The gg function interprets a given `spec` in order from left to right to
 // build up a schedule according to a custom language.
 //
 //  Spec      := (ScheduleElement)*
@@ -1118,33 +1126,33 @@ bool stringDiff(const bsl::string& expectedValue,
 //  TimeInterval :=  '1'|'2'|'3'|'4'|'5'  %% # of time units (where the unit
 //                  |'6'|'7'|'8'|'9'      %% of time is determined by the test)
 //
-// 'gg' syntax usage examples:
+// `gg` syntax usage examples:
 //  Here are some examples, and sequence of actions that would be created:
 //
 // Spec String      Result Actions              Description
 // -----------      -------------               -----------
-// "A1"            [                            'scheduleCategory()' "A"
+// "A1"            [                            `scheduleCategory()` "A"
 //                   SCHEDULE_CATEGORY "A" 1     at 1 time unit.
 //                 ]
 //
-// "X4"            [                            'setDefaultSchedule()' with
+// "X4"            [                            `setDefaultSchedule()` with
 //                   SCHEDULE_DEFAULT  4         4 time units.
 //                 ]
 //
-// "A4X4B1"        [                            'scheduleCategory()' "A" at
+// "A4X4B1"        [                            `scheduleCategory()` "A" at
 //                   SCHEDULE_CATEGORY "A" 4     4 time units, then
-//                   SCHEDULE_DEFAULT  4        'setDefaultSchedule()' at
+//                   SCHEDULE_DEFAULT  4        `setDefaultSchedule()` at
 //                   SCHEDULE_CATEGORY "B" 1     at 4 time units, then
-//                 ]                             'scheduleCategory()' "B" at
+//                 ]                             `scheduleCategory()` "B" at
 //                                               1 time unit.
 
+/// Set the specified `actions` to the sequence of actions indicated by the
+/// specified `specification` (as described by the `gg` generator language
+/// above), using the specified `registry` to supply `balm::Category` object
+/// addresses.
 void gg(bsl::vector<Action>   *actions,
         balm::MetricRegistry&  registry,
         const char            *specification)
-    // Set the specified 'actions' to the sequence of actions indicated by the
-    // specified 'specification' (as described by the 'gg' generator language
-    // above), using the specified 'registry' to supply 'balm::Category' object
-    // addresses.
 {
     const char *c = specification;
     while (*c) {
@@ -1189,12 +1197,13 @@ void gg(bsl::vector<Action>   *actions,
 //                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
-// SimpleStreamPublisher was defined in 'balm_publisher.h'.
+// SimpleStreamPublisher was defined in `balm_publisher.h`.
 
     // simplestreampublisher.h
+
+    /// A simple implementation of the `balm::Publisher` protocol that
+    /// writes metric records to a stream.
     class SimpleStreamPublisher : public balm::Publisher {
-        // A simple implementation of the 'balm::Publisher' protocol that
-        // writes metric records to a stream.
 
         // PRIVATE DATA
         bsl::ostream&              d_stream;     // output stream (held)
@@ -1205,10 +1214,11 @@ void gg(bsl::vector<Action>   *actions,
 
     public:
         // CREATORS
+
+        /// Create this publisher that will public metrics to the specified
+        /// `stream` using the specified `registry` to identify published
+        /// metrics.
         SimpleStreamPublisher(bsl::ostream& stream);
-            // Create this publisher that will public metrics to the specified
-            // 'stream' using the specified 'registry' to identify published
-            // metrics.
 
         ~SimpleStreamPublisher() BSLS_KEYWORD_OVERRIDE;
              // Destroy this publisher.
@@ -1216,8 +1226,8 @@ void gg(bsl::vector<Action>   *actions,
         // MANIPULATORS
         void publish(const balm::MetricSample& metricValues)
                                                          BSLS_KEYWORD_OVERRIDE;
-            // Publish the specified 'metricValues'.  This implementation will
-            // write the 'metricValues' to the output stream specified on
+            // Publish the specified `metricValues`.  This implementation will
+            // write the `metricValues` to the output stream specified on
             // construction.
     };
 
@@ -1292,7 +1302,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -1303,12 +1313,12 @@ int main(int argc, char *argv[])
 
 ///Usage
 ///-----
-// The following example demonstrates how to use 'balm::PublicationScheduler'.
+// The following example demonstrates how to use `balm::PublicationScheduler`.
 // Before instantiating the publication scheduler, we create a
-// 'bdlmt::TimerEventScheduler' as well as a 'balm::MetricsManager'.  We obtain
+// `bdlmt::TimerEventScheduler` as well as a `balm::MetricsManager`.  We obtain
 // collectors for three different metric categories, "A", "B", and "C", that
 // we will use to generate metric values for publication.
-//..
+// ```
     bslma::Allocator         *allocator = bslma::Default::allocator(0);
     bdlmt::TimerEventScheduler  timer(allocator);
     balm::MetricsManager       manager(allocator);
@@ -1319,25 +1329,25 @@ int main(int argc, char *argv[])
                                                                      "B", "1");
     balm::Collector *C = manager.collectorRepository().getDefaultCollector(
                                                                      "C", "1");
-//..
-// We now create an instance of 'SimpleStreamPublisher', which implements the
-// 'balm::Publisher' protocol)  Note that, 'SimpleStreamPublisher' is an
-// example implementation of the 'balm::Publisher' protocol, defined in the
-// 'balm_publisher' component, in practice clients typically use a standard
-// publisher class (e.g., 'balm::StreamPublisher').
-//..
+// ```
+// We now create an instance of `SimpleStreamPublisher`, which implements the
+// `balm::Publisher` protocol)  Note that, `SimpleStreamPublisher` is an
+// example implementation of the `balm::Publisher` protocol, defined in the
+// `balm_publisher` component, in practice clients typically use a standard
+// publisher class (e.g., `balm::StreamPublisher`).
+// ```
         bsl::shared_ptr<balm::Publisher> publisher(
                             new (*allocator) SimpleStreamPublisher(bsl::cout),
                             allocator);
-//..
-// We now register the 'publisher' we have created with the metrics 'manager'
-// to publish our categories.  Then, we 'start' the timer-event scheduler we
-// will supply to the 'balm::PublicationScheduler'.
-//..
+// ```
+// We now register the `publisher` we have created with the metrics `manager`
+// to publish our categories.  Then, we `start` the timer-event scheduler we
+// will supply to the `balm::PublicationScheduler`.
+// ```
     manager.addGeneralPublisher(publisher);
     timer.start();
-//..
-// Now we construct a 'balm::PublicationScheduler' and pass it the respective
+// ```
+// Now we construct a `balm::PublicationScheduler` and pass it the respective
 // addresses of both the metrics manager and the timer-event scheduler.  We
 // schedule the publication of category "A" and "B" every .05 seconds, then we
 // set the default publication to every .10 seconds.  Note that those time
@@ -1345,15 +1355,15 @@ int main(int argc, char *argv[])
 // example.  In normal usage the interval between publications should be large
 // enough to ensure that metric publication does not negatively affect the
 // performance of the application (a 30 second interval is typical).
-//..
+// ```
     balm::PublicationScheduler scheduler(&manager, &timer, allocator);
     scheduler.scheduleCategory("A", bsls::TimeInterval(.05));
     scheduler.scheduleCategory("B", bsls::TimeInterval(.05));
     scheduler.setDefaultSchedule(bsls::TimeInterval(.10));
-//..
+// ```
 // We can use the accessor operations to verify the schedule that we have
 // specified.
-//..
+// ```
     bsls::TimeInterval intervalA, intervalB, intervalC, defaultInterval;
     ASSERT( scheduler.findCategorySchedule(&intervalA, "A"));
     ASSERT( scheduler.findCategorySchedule(&intervalB, "B"));
@@ -1363,16 +1373,16 @@ int main(int argc, char *argv[])
     ASSERT(bsls::TimeInterval(.05) == intervalA);
     ASSERT(bsls::TimeInterval(.05) == intervalB);
     ASSERT(bsls::TimeInterval(.10) == defaultInterval);
-//..
+// ```
 // Finally we add a couple metrics and wait just over .1 seconds.
-//..
+// ```
     A->update(1.0);
     B->update(2.0);
     C->update(3.0);
     bslmt::ThreadUtil::sleep(bsls::TimeInterval(.11));
-//..
+// ```
 // The output of the publication should look similar to:
-//..
+// ```
 // 19NOV2008_18:34:26.766+0000    2 Records   0.0517s Elapsed Time
 //         A.1 [count = 1, total = 1, min = 1, max = 1]
 //         B.1 [count = 1, total = 2, min = 2, max = 2]
@@ -1381,11 +1391,11 @@ int main(int argc, char *argv[])
 //         B.1 [count = 0, total = 0, min = inf, max = -inf]
 // 19NOV2008_18:34:26.817+0000    1 Records   0.102473s Elapsed Time
 //         C.1 [count = 1, total = 3, min = 3, max = 3]
-//..
-// Note that categories 'A' and 'B' are emitted as a single publication:
+// ```
+// Note that categories `A` and `B` are emitted as a single publication:
 // the scheduler combines categories published at the same frequency into a
 // single publication event to minimize the number of times
-// 'balm::MetricsManager::publish' is invoked.  Also note that category 'C' is
+// `balm::MetricsManager::publish` is invoked.  Also note that category `C` is
 // published as part of the scheduled default publication.
 
       } break;
@@ -1419,11 +1429,11 @@ int main(int argc, char *argv[])
         // BALM ALLOCATION EXCEPTION TEST
         //
         // Concerns:
-        //   That 'scheduleCategory' and 'setDefaultSchedule' are exception
+        //   That `scheduleCategory` and `setDefaultSchedule` are exception
         //   safe.
         //
         // Plan:
-        //   Use the 'BALM_BEGIN_RETRY_TEST' to verify the manipulator methods
+        //   Use the `BALM_BEGIN_RETRY_TEST` to verify the manipulator methods
         //   of this object are exception neutral.
         // --------------------------------------------------------------------
         if (verbose) cout << endl
@@ -1479,12 +1489,12 @@ int main(int argc, char *argv[])
             //   use the basic manipulators configure the scheduler
             //   according to the configuration description.
             //   Simultaneously set the value of an "oracle"
-            //   'CategoryScheduleOracle' (a map from category to scheduled
+            //   `CategoryScheduleOracle` (a map from category to scheduled
             //   frequency).
             bsls::TimeInterval      defaultInterval(INVALID);
             CategoryScheduleOracle intervalMap(Z);
 
-            // Use 'scheduleCategory' and 'setDefaultSchedule' to set the
+            // Use `scheduleCategory` and `setDefaultSchedule` to set the
             // schedule for the publication scheduler.
             bsl::vector<Action>::const_iterator spIt = actions.begin();
             for (; spIt != actions.end(); ++spIt) {
@@ -1528,14 +1538,14 @@ int main(int argc, char *argv[])
         //                            findCategorySchedule
         //
         // Concerns:
-        //   That the alternative variants of 'scheduleCategory',
-        //   'cancelCategorySchedule', and 'findCategorySchedule' (taking a
+        //   That the alternative variants of `scheduleCategory`,
+        //   `cancelCategorySchedule`, and `findCategorySchedule` (taking a
         //   string for the category) and logically equivalent to the primary
-        //   variant taking a 'balm::Category' address).
+        //   variant taking a `balm::Category` address).
         //
         // Plan:
-        //   Invoked 'scheduleCategory', 'cancelCategorySchedule', and
-        //   'findCategory' and use the previously test 'findCategory' variant
+        //   Invoked `scheduleCategory`, `cancelCategorySchedule`, and
+        //   `findCategory` and use the previously test `findCategory` variant
         //   to verify the results.
         //
         // Testing:
@@ -1546,7 +1556,7 @@ int main(int argc, char *argv[])
             << endl
             << "TESTING ALTERNATIVE METHODS: " << endl
             << "scheduleCategory(const char*, ...)', \n"
-            << "'findCategorySchedule(..., const char*)', and\n"
+            << "`findCategorySchedule(..., const char*)`, and\n"
             << "'cancelCategorySchedule(const char*)\n"
             << "========================================================\n";
 
@@ -1705,23 +1715,23 @@ int main(int argc, char *argv[])
         // TESTING ACCESSOR: getCategorySchedule
         //
         // Concerns:
-        //   That the 'getCategorySchedule' method returns the correct schedule
+        //   That the `getCategorySchedule` method returns the correct schedule
         //   information.
         //
         // Plan:
         //   For a sequence of independent test configuration values (defined
-        //   using the 'gg' generator language), use the default constructor
+        //   using the `gg` generator language), use the default constructor
         //   to create an object use the basic manipulators to its value.
         //   Invoke cancelAll() and verify the test object is returned to the
         //   default state.  Next, for a sequence of independent schedule
-        //   configurations described using the generator language 'gg':
+        //   configurations described using the generator language `gg`:
         //   1. Use the default constructor to create an object then use the
         //      basic manipulators configure the scheduler according to the
         //      configuration description.  Simultaneously set the value of an
-        //      "oracle" 'CategoryScheduleOracle' (a map from category to
+        //      "oracle" `CategoryScheduleOracle` (a map from category to
         //      scheduled frequency),
-        //   2. Compare the results of the 'getCategorySchedule' method to the
-        //      "oracle" 'CategoryScheduleOracle'
+        //   2. Compare the results of the `getCategorySchedule` method to the
+        //      "oracle" `CategoryScheduleOracle`
         //
         // Testing:
         //  int getCategorySchedule(
@@ -1776,12 +1786,12 @@ int main(int argc, char *argv[])
             // 1. Use the default constructor to create an object then
             //    use the basic manipulators configure the scheduler according
             //    to the configuration description.  Simultaneously set the
-            //    value of an "oracle" 'CategoryScheduleOracle' (a map from
+            //    value of an "oracle" `CategoryScheduleOracle` (a map from
             //    category to scheduled frequency).
             bsls::TimeInterval      defaultInterval(INVALID);
             CategoryScheduleOracle intervalMap(Z);
 
-            // Use 'scheduleCategory' and 'setDefaultSchedule' to set the
+            // Use `scheduleCategory` and `setDefaultSchedule` to set the
             // schedule for the publication scheduler.
             bsl::vector<Action>::const_iterator spIt = actions.begin();
             for (; spIt != actions.end(); ++spIt) {
@@ -1800,8 +1810,8 @@ int main(int argc, char *argv[])
                 MX.print(bsl::cout, 1, 3);
             }
 
-            //   2. Compare the results of the 'getCategorySchedule' method to
-            //      the "oracle" 'CategoryScheduleOracle'
+            //   2. Compare the results of the `getCategorySchedule` method to
+            //      the "oracle" `CategoryScheduleOracle`
 
             Schedule scheduleBsl(Z);
             ASSERT(static_cast<int>(intervalMap.size()) ==
@@ -1833,7 +1843,7 @@ int main(int argc, char *argv[])
         //   from the schedule.
         // Plan:
         //   For a sequence of independent test configuration values (defined
-        //   using the 'gg' generator language), use the default constructor
+        //   using the `gg` generator language), use the default constructor
         //   to create an object use the basic manipulators to its value.
         //   Invoke cancelAll() and verify the test object is returned to the
         //   default state.
@@ -1903,7 +1913,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == timer.numClocks());
             ASSERT(0 == timer.numEvents());
 
-            // Configure the scheduler according to the 'actions' list.
+            // Configure the scheduler according to the `actions` list.
             bsl::vector<Action>::const_iterator aIt = actions.begin();
             for (; aIt != actions.end(); ++aIt) {
                 bsls::TimeInterval interval(aIt->interval(), 0);
@@ -1940,10 +1950,10 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   For a sequence of independent test configuration values defined
-        //   using the 'gg' generator language:
+        //   using the `gg` generator language:
         //      1. Create an object to test and set its to the test
         //         configuration, also create and configure an "oracle"
-        //         'CategorySchedule' (a map from category to frequency).
+        //         `CategorySchedule` (a map from category to frequency).
         //      2. Perform a double iteration over each category added to the
         //         schedule, removing each element of the schedule one at a
         //         time, starting at a different element each time.  Then
@@ -2027,7 +2037,7 @@ int main(int argc, char *argv[])
                 bsls::TimeInterval      expDefault(INVALID);
                 CategoryScheduleOracle expSchedule(Z);
 
-                // Configure the scheduler according to the 'actions' list.
+                // Configure the scheduler according to the `actions` list.
                 bsl::vector<Action>::const_iterator aIt = actions.begin();
                 for (; aIt != actions.end(); ++aIt) {
                     if (aIt->type() == Action::SCHEDULE_CATEGORY) {
@@ -2093,13 +2103,13 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   That Clocks are correctly registered with the underlying
-        //   'bdlmt::TimerEventScheduler'.
+        //   `bdlmt::TimerEventScheduler`.
         //
         // Plan:
-        //   The clocks in a 'bdlmt::TimerEventSchedule' cannot be inspected
+        //   The clocks in a `bdlmt::TimerEventSchedule` cannot be inspected
         //   directly.  Instead, we must wait a period of time and verify
         //   that the correct number of events were supplied by the
-        //   'bdlmt::TimerEventScheduler'.  A 'TIME_UNIT' was selected as
+        //   `bdlmt::TimerEventScheduler`.  A `TIME_UNIT` was selected as
         //   the basis for the scheduled periods, this value was chosen
         //   experimentally, as the lowest value that was high enough to
         //   produce consistent results.  Note that, since each test case
@@ -2109,25 +2119,25 @@ int main(int argc, char *argv[])
         //   Define a set of configurations where the number of expected
         //   publications in a particular time interval can be easily
         //   determined.  For each member of a that set of possible
-        //   publication configurations (defined using the 'gg' generator
+        //   publication configurations (defined using the `gg` generator
         //   language):
-        //    1. Create a metrics manager and add a 'TestPublisher' to it.
+        //    1. Create a metrics manager and add a `TestPublisher` to it.
         //    2. Configure a publication scheduler according to the
-        //       configuration and create a 'CategorySchedule' "oracle"
+        //       configuration and create a `CategorySchedule` "oracle"
         //       (mapping category to frequency) describing the configuration.
-        //    3. Convert the 'CategorySchedule' "oracle" to a 'Schedule'
+        //    3. Convert the `CategorySchedule` "oracle" to a `Schedule`
         //       "oracle", mapping a frequency to the set of categories at
         //       that frequency.
-        //    4. Sleep for a multiple of 'TIME_UNIT'.
-        //    5. Verify that the 'publish' method was invoked correctly by
+        //    4. Sleep for a multiple of `TIME_UNIT`.
+        //    5. Verify that the `publish` method was invoked correctly by
         //       comparing the number of times that a set of categories should
-        //       have been published (determined using the "oracle" 'Schedule')
+        //       have been published (determined using the "oracle" `Schedule`)
         //       and then compare that to the actual number of invocations
-        //       reported by the 'TestPublisher'.
+        //       reported by the `TestPublisher`.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING: invocation of 'publisher'" << endl
+                          << "TESTING: invocation of `publisher`" << endl
                           << "==================================" << endl;
 
         balm::MetricsManager  manager(Z);
@@ -2135,7 +2145,7 @@ int main(int argc, char *argv[])
         const char *CATEGORIES[] = {"A", "B", "C", "D", "dummy1", "dummy2"};
         const int NUM_CATEGORIES = sizeof CATEGORIES / sizeof *CATEGORIES;
 
-        // Initialize a list of all 'balm::Category' addresses, and a collector
+        // Initialize a list of all `balm::Category` addresses, and a collector
         // for each category (ensuring metrics to publish).
         bsl::set<const balm::Category *> allCategories(Z);
         for (int i = 0; i < NUM_CATEGORIES; ++i) {
@@ -2172,14 +2182,14 @@ int main(int argc, char *argv[])
             gg(&actions, manager.metricRegistry(), TEST_SPECS[i]);
 
             //    2. Configure a publication scheduler according to the
-            //       configuration and create a 'CategoryScheduleOracle'
+            //       configuration and create a `CategoryScheduleOracle`
             //       "oracle" (mapping category to frequency) describing the
             //       configuration.
             bdlmt::TimerEventScheduler timer(Z);
             Obj mX(&manager, &timer, Z);
 
-            // Initialize the 'balm::PublicationScheduler' under test and the
-            // 'CategorySchedule' object 'catSchedule'.
+            // Initialize the `balm::PublicationScheduler` under test and the
+            // `CategorySchedule` object `catSchedule`.
             bsls::TimeInterval       defaultInterval(INVALID);
             CategoryScheduleOracle  catSchedule(Z);
             {
@@ -2197,8 +2207,8 @@ int main(int argc, char *argv[])
                 }
             }
 
-            //    3. Convert the 'CategoryScheduleOracle' "oracle" to a
-            //       'Schedule' "oracle", mapping a frequency to the set of
+            //    3. Convert the `CategoryScheduleOracle` "oracle" to a
+            //       `Schedule` "oracle", mapping a frequency to the set of
             //       categories at that frequency.
             ScheduleOracle schedule(Z);
             {
@@ -2229,7 +2239,7 @@ int main(int argc, char *argv[])
                 tp.print(bsl::cout, 1, 3);
             }
 
-            //    4. Sleep for a multiple of 'TIME_UNIT'.
+            //    4. Sleep for a multiple of `TIME_UNIT`.
             timer.start();
 
             // Wait 8 1/3 TIME_UNITs
@@ -2243,11 +2253,11 @@ int main(int argc, char *argv[])
                 tp.print(bsl::cout, 1, 3);
             }
 
-            //    5. Verify that the 'publish' method was invoked correctly by
+            //    5. Verify that the `publish` method was invoked correctly by
             //       comparing the number of times that a set of categories
             //       should have been published (determined using the "oracle"
-            //       'Schedule') and then compare that to the actual number of
-            //       invocations reported by the 'TestPublisher'.
+            //       `Schedule`) and then compare that to the actual number of
+            //       invocations reported by the `TestPublisher`.
             ASSERT(tp.uniqueInvocations() ==
                                             static_cast<int>(schedule.size()));
             ScheduleOracle::const_iterator it = schedule.begin();
@@ -2275,36 +2285,36 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // PRIVATE METHOD TEST: 'publish'
+        // PRIVATE METHOD TEST: `publish`
         //
         // Concerns:
-        //   That the private method 'publish' is invoked by the timer event
+        //   That the private method `publish` is invoked by the timer event
         //   scheduler and, when invoked, will provide the correct set of
-        //   categories to the 'balm::MetricsManager' object's 'publish' or
-        //   'publishAll' methods.
+        //   categories to the `balm::MetricsManager` object's `publish` or
+        //   `publishAll` methods.
         //
         // Plan:
         //   For each member of a set of possible publication configurations,
-        //   defined using the 'gg' generator language:
-        //    1. Create a metrics manager and add a 'TestPublisher' to it.
+        //   defined using the `gg` generator language:
+        //    1. Create a metrics manager and add a `TestPublisher` to it.
         //    2. Configure a publication scheduler according the configuration
-        //        and create a 'CategorySchedule' "oracle" (mapping category to
+        //        and create a `CategorySchedule` "oracle" (mapping category to
         //        frequency) describing the configuration.
-        //    3. Convert the 'CategorySchedule' "oracle" to a 'Schedule'
+        //    3. Convert the `CategorySchedule` "oracle" to a `Schedule`
         //       "oracle", mapping a frequency to the set of categories
         //       published at that frequency.
         //    4. Sleep until each scheduled category has been published
-        //    5. Verify that the 'publish' method was invoked correctly by
-        //       comparing the 'Schedule' "oracle" to the 'TestPublisher'
+        //    5. Verify that the `publish` method was invoked correctly by
+        //       comparing the `Schedule` "oracle" to the `TestPublisher`
         //       objects reported invocations.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING: invocation of 'publisher'" << endl
+                          << "TESTING: invocation of `publisher`" << endl
                           << "==================================" << endl;
 
         BALM_BEGIN_RETRY_TEST(3) {
-        // 1. Create a metrics manager and add a 'TestPublisher' to it.
+        // 1. Create a metrics manager and add a `TestPublisher` to it.
         balm::MetricsManager   manager(Z);
         balm::MetricRegistry& reg = manager.metricRegistry();
         TestPublisher tp(Z);
@@ -2314,7 +2324,7 @@ int main(int argc, char *argv[])
         const char *CATEGORIES[] = {"A", "B", "C", "D", "dummy1", "dummy2"};
         const int NUM_CATEGORIES = sizeof CATEGORIES / sizeof *CATEGORIES;
 
-        // Initialize a list of all 'balm::Category' addresses, and a collector
+        // Initialize a list of all `balm::Category` addresses, and a collector
         // for each category (ensuring metrics to publish).
         bsl::set<const balm::Category *> allCategories(Z);
         for (int i = 0; i < NUM_CATEGORIES; ++i) {
@@ -2345,7 +2355,7 @@ int main(int argc, char *argv[])
         const int TIME_UNIT = 10 * NANOSECS_PER_MICROSEC; // 10 microseconds
 
         //    2. Configure a publication scheduler according the configuration
-        //        and create a 'CategoryScheduleOracle' "oracle" (mapping
+        //        and create a `CategoryScheduleOracle` "oracle" (mapping
         //        category to frequency) describing the configuration.
         for (int i = 0; i < NUM_SPECS; ++i) {
             bsl::vector<Action> actions(Z);
@@ -2357,8 +2367,8 @@ int main(int argc, char *argv[])
             bdlmt::TimerEventScheduler timer(Z);
             Obj mX(&manager, &timer, Z); const Obj& MX = mX;
 
-            // Initialize the 'balm::PublicationScheduler' under test and the
-            // 'CategoryScheduleOracle' object 'catSchedule'.
+            // Initialize the `balm::PublicationScheduler` under test and the
+            // `CategoryScheduleOracle` object `catSchedule`.
             bsls::TimeInterval      defaultInterval(INVALID);
             CategoryScheduleOracle catSchedule(Z);
             {
@@ -2376,7 +2386,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            //    3. Convert the 'CategoryScheduleOracle' to a 'ScheduleOracle'
+            //    3. Convert the `CategoryScheduleOracle` to a `ScheduleOracle`
             //       "oracle", mapping a frequency to the set of
             //       categories published at that frequency.
             ScheduleOracle schedule(Z);
@@ -2415,8 +2425,8 @@ int main(int argc, char *argv[])
                 tp.print(bsl::cout, 1, 3);
             }
 
-            //    5. Verify that the 'publish' method was invoked correctly by
-            //       comparing the 'Schedule' "oracle" to the 'TestPublisher'
+            //    5. Verify that the `publish` method was invoked correctly by
+            //       comparing the `Schedule` "oracle" to the `TestPublisher`
             //       objects reported invocations.
             ASSERT(tp.uniqueInvocations() ==
                                             static_cast<int>(schedule.size()));
@@ -2436,14 +2446,14 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   The primary fields must be correctly modifiable and accessible.
-        //   In addition that the 'scheduleCategory' and 'setDefaultSchedule'
+        //   In addition that the `scheduleCategory` and `setDefaultSchedule`
         //   methods properly reschedule publications, and that the number of
         //   timers configured is equal to the size of the set of unique time
         //   intervals that are scheduled.
         //
         //   Note that while this test verifies the publication scheduler
         //   maintains the correct schedule, and the correct *number* of
-        //   underlying 'bdlmt::TimerEventScheduler::Clock' values, it does
+        //   underlying `bdlmt::TimerEventScheduler::Clock` values, it does
         //   *not* verify that the schedule of events is correctly applied
         //   w.r.t the underlying timer-event scheduler.  (see case 4 & 5).
         //
@@ -2452,11 +2462,11 @@ int main(int argc, char *argv[])
         //   resulting object.
         //
         //   Next, for a sequence of independent schedule configurations
-        //   described using the generator language 'gg':
+        //   described using the generator language `gg`:
         //   1. Use the default constructor to create an object then use the
         //      basic manipulators configure the scheduler according to the
         //      configuration description.  Simultaneously set the value of an
-        //       "oracle" 'CategorySchedule' (a map from category to scheduled
+        //       "oracle" `CategorySchedule` (a map from category to scheduled
         //       frequency),
         //   2.  Verify that the value returned from the basic accessors is
         //       equal to the "oracle" value and that the number of clocks in
@@ -2552,13 +2562,13 @@ int main(int argc, char *argv[])
             //   1. Use the default constructor to create an object then use
             //      the basic manipulators configure the scheduler according
             //      to the configuration description.  Simultaneously set the
-            //      value of an "oracle" 'CategoryScheduleOracle' (a map from
+            //      value of an "oracle" `CategoryScheduleOracle` (a map from
             //      category to scheduled frequency),
             bsls::TimeInterval      defaultInterval(INVALID);
             CategoryScheduleOracle intervalMap(Z);
             Obj mX(&manager, &timer, Z); const Obj& MX = mX;
 
-            // Use 'scheduleCategory' and 'setDefaultSchedule' to set the
+            // Use `scheduleCategory` and `setDefaultSchedule` to set the
             // schedule for the publication scheduler.
             bsl::vector<Action>::const_iterator spIt = actions.begin();
             for (; spIt != actions.end(); ++spIt) {
@@ -2579,9 +2589,9 @@ int main(int argc, char *argv[])
             //       in the timer is equal to the number of unique scheduled
             //       intervals.
 
-            // Use 'findCategorySchedule' and 'getDefaultSchedule' to verify
-            // the results against an "oracle" ('defaultInterval' and
-            // 'intervalMap').
+            // Use `findCategorySchedule` and `getDefaultSchedule` to verify
+            // the results against an "oracle" (`defaultInterval` and
+            // `intervalMap`).
             bsls::TimeInterval interval;
             ASSERT((defaultInterval != INVALID) ==
                    MX.getDefaultSchedule(&interval));
@@ -2620,7 +2630,7 @@ int main(int argc, char *argv[])
             << "==================================================\n";
 
         {
-            if (veryVerbose) cout << "\tTesting 'gg'\n";
+            if (veryVerbose) cout << "\tTesting `gg`\n";
             balm::MetricRegistry reg(Z);
 
             const char *specification = "A1B2C3D4X5D6C7B8A9X1";
@@ -2672,7 +2682,7 @@ int main(int argc, char *argv[])
             P(result);
         }
         {
-            if (veryVerbose) cout << "\tTesting 'TestPublisher'\n";
+            if (veryVerbose) cout << "\tTesting `TestPublisher`\n";
             balm::MetricRegistry reg(Z);
 
             const char *SETS[] = { "A", "B", "CD", "EF", "GHI" };

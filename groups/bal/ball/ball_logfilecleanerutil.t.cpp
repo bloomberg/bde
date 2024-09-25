@@ -127,11 +127,11 @@ typedef ball::LogFileCleanerUtil Obj;
 
 namespace {
 
+/// Change the modification time of the file with the specified `fileName`
+/// by the specified `delta` seconds.  Return `0` if the file exists and
+/// the modification time was changed and non-zero status otherwise.
 int changeModificationTime(const bsl::string& fileName,
                            int                delta)
-    // Change the modification time of the file with the specified 'fileName'
-    // by the specified 'delta' seconds.  Return '0' if the file exists and
-    // the modification time was changed and non-zero status otherwise.
 {
     if (false == bdls::FilesystemUtil::exists(fileName)) {
         return -1;                                                    // RETURN
@@ -197,8 +197,8 @@ int changeModificationTime(const bsl::string& fileName,
 #endif
 }
 
+/// Create a file with the specified `fileName` and writes some data to it.
 void createFile(const bsl::string& fileName)
-    // Create a file with the specified 'fileName' and writes some data to it.
 {
     bsl::ofstream fs(fileName.c_str());
     fs << "0xdeadbeef";
@@ -234,13 +234,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE 2
@@ -253,43 +253,43 @@ int main(int argc, char *argv[])
 ///- - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how the application can implement
 // automatic log file cleanup from the observer's file rotation callback.
-//..
+// ```
     bdls::TempDirectoryGuard tempDirGuard("ball_");
     bsl::string              baseName(tempDirGuard.getTempDirName());
     bdls::PathUtil::appendRaw(&baseName, "logFile%T");
-//..
+// ```
 // Suppose that the application was set up to do its logging using one of the
-// 'ball' file observers (see 'ball_fileobserver2') with the following log
+// `ball` file observers (see `ball_fileobserver2`) with the following log
 // pattern:
-//..
+// ```
     const char *appLogPattern = baseName.c_str();
-//..
+// ```
 // First, we need to convert the log filename pattern to the pattern that can
 // be used for filename matching on the filesystem:
-//..
+// ```
     bsl::string fileNamePattern;
     ball::LogFileCleanerUtil::logPatternToFilePattern(&fileNamePattern,
                                                       appLogPattern);
-//..
+// ```
 // Then, we create a configuration for the file cleaner utility.  The sample
 // configuration below instructs the file cleaner to remove all log files that
 // match the specified file pattern and are older than a week, but to keep at
 // least 4 most recent log files:
-//..
+// ```
     balb::FileCleanerConfiguration config(fileNamePattern.c_str(),
                                           bsls::TimeInterval(7 * 60 * 60 * 24),
                                           4);
-//..
+// ```
 // Next, we create a file observer and enable file logging:
-//..
+// ```
     ball::FileObserver2 observer;
     observer.enableFileLogging(appLogPattern);
-//..
+// ```
 // Finally, we use the utility function to install the file rotation callback
 // that will invoke file cleanup with the specified configuration:
-//..
+// ```
     ball::LogFileCleanerUtil::enableLogFileCleanup(&observer, config);
-//..
+// ```
 // Note that the file cleanup will be performed immediately and on every log
 // file rotation performed by the file observer.  Also note that this method
 // overrides the file rotation callback currently installed in the file
@@ -301,13 +301,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE 1
@@ -319,29 +319,29 @@ int main(int argc, char *argv[])
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
 // The following snippets of code illustrate the basic usage of
-// 'ball::LogFileCleanerUtil'.
+// `ball::LogFileCleanerUtil`.
 //
 // Suppose that the application was set up to do its logging using one of the
-// 'ball' file observers (see 'ball_fileobserver2') with the following log
+// `ball` file observers (see `ball_fileobserver2`) with the following log
 // pattern:
-//..
+// ```
     const char *appLogPattern = "/var/log/myApp/log%T";
-//..
+// ```
 // First, we need to convert the log filename pattern to the pattern that can
 // be used for filename matching on the filesystem:
-//..
+// ```
     bsl::string fileNamePattern;
     ball::LogFileCleanerUtil::logPatternToFilePattern(&fileNamePattern,
                                                       appLogPattern);
-//..
+// ```
 // Finally, we test the resulting file pattern:
-//..
+// ```
     ASSERT("/var/log/myApp/log*" == fileNamePattern);
-//..
+// ```
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'enableLogFileCleanup' METHOD
+        // TESTING `enableLogFileCleanup` METHOD
         //
         // Concerns:
         //
@@ -350,7 +350,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   enableLogFileCleanup(OBSERVER *observer, const FCConfiguration&);
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTESTING 'enableLogFileCleanup' METHOD"
+        if (verbose) cout << "\nTESTING `enableLogFileCleanup` METHOD"
                           << "\n====================================="
                           << endl;
 
@@ -435,21 +435,21 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'logPatternToFilePattern' METHOD
+        // TESTING `logPatternToFilePattern` METHOD
         //
         // Concerns:
-        //:  1 All valid '%'-escape sequences are recognized.
-        //:
-        //:  2 All other input pattern symbols passed into output intact.
+        //  1. All valid '%'-escape sequences are recognized.
+        //
+        //  2. All other input pattern symbols passed into output intact.
         //
         // Plan:
-        //:  1 Using the table-driven technique, test function on various input
-        //:    patterns.  (C-1..2)
+        //  1. Using the table-driven technique, test function on various input
+        //     patterns.  (C-1..2)
         //
         // Testing:
         //   void logPatternToFilePattern(filePattern, logPattern);
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTESTING 'logPatternToFilePattern' METHOD"
+        if (verbose) cout << "\nTESTING `logPatternToFilePattern` METHOD"
                           << "\n========================================"
                           << endl;
         {
@@ -566,12 +566,12 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Run each method with arbitrary inputs and verify the behavior is
-        //:   as expected.
+        // 1. Run each method with arbitrary inputs and verify the behavior is
+        //    as expected.
         //
         // Testing:
         //   BREATHING TEST

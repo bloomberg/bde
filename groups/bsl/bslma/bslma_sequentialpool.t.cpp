@@ -28,14 +28,14 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The goals of this 'bslma::SequentialPool' test suite are the following:
-// 1) Verify that 'allocate' returns memory of the correct size and alignment
-// as specified by the 'strategy' parameter at construction.
+// The goals of this `bslma::SequentialPool` test suite are the following:
+// 1) Verify that `allocate` returns memory of the correct size and alignment
+// as specified by the `strategy` parameter at construction.
 //
 // 2) Verify that the internal buffer capacity grows as specified by the
-// 'initialSize' parameter at construction.
+// `initialSize` parameter at construction.
 //
-// 3) Verify that 'release' and the destructor frees all memory allocated
+// 3) Verify that `release` and the destructor frees all memory allocated
 // through the pool.  And resets the pool to its initial state.
 //
 // 4) Verity that the optional buffer is used before the internal block list
@@ -46,31 +46,31 @@ using namespace BloombergLP;
 //
 // The corresponding testing procedures are implemented as follows:
 // 1) Initialize a sequential pool with varying alignment strategies, and then
-// invoke 'allocate' with varying sizes.  Also invoke buffer allocator's
-// 'allocateFromBuffer' class method with the same allocation sizes.  Verify
+// invoke `allocate` with varying sizes.  Also invoke buffer allocator's
+// `allocateFromBuffer` class method with the same allocation sizes.  Verify
 // that the offset of the pool's returned memory address respective to the
 // beginning of the pool's internal buffer is the same as that for the memory
-// address returned by 'allocateFromBuffer'.  Note that this test relies on the
-// implementation detail of the 'allocate' method, which uses
-// 'allocateFromBuffer' to allocate memory from the pool's internal buffer.
+// address returned by `allocateFromBuffer`.  Note that this test relies on the
+// implementation detail of the `allocate` method, which uses
+// `allocateFromBuffer` to allocate memory from the pool's internal buffer.
 //
 // 2) Initialize a sequential pool with varying buffer sizes and a test
-// allocator.  Invoke 'allocate' repeatedly to deplete the internal buffer and
+// allocator.  Invoke `allocate` repeatedly to deplete the internal buffer and
 // cause replenishment.  Verify that the sequential pool allocates the expected
 // buffer size from the test allocator.
 //
 // 3) Initialize two sequential pools, each supplied with its own test
-// allocator.  Invoke 'allocate' repeatedly on both sequential pools.  Invoke
-// 'release' on one sequential pool, and allow the other to go out of scope.
+// allocator.  Invoke `allocate` repeatedly on both sequential pools.  Invoke
+// `release` on one sequential pool, and allow the other to go out of scope.
 // Verify that both test allocators indicate no memory is in use.
 //
 // 4) Initialize a number of sequential pools with an optional buffer.  Invoke
-// 'allocate' repeatedly, ensuring that after each allocate, the correct
+// `allocate` repeatedly, ensuring that after each allocate, the correct
 // amount of memory is returned from the optional buffer before allocation
 // memory from the internal block list.
 //
 // 5) Initialize a number of sequential pools with different initial capacity.
-// Invoke 'allocate' on all sequential pools, verifying that each call to
+// Invoke `allocate` on all sequential pools, verifying that each call to
 // allocate returns a valid usable amount of memory.
 //
 //-----------------------------------------------------------------------------
@@ -160,7 +160,7 @@ typedef bslma::TestAllocator               TestAllocator;
 typedef bslma::BufferAllocator             BufferAllocator;
 typedef BufferAllocator::AlignmentStrategy AlignStrategy;
 
-// This type is copied from the 'bslma_infrequentdeleteblocklist.h' for testing
+// This type is copied from the `bslma_infrequentdeleteblocklist.h` for testing
 // purposes.
 
 struct InfrequentDeleteBlock {
@@ -168,21 +168,22 @@ struct InfrequentDeleteBlock {
     bsls::AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
 };
 
-// This is copied from 'bslma_sequentialpool.cpp' to help determine the
+// This is copied from `bslma_sequentialpool.cpp` to help determine the
 // internal limits of the pool.
 
 enum {
     INITIAL_SIZE = 256,   // default initial buffer size
-    GROW_FACTOR  = 2      // multiplicative factor by which to grow 'd_bufSize'
+    GROW_FACTOR  = 2      // multiplicative factor by which to grow `d_bufSize`
 };
 
 //=============================================================================
 //                        FILE-STATIC HELPER FUNCTIONS
 //-----------------------------------------------------------------------------
+
+/// Return the adjusted block size based on the specified `numBytes` using
+/// the calculation performed by the
+/// `bslma::InfrequentDeleteBlockList::allocate` method.
 static int blockSize(int numBytes)
-    // Return the adjusted block size based on the specified 'numBytes' using
-    // the calculation performed by the
-    // 'bslma::InfrequentDeleteBlockList::allocate' method.
 {
     ASSERT(0 <= numBytes);
 
@@ -295,12 +296,12 @@ MyList::Type MyList::type(int index) const
 
 enum { MY_INITIAL_SIZE = 1, MY_GROW_FACTOR = 2 };
 
+/// Copy the value of the specified `srcElement` of the specified `type` to
+/// the specified `index` position in the specified `list`.  Use the
+/// specified `pool` to supply memory.
 static
 void copyElement(void **list, MyList::Type type, int index, void *srcElement,
                  bslma::SequentialPool *pool)
-    // Copy the value of the specified 'srcElement' of the specified 'type' to
-    // the specified 'index' position in the specified 'list'.  Use the
-    // specified 'pool' to supply memory.
 {
     ASSERT(list);
     ASSERT(0 <= index);
@@ -327,15 +328,15 @@ void copyElement(void **list, MyList::Type type, int index, void *srcElement,
     }
 }
 
+/// Reallocate memory in the specified `list` and `typeArray` using the
+/// specified `basicAllocator` and update the specified size to the
+/// specified `newSize`.  The specified `length` number of leading elements
+/// are preserved in `list` and `typeArray`.  If `allocate` should throw an
+/// exception, this function has no effect.  The behavior is undefined
+/// unless `1 <= newSize`, `0 <= length`, and `newSize <= length`.
 static
 void reallocate(void ***list, char **typeArray, int *size,
                 int newSize, int length, bslma::Allocator *basicAllocator)
-    // Reallocate memory in the specified 'list' and 'typeArray' using the
-    // specified 'basicAllocator' and update the specified size to the
-    // specified 'newSize'.  The specified 'length' number of leading elements
-    // are preserved in 'list' and 'typeArray'.  If 'allocate' should throw an
-    // exception, this function has no effect.  The behavior is undefined
-    // unless '1 <= newSize', '0 <= length', and 'newSize <= length'.
 {
     ASSERT(list);
     ASSERT(*list);
@@ -796,7 +797,7 @@ int main(int argc, char *argv[])
                 char majorBuffer[MAJOR_BUFFER_SIZE];
                 bsls::AlignmentUtil::MaxAlignedType  dummy;
             };
-            // Align 'buffer' to MaxAlignedType.
+            // Align `buffer` to MaxAlignedType.
 
             char *                             buffer;
             int                                bufferSize = STATIC_BUFFER_SIZE;
@@ -1356,22 +1357,22 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'allocate' FUNCTION
+        // TESTING `allocate` FUNCTION
         //
         // Concerns:
         //   1. If no buffer is specified then the pool always allocates
         //      requests from the blockList.  The first allocation is of
         //      INITIAL_SIZE, and subsequent buffer resizes are of exponential
         //      size.
-        //   2. If 'initialSize' is specified then all requests up to
-        //      'initialSize' require no additional allocations.  Subsequent
+        //   2. If `initialSize` is specified then all requests up to
+        //      `initialSize` require no additional allocations.  Subsequent
         //      buffer resizes are constant or exponential based on whether
-        //      'initialSize' is positive or negative.
-        //   3. If 'buffer' and 'bufSize' is specified then all requests up to
-        //      'bufSize' are satisfied from 'buffer' with no memory
+        //      `initialSize` is positive or negative.
+        //   3. If `buffer` and `bufSize` is specified then all requests up to
+        //      `bufSize` are satisfied from `buffer` with no memory
         //      allocations, and subsequent requests cause the internal buffer
         //      to be resized either by constant or exponential growth based on
-        //      whether 'bufSize' is positive or negative.
+        //      whether `bufSize` is positive or negative.
         //   4. All requests over a specified THRESHOLD are satisfied directly
         //      from the blockList if they cannot be satisfied by the pool's
         //      internal buffer,
@@ -1382,12 +1383,12 @@ int main(int argc, char *argv[])
         //   For 1 - 4 construct objects mX, mY and mZ with default, maximum
         //   and natural alignment allocation strategy using the three
         //   different constructors, namely the default constructor, the
-        //   constructor taking an 'initialSize' and the constructor taking a
+        //   constructor taking an `initialSize` and the constructor taking a
         //   buffer.  Additionally pass a test allocator to the constructor to
         //   monitor the memory allocations by the pool.  Confirm the bytes
         //   allocated by the constructor are as expected.  Ensure that the
         //   test case contains both positive, negative and zero value of
-        //   'initialSize' and 'bufferSize'.
+        //   `initialSize` and `bufferSize`.
         //
         //   Call the allocate function with various size values, including
         //   positive, negative and zero values.  Ensure that the bytes
@@ -1397,7 +1398,7 @@ int main(int argc, char *argv[])
         //   void *allocate(int size);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'allocate' FUNCTION"
+        if (verbose) printf("\nTESTING `allocate` FUNCTION"
                             "\n===========================\n");
 
         const int DATA[]   = { 0, 1, 5, 7, 8, 15, 16, 24, 31, 32, 33, 48,
@@ -1454,7 +1455,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            printf("\nTesting 'initialSize' constructor\n");
+            printf("\nTesting `initialSize` constructor\n");
         }
         {
             for (int i = 0; i < NUM_DATA; ++i) {
@@ -1527,7 +1528,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-           printf("\nTesting 'initialSize' and 'maxBufferSize' constructor\n");
+           printf("\nTesting `initialSize` and `maxBufferSize` constructor\n");
         }
         {
             for (int i = 0; i < NUM_DATA; ++i) {
@@ -1632,8 +1633,8 @@ int main(int argc, char *argv[])
         {
             const int BUFFER_SIZE = 2048;
 
-            // Maximally aligned buffer used by 'allocateFromBuffer'.  Note
-            // that 'bufferStorage' *must* be declared 'static' to force
+            // Maximally aligned buffer used by `allocateFromBuffer`.  Note
+            // that `bufferStorage` *must* be declared `static` to force
             // maximal alignment under Windows and MSVC.
 
             static bsls::AlignedBuffer<BUFFER_SIZE> bufferStorage;
@@ -1715,8 +1716,8 @@ int main(int argc, char *argv[])
         {
             const int BUFFER_SIZE = 2048;
 
-            // Maximally aligned buffer used by 'allocateFromBuffer'.  Note
-            // that 'bufferStorage' *must* be declared 'static' to force
+            // Maximally aligned buffer used by `allocateFromBuffer`.  Note
+            // that `bufferStorage` *must* be declared `static` to force
             // maximal alignment under Windows and MSVC.
 
             static bsls::AlignedBuffer<BUFFER_SIZE> bufferStorage;
@@ -1828,8 +1829,8 @@ int main(int argc, char *argv[])
 
             const int BUFFER_SIZE = 8192;
 
-            // Maximally aligned buffer used by 'allocateFromBuffer'.  Note
-            // that 'bufferStorage' *must* be declared 'static' to force
+            // Maximally aligned buffer used by `allocateFromBuffer`.  Note
+            // that `bufferStorage` *must* be declared `static` to force
             // maximal alignment under Windows and MSVC.
 
             static bsls::AlignedBuffer<BUFFER_SIZE> bufferStorage;
@@ -1837,7 +1838,7 @@ int main(int argc, char *argv[])
 
             for (int ai = MAXIMUM_ALIGNMENT; ai <= NATURAL_ALIGNMENT; ++ai) {
                 if (verbose)
-                    printf("\nTesting 'allocate' w/ %s alignment.\n",
+                    printf("\nTesting `allocate` w/ %s alignment.\n",
                            (MAXIMUM_ALIGNMENT == ai ? "maximum" : "natural"));
 
                 const BA::AlignmentStrategy STRATEGY = MAXIMUM_ALIGNMENT == ai
@@ -1883,8 +1884,8 @@ int main(int argc, char *argv[])
                     ptrdiff_t offset = pX - HEAD;
                     if (veryVerbose) { T_ P_(offset); T_ P(EXP); T_ P(SIZE); }
 
-                    // Ensure memory offset from the pool's 'allocate' is equal
-                    // to that from 'allocateFromBuffer'.
+                    // Ensure memory offset from the pool's `allocate` is equal
+                    // to that from `allocateFromBuffer`.
 
                     LOOP2_ASSERT(ai, di, EXP == offset);
 
@@ -1898,10 +1899,10 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // FILE-STATIC FUNCTION TEST
-        //   Create a 'bslma::BlockList' object initialized with a test
-        //   allocator.  Invoke both the 'blockSize' function and the
-        //   'bslma::BlockList::allocate' method with varying memory sizes, and
-        //   verify that the sizes returned by 'blockSize' are equal to the
+        //   Create a `bslma::BlockList` object initialized with a test
+        //   allocator.  Invoke both the `blockSize` function and the
+        //   `bslma::BlockList::allocate` method with varying memory sizes, and
+        //   verify that the sizes returned by `blockSize` are equal to the
         //   memory request sizes recorded by the allocator.
         //
         // Testing:
@@ -1911,7 +1912,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nFILE-STATIC FUNCTION TEST"
                             "\n=========================\n");
 
-        if (verbose) printf("\nTesting 'blockSize'.\n");
+        if (verbose) printf("\nTesting `blockSize`.\n");
 
         const int DATA[] = { 0, 1, 5, 12, 24, 64, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1923,8 +1924,8 @@ int main(int argc, char *argv[])
             int blkSize = blockSize(SIZE);
             bl.allocate(SIZE);
 
-            // If the first 'SIZE' is 0, the allocator's 'allocate' is never
-            // called, thus, 'lastAllocatedSize' will return -1 instead of 0.
+            // If the first `SIZE` is 0, the allocator's `allocate` is never
+            // called, thus, `lastAllocatedSize` will return -1 instead of 0.
 
             const int EXP = i || SIZE
                             ? static_cast<int>(a.lastAllocatedNumBytes()) : 0;

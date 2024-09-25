@@ -28,9 +28,9 @@ const char *const predefinedNamespaces[] =
     "http://bloomberg.com/schemas/bdem"           // e_BDEM
 };
 
+/// Private function.  Look up the specified `namespaceUri` in the list of
+/// preregistered namespaces and return the namespace ID or -1 if not found.
 int lookupPredefinedId(const bsl::string_view& namespaceUri)
-    // Private function.  Look up the specified 'namespaceUri' in the list of
-    // preregistered namespaces and return the namespace ID or -1 if not found.
 {
     for (int i = 0; i < ARRAY_LEN(predefinedNamespaces); ++i) {
         if (namespaceUri == predefinedNamespaces[i]) {

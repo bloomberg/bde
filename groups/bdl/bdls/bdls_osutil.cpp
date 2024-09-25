@@ -38,19 +38,19 @@ namespace BloombergLP {
 
 namespace {
 
+/// Load the operating system name, version name and patch name into the
+/// specified `osName`, `osVersion` and `osPatch` respectively.  Return
+/// 0 on success and a non-zero value otherwise.  The loaded values may
+/// represent an emulation provided for the current process (see
+/// "manifest-based behavior" in Windows programming documentation for an
+/// example) and therefore are not suitable for determining supported
+/// features or the real environment/version.  If you need to determine the
+/// presence of certain features please consult the documentation of the
+/// operating systems you need to support.
 template <class STRING_TYPE>
 int u_OsUtil_getOsInfo(STRING_TYPE *osName,
                        STRING_TYPE *osVersion,
                        STRING_TYPE *osPatch);
-    // Load the operating system name, version name and patch name into the
-    // specified 'osName', 'osVersion' and 'osPatch' respectively.  Return
-    // 0 on success and a non-zero value otherwise.  The loaded values may
-    // represent an emulation provided for the current process (see
-    // "manifest-based behavior" in Windows programming documentation for an
-    // example) and therefore are not suitable for determining supported
-    // features or the real environment/version.  If you need to determine the
-    // presence of certain features please consult the documentation of the
-    // operating systems you need to support.
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 template <class STRING_TYPE>

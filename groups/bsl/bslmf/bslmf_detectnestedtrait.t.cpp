@@ -17,8 +17,8 @@
 #include <bsls_nullptr.h>
 #include <bsls_platform.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 
@@ -97,11 +97,11 @@ void aSsErT(bool condition, const char *message, int line)
 
 //#define BSLMF_DETECTNESTEDTRAIT_SHOW_ERROR_FOR_INCOMPLETE_CLASS  1
     // Define this macro to test for compile-fail diagnostics instantiating
-    // 'DetectNestedTrait' with an incomplete class type.
+    // `DetectNestedTrait` with an incomplete class type.
 
 //#define BSLMF_DETECTNESTEDTRAIT_SHOW_ERROR_FOR_INCOMPLETE_UNION  1
     // Define this macro to test for compile-fail diagnostics instantiating
-    // 'DetectNestedTrait' with an incomplete union type.
+    // `DetectNestedTrait` with an incomplete union type.
 
 // ============================================================================
 //                               USAGE EXAMPLE
@@ -128,10 +128,10 @@ void aSsErT(bool condition, const char *message, int line)
 // associating types with custom traits that indicate what capabilities are
 // provided by a given type.
 //
-// First, in package 'abcd', define a trait, 'RequiresLockTrait', that
+// First, in package `abcd`, define a trait, `RequiresLockTrait`, that
 // indicates that a type's methods must not be called unless a known lock it
 // first acquired:
-//..
+// ```
     namespace abcd {
 
     template <class TYPE>
@@ -140,31 +140,33 @@ void aSsErT(bool condition, const char *message, int line)
     };
 
     }  // close namespace abcd
-//..
-// Notice that 'RequiresLockTrait' derives from
-// 'bslmf::DetectNestedTrait<TYPE, RequiresLockTrait>::type' using the
+// ```
+// Notice that `RequiresLockTrait` derives from
+// `bslmf::DetectNestedTrait<TYPE, RequiresLockTrait>::type` using the
 // curiously recurring template pattern.
 //
-// Then, in package 'xyza', we declare a type, 'DoesNotRequireALockType', that
+// Then, in package `xyza`, we declare a type, `DoesNotRequireALockType`, that
 // can be used without acquiring the lock:
-//..
+// ```
     namespace xyza {
 
+    /// ...
     class DoesNotRequireLockType {
-        // ...
 
       public:
         // CREATORS
+
+        /// ...
         DoesNotRequireLockType();
-            // ...
     };
-//..
-// Next, we declare a type, 'RequiresLockTypeA', that does require the lock.
-// We use the 'BSLMF_NESTED_TRAIT_DECLARATION' macro to associate the type with
-// the 'abcd::RequiresLockTrait' trait:
-//..
+// ```
+// Next, we declare a type, `RequiresLockTypeA`, that does require the lock.
+// We use the `BSLMF_NESTED_TRAIT_DECLARATION` macro to associate the type with
+// the `abcd::RequiresLockTrait` trait:
+// ```
+
+    /// ...
     class RequiresLockTypeA {
-        // ...
 
       public:
         // TRAITS
@@ -172,24 +174,26 @@ void aSsErT(bool condition, const char *message, int line)
                                        abcd::RequiresLockTrait);
 
         // CREATORS
+
+        /// ...
         RequiresLockTypeA();
-            // ...
 
     };
-//..
+// ```
 // Notice that the macro declaration is performed within the scope of the class
 // declaration, and must be done with public scope.
 //
-// Then, we declare a templatized container type, 'Container', that is
-// parameterized on some 'ELEMENT' type.  If 'ELEMENT' requires a lock, then a
-// 'Container' of 'ELEMENT's will require a lock as well.  This can be
-// expressed using the 'BSLMF_NESTED_TRAIT_DECLARATION_IF' macro, by providing
-// 'abcd::RequiresLockTrait<ELEMENT>::value' as the condition for associating
-// the trait with 'Container'.
-//..
+// Then, we declare a templatized container type, `Container`, that is
+// parameterized on some `ELEMENT` type.  If `ELEMENT` requires a lock, then a
+// `Container` of `ELEMENT`s will require a lock as well.  This can be
+// expressed using the `BSLMF_NESTED_TRAIT_DECLARATION_IF` macro, by providing
+// `abcd::RequiresLockTrait<ELEMENT>::value` as the condition for associating
+// the trait with `Container`.
+// ```
+
+    /// ...
     template <class ELEMENT>
     struct Container {
-        // ...
 
       public:
         // TRAITS
@@ -198,28 +202,30 @@ void aSsErT(bool condition, const char *message, int line)
 
         // ...
     };
-//..
-// Next, we show that traits based on 'bslmf::DetectNestedTrait' can be
+// ```
+// Next, we show that traits based on `bslmf::DetectNestedTrait` can be
 // associated with a type using "C++11-style" trait association.  To do this,
-// we declare a type, 'RequiresLockTypeB', that also requires the lock, but
-// does not used the 'BSLMF_NESTED_TRAIT_DECLARATION' macro:
-//..
+// we declare a type, `RequiresLockTypeB`, that also requires the lock, but
+// does not used the `BSLMF_NESTED_TRAIT_DECLARATION` macro:
+// ```
+
+    /// ...
     class RequiresLockTypeB {
-        // ...
 
       public:
         // CREATORS
+
+        /// ...
         RequiresLockTypeB();
-            // ...
 
     };
 
     }  // close namespace xyza
-//..
-// Then, we associate 'RequiresLockTypeB' with 'abcd::RequiresLockTrait' by
-// directly specializing 'abcd::RequiresLockTrait<xyza::RequiresLockTypeB>'.
+// ```
+// Then, we associate `RequiresLockTypeB` with `abcd::RequiresLockTrait` by
+// directly specializing `abcd::RequiresLockTrait<xyza::RequiresLockTypeB>`.
 // This is the standard way of associating a type with a trait since C++11:
-//..
+// ```
     namespace abcd {
 
     template <>
@@ -227,11 +233,11 @@ void aSsErT(bool condition, const char *message, int line)
     };
 
     }  // close namespace abcd
-//..
+// ```
 // Now, we can write a function that inspects
-// 'abcd::RequiresLockTrait<TYPE>::value' to test whether or not various types
-// are associated with 'abcd::RequiresLockTrait':
-//..
+// `abcd::RequiresLockTrait<TYPE>::value` to test whether or not various types
+// are associated with `abcd::RequiresLockTrait`:
+// ```
     void example1()
     {
         ASSERT(false ==
@@ -257,11 +263,11 @@ void aSsErT(bool condition, const char *message, int line)
 
         // ...
     }
-//..
+// ```
 // Finally, we demonstrate that the trait can be tested at compilation time, by
 // writing a function that tests the trait within the context of a compile-time
-// 'BSLMF_ASSERT':
-//..
+// `BSLMF_ASSERT`:
+// ```
     void example2()
     {
         BSLMF_ASSERT(false ==
@@ -285,7 +291,7 @@ void aSsErT(bool condition, const char *message, int line)
                abcd::RequiresLockTrait<
                             xyza::Container<xyza::RequiresLockTypeB> >::value);
     }
-//..
+// ```
 
 // BDE_VERIFY pragma: pop  // end of usage example-example relaxed rules
 
@@ -294,8 +300,15 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 // Macro: ASSERT_DETECT_NESTED_TRAIT
-//  This macro tests that 'DetectNestedTrait' has the expected 'RESULT' when
-//  detecting the 'foo::IsExpandable' trait for the given 'TYPE'.
+//  This macro tests that `DetectNestedTrait` has the expected `RESULT` when
+//  detecting the `foo::IsExpandable` trait for the given `TYPE`.
+
+/// Test that the result of `bslmf::DetectNestedTrait::value` for a supplied
+/// `TYPE`, querying support for the `foo::IsExpandable` trait, has the same
+/// `value` as the expected `RESULT`.  Then confirm that the resulting trait
+/// is implicitly convertible to `bsl::true_type` or `bsl::false_type`
+/// accordingly, and that the nested typedef `type` is an alias for either
+/// `bsl::true_type` or `bsl::false_type` accordingly.
 #define ASSERT_DETECT_NESTED_TRAIT(TYPE, RESULT)                              \
     {                                                                         \
         typedef bslmf::DetectNestedTrait<TYPE, foo::IsInflatable> TestTrait;  \
@@ -305,12 +318,6 @@ void aSsErT(bool condition, const char *message, int line)
         ASSERT( RESULT == dispatchOnType((TestTrait*)0));                     \
         ASSERT( RESULT == dispatchOnType((TestTrait::type *)0));              \
     }
-    // Test that the result of 'bslmf::DetectNestedTrait::value' for a supplied
-    // 'TYPE', querying support for the 'foo::IsExpandable' trait, has the same
-    // 'value' as the expected 'RESULT'.  Then confirm that the resulting trait
-    // is implicitly convertible to 'bsl::true_type' or 'bsl::false_type'
-    // accordingly, and that the nested typedef 'type' is an alias for either
-    // 'bsl::true_type' or 'bsl::false_type' accordingly.
 
 
 // Macro: ASSERT_DETECT_NESTED_TRAIT_FOR_RVAL_REF
@@ -323,8 +330,8 @@ void aSsErT(bool condition, const char *message, int line)
 
 
 // Macro: ASSERT_DETECT_NESTED_TRAIT_FOR_TYPE
-//  This macro tests that 'DetectNestedTrait' has the expected 'RESULT' when
-//  detecting the 'foo::IsExpandable' trait for the given 'TYPE', and that
+//  This macro tests that `DetectNestedTrait` has the expected `RESULT` when
+//  detecting the `foo::IsExpandable` trait for the given `TYPE`, and that
 //  pointers/references to that type never have a nested trait.
 # define ASSERT_DETECT_NESTED_TRAIT_FOR_TYPE(TYPE, RESULT)                    \
     ASSERT_DETECT_NESTED_TRAIT(TYPE, RESULT);                                 \
@@ -334,8 +341,8 @@ void aSsErT(bool condition, const char *message, int line)
 
 
 // Macro: ASSERT_DETECT_NESTED_TRAIT_FOR_CV_TYPE
-//  This macro tests that 'DetectNestedTrait' has the expected 'RESULT' when
-//  detecting the 'foo::IsExpandable' trait for the given 'TYPE', and all
+//  This macro tests that `DetectNestedTrait` has the expected `RESULT` when
+//  detecting the `foo::IsExpandable` trait for the given `TYPE`, and all
 //  cv-qualified variations of that type, and pointers and references to each
 //  of those cv-qualified types.
 #define ASSERT_DETECT_NESTED_TRAIT_FOR_CV_TYPE(TYPE, RESULT)                  \
@@ -346,11 +353,11 @@ void aSsErT(bool condition, const char *message, int line)
 
 
 // Macro: ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE
-//  This macro tests that 'DetectNestedTrait' has the expected 'RESULT' when
-//  detecting the 'foo::IsExpandable' trait for the given 'TYPE', and all
+//  This macro tests that `DetectNestedTrait` has the expected `RESULT` when
+//  detecting the `foo::IsExpandable` trait for the given `TYPE`, and all
 //  cv-qualified variations of that type, and pointers and references to each
 //  of those cv-qualified types, and arrays of those cv-qualified types.  Note
-//  that this macro does not recursively test arrays of pointers to 'TYPE'.
+//  that this macro does not recursively test arrays of pointers to `TYPE`.
 #define ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(TYPE, RESULT);             \
     ASSERT_DETECT_NESTED_TRAIT_FOR_CV_TYPE(TYPE, RESULT);                     \
     ASSERT_DETECT_NESTED_TRAIT_FOR_CV_TYPE(TYPE[128], false);                 \
@@ -366,27 +373,27 @@ void aSsErT(bool condition, const char *message, int line)
 // to validate base characteristics of a type trait: namely, that it is
 // publicly and unambiguously derived from to its base characteristic, and that
 // the public members of that base characteristic, such as the nested typename
-// 'type', remain unambiguous and publicly accessible (including conversion to
+// `type`, remain unambiguous and publicly accessible (including conversion to
 // said base characteristic through its copy constructor).
 
+/// Return `true` if the supplied argument is convertible to
+/// `bsl::true_type`, and `false` if the supplied argument is convertible to
+/// `bsl::false_type`; otherwise calls to this function will fail to
+/// compile.
 bool dispatchForConversion(bsl::false_type) { return false; }
 bool dispatchForConversion(bsl::true_type)  { return true;  }
-    // Return 'true' if the supplied argument is convertible to
-    // 'bsl::true_type', and 'false' if the supplied argument is convertible to
-    // 'bsl::false_type'; otherwise calls to this function will fail to
-    // compile.
 
 
+/// Return `true` if the supplied argument is a pointer to `bsl::true_type`,
+/// and `false` if the supplied argument is a pointer to `bsl::false_type`;
+/// otherwise calls to this function with any other pointer type, such as a
+/// pointer to a class type publicly derived from `bsl::true_type` or
+/// `bsl::false_type`, will match the third overload that is never defined
+/// and does not have a return value, and so should produce some compilation
+/// failure.
 bool dispatchOnType(bsl::false_type *) { return false; }
 bool dispatchOnType(bsl::true_type *)  { return true;  }
 void dispatchOnType(void *);
-    // Return 'true' if the supplied argument is a pointer to 'bsl::true_type',
-    // and 'false' if the supplied argument is a pointer to 'bsl::false_type';
-    // otherwise calls to this function with any other pointer type, such as a
-    // pointer to a class type publicly derived from 'bsl::true_type' or
-    // 'bsl::false_type', will match the third overload that is never defined
-    // and does not have a return value, and so should produce some compilation
-    // failure.
 
 // ============================================================================
 //                      TYPES TO SUPPORT TESTING
@@ -401,21 +408,23 @@ void dispatchOnType(void *);
 
 namespace foo {
 // Note curiously-recurring template pattern
+
+/// This trait derives from `bsl::true_type` if (template parameter) `TYPE`
+/// is defined using the nested trait declaration for this `IsInflatable`
+/// trait, and from `bsl::false_type` otherwise.
 template <class TYPE>
 struct IsInflatable : bslmf::DetectNestedTrait<TYPE, IsInflatable>::type {
-    // This trait derives from 'bsl::true_type' if (template parameter) 'TYPE'
-    // is defined using the nested trait declaration for this 'IsInflatable'
-    // trait, and from 'bsl::false_type' otherwise.
 };
 }  // close namespace foo
 
 namespace bar {
 // Note curiously-recurring template pattern
+
+/// This trait derives from `bsl::true_type` if (template parameter) `TYPE`
+/// is defined using the nested trait declaration for this `IsInflatable`
+/// trait, and from `bsl::false_type` otherwise.
 template <class TYPE>
 struct IsInflatable : bslmf::DetectNestedTrait<TYPE, IsInflatable>::type {
-    // This trait derives from 'bsl::true_type' if (template parameter) 'TYPE'
-    // is defined using the nested trait declaration for this 'IsInflatable'
-    // trait, and from 'bsl::false_type' otherwise.
 };
 }  // close namespace bar
 
@@ -426,8 +435,8 @@ struct IsInflatable : bslmf::DetectNestedTrait<TYPE, IsInflatable>::type {
 // not default constructor: it is essentially impossible to create values of
 // any of these types are runtime.
 
+/// This `struct` represents an inflatable type.
 class InflatableClass {
-    // This 'struct' represents an inflatable type.
   private:
     // NOT IMPLEMENTED
     InflatableClass(const InflatableClass&);
@@ -436,19 +445,19 @@ class InflatableClass {
     BSLMF_NESTED_TRAIT_DECLARATION(InflatableClass, foo::IsInflatable);
 };
 
+/// This `struct` demonstrates that nested traits are not inherited.
 struct InflatableDerived : InflatableClass {
-    // This 'struct' demonstrates that nested traits are not inherited.
 };
 
+/// This union represents an inflatable type.
 union InflatableUnion {
-    // This union represents an inflatable type.
 
     BSLMF_NESTED_TRAIT_DECLARATION(InflatableUnion, foo::IsInflatable);
 };
 
+/// This `struct` represents a non-inflatable type (for `foo`) that has an
+/// associated trait with the same name, but from another namespace.
 struct NonflatableClass {
-    // This 'struct' represents a non-inflatable type (for 'foo') that has an
-    // associated trait with the same name, but from another namespace.
   private:
     // NOT IMPLEMENTED
     NonflatableClass(const NonflatableClass&);
@@ -457,9 +466,9 @@ struct NonflatableClass {
     BSLMF_NESTED_TRAIT_DECLARATION(NonflatableClass, bar::IsInflatable);
 };
 
+/// This `union` represents a non-inflatable type (for `foo`) that has an
+/// associated trait with the same name, but from another namespace.
 union NonflatableUnion {
-    // This 'union' represents a non-inflatable type (for 'foo') that has an
-    // associated trait with the same name, but from another namespace.
 
     BSLMF_NESTED_TRAIT_DECLARATION(NonflatableUnion, bar::IsInflatable);
 };
@@ -467,9 +476,9 @@ union NonflatableUnion {
 // Then, we define a class and a union type associated with two traits having
 // the same (unqualified) name in each of their respective namespaces.
 
+/// This `struct` represents an inflatable type in two dimensions of
+/// inflatability, in order to support testing for ambiguity concerns.
 struct ExpandedClass {
-    // This 'struct' represents an inflatable type in two dimensions of
-    // inflatability, in order to support testing for ambiguity concerns.
   private:
     // NOT IMPLEMENTED
     ExpandedClass(const ExpandedClass&);
@@ -479,9 +488,9 @@ struct ExpandedClass {
     BSLMF_NESTED_TRAIT_DECLARATION(ExpandedClass, bar::IsInflatable);
 };
 
+/// This `union` represents an inflatable type in two dimensions of
+/// inflatability, in order to support testing for ambiguity concerns.
 union ExpandedUnion {
-    // This 'union' represents an inflatable type in two dimensions of
-    // inflatability, in order to support testing for ambiguity concerns.
 
     BSLMF_NESTED_TRAIT_DECLARATION(ExpandedUnion, foo::IsInflatable);
     BSLMF_NESTED_TRAIT_DECLARATION(ExpandedUnion, bar::IsInflatable);
@@ -501,9 +510,9 @@ union Uncomplete;
 // trait only if the template argument used to instantiate it is similarly
 // associated with that trait.
 
+/// `Container` is an inflatable type if, and only if, `TYPE` is inflatable.
 template <class TYPE>
 struct Container {
-    // 'Container' is an inflatable type if, and only if, 'TYPE' is inflatable.
 
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Container, foo::IsInflatable,
                                       foo::IsInflatable<TYPE>::value);
@@ -515,7 +524,7 @@ struct Container {
 // instantiation.
 
 enum NonflatableEnum {
-    // This 'enum' demonstrates that enumerations cannot be associated with a
+    // This `enum` demonstrates that enumerations cannot be associated with a
     // nested trait.
 
     e_VALUE = 0
@@ -523,7 +532,7 @@ enum NonflatableEnum {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS)
 enum class NonflatableEnumClass {
-    // This 'enum class' demonstrates that enumerations cannot be associated
+    // This `enum class` demonstrates that enumerations cannot be associated
     // with a nested trait.
 
     e_VALUE = 0
@@ -533,18 +542,18 @@ enum class NonflatableEnumClass {
 // Finally, we define a class specifically intended to fool the trait detection
 // mechanism by being convertible to anything.
 
+/// Type that can be converted to any type.  `DetectNestedTrait` should not
+/// assign it any traits.  The concern to test is that since
+/// `BSLMF_NESTED_TRAIT_DECLARATION` defines its own conversion operator,
+/// the "convert to anything" operator should not interfere with the nested
+/// trait logic.  Note that this means it is impossible to associate /any/
+/// traits with this `ConvertibleToAny` type.  However, traits can still be
+/// explicitly specialized for this and similar types.
 struct ConvertibleToAny {
-    // Type that can be converted to any type.  'DetectNestedTrait' should not
-    // assign it any traits.  The concern to test is that since
-    // 'BSLMF_NESTED_TRAIT_DECLARATION' defines its own conversion operator,
-    // the "convert to anything" operator should not interfere with the nested
-    // trait logic.  Note that this means it is impossible to associate /any/
-    // traits with this 'ConvertibleToAny' type.  However, traits can still be
-    // explicitly specialized for this and similar types.
 
+    /// Return a default-constructed object of the deduced `TYPE`.
     template <class TYPE>
     operator TYPE() const { return TYPE(); }
-        // Return a default-constructed object of the deduced 'TYPE'.
 };
 
 
@@ -555,23 +564,23 @@ struct ConvertibleToAny {
 namespace DetectTraitsOnArrays {
 
 // Note that the trait declaration that follows is patterend in
-// 'bslalg_typetraithasstliterators'.  This is based on the failure observed
+// `bslalg_typetraithasstliterators`.  This is based on the failure observed
 // in internal ticket: 84805986.
 
 template <class TYPE>
 struct HasMyTrait : bslmf::DetectNestedTrait<TYPE, HasMyTrait> {
 };
 
+/// A type with this trait defines (at minimum) the nested types `iterator`
+/// and `const_iterator` and the functions `begin()` and `end()` having the
+/// standard STL semantics.
 struct TypeTraitHasMyTrait {
-    // A type with this trait defines (at minimum) the nested types 'iterator'
-    // and 'const_iterator' and the functions 'begin()' and 'end()' having the
-    // standard STL semantics.
 
+    /// This class template ties the `bslalg::TypeTraitHasMyTrait` trait tag
+    /// to the `bslmf::HasMyTrait` trait metafunction.
     template <class TYPE>
     struct NestedTraitDeclaration
         : bslmf::NestedTraitDeclaration<TYPE, HasMyTrait> {
-        // This class template ties the 'bslalg::TypeTraitHasMyTrait' trait tag
-        // to the 'bslmf::HasMyTrait' trait metafunction.
     };
 
     template <class TYPE>
@@ -628,13 +637,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -651,17 +660,17 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // CONCERN: DETECTING TRAITS ON ARRAYS
         //   The XLC compiler sometimes treats array template parameters in
-        //   non-standard ways, which has resulted in 'DetectNestedTraits'
+        //   non-standard ways, which has resulted in `DetectNestedTraits`
         //   failing to compile (see internal ticket: 84805986).
         //
         // Concerns:
-        //: 1 That a work-around for the XLC compiler successfully allows
-        //:   compiling code that attempts to detect a trait on an array.
+        // 1. That a work-around for the XLC compiler successfully allows
+        //    compiling code that attempts to detect a trait on an array.
         //
         // Plan:
-        //: 1 Implement a bogus trait (based on
-        //:   'bslalg_typetraithasstliterator').  Attempt to detect this trait
-        //:   on a 'const char[][]' type. (C-1)
+        // 1. Implement a bogus trait (based on
+        //    `bslalg_typetraithasstliterator`).  Attempt to detect this trait
+        //    on a `const char[][]` type. (C-1)
         //
         // Testing:
         //   CONCERN: DETECTING TRAITS ON ARRAYS
@@ -671,7 +680,7 @@ int main(int argc, char *argv[])
                             "\n===================================\n");
 
         if (verbose) {
-            // Note that this test is successful if 'testFunction' compiles.
+            // Note that this test is successful if `testFunction` compiles.
             printf("%d", DetectTraitsOnArrays::testFunction());
         }
       } break;
@@ -683,20 +692,20 @@ int main(int argc, char *argv[])
         //  type is complete, leading to difficult to diagnose ODR violations.
         //
         // Concerns:
-        //:  1 Instantiating 'bslmf::DetectNestedTrait' with an incomplete
-        //:    class (or union) type is clearly diagnosed with an error that
-        //:    cannot be circumvented by template tricks exploiting SFINAE.
-        //:
-        //:  2 Pointers and references to incomplete types are perfectly valid
-        //:    types for which the trait always returns 'false'.
+        //  1. Instantiating `bslmf::DetectNestedTrait` with an incomplete
+        //     class (or union) type is clearly diagnosed with an error that
+        //     cannot be circumvented by template tricks exploiting SFINAE.
+        //
+        //  2. Pointers and references to incomplete types are perfectly valid
+        //     types for which the trait always returns `false`.
         //
         // Plan:
-        //:  1 Under a pre-processor check requiring manual enablement, try to
-        //:    instantiate 'bslmf::DetectNestedTrait' for incomplete class
-        //:    types.
-        //:
-        //:  2 Verify that pointers and references to incomplete class types
-        //:    return 'false' for this trait.
+        //  1. Under a pre-processor check requiring manual enablement, try to
+        //     instantiate `bslmf::DetectNestedTrait` for incomplete class
+        //     types.
+        //
+        //  2. Verify that pointers and references to incomplete class types
+        //     return `false` for this trait.
         //
         // Testing:
         //   QoI: diagnose incomplete types
@@ -755,53 +764,53 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // TESTING TRAIT IS CORRECT METAFUNCTION
-        //   The class template 'bslmf::DetectNestedTrait' models a standard
-        //   predicate trait, which derives from 'bsl::true_type' if the
+        //   The class template `bslmf::DetectNestedTrait` models a standard
+        //   predicate trait, which derives from `bsl::true_type` if the
         //   queried type is associated with the specified nested trait, and
-        //   from 'bsl::false_type' otherwise, for any valid type.
+        //   from `bsl::false_type` otherwise, for any valid type.
         //
         // Concerns:
-        //: 1 'DetectNestedTrait<TYPE, TRAIT>' compiles and gives the expected
-        //:   result for every category of type.
-        //:
-        //: 2 Class types (including 'struct's and 'unions') are the only types
-        //:   that might yield a 'true_type' result; all other type categories
-        //:   always yield 'false_type'.  Note that we deliberately ignore the
-        //:   case of users forging their own implementation of the expanded
-        //:   macro; there is no protection against the perfect forger.
-        //:
-        //: 3 The trait yields 'true_type' only for types that use macros from
-        //:   the 'BSLMF_NESTED_TRAIT_DECLARATION' family to associate a trait
-        //:   with that class type; all other class types yield 'false_type'.
-        //:
-        //: 4 A type may be associated with multiple nested traits.
-        //:
-        //: 5 Two traits in distinct namespaces can unambiguously share a name.
-        //:
-        //: 6 The trait produces the same result, regardless of cv-qualifiers.
-        //:
-        //: 7 Nested traits are not inherited.
-        //:
-        //: 8 "Greedy" types with a conversion-to-anything template operator do
-        //:   not support nested traits.
+        // 1. `DetectNestedTrait<TYPE, TRAIT>` compiles and gives the expected
+        //    result for every category of type.
+        //
+        // 2. Class types (including `struct`s and `unions`) are the only types
+        //    that might yield a `true_type` result; all other type categories
+        //    always yield `false_type`.  Note that we deliberately ignore the
+        //    case of users forging their own implementation of the expanded
+        //    macro; there is no protection against the perfect forger.
+        //
+        // 3. The trait yields `true_type` only for types that use macros from
+        //    the `BSLMF_NESTED_TRAIT_DECLARATION` family to associate a trait
+        //    with that class type; all other class types yield `false_type`.
+        //
+        // 4. A type may be associated with multiple nested traits.
+        //
+        // 5. Two traits in distinct namespaces can unambiguously share a name.
+        //
+        // 6. The trait produces the same result, regardless of cv-qualifiers.
+        //
+        // 7. Nested traits are not inherited.
+        //
+        // 8. "Greedy" types with a conversion-to-anything template operator do
+        //    not support nested traits.
         //
         // Plan:
-        //: 1 Verify that the trait under test gives the correct result for
-        //:   each category of type:
-        //:   o cv-void
-        //:   o arithmetic types
-        //:   o pointers
-        //:   o pointer-to-member-data
-        //:   o pointer-to-member-functions
-        //:   o references
-        //:   o enums
-        //:   o arrays
-        //:   o class types without nested traits
-        //:   o class types with nested traits
-        //:   o union types without nested traits
-        //:   o union types with nested traits
-        //:   o regular function types
-        //:   o abominable function types
+        // 1. Verify that the trait under test gives the correct result for
+        //    each category of type:
+        //    - cv-void
+        //    - arithmetic types
+        //    - pointers
+        //    - pointer-to-member-data
+        //    - pointer-to-member-functions
+        //    - references
+        //    - enums
+        //    - arrays
+        //    - class types without nested traits
+        //    - class types with nested traits
+        //    - union types without nested traits
+        //    - union types with nested traits
+        //    - regular function types
+        //    - abominable function types
         //
         // Testing:
         //   DetectNestedTrait::type
@@ -829,15 +838,15 @@ int main(int argc, char *argv[])
         ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(DataMemberPtrType,   false);
         ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(MethodPtrType,       false);
 
-        // 'void' is not an object type, and although it can be cv-qualified,
-        // there are no references to 'void' so we must drop to the most
+        // `void` is not an object type, and although it can be cv-qualified,
+        // there are no references to `void` so we must drop to the most
         // primitive test macro:
         ASSERT_DETECT_NESTED_TRAIT(void,                                false);
         ASSERT_DETECT_NESTED_TRAIT(const void,                          false);
         ASSERT_DETECT_NESTED_TRAIT(volatile void,                       false);
         ASSERT_DETECT_NESTED_TRAIT(const volatile void,                 false);
 
-        // Pointers to 'void' are perfectly good object types:
+        // Pointers to `void` are perfectly good object types:
         ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(void *,              false);
         ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(const void *,        false);
         ASSERT_DETECT_NESTED_TRAIT_FOR_OBJECT_TYPE(volatile void *,     false);
@@ -894,17 +903,17 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // BREATHING TEST
         //   This case exercises (but does not fully test) basic functionality.
-        //   We will use the test driver trait 'IsInflatable' as a proxy to
+        //   We will use the test driver trait `IsInflatable` as a proxy to
         //   indicate the minimal necessary support is available, and also as a
         //   basic test of our test machinery.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Verify the expected value of 'IsInflatable::value' for a variety
-        //:   of interesting test types.
+        // 1. Verify the expected value of `IsInflatable::value` for a variety
+        //    of interesting test types.
         //
         // Testing:
         //   BREATHING TEST

@@ -20,13 +20,13 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines two meta-functions, 'bsl::enable_if' and
-// 'bslmf::EnableIf', that provide a 'typedef' 'type' only if a (template
-// parameter) condition is 'true'.  Also the component defines an alias to the
-// result type of the 'bsl::enable_if' meta-function.  Since both
+// The component under test defines two meta-functions, `bsl::enable_if` and
+// `bslmf::EnableIf`, that provide a `typedef` `type` only if a (template
+// parameter) condition is `true`.  Also the component defines an alias to the
+// result type of the `bsl::enable_if` meta-function.  Since both
 // meta-functions and the alias provide identical functionality, they are all
-// tested by verifying their behavior against an enumeration of 'true' and
-// 'false' conditions.
+// tested by verifying their behavior against an enumeration of `true` and
+// `false` conditions.
 //-----------------------------------------------------------------------------
 // [ 2] bsl::enable_if
 // [ 2] bsl::enable_if_t
@@ -95,7 +95,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                                  USAGE CHEATS
 // ---------------------------------------------------------------------------
 
-// Do not copy the section before '///Usage' below to the .h file, these are
+// Do not copy the section before `///Usage` below to the .h file, these are
 // cheats to make local fakes of bsl templates so we don't have to #include
 // their header files, which would create cyclic dependencies.
 
@@ -124,39 +124,41 @@ struct is_polymorphic<C> : bsl::true_type {};
 
 ///Usage
 ///-----
-// The following snippets of code illustrate basic use of the 'bsl::enable_if'
+// The following snippets of code illustrate basic use of the `bsl::enable_if`
 // meta-function.  We will demonstrate how to use this utility to control
 // overload sets with three increasingly complex examples.
 //
-///Example 1: Implementing a Simple Function with 'bsl::enable_if'
+///Example 1: Implementing a Simple Function with `bsl::enable_if`
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to implement a simple 'swap' function template to
+// Suppose that we want to implement a simple `swap` function template to
 // exchange two arbitrary values, as if defined below:
-//..
+// ```
+
+    /// Exchange the values of the specified objects, `a` and `b`.
     template<class t_TYPE>
     void DummySwap(t_TYPE& a, t_TYPE& b)
-        // Exchange the values of the specified objects, 'a' and 'b'.
     {
         t_TYPE temp(a);
         a = b;
         b = temp;
     }
-//..
+// ```
 // However, we want to take advantage of member-swap methods supplied by user-
 // defined types, so we define a trait that can be customized by a class
 // implementer to indicate that their class supports an optimized member-swap
 // method:
-//..
+// ```
+
+    /// This traits class indicates whether the (template parameter)
+    /// `t_TYPE` has a public `swap` method to exchange values.
     template<class t_TYPE>
     struct HasMemberSwap : bsl::false_type {
-        // This traits class indicates whether the (template parameter)
-        // 't_TYPE' has a public 'swap' method to exchange values.
     };
-//..
-// Now, we implement a generic 'swap' function template that will invoke the
+// ```
+// Now, we implement a generic `swap` function template that will invoke the
 // member swap operation for any type that specialized our trait.  The use of
-// 'bsl::enable_if' to declare the result type causes an attempt to deduce the
-// type 't_TYPE' to fail unless the specified condition is 'true', and this
+// `bsl::enable_if` to declare the result type causes an attempt to deduce the
+// type `t_TYPE` to fail unless the specified condition is `true`, and this
 // falls under the "Substitution Failure Is Not An Error" (SFINAE) clause of
 // the C++ standard, so the compiler will look for a more suitable overload
 // rather than fail with an error.  Note that we provide two overloaded
@@ -164,10 +166,10 @@ struct is_polymorphic<C> : bsl::true_type {};
 // normally raise an ambiguity error.  This works, and is in fact required, in
 // this case as the "enable-if" conditions are mutually exclusive, so that only
 // one overload will ever be present in an overload set.  Also note that the
-// 'type' 'typedef' of 'bsl::enable_if' is an alias to 'void' when the
+// `type` `typedef` of `bsl::enable_if` is an alias to `void` when the
 // (template parameter) type is unspecified and the (template parameter)
-// condition value is 'true'.
-//..
+// condition value is `true`.
+// ```
     template<class t_TYPE>
     typename bsl::enable_if<HasMemberSwap<t_TYPE>::value>::type
     swap(t_TYPE& a, t_TYPE& b)
@@ -183,15 +185,16 @@ struct is_polymorphic<C> : bsl::true_type {};
         a = b;
         b = temp;
     }
-//..
+// ```
 // Next, we define a simple container template, that supports an optimized
-// 'swap' operation by merely swapping the internal pointer to the array of
+// `swap` operation by merely swapping the internal pointer to the array of
 // elements rather than exchanging each element:
-//..
+// ```
+
+    /// This is a simple container implementation for demonstration purposes
+    /// that is modeled after `std::vector`.
     template<class t_TYPE>
     class MyContainer {
-        // This is a simple container implementation for demonstration purposes
-        // that is modeled after 'std::vector'.
 
         // DATA
         t_TYPE *d_storage;
@@ -204,39 +207,41 @@ struct is_polymorphic<C> : bsl::true_type {};
         MyContainer& operator=(const MyContainer&);
 
       public:
+        /// Create a `MyContainer` object having the specified `n` copies of
+        /// the specified `value`.  The behavior is undefined unless
+        /// `0 <= n`.
         MyContainer(const t_TYPE& value, int n);
-            // Create a 'MyContainer' object having the specified 'n' copies of
-            // the specified 'value'.  The behavior is undefined unless
-            // '0 <= n'.
 
+        /// Destroy this container and all of its elements, reclaiming any
+        /// allocated memory.
         ~MyContainer();
-            // Destroy this container and all of its elements, reclaiming any
-            // allocated memory.
 
         // MANIPULATORS
+
+        /// Exchange the contents of `this` container with those of the
+        /// specified `other`.  No memory will be allocated, and no
+        /// exceptions are thrown.
         void swap(MyContainer &other);
-            // Exchange the contents of 'this' container with those of the
-            // specified 'other'.  No memory will be allocated, and no
-            // exceptions are thrown.
 
         // ACCESSORS
-        const t_TYPE& front() const;
-            // Return a reference providing non-modifiable access to the first
-            // element in this container.  The behavior is undefined if this
-            // container is empty.
 
+        /// Return a reference providing non-modifiable access to the first
+        /// element in this container.  The behavior is undefined if this
+        /// container is empty.
+        const t_TYPE& front() const;
+
+        /// Return the number of elements held by this container.
         size_t size() const;
-            // Return the number of elements held by this container.
     };
-//..
-// Then, we specialize our 'HasMemberSwap' trait for this new container type.
-//..
+// ```
+// Then, we specialize our `HasMemberSwap` trait for this new container type.
+// ```
     template<class t_TYPE>
     struct HasMemberSwap<MyContainer<t_TYPE> > : bsl::true_type {
     };
-//..
+// ```
 // Next, we implement the methods of this class:
-//..
+// ```
     // CREATORS
     template<class t_TYPE>
     MyContainer<t_TYPE>::MyContainer(const t_TYPE& value, int n)
@@ -274,12 +279,12 @@ struct is_polymorphic<C> : bsl::true_type {};
     {
         return d_length;
     }
-//..
-// Finally, we can test that the member-'swap' method is called by the generic
-// 'swap' function.  Note that the following code will not compile unless the
-// member-function 'swap' is used, as the copy constructor and assignment
-// operator for the 'MyContainer' class template are declared as 'private'.
-//..
+// ```
+// Finally, we can test that the member-`swap` method is called by the generic
+// `swap` function.  Note that the following code will not compile unless the
+// member-function `swap` is used, as the copy constructor and assignment
+// operator for the `MyContainer` class template are declared as `private`.
+// ```
     void TestSwap()
     {
         MyContainer<int> x(3, 14);
@@ -296,26 +301,30 @@ struct is_polymorphic<C> : bsl::true_type {};
         ASSERT(14 == y.size());
         ASSERT( 3 == y.front());
    }
-//..
+// ```
 //
-///Example 2: Using the 'bsl::enable_if' Result Type
+///Example 2: Using the `bsl::enable_if` Result Type
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
 // For the next example, we will demonstrate the use of the second template
-// parameter in the 'bsl::enable_if' template, which serves as the "result"
+// parameter in the `bsl::enable_if` template, which serves as the "result"
 // type if the test condition passes.  Suppose that we want to write a generic
 // function to allow us to cast between pointers of different types.  If the
-// types are polymorphic, we can use 'dynamic_cast' to potentially cast between
+// types are polymorphic, we can use `dynamic_cast` to potentially cast between
 // two seemingly unrelated types.  However, if either type is not polymorphic
-// then the attempt to use 'dynamic_cast' would be a compile-time failure, and
-// we must use 'static_cast' instead.
-//..
+// then the attempt to use `dynamic_cast` would be a compile-time failure, and
+// we must use `static_cast` instead.
+// ```
    #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-//..
+// ```
 // Note that if the current compiler supports alias templates C++11 feature, we
-// can use 'bsl::enable_if_t' alias to the "result" type of 'bsl::enable_if'
-// meta-function, that avoids the '::type' suffix and 'typename' prefix in the
+// can use `bsl::enable_if_t` alias to the "result" type of `bsl::enable_if`
+// meta-function, that avoids the `::type` suffix and `typename` prefix in the
 // declaration of the function return type.
-//..
+// ```
+
+    /// Return a pointer to the specified `TO` type if the specified `from`
+    /// pointer refers to an object whose complete class publicly derives,
+    /// directly or indirectly, from `TO`, and a null pointer otherwise.
     template<class t_TO, class t_FROM>
     bsl::enable_if_t<bsl::is_polymorphic<t_FROM>::value &&
                      bsl::is_polymorphic<t_TO  >::value, t_TO> *
@@ -326,14 +335,13 @@ struct is_polymorphic<C> : bsl::true_type {};
                             t_TO>::type *
     #endif
     smart_cast(t_FROM *from)
-        // Return a pointer to the specified 'TO' type if the specified 'from'
-        // pointer refers to an object whose complete class publicly derives,
-        // directly or indirectly, from 'TO', and a null pointer otherwise.
     {
         return dynamic_cast<t_TO *>(from);
     }
 
     #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+    /// Return the specified `from` pointer value cast as a pointer to type
+    /// `TO`.  The behavior is undefined unless such a conversion is valid.
     template<class t_TO, class t_FROM>
     bsl::enable_if_t<not(bsl::is_polymorphic<t_FROM>::value &&
                          bsl::is_polymorphic<t_TO  >::value), t_TO> *
@@ -344,43 +352,42 @@ struct is_polymorphic<C> : bsl::true_type {};
                             t_TO>::type *
     #endif
     smart_cast(t_FROM *from)
-        // Return the specified 'from' pointer value cast as a pointer to type
-        // 'TO'.  The behavior is undefined unless such a conversion is valid.
     {
         return static_cast<t_TO *>(from);
     }
-//..
+// ```
 // Next, we define a small number of classes to demonstrate that this casting
 // utility works correctly:
-//..
+// ```
+
+    /// Sample non-polymorphic type
     class A {
-        // Sample non-polymorphic type
 
       public:
         ~A() {}
     };
 
+    /// Sample polymorphic base-type
     class B {
-        // Sample polymorphic base-type
 
       public:
         virtual ~B() {}
     };
 
+    /// Sample polymorphic base-type
     class C {
-        // Sample polymorphic base-type
 
       public:
         virtual ~C() {}
     };
 
+    /// Most-derived example class using multiple bases in order to
+    /// demonstrate cross-casting.
     class ABC : public A, public B, public C {
-        // Most-derived example class using multiple bases in order to
-        // demonstrate cross-casting.
     };
-//..
-// Finally, we demonstrate the correct behavior of the 'smart_cast' utility:
-//..
+// ```
+// Finally, we demonstrate the correct behavior of the `smart_cast` utility:
+// ```
     void TestSmartCast()
     {
         ABC  object;
@@ -403,32 +410,33 @@ struct is_polymorphic<C> : bsl::true_type {};
         // A *pA3 = smart_cast<A>(pB);
         // C *pC3 = smart_cast<C>(pA);
     }
-//..
+// ```
 //
-///Example 3: Controlling Constructor Selection with 'bsl::enable_if'
+///Example 3: Controlling Constructor Selection with `bsl::enable_if`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The final example demonstrates controlling the selection of a constructor
 // template in a class with (potentially) many constructors.  We define a
-// simple container template based on 'std::vector' that illustrates a problem
+// simple container template based on `std::vector` that illustrates a problem
 // that may occur when trying to call the constructor the user expects.  For
-// this example, assume we are trying to create a 'vector<int>' with '42'
-// copies of the value '13'.  When we pass the literal values '42' and '13' to
+// this example, assume we are trying to create a `vector<int>` with `42`
+// copies of the value `13`.  When we pass the literal values `42` and `13` to
 // the compiler, the "best" candidate constructor should be the template
 // constructor that takes two arguments of the same kind, deducing that type to
-// be 'int'.  Unfortunately, that constructor expects those values to be of an
+// be `int`.  Unfortunately, that constructor expects those values to be of an
 // iterator type, forming a valid range.  We need to avoid calling this
 // constructor unless the deduced type really is an iterator, otherwise a
 // compile-error will occur trying to instantiate that constructor with an
-// incompatible argument type.  We use 'bsl::enable_if' to create a deduction
-// context where SFINAE can kick in.  Note that we cannot deduce the '::type'
+// incompatible argument type.  We use `bsl::enable_if` to create a deduction
+// context where SFINAE can kick in.  Note that we cannot deduce the `::type`
 // result of a meta-function, and there is no result type (as with a regular
 // function) to decorate, so we add an extra dummy argument using a pointer
-// type (produced from 'bsl::enable_if::type') with a default null argument:
-//..
+// type (produced from `bsl::enable_if::type`) with a default null argument:
+// ```
+
+    /// This is a simple container implementation for demonstration purposes
+    /// that is modeled after `std::vector`.
     template<class t_TYPE>
     class MyVector {
-        // This is a simple container implementation for demonstration purposes
-        // that is modeled after 'std::vector'.
 
         // DATA
         t_TYPE  *d_storage;
@@ -440,22 +448,23 @@ struct is_polymorphic<C> : bsl::true_type {};
 
       public:
         // CREATORS
-        MyVector(const t_TYPE& value, int n);
-            // Create a 'MyVector' object having the specified 'n' copies of
-            // the specified 'value'.  The behavior is undefined unless
-            // '0 <= n'.
 
+        /// Create a `MyVector` object having the specified `n` copies of
+        /// the specified `value`.  The behavior is undefined unless
+        /// `0 <= n`.
+        MyVector(const t_TYPE& value, int n);
+
+        /// Create a `MyVector` object having the same sequence of values as
+        /// found in the range described by the specified iterators
+        /// `[first, last)`.  The behavior is undefined unless `first` and
+        /// `last` refer to a sequence of values of the (template parameter)
+        /// type `t_TYPE` where `first` is at a position at or before
+        /// `last`.  Note that this function is currently defined inline to
+        /// work around an issue with the Microsoft Visual Studio compiler.
         template<class t_FORWARD_ITERATOR>
         MyVector(t_FORWARD_ITERATOR first, t_FORWARD_ITERATOR last,
                     typename bsl::enable_if<
                        bsl::is_pointer<t_FORWARD_ITERATOR>::value>::type * = 0)
-            // Create a 'MyVector' object having the same sequence of values as
-            // found in the range described by the specified iterators
-            // '[first, last)'.  The behavior is undefined unless 'first' and
-            // 'last' refer to a sequence of values of the (template parameter)
-            // type 't_TYPE' where 'first' is at a position at or before
-            // 'last'.  Note that this function is currently defined inline to
-            // work around an issue with the Microsoft Visual Studio compiler.
         {
             d_length = 0;
             for (t_FORWARD_ITERATOR cursor = first; cursor != last; ++cursor) {
@@ -469,25 +478,26 @@ struct is_polymorphic<C> : bsl::true_type {};
             }
         }
 
+        /// Destroy this container and all of its elements, reclaiming any
+        /// allocated memory.
         ~MyVector();
-            // Destroy this container and all of its elements, reclaiming any
-            // allocated memory.
 
         // ACCESSORS
-        const t_TYPE& operator[](int index) const;
-            // Return a reference providing non-modifiable access to the
-            // element held by this container at the specified 'index'.  The
-            // behavior is undefined unless 'index < size()'.
 
+        /// Return a reference providing non-modifiable access to the
+        /// element held by this container at the specified `index`.  The
+        /// behavior is undefined unless `index < size()`.
+        const t_TYPE& operator[](int index) const;
+
+        /// Return the number of elements held by this container.
         size_t size() const;
-            // Return the number of elements held by this container.
     };
-//..
+// ```
 // Note that there is no easy test for whether a type is an iterator, so we
 // assume that any attempt to call a constructor with two arguments that are
-// not fundamental (such as 'int') must be passing iterators.  Now that we have
+// not fundamental (such as `int`) must be passing iterators.  Now that we have
 // defined the class template, we implement its methods:
-//..
+// ```
     template<class t_TYPE>
     MyVector<t_TYPE>::MyVector(const t_TYPE& value, int n)
     : d_storage(new t_TYPE[n])
@@ -516,10 +526,10 @@ struct is_polymorphic<C> : bsl::true_type {};
     {
         return d_length;
     }
-//..
+// ```
 // Finally, we demonstrate that the correct constructors are called when
 // invoked with appropriate arguments:
-//..
+// ```
     void TestContainerConstructor()
     {
         const unsigned int TEST_DATA[] = { 1, 2, 3, 4, 5 };
@@ -537,7 +547,7 @@ struct is_polymorphic<C> : bsl::true_type {};
             ASSERT(13 == y[i]);
         }
     }
-//..
+// ```
 
 // BDE_VERIFY pragma: pop  // end of usage example-example relaxed rules
 
@@ -675,63 +685,63 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING CLASS TEMPLATE 'bsl::enable_if'
-        //   Test the 'bsl::enable_if' meta-function.
+        // TESTING CLASS TEMPLATE `bsl::enable_if`
+        //   Test the `bsl::enable_if` meta-function.
         //
         // Concerns:
-        //:  1 If the first template argument is 'true', then 'bsl::enable_if'
-        //:    provides a 'typedef' 'type' that is an alias to the second
-        //:    template argument if it is supplied, and 'void' otherwise.
-        //:
-        //:  2 If the first template parameter is 'false', then
-        //:    'bsl::enable_if' does not provide a 'typedef' 'type'.
-        //:
-        //:  3 'bsl::enable_if_t' represents the return type of
-        //:    'bsl::enable_if' meta-function for a variety of template
-        //:    parameter types.
+        //  1. If the first template argument is `true`, then `bsl::enable_if`
+        //     provides a `typedef` `type` that is an alias to the second
+        //     template argument if it is supplied, and `void` otherwise.
+        //
+        //  2. If the first template parameter is `false`, then
+        //     `bsl::enable_if` does not provide a `typedef` `type`.
+        //
+        //  3. `bsl::enable_if_t` represents the return type of
+        //     `bsl::enable_if` meta-function for a variety of template
+        //     parameter types.
         //
         // Plan:
-        //:  1 For a set of possible types, instantiate 'bsl::enable_if' with
-        //:    'true' as the first template argument and the said type as the
-        //:    second template argument.  Verify each instantiation provides a
-        //:    'typedef' 'type' that is an alias to the second template
-        //:    argument.  (C-1)
-        //:
-        //:  1 Instantiate 'bsl::enable_if' with 'true' as the first template
-        //:    argument and omit the second template argument.  Verify that
-        //:    'bsl::enable_if' provides an 'typedef' 'type' that is an alias
-        //:    to 'void'.  (C-1)
-        //:
-        //:  2 Create two instances of a function template parameterized on a
-        //:    boolean, one returning 1, the other returning 2.  If 'true' is
-        //:    supplied as the template parameter, only the first function is
-        //:    part of the overload set, if 'false' is supplied then only the
-        //:    second function is part of the overload set.  Call the template
-        //:    function with both 'true' and 'false', verify that there is no
-        //:    that the return value is 1 and 2 respectively (for 'true' and
-        //:    'false).  (C-2)
-        //:
-        //:  3 Define template functions having the same name and both
-        //:    parameterized on a boolean value.  The first simply returns
-        //:    'void', and the second returns the 'typedef' 'type' of an
-        //:    instantiation of 'bsl::enable_if' parameterized on a boolean
-        //:    value.  (C-2)
-        //:
-        //:    1 Instantiate the template function with 'false' and verify
-        //:      'bsl::enable_if' removes the second implementation from the
-        //:      overload set.
-        //:
-        //:    2 Manually verify that if the template functions are
-        //:      instantiated with 'true' that 'bsl::enable_if' leaves the
-        //:      second implementation in the overload set, resulting in a
-        //:      compile-time failure (due to ambiguous function declaration).
+        //  1. For a set of possible types, instantiate `bsl::enable_if` with
+        //     `true` as the first template argument and the said type as the
+        //     second template argument.  Verify each instantiation provides a
+        //     `typedef` `type` that is an alias to the second template
+        //     argument.  (C-1)
+        //
+        //  1. Instantiate `bsl::enable_if` with `true` as the first template
+        //     argument and omit the second template argument.  Verify that
+        //     `bsl::enable_if` provides an `typedef` `type` that is an alias
+        //     to `void`.  (C-1)
+        //
+        //  2. Create two instances of a function template parameterized on a
+        //     boolean, one returning 1, the other returning 2.  If `true` is
+        //     supplied as the template parameter, only the first function is
+        //     part of the overload set, if `false` is supplied then only the
+        //     second function is part of the overload set.  Call the template
+        //     function with both `true` and `false`, verify that there is no
+        //     that the return value is 1 and 2 respectively (for `true` and
+        //     'false).  (C-2)
+        //
+        //  3. Define template functions having the same name and both
+        //     parameterized on a boolean value.  The first simply returns
+        //     `void`, and the second returns the `typedef` `type` of an
+        //     instantiation of `bsl::enable_if` parameterized on a boolean
+        //     value.  (C-2)
+        //
+        //    1. Instantiate the template function with `false` and verify
+        //       `bsl::enable_if` removes the second implementation from the
+        //       overload set.
+        //
+        //    2. Manually verify that if the template functions are
+        //       instantiated with `true` that `bsl::enable_if` leaves the
+        //       second implementation in the overload set, resulting in a
+        //       compile-time failure (due to ambiguous function declaration).
         //
         // Testing:
         //   bsl::enable_if
         //   bsl::enable_if_t
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING CLASS TEMPLATE 'bsl::enable_if'"
+        if (verbose) printf("\nTESTING CLASS TEMPLATE `bsl::enable_if`"
                             "\n=======================================\n");
 
         if (veryVerbose) printf("\nTest the return type.\n");
@@ -786,7 +796,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose) {
-            printf("\nTest whether 'enable_if' modifies the overload set\n");
+            printf("\nTest whether `enable_if` modifies the overload set\n");
         }
         {
 
@@ -794,7 +804,7 @@ int main(int argc, char *argv[])
             ASSERT(2 == testMutuallyExclusiveFunctionBsl<false>());
         }
         if (veryVerbose) {
-          printf("\nManually test if 'enable_if' modifies the overload set\n");
+          printf("\nManually test if `enable_if` modifies the overload set\n");
         }
         {
             testFunctionBsl<false>();
@@ -803,7 +813,7 @@ int main(int argc, char *argv[])
         }
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
         if (veryVerbose) {
-          printf("\nTest if 'enable_if_t' and the result type of 'enable_if' "
+          printf("\nTest if `enable_if_t` and the result type of `enable_if` "
                  "are the same for the same template parameter types.\n");
         }
         {
@@ -873,58 +883,58 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING CLASS TEMPLATE 'bslmf::EnableIf'
-        //   Test the 'bslmf::EnableIf' meta-function.
+        // TESTING CLASS TEMPLATE `bslmf::EnableIf`
+        //   Test the `bslmf::EnableIf` meta-function.
         //
         // Concerns:
-        //:  1 If the first template argument is 'true', then 'bslmf::EnableIf'
-        //:    provides a 'typedef' 'type' that is an alias to the second
-        //:    template argument if it is supplied, and 'void' otherwise.
-        //:
-        //:  2 If the first template parameter is 'false', then
-        //:    'bslmf::EnableIf' does not provide a 'typedef' 'type'.
+        //  1. If the first template argument is `true`, then `bslmf::EnableIf`
+        //     provides a `typedef` `type` that is an alias to the second
+        //     template argument if it is supplied, and `void` otherwise.
+        //
+        //  2. If the first template parameter is `false`, then
+        //     `bslmf::EnableIf` does not provide a `typedef` `type`.
         //
         // Plan:
-        //:  1 For a set of possible types, instantiate 'bslmf::EnableIf' with
-        //:    'true' as the first template argument and the said type as the
-        //:    second template argument.  Verify each instantiation provides a
-        //:    'typedef' 'type' that is an alias to the second template
-        //:    argument.  (C-1)
-        //:
-        //:  1 Instantiate 'bslmf::EnableIf' with 'true' as the first template
-        //:    argument and omit the second template argument.  Verify that
-        //:    'bslmf::EnableIf' provides an 'typedef' 'type' that is an alias
-        //:    to 'void'.  (C-1)
-        //:
-        //:  2 Create two instances of a function template parameterized on a
-        //:    boolean, one returning 1, the other returning 2.  If 'true' is
-        //:    supplied as the template parameter, only the first function is
-        //:    part of the overload set, if 'false' is supplied then only the
-        //:    second function is part of the overload set.  Call the template
-        //:    function with both 'true' and 'false', verify that there is no
-        //:    that the return value is 1 and 2 respectively (for 'true' and
-        //:    'false).  (C-2)
-        //:
-        //:  3 Define template functions having the same name and both
-        //:    parameterized on a boolean value.  The first simply returns
-        //:    'void', and the second returns the 'typedef' 'type' of an
-        //:    instantiation of 'bslmf::EnableIf' parameterized on a boolean
-        //:    value.  (C-2)
-        //:
-        //:    1 Instantiate the template function with 'false' and verify
-        //:      'bslmf::EnableIf' removes the second implementation from the
-        //:      overload set.
-        //:
-        //:    2 Manually verify that if the template functions are
-        //:      instantiated with 'true' that 'bslmf::EnableIf' leaves the
-        //:      second implementation in the overload set, resulting in a
-        //:      compile-time failure (due to ambiguous function declaration).
+        //  1. For a set of possible types, instantiate `bslmf::EnableIf` with
+        //     `true` as the first template argument and the said type as the
+        //     second template argument.  Verify each instantiation provides a
+        //     `typedef` `type` that is an alias to the second template
+        //     argument.  (C-1)
+        //
+        //  1. Instantiate `bslmf::EnableIf` with `true` as the first template
+        //     argument and omit the second template argument.  Verify that
+        //     `bslmf::EnableIf` provides an `typedef` `type` that is an alias
+        //     to `void`.  (C-1)
+        //
+        //  2. Create two instances of a function template parameterized on a
+        //     boolean, one returning 1, the other returning 2.  If `true` is
+        //     supplied as the template parameter, only the first function is
+        //     part of the overload set, if `false` is supplied then only the
+        //     second function is part of the overload set.  Call the template
+        //     function with both `true` and `false`, verify that there is no
+        //     that the return value is 1 and 2 respectively (for `true` and
+        //     'false).  (C-2)
+        //
+        //  3. Define template functions having the same name and both
+        //     parameterized on a boolean value.  The first simply returns
+        //     `void`, and the second returns the `typedef` `type` of an
+        //     instantiation of `bslmf::EnableIf` parameterized on a boolean
+        //     value.  (C-2)
+        //
+        //    1. Instantiate the template function with `false` and verify
+        //       `bslmf::EnableIf` removes the second implementation from the
+        //       overload set.
+        //
+        //    2. Manually verify that if the template functions are
+        //       instantiated with `true` that `bslmf::EnableIf` leaves the
+        //       second implementation in the overload set, resulting in a
+        //       compile-time failure (due to ambiguous function declaration).
         //
         // Testing:
         //   bslmf::EnableIf
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING CLASS TEMPLATE 'bslmf::EnableIf'"
+        if (verbose) printf("\nTESTING CLASS TEMPLATE `bslmf::EnableIf`"
                             "\n========================================\n");
 
         if (veryVerbose) printf("\nTest the return type.\n");
@@ -979,7 +989,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose) {
-            printf("\nTest whether 'EnableIf' modifies the overload set\n");
+            printf("\nTest whether `EnableIf` modifies the overload set\n");
         }
         {
 
@@ -987,7 +997,7 @@ int main(int argc, char *argv[])
             ASSERT(2 == testMutuallyExclusiveFunction<false>());
         }
         if (veryVerbose) {
-           printf("\nManually test if 'EnableIf' modifies the overload set\n");
+           printf("\nManually test if `EnableIf` modifies the overload set\n");
         }
         {
             testFunction<false>();

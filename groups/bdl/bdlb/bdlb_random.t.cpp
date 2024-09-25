@@ -94,12 +94,12 @@ static bool veryVeryVerbose = false;
 //
 ///Example 1: Simulating a Pair of Dice
 /// - - - - - - - - - - - - - - - - - -
-// This example shows how one might use 'bdlb::Random' to create and use a
+// This example shows how one might use `bdlb::Random` to create and use a
 // class to simulate the roll of a single die in a game, such as craps, that
 // uses dice.
 //
-// First, we define the 'Die' class itself:
-//..
+// First, we define the `Die` class itself:
+// ```
                         // =========
                         // class Die
                         // =========
@@ -111,15 +111,17 @@ static bool veryVeryVerbose = false;
 
       public:
         // CREATORS
+
+        /// Create an object used to simulate a single die, using the
+        /// specified `initialSeed`.
         Die(int initialSeed);
-            // Create an object used to simulate a single die, using the
-            // specified 'initialSeed'.
 
         // MANIPULATORS
+
+        /// Return the next pseudo-random value in the range `[1 .. 6]`,
+        /// based on the sequence of values established by the initial seed
+        /// value supplied at construction.
         int roll();
-            // Return the next pseudo-random value in the range '[1 .. 6]',
-            // based on the sequence of values established by the initial seed
-            // value supplied at construction.
     };
 
                         // ---------
@@ -144,12 +146,12 @@ static bool veryVeryVerbose = false;
 
         return result + 1;
     }
-//..
-// Now, we can use our 'Dice' class to get the random numbers needed to
+// ```
+// Now, we can use our `Dice` class to get the random numbers needed to
 // simulate a game of craps.  Note that the game of craps requires two dice.
 //
-// We can instantiate a single 'Die' and role it twice,
-//..
+// We can instantiate a single `Die` and role it twice,
+// ```
     void rollOneDieTwice()
     {
         Die a(123);
@@ -159,10 +161,10 @@ static bool veryVeryVerbose = false;
 
         cout << "d1 = " << d1 << ", d2 = " << d2 << endl;  // d1 = 3, d2 = 5
     }
-//..
-// Alternatively, we could create two instances of 'Die', with separate initial
+// ```
+// Alternatively, we could create two instances of `Die`, with separate initial
 // seeds, and role each one once:
-//..
+// ```
     void rollTwoDice()
     {
         Die a(123);
@@ -173,11 +175,11 @@ static bool veryVeryVerbose = false;
 
         cout << "d1 = " << d1 << ", d2 = " << d2 << endl;  // d1 = 3, d2 = 1
     }
-//..
+// ```
 // Note that the specification of separate seeds is important to produce a
 // proper distribution for our game.  If we had shared the seed value each die
 // would always produce the same sequence of values as the other.
-//..
+// ```
     void shareSeed()
     {
         Die a(123);  // BAD IDEA
@@ -188,7 +190,7 @@ static bool veryVeryVerbose = false;
         ASSERT(d2 == d1);
 
     }
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -203,7 +205,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -213,13 +215,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -238,46 +240,46 @@ int main(int argc, char *argv[])
         // SEED TEST
         //
         // Concerns:
-        //: 1 Given the same seed, the same random sequence is generated.
-        //:
-        //: 2 Given a different seed, a different random sequence is generated.
-        //:
-        //: 3 Both overloads of 'generate15' have the same behavior with
-        //:   respect to seed.
+        // 1. Given the same seed, the same random sequence is generated.
+        //
+        // 2. Given a different seed, a different random sequence is generated.
+        //
+        // 3. Both overloads of `generate15` have the same behavior with
+        //    respect to seed.
         //
         // Plan:
-        //: 1 Seed test for 'generate15':
-        //:
-        //:   1 Generate three sequences of some significant number of random
-        //:     values.
-        //:
-        //:   2 Let sequences 1 and 2 be generated starting with the same seed,
-        //:     and sequence 3 be generated with a different seed.
-        //:
-        //:   3 Ensure that sequences 1 and 2 are identical and different from
-        //:     sequence 3.
-        //:
-        //:   4 Repeat using the second overload of 'generate15'.
-        //:
-        //: 2 Seed test for 'generatePcg':
-        //:
-        //:   1 Generate five sequences of some significant number of random
-        //:     values.
-        //:
-        //:   2 Let sequences 1 and 2 be generated starting with the same state
-        //:     and stream selector.
-        //:
-        //:   3 Let sequence 3 be generated starting with the same state, but
-        //:     with a different stream selector compared to sequence 1.
-        //:
-        //:   4 Let sequence 4 be generated starting with a different state,
-        //:     but the same stream selector as sequence 1.
-        //:
-        //:   5 Let sequence 5 be generated starting with a different state and
-        //:     a different stream selector compared to sequence 1.
-        //:
-        //:   6 Ensure that sequence 1 and 2 are identical, and different from
-        //:     sequences 3, 4, and 5.
+        // 1. Seed test for `generate15`:
+        //
+        //   1. Generate three sequences of some significant number of random
+        //      values.
+        //
+        //   2. Let sequences 1 and 2 be generated starting with the same seed,
+        //      and sequence 3 be generated with a different seed.
+        //
+        //   3. Ensure that sequences 1 and 2 are identical and different from
+        //      sequence 3.
+        //
+        //   4. Repeat using the second overload of `generate15`.
+        //
+        // 2. Seed test for `generatePcg`:
+        //
+        //   1. Generate five sequences of some significant number of random
+        //      values.
+        //
+        //   2. Let sequences 1 and 2 be generated starting with the same state
+        //      and stream selector.
+        //
+        //   3. Let sequence 3 be generated starting with the same state, but
+        //      with a different stream selector compared to sequence 1.
+        //
+        //   4. Let sequence 4 be generated starting with a different state,
+        //      but the same stream selector as sequence 1.
+        //
+        //   5. Let sequence 5 be generated starting with a different state and
+        //      a different stream selector compared to sequence 1.
+        //
+        //   6. Ensure that sequence 1 and 2 are identical, and different from
+        //      sequences 3, 4, and 5.
         //
         // Testing:
         //   static int generate15(int *nextSeed, int seed);
@@ -363,15 +365,15 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Confirm that the distribution of 0 and 1 bits in a sequence
-        //:   generated by 'generate15' is roughly equal.
-        //:
-        //: 2 Confirm that the distribution of 0 and 1 bits in a sequence
-        //:   generated by 'generatePcg' is roughly equal.
+        // 1. Confirm that the distribution of 0 and 1 bits in a sequence
+        //    generated by `generate15` is roughly equal.
+        //
+        // 2. Confirm that the distribution of 0 and 1 bits in a sequence
+        //    generated by `generatePcg` is roughly equal.
         //
         // Testing:
         //   BREATHING TEST

@@ -29,38 +29,38 @@ using namespace bsl;
 // (value-semantic) attribute class.  The Primary Manipulators and Basic
 // Accessors are therefore, respectively, the attribute setters and getters,
 // each of which follows our standard unconstrained attribute-type naming
-// conventions: 'setAttributeName' and 'attributeName'.
+// conventions: `setAttributeName` and `attributeName`.
 //
 // Primary Manipulators:
-//: o 'setMaxDepth'
-//: o 'setSkipUnknownElements'
-//: o 'setValidateInputIsUtf8'
-//: o 'setAllowConsecutiveSeparators'
-//: o 'setAllowFormFeedAsWhitespace'
-//: o 'setAllowUnescapedControlCharacters'
+//  - `setMaxDepth`
+//  - `setSkipUnknownElements`
+//  - `setValidateInputIsUtf8`
+//  - `setAllowConsecutiveSeparators`
+//  - `setAllowFormFeedAsWhitespace`
+//  - `setAllowUnescapedControlCharacters`
 //
 // Basic Accessors:
-//: o 'maxDepth'
-//: o 'skipUnknownElements'
-//: o 'validateInputIsUtf8'
-//: o 'allowConsecutiveSeparators'
-//: o 'allowFormFeedAsWhitespace'
-//: o 'allowUnescapedControlCharacters'
+//  - `maxDepth`
+//  - `skipUnknownElements`
+//  - `validateInputIsUtf8`
+//  - `allowConsecutiveSeparators`
+//  - `allowFormFeedAsWhitespace`
+//  - `allowUnescapedControlCharacters`
 //
 // Certain standard value-semantic-type test cases are omitted:
-//: o [ 8] -- 'swap' is not implemented for this class.
-//: o [10] -- BSLX streaming is not (yet) implemented for this class.
+//  - [ 8] -- `swap` is not implemented for this class.
+//  - [10] -- BSLX streaming is not (yet) implemented for this class.
 //
 // Global Concerns:
-//: o ACCESSOR methods are declared 'const'.
-//: o Precondition violations are detected in appropriate build modes.
-//: o No memory is allocated from any allocator.
+//  - ACCESSOR methods are declared `const`.
+//  - Precondition violations are detected in appropriate build modes.
+//  - No memory is allocated from any allocator.
 //
 // Global Assumptions:
-//: o ACCESSOR methods are 'const' thread-safe.
-//: o Individual attribute types are presumed to be *alias-safe*; hence, only
-//:   certain methods require the testing of this property:
-//:   o copy-assignment
+//  - ACCESSOR methods are `const` thread-safe.
+//  - Individual attribute types are presumed to be *alias-safe*; hence, only
+//    certain methods require the testing of this property:
+//    - copy-assignment
 // ----------------------------------------------------------------------------
 // CREATORS
 // [ 2] baljsn::DecoderOptions();
@@ -249,7 +249,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
@@ -265,13 +265,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -291,24 +291,24 @@ int main(int argc, char *argv[])
 // for decoding objects in the JSON format.  This example shows how to create
 // and populate an options object.
 //
-// First, we default-construct a 'baljsn::DecoderOptions' object:
-//..
+// First, we default-construct a `baljsn::DecoderOptions` object:
+// ```
     const int  MAX_DEPTH             = 10;
     const bool SKIP_UNKNOWN_ELEMENTS = false;
 
     baljsn::DecoderOptions options;
     ASSERT(32   == options.maxDepth());
     ASSERT(true == options.skipUnknownElements());
-//..
-// Next, we populate that object to decode using a different 'maxDepth' value
-// and 'skipUnknownElements' value:
-//..
+// ```
+// Next, we populate that object to decode using a different `maxDepth` value
+// and `skipUnknownElements` value:
+// ```
     options.setMaxDepth(MAX_DEPTH);
     ASSERT(MAX_DEPTH == options.maxDepth());
 
     options.setSkipUnknownElements(SKIP_UNKNOWN_ELEMENTS);
     ASSERT(SKIP_UNKNOWN_ELEMENTS == options.skipUnknownElements());
-//..
+// ```
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -321,7 +321,7 @@ int main(int argc, char *argv[])
         //   N/A
         //
         // Testing:
-        //  Reserved for 'swap' testing.
+        //  Reserved for `swap` testing.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -336,74 +336,74 @@ int main(int argc, char *argv[])
         //   have the same value.
         //
         // Concerns:
-        //: 1 The assignment operator can change the value of any modifiable
-        //:   target object to that of any source object.
-        //:
-        //: 2 The signature and return type are standard.
-        //:
-        //: 3 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 4 The value of the source object is not modified.
-        //:
-        //: 5 Assigning an object to itself behaves as expected (alias-safety).
+        // 1. The assignment operator can change the value of any modifiable
+        //    target object to that of any source object.
+        //
+        // 2. The signature and return type are standard.
+        //
+        // 3. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 4. The value of the source object is not modified.
+        //
+        // 5. Assigning an object to itself behaves as expected (alias-safety).
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a member-function
-        //:   pointer having the appropriate signature and return type for the
-        //:   copy-assignment operator defined in this component.  (C-2)
-        //:
-        //: 2 Using the table-driven technique, specify a set of (unique) valid
-        //:   object values (one per row) in terms of their individual
-        //:   attributes, including (a) first, the default value, and (b)
-        //:   boundary values corresponding to every range of values that each
-        //:   individual attribute can independently attain.
-        //:
-        //: 3 For each row 'R1' (representing a distinct object value, 'V') in
-        //:   the table described in P-3:  (C-1, 3..4)
-        //:
-        //:   1 Create two 'const' 'Obj', 'Z' and 'ZZ', each having the value
-        //:     'V'.
-        //:
-        //:   2 Execute an inner loop that iterates over each row 'R2'
-        //:     (representing a distinct object value, 'W') in the table
-        //:     described in P-3:
-        //:
-        //:   3 For each of the iterations (P-3.2):  (C-1, 3..4)
-        //:
-        //:     1 Use the value constructor to create a modifiable 'Obj', 'mX',
-        //:       having the value 'W'.
-        //:
-        //:     2 Assign 'mX' from 'Z'.
-        //:
-        //:     3 Verify that the address of the return value is the same as
-        //:       that of 'mX'.  (C-3)
-        //:
-        //:     4 Use the equality-comparison operator to verify that: (C-1, 4)
-        //:
-        //:       1 The target object, 'mX', now has the same value as that of
-        //:         'Z'.  (C-1)
-        //:
-        //:       2 'Z' still has the same value as that of 'ZZ'.  (C-4)
-        //:
-        //: 4 Repeat steps similar to those described in P-2 except that, this
-        //:   time, the source object, 'Z', is a reference to the target
-        //:   object, 'mX', and both 'mX' and 'ZZ' are initialized to have the
-        //:   value 'V'.  For each row (representing a distinct object value,
-        //:   'V') in the table described in P-2:  (C-5)
-        //:
-        //:   1 Use the value constructor to create a modifiable 'Obj' 'mX';
-        //:     also use the value constructor to create a 'const' 'Obj' 'ZZ'.
-        //:
-        //:   2 Let 'Z' be a reference providing only 'const' access to 'mX'.
-        //:
-        //:   3 Assign 'mX' from 'Z'.
-        //:
-        //:   4 Verify that the address of the return value is the same as that
-        //:     of 'mX'.  (C-3)
-        //:
-        //:   5 Use the equality-comparison operator to verify that the
-        //:     target object, 'Z', still has the same value as that of 'ZZ'.
-        //:     (C-5)
+        // 1. Use the address of `operator=` to initialize a member-function
+        //    pointer having the appropriate signature and return type for the
+        //    copy-assignment operator defined in this component.  (C-2)
+        //
+        // 2. Using the table-driven technique, specify a set of (unique) valid
+        //    object values (one per row) in terms of their individual
+        //    attributes, including (a) first, the default value, and (b)
+        //    boundary values corresponding to every range of values that each
+        //    individual attribute can independently attain.
+        //
+        // 3. For each row `R1` (representing a distinct object value, `V`) in
+        //    the table described in P-3:  (C-1, 3..4)
+        //
+        //   1. Create two `const` `Obj`, `Z` and `ZZ`, each having the value
+        //      `V`.
+        //
+        //   2. Execute an inner loop that iterates over each row `R2`
+        //      (representing a distinct object value, `W`) in the table
+        //      described in P-3:
+        //
+        //   3. For each of the iterations (P-3.2):  (C-1, 3..4)
+        //
+        //     1. Use the value constructor to create a modifiable `Obj`, `mX`,
+        //        having the value `W`.
+        //
+        //     2. Assign `mX` from `Z`.
+        //
+        //     3. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-3)
+        //
+        //     4. Use the equality-comparison operator to verify that: (C-1, 4)
+        //
+        //       1. The target object, `mX`, now has the same value as that of
+        //          `Z`.  (C-1)
+        //
+        //       2. `Z` still has the same value as that of `ZZ`.  (C-4)
+        //
+        // 4. Repeat steps similar to those described in P-2 except that, this
+        //    time, the source object, `Z`, is a reference to the target
+        //    object, `mX`, and both `mX` and `ZZ` are initialized to have the
+        //    value `V`.  For each row (representing a distinct object value,
+        //    `V`) in the table described in P-2:  (C-5)
+        //
+        //   1. Use the value constructor to create a modifiable `Obj` `mX`;
+        //      also use the value constructor to create a `const` `Obj` `ZZ`.
+        //
+        //   2. Let `Z` be a reference providing only `const` access to `mX`.
+        //
+        //   3. Assign `mX` from `Z`.
+        //
+        //   4. Verify that the address of the return value is the same as that
+        //      of `mX`.  (C-3)
+        //
+        //   5. Use the equality-comparison operator to verify that the
+        //      target object, `Z`, still has the same value as that of `ZZ`.
+        //      (C-5)
         //
         // Testing:
         //   operator=(const baljsn::DecoderOptions& rhs);
@@ -531,7 +531,7 @@ int main(int argc, char *argv[])
         //   N/A
         //
         // Testing:
-        //  Reserved for 'swap' testing.
+        //  Reserved for `swap` testing.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -545,37 +545,37 @@ int main(int argc, char *argv[])
         //   other one, such that the two objects have the same value.
         //
         // Concerns:
-        //: 1 The copy constructor creates an object having the same value as
-        //:   that of the supplied original object.
-        //:
-        //: 2 The original object is passed as a reference providing
-        //:   non-modifiable access to that object.
-        //:
-        //: 3 The value of the original object is unchanged.
+        // 1. The copy constructor creates an object having the same value as
+        //    that of the supplied original object.
+        //
+        // 2. The original object is passed as a reference providing
+        //    non-modifiable access to that object.
+        //
+        // 3. The value of the original object is unchanged.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   object values (one per row) in terms of their individual
-        //:   attributes, including (a) first, the default value, and (b)
-        //:   boundary values corresponding to every range of values that each
-        //:   individual attribute can independently attain.
-        //:
-        //: 2 For each row (representing a distinct object value, 'V') in the
-        //:   table described in P-1:  (C-1..3)
-        //:
-        //:   1 Use the value constructor to create two 'const' 'Obj', 'Z' and
-        //:     'ZZ', each having the value 'V'.
-        //:
-        //:   2 Use the copy constructor to create an object 'X',
-        //:     supplying it the 'const' object 'Z'.  (C-2)
-        //:
-        //:   3 Use the equality-comparison operator to verify that:
-        //:     (C-1, 3)
-        //:
-        //:     1 The newly constructed object, 'X', has the same value as 'Z'.
-        //:       (C-1)
-        //:
-        //:     2 'Z' still has the same value as 'ZZ'.  (C-3)
+        // 1. Using the table-driven technique, specify a set of (unique) valid
+        //    object values (one per row) in terms of their individual
+        //    attributes, including (a) first, the default value, and (b)
+        //    boundary values corresponding to every range of values that each
+        //    individual attribute can independently attain.
+        //
+        // 2. For each row (representing a distinct object value, `V`) in the
+        //    table described in P-1:  (C-1..3)
+        //
+        //   1. Use the value constructor to create two `const` `Obj`, `Z` and
+        //      `ZZ`, each having the value `V`.
+        //
+        //   2. Use the copy constructor to create an object `X`,
+        //      supplying it the `const` object `Z`.  (C-2)
+        //
+        //   3. Use the equality-comparison operator to verify that:
+        //      (C-1, 3)
+        //
+        //     1. The newly constructed object, `X`, has the same value as `Z`.
+        //        (C-1)
+        //
+        //     2. `Z` still has the same value as `ZZ`.  (C-3)
         //
         // Testing:
         //   baljsn::DecoderOptions(const baljsn::DecoderOptions& o);
@@ -637,7 +637,7 @@ int main(int argc, char *argv[])
 
             LOOP3_ASSERT(LINE,  Z, X,  Z == X);
 
-            // Verify that the value of 'Z' has not changed.
+            // Verify that the value of `Z` has not changed.
 
             LOOP3_ASSERT(LINE, ZZ, Z, ZZ == Z);
         }  // end foreach row
@@ -645,58 +645,58 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // TESTING EQUALITY-COMPARISON OPERATORS
-        //   Ensure that '==' and '!=' are the operational definition of value.
+        //   Ensure that `==` and `!=` are the operational definition of value.
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if each of
-        //:   their corresponding salient attributes respectively compares
-        //:   equal.
-        //:
-        //: 2 All salient attributes participate in the comparison.
-        //:
-        //: 3 No non-salient attributes (i.e., 'allocator') participate.
-        //:
-        //: 4 'true  == (X == X)'  (i.e., identity)
-        //:
-        //: 5 'false == (X != X)'  (i.e., identity)
-        //:
-        //: 6 'X == Y' if and only if 'Y == X'  (i.e., commutative)
-        //:
-        //: 7 'X != Y' if and only if 'Y != X'  (i.e., commutative)
-        //:
-        //: 8 'X != Y' if and only if '!(X == Y)'
-        //:
-        //: 9 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., both comparison operators are free functions).
-        //:
-        //:10 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
+        // 1. Two objects, `X` and `Y`, compare equal if and only if each of
+        //    their corresponding salient attributes respectively compares
+        //    equal.
+        //
+        // 2. All salient attributes participate in the comparison.
+        //
+        // 3. No non-salient attributes (i.e., `allocator`) participate.
+        //
+        // 4. `true  == (X == X)`  (i.e., identity)
+        //
+        // 5. `false == (X != X)`  (i.e., identity)
+        //
+        // 6. `X == Y` if and only if `Y == X`  (i.e., commutative)
+        //
+        // 7. `X != Y` if and only if `Y != X`  (i.e., commutative)
+        //
+        // 8. `X != Y` if and only if `!(X == Y)`
+        //
+        // 9. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., both comparison operators are free functions).
+        //
+        // 10. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their individual salient
-        //:   attributes such that for each salient attribute, there exists a
-        //:   pair of rows that differ (slightly) in only the column
-        //:   corresponding to that attribute.
-        //:
-        //: 2 For each row 'R1' in the table of P-3:  (C-1..8)
-        //:
-        //:   1 Create a single object, and use it to verify the reflexive
-        //:     (anti-reflexive) property of equality (inequality) in the
-        //:     presence of aliasing.  (C-4..5)
-        //:
-        //:   2 For each row 'R2' in the table of P-3:  (C-1..3, 6..8)
-        //:
-        //:     1 Record, in 'EXP', whether or not distinct objects created
-        //:       from 'R1' and 'R2', respectively, are expected to have the
-        //:       same value.
-        //:
-        //:     2 Create an object 'X' having the value 'R1'.
-        //:
-        //:     3 Create an object 'Y' having the value 'R2'.
-        //:
-        //:     4 Verify the commutative property and expected return value for
-        //:       both '==' and '!='.  (C-1..3, 6..8)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their individual salient
+        //    attributes such that for each salient attribute, there exists a
+        //    pair of rows that differ (slightly) in only the column
+        //    corresponding to that attribute.
+        //
+        // 2. For each row `R1` in the table of P-3:  (C-1..8)
+        //
+        //   1. Create a single object, and use it to verify the reflexive
+        //      (anti-reflexive) property of equality (inequality) in the
+        //      presence of aliasing.  (C-4..5)
+        //
+        //   2. For each row `R2` in the table of P-3:  (C-1..3, 6..8)
+        //
+        //     1. Record, in `EXP`, whether or not distinct objects created
+        //        from `R1` and `R2`, respectively, are expected to have the
+        //        same value.
+        //
+        //     2. Create an object `X` having the value `R1`.
+        //
+        //     3. Create an object `Y` having the value `R2`.
+        //
+        //     4. Verify the commutative property and expected return value for
+        //        both `==` and `!=`.  (C-1..3, 6..8)
         //
         // Testing:
         //   bool operator==(const baljsn::DecoderOptions& lhs, rhs);
@@ -708,35 +708,35 @@ int main(int argc, char *argv[])
                           << "=====================================" << endl;
 
         if (verbose) cout <<
-            "\nDefine appropriate individual attribute values, 'Ai' and 'Bi'."
+            "\nDefine appropriate individual attribute values, `Ai` and `Bi`."
                                                                        << endl;
         // ---------------
         // Attribute Types
         // ---------------
 
-        typedef int   T1;        // 'maxDepth'
-        typedef bool  T2;        // 'skipUnknownElements'
-        typedef bool  T3;        // 'validateInputIsUtf8'
-        typedef bool  T4;        // 'allowConsecutiveSeparators'
-        typedef bool  T5;        // 'allowFormFeedAsWhitespace'
-        typedef bool  T6;        // 'allowUnescapedControlCharacters'
+        typedef int   T1;        // `maxDepth`
+        typedef bool  T2;        // `skipUnknownElements`
+        typedef bool  T3;        // `validateInputIsUtf8`
+        typedef bool  T4;        // `allowConsecutiveSeparators`
+        typedef bool  T5;        // `allowFormFeedAsWhitespace`
+        typedef bool  T6;        // `allowUnescapedControlCharacters`
 
                       // ------------------------------
-                      // Attribute 1 Values: 'maxDepth'
+                      // Attribute 1 Values: `maxDepth`
                       // ------------------------------
 
         const T1 A1 = INT_MAX;               // baseline
         const T1 B1 = 0;
 
                 // -----------------------------------------
-                // Attribute 2 Values: 'skipUnknownElements'
+                // Attribute 2 Values: `skipUnknownElements`
                 // -----------------------------------------
 
         const T2 A2 = true;                  // baseline
         const T2 B2 = false;
 
                 // -----------------------------------------
-                // Attribute 3 Values: 'validateInputIsUtf8'
+                // Attribute 3 Values: `validateInputIsUtf8`
                 // -----------------------------------------
 
         const T3 A3 = true;                  // baseline
@@ -889,44 +889,44 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING PRINT AND OUTPUT OPERATOR
         //   Ensure that the value of the object can be formatted appropriately
-        //   on an 'ostream' in some standard, human-readable form.
+        //   on an `ostream` in some standard, human-readable form.
         //
         // Concerns:
-        //: 1 The 'print' method writes the value to the specified 'ostream'.
-        //:
-        //: 2 The 'print' method writes the value in the intended format.
-        //:
-        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)',
-        //:   but with each "attributeName = " elided.
-        //:
-        //: 4 The output 'operator<<' returns the supplied 'ostream'.
+        // 1. The `print` method writes the value to the specified `ostream`.
+        //
+        // 2. The `print` method writes the value in the intended format.
+        //
+        // 3. The output using `s << obj` is the same as `obj.print(s, 0, -1)`,
+        //    but with each "attributeName = " elided.
+        //
+        // 4. The output `operator<<` returns the supplied `ostream`.
         //
         // Plan:
-        //: 1 Using the table-driven technique, define twelve carefully
-        //:   selected combinations of (two) object values ('A' and 'B'),
-        //:   having distinct values for each corresponding salient attribute,
-        //:   and various values for the two formatting parameters, along with
-        //:   the expected output
-        //:     ( 'value' x  'level'   x 'skipUnknownElements' ):
-        //:     1 { A   } x {  0     } x {  0, 1, -1 }  -->  3 expected outputs
-        //:     2 { A   } x {  3, -3 } x {  0, 2, -2 }  -->  6 expected outputs
-        //:     3 { B   } x {  2     } x {  3        }  -->  1 expected output
-        //:     4 { A B } x { -9     } x { -9        }  -->  2 expected output
-        //:
-        //: 2 For each row in the table defined in P-2.1:  (C-1..5)
-        //:
-        //:   1 Using a 'const' 'Obj', supply each object value and pair of
-        //:     formatting parameters to 'print', unless the parameters are,
-        //:     arbitrarily, (-9, -9), in which case 'operator<<' will be
-        //:     invoked instead.
-        //:
-        //:   2 Use a standard 'ostringstream' to capture the actual output.
-        //:
-        //:   3 Verify the address of what is returned is that of the
-        //:     supplied stream.  (C-4, 5)
-        //:
-        //:   4 Compare the contents captured in P-2.2.2 with what is
-        //:     expected.  (C-1..3)
+        // 1. Using the table-driven technique, define twelve carefully
+        //    selected combinations of (two) object values (`A` and `B`),
+        //    having distinct values for each corresponding salient attribute,
+        //    and various values for the two formatting parameters, along with
+        //    the expected output
+        //      ( `value` x  `level`   x `skipUnknownElements` ):
+        //     1. { A   } x {  0     } x {  0, 1, -1 }  -->  3 expected outputs
+        //     2. { A   } x {  3, -3 } x {  0, 2, -2 }  -->  6 expected outputs
+        //     3. { B   } x {  2     } x {  3        }  -->  1 expected output
+        //     4. { A B } x { -9     } x { -9        }  -->  2 expected output
+        //
+        // 2. For each row in the table defined in P-2.1:  (C-1..5)
+        //
+        //   1. Using a `const` `Obj`, supply each object value and pair of
+        //      formatting parameters to `print`, unless the parameters are,
+        //      arbitrarily, (-9, -9), in which case `operator<<` will be
+        //      invoked instead.
+        //
+        //   2. Use a standard `ostringstream` to capture the actual output.
+        //
+        //   3. Verify the address of what is returned is that of the
+        //      supplied stream.  (C-4, 5)
+        //
+        //   4. Compare the contents captured in P-2.2.2 with what is
+        //      expected.  (C-1..3)
         //
         // Testing:
         //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
@@ -1196,29 +1196,29 @@ int main(int argc, char *argv[])
         // TESTING ACCESSORS
         //
         // Concerns:
-        //: 1 Each accessor returns the value of the corresponding attribute
-        //:   of the object.
-        //:
-        //: 2 Each accessor method is declared 'const'.
+        // 1. Each accessor returns the value of the corresponding attribute
+        //    of the object.
+        //
+        // 2. Each accessor method is declared `const`.
         //
         // Plan:
         //   Here we use the default constructor and primary manipulators,
         //   which were fully tested in case 2, to further corroborate that
         //   these accessors are properly interpreting object state.
         //
-        //: 1 Use the default constructor to create an object (having default
-        //:   attribute values).
-        //:
-        //: 2 Verify that each basic accessor, invoked on a reference providing
-        //:   non-modifiable access to the object created in P2, returns the
-        //:   expected value.  (C-2)
-        //:
-        //: 3 For each salient attribute (contributing to value):  (C-1)
-        //:   1 Use the corresponding primary manipulator to set the attribute
-        //:     to a unique value.
-        //:
-        //:   2 Use the corresponding basic accessor to verify the new
-        //:     expected value.  (C-1)
+        // 1. Use the default constructor to create an object (having default
+        //    attribute values).
+        //
+        // 2. Verify that each basic accessor, invoked on a reference providing
+        //    non-modifiable access to the object created in P2, returns the
+        //    expected value.  (C-2)
+        //
+        // 3. For each salient attribute (contributing to value):  (C-1)
+        //   1. Use the corresponding primary manipulator to set the attribute
+        //      to a unique value.
+        //
+        //   2. Use the corresponding basic accessor to verify the new
+        //      expected value.  (C-1)
         //
         // Testing:
         //   int  maxDepth() const;
@@ -1235,36 +1235,36 @@ int main(int argc, char *argv[])
 
         // Attribute Types
 
-        typedef int   T1;        // 'maxDepth'
-        typedef bool  T2;        // 'skipUnknownElements'
-        typedef bool  T3;        // 'validateInputIsUtf8'
-        typedef bool  T4;        // 'allowConsecutiveSeparators'
-        typedef bool  T5;        // 'allowFormFeedAsWhitespace'
-        typedef bool  T6;        // 'allowUnescapedControlCharacters'
+        typedef int   T1;        // `maxDepth`
+        typedef bool  T2;        // `skipUnknownElements`
+        typedef bool  T3;        // `validateInputIsUtf8`
+        typedef bool  T4;        // `allowConsecutiveSeparators`
+        typedef bool  T5;        // `allowFormFeedAsWhitespace`
+        typedef bool  T6;        // `allowUnescapedControlCharacters`
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
           // -----------------------------------------------------
-          // 'D' values: These are the default-constructed values.
+          // `D` values: These are the default-constructed values.
           // -----------------------------------------------------
 
-        const int   D1   = 32;             // 'maxDepth'
-        const bool  D2   = true;           // 'skipUnknownElements'
-        const bool  D3   = false;          // 'validateInputIsUtf8'
-        const bool  D4   = true;           // 'allowConsecutiveSeparators'
-        const bool  D5   = true;           // 'allowFormFeedAsWhitespace'
-        const bool  D6   = true;           // 'allowUnescapedControlCharacters'
+        const int   D1   = 32;             // `maxDepth`
+        const bool  D2   = true;           // `skipUnknownElements`
+        const bool  D3   = false;          // `validateInputIsUtf8`
+        const bool  D4   = true;           // `allowConsecutiveSeparators`
+        const bool  D5   = true;           // `allowFormFeedAsWhitespace`
+        const bool  D6   = true;           // `allowUnescapedControlCharacters`
 
                        // ----------------------------
-                       // 'A' values: Boundary values.
+                       // `A` values: Boundary values.
                        // ----------------------------
 
-        const int   A1   = INT_MAX;        // 'maxDepth'
-        const bool  A2   = false;          // 'skipUnknownElements'
-        const bool  A3   = true;           // 'validateInputIsUtf8'
-        const bool  A4   = false;          // 'allowConsecutiveSeparators'
-        const bool  A5   = false;          // 'allowFormFeedAsWhitespace'
-        const bool  A6   = false;          // 'allowUnescapedControlCharacters'
+        const int   A1   = INT_MAX;        // `maxDepth`
+        const bool  A2   = false;          // `skipUnknownElements`
+        const bool  A3   = true;           // `validateInputIsUtf8`
+        const bool  A4   = false;          // `allowConsecutiveSeparators`
+        const bool  A5   = false;          // `allowFormFeedAsWhitespace`
+        const bool  A6   = false;          // `allowUnescapedControlCharacters`
 
         if (verbose) cout << "\nCreate an object." << endl;
 
@@ -1372,41 +1372,41 @@ int main(int argc, char *argv[])
         // TESTING MANIPULATORS
         //
         // Concerns:
-        //: 1 Any argument can be 'const'.
-        //:
-        //: 2 Each attribute is modifiable independently.
-        //:
-        //: 3 Each attribute can be set to represent any value that does not
-        //:   violate that attribute's documented constraints.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Any argument can be `const`.
+        //
+        // 2. Each attribute is modifiable independently.
+        //
+        // 3. Each attribute can be set to represent any value that does not
+        //    violate that attribute's documented constraints.
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create three sets of attribute values for the object: 'D', 'A',
-        //:   and 'B'.  'D' values correspond to the attribute values, and 'A'
-        //:   and 'B' values are chosen to be distinct boundary values where
-        //:   possible.
-        //:
-        //: 2 Use the default constructor to create an object 'X'.
-        //:
-        //: 3 For each attribute 'i', in turn, create a local block.  Then
-        //:   inside the block, using brute force, set that attribute's
-        //:   value, passing a 'const' argument representing each of the
-        //:   three test values, in turn (see P-1), first to 'Ai', then to
-        //:   'Bi', and finally back to 'Di'.  After each transition, use the
-        //:   (as yet unproven) basic accessors to verify that only the
-        //:   intended attribute value changed.  (C-1, 3)
-        //:
-        //: 4 Corroborate that attributes are modifiable independently by
-        //:   first setting all of the attributes to their 'A' values.  Then
-        //:   incrementally set each attribute to its 'B' value and verify
-        //:   after each manipulation that only that attribute's value
-        //:   changed.  (C-2)
-        //:
-        //: 5 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-4)
+        // 1. Create three sets of attribute values for the object: `D`, `A`,
+        //    and `B`.  `D` values correspond to the attribute values, and `A`
+        //    and `B` values are chosen to be distinct boundary values where
+        //    possible.
+        //
+        // 2. Use the default constructor to create an object `X`.
+        //
+        // 3. For each attribute `i`, in turn, create a local block.  Then
+        //    inside the block, using brute force, set that attribute's
+        //    value, passing a `const` argument representing each of the
+        //    three test values, in turn (see P-1), first to `Ai`, then to
+        //    `Bi`, and finally back to `Di`.  After each transition, use the
+        //    (as yet unproven) basic accessors to verify that only the
+        //    intended attribute value changed.  (C-1, 3)
+        //
+        // 4. Corroborate that attributes are modifiable independently by
+        //    first setting all of the attributes to their `A` values.  Then
+        //    incrementally set each attribute to its `B` value and verify
+        //    after each manipulation that only that attribute's value
+        //    changed.  (C-2)
+        //
+        // 5. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-4)
         //
         // Testing:
         //   setMaxDepth(int value);
@@ -1423,32 +1423,32 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
-        // 'D' values: These are the default-constructed values.
+        // `D` values: These are the default-constructed values.
 
-        const int   D1   = 32;      // 'maxDepth'
-        const bool  D2   = true;    // 'skipUnknownElements'
-        const bool  D3   = false;   // 'validateInputIsUtf8'
-        const bool  D4   = true;    // 'allowConsecutiveSeparators'
-        const bool  D5   = true;    // 'allowFormFeedAsWhitespace'
-        const bool  D6   = true;    // 'allowUnescapedControlCharacters'
+        const int   D1   = 32;      // `maxDepth`
+        const bool  D2   = true;    // `skipUnknownElements`
+        const bool  D3   = false;   // `validateInputIsUtf8`
+        const bool  D4   = true;    // `allowConsecutiveSeparators`
+        const bool  D5   = true;    // `allowFormFeedAsWhitespace`
+        const bool  D6   = true;    // `allowUnescapedControlCharacters`
 
-        // 'A' values.
+        // `A` values.
 
-        const int   A1   = 1;       // 'maxDepth'
-        const bool  A2   = false;   // 'skipUnknownElements'
-        const bool  A3   = true;    // 'validateInputIsUtf8'
-        const bool  A4   = false;   // 'allowConsecutiveSeparators'
-        const bool  A5   = false;   // 'allowFormFeedAsWhitespace'
-        const bool  A6   = false;   // 'allowUnescapedControlCharacters'
+        const int   A1   = 1;       // `maxDepth`
+        const bool  A2   = false;   // `skipUnknownElements`
+        const bool  A3   = true;    // `validateInputIsUtf8`
+        const bool  A4   = false;   // `allowConsecutiveSeparators`
+        const bool  A5   = false;   // `allowFormFeedAsWhitespace`
+        const bool  A6   = false;   // `allowUnescapedControlCharacters`
 
-        // 'B' values.
+        // `B` values.
 
-        const int   B1   = INT_MAX; // 'maxDepth'
-        const bool  B2   = true;    // 'skipUnknownElements'
-        const bool  B3   = false;   // 'validateInputIsUtf8'
-        const bool  B4   = true;    // 'allowConsecutiveSeparators'
-        const bool  B5   = true;    // 'allowFormFeedAsWhitespace'
-        const bool  B6   = true;    // 'allowUnescapedControlCharacters'
+        const int   B1   = INT_MAX; // `maxDepth`
+        const bool  B2   = true;    // `skipUnknownElements`
+        const bool  B3   = false;   // `validateInputIsUtf8`
+        const bool  B4   = true;    // `allowConsecutiveSeparators`
+        const bool  B5   = true;    // `allowFormFeedAsWhitespace`
+        const bool  B6   = true;    // `allowUnescapedControlCharacters`
 
         Obj mX;  const Obj& X = mX;
 
@@ -1456,7 +1456,7 @@ int main(int argc, char *argv[])
                "Verify that each attribute is independently settable." << endl;
 
         // ----------
-        // 'maxDepth'
+        // `maxDepth`
         // ----------
         {
             mX.setMaxDepth(A1);
@@ -1485,7 +1485,7 @@ int main(int argc, char *argv[])
         }
 
         // ---------------------
-        // 'skipUnknownElements'
+        // `skipUnknownElements`
         // ---------------------
         {
             mX.setSkipUnknownElements(A2);
@@ -1514,7 +1514,7 @@ int main(int argc, char *argv[])
         }
 
         // ---------------------
-        // 'validateInputIsUtf8'
+        // `validateInputIsUtf8`
         // ---------------------
         {
             mX.setValidateInputIsUtf8(A3);
@@ -1543,7 +1543,7 @@ int main(int argc, char *argv[])
         }
 
         // ----------------------------
-        // 'allowConsecutiveSeparators'
+        // `allowConsecutiveSeparators`
         // ----------------------------
         {
             mX.setAllowConsecutiveSeparators(A4);
@@ -1572,7 +1572,7 @@ int main(int argc, char *argv[])
         }
 
         // ---------------------------
-        // 'allowFormFeedAsWhitespace'
+        // `allowFormFeedAsWhitespace`
         // ---------------------------
         {
             mX.setAllowFormFeedAsWhitespace(A5);
@@ -1601,7 +1601,7 @@ int main(int argc, char *argv[])
         }
 
         // ---------------------------------
-        // 'allowUnescapedControlCharacters'
+        // `allowUnescapedControlCharacters`
         // ---------------------------------
         {
             mX.setAllowUnescapedControlCharacters(A6);
@@ -1632,7 +1632,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Corroborate attribute independence." << endl;
         {
             // ---------------------------------------
-            // Set all attributes to their 'A' values.
+            // Set all attributes to their `A` values.
             // ---------------------------------------
 
             mX.setMaxDepth(A1);
@@ -1644,7 +1644,7 @@ int main(int argc, char *argv[])
             ASSERT(A3 == X.validateInputIsUtf8());
 
                  // ---------------------------------------
-                 // Set all attributes to their 'B' values.
+                 // Set all attributes to their `B` values.
                  // ---------------------------------------
 
             mX.setMaxDepth(B1);
@@ -1684,14 +1684,14 @@ int main(int argc, char *argv[])
         // TESTING CREATORS
         //
         // Concerns:
-        //: 1 An object created with the default constructor has the
-        //:   contractually specified default value.
+        // 1. An object created with the default constructor has the
+        //    contractually specified default value.
         //
         // Plan:
-        //: 1 Use the default constructor to create an object 'X'.
-        //:
-        //: 2 Use the individual (as yet unproven) salient attribute
-        //:   accessors to verify the default-constructed value.  (C-1)
+        // 1. Use the default constructor to create an object `X`.
+        //
+        // 2. Use the individual (as yet unproven) salient attribute
+        //    accessors to verify the default-constructed value.  (C-1)
         //
         // Testing:
         //   baljsn::DecoderOptions();
@@ -1704,14 +1704,14 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
-        // 'D' values: These are the default-constructed values.
+        // `D` values: These are the default-constructed values.
 
-        const int   D1   = 32;     // 'maxDepth'
-        const bool  D2   = true;   // 'skipUnknownElements'
-        const bool  D3   = false;  // 'validateInputIsUtf8'
-        const bool  D4   = true;   // 'allowConsecutiveSeparators'
-        const bool  D5   = true;   // 'allowFormFeedAsWhitespace'
-        const bool  D6   = true;   // 'allowUnescapedControlCharacters'
+        const int   D1   = 32;     // `maxDepth`
+        const bool  D2   = true;   // `skipUnknownElements`
+        const bool  D3   = false;  // `validateInputIsUtf8`
+        const bool  D4   = true;   // `allowConsecutiveSeparators`
+        const bool  D5   = true;   // `allowFormFeedAsWhitespace`
+        const bool  D6   = true;   // `allowUnescapedControlCharacters`
         if (verbose) cout <<
                      "Create an object using the default constructor." << endl;
 
@@ -1742,19 +1742,19 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an object 'w' (default ctor).       { w:D             }
-        //: 2 Create an object 'x' (copy from 'w').      { w:D x:D         }
-        //: 3 Set 'x' to 'A' (value distinct from 'D').  { w:D x:A         }
-        //: 4 Create an object 'y' (init. to 'A').       { w:D x:A y:A     }
-        //: 5 Create an object 'z' (copy from 'y').      { w:D x:A y:A z:A }
-        //: 6 Set 'z' to 'D' (the default value).        { w:D x:A y:A z:D }
-        //: 7 Assign 'w' from 'x'.                       { w:A x:A y:A z:D }
-        //: 8 Assign 'w' from 'z'.                       { w:D x:A y:A z:D }
-        //: 9 Assign 'x' from 'x' (aliasing).            { w:D x:A y:A z:D }
+        // 1. Create an object `w` (default ctor).       { w:D             }
+        // 2. Create an object `x` (copy from `w`).      { w:D x:D         }
+        // 3. Set `x` to `A` (value distinct from `D`).  { w:D x:A         }
+        // 4. Create an object `y` (init. to `A`).       { w:D x:A y:A     }
+        // 5. Create an object `z` (copy from `y`).      { w:D x:A y:A z:A }
+        // 6. Set `z` to `D` (the default value).        { w:D x:A y:A z:D }
+        // 7. Assign `w` from `x`.                       { w:A x:A y:A z:D }
+        // 8. Assign `w` from `z`.                       { w:D x:A y:A z:D }
+        // 9. Assign `x` from `x` (aliasing).            { w:D x:A y:A z:D }
         //
         // Testing:
         //   BREATHING TEST
@@ -1766,51 +1766,51 @@ int main(int argc, char *argv[])
 
         // Attribute Types
 
-        typedef int    T1;        // 'maxDepth'
-        typedef bool   T2;        // 'skipUnknownElements'
-        typedef bool   T3;        // 'validateInputIsUtf8'
-        typedef bool   T4;        // 'allowConsecutiveSeparators'
-        typedef bool   T5;        // 'allowFormFeedAsWhitespace'
-        typedef bool   T6;        // 'allowUnescapedControlCharacters'
+        typedef int    T1;        // `maxDepth`
+        typedef bool   T2;        // `skipUnknownElements`
+        typedef bool   T3;        // `validateInputIsUtf8`
+        typedef bool   T4;        // `allowConsecutiveSeparators`
+        typedef bool   T5;        // `allowFormFeedAsWhitespace`
+        typedef bool   T6;        // `allowUnescapedControlCharacters`
 
-        // Attribute 1 Values: 'maxDepth'
+        // Attribute 1 Values: `maxDepth`
 
         const T1 D1 = 32;        // default value
         const T1 A1 =  0;
 
-        // Attribute 2 Values: 'skipUnknownElements'
+        // Attribute 2 Values: `skipUnknownElements`
 
         const T2 D2 = true;    // default value
         const T2 A2 = false;
 
-        // Attribute 3 Values: 'validateInputIsUtf8'
+        // Attribute 3 Values: `validateInputIsUtf8`
 
         const T3 D3 = false;    // default value
         const T3 A3 = true;
 
-        // Attribute 4 Values: 'allowConsecutiveSeparators'
+        // Attribute 4 Values: `allowConsecutiveSeparators`
 
         const T4 D4 = true;    // default value
         const T4 A4 = false;
 
-        // Attribute 5 Values: 'allowFormFeedAsWhitespace'
+        // Attribute 5 Values: `allowFormFeedAsWhitespace`
 
         const T5 D5 = true;    // default value
         const T5 A5 = false;
 
-        // Attribute 6 Values: 'allowUnescapedControlCharacters'
+        // Attribute 6 Values: `allowUnescapedControlCharacters`
 
         const T6 D6 = true;    // default value
         const T6 A6 = false;
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 1. Create an object 'w' (default ctor)."
+        if (verbose) cout << "\n 1. Create an object `w` (default ctor)."
                              "\t\t{ w:D             }" << endl;
 
         Obj mW;  const Obj& W = mW;
 
-        if (veryVerbose) cout << "\ta. Check initial value of 'w'." << endl;
+        if (veryVerbose) cout << "\ta. Check initial value of `w`." << endl;
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         ASSERT(D1 == W.maxDepth());
@@ -1821,18 +1821,18 @@ int main(int argc, char *argv[])
         ASSERT(D6 == W.allowUnescapedControlCharacters());
 
         if (veryVerbose) cout <<
-                  "\tb. Try equality operators: 'w' <op> 'w'." << endl;
+                  "\tb. Try equality operators: `w` <op> `w`." << endl;
 
         ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 2. Create an object 'x' (copy from 'w')."
+        if (verbose) cout << "\n 2. Create an object `x` (copy from `w`)."
                              "\t\t{ w:D x:D         }" << endl;
 
         Obj mX(W);  const Obj& X = mX;
 
-        if (veryVerbose) cout << "\ta. Check initial value of 'x'." << endl;
+        if (veryVerbose) cout << "\ta. Check initial value of `x`." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(D1 == X.maxDepth());
@@ -1843,14 +1843,14 @@ int main(int argc, char *argv[])
         ASSERT(D6 == X.allowUnescapedControlCharacters());
 
         if (veryVerbose) cout <<
-                   "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
+                   "\tb. Try equality operators: `x` <op> `w`, `x`." << endl;
 
         ASSERT(1 == (X == W));        ASSERT(0 == (X != W));
         ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 3. Set 'x' to 'A' (value distinct from 'D')."
+        if (verbose) cout << "\n 3. Set `x` to `A` (value distinct from `D`)."
                              "\t\t{ w:D x:A         }" << endl;
 
         mX.setMaxDepth(A1);
@@ -1860,7 +1860,7 @@ int main(int argc, char *argv[])
         mX.setAllowFormFeedAsWhitespace(A5);
         mX.setAllowUnescapedControlCharacters(A6);
 
-        if (veryVerbose) cout << "\ta. Check new value of 'x'." << endl;
+        if (veryVerbose) cout << "\ta. Check new value of `x`." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(A1 == X.maxDepth());
@@ -1871,14 +1871,14 @@ int main(int argc, char *argv[])
         ASSERT(A6 == X.allowUnescapedControlCharacters());
 
         if (veryVerbose) cout <<
-             "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
+             "\tb. Try equality operators: `x` <op> `w`, `x`." << endl;
 
         ASSERT(0 == (X == W));        ASSERT(1 == (X != W));
         ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 4. Create an object 'y' (init. to 'A')."
+        if (verbose) cout << "\n 4. Create an object `y` (init. to `A`)."
                              "\t\t{ w:D x:A y:A     }" << endl;
 
         Obj mY;  const Obj& Y = mY;
@@ -1889,7 +1889,7 @@ int main(int argc, char *argv[])
         mY.setAllowFormFeedAsWhitespace(A5);
         mY.setAllowUnescapedControlCharacters(A6);
 
-        if (veryVerbose) cout << "\ta. Check initial value of 'y'." << endl;
+        if (veryVerbose) cout << "\ta. Check initial value of `y`." << endl;
         if (veryVeryVerbose) { T_ T_ P(Y) }
 
         ASSERT(A1 == Y.maxDepth());
@@ -1900,7 +1900,7 @@ int main(int argc, char *argv[])
         ASSERT(A6 == Y.allowUnescapedControlCharacters());
 
         if (veryVerbose) cout <<
-             "\tb. Try equality operators: 'y' <op> 'w', 'x', 'y'" << endl;
+             "\tb. Try equality operators: `y` <op> `w`, `x`, `y`" << endl;
 
         ASSERT(0 == (Y == W));        ASSERT(1 == (Y != W));
         ASSERT(1 == (Y == X));        ASSERT(0 == (Y != X));
@@ -1908,12 +1908,12 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 5. Create an object 'z' (copy from 'y')."
+        if (verbose) cout << "\n 5. Create an object `z` (copy from `y`)."
                              "\t\t{ w:D x:A y:A z:A }" << endl;
 
         Obj mZ(Y);  const Obj& Z = mZ;
 
-        if (veryVerbose) cout << "\ta. Check initial value of 'z'." << endl;
+        if (veryVerbose) cout << "\ta. Check initial value of `z`." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
 
         ASSERT(A1 == Z.maxDepth());
@@ -1924,7 +1924,7 @@ int main(int argc, char *argv[])
         ASSERT(A6 == Z.allowUnescapedControlCharacters());
 
         if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `z` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(0 == (Z == W));        ASSERT(1 == (Z != W));
         ASSERT(1 == (Z == X));        ASSERT(0 == (Z != X));
@@ -1933,7 +1933,7 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 6. Set 'z' to 'D' (the default value)."
+        if (verbose) cout << "\n 6. Set `z` to `D` (the default value)."
                              "\t\t\t{ w:D x:A y:A z:D }" << endl;
 
         mZ.setMaxDepth(D1);
@@ -1943,7 +1943,7 @@ int main(int argc, char *argv[])
         mZ.setAllowFormFeedAsWhitespace(D5);
         mZ.setAllowUnescapedControlCharacters(D6);
 
-        if (veryVerbose) cout << "\ta. Check new value of 'z'." << endl;
+        if (veryVerbose) cout << "\ta. Check new value of `z`." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
 
         ASSERT(D1 == Z.maxDepth());
@@ -1954,7 +1954,7 @@ int main(int argc, char *argv[])
         ASSERT(D6 == Z.allowUnescapedControlCharacters());
 
         if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `z` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(1 == (Z == W));        ASSERT(0 == (Z != W));
         ASSERT(0 == (Z == X));        ASSERT(1 == (Z != X));
@@ -1963,11 +1963,11 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 7. Assign 'w' from 'x'."
+        if (verbose) cout << "\n 7. Assign `w` from `x`."
                              "\t\t\t\t{ w:A x:A y:A z:D }" << endl;
         mW = X;
 
-        if (veryVerbose) cout << "\ta. Check new value of 'w'." << endl;
+        if (veryVerbose) cout << "\ta. Check new value of `w`." << endl;
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         ASSERT(A1 == W.maxDepth());
@@ -1978,7 +1978,7 @@ int main(int argc, char *argv[])
         ASSERT(A6 == W.allowUnescapedControlCharacters());
 
         if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `w` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
         ASSERT(1 == (W == X));        ASSERT(0 == (W != X));
@@ -1987,11 +1987,11 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 8. Assign 'w' from 'z'."
+        if (verbose) cout << "\n 8. Assign `w` from `z`."
                              "\t\t\t\t{ w:D x:A y:A z:D }" << endl;
         mW = Z;
 
-        if (veryVerbose) cout << "\ta. Check new value of 'w'." << endl;
+        if (veryVerbose) cout << "\ta. Check new value of `w`." << endl;
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         ASSERT(D1 == W.maxDepth());
@@ -2002,7 +2002,7 @@ int main(int argc, char *argv[])
         ASSERT(D6 == W.allowUnescapedControlCharacters());
 
         if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `x` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
         ASSERT(0 == (W == X));        ASSERT(1 == (W != X));
@@ -2011,11 +2011,11 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 9. Assign 'x' from 'x' (aliasing)."
+        if (verbose) cout << "\n 9. Assign `x` from `x` (aliasing)."
                              "\t\t\t{ w:D x:A y:A z:D }" << endl;
         mX = X;
 
-        if (veryVerbose) cout << "\ta. Check (same) value of 'x'." << endl;
+        if (veryVerbose) cout << "\ta. Check (same) value of `x`." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(A1 == X.maxDepth());
@@ -2026,7 +2026,7 @@ int main(int argc, char *argv[])
         ASSERT(A6 == X.allowUnescapedControlCharacters());
 
         if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `x` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(0 == (X == W));        ASSERT(1 == (X != W));
         ASSERT(1 == (X == X));        ASSERT(0 == (X != X));

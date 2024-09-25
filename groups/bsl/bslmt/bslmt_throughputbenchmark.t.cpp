@@ -26,9 +26,9 @@
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
-#include <bsl_algorithm.h>  // 'bsl::sort'
+#include <bsl_algorithm.h>  // `bsl::sort`
 #include <bsl_array.h>
-#include <bsl_cstddef.h>    // 'bsl::size_t'
+#include <bsl_cstddef.h>    // `bsl::size_t`
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>
@@ -47,33 +47,33 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // The component under test implements a mechanism,
-// 'bslmt::ThroughputBenchmark', that provides performance testing for multi-
+// `bslmt::ThroughputBenchmark`, that provides performance testing for multi-
 // threaded components.  The results can be parsed with
-// 'bslmt::ThroughputBenchmarkResult', which represents counts of the work done
+// `bslmt::ThroughputBenchmarkResult`, which represents counts of the work done
 // by each thread, thread group, and sample, divided by the number of actual
 // seconds that sample has executed.  The primary manipulators are the methods
-// for adding thread groups ('addThreadGroup') and executing a benchmark
-// ('execute').  The provided basic accessors are the methods for obtaining the
-// allocator ('allocator'), the number of thread groups added, the number of
-// threads in each thread group ('numThreads'), and a convenience function with
-// the total number of threads ('numThreads').  There are also utility
-// functions to simulate load ('busyWorkAmount') and to estimate the load
-// ('estimateBusyWorkAmount').
+// for adding thread groups (`addThreadGroup`) and executing a benchmark
+// (`execute`).  The provided basic accessors are the methods for obtaining the
+// allocator (`allocator`), the number of thread groups added, the number of
+// threads in each thread group (`numThreads`), and a convenience function with
+// the total number of threads (`numThreads`).  There are also utility
+// functions to simulate load (`busyWorkAmount`) and to estimate the load
+// (`estimateBusyWorkAmount`).
 //
 // Global Concerns:
-//: o The test driver is robust w.r.t. reuse in other, similar components.
-//: o ACCESSOR methods are declared 'const'.
-//: o CREATOR & MANIPULATOR pointer/reference parameters are declared 'const'.
-//: o No memory is ever allocated from the global allocator.
-//: o Any allocated memory is always from the object allocator.
-//: o An object's value is independent of the allocator used to supply memory.
-//: o Injected exceptions are safely propagated during memory allocation.
-//: o Precondition violations are detected in appropriate build modes.
+//  - The test driver is robust w.r.t. reuse in other, similar components.
+//  - ACCESSOR methods are declared `const`.
+//  - CREATOR & MANIPULATOR pointer/reference parameters are declared `const`.
+//  - No memory is ever allocated from the global allocator.
+//  - Any allocated memory is always from the object allocator.
+//  - An object's value is independent of the allocator used to supply memory.
+//  - Injected exceptions are safely propagated during memory allocation.
+//  - Precondition violations are detected in appropriate build modes.
 //
 // Global Assumptions:
-//: o All explicit memory allocations are presumed to use the global, default,
-//:   or object allocator.
-//: o ACCESSOR methods are 'const' thread-safe.
+//  - All explicit memory allocations are presumed to use the global, default,
+//    or object allocator.
+//  - ACCESSOR methods are `const` thread-safe.
 // ----------------------------------------------------------------------------
 // [ 5] unsigned int antiOptimization();
 // [ 5] void busyWork(Int64 busyWorkAmount);
@@ -152,45 +152,47 @@ void aSsErT(bool condition, const char *message, int line)
 //
 ///Example 1: Test Performance of bsl::queue<int>
 /// - - - - - - - - - - - - - - - - - - - - - - -
-// In the following example we test the throughput of a 'bsl::queue<int>' in a
+// In the following example we test the throughput of a `bsl::queue<int>` in a
 // multi-threaded environment, where multiple "producer" threads are pushing
 // elements, and multiple "consumer" threads are popping these elements.
 //
 // First, we define a global queue, a mutex to protect this queue, and a
 // semaphore for a "pop" operation to block on:
-//..
+// ```
     bsl::queue<int>  myQueue;
     bslmt::Mutex     myMutex;
     bslmt::Semaphore mySem;
-//..
+// ```
 // Next, we define a counter value we push in:
-//..
+// ```
     int              counterValue = 0;
-//..
+// ```
 // Then, we define simple push and pop functions that manipulate this queue:
-//..
+// ```
+
+    /// Push an element into `myQueue`, using the specified `threadIndex`.
     void myPush(int threadIndex)
-        // Push an element into 'myQueue', using the specified 'threadIndex'.
     {
         bslmt::LockGuard<bslmt::Mutex> guard(&myMutex);
         myQueue.push(1000000 * threadIndex + counterValue++);
         mySem.post();
     }
 
+    /// Pop an element from `myQueue`.
     void myPop(int)
-        // Pop an element from 'myQueue'.
     {
         mySem.wait();
         bslmt::LockGuard<bslmt::Mutex> guard(&myMutex);
         myQueue.pop();
     }
-//..
+// ```
 // Next, we define a thread "cleanup" function for the push thread group, which
 // pushes a couple of extra elements to make sure that the pop thread group
 // will not hang on an empty queue:
-//..
+// ```
+
+    /// Cleanup function.
     void myCleanup()
-        // Cleanup function.
     {
         bslmt::LockGuard<bslmt::Mutex> guard(&myMutex);
         for (int i = 0; i < 10; ++i) {
@@ -198,7 +200,7 @@ void aSsErT(bool condition, const char *message, int line)
             mySem.post();
         }
     }
-//..
+// ```
 
 // ============================================================================
 //                   GLOBAL STRUCTS/FUNCTIONS FOR TESTING
@@ -210,9 +212,9 @@ namespace {
                              // SetValueFunctor
                              // ===============
 
+/// This class provides a functor setting a global value to the constructor
+/// parameter.
 class SetValueFunctor {
-    // This class provides a functor setting a global value to the constructor
-    // parameter.
 
     // CLASS DATA
     static int s_value;  // Value getting set.
@@ -222,15 +224,17 @@ class SetValueFunctor {
 
   public:
     // CREATORS
+
+    /// Create `SetValueFunctor` object with the specified `value`.
     explicit SetValueFunctor(int value);
-        // Create 'SetValueFunctor' object with the specified 'value'.
 
     // ~SetValueFunctor() = default;
         // Destroy this object.
 
     // MANIPULATORS
+
+    /// Set static value to the constructor parameter
     void operator()(int);
-        // Set static value to the constructor parameter
 };
 
                              // ---------------
@@ -255,9 +259,9 @@ void SetValueFunctor::operator()(int)
                                // InitFunctor
                                // ===========
 
+/// This class provides a functor setting a global value to the constructor
+/// parameter.
 class InitFunctor {
-    // This class provides a functor setting a global value to the constructor
-    // parameter.
 
     // CLASS DATA
     static int s_value;  // Value getting set.
@@ -267,15 +271,17 @@ class InitFunctor {
 
   public:
     // CREATORS
+
+    /// Create an `InitiFunctor` object with the specified `value`.
     explicit InitFunctor(int value);
-        // Create an 'InitiFunctor' object with the specified 'value'.
 
     // ~InitFunctor() = default;
         // Destroy this object.
 
     // MANIPULATORS
+
+    /// Set static value to the constructor parameter
     void operator()();
-        // Set static value to the constructor parameter
 };
 
                                // -----------
@@ -300,28 +306,31 @@ void InitFunctor::operator()()
                             // CountNoParFunctor
                             // =================
 
+/// This class counts the number of invocations of its function call
+/// operator.  It uses an atomic integer addressed by the `count` supplied
+/// on construction to store the count.
 class CountNoParFunctor {
-    // This class counts the number of invocations of its function call
-    // operator.  It uses an atomic integer addressed by the 'count' supplied
-    // on construction to store the count.
 
   private:
     // DATA
+
+    // Counter.
     bsls::AtomicInt *d_count_p;
-        // Counter.
 
   public:
     // CREATORS
+
+    /// Create a `CountNoParFunctor` object with the specified `count`
+    /// counter set to 0.
     explicit CountNoParFunctor(bsls::AtomicInt *count);
-        // Create a 'CountNoParFunctor' object with the specified 'count'
-        // counter set to 0.
 
     // ~CountNoParFunctor() = default;
         // Destroy this object.
 
     // MANIPULATORS
+
+    /// Increase count.
     void operator()();
-        // Increase count.
 };
 
                             // -----------------
@@ -345,35 +354,38 @@ void CountNoParFunctor::operator()()
                          // ThreadCountIntParFunctor
                          // ========================
 
+/// This class counts the number of unique threads that invoke its function
+/// call operator.  It uses an atomic integer addressed by the `count`
+/// supplied on construction to store the count.
 class ThreadCountIntParFunctor {
-    // This class counts the number of unique threads that invoke its function
-    // call operator.  It uses an atomic integer addressed by the 'count'
-    // supplied on construction to store the count.
 
   private:
     // DATA
-    bsls::AtomicInt        *d_count_p;
-        // Counter.
 
+    // Counter.
+    bsls::AtomicInt        *d_count_p;
+
+    // Thread Local Storage (TLS) key
     bslmt::ThreadUtil::Key  d_tlsKey;
-        // Thread Local Storage (TLS) key
 
   public:
     // CREATORS
+
+    /// Create a `CountNoParFunctor` object with the specified `count`
+    /// counter set to 0.
     explicit ThreadCountIntParFunctor(bsls::AtomicInt *count);
-        // Create a 'CountNoParFunctor' object with the specified 'count'
-        // counter set to 0.
 
+    /// Create a `ThreadCountIntParFunctor` object with the value of the
+    /// specified `orig`.
     ThreadCountIntParFunctor(const ThreadCountIntParFunctor& orig);
-        // Create a 'ThreadCountIntParFunctor' object with the value of the
-        // specified 'orig'.
 
+    /// Destroy this object.
     ~ThreadCountIntParFunctor();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Increase count.  The parameter is ignored.
     void operator()(int);
-        // Increase count.  The parameter is ignored.
 };
 
                          // ------------------------
@@ -414,33 +426,36 @@ void ThreadCountIntParFunctor::operator()(int)
                            // CountBoolParFunctor
                            // ===================
 
+/// This class separately counts the number of times its function call
+/// operator is invoked with the values `true` and `false`.
 class CountBoolParFunctor {
-    // This class separately counts the number of times its function call
-    // operator is invoked with the values 'true' and 'false'.
 
   private:
     // DATA
-    bsls::AtomicInt *d_countTrue_p;
-        // Counter for calls with 'true'.
 
+    // Counter for calls with `true`.
+    bsls::AtomicInt *d_countTrue_p;
+
+    // Counter for calls with `false`.
     bsls::AtomicInt *d_countFalse_p;
-        // Counter for calls with 'false'.
 
   public:
     // CREATORS
+
+    /// Create a `CountBoolParFunctor` object with the specified counters
+    /// `countTrue` and `countFalse` set to 0.
     CountBoolParFunctor(bsls::AtomicInt *countTrue,
                         bsls::AtomicInt *countFalse);
-        // Create a 'CountBoolParFunctor' object with the specified counters
-        // 'countTrue' and 'countFalse' set to 0.
 
     // ~CountBoolParFunctor() = default;
         // Destroy this object.
 
     // MANIPULATORS
+
+    /// Increase count of the `true` functor calls if the specified
+    /// `parameter` is `true`, and the count of `false` functor calls
+    /// otherwise.
     void operator()(bool parameter);
-        // Increase count of the 'true' functor calls if the specified
-        // 'parameter' is 'true', and the count of 'false' functor calls
-        // otherwise.
 };
 
                            // -------------------
@@ -498,13 +513,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -514,10 +529,10 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-// Then, we create a 'bslmt::ThroughputBenchmark' object and add push and pop
+// Then, we create a `bslmt::ThroughputBenchmark` object and add push and pop
 // thread groups, each with 2 threads and a work load (arithmetic operations to
 // consume an amount of time) of 100:
-//..
+// ```
     bslmt::ThroughputBenchmark myBench;
     myBench.addThreadGroup(
                         myPush,
@@ -526,60 +541,60 @@ int main(int argc, char *argv[])
                         bslmt::ThroughputBenchmark::InitializeThreadFunction(),
                         myCleanup);
     const int consumerGroupIdx = myBench.addThreadGroup(myPop, 2, 100);
-//..
-// Now, we create a 'bslmt::ThroughputBenchmarkResult' object to contain the
-// result, and call 'execute' to run the benchmark for 500 millseconds 10
+// ```
+// Now, we create a `bslmt::ThroughputBenchmarkResult` object to contain the
+// result, and call `execute` to run the benchmark for 500 millseconds 10
 // times:
-//..
+// ```
     bslmt::ThroughputBenchmarkResult myResult;
     myBench.execute(&myResult, 500, 10);
-//..
+// ```
 // Finally, we print the median of the throughput of the consumer thread group.
-//..
+// ```
     double median;
     myResult.getMedian(&median, consumerGroupIdx);
     bsl::cout << "Throughput:" << median << "\n";
-//..
+// ```
 
       } break;
       case 5: {
         // --------------------------------------------------------------------
         // TEST BUSY WORK
-        //   Verify 'estimateBusyWorkAmount' produces the correct value to use
-        //   with 'busyWork' to obtain a specified duration, and
-        //   'antiOptimzation' prevents overly aggresive optimization by the
+        //   Verify `estimateBusyWorkAmount` produces the correct value to use
+        //   with `busyWork` to obtain a specified duration, and
+        //   `antiOptimzation` prevents overly aggresive optimization by the
         //   compiler.
         //
         // Concerns:
-        //: 1 The 'busyWorkAmount' value, when used with 'busyWork', will
-        //:   produce a time interval in line with the one provided to
-        //:   'estimateBusyWorkAmount'.
-        //:
-        //: 2 The runtime measured time intervals can be distorted by sporadic
-        //:   system loads.
-        //:
-        //: 3 'antiOptimization' prevents 'busyWork' from becoming a no-op.
-        //:
-        //: 4 'estimateBusyWorkAmount', 'busyWork', and 'antiOptimization' do
-        //:    not allocate anymemory.
+        // 1. The `busyWorkAmount` value, when used with `busyWork`, will
+        //    produce a time interval in line with the one provided to
+        //    `estimateBusyWorkAmount`.
+        //
+        // 2. The runtime measured time intervals can be distorted by sporadic
+        //    system loads.
+        //
+        // 3. `antiOptimization` prevents `busyWork` from becoming a no-op.
+        //
+        // 4. `estimateBusyWorkAmount`, `busyWork`, and `antiOptimization` do
+        //     not allocate anymemory.
         //
         // Plan:
-        //: 1 For a provided set of durations, use 'estimateBusyWorkAmount'
-        //:   to obtain a value to use with 'busyWork' and observe the
-        //:   resultant execution duration.  Use 'antiOptimization' in a
-        //:   fashion that can not be removed by the optimizer to ensure the
-        //:   busy loop is also not removed.  To address the potential for
-        //:   outliers on loaded machines, execute the
-        //:   estimation/observation/verification cycle many times and verify
-        //:   the observed durations are within a tight range of the expected
-        //:   duration with some frequency.  Furthermore, ensure observations
-        //:   are within a looser range with a greater frequency.  Since
-        //:   non-zero durations are used, verification of the duration
-        //:   indicates the busy loop was not optimized away (i.e.,
-        //:   'antiOptimization' performed as expected).  (C-1..3)
-        //:
-        //: 2 There is no memory allocated on the default or global (tested in
-        //:   main) allocators.  (C-4)
+        // 1. For a provided set of durations, use `estimateBusyWorkAmount`
+        //    to obtain a value to use with `busyWork` and observe the
+        //    resultant execution duration.  Use `antiOptimization` in a
+        //    fashion that can not be removed by the optimizer to ensure the
+        //    busy loop is also not removed.  To address the potential for
+        //    outliers on loaded machines, execute the
+        //    estimation/observation/verification cycle many times and verify
+        //    the observed durations are within a tight range of the expected
+        //    duration with some frequency.  Furthermore, ensure observations
+        //    are within a looser range with a greater frequency.  Since
+        //    non-zero durations are used, verification of the duration
+        //    indicates the busy loop was not optimized away (i.e.,
+        //    `antiOptimization` performed as expected).  (C-1..3)
+        //
+        // 2. There is no memory allocated on the default or global (tested in
+        //    main) allocators.  (C-4)
         //
         // Testing:
         //   void busyWork(Int64 busyWorkAmount);
@@ -647,62 +662,62 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TEST 'execute'
+        // TEST `execute`
         //
         // Concerns:
-        //: 1 The 'result' object is created with the right size - numSamples,
-        //:   numThreadGroups, and number of threads in each of the thread
-        //:   groups.
-        //:
-        //: 2 'execute' does not allocate memory, except within the 'result'
-        //:   object, and within the run, init, and cleanup functions.
-        //:
-        //: 3 For each previously defined thread group, run function is called
-        //:   exactly 'numSamples' x <number of threads in that thread group>
-        //:   times.
-        //:
-        //: 4 For each previously defined thread group, if init and cleanup
-        //:   functions are defined, they are called exactly 'numSamples' x
-        //:   <number of threads in that thread group> times.
-        //:
-        //: 5 If the sample level init and cleanup functions are provided (with
-        //:   the 6-arg 'execute') they are called exactly 'numSamples' times.
-        //:
-        //: 7 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The `result` object is created with the right size - numSamples,
+        //    numThreadGroups, and number of threads in each of the thread
+        //    groups.
+        //
+        // 2. `execute` does not allocate memory, except within the `result`
+        //    object, and within the run, init, and cleanup functions.
+        //
+        // 3. For each previously defined thread group, run function is called
+        //    exactly `numSamples` x <number of threads in that thread group>
+        //    times.
+        //
+        // 4. For each previously defined thread group, if init and cleanup
+        //    functions are defined, they are called exactly `numSamples` x
+        //    <number of threads in that thread group> times.
+        //
+        // 5. If the sample level init and cleanup functions are provided (with
+        //    the 6-arg `execute`) they are called exactly `numSamples` times.
+        //
+        // 7. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create an object using a supplied test allocator.
-        //:
-        //: 2 Call method 3-arg 'addThreadGroup' with a counting run function
-        //:   and certain number of threads and work amount twice. Then call
-        //:   method 3-arg 'execute' with a 'result' object created with a
-        //:   different supplied test allocator.  Verify:
-        //:   1 Dimensions of 'result' object.
-        //:   2 Count of times run function was called for each of the thread
-        //:     groups.
-        //:   3 No memory was allocated except on either of the supplied test
-        //:     allocators.
-        //:   4 During 'execute', only the second supplied test allocator was
-        //:     used.
-        //:
-        //: 3 Call method 5-arg 'addThreadGroup' with a counting run function
-        //:   and certain number of threads and work amount twice. Then call
-        //:   method 6-arg 'execute'.  Verify:
-        //:   1 Dimensions of 'result' object.
-        //:   2 Count of times run function was called for each of the thread
-        //:     groups.
-        //:   3 Count of times thread level init and cleanup function were
-        //:     called.
-        //:   4 Count of times sample level init, shutdown, and cleanup
-        //:     functions were called.
-        //:   5 No memory was allocated except on either of the supplied test
-        //:     allocators.
-        //:   6 During 'execute', only the second supplied test allocator was
-        //:     used.
-        //:
-        //: 4 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid indexes, but not triggered for adjacent
-        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+        // 1. Create an object using a supplied test allocator.
+        //
+        // 2. Call method 3-arg `addThreadGroup` with a counting run function
+        //    and certain number of threads and work amount twice. Then call
+        //    method 3-arg `execute` with a `result` object created with a
+        //    different supplied test allocator.  Verify:
+        //   1. Dimensions of `result` object.
+        //   2. Count of times run function was called for each of the thread
+        //      groups.
+        //   3. No memory was allocated except on either of the supplied test
+        //      allocators.
+        //   4. During `execute`, only the second supplied test allocator was
+        //      used.
+        //
+        // 3. Call method 5-arg `addThreadGroup` with a counting run function
+        //    and certain number of threads and work amount twice. Then call
+        //    method 6-arg `execute`.  Verify:
+        //   1. Dimensions of `result` object.
+        //   2. Count of times run function was called for each of the thread
+        //      groups.
+        //   3. Count of times thread level init and cleanup function were
+        //      called.
+        //   4. Count of times sample level init, shutdown, and cleanup
+        //      functions were called.
+        //   5. No memory was allocated except on either of the supplied test
+        //      allocators.
+        //   6. During `execute`, only the second supplied test allocator was
+        //      used.
+        //
+        // 4. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid indexes, but not triggered for adjacent
+        //    valid ones (using the `BSLS_ASSERTTEST_*` macros).
         //
         // Testing:
         //   void execute(result, millis, numSamples);
@@ -710,13 +725,13 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TEST 'execute'" << endl
+                          << "TEST `execute`" << endl
                           << "==============" << endl;
 
         typedef bslmt::ThroughputBenchmark          Obj;
         typedef bslmt::ThroughputBenchmark_TestUtil TestUtil;
 
-        if (verbose) cout << "\nTesting 3-arg 'execute'." << endl;
+        if (verbose) cout << "\nTesting 3-arg `execute`." << endl;
         {
             bslma::TestAllocator supplied ("supplied" , veryVeryVeryVerbose);
             bslma::TestAllocator supplied2("supplied2", veryVeryVeryVerbose);
@@ -764,7 +779,7 @@ int main(int argc, char *argv[])
             ASSERT( 5 * 10 == cnt2.load());
         }
 
-        if (verbose) cout << "\nTesting 6-arg 'execute'." << endl;
+        if (verbose) cout << "\nTesting 6-arg `execute`." << endl;
         {
             bslma::TestAllocator supplied ("supplied" , veryVeryVeryVerbose);
             bslma::TestAllocator supplied2("supplied2", veryVeryVeryVerbose);
@@ -910,27 +925,27 @@ int main(int argc, char *argv[])
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 Each accessor returns the value of the corresponding attribute of
-        //:   the object.
-        //:
-        //: 2 Each accessor method is declared 'const'.
-        //:
-        //: 3 No accessor allocates any memory.
+        // 1. Each accessor returns the value of the corresponding attribute of
+        //    the object.
+        //
+        // 2. Each accessor method is declared `const`.
+        //
+        // 3. No accessor allocates any memory.
         //
         // Plan:
-        //: 1 To test 'allocator', create object with various allocators and
-        //:   ensure the returned value matches the supplied allocator.
-        //:
-        //: 2 Use 'addThreadGroup' to populate an object, and verify the
-        //:   return value of the accessor against expected values.  (C-1)
-        //:
-        //: 3 The accessors will only be accessed from a 'const' reference to
-        //:   the created object.  (C-2)
-        //:
-        //: 4 A supplied allocator will be used for all created objects
-        //:   (excluding those used to test 'allocator') and the number of
-        //:   allocation will be verified to ensure that no memory was
-        //:   allocated during use of the accessors.  (C-3)
+        // 1. To test `allocator`, create object with various allocators and
+        //    ensure the returned value matches the supplied allocator.
+        //
+        // 2. Use `addThreadGroup` to populate an object, and verify the
+        //    return value of the accessor against expected values.  (C-1)
+        //
+        // 3. The accessors will only be accessed from a `const` reference to
+        //    the created object.  (C-2)
+        //
+        // 4. A supplied allocator will be used for all created objects
+        //    (excluding those used to test `allocator`) and the number of
+        //    allocation will be verified to ensure that no memory was
+        //    allocated during use of the accessors.  (C-3)
         //
         // Testing:
         //   bslma::Allocator *allocator() const;
@@ -946,7 +961,7 @@ int main(int argc, char *argv[])
         typedef bslmt::ThroughputBenchmark          Obj;
         typedef bslmt::ThroughputBenchmark_TestUtil TestUtil;
 
-        if (verbose) cout << "\nTesting 'allocator'." << endl;
+        if (verbose) cout << "\nTesting `allocator`." << endl;
         {
             Obj mX;  const Obj& X = mX; (void)X;
             ASSERT(&defaultAllocator == X.allocator());
@@ -963,7 +978,7 @@ int main(int argc, char *argv[])
             ASSERT(&supplied == X.allocator());
         }
 
-        if (verbose) cout << "\nTesting 'numThread*'." << endl;
+        if (verbose) cout << "\nTesting `numThread*`." << endl;
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
             (void)allocations;
@@ -998,7 +1013,7 @@ int main(int argc, char *argv[])
 
             ASSERT(test.threadGroups().size() == 2);
             ASSERT(test.threadGroups()[1].d_numThreads == 5);
-            // pre-c++11 platoforms has allocating 'bsl::function'
+            // pre-c++11 platoforms has allocating `bsl::function`
 #if __cplusplus >= 201103L
             ASSERT(allocations  == defaultAllocator.numAllocations());
 #endif
@@ -1013,7 +1028,7 @@ int main(int argc, char *argv[])
 
             ASSERT(test.threadGroups().size() == 3);
             ASSERT(test.threadGroups()[2].d_numThreads == 1);
-            // pre-c++11 platoforms has allocating 'bsl::function'
+            // pre-c++11 platoforms has allocating `bsl::function`
 #if __cplusplus >= 201103L
             ASSERT(allocations == defaultAllocator.numAllocations());
 #endif
@@ -1046,72 +1061,72 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TEST 'addThreadGroup'
+        // TEST `addThreadGroup`
         //
         // Concerns:
-        //: 1 The method 3-argument 'addThreadGroup' adds a thread group, has
-        //:   the correct number of threads, the correct work amount, the
+        // 1. The method 3-argument `addThreadGroup` adds a thread group, has
+        //    the correct number of threads, the correct work amount, the
         //    correct run function, and that initialize and cleanup functions
-        //:   are missing.
-        //:
-        //: 2 The method 3-argument 'addThreadGroup' does not affect allocated
-        //:   memory, and is exception neutral with respect to memory
-        //:   allocation.
-        //:
-        //: 3 The method 5-argument 'addThreadGroup' adds a thread group, has
-        //:   the correct number of threads, the correct work amount, the
-        //:   correct run function, and that initialize and cleanup functions
-        //:   are present.
-        //:
-        //: 4 The method 5-argument 'addThreadGroup' does not
-        //:   affect allocated memory, and is exception neutral with respect to
-        //:   memory allocation.
-        //:
-        //: 5 Memory is not leaked by any method and the destructor properly
-        //:   deallocates the residual allocated memory.
-        //:
-        //: 6 QoI: There is no temporary memory allocation from any allocator.
-        //:
-        //: 7 QoI: Asserted precondition violations are detected when enabled.
+        //    are missing.
+        //
+        // 2. The method 3-argument `addThreadGroup` does not affect allocated
+        //    memory, and is exception neutral with respect to memory
+        //    allocation.
+        //
+        // 3. The method 5-argument `addThreadGroup` adds a thread group, has
+        //    the correct number of threads, the correct work amount, the
+        //    correct run function, and that initialize and cleanup functions
+        //    are present.
+        //
+        // 4. The method 5-argument `addThreadGroup` does not
+        //    affect allocated memory, and is exception neutral with respect to
+        //    memory allocation.
+        //
+        // 5. Memory is not leaked by any method and the destructor properly
+        //    deallocates the residual allocated memory.
+        //
+        // 6. QoI: There is no temporary memory allocation from any allocator.
+        //
+        // 7. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create an object using a supplied test allocator.
-        //:
-        //: 2 Call method 3-arg 'addThreadGroup' with an empty run function and
-        //:   certain number of threads and work amount. Verify:
-        //:   1 Number of thread groups is 1.
-        //:   2 The return code is 0 (the first thread group).
-        //:   3 The number of threads in total is as expected.
-        //:   4 The number of threads in the first thread group is as expected.
-        //:   5 There is no run function.
-        //:   6 There are no init and cleanup functions.
-        //:
-        //: 3 Call method 3-arg 'addThreadGroup' again with a non-empty run
-        //:   function, and redo the verification.
-        //:
-        //: 4 Call method 5-arg 'addThreadGroup' with an empty run and cleanup
-        //:   functions, a certain number of threads and work amount, and a
-        //:   non-empty init function.  Verify:
-        //:   1 Number of thread groups is 1.
-        //:   2 The return code is 0 (the first thread group).
-        //:   3 The number of threads in total is as expected.
-        //:   4 The number of threads in the first thread group is as expected.
-        //:   5 There is no run function.
-        //:   6 There is an init function.
-        //:   6 There is no cleanup function.
-        //:
-        //: 5 Call method 5-arg 'addThreadGroup' again with a non-empty run
-        //:   and init functions, and redo the verification.
-        //:
-        //: 6 When the object goes out of scope for both 3-arg and 5-arg
-        //:   'addThreadGroup', there is no memory leak on the supplied
-        //:   allocator.
-        //:
-        //: 7 There is no memory allocated on the default or global allocators.
-        //:
-        //: 8 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid indexes, but not triggered for adjacent
-        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+        // 1. Create an object using a supplied test allocator.
+        //
+        // 2. Call method 3-arg `addThreadGroup` with an empty run function and
+        //    certain number of threads and work amount. Verify:
+        //   1. Number of thread groups is 1.
+        //   2. The return code is 0 (the first thread group).
+        //   3. The number of threads in total is as expected.
+        //   4. The number of threads in the first thread group is as expected.
+        //   5. There is no run function.
+        //   6. There are no init and cleanup functions.
+        //
+        // 3. Call method 3-arg `addThreadGroup` again with a non-empty run
+        //    function, and redo the verification.
+        //
+        // 4. Call method 5-arg `addThreadGroup` with an empty run and cleanup
+        //    functions, a certain number of threads and work amount, and a
+        //    non-empty init function.  Verify:
+        //   1. Number of thread groups is 1.
+        //   2. The return code is 0 (the first thread group).
+        //   3. The number of threads in total is as expected.
+        //   4. The number of threads in the first thread group is as expected.
+        //   5. There is no run function.
+        //   6. There is an init function.
+        //   6. There is no cleanup function.
+        //
+        // 5. Call method 5-arg `addThreadGroup` again with a non-empty run
+        //    and init functions, and redo the verification.
+        //
+        // 6. When the object goes out of scope for both 3-arg and 5-arg
+        //    `addThreadGroup`, there is no memory leak on the supplied
+        //    allocator.
+        //
+        // 7. There is no memory allocated on the default or global allocators.
+        //
+        // 8. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid indexes, but not triggered for adjacent
+        //    valid ones (using the `BSLS_ASSERTTEST_*` macros).
         //
         // Testing:
         //   int addThreadGroup(runF, numThreads, workAmount);
@@ -1119,13 +1134,13 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TEST 'addThreadGroup'" << endl
+                          << "TEST `addThreadGroup`" << endl
                           << "=====================" << endl;
 
         typedef bslmt::ThroughputBenchmark          Obj;
         typedef bslmt::ThroughputBenchmark_TestUtil TestUtil;
 
-        if (verbose) cout << "\nTesting 3-arg 'addThreadGroup'." << endl;
+        if (verbose) cout << "\nTesting 3-arg `addThreadGroup`." << endl;
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
             (void)allocations;
@@ -1166,13 +1181,13 @@ int main(int argc, char *argv[])
             ASSERT(static_cast<bool>(tg1.d_initialize) == false);
             ASSERT(static_cast<bool>(tg1.d_cleanup)    == false);
             ASSERT(static_cast<bool>(tg1.d_func)       != false);
-            // pre-c++11 platoforms has allocating 'bsl::function'
+            // pre-c++11 platoforms has allocating `bsl::function`
 #if __cplusplus >= 201103L
             ASSERT(allocations == defaultAllocator.numAllocations());
 #endif
         }
 
-        if (verbose) cout << "\nTesting 5-arg 'addThreadGroup'." << endl;
+        if (verbose) cout << "\nTesting 5-arg `addThreadGroup`." << endl;
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
             (void)allocations;
@@ -1202,7 +1217,7 @@ int main(int argc, char *argv[])
             ASSERT(static_cast<bool>(tg0.d_initialize) != false);
             ASSERT(static_cast<bool>(tg0.d_cleanup)    == false);
             ASSERT(static_cast<bool>(tg0.d_func)       == false);
-            // pre-c++11 platoforms has allocating 'bsl::function'
+            // pre-c++11 platoforms has allocating `bsl::function`
 #if __cplusplus >= 201103L
             ASSERT(allocations == defaultAllocator.numAllocations());
 #endif
@@ -1226,7 +1241,7 @@ int main(int argc, char *argv[])
             ASSERT(static_cast<bool>(tg1.d_initialize) != false);
             ASSERT(static_cast<bool>(tg1.d_cleanup)    != false);
             ASSERT(static_cast<bool>(tg1.d_func)       != false);
-            // pre-c++11 platoforms has allocating 'bsl::function'
+            // pre-c++11 platoforms has allocating `bsl::function`
 #if __cplusplus >= 201103L
             ASSERT(allocations == defaultAllocator.numAllocations());
 #endif
@@ -1282,7 +1297,7 @@ int main(int argc, char *argv[])
                 }
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-            // pre-c++11 platoforms has allocating 'bsl::function'
+            // pre-c++11 platoforms has allocating `bsl::function`
 #if __cplusplus >= 201103L
             ASSERT(allocations == defaultAllocator.numAllocations());
 #endif
@@ -1325,32 +1340,32 @@ int main(int argc, char *argv[])
         // CONSTRUCTOR
         //
         // Concerns:
-        //: 1 The default constructor creates the correct initial value and has
-        //:   the internal memory management system hooked up properly so that
-        //:   *all* internally allocated memory draws from the same
-        //:   user-supplied allocator whenever one is specified.
-        //:
-        //: 2 The method 'addThreadGroup' uses the allocator specified with the
-        //:   constructor.  Note that 'addThreadGroup' is not tested here, and
-        //:   is used merely to test memory allocation.
-        //:
-        //: 3 Memory is not leaked by any method and the (default) destructor
-        //:   properly deallocates the residual allocated memory.
+        // 1. The default constructor creates the correct initial value and has
+        //    the internal memory management system hooked up properly so that
+        //    *all* internally allocated memory draws from the same
+        //    user-supplied allocator whenever one is specified.
+        //
+        // 2. The method `addThreadGroup` uses the allocator specified with the
+        //    constructor.  Note that `addThreadGroup` is not tested here, and
+        //    is used merely to test memory allocation.
+        //
+        // 3. Memory is not leaked by any method and the (default) destructor
+        //    properly deallocates the residual allocated memory.
         //
         // Plan:
-        //: 1 Create an object using the default constructor with and without
-        //:   passing in an allocator, verify the allocator is stored using the
-        //:   (untested) 'allocator' accessor, and verifying all allocations
-        //:   are done from the allocator in future tests.
-        //:
-        //: 2 Create objects using the 'bslma::TestAllocator', use the
-        //:   'addThreadGroup' method with various values, and the (untested)
-        //:   accessors to verify the value of the object and that allocation
-        //:   occurred when expected.
-        //:
-        //: 3 Use a supplied 'bslma::TestAllocator' that goes out-of-scope
-        //:   at the conclusion of each test to ensure all memory is returned
-        //:   to the allocator.  (C-3)
+        // 1. Create an object using the default constructor with and without
+        //    passing in an allocator, verify the allocator is stored using the
+        //    (untested) `allocator` accessor, and verifying all allocations
+        //    are done from the allocator in future tests.
+        //
+        // 2. Create objects using the `bslma::TestAllocator`, use the
+        //    `addThreadGroup` method with various values, and the (untested)
+        //    accessors to verify the value of the object and that allocation
+        //    occurred when expected.
+        //
+        // 3. Use a supplied `bslma::TestAllocator` that goes out-of-scope
+        //    at the conclusion of each test to ensure all memory is returned
+        //    to the allocator.  (C-3)
         //
         // Testing:
         //   ThroughputBenchmark(bslma::Allocator *basicAllocator = 0);

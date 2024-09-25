@@ -90,8 +90,8 @@ struct Callable {
     int  operator()(int) const { return -42; }
 };
 
+/// Test class that is not bitwise moveable
 struct NonBitwiseDummy {
-    // Test class that is not bitwise moveable
     int d_data;
 
     explicit NonBitwiseDummy(int v = 0) : d_data(v) { }
@@ -106,10 +106,10 @@ struct Dummy {
     void operator&();
     const Dummy *localAddressOf() const { return this; }
 };
+/// These functions are used solely to verify that a `reference_wrapper` can
+/// be passed to a function expecting an actual reference.
 bool isConst(Dummy&) { return false; }
 bool isConst(const Dummy&) { return true; }
-    // These functions are used solely to verify that a 'reference_wrapper' can
-    // be passed to a function expecting an actual reference.
 
 // ============================================================================
 //              USAGE EXAMPLE CLASSES AND FUNCTIONS
@@ -120,7 +120,7 @@ bool isConst(const Dummy&) { return true; }
 
 // BDE_VERIFY pragma: push
 // BDE_VERIFY pragma: -FD01  // Function needs contract, we probably should fix
-// BDE_VERIFY pragma: -IND01 // Code is aligned as-if following a '//' comment
+// BDE_VERIFY pragma: -IND01 // Code is aligned as-if following a `//` comment
 
 
 namespace TEST_CASE_USAGE {
@@ -138,29 +138,29 @@ namespace TEST_CASE_USAGE {
 // for this component are limited in freestanding C++98.
 //
 // First, let us define the large-object type:
-//..
+// ```
     struct Canary {
         static const int s_size = 1000;
         Canary *d_values[s_size];
         Canary();
     };
-//..
+// ```
     Canary::Canary()
     {
          for (int i = 0; i < s_size; ++i) {
              d_values[i] = this;
          }
     }
-//..
+// ```
 // Next, we define the comparison function:
-//..
+// ```
     bool operator<(Canary const& a, Canary const& b)
     {
         return a.d_values[0] < b.d_values[0];
     }
-//..
+// ```
 // Finally, we define a generic function to sort two items:
-//..
+// ```
     template <class T>
     void sortTwoItems(T& a, T& b)
     {
@@ -170,7 +170,7 @@ namespace TEST_CASE_USAGE {
             b = tmp;
         }
     }
-//..
+// ```
 }  // close namespace TEST_CASE_USAGE
 
 // BDE_VERIFY pragma: pop
@@ -200,13 +200,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example in the component header file compiles, links,
-        //:   and runs as shown.
+        // 1. The usage example in the component header file compiles, links,
+        //    and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -224,16 +224,16 @@ int main(int argc, char *argv[])
 
 // BDE_VERIFY pragma: push
 // BDE_VERIFY pragma: -FD01  // Function needs contract, we probably should fix
-// BDE_VERIFY pragma: -IND01 // Code is aligned as-if following a '//' comment
+// BDE_VERIFY pragma: -IND01 // Code is aligned as-if following a `//` comment
 
-//..
-// We can call 'sortTwoItems' on wrappers representing 'Canary' objects
-// without need to move actual, large 'Canary' objects about.  In the call to
-// 'sortTwoItems', below, the 'operator=' used in it is that of
-// 'bsl::reference_wrapper<Canary>', but the 'operator<' used is the one
-// declared for 'Canary&' arguments.  All of the conversions needed are
+// ```
+// We can call `sortTwoItems` on wrappers representing `Canary` objects
+// without need to move actual, large `Canary` objects about.  In the call to
+// `sortTwoItems`, below, the `operator=` used in it is that of
+// `bsl::reference_wrapper<Canary>`, but the `operator<` used is the one
+// declared for `Canary&` arguments.  All of the conversions needed are
 // applied implicitly:
-//..
+// ```
     Canary canaries[2];
 
     bsl::reference_wrapper<Canary> canaryA = bsl::ref(canaries[1]);
@@ -242,7 +242,7 @@ int main(int argc, char *argv[])
 //
     ASSERT(&canaryA.get() == canaries);
     ASSERT(&canaryB.get() == canaries + 1);
-//..
+// ```
 
 // BDE_VERIFY pragma: pop
 
@@ -253,21 +253,21 @@ int main(int argc, char *argv[])
         //   Testing that bsl::reference_wrapper is callable (in C++11)
         //
         // Concerns:
-        //: 1 That in appropriate build modes, bsl::reference_wrapper is
-        //:   callable
+        // 1. That in appropriate build modes, bsl::reference_wrapper is
+        //    callable
         //
         // Plan:
-        //: 1 Verify 'BSLSTL_REFRENCEWRAPPER_IS_ALIASED' is 'true' on
-        //:   on C++14 platforms.  Note that this test is a sanity check
-        //:   and deliberately does not reproduce the logic in the component.
-        //:
-        //: 2 Verify if 'BSLSTL_REFRENCEWRAPPER_IS_ALIASED' is 'true'
-        //:   'bsl::reference_wrapper' is an alias to the platform standard
-        //:   library.
-        //:
-        //: 3 Verify if 'BSLSTL_REFRENCEWRAPPER_IS_ALIASED' we can
-        //:   assign a function reference to a 'reference_wrapper' and
-        //:   invoke it.
+        // 1. Verify `BSLSTL_REFRENCEWRAPPER_IS_ALIASED` is `true` on
+        //    on C++14 platforms.  Note that this test is a sanity check
+        //    and deliberately does not reproduce the logic in the component.
+        //
+        // 2. Verify if `BSLSTL_REFRENCEWRAPPER_IS_ALIASED` is `true`
+        //    `bsl::reference_wrapper` is an alias to the platform standard
+        //    library.
+        //
+        // 3. Verify if `BSLSTL_REFRENCEWRAPPER_IS_ALIASED` we can
+        //    assign a function reference to a `reference_wrapper` and
+        //    invoke it.
         //
         // Testing:
         //   operator()(...) const;
@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
 
 #ifdef BSLSTL_REFRENCEWRAPPER_IS_ALIASED
         if (verbose) {
-            printf("\tverify 'reference_wrapper' is an alias to std\n");
+            printf("\tverify `reference_wrapper` is an alias to std\n");
         }
 
         ASSERT(true ==
@@ -294,7 +294,7 @@ int main(int argc, char *argv[])
                              bsl::reference_wrapper<Callable> >::value));
 
         if (verbose) {
-            printf("\tverify 'reference_wrapper' is callbable\n");
+            printf("\tverify `reference_wrapper` is callbable\n");
         }
 
         {
@@ -316,20 +316,20 @@ int main(int argc, char *argv[])
         // TYPE TRAITS
         //
         // Concerns:
-        //: 1 'bslmf::IsBitwiseMoveable<reference_wrapper<T>>::value' is
-        //:   true regardless of the type of 'T'.
-        //:
-        //: 2 'bslmf::IsReferenceWrapper<reference_wrapper<T>>::value' is
-        //:   true regardless of the type of 'T'.
+        // 1. `bslmf::IsBitwiseMoveable<reference_wrapper<T>>::value` is
+        //    true regardless of the type of `T`.
+        //
+        // 2. `bslmf::IsReferenceWrapper<reference_wrapper<T>>::value` is
+        //    true regardless of the type of `T`.
         //
         // Plan:
-        //: 1 For concern 1, instantiate 'reference_wrapper' with both bitwise
-        //:   moveable and non-bitwise moveable types and verify that the
-        //:   'bslmf::isBitwiseMovable' trait is true for both cases.
-        //:
-        //: 2 For concern 2, instantiate 'reference_wrapper' with 2
-        //:   unrelated types and verify that the 'bslmf::IsReferenceWrapper'
-        //:   trait is true for both cases.
+        // 1. For concern 1, instantiate `reference_wrapper` with both bitwise
+        //    moveable and non-bitwise moveable types and verify that the
+        //    `bslmf::isBitwiseMovable` trait is true for both cases.
+        //
+        // 2. For concern 2, instantiate `reference_wrapper` with 2
+        //    unrelated types and verify that the `bslmf::IsReferenceWrapper`
+        //    trait is true for both cases.
         //
         // Testing:
         //    TYPE TRAITS
@@ -347,17 +347,17 @@ int main(int argc, char *argv[])
         ASSERT(  IsBitwiseMoveable<int>::value);
         ASSERT(! IsBitwiseMoveable<NonBitwiseDummy>::value);
 
-        // Now test that 'reference_wrapper' is bitwise moveable in either
+        // Now test that `reference_wrapper` is bitwise moveable in either
         // case.
         ASSERT(IsBitwiseMoveable<reference_wrapper<int> >::value);
         ASSERT(IsBitwiseMoveable<reference_wrapper<NonBitwiseDummy> >::value);
 
-        // Test that 'reference_wrapper' is indeed a reference wrapper.
+        // Test that `reference_wrapper` is indeed a reference wrapper.
         ASSERT(  IsReferenceWrapper<reference_wrapper<int> >::value);
         ASSERT(  IsReferenceWrapper<reference_wrapper<Dummy> >::value);
 
         // Test that the trait specialization provided by this component does
-        // not incidentally cause 'IsReferenceWrapper' to be true for actual
+        // not incidentally cause `IsReferenceWrapper` to be true for actual
         // reference types.
         ASSERT(! IsReferenceWrapper<int&>::value);
         ASSERT(! IsReferenceWrapper<Dummy&>::value);
@@ -370,21 +370,21 @@ int main(int argc, char *argv[])
         //   contents and can be used in the standard ways.
         //
         // Concerns:
-        //: 1 Template functions defined are only checked by the compiler when
-        //:   called, so all templates must be instantiated here.
-        //:
-        //: 2 The various functions' argument must be copied into the object
-        //:   correctly.
-        //:
-        //: 3 The accessors must reproduce the various functions' argument
-        //:   values.
+        // 1. Template functions defined are only checked by the compiler when
+        //    called, so all templates must be instantiated here.
+        //
+        // 2. The various functions' argument must be copied into the object
+        //    correctly.
+        //
+        // 3. The accessors must reproduce the various functions' argument
+        //    values.
         //
         // Plan:
-        //: 1 Define a dummy type.
-        //:
-        //: 2 Wrap the dummy type using each available method.
-        //:
-        //: 3 Use the wrappers' explicit and implicit accessors.  (C-1..3)
+        // 1. Define a dummy type.
+        //
+        // 2. Wrap the dummy type using each available method.
+        //
+        // 3. Use the wrappers' explicit and implicit accessors.  (C-1..3)
         //
         // Testing:
         //   reference_wrapper(T&);
@@ -406,7 +406,7 @@ int main(int argc, char *argv[])
         Dummy       a;
         const Dummy b = {};
 
-        ASSERT(!isConst(a) && isConst(b));  // Test 'isConst'.
+        ASSERT(!isConst(a) && isConst(b));  // Test `isConst`.
 
         bsl::reference_wrapper<      Dummy> rwa (a);
         bsl::reference_wrapper<const Dummy> rwca(a);
@@ -424,11 +424,11 @@ int main(int argc, char *argv[])
         copyrwca = a;   // Likewise.
         copyrwcb = b;
 
-        copyrwa  = rwa;     // Assign from other 'reference_wrapper'.
+        copyrwa  = rwa;     // Assign from other `reference_wrapper`.
         copyrwca = rwca;    // Likewise.
         copyrwcb = rwcb;
 
-        Dummy&       rax  = rwa;    // Initialize from 'reference_wrapper'.
+        Dummy&       rax  = rwa;    // Initialize from `reference_wrapper`.
         const Dummy& rcax = rwca;   // Likewise.
         const Dummy& rcbx = rwcb;
 

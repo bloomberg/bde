@@ -46,18 +46,18 @@ using namespace bsl;
 // convert time values to, and from, local time.
 //
 // Class Methods:
-//: o 'convertUtcToLocalTime'
-//: o 'createLocalTimePeriod'
-//: o 'initLocalTime'
-//: o 'loadLocalTimePeriodForUtc'
-//: o 'resolveLocalTime'
+//  - `convertUtcToLocalTime`
+//  - `createLocalTimePeriod`
+//  - `initLocalTime`
+//  - `loadLocalTimePeriodForUtc`
+//  - `resolveLocalTime`
 //-----------------------------------------------------------------------------
 //=============================================================================
 // CLASS METHODS
 // [ 2] convertUtcToLocalTime(Datetime *, char *, Datetime&, Cache *)
 // [ 3] resolveLocalTime(...)
 // [ 4] 'initLocalTime(DatetimeTz *, Datetime& , char *, Dst, Cache *)
-// [ 5] 'createLocalTimePeriod(Period *, TransitionConstIter, Zoneinfo)'
+// [ 5] `createLocalTimePeriod(Period *, TransitionConstIter, Zoneinfo)`
 // [ 6] 'loadLocalTimePeriodForUtc(DatetimeTz *, Datetime& , char *, Cache *)
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -788,12 +788,12 @@ static const unsigned char ASIA_SAIGON_DATA[] = {
 //                        GLOBAL CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// The Logger verbosity guard disables logging on construction, and
+/// re-enables logging, based on the prior default pass-through level, when
+/// it goes out of scope and is destroyed.  It is intended to suppress
+/// logged output for intentional errors when the test driver is run in
+/// non-verbose mode.
 struct LogVerbosityGuard {
-    // The Logger verbosity guard disables logging on construction, and
-    // re-enables logging, based on the prior default pass-through level, when
-    // it goes out of scope and is destroyed.  It is intended to suppress
-    // logged output for intentional errors when the test driver is run in
-    // non-verbose mode.
 
     bool                    d_verbose;             // verbose mode does not
                                                    // disable logging
@@ -801,9 +801,9 @@ struct LogVerbosityGuard {
     bsls::LogSeverity::Enum d_defaultPassthrough;  // default passthrough
                                                    // log level
 
+    /// If the optionally specified `verbose` is `false` disable logging
+    /// until this guard is destroyed.
     explicit LogVerbosityGuard(bool verbose = false)
-        // If the optionally specified 'verbose' is 'false' disable logging
-        // until this guard is destroyed.
     {
         d_verbose            = verbose;
         d_defaultPassthrough = bsls::Log::severityThreshold();
@@ -813,8 +813,8 @@ struct LogVerbosityGuard {
         }
     }
 
+    /// Set the logging verbosity back to its default state.
     ~LogVerbosityGuard()
-        // Set the logging verbosity back to its default state.
     {
         if (!d_verbose) {
             bsls::Log::setSeverityThreshold(d_defaultPassthrough);
@@ -825,27 +825,28 @@ struct LogVerbosityGuard {
 // ============================================================================
 //                             HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
+
+/// Return the `bdlt::Datetime` representation of the interval in seconds
+/// from UNIX epoch time of the specified `value`.  Note that this method is
+/// shorthand for `bdlt::EpochUtil::convertFromTimeT64`.
 static bdlt::Datetime fromTimeT(bdlt::EpochUtil::TimeT64 value)
-    // Return the 'bdlt::Datetime' representation of the interval in seconds
-    // from UNIX epoch time of the specified 'value'.  Note that this method is
-    // shorthand for 'bdlt::EpochUtil::convertFromTimeT64'.
 {
     return bdlt::EpochUtil::convertFromTimeT64(value);
 }
 
+/// Return the interval in seconds from UNIX epoch time of the specified
+/// `value`.  Note that this method is shorthand for
+/// `bdlt::EpochUtil::convertToTimeT64`.
 static bdlt::EpochUtil::TimeT64 toTimeT(const bdlt::Datetime& value)
-    // Return the interval in seconds from UNIX epoch time of the specified
-    // 'value'.  Note that this method is shorthand for
-    // 'bdlt::EpochUtil::convertToTimeT64'.
 {
     return bdlt::EpochUtil::convertToTimeT64(value);
 }
 
+/// Return the datetime value indicated by the specified
+/// `iso8601TimeString`.  The behavior is undefined unless
+/// `iso8601TimeString` is a null-terminated C - string containing a time
+/// description matching the iso8601 specification (see `bdlt_iso8601util`).
 static bdlt::Datetime fromIso8601 (const char *iso8601TimeString)
-    // Return the datetime value indicated by the specified
-    // 'iso8601TimeString'.  The behavior is undefined unless
-    // 'iso8601TimeString' is a null-terminated C - string containing a time
-    // description matching the iso8601 specification (see 'bdlt_iso8601util').
 {
     bdlt::Datetime time;
     BSLA_MAYBE_UNUSED int rc = bdlt::Iso8601Util::parse(
@@ -856,9 +857,9 @@ static bdlt::Datetime fromIso8601 (const char *iso8601TimeString)
     return time;
 }
 
+/// A `struct` describing a transitions.  Note that this type is meant to
+/// be used to create data tables for use with `addTransitions`.
 struct TransitionDescription {
-    // A 'struct' describing a transitions.  Note that this type is meant to
-    // be used to create data tables for use with 'addTransitions'.
 
    int         d_line;
    const char *d_transitionTime;
@@ -867,11 +868,11 @@ struct TransitionDescription {
    bool        d_isDst;
 };
 
+/// Insert to the specified `result` the contiguous sequence of specified
+/// `descriptions`, of length `numDescriptions`.
 static void addTransitions(baltzo::Zoneinfo            *result,
                            const TransitionDescription *descriptions,
                            int                          numDescriptions)
-    // Insert to the specified 'result' the contiguous sequence of specified
-    // 'descriptions', of length 'numDescriptions'.
 
 {
     BSLS_ASSERT(result);
@@ -1005,12 +1006,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -1021,46 +1022,46 @@ int main(int argc, char *argv[])
 
 ///Usage
 ///-----
-// The following examples demonstrate how to use a 'baltzo::TimeZoneUtilImp' to
+// The following examples demonstrate how to use a `baltzo::TimeZoneUtilImp` to
 // perform common operations on time values:
 //
-///Prologue: Initializing a Example 'baltzo::ZoneinfoCache' object.
+///Prologue: Initializing a Example `baltzo::ZoneinfoCache` object.
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Before using the methods provided by 'baltzo::TimeZoneUtilImp' we must first
-// define a 'baltzo::ZoneinfoCache' object containing information about various
+// Before using the methods provided by `baltzo::TimeZoneUtilImp` we must first
+// define a `baltzo::ZoneinfoCache` object containing information about various
 // time zones.  For the purposes of this example, we will define a sample
 // cache containing only data for New York loaded through a
-// 'baltzo::TestLoader' object.  Note that, in general, clients should use data
-// from an external data source (see 'baltzo_datafileloader').
+// `baltzo::TestLoader` object.  Note that, in general, clients should use data
+// from an external data source (see `baltzo_datafileloader`).
 //
-// First, we create a Zoneinfo object for New York, and populate 'newYork' with
+// First, we create a Zoneinfo object for New York, and populate `newYork` with
 // the correct time zone identifier:
-//..
+// ```
     baltzo::Zoneinfo newYork;
     newYork.setIdentifier("America/New_York");
-//..
+// ```
 // Next we create two local-time descriptors, one for standard time and one
 // for daylight-saving time:
-//..
+// ```
     baltzo::LocalTimeDescriptor est(-18000, false, "EST");
     baltzo::LocalTimeDescriptor edt(-14400, true,  "EDT");
-//..
-// Then we set the initial descriptor for 'newYork' to Eastern Standard
+// ```
+// Then we set the initial descriptor for `newYork` to Eastern Standard
 // Time.  Note that such an initial transition is required for a
-// 'baltzo::Zoneinfo' object to be considered Well-Defined (see
-// 'baltzo_zoneinfoutil'):
-//..
+// `baltzo::Zoneinfo` object to be considered Well-Defined (see
+// `baltzo_zoneinfoutil`):
+// ```
     newYork.addTransition(bdlt::EpochUtil::convertToTimeT64(
                                                       bdlt::Datetime(1, 1, 1)),
                           est);
-//..
+// ```
 // Next we create a series of transitions between these local-time descriptors
 // for the years 2007-2011.  Note that the United States transitions to
 // daylight saving time on the second Sunday in March, at 2am local time
 // (07:00 UTC), and transitions back to standard time on the first Sunday in
 // November at 2am local time (06:00 UTC), resulting in an even number of
 // transitions:
-//..
+// ```
     static const bdlt::Datetime TRANSITION_TIMES[] = {
         bdlt::Datetime(2007,  3, 11, 7),
         bdlt::Datetime(2007, 11,  4, 6),
@@ -1085,83 +1086,83 @@ int main(int argc, char *argv[])
                                                       TRANSITION_TIMES[i + 1]),
                               est);
     }
-//..
+// ```
 // Next, we verify that the time zone information we have created is
 // considered well-defined (as discussed above):
-//..
+// ```
     ASSERT(true == baltzo::ZoneinfoUtil::isWellFormed(newYork));
-//..
-// Finally, we create a 'baltzo::TestLoader' object, provide it the description
-// of 'newYork', and use it to initialize a 'baltzo::ZoneinfoCache' object:
+// ```
+// Finally, we create a `baltzo::TestLoader` object, provide it the description
+// of `newYork`, and use it to initialize a `baltzo::ZoneinfoCache` object:
 // definition for New York:
-//..
+// ```
     baltzo::TestLoader loader;
     loader.setTimeZone(newYork);
     baltzo::ZoneinfoCache cache(&loader);
-//..
+// ```
 //
 ///Example 1: Converting from a UTC time to a local time.
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we demonstrate how to convert a UTC time to the
-// corresponding local time using the 'convertUtcToLocalTime' class method.
+// corresponding local time using the `convertUtcToLocalTime` class method.
 //
-// We start by creating a 'bdlt::Datetime' representing the UTC time
+// We start by creating a `bdlt::Datetime` representing the UTC time
 // "Dec 12, 2010 15:00":
-//..
+// ```
     bdlt::Datetime utcTime(2010, 12, 12, 15, 0, 0);
-//..
-// Now, we call 'convertUtcToLocalTime' and supply as input 'utcTime', the
+// ```
+// Now, we call `convertUtcToLocalTime` and supply as input `utcTime`, the
 // time zone identifier for New York ("America/New_York"), and the cache of
 // time zone information created in the prologue:
-//..
+// ```
     bdlt::DatetimeTz localNYTime;
     baltzo::TimeZoneUtilImp::convertUtcToLocalTime(&localNYTime,
                                                   "America/New_York",
                                                   utcTime,
                                                   &cache);
-//..
-// Finally we verify that 'localNYTime' is "Dec 12, 2010 10:00+5:00", the time
+// ```
+// Finally we verify that `localNYTime` is "Dec 12, 2010 10:00+5:00", the time
 // in New York corresponding to the UTC time "Dec 12, 2010 15:00".
-//..
+// ```
     ASSERT(utcTime                         == localNYTime.utcDatetime());
     ASSERT(bdlt::Datetime(2010, 12, 12, 10) == localNYTime.localDatetime());
     ASSERT(-5 * 60                         == localNYTime.offset());
-//..
+// ```
 
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'loadLocalTimePeriodForUtc':
+        // CLASS METHOD `loadLocalTimePeriodForUtc`:
         //
         // Concerns:
-        //: 1 The datetime range indicated by 'result' is the correct one.
-        //:
-        //: 2 The local-time descriptor held by 'result' has the correct value.
-        //:
-        //: 3 Return 'Err::k_UNSUPPORTED_ID' if an invalid time zone id is
-        //:   passed.
-        //:
-        //: 4 Does not return 0 or 'Err::k_UNSUPPORTED_ID' if another error
-        //:   occurs.
+        // 1. The datetime range indicated by `result` is the correct one.
+        //
+        // 2. The local-time descriptor held by `result` has the correct value.
+        //
+        // 3. Return `Err::k_UNSUPPORTED_ID` if an invalid time zone id is
+        //    passed.
+        //
+        // 4. Does not return 0 or `Err::k_UNSUPPORTED_ID` if another error
+        //    occurs.
         //
         // Plan:
-        // 1 Invoke 'loadLocalTimePeriodForUtc' passing an invalid time zone id
+        // 1 Invoke `loadLocalTimePeriodForUtc` passing an invalid time zone id
         //   and check the result.  (C-3)
         //
-        // 2 Invoke 'loadLocalTimePeriodForUtc' passing an invalid time zone
+        // 2 Invoke `loadLocalTimePeriodForUtc` passing an invalid time zone
         //   cache and check the result.  (C-4)
         //
         // 3 Using the table-driven technique:
         //   1 Specify a set values (one per row), including (a)
         //     time zone id, (b) utc time values to be passed in as input,
-        //     (c) expected start and end utc datetimes of 'result', and (d)
+        //     (c) expected start and end utc datetimes of `result`, and (d)
         //     the attribute values describing the expected local-time
-        //     descriptor held by 'result'.  (C-1,2)
+        //     descriptor held by `result`.  (C-1,2)
         //
         // Testing:
         //   'loadLocalTimePeriodForUtc(...)
         // --------------------------------------------------------------------
-        if (verbose) cout << "Testing 'loadLocalTimePeriodForUtc.'" << endl
+        if (verbose) cout << "Testing `loadLocalTimePeriodForUtc.`" << endl
                           << "====================================" << endl;
 
         if (verbose) cout << "\nTesting an invalid time zone id." << endl;
@@ -1350,37 +1351,37 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'createLocalTimePeriod':
+        // CLASS METHOD `createLocalTimePeriod`:
         //
         // Concerns:
-        //: 1 The datetime range of the local-time period corresponds to the
-        //:   specified start and end date.
-        //:
-        //: 2 The local-time descriptor held by the local-time period populated
-        //:   by 'createLocalTimePeriod' has the same value as the one pointed
-        //:   by 'transition'.
-        //:
-        //: 4 If the input iterator refers to a transition is the last
-        //:   transition in 'timeZone', the end date-time of 'result' is
-        //:   'Dec 31, 9999 23:59:59.999.999'.
-        //:
-        //: 5 If the input iterator refers to a transition is the first
-        //:   transition in 'timeZone', the start date-time of 'result' is
-        //:   'Jan 1, 1 00:00:00.000'.
+        // 1. The datetime range of the local-time period corresponds to the
+        //    specified start and end date.
+        //
+        // 2. The local-time descriptor held by the local-time period populated
+        //    by `createLocalTimePeriod` has the same value as the one pointed
+        //    by `transition`.
+        //
+        // 4. If the input iterator refers to a transition is the last
+        //    transition in `timeZone`, the end date-time of `result` is
+        //    `Dec 31, 9999 23:59:59.999.999`.
+        //
+        // 5. If the input iterator refers to a transition is the first
+        //    transition in `timeZone`, the start date-time of `result` is
+        //    `Jan 1, 1 00:00:00.000`.
         //
         // Plan:
-        //: 1 Using the table-driven technique:
-        //:   1 Specify a set of values (one per row) including (a)
-        //:     time zone id, (b) local time values to be passed in as input,
-        //:     (c) DST policy passed in as input, (d) expected validity status
-        //:     of the input local time, (e) start and end utc datetimes of
-        //:     'result', and (f) the attribute values describing the expected
-        //:     local-time descriptor held by 'result'.  (C-1,2,3,4,5)
+        // 1. Using the table-driven technique:
+        //   1. Specify a set of values (one per row) including (a)
+        //      time zone id, (b) local time values to be passed in as input,
+        //      (c) DST policy passed in as input, (d) expected validity status
+        //      of the input local time, (e) start and end utc datetimes of
+        //      `result`, and (f) the attribute values describing the expected
+        //      local-time descriptor held by `result`.  (C-1,2,3,4,5)
         //
         // Testing:
-        //   'createLocalTimePeriod(Period *, TransitionConstIter, Zoneinfo)'
+        //   `createLocalTimePeriod(Period *, TransitionConstIter, Zoneinfo)`
         // --------------------------------------------------------------------
-        if (verbose) cout << "Testing 'createLocalTimePeriod'." << endl
+        if (verbose) cout << "Testing `createLocalTimePeriod`." << endl
                           << "================================" << endl;
 
         if (verbose) cout << "\nCreate a table of time zones to test." << endl;
@@ -1443,7 +1444,7 @@ int main(int argc, char *argv[])
                 }
 
                 // Double check that the descriptor of transition referred by
-                // 'it' has the same value then the one loaded in 'result'.
+                // `it` has the same value then the one loaded in `result`.
 
                 LOOP_ASSERT(DESC, it->descriptor() == DESC);
             }
@@ -1483,41 +1484,41 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'initLocalTime':
+        // CLASS METHOD `initLocalTime`:
         //
         // Concerns:
-        //: 1 The parameters are correctly forwarded to 'resolveLocalTime'.
-        //:
-        //: 2 Asserted precondition violations are detected when enabled.
-        //:
-        //: 3 Return 'Err::k_UNSUPPORTED_ID' if an invalid time zone id is
-        //:   passed.
-        //:
-        //: 4 Does not return 0 or 'Err::k_UNSUPPORTED_ID' if another error
-        //:   occurs.
+        // 1. The parameters are correctly forwarded to `resolveLocalTime`.
+        //
+        // 2. Asserted precondition violations are detected when enabled.
+        //
+        // 3. Return `Err::k_UNSUPPORTED_ID` if an invalid time zone id is
+        //    passed.
+        //
+        // 4. Does not return 0 or `Err::k_UNSUPPORTED_ID` if another error
+        //    occurs.
         //
         // Plan:
-        //: 1 Invoke 'initLocalTime' passing an invalid time zone id
-        //:   and check the result.  (C-3)
-        //:
-        //: 2 Invoke 'initLocalTime' passing an invalid time zone
-        //:   cache and check the result.  (C-4)
-        //:
-        //: 3 Using the table-driven technique:
-        //:
-        //:   1 Specify a set values (one per row), including (a) time zone id,
-        //:     (b) local time values to be passed in as input, (c) DST policy
-        //:     passed in as input, (d) the expected validity of the input
-        //:     time, and (e) the expected local time value to be loaded in the
-        //:     result (C-1).
-        //:
-        //: 4 Do negative testing to verify that asserts catch all the
-        //:   undefined behavior in the contract. (C-2)
+        // 1. Invoke `initLocalTime` passing an invalid time zone id
+        //    and check the result.  (C-3)
+        //
+        // 2. Invoke `initLocalTime` passing an invalid time zone
+        //    cache and check the result.  (C-4)
+        //
+        // 3. Using the table-driven technique:
+        //
+        //   1. Specify a set values (one per row), including (a) time zone id,
+        //      (b) local time values to be passed in as input, (c) DST policy
+        //      passed in as input, (d) the expected validity of the input
+        //      time, and (e) the expected local time value to be loaded in the
+        //      result (C-1).
+        //
+        // 4. Do negative testing to verify that asserts catch all the
+        //    undefined behavior in the contract. (C-2)
         //
         // Testing:
         //   'initLocalTime(DatetimeTz *, Datetime& , char *, Dst, Cache *)
         // --------------------------------------------------------------------
-        if (verbose) cout << "Testing 'initLocalTime'" << endl
+        if (verbose) cout << "Testing `initLocalTime`" << endl
                           << "=======================" << endl;
 
         if (verbose) cout << "\nTesting an invalid time zone id." << endl;
@@ -1560,9 +1561,9 @@ int main(int argc, char *argv[])
             ASSERT(0    != RC);
         }
 
-///Result of 'initLocalTime' for Various 'DstPolicy'  Values.
+///Result of `initLocalTime` for Various `DstPolicy`  Values.
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-//..
+// ```
 //                  (result format: "local time +- offset")
 // ,-----------------------------------------------------------------------.
 // | Input in New York  |                   DstPolicy                      |
@@ -1743,7 +1744,7 @@ int main(int argc, char *argv[])
         {
             bsls::AssertTestHandlerGuard hG;
 
-            if (veryVerbose) cout << "\tCLASS METHOD 'initLocalTime'" << endl;
+            if (veryVerbose) cout << "\tCLASS METHOD `initLocalTime`" << endl;
             {
                 const bdlt::Datetime   VALID_INPUT(2011, 04, 10);
 
@@ -1800,47 +1801,47 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'resolveLocalTime':
+        // CLASS METHOD `resolveLocalTime`:
         //
         // Concerns:
-        //: 1 The 'bdlt::DatetimeTz' value is correct.
-        //:
-        //: 2 The (output) validity of the input local time is correct.
-        //:
-        //: 3 The (output) iterator refers to a transition into the specified
-        //:   input 'baltzo::Zoneinfo' and the value of that transition is
-        //:   correct.
-        //:
-        //: 4 The (output) iterator refers to the specified input
-        //:   'baltzo::Zoneinfo'.
-        //:
-        //: 5 Asserted precondition violations are detected when enabled.
-        //:
-        //: 6 The correct transition and descriptor is applied for time zones
-        //:   for which the local time always with DST *on*, passing in
-        //:   different policies.
-        //:
-        //: 7 The correct transition and descriptor is applied for time zones
-        //:   for which the local time always with DST *off*, passing in
-        //:   different policies.
-        //:
-        //: 8 The correct transition and descriptor is applied for time zones
-        //:   that have only one transition to DST in the past, passing in
-        //:   different policies.
+        // 1. The `bdlt::DatetimeTz` value is correct.
+        //
+        // 2. The (output) validity of the input local time is correct.
+        //
+        // 3. The (output) iterator refers to a transition into the specified
+        //    input `baltzo::Zoneinfo` and the value of that transition is
+        //    correct.
+        //
+        // 4. The (output) iterator refers to the specified input
+        //    `baltzo::Zoneinfo`.
+        //
+        // 5. Asserted precondition violations are detected when enabled.
+        //
+        // 6. The correct transition and descriptor is applied for time zones
+        //    for which the local time always with DST *on*, passing in
+        //    different policies.
+        //
+        // 7. The correct transition and descriptor is applied for time zones
+        //    for which the local time always with DST *off*, passing in
+        //    different policies.
+        //
+        // 8. The correct transition and descriptor is applied for time zones
+        //    that have only one transition to DST in the past, passing in
+        //    different policies.
         //
         // Plan:
-        //: 1 Using the table-driven technique:
-        //:
-        //:   1 Specify a set values (one per row), including (a) time zone id,
-        //:     (b) local time values to be passed in as input, (c) DST policy
-        //:     passed in as input, (d) expected local-time result value, (e)
-        //:     the expected validity of the input time, and (f) the attribute
-        //:     values describing the expected local-time descriptor held by
-        //:     the transition to which the loaded (output) iterator refers.
-        //:     (C-1..4, 6..8)
-        //:
-        //: 2 Do negative testing to verify that asserts catch all the
-        //:   undefined behavior in the contract. (C-5)
+        // 1. Using the table-driven technique:
+        //
+        //   1. Specify a set values (one per row), including (a) time zone id,
+        //      (b) local time values to be passed in as input, (c) DST policy
+        //      passed in as input, (d) expected local-time result value, (e)
+        //      the expected validity of the input time, and (f) the attribute
+        //      values describing the expected local-time descriptor held by
+        //      the transition to which the loaded (output) iterator refers.
+        //      (C-1..4, 6..8)
+        //
+        // 2. Do negative testing to verify that asserts catch all the
+        //    undefined behavior in the contract. (C-5)
         //
         // Testing:
         //   'resolveLocalTime(...)
@@ -2422,35 +2423,35 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'convertUtcToLocalTime':
+        // CLASS METHOD `convertUtcToLocalTime`:
         //
         // Concerns:
-        //: 1 The parameters are correctly forwarded to
-        //:   'baltzo::ZoneinfoUtil::convertUtcToLocalTime'.
-        //:
-        //: 2 Return 'Err::k_UNSUPPORTED_ID' if an invalid time zone id is
-        //:   passed.
-        //:
-        //: 3 Does not return 0 or 'Err::k_UNSUPPORTED_ID' if another error
-        //:   occurs.
+        // 1. The parameters are correctly forwarded to
+        //    `baltzo::ZoneinfoUtil::convertUtcToLocalTime`.
+        //
+        // 2. Return `Err::k_UNSUPPORTED_ID` if an invalid time zone id is
+        //    passed.
+        //
+        // 3. Does not return 0 or `Err::k_UNSUPPORTED_ID` if another error
+        //    occurs.
         //
         // Plan:
-        //: 1 Invoke 'convertUtcToLocalTime' passing an invalid time zone id
-        //:   and check the result.  (C-6)
-        //:
-        //: 2 Invoke 'convertUtcToLocalTime' passing an invalid time zone
-        //:   cache and check the result.  (C-7)
-        //:
-        //: 3 Using the table-driven technique:
-        //:   1 Specify a set values (one per row), including (a)
-        //:     time zone id, (b) UTC time values to be passed in as input,
-        //:     and (c) the expected local time value to be loaded in the
-        //:     result (C-1).
+        // 1. Invoke `convertUtcToLocalTime` passing an invalid time zone id
+        //    and check the result.  (C-6)
+        //
+        // 2. Invoke `convertUtcToLocalTime` passing an invalid time zone
+        //    cache and check the result.  (C-7)
+        //
+        // 3. Using the table-driven technique:
+        //   1. Specify a set values (one per row), including (a)
+        //      time zone id, (b) UTC time values to be passed in as input,
+        //      and (c) the expected local time value to be loaded in the
+        //      result (C-1).
         //
         // Testing:
         //   'convertUtcToLocalTime(DatetimeTz *, char *,  Datetime&, Cache *)
         // --------------------------------------------------------------------
-        if (verbose) cout << endl << "'convertUtcToLocalTime'" << endl
+        if (verbose) cout << endl << "`convertUtcToLocalTime`" << endl
                                   << "=======================" << endl;
 
         if (veryVerbose) cout << "\tTesting an invalid time zone id." << endl;
@@ -2585,7 +2586,7 @@ int main(int argc, char *argv[])
             bsls::AssertTestHandlerGuard hG;
 
             if (veryVerbose) cout <<
-                             "\tCLASS METHOD 'convertUtcToLocalTime'" << endl;
+                             "\tCLASS METHOD `convertUtcToLocalTime`" << endl;
             {
                 bdlt::DatetimeTz result;
                 bdlt::Datetime   utcTime(2011, 04, 10);
@@ -2742,9 +2743,9 @@ int main(int argc, char *argv[])
             }
 
 
-///Result of 'initLocalTime' for Various 'DstPolicy'  Values.
+///Result of `initLocalTime` for Various `DstPolicy`  Values.
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-//..
+// ```
 //                  (result format: "local time +- offset")
 // ,-----------------------------------------------------------------------.
 // | Input in New York  |                   DstPolicy                      |

@@ -90,12 +90,12 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// A helper test class that helps testing the instantiation of
+/// `bdlb::NullOutputIterator` on a user-defined type.
+/// Note that the class is not required to have default constructor, copy
+/// constructor or assignment operator to be used as a value type for the
+/// `bdlb::NullOutputIterator`.
 class MyClass {
-    // A helper test class that helps testing the instantiation of
-    // 'bdlb::NullOutputIterator' on a user-defined type.
-    // Note that the class is not required to have default constructor, copy
-    // constructor or assignment operator to be used as a value type for the
-    // 'bdlb::NullOutputIterator'.
 
     int d_value;
 
@@ -114,15 +114,15 @@ class MyClass {
 //-----------------------------------------------------------------------------
 // This section illustrates intended use of this component.
 //
-/// Example 1: Basic Use of 'bdlb::NullOutputIterator'
+/// Example 1: Basic Use of `bdlb::NullOutputIterator`
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
-// In the following example we use a 'bdlb::NullOutputIterator' to enable us to
+// In the following example we use a `bdlb::NullOutputIterator` to enable us to
 // call a function to capture its return code, while ignoring the output
 // provided through an iterator.
 //
-// First, we define a function 'runningSum' that returns output both through an
+// First, we define a function `runningSum` that returns output both through an
 // output iterator and through a return status code:
-//..
+// ```
     template <class IN_ITER, class OUT_ITER>
     typename bsl::iterator_traits<OUT_ITER>::value_type
     runningSum(IN_ITER first, IN_ITER last, OUT_ITER output)
@@ -134,21 +134,21 @@ class MyClass {
         }
         return total;
     }
-//..
-// Now, we define a function 'average' that captures the total sum returned by
-// 'runningSum' and uses a 'bdlb::NullOutputIterator' to facilitate calling the
+// ```
+// Now, we define a function `average` that captures the total sum returned by
+// `runningSum` and uses a `bdlb::NullOutputIterator` to facilitate calling the
 // function, and ignoring the output it provides through its output iterator
 // parameter:
-//..
+// ```
     int average(const int values[], int numValues)
     {
         // ... input validation elided ...
         return runningSum(values, values + numValues,
                           bdlb::NullOutputIterator<int>()) / numValues;
     }
-//..
-// Finally, we invoke function 'average' on user array and validate result.
-//..
+// ```
+// Finally, we invoke function `average` on user array and validate result.
+// ```
     void usageExample()
     {
         const int myArray[5] = { 3, 4, 5, 7, 11 };
@@ -156,7 +156,7 @@ class MyClass {
         int averageValue = average(myArray, 5);
         ASSERT( averageValue == 6 );
     }
-//..
+// ```
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -182,13 +182,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -206,23 +206,23 @@ int main(int argc, char *argv[])
 
       case 3: {
         // --------------------------------------------------------------------
-        // BASIC TEST 'bdlb::NullOutputIterator'
+        // BASIC TEST `bdlb::NullOutputIterator`
         //   This case exercises all methods.
         //
         // Concerns:
-        //: 1 The default constructor can create an object.
-        //:
-        //: 2 The copy constructor can create a copy of the object.
-        //:
-        //: 3 Assignment assigns the value of the original object.
-        //:
-        //: 4 The template can be instantiated for both basic types and
-        //:   user-defined classes.
-        //:
-        //: 5 The template correctly defines the iterator traits.
+        // 1. The default constructor can create an object.
+        //
+        // 2. The copy constructor can create a copy of the object.
+        //
+        // 3. Assignment assigns the value of the original object.
+        //
+        // 4. The template can be instantiated for both basic types and
+        //    user-defined classes.
+        //
+        // 5. The template correctly defines the iterator traits.
         //
         // Plan:
-        //: 1 Manually call different methods of the object. (C-1..5)
+        // 1. Manually call different methods of the object. (C-1..5)
         //
         // Testing:
         //   NullOutputIterator();
@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "BASIC TEST 'bdlb::NullOutputIterator'" << endl
+                          << "BASIC TEST `bdlb::NullOutputIterator`" << endl
                           << "=====================================" << endl;
 
         if (veryVerbose) cout << "\tTesting basic type" << endl;
@@ -280,19 +280,19 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // BASIC TEST 'bdlb::NullOutputIteratorAssignmentProxy'
+        // BASIC TEST `bdlb::NullOutputIteratorAssignmentProxy`
         //   This case exercises all methods.
         //
         // Concerns:
-        //: 1 The default constructor can create an object.
-        //:
-        //: 2 The template can be instantiated for both basic types and
-        //:   user-defined classes.
-        //:
-        //: 3 Assignment operator compiles.
-        //:
+        // 1. The default constructor can create an object.
+        //
+        // 2. The template can be instantiated for both basic types and
+        //    user-defined classes.
+        //
+        // 3. Assignment operator compiles.
+        //
         // Plan:
-        //: 1 Manually call different methods of the object. (C-1..3)
+        // 1. Manually call different methods of the object. (C-1..3)
         //
         // Testing:
         //   NullOutputIteratorAssignmentProxy();
@@ -301,7 +301,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-             << "BASIC TEST 'bdlb::NullOutputIteratorAssignmentProxy'" << endl
+             << "BASIC TEST `bdlb::NullOutputIteratorAssignmentProxy`" << endl
              << "====================================================" << endl;
 
         if (veryVerbose) cout << "\tTesting basic type" << endl;
@@ -329,11 +329,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Developer test sandbox. (C-1)
+        // 1. Developer test sandbox. (C-1)
         //
         // Testing:
         //   BREATHING TEST

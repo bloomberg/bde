@@ -21,16 +21,16 @@ using namespace bsl;
 //                                   Overview
 //                                   --------
 // Testing is divided into following two independent parts.
-// (1) Testing 'lookup' in [02].
+// (1) Testing `lookup` in [02].
 //
-// (2) Testing 'pushPrefix', 'lookupByPrefix' and 'popPrefix'.
+// (2) Testing `pushPrefix`, `lookupByPrefix` and `popPrefix`.
 //   It is further divided into following parts.
-//   First the primary manipulator 'pushPrefix' is tested.
+//   First the primary manipulator `pushPrefix` is tested.
 //
-//   The primary manipulator is used to test accessor 'lookupByPrefix'.
+//   The primary manipulator is used to test accessor `lookupByPrefix`.
 //
 //   The primary manipulator is used to test other manipulator
-//   'popPrefix'.
+//   `popPrefix`.
 // ----------------------------------------------------------------------------
 // CREATORS
 // [01] balxml::NamespaceRegistry(bslma::Allocator *allocator = 0);
@@ -93,8 +93,8 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // Allow compilation of individual test-cases (for test drivers that take a
-// very long time to compile).  Specify '-DSINGLE_TEST=<testcase>' to compile
-// only the '<testcase>' test case.
+// very long time to compile).  Specify `-DSINGLE_TEST=<testcase>` to compile
+// only the `<testcase>` test case.
 #define TEST_IS_ENABLED(num) (! defined(SINGLE_TEST) || SINGLE_TEST == (num))
 
 // ============================================================================
@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -166,38 +166,38 @@ int main(int argc, char *argv[])
 
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'lookupByPrefix':
-        //   Verify 'lookupByPrefix'.
+        // TESTING `lookupByPrefix`:
+        //   Verify `lookupByPrefix`.
         //
         // Concerns:
-        //   That 'lookupByPrefix' works correctly in various white-box
+        //   That `lookupByPrefix` works correctly in various white-box
         //   states.
         //
         // Plan:
         //   Create 3 prefixes P, P1 and P2.
         //
-        //   Lookup 'P' in the registry when registry is empty and then verify
+        //   Lookup `P` in the registry when registry is empty and then verify
         //   the result.
         //
-        //   Lookup 'P' in the registry when registry has [P] in it and
+        //   Lookup `P` in the registry when registry has [P] in it and
         //   then verify the result.
         //
-        //   Lookup 'P' in the registry when registry has [P1] in it
+        //   Lookup `P` in the registry when registry has [P1] in it
         //   and then verify the result.
         //
-        //   Lookup 'P' in the registry when registry has [P1, P2] in it
+        //   Lookup `P` in the registry when registry has [P1, P2] in it
         //   and then verify the result.
         //
-        //   Lookup 'P' in the registry when registry has [P, P2] in it
+        //   Lookup `P` in the registry when registry has [P, P2] in it
         //   and then verify the result.
         //
-        //   Lookup 'P' in the registry when registry has [P1, P] in it
+        //   Lookup `P` in the registry when registry has [P1, P] in it
         //   and then verify the result.
         //
         // Testing:
         //   int lookupByPrefix(const bsl::string& prefix) const;
         // --------------------------------------------------------------------
-        if (verbose) bsl::cout << "\nTESTING 'lookupByPrefix'"
+        if (verbose) bsl::cout << "\nTESTING `lookupByPrefix`"
                                << "\n========================" << bsl::endl;
 
         const bsl::string N  = "http://google.com/xml";
@@ -267,24 +267,24 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'pushPrefix':
-        //   Verify 'pushPrefix'.
+        // TESTING `pushPrefix`:
+        //   Verify `pushPrefix`.
         //
         // Concerns:
-        //   That 'pushPrefix' works correctly in various white-box
+        //   That `pushPrefix` works correctly in various white-box
         //   states.
         //
         // Plan:
-        //   invoke 'pushPrefix(P, N)' when neither P nor N exists in the
+        //   invoke `pushPrefix(P, N)` when neither P nor N exists in the
         //   registry and then verify the result.
         //
-        //   invoke 'pushPrefix(P, N)' when both P and N exist in the
+        //   invoke `pushPrefix(P, N)` when both P and N exist in the
         //   registry and P is associated with N and then verify the result.
         //
-        //   invoke 'pushPrefix(P, N)' when P exist in the registry but
+        //   invoke `pushPrefix(P, N)` when P exist in the registry but
         //   is associated with N1 and then verify the result.
         //
-        //   invoke 'pushPrefix(P, N)' when P exist in the registry but
+        //   invoke `pushPrefix(P, N)` when P exist in the registry but
         //   is associated with N1 and then verify the result.
         //
         // Testing:
@@ -292,7 +292,7 @@ int main(int argc, char *argv[])
         //                  const bslstl::StringRef& namespaceUri);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'pushPrefix'"
+        if (verbose) bsl::cout << "\nTESTING `pushPrefix`"
                                << "\n====================" << bsl::endl;
 
         const bsl::string N  = "http://google.com/xml";
@@ -303,7 +303,7 @@ int main(int argc, char *argv[])
         const bsl::string P1 = "pref1";
         const bsl::string P2 = "pref2";
 
-        // invoke 'pushPrefix(P, N)' when neither P nor N exists in the
+        // invoke `pushPrefix(P, N)` when neither P nor N exists in the
         // registry
         {
           bslma::TestAllocator ta(veryVeryVerbose);
@@ -314,7 +314,7 @@ int main(int argc, char *argv[])
           ASSERT(0 == z.lookupNamespaceId(P));
         }
 
-        // invoke 'pushPrefix(P, N)' when both P and N exist in the registry
+        // invoke `pushPrefix(P, N)` when both P and N exist in the registry
         // and P is associated with N
         {
           bslma::TestAllocator ta(veryVeryVerbose);
@@ -359,7 +359,7 @@ int main(int argc, char *argv[])
           ASSERT(1 == z.pushPrefix(P, N));
         }
 
-        // invoke 'pushPrefix(P, N)' when P exist in the registry but is
+        // invoke `pushPrefix(P, N)` when P exist in the registry but is
         // associated with N1
         {
           bslma::TestAllocator ta(veryVeryVerbose);
@@ -371,7 +371,7 @@ int main(int argc, char *argv[])
           ASSERT(1 == z.lookupNamespaceId(P));
         }
 
-        // invoke 'pushPrefix(P, N)' when N exist in the registry but
+        // invoke `pushPrefix(P, N)` when N exist in the registry but
         // N does not exist
         {
           bslma::TestAllocator ta(veryVeryVerbose);
@@ -386,39 +386,39 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'lookupNamespaceId':
-        //   Verify 'lookupNamespaceId'.
+        // TESTING `lookupNamespaceId`:
+        //   Verify `lookupNamespaceId`.
         //
         // Concerns:
-        //   That 'lookupNamespaceId' works correctly in various white-box
+        //   That `lookupNamespaceId` works correctly in various white-box
         //   states.
         //
         // Plan:
         //   Create 3 namespace N, N1 and N2.
         //
-        //   Lookup 'N' in the registry when registry is empty and then verify
+        //   Lookup `N` in the registry when registry is empty and then verify
         //   the result.
         //
-        //   Lookup 'N' in the registry when registry has [N] in it and
+        //   Lookup `N` in the registry when registry has [N] in it and
         //   then verify the result.
         //
-        //   Lookup 'N' in the registry when registry has [N1] in it
+        //   Lookup `N` in the registry when registry has [N1] in it
         //   and then verify the result.
         //
-        //   Lookup 'N' in the registry when registry has [N1, N2] in it
+        //   Lookup `N` in the registry when registry has [N1, N2] in it
         //   and then verify the result.
         //
-        //   Lookup 'N' in the registry when registry has [N, N2] in it
+        //   Lookup `N` in the registry when registry has [N, N2] in it
         //   and then verify the result.
         //
-        //   Lookup 'N' in the registry when registry has [N1, N] in it
+        //   Lookup `N` in the registry when registry has [N1, N] in it
         //   and then verify the result.
         //
         // Testing:
         //   int lookupNamespaceId(const bslstl::StringRef& namespaceUri);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'lookupNamespaceId'"
+        if (verbose) bsl::cout << "\nTESTING `lookupNamespaceId`"
                                << "\n===========================" << bsl::endl;
 
         const bsl::string N  = "http://google.com/xml";
@@ -499,21 +499,21 @@ int main(int argc, char *argv[])
         //   Create 3 namespaces N1, N2, N3, 3 prefixes P1, P2, P3 and a
         //   registry x.
         //
-        //   Invoke  'lookup' (3 times) on registry passing N1, N2 and N3 and
-        //   verify the result.  Invoke 'lookup' again (3 times) on
+        //   Invoke  `lookup` (3 times) on registry passing N1, N2 and N3 and
+        //   verify the result.  Invoke `lookup` again (3 times) on
         //   registry passing N1, N2 and N3 and verify the result.
         //
-        //   Invoke 'z.pushPrefix(P1, N1)' and verify the result.
-        //   Invoke 'z.pushPrefix(P2, N2)' and verify the result.
-        //   Invoke 'z.pushPrefix(P3, N3)' and verify the result.
+        //   Invoke `z.pushPrefix(P1, N1)` and verify the result.
+        //   Invoke `z.pushPrefix(P2, N2)` and verify the result.
+        //   Invoke `z.pushPrefix(P3, N3)` and verify the result.
         //
-        //   Invoke 'z.lookupNamespaceId(P1, N1)' and verify the result.
-        //   Invoke 'z.lookupNamespaceId(P2, N2)' and verify the result.
-        //   Invoke 'z.lookupNamespaceId(P3, N3)' and verify the result.
+        //   Invoke `z.lookupNamespaceId(P1, N1)` and verify the result.
+        //   Invoke `z.lookupNamespaceId(P2, N2)` and verify the result.
+        //   Invoke `z.lookupNamespaceId(P3, N3)` and verify the result.
         //
         //   Now unregister P1, P2 and P3.  Invoke 'z.lookupNamespaceId(P1,
-        //   N1)' and verify the result.  Invoke 'z.lookupNamespaceId(P2, N2)'
-        //   and verify the result.  Invoke 'z.lookupNamespaceId(P3, N3)' and
+        //   N1)` and verify the result.  Invoke `z.lookupNamespaceId(P2, N2)'
+        //   and verify the result.  Invoke `z.lookupNamespaceId(P3, N3)` and
         //   verify the result.
         //
         // Testing:

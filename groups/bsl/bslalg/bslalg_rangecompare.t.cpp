@@ -37,19 +37,19 @@ using namespace std;
 // This component provides equality and less-than comparisons on ranges given
 // by start and end iterators and, optionally, length, all of parameterizable
 // types.  Where length is not provided, the component either calculates it (in
-// cases where the iterator is convertible to a 'const VALUE_TYPE *') or falls
+// cases where the iterator is convertible to a `const VALUE_TYPE *`) or falls
 // back on an inferior implementation requiring two tests per loop iteration,
 // instead of one (in cases where the iterator is not convertible to a
-// 'const VALUE_TYPE *').
+// `const VALUE_TYPE *`).
 //
-// The implementation uses traits to efficiently forward to 'std::memcmp' or
-// 'std::wmemcmp'.  All fundamental and pointer types have the bit-wise
+// The implementation uses traits to efficiently forward to `std::memcmp` or
+// `std::wmemcmp`.  All fundamental and pointer types have the bit-wise
 // equality-comparable trait.  The concerns range from correctness of
 // implementation to correct selection of traits.  There is no memory
 // allocation and therefore there are no exception-related concerns in this
 // component.  We address this with two custom test types, one that has the
-// bit-wise equality-comparable trait and does not define 'operator==' (to
-// ensure that it will not be compiled), and another that has an 'operator=='
+// bit-wise equality-comparable trait and does not define `operator==` (to
+// ensure that it will not be compiled), and another that has an `operator==`
 // but no trait.  Finally, in order to trigger instantiation of all possible
 // overloads, we wrap the range pointers into an iterator type that is *not*
 // convertible to the pointer.
@@ -203,14 +203,14 @@ void dbg_print(bsls::Types::Uint64 val)
 inline
 void dbg_print(float val)
 {
-    printf("'%f'", (double)val);
+    printf("`%f`", (double)val);
     fflush(stdout);
 }
 
 inline
 void dbg_print(double val)
 {
-    printf("'%f'", val);
+    printf("`%f`", val);
     fflush(stdout);
 }
 
@@ -232,66 +232,68 @@ void dbg_print(const void  *p)
 //                     TEST APPARATUS FOR USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-// Define one container type, 'MyContainer', and two value-semantic types,
-// 'MyString' and 'MyPoint', suitable for implementing the usage example.
+// Define one container type, `MyContainer`, and two value-semantic types,
+// `MyString` and `MyPoint`, suitable for implementing the usage example.
 // These classes use the standard BDE allocator model, however the
 // bslalg_scalarprimitives package is not available to bslalg_rangecompare, so
-// we also implement an elided struct 'ScalarPrimitives' to provide equivalent
+// we also implement an elided struct `ScalarPrimitives` to provide equivalent
 // functionality.
 
                         // =======================
                         // struct ScalarPrimitives
                         // =======================
 
+/// This `struct` provides a namespace for an elided suite of utility
+/// functions that operate on elements of (template parameter) type
+/// `TARGET_TYPE`.  The functions provided allow us to call the copy
+/// constructor or destructor of `TARGET_TYPE`, correctly taking into
+/// account whether or not `TARGET_TYPE` uses a `bslma::Allocator`.
 struct ScalarPrimitives {
-    // This 'struct' provides a namespace for an elided suite of utility
-    // functions that operate on elements of (template parameter) type
-    // 'TARGET_TYPE'.  The functions provided allow us to call the copy
-    // constructor or destructor of 'TARGET_TYPE', correctly taking into
-    // account whether or not 'TARGET_TYPE' uses a 'bslma::Allocator'.
 
   private:
     // PRIVATE CLASS METHODS
+
+    /// Build an object of the (template parameter) type `TARGET_TYPE`,
+    /// which does not use a `bslma::Allocator`, from the specified
+    /// `original` object of the same `TARGET_TYPE` in the uninitialized
+    /// memory at the specified `address`, as if by using the copy
+    /// constructor of `TARGET_TYPE`.
     template <class TARGET_TYPE>
     static void doCopyConstruct(TARGET_TYPE         *address,
                                 const TARGET_TYPE&   original,
                                 bslma::Allocator    *allocator,
                                 bsl::false_type);
-        // Build an object of the (template parameter) type 'TARGET_TYPE',
-        // which does not use a 'bslma::Allocator', from the specified
-        // 'original' object of the same 'TARGET_TYPE' in the uninitialized
-        // memory at the specified 'address', as if by using the copy
-        // constructor of 'TARGET_TYPE'.
 
+    /// Build an object of the (template parameter) type `TARGET_TYPE`,
+    /// which uses a `bslma::Allocator`, from the specified `original`
+    /// object of the same `TARGET_TYPE` in the uninitialized memory at the
+    /// specified `address`, as if by using the copy constructor of
+    /// `TARGET_TYPE`.
     template <class TARGET_TYPE>
     static void doCopyConstruct(TARGET_TYPE         *address,
                                 const TARGET_TYPE&   original,
                                 bslma::Allocator    *allocator,
                                 bsl::true_type);
-        // Build an object of the (template parameter) type 'TARGET_TYPE',
-        // which uses a 'bslma::Allocator', from the specified 'original'
-        // object of the same 'TARGET_TYPE' in the uninitialized memory at the
-        // specified 'address', as if by using the copy constructor of
-        // 'TARGET_TYPE'.
 
   public:
     // CLASS METHODS
+
+    /// Build an object of (template parameter) type `TARGET_TYPE` from the
+    /// specified `original` object of the same `TARGET_TYPE` in the
+    /// uninitialized memory at the specified `address`, as if by using the
+    /// copy constructor of `TARGET_TYPE`.  If the constructor throws, the
+    /// `address` is left in an uninitialized state.
     template <class TARGET_TYPE>
     static void copyConstruct(TARGET_TYPE        *address,
                               const TARGET_TYPE&  original,
                               bslma::Allocator   *allocator);
-        // Build an object of (template parameter) type 'TARGET_TYPE' from the
-        // specified 'original' object of the same 'TARGET_TYPE' in the
-        // uninitialized memory at the specified 'address', as if by using the
-        // copy constructor of 'TARGET_TYPE'.  If the constructor throws, the
-        // 'address' is left in an uninitialized state.
 
+    /// Destroy the specified `object` of (template parameter) type
+    /// `TARGET_TYPE`, as if by calling the `TARGET_TYPE` destructor, but do
+    /// not deallocate the memory occupied by `object`.  Note that the
+    /// destructor may deallocate other memory owned by `object`.
     template <class TARGET_TYPE>
     static void destroy(TARGET_TYPE *object);
-        // Destroy the specified 'object' of (template parameter) type
-        // 'TARGET_TYPE', as if by calling the 'TARGET_TYPE' destructor, but do
-        // not deallocate the memory occupied by 'object'.  Note that the
-        // destructor may deallocate other memory owned by 'object'.
 };
 
 template <class TARGET_TYPE>
@@ -351,34 +353,34 @@ void ScalarPrimitives::destroy<int>(int *object)
 //
 ///Example 1: Defining Equality Comparison Operators on a Container
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example we will use the 'bslalg::RangeCompare::equal' class method
+// In this example we will use the `bslalg::RangeCompare::equal` class method
 // to implement the equality comparison operators for an iterable container
-// type residing in the 'bslstl' package, and highlight the circumstances under
+// type residing in the `bslstl` package, and highlight the circumstances under
 // which the optimization provided by the class method may be applied.
 //
 // Suppose that we have a new iterable container type that will be included in
-// the 'bslstl' package, and we wish to define comparison operators for the
+// the `bslstl` package, and we wish to define comparison operators for the
 // container.  If the container has an iterator that provides access to the
 // container's elements in a consistent order, and the elements themselves are
 // equality-comparable, we can implement the container's equality comparison
 // operators by pair-wise comparing each of the elements over the entire range
 // of elements in both containers.  In such cases the container can use the
-// 'bslalg::RangeCompare::equal' class method to equal-compare the container's
+// `bslalg::RangeCompare::equal` class method to equal-compare the container's
 // elements, taking advantage of the optimizations the class method provides
 // for bit-wise equality-comparable objects.
 //
-// First, we create an elided definition of a container class, 'MyContainer',
-// which provides read-only iterators of the type 'MyContainer::ConstIterator':
-//..
+// First, we create an elided definition of a container class, `MyContainer`,
+// which provides read-only iterators of the type `MyContainer::ConstIterator`:
+// ```
                         // =================
                         // class MyContainer
                         // =================
 
+/// This class implements a container, semantically similar to
+/// `std::vector`, holding objects of the (template parameter) type
+/// `VALUE_TYPE`.
 template <class VALUE_TYPE>
 class MyContainer {
-    // This class implements a container, semantically similar to
-    // 'std::vector', holding objects of the (template parameter) type
-    // 'VALUE_TYPE'.
 
   private:
     // DATA
@@ -398,52 +400,56 @@ class MyContainer {
 
   public:
     // PUBLIC TYPES
+
+    /// This `typedef` provides an alias for the type of iterator
+    /// providing non-modifiable access to the elements in the
+    /// container.
     typedef const VALUE_TYPE *ConstIterator;
-        // This 'typedef' provides an alias for the type of iterator
-        // providing non-modifiable access to the elements in the
-        // container.
 
     // CREATORS
-    explicit MyContainer(bslma::Allocator *basicAllocator = 0);
-        // Create an empty 'MyContainer' object having no capacity.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator
-        // is used.
 
+    /// Create an empty `MyContainer` object having no capacity.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator
+    /// is used.
+    explicit MyContainer(bslma::Allocator *basicAllocator = 0);
+
+    /// Create an empty `MyContainer` object having a capacity equal to
+    /// the specified `capacity`.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
     explicit MyContainer(std::size_t capacity,
                          bslma::Allocator *basicAllocator = 0);
-        // Create an empty 'MyContainer' object having a capacity equal to
-        // the specified 'capacity'.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
 
+    /// Destroy this object.
     ~MyContainer();
-        // Destroy this object.
 
     // MANIPULATORS
-    void reserve(std::size_t newCapacity);
-        // Change the capacity of this vector to the specified
-        // 'newCapacity'.  Note that the capacity of a vector is the
-        // maximum number of elements it can accommodate without
-        // reallocation.  The actual storage allocated may be higher.
 
+    /// Change the capacity of this vector to the specified
+    /// `newCapacity`.  Note that the capacity of a vector is the
+    /// maximum number of elements it can accommodate without
+    /// reallocation.  The actual storage allocated may be higher.
+    void reserve(std::size_t newCapacity);
+
+    /// Append the specified `value` at the past-the-end position in
+    /// this container, increasing the container's capacity if needed.
     void push_back(const VALUE_TYPE& value);
-        // Append the specified 'value' at the past-the-end position in
-        // this container, increasing the container's capacity if needed.
 
     // ...
 
     // ACCESSORS
+
+    /// Return an iterator providing non-modifiable access to the first
+    /// element in this container.
     ConstIterator begin() const;
-        // Return an iterator providing non-modifiable access to the first
-        // element in this container.
 
+    /// Return an iterator providing non-modifiable access to the
+    /// past-the-end element in this container.
     ConstIterator end() const;
-        // Return an iterator providing non-modifiable access to the
-        // past-the-end element in this container.
 
+    /// Return the number of elements in this container.
     std::size_t size() const;
-        // Return the number of elements in this container.
 
     // ...
 };
@@ -564,33 +570,34 @@ std::size_t MyContainer<VALUE_TYPE>::size() const
 {
     return d_size;
 }
-//..
-// Notice that 'ConstIterator' is defined as a pointer type, which is one of
+// ```
+// Notice that `ConstIterator` is defined as a pointer type, which is one of
 // the criteria required to enable the optimizations provided by the
-// 'bslalg::RangeCompare::equal' class method.
+// `bslalg::RangeCompare::equal` class method.
 //
-// Then, we declare the equality comparison operators for 'MyContainer':
-//..
+// Then, we declare the equality comparison operators for `MyContainer`:
+// ```
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `MyContainer` objects have the
+/// same value if they have the same length, and each element in `lhs`
+/// has the same value as the corresponding element in `rhs`.
 template <class VALUE_TYPE>
 bool operator==(const MyContainer<VALUE_TYPE>& lhs,
                 const MyContainer<VALUE_TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'MyContainer' objects have the
-    // same value if they have the same length, and each element in 'lhs'
-    // has the same value as the corresponding element in 'rhs'.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have
+/// the same value, and `false` otherwise.  Two `MyContainer` objects do
+/// not have the same value if they do not have the same length, or if
+/// any element in `lhs` does not have the same value as the
+/// corresponding element in `rhs`.
 template <class VALUE_TYPE>
 bool operator!=(const MyContainer<VALUE_TYPE>& lhs,
                 const MyContainer<VALUE_TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have
-    // the same value, and 'false' otherwise.  Two 'MyContainer' objects do
-    // not have the same value if they do not have the same length, or if
-    // any element in 'lhs' does not have the same value as the
-    // corresponding element in 'rhs'.
-//..
+// ```
 // Next, we implement the equality comparison operators using
-// 'bslalg::RangeCompare::equal':
-//..
+// `bslalg::RangeCompare::equal`:
+// ```
 template <class VALUE_TYPE>
 inline
 bool operator==(const MyContainer<VALUE_TYPE>& lhs,
@@ -616,17 +623,17 @@ bool operator!=(const MyContainer<VALUE_TYPE>& lhs,
                                                      rhs.end(),
                                                      rhs.size());
 }
-//..
-// Then, we create the elided definition of a value-semantic class, 'MyString',
-// together with its definition of 'operator==':
-//..
+// ```
+// Then, we create the elided definition of a value-semantic class, `MyString`,
+// together with its definition of `operator==`:
+// ```
                               // ==============
                               // class MyString
                               // ==============
 
+/// This class provides a simple, elided string class that conforms to
+/// the `bslma::Allocator` model.
 class MyString {
-    // This class provides a simple, elided string class that conforms to
-    // the 'bslma::Allocator' model.
 
   private:
     // DATA
@@ -635,9 +642,10 @@ class MyString {
     bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
 
     // PRIVATE MANIPULATORS
+
+    /// Assign the value of the specified `sourceStr`, of length
+    /// `length`, to this `MyString` object.
     void set(const char *sourceStr, std::size_t length);
-        // Assign the value of the specified 'sourceStr', of length
-        // 'length', to this 'MyString' object.
 
     // FRIENDS
     friend bool operator==(const MyString&, const MyString&);
@@ -649,48 +657,51 @@ class MyString {
                                    BloombergLP::bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create a `MyString` object initialized to the value of the
+    /// specified `string`.  Optionally specify a `basicAllocator` used
+    /// to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
     explicit MyString(const char       *string,
                       bslma::Allocator *basicAllocator = 0);
-        // Create a 'MyString' object initialized to the value of the
-        // specified 'string'.  Optionally specify a 'basicAllocator' used
-        // to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
 
+    /// Create a `MyString` object initialized to the value of the
+    /// specified `original` `MyString`.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+    /// 0, the currently installed default allocator is used.
     MyString(const MyString&   original,
              bslma::Allocator *basicAllocator = 0);
-        // Create a 'MyString' object initialized to the value of the
-        // specified 'original' 'MyString'.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-        // 0, the currently installed default allocator is used.
 
+    /// Destroy this object.
     ~MyString();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object,
+    /// and return a reference providing modifiable access to this
+    /// object.
     MyString& operator=(const MyString& rhs);
-        // Assign to this object the value of the specified 'rhs' object,
-        // and return a reference providing modifiable access to this
-        // object.
 
     // ACCESSORS
-    const char *c_str() const;
-        // Return a null-terminated byte string representing the value of
-        // this 'MyString'.
 
+    /// Return a null-terminated byte string representing the value of
+    /// this `MyString`.
+    const char *c_str() const;
+
+    /// Return the number of characters in this `MyString`.
     std::size_t length() const;
-        // Return the number of characters in this 'MyString'.
 };
 
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `MyString` objects have the same
+/// value if the strings they represent are lexicographically equal.
 bool operator==(const MyString& lhs, const MyString& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'MyString' objects have the same
-    // value if the strings they represent are lexicographically equal.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have
+/// the same value, and `false` otherwise.  Two `MyString` objects do
+/// not have the same value if the strings they represent are not
+/// lexicographically equal.
 bool operator!=(const MyString& lhs, const MyString& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have
-    // the same value, and 'false' otherwise.  Two 'MyString' objects do
-    // not have the same value if the strings they represent are not
-    // lexicographically equal.
 
 MyString::MyString(const char *sourceStr, bslma::Allocator *basicAllocator)
 : d_start_p(0)
@@ -751,14 +762,14 @@ bool operator!=(const MyString& lhs, const MyString& rhs)
 {
     return ! (lhs == rhs);
 }
-//..
-// Notice that 'MyString' is not bit-wise comparable because the address values
-// of the 'd_start_p' pointer data members in two 'MyString' objects will be
+// ```
+// Notice that `MyString` is not bit-wise comparable because the address values
+// of the `d_start_p` pointer data members in two `MyString` objects will be
 // different, even if the string values of the two objects are the same.
 //
-// Next, we create two 'MyContainer<MyString>' objects, and compare them using
-// 'operator==':
-//..
+// Next, we create two `MyContainer<MyString>` objects, and compare them using
+// `operator==`:
+// ```
 void usageTestMyString()
 {
     MyContainer<MyString> c1;
@@ -772,21 +783,21 @@ void usageTestMyString()
 
     ASSERT(c1 == c2);
 }
-//..
-// Here, the call to the 'bslalg::RangeCompare::equal' class method in
-// 'operator==' will perform an unoptimized pair-wise comparison of the
-// elements in 'c1' and 'c2'.
+// ```
+// Here, the call to the `bslalg::RangeCompare::equal` class method in
+// `operator==` will perform an unoptimized pair-wise comparison of the
+// elements in `c1` and `c2`.
 //
 // Then, we create the elided definition of another value-semantic class,
-// 'MyPoint', together with its definition of 'operator==':
-//..
+// `MyPoint`, together with its definition of `operator==`:
+// ```
                               // =============
                               // class MyPoint
                               // =============
 
+/// This class provides a simple, elided point type that is bit-wise
+/// comparable with other objects of the same type.
 class MyPoint {
-    // This class provides a simple, elided point type that is bit-wise
-    // comparable with other objects of the same type.
 
   private:
     // DATA
@@ -803,35 +814,37 @@ class MyPoint {
                           BloombergLP::bslmf::IsBitwiseEqualityComparable);
 
     // CREATORS
-    MyPoint(int x, int y);
-        // Create a 'MyPoint' object whose x- and y-coordinates have the
-        // specified 'x' and 'y' values, respectively.
 
+    /// Create a `MyPoint` object whose x- and y-coordinates have the
+    /// specified `x` and `y` values, respectively.
+    MyPoint(int x, int y);
+
+    /// Create a `MyPoint` object initialized to the same value as the
+    /// specified `original`.
     MyPoint(const MyPoint& original);
-        // Create a 'MyPoint' object initialized to the same value as the
-        // specified 'original'.
 
     // ...
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object,
+    /// and return a reference providing modifiable access to this
+    /// object.
     MyPoint& operator=(const MyPoint& rhs);
-        // Assign to this object the value of the specified 'rhs' object,
-        // and return a reference providing modifiable access to this
-        // object.
 };
 
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `MyPoint` objects have the same value
+/// if the x-coordinate and y-coordinate of one object have the same values
+/// as the corresponding coordinates of the other object.
 bool operator==(const MyPoint& lhs, const MyPoint& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'MyPoint' objects have the same value
-    // if the x-coordinate and y-coordinate of one object have the same values
-    // as the corresponding coordinates of the other object.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `MyPoint` objects do not have
+/// the same value if either the x-coordinate or y-coordinate of one object
+/// does not have the same value as the cooresponding coordinate of the
+/// other object.
 bool operator!=(const MyPoint& lhs, const MyPoint& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'MyPoint' objects do not have
-    // the same value if either the x-coordinate or y-coordinate of one object
-    // does not have the same value as the cooresponding coordinate of the
-    // other object.
 
 MyPoint::MyPoint(int x, int y)
 : d_x(x)
@@ -862,17 +875,17 @@ bool operator!=(const MyPoint& lhs, const MyPoint& rhs)
 {
     return !(lhs == rhs);
 }
-//..
-// Notice that the value of a 'MyPoint' object derives from the values of all
+// ```
+// Notice that the value of a `MyPoint` object derives from the values of all
 // of its data members, and that no padding is required for alignment.
-// Furthermore, 'MyPoint' has no virtual methods.  Therefore, 'MyPoint' objects
+// Furthermore, `MyPoint` has no virtual methods.  Therefore, `MyPoint` objects
 // are bit-wise comparable, and we can correctly declare the
-// 'bslmf::IsBitwiseEqualityComparable' trait for the class, as shown
-// above under the public 'TRAITS' section.
+// `bslmf::IsBitwiseEqualityComparable` trait for the class, as shown
+// above under the public `TRAITS` section.
 //
-// Now, we create two 'MyContainer<MyPoint>' objects and compare them using
-// 'operator==':
-//..
+// Now, we create two `MyContainer<MyPoint>` objects and compare them using
+// `operator==`:
+// ```
 void usageTestMyPoint()
 {
     MyContainer<MyPoint> c3;
@@ -886,21 +899,21 @@ void usageTestMyPoint()
 
     ASSERT(c3 == c4);
 }
-//..
-// Here, the call to 'bslalg::RangeCompare::equal' in 'operator==' may take
-// advantage of the fact that 'MyPoint' is bit-wise comparable and perform the
+// ```
+// Here, the call to `bslalg::RangeCompare::equal` in `operator==` may take
+// advantage of the fact that `MyPoint` is bit-wise comparable and perform the
 // comparison by directly bit-wise comparing the entire range of elements
-// contained in the 'MyContainer<MyPoint>' objects.  This comparison can
+// contained in the `MyContainer<MyPoint>` objects.  This comparison can
 // provide a significant performance boost over the comparison between two
-// 'MyContainer<MyPoint>' objects in which the nested
-// 'bslmf::IsBitwiseEqualityComparable' trait is not associated with the
-// 'MyPoint' class.
+// `MyContainer<MyPoint>` objects in which the nested
+// `bslmf::IsBitwiseEqualityComparable` trait is not associated with the
+// `MyPoint` class.
 //
-// Finally, note that we can instantiate 'MyContainer' with 'int' or any other
-// primitive type as the 'VALUE_TYPE' and still benefit from the optimized
+// Finally, note that we can instantiate `MyContainer` with `int` or any other
+// primitive type as the `VALUE_TYPE` and still benefit from the optimized
 // comparison operators, because primitive (i.e.: fundamental, enumerated, and
 // pointer) types are inherently bit-wise comparable:
-//..
+// ```
 void usageTestInt()
 {
     MyContainer<int> c5;
@@ -934,10 +947,10 @@ typedef bslalg::RangeCompare   Obj;
                         // class NonBitwiseWithOpEqual
                         // ===========================
 
+/// Class that doesn't have the bit-wise equality-comparable traits, but has
+/// an `operator==`.  In order to catch bit-wise comparison, we stuff
+/// padding with an extra byte filled with a random value.
 class NonBitwiseWithOpEqual {
-    // Class that doesn't have the bit-wise equality-comparable traits, but has
-    // an 'operator=='.  In order to catch bit-wise comparison, we stuff
-    // padding with an extra byte filled with a random value.
 
     // CLASS DATA
     static char d_seed;
@@ -993,9 +1006,9 @@ bool operator< (const NonBitwiseWithOpEqual& lhs,
                            // class BitWiseNoOpEqual
                            // ======================
 
+/// Class that has the bit-wise equality-comparable traits, and no
+/// `operator==`.
 class BitWiseNoOpEqual {
-    // Class that has the bit-wise equality-comparable traits, and no
-    // 'operator=='.
 
     // DATA
     char d_char;
@@ -1038,9 +1051,9 @@ bool operator<(const BitWiseNoOpEqual& lhs, const BitWiseNoOpEqual& rhs)
                  // class CharEquivalentNonBitwiseWithOpEqual
                  // =========================================
 
+/// Class that doesn't have the bit-wise equality-comparable traits, but has
+/// an `operator==` *and* is convertible to char.
 class CharEquivalentNonBitwiseWithOpEqual : public NonBitwiseWithOpEqual {
-    // Class that doesn't have the bit-wise equality-comparable traits, but has
-    // an 'operator==' *and* is convertible to char.
 
   public:
     // CREATORS
@@ -1086,11 +1099,11 @@ bool operator< (const CharEquivalentNonBitwiseWithOpEqual& lhs,
                              // class my_Iterator
                              // =================
 
+/// This class provides a bare-bones wrapper around a pointer to (template
+/// parameter) type `TYPE` that is enough to apply the `equal` and
+/// `lexicographical` algorithms for generic iterators.
 template <class TYPE>
 class my_Iterator {
-    // This class provides a bare-bones wrapper around a pointer to (template
-    // parameter) type 'TYPE' that is enough to apply the 'equal' and
-    // 'lexicographical' algorithms for generic iterators.
 
     // DATA
     const TYPE *d_value_p;
@@ -1105,23 +1118,26 @@ class my_Iterator {
     // CREATORS
     explicit
     my_Iterator(const TYPE *pointer);
-    // Create an iterator storing the specified 'pointer'.
 
     // MANIPULATORS
+
+    /// Increment this iterator, and return a modifiable reference to it.
     my_Iterator& operator++();
-        // Increment this iterator, and return a modifiable reference to it.
 
     // ACCESSORS
-    const TYPE& operator*() const;
-        // Return a reference to the non-modifiable element pointed to by this
-        // iterator.
 
+    /// Return a reference to the non-modifiable element pointed to by this
+    /// iterator.
+    const TYPE& operator*() const;
+
+    /// Return the address to the non-modifiable element pointed to by this
+    /// iterator.
     const TYPE *valuePtr() const;
-        // Return the address to the non-modifiable element pointed to by this
-        // iterator.
 };
 
 // CREATORS
+
+/// Create an iterator storing the specified `pointer`.
 template <class TYPE>
 my_Iterator<TYPE>::my_Iterator(const TYPE *iter)
 : d_value_p(iter)
@@ -1163,28 +1179,28 @@ bool operator!=(const my_Iterator<TYPE>& lhs, const my_Iterator<TYPE>& rhs)
 }
 
 //=============================================================================
-//              GENERATOR FUNCTIONS 'gg' AND 'ggg' FOR TESTING
+//              GENERATOR FUNCTIONS `gg` AND `ggg` FOR TESTING
 //-----------------------------------------------------------------------------
-// The following functions interpret the given 'spec' in order from left to
+// The following functions interpret the given `spec` in order from left to
 // right to configure an array according to a custom language.  Letters
 // [a .. z, A .. Z] correspond to the corresponding char values used to
-// initialize elements of an array of 'T' objects.
+// initialize elements of an array of `T` objects.
 
 enum { GGG_SUCCESS = -1 };
 
+/// Configure the specified `array` of objects of (template parameter) type
+/// `TYPE` (assumed to be uninitialized) according to the specified `spec`.
+/// Optionally specify a zero `verboseFlag` to suppress `spec` syntax error
+/// messages.  Return the index of the first invalid character, and a
+/// negative value otherwise.  Note that this function is used to implement
+/// `gg` as well as allow for verification of syntax error detection.
 template <class TYPE>
 int ggg(TYPE *array, const char *spec, int verboseFlag = 1)
-    // Configure the specified 'array' of objects of (template parameter) type
-    // 'TYPE' (assumed to be uninitialized) according to the specified 'spec'.
-    // Optionally specify a zero 'verboseFlag' to suppress 'spec' syntax error
-    // messages.  Return the index of the first invalid character, and a
-    // negative value otherwise.  Note that this function is used to implement
-    // 'gg' as well as allow for verification of syntax error detection.
 {
     for (int i = 0; spec[i]; ++i, ++array) {
         if (!isalpha(spec[i])) {
             if (verboseFlag) {
-                printf("Error, bad character ('%c') in spec \"%s\""
+                printf("Error, bad character (`%c`) in spec \"%s\""
                        " at position %d.\n", spec[i], spec, i);
             }
             return i;                                                 // RETURN
@@ -1195,11 +1211,11 @@ int ggg(TYPE *array, const char *spec, int verboseFlag = 1)
     return GGG_SUCCESS;
 }
 
+/// Return a reference to the modifiable first element of the specified
+/// `array` after the value of `array` has been adjusted according to the
+/// specified `spec`.
 template <class TYPE>
 TYPE& gg(TYPE *array, const char *spec)
-    // Return a reference to the modifiable first element of the specified
-    // 'array' after the value of 'array' has been adjusted according to the
-    // specified 'spec'.
 {
     ASSERT(ggg(array, spec) < 0);
     return *array;
@@ -1310,12 +1326,12 @@ static const struct {
 };
 const int NUM_DATA_CASE4 = sizeof DATA_CASE4 / sizeof *DATA_CASE4;
 
+/// Compare every pair of strings of (template parameter) type `TYPE` from
+/// the specifications in the `DATA_CASE4` array, and verify that they are
+/// equal if and only if their specifications are equal.  Note that the
+/// range will be passed using `const TYPE *`.
 template <class TYPE>
 void testLexicographical(bool verboseFlag, bslma::TestAllocator& testAllocator)
-    // Compare every pair of strings of (template parameter) type 'TYPE' from
-    // the specifications in the 'DATA_CASE4' array, and verify that they are
-    // equal if and only if their specifications are equal.  Note that the
-    // range will be passed using 'const TYPE *'.
 {
     TYPE *strings[NUM_DATA_CASE4];
     const TYPE **STRINGS = const_cast<const TYPE **>(strings);
@@ -1405,14 +1421,14 @@ void *ptrGenerator(int i, int j)
     return (void *)result;
 }
 
+/// Compare every pair of strings of (template parameter) type `TYPE` from
+/// the specifications in the `DATA_CASE4` array, and verify that they are
+/// equal if and only if their specifications are equal.  Note that the
+/// range will be passed using `const TYPE *`.
 template <class TYPE>
 void testLexicographicalBuiltin(bool                    verboseFlag,
                                 TYPE                  (*generator)(int, int),
                                 bslma::TestAllocator&   testAllocator)
-    // Compare every pair of strings of (template parameter) type 'TYPE' from
-    // the specifications in the 'DATA_CASE4' array, and verify that they are
-    // equal if and only if their specifications are equal.  Note that the
-    // range will be passed using 'const TYPE *'.
 {
     TYPE *strings[NUM_DATA_CASE4];
     const TYPE **STRINGS = const_cast<const TYPE **>(strings);
@@ -1502,14 +1518,14 @@ void testLexicographicalBuiltin(bool                    verboseFlag,
     ASSERT(NUM_BYTES == testAllocator.numBytesInUse());
 }
 
+/// Compare every pair of ranges of (template parameter) type `TYPE` from
+/// the specifications in the `DATA_CASE4` array, and verify that they are
+/// equal if and only if their specifications are equal.  Note that the
+/// range will be passed using `my_Iterator<TYPE>`, which prevents any kind
+/// of bit-wise optimization.
 template <class TYPE>
 void testLexicographicalNonBitwise(bool                  verboseFlag,
                                    bslma::TestAllocator& testAllocator)
-    // Compare every pair of ranges of (template parameter) type 'TYPE' from
-    // the specifications in the 'DATA_CASE4' array, and verify that they are
-    // equal if and only if their specifications are equal.  Note that the
-    // range will be passed using 'my_Iterator<TYPE>', which prevents any kind
-    // of bit-wise optimization.
 {
     TYPE *strings[NUM_DATA_CASE4];
     const TYPE **STRINGS = const_cast<const TYPE **>(strings);
@@ -1595,10 +1611,10 @@ static const struct {
 };
 const int NUM_DATA_CASE3 = sizeof DATA_CASE3 / sizeof *DATA_CASE3;
 
+/// Compare every pair of strings in the `DATA_CASE3` array, and verify that
+/// they are equal according to the generic `equal` implementation (using
+/// four arguments) if and only if they are equal.
 void testGenericEqual(bool verboseFlag)
-    // Compare every pair of strings in the 'DATA_CASE3' array, and verify that
-    // they are equal according to the generic 'equal' implementation (using
-    // four arguments) if and only if they are equal.
 {
     for (int i = 0; i < NUM_DATA_CASE3; ++i) {
         const int     LINE1   = DATA_CASE3[i].d_lineNum;
@@ -1630,12 +1646,12 @@ void testGenericEqual(bool verboseFlag)
     }
 }
 
+/// Compare every pair of strings of (template parameter) type `TYPE` from
+/// the specifications in the `DATA_CASE3` array, and verify that they are
+/// equal if and only if their specifications are equal.  Note that the
+/// range will be passed using `const TYPE *`.
 template <class TYPE>
 void testEqual(bool verboseFlag, bslma::TestAllocator& testAllocator)
-    // Compare every pair of strings of (template parameter) type 'TYPE' from
-    // the specifications in the 'DATA_CASE3' array, and verify that they are
-    // equal if and only if their specifications are equal.  Note that the
-    // range will be passed using 'const TYPE *'.
 {
     TYPE *strings[NUM_DATA_CASE3];
     const TYPE **STRINGS = const_cast<const TYPE **>(strings);
@@ -1693,13 +1709,13 @@ void testEqual(bool verboseFlag, bslma::TestAllocator& testAllocator)
     ASSERT(NUM_BYTES == testAllocator.numBytesInUse());
 }
 
+/// Compare every pair of strings of (template parameter) type `TYPE` from
+/// the specifications in the `DATA_CASE3` array, and verify that they are
+/// equal if and only if their specifications are equal.  Note that the
+/// range will be passed using `my_Iterator<TYPE>`, which prevents any kind
+/// of bit-wise optimization.
 template <class TYPE>
 void testEqualNonBitwise(bool verboseFlag, bslma::TestAllocator& testAllocator)
-    // Compare every pair of strings of (template parameter) type 'TYPE' from
-    // the specifications in the 'DATA_CASE3' array, and verify that they are
-    // equal if and only if their specifications are equal.  Note that the
-    // range will be passed using 'my_Iterator<TYPE>', which prevents any kind
-    // of bit-wise optimization.
 {
     TYPE *strings[NUM_DATA_CASE3];
     const TYPE **STRINGS = const_cast<const TYPE **>(strings);
@@ -1954,7 +1970,7 @@ void timeEqualAlgorithm(const char *typeName,
                         char       *rawBuffer2,
                         int         numIter)
 {
-    printf("\n\tcompare with '%s'\n", typeName);
+    printf("\n\tcompare with `%s`\n", typeName);
     {
         const size_t bufferSize = rawBufferSize / sizeof(TYPE);
         TYPE *buffer1 = (TYPE*)static_cast<void *>(rawBuffer1);
@@ -2028,7 +2044,7 @@ void timeLexicographicalAlgorithm(const char *typeName,
                                   char       *rawBuffer2,
                                   int         numIter)
 {
-    printf("\n\tcompare with '%s'\n", typeName);
+    printf("\n\tcompare with `%s`\n", typeName);
     {
         const size_t bufferSize = rawBufferSize / sizeof(TYPE);
         TYPE *buffer1 = (TYPE*)static_cast<void *>(rawBuffer1);
@@ -2142,13 +2158,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -2168,10 +2184,10 @@ int main(int argc, char *argv[])
      } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'lexicographical'
+        // TESTING `lexicographical`
         //
         // Concerns:
-        //   o That all implementations of 'lexicographical' are correct.
+        //   o That all implementations of `lexicographical` are correct.
         //   o That the correct implementation is selected for the
         //     correct trait and given iterator type.
         //   o That no instantiation leads to ambiguity.
@@ -2181,7 +2197,7 @@ int main(int argc, char *argv[])
         //   of objects of various types with values based on an initialization
         //   string, compare a pair of ranges based on every combination of two
         //   initialization strings and compare the output of
-        //   'bslalg::RangeCompare::lexicographical' with the expected output
+        //   `bslalg::RangeCompare::lexicographical` with the expected output
         //   based on the initialization strings used to create the range.  Do
         //   this for the types: char, unsigned char, int, Unit64, double, void
         //   *, NonBitwiseWithOpEqual, BitWiseNoOpEqual and
@@ -2192,10 +2208,10 @@ int main(int argc, char *argv[])
         //  bool lexicographical(start1, end1, length1, start2, end2, length2);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'lexicographical'"
+        if (verbose) printf("\nTESTING `lexicographical`"
                             "\n=========================\n");
 
-        if (veryVerbose) printf("\t... with 'char'\n");
+        if (veryVerbose) printf("\t... with `char`\n");
         {
             if (veryVerbose) printf("\t\tUsing pointer type for iterator.\n");
             testLexicographical<char>(veryVerbose, testAllocator);
@@ -2204,7 +2220,7 @@ int main(int argc, char *argv[])
             testLexicographicalNonBitwise<char>(veryVerbose, testAllocator);
         }
 
-        if (veryVerbose) printf("\t... with 'signed char'\n");
+        if (veryVerbose) printf("\t... with `signed char`\n");
         {
             if (veryVerbose) printf("\t\tUsing pointer type for iterator.\n");
             testLexicographical<char>(veryVerbose, testAllocator);
@@ -2213,7 +2229,7 @@ int main(int argc, char *argv[])
             testLexicographicalNonBitwise<char>(veryVerbose, testAllocator);
         }
 
-        if (veryVerbose) printf("\t... with 'unsigned char'\n");
+        if (veryVerbose) printf("\t... with `unsigned char`\n");
         {
             if (veryVerbose) printf("\t\tUsing pointer type for iterator.\n");
             testLexicographical<unsigned char>(veryVerbose, testAllocator);
@@ -2223,7 +2239,7 @@ int main(int argc, char *argv[])
                                                          testAllocator);
         }
 
-        if (veryVerbose) printf("\t... with 'int'\n");
+        if (veryVerbose) printf("\t... with `int`\n");
         {
             if (veryVerbose) printf("\t\tUsing pointer type for iterator.\n");
             testLexicographicalBuiltin<int>(veryVerbose,
@@ -2231,7 +2247,7 @@ int main(int argc, char *argv[])
                                             testAllocator);
         }
 
-        if (veryVerbose) printf("\t... with 'long long'\n");
+        if (veryVerbose) printf("\t... with `long long`\n");
         {
             if (veryVerbose) printf("\t\tUsing pointer type for iterator.\n");
             testLexicographicalBuiltin<Uint64>(veryVerbose,
@@ -2239,7 +2255,7 @@ int main(int argc, char *argv[])
                                                testAllocator);
         }
 
-        if (veryVerbose) printf("\t... with 'double'\n");
+        if (veryVerbose) printf("\t... with `double`\n");
         {
             if (veryVerbose) printf("\t\tUsing pointer type for iterator.\n");
             testLexicographicalBuiltin<double>(veryVerbose,
@@ -2247,7 +2263,7 @@ int main(int argc, char *argv[])
                                                testAllocator);
         }
 
-        if (veryVerbose) printf("\t... with 'void *'\n");
+        if (veryVerbose) printf("\t... with `void *`\n");
         {
             if (veryVerbose) printf("\t\tUsing pointer type for iterator.\n");
             testLexicographicalBuiltin<void *>(veryVerbose,
@@ -2274,7 +2290,7 @@ int main(int argc, char *argv[])
             testLexicographical<BitWiseNoOpEqual>(veryVerbose, testAllocator);
 
             // We cannot use forward iterators since it would require
-            // 'operator==' for 'BitWiseNoOpEqual'.
+            // `operator==` for `BitWiseNoOpEqual`.
         }
 
         if (veryVerbose) printf("\t... with ConvertibleToBool.\n");
@@ -2289,10 +2305,10 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'equal'
+        // TESTING `equal`
         //
         // Concerns:
-        //   o That all implementations of 'equal' are correct.
+        //   o That all implementations of `equal` are correct.
         //   o That the correct implementation is selected for the
         //     correct trait and given iterator type.
         //
@@ -2300,12 +2316,12 @@ int main(int argc, char *argv[])
         //   Given an array of string specs, all different, we test every pair
         //   of strings for equality, the expected result being that the
         //   strings differ if their specs differ.  We then apply this test for
-        //   all four types, 'char', 'unsigned' char', bit-wise
+        //   all four types, `char`, `unsigned` char', bit-wise
         //   equality-comparable UDT, and non-bit-wise equality-comparable UDT.
         //   We make sure that the correct implementation is selected for the
-        //   trait by not providing an 'operator==' when 'memcmp' should be
+        //   trait by not providing an `operator==` when `memcmp` should be
         //   used, and by stuffing some random bytes into the footprint of the
-        //   class when 'memcmp' should not be used.
+        //   class when `memcmp` should not be used.
         //
         // Testing:
         //   bool equal(start1, end1, start2);
@@ -2313,15 +2329,15 @@ int main(int argc, char *argv[])
         //   bool equal(start1, end1, length1, start2, end2, length2);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'equal'"
+        if (verbose) printf("\nTESTING `equal`"
                             "\n===============\n");
 
-        if (veryVerbose) printf("\t... generic 'equal' (four arguments).\n");
+        if (veryVerbose) printf("\t... generic `equal` (four arguments).\n");
 
         if (veryVerbose) printf("\t\tUsing pointer type for iterator.\n");
         testGenericEqual(veryVerbose);
 
-        if (veryVerbose) printf("\t... with 'char'.\n");
+        if (veryVerbose) printf("\t... with `char`.\n");
         {
             if (veryVerbose) printf("\t\tUsing pointer type for iterator.\n");
             testEqual<char>(veryVerbose, testAllocator);
@@ -2330,7 +2346,7 @@ int main(int argc, char *argv[])
             testEqualNonBitwise<char>(veryVerbose, testAllocator);
         }
 
-        if (veryVerbose) printf("\t... with 'unsigned char'.\n");
+        if (veryVerbose) printf("\t... with `unsigned char`.\n");
         {
             if (veryVerbose) printf("\t\tUsing pointer type for iterator.\n");
             testEqual<unsigned char>(veryVerbose, testAllocator);
@@ -2373,33 +2389,33 @@ int main(int argc, char *argv[])
             testEqual<BitWiseNoOpEqual>(veryVerbose, testAllocator);
 
             // We cannot use forward iterators since it would require
-            // 'operator==' for 'BitWiseNoOpEqual'.
+            // `operator==` for `BitWiseNoOpEqual`.
         }
 
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING PRIMITIVE GENERATOR FUNCTIONS 'gg' AND 'ggg'
+        // TESTING PRIMITIVE GENERATOR FUNCTIONS `gg` AND `ggg`
         //
         // Concerns:
-        //: o That valid generator syntax produces expected results
-        //: o That invalid syntax is detected and reported.
+        //  - That valid generator syntax produces expected results
+        //  - That invalid syntax is detected and reported.
         //
         // Plan:
-        //   For each of an enumerated sequence of 'spec' values, ordered by
-        //   increasing 'spec' length, use the primitive generator function
-        //   'gg' to set the state of a newly created object.  Verify that 'gg'
+        //   For each of an enumerated sequence of `spec` values, ordered by
+        //   increasing `spec` length, use the primitive generator function
+        //   `gg` to set the state of a newly created object.  Verify that `gg`
         //   returns a valid reference to the modified argument object and,
         //   using basic accessors, that the value of the object is as
         //   expected.
         //   Note that we are testing the parser only; the primary manipulators
         //   are already assumed to work.
         //
-        //   For each of an enumerated sequence of 'spec' values, ordered by
-        //   increasing 'spec' length, use the primitive generator function
-        //   'ggg' to set the state of a newly created object.  Verify that
-        //   'ggg' returns the expected value corresponding to the location of
-        //   the first invalid value of the 'spec'.
+        //   For each of an enumerated sequence of `spec` values, ordered by
+        //   increasing `spec` length, use the primitive generator function
+        //   `ggg` to set the state of a newly created object.  Verify that
+        //   `ggg` returns the expected value corresponding to the location of
+        //   the first invalid value of the `spec`.
         //
         // Testing:
         //   int ggg(TYPE *array, const char *spec, int verboseFlag = 1);
@@ -2407,19 +2423,19 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                   "\nTESTING PRIMITIVE GENERATOR FUNCTIONS 'gg' AND 'ggg'"
+                   "\nTESTING PRIMITIVE GENERATOR FUNCTIONS `gg` AND `ggg`"
                    "\n====================================================\n");
 
-        if (veryVerbose) printf("\n\t...with 'NonBitwiseWithOpEqual'...");
+        if (veryVerbose) printf("\n\t...with `NonBitwiseWithOpEqual`...");
         testGGG<NonBitwiseWithOpEqual>(verbose, veryVerbose);
         testGG<NonBitwiseWithOpEqual>(verbose, veryVerbose);
 
-        if (veryVerbose) printf("\n\t...with 'BitWiseNoOpEqual'...");
+        if (veryVerbose) printf("\n\t...with `BitWiseNoOpEqual`...");
         testGGG<BitWiseNoOpEqual>(verbose, veryVerbose);
         testGG<BitWiseNoOpEqual>(verbose, veryVerbose);
 
         if (veryVerbose)
-            printf("\n\t...with 'CharEquivalentNonBitwiseWithOpEqual'...");
+            printf("\n\t...with `CharEquivalentNonBitwiseWithOpEqual`...");
         testGGG<CharEquivalentNonBitwiseWithOpEqual>(verbose, veryVerbose);
         testGG<CharEquivalentNonBitwiseWithOpEqual>(verbose, veryVerbose);
       } break;
@@ -2428,7 +2444,7 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   That the basic functionality of 'equal' and 'lexicographical' are
+        //   That the basic functionality of `equal` and `lexicographical` are
         //   correct.
         //
         // Plan:
@@ -2441,7 +2457,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============");
 
-        if (veryVerbose) printf("\n\tTesting 'equal'...");
+        if (veryVerbose) printf("\n\tTesting `equal`...");
         {
             const char   *X = "This is a string";
             const size_t  X_LEN = strlen(X);
@@ -2480,7 +2496,7 @@ int main(int argc, char *argv[])
                                 Z, Z + Z_LEN, Z_LEN)));
         }
 
-        if (veryVerbose) printf("\n\tTesting 'lexicographical'...");
+        if (veryVerbose) printf("\n\tTesting `lexicographical`...");
         {
             const char   *X = "This is a string";
             const size_t  X_LEN = strlen(X);
@@ -2525,15 +2541,15 @@ int main(int argc, char *argv[])
         // PERFORMANCE TEST
         //
         // Concerns:
-        //   The implementation of the component takes pains to use 'memcmp'
-        //   whenever possible.  This is based on an assumption that 'memcmp'
+        //   The implementation of the component takes pains to use `memcmp`
+        //   whenever possible.  This is based on an assumption that `memcmp`
         //   will be faster than comparing each of the elements in a range in a
         //   single loop.  This assumption should be tested for built-in and
-        //   for user types to confirm that the use of 'memcmp' is worthwhile.
+        //   for user types to confirm that the use of `memcmp` is worthwhile.
         //
         // Plan:
-        //   Time both implementations (single loop and 'memcmp') for various
-        //   fundamental types, taking care to separate the case where 'memcmp'
+        //   Time both implementations (single loop and `memcmp`) for various
+        //   fundamental types, taking care to separate the case where `memcmp`
         //   can be used.  Display the resulting times.
         //
         // Testing:

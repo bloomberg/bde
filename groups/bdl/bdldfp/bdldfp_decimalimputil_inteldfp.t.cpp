@@ -19,8 +19,8 @@
 //
 // Global Concerns:
 //
-//:  1 The IntelDFP library defines some manifest constants that might cause
-//:    linker failures.
+//  1. The IntelDFP library defines some manifest constants that might cause
+//     linker failures.
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------

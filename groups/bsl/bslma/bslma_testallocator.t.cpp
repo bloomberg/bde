@@ -12,18 +12,18 @@
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
-#include <new>      // 'std::bad_alloc'
-#include <cstdio>   // (in 'std::') 'sprintf', 'mktmp', 'fclose', 'fread'
-#include <cstdlib>  // 'std::atoi'
-#include <cstring>  // (in 'std::') 'memset', 'memcpy', 'strlen', 'strcmp'
+#include <new>      // `std::bad_alloc`
+#include <cstdio>   // (in `std::`) `sprintf`, `mktmp`, `fclose`, `fread`
+#include <cstdlib>  // `std::atoi`
+#include <cstring>  // (in `std::`) `memset`, `memcpy`, `strlen`, `strcmp`
 
 #if defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_CMP_GNU)
-#include <sys/resource.h>  // 'setrlimit'
+#include <sys/resource.h>  // `setrlimit`
 #endif
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
-#include <crtdbg.h>  // '_CrtSetReportMode', to suppress popups
+#include <crtdbg.h>  // `_CrtSetReportMode`, to suppress popups
 #else
 #include <pthread.h>
 #endif
@@ -45,13 +45,13 @@ using namespace BloombergLP;
 //                              Overview
 //                              --------
 // We are testing a concrete implementation of a protocol.  This "test"
-// implementation calls 'malloc' and 'free' directly.  We must verify that
-// objects of this concrete class do not call global operators 'new' and
-// 'delete'.  We can do that by redefining these global operators and
+// implementation calls `malloc` and `free` directly.  We must verify that
+// objects of this concrete class do not call global operators `new` and
+// `delete`.  We can do that by redefining these global operators and
 // instrumenting them to be sure that these operators are in fact not called.
 //
 // We also need to verify that when bad addresses are supplied that we can
-// detect them and report the problem to 'stdout'.  Since this behavior is not
+// detect them and report the problem to `stdout`.  Since this behavior is not
 // an error during the testing of this component, we will first set the quiet
 // flag to suppress the output part, but will still verify the status to ensure
 // that the problem was in fact detected.
@@ -111,10 +111,10 @@ using namespace BloombergLP;
 // [ 3] CONCERN: memory leaks (byte/block) are detected/reported.
 // [ 7] CONCERN: memory allocation list is kept track of properly.
 // [ 8] CONCERN: cross allocation/deallocation is detected immediately.
-// [ 9] CONCERN: 'std::bad_alloc' is thrown if 'malloc' fails.
+// [ 9] CONCERN: `std::bad_alloc` is thrown if `malloc` fails.
 // [10] CONCERN: over and underruns are properly caught.
-// [12] CONCERN: 'allocate' and 'deallocate' are thread-safe.
-// [13] CONCERN: 'allocate' obtains properly aligned memory.
+// [12] CONCERN: `allocate` and `deallocate` are thread-safe.
+// [13] CONCERN: `allocate` obtains properly aligned memory.
 // [14] CONCERN: 1:1 blocks-in-use correspondence with upstream allocator
 // [15] CONCERN: Exception neutrality
 
@@ -170,7 +170,7 @@ namespace {
 typedef bslma::TestAllocator Obj;
 
 #if 0
-// This is copied from 'bslma_testallocator.cpp' to compare with scribbled
+// This is copied from `bslma_testallocator.cpp` to compare with scribbled
 // deallocated memory.
 // Accessing deallocated memory can result in errors on some platforms.
 // For this reason, this part of the test has been removed for now.
@@ -197,12 +197,12 @@ extern "C" {
 //                  HELPER CLASSES AND FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// This class meets the requirements for the left-hand side of
+/// `operator<<`, where the right-hand side has type `TestAllocator`.  The
+/// contents of the stream are stored in an internal buffer whose size is
+/// specified by template-parameter `SIZE`.
 template <std::size_t SIZE = 1024>
 class BufferStream {
-    // This class meets the requirements for the left-hand side of
-    // 'operator<<', where the right-hand side has type 'TestAllocator'.  The
-    // contents of the stream are stored in an internal buffer whose size is
-    // specified by template-parameter 'SIZE'.
 
     // DATA
     char  d_buffer[SIZE];
@@ -223,15 +223,16 @@ class BufferStream {
     bool        overflow()  const { return d_overflow; }
     std::size_t remaining() const { return SIZE - (d_next_p - d_buffer) - 1; }
 
+    /// Return `true` if the buffer matches the specified `EXP` string, else
+    /// `false`.
     bool operator==(const char* EXP) const
-        // Return 'true' if the buffer matches the specified 'EXP' string, else
-        // 'false'.
         { return 0 == strcmp(d_buffer, EXP); }
 
     // MANIPULATORS
+
+    /// Append the specified `text` of the specified `len` to the internal
+    /// buffer.
     void write(const char *text, std::size_t len);
-        // Append the specified 'text' of the specified 'len' to the internal
-        // buffer.
 };
 
 template <std::size_t SIZE>
@@ -243,7 +244,7 @@ void BufferStream<SIZE>::write(const char *text, std::size_t len)
     }
 
     // Buffer was filled with nul characters on construction and we never
-    // overwrite the last byte, so the 'd_buffer' string is always
+    // overwrite the last byte, so the `d_buffer` string is always
     // nul-terminated.
     memcpy(d_next_p, text, len);
     d_next_p += len;
@@ -414,12 +415,12 @@ void operator delete(void *address)
 # if !defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
 void operator delete(void *address, size_t) throw()
 # else
+/// Trace use of global operator delete.
 void operator delete(void *address, size_t) noexcept
 # endif
 #else
 void operator delete(void *address, size_t)
 #endif
-    // Trace use of global operator delete.
 {
     if (globalDeleteCalledCountIsEnabled) {
         ++globalDeleteCalledCount;
@@ -435,9 +436,9 @@ namespace testCase14 {
                    // union MaxAlignedAllocatorBuffer
                    // ===============================
 
+/// Maximally-aligned raw buffer big enough for a misaligned allocation
+/// when it using as the underlying allocator of a `bslma::TestAllocator`.
 union MaxAlignedAllocatorBuffer {
-    // Maximally-aligned raw buffer big enough for a misaligned allocation
-    // when it using as the underlying allocator of a 'bslma::TestAllocator'.
 
     char                                d_data[2 * 1024];
     bsls::AlignmentUtil::MaxAlignedType d_alignment;
@@ -448,16 +449,16 @@ union MaxAlignedAllocatorBuffer {
                     // class NaturallyAlignAllocator
                     // =============================
 
+/// This is a mechanism that implements an allocator that allocates memory
+/// with the minimum necessary alignment (always) and is able to allocate a
+/// single block only in addition to the imp detail allocations the current
+/// `TestAllocator` implementation does.  Note that this type is used as an
+/// underlying allocator test that `bslma::TestAllocator` manipulates the
+/// allocated size successfully to coerce the underlying allocator (even if
+/// that provides only the weakest necessary fundamental alignment guarantee
+/// for the allocated size, also called natural alignment) to allocate
+/// memory properly aligned for the requirements of the `TestAllocator`.
 class NaturallyAlignAllocator : public bslma::Allocator {
-    // This is a mechanism that implements an allocator that allocates memory
-    // with the minimum necessary alignment (always) and is able to allocate a
-    // single block only in addition to the imp detail allocations the current
-    // 'TestAllocator' implementation does.  Note that this type is used as an
-    // underlying allocator test that 'bslma::TestAllocator' manipulates the
-    // allocated size successfully to coerce the underlying allocator (even if
-    // that provides only the weakest necessary fundamental alignment guarantee
-    // for the allocated size, also called natural alignment) to allocate
-    // memory properly aligned for the requirements of the 'TestAllocator'.
 
   private:
     // PRIVATE CONSTANTS
@@ -469,49 +470,54 @@ class NaturallyAlignAllocator : public bslma::Allocator {
     bool                      d_occupied[k_MAX_ALLOCS]; // Which buffer is used
 
     // PRIVATE CLASS METHODS
+
+    /// Return `true` if the specified `address` points into the specified
+    /// `buffer`; and return `false` otherwise.
     static bool isInBuffer(const MaxAlignedAllocatorBuffer&  buffer,
                            void                             *address);
-        // Return 'true' if the specified 'address' points into the specified
-        // 'buffer'; and return 'false' otherwise.
 
     // PRIVATE MANIPULATORS
-    char *buffData(size_type index);
-        // Return the pointer to the beginning of the internal buffer at the
-        // specified 'index'.
 
+    /// Return the pointer to the beginning of the internal buffer at the
+    /// specified `index`.
+    char *buffData(size_type index);
+
+    /// Return a pointer closest to the beginning of the next internal
+    /// buffer to be used such as that it is aligned just strict enough for
+    /// the specified `size`, with a fundamental alignment.
     char *allocPtr(size_type size);
-        // Return a pointer closest to the beginning of the next internal
-        // buffer to be used such as that it is aligned just strict enough for
-        // the specified 'size', with a fundamental alignment.
 
     // PRIVATE ACCESSORS
+
+    /// Return the pointer to the beginning of the next internal buffer to
+    /// be used.
     size_type nextBuffer() const;
-        // Return the pointer to the beginning of the next internal buffer to
-        // be used.
 
   public:
     // CREATORS
+
+    /// Create a `NaturallyAlignAllocator` object.
     NaturallyAlignAllocator();
-        // Create a 'NaturallyAlignAllocator' object.
 
     // MANIPULATORS
-    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
-        // Return a newly allocated block of memory of (at least) the specified
-        // positive 'size' (in bytes).  If 'size' is 0, a null pointer is
-        // returned with no other effect.  If this allocator cannot return the
-        // requested number of bytes, then it will throw a 'std::bad_alloc'
-        // exception in an exception-enabled build, or else will abort the
-        // program in a non-exception build.  The behavior is undefined unless
-        // '0 <= size'.  Note that the alignment of the address returned
-        // conforms to the platform requirement for any object of 'size'.  Note
-        // that this allocator is for testing only and cannot allocate more
-        // than 1 block of memory at once.
 
+    /// Return a newly allocated block of memory of (at least) the specified
+    /// positive `size` (in bytes).  If `size` is 0, a null pointer is
+    /// returned with no other effect.  If this allocator cannot return the
+    /// requested number of bytes, then it will throw a `std::bad_alloc`
+    /// exception in an exception-enabled build, or else will abort the
+    /// program in a non-exception build.  The behavior is undefined unless
+    /// `0 <= size`.  Note that the alignment of the address returned
+    /// conforms to the platform requirement for any object of `size`.  Note
+    /// that this allocator is for testing only and cannot allocate more
+    /// than 1 block of memory at once.
+    void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
+
+    /// Return the memory block at the specified `address` back to this
+    /// allocator.  If `address` is 0, this function has no effect.  The
+    /// behavior is undefined unless `address` was allocated using this
+    /// allocator object and has not already been deallocated.
     void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
-        // Return the memory block at the specified 'address' back to this
-        // allocator.  If 'address' is 0, this function has no effect.  The
-        // behavior is undefined unless 'address' was allocated using this
-        // allocator object and has not already been deallocated.
 };
 
                     // -----------------------------
@@ -617,8 +623,8 @@ namespace {
 
 class my_ShortArray {
     short *d_array_p; // dynamically-allocated array of short integers
-    int d_size;       // physical size of the 'd_array_p' array (elements)
-    int d_length;     // logical length of the 'd_array_p' array (elements)
+    int d_size;       // physical size of the `d_array_p` array (elements)
+    int d_length;     // logical length of the `d_array_p` array (elements)
     bslma::Allocator *d_allocator_p; // holds (but does not own) allocator
 
   private:
@@ -626,10 +632,11 @@ class my_ShortArray {
 
   public:
     // CREATORS
+
+    /// Create an empty array.  Optionally specify a `basicAllocator` used
+    /// to supply memory.  If `basicAllocator` is 0, global operators `new`
+    /// and `delete` are used.
     explicit my_ShortArray(bslma::Allocator *basicAllocator = 0);
-        // Create an empty array.  Optionally specify a 'basicAllocator' used
-        // to supply memory.  If 'basicAllocator' is 0, global operators 'new'
-        // and 'delete' are used.
      // ...
 
     ~my_ShortArray();
@@ -682,16 +689,16 @@ void my_ShortArray::append(short value)
     d_array_p[d_length++] = value;
 }
 
+/// Reallocate memory in the specified `array` to the specified `newSize`
+/// using the specified `basicAllocator`, or, if `basicAllocator` is 0,
+/// global operators `new` and `delete`.  The specified `length` number of
+/// leading elements are preserved.  Since the class invariant requires
+/// that the physical capacity of the container may grow but never shrink;
+/// the behavior is undefined unless `length <= newSize`.
 void reallocate(short            **array,
                 int                newSize,
                 int                length,
                 bslma::Allocator  *basicAllocator)
-    // Reallocate memory in the specified 'array' to the specified 'newSize'
-    // using the specified 'basicAllocator', or, if 'basicAllocator' is 0,
-    // global operators 'new' and 'delete'.  The specified 'length' number of
-    // leading elements are preserved.  Since the class invariant requires
-    // that the physical capacity of the container may grow but never shrink;
-    // the behavior is undefined unless 'length <= newSize'.
 {
     ASSERT(array);
     ASSERT(1 <= newSize);
@@ -743,15 +750,15 @@ void debugprint(const my_ShortArray& array)
 
 ///Usage
 ///-----
-// The 'bslma::TestAllocator' defined in this component can be used in
-// conjunction with the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' and
-// 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END' macros to test the memory usage
-// patterns of an object that uses the 'bslma::Allocator' protocol in its
+// The `bslma::TestAllocator` defined in this component can be used in
+// conjunction with the `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN` and
+// `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END` macros to test the memory usage
+// patterns of an object that uses the `bslma::Allocator` protocol in its
 // interface.  In this example, we illustrate how we might test that an object
 // under test is exception-neutral.  For illustration purposes, we will assume
-// the existence of a 'my_shortarray' component implementing an
-// 'std::vector'-like array type, 'myShortArray':
-//..
+// the existence of a `my_shortarray` component implementing an
+// `std::vector`-like array type, `myShortArray`:
+// ```
 //  // my_shortarray.t.cpp
 //  #include <my_shortarray.h>
 //
@@ -760,15 +767,16 @@ void debugprint(const my_ShortArray& array)
 //
 //  // ...
 //
-//..
-// Below we provide a 'static' function, 'areEqual', that will allow us to
+// ```
+// Below we provide a `static` function, `areEqual`, that will allow us to
 // compare two short arrays:
-//..
+// ```
+
+    /// Return `true` if the specified initial `numElements` in the
+    /// specified `array1` and `array2` have the same values, and `false`
+    /// otherwise.
     static
     bool areEqual(const short *array1, const short *array2, int numElements)
-        // Return 'true' if the specified initial 'numElements' in the
-        // specified 'array1' and 'array2' have the same values, and 'false'
-        // otherwise.
     {
         for (int i = 0; i < numElements; ++i) {
             if (array1[i] != array2[i]) {
@@ -780,13 +788,13 @@ void debugprint(const my_ShortArray& array)
 //
 //  // ...
 //
-//..
+// ```
 
+/// Call the `print` method on the specified `ta` test allocator and capture
+/// its output to the specified `buf` of size `sz`.  If the output is
+/// truncated (if necessary) to `sz - 1` bytes, and is always nul
+/// terminated within `buf`.
 void printToBuffer(char *buf, std::size_t sz, const bslma::TestAllocator& ta)
-    // Call the 'print' method on the specified 'ta' test allocator and capture
-    // its output to the specified 'buf' of size 'sz'.  If the output is
-    // truncated (if necessary) to 'sz - 1' bytes, and is always nul
-    // terminated within 'buf'.
 {
     // Create a temporary file
     std::FILE* tmpf = 0;
@@ -801,7 +809,7 @@ void printToBuffer(char *buf, std::size_t sz, const bslma::TestAllocator& ta)
     // Print to temporary file
     ta.print(tmpf);
 
-    // Read what was just written from temp file into 'buf'
+    // Read what was just written from temp file into `buf`
     std::rewind(tmpf);
     buf[sz - 1] = '\0';        // Ensure nul termination, no matter what.
     std::size_t count = std::fread(buf, 1, sz - 1, tmpf);
@@ -813,25 +821,25 @@ void printToBuffer(char *buf, std::size_t sz, const bslma::TestAllocator& ta)
     std::fclose(tmpf);
 }
 
+/// Return `true` if the in-use block list for the specified `ta` test
+/// allocator exactly matches the set of non-null pointers in the specified
+/// `blocks` array and `false` otherwise.  The expected ID for any non-null
+/// pointer is its index within the `blocks` array, so if `blocks[4]` is
+/// non-null, then ID '4' is expected to be in the blocks list and if
+/// `blocks[5]` is null, then ID '5' is expected *not* to be in the blocks
+/// list.
 template <std::size_t NBLOCKS>
 bool verifyBlockList(const bslma::TestAllocator&    ta,
                      void                        *(&blocks)[NBLOCKS])
-    // Return 'true' if the in-use block list for the specified 'ta' test
-    // allocator exactly matches the set of non-null pointers in the specified
-    // 'blocks' array and 'false' otherwise.  The expected ID for any non-null
-    // pointer is its index within the 'blocks' array, so if 'blocks[4]' is
-    // non-null, then ID '4' is expected to be in the blocks list and if
-    // 'blocks[5]' is null, then ID '5' is expected *not* to be in the blocks
-    // list.
 {
     // There is no accessor to obtain the in-use block list for a
-    // 'TestAllocator', so the only way get it is to print to a string and
+    // `TestAllocator`, so the only way get it is to print to a string and
     // parse the string.
     BufferStream<> strm;
     strm << ta;
     BSLS_ASSERT(! strm.overflow());
 
-    // Construct a boolean array with 'true' on each block present in the block
+    // Construct a boolean array with `true` on each block present in the block
     // list.
     bool ids[NBLOCKS] = { };  // initialized to all false
 
@@ -888,13 +896,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, and replace 'assert' with
-        //:   'ASSERT'.
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, and replace `assert` with
+        //    `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -916,7 +924,7 @@ int main(int argc, char *argv[])
 // The following is an abbreviated standard test driver.  Note that the number
 // of arguments specify the verbosity level that the test driver uses for
 // printing messages:
-//..
+// ```
 //  int main(int argc, char *argv[])
 //  {
 //      int                 test = argc > 1 ? std::atoi(argv[1]) : 0;
@@ -925,14 +933,14 @@ int main(int argc, char *argv[])
 //      bool     veryVeryVerbose = argc > 4;
 //      bool veryVeryVeryVerbose = argc > 5;
 //
-//..
-// We now define a 'bslma::TestAllocator', 'sa', named "supplied" to indicate
+// ```
+// We now define a `bslma::TestAllocator`, `sa`, named "supplied" to indicate
 // that it is the allocator to be supplied to our object under test, as well as
-// to the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' macro (below).  Note that
-// if 'veryVeryVeryVerbose' is 'true', then 'sa' prints all allocation and
-// deallocation requests to 'stdout' and also prints the accumulated statistics
+// to the `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN` macro (below).  Note that
+// if `veryVeryVeryVerbose` is `true`, then `sa` prints all allocation and
+// deallocation requests to `stdout` and also prints the accumulated statistics
 // on destruction:
-//..
+// ```
         bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
 //      switch (test) { case 0:
@@ -963,20 +971,20 @@ int main(int argc, char *argv[])
 
                 // ...
 
-//..
+// ```
 // All code that we want to test for exception-safety must be enclosed within
-// the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' and
-// 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END' macros, which internally implement
-// a 'do'-'while' loop.  Code provided by the
-// 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' macro sets the allocation limit
+// the `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN` and
+// `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END` macros, which internally implement
+// a `do`-`while` loop.  Code provided by the
+// `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN` macro sets the allocation limit
 // of the supplied allocator to 0 causing it to throw an exception on the first
 // allocation.  This exception is caught by code provided by the
-// 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END' macro, which increments the
+// `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END` macro, which increments the
 // allocation limit by 1 and re-runs the same code again.  Using this scheme we
 // can check that our code does not leak memory for any memory allocation
 // request.  Note that the curly braces surrounding these macros, although
 // visually appealing, are not technically required:
-//..
+// ```
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
                   my_ShortArray mA(&sa);
                   const my_ShortArray& A = mA;
@@ -988,10 +996,10 @@ int main(int argc, char *argv[])
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
 
-//..
+// ```
 // After the exception-safety test we can ensure that all the memory allocated
-// from 'sa' was successfully deallocated:
-//..
+// from `sa` was successfully deallocated:
+// ```
             if (veryVerbose) sa.print();
 //
 //        } break;
@@ -1002,8 +1010,8 @@ int main(int argc, char *argv[])
 //
 //      // ...
 //  }
-//..
-// Note that the 'BDE_BUILD_TARGET_EXC' macro is defined at compile-time to
+// ```
+// Note that the `BDE_BUILD_TARGET_EXC` macro is defined at compile-time to
 // indicate whether or not exceptions are enabled.
 
       } break;
@@ -1014,12 +1022,12 @@ int main(int argc, char *argv[])
         //   the output in the case of single thread.
         //
         // Concerns:
-        //: 1 The changes in DRQS 129104858 do not change the output for a
-        //:   single thread run.
+        // 1. The changes in DRQS 129104858 do not change the output for a
+        //    single thread run.
         //
         // Plan:
-        //: 1 Output the old code into a string.  Output the new code into a
-        //:   string.  Assert that both strings are equal.  (C-1)
+        // 1. Output the old code into a string.  Output the new code into a
+        //    string.  Assert that both strings are equal.  (C-1)
         //
         // Testing:
         //   DRQS 129104858
@@ -1089,26 +1097,26 @@ int main(int argc, char *argv[])
       case 15: {
         // --------------------------------------------------------------------
         // CONCERN: Exception Neutrality
-        //   Verify that 'allocate' propagates exceptions from the upstream
+        //   Verify that `allocate` propagates exceptions from the upstream
         //   allocator and does not leak resources.
         //
         // Concerns:
-        //: 1 If 'allocate' causes the upstream allocator to throw an
-        //:   exception, that exception is propagated to the caller.
-        //: 2 No resources are leaked if the upstream allocator throws.
+        // 1. If `allocate` causes the upstream allocator to throw an
+        //    exception, that exception is propagated to the caller.
+        // 2. No resources are leaked if the upstream allocator throws.
         //
         // Plan:
-        //: 1 Create a 'TestAllocator' to use as an upstream allocator.
-        //: 2 Within a 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST' loop:
-        //:   1 Construct a second 'TestAllocator' that gets memory from the
-        //:     upstream allocator.
-        //:   2 Allocate a few bytes from the second 'TestAllocator'.
-        //:   3 Deallocate the allocated bytes.
-        //:   4 Perform one more allocation and deallocation.
-        //: 3 Verify that no allocated blocks remain allocated from the
-        //:   upstream allocator once the exception loop succeeds.  (C-2)
-        //: 4 Verify that the exception loop ran more than one iteration,
-        //:   indicating that at least one exception occurred.  (C-1)
+        // 1. Create a `TestAllocator` to use as an upstream allocator.
+        // 2. Within a `BSLMA_TESTALLOCATOR_EXCEPTION_TEST` loop:
+        //   1. Construct a second `TestAllocator` that gets memory from the
+        //      upstream allocator.
+        //   2. Allocate a few bytes from the second `TestAllocator`.
+        //   3. Deallocate the allocated bytes.
+        //   4. Perform one more allocation and deallocation.
+        // 3. Verify that no allocated blocks remain allocated from the
+        //    upstream allocator once the exception loop succeeds.  (C-2)
+        // 4. Verify that the exception loop ran more than one iteration,
+        //    indicating that at least one exception occurred.  (C-1)
         //
         // Testing:
         //   CONCERN: Exception Neutrality
@@ -1153,42 +1161,42 @@ int main(int argc, char *argv[])
         //   requests from the upstream allocator.
         //
         // Concerns:
-        //: 1 Every allocation from a 'TestAllocator' results in a single
-        //:   allocation from its upstream allocator (though the size and
-        //:   alignment might differ).
-        //: 2 Every deallocation from a 'TestAllocator' results in a single
-        //:   deallocation from its upstream allocator.
-        //: 3 The number of bytes allocated from the upstream allocator is
-        //:   never less than the number of bytes allocated from the test
-        //:   allocator (but might be more).
-        //: 4 If multiple 'TestAllocator' objects use the same upstream
-        //:   allocator, the total number of blocks allocated from the upstream
-        //:   allocator is the sum of the number of blocks allocated from the
-        //:   individual test allocators.
+        // 1. Every allocation from a `TestAllocator` results in a single
+        //    allocation from its upstream allocator (though the size and
+        //    alignment might differ).
+        // 2. Every deallocation from a `TestAllocator` results in a single
+        //    deallocation from its upstream allocator.
+        // 3. The number of bytes allocated from the upstream allocator is
+        //    never less than the number of bytes allocated from the test
+        //    allocator (but might be more).
+        // 4. If multiple `TestAllocator` objects use the same upstream
+        //    allocator, the total number of blocks allocated from the upstream
+        //    allocator is the sum of the number of blocks allocated from the
+        //    individual test allocators.
         //
         // Concerns:
-        //: 1 Construct a pair of 'TestAllocator' objects to act as upstream
-        //:   allocators.
-        //: 2 Construct three downstream 'TestAllocator' objects, two from one
-        //:   of the upstream allocators and one from the other.
-        //: 3 Loop through two lists of 'A' and 'D' characters, representing
-        //:   allocate and deallocate operations, such that each operation
-        //:   is chosen at random, but there are never more deallocations than
-        //:   allocations and the total is balanced.  For each operation:
-        //:   1 Perform the specified operation (allocate or deallocate) on the
-        //:     downstream allocators.
-        //:   2 Verify that the 'numAllocations' count for each upstream
-        //:     allocator is the sum of the 'numAllocations' for its downstream
-        //:     allocators.  (C-1, C-4)
-        //:   3 Verify that the 'numDeallocations' count for each upstream
-        //:     allocator is the sum of the 'numDeallocations' for its
-        //:     downstream allocators.  (C-2, C-4)
-        //:   4 Verify that the 'numBlocksInUse' count for each upstream
-        //:     allocator is the sum of the 'numBlocksInUse' for its downstream
-        //:     allocators.  (C-1, C-2, C-4)
-        //:   5 Verify that the 'numBytesInUse' count for each upstream
-        //:     allocator is no smaller than the sum of the 'numBytesInUse' for
-        //:     its downstream allocators.  (C-3, C-4)
+        // 1. Construct a pair of `TestAllocator` objects to act as upstream
+        //    allocators.
+        // 2. Construct three downstream `TestAllocator` objects, two from one
+        //    of the upstream allocators and one from the other.
+        // 3. Loop through two lists of `A` and `D` characters, representing
+        //    allocate and deallocate operations, such that each operation
+        //    is chosen at random, but there are never more deallocations than
+        //    allocations and the total is balanced.  For each operation:
+        //   1. Perform the specified operation (allocate or deallocate) on the
+        //      downstream allocators.
+        //   2. Verify that the `numAllocations` count for each upstream
+        //      allocator is the sum of the `numAllocations` for its downstream
+        //      allocators.  (C-1, C-4)
+        //   3. Verify that the `numDeallocations` count for each upstream
+        //      allocator is the sum of the `numDeallocations` for its
+        //      downstream allocators.  (C-2, C-4)
+        //   4. Verify that the `numBlocksInUse` count for each upstream
+        //      allocator is the sum of the `numBlocksInUse` for its downstream
+        //      allocators.  (C-1, C-2, C-4)
+        //   5. Verify that the `numBytesInUse` count for each upstream
+        //      allocator is no smaller than the sum of the `numBytesInUse` for
+        //      its downstream allocators.  (C-3, C-4)
         //
         // Testing
         //   CONCERN: 1:1 blocks-in-use correspondence with upstream allocator
@@ -1284,26 +1292,26 @@ int main(int argc, char *argv[])
       case 13: {
         // --------------------------------------------------------------------
         // ALIGNMENT
-        //   Ensure that 'allocate' obtains properly aligned memory.
+        //   Ensure that `allocate` obtains properly aligned memory.
         //
         // Concerns:
-        //: 1 That 'allocate' obtains properly aligned memory from an
-        //:   underlying allocator even if that allocator provides the weakest
-        //:   necessary fundamental alignment only.
+        // 1. That `allocate` obtains properly aligned memory from an
+        //    underlying allocator even if that allocator provides the weakest
+        //    necessary fundamental alignment only.
         //
         // Plan:
-        //: 1 Use a 'NaturallyAlignAllocator' as the underlying allocator for
-        //:   the tested (test allocator) object.
-        //:
-        //: 2 Within a loop, allocate, then release sizes up to a small
-        //:   multiple of the size of the maximum aligned type to ensure that
-        //:   internally the allocation will have the proper alignment and also
-        //:   verify that the returned pointer is at least naturally aligned
-        //:   for the allocated size (which is the minimum alignment promise
-        //:   every allocator must make).
+        // 1. Use a `NaturallyAlignAllocator` as the underlying allocator for
+        //    the tested (test allocator) object.
+        //
+        // 2. Within a loop, allocate, then release sizes up to a small
+        //    multiple of the size of the maximum aligned type to ensure that
+        //    internally the allocation will have the proper alignment and also
+        //    verify that the returned pointer is at least naturally aligned
+        //    for the allocated size (which is the minimum alignment promise
+        //    every allocator must make).
         //
         // Testing:
-        //   CONCERN: 'allocate' obtains properly aligned memory.
+        //   CONCERN: `allocate` obtains properly aligned memory.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nALIGNMENT"
@@ -1331,27 +1339,27 @@ int main(int argc, char *argv[])
       case 12: {
         // --------------------------------------------------------------------
         // CONCURRENCY
-        //   Ensure that 'allocate' and 'deallocate' are thread-safe.
+        //   Ensure that `allocate` and `deallocate` are thread-safe.
         //
         // Concerns:
-        //: 1 That 'allocate' and 'deallocate' are thread-safe.  (Note that
-        //:   although all methods of 'bslma::TestAllocator' are thread-safe,
-        //:   the thread safety of 'allocate' and 'deallocate' are of paramount
-        //:   concern.)
+        // 1. That `allocate` and `deallocate` are thread-safe.  (Note that
+        //    although all methods of `bslma::TestAllocator` are thread-safe,
+        //    the thread safety of `allocate` and `deallocate` are of paramount
+        //    concern.)
         //
         // Plan:
-        //: 1 Create a 'bslma::TestAllocator'.
-        //:
-        //: 2 Within a loop, create three threads that iterate a specified
-        //:   number of times and that perform a different sequence of
-        //:   allocation and deallocation operations on the test allocator from
-        //:   P-1.
-        //:
-        //: 3 After each iteration, use the accessors to verify the expected
-        //:   state of the test allocator.  (C-1)
+        // 1. Create a `bslma::TestAllocator`.
+        //
+        // 2. Within a loop, create three threads that iterate a specified
+        //    number of times and that perform a different sequence of
+        //    allocation and deallocation operations on the test allocator from
+        //    P-1.
+        //
+        // 3. After each iteration, use the accessors to verify the expected
+        //    state of the test allocator.  (C-1)
         //
         // Testing:
-        //   CONCERN: 'allocate' and 'deallocate' are thread-safe.
+        //   CONCERN: `allocate` and `deallocate` are thread-safe.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nCONCURRENCY"
@@ -1405,32 +1413,32 @@ int main(int argc, char *argv[])
         // TEST PRINTING AND STREAMING
         //
         // Concerns:
-        //: 1 The 'print' method correctly prints the allocator state including
-        //:   the in use, maximum, and total number of blocks and bytes.
-        //:
-        //: 2 Any outstanding allocations are mentioned.
-        //:
-        //: 3 The allocator name is printed if specified.
-        //:
-        //: 4 The method is declared 'const'.
-        //:
-        //: 5 Concerns 1-4 apply for 'operator<<'.
+        // 1. The `print` method correctly prints the allocator state including
+        //    the in use, maximum, and total number of blocks and bytes.
+        //
+        // 2. Any outstanding allocations are mentioned.
+        //
+        // 3. The allocator name is printed if specified.
+        //
+        // 4. The method is declared `const`.
+        //
+        // 5. Concerns 1-4 apply for `operator<<`.
         //
         // Plan:
-        //: 1 Using the table-driven technique. For each row (representing a
-        //:   distinct attribute value, 'V'):
-        //:
-        //:   1 Generate a 'TestAllocator' object, 'mX' having the specified
-        //:     attributes and a const reference 'X' to 'mX'.
-        //:
-        //:   2 Use 'print' to format 'X' to a temporary file.  (C-4)
-        //:
-        //:   3 Verify that the contents of the temporary file matches the
-        //:     expected string.  (C-1, C-2, C-3)
-        //:
-        //:   4 Using 'strm << X', format 'X' to a stream, 'strm', that
-        //:     captures the output to string.  Verify that the resulting
-        //:     string matches the expected string.  (C-4)
+        // 1. Using the table-driven technique. For each row (representing a
+        //    distinct attribute value, `V`):
+        //
+        //   1. Generate a `TestAllocator` object, `mX` having the specified
+        //      attributes and a const reference `X` to `mX`.
+        //
+        //   2. Use `print` to format `X` to a temporary file.  (C-4)
+        //
+        //   3. Verify that the contents of the temporary file matches the
+        //      expected string.  (C-1, C-2, C-3)
+        //
+        //   4. Using `strm << X`, format `X` to a stream, `strm`, that
+        //      captures the output to string.  Verify that the resulting
+        //      string matches the expected string.  (C-4)
         //
         // Testing:
         //   void print() const;
@@ -1726,10 +1734,10 @@ int main(int argc, char *argv[])
         // Plan:
         //   Set the allocator in quiet mode, then deliberately cause buffer
         //   over and underruns to happen, verifying that they have happened
-        //   by observer 'numMismatches'.  First, verify that legitimate
+        //   by observer `numMismatches`.  First, verify that legitimate
         //   writing over the user segment does not trigger false errors.  At
-        //   the end, verify 'status' is what's expected and that
-        //  'numMismatches' is still 0.
+        //   the end, verify `status` is what's expected and that
+        //  `numMismatches` is still 0.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTesting buffer over/underrun detection"
@@ -1844,14 +1852,14 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TEST ALLOCATOR THROWS 'std::bad_alloc' IF 'malloc' FAILS
+        // TEST ALLOCATOR THROWS `std::bad_alloc` IF `malloc` FAILS
         //
         // Testing:
         //   That the test allocator throws std::bad_alloc if it is unable
         //   to get memory.
         //
         // Concerns:
-        //   That the test allocator will throw std::bad_alloc if 'malloc'
+        //   That the test allocator will throw std::bad_alloc if `malloc`
         //   returns 0.
         //
         // Plan:
@@ -1859,23 +1867,23 @@ int main(int argc, char *argv[])
         //   exception occurs.
         // --------------------------------------------------------------------
 
-        // A number of ways of getting 'malloc' to fail were considered, all
+        // A number of ways of getting `malloc` to fail were considered, all
         // had problems.  Asking for huge amounts of memory often took a lot of
-        // time and wasted resources before 'malloc' gave up.  The best
+        // time and wasted resources before `malloc` gave up.  The best
         // approach turned out to be to set a low limit on the amount of memory
         // that could be obtained, and exceed that.  It was, however, not
         // portable, so we decided to implement the test only on Solaris.
         // TBD: Implement this test on more platforms
 
         if (verbose) printf(
-               "\nTEST ALLOCATOR THROWS 'std::bad_alloc' IF 'malloc' FAILS"
+               "\nTEST ALLOCATOR THROWS `std::bad_alloc` IF `malloc` FAILS"
                "\n========================================================\n");
 
 #ifdef BDE_BUILD_TARGET_EXC
 // TBD This test is failing under gcc 4.3.2 with an uncaught exception.  It
 // does *not* appear to be an issue with EH support, but an issue with the test
 // case proper.  In the debugger, it appeared that the runtime had insufficient
-// resources to handle the exception, so 'abort' was invoked.
+// resources to handle the exception, so `abort` was invoked.
 #if defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_CMP_GNU)
         if (verbose) printf("\nTest throwing std::bad_alloc\n");
 
@@ -1918,7 +1926,7 @@ int main(int argc, char *argv[])
         // TEST CROSS MEMORY ALLOCATION/DEALLOCATION DETECTION
         //   Testing the detection of cross allocation/deallocation.  The
         //   implementation uses the memory allocation list managed within the
-        //   'bslma::TestAllocator'.  Makes sure that the number of mismatches
+        //   `bslma::TestAllocator`.  Makes sure that the number of mismatches
         //   are counted when cross allocation/deallocation occurs.  Test using
         //   two allocators allocating the same amount of memory in the same
         //   sequence, and deallocating each other's memory block.
@@ -2040,7 +2048,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TEST MEMORY ALLOCATION LIST
         //   Testing the memory allocation list managed internally within the
-        //   'bslma::TestAllocator'.  Ensures that the list of outstanding
+        //   `bslma::TestAllocator`.  Ensures that the list of outstanding
         //   memory blocks are kept track of.  Test the case where there's no
         //   allocated memory block outstanding, all allocated memory
         //   blocks outstanding and some allocated memory blocks outstanding.
@@ -2108,8 +2116,8 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // TEST NAMED CONSTRUCTOR AND NAME ACCESS
-        //   Testing the 'bslma::TestAllocator' constructed with a name.
-        //   Ensures that the name is accessible through the 'name' function.
+        //   Testing the `bslma::TestAllocator` constructed with a name.
+        //   Ensures that the name is accessible through the `name` function.
         //
         // Testing:
         //   TestAllocator(const char *name, bool verboseFlag = 0);
@@ -2200,9 +2208,9 @@ int main(int argc, char *argv[])
                                                     upstream.numBlocksInUse());
                     ASSERTV(ti, ai, LIMIT[ti] == ai);
 
-                    // An allocation will increment 'numAllocations()' and set
-                    // 'lastAllocatedNumBytes()' and
-                    // 'lastDeallocatedAddress()', even if the allocation fails
+                    // An allocation will increment `numAllocations()` and set
+                    // `lastAllocatedNumBytes()` and
+                    // `lastDeallocatedAddress()`, even if the allocation fails
                     // by means of an exception.  This behaviour could be
                     // considered a bug, but there exist long-standing
                     // workarounds in test drivers, so the behavior is now
@@ -2220,7 +2228,7 @@ int main(int argc, char *argv[])
       case 4: {
         // --------------------------------------------------------------------
         // TEST SIMPLE STREAMING
-        //   Lightly verify that the 'operator<<' hidden friend works.
+        //   Lightly verify that the `operator<<` hidden friend works.
         //
         // Testing:
         //   SIMPLE STREAMING
@@ -2589,7 +2597,7 @@ int main(int argc, char *argv[])
         //   is properly initialized (with no verbose flag).  Then create a
         //   test allocator on the program stack and verify that all of the
         //   non-error counts are working properly.  Ensure that neither
-        //   'new' or 'delete' are called.
+        //   `new` or `delete` are called.
         //
         // Testing:
         //   BASIC TEST

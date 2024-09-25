@@ -30,7 +30,7 @@
 #include <bsl_cstring.h>      // strlen(), memset(), memcpy(), memcmp()
 #include <bsl_ctime.h>
 #include <bsl_iostream.h>
-#include <bsl_new.h>          // placement 'new' syntax
+#include <bsl_new.h>          // placement `new` syntax
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
@@ -93,7 +93,7 @@ using namespace bsl;
 // [  ] bsl::ostream& operator<<(bsl::ostream& stream, const ball::Record& r);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 3] TESTING GENERATOR FUNCTIONS 'GG' AND 'GGG' ('ball::UserFields')
+// [ 3] TESTING GENERATOR FUNCTIONS `GG` AND `GGG` (`ball::UserFields`)
 // [10] USAGE EXAMPLE 1
 
 // ============================================================================
@@ -170,7 +170,7 @@ typedef bsls::Types::Int64     Int64;
 //                             GLOBAL TEST DATA
 // ----------------------------------------------------------------------------
 
-// Define 'bsl::string' value long enough to ensure dynamic memory allocation.
+// Define `bsl::string` value long enough to ensure dynamic memory allocation.
 #ifdef BSLS_PLATFORM_CPU_32_BIT
 #define SUFFICIENTLY_LONG_STRING "123456789012345678901234567890123"
 #else  // 64_BIT
@@ -194,8 +194,8 @@ int main(int argc, char *argv[])
     bool veryVeryVeryVerbose = argc > 5;
 
     // ------------------------------------------------------------------------
-    // The following "global constants for testing" are in 'main' because the
-    // test allocator (defined in 'main') is used in the constructors of the
+    // The following "global constants for testing" are in `main` because the
+    // test allocator (defined in `main`) is used in the constructors of the
     // test lists and tables.
     //
     // Make three sets of useful constants for testing: Ui, Xi, Yi
@@ -288,7 +288,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -307,7 +307,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example-2 from header into driver, remove
-        //   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //   leading comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -321,22 +321,22 @@ int main(int argc, char *argv[])
 ///------
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'ball::Record'
+///Example 1: Basic Use of `ball::Record`
 /// - - - - - - - - - - - - - - - - - - -
 // The following example demonstrates how to create and set the properties of
-// a 'ball::Record'.  Note that users of the 'ball' logging subsystem are not
+// a `ball::Record`.  Note that users of the `ball` logging subsystem are not
 // expected to create records directly.
 //
-// First we default create a 'ball::Record', 'record', and verify it has a
+// First we default create a `ball::Record`, `record`, and verify it has a
 // default set of attributes:
-//..
+// ```
     ball::Record record;
 
     ASSERT(ball::RecordAttributes() == record.fixedFields());
     ASSERT(0                        == record.customFields().length());
-//..
+// ```
 // Then, we set the fixed fields of the record to contain a simple message:
-//..
+// ```
     int                 processId = bdls::ProcessUtil::getProcessId();
     bsls::Types::Uint64 threadId  = bslmt::ThreadUtil::selfIdAsUint64();
 
@@ -351,16 +351,16 @@ int main(int argc, char *argv[])
     record.setFixedFields(attributes);
 
     ASSERT(attributes == record.fixedFields());
-//..
+// ```
 // Next, we add an additional attribute to the log record:
-//..
+// ```
     record.addAttribute(ball::Attribute("myLib.name", "John Smith"));
-//..
+// ```
 // Finally, we write the record to a stream:
-//..
+// ```
     bsl::ostringstream output;
     output << record << bsl::endl;
-//..
+// ```
     if (verbose) {
         bsl::cout << output.str() << bsl::endl;
     }
@@ -381,7 +381,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "\nTesting 'numAllocatedBytes'." << endl
+            cout << "\nTesting `numAllocatedBytes`." << endl
                  << "==============================" << endl;
         }
 
@@ -475,89 +475,89 @@ int main(int argc, char *argv[])
         //   other one, such that the two objects have the same value.
         //
         // Concerns:
-        //: 1 The copy constructor (with or without a supplied allocator)
-        //:   creates an object having the same value as that of the supplied
-        //:   original object.
-        //:
-        //: 2 If an allocator is NOT supplied to the copy constructor, the
-        //:   default allocator in effect at the time of construction becomes
-        //:   the object allocator for the resulting object (i.e., the
-        //:   allocator of the original object is never copied).
-        //:
-        //: 3 If an allocator IS supplied to the copy constructor, that
-        //:   allocator becomes the object allocator for the resulting object.
-        //:
-        //: 4 Supplying a default-constructed allocator has the same effect as
-        //:   not supplying an allocator.
-        //:
-        //: 5 Supplying an allocator to the copy constructor has no effect
-        //:   on subsequent object values.
-        //:
-        //: 6 Any memory allocation is from the object allocator.
-        //:
-        //: 7 There is no temporary memory allocation from any allocator.
-        //:
-        //: 8 Every object releases any allocated memory at destruction.
-        //:
-        //: 9 The original object is passed as a 'const' reference.
-        //:
-        //:10 The value of the original object is unchanged.
-        //:
-        //:11 The allocator used by the original object is unchanged.
+        // 1. The copy constructor (with or without a supplied allocator)
+        //    creates an object having the same value as that of the supplied
+        //    original object.
+        //
+        // 2. If an allocator is NOT supplied to the copy constructor, the
+        //    default allocator in effect at the time of construction becomes
+        //    the object allocator for the resulting object (i.e., the
+        //    allocator of the original object is never copied).
+        //
+        // 3. If an allocator IS supplied to the copy constructor, that
+        //    allocator becomes the object allocator for the resulting object.
+        //
+        // 4. Supplying a default-constructed allocator has the same effect as
+        //    not supplying an allocator.
+        //
+        // 5. Supplying an allocator to the copy constructor has no effect
+        //    on subsequent object values.
+        //
+        // 6. Any memory allocation is from the object allocator.
+        //
+        // 7. There is no temporary memory allocation from any allocator.
+        //
+        // 8. Every object releases any allocated memory at destruction.
+        //
+        // 9. The original object is passed as a `const` reference.
+        //
+        // 10. The value of the original object is unchanged.
+        //
+        // 11. The allocator used by the original object is unchanged.
         //
         // Plan:
-        //: 1  Specify a set S whose elements have substantial and varied
-        //:    differences in value.
+        // 1.  Specify a set S whose elements have substantial and varied
+        //     differences in value.
         //
-        //: 2  For each distinct object value: (C-1..11)
-        //:
-        //:   1 Use the default constructor, basic manipulators, and a
-        //:     "scratch" allocator to create two 'const' 'Obj', 'Z' and 'ZZ',
-        //:     each having the value 'V'.
-        //:
-        //:   2 Execute an inner loop that creates an object by
-        //:     copy-constructing from value 'Z' from P-2.1, but invokes the
-        //:     copy constructor differently in each iteration: (a) without
-        //:     passing an allocator, (b) passing a default allocator
-        //:     explicitly, (c) passing a test allocator distinct from the
-        //:     default.
-        //:
-        //:   3 For each of these iterations (P-2.2):  (C-1..12)
-        //:
-        //:     1 Create three 'bslma::TestAllocator' objects, and install one
-        //:       as the current default allocator (note that a ubiquitous test
-        //:       allocator is already installed as the global allocator).
-        //:
-        //:     2 Use the copy constructor to dynamically create an object 'X',
-        //:       with its object allocator configured appropriately (see
-        //:       P-2.2), supplying it the 'const' object 'Z' (see P-2.1); use
-        //:       a distinct test allocator for the object's footprint.  (C-9)
-        //:
-        //:     3 Use the equality-comparison operator to verify that:
-        //:       (C-1, 5, 10)
-        //:
-        //:       1 The newly constructed object, 'X', has the same value as
-        //:         that of 'Z'.  (C-1, 5)
-        //:
-        //:       2 'Z' still has the same value as that of 'ZZ'.  (C-10)
-        //:
-        //:     4 Use the appropriate test allocators to verify that:  (C-2..4,
-        //:       7..8, 12)
-        //:
-        //:       1 An object that IS expected to allocate memory does so
-        //:         from the object allocator only (irrespective of the
-        //:         specific number of allocations or the total amount of
-        //:         memory allocated).  (C-2, 4)
-        //:
-        //:       2 If an allocator was supplied at construction (P-2.1c), the
-        //:         current default allocator doesn't allocate any memory.
-        //:         (C-3)
-        //:
-        //:       3 No temporary memory is allocated from the object allocator.
-        //:         (C-7)
-        //:
-        //:       4 All object memory is released when the object is destroyed.
-        //:         (C-8)
+        // 2.  For each distinct object value: (C-1..11)
+        //
+        //   1. Use the default constructor, basic manipulators, and a
+        //      "scratch" allocator to create two `const` `Obj`, `Z` and `ZZ`,
+        //      each having the value `V`.
+        //
+        //   2. Execute an inner loop that creates an object by
+        //      copy-constructing from value `Z` from P-2.1, but invokes the
+        //      copy constructor differently in each iteration: (a) without
+        //      passing an allocator, (b) passing a default allocator
+        //      explicitly, (c) passing a test allocator distinct from the
+        //      default.
+        //
+        //   3. For each of these iterations (P-2.2):  (C-1..12)
+        //
+        //     1. Create three `bslma::TestAllocator` objects, and install one
+        //        as the current default allocator (note that a ubiquitous test
+        //        allocator is already installed as the global allocator).
+        //
+        //     2. Use the copy constructor to dynamically create an object `X`,
+        //        with its object allocator configured appropriately (see
+        //        P-2.2), supplying it the `const` object `Z` (see P-2.1); use
+        //        a distinct test allocator for the object's footprint.  (C-9)
+        //
+        //     3. Use the equality-comparison operator to verify that:
+        //        (C-1, 5, 10)
+        //
+        //       1. The newly constructed object, `X`, has the same value as
+        //          that of `Z`.  (C-1, 5)
+        //
+        //       2. `Z` still has the same value as that of `ZZ`.  (C-10)
+        //
+        //     4. Use the appropriate test allocators to verify that:  (C-2..4,
+        //        7..8, 12)
+        //
+        //       1. An object that IS expected to allocate memory does so
+        //          from the object allocator only (irrespective of the
+        //          specific number of allocations or the total amount of
+        //          memory allocated).  (C-2, 4)
+        //
+        //       2. If an allocator was supplied at construction (P-2.1c), the
+        //          current default allocator doesn't allocate any memory.
+        //          (C-3)
+        //
+        //       3. No temporary memory is allocated from the object allocator.
+        //          (C-7)
+        //
+        //       4. All object memory is released when the object is destroyed.
+        //          (C-8)
         //
         // Testing:
         //   ball::Record(const ball::Record& original, *ba = 0);
@@ -635,7 +635,7 @@ int main(int argc, char *argv[])
 
                         ASSERTV(CONFIG,  Z, X,  Z == X);
 
-                        // Verify that the value of 'Z' has not changed.
+                        // Verify that the value of `Z` has not changed.
 
                         ASSERTV(CONFIG, ZZ, Z, ZZ == Z);
 
@@ -677,10 +677,10 @@ int main(int argc, char *argv[])
         //   operators.
         //
         // Plan:
-        //: 1 Specify a set S of unique object values having various minor or
-        //:   subtle differences.  Verify the correctness of 'operator==' and
-        //:   'operator!=' using all elements (u, v) of the cross product
-        //:   S X S.
+        // 1. Specify a set S of unique object values having various minor or
+        //    subtle differences.  Verify the correctness of `operator==` and
+        //    `operator!=` using all elements (u, v) of the cross product
+        //    S X S.
         //
         // Testing:
         //   bool operator==(const ball::Record& lhs, const ball::Record& rhs);
@@ -751,7 +751,7 @@ int main(int argc, char *argv[])
                           << "Testing Output (<<) Operator" << endl
                           << "============================" << endl;
 
-        if (verbose) cout << "\nTesting 'operator<<' (ostream)." << endl;
+        if (verbose) cout << "\nTesting `operator<<` (ostream)." << endl;
 
       } break;
       case 4: {
@@ -796,20 +796,20 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING '
         // Plan:
-        //   Test the behavior of 'gg' and 'ggg'.
+        //   Test the behavior of `gg` and `ggg`.
         //   * Verify that all test values are distinct.
-        //   * Show 'gg' returns a correct reference to its first argument.
+        //   * Show `gg` returns a correct reference to its first argument.
         //   * Enumerate representative input, ordered by length.
         //   * Show the correct accessing of all 66 unique values (of 22
-        //     unique types) that are a part of the 'gg' language.
+        //     unique types) that are a part of the `gg` language.
         //   * Test large legal input strings.
-        //   * Test 'ggg' syntax checking with syntactically illegal inputs.
+        //   * Test `ggg` syntax checking with syntactically illegal inputs.
         //
         // Testing:
         //   ball::UserFields& gg(ball::UserFields *address, const char *spec);
         //   int ggg(UserFields *address, const char *spec, int showErrorFlag);
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTesting 'gg' and 'ggg' generator functions"
+        if (verbose) cout << "\nTesting `gg` and `ggg` generator functions"
                           << "\n=========================================="
                           << endl;
 
@@ -824,101 +824,101 @@ int main(int argc, char *argv[])
         //   thorough testing, and use the destructor to destroy it safely.
         //
         // Concerns:
-        //: 1 An object created with the default constructor (with or without
-        //:   a supplied allocator) has the contractually specified default
-        //:   value.
-        //:
-        //: 2 If an allocator is NOT supplied to the default constructor, the
-        //:   default allocator in effect at the time of construction becomes
-        //:   the object allocator for the resulting object.
-        //:
-        //: 3 If an allocator IS supplied to the default constructor, that
-        //:   allocator becomes the object allocator for the resulting object.
-        //:
-        //: 4 Supplying a default-constructed allocator has the same effect as
-        //:   not supplying an allocator.
-        //:
-        //: 5 Supplying an allocator to the default constructor has no effect
-        //:   on subsequent object values.
-        //:
-        //: 6 Any memory allocation is from the object allocator.
-        //:
-        //: 7 There is no temporary allocation from any allocator.
-        //:
-        //: 8 Every object releases any allocated memory at destruction.
-        //:
-        //: 9 QoI: The default constructor allocates no memory.
-        //:
-        //:10 Each attribute is modifiable independently.
-        //:
-        //:11 Each attribute can be set to represent any value that does not
-        //:   violate that attribute's documented constraints.
+        // 1. An object created with the default constructor (with or without
+        //    a supplied allocator) has the contractually specified default
+        //    value.
+        //
+        // 2. If an allocator is NOT supplied to the default constructor, the
+        //    default allocator in effect at the time of construction becomes
+        //    the object allocator for the resulting object.
+        //
+        // 3. If an allocator IS supplied to the default constructor, that
+        //    allocator becomes the object allocator for the resulting object.
+        //
+        // 4. Supplying a default-constructed allocator has the same effect as
+        //    not supplying an allocator.
+        //
+        // 5. Supplying an allocator to the default constructor has no effect
+        //    on subsequent object values.
+        //
+        // 6. Any memory allocation is from the object allocator.
+        //
+        // 7. There is no temporary allocation from any allocator.
+        //
+        // 8. Every object releases any allocated memory at destruction.
+        //
+        // 9. QoI: The default constructor allocates no memory.
+        //
+        // 10. Each attribute is modifiable independently.
+        //
+        // 11. Each attribute can be set to represent any value that does not
+        //    violate that attribute's documented constraints.
         //
         // Plan:
-        //: 1 Create three sets of attribute values for the object: ('FD')
-        //:   values corresponding to the default-constructed object, ('FA')
-        //:   values that allocate memory if possible, and ('FB') other values
-        //:   that do not cause additional memory allocation beyond that which
-        //:   may be incurred by 'FA'.  Both the 'FA' and 'FB' attribute values
-        //:   should be chosen to be boundary values where possible.
-        //:
-        //: 2 Execute an inner loop that creates an object by
-        //:   default-construction, but invokes the default constructor
-        //:   differently in each iteration: (a) without passing an allocator,
-        //:   (b) passing a default-constructed allocator explicitly, and (c)
-        //:   passing the address of a test allocator distinct from the
-        //:   default.  For each of these iterations: (C-1..14)
-        //:
-        //:   1 Create three 'bslma::TestAllocator' objects, and install one as
-        //:     as the current default allocator (note that a ubiquitous test
-        //:     allocator is already installed as the global allocator).
-        //:
-        //:   2 Use the default constructor to dynamically create an object
-        //:     'X', with its object allocator configured appropriately (see
-        //:     P-2); use a distinct test allocator for the object's footprint.
-        //:
-        //:   3 Use the 'get_allocator' accessor of each underlying attribute
-        //:     capable of allocating memory to ensure that its object
-        //:     allocator is properly installed; also invoke the (as yet
-        //:     unproven) 'get_allocator' accessor of the object under test.
-        //:     (C-2..4)
-        //:
-        //:   4 Use the appropriate test allocators to verify that no memory
-        //:     is allocated by the default constructor.  (C-9)
-        //:
-        //:   5 Use the individual (as yet unproven) salient attribute
-        //:     accessors to verify the default-constructed value.  (C-1)
-        //:
-        //:   6 For each attribute 'i', in turn, create a local block.  Then
-        //:     inside the block, using brute force, set that attribute's
-        //:     value, passing a 'const' argument representing each of the
-        //:     three test values, in turn (see P-1), first to 'Ai', then to
-        //:     'Bi', and finally back to 'Di'.  If attribute 'i' can allocate
-        //:     memory, verify that it does so on the first value transition
-        //:     ('Di' -> 'Ai'), and that the corresponding primary manipulator
-        //:     is exception neutral (using the
-        //:     'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).  In all other
-        //:     cases, verify that no memory allocation occurs.  After each
-        //:     transition, use the (as yet unproven) basic accessors to verify
-        //:     that only the intended attribute value changed.  (C-5..6,
-        //:     11..14)
-        //:
-        //:   7 Corroborate that attributes are modifiable independently by
-        //:     first setting all of the attributes to their 'A' values.  Then
-        //:     incrementally set each attribute to it's corresponding  'B'
-        //:     value and verify after each manipulation that only that
-        //:     attribute's value changed.  (C-10)
-        //:
-        //:   8 Verify that no temporary memory is allocated from the object
-        //:     allocator.  (C-7)
-        //:
-        //:   9 Verify that all object memory is released when the object is
-        //:     destroyed.  (C-8)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-15)
+        // 1. Create three sets of attribute values for the object: (`FD`)
+        //    values corresponding to the default-constructed object, (`FA`)
+        //    values that allocate memory if possible, and (`FB`) other values
+        //    that do not cause additional memory allocation beyond that which
+        //    may be incurred by `FA`.  Both the `FA` and `FB` attribute values
+        //    should be chosen to be boundary values where possible.
+        //
+        // 2. Execute an inner loop that creates an object by
+        //    default-construction, but invokes the default constructor
+        //    differently in each iteration: (a) without passing an allocator,
+        //    (b) passing a default-constructed allocator explicitly, and (c)
+        //    passing the address of a test allocator distinct from the
+        //    default.  For each of these iterations: (C-1..14)
+        //
+        //   1. Create three `bslma::TestAllocator` objects, and install one as
+        //      as the current default allocator (note that a ubiquitous test
+        //      allocator is already installed as the global allocator).
+        //
+        //   2. Use the default constructor to dynamically create an object
+        //      `X`, with its object allocator configured appropriately (see
+        //      P-2); use a distinct test allocator for the object's footprint.
+        //
+        //   3. Use the `get_allocator` accessor of each underlying attribute
+        //      capable of allocating memory to ensure that its object
+        //      allocator is properly installed; also invoke the (as yet
+        //      unproven) `get_allocator` accessor of the object under test.
+        //      (C-2..4)
+        //
+        //   4. Use the appropriate test allocators to verify that no memory
+        //      is allocated by the default constructor.  (C-9)
+        //
+        //   5. Use the individual (as yet unproven) salient attribute
+        //      accessors to verify the default-constructed value.  (C-1)
+        //
+        //   6. For each attribute `i`, in turn, create a local block.  Then
+        //      inside the block, using brute force, set that attribute's
+        //      value, passing a `const` argument representing each of the
+        //      three test values, in turn (see P-1), first to `Ai`, then to
+        //      `Bi`, and finally back to `Di`.  If attribute `i` can allocate
+        //      memory, verify that it does so on the first value transition
+        //      (`Di` -> `Ai`), and that the corresponding primary manipulator
+        //      is exception neutral (using the
+        //      `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*` macros).  In all other
+        //      cases, verify that no memory allocation occurs.  After each
+        //      transition, use the (as yet unproven) basic accessors to verify
+        //      that only the intended attribute value changed.  (C-5..6,
+        //      11..14)
+        //
+        //   7. Corroborate that attributes are modifiable independently by
+        //      first setting all of the attributes to their `A` values.  Then
+        //      incrementally set each attribute to it's corresponding  `B`
+        //      value and verify after each manipulation that only that
+        //      attribute's value changed.  (C-10)
+        //
+        //   8. Verify that no temporary memory is allocated from the object
+        //      allocator.  (C-7)
+        //
+        //   9. Verify that all object memory is released when the object is
+        //      destroyed.  (C-8)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-15)
         //
         // Testing:
         //   ball::Record(bslma::Allocator *alloc = 0);
@@ -1016,7 +1016,7 @@ int main(int argc, char *argv[])
 
             // Reclaim dynamically allocated object under test.
 
-            // Testing 'setFixedFields()'
+            // Testing `setFixedFields()`
             {
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
@@ -1046,7 +1046,7 @@ int main(int argc, char *argv[])
                 ASSERTV(CONFIG, tam.isTotalSame());
             }
 
-            // Testing 'setCustomFields()'
+            // Testing `setCustomFields()`
             {
                 // Allocating UserFields.
                 Values uFA;
@@ -1081,7 +1081,7 @@ int main(int argc, char *argv[])
                 ASSERTV(CONFIG, tam.isTotalSame());
             }
 
-            // Testing 'addAttribute()'
+            // Testing `addAttribute()`
             {
                 // Attributes for testing
                 const ball::Attribute AA("test.name", LONG_STRING);
@@ -1317,19 +1317,19 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an object 'w' (default ctor).       { w:D             }
-        //: 2 Create an object 'x' (copy from 'w').      { w:D x:D         }
-        //: 3 Set 'x' to 'A' (value distinct from 'D').  { w:D x:A         }
-        //: 4 Create an object 'y' (init. to 'A').       { w:D x:A y:A     }
-        //: 5 Create an object 'z' (copy from 'y').      { w:D x:A y:A z:A }
-        //: 6 Set 'z' to 'D' (the default value).        { w:D x:A y:A z:D }
-        //: 7 Assign 'w' from 'x'.                       { w:A x:A y:A z:D }
-        //: 8 Assign 'w' from 'z'.                       { w:D x:A y:A z:D }
-        //: 9 Assign 'x' from 'x' (aliasing).            { w:D x:A y:A z:D }
+        // 1. Create an object `w` (default ctor).       { w:D             }
+        // 2. Create an object `x` (copy from `w`).      { w:D x:D         }
+        // 3. Set `x` to `A` (value distinct from `D`).  { w:D x:A         }
+        // 4. Create an object `y` (init. to `A`).       { w:D x:A y:A     }
+        // 5. Create an object `z` (copy from `y`).      { w:D x:A y:A z:A }
+        // 6. Set `z` to `D` (the default value).        { w:D x:A y:A z:D }
+        // 7. Assign `w` from `x`.                       { w:A x:A y:A z:D }
+        // 8. Assign `w` from `z`.                       { w:D x:A y:A z:D }
+        // 9. Assign `x` from `x` (aliasing).            { w:D x:A y:A z:D }
         //
         // Testing:
         //   BREATHING TEST
@@ -1397,8 +1397,8 @@ int main(int argc, char *argv[])
 
         {
             if (verbose) {
-                cout << "testing const versions of 'fixedFields'"
-                     << "and 'customFields'"
+                cout << "testing const versions of `fixedFields`"
+                     << "and `customFields`"
                      << endl;
             }
 
@@ -1411,8 +1411,8 @@ int main(int argc, char *argv[])
             ASSERTV(CRA.fixedFields(), CRA.fixedFields() == FB);
             ASSERTV(CRA.customFields(), CRA.customFields() == *VALUES_DATA[2]);
             if (verbose) {
-                cout << "tested const versions of 'fixedFields'"
-                     << "and 'customFields'"
+                cout << "tested const versions of `fixedFields`"
+                     << "and `customFields`"
                      << endl;
             }
         }

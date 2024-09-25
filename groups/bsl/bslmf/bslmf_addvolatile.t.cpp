@@ -5,8 +5,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 using namespace bsl;
 using namespace BloombergLP;
@@ -16,8 +16,8 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines meta-functions, 'bsl::add_volatile' and
-// 'bsl::add_volatile_t', that add a top-level 'volatile'-qualifier to a
+// The component under test defines meta-functions, `bsl::add_volatile` and
+// `bsl::add_volatile_t`, that add a top-level `volatile`-qualifier to a
 // template parameter type.  Thus, we need to ensure that the values returned
 // by the meta-function are correct for each possible category of types.
 //
@@ -80,18 +80,18 @@ namespace {
 
 struct TestType {
    // This user-defined type is intended to be used during testing as an
-   // argument for the template parameter 'TYPE' of 'bsl::add_volatile'.
+   // argument for the template parameter `TYPE` of `bsl::add_volatile`.
 };
 
+/// This non-static function member type is intended to be used during
+/// testing as an argument for the template parameter `TYPE` of
+/// `bsl::add_volatile`.
 typedef void (TestType::*MethodPtrTestType) ();
-    // This non-static function member type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::add_volatile'.
 
+/// This class public data member pointer type is intended to be used during
+/// testing as an argument as an argument for the template parameter `TYPE`
+/// of `bsl::add_volatile`.
 typedef int TestType::* PMD;
-    // This class public data member pointer type is intended to be used during
-    // testing as an argument as an argument for the template parameter 'TYPE'
-    // of 'bsl::add_volatile'.
 
 }  // close unnamed namespace
 
@@ -121,13 +121,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -140,61 +140,61 @@ int main(int argc, char *argv[])
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Adding a 'volatile'-Qualifier to a Type
+///Example 1: Adding a `volatile`-Qualifier to a Type
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to add a 'volatile'-qualifier to a particular type.
+// Suppose that we want to add a `volatile`-qualifier to a particular type.
 //
-// First, we create two 'typedef's -- a 'volatile'-qualified type
-// ('MyVolatileType') and the same type without the 'volatile'-qualifier
-// ('MyType'):
-//..
+// First, we create two `typedef`s -- a `volatile`-qualified type
+// (`MyVolatileType`) and the same type without the `volatile`-qualifier
+// (`MyType`):
+// ```
         typedef int          MyType;
         typedef volatile int MyVolatileType;
-//..
-// Now, we add a 'volatile'-qualifier to 'MyType' using 'bsl::add_volatile' and
-// verify that the resulting type is the same as 'MyVolatileType':
-//..
+// ```
+// Now, we add a `volatile`-qualifier to `MyType` using `bsl::add_volatile` and
+// verify that the resulting type is the same as `MyVolatileType`:
+// ```
         ASSERT(true == (bsl::is_same<bsl::add_volatile<MyType>::type,
                                                       MyVolatileType>::value));
-//..
+// ```
 // Finally, if the current compiler supports alias templates C++11 feature, we
-// add a 'volatile'-qualifier to 'MyType' using 'bsl::add_volatile_t' and
-// verify that the resulting type is the same as 'MyVolatileType':
-//..
+// add a `volatile`-qualifier to `MyType` using `bsl::add_volatile_t` and
+// verify that the resulting type is the same as `MyVolatileType`:
+// ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
         ASSERT(true ==
            (bsl::is_same<bsl::add_volatile_t<MyType>, MyVolatileType>::value));
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-//..
+// ```
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::add_volatile'
-        //   Ensure that the 'typedef' 'type' of 'bsl::add_volatile'
+        // `bsl::add_volatile`
+        //   Ensure that the `typedef` `type` of `bsl::add_volatile`
         //   has the correct type for a variety of template parameter types.
         //
-        //   Ensure that the 'bsl::add_volatile_t' represents the correct type
+        //   Ensure that the `bsl::add_volatile_t` represents the correct type
         //   for a variety of template parameter types.
         //
         // Concerns:
-        //: 1 'bsl::add_volatile' adds a top-level 'volatile'-qualifier only to
-        //:   regular types (primitive, pointers, and user-defined types).
-        //:
-        //: 2 'bsl::add_volatile' does not add a 'volatile'-qualifier to
-        //:   reference types, function types, or types that are already
-        //:   'volatile'-qualified.
-        //:
-        //: 3 'bsl::add_volatile_t' represents the return type of
-        //:   'bsl::add_volatile' meta-function for a variety of template
-        //:   parameter types.
+        // 1. `bsl::add_volatile` adds a top-level `volatile`-qualifier only to
+        //    regular types (primitive, pointers, and user-defined types).
+        //
+        // 2. `bsl::add_volatile` does not add a `volatile`-qualifier to
+        //    reference types, function types, or types that are already
+        //    `volatile`-qualified.
+        //
+        // 3. `bsl::add_volatile_t` represents the return type of
+        //    `bsl::add_volatile` meta-function for a variety of template
+        //    parameter types.
         //
         // Plan:
-        //  1 Verify that 'bsl::add_volatile::type' has the correct type for
+        //  1 Verify that `bsl::add_volatile::type` has the correct type for
         //    each concern. (C1-2)
         //
-        //  2 Verify that 'bsl::add_volatile_t' has the same type as the return
-        //    type of 'bsl::add_const' for a variety of template parameter
+        //  2 Verify that `bsl::add_volatile_t` has the same type as the return
+        //    type of `bsl::add_const` for a variety of template parameter
         //    types. (C-3)
         //
         // Testing:

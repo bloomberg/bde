@@ -87,27 +87,27 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING CLASS TEMPLATE 'bsl::conjunction'
+        // TESTING CLASS TEMPLATE `bsl::conjunction`
         //
         // Concerns:
-        //:  1 'conjunction<...>::value' is 'false' iff one of the arguments is
-        //:    'Arg::value == false'.
-        //:
-        //:  2 'conjunction_v<...>' has the same value as
-        //:    'conjunction<...>::value'.
+        //  1. `conjunction<...>::value` is `false` iff one of the arguments is
+        //     `Arg::value == false`.
+        //
+        //  2. `conjunction_v<...>` has the same value as
+        //     `conjunction<...>::value`.
         //
         // Plan:
-        //:  1 Verify the result for all possible arguments permutations for 0,
-        //:    1, 2, and 3 arguments.
-        //:
-        //:  2 Repeat the same tests with 'conjunction_v'.
+        //  1. Verify the result for all possible arguments permutations for 0,
+        //     1, 2, and 3 arguments.
+        //
+        //  2. Repeat the same tests with `conjunction_v`.
         //
         // Testing:
         //   bsl::conjunction
         //   bsl::conjunction_v
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING CLASS TEMPLATE 'bsl::conjunction'"
+        if (verbose) printf("\nTESTING CLASS TEMPLATE `bsl::conjunction`"
                             "\n=========================================\n");
 
         using bsl::conjunction;
@@ -161,10 +161,10 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 The provided utilities are sufficiently functional.
+        // 1. The provided utilities are sufficiently functional.
         //
         // Plan:
-        //: 1 Write any code with 'bsl::conjunction' here.
+        // 1. Write any code with `bsl::conjunction` here.
         //
         // Testing:
         //   BREATHING TEST

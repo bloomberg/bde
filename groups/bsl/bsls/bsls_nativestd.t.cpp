@@ -3,13 +3,13 @@
 #include <bsls_nativestd.h>
 
 namespace std {
-    // SomeStdType in the native 'std' namespace.
+    // SomeStdType in the native `std` namespace.
     struct SomeStdType { };
     bool isNative(SomeStdType) { return true; }
 }  // close namespace std
 
 namespace fake_std {
-    // SomeStdType in the native 'fake_std' namespace.
+    // SomeStdType in the native `fake_std` namespace.
     struct SomeStdType { };
     bool isNative(SomeStdType) { return false; }
 }  // close namespace fake_std
@@ -21,8 +21,8 @@ namespace fake_std {
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
 // Test usage example for successful compilation.
-// Test visibility of symbols inside 'std' by defining them, then hiding the
-// 'std' namespace.
+// Test visibility of symbols inside `std` by defining them, then hiding the
+// `std` namespace.
 //
 
 //-----------------------------------------------------------------------------
@@ -73,8 +73,8 @@ static void aSsErT(int c, const char *s, int i) {
                          << ": " << N << "\n"; aSsErT(1, #X, __LINE__); } }
 
 // Allow compilation of individual test-cases (for test drivers that take a
-// very long time to compile).  Specify '-DSINGLE_TEST=<testcase>' to compile
-// only the '<testcase>' test case.
+// very long time to compile).  Specify `-DSINGLE_TEST=<testcase>` to compile
+// only the `<testcase>` test case.
 #define TEST_IS_ENABLED(num) (! defined(SINGLE_TEST) || SINGLE_TEST == (num))
 
 //=============================================================================
@@ -106,17 +106,17 @@ static int veryVeryVerbose = 0;
 
 ///Usage
 ///-----
-// In the following example we use the 'native_std' prefix to access the native
-// implementation of 'std::string', even when the compilation is configured to
+// In the following example we use the `native_std` prefix to access the native
+// implementation of `std::string`, even when the compilation is configured to
 // override the use of native STL types with Bloomberg provided STL types
 // (i.e., bde-stl mode, used by Bloomberg managed code):
-//..
+// ```
 #include <bsls_nativestd.h>
 #include <string>
 
-std::string        s1;  // now always 'std::string'
-native_std::string s2;  // always was 'std::string'
-//..
+std::string        s1;  // now always `std::string`
+native_std::string s2;  // always was `std::string`
+// ```
 
 //=============================================================================
 //                              MAIN PROGRAM

@@ -18,10 +18,10 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_stopwatch.h>                      // for testing only
 
-#include <ctype.h>      // 'isalpha'
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
-#include <string.h>     // 'strlen'
+#include <ctype.h>      // `isalpha`
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
+#include <string.h>     // `strlen`
 
 using namespace BloombergLP;
 
@@ -33,9 +33,9 @@ using namespace BloombergLP;
 // The component to be tested provides a proctor to help with exception-safety
 // guarantees.  The test sequence is very simple: we only have to ascertain
 // that the index computation is correct and that the proctor does destroy its
-// guarded range unless 'release' has been called.  We use a test type that
+// guarded range unless `release` has been called.  We use a test type that
 // monitors the number of constructions and destructions, and that allocates in
-// order to take advantage of the standard 'bslma' exception test.
+// order to take advantage of the standard `bslma` exception test.
 //-----------------------------------------------------------------------------
 // [ 2] bslalg::AutoArrayDestructor(T *b, T *e);
 // [ 2] ~AutoArrayDestructor();
@@ -106,7 +106,7 @@ void aSsErT(bool condition, const char *message, int line)
 // TYPES
 class TestType;
 
-typedef TestType                      T;    // uses 'bslma' allocators
+typedef TestType                      T;    // uses `bslma` allocators
 
 // STATIC DATA
 static int numDefaultCtorCalls = 0;
@@ -121,12 +121,12 @@ bslma::TestAllocator *Z;  // initialized at the start of main()
                                // class TestType
                                // ==============
 
+/// This test type contains a `char` in some allocated storage.  It counts
+/// the number of default and copy constructions, assignments, and
+/// destructions.  It has no traits other than using a `bslma` allocator.
+/// It could have the bit-wise moveable traits but we defer that trait to
+/// the `MoveableTestType`.
 class TestType {
-    // This test type contains a 'char' in some allocated storage.  It counts
-    // the number of default and copy constructions, assignments, and
-    // destructions.  It has no traits other than using a 'bslma' allocator.
-    // It could have the bit-wise moveable traits but we defer that trait to
-    // the 'MoveableTestType'.
 
     char             *d_data_p;
     bslma::Allocator *d_allocator_p;
@@ -235,24 +235,24 @@ bool operator==(const TestType& lhs, const TestType& rhs)
 //
 ///Example 1: Managing an Array Under Construction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// In most instances, the use of a 'bslalg::AutoArrayDestructor' could be
-// handled by a 'bslma::AutoDeallocator', but sometimes it is conceptually
+// In most instances, the use of a `bslalg::AutoArrayDestructor` could be
+// handled by a `bslma::AutoDeallocator`, but sometimes it is conceptually
 // clearer to frame the problem in terms of a pair of pointers rather than a
 // pointer and an offset.
 //
-// Suppose we have a class, 'UsageType' that allocates a block of memory upon
+// Suppose we have a class, `UsageType` that allocates a block of memory upon
 // construction, and whose constructor takes a char.  Suppose we want to create
 // an array of elements of such objects in an exception-safe manner.
 //
-// First, we create the type 'UsageType':
-//..
+// First, we create the type `UsageType`:
+// ```
                                // ===============
                                // class UsageType
                                // ===============
 
+/// This test type contains a `char` in some allocated storage.  It has no
+/// traits other than using a `bslma` allocator.
 class UsageType {
-    // This test type contains a 'char' in some allocated storage.  It has no
-    // traits other than using a 'bslma' allocator.
 
     char             *d_data_p;         // managed single char
     bslma::Allocator *d_allocator_p;    // allocator (held, not owned)
@@ -375,11 +375,11 @@ my_String::~my_String()
                                // class my_Array
                                // ==============
 
+/// This extremely simple `vector`-like class is merely to demonstrate that
+/// the usage example works properly.  For better testing, it uses a
+/// test allocator.
 template <class TYPE>
 class my_Array {
-    // This extremely simple 'vector'-like class is merely to demonstrate that
-    // the usage example works properly.  For better testing, it uses a
-    // test allocator.
 
     // DATA
     TYPE             *d_array_p; // dynamically allocated array
@@ -392,7 +392,7 @@ class my_Array {
     enum {
         INITIAL_SIZE = 1, // initial physical capacity
         GROW_FACTOR = 2   // multiplicative factor by which to grow
-                          // 'd_size'
+                          // `d_size`
     };
 
     // CLASS METHODS
@@ -437,6 +437,14 @@ int my_Array<TYPE>::nextSize(int size, int newSize)
     return size;
 }
 
+/// Reallocate memory in the specified `array` and update the
+/// specified size to the specified `newSize`.  The specified `length`
+/// number of leading elements are preserved.  If `allocator` should throw
+/// an exception, this function has no effect.  The behavior is
+/// undefined unless 1 <= newSize, 0 <= length, and newSize <= length.
+/// Note that an "auto deallocator" is needed here to ensure that
+/// memory allocated for the new array is deallocated when an exception
+/// occurs.
 template <class TYPE>
 inline
 void my_Array<TYPE>::reallocate(TYPE             **array,
@@ -444,14 +452,6 @@ void my_Array<TYPE>::reallocate(TYPE             **array,
                                 int                newSize,
                                 int                length,
                                 bslma::Allocator  *allocator)
-    // Reallocate memory in the specified 'array' and update the
-    // specified size to the specified 'newSize'.  The specified 'length'
-    // number of leading elements are preserved.  If 'allocator' should throw
-    // an exception, this function has no effect.  The behavior is
-    // undefined unless 1 <= newSize, 0 <= length, and newSize <= length.
-    // Note that an "auto deallocator" is needed here to ensure that
-    // memory allocated for the new array is deallocated when an exception
-    // occurs.
 {
     ASSERT(size);
     ASSERT(1 <= newSize);
@@ -461,7 +461,7 @@ void my_Array<TYPE>::reallocate(TYPE             **array,
 
     TYPE *newArray = (TYPE *) allocator->allocate(newSize * sizeof **array);
 
-    // 'autoDealloc' and 'autoDtor' are destroyed in reverse order
+    // `autoDealloc` and `autoDtor` are destroyed in reverse order
 
     bslma::DeallocatorProctor<bslma::Allocator>
                                               autoDealloc(newArray, allocator);
@@ -519,7 +519,7 @@ my_Array<TYPE>::~my_Array()
 
 ///Usage
 ///-----
-// The usage example is nearly identical to that of 'bslma_autodestructor', so
+// The usage example is nearly identical to that of `bslma_autodestructor`, so
 // we will only quote and adapt a small portion of that usage example.
 // Namely, we will focus on an array that supports arbitrary user-defined
 // types, and suppose that we want to implement insertion of an arbitrary
@@ -527,11 +527,11 @@ my_Array<TYPE>::~my_Array()
 // that if an element copy constructor or assignment operator throws, the whole
 // array is left in a valid (but unspecified) state.
 //
-// Consider the implementation of the 'insert' method for a templatized array
+// Consider the implementation of the `insert` method for a templatized array
 // below.  The proctor's *origin* is set (at construction) to refer to the
-// 'numItems' position past 'array[length]'.  Initially, the proctor manages no
+// `numItems` position past `array[length]`.  Initially, the proctor manages no
 // objects (i.e., its end is the same as its beginning).
-//..
+// ```
 //     0     1     2     3     4     5     6     7
 //   _____ _____ _____ _____ _____ _____ _____ _____
 //  | "A" | "B" | "C" | "D" | "E" |xxxxx|xxxxx|xxxxx|
@@ -540,13 +540,13 @@ my_Array<TYPE>::~my_Array()
 //  (length = 5)
 //
 //              Figure: Use of proctor for my_Array::insert
-//..
+// ```
 // As each of the elements at index positions beyond the insertion position is
 // shifted up by two index positions, the proctor's begin address is
 // *decremented*.  At the same time, the array's length is *decremented* to
 // ensure that each array element is always being managed (during an allocation
 // attempt) either by the proctor or the array itself, but not both.
-//..
+// ```
 //     0     1     2     3     4     5     6     7
 //   _____ _____ _____ _____ _____ _____ _____ _____
 //  | "A" | "B" | "C" | "D" |xxxxx|xxxxx| "E" |xxxxx|
@@ -555,11 +555,11 @@ my_Array<TYPE>::~my_Array()
 //  (length = 4)                        `---- AutoArrayDestructor::begin
 //
 //              Figure: Configuration after shifting up one element
-//..
+// ```
 // After the required number of elements have been shifted, the hole is filled
 // (backwards) by copies of the element to be inserted.  The code for the
-// templatized 'insert' method is as follows:
-//..
+// templatized `insert` method is as follows:
+// ```
 // Assume no aliasing.
 template <class TYPE>
 inline
@@ -588,10 +588,10 @@ void my_Array<TYPE>::insert(int dstIndex, const TYPE& item, int numItems)
     autoDtor.release();
     d_length = origLen + numItems;
 }
-//..
-// Note that in the 'insert' example above, we illustrate exception
-// neutrality, but not alias safety (i.e., in the case when 'item' is a
-// reference into the portion of the array at 'dstIndex' or beyond).
+// ```
+// Note that in the `insert` example above, we illustrate exception
+// neutrality, but not alias safety (i.e., in the case when `item` is a
+// reference into the portion of the array at `dstIndex` or beyond).
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -630,7 +630,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nTESTING USAGE EXAMPLE"
                             "\n=====================\n");
-// Then, we create a 'TestAllocator' to supply memory (and to verify that no
+// Then, we create a `TestAllocator` to supply memory (and to verify that no
 // memory is leaked):
 
         bslma::TestAllocator ta;
@@ -639,7 +639,7 @@ int main(int argc, char *argv[])
 
         UsageType *array;
 
-// Then, we declare a string of chars we will use to initialize the 'UsageType'
+// Then, we declare a string of chars we will use to initialize the `UsageType`
 // objects in our array.
 
         const char   *DATA = "Hello";
@@ -656,33 +656,33 @@ int main(int argc, char *argv[])
         array = (UsageType *) ta.allocate(DATA_LEN * sizeof(UsageType));
         bslma::DeallocatorProctor<bslma::Allocator> arrayProctor(array, &ta);
 
-// Next, we establish an 'AutoArrayDestructor' on 'array' to destroy any valid
-// elements in 'array' if an exception is thrown:
+// Next, we establish an `AutoArrayDestructor` on `array` to destroy any valid
+// elements in `array` if an exception is thrown:
 
         typedef bslalg::AutoArrayDestructor<UsageType> Obj;
 
         Obj arrayElementProctor(array, array, &ta);
 
-        // Note that we pass 'arrayElementProctor' pointers to the beginning
+        // Note that we pass `arrayElementProctor` pointers to the beginning
         // and end
         // of the range to be guarded (we start with an empty range since no
         // elements
         // have been constructed yet).
         //
-        // Then, we iterate through the valid chars in 'DATA' and use them to
+        // Then, we iterate through the valid chars in `DATA` and use them to
         // construct
         // the elements of the array:
 
         UsageType *resultElement = array;
         for (const char *nextChar = DATA; *nextChar; ++nextChar) {
-//..
-// Next, construct the next element of 'array':
-//..
+// ```
+// Next, construct the next element of `array`:
+// ```
             new (resultElement++) UsageType(*nextChar, &ta);
-//..
-// Now, move the end of 'arrayElementProctor' to cover the most recently
+// ```
+// Now, move the end of `arrayElementProctor` to cover the most recently
 // constructed element:
-//..
+// ```
             arrayElementProctor.moveEnd(1);
         }
 
@@ -727,7 +727,7 @@ int main(int argc, char *argv[])
                             "\n==============================\n");
 
         if (verbose)
-            printf("Testing 'my_Array::insert' and 'my_Array::remove'.\n");
+            printf("Testing `my_Array::insert` and `my_Array::remove`.\n");
 
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
         {
@@ -760,9 +760,9 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'release'
+        // TESTING `release`
         //
-        // Concerns:  That the guard does not free guarded memory if 'release'
+        // Concerns:  That the guard does not free guarded memory if `release`
         //    has been called.
         //
         // Plan:
@@ -771,7 +771,7 @@ int main(int argc, char *argv[])
         //   void release();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'release'."
+        if (verbose) printf("\nTESTING `release`."
                             "\n==================\n");
 
         typedef bslalg::AutoArrayDestructor<T> Obj;
@@ -808,7 +808,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'class bslalg::AutoArrayDestructor'
+        // TESTING `class bslalg::AutoArrayDestructor`
         //
         // Concerns:  That the guard frees guarded memory properly upon
         //   exceptions.
@@ -825,7 +825,7 @@ int main(int argc, char *argv[])
         //   T *moveEnd(ptrdiff_t offset = 1);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'class bslalg::AutoArrayDestructor'"
+        if (verbose) printf("\nTESTING `class bslalg::AutoArrayDestructor`"
                             "\n===========================================\n");
 
         const int MAX_SIZE = 16;
@@ -907,7 +907,7 @@ int main(int argc, char *argv[])
             ASSERT_SAFE_PASS(Obj(begin, end));
         }
 
-        if(verbose) printf("\nNegative testing 'moveBegin' and 'moveEnd'\n");
+        if(verbose) printf("\nNegative testing `moveBegin` and `moveEnd`\n");
         {
             typedef bslalg::AutoArrayDestructor<int> Obj;
 
@@ -978,7 +978,7 @@ int main(int argc, char *argv[])
 
             ASSERT(&buf[0]        == mG.moveBegin(-2));
             ASSERT(&buf[MAX_SIZE] == mG.moveEnd(MAX_SIZE - 6));
-        }  // deallocates 'buf'
+        }  // deallocates `buf`
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

@@ -150,51 +150,51 @@ namespace {
 using namespace BloombergLP;
 using namespace bdld;
 
+/// Return `true` if key in the specified `lhs` is less than key in the
+/// specified `rhs` and `false` otherwise.
 bool compareLess(const DatumMapEntry& lhs, const DatumMapEntry& rhs);
-    // Return 'true' if key in the specified 'lhs' is less than key in the
-    // specified 'rhs' and 'false' otherwise.
 
+/// Clone the elements in the specified `array`.  Use the specified
+/// `allocator` to allocate memory (if needed).  Any dynamically allocated
+/// memory inside the `Datum` objects within `array` is also deep-copied.
 static Datum copyArray(const DatumArrayRef&        array,
                        const Datum::AllocatorType& allocator);
-    // Clone the elements in the specified 'array'.  Use the specified
-    // 'allocator' to allocate memory (if needed).  Any dynamically allocated
-    // memory inside the 'Datum' objects within 'array' is also deep-copied.
 
+/// Clone the elements in the specified int `map`.  Use the specified
+/// `allocator` to allocate memory (if needed).  Any dynamically allocated
+/// memory inside the `Datum` objects within `map` is also deep-copied.
 static Datum copyIntMap(const DatumIntMapRef&       map,
                         const Datum::AllocatorType& allocator);
-    // Clone the elements in the specified int 'map'.  Use the specified
-    // 'allocator' to allocate memory (if needed).  Any dynamically allocated
-    // memory inside the 'Datum' objects within 'map' is also deep-copied.
 
+/// Clone the elements in the specified `map`.  Use the specified
+/// `allocator` to allocate memory (if needed).  Any dynamically allocated
+/// memory inside the `Datum` objects within `map` is also deep-copied.  The
+/// keys in the elements within `map` are also cloned.
 static Datum copyMapOwningKeys(const DatumMapRef&          map,
                                const Datum::AllocatorType& allocator);
-    // Clone the elements in the specified 'map'.  Use the specified
-    // 'allocator' to allocate memory (if needed).  Any dynamically allocated
-    // memory inside the 'Datum' objects within 'map' is also deep-copied.  The
-    // keys in the elements within 'map' are also cloned.
 
+/// Return a pointer to a `Datum` object if the specified `key` exists in
+/// the specified `map` or 0 otherwise.  Find the key using binary search
+/// and return the first match in case of multiple matches.
 static const Datum *findElementBinary(const bslstl::StringRef& key,
                                       const DatumMapRef&       map);
-    // Return a pointer to a 'Datum' object if the specified 'key' exists in
-    // the specified 'map' or 0 otherwise.  Find the key using binary search
-    // and return the first match in case of multiple matches.
 
+/// Return a pointer to a `Datum` object if the specified `key` exists in
+/// the specified `map` or 0 otherwise.  Find the key using linear search.
 static const Datum *findElementLinear(const bslstl::StringRef& key,
                                       const DatumMapRef&       map);
-    // Return a pointer to a 'Datum' object if the specified 'key' exists in
-    // the specified 'map' or 0 otherwise.  Find the key using linear search.
 
                          // ========================
                          // class Datum_ArrayProctor
                          // ========================
 
+/// This component-local mechanism class provides a specialized proctor
+/// object that, upon destruction and unless the `release` method has been
+/// called, destroys the elements in an array of `ELEMENT` objects and also
+/// deallocates the memory allocated for the entire array.  The elements
+/// destroyed are delimited by the "guarded" range `[ begin(), end() )`.
 template <class ELEMENT>
 class Datum_ArrayProctor {
-    // This component-local mechanism class provides a specialized proctor
-    // object that, upon destruction and unless the 'release' method has been
-    // called, destroys the elements in an array of 'ELEMENT' objects and also
-    // deallocates the memory allocated for the entire array.  The elements
-    // destroyed are delimited by the "guarded" range '[ begin(), end() )'.
 
   private:
     // DATA
@@ -216,11 +216,12 @@ class Datum_ArrayProctor {
                                // the array of 'Datum' objects
 
     // PRIVATE MANIPULATORS
+
+    /// Destroy the contiguous sequence of `Datum` objects managed by this
+    /// range proctor (if any) by invoking `Datum::destroy` on each
+    /// (managed) object.  The memory allocated for the whole array is also
+    /// deallocated.
     void destroy();
-        // Destroy the contiguous sequence of 'Datum' objects managed by this
-        // range proctor (if any) by invoking 'Datum::destroy' on each
-        // (managed) object.  The memory allocated for the whole array is also
-        // deallocated.
   private:
     // NOT IMPLEMENTED
     Datum_ArrayProctor(const Datum_ArrayProctor&);
@@ -228,33 +229,35 @@ class Datum_ArrayProctor {
 
   public:
     // CREATORS
+
+    /// Create an array exception proctor object for the array of `Datum`
+    /// objects at the specified `base` delimited by the range specified by
+    /// `[ begin, end )`.  The memory inside the array is managed using the
+    /// specified `allocator`.  The behavior is undefined unless
+    /// `0 != base`, `0 != begin`, `0 != basicAllocator`, `begin <= end` (if
+    /// `0 != end`), and each element in the range `[ begin, end )` has been
+    /// initialized.
     Datum_ArrayProctor(void                        *base,
                        bsl::size_t                  size,
                        ELEMENT                     *begin,
                        ELEMENT                     *end,
                        const Datum::AllocatorType&  allocator);
-        // Create an array exception proctor object for the array of 'Datum'
-        // objects at the specified 'base' delimited by the range specified by
-        // '[ begin, end )'.  The memory inside the array is managed using the
-        // specified 'allocator'.  The behavior is undefined unless
-        // '0 != base', '0 != begin', '0 != basicAllocator', 'begin <= end' (if
-        // '0 != end'), and each element in the range '[ begin, end )' has been
-        // initialized.
 
+    /// Destroy this range proctor along with the contiguous sequence of
+    /// `Datum` objects it manages (if any) by invoking `Datum::destroy` on
+    /// each (managed) object.  The memory allocated for the whole array is
+    /// also deallocated.
     ~Datum_ArrayProctor();
-        // Destroy this range proctor along with the contiguous sequence of
-        // 'Datum' objects it manages (if any) by invoking 'Datum::destroy' on
-        // each (managed) object.  The memory allocated for the whole array is
-        // also deallocated.
 
     // MANIPULATORS
-    ELEMENT *moveEnd(bsl::ptrdiff_t offset = 1);
-        // Move the end pointer by the optionally specified 'offset', and
-        // return the new end pointer.
 
+    /// Move the end pointer by the optionally specified `offset`, and
+    /// return the new end pointer.
+    ELEMENT *moveEnd(bsl::ptrdiff_t offset = 1);
+
+    /// Set `d_released` flag to `true`, indicating that proctor shouldn't
+    /// destroy managed objects on it's destruction.
     void release();
-        // Set 'd_released' flag to 'true', indicating that proctor shouldn't
-        // destroy managed objects on it's destruction.
 };
 
                          // ------------------------
@@ -347,11 +350,11 @@ void Datum_ArrayProctor<ELEMENT>::release()
                           // class Datum_CopyVisitor
                           // =======================
 
+/// This component-local class provides a visitor to visit and copy value
+/// within a `Datum` object and create a new `Datum` object out of it.  This
+/// class implements "deep-copy" of `Datum` objects.  Note that this class
+/// has implicit copy constructor and copy-assignment operator.
 class Datum_CopyVisitor {
-    // This component-local class provides a visitor to visit and copy value
-    // within a 'Datum' object and create a new 'Datum' object out of it.  This
-    // class implements "deep-copy" of 'Datum' objects.  Note that this class
-    // has implicit copy constructor and copy-assignment operator.
 
   private:
     // DATA
@@ -364,79 +367,81 @@ class Datum_CopyVisitor {
 
   public:
     // CREATORS
+
+    /// Create a `Datum_CopyVisitor` object with the specified `result`
+    /// and `basicAllocator`.
     Datum_CopyVisitor(Datum                       *result,
                       const Datum::AllocatorType&  allocator);
-        // Create a 'Datum_CopyVisitor' object with the specified 'result'
-        // and 'basicAllocator'.
 
     // MANIPULATORS
+
+    /// Create a `Datum` object using the specified `value` and copy it
+    /// into `d_result_p`.
     void operator()(bslmf::Nil value);
-        // Create a 'Datum' object using the specified 'value' and copy it
-        // into 'd_result_p'.
 
+    /// Create a `Datum` object using the specified `value` and copy it
+    /// into `d_result_p`.
     void operator()(const bdlt::Date& value);
-        // Create a 'Datum' object using the specified 'value' and copy it
-        // into 'd_result_p'.
 
+    /// Create a `Datum` object using the specified `value` and copy it
+    /// into `d_result_p`.
     void operator()(const bdlt::Datetime& value);
-        // Create a 'Datum' object using the specified 'value' and copy it
-        // into 'd_result_p'.
 
+    /// Create a `Datum` object using the specified `value` and copy it
+    /// into `d_result_p`.
     void operator()(const bdlt::DatetimeInterval& value);
-        // Create a 'Datum' object using the specified 'value' and copy it
-        // into 'd_result_p'.
 
+    /// Create a `Datum` object using the specified `value` and copy it
+    /// into `d_result_p`.
     void operator()(const bdlt::Time& value);
-        // Create a 'Datum' object using the specified 'value' and copy it
-        // into 'd_result_p'.
 
+    /// Create a `Datum` object using the specified `value` and copy it
+    /// into `d_result_p`.
     void operator()(const bslstl::StringRef& value);
-        // Create a 'Datum' object using the specified 'value' and copy it
-        // into 'd_result_p'.
 
+    /// Create a `Datum` object using the specified `value` and copy it
+    /// into `d_result_p`.
     void operator()(bool value);
-        // Create a 'Datum' object using the specified 'value' and copy it
-        // into 'd_result_p'.
 
+    /// Create a `Datum` object using the specified `value` and copy it
+    /// into `d_result_p`.
     void operator()(bsls::Types::Int64 value);
-        // Create a 'Datum' object using the specified 'value' and copy it
-        // into 'd_result_p'.
 
+    /// Create a `Datum` object using the specified `value` and copy it
+    /// into `d_result_p`.
     void operator()(double value);
-        // Create a 'Datum' object using the specified 'value' and copy it
-        // into 'd_result_p'.
 
+    /// Create a `Datum` object using the specified `value` and copy it
+    /// into `d_result_p`.
     void operator()(const DatumError& value);
-        // Create a 'Datum' object using the specified 'value' and copy it
-        // into 'd_result_p'.
 
+    /// Create a `Datum` object using the specified `value` and copy it
+    /// into `d_result_p`.
     void operator()(int value);
-        // Create a 'Datum' object using the specified 'value' and copy it
-        // into 'd_result_p'.
 
+    /// Create a `Datum` object using the specified `value` and copy it
+    /// into `d_result_p`.
     void operator()(const DatumUdt& value);
-        // Create a 'Datum' object using the specified 'value' and copy it
-        // into 'd_result_p'.
 
+    /// Create a `Datum` object using the specified `value` and copy it
+    /// into `d_result_p`.
     void operator()(const DatumArrayRef& value);
-        // Create a 'Datum' object using the specified 'value' and copy it
-        // into 'd_result_p'.
 
+    /// Create a `Datum` object using the specified `value` and copy it
+    /// into `d_result_p`.
     void operator()(const DatumIntMapRef& value);
-        // Create a 'Datum' object using the specified 'value' and copy it
-        // into 'd_result_p'.
 
+    /// Create a `Datum` object using the specified `value` and copy it
+    /// into `d_result_p`.
     void operator()(const DatumMapRef& value);
-        // Create a 'Datum' object using the specified 'value' and copy it
-        // into 'd_result_p'.
 
+    /// Create a `Datum` object using the specified `value` and copy it
+    /// into `d_result_p`.
     void operator()(const DatumBinaryRef& value);
-        // Create a 'Datum' object using the specified 'value' and copy it
-        // into 'd_result_p'.
 
+    /// Create a `Datum` object using the specified `value` and copy it
+    /// into `d_result_p`.
     void operator()(bdldfp::Decimal64 value);
-        // Create a 'Datum' object using the specified 'value' and copy it
-        // into 'd_result_p'.
 };
 
                           // -----------------------
@@ -548,10 +553,10 @@ void Datum_CopyVisitor::operator()(bdldfp::Decimal64 value)
                          // class Datum_StreamVisitor
                          // =========================
 
+/// This component-local class provides a visitor to visit and stream value
+/// within an `Datum` object.  Note that this class has implicit copy-
+/// constructor and copy-assignment operator.
 class Datum_StreamVisitor {
-    // This component-local class provides a visitor to visit and stream value
-    // within an 'Datum' object.  Note that this class has implicit copy-
-    // constructor and copy-assignment operator.
 
   private:
     // DATA
@@ -561,27 +566,29 @@ class Datum_StreamVisitor {
 
   public:
     // CREATORS
+
+    /// Create a `StreamVisitor` object with the specified `stream` at the
+    /// specified indentation `level`.  The specified `spacesPerLevel`
+    /// defines the number of spaces per indentation level.
     explicit Datum_StreamVisitor(bsl::ostream& stream,
                                  int           level,
                                  int           spacesPerLevel);
-        // Create a 'StreamVisitor' object with the specified 'stream' at the
-        // specified indentation 'level'.  The specified 'spacesPerLevel'
-        // defines the number of spaces per indentation level.
 
 
     // MANIPULATORS
+
+    /// Write the specified `value` into `d_stream`.
     void operator()(bslmf::Nil value) const;
-        // Write the specified 'value' into 'd_stream'.
 
+    /// Write the specified `value` into `d_stream`.
     void operator()(bool value) const;
-        // Write the specified 'value' into 'd_stream'.
 
+    /// Write the specified `value` into `d_stream`.
     void operator()(const bslstl::StringRef& value) const;
-        // Write the specified 'value' into 'd_stream'.
 
+    /// Write the specified `value` into `d_stream`.
     template <class BDLD_TYPE>
     void operator()(const BDLD_TYPE& value) const;
-        // Write the specified 'value' into 'd_stream'.
 };
 
                          // -------------------------

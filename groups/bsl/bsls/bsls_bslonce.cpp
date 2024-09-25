@@ -19,8 +19,8 @@ namespace bsls {
 
 namespace {
 
+/// Schedule another thread to run.
 static void yield()
-    // Schedule another thread to run.
 {
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
     ::SleepEx(0, 0);

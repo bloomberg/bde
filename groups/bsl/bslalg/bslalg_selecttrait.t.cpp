@@ -20,8 +20,8 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 using namespace BloombergLP;
 
@@ -31,13 +31,13 @@ using namespace BloombergLP;
 //                             Overview
 //                             --------
 // There is a very good infrastructure for testing, computing the traits of a
-// type as a bit-field from the test driver of 'bslalg_typetraits', which can
+// type as a bit-field from the test driver of `bslalg_typetraits`, which can
 // be reused systematically.
 //
-// 'bslalg::SelectTrait' is used to select a particular trait from a list of
+// `bslalg::SelectTrait` is used to select a particular trait from a list of
 // candidate traits for a particular type.  It does not matter which trait is
-// used for testing.  'bslalg::TypeTraitBitwiseMoveable' and
-// 'bslalg::TypeTraitUsesBslmaAllocator' will be used in this case.
+// used for testing.  `bslalg::TypeTraitBitwiseMoveable` and
+// `bslalg::TypeTraitUsesBslmaAllocator` will be used in this case.
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
 
@@ -145,18 +145,18 @@ unsigned traitBits()
     return result;
 }
 
+/// Use this struct to convert a cast-style type (e.g., `void (*)(int)`)
+/// into a named type (e.g., `void (*Type)(int)`).
+/// Example: `Identity<void (*)(int)>::Type`.
 template <class TYPE>
 struct Identity
 {
-    // Use this struct to convert a cast-style type (e.g., 'void (*)(int)')
-    // into a named type (e.g., 'void (*Type)(int)').
-    // Example: 'Identity<void (*)(int)>::Type'.
 
     typedef TYPE Type;
 };
 
-// Test that 'traitBits<TYPE>()' returns the value 'TRAIT_BITS' for every
-// combination of cv-qualified 'TYPE' and reference to 'TYPE'.
+// Test that `traitBits<TYPE>()` returns the value `TRAIT_BITS` for every
+// combination of cv-qualified `TYPE` and reference to `TYPE`.
 #define TRAIT_TEST(TYPE, TRAIT_BITS) {                                 \
     typedef Identity<TYPE >::Type Type;                                \
     typedef Type const          cType;                                 \
@@ -197,7 +197,7 @@ struct my_BothTraitsClass {
 namespace BloombergLP {
 namespace bslmf {
 
-// Being empty, 'my_NilTraitClass' would normally be implicitly bitwise
+// Being empty, `my_NilTraitClass` would normally be implicitly bitwise
 // moveable.  Override, making it explicitly NOT bitwise moveable.
 template <>
 struct IsBitwiseMoveable<my_NilTraitClass> : bsl::false_type { };
@@ -234,16 +234,16 @@ int main(int argc, char *argv[])
         //   1. That the proper trait is selected from multiple traits.
         //   2. That the proper trait is selected regardless of where the
         //      proper trait is specified in the list of traits.
-        //   3. That the order of traits listed in 'bslalg::SelectTrait'
+        //   3. That the order of traits listed in `bslalg::SelectTrait`
         //      reflects the precedence of traits selection.
         //   4. That candidate traits doesn't get passed onto the class when
         //      none of the traits matched.
         //
         // Plan:
-        //   Using four helper classes, 'my_NilTraitClass',
-        //   'my_BitwiseMoveableClass', 'my_UsesBslmaAllocatorClass',
-        //   'my_BothTraitsClass', check that the type traits being assigned
-        //   to them are correct using 'bslalg::SelectTrait' with various
+        //   Using four helper classes, `my_NilTraitClass`,
+        //   `my_BitwiseMoveableClass`, `my_UsesBslmaAllocatorClass`,
+        //   `my_BothTraitsClass`, check that the type traits being assigned
+        //   to them are correct using `bslalg::SelectTrait` with various
         //   ordering according to the list of concerns.
         //
         // Testing:

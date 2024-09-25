@@ -14,7 +14,7 @@
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 
-// Do not 'using' any namespaces.  We want to verify that everything works from
+// Do not `using` any namespaces.  We want to verify that everything works from
 // the global namespace.
 
 using bsl::cout;
@@ -129,7 +129,7 @@ const char        *NON_EMPTY_WCHAR_EXPECTED = (4 == sizeof(wchar_t))
     : "12345\\x0000"  "\\x0099"  "\\x009a"  "\\x009b"  "\\x009c"  "\\x009d";
 
 // ============================================================================
-//           SIMULATE LEGITIMATE 'PrintTo' DECLARATIONS IN 'testing'
+//           SIMULATE LEGITIMATE `PrintTo` DECLARATIONS IN `testing`
 // ----------------------------------------------------------------------------
 
 namespace testing {
@@ -185,7 +185,7 @@ void PrintTo(const bsl::string_view& sv, ::std::ostream *stream_p)
 }
 
 // ============================================================================
-//        These functions are just propagated from 'gtest-printers.h'.
+//        These functions are just propagated from `gtest-printers.h`.
 // ----------------------------------------------------------------------------
 
 template <typename T>
@@ -196,24 +196,24 @@ class UniversalPrinter {
     // conflicts with ::testing::internal::PrintTo in the body of the
     // function.
 
+    /// By default, ::testing::internal::PrintTo() is used for printing
+    /// the value.
+    ///
+    /// Thanks to Koenig look-up, if T is a class and has its own
+    /// PrintTo() function defined in its namespace, that function will
+    /// be visible here.  Since it is more specific than the generic ones
+    /// in ::testing::internal, it will be picked by the compiler in the
+    /// following statement - exactly what we want.
     static void Print(const T& value, ::std::ostream* os) {
-        // By default, ::testing::internal::PrintTo() is used for printing
-        // the value.
-        //
-        // Thanks to Koenig look-up, if T is a class and has its own
-        // PrintTo() function defined in its namespace, that function will
-        // be visible here.  Since it is more specific than the generic ones
-        // in ::testing::internal, it will be picked by the compiler in the
-        // following statement - exactly what we want.
 
         PrintTo(value, os);
     }
 };
 
+/// A workarond for the bug in VC++ 7.1 that prevents us from instantiating
+/// UniversalPrinter with T directly.
 template <typename T>
 void UniversalPrint(const T& value, ::std::ostream* os) {
-    // A workarond for the bug in VC++ 7.1 that prevents us from instantiating
-    // UniversalPrinter with T directly.
 
     typedef T T1;
     UniversalPrinter<T1>::Print(value, os);
@@ -223,7 +223,7 @@ void UniversalPrint(const T& value, ::std::ostream* os) {
 }  // close namespace testing
 
 // ============================================================================
-//           SIMULATE LEGITIMATE 'PrintTo' DECLARATIONS IN 'testingB'
+//           SIMULATE LEGITIMATE `PrintTo` DECLARATIONS IN `testingB`
 // ----------------------------------------------------------------------------
 
 namespace testingB {
@@ -260,7 +260,7 @@ void PrintTo(const Hisser& hisser, ::std::ostream *stream)
 }  // close namespace testingB
 
 // ============================================================================
-//            SIMULATE COMPETING 'PrintTo' DECLARATIONS IN GTEST
+//            SIMULATE COMPETING `PrintTo` DECLARATIONS IN GTEST
 // ----------------------------------------------------------------------------
 
 template <typename T>
@@ -410,10 +410,10 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 Demonstrate the usage of this component.
+        // 1. Demonstrate the usage of this component.
         //
         // Plan:
-        //: 1 Using 'PrintTo' to output a string.
+        // 1. Using `PrintTo` to output a string.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "USAGE EXAMPLE\n"
@@ -421,58 +421,58 @@ int main(int argc, char *argv[])
 
 ///Usage
 ///-----
-// Suppose we have a string 'str' that we want to output:
-//..
+// Suppose we have a string `str` that we want to output:
+// ```
     bsl::string str =
                    "No matter where you go, There you are! -- Buckaroo Banzai";
-//..
-// Call 'PrintTo', passing the string and a pointer to a 'bsl::ostream':
-//..
+// ```
+// Call `PrintTo`, passing the string and a pointer to a `bsl::ostream`:
+// ```
     PrintTo(str, &cout);
     cout << endl;
-//..
+// ```
 // Which results in the string being streamed to standard output, surrounded by
 // double quotes:
-//..
+// ```
 //  "No matter where you go, There you are! -- Buckaroo Banzai"
-//..
+// ```
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING ADL WITHIN 'PrintTo(optional<TYPE>, ...)'
+        // TESTING ADL WITHIN `PrintTo(optional<TYPE>, ...)`
         //
         // Concern:
-        //: 1 That, if type and a 'PrintTo' for it are defined in 'testing' or
-        //:   another namespace, ADL will properly dispatch the call to
-        //:   'UniversalPrint' within 'PrintTo(optional<TYPE>, ...)'.
+        // 1. That, if type and a `PrintTo` for it are defined in `testing` or
+        //    another namespace, ADL will properly dispatch the call to
+        //    `UniversalPrint` within `PrintTo(optional<TYPE>, ...)`.
         //
         // Plan:
-        //: 1 Define the 'class' 'Hisser' in namespace 'testing' declare an
-        //:   'optional' object containing one.
-        //:
-        //: 2 Stream the 'optional' to an 'ostringstream' and verify that the
-        //:   output is as expected.
-        //:
-        //: 3 Define the 'class' 'Hisser' in namespace 'testingB' declare an
-        //:   'optional' object containing one.
-        //:
-        //: 4 Stream the 'optional' to an 'ostringstream' and verify that the
-        //:   output is as expected.
-        //:
-        //: 5 Declare an 'optional' containing an 'int'.
-        //:
-        //: 6 Stream the 'optional' to an 'ostringstream' and verify that the
-        //:   output is as expected.
+        // 1. Define the `class` `Hisser` in namespace `testing` declare an
+        //    `optional` object containing one.
+        //
+        // 2. Stream the `optional` to an `ostringstream` and verify that the
+        //    output is as expected.
+        //
+        // 3. Define the `class` `Hisser` in namespace `testingB` declare an
+        //    `optional` object containing one.
+        //
+        // 4. Stream the `optional` to an `ostringstream` and verify that the
+        //    output is as expected.
+        //
+        // 5. Declare an `optional` containing an `int`.
+        //
+        // 6. Stream the `optional` to an `ostringstream` and verify that the
+        //    output is as expected.
         //
         // Testing:
         //   void PrintTo(const bsl::optional<TYPE>& value, ostream *stream);
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-                        "TESTING ADL WITHIN 'PrintTo(optional<TYPE>, ...)'\n"
+                        "TESTING ADL WITHIN `PrintTo(optional<TYPE>, ...)`\n"
                         "=================================================\n";
 
-        if (verbose) cout << "TYPE in 'testing'\n";
+        if (verbose) cout << "TYPE in `testing`\n";
         {
             const testing::Hisser hisser(4);
             const bsl::optional<testing::Hisser> opt(hisser);
@@ -484,7 +484,7 @@ int main(int argc, char *argv[])
             ASSERTV(oss.str(), "(\"ssss\")" == oss.str());
         }
 
-        if (verbose) cout << "TYPE in namespace other than 'testing'\n";
+        if (verbose) cout << "TYPE in namespace other than `testing`\n";
         {
             const testingB::Hisser hisserB(7);
             const bsl::optional<testingB::Hisser> optB(hisserB);
@@ -496,7 +496,7 @@ int main(int argc, char *argv[])
             ASSERTV(oss.str(), "(\"sssssss\")" == oss.str());
         }
 
-        if (verbose) cout << "Fundamental TYPE, PrintTo in 'testing'\n";
+        if (verbose) cout << "Fundamental TYPE, PrintTo in `testing`\n";
         {
             const bsl::optional<int> optI(207);
 
@@ -509,27 +509,27 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'PrintTo' FOR 'bsl::optional'
+        // TESTING `PrintTo` FOR `bsl::optional`
         //
         // Concerns:
-        //: 1 The 'PrintTo' correctly handles empty 'bsl::optional' objects.
-        //:
-        //: 2 The 'PrintTo' correctly writes any non-empty 'bsl::optional'
-        //:   object's value to the stream.
+        // 1. The `PrintTo` correctly handles empty `bsl::optional` objects.
+        //
+        // 2. The `PrintTo` correctly writes any non-empty `bsl::optional`
+        //    object's value to the stream.
         //
         // Plan:
-        //: 1 Create several 'bsl::optional' objects, having different value
-        //:   types and values.  Print them to the stream using 'PrintTo'
-        //:   function and verify the result.  (C-1..2)
+        // 1. Create several `bsl::optional` objects, having different value
+        //    types and values.  Print them to the stream using `PrintTo`
+        //    function and verify the result.  (C-1..2)
         //
         // Testing:
         //   void PrintTo(const bsl::optional<TYPE>& value, ostream *stream);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'PrintTo' FOR 'bsl::optional'"
+        if (verbose) cout << "\nTESTING `PrintTo` FOR `bsl::optional`"
                           << "\n=====================================\n";
 
-        if (veryVerbose) cout << "Testing default-constructed 'bsl::optional'."
+        if (veryVerbose) cout << "Testing default-constructed `bsl::optional`."
                               << endl;
         {
             bsl::optional<int>                     mXI;
@@ -556,7 +556,7 @@ int main(int argc, char *argv[])
             ASSERTV(ossSV.str(), EMPTY_OPTIONAL_EXPECTED == ossSV.str());
         }
 
-        if (veryVerbose) cout << "Testing 'bsl::optional<int>'." << endl;
+        if (veryVerbose) cout << "Testing `bsl::optional<int>`." << endl;
         {
             bsl::optional<int>        mXI1(-1);
             bsl::optional<int>        mXI2( 0);
@@ -586,7 +586,7 @@ int main(int argc, char *argv[])
             ASSERTV(ossI3.str(), EXPECTED3 == ossI3.str());
         }
 
-        if (veryVerbose) cout << "Testing 'bsl::optional<bsl::string>'."
+        if (veryVerbose) cout << "Testing `bsl::optional<bsl::string>`."
                               << endl;
         {
             bsl::optional<bsl::string>        mXS1("");
@@ -623,7 +623,7 @@ int main(int argc, char *argv[])
             ASSERTV(ossS3.str(), EXPECTED3 == ossS3.str());
         }
 
-        if (veryVerbose) cout << "Testing 'bsl::optional<bsl::string_view>'."
+        if (veryVerbose) cout << "Testing `bsl::optional<bsl::string_view>`."
                               << endl;
         {
             bsl::optional<bsl::string_view> mXSV1("");
@@ -659,33 +659,33 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'PrintTo' FOR 'StringRef'
+        // TESTING `PrintTo` FOR `StringRef`
         //
         // Concerns:
-        //: 1 The 'PrintTo' correctly writes an empty 'StringRef' object's
-        //:   value to the stream.
-        //:
-        //: 2 The 'PrintTo' correctly writes 'StringRef' object's value
-        //:   containing embedded null character to the stream.
-        //:
-        //: 3 The 'PrintTo' correctly writes any non-empty 'StringRef' object's
-        //:   value to the stream.
+        // 1. The `PrintTo` correctly writes an empty `StringRef` object's
+        //    value to the stream.
+        //
+        // 2. The `PrintTo` correctly writes `StringRef` object's value
+        //    containing embedded null character to the stream.
+        //
+        // 3. The `PrintTo` correctly writes any non-empty `StringRef` object's
+        //    value to the stream.
         //
         // Plan:
-        //: 1 Create several 'StringRef' objects, having different values.
-        //:   Print them to the stream using 'PrintTo' function and verify the
-        //:   result.  (C-1..3)
+        // 1. Create several `StringRef` objects, having different values.
+        //    Print them to the stream using `PrintTo` function and verify the
+        //    result.  (C-1..3)
         //
         // Testing:
         //   void PrintTo(const bslstl::StringRef& value, ostream *stream);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'PrintTo' FOR 'StringRef'"
+        if (verbose) cout << "\nTESTING `PrintTo` FOR `StringRef`"
                           << "\n=================================\n";
 
         typedef BloombergLP::bslstl::StringRef StringRef;
 
-        if (veryVerbose) cout << "Testing default-constructed 'StringRef'."
+        if (veryVerbose) cout << "Testing default-constructed `StringRef`."
                               << endl;
         {
             StringRef        mDES;
@@ -699,7 +699,7 @@ int main(int argc, char *argv[])
             ASSERTV(ossDES.str(), EMPTY_EXPECTED == ossDES.str());
         }
 
-        if (veryVerbose) cout << "Testing empty 'StringRef'." << endl;
+        if (veryVerbose) cout << "Testing empty `StringRef`." << endl;
         {
             StringRef        mES(EMPTY_STRING);
             const StringRef& ES = mES;
@@ -712,7 +712,7 @@ int main(int argc, char *argv[])
             ASSERTV(ossES.str(), EMPTY_EXPECTED == ossES.str());
         }
 
-        if (veryVerbose) cout << "Testing non-empty 'StringRef'." << endl;
+        if (veryVerbose) cout << "Testing non-empty `StringRef`." << endl;
         {
             for (const char *begin = NON_EMPTY_STRING;
                  begin != NON_EMPTY_STRING_END;
@@ -736,7 +736,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (veryVerbose) cout << "Testing long 'StringRef'." << endl;
+        if (veryVerbose) cout << "Testing long `StringRef`." << endl;
         {
             StringRef        mLS(LONG_STRING);
             const StringRef& LS = mLS;
@@ -751,31 +751,31 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'PrintTo' FOR 'wstring'
+        // TESTING `PrintTo` FOR `wstring`
         //
         // Concerns:
-        //: 1 The 'PrintTo' correctly writes an empty 'wstring' object's value
-        //:   to the stream.
-        //:
-        //: 2 The 'PrintTo' correctly writes 'wstring' object's value
-        //:   containing embedded null character to the stream.
-        //:
-        //: 3 The 'PrintTo' correctly writes any non-empty 'wstring' object's
-        //:   value to the stream.
+        // 1. The `PrintTo` correctly writes an empty `wstring` object's value
+        //    to the stream.
+        //
+        // 2. The `PrintTo` correctly writes `wstring` object's value
+        //    containing embedded null character to the stream.
+        //
+        // 3. The `PrintTo` correctly writes any non-empty `wstring` object's
+        //    value to the stream.
         //
         // Plan:
-        //: 1 Create several 'wstring' objects, having different values.  Print
-        //:   them to the stream using 'PrintTo' function and verify the
-        //:   result.  (C-1..3)
+        // 1. Create several `wstring` objects, having different values.  Print
+        //    them to the stream using `PrintTo` function and verify the
+        //    result.  (C-1..3)
         //
         // Testing:
         //   void PrintTo(const bsl::wstring& value, ostream *stream);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'PrintTo' FOR 'wstring'"
+        if (verbose) cout << "\nTESTING `PrintTo` FOR `wstring`"
                           << "\n===============================\n";
 
-        if (veryVerbose) cout << "Testing default-constructed 'bsl::wstring'."
+        if (veryVerbose) cout << "Testing default-constructed `bsl::wstring`."
                               << endl;
         {
             bsl::wstring        mDES;
@@ -789,7 +789,7 @@ int main(int argc, char *argv[])
             ASSERTV(ossDES.str(), EMPTY_EXPECTED == ossDES.str());
         }
 
-        if (veryVerbose) cout << "Testing empty 'bsl::wstring'." << endl;
+        if (veryVerbose) cout << "Testing empty `bsl::wstring`." << endl;
         {
             bsl::wstring        mES(EMPTY_WCHAR_STRING);
             const bsl::wstring& ES = mES;
@@ -802,7 +802,7 @@ int main(int argc, char *argv[])
             ASSERTV(ossES.str(), EMPTY_EXPECTED == ossES.str());
         }
 
-        if (veryVerbose) cout << "Testing non-empty 'bsl::wstring'." << endl;
+        if (veryVerbose) cout << "Testing non-empty `bsl::wstring`." << endl;
         {
             const int      EXTENDED_SYMBOL_SHIFT = sizeof(wchar_t) * 2;
             const char    *expectedBegin         = NON_EMPTY_WCHAR_EXPECTED;
@@ -837,7 +837,7 @@ int main(int argc, char *argv[])
 
                             expectedEnd += 1;
                         } else {
-                            // '0' -> "\x00000000" || '0' -> "\x0000"
+                            // `0` -> "\x00000000" || `0` -> "\x0000"
 
                             expectedEnd += (2 + EXTENDED_SYMBOL_SHIFT);
                         }
@@ -853,7 +853,7 @@ int main(int argc, char *argv[])
 
                         expectedBegin += 1;
                     } else {
-                        // '0' -> "\x00000000" || '0' -> "\x0000"
+                        // `0` -> "\x00000000" || `0` -> "\x0000"
 
                         expectedBegin += (2 + EXTENDED_SYMBOL_SHIFT);
                     }
@@ -861,7 +861,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (veryVerbose) cout << "Testing long 'bsl::wstring'." << endl;
+        if (veryVerbose) cout << "Testing long `bsl::wstring`." << endl;
         {
             bsl::wstring        mLS(LONG_WCHAR_STRING);
             const bsl::wstring& LS = mLS;
@@ -876,31 +876,31 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'PrintTo' FOR 'string'
+        // TESTING `PrintTo` FOR `string`
         //
         // Concerns:
-        //: 1 The 'PrintTo' correctly writes an empty 'string' object's value
-        //:   to the stream.
-        //:
-        //: 2 The 'PrintTo' correctly writes 'string' object's value containing
-        //:   embedded null character to the stream.
-        //:
-        //: 3 The 'PrintTo' correctly writes any non-empty 'string' object's
-        //:   value to the stream.
+        // 1. The `PrintTo` correctly writes an empty `string` object's value
+        //    to the stream.
+        //
+        // 2. The `PrintTo` correctly writes `string` object's value containing
+        //    embedded null character to the stream.
+        //
+        // 3. The `PrintTo` correctly writes any non-empty `string` object's
+        //    value to the stream.
         //
         // Plan:
-        //: 1 Create several 'string' objects, having different values.  Print
-        //:   them to the stream using 'PrintTo' function and verify the
-        //:   result.  (C-1..3)
+        // 1. Create several `string` objects, having different values.  Print
+        //    them to the stream using `PrintTo` function and verify the
+        //    result.  (C-1..3)
         //
         // Testing:
         //   void PrintTo(const bsl::string& value, ostream *stream);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'PrintTo' FOR 'string'"
+        if (verbose) cout << "\nTESTING `PrintTo` FOR `string`"
                           << "\n==============================\n";
 
-        if (veryVerbose) cout << "Testing default-constructed 'bsl::string'."
+        if (veryVerbose) cout << "Testing default-constructed `bsl::string`."
                               << endl;
         {
             bsl::string        mDES;
@@ -914,7 +914,7 @@ int main(int argc, char *argv[])
             ASSERTV(ossDES.str(), EMPTY_EXPECTED == ossDES.str());
         }
 
-        if (veryVerbose) cout << "Testing empty 'bsl::string'." << endl;
+        if (veryVerbose) cout << "Testing empty `bsl::string`." << endl;
         {
             bsl::string        mES(EMPTY_STRING);
             const bsl::string& ES = mES;
@@ -927,7 +927,7 @@ int main(int argc, char *argv[])
             ASSERTV(ossES.str(), EMPTY_EXPECTED == ossES.str());
         }
 
-        if (veryVerbose) cout << "Testing non-empty 'bsl::string'." << endl;
+        if (veryVerbose) cout << "Testing non-empty `bsl::string`." << endl;
         {
             for (const char *begin = NON_EMPTY_STRING;
                  begin != NON_EMPTY_STRING_END;
@@ -951,7 +951,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (veryVerbose) cout << "Testing long 'bsl::string'." << endl;
+        if (veryVerbose) cout << "Testing long `bsl::string`." << endl;
         {
             bsl::string        mLS(LONG_STRING);
             const bsl::string& LS = mLS;
@@ -970,18 +970,18 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 That the function can stream a string.
-        //:
-        //: 2 If the stream is invalid, the function will not modify the
-        //:   stream.
+        // 1. That the function can stream a string.
+        //
+        // 2. If the stream is invalid, the function will not modify the
+        //    stream.
         //
         // Plan:
-        //: 1 Stream a couple of strings to an 'ostringtream' and observe the
-        //:   result.
-        //:
-        //: 2 Set the state of the 'ostringstream' to invalid, call the
-        //:   function again, and observe that the stream has not been
-        //:   modified.
+        // 1. Stream a couple of strings to an `ostringtream` and observe the
+        //    result.
+        //
+        // 2. Set the state of the `ostringstream` to invalid, call the
+        //    function again, and observe that the stream has not been
+        //    modified.
         //
         // Testing:
         //   BREATHING TEST

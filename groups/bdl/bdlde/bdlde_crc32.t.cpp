@@ -179,9 +179,10 @@ typedef bslx::TestOutStream Out;
 // checksum to a 'bdex' output stream.  Note that 'Out' may be a 'typedef' of
 // any class that implements the 'bslx::OutStream' protocol:
 //..
+
+/// Write a message and its CRC-32 checksum to the specified `output`
+/// stream.
 void senderExample(Out& output)
-    // Write a message and its CRC-32 checksum to the specified 'output'
-    // stream.
 {
     // prepare a message
     bsl::string message = "This is a test message.";
@@ -203,9 +204,10 @@ void senderExample(Out& output)
 // intact.  Note that 'In' may be a 'typedef' of any class that implements the
 // 'bslx::InStream' protocol:
 //..
+
+/// Read a message and its CRC-32 checksum from the specified `input`
+/// stream, and verify the integrity of the message.
 void receiverExample(In& input)
-    // Read a message and its CRC-32 checksum from the specified 'input'
-    // stream, and verify the integrity of the message.
 {
     // read the message from 'input'
     bsl::string message;
@@ -228,9 +230,9 @@ void receiverExample(In& input)
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Print the specified `str` string to `bsl::cout`, taking care to expand
+/// non-printable characters into their hexadecimal representation.
 void printHex(const char *str)
-    // Print the specified 'str' string to 'bsl::cout', taking care to expand
-    // non-printable characters into their hexadecimal representation.
 {
     cout << "\"";
     for (int i = 0; str[i]; ++i) {
@@ -268,8 +270,8 @@ static unsigned int crc_table[256];
 // Flag: has the table been computed?  Initially false.
 static int crc_table_computed = 0;
 
+/// Make the table for a fast CRC.
 void make_crc_table(void)
-    // Make the table for a fast CRC.
 {
     unsigned int c;
     int n, k;
@@ -288,21 +290,21 @@ void make_crc_table(void)
     crc_table_computed = 1;
 }
 
+/// Update the specified running `crc` with the bytes in the specified `buf`
+/// having the specified `len` and return the updated crc.  The crc should
+/// be initialized to 0.  Pre- and post-conditioning (one's complement) is
+/// performed within this function, so it should not be done by the caller.
+/// Usage example:
+///
+///      unsigned long crc = 0L;
+///
+///      while (read_buffer(buffer, length) != EOF) {
+///          crc = update_crc(crc, buffer, length);
+///      }
+///      if (crc != original_crc) error();
 unsigned int update_crc(unsigned int  crc,
                         const char   *buf,
                         int           len)
-    // Update the specified running 'crc' with the bytes in the specified 'buf'
-    // having the specified 'len' and return the updated crc.  The crc should
-    // be initialized to 0.  Pre- and post-conditioning (one's complement) is
-    // performed within this function, so it should not be done by the caller.
-    // Usage example:
-    //
-    //      unsigned long crc = 0L;
-    //
-    //      while (read_buffer(buffer, length) != EOF) {
-    //          crc = update_crc(crc, buffer, length);
-    //      }
-    //      if (crc != original_crc) error();
 {
     unsigned int c = crc ^ 0xffffffff;
     int n;
@@ -316,9 +318,9 @@ unsigned int update_crc(unsigned int  crc,
     return c ^ 0xffffffff;
 }
 
+/// Return the CRC of the bytes in the specified `buf` having the specified
+/// `len`.
 unsigned int crc(const char *buf, int len)
-    // Return the CRC of the bytes in the specified 'buf' having the specified
-    // 'len'.
 {
     return update_crc(0, buf, len);
 }
@@ -393,13 +395,13 @@ unsigned int crc32trm(const char *buf, int bufsize, char trm)
 // "/01/02\xff"      Calls 'update("\x01\x02\xff", 3)'.
 // ----------------------------------------------------------------------------
 
+/// Configure the specified `object` according to the specified `spec`
+/// using the primary manipulator function `update` and `reset`.  Optionally
+/// specify a zero `vF` to suppress `spec` syntax error messages.  Return
+/// the index of the first invalid character, and a negative value
+/// otherwise.  Note that this function is used to implement `gg` as well as
+/// allow for verification of syntax error detection.
 int ggg(Obj *object, const char *spec, int vF = 1)
-    // Configure the specified 'object' according to the specified 'spec'
-    // using the primary manipulator function 'update' and 'reset'.  Optionally
-    // specify a zero 'vF' to suppress 'spec' syntax error messages.  Return
-    // the index of the first invalid character, and a negative value
-    // otherwise.  Note that this function is used to implement 'gg' as well as
-    // allow for verification of syntax error detection.
 {
     enum { SUCCESS = -1 };
 
@@ -482,16 +484,16 @@ int ggg(Obj *object, const char *spec, int vF = 1)
     return SUCCESS;
 }
 
+/// Return, by reference, the specified `object` with its value adjusted
+/// according to the specified `spec`.
 Obj& gg(Obj *object, const char *spec)
-    // Return, by reference, the specified 'object' with its value adjusted
-    // according to the specified 'spec'.
 {
     ASSERT(ggg(object, spec) < 0);
     return *object;
 }
 
+/// Return, by value, a new object corresponding to the specified `spec`.
 Obj g(const char *spec)
-    // Return, by value, a new object corresponding to the specified 'spec'.
 {
     Obj object;
     return gg(&object, spec);

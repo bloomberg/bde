@@ -5,20 +5,20 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 // ============================================================================
 //                                 TEST PLAN
 // ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-// The component under test defines meta-function 'bslmf::IsAccessibleBaseOf'
+// The component under test defines meta-function `bslmf::IsAccessibleBaseOf`
 // that determines whether one class is an accessible (observable) base class
 // of another.  Tests need to ensure that all pairs that have the base and
-// derived relationship return 'true', and all others return 'false'.
+// derived relationship return `true`, and all others return `false`.
 // Interesting cases include transitive base and derived relationships,
-// multiple inheritance, 'private' and 'protected' inheritance, and virtual
+// multiple inheritance, `private` and `protected` inheritance, and virtual
 // inheritance.
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
@@ -209,14 +209,14 @@ namespace Example1 {
 ///Example 1: Base And Derived Classes
 ///- - - - - - - - - - - - - - - - - -
 // Define two classes, one inheriting from the other.
-//..
+// ```
 struct Base {
 };
 struct Derived : Base {
 };
-//..
-// Evaluate 'bslmf::IsAccessibleBaseOf::value'.
-//..
+// ```
+// Evaluate `bslmf::IsAccessibleBaseOf::value`.
+// ```
 void example1()
 {
     ASSERT((true == bslmf::IsAccessibleBaseOf<Base, Derived>::value));
@@ -224,29 +224,29 @@ void example1()
     ASSERT((true == bslmf::IsAccessibleBaseOf<Derived, Derived>::value));
     ASSERT((false == bslmf::IsAccessibleBaseOf<Derived, Base>::value));
 }
-//..
+// ```
 }  // close namespace Example1
 
 namespace Example2 {
 ///Example 2: Unrelated Classes
 /// - - - - - - - - - - - - - -
 // Define two classes, one inheriting privately from the other.
-//..
+// ```
 class Unrelated {
 };
 
 class Unrelated2 {
 };
-//..
-// Evaluate 'bslmf::IsAccessibleBaseOf::value'.  Note that 'Derived' is not
-// *observably* derived from 'Base', so std::is_base_of would evaluate 'true',
-// but 'bslmf::IsAccessibleBaseOf' evaluates 'false'.
-//..
+// ```
+// Evaluate `bslmf::IsAccessibleBaseOf::value`.  Note that `Derived` is not
+// *observably* derived from `Base`, so std::is_base_of would evaluate `true`,
+// but `bslmf::IsAccessibleBaseOf` evaluates `false`.
+// ```
 void example2()
 {
     ASSERT((false == bslmf::IsAccessibleBaseOf<Unrelated, Unrelated2>::value));
 }
-//..
+// ```
 }  // close namespace Example2
 
 // ============================================================================
@@ -278,33 +278,33 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // CLASS TRAITS
-        //   Ensure that trait 'IsAccessibleBaseOf::value' correctly identifies
+        //   Ensure that trait `IsAccessibleBaseOf::value` correctly identifies
         //   the base-derived relationship between classes which inherit
         //   publicly and not ambiguously.
         //
         // Concerns:
-        //: 1 The 'value' trait is 'true' for base-derived related classes that
-        //:   inherit publicly, including transitive relationships, multiple
-        //:   inheritance relationships, and virtual relationships.
-        //:
-        //: 2 The 'value' trait is 'false' for classes having ambiguous
-        //:   inheritance, private or protected inheritance, or no
-        //:   relationship.
+        // 1. The `value` trait is `true` for base-derived related classes that
+        //    inherit publicly, including transitive relationships, multiple
+        //    inheritance relationships, and virtual relationships.
+        //
+        // 2. The `value` trait is `false` for classes having ambiguous
+        //    inheritance, private or protected inheritance, or no
+        //    relationship.
         //
         // Plan:
-        //: 1 Assert of the expected value of 'IsAccessibleBaseOf::value' in
-        //:   all relevant configurations of types.
-        //:
-        //: 2 Assert expected value of 'IsAccessibleBaseOf::value' as returned
-        //:   from a member function which exposes protected or private
-        //:   relationships between classes.
-        //:
-        //: 3 Assert expected value of 'IsAccessibleBaseOf::value' as returned
-        //:   from a static class function which exposes protected or private
-        //:   relationships between classes.
+        // 1. Assert of the expected value of `IsAccessibleBaseOf::value` in
+        //    all relevant configurations of types.
+        //
+        // 2. Assert expected value of `IsAccessibleBaseOf::value` as returned
+        //    from a member function which exposes protected or private
+        //    relationships between classes.
+        //
+        // 3. Assert expected value of `IsAccessibleBaseOf::value` as returned
+        //    from a static class function which exposes protected or private
+        //    relationships between classes.
         //
         // Testing:
-        //    'value'
+        //    `value`
         // --------------------------------------------------------------------
         if (verbose)
             printf("CLASS TRAITS\n"
@@ -383,13 +383,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE

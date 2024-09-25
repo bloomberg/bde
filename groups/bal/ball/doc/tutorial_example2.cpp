@@ -16,14 +16,14 @@
 
   int main(int argc, char *argv[])
   {
+      // Enable command-line control of program behavior.
       int verbose = argc > 1;
-          // Enable command-line control of program behavior.
 
+      // Get global allocator.
       bslma::Allocator *alloc_p = bslma::Default::globalAllocator();
-          // Get global allocator.
 
+      // Instantiate the default configuration.
       ball::LoggerManagerConfiguration configuration;
-          // Instantiate the default configuration.
 
       configuration.setDefaultThresholdLevelsIfValid(
                                ball::Severity::e_TRACE,   // record level
@@ -33,15 +33,15 @@
           // Set the four severity threshold levels; note that this method can
           // fail, and therefore returns a status.
 
+      // Instantiate the logger manager singleton.
       ball::LoggerManagerScopedGuard scopedGuard(configuration);
-          // Instantiate the logger manager singleton.
 
       ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
+      // Create simple observer; writes to `stdout`.
       bsl::shared_ptr<ball::StreamObserver> observer(
                                 new(*alloc_p) ball::StreamObserver(&bsl::cout),
                                 alloc_p);
-          // Create simple observer; writes to 'stdout'.
 
       manager.registerObserver(observer, "default");
           // Register the observer under (arbitrary) name "default".

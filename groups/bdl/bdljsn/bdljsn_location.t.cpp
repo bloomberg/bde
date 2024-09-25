@@ -10,20 +10,20 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
-#include <bslh_hash.h>     // 'bslh::hashAppend'
+#include <bslh_hash.h>     // `bslh::hashAppend`
 
 #include <bslmf_assert.h>
 
-#include <bsl_cstddef.h>   // 'bsl::size_t'
-#include <bsl_cstdint.h>   // 'bsl::uint64_t', 'UINT64_MAX'
-#include <bsl_cstdlib.h>   // 'bsl::atoi', 'bsl::realloc', 'bsl::free'
-#include <bsl_cstring.h>   // 'bsl::memcpy', 'bsl::memcmp'
-#include <bsl_ios.h>       // 'bsl::ios::badbit'
+#include <bsl_cstddef.h>   // `bsl::size_t`
+#include <bsl_cstdint.h>   // `bsl::uint64_t`, `UINT64_MAX`
+#include <bsl_cstdlib.h>   // `bsl::atoi`, `bsl::realloc`, `bsl::free`
+#include <bsl_cstring.h>   // `bsl::memcpy`, `bsl::memcmp`
+#include <bsl_ios.h>       // `bsl::ios::badbit`
 #include <bsl_iostream.h>
-#include <bsl_limits.h>    // 'bsls::numeric_limits'
-#include <bsl_memory.h>    // 'bsl::uses_allocator'
-#include <bsl_utility.h>   // 'bsl::swap'
-#include <bsl_sstream.h>   // 'bsl::ostringstream'
+#include <bsl_limits.h>    // `bsls::numeric_limits`
+#include <bsl_memory.h>    // `bsl::uses_allocator`
+#include <bsl_utility.h>   // `bsl::swap`
+#include <bsl_sstream.h>   // `bsl::ostringstream`
 #include <bsl_streambuf.h>
 
 using namespace BloombergLP;
@@ -42,28 +42,28 @@ using bsl::endl;;
 // conventions:
 //
 // Primary Manipulators:
-//: o 'setOffset'
+//  - `setOffset`
 //
 // Basic Accessors:
-//: o 'offset'
+//  - `offset`
 //
 // Testing this class follows the usual pattern for testing of a value-semantic
 // type with the following provisos:
 //
-//: o The class has a value constructor that can be used in lieu of a 'gg' test
-//:   helper function.
-//:
-//: o The class is not allocator aware so we need not test for the correct
-//:   installation and use of an object allocators nor for exception safety on
-//:   failure of that allocator.
-//:
-//:   o We still do check for gratuitous use of temporary memory from the
-//:     default allocator and for any allocation from the global allocator.
-//:
-//: o The class is has no narrow contracts so negative testing of defensive
-//:   checks is not needed.
-//:
-//:  o There are no move operations.
+//  - The class has a value constructor that can be used in lieu of a `gg` test
+//    helper function.
+//
+//  - The class is not allocator aware so we need not test for the correct
+//    installation and use of an object allocators nor for exception safety on
+//    failure of that allocator.
+//
+//    - We still do check for gratuitous use of temporary memory from the
+//      default allocator and for any allocation from the global allocator.
+//
+//  - The class is has no narrow contracts so negative testing of defensive
+//    checks is not needed.
+//
+//   o There are no move operations.
 //
 // ----------------------------------------------------------------------------
 // CREATORS
@@ -150,57 +150,58 @@ typedef bdljsn::Location Obj;
 typedef bsl::uint64_t    Uint64;
 typedef bsl::int64_t     Int64;
 
+/// This class implements a mock hashing algorithm that provides a way to
+/// accumulate and then examine data that is being passed into hashing
+/// algorithms by `hashAppend`.
 class MockAccumulatingHashingAlgorithm {
-    // This class implements a mock hashing algorithm that provides a way to
-    // accumulate and then examine data that is being passed into hashing
-    // algorithms by 'hashAppend'.
 
     void   *d_data_p;  // Data we were asked to hash
     size_t  d_length;  // Length of the data we were asked to hash
 
   public:
+    /// Create an object of this type.
     MockAccumulatingHashingAlgorithm()
     : d_data_p(0)
     , d_length(0)
-        // Create an object of this type.
     {
     }
 
+    /// Destroy this object
     ~MockAccumulatingHashingAlgorithm()
-        // Destroy this object
     {
         bsl::free(d_data_p);
     }
 
+    /// Append the data of the specified `length` at `voidPtr` for later
+    /// inspection.
     void operator()(const void *voidPtr, size_t length)
-        // Append the data of the specified 'length' at 'voidPtr' for later
-        // inspection.
     {
         d_data_p = bsl::realloc(d_data_p, d_length += length);
         bsl::memcpy(getData() + d_length - length, voidPtr, length);
     }
 
+    /// Return a pointer to the stored data.
     char *getData()
-        // Return a pointer to the stored data.
     {
         return static_cast<char *>(d_data_p);
     }
 
+    /// Return the length of the stored data.
     size_t getLength() const
-        // Return the length of the stored data.
     {
         return d_length;
     }
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` have the same value and
+/// `false` otherwise.  Two objects have the same value if they both have
+/// the same length and if they both point to data that compares equal.
+/// Note that for simplicity of implementation the arguments are
+/// (unconventionally) non-`const`.
 bool operator==(MockAccumulatingHashingAlgorithm& lhs,
                 MockAccumulatingHashingAlgorithm& rhs)
-    // Return 'true' if the specified 'lhs' and 'rhs' have the same value and
-    // 'false' otherwise.  Two objects have the same value if they both have
-    // the same length and if they both point to data that compares equal.
-    // Note that for simplicity of implementation the arguments are
-    // (unconventionally) non-'const'.
 {
     if (lhs.getLength() != rhs.getLength()) {
         return false;                                                 // RETURN
@@ -236,8 +237,8 @@ int main(int argc, char *argv[])
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
-    // Define 'DEFAULT_DATA' that is used by:
-    //..
+    // Define `DEFAULT_DATA` that is used by:
+    // ```
     //   +-------+--------------------------------+
     //   | Case# | Description                    |
     //   +-------+--------------------------------+
@@ -245,10 +246,10 @@ int main(int argc, char *argv[])
     //   |     6 | COPY CONSTRUCTOR               |
     //   |     7 | SWAP MEMBER AND FREE FUNCTIONS |
     //   |     8 | COPY-ASSIGNMENT OPERATOR       |
-    //   |     9 | TEST 'reset'                   |
-    //   |    10 | TEST 'hashAppend'              |
+    //   |     9 | TEST `reset`                   |
+    //   |    10 | TEST `hashAppend`              |
     //   +-------+--------------------------------+
-    //..
+    // ```
 
     struct DefaultDataRow {
         int    d_line;           // source line number
@@ -275,13 +276,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -314,68 +315,68 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -
-// This example exercises each of the methods of the 'bdljsn::Location' class.
+// This example exercises each of the methods of the `bdljsn::Location` class.
 //
-// First, create a 'bdljsn::Location' object (having the default value):
-//..
+// First, create a `bdljsn::Location` object (having the default value):
+// ```
     bdljsn::Location locationA;
     ASSERT(0 == locationA.offset());
-//..
-// Then, set 'locationA' to some other offset:
-//..
+// ```
+// Then, set `locationA` to some other offset:
+// ```
     locationA.setOffset(1);
     ASSERT(1 == locationA.offset());
-//..
+// ```
 // Next, use the value constructor to create a second location having the same
 // offset as the first:
-//..
+// ```
         bdljsn::Location locationB(1);
         ASSERT(1         == locationB.offset());
         ASSERT(locationA == locationB);
-//..
+// ```
 // Then, set the second location to the maximum offset:
-//..
+// ```
     const bsl::uint64_t maxOffset = bsl::numeric_limits<bsl::uint64_t>::max();
 
     locationB.setOffset(maxOffset);
     ASSERT(maxOffset == locationB.offset());
-//..
-// Next, create another 'Location` that is a copy of the one at 'maxOffset':
-//..
+// ```
+// Next, create another `Location` that is a copy of the one at `maxOffset':
+// ```
     bdljsn::Location locationC(locationB);
     ASSERT(locationB == locationC);
-//..
+// ```
 // Then, set the first location back to the default state:
-//..
+// ```
     locationA.reset();
     ASSERT(0                  == locationA.offset());
     ASSERT(bdljsn::Location() == locationA);
-//..
+// ```
 //  Next, print the value of each:
-//..
+// ```
     bsl::cout << locationA << "\n"
               << locationB << bsl::endl;
 
     bsl::cout << "\n";
 
     locationC.print(bsl::cout, 2, 3);
-//..
+// ```
 // and observe:
-//..
+// ```
 //   0
 //   18446744073709551615
 //
 //        [
 //           offset = 18446744073709551615
 //        ]
-//..
+// ```
 // Finally, set each location equal to the first:
-//..
+// ```
     locationC = locationB = locationA;
     ASSERT(0 == locationA.offset());
     ASSERT(0 == locationB.offset());
     ASSERT(0 == locationC.offset());
-//..
+// ```
 
         ASSERT(dam.isInUseSame());
 
@@ -395,38 +396,38 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TEST 'hashAppend'
-        //   Verify that the 'hashAppend' free functions have been implemented
+        // TEST `hashAppend`
+        //   Verify that the `hashAppend` free functions have been implemented
         //   for all of the fundamental types and do not truncate or pass extra
         //   data into the algorithms.
         //
         // Concerns:
-        //: 1 The 'hashAppend' function ("the function") uses the specified
-        //:   algorithm (and no other).
-        //:
-        //: 2 The function passes the object's value to the supplied algorithm.
+        // 1. The `hashAppend` function ("the function") uses the specified
+        //    algorithm (and no other).
+        //
+        // 2. The function passes the object's value to the supplied algorithm.
         //
         // Plan:
-        //: 1 Use a locally defined algorithm class,
-        //:   'MockAccumulatingHashingAlgorithm', to show that 'hashAppend'
-        //:   uses the supplied algorithm object.  (C-1)
-        //:
-        //: 2 The 'MockAccumulatingHashingAlgorithm' functor stores a
-        //:   concatenation of each of the input supplied.  This allows one to
-        //:   compare the results of independent invocations of the algorithm
-        //:   on the object's value with invocations on the object itself.
-        //:
-        //: 4 In P-2 use elements of different representative values that
-        //:   include the extremes of the allowed range.  Any omission,
-        //:   duplication, or mis-ordering of element visits would become
-        //:   manifest when comparing the concatenations of the two
-        //:   computations.  (C-2)
+        // 1. Use a locally defined algorithm class,
+        //    `MockAccumulatingHashingAlgorithm`, to show that `hashAppend`
+        //    uses the supplied algorithm object.  (C-1)
+        //
+        // 2. The `MockAccumulatingHashingAlgorithm` functor stores a
+        //    concatenation of each of the input supplied.  This allows one to
+        //    compare the results of independent invocations of the algorithm
+        //    on the object's value with invocations on the object itself.
+        //
+        // 4. In P-2 use elements of different representative values that
+        //    include the extremes of the allowed range.  Any omission,
+        //    duplication, or mis-ordering of element visits would become
+        //    manifest when comparing the concatenations of the two
+        //    computations.  (C-2)
         //
         // Testing:
         //   void hashAppend(HASHALG& algorithm, const Location& object);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TEST 'hashAppend'" << endl
+        if (verbose) cout << "TEST `hashAppend`" << endl
                           << "=================" << endl;
 
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
@@ -458,32 +459,32 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TEST 'reset'
+        // TEST `reset`
         //
         // Concerns:
-        //: 1 The 'reset' method set an object to the default state
-        //:   irrespective of the state of the object.
-        //:
-        //: 2 The 'reset' manipulator returns a non-'const' reference to the
-        //:   object.
+        // 1. The `reset` method set an object to the default state
+        //    irrespective of the state of the object.
+        //
+        // 2. The `reset` manipulator returns a non-`const` reference to the
+        //    object.
         //
         // Plan:
-        //: 1 Create a series of objects each having a value representative of
-        //:   the range the object might hold -- including extreme values.
-        //:
-        //: 2 For each of those objects, invoke the 'reset' method and confirm
-        //:   that the object is in the default state.
-        //:
-        //: 3 Confirm that the manipulator returns a value that can be assigned
-        //:   to a non-'const' reference to 'Location' and that value has the
-        //:   same address as the object under test.
+        // 1. Create a series of objects each having a value representative of
+        //    the range the object might hold -- including extreme values.
+        //
+        // 2. For each of those objects, invoke the `reset` method and confirm
+        //    that the object is in the default state.
+        //
+        // 3. Confirm that the manipulator returns a value that can be assigned
+        //    to a non-`const` reference to `Location` and that value has the
+        //    same address as the object under test.
         //
         // Testing:
         //   Location& reset();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TEST 'reset'" << endl
+                          << "TEST `reset`" << endl
                           << "============" << endl;
 
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
@@ -515,82 +516,82 @@ int main(int argc, char *argv[])
         //   have the same value.
         //
         // Concerns:
-        //: 1 The assignment operator can change the value of any modifiable
-        //:   target object to that of any source object.
-        //:
-        //: 2 The signature and return type are standard.
-        //:
-        //: 3 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 4 The value of the source object is not modified.
-        //:
-        //: 5 Assigning an object to itself behaves as expected (alias-safety).
+        // 1. The assignment operator can change the value of any modifiable
+        //    target object to that of any source object.
+        //
+        // 2. The signature and return type are standard.
+        //
+        // 3. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 4. The value of the source object is not modified.
+        //
+        // 5. Assigning an object to itself behaves as expected (alias-safety).
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a member-function
-        //:   pointer having the appropriate signature and return type for the
-        //:   copy-assignment operator defined in this component.  (C-2)
-        //:
-        //: 2 Install a test allocator as the default allocator.
-        //:
-        //: 3 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of (unique) valid object values (one per row) in
-        //:     terms of their individual attributes, including (a) first, the
-        //:     default value, (b) boundary values corresponding to every range
-        //:     of values that each individual attribute can independently
-        //:     attain.
-        //:
-        //:     o For this class, there is a single attribute so that table has
-        //:       just two rows.
-        //:
-        //: 4 For each row 'R1' (representing a distinct object value, 'V') in
-        //:   the table described in P-3:  (C-1,4)
-        //:
-        //:   1 Use the value constructor allocator to create
-        //:     two 'const' 'Obj', 'Z' and 'ZZ', each having the value 'V'.
-        //:
-        //:   2 Execute an inner loop that iterates over each row 'R2'
-        //:     (representing a distinct object value, 'W') in the table
-        //:     described in P-3:
-        //:
-        //:   3 For each of the iterations (P-4.2):  (C-1,2,4)
-        //:
-        //:     2 Use the value constructor and 'oa' to create a modifiable
-        //:       'Obj', 'mX', having the value 'W'.
-        //:
-        //:     4 Verify that the address of the return value is the same as
-        //:       that of 'mX'.  (C-5)
-        //:
-        //:     5 Use the equality-comparison operator to verify that: (C-1, 4)
-        //:
-        //:       1 The target object, 'mX', now has the same value as that of
-        //:         'Z'.  (C-1)
-        //:
-        //:       2 'Z' still has the same value as that of 'ZZ'.  (C-4)
-        //:
-        //: 5 Repeat steps similar to those described in P-2 except that, this
-        //:   time, there is no inner loop (as in P-4.2); instead, the source
-        //:   object, 'Z', is a reference to the target object, 'mX', and both
-        //:   'mX' and 'ZZ' are initialized to have the value 'V'.  For each
-        //:   row (representing a distinct object value, 'V') in the table
-        //:   described in P-3:  (C-5)
-        //:
-        //:   2 Use the value constructor to create a modifiable 'Obj'
-        //:     'mX'; also use the value constructor and a distinct "scratch"
-        //:     allocator to create a 'const' 'Obj' 'ZZ'.
-        //:
-        //:   3 Let 'Z' be a 'const' reference to 'mX'.
-        //:
-        //:   5 Verify that the address of the return value is the same as that
-        //:     of 'mX'.
-        //:
-        //:   6 Use the equality-comparison operator to verify that the
-        //:     target object, 'Z', still has the same value as that of 'ZZ'.
-        //:     (C-10)
-        //:
-        //: 6 Use the test allocator from P-2 to verify that no memory is ever
-        //:   allocated from the default allocator.  (C-3)
+        // 1. Use the address of `operator=` to initialize a member-function
+        //    pointer having the appropriate signature and return type for the
+        //    copy-assignment operator defined in this component.  (C-2)
+        //
+        // 2. Install a test allocator as the default allocator.
+        //
+        // 3. Using the table-driven technique:
+        //
+        //   1. Specify a set of (unique) valid object values (one per row) in
+        //      terms of their individual attributes, including (a) first, the
+        //      default value, (b) boundary values corresponding to every range
+        //      of values that each individual attribute can independently
+        //      attain.
+        //
+        //      - For this class, there is a single attribute so that table has
+        //        just two rows.
+        //
+        // 4. For each row `R1` (representing a distinct object value, `V`) in
+        //    the table described in P-3:  (C-1,4)
+        //
+        //   1. Use the value constructor allocator to create
+        //      two `const` `Obj`, `Z` and `ZZ`, each having the value `V`.
+        //
+        //   2. Execute an inner loop that iterates over each row `R2`
+        //      (representing a distinct object value, `W`) in the table
+        //      described in P-3:
+        //
+        //   3. For each of the iterations (P-4.2):  (C-1,2,4)
+        //
+        //     2. Use the value constructor and `oa` to create a modifiable
+        //        `Obj`, `mX`, having the value `W`.
+        //
+        //     4. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-5)
+        //
+        //     5. Use the equality-comparison operator to verify that: (C-1, 4)
+        //
+        //       1. The target object, `mX`, now has the same value as that of
+        //          `Z`.  (C-1)
+        //
+        //       2. `Z` still has the same value as that of `ZZ`.  (C-4)
+        //
+        // 5. Repeat steps similar to those described in P-2 except that, this
+        //    time, there is no inner loop (as in P-4.2); instead, the source
+        //    object, `Z`, is a reference to the target object, `mX`, and both
+        //    `mX` and `ZZ` are initialized to have the value `V`.  For each
+        //    row (representing a distinct object value, `V`) in the table
+        //    described in P-3:  (C-5)
+        //
+        //   2. Use the value constructor to create a modifiable `Obj`
+        //      `mX`; also use the value constructor and a distinct "scratch"
+        //      allocator to create a `const` `Obj` `ZZ`.
+        //
+        //   3. Let `Z` be a `const` reference to `mX`.
+        //
+        //   5. Verify that the address of the return value is the same as that
+        //      of `mX`.
+        //
+        //   6. Use the equality-comparison operator to verify that the
+        //      target object, `Z`, still has the same value as that of `ZZ`.
+        //      (C-10)
+        //
+        // 6. Use the test allocator from P-2 to verify that no memory is ever
+        //    allocated from the default allocator.  (C-3)
         //
         // Testing:
         //   Location& operator=(const Location& rhs);
@@ -665,93 +666,93 @@ int main(int argc, char *argv[])
       case 7: {
         // --------------------------------------------------------------------
         // SWAP MEMBER AND FREE FUNCTIONS
-        //   Ensure that the free 'swap' function is implemented and can
+        //   Ensure that the free `swap` function is implemented and can
         //   exchange the values of any two objects.  Ensure that member
-        //   'swap' is implemented and can exchange the values of any two
+        //   `swap` is implemented and can exchange the values of any two
         //   objects that use the same allocator.
         //
         // Concerns:
-        //: 1 Both functions exchange the values of the (two) supplied objects.
-        //:
-        //: 2 Both functions have standard signatures and return types.
-        //:
-        //: 3 Using either function to swap an object with itself does not
-        //:   affect the value of the object (alias-safety).
-        //:
-        //: 4 The free 'swap' function is discoverable through ADL (Argument
-        //:   Dependent Lookup).
-        //:
-        //: 5 No memory is allocated from the default allocator.
+        // 1. Both functions exchange the values of the (two) supplied objects.
+        //
+        // 2. Both functions have standard signatures and return types.
+        //
+        // 3. Using either function to swap an object with itself does not
+        //    affect the value of the object (alias-safety).
+        //
+        // 4. The free `swap` function is discoverable through ADL (Argument
+        //    Dependent Lookup).
+        //
+        // 5. No memory is allocated from the default allocator.
         //
         // Plan:
-        //: 1 Use the addresses of the 'swap' member and free functions defined
-        //:   in this component to initialize, respectively, member-function
-        //:   and free-function pointers having the appropriate signatures and
-        //:   return types.  (C-2)
-        //:
-        //: 2 Create a 'bslma::TestAllocator' object, and install it as the
-        //:   default allocator (note that a ubiquitous test allocator is
-        //:   already installed as the global allocator).
-        //:
-        //: 3 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of (unique) valid object values (one per row) in
-        //:     terms of their individual attributes, including (a) first, the
-        //:     default value, (b) boundary values corresponding to every range
-        //:     of values that each individual attribute can independently
-        //:     attain.
-        //:
-        //:     o For this class, there is a single attribute so that table has
-        //:       just two rows.
-        //:
-        //: 4 For each row 'R1' in the table of P-3: (C-2..3)
-        //:
-        //:   2 Use the value constructor to create a modifiable 'Obj', 'mW',
-        //:     having the value described by 'R1'; also use the copy
-        //:     constructor to create a 'const' 'Obj' 'XX' from 'mW'.
-        //:
-        //:   3 Use the member and free 'swap' functions to swap the value of
-        //:     'mW' with itself; verify, after each swap, that: (C-6)
-        //:
-        //:     1 The value is unchanged.  (C-3)
-        //:
-        //:   4 For each row 'R2' in the table of P-3: (C-1)
-        //:
-        //:     1 Use the copy constructor to create a modifiable 'Obj', 'mX',
-        //:       from 'XX' (P-4.2).
-        //:
-        //:     2 Use the value constructor to create a modifiable 'Obj', 'mY',
-        //:       having the value described by 'R2'; also use the copy
-        //:       constructor to create a 'const' 'Obj', 'YY', from 'Y'.
-        //:
-        //:     3 Use, in turn, the member and free 'swap' functions to swap
-        //:       the values of 'mX' and 'mY'; verify, after each swap, that:
-        //:       (C-1)
-        //:
-        //:       1 The values have been exchanged.  (C-1)
-        //:
-        //: 5 Verify that the free 'swap' function is discoverable through ADL:
-        //:   (C-4)
-        //:
-        //:   1 Create a set of attribute values, 'A', distinct from the values
-        //:     corresponding to the default-constructed object.
-        //:
-        //:   3 Use the default constructor to create a modifiable 'Obj' 'mX'
-        //:     (having default attribute values); also use the copy to create
-        //:     a 'const' 'Obj' 'XX' from 'mX'.
-        //:
-        //:   4 Use the value constructor to create a modifiable 'Obj' 'mY'
-        //:     having the value described by the 'A1' attribute; also use the
-        //:     copy constructor to create a 'const' 'Obj' 'YY' from 'mY'.
-        //:
-        //:   5 Use the 'bslalg::SwapUtil' helper function template to swap the
-        //:     values of 'mX' and 'mY', using the free 'swap' function defined
-        //:     in this component, then verify that: (C-4)
-        //:
-        //:     1 The values have been exchanged.
-        //:
-        //: 6 Use the test allocator from P-2 to verify that no memory was
-        //:   allocated from the default allocator.  (C-5)
+        // 1. Use the addresses of the `swap` member and free functions defined
+        //    in this component to initialize, respectively, member-function
+        //    and free-function pointers having the appropriate signatures and
+        //    return types.  (C-2)
+        //
+        // 2. Create a `bslma::TestAllocator` object, and install it as the
+        //    default allocator (note that a ubiquitous test allocator is
+        //    already installed as the global allocator).
+        //
+        // 3. Using the table-driven technique:
+        //
+        //   1. Specify a set of (unique) valid object values (one per row) in
+        //      terms of their individual attributes, including (a) first, the
+        //      default value, (b) boundary values corresponding to every range
+        //      of values that each individual attribute can independently
+        //      attain.
+        //
+        //      - For this class, there is a single attribute so that table has
+        //        just two rows.
+        //
+        // 4. For each row `R1` in the table of P-3: (C-2..3)
+        //
+        //   2. Use the value constructor to create a modifiable `Obj`, `mW`,
+        //      having the value described by `R1`; also use the copy
+        //      constructor to create a `const` `Obj` `XX` from `mW`.
+        //
+        //   3. Use the member and free `swap` functions to swap the value of
+        //      `mW` with itself; verify, after each swap, that: (C-6)
+        //
+        //     1. The value is unchanged.  (C-3)
+        //
+        //   4. For each row `R2` in the table of P-3: (C-1)
+        //
+        //     1. Use the copy constructor to create a modifiable `Obj`, `mX`,
+        //        from `XX` (P-4.2).
+        //
+        //     2. Use the value constructor to create a modifiable `Obj`, `mY`,
+        //        having the value described by `R2`; also use the copy
+        //        constructor to create a `const` `Obj`, `YY`, from `Y`.
+        //
+        //     3. Use, in turn, the member and free `swap` functions to swap
+        //        the values of `mX` and `mY`; verify, after each swap, that:
+        //        (C-1)
+        //
+        //       1. The values have been exchanged.  (C-1)
+        //
+        // 5. Verify that the free `swap` function is discoverable through ADL:
+        //    (C-4)
+        //
+        //   1. Create a set of attribute values, `A`, distinct from the values
+        //      corresponding to the default-constructed object.
+        //
+        //   3. Use the default constructor to create a modifiable `Obj` `mX`
+        //      (having default attribute values); also use the copy to create
+        //      a `const` `Obj` `XX` from `mX`.
+        //
+        //   4. Use the value constructor to create a modifiable `Obj` `mY`
+        //      having the value described by the `A1` attribute; also use the
+        //      copy constructor to create a `const` `Obj` `YY` from `mY`.
+        //
+        //   5. Use the `bslalg::SwapUtil` helper function template to swap the
+        //      values of `mX` and `mY`, using the free `swap` function defined
+        //      in this component, then verify that: (C-4)
+        //
+        //     1. The values have been exchanged.
+        //
+        // 6. Use the test allocator from P-2 to verify that no memory was
+        //    allocated from the default allocator.  (C-5)
         //
         // Testing:
         //   void swap(Location& other);
@@ -792,14 +793,14 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { T_ P_(LINE1) P_(W) P(XX) }
 
-            // member 'swap'
+            // member `swap`
             {
                 mW.swap(mW);                                            // TEST
 
                 ASSERTV(LINE1, XX, W, XX == W);
             }
 
-            // free function 'swap'
+            // free function `swap`
             {
                 swap(mW, mW);                                           // TEST
 
@@ -815,7 +816,7 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ P_(LINE2) P_(X) P_(Y) P(YY) }
 
-                // member 'swap'
+                // member `swap`
                 {
                     mX.swap(mY);                                        // TEST
 
@@ -834,10 +835,10 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-                "\nInvoke free 'swap' function in a context where ADL is used."
+                "\nInvoke free `swap` function in a context where ADL is used."
                                                                        << endl;
         {
-            // 'A' values: Should cause memory allocation if possible.
+            // `A` values: Should cause memory allocation if possible.
 
             const Uint64 A1 = bsl::numeric_limits<Int64>::max();
 
@@ -864,33 +865,33 @@ int main(int argc, char *argv[])
         //   other one, such that the two objects have the same value.
         //
         // Concerns:
-        //: 1 The copy constructor
-        //:   creates an object having the same value as that of the supplied
-        //:   original object.
-        //:
-        //: 2 There is no memory allocation, not even temporary, from the
-        //:   default allocator.
-        //:
-        //: 3 The original object is passed as a 'const' reference.
-        //:
-        //: 4 The value of the original object is unchanged.
+        // 1. The copy constructor
+        //    creates an object having the same value as that of the supplied
+        //    original object.
+        //
+        // 2. There is no memory allocation, not even temporary, from the
+        //    default allocator.
+        //
+        // 3. The original object is passed as a `const` reference.
+        //
+        // 4. The value of the original object is unchanged.
         //
         // Plan:
-        //: 1 Using a table of representative values that include the
-        //:   the extremes of the supported range.
-        //:
-        //: 2 For each row (representing a distinct object value, 'V') in the
-        //:   table described in P-1, create two identical objects, 'Z', that
-        //:   will be copied, and 'ZZ', that will be used for control.
-        //:
-        //: 3 Use the copy constructor to create object 'X' from 'Z'.
-        //:
-        //: 4 Confirm that 'X' equals 'Z', the object from which 'X' was copied
-        //:   and 'Z' equals 'ZZ', showing that the original was not changed.
-        //:
-        //: 3 A test allocator is installed as the default allocator and
-        //:   checked to confirm that no memory is allocated by the copy
-        //:   constructor.
+        // 1. Using a table of representative values that include the
+        //    the extremes of the supported range.
+        //
+        // 2. For each row (representing a distinct object value, `V`) in the
+        //    table described in P-1, create two identical objects, `Z`, that
+        //    will be copied, and `ZZ`, that will be used for control.
+        //
+        // 3. Use the copy constructor to create object `X` from `Z`.
+        //
+        // 4. Confirm that `X` equals `Z`, the object from which `X` was copied
+        //    and `Z` equals `ZZ`, showing that the original was not changed.
+        //
+        // 3. A test allocator is installed as the default allocator and
+        //    checked to confirm that no memory is allocated by the copy
+        //    constructor.
         //
         // Testing:
         //   Location(const Location& original);
@@ -924,7 +925,7 @@ int main(int argc, char *argv[])
 
             ASSERTV(LINE, Z, X,  Z == X);
 
-            // Verify that the value of 'Z' has not changed.
+            // Verify that the value of `Z` has not changed.
 
             ASSERTV(LINE, ZZ, Z, ZZ == Z);
         }
@@ -935,75 +936,75 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // EQUALITY-COMPARISON OPERATORS
-        //   Ensure that '==' and '!=' are the operational definition of value.
+        //   Ensure that `==` and `!=` are the operational definition of value.
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if each of
-        //:   their corresponding salient attributes respectively compares
-        //:   equal.
+        // 1. Two objects, `X` and `Y`, compare equal if and only if each of
+        //    their corresponding salient attributes respectively compares
+        //    equal.
         //
-        //:   o Note that this class has just a single attribute, 'offset'.
-        //:
+        //    - Note that this class has just a single attribute, `offset`.
+        //
         //  2 Expected logical relations are supported:
         //
-        //:   1 'true  == (X == X)'  (i.e., identity)
-        //:   2 'false == (X != X)'  (i.e., identity)
-        //:   3 'X == Y' if and only if 'Y == X'  (i.e., commutativity)
-        //:   4 'X != Y' if and only if 'Y != X'  (i.e., commutativity)
-        //:   5 'X != Y' if and only if '!(X == Y)'
-        //:
-        //: 3 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., both comparison operators are free functions).
-        //:
-        //: 4 Non-modifiable objects can be compared (i.e., 'const' objects and
-        //:   'const' references).
-        //:
-        //: 5 No memory allocation occurs as a result of comparison.
-        //:
-        //: 6 Signature and return type are standard for both the equality
-        //:   and inequality operators.
+        //   1. `true  == (X == X)`  (i.e., identity)
+        //   2. `false == (X != X)`  (i.e., identity)
+        //   3. `X == Y` if and only if `Y == X`  (i.e., commutativity)
+        //   4. `X != Y` if and only if `Y != X`  (i.e., commutativity)
+        //   5. `X != Y` if and only if `!(X == Y)`
+        //
+        // 3. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., both comparison operators are free functions).
+        //
+        // 4. Non-modifiable objects can be compared (i.e., `const` objects and
+        //    `const` references).
+        //
+        // 5. No memory allocation occurs as a result of comparison.
+        //
+        // 6. Signature and return type are standard for both the equality
+        //    and inequality operators.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the two homogeneous, free equality-
-        //:   comparison operators defined in this component.  (C-6)
-        //:
-        //: 2 Create a 'bslma::TestAllocator' object, and install it as the
-        //:   default allocator (note that a ubiquitous test allocator is
-        //:   already installed as the global allocator).
-        //:
-        //: 3 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their individual salient
-        //:   attributes such that (a) for each salient attribute, there exists
-        //:   a pair of rows that differ (slightly) in only the column
-        //:   corresponding to that attribute, and (b) all attribute values
-        //:   that can allocate memory on construction do so.
-        //:
-        //:   o As this class has just one attribute, the table consists
-        //:     of two rows.
-        //:
-        //: 4 For each row 'R1' in the table of P-3:  (C-2..4)
-        //:
-        //:   1 Create a single object, using a "scratch" allocator, and
-        //:     use it to verify the reflexive (anti-reflexive) property of
-        //:     equality (inequality) in the presence of aliasing.
-        //:
-        //:   2 For each row 'R2' in the table of P-3:
-        //:
-        //:     1 Record, in 'EXP', whether or not distinct objects created
-        //:       from 'R1' and 'R2', respectively, are expected to have the
-        //:       same value.
-        //:
-        //:     2 Create an object 'X' having the value 'R1'.
-        //:
-        //:     3 Create an object 'Y' having the value 'R2'.
-        //:
-        //:     4 Verify the commutativity property and expected return value
-        //:       for both '==' and '!='.
-        //:
-        //: 5 Use the test allocator from P-2 to verify that no memory is ever
-        //:   allocated from the default allocator.  (C-5)
+        // 1. Use the respective addresses of `operator==` and `operator!=` to
+        //    initialize function pointers having the appropriate signatures
+        //    and return types for the two homogeneous, free equality-
+        //    comparison operators defined in this component.  (C-6)
+        //
+        // 2. Create a `bslma::TestAllocator` object, and install it as the
+        //    default allocator (note that a ubiquitous test allocator is
+        //    already installed as the global allocator).
+        //
+        // 3. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their individual salient
+        //    attributes such that (a) for each salient attribute, there exists
+        //    a pair of rows that differ (slightly) in only the column
+        //    corresponding to that attribute, and (b) all attribute values
+        //    that can allocate memory on construction do so.
+        //
+        //    - As this class has just one attribute, the table consists
+        //      of two rows.
+        //
+        // 4. For each row `R1` in the table of P-3:  (C-2..4)
+        //
+        //   1. Create a single object, using a "scratch" allocator, and
+        //      use it to verify the reflexive (anti-reflexive) property of
+        //      equality (inequality) in the presence of aliasing.
+        //
+        //   2. For each row `R2` in the table of P-3:
+        //
+        //     1. Record, in `EXP`, whether or not distinct objects created
+        //        from `R1` and `R2`, respectively, are expected to have the
+        //        same value.
+        //
+        //     2. Create an object `X` having the value `R1`.
+        //
+        //     3. Create an object `Y` having the value `R2`.
+        //
+        //     4. Verify the commutativity property and expected return value
+        //        for both `==` and `!=`.
+        //
+        // 5. Use the test allocator from P-2 to verify that no memory is ever
+        //    allocated from the default allocator.  (C-5)
         //
         // Testing:
         //   bool operator==(const Location& lhs, const Location& rhs);
@@ -1030,14 +1031,14 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-            "\nDefine appropriate individual attribute values, 'Ai' and 'Bi'."
+            "\nDefine appropriate individual attribute values, `Ai` and `Bi`."
                                                                        << endl;
 
         // Attribute Types
 
-        typedef Uint64      T1;                // 'offset'
+        typedef Uint64      T1;                // `offset`
 
-        // Attribute 1 Values: 'utcOffsetInSeconds'
+        // Attribute 1 Values: `utcOffsetInSeconds`
 
         const T1 A1 = 0;                      // baseline
         const T1 B1 = bsl::numeric_limits<Int64>::max();
@@ -1117,45 +1118,45 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // PRINT AND OUTPUT OPERATOR
         //   Ensure that the value of the object can be formatted appropriately
-        //   on an 'ostream' in some standard, human-readable form.
+        //   on an `ostream` in some standard, human-readable form.
         //
         // Concerns:
-        //: 1 The 'print' method and the output 'operator<<' have standard
-        //:   signatures and return types.
+        // 1. The `print` method and the output `operator<<` have standard
+        //    signatures and return types.
         //
-        //: 2 The 'print' method and the output 'operator<<' return the
-        //:   supplied 'ostream'.
-        //:
-        //: 3 The 'print' method writes the object's value in decimal format to
-        //:   the specified 'ostream' at the intended indentation and followed
-        //:   by '\n' unless the third argument ('spacesPerLevel') is negative.
-        //:
-        //: 4 The optional 'level' and 'spacesPerLevel' parameters have the
-        //:   correct default values.
-        //:
-        //: 5 There is no output when the stream is invalid.
+        // 2. The `print` method and the output `operator<<` return the
+        //    supplied `ostream`.
+        //
+        // 3. The `print` method writes the object's value in decimal format to
+        //    the specified `ostream` at the intended indentation and followed
+        //    by '\n' unless the third argument (`spacesPerLevel`) is negative.
+        //
+        // 4. The optional `level` and `spacesPerLevel` parameters have the
+        //    correct default values.
+        //
+        // 5. There is no output when the stream is invalid.
         //
         // Plan:
-        //: 1 Use the addresses of the 'print' member function and 'operator<<'
-        //:   free function defined in this component to initialize,
-        //:   respectively, member-function and free-function pointers having
-        //:   the appropriate signatures and return types.  (C-1)
-        //:
-        //: 2 Using the table-driven technique: (C-2..5)
-        //:
-        //:   1 Create a table having combinations of the two formatting
-        //:     parameters, 'level' and 'spacesPerLevel', and the expected
-        //:     output.
-        //:
-        //:   2 The formatting parameter '-9' and '-8' are "magic".  They are
-        //:     never used as arguments.  Rather they direct flow of the test
-        //:     case to code that confirms that the default argument values are
-        //:     correct and confirms that 'operator<<' works as expected.
-        //:
-        //:   3 Each table entry is used twice: First with a valid output
-        //:     stream and then again with the output stream in a 'bad' state.
-        //:     In the former case, the output should match that specified in
-        //:     in the table.  In the later case, there should be no output.
+        // 1. Use the addresses of the `print` member function and `operator<<`
+        //    free function defined in this component to initialize,
+        //    respectively, member-function and free-function pointers having
+        //    the appropriate signatures and return types.  (C-1)
+        //
+        // 2. Using the table-driven technique: (C-2..5)
+        //
+        //   1. Create a table having combinations of the two formatting
+        //      parameters, `level` and `spacesPerLevel`, and the expected
+        //      output.
+        //
+        //   2. The formatting parameter `-9` and `-8` are "magic".  They are
+        //      never used as arguments.  Rather they direct flow of the test
+        //      case to code that confirms that the default argument values are
+        //      correct and confirms that `operator<<` works as expected.
+        //
+        //   3. Each table entry is used twice: First with a valid output
+        //      stream and then again with the output stream in a `bad` state.
+        //      In the former case, the output should match that specified in
+        //      in the table.  In the later case, there should be no output.
         //
         // Testing:
         //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
@@ -1166,8 +1167,8 @@ int main(int argc, char *argv[])
                           << "PRINT AND OUTPUT OPERATOR" << endl
                           << "=========================" << endl;
 
-        if (veryVerbose) cout << "\nAssign the addresses of 'print' and "
-                                  "the output 'operator<<' to variables."
+        if (veryVerbose) cout << "\nAssign the addresses of `print` and "
+                                  "the output `operator<<` to variables."
                               << endl;
         {
             using namespace bdljsn;
@@ -1402,23 +1403,23 @@ int main(int argc, char *argv[])
         //   for thorough testing.
         //
         // Concerns:
-        //: 1 The value constructor can create an object having any value that
-        //:   does not violate the constructor's documented preconditions.
-        //:
-        //: 2 QoI: The default constructor allocates no memory, not even
-        //:   temporarily, from the default allocator.
+        // 1. The value constructor can create an object having any value that
+        //    does not violate the constructor's documented preconditions.
         //
-        //: 3 Any argument can be 'const'.
+        // 2. QoI: The default constructor allocates no memory, not even
+        //    temporarily, from the default allocator.
+        //
+        // 3. Any argument can be `const`.
         //
         // Plan:
-        //:  1 Use the value constructor to create a series of objects having
-        //:   a representative set of values that include the extremes
-        //:    of the allowed range.  Confirm the state of the object
-        //:   using the basic allocator tested in TC2.
-        //:
-        //:  2 A test allocator is installed as the default allocator and
-        //:    checked to confirm that no memory is allocated by the value
-        //:    constructor.
+        //  1. Use the value constructor to create a series of objects having
+        //    a representative set of values that include the extremes
+        //     of the allowed range.  Confirm the state of the object
+        //    using the basic allocator tested in TC2.
+        //
+        //  2. A test allocator is installed as the default allocator and
+        //     checked to confirm that no memory is allocated by the value
+        //     constructor.
         //
         // Testing:
         //   explicit Location(bsl::uint64_t offset);
@@ -1457,47 +1458,47 @@ int main(int argc, char *argv[])
         //   was set as expected, and use the destructor to destroy it safely.
         //
         // Concerns:
-        //: 1 An object created with the default constructor has the
-        //:   contractually specified default value.
-        //:
-        //: 2 QoI: The default constructor allocates no memory, not even
-        //:   temporarily from the default constructor.
-        //:
-        //: 3 Each attribute is modifiable independently.
-        //:
-        //: 4 Each attribute can be set to represent any value that does not
-        //:   violate that attribute's documented constraints.
-        //:
-        //: 5 The values reported by the basic accessors is consistent with the
-        //:   values expected from the default constructor and subsequent
-        //:   calls to the primary manipulator.
-        //:
-        //: 6 Any argument can be 'const'.
-        //:
-        //: 7 The 'setOffset' manipulator returns a non-'const' reference to
-        //:   the object.
+        // 1. An object created with the default constructor has the
+        //    contractually specified default value.
+        //
+        // 2. QoI: The default constructor allocates no memory, not even
+        //    temporarily from the default constructor.
+        //
+        // 3. Each attribute is modifiable independently.
+        //
+        // 4. Each attribute can be set to represent any value that does not
+        //    violate that attribute's documented constraints.
+        //
+        // 5. The values reported by the basic accessors is consistent with the
+        //    values expected from the default constructor and subsequent
+        //    calls to the primary manipulator.
+        //
+        // 6. Any argument can be `const`.
+        //
+        // 7. The `setOffset` manipulator returns a non-`const` reference to
+        //    the object.
         //
         // Plan:
-        //: 1 An ad hoc series of operations:
-        //:
-        //:   1 Default constructs an object.
-        //:
-        //:   2 Sets the object to representative values that include
-        //:     the extremes of the allowed values.
-        //:
-        //:   3 Use the basic accessor to confirm the set values.
-        //:
-        //: 2 The 'const'-ness of the basic accessor is confirmed by invoking
-        //:   it on a 'cons'-reference to the object.
-        //:
-        //: 3 A test allocator is installed as the default allocator and
-        //:   checked to confirm that no memory is allocated by the
-        //:   constructor, and no temporary memory is allocated by either
-        //:   the primary manipulator or basic accessor.
-        //:
-        //: 4 Confirm that the 'setOffset' manipulator returns a value that can
-        //:   be assigned to a non-'const' reference to 'Location' and that
-        //:   value has the same address as the object under test.
+        // 1. An ad hoc series of operations:
+        //
+        //   1. Default constructs an object.
+        //
+        //   2. Sets the object to representative values that include
+        //      the extremes of the allowed values.
+        //
+        //   3. Use the basic accessor to confirm the set values.
+        //
+        // 2. The `const`-ness of the basic accessor is confirmed by invoking
+        //    it on a `cons`-reference to the object.
+        //
+        // 3. A test allocator is installed as the default allocator and
+        //    checked to confirm that no memory is allocated by the
+        //    constructor, and no temporary memory is allocated by either
+        //    the primary manipulator or basic accessor.
+        //
+        // 4. Confirm that the `setOffset` manipulator returns a value that can
+        //    be assigned to a non-`const` reference to `Location` and that
+        //    value has the same address as the object under test.
         //
         // Testing:
         //   Location();
@@ -1516,15 +1517,15 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
-        // 'D' values: These are the default-constructed values.
+        // `D` values: These are the default-constructed values.
 
-        const Uint64 D1 = 0UL;        // 'offset'
+        const Uint64 D1 = 0UL;        // `offset`
 
-        // 'A' values
+        // `A` values
 
         const Uint64 A1 = 1UL;
 
-        // 'B' values
+        // `B` values
 
         const Uint64 B1 = bsl::numeric_limits<Uint64>::max();
 
@@ -1556,19 +1557,19 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an object 'w' (default ctor).       { w:D             }
-        //: 2 Create an object 'x' (copy from 'w').      { w:D x:D         }
-        //: 3 Set 'x' to 'A' (value distinct from 'D').  { w:D x:A         }
-        //: 4 Create an object 'y' (init. to 'A').       { w:D x:A y:A     }
-        //: 5 Create an object 'z' (copy from 'y').      { w:D x:A y:A z:A }
-        //: 6 Set 'z' to 'D' (the default value).        { w:D x:A y:A z:D }
-        //: 7 Assign 'w' from 'x'.                       { w:A x:A y:A z:D }
-        //: 8 Assign 'w' from 'z'.                       { w:D x:A y:A z:D }
-        //: 9 Assign 'x' from 'x' (aliasing).            { w:D x:A y:A z:D }
+        // 1. Create an object `w` (default ctor).       { w:D             }
+        // 2. Create an object `x` (copy from `w`).      { w:D x:D         }
+        // 3. Set `x` to `A` (value distinct from `D`).  { w:D x:A         }
+        // 4. Create an object `y` (init. to `A`).       { w:D x:A y:A     }
+        // 5. Create an object `z` (copy from `y`).      { w:D x:A y:A z:A }
+        // 6. Set `z` to `D` (the default value).        { w:D x:A y:A z:D }
+        // 7. Assign `w` from `x`.                       { w:A x:A y:A z:D }
+        // 8. Assign `w` from `z`.                       { w:D x:A y:A z:D }
+        // 9. Assign `x` from `x` (aliasing).            { w:D x:A y:A z:D }
         //
         // Testing:
         //   BREATHING TEST
@@ -1580,80 +1581,80 @@ int main(int argc, char *argv[])
 
         // Attribute Types
 
-        typedef bsl::int64_t T1;       // 'offset'
+        typedef bsl::int64_t T1;       // `offset`
 
-        // Attribute 1 Values: 'utcOffsetInSeconds'
+        // Attribute 1 Values: `utcOffsetInSeconds`
 
         const T1 D1 = 0;               // default value
         const T1 A1 = 1;
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 1. Create an object 'w' (default ctor)."
+        if (verbose) cout << "\n 1. Create an object `w` (default ctor)."
                              "\t\t{ w:D             }" << endl;
 
         Obj mW;  const Obj& W = mW;
 
-        if (verbose) cout << "\ta. Check initial value of 'w'." << endl;
+        if (verbose) cout << "\ta. Check initial value of `w`." << endl;
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         ASSERT(D1 == W.offset());
 
         if (verbose) cout <<
-                  "\tb. Try equality operators: 'w' <op> 'w'." << endl;
+                  "\tb. Try equality operators: `w` <op> `w`." << endl;
 
         ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 2. Create an object 'x' (copy from 'w')."
+        if (verbose) cout << "\n 2. Create an object `x` (copy from `w`)."
                              "\t\t{ w:D x:D         }" << endl;
 
         Obj mX(W);  const Obj& X = mX;
 
-        if (verbose) cout << "\ta. Check initial value of 'x'." << endl;
+        if (verbose) cout << "\ta. Check initial value of `x`." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(D1 == X.offset());
 
         if (verbose) cout <<
-                   "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
+                   "\tb. Try equality operators: `x` <op> `w`, `x`." << endl;
 
         ASSERT(1 == (X == W));        ASSERT(0 == (X != W));
         ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 3. Set 'x' to 'A' (value distinct from 'D')."
+        if (verbose) cout << "\n 3. Set `x` to `A` (value distinct from `D`)."
                              "\t\t{ w:D x:A         }" << endl;
 
         mX.setOffset(A1);
 
-        if (verbose) cout << "\ta. Check new value of 'x'." << endl;
+        if (verbose) cout << "\ta. Check new value of `x`." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(A1 == X.offset());
 
         if (verbose) cout <<
-             "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
+             "\tb. Try equality operators: `x` <op> `w`, `x`." << endl;
 
         ASSERT(0 == (X == W));        ASSERT(1 == (X != W));
         ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 4. Create an object 'y' (init. to 'A')."
+        if (verbose) cout << "\n 4. Create an object `y` (init. to `A`)."
                              "\t\t{ w:D x:A y:A     }" << endl;
 
         Obj mY(A1);  const Obj& Y = mY;
 
-        if (verbose) cout << "\ta. Check initial value of 'y'." << endl;
+        if (verbose) cout << "\ta. Check initial value of `y`." << endl;
         if (veryVeryVerbose) { T_ T_ P(Y) }
 
         ASSERT(A1 == Y.offset());
 
         if (verbose) cout <<
-             "\tb. Try equality operators: 'y' <op> 'w', 'x', 'y'" << endl;
+             "\tb. Try equality operators: `y` <op> `w`, `x`, `y`" << endl;
 
         ASSERT(0 == (Y == W));        ASSERT(1 == (Y != W));
         ASSERT(1 == (Y == X));        ASSERT(0 == (Y != X));
@@ -1661,18 +1662,18 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 5. Create an object 'z' (copy from 'y')."
+        if (verbose) cout << "\n 5. Create an object `z` (copy from `y`)."
                              "\t\t{ w:D x:A y:A z:A }" << endl;
 
         Obj mZ(Y);  const Obj& Z = mZ;
 
-        if (verbose) cout << "\ta. Check initial value of 'z'." << endl;
+        if (verbose) cout << "\ta. Check initial value of `z`." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
 
         ASSERT(A1 == Z.offset());
 
         if (verbose) cout <<
-           "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `z` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(0 == (Z == W));        ASSERT(1 == (Z != W));
         ASSERT(1 == (Z == X));        ASSERT(0 == (Z != X));
@@ -1681,18 +1682,18 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 6. Set 'z' to 'D' (the default value)."
+        if (verbose) cout << "\n 6. Set `z` to `D` (the default value)."
                              "\t\t\t{ w:D x:A y:A z:D }" << endl;
 
         mZ.setOffset(D1);
 
-        if (verbose) cout << "\ta. Check new value of 'z'." << endl;
+        if (verbose) cout << "\ta. Check new value of `z`." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
 
         ASSERT(D1 == Z.offset());
 
         if (verbose) cout <<
-           "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `z` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(1 == (Z == W));        ASSERT(0 == (Z != W));
         ASSERT(0 == (Z == X));        ASSERT(1 == (Z != X));
@@ -1701,17 +1702,17 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 7. Assign 'w' from 'x'."
+        if (verbose) cout << "\n 7. Assign `w` from `x`."
                              "\t\t\t\t{ w:A x:A y:A z:D }" << endl;
         mW = X;
 
-        if (verbose) cout << "\ta. Check new value of 'w'." << endl;
+        if (verbose) cout << "\ta. Check new value of `w`." << endl;
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         ASSERT(A1 == W.offset());
 
         if (verbose) cout <<
-           "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `w` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
         ASSERT(1 == (W == X));        ASSERT(0 == (W != X));
@@ -1720,17 +1721,17 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 8. Assign 'w' from 'z'."
+        if (verbose) cout << "\n 8. Assign `w` from `z`."
                              "\t\t\t\t{ w:D x:A y:A z:D }" << endl;
         mW = Z;
 
-        if (verbose) cout << "\ta. Check new value of 'w'." << endl;
+        if (verbose) cout << "\ta. Check new value of `w`." << endl;
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         ASSERT(D1 == W.offset());
 
         if (verbose) cout <<
-           "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `x` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
         ASSERT(0 == (W == X));        ASSERT(1 == (W != X));
@@ -1739,17 +1740,17 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 9. Assign 'x' from 'x' (aliasing)."
+        if (verbose) cout << "\n 9. Assign `x` from `x` (aliasing)."
                              "\t\t\t{ w:D x:A y:A z:D }" << endl;
         mX = X;
 
-        if (verbose) cout << "\ta. Check (same) value of 'x'." << endl;
+        if (verbose) cout << "\ta. Check (same) value of `x`." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(A1 == X.offset());
 
         if (verbose) cout <<
-           "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `x` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(0 == (X == W));        ASSERT(1 == (X != W));
         ASSERT(1 == (X == X));        ASSERT(0 == (X != X));

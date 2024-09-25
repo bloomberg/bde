@@ -39,8 +39,8 @@ const char *CopyMoveState::toAscii(CopyMoveState::Enum value)
 #undef CASE
 }
 
+/// Print the specified `value` as a string.
 void debugprint(const CopyMoveState::Enum& value)
-    // Print the specified 'value' as a string.
 {
     std::printf("%s", CopyMoveState::toAscii(value));
 }

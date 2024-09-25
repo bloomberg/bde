@@ -66,14 +66,12 @@ enum {
     k_SURROGATE                    = Utf8Util::k_SURROGATE
 };
 
+/// Return `true` if `sequence` points to a valid UTF-8 code point and
+/// `false` otherwise.  Note that this checks for neither:
+/// * values too large
+/// * surrogates
+/// * non-minimal encodings
 bool BSLA_UNUSED isValidUtf8CodePoint(const char *sequence)
-    // Return 'true' if 'sequence' points to a valid UTF-8 code point and
-    // 'false' otherwise.  Note that this checks for neither:
-    //: o values too large
-    //:
-    //: o surrogates
-    //:
-    //: o non-minimal encodings
 {
     return (sequence[0] & k_ONEBYTEHEAD_TEST)   == k_ONEBYTEHEAD_RES ||
           ((sequence[1] & k_MULTIPLEBYTE_TEST)  == k_MULTIPLEBYTE_RES &&
@@ -84,10 +82,10 @@ bool BSLA_UNUSED isValidUtf8CodePoint(const char *sequence)
            (sequence[0] & k_FOURBYTEHEAD_TEST)  == k_FOURBYTEHEAD_RES )))));
 }
 
+/// Return the length of the UTF-8 code point for which the specified
+/// `character` is the first `char`.  The behavior is undefined unless
+/// `character` is the first `char` of a UTF-8 code point.
 int utf8Size(char character)
-    // Return the length of the UTF-8 code point for which the specified
-    // 'character' is the first 'char'.  The behavior is undefined unless
-    // 'character' is the first 'char' of a UTF-8 code point.
 {
     if ((character & k_ONEBYTEHEAD_TEST) == k_ONEBYTEHEAD_RES) {
         return 1;                                                     // RETURN
@@ -104,11 +102,11 @@ int utf8Size(char character)
 
 // BDE_VERIFY pragma: -SP01     // 'FFFF' is not a typo.
 
+/// Append the UTF-8 encoding of the specified Unicode `codePoint` to the
+/// specified `output` string.  Return 0 on success, and a non-zero value
+/// otherwise.
 template <class STRING>
 int appendUtf8CodePointImpl(STRING *output, unsigned int codePoint)
-    // Append the UTF-8 encoding of the specified Unicode 'codePoint' to the
-    // specified 'output' string.  Return 0 on success, and a non-zero value
-    // otherwise.
 {
     ///IMPLEMENTATION NOTES
     ///--------------------
@@ -163,67 +161,67 @@ int appendUtf8CodePointImpl(STRING *output, unsigned int codePoint)
 
 // STATIC HELPER FUNCTIONS
 
+/// Return `true` if the specified `value` is NOT a UTF-8 continuation byte,
+/// and `false` otherwise.
 static inline
 bool isNotContinuation(char value)
-    // Return 'true' if the specified 'value' is NOT a UTF-8 continuation byte,
-    // and 'false' otherwise.
 {
     return 0x80 != (value & 0xc0);
 }
 
+/// Return `true` if the specified `value` is a surrogate value, and `false`
+/// otherwise.
 static inline
 bool isSurrogateValue(int value)
-    // Return 'true' if the specified 'value' is a surrogate value, and 'false'
-    // otherwise.
 {
     enum { k_SURROGATE_MASK = 0xfffff800U };
 
     return (k_SURROGATE_MASK & value) == k_MIN_SURROGATE;
 }
 
+/// Return the integral value of the single code point represented by the
+/// 2-byte UTF-8 sequence referred to by the specified `pc`.  The behavior
+/// is undefined unless the 2 bytes starting at `pc` contain a UTF-8
+/// sequence describing a single valid code point.
 static inline
 int get2ByteValue(const char *pc)
-    // Return the integral value of the single code point represented by the
-    // 2-byte UTF-8 sequence referred to by the specified 'pc'.  The behavior
-    // is undefined unless the 2 bytes starting at 'pc' contain a UTF-8
-    // sequence describing a single valid code point.
 {
     return ((*pc & 0x1f) << 6) | (pc[1] & k_CONT_VALUE_MASK);
 }
 
+/// Return the integral value of the single code point represented by the
+/// 3-byte UTF-8 sequence referred to by the specified `pc`.  The behavior
+/// is undefined unless the 3 bytes starting at `pc` contain a UTF-8
+/// sequence describing a single valid code point.
 static inline
 int get3ByteValue(const char *pc)
-    // Return the integral value of the single code point represented by the
-    // 3-byte UTF-8 sequence referred to by the specified 'pc'.  The behavior
-    // is undefined unless the 3 bytes starting at 'pc' contain a UTF-8
-    // sequence describing a single valid code point.
 {
     return ((*pc & 0xf) << 12) | ((pc[1] & k_CONT_VALUE_MASK) << 6)
                                |  (pc[2] & k_CONT_VALUE_MASK);
 }
 
+/// Return the integral value of the single code point represented by the
+/// 4-byte UTF-8 sequence referred to by the specified `pc`.  The behavior
+/// is undefined unless the 4 bytes starting at `pc` contain a UTF-8
+/// sequence describing a single valid code point.
 static inline
 int get4ByteValue(const char *pc)
-    // Return the integral value of the single code point represented by the
-    // 4-byte UTF-8 sequence referred to by the specified 'pc'.  The behavior
-    // is undefined unless the 4 bytes starting at 'pc' contain a UTF-8
-    // sequence describing a single valid code point.
 {
     return ((*pc & 0x7) << 18) | ((pc[1] & k_CONT_VALUE_MASK) << 12)
                                | ((pc[2] & k_CONT_VALUE_MASK) <<  6)
                                |  (pc[3] & k_CONT_VALUE_MASK);
 }
 
+/// Return the number of Unicode code points in the specified `string` if it
+/// contains valid UTF-8, with no effect on the specified `invalidString`.
+/// Otherwise, return a negative value and load into `invalidString` the
+/// address of the first sequence in `string` that does not constitute the
+/// start of a valid UTF-8 encoding specifying a valid Unicode code point.
+/// `string` is necessarily null-terminated, so it cannot contain embedded
+/// null bytes.  Note that `string` may contain less than
+/// `bsl::strlen(string)` Unicode code points.
 static
 int validateAndCountCodePoints(const char **invalidString, const char *string)
-    // Return the number of Unicode code points in the specified 'string' if it
-    // contains valid UTF-8, with no effect on the specified 'invalidString'.
-    // Otherwise, return a negative value and load into 'invalidString' the
-    // address of the first sequence in 'string' that does not constitute the
-    // start of a valid UTF-8 encoding specifying a valid Unicode code point.
-    // 'string' is necessarily null-terminated, so it cannot contain embedded
-    // null bytes.  Note that 'string' may contain less than
-    // 'bsl::strlen(string)' Unicode code points.
 {
     // The following assertions are redundant with those in the CLASS METHODS.
     // Hence, 'BSLS_ASSERT_SAFE' is used.
@@ -353,18 +351,18 @@ int validateAndCountCodePoints(const char **invalidString, const char *string)
     }
 }
 
+/// Return the number of Unicode code points in the specified `string`
+/// having the specified `length` (in bytes) if `string` contains valid
+/// UTF-8, with no effect on the specified `invalidString`.  Otherwise,
+/// return a negative value and load into `invalidString` the address of the
+/// first byte in `string` that does not constitute the start of a valid
+/// UTF-8 encoding.  `string` need not be null-terminated and can contain
+/// embedded null bytes.  The behavior is undefined unless
+/// `0 <= IntPtr(length)`.  Note that `string` may contain less than
+/// `length` Unicode code points.
 static int validateAndCountCodePoints(const char             **invalidString,
                                       const char              *string,
                                       bsls::Types::size_type   length)
-    // Return the number of Unicode code points in the specified 'string'
-    // having the specified 'length' (in bytes) if 'string' contains valid
-    // UTF-8, with no effect on the specified 'invalidString'.  Otherwise,
-    // return a negative value and load into 'invalidString' the address of the
-    // first byte in 'string' that does not constitute the start of a valid
-    // UTF-8 encoding.  'string' need not be null-terminated and can contain
-    // embedded null bytes.  The behavior is undefined unless
-    // '0 <= IntPtr(length)'.  Note that 'string' may contain less than
-    // 'length' Unicode code points.
 {
     // The following assertions are redundant with those in the CLASS METHODS.
     // Hence, 'BSLS_ASSERT_SAFE' is used.

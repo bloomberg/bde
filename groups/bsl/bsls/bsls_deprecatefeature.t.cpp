@@ -2,7 +2,7 @@
 
 #include <bsls_deprecatefeature.h>
 
-// See the 'MACRO TESTING' section for an explanation of this macro.
+// See the `MACRO TESTING` section for an explanation of this macro.
 
 #if !defined(RE_INCLUDE_CONFIGURATION)
 
@@ -20,11 +20,11 @@ using namespace BloombergLP;
 //                             TEST PLAN
 //                             ---------
 // This component provides compile-time facilities to annotate C++ entities as
-// deprecated using the C++ '[[deprecated]]' annotation on platforms where it
+// deprecated using the C++ `[[deprecated]]` annotation on platforms where it
 // is available.  The instantiation of the macros are configured via build
 // flags.  This test driver is designed to re-include itself, and the component
 // header multiple times to simulate the inclusion of the header under
-// different build configurations.  See the 'MACRO TESTING' section for more
+// different build configurations.  See the `MACRO TESTING` section for more
 // documentation.
 //-----------------------------------------------------------------------------
 // [ 1] BSLS_DEPRECATE_FEATURE(UOR, FEATURE, MESSAGE)
@@ -100,61 +100,64 @@ class Date {
 //
 ///Example 1: Deprecating a Feature
 /// - - - - - - - - - - - - - - - -
-// The following example demonstrates using the 'BSLS_DEPRECATE_FEATURE' macro
+// The following example demonstrates using the `BSLS_DEPRECATE_FEATURE` macro
 // to deprecate several C++ entities.
 //
-// The 'BSLS_DEPRECATE_FEATURE' macro can be applied in the same way as the C++
-// '[[deprecated]]' annotation.  For example, imagine we are deprecating a
-// function 'oldFunction' in the 'bsl' library as part of migrating software to
+// The `BSLS_DEPRECATE_FEATURE` macro can be applied in the same way as the C++
+// `[[deprecated]]` annotation.  For example, imagine we are deprecating a
+// function `oldFunction` in the `bsl` library as part of migrating software to
 // the linux platform, we might write:
-//..
+// ```
     BSLS_DEPRECATE_FEATURE("bsl", "oldFunction", "Use newFunction instead")
     void oldFunction();
-//..
+// ```
 // Here the string "bsl" refers to the library or Unit-Of-Release (UOR) that
 // the deprecation occurs in.  "oldFunction" is an arbitrary identifier for
-// the feature being deprecated.  Together the 'UOR' and 'FEATURE' are
+// the feature being deprecated.  Together the `UOR` and `FEATURE` are
 // intended to form a unique enterprise-wide identifier for the feature being
 // deprecated.  Finally the string "Use newFunction instead" is a message for
 // users of the deprecated feature.
 //
-// Marking 'oldFunction' in this way makes the deprecation of 'oldFunction'
+// Marking `oldFunction` in this way makes the deprecation of `oldFunction`
 // visible to code analysis tools.  In addition, in a local build, warnings
 // for uses of the deprecated entity can be enabled using a build macro
-// 'BB_DEPRECATE_ENABLE_ALL_DEPRECATIONS_FOR_TESTING' (this macro *MUST* *NOT*
+// `BB_DEPRECATE_ENABLE_ALL_DEPRECATIONS_FOR_TESTING` (this macro *MUST* *NOT*
 // be used as part of a cross-organization integration build such as a
-// 'unstable' dpkg build, see {Concerns with Compiler Warnings}).
+// `unstable` dpkg build, see {Concerns with Compiler Warnings}).
 //
-// Similarly, if we were deprecating a class 'OldType' we might write:
-//..
+// Similarly, if we were deprecating a class `OldType` we might write:
+// ```
 //
+
+    /// ...
     class BSLS_DEPRECATE_FEATURE("bsl", "OldType", "Use NewType instead")
                                                                       OldType {
-        // ...
     };
-//..
+// ```
 // Frequently, more than one C++ related entity may be associated with a
 // deprecated feature.  In that case we would want to use the same identifier
 // for each entity we mark deprecated.  To simplify this we might create a
 // deprecation macro that is local to the component.  For example, if we were
-// deprecating a queue and its iterator in the 'bde' library we might write:
-//..
+// deprecating a queue and its iterator in the `bde` library we might write:
+// ```
     #define BDEC_QUEUE_DEPRECATE                                              \
         BSLS_DEPRECATE_FEATURE("bde", "bdec_queue", "Use bsl::queue instead")
 //
+
+    /// ```.
     class BDEC_QUEUE_DEPRECATE bdec_Queue {
-        //...
     };
 //
+
+    /// ```.
     class BDEC_QUEUE_DEPRECATE bdec_QueueIterator {
-        //...
     };
-//..
+// ```
 // Sometimes several entities are deprecated as part of the same
 // feature where separate messages are appropriate.  For example, imagine we
-// had a component 'bsls_measurementutil' that we were converting from
+// had a component `bsls_measurementutil` that we were converting from
 // imperial to metric units:
-//..
+// ```
     #define BSLS_MEASUREMEANTUTIL_DEPRECATE_IMPERIAL(MESSAGE)                 \
         BSLS_DEPRECATE_FEATURE("bsl", "deprecate-imperial-units", MESSAGE)
 //
@@ -170,40 +173,40 @@ class Date {
 ///Deprecating a Feature Across Multiple Headers
 ///- - - - - - - - - - - - - - - - - - - - - - -
 // Frequently a feature being deprecated may span multiple components.  For
-// example, we may want to deprecate all the date and time types in the 'bde'
+// example, we may want to deprecate all the date and time types in the `bde`
 // library.  In those instances one may define a macro in the lowest level
-// component (e.g., define 'BDET_DATE_DEPRECATE_DATE_AND_TIME' in 'bdet_date').
+// component (e.g., define `BDET_DATE_DEPRECATE_DATE_AND_TIME` in `bdet_date`).
 // Alternatively, one might create a component specifically for the deprecation
-// (e.g., define 'BDET_DEPRECATE_DATE_AND_TIME' in a newly created
-// 'bdet_deprecate' component).  The following code shows the latter, creating
-// a new component, 'bdet_deprecate' in which to provide macros to deprecate
-// code across 'bdet'.
+// (e.g., define `BDET_DEPRECATE_DATE_AND_TIME` in a newly created
+// `bdet_deprecate` component).  The following code shows the latter, creating
+// a new component, `bdet_deprecate` in which to provide macros to deprecate
+// code across `bdet`.
 //
 // First, we create a new component, 'bdet_deprecate` and define the following
 // macro:
-//..
+// ```
     // bdet_deprecate.h
 //
     #define BDET_DEPRECATE_DATE_AND_TIME(MESSAGE)                            \
         BSLS_DEPRECATE_FEATURE("bde", "date-and-time", MESSAGE)
-//..
+// ```
 // We can use that macro to mark various components deprecated.  Next, we mark
 // an old type name as deprecated:
-//..
+// ```
     // bdet_date.h
 //
     BDET_DEPRECATE_DATE_AND_TIME("Use bdlt::Date") typedef bdlt::Date Date;
-//..
+// ```
 // Then we mark a class declaration as deprecated:
-//..
+// ```
     // bdet_calendar.h
 //
     class BDET_DEPRECATE_DATE_AND_TIME("Use bdlt::PackedCalendar") Calendar {
        // ...
     };
-//..
+// ```
 // Finally we mark a function as deprecated:
-//..
+// ```
     // bdet_dateimputil.h
 //
     struct DateUtil {
@@ -213,7 +216,7 @@ class Date {
 
         // ...
     };
-//..
+// ```
 
 void oldFunction()
 {
@@ -240,75 +243,75 @@ bool DateUtil::isValidYYYYMMDD(int)
 //                             MACRO TESTING
 //-----------------------------------------------------------------------------
 // In order to observe the behavior of the macros defined in
-// 'bsls_deprecatefeature.h' under different build conditions, the test
+// `bsls_deprecatefeature.h` under different build conditions, the test
 // machinery below is designed to re-include this test driver, and the
 // component header multiple times under different conditions.  Each of these
-// re-inclusions will define a specialization of the 'collectMacroInformation'
+// re-inclusions will define a specialization of the `collectMacroInformation`
 // function appropriate to the build configuration.  At runtime, the test
-// driver will call all the 'collectMacroInformation' specializations and
+// driver will call all the `collectMacroInformation` specializations and
 // observe the collected information for a variety of build configurations.
 //
 // The collection functions defined by this machinery are specializations of
 // the function template:
-// 'template <int CONFIGURATION> collectMacroInforation();'
+// `template <int CONFIGURATION> collectMacroInforation();`
 //
-// Where 'CONFIGURATION' is one of the enumerated values for the
-// 'MACRO_CONFIGURATION' macro.
+// Where `CONFIGURATION` is one of the enumerated values for the
+// `MACRO_CONFIGURATION` macro.
 //
 // The re-inclusions of this test driver and the component header are
-// configured through the 'RE_INCLUDE_CONFIGURATION' macro whose value is
+// configured through the `RE_INCLUDE_CONFIGURATION` macro whose value is
 // interpretted as follows:
 //
-//: o unset: Normal (top-level) compilation of the test-driver.  This is how
-//:   the compiler initially builds the test driver translation unit.
-//:
-//: o set: The test driver is being re-included for a particular
-//:   configuration.  set the build configuration macros used by this
-//:   component based on 'MACRO_CONFIGURATION', include
-//:   "bsls_deprecatefeature.h" and create a specialization of
-//:   'collectMacroInformation' for the current build configuration described
-//:   by 'MACRO_CONFIGURATION'.
+//  - unset: Normal (top-level) compilation of the test-driver.  This is how
+//    the compiler initially builds the test driver translation unit.
 //
-// The macro 'MACRO_CONFIGURATION' will be set to an integer between 0 and
-// 'k_NUM_CONFIGURATION', where the bits of the integer are used to indicate
+//  - set: The test driver is being re-included for a particular
+//    configuration.  set the build configuration macros used by this
+//    component based on `MACRO_CONFIGURATION`, include
+//    "bsls_deprecatefeature.h" and create a specialization of
+//    `collectMacroInformation` for the current build configuration described
+//    by `MACRO_CONFIGURATION`.
+//
+// The macro `MACRO_CONFIGURATION` will be set to an integer between 0 and
+// `k_NUM_CONFIGURATION`, where the bits of the integer are used to indicate
 // whether the build configuration flag associated with each bit should be
 // defined.  In this way the test driver "iterates" (via the preprocessor)
 // through the possible build configurations.  The association between bits of
-// the 'MACRO_CONFIGURATION' value and build configuration flags are defined by
-// the 'k_*_BIT' constants below.
+// the `MACRO_CONFIGURATION` value and build configuration flags are defined by
+// the `k_*_BIT` constants below.
 
 // The following constants define a bit masks that can be applied to the
-// 'MACRO_CONFIGURATION' macro (which contains an integer).
+// `MACRO_CONFIGURATION` macro (which contains an integer).
 
 #define k_BB_ENABLE_ALL_BIT   1  // set BB_DEPRECATE_ENABLE_ALL_..._FOR_TESTING
 #define k_BB_JSON_BIT         2  // set BB_DEPRECATE_ENABLE_JSON_MESSAGE
 #define k_BSLS_ENABLE_ALL_BIT 4  // set BSLS_DEPRECATE_FEATURE_ENABLE_ALL_...
 #define k_BSLS_JSON_BIT       8  // set DEPRECATE_ENABLE_JSON_MESSAGE
 
-// The number of possible values for 'MACRO_CONFIGURATION'.
+// The number of possible values for `MACRO_CONFIGURATION`.
 
 #define k_NUM_CONFIGURATIONS  16
 
+/// A struct holding information about the instantiations of the macros in
+/// `bsls_deprecatefeature.h` for a particular build configuration.
 struct CollectedData {
-    // A struct holding information about the instantiations of the macros in
-    // 'bsls_deprecatefeature.h' for a particular build configuration.
 
     int         d_isSupportedDefined;
     int         d_isEnabledDefined;
     const char *d_macroText;
 };
 
+/// Populate the specified `result` for the specified (template-parameter)
+/// `CONFIGURATION`.  There is no definition for the generic template.
+/// Specializations for this template are defined by re-including this
+/// test driver with `RE_INCLUDE_CONFIGURATION` set to `k_SET_CONFIGURATION`
+/// and `MACRO_CONFIGURATION` set to the appropriate `CONFIGURATION` value.
 template <int CONFIGURATION>
 void collectMacroInformation(CollectedData *result);
-    // Populate the specified 'result' for the specified (template-parameter)
-    // 'CONFIGURATION'.  There is no definition for the generic template.
-    // Specializations for this template are defined by re-including this
-    // test driver with 'RE_INCLUDE_CONFIGURATION' set to 'k_SET_CONFIGURATION'
-    // and 'MACRO_CONFIGURATION' set to the appropriate 'CONFIGURATION' value.
 
-// Re-include this test driver with 'RE_INCLUDE_CONFIGURATION' and
-// 'MACRO_CONFIGURATION' set to define specializations for
-// 'collectMacroInformation' for each configuration.
+// Re-include this test driver with `RE_INCLUDE_CONFIGURATION` and
+// `MACRO_CONFIGURATION` set to define specializations for
+// `collectMacroInformation` for each configuration.
 
 #define RE_INCLUDE_CONFIGURATION 1
 
@@ -367,7 +370,7 @@ void collectMacroInformation(CollectedData *result);
 ///Re-Include Step
 //----------------
 // The following logic is performed when this test driver is re-included with
-// 'RE_INCLUDE_CONFIGURATION' set.
+// `RE_INCLUDE_CONFIGURATION` set.
 
 #if defined(RE_INCLUDE_CONFIGURATION)
 
@@ -385,7 +388,7 @@ void collectMacroInformation(CollectedData *result);
 #undef BSLS_DEPRECATE_FEATURE_ENABLE_ALL_DEPRECATIONS_FOR_TESTING
 #undef BSLS_DEPRECATE_FEATURE_ENABLE_JSON_MESSAGE
 
-// Based on 'MACRO_CONFIGURATION' set up a build configuration.
+// Based on `MACRO_CONFIGURATION` set up a build configuration.
 
 #if (MACRO_CONFIGURATION & k_BB_ENABLE_ALL_BIT)
 #define BB_DEPRECATE_ENABLE_ALL_DEPRECATIONS_FOR_TESTING 1
@@ -409,7 +412,7 @@ void collectMacroInformation(CollectedData *result);
 #undef INCLUDED_BSLS_DEPRECATEFEATURE
 #include <bsls_deprecatefeature.h>
 
-// Define a specialization for 'collectMacroInformation' for the current build
+// Define a specialization for `collectMacroInformation` for the current build
 // configuration.
 
 template <>
@@ -464,12 +467,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -506,27 +509,27 @@ int main(int argc, char *argv[])
         // MACRO TEST
         //
         // Concerns:
-        //: 1 That the "IS_SUPPORTED" macro is instantiated only
-        //:   if the platform supported the '[[deprecated]]' C++ attribute.
-        //:
-        //: 2 The "IS_ENABLED" macro is instantiated only if the platform
-        //:   supports the '[[deprecated]]' C++ attribute, and either
-        //:   of the enablement macros is defined
-        //:   ('BB_DEPRECATE_ENABLE_ALL_...' or
-        //:   'BSLS_DEPRECATE_FEATURE_ENABLE_ALL...)'
-        //:
-        //: 3 If the deprecation macros are enabled, they are instantiated
-        //:   either with the supplied message, or with a JSON text describing
-        //:   the deprecation, depending on 'BB_DEPRECATE_ENABLE_JSON_MESSAGE'
-        //:
+        // 1. That the "IS_SUPPORTED" macro is instantiated only
+        //    if the platform supported the `[[deprecated]]` C++ attribute.
+        //
+        // 2. The "IS_ENABLED" macro is instantiated only if the platform
+        //    supports the `[[deprecated]]` C++ attribute, and either
+        //    of the enablement macros is defined
+        //    (`BB_DEPRECATE_ENABLE_ALL_...` or
+        //    `BSLS_DEPRECATE_FEATURE_ENABLE_ALL...)`
+        //
+        // 3. If the deprecation macros are enabled, they are instantiated
+        //    either with the supplied message, or with a JSON text describing
+        //    the deprecation, depending on `BB_DEPRECATE_ENABLE_JSON_MESSAGE`
+        //
         //
         // Plan:
-        //: 1 Use the machinery described in the 'MACRO TESTING' section to
-        //:   define specializations of 'collectMacroInformation' for
-        //:   different build configurations.
-        //:
-        //: 2 Call 'collectMacroInformation' for each configuration, and
-        //:   compare the returned results with expected results.
+        // 1. Use the machinery described in the `MACRO TESTING` section to
+        //    define specializations of `collectMacroInformation` for
+        //    different build configurations.
+        //
+        // 2. Call `collectMacroInformation` for each configuration, and
+        //    compare the returned results with expected results.
         //
         // Testing:
         //   BSLS_DEPRECATE_FEATURE(UOR, FEATURE, MESSAGE)

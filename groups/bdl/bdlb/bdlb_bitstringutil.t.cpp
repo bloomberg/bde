@@ -15,12 +15,12 @@
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 
-#include <bsl_cstddef.h>     // 'bsl::size_t'
-#include <bsl_cstdlib.h>     // 'bsl::rand'
+#include <bsl_cstddef.h>     // `bsl::size_t`
+#include <bsl_cstdlib.h>     // `bsl::rand`
 #include <bsl_cstring.h>
 #include <bsl_cctype.h>
 
-#include <bsl_c_limits.h>    // 'CHAR_BIT', 'INT_MAX'
+#include <bsl_c_limits.h>    // `CHAR_BIT`, `INT_MAX`
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -34,7 +34,7 @@ using bsl::flush;
 //                                Overview
 //                                --------
 // The component under test provides static methods that perform various bit
-// string related computations.  The goal of this 'bdlb::BitStringUtil' test
+// string related computations.  The goal of this `bdlb::BitStringUtil` test
 // suite is to verify that the methods have the desired effect on bit strings
 // and/or return the expected values.
 //-----------------------------------------------------------------------------
@@ -91,9 +91,9 @@ using bsl::flush;
 // to 1 or 2 seconds on Linux to avoid test cases timing out on Solaris.
 //
 // The measures used to accelerate tests were:
-//: o Using 'incInt' (defined below) to increment indexes and 'numBits' more
-//:   aggressively than just doing '++x' every iteration.
-//: o Sometime reducing the size of the arrays being tested from 4 words to 3.
+//  - Using `incInt` (defined below) to increment indexes and `numBits` more
+//    aggressively than just doing `++x` every iteration.
+//  - Sometime reducing the size of the arrays being tested from 4 words to 3.
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -166,10 +166,10 @@ static const size_t k_INVALID_INDEX = Util::k_INVALID_INDEX;
 
 static const int k_BITS_PER_UINT64 = Util::k_BITS_PER_UINT64;
 
-// For 'k_ALIGNMENT' we want the guaranteed alignment of 'uint64_t' variables.
-// Unfortunately, 'bsls::AlignmentFromType' returns the guaranteed alignment
-// of 'uint64_t' variables within structs, which is different on Windows than
-// 'uint64_t' variables on the stack.
+// For `k_ALIGNMENT` we want the guaranteed alignment of `uint64_t` variables.
+// Unfortunately, `bsls::AlignmentFromType` returns the guaranteed alignment
+// of `uint64_t` variables within structs, which is different on Windows than
+// `uint64_t` variables on the stack.
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
 enum { k_ALIGNMENT       = 4 };
@@ -181,12 +181,12 @@ enum { k_ALIGNMENT       = bsls::AlignmentFromType<uint64_t>::VALUE };
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Shift the specified `*ptr` down by a random amount, and the specified
+/// `*index` up by an amount to compensate for it, so the resulting `*ptr`,
+/// `*index` pair refers to the same bit as the original `*ptr`, `*index`
+/// pair.
 static
 void shiftPtrIndexPair(uint64_t **ptr, int *index)
-    // Shift the specified '*ptr' down by a random amount, and the specified
-    // '*index' up by an amount to compensate for it, so the resulting '*ptr',
-    // '*index' pair refers to the same bit as the original '*ptr', '*index'
-    // pair.
 {
     typedef bsls::Types::UintPtr UintPtr;
 
@@ -209,11 +209,11 @@ void shiftPtrIndexPair(uint64_t **ptr, int *index)
     }
 }
 
+/// Fill the specified `array` having the specified `sizeInBytes` with
+/// pseudo-random numbers.  The behavior is undefined unless
+/// `0 < sizeInBytes` and `sizeInBytes` is a multiple of `sizeof(uint64_t)`.
 static
 void fillWithGarbage(uint64_t *array, size_t sizeInBytes)
-    // Fill the specified 'array' having the specified 'sizeInBytes' with
-    // pseudo-random numbers.  The behavior is undefined unless
-    // '0 < sizeInBytes' and 'sizeInBytes' is a multiple of 'sizeof(uint64_t)'.
 {
     BSLS_ASSERT(array);
     BSLS_ASSERT(0 <  sizeInBytes);
@@ -248,17 +248,17 @@ enum { NUM_IDX_TABLE = sizeof IDX_TABLE / sizeof *IDX_TABLE };
 
 enum { SET_UP_ARRAY_DIM = 4 };
 
+/// Fill the specified `array` with different values depending on the
+/// specified `*iteration`.  Increment `*iteration` rapidly if the
+/// optionally specified `fast` is `true`, and increment it slowly
+/// otherwise.
 static
 void setUpArray(uint64_t  array[SET_UP_ARRAY_DIM],
                 int      *iteration,
                 bool      fast = false)
-    // Fill the specified 'array' with different values depending on the
-    // specified '*iteration'.  Increment '*iteration' rapidly if the
-    // optionally specified 'fast' is 'true', and increment it slowly
-    // otherwise.
 {
     // The idea here is to replicate the advantage of table-driven code by
-    // having the first 47 values of '*iteration' drive values of the array
+    // having the first 47 values of `*iteration` drive values of the array
     // that normally would have been chosen as special cases by table-driven
     // code.
 
@@ -371,16 +371,16 @@ void setUpArray(uint64_t  array[SET_UP_ARRAY_DIM],
     *iteration += fast && *iteration < 40 ? 4 : 1;
 }
 
+/// Increase the specified `*x`.  If `*x` is less than the specified
+/// `maxVal`, increase it, but not to a higher value than `maxVal`.  If
+/// `*x == maxVal`, increment it.  The behavior is undefined unless
+/// `0 <= *x`, `*x <= maxVal`, and `maxVal < INT_MAX`.
 static inline
 void incInt(int *x, int maxVal)
-    // Increase the specified '*x'.  If '*x' is less than the specified
-    // 'maxVal', increase it, but not to a higher value than 'maxVal'.  If
-    // '*x == maxVal', increment it.  The behavior is undefined unless
-    // '0 <= *x', '*x <= maxVal', and 'maxVal < INT_MAX'.
 {
-    // This function is used to increment a specified loop counter '*x' with
+    // This function is used to increment a specified loop counter `*x` with
     // increasing rapidity as it grows, eventually setting it to EXACTLY the
-    // specified 'maxVal', after which it will be set to 'maxVal + 1', causing
+    // specified `maxVal`, after which it will be set to `maxVal + 1`, causing
     // the loop to terminate.
 
     BSLS_ASSERT(0 <= *x);
@@ -398,16 +398,16 @@ void incInt(int *x, int maxVal)
     }
 }
 
+/// Increase the specified `*x`.  If `*x` is less than the specified
+/// `maxVal`, increase it, but not to a higher value than `maxVal`.  If
+/// `*x == maxVal`, increment it.  The behavior is undefined unless
+/// `0 <= *x`, `*x <= maxVal`, and `maxVal < INT_MAX`.
 static inline
 void incSizeT(size_t *x, size_t maxVal)
-    // Increase the specified '*x'.  If '*x' is less than the specified
-    // 'maxVal', increase it, but not to a higher value than 'maxVal'.  If
-    // '*x == maxVal', increment it.  The behavior is undefined unless
-    // '0 <= *x', '*x <= maxVal', and 'maxVal < INT_MAX'.
 {
-    // This function is used to increment a specified loop counter '*x' with
+    // This function is used to increment a specified loop counter `*x` with
     // increasing rapidity as it grows, eventually setting it to EXACTLY the
-    // specified 'maxVal', after which it will be set to 'maxVal + 1', causing
+    // specified `maxVal`, after which it will be set to `maxVal + 1`, causing
     // the loop to terminate.
 
     BSLS_ASSERT(*x <= maxVal);
@@ -424,28 +424,28 @@ void incSizeT(size_t *x, size_t maxVal)
     }
 }
 
+/// Return the absolute value of the specified `x`.  The behavior is
+/// undefined unless `INT_MIN != x`.
 static inline
 int intAbs(int x)
-    // Return the absolute value of the specified 'x'.  The behavior is
-    // undefined unless 'INT_MIN != x'.
 {
     BSLS_ASSERT(INT_MIN != x);
 
     return x < 0 ? -x : x;
 }
 
+/// Return `true` if the specified `numBits` of the specified `bitStringLhs`
+/// and the specified `bitStringRhs`, both starting at the specified
+/// `index`, compare equal, and `false` otherwise.  The behavior is
+/// undefined unless `0 <= index` and `0 <= numBits`.
 static
 bool areBitsEqual(const uint64_t *bitStringLhs,
                   const uint64_t *bitStringRhs,
                   int             index,
                   int             numBits)
-    // Return 'true' if the specified 'numBits' of the specified 'bitStringLhs'
-    // and the specified 'bitStringRhs', both starting at the specified
-    // 'index', compare equal, and 'false' otherwise.  The behavior is
-    // undefined unless '0 <= index' and '0 <= numBits'.
 {
     // This is a brute-force but reliable way to compare two bit strings.  It's
-    // simpler but much less efficient than 'BitStringUtil::areEqual', and is
+    // simpler but much less efficient than `BitStringUtil::areEqual`, and is
     // used until that routine is vetted.
 
     BSLS_ASSERT(bitStringLhs);
@@ -484,13 +484,13 @@ bool areBitsEqual(const uint64_t *bitStringLhs,
     return true;
 }
 
+/// Return the number of set bits in the specified `numBits` of the
+/// specified `bitString` starting at the specified `idx`.  The behavior is
+/// undefined unless `0 <= idx` and `0 <= numBits`.
 static
 size_t countOnes(const uint64_t *bitString,
                  size_t          idx,
                  size_t          numBits)
-    // Return the number of set bits in the specified 'numBits' of the
-    // specified 'bitString' starting at the specified 'idx'.  The behavior is
-    // undefined unless '0 <= idx' and '0 <= numBits'.
 {
     size_t ii =                  idx / k_BITS_PER_UINT64;
     int    jj = static_cast<int>(idx % k_BITS_PER_UINT64);
@@ -509,13 +509,13 @@ size_t countOnes(const uint64_t *bitString,
     return ret;
 }
 
+/// Copy the specified `numBytes` from the specified `src` to the specified
+/// `dst`.  The behavior is undefined unless `numBytes` is a multiple of
+/// `sizeof(uint64_t)`.  Note that this function is like `memcpy` except
+/// faster, since it assumes it must copy an integral number of aligned
+/// 64-bit words.
 inline
 void wordCpy(uint64_t *dst, const uint64_t *src, size_t numBytes)
-    // Copy the specified 'numBytes' from the specified 'src' to the specified
-    // 'dst'.  The behavior is undefined unless 'numBytes' is a multiple of
-    // 'sizeof(uint64_t)'.  Note that this function is like 'memcpy' except
-    // faster, since it assumes it must copy an integral number of aligned
-    // 64-bit words.
 {
     BSLS_ASSERT(0 == numBytes % sizeof(uint64_t));
 
@@ -525,14 +525,14 @@ void wordCpy(uint64_t *dst, const uint64_t *src, size_t numBytes)
     }
 }
 
+/// Compare the specified `numBytes` from the specified `src` to the
+/// specified `dst`.  Return 0 if they match and a non-zero value otherwise.
+/// The behavior is undefined unless `numBytes` is a multiple of
+/// `sizeof(uint64_t)`.  Note that this function is like `memcmp` except
+/// faster, since it assumes it must compare an integral number of aligned
+/// 64-bit words.
 inline
 int wordCmp(const uint64_t *dst, const uint64_t *src, size_t numBytes)
-    // Compare the specified 'numBytes' from the specified 'src' to the
-    // specified 'dst'.  Return 0 if they match and a non-zero value otherwise.
-    // The behavior is undefined unless 'numBytes' is a multiple of
-    // 'sizeof(uint64_t)'.  Note that this function is like 'memcmp' except
-    // faster, since it assumes it must compare an integral number of aligned
-    // 64-bit words.
 {
     BSLS_ASSERT(0 == numBytes % sizeof(uint64_t));
 
@@ -546,11 +546,11 @@ int wordCmp(const uint64_t *dst, const uint64_t *src, size_t numBytes)
     return 0;
 }
 
+/// Return a `bsl::string` displaying the contents of the first specified
+/// `numBits` of the specified `bitString`, in hex.
 static
 bsl::string pHex(const uint64_t *bitString,
                  int             numBits)
-    // Return a 'bsl::string' displaying the contents of the first specified
-    // 'numBits' of the specified 'bitString', in hex.
 {
     bsl::ostringstream oss;
 
@@ -558,13 +558,13 @@ bsl::string pHex(const uint64_t *bitString,
     return oss.str();
 }
 
+/// Populate the bits starting at the specified `index` in the specified
+/// `bitString` with the values specified by the characters in the specified
+/// `ascii` string.  The behavior is undefined unless the characters in
+/// `ascii` are either `0` or `1`, and `bitString` has a capacity of at
+/// least `index + bsl::strlen(ascii)` bits.
 static
 void populateBitString(uint64_t *bitString, int index, const char *ascii)
-    // Populate the bits starting at the specified 'index' in the specified
-    // 'bitString' with the values specified by the characters in the specified
-    // 'ascii' string.  The behavior is undefined unless the characters in
-    // 'ascii' are either '0' or '1', and 'bitString' has a capacity of at
-    // least 'index + bsl::strlen(ascii)' bits.
 {
     ASSERT(bitString);
     ASSERT(0 <= index);
@@ -601,14 +601,14 @@ void populateBitString(uint64_t *bitString, int index, const char *ascii)
     }
 }
 
+/// Populate the bits starting at the specified `index` in the specified
+/// `bitString` with the values specified by the characters in the specified
+/// `ascii` string, which is in hex.  The behavior is undefined unless the
+/// characters in `ascii` are either valid hex digits or whitespace,
+/// `bitString` has a capacity of at least `index + bsl::strlen(ascii) * 4`
+/// bits, `0 <= index`, and `index` is a multiple of 4.
 static
 void populateBitStringHex(uint64_t *bitString, int index, const char *ascii)
-    // Populate the bits starting at the specified 'index' in the specified
-    // 'bitString' with the values specified by the characters in the specified
-    // 'ascii' string, which is in hex.  The behavior is undefined unless the
-    // characters in 'ascii' are either valid hex digits or whitespace,
-    // 'bitString' has a capacity of at least 'index + bsl::strlen(ascii) * 4'
-    // bits, '0 <= index', and 'index' is a multiple of 4.
 {
     ASSERT(bitString);
     ASSERT(0 <= index);
@@ -696,9 +696,9 @@ void populateBitStringHex(uint64_t *bitString, int index, const char *ascii)
     }
 }
 
+/// Return the number of bits in the specified `str` ignoring any
+/// whitespace.
 int numBits(const char *str)
-    // Return the number of bits in the specified 'str' ignoring any
-    // whitespace.
 {
     int n = 0;
     while (*str) {
@@ -710,8 +710,8 @@ int numBits(const char *str)
     return n;
 }
 
+/// Return the number of nibbles indicated by the specified `str`.
 int numHexDigits(const char *str)
-    // Return the number of nibbles indicated by the specified 'str'.
 {
     bool lastWasHex = false;
     int  n          = 0;
@@ -753,22 +753,22 @@ int numHexDigits(const char *str)
     return n;
 }
 
+/// Return `true` if the specified `numBits` beginning at the specified
+/// `lhsIdx` in the specified `lhs` are bitwise equal to the `numBits`
+/// beginning at the specified `rhsIdx` in the specified `rhs`, and `false`
+/// otherwise.  The behavior is undefined unless `0 <= lhsIdx`,
+/// `0 <= rhsIdx`, `0 <= numBits`, `lhs` has a length of at least
+/// `lhsIdx + numBits`, and `rhs` has a length of at least
+/// `rhsIdx + numBits`.
 bool areEqualOracle(uint64_t *lhs,
                     size_t    lhsIdx,
                     uint64_t *rhs,
                     size_t    rhsIdx,
                     size_t    numBits)
-    // Return 'true' if the specified 'numBits' beginning at the specified
-    // 'lhsIdx' in the specified 'lhs' are bitwise equal to the 'numBits'
-    // beginning at the specified 'rhsIdx' in the specified 'rhs', and 'false'
-    // otherwise.  The behavior is undefined unless '0 <= lhsIdx',
-    // '0 <= rhsIdx', '0 <= numBits', 'lhs' has a length of at least
-    // 'lhsIdx + numBits', and 'rhs' has a length of at least
-    // 'rhsIdx + numBits'.
 {
     // Note that this is a really inefficient but reliable way of implementing
-    // the 'areEqual' function as an oracle for testing it.  Also note that we
-    // can't use 'bit' because it is not tested until after 'areEqual'.
+    // the `areEqual` function as an oracle for testing it.  Also note that we
+    // can't use `bit` because it is not tested until after `areEqual`.
 
     const size_t endLhsIdx = lhsIdx + numBits;
     for (; lhsIdx < endLhsIdx; ++lhsIdx, ++rhsIdx) {
@@ -787,14 +787,14 @@ bool areEqualOracle(uint64_t *lhs,
     return true;
 }
 
+/// Invert the values of the specified `numBits` in the specified `dst`
+/// beginning at the specified `dstIdx`.  The behavior is undefined unless
+/// `0 <= dstIdx`, `0 <= numBits`, and `dst` has a length of at least
+/// `dstIdx + numBits`.  Note that this is a really inefficient but reliable
+/// way of implementing the `toggle` function as an oracle for testing.
 void toggleOracle(uint64_t       *dst,
                   size_t          dstIdx,
                   size_t          numBits)
-    // Invert the values of the specified 'numBits' in the specified 'dst'
-    // beginning at the specified 'dstIdx'.  The behavior is undefined unless
-    // '0 <= dstIdx', '0 <= numBits', and 'dst' has a length of at least
-    // 'dstIdx + numBits'.  Note that this is a really inefficient but reliable
-    // way of implementing the 'toggle' function as an oracle for testing.
 {
     const size_t endDstIdx = dstIdx + numBits;
     for (; dstIdx < endDstIdx; ++dstIdx) {
@@ -802,19 +802,19 @@ void toggleOracle(uint64_t       *dst,
     }
 }
 
+/// Bitwise AND the specified `numBits` of the specified `dst` starting at
+/// the specified `dstIdx` with the `numBits` of the specified `src`
+/// starting at the specified `srcIdx`, and write the result over the bits
+/// that were read from `dst`.  The behavior is undefined unless
+/// `0 <= dstIdx`, `0 <= srcIdx`, `0 <= numBits`, `dst` has a length of at
+/// least `dstIdx + numBits`, and `src` has a length of at least
+/// `srcIdx + numBits`.  Note that this is a really inefficient but reliable
+/// way of implementing the `andEqual` function as an oracle for testing.
 void andOracle(uint64_t       *dst,
                size_t          dstIdx,
                const uint64_t *src,
                size_t          srcIdx,
                size_t          numBits)
-    // Bitwise AND the specified 'numBits' of the specified 'dst' starting at
-    // the specified 'dstIdx' with the 'numBits' of the specified 'src'
-    // starting at the specified 'srcIdx', and write the result over the bits
-    // that were read from 'dst'.  The behavior is undefined unless
-    // '0 <= dstIdx', '0 <= srcIdx', '0 <= numBits', 'dst' has a length of at
-    // least 'dstIdx + numBits', and 'src' has a length of at least
-    // 'srcIdx + numBits'.  Note that this is a really inefficient but reliable
-    // way of implementing the 'andEqual' function as an oracle for testing.
 {
     size_t endSrcIdx = srcIdx + numBits;
     for (; srcIdx < endSrcIdx; ++dstIdx, ++srcIdx) {
@@ -823,21 +823,21 @@ void andOracle(uint64_t       *dst,
     }
 }
 
+/// Bitwise MINUS the specified `numBits` of the specified `src` starting at
+/// the specified `srcIdx` from the `numBits` of the specified `dst`
+/// starting at the specified `dstIdx`, and write the result over the bits
+/// that were read from `dst`.  The behavior is undefined unless
+/// `0 <= dstIdx`, `0 <= srcIdx`, `0 <= numBits`, `dst` has a length of at
+/// least `dstIdx + numBits`, and `src` has a length of at least
+/// `srcIdx + numBits`.  Note that the logical difference `A - B` is defined
+/// to be `A & !B`.  Also note that this is a really inefficient but
+/// reliable way of implementing the `minusEqual` function as an oracle for
+/// testing.
 void minusOracle(uint64_t       *dst,
                  size_t          dstIdx,
                  const uint64_t *src,
                  size_t          srcIdx,
                  size_t          numBits)
-    // Bitwise MINUS the specified 'numBits' of the specified 'src' starting at
-    // the specified 'srcIdx' from the 'numBits' of the specified 'dst'
-    // starting at the specified 'dstIdx', and write the result over the bits
-    // that were read from 'dst'.  The behavior is undefined unless
-    // '0 <= dstIdx', '0 <= srcIdx', '0 <= numBits', 'dst' has a length of at
-    // least 'dstIdx + numBits', and 'src' has a length of at least
-    // 'srcIdx + numBits'.  Note that the logical difference 'A - B' is defined
-    // to be 'A & !B'.  Also note that this is a really inefficient but
-    // reliable way of implementing the 'minusEqual' function as an oracle for
-    // testing.
 {
     size_t endSrcIdx = srcIdx + numBits;
     for (; srcIdx < endSrcIdx; ++dstIdx, ++srcIdx) {
@@ -846,19 +846,19 @@ void minusOracle(uint64_t       *dst,
     }
 }
 
+/// Bitwise OR the specified `numBits` of the specified `dst` starting at
+/// the specified `dstIdx` with the `numBits` of the specified `src`
+/// starting at the specified `srcIdx`, and write the result over the bits
+/// that were read from `dst`.  The behavior is undefined unless
+/// `0 <= dstIdx`, `0 <= srcIdx`, `0 <= numBits`, `dst` has a length of at
+/// least `dstIdx + numBits`, and `src` has a length of at least
+/// `srcIdx + numBits`.  Note that this is a really inefficient but reliable
+/// way of implementing the `orEqual` function as an oracle for testing.
 void orOracle(uint64_t       *dst,
               size_t          dstIdx,
               const uint64_t *src,
               size_t          srcIdx,
               size_t          numBits)
-    // Bitwise OR the specified 'numBits' of the specified 'dst' starting at
-    // the specified 'dstIdx' with the 'numBits' of the specified 'src'
-    // starting at the specified 'srcIdx', and write the result over the bits
-    // that were read from 'dst'.  The behavior is undefined unless
-    // '0 <= dstIdx', '0 <= srcIdx', '0 <= numBits', 'dst' has a length of at
-    // least 'dstIdx + numBits', and 'src' has a length of at least
-    // 'srcIdx + numBits'.  Note that this is a really inefficient but reliable
-    // way of implementing the 'orEqual' function as an oracle for testing.
 {
     size_t endSrcIdx = srcIdx + numBits;
     for (; srcIdx < endSrcIdx; ++dstIdx, ++srcIdx) {
@@ -867,19 +867,19 @@ void orOracle(uint64_t       *dst,
     }
 }
 
+/// Bitwise XOR the specified `numBits` of the specified `dst` starting at
+/// the specified `dstIdx` with the `numBits` of the specified `src`
+/// starting at the specified `srcIdx`, and write the result over the bits
+/// that were read from `dst`.  The behavior is undefined unless
+/// `0 <= dstIdx`, `0 <= srcIdx`, `0 <= numBits`, `dst` has a length of at
+/// least `dstIdx + numBits`, and `src` has a length of at least
+/// `srcIdx + numBits`.  Note that this is a really inefficient but reliable
+/// way of implementing the `xorEqual` function as an oracle for testing.
 void xorOracle(uint64_t       *dst,
                size_t          dstIdx,
                const uint64_t *src,
                size_t          srcIdx,
                size_t          numBits)
-    // Bitwise XOR the specified 'numBits' of the specified 'dst' starting at
-    // the specified 'dstIdx' with the 'numBits' of the specified 'src'
-    // starting at the specified 'srcIdx', and write the result over the bits
-    // that were read from 'dst'.  The behavior is undefined unless
-    // '0 <= dstIdx', '0 <= srcIdx', '0 <= numBits', 'dst' has a length of at
-    // least 'dstIdx + numBits', and 'src' has a length of at least
-    // 'srcIdx + numBits'.  Note that this is a really inefficient but reliable
-    // way of implementing the 'xorEqual' function as an oracle for testing.
 {
     size_t endSrcIdx = srcIdx + numBits;
     for (; srcIdx < endSrcIdx; ++dstIdx, ++srcIdx) {
@@ -888,16 +888,16 @@ void xorOracle(uint64_t       *dst,
     }
 }
 
+/// Return the index of the highest-order bit that matches the specified
+/// `value` in the bit string starting at the specified `begin` index and
+/// ending before the specified `end` index in the specified `bitString`.
+/// The behavior is undefined unless `0 <= begin` and `begin <= end`.  Note
+/// that this function provides an inefficient but reliable way of
+/// implementing the `find*AtMaxIndex` functions for testing.
 size_t findAtMaxOracle(uint64_t *bitString,
                        size_t    begin,
                        size_t    end,
                        bool      value)
-    // Return the index of the highest-order bit that matches the specified
-    // 'value' in the bit string starting at the specified 'begin' index and
-    // ending before the specified 'end' index in the specified 'bitString'.
-    // The behavior is undefined unless '0 <= begin' and 'begin <= end'.  Note
-    // that this function provides an inefficient but reliable way of
-    // implementing the 'find*AtMaxIndex' functions for testing.
 {
     ASSERT(begin <= end);
 
@@ -918,16 +918,16 @@ size_t findAtMaxOracle(uint64_t *bitString,
     return k_INVALID_INDEX;
 }
 
+/// Return the index of the lowest-order bit that matches the specified
+/// `value` in the bit string starting at the specified `begin` index and
+/// ending before the specified `end` index in the specified `bitString`.
+/// The behavior is undefined unless `0 <= begin` and `begin <= end`.  Note
+/// that this function provides an inefficient but reliable way of
+/// implementing the `find*AtMinIndex` functions for testing.
 size_t findAtMinOracle(uint64_t *bitString,
                        size_t    begin,
                        size_t    end,
                        bool      value)
-    // Return the index of the lowest-order bit that matches the specified
-    // 'value' in the bit string starting at the specified 'begin' index and
-    // ending before the specified 'end' index in the specified 'bitString'.
-    // The behavior is undefined unless '0 <= begin' and 'begin <= end'.  Note
-    // that this function provides an inefficient but reliable way of
-    // implementing the 'find*AtMinIndex' functions for testing.
 {
     ASSERT(begin <= end);
 
@@ -957,7 +957,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -967,14 +967,14 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -995,11 +995,11 @@ int main(int argc, char *argv[])
 //
 // First, create an enumeration showing the number of days in the year 2013
 // before the beginning of each month, so that:
-//..
+// ```
 // <constant for month> + <day of month> == <day of year>
 
     enum {
-        JAN =        0,    // Note: First DOY is 'JAN + 1'.
+        JAN =        0,    // Note: First DOY is `JAN + 1`.
         FEB = JAN + 31,
         MAR = FEB + 28,    // 2013 was not a leap year.
         APR = MAR + 31,
@@ -1012,14 +1012,14 @@ int main(int argc, char *argv[])
         NOV = OCT + 31,
         DEC = NOV + 30
     };
-//..
+// ```
 // Then, create a bit string with sufficient capacity to represent every day
 // of a year (note that 64 * 6 = 384) and set a 1-bit in the indices
 // corresponding to the day-of-year (DOY) for each weekend day.  For
 // convenience in date calculations, the 0 index is not used; the 365 days of
-// the year are at indices '[1 .. 365]'.  Further note that the values set
+// the year are at indices `[1 .. 365]`.  Further note that the values set
 // below correspond to the year 2013:
-//..
+// ```
     uint64_t weekends[6] = { 0 };
 
     // We are marking only weekend days, so start with the first weekend day
@@ -1031,11 +1031,11 @@ int main(int argc, char *argv[])
             bdlb::BitStringUtil::assign(weekends, i + 1, 1);
         }
     }
-//..
-// Next, we can easily use 'bdlb::BitStringUtil' methods to find days of
+// ```
+// Next, we can easily use `bdlb::BitStringUtil` methods to find days of
 // interest.  For example, we can find the first and last weekend days of the
 // year:
-//..
+// ```
     const bsl::size_t firstWeekendDay = bdlb::BitStringUtil::find1AtMinIndex(
                                                                       weekends,
                                                                       365 + 1);
@@ -1045,10 +1045,10 @@ int main(int argc, char *argv[])
 
     ASSERT(JAN +  5 == firstWeekendDay);
     ASSERT(DEC + 29 ==  lastWeekendDay);
-//..
+// ```
 // Then, we define the following enumeration that allows us to easily represent
 // the US holidays of the year:
-//..
+// ```
     uint64_t holidays[6] = { 0 };
 
     enum USHolidays2013 {
@@ -1072,28 +1072,28 @@ int main(int argc, char *argv[])
     bdlb::BitStringUtil::assign(holidays, LABOR_DAY,                 true);
     bdlb::BitStringUtil::assign(holidays, THANKSGIVING,              true);
     bdlb::BitStringUtil::assign(holidays, CHRISTMAS,                 true);
-//..
+// ```
 // Next, the following enumeration indicates the beginning of fiscal quarters:
-//..
+// ```
     enum {
         Q1 = JAN + 1,
         Q2 = APR + 1,
         Q3 = JUN + 1,
         Q4 = OCT + 1
     };
-//..
+// ```
 // Now, we can query our calendar for the first holiday in the third quarter,
 // if any:
-//..
+// ```
     const bsl::size_t firstHolidayOfQ3 = bdlb::BitStringUtil::find1AtMinIndex(
                                                                       holidays,
                                                                       Q3,
                                                                       Q4);
     ASSERT(INDEPENDENCE_DAY == firstHolidayOfQ3);
-//..
+// ```
 // Finally, our weekend and holiday calendars are readily combined to represent
 // days off for either reason (i.e., holiday or weekend):
-//..
+// ```
     uint64_t allDaysOff[6] = { 0 };
     bdlb::BitStringUtil::orEqual(allDaysOff, 1, weekends, 1, 365);
     bdlb::BitStringUtil::orEqual(allDaysOff, 1, holidays, 1, 365);
@@ -1109,37 +1109,37 @@ int main(int argc, char *argv[])
     ASSERT(true  == isOffMay26);    // Sunday
     ASSERT(true  == isOffMay27);    // Note May 27, 2013 is Memorial Day.
     ASSERT(false == isOffMay28);
-//..
+// ```
       } break;
       case 22: {
         // --------------------------------------------------------------------
-        // TESTING 'find1AtMinIndex' METHODS
+        // TESTING `find1AtMinIndex` METHODS
         //   Ensure the methods return the expected value.
         //
         // Concerns:
-        //: 1 That both 'find1AtMinIndex' functions correctly return the index
-        //:   of the lowest-order set bit in a range, or -1 if no set bit
-        //:   exists.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. That both `find1AtMinIndex` functions correctly return the index
+        //    of the lowest-order set bit in a range, or -1 if no set bit
+        //    exists.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use table-driven code to test both 'find1AtMinIndex' and the
-        //:   'findAtMinOracle' function in this test driver.
-        //:
-        //: 2 Iterate over different test arrays with 'setUpArray'.
-        //:   o Iterate over 'length' values from 0 to the size of the array.
-        //:     1 Find the min 1 bit, if any, in the array using both
-        //:       'find1AtMinIndex' and 'findAtMinOracle' and verify their
-        //:       results match.
-        //:
-        //:     2 Iterate 'idx' from 0 to 'length'.
-        //:       o Find the min 1 bit, if any, in the array using both
-        //:         'find1AtMinIndex' and 'findAtMinOracle' for the given 'idx'
-        //:         and 'length' and verify their results match.  (C-1)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values.  (C-2)
+        // 1. Use table-driven code to test both `find1AtMinIndex` and the
+        //    `findAtMinOracle` function in this test driver.
+        //
+        // 2. Iterate over different test arrays with `setUpArray`.
+        //    - Iterate over `length` values from 0 to the size of the array.
+        //     1. Find the min 1 bit, if any, in the array using both
+        //        `find1AtMinIndex` and `findAtMinOracle` and verify their
+        //        results match.
+        //
+        //     2. Iterate `idx` from 0 to `length`.
+        //        o Find the min 1 bit, if any, in the array using both
+        //          `find1AtMinIndex` and `findAtMinOracle` for the given `idx`
+        //          and `length` and verify their results match.  (C-1)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values.  (C-2)
         //
         // Testing:
         //   St find1AtMinIndex(const uint64_t *bitString, St length);
@@ -1147,7 +1147,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'find1AtMinIndex' METHODS\n"
+                          << "TESTING `find1AtMinIndex` METHODS\n"
                           << "=================================\n";
 
         const struct {
@@ -1366,40 +1366,40 @@ int main(int argc, char *argv[])
       } break;
       case 21: {
         // --------------------------------------------------------------------
-        // TESTING 'find0AtMinIndex' METHODS
+        // TESTING `find0AtMinIndex` METHODS
         //   Ensure the methods return the expected value.
         //
         // Concerns:
-        //: 1 That both 'find0AtMinIndex' functions correctly return the index
-        //:   of the lowest-order cleared bit in a range, or -1 if no cleared
-        //:   bit exists.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. That both `find0AtMinIndex` functions correctly return the index
+        //    of the lowest-order cleared bit in a range, or -1 if no cleared
+        //    bit exists.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use table-driven code to test both 'find0AtMinIndex' and the
-        //:   'findAtMinOracle' function in this test driver.
-        //:
-        //: 2 Iterate over different test arrays with 'setUpArray'.
-        //:   o Iterate over 'length' values from 0 to the size of the array.
-        //:     1 Find the min 0 bit, if any, in the array using both
-        //:       'find0AtMinIndex' and 'findAtMinOracle' and verify their
-        //:       results match.
-        //:
-        //:     2 Iterate 'index' from 0 to 'length'.
-        //:       o Find the min 0 bit, if any, in the array using both
-        //:         'find0AtMinIndex' and 'findAtMinOracle' for the given
-        //:         'index' and 'length' and verify their results match.  (C-1)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values.  (C-2)
+        // 1. Use table-driven code to test both `find0AtMinIndex` and the
+        //    `findAtMinOracle` function in this test driver.
+        //
+        // 2. Iterate over different test arrays with `setUpArray`.
+        //    - Iterate over `length` values from 0 to the size of the array.
+        //     1. Find the min 0 bit, if any, in the array using both
+        //        `find0AtMinIndex` and `findAtMinOracle` and verify their
+        //        results match.
+        //
+        //     2. Iterate `index` from 0 to `length`.
+        //        o Find the min 0 bit, if any, in the array using both
+        //          `find0AtMinIndex` and `findAtMinOracle` for the given
+        //          `index` and `length` and verify their results match.  (C-1)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values.  (C-2)
         //
         // Testing:
         //   St find0AtMinIndex(const uint64_t *bitString, St length);
         //   St find0AtMinIndex(U64 *bitString, St begin, St end);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'find0AtMinIndex' METHODS\n"
+        if (verbose) cout << "TESTING `find0AtMinIndex` METHODS\n"
                           << "=================================\n";
 
         const struct {
@@ -1618,40 +1618,40 @@ int main(int argc, char *argv[])
       } break;
       case 20: {
         // --------------------------------------------------------------------
-        // TESTING 'find1AtMaxIndex' METHODS
+        // TESTING `find1AtMaxIndex` METHODS
         //   Ensure the methods return the expected value.
         //
         // Concerns:
-        //: 1 That both 'find1AtMaxIndex' functions correctly return the index
-        //:   of the highest-order set bit in a range, or -1 if no set bit
-        //:   exists.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. That both `find1AtMaxIndex` functions correctly return the index
+        //    of the highest-order set bit in a range, or -1 if no set bit
+        //    exists.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use table-driven code to test both 'find1AtMaxIndex' and the
-        //:   'findAtMaxOracle' function in this test driver.
-        //:
-        //: 2 Iterate over different test arrays with 'setUpArray'.
-        //:   o Iterate over 'length' values from 0 to the size of the array.
-        //:     1 Find the max 0 bit, if any, in the array using both
-        //:       'find1AtMaxIndex' and 'findAtMaxOracle' and verify their
-        //:       results match.
-        //:
-        //:     2 Iterate 'index' from 0 to 'length'.
-        //:       o Find the max 0 bit, if any, in the array using both
-        //:         'find1AtMaxIndex' and 'findAtMaxOracle' for the given
-        //:         'index' and 'length' and verify their results match.  (C-1)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values.  (C-2)
+        // 1. Use table-driven code to test both `find1AtMaxIndex` and the
+        //    `findAtMaxOracle` function in this test driver.
+        //
+        // 2. Iterate over different test arrays with `setUpArray`.
+        //    - Iterate over `length` values from 0 to the size of the array.
+        //     1. Find the max 0 bit, if any, in the array using both
+        //        `find1AtMaxIndex` and `findAtMaxOracle` and verify their
+        //        results match.
+        //
+        //     2. Iterate `index` from 0 to `length`.
+        //        o Find the max 0 bit, if any, in the array using both
+        //          `find1AtMaxIndex` and `findAtMaxOracle` for the given
+        //          `index` and `length` and verify their results match.  (C-1)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values.  (C-2)
         //
         // Testing:
         //   St find1AtMaxIndex(const uint64_t *bitString, St length);
         //   St find1AtMaxIndex(U64 *bitString, St begin, St end);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'find1AtMaxIndex' METHODS\n"
+        if (verbose) cout << "TESTING `find1AtMaxIndex` METHODS\n"
                              "=================================\n";
 
         const struct {
@@ -1875,33 +1875,33 @@ int main(int argc, char *argv[])
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // TESTING 'find0AtMaxIndex' METHODS
+        // TESTING `find0AtMaxIndex` METHODS
         //   Ensure the methods return the expected value.
         //
         // Concerns:
-        //: 1 That both 'find0AtMaxIndex' functions correctly return the index
-        //:   of the highest-order cleared bit in a range, or -1 if no cleared
-        //:   bit exists.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. That both `find0AtMaxIndex` functions correctly return the index
+        //    of the highest-order cleared bit in a range, or -1 if no cleared
+        //    bit exists.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use table-driven code to test both 'find0AtMaxIndex' and the
-        //:   'findAtMaxOracle' function in this test driver.
-        //:
-        //: 2 Iterate over different test arrays with 'setUpArray'.
-        //:   o Iterate over 'length' values from 0 to the size of the array.
-        //:     1 Find the max 0 bit, if any, in the array using both
-        //:       'find0AtMaxIndex' and 'findAtMaxOracle' and verify their
-        //:       results match.
-        //:
-        //:     2 Iterate 'index' from 0 to 'length'.
-        //:       o Find the max 0 bit, if any, in the array using both
-        //:         'find0AtMaxIndex' and 'findAtMaxOracle' for the given
-        //:         'index' and 'length' and verify their results match.  (C-1)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values.  (C-2)
+        // 1. Use table-driven code to test both `find0AtMaxIndex` and the
+        //    `findAtMaxOracle` function in this test driver.
+        //
+        // 2. Iterate over different test arrays with `setUpArray`.
+        //    - Iterate over `length` values from 0 to the size of the array.
+        //     1. Find the max 0 bit, if any, in the array using both
+        //        `find0AtMaxIndex` and `findAtMaxOracle` and verify their
+        //        results match.
+        //
+        //     2. Iterate `index` from 0 to `length`.
+        //        o Find the max 0 bit, if any, in the array using both
+        //          `find0AtMaxIndex` and `findAtMaxOracle` for the given
+        //          `index` and `length` and verify their results match.  (C-1)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values.  (C-2)
         //
         // Testing:
         //   St find0AtMaxIndex(const uint64_t *bitString, St length);
@@ -1909,7 +1909,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'find0AtMaxIndex' METHODS\n"
+                          << "TESTING `find0AtMaxIndex` METHODS\n"
                              "=================================\n";
 
         const struct {
@@ -2133,45 +2133,45 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING 'xorEqual'
-        //   Ensure the method has the right effect on 'dstBitString'.
+        // TESTING `xorEqual`
+        //   Ensure the method has the right effect on `dstBitString`.
         //
         // Concerns:
-        //: 1 That 'xorEqual' correctly XORs the bits from the range in
-        //:   'srcBitString' to the range in 'dstBitString'.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. That `xorEqual` correctly XORs the bits from the range in
+        //    `srcBitString` to the range in `dstBitString`.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Do table-driven testing of both 'xorEqual' and 'xorOracle'.
-        //:
-        //: 2 Do exhaustive testing with 'dst' and 'src' arrays set up by
-        //:   'setUpArray'.
-        //:   o Verify that 'xor'ing 'dst' with a toggle of itself results in
-        //:     all 1's.
-        //:
-        //:   o Verify that 'xor'ing 'dst' with itself results in all 0's.
-        //:
-        //:   o Loop through a variety of values of 'dstIndex', 'srcIndex', and
-        //:     'numBits'.
-        //:     1 Perform numerous 'xorEqual' operations on the 'src' and 'dst'
-        //:       arrays with ALL_TRUE and 'ALL_FALSE' arrays, then test the
-        //:       results, which should be predictable.
-        //:
-        //:     2 Perform 'xorOracle' on the 'src' and 'dst' arrays, storing
-        //:       the result in 'result'.
-        //:
-        //:     3 Perform 'xorEqual' on 'src' and 'dst', and compare 'result'
-        //:       with 'dst'.  (C-1)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values.  (C-2)
+        // 1. Do table-driven testing of both `xorEqual` and `xorOracle`.
+        //
+        // 2. Do exhaustive testing with `dst` and `src` arrays set up by
+        //    `setUpArray`.
+        //    - Verify that `xor`ing `dst` with a toggle of itself results in
+        //      all 1's.
+        //
+        //    - Verify that `xor`ing `dst` with itself results in all 0's.
+        //
+        //    - Loop through a variety of values of `dstIndex`, `srcIndex`, and
+        //      `numBits`.
+        //     1. Perform numerous `xorEqual` operations on the `src` and `dst`
+        //        arrays with ALL_TRUE and `ALL_FALSE` arrays, then test the
+        //        results, which should be predictable.
+        //
+        //     2. Perform `xorOracle` on the `src` and `dst` arrays, storing
+        //        the result in `result`.
+        //
+        //     3. Perform `xorEqual` on `src` and `dst`, and compare `result`
+        //        with `dst`.  (C-1)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values.  (C-2)
         //
         // Testing:
         //   void xorEqual(U64 *dBS, St dIdx, U64 *sBS, St sIdx, St nb);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'xorEqual'"
+        if (verbose) cout << "\nTESTING `xorEqual`"
                           << "\n==================" << bsl::endl;
 
         const struct {
@@ -2382,40 +2382,40 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING 'orEqual'
-        //   Ensure the method has the right effect on 'dstBitString'.
+        // TESTING `orEqual`
+        //   Ensure the method has the right effect on `dstBitString`.
         //
         // Concerns:
-        //: 1 That 'orEqual' correctly ORs the bits from the range in
-        //:   'srcBitString' to the range in 'dstBitString'.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. That `orEqual` correctly ORs the bits from the range in
+        //    `srcBitString` to the range in `dstBitString`.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Do table-driven testing of both 'orEqual' and 'orOracle'.
-        //:
-        //: 2 Do exhaustive testing with 'dst' and 'src' arrays set up by
-        //:   'setUpArray'.  Loop through a variety of values of 'dstIndex',
-        //:   'srcIndex', and 'numBits'.
-        //:   o Perform numerous 'orEqual' operations on the 'src' and 'dst'
-        //:     arrays with ALL_TRUE and 'ALL_FALSE' arrays, then test the
-        //:     results, which should be predictable.
-        //:
-        //:   o Perform 'orOracle' on the 'src' and 'dst' arrays, storing the
-        //:     result in 'result'.
-        //:
-        //:   o Perform 'orEqual' on 'src' and 'dst', and compare 'result'
-        //:     with 'dst'.  (C-1)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values.  (C-2)
+        // 1. Do table-driven testing of both `orEqual` and `orOracle`.
+        //
+        // 2. Do exhaustive testing with `dst` and `src` arrays set up by
+        //    `setUpArray`.  Loop through a variety of values of `dstIndex`,
+        //    `srcIndex`, and `numBits`.
+        //    - Perform numerous `orEqual` operations on the `src` and `dst`
+        //      arrays with ALL_TRUE and `ALL_FALSE` arrays, then test the
+        //      results, which should be predictable.
+        //
+        //    - Perform `orOracle` on the `src` and `dst` arrays, storing the
+        //      result in `result`.
+        //
+        //    - Perform `orEqual` on `src` and `dst`, and compare `result`
+        //      with `dst`.  (C-1)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values.  (C-2)
         //
         // Testing:
         //   void orEqual(U64 *dBS, St dIdx, U64 *sBS, St sIdx, St nb);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'orEqual'\n"
+                          << "TESTING `orEqual`\n"
                              "=================\n";
 
         const struct {
@@ -2613,41 +2613,41 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING 'minusEqual'
-        //   Ensure the method has the right effect on 'dstBitString'.
+        // TESTING `minusEqual`
+        //   Ensure the method has the right effect on `dstBitString`.
         //
         // Concerns:
-        //: 1 That 'minusEqual' correctly clears the bits from the range in
-        //:   'dstBitString' corresponding to the set bits in the range in
-        //:   'srcBitString'.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. That `minusEqual` correctly clears the bits from the range in
+        //    `dstBitString` corresponding to the set bits in the range in
+        //    `srcBitString`.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Do table-driven testing of both 'minusEqual' and 'minusOracle'.
-        //:
-        //: 2 Do exhaustive testing with 'dst' and 'src' arrays set up by
-        //:   'setUpArray'.  Loop through a variety of values of 'dstIndex',
-        //:   'srcIndex', and 'numBits'.
-        //:   o Perform numerous 'minusEqual' operations on the 'src' and 'dst'
-        //:     arrays with ALL_TRUE and 'ALL_FALSE' arrays, then test the
-        //:     results, which should be predictable.
-        //:
-        //:   o Perform 'minusOracle' on the 'src' and 'dst' arrays, storing
-        //:     the result in 'result'.
-        //:
-        //:   o Perform 'minusEqual' on 'src' and 'dst', and compare 'result'
-        //:     with 'dst'.  (C-1)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values.  (C-2)
+        // 1. Do table-driven testing of both `minusEqual` and `minusOracle`.
+        //
+        // 2. Do exhaustive testing with `dst` and `src` arrays set up by
+        //    `setUpArray`.  Loop through a variety of values of `dstIndex`,
+        //    `srcIndex`, and `numBits`.
+        //    - Perform numerous `minusEqual` operations on the `src` and `dst`
+        //      arrays with ALL_TRUE and `ALL_FALSE` arrays, then test the
+        //      results, which should be predictable.
+        //
+        //    - Perform `minusOracle` on the `src` and `dst` arrays, storing
+        //      the result in `result`.
+        //
+        //    - Perform `minusEqual` on `src` and `dst`, and compare `result`
+        //      with `dst`.  (C-1)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values.  (C-2)
         //
         // Testing:
         //   void minusEqual(U64 *dBS, St dIdx, U64 *sBS, St sIdx, St nb);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'minusEqual'\n"
+                          << "TESTING `minusEqual`\n"
                              "====================\n";
 
         const struct {
@@ -2936,40 +2936,40 @@ int main(int argc, char *argv[])
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // TESTING 'andEqual'
-        //   Ensure the method has the right effect on 'dstBitString'.
+        // TESTING `andEqual`
+        //   Ensure the method has the right effect on `dstBitString`.
         //
         // Concerns:
-        //: 1 That 'andEqual' correctly ANDs the bits from the range in
-        //:   'srcBitString' to the range in 'dstBitString'.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. That `andEqual` correctly ANDs the bits from the range in
+        //    `srcBitString` to the range in `dstBitString`.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Do table-driven testing of both 'andEqual' and 'andOracle'.
-        //:
-        //: 2 Do exhaustive testing with 'dst' and 'src' arrays set up by
-        //:   'setUpArray'.  Loop through a variety of values of 'dstIndex',
-        //:   'srcIndex', and 'numBits'.
-        //:   o Perform numerous 'andEqual' operations on the 'src' and 'dst'
-        //:     arrays with ALL_TRUE and 'ALL_FALSE' arrays, then test the
-        //:     results, which should be predictable.
-        //:
-        //:   o Perform 'andOracle' on the 'src' and 'dst' arrays, storing the
-        //:     result in 'result'.
-        //:
-        //:   o Perform 'andEqual' on 'src' and 'dst', and compare 'result'
-        //:     with 'dst'.  (C-1)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values.  (C-2)
+        // 1. Do table-driven testing of both `andEqual` and `andOracle`.
+        //
+        // 2. Do exhaustive testing with `dst` and `src` arrays set up by
+        //    `setUpArray`.  Loop through a variety of values of `dstIndex`,
+        //    `srcIndex`, and `numBits`.
+        //    - Perform numerous `andEqual` operations on the `src` and `dst`
+        //      arrays with ALL_TRUE and `ALL_FALSE` arrays, then test the
+        //      results, which should be predictable.
+        //
+        //    - Perform `andOracle` on the `src` and `dst` arrays, storing the
+        //      result in `result`.
+        //
+        //    - Perform `andEqual` on `src` and `dst`, and compare `result`
+        //      with `dst`.  (C-1)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values.  (C-2)
         //
         // Testing:
         //   void andEqual(U64 *dBS, St dIdx, U64 *sBS, St sIdx, St nb);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'andEqual'\n"
+                          << "TESTING `andEqual`\n"
                           << "==================\n";
 
         static const struct {
@@ -3289,40 +3289,40 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING 'toggle'
-        //   Ensure the method has the right effect on 'bitString'.
+        // TESTING `toggle`
+        //   Ensure the method has the right effect on `bitString`.
         //
         // Concerns:
-        //: 1 That 'toggle' correctly toggle bits in the specified range.
-        //:
-        //: 2 That 'toggle' doesn't affect bits outside the specified range.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. That `toggle` correctly toggle bits in the specified range.
+        //
+        // 2. That `toggle` doesn't affect bits outside the specified range.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use table-driven code to test both 'toggle' and the simple,
-        //:   inefficient 'toggleOracle'.  Also verify that toggling twice
-        //:   returns the array to its initial state.
-        //:
-        //: 2 Loop, populating an array with 'setUpArray', then do nested
-        //:   loops iterating over 'index' and 'numBits'.
-        //:   o On the first iteration of 'setUpArray', do special testing of
-        //:     the cases of all-true and all-false.
-        //:
-        //:   o Apply 'toggle' and 'toggleOracle' and verify that their results
-        //:     match, and that they do not disturb bits outside the range
-        //:     specified.  (C-1..2)
-        //:
-        //:   o Toggle back and verify the array is back to its initial state.
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values.  (C-3)
+        // 1. Use table-driven code to test both `toggle` and the simple,
+        //    inefficient `toggleOracle`.  Also verify that toggling twice
+        //    returns the array to its initial state.
+        //
+        // 2. Loop, populating an array with `setUpArray`, then do nested
+        //    loops iterating over `index` and `numBits`.
+        //    - On the first iteration of `setUpArray`, do special testing of
+        //      the cases of all-true and all-false.
+        //
+        //    - Apply `toggle` and `toggleOracle` and verify that their results
+        //      match, and that they do not disturb bits outside the range
+        //      specified.  (C-1..2)
+        //
+        //    - Toggle back and verify the array is back to its initial state.
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values.  (C-3)
         //
         // Testing:
         //   void toggle(uint64_t *bitString, St index, St numBits);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'toggle'"
+        if (verbose) cout << "\nTESTING `toggle`"
                           << "\n================" << bsl::endl;
 
         const struct {
@@ -3500,49 +3500,49 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'NUM0' AND 'NUM1'
+        // TESTING `NUM0` AND `NUM1`
         //   Ensure the methods return the expected value.
         //
         // Concerns:
-        //: 1 That the return value of 'num0' correctly reflects the
-        //:   number of cleared bits in the specified range.
-        //:
-        //: 2 That the return value of 'num1' correctly reflects the number of
-        //:   set bits in the specified range.
-        //:
-        //: 3 That the functions operate correctly on bit strings longer than
-        //:   eight words long (this is important because the functions under
-        //:   test have special logic dealing with multiples of 8 words).
-        //:
-        //: 4 That the array scanned is not modified.
-        //:
-        //: 5 QoI: asserted precondition violations are detected when enabled.
+        // 1. That the return value of `num0` correctly reflects the
+        //    number of cleared bits in the specified range.
+        //
+        // 2. That the return value of `num1` correctly reflects the number of
+        //    set bits in the specified range.
+        //
+        // 3. That the functions operate correctly on bit strings longer than
+        //    eight words long (this is important because the functions under
+        //    test have special logic dealing with multiples of 8 words).
+        //
+        // 4. That the array scanned is not modified.
+        //
+        // 5. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Write the 'countOnes' oracle, which is very simple and
-        //:   inefficient and relatively foolproof.
-        //:
-        //: 2 Do testing of 'num0', 'num1', and 'countOnes' on arrays of
-        //:   all-true and all-false, since the results are very predictable.
-        //:
-        //: 3 Iterate on garbage data of length longer than 8 words with nested
-        //:   loops iterating on 'index' and 'numBits'.
-        //:
-        //: 4 Apply 'num0' and 'num1', verifying their results against
-        //:   'countOnes'.  (C-1..3)
-        //:
-        //: 5 After applying any of those functions, verify that the original
-        //:   array has not been modified.  (C-4)
-        //:
-        //: 6 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values.  (C-5)
+        // 1. Write the `countOnes` oracle, which is very simple and
+        //    inefficient and relatively foolproof.
+        //
+        // 2. Do testing of `num0`, `num1`, and `countOnes` on arrays of
+        //    all-true and all-false, since the results are very predictable.
+        //
+        // 3. Iterate on garbage data of length longer than 8 words with nested
+        //    loops iterating on `index` and `numBits`.
+        //
+        // 4. Apply `num0` and `num1`, verifying their results against
+        //    `countOnes`.  (C-1..3)
+        //
+        // 5. After applying any of those functions, verify that the original
+        //    array has not been modified.  (C-4)
+        //
+        // 6. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values.  (C-5)
         //
         // Testing:
         //   St num0(const uint64_t *bitString, St index, St numBits);
         //   St num1(const uint64_t *bitString, St index, St numBits);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'NUM0' AND 'NUM1'\n"
+        if (verbose) cout << "\nTESTING `NUM0` AND `NUM1`\n"
                                "=========================\n";
 
         const int    MULTIPLE = 5;
@@ -3626,30 +3626,30 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING 'print'
+        // TESTING `print`
         //   Ensure the method produces the correct output.
         //
         // Concerns:
-        //: 1 That the function correctly prints out the state of 'bitString'.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. That the function correctly prints out the state of `bitString`.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Do table-driven testing.
-        //:   o Each iteration, verify that 'print' produces the correct
-        //:     output.  (C-1)
-        //:
-        //:   o Each iteration, do negative testing passing a negative value to
-        //:     'numBits'.
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values.  (C-2)
+        // 1. Do table-driven testing.
+        //    - Each iteration, verify that `print` produces the correct
+        //      output.  (C-1)
+        //
+        //    - Each iteration, do negative testing passing a negative value to
+        //      `numBits`.
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values.  (C-2)
         //
         // Testing:
         //   OS& print(OS& stream, U64 *bs, St nb, int lvl, int spl);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'print'"
+        if (verbose) cout << "\nTESTING `print`"
                           << "\n===============" << bsl::endl;
 
         const struct {
@@ -4111,37 +4111,37 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'swapRaw'
-        //   Ensure 'swapRaw' correctly swaps the specified bit strings.
+        // TESTING `swapRaw`
+        //   Ensure `swapRaw` correctly swaps the specified bit strings.
         //
         // Concerns:
-        //: 1 That 'swapRaw' performs correctly on valid input.
-        //:
-        //: 2 That 'swapRaw' triggers an assert when told to swap overlapping
-        //:   areas, on all builds.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. That `swapRaw` performs correctly on valid input.
+        //
+        // 2. That `swapRaw` triggers an assert when told to swap overlapping
+        //    areas, on all builds.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Do nested loops varying two indexes into the array, and varying
-        //:   the number of bits to swap.
-        //:
-        //: 2 Determine if the areas to be swapped overlap.
-        //:   o If no overlap, do the swap and then verify that it works.
-        //:     (C-1)
-        //:
-        //:   o If overlap, do negative testing to ensure the assert to detect
-        //:     overlaps in 'swapRaw' catches it.  (C-2)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values.  (C-3)
+        // 1. Do nested loops varying two indexes into the array, and varying
+        //    the number of bits to swap.
+        //
+        // 2. Determine if the areas to be swapped overlap.
+        //    - If no overlap, do the swap and then verify that it works.
+        //      (C-1)
+        //
+        //    - If overlap, do negative testing to ensure the assert to detect
+        //      overlaps in `swapRaw` catches it.  (C-2)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values.  (C-3)
         //
         // Testing:
         //   void swapRaw(U64 *lhsBS, St lIdx, U64 *rhsBS, St rIdx, St nb);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'swapRaw'\n"
+                          << "TESTING `swapRaw`\n"
                           << "=================\n";
 
         const int NUM_BITS = 2 * SET_UP_ARRAY_DIM * k_BITS_PER_UINT64;
@@ -4151,10 +4151,10 @@ int main(int argc, char *argv[])
 
         for (int ii = 0; ii < 20; ++ii) {
             // To test this code properly it was necessary to have a long array
-            // to test for a wide variety of combinations of 'idxA', 'idxB',
-            // and 'numBits'.  To get this done in less than 15 seconds on
+            // to test for a wide variety of combinations of `idxA`, `idxB`,
+            // and `numBits`.  To get this done in less than 15 seconds on
             // Solaris we have to do only 20 test cases, so we use
-            // 'fillWithGarbage' instead of 'setUpArray'.
+            // `fillWithGarbage` instead of `setUpArray`.
 
             fillWithGarbage(control, sizeof(control));
 
@@ -4173,7 +4173,7 @@ int main(int argc, char *argv[])
                     for (int numBits = 0; numBits <= maxNumBits;
                                                 incInt(&numBits, maxNumBits)) {
                         // Shift the pointers to the arrays around to ensure
-                        // the overlap detection logic in 'swapRaw' still holds
+                        // the overlap detection logic in `swapRaw` still holds
                         // up when both bitArray ptrs don't match.
 
                         shiftA += 3;
@@ -4279,30 +4279,30 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'REMOVE' AND 'REMOVEANDFILL[01]'
-        //   Ensure the methods have the right effect on 'bitString'.
+        // TESTING `REMOVE` AND `REMOVEANDFILL[01]`
+        //   Ensure the methods have the right effect on `bitString`.
         //
         // Concerns:
-        //: 1 That 'remove' and 'removeAndFill[01]' function according to spec.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. That `remove` and `removeAndFill[01]` function according to spec.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Iterate through different initial values of an array using
-        //:   'setUpArray'.
-        //:   o Do nested loops iterating through 'length' and 'idx'.
-        //:
-        //:   o Apply 'remove', 'removeAndFill0', and 'removeAndFill1' with
-        //:     '0 == numBits' and verify they don't change the array.
-        //:
-        //:   o Iterate over different values of 'numBits'.
-        //:     1 Call 'remove' and verify the changes are as expected.
-        //:
-        //:     2 Call 'removeAndFill0' and 'removeAndFill1' and verify the
-        //:       changes are as expected.  (C-1)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values.  (C-2)
+        // 1. Iterate through different initial values of an array using
+        //    `setUpArray`.
+        //    - Do nested loops iterating through `length` and `idx`.
+        //
+        //    - Apply `remove`, `removeAndFill0`, and `removeAndFill1` with
+        //      `0 == numBits` and verify they don't change the array.
+        //
+        //    - Iterate over different values of `numBits`.
+        //     1. Call `remove` and verify the changes are as expected.
+        //
+        //     2. Call `removeAndFill0` and `removeAndFill1` and verify the
+        //        changes are as expected.  (C-1)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values.  (C-2)
         //
         // Testing:
         //   void remove(uint64_t *bitString, St len, St idx, St numBits);
@@ -4310,7 +4310,7 @@ int main(int argc, char *argv[])
         //   void removeAndFill1(U64 *bitString, St len, St idx, St nb);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'REMOVE' AND 'REMOVEANDFILL[01]'\n"
+        if (verbose) cout << "\nTESTING `REMOVE` AND `REMOVEANDFILL[01]`\n"
                                "========================================\n";
 
         const int NUM_BITS = SET_UP_ARRAY_DIM * k_BITS_PER_UINT64;
@@ -4412,33 +4412,33 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'insert*'
-        //   Ensure the methods have the right effect on 'bitString'.
+        // TESTING `insert*`
+        //   Ensure the methods have the right effect on `bitString`.
         //
         // Concerns:
-        //: 1 That 'insert', 'insert0', 'insert1', and 'insertRaw' all move the
-        //:   bits specified appropriately to the left.
-        //:
-        //: 2 That 'insert', 'insert0', and 'insert1' all initialize the bits
-        //:   vacated by the left shift of the other bits appropriately.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. That `insert`, `insert0`, `insert1`, and `insertRaw` all move the
+        //    bits specified appropriately to the left.
+        //
+        // 2. That `insert`, `insert0`, and `insert1` all initialize the bits
+        //    vacated by the left shift of the other bits appropriately.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Iterate over initial array states using 'setUpArray'.
-        //:   o Iterate over values of 'idx' varying from 0 to 'NUM_BITS-1'.
-        //:     1 Do inserts with all 4 functions with '0 == numBits' and
-        //:       verify there is no change to the bit string.
-        //:       o Do nested loops varying 'numBits' and 'length'.
-        //:
-        //:       o Call the four 'insert' methods.  Verify that the bits were
-        //:         shifted appropriately, that the bits before 'idx' were
-        //:         unchanged, and (when appropriate) that the range
-        //:         '[idx .. idx + numBits)' was filled in appropriately.
-        //:         (C-1..2)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values.  (C-3)
+        // 1. Iterate over initial array states using `setUpArray`.
+        //    - Iterate over values of `idx` varying from 0 to `NUM_BITS-1`.
+        //     1. Do inserts with all 4 functions with `0 == numBits` and
+        //        verify there is no change to the bit string.
+        //        o Do nested loops varying `numBits` and `length`.
+        //
+        //        o Call the four `insert` methods.  Verify that the bits were
+        //          shifted appropriately, that the bits before `idx` were
+        //          unchanged, and (when appropriate) that the range
+        //          `[idx .. idx + numBits)` was filled in appropriately.
+        //          (C-1..2)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values.  (C-3)
         //
         // Testing:
         //   void insert(U64 *bitString, St len, St idx, bool val, St nb);
@@ -4448,7 +4448,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << endl
-                               << "TESTING 'insert*'\n"
+                               << "TESTING `insert*`\n"
                                << "=================\n";
 
         const int NUM_BITS = SET_UP_ARRAY_DIM * k_BITS_PER_UINT64;
@@ -4467,7 +4467,7 @@ int main(int argc, char *argv[])
             for (int idx = 0; idx <= maxIdx; incInt(&idx, maxIdx)) {
                 wordCpy(bits, control, sizeof(bits));
 
-                // Note this value of 'length' is overridden in the nested
+                // Note this value of `length` is overridden in the nested
                 // loops below.
 
                 int length = idx < NUM_BITS / 2 ? NUM_BITS / 2 : NUM_BITS;
@@ -4622,23 +4622,23 @@ int main(int argc, char *argv[])
         //   Ensure the copy methods work properly in the overlapping case.
         //
         // Concerns:
-        //: 1 That 'copy' and 'copyRaw' correctly deal with overlapping copies.
-        //:   Note that 'copyRaw' can only do overlapping copies in the case
-        //:   where the destination is lower than the source.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. That `copy` and `copyRaw` correctly deal with overlapping copies.
+        //    Note that `copyRaw` can only do overlapping copies in the case
+        //    where the destination is lower than the source.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Do nested loops varying 'dstIdx', 'srcIdx', and 'numBits'.
-        //:   o Skip iterations where there is no overlap.
-        //:
-        //:   o Call 'copy' and observe it was correct.
-        //:
-        //:   o If the overlap is a left overlap, call 'copyRaw' and observe it
-        //:     was correct.  (C-1)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values.  (C-2)
+        // 1. Do nested loops varying `dstIdx`, `srcIdx`, and `numBits`.
+        //    - Skip iterations where there is no overlap.
+        //
+        //    - Call `copy` and observe it was correct.
+        //
+        //    - If the overlap is a left overlap, call `copyRaw` and observe it
+        //      was correct.  (C-1)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values.  (C-2)
         //
         // Testing:
         //   void copyRaw(U64 *dstBS, St dIdx, U64 *srcBS St sIdx, St nb);
@@ -4715,7 +4715,7 @@ int main(int argc, char *argv[])
                                              NUM_BITS - dstIdx - numBits));
 
                         if (dstIdx <= srcIdx) {
-                            // A left copy should work, try 'copyRaw'.
+                            // A left copy should work, try `copyRaw`.
 
                             wordCpy(bits, control, sizeof(bits));
                             Util::copyRaw(shiftDst,
@@ -4785,19 +4785,19 @@ int main(int argc, char *argv[])
         //   Ensure the copy methods work properly in the non-overlapping case.
         //
         // Concerns:
-        //: 1 The 'copy' and 'copyRaw' functions work correctly in the case
-        //:   where the source and destination are in different buffers and
-        //:   hence never overlap.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. The `copy` and `copyRaw` functions work correctly in the case
+        //    where the source and destination are in different buffers and
+        //    hence never overlap.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Iterate, varying src index, dst index, and number of bits to
-        //:   copy.  Perform copies and verify the behavior was as expected.
-        //:   (C-1)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values.  (C-2)
+        // 1. Iterate, varying src index, dst index, and number of bits to
+        //    copy.  Perform copies and verify the behavior was as expected.
+        //    (C-1)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values.  (C-2)
         //
         // Testing:
         //   void copyRaw(U64 *dstBS, St dIdx, U64 *srcBS, St sIdx, St nb);
@@ -4895,37 +4895,37 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'ISANY0' AND 'ISANY1'
+        // TESTING `ISANY0` AND `ISANY1`
         //   Ensure the methods return the expected value.
         //
         // Concerns:
-        //: 1 That 'isAny0' and 'isAny1' correctly detect the presence of clear
-        //:   or set bits.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. That `isAny0` and `isAny1` correctly detect the presence of clear
+        //    or set bits.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Iterate over different values of the 'control' buffer, using
-        //:   'setUpArray'.
-        //:   o Iterate over values of 'idx' and 'numBits'.
-        //:     1 Apply 'isAny0' and 'isAny1' to copies of 'ALL_TRUE' and
-        //:       'all_false', with predictable results (given that
-        //:       'numBits > 0').
-        //:
-        //:     2 Apply 'isAny0' and 'isAny1' to copies of the 'control'
-        //:       buffer.  If the return value is 'false', that should mean
-        //:       that stretch of the buffer should equal 'ALL_TRUE' or
-        //:       'ALL_FALSE'.  (C-1)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values.  (C-2)
+        // 1. Iterate over different values of the `control` buffer, using
+        //    `setUpArray`.
+        //    - Iterate over values of `idx` and `numBits`.
+        //     1. Apply `isAny0` and `isAny1` to copies of `ALL_TRUE` and
+        //        `all_false`, with predictable results (given that
+        //        `numBits > 0`).
+        //
+        //     2. Apply `isAny0` and `isAny1` to copies of the `control`
+        //        buffer.  If the return value is `false`, that should mean
+        //        that stretch of the buffer should equal `ALL_TRUE` or
+        //        `ALL_FALSE`.  (C-1)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values.  (C-2)
         //
         // Testing:
         //   bool isAny0(const uint64_t *bitString, St index, St numBits);
         //   bool isAny1(const uint64_t *bitString, St index, St numBits);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'ISANY0' AND 'ISANY1'\n"
+        if (verbose) cout << "\nTESTING `ISANY0` AND `ISANY1`\n"
                                "=============================\n";
 
         const int NUM_BITS = SET_UP_ARRAY_DIM * k_BITS_PER_UINT64;
@@ -4997,32 +4997,32 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'assignBits'
-        //   Ensure the method has the right effect on 'bitString'.
+        // TESTING `assignBits`
+        //   Ensure the method has the right effect on `bitString`.
         //
         // Concerns:
-        //: 1 That 'assignBits' performs properly on valid input.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. That `assignBits` performs properly on valid input.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Iterate, using 'setUpArray' to populate 'control'.
-        //:   o Iterate, using 'setUpArray' to populate the one word scalar
-        //:     'src'.
-        //:     1 Iterate nested loops over values of 'index' and 'numBits'.
-        //:       o Call 'assignBits'
-        //:
-        //:       o Use 'areEqual' to check all of 'dst'.  (C-1)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values.  (C-2)
+        // 1. Iterate, using `setUpArray` to populate `control`.
+        //    - Iterate, using `setUpArray` to populate the one word scalar
+        //      `src`.
+        //     1. Iterate nested loops over values of `index` and `numBits`.
+        //        o Call `assignBits`
+        //
+        //        o Use `areEqual` to check all of `dst`.  (C-1)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values.  (C-2)
         //
         // Testing:
         //   void assignBits(U64 *bitString, St index, U64 srcBits, St nb);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'assignBits'\n"
+                          << "TESTING `assignBits`\n"
                              "====================\n";
 
         const int NUM_BITS = SET_UP_ARRAY_DIM * k_BITS_PER_UINT64;
@@ -5077,45 +5077,45 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING MULTI-BIT 'bits', 'assign', 'assign0', 'assign1'
-        //   Ensure the methods have the right effect on 'bitString'.
+        // TESTING MULTI-BIT `bits`, `assign`, `assign0`, `assign1`
+        //   Ensure the methods have the right effect on `bitString`.
         //
         // Concerns:
-        //: 1 That 'bits', 'assign', 'assign0', and 'assign1' all function
-        //:   properly on valid input.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. That `bits`, `assign`, `assign0`, and `assign1` all function
+        //    properly on valid input.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Iterate, populating a buffer with bit patterns using
-        //:   'setUpArray'.
-        //:   o Iterate nested loops over 'idx' and 'numBits'.
-        //:     1 If 'numBits' fits within a word, tests 'bits'
-        //:       o Using C-style bit operations to calculate 'exp', the
-        //:         expected return value of 'bits'.
-        //:
-        //:       o Call 'bits' and compare to 'exp'.
-        //:
-        //:     2 Call 'assign' with the bool set to 'true'.
-        //:
-        //:     3 Use 'areEqual' to verify that assign had the correct effect.
-        //:
-        //:     4 Call 'assign1' on a separate buffer.
-        //:
-        //:     5 Verify that the buffers operated on by 'assign' and 'assign1'
-        //:       match.
-        //:
-        //:     6 Call 'assign' with the bool set to 'false'.
-        //:
-        //:     7 Use 'areEqual' to verify that assign had the correct effect.
-        //:
-        //:     8 Call 'assign0' on a separate buffer.
-        //:
-        //:     9 Verify that the buffers operated on by 'assign' and 'assign0'
-        //:       match.  (C-1)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values.  (C-2)
+        // 1. Iterate, populating a buffer with bit patterns using
+        //    `setUpArray`.
+        //    - Iterate nested loops over `idx` and `numBits`.
+        //     1. If `numBits` fits within a word, tests `bits`
+        //        o Using C-style bit operations to calculate `exp`, the
+        //          expected return value of `bits`.
+        //
+        //        o Call `bits` and compare to `exp`.
+        //
+        //     2. Call `assign` with the bool set to `true`.
+        //
+        //     3. Use `areEqual` to verify that assign had the correct effect.
+        //
+        //     4. Call `assign1` on a separate buffer.
+        //
+        //     5. Verify that the buffers operated on by `assign` and `assign1`
+        //        match.
+        //
+        //     6. Call `assign` with the bool set to `false`.
+        //
+        //     7. Use `areEqual` to verify that assign had the correct effect.
+        //
+        //     8. Call `assign0` on a separate buffer.
+        //
+        //     9. Verify that the buffers operated on by `assign` and `assign0`
+        //        match.  (C-1)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values.  (C-2)
         //
         // Testing:
         //   uint64_t bits(const uint64_t *bitString, St index, St numBits);
@@ -5125,7 +5125,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-                "\nTESTING MULTI-BIT 'bits', 'assign', 'assign0', 'assign1'\n"
+                "\nTESTING MULTI-BIT `bits`, `assign`, `assign0`, `assign1`\n"
                   "========================================================\n";
 
         const int NUM_BITS = SET_UP_ARRAY_DIM * k_BITS_PER_UINT64;
@@ -5246,45 +5246,45 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING SINGLE-BIT 'BIT', 'ASSIGN', 'ASSIGN0', AND 'ASSIGN1'
-        //   Ensure 'bit' returns the expected values, and the 'assign*'
-        //   methods have the right effect on 'bitString'.
+        // TESTING SINGLE-BIT `BIT`, `ASSIGN`, `ASSIGN0`, AND `ASSIGN1`
+        //   Ensure `bit` returns the expected values, and the `assign*`
+        //   methods have the right effect on `bitString`.
         //
         // Concerns:
-        //: 1 That single-bit read and write operations function properly.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. That single-bit read and write operations function properly.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Iterate, populating a buffer with 'setUpArray'.
-        //:   o Iterate 'idx' over all values across the buffer.
-        //:     1 Use bitwise C operations to read EXP, the 'idx'th bit of the
-        //:       buffer.
-        //:
-        //:     2 Compare 'EXP' to a call to 'bit'.
-        //:
-        //:     3 Use 'assign' to assign a 'true' bit at 'idx' to buffer
-        //:       'bits'.
-        //:
-        //:     4 Verify 'bits' is as expected.
-        //:
-        //:     5 Use 'assign0' to assign a false bit at 'idx' to buffer
-        //:       'bitsB'.
-        //:
-        //:     6 Confirm 'bits' and 'bitsB' match.
-        //:
-        //:     7 Use 'assign' to assign a 'false' bit at 'idx' to buffer
-        //:       'bits'.
-        //:
-        //:     8 Verify 'bits' is as expected.
-        //:
-        //:     9 Use 'assign1' to assign a 'true' bit at 'idx' to buffer
-        //:       'bitsB'.
-        //:
-        //:     10 Confirm 'bits' and 'bitsB' match.  (C-1)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values.  (C-2)
+        // 1. Iterate, populating a buffer with `setUpArray`.
+        //    - Iterate `idx` over all values across the buffer.
+        //     1. Use bitwise C operations to read EXP, the `idx`th bit of the
+        //        buffer.
+        //
+        //     2. Compare `EXP` to a call to `bit`.
+        //
+        //     3. Use `assign` to assign a `true` bit at `idx` to buffer
+        //        `bits`.
+        //
+        //     4. Verify `bits` is as expected.
+        //
+        //     5. Use `assign0` to assign a false bit at `idx` to buffer
+        //        `bitsB`.
+        //
+        //     6. Confirm `bits` and `bitsB` match.
+        //
+        //     7. Use `assign` to assign a `false` bit at `idx` to buffer
+        //        `bits`.
+        //
+        //     8. Verify `bits` is as expected.
+        //
+        //     9. Use `assign1` to assign a `true` bit at `idx` to buffer
+        //        `bitsB`.
+        //
+        //     10. Confirm `bits` and `bitsB` match.  (C-1)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values.  (C-2)
         //
         // Testing:
         //   bool bit(const uint64_t *bitString, St index);
@@ -5294,7 +5294,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-            "\nTESTING SINGLE-BIT 'BIT', 'ASSIGN', 'ASSIGN0', AND 'ASSIGN1'\n"
+            "\nTESTING SINGLE-BIT `BIT`, `ASSIGN`, `ASSIGN0`, AND `ASSIGN1`\n"
               "============================================================\n";
 
         uint64_t BOOL[] = { 0, ~0ULL };
@@ -5385,41 +5385,41 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'areEqual'
+        // TESTING `areEqual`
         //   Ensure the methods return the expected value.
         //
         // Concerns:
-        //: 1 That 'areEqual' correctly compares bit ranges.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. That `areEqual` correctly compares bit ranges.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Do table-driven testing.
-        //:
-        //: 2 Iterate, populating buffers 'lhs' and 'rhs' with two different
-        //:   bit strings.
-        //:
-        //: 3 Iterate two indexes for the 'lhs' and 'rhs', respectively, and
-        //:   iterate 'numBits' over the full range possible for that pair of
-        //:   indexes.
-        //:   o Use 'areEqualOracle', which is written in a simple, reliable,
-        //:     but inefficient way, to determine whether the ranges in the
-        //:     two buffers are equal.
-        //:
-        //:   o Call 'areEqual' and verify that the result matches the oracle.
-        //:
-        //:   o When '0 == lhsIdx' and '0 == rhsIdx', verify the result of the
-        //:     3 argument 'areEqual' function.  (C-1)
-        //:
-        //: 4 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values.  (C-2)
+        // 1. Do table-driven testing.
+        //
+        // 2. Iterate, populating buffers `lhs` and `rhs` with two different
+        //    bit strings.
+        //
+        // 3. Iterate two indexes for the `lhs` and `rhs`, respectively, and
+        //    iterate `numBits` over the full range possible for that pair of
+        //    indexes.
+        //    - Use `areEqualOracle`, which is written in a simple, reliable,
+        //      but inefficient way, to determine whether the ranges in the
+        //      two buffers are equal.
+        //
+        //    - Call `areEqual` and verify that the result matches the oracle.
+        //
+        //    - When `0 == lhsIdx` and `0 == rhsIdx`, verify the result of the
+        //     3. argument `areEqual` function.  (C-1)
+        //
+        // 4. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values.  (C-2)
         //
         // Testing:
         //   bool areEqual(U64 *lhsBitString, U64 *rhsBitString, St numBits);
         //   bool areEqual(U64 *lBS, St lIdx, U64 *rBS, St rIdx, St nb);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'areEqual'"
+        if (verbose) bsl::cout << "\nTESTING `areEqual`"
                                << "\n==================" << bsl::endl;
 
         const struct {
@@ -5761,21 +5761,21 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'populateBitString' & 'populateBitStringHex' FUNCTIONS
-        //   Ensure the methods have the right effect on 'bitString'.
+        // TESTING `populateBitString` & `populateBitStringHex` FUNCTIONS
+        //   Ensure the methods have the right effect on `bitString`.
         //
         // Concerns:
-        //: 1 The helper functions populate the bit array according to the
-        //:   input.
+        // 1. The helper functions populate the bit array according to the
+        //    input.
         //
         // Plan:
-        //: 1 Do table-driven testing of the binary function by using the
-        //:   function to populate a buffer, and comparing the buffer to a
-        //:   buffer in the table.
-        //:
-        //: 2 Do table-driven testing of the hex function by using the function
-        //:   to populate a buffer, and comparing the buffer to a buffer in
-        //:   the table.  (C-1)
+        // 1. Do table-driven testing of the binary function by using the
+        //    function to populate a buffer, and comparing the buffer to a
+        //    buffer in the table.
+        //
+        // 2. Do table-driven testing of the hex function by using the function
+        //    to populate a buffer, and comparing the buffer to a buffer in
+        //    the table.  (C-1)
         //
         // Testing:
         //   void populateBitString(U64 *bitString, St idx, char *ascii);
@@ -5783,7 +5783,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-            "TESTING 'populateBitString' & 'populateBitStringHex' FUNCTIONS\n"
+            "TESTING `populateBitString` & `populateBitStringHex` FUNCTIONS\n"
             "==============================================================\n";
 
         {

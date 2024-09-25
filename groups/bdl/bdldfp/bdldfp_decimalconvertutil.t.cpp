@@ -201,46 +201,46 @@ struct DecBinTestCase {
 
                         // Decimal test case checking functions
 
+    /// Return true, if this test case is for `Decimal32`, and false
+    /// otherwise.
     bool doD32() const
-        // Return true, if this test case is for 'Decimal32', and false
-        // otherwise.
     {
         return d_decimalType & 32;
     }
 
+    /// Return true, if this test case is for `Decimal64`, and false
+    /// otherwise.
     bool doD64() const
-        // Return true, if this test case is for 'Decimal64', and false
-        // otherwise.
     {
         return d_decimalType & 64;
     }
 
+    /// Return true, if this test case is for `Decimal128`, and false
+    /// otherwise.
     bool doD128() const
-        // Return true, if this test case is for 'Decimal128', and false
-        // otherwise.
     {
         return d_decimalType & 128;
     }
 
                         // Decimal construction functions
 
+    /// Return a `Decimal32` value for use in a test case, if applicable,
+    /// and '0' otherwise.
     BDEC::Decimal32 d32() const
-        // Return a 'Decimal32' value for use in a test case, if applicable,
-        // and '0' otherwise.
     {
         return doD32()?PARSEDEC32(d_decimalLiteral_p):BDEC::Decimal32(0);
     }
 
+    /// Return a `Decimal32` value for use in a test case, if applicable,
+    /// and '0' otherwise.
     BDEC::Decimal64 d64() const
-        // Return a 'Decimal32' value for use in a test case, if applicable,
-        // and '0' otherwise.
     {
         return doD64()?PARSEDEC64(d_decimalLiteral_p):BDEC::Decimal64(0);
     }
 
+    /// Return a `Decimal32` value for use in a test case, if applicable,
+    /// and '0' otherwise.
     BDEC::Decimal128 d128() const
-        // Return a 'Decimal32' value for use in a test case, if applicable,
-        // and '0' otherwise.
     {
         // workaround for IBM compiler bug
         typedef BDEC::DecimalImpUtil::ValueType128 Vt128;
@@ -313,9 +313,9 @@ static const int DEC2BIN_DATA_COUNT =
 
                         // Reverse Memory
 
+/// Reverse the order of the first specified `count` bytes, at the beginning
+/// of the specified `buffer`.  `count % 2` must be zero.
 static void memrev(void *buffer, size_t count)
-    // Reverse the order of the first specified 'count' bytes, at the beginning
-    // of the specified 'buffer'.  'count % 2' must be zero.
 {
     unsigned char *b = static_cast<unsigned char *>(buffer);
     bsl::reverse(b, b + count);
@@ -323,10 +323,10 @@ static void memrev(void *buffer, size_t count)
 
                         // Memory copy with reversal functions
 
+/// Reverse the first specified `count` bytes from the specified `buffer`,
+/// if the host endian is different from network endian, and return the
+/// address computed from `static_cast<unsigned char *>(buffer) + count`.
 unsigned char *memReverseIfNeeded(void *buffer, size_t count)
-    // Reverse the first specified 'count' bytes from the specified 'buffer',
-    // if the host endian is different from network endian, and return the
-    // address computed from 'static_cast<unsigned char *>(buffer) + count'.
 {
 #ifdef BDLDFP_DECIMALPLATFORM_LITTLE_ENDIAN
     // little endian, needs to do some byte juggling
@@ -349,18 +349,18 @@ namespace UsageExample {
 
                  // stringstream helpers - not thread safe!
 
+/// Set the specified `out` string to the characters inserted into the
+/// specified `o` output stream.
 void getStringFromStream(bsl::ostringstream &o, bsl::string  *out)
-    // Set the specified 'out' string to the characters inserted into the
-    // specified 'o' output stream.
 {
     bslma::TestAllocator         osa("osstream");
     bslma::DefaultAllocatorGuard g(&osa);
     *out = o.str();
 }
 
+/// Set the specified `out` wide-string to the (wide) characters inserted
+/// into the specified `o` wide output stream.
 void getStringFromStream(bsl::wostringstream &o, bsl::wstring *out)
-    // Set the specified 'out' wide-string to the (wide) characters inserted
-    // into the specified 'o' wide output stream.
 {
     bslma::TestAllocator         osa("osstream");
     bslma::DefaultAllocatorGuard g(&osa);
@@ -369,17 +369,17 @@ void getStringFromStream(bsl::wostringstream &o, bsl::wstring *out)
 
  // String compare for decimal floating point numbers needs 'e'/'E' conversion
 
+/// Convert all 'E' characters to 'e' characters, in the specified `s`
+/// string, and return a reference providing modifiable access.
 bsl::string& decLower(bsl::string& s)
-    // Convert all 'E' characters to 'e' characters, in the specified 's'
-    // string, and return a reference providing modifiable access.
 {
     for (size_t i = 0; i < s.length(); ++i) if ('E' == s[i]) s[i] = 'e';
     return s;
 }
 
+/// Convert all 'E' wide-characters to 'e' wide-characters, in the specified
+/// `s` wide-string, and return a reference providing modifiable access.
 bsl::wstring& decLower(bsl::wstring& s)
-    // Convert all 'E' wide-characters to 'e' wide-characters, in the specified
-    // 's' wide-string, and return a reference providing modifiable access.
 {
     for (size_t i = 0; i < s.length(); ++i) if (L'E' == s[i]) s[i] = L'e';
     return s;
@@ -387,29 +387,30 @@ bsl::wstring& decLower(bsl::wstring& s)
 
 //-----------------------------------------------------------------------------
 
+/// Assert that the run-time type information for the specified `EXPECT`
+/// type matches that of the implicitly specified `RECEIVED` type.
 template <class EXPECT, class RECEIVED>
 void checkType(const RECEIVED&)
-    // Assert that the run-time type information for the specified 'EXPECT'
-    // type matches that of the implicitly specified 'RECEIVED' type.
 {
     ASSERT(typeid(EXPECT) == typeid(RECEIVED));
 }
 
                           // Stream buffer helpers
 
+/// Overrides, and implements `streambuf::reset`.
 template <int BUFFER_SIZE>
 struct BufferBuf : bsl::streambuf {
     BufferBuf() { reset(); }
     void reset() { this->setp(this->d_buf, this->d_buf + BUFFER_SIZE); }
-        // Overrides, and implements 'streambuf::reset'.
+
+    /// Overrides, and implements `streambuf::str`.
     const char *str() { *this->pptr() = 0; return this->pbase(); }
-        // Overrides, and implements 'streambuf::str'.
     char d_buf[BUFFER_SIZE + 1];
 };
 
+/// Construct a `PtrInputBuf`, from the specified `s` string.
 struct PtrInputBuf : bsl::streambuf {
     explicit PtrInputBuf(const char *s)
-        // Construct a 'PtrInputBuf', from the specified 's' string.
     {
         char *x = const_cast<char *>(s);
         this->setg(x, x, x + strlen(x));
@@ -418,9 +419,10 @@ struct PtrInputBuf : bsl::streambuf {
 
 struct NulBuf : bsl::streambuf {
     char d_dummy[64];
+
+    /// Overrides, and implements `streambuf::overflow`, passing the
+    /// specified `c`.
     int overflow(int c) BSLS_KEYWORD_OVERRIDE
-        // Overrides, and implements 'streambuf::overflow', passing the
-        // specified 'c'.
     {
         setp( d_dummy, d_dummy + sizeof(d_dummy));
         return traits_type::not_eof(c);
@@ -429,14 +431,14 @@ struct NulBuf : bsl::streambuf {
 
 //-----------------------------------------------------------------------------
 
+/// Return a float value representing the specified `digits` multiplied by
+/// ten raised to the specified `power` in Interdata / IBM / Perkin-ELmer
+/// format.
+///
+/// An Interdata float is represented as `.HHHHHH * 16^E` where `H` is a hex
+/// digit and the leading such digit is non-zero.  We generate this format,
+/// then convert it to standard float format.
 static float interdata(int digits, int power)
-    // Return a float value representing the specified 'digits' multiplied by
-    // ten raised to the specified 'power' in Interdata / IBM / Perkin-ELmer
-    // format.
-    //
-    // An Interdata float is represented as '.HHHHHH * 16^E' where 'H' is a hex
-    // digit and the leading such digit is non-zero.  We generate this format,
-    // then convert it to standard float format.
 {
     if (digits == 0) {
         return 0;                                                     // RETURN
@@ -446,7 +448,7 @@ static float interdata(int digits, int power)
     long long denominator(1);
 
     // Exactly represent the input value as the rational number
-    // 'numerator / denominator'.
+    // `numerator / denominator`.
     while (power > 0) {
         numerator *= 10;
         --power;
@@ -458,7 +460,7 @@ static float interdata(int digits, int power)
 
     int exponent = 126;  // The exponent for the final float value.
 
-    // Scale the rational number so that it lies in '[1/16 .. 1)'.
+    // Scale the rational number so that it lies in `[1/16 .. 1)`.
     while (numerator > denominator) {
         denominator *= 16;
         exponent += 4;
@@ -469,7 +471,7 @@ static float interdata(int digits, int power)
     }
 
     // Extract the first 24 bits of the binary representation of
-    // 'numerator / denominator'.
+    // `numerator / denominator`.
     int mantissa = 0;
     for (int i = 0; i < 24; ++i) {
         mantissa *= 2;
@@ -507,21 +509,21 @@ static float interdata(int digits, int power)
 
                             // Strict comparators
 
+/// Return true if the bit pattern in the specified `lhs` decimal type
+/// matches that in the specified `rhs` decimal type.
 template <class DECIMAL_TYPE>
 bool strictEqual(DECIMAL_TYPE lhs, DECIMAL_TYPE rhs)
-    // Return true if the bit pattern in the specified 'lhs' decimal type
-    // matches that in the specified 'rhs' decimal type.
 {
     const void *blhs = &lhs;
     const void *brhs = &rhs;
     return bsl::memcmp(blhs, brhs, sizeof(DECIMAL_TYPE)) == 0;
 }
 
+/// Write the specified `size` characters in `buffer` to the specified `out`
+/// as two-digit hexadecimal values separated by a space.
 void bufferToStream(bsl::ostream&           out,
                     unsigned char          *buffer,
                     bsls::Types::size_type  size)
-    // Write the specified 'size' characters in 'buffer' to the specified 'out'
-    // as two-digit hexadecimal values separated by a space.
 {
     const char *sep = "";
     for (bsls::Types::size_type b = 0; b < size; ++b) {
@@ -532,10 +534,10 @@ void bufferToStream(bsl::ostream&           out,
     }
 }
 
+/// Write the bid-encoded specified `decimal` as a network-ordered 8-byte
+/// integer to the specified `buffer`.
 unsigned char *decimal64ToBinaryIntegralNetwork(unsigned char *buffer,
                                                 Decimal64      decimal)
-    // Write the bid-encoded specified 'decimal' as a network-ordered 8-byte
-    // integer to the specified 'buffer'.
 {
     bsls::Types::Uint64 encoded;
     bsl::memcpy(&encoded, &decimal, sizeof(encoded));
@@ -577,13 +579,13 @@ int main(int argc, char* argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -603,7 +605,7 @@ int main(int argc, char* argv[])
         // expensive calculation involving millions of numbers and needs to
         // send the result to its client) will need to convert the data to
         // network format before sending:
-        //..
+        // ```
         { // "server"
             unsigned char  msgbuffer[256];
             unsigned char *next = msgbuffer;
@@ -616,10 +618,10 @@ int main(int argc, char* argv[])
 
             ASSERT(bsl::memcmp(msgbuffer, expected, sizeof(number)) == 0);
         }
-        //..
+        // ```
         // The receiver/client shall then restore the number from network
         // format:
-        //..
+        // ```
         { // "client"
             const unsigned char  msgbuffer[] ={
                               0x25, 0x55, 0x34, 0xb9, 0xc1, 0xe2, 0x8e, 0x56 };
@@ -634,7 +636,7 @@ int main(int argc, char* argv[])
             ASSERT(next == msgbuffer + sizeof(BDEC::Decimal64));
             ASSERT(number == expected);
         }
-        //..
+        // ```
 
         if (veryVerbose) bsl::cout << "\nStoring/sending decimals in binary"
                              " floating-point" << bsl::endl;
@@ -645,7 +647,7 @@ int main(int argc, char* argv[])
         // ensure that it can be restored (in other words that it has "fit"
         // into the binary type) when sending, and restore the decimal number
         // (from the binary type) when receiving:
-        //..
+        // ```
         {
             const BDEC::Decimal64 number(
                 BDLDFP_DECIMAL_DD(1.23456789012345e-42));
@@ -655,46 +657,46 @@ int main(int argc, char* argv[])
             if (Util::decimal64FromDouble(dbl) != number) {
                 // Do what is appropriate for the application
             }
-            //..
+            // ```
             // The receiver would then restore the number using the appropriate
-            // 'decimal64FromDouble' function:
-            //..
+            // `decimal64FromDouble` function:
+            // ```
             BDEC::Decimal64 restored = Util::decimal64FromDouble(dbl);
 
             ASSERT(number == restored);
         }
-        //..
+        // ```
       } break;
       case 9: {
         // --------------------------------------------------------------------
         // TESTING CONVERSION TO/FROM BINARY INTEGRAL
         //
         // Concerns:
-        //:  1 Decimal values in the implementation format are represented
-        //:    faithfully and correctly in the BID format, when converted.
-        //:
-        //:  2 The decimal value, after conversion, has the same cohort as the
-        //:    original value.
-        //:
-        //:  3 Decimal values can be successfully conversed to the
-        //:    implementation format from the BID format.
-        //:
-        //:  4 32, 64, and 128 bit variations all work correctly.
-        //:
-        //:  5 Special cases, such as Infinity and NaN are represented
-        //:    correctly as BID.
+        //  1. Decimal values in the implementation format are represented
+        //     faithfully and correctly in the BID format, when converted.
+        //
+        //  2. The decimal value, after conversion, has the same cohort as the
+        //     original value.
+        //
+        //  3. Decimal values can be successfully conversed to the
+        //     implementation format from the BID format.
+        //
+        //  4. 32, 64, and 128 bit variations all work correctly.
+        //
+        //  5. Special cases, such as Infinity and NaN are represented
+        //     correctly as BID.
         //
         // Plan:
-        //:  1 Iterate through a set of test mantissas and exponents and
-        //:    convert decimal values to BID, comparing the result to a
-        //:    canonically constructed value in BID.  (C-1..2)
-        //:
-        //:  2 Use BID representation from P-1 to create a decimal value and
-        //:    verify the result by comparing it with the original value.
-        //:    (C-3)
-        //:
-        //:  3 Test the special case values explicitly, by converting to BID,
-        //:    then using the conversion back.  (C-4..5)
+        //  1. Iterate through a set of test mantissas and exponents and
+        //     convert decimal values to BID, comparing the result to a
+        //     canonically constructed value in BID.  (C-1..2)
+        //
+        //  2. Use BID representation from P-1 to create a decimal value and
+        //     verify the result by comparing it with the original value.
+        //     (C-3)
+        //
+        //  3. Test the special case values explicitly, by converting to BID,
+        //     then using the conversion back.  (C-4..5)
         //
         // Testing
         //   void decimal32ToBID (unsigned char *buf, Decimal32  dec);
@@ -720,8 +722,8 @@ int main(int argc, char* argv[])
                        << "==========================================" << endl;
 
         // IMPLEMENTATION NOTE: This test case currently assumes that the
-        // underlying implementation of Decimal arithmetic is 'BID' not 'DPD'.
-        // This test driver will need to be updated to handle 'DPD'
+        // underlying implementation of Decimal arithmetic is `BID` not `DPD`.
+        // This test driver will need to be updated to handle `DPD`
         // implementations.
 
         typedef DecimalImpUtil::ValueType32  ValueType32;
@@ -868,7 +870,7 @@ int main(int argc, char* argv[])
                         param = DecimalImpUtil::makeDecimalRaw32(MANTISSA,
                                                                  EXPONENT);
 
-                        // 'toBID' conversion pre-action check.
+                        // `toBID` conversion pre-action check.
 
                         LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
                                      bsl::memcmp(modelData,
@@ -879,7 +881,7 @@ int main(int argc, char* argv[])
                                                  toBIDResult2,
                                                  sizeof(ValueType32)));
 
-                        // 'toBID' conversion check.
+                        // `toBID` conversion check.
 
                         Util::decimalToBID(toBIDResult1, param);
                         LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
@@ -894,7 +896,7 @@ int main(int argc, char* argv[])
                                                   sizeof(ValueType32)));
 
 
-                        // 'fromBID' conversion pre-action check.
+                        // `fromBID` conversion pre-action check.
 
                         LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
                                      bsl::memcmp(modelData,
@@ -910,7 +912,7 @@ int main(int argc, char* argv[])
                                                  sizeof(ValueType32)));
 
 
-                        // 'fromBID' conversion check.
+                        // `fromBID` conversion check.
 
                         fromBIDResult1 = Util::decimal32FromBID( toBIDResult1);
                         LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
@@ -941,7 +943,7 @@ int main(int argc, char* argv[])
                 param = DecimalImpUtil::parse32(VALUE);
                 model = DecimalImpUtil::parse32(VALUE);
 
-                // 'toBID' conversion pre-action check.
+                // `toBID` conversion pre-action check.
 
                 LOOP_ASSERT(VALUE,
                             bsl::memcmp(modelData,
@@ -952,7 +954,7 @@ int main(int argc, char* argv[])
                                          toBIDResult2,
                                          sizeof(ValueType32)));
 
-                // 'toBID' conversion check.
+                // `toBID` conversion check.
 
                 Util::decimalToBID(toBIDResult1, param);
                 LOOP_ASSERT(VALUE,
@@ -967,7 +969,7 @@ int main(int argc, char* argv[])
                                           sizeof(ValueType32)));
 
 
-                // 'fromBID' conversion pre-action check.
+                // `fromBID` conversion pre-action check.
 
                 LOOP_ASSERT(VALUE,
                              bsl::memcmp(modelData,
@@ -983,7 +985,7 @@ int main(int argc, char* argv[])
                                          sizeof(ValueType32)));
 
 
-                // 'fromBID' conversion check.
+                // `fromBID` conversion check.
 
                 fromBIDResult1 = Util::decimal32FromBID( toBIDResult1);
                 LOOP_ASSERT(VALUE,
@@ -1040,7 +1042,7 @@ int main(int argc, char* argv[])
                         param = DecimalImpUtil::makeDecimalRaw64(MANTISSA,
                                                                  EXPONENT);
 
-                        // 'toBID' conversion pre-action check.
+                        // `toBID` conversion pre-action check.
 
                         LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
                                      bsl::memcmp(modelData,
@@ -1051,7 +1053,7 @@ int main(int argc, char* argv[])
                                                  toBIDResult2,
                                                  sizeof(ValueType64)));
 
-                        // 'toBID' conversion check.
+                        // `toBID` conversion check.
 
                         Util::decimalToBID(toBIDResult1, param);
                         LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
@@ -1066,7 +1068,7 @@ int main(int argc, char* argv[])
                                                   sizeof(ValueType64)));
 
 
-                        // 'fromBID' conversion pre-action check.
+                        // `fromBID` conversion pre-action check.
 
                         LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
                                      bsl::memcmp(modelData,
@@ -1082,7 +1084,7 @@ int main(int argc, char* argv[])
                                                  sizeof(ValueType64)));
 
 
-                        // 'fromBID' conversion check.
+                        // `fromBID` conversion check.
 
                         fromBIDResult1 = Util::decimal64FromBID( toBIDResult1);
                         LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
@@ -1113,7 +1115,7 @@ int main(int argc, char* argv[])
                 param = DecimalImpUtil::parse64(VALUE);
                 model = DecimalImpUtil::parse64(VALUE);
 
-                // 'toBID' conversion pre-action check.
+                // `toBID` conversion pre-action check.
 
                 LOOP_ASSERT(VALUE,
                             bsl::memcmp(modelData,
@@ -1124,7 +1126,7 @@ int main(int argc, char* argv[])
                                          toBIDResult2,
                                          sizeof(ValueType64)));
 
-                // 'toBID' conversion check.
+                // `toBID` conversion check.
 
                 Util::decimalToBID(toBIDResult1, param);
                 LOOP_ASSERT(VALUE,
@@ -1139,7 +1141,7 @@ int main(int argc, char* argv[])
                                           sizeof(ValueType64)));
 
 
-                // 'fromBID' conversion pre-action check.
+                // `fromBID` conversion pre-action check.
 
                 LOOP_ASSERT(VALUE,
                              bsl::memcmp(modelData,
@@ -1155,7 +1157,7 @@ int main(int argc, char* argv[])
                                          sizeof(ValueType64)));
 
 
-                // 'fromBID' conversion check.
+                // `fromBID` conversion check.
 
                 fromBIDResult1 = Util::decimal64FromBID( toBIDResult1);
                 LOOP_ASSERT(VALUE,
@@ -1209,7 +1211,7 @@ int main(int argc, char* argv[])
                         param = DecimalImpUtil::makeDecimalRaw128(MANTISSA,
                                                                  EXPONENT);
 
-                        // 'toBID' conversion pre-action check.
+                        // `toBID` conversion pre-action check.
 
                         LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
                                      bsl::memcmp(modelData,
@@ -1220,7 +1222,7 @@ int main(int argc, char* argv[])
                                                  toBIDResult2,
                                                  sizeof(ValueType128)));
 
-                        // 'toBID' conversion check.
+                        // `toBID` conversion check.
 
                         Util::decimalToBID(toBIDResult1, param);
                         LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
@@ -1235,7 +1237,7 @@ int main(int argc, char* argv[])
                                                   sizeof(ValueType128)));
 
 
-                        // 'fromBID' conversion pre-action check.
+                        // `fromBID` conversion pre-action check.
 
                         LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
                                      bsl::memcmp(modelData,
@@ -1251,7 +1253,7 @@ int main(int argc, char* argv[])
                                                  sizeof(ValueType128)));
 
 
-                        // 'fromBID' conversion check.
+                        // `fromBID` conversion check.
 
                         fromBIDResult1 = Util::decimal128FromBID( toBIDResult1);
                         LOOP4_ASSERT(i, j, MANTISSA, EXPONENT,
@@ -1282,7 +1284,7 @@ int main(int argc, char* argv[])
                 param = DecimalImpUtil::parse128(VALUE);
                 model = DecimalImpUtil::parse128(VALUE);
 
-                // 'toBID' conversion pre-action check.
+                // `toBID` conversion pre-action check.
 
                 LOOP_ASSERT(VALUE,
                             bsl::memcmp(modelData,
@@ -1293,7 +1295,7 @@ int main(int argc, char* argv[])
                                          toBIDResult2,
                                          sizeof(ValueType128)));
 
-                // 'toBID' conversion check.
+                // `toBID` conversion check.
 
                 Util::decimalToBID(toBIDResult1, param);
                 LOOP_ASSERT(VALUE,
@@ -1308,7 +1310,7 @@ int main(int argc, char* argv[])
                                           sizeof(ValueType128)));
 
 
-                // 'fromBID' conversion pre-action check.
+                // `fromBID` conversion pre-action check.
 
                 LOOP_ASSERT(VALUE,
                              bsl::memcmp(modelData,
@@ -1324,7 +1326,7 @@ int main(int argc, char* argv[])
                                          sizeof(ValueType128)));
 
 
-                // 'fromBID' conversion check.
+                // `fromBID` conversion check.
 
                 fromBIDResult1 = Util::decimal128FromBID( toBIDResult1);
                 LOOP_ASSERT(VALUE,
@@ -1351,15 +1353,15 @@ int main(int argc, char* argv[])
         // IS VALID MULTI-WIDTH SIZE TEST
         //
         // Concerns:
-        //: 1 That 'isValidMultiWidthSize' returns 'true' for all valid
-        //:   encoding sizes in the *multi-width encoding* format.
+        // 1. That `isValidMultiWidthSize` returns `true` for all valid
+        //    encoding sizes in the *multi-width encoding* format.
         //
         // Plan:
-        //: 1 Using table-driven technique, specify a set of valid encoding
-        //:   size values and expected function result values.  Also specify a
-        //:   set of arbitrary invalid size encoding values and expected
-        //:   function result values.  Ensure that 'isValidMultiWidthSize'
-        //:   returns expected result for each item in the table.  (C-1)
+        // 1. Using table-driven technique, specify a set of valid encoding
+        //    size values and expected function result values.  Also specify a
+        //    set of arbitrary invalid size encoding values and expected
+        //    function result values.  Ensure that `isValidMultiWidthSize`
+        //    returns expected result for each item in the table.  (C-1)
         //
         // Testing:
         //   bool isValidMultiWidthSize(unsigned char size);
@@ -1412,25 +1414,25 @@ int main(int argc, char* argv[])
         // DECIMAL FROM BINARY CONVERSION ROUNDING TEST
         //   This test exercises the binary value rounding to the specified
         //   number of significant digits performed by the
-        //   'decimal{32,64,128}From{Float,Double}' functions.
+        //   `decimal{32,64,128}From{Float,Double}` functions.
         //
         // Concerns:
-        //: 1 That converted to decimal from binary value is rounded to the
-        //:   specified number of significant digits.
-        //:
-        //: 2 That if 'digits' is not specified, 0 is used.
+        // 1. That converted to decimal from binary value is rounded to the
+        //    specified number of significant digits.
+        //
+        // 2. That if `digits` is not specified, 0 is used.
         //
         // Plan:
-        //: 1 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of binary values.
-        //:
-        //:   2 For each binary value specify the number of significant digits
-        //:     to produce in the returned value, and the expected value.
-        //:
-        //:   3 For each line in the table use
-        //:     'Decimal{32,64,128}From{Float,Double})' to convert binary to
-        //:     decimal and verify that the expected result is produced.
+        // 1. Using the table-driven technique:
+        //
+        //   1. Specify a set of binary values.
+        //
+        //   2. For each binary value specify the number of significant digits
+        //      to produce in the returned value, and the expected value.
+        //
+        //   3. For each line in the table use
+        //      `Decimal{32,64,128}From{Float,Double})` to convert binary to
+        //      decimal and verify that the expected result is produced.
         //
         // Testing:
         //   Decimal32  decimal32FromFloat(float, int);
@@ -1464,7 +1466,7 @@ int main(int argc, char* argv[])
              // LINE | BINARY | DIGITS | EXPECTED
              //---------------------------------------------------------------
 
-             // 7 significant digits for 'float' in range '[1.e-3 .. 8.5e+9]'
+             // 7 significant digits for `float` in range `[1.e-3 .. 8.5e+9]`
              // --------------------------------------------------------------
              { L_, 1.2345670f,     -1, DEC(1.234567)     },
              { L_, 1.2345678f,     -1, DEC(1.234568)     },
@@ -1485,7 +1487,7 @@ int main(int argc, char* argv[])
              { L_, 1.2345670f,      7, DEC(1.234567)     },
              { L_, 1.2345678f,      7, DEC(1.234568)     },
 
-             // 6 significant digits for 'float' greater than '8.5e+9'
+             // 6 significant digits for `float` greater than `8.5e+9`
              // ------------------------------------------------------
              { L_, 1.2345670e10f,  -1, DEC(1.234567e10)  },
              { L_, 1.2345678e10f,  -1, DEC(1.234568e10)  },
@@ -1506,7 +1508,7 @@ int main(int argc, char* argv[])
              { L_, 1.2345670e10f,   7, DEC(1.234567e10)  },
              { L_, 1.2345678e10f,   7, DEC(1.234568e10)  },
 
-             // 6 significant digits for 'float' less than '1.e-3'
+             // 6 significant digits for `float` less than `1.e-3`
              // --------------------------------------------------
              { L_, 1.2345670e-10f, -1, DEC(1.234567e-10) },
              { L_, 1.2345678e-10f, -1, DEC(1.234568e-10) },
@@ -1629,7 +1631,7 @@ int main(int argc, char* argv[])
              // LINE | BINARY          | DIGITS | EXPECTED
              //---------------------------------------------------------------
 
-               // 7 significant digits for 'float' in range '[1.e-3 .. 8.5e+9]'
+               // 7 significant digits for `float` in range `[1.e-3 .. 8.5e+9]`
                // -------------------------------------------------------------
                 { L_, 1.23456791e-2f,          -1, DEC(1.2345679e-2)         },
                 { L_, 1.23456679e-2f,          -1, DEC(1.2345668e-2)         },
@@ -1654,7 +1656,7 @@ int main(int argc, char* argv[])
                 { L_, 1.23456893e-2f,           8, DEC(1.2345689e-2)         },
                 { L_, 1.234568934e-2f,          9, DEC(1.23456893e-2)        },
 
-                // 6 significant digits for 'float' greater than '8.5e+9'
+                // 6 significant digits for `float` greater than `8.5e+9`
                 // -----------------------------------------------------------
                 { L_, 1.23456788e10f,          -1, DEC(1.2345679e10)         },
                 { L_, 1.23456614e10f,          -1, DEC(1.2345661e10)         },
@@ -1677,7 +1679,7 @@ int main(int argc, char* argv[])
                 { L_, 1.23456686e10f,           8, DEC(1.2345669e10)         },
                 { L_, 1.234566860e10f,          9, DEC(1.23456686e10)        },
 
-                // 6 significant digits for 'float' less than '1.e-3'
+                // 6 significant digits for `float` less than `1.e-3`
                 // -------------------------------------------------------------
                 { L_, 1.23456791e-4f,          -1, DEC(1.2345679e-4)         },
                 { L_, 1.23456789e-4f,          -1, DEC(1.2345679e-4)         },
@@ -1824,7 +1826,7 @@ int main(int argc, char* argv[])
   // LINE | BINARY                    | DIGITS | EXPECTED
   //-------------------------------------------------------------------------
 
-    // 7 significant digits for 'float' in range '[1.e-3 .. 8.5e+9]'
+    // 7 significant digits for `float` in range `[1.e-3 .. 8.5e+9]`
     // ----------------------------------------------------------------------
     { L_, 1.23456791e-2f,                     -1, DEC(1.2345679e-2)          },
     { L_, 1.23456679e-2f,                     -1, DEC(1.2345668e-2)          },
@@ -1848,7 +1850,7 @@ int main(int argc, char* argv[])
     { L_, 1.23456893e-2f,                      8, DEC(1.2345689e-2)          },
     { L_, 1.234568934e-2f,                     9, DEC(1.23456893e-2)         },
 
-    // 6 significant digits for 'float' greater than '8.5e+9'
+    // 6 significant digits for `float` greater than `8.5e+9`
     // -----------------------------------------------------------------------
     { L_, 1.23456788e10f,                    -1, DEC(1.2345679e10)           },
     { L_, 1.23456614e10f,                    -1, DEC(1.2345661e10)           },
@@ -1871,7 +1873,7 @@ int main(int argc, char* argv[])
     { L_, 1.23456686e10f,                     8, DEC(1.2345669e10)           },
     { L_, 1.234566860e10f,                    9, DEC(1.23456686e10)          },
 
-    // 6 significant digits for 'float' less than '1.e-3'
+    // 6 significant digits for `float` less than `1.e-3`
     // -----------------------------------------------------------------------
     { L_, 1.23456791e-4f,                    -1, DEC(1.2345679e-4)           },
     { L_, 1.23456789e-4f,                    -1, DEC(1.2345679e-4)           },
@@ -2005,21 +2007,21 @@ int main(int argc, char* argv[])
         // RESTORE DECIMAL TEST
         //
         // Concerns:
-        //: 1 Conversion from decimal to binary and back with a known number of
-        //:   digits gives correct round-trip results.
-        //:
-        //: 2 Six-digit decimals converted to Perkin-Elmer format convert back
-        //:   to the same value when six digits are specified.
+        // 1. Conversion from decimal to binary and back with a known number of
+        //    digits gives correct round-trip results.
+        //
+        // 2. Six-digit decimals converted to Perkin-Elmer format convert back
+        //    to the same value when six digits are specified.
         //
         // Plan:
-        //: 1 Use a subset of seven-significant-digit numbers and verify that
-        //:   they round-trip through the conversions.
-        //:
-        //: 2 Take every six-digit number from .000000 to 999999., convert it
-        //:   to a float of its Perkin-Elmer converted value, convert it back
-        //:   using 'restoreDecimal32Digits(float, 6)', and verify that this
-        //:   results in the same value as converting the number to its proper
-        //:   (IEEE 754) float value.
+        // 1. Use a subset of seven-significant-digit numbers and verify that
+        //    they round-trip through the conversions.
+        //
+        // 2. Take every six-digit number from .000000 to 999999., convert it
+        //    to a float of its Perkin-Elmer converted value, convert it back
+        //    using `restoreDecimal32Digits(float, 6)`, and verify that this
+        //    results in the same value as converting the number to its proper
+        //    (IEEE 754) float value.
         //
         // This needs more thorough testing.
         //
@@ -2108,14 +2110,14 @@ int main(int argc, char* argv[])
         // DTOA CONVERSION TEST
         //
         // Concerns:
-        //: 1 Conversion from double to Decimal64 gives valid results.
+        // 1. Conversion from double to Decimal64 gives valid results.
         //
         // Plan:
-        //: 1 Using a table of random numbers converted to string using David
-        //:   M. Gay's shortest-representation 'dtoa' algorithm, where that
-        //:   representation has no more than 15 significant digits, convert
-        //:   those doubles to Decimal64 and verify that the expected result
-        //:   is produced.
+        // 1. Using a table of random numbers converted to string using David
+        //    M. Gay's shortest-representation `dtoa` algorithm, where that
+        //    representation has no more than 15 significant digits, convert
+        //    those doubles to Decimal64 and verify that the expected result
+        //    is produced.
         //
         // Testing:
         //   Decimal64 decimal64FromDouble(double, int);
@@ -8231,29 +8233,29 @@ int main(int argc, char* argv[])
         // VARIABLE-WIDTH ENCODE AND DECODE
         //
         // Concerns:
-        //: 1 'decimal64ToVariableWidthEncoding' correctly encodes values in
-        //:   the supported formats.
-        //:
-        //: 2 Values are always encoded in the smallest supported
-        //:   format. E.g. a values that fits in both 2 byte and 3 byte
-        //:   encodings will be encoded using the 2 byte encoding.
-        //:
-        //: 3 'decimal64ToVariableWidthEncoding' does not overwrite any memory
-        //:   outside of the range that it is supposed to.
-        //:
-        //: 4 'decimal64FromMultiWidthEncoding' can decode any value encoded
-        //:    using 'decimal64ToVariableWidthEncoding'.
+        // 1. `decimal64ToVariableWidthEncoding` correctly encodes values in
+        //    the supported formats.
+        //
+        // 2. Values are always encoded in the smallest supported
+        //    format. E.g. a values that fits in both 2 byte and 3 byte
+        //    encodings will be encoded using the 2 byte encoding.
+        //
+        // 3. `decimal64ToVariableWidthEncoding` does not overwrite any memory
+        //    outside of the range that it is supposed to.
+        //
+        // 4. `decimal64FromMultiWidthEncoding` can decode any value encoded
+        //     using `decimal64ToVariableWidthEncoding`.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of decimal values
-        //:   and their expected encoded values when using the variable-width
-        //:   encoding format.  Ensure that the set of values include boundary
-        //:   values in all supported widths of the encoder. Use
-        //:   'decimal64ToVariableWidthEncoding' to encode each decimal value
-        //:   in the set. Verify that the encoded values matches the expected
-        //:   values.  Additional, verify the encoded values can be decoded
-        //:   back to the original decimal values using
-        //:   'decimal64FromVaribleWidthEncoding'.  (C-1..3)
+        // 1. Using the table-driven technique, specify a set of decimal values
+        //    and their expected encoded values when using the variable-width
+        //    encoding format.  Ensure that the set of values include boundary
+        //    values in all supported widths of the encoder. Use
+        //    `decimal64ToVariableWidthEncoding` to encode each decimal value
+        //    in the set. Verify that the encoded values matches the expected
+        //    values.  Additional, verify the encoded values can be decoded
+        //    back to the original decimal values using
+        //    `decimal64FromVaribleWidthEncoding`.  (C-1..3)
         //
         // Testing:
         //   cuc* decimal64FromVariableWidthEncoding(Decimal64*, cuc*);
@@ -8417,36 +8419,36 @@ int main(int argc, char* argv[])
         // MULTI-WIDTH DECODE
         //
         // Concerns:
-        //: 1 'decimal64FromMultiWidthEncoding',
-        //:   'decimal64FromMultiWidthEncodingIfValid' and
-        //:   'decimal64FromMultiWidthEncodingRaw' correctly decode values in
-        //:   the supported formats.
-        //:
-        //: 2 That 'decimal64FromMultiWidthEncodingIfValid' returns non-zero
-        //:   value if the specified buffer size is not a valid size of a
-        //:   decimal value encoded in the *multi-width encoding* format.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. `decimal64FromMultiWidthEncoding`,
+        //    `decimal64FromMultiWidthEncodingIfValid` and
+        //    `decimal64FromMultiWidthEncodingRaw` correctly decode values in
+        //    the supported formats.
+        //
+        // 2. That `decimal64FromMultiWidthEncodingIfValid` returns non-zero
+        //    value if the specified buffer size is not a valid size of a
+        //    decimal value encoded in the *multi-width encoding* format.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of decimal
-        //:   values, and their encoded values. Ensure that the set contains
-        //:   boundary values in all supported widths of the decoder. Use
-        //:   'decimal64FromMultiWidthEncoding',
-        //:   'decimal64FromMultiWidthEncodingIfValid' and
-        //:   'decimal64FromMultiWidthEncodingRaw' to decode the encoded
-        //:   values. Verify that the decoded decimal values matches the
-        //:   original values.  (C-1)
-        //:
-        //: 2 Verify that 'decimal64FromMultiWidthEncodingIfValid' returns
-        //:   non-zero value if the specified buffer size is not a valid size
-        //:   of a decimal value encoded in the *multi-width encoding* format.
-        //:   (C-2)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-3)
+        // 1. Using the table-driven technique, specify a set of decimal
+        //    values, and their encoded values. Ensure that the set contains
+        //    boundary values in all supported widths of the decoder. Use
+        //    `decimal64FromMultiWidthEncoding`,
+        //    `decimal64FromMultiWidthEncodingIfValid` and
+        //    `decimal64FromMultiWidthEncodingRaw` to decode the encoded
+        //    values. Verify that the decoded decimal values matches the
+        //    original values.  (C-1)
+        //
+        // 2. Verify that `decimal64FromMultiWidthEncodingIfValid` returns
+        //    non-zero value if the specified buffer size is not a valid size
+        //    of a decimal value encoded in the *multi-width encoding* format.
+        //    (C-2)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-3)
         //
         // Testing:
         //   Decimal64 decimal64FromMultiWidthEncoding(cuc*, size_type);
@@ -8559,7 +8561,7 @@ int main(int argc, char* argv[])
                 cout << endl;
             }
 
-            // Test 'decimal64FromMultiWidthEncoding'.
+            // Test `decimal64FromMultiWidthEncoding`.
             {
                 Decimal64 actualDecodedValue =
                     Util::decimal64FromMultiWidthEncoding(
@@ -8579,7 +8581,7 @@ int main(int argc, char* argv[])
                 }
             }
 
-            // Test 'decimal64FromMultiWidthEncodingIfValid'.
+            // Test `decimal64FromMultiWidthEncodingIfValid`.
             {
                 Decimal64 actualDecodedValue;
                 int RESULT = Util::decimal64FromMultiWidthEncodingIfValid(
@@ -8601,7 +8603,7 @@ int main(int argc, char* argv[])
                 }
             }
 
-            // Test 'decimal64FromMultiWidthEncodingRaw'.
+            // Test `decimal64FromMultiWidthEncodingRaw`.
             if (!useFullEncodingFlag) {
                 Decimal64 actualDecodedValue =
                     Util::decimal64FromMultiWidthEncodingRaw(
@@ -8720,39 +8722,39 @@ int main(int argc, char* argv[])
         // MULTI-WIDTH ENCODE
         //
         // Concerns:
-        //: 1 'decimal64ToMultiWidthEncoding' and
-        //:   'decimal64ToMultiWidthEncodingRaw' correctly encode values in the
-        //:   supported formats.
-        //:
-        //: 2 Values are always encoded in the smallest supported
-        //:   format. E.g. a values that fits in both 2 byte and 3 byte
-        //:   encodings will be encoded using the 2 byte encoding.
-        //:
-        //: 3 'decimal64ToMultiWidthEncoding' and
-        //:   'decimal64ToMultiWidthEncodingRaw' do not overwrite any memory
-        //:   outside of the range that it is supposed to.
-        //:
-        //: 4 Any value encoded using 'decimal64ToMultiWidthEncoding' can be
-        //:   decoded using the function 'decimal64FromMultiWidthEncoding'.
-        //:
-        //: 5 Any value encoded using 'decimal64ToMultiWidthEncodingRaw' can be
-        //:   decoded using the function 'decimal64FromMultiWidthEncodingRaw'.
-        //:
-        //: 6 'decimal64ToMultiWidthEncodingRaw' returns 0 if the value to
-        //:   encode requires the full IEEE format.
+        // 1. `decimal64ToMultiWidthEncoding` and
+        //    `decimal64ToMultiWidthEncodingRaw` correctly encode values in the
+        //    supported formats.
+        //
+        // 2. Values are always encoded in the smallest supported
+        //    format. E.g. a values that fits in both 2 byte and 3 byte
+        //    encodings will be encoded using the 2 byte encoding.
+        //
+        // 3. `decimal64ToMultiWidthEncoding` and
+        //    `decimal64ToMultiWidthEncodingRaw` do not overwrite any memory
+        //    outside of the range that it is supposed to.
+        //
+        // 4. Any value encoded using `decimal64ToMultiWidthEncoding` can be
+        //    decoded using the function `decimal64FromMultiWidthEncoding`.
+        //
+        // 5. Any value encoded using `decimal64ToMultiWidthEncodingRaw` can be
+        //    decoded using the function `decimal64FromMultiWidthEncodingRaw`.
+        //
+        // 6. `decimal64ToMultiWidthEncodingRaw` returns 0 if the value to
+        //    encode requires the full IEEE format.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of decimal
-        //:   values, and their expected encoded values when using the
-        //:   multi-width encoding format.  Ensure that the set of values
-        //:   include boundary values in all supported widths of the
-        //:   encoder. Use 'decimal64ToMultiWidthEncoding' and
-        //:   'decimal64ToMultiWidthEncodingRaw' to encode each decimal value
-        //:   in the set. Verify that the encoded values matches the expected
-        //:   values.  Additional, verify the encoded values can be decoded
-        //:   back to the original decimal values using
-        //:   'decimal64FromMultiWidthEncoding' and
-        //:   'decimal64FromMultiWidthEncodingRaw'.  (C-1..6)
+        // 1. Using the table-driven technique, specify a set of decimal
+        //    values, and their expected encoded values when using the
+        //    multi-width encoding format.  Ensure that the set of values
+        //    include boundary values in all supported widths of the
+        //    encoder. Use `decimal64ToMultiWidthEncoding` and
+        //    `decimal64ToMultiWidthEncodingRaw` to encode each decimal value
+        //    in the set. Verify that the encoded values matches the expected
+        //    values.  Additional, verify the encoded values can be decoded
+        //    back to the original decimal values using
+        //    `decimal64FromMultiWidthEncoding` and
+        //    `decimal64FromMultiWidthEncodingRaw`.  (C-1..6)
         //
         // Testing:
         //   size_type decimal64ToMultiWidthEncoding(uc*, Decimal64);
@@ -8858,7 +8860,7 @@ int main(int argc, char* argv[])
                 cout << endl;
             }
 
-            // Test 'decimal64ToMultiWidthEncoding'.
+            // Test `decimal64ToMultiWidthEncoding`.
 
             {
                 unsigned char actualEncodedBufferOrig[16] = {
@@ -8923,7 +8925,7 @@ int main(int argc, char* argv[])
                 }
             }
 
-            // Test 'decimal64ToMultiWidthEncodingRaw'.
+            // Test `decimal64ToMultiWidthEncodingRaw`.
 
             if (useFullEncodingFlag) {
                 unsigned char          buffer[16];
@@ -9001,10 +9003,10 @@ int main(int argc, char* argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 Forwarding to the right routines
+        // 1. Forwarding to the right routines
         //
         // Plan:
-        //: 1 Try all operations see if basics work
+        // 1. Try all operations see if basics work
         //
         // Testing:
         //   BREATHING TEST
@@ -9761,24 +9763,24 @@ int main(int argc, char* argv[])
         // DECIMAL ORIGIN CONVERSION TEST
         //
         // Concerns:
-        //: 1 Short decimal strings round-trip correctly.
+        // 1. Short decimal strings round-trip correctly.
         //
         // Plan:
-        //: 1 For each digit string of the form -/+NNNNNNNNeE, -9 <= E <= 0,
-        //:   use 'strtod' to convert it to 'double', convert the result to
-        //:   'Decimal64', then convert that back to 'double', and verify that
-        //:   the two 'double' values are identical.
-        //:
-        //: 2 For each digit string of the form -/+NNNNNNeE, -9 <= E <= 4,
-        //:   use 'sscanf' to convert it to 'float', convert the result to
-        //:   'Decimal64', then convert that back to 'float', and verify that
-        //:   the two 'float' values are identical.  (The exponent range is
-        //:   somewhat arbitrary; it overlaps the optimized range on both
-        //:   ends.)
-        //:
-        //: 3 Additionally, directly parse the digit strings to decimal values
-        //:   and verify that these values too match the values converted from
-        //:   binary.
+        // 1. For each digit string of the form -/+NNNNNNNNeE, -9 <= E <= 0,
+        //    use `strtod` to convert it to `double`, convert the result to
+        //    `Decimal64`, then convert that back to `double`, and verify that
+        //    the two `double` values are identical.
+        //
+        // 2. For each digit string of the form -/+NNNNNNeE, -9 <= E <= 4,
+        //    use `sscanf` to convert it to `float`, convert the result to
+        //    `Decimal64`, then convert that back to `float`, and verify that
+        //    the two `float` values are identical.  (The exponent range is
+        //    somewhat arbitrary; it overlaps the optimized range on both
+        //    ends.)
+        //
+        // 3. Additionally, directly parse the digit strings to decimal values
+        //    and verify that these values too match the values converted from
+        //    binary.
         //
         // Testing:
         //   CONVERSION TEST
@@ -9868,13 +9870,13 @@ int main(int argc, char* argv[])
         // ROUND TRIP CONVERSION TEST
         //
         // Concerns:
-        //: 1 Decimal string round-trips correctly.
+        // 1. Decimal string round-trips correctly.
         //
         // Plan:
-        //: 1 For each command-line argument, use 'strtod' to convert it to
-        //:   'double', convert the result to 'Decimal64', then convert that
-        //:   back to 'double', and verify that the two 'double' values are
-        //:   identical.
+        // 1. For each command-line argument, use `strtod` to convert it to
+        //    `double`, convert the result to `Decimal64`, then convert that
+        //    back to `double`, and verify that the two `double` values are
+        //    identical.
         //
         // Testing:
         //   ROUND TRIP CONVERSION TEST
@@ -9907,12 +9909,12 @@ int main(int argc, char* argv[])
         // BUSINESS FLOAT CONVERSION TEST
         //
         // Concerns:
-        //: 1 Floats built from 7 significant digits with the decimal point
-        //:   anywhere within (including before and after) round-trip.
+        // 1. Floats built from 7 significant digits with the decimal point
+        //    anywhere within (including before and after) round-trip.
         //
         // Plan:
-        //: 1 Iterate through all such numbers and verify that they convert to
-        //:   Decimal64 and back unchanged.
+        // 1. Iterate through all such numbers and verify that they convert to
+        //    Decimal64 and back unchanged.
         //
         // Testing:
         //  BUSINESS FLOAT CONVERSION TEST

@@ -36,22 +36,22 @@ using namespace bslalg;
 //
 // The attribute getters and setters are the primary manipulators and basic
 // accessors of this class and follows our standard attribute-type naming
-// conventions: 'setAttributeName' and 'attributeName'.
+// conventions: `setAttributeName` and `attributeName`.
 //
 // Primary Manipulators:
-//: o 'setFirstNode'
-//: o 'setRootNode'
-//: o 'setNumNodes'
+//  - `setFirstNode`
+//  - `setRootNode`
+//  - `setNumNodes`
 //
 // Basic Accessors:
-//: o 'firstNode'
-//: o 'rootNode'
-//: o 'numNodes'
-//: o 'sentinel'
+//  - `firstNode`
+//  - `rootNode`
+//  - `numNodes`
+//  - `sentinel`
 //
 // This particular attribute class also provides a value constructor capable of
 // creating an object in any state relevant for thorough testing, obviating the
-// primitive generator function, 'gg', normally used for this purpose.  In
+// primitive generator function, `gg`, normally used for this purpose.  In
 // addition, the standard tests cases associated with equality-comparison,
 // copy-construction, copy-assignment, and bdex-externalization are not
 // included because these operations are not implemented by this class.  We
@@ -62,7 +62,7 @@ using namespace bslalg;
 // of the generator function in case 3.
 //
 // Global Concerns:
-//: o No memory is ever allocated.
+//  - No memory is ever allocated.
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] RbTreeAnchor();
@@ -181,14 +181,15 @@ typedef RbTreeAnchor Obj;
 ///Example 1: Creating a Simple Tree
 ///- - - - - - - - - - - - - - - - -
 // This example demonstrates creating a simple tree of integer values using
-// 'RbTreeAnchor'.  Note that, in practice, clients should use associated
-// utilities to manage such a tree (see 'bslalg_rbtreeprimitives').
+// `RbTreeAnchor`.  Note that, in practice, clients should use associated
+// utilities to manage such a tree (see `bslalg_rbtreeprimitives`).
 //
-// First, we define a node-type, 'IntTreeNode', that inherits from
-//'RbTreeNode':
-//..
+// First, we define a node-type, `IntTreeNode`, that inherits from
+//`RbTreeNode`:
+// ```
+
+    /// A red-black tree node containing an integer data-value.
     struct IntTreeNode : public RbTreeNode {
-        // A red-black tree node containing an integer data-value.
 
         int d_value;  // "payload" value represented by the node
     };
@@ -197,14 +198,15 @@ typedef RbTreeAnchor Obj;
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates creating a function that inserts elements into a
 // binary search tree.  Note that, for simplicity, this function does *not*
-// create a balanced red-black tree (see 'bslalg_rbtreeutil').
+// create a balanced red-black tree (see `bslalg_rbtreeutil`).
 //
-// First, we define a comparison functor for 'IntTreeNode' objects used by the
+// First, we define a comparison functor for `IntTreeNode` objects used by the
 // insertion function:
-//..
+// ```
+
+/// This class defines a comparator providing a comparison operation
+/// between two `IntTreeNode` objects.
 struct IntTreeNodeComparator {
-    // This class defines a comparator providing a comparison operation
-    // between two 'IntTreeNode' objects.
 
     bool operator()(const RbTreeNode& lhs, const RbTreeNode& rhs)  const
     {
@@ -212,30 +214,31 @@ struct IntTreeNodeComparator {
                static_cast<const IntTreeNode&>(rhs).d_value;
     }
 };
-//..
-// Then, we declare the signature of a function 'insertNode', which takes
+// ```
+// Then, we declare the signature of a function `insertNode`, which takes
 // three arguments: (1) the anchor of the tree in which to insert the node (2)
 // the new node to insert into the tree, and (3) a comparator, which is used
 // to compare the payload values of the tree nodes.  Note that the
 // parameterized comparator is needed because a node's value is not accessible
-// through the supplied 'RbTreeNode'.
-//..
+// through the supplied `RbTreeNode`.
+// ```
+
+    /// Insert into the specified `searchTree`, ordered according to the
+    /// specified `comparator`, the specified `newNode`.  If there are
+    /// multiple nodes having the same value as `newNode`, insert `newNode`
+    /// in the last position according to an infix traversal of the tree.
+    /// The behavior is undefined unless the `comparator` provides a
+    /// strict-weak ordering on the nodes in the tree.
     template <class NODE_COMPARATOR>
     void insertNode(RbTreeAnchor           *searchTree,
                     RbTreeNode             *newNode,
                     const NODE_COMPARATOR&  comparator)
-        // Insert into the specified 'searchTree', ordered according to the
-        // specified 'comparator', the specified 'newNode'.  If there are
-        // multiple nodes having the same value as 'newNode', insert 'newNode'
-        // in the last position according to an infix traversal of the tree.
-        // The behavior is undefined unless the 'comparator' provides a
-        // strict-weak ordering on the nodes in the tree.
     {
-//..
-// Next, we find the location where 'newNode' can be inserted into 'searchTree'
-// without violating the ordering imposed by 'comparator', and then updates
-// 'searchTree' with a potentially updated root node and first node.
-//..
+// ```
+// Next, we find the location where `newNode` can be inserted into `searchTree`
+// without violating the ordering imposed by `comparator`, and then updates
+// `searchTree` with a potentially updated root node and first node.
+// ```
         RbTreeNode *parent = searchTree->sentinel();
         RbTreeNode *node   = searchTree->rootNode();
         bool        isLeftChild;
@@ -244,17 +247,17 @@ struct IntTreeNodeComparator {
         newNode->setRightChild(0);
 
         if (!node) {
-//..
-// If the root node of 'searchTree' is 0, we use the 'reset' function set the
-// root node and the first node of 'searchTree' to 'newNode' and set the number
+// ```
+// If the root node of `searchTree` is 0, we use the `reset` function set the
+// root node and the first node of `searchTree` to `newNode` and set the number
 // of nodes to 1:
-//..
+// ```
             searchTree->reset(newNode, newNode, 1);
             newNode->setParent(parent);
             return;                                                   // RETURN
         }
 
-        // Find the leaf node that would be a valid parent of 'newNode'.
+        // Find the leaf node that would be a valid parent of `newNode`.
 
         do {
             parent = node;
@@ -267,14 +270,14 @@ struct IntTreeNodeComparator {
             }
         } while (node);
 
-        // Insert 'newNode' into 'searchTree' and the location that's been
+        // Insert `newNode` into `searchTree` and the location that's been
         // found.
-//..
-// Then, we insert 'newNode' into the appropriate position by setting it as a
-// child of 'parent':
-//..
+// ```
+// Then, we insert `newNode` into the appropriate position by setting it as a
+// child of `parent`:
+// ```
         if (isLeftChild) {
-            // If 'newNode' is a left-child, it may be the new first node, but
+            // If `newNode` is a left-child, it may be the new first node, but
             // cannot be the new last node.
 
             parent->setLeftChild(newNode);
@@ -287,13 +290,13 @@ struct IntTreeNodeComparator {
             parent->setRightChild(newNode);
             newNode->setParent(parent);
         }
-//..
+// ```
 // Next, we complete the insert function by incrementing the number of nodes in
 // the tree:
-//..
+// ```
         searchTree->incrementNumNodes();
     }
-//..
+// ```
 
 //=============================================================================
 //                                 MAIN PROGRAM
@@ -331,12 +334,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into driver, remove leading
-        //:   comment characters, and replace 'assert' with 'ASSERT'.  (C-1)
+        // 1. Incorporate usage example from header into driver, remove leading
+        //    comment characters, and replace `assert` with `ASSERT`.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -346,33 +349,33 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-// Then, we define 'main' for our test, and create three nodes that we'll use
+// Then, we define `main` for our test, and create three nodes that we'll use
 // to construct a tree:
-//..
+// ```
 //    int main(int argc, const char *argv[])
         {
             IntTreeNode A, B, C;
-//..
-// Next, we create an 'RbTreeAnchor', 'myTree', which will hold the addresses
+// ```
+// Next, we create an `RbTreeAnchor`, `myTree`, which will hold the addresses
 // of the root node and the first node of our tree along with a count of nodes,
 // and then verify the attribute values of the default constructed object:
-//..
+// ```
             RbTreeAnchor myTree;
             ASSERT(0                 == myTree.rootNode());
             ASSERT(myTree.sentinel() == myTree.firstNode());
             ASSERT(0                 == myTree.numNodes());
-//..
+// ```
 // Next, we describe the structure of the tree we wish to construct.
-//..
+// ```
 //
 //          A (value: 2, BLACK)
 //              /       \.
 //             /         \.
 //  B (value: 1, RED)   C ( value: 5, RED )
-//..
-// Next, we set the properties for the nodes 'A', 'B', and 'C' to form a valid
+// ```
+// Next, we set the properties for the nodes `A`, `B`, and `C` to form a valid
 // tree whose structure matches that description:
-//..
+// ```
             A.d_value = 2;
             A.makeBlack();
             A.setParent(myTree.sentinel());
@@ -390,24 +393,24 @@ int main(int argc, char *argv[])
             C.setParent(&A);
             C.setLeftChild(0);
             C.setRightChild(0);
-//..
-// Now, we assign the address of 'A' and 'B' as the root node and the first
-// node of 'myTree' respectively and set the number of nodes to 3:
-//..
+// ```
+// Now, we assign the address of `A` and `B` as the root node and the first
+// node of `myTree` respectively and set the number of nodes to 3:
+// ```
             myTree.reset(&A, &B, 3);
-//..
-// Finally, we verify the attributes of 'myTree':
-//..
+// ```
+// Finally, we verify the attributes of `myTree`:
+// ```
             ASSERT(&A == myTree.rootNode());
             ASSERT(&B == myTree.firstNode());
             ASSERT(3  == myTree.numNodes());
-//..
+// ```
         }
         {
-//..
-// Now, we create 5 'IntTreeNode' objects and insert them into a tree using the
-// 'insertNode' function.
-//..
+// ```
+// Now, we create 5 `IntTreeNode` objects and insert them into a tree using the
+// `insertNode` function.
+// ```
             IntTreeNode nodes[5];
 
             nodes[0].d_value = 3;
@@ -422,36 +425,36 @@ int main(int argc, char *argv[])
             for (int i = 0; i < 5; ++i) {
                 insertNode(&anchor, nodes + i, comparator);
             }
-//..
-// Finally, we verify that the 'RbTreeAnchor' refers to the correct 'TreeNode'
-// with its 'firstNode' and 'rootNode' attributes.
-//..
+// ```
+// Finally, we verify that the `RbTreeAnchor` refers to the correct `TreeNode`
+// with its `firstNode` and `rootNode` attributes.
+// ```
             ASSERT(
                 0 == static_cast<IntTreeNode *>(anchor.firstNode())->d_value);
             ASSERT(
                 3 == static_cast<IntTreeNode *>(anchor.rootNode())->d_value);
         }
-//..
+// ```
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // MANIPULATORS 'incrementNumNodes' & 'decrementNumNodes'
-        //   Ensure that 'incrementNumNodes' and 'decrementNumNodes' behave
+        // MANIPULATORS `incrementNumNodes` & `decrementNumNodes`
+        //   Ensure that `incrementNumNodes` and `decrementNumNodes` behave
         //   according to their contracts.
         //
         // Concerns:
-        //:  1 Calling 'incrementNumNodes' increases 'numNodes' by 1.
-        //:
-        //:  2 Calling 'decrementNumNodes' decreases 'numNodes' by 1.
+        //  1. Calling `incrementNumNodes` increases `numNodes` by 1.
+        //
+        //  2. Calling `decrementNumNodes` decreases `numNodes` by 1.
         //
         // Plan:
-        //:  1 Default construct an object and verify that 'numNodes' is 0.
-        //:
-        //:  2 Call 'incrementNumNodes' a few times and verify that 'numNodes'
-        //:    is correct.  (C-1)
-        //:
-        //:  3 Call 'decrementNumNodes' a few times and verify that 'numNodes'
-        //:    is correct.  (C-2)
+        //  1. Default construct an object and verify that `numNodes` is 0.
+        //
+        //  2. Call `incrementNumNodes` a few times and verify that `numNodes`
+        //     is correct.  (C-1)
+        //
+        //  3. Call `decrementNumNodes` a few times and verify that `numNodes`
+        //     is correct.  (C-2)
         //
         // Testing:
         //   void incrementNumNodes();
@@ -459,7 +462,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                 "\nMANIPULATORS 'incrementNumNodes' & 'decrementNumNodes'"
+                 "\nMANIPULATORS `incrementNumNodes` & `decrementNumNodes`"
                  "\n======================================================\n");
 
         Obj mX; const Obj& X = mX;
@@ -485,37 +488,37 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // ACCESSOR 'sentinel'
+        // ACCESSOR `sentinel`
         //   Ensure that invariant of the sentinel node always hold.
         //
         // Concerns:
-        //:  1 'leftChild' of the node returned by the 'sentinel' member
-        //:    function refers to the same 'RbTreeNode' as 'rootNode'.
-        //:
-        //:  2 'rightChild' of the node returned by the 'sentinel' member
-        //:    function refers to the same 'RbTreeNode' as 'firstNode'.
-        //:
-        //:  3 Two function overloads exist for the 'sentinel' member
-        //:    function: a 'const' function returning a non-modifiable
-        //:    reference, and a non-'const' function returning a modifiable
-        //:    reference.
+        //  1. `leftChild` of the node returned by the `sentinel` member
+        //     function refers to the same `RbTreeNode` as `rootNode`.
+        //
+        //  2. `rightChild` of the node returned by the `sentinel` member
+        //     function refers to the same `RbTreeNode` as `firstNode`.
+        //
+        //  3. Two function overloads exist for the `sentinel` member
+        //     function: a `const` function returning a non-modifiable
+        //     reference, and a non-`const` function returning a modifiable
+        //     reference.
         //
         // Plan:
-        //:  1 Default construct an object and verify that C-1 and C-2 holds
-        //:    with both the 'const' and the non-'const' 'sentinel' member
-        //:    function.  (C-1..3)
-        //:
-        //:  2 Change the 'rootNode' attribute using the attribute setter,
-        //:    verify that C-1 and C-2 still holds.  (C-1..3)
-        //:
-        //:  3 Change the 'firstNode' attribute using the attribute setter,
-        //:    verify that C-1 and C-2 still holds.  (C-1..3)
+        //  1. Default construct an object and verify that C-1 and C-2 holds
+        //     with both the `const` and the non-`const` `sentinel` member
+        //     function.  (C-1..3)
+        //
+        //  2. Change the `rootNode` attribute using the attribute setter,
+        //     verify that C-1 and C-2 still holds.  (C-1..3)
+        //
+        //  3. Change the `firstNode` attribute using the attribute setter,
+        //     verify that C-1 and C-2 still holds.  (C-1..3)
         //
         // Testing:
         //   const RbTreeNode *sentinel() const;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nACCESSOR 'sentinel'"
+        if (verbose) printf("\nACCESSOR `sentinel`"
                             "\n===================\n");
 
         Obj mX; const Obj& X = mX;
@@ -559,29 +562,29 @@ int main(int argc, char *argv[])
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
-        //:  1 Each accessor returns the value of the corresponding attribute
-        //:    of the object.
-        //:
-        //:  2 Two function overloads exist for each accessor returning a
-        //:    pointer to 'RbTreeNode': a 'const' function returning a
-        //:    non-modifiable reference, and a non-'const' function returning
-        //:    a modifiable reference.
+        //  1. Each accessor returns the value of the corresponding attribute
+        //     of the object.
+        //
+        //  2. Two function overloads exist for each accessor returning a
+        //     pointer to `RbTreeNode`: a `const` function returning a
+        //     non-modifiable reference, and a non-`const` function returning
+        //     a modifiable reference.
         //
         // Plan:
-        //: 1 Use the default constructor, create an object having default
-        //:   attribute values.
-        //:
-        //: 2 Verify that each basic accessor, invoked on either a reference
-        //:   providing non-modifiable access or a reference providing
-        //:   modifiable access to the object created in P1, returns the
-        //:   expected value.  (C-2)
-        //:
-        //: 3 For each salient attribute (contributing to value):  (C-1)
-        //:   1 Use the corresponding primary manipulator to set the attribute
-        //:     to a unique value.
-        //:
-        //:   2 Use the corresponding basic accessor to verify the new
-        //:     expected value.  (C-1)
+        // 1. Use the default constructor, create an object having default
+        //    attribute values.
+        //
+        // 2. Verify that each basic accessor, invoked on either a reference
+        //    providing non-modifiable access or a reference providing
+        //    modifiable access to the object created in P1, returns the
+        //    expected value.  (C-2)
+        //
+        // 3. For each salient attribute (contributing to value):  (C-1)
+        //   1. Use the corresponding primary manipulator to set the attribute
+        //      to a unique value.
+        //
+        //   2. Use the corresponding basic accessor to verify the new
+        //      expected value.  (C-1)
         //
         // Testing:
         //   RbTreeNode *firstNode();
@@ -596,13 +599,13 @@ int main(int argc, char *argv[])
 
         RbTreeNode n1, n2;
 
-        // 'D' values: These are the default-constructed values.
+        // `D` values: These are the default-constructed values.
 
         RbTreeNode       *mD1 = 0;
         const RbTreeNode *D1  = mD1;
         const int         D3  = 0;
 
-        // 'A' values
+        // `A` values
 
         RbTreeNode       *mA1 = &n1;
         RbTreeNode       *mA2 = &n2;
@@ -661,51 +664,51 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // VALUE CONSTRUCTOR & MANIPULATOR 'reset'
+        // VALUE CONSTRUCTOR & MANIPULATOR `reset`
         //   Ensure that we can put an object into any initial state relevant
         //   for thorough testing by either constructing the object with the
         //   value constructor or default constructing the object and changing
-        //   its state using the 'reset' member function.
+        //   its state using the `reset` member function.
         //
         // Concerns:
-        //: 1 The value constructor can create an object having any value that
-        //:   does not violate the documented constraints.
-        //:
-        //: 2 The 'reset' member function can change an object to have any
-        //:   value that does not violate the documented constraints.
-        //:
-        //: 3 'numNodes' can be const.
+        // 1. The value constructor can create an object having any value that
+        //    does not violate the documented constraints.
+        //
+        // 2. The `reset` member function can change an object to have any
+        //    value that does not violate the documented constraints.
+        //
+        // 3. `numNodes` can be const.
         //
         // Plan:
         //
-        //: 1 Using the table-driven technique, specify a set of (unique)
-        //:   valid object values (one per row) in terms of their individual
-        //:   attributes, including (a) first, the default value, and (b)
-        //:   boundary values corresponding to every range of values that each
-        //:   individual attribute can independently attain.  Note that the
-        //:   default attributes have the same values as a default constructed
-        //:   object, except for the 'rootNode' attribute, which is set to '0'
-        //:   instead of the address of the sentinel node in a default
-        //:   constructed object.
-        //:
-        //: 2 For each row (representing a distinct object value, 'V') in the
-        //:   table described in P-1:
-        //:
-        //:   1 Use the value constructor to dynamically create an object 'w'
-        //:     having the value 'V', supplying all the arguments as 'const'.
-        //:     (C-3).
-        //:
-        //:   2 Use the (as yet unproven) salient attribute accessors to
-        //:     verify that all of the attributes of the object 'w' have their
-        //:     expected values.  (C-1)
-        //:
-        //:   3 Use the default constructor to create another object
-        //:     'x'.  Then, call 'reset' on that object, supplying 'numNodes'
-        //:     as 'const'.  (C-3).
-        //:
-        //:   4 Use the (as yet unproven) salient attribute accessors to
-        //:     verify that all of the attributes of the object 'x' have their
-        //:     expected values.  (C-2)
+        // 1. Using the table-driven technique, specify a set of (unique)
+        //    valid object values (one per row) in terms of their individual
+        //    attributes, including (a) first, the default value, and (b)
+        //    boundary values corresponding to every range of values that each
+        //    individual attribute can independently attain.  Note that the
+        //    default attributes have the same values as a default constructed
+        //    object, except for the `rootNode` attribute, which is set to `0`
+        //    instead of the address of the sentinel node in a default
+        //    constructed object.
+        //
+        // 2. For each row (representing a distinct object value, `V`) in the
+        //    table described in P-1:
+        //
+        //   1. Use the value constructor to dynamically create an object `w`
+        //      having the value `V`, supplying all the arguments as `const`.
+        //      (C-3).
+        //
+        //   2. Use the (as yet unproven) salient attribute accessors to
+        //      verify that all of the attributes of the object `w` have their
+        //      expected values.  (C-1)
+        //
+        //   3. Use the default constructor to create another object
+        //      `x`.  Then, call `reset` on that object, supplying `numNodes`
+        //      as `const`.  (C-3).
+        //
+        //   4. Use the (as yet unproven) salient attribute accessors to
+        //      verify that all of the attributes of the object `x` have their
+        //      expected values.  (C-2)
         //
         //
         // Testing:
@@ -714,7 +717,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
 
-        if (verbose) printf("\nVALUE CONSTRUCTOR & MANIPULATOR 'reset'"
+        if (verbose) printf("\nVALUE CONSTRUCTOR & MANIPULATOR `reset`"
                             "\n=======================================\n");
 
         static RbTreeNode n1, n2, n3, n4;
@@ -731,15 +734,15 @@ int main(int argc, char *argv[])
             // default
             { L_,      0,     0,       0 },
 
-            // 'rootNode'
+            // `rootNode`
             { L_,    &n1,     0,       0 },
             { L_,    &n2,     0,       0 },
 
-            // 'firstNode'
+            // `firstNode`
             { L_,      0,   &n3,       0 },
             { L_,      0,   &n4,       0 },
 
-            // 'numNodes'
+            // `numNodes`
             { L_,      0,     0,      10 },
             { L_,      0,     0, INT_MAX },
         };
@@ -779,39 +782,39 @@ int main(int argc, char *argv[])
         //   for thorough testing.
         //
         // Concerns:
-        //: 1 An object created with the default constructor has the
-        //:   contractually specified default value.
-        //:
-        //: 2 Each attribute is modifiable independently.
-        //:
-        //: 3 The argument to 'setNumNodes' can be const.
-        //:
-        //: 4 Each attribute can be set to represent any value that does not
-        //:   violate that attribute's documented constraints.
+        // 1. An object created with the default constructor has the
+        //    contractually specified default value.
+        //
+        // 2. Each attribute is modifiable independently.
+        //
+        // 3. The argument to `setNumNodes` can be const.
+        //
+        // 4. Each attribute can be set to represent any value that does not
+        //    violate that attribute's documented constraints.
         //
         // Plan:
-        //: 1 Create three sets of attribute values for the object: ('D')
-        //:   values corresponding to the default-constructed object, ('A')
-        //:   and ('B') values corresponding to the boundary values where
-        //:   possible.
-        //:
-        //: 2 Default-construct an object and use the individual (as yet
-        //:   unproven) salient attribute accessors to verify the
-        //:   default-constructed value.  (C-1)
-        //:
-        //: 3 For each attribute 'i', in turn, create a local block.  Then
-        //:   inside the block, using brute force, set that attribute's value,
-        //:   passing a 'const' argument representing each of the three test
-        //:   values, in turn (see P-1), first to 'Ai', then to 'Bi', and
-        //:   finally back to 'Di'.  After each transition, use the (as yet
-        //:   unproven) basic accessors to verify that only the intended
-        //:   attribute value changed.  (C-3..4)
-        //:
-        //: 4 Corroborate that attributes are modifiable independently by
-        //:   first setting all of the attributes to their 'A' values.  Then
-        //:   incrementally set each attribute to it's corresponding  'B'
-        //:   value and verify after each manipulation that only that
-        //:   attribute's value changed.  (C-2)
+        // 1. Create three sets of attribute values for the object: (`D`)
+        //    values corresponding to the default-constructed object, (`A`)
+        //    and (`B`) values corresponding to the boundary values where
+        //    possible.
+        //
+        // 2. Default-construct an object and use the individual (as yet
+        //    unproven) salient attribute accessors to verify the
+        //    default-constructed value.  (C-1)
+        //
+        // 3. For each attribute `i`, in turn, create a local block.  Then
+        //    inside the block, using brute force, set that attribute's value,
+        //    passing a `const` argument representing each of the three test
+        //    values, in turn (see P-1), first to `Ai`, then to `Bi`, and
+        //    finally back to `Di`.  After each transition, use the (as yet
+        //    unproven) basic accessors to verify that only the intended
+        //    attribute value changed.  (C-3..4)
+        //
+        // 4. Corroborate that attributes are modifiable independently by
+        //    first setting all of the attributes to their `A` values.  Then
+        //    incrementally set each attribute to it's corresponding  `B`
+        //    value and verify after each manipulation that only that
+        //    attribute's value changed.  (C-2)
         //
         // Testing:
         //   RbTreeAnchor();
@@ -829,13 +832,13 @@ int main(int argc, char *argv[])
 
         RbTreeNode n1, n2, n3, n4;
 
-        // 'D' values: These are the default-constructed values.
+        // `D` values: These are the default-constructed values.
 
         RbTreeNode       *mD1 = 0;
         const RbTreeNode *D1  = mD1;
         const int         D3  = 0;
 
-        // 'A' values
+        // `A` values
 
         RbTreeNode       *mA1 = &n1;
         RbTreeNode       *mA2 = &n2;
@@ -843,7 +846,7 @@ int main(int argc, char *argv[])
         const RbTreeNode *A2  = mA2;
         const int         A3  = 10;
 
-        // 'B' values
+        // `B` values
 
         RbTreeNode       *mB1 = &n3;
         RbTreeNode       *mB2 = &n4;
@@ -860,7 +863,7 @@ int main(int argc, char *argv[])
         ASSERTV(D2, X.rootNode(), D2 == X.firstNode());
         ASSERTV(D3, X.rootNode(), D3 == X.numNodes());
 
-        // 'rootNode'
+        // `rootNode`
         {
             mX.setRootNode(mA1);
             ASSERTV(A1, X.rootNode(), A1 == X.rootNode());
@@ -878,7 +881,7 @@ int main(int argc, char *argv[])
             ASSERTV(D3, X.numNodes(), D3 == X.numNodes());
         }
 
-        // 'firstNode'
+        // `firstNode`
         {
             mX.setFirstNode(mA2);
             ASSERTV(D1, X.rootNode(), D1 == X.rootNode());
@@ -896,7 +899,7 @@ int main(int argc, char *argv[])
             ASSERTV(D3, X.numNodes(), D3 == X.numNodes());
         }
 
-        // 'numNodes'
+        // `numNodes`
         {
             mX.setNumNodes(A3);
             ASSERTV(D1, X.rootNode(), D1 == X.rootNode());
@@ -916,7 +919,7 @@ int main(int argc, char *argv[])
 
         // Corroborate attribute independence.
         {
-            // Set all attributes to their 'A' values.
+            // Set all attributes to their `A` values.
 
             mX.setRootNode(mA1);
             mX.setFirstNode(mA2);
@@ -926,7 +929,7 @@ int main(int argc, char *argv[])
             ASSERTV(A2, X.firstNode(), A2 == X.firstNode());
             ASSERTV(A3, X.numNodes(), A3 == X.numNodes());
 
-            // Set all attributes to their 'B' values.
+            // Set all attributes to their `B` values.
 
             mX.setRootNode(mB1);
             ASSERTV(B1, X.rootNode(), B1 == X.rootNode());
@@ -950,13 +953,13 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an object 'w' (default ctor).       { w:D     }
-        //: 2 Set 'w' to 'A' (value distinct from 'D').  { w:A     }
-        //: 3 Create an object 'x' (init. to 'A').       { w:A x:A }
+        // 1. Create an object `w` (default ctor).       { w:D     }
+        // 2. Set `w` to `A` (value distinct from `D`).  { w:A     }
+        // 3. Create an object `x` (init. to `A`).       { w:A x:A }
         //
         // Testing:
         //   BREATHING TEST
@@ -969,33 +972,33 @@ int main(int argc, char *argv[])
 
         // Attribute Types
 
-        typedef RbTreeNode* T1; // 'rootNode'
-        typedef RbTreeNode* T2; // 'firstNode'
-        typedef int         T3; // 'numNodes'
+        typedef RbTreeNode* T1; // `rootNode`
+        typedef RbTreeNode* T2; // `firstNode`
+        typedef int         T3; // `numNodes`
 
-        // Attribute 1 Values: 'rootNode'
+        // Attribute 1 Values: `rootNode`
 
         const T1 D1 = 0;
         const T1 A1 = &n1;
 
-        // Attribute 2 Values: 'firstNode'
+        // Attribute 2 Values: `firstNode`
 
         // D2 is the address of the sentinel node
         const T2 A2 = &n2;
 
-        // Attribute 3 Values: 'numNodes'
+        // Attribute 3 Values: `numNodes`
 
         const T3 D3 = 0;
         const T3 A3 = 2;
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) printf("\n 1. Create an object 'w' (default ctor)."
+        if (verbose) printf("\n 1. Create an object `w` (default ctor)."
                             "\t\t{ w:D     }\n");
 
         Obj mW;  const Obj& W = mW;
 
-        if (veryVerbose) printf("\ta. Check initial value of 'w'.\n");
+        if (veryVerbose) printf("\ta. Check initial value of `w`.\n");
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         const RbTreeNode* D2 = W.sentinel();
@@ -1006,14 +1009,14 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) printf("\n 2. Set 'w' to 'A' (value distinct from 'D')."
+        if (verbose) printf("\n 2. Set `w` to `A` (value distinct from `D`)."
                             "\t\t{ w:A     }\n");
 
         mW.setRootNode(A1);
         mW.setFirstNode(A2);
         mW.setNumNodes(A3);
 
-        if (veryVerbose) printf("\ta. Check initial value of 'w'.\n");
+        if (veryVerbose) printf("\ta. Check initial value of `w`.\n");
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         ASSERT(A1 == W.rootNode());
@@ -1022,12 +1025,12 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) printf("\n 1. Create an object 'x' (init. to 'A')."
+        if (verbose) printf("\n 1. Create an object `x` (init. to `A`)."
                             "\t\t{ w:A x:A }\n");
 
         Obj mX(A1, A2, A3);  const Obj& X = mX;
 
-        if (veryVerbose) printf("\ta. Check initial value of 'x'.\n");
+        if (veryVerbose) printf("\ta. Check initial value of `x`.\n");
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(A1 == X.rootNode());

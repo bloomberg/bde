@@ -112,28 +112,28 @@ void aSsErT(bool condition, const char *message, int line)
 // exhausitively use the comparison operator to see if a given value exists in
 // the list, forming a primitive set.
 //
-// First, we define our 'ListSet' template class:
+// First, we define our `ListSet` template class:
 
+/// This class implements a crude implementation of a set, that will keep a
+/// set of values and be able to determine if an element is a member of the
+/// set.  Unlike a `bsl::set` or `bsl::unordered_set`, no hash function or
+/// transitive `operator<` is required -- only a transitive `EQUALS`
+/// operator.
+///
+/// The `TYPE` template parameter must have a public copy constructor and
+/// destructor available.
+///
+/// The `EQUALS` template parameter must a function with a function whose
+/// signature is
+/// ```
+/// bool operator()(const TYPE& lhs, const TYPE& rhs) const;
+/// ```
+/// and that returns `true` if `lhs` and `rhs` are equivalent and `false`
+/// otherwise.  This equivalence relation must be transitive and symmetric.
+/// The comparator must have a publicly accessible default constructor and a
+/// publicly accessible destructor.
 template <class TYPE, class EQUALS = bsl::equal_to<TYPE> >
 class ListSet {
-    // This class implements a crude implementation of a set, that will keep a
-    // set of values and be able to determine if an element is a member of the
-    // set.  Unlike a 'bsl::set' or 'bsl::unordered_set', no hash function or
-    // transitive 'operator<' is required -- only a transitive 'EQUALS'
-    // operator.
-    //
-    // The 'TYPE' template parameter must have a public copy constructor and
-    // destructor available.
-    //
-    // The 'EQUALS' template parameter must a function with a function whose
-    // signature is
-    //..
-    //  bool operator()(const TYPE& lhs, const TYPE& rhs) const;
-    //..
-    // and that returns 'true' if 'lhs' and 'rhs' are equivalent and 'false'
-    // otherwise.  This equivalence relation must be transitive and symmetric.
-    // The comparator must have a publicly accessible default constructor and a
-    // publicly accessible destructor.
 
     // PRIVATE TYPES
     struct Node {
@@ -153,17 +153,18 @@ class ListSet {
 
   public:
     // CREATORS
+
+    /// Create an empty "ListSet' using the specified `allocator`, or the
+    /// default allocator if none is specified.
     explicit
     ListSet(bslma::Allocator *allocator = 0)
     : d_comparator()
     , d_nodeList(0)
     , d_allocator_p(bslma::Default::allocator(allocator))
-        // Create an empty "ListSet' using the specified 'allocator', or the
-        // default allocator if none is specified.
     {}
 
+    /// Release all memory used by this `ListSet`
     ~ListSet()
-        // Release all memory used by this 'ListSet'
     {
         for (Node *node = d_nodeList; node; ) {
             Node *toDelete = node;
@@ -174,10 +175,11 @@ class ListSet {
     }
 
     // MANIPULATOR
+
+    /// If the specified `value` isn't contained in this `ListSet`, add it
+    /// and return `true`, otherwise, return `false` with no change to the
+    /// `ListSet`.
     bool insert(const TYPE& value)
-        // If the specified 'value' isn't contained in this 'ListSet', add it
-        // and return 'true', otherwise, return 'false' with no change to the
-        // 'ListSet'.
     {
         if (count(value)) {
             return false;                                             // RETURN
@@ -193,9 +195,9 @@ class ListSet {
         return true;
     }
 
+    /// Return the number of nodes whose `d_value` field is equivalent to
+    /// the specified `value`, which will always be 0 or 1.
     int count(const TYPE& value) const
-        // Return the number of nodes whose 'd_value' field is equivalent to
-        // the specified 'value', which will always be 0 or 1.
     {
         for (Node *node = d_nodeList; node; node = node->d_next) {
             if (d_comparator(node->d_value, value)) {
@@ -210,53 +212,56 @@ class ListSet {
 ///Example 2: Using Our List Set For a Custom Type
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to have a list set containing objects of a custom type.  We
-// can declare an 'operator==' for our custom type, and 'equal_to' will use
-// that.  We will re-use the 'ListSet' template class from example 1, and
+// can declare an `operator==` for our custom type, and `equal_to` will use
+// that.  We will re-use the `ListSet` template class from example 1, and
 // create a new custom type.
 //
-// First, we define a type 'StringThing', which will contain a 'const char *'
+// First, we define a type `StringThing`, which will contain a `const char *`
 // pointer, it will be a very simple type, that is implicitly castable to or
-// from a 'const char *'.  It has no 'operator==' defined, so 'equal_to' will
+// from a `const char *`.  It has no `operator==` defined, so `equal_to` will
 // need to be explicitly specialized for it:
 
+/// This class holds a pointer to zero-terminated string.  It is implicitly
+/// convertible to and from a `const char *`.  The difference between this
+/// type and a `const char *` is that `operator==` will properly compare two
+/// objects of this type for equality of strings rather than equality of
+/// pointers.
 class StringThing {
-    // This class holds a pointer to zero-terminated string.  It is implicitly
-    // convertible to and from a 'const char *'.  The difference between this
-    // type and a 'const char *' is that 'operator==' will properly compare two
-    // objects of this type for equality of strings rather than equality of
-    // pointers.
 
     // DATA
     const char *d_string;    // held, not owned
 
   public:
     // CREATOR
+
+    /// Create a `StringThing` object out of the specified `string`.
     StringThing(const char *string)                                 // IMPLICIT
     : d_string(string)
-        // Create a 'StringThing' object out of the specified 'string'.
     {}
 
     // ACCESSOR
+
+    /// Implicitly cast this `StringThing` object to a `const char *` that
+    /// refers to the same buffer.
     operator const char *() const
-        // Implicitly cast this 'StringThing' object to a 'const char *' that
-        // refers to the same buffer.
     {
         return d_string;
     }
 };
 
-// Then, we create an 'operator==' for StringThings
+// Then, we create an `operator==` for StringThings
+
+/// Return `true` if the specified `rhs` contains a string that compares
+/// equal to the string contained by the specified `lhs`, and `false`
+/// otherwise.
 bool operator==(const StringThing& lhs, const StringThing& rhs)
-    // Return 'true' if the specified 'rhs' contains a string that compares
-    // equal to the string contained by the specified 'lhs', and 'false'
-    // otherwise.
     {
         return !strcmp(lhs, rhs);
     }
 
+/// Return `true` if the specified `rhs`, when converted to an int, is equal
+/// to the specified `lhs`, and `false` otherwise.
 bool operator==(int lhs, const StringThing& rhs)
-    // Return 'true' if the specified 'rhs', when converted to an int, is equal
-    // to the specified 'lhs', and 'false' otherwise.
 {
     return lhs == atoi(rhs);
 }
@@ -287,13 +292,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE 2
@@ -302,12 +307,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("USAGE EXAMPLE 2\n"
                             "===============\n");
 
-// Next, in 'main', we declare a 'ListSet' containing 'StringThing's:
+// Next, in `main`, we declare a `ListSet` containing `StringThing`s:
 
         ListSet<StringThing> lsst;
 
 // Then, we insert a number of values, and observe that redundant inserts
-// return 'false' with no effect:
+// return `false` with no effect:
 
         ASSERT(true  == lsst.insert("woof"));
         ASSERT(true  == lsst.insert("meow"));
@@ -317,8 +322,8 @@ int main(int argc, char *argv[])
         ASSERT(false == lsst.insert("meow"));
         ASSERT(false == lsst.insert("woof"));
 
-// Now, we observe that our 'count' method successfully distinguishes between
-// values that have been stored in 'lsst' and those that haven't:
+// Now, we observe that our `count` method successfully distinguishes between
+// values that have been stored in `lsst` and those that haven't:
 
         ASSERT(1 == lsst.count("meow"));
         ASSERT(0 == lsst.count("woo"));
@@ -327,7 +332,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == lsst.count("chomp"));
 
 // Finally, we copy values into a buffer and observe that this makes no
-// difference to 'count's results:
+// difference to `count`s results:
 
         char buffer[10];
         strcpy(buffer, "meow");
@@ -341,13 +346,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE 1
@@ -356,13 +361,13 @@ int main(int argc, char *argv[])
         if (verbose) printf("USAGE EXAMPLE 1\n"
                             "===============\n");
 
-// Then, in 'main', we declare an instance of 'ListSet' storing 'int's.  The
-// default definition of 'bsl::equal_to' will work nicely:
+// Then, in `main`, we declare an instance of `ListSet` storing `int`s.  The
+// default definition of `bsl::equal_to` will work nicely:
 
         ListSet<int> lsi;
 
-// Now, we insert several values into our 'ListSet'.  Note that successful
-// insertions return 'true' while redundant ones return 'false' with no effect:
+// Now, we insert several values into our `ListSet`.  Note that successful
+// insertions return `true` while redundant ones return `false` with no effect:
 
         ASSERT(true  == lsi.insert( 5));
         ASSERT(false == lsi.insert( 5));
@@ -373,8 +378,8 @@ int main(int argc, char *argv[])
         ASSERT(true  == lsi.insert(32));
         ASSERT(false == lsi.insert(17));
 
-// Finally, we observe that our 'count' method successfully distinguishes
-// between values that have been stored in our 'ListSet' and those that
+// Finally, we observe that our `count` method successfully distinguishes
+// between values that have been stored in our `ListSet` and those that
 // haven't:
 
         ASSERT(0 == lsi.count( 7));
@@ -390,11 +395,11 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 class equal_to<void> provides a templated operator() that returns
-        //:   'true' when the two operands compare equal and 'false' otherwise.
+        // 1. class equal_to<void> provides a templated operator() that returns
+        //    `true` when the two operands compare equal and `false` otherwise.
         //
         // Plan:
-        //: 1 Call the 'operator()' with a variety of types and values. (C-1)
+        // 1. Call the `operator()` with a variety of types and values. (C-1)
         //
         // Testing:
         //   equal_to<void>::operator()
@@ -425,24 +430,24 @@ int main(int argc, char *argv[])
         //   compilers that support it.
         //
         // Concerns:
-        //: 1 class 'equal_to' does not increase the size of an
-        //:   object when used as a base class.
+        // 1. class `equal_to` does not increase the size of an
+        //    object when used as a base class.
         //
         // Plan:
-        //: 1 Define a non-empty class with no padding, 'TwoInts'.
-        //:
-        //: 2 Assert that 'TwoInts has the expected size of 8 bytes.
-        //:
-        //: 3 Create a class, 'DerivedInts', with identical structure to
-        //:   'TwoInts' but derived from 'equal_to'.
-        //:
-        //: 4 Assert that both classes have the same size.
-        //:
-        //: 5 Create a class, 'IntsWithMember', with identical structure to
-        //:   'TwoInts' and an 'equal_to' additional data member.
-        //:
-        //: 6 Assert that 'IntsWithMember' is larger than the other two
-        //:   classes.
+        // 1. Define a non-empty class with no padding, `TwoInts`.
+        //
+        // 2. Assert that 'TwoInts has the expected size of 8 bytes.
+        //
+        // 3. Create a class, `DerivedInts`, with identical structure to
+        //    `TwoInts` but derived from `equal_to`.
+        //
+        // 4. Assert that both classes have the same size.
+        //
+        // 5. Create a class, `IntsWithMember`, with identical structure to
+        //    `TwoInts` and an `equal_to` additional data member.
+        //
+        // 6. Assert that `IntsWithMember` is larger than the other two
+        //    classes.
         //
         // Testing:
         //   QoI: Support for empty base optimization
@@ -481,13 +486,13 @@ int main(int argc, char *argv[])
         //   type traits to reflect this.
         //
         // Concerns:
-        //: 1 The class is bitwise copyable.
-        //: 2 The class is bitwise moveable.
-        //: 3 The class has the trivial default constructor trait.
+        // 1. The class is bitwise copyable.
+        // 2. The class is bitwise moveable.
+        // 3. The class has the trivial default constructor trait.
         //
         // Plan:
-        //: 1 ASSERT the presence of each trait using the 'bslalg::HasTrait'
-        //:   metafunction. (C-1..3)
+        // 1. ASSERT the presence of each trait using the `bslalg::HasTrait`
+        //    metafunction. (C-1..3)
         //
         // Testing:
         //   BDE Traits
@@ -517,18 +522,18 @@ int main(int argc, char *argv[])
         //   standard adaptable binary function.
         //
         // Concerns:
-        //: 1 The typedef 'first_argument_type' is publicly accessible and an
-        //:   alias for 'const char '.
-        //:
-        //: 2 The typedef 'second_argument_type' is publicly accessible and an
-        //:   alias for 'const char '.
-        //:
-        //: 3 The typedef 'result_type' is publicly accessible and an alias for
-        //:   'bool'.
+        // 1. The typedef `first_argument_type` is publicly accessible and an
+        //    alias for `const char `.
+        //
+        // 2. The typedef `second_argument_type` is publicly accessible and an
+        //    alias for `const char `.
+        //
+        // 3. The typedef `result_type` is publicly accessible and an alias for
+        //    `bool`.
         //
         // Plan:
-        //: 1 ASSERT each of the typedefs has accessibly aliases the correct
-        //:   type using 'bslmf::IsSame'. (C-1..3)
+        // 1. ASSERT each of the typedefs has accessibly aliases the correct
+        //    type using `bslmf::IsSame`. (C-1..3)
         //
         // Testing:
         //   typedef first_argument_type
@@ -555,21 +560,21 @@ int main(int argc, char *argv[])
         //   standard adaptable binary function, ().
         //
         // Concerns:
-        //: 1 Objects of type 'equal_to' can be invokes as a binary
-        //:   predicate returning 'bool' and taking two 'const char *'
-        //:   arguments.
-        //:
-        //: 2 The function call operator can be invoked on constant objects.
-        //:
-        //: 3 The function call returns 'true' or 'false' indicating whether
-        //:   the two supplied string arguments have the same string value.
-        //:
-        //: 4 No memory is allocated from the default or global allocators.
+        // 1. Objects of type `equal_to` can be invokes as a binary
+        //    predicate returning `bool` and taking two `const char *`
+        //    arguments.
+        //
+        // 2. The function call operator can be invoked on constant objects.
+        //
+        // 3. The function call returns `true` or `false` indicating whether
+        //    the two supplied string arguments have the same string value.
+        //
+        // 4. No memory is allocated from the default or global allocators.
         //
         // Plan:
-        //: 1
-        //: 2
-        //: 3
+        //  1
+        //  2
+        //  3
         //
         // Testing:
         //   operator()(const char*, const char *) const
@@ -634,38 +639,38 @@ int main(int argc, char *argv[])
         //   expected expressions all compile, and
         //
         // Concerns:
-        //: 1 Objects can be created using the default constructor.
-        //: 2 Objects can be created using the copy constructor.
-        //: 3 The copy constructor is not declared as explicit.
-        //: 4 Objects can be assigned to from constant objects.
-        //: 5 Assignments operations can be chained.
-        //: 6 Objects can be destroyed.
-        //: 7 No memory is allocated by the default and global allocators.
+        // 1. Objects can be created using the default constructor.
+        // 2. Objects can be created using the copy constructor.
+        // 3. The copy constructor is not declared as explicit.
+        // 4. Objects can be assigned to from constant objects.
+        // 5. Assignments operations can be chained.
+        // 6. Objects can be destroyed.
+        // 7. No memory is allocated by the default and global allocators.
         //
         // Plan:
-        //: 1 Install a test allocator as the default allocator.  Then install
-        //:   an 'AllocatorGuard' to verify no memory is allocated during the
-        //:   execution of this test case.  Memory from the global allocator is
-        //:   tested as a global concern. (C-7)
-        //:
-        //: 2 Verify the default constructor exists and is publicly accessible
-        //:   by default-constructing a 'const equal_to'
-        //:   object. (C-1)
-        //:
-        //: 3 Verify the copy constructor is publicly accessible and not
-        //:   'explicit' by using the copy-initialization syntax to create a
-        //:   second 'equal_to' from the first. (C-2,3)
-        //:
-        //: 4 Assign the value of the first ('const') object to the second.
-        //:   (C-4)
-        //:
-        //: 5 Chain the assignment of the value of the first ('const') object
-        //:   to the second, into a self-assignment of the second object to
-        //:   itself. (C-5)
-        //:
-        //: 6 Verify the destructor is publicly accessible by allowing the two
-        //:   'equal_to' object to leave scope and be
-        //:    destroyed. (C-6)
+        // 1. Install a test allocator as the default allocator.  Then install
+        //    an `AllocatorGuard` to verify no memory is allocated during the
+        //    execution of this test case.  Memory from the global allocator is
+        //    tested as a global concern. (C-7)
+        //
+        // 2. Verify the default constructor exists and is publicly accessible
+        //    by default-constructing a `const equal_to`
+        //    object. (C-1)
+        //
+        // 3. Verify the copy constructor is publicly accessible and not
+        //    `explicit` by using the copy-initialization syntax to create a
+        //    second `equal_to` from the first. (C-2,3)
+        //
+        // 4. Assign the value of the first (`const`) object to the second.
+        //    (C-4)
+        //
+        // 5. Chain the assignment of the value of the first (`const`) object
+        //    to the second, into a self-assignment of the second object to
+        //    itself. (C-5)
+        //
+        // 6. Verify the destructor is publicly accessible by allowing the two
+        //    `equal_to` object to leave scope and be
+        //     destroyed. (C-6)
         //
         // Testing:
         //   equal_to()
@@ -708,21 +713,21 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an object 'compare' using the default ctor.
-        //:
-        //: 2 Call the 'compare' functor with two 'char' literals in lexical
-        //:   order.
-        //:
-        //: 3 Call the 'compare' functor with two 'char' literals in reverse
-        //:   lexical order.
-        //:
-        //: 4 Call the 'compare' functor with two identical 'char' literals.
-        //:
-        //: 5 Repeat steps 1-4 for 'equal_to<const int>' using 'int' literals.
+        // 1. Create an object `compare` using the default ctor.
+        //
+        // 2. Call the `compare` functor with two `char` literals in lexical
+        //    order.
+        //
+        // 3. Call the `compare` functor with two `char` literals in reverse
+        //    lexical order.
+        //
+        // 4. Call the `compare` functor with two identical `char` literals.
+        //
+        // 5. Repeat steps 1-4 for `equal_to<const int>` using `int` literals.
         //
         // Testing:
         //   BREATHING TEST

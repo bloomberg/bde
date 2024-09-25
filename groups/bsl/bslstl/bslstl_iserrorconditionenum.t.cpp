@@ -16,7 +16,7 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // The component under test defines a type trait for use in marking an
-// enumeration type as eligible to participate in the '<system_error>' facility
+// enumeration type as eligible to participate in the `<system_error>` facility
 // and a macro designating the namespace in which that trait should be
 // specialized.
 //
@@ -84,18 +84,18 @@ enum MarkedIneligible { e_marked_ineligible = 3 };
 // BDE_VERIFY pragma: -NT01  // namespace comment depends on macro
 
 namespace BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE {
+/// Specialize trait to mark `Eligible` as an error condition.
 template <>
 struct is_error_condition_enum<ErrorValues::Eligible> : bsl::true_type
-    // Specialize trait to mark 'Eligible' as an error condition.
 {
 };
 
 template struct is_error_condition_enum<ErrorValues::Ineligible>;
-    // Use the default trait to see whether 'Ineligible' is an error condition.
+    // Use the default trait to see whether `Ineligible` is an error condition.
 
+/// Specialize trait to mark `MarkedIneligible` as not an error condition.
 template <>
 struct is_error_condition_enum<ErrorValues::MarkedIneligible> : bsl::false_type
-    // Specialize trait to mark 'MarkedIneligible' as not an error condition.
 {
 };
 }  // close namespace BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE
@@ -112,12 +112,12 @@ struct is_error_condition_enum<ErrorValues::MarkedIneligible> : bsl::false_type
 ///- - - - - - - - - - - - - - - - -
 // Suppose we have a dedicated system with a set of possible errors, and we
 // want to be able to throw descriptive exceptions when an error occurs.  We
-// need to work with the '<system_error>' facility to support this, starting by
+// need to work with the `<system_error>` facility to support this, starting by
 // marking the enumeration type that defines the error literals as eligible to
-// participate.  We can use 'bsl::is_error_condition_enum' to do this.
+// participate.  We can use `bsl::is_error_condition_enum` to do this.
 //
 // First, we define the set of error values for our system.
-//..
+// ```
     struct CarError {
         // TYPES
         enum Enum {
@@ -125,15 +125,15 @@ struct is_error_condition_enum<ErrorValues::MarkedIneligible> : bsl::false_type
             k_CAR_ENGINE_FELL_OUT = 2
         };
     };
-//..
+// ```
 // Then, we enable the trait marking this as an error condition.
-//..
+// ```
     namespace BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE {
     template <>
     struct is_error_condition_enum<CarError::Enum>
     : public bsl::true_type { };
     }  // close namespace BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE
-//..
+// ```
 
 // BDE_VERIFY pragma: +NT01  // namespace comment depends on macro
 
@@ -160,13 +160,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -176,37 +176,37 @@ int main(int argc, char *argv[])
                             "\n=============\n");
 
 // Finally, we verify that the trait marks our type as eligible.
-//..
+// ```
     ASSERT(is_error_condition_enum<CarError::Enum>::value);
-//..
+// ```
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'is_error_condition_enum<TYPE>'
+        // TESTING `is_error_condition_enum<TYPE>`
         //   Verify that the condition identification traits are set correctly.
         //
         // Concerns:
-        //: 1 A type marked as a code reports that it is.
-        //: 2 By default types do not report as codes.
-        //: 3 A type marked as not a code reports that it is not.
-        //: 4 Specializing in BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE works.
+        // 1. A type marked as a code reports that it is.
+        // 2. By default types do not report as codes.
+        // 3. A type marked as not a code reports that it is not.
+        // 4. Specializing in BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE works.
         //
         // Plan:
-        //: 1 Create an enum with the trait specialized as true and test that
-        //:   the trait reports as true.  (C-1,4)
-        //:
-        //: 2 Create an enum without specializing the trait and test that the
-        //:   trait reports as false.  (C-2)
-        //:
-        //: 3 Create an enum with the trait specialized as false and test that
-        //:   the trait reports as false.  (C-3,4)
+        // 1. Create an enum with the trait specialized as true and test that
+        //    the trait reports as true.  (C-1,4)
+        //
+        // 2. Create an enum without specializing the trait and test that the
+        //    trait reports as false.  (C-2)
+        //
+        // 3. Create an enum with the trait specialized as false and test that
+        //    the trait reports as false.  (C-3,4)
         //
         // Testing:
         //   is_error_condition_enum<TYPE>::value
         //   BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'is_error_condition_enum<TYPE>'"
+        if (verbose) printf("\nTESTING `is_error_condition_enum<TYPE>`"
                             "\n=======================================\n");
 
         using namespace ErrorValues;

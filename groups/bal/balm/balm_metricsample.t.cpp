@@ -37,12 +37,12 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// A 'balm::MetricSampleGroup' is a simple value containing three
-// unconstrained properties, 'records' (and address to a sequence of records),
-// 'numRecords' (the number of 'records' in the sequence), and 'elapsedTime' a
-// time interval.  A 'balm::MetricSample' is a sequence of
-// 'balm::MetricSampleGroup' objects with the additional restriction that empty
-// groups are not permitted, and 'elapsedTime > bsls::TimeInterval(0, 0)'.
+// A `balm::MetricSampleGroup` is a simple value containing three
+// unconstrained properties, `records` (and address to a sequence of records),
+// `numRecords` (the number of `records` in the sequence), and `elapsedTime` a
+// time interval.  A `balm::MetricSample` is a sequence of
+// `balm::MetricSampleGroup` objects with the additional restriction that empty
+// groups are not permitted, and `elapsedTime > bsls::TimeInterval(0, 0)`.
 // ----------------------------------------------------------------------------
 // balm::MetricSampleGroup
 // CREATORS
@@ -98,9 +98,9 @@ using bsl::flush;
 // [12]  bool operator!=(balm::MetricSample& , balm::MetricSample& );
 // [15]  bsl::ostream& operator<<(bsl::ostream&, const balm::MetricSample& );
 // ----------------------------------------------------------------------------
-// [ 1] BREATHING TEST: 'balm::MetricSampleGroup'
-// [ 2] BREATHING TEST: 'balm::MetricSample'
-// [ 2] HELPER TEST: 'gg'
+// [ 1] BREATHING TEST: `balm::MetricSampleGroup`
+// [ 2] BREATHING TEST: `balm::MetricSample`
+// [ 2] HELPER TEST: `gg`
 // [19] USAGE EXAMPLE
 
 // ============================================================================
@@ -153,11 +153,11 @@ typedef bsl::vector<balm::MetricRecord>         RecVec;
 //                             Helper Functions
 // ============================================================================
 
+/// Return `true` if the specified `expectedValue` equals the specified
+/// `actualValue`, otherwise return `false` and output to the console
+/// information about the lowest index where the two values differ.
 bool stringDiff(const bsl::string& expectedValue,
                 const bsl::string& actualValue)
-    // Return 'true' if the specified 'expectedValue' equals the specified
-    // 'actualValue', otherwise return 'false' and output to the console
-    // information about the lowest index where the two values differ.
 {
     const char *exp = expectedValue.c_str();
     const char *act = actualValue.c_str();
@@ -181,7 +181,7 @@ bool stringDiff(const bsl::string& expectedValue,
 //                        GENERATOR LANGUAGE FOR gg
 //=============================================================================
 //
-// The gg function interprets a given 'spec' in order from left to right to
+// The gg function interprets a given `spec` in order from left to right to
 // build up a schedule according to a custom language.
 //
 //  Spec      := (SampleGroup)*
@@ -194,7 +194,7 @@ bool stringDiff(const bsl::string& expectedValue,
 //  NumRecords :=  '1'|'2'|'3'|'4'|'5'  %% # Elapsed time in seconds for the
 //                    |'6'|'7'|'8'|'9'  %% group
 //
-// 'gg' syntax usage examples:
+// `gg` syntax usage examples:
 //  Here are some examples, and sequence of actions that would be created:
 //
 // Spec String      Result Groups               Description
@@ -218,17 +218,17 @@ bool stringDiff(const bsl::string& expectedValue,
 //                   [ C.C: 1 1 1 1 ]
 //                 ]
 
+/// Append to the specified `groups`, the sample groups indicated by the
+/// specified `specification` (as described by the generator language `gg`,
+/// documented above) using the specified `ids` to provide metric ids;
+/// append any records created to the specified `recordBuffer`.  Behavior
+/// is undefined unless `recordBuffer` is at least as long as the largest
+/// group in `specification`.  Note that which particular records from
+/// `recordBuffer` are added to a particular group in `groups` is
+/// unspecified, but deterministic.
 int gg(bsl::vector<balm::MetricSampleGroup>   *groups,
         const char                            *specification,
         const bsl::vector<balm::MetricRecord>&  recordBuffer)
-    // Append to the specified 'groups', the sample groups indicated by the
-    // specified 'specification' (as described by the generator language 'gg',
-    // documented above) using the specified 'ids' to provide metric ids;
-    // append any records created to the specified 'recordBuffer'.  Behavior
-    // is undefined unless 'recordBuffer' is at least as long as the largest
-    // group in 'specification'.  Note that which particular records from
-    // 'recordBuffer' are added to a particular group in 'groups' is
-    // unspecified, but deterministic.
 {
     const char *c = specification;
 
@@ -357,7 +357,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -369,12 +369,12 @@ int main(int argc, char *argv[])
 ///Usage
 ///-----
 // The following example demonstrates how to create and use a metric sample.
-// We start by initializing several 'balm::MetricRecord' values, which we will
-// add to the sample.  Note that in this example we create the 'balm::MetricId'
+// We start by initializing several `balm::MetricRecord` values, which we will
+// add to the sample.  Note that in this example we create the `balm::MetricId`
 // objects by hand; however, in practice ids should be obtained from a
-// 'balm::MetricRegistry' object (such as the one owned by a
-// 'balm::MetricsManager').
-//..
+// `balm::MetricRegistry` object (such as the one owned by a
+// `balm::MetricsManager`).
+// ```
     bslma::Allocator *allocator = bslma::Default::allocator(0);
 
     balm::Category myCategory("MyCategory");
@@ -392,22 +392,22 @@ int main(int argc, char *argv[])
     balm::MetricRecord recordA(metricA, 0, 0, 0, 0);
     balm::MetricRecord recordB(metricB, 1, 2, 3, 4);
     balm::MetricRecord recordC(metricC, 4, 3, 2, 1);
-//..
+// ```
 // Now we create the two arrays of metric records whose addresses we will
 // later add to the metric sample:
-//..
+// ```
     balm::MetricRecord              buffer1[] = { recordA, recordB };
     bsl::vector<balm::MetricRecord> buffer2(allocator);
     buffer2.push_back(recordC);
-//..
-// Next we create a 'balm::MetricSample' object, 'sample', and set its
+// ```
+// Next we create a `balm::MetricSample` object, `sample`, and set its
 // timestamp property.  Then we add two groups of records (containing the
 // addresses of our two record arrays) to the sample we have created.  Since
 // the records were not actually collected over a period of time, we supply an
 // arbitrary elapsed time value of 1 second and 2 seconds (respectively) for
 // the two groups added to the sample.  Note that these arrays must remain
-// valid for the lifetime of 'sample'.
-//..
+// valid for the lifetime of `sample`.
+// ```
     balm::MetricSample sample(allocator);
     sample.setTimeStamp(timeStamp);
     sample.appendGroup(buffer1,
@@ -416,9 +416,9 @@ int main(int argc, char *argv[])
     sample.appendGroup(buffer2.data(),
                        static_cast<int>(buffer2.size()),
                        bsls::TimeInterval(2.0));
-//..
+// ```
 // We can verify the basic properties of our sample:
-//..
+// ```
          ASSERT(timeStamp             == sample.timeStamp());
          ASSERT(2                     == sample.numGroups());
          ASSERT(3                     == sample.numRecords());
@@ -428,12 +428,12 @@ int main(int argc, char *argv[])
          ASSERT(bsls::TimeInterval(2) == sample.sampleGroup(1).elapsedTime());
          ASSERT(buffer2.data()        == sample.sampleGroup(1).records());
          ASSERT(1                     == sample.sampleGroup(1).numRecords());
-//..
+// ```
 // Finally we can obtain an iterator over the sample's sequence of groups.  In
 // this simple example, we iterate over the groups of records in the sample
 // and, for each group, iterate over the records in that group, writing those
 // records to the console.
-//..
+// ```
     balm::MetricSample::const_iterator sampleIt = sample.begin();
     for ( ; sampleIt != sample.end(); ++sampleIt) {
         balm::MetricSampleGroup::const_iterator groupIt = sampleIt->begin();
@@ -441,18 +441,18 @@ int main(int argc, char *argv[])
             bsl::cout << *groupIt << bsl::endl;
         }
     }
-//..
+// ```
 // The output will look like:
-//..
+// ```
 //  [ MyCategory.MetricA: 0 0 0 0 ]
 //  [ MyCategory.MetricB: 1 2 3 4 ]
 //  [ MyCategory.MetricC: 4 3 2 1 ]
-//..
+// ```
       } break;
       case 18: {
         // --------------------------------------------------------------------
         // TESTING 'appendGroup(const balm::MetricRecord *, int, ...):
-        //                                              'balm::MetricSample'
+        //                                              `balm::MetricSample`
         //
         // Plan:
         //   For a sequence of independent test values, use the default
@@ -468,8 +468,8 @@ int main(int argc, char *argv[])
         //                   const bsls::TimeInterval& );
         // --------------------------------------------------------------------
         if (verbose)
-            cout << "\nTesting 'appendGroup(const balm::MetricRecord *,...)': "
-                 << "'balm::MetricSample'" << endl;
+            cout << "\nTesting `appendGroup(const balm::MetricRecord *,...)`: "
+                 << "`balm::MetricSample`" << endl;
         struct {
             int         d_date;
             const char *d_groupSpec;
@@ -520,10 +520,10 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING 'begin()', 'end()':  'balm::MetricSample'
+        // TESTING `begin()`, `end()`:  `balm::MetricSample`
         //
         // Plan:
-        //   Test that accessors 'begin()' and 'end()' return iterators at the
+        //   Test that accessors `begin()` and `end()` return iterators at the
         //   first element and one past the last element in the sequence of
         //   sample groups.
         //
@@ -533,7 +533,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting begin() and end(): "
-                          << " 'balm::MetricSample'" << endl;
+                          << " `balm::MetricSample`" << endl;
 
         struct {
             int         d_date;
@@ -577,7 +577,7 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING MANIPULATOR 'removeAllRecords': 'balm::MetricSample'
+        // TESTING MANIPULATOR `removeAllRecords`: `balm::MetricSample`
         //
         // Concerns:
         //   That the removeAllRecords manipulator removes all the records from
@@ -594,7 +594,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
        if (verbose) cout << "Test for removeAllRecords(): "
-                         << "'balm::MetricSample'\n" ;
+                         << "`balm::MetricSample`\n" ;
         struct {
             int         d_date;
             const char *d_groupSpec;
@@ -640,11 +640,11 @@ int main(int argc, char *argv[])
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // TESTING PRINT AND OUTPUT (<<) OPERATOR: 'balm::MetricSample'
+        // TESTING PRINT AND OUTPUT (<<) OPERATOR: `balm::MetricSample`
         //
         // Plan:
-        //   Test that the 'print' method produces the expected results for
-        //   various values of 'level' and 'spacesPerLevel'.
+        //   Test that the `print` method produces the expected results for
+        //   various values of `level` and `spacesPerLevel`.
         //
         // Testing:
         //   ostream& print(ostream& os, int level = 0, int spl = 4) const;
@@ -652,7 +652,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-                            "\nTesting 'print': 'balm::MetricSample'." << endl;
+                            "\nTesting `print`: `balm::MetricSample`." << endl;
 
         bdlt::Date         date(bdlt::DateUtil::convertFromYYYYMMDDRaw(
                                                                     20080101));
@@ -714,7 +714,7 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING ASSIGNMENT OPERATOR: 'balm::MetricSample'
+        // TESTING ASSIGNMENT OPERATOR: `balm::MetricSample`
         //
         // Concerns:
         //   Any value must be assignable to an object having any initial value
@@ -734,7 +734,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Assignment Operator: "
-                          << "'balm::MetricSample'" << endl;
+                          << "`balm::MetricSample`" << endl;
 
         struct {
             int         d_date;
@@ -819,7 +819,7 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING COPY CONSTRUCTOR: 'balm::MetricSample'
+        // TESTING COPY CONSTRUCTOR: `balm::MetricSample`
         //
         // Concerns:
         //   Any value must be able to be copy constructed without affecting
@@ -838,7 +838,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Copy Constructor: "
-                          << "'balm::MetricSample'" << endl;
+                          << "`balm::MetricSample`" << endl;
 
         struct {
             int         d_date;
@@ -888,7 +888,7 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING EQUALITY OPERATOR: 'balm::MetricSample'
+        // TESTING EQUALITY OPERATOR: `balm::MetricSample`
         //
         // Concerns:
         //   Any subtle variation in value must be detected by the equality
@@ -899,8 +899,8 @@ int main(int argc, char *argv[])
         // Plan:
         //   Basic Test:
         //   Specify a set S of unique object values having various minor or
-        //   subtle differences.  Verify the correctness of 'operator==' and
-        //   'operator!=' using all elements (u, v) of the cross product
+        //   subtle differences.  Verify the correctness of `operator==` and
+        //   `operator!=` using all elements (u, v) of the cross product
         //    S X S.
         //
         // Testing:
@@ -909,7 +909,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-                            "\nTesting equality: 'balm::MetricSample'" << endl;
+                            "\nTesting equality: `balm::MetricSample`" << endl;
 
         if (veryVerbose) cout << "\tTest basic equality." << endl;
 
@@ -970,7 +970,7 @@ int main(int argc, char *argv[])
      case 11: {
         // --------------------------------------------------------------------
         // TESTING BASIC MANIPULATORS and ACCESSORS (BOOTSTRAP):
-        //                                          'balm::MetricSample'
+        //                                          `balm::MetricSample`
         //
         // Concerns:
         //   The primary fields must be correctly modifiable and accessible.
@@ -1001,7 +1001,7 @@ int main(int argc, char *argv[])
         //  int numGroup() const;
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting primary mainpulators and accessors: "
-                          << "'balm::MetricSample'" << endl;
+                          << "`balm::MetricSample`" << endl;
 
         if (veryVerbose) cout << "\tdefault constructor\n";
         {
@@ -1061,7 +1061,7 @@ int main(int argc, char *argv[])
       } break;
       case 10 : {
         // --------------------------------------------------------------------
-        // TESTING HELPERS: 'gg' function
+        // TESTING HELPERS: `gg` function
         //
         // Concerns:
         //
@@ -1152,10 +1152,10 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'begin()', 'end()':  'balm::MetricSampleGroup'
+        // TESTING `begin()`, `end()`:  `balm::MetricSampleGroup`
         //
         // Plan:
-        //   Test that accessors 'begin()' and 'end()' return iterators at the
+        //   Test that accessors `begin()` and `end()` return iterators at the
         //   first element and one past the last element in the array of
         //   records.
         //
@@ -1165,7 +1165,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting begin() and end(): "
-                          << " 'balm::MetricSampleGroup'" << endl;
+                          << " `balm::MetricSampleGroup`" << endl;
 
         struct {
             const RecVec *d_records;
@@ -1193,18 +1193,18 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING PRINT AND OUTPUT (<<) OPERATOR:  'balm::MetricSampleGroup'
+        // TESTING PRINT AND OUTPUT (<<) OPERATOR:  `balm::MetricSampleGroup`
         //
         // Plan:
-        //   Test that the 'print' method produces the expected results for
-        //   various values of 'level' and 'spacesPerLevel'.
+        //   Test that the `print` method produces the expected results for
+        //   various values of `level` and `spacesPerLevel`.
         //
         // Testing:
         //   ostream& print(ostream& os, int level = 0, int spl = 4) const;
         //   operator<<(ostream&, const balm::MetricSampleGroup&);
         // --------------------------------------------------------------------
 
-        if (veryVerbose) cout << "Testing 'print':  'balm::MetricSampleGroup'"
+        if (veryVerbose) cout << "Testing `print`:  `balm::MetricSampleGroup`"
                               << endl;
         bsl::ostringstream buf1, buf2;
 
@@ -1245,7 +1245,7 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING ASSIGNMENT OPERATOR:  'balm::MetricSampleGroup'
+        // TESTING ASSIGNMENT OPERATOR:  `balm::MetricSampleGroup`
         //
         // Concerns:
         //   Any value must be assignable to an object having any initial value
@@ -1265,7 +1265,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Assignment Operator: "
-                          << " 'balm::MetricSampleGroup'" << endl;
+                          << " `balm::MetricSampleGroup`" << endl;
 
         struct {
             const RecVec *d_records;
@@ -1312,7 +1312,7 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING COPY CONSTRUCTOR: 'balm::MetricSampleGroup'
+        // TESTING COPY CONSTRUCTOR: `balm::MetricSampleGroup`
         //
         // Concerns:
         //   Any value must be able to be copy constructed without affecting
@@ -1331,7 +1331,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Copy Constructor: "
-                            << "'balm::MetricSampleGroup'" << endl;
+                            << "`balm::MetricSampleGroup`" << endl;
 
         struct {
             const RecVec *d_records;
@@ -1363,7 +1363,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING EQUALITY OPERATOR: 'balm::MetricSampleGroup'
+        // TESTING EQUALITY OPERATOR: `balm::MetricSampleGroup`
         //
         // Concerns:
         //   Any subtle variation in value must be detected by the equality
@@ -1373,8 +1373,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Specify a set S of unique object values having various minor or
-        //   subtle differences.  Verify the correctness of 'operator==' and
-        //   'operator!=' using all elements (u, v) of the cross product
+        //   subtle differences.  Verify the correctness of `operator==` and
+        //   `operator!=` using all elements (u, v) of the cross product
         //    S X S.
         //
         // Testing:
@@ -1384,7 +1384,7 @@ int main(int argc, char *argv[])
         //                   const balm::MetricSampleGroup&);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting equality: 'balm::MetricSampleGroup'"
+        if (verbose) cout << "\nTesting equality: `balm::MetricSampleGroup`"
                           << endl;
 
         struct {
@@ -1419,7 +1419,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING CONSTRUCTORS: 'balm::MetricSampleGroup'
+        // TESTING CONSTRUCTORS: `balm::MetricSampleGroup`
         //
         // Concerns:
         //   Test the alternative constructors
@@ -1436,7 +1436,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (veryVerbose) cout << "\tTesting secondary constructor: "
-                              << "'balm::MetricSampleGroup'" << endl;
+                              << "`balm::MetricSampleGroup`" << endl;
 
         struct {
             const RecVec *d_records;
@@ -1469,7 +1469,7 @@ int main(int argc, char *argv[])
      case 3: {
         // --------------------------------------------------------------------
         // TESTING BASIC MANIPULATORS and ACCESSORS (BOOTSTRAP):
-        //                                        'balm::MetricSampleGroup'
+        //                                        `balm::MetricSampleGroup`
         // Concerns:
         //   The primary fields must be correctly modifiable and accessible.
         //
@@ -1501,7 +1501,7 @@ int main(int argc, char *argv[])
         //  const bsls::TimeInterval& elapsedTime() const;
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting primary mainpulators and accessors: "
-                          << "'balm::MetricSampleGroup'" << endl;
+                          << "`balm::MetricSampleGroup`" << endl;
 
         if (veryVerbose) cout << "\tdefault constructor\n";
         {
@@ -1545,7 +1545,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // BREATHING TEST: 'balm::MetricSample'
+        // BREATHING TEST: `balm::MetricSample`
         //   Developers' Sandbox.
         //
         // Concerns:
@@ -1554,10 +1554,10 @@ int main(int argc, char *argv[])
         //   operation of the following methods and operators:
         //      - default and copy constructors (and also the destructor)
         //      - the assignment operator (including aliasing)
-        //      - equality operators: 'operator==()' and 'operator!=()'
-        //      - the (test-driver supplied) output operator: 'operator<<()'
-        //      - primary manipulators: 'push_back' and 'clear' methods
-        //      - basic accessors: 'size' and 'operator[]()'
+        //      - equality operators: `operator==()` and `operator!=()`
+        //      - the (test-driver supplied) output operator: `operator<<()`
+        //      - primary manipulators: `push_back` and `clear` methods
+        //      - basic accessors: `size` and `operator[]()`
         //   In addition we would like to exercise objects with potentially
         //   different internal organizations representing the same value.
         //
@@ -1822,7 +1822,7 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // BREATHING TEST: 'balm::MetricSampleGroup'
+        // BREATHING TEST: `balm::MetricSampleGroup`
         //   Developers' Sandbox.
         //
         // Concerns:
@@ -1831,10 +1831,10 @@ int main(int argc, char *argv[])
         //   operation of the following methods and operators:
         //      - default and copy constructors (and also the destructor)
         //      - the assignment operator (including aliasing)
-        //      - equality operators: 'operator==()' and 'operator!=()'
-        //      - the (test-driver supplied) output operator: 'operator<<()'
-        //      - primary manipulators: 'push_back' and 'clear' methods
-        //      - basic accessors: 'size' and 'operator[]()'
+        //      - equality operators: `operator==()` and `operator!=()`
+        //      - the (test-driver supplied) output operator: `operator<<()`
+        //      - primary manipulators: `push_back` and `clear` methods
+        //      - basic accessors: `size` and `operator[]()`
         //   In addition we would like to exercise objects with potentially
         //   different internal organizations representing the same value.
         //

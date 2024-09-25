@@ -6,8 +6,8 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 
@@ -105,10 +105,10 @@ public:
 // allocator requirements and must be the same allocator type for both
 // elements of the union. However, the union elements can take the allocator
 // argument either as the last argument to each constructor or as the second
-// argument preceded by an argument of type 'bsl::allocator_arg_t'.
+// argument preceded by an argument of type `bsl::allocator_arg_t`.
 //
 // First, we define the interface to our discriminated union:
-//..
+// ```
     #include <bslmf_allocatorargt.h>
     #include <new>
 
@@ -129,56 +129,59 @@ public:
         ALLOC d_allocator;
         Tag   d_tag;
 
+        /// Construct an object of `TYPE` at the address of `d_buffer`
+        /// using the extended copy constructor invocation
+        /// `TYPE(bsl::allocator_arg, d_allocator, val)`.
         template <class TYPE>
         void constructObj(const TYPE& val,
                           bsl::true_type /* uses allocator_arg_t */);
-            // Construct an object of 'TYPE' at the address of 'd_buffer'
-            // using the extended copy constructor invocation
-            // 'TYPE(bsl::allocator_arg, d_allocator, val)'.
 
+        /// Construct an object of `TYPE` at the address of `d_buffer`
+        /// using the extended copy constructor invocation
+        /// `TYPE(val, d_allocator)`.
         template <class TYPE>
         void constructObj(const TYPE& val,
                           bsl::false_type /* uses allocator_arg_t */);
-            // Construct an object of 'TYPE' at the address of 'd_buffer'
-            // using the extended copy constructor invocation
-            // 'TYPE(val, d_allocator)'.
 
     public:
         // CREATORS
+
+        /// Create a union containing an element of type `T1`
         DiscriminatedUnion(const T1&    val,
                            const ALLOC& alloc = ALLOC());
-            // Create a union containing an element of type 'T1'
 
+        /// Create a union containing an element of type `T2`
         DiscriminatedUnion(const T2&    val,
                            const ALLOC& alloc = ALLOC());
-            // Create a union containing an element of type 'T2'
 
         // Copy constructor, destructor, and assignment operators not shown.
 
         // MANIPULATORS
-        T1& firstValue();
-            // Return a modifiable reference to the first element.  The
-            // behavior is undefined unless 'tag() == TAG_FIRST'.
 
+        /// Return a modifiable reference to the first element.  The
+        /// behavior is undefined unless `tag() == TAG_FIRST`.
+        T1& firstValue();
+
+        /// Return a modifiable reference to the second element.  The
+        /// behavior is undefined unless `tag() == TAG_SECOND`.
         T2& secondValue();
-            // Return a modifiable reference to the second element.  The
-            // behavior is undefined unless 'tag() == TAG_SECOND'.
 
         // ACCESSORS
+
+        /// Return a tag indicating what kind of element is current.
         Tag tag() const;
-            // Return a tag indicating what kind of element is current.
 
+        /// Return a const reference to the first element.  The behavior is
+        /// undefined unless `tag() == TAG_FIRST`.
         const T1& firstValue() const;
-            // Return a const reference to the first element.  The behavior is
-            // undefined unless 'tag() == TAG_FIRST'.
 
+        /// Return a const reference to the second element.  The behavior is
+        /// undefined unless `tag() == TAG_SECOND`.
         const T2& secondValue() const;
-            // Return a const reference to the second element.  The behavior is
-            // undefined unless 'tag() == TAG_SECOND'.
     };
-//..
-// Next, we implement the two 'constructObj' functions:
-//..
+// ```
+// Next, we implement the two `constructObj` functions:
+// ```
     template <class T1, class T2, class ALLOC>
     template <class TYPE>
     void DiscriminatedUnion<T1,T2,ALLOC>::constructObj(const TYPE& val,
@@ -194,11 +197,11 @@ public:
     {
         ::new(&d_buffer) TYPE(val, d_allocator);
     }
-//..
-// Next, we dispatch to the correct 'constructObj' overlaod within the
-// constructors using the 'UsesAllocatorArgT' metafunction to determine which
+// ```
+// Next, we dispatch to the correct `constructObj` overlaod within the
+// constructors using the `UsesAllocatorArgT` metafunction to determine which
 // extended copy constructor is the right one:
-//..
+// ```
     template <class T1, class T2, class ALLOC>
     DiscriminatedUnion<T1,T2,ALLOC>::DiscriminatedUnion(const T1&    val,
                                                         const ALLOC& alloc)
@@ -214,9 +217,9 @@ public:
     {
         constructObj(val, bslmf::UsesAllocatorArgT<T2>());
     }
-//..
+// ```
 // Next, we fill out the other member functions:
-//..
+// ```
     // MANIPULATORS
     template <class T1, class T2, class ALLOC>
     T1& DiscriminatedUnion<T1,T2,ALLOC>::firstValue() {
@@ -248,12 +251,12 @@ public:
         ASSERT(TAG_SECOND == d_tag);
         return reinterpret_cast<const T2&>(d_buffer);
     }
-//..
-// Now we can create a couple of types that use STL allocators. 'TypeA' uses
+// ```
+// Now we can create a couple of types that use STL allocators. `TypeA` uses
 // the traditional constructor pattern taking an allocator at the end of the
-// argument list.  'TypeB' uses the newer pattern of prefixing the allocator
-// argument with a tag of type 'allocator_arg_t':
-//..
+// argument list.  `TypeB` uses the newer pattern of prefixing the allocator
+// argument with a tag of type `allocator_arg_t`:
+// ```
     template <class ALLOC>
     class TypeA {
         ALLOC d_allocator;
@@ -289,20 +292,20 @@ public:
         const ALLOC& allocator() const { return d_allocator; }
         // etc..
     };
-//..
-// Next, since 'TypeB' uses the 'allocator_arg_t' idiom, it must define a
-// specialization of the 'UsesAllocatorArgT' trait:
-//..
+// ```
+// Next, since `TypeB` uses the `allocator_arg_t` idiom, it must define a
+// specialization of the `UsesAllocatorArgT` trait:
+// ```
     namespace bslmf {
 
     template <class ALLOC>
     struct UsesAllocatorArgT<TypeB<ALLOC> > : bsl::true_type { };
 
     } // Close namespace bslmf
-//..
+// ```
 // Next, we create an allocator template that meets the requirements of an STL
 // allocator:
-//..
+// ```
     template <class TYPE>
     class MyAllocator {
         int d_id;
@@ -316,10 +319,10 @@ public:
     };
 
     } // Close enterprise namespace
-//..
-// Finally, we create a couple of 'DiscriminatedUnion' objects and verify that
+// ```
+// Finally, we create a couple of `DiscriminatedUnion` objects and verify that
 // the allocator is correctly propagated to the contained elements:
-//..
+// ```
     int usageExample1() {
 
         typedef MyAllocator<int> AllocType;
@@ -376,7 +379,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE

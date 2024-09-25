@@ -24,7 +24,7 @@
 #include <bsl_cstring.h>     // strlen(), memset(), memcpy(), memcmp()
 #include <bsl_ctime.h>       // time()
 
-#include <bsl_new.h>         // placement 'new' syntax
+#include <bsl_new.h>         // placement `new` syntax
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -153,7 +153,7 @@ void my_OstreamObserver::publish(
         d_stream << "Single Passthrough Message:" << endl;
       } break;
       case ball::Transmission::e_TRIGGER_ALL: {
-        d_stream << "Remotely ";      // no 'break'; concatenated output
+        d_stream << "Remotely ";      // no `break`; concatenated output
       } BSLS_ANNOTATION_FALLTHROUGH;
       case ball::Transmission::e_TRIGGER: {
         d_stream << "Triggered Publication Sequence: Message ";
@@ -187,9 +187,9 @@ namespace TEST_CASE_8 {
 
 static int observerCounter = 0;
 
+/// Increment invocation counter.
 static void observerCounterFunc(const bsl::shared_ptr<Observer>&,
                                 const bsl::string_view&)
-    // Increment invocation counter.
 {
     ++observerCounter;
 }
@@ -197,9 +197,10 @@ static void observerCounterFunc(const bsl::shared_ptr<Observer>&,
 struct ObserverCounterFunctor {
 
     // ACCESSORS
+
+    /// Increment invocation counter.
     void operator()(const bsl::shared_ptr<Observer>&,
                     const bsl::string_view&) const
-        // Increment invocation counter.
     {
         ++observerCounter;
     }
@@ -208,12 +209,12 @@ struct ObserverCounterFunctor {
 }  // close namespace TEST_CASE_8
 
 namespace {
-    // The following helper functions are used to test 'publish' method.
+    // The following helper functions are used to test `publish` method.
 
+/// Modify the specified `record` to have a value distinct from any other
+/// record transmitted so far in the publication sequence and return the
+/// 0-based sequence number of `record`.
 static int nextRecord(ball::Record& record)
-    // Modify the specified 'record' to have a value distinct from any other
-    // record transmitted so far in the publication sequence and return the
-    // 0-based sequence number of 'record'.
 {
     static int sequenceNumber = 0;
 
@@ -227,9 +228,9 @@ static int nextRecord(ball::Record& record)
     return sequenceNumber++;
 }
 
+/// Return `true` if the specified `record` is the specified `nth` in the
+/// publication sequence, and `false` otherwise.
 static bool isNthRecord(const ball::Record& record, int nth)
-    // Return 'true' if the specified 'record' is the specified 'nth' in the
-    // publication sequence, and 'false' otherwise.
 {
     const ball::RecordAttributes& attr = record.fixedFields();
 
@@ -243,9 +244,9 @@ static bool isNthRecord(const ball::Record& record, int nth)
     return false;
 }
 
+/// Return `true` if the specified `context` is the specified `nth` in the
+/// publication sequence, and `false` otherwise.
 static bool isNthContext(const ball::Context& context, int nth)
-    // Return 'true' if the specified 'context' is the specified 'nth' in the
-    // publication sequence, and 'false' otherwise.
 {
     if (ball::Transmission::e_TRIGGER == context.transmissionCause()
         &&                        nth == context.recordIndex()
@@ -274,12 +275,12 @@ namespace UsageExample {
 //
 ///Example 1: Delayed Observer Configuration
 ///- - - - - - - - - - - - - - - - - - - - -
-// In this example, we will show how 'ball::BroadcastObserver' can be used to
+// In this example, we will show how `ball::BroadcastObserver` can be used to
 // implement delayed observer configuration.
 //
 // First, we define an elided custom observer that conforms to the
-// 'ball::Observer' protocol and supports a 'configure' method:
-//..
+// `ball::Observer` protocol and supports a `configure` method:
+// ```
     class ConfigurableObserver : public ball::Observer {
         // DATA
         bool d_configureFlag;   // configuration completion flag
@@ -292,17 +293,18 @@ namespace UsageExample {
         }
 
         // MANIPULATORS
+
+        /// Configure this observer.
         void configure()
-            // Configure this observer.
         {
             d_configureFlag = true;
         }
 
         using Observer::publish;  // avoid hiding base class method
 
+        /// Publish the specified `record` with the specified `context`.
         void publish(const bsl::shared_ptr<ball::Record>& record,
                      const ball::Context&                 context)
-            // Publish the specified 'record' with the specified 'context'.
         {
             (void) record;
             (void) context;
@@ -350,13 +352,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -404,23 +406,23 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'visitObservers' METHOD
+        // TESTING `visitObservers` METHOD
         //
         // Concerns:
-        //: 1 All registered observers are returned by 'registeredObservers'.
+        // 1. All registered observers are returned by `registeredObservers`.
         //
         // Plan:
-        //: 1 Create a broadcast observer, and register a number of observers.
-        //:
-        //: 2 Verify that all registered observers are returned by
-        //:   'registeredObservers' accessor.  (C-1)
+        // 1. Create a broadcast observer, and register a number of observers.
+        //
+        // 2. Verify that all registered observers are returned by
+        //    `registeredObservers` accessor.  (C-1)
         //
         // Testing:
         //   void visitObservers(OBSERVER_VISITOR& visitor);
         //   void visitObservers(const OBSERVER_VISITOR& visitor) const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'visitObservers' METHOD"
+        if (verbose) cout << "\nTESTING `visitObservers` METHOD"
                           << "\n===============================" << endl;
 
         using namespace TEST_CASE_8;
@@ -508,17 +510,17 @@ int main(int argc, char *argv[])
         // TESTING REGISTERED OBSERVERS LIFETIME
         //
         // Concerns:
-        //: 1 Verify that registered observers are destroyed only when the last
-        //:   shared pointer to them is destroyed.
+        // 1. Verify that registered observers are destroyed only when the last
+        //    shared pointer to them is destroyed.
         //
         // Plan:
-        //: 1 Create an observer, and register it with a broadcast observer.
-        //:
-        //: 2 Leave the scope where the observer was created.
-        //:
-        //: 3 Verify that the registered observer is not destroyed.
-        //:
-        //: 4 Deregister observer and verify that it was destroyed.  (C-1)
+        // 1. Create an observer, and register it with a broadcast observer.
+        //
+        // 2. Leave the scope where the observer was created.
+        //
+        // 3. Verify that the registered observer is not destroyed.
+        //
+        // 4. Deregister observer and verify that it was destroyed.  (C-1)
         //
         // Testing:
         //   CONCERN: REGISTERED OBSERVERS LIFETIME
@@ -564,23 +566,23 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING ASYNCHRONOUS 'publish' AND 'releaseRecords' METHODS
+        // TESTING ASYNCHRONOUS `publish` AND `releaseRecords` METHODS
         //
         // Concerns:
-        //: 1 The async 'publish' method correctly forwards records and their
-        //:   corresponding publication contexts to all registered observers.
-        //:
-        //: 2 The 'releaseRecords' method is correctly delegated to all
-        //:   registered observers.
+        // 1. The async `publish` method correctly forwards records and their
+        //    corresponding publication contexts to all registered observers.
+        //
+        // 2. The `releaseRecords` method is correctly delegated to all
+        //    registered observers.
         //
         // Plan:
-        //: 1 Publish several distinct records into differently configured
-        //:   broadcast observers.  Verify that all registered observers
-        //:   correctly receive published records and their corresponding
-        //:   publication contexts.  (C-1)
-        //:
-        //: 2 Invoke 'releaseRecords' method on the broadcast observers and
-        //:   verify that the method was delegated to all registered observers.
+        // 1. Publish several distinct records into differently configured
+        //    broadcast observers.  Verify that all registered observers
+        //    correctly receive published records and their corresponding
+        //    publication contexts.  (C-1)
+        //
+        // 2. Invoke `releaseRecords` method on the broadcast observers and
+        //    verify that the method was delegated to all registered observers.
         //
         // Testing:
         //   void publish(const shared_ptr<const Record>& r, const Context& c);
@@ -588,7 +590,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout
-             << "\nTESTING ASYNCHRONOUS 'publish' AND 'releaseRecords' METHODS"
+             << "\nTESTING ASYNCHRONOUS `publish` AND `releaseRecords` METHODS"
              << "\n==========================================================="
              << endl;
 
@@ -925,24 +927,24 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING SYNCHRONOUS 'publish' METHOD
+        // TESTING SYNCHRONOUS `publish` METHOD
         //
         // Concerns:
-        //: 1 The sync 'publish' method correctly forwards records and their
-        //:   corresponding publication contexts to all registered observers.
+        // 1. The sync `publish` method correctly forwards records and their
+        //    corresponding publication contexts to all registered observers.
         //
         // Plan:
-        //: 1 Publish several distinct records into differently configured
-        //:   broadcast observers. Verify that all registered observers
-        //:   correctly receive published records and their corresponding
-        //:   publication contexts.  (C-1)
+        // 1. Publish several distinct records into differently configured
+        //    broadcast observers. Verify that all registered observers
+        //    correctly receive published records and their corresponding
+        //    publication contexts.  (C-1)
         //
         // Testing:
         //   void publish(const Record& record, const Context& context);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING SYNCHRONOUS 'publish' METHOD" << endl
+                          << "TESTING SYNCHRONOUS `publish` METHOD" << endl
                           << "====================================" << endl;
 
         if (verbose) cout << endl << "DEPRECATED" << endl;
@@ -952,19 +954,19 @@ int main(int argc, char *argv[])
         // BASIC ACCESSORS
         //
         // Concerns:
-        //: 1 'numRegisteredObservers' returns expected number of registered
-        //:   observers.
-        //:
-        //: 2 'findObserver' returns a pointer to the registered observer.
+        // 1. `numRegisteredObservers` returns expected number of registered
+        //    observers.
+        //
+        // 2. `findObserver` returns a pointer to the registered observer.
         //
         // Plan:
-        //: 1 Construct a pair of broadcast observers 'X' and 'Y'.
-        //:
-        //: 2 Construct a set of test observers O1, O2, and O3.
-        //:
-        //: 3 Test various combination of registered observers.
-        //:
-        //: 4 Verify that basic accessors return expected values.
+        // 1. Construct a pair of broadcast observers `X` and `Y`.
+        //
+        // 2. Construct a set of test observers O1, O2, and O3.
+        //
+        // 3. Test various combination of registered observers.
+        //
+        // 4. Verify that basic accessors return expected values.
         //
         // Testing:
         //   shared_ptr<Observer> findObserver(const bsl::string_view& name);
@@ -1259,18 +1261,18 @@ int main(int argc, char *argv[])
         // PRIMARY MANIPULATORS
         //
         // Concerns:
-        //: 1 'registerObserver' and 'deregisterObserver' produce the expected
-        //:   side-effects on the object.
+        // 1. `registerObserver` and `deregisterObserver` produce the expected
+        //    side-effects on the object.
         //
         // Plan:
-        //: 1 Construct a pair of broadcast observers 'X' and 'Y'.
-        //:
-        //: 2 Construct a set of test observers O1, O2, and O3.
-        //:
-        //: 3 Test various combination of registered observers.
-        //:
-        //: 4 Test the return value of the methods under test to infer that
-        //:   they fulfill their contractual obligations.
+        // 1. Construct a pair of broadcast observers `X` and `Y`.
+        //
+        // 2. Construct a set of test observers O1, O2, and O3.
+        //
+        // 3. Test various combination of registered observers.
+        //
+        // 4. Test the return value of the methods under test to infer that
+        //    they fulfill their contractual obligations.
         //
         // Testing:
         //   void deregisterAllObservers();
@@ -1514,57 +1516,57 @@ int main(int argc, char *argv[])
         // TESTING CREATORS
         //
         // Concerns:
-        //: 1 An object created with the default constructor (with or without a
-        //:   supplied allocator) has the contractually specified default
-        //:   value.
-        //:
-        //: 2 If an allocator is NOT supplied to the default constructor, the
-        //:   default allocator in effect at the time of construction becomes
-        //:   the object allocator for the resulting object.
-        //:
-        //: 3 If an allocator IS supplied to the default constructor, that
-        //:   allocator becomes the object allocator for the resulting object.
-        //:
-        //: 4 Supplying a null allocator address has the same effect as not
-        //:   supplying an allocator.
-        //:
-        //: 5 Supplying an allocator to the default constructor has no effect
-        //:   on subsequent object values.
-        //:
-        //: 6 Any memory allocation is from the object allocator.
-        //:
-        //: 7 There is no temporary allocation from any allocator.
-        //:
-        //: 8 Every object releases any allocated memory at destruction.
-        //:
-        //: 9 QoI: The default constructor allocates no memory.
+        // 1. An object created with the default constructor (with or without a
+        //    supplied allocator) has the contractually specified default
+        //    value.
+        //
+        // 2. If an allocator is NOT supplied to the default constructor, the
+        //    default allocator in effect at the time of construction becomes
+        //    the object allocator for the resulting object.
+        //
+        // 3. If an allocator IS supplied to the default constructor, that
+        //    allocator becomes the object allocator for the resulting object.
+        //
+        // 4. Supplying a null allocator address has the same effect as not
+        //    supplying an allocator.
+        //
+        // 5. Supplying an allocator to the default constructor has no effect
+        //    on subsequent object values.
+        //
+        // 6. Any memory allocation is from the object allocator.
+        //
+        // 7. There is no temporary allocation from any allocator.
+        //
+        // 8. Every object releases any allocated memory at destruction.
+        //
+        // 9. QoI: The default constructor allocates no memory.
         //
         // Plan:
-        //: 1 Using a loop-based approach, default-construct three distinct
-        //:   objects, in turn, but configured differently: (a) without passing
-        //:   an allocator, (b) passing a null allocator address explicitly,
-        //:   and (c) passing the address of a test allocator distinct from the
-        //:   default.  For each of these three iterations:  (C-1..9)
-        //:
-        //:   1 Create three 'bslma::TestAllocator' objects, and install one as
-        //:     the current default allocator (note that a ubiquitous test
-        //:     allocator is already installed as the global allocator).
-        //:
-        //:   2 Use the default constructor to dynamically create an object
-        //:     'X', with its object allocator configured appropriately (see
-        //:     P-1); use a distinct test allocator for the object's footprint.
-        //:
-        //:   3 Use the appropriate test allocators to verify that no memory is
-        //:     allocated by the default constructor.  (C-9)
-        //:
-        //:   4 Use the individual (as yet unproven) salient attribute
-        //:     accessors to verify the default-constructed value.  (C-1)
-        //:
-        //:   5 Register an observer and verify that the memory is allocated
-        //:     from the object allocator.  (C-2..7)
-        //:
-        //:   6 Verify that all object memory is released when the object is
-        //:     destroyed.  (C-8)
+        // 1. Using a loop-based approach, default-construct three distinct
+        //    objects, in turn, but configured differently: (a) without passing
+        //    an allocator, (b) passing a null allocator address explicitly,
+        //    and (c) passing the address of a test allocator distinct from the
+        //    default.  For each of these three iterations:  (C-1..9)
+        //
+        //   1. Create three `bslma::TestAllocator` objects, and install one as
+        //      the current default allocator (note that a ubiquitous test
+        //      allocator is already installed as the global allocator).
+        //
+        //   2. Use the default constructor to dynamically create an object
+        //      `X`, with its object allocator configured appropriately (see
+        //      P-1); use a distinct test allocator for the object's footprint.
+        //
+        //   3. Use the appropriate test allocators to verify that no memory is
+        //      allocated by the default constructor.  (C-9)
+        //
+        //   4. Use the individual (as yet unproven) salient attribute
+        //      accessors to verify the default-constructed value.  (C-1)
+        //
+        //   5. Register an observer and verify that the memory is allocated
+        //      from the object allocator.  (C-2..7)
+        //
+        //   6. Verify that all object memory is released when the object is
+        //      destroyed.  (C-8)
         //
         // Testing:
         //   BroadcastObserver(bslma::Allocator *ba = 0);
@@ -1626,7 +1628,7 @@ int main(int argc, char *argv[])
             ASSERTV(CONFIG, noa.numBlocksTotal(), 0 == noa.numBlocksTotal());
 
             if (veryVerbose) {
-                cout << "\t\tTesting 'registerObserver' (bootstrap)." << endl;
+                cout << "\t\tTesting `registerObserver` (bootstrap)." << endl;
             }
 
             {
@@ -1658,11 +1660,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Execute each methods to verify functionality for simple case.
+        // 1. Execute each methods to verify functionality for simple case.
         //
         // Testing:
         //   BREATHING TEST

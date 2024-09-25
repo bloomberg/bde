@@ -22,8 +22,8 @@
 //                                 Overview
 //                                 --------
 // The component under test defines only one public facing meta-function,
-// 'bslmf::MemberPointerTraits', that determines the types of the pointed to
-// member 'MemberType', and the class 'ClassType' to which the member bleongs.
+// `bslmf::MemberPointerTraits`, that determines the types of the pointed to
+// member `MemberType`, and the class `ClassType` to which the member bleongs.
 // These tests will ensure that all types of pointers to members provide the
 // correct types.
 // ----------------------------------------------------------------------------
@@ -86,8 +86,9 @@ void aSsErT(bool condition, const char *message, int line)
 struct TEST_CLASS_TYPE{};
 struct TEST_PARAMETER_0{};
 struct TEST_PARAMETER_1{};
+
+/// primitive members
 struct BASE{
-    // primitive members
     int d_int;
     const int d_constInt;
     volatile int d_volatileInt;
@@ -265,16 +266,16 @@ typedef int (BASE::*PtrToMemberFuncNoExcept)() noexcept;
 // ============================================================================
 //                                   USAGE
 // ----------------------------------------------------------------------------
-// Define the following 'struct' with the following members:
-//..
+// Define the following `struct` with the following members:
+// ```
     struct MyTestClass {
         int func1(int) { return 0; }
         int d_int;
     };
-//..
-// In order to deduce the types of 'func1' and 'd_int', we will use
-// 'bslmf::MemberPointerTraits'.
-//..
+// ```
+// In order to deduce the types of `func1` and `d_int`, we will use
+// `bslmf::MemberPointerTraits`.
+// ```
     template <class MEMBER, class CLASS, class TYPE>
     void checkMemberPointer(TYPE pointer)
     {
@@ -286,15 +287,15 @@ typedef int (BASE::*PtrToMemberFuncNoExcept)() noexcept;
         ASSERT(1 == (bsl::is_same<MemberType, MEMBER>::value));
         ASSERT(1 == (bsl::is_same<ClassType, CLASS>::value));
     }
-//..
+// ```
 // The following program should compile and run without errors:
-//..
+// ```
     void usageExample()
     {
         checkMemberPointer<int(int), MyTestClass>(&MyTestClass::func1);
         checkMemberPointer<int, MyTestClass>(&MyTestClass::d_int);
     }
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -316,20 +317,20 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 2: {
         // --------------------------------------------------------------------
-        // 'bslmf::MemberPointerTraits'
-        //   Ensure that the typedef 'MemberType' matches expectations for each
-        //   tested member type, and Ensure that the typedef 'ClassType' is the
+        // `bslmf::MemberPointerTraits`
+        //   Ensure that the typedef `MemberType` matches expectations for each
+        //   tested member type, and Ensure that the typedef `ClassType` is the
         //   type to which the member belongs.
         //
         // Concerns:
-        //: 1 'pointerToMemberTraits::ClassType' is 'BASE' for all member
-        //:   types.
-        //:
-        //: 2 'pointerToMemberTraits::MemberType' is as expected for all member
-        //:   types.
-        //:
-        //: 3 A member of BASE of the corresponding type (including virtual and
-        //:   non-virtual functions) can be assigned to the tested type.
+        // 1. `pointerToMemberTraits::ClassType` is `BASE` for all member
+        //    types.
+        //
+        // 2. `pointerToMemberTraits::MemberType` is as expected for all member
+        //    types.
+        //
+        // 3. A member of BASE of the corresponding type (including virtual and
+        //    non-virtual functions) can be assigned to the tested type.
         //
         // Plan:
         //   Assert correct types, and instantiate a local variable pointing to
@@ -670,13 +671,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE

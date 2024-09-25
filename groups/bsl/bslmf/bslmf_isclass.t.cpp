@@ -4,8 +4,8 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
-#include <stdio.h>     // 'printf'
-#include <stdlib.h>    // 'atoi'
+#include <stdio.h>     // `printf`
+#include <stdlib.h>    // `atoi`
 
 using namespace BloombergLP;
 
@@ -22,8 +22,8 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines two meta-functions, 'bsl::is_class' and
-// 'bslmf::IsClass' and a template variable 'bsl::is_class_v', that determine
+// The component under test defines two meta-functions, `bsl::is_class` and
+// `bslmf::IsClass` and a template variable `bsl::is_class_v`, that determine
 // whether a template parameter type is a class type.  Thus, we need to ensure
 // that the values returned by these meta-functions are correct for each
 // possible category of types.  Since the two meta-functions are functionally
@@ -102,56 +102,60 @@ void aSsErT(bool condition, const char *message, int line)
 namespace {
 
 enum EnumTestType {
-    // This user-defined 'enum' type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::is_class'.
+    // This user-defined `enum` type is intended to be used for testing as the
+    // template parameter `TYPE` of `bsl::is_class`.
 };
 
+/// This user-defined `struct` type is intended to be used for testing as
+/// the template parameter `TYPE` of `bsl::is_class`.
 struct StructTestType {
-    // This user-defined 'struct' type is intended to be used for testing as
-    // the template parameter 'TYPE' of 'bsl::is_class'.
 };
 
+/// This user-defined `union` type is intended to be used for testing as the
+/// template parameter `TYPE` of `bsl::is_class`.
 union UnionTestType {
-    // This user-defined 'union' type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::is_class'.
 };
 
+/// This user-defined base class type is intended to be used for testing as
+/// the template parameter `TYPE` of `bsl::is_class`.
 class BaseClassTestType {
-    // This user-defined base class type is intended to be used for testing as
-    // the template parameter 'TYPE' of 'bsl::is_class'.
 };
 
+/// This user-defined derived class type is intended to be used for testing
+/// as the template parameter `TYPE` of `bsl::is_class`.
 class DerivedClassTestType : public BaseClassTestType {
-    // This user-defined derived class type is intended to be used for testing
-    // as the template parameter 'TYPE' of 'bsl::is_class'.
 };
 
+/// This pointer to non-static member function type is intended to be used
+/// for testing as the template parameter `TYPE` of `bsl::is_class`.
 typedef int (StructTestType::*MethodPtrTestType) ();
-    // This pointer to non-static member function type is intended to be used
-    // for testing as the template parameter 'TYPE' of 'bsl::is_class'.
 
+/// This function pointer type is intended to be used for testing as the
+/// template parameter `TYPE` of `bsl::is_class`.
 typedef void (*FunctionPtrTestType) ();
-    // This function pointer type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::is_class'.
 
+/// This pointer to member object type is intended to be used for testing as
+/// the template parameter `TYPE` of `bsl::is_class`.
 typedef int StructTestType::*PMD;
-    // This pointer to member object type is intended to be used for testing as
-    // the template parameter 'TYPE' of 'bsl::is_class'.
 
 struct Incomplete;
-    // This incomplete 'struct' type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::is_class'.
+    // This incomplete `struct` type is intended to be used for testing as the
+    // template parameter `TYPE` of `bsl::is_class`.
 
 }  // close unnamed namespace
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+/// `ASSERT` that `is_class_v` has the same value as `is_class::value`.
 #   define TYPE_ASSERT_V_SAME(type)                                           \
         ASSERT(bsl::is_class<type>::value == bsl::is_class_v<type>)
-    // 'ASSERT' that 'is_class_v' has the same value as 'is_class::value'.
 #else
 #   define TYPE_ASSERT_V_SAME(type)
 #endif
 
+/// Test cv-qualified combinations on the specified `TYPE` and confirm that
+/// the result value of the `META_FUNC` and the expected `result` value are
+/// the same.  Also confirm that the result value of the `META_FUNC` and the
+/// value of the `META_FUNC_v` variable are the same.
 #define TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE, result)                       \
     ASSERT(result == META_FUNC<TYPE>::value);                                 \
     ASSERT(result == META_FUNC<const TYPE>::value);                           \
@@ -161,11 +165,11 @@ struct Incomplete;
     TYPE_ASSERT_V_SAME(const TYPE);                                           \
     TYPE_ASSERT_V_SAME(volatile TYPE);                                        \
     TYPE_ASSERT_V_SAME(const volatile TYPE);
-    // Test cv-qualified combinations on the specified 'TYPE' and confirm that
-    // the result value of the 'META_FUNC' and the expected 'result' value are
-    // the same.  Also confirm that the result value of the 'META_FUNC' and the
-    // value of the 'META_FUNC_v' variable are the same.
 
+/// Test cv-qualified combinations on the specified `TYPE` and confirm that
+/// the result value of the `META_FUNC` and the expected `result` value are
+/// the same.  Also confirm that the result value of the `META_FUNC` and the
+/// value of the `META_FUNC_v` variable are the same.
 #define TYPE_ASSERT_CVQ_SUFFIX(META_FUNC, TYPE, result)                       \
     ASSERT(result == META_FUNC<TYPE>::value);                                 \
     ASSERT(result == META_FUNC<TYPE const>::value);                           \
@@ -175,11 +179,11 @@ struct Incomplete;
     TYPE_ASSERT_V_SAME(TYPE const);                                           \
     TYPE_ASSERT_V_SAME(TYPE volatile);                                        \
     TYPE_ASSERT_V_SAME(TYPE const volatile);
-    // Test cv-qualified combinations on the specified 'TYPE' and confirm that
-    // the result value of the 'META_FUNC' and the expected 'result' value are
-    // the same.  Also confirm that the result value of the 'META_FUNC' and the
-    // value of the 'META_FUNC_v' variable are the same.
 
+/// Test a reference to cv-qualified combinations on the specified `TYPE`
+/// and confirm that the result value of the `META_FUNC` and the expected
+/// `result` value are the same.  Also confirm that the result value of the
+/// `META_FUNC` and the value of the `METU_FUNC_v` variable are the same.
 #define TYPE_ASSERT_CVQ_REF(META_FUNC, TYPE, result)                          \
     ASSERT(result == META_FUNC<TYPE&>::value);                                \
     ASSERT(result == META_FUNC<TYPE const&>::value);                          \
@@ -189,19 +193,15 @@ struct Incomplete;
     TYPE_ASSERT_V_SAME(TYPE const&);                                          \
     TYPE_ASSERT_V_SAME(TYPE volatile&);                                       \
     TYPE_ASSERT_V_SAME(TYPE const volatile);
-    // Test a reference to cv-qualified combinations on the specified 'TYPE'
-    // and confirm that the result value of the 'META_FUNC' and the expected
-    // 'result' value are the same.  Also confirm that the result value of the
-    // 'META_FUNC' and the value of the 'METU_FUNC_v' variable are the same.
 
+/// Test all cv-qualified combinations on the specified `TYPE` and confirm
+/// that the result value of the `<META_FUNC` and the expected `result`
+/// value are the same.
 #define TYPE_ASSERT_CVQ(META_FUNC, TYPE, result)                              \
     TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE, result);                          \
     TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE const, result);                    \
     TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE volatile, result);                 \
     TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE const volatile, result);           \
-    // Test all cv-qualified combinations on the specified 'TYPE' and confirm
-    // that the result value of the '<META_FUNC' and the expected 'result'
-    // value are the same.
 
 //=============================================================================
 //                              USAGE EXAMPLES
@@ -215,12 +215,12 @@ struct Incomplete;
 ///- - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a set of types are class types.
 //
-// First, we create a class type 'MyClass':
-//..
+// First, we create a class type `MyClass`:
+// ```
     class MyClass
     {
     };
-//..
+// ```
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -248,13 +248,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -263,56 +263,56 @@ int main(int argc, char *argv[])
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 
-// Now, we instantiate the 'bsl::is_class' template for both a non-class type
-// and the defined type 'MyClass', and assert the 'value' static data member of
+// Now, we instantiate the `bsl::is_class` template for both a non-class type
+// and the defined type `MyClass`, and assert the `value` static data member of
 // each instantiation:
-//..
+// ```
     ASSERT(false == bsl::is_class<int>::value);
     ASSERT(true  == bsl::is_class<MyClass>::value);
-//..
+// ```
 // Note that if the current compiler supports the variable templates C++14
 // feature then we can re-write the snippet of code above using the
-// 'bsl::is_class_v' variable as follows:
-//..
+// `bsl::is_class_v` variable as follows:
+// ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
     ASSERT(false == bsl::is_class_v<int>);
     ASSERT(true  == bsl::is_class_v<MyClass>);
 #endif
-//..
+// ```
 
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'bslmf::IsClass::value'
-        //   Ensure that the static data member 'VALUE' of 'bslmf::IsClass'
-        //   instantiations having various (template parameter) 'TYPE's has the
+        // `bslmf::IsClass::value`
+        //   Ensure that the static data member `VALUE` of `bslmf::IsClass`
+        //   instantiations having various (template parameter) `TYPE`s has the
         //   correct value.
         //
         // Concerns:
-        //: 1 'IsClass::value' is 0 when 'TYPE' is a (possibly cv-qualified)
-        //:   primitive type.
-        //:
-        //: 2 'IsClass::value' is 0 when 'TYPE' is a (possibly cv-qualified)
-        //:   'enum' type.
-        //:
-        //: 3 'IsClass::value' is 1 when 'TYPE' is a (possibly cv-qualified)
-        //:   'class', 'struct', or 'union' type.
-        //:
-        //: 4 'IsClass::value' is 0 when 'TYPE' is a (possibly cv-qualified)
-        //:   pointer or pointer-to-member type.
-        //:
-        //: 5 'IsClass::value' is 0 when 'TYPE' is a (possibly cv-qualified)
-        //:   function type.
+        // 1. `IsClass::value` is 0 when `TYPE` is a (possibly cv-qualified)
+        //    primitive type.
+        //
+        // 2. `IsClass::value` is 0 when `TYPE` is a (possibly cv-qualified)
+        //    `enum` type.
+        //
+        // 3. `IsClass::value` is 1 when `TYPE` is a (possibly cv-qualified)
+        //    `class`, `struct`, or `union` type.
+        //
+        // 4. `IsClass::value` is 0 when `TYPE` is a (possibly cv-qualified)
+        //    pointer or pointer-to-member type.
+        //
+        // 5. `IsClass::value` is 0 when `TYPE` is a (possibly cv-qualified)
+        //    function type.
         //
         // Plan:
-        //   Verify that 'bslmf::IsClass::value' has the correct value for each
-        //   (template parameter) 'TYPE' in the concerns.
+        //   Verify that `bslmf::IsClass::value` has the correct value for each
+        //   (template parameter) `TYPE` in the concerns.
         //
         // Testing:
         //   bslmf::IsClass::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("'bslmf::IsClass::value'\n"
+        if (verbose) printf("`bslmf::IsClass::value`\n"
                             "=======================\n");
 
         // C-1
@@ -370,40 +370,40 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::is_class::value'
-        //   Ensure that the static data member 'value' of 'bsl::is_class'
-        //   instantiations having various (template parameter) 'TYPE's has the
+        // `bsl::is_class::value`
+        //   Ensure that the static data member `value` of `bsl::is_class`
+        //   instantiations having various (template parameter) `TYPE`s has the
         //   correct value.
         //
         // Concerns:
-        //: 1 'is_class::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) primitive type.
-        //:
-        //: 2 'is_class::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) 'enum' type.
-        //:
-        //: 3 'is_class::value' is 'true' when 'TYPE' is a (possibly
-        //:   cv-qualified) 'class', 'struct', or 'union' type.
-        //:
-        //: 4 'is_class::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) pointer or pointer-to-member type.
-        //:
-        //: 5 'is_class::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) function type.
-        //:
-        //: 6 That 'is_class_v' equals to 'is_class::value' for a variety of
-        //:   template parameter types.
+        // 1. `is_class::value` is `false` when `TYPE` is a (possibly
+        //    cv-qualified) primitive type.
+        //
+        // 2. `is_class::value` is `false` when `TYPE` is a (possibly
+        //    cv-qualified) `enum` type.
+        //
+        // 3. `is_class::value` is `true` when `TYPE` is a (possibly
+        //    cv-qualified) `class`, `struct`, or `union` type.
+        //
+        // 4. `is_class::value` is `false` when `TYPE` is a (possibly
+        //    cv-qualified) pointer or pointer-to-member type.
+        //
+        // 5. `is_class::value` is `false` when `TYPE` is a (possibly
+        //    cv-qualified) function type.
+        //
+        // 6. That `is_class_v` equals to `is_class::value` for a variety of
+        //    template parameter types.
         //
         // Plan:
-        //   Verify that 'bsl::is_class::value' has the correct value for
-        //   each (template parameter) 'TYPE' in the concerns.
+        //   Verify that `bsl::is_class::value` has the correct value for
+        //   each (template parameter) `TYPE` in the concerns.
         //
         // Testing:
         //   bsl::is_class::value
         //   bsl::is_class_v
         // --------------------------------------------------------------------
 
-        if (verbose) printf("'bsl::is_class::value'\n"
+        if (verbose) printf("`bsl::is_class::value`\n"
                             "======================\n");
 
         // C-1,6

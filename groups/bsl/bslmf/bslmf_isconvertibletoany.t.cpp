@@ -3,8 +3,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 
@@ -14,7 +14,7 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 // The component under test defines a meta-function,
-// 'bslmf::IsConvertibleToAny', that determines whether a template parameter
+// `bslmf::IsConvertibleToAny`, that determines whether a template parameter
 // type can be converted to any type.  Thus, we need to ensure that the value
 // returned by this meta-function is correct for the type with a template
 // conversion operator.
@@ -107,14 +107,14 @@ struct ConvertibleToAnyConst {
 // conversion operator.
 //
 // First, we define a type with the template conversion operator:
-//..
+// ```
     struct TypeWithTemplateConversion {
         template <class TYPE>
         operator TYPE() {
             return TYPE();
         }
     };
-//..
+// ```
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -142,13 +142,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -157,36 +157,36 @@ int main(int argc, char *argv[])
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 
-// Now, we instantiate the 'bslmf::IsConvertibleToAny' template for
-// 'TypeWithTemplateConversion' and assert the 'value' of the instantiation:
-//..
+// Now, we instantiate the `bslmf::IsConvertibleToAny` template for
+// `TypeWithTemplateConversion` and assert the `value` of the instantiation:
+// ```
     ASSERT(bslmf::IsConvertibleToAny<TypeWithTemplateConversion>::value);
-//..
+// ```
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bslmf::IsConvertibleToAny::value'
-        //   Ensure that the static data member 'value' of
-        //   'bslmf::IsConvertibleToAny' instantiation with the (template
-        //   parameter) 'TYPE' having a template conversion operator has a
+        // `bslmf::IsConvertibleToAny::value`
+        //   Ensure that the static data member `value` of
+        //   `bslmf::IsConvertibleToAny` instantiation with the (template
+        //   parameter) `TYPE` having a template conversion operator has a
         //   correct value.
         //
         // Concerns:
-        //: 1 'bslmf::IsConvertibleToAny::value' is 'false' when 'TYPE' is a
-        //:   primitive type.
-        //:
-        //: 2 'bslmf::IsConvertibleToAny::value' is 'false' when 'TYPE' doesn't
-        //:   have a conversion operator that allows it to be converted to any
-        //:   type, but might have any other conversion operators.
-        //:
-        //: 3 'bslmf::IsConvertibleToAny::value' is 'true' when 'TYPE'
-        //:   has a conversion operator that allows it to be converted to any
-        //:   type.
+        // 1. `bslmf::IsConvertibleToAny::value` is `false` when `TYPE` is a
+        //    primitive type.
+        //
+        // 2. `bslmf::IsConvertibleToAny::value` is `false` when `TYPE` doesn't
+        //    have a conversion operator that allows it to be converted to any
+        //    type, but might have any other conversion operators.
+        //
+        // 3. `bslmf::IsConvertibleToAny::value` is `true` when `TYPE`
+        //    has a conversion operator that allows it to be converted to any
+        //    type.
         //
         // Plan:
-        //   Verify that 'bslmf::IsConvertibleToAny::value' has the correct
-        //   value for each (template parameter) 'TYPE' in the concerns.
+        //   Verify that `bslmf::IsConvertibleToAny::value` has the correct
+        //   value for each (template parameter) `TYPE` in the concerns.
         //   (C-1..3)
         //
         // Testing:

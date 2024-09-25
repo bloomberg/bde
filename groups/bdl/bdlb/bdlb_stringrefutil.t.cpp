@@ -9,12 +9,12 @@
 
 #include <bslstl_stringref.h>
 
-#include <bsl_algorithm.h> // 'bsl::transform', 'bsl::find'
-#include <bsl_cctype.h>    // 'bsl::toupper', 'bsl::tolower'
-#include <bsl_cstdlib.h>   // 'bsl::atoi',    'bsl::strspn'
-#include <bsl_cstring.h>   // 'bsl::strlen'
+#include <bsl_algorithm.h> // `bsl::transform`, `bsl::find`
+#include <bsl_cctype.h>    // `bsl::toupper`, `bsl::tolower`
+#include <bsl_cstdlib.h>   // `bsl::atoi`,    `bsl::strspn`
+#include <bsl_cstring.h>   // `bsl::strlen`
 #include <bsl_iostream.h>
-#include <bsl_string.h>    // 'bsl::memcpy',  'bsl::memcmp'
+#include <bsl_string.h>    // `bsl::memcpy`,  `bsl::memcmp`
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
@@ -33,12 +33,12 @@ using bsl::hex;
 // The component under test is a utility component in which some functions are
 // used in the implementation of other functions:
 //
-//: o The 'lowerCaseCmp' function (test case 2) is used in the implementations
-//:   of 'strstrCaseless' and 'strrstrCaseless' (test case 4).
-//:
-//: o The 'trim' function is implemented in terms of 'ltrim' and 'rtim', All
-//:   will be tested in case 3; each test for 'trim' will parallel but follow
-//:   the corresponding tests for 'ltrim' and 'rtrim'.
+//  - The `lowerCaseCmp` function (test case 2) is used in the implementations
+//    of `strstrCaseless` and `strrstrCaseless` (test case 4).
+//
+//  - The `trim` function is implemented in terms of `ltrim` and `rtim`, All
+//    will be tested in case 3; each test for `trim` will parallel but follow
+//    the corresponding tests for `ltrim` and `rtrim`.
 //
 // The Global Concerns listed below apply to each function of this utility and
 // are not repeated in the description of the individual test cases.
@@ -50,42 +50,42 @@ using bsl::hex;
 //
 ///Global Concerns:
 ///---------------
-//: 1 The functions handle string in each of these distinguished categories:
-//:
-//:   o '2 < length': distinct first and last elements, and one or more
-//:     undistinguished (neither first nor last) middle elements.
-//:
-//:   o '2 == length': adjacent first and last elements (i.e., no middle).
-//:
-//:   o '1 == length': coincident first and last elements.
-//:
-//:   o '0 == length': no elements (empty)
-//:
-//:   o 'bslstl::StringRef()': a special case for 'bslstl::StringRef' objects
-//:     having a zero address and a zero length.
-//:
-//: 2 The functions handle all possible byte values in arbitrary order such as:
-//:   o ASCII values with embedded '\0' values.
-//;   o ASCII values corresponding to upper and lower case letters.
-//:   o Extended ASCII values (which have the 8th bit [msb] set).
-//:
-//: 3 The functions operate on the intended sequence of bytes and no other.
-//:
-//: 4 The functions accept constant references to 'bslstl::StringRef' objects.
+// 1. The functions handle string in each of these distinguished categories:
+//
+//    - `2 < length`: distinct first and last elements, and one or more
+//      undistinguished (neither first nor last) middle elements.
+//
+//    - `2 == length`: adjacent first and last elements (i.e., no middle).
+//
+//    - `1 == length`: coincident first and last elements.
+//
+//    - `0 == length`: no elements (empty)
+//
+//    - `bslstl::StringRef()`: a special case for `bslstl::StringRef` objects
+//      having a zero address and a zero length.
+//
+// 2. The functions handle all possible byte values in arbitrary order such as:
+//    - ASCII values with embedded '\0' values.
+//    - ASCII values corresponding to upper and lower case letters.
+//    - Extended ASCII values (which have the 8th bit [msb] set).
+//
+// 3. The functions operate on the intended sequence of bytes and no other.
+//
+// 4. The functions accept constant references to `bslstl::StringRef` objects.
 //
 ///Global Plans:
 ///-------------
-//: 1 Define test input in each length category.  When there are two inputs,
-//:   the cross product of the categories is defined.
-//:
-//: 2 Define test input having embedded nulls and values with the 8th bit set.
-//:
-//: 3 Where possible, surround test input sequences with sentinel characters
-//:   having values that, if included in the calculation, would change the
-//:   result.
-//:
-//: 4 Invoke all function calls with 'const' qualified objects (or
-//:   'const'-qualified references to modifiable objects).
+// 1. Define test input in each length category.  When there are two inputs,
+//    the cross product of the categories is defined.
+//
+// 2. Define test input having embedded nulls and values with the 8th bit set.
+//
+// 3. Where possible, surround test input sequences with sentinel characters
+//    having values that, if included in the calculation, would change the
+//    result.
+//
+// 4. Invoke all function calls with `const` qualified objects (or
+//    `const`-qualified references to modifiable objects).
 //
 // ----------------------------------------------------------------------------
 // [ 2] areEqualCaseless(const bslstl::StringRef& lhs, rhs);
@@ -109,10 +109,10 @@ using bsl::hex;
 // [ 6] findLastNotOf(stringRef, characters, position);
 // ----------------------------------------------------------------------------
 // [ 7] USAGE EXAMPLE
-// [ 1] HELPER FUNCTION: 'whitespaceLabel'
-// [ 1] HELPER FUNCTION: 'isEqual'
-// [ 1] HELPER FUNCTION: 'Local::toLower'
-// [ 1] HELPER FUNCTION: 'Local::toUpper'
+// [ 1] HELPER FUNCTION: `whitespaceLabel`
+// [ 1] HELPER FUNCTION: `isEqual`
+// [ 1] HELPER FUNCTION: `Local::toLower`
+// [ 1] HELPER FUNCTION: `Local::toUpper`
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -178,22 +178,22 @@ typedef int(*Disambiguate)(int);
 //                              HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// Return the address of a static string containing a two letter sequence
+/// representing the specified ASCII whitespace character `ch`.  If `ch` is
+/// not an ASCII whitespace character, the address of a "XX" string literal
+/// is returned.  The mapping of character to string is:
+/// ```
+/// CHARACTER  LABEL
+/// ---------  -----
+/// ' '        "SP"  // blank space
+/// '\t'       "HT"  // horizontal tab
+/// '\n'       "NL"  // new line
+/// '\v'       "VT"  // vertical tab
+/// '\f'       "FF"  // form feed
+/// '\r'       "CR"  // carriage return
+/// other      "XX"  // NOT A WHITESPACE
+/// ```
 const char *whitespaceLabel(int ch)
-    // Return the address of a static string containing a two letter sequence
-    // representing the specified ASCII whitespace character 'ch'.  If 'ch' is
-    // not an ASCII whitespace character, the address of a "XX" string literal
-    // is returned.  The mapping of character to string is:
-    //..
-    //  CHARACTER  LABEL
-    //  ---------  -----
-    //  ' '        "SP"  // blank space
-    //  '\t'       "HT"  // horizontal tab
-    //  '\n'       "NL"  // new line
-    //  '\v'       "VT"  // vertical tab
-    //  '\f'       "FF"  // form feed
-    //  '\r'       "CR"  // carriage return
-    //  other      "XX"  // NOT A WHITESPACE
-    //..
 {
     if (' ' == ch) {
         return "SP";                                                  // RETURN
@@ -212,8 +212,8 @@ const char *whitespaceLabel(int ch)
     return labels[ch - '\t'];
 }
 
+/// Execute the validation test for the `whitespacelabel` helper function.
 static void testWhitespaceLabel()
-    // Execute the validation test for the 'whitespacelabel' helper function.
 {
     for (int ch = 0; ch <= 255; ++ch) {
         switch(ch) {
@@ -232,21 +232,21 @@ static void testWhitespaceLabel()
 
 static bool u_veryVerbose;
 
+/// Return `true` if the specified `a` and `b` have the same `data` and
+/// `length` attributes and `false` otherwise.
 static bool isEqual(const SR& a, const SR&b)
-    // Return 'true' if the specified 'a' and 'b' have the same 'data' and
-    // 'length' attributes and 'false' otherwise.
 {
     return a.begin() == b.begin()
         && a.end()   == b.end();
 }
 
+/// Execute the validation test for the `isEqual` helper function.
 static void testIsEqual()
-    // Execute the validation test for the 'isEqual' helper function.
 {
+    /// Return "null pointer" if the specified `dataPtr` is 0, and
+    /// "non-null pointer" otherwise.
     struct Local {
         static const char *dataLabel(const char *dataPtr)
-            // Return "null pointer" if the specified 'dataPtr' is 0, and
-            // "non-null pointer" otherwise.
         {
             return 0 == dataPtr
                    ? "null pointer"
@@ -307,18 +307,18 @@ static void testIsEqual()
     }
 }
 
+/// This `struct` provides a namespace for a helper functions that avoid the
+/// disambiguation issues of using `bsl::tolower` or `bsl::toupper` as third
+/// arguments to `bsl::transform`.
 struct Local {
-    // This 'struct' provides a namespace for a helper functions that avoid the
-    // disambiguation issues of using 'bsl::tolower' or 'bsl::toupper' as third
-    // arguments to 'bsl::transform'.
 
+    /// Return the result of calling `bsl::tolower` using the specified
+    /// `ch`.
     static int toLower(const int& ch);
-        // Return the result of calling 'bsl::tolower' using the specified
-        // 'ch'.
 
+    /// Return the result of calling `bsl::toupper` using the specified
+    /// `ch`.
     static int toUpper(const int& ch);
-        // Return the result of calling 'bsl::toupper' using the specified
-        // 'ch'.
 };
 
 int Local::toLower(const int& ch)
@@ -331,8 +331,8 @@ int Local::toUpper(const int& ch)
     return bsl::toupper(ch);
 }
 
+/// Execute the validation test for the `Local` helper function.
 static void testLocalFunctions()
-    // Execute the validation test for the 'Local' helper function.
 {
     for (int ch = 0; ch <= 255; ++ch) {
         ASSERT(bsl::tolower(ch) == Local::toLower(ch));
@@ -340,12 +340,12 @@ static void testLocalFunctions()
     }
 }
 
+/// Load into the specified `result` vector the parts of the specified
+/// `string` as delimited by the specified `delimiter`.  So for `"a,b,c"`
+/// return `["a", "b", "c"]`.
 static void split(bsl::vector<bslstl::StringRef> *result,
                   const bslstl::StringRef&        string,
                   char                            delimiter)
-    // Load into the specified 'result' vector the parts of the specified
-    // 'string' as delimited by the specified 'delimiter'.  So for '"a,b,c"'
-    // return '["a", "b", "c"]'.
 {
     typedef bslstl::StringRef::const_iterator Cit;
 
@@ -368,19 +368,19 @@ namespace case6 {
 
     // The function codes are the following:
     //
-    //   "1":  'find_first_of' with default position argument value
-    //   "l":  'find_last_of' with default position argument value
-    //   "!1": 'find_first_not_of' with default position argument value
-    //   "!l": 'find_last_not_of' with default position argument value
-    //   "1p":  'find_first_of' with specified position argument value
-    //   "lp":  'find_last_of' with specified position argument value
-    //   "!1p": 'find_first_not_of' with specified position argument value
-    //   "!lp": 'find_last_not_of' with specified position argument value
+    //   "1":  `find_first_of` with default position argument value
+    //   "l":  `find_last_of` with default position argument value
+    //   "!1": `find_first_not_of` with default position argument value
+    //   "!l": `find_last_not_of` with default position argument value
+    //   "1p":  `find_first_of` with specified position argument value
+    //   "lp":  `find_last_of` with specified position argument value
+    //   "!1p": `find_first_not_of` with specified position argument value
+    //   "!lp": `find_last_not_of` with specified position argument value
 
+/// Return the name of the function corresponding to the specified `code`.
+/// See above for the specification of possible `code` values.
 static
 bslstl::StringRef functionName(const bslstl::StringRef& code)
-    // Return the name of the function corresponding to the specified 'code'.
-    // See above for the specification of possible 'code' values.
 {
     if (code == "1") {
         return "findFirstOf(STRING, CHARACTERS)";                     // RETURN
@@ -411,20 +411,20 @@ bslstl::StringRef functionName(const bslstl::StringRef& code)
     return "*** UNKNOWN FUNCTION ***";
 }
 
+/// Just a shorthand
 static const Util::size_type k_NPOS  = Util::k_NPOS;
-    // Just a shorthand
 
+/// For when `position` is not used
 static const Util::size_type k_DUMMY = k_NPOS - 1;
-    // For when 'position' is not used
 
+/// Call the function identified by the specified `code` using the specified
+/// `string`, `characters`, and `position` arguments.  See above for the
+/// specification of possible `code` values.
 static
 Util::size_type callFunction(const bslstl::StringRef& code,
                              const bslstl::StringRef& string,
                              const bslstl::StringRef& characters,
                              Util::size_type          position)
-    // Call the function identified by the specified 'code' using the specified
-    // 'string', 'characters', and 'position' arguments.  See above for the
-    // specification of possible 'code' values.
 {
     if (code == "1") {
         return Util::findFirstOf(string, characters);                 // RETURN
@@ -477,7 +477,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
@@ -486,13 +486,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -510,36 +510,36 @@ int main(int argc, char *argv[])
 // whitespace characters to obtain the essential text that is the intended
 // input.  Naturally, one would prefer to do this as efficiently as possible.
 //
-// Suppose the response entered by a user is captured in 'rawInput' below:
-//..
+// Suppose the response entered by a user is captured in `rawInput` below:
+// ```
     const char * const rawInput    = "    \t\r\n  Hello, world!    \r\n";
                                     //1234 5 6 789             1234 5 6
                                     //            123456789ABCD
                                     // Note lengths of whitespace and
                                     // non-whitespace substrings for later.
-//..
-// First, for this pedagogical example, we copy the contents at 'rawInput' for
+// ```
+// First, for this pedagogical example, we copy the contents at `rawInput` for
 // later reference:
-//..
+// ```
     const bsl::string copyRawInput(rawInput);
-//..
-// Then, we create a 'bslstl::StringRef' object referring to the raw data.
-// Given a single argument of 'const char *', the constructor assumes the data
+// ```
+// Then, we create a `bslstl::StringRef` object referring to the raw data.
+// Given a single argument of `const char *`, the constructor assumes the data
 // is a null-terminated string and implicitly calculates the length for the
 // reference:
-//..
+// ```
     bslstl::StringRef text(rawInput);
 
     ASSERT(rawInput   == text.data());
     ASSERT(9 + 13 + 6 == text.length());
-//..
-// Now, we invoke the 'bdlb::StringRefUtil::trim' method to find the "Hello,
-// world!" sequence in 'rawInput'.
-//..
+// ```
+// Now, we invoke the `bdlb::StringRefUtil::trim` method to find the "Hello,
+// world!" sequence in `rawInput`.
+// ```
     bslstl::StringRef textOfInterest = bdlb::StringRefUtil::trim(text);
-//..
+// ```
 // Finally, we observe the results:
-//..
+// ```
     ASSERT("Hello, world!"       == textOfInterest); // content comparison
     ASSERT(13                    == textOfInterest.length());
 
@@ -547,10 +547,10 @@ int main(int argc, char *argv[])
     ASSERT(text.length() - 9 - 6 == textOfInterest.length());
 
     ASSERT(rawInput              == copyRawInput);   // content comparison
-//..
-// Notice that, as expected, the 'textOfInterest' object refers to the "Hello,
-// world!" sub-sequence within the 'rawInput' byte array while the data at
-// 'rawInput' remains *unchanged*.
+// ```
+// Notice that, as expected, the `textOfInterest` object refers to the "Hello,
+// world!" sub-sequence within the `rawInput` byte array while the data at
+// `rawInput` remains *unchanged*.
 
     } break;
     case 6: {
@@ -558,24 +558,24 @@ int main(int argc, char *argv[])
         // FIND FIRST/LAST [NOT] OF
         //
         // Concerns:
-        //: 1 Any position argument is accepted.
-        //:
-        //: 2 Empty string can be searched.
-        //:
-        //: 3 The "first" function finds the first occurrence according to
-        //:   position.
-        //:
-        //: 4 The "last" function finds the last occurrence according to
-        //:   position.
-        //:
-        //: 5 Default arguments for position are provided.
-        //:
-        //: 6 All the provided search characters are considered.
-        //:
-        //: 7 The provided string is search fully from the specified position.
+        // 1. Any position argument is accepted.
+        //
+        // 2. Empty string can be searched.
+        //
+        // 3. The "first" function finds the first occurrence according to
+        //    position.
+        //
+        // 4. The "last" function finds the last occurrence according to
+        //    position.
+        //
+        // 5. Default arguments for position are provided.
+        //
+        // 6. All the provided search characters are considered.
+        //
+        // 7. The provided string is search fully from the specified position.
         //
         // Plan:
-        //: 1 Use table based testing to verify all the concerns.
+        // 1. Use table based testing to verify all the concerns.
         //
         // Testing:
         //  findFirstOf(stringRef, characters, position);
@@ -599,7 +599,7 @@ int main(int argc, char *argv[])
             StringRef d_string;
             StringRef d_chars;
             StringRef d_calls; // 1, l, !1, !l, 1p, lp, !1p, !lp
-                               // See 'case6::functionName' for meaning.
+                               // See `case6::functionName` for meaning.
             size_type d_pos;
             size_type d_expected;
         } k_DATA[] = {
@@ -861,29 +861,29 @@ int main(int argc, char *argv[])
         // SUBSTRING
         //
         // Concerns:
-        //: 1 Bad 'position' asserts.
-        //: 2 Negative 'numChars' asserts.
-        //: 3 Larger-than-length 'numChars' is adjusted.
-        //: 4 The proper substring is returned.
-        //: 5 Default arguments are provided.
-        //: 6 The input string argument is 'const'.
-        //: 7 'position' at the end is valid.
+        // 1. Bad `position` asserts.
+        // 2. Negative `numChars` asserts.
+        // 3. Larger-than-length `numChars` is adjusted.
+        // 4. The proper substring is returned.
+        // 5. Default arguments are provided.
+        // 6. The input string argument is `const`.
+        // 7. `position` at the end is valid.
         //
         // Plan:
-        //: 1 If compiling with exceptions enabled, verify that a 'position'
+        // 1. If compiling with exceptions enabled, verify that a `position`
         //    larger than string length asserts.
-        //:
-        //: 2 Verify that if 'position + numChars' are larger than the length
-        //:   of the string 'numChars' is adjusted.
-        //:
-        //: 3 Verify that 'position == string.length()' is valid and returns an
-        //:   empty string.
-        //:
-        //: 3 Verify that the proper substring is returned.
-        //:
-        //: 4 Verify the default arguments.
-        //:
-        //: 5 Use a 'const bslstl::StringRef' as input.
+        //
+        // 2. Verify that if `position + numChars` are larger than the length
+        //    of the string `numChars` is adjusted.
+        //
+        // 3. Verify that `position == string.length()` is valid and returns an
+        //    empty string.
+        //
+        // 3. Verify that the proper substring is returned.
+        //
+        // 4. Verify the default arguments.
+        //
+        // 5. Use a `const bslstl::StringRef` as input.
         //
         // Testing:
         //  substr(string, position = 0, numChars = k_NPOS);
@@ -937,35 +937,35 @@ int main(int argc, char *argv[])
         //   and the plans for addressing those concerns.
         //
         // Concerns:
-        //: 1 The specified sub-string is correctly located in the given string
-        //:   if and only if the sub-string is entirely contained in string.
-        //:
-        //: 2 In the "caseless" methods, characters from 'string' and 'substr'
-        //:   are *both* converted to a common case before comparison.
-        //:
-        //: 3 When a string contains multiple instances of a specified
-        //:   substring, the correct occurrence (first/last) of the substring
-        //:   is reported.
+        // 1. The specified sub-string is correctly located in the given string
+        //    if and only if the sub-string is entirely contained in string.
+        //
+        // 2. In the "caseless" methods, characters from `string` and `substr`
+        //    are *both* converted to a common case before comparison.
+        //
+        // 3. When a string contains multiple instances of a specified
+        //    substring, the correct occurrence (first/last) of the substring
+        //    is reported.
         //
         // Plan:
-        //: 1 Construct a series of input string/sub-string pairs in which the
-        //:   sub-string "slides" through the string.  The substring should be
-        //:   found only when it entirely overlaps the string.  (C-1)
-        //:
-        //: 2 Repeat step P-1 for four configurations: (C-2)
-        //:   1 Both 'string' and 'substr' are lowercase (as initialized in the
-        //:     'DATA' array).
-        //:   2 'string' is lowercase and 'substr' is uppercase.
-        //:   3 'string' is uppercase and 'substr' is lowercase.
-        //:   4 Both 'string' and 'substr' are uppercase.
-        //:
-        //: 3 Create input data having mixed characters cases in
-        //:   both the string and the substring.  Compare the result
-        //:   from each of the four search methods with the calculated
-        //:   expected value.  (C-2)
+        // 1. Construct a series of input string/sub-string pairs in which the
+        //    sub-string "slides" through the string.  The substring should be
+        //    found only when it entirely overlaps the string.  (C-1)
         //
-        //: 4 Construct a series of input string/sub-string pairs in which
-        //:   there are multiple occurrences of the substring.  (C-3)
+        // 2. Repeat step P-1 for four configurations: (C-2)
+        //   1. Both `string` and `substr` are lowercase (as initialized in the
+        //      `DATA` array).
+        //   2. `string` is lowercase and `substr` is uppercase.
+        //   3. `string` is uppercase and `substr` is lowercase.
+        //   4. Both `string` and `substr` are uppercase.
+        //
+        // 3. Create input data having mixed characters cases in
+        //    both the string and the substring.  Compare the result
+        //    from each of the four search methods with the calculated
+        //    expected value.  (C-2)
+        //
+        // 4. Construct a series of input string/sub-string pairs in which
+        //    there are multiple occurrences of the substring.  (C-3)
         //
         // Testing:
         //  strstr         (const bslstl::StringRef& string, subString);
@@ -1195,7 +1195,7 @@ int main(int argc, char *argv[])
                     areSameCaseStrSubstr = true;
                   } break;
                   default: {
-                      LOOP_ASSERT(cfg, 0 == "Unknown 'cfg'");
+                      LOOP_ASSERT(cfg, 0 == "Unknown `cfg`");
                   } break;
                 };
 
@@ -1260,11 +1260,11 @@ int main(int argc, char *argv[])
             bsl::string substr(CSUBSTR);
             bsl::size_t lenCSUBSTR = substr.length();
 
+            /// Return the value of the specified `ch` with the most
+            /// significant bit (msb) set.  Note that if the msb is set
+            /// on entry, the given value is returned unchanged.
             struct Local {
                 static unsigned char setMsb(const char& ch)
-                    // Return the value of the specified 'ch' with the most
-                    // significant bit (msb) set.  Note that if the msb is set
-                    // on entry, the given value is returned unchanged.
                 {
                     return static_cast<unsigned char>(ch) | 0x80;
                 }
@@ -1322,16 +1322,17 @@ int main(int argc, char *argv[])
                 const int   d_result;
                 const int   d_resultCaseless;
                 const int   d_resultReverse;
+
+                /// Index of substring in string or -1 if not found.
                 const int   d_resultReverseCaseless;
-                    // Index of substring in string or -1 if not found.
 
             } DATA_MIXEDCASE[] = {
                 // In the table below, R1-4 correspond to the results from the
                 // the four methods under test.  The mapping is:
-                //: 1 Results from 'strstr',
-                //: 2 Results from 'strstrCaseless',
-                //: 3 Results from 'strrstr',
-                //: 4 Results from 'strrstrCaseless'.
+                // 1. Results from `strstr`,
+                // 2. Results from `strstrCaseless`,
+                // 3. Results from `strrstr`,
+                // 4. Results from `strrstrCaseless`.
 
                 //LI  STRING       SUBSTRING    R1  R2  R3  R4
                 //--  ----------   ---------    --  --  --  --
@@ -1476,10 +1477,10 @@ int main(int argc, char *argv[])
             const bsl::size_t NUM_DATA_MIXEDCASE = sizeof  DATA_MIXEDCASE
                                                  / sizeof *DATA_MIXEDCASE;
 
+            /// Return "null pointer" if the specified `string` is 0,
+            /// and `string` otherwise.
             struct Local {
                 static const char *print(const char *string)
-                    // Return "null pointer" if the specified 'string' is 0,
-                    // and 'string' otherwise.
                 {
                     return 0 == string
                            ? "null pointer"
@@ -1674,19 +1675,19 @@ int main(int argc, char *argv[])
         //   functions and the plans for addressing those concerns.
         //
         // Concerns:
-        //: 1 The implementation defines the same whitespace character set as
-        //:   'bsl::isspace'.
-        //:
-        //: 2 The '*trim' functions exclude exterior whitespace characters and
-        //:   ignore interior whitespace characters.
+        // 1. The implementation defines the same whitespace character set as
+        //    `bsl::isspace`.
+        //
+        // 2. The `*trim` functions exclude exterior whitespace characters and
+        //    ignore interior whitespace characters.
         //
         // Plan:
-        //: 1 Assemble a set of whitespace characters by running 'bsl::isspace'
-        //:   on all character possible values, '[0 .. 255]'.  Use this
-        //:   computed character set in the generation of input values.  (C-1)
-        //:
-        //: 2 Define input sequences having interior whitespace sequences,
-        //:   and not.  (C-2)
+        // 1. Assemble a set of whitespace characters by running `bsl::isspace`
+        //    on all character possible values, `[0 .. 255]`.  Use this
+        //    computed character set in the generation of input values.  (C-1)
+        //
+        // 2. Define input sequences having interior whitespace sequences,
+        //    and not.  (C-2)
         //
         // Testing:
         //   ltrim(const bslstl::StringRef& string);
@@ -1980,12 +1981,12 @@ int main(int argc, char *argv[])
         //   and the plans for addressing those concerns.
         //
         // Concerns:
-        //: 1 The implementation defines case conversions (for comparisons)
-        //:   identically with 'bsl::toupper' and 'bsl::tolower'.
+        // 1. The implementation defines case conversions (for comparisons)
+        //    identically with `bsl::toupper` and `bsl::tolower`.
         //
         // Plan:
-        //: 1 Compute expected results using 'bsl::toupper' and 'bsl::tolower'
-        //:   as oracles.  (C-1)
+        // 1. Compute expected results using `bsl::toupper` and `bsl::tolower`
+        //    as oracles.  (C-1)
         //
         // Testing:
         //   areEqualCaseless(const bslstl::StringRef& lhs, rhs);
@@ -1997,7 +1998,7 @@ int main(int argc, char *argv[])
                                   "===========" "\n";
 
         if (verbose) cout << "\n"
-                          << "'areEqualCaseless'/'lowerCaseCmp'/'upperCaseCmp'"
+                          << "`areEqualCaseless`/`lowerCaseCmp`/`upperCaseCmp`"
                           << "\n";
         {
             static const bsl::size_t  STRLEN = bsl::string().max_size();
@@ -2233,7 +2234,7 @@ int main(int argc, char *argv[])
                         ASSERT(0       == actualLowerCmp);
                         ASSERT(0       == actualUpperCmp);
 
-                        // Construct strings with mismatched sentinel 'char's.
+                        // Construct strings with mismatched sentinel `char`s.
 
                         bsl::string string1("0");
                         bsl::string string2("2");
@@ -2288,44 +2289,44 @@ int main(int argc, char *argv[])
         // HELPER FUNCTIONS
         //
         // Concerns:
-        //: 1 The 'whitespaceLabel', 'Local::toLower', and 'Local::toUpper'
-        //:   helper function can be used with confidence in subsequent tests.
-        //:
-        //: 2 The 'isEqual' helper function can be used with confidence in
-        //:   subsequent tests.  Specifically, the 'isEqual' function
-        //:   demonstrates the expected behaviors of an equality operator:
-        //:   identify, commutativity, transitivity.
+        // 1. The `whitespaceLabel`, `Local::toLower`, and `Local::toUpper`
+        //    helper function can be used with confidence in subsequent tests.
+        //
+        // 2. The `isEqual` helper function can be used with confidence in
+        //    subsequent tests.  Specifically, the `isEqual` function
+        //    demonstrates the expected behaviors of an equality operator:
+        //    identify, commutativity, transitivity.
         //
         // Plan:
-        //: 1 Comprehensive testing: for every possible input value,
-        //:   '[0 .. 255]', compare the return values of 'whitespaceLabel'
-        //:   'Local::toLower', and 'Local::toUpper' to their corresponding
-        //:   expected values.  (C-1)
-        //:
-        //: 2 Create a table of object data (one per row) in which each unique
-        //:   row has a minimal change in a single attribute (i.e., 'data' and
-        //:   'length') sufficient to introduce an inequality relative the
-        //:   other rows.  Confirm that 'isEqual' returns 'true' only when
-        //:   comparing objects constructed from values having the same index
-        //:   in the table.
+        // 1. Comprehensive testing: for every possible input value,
+        //    `[0 .. 255]`, compare the return values of `whitespaceLabel`
+        //    `Local::toLower`, and `Local::toUpper` to their corresponding
+        //    expected values.  (C-1)
+        //
+        // 2. Create a table of object data (one per row) in which each unique
+        //    row has a minimal change in a single attribute (i.e., `data` and
+        //    `length`) sufficient to introduce an inequality relative the
+        //    other rows.  Confirm that `isEqual` returns `true` only when
+        //    comparing objects constructed from values having the same index
+        //    in the table.
         //
         // Testing:
-        //   HELPER FUNCTION: 'whitespaceLabel'
-        //   HELPER FUNCTION: 'isEqual'
-        //   HELPER FUNCTION: 'Local::toLower'
-        //   HELPER FUNCTION: 'Local::toUpper'
+        //   HELPER FUNCTION: `whitespaceLabel`
+        //   HELPER FUNCTION: `isEqual`
+        //   HELPER FUNCTION: `Local::toLower`
+        //   HELPER FUNCTION: `Local::toUpper`
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\n" "HELPER FUNCTIONS" "\n"
                                   "================" "\n";
 
-        if (verbose) cout << "\n" "test 'whitespaceLabel'" "\n";
+        if (verbose) cout << "\n" "test `whitespaceLabel`" "\n";
         testWhitespaceLabel();
 
-        if (verbose) cout << "\n" "test 'isEqual'" "\n";
+        if (verbose) cout << "\n" "test `isEqual`" "\n";
         testIsEqual();
 
-        if (verbose) cout << "\n" "test 'Helper::*'" "\n";
+        if (verbose) cout << "\n" "test `Helper::*`" "\n";
         testLocalFunctions();
 
       } break;

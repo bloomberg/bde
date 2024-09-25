@@ -100,30 +100,31 @@ typedef bslmt::ThreadAttributes Obj;
 ///Example 1: Creating and modifying thread attributes objects
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we will demonstrate creating and configuring a
-// 'bslmt::ThreadAttributes' object, then using it with a hypothetical
+// `bslmt::ThreadAttributes` object, then using it with a hypothetical
 // thread-creation function.  Finally we show how a thread creation function
 // might interpret those attributes for the underlying operating system.
 //
 // First we forward declare a routine that we will use to create a thread:
-//..
+// ```
+
+    /// Spawn a thread having properties described by the specified
+    /// `attributes` and that runs the specified `function`, and assign a
+    /// handle referring to the spawned thread to the specified
+    /// `*threadHandle`.
     void myThreadCreate(int                             *threadHandle,
                         const bslmt::ThreadAttributes&   attributes,
                         void                           (*function)());
-        // Spawn a thread having properties described by the specified
-        // 'attributes' and that runs the specified 'function', and assign a
-        // handle referring to the spawned thread to the specified
-        // '*threadHandle'.
-//..
+// ```
 // Then, we declare two routines that will return the minimum and maximum
 // thread priority given a scheduling policy.  Note that similar methods exist
-// in 'bslmt_threadutil'.
-//..
+// in `bslmt_threadutil`.
+// ```
     int myMinPriority(bslmt::ThreadAttributes::SchedulingPolicy policy);
     int myMaxPriority(bslmt::ThreadAttributes::SchedulingPolicy policy);
-//..
+// ```
 // Next we define a function that we will use as our thread entry point.  This
 // function declares a single variable on the stack of predetermined size.
-//..
+// ```
     enum { k_BUFFER_SIZE = 128 * 1024 };
 
     void myThreadFunction()
@@ -144,62 +145,62 @@ typedef bslmt::ThreadAttributes Obj;
 
         (void) bufferLocal;    // silence unused warnings
     }
-//..
+// ```
 // Then, we define our main function, in which we demonstrate configuring a
-// 'bslmt::ThreadAttributes' object describing the properties a thread we will
+// `bslmt::ThreadAttributes` object describing the properties a thread we will
 // create.
-//..
+// ```
     void testMain()
     {
-//..
-// Next, we create a thread attributes object, 'attributes', and set its
-// 'stackSize' attribute to a value large enough to accommodate the
-// 'BUFFER_SIZE' buffer used by 'myThreadFunction'.  Note that we use
-// 'BUFFER_SIZE' as an illustration; in practice, it is difficult or impossible
+// ```
+// Next, we create a thread attributes object, `attributes`, and set its
+// `stackSize` attribute to a value large enough to accommodate the
+// `BUFFER_SIZE` buffer used by `myThreadFunction`.  Note that we use
+// `BUFFER_SIZE` as an illustration; in practice, it is difficult or impossible
 // to gauge the exact amount of stack size required for a typical thread, and
 // the value supplied should be a reasonable *upper* bound on the anticipated
 // requirement.
-//..
+// ```
         bslmt::ThreadAttributes attributes;
         attributes.setStackSize(k_BUFFER_SIZE);
-//..
-// Then, we set the 'detachedState' property to 'e_CREATE_DETACHED', indicating
+// ```
+// Then, we set the `detachedState` property to `e_CREATE_DETACHED`, indicating
 // that the thread will not be joinable, and its resources will be reclaimed
 // upon termination.
-//..
+// ```
         attributes.setDetachedState(
                                bslmt::ThreadAttributes::e_CREATE_DETACHED);
-//..
+// ```
 // Now, we create a thread, using the attributes configured above:
-//..
+// ```
         int handle;
         myThreadCreate(&handle, attributes, &myThreadFunction);
     }
 // Finally, we define the thread creation function, and show how a thread
 // attributes object might be interpreted by it. This creation function
 // supplies its own default values for stack and thread guard sizes; a real
-// routine using 'ThreadAttributes' should base its defaults on the
-// 'bslmt_configuration' component.
-//..
+// routine using `ThreadAttributes` should base its defaults on the
+// `bslmt_configuration` component.
+// ```
     enum {
        MY_DEFAULT_STACK_SIZE = 512 * 1024,
        MY_DEFAULT_GUARD_SIZE = 16384
     };
 
+    /// Spawn a thread with properties described by the specified
+    /// `attributes`, running the specified `function`, and assign a handle
+    /// referring to the spawned thread to the specified `*threadHandle`.
     void myThreadCreate(int                             *threadHandle,
                         const bslmt::ThreadAttributes&   attributes,
                         void                           (*function)())
-        // Spawn a thread with properties described by the specified
-        // 'attributes', running the specified 'function', and assign a handle
-        // referring to the spawned thread to the specified '*threadHandle'.
     {
         int stackSize = attributes.stackSize();
         if (bslmt::ThreadAttributes::e_UNSET_STACK_SIZE == stackSize) {
             stackSize = MY_DEFAULT_STACK_SIZE;
         }
 
-        // Add a "fudge factor" to 'stackSize' to ensure that the client can
-        // declare an object of 'stackSize' bytes on the stack safely.
+        // Add a "fudge factor" to `stackSize` to ensure that the client can
+        // declare an object of `stackSize` bytes on the stack safely.
 
         stackSize += 8192;
 
@@ -232,8 +233,8 @@ typedef bslmt::ThreadAttributes Obj;
                                     function);
 #endif
     }
-//..
-// Notice that a new value derived from the 'stackSize' attribute is used so
+// ```
+// Notice that a new value derived from the `stackSize` attribute is used so
 // that the meaning of the attribute is platform neutral.
 
 // ============================================================================
@@ -260,7 +261,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -274,91 +275,91 @@ int main(int argc, char *argv[])
 ///Usage
 ///-----
 // The following snippets of code illustrate basic use of this component.
-// First we create a default-constructed 'bslmt::ThreadAttributes' object and
+// First we create a default-constructed `bslmt::ThreadAttributes` object and
 // assert that its detached state does indeed have the default value (i.e.,
-// 'bslmt::ThreadAttributes::e_CREATE_JOINABLE'):
-//..
+// `bslmt::ThreadAttributes::e_CREATE_JOINABLE`):
+// ```
     bslmt::ThreadAttributes attributes;
     ASSERT(bslmt::ThreadAttributes::e_CREATE_JOINABLE ==
                                                    attributes.detachedState());
-//..
-// Next we modify the detached state of 'attributes' to have the non-default
-// value 'bslmt::ThreadAttributes::e_CREATE_DETACHED':
-//..
+// ```
+// Next we modify the detached state of `attributes` to have the non-default
+// value `bslmt::ThreadAttributes::e_CREATE_DETACHED`:
+// ```
     attributes.setDetachedState(
                                bslmt::ThreadAttributes::e_CREATE_DETACHED);
     ASSERT(bslmt::ThreadAttributes::e_CREATE_DETACHED ==
                                                    attributes.detachedState());
-//..
-// Finally, we make a copy of 'attributes':
-//..
+// ```
+// Finally, we make a copy of `attributes`:
+// ```
     bslmt::ThreadAttributes copy(attributes);
     ASSERT(bslmt::ThreadAttributes::e_CREATE_DETACHED ==
                                                          copy.detachedState());
     ASSERT(attributes == copy);
-//..
+// ```
 
       } break;
       case 4: {
         // --------------------------------------------------------------------
         // PRINT AND OUTPUT OPERATOR
         //   Ensure that the value of the object can be formatted appropriately
-        //   on an 'ostream' in some standard, human-readable form.
+        //   on an `ostream` in some standard, human-readable form.
         //
         // Concerns:
-        //: 1 The 'print' method writes the value to the specified 'ostream'.
-        //:
-        //: 2 The 'print' method writes the value in the intended format.
-        //:
-        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)',
-        //:   but with each "attributeName = " elided.
-        //:
-        //: 4 The 'print' method signature and return type are standard.
-        //:
-        //: 5 The 'print' method returns the supplied 'ostream'.
-        //:
-        //: 6 The optional 'level' and 'spacesPerLevel' parameters have the
-        //:   correct default values.
-        //:
-        //: 7 The output 'operator<<' signature and return type are standard.
-        //:
-        //: 8 The output 'operator<<' returns the supplied 'ostream'.
+        // 1. The `print` method writes the value to the specified `ostream`.
+        //
+        // 2. The `print` method writes the value in the intended format.
+        //
+        // 3. The output using `s << obj` is the same as `obj.print(s, 0, -1)`,
+        //    but with each "attributeName = " elided.
+        //
+        // 4. The `print` method signature and return type are standard.
+        //
+        // 5. The `print` method returns the supplied `ostream`.
+        //
+        // 6. The optional `level` and `spacesPerLevel` parameters have the
+        //    correct default values.
+        //
+        // 7. The output `operator<<` signature and return type are standard.
+        //
+        // 8. The output `operator<<` returns the supplied `ostream`.
         //
         // Plan:
-        //: 1 Use the addresses of the 'print' member function and 'operator<<'
-        //:   free function defined in this component to initialize,
-        //:   respectively, member-function and free-function pointers having
-        //:   the appropriate signatures and return types.  (C-4, 7)
-        //:
-        //: 2 Using the table-driven technique:  (C-1..3, 5..6, 8)
-        //:
-        //:   1 Define sixteen carefully selected combinations of (two) object
-        //:     values ('A' and 'B'), having distinct values for each
-        //:     corresponding salient attribute, and various values for the
-        //:     two formatting parameters, along with the expected output.
-        //:
-        //:     ( 'value' x  'level'   x 'spacesPerLevel' ):
-        //:     1 { A   } x {  0     } x {  0, 1, -1, -8 } --> 3 expected o/ps
-        //:     2 { A   } x {  3, -3 } x {  0, 2, -2, -8 } --> 8 expected o/ps
-        //:     3 { B   } x {  2     } x {  3            } --> 1 expected o/p
-        //:     4 { A B } x { -8     } x { -8            } --> 2 expected o/ps
-        //:     5 { A B } x { -9     } x { -9            } --> 2 expected o/ps
-        //:
-        //:   2 For each row in the table defined in P-2.1:  (C-1..3, 5..6, 8)
-        //:
-        //:     1 Using a 'const' 'Obj', supply each object value and pair of
-        //:       formatting parameters to 'print', omitting the 'level' or
-        //:       'spacesPerLevel' parameter if the value of that argument is
-        //:       '-8'.  If the parameters are, arbitrarily, (-9, -9), then
-        //:       invoke the 'operator<<' instead.
-        //:
-        //:     2 Use a standard 'ostringstream' to capture the actual output.
-        //:
-        //:     3 Verify the address of what is returned is that of the
-        //:       supplied stream.  (C-5, 8)
-        //:
-        //:     4 Compare the contents captured in P-2.2.2 with what is
-        //:       expected.  (C-1..3, 6)
+        // 1. Use the addresses of the `print` member function and `operator<<`
+        //    free function defined in this component to initialize,
+        //    respectively, member-function and free-function pointers having
+        //    the appropriate signatures and return types.  (C-4, 7)
+        //
+        // 2. Using the table-driven technique:  (C-1..3, 5..6, 8)
+        //
+        //   1. Define sixteen carefully selected combinations of (two) object
+        //      values (`A` and `B`), having distinct values for each
+        //      corresponding salient attribute, and various values for the
+        //      two formatting parameters, along with the expected output.
+        //
+        //      ( `value` x  `level`   x `spacesPerLevel` ):
+        //     1. { A   } x {  0     } x {  0, 1, -1, -8 } --> 3 expected o/ps
+        //     2. { A   } x {  3, -3 } x {  0, 2, -2, -8 } --> 8 expected o/ps
+        //     3. { B   } x {  2     } x {  3            } --> 1 expected o/p
+        //     4. { A B } x { -8     } x { -8            } --> 2 expected o/ps
+        //     5. { A B } x { -9     } x { -9            } --> 2 expected o/ps
+        //
+        //   2. For each row in the table defined in P-2.1:  (C-1..3, 5..6, 8)
+        //
+        //     1. Using a `const` `Obj`, supply each object value and pair of
+        //        formatting parameters to `print`, omitting the `level` or
+        //        `spacesPerLevel` parameter if the value of that argument is
+        //        `-8`.  If the parameters are, arbitrarily, (-9, -9), then
+        //        invoke the `operator<<` instead.
+        //
+        //     2. Use a standard `ostringstream` to capture the actual output.
+        //
+        //     3. Verify the address of what is returned is that of the
+        //        supplied stream.  (C-5, 8)
+        //
+        //     4. Compare the contents captured in P-2.2.2 with what is
+        //        expected.  (C-1..3, 6)
         //
         // Testing:
         //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
@@ -368,8 +369,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nPRINT AND OUTPUT OPERATOR\n"
                           <<   "=========================\n";
 
-        if (verbose) cout << "\nAssign the addresses of 'print' and "
-                             "the output 'operator<<' to variables.\n";
+        if (verbose) cout << "\nAssign the addresses of `print` and "
+                             "the output `operator<<` to variables.\n";
         {
             using namespace bslmt;
             using bsl::ostream;
@@ -710,10 +711,10 @@ int main(int argc, char *argv[])
         // TESTING TYPE TRAITS
         //
         // Concern:
-        //: 1 That the class has the 'UsesBslmaAllocator' type trait.
+        // 1. That the class has the `UsesBslmaAllocator` type trait.
         //
         // Plan:
-        //: 1 Evaluate the type trait.  (C-1)
+        // 1. Evaluate the type trait.  (C-1)
         //
         // Testing
         //   bslma::UsesBslmaAllocator
@@ -731,7 +732,7 @@ int main(int argc, char *argv[])
         // For each of the 6 attributes of Attribute, set the attribute on a
         // newly constructed object, copy the object, and use the accessor for
         // that attribute to verify the value.  Also verify that each (fluent)
-        //  manipulator returns a non-'const' reference to the targeted object.
+        //  manipulator returns a non-`const` reference to the targeted object.
         // --------------------------------------------------------------------
 
         if (verbose) {

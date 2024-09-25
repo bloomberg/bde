@@ -10,8 +10,8 @@
 #include <bsls_keyword.h>
 #include <bsls_platform.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 #include <string>   // breathing test, should be replaceable
 
@@ -32,7 +32,7 @@ using namespace BloombergLP;
 // objects and deallocates memory used if release is not called before the
 // proctor object goes out of scope.  We achieve this goal by creating objects
 // of a user-defined type that are each initialized with the address of a
-// unique counter, using a 'bslma::TestAllocator'.  As each object is
+// unique counter, using a `bslma::TestAllocator`.  As each object is
 // destroyed, its destructor increments the counter held by the object,
 // indicating the number of times the object's destructor is called.  After
 // the proctor is destroyed, we verify that the corresponding counters of the
@@ -45,9 +45,9 @@ using namespace BloombergLP;
 // [5] void reset(obj);
 //-----------------------------------------------------------------------------
 // [1] Breathing Test
-// [2] Helper Class: 'my_Class'
-// [2] Helper Class: 'my_Pool'
-// [3] Concern: the (non-virtual) 'deallocate' method for pools is also invoked
+// [2] Helper Class: `my_Class`
+// [2] Helper Class: `my_Pool`
+// [3] Concern: the (non-virtual) `deallocate` method for pools is also invoked
 // [6] Usage Example
 //=============================================================================
 
@@ -113,41 +113,44 @@ void aSsErT(bool condition, const char *message, int line)
 //                          HELPER CLASS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// This class provides a `deallocate` method, used to exercise the
+/// contract promised by the destructor of the `bslma::RawDeleterGuard`.
+/// This object indicates that its `deallocate` method is called by
+/// incrementing the global counter (supplied at construction) that it
+/// *holds*.
 class my_Pool {
-    // This class provides a 'deallocate' method, used to exercise the
-    // contract promised by the destructor of the 'bslma::RawDeleterGuard'.
-    // This object indicates that its 'deallocate' method is called by
-    // incrementing the global counter (supplied at construction) that it
-    // *holds*.
 
     // DATA
-    int *d_counter_p;  // counter to be incremented when 'deallocate' is called
+    int *d_counter_p;  // counter to be incremented when `deallocate` is called
 
   public:
     // CREATORS
+
+    /// Create this object holding the specified (global) counter.
     explicit my_Pool(int *counter) : d_counter_p(counter) {}
-        // Create this object holding the specified (global) counter.
 
     // MANIPULATORS
+
+    /// Increment this object's counter.
     void deallocate(void *) { ++*d_counter_p; }
-        // Increment this object's counter.
 };
 
+/// This object indicates that its destructor is called by incrementing the
+/// global counter (supplied at construction) that it holds.
 class my_Class {
-    // This object indicates that its destructor is called by incrementing the
-    // global counter (supplied at construction) that it holds.
 
     // DATA
     int *d_counter_p;  // (global) counter to be incremented at destruction
 
   public:
     // CREATORS
-    explicit my_Class(int *counter) : d_counter_p(counter) {}
-        // Create this object using the address of the specified 'counter' to
-        // be held.
 
+    /// Create this object using the address of the specified `counter` to
+    /// be held.
+    explicit my_Class(int *counter) : d_counter_p(counter) {}
+
+    /// Destroy this object and increment this object's (global) counter.
     ~my_Class() { ++*d_counter_p; }
-        // Destroy this object and increment this object's (global) counter.
 };
 
 // Testing Single Inheritance
@@ -197,25 +200,25 @@ class myMostDerived : public myLeftBase, public myRightBase {
 //=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
-// 'bslma::RawDeleterProctor' is normally used to achieve *exception* *safety*
+// `bslma::RawDeleterProctor` is normally used to achieve *exception* *safety*
 // in an *exception* *neutral* way by managing objects that are created
 // temporarily on the heap, but not yet committed to a container object's
 // management.  This (somewhat contrived) example illustrates the use of a
-// 'bslma::RawDeleterProctor' to manage a dynamically-allocated object,
+// `bslma::RawDeleterProctor` to manage a dynamically-allocated object,
 // deleting the object automatically should an exception occur.
 //
 // Suppose we have a simple linked list class that manages objects of
-// parameterized 'TYPE', but which are (for the purpose of this example)
+// parameterized `TYPE`, but which are (for the purpose of this example)
 // allocated separately from the links that hold them (thereby requiring two
-// separate allocations for each 'append' operation):
-//..
+// separate allocations for each `append` operation):
+// ```
 // my_list.h
 // ...
 
+/// This class is a container that uses a linked list data structure to
+/// manage objects of parameterized `TYPE`.
 template <class TYPE>
 class my_List {
-    // This class is a container that uses a linked list data structure to
-    // manage objects of parameterized 'TYPE'.
 
     // PRIVATE TYPES
     struct Link {
@@ -231,31 +234,32 @@ class my_List {
 
   public:
     // CREATORS
+
+    /// Create a `my_List` object having an initial length of 0.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator
+    /// is used.
     explicit my_List(bslma::Allocator *basicAllocator = 0);
-        // Create a 'my_List' object having an initial length of 0.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator
-        // is used.
 
     // ...
 
+    /// Destroy this `my_List` object and all elements currently stored.
     ~my_List();
-        // Destroy this 'my_List' object and all elements currently stored.
 
     // MANIPULATORS
     // ...
 
+    /// Append (a copy of) the specified `object` of parameterized
+    /// `TYPE` to (the end of) this list.
     void append(const TYPE& object);
-        // Append (a copy of) the specified 'object' of parameterized
-        // 'TYPE' to (the end of) this list.
 
     // ...
 };
-//..
-// Note that the rest of the 'my_List' interface (above) and implementation
+// ```
+// Note that the rest of the `my_List` interface (above) and implementation
 // (below) are omitted as the portion shown is sufficient to demonstrate the
-// use of 'bslma::RawDeleterProctor'.
-//..
+// use of `bslma::RawDeleterProctor`.
+// ```
 // CREATORS
 template <class TYPE>
 inline
@@ -282,12 +286,12 @@ my_List<TYPE>::~my_List()
 template <class TYPE>
 void my_List<TYPE>::append(const TYPE& object)
 {
-    // !!!Warning: Modified since 'my_Class' does not take an allocator.
+    // !!!Warning: Modified since `my_Class` does not take an allocator.
     TYPE *tmp = (TYPE *)new(*d_allocator_p) TYPE(object);
                                                         // possibly throw
 
     //************************************************************
-    // Note the use of the raw deleter proctor on 'tmp' (below). *
+    // Note the use of the raw deleter proctor on `tmp` (below). *
     //************************************************************
 
     bslma::RawDeleterProctor<TYPE, bslma::Allocator> proctor(tmp,
@@ -310,22 +314,22 @@ void my_List<TYPE>::append(const TYPE& object)
 
     proctor.release();
 }
-//..
-// The 'append' method defined above potentially throws in three places.  If
-// the memory allocator held in 'd_allocator_p' were to throw while attempting
-// to create the object of parameterized 'TYPE', no memory would be leaked.
-// But without subsequent use of the 'bslma::RawDeleterProctor', if the
+// ```
+// The `append` method defined above potentially throws in three places.  If
+// the memory allocator held in `d_allocator_p` were to throw while attempting
+// to create the object of parameterized `TYPE`, no memory would be leaked.
+// But without subsequent use of the `bslma::RawDeleterProctor`, if the
 // allocator subsequently throws while creating the link, all memory (and any
 // other resources) acquired as a result of copying the (not-yet-managed)
-// object would be leaked.  Using the 'bslma::RawDeleterProctor' prevents the
+// object would be leaked.  Using the `bslma::RawDeleterProctor` prevents the
 // leaks by deleting the proctored object automatically should the proctor go
-// out of scope before the 'release' method of the proctor is called (such as
+// out of scope before the `release` method of the proctor is called (such as
 // when the function exits prematurely due to an exception).
 //
-// Note that the 'append' method assumes the copy constructor of 'TYPE' takes
+// Note that the `append` method assumes the copy constructor of `TYPE` takes
 // an allocator as a second argument.  In production code, a constructor proxy
-// that checks the traits of 'TYPE' (to determine whether 'TYPE' uses
-// 'bslma::Allocator') should be used (see bslalg_constructorproxy).
+// that checks the traits of `TYPE` (to determine whether `TYPE` uses
+// `bslma::Allocator`) should be used (see bslalg_constructorproxy).
 
 //=============================================================================
 //                                MAIN PROGRAM
@@ -355,7 +359,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Run the usage example and exercise the creators and manipulators
-        //   of 'my_List' using a 'bslma::TestAllocator' to verify that memory
+        //   of `my_List` using a `bslma::TestAllocator` to verify that memory
         //   is allocated and deallocated properly.
         //
         // Testing:
@@ -389,7 +393,7 @@ int main(int argc, char *argv[])
 
                 numBytesUsed = Z.numBytesInUse();
 
-                // Make sure the allocation for the 'link' fails.
+                // Make sure the allocation for the `link` fails.
                 z.setAllocationLimit(1);
 
                 list.append(my_Class(&counter));
@@ -398,12 +402,12 @@ int main(int argc, char *argv[])
             }
             catch (...) {
 
-                // Verify that the destructor of 'my_Class' is called for both
-                // the temporary and the one created within the 'list' object.
+                // Verify that the destructor of `my_Class` is called for both
+                // the temporary and the one created within the `list` object.
                 ASSERT(5 == counter);
 
                 // Verify that the memory allocated for the construction of
-                // 'my_Class' is properly deallocated.
+                // `my_Class` is properly deallocated.
                 ASSERT(numBytesUsed == Z.numBytesInUse());
             }
         }
@@ -417,18 +421,18 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // 'reset' TEST
+        // `reset` TEST
         //
         // Concerns:
-        //   Verify that when the 'reset' method is called, the proctor
+        //   Verify that when the `reset` method is called, the proctor
         //   object properly manages a different object.
         //
         // Plan:
-        //   Create a 'my_Class' object using a 'bslma::TestAllocator' and
-        //   initialize it with a counter.  Next create another 'my_Class'
+        //   Create a `my_Class` object using a `bslma::TestAllocator` and
+        //   initialize it with a counter.  Next create another `my_Class`
         //   object and initialize it with a different counter.  Finally
-        //   initialize a 'bslma::RawDeleterProctor' object with the first
-        //   object and 'bslma::TestAllocator'.  Call 'reset' on the proctor
+        //   initialize a `bslma::RawDeleterProctor` object with the first
+        //   object and `bslma::TestAllocator`.  Call `reset` on the proctor
         //   with the second object before it goes out of scope.  Once the
         //   proctor goes out of scope, verify that only the second counter is
         //   incremented, and only the memory allocated by the second test
@@ -446,7 +450,7 @@ int main(int argc, char *argv[])
 
         int counter1 = 0;
         int counter2 = 0;
-        if (verbose) printf("\nTesting the 'reset' method\n");
+        if (verbose) printf("\nTesting the `reset` method\n");
 
         my_Class *pC1;
         {
@@ -479,18 +483,18 @@ int main(int argc, char *argv[])
       }break;
       case 4: {
         // --------------------------------------------------------------------
-        // 'release' TEST
+        // `release` TEST
         //
         // Concerns:
-        //   Verify that when the 'release' method is called, the proctor
+        //   Verify that when the `release` method is called, the proctor
         //   object properly releases from management the object currently
         //   managed by this proctor.
         //
         // Plan:
-        //   Create 'my_Class' objects using 'bslma::TestAllocator' and
+        //   Create `my_Class` objects using `bslma::TestAllocator` and
         //   initialize it with a counter.  Next initialize a
-        //   'bslma::RawDeleterProctor' object with the corresponding
-        //   'my_Class' object and 'bslma::TestAllocator'.  Call 'release' on
+        //   `bslma::RawDeleterProctor` object with the corresponding
+        //   `my_Class` object and `bslma::TestAllocator`.  Call `release` on
         //   the proctor before it goes out of scope.  Verify that the counter
         //   is not incremented, and the memory allocated by the test
         //   allocator is not deallocated.
@@ -506,7 +510,7 @@ int main(int argc, char *argv[])
         const bslma::TestAllocator& Z = z;
 
         int counter = 0;
-        if (verbose) printf("\nTesting the 'release' method\n");
+        if (verbose) printf("\nTesting the `release` method\n");
         my_Class *pC;
         {
             pC = new(z) my_Class(&counter);
@@ -544,28 +548,28 @@ int main(int argc, char *argv[])
         //       c) Multiple inheritance object with derived class pointer
         //
         //   2) When an allocator (or pool) not inherited from
-        //   'bslma::Allocator' is supplied to the 'bslma::RawDeleterProctor',
-        //   the destructor of the managed object and 'deallocate' method of
+        //   `bslma::Allocator` is supplied to the `bslma::RawDeleterProctor`,
+        //   the destructor of the managed object and `deallocate` method of
         //   the allocator (or pool) supplied is still invoked.
         //
         // Plan:
-        //   Create a 'myChild' object, which increments a counter every time
-        //   it is destructed, using a 'bslma::TestAllocator' which keeps track
+        //   Create a `myChild` object, which increments a counter every time
+        //   it is destructed, using a `bslma::TestAllocator` which keeps track
         //   of how many bytes are allocated.  Next create a
-        //   'bslma::RawDeleterGuard' object to guard the created 'myChild'
+        //   `bslma::RawDeleterGuard` object to guard the created `myChild`
         //   object.  When the guard object goes out of scope, verify that both
         //   the counter is incremented and memory is deallocated.  Next,
-        //   repeat by creating 'myParent' object to address concern 1b.  Next,
-        //   repeat by creating 'myMostDerived' object to address concern 1c.
+        //   repeat by creating `myParent` object to address concern 1b.  Next,
+        //   repeat by creating `myMostDerived` object to address concern 1c.
         //
-        //   Finally, repeat all three steps above using 'my_Pool' as the
-        //   parameterized 'ALLCOATOR' type, which does not inherit from
-        //   'bslma::Allocator'.
+        //   Finally, repeat all three steps above using `my_Pool` as the
+        //   parameterized `ALLCOATOR` type, which does not inherit from
+        //   `bslma::Allocator`.
         //
         // Testing:
         //   bslma::RawDeleterProctor<TYPE, ALLOCATOR>(obj, allocator);
         //   ~bslma::RawDeleterProctor<TYPE, ALLOCATOR>();
-        //   Concern: the (non-virtual) 'deallocate' method for pools is also
+        //   Concern: the (non-virtual) `deallocate` method for pools is also
         //            invoked
         // --------------------------------------------------------------------
 
@@ -717,29 +721,29 @@ int main(int argc, char *argv[])
         // HELPER CLASS TEST
         //
         // Concerns:
-        //   1) The helper class 'my_Class' properly increments its counter at
+        //   1) The helper class `my_Class` properly increments its counter at
         //      destruction.
-        //   2) The helper class 'my_Pool' properly increments its counter when
-        //      its 'deallocate' method is called.
+        //   2) The helper class `my_Pool` properly increments its counter when
+        //      its `deallocate` method is called.
         //
         // Plan:
-        //   Create 'my_Class' objects and assign to each object a counter
+        //   Create `my_Class` objects and assign to each object a counter
         //   variable initialized to 0.  Verify that the counter is incremented
-        //   after each 'my_Class' object is destroyed.
+        //   after each `my_Class` object is destroyed.
         //
-        //   Next create 'my_Pool' objects and assign to each object a counter
-        //   variable initialized to 0.  Invoke the 'deallocate' method and
+        //   Next create `my_Pool` objects and assign to each object a counter
+        //   variable initialized to 0.  Invoke the `deallocate` method and
         //   verify that the counter is incremented.
         //
         // Testing:
-        //   Helper Class: 'my_Class'
-        //   Helper Class: 'my_Pool'
+        //   Helper Class: `my_Class`
+        //   Helper Class: `my_Pool`
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nHELPER CLASS TEST"
                             "\n=================\n");
 
-        if (verbose) printf("\nTesting 'my_Class'.\n");
+        if (verbose) printf("\nTesting `my_Class`.\n");
 
         if (verbose) printf("\tTesting default ctor and dtor.\n");
         {
@@ -752,9 +756,9 @@ int main(int argc, char *argv[])
             ASSERT(NUM_TEST == counter);
         }
 
-        if (verbose) printf("\nTesting 'my_Pool'.\n");
+        if (verbose) printf("\nTesting `my_Pool`.\n");
 
-        if (verbose) printf("\tTesting default ctor and 'deallocate'.\n");
+        if (verbose) printf("\tTesting default ctor and `deallocate`.\n");
 
         {
             int counter = 0;
@@ -773,16 +777,16 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   1) The 'bslma::RawDeleterProctor' can be constructed and
+        //   1) The `bslma::RawDeleterProctor` can be constructed and
         //      destructed gracefully.
-        //   1) The allocator's 'deallocate' method is invoked.
+        //   1) The allocator's `deallocate` method is invoked.
         //   2) The (managed) object's destructor is invoked.
         //
         // Plan:
-        //   Allocate a 'std::string' with a 'bslma::TestAllocator' and guard
-        //   it with 'bslma::RawDeleterProctor' to show that both the
-        //   destructor and 'deallocate' is called (by verifying all memory is
-        //   returned to the 'bslma::TestAllocator').
+        //   Allocate a `std::string` with a `bslma::TestAllocator` and guard
+        //   it with `bslma::RawDeleterProctor` to show that both the
+        //   destructor and `deallocate` is called (by verifying all memory is
+        //   returned to the `bslma::TestAllocator`).
         //
         // Testing:
         //   Breathing Test
@@ -796,7 +800,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator allocator(veryVeryVeryVerbose);
         const bslma::TestAllocator& Z = allocator;
 
-        if (verbose) printf("\tTesting with 'string' object\n");
+        if (verbose) printf("\tTesting with `string` object\n");
         {
             string *s = (string *)new(allocator)string();
             ASSERT(0 < Z.numBytesInUse());

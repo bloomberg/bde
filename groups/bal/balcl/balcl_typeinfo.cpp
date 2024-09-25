@@ -39,51 +39,53 @@ namespace balcl {
                    // class TypeInfoConstraint
                    // ========================
 
+/// This class defines a protocol for objects implementing constraints on
+/// option values.  Note that although this class not visible in the header
+/// of this component, the class is publicly known by name to allow the
+/// sharing of a constraint as an opaque object by use of the `constraint`
+/// accessor and `setConstraint` manipulator methods.
 class TypeInfoConstraint {
-    // This class defines a protocol for objects implementing constraints on
-    // option values.  Note that although this class not visible in the header
-    // of this component, the class is publicly known by name to allow the
-    // sharing of a constraint as an opaque object by use of the 'constraint'
-    // accessor and 'setConstraint' manipulator methods.
 
   public:
     // PUBLIC TYPES
     typedef TypeInfo::ParseInputSource ParseInputSource;
 
     // CREATORS
+
+    /// Destroy this polymorphic constraint object.
     virtual ~TypeInfoConstraint();
-        // Destroy this polymorphic constraint object.
 
     // ACCESSORS
+
+    /// Load into the specified `element` the result of parsing the
+    /// specified `input`, parsed as a value of the `balcl::OptionType` of
+    /// this constraint, and output to the specified `stream` any error
+    /// message, using the specified `inputSource` to determine how `input`
+    /// for boolean options should be parsed.  Return `true` if this value,
+    /// parsed without error, satisfies this constraint, and `false` if
+    /// parsing fails or the value does not satisfy the constraint.  If
+    /// parsing fails, `element` is unchanged.  The specified `inputSource`
+    /// is used in handling boolean options.  Boolean options supplied by
+    /// command line should not have associated text, where as boolean
+    /// options supplied by the environment should have the values "0", "1",
+    /// "true", or "false".  The behavior is undefined unless
+    /// `type() == element->type()`.
     virtual bool parse(OptionValue               *element,
                        bsl::ostream&              stream,
                        const bsl::string_view&    input,
                        ParseInputSource           inputSource) const = 0;
-        // Load into the specified 'element' the result of parsing the
-        // specified 'input', parsed as a value of the 'balcl::OptionType' of
-        // this constraint, and output to the specified 'stream' any error
-        // message, using the specified 'inputSource' to determine how 'input'
-        // for boolean options should be parsed.  Return 'true' if this value,
-        // parsed without error, satisfies this constraint, and 'false' if
-        // parsing fails or the value does not satisfy the constraint.  If
-        // parsing fails, 'element' is unchanged.  The specified 'inputSource'
-        // is used in handling boolean options.  Boolean options supplied by
-        // command line should not have associated text, where as boolean
-        // options supplied by the environment should have the values "0", "1",
-        // "true", or "false".  The behavior is undefined unless
-        // 'type() == element->type()'.
 
+    /// Return the `balcl::OptionType` of this constraint object.
     virtual OptionType::Enum type() const = 0;
-        // Return the 'balcl::OptionType' of this constraint object.
 
+    /// Return `true` if the specified `element` satisfies this constraint,
+    /// and `false` otherwise.  Optionally specify a `stream` to which a
+    /// descriptive error message is written if this constraint is not
+    /// satisfied.  The behavior is undefined unless `element`
+    /// `type() == element->type()`.
     virtual bool validate(const OptionValue& element) const = 0;
     virtual bool validate(const OptionValue& element,
                           bsl::ostream&      stream)  const = 0;
-        // Return 'true' if the specified 'element' satisfies this constraint,
-        // and 'false' otherwise.  Optionally specify a 'stream' to which a
-        // descriptive error message is written if this constraint is not
-        // satisfied.  The behavior is undefined unless 'element'
-        // 'type() == element->type()'.
 };
                        // ------------------------
                        // class TypeInfoConstraint
@@ -111,21 +113,23 @@ bsl::size_t npos = bsl::string::npos;
                             // struct Ordinal
                             // ==============
 
+/// This `struct` assists in printing numbers as ordinals (1st, 2nd, etc.).
 struct Ordinal {
-    // This 'struct' assists in printing numbers as ordinals (1st, 2nd, etc.).
 
     bsl::size_t d_rank;  // rank (starting at 0)
 
     // CREATORS
+
+    /// Create an ordinal for the specified position `n` (starting at 0).
     explicit Ordinal(bsl::size_t n);
-        // Create an ordinal for the specified position 'n' (starting at 0).
 };
 
 // FREE OPERATORS
+
+/// Output the specified `position` (starting at 0) to the specified
+/// `stream` as an ordinal, mapping 0 to "1st", 1 to "2nd", 3 to "3rd", 4 to
+/// "4th", etc. following correct English usage.
 bsl::ostream& operator<<(bsl::ostream& stream, Ordinal position);
-    // Output the specified 'position' (starting at 0) to the specified
-    // 'stream' as an ordinal, mapping 0 to "1st", 1 to "2nd", 3 to "3rd", 4 to
-    // "4th", etc. following correct English usage.
 
                             // --------------
                             // struct Ordinal
@@ -178,14 +182,14 @@ bsl::ostream& u::operator<<(bsl::ostream& stream, Ordinal position)
                          // function parseValue
                          // ===================
 
+/// Load, to the specified `value`, the value obtained by parsing the
+/// parsing the specified `input` that is (assumed) in the format expected
+/// for values of the specified `type`.  Return `true` if the parse
+/// succeeds, and `false` otherwise.  Note that on success `value` can be
+/// legitimately cast to a pointer of the type associated with `type`.
 bool parseValue(void                    *value,
                 const bsl::string_view&  input,
                 OptionType::Enum         type)
-    // Load, to the specified 'value', the value obtained by parsing the
-    // parsing the specified 'input' that is (assumed) in the format expected
-    // for values of the specified 'type'.  Return 'true' if the parse
-    // succeeds, and 'false' otherwise.  Note that on success 'value' can be
-    // legitimately cast to a pointer of the type associated with 'type'.
 {
     BSLS_ASSERT(value);
 
@@ -265,9 +269,9 @@ bool parseValue(void                    *value,
                          // function elemTypeToString
                          // =========================
 
+/// Return the address of a string literal that describes the specified
+/// `elemType` value.
 const char *elemTypeToString(OptionType::Enum elemType)
-    // Return the address of a string literal that describes the specified
-    // 'elemType' value.
 {
     const char *typeString;
 
@@ -309,11 +313,11 @@ const char *elemTypeToString(OptionType::Enum elemType)
                          // class BoolConstraint
                          // ====================
 
+/// This concrete implementation of the `Constraint` protocol provides a
+/// `bool` empty constraint that always returns `true` after this option has
+/// been parsed.  The individual contracts for each method are identical to
+/// the protocol and not repeated here.
 class BoolConstraint : public TypeInfoConstraint {
-    // This concrete implementation of the 'Constraint' protocol provides a
-    // 'bool' empty constraint that always returns 'true' after this option has
-    // been parsed.  The individual contracts for each method are identical to
-    // the protocol and not repeated here.
 
     // NOT IMPLEMENTED
     BoolConstraint(const BoolConstraint&);
@@ -321,16 +325,18 @@ class BoolConstraint : public TypeInfoConstraint {
 
   public:
     // CREATORS
-    explicit BoolConstraint(bslma::Allocator *basicAllocator = 0);
-        // Create a 'bool' constraint object.  Optionally specify a
-        // 'basicAllocator', which is ignored.
 
+    /// Create a `bool` constraint object.  Optionally specify a
+    /// `basicAllocator`, which is ignored.
+    explicit BoolConstraint(bslma::Allocator *basicAllocator = 0);
+
+    /// Destroy this object.
     ~BoolConstraint() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this object.
 
     // ACCESSORS
+
+    /// Return `OptionType::e_BOOL`.
     OptionType::Enum type() const BSLS_KEYWORD_OVERRIDE;
-        // Return 'OptionType::e_BOOL'.
 
     bool parse(OptionValue             *element,
                bsl::ostream&            stream,
@@ -348,11 +354,12 @@ class BoolConstraint : public TypeInfoConstraint {
         // 'OptionType::e_BOOL == element->type()'.
 
     bool validate(const OptionValue& element) const BSLS_KEYWORD_OVERRIDE;
+
+    /// Return `true`, and leave the optionally specified `stream`
+    /// unchanged.  The behavior is undefined unless the specified `element`
+    /// satisfies `OptionType::e_BOOL == element->type()`.
     bool validate(const OptionValue& element,
                   bsl::ostream&      stream)  const BSLS_KEYWORD_OVERRIDE;
-        // Return 'true', and leave the optionally specified 'stream'
-        // unchanged.  The behavior is undefined unless the specified 'element'
-        // satisfies 'OptionType::e_BOOL == element->type()'.
 };
 
                          // --------------------
@@ -447,11 +454,11 @@ bool BoolConstraint::validate(const OptionValue&, std::ostream&)
                    // class ScalarConstraint<...>
                    // ===========================
 
+/// This concrete implementation of the `Constraint` protocol provides a
+/// constraint of the parameterized `CONSTRAINT_TYPE`, which enables the
+/// parsing and validation of values of parameterized `TYPE`.
 template <class TYPE, class CONSTRAINT_TYPE, int ELEM_TYPE>
 class ScalarConstraint : public TypeInfoConstraint {
-    // This concrete implementation of the 'Constraint' protocol provides a
-    // constraint of the parameterized 'CONSTRAINT_TYPE', which enables the
-    // parsing and validation of values of parameterized 'TYPE'.
 
     // DATA
     CONSTRAINT_TYPE d_constraint;
@@ -466,40 +473,43 @@ class ScalarConstraint : public TypeInfoConstraint {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create a constraint object storing the specified `constraint`
+    /// functor.  Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently-installed default
+    /// allocator is used.
     explicit ScalarConstraint(const CONSTRAINT_TYPE&  constraint,
                               bslma::Allocator       *basicAllocator = 0);
-        // Create a constraint object storing the specified 'constraint'
-        // functor.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently-installed default
-        // allocator is used.
 
+    /// Destroy this polymorphic constraint object.
     ~ScalarConstraint() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this polymorphic constraint object.
 
     // ACCESSORS
-    OptionType::Enum type() const BSLS_KEYWORD_OVERRIDE;
-        // Return the 'balcl::OptionType' element type of this constraint.
 
+    /// Return the `balcl::OptionType` element type of this constraint.
+    OptionType::Enum type() const BSLS_KEYWORD_OVERRIDE;
+
+    /// Load into the instance of parameterized `TYPE` stored in the
+    /// specified `element` the result of parsing the specified `input`,
+    /// interpreted as an instance of `TYPE`.  Return `true` if parsing
+    /// succeeds and the parsed value satisfies the constraint.  Return
+    /// `false` otherwise, and write to the specified `stream` a descriptive
+    /// error message.  The behavior is undefined unless
+    /// `type() == element->type()`.
     bool parse(OptionValue               *element,
                std::ostream&              stream,
                const bsl::string_view&    input,
                ParseInputSource           ) const BSLS_KEYWORD_OVERRIDE;
-        // Load into the instance of parameterized 'TYPE' stored in the
-        // specified 'element' the result of parsing the specified 'input',
-        // interpreted as an instance of 'TYPE'.  Return 'true' if parsing
-        // succeeds and the parsed value satisfies the constraint.  Return
-        // 'false' otherwise, and write to the specified 'stream' a descriptive
-        // error message.  The behavior is undefined unless
-        // 'type() == element->type()'.
 
     bool validate(const OptionValue& element) const BSLS_KEYWORD_OVERRIDE;
+
+    /// Return `true` if the specified `element` satisfies this constraint,
+    /// and `false` otherwise.  Optionally specify a `stream` to which a
+    /// descriptive error message is written if this constraint is not
+    /// satisfied.  The behavior is undefined unless
+    /// `type() == element->type()`.
     bool validate(const OptionValue& element,
                   bsl::ostream&      stream)  const BSLS_KEYWORD_OVERRIDE;
-        // Return 'true' if the specified 'element' satisfies this constraint,
-        // and 'false' otherwise.  Optionally specify a 'stream' to which a
-        // descriptive error message is written if this constraint is not
-        // satisfied.  The behavior is undefined unless
-        // 'type() == element->type()'.
 };
 
                    // ---------------------------
@@ -627,12 +637,12 @@ class ScalarConstraint<bdlt::Time,
                  // class template ArrayConstraint
                  // ==============================
 
+/// This concrete implementation of the `Constraint` protocol provides a
+/// constraint of the parameterized `CONSTRAINT_TYPE`, which enables the
+/// parsing and validation of values of parameterized `bsl::vector<TYPE>`
+/// type.
 template <class TYPE, class CONSTRAINT_TYPE, int ELEM_TYPE>
 class ArrayConstraint : public TypeInfoConstraint {
-    // This concrete implementation of the 'Constraint' protocol provides a
-    // constraint of the parameterized 'CONSTRAINT_TYPE', which enables the
-    // parsing and validation of values of parameterized 'bsl::vector<TYPE>'
-    // type.
 
     // DATA
     CONSTRAINT_TYPE d_constraint;
@@ -647,40 +657,43 @@ class ArrayConstraint : public TypeInfoConstraint {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create a constraint object storing the specified `constraint`
+    /// functor.  Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently-installed default
+    /// allocator is used.
     explicit ArrayConstraint(const CONSTRAINT_TYPE&  constraint,
                              bslma::Allocator       *basicAllocator);
-        // Create a constraint object storing the specified 'constraint'
-        // functor.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently-installed default
-        // allocator is used.
 
+    /// Destroy this polymorphic constraint object.
     ~ArrayConstraint() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this polymorphic constraint object.
 
     // ACCESSORS
-    OptionType::Enum type() const BSLS_KEYWORD_OVERRIDE;
-        // Return the 'balcl::OptionType' element type of this constraint.
 
+    /// Return the `balcl::OptionType` element type of this constraint.
+    OptionType::Enum type() const BSLS_KEYWORD_OVERRIDE;
+
+    /// Append to the instance of `bsl::vector<TYPE>` stored in the
+    /// specified `element` the result of parsing the specified `input`,
+    /// interpreted as an instance of parameterized `TYPE`.  Return `true`
+    /// if parsing succeeds and the parsed value satisfies the constraint.
+    /// Return `false` otherwise, and write to the specified `stream` a
+    /// descriptive error message.  The behavior is undefined unless
+    /// `OptionType::toArrayType(type()) == element->type()`.
     bool parse(OptionValue               *element,
                bsl::ostream&              stream,
                const bsl::string_view&    input,
                ParseInputSource           ) const BSLS_KEYWORD_OVERRIDE;
-        // Append to the instance of 'bsl::vector<TYPE>' stored in the
-        // specified 'element' the result of parsing the specified 'input',
-        // interpreted as an instance of parameterized 'TYPE'.  Return 'true'
-        // if parsing succeeds and the parsed value satisfies the constraint.
-        // Return 'false' otherwise, and write to the specified 'stream' a
-        // descriptive error message.  The behavior is undefined unless
-        // 'OptionType::toArrayType(type()) == element->type()'.
 
     bool validate(const OptionValue& element) const BSLS_KEYWORD_OVERRIDE;
+
+    /// Return `true` if the specified `element` satisfies this constraint,
+    /// and `false` otherwise.  Optionally specify a `stream` to which a
+    /// descriptive error message is written if this constraint is not
+    /// satisfied.  The behavior is undefined unless `element`
+    /// `type() == element->type()`.
     bool validate(const OptionValue& element,
                   bsl::ostream&      stream)  const BSLS_KEYWORD_OVERRIDE;
-        // Return 'true' if the specified 'element' satisfies this constraint,
-        // and 'false' otherwise.  Optionally specify a 'stream' to which a
-        // descriptive error message is written if this constraint is not
-        // satisfied.  The behavior is undefined unless 'element'
-        // 'type() == element->type()'.
 };
 
                  // ------------------------------
@@ -837,126 +850,127 @@ class ArrayConstraint<bdlt::Time,
 
 // Note: for 'BoolConstraint', see non-'typedef' implementations.
 
+/// The type `CharConstraint` is an alias for a scalar constraint on type
+/// `char` using the `Constraint::CharConstraint` functor.
 typedef ScalarConstraint<char,
                          Constraint::CharConstraint,
                          OptionType::e_CHAR> CharConstraint;
-    // The type 'CharConstraint' is an alias for a scalar constraint on type
-    // 'char' using the 'Constraint::CharConstraint' functor.
 
+/// The type `IntConstraint` is an alias for a scalar constraint on type
+/// `int` using the `Constraint::IntConstraint` functor.
 typedef ScalarConstraint<int,
                          Constraint::IntConstraint,
                          OptionType::e_INT> IntConstraint;
-    // The type 'IntConstraint' is an alias for a scalar constraint on type
-    // 'int' using the 'Constraint::IntConstraint' functor.
 
+/// The type `Int64Constraint` is an alias for a scalar constraint on type
+/// `bsls::Types::Int64` using the `Constraint::Int64Constraint` functor.
 typedef ScalarConstraint<bsls::Types::Int64,
                          Constraint::Int64Constraint,
                          OptionType::e_INT64>  Int64Constraint;
-    // The type 'Int64Constraint' is an alias for a scalar constraint on type
-    // 'bsls::Types::Int64' using the 'Constraint::Int64Constraint' functor.
 
+/// The type `DoubleConstraint` is an alias for a scalar constraint on type
+/// `double` using the `Constraint::DoubleConstraint` functor.
 typedef ScalarConstraint<double,
                          Constraint::DoubleConstraint,
                          OptionType::e_DOUBLE> DoubleConstraint;
-    // The type 'DoubleConstraint' is an alias for a scalar constraint on type
-    // 'double' using the 'Constraint::DoubleConstraint' functor.
 
+/// The type `StringConstraint` is an alias for a scalar constraint on type
+/// `bsl::string` using the `Constraint::StringConstraint` functor.
 typedef ScalarConstraint<bsl::string,
                          Constraint::StringConstraint,
                          OptionType::e_STRING> StringConstraint;
-    // The type 'StringConstraint' is an alias for a scalar constraint on type
-    // 'bsl::string' using the 'Constraint::StringConstraint' functor.
 
+/// The type `DatetimeConstraint` is an alias for a scalar constraint of
+/// type `bdlt::Datetime` using the `Constraint::DatetimeConstraint`
+/// functor.
 typedef ScalarConstraint<bdlt::Datetime,
                          Constraint::DatetimeConstraint,
                          OptionType::e_DATETIME> DatetimeConstraint;
-    // The type 'DatetimeConstraint' is an alias for a scalar constraint of
-    // type 'bdlt::Datetime' using the 'Constraint::DatetimeConstraint'
-    // functor.
 
+/// The type `DateConstraint` is an alias for a scalar constraint on type
+/// `bdlt::Date` using the `Constraint::DateConstraint` functor.
 typedef ScalarConstraint<bdlt::Date,
                          Constraint::DateConstraint,
                          OptionType::e_DATE> DateConstraint;
-    // The type 'DateConstraint' is an alias for a scalar constraint on type
-    // 'bdlt::Date' using the 'Constraint::DateConstraint' functor.
 
+/// The type `TimeConstraint` is an alias for a scalar constraint on type
+/// `bdlt::Time` using the `Constraint::TimeConstraint` functor.
 typedef ScalarConstraint<bdlt::Time,
                          Constraint::TimeConstraint,
                          OptionType::e_TIME> TimeConstraint;
-    // The type 'TimeConstraint' is an alias for a scalar constraint on type
-    // 'bdlt::Time' using the 'Constraint::TimeConstraint' functor.
 
                     // ================================
                     // typedef template ArrayConstraint
                     // ================================
 
+/// The type `CharArrayConstraint` is an alias for a constraint on type
+/// `bsl::vector<char>` using the `Constraint::CharConstraint` functor.
 typedef ArrayConstraint<char,
                         Constraint::CharConstraint,
                         OptionType::e_CHAR_ARRAY> CharArrayConstraint;
-    // The type 'CharArrayConstraint' is an alias for a constraint on type
-    // 'bsl::vector<char>' using the 'Constraint::CharConstraint' functor.
 
+/// The type `IntArrayConstraint` is an alias for a constraint on type
+/// `bsl::vector<int>` using the `Constraint::IntConstraint` functor.
 typedef ArrayConstraint<int,
                         Constraint::IntConstraint,
                         OptionType::e_INT_ARRAY> IntArrayConstraint;
-    // The type 'IntArrayConstraint' is an alias for a constraint on type
-    // 'bsl::vector<int>' using the 'Constraint::IntConstraint' functor.
 
+/// The type `Int64ArrayConstraint` is an alias for a constraint on type
+/// `bsl::vector<bsls::Types::Int64>` using the
+/// `Constraint::Int64Constraint` functor.
 typedef ArrayConstraint<bsls::Types::Int64,
                        Constraint::Int64Constraint,
                        OptionType::e_INT64_ARRAY> Int64ArrayConstraint;
-    // The type 'Int64ArrayConstraint' is an alias for a constraint on type
-    // 'bsl::vector<bsls::Types::Int64>' using the
-    // 'Constraint::Int64Constraint' functor.
 
+/// The type `DoubleArrayConstraint` is an alias for a constraint on type
+/// `bsl::vector<double>` using the `Constraint::DoubleConstraint` functor.
 typedef ArrayConstraint<double,
                         Constraint::DoubleConstraint,
                         OptionType::e_DOUBLE_ARRAY> DoubleArrayConstraint;
-    // The type 'DoubleArrayConstraint' is an alias for a constraint on type
-    // 'bsl::vector<double>' using the 'Constraint::DoubleConstraint' functor.
 
+/// The type `StringArrayConstraint` is an alias for a constraint on type
+/// `bsl::vector<bsl::string>` using the `Constraint::StringConstraint`
+/// functor.
 typedef ArrayConstraint<bsl::string,
                         Constraint::StringConstraint,
                         OptionType::e_STRING_ARRAY> StringArrayConstraint;
-    // The type 'StringArrayConstraint' is an alias for a constraint on type
-    // 'bsl::vector<bsl::string>' using the 'Constraint::StringConstraint'
-    // functor.
 
+/// The type `DatetimeArrayConstraint` is an alias for a constraint on type
+/// `bsl::vector<bdlt::Datetime>` using the `Constraint::DatetimeConstraint`
+/// functor.
 typedef ArrayConstraint<bdlt::Datetime,
                         Constraint::DatetimeConstraint,
                         OptionType::e_DATETIME_ARRAY> DatetimeArrayConstraint;
-    // The type 'DatetimeArrayConstraint' is an alias for a constraint on type
-    // 'bsl::vector<bdlt::Datetime>' using the 'Constraint::DatetimeConstraint'
-    // functor.
 
+/// The type `DateArrayConstraint` is an alias for a constraint on type
+/// `bsl::vector<bdlt::Date>` using the `Constraint::DateConstraint`
+/// functor.
 typedef ArrayConstraint<bdlt::Date,
                         Constraint::DateConstraint,
                         OptionType::e_DATE_ARRAY> DateArrayConstraint;
-    // The type 'DateArrayConstraint' is an alias for a constraint on type
-    // 'bsl::vector<bdlt::Date>' using the 'Constraint::DateConstraint'
-    // functor.
 
+/// The type `TimeArrayConstraint` is an alias for a constraint on type
+/// `bsl::vector<bdlt::Time>` using the `Constraint::TimeConstraint`
+/// functor.
 typedef ArrayConstraint<bdlt::Time,
                         Constraint::TimeConstraint,
                         OptionType::e_TIME_ARRAY> TimeArrayConstraint;
-    // The type 'TimeArrayConstraint' is an alias for a constraint on type
-    // 'bsl::vector<bdlt::Time>' using the 'Constraint::TimeConstraint'
-    // functor.
 
                         // ======================
                         // struct OptionValueUtil
                         // ======================
 
+/// This `struct` provides a namespace for utility functions on
+/// `OptionValue` objects.
 struct OptionValueUtil {
-    // This 'struct' provides a namespace for utility functions on
-    // 'OptionValue' objects.
 
     // CLASS METHODS
+
+    /// Assign to the specified `*dst` value found at the specified `src`.
+    /// The behavior is undefined unless `OptionType::e_VOID != src.type()`
+    /// and `src` can be cast to a pointer to
+    /// `OptionType::EnumToType<dst.type()>::type`.
     static void setValue(OptionValue *dst, const void  *src);
-        // Assign to the specified '*dst' value found at the specified 'src'.
-        // The behavior is undefined unless 'OptionType::e_VOID != src.type()'
-        // and 'src' can be cast to a pointer to
-        // 'OptionType::EnumToType<dst.type()>::type'.
 };
 
                         // ---------------------
@@ -1644,12 +1658,12 @@ void TypeInfo::resetConstraint()
     static u::DateArrayConstraint     defaultDateArrayConstraint(
                                          Constraint::DateConstraint(),     ga);
 
+    // These static variables, default-initialized, are shared among all
+    // type information objects that do not have constraints.  Note that
+    // these objects are initialized with the global allocator and should
+    // never be deleted.
     static u::TimeArrayConstraint     defaultTimeArrayConstraint(
                                          Constraint::TimeConstraint(),     ga);
-        // These static variables, default-initialized, are shared among all
-        // type information objects that do not have constraints.  Note that
-        // these objects are initialized with the global allocator and should
-        // never be deleted.
 
     switch (d_elemType) {
       case OptionType::e_BOOL: {

@@ -33,7 +33,7 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The 'balm::IntegerCollector' is a mechanism for collecting and recording
+// The `balm::IntegerCollector` is a mechanism for collecting and recording
 // aggregated metric values.  Ensure values can be accumulated into and read
 // out of the container, and that the operations are thread safe.
 // ----------------------------------------------------------------------------
@@ -107,8 +107,8 @@ typedef balm::MetricId          Id;
 //                      GLOBAL STUB CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Invoke a set of operations operations synchronously.
 class ConcurrencyTest {
-    // Invoke a set of operations operations synchronously.
 
     // DATA
     bdlmt::FixedThreadPool  d_pool;
@@ -116,8 +116,9 @@ class ConcurrencyTest {
     balm::IntegerCollector *d_collector_p;
 
     // PRIVATE MANIPULATORS
+
+    /// Execute a single test.
     void execute();
-        // Execute a single test.
 
   public:
 
@@ -135,8 +136,9 @@ class ConcurrencyTest {
     ~ConcurrencyTest() {}
 
     //  MANIPULATORS
+
+    /// Run the test.
     void runTest();
-        // Run the test.
 };
 
 void ConcurrencyTest::execute()
@@ -251,7 +253,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -262,29 +264,29 @@ int main(int argc, char *argv[])
 
 ///Usage
 ///-----
-// The following example creates a 'balm::IntegerCollector', modifies its
-// values, then collects a 'balm::MetricRecord'.
+// The following example creates a `balm::IntegerCollector`, modifies its
+// values, then collects a `balm::MetricRecord`.
 //
-// We start by creating 'balm::MetricId' object by hand; however, in practice
-// an id should be obtained from a 'balm::MetricRegistry' object (such as the
-// one owned by a 'balm::MetricsManager').
-//..
+// We start by creating `balm::MetricId` object by hand; however, in practice
+// an id should be obtained from a `balm::MetricRegistry` object (such as the
+// one owned by a `balm::MetricsManager`).
+// ```
     balm::Category           myCategory("MyCategory");
     balm::MetricDescription  description(&myCategory, "MyMetric");
     balm::MetricId           myMetric(&description);
-//..
-// Now we create a 'balm::IntegerCollector' object using 'myMetric' and use the
-// 'update' method to update its collected value.
-//..
+// ```
+// Now we create a `balm::IntegerCollector` object using `myMetric` and use the
+// `update` method to update its collected value.
+// ```
     balm::IntegerCollector collector(myMetric);
 
     collector.update(1);
     collector.update(3);
-//..
+// ```
 // The collector accumulated the values 1 and 3.  The result should have a
 // count of 2, a total of 4 (3 + 1), a max of 3 (max(3,1)), and a min of 1
 // (min(3,1)).
-//..
+// ```
     balm::MetricRecord record;
     collector.loadAndReset(&record);
 
@@ -293,7 +295,7 @@ int main(int argc, char *argv[])
         ASSERT(4        == record.total());
         ASSERT(1        == record.min());
         ASSERT(3        == record.max());
-//..
+// ```
 
       } break;
       case 8: {

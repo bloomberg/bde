@@ -124,14 +124,15 @@ bool veryVeryVeryVerbose = false;
 // ============================================================================
 //                  HELPER CLASSES AND FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
+
+/// Minimal latch for pre-C++20 build modes.
 struct Latch {
-    // Minimal latch for pre-C++20 build modes.
     explicit Latch(int count) : d_count(count) {}
 
+    /// Atomically decrement `d_count` and then wait for `d_count` to become
+    /// zero.  When `d_count` becomes zero, all waiting threads are
+    /// unblocked.
     void arriveAndWait()
-        // Atomically decrement 'd_count' and then wait for 'd_count' to become
-        // zero.  When 'd_count' becomes zero, all waiting threads are
-        // unblocked.
     {
         if (d_count.add(-1)) {
             do { } while (d_count.load());
@@ -141,9 +142,9 @@ struct Latch {
     bsls::AtomicInt d_count;
 };
 
-// We're levelized below 'bslmt' and we can't use 'std::thread' in C++03, so we
+// We're levelized below `bslmt` and we can't use `std::thread` in C++03, so we
 // must implement a minimal abstraction over platform-specific threading
-// utilities in order to test the behavior of 'StopState' when it is accessed
+// utilities in order to test the behavior of `StopState` when it is accessed
 // concurrently from multiple threads.
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
 class Thread {
@@ -215,8 +216,8 @@ class Thread {
     }
 };
 #else
+/// Abstraction over a Unix thread.
 class Thread {
-    // Abstraction over a Unix thread.
   private:
     struct Thunk {
         void (*d_fn_p)(void*);
@@ -287,10 +288,10 @@ class Thread {
 //                               TEST CASE 2
 // ----------------------------------------------------------------------------
 namespace test_case_2 {
+/// Basic callback that can be registered with a `StopState`.  When invoked,
+/// it sets a flag indicating that it has been invoked, and remembers the
+/// thread ID of the thread that is invoking it.
 struct Callback0 : Node {
-    // Basic callback that can be registered with a 'StopState'.  When invoked,
-    // it sets a flag indicating that it has been invoked, and remembers the
-    // thread ID of the thread that is invoking it.
     Callback0()
     : d_finished(false)
     {
@@ -318,57 +319,57 @@ struct Callback0 : Node {
 
 struct GlobalState;
 
+/// Callback that can be registered with a `StopState` and offers additional
+/// functionality beyond that of `Callback0`.
 struct Callback1 : Callback0 {
-    // Callback that can be registered with a 'StopState' and offers additional
-    // functionality beyond that of 'Callback0'.
     explicit Callback1(GlobalState *state) : d_state_p(state) {}
 
+    /// Arrive and wait at `d_state_p->d_invoke1LatchBegin`.  Then, create a
+    /// `Callback0` object, register it with `d_state_p->d_stopState` and
+    /// verify that `enregister` returns false and that the `Callback0` has
+    /// been invoked.  Finally, arrive and wait at
+    /// `d_state_p->d_invoke1LatchEnd` and call the base class
+    /// implementation of `invoke` to record completion.
     void invoke() BSLS_NOTHROW_SPEC BSLS_KEYWORD_OVERRIDE;
-        // Arrive and wait at 'd_state_p->d_invoke1LatchBegin'.  Then, create a
-        // 'Callback0' object, register it with 'd_state_p->d_stopState' and
-        // verify that 'enregister' returns false and that the 'Callback0' has
-        // been invoked.  Finally, arrive and wait at
-        // 'd_state_p->d_invoke1LatchEnd' and call the base class
-        // implementation of 'invoke' to record completion.
 
     GlobalState *d_state_p;
 };
 
+/// the stop state on which `enregister` and `requestStop` will be
+/// called during this test case
 struct GlobalState {
     Obj              d_stopState;
-        // the stop state on which 'enregister' and 'requestStop' will be
-        // called during this test case
 
+    /// latch at which the main thread and thread 1 will arrive and wait
+    /// before registering C0 and C1, respectively (P-2)
     Latch            d_register01Latch;
-        // latch at which the main thread and thread 1 will arrive and wait
-        // before registering C0 and C1, respectively (P-2)
 
+    /// latch at which the main thread and thread 2 will arrive and wait
+    /// before both calling `requestStop` (P-3)
     Latch            d_stopLatch;
-        // latch at which the main thread and thread 2 will arrive and wait
-        // before both calling 'requestStop' (P-3)
 
+    /// latch at which C1 will arrive and wait at the beginning of its
+    /// invocation, so thread 3 can attempt to register a callback while C1
+    /// is in progress (P-3)
     Latch            d_invoke1LatchBegin;
-        // latch at which C1 will arrive and wait at the beginning of its
-        // invocation, so thread 3 can attempt to register a callback while C1
-        // is in progress (P-3)
 
+    /// latch at which C1 will arrive and wait at the end of its invocation
+    /// (P-3)
     Latch            d_invoke1LatchEnd;
-        // latch at which C1 will arrive and wait at the end of its invocation
-        // (P-3)
 
+    /// latch at which thread 4 and the main thread will arrive and wait
+    /// before their final calls to `enregister` (P-5)
     Latch            d_thread4Latch;
-        // latch at which thread 4 and the main thread will arrive and wait
-        // before their final calls to 'enregister' (P-5)
 
+    /// flag indicating whether thread 2 (as opposed to the main thread)
+    /// successfully requested a stop on `d_stopState`
     bsls::AtomicBool d_stoppedByT2;
-        // flag indicating whether thread 2 (as opposed to the main thread)
-        // successfully requested a stop on 'd_stopState'
 
+    /// callback `C0` (see test plan)
     Callback0        d_c0;
-        // callback 'C0' (see test plan)
 
+    /// callback `C1` (see test plan)
     Callback1        d_c1;
-        // callback 'C1' (see test plan)
 
     GlobalState()
     : d_register01Latch(2)
@@ -386,9 +387,9 @@ void Callback1::invoke() BSLS_NOTHROW_SPEC
     d_state_p->d_invoke1LatchBegin.arriveAndWait();
 
     Callback0 cb;
-    // 'enregister' should return 'false' during a stop
+    // `enregister` should return `false` during a stop
     ASSERT(!d_state_p->d_stopState.enregister(&cb));
-    // 'enregister' should invoke callback immediately during a stop
+    // `enregister` should invoke callback immediately during a stop
     ASSERT(cb.finished());
 
     d_state_p->d_invoke1LatchEnd.arriveAndWait();
@@ -396,62 +397,62 @@ void Callback1::invoke() BSLS_NOTHROW_SPEC
     Callback0::invoke();
 }
 
+/// Call `enregister` and verify that registration succeeded and that the
+/// callback has not yet been invoked (P-1).  (This thread will be joined
+/// with prior to any call to `requestStop`.)
 void thread1Func(void *arg)
-    // Call 'enregister' and verify that registration succeeded and that the
-    // callback has not yet been invoked (P-1).  (This thread will be joined
-    // with prior to any call to 'requestStop'.)
 {
     GlobalState *state = static_cast<GlobalState*>(arg);
     state->d_register01Latch.arriveAndWait();
-    // 'enregister' should return 'true' prior to a stop
+    // `enregister` should return `true` prior to a stop
     ASSERT(state->d_stopState.enregister(&state->d_c1));
-    // 'enregister' should not invoke callback immediately prior to a stop
+    // `enregister` should not invoke callback immediately prior to a stop
     ASSERT(!state->d_c1.finished());
 }
 
+/// Call `requestStop`.  If this thread succeeded in requesting the stop,
+/// verify that both callbacks that were registered prior to `requestStop`
+/// have completed, and store the value `true` into `d_stoppedByT2`.  (P-3)
 void thread2Func(void *arg)
-    // Call 'requestStop'.  If this thread succeeded in requesting the stop,
-    // verify that both callbacks that were registered prior to 'requestStop'
-    // have completed, and store the value 'true' into 'd_stoppedByT2'.  (P-3)
 {
     GlobalState *state = static_cast<GlobalState*>(arg);
     state->d_stopLatch.arriveAndWait();
     state->d_stoppedByT2.store(state->d_stopState.requestStop());
     if (state->d_stoppedByT2.load()) {
-        // 'C0' and 'C1' should be invoked before 'requestStop' returns 'true'
+        // `C0` and `C1` should be invoked before `requestStop` returns `true`
         ASSERT(state->d_c0.finished());
         ASSERT(state->d_c1.finished());
     }
-    // 'stopRequested' should return 'true' after any call to 'requestStop'
+    // `stopRequested` should return `true` after any call to `requestStop`
     ASSERT(state->d_stopState.stopRequested());
 }
 
+/// While `C1` is executing, call `enregister` with another callback and
+/// verify that it returns `false` and invokes the latter callback
+/// immediately since a stop is already in progress (P-3).
 void thread3Func(void *arg)
-    // While 'C1' is executing, call 'enregister' with another callback and
-    // verify that it returns 'false' and invokes the latter callback
-    // immediately since a stop is already in progress (P-3).
 {
     GlobalState *state = static_cast<GlobalState*>(arg);
     state->d_invoke1LatchBegin.arriveAndWait();
     Callback0 cb;
-    // 'enregister' should return 'false' during a stop
+    // `enregister` should return `false` during a stop
     ASSERT(!state->d_stopState.enregister(&cb));
-    // 'enregister' should invoke callback immediately during a stop
+    // `enregister` should invoke callback immediately during a stop
     ASSERT(cb.finished());
     state->d_invoke1LatchEnd.arriveAndWait();
 }
 
+/// At roughly the same time as the main thread, call `enregister` and
+/// verify that it returns `false` and invokes the callback immediately
+/// since a stop has already been completed (P-5).
 void thread4Func(void *arg)
-    // At roughly the same time as the main thread, call 'enregister' and
-    // verify that it returns 'false' and invokes the callback immediately
-    // since a stop has already been completed (P-5).
 {
     GlobalState *state = static_cast<GlobalState*>(arg);
     state->d_thread4Latch.arriveAndWait();
     Callback0 cb;
-    // 'enregister' should return 'false' after a stop
+    // `enregister` should return `false` after a stop
     ASSERT(!state->d_stopState.enregister(&cb));
-    // 'enregister' should invoke callback immediately after a stop
+    // `enregister` should invoke callback immediately after a stop
     ASSERT(cb.finished());
 }
 }  // close namespace test_case_2
@@ -460,9 +461,9 @@ void thread4Func(void *arg)
 //                               TEST CASE 3
 // ----------------------------------------------------------------------------
 namespace test_case_3 {
+/// Basic callback that can be registered with a `StopState` and records the
+/// number of times it has been invoked.
 struct GenericCallback : Node {
-    // Basic callback that can be registered with a 'StopState' and records the
-    // number of times it has been invoked.
     GenericCallback()
     : d_count(0)
     {
@@ -483,9 +484,9 @@ struct GenericCallback : Node {
 
 struct GlobalState;
 
+/// The type of the callbacks `C2`, `C3`, `C4`, `C5`, and `C6` described in
+/// the test plan.
 struct Callback2To6 : GenericCallback {
-    // The type of the callbacks 'C2', 'C3', 'C4', 'C5', and 'C6' described in
-    // the test plan.
     GlobalState *d_globalState_p;
 
     void setGlobalState(GlobalState *statePtr)
@@ -493,50 +494,50 @@ struct Callback2To6 : GenericCallback {
         d_globalState_p = statePtr;
     }
 
+    /// The behavior of each of the five callbacks of this type depends on
+    /// the order in which it was executed relative to the others.  See the
+    /// test plan for more details.
     void invoke() BSLS_NOTHROW_SPEC BSLS_KEYWORD_OVERRIDE;
-        // The behavior of each of the five callbacks of this type depends on
-        // the order in which it was executed relative to the others.  See the
-        // test plan for more details.
 };
 
+/// the stop state on which `enregister`, `deregister`, and
+/// `requestStop` will be called during this test case
 struct GlobalState {
     Obj              d_stopState;
-        // the stop state on which 'enregister', 'deregister', and
-        // 'requestStop' will be called during this test case
 
+    /// callback `C1` described in (P-1)
     GenericCallback  d_c1;
-        // callback 'C1' described in (P-1)
 
+    /// value of `i` such that the next `Callback2To6` that will be invoked
+    /// will be labelled `Ci` (see the test plan for an explanation of the
+    /// behavior of each `Ci`)
     int              d_nextCallbackNum;
-        // value of 'i' such that the next 'Callback2To6' that will be invoked
-        // will be labelled 'Ci' (see the test plan for an explanation of the
-        // behavior of each 'Ci')
 
+    /// the five objects that will be labelled `C2` through `C6` (depending
+    /// on the (unspecified) order in which they will be invoked)
     Callback2To6     d_callbackPool[5];      // unordered
-        // the five objects that will be labelled 'C2' through 'C6' (depending
-        // on the (unspecified) order in which they will be invoked)
 
+    /// map from `i` to a pointer to `Ci`, where `i` is between 2 and 6,
+    /// inclusive; elements 0 and 1 are unused
     Callback2To6*    d_callbackSequence[7];
-        // map from 'i' to a pointer to 'Ci', where 'i' is between 2 and 6,
-        // inclusive; elements 0 and 1 are unused
 
+    /// latch used to ensure that `C1` is deregistered before `C2` through
+    /// `C6` are registered
     Latch            d_cancel1Latch;
-        // latch used to ensure that 'C1' is deregistered before 'C2' through
-        // 'C6' are registered
 
+    /// latch at which thread 1 and the main thread (executing `C2`) arrive
+    /// and wait before thread 1 deregisters `C3` and the main thread
+    /// deregisters `C2` (P-3)
     Latch            d_cancel3LatchBegin;
-        // latch at which thread 1 and the main thread (executing 'C2') arrive
-        // and wait before thread 1 deregisters 'C3' and the main thread
-        // deregisters 'C2' (P-3)
 
+    /// latch at which thread 1 and main thread (executing `C2`) arrive and
+    /// wait when the steps in P-3 have been completed
     Latch            d_cancel3LatchEnd;
-        // latch at which thread 1 and main thread (executing 'C2') arrive and
-        // wait when the steps in P-3 have been completed
 
+    /// latch at which the main thread (executing `C4`) and thread 1 arrive
+    /// and wait so that thread 1 can deregister `C4` while it is already
+    /// running (P-4)
     Latch            d_cancel4Latch;
-        // latch at which the main thread (executing 'C4') and thread 1 arrive
-        // and wait so that thread 1 can deregister 'C4' while it is already
-        // running (P-4)
 
     GlobalState()
     : d_nextCallbackNum(2)
@@ -582,14 +583,14 @@ void Callback2To6::invoke() BSLS_NOTHROW_SPEC
       case 5: {
         // P-6
         //
-        // Perform no action other than to update 'd_nextCallbackNum' and
+        // Perform no action other than to update `d_nextCallbackNum` and
         // invoke the base class implementation.
         d_globalState_p->d_nextCallbackNum++;
       } break;
       case 6: {
         // P-6
         //
-        // Deregister 'C5' (which has already completed).
+        // Deregister `C5` (which has already completed).
         d_globalState_p->d_stopState.deregister(
                                        d_globalState_p->d_callbackSequence[5]);
         d_globalState_p->d_nextCallbackNum++;
@@ -602,9 +603,9 @@ void Callback2To6::invoke() BSLS_NOTHROW_SPEC
     GenericCallback::invoke();
 }
 
+/// Execute portions of P-2..4 that need to run in parallel with other
+/// operations as described in the test plan.
 void thread1Func(void *arg)
-    // Execute portions of P-2..4 that need to run in parallel with other
-    // operations as described in the test plan.
 {
     GlobalState *state = static_cast<GlobalState*>(arg);
     // P-2
@@ -617,7 +618,7 @@ void thread1Func(void *arg)
     // P-4
     state->d_cancel4Latch.arriveAndWait();
     state->d_stopState.deregister(state->d_callbackSequence[4]);
-    // 'C4' should be complete before 'deregister' returns
+    // `C4` should be complete before `deregister` returns
     ASSERT(1 == state->d_callbackSequence[4]->count());
 }
 
@@ -649,13 +650,13 @@ int main(int argc, char **argv)
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //  USAGE EXAMPLE
@@ -670,61 +671,61 @@ int main(int argc, char **argv)
         // DEREGISTERING CALLBACKS
         //
         // Concerns:
-        //: 1 A callback can be deregistered before a stop has been requested.
-        //:
-        //: 2 A callback that was registered before a stop was requested, but
-        //:   has not been invoked yet, can be deregistered while the stop is
-        //:   in progress.
-        //:
-        //: 3 A callback that was registered before a stop was requested can
-        //:   deregister itself.
-        //:
-        //: 4 A callback that was registered before a stop was requested and is
-        //:   currently being invoked can be deregistered by another thread.
-        //:   The invocation is completed before 'deregister' returns.
-        //:
-        //: 5 A callback that was registered before a stop was requested can be
-        //:   deregistered after it was invoked but while the stop is still in
-        //:   progress.
-        //:
-        //: 6 A callback that was registered before a stop was requested can be
-        //:   deregistered after the stop completes.
-        //:
-        //: 7 A callback that is registered before a stop has been requested,
-        //:   and is deregistered before it is invoked, is not invoked.
-        //:
-        //: 8 A callback that is registered before a stop has been requested,
-        //:   and is deregistered during or after its invocation, is invoked
-        //:   only once.
+        // 1. A callback can be deregistered before a stop has been requested.
+        //
+        // 2. A callback that was registered before a stop was requested, but
+        //    has not been invoked yet, can be deregistered while the stop is
+        //    in progress.
+        //
+        // 3. A callback that was registered before a stop was requested can
+        //    deregister itself.
+        //
+        // 4. A callback that was registered before a stop was requested and is
+        //    currently being invoked can be deregistered by another thread.
+        //    The invocation is completed before `deregister` returns.
+        //
+        // 5. A callback that was registered before a stop was requested can be
+        //    deregistered after it was invoked but while the stop is still in
+        //    progress.
+        //
+        // 6. A callback that was registered before a stop was requested can be
+        //    deregistered after the stop completes.
+        //
+        // 7. A callback that is registered before a stop has been requested,
+        //    and is deregistered before it is invoked, is not invoked.
+        //
+        // 8. A callback that is registered before a stop has been requested,
+        //    and is deregistered during or after its invocation, is invoked
+        //    only once.
         //
         // Plan:
-        //: 1 Create a 'StopState' object, a thread 'T', and a set of 11
-        //:   callbacks, each of which has a counter that is incremented upon
-        //:   each invocation.  Register one callback, 'C1', with the stop
-        //:   state.
-        //:
-        //: 2 Register five additional callbacks with the stop state while, in
-        //:   'T', deregistering 'C1'.  (C-1)
-        //:
-        //: 3 In the main thread, call 'requestStop'.  The remaining five
-        //:   callbacks from P-1 share an additional counter that is used to
-        //:   determine the order in which they are invoked.  Denote the first
-        //:   one that is invoked by 'C2'.  'C2' signals 'T' to deregister
-        //:   another callback; call it 'C3'.  Simultaneously, 'C2' deregisters
-        //:   itself and waits for 'T' to return from 'deregister' before
-        //:   itself returning.  (C-2..3)
-        //:
-        //: 4 Denote the next callback that is invoked by 'C4'.  'C4' signals
-        //:   'T' to deregister 'C4' and verifies that 'C4' has completed
-        //:   invocation before 'deregister' returns.  (C-4)
-        //:
-        //: 5 Denote the last two remaining callbacks from P-1 by 'C5' and
-        //:   'C6', where 'C5' is executed first.  'C6' calls 'deregister' on
-        //:   'C5'.  (C-5)
-        //:
-        //: 6 In the main thread, call 'deregister' on 'C6'.  Verify that 'C1'
-        //:   and 'C3' were invoked zero times and that 'C2' and 'C4'
-        //:   through 'C6' were each invoked only once. (C-6..8)
+        // 1. Create a `StopState` object, a thread `T`, and a set of 11
+        //    callbacks, each of which has a counter that is incremented upon
+        //    each invocation.  Register one callback, `C1`, with the stop
+        //    state.
+        //
+        // 2. Register five additional callbacks with the stop state while, in
+        //    `T`, deregistering `C1`.  (C-1)
+        //
+        // 3. In the main thread, call `requestStop`.  The remaining five
+        //    callbacks from P-1 share an additional counter that is used to
+        //    determine the order in which they are invoked.  Denote the first
+        //    one that is invoked by `C2`.  `C2` signals `T` to deregister
+        //    another callback; call it `C3`.  Simultaneously, `C2` deregisters
+        //    itself and waits for `T` to return from `deregister` before
+        //    itself returning.  (C-2..3)
+        //
+        // 4. Denote the next callback that is invoked by `C4`.  `C4` signals
+        //    `T` to deregister `C4` and verifies that `C4` has completed
+        //    invocation before `deregister` returns.  (C-4)
+        //
+        // 5. Denote the last two remaining callbacks from P-1 by `C5` and
+        //    `C6`, where `C5` is executed first.  `C6` calls `deregister` on
+        //    `C5`.  (C-5)
+        //
+        // 6. In the main thread, call `deregister` on `C6`.  Verify that `C1`
+        //    and `C3` were invoked zero times and that `C2` and `C4`
+        //    through `C6` were each invoked only once. (C-6..8)
         //
         // Testing:
         //   void StopState::deregister(StopStateCallbackNode*);
@@ -763,70 +764,70 @@ int main(int argc, char **argv)
       case 2: {
         // --------------------------------------------------------------------
         // REQUESTING STOPS AND REGISTERING CALLBACKS
-        //   'enregister' cannot be validated separately from 'requestStop'
-        //   because whether or not 'enregister' invokes the callback
-        //   immediately depends on whether 'requestStop' has been called, and
-        //   whether or not 'requestStop' calls any callbacks depends on
-        //   whether 'enregister' has been called.
+        //   `enregister` cannot be validated separately from `requestStop`
+        //   because whether or not `enregister` invokes the callback
+        //   immediately depends on whether `requestStop` has been called, and
+        //   whether or not `requestStop` calls any callbacks depends on
+        //   whether `enregister` has been called.
         //
         // Concerns:
-        //: 1 On a newly constructed 'StopState', 'stopRequested' returns
-        //:   'false'.
-        //:
-        //: 2 Callbacks can be registered on a 'StopState' that has not had a
-        //:   stop requested.  In such cases, 'enregister' returns 'true' and
-        //:   does not invoke the callback immediately.
-        //:
-        //: 3 'requestStop' can be called from multiple threads.  Exactly one
-        //:   call will return 'true'.
-        //:
-        //: 4 After any call to 'requestStop', 'stopRequested' returns 'true'.
-        //:
-        //: 5 'enregister' can be called from any thread while a stop is in
-        //:   progress.  The callback is immediately invoked and 'enregister'
-        //:   returns 'false'.
-        //:
-        //: 6 The thread that successfully requests the stop invokes all
-        //:   registered callbacks (in an unspecified order) before returning.
-        //:
-        //: 7 'enregister' can be called after 'requestStop' has returned
-        //:   'true'.  The callback is immediately invoked and 'enregister'
-        //:   returns 'false'.
+        // 1. On a newly constructed `StopState`, `stopRequested` returns
+        //    `false`.
+        //
+        // 2. Callbacks can be registered on a `StopState` that has not had a
+        //    stop requested.  In such cases, `enregister` returns `true` and
+        //    does not invoke the callback immediately.
+        //
+        // 3. `requestStop` can be called from multiple threads.  Exactly one
+        //    call will return `true`.
+        //
+        // 4. After any call to `requestStop`, `stopRequested` returns `true`.
+        //
+        // 5. `enregister` can be called from any thread while a stop is in
+        //    progress.  The callback is immediately invoked and `enregister`
+        //    returns `false`.
+        //
+        // 6. The thread that successfully requests the stop invokes all
+        //    registered callbacks (in an unspecified order) before returning.
+        //
+        // 7. `enregister` can be called after `requestStop` has returned
+        //    `true`.  The callback is immediately invoked and `enregister`
+        //    returns `false`.
         //
         // Plan:
-        //: 1 Create a 'StopState' object and verify that 'stopRequested'
-        //:   returns 'false'.  (C-1)
-        //:
-        //: 2 Create a thread, 'T1'.  Have both 'T1' and the main thread call
-        //:   'enregister' at roughly the same time, where the callback
-        //:   registered by the main thread is called 'C0', and the callback
-        //:   registered by 'T1' is called 'C1'.  Each callback stores the
-        //:   address of a separate flag, which will be set upon invocation.
-        //:   Verify that 'enregister' returns 'true' in both cases and that
-        //:   neither flag has been set.  (C-2)
-        //:
-        //: 3 Create two threads, 'T2' and 'T3'.  Have both 'T2' and the main
-        //:   thread call 'requestStop' at roughly the same time and record
-        //:   whether the call returned 'true'.  In the thread where the call
-        //:   returned 'true', verify that both 'C0' and 'C1' have set the
-        //:   flag indicating that their invocations are complete.  Have both
-        //:   'T2' and the main thread call 'stopRequested' and verify that the
-        //:   result was 'true' in both cases.  Upon invocation, callback 'C1'
-        //:   calls 'enregister' for an additional callback and 'T3' also calls
-        //:   'enregister' for an additional callback while 'C1' is still
-        //:   executing.  Both callback 'C1' and thread 'T3' verify that
-        //:   'enregister' returned 'false' and that the callback was invoked
-        //:   immediately.  'C0' and 'C1' each record the invoking thread ID.
-        //:   (C-4..6)
-        //:
-        //: 4 Verify that exactly one call to 'requestStop' returned 'true' and
-        //:   that the thread that got a return value of 'true' is the one that
-        //:   invoked both 'C0' and 'C1'.  (C-3)
-        //:
-        //: 5 Create a thread, 'T4'.  Have both 'T4' and the main thread call
-        //:   'enregister' at roughly the same time and verify that the call
-        //:   returned 'false' and that the callback has set a flag to indicate
-        //:   completion by the time 'enregister' returned.  (C-7)
+        // 1. Create a `StopState` object and verify that `stopRequested`
+        //    returns `false`.  (C-1)
+        //
+        // 2. Create a thread, `T1`.  Have both `T1` and the main thread call
+        //    `enregister` at roughly the same time, where the callback
+        //    registered by the main thread is called `C0`, and the callback
+        //    registered by `T1` is called `C1`.  Each callback stores the
+        //    address of a separate flag, which will be set upon invocation.
+        //    Verify that `enregister` returns `true` in both cases and that
+        //    neither flag has been set.  (C-2)
+        //
+        // 3. Create two threads, `T2` and `T3`.  Have both `T2` and the main
+        //    thread call `requestStop` at roughly the same time and record
+        //    whether the call returned `true`.  In the thread where the call
+        //    returned `true`, verify that both `C0` and `C1` have set the
+        //    flag indicating that their invocations are complete.  Have both
+        //    `T2` and the main thread call `stopRequested` and verify that the
+        //    result was `true` in both cases.  Upon invocation, callback `C1`
+        //    calls `enregister` for an additional callback and `T3` also calls
+        //    `enregister` for an additional callback while `C1` is still
+        //    executing.  Both callback `C1` and thread `T3` verify that
+        //    `enregister` returned `false` and that the callback was invoked
+        //    immediately.  `C0` and `C1` each record the invoking thread ID.
+        //    (C-4..6)
+        //
+        // 4. Verify that exactly one call to `requestStop` returned `true` and
+        //    that the thread that got a return value of `true` is the one that
+        //    invoked both `C0` and `C1`.  (C-3)
+        //
+        // 5. Create a thread, `T4`.  Have both `T4` and the main thread call
+        //    `enregister` at roughly the same time and verify that the call
+        //    returned `false` and that the callback has set a flag to indicate
+        //    completion by the time `enregister` returned.  (C-7)
         //
         // Testing:
         //   StopState::StopState();
@@ -889,12 +890,12 @@ int main(int argc, char **argv)
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create a 'StopState' object, request a stop, and verify that the
-        //:   stop was requested.  (C-1)
+        // 1. Create a `StopState` object, request a stop, and verify that the
+        //    stop was requested.  (C-1)
         //
         // Testing:
         //   BREATHING TEST

@@ -94,13 +94,13 @@
 #pragma error_messages(off, wvarhidemem)
 #endif
 
-// Warning: the following 'using' declarations interfere with the testing of
+// Warning: the following `using` declarations interfere with the testing of
 // the macros defined in this component.  Please do not un-comment them.
 //
 // using namespace BloombergLP;
 // using namespace bsl;
 //
-// Also note that such a 'using' in the unnamed namespace applies to all code
+// Also note that such a `using` in the unnamed namespace applies to all code
 // that follows the closing of the namespace.
 
 using bsl::cout;
@@ -113,12 +113,12 @@ using bsl::flush;
 //                              Overview
 //                              --------
 // The component under test consists of a large number of preprocessor macros
-// and a small number of 'static' utility functions.
+// and a small number of `static` utility functions.
 //
 // The utility functions are merely facades for methods defined in the
-// 'ball_loggermanager' component.  It is sufficient to test that each "facade"
+// `ball_loggermanager` component.  It is sufficient to test that each "facade"
 // method correctly forwards its arguments to the corresponding method of
-// 'ball_loggermanager', and that the correct value is returned.
+// `ball_loggermanager`, and that the correct value is returned.
 //
 // The preprocessor macros are largely implemented in terms of the utility
 // functions.  Each macro is individually tested to ensure that the macro's
@@ -168,8 +168,8 @@ using bsl::flush;
 // [34] BALL_LOG_SET_CATEGORY_HIERARCHICALLY(const char *);
 // [35] BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY(const char *);
 // ----------------------------------------------------------------------------
-// [30] CONCERN: 'BALL_LOG_*_BLOCK' MACROS
-// [31] CONCERN: 'BALL_LOGCB_*_BLOCK' MACROS
+// [30] CONCERN: `BALL_LOG_*_BLOCK` MACROS
+// [31] CONCERN: `BALL_LOGCB_*_BLOCK` MACROS
 // [32] CONCERN: DEGENERATE LOG MACROS USAGE
 // [36] CONCERN: The logging macros can be used recursively
 // [37] USAGE EXAMPLE
@@ -267,9 +267,9 @@ static bool veryVeryVerbose;
 static bool veryVeryVeryVerbose;
 
 static const bool k_HAS_MULTILINE_OFFSET =
-    // 'k_HAS_MULTILINE_OFFSET' is 'true' if the '__LINE__' macro is
+    // `k_HAS_MULTILINE_OFFSET` is `true` if the `__LINE__` macro is
     // substituted by the line number of the last line of a macro invocation
-    // split on several lines; and it is 'false' if the first line is reported.
+    // split on several lines; and it is `false` if the first line is reported.
 #if defined(BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST)
     false;
 #else
@@ -285,12 +285,12 @@ namespace u {
 
 TestAllocator ta("u::ta");
 
+/// Create the specified `numThreads`, each executing the specified `func`.
+/// Number each thread (sequentially from 0 to `numThreads-1`) by passing
+/// `i` to i'th thread.  Finally join all the threads.
 void executeInParallel(
                      int                                            numThreads,
                      BloombergLP::bslmt::ThreadUtil::ThreadFunction func)
-    // Create the specified 'numThreads', each executing the specified 'func'.
-    // Number each thread (sequentially from 0 to 'numThreads-1') by passing
-    // 'i' to i'th thread.  Finally join all the threads.
 {
     using namespace BloombergLP;  // okay here
 
@@ -329,6 +329,10 @@ int messageBufferSize()
     return bufferSize;
 }
 
+/// Return `true` if the last record published to the specified `observer`
+/// includes the name of the specified `category` and the specified
+/// `severity`, `fileName`, `lineNumber`, and `message`, and `false`
+/// otherwise.
 static bool isRecordOkay(
            const bsl::shared_ptr<BloombergLP::ball::TestObserver>&  observer,
            const BloombergLP::ball::Category                       *category,
@@ -336,10 +340,6 @@ static bool isRecordOkay(
            const char                                              *fileName,
            int                                                      lineNumber,
            const char                                              *message)
-    // Return 'true' if the last record published to the specified 'observer'
-    // includes the name of the specified 'category' and the specified
-    // 'severity', 'fileName', 'lineNumber', and 'message', and 'false'
-    // otherwise.
 {
     const BloombergLP::ball::RecordAttributes& attributes =
                                  observer->lastPublishedRecord().fixedFields();
@@ -370,10 +370,10 @@ void incCallback(BloombergLP::ball::UserFields *list)
     return;
 }
 
+/// Capture the `streambuf` used by `cerr` at this object's creation, and
+/// restore that to be the `cerr` stream buffer on this object's
+/// destruction.
 class CerrBufferGuard {
-    // Capture the 'streambuf' used by 'cerr' at this object's creation, and
-    // restore that to be the 'cerr' stream buffer on this object's
-    // destruction.
 
     // DATA
     bsl::stringstream  d_stream;
@@ -382,24 +382,25 @@ class CerrBufferGuard {
   public:
     CerrBufferGuard()
         : d_cerrBuf(bsl::cerr.rdbuf(d_stream.rdbuf())) {}
-        // Set a stream buffer associated with the 'd_stream' data member to be
-        // the associated stream buffer used by 'bsl::cerr'.  Capture the
-        // current stream buffer being used by 'bsl::cerr' and upon this
+        // Set a stream buffer associated with the `d_stream` data member to be
+        // the associated stream buffer used by `bsl::cerr`.  Capture the
+        // current stream buffer being used by `bsl::cerr` and upon this
         // object's destruction, set it to be the associated stream buffer used
-        // by 'bsl::cerr'.
+        // by `bsl::cerr`.
 
+    /// Restore the stream buffer being used by `bsl::cerr` to that which
+    /// was being used on this object's construction.
     ~CerrBufferGuard() { bsl::cerr.rdbuf(d_cerrBuf); }
-        // Restore the stream buffer being used by 'bsl::cerr' to that which
-        // was being used on this object's construction.
 
     // ACCESSORS
+
+    /// Return a copy of the `d_stream` buffer's string.
     bsl::string str() const { return d_stream.str(); }
-        // Return a copy of the 'd_stream' buffer's string.
 
 };
 
+/// Override the outer logging category and log a test message.
 void logNamespaceOverride() {
-    // Override the outer logging category and log a test message.
     BALL_LOG_SET_CATEGORY("BALL_LOG.T.OVERRIDE.U");
     BALL_LOG_INFO << "INFO log in namespace BALL_LOG.T.OVERRIDE.U";
 }
@@ -418,17 +419,17 @@ namespace BloombergLP {
 // The following example demonstrates how to define and use logging categories
 // that have class scope.
 //
-// First, we define a class, 'Thing', for which we want to do class-scope
-// logging.  The use of the 'BALL_LOG_SET_CLASS_CATEGORY' macro generates the
+// First, we define a class, `Thing`, for which we want to do class-scope
+// logging.  The use of the `BALL_LOG_SET_CLASS_CATEGORY` macro generates the
 // requisite declarations within the definition of the class.  We have used the
-// macro in a 'private' section of the interface, which should be preferred,
-// but 'public' (or 'protected') is fine, too:
-//..
+// macro in a `private` section of the interface, which should be preferred,
+// but `public` (or `protected`) is fine, too:
+// ```
     // pckg_thing.h
     namespace pckg {
 
+    /// ...
     class Thing {
-        // ...
 
       private:
         BALL_LOG_SET_CLASS_CATEGORY("PCKG.THING");
@@ -438,23 +439,25 @@ namespace BloombergLP {
         // ...
 
         // MANIPULATORS
+
+        /// Log to the class-scope category "PCKG.THING" if the specified
+        /// `useClassCategory` flag is `true`, and to the block-scope
+        /// category "X.Y.Z" otherwise.
         void outOfLineMethodThatLogs(bool useClassCategory);
-            // Log to the class-scope category "PCKG.THING" if the specified
-            // 'useClassCategory' flag is 'true', and to the block-scope
-            // category "X.Y.Z" otherwise.
 
         // ...
 
         // ACCESSORS
+
+        /// Log a record to the class-scope category "PCKG.THING".
         void inlineMethodThatLogs() const;
-            // Log a record to the class-scope category "PCKG.THING".
     };
-//..
-// Next, we define the 'inlineMethodThatLogs' method 'inline' within the header
-// file and log to the class-scope category using 'BALL_LOG_TRACE'.  Since
+// ```
+// Next, we define the `inlineMethodThatLogs` method `inline` within the header
+// file and log to the class-scope category using `BALL_LOG_TRACE`.  Since
 // there is no other category in scope, the record is necessarily logged to the
-// "PCKG.THING" category that is within the scope of the 'Thing' class:
-//..
+// "PCKG.THING" category that is within the scope of the `Thing` class:
+// ```
     // ...
 
     // ACCESSORS
@@ -465,12 +468,12 @@ namespace BloombergLP {
     }
 
     }  // close namespace pckg
-//..
-// Now, we define the 'outOfLineMethodThatLogs' method within the '.cpp' file.
-// On each invocation, this method logs one record using 'BALL_LOG_TRACE'.  It
-// logs to the "PCKG.THING" class-scope category if 'useClassCategory' is
-// 'true', and logs to the "X.Y.Z" block-scope category otherwise:
-//..
+// ```
+// Now, we define the `outOfLineMethodThatLogs` method within the `.cpp` file.
+// On each invocation, this method logs one record using `BALL_LOG_TRACE`.  It
+// logs to the "PCKG.THING" class-scope category if `useClassCategory` is
+// `true`, and logs to the "X.Y.Z" block-scope category otherwise:
+// ```
     // pckg_thing.cpp
     namespace pckg {
 
@@ -489,11 +492,11 @@ namespace BloombergLP {
     }
 
     }  // close namespace pckg
-//..
+// ```
 // Finally, note that both block-scope and class-scope categories can be logged
-// to within the same block.  For example, the following block within a 'Thing'
+// to within the same block.  For example, the following block within a `Thing`
 // method would first log to "PCKG.THING" then log to "X.Y.Z":
-//..
+// ```
 //      {
 //          BALL_LOG_TRACE << "log to PCKG.THING";
 //
@@ -501,7 +504,7 @@ namespace BloombergLP {
 //
 //          BALL_LOG_TRACE << "log to X.Y.Z";
 //      }
-//..
+// ```
 
 }  // close enterprise namespace
 
@@ -529,12 +532,13 @@ class Point {
 // seamlessly populate the user fields of a record, thus simplifying the
 // logging line.
 //
-// We define a callback function 'populateUsingPoint' that appends to the
-// specified 'fields' the attributes of the 'point' to log:
-//..
+// We define a callback function `populateUsingPoint` that appends to the
+// specified `fields` the attributes of the `point` to log:
+// ```
+
+    /// Append to the specified `list` the name, x value, and y value of
+    /// the specified `point`.
     void populateUsingPoint(ball::UserFields *fields, const Point& point)
-        // Append to the specified 'list' the name, x value, and y value of
-        // the specified 'point'.
     {
         fields->appendString(point.name());
         fields->appendInt64(point.x());
@@ -544,12 +548,12 @@ class Point {
     int validatePoint(const Point& point)
     {
         BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
-//..
-// We now bind our callback function 'populateUsingPoint' and the supplied
-// 'point' to a functor object we will pass to the logging callback.  Note
+// ```
+// We now bind our callback function `populateUsingPoint` and the supplied
+// `point` to a functor object we will pass to the logging callback.  Note
 // that the callback supplied to the logging macro must match the prototype
-// 'void (*)(ball::UserFields *)'.
-//..
+// `void (*)(ball::UserFields *)`.
+// ```
         bsl::function <void(ball::UserFields *)> callback;
         callback = bdlf::BindUtil::bind(&populateUsingPoint,
                                        bdlf::PlaceHolders::_1,
@@ -574,7 +578,7 @@ class Point {
         }
         return numErrors;
     }
-//..
+// ```
 
 }  // close enterprise namespace
 
@@ -589,57 +593,58 @@ namespace BloombergLP {
 // The following example demonstrates the use of attributes and rules to
 // conditionally enable logging.
 //
-// We start by defining a function, 'processData', that is passed data in a
-// 'vector<char>' and information about the user who sent the data.  This
+// We start by defining a function, `processData`, that is passed data in a
+// `vector<char>` and information about the user who sent the data.  This
 // example function performs no actual processing, but does log a single
-// message at the 'ball::Severity::e_DEBUG' threshold level.  The 'processData'
+// message at the `ball::Severity::e_DEBUG` threshold level.  The `processData`
 // function also adds the user information passed to this function to the
 // thread's attribute context.  We will use these attributes later, to create a
 // logging rule that enables verbose logging only for a particular user.
-//..
+// ```
+
+/// Process the specified `data` associated with the specified Bloomberg
+/// `uuid`, `luw`, and `terminalNumber`.
 void processData(int                      uuid,
                  int                      luw,
                  int                      terminalNumber,
                  const bsl::vector<char>& data)
-    // Process the specified 'data' associated with the specified Bloomberg
-    // 'uuid', 'luw', and 'terminalNumber'.
 {
     (void)data;  // suppress "unused" warning
-//..
-// We add our attributes using 'ball::ScopedAttribute', which adds an attribute
+// ```
+// We add our attributes using `ball::ScopedAttribute`, which adds an attribute
 // container with one attribute to a list of containers.  This is easy and
 // efficient if the number of attributes is small, but should not be used if
 // there are a large number of attributes.  If motivated, we could use
-// 'ball::DefaultAttributeContainer', which provides an efficient container for
+// `ball::DefaultAttributeContainer`, which provides an efficient container for
 // a large number of attributes, or even create a more efficient attribute
 // container implementation specifically for these three attributes (uuid, luw,
-// and terminalNumber).  See {'ball_scopedattributes'} (plural) for an example
-// of using a different attribute container, and {'ball_attributecontainer'}
+// and terminalNumber).  See {`ball_scopedattributes`} (plural) for an example
+// of using a different attribute container, and {`ball_attributecontainer`}
 // for an example of creating a custom attribute container.
-//..
-    // We use 'ball::ScopedAttribute' here because the number of
+// ```
+    // We use `ball::ScopedAttribute` here because the number of
     // attributes is relatively small.
 //
     ball::ScopedAttribute uuidAttribute("mylibrary.uuid", uuid);
     ball::ScopedAttribute luwAttribute("mylibrary.luw", luw);
     ball::ScopedAttribute termNumAttribute("mylibrary.terminalNumber",
                                            terminalNumber);
-//..
+// ```
 // In this simplified example we perform no actual processing, and simply log
-// a message at the 'ball::Severity::e_DEBUG' level.
-//..
+// a message at the `ball::Severity::e_DEBUG` level.
+// ```
     BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
 //
     BALL_LOG_DEBUG << "An example message";
-//..
+// ```
 // Notice that if we were not using a "scoped" attribute container like that
-// provided automatically by 'ball::ScopedAttribute' (e.g., if we were using a
-// local 'ball::DefaultAttributeContainer' instead), then the container
-// **must** be removed from the 'ball::AttributeContext' before it is
-// destroyed!  See 'ball_scopedattributes' (plural) for an example.
-//..
+// provided automatically by `ball::ScopedAttribute` (e.g., if we were using a
+// local `ball::DefaultAttributeContainer` instead), then the container
+// **must** be removed from the `ball::AttributeContext` before it is
+// destroyed!  See `ball_scopedattributes` (plural) for an example.
+// ```
 }
-//..
+// ```
 
 }  // close enterprise namespace
 
@@ -650,11 +655,11 @@ void processData(int                      uuid,
 
 namespace BALL_LOG_TEST_CASE_35 {
 
+/// Recursively invoke itself and pass the result to the stream-based
+/// logging macro corresponding to the specified `level` and return
+/// `level`.
 template <int DEPTH>
 int recurseStreamBasedMacros(BloombergLP::ball::Severity::Level level)
-    // Recursively invoke itself and pass the result to the stream-based
-    // logging macro corresponding to the specified 'level' and return
-    // 'level'.
 {
     BALL_LOG_SET_CATEGORY("Recursion");
 
@@ -703,10 +708,10 @@ int recurseStreamBasedMacros(BloombergLP::ball::Severity::Level level)
     return static_cast<int>(level);
 }
 
+/// Invoke the stream-based logging macro corresponding to the specified
+/// `level` and return `level`.
 template <>
 int recurseStreamBasedMacros<0>(BloombergLP::ball::Severity::Level level)
-    // Invoke the stream-based logging macro corresponding to the specified
-    // 'level' and return 'level'.
 {
     BALL_LOG_SET_CATEGORY("Recursion");
 
@@ -737,11 +742,11 @@ int recurseStreamBasedMacros<0>(BloombergLP::ball::Severity::Level level)
     return static_cast<int>(level);
 }
 
+/// Recursively invoke itself and pass the result to the `printf`-style
+/// logging macro corresponding to the specified `level` and return
+/// `level`.
 template <int DEPTH>
 int recursePrintfStyleMacros(BloombergLP::ball::Severity::Level level)
-    // Recursively invoke itself and pass the result to the 'printf'-style
-    // logging macro corresponding to the specified 'level' and return
-    // 'level'.
 {
     BALL_LOG_SET_CATEGORY("Recursion");
 
@@ -784,10 +789,10 @@ int recursePrintfStyleMacros(BloombergLP::ball::Severity::Level level)
     return static_cast<int>(level);
 }
 
+/// Invoke the `printf`-style logging macro corresponding to the specified
+/// `level` and return `level`.
 template<>
 int recursePrintfStyleMacros<0>(BloombergLP::ball::Severity::Level level)
-    // Invoke the 'printf'-style logging macro corresponding to the specified
-    // 'level' and return 'level'.
 {
     BALL_LOG_SET_CATEGORY("Recursion");
 
@@ -818,19 +823,19 @@ int recursePrintfStyleMacros<0>(BloombergLP::ball::Severity::Level level)
     return static_cast<int>(level);
 }
 
+/// Stub implementation of callback for testing recursive use of logging
+/// macros.
 void recurseCallback(BloombergLP::ball::UserFields *fields)
-    // Stub implementation of callback for testing recursive use of logging
-    // macros.
 {
     (void)fields;  // suppress warning
 }
 
+/// Invoke the function, that calls stream-based logging macro and pass the
+/// result to the callback logging macro corresponding to the specified
+/// `level` and return `level`.
 void recurseStreamBasedMacrosCallback(
                                     BloombergLP::ball::UserFields      *fields,
                                     BloombergLP::ball::Severity::Level  level)
-    // Invoke the function, that calls stream-based logging macro and pass the
-    // result to the callback logging macro corresponding to the specified
-    // 'level' and return 'level'.
 {
     (void)fields;  // suppress warning
 
@@ -867,12 +872,12 @@ void recurseStreamBasedMacrosCallback(
     }
 }
 
+/// Invoke the function, that calls `printf`-style logging macro and pass
+/// the result to the callback logging macro corresponding to the specified
+/// `level` and return `level`.
 void recursePrintfStyleMacrosCallback(
                                     BloombergLP::ball::UserFields      *fields,
                                     BloombergLP::ball::Severity::Level  level)
-    // Invoke the function, that calls 'printf'-style logging macro and pass
-    // the result to the callback logging macro corresponding to the specified
-    // 'level' and return 'level'.
 {
     (void)fields;  // suppress warning
 
@@ -909,10 +914,10 @@ void recursePrintfStyleMacrosCallback(
     }
 }
 
+/// Invoke the callback logging macro corresponding to the specified
+/// `level`.
 void recurseCallbackMacrosCallback(BloombergLP::ball::UserFields      *fields,
                                    BloombergLP::ball::Severity::Level  level)
-    // Invoke the callback logging macro corresponding to the specified
-    // 'level'.
 {
     (void)fields;  // suppress warning
 
@@ -964,23 +969,23 @@ typedef Blp::ball::LoggerManager::DefaultThresholdLevelsCallback
 typedef Blp::ball::ThresholdAggregate           Agg;
 typedef bsl::pair<const Cat *, bool>            ResultPair;
 
-Agg callbackLevels;     // The function 'dtlCallbackRaw' below sets the values
+Agg callbackLevels;     // The function `dtlCallbackRaw` below sets the values
                         // returned through the first four arguments of its
                         // parameter list to the values of the four fields of
-                        // this 'struct', respectively.
+                        // this `struct`, respectively.
 
+/// Callback to be used by the logger manager to obtain new logging
+/// threshold levels for a new category that is about to be created.  For
+/// the purposes of this test, return values through the specified
+/// `recordLevel`, `passLevel`, `triggerLevel`, and `triggerAllLevel`.
+/// Verify that no category with the specified `categoryName` exists.  The
+/// behavior is undefined if this method is called when the logger manager
+/// singleton is not initialized.
 void dtlCallbackRaw(int        *recordLevel,
                     int        *passLevel,
                     int        *triggerLevel,
                     int        *triggerAllLevel,
                     const char *categoryName)
-    // Callback to be used by the logger manager to obtain new logging
-    // threshold levels for a new category that is about to be created.  For
-    // the purposes of this test, return values through the specified
-    // 'recordLevel', 'passLevel', 'triggerLevel', and 'triggerAllLevel'.
-    // Verify that no category with the specified 'categoryName' exists.  The
-    // behavior is undefined if this method is called when the logger manager
-    // singleton is not initialized.
 {
     ASSERT(0 == Blp::ball::LoggerManager::singleton().lookupCategory(
                                                                 categoryName));
@@ -991,14 +996,14 @@ void dtlCallbackRaw(int        *recordLevel,
     *triggerAllLevel = callbackLevels.triggerAllLevel();
 }
 
+/// The method `setDefaultThresholdLevelsCallback` won't take just a
+/// function ptr, it needs a pointer to this `bsl::function` type.
 Blp::ball::LoggerManager::DefaultThresholdLevelsCallback dtlCallback(
                                                               &dtlCallbackRaw);
-    // The method 'setDefaultThresholdLevelsCallback' won't take just a
-    // function ptr, it needs a pointer to this 'bsl::function' type.
 
+/// Return a `ThresholdAggregate` object reflecting the threshold levels of
+/// the specified `category`.
 Agg getLevels(const Blp::ball::Category *category)
-    // Return a 'ThresholdAggregate' object reflecting the threshold levels of
-    // the specified 'category'.
 {
     return Agg(category->recordLevel(),
                category->passLevel(),
@@ -1006,9 +1011,9 @@ Agg getLevels(const Blp::ball::Category *category)
                category->triggerAllLevel());
 }
 
+/// Return a threshold aggregate object reflecting the default levels of the
+/// specified `manager`.
 Agg getDefaultLevels(const Blp::ball::LoggerManager *manager)
-    // Return a threshold aggregate object reflecting the default levels of the
-    // specified 'manager'.
 {
     return Agg(manager->defaultRecordThresholdLevel(),
                manager->defaultPassThresholdLevel(),
@@ -1016,9 +1021,9 @@ Agg getDefaultLevels(const Blp::ball::LoggerManager *manager)
                manager->defaultTriggerAllThresholdLevel());
 }
 
+/// Set the threshold levels of the specified `category` to those of the
+/// specified `agg`.
 void setLevels(Blp::ball::Category *category, const Agg& agg)
-    // Set the threshold levels of the specified 'category' to those of the
-    // specified 'agg'.
 {
     category->setLevels(agg.recordLevel(),
                         agg.passLevel(),
@@ -1026,13 +1031,13 @@ void setLevels(Blp::ball::Category *category, const Agg& agg)
                         agg.triggerAllLevel());
 }
 
-// The table 'DATA' is used the same way in test cases 32, 33, and 34.
+// The table `DATA` is used the same way in test cases 32, 33, and 34.
 //
-// Each record of the table 'DATA' contains a line number, a threshold
+// Each record of the table `DATA` contains a line number, a threshold
 // aggregate value, and two booleans, one of which indicates that the
-// thresholds are to be used, in the outer 'ti' loop in each test case, to
-// initialize the threshold aggregate 'callbackLevels' above, and the rest of
-// the loop skipped, and another boolean indicating that in the inner 'tj' loop
+// thresholds are to be used, in the outer `ti` loop in each test case, to
+// initialize the threshold aggregate `callbackLevels` above, and the rest of
+// the loop skipped, and another boolean indicating that in the inner `tj` loop
 // in each test case, the logger manager is to be set to use the default
 // threshold level callback.
 
@@ -1085,7 +1090,7 @@ const Cat *defaultCat = 0;
 
 namespace indices {
 
-// In test cases 33, 34, and 35, we want to call 'setCategoryHierarchically',
+// In test cases 33, 34, and 35, we want to call `setCategoryHierarchically`,
 // often with category holder objects passed.  Also, the d'tor of the category
 // manager (part of the logger manager) will traverse all the category holders
 // that have been initialized, resetting them.  So it's necessary that the
@@ -1093,24 +1098,24 @@ namespace indices {
 // manager.
 //
 // This problem is solved by having templates with integer arguments.  In test
-// cases 33, we use template function 'testSetCategoryHierarchically', in test
-// case 34, we use template function 'testLocalMacros' defined below, in test
-// case 35, it is template class 'TestClassMacro' defined further below.  Thus,
+// cases 33, we use template function `testSetCategoryHierarchically`, in test
+// case 34, we use template function `testLocalMacros` defined below, in test
+// case 35, it is template class `TestClassMacro` defined further below.  Thus,
 // we can instantiate these templates with many different integer values, and
 // get a different instantiation of the static category holder in each one.
 //
-// In this namespace 'indices' we have a set of distinct integer constants to
+// In this namespace `indices` we have a set of distinct integer constants to
 // be used as template parameters to the templates used in test cases 33, 34,
 // and 35.
 //
-// All the calls to these functions, including 'TestClassMacro::operator()',
-// are done through macros defined in the test cases in 'main'.  The names of
+// All the calls to these functions, including `TestClassMacro::operator()`,
+// are done through macros defined in the test cases in `main`.  The names of
 // the integers below are passed as an arg to these macros, and used twice --
 // as an integer to parameterize the template, and the name is used (using
-// preprocessor stringification, i.e., '#argName').  Before being used as
+// preprocessor stringification, i.e., `#argName`).  Before being used as
 // category names, the names below have everything at or after '_' removed,
 // which enables us to use multiple indexes with the same category name.  For
-// example, 'woof_a', 'woof_b', 'woof_c', 'woof_d', and 'woof_e' are 5 distinct
+// example, `woof_a`, `woof_b`, `woof_c`, `woof_d`, and `woof_e` are 5 distinct
 // integer values, but all refer to the same category name "woof".
 
 static const int base = L_ + 1;
@@ -1152,40 +1157,41 @@ static const int full                = L_ - base;    // Finds "".
 const static CatHolder defaultHolder =
                      { { CatHolder::e_UNINITIALIZED_CATEGORY }, { 0 }, { 0 } };
 
+/// If an ASSERT fails within the `testLocalMacros()` call or the
+/// `TestClassMacro::operator()()` call, the line number provided by ASSERT
+/// will not tell us WHICH call failed, so we bundle useful information
+/// about which call it was where the problem occurred, and pass an object
+/// of this type to the call.  We define a streaming operator so the object
+/// knows how to print itself, and then make the `PositionRec` the first
+/// argument to every `ASSERTV` call in the test functions.
 struct PositionRec {
-    // If an ASSERT fails within the 'testLocalMacros()' call or the
-    // 'TestClassMacro::operator()()' call, the line number provided by ASSERT
-    // will not tell us WHICH call failed, so we bundle useful information
-    // about which call it was where the problem occurred, and pass an object
-    // of this type to the call.  We define a streaming operator so the object
-    // knows how to print itself, and then make the 'PositionRec' the first
-    // argument to every 'ASSERTV' call in the test functions.
 
     // DATA
     int         d_line;            // line number of the call from the test
                                    // case to the test function
-    int         d_il;              // the line number of the record in 'DATA'
-                                   // that the 'ti' loop in the test case is
+    int         d_il;              // the line number of the record in `DATA`
+                                   // that the `ti` loop in the test case is
                                    // tracking
-    int         d_jl;              // the line number of the record in 'DATA'
-                                   // that the 'tj' loop in the test case is
+    int         d_jl;              // the line number of the record in `DATA`
+                                   // that the `tj` loop in the test case is
                                    // tracking
     const char *d_categoryName_p;  // the name of the category to be found or
-                                   // created (prior to '_*' being removed)
+                                   // created (prior to `_*` being removed)
 
     // CREATOR
+
+    /// Create a `PositionRec` object with the specified `line`, `il`, `jl`,
+    /// and `categoryName`.
     PositionRec(int line, int il, int jl, const char *categoryName)
     : d_line(line)
     , d_il(il)
     , d_jl(jl)
     , d_categoryName_p(categoryName)
-        // Create a 'PositionRec' object with the specified 'line', 'il', 'jl',
-        // and 'categoryName'.
     {}
 };
 
+/// Output the specified `pos` to the specified `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const PositionRec& pos)
-    // Output the specified 'pos' to the specified 'stream'.
 {
     stream << "{ line: "  << pos.d_line <<
                  " IL: "  << pos.d_il <<
@@ -1194,40 +1200,41 @@ bsl::ostream& operator<<(bsl::ostream& stream, const PositionRec& pos)
     return stream;
 }
 
+/// Both of the functions `testLocalMacros` and `TestClassMacro::operator()`
+/// return objects of this type, which contains several fields relevant to
+/// how the function performed -- pointers to the category holder, to the
+/// category found or created, and a `bool` to indicate whether all the
+/// tests passed.  A separate static copy of this record exists for every
+/// template instantiation of `result<int>()`, which is called by both the
+/// other template functions, with the same template parameter that the
+/// other templates are instantiated with -- that allows us to retrieve the
+/// results from any previous call to the test function at any time in the
+/// loop.
 struct ResultRec {
-    // Both of the functions 'testLocalMacros' and 'TestClassMacro::operator()'
-    // return objects of this type, which contains several fields relevant to
-    // how the function performed -- pointers to the category holder, to the
-    // category found or created, and a 'bool' to indicate whether all the
-    // tests passed.  A separate static copy of this record exists for every
-    // template instantiation of 'result<int>()', which is called by both the
-    // other template functions, with the same template parameter that the
-    // other templates are instantiated with -- that allows us to retrieve the
-    // results from any previous call to the test function at any time in the
-    // loop.
 
     // DATA
     const CatHolder      *d_holder_p;        // the category holder, if any
                                              // initialized
     int                   d_intLevel;        // the threshold level from the
-                                             // category holder, as an 'int'
+                                             // category holder, as an `int`
     Lev                   d_level;           // the threshold level from the
                                              // category holder, as a
-                                             // 'Severity::Level'
+                                             // `Severity::Level`
     const Cat            *d_category_p;      // the category found or created
-    CatHolder            *d_next_p;          // the 'd_next_p' field from the
+    CatHolder            *d_next_p;          // the `d_next_p` field from the
                                              // category holder
 
     // MANIPULATORS
+
+    /// Zero out all fields.
     void clear()
-        // Zero out all fields.
     {
         bsl::memset(this, 0, sizeof(*this));
     }
 
+    /// Initialize all fields of this object relevant to the specified
+    /// `holder_p`.
     void init(const CatHolder *holder_p)
-        // Initialize all fields of this object relevant to the specified
-        // 'holder_p'.
     {
         d_holder_p   = holder_p;
         d_intLevel   =
@@ -1240,54 +1247,54 @@ struct ResultRec {
     }
 };
 
+/// Return a separate static instance of a `ResultRec` for each unique value
+/// of `KK`.
 template <int KK>
 ResultRec& result()
-    // Return a separate static instance of a 'ResultRec' for each unique value
-    // of 'KK'.
 {
     static ResultRec ret;
     return ret;
 }
 
-// This set contains all the 'KK' values with which a couple of the following 3
+// This set contains all the `KK` values with which a couple of the following 3
 // templates have been instantiated.  It is cleared at the beginning of every
-// pass through the 'tj' loops in 'main' in test cases 32, 33, and 34.  In test
-// case 32 it is used to determine if we are repeating a use of 'KK', in test
+// pass through the `tj` loops in `main` in test cases 32, 33, and 34.  In test
+// case 32 it is used to determine if we are repeating a use of `KK`, in test
 // cases 33 and 34 it is used for a sanity check.
 
 bsl::set<int> instantiationSet(&u::ta);
 
-// The following 'enum' is the type of an argument to
-// 'testSetCategoryHierarchically' that determines whether we will make a call
+// The following `enum` is the type of an argument to
+// `testSetCategoryHierarchically` that determines whether we will make a call
 // to the single argument (i.e., "holderless") version of
-// 'setCategoryHierarchically' before or after the two argument call, or never
+// `setCategoryHierarchically` before or after the two argument call, or never
 // call the single argument version at all.
 
 enum HolderlessMode { e_HOLDERLESS_NONE,
                       e_HOLDERLESS_BEFORE,
                       e_HOLDERLESS_AFTER };
 
+/// Call `ball::Log::setCategoryHierarchically`, possibly multiple times.
+/// If a category is found or created, verify that the logging threshold
+/// levels match the specified `expectedLevels`.  The category name to be
+/// passed to the call is contained in the specified `pos`, which is also to
+/// be passed as the first argument to every `ASSERTV` in this function.
+/// Call the function under test with a category holder.  Verify that the
+/// `d_next_p` field of the category holder is set to equal the specified
+/// `prevCatHolder`.  Depending on the value of the specified
+/// `holderlessMode`, do an additional call to
+/// `ball::Log::setCategoryHierarchically` with no category holder passed,
+/// either before the call with a category, or after, or not at all, and
+/// verify that the category pointer returned matches the one obtained from
+/// the call with a category holder.  If the logger manager singleton is
+/// initialized, do a second call to the function under test with a second
+/// category holder, and observe that the second category holder is linked
+/// back to the first one.
 template <int KK>
 ResultRec& testSetCategoryHierarchically(const Agg&       expectedLevels,
                                          PositionRec      pos,
                                          const CatHolder *prevCatHolder,
                                          HolderlessMode   holderlessMode)
-    // Call 'ball::Log::setCategoryHierarchically', possibly multiple times.
-    // If a category is found or created, verify that the logging threshold
-    // levels match the specified 'expectedLevels'.  The category name to be
-    // passed to the call is contained in the specified 'pos', which is also to
-    // be passed as the first argument to every 'ASSERTV' in this function.
-    // Call the function under test with a category holder.  Verify that the
-    // 'd_next_p' field of the category holder is set to equal the specified
-    // 'prevCatHolder'.  Depending on the value of the specified
-    // 'holderlessMode', do an additional call to
-    // 'ball::Log::setCategoryHierarchically' with no category holder passed,
-    // either before the call with a category, or after, or not at all, and
-    // verify that the category pointer returned matches the one obtained from
-    // the call with a category holder.  If the logger manager singleton is
-    // initialized, do a second call to the function under test with a second
-    // category holder, and observe that the second category holder is linked
-    // back to the first one.
 {
     const bool repeat = instantiationSet.count(KK);
     instantiationSet.insert(KK);
@@ -1299,13 +1306,13 @@ ResultRec& testSetCategoryHierarchically(const Agg&       expectedLevels,
                                       ? &Blp::ball::LoggerManager::singleton()
                                       : 0;
 
-    // 'pos.d_categoryName_p' is the name of one of the variables in the
-    // 'indices' sub-namespace.  It is very desirable in this test to:
+    // `pos.d_categoryName_p` is the name of one of the variables in the
+    // `indices` sub-namespace.  It is very desirable in this test to:
     //
-    //: 1 have multiple indices with the same category name
-    //:
-    //: 2 test looking up the default category "" by name, and it's hard to
-    //:   give a variable that name
+    // 1. have multiple indices with the same category name
+    //
+    // 2. test looking up the default category "" by name, and it's hard to
+    //    give a variable that name
     //
     // We accomplish both of these goals by trimming everything beginning with
     // '_' from the variable name to yield the category name.
@@ -1322,7 +1329,7 @@ ResultRec& testSetCategoryHierarchically(const Agg&       expectedLevels,
     ASSERTV(pos, prevCat || !repeat);
 
     // If there's a logger manager, is it full?  (We expect
-    // 'setCategoryHierarchically' to return the default category if it is,
+    // `setCategoryHierarchically` to return the default category if it is,
     // unless the category previously existed.)
 
     const bool managerFull = manager_p && manager_p->numCategories() ==
@@ -1348,8 +1355,8 @@ ResultRec& testSetCategoryHierarchically(const Agg&       expectedLevels,
                        Blp::ball::Log::setCategoryHierarchically(categoryName);
     }
 
-    // Note that there will be a separate instance of 'holderA' for every
-    // distinct value of 'KK'.
+    // Note that there will be a separate instance of `holderA` for every
+    // distinct value of `KK`.
 
     static CatHolder holderA =
                      { { CatHolder::e_UNINITIALIZED_CATEGORY }, { 0 }, { 0 } };
@@ -1400,8 +1407,8 @@ ResultRec& testSetCategoryHierarchically(const Agg&       expectedLevels,
             ASSERTV(pos, !bsl::strcmp(retCat->categoryName(), ""));
         }
 
-        // If we just created a new category with name 'categoryName', we
-        // expect 'next_p' to be 0, otherwise, we expect it to be a link to the
+        // If we just created a new category with name `categoryName`, we
+        // expect `next_p` to be 0, otherwise, we expect it to be a link to the
         // previous category holder.
 
         ASSERTV(pos, prevCat, ret.d_next_p, retCat->categoryName(),
@@ -1409,10 +1416,10 @@ ResultRec& testSetCategoryHierarchically(const Agg&       expectedLevels,
                                                   !!prevCat == !!ret.d_next_p);
 
         // Call the function under test again, with the same category name and
-        // a different category holder.  Like 'holderA', we will get a separate
-        // copy of 'holderB' for every distinct value of 'KK'.
+        // a different category holder.  Like `holderA`, we will get a separate
+        // copy of `holderB` for every distinct value of `KK`.
 
-        static CatHolder holderB = 
+        static CatHolder holderB =
                      { { CatHolder::e_UNINITIALIZED_CATEGORY }, { 0 }, { 0 } };
         ASSERTV(pos, repeat || !bsl::memcmp(&holderB,
                                             &defaultHolder,
@@ -1461,7 +1468,7 @@ ResultRec& testSetCategoryHierarchically(const Agg&       expectedLevels,
     }
     else {
         // The logger manager singleton was not initialized, so the function
-        // should have had no effect on 'holder'.
+        // should have had no effect on `holder`.
 
         ASSERTV(pos, 0 == bsl::memcmp(&holderA,
                                       &defaultHolder,
@@ -1475,10 +1482,10 @@ ResultRec& testSetCategoryHierarchically(const Agg&       expectedLevels,
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// -- Test case 33 uses only things above here.  'Flags' & 'testLocalMacros'
-// are used by test case 34, and 'TestClassMacro' is used by test case 35.
+// -- Test case 33 uses only things above here.  `Flags` & `testLocalMacros`
+// are used by test case 34, and `TestClassMacro` is used by test case 35.
 
-// 'Flags' is the type of the last argument passed to 'testLocalMacros<int>()',
+// `Flags` is the type of the last argument passed to `testLocalMacros<int>()`,
 // which indicates whether the category sought is to be static (the default) or
 // dynamic, and whether we've called the same template instantiation of the
 // function before.
@@ -1492,23 +1499,23 @@ enum Flags { k_DYNAMIC_BIT          = 1,    // "dynamic" macro is to be called
              e_REPEAT_STATIC        = k_REPEAT_BIT,
              e_REPEAT_DYNAMIC       = k_REPEAT_BIT | k_DYNAMIC_BIT };
 
+/// Depending on the specified `flags`, call either
+/// `BALL_LOG_SET_CATEGORY_HIERARCHICALLY` or
+/// `BALL_LOG_SET_DYNAMIC_CATEGORY_HIERARCHICALLY` with a category name
+/// field of the specified `pos`.  Verify that the specified `newLevels`
+/// match the threshold levels of the category found or created.  Verify
+/// that the `d_next_p` field of the category holder of the macro call
+/// matches the specified `prevCatHolder`.  Verify that the "repeat" bit in
+/// `flags` matches whether this is the first time this function was called
+/// with a given value of the specified `KK` for a given pass through the
+/// test loop.  All the values of `KK` are provided by the `int` constants
+/// in the sub-namespace `indices` within this test namespace.
 template <int KK>
 ResultRec&
 testLocalMacros(const Agg&          newLevels,
                 const PositionRec&  pos,
                 const CatHolder    *prevCatHolder,
                 const Flags         flags)
-    // Depending on the specified 'flags', call either
-    // 'BALL_LOG_SET_CATEGORY_HIERARCHICALLY' or
-    // 'BALL_LOG_SET_DYNAMIC_CATEGORY_HIERARCHICALLY' with a category name
-    // field of the specified 'pos'.  Verify that the specified 'newLevels'
-    // match the threshold levels of the category found or created.  Verify
-    // that the 'd_next_p' field of the category holder of the macro call
-    // matches the specified 'prevCatHolder'.  Verify that the "repeat" bit in
-    // 'flags' matches whether this is the first time this function was called
-    // with a given value of the specified 'KK' for a given pass through the
-    // test loop.  All the values of 'KK' are provided by the 'int' constants
-    // in the sub-namespace 'indices' within this test namespace.
 {
     const bool dynamic = flags & k_DYNAMIC_BIT;
     const bool repeat  = flags & k_REPEAT_BIT;
@@ -1528,13 +1535,13 @@ testLocalMacros(const Agg&          newLevels,
                                       ? &Blp::ball::LoggerManager::singleton()
                                       : 0;
 
-    // 'pos.d_categoryName_p' is the name of one of the variables in the
-    // 'indices' sub-namespace.  It is very desirable in this test to:
+    // `pos.d_categoryName_p` is the name of one of the variables in the
+    // `indices` sub-namespace.  It is very desirable in this test to:
     //
-    //: 1 have multiple indices with the same category name
-    //:
-    //: 2 test looking up the default category "" by name, and it's hard to
-    //:   give a variable that name
+    // 1. have multiple indices with the same category name
+    //
+    // 2. test looking up the default category "" by name, and it's hard to
+    //    give a variable that name
     //
     // We accomplish both of these goals by trimming everything beginning with
     // '_' from the variable name to yield the category name.
@@ -1607,31 +1614,31 @@ testLocalMacros(const Agg&          newLevels,
 // -- Test case 35 uses some of the things above here, and everything below
 // here, while test case 33 & test case 34 use only things above here.
 
+/// The purpose of this `class` is to test
+/// `BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY`.  We want to call many
+/// instantiations of the macro, and by instantiating this `class` with
+/// values of the template parameter `KK` taken from constants in the
+/// `indices` sub-namespace, we get them.  Each instantiation of the macro
+/// creates a separate static category holder, so we get a separate one for
+/// every instantiation of this template `class`.
+///
+/// The macro under test, `BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY`,
+/// takes a `const char *` parameter for the category name.  So how to pass
+/// different category names for different class instantiations on differing
+/// values of `KK`?  It turns out that that parameter to the macro doesn't
+/// have to be a string literal, it can be a function call, so we make a
+/// method in this `class`, `getClassCategoryNameBuffer`, that returns a
+/// static buffer, a different one for every value of `KK`.  The same method
+/// is called in the `operator()` function before the class category is
+/// searched for or created, and we populate the buffer with the desired
+/// class name, so that when we later call `ball_log_getCategoryHolder`, the
+/// macro calls its `getClassCategoryNameBuffer()` argument which returns
+/// the buffer that has been populated with the desired category name.
+///
+/// `operator()` either finds or creates the desired category, and verifies
+/// that the category holder is linked appropriately.
 template <int KK>
 class TestClassMacro {
-    // The purpose of this 'class' is to test
-    // 'BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY'.  We want to call many
-    // instantiations of the macro, and by instantiating this 'class' with
-    // values of the template parameter 'KK' taken from constants in the
-    // 'indices' sub-namespace, we get them.  Each instantiation of the macro
-    // creates a separate static category holder, so we get a separate one for
-    // every instantiation of this template 'class'.
-    //
-    // The macro under test, 'BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY',
-    // takes a 'const char *' parameter for the category name.  So how to pass
-    // different category names for different class instantiations on differing
-    // values of 'KK'?  It turns out that that parameter to the macro doesn't
-    // have to be a string literal, it can be a function call, so we make a
-    // method in this 'class', 'getClassCategoryNameBuffer', that returns a
-    // static buffer, a different one for every value of 'KK'.  The same method
-    // is called in the 'operator()' function before the class category is
-    // searched for or created, and we populate the buffer with the desired
-    // class name, so that when we later call 'ball_log_getCategoryHolder', the
-    // macro calls its 'getClassCategoryNameBuffer()' argument which returns
-    // the buffer that has been populated with the desired category name.
-    //
-    // 'operator()' either finds or creates the desired category, and verifies
-    // that the category holder is linked appropriately.
 
     // TYPES
     enum { k_CATEGORY_NAME_BUFFER_LEN = 40 };   // 40 chars is much longer
@@ -1639,9 +1646,10 @@ class TestClassMacro {
                                                 // names under test.
 
     // CLASS METHOD
+
+    /// Return a separate buffer for each value of template parameter `KK`.
     static
     char *getClassCategoryNameBuffer()
-        // Return a separate buffer for each value of template parameter 'KK'.
     {
         static char s_classCategoryName[k_CATEGORY_NAME_BUFFER_LEN];
         return s_classCategoryName;
@@ -1651,20 +1659,21 @@ class TestClassMacro {
 
   public:
     // MANIPULATOR
+
+    /// Access the class category whose name is indicated by the specified
+    /// `pos`, creating it if no category with that name exists.  If we
+    /// access the class category, verify that its threshold levels match
+    /// the specified `classLevels`.  If a class category is created, verify
+    /// that the `d_next_p` field of its category holder matches the
+    /// specified `prevClassCatHolder`.  Obtain a static `ResultRec`
+    /// corresponding to the `KK` template index and populate its fields
+    /// with the results of the run, and return a reference to it.  Verify
+    /// that whether this instantiation of the class has been called before
+    /// matches the state of the specified `repeat`.
     ResultRec& operator()(const Agg&            classLevels,
                           const PositionRec&    pos,
                           const CatHolder      *prevClassCatHolder,
                           bool                  repeat);
-        // Access the class category whose name is indicated by the specified
-        // 'pos', creating it if no category with that name exists.  If we
-        // access the class category, verify that its threshold levels match
-        // the specified 'classLevels'.  If a class category is created, verify
-        // that the 'd_next_p' field of its category holder matches the
-        // specified 'prevClassCatHolder'.  Obtain a static 'ResultRec'
-        // corresponding to the 'KK' template index and populate its fields
-        // with the results of the run, and return a reference to it.  Verify
-        // that whether this instantiation of the class has been called before
-        // matches the state of the specified 'repeat'.
 };
 
 // MANIPULATOR
@@ -1676,8 +1685,8 @@ TestClassMacro<KK>::operator()(const Agg&            classLevels,
                                bool                  repeat)
 {
     // If this is the first time we've called this method for this value of
-    // 'KK', the class category holder has not been initialized until we call
-    // 'ball_log_getCategoryHolder'.
+    // `KK`, the class category holder has not been initialized until we call
+    // `ball_log_getCategoryHolder`.
 
     if (repeat) {
         ASSERTV(pos, repeat, instantiationSet.count(KK) && "non-repeat");
@@ -1694,19 +1703,19 @@ TestClassMacro<KK>::operator()(const Agg&            classLevels,
                                       ? &Blp::ball::LoggerManager::singleton()
                                       : 0;
 
-    // As discussed in the 'class' documentation, the name of the category
+    // As discussed in the `class` documentation, the name of the category
     // that will be found or created must reside in buffer provided by
-    // 'getClassCategoryNameBuffer', which is 'k_CATEGORY_NAME_BUFFER_LEN'
+    // `getClassCategoryNameBuffer`, which is `k_CATEGORY_NAME_BUFFER_LEN`
     // long, which is much longer than any of the category names that we will
     // use.
     //
-    // 'pos.d_categoryName_p' is the name of one of the variables in the
-    // 'indices' sub-namespace.  It is very desirable in this test to:
+    // `pos.d_categoryName_p` is the name of one of the variables in the
+    // `indices` sub-namespace.  It is very desirable in this test to:
     //
-    //: 1 have multiple indices with the same category name
-    //:
-    //: 2 test looking up the default category "" by name, and it's hard to
-    //:   give a variable that name
+    // 1. have multiple indices with the same category name
+    //
+    // 2. test looking up the default category "" by name, and it's hard to
+    //    give a variable that name
     //
     // We accomplish both of these goals by trimming everything beginning with
     // '_' from the variable name to yield the category name.
@@ -1727,7 +1736,7 @@ TestClassMacro<KK>::operator()(const Agg&            classLevels,
     const bool managerFull = manager_p && manager_p->numCategories() ==
                                                  manager_p->maxNumCategories();
 
-    // Here is where the 'class' category holder is populated.
+    // Here is where the `class` category holder is populated.
 
     const CatHolder *holder_p = ball_log_getCategoryHolder(
                                                       BALL_LOG_CATEGORYHOLDER);
@@ -1772,8 +1781,8 @@ TestClassMacro<KK>::operator()(const Agg&            classLevels,
 
 namespace BALL_LOG_TEST_CASE_29 {
 
+/// Log a record to the block-scope category "GLOBAL CATEGORY".
 void globalFunctionThatLogsToLocalCategory()
-    // Log a record to the block-scope category "GLOBAL CATEGORY".
 {
     BALL_LOG_SET_CATEGORY("GLOBAL CATEGORY");
 
@@ -1791,17 +1800,20 @@ class ClassScopeLoggerA {
 
   public:
     // CLASS METHODS
+
+    /// Log a record to the class-scope category "CLASS CATEGORY A".
     static void classMethodThatLogsToClassCategory();
-        // Log a record to the class-scope category "CLASS CATEGORY A".
 
     // MANIPULATORS
+
+    /// Log a record to the class-scope category "CLASS CATEGORY A", then
+    /// log a record to the block-scope "STATIC LOCAL CATEGORY".
     void outoflineMethodThatLogsToLocalCategory();
-        // Log a record to the class-scope category "CLASS CATEGORY A", then
-        // log a record to the block-scope "STATIC LOCAL CATEGORY".
 
     // ACCESSORS
+
+    /// Log a record to the class-scope category "CLASS CATEGORY A".
     void inlineMethodThatLogsToClassCategory() const;
-        // Log a record to the class-scope category "CLASS CATEGORY A".
 };
 
 // ACCESSORS
@@ -1842,17 +1854,20 @@ class ClassScopeLoggerB {
 
   public:
     // CLASS METHODS
+
+    /// Log a record to the class-scope category "CLASS CATEGORY B".
     static void classMethodThatLogsToClassCategory();
-        // Log a record to the class-scope category "CLASS CATEGORY B".
 
     // MANIPULATORS
+
+    /// Log a record to the class-scope category "CLASS CATEGORY B", then
+    /// log a record to the block-scope "DYNAMIC LOCAL CATEGORY".
     void outoflineMethodThatLogsToLocalCategory();
-        // Log a record to the class-scope category "CLASS CATEGORY B", then
-        // log a record to the block-scope "DYNAMIC LOCAL CATEGORY".
 
     // ACCESSORS
+
+    /// Log a record to the class-scope category "CLASS CATEGORY B".
     void inlineMethodThatLogsToClassCategory() const
-        // Log a record to the class-scope category "CLASS CATEGORY B".
     {
         BALL_LOG_WARN << "WARN log to class-scope category";
     }
@@ -1896,17 +1911,20 @@ class ClassScopeLogger {
 
   public:
     // CLASS METHODS
+
+    /// Log a record to the class-scope category "CLASS TEMPLATE CATEGORY".
     static void classMethodThatLogsToClassCategory();
-        // Log a record to the class-scope category "CLASS TEMPLATE CATEGORY".
 
     // MANIPULATORS
+
+    /// Log a record to the class-scope category "CLASS TEMPLATE CATEGORY",
+    /// then log a record to the block-scope "STATIC LOCAL CATEGORY".
     void outoflineMethodThatLogsToLocalCategory();
-        // Log a record to the class-scope category "CLASS TEMPLATE CATEGORY",
-        // then log a record to the block-scope "STATIC LOCAL CATEGORY".
 
     // ACCESSORS
+
+    /// Log a record to the class-scope category "CLASS TEMPLATE CATEGORY".
     void inlineMethodThatLogsToClassCategory() const
-        // Log a record to the class-scope category "CLASS TEMPLATE CATEGORY".
     {
         BALL_LOG_TRACE << "TRACE log to class-scope category";
     }
@@ -2101,19 +2119,19 @@ void *workerThread18(void *)
 
 namespace BALL_LOG_TEST_CASE_17 {
 
+/// Invoke each of the callback macros and verify the expected logging
+/// behavior based on the specified `loggerManagerExistsFlag`,
+/// `testObserver`, and `numPublishedSoFar`.
 static
 void macrosTest(bool                                   loggerManagerExistsFlag,
                 const BloombergLP::ball::TestObserver& testObserver,
                 int                                    numPublishedSoFar)
-    // Invoke each of the callback macros and verify the expected logging
-    // behavior based on the specified 'loggerManagerExistsFlag',
-    // 'testObserver', and 'numPublishedSoFar'.
 {
     ASSERT(loggerManagerExistsFlag ==
                             BloombergLP::ball::LoggerManager::isInitialized());
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-    // Temporarily redirect 'stderr' to a temp file.
+    // Temporarily redirect `stderr` to a temp file.
 
     TempDirectoryGuard tempDirGuard("ball_");
 
@@ -2137,7 +2155,7 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
     BALL_LOG_SET_CATEGORY("Logger Manager Comes and Goes");
 
     if (verbose)
-        bsl::cout << "Safely invoked 'BALL_LOG_SET_CATEGORY' macro."
+        bsl::cout << "Safely invoked `BALL_LOG_SET_CATEGORY` macro."
                   << bsl::endl;
 
     u::numIncCallback = 0;
@@ -2162,7 +2180,7 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
         bsl::cout << "Safely invoked callback macros." << bsl::endl;
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-    // Restore 'stderr' to the state it was in before we redirected it.
+    // Restore `stderr` to the state it was in before we redirected it.
     fflush(stderr);
     dup2(saved_stderr_fd, 2);
 
@@ -2193,42 +2211,44 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
 
 namespace BALL_LOG_TEST_CASE_15 {
 
+/// This concrete implementation of `ball::Observer` maintains a count of
+/// the number of messages published to it and gives access to that count
+/// through `publishCount`.
 class my_PublishCountingObserver : public BloombergLP::ball::Observer {
-    // This concrete implementation of 'ball::Observer' maintains a count of
-    // the number of messages published to it and gives access to that count
-    // through 'publishCount'.
 
     // DATA
-    int d_publishCount;  // count of calls made to the 'publish' method
+    int d_publishCount;  // count of calls made to the `publish` method
 
   public:
     // CREATORS
+
+    /// Create a `publish`-counting observer having an initial count of 0.
     my_PublishCountingObserver()
     : d_publishCount(0)
-        // Create a 'publish'-counting observer having an initial count of 0.
     {
     }
 
+    /// Destroy this object.
     ~my_PublishCountingObserver() BSLS_KEYWORD_OVERRIDE
-        // Destroy this object.
     {
     }
 
     // MANIPULATORS
     using Observer::publish;  // avoid hiding base class method
 
+    /// Increment the count maintained by this observer by 1, and ignore any
+    /// arguments that were supplied.
     void publish(const BloombergLP::ball::Record&,
                  const BloombergLP::ball::Context&) BSLS_KEYWORD_OVERRIDE
-        // Increment the count maintained by this observer by 1, and ignore any
-        // arguments that were supplied.
     {
         ++d_publishCount;
     }
 
     // ACCESSORS
+
+    /// Return the number of times that the `publish` method of this
+    /// observer has been called since construction.
     int publishCount() const
-        // Return the number of times that the 'publish' method of this
-        // observer has been called since construction.
     {
         return d_publishCount;
     }
@@ -2368,9 +2388,9 @@ BloombergLP::ball::Severity::Level severity =
                                           BloombergLP::ball::Severity::e_TRACE;
 BloombergLP::bslmt::Mutex categoryMutex;
 
+/// Return the number of log messages to be produced for current severity
+/// level.
 int numMsgs()
-    // Return the number of log messages to be produced for current severity
-    // level.
 {
     return BloombergLP::ball::Severity::e_TRACE == severity
          ? NUM_MSGS_TRACE
@@ -2415,9 +2435,9 @@ int numMsgs()
 #define BALL_LOG_OLD_INFO                                                     \
                        BALL_LOG_STREAM_OLD(BloombergLP::ball::Severity::e_INFO)
 
+/// Log test message.
 struct Util {
     static void *doInfoConst(void *)
-        // Log test message.
     {
         BALL_LOG_SET_CATEGORY("A");
 
@@ -2427,8 +2447,8 @@ struct Util {
         return NULL;
     }
 
+    /// Log test message.
     static void *doOldTraceConst(void *)
-        // Log test message.
     {
         BALL_LOG_SET_CATEGORY("C");
 
@@ -2438,8 +2458,8 @@ struct Util {
         return NULL;
     }
 
+    /// Log test message.
     static void *doOldInfoConst(void *)
-        // Log test message.
     {
         BALL_LOG_SET_CATEGORY("D");
 
@@ -2449,8 +2469,8 @@ struct Util {
         return NULL;
     }
 
+    /// Log test message.
     static void *doOldVar(void *)
-        // Log test message.
     {
         BALL_LOG_SET_CATEGORY("F");
 
@@ -2459,8 +2479,8 @@ struct Util {
         return NULL;
     }
 
+    /// Log test message.
     static void *doTraceConst(void *)
-        // Log test message.
     {
         BALL_LOG_SET_CATEGORY("B");
 
@@ -2470,8 +2490,8 @@ struct Util {
         return NULL;
     }
 
+    /// Log test message.
     static void *doVar(void *)
-        // Log test message.
     {
         BALL_LOG_SET_CATEGORY("E");
 
@@ -2517,11 +2537,11 @@ enum {
 
     N_PUBLISH   = 10,      // frequency of messages that will cause a
                            // *publish* event (see the documentation for
-                           // 'workerThread9')
+                           // `workerThread9`)
 
     N_TRIGGER   = 100,     // frequency of messages that will cause a
                            // *trigger* event (see the documentation for
-                           // 'workerThread9')
+                           // `workerThread9`)
 
     // number of messages published to the observer, that were logged with a
     // severity causing a *Record* event.  Note that we need to do
@@ -2554,10 +2574,11 @@ enum {
 };
 
 enum { RECORD, PUBLISH, TRIGGER };
+
+/// This thread-safe, concrete implementation of `ball::Observer` stores all
+/// the messages published to it in a vector and provide access to the
+/// vector by `get` method.
 class my_Observer : public BloombergLP::ball::Observer {
-    // This thread-safe, concrete implementation of 'ball::Observer' stores all
-    // the messages published to it in a vector and provide access to the
-    // vector by 'get' method.
 
     // DATA
     bsl::vector<bsl::string> d_publishedMessages;
@@ -2598,11 +2619,11 @@ BloombergLP::bslmt::Mutex categoryMutex;
 extern "C" {
 void *workerThread9(void *arg)
 {
-    // Log 'N_TOTAL' messages using a loop as following:
+    // Log `N_TOTAL` messages using a loop as following:
     //
-    // (a) Every 'N_TRIGGER'th message is logged with a severity that will
+    // (a) Every `N_TRIGGER`th message is logged with a severity that will
     //     cause a *Trigger* event.
-    // (b) Every 'N_PUBLISH'th message except those described in (a), is
+    // (b) Every `N_PUBLISH`th message except those described in (a), is
     //     logged with a severity that will cause a *Publish* event.
     // (c) rest of the message are logged with a severity that will cause
     //     a *Record* event.
@@ -2667,19 +2688,19 @@ const char *f()
 
 namespace BALL_LOG_TEST_CASE_5 {
 
+/// Invoke each of the callback macros and verify the expected logging
+/// behavior based on the specified `loggerManagerExistsFlag`,
+/// `testObserver`, and `numPublishedSoFar`.
 static
 void macrosTest(bool                                   loggerManagerExistsFlag,
                 const BloombergLP::ball::TestObserver& testObserver,
                 int                                    numPublishedSoFar)
-    // Invoke each of the callback macros and verify the expected logging
-    // behavior based on the specified 'loggerManagerExistsFlag',
-    // 'testObserver', and 'numPublishedSoFar'.
 {
     ASSERT(loggerManagerExistsFlag ==
                             BloombergLP::ball::LoggerManager::isInitialized());
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-    // Temporarily redirect 'stderr' to a temp file.
+    // Temporarily redirect `stderr` to a temp file.
 
     TempDirectoryGuard tempDirGuard("ball_");
 
@@ -2700,7 +2721,7 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
     BALL_LOG_SET_CATEGORY("Logger Manager Comes and Goes");
 
     if (verbose)
-        bsl::cout << "Safely invoked 'BALL_LOG_SET_CATEGORY' macro."
+        bsl::cout << "Safely invoked `BALL_LOG_SET_CATEGORY` macro."
                   << bsl::endl;
 
     BALL_LOG_TRACE << "Logger Manager?";
@@ -2742,7 +2763,7 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
     if (verbose) bsl::cout << "Safely invoked printf-style macros.\n";
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-    // Restore 'stderr' to the state it was in before we redirected it.
+    // Restore `stderr` to the state it was in before we redirected it.
     fflush(stderr);
     dup2(saved_stderr_fd, 2);
 
@@ -2796,8 +2817,8 @@ struct ThreadFunctor {
 BALL_LOG_SET_NAMESPACE_CATEGORY("BALL_LOG.T");
 
 namespace {
+    /// Override the outer logging category and log a test message.
     void logNamespaceOverride()
-        // Override the outer logging category and log a test message.
     {
         BALL_LOG_SET_CATEGORY("BALL_LOG.T.OVERRIDE");
         BALL_LOG_INFO << "INFO log in namespace BALL_LOG.T.OVERRIDE";
@@ -2827,8 +2848,8 @@ namespace BALL_LOG_TEST_NAMESPACE_LOGGING2 {
 template <class TYPE>
 class Test {
   public:
+    /// Log a test message into local category.
     int func();
-        // Log a test message into local category.
 };
 
 template<class TYPE>
@@ -2841,8 +2862,8 @@ int Test<TYPE>::func()
 
 BALL_LOG_SET_NAMESPACE_CATEGORY("NS.L2");
 
+/// Log a test message into namespace category.
 void func2()
-    // Log a test message into namespace category.
 {
     BALL_LOG_INFO << "func2";
 }
@@ -2899,12 +2920,12 @@ int main(int argc, char *argv[])
         // BASIC LOGGING USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into driver, remove leading
-        //:   comment characters, and replace 'assert' with 'ASSERT'.  (C-1)
+        // 1. Incorporate usage example from header into driver, remove leading
+        //    comment characters, and replace `assert` with `ASSERT`.  (C-1)
         //
         // Testing:
         //   BASIC LOGGING USAGE EXAMPLE
@@ -2932,16 +2953,16 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
 // messages at various levels of severity.
 //
 // First, we initialize the log category within the context of this function.
-// The logging macros such as 'BALL_LOG_ERROR' will not compile unless a
+// The logging macros such as `BALL_LOG_ERROR` will not compile unless a
 // category has been specified in the current lexical scope:
-//..
+// ```
     BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
-//..
+// ```
 // Then, we record messages at various levels of severity.  These messages will
 // be conditionally written to the log depending on the current logging
-// threshold of the category (configured using the 'ball::LoggerManager'
+// threshold of the category (configured using the `ball::LoggerManager`
 // singleton):
-//..
+// ```
     BALL_LOG_FATAL << "Write this message to the log if the log threshold "
                    << "is above 'ball::Severity::e_FATAL' (i.e., 32).";
 
@@ -2950,7 +2971,7 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
 //..
 // Next, we demonstrate how to use proprietary code within logging macros.
 // Suppose you want to add the content of a vector to the log trace:
-//..
+// ```
     bsl::vector<int> myVector(4, 328);
     BALL_LOG_TRACE_BLOCK {
         BALL_LOG_OUTPUT_STREAM << "myVector = [ ";
@@ -2963,11 +2984,11 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
         }
         BALL_LOG_OUTPUT_STREAM << ']';
     }
-//..
+// ```
 // Note that the code block will be conditionally executed depending on the
 // current logging threshold of the category.  The code within the block must
 // not produce any side effects, because its execution depends on the current
-// logging configuration.  The special macro 'BALL_LOG_OUTPUT_STREAM' provides
+// logging configuration.  The special macro `BALL_LOG_OUTPUT_STREAM` provides
 // access to the log stream within the code.
       } break;
       case 39: {
@@ -2975,12 +2996,12 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
         // CLASS-SCOPE LOGGING USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into driver, remove leading
-        //:   comment characters, and replace 'assert' with 'ASSERT'.  (C-1)
+        // 1. Incorporate usage example from header into driver, remove leading
+        //    comment characters, and replace `assert` with `ASSERT`.  (C-1)
         //
         // Testing:
         //   CLASS-SCOPE LOGGING USAGE EXAMPLE
@@ -3042,12 +3063,12 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
         // RULE-BASED LOGGING USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into driver, remove leading
-        //:   comment characters, and replace 'assert' with 'ASSERT'.  (C-1)
+        // 1. Incorporate usage example from header into driver, remove leading
+        //    comment characters, and replace `assert` with `ASSERT`.  (C-1)
         //
         // Testing:
         //   RULE-BASED LOGGING USAGE EXAMPLE
@@ -3060,17 +3081,17 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
         using namespace BloombergLP;  // okay here
 
 // Next we demonstrate how to create a logging rule that sets the pass-through
-// logging threshold to 'ball::Severity::e_TRACE' (i.e., enables verbose
-// logging) for a particular user when calling the 'processData' function
+// logging threshold to `ball::Severity::e_TRACE` (i.e., enables verbose
+// logging) for a particular user when calling the `processData` function
 // defined above.
 //
 // We start by creating the singleton logger manager that we configure with
 // the stream observer and a default configuration.  We then call the
-// 'processData' function: This first call to 'processData' will not result in
-// any logged messages because 'processData' logs its message at the
-// 'ball::Severity::e_DEBUG' level, which is below the default configured
+// `processData` function: This first call to `processData` will not result in
+// any logged messages because `processData` logs its message at the
+// `ball::Severity::e_DEBUG` level, which is below the default configured
 // logging threshold.
-//..
+// ```
     ball::LoggerManagerConfiguration lmConfig;
     ball::LoggerManagerScopedGuard   lmGuard(lmConfig);
 
@@ -3085,46 +3106,46 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
 
     BALL_LOG_ERROR << "Processing the first message.";
     processData(3938908, 2, 9001, message);
-//..
+// ```
 // Now we add a logging rule, setting the pass-through threshold to be
-// 'ball::Severity::e_TRACE' (i.e., enabling verbose logging) if the thread's
+// `ball::Severity::e_TRACE` (i.e., enabling verbose logging) if the thread's
 // context contains an attribute with name "mylibrary.uuid" with value 3938908.
 // Note that we use the wild-card value '*' for the category so that the
-// 'ball::Rule' rule will apply to all categories.
-//..
+// `ball::Rule` rule will apply to all categories.
+// ```
     ball::Rule rule("*", 0, ball::Severity::e_TRACE, 0, 0);
     rule.addAttribute(ball::ManagedAttribute("mylibrary.uuid", 3938908));
     ball::LoggerManager::singleton().addRule(rule);
 
     BALL_LOG_ERROR << "Processing the second message.";
     processData(3938908, 2, 9001, message);
-//..
-// The final call to the 'processData' function below, passes a 'uuid' of
+// ```
+// The final call to the `processData` function below, passes a `uuid` of
 // 2171395 (not 3938908) so the logging rule we defined will *not* apply and no
 // message will be logged.
-//..
+// ```
     BALL_LOG_ERROR << "Processing the third message.";
     processData(2171395, 2, 9001, message);
-//..
+// ```
 // The resulting logged output for this example looks like the following:
-//..
+// ```
 //  ERROR example.cpp:105 EXAMPLE.CATEGORY Processing the first message.
 //  ERROR example.cpp:117 EXAMPLE.CATEGORY Processing the second message.
 //  DEBUG example.cpp:35 EXAMPLE.CATEGORY An example message
 //  ERROR example.cpp:129 EXAMPLE.CATEGORY Processing the third message.
-//..
+// ```
       } break;
       case 37: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into driver, remove leading
-        //:   comment characters, and replace 'assert' with 'ASSERT'.  (C-1)
+        // 1. Incorporate usage example from header into driver, remove leading
+        //    comment characters, and replace `assert` with `ASSERT`.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -3168,14 +3189,14 @@ if (verbose) bsl::cout << "stream-based macro usage" << bsl::endl;
 {
 ///Example 3: C++ I/O Streams-Style Logging Macros
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// The preferred logging method we use, the 'iostream'-style macros such as
-// 'BALL_LOG_INFO', allow streaming via the 'bsl::ostream' 'class' and the C++
-// stream operator '<<'.  An advantage the C++ streaming style has over the
-// 'printf' style output (shown below in example 4) is that complex types often
-// have the 'operator<<(ostream&, const TYPE&)' function overloaded so that
+// The preferred logging method we use, the `iostream`-style macros such as
+// `BALL_LOG_INFO`, allow streaming via the `bsl::ostream` `class` and the C++
+// stream operator `<<`.  An advantage the C++ streaming style has over the
+// `printf` style output (shown below in example 4) is that complex types often
+// have the `operator<<(ostream&, const TYPE&)` function overloaded so that
 // they are able to be easily streamed to output.  We demonstrate this here
-// using C++ streaming to stream a 'bdlt::Date' to output:
-//..
+// using C++ streaming to stream a `bdlt::Date` to output:
+// ```
     int         lotSize = 400;
     const char *ticker  = "SUNW";
     double      price   = 5.65;
@@ -3185,31 +3206,31 @@ if (verbose) bsl::cout << "stream-based macro usage" << bsl::endl;
     bdlt::Date settle = bdlt::CurrentTime::local().date() + 3;
 
     BALL_LOG_SET_CATEGORY("EQUITY.NASD")
-//..
+// ```
 // We are logging with category "EQUITY.NASD", which is configured for a
-// pass-through level of 'e_INFO', from here on.  We output a line using the
-// 'BALL_LOG_INFO' macro:
-//..
+// pass-through level of `e_INFO`, from here on.  We output a line using the
+// `BALL_LOG_INFO` macro:
+// ```
     BALL_LOG_INFO << "[1] " << lotSize
                   << " shares of " << ticker
                   << " sold at " << price
                   << " settlement date " << settle;
-//..
+// ```
 // The above results in the following single-line message being output:
-//..
+// ```
 //  <ts> <pid> <tid> INFO x.cpp 1161 EQUITY.NASD [1] 400 shares of SUNW sold
 //  at 5.65 settlement date 17FEB2017
-//..
-// '<ts>' is the timestamp, '<pid>' is the process id, '<tid>' is the thread
-// id, 'x.cpp' is the expansion of the '__FILE__' macro that is the name of the
+// ```
+// `<ts>` is the timestamp, `<pid>` is the process id, `<tid>` is the thread
+// id, `x.cpp` is the expansion of the `__FILE__` macro that is the name of the
 // source file containing the call, 1161 is the line number of the call, and
-// the trailing date following "settlement date" is the value of 'settle'.
+// the trailing date following "settlement date" is the value of `settle`.
 //
 // Next, we set the category to "EQUITY.NASD.SUNW", which has been defined with
-// 'ball::Administration::addCategory' with its pass-through level set to
-// 'e_INFO' and the trigger levels set at or above 'e_ERROR', so a level of
-// 'e_WARN' also passes through:
-//..
+// `ball::Administration::addCategory` with its pass-through level set to
+// `e_INFO` and the trigger levels set at or above `e_ERROR`, so a level of
+// `e_WARN` also passes through:
+// ```
     {
         BALL_LOG_SET_CATEGORY("EQUITY.NASD.SUNW")
 
@@ -3220,49 +3241,49 @@ if (verbose) bsl::cout << "stream-based macro usage" << bsl::endl;
                       << " sold at " << price
                       << " settlement date " << settle;
     }
-//..
+// ```
 // The above results in the following message to category "EQUITY.NASD.SUNW":
-//..
+// ```
 //  <ts> <pid> <tid> WARN x.cpp 1185 EQUITY.NASD.SUNW [2] 400 shares of SUNW
 //  sold at 5.65 settlement date 17FEB2017
-//..
+// ```
 // Now, the category "EQUITY.NASD.SUNW" just went out of scope and category
 // "EQUITY.NASD" is visible again, so it applies to the following:
-//..
+// ```
     BALL_LOG_INFO << "[3] " << lotSize
                   << " shares of " << ticker
                   << " sold at " << price
                   << " settlement date " << settle;
-//..
+// ```
 // Finally, the above results in the following single-line message being
 // output:
-//..
+// ```
 //  <ts> <pid> <tid> INFO x.cpp 1198 EQUITY.NASD [3] 400 shares of SUNW sold
 //  at 5.65 settlement date 17FEB2017
-//..
+// ```
 // The settlement date was appended to the message as a simple illustration of
 // the added flexibility provided by the C++ stream-based macros.  This last
 // message was logged to category "EQUITY.NASD" at severity level
-// 'ball::Severity::e_INFO'.
+// `ball::Severity::e_INFO`.
 //
-// The C++ stream-based macros, as opposed to the 'printf'-style macros, ensure
+// The C++ stream-based macros, as opposed to the `printf`-style macros, ensure
 // at compile-time that no run-time format mismatches will occur.  Use of the
 // stream-based logging style exclusively will likely lead to clearer, more
 // maintainable code with fewer initial defects.
 //
-// Note that all uses of the log-generating macros, both 'printf'-style and C++
+// Note that all uses of the log-generating macros, both `printf`-style and C++
 // stream-based, *must* occur within function scope (i.e., not at file scope).
 }
 
 if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 {
-///Example 4: 'printf'-Style Output
+///Example 4: `printf`-Style Output
 /// - - - - - - - - - - - - - - - -
-// In the following example, we expand the 'logIt' function (defined above) to
-// log two messages using the 'BALL_LOGVA_INFO' logging macro provided by this
+// In the following example, we expand the `logIt` function (defined above) to
+// log two messages using the `BALL_LOGVA_INFO` logging macro provided by this
 // component.  This variadic macro takes a format string and a variable-length
-// series of arguments, similar to 'printf'.
-//..
+// series of arguments, similar to `printf`.
+// ```
     int         lotSize = 400;
     const char *ticker  = "SUNW";
     double      price   = 5.65;
@@ -3270,44 +3291,44 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
     // Trading on a market that settles 3 days in the future.
 
     bdlt::Date settleDate = bdlt::CurrentTime::local().date() + 3;
-//..
-// Because we can't easily 'printf' complex types like 'bdlt::Date' or
-// 'bsl::string', we have to convert 'settleDate' to a 'const char *'
+// ```
+// Because we can't easily `printf` complex types like `bdlt::Date` or
+// `bsl::string`, we have to convert `settleDate` to a `const char *`
 // ourselves.  Note that all this additional work was unnecessary in Example 3
-// when we used the C++ 'iostream'-style, rather than the 'printf'-style,
+// when we used the C++ `iostream`-style, rather than the `printf`-style,
 // macros.
-//..
+// ```
     bsl::ostringstream  settleOss;
     settleOss << settleDate;
     const bsl::string&  settleStr = settleOss.str();
     const char         *settle    = settleStr.c_str();
-//..
+// ```
 // We set logging with category "EQUITY.NASD", which was configured for a
-// pass-through severity level of 'e_INFO', and call 'BALL_LOGVA_INFO' to print
+// pass-through severity level of `e_INFO`, and call `BALL_LOGVA_INFO` to print
 // our trade:
-//..
+// ```
     BALL_LOG_SET_CATEGORY("EQUITY.NASD")
 
     BALL_LOGVA_INFO("[4] %d shares of %s sold at %f settlement date %s\n",
                     lotSize, ticker, price, settle);
-//..
+// ```
 // The above results in the following single-line message being output to
-// category "EQUITY.NASD.SUNW" at severity level 'ball::Severity::e_INFO':
-//..
+// category "EQUITY.NASD.SUNW" at severity level `ball::Severity::e_INFO`:
+// ```
 //  <ts> <pid> <tid> INFO x.cpp 1256 EQUITY.NASD [4] 400 shares of SUNW sold
 //  at 5.650000 settlement date 17FEB2017
-//..
-// In the above, '<ts>' is the timestamp, '<pid>' is the process id, '<tid>' is
-// the thread id, 'x.cpp' is the expansion of the '__FILE__' macro that is the
+// ```
+// In the above, `<ts>` is the timestamp, `<pid>` is the process id, `<tid>` is
+// the thread id, `x.cpp` is the expansion of the `__FILE__` macro that is the
 // name of the source file containing the call, and 1256 is the line number of
 // the call.
 //
-// Note that the first argument supplied to the 'BALL_LOGVA_INFO' macro is a
-// 'printf'-style format specification.
+// Note that the first argument supplied to the `BALL_LOGVA_INFO` macro is a
+// `printf`-style format specification.
 //
 // Next, we set the category to "EQUITY.NASD.SUNW", which is configured for a
-// pass-through severity level of 'e_INFO':
-//..
+// pass-through severity level of `e_INFO`:
+// ```
     {
         BALL_LOG_SET_CATEGORY("EQUITY.NASD.SUNW")
 
@@ -3316,25 +3337,25 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         BALL_LOGVA_WARN("[5] %d shares of %s sold at %f settlement date %s\n",
                         lotSize, ticker, price, settle);
     }
-//..
+// ```
 // The above results in the following single-line message to category
 // "EQUITY.NASD.SUNW":
-//..
+// ```
 //  <ts> <pid> <tid> WARN x.cpp 1281 EQUITY.NASD.SUNW [5] 400 shares of SUNW
 //  sold at 5.650000 settlement date 17FEB2017
-//..
+// ```
 // Now, the category "EQUITY.NASD.SUNW" just went out of scope and category
 // "EQUITY.NASD" is visible again, so it applies to the following:
-//..
+// ```
     BALL_LOGVA_INFO("[6] %d shares of %s sold at %f settlement date %s\n",
                     lotSize, ticker, price, settle);
-//..
+// ```
 // Finally, the above results in the following single-line message being
 // output:
-//..
+// ```
 //  <ts> <pid> <tid> INFO x.cpp 1294 EQUITY.NASD [6] 400 shares of SUNW sold
 //  at 5.650000 settlement date 17FEB2017
-//..
+// ```
 }
 
         // Note that the following Usage example was moved from the .h file to
@@ -3376,18 +3397,18 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // TESTING RECURSIVE USE OF LOGGING MACROS
         //
         // Concerns:
-        //: 1 The various logging macros can be safely invoked recursively.
-        //:
-        //: 2 Log messages are correctly being output during recursive macros
-        //:   invocation.
+        // 1. The various logging macros can be safely invoked recursively.
+        //
+        // 2. Log messages are correctly being output during recursive macros
+        //    invocation.
         //
         // Plan:
-        //: 1 Define three functions, 'recurseStreamBasedMacros',
-        //:   'recursePrintfStyleMacros' and 'recurseCallbackMacros', that log
-        //:   using the stream-based macros, 'printf'-style macros and callback
-        //:   macros, respectively.  Call these three functions in the context
-        //:   of invocations of the various logging macros and verify the
-        //:   results.  (C-1, 2)
+        // 1. Define three functions, `recurseStreamBasedMacros`,
+        //    `recursePrintfStyleMacros` and `recurseCallbackMacros`, that log
+        //    using the stream-based macros, `printf`-style macros and callback
+        //    macros, respectively.  Call these three functions in the context
+        //    of invocations of the various logging macros and verify the
+        //    results.  (C-1, 2)
         //
         // Testing:
         //   CONCERN: The logging macros can be used recursively
@@ -3798,46 +3819,46 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // TESTING CLASS HIERARCHICAL CATEGORY MACROS
         //
         // Concerns:
-        //: 1 That the class hierarchical macro, if called with a non-existing
-        //:   category name and the logger manager has room, will result in a
-        //:   new category being created.
-        //:
-        //: 2 The new category has the right name.
-        //:
-        //: 3 If the new category inherits from another category, it has the
-        //:   same logging thresholds as the other category.
-        //:
-        //: 4 In 'BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY' the category
-        //:   holder is properly linked to the previously created category
-        //:   holder belonging to the same category.
+        // 1. That the class hierarchical macro, if called with a non-existing
+        //    category name and the logger manager has room, will result in a
+        //    new category being created.
+        //
+        // 2. The new category has the right name.
+        //
+        // 3. If the new category inherits from another category, it has the
+        //    same logging thresholds as the other category.
+        //
+        // 4. In `BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY` the category
+        //    holder is properly linked to the previously created category
+        //    holder belonging to the same category.
         //
         // Plan:
-        //: 1 We iterate through two nested loops, driving 3 distinct threshold
-        //:   aggregate values 'ILEVELS', 'JLEVELS', and 'CLEVELS'.  We also
-        //:   have the distinct 'WLEVELS', and 'MLEVELS', which is one of
-        //:   'ILEVELS' or 'CLEVELS' and which is the default levels to which
-        //:   the logger manager will configure new categories.
-        //:
-        //: 2 In the inner loop, initialize a logger manager singleton.
-        //:
-        //: 3 Use the 'CALL' macro (defined below) to call
-        //:   'TC::TestClassMacro<N>::operator()' for many different values of
-        //:   'N', which will call 'BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY'
-        //:   under different circumstances and with different category names.
-        //:   That 'operator()' function will perform many tests to confirm
-        //:   that the macro functioned properly.  See the documentation of
-        //:   'TC::TestClassMacro' and 'TC::indices' for more documentation.
-        //:
-        //: 4 The function 'TC::TestClassMacro<N>::operator()' returns a
-        //:   reference to a static 'struct' of type 'ResultRec'.  It contains
-        //:   a 'bool', 'd_passed' which is 'true' if all of the 'ASSERT's in
-        //:   the function passed and 'false' otherwise.  It also contains a
-        //:   pointer to any static category holder initialized, and a pointer
-        //:   to the category created or found.  The 'ResultRec' is a static
-        //:   within the templatized 'TC::result<N>()' function, so it can be
-        //:   fetched later by the 'RET(N)' macro below, which is useful for
-        //:   finding past category holders for comparing with new category
-        //:   holders to make sure that they are linked properly.
+        // 1. We iterate through two nested loops, driving 3 distinct threshold
+        //    aggregate values `ILEVELS`, `JLEVELS`, and `CLEVELS`.  We also
+        //    have the distinct `WLEVELS`, and `MLEVELS`, which is one of
+        //    `ILEVELS` or `CLEVELS` and which is the default levels to which
+        //    the logger manager will configure new categories.
+        //
+        // 2. In the inner loop, initialize a logger manager singleton.
+        //
+        // 3. Use the `CALL` macro (defined below) to call
+        //    `TC::TestClassMacro<N>::operator()` for many different values of
+        //    `N`, which will call `BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY`
+        //    under different circumstances and with different category names.
+        //    That `operator()` function will perform many tests to confirm
+        //    that the macro functioned properly.  See the documentation of
+        //    `TC::TestClassMacro` and `TC::indices` for more documentation.
+        //
+        // 4. The function `TC::TestClassMacro<N>::operator()` returns a
+        //    reference to a static `struct` of type `ResultRec`.  It contains
+        //    a `bool`, `d_passed` which is `true` if all of the `ASSERT`s in
+        //    the function passed and `false` otherwise.  It also contains a
+        //    pointer to any static category holder initialized, and a pointer
+        //    to the category created or found.  The `ResultRec` is a static
+        //    within the templatized `TC::result<N>()` function, so it can be
+        //    fetched later by the `RET(N)` macro below, which is useful for
+        //    finding past category holders for comparing with new category
+        //    holders to make sure that they are linked properly.
         //
         // Testing:
         //   BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY(const char *);
@@ -3859,7 +3880,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         Blp::bslma::DefaultAllocatorGuard guard(&da);
         Blp::bslma::Default::setGlobalAllocator(&ga);
 
-        // Have an 'Agg' set to 'WLEVELS' -- Wrong Levels -- that we never set
+        // Have an `Agg` set to `WLEVELS` -- Wrong Levels -- that we never set
         // anything to, and that never equals any of the other levels.
 
         const TC::Agg WLEVELS(TC::S::e_OFF, TC::S::e_OFF,
@@ -3893,21 +3914,21 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 TC::ResultRec *ret_p;
                 TC::instantiationSet.clear();
 
-                // 'CALL' will create an object of type 'TC::TestClassMacro'
-                // instantiated on the specified integer 'N', and call
-                // 'operator()()' that object, passing the specified threshold
-                // aggregate 'newLevels' describing the logging thresholds the
+                // `CALL` will create an object of type `TC::TestClassMacro`
+                // instantiated on the specified integer `N`, and call
+                // `operator()()` that object, passing the specified threshold
+                // aggregate `newLevels` describing the logging thresholds the
                 // category created or found is expected to have, the specified
-                // 'prevHolder' that is either 0 or points to a previous
+                // `prevHolder` that is either 0 or points to a previous
                 // category holder loaded with the same category, and the
-                // specified 'bool' 'repeat', which indicates whether 'CALL'
-                // has been called with this value of 'N' before.
+                // specified `bool` `repeat`, which indicates whether `CALL`
+                // has been called with this value of `N` before.
                 //
                 // The value of the current source file line number, and the
-                // 'IL' and 'JL' values, and the variable name of 'N' in string
-                // form, are used to initialize a 'TC::PositionRec' object that
-                // is passed to the 'operator()()' function called and, in that
-                // function, passed as the first argument to all the 'ASSERTV's
+                // `IL` and `JL` values, and the variable name of `N` in string
+                // form, are used to initialize a `TC::PositionRec` object that
+                // is passed to the `operator()()` function called and, in that
+                // function, passed as the first argument to all the `ASSERTV`s
                 // in the function, to make any error messages more meaningful.
 
 #undef  CALL
@@ -3918,10 +3939,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                        prevHolder,                            \
                                        repeat)
 
-                // 'RET(<integer>)' will return a ref to the 'TC::ResultRec'
-                // returned by 'TC::TestClassMacro<N>::operator()()' with the
-                // value 'N'.  This allows us to examine the results of ANY
-                // previous call to 'CALL'.
+                // `RET(<integer>)` will return a ref to the `TC::ResultRec`
+                // returned by `TC::TestClassMacro<N>::operator()()` with the
+                // value `N`.  This allows us to examine the results of ANY
+                // previous call to `CALL`.
 
 #undef  RET
 #define RET(N)  TC::result<TC::indices::N>()
@@ -4116,51 +4137,51 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // TESTING LOCAL HIERARCHICAL CATEGORY MACROS
         //
         // Concerns:
-        //: 1 That the 2 non-class hierarchical macros, if called with a
-        //:   non-existing category name and the logger manager has room, will
-        //:   result in a new category being created.
-        //:
-        //: 2 The new category has the right name.
-        //:
-        //: 3 If the new category inherits from another category, it has the
-        //:   same logging thresholds as the category it inherited from.
-        //:
-        //: 4 In 'BALL_LOG_SET_CATEGORY_HIERARCHICALLY' the category holder is
-        //:   properly linked to the previously created category holder
-        //:   belonging to the same category.
-        //:
-        //: 5 In 'BALL_LOG_SET_DYNAMIC_CATEGORY_HIERARCHICALLY', the category
-        //:   holder is not linked to any other category holder.
+        // 1. That the 2 non-class hierarchical macros, if called with a
+        //    non-existing category name and the logger manager has room, will
+        //    result in a new category being created.
+        //
+        // 2. The new category has the right name.
+        //
+        // 3. If the new category inherits from another category, it has the
+        //    same logging thresholds as the category it inherited from.
+        //
+        // 4. In `BALL_LOG_SET_CATEGORY_HIERARCHICALLY` the category holder is
+        //    properly linked to the previously created category holder
+        //    belonging to the same category.
+        //
+        // 5. In `BALL_LOG_SET_DYNAMIC_CATEGORY_HIERARCHICALLY`, the category
+        //    holder is not linked to any other category holder.
         //
         // Plan:
-        //: 1 We iterate through two nested loops, driving 3 distinct threshold
-        //:   aggregate values 'ILEVELS', 'JLEVELS', and 'CLEVELS'.  We also
-        //:   have the distinct 'WLEVELS', and 'MLEVELS', which is one of
-        //:   'ILEVELS' or 'CLEVELS' and which is the default levels to which
-        //:   the logger manager will configure new categories.
-        //:
-        //: 2 In the inner loop, initialize a logger manager singleton.
-        //:
-        //: 3 Use the 'CALL' macro (defined below) to call
-        //:   'TC::TestLocalMacros<N>::operator()' for many different values of
-        //:   'N', which will call either
-        //:   'BALL_LOG_SET_CATEGORY_HIERARCHICALLY', which will create or find
-        //:   a category and initialize a static category holder, or
-        //:   'BALL_LOG_SET_DYNAMIC_CATEGORY_HIERARCHICALLY' which will create
-        //:   or find a category and initialize a dynamic category holder, and
-        //:   conduct many tests to verify that both the category and the
-        //:   category holder are as they should be.
-        //:
-        //: 3 The function 'TC::testLocalMacros<N>' returns reference to a
-        //:   static 'struct' of type 'ResultRec'.  It contains a 'bool',
-        //:   'd_passed' which is 'true' if all of the 'ASSERT's in the
-        //:   function passed and 'false' otherwise.  It also contains a
-        //:   pointer to any static category holder initialized, and a pointer
-        //:   to the category created or found.  The 'ResultRec' is a static
-        //:   within the templatized 'TC::result<N>()' function, so it can be
-        //:   fetched later by the 'RET(N)' macro below, which is useful for
-        //:   finding past category holders for comparing with new category
-        //:   holders to make sure that they are linked properly.
+        // 1. We iterate through two nested loops, driving 3 distinct threshold
+        //    aggregate values `ILEVELS`, `JLEVELS`, and `CLEVELS`.  We also
+        //    have the distinct `WLEVELS`, and `MLEVELS`, which is one of
+        //    `ILEVELS` or `CLEVELS` and which is the default levels to which
+        //    the logger manager will configure new categories.
+        //
+        // 2. In the inner loop, initialize a logger manager singleton.
+        //
+        // 3. Use the `CALL` macro (defined below) to call
+        //    `TC::TestLocalMacros<N>::operator()` for many different values of
+        //    `N`, which will call either
+        //    `BALL_LOG_SET_CATEGORY_HIERARCHICALLY`, which will create or find
+        //    a category and initialize a static category holder, or
+        //    `BALL_LOG_SET_DYNAMIC_CATEGORY_HIERARCHICALLY` which will create
+        //    or find a category and initialize a dynamic category holder, and
+        //    conduct many tests to verify that both the category and the
+        //    category holder are as they should be.
+        //
+        // 3. The function `TC::testLocalMacros<N>` returns reference to a
+        //    static `struct` of type `ResultRec`.  It contains a `bool`,
+        //    `d_passed` which is `true` if all of the `ASSERT`s in the
+        //    function passed and `false` otherwise.  It also contains a
+        //    pointer to any static category holder initialized, and a pointer
+        //    to the category created or found.  The `ResultRec` is a static
+        //    within the templatized `TC::result<N>()` function, so it can be
+        //    fetched later by the `RET(N)` macro below, which is useful for
+        //    finding past category holders for comparing with new category
+        //    holders to make sure that they are linked properly.
         //
         // Testing:
         //   BALL_LOG_SET_CATEGORY_HIERARCHICALLY(const char *);
@@ -4183,7 +4204,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         Blp::bslma::DefaultAllocatorGuard guard(&da);
         Blp::bslma::Default::setGlobalAllocator(&ga);
 
-        // Have an 'Agg' set to 'WLEVELS' -- Wrong Levels -- that we never set
+        // Have an `Agg` set to `WLEVELS` -- Wrong Levels -- that we never set
         // anything to, and that never equals any of the other levels.
 
         const TC::Agg WLEVELS(TC::S::e_OFF, TC::S::e_OFF,
@@ -4217,24 +4238,24 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 TC::ResultRec *ret_p;
                 TC::instantiationSet.clear();
 
-                // 'CALL' will create an object of type 'TC::TestLocalMacros'
-                // instantiated on the specified integer 'N', and call
-                // 'operator()()' that object, passing the specified threshold
-                // aggregate 'newLevels' describing the logging thresholds the
+                // `CALL` will create an object of type `TC::TestLocalMacros`
+                // instantiated on the specified integer `N`, and call
+                // `operator()()` that object, passing the specified threshold
+                // aggregate `newLevels` describing the logging thresholds the
                 // category created or found is expected to have, the specified
-                // 'prevHolder' that is either 0 or points to a previous
+                // `prevHolder` that is either 0 or points to a previous
                 // category holder loaded with the same category, and the
-                // specified 'flags', a combination of two flags, one of which
-                // indicates whether 'CALL' has already been called this
-                // iteration with the specified 'N', and one of which specifies
+                // specified `flags`, a combination of two flags, one of which
+                // indicates whether `CALL` has already been called this
+                // iteration with the specified `N`, and one of which specifies
                 // whether the category holder to be initialized is to be
                 // static or dynamic.
                 //
                 // The value of the current source file line number, and the
-                // 'IL' and 'JL' values, and the variable name of 'N' in string
-                // form, are used to initialize a 'TC::PositionRec' object that
-                // is passed to the 'operator()()' function called and, in that
-                // function, passed as the first argument to all the 'ASSERTV's
+                // `IL` and `JL` values, and the variable name of `N` in string
+                // form, are used to initialize a `TC::PositionRec` object that
+                // is passed to the `operator()()` function called and, in that
+                // function, passed as the first argument to all the `ASSERTV`s
                 // in the function, to make any error messages more meaningful.
 
 #undef  CALL
@@ -4245,10 +4266,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                        prevHolder,                            \
                                        TC::flags)
 
-                // 'RET(<integer>)' will return a ref to the 'TC::ResultRec'
-                // returned by 'TC::TestClassMacro<N>::operator()()' with the
-                // value 'N'.  This allows us to examine the results of ANY
-                // previous call to 'CALL'.
+                // `RET(<integer>)` will return a ref to the `TC::ResultRec`
+                // returned by `TC::TestClassMacro<N>::operator()()` with the
+                // value `N`.  This allows us to examine the results of ANY
+                // previous call to `CALL`.
 
 #undef  RET
 #define RET(N)  TC::result<TC::indices::N>()
@@ -4446,72 +4467,72 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // TESTING HIERARCHICAL CATEGORIES
         //
         // Concerns:
-        //: 1 That, if the category created inherits from another category, the
-        //:   thresholds of the new category match those of the category
-        //:   inherited from.
-        //:
-        //: 2 That, if the category created does not inherit and no default
-        //:   threshold callback exists, the thresholds of the category are the
-        //:   thresholds with which the logger manager was created.
-        //:
-        //: 3 TBD: If the category created does not inherit and a default
-        //:   threshold callback is set, the new category takes the thresholds
-        //:   dictated by the callback.  (NOTE: This concern will not be tested
-        //:   until after 'LoggerCategoryUtil::addCategoryHierarchically' has
-        //:   been fixed).
-        //:
-        //: 4 That, if the logger manager is at full capacity, the default
-        //:   category, whose name is "", is returned, with thresholds set to
-        //:   the values configured when the logger manager was created.
-        //:
-        //: 5 If a category holder is passed, it is set to the category
-        //:   returned by the function under test.
-        //:
-        //: 6 If a second call is made with the name of a category that has
-        //:   already been created, the same category will be returned.  If
-        //:   category holders were passed to both calls, the second category
-        //:   will be the linked to the first category.
+        // 1. That, if the category created inherits from another category, the
+        //    thresholds of the new category match those of the category
+        //    inherited from.
+        //
+        // 2. That, if the category created does not inherit and no default
+        //    threshold callback exists, the thresholds of the category are the
+        //    thresholds with which the logger manager was created.
+        //
+        // 3. TBD: If the category created does not inherit and a default
+        //    threshold callback is set, the new category takes the thresholds
+        //    dictated by the callback.  (NOTE: This concern will not be tested
+        //    until after `LoggerCategoryUtil::addCategoryHierarchically` has
+        //    been fixed).
+        //
+        // 4. That, if the logger manager is at full capacity, the default
+        //    category, whose name is "", is returned, with thresholds set to
+        //    the values configured when the logger manager was created.
+        //
+        // 5. If a category holder is passed, it is set to the category
+        //    returned by the function under test.
+        //
+        // 6. If a second call is made with the name of a category that has
+        //    already been created, the same category will be returned.  If
+        //    category holders were passed to both calls, the second category
+        //    will be the linked to the first category.
         //
         // Plan:
-        //: 1 See the doc for the template function
-        //:   'TC::testSetCategoryHierarchically<KK>' where 'KK' is a const
-        //:   'int' value, which calls 'Log::setCategoryHierarchically',
-        //:   possibly multiple times, and verifies that it behaves properly,
-        //:   and returns a reference to a unique static 'TC::ResultRec' for
-        //:   each value of 'KK', which is loaded with the results of one of
-        //:   the calls to 'Log::setCategoryHierarchically'.
-        //:
-        //: 2 Set up the macro 'CALL' defined and documented below, to call
-        //:   'TC::testSetCategoryHierarchically<KK>' using the value and name
-        //:   of one of the integral constants in namespace 'TC::indices'.
-        //:
-        //: 3 Set up the macro 'RET', defined and documented below, to return
-        //:   a reference to the 'TC::ResultRec' returned by any previous
-        //:   call to 'TC::testSetCategoryHierarchically<KK>'.
-        //:
-        //: 4 Do 3 nested loops to drive the 'enum' 'holderlessMode' through
-        //:   all of its possible values, and populate the threshold aggregates
-        //:   'CLEVELS', 'ILEVELS', and 'JLEVELS' with distinct values.
-        //:
-        //: 5 Call 'CALL' many times, with many of the names of the 'int'
-        //:   constants in 'TC::indices', and observe it making categories, and
-        //:   observed that hierarchical categories inherit the logging
-        //:   threshold levels accordingly.
-        //:
-        //: 6 Call 'CALL' a few times with indices with which it has already
-        //:   been called, and observe that the same category values as before
-        //:   are returned, and that the category holders are not modified.
-        //:
-        //: 7 Set the max of the number of categories in the logger manager to
-        //:   the current amount, and call 'CALL' a few times with new category
-        //:   names, and observe that no new categories are created and the
-        //:   default category is returned.
-        //:
-        //: 8 With the logger manager still full, call 'CALL' with an existing
-        //:   category name and observe that the existing category is found.
-        //:
-        //: 9 Compare found categories to verify the ones expected to be
-        //:   distinct are distinct, and the ones expected to match match.
+        // 1. See the doc for the template function
+        //    `TC::testSetCategoryHierarchically<KK>` where `KK` is a const
+        //    `int` value, which calls `Log::setCategoryHierarchically`,
+        //    possibly multiple times, and verifies that it behaves properly,
+        //    and returns a reference to a unique static `TC::ResultRec` for
+        //    each value of `KK`, which is loaded with the results of one of
+        //    the calls to `Log::setCategoryHierarchically`.
+        //
+        // 2. Set up the macro `CALL` defined and documented below, to call
+        //    `TC::testSetCategoryHierarchically<KK>` using the value and name
+        //    of one of the integral constants in namespace `TC::indices`.
+        //
+        // 3. Set up the macro `RET`, defined and documented below, to return
+        //    a reference to the `TC::ResultRec` returned by any previous
+        //    call to `TC::testSetCategoryHierarchically<KK>`.
+        //
+        // 4. Do 3 nested loops to drive the `enum` `holderlessMode` through
+        //    all of its possible values, and populate the threshold aggregates
+        //    `CLEVELS`, `ILEVELS`, and `JLEVELS` with distinct values.
+        //
+        // 5. Call `CALL` many times, with many of the names of the `int`
+        //    constants in `TC::indices`, and observe it making categories, and
+        //    observed that hierarchical categories inherit the logging
+        //    threshold levels accordingly.
+        //
+        // 6. Call `CALL` a few times with indices with which it has already
+        //    been called, and observe that the same category values as before
+        //    are returned, and that the category holders are not modified.
+        //
+        // 7. Set the max of the number of categories in the logger manager to
+        //    the current amount, and call `CALL` a few times with new category
+        //    names, and observe that no new categories are created and the
+        //    default category is returned.
+        //
+        // 8. With the logger manager still full, call `CALL` with an existing
+        //    category name and observe that the existing category is found.
+        //
+        // 9. Compare found categories to verify the ones expected to be
+        //    distinct are distinct, and the ones expected to match match.
         //
         // Testing:
         //   setCategoryHierarchically(const char *);
@@ -4534,8 +4555,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         Blp::bslma::DefaultAllocatorGuard guard(&da);
         Blp::bslma::Default::setGlobalAllocator(&ga);
 
-        // No category will ever have levels matching 'WLEVELS', we pass it
-        // 'CALL' in the case where we expect no category to be created.
+        // No category will ever have levels matching `WLEVELS`, we pass it
+        // `CALL` in the case where we expect no category to be created.
 
         const TC::Agg WLEVELS(TC::S::e_OFF, TC::S::e_OFF,
                                                    TC::S::e_OFF, TC::S::e_OFF);
@@ -4579,7 +4600,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             TC::defaultCat = 0;
             TC::instantiationSet.clear();
 
-            // Confirm that 'WLEVELS', 'CLEVELS', 'ILEVELS', and 'JLEVELS' are
+            // Confirm that `WLEVELS`, `CLEVELS`, `ILEVELS`, and `JLEVELS` are
             // all distinct values.
 
             ASSERTV(IL, JL, CLEVELS != WLEVELS);
@@ -4591,20 +4612,20 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             const TC::Agg MLEVELS = JUSE_CALLBACK ? CLEVELS : ILEVELS;
 
-            // The 'CALL' macro calls 'testSetCategoryHierarchically' with the
-            // specified template parameter 'KK', 'KK' being an integer
-            // constant in the namespace 'TC::indices'.  The specified
-            // threshold aggregate 'expectedLevels' is passed to the test
+            // The `CALL` macro calls `testSetCategoryHierarchically` with the
+            // specified template parameter `KK`, `KK` being an integer
+            // constant in the namespace `TC::indices`.  The specified
+            // threshold aggregate `expectedLevels` is passed to the test
             // function to be compared to the threshold levels of any category
             // created to verify that they are correct.  The specified category
-            // holder pointer 'prevCatHolder' is passed to the test function to
-            // be compared to the 'd_next_p' field in the category holder
+            // holder pointer `prevCatHolder` is passed to the test function to
+            // be compared to the `d_next_p` field in the category holder
             // initialized by the function under test.  The variable
-            // 'holderlessMode' is passed as the last argument to the test
+            // `holderlessMode` is passed as the last argument to the test
             // function to indicate whether, and when, a redundant call to the
             // function under test with no category holder is made.  The test
-            // function returns a reference to a static 'ResultRec' object,
-            // which was returned by the 'TC::result' function.
+            // function returns a reference to a static `ResultRec` object,
+            // which was returned by the `TC::result` function.
 
             TC::ResultRec *ret_p;
 #undef  CALL
@@ -4615,8 +4636,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                       prevCatHolder,                          \
                                       holderlessMode)
 
-            // The macro 'RET(N)' will return a reference to static record
-            // returned by the call made by 'CALL(N, ...)'.
+            // The macro `RET(N)` will return a reference to static record
+            // returned by the call made by `CALL(N, ...)`.
 
 #undef  RET
 #define RET(KK)  TC::result<TC::indices::KK>()
@@ -4646,7 +4667,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             TC::defaultCat = &manager.defaultCategory();
 
-            // Now, call 'CALL' many times to attempt to find/create categories
+            // Now, call `CALL` many times to attempt to find/create categories
             // with different names, some of whom may expect to inherit
             // threshold levels from others.
 
@@ -4744,9 +4765,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ASSERT(ret_p->d_category_p == woofCat);
 
             // Make sure that all the categories returned are distinct, except
-            // that all the 'woof_*'s match, and several categories match the
-            // default category (except that all the 'woof*'s match, and
-            // 'whimperCat == woofMoanCat == TC::defaultCat').
+            // that all the `woof_*`s match, and several categories match the
+            // default category (except that all the `woof*`s match, and
+            // `whimperCat == woofMoanCat == TC::defaultCat`).
 
             bsl::vector<const void *> v(&ta);
             v.push_back(RET(meow).d_category_p);
@@ -4799,13 +4820,13 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //  Sanity test of the degenerate log macros use cases.
         //
         // Concern:
-        //: 1 'BALL_LOG_END' can be optionally appended to the log stream
-        //:   output.
-        //:
-        //: 2 Empty log blocks and noop stream output are valid expressions.
+        // 1. `BALL_LOG_END` can be optionally appended to the log stream
+        //    output.
+        //
+        // 2. Empty log blocks and noop stream output are valid expressions.
         //
         // Plan:
-        //: 1 Using brute-force, exercise block-scope macros.  (C-1,2)
+        // 1. Using brute-force, exercise block-scope macros.  (C-1,2)
         //
         // Testing:
         //   CONCERN: DEGENERATE LOG MACROS USAGE
@@ -4978,19 +4999,19 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
       } break;
       case 31: {
         // --------------------------------------------------------------------
-        // TESTING 'BALL_LOGCB_*_BLOCK' MACROS
+        // TESTING `BALL_LOGCB_*_BLOCK` MACROS
         //
         // Concerns:
-        //: 1 Block macros provide access to 'BALL_LOG_OUTPUT_STREAM'.
+        // 1. Block macros provide access to `BALL_LOG_OUTPUT_STREAM`.
         //
         // Plan:
-        //: 1 Using brute-force, exercise block-scope macros.  (C-1)
+        // 1. Using brute-force, exercise block-scope macros.  (C-1)
         //
         // Testing:
-        //   CONCERN: 'BALL_LOGCB_*_BLOCK' MACROS
+        //   CONCERN: `BALL_LOGCB_*_BLOCK` MACROS
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'BALL_LOGCB_*_BLOCK' MACROS"
+        if (verbose) bsl::cout << "\nTESTING `BALL_LOGCB_*_BLOCK` MACROS"
                                << "\n==================================="
                                << bsl::endl;
 
@@ -5610,19 +5631,19 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
       } break;
       case 30: {
         // --------------------------------------------------------------------
-        // TESTING 'BALL_LOG_*_BLOCK' MACROS
+        // TESTING `BALL_LOG_*_BLOCK` MACROS
         //
         // Concerns:
-        //: 1 Block macros provide access to 'BALL_LOG_OUTPUT_STREAM'.
+        // 1. Block macros provide access to `BALL_LOG_OUTPUT_STREAM`.
         //
         // Plan:
-        //: 1 Using brute-force, exercise block-scope macros.  (C-1)
+        // 1. Using brute-force, exercise block-scope macros.  (C-1)
         //
         // Testing:
-        //   CONCERN: 'BALL_LOG_*_BLOCK' MACROS
+        //   CONCERN: `BALL_LOG_*_BLOCK` MACROS
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'BALL_LOG_*_BLOCK' MACROS"
+        if (verbose) bsl::cout << "\nTESTING `BALL_LOG_*_BLOCK` MACROS"
                                << "\n================================="
                                << bsl::endl;
 
@@ -6266,18 +6287,18 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // TESTING NAMESPACE-SCOPE LOGGING
         //
         // Concerns:
-        //: 1 That no more than one namespace-scope category can be defined in
-        //:   a namespace.
-        //:
-        //: 2 That all manner of logging macros (stream-based, callback-based,
-        //:   variadic) work with namespace-scope categories.
-        //:
-        //: 3 That static and dynamic categories hide namespace-scope
-        //:   categories.
+        // 1. That no more than one namespace-scope category can be defined in
+        //    a namespace.
+        //
+        // 2. That all manner of logging macros (stream-based, callback-based,
+        //    variadic) work with namespace-scope categories.
+        //
+        // 3. That static and dynamic categories hide namespace-scope
+        //    categories.
         //
         // Plan:
-        //: 1 Using brute-force, define two namespace-scope categories that
-        //:   together exercise all of the concerns.  (C-1..3)
+        // 1. Using brute-force, define two namespace-scope categories that
+        //    together exercise all of the concerns.  (C-1..3)
         //
         // Testing:
         //   BALL_LOG_SET_NAMESPACE_CATEGORY(CATEGORY)
@@ -6376,7 +6397,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             BALL_LOG_TEST_CASE_29::ClassScopeLoggerA mX;
             const BALL_LOG_TEST_CASE_29::ClassScopeLoggerA& X = mX;
 
-            // 'outoflineMethodThatLogsToLocalCategory' logs two messages, the
+            // `outoflineMethodThatLogsToLocalCategory` logs two messages, the
             // first to the class-scope category and the second to a static
             // category defined at block scope.
 
@@ -6423,28 +6444,28 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // TESTING CLASS-SCOPE LOGGING
         //
         // Concerns:
-        //: 1 That a class-scope category can be declared in the 'public',
-        //:   'private', or 'protected' interface of a class.
-        //:
-        //: 2 That more than one class-scope category can be defined in a
-        //:   translation unit.
-        //:
-        //: 3 That all manner of logging macros (stream-based, callback-based,
-        //:   variadic) work with class-scope categories.
-        //:
-        //: 4 That all methods of a class can log to a class-scope category, in
-        //:   particular, 'inline' methods regardless of where they are defined
-        //:   (within the class definition or outside; before or after the use
-        //:   of the 'BALL_LOG_SET_CLASS_CATEGORY' macro).
-        //:
-        //: 5 That static and dynamic categories hide class-scope categories.
-        //:
-        //: 6 That class-scope categories can be used in class templates.
+        // 1. That a class-scope category can be declared in the `public`,
+        //    `private`, or `protected` interface of a class.
+        //
+        // 2. That more than one class-scope category can be defined in a
+        //    translation unit.
+        //
+        // 3. That all manner of logging macros (stream-based, callback-based,
+        //    variadic) work with class-scope categories.
+        //
+        // 4. That all methods of a class can log to a class-scope category, in
+        //    particular, `inline` methods regardless of where they are defined
+        //    (within the class definition or outside; before or after the use
+        //    of the `BALL_LOG_SET_CLASS_CATEGORY` macro).
+        //
+        // 5. That static and dynamic categories hide class-scope categories.
+        //
+        // 6. That class-scope categories can be used in class templates.
         //
         // Plan:
-        //: 1 Using brute-force, define two classes for which class-scope
-        //:   categories are defined that together exercise all of the
-        //:   concerns.  (C-1..5)
+        // 1. Using brute-force, define two classes for which class-scope
+        //    categories are defined that together exercise all of the
+        //    concerns.  (C-1..5)
         //
         // Testing:
         //   BALL_LOG_SET_CLASS_CATEGORY(CATEGORY)
@@ -6474,7 +6495,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         ASSERT(1 == ball::TestObserver::numInstances());
 
-        // Exercise 'ClassScopeLoggerA'
+        // Exercise `ClassScopeLoggerA`
         {
             u::numIncCallback = 0;
             ClassScopeLoggerA::classMethodThatLogsToClassCategory();
@@ -6487,7 +6508,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ClassScopeLoggerA mX;  const ClassScopeLoggerA& X = mX;
 
-            // 'outoflineMethodThatLogsToLocalCategory' logs two messages, the
+            // `outoflineMethodThatLogsToLocalCategory` logs two messages, the
             // first to the class-scope category and the second to a static
             // category defined at block scope.
 
@@ -6513,7 +6534,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                     observer->lastPublishedRecord().fixedFields().category()));
         }
 
-        // Exercise 'ClassScopeLoggerB'
+        // Exercise `ClassScopeLoggerB`
         {
             u::numIncCallback = 0;
             ClassScopeLoggerB::classMethodThatLogsToClassCategory();
@@ -6526,7 +6547,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ClassScopeLoggerB mX;  const ClassScopeLoggerB& X = mX;
 
-            // 'outoflineMethodThatLogsToLocalCategory' logs two messages, the
+            // `outoflineMethodThatLogsToLocalCategory` logs two messages, the
             // first to the class-scope category and the second to a dynamic
             // category defined at block scope.
 
@@ -6552,7 +6573,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                     observer->lastPublishedRecord().fixedFields().category()));
         }
 
-        // Exercise 'ClassScopeLogger<int>'
+        // Exercise `ClassScopeLogger<int>`
         {
             typedef ClassScopeLogger<int> ClassInt;
 
@@ -6565,7 +6586,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ClassInt mX;  const ClassInt& X = mX;
 
-            // 'outoflineMethodThatLogsToLocalCategory' logs two messages, the
+            // `outoflineMethodThatLogsToLocalCategory` logs two messages, the
             // first to the class-scope category and the second to a static
             // category defined at block scope.
 
@@ -6584,7 +6605,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                     observer->lastPublishedRecord().fixedFields().category()));
         }
 
-        // Exercise 'ClassScopeLogger<double>'
+        // Exercise `ClassScopeLogger<double>`
         {
             typedef ClassScopeLogger<double> ClassDouble;
 
@@ -6597,7 +6618,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ClassDouble mX;  const ClassDouble& X = mX;
 
-            // 'outoflineMethodThatLogsToLocalCategory' logs two messages, the
+            // `outoflineMethodThatLogsToLocalCategory` logs two messages, the
             // first to the class-scope category and the second to a static
             // category defined at block scope.
 
@@ -6618,32 +6639,32 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
       } break;
       case 27: {
         // --------------------------------------------------------------------
-        // TESTING 'BALL_LOG_IS_ENABLED(SEVERITY)'
+        // TESTING `BALL_LOG_IS_ENABLED(SEVERITY)`
         //
         // Concerns:
-        //:  1. If the logger manager is not initialized,
-        //:     'BALL_LOG_IS_ENABLED' returns 'true' for severities higher
-        //:     than 'WARN', and 'false' otherwise.
-        //:
-        //:  2. If the logger manager is initialized, 'BALL_LOG_IS_ENABLED'
-        //:     returns 'true' if any of the thresholds configured for the
-        //:     current category are higher than the severity.
-        //:
-        //:  3. 'BALL_LOG_IS_ENABLED' tests the thresholds configured for the
-        //:     current category by rule-based logging.
+        //   1. If the logger manager is not initialized,
+        //      `BALL_LOG_IS_ENABLED` returns `true` for severities higher
+        //      than `WARN`, and `false` otherwise.
+        //
+        //   2. If the logger manager is initialized, `BALL_LOG_IS_ENABLED`
+        //      returns `true` if any of the thresholds configured for the
+        //      current category are higher than the severity.
+        //
+        //   3. `BALL_LOG_IS_ENABLED` tests the thresholds configured for the
+        //      current category by rule-based logging.
         //
         // Plan:
         //   1. Do not initialize a logger manager, and test calling
-        //      'BALL_LOG_IS_ENABLED' with various severities.  (C-1)
+        //      `BALL_LOG_IS_ENABLED` with various severities.  (C-1)
         //
         //   2. Initialize a logger manager, and for a set of possible
         //      severities, exhaustively test each combination of threshold
-        //      severity value with 'BALL_LOG_IS_ENABLED' severity value, for
+        //      severity value with `BALL_LOG_IS_ENABLED` severity value, for
         //      each of the 4 thresholds (record, passthrough, trigger, and
         //      trigger-all). (C-2)
         //
         //   3. Exhaustively test each combination of a rule-enabled threshold
-        //      severity value with 'BALL_LOG_IS_ENABLED' severity value. (C-3)
+        //      severity value with `BALL_LOG_IS_ENABLED` severity value. (C-3)
         //
         // Testing:
         //   BALL_IS_ENABLED(SEVERITY)
@@ -6651,7 +6672,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         using namespace BloombergLP;  // okay here
 
-        if (verbose) bsl::cout << "\nTESTING 'BALL_LOG_IS_ENABLED(SEVERITY)'"
+        if (verbose) bsl::cout << "\nTESTING `BALL_LOG_IS_ENABLED(SEVERITY)`"
                                << "\n======================================="
                                << bsl::endl;
 
@@ -6727,10 +6748,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
       } break;
       case 26: {
         // --------------------------------------------------------------------
-        // TESTING RULE-BASED LOGGING: 'logMessage'
+        // TESTING RULE-BASED LOGGING: `logMessage`
         //
         // Concerns:
-        //   That the 'logMessage' method uses the current installed rules when
+        //   That the `logMessage` method uses the current installed rules when
         //   determining whether to log a message.
         //
         // Plan:
@@ -6740,10 +6761,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   currently in the buffer, at any time (note that the records in
         //   the buffered are added to the published records when a trigger
         //   occurs).  For each threshold-aggregate value: create a category
-        //   with that threshold-aggregate value; test the 'logMessage' method
+        //   with that threshold-aggregate value; test the `logMessage` method
         //   with a variety of severity levels without a logging rule, then for
         //   each test threshold-aggregate value, create a logging rule that
-        //   applies to the category and test the 'logMessage' method.  Compare
+        //   applies to the category and test the `logMessage` method.  Compare
         //   the expected number of published records against the actual number
         //   of published records.
         //
@@ -6753,7 +6774,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         if (verbose)
             bsl::cout << bsl::endl
-                      << "TESTING RULE-BASED LOGGING: 'logMessage'\n"
+                      << "TESTING RULE-BASED LOGGING: `logMessage`\n"
                       << "========================================\n";
 
         using namespace BloombergLP;  // okay here
@@ -6904,23 +6925,23 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
       } break;
       case 25: {
         // --------------------------------------------------------------------
-        // TESTING RULE-BASED LOGGING: 'isCategoryEnabled'
+        // TESTING RULE-BASED LOGGING: `isCategoryEnabled`
         //
         // Concerns:
-        //   That the 'isCategoryEnabled' method is using the current installed
+        //   That the `isCategoryEnabled` method is using the current installed
         //   rules when determining whether a category is enabled.
         //
         // Plan:
         //   Create a series of test threshold values and a series of
-        //   threshold-aggregate values.  Test the 'isCategoryEnabled' method
+        //   threshold-aggregate values.  Test the `isCategoryEnabled` method
         //   for each test threshold value without a logger manager.  Then
         //   create a logger manager.  For each threshold-aggregate value:
         //   create a category with that threshold-aggregate value, test the
-        //   'isCategoryEnabled' method with a variety of severity levels
+        //   `isCategoryEnabled` method with a variety of severity levels
         //   without a logging rule, then for each test threshold-aggregate
         //   value, create a logging rule that applies to the category and test
-        //   the 'isCategoryEnabled' method.  Verify that the
-        //   'isCategoryEnabled' method behaves correctly given the categories
+        //   the `isCategoryEnabled` method.  Verify that the
+        //   `isCategoryEnabled` method behaves correctly given the categories
         //   threshold-aggregate, the rule's threshold-aggregate, and the
         //   supplied severity.
         //
@@ -6930,7 +6951,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         if (verbose)
             bsl::cout << bsl::endl
-                      << "TESTING RULE-BASED LOGGING: 'isCategoryEnabled'\n"
+                      << "TESTING RULE-BASED LOGGING: `isCategoryEnabled`\n"
                       << "===============================================\n";
 
         using namespace BloombergLP;  // okay here
@@ -6997,7 +7018,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                               thresholds[i].triggerLevel(),
                                               thresholds[i].triggerAllLevel());
 
-            // Test 'isCategoryEnabled' with no rules.
+            // Test `isCategoryEnabled` with no rules.
             for (int j = 0; j < NUM_VALUES; ++j) {
                 bool enabled =
                         VALUES[j] <= Thresholds::maxLevel(thresholds[i]);
@@ -7572,15 +7593,15 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //
         // Concerns:
         //   This macro must be safe in absence of a logger manager.  This
-        //   macro must be correct when 'ball::LoggerManager::setCategory' is
+        //   macro must be correct when `ball::LoggerManager::setCategory` is
         //   called to change the threshold levels of the dynamic category
         //   before logging macros are encountered.
         //
         // Plan:
         //   Intentionally invoke the macro without first initializing the
         //   logger manager.  Verify that the number of records going to
-        //   'bsl::cout' is expected.  Then invoke the macro in presence of a
-        //   logger manager and call 'ball::LoggerManager::setCategory' to
+        //   `bsl::cout` is expected.  Then invoke the macro in presence of a
+        //   logger manager and call `ball::LoggerManager::setCategory` to
         //   change the underlying category.  Verify that the number of
         //   published records is expected.
         //
@@ -7779,16 +7800,16 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // TESTING CALLBACK MACRO SAFETY IN THE ABSENCE OF A LOGGER MANAGER
         //
         // Concerns:
-        //: 1 The callback-based logging macros must be safe whether invoked
-        //:   before the logger manager singleton is initialized, while it
-        //:   exists, or after it has been destroyed.
+        // 1. The callback-based logging macros must be safe whether invoked
+        //    before the logger manager singleton is initialized, while it
+        //    exists, or after it has been destroyed.
         //
         // Plan:
-        //: 1 Within a loop, invoke the logging macros (1) before the singleton
-        //:   has been (re)initialized, (2) while it exists, and (3) after it
-        //:   has been destroyed, each time verifying that the expected number
-        //:   of messages are either published to the test observer or written
-        //:   by the 'bsls::Log' message handler.  (C-1)
+        // 1. Within a loop, invoke the logging macros (1) before the singleton
+        //    has been (re)initialized, (2) while it exists, and (3) after it
+        //    has been destroyed, each time verifying that the expected number
+        //    of messages are either published to the test observer or written
+        //    by the `bsls::Log` message handler.  (C-1)
         //
         // Testing:
         //   BALL_LOGCB_TRACE
@@ -7906,7 +7927,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                   BloombergLP::ball::Severity::e_TRACE - 1);
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGCB_TRACE'" << bsl::endl;
+            bsl::cout << "\tTesting `BALL_LOGCB_TRACE`" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
@@ -7934,7 +7955,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                    BloombergLP::ball::Severity::e_DEBUG - 1);
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGCB_DEBUG'" << bsl::endl;
+            bsl::cout << "\tTesting `BALL_LOGCB_DEBUG`" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
@@ -7962,7 +7983,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                     BloombergLP::ball::Severity::e_INFO - 1);
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGCB_INFO'" << bsl::endl;
+            bsl::cout << "\tTesting `BALL_LOGCB_INFO`" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
@@ -7990,7 +8011,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                    BloombergLP::ball::Severity::e_WARN - 1);
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGCB_WARN'" << bsl::endl;
+            bsl::cout << "\tTesting `BALL_LOGCB_WARN`" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
@@ -8018,7 +8039,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                    BloombergLP::ball::Severity::e_ERROR - 1);
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGCB_ERROR'" << bsl::endl;
+            bsl::cout << "\tTesting `BALL_LOGCB_ERROR`" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
@@ -8046,7 +8067,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                    BloombergLP::ball::Severity::e_FATAL - 1);
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGCB_FATAL'" << bsl::endl;
+            bsl::cout << "\tTesting `BALL_LOGCB_FATAL`" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
@@ -8067,7 +8088,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting Buffer Overflow with 'ostream' Macro"
+            bsl::cout << "\tTesting Buffer Overflow with `ostream` Macro"
                       << bsl::endl;
         {
             const int BUFLEN = u::messageBufferSize();
@@ -8208,13 +8229,13 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //
         // Plan:
         //   Initialize the logger manager with a configuration such that
-        //   'TRACE' is enabled (for "record", for definiteness) and verify
+        //   `TRACE` is enabled (for "record", for definiteness) and verify
         //   that all of the six named severities are enabled.  Then
         //   reconfigure the threshold levels for the category in effect (using
-        //   the 'setCategory' method) such that 'TRACE', 'DEBUG', and 'INFO'
+        //   the `setCategory` method) such that `TRACE`, `DEBUG`, and `INFO`
         //   are not enabled, and confirm that only more severe levels are
         //   enabled.  Finally, reconfigure the threshold levels such that
-        //   they are all 'OFF', and confirm that none of the severities is
+        //   they are all `OFF`, and confirm that none of the severities is
         //   enabled.
         //
         // Testing:
@@ -8678,7 +8699,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         if (veryVeryVerbose) observer->print();
 
         bsl::vector<bsl::pair<int, int> > vv[NUM_THREADS];
-        // 'vv[i]' contains the message information for i'th thread
+        // `vv[i]` contains the message information for i'th thread
 
         const bsl::vector<bsl::string>& v = observer->get();
         ASSERT(v.size() == NUM_THREADS * EXP_N_TOTAL);
@@ -8733,7 +8754,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         ball::LoggerManagerConfiguration lmc;
 
-        // for simplicity we keep the passthrough level to be 'FATAL', so that
+        // for simplicity we keep the passthrough level to be `FATAL`, so that
         // on trigger event, the message is published only once.
 
         lmc.setDefaultThresholdLevelsIfValid(
@@ -8782,17 +8803,17 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   Verify the default log order.
         //
         // Concerns:
-        //: 1 That when the logger manager is configured with the default
-        //:   log order (LIFO), it publishes the logged messages in LIFO
-        //:   (last in first out) order.
-        //:
-        //: 2 'BALL_LOG_STREAM' also works where the severity is determined at
-        //:   run time.
+        // 1. That when the logger manager is configured with the default
+        //    log order (LIFO), it publishes the logged messages in LIFO
+        //    (last in first out) order.
+        //
+        // 2. `BALL_LOG_STREAM` also works where the severity is determined at
+        //    run time.
         //
         // Plan:
-        //: 1 Create a logger manager configured with the default log order,
-        //:   log several messages to it and verify that they get published in
-        //:   the desired order.
+        // 1. Create a logger manager configured with the default log order,
+        //    log several messages to it and verify that they get published in
+        //    the desired order.
         //
         // Testing:
         //   the default log order
@@ -8827,7 +8848,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             lmc.setLogOrder(ball::LoggerManagerConfiguration::e_FIFO);
 
-            // for simplicity we keep the passthrough level to be 'FATAL', so
+            // for simplicity we keep the passthrough level to be `FATAL`, so
             // that on trigger event, the message is published only once.
 
             lmc.setDefaultThresholdLevelsIfValid(
@@ -8871,7 +8892,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ball::LoggerManagerConfiguration lmc;
             lmc.setLogOrder(ball::LoggerManagerConfiguration::e_FIFO);
 
-            // for simplicity we keep the passthrough level to be 'FATAL', so
+            // for simplicity we keep the passthrough level to be `FATAL`, so
             // that on trigger event, the message is published only once.
 
             lmc.setDefaultThresholdLevelsIfValid(
@@ -8916,13 +8937,13 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   that internally log some other message using c++ macro.
         //
         // Concerns:
-        //   Suppose a function 'f()' logs some data (say "message1")
+        //   Suppose a function `f()` logs some data (say "message1")
         //   using c++ macro, and return some data (say "message2"), then
-        //   'BALL_LOG_SEVERITY << f()' should result in
+        //   `BALL_LOG_SEVERITY << f()` should result in
         //   logging "message1" followed by "message2".
         //
         // Plan:
-        //   Invoke the function 'f()' described in Concern: section, and
+        //   Invoke the function `f()` described in Concern: section, and
         //   verify the order of logged messages.
         //
         // Testing:
@@ -8970,16 +8991,16 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // TESTING MACRO SAFETY IN THE ABSENCE OF A LOGGER MANAGER
         //
         // Concerns:
-        //: 1 The non-callback-based logging macros must be safe whether
-        //:   invoked before the logger manager singleton is initialized, while
-        //:   it exists, or after it has been destroyed.
+        // 1. The non-callback-based logging macros must be safe whether
+        //    invoked before the logger manager singleton is initialized, while
+        //    it exists, or after it has been destroyed.
         //
         // Plan:
-        //: 1 Within a loop, invoke the logging macros (1) before the singleton
-        //:   has been (re)initialized, (2) while it exists, and (3) after it
-        //:   has been destroyed, each time verifying that the expected number
-        //:   of messages are either published to the test observer or written
-        //:   by the 'bsls::Log' message handler.  (C-1)
+        // 1. Within a loop, invoke the logging macros (1) before the singleton
+        //    has been (re)initialized, (2) while it exists, and (3) after it
+        //    has been destroyed, each time verifying that the expected number
+        //    of messages are either published to the test observer or written
+        //    by the `bsls::Log` message handler.  (C-1)
         //
         // Testing:
         //   BALL_LOG_TRACE
@@ -9093,7 +9114,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                            BloombergLP::ball::Severity::e_TRACE - 1);
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOG_TRACE'" << bsl::endl;
+            bsl::cout << "\tTesting `BALL_LOG_TRACE`" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
@@ -9119,7 +9140,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                               BloombergLP::ball::Severity::e_DEBUG - 1);
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOG_DEBUG'" << bsl::endl;
+            bsl::cout << "\tTesting `BALL_LOG_DEBUG`" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
@@ -9145,7 +9166,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                BloombergLP::ball::Severity::e_INFO - 1);
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOG_INFO'" << bsl::endl;
+            bsl::cout << "\tTesting `BALL_LOG_INFO`" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
@@ -9170,7 +9191,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                   BloombergLP::ball::Severity::e_WARN - 1);
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOG_WARN'" << bsl::endl;
+            bsl::cout << "\tTesting `BALL_LOG_WARN`" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
@@ -9195,7 +9216,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                 BloombergLP::ball::Severity::e_ERROR - 1);
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOG_ERROR'" << bsl::endl;
+            bsl::cout << "\tTesting `BALL_LOG_ERROR`" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
@@ -9220,7 +9241,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                    BloombergLP::ball::Severity::e_FATAL - 1);
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOG_FATAL'" << bsl::endl;
+            bsl::cout << "\tTesting `BALL_LOG_FATAL`" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
@@ -9238,7 +9259,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting Buffer Overflow with 'ostream' Macro"
+            bsl::cout << "\tTesting Buffer Overflow with `ostream` Macro"
                       << bsl::endl;
         {
             const int BUFLEN = u::messageBufferSize();
@@ -9329,7 +9350,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << bsl::endl
-                               << "Testing 'printf-style' Macros" << bsl::endl
+                               << "Testing `printf-style` Macros" << bsl::endl
                                << "=============================" << bsl::endl;
 
         BloombergLP::bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
@@ -9444,7 +9465,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         const Cat  *CAT  = BALL_LOG_CATEGORY;
         const char *FILE = __FILE__;
 
-        if (verbose) bsl::cout << "Now test the variadic '*_LOGVA_*' macros"
+        if (verbose) bsl::cout << "Now test the variadic `*_LOGVA_*` macros"
                                                   " with varying arguments.\n";
 
         ASSERT(!bsl::strcmp("sieve", CAT->categoryName()));
@@ -9527,7 +9548,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
         }
 
-        if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 0\n";
+        if (veryVerbose) bsl::cout << "\tTesting `BALL_LOGVA` - 0\n";
         {
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
@@ -9539,7 +9560,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ASSERT(u::isRecordOkay(observer, CAT, INFO, FILE, LINE, MSG[0]));
         }
 
-        if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 1\n";
+        if (veryVerbose) bsl::cout << "\tTesting `BALL_LOGVA` - 1\n";
         {
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
@@ -9551,7 +9572,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ASSERT(u::isRecordOkay(observer, CAT, INFO, FILE, LINE, MSG[1]));
         }
 
-        if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 2\n";
+        if (veryVerbose) bsl::cout << "\tTesting `BALL_LOGVA` - 2\n";
         {
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
@@ -9563,7 +9584,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ASSERT(u::isRecordOkay(observer, CAT, INFO, FILE, LINE, MSG[2]));
         }
 
-        if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 3\n";
+        if (veryVerbose) bsl::cout << "\tTesting `BALL_LOGVA` - 3\n";
         {
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
@@ -9575,7 +9596,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ASSERT(u::isRecordOkay(observer, CAT, INFO, FILE, LINE, MSG[3]));
         }
 
-        if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 4\n";
+        if (veryVerbose) bsl::cout << "\tTesting `BALL_LOGVA` - 4\n";
         {
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
@@ -9587,7 +9608,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ASSERT(u::isRecordOkay(observer, CAT, INFO, FILE, LINE, MSG[4]));
         }
 
-        if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 5\n";
+        if (veryVerbose) bsl::cout << "\tTesting `BALL_LOGVA` - 5\n";
         {
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
@@ -9599,7 +9620,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ASSERT(u::isRecordOkay(observer, CAT, INFO, FILE, LINE, MSG[5]));
         }
 
-        if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 6\n";
+        if (veryVerbose) bsl::cout << "\tTesting `BALL_LOGVA` - 6\n";
         {
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
@@ -9611,7 +9632,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ASSERT(u::isRecordOkay(observer, CAT, INFO, FILE, LINE, MSG[6]));
         }
 
-        if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 7\n";
+        if (veryVerbose) bsl::cout << "\tTesting `BALL_LOGVA` - 7\n";
         {
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
@@ -9623,7 +9644,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ASSERT(u::isRecordOkay(observer, CAT, INFO, FILE, LINE, MSG[7]));
         }
 
-        if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 8\n";
+        if (veryVerbose) bsl::cout << "\tTesting `BALL_LOGVA` - 8\n";
         {
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
@@ -9635,7 +9656,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ASSERT(u::isRecordOkay(observer, CAT, INFO, FILE, LINE, MSG[8]));
         }
 
-        if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 9\n";
+        if (veryVerbose) bsl::cout << "\tTesting `BALL_LOGVA` - 9\n";
         {
             const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
@@ -9648,7 +9669,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_TRACE' - 0\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_TRACE` - 0\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
@@ -9664,7 +9685,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_TRACE' - 1\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_TRACE` - 1\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
@@ -9680,7 +9701,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_TRACE' - 2\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_TRACE` - 2\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
@@ -9696,7 +9717,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_TRACE' - 3\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_TRACE` - 3\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
@@ -9712,7 +9733,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_TRACE' - 4\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_TRACE` - 4\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
@@ -9728,7 +9749,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_TRACE' - 5\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_TRACE` - 5\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
@@ -9744,7 +9765,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_TRACE' - 6\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_TRACE` - 6\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
@@ -9760,7 +9781,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_TRACE' - 7\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_TRACE` - 7\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
@@ -9776,7 +9797,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_TRACE' - 8\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_TRACE` - 8\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
@@ -9792,7 +9813,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_TRACE' - 9\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_TRACE` - 9\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
@@ -9809,7 +9830,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_DEBUG' - 0\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_DEBUG` - 0\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
@@ -9825,7 +9846,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_DEBUG' - 1\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_DEBUG` - 1\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
@@ -9841,7 +9862,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_DEBUG' - 2\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_DEBUG` - 2\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
@@ -9857,7 +9878,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_DEBUG' - 3\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_DEBUG` - 3\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
@@ -9873,7 +9894,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_DEBUG' - 4`\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_DEBUG` - 4`\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
@@ -9889,7 +9910,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_DEBUG' - 5\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_DEBUG` - 5\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
@@ -9905,7 +9926,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_DEBUG' - 6\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_DEBUG` - 6\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
@@ -9921,7 +9942,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_DEBUG' - 7\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_DEBUG` - 7\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
@@ -9937,7 +9958,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_DEBUG' - 8\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_DEBUG` - 8\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
@@ -9953,7 +9974,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_DEBUG' - 9\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_DEBUG` - 9\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
@@ -9970,7 +9991,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_INFO' - 0\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_INFO` - 0\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
@@ -9986,7 +10007,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_INFO' - 1\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_INFO` - 1\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
@@ -10002,7 +10023,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_INFO' - 2\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_INFO` - 2\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
@@ -10018,7 +10039,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_INFO' - 3\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_INFO` - 3\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
@@ -10034,7 +10055,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_INFO' - 4\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_INFO` - 4\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
@@ -10050,7 +10071,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_INFO' - 5\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_INFO` - 5\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
@@ -10066,7 +10087,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_INFO' - 6\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_INFO` - 6\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
@@ -10082,7 +10103,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_INFO' - 7\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_INFO` - 7\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
@@ -10098,7 +10119,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_INFO' - 8\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_INFO` - 8\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
@@ -10114,7 +10135,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_INFO' - 9\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_INFO` - 9\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
@@ -10130,7 +10151,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_WARN' - 0\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_WARN` - 0\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
@@ -10146,7 +10167,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_WARN' - 1\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_WARN` - 1\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
@@ -10162,7 +10183,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_WARN' - 2\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_WARN` - 2\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
@@ -10178,7 +10199,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_WARN' - 3\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_WARN` - 3\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
@@ -10194,7 +10215,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_WARN' - 4\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_WARN` - 4\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
@@ -10210,7 +10231,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_WARN' - 5\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_WARN` - 5\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
@@ -10226,7 +10247,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_WARN' - 6\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_WARN` - 6\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
@@ -10242,7 +10263,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_WARN' - 7\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_WARN` - 7\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
@@ -10258,7 +10279,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_WARN' - 8\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_WARN` - 8\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
@@ -10274,7 +10295,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_WARN' - 9\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_WARN` - 9\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
@@ -10290,7 +10311,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_ERROR' - 0\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_ERROR` - 0\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
@@ -10306,7 +10327,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_ERROR' - 1\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_ERROR` - 1\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
@@ -10322,7 +10343,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_ERROR' - 2\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_ERROR` - 2\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
@@ -10338,7 +10359,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_ERROR' - 3\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_ERROR` - 3\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
@@ -10354,7 +10375,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_ERROR' - 4\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_ERROR` - 4\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
@@ -10370,7 +10391,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_ERROR' - 5\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_ERROR` - 5\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
@@ -10386,7 +10407,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_ERROR' - 6\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_ERROR` - 6\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
@@ -10402,7 +10423,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_ERROR' - 7\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_ERROR` - 7\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
@@ -10418,7 +10439,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_ERROR' - 8\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_ERROR` - 8\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
@@ -10434,7 +10455,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_ERROR' - 9\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_ERROR` - 9\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
@@ -10452,7 +10473,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_FATAL' - 0\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_FATAL` - 0\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
@@ -10469,7 +10490,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_FATAL' - 1\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_FATAL` - 1\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
@@ -10485,7 +10506,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_FATAL' - 2\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_FATAL` - 2\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
@@ -10501,7 +10522,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_FATAL' - 3\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_FATAL` - 3\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
@@ -10517,7 +10538,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_FATAL' - 4\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_FATAL` - 4\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
@@ -10533,7 +10554,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_FATAL' - 5\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_FATAL` - 5\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
@@ -10549,7 +10570,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_FATAL' - 6\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_FATAL` - 6\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
@@ -10565,7 +10586,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_FATAL' - 7\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_FATAL` - 7\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
@@ -10581,7 +10602,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_FATAL' - 8\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_FATAL` - 8\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
@@ -10597,7 +10618,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting 'BALL_LOGVA_FATAL' - 9\n";
+            bsl::cout << "\tTesting `BALL_LOGVA_FATAL` - 9\n";
         {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
@@ -10614,7 +10635,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose) bsl::cout <<
-                             "\tTesting Buffer Overflow with 'printf' Macro\n";
+                             "\tTesting Buffer Overflow with `printf` Macro\n";
         {
             const int BUFLEN = u::messageBufferSize();
             const int EXCESS = 128;
@@ -11493,9 +11514,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         // Note that the following is expressly meant to test the modifications
-        // made to the 'printf'-style macros to use the 'do { ... } while(0)'
-        // idiom (DRQS 13261698).  In particular, the 'if' statements are
-        // *INTENTIONALLY* *NOT* fully bracketed ('{}'-enclosed), contrary to
+        // made to the `printf`-style macros to use the `do { ... } while(0)`
+        // idiom (DRQS 13261698).  In particular, the `if` statements are
+        // *INTENTIONALLY* *NOT* fully bracketed (`{}`-enclosed), contrary to
         // the BDE coding standard.
 
         if (veryVerbose)
@@ -11506,7 +11527,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             {
                 const int LINE = L_ + 2;
-                if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                     BALL_LOGVA_TRACE(FORMAT_SPEC_0_ARGS);
                 else
                     ++unbracketedLoggingFlag;
@@ -11516,7 +11537,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             {
                 const int LINE = L_ + 2;
-                if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                     BALL_LOGVA_DEBUG(FORMAT_SPEC_1_ARGS, 1);
                 else
                     ++unbracketedLoggingFlag;
@@ -11526,7 +11547,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             {
                 const int LINE = L_ + 2;
-                if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                     BALL_LOGVA_INFO(FORMAT_SPEC_2_ARGS, 1, 2);
                 else
                     ++unbracketedLoggingFlag;
@@ -11536,7 +11557,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             {
                 const int LINE = L_ + 2;
-                if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                     BALL_LOGVA_WARN(FORMAT_SPEC_3_ARGS, 1, 2, 3);
                 else
                     ++unbracketedLoggingFlag;
@@ -11546,7 +11567,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             {
                 const int LINE = L_ + 2;
-                if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                     BALL_LOGVA_ERROR(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
                 else
                     ++unbracketedLoggingFlag;
@@ -11556,7 +11577,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             {
                 const int LINE = L_ + 2;
-                if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+                if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                     BALL_LOGVA_FATAL(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
                 else
                     ++unbracketedLoggingFlag;
@@ -11746,8 +11767,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //
         // Plan:
         // TBD doc
-        //   (1) Verify that 'u::messageBuffer' returns non-null and that
-        //       'u::messageBufferSize' bytes may be overwritten
+        //   (1) Verify that `u::messageBuffer` returns non-null and that
+        //       `u::messageBufferSize` bytes may be overwritten
         //
         // Testing:
         //   void logMessage(*category, severity, *file, line, *msg);
@@ -11775,7 +11796,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         ASSERT(0 == manager.registerObserver(observer, "test"));
 
         if (veryVerbose) {
-            bsl::cout << "\tTesting 'messageBuffer' and 'messageBufferSize'"
+            bsl::cout << "\tTesting `messageBuffer` and `messageBufferSize`"
                       << bsl::endl;
         }
 
@@ -11786,7 +11807,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         manager.setDefaultThresholdLevels(192, 96, 64, 32);
         ASSERT(DEFAULT_CAT_MAX_LEVEL != 192);
 
-        if (veryVerbose) bsl::cout << "\tTesting 'setCategory'" << bsl::endl;
+        if (veryVerbose) bsl::cout << "\tTesting `setCategory`" << bsl::endl;
         {
             const ball::Category *category;
             category = ball::Log::setCategory("EQUITY.NASD");  // creates new
@@ -11805,13 +11826,13 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ASSERT(DEFAULT_CAT_MAX_LEVEL == category->maxLevel());
         }
 
-        if (veryVerbose) bsl::cout << "\tTesting 'setCategory' taking a holder"
+        if (veryVerbose) bsl::cout << "\tTesting `setCategory` taking a holder"
                                    << bsl::endl;
         {
             ball::Administration::setMaxNumCategories(3);
             ASSERT(3 == ball::Administration::maxNumCategories());
 
-            // Holders must be declared 'static' so that their lifetimes exceed
+            // Holders must be declared `static` so that their lifetimes exceed
             // that of the logger manager singleton.
 
             static Holder mH = { { Holder::e_UNINITIALIZED_CATEGORY }, { 0 },
@@ -11834,7 +11855,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ASSERT(DEFAULT_CAT_MAX_LEVEL == H2.threshold());
         }
 
-         if (veryVerbose) bsl::cout << "\tTesting 'logMessage'" << bsl::endl;
+         if (veryVerbose) bsl::cout << "\tTesting `logMessage`" << bsl::endl;
          {
              const Cat  *CAT  = ball::Log::setCategory("EQUITY.NASD");
              const int   SEV  = BloombergLP::ball::Severity::e_WARN;
@@ -11858,7 +11879,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   this by having ONE global mutex shared by all streams, including
         //   cin, cout, cerr and even stringstreams, which undermined
         //   multithreading.  We set a compilation flag to not use this
-        //   mutex, and we changed ball to use 'FILE *' i/o instead of streams
+        //   mutex, and we changed ball to use `FILE *` i/o instead of streams
         //   wherever possible.  There are some who believe the thread-unsafe
         //   part was only to do with locales, which are going to be completely
         //   set up before any multithreading begins, so it shouldn't be a
@@ -11907,14 +11928,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // PERFORMANCE TEST
         //
         // Concerns:
-        //: 1 This test measures the time of performing multiple logging macro
-        //:   invocations which makes it possible to compare the performance of
-        //:   different implementations.
+        // 1. This test measures the time of performing multiple logging macro
+        //    invocations which makes it possible to compare the performance of
+        //    different implementations.
         //
         // Plan
-        //: 1 Several times in a row create 10 threads, each spewing a large a
-        //:   mount of BALL messages. Measure the total time of execution and
-        //:   publish it.
+        // 1. Several times in a row create 10 threads, each spewing a large a
+        //    mount of BALL messages. Measure the total time of execution and
+        //    publish it.
         // --------------------------------------------------------------------
 
         using namespace BALL_LOG_TEST_CASE_MINUS_2;

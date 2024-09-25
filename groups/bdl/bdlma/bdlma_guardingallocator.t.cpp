@@ -17,11 +17,11 @@
 #include <signal.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-  #include <crtdbg.h>   // '_CrtSetReportMode', to suppress popups
-  #include <windows.h>  // 'GetSystemInfo'
+  #include <crtdbg.h>   // `_CrtSetReportMode`, to suppress popups
+  #include <windows.h>  // `GetSystemInfo`
 #else
   #include <pthread.h>
-  #include <unistd.h>   // 'sysconf'
+  #include <unistd.h>   // `sysconf`
 #endif
 
 using namespace BloombergLP;
@@ -32,17 +32,17 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-// 'bdlma::GuardingAllocator' is a special-purpose allocator mechanism that
+// `bdlma::GuardingAllocator` is a special-purpose allocator mechanism that
 // adjoins a read/write protected guard page to each memory block that is
-// returned by the 'allocate' method.  The primary concern is that the memory
-// allocated from the system facility on behalf of the 'allocate' method (in
-// particular, guard pages) is managed correctly (see the 'Guard Pages' section
-// of the component-level documentation).  'setjmp' and 'longjmp' are used in
+// returned by the `allocate` method.  The primary concern is that the memory
+// allocated from the system facility on behalf of the `allocate` method (in
+// particular, guard pages) is managed correctly (see the `Guard Pages` section
+// of the component-level documentation).  `setjmp` and `longjmp` are used in
 // conjunction with a signal handler to test that the guard pages are write-
-// protected.  (Care is taken to ensure that 'longjmp' does not by-pass the
+// protected.  (Care is taken to ensure that `longjmp` does not by-pass the
 // destruction of any stack objects that are of user-defined type.)  Note that
-// since the 'bdlma::GuardingAllocator' constructor does not accept an optional
-// allocator argument, there is scant opportunity to use 'bslma::TestAllocator'
+// since the `bdlma::GuardingAllocator` constructor does not accept an optional
+// allocator argument, there is scant opportunity to use `bslma::TestAllocator`
 // in this test driver.
 // ----------------------------------------------------------------------------
 // CREATORS
@@ -56,7 +56,7 @@ using namespace bsl;
 // [ 1] BREATHING TEST
 // [ 5] USAGE EXAMPLE
 // [ *] CONCERN: In no case does memory come from the global allocator.
-// [ 4] CONCERN: The 'allocate' and 'deallocate' methods are thread-safe.
+// [ 4] CONCERN: The `allocate` and `deallocate` methods are thread-safe.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -112,7 +112,7 @@ typedef sigjmp_buf JumpBuffer;
 #endif
 
 static JumpBuffer g_jumpBuffer;
-static bool       g_withinTestFlag = false;  // see 'signalHandler' (below)
+static bool       g_withinTestFlag = false;  // see `signalHandler` (below)
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 typedef HANDLE    ThreadId;
@@ -130,9 +130,9 @@ extern "C" {
 
 extern "C" {
 
+/// Handle the specified `signal`.  Note that this signal handler is
+/// intended for `SIGSEGV` and `SIGBUS` only.
 void signalHandler(int signal)
-    // Handle the specified 'signal'.  Note that this signal handler is
-    // intended for 'SIGSEGV' and 'SIGBUS' only.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     ASSERT(SIGSEGV == signal);
@@ -148,21 +148,21 @@ void signalHandler(int signal)
 #endif
     }
     else {
-        ASSERT("Unexpected invocation of 'signalHandler'."  && 0);
+        ASSERT("Unexpected invocation of `signalHandler`."  && 0);
     }
 }
 
 }  // close extern "C"
 
+/// Return `true` if assigning the specified `value` to the byte at the
+/// specified `offset` from the specified `address` causes a memory fault,
+/// and `false` otherwise.
 static
 bool causesMemoryFault(void *address, int offset, char value)
-    // Return 'true' if assigning the specified 'value' to the byte at the
-    // specified 'offset' from the specified 'address' causes a memory fault,
-    // and 'false' otherwise.
 {
-    volatile bool faultFlag = false;  // 'volatile' to avoid warnings regarding
-                                      // variable being clobbered by 'longjmp'
-                                      // or 'vfork'
+    volatile bool faultFlag = false;  // `volatile` to avoid warnings regarding
+                                      // variable being clobbered by `longjmp`
+                                      // or `vfork`
 
     // Register a signal handler for the duration of this function.
 
@@ -185,18 +185,18 @@ bool causesMemoryFault(void *address, int offset, char value)
 #endif
 
     if (0 == rc) {
-        // Write 'value' to the desired location.  If there is a memory fault,
-        // then 'signalHandler' should be invoked.
+        // Write `value` to the desired location.  If there is a memory fault,
+        // then `signalHandler` should be invoked.
 
         *(static_cast<char *>(address) + offset) = value;
     }
     else if (1 == rc) {
-        // There was a long jump from 'signalHandler'.
+        // There was a long jump from `signalHandler`.
 
         faultFlag = true;
     }
     else {
-        ASSERT("Unexpected return value from 'setjmp' or 'sigsetjmp'."  && 0);
+        ASSERT("Unexpected return value from `setjmp` or `sigsetjmp`."  && 0);
     }
 
     // Restore the default behavior for the signals.
@@ -214,33 +214,33 @@ bool causesMemoryFault(void *address, int offset, char value)
     return faultFlag;
 }
 
-// 'OFFSET' definition copied from the component '.cpp' file.
+// `OFFSET` definition copied from the component `.cpp` file.
 
 const bsls::Types::size_type OFFSET = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
+/// Helper struct storing the addresses we need for deallocation when the
+/// guard page location is `e_AFTER_USER_BLOCK`.
 struct AfterUserBlockDeallocationData
-    // Helper struct storing the addresses we need for deallocation when the
-    // guard page location is 'e_AFTER_USER_BLOCK'.
 {
     void *d_firstPage; // address we need to deallocate
     void *d_guardPage; // address of the page we need to un-protect
 };
 
+/// Utility function to compute the `AfterUserBlockDeallocationData*`
+/// corresponding to the specified `address`.
 AfterUserBlockDeallocationData *getDataBlockAddress(void *address)
-    // Utility function to compute the 'AfterUserBlockDeallocationData*'
-    // corresponding to the specified 'address'.
 {
     return static_cast<AfterUserBlockDeallocationData*>(
             static_cast<void*>(
                 static_cast<char *>(address) - OFFSET * 2));
 }
 
+/// Return the address of the guard page, having the specified `pageSize`
+/// (in bytes), associated with the specified `address` that was allocated
+/// from a guarding allocator configured for guard pages at the specified
+/// `location` (with respect to `address`).
 static
 void *guardPageAddress(void *address, Enum location, int pageSize)
-    // Return the address of the guard page, having the specified 'pageSize'
-    // (in bytes), associated with the specified 'address' that was allocated
-    // from a guarding allocator configured for guard pages at the specified
-    // 'location' (with respect to 'address').
 {
     if (Obj::e_AFTER_USER_BLOCK == location) {
         AfterUserBlockDeallocationData *deallocData =
@@ -255,12 +255,12 @@ void *guardPageAddress(void *address, Enum location, int pageSize)
     }
 }
 
+/// Assert that the guard page, having the specified `pageSize` (in bytes),
+/// associated with the specified `address` that was allocated from a
+/// guarding allocator configured for guard pages at the specified
+/// `location` (with respect to `address`), is write-protected.
 static
 void assertGuardPageIsProtected(void *address, Enum location, int pageSize)
-    // Assert that the guard page, having the specified 'pageSize' (in bytes),
-    // associated with the specified 'address' that was allocated from a
-    // guarding allocator configured for guard pages at the specified
-    // 'location' (with respect to 'address'), is write-protected.
 {
     // For efficiency, test the first and last bytes of the guard page, and
     // every 64th byte in between.
@@ -276,26 +276,26 @@ void assertGuardPageIsProtected(void *address, Enum location, int pageSize)
     LOOP_ASSERT(lastByte, causesMemoryFault(g, lastByte, 'x'));
 }
 
+/// Overwrite the (unprotected) padding associated with the specified
+/// `address` that was allocated, using the specified request `size` (in
+/// bytes), from a guarding allocator configured for guard pages of the
+/// specified `pageSize` (in bytes) at the specified `location` (with
+/// respect to `address`).  Note that this method is for white-box testing.
+/// Also note that this method is based on the implementation of `allocate`.
 static
 void overwritePadding(void *address, int size, Enum location, int pageSize)
-    // Overwrite the (unprotected) padding associated with the specified
-    // 'address' that was allocated, using the specified request 'size' (in
-    // bytes), from a guarding allocator configured for guard pages of the
-    // specified 'pageSize' (in bytes) at the specified 'location' (with
-    // respect to 'address').  Note that this method is for white-box testing.
-    // Also note that this method is based on the implementation of 'allocate'.
 {
     const int roundedUpSize =
         static_cast<int>(bsls::AlignmentUtil::roundUpToMaximalAlignment(size));
 
     // Adjust for additional memory needed to stash reference addresses when
-    // 'e_AFTER_USER_BLOCK' is in use.
+    // `e_AFTER_USER_BLOCK` is in use.
 
     const int adjustedSize = Obj::e_AFTER_USER_BLOCK == location
                            ? roundedUpSize + static_cast<int>(OFFSET) * 2
                            : roundedUpSize;
 
-    // Calculate the number of pages required for 'adjustedSize'.
+    // Calculate the number of pages required for `adjustedSize`.
 
     const int numPages = (adjustedSize + pageSize - 1) / pageSize;
 
@@ -460,14 +460,14 @@ extern "C" void *threadFunction3(void *arg)
 //
 ///Example 1: Diagnosing Buffer Overflow
 ///- - - - - - - - - - - - - - - - - - -
-// Use of a 'bdlma::GuardingAllocator' is indicated, for example, if some code
+// Use of a `bdlma::GuardingAllocator` is indicated, for example, if some code
 // under development is suspected of having a buffer overrun (or underrun) bug,
 // and more sophisticated tools that detect such conditions are either not
 // available, or are inconvenient to apply to the situation at hand.
 //
 // This usage example illustrates a guarding allocator being brought to bear on
 // a buffer overrun bug.  The bug in question arises in the context of an
-// artificial data handling class, 'my_DataHandler'.  This class makes use of a
+// artificial data handling class, `my_DataHandler`.  This class makes use of a
 // (similarly artificial) data translation utility that translates chunks of
 // data among various data styles.  In our idealized example, we assume that
 // the length of the output resulting from some data translation is precisely
@@ -476,52 +476,55 @@ extern "C" void *threadFunction3(void *arg)
 // input data comes from a trusted source.
 //
 // First, we define an enumeration of data styles:
-//..
+// ```
     enum my_DataStyle {
         e_STYLE_NONE = 0
       , e_STYLE_A    = 1  // default style
-      , e_STYLE_AA   = 2  // style exactly twice as verbose as 'e_STYLE_A'
+      , e_STYLE_AA   = 2  // style exactly twice as verbose as `e_STYLE_A`
       // etc.
     };
-//..
+// ```
 // Next, we define the (elided) interface of our data translation utility:
-//..
+// ```
+
+    /// This `struct` provides a namespace for data translation utilities.
     struct my_DataTranslationUtil {
-        // This 'struct' provides a namespace for data translation utilities.
 
         // CLASS METHODS
+
+        /// Return the buffer size (in bytes) required to store the result
+        /// of converting input data of the specified `inputLength` (in
+        /// bytes), in the specified `inputStyle`, into the specified
+        /// `outputStyle`.  The behavior is undefined unless
+        /// `0 <= inputLength`.
         static int outputSize(my_DataStyle outputStyle,
                               my_DataStyle inputStyle,
                               int          inputLength);
-            // Return the buffer size (in bytes) required to store the result
-            // of converting input data of the specified 'inputLength' (in
-            // bytes), in the specified 'inputStyle', into the specified
-            // 'outputStyle'.  The behavior is undefined unless
-            // '0 <= inputLength'.
 
+        /// Load into the specified `output` buffer the result of converting
+        /// the specified `input` data, in the specified `inputStyle`, into
+        /// the specified `outputStyle`.  Return 0 on success, and a
+        /// non-zero value otherwise.  The behavior is undefined unless
+        /// `output` has sufficient capacity to hold the translated result.
+        /// Note that this method assumes that `input` originated from a
+        /// trusted source.
         static int translate(char         *output,
                              my_DataStyle  outputStyle,
                              const char   *input,
                              my_DataStyle  inputStyle);
-            // Load into the specified 'output' buffer the result of converting
-            // the specified 'input' data, in the specified 'inputStyle', into
-            // the specified 'outputStyle'.  Return 0 on success, and a
-            // non-zero value otherwise.  The behavior is undefined unless
-            // 'output' has sufficient capacity to hold the translated result.
-            // Note that this method assumes that 'input' originated from a
-            // trusted source.
     };
-//..
-// Next, we define 'my_DataHandler', a simple class that makes use of
-// 'my_DataTranslationUtil':
-//..
+// ```
+// Next, we define `my_DataHandler`, a simple class that makes use of
+// `my_DataTranslationUtil`:
+// ```
+
+    /// This `class` provides a basic data handler.
     class my_DataHandler {
-        // This 'class' provides a basic data handler.
 
         // DATA
-        my_DataStyle      d_inStyle;     // style of 'd_inBuffer' contents
+        my_DataStyle      d_inStyle;     // style of `d_inBuffer` contents
         char             *d_inBuffer;    // input supplied at construction
-        int               d_inCapacity;  // capacity (in bytes) of 'd_inBuffer'
+        int               d_inCapacity;  // capacity (in bytes) of `d_inBuffer`
         my_DataStyle      d_altStyle;    // alternative style (if requested)
         char             *d_altBuffer;   // buffer for alternative style
         bslma::Allocator *d_allocator_p; // memory allocator (held, not owned)
@@ -532,34 +535,36 @@ extern "C" void *threadFunction3(void *arg)
 
       public:
         // CREATORS
+
+        /// Create a data handler for the specified `input` data, in the
+        /// specified `inputStyle`, having the specified `inputLength` (in
+        /// bytes).  Optionally specify a `basicAllocator` used to supply
+        /// memory.  If `basicAllocator` is 0, the currently installed
+        /// default allocator is used.  The behavior is undefined unless
+        /// `0 <= inputLength`.
         my_DataHandler(const char       *input,
                        int               inputLength,
                        my_DataStyle      inputStyle,
                        bslma::Allocator *basicAllocator = 0);
-            // Create a data handler for the specified 'input' data, in the
-            // specified 'inputStyle', having the specified 'inputLength' (in
-            // bytes).  Optionally specify a 'basicAllocator' used to supply
-            // memory.  If 'basicAllocator' is 0, the currently installed
-            // default allocator is used.  The behavior is undefined unless
-            // '0 <= inputLength'.
 
+        /// Destroy this data handler.
         ~my_DataHandler();
-            // Destroy this data handler.
 
         // ...
 
         // MANIPULATORS
+
+        /// Generate data for this data handler in the specified
+        /// `alternateStyle`.  Return 0 on success, and a non-zero value
+        /// otherwise.  If `alternateStyle` is the same as the style of data
+        /// supplied at construction, this method returns 0 with no effect.
         int generateAlternate(my_DataStyle alternateStyle);
-            // Generate data for this data handler in the specified
-            // 'alternateStyle'.  Return 0 on success, and a non-zero value
-            // otherwise.  If 'alternateStyle' is the same as the style of data
-            // supplied at construction, this method returns 0 with no effect.
 
         // ...
     };
-//..
-// Next, we show the definition of the 'my_DataHandler' constructor:
-//..
+// ```
+// Next, we show the definition of the `my_DataHandler` constructor:
+// ```
     my_DataHandler::my_DataHandler(const char       *input,
                                    int               inputLength,
                                    my_DataStyle      inputStyle,
@@ -577,11 +582,11 @@ extern "C" void *threadFunction3(void *arg)
         bsl::memcpy(tmp, input, inputLength);
         d_inBuffer = static_cast<char *>(tmp);
     }
-//..
-// Next, we show the definition of the 'generateAlternate' manipulator.  Note
-// that we have deliberately introduced a bug in 'generateAlternate' to cause
+// ```
+// Next, we show the definition of the `generateAlternate` manipulator.  Note
+// that we have deliberately introduced a bug in `generateAlternate` to cause
 // buffer overrun:
-//..
+// ```
     int my_DataHandler::generateAlternate(my_DataStyle alternateStyle)
     {
         if (alternateStyle == d_inStyle) {
@@ -593,7 +598,7 @@ extern "C" void *threadFunction3(void *arg)
                                                            d_inCapacity);
         (void)altLength;
 
-        // Oops!  Should have used 'altLength'.
+        // Oops!  Should have used `altLength`.
         char *tmpAltBuffer = (char *)d_allocator_p->allocate(d_inCapacity);
         int rc = my_DataTranslationUtil::translate(tmpAltBuffer,
                                                    alternateStyle,
@@ -610,12 +615,12 @@ extern "C" void *threadFunction3(void *arg)
 
         return 0;
     }
-//..
+// ```
 
 namespace Example2 {
 
+/// Return the platform page size.
 int myGetPageSize()
-    // Return the platform page size.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     SYSTEM_INFO info;
@@ -627,27 +632,27 @@ int myGetPageSize()
     return pageSize;
 }
 
+/// Mock of function that would sort in place the values between the
+/// specified `begin` and `end` (exclusive) into ascending order.
 void myIntSort(int *begin, int *end)
-    // Mock of function that would sort in place the values between the
-    // specified 'begin' and 'end' (exclusive) into ascending order.
 {
     ASSERT(begin);
     ASSERT(end);
 }
 
+/// Mock of function that would return `true` if the values between the
+/// specified `begin` and `end` (exlusive) are sorted in ascending order, or
+/// `false` otherwise.
 bool myIsIntSorted(const int *begin, const int *end)
-    // Mock of function that would return 'true' if the values between the
-    // specified 'begin' and 'end' (exlusive) are sorted in ascending order, or
-    // 'false' otherwise.
 {
     ASSERT(begin);
     ASSERT(end);
     return true;
 }
 
+/// Return `true` if the specified `value` is an exact power of 2, or
+/// `false` otherwise,
 bool myIsPowerOfTwo(unsigned value)
-    // Return 'true' if the specified 'value' is an exact power of 2, or
-    // 'false' otherwise,
 {
     if (0 == value) {
         return false;                                                 // RETURN
@@ -665,56 +670,58 @@ bool myIsPowerOfTwo(unsigned value)
 ///Example 2: Allowing for Maximal Alignment
 ///- - - - - - - - - - - - - - - - - - - - -
 // The requirement that this allocator always return maximally aligned memory
-// can lead to situations when using 'e_AFTER_USER_BLOCK' where there is unused
+// can lead to situations when using `e_AFTER_USER_BLOCK` where there is unused
 // memory between the end of allocated memory and the first address of the
 // guard page.  If so, small memory overruns (e.g., a single byte) will not
 // land on the guard page and go undetected.  Fortunately, users can often
 // compensate for this behavior and position their data adjacent to the guard
 // page.
 //
-// Suppose one must test a function, 'myIntSort', having the signature and
+// Suppose one must test a function, `myIntSort`, having the signature and
 // contract:
-//..
+// ```
+
+    /// Efficiently sort in place the values in the specified range
+    /// `[start .. end - 1]` into ascending order.
     void myIntSort(int *begin, int *end);
-        // Efficiently sort in place the values in the specified range
-        // '[start .. end - 1]' into ascending order.
-//..
-// If the 'myIntSort' function uses some manner of partitioning algorithm the
+// ```
+// If the `myIntSort` function uses some manner of partitioning algorithm the
 // implementation will involve considerable pointer arithmetic, recursion,
 // etc., then a reasonable test concern would be:
-//..
+// ```
 //      // Concerns:
-//      //: 1 The implementation never modifies or even reads data outside of
-//      //:   the given input range.
-//      //:
-//      //: 2 Some other concern.
-//      //:
-//      //: 3 Yet another concern.
-//      //:
-//      //: 4 ...
-//..
+//      // 1. The implementation never modifies or even reads data outside of
+//      //    the given input range.
+//      //
+//      // 2. Some other concern.
+//      //
+//      // 3. Yet another concern.
+//      //
+//      // 4. ...
+// ```
 // Addressing that test concern is ordinarily challenging.  One approach is to
 // bracket the data for each test with data having a distinctive value (e.g.,
-// '0x0BADCAFE') and then check that the test does not corrupt that pattern
+// `0x0BADCAFE`) and then check that the test does not corrupt that pattern
 // (any overwrite being *very* unlikely to preserve the special value).  Tests
 // of reads past the given range are harder to prove.  One could argue that
 // incorporating that data into the sort would corrupt the result but one
 // cannot prove that it was never accessed.  Alternatively, using
-// 'bdlma::GuardingAllocator' provides a stronger proof from a simpler test
+// `bdlma::GuardingAllocator` provides a stronger proof from a simpler test
 // case.  Thus, our test plan would include:
-//..
+// ```
 //      // Plan:
-//      //: 1 Test for range overflow and underflow by positioning test data in
-//      //:   memory obtained from 'bdlma::GuardingAllocator' objects.  Each
-//      //:   test is run twice, once with the guard page below the test data,
-//      //;   and again with the guard page above the test data.
+//      // 1. Test for range overflow and underflow by positioning test data in
+//      //    memory obtained from `bdlma::GuardingAllocator` objects.  Each
+//      //    test is run twice, once with the guard page below the test data,
+//      //    and again with the guard page above the test data.
 //
 // First, create a set of test data for thoroughly testing all concerns of
-// 'myIntSort', and a framework for running through those tests:
-//..
+// `myIntSort`, and a framework for running through those tests:
+// ```
+
+    /// Thoroughly test the `myIntSort` function using a table-driven
+    /// framework.  Note that the testing concerns were listed above.
     void testMyIntSort()
-        // Thoroughly test the 'myIntSort' function using a table-driven
-        // framework.  Note that the testing concerns were listed above.
     {
         const bsl::size_t MAX_NUM_INPUTS = 5;
         struct {
@@ -741,12 +748,12 @@ bool myIsPowerOfTwo(unsigned value)
             const int         LINE       = DATA[ti].d_line;  (void) LINE;
             const bsl::size_t NUM_INPUTS = DATA[ti].d_numInputs;
             const int *const  INPUT      = DATA[ti].d_input;
-//..
+// ```
 // Then, create a 'bdlma::GuardingAllocator to that will be used to test for
 // under-runs of the given range and, for each data point, run the test on data
 // that will segfault if there is any reference to an address in the page below
-// 'begin', even by a single byte:
-//..
+// `begin`, even by a single byte:
+// ```
             bdlma::GuardingAllocator underRun(
                                 bdlma::GuardingAllocator::e_BEFORE_USER_BLOCK);
 
@@ -767,23 +774,23 @@ bool myIsPowerOfTwo(unsigned value)
             ASSERT(myIsIntSorted(begin, end));  // oracle
 
             underRun.deallocate(block);
-//..
-// Notice that, for expository purposes, we confirmed that the 'block' is page
+// ```
+// Notice that, for expository purposes, we confirmed that the `block` is page
 // aligned.
 //
 // Next, we will *rerun* the test using data positioned in memory to catch
 // over-runs of the input range.
-//..
+// ```
             bdlma::GuardingAllocator overRun(
                                  bdlma::GuardingAllocator::e_AFTER_USER_BLOCK);
-//..
+// ```
 // The step would be to allocate memory and initialize memory as we did
 // before.  The problem is that memory returned from the
-// 'bdlma::GuardingAllocator' may not abut the following guard page.
+// `bdlma::GuardingAllocator` may not abut the following guard page.
 //
 // Consider a platform where:
-//: o Maximal alignment is 8 bytes.
-//: o 'sizeof(int)' is 4 bytes.
+//  - Maximal alignment is 8 bytes.
+//  - `sizeof(int)` is 4 bytes.
 //
 // For the data point above consisting of 3 values, the required space is 12
 // bytes (3 * 4) but the maximally aligned address closest to the top of the
@@ -799,7 +806,7 @@ bool myIsPowerOfTwo(unsigned value)
 //
 // Now, we calculate the padded allocation size and allocate a block that abuts
 // the page boundary:
-//..
+// ```
             const bsl::size_t paddedSize =
                       bsls::AlignmentUtil::roundUpToMaximalAlignment(numBytes);
 
@@ -822,16 +829,16 @@ bool myIsPowerOfTwo(unsigned value)
             ASSERT(0 == bsls::AlignmentUtil::calculateAlignmentOffset(
                                                                     end,
                                                                     pageSize));
-//..
+// ```
 // Notice that again, for purposes of exposition, we have checked the returned
 // addresses and confirmed:
-//: o The returned address, 'block', is maximally aligned.
-//: o The calculated 'begin' is correctly aligned to hold the data value.
-//: o The upper end of the returned block, 'end', is page aligned.
+//  - The returned address, `block`, is maximally aligned.
+//  - The calculated `begin` is correctly aligned to hold the data value.
+//  - The upper end of the returned block, `end`, is page aligned.
 //
 // Finally, we load the test data into the carefully positioned memory and
 // rerun the test:
-//..
+// ```
             bsl::memcpy(begin, INPUT, numBytes);
 
             myIntSort(begin, end);                                      // TEST
@@ -840,7 +847,7 @@ bool myIsPowerOfTwo(unsigned value)
             overRun.deallocate(block);
         }
     }
-//..
+// ```
 
 }  // close namespace Example2
 
@@ -851,9 +858,9 @@ bool myIsPowerOfTwo(unsigned value)
 static JumpBuffer usageJumpBuffer;
 static bool       invokedUsageSignalHandlerFlag = false;
 
+/// Handle the specified `signal`.  Note that this signal handler is for use
+/// within the USAGE EXAMPLE only.
 extern "C" void usageSignalHandler(int /* signal */)
-    // Handle the specified 'signal'.  Note that this signal handler is for use
-    // within the USAGE EXAMPLE only.
 {
     invokedUsageSignalHandlerFlag = true;
 
@@ -886,7 +893,7 @@ int my_DataTranslationUtil::translate(char         *output,
     (void)outputStyle;
     (void)inputStyle;
 
-    // Write twice as much content to 'output' as is contained in 'input'.
+    // Write twice as much content to `output` as is contained in `input`.
 
     while (*input != '@') {
         *output++ = *input++;
@@ -938,12 +945,12 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -972,38 +979,38 @@ int main(int argc, char *argv[])
 #endif
 // End Usage example augmentation.
 
-// Next, we define some data (in 'e_STYLE_A'):
-//..
+// Next, we define some data (in `e_STYLE_A`):
+// ```
     const char *input = "AAAAAAAAAAAAAAA@";  // data always terminated with '@'
-//..
-// Then, we define a 'my_DataHandler' object, 'handler', to process that data:
-//..
+// ```
+// Then, we define a `my_DataHandler` object, `handler`, to process that data:
+// ```
 //  my_DataHandler handler(input, 16, e_STYLE_A);
-//..
-// Note that our 'handler' object uses the default allocator.
+// ```
+// Note that our `handler` object uses the default allocator.
 //
-// Next, we request that an alternate data style, 'e_STYLE_AA', be generated by
-// 'handler'.  Unfortunately, data in style 'e_STYLE_AA' is twice as large as
-// that in style 'e_STYLE_A' making it a virtual certainty that the program
+// Next, we request that an alternate data style, `e_STYLE_AA`, be generated by
+// `handler`.  Unfortunately, data in style `e_STYLE_AA` is twice as large as
+// that in style `e_STYLE_A` making it a virtual certainty that the program
 // will crash due to the insufficiently sized buffer that is allocated in the
-// 'generateAlternate' method to accommodate the 'e_STYLE_AA' data:
-//..
+// `generateAlternate` method to accommodate the `e_STYLE_AA` data:
+// ```
 //  int rc = handler.generateAlternate(e_STYLE_AA);
 //  if (!rc) {
 //      // use data in alternate style
 //  }
-//..
+// ```
 // Suppose that after performing a brief post-mortem on the resulting core
 // file, we strongly suspect that a buffer overrun is the root cause, but the
 // program crashed in a context far removed from that of the source of the
 // problem (which is often the case with buffer overrun issues).
 //
 // Consequently, we modify the code to supply a guarding allocator to the
-// 'handler' object, then rebuild and rerun the program.  We have configured
+// `handler` object, then rebuild and rerun the program.  We have configured
 // the guarding allocator (below) to place guard pages *after* user blocks.
-// Note that 'e_AFTER_USER_BLOCK' is the default, so it need not be specified
+// Note that `e_AFTER_USER_BLOCK` is the default, so it need not be specified
 // at construction as we have (pedantically) done here:
-//..
+// ```
     typedef bdlma::GuardingAllocator GA;
     GA guard(GA::e_AFTER_USER_BLOCK);
 
@@ -1033,7 +1040,7 @@ int main(int argc, char *argv[])
     }
 // End Usage example augmentation.
 
-//..
+// ```
 // With a guarding allocator now in place, a memory fault is triggered when a
 // guard page is overwritten as a result of the buffer overrun bug.  Hence, the
 // program will dump core in a context that is more proximate to the buggy
@@ -1048,23 +1055,23 @@ int main(int argc, char *argv[])
       case 4: {
         // --------------------------------------------------------------------
         // CONCURRENCY
-        //   Ensure that 'allocate' and 'deallocate' are thread-safe.
+        //   Ensure that `allocate` and `deallocate` are thread-safe.
         //
         // Concerns:
-        //: 1 That 'allocate' and 'deallocate' are thread-safe.
+        // 1. That `allocate` and `deallocate` are thread-safe.
         //
         // Plan:
-        //: 1 Create two 'bdlma::GuardingAllocator' objects, 'mX' and 'mY',
-        //:   configured using 'e_AFTER_USER_BLOCK' and 'e_BEFORE_USER_BLOCK',
-        //:   respectively.
-        //:
-        //: 2 Within a loop, create three threads that iterate a specified
-        //:   number of times and that perform a different sequence of
-        //:   allocation and deallocation operations on the two allocators from
-        //:   P-1.  (C-1)
+        // 1. Create two `bdlma::GuardingAllocator` objects, `mX` and `mY`,
+        //    configured using `e_AFTER_USER_BLOCK` and `e_BEFORE_USER_BLOCK`,
+        //    respectively.
+        //
+        // 2. Within a loop, create three threads that iterate a specified
+        //    number of times and that perform a different sequence of
+        //    allocation and deallocation operations on the two allocators from
+        //    P-1.  (C-1)
         //
         // Testing:
-        //   CONCERN: The 'allocate' and 'deallocate' methods are thread-safe.
+        //   CONCERN: The `allocate` and `deallocate` methods are thread-safe.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1095,80 +1102,80 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // ALLOCATE AND DEALLOCATE
-        //   Ensure that 'allocate' and 'deallocate' work as expected,
+        //   Ensure that `allocate` and `deallocate` work as expected,
         //   especially with respect to proper management of guard pages.
         //
         // Concerns:
-        //: 1 Memory blocks returned by 'allocate' are obtained from a system
-        //:   facility that allocates blocks of memory in multiples of the
-        //:   system page size.
-        //:
-        //: 2 Memory blocks returned by 'allocate' are of at least the
-        //:   requested size (in bytes).
-        //:
-        //: 3 Memory blocks returned by 'allocate' are maximally aligned.
-        //:
-        //: 4 Memory blocks returned by 'allocate' have an associated guard
-        //:   page that is write-protected and properly oriented with respect
-        //:   to the user block.
-        //:
-        //: 5 Calling 'allocate' with 0 returns 0 and has no effect.
-        //:
-        //: 6 'deallocate' returns memory back to the system facility.
-        //:
-        //: 7 'deallocate' un-protects the guard page associated with the
-        //:   memory block.
-        //:
-        //: 8 Calling 'deallocate' with 0 has no effect.
-        //:
-        //: 9 There is no allocation from either the default or global
-        //:   allocators.
+        // 1. Memory blocks returned by `allocate` are obtained from a system
+        //    facility that allocates blocks of memory in multiples of the
+        //    system page size.
+        //
+        // 2. Memory blocks returned by `allocate` are of at least the
+        //    requested size (in bytes).
+        //
+        // 3. Memory blocks returned by `allocate` are maximally aligned.
+        //
+        // 4. Memory blocks returned by `allocate` have an associated guard
+        //    page that is write-protected and properly oriented with respect
+        //    to the user block.
+        //
+        // 5. Calling `allocate` with 0 returns 0 and has no effect.
+        //
+        // 6. `deallocate` returns memory back to the system facility.
+        //
+        // 7. `deallocate` un-protects the guard page associated with the
+        //    memory block.
+        //
+        // 8. Calling `deallocate` with 0 has no effect.
+        //
+        // 9. There is no allocation from either the default or global
+        //    allocators.
         //
         // Plan:
-        //: 1 Create a 'bslma::TestAllocator' object and install it as the
-        //:   current default allocator.
-        //:
-        //: 2 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of allocation request sizes.
-        //:
-        //: 3 For each value, 'LOC', in the 'GuardPageLocation' enumeration:
-        //:   (C-1..4, 6..7, 9)
-        //:
-        //:   1 For each row 'R' (representing an allocation request size)
-        //:     in the table described in P-2:
-        //:
-        //:     1 Use the default constructor and 'LOC' to create a modifiable
-        //:       'Obj' 'mX'.
-        //:
-        //:     2 Perform an allocation request of the size specified by 'R'
-        //:       (from P-3.1).
-        //:
-        //:     3 Verify that the returned memory address is non-null and
-        //:       maximally aligned, and that the entire extent of the user
-        //:       block can be overwritten.  (C-2..3)
-        //:
-        //:     4 Verify that a write-protected guard page is positioned
-        //:       appropriately with respect to the user block.  (C-4)
-        //:
-        //:     5 As a white-box test, verify that the unused (unprotected)
-        //:       padding can be overwritten.  (C-1)
-        //:
-        //:     6 Verify that no temporary memory is allocated from any
-        //:       allocator.  (C-9)
-        //:
-        //:     7 Delallocate the memory block from P-3.  (C-6..7)
-        //:
-        //: 4 Repeat P-3, except this time make all of the allocation requests
-        //:   from P-2 without any intervening deallocations; verify that the
-        //:   guard pages of earlier allocations are not affected.
-        //:
-        //: 5 Perform a separate brute-force test to verify that an allocation
-        //:   request for 0 bytes returns 0 and has no effect on any allocator.
-        //:   (C-5)
-        //:
-        //: 6 Perform a separate brute-force test to verify that deallocation
-        //:   of 0 has no effect.  (C-8)
+        // 1. Create a `bslma::TestAllocator` object and install it as the
+        //    current default allocator.
+        //
+        // 2. Using the table-driven technique:
+        //
+        //   1. Specify a set of allocation request sizes.
+        //
+        // 3. For each value, `LOC`, in the `GuardPageLocation` enumeration:
+        //    (C-1..4, 6..7, 9)
+        //
+        //   1. For each row `R` (representing an allocation request size)
+        //      in the table described in P-2:
+        //
+        //     1. Use the default constructor and `LOC` to create a modifiable
+        //        `Obj` `mX`.
+        //
+        //     2. Perform an allocation request of the size specified by `R`
+        //        (from P-3.1).
+        //
+        //     3. Verify that the returned memory address is non-null and
+        //        maximally aligned, and that the entire extent of the user
+        //        block can be overwritten.  (C-2..3)
+        //
+        //     4. Verify that a write-protected guard page is positioned
+        //        appropriately with respect to the user block.  (C-4)
+        //
+        //     5. As a white-box test, verify that the unused (unprotected)
+        //        padding can be overwritten.  (C-1)
+        //
+        //     6. Verify that no temporary memory is allocated from any
+        //        allocator.  (C-9)
+        //
+        //     7. Delallocate the memory block from P-3.  (C-6..7)
+        //
+        // 4. Repeat P-3, except this time make all of the allocation requests
+        //    from P-2 without any intervening deallocations; verify that the
+        //    guard pages of earlier allocations are not affected.
+        //
+        // 5. Perform a separate brute-force test to verify that an allocation
+        //    request for 0 bytes returns 0 and has no effect on any allocator.
+        //    (C-5)
+        //
+        // 6. Perform a separate brute-force test to verify that deallocation
+        //    of 0 has no effect.  (C-8)
         //
         // Testing:
         //   void *allocate(bsls::Types::size_type size);
@@ -1292,7 +1299,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'allocate(0)'." << endl;
+        if (verbose) cout << "\nTesting `allocate(0)`." << endl;
         {
             bslma::TestAllocator da("default", veryVeryVeryVerbose);
 
@@ -1315,7 +1322,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == da.numBlocksTotal());
         }
 
-        if (verbose) cout << "\nTesting 'deallocate(0)'." << endl;
+        if (verbose) cout << "\nTesting `deallocate(0)`." << endl;
         {
             bslma::TestAllocator da("default", veryVeryVeryVerbose);
 
@@ -1353,48 +1360,48 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // CTOR & DTOR
         //   Ensure that we can use the constructor to create an object, that
-        //   we can 'allocate' a memory block from the object having a guard
+        //   we can `allocate` a memory block from the object having a guard
         //   page at the expected position with respect to the block, and that
         //   we can safely destroy the object.
         //
         // Concerns:
-        //: 1 Objects created using the constructor are correctly configured
-        //:   according to the argument (optionally) supplied at construction.
-        //:
-        //: 2 The default constructor allocates no memory.
-        //:
-        //: 3 There is no allocation from either the default or global
-        //:   allocators.
-        //:
-        //: 4 The destructor has no effect on any outstanding allocated memory.
+        // 1. Objects created using the constructor are correctly configured
+        //    according to the argument (optionally) supplied at construction.
+        //
+        // 2. The default constructor allocates no memory.
+        //
+        // 3. There is no allocation from either the default or global
+        //    allocators.
+        //
+        // 4. The destructor has no effect on any outstanding allocated memory.
         //
         // Plan:
-        //: 1 Using a loop-based approach, default-construct three distinct
-        //:   objects, in turn, but configured differently: (a) without passing
-        //:   a 'GuardPageLocation' value, (b) passing 'e_AFTER_USER_BLOCK'
-        //:   explicitly, and (c) passing 'e_BEFORE_USER_BLOCK' explicitly.
-        //:   For each of these three iterations:  (C-1..3)
-        //:
-        //:   1 Create two 'bslma::TestAllocator' objects and install one as
-        //:     the current default allocator (note that a ubiquitous test
-        //:     allocator is already installed as the global allocator).
-        //:
-        //:   2 Use the default constructor to dynamically create an object
-        //:     'mX', with its guard page location configured appropriately
-        //:     (see P-1); use a distinct test allocator for the object's
-        //:     footprint.
-        //:
-        //:   3 Use the appropriate test allocators to verify that no memory
-        //:     is allocated by the default constructor.  (C-2)
-        //:
-        //:   4 Allocate a block from 'mX' and verify that the guard page is
-        //:     correctly positioned with respect to the user block.  (C-1)
-        //:
-        //:   5 Verify that no temporary memory is allocated from any
-        //:     allocator.  (C-3)
-        //:
-        //: 2 Perform a separate test to verify that the destructor has no
-        //:   effect on any outstanding allocated memory.  (C-4)
+        // 1. Using a loop-based approach, default-construct three distinct
+        //    objects, in turn, but configured differently: (a) without passing
+        //    a `GuardPageLocation` value, (b) passing `e_AFTER_USER_BLOCK`
+        //    explicitly, and (c) passing `e_BEFORE_USER_BLOCK` explicitly.
+        //    For each of these three iterations:  (C-1..3)
+        //
+        //   1. Create two `bslma::TestAllocator` objects and install one as
+        //      the current default allocator (note that a ubiquitous test
+        //      allocator is already installed as the global allocator).
+        //
+        //   2. Use the default constructor to dynamically create an object
+        //      `mX`, with its guard page location configured appropriately
+        //      (see P-1); use a distinct test allocator for the object's
+        //      footprint.
+        //
+        //   3. Use the appropriate test allocators to verify that no memory
+        //      is allocated by the default constructor.  (C-2)
+        //
+        //   4. Allocate a block from `mX` and verify that the guard page is
+        //      correctly positioned with respect to the user block.  (C-1)
+        //
+        //   5. Verify that no temporary memory is allocated from any
+        //      allocator.  (C-3)
+        //
+        // 2. Perform a separate test to verify that the destructor has no
+        //    effect on any outstanding allocated memory.  (C-4)
         //
         // Testing:
         //   GuardingAllocator(GuardPageLocation l = e_AFTER_USER_BLOCK);
@@ -1551,20 +1558,20 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:    testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //     testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an object 'mX' using 'e_AFTER_USER_BLOCK'.
-        //: 2 Allocate a block 'bx' from 'mX' and overwrite the block.
-        //: 3 Write to the guard page following 'bx'.
-        //: 4 Deallocate block 'bx'.
-        //: 5 Allow 'mX' to go out of scope.
-        //: 6 Create an object 'mY' using 'e_BEFORE_USER_BLOCK'.
-        //: 7 Allocate a block 'by' from 'mY' and overwrite the block.
-        //: 8 Write to the guard page preceding 'by'.
-        //: 9 Deallocate block 'by'.
-        //:10 Allow 'mY' to go out of scope.
+        // 1. Create an object `mX` using `e_AFTER_USER_BLOCK`.
+        // 2. Allocate a block `bx` from `mX` and overwrite the block.
+        // 3. Write to the guard page following `bx`.
+        // 4. Deallocate block `bx`.
+        // 5. Allow `mX` to go out of scope.
+        // 6. Create an object `mY` using `e_BEFORE_USER_BLOCK`.
+        // 7. Allocate a block `by` from `mY` and overwrite the block.
+        // 8. Write to the guard page preceding `by`.
+        // 9. Deallocate block `by`.
+        // 10. Allow `mY` to go out of scope.
         //
         // Testing:
         //   BREATHING TEST
@@ -1576,59 +1583,59 @@ int main(int argc, char *argv[])
 
         const int SIZE = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
-        if (verbose) cout << "\nTesting 'e_AFTER_USER_BLOCK'." << endl;
+        if (verbose) cout << "\nTesting `e_AFTER_USER_BLOCK`." << endl;
         {
             if (veryVerbose) cout <<
-                "\tP-1: Create an object 'mX' using 'e_AFTER_USER_BLOCK'."
+                "\tP-1: Create an object `mX` using `e_AFTER_USER_BLOCK`."
                 << endl;
 
             Obj mX(Obj::e_AFTER_USER_BLOCK);
 
             if (veryVerbose) cout <<
-              "\tP-2: Allocate a block 'bx' from 'mX' and overwrite the block."
+              "\tP-2: Allocate a block `bx` from `mX` and overwrite the block."
                  << endl;
 
             void *p = mX.allocate(SIZE);  ASSERT(p);
             bsl::memset(p, 0xff, SIZE);
 
             if (veryVerbose) cout <<
-                "\tP-3: Write to the guard page following 'bx'." << endl;
+                "\tP-3: Write to the guard page following `bx`." << endl;
 
             ASSERT(causesMemoryFault(p, pageSize / 2, 'x'));
 
-            if (veryVerbose) cout << "\tP-4: Deallocate block 'bx'." << endl;
+            if (veryVerbose) cout << "\tP-4: Deallocate block `bx`." << endl;
 
             mX.deallocate(p);
 
-            if (veryVerbose) cout << "\tP-5: Allow 'mX' to go out of scope."
+            if (veryVerbose) cout << "\tP-5: Allow `mX` to go out of scope."
                                   << endl;
         }
 
-        if (verbose) cout << "\nTesting 'e_BEFORE_USER_BLOCK'." << endl;
+        if (verbose) cout << "\nTesting `e_BEFORE_USER_BLOCK`." << endl;
         {
             if (veryVerbose) cout <<
-                "\tP-6: Create an object 'mY' using 'e_BEFORE_USER_BLOCK'."
+                "\tP-6: Create an object `mY` using `e_BEFORE_USER_BLOCK`."
                 << endl;
 
             Obj mY(Obj::e_BEFORE_USER_BLOCK);
 
             if (veryVerbose) cout <<
-              "\tP-7: Allocate a block 'by' from 'mY' and overwrite the block."
+              "\tP-7: Allocate a block `by` from `mY` and overwrite the block."
                 << endl;
 
             void *p = mY.allocate(SIZE);  ASSERT(p);
             bsl::memset(p, 0xff, SIZE);
 
             if (veryVerbose) cout <<
-                "\tP-8: Write to the guard page preceding 'by'." << endl;
+                "\tP-8: Write to the guard page preceding `by`." << endl;
 
             ASSERT(causesMemoryFault(p, -(pageSize / 2), 'x'));
 
-            if (veryVerbose) cout << "\tP-9: Deallocate block 'by'." << endl;
+            if (veryVerbose) cout << "\tP-9: Deallocate block `by`." << endl;
 
             mY.deallocate(p);
 
-            if (veryVerbose) cout << "\tP-10: Allow 'mY' to go out of scope."
+            if (veryVerbose) cout << "\tP-10: Allow `mY` to go out of scope."
                                   << endl;
         }
 

@@ -15,12 +15,12 @@ using namespace bsl;
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
 //                              OVERVIEW
-// The component under test provides a utility for using 'bsl::chrono' clocks
-// to specify timeouts for calls to 'timedWait' on synchronization primitives.
+// The component under test provides a utility for using `bsl::chrono` clocks
+// to specify timeouts for calls to `timedWait` on synchronization primitives.
 // We will test this call with several different dummy synchronization
-// primitives: one that always succeeds ('TimedWaitSuccess'), one that always
-// fails ('TimedWaitFailure'), and one that always times out
-// ('TimedWaitTimeout').
+// primitives: one that always succeeds (`TimedWaitSuccess`), one that always
+// fails (`TimedWaitFailure`), and one that always times out
+// (`TimedWaitTimeout`).
 //
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -86,11 +86,11 @@ void aSsErT(bool condition, const char *message, int line)
             // class AnotherClock
             // ==================
 
+/// `AnotherClock` is a C++11-compatible clock that is very similar to
+/// `bsl::chrono::steady_clock`.  The only difference is that it uses a
+/// different epoch; it begins 10000 "ticks" after the beginning of
+/// `steady_clock`s epoch.
 class AnotherClock {
-    // 'AnotherClock' is a C++11-compatible clock that is very similar to
-    // 'bsl::chrono::steady_clock'.  The only difference is that it uses a
-    // different epoch; it begins 10000 "ticks" after the beginning of
-    // 'steady_clock's epoch.
 
   private:
     typedef bsl::chrono::steady_clock base_clock;
@@ -104,9 +104,10 @@ class AnotherClock {
     static const bool is_steady = base_clock::is_steady;
 
     // CLASS METHODS
+
+    /// Return a time point representing the time since the beginning of the
+    /// epoch.
     static time_point now();
-        // Return a time point representing the time since the beginning of the
-        // epoch.
 };
 
 // CLASS METHODS
@@ -120,10 +121,10 @@ AnotherClock::time_point AnotherClock::now()
             // class HalfClock
             // ===============
 
+/// `HalfClock` is a C++11-compatible clock that is very similar to
+/// `bsl::chrono::steady_clock`.  The difference is that it runs "half as
+/// fast" as `steady_clock`.
 class HalfClock {
-    // 'HalfClock' is a C++11-compatible clock that is very similar to
-    // 'bsl::chrono::steady_clock'.  The difference is that it runs "half as
-    // fast" as 'steady_clock'.
 
   private:
     typedef bsl::chrono::steady_clock base_clock;
@@ -137,9 +138,10 @@ class HalfClock {
     static const bool is_steady = base_clock::is_steady;
 
     // CLASS METHODS
+
+    /// Return a time point representing the time since the beginning of the
+    /// epoch.
     static time_point now();
-        // Return a time point representing the time since the beginning of the
-        // epoch.
 };
 
 // CLASS METHODS
@@ -156,10 +158,11 @@ HalfClock::time_point HalfClock::now()
 
 ///Prologue: Create a Synchronization Primitive
 /// - - - - - - - - - - - - - - - - - - - - - -
-// First, we define the interface of 'TimedWaitSuccess':
-//..
+// First, we define the interface of `TimedWaitSuccess`:
+// ```
+
+/// `TimedWaitSuccess` is a synchronization primitive that always succeeds.
 class TimedWaitSuccess {
-    // 'TimedWaitSuccess' is a synchronization primitive that always succeeds.
 
   private:
     // DATA
@@ -170,38 +173,41 @@ class TimedWaitSuccess {
     enum { e_TIMED_OUT = 1 };
 
     // CREATORS
+
+    /// Create a `TimedWaitSuccess` object.  Optionally specify a
+    /// `clockType` indicating the type of the system clock against which
+    /// the `bsls::TimeInterval` `absTime` timeouts passed to the
+    /// `timedWait` method are to be interpreted.  If `clockType` is not
+    /// specified then the realtime system clock is used.
     explicit
     TimedWaitSuccess(bsls::SystemClockType::Enum clockType
                                       = bsls::SystemClockType::e_REALTIME);
-        // Create a 'TimedWaitSuccess' object.  Optionally specify a
-        // 'clockType' indicating the type of the system clock against which
-        // the 'bsls::TimeInterval' 'absTime' timeouts passed to the
-        // 'timedWait' method are to be interpreted.  If 'clockType' is not
-        // specified then the realtime system clock is used.
 
     // MANIPULATORS
+
+    /// Return 0 immediately.  Note that this is for demonstration and
+    /// testing purposes only.
     int timedWait(const bsls::TimeInterval&);
-        // Return 0 immediately.  Note that this is for demonstration and
-        // testing purposes only.
 
     // ACCESSORS
+
+    /// Return the clock type used for timeouts.
     bsls::SystemClockType::Enum clockType() const;
-        // Return the clock type used for timeouts.
 };
-//..
+// ```
 // Then, we implement the creator.  All it has to do is remember the
-// 'clockType' that was passed to it:
-//..
+// `clockType` that was passed to it:
+// ```
 inline
 TimedWaitSuccess::TimedWaitSuccess(bsls::SystemClockType::Enum clockType)
 : d_clockType(clockType)
 {
 }
 
-//..
-// Next, we implement the 'timedWait' function.  In this simplistic primitive,
+// ```
+// Next, we implement the `timedWait` function.  In this simplistic primitive,
 // this function always succeeds:
-//..
+// ```
 // MANIPULATORS
 inline
 int TimedWaitSuccess::timedWait(const bsls::TimeInterval&)
@@ -209,27 +215,27 @@ int TimedWaitSuccess::timedWait(const bsls::TimeInterval&)
     return 0;
 }
 
-//..
-// Next, we implement the 'clockType' function, which returns the underlying
-// 'bsls::SystemClockType::Enum' that this primitive uses:
-//..
+// ```
+// Next, we implement the `clockType` function, which returns the underlying
+// `bsls::SystemClockType::Enum` that this primitive uses:
+// ```
 // ACCESSORS
 inline
 bsls::SystemClockType::Enum TimedWaitSuccess::clockType() const
 {
     return d_clockType;
 }
-//..
+// ```
 
 
             // ==============================
             // class TimedWaitSuccessExtraArg
             // ==============================
 
+/// `TimedWaitSuccessExtraArg` is a synchronization primitive that always
+/// succeeds.  It differs from `TimedWaitSuccessExtraArg` in that the
+/// `timedWait` method takes an extra pointer argument.
 class TimedWaitSuccessExtraArg {
-    // 'TimedWaitSuccessExtraArg' is a synchronization primitive that always
-    // succeeds.  It differs from 'TimedWaitSuccessExtraArg' in that the
-    // 'timedWait' method takes an extra pointer argument.
 
   private:
     // DATA
@@ -240,22 +246,25 @@ class TimedWaitSuccessExtraArg {
     enum { e_TIMED_OUT = 1 };
 
     // CREATORS
+
+    /// Create a `TimedWaitSuccessExtraArg` object.  Optionally specify a
+    /// `clockType` indicating the type of the system clock against which
+    /// the `bsls::TimeInterval` `absTime` timeouts passed to the
+    /// `timedWait` method are to be interpreted.  If `clockType` is not
+    /// specified then the realtime system clock is used.
     explicit
     TimedWaitSuccessExtraArg(bsls::SystemClockType::Enum clockType
                                           = bsls::SystemClockType::e_REALTIME);
-        // Create a 'TimedWaitSuccessExtraArg' object.  Optionally specify a
-        // 'clockType' indicating the type of the system clock against which
-        // the 'bsls::TimeInterval' 'absTime' timeouts passed to the
-        // 'timedWait' method are to be interpreted.  If 'clockType' is not
-        // specified then the realtime system clock is used.
 
     // MANIPULATORS
+
+    /// Return 0 immediately.
     int timedWait(void *, const bsls::TimeInterval&);
-        // Return 0 immediately.
 
     // ACCESSORS
+
+    /// Return the clock type used for timeouts.
     bsls::SystemClockType::Enum clockType() const;
-        // Return the clock type used for timeouts.
 };
 
 // CREATORS
@@ -281,8 +290,8 @@ bsls::SystemClockType::Enum TimedWaitSuccessExtraArg::clockType() const
             // class TimedWaitFailure
             // ======================
 
+/// `TimedWaitFailure` is synchronization primitive that always fails.
 class TimedWaitFailure {
-    // 'TimedWaitFailure' is synchronization primitive that always fails.
 
   private:
     bsls::SystemClockType::Enum d_clockType;
@@ -290,25 +299,27 @@ class TimedWaitFailure {
   public:
     enum { e_TIMED_OUT = 1 };
 
+    /// Create a `TimedWaitFailure` object.  Optionally specify a
+    /// `clockType` indicating the type of the system clock against which
+    /// the `bsls::TimeInterval` `absTime` timeouts passed to the
+    /// `timedWait` method are to be interpreted.  If `clockType` is not
+    /// specified then the realtime system clock is used.
     explicit
     TimedWaitFailure(bsls::SystemClockType::Enum clockType
                                           = bsls::SystemClockType::e_REALTIME);
-        // Create a 'TimedWaitFailure' object.  Optionally specify a
-        // 'clockType' indicating the type of the system clock against which
-        // the 'bsls::TimeInterval' 'absTime' timeouts passed to the
-        // 'timedWait' method are to be interpreted.  If 'clockType' is not
-        // specified then the realtime system clock is used.
 
     // MANIPULATORS
-    int timedWait(const bsls::TimeInterval&);
-        // Return -1 immediately.
 
+    /// Return -1 immediately.
+    int timedWait(const bsls::TimeInterval&);
+
+    /// Return -2 immediately.
     int timedWait(void *, const bsls::TimeInterval&);
-        // Return -2 immediately.
 
     // ACCESSORS
+
+    /// Return the clock type used for timeouts.
     bsls::SystemClockType::Enum clockType() const;
-        // Return the clock type used for timeouts.
 };
 
 TimedWaitFailure::TimedWaitFailure(bsls::SystemClockType::Enum clockType)
@@ -337,11 +348,11 @@ bsls::SystemClockType::Enum TimedWaitFailure::clockType() const
             // class TimedWaitTimeout
             // ======================
 
+/// `TimedWaitTimeout` is synchronization primitive that always times out.
+/// Calls to `timedWait` always sleep for 250ms and then return
+/// `e_TIMED_OUT`. It also has an accessor `numCalls` which records how many
+/// times `timedWait` has been called on this object.
 class TimedWaitTimeout {
-    // 'TimedWaitTimeout' is synchronization primitive that always times out.
-    // Calls to 'timedWait' always sleep for 250ms and then return
-    // 'e_TIMED_OUT'. It also has an accessor 'numCalls' which records how many
-    // times 'timedWait' has been called on this object.
 
   private:
     bsls::SystemClockType::Enum d_clockType;
@@ -350,28 +361,30 @@ class TimedWaitTimeout {
   public:
     enum { e_TIMED_OUT = 1 };
 
+    /// Create a `TimedWaitTimeout` object.  Optionally specify a
+    /// `clockType` indicating the type of the system clock against which
+    /// the `bsls::TimeInterval` `absTime` timeouts passed to the
+    /// `timedWait` method are to be interpreted.  If `clockType` is not
+    /// specified then the realtime system clock is used.
     explicit
     TimedWaitTimeout(bsls::SystemClockType::Enum clockType
                                           = bsls::SystemClockType::e_REALTIME);
-        // Create a 'TimedWaitTimeout' object.  Optionally specify a
-        // 'clockType' indicating the type of the system clock against which
-        // the 'bsls::TimeInterval' 'absTime' timeouts passed to the
-        // 'timedWait' method are to be interpreted.  If 'clockType' is not
-        // specified then the realtime system clock is used.
 
     // MANIPULATORS
-    int timedWait(const bsls::TimeInterval&);
-        // Return 'e_TIMED_OUT' after 1/4 second.
 
+    /// Return `e_TIMED_OUT` after 1/4 second.
+    int timedWait(const bsls::TimeInterval&);
+
+    /// Return `e_TIMED_OUT` after 1/4 second.
     int timedWait(void *, const bsls::TimeInterval&);
-        // Return 'e_TIMED_OUT' after 1/4 second.
 
     // ACCESSORS
-    bsls::SystemClockType::Enum clockType() const;
-        // Return the clock type used for timeouts.
 
+    /// Return the clock type used for timeouts.
+    bsls::SystemClockType::Enum clockType() const;
+
+    /// Return the number of times that `timedWait` has been called.
     int numCalls() const;
-        // Return the number of times that 'timedWait' has been called.
 };
 
 TimedWaitTimeout::TimedWaitTimeout(bsls::SystemClockType::Enum clockType)
@@ -426,13 +439,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -443,35 +456,35 @@ int main(int argc, char *argv[])
                           << "=============" << endl;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-// This example demonstrates use of 'bslmt::ChronoUtil::timedWait' to block on
+// This example demonstrates use of `bslmt::ChronoUtil::timedWait` to block on
 // a synchronization primitive until either a condition is satisfied or a
-// specified amount of time has elapsed.  We use a 'bsl::chrono::time_point' to
+// specified amount of time has elapsed.  We use a `bsl::chrono::time_point` to
 // specify the amount of time to wait.  To do this, we call
-// 'bslmt::ChronoUtil::timedWait', passing in the timeout as an *absolute* time
-// point.  In this example, we're using 'TimedWaitSuccess' as the
+// `bslmt::ChronoUtil::timedWait`, passing in the timeout as an *absolute* time
+// point.  In this example, we're using `TimedWaitSuccess` as the
 // synchronization primitive, and specifying the timeout using
-// 'bsl::chrono::steady_clock'.
+// `bsl::chrono::steady_clock`.
 //
-// First, we construct the 'TimedWaitSuccess' primitive; by default it uses the
-// 'bsls' realtime system clock to measure time:
-//..
+// First, we construct the `TimedWaitSuccess` primitive; by default it uses the
+// `bsls` realtime system clock to measure time:
+// ```
         TimedWaitSuccess aPrimitive;
-//..
-// Then, we call 'bslmt::ChronoUtil::timedWait' to block on 'aPrimitive', while
+// ```
+// Then, we call `bslmt::ChronoUtil::timedWait` to block on `aPrimitive`, while
 // passing a timeout of "10 seconds from now", measured on the
-// 'bsl::chrono::steady_clock':
-//..
+// `bsl::chrono::steady_clock`:
+// ```
         int rc = bslmt::ChronoUtil::timedWait(
                  &aPrimitive,
                  bsl::chrono::steady_clock::now() + bsl::chrono::seconds(10));
-//..
-// When this call returns, one of three things will be true: (a) 'rc == 0',
+// ```
+// When this call returns, one of three things will be true: (a) `rc == 0`,
 // which means that the call succeeded before the timeout expired, (b)
-// 'rc == TimedWaitSuccess::e_TIMED_OUT', which means that the call did not
+// `rc == TimedWaitSuccess::e_TIMED_OUT`, which means that the call did not
 // succeed before the timeout expired, or (c) rc equals some other value, which
 // means that an error occurred.
 //
-// If the call to 'bslmt::ChronoUtil::timedWait' returned 'e_TIMED_OUT' then we
+// If the call to `bslmt::ChronoUtil::timedWait` returned `e_TIMED_OUT` then we
 // are guaranteed that the current time *on the clock that the time point was
 // defined on* is greater than the timeout value that was passed in.
 
@@ -481,16 +494,16 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'durationToTimeInterval'
+        // TESTING `durationToTimeInterval`
         //   Ensure the function converts values correctly.
         //
         // Concerns:
-        //: 1 The template converts both integral-based and floating-point
-        //:   based durations correctly.
+        // 1. The template converts both integral-based and floating-point
+        //    based durations correctly.
         //
         // Plan:
-        //: 1 Convert both integral and floating-point-based durations, and
-        //:   check the results.  (C-1)
+        // 1. Convert both integral and floating-point-based durations, and
+        //    check the results.  (C-1)
         //
         // Testing:
         //   bsls::TimeInterval ChronoUtil::durationToTimeInterval(duration);
@@ -498,7 +511,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'durationToTimeInterval'" << endl
+                 << "TESTING `durationToTimeInterval`" << endl
                  << "================================" << endl;
         }
 
@@ -541,15 +554,15 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'timedWait'
+        // TESTING `timedWait`
         //   Ensure the function calls the primitive as expected.
         //
         // Concerns:
-        //: 1 The template forwards to the synchronization primitive correctly.
+        // 1. The template forwards to the synchronization primitive correctly.
         //
         // Plan:
-        //: 1 Directly verify the result of 'timedWait' throughout a sequence
-        //:   of operations on the synchronization primitive.  (C-1)
+        // 1. Directly verify the result of `timedWait` throughout a sequence
+        //    of operations on the synchronization primitive.  (C-1)
         //
         // Testing:
         //   int timedWait(PRIMITIVE *, const time_point&);
@@ -558,7 +571,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'timedWait'" << endl
+                 << "TESTING `timedWait`" << endl
                  << "===================" << endl;
         }
 
@@ -608,18 +621,18 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'isMatchingClockType'
+        // TESTING `isMatchingClockType`
         //   Ensure the accessor forwards as expected.
         //
         // Concerns:
-        //: 1 The method correctly matches the (template parameter) 'CLOCK' to
-        //:   the specified 'bsls::SystemClockType::Enum' value, for standard
-        //:   and user-provided clocks.
+        // 1. The method correctly matches the (template parameter) `CLOCK` to
+        //    the specified `bsls::SystemClockType::Enum` value, for standard
+        //    and user-provided clocks.
         //
         // Plan:
-        //: 1 Directly verify the result of 'isMatchingClock' with all standard
-        //:   clocks and 'bsls::SystemClockType::Enum' values, and the test
-        //:   clocks 'HalfClock' and 'AnotherClock'.  (C-1)
+        // 1. Directly verify the result of `isMatchingClock` with all standard
+        //    clocks and `bsls::SystemClockType::Enum` values, and the test
+        //    clocks `HalfClock` and `AnotherClock`.  (C-1)
         //
         // Testing:
         //   bool isMatchingClock<CLOCK>(bsls::SystemClockType::Enum cT);
@@ -627,7 +640,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'isMatchingClockType'" << endl
+                 << "TESTING `isMatchingClockType`" << endl
                  << "=============================" << endl;
         }
 

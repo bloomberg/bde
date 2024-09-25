@@ -124,8 +124,8 @@ static bool veryVeryVeryVerbose;
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 struct IsOdd {
-    // A standard compliant C++03 unary predicate functor that returns 'true'
-    // if an 'int' value is odd.
+    // A standard compliant C++03 unary predicate functor that returns `true`
+    // if an `int` value is odd.
 
     // PUBLIC TYPES
     typedef char argument_type;
@@ -133,7 +133,7 @@ struct IsOdd {
 
     // ACCESSORS
     result_type operator()(argument_type value) const
-        // Return 'true' if the specified 'value' is odd, and 'false'
+        // Return `true` if the specified `value` is odd, and `false`
         // otherwise.
     {
         return (value % 2) != 0;
@@ -142,14 +142,14 @@ struct IsOdd {
 
 // A function (as opposed to a functor)
 bool isEven(char value)
-    // Return 'true' if the specified 'value' is even, and 'false' otherwise.
+    // Return `true` if the specified `value` is even, and `false` otherwise.
 {
     return (value % 2) == 0;
 }
 
 template <class VALUE>
 void runTestAllOf()
-    // Test driver for 'all_of'.
+    // Test driver for `all_of`.
 {
     const struct {
         const char *d_spec_p;
@@ -210,7 +210,7 @@ void runTestAllOf()
 
 template <class VALUE>
 void runTestAnyOf()
-    // Test driver for 'any_of'.
+    // Test driver for `any_of`.
 {
     const struct {
         const char *d_spec_p;
@@ -271,7 +271,7 @@ void runTestAnyOf()
 
 template <class VALUE>
 void runTestNoneOf()
-    // Test driver for 'none_of'.
+    // Test driver for `none_of`.
 {
     const struct {
         const char *d_spec_p;
@@ -332,16 +332,16 @@ void runTestNoneOf()
 
 #endif
 
+/// Return past-the-end poiner for the specified `arr` array.
 template <class Type, size_t Size>
 inline Type *array_end(Type (&arr)[Size])
-    // Return past-the-end poiner for the specified 'arr' array.
 {
     return arr + Size;
 }
 
+/// Test `bslstl::AlgorithmUtil::copyN` function.
 template <class t_CONTAINER_TYPE, class t_SIZE_TYPE>
 void testCopyN()
-    // Test 'bslstl::AlgorithmUtil::copyN' function.
 {
     typedef typename t_CONTAINER_TYPE::value_type ValueType;
     typedef typename t_CONTAINER_TYPE::iterator   Iterator;
@@ -404,26 +404,26 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'AlgorithmUtil::copyN'
+        // TESTING `AlgorithmUtil::copyN`
         //
         // Concerns:
-        //: 1 The 'AlgorithmUtil::copyN' function correctly handles any type of
-        //:   passed iterators starting from input iterator.
-        //:
-        //: 2 The 'AlgorithmUtil::copyN' function returns only one iterator
-        //:   pointing to the next element after the last copied in the output
-        //:   range.
+        // 1. The `AlgorithmUtil::copyN` function correctly handles any type of
+        //    passed iterators starting from input iterator.
+        //
+        // 2. The `AlgorithmUtil::copyN` function returns only one iterator
+        //    pointing to the next element after the last copied in the output
+        //    range.
         //
         // Plan:
-        //: 1 Create a simple example that invokes function passing iterators
-        //:   of different types as parameters and verifies the results.
-        //:   (C-1..2)
+        // 1. Create a simple example that invokes function passing iterators
+        //    of different types as parameters and verifies the results.
+        //    (C-1..2)
         //
         // Testing
         //   OUTPUT_ITERATOR copyN(INPUT_ITERATOR i, SIZE s,OUTPUT_ITERATOR o);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'AlgorithmUtil::copyN'"
+        if (verbose) printf("\nTESTING `AlgorithmUtil::copyN`"
                             "\n==============================\n");
         testCopyN<std::vector<int>, char  >();
         testCopyN<std::vector<int>, int   >();
@@ -438,28 +438,28 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING C++20 'lexicographical_compare_three_way'
+        // TESTING C++20 `lexicographical_compare_three_way`
         //
         // Concerns:
-        //: 1 'bsl::lexicographical_compare_three_way' function is available
-        //:   when 'BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON' macro
-        //:   is defined.
+        // 1. `bsl::lexicographical_compare_three_way` function is available
+        //    when `BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON` macro
+        //    is defined.
         //
         // Plan:
-        //: 1 Create two 'int' arrays: 'a' and 'b'.  'a' is lexicographically
-        //:   less than 'b'.
-        //:
-        //: 2 Verify the 4-argument version of the function.
-        //:
-        //: 3 Verify that 5-argument version of the function returns the same
-        //:   value if the last argument is 'bsl::compare_three_way()'.
+        // 1. Create two `int` arrays: `a` and `b`.  `a` is lexicographically
+        //    less than `b`.
+        //
+        // 2. Verify the 4-argument version of the function.
+        //
+        // 3. Verify that 5-argument version of the function returns the same
+        //    value if the last argument is `bsl::compare_three_way()`.
         //
         // Testing:
         //   bsl::lexicographical_compare_three_way()
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                      "\nTESTING C++20 'lexicographical_compare_three_way'"
+                      "\nTESTING C++20 `lexicographical_compare_three_way`"
                       "\n=================================================\n");
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
@@ -486,12 +486,12 @@ int main(int argc, char *argv[])
         // TESTING C++17 <BSL_ALGORITHM.H> ADDITIONS
         //
         // Concerns:
-        //: 1 The call 'bsl::clamp' exists and return expected values for
-        //:   simple cases.
+        // 1. The call `bsl::clamp` exists and return expected values for
+        //    simple cases.
         //
         // Plan:
-        //: 1 Call each version of the algorithm with simple inputs and verify
-        //:   that the result is correct.
+        // 1. Call each version of the algorithm with simple inputs and verify
+        //    that the result is correct.
         //
         // Testing:
         //   bsl::clamp();
@@ -513,12 +513,12 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Run each method with arbitrary inputs and verify the behavior is
-        //:   as expected.
+        // 1. Run each method with arbitrary inputs and verify the behavior is
+        //    as expected.
         //
         // Testing:
         //   BREATHING TEST
@@ -560,16 +560,16 @@ int main(int argc, char *argv[])
         // FUNCTIONALITY TEST
         //
         // Concerns:
-        //: 1 The algorithms are sufficiently functional to enable
-        //:   comprehensive testing in subsequent test cases.
+        // 1. The algorithms are sufficiently functional to enable
+        //    comprehensive testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Run each algorithm with an empty input range and verify that the
-        //:   behavior is as expected.
-        //: 2 Run each algorithm with a single-element input range and verify
-        //:   that the behavior is as expected.
-        //: 3 Run each algorithm with multiple-element input range and verify
-        //:   that the behavior is as expected.
+        // 1. Run each algorithm with an empty input range and verify that the
+        //    behavior is as expected.
+        // 2. Run each algorithm with a single-element input range and verify
+        //    that the behavior is as expected.
+        // 3. Run each algorithm with multiple-element input range and verify
+        //    that the behavior is as expected.
         //
         // Testing:
         //   bool all_of (InputIter first, InputIter last, PREDICATE pred);

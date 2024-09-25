@@ -37,7 +37,7 @@ using bsl::flush;
 //
 // The component under test has state, but not value.  State transitions must
 // be confirmed explicitly.  The timing functions can be verified to a
-// reasonable degree using the 'bsls::Stopwatch::elapsedTime()' function to
+// reasonable degree using the `bsls::Stopwatch::elapsedTime()` function to
 // measure intervals.
 //-----------------------------------------------------------------------------
 // CREATORS
@@ -216,8 +216,8 @@ void processorWithTurnstile(
         double  duration,
         double *elapsedTime)
 {
-    // Write the specified 'message' to the specified 'stream' at the specified
-    // 'rate' (given in messages per second) for the specified 'duration'.
+    // Write the specified `message` to the specified `stream` at the specified
+    // `rate` (given in messages per second) for the specified `duration`.
 
     bsls::Stopwatch timer;
     bslmt::Turnstile turnstile(rate);
@@ -243,8 +243,8 @@ void processorWithSleep(
         double  duration,
         double *elapsedTime)
 {
-    // Write the specified 'message' to the specified 'stream' at the specified
-    // 'rate' (given in messages per second) for the specified 'duration'.
+    // Write the specified `message` to the specified `stream` at the specified
+    // `rate` (given in messages per second) for the specified `duration`.
 
     bsls::Stopwatch timer;
     int             sleepInterval = static_cast<int>(1000000 / rate);  // usec
@@ -275,20 +275,20 @@ void processorWithSleep(
 //
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
-// The following example illustrates the use of 'bslmt::Turnstile' to control
+// The following example illustrates the use of `bslmt::Turnstile` to control
 // the rate of output being written to a specified output stream.  The example
-// function, 'heartbeat', prints a specified message at a specified rate for a
-// specified duration.  An instance of 'bsls::Stopwatch' is used to measure
+// function, `heartbeat`, prints a specified message at a specified rate for a
+// specified duration.  An instance of `bsls::Stopwatch` is used to measure
 // time against the specified duration.
-//..
+// ```
     static void heartbeat(bsl::ostream&       stream,
                           const bsl::string&  message,
                           double              rate,
                           double              duration)
     {
-        // Write the specified 'message' to the specified 'stream' at the
-        // specified 'rate' (given in messages per second) for the specified
-        // 'duration'.
+        // Write the specified `message` to the specified `stream` at the
+        // specified `rate` (given in messages per second) for the specified
+        // `duration`.
 
         bsls::Stopwatch  timer;
         timer.start();
@@ -302,12 +302,12 @@ void processorWithSleep(
             stream << message;
         }
     }
-//..
-// The benefits of using 'bslmt::Turnstile' in the above example, as opposed to
-// simply calling 'sleep' in a loop, are twofold.  Firstly, 'bslmt::Turnstile'
+// ```
+// The benefits of using `bslmt::Turnstile` in the above example, as opposed to
+// simply calling `sleep` in a loop, are twofold.  Firstly, `bslmt::Turnstile`
 // automatically accounts for drift caused by additional processing, so the
 // loop is allowed to execute immediately if the program fails to execute the
-// loop at the specified 'rate'.  Secondly, computing the sleep time and
+// loop at the specified `rate`.  Secondly, computing the sleep time and
 // executing the sleep call, are encapsulated in the turnstile component, which
 // improves the overall readability of the program.
 
@@ -338,9 +338,9 @@ int main(int argc, char *argv[])
         // Plan:
         //   Incorporate the usage example from the header file into the test
         //   driver.  Make use of existing test apparatus by instantiating
-        //   objects with a 'bslma::TestAllocator' object where applicable.
-        //   Additionally, replace all calls to 'assert' in the usage example
-        //   with calls to 'ASSERT'.  This now becomes the source, which is
+        //   objects with a `bslma::TestAllocator` object where applicable.
+        //   Additionally, replace all calls to `assert` in the usage example
+        //   with calls to `ASSERT`.  This now becomes the source, which is
         //   then "copied" back to the header file by reversing the above
         //   process.
         //
@@ -388,12 +388,12 @@ int main(int argc, char *argv[])
         // CONCERN: MULTI-THREADED TEST (LAG)
         //
         // Concerns:
-        //   - That the turnstile lags when multiple threads call 'waitTurn' at
+        //   - That the turnstile lags when multiple threads call `waitTurn` at
         //   lower than the configured rate.
         //
         // Plan:
-        //   Create a 'bslmt::Turnstile', 'mX', with a rate of 50.  Create
-        //   multiple threads bound to a callback that calls 'waitTurn',
+        //   Create a `bslmt::Turnstile`, `mX`, with a rate of 50.  Create
+        //   multiple threads bound to a callback that calls `waitTurn`,
         //   increments an atomic counter, and then sleeps.  Start the threads.
         //   Join the threads, and verify that the value of the counter is
         //   less than the expected number of turns.
@@ -460,14 +460,14 @@ int main(int argc, char *argv[])
         // CONCERN: MULTI-THREADED TEST (NO LAG)
         //
         // Concerns:
-        //   - That calling 'waitTurn' from multiple threads is thread-safe.
+        //   - That calling `waitTurn` from multiple threads is thread-safe.
         //
         //   - That the turnstile does not lag when multiple threads call
-        //     'waitTurn' at the configured rate.
+        //     `waitTurn` at the configured rate.
         //
         // Plan:
-        //   Create a 'bslmt::Turnstile', 'mX', with a rate of 50.  Create
-        //   multiple threads bound to a callback that calls 'waitTurn', and
+        //   Create a `bslmt::Turnstile`, `mX`, with a rate of 50.  Create
+        //   multiple threads bound to a callback that calls `waitTurn`, and
         //   then increments an atomic counter.  Start the threads.  Join the
         //   threads, and verify that the value of the counter is at least the
         //   expected number of turns.
@@ -523,13 +523,13 @@ int main(int argc, char *argv[])
         // TESTING ALTERNATE CONSTRUCTORS
         //
         // Concerns:
-        //   - That calling 'waitTurn' after constructing a turnstile with
+        //   - That calling `waitTurn` after constructing a turnstile with
         //     a specified start time blocks until that time.
         //
         // Plan:
-        //   Create a 'bslmt::Turnstile', 'mX', with a rate of 1, and a start
-        //   time offset of 1 second; and a non-modifiable reference to 'mX'
-        //   named 'X'.  Call 'waitTurn' on 'mX' and 'lagTime' on 'X'.  Verify
+        //   Create a `bslmt::Turnstile`, `mX`, with a rate of 1, and a start
+        //   time offset of 1 second; and a non-modifiable reference to `mX`
+        //   named `X`.  Call `waitTurn` on `mX` and `lagTime` on `X`.  Verify
         //   that the result of both calls is positive, indicating that the
         //   caller is not lagging, and that some wait time is incurred.
         //   Verify that the wait time is within 10ms of the expected maximum
@@ -571,29 +571,29 @@ int main(int argc, char *argv[])
       }  break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING FUNCTION 'reset'
+        // TESTING FUNCTION `reset`
         //
         // Concerns:
         //   - That the next turn may be taken immediately after calling
-        //     'reset'.
+        //     `reset`.
         //
-        //   - That 'reset' does not interrupt threads blocked on 'waitTurn'.
+        //   - That `reset` does not interrupt threads blocked on `waitTurn`.
         //
-        //   - That calling 'waitTurn' after resetting a turnstile with
+        //   - That calling `waitTurn` after resetting a turnstile with
         //     a specified start time blocks until that time.
         //
         // Plan:
-        //   Create a 'bslmt::Turnstile', 'mX', with a rate of 1, and a
-        //   non-modifiable reference to 'mX' named 'X'.  Call 'waitTurn' on
-        //   'mX' and 'lagTime' on 'X' to establish that the caller waits on
+        //   Create a `bslmt::Turnstile`, `mX`, with a rate of 1, and a
+        //   non-modifiable reference to `mX` named `X`.  Call `waitTurn` on
+        //   `mX` and `lagTime` on `X` to establish that the caller waits on
         //   the turnstile and that the caller is not lagging.  Then, call
-        //   'reset' with the same rate.  Call 'waitTurn' on 'mX', and verify
+        //   `reset` with the same rate.  Call `waitTurn` on `mX`, and verify
         //   that the result is 0.  Sleep for twice the maximum wait time, and
-        //   call 'waitTurn' and 'lagTime' again to establish that the caller
-        //   is lagging.  Then, call 'reset' again with the same rate.  Verify
-        //   that the result of 'waitTurn' is again 0.  Finally, call 'reset'
-        //   with the same rate and an offset of 1 second.  Call 'waitTime' on
-        //   'mX' and 'lagTime' on 'X'.  Verify that 'waitTime' returns a
+        //   call `waitTurn` and `lagTime` again to establish that the caller
+        //   is lagging.  Then, call `reset` again with the same rate.  Verify
+        //   that the result of `waitTurn` is again 0.  Finally, call `reset`
+        //   with the same rate and an offset of 1 second.  Call `waitTime` on
+        //   `mX` and `lagTime` on `X`.  Verify that `waitTime` returns a
         //   positive value, and that the caller is not lagging.
         //
         // Testing:
@@ -603,7 +603,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "Testing Function 'reset'" << endl
+            cout << "Testing Function `reset`" << endl
                  << "========================" << endl;
         }
 
@@ -620,7 +620,7 @@ int main(int argc, char *argv[])
         ASSERT(0 ==  X.lagTime());   // not lagging
 
         mX.reset(RATE);
-        ASSERT(0 <=  X.lagTime());   // (likely) lagging after 'reset'
+        ASSERT(0 <=  X.lagTime());   // (likely) lagging after `reset`
         ASSERT(0 == mX.waitTurn());  // first turn can be taken immediately
         ASSERT(0 ==  X.lagTime());   // not lagging
         ASSERT(0 <  mX.waitTurn());  // second turn incurs wait
@@ -631,14 +631,14 @@ int main(int argc, char *argv[])
         ASSERT(0 <   X.lagTime());   // lagging after sleep
 
         mX.reset(RATE);
-        ASSERT(0 <=  X.lagTime());   // (likely) lagging after 'reset'
+        ASSERT(0 <=  X.lagTime());   // (likely) lagging after `reset`
         ASSERT(0 == mX.waitTurn());  // first turn can be taken immediately
         ASSERT(0 ==  X.lagTime());   // not lagging
         ASSERT(0 <  mX.waitTurn());  // second turn incurs wait
         ASSERT(0 ==  X.lagTime());   // not lagging
 
         mX.reset(RATE, OFFSET);
-        ASSERT(0 ==  X.lagTime());   // not lagging after 'reset'
+        ASSERT(0 ==  X.lagTime());   // not lagging after `reset`
         ASSERT(0 <  mX.waitTurn());  // first turn incurs wait
         ASSERT(0 ==  X.lagTime());   // not lagging
         ASSERT(0 <  mX.waitTurn());  // second turn incurs wait
@@ -646,29 +646,29 @@ int main(int argc, char *argv[])
       }  break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING FUNCTION 'waitTurn'
+        // TESTING FUNCTION `waitTurn`
         //
         // Concerns:
-        //   - That 'waitTurn' returns a positive value that is within a small
+        //   - That `waitTurn` returns a positive value that is within a small
         //     epsilon of the expected wait time when waiting is required.
         //
-        //   - That 'lagTime' returns 0 when turns are taken at or above the
+        //   - That `lagTime` returns 0 when turns are taken at or above the
         //     specified rate.
         //
-        //   - That 'waitTurn' returns 0 when turns are taken more slowly than
+        //   - That `waitTurn` returns 0 when turns are taken more slowly than
         //     the specified rate.
         //
-        //   - That 'lagTime' returns a positive value when turns are taken
+        //   - That `lagTime` returns a positive value when turns are taken
         //     more slowly than the specified rate.
         //
         // Plan:
-        //   Create a 'bslmt::Turnstile', 'mX', with a rate of 10.0, and a
-        //   non-modifiable reference to 'mX' named 'X'.  In a loop, call
-        //   'waitTurn' on 'mX' and 'lagTime' on 'X'.  Verify that the result
-        //   of 'waitTime' is within 10ms of the expected maximum wait time,
-        //   and that the result of 'lagTime' is 0.  Then, sleep for
+        //   Create a `bslmt::Turnstile`, `mX`, with a rate of 10.0, and a
+        //   non-modifiable reference to `mX` named `X`.  In a loop, call
+        //   `waitTurn` on `mX` and `lagTime` on `X`.  Verify that the result
+        //   of `waitTime` is within 10ms of the expected maximum wait time,
+        //   and that the result of `lagTime` is 0.  Then, sleep for
         //   twice the maximum wait time, and very that the result of
-        //   'waitTime' is 0, and the result of 'lagTime' is positive.
+        //   `waitTime` is 0, and the result of `lagTime` is positive.
         //
         // Testing:
         //   bsls::Types::Int64 waitTurn();
@@ -676,7 +676,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "Testing Function 'waitTurn'" << endl
+            cout << "Testing Function `waitTurn`" << endl
                  << "===========================" << endl;
         }
 
@@ -703,7 +703,7 @@ int main(int argc, char *argv[])
 
         // First, burn a turn.  This incurs a wait, but a smaller wait than the
         // maximum (since some processing has already been done).  After taking
-        // two turns, subsequent calls to 'waitTurn' should incur (close to)
+        // two turns, subsequent calls to `waitTurn` should incur (close to)
         // the maximum wait time.
         mX.waitTurn();
         do {
@@ -718,9 +718,9 @@ int main(int argc, char *argv[])
 
         // Turns are taken more slowly than the specified rate
 
-        // 'X.lagTime()' does not report negative values, but suppose it did.
-        // Call 'epsA' the amount of time we've spent doing stuff since the
-        // last 'waitTurn'.  Then 'X.lagTime() == - k_USPS * WT + epsA' at this
+        // `X.lagTime()` does not report negative values, but suppose it did.
+        // Call `epsA` the amount of time we've spent doing stuff since the
+        // last `waitTurn`.  Then `X.lagTime() == - k_USPS * WT + epsA` at this
         // point.
 
         // Wait 2.25 times the period time
@@ -728,14 +728,14 @@ int main(int argc, char *argv[])
         int sleepTime = (int) (2.5 * static_cast<double>(k_USPS) * WT);
         bslmt::ThreadUtil::microSleep(sleepTime);
 
-        // At this point.  'X.lagTime() == 1.5 * k_USPS * WT + epsA'.  Take one
+        // At this point.  `X.lagTime() == 1.5 * k_USPS * WT + epsA`.  Take one
         // turn.
 
         ASSERT(0 == mX.waitTurn());
 
-        // Now, 'X.lagTime() == 0.5 * k_USPS * WT + epsA'.  Note that we can't
+        // Now, `X.lagTime() == 0.5 * k_USPS * WT + epsA`.  Note that we can't
         // rely on system clocks having a small enough resolution to notice
-        // 'epsA'.  Verify that lagTime is positive.
+        // `epsA`.  Verify that lagTime is positive.
 
         bsls::Types::Int64 lagTime = X.lagTime();
         LOOP_ASSERT(lagTime, 0 < lagTime);
@@ -747,14 +747,14 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   Exercise the basic functionality of the 'bslmt::Turnstile' class.
+        //   Exercise the basic functionality of the `bslmt::Turnstile` class.
         //   Ensure that a turnstile can be instantiated and destroyed.  Also
         //   exercise the primary manipulators and accessors.
         //
         // Plan:
-        //   Create a 'bslmt::Turnstile', 'mX', with a rate of 1, and a
-        //   non-modifiable reference to 'mX' named 'X'.  Call 'waitTurn' on
-        //   'mX' and 'lagTime' on 'X'.  Destroy 'mX'.
+        //   Create a `bslmt::Turnstile`, `mX`, with a rate of 1, and a
+        //   non-modifiable reference to `mX` named `X`.  Call `waitTurn` on
+        //   `mX` and `lagTime` on `X`.  Destroy `mX`.
         //
         // Testing:
         //   Exercise basic functionality
@@ -779,25 +779,25 @@ int main(int argc, char *argv[])
         // COMPARISON OF SLEEP TO TURNSTILE
         //
         // Concerns:
-        //   Compare the difference in elapsed time between 'sleep' and
-        //   'bslmt::Turnstile' implementations of the heartbeat usage example
+        //   Compare the difference in elapsed time between `sleep` and
+        //   `bslmt::Turnstile` implementations of the heartbeat usage example
         //   at various rates.
         //
         // Plan:
-        //   Call two functions, 'processWithTurnstile' and 'processWithSleep',
+        //   Call two functions, `processWithTurnstile` and `processWithSleep`,
         //   with various rates and durations.  Compare the elapsed time
         //   returned by these functions to the expected elapsed time.  Verify
         //   that the drift resulting from calling "sleep" in the
-        //   'processWithSleep' function results in a greater difference from
+        //   `processWithSleep` function results in a greater difference from
         //   the expected time that the elapsed time returned by the
-        //   'bslmt::Turnstile' implementation.
+        //   `bslmt::Turnstile` implementation.
         //
         // Testing:
-        //   Comparison of 'sleep' to 'bslmt::Turnstile'
+        //   Comparison of `sleep` to `bslmt::Turnstile`
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "Comparison of 'sleep' to 'bslmt::Turnstile'" << endl
+            cout << "Comparison of `sleep` to `bslmt::Turnstile`" << endl
                  << "==========================================" << endl;
         }
 
@@ -855,16 +855,16 @@ int main(int argc, char *argv[])
         // SYSTEM CLOCK CHANGES DO NOT CAUSE HANGS
         //
         // Concerns:
-        //: 1 Before recent changes to this component, a system clock change
-        //:   could cause the 'bslmt::Turnstile' to appear to hang.
+        // 1. Before recent changes to this component, a system clock change
+        //    could cause the `bslmt::Turnstile` to appear to hang.
         //
         // Plan:
-        //: 1 Create a 'bslmt::Turnstile' which prints a message once a second,
-        //:   externally change the time, externally verify the messages do
-        //:   not stop printing.
+        // 1. Create a `bslmt::Turnstile` which prints a message once a second,
+        //    externally change the time, externally verify the messages do
+        //    not stop printing.
         //
         // Testing:
-        //   'bslmt::Turnstile' behavior is immune to system clock changes.
+        //   `bslmt::Turnstile` behavior is immune to system clock changes.
         // --------------------------------------------------------------------
 
         if (verbose) {

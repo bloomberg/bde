@@ -3,10 +3,10 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <cstdio>    // 'fprintf'
-#include <cstdlib>   // 'atoi'
-#include <cstring>   // 'strcmp'
-#include <exception> // 'exception'
+#include <cstdio>    // `fprintf`
+#include <cstdlib>   // `atoi`
+#include <cstring>   // `strcmp`
+#include <exception> // `exception`
 
 using namespace std;
 using namespace BloombergLP;
@@ -14,7 +14,7 @@ using namespace BloombergLP;
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-// 'bsls::AssertImpUtil' is a utility class, where each function will be tested
+// `bsls::AssertImpUtil` is a utility class, where each function will be tested
 // in a separate test case.  Any significant test machinery will be tested
 // before any function whose test case relies upon it.
 //-----------------------------------------------------------------------------
@@ -87,14 +87,14 @@ bool globalVeryVeryVerbose = false;
 ///- - - - - - - - - - - - - - - - - - - -
 // Suppose you are implementing an assertion handler that should cause a
 // process to terminate when invoked.  In order to stop the process
-// immediately, you would call 'failByAbort' like this:
-//..
+// immediately, you would call `failByAbort` like this:
+// ```
 void myAbort()
 {
     bsls::AssertImpUtil::failByAbort();
     // This code should never be reached.
 }
-//..
+// ```
 // This function would then abort the current process.
 //
 ///Example 2: Sleeping Forever
@@ -102,14 +102,14 @@ void myAbort()
 // Suppose you want a process to no longer continue doing anything, but you
 // want to leave it running in order to attach a debugger to it and diagnose
 // the full state of your system.  In order to have your process sleep forever,
-// you might call 'failBySleep' like this:
-//..
+// you might call `failBySleep` like this:
+// ```
 void mySleep()
 {
     bsls::AssertImpUtil::failBySleep();
     // This code should never be reached.
 }
-//..
+// ```
 // This function would then sleep forever and never return.
 
 
@@ -137,12 +137,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE #2
         //
         // Concerns:
-        //: 1 'mySleep' should compile, but must be manually tested.
+        // 1. `mySleep` should compile, but must be manually tested.
         //
         // Plan:
-        //: 1 See above for usage example code compiling.
-        //:
-        //: 2 See case -2 for manual testing of 'failBySleep'.
+        // 1. See above for usage example code compiling.
+        //
+        // 2. See case -2 for manual testing of `failBySleep`.
         //
         // Testing:
         //   USAGE EXAMPLE: mySleep
@@ -159,12 +159,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE #1
         //
         // Concerns:
-        //: 1 'myAbort' should compile, but must be manually tested.
+        // 1. `myAbort` should compile, but must be manually tested.
         //
         // Plan:
-        //: 1 See above for usage example code compiling.
-        //:
-        //: 2 See case -1 for manual testing of 'failByAbort'.
+        // 1. See above for usage example code compiling.
+        //
+        // 2. See case -1 for manual testing of `failByAbort`.
         //
         // Testing:
         //   USAGE EXAMPLE: myAbort
@@ -181,14 +181,14 @@ int main(int argc, char *argv[])
         // BSLS_ASSERT_USE_CONTRACTS
         //
         // Concerns:
-        //: 1 This macro is only definable when the platform and other compiler
-        //:   options support language level contracts.
+        // 1. This macro is only definable when the platform and other compiler
+        //    options support language level contracts.
         //
         // Plan:
-        //: 1 TBD: This test driver will need to be expanded in the future,
-        //:   although the testing will likely have to remain in '#if 0'
-        //:   guarded blocks because it involves testing that compilation fails
-        //:   when the use of language contracts is not viable.
+        // 1. TBD: This test driver will need to be expanded in the future,
+        //    although the testing will likely have to remain in `#if 0`
+        //    guarded blocks because it involves testing that compilation fails
+        //    when the use of language contracts is not viable.
         //
         // Testing:
         //   BSLS_ASSERT_USE_CONTRACTS
@@ -202,12 +202,12 @@ int main(int argc, char *argv[])
         // CALL ABORT FUNCTION
         //
         // Concerns:
-        //: 1 The 'failByAbort' function should abort immediately; this can't
-        //:   be tested by a normally run unit test.
+        // 1. The `failByAbort` function should abort immediately; this can't
+        //    be tested by a normally run unit test.
         //
         // Plan:
-        //: 1 Run 'failByAbort' so the caller can manually witness that the
-        //:   test has aborted.
+        // 1. Run `failByAbort` so the caller can manually witness that the
+        //    test has aborted.
         //
         // Testing:
         //   void AssertImpUtil::failByAbort();
@@ -228,12 +228,12 @@ int main(int argc, char *argv[])
         // CALL SLEEP FUNCTION
         //
         // Concerns:
-        //: 1 The 'failBySleep' function should sleep immediately; this can't
-        //:   be tested by a normally run unit test.
+        // 1. The `failBySleep` function should sleep immediately; this can't
+        //    be tested by a normally run unit test.
         //
         // Plan:
-        //: 1 Run 'failBySleep' so the caller can manually witness that the
-        //:   test has slept.
+        // 1. Run `failBySleep` so the caller can manually witness that the
+        //    test has slept.
         //
         // Testing:
         //   void AssertImpUtil::failBySleep();

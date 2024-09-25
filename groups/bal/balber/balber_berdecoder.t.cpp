@@ -99,7 +99,7 @@ namespace test = BloombergLP::s_baltst;
 // [15] ENCODE AND DECODE DATE/TIME
 // [16] ENCODE AND DECODE DATE/TIME COMPONENTS
 // [17] DECODE DATE/TIME COMPONENTS USING A VARIANT
-// [18] ENCODE AND DECODE 'RawData'
+// [18] ENCODE AND DECODE `RawData`
 // [19] DECODE COMPLEX TYPES WITH DEFAULT ELEMENTS
 // [20] DECODE SEQUENCES OF MAXIMUM SIZE
 // [21] DECODE INTS AS ENUMS AND VICE VERSA
@@ -327,8 +327,8 @@ bsl::vector<char> loadFromHex(const char *hexData)
     return result;
 }
 
+/// Print the specified `buffer` of the specified `length` in hex form
 void printBuffer(const char *buffer, bsl::size_t length)
-    // Print the specified 'buffer' of the specified 'length' in hex form
 {
     cout << hex;
     int numOutput = 0;
@@ -605,176 +605,181 @@ class MyChoiceWithDefaultValues {
     static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
 
     // CLASS METHODS
-    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
-        // Return selection information for the selection indicated by the
-        // specified 'id' if the selection exists, and 0 otherwise.
 
+    /// Return selection information for the selection indicated by the
+    /// specified `id` if the selection exists, and 0 otherwise.
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
+
+    /// Return selection information for the selection indicated by the
+    /// specified `name` of the specified `nameLength` if the selection
+    /// exists, and 0 otherwise.
     static const bdlat_SelectionInfo *lookupSelectionInfo(
                                                        const char *name,
                                                        int         nameLength);
-        // Return selection information for the selection indicated by the
-        // specified 'name' of the specified 'nameLength' if the selection
-        // exists, and 0 otherwise.
 
     // CREATORS
-    explicit MyChoiceWithDefaultValues(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'MyChoiceWithDefaultValues' having the
-        // default value.  Use the optionally specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create an object of type `MyChoiceWithDefaultValues` having the
+    /// default value.  Use the optionally specified `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
+    explicit MyChoiceWithDefaultValues(bslma::Allocator *basicAllocator = 0);
+
+    /// Create an object of type `MyChoiceWithDefaultValues` having the
+    /// value of the specified `original` object.  Use the optionally
+    /// specified `basicAllocator` to supply memory.  If `basicAllocator` is
+    /// 0, the currently installed default allocator is used.
     MyChoiceWithDefaultValues(const MyChoiceWithDefaultValues& original,
                              bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'MyChoiceWithDefaultValues' having the
-        // value of the specified 'original' object.  Use the optionally
-        // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
-        // 0, the currently installed default allocator is used.
 
+    /// Destroy this object.
     ~MyChoiceWithDefaultValues();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     MyChoiceWithDefaultValues& operator=(const MyChoiceWithDefaultValues& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
+    /// Reset this object to the default value (i.e., its value upon default
+    /// construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon default
-        // construction).
 
+    /// Set the value of this object to be the default for the selection
+    /// indicated by the specified `selectionId`.  Return 0 on success, and
+    /// non-zero value otherwise (i.e., the selection is not found).
     int makeSelection(int selectionId);
-        // Set the value of this object to be the default for the selection
-        // indicated by the specified 'selectionId'.  Return 0 on success, and
-        // non-zero value otherwise (i.e., the selection is not found).
 
+    /// Set the value of this object to be the default for the selection
+    /// indicated by the specified `name` of the specified `nameLength`.
+    /// Return 0 on success, and non-zero value otherwise (i.e., the
+    /// selection is not found).
     int makeSelection(const char *name, int nameLength);
-        // Set the value of this object to be the default for the selection
-        // indicated by the specified 'name' of the specified 'nameLength'.
-        // Return 0 on success, and non-zero value otherwise (i.e., the
-        // selection is not found).
 
+    /// Set the value of this object to be a "Selection0" value.  Optionally
+    /// specify the `value` of the "Selection0".  If `value` is not
+    /// specified, the default "Selection0" value is used.
     int& makeSelection0();
     int& makeSelection0(int value);
-        // Set the value of this object to be a "Selection0" value.  Optionally
-        // specify the 'value' of the "Selection0".  If 'value' is not
-        // specified, the default "Selection0" value is used.
 
+    /// Set the value of this object to be a "Selection1" value.  Optionally
+    /// specify the `value` of the "Selection1".  If `value` is not
+    /// specified, the default "Selection1" value is used.
     bsl::string& makeSelection1();
     bsl::string& makeSelection1(const bsl::string& value);
-        // Set the value of this object to be a "Selection1" value.  Optionally
-        // specify the 'value' of the "Selection1".  If 'value' is not
-        // specified, the default "Selection1" value is used.
 
+    /// Set the value of this object to be a "Selection2" value.  Optionally
+    /// specify the `value` of the "Selection2".  If `value` is not
+    /// specified, the default "Selection2" value is used.
     MyEnumeration::Value& makeSelection2();
     MyEnumeration::Value& makeSelection2(MyEnumeration::Value value);
-        // Set the value of this object to be a "Selection2" value.  Optionally
-        // specify the 'value' of the "Selection2".  If 'value' is not
-        // specified, the default "Selection2" value is used.
 
+    /// Invoke the specified `manipulator` on the address of the modifiable
+    /// selection, supplying `manipulator` with the corresponding selection
+    /// information structure.  Return the value returned from the
+    /// invocation of `manipulator` if this object has a defined selection,
+    /// and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateSelection(MANIPULATOR& manipulator);
-        // Invoke the specified 'manipulator' on the address of the modifiable
-        // selection, supplying 'manipulator' with the corresponding selection
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if this object has a defined selection,
-        // and -1 otherwise.
 
+    /// Return a reference to the modifiable "Selection0" selection of this
+    /// object if "Selection0" is the current selection.  The behavior is
+    /// undefined unless "Selection0" is the selection of this object.
     int& selection0();
-        // Return a reference to the modifiable "Selection0" selection of this
-        // object if "Selection0" is the current selection.  The behavior is
-        // undefined unless "Selection0" is the selection of this object.
 
+    /// Return a reference to the modifiable "Selection1" selection of this
+    /// object if "Selection1" is the current selection.  The behavior is
+    /// undefined unless "Selection1" is the selection of this object.
     bsl::string& selection1();
-        // Return a reference to the modifiable "Selection1" selection of this
-        // object if "Selection1" is the current selection.  The behavior is
-        // undefined unless "Selection1" is the selection of this object.
 
+    /// Return a reference to the modifiable "Selection2" selection of this
+    /// object if "Selection2" is the current selection.  The behavior is
+    /// undefined unless "Selection2" is the selection of this object.
     MyEnumeration::Value& selection2();
-        // Return a reference to the modifiable "Selection2" selection of this
-        // object if "Selection2" is the current selection.  The behavior is
-        // undefined unless "Selection2" is the selection of this object.
 
     // ACCESSORS
+
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.  Note that a trailing newline is provided
+    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
 
+    /// Return the id of the current selection if the selection is defined,
+    /// and -1 otherwise.
     int selectionId() const;
-        // Return the id of the current selection if the selection is defined,
-        // and -1 otherwise.
 
+    /// Invoke the specified `accessor` on the non-modifiable selection,
+    /// supplying `accessor` with the corresponding selection information
+    /// structure.  Return the value returned from the invocation of
+    /// `accessor` if this object has a defined selection, and -1 otherwise.
     template<class ACCESSOR>
     int accessSelection(ACCESSOR& accessor) const;
-        // Invoke the specified 'accessor' on the non-modifiable selection,
-        // supplying 'accessor' with the corresponding selection information
-        // structure.  Return the value returned from the invocation of
-        // 'accessor' if this object has a defined selection, and -1 otherwise.
 
+    /// Return a reference to the non-modifiable "Selection0" selection of
+    /// this object if "Selection0" is the current selection.  The behavior
+    /// is undefined unless "Selection0" is the selection of this object.
     const int& selection0() const;
-        // Return a reference to the non-modifiable "Selection0" selection of
-        // this object if "Selection0" is the current selection.  The behavior
-        // is undefined unless "Selection0" is the selection of this object.
 
+    /// Return a reference to the non-modifiable "Selection1" selection of
+    /// this object if "Selection1" is the current selection.  The behavior
+    /// is undefined unless "Selection1" is the selection of this object.
     const bsl::string& selection1() const;
-        // Return a reference to the non-modifiable "Selection1" selection of
-        // this object if "Selection1" is the current selection.  The behavior
-        // is undefined unless "Selection1" is the selection of this object.
 
+    /// Return a reference to the non-modifiable "Selection2" selection of
+    /// this object if "Selection2" is the current selection.  The behavior
+    /// is undefined unless "Selection2" is the selection of this object.
     const MyEnumeration::Value& selection2() const;
-        // Return a reference to the non-modifiable "Selection2" selection of
-        // this object if "Selection2" is the current selection.  The behavior
-        // is undefined unless "Selection2" is the selection of this object.
 
+    /// Return `true` if the value of this object is a "Selection0" value,
+    /// and return `false` otherwise.
     bool isSelection0Value() const;
-        // Return 'true' if the value of this object is a "Selection0" value,
-        // and return 'false' otherwise.
 
+    /// Return `true` if the value of this object is a "Selection1" value,
+    /// and return `false` otherwise.
     bool isSelection1Value() const;
-        // Return 'true' if the value of this object is a "Selection1" value,
-        // and return 'false' otherwise.
 
+    /// Return `true` if the value of this object is a "Selection2" value,
+    /// and return `false` otherwise.
     bool isSelection2Value() const;
-        // Return 'true' if the value of this object is a "Selection2" value,
-        // and return 'false' otherwise.
 
+    /// Return `true` if the value of this object is undefined, and `false`
+    /// otherwise.
     bool isUndefinedValue() const;
-        // Return 'true' if the value of this object is undefined, and 'false'
-        // otherwise.
 
+    /// Return the symbolic name of the current selection of this object.
     const char *selectionName() const;
-        // Return the symbolic name of the current selection of this object.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `MyChoiceWithDefaultValues` objects
+/// have the same value if either the selections in both objects have the
+/// same ids and the same values, or both selections are undefined.
 inline
 bool operator==(const MyChoiceWithDefaultValues& lhs,
                 const MyChoiceWithDefaultValues& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'MyChoiceWithDefaultValues' objects
-    // have the same value if either the selections in both objects have the
-    // same ids and the same values, or both selections are undefined.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same values, as determined by `operator==`, and `false` otherwise.
 inline
 bool operator!=(const MyChoiceWithDefaultValues& lhs,
                 const MyChoiceWithDefaultValues& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same values, as determined by 'operator==', and 'false' otherwise.
 
+/// Format the specified `rhs` to the specified output `stream` and
+/// return a reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream&                   stream,
                         const MyChoiceWithDefaultValues& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
 
 }  // close package namespace
 
@@ -1264,162 +1269,167 @@ class MySequenceWithDefaultValues {
 
   public:
     // CLASS METHODS
-    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
-        // Return attribute information for the attribute indicated by the
-        // specified 'id' if the attribute exists, and 0 otherwise.
 
+    /// Return attribute information for the attribute indicated by the
+    /// specified `id` if the attribute exists, and 0 otherwise.
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+
+    /// Return attribute information for the attribute indicated by the
+    /// specified `name` of the specified `nameLength` if the attribute
+    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
-        // Return attribute information for the attribute indicated by the
-        // specified 'name' of the specified 'nameLength' if the attribute
-        // exists, and 0 otherwise.
 
     // CREATORS
-    explicit MySequenceWithDefaultValues(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'MySequenceWithDefaultValues' having the
-        // default value.  Use the optionally specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create an object of type `MySequenceWithDefaultValues` having the
+    /// default value.  Use the optionally specified `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
+    explicit MySequenceWithDefaultValues(bslma::Allocator *basicAllocator = 0);
+
+    /// Create an object of type `MySequenceWithDefaultValues` having the
+    /// value of the specified `original` object.  Use the optionally
+    /// specified `basicAllocator` to supply memory.  If `basicAllocator` is
+    /// 0, the currently installed default allocator is used.
     MySequenceWithDefaultValues(const MySequenceWithDefaultValues& original,
                                 bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'MySequenceWithDefaultValues' having the
-        // value of the specified 'original' object.  Use the optionally
-        // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
-        // 0, the currently installed default allocator is used.
 
+    /// Destroy this object.
     ~MySequenceWithDefaultValues();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     MySequenceWithDefaultValues&
     operator=(const MySequenceWithDefaultValues& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
+    /// Reset this object to the default value (i.e., its value upon
+    /// default construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
 
+    /// Invoke the specified `manipulator` sequentially on the address of
+    /// each (modifiable) attribute of this object, supplying `manipulator`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `manipulator` (i.e., the invocation that
+    /// terminated the sequence).
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
-        // Invoke the specified 'manipulator' sequentially on the address of
-        // each (modifiable) attribute of this object, supplying 'manipulator'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `id`,
+    /// supplying `manipulator` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `manipulator` if `id` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `name` of the
+    /// specified `nameLength`, supplying `manipulator` with the
+    /// corresponding attribute information structure.  Return the value
+    /// returned from the invocation of `manipulator` if `name` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
-        // specified 'nameLength', supplying 'manipulator' with the
-        // corresponding attribute information structure.  Return the value
-        // returned from the invocation of 'manipulator' if 'name' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Return a reference to the modifiable "Attribute0" attribute of this
+    /// object.
     int& attribute0();
-        // Return a reference to the modifiable "Attribute0" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Attribute1" attribute of this
+    /// object.
     bsl::string& attribute1();
-        // Return a reference to the modifiable "Attribute1" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Attribute2" attribute of this
+    /// object.
     MyEnumeration::Value& attribute2();
-        // Return a reference to the modifiable "Attribute2" attribute of this
-        // object.
 
     // ACCESSORS
+
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.  Note that a trailing newline is provided
+    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
 
+    /// Invoke the specified `accessor` sequentially on each
+    /// (non-modifiable) attribute of this object, supplying `accessor`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `accessor` (i.e., the invocation that terminated
+    /// the sequence).
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
-        // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `id`, supplying `accessor`
+    /// with the corresponding attribute information structure.  Return the
+    /// value returned from the invocation of `accessor` if `id` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
-        // with the corresponding attribute information structure.  Return the
-        // value returned from the invocation of 'accessor' if 'id' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `name` of the specified
+    /// `nameLength`, supplying `accessor` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `accessor` if `name` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
-        // 'nameLength', supplying 'accessor' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'accessor' if 'name' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Return a reference to the non-modifiable "Attribute0" attribute of
+    /// this object.
     int attribute0() const;
-        // Return a reference to the non-modifiable "Attribute0" attribute of
-        // this object.
 
+    /// Return a reference to the non-modifiable "Attribute1" attribute of
+    /// this object.
     const bsl::string& attribute1() const;
-        // Return a reference to the non-modifiable "Attribute1" attribute of
-        // this object.
 
+    /// Return a reference to the non-modifiable "Attribute2" attribute of
+    /// this object.
     MyEnumeration::Value attribute2() const;
-        // Return a reference to the non-modifiable "Attribute2" attribute of
-        // this object.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have
+/// the same value, and `false` otherwise.  Two attribute objects have the
+/// same value if each respective attribute has the same value.
 inline
 bool operator==(const MySequenceWithDefaultValues& lhs,
                 const MySequenceWithDefaultValues& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
+/// have the same value, and `false` otherwise.  Two attribute objects do
+/// not have the same value if one or more respective attributes differ in
+/// values.
 inline
 bool operator!=(const MySequenceWithDefaultValues& lhs,
                 const MySequenceWithDefaultValues& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
 
+/// Format the specified `rhs` to the specified output `stream` and
+/// return a reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream&                     stream,
                         const MySequenceWithDefaultValues& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and
-    // return a reference to the modifiable 'stream'.
 
 }  // close package namespace
 
@@ -1787,13 +1797,13 @@ struct IsEnumeration<test::Enumeration1> : public bsl::true_type {
 // ============================================================================
 //                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
-//..
+// ```
     namespace BloombergLP {
     namespace usage {
 
+    /// This struct represents a sequence containing a `string` member, an
+    /// `int` member, and a `float` member.
     struct EmployeeRecord {
-        // This struct represents a sequence containing a 'string' member, an
-        // 'int' member, and a 'float' member.
 
         // CONSTANTS
         enum {
@@ -1808,16 +1818,18 @@ struct IsEnumeration<test::Enumeration1> : public bsl::true_type {
         float       d_salary;
 
         // CREATORS
+
+        /// Create an `EmployeeRecord` having the attributes:
+        /// ```
+        /// d_name   == ""
+        /// d_age    == 0
+        /// d_salary = 0.0
+        /// ```
         EmployeeRecord();
-            // Create an 'EmployeeRecord' having the attributes:
-            //..
-            //  d_name   == ""
-            //  d_age    == 0
-            //  d_salary = 0.0
-            //..
+
+        /// Create an `EmployeeRecord` object having the specified
+        /// `name`, `age`, and `salary` attributes.
         EmployeeRecord(const bsl::string& name, int age, float salary);
-            // Create an 'EmployeeRecord' object having the specified
-            // 'name', 'age', and 'salary' attributes.
 
         // ACCESSORS
         const bsl::string& name()   const;
@@ -1858,7 +1870,7 @@ struct IsEnumeration<test::Enumeration1> : public bsl::true_type {
         return d_salary;
     }
 
-    }  // close namespace 'usage'
+    }  // close namespace usage
 
     namespace usage {
 
@@ -1894,7 +1906,7 @@ struct IsEnumeration<test::Enumeration1> : public bsl::true_type {
     bool bdlat_sequenceHasAttribute(const EmployeeRecord& object,
                                     int                   attributeId);
 
-    }  // close namespace 'usage'
+    }  // close namespace usage
 
     template <typename MANIPULATOR>
     int usage::bdlat_sequenceManipulateAttribute(
@@ -2168,7 +2180,7 @@ struct IsEnumeration<test::Enumeration1> : public bsl::true_type {
         struct IsSequence<usage::EmployeeRecord> : public bsl::true_type {
         };
 
-    }  // close namespace 'bdlat_SequenceFunctions'
+    }  // close namespace bdlat_SequenceFunctions
     }  // close enterprise namespace
 
 static void usageExample()
@@ -2181,39 +2193,39 @@ static void usageExample()
 ///Example 1: Decoding an Employee Record
 /// - - - - - - - - - - - - - - - - - - -
 // Suppose that an "employee record" consists of a sequence of attributes --
-// 'name', 'age', and 'salary' -- that are of types 'bsl::string', 'int', and
-// 'float', respectively.  Furthermore, we have a need to BER encode employee
+// `name`, `age`, and `salary` -- that are of types `bsl::string`, `int`, and
+// `float`, respectively.  Furthermore, we have a need to BER encode employee
 // records as a sequence of values (for out-of-process consumption).
 //
-// Assume that we have defined a 'usage::EmployeeRecord' class to represent
-// employee record values, and assume that we have provided the 'bdlat'
-// specializations that allow the 'balber' codec components to represent class
+// Assume that we have defined a `usage::EmployeeRecord` class to represent
+// employee record values, and assume that we have provided the `bdlat`
+// specializations that allow the `balber` codec components to represent class
 // values as a sequence of BER primitive values.  See
-// {'bdlat_sequencefunctions'|Usage} for details of creating specializations
+// {`bdlat_sequencefunctions`|Usage} for details of creating specializations
 // for a sequence type.
 //
 // First, we create an employee record object having typical values:
-//..
+// ```
     usage::EmployeeRecord bob("Bob", 56, 1234.00);
     ASSERT("Bob"   == bob.name());
     ASSERT(  56    == bob.age());
     ASSERT(1234.00 == bob.salary());
-//..
-// Next, we create a 'balber::Encoder' object and use it to encode our 'bob'
+// ```
+// Next, we create a `balber::Encoder` object and use it to encode our `bob`
 // object.  Here, to facilitate the examination of our results, the BER
-// encoding data is delivered to a 'bslsb::MemOutStreamBuf' object:
-//..
+// encoding data is delivered to a `bslsb::MemOutStreamBuf` object:
+// ```
     bdlsb::MemOutStreamBuf osb;
     balber::BerEncoder     encoder;
     int                    rc = encoder.encode(&osb, bob);
     ASSERT( 0 == rc);
     ASSERT(18 == osb.length());
-//..
-// Now, we create a 'bdlsb::FixedMemInStreamBuf' object to manage our access
-// to the data portion of the 'bdlsb::MemOutStreamBuf' (where our BER encoding
+// ```
+// Now, we create a `bdlsb::FixedMemInStreamBuf` object to manage our access
+// to the data portion of the `bdlsb::MemOutStreamBuf` (where our BER encoding
 // resides), decode the values found there, and use them to set the value
-// of an 'usage::EmployeeRecord' object.
-//..
+// of an `usage::EmployeeRecord` object.
+// ```
     balber::BerDecoderOptions  options;
     balber::BerDecoder         decoder(&options);
     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
@@ -2221,14 +2233,14 @@ static void usageExample()
 
     rc = decoder.decode(&isb, &obj);
     ASSERT(0 == rc);
-//..
+// ```
 // Finally, we confirm that the object defined by the BER encoding has the
 // same value as the original object.
-//..
+// ```
     ASSERT(bob.name()   == obj.name());
     ASSERT(bob.age()    == obj.age());
     ASSERT(bob.salary() == obj.salary());
-//..
+// ```
 }
 
 // ============================================================================
@@ -2236,7 +2248,7 @@ static void usageExample()
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The following function, 'LLVMFuzzerTestOneInput', is the entry point for the
+// The following function, `LLVMFuzzerTestOneInput`, is the entry point for the
 // clang fuzz testing facility.  See {http://bburl/BDEFuzzTesting} for details
 // on how to build and run with fuzz testing enabled.
 //-----------------------------------------------------------------------------
@@ -2245,12 +2257,12 @@ static void usageExample()
 #define main test_driver_main
 #endif
 
+/// Try to deserialize an object of the specified `TYPE` from the specified
+/// span of bytes [`bytes`, `bytes` + `size`).  Return `true` on success.
 template <class TYPE>
 bool tryDeserialize(const uint8_t                    *bytes,
                     size_t                            size,
                     const balber::BerDecoderOptions&  options)
-    // Try to deserialize an object of the specified 'TYPE' from the specified
-    // span of bytes ['bytes', 'bytes' + 'size').  Return 'true' on success.
 {
     balber::BerDecoder         decoder(&options);
     bdlsb::FixedMemInStreamBuf streamBuf(reinterpret_cast<const char*>(bytes),
@@ -2261,20 +2273,20 @@ bool tryDeserialize(const uint8_t                    *bytes,
     return rc == 0;
 }
 
+/// Try to deserialize an object of the specified `TYPE` from the specified
+/// `data`.
 template <class TYPE>
 inline
 bool tryDeserialize(const bslim::FuzzDataView&       data,
                     const balber::BerDecoderOptions& options)
-    // Try to deserialize an object of the specified 'TYPE' from the specified
-    // 'data'.
 {
     return tryDeserialize<TYPE>(data.data(), data.length(), options);
 }
 
 extern "C"
+/// Use the specified `bytes` array of `size` bytes as input to methods of
+/// this component and return zero.
 int LLVMFuzzerTestOneInput(const uint8_t *bytes, size_t size)
-    // Use the specified 'bytes' array of 'size' bytes as input to methods of
-    // this component and return zero.
 {
     typedef bslim::FuzzUtil FuzzUtil;
     bslim::FuzzDataView data(bytes, size);
@@ -2318,7 +2330,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator ta("testAllocator", veryVeryVerbose);
     bslma::TestAllocatorMonitor tam(&ta);
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     balber::BerDecoderOptions options;
@@ -2338,13 +2350,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -2361,10 +2373,10 @@ int main(int argc, char *argv[])
         // FUZZ TEST BUG (DRQS 175741365)
         //
         // Concerns:
-        //: 1 The input sample mustn't cause a crash.
+        // 1. The input sample mustn't cause a crash.
         //
         // Plan:
-        //: 1 Reproduce the failing fuzz test.
+        // 1. Reproduce the failing fuzz test.
         //
         // Testing:
         //   FUZZ TEST BUG (DRQS 175741365)
@@ -2385,10 +2397,10 @@ int main(int argc, char *argv[])
         // FUZZ TEST BUG (DRQS 175594554)
         //
         // Concerns:
-        //: 1 The input sample mustn't cause a crash.
+        // 1. The input sample mustn't cause a crash.
         //
         // Plan:
-        //: 1 Reproduce the failing fuzz test.
+        // 1. Reproduce the failing fuzz test.
         //
         // Testing:
         //   FUZZ TEST BUG (DRQS 175594554)
@@ -2404,25 +2416,25 @@ int main(int argc, char *argv[])
         // DECODE DATE/TIME WITH LENGTH ANOMALIES
         //
         // Concerns:
-        //: 1 Length above 127 characters results in an error regardless of the
-        //:   content.
-        //:
-        //: 2 Length precisely at 127 characters is decoded as usual.
-        //:
-        //: 3 Length beyond available data results in an error regardless of
-        //:   the available content.
+        // 1. Length above 127 characters results in an error regardless of the
+        //    content.
+        //
+        // 2. Length precisely at 127 characters is decoded as usual.
+        //
+        // 3. Length beyond available data results in an error regardless of
+        //    the available content.
         //
         // Plan:
-        //: 1 Table based test for each sub-type.
-        //:
-        //: 2 For each valid type for a test data ISO 8601 string:
-        //:   1 Encoded input is generated from the string
-        //:
-        //:   2 Encoded input is then manipulated to change the length for
-        //:     concerns that require a length different from the size of
-        //:     available data
-        //:
-        //:   3 Decoding return value is verified using assertions
+        // 1. Table based test for each sub-type.
+        //
+        // 2. For each valid type for a test data ISO 8601 string:
+        //   1. Encoded input is generated from the string
+        //
+        //   2. Encoded input is then manipulated to change the length for
+        //      concerns that require a length different from the size of
+        //      available data
+        //
+        //   3. Decoding return value is verified using assertions
         //
         // Testing:
         //   DECODE DATE/TIME WITH LENGTH ANOMALIES
@@ -2434,7 +2446,7 @@ int main(int argc, char *argv[])
         // Kept at 126 for "+1" to fit in one byte, BER-encoded
         const int MAX_LEN = 126;
 
-        if (verbose) cout << "\t'bdlt::Date'/'DateTz'\n";
+        if (verbose) cout << "\t`bdlt::Date`/`DateTz`\n";
         {
             // Create the encoder that encodes date as ISO 8601 strings
             balber::BerEncoderOptions mOptions;
@@ -2464,7 +2476,7 @@ int main(int argc, char *argv[])
                 if (veryVeryVerbose) { P_(LINE) P_(DATE) P(OFFSET); }
 
                 {
-                    // Create a complete & valid encoded 'Date' octets
+                    // Create a complete & valid encoded `Date` octets
                     bdlsb::MemOutStreamBuf buff;
                     int rc = encoder.encode(&buff, DATE);
                     ASSERTV(rc, 0 == rc);
@@ -2480,7 +2492,7 @@ int main(int argc, char *argv[])
                 }
 
                 {
-                    // Create a complete & valid encoded 'DateTz' octets
+                    // Create a complete & valid encoded `DateTz` octets
                     const DateTz DATETZ(DATE, OFFSET);
 
                     bdlsb::MemOutStreamBuf buff;
@@ -2499,7 +2511,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\t'bdlt::Time'/'TimeTz'\n";
+        if (verbose) cout << "\t`bdlt::Time`/`TimeTz`\n";
         {
             // Create the encoder that encodes times as ISO 8601 strings
             balber::BerEncoderOptions mOptions;
@@ -2531,7 +2543,7 @@ int main(int argc, char *argv[])
                 if (veryVeryVerbose) { P_(LINE) P_(TIME) P(OFFSET); }
 
                 {
-                    // Create a complete & valid encoded 'Date' octets
+                    // Create a complete & valid encoded `Date` octets
                     bdlsb::MemOutStreamBuf buff;
                     int rc = encoder.encode(&buff, TIME);
                     ASSERTV(rc, 0 == rc);
@@ -2549,7 +2561,7 @@ int main(int argc, char *argv[])
                 }
 
                 {
-                    // Create a complete & valid encoded 'TimeTz' octets
+                    // Create a complete & valid encoded `TimeTz` octets
                     const TimeTz TIMETZ(TIME, OFFSET);
 
                     bdlsb::MemOutStreamBuf buff;
@@ -2571,7 +2583,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\t'bdlt::Datetime'/'DatetimeTz'\n";
+        if (verbose) cout << "\t`bdlt::Datetime`/`DatetimeTz`\n";
         {
             // Create the encoder that encodes datetimes as ISO 8601 strings
             balber::BerEncoderOptions mOptions;
@@ -2603,7 +2615,7 @@ int main(int argc, char *argv[])
                 if (veryVeryVerbose) { P_(LINE) P_(DATETIME) P(OFFSET); }
 
                 {
-                    // Create a complete & valid encoded 'Date' octets
+                    // Create a complete & valid encoded `Date` octets
                     bdlsb::MemOutStreamBuf buff;
                     int rc = encoder.encode(&buff, DATETIME);
                     ASSERTV(rc, 0 == rc);
@@ -2622,7 +2634,7 @@ int main(int argc, char *argv[])
                 }
 
                 {
-                    // Create a complete & valid encoded 'TimeTz' octets
+                    // Create a complete & valid encoded `TimeTz` octets
                     const DatetimeTz DATETIMETZ(DATETIME, OFFSET);
 
                     bdlsb::MemOutStreamBuf buff;
@@ -2650,32 +2662,32 @@ int main(int argc, char *argv[])
         // DECODE INTS AS ENUMS AND VICE VERSA
         //
         // Concerns:
-        //: 1 The encoding produced by 'balber_berencoder' when encoding an
-        //:   integer enumeration can be decoded into either a plain integral
-        //:   type or a customized type (as produced by bas_codegen) whose base
-        //:   type is integral.
-        //:
-        //: 2 The encoding produced by 'balber_berencoder' when encoding either
-        //:   a plain integral type or a customized type (as produced by
-        //:   bas_codegen) whose base type is integral can be decoded into an
-        //:   integer enumeration type.
+        // 1. The encoding produced by `balber_berencoder` when encoding an
+        //    integer enumeration can be decoded into either a plain integral
+        //    type or a customized type (as produced by bas_codegen) whose base
+        //    type is integral.
+        //
+        // 2. The encoding produced by `balber_berencoder` when encoding either
+        //    a plain integral type or a customized type (as produced by
+        //    bas_codegen) whose base type is integral can be decoded into an
+        //    integer enumeration type.
         //
         // Plan:
-        //: 1 Define a type, 'Enumeration1', that is a 'bdlat' enumeration, can
-        //:   hold an integer value of either 0 or 1, and whose string
-        //:   representation is just the decimal form of its value (as with
-        //:   'bcem_Aggregate').
-        //:
-        //: 2 Using 'balber_berencoder', encode objects of type 'Enumeration1'
-        //:   having values of 0 and 1, and decode them into plain 'int's.
-        //:   Verify that the resulting values are the same as the original
-        //:   values.  Then, repeat using the generated type
-        //:   'test::MyIntEnumeration'.  (C-1)
-        //:
-        //: 3 Using 'balber_berencoder', encode plain 'int's having values of 0
-        //:   and 1, decode them into 'Enumeration1', and verify that the
-        //:   resulting values are the same as the original values.  Then,
-        //:   repeat using the generated type 'test::MyIntEnumeration'.  (C-2)
+        // 1. Define a type, `Enumeration1`, that is a `bdlat` enumeration, can
+        //    hold an integer value of either 0 or 1, and whose string
+        //    representation is just the decimal form of its value (as with
+        //    `bcem_Aggregate`).
+        //
+        // 2. Using `balber_berencoder`, encode objects of type `Enumeration1`
+        //    having values of 0 and 1, and decode them into plain `int`s.
+        //    Verify that the resulting values are the same as the original
+        //    values.  Then, repeat using the generated type
+        //    `test::MyIntEnumeration`.  (C-1)
+        //
+        // 3. Using `balber_berencoder`, encode plain `int`s having values of 0
+        //    and 1, decode them into `Enumeration1`, and verify that the
+        //    resulting values are the same as the original values.  Then,
+        //    repeat using the generated type `test::MyIntEnumeration`.  (C-2)
         //
         // Testing:
         //   DECODE INTS AS ENUMS AND VICE VERSA
@@ -2739,34 +2751,34 @@ int main(int argc, char *argv[])
         //   configured maximum sequence size fails.
         //
         // Concerns:
-        //: 1 Decoding an empty 'vector<char>' with a degerate maximum decoded
-        //:   sequence size of 0 successfully decodes the empty vector.
-        //:
-        //: 2 Decoding a single-element 'vector<char>' with a degenerate
-        //:   maximum decoded sequence size of 0 fails.
-        //;
-        //: 3 Decoding en empty 'vector<char>' with a maximum decoded sequence
-        //:   size of 1 successfully decodes the empty vector.
-        //:
-        //: 4 Decoding an single-element 'vector<char>' with a maximum decoded
-        //:   sequence size of 1 successfully decodes the vector.
-        //:
-        //: 5 For various maximum decoded sequence sizes, decoding a
-        //:   'vector<char>' less than or exactly equal to that size succeeds.
-        //:
-        //: 6 For various maximum decoded sequence sizes, decoding a
-        //:   'vector<char>' of a greater size fails.
+        // 1. Decoding an empty `vector<char>` with a degerate maximum decoded
+        //    sequence size of 0 successfully decodes the empty vector.
+        //
+        // 2. Decoding a single-element `vector<char>` with a degenerate
+        //    maximum decoded sequence size of 0 fails.
+        //
+        // 3. Decoding en empty `vector<char>` with a maximum decoded sequence
+        //    size of 1 successfully decodes the empty vector.
+        //
+        // 4. Decoding an single-element `vector<char>` with a maximum decoded
+        //    sequence size of 1 successfully decodes the vector.
+        //
+        // 5. For various maximum decoded sequence sizes, decoding a
+        //    `vector<char>` less than or exactly equal to that size succeeds.
+        //
+        // 6. For various maximum decoded sequence sizes, decoding a
+        //    `vector<char>` of a greater size fails.
         //
         // Plan:
-        //: 1 For maximum sequence sizes of 0, 1, 1 Megabyte, and 1 Gigabyte,
-        //:   attempt to decode a 'vector<char>' of 1 less than, exactly equal
-        //:   to, and 1 greater than the maximum sequence size.
-        //:
-        //: 2 Verify that decoding vectors of sizes less than or equal to the
-        //:   configured maximum sequence size succeeds.
-        //:
-        //: 3 Verify that decoding vectors of sizes greater than the configured
-        //:   maximum sequence size fails.
+        // 1. For maximum sequence sizes of 0, 1, 1 Megabyte, and 1 Gigabyte,
+        //    attempt to decode a `vector<char>` of 1 less than, exactly equal
+        //    to, and 1 greater than the maximum sequence size.
+        //
+        // 2. Verify that decoding vectors of sizes less than or equal to the
+        //    configured maximum sequence size succeeds.
+        //
+        // 3. Verify that decoding vectors of sizes greater than the configured
+        //    maximum sequence size fails.
         //
         // Testing:
         //   int decode(bsl::streambuf *streamBuf, TYPE *variable);
@@ -2777,7 +2789,7 @@ int main(int argc, char *argv[])
 
         // First, ensure that the default maximum sequence size is 1GB.  This
         // assertion will need to be changed as the default value for the
-        // maximum sequence size in 'balber::BerDecoderOptions' changes.
+        // maximum sequence size in `balber::BerDecoderOptions` changes.
 
         balber::BerDecoderOptions options;
         ASSERT(1 * 1024 * 1024 * 1024 == options.maxSequenceSize());
@@ -2865,46 +2877,46 @@ int main(int argc, char *argv[])
         // DECODE COMPLEX TYPES WITH DEFAULT ELEMENTS
         //
         // Concerns:
-        //: 1 The "DefaultEmptyStrings" decoder option instructs a BER decoder
-        //:   to load the default value of elements only when it is true,
-        //:   the decoder reads an empty string, and the attribute has a
-        //:   default string value.
-        //:
-        //: 2 The "DefaultEmptyStrings" decoder option does not affect whether
-        //:   or not a BER decoder loads the default value of non-string
-        //:   types.
-        //:
-        //: 3 The "DefaultEmptyStrings" decoder option applies to elements of
-        //:   both sequences and choices.
+        // 1. The "DefaultEmptyStrings" decoder option instructs a BER decoder
+        //    to load the default value of elements only when it is true,
+        //    the decoder reads an empty string, and the attribute has a
+        //    default string value.
+        //
+        // 2. The "DefaultEmptyStrings" decoder option does not affect whether
+        //    or not a BER decoder loads the default value of non-string
+        //    types.
+        //
+        // 3. The "DefaultEmptyStrings" decoder option applies to elements of
+        //    both sequences and choices.
         //
         // Plan:
-        //: 1 Create a choice type having an integer, string, and enumeration
-        //:   selection, each having a default value.
-        //:
-        //: 2 Perform a depth-ordered enumeration of encoding and then
-        //:   decoding each permutation of an instance of the choice type
-        //:   having a zero, unset, default, or arbitary value.
-        //:
-        //: 3 Validate that if the encoded object was an empty string
-        //:   selection, the decoded object is loaded with the default value
-        //:   if the "DefaultEmptyStrings" decoder option is set, and otherwise
-        //:   the decoded object is loaded with an empty string value.
-        //:
-        //: 4 Create a sequence type having integer, string, and enumeration
-        //:   attributes, each having a default value.
-        //:
-        //: 5 Perform a locally depth-ordered enumeration of encoding and
-        //:   an instance of the sequence type, testing each attribute in
-        //:   isolation.
-        //:
-        //: 6 For each attribute test, validate that the if the string
-        //:   attribute of the encoded object was empty, the decoded object
-        //:   is loaded with the default value if the "DefaultEmptyStrings"
-        //:   decoder option is set, and otherwise the decoded attribute is
-        //:   loaded with an empty string value.
+        // 1. Create a choice type having an integer, string, and enumeration
+        //    selection, each having a default value.
+        //
+        // 2. Perform a depth-ordered enumeration of encoding and then
+        //    decoding each permutation of an instance of the choice type
+        //    having a zero, unset, default, or arbitary value.
+        //
+        // 3. Validate that if the encoded object was an empty string
+        //    selection, the decoded object is loaded with the default value
+        //    if the "DefaultEmptyStrings" decoder option is set, and otherwise
+        //    the decoded object is loaded with an empty string value.
+        //
+        // 4. Create a sequence type having integer, string, and enumeration
+        //    attributes, each having a default value.
+        //
+        // 5. Perform a locally depth-ordered enumeration of encoding and
+        //    an instance of the sequence type, testing each attribute in
+        //    isolation.
+        //
+        // 6. For each attribute test, validate that the if the string
+        //    attribute of the encoded object was empty, the decoded object
+        //    is loaded with the default value if the "DefaultEmptyStrings"
+        //    decoder option is set, and otherwise the decoded attribute is
+        //    loaded with an empty string value.
         //
         // Testing:
-        //   Given 'TYPE' is a choice or sequence having selections or
+        //   Given `TYPE` is a choice or sequence having selections or
         //   attributes with default values, respectively:
         //
         //   int BerDecoder::decode(bsl::streambuf *streamBuf, TYPE *variable)
@@ -3345,35 +3357,35 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // ENCODE AND DECODE 'RawData'
+        // ENCODE AND DECODE `RawData`
         //
         // Concerns:
-        //: 1 A 'vector<char>' with certain formatting modes will be encoded
-        //:   by 'BerEncoder' as a primitive array.
-        //:
-        //: 2 A 'vector<char>' with any other formatting mode, or a
-        //:   'vector<unsigned char>', will be encoded by 'BerEncoder' as a
-        //:   sequence of individual values.
-        //:
-        //: 3 'BerDecoder' when decoding a 'vector<char>' or a
-        //:   'vector<unsigned char>' should be able to decode either of those
-        //:   formats, independent of which encoding choice was made.
-        //:
-        //: 4 Similarly, since 'char' and 'unsigned char' are generally really
-        //:   used interchangeably as 'byte', the type when encoded shouldn't
-        //:   prevent decoding even if it does not match the type when
-        //:   decoding.
+        // 1. A `vector<char>` with certain formatting modes will be encoded
+        //    by `BerEncoder` as a primitive array.
+        //
+        // 2. A `vector<char>` with any other formatting mode, or a
+        //    `vector<unsigned char>`, will be encoded by `BerEncoder` as a
+        //    sequence of individual values.
+        //
+        // 3. `BerDecoder` when decoding a `vector<char>` or a
+        //    `vector<unsigned char>` should be able to decode either of those
+        //    formats, independent of which encoding choice was made.
+        //
+        // 4. Similarly, since `char` and `unsigned char` are generally really
+        //    used interchangeably as `byte`, the type when encoded shouldn't
+        //    prevent decoding even if it does not match the type when
+        //    decoding.
         //
         // Plan:
-        //: 1 For each of the differently structured 'RawData' types from the
-        //:   test schema ('test::RawData', 'test::RawDataSwitched',
-        //:   'test::RawDataUnformatted') populate an object with test data and
-        //:   encode it.
-        //:
-        //: 2 Use a 'BerDecoder' to decode into a 'test::RawData'.
-        //:
-        //: 3 Verify that the 2 vectors from the decoded object match the
-        //:   test data that was populated into the encoded object.
+        // 1. For each of the differently structured `RawData` types from the
+        //    test schema (`test::RawData`, `test::RawDataSwitched`,
+        //    `test::RawDataUnformatted`) populate an object with test data and
+        //    encode it.
+        //
+        // 2. Use a `BerDecoder` to decode into a `test::RawData`.
+        //
+        // 3. Verify that the 2 vectors from the decoded object match the
+        //    test data that was populated into the encoded object.
         //
         // Testing:
         //   int BerDecoder_Node::decode(bsl::vector<char>          *variable,
@@ -3382,7 +3394,7 @@ int main(int argc, char *argv[])
         //                               bdlat_TypeCategory::Array  )
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nENCODE AND DECODE 'RawData'"
+        if (verbose) cout << "\nENCODE AND DECODE `RawData`"
                              "\n===========================\n";
 
         bsl::vector<char>          testData = loadFromHex(
@@ -3392,7 +3404,7 @@ int main(int argc, char *argv[])
                                                 bsl::back_inserter(utestData));
         ASSERT(testData.size() == utestData.size());
 
-        if (verbose) cout << "\nTesting with 'RawData'.\n";
+        if (verbose) cout << "\nTesting with `RawData`.\n";
         {
             test::RawData rawData;
             rawData.charvec() = testData;
@@ -3423,7 +3435,7 @@ int main(int argc, char *argv[])
             ASSERT(utestData == rawDataParsed.ucharvec());
         }
 
-        if (verbose) cout << "\nTesting with 'RawDataUnformatted'.\n";
+        if (verbose) cout << "\nTesting with `RawDataUnformatted`.\n";
         {
             test::RawDataUnformatted rawDataUf;
             rawDataUf.charvec() = testData;
@@ -3453,7 +3465,7 @@ int main(int argc, char *argv[])
             ASSERT(utestData == rawDataParsed.ucharvec());
         }
 
-        if (verbose) cout << "\nTesting uchar->char with 'RawDataSwitched'.\n";
+        if (verbose) cout << "\nTesting uchar->char with `RawDataSwitched`.\n";
         {
             test::RawDataSwitched rawDataSw;
             bsl::copy(testData.begin(),testData.end(),
@@ -5850,8 +5862,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nEmpty array and 'encodeEmptyArrays' option "
-                                                            "set to 'false'\n";
+        if (verbose) cout << "\nEmpty array and `encodeEmptyArrays` option "
+                                                            "set to `false`\n";
         {
             balber::BerEncoderOptions options;
             options.setEncodeEmptyArrays(false);

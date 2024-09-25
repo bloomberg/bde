@@ -9,13 +9,13 @@
 #include <bsls_platform.h>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-#include <type_traits>  // 'std::is_base_of',
-                        // 'std::is_lvalue_reference', and
-                        // 'std::is_lvalue_reference_v' (C++17)
+#include <type_traits>  // `std::is_base_of`,
+                        // `std::is_lvalue_reference`, and
+                        // `std::is_lvalue_reference_v` (C++17)
 #endif
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 
@@ -33,8 +33,8 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 // The component under test defines a meta-function,
-// 'bsl::is_lvalue_reference' and a template variable
-// 'bsl::is_lvalue_reference_v', that determine whether a template parameter
+// `bsl::is_lvalue_reference` and a template variable
+// `bsl::is_lvalue_reference_v`, that determine whether a template parameter
 // type is an lvalue reference type.  Thus, we need to ensure that the value
 // returned by this meta-function is correct for each possible category of
 // types.
@@ -115,93 +115,93 @@ void aSsErT(bool condition, const char *message, int line)
 namespace {
 
 enum EnumTestType {
-    // This user-defined 'enum' type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::is_lvalue_reference'.
+    // This user-defined `enum` type is intended to be used for testing as the
+    // template parameter `TYPE` of `bsl::is_lvalue_reference`.
 };
 
+/// This user-defined `struct` type is intended to be used for testing as
+/// the template parameter `TYPE` of `bsl::is_lvalue_reference`.
 struct StructTestType {
-    // This user-defined 'struct' type is intended to be used for testing as
-    // the template parameter 'TYPE' of 'bsl::is_lvalue_reference'.
 };
 
+/// This user-defined `union` type is intended to be used for testing as the
+/// template parameter `TYPE` of `bsl::is_lvalue_reference`.
 union UnionTestType {
-    // This user-defined 'union' type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::is_lvalue_reference'.
 };
 
+/// This user-defined base class type is intended to be used for testing as
+/// the template parameter `TYPE` of `bsl::is_lvalue_reference`.
 class BaseClassTestType {
-    // This user-defined base class type is intended to be used for testing as
-    // the template parameter 'TYPE' of 'bsl::is_lvalue_reference'.
 };
 
+/// This user-defined derived class type is intended to be used for testing
+/// as the template parameter `TYPE` of `bsl::is_lvalue_reference`.
 class DerivedClassTestType : public BaseClassTestType {
-    // This user-defined derived class type is intended to be used for testing
-    // as the template parameter 'TYPE' of 'bsl::is_lvalue_reference'.
 };
 
+/// This pointer to non-static member function type is intended to be used
+/// for testing as the template parameter `TYPE` of
+/// `bsl::is_lvalue_reference`.
 typedef int (StructTestType::*MethodPtrTestType) ();
-    // This pointer to non-static member function type is intended to be used
-    // for testing as the template parameter 'TYPE' of
-    // 'bsl::is_lvalue_reference'.
 
+/// This function pointer type is intended to be used for testing as the
+/// template parameter `TYPE` of `bsl::is_lvalue_reference`.
 typedef void (*FunctionPtrTestType) ();
-    // This function pointer type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::is_lvalue_reference'.
 
+/// This pointer to member object type is intended to be used for testing as
+/// the template parameter `TYPE` of `bsl::is_lvalue_reference`.
 typedef int StructTestType::*PMD;
-    // This pointer to member object type is intended to be used for testing as
-    // the template parameter 'TYPE' of 'bsl::is_lvalue_reference'.
 
 struct Incomplete;
-    // This incomplete 'struct' type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::is_lvalue_reference'.
+    // This incomplete `struct` type is intended to be used for testing as the
+    // template parameter `TYPE` of `bsl::is_lvalue_reference`.
 
 }  // close unnamed namespace
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+/// Test whether `bsl::is_lvalue_reference_v<TYPE>` value equals to
+/// `bsl::is_lvalue_reference<TYPE>::value`.
 #define ASSERT_V_EQ_VALUE(TYPE)                                               \
     ASSERT(bsl::is_lvalue_reference<TYPE>::value ==                           \
                                               bsl::is_lvalue_reference_v<TYPE>)
-    // Test whether 'bsl::is_lvalue_reference_v<TYPE>' value equals to
-    // 'bsl::is_lvalue_reference<TYPE>::value'.
 #else
 #define ASSERT_V_EQ_VALUE(TYPE)
 #endif
 
+/// Test that the result of `META_FUNC` has the same value as the expected
+/// `result`.  Confirm that the result value of the `META_FUNC` and the
+/// value of the `META_FUNC_v` variable are the same.
 #define TYPE_ASSERT(META_FUNC, TYPE, result)                  \
     ASSERT(result == META_FUNC<TYPE>::value);                 \
     ASSERT_V_EQ_VALUE(TYPE)
-    // Test that the result of 'META_FUNC' has the same value as the expected
-    // 'result'.  Confirm that the result value of the 'META_FUNC' and the
-    // value of the 'META_FUNC_v' variable are the same.
 
+/// Test cv-qualified combinations on the specified `TYPE`.
 #define TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE, result)       \
     TYPE_ASSERT(META_FUNC,                TYPE, result);      \
     TYPE_ASSERT(META_FUNC, const          TYPE, result);      \
     TYPE_ASSERT(META_FUNC, volatile       TYPE, result);      \
     TYPE_ASSERT(META_FUNC, const volatile TYPE, result);
-    // Test cv-qualified combinations on the specified 'TYPE'.
 
+/// Test cv-qualified combinations on the specified `TYPE`.
 #define TYPE_ASSERT_CVQ_SUFFIX(META_FUNC, TYPE, result)       \
     TYPE_ASSERT(META_FUNC, TYPE,                result);      \
     TYPE_ASSERT(META_FUNC, TYPE const,          result);      \
     TYPE_ASSERT(META_FUNC, TYPE volatile,       result);      \
     TYPE_ASSERT(META_FUNC, TYPE const volatile, result);
-    // Test cv-qualified combinations on the specified 'TYPE'.
 
+/// Test references to cv-qualified combinations on the specified `TYPE`.
 #define TYPE_ASSERT_CVQ_REF(META_FUNC, TYPE, result)           \
     TYPE_ASSERT(META_FUNC, TYPE&,                result);      \
     TYPE_ASSERT(META_FUNC, TYPE const&,          result);      \
     TYPE_ASSERT(META_FUNC, TYPE volatile&,       result);      \
     TYPE_ASSERT(META_FUNC, TYPE const volatile&, result);
-    // Test references to cv-qualified combinations on the specified 'TYPE'.
 
+/// Test all cv-qualified combinations on the specified `TYPE`.
 #define TYPE_ASSERT_CVQ(META_FUNC, TYPE, result)                     \
     TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE,                result);  \
     TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE const,          result);  \
     TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE       volatile, result);  \
     TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE const volatile, result);  \
-    // Test all cv-qualified combinations on the specified 'TYPE'.
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -229,13 +229,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -253,59 +253,59 @@ int main(int argc, char *argv[])
 // Suppose that we want to assert whether a set of types are lvalue reference
 // types.
 //
-// Now, we instantiate the 'bsl::is_lvalue_reference' template for both a
-// non-reference type and a reference type, and assert the 'value' static data
+// Now, we instantiate the `bsl::is_lvalue_reference` template for both a
+// non-reference type and a reference type, and assert the `value` static data
 // member of each instantiation:
-//..
+// ```
     ASSERT(false == bsl::is_lvalue_reference<int>::value);
     ASSERT(true  == bsl::is_lvalue_reference<int&>::value);
-//..
+// ```
 // Note that if the current compiler supports the variable templates C++14
 // feature then we can re-write the snippet of code above using the
-// 'bsl::is_function_v' variable as follows:
-//..
+// `bsl::is_function_v` variable as follows:
+// ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
     ASSERT(false == bsl::is_lvalue_reference_v<int>);
     ASSERT(true  == bsl::is_lvalue_reference_v<int&>);
 #endif
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
         // TESTING IMPLEMENTATION
         //
         // Concerns:
-        //: 1 The 'bsl::is_lvalue_reference' meta function is *never*
-        //:   implemented as an alias to the 'std::is_lvalue_reference'
-        //:   Standard meta function.
-        //:
-        //: 2 The 'bsl::is_lvalue_reference' meta function is *always* based on
-        //:   either 'bsl::true_type' or 'bsl::false_type'.
-        //:
-        //: 3 The 'bsl::is_lvalue_reference_v' variable template *is*
-        //:   implemented using the 'std::is_lvalue_reference_v' Standard
-        //:   variable template.
+        // 1. The `bsl::is_lvalue_reference` meta function is *never*
+        //    implemented as an alias to the `std::is_lvalue_reference`
+        //    Standard meta function.
+        //
+        // 2. The `bsl::is_lvalue_reference` meta function is *always* based on
+        //    either `bsl::true_type` or `bsl::false_type`.
+        //
+        // 3. The `bsl::is_lvalue_reference_v` variable template *is*
+        //    implemented using the `std::is_lvalue_reference_v` Standard
+        //    variable template.
         //
         // Plan:
-        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' is
-        //:   defined, use 'bsl::is_same' to compare 'bsl::is_lvalue_reference'
-        //:   to 'std::is_lvalue_reference' using a representative type.  (C-1)
-        //:
-        //: 2 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' is
-        //:   defined, use 'std::is_base_of' to confirm that the
-        //:   'bsl::is_floating_point' meta function has 'bsl::true_type' or
-        //:   'bsl::false_type', as appropriate, as a base class.  (C-2)
-        //:
-        //:   o For all versions, explicitly access the 'value' member to
-        //:     confirm that the inheritance is neither 'private', 'protected',
-        //:     nor ambiguous.
-        //:
-        //: 3 When 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' and (for
-        //:   'std::is_lvalue_reference_v')
-        //:   'BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY' are defined,
-        //:   compare for equality the addresses of
-        //:   'bsl::is_lvalue_reference_v' and 'std::is_lvalue_reference_v'
-        //:   using a representative type.  (C-3)
+        // 1. When `BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY` is
+        //    defined, use `bsl::is_same` to compare `bsl::is_lvalue_reference`
+        //    to `std::is_lvalue_reference` using a representative type.  (C-1)
+        //
+        // 2. When `BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY` is
+        //    defined, use `std::is_base_of` to confirm that the
+        //    `bsl::is_floating_point` meta function has `bsl::true_type` or
+        //    `bsl::false_type`, as appropriate, as a base class.  (C-2)
+        //
+        //    - For all versions, explicitly access the `value` member to
+        //      confirm that the inheritance is neither `private`, `protected`,
+        //      nor ambiguous.
+        //
+        // 3. When `BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES` and (for
+        //    `std::is_lvalue_reference_v`)
+        //    `BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY` are defined,
+        //    compare for equality the addresses of
+        //    `bsl::is_lvalue_reference_v` and `std::is_lvalue_reference_v`
+        //    using a representative type.  (C-3)
         //
         // Testing:
         //   CONCERN: Conforms to implementation constraints.
@@ -315,10 +315,10 @@ int main(int argc, char *argv[])
                             "\n======================\n");
 
         if (veryVerbose) printf(
-                             "\nTesting 'is_lvalue_reference' using 'int'.\n");
+                             "\nTesting `is_lvalue_reference` using `int`.\n");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-                                                  // 'std::is_lvalue_reference'
+                                                  // `std::is_lvalue_reference`
         ASSERT((false == bsl::is_same<bsl::is_lvalue_reference<int>,
                                       std::is_lvalue_reference<int> >::value));
 
@@ -335,7 +335,7 @@ int main(int argc, char *argv[])
 #if defined BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES                  \
  && defined BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
         if (veryVerbose) printf(
-                           "\nTesting 'is_lvalue_reference_v' using 'int'.\n");
+                           "\nTesting `is_lvalue_reference_v` using `int`.\n");
 
         typedef int T;
 
@@ -345,41 +345,41 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::is_lvalue_reference::value'
-        //   Ensure that the static data member 'value' of
-        //   'bsl::is_lvalue_reference' instantiations having various (template
-        //   parameter) 'TYPE's has the correct value.
+        // `bsl::is_lvalue_reference::value`
+        //   Ensure that the static data member `value` of
+        //   `bsl::is_lvalue_reference` instantiations having various (template
+        //   parameter) `TYPE`s has the correct value.
         //
         // Concerns:
-        //: 1 'is_lvalue_reference::value' is 'false' when 'TYPE' is a
-        //:   (possibly cv-qualified) primitive type.
-        //:
-        //: 2 'is_lvalue_reference::value' is 'false' when 'TYPE' is a
-        //:   (possibly cv-qualified) user-defined type.
-        //:
-        //: 3 'is_lvalue_reference::value' is 'false' when 'TYPE' is a
-        //:   (possibly cv-qualified) pointer type.
-        //:
-        //: 4 'is_lvalue_reference::value' is 'true' when 'TYPE' is an
-        //:   (possibly cv-qualified) lvalue reference type.
-        //:
-        //: 5 'is_lvalue_reference::value' is 'false' when 'TYPE' is a
-        //:   (possibly cv-qualified) function type.
-        //:
-        //: 6 That 'is_lvalue_reference<T>::value' has the same value as
-        //:   'is_lvalue_reference_v<T>' for a variety of template parameter
-        //:   types.
+        // 1. `is_lvalue_reference::value` is `false` when `TYPE` is a
+        //    (possibly cv-qualified) primitive type.
+        //
+        // 2. `is_lvalue_reference::value` is `false` when `TYPE` is a
+        //    (possibly cv-qualified) user-defined type.
+        //
+        // 3. `is_lvalue_reference::value` is `false` when `TYPE` is a
+        //    (possibly cv-qualified) pointer type.
+        //
+        // 4. `is_lvalue_reference::value` is `true` when `TYPE` is an
+        //    (possibly cv-qualified) lvalue reference type.
+        //
+        // 5. `is_lvalue_reference::value` is `false` when `TYPE` is a
+        //    (possibly cv-qualified) function type.
+        //
+        // 6. That `is_lvalue_reference<T>::value` has the same value as
+        //    `is_lvalue_reference_v<T>` for a variety of template parameter
+        //    types.
         //
         // Plan:
-        //: 1 Verify that 'bsl::is_lvalue_reference::value' has the correct
-        //:   value for each (template parameter) 'TYPE' in the concerns.
+        // 1. Verify that `bsl::is_lvalue_reference::value` has the correct
+        //    value for each (template parameter) `TYPE` in the concerns.
         //
         // Testing:
         //   bsl::is_lvalue_reference::value
         //   bsl::is_lvalue_reference_v
         // --------------------------------------------------------------------
 
-        if (verbose)  printf("'bsl::is_lvalue_reference::value'\n"
+        if (verbose)  printf("`bsl::is_lvalue_reference::value`\n"
                              "=================================\n");
 
         // C-1

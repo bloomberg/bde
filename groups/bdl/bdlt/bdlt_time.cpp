@@ -38,18 +38,19 @@ BSLMF_ASSERT(bslmf::IsBitwiseCopyable<Time>::value);
 BSLMF_ASSERT(!bslmf::IsTriviallyCopyableCheck<Time>::value);
 
 // STATIC HELPER FUNCTIONS
+
+/// Efficiently mod (`%`) the specified `number` by the specified `base` and
+/// store the result back into `number`; return the value of the original
+/// `number` divided by `base`.  The behavior is undefined unless
+/// `1 <= base`.  Note that, for efficiency, this function uses the native
+/// `%` operator that, for an initially negative `*number` may, depending on
+/// the platform, have a positive or negative result (whose absolute value
+/// is less then `base`), but in either case will satisfy the constraint:
+/// ```
+/// *number == *number % base + (*number / base) * base
+/// ```
 static
 bsls::Types::Int64 fastMod(int *number, int base)
-    // Efficiently mod ('%') the specified 'number' by the specified 'base' and
-    // store the result back into 'number'; return the value of the original
-    // 'number' divided by 'base'.  The behavior is undefined unless
-    // '1 <= base'.  Note that, for efficiency, this function uses the native
-    // '%' operator that, for an initially negative '*number' may, depending on
-    // the platform, have a positive or negative result (whose absolute value
-    // is less then 'base'), but in either case will satisfy the constraint:
-    //..
-    //  *number == *number % base + (*number / base) * base
-    //..
 {
     BSLS_REVIEW(number);
     BSLS_REVIEW(1 <= base);
@@ -64,18 +65,18 @@ bsls::Types::Int64 fastMod(int *number, int base)
     return result;
 }
 
+/// Efficiently mod (`%`) the specified `number` by the specified `base` and
+/// store the result back into `number`; return the value of the original
+/// `number` divided by `base`.  The behavior is undefined unless
+/// `1 <= base`.  Note that, for efficiency, this function uses the native
+/// `%` operator that, for an initially negative `*number` may, depending on
+/// the platform, have a positive or negative result (whose absolute value
+/// is less then `base`), but in either case will satisfy the constraint:
+/// ```
+/// *number == *number % base + (*number / base) * base
+/// ```
 static
 bsls::Types::Int64 fastMod(bsls::Types::Int64 *number, bsls::Types::Int64 base)
-    // Efficiently mod ('%') the specified 'number' by the specified 'base' and
-    // store the result back into 'number'; return the value of the original
-    // 'number' divided by 'base'.  The behavior is undefined unless
-    // '1 <= base'.  Note that, for efficiency, this function uses the native
-    // '%' operator that, for an initially negative '*number' may, depending on
-    // the platform, have a positive or negative result (whose absolute value
-    // is less then 'base'), but in either case will satisfy the constraint:
-    //..
-    //  *number == *number % base + (*number / base) * base
-    //..
 {
     BSLS_REVIEW(number);
     BSLS_REVIEW(1 <= base);
@@ -90,17 +91,17 @@ bsls::Types::Int64 fastMod(bsls::Types::Int64 *number, bsls::Types::Int64 base)
     return result;
 }
 
+/// Mod (`%`) the specified `number` by the specified `base`, and store the
+/// result back into `*number`; return the value of the original `*number`
+/// divided by `base`.  If the result of the mod operation is negative,
+/// adjust both the result of the mod and division such that the result of
+/// the mod operation is positive and the results satisfy the constraint:
+/// ```
+/// *number == *number % base + (*number / base) * base
+/// ```
+/// The behavior is undefined unless `1 <= base`.
 static
 bsls::Types::Int64 modulo(bsls::Types::Int64 *number, bsls::Types::Int64 base)
-    // Mod ('%') the specified 'number' by the specified 'base', and store the
-    // result back into '*number'; return the value of the original '*number'
-    // divided by 'base'.  If the result of the mod operation is negative,
-    // adjust both the result of the mod and division such that the result of
-    // the mod operation is positive and the results satisfy the constraint:
-    //..
-    //  *number == *number % base + (*number / base) * base
-    //..
-    // The behavior is undefined unless '1 <= base'.
 {
     BSLS_REVIEW(number);
     BSLS_REVIEW(1 <= base);

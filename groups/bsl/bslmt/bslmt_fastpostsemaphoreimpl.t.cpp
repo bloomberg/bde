@@ -30,9 +30,9 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              OVERVIEW
 //                              --------
-// A 'bslmt::FastPostSemaphoreImpl' is the templated-for-testing implementation
-// of a semaphore optimized for fast 'post'.  The methods of
-// 'bslmt::FastPostSemaphoreImpl' are tested by directly exercising the
+// A `bslmt::FastPostSemaphoreImpl` is the templated-for-testing implementation
+// of a semaphore optimized for fast `post`.  The methods of
+// `bslmt::FastPostSemaphoreImpl` are tested by directly exercising the
 // functionality.
 // ----------------------------------------------------------------------------
 // CREATORS
@@ -110,11 +110,11 @@ void aSsErT(bool condition, const char *message, int line)
 //                         GLOBAL OBJECTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-// The "Exhaustive" 'struct' form a testing framework for verifying a set of
+// The "Exhaustive" `struct` form a testing framework for verifying a set of
 // functions will complete, regardless of the ordering of their operations.
-// Specifically, 'ExhaustiveTest:::test' creates threads that use an
-// 'ExhaustiveObj', which is defined to use 'ExhaustiveAtomicOps',
-// 'ExhaustiveMutex', and 'ExhaustiveCondition'.  These implementations cause
+// Specifically, `ExhaustiveTest:::test` creates threads that use an
+// `ExhaustiveObj`, which is defined to use `ExhaustiveAtomicOps`,
+// `ExhaustiveMutex`, and `ExhaustiveCondition`.  These implementations cause
 // all but one executing thread to block and for the ordering of progress of
 // each thread to be determined by the test aparatus.
 
@@ -125,9 +125,9 @@ void aSsErT(bool condition, const char *message, int line)
                         // struct ExhaustiveWaitable
                         // =========================
 
+/// This base class represents an object that can cause a thread to block,
+/// and the number of threads that should be allowed to proceed.
 struct ExhaustiveWaitable {
-    // This base class represents an object that can cause a thread to block,
-    // and the number of threads that should be allowed to proceed.
 
     // PUBLIC DATA
     int d_signalCount;  // count of threads to be allowed to proceed
@@ -149,69 +149,72 @@ struct ExhaustiveData {
                         // struct ExhaustiveAtomicOps
                         // ==========================
 
+/// Simulates `bsls::AtomicOperations`.
 struct ExhaustiveAtomicOps {
-    // Simulates 'bsls::AtomicOperations'.
 
     // PUBLIC TYPES
     struct AtomicTypes {
-        typedef bsls::Types::Int64 Int64;  // simulated 'AtomicTypes::Int64'
+        typedef bsls::Types::Int64 Int64;  // simulated `AtomicTypes::Int64`
     };
 
     // CLASS METHODS
+
+    /// Simulate `bsls::AtomicOperations::addInt64AcqRel` for the specified
+    /// `pValue` and `value`.  Invoke `ExhaustiveTest::next()` to create a
+    /// scheduling point for the test aparatus.
     static void addInt64AcqRel(AtomicTypes::Int64 *pValue,
                                bsls::Types::Int64  value);
-        // Simulate 'bsls::AtomicOperations::addInt64AcqRel' for the specified
-        // 'pValue' and 'value'.  Invoke 'ExhaustiveTest::next()' to create a
-        // scheduling point for the test aparatus.
 
+    /// Simulate `bsls::AtomicOperations::addInt64NvAcqRel` for the
+    /// specified `pValue` and `value`.  Invoke `ExhaustiveTest::next()` to
+    /// create a scheduling point for the test aparatus.
     static bsls::Types::Int64 addInt64NvAcqRel(AtomicTypes::Int64 *pValue,
                                                bsls::Types::Int64  value);
-        // Simulate 'bsls::AtomicOperations::addInt64NvAcqRel' for the
-        // specified 'pValue' and 'value'.  Invoke 'ExhaustiveTest::next()' to
-        // create a scheduling point for the test aparatus.
 
+    /// Simulate `bsls::AtomicOperations::getInt64Acquire` for the specified
+    /// `pValue`.  Invoke `ExhaustiveTest::next()` to create a scheduling
+    /// point for the test aparatus.
     static bsls::Types::Int64 getInt64Acquire(AtomicTypes::Int64 *pValue);
-        // Simulate 'bsls::AtomicOperations::getInt64Acquire' for the specified
-        // 'pValue'.  Invoke 'ExhaustiveTest::next()' to create a scheduling
-        // point for the test aparatus.
 
+    /// Simulate `bsls::AtomicOperations::initInt64` for the specified
+    /// `pValue` and `value`.
     static void initInt64(AtomicTypes::Int64 *pValue,
                           bsls::Types::Int64  value);
-        // Simulate 'bsls::AtomicOperations::initInt64' for the specified
-        // 'pValue' and 'value'.
 
+    /// Simulate `bsls::AtomicOperations::testAndSwapInt64AcqRel` for the
+    /// specified `pValue`, `oldValue`, and `newWalue`.  Invoke
+    /// `ExhaustiveTest::next()` to create a scheduling point for the test
+    /// aparatus.
     static bsls::Types::Int64 testAndSwapInt64AcqRel(
                                                  AtomicTypes::Int64 *pValue,
                                                  bsls::Types::Int64  oldValue,
                                                  bsls::Types::Int64  newValue);
-        // Simulate 'bsls::AtomicOperations::testAndSwapInt64AcqRel' for the
-        // specified 'pValue', 'oldValue', and 'newWalue'.  Invoke
-        // 'ExhaustiveTest::next()' to create a scheduling point for the test
-        // aparatus.
 };
 
                           // ======================
                           // struct ExhaustiveMutex
                           // ======================
 
+/// Simulates `bslmt::Mutex`.
 struct ExhaustiveMutex : public ExhaustiveWaitable {
-    // Simulates 'bslmt::Mutex'.
 
     // CREATORS
+
+    /// Create an `ExhaustiveMutex` object.
     ExhaustiveMutex();
-        // Create an 'ExhaustiveMutex' object.
 
     // MANIPULATORS
+
+    /// Simulate `bslmt::Mutex::lock`.  Invoke `ExhaustiveTest::next()` to
+    /// create a scheduling point for the test aparatus.
     void lock();
-        // Simulate 'bslmt::Mutex::lock'.  Invoke 'ExhaustiveTest::next()' to
-        // create a scheduling point for the test aparatus.
 
+    /// Simulate `bslmt::Mutex::unlock`.
     void unlockRaw();
-        // Simulate 'bslmt::Mutex::unlock'.
 
+    /// Simulate `bslmt::Mutex::unlock`.  Invoke `ExhaustiveTest::next()` to
+    /// create a scheduling point for the test aparatus.
     void unlock();
-        // Simulate 'bslmt::Mutex::unlock'.  Invoke 'ExhaustiveTest::next()' to
-        // create a scheduling point for the test aparatus.
 
 };
 
@@ -219,41 +222,44 @@ struct ExhaustiveMutex : public ExhaustiveWaitable {
                         // struct ExhaustiveCondition
                         // ==========================
 
+/// Simulates `bslmt::Condition`.
 struct ExhaustiveCondition : public ExhaustiveWaitable {
-    // Simulates 'bslmt::Condition'.
 
     // CREATORS
+
+    /// Create an `ExhaustiveCondition` object.
     ExhaustiveCondition(bsls::SystemClockType::Enum);
-        // Create an 'ExhaustiveCondition' object.
 
     // MANIPULATORS
+
+    /// Simulate `bslmt::Condition::broadcast`.  Invoke
+    /// `ExhaustiveTest::next()` to create a scheduling point for the test
+    /// aparatus.
     void broadcast();
-        // Simulate 'bslmt::Condition::broadcast'.  Invoke
-        // 'ExhaustiveTest::next()' to create a scheduling point for the test
-        // aparatus.
 
+    /// Simulate `bslmt::Condition::signal`.  Invoke
+    /// `ExhaustiveTest::next()` to create a scheduling point for the test
+    /// aparatus.
     void signal();
-        // Simulate 'bslmt::Condition::signal'.  Invoke
-        // 'ExhaustiveTest::next()' to create a scheduling point for the test
-        // aparatus.
 
+    /// Simulate `bslmt::Condition::wait`.  Invoke `ExhaustiveTest::next()`
+    /// to create a scheduling point for the test aparatus.
     int wait(ExhaustiveMutex *mutex);
-        // Simulate 'bslmt::Condition::wait'.  Invoke 'ExhaustiveTest::next()'
-        // to create a scheduling point for the test aparatus.
 };
 
                        // ===========================
                        // struct ExhaustiveThreadUtil
                        // ===========================
 
+/// Simulates `bslmt::ThreadUtil`.
 struct ExhaustiveThreadUtil {
-    // Simulates 'bslmt::ThreadUtil'.
 
     // CLASS METHODS
+
+    /// Simulate `bslmt::ThreadUtil::yield`.  Invoke
+    /// `ExhaustiveTest::next()` to create a scheduling point for the test
+    /// aparatus.
     static void yield();
-        // Simulate 'bslmt::ThreadUtil::yield'.  Invoke
-        // 'ExhaustiveTest::next()' to create a scheduling point for the test
-        // aparatus.
 };
 
                           // =====================
@@ -269,17 +275,18 @@ typedef bslmt::FastPostSemaphoreImpl<ExhaustiveAtomicOps,
                            // class ExhaustiveTest
                            // ====================
 
+/// Implements a mechanism for exhaustively ordering the progress of threads
+/// using an `ExhaustiveObj`.
 class ExhaustiveTest {
-    // Implements a mechanism for exhaustively ordering the progress of threads
-    // using an 'ExhaustiveObj'.
 
     // PRIVATE CLASS METHODS
-    static void testCreate(bslmt::ThreadUtil::ThreadFunction f, void *a);
-        // Create a thread and invoke the specified function 'f' with the
-        // specified argument 'a'.
 
+    /// Create a thread and invoke the specified function `f` with the
+    /// specified argument `a`.
+    static void testCreate(bslmt::ThreadUtil::ThreadFunction f, void *a);
+
+    /// Execute the test.
     static void testHelper();
-        // Execute the test.
 
   public:
     // PUBLIC CLASS DATA
@@ -300,86 +307,87 @@ class ExhaustiveTest {
                                                // test the methods
 
     static bsl::size_t          s_schedule[EXHAUSTIVE_MAX_DEPTH];
-                                               // indexes into 's_data' that
+                                               // indexes into `s_data` that
                                                // represents the currently
                                                // executing ordering of threads
 
     static bsl::size_t          s_scheduleSize;
-                                               // size of 's_schedule'
+                                               // size of `s_schedule`
 
     static bsl::size_t          s_scheduleIndex;
-                                               // index into 's_schedule',
-                                               // 's_schedule[s_scheduleIndex]'
+                                               // index into `s_schedule`,
+                                               // `s_schedule[s_scheduleIndex]`
                                                // indicats which thread is to
                                                // proceed
 
     static bsl::size_t          s_scheduleNextIndex;
-                                               // index into 's_schedule'
+                                               // index into `s_schedule`
                                                // indicating where to change
                                                // the schedule for the next
                                                // iteration
 
     static bsl::size_t          s_scheduleNextId;
                                                // value to place into
-                                               // 's_schedule' at
-                                               // 's_scheduleNextIndex'
+                                               // `s_schedule` at
+                                               // `s_scheduleNextIndex`
 
-    static bool                 s_doWait;      // whether 'wait' should block
-                                               // threads; 'false' during
+    static bool                 s_doWait;      // whether `wait` should block
+                                               // threads; `false` during
                                                // initialization of the
-                                               // 'ExhaustiveObj'
+                                               // `ExhaustiveObj`
 
     static bool                 s_verbose;     // verbosity of test
 
     // CLASS METHODS
+
+    /// Mark the invoking thread as having completed.
     static void finish();
-        // Mark the invoking thread as having completed.
 
+    /// Schedule the next thread to make progress using `s_schedule`,
+    /// preventing this thread from being scheduled next if the specified
+    /// `allowRepeat` is `true`, and wait to be scheduled.
     static void next(bool allowRepeat = true);
-        // Schedule the next thread to make progress using 's_schedule',
-        // preventing this thread from being scheduled next if the specified
-        // 'allowRepeat' is 'true', and wait to be scheduled.
 
+    /// Schedule the thread having the specified `id` to make progress, and
+    /// wait to be scheduled.
     static void next(bsls::Types::Uint64 id);
-        // Schedule the thread having the specified 'id' to make progress, and
-        // wait to be scheduled.
 
+    /// For the invoking thread, perform the inter-iteration reset (when the
+    /// tested method has completed).
     static void reset();
-        // For the invoking thread, perform the inter-iteration reset (when the
-        // tested method has completed).
 
+    /// For the invoking thread, prepare to begin an iteration.
     static void start();
-        // For the invoking thread, prepare to begin an iteration.
 
+    /// Setup and execute the test for the specified function `f1` taking
+    /// the specified argument `a1`.
     static void test(bslmt::ThreadUtil::ThreadFunction f1, void *a1);
-        // Setup and execute the test for the specified function 'f1' taking
-        // the specified argument 'a1'.
 
+    /// Setup and execute the test for the specified functions `f1` and `f2`
+    /// taking the specified arguments `a1` and `a2`, respectively.
     static void test(bslmt::ThreadUtil::ThreadFunction  f1,
                      void                              *a1,
                      bslmt::ThreadUtil::ThreadFunction  f2,
                      void                              *a2);
-        // Setup and execute the test for the specified functions 'f1' and 'f2'
-        // taking the specified arguments 'a1' and 'a2', respectively.
 
+    /// Setup and execute the test for the specified functions `f1`, `f2`,
+    /// and `f3` taking the specified arguments `a1`, `a2`, and `a3`,
+    /// respectively.
     static void test(bslmt::ThreadUtil::ThreadFunction  f1,
                      void                              *a1,
                      bslmt::ThreadUtil::ThreadFunction  f2,
                      void                              *a2,
                      bslmt::ThreadUtil::ThreadFunction  f3,
                      void                              *a3);
-        // Setup and execute the test for the specified functions 'f1', 'f2',
-        // and 'f3' taking the specified arguments 'a1', 'a2', and 'a3',
-        // respectively.
 
+    /// Release all threads waiting for the specified `waitable`.
     static void unwaitAll(ExhaustiveWaitable *waitable);
-        // Release all threads waiting for the specified 'waitable'.
 
+    /// Block the invoking thread until the thread is scheduled.
     static void wait();
-        // Block the invoking thread until the thread is scheduled.
 
+    /// Mark the invoking thread as blocked on the specified `waitable`.
     static void wait(ExhaustiveWaitable *waitable);
-        // Mark the invoking thread as blocked on the specified 'waitable'.
 };
 
                         // --------------------------
@@ -847,25 +855,25 @@ struct TestAtomicOperations {
         typedef bsls::Types::Int64 Int64;
     };
 
+    /// Set the value pointed to by the specified `pValue` to the specified
+    /// `value`.
     static void initInt64(AtomicTypes::Int64 *pValue, bsls::Types::Int64 value)
-        // Set the value pointed to by the specified 'pValue' to the specified
-        // 'value'.
     {
         *pValue = value;
     }
 
+    /// Set the value pointed to by the specified `pValue` to the specified
+    /// `value` plus the original value of `*pValue`.
     static void addInt64AcqRel(AtomicTypes::Int64 *pValue,
                                bsls::Types::Int64  value)
-        // Set the value pointed to by the specified 'pValue' to the specified
-        // 'value' plus the original value of '*pValue'.
     {
         *pValue += value;
     }
 
+    /// Set the value pointed to by the specified `pValue` to the next
+    /// override value plus the specified `value`, and return this sum.
     static bsls::Types::Int64 addInt64NvAcqRel(AtomicTypes::Int64 *pValue,
                                                bsls::Types::Int64  value)
-        // Set the value pointed to by the specified 'pValue' to the next
-        // override value plus the specified 'value', and return this sum.
     {
         BSLS_ASSERT_OPT(   s_override.size()
                         && "insufficient number of override values");
@@ -877,22 +885,22 @@ struct TestAtomicOperations {
         return *pValue;
     }
 
+    /// Remove all override values.
     static void clearOverride()
-        // Remove all override values.
     {
         s_override.clear();
     }
 
+    /// Return the value pointed to by the specified `pValue`.
     static bsls::Types::Int64 getInt64Acquire(AtomicTypes::Int64 *pValue)
-        // Return the value pointed to by the specified 'pValue'.
     {
         return *pValue;
     }
 
+    /// Push an override value indicating the state of the specified
+    /// `available` count, the specified `disabled` generation, and the
+    /// specified number of `blocked` threads.
     static void pushOverride(int available, int disabled, int blocked)
-        // Push an override value indicating the state of the specified
-        // 'available' count, the specified 'disabled' generation, and the
-        // specified number of 'blocked' threads.
     {
         typedef bslmt::FastPostSemaphoreImpl<bsls::AtomicOperations,
                                              bslmt::Mutex,
@@ -911,32 +919,32 @@ class TestCondition {
     static int s_signalCount;
 
   public:
+    /// Return the number of signals sent.
     static int signalCount()
-        // Return the number of signals sent.
     {
         return s_signalCount;
     }
 
+    /// Create a `TestCondition`.
     TestCondition(bsls::SystemClockType::Enum)
-        // Create a 'TestCondition'.
     {
         s_signalCount = 0;
     }
 
+    /// Increment the number of signals sent.
     void signal()
-        // Increment the number of signals sent.
     {
         ++s_signalCount;
     }
 
+    /// Return 0.
     int timedWait(bslmt::Mutex *, const bsls::TimeInterval&)
-        // Return 0.
     {
         return 0;
     }
 
+    /// Return 0.
     int wait(bslmt::Mutex *)
-        // Return 0.
     {
         return 0;
     }
@@ -966,10 +974,10 @@ const int k_DECISECOND = 100 * 1000;  // number of microseconds in 0.1 seconds
 
 static bsls::AtomicInt s_continue;
 
+/// Return when `0 == s_continue`, or if `0 == s_continue` does not occur
+/// within 1 second, log the specified `arg`, which is a C-style string, and
+/// `abort`.
 extern "C" void *watchdog(void *arg)
-    // Return when '0 == s_continue', or if '0 == s_continue' does not occur
-    // within 1 second, log the specified 'arg', which is a C-style string, and
-    // 'abort'.
 {
     const char *text = static_cast<const char *>(arg);
 
@@ -989,10 +997,10 @@ extern "C" void *watchdog(void *arg)
     return 0;
 }
 
+/// Invoke `timedWait` with a one second timeout on the specified `arg` and
+/// verify the result value is `e_DISABLED`.  The behavior is undefined
+/// unless `arg` is a pointer to a valid instance of `Obj`.
 extern "C" void *timedWaitExpectDisabled(void *arg)
-    // Invoke 'timedWait' with a one second timeout on the specified 'arg' and
-    // verify the result value is 'e_DISABLED'.  The behavior is undefined
-    // unless 'arg' is a pointer to a valid instance of 'Obj'.
 {
     Obj& mX = *static_cast<Obj *>(arg);
 
@@ -1002,10 +1010,10 @@ extern "C" void *timedWaitExpectDisabled(void *arg)
     return 0;
 }
 
+/// Invoke `timedWait` with a one second timeout on the specified `arg` and
+/// verify the result value is `e_SUCCESS`.  The behavior is undefined
+/// unless `arg` is a pointer to a valid instance of `Obj`.
 extern "C" void *timedWaitExpectSuccess(void *arg)
-    // Invoke 'timedWait' with a one second timeout on the specified 'arg' and
-    // verify the result value is 'e_SUCCESS'.  The behavior is undefined
-    // unless 'arg' is a pointer to a valid instance of 'Obj'.
 {
     Obj& mX = *static_cast<Obj *>(arg);
 
@@ -1015,10 +1023,10 @@ extern "C" void *timedWaitExpectSuccess(void *arg)
     return 0;
 }
 
+/// Invoke `wait` on the specified `arg` and verify the result value is
+/// `e_DISABLED`.  The behavior is undefined unless `arg` is a pointer to a
+/// valid instance of `Obj`.
 extern "C" void *waitExpectDisabled(void *arg)
-    // Invoke 'wait' on the specified 'arg' and verify the result value is
-    // 'e_DISABLED'.  The behavior is undefined unless 'arg' is a pointer to a
-    // valid instance of 'Obj'.
 {
     Obj& mX = *static_cast<Obj *>(arg);
 
@@ -1027,10 +1035,10 @@ extern "C" void *waitExpectDisabled(void *arg)
     return 0;
 }
 
+/// Invoke `wait` on the specified `arg` and verify the result value is
+/// `e_SUCCESS`.  The behavior is undefined unless `arg` is a pointer to a
+/// valid instance of `Obj`.
 extern "C" void *waitExpectSuccess(void *arg)
-    // Invoke 'wait' on the specified 'arg' and verify the result value is
-    // 'e_SUCCESS'.  The behavior is undefined unless 'arg' is a pointer to a
-    // valid instance of 'Obj'.
 {
     Obj& mX = *static_cast<Obj *>(arg);
 
@@ -1086,31 +1094,31 @@ int main(int argc, char *argv[])
         //   Ensure the manipulators signal as expected.
         //
         // Concerns:
-        //: 1 The 'post' manipulator signals only when the semaphore count goes
-        //:   from zero to one, the semaphore it not disabled, and there is at
-        //:   least one blocked thread.
-        //:
-        //: 2 The 'post(value)' manipulator signals only when the semaphore
-        //:   count goes from 0 to 'value', the semaphore is not disabled, and
-        //:   there is at least one blocked thread.
+        // 1. The `post` manipulator signals only when the semaphore count goes
+        //    from zero to one, the semaphore it not disabled, and there is at
+        //    least one blocked thread.
+        //
+        // 2. The `post(value)` manipulator signals only when the semaphore
+        //    count goes from 0 to `value`, the semaphore is not disabled, and
+        //    there is at least one blocked thread.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of states and
-        //:   a flag indicating if the 'post' method is expected to signal.
-        //:   Use 'TestObj', which specializes 'FastPostSemaphoreImpl' with
-        //:   'TestAtomicOperations' and 'TestCondition' (as opposed to
-        //:   'bsls::AtomicOperations' and 'bslmt::Condition'), to directly set
-        //:   the state of the semaphore and to verify the signalling behavior
-        //:   of 'post'.  (C-1)
-        //:
-        //: 2 Using the table-driven technique, specify a set of states, a
-        //:   flag indicating if the 'post(value)' method is expected to
-        //:   signal, and a value to be used in 'post(value)'.  Use 'TestObj',
-        //:   which specializes 'FastPostSemaphoreImpl' with
-        //:   'TestAtomicOperations' and 'TestCondition' (as opposed to
-        //:   'bsls::AtomicOperations' and 'bslmt::Condition'), to directly set
-        //:   the state of the semaphore and to verify the signalling behavior
-        //:   of 'post(value)'.  (C-2)
+        // 1. Using the table-driven technique, specify a set of states and
+        //    a flag indicating if the `post` method is expected to signal.
+        //    Use `TestObj`, which specializes `FastPostSemaphoreImpl` with
+        //    `TestAtomicOperations` and `TestCondition` (as opposed to
+        //    `bsls::AtomicOperations` and `bslmt::Condition`), to directly set
+        //    the state of the semaphore and to verify the signalling behavior
+        //    of `post`.  (C-1)
+        //
+        // 2. Using the table-driven technique, specify a set of states, a
+        //    flag indicating if the `post(value)` method is expected to
+        //    signal, and a value to be used in `post(value)`.  Use `TestObj`,
+        //    which specializes `FastPostSemaphoreImpl` with
+        //    `TestAtomicOperations` and `TestCondition` (as opposed to
+        //    `bsls::AtomicOperations` and `bslmt::Condition`), to directly set
+        //    the state of the semaphore and to verify the signalling behavior
+        //    of `post(value)`.  (C-2)
         //
         // Testing:
         //   CONCERN: MANIPULATORS SIGNAL AS EXPECTED WITH MITIGATION
@@ -1124,7 +1132,7 @@ int main(int argc, char *argv[])
                  << endl;
         }
 
-        if (verbose) cout << "\nTesting 'post()'." << endl;
+        if (verbose) cout << "\nTesting `post()`." << endl;
         {
             static const struct {
                 int d_line;       // source line number
@@ -1173,14 +1181,14 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'post(value)'." << endl;
+        if (verbose) cout << "\nTesting `post(value)`." << endl;
         {
             static const struct {
                 int d_line;       // source line number
                 int d_available;  // available count attribute of state
                 int d_disabled;   // disabled attribute of state
                 int d_blocked;    // blocked attribute of state
-                int d_value;      // value used with 'post(value)'
+                int d_value;      // value used with `post(value)`
                 int d_expSignal;  // expected number of signals
             } DATA[] = {
                 //LN  AVAILABLE  DISABLED  BLOCKED  VALUE  SIGNAL
@@ -1237,16 +1245,16 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'postWithRedundantSignal'." << endl;
+        if (verbose) cout << "\nTesting `postWithRedundantSignal`." << endl;
         {
             static const struct {
                 int d_line;       // source line number
                 int d_available;  // available count attribute of state
                 int d_disabled;   // disabled attribute of state
                 int d_blocked;    // blocked attribute of state
-                int d_value;      // 'postWRS(value, avail, block)'
-                int d_avail;      // 'postWRS(value, avail, block)'
-                int d_block;      // 'postWRS(value, avail, block)'
+                int d_value;      // `postWRS(value, avail, block)`
+                int d_avail;      // `postWRS(value, avail, block)`
+                int d_block;      // `postWRS(value, avail, block)`
                 int d_expSignal;  // expected number of signals
                 int d_expReview;  // expected number of reviews
             } DATA[] = {
@@ -1318,7 +1326,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'wait' and 'timedWait'." << endl;
+        if (verbose) cout << "\nTesting `wait` and `timedWait`." << endl;
         {
             static const struct {
                 int d_line;       // source line number
@@ -1369,8 +1377,8 @@ int main(int argc, char *argv[])
                     TestAtomicOperations::pushOverride(0, 0, 0);
 
                     // the specified state is for *after* the
-                    // 'addInt64NvAcqRel' so the table values are modified to
-                    // account for the effect of the 'addInt64NvAcqRel'
+                    // `addInt64NvAcqRel` so the table values are modified to
+                    // account for the effect of the `addInt64NvAcqRel`
 
                     TestAtomicOperations::pushOverride(AVAILABLE + 1,
                                                        DISABLED,
@@ -1389,8 +1397,8 @@ int main(int argc, char *argv[])
                     TestAtomicOperations::pushOverride(0, 0, 0);
 
                     // the specified state is for *after* the
-                    // 'addInt64NvAcqRel' so the table values are modified to
-                    // account for the effect of the 'addInt64NvAcqRel'
+                    // `addInt64NvAcqRel` so the table values are modified to
+                    // account for the effect of the `addInt64NvAcqRel`
 
                     TestAtomicOperations::pushOverride(AVAILABLE + 1,
                                                        DISABLED,
@@ -1407,23 +1415,23 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'clockType'
+        // TESTING `clockType`
         //
         // Concerns:
-        //: 1 'clockType' returns the clock type passed to the constructor.
-        //:
-        //: 2 'clockType' is declared 'const'.
+        // 1. `clockType` returns the clock type passed to the constructor.
+        //
+        // 2. `clockType` is declared `const`.
         //
         // Plan:
-        //: 1 Create a 'const' object, and then query it to make sure that the
-        //:   correct clock type is returned.
+        // 1. Create a `const` object, and then query it to make sure that the
+        //    correct clock type is returned.
         //
         // Testing:
         //   bsls::SystemClockType::Enum clockType() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'clockType'" << endl
+                          << "TESTING `clockType`" << endl
                           << "===================" << endl;
 
         const Obj def;
@@ -1442,13 +1450,13 @@ int main(int argc, char *argv[])
         //   from completing.
         //
         // Concerns:
-        //: 1 Where possible, ensure the concurrent execution of methods does
-        //:   not result in a race that causes a method to not complete.
+        // 1. Where possible, ensure the concurrent execution of methods does
+        //    not result in a race that causes a method to not complete.
         //
         // Plan:
-        //: 1 Using the "Exhaustive" testing framework, spot check the
-        //:   concurrent execution of methods without requiring extensive
-        //:   execution times.  (C-1)
+        // 1. Using the "Exhaustive" testing framework, spot check the
+        //    concurrent execution of methods without requiring extensive
+        //    execution times.  (C-1)
         //
         // Testing:
         //   CONCERN: NO RACES RESULTING IN METHOD NON-COMPLETION
@@ -1478,19 +1486,19 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'take' AND 'takeAll'
+        // TESTING `take` AND `takeAll`
         //   Ensure the manipulators function as expected.
         //
         // Concerns:
-        //: 1 The manipulators correctly reduce the semaphore's count and
-        //:   return the correct value.
+        // 1. The manipulators correctly reduce the semaphore's count and
+        //    return the correct value.
         //
         // Plan:
-        //: 1 Directly verify the result of 'take' and 'takeAll' by using
-        //:   'getValue' before and after the method invocations during a
-        //:   sequence of operations on the semaphore, including using 'wait'
-        //:   to block threads and drive the count of the semaphore to a
-        //:   negative value.  (C-1)
+        // 1. Directly verify the result of `take` and `takeAll` by using
+        //    `getValue` before and after the method invocations during a
+        //    sequence of operations on the semaphore, including using `wait`
+        //    to block threads and drive the count of the semaphore to a
+        //    negative value.  (C-1)
         //
         // Testing:
         //   int take(int maximumToTake);
@@ -1499,7 +1507,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'take' AND 'takeAll'" << endl
+                 << "TESTING `take` AND `takeAll`" << endl
                  << "============================" << endl;
         }
 
@@ -1510,10 +1518,10 @@ int main(int argc, char *argv[])
             bslmt::ThreadUtil::create(
                                    &watchdogHandle,
                                    watchdog,
-                                   const_cast<char *>("'take' and 'takeAll'"));
+                                   const_cast<char *>("`take` and `takeAll`"));
 
             {
-                // verify 'take'
+                // verify `take`
 
                 Obj mX(3);  const Obj& X = mX;
 
@@ -1574,7 +1582,7 @@ int main(int argc, char *argv[])
                 bslmt::ThreadUtil::join(handle2);
             }
             {
-                // verify 'takeAll'
+                // verify `takeAll`
 
                 Obj mX(3);  const Obj& X = mX;
 
@@ -1634,17 +1642,17 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue'
+        // TESTING `getValue`
         //   Ensure the accessor functions as expected.
         //
         // Concerns:
-        //: 1 The accessor correctly reflects the value of the semaphore.
+        // 1. The accessor correctly reflects the value of the semaphore.
         //
         // Plan:
-        //: 1 Directly verify the result of 'getValue' throughout a sequence of
-        //:   operations on the semaphore, including using 'wait' to block
-        //:   threads and drive the count of the semaphore to a negative value.
-        //:   (C-1)
+        // 1. Directly verify the result of `getValue` throughout a sequence of
+        //    operations on the semaphore, including using `wait` to block
+        //    threads and drive the count of the semaphore to a negative value.
+        //    (C-1)
         //
         // Testing:
         //   int getValue() const;
@@ -1652,19 +1660,19 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'getValue'" << endl
+                 << "TESTING `getValue`" << endl
                  << "==================" << endl;
         }
 
         {
-            // verify 'getValue'
+            // verify `getValue`
 
             s_continue = 1;
 
             bslmt::ThreadUtil::Handle watchdogHandle;
             bslmt::ThreadUtil::create(&watchdogHandle,
                                       watchdog,
-                                      const_cast<char *>("'getValue'"));
+                                      const_cast<char *>("`getValue`"));
 
             Obj mX(3);  const Obj& X = mX;
 
@@ -1720,48 +1728,48 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'post', 'timedWait', AND 'wait'
+        // TESTING `post`, `timedWait`, AND `wait`
         //   Ensure the manipulators function as expected.
         //
         // Concerns:
-        //: 1 The manipulators modify the semaphore's count correctly.
-        //:
-        //: 2 The 'post' manipulators will unblock waiting threads.
-        //:
-        //: 3 The 'timedWait' manipulator will timeout and, if the timeout
-        //:   occurs, will not affect the semaphore's count.
-        //:
-        //: 4 Disablement of the queue releases blocked threads and results
-        //:   in the correct semaphore count.
-        //:
-        //: 5 Sequences of operations with a guaranteed result (e.g., one
-        //:   thread invoking 'wait' while another does 'disable' and then
-        //:   'post') operate as expected.
+        // 1. The manipulators modify the semaphore's count correctly.
+        //
+        // 2. The `post` manipulators will unblock waiting threads.
+        //
+        // 3. The `timedWait` manipulator will timeout and, if the timeout
+        //    occurs, will not affect the semaphore's count.
+        //
+        // 4. Disablement of the queue releases blocked threads and results
+        //    in the correct semaphore count.
+        //
+        // 5. Sequences of operations with a guaranteed result (e.g., one
+        //    thread invoking `wait` while another does `disable` and then
+        //    `post`) operate as expected.
         //
         // Plan:
-        //: 1 Create semaphores with varying initial count, invoke a
-        //:   manipulator, and directly verify the count using 'tryWait'.  Use
-        //:   a watchdog to detect blocked threads.  (C-1)
-        //:
-        //: 2 Create semaphores with zero initial count, use 'timedWait' (with
-        //:   a very long timeout) and 'wait' to block created threads on the
-        //:   semaphore,  execute a 'post' method, and then join the created
-        //:   threads to verify they were released.  Use a watchdog to detect
-        //:   unreleased threads.  (C-2)
-        //:
-        //: 3 Directly verify the timeout functionality of 'timedWait', the
-        //:   return value of the method, and use 'tryWait' to verify the
-        //:   semaphore count.  (C-3)
-        //:
-        //: 4 Create semaphores with zero initial count, use 'timedWait' (with
-        //:   a very long timeout) and 'wait' to block created threads on the
-        //:   semaphore, execute the 'disable' method, verify the return value
-        //:   and then join the created threads to verify they were released.
-        //:   Use a watchdog to detect unreleased threads.  (C-4)
-        //:
-        //: 5 Perform sequences of operations with a guaranteed result and
-        //:   verify the expected outcome.  Note that the untested method
-        //:   'getValue' is used.  (C-5)
+        // 1. Create semaphores with varying initial count, invoke a
+        //    manipulator, and directly verify the count using `tryWait`.  Use
+        //    a watchdog to detect blocked threads.  (C-1)
+        //
+        // 2. Create semaphores with zero initial count, use `timedWait` (with
+        //    a very long timeout) and `wait` to block created threads on the
+        //    semaphore,  execute a `post` method, and then join the created
+        //    threads to verify they were released.  Use a watchdog to detect
+        //    unreleased threads.  (C-2)
+        //
+        // 3. Directly verify the timeout functionality of `timedWait`, the
+        //    return value of the method, and use `tryWait` to verify the
+        //    semaphore count.  (C-3)
+        //
+        // 4. Create semaphores with zero initial count, use `timedWait` (with
+        //    a very long timeout) and `wait` to block created threads on the
+        //    semaphore, execute the `disable` method, verify the return value
+        //    and then join the created threads to verify they were released.
+        //    Use a watchdog to detect unreleased threads.  (C-4)
+        //
+        // 5. Perform sequences of operations with a guaranteed result and
+        //    verify the expected outcome.  Note that the untested method
+        //    `getValue` is used.  (C-5)
         //
         // Testing:
         //   void post();
@@ -1773,7 +1781,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'post', 'timedWait', AND 'wait'" << endl
+                 << "TESTING `post`, `timedWait`, AND `wait`" << endl
                  << "=======================================" << endl;
         }
 
@@ -1841,7 +1849,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nVerify 'post' releases blocked threads." << endl;
+            cout << "\nVerify `post` releases blocked threads." << endl;
         }
         {
             s_continue = 1;
@@ -1850,7 +1858,7 @@ int main(int argc, char *argv[])
             bslmt::ThreadUtil::create(
                                 &watchdogHandle,
                                 watchdog,
-                                const_cast<char *>("'post' releases blocked"));
+                                const_cast<char *>("`post` releases blocked"));
 
             {
                 const int k_NUM_THREAD = 6;
@@ -1996,7 +2004,7 @@ int main(int argc, char *argv[])
             bslmt::ThreadUtil::join(watchdogHandle);
         }
 
-        if (verbose) cout << "\nDirect test of 'timedWait' concerns." << endl;
+        if (verbose) cout << "\nDirect test of `timedWait` concerns." << endl;
         {
             Obj mX;
 
@@ -2015,7 +2023,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nVerify 'disable' releases blocked threads." << endl;
+            cout << "\nVerify `disable` releases blocked threads." << endl;
         }
         {
             s_continue = 1;
@@ -2024,7 +2032,7 @@ int main(int argc, char *argv[])
             bslmt::ThreadUtil::create(
                              &watchdogHandle,
                              watchdog,
-                             const_cast<char *>("'disable' releases blocked"));
+                             const_cast<char *>("`disable` releases blocked"));
 
             {
                 const int k_NUM_THREAD = 6;
@@ -2138,61 +2146,61 @@ int main(int argc, char *argv[])
         //   Ensure the manipulators signal as expected.
         //
         // Concerns:
-        //: 1 The 'post' manipulator signals only when the semaphore count goes
-        //:   from zero to one, the semaphore it not disabled, and there is at
-        //:   least one blocked thread.
-        //:
-        //: 2 The 'post(value)' manipulator signals only when the semaphore
-        //:   count goes from 0 to 'value', the semaphore is not disabled, and
-        //:   there is at least one blocked thread.
-        //:
-        //: 3 The 'wait' manipulator signals when the resource is available,
-        //:   the semaphore is not disabled, and there is at least one blocked
-        //:   thread.
-        //:
-        //: 4 The 'timedWait' manipulator signals when the resource is
-        //:   available, the semaphore is not disabled, and there is at least
-        //:   one blocked thread.
+        // 1. The `post` manipulator signals only when the semaphore count goes
+        //    from zero to one, the semaphore it not disabled, and there is at
+        //    least one blocked thread.
+        //
+        // 2. The `post(value)` manipulator signals only when the semaphore
+        //    count goes from 0 to `value`, the semaphore is not disabled, and
+        //    there is at least one blocked thread.
+        //
+        // 3. The `wait` manipulator signals when the resource is available,
+        //    the semaphore is not disabled, and there is at least one blocked
+        //    thread.
+        //
+        // 4. The `timedWait` manipulator signals when the resource is
+        //    available, the semaphore is not disabled, and there is at least
+        //    one blocked thread.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of states and
-        //:   a flag indicating if the 'post' method is expected to signal.
-        //:   Use 'TestObj', which specializes 'FastPostSemaphoreImpl' with
-        //:   'TestAtomicOperations' and 'TestCondition' (as opposed to
-        //:   'bsls::AtomicOperations' and 'bslmt::Condition'), to directly set
-        //:   the state of the semaphore and to verify the signalling behavior
-        //:   of 'post'.  (C-1)
-        //:
-        //: 2 Using the table-driven technique, specify a set of states, a
-        //:   flag indicating if the 'post(value)' method is expected to
-        //:   signal, and a value to be used in 'post(value)'.  Use 'TestObj',
-        //:   which specializes 'FastPostSemaphoreImpl' with
-        //:   'TestAtomicOperations' and 'TestCondition' (as opposed to
-        //:   'bsls::AtomicOperations' and 'bslmt::Condition'), to directly set
-        //:   the state of the semaphore and to verify the signalling behavior
-        //:   of 'post(value)'.  (C-2)
-        //:
-        //: 3 Specify a set of states to cause a thread invoking 'wait' to
-        //:   reach the 'addInt64NvAcqRel' invocation immediately proir to the
-        //:   check for sending a signal.  Using the table-driven technique,
-        //:   specify a set of states for *after* this 'addInt64NvAcqRel' and
-        //:   a flag indicating if the 'wait' method is expected to signal.
-        //:   Use 'TestObj', which specializes 'FastPostSemaphoreImpl' with
-        //:   'TestAtomicOperations' and 'TestCondition' (as opposed to
-        //:   'bsls::AtomicOperations' and 'bslmt::Condition'), to directly set
-        //:   the state of the semaphore and to verify the signalling behavior
-        //:   of 'wait'.  (C-3)
-        //:
-        //: 4 Specify a set of states to cause a thread invoking 'timedWait' to
-        //:   reach the 'addInt64NvAcqRel' invocation immediately proir to the
-        //:   check for sending a signal.  Using the table-driven technique,
-        //:   specify a set of states for *after* this 'addInt64NvAcqRel' and
-        //:   a flag indicating if the 'timedWait' method is expected to
-        //:   signal.  Use 'TestObj', which specializes 'FastPostSemaphoreImpl'
-        //:   with 'TestAtomicOperations' and 'TestCondition' (as opposed to
-        //:   'bsls::AtomicOperations' and 'bslmt::Condition'), to directly set
-        //:   the state of the semaphore and to verify the signalling behavior
-        //:   of 'timedWait'.  (C-4)
+        // 1. Using the table-driven technique, specify a set of states and
+        //    a flag indicating if the `post` method is expected to signal.
+        //    Use `TestObj`, which specializes `FastPostSemaphoreImpl` with
+        //    `TestAtomicOperations` and `TestCondition` (as opposed to
+        //    `bsls::AtomicOperations` and `bslmt::Condition`), to directly set
+        //    the state of the semaphore and to verify the signalling behavior
+        //    of `post`.  (C-1)
+        //
+        // 2. Using the table-driven technique, specify a set of states, a
+        //    flag indicating if the `post(value)` method is expected to
+        //    signal, and a value to be used in `post(value)`.  Use `TestObj`,
+        //    which specializes `FastPostSemaphoreImpl` with
+        //    `TestAtomicOperations` and `TestCondition` (as opposed to
+        //    `bsls::AtomicOperations` and `bslmt::Condition`), to directly set
+        //    the state of the semaphore and to verify the signalling behavior
+        //    of `post(value)`.  (C-2)
+        //
+        // 3. Specify a set of states to cause a thread invoking `wait` to
+        //    reach the `addInt64NvAcqRel` invocation immediately proir to the
+        //    check for sending a signal.  Using the table-driven technique,
+        //    specify a set of states for *after* this `addInt64NvAcqRel` and
+        //    a flag indicating if the `wait` method is expected to signal.
+        //    Use `TestObj`, which specializes `FastPostSemaphoreImpl` with
+        //    `TestAtomicOperations` and `TestCondition` (as opposed to
+        //    `bsls::AtomicOperations` and `bslmt::Condition`), to directly set
+        //    the state of the semaphore and to verify the signalling behavior
+        //    of `wait`.  (C-3)
+        //
+        // 4. Specify a set of states to cause a thread invoking `timedWait` to
+        //    reach the `addInt64NvAcqRel` invocation immediately proir to the
+        //    check for sending a signal.  Using the table-driven technique,
+        //    specify a set of states for *after* this `addInt64NvAcqRel` and
+        //    a flag indicating if the `timedWait` method is expected to
+        //    signal.  Use `TestObj`, which specializes `FastPostSemaphoreImpl`
+        //    with `TestAtomicOperations` and `TestCondition` (as opposed to
+        //    `bsls::AtomicOperations` and `bslmt::Condition`), to directly set
+        //    the state of the semaphore and to verify the signalling behavior
+        //    of `timedWait`.  (C-4)
         //
         // Testing:
         //   CONCERN: MANIPULATORS SIGNAL AS EXPECTED
@@ -2204,7 +2212,7 @@ int main(int argc, char *argv[])
                  << "========================================" << endl;
         }
 
-        if (verbose) cout << "\nTesting 'post()'." << endl;
+        if (verbose) cout << "\nTesting `post()`." << endl;
         {
             static const struct {
                 int d_line;       // source line number
@@ -2253,14 +2261,14 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'post(value)'." << endl;
+        if (verbose) cout << "\nTesting `post(value)`." << endl;
         {
             static const struct {
                 int d_line;       // source line number
                 int d_available;  // available count attribute of state
                 int d_disabled;   // disabled attribute of state
                 int d_blocked;    // blocked attribute of state
-                int d_value;      // value used with 'post(value)'
+                int d_value;      // value used with `post(value)`
                 int d_expSignal;  // expected number of signals
             } DATA[] = {
                 //LN  AVAILABLE  DISABLED  BLOCKED  VALUE  SIGNAL
@@ -2317,16 +2325,16 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'postWithRedundantSignal'." << endl;
+        if (verbose) cout << "\nTesting `postWithRedundantSignal`." << endl;
         {
             static const struct {
                 int d_line;       // source line number
                 int d_available;  // available count attribute of state
                 int d_disabled;   // disabled attribute of state
                 int d_blocked;    // blocked attribute of state
-                int d_value;      // 'postWRS(value, avail, block)'
-                int d_avail;      // 'postWRS(value, avail, block)'
-                int d_block;      // 'postWRS(value, avail, block)'
+                int d_value;      // `postWRS(value, avail, block)`
+                int d_avail;      // `postWRS(value, avail, block)`
+                int d_block;      // `postWRS(value, avail, block)`
                 int d_expSignal;  // expected number of signals
                 int d_expReview;  // expected number of reviews
             } DATA[] = {
@@ -2398,7 +2406,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'wait' and 'timedWait'." << endl;
+        if (verbose) cout << "\nTesting `wait` and `timedWait`." << endl;
         {
             static const struct {
                 int d_line;       // source line number
@@ -2449,8 +2457,8 @@ int main(int argc, char *argv[])
                     TestAtomicOperations::pushOverride(0, 0, 0);
 
                     // the specified state is for *after* the
-                    // 'addInt64NvAcqRel' so the table values are modified to
-                    // account for the effect of the 'addInt64NvAcqRel'
+                    // `addInt64NvAcqRel` so the table values are modified to
+                    // account for the effect of the `addInt64NvAcqRel`
 
                     TestAtomicOperations::pushOverride(AVAILABLE + 1,
                                                        DISABLED,
@@ -2469,8 +2477,8 @@ int main(int argc, char *argv[])
                     TestAtomicOperations::pushOverride(0, 0, 0);
 
                     // the specified state is for *after* the
-                    // 'addInt64NvAcqRel' so the table values are modified to
-                    // account for the effect of the 'addInt64NvAcqRel'
+                    // `addInt64NvAcqRel` so the table values are modified to
+                    // account for the effect of the `addInt64NvAcqRel`
 
                     TestAtomicOperations::pushOverride(AVAILABLE + 1,
                                                        DISABLED,
@@ -2487,47 +2495,47 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'enable', 'disable', 'getDisabledState', AND 'isDisabled'
+        // TESTING `enable`, `disable`, `getDisabledState`, AND `isDisabled`
         //   Ensure the manipulators and accessor function as expected.
         //
         // Concerns:
-        //: 1 The methods 'enable' and 'disable' toggle the disabled state as
-        //:   expected.
-        //:
-        //: 2 The method 'getDisabledState' returns a value that indicates
-        //:   disabled state as expected.  Furthermore, each change from
-        //:   enabled-to-disabled and disabled-to-enabled changes the value
-        //:   returned by the method.
-        //:
-        //: 3 The method 'isDisabled' returns the disabled state as expected.
-        //:
-        //: 4 A rapid sequence of 'disable' and 'enable' releases all blocked
-        //:   threads.
-        //:
-        //: 5 A long sequence of 'disable' and 'enable' does not affect the
-        //:   semaphore's count.  This is a whitebox concern.
-        //:
-        //: 6 Verify the methods 'getDisabledState' and 'isDisabled' are
-        //:   'const' methods.
+        // 1. The methods `enable` and `disable` toggle the disabled state as
+        //    expected.
+        //
+        // 2. The method `getDisabledState` returns a value that indicates
+        //    disabled state as expected.  Furthermore, each change from
+        //    enabled-to-disabled and disabled-to-enabled changes the value
+        //    returned by the method.
+        //
+        // 3. The method `isDisabled` returns the disabled state as expected.
+        //
+        // 4. A rapid sequence of `disable` and `enable` releases all blocked
+        //    threads.
+        //
+        // 5. A long sequence of `disable` and `enable` does not affect the
+        //    semaphore's count.  This is a whitebox concern.
+        //
+        // 6. Verify the methods `getDisabledState` and `isDisabled` are
+        //    `const` methods.
         //
         // Plan:
-        //: 1 Directly verify the effects of 'enable' and 'disable' using
-        //:   'tryWait'.  Using the known state of the semaphore, verify
-        //:   'getDisabledState' and 'isDisabled'.  (C-1..3)
-        //:
-        //: 2 Create a semaphore, use the untested 'wait' method to block a
-        //:   number of threads, invoke a sequence of 'disable' and 'enable'
-        //:   methods, verify the return value of the 'wait' invocations is
-        //:   'e_DISABLED', and join the created threads to ensure they were
-        //:   unblocked.  Use a watchdog thread to verify the test completes
-        //:   timely.  (C-4)
-        //:
-        //: 3 Create a semaphore, execute a long sequence of 'disable' and
-        //:   'enable', use 'tryWait' to verify the count was not modified.
-        //:   (C-5)
-        //:
-        //: 4 Invoke 'getDisabledState' and 'isDisabled' from 'const' objects.
-        //:   (C-6)
+        // 1. Directly verify the effects of `enable` and `disable` using
+        //    `tryWait`.  Using the known state of the semaphore, verify
+        //    `getDisabledState` and `isDisabled`.  (C-1..3)
+        //
+        // 2. Create a semaphore, use the untested `wait` method to block a
+        //    number of threads, invoke a sequence of `disable` and `enable`
+        //    methods, verify the return value of the `wait` invocations is
+        //    `e_DISABLED`, and join the created threads to ensure they were
+        //    unblocked.  Use a watchdog thread to verify the test completes
+        //    timely.  (C-4)
+        //
+        // 3. Create a semaphore, execute a long sequence of `disable` and
+        //    `enable`, use `tryWait` to verify the count was not modified.
+        //    (C-5)
+        //
+        // 4. Invoke `getDisabledState` and `isDisabled` from `const` objects.
+        //    (C-6)
         //
         // Testing:
         //   void enable();
@@ -2539,7 +2547,7 @@ int main(int argc, char *argv[])
         if (verbose) {
 //----------^
 cout << endl
-     << "TESTING 'enable', 'disable', 'getDisabledState', AND 'isDisabled'"
+     << "TESTING `enable`, `disable`, `getDisabledState`, AND `isDisabled`"
      << endl
      << "================================================================="
      << endl;
@@ -2587,7 +2595,7 @@ cout << endl
             ASSERT(!X.isDisabled());
         }
         {
-            // verify 'disable'/'enable' sequences releases threads
+            // verify `disable`/`enable` sequences releases threads
 
             const int k_NUM_THREAD = 5;
             const int k_MAX_LENGTH = 5;
@@ -2627,7 +2635,7 @@ cout << endl
             bslmt::ThreadUtil::join(watchdogHandle);
         }
         {
-            // verify 'disable' and 'enable' do not affect semaphore count
+            // verify `disable` and `enable` do not affect semaphore count
 
             const int k_LENGTH = 1024;
 
@@ -2641,34 +2649,34 @@ cout << endl
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'tryWait'
+        // TESTING `tryWait`
         //   Ensure the manipulator functions as expected.
         //
         // Concerns:
-        //: 1 The method 'tryWait' produces the expected value.
-        //:
-        //: 2 The method 'tryWait' modifies the semaphore count correctly.
-        //:
-        //: 3 When the semaphore is disabled, 'tryWait' return 'e_DISABLED'.
-        //:
-        //: 4 The method 'tryWait' does not block.
+        // 1. The method `tryWait` produces the expected value.
+        //
+        // 2. The method `tryWait` modifies the semaphore count correctly.
+        //
+        // 3. When the semaphore is disabled, `tryWait` return `e_DISABLED`.
+        //
+        // 4. The method `tryWait` does not block.
         //
         // Plan:
-        //: 1 Create semaphores with varying initial count, invoke 'tryWait'
-        //:   and directly verify the results.  (C-1,2)
-        //:
-        //: 2 Create a semaphore with varying initial count, use the untested
-        //:   'disable' method to disable this semaphore, and verify the result
-        //:   of 'tryWait'.  (C-3)
-        //:
-        //: 3 Use a watchdog thread to verify the test completes timely.  (C-4)
+        // 1. Create semaphores with varying initial count, invoke `tryWait`
+        //    and directly verify the results.  (C-1,2)
+        //
+        // 2. Create a semaphore with varying initial count, use the untested
+        //    `disable` method to disable this semaphore, and verify the result
+        //    of `tryWait`.  (C-3)
+        //
+        // 3. Use a watchdog thread to verify the test completes timely.  (C-4)
         //
         // Testing:
         //   int tryWait();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'tryWait'" << endl
+                          << "TESTING `tryWait`" << endl
                           << "=================" << endl;
 
         s_continue = 1;
@@ -2676,7 +2684,7 @@ cout << endl
         bslmt::ThreadUtil::Handle watchdogHandle;
         bslmt::ThreadUtil::create(&watchdogHandle,
                                   watchdog,
-                                  const_cast<char *>("'tryWait'"));
+                                  const_cast<char *>("`tryWait`"));
 
         for (int initialCount = 0; initialCount < 10; ++initialCount) {
             Obj mX(initialCount);
@@ -2705,14 +2713,14 @@ cout << endl
         //   The basic concern is that the constructors operate as expected.
         //
         // Concerns:
-        //: 1 The semaphore count is correctly initialized.
-        //:
-        //: 2 The clock is correctly initialized.
+        // 1. The semaphore count is correctly initialized.
+        //
+        // 2. The clock is correctly initialized.
         //
         // Plan:
-        //: 1 Use the untested 'tryWait' and 'post' to verify the count.  (C-1)
-        //:
-        //: 2 Use the untested 'timedWait' to verify the clock.  (C-2)
+        // 1. Use the untested `tryWait` and `post` to verify the count.  (C-1)
+        //
+        // 2. Use the untested `timedWait` to verify the clock.  (C-2)
         //
         // Testing:
         //   FastPostSemaphoreImpl(clockType = e_REALTIME);
@@ -2820,11 +2828,11 @@ cout << endl
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Instantiate an object and verify basic functionality.  (C-1)
+        // 1. Instantiate an object and verify basic functionality.  (C-1)
         //
         // Testing:
         //   BREATHING TEST

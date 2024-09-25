@@ -5,8 +5,8 @@
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>
-#include <stdlib.h>  // 'calloc', 'realloc', 'atoi'
-#include <string.h>  // 'strcmp'
+#include <stdlib.h>  // `calloc`, `realloc`, `atoi`
+#include <string.h>  // `strcmp`
 
 // Set this preprocessor macro to 1 to enable compile warnings being generated,
 // 0 to disable them.
@@ -21,22 +21,22 @@
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
 // test driver using a compliant compiler, each time defining different values
-// of the boolean 'U_TRIGGER_WARNINGS' preprocessor macro.  In each case, the
+// of the boolean `U_TRIGGER_WARNINGS` preprocessor macro.  In each case, the
 // concerns are:
 //
-//: o Did the build succeed or not?
-//:
-//: o Was the expected warning observed or not?
-//:
-//: o Was the expected suppression of some warning suppressed or not?
-//:
-//: o For annotations taking arguments, do the results show if the arguments
-//:   were properly passed to the underlying compiler directives?
+//  - Did the build succeed or not?
+//
+//  - Was the expected warning observed or not?
+//
+//  - Was the expected suppression of some warning suppressed or not?
+//
+//  - For annotations taking arguments, do the results show if the arguments
+//    were properly passed to the underlying compiler directives?
 //
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
 // does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor macro is 'U_TRIGGER_WARNINGS', which, if set to
+// The controlling preprocessor macro is `U_TRIGGER_WARNINGS`, which, if set to
 // 1, provokes all the compiler warnings caused by the macros under test.  If
 // set to 0, prevents any warnings from happening.
 //
@@ -47,11 +47,11 @@
 // right-most column appear as comments throughout this test driver.  They can
 // be used as an aid to navigation to the test code for each annotation, and an
 // aid to assuring test coverage.
-//..
+// ```
 //  Annotation                            Result
 //  ------------------------------------  --------
 //  BSLA_NODISCARD                        Warning
-//..
+// ```
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // ----------------------------------------------------------------------------
@@ -114,16 +114,17 @@ void aSsErT(bool condition, const char *message, int line)
 //
 ///Example 1: Square Root Function
 ///- - - - - - - - - - - - - - - -
-// First, we define a function, 'newtonsSqrt', which uses Newton's method for
+// First, we define a function, `newtonsSqrt`, which uses Newton's method for
 // calculating a square root.  Since the function has no side effects, it
 // doesn't make sense to call it and ignore its result, so we annotate it with
-// 'BSLA_NODISCARD':
-//..
+// `BSLA_NODISCARD`:
+// ```
+
+    /// Take the square root of the specified `x`.  The behavior is
+    /// undefined unless `x` is positive.
     BSLA_NODISCARD
     double newtonsSqrt(double x);
     double newtonsSqrt(double x)
-        // Take the square root of the specified 'x'.  The behavior is
-        // undefined unless 'x' is positive.
     {
         BSLS_ASSERT(x > 0);
 //
@@ -134,7 +135,7 @@ void aSsErT(bool condition, const char *message, int line)
 //
         return guess;
     }
-//..
+// ```
 
 ///Example 2: No-discard Type
 /// - - - - - - - - - - - - -
@@ -142,8 +143,8 @@ void aSsErT(bool condition, const char *message, int line)
 // have opened while operating on an output stream.  The example uses C I/O and
 // string literals for brevity.
 //
-// First, we define a guard type 'DelimiterGuard0':
-//..
+// First, we define a guard type `DelimiterGuard0`:
+// ```
     class DelimGuard0 {
       private:
         // DATA
@@ -151,18 +152,19 @@ void aSsErT(bool condition, const char *message, int line)
 
       public:
         // CREATORS
-        explicit DelimGuard0(const char *closingText);
-            // Create a delimiter guard that upon its destruction prints the
-            // specified 'closingText' to 'stdout'.  The behavior is undefined
-            // unless 'closingText' outlives the created object.
 
+        /// Create a delimiter guard that upon its destruction prints the
+        /// specified `closingText` to `stdout`.  The behavior is undefined
+        /// unless `closingText` outlives the created object.
+        explicit DelimGuard0(const char *closingText);
+
+        /// Print the closing text to the output file, then destroy this
+        /// object.
         ~DelimGuard0();
-            // Print the closing text to the output file, then destroy this
-            // object.
     };
-//..
+// ```
 // Then we can write code that uses the guard properly:
-//..
+// ```
     void guard0ProperUse()
     {
         printf("\n```ruby\n");  DelimGuard0 closeCode("```\n");
@@ -170,33 +172,33 @@ void aSsErT(bool condition, const char *message, int line)
         // Suppose long and complicated code with early returns writing some
         // source code between the delimiters.  Instead we write something
         // trivial for brevity:
-        printf("puts 'Hello World'\n");
+        printf("puts `Hello World`\n");
     }
-//..
-// Next, we demonstrate that the guard works as intended (see in 'main'):
-//..
-//  guard0ProperUse();  // prints: [\n]```ruby[\n]puts 'Hello World'[\n]```[\n]
-//..
+// ```
+// Next, we demonstrate that the guard works as intended (see in `main`):
+// ```
+//  guard0ProperUse();  // prints: [\n]```ruby[\n]puts `Hello World`[\n]```[\n]
+// ```
 // Then, we write code missing the variable name for the guard.  By not giving
 // a variable name we turn what should be an automatic (local) variable
-// definition into a so-called expression statement: '<expression>;'.
+// definition into a so-called expression statement: `<expression>;`.
 // Expression statements execute an expression for its side effects, then
 // destroy all temporaries created in the expression "at the semicolon".  All
-// the 'printf' function calls below are expression statements, they just don't
+// the `printf` function calls below are expression statements, they just don't
 // have any temporaries to destroy.
-//..
+// ```
     void discardedGuard0()
     {
         printf("(");  DelimGuard0(")\n");
         printf("in-parens");
     }
-//..
+// ```
 // Next, we demonstrate the bug cause by the guard variable name missing:
-//..
+// ```
 //  discardedGuard0();  // prints: ()[\n]in-parens
-//..
+// ```
 // Then, we add the no-discard annotation to our guard type directly:
-//..
+// ```
     class BSLA_NODISCARD_CPP17 DelimGuardCpp17 {
       private:
         // DATA
@@ -204,21 +206,22 @@ void aSsErT(bool condition, const char *message, int line)
 
       public:
         // CREATORS
+
+        /// Create a delimiter guard that upon its destruction prints the
+        /// specified `closingText` to `stdout`.  The behavior is undefined
+        /// unless `closingText` outlives the created object.
         explicit
         DelimGuardCpp17(const char *closingText);
-            // Create a delimiter guard that upon its destruction prints the
-            // specified 'closingText' to 'stdout'.  The behavior is undefined
-            // unless 'closingText' outlives the created object.
 
+        /// Print the closing text to the output file, then destroy this
+        /// object.
         ~DelimGuardCpp17();
-            // Print the closing text to the output file, then destroy this
-            // object.
     };
-//..
+// ```
 // The rest is omitted for brevity.
 //
 // Next, we can write the buggy code again using the annotated type:
-//..
+// ```
 #if U_TRIGGER_WARNINGS
     void discardedGuardCpp17()
     {
@@ -226,18 +229,18 @@ void aSsErT(bool condition, const char *message, int line)
         printf("in-brackets");
     }
 #endif
-//..
+// ```
 // Finally, we can demonstrate using a C++17 compiler that we get a warning for
 // the buggy code:
-//..
+// ```
 //  .../bsla_nodiscard.t.cpp:LLL:CC: warning: ignoring return value of 'double
 //  newtonsSqrt(double)', declared with attribute warn_unused_result
 //  [-Wunused-result]
 //       DelimGuardCpp17("]");
 //
 // ...\bsla_nodiscard.t.cpp(227,36): warning C4834: discarding return value of
-//                                          function with 'nodiscard' attribute
-//..
+//                                          function with `nodiscard` attribute
+// ```
 
                            // -----------------
                            // class DelimGuard0
@@ -275,41 +278,41 @@ DelimGuardCpp17::~DelimGuardCpp17()
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// Return 1.
 BSLA_NODISCARD
 int test_NODISCARD();
 
 int test_NODISCARD()
-    // Return 1.
 {
     return 1;
 }
 
+/// Return 1.
 BSLA_NODISCARD_CPP17
 int test_NODISCARD_CPP17();
 
 int test_NODISCARD_CPP17()
-    // Return 1.
 {
     return 1;
 }
 
+/// Any function call that creates or returns-by-copy an object of this type
+/// should behave as if that function had been marked `BSLA_NODISCARD` when
+/// compiled on a C++17 compiler.
 struct BSLA_NODISCARD_CPP17 Type_NODISCARD_CPP17;
 struct Type_NODISCARD_CPP17 {
-    // Any function call that creates or returns-by-copy an object of this type
-    // should behave as if that function had been marked 'BSLA_NODISCARD' when
-    // compiled on a C++17 compiler.
 
+    /// Just to avoid the most vexing parse without weird syntax.
     explicit Type_NODISCARD_CPP17(const char *) {}
-        // Just to avoid the most vexing parse without weird syntax.
 
+    /// Must make a default constructor by hand due to having another one.
     Type_NODISCARD_CPP17() {}
-        // Must make a default constructor by hand due to having another one.
 };
 
+/// Return a `Type_NODISCARD_CPP17` object.  This function is deliberately
+/// not marked with either of the `BSLA_NODISCARD*` annotations.
 Type_NODISCARD_CPP17 test_Type_NODISCARD_CPP17();
 Type_NODISCARD_CPP17 test_Type_NODISCARD_CPP17()
-    // Return a 'Type_NODISCARD_CPP17' object.  This function is deliberately
-    // not marked with either of the 'BSLA_NODISCARD*' annotations.
 {
     return Type_NODISCARD_CPP17();
 }
@@ -326,18 +329,18 @@ Type_NODISCARD_CPP17 test_Type_NODISCARD_CPP17()
 //                  USAGE WITH NO EXPECTED COMPILER WARNINGS
 // ----------------------------------------------------------------------------
 
+/// Call `testNODISCARD` and use the result.
 int use_without_diagnostic_message_NODISCARD()
-    // Call 'testNODISCARD' and use the result.
 {
     return test_NODISCARD();
 }
 
+/// Call `testNODISCARD` and use the result.
 void use_without_diagnostic_message_NODISCARD_CPP17()
-    // Call 'testNODISCARD' and use the result.
 {
     (void)test_NODISCARD_CPP17();
 
-    Type_NODISCARD_CPP17 varname("most vexing parse is ''fun''");
+    Type_NODISCARD_CPP17 varname("most vexing parse is ``fun''");
 
     (void)test_Type_NODISCARD_CPP17();
 }
@@ -349,14 +352,14 @@ void use_without_diagnostic_message_NODISCARD_CPP17()
 #if U_TRIGGER_WARNINGS
 
 void use_with_warning_message_NODISCARD()
-    // Call 'test_NODISCARD' and don't use the result.
+    // Call `test_NODISCARD` and don't use the result.
 {
     test_NODISCARD();
 }
 
 void use_with_warning_message_NODISCARD_CPP17()
-    // Call 'test_NODISCARD_CPP17', 'test_Type_NODISCARD_CPP17' and don't use
-    // the result.  Create a 'Type_NODISCARD_CPP17' object without a name and
+    // Call `test_NODISCARD_CPP17`, `test_Type_NODISCARD_CPP17` and don't use
+    // the result.  Create a `Type_NODISCARD_CPP17` object without a name and
     // not use it.
 {
     test_NODISCARD_CPP17();
@@ -372,11 +375,11 @@ void use_with_warning_message_NODISCARD_CPP17()
 //                              HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// Print a diagnostic message to standard output if any of the preprocessor
+/// flags of interest are defined, and their value if a value had been set.
+/// An "Enter" and "Leave" message is printed unconditionally so there is
+/// some report even if all of the flags are undefined.
 static void printFlags()
-    // Print a diagnostic message to standard output if any of the preprocessor
-    // flags of interest are defined, and their value if a value had been set.
-    // An "Enter" and "Leave" message is printed unconditionally so there is
-    // some report even if all of the flags are undefined.
 {
     printf("printFlags: Enter\n");
 
@@ -467,10 +470,10 @@ int main(int argc, char **argv)
         // USAGE EXAMPLE
         //
         // Concern:
-        //: 1 That the usage example builds and performs as expected.
+        // 1. That the usage example builds and performs as expected.
         //
         // Plan:
-        //: 1 Build and test the usage example.
+        // 1. Build and test the usage example.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -479,30 +482,30 @@ int main(int argc, char **argv)
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 
-// Then, in 'main', we call it normally a few times and observe that it works
+// Then, in `main`, we call it normally a few times and observe that it works
 // with no compiler warnings generated:
-//..
+// ```
 if (verbose) {
     printf("Square root of 9.0 = %g\n",           newtonsSqrt(9.0));
     printf("Square root of 0.01 = %g\n",          newtonsSqrt(0.01));
     printf("Square root of 0.917 * 0.917 = %g\n", newtonsSqrt(0.917 * 0.917));
 }
-//..
+// ```
 // Next, we call it and do nothing with the result, which will generate a
 // warning:
-//..
+// ```
 
 #if U_TRIGGER_WARNINGS
     newtonsSqrt(36.0);
 #endif
-//..
+// ```
 // Now, we call it and explicitly void the result, which, with gcc, still won't
 // suppress the "unused result" warning:
-//..
+// ```
     (void)newtonsSqrt(25.0);
-//..
+// ```
 // Finally, we observe the compiler warnings from the last 2 calls:
-//..
+// ```
 //  .../bsla_nodiscard.t.cpp:289:22: warning: ignoring return value of 'double
 //  newtonsSqrt(double)', declared with attribute warn_unused_result
 //  [-Wunused-result]
@@ -513,7 +516,7 @@ if (verbose) {
 //  [-Wunused-result]
 //       (void) newtonsSqrt(25.0);
 //                               ^
-//..
+// ```
 
 ///Example 2: No-discard Type
 /// - - - - - - - - - - - - -
@@ -521,8 +524,8 @@ if (verbose) {
 // have opened while operating on an output stream.  The example uses C I/O and
 // string literals for brevity.
 //
-// First, we define a guard type 'DelimiterGuard0':
-//..
+// First, we define a guard type `DelimiterGuard0`:
+// ```
 //  class DelimGuard0 {
 //    private:
 //      // DATA
@@ -532,15 +535,15 @@ if (verbose) {
 //      // CREATORS
 //      explicit DelimGuard0(const char *closingText);
 //          // Create a delimiter guard that upon its destruct  The behavior is
-//          // undefined unless both 'closingText' outlive the created object.
+//          // undefined unless both `closingText` outlive the created object.
 //
 //      ~DelimGuard0();
 //          // Print the closing text to the output file, then destroy this
 //          // object.
 //  };
-//..
+// ```
 // Then we can write code that uses the guard properly:
-//..
+// ```
 //  void guard0ProperUse()
 //  {
 //      printf("\n```ruby\n");  DelimGuard0 closeCode("```\n");
@@ -548,81 +551,81 @@ if (verbose) {
 //      // Suppose long and complicated code with early returns writing some
 //      // source code between the delimiters.  Instead we write something
 //      // trivial for brevity:
-//      printf("puts 'Hello World'\n");
+//      printf("puts `Hello World`\n");
 //  }
-//..
+// ```
 // Next, we demonstrate that the guard works as intended:
-//..
+// ```
     if (verbose) {
-        guard0ProperUse();  // --> [\n]```ruby[\n]puts 'Hello World'[\n]```[\n]
+        guard0ProperUse();  // --> [\n]```ruby[\n]puts `Hello World`[\n]```[\n]
     }
-//..
+// ```
 // Then, we write code missing the variable name for the guard.  By not giving
 // a variable name we turn what should be an automatic (local) variable
-// definition into a so-called expression statement: '<expression>;'.
+// definition into a so-called expression statement: `<expression>;`.
 // Expression statements execute an expression for its side effects, then
 // destroy all temporaries created in the expression "at the semicolon".  All
-// the 'printf' function calls below are expression statements, they just don't
+// the `printf` function calls below are expression statements, they just don't
 // have any temporaries to destroy.
-//..
+// ```
 //  void discardedGuard0()
 //  {
 //      printf("(");  DelimGuard0(")\n");
 //      printf("in-parens");
 //  }
-//..
+// ```
 // Next, we demonstrate the bug when the guard variable name is missing:
-//..
+// ```
     if (verbose) {
         discardedGuard0();  // prints: ()in-parens
         printf("\n");  // add the missing new-line to the end
     }
-//..
+// ```
 // Then, we add the no-discard annotation to our guard type directly:
-//..
+// ```
 //  class BSLA_NODISCARD_CPP17 DelimGuardCpp17 {
-//..
+// ```
 // The rest is omitted for brevity.
 //
 // Next, we can write the buggy code again using the annotated type:
-//..
+// ```
 //  void discardedGuardCpp17()
 //  {
 //      printf("[");  DelimGuardCpp17("]");
 //      printf("in-brackets");
 //  }
-//..
+// ```
 // Finally, we can demonstrate using a C++17 compiler that we get a warning for
 // the buggy code:
-//..
+// ```
 // .../bsla_nodiscard.t.cpp:LLL:CC: warning: ignoring temporary created by a
-//             constructor declared with 'nodiscard' attribute [-Wunused-value]
+//             constructor declared with `nodiscard` attribute [-Wunused-value]
 //     printf("[");  DelimGuardCpp17("]");
 //                   ^~~~~~~~~~~~~~~~~~~~
 //
 // ...\bsla_nodiscard.t.cpp(227,36): warning C4834: discarding return value of
-//                                          function with 'nodiscard' attribute
-//..
+//                                          function with `nodiscard` attribute
+// ```
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 This test driver builds with all expected compiler warning
-        //:   messages and no unexpected warnings when the 'U_TRIGGER_WARNINGS'
-        //:   preprocessor variable is defined to 1.
-        //:
-        //: 2 When 'U_TRIGGER_WARNINGS' is defined to 0, the compile is
-        //:   successful and with no warnings.
+        // 1. This test driver builds with all expected compiler warning
+        //    messages and no unexpected warnings when the `U_TRIGGER_WARNINGS`
+        //    preprocessor variable is defined to 1.
+        //
+        // 2. When `U_TRIGGER_WARNINGS` is defined to 0, the compile is
+        //    successful and with no warnings.
         //
         // Plan:
-        //: 1 Build with 'U_TRIGGER_WARNINGS' defined to 1 and externally
-        //:   examine compiler output for expected warnings and the absence of
-        //:   warnings expected to be suppressed.  (C-1)
-        //:
-        //: 2 Build with 'U_TRIGGER_WARNINGS' defined to 0 and observe that the
-        //:   compile is successful with no warnings.  (C-2)
+        // 1. Build with `U_TRIGGER_WARNINGS` defined to 1 and externally
+        //    examine compiler output for expected warnings and the absence of
+        //    warnings expected to be suppressed.  (C-1)
+        //
+        // 2. Build with `U_TRIGGER_WARNINGS` defined to 0 and observe that the
+        //    compile is successful with no warnings.  (C-2)
         //
         // Testing:
         //   BREATHING TEST
@@ -638,7 +641,7 @@ if (verbose) {
 
             if (verbose && !veryVeryVerbose) printFlags();
 
-            ASSERT(true); // remove unused warning for 'aSsErT'
+            ASSERT(true); // remove unused warning for `aSsErT`
         }
       } break;
       default: {

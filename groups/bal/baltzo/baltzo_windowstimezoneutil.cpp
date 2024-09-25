@@ -40,10 +40,10 @@ typedef struct TimeZoneIdEntry {
     const char *d_value; // time-zone identifier corresponding to the given
 } TimeZoneIdEntry;
 
+/// Return `true` if the "key" field of the specified `a` is lexically less
+/// that the "key" field of the specified `b`, and 'false otherwise.
 static bool isLessThan(const TimeZoneIdEntry& a,
                        const TimeZoneIdEntry& b)
-    // Return 'true' if the "key" field of the specified 'a' is lexically less
-    // that the "key" field of the specified 'b', and 'false otherwise.
 {
     return bsl::strcmp(a.d_key, b.d_key) < 0;
 }

@@ -23,9 +23,9 @@ namespace BloombergLP {
 namespace bslstl {
 namespace {
 
+/// Return the thread ID of the calling thread.  We cannot depend on
+/// `bslmt_threadutil`, so we reimplement this functionality.
 unsigned long long currentThreadId()
-    // Return the thread ID of the calling thread.  We cannot depend on
-    // 'bslmt_threadutil', so we reimplement this functionality.
 {
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
     return GetCurrentThreadId();
@@ -36,9 +36,9 @@ unsigned long long currentThreadId()
 #endif
 }
 
+/// Yield the current time slice to the scheduler.  We cannot depend on
+/// `bslmt_threadutil`, so we reimplement this functionality.
 void yield()
-    // Yield the current time slice to the scheduler.  We cannot depend on
-    // 'bslmt_threadutil', so we reimplement this functionality.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     SleepEx(0, 0);

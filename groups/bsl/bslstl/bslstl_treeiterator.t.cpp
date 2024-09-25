@@ -37,47 +37,47 @@ using namespace bslstl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test defines a class template, 'bslstl::TreeIterator',
+// The component under test defines a class template, `bslstl::TreeIterator`,
 // that is an in-core value-semantic type.  This class provides an
-// STL-conforming bidirectional iterator over the ordered 'bslalg::RbTreeNode'
+// STL-conforming bidirectional iterator over the ordered `bslalg::RbTreeNode`
 // objects in a binary tree (see section [24.2.6 bidirectional.iterators] of
 // the C++11 standard).
 //
 // The primary manipulators of this class is the value constructor, which is
 // sufficient to allow an object to attain any achievable state.  The basic
-// accessor of this tree iterator is the 'node' method, which returns the
+// accessor of this tree iterator is the `node` method, which returns the
 // address of the tree node at which the iterator is positioned.
 //
 // Primary Manipulators:
-//: o explicit TreeIterator(const bslalg::RbTreeNode *node)
+//  - explicit TreeIterator(const bslalg::RbTreeNode *node)
 //
 // Basic Accessors:
-//: o const bslalg::RbTreeNode *node()
+//  - const bslalg::RbTreeNode *node()
 //
 // Since the state of an object will only be meaningful if the object refers to
-// a valid tree node.  The facilities provided by 'bslalg::RbTreeUtil' will be
+// a valid tree node.  The facilities provided by `bslalg::RbTreeUtil` will be
 // used to create and access red-black trees to which objects of this class can
 // refer.  We will assume the correctness of the operations in
-// 'bslalg::RbTreeUtil', because it is a dependency of this component.  This
+// `bslalg::RbTreeUtil`, because it is a dependency of this component.  This
 // particular class provides a value constructor capable of creating an object
-// in any state, obviating the primitive generator function, 'gg', which is
+// in any state, obviating the primitive generator function, `gg`, which is
 // normally used for this purpose.
 //
 // We will follow our standard 10-case approach to testing value-semantic types
 // with some exceptions:
-//: o We do not need to test anything in case 3 and 8, because the value
-//:   constructor will have been already tested as the primary manipulator in
-//:   case 2.
-//: o We do not need to test anything in case 5, because this class does not
-//:   provide a 'print' method or 'operator<<'.
-//: o We do not need to test anything in case 10, because this class does not
-//:   provide bdex stream operators.
-//: o We will test 'operator*' and 'operator->' together with the 'node' method
-//:   in test case 2, because these operator simply provide different ways to
-//:   access to the value of the node.
+//  - We do not need to test anything in case 3 and 8, because the value
+//    constructor will have been already tested as the primary manipulator in
+//    case 2.
+//  - We do not need to test anything in case 5, because this class does not
+//    provide a `print` method or `operator<<`.
+//  - We do not need to test anything in case 10, because this class does not
+//    provide bdex stream operators.
+//  - We will test `operator*` and `operator->` together with the `node` method
+//    in test case 2, because these operator simply provide different ways to
+//    access to the value of the node.
 //
 // Global Concerns:
-//: o No memory is ever allocated.
+//  - No memory is ever allocated.
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] TreeIterator();
@@ -200,14 +200,16 @@ class WrapperNode : public bslalg::RbTreeNode
 
   public:
     // MANIPULATORS
+
+    /// Return a reference providing modifiable access to the `value` of
+    /// this object.
     MyWrapper& value() { return d_value; }
-        // Return a reference providing modifiable access to the 'value' of
-        // this object.
 
     // ACCESSORS
+
+    /// Return a reference providing non-modifiable access to the `value` of
+    /// this object.
     const MyWrapper& value() const {return d_value; }
-        // Return a reference providing non-modifiable access to the 'value' of
-        // this object.
 };
 
 typedef TreeIterator<MyWrapper, WrapperNode, std::ptrdiff_t> Obj;
@@ -231,15 +233,15 @@ namespace UsageExample {
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: Navigating a Tree Using 'TreeIterator'.
+///Example 1: Navigating a Tree Using `TreeIterator`.
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following example we create a simple tree and then use a
-// 'TreeIterator' to navigate its elements.
+// `TreeIterator` to navigate its elements.
 //
-// First, we define a type 'IntNode' for the nodes of our tree.  'IntNode'
-// inherits from 'bslalg::RbTreeNode' (allowing it to be operated on by
-// 'bslalg::RbTreeUtil'), and supplies an integer payload:
-//..
+// First, we define a type `IntNode` for the nodes of our tree.  `IntNode`
+// inherits from `bslalg::RbTreeNode` (allowing it to be operated on by
+// `bslalg::RbTreeUtil`), and supplies an integer payload:
+// ```
     class IntNode : public bslalg::RbTreeNode {
         // DATA
         int d_value;  // actual value represented by the node
@@ -251,15 +253,16 @@ namespace UsageExample {
         // ACCESSORS
         const int& value() const {return d_value; }
     };
-//..
-// Then, we define a comparison function for 'IntNode' objects.  This type is
-// designed to be supplied to functions in 'bslalg::RbTreeUtil':
-//..
+// ```
+// Then, we define a comparison function for `IntNode` objects.  This type is
+// designed to be supplied to functions in `bslalg::RbTreeUtil`:
+// ```
     class IntNodeComparator {
       public:
         // CREATORS
+
+        /// Create a node-value comparator.
         IntNodeComparator() {}
-            // Create a node-value comparator.
 
         // ACCESSORS
         bool operator()(const bslalg::RbTreeNode& lhs,
@@ -269,43 +272,43 @@ namespace UsageExample {
                    static_cast<const IntNode&>(rhs).value();
         }
     };
-//..
+// ```
 // Next, we define the signature of the example function where we will
-// navigate a tree using a 'TreeIterator':
-//..
+// navigate a tree using a `TreeIterator`:
+// ```
     void exampleTreeNavigationFunction()
     {
-//..
-// Then, we define a 'bslalg::RbTreeAnchor' object to hold our tree, and a
+// ```
+// Then, we define a `bslalg::RbTreeAnchor` object to hold our tree, and a
 // series of nodes that we will use to populate the tree:
-//..
+// ```
         enum { NUM_NODES = 5 };
 
         bslalg::RbTreeAnchor tree;
         IntNode              nodes[NUM_NODES];
-//..
-// Next, we assign values to each of the 'nodes' and insert them into 'tree'
-// using 'bslalg::RbTreeUtil', suppling the 'insert' function an instance of
+// ```
+// Next, we assign values to each of the `nodes` and insert them into `tree`
+// using `bslalg::RbTreeUtil`, suppling the `insert` function an instance of
 // the comparator we defined earlier:
-//..
+// ```
         for (int i = 0; i < NUM_NODES; ++i) {
             nodes[i].value() = i;
             bslalg::RbTreeUtil::insert(&tree, IntNodeComparator(), &nodes[i]);
         }
 
         ASSERT(5 == tree.numNodes());
-//..
-// Then, we create a type alias for a 'TreeIterator' providing non-modifiable
+// ```
+// Then, we create a type alias for a `TreeIterator` providing non-modifiable
 // access to elements in the tree.  Note that in this instance, the iterator
 // must provide non-modifiable access as modifying the key value for a node
 // would invalidate ordering of the binary search tree:
-//..
+// ```
         typedef TreeIterator<const int, IntNode, std::ptrdiff_t>
                                                              ConstTreeIterator;
-//..
-// Now, we create an instance of the 'TreeIterator' and use it to navigate the
-// elements of 'tree', printing their values to the console:
-//..
+// ```
+// Now, we create an instance of the `TreeIterator` and use it to navigate the
+// elements of `tree`, printing their values to the console:
+// ```
         ConstTreeIterator iterator(tree.firstNode());
         ConstTreeIterator endIterator(tree.sentinel());
         for (; iterator != endIterator; ++iterator) {
@@ -314,15 +317,15 @@ namespace UsageExample {
             }
         }
     }
-//..
+// ```
 // Finally, we observe the following console output:
-//..
+// ```
 //  Node value: 0
 //  Node value: 1
 //  Node value: 2
 //  Node value: 3
 //  Node value: 4
-//..
+// ```
 
 }  // close namespace UsageExample
 
@@ -330,17 +333,18 @@ namespace UsageExample {
                             // class BasedOn
                             // =============
 
+/// This is a minimal class that has a public base of a `TreeIterator`,
+/// therefore it implicitly converts to a `TreeIterator`
 template <class VALUE, class NODE, class DIFFERENCE_TYPE>
 class BasedOn : public TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>
-    // This is a minimal class that has a public base of a 'TreeIterator',
-    // therefore it implicitly converts to a 'TreeIterator'
 {
   public:
     // CREATORS
+
+    /// Create an `BasedOn` object at the specified `position`.  The
+    /// behavior is undefined unless `node` is of the parameterized `NODE`,
+    /// which is derived from 'bslalg::RbTreeNode.
     explicit BasedOn(const bslalg::RbTreeNode *node);
-        // Create an 'BasedOn' object at the specified 'position'.  The
-        // behavior is undefined unless 'node' is of the parameterized 'NODE',
-        // which is derived from 'bslalg::RbTreeNode.
 
 };
 
@@ -361,10 +365,10 @@ BasedOn(const bslalg::RbTreeNode *node)
                           // class ConvertsTo
                           // ================
 
+/// This is a minimal class that has a public base of a `TreeIterator`,
+/// therefore it implicitly converts to a `TreeIterator`
 template <class VALUE, class NODE, class DIFFERENCE_TYPE>
 class ConvertsTo
-    // This is a minimal class that has a public base of a 'TreeIterator',
-    // therefore it implicitly converts to a 'TreeIterator'
 {
   private:
     // DATA
@@ -372,13 +376,14 @@ class ConvertsTo
 
   public:
     // CREATORS
-    explicit ConvertsTo(const bslalg::RbTreeNode *node);
-        // Create an 'BasedOn' object at the specified 'position'.  The
-        // behavior is undefined unless 'node' is of the parameterized 'NODE',
-        // which is derived from 'bslalg::RbTreeNode.
 
+    /// Create an `BasedOn` object at the specified `position`.  The
+    /// behavior is undefined unless `node` is of the parameterized `NODE`,
+    /// which is derived from 'bslalg::RbTreeNode.
+    explicit ConvertsTo(const bslalg::RbTreeNode *node);
+
+    /// Convert to a tree iterator.
     operator const TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>&() const;
-        // Convert to a tree iterator.
 };
 
                           // ----------------
@@ -428,38 +433,38 @@ int main(int argc, char *argv[])
       case 17: {
         // --------------------------------------------------------------------
         // CONSTRUCTOR OVERLOADS
-        //   Ensure that the iterator types (const and non-'const') both have
+        //   Ensure that the iterator types (const and non-`const`) both have
         //   only a copy constructor, a conversion constructor from the
-        //   'const'-version, a default constructor, and no other, surprising
+        //   `const`-version, a default constructor, and no other, surprising
         //   overloads.
         //
         // Concerns:
-        //:  1 A non-'const' 'iterator' is copy constructible from a type that
-        //:    converts to a non-'const' 'iterator'.
-        //:
-        //:  2 A 'const_iterator' is copy constructible from a type that
-        //:    converts to a 'const_iterator'.
-        //:
-        //:  3 A non-'const' 'iterator' is copy constructible from a type that
-        //:    converts to a 'const_iterator'.
+        //  1. A non-`const` `iterator` is copy constructible from a type that
+        //     converts to a non-`const` `iterator`.
+        //
+        //  2. A `const_iterator` is copy constructible from a type that
+        //     converts to a `const_iterator`.
+        //
+        //  3. A non-`const` `iterator` is copy constructible from a type that
+        //     converts to a `const_iterator`.
         //
         // Plan:
-        //: 1 Create two ('const'/non-'const') iterator types.
-        //:
-        //: 2 Create a templated type 'BasedOn' that publicly inherits from an
-        //:   'iterator'.
-        //:
-        //: 3 Create a templated type 'ConvertsTo' that implicitly converts to
-        //:   an 'iterator'.
-        //:
-        //: 4 Construct 'BasedOn' and a 'ConvertsTo' with known values; some
-        //:   with 'const', the others with non-'const' value type.
-        //:
-        //: 5 Construct 'iterator's from the objects with mutable value types.
-        //:   Verify that the values were copied properly.
-        //:
-        //: 6 Construct 'const_iterator's from all objects.  Verify that the
-        //:   values were copied properly.
+        // 1. Create two (`const`/non-`const`) iterator types.
+        //
+        // 2. Create a templated type `BasedOn` that publicly inherits from an
+        //    `iterator`.
+        //
+        // 3. Create a templated type `ConvertsTo` that implicitly converts to
+        //    an `iterator`.
+        //
+        // 4. Construct `BasedOn` and a `ConvertsTo` with known values; some
+        //    with `const`, the others with non-`const` value type.
+        //
+        // 5. Construct `iterator`s from the objects with mutable value types.
+        //    Verify that the values were copied properly.
+        //
+        // 6. Construct `const_iterator`s from all objects.  Verify that the
+        //    values were copied properly.
         //
         // Testing
         //   CONCERN: There are no surprising constructor overloads.
@@ -560,17 +565,17 @@ int main(int argc, char *argv[])
       case 16: {
         // --------------------------------------------------------------------
         // TYPE TRAITS
-        //   Ensure that the iterator types ('const' and non-'const') both have
+        //   Ensure that the iterator types (`const` and non-`const`) both have
         //   the proper type traits.
         //
         // Concerns:
-        //:  1 The types are trivially copyable.
+        //  1. The types are trivially copyable.
         //
         // Plan:
-        //: 1 Create two ('const'/non-'const') iterator types.
-        //:
-        //: 2 Verify that their type traits say they are trivially and bitwise
-        //:   copyable.
+        // 1. Create two (`const`/non-`const`) iterator types.
+        //
+        // 2. Verify that their type traits say they are trivially and bitwise
+        //    copyable.
         //
         // Testing
         //   CONCERN: The type is trivially copyable.
@@ -603,46 +608,46 @@ int main(int argc, char *argv[])
       case 14: {
         // --------------------------------------------------------------------
         // POST-DECREMENT OPERATOR
-        //   Ensure that 'operator--(iter, int)' behaves according to its
+        //   Ensure that `operator--(iter, int)` behaves according to its
         //   contract.
         //
         // Concerns:
-        //:  1 The post-decrement operator changes the value of the object to
-        //:    refer to the next element in the tree.
-        //:
-        //:  2 The signature and return type are standard.
-        //:
-        //:  3 The value returned is the value of the object prior to the
-        //:    operator call.
-        //:
-        //:  4 Post-decrementing an object referring to the past-the-end
-        //:    address moves the object to point to the rightmost element in
-        //:    the tree.
+        //  1. The post-decrement operator changes the value of the object to
+        //     refer to the next element in the tree.
+        //
+        //  2. The signature and return type are standard.
+        //
+        //  3. The value returned is the value of the object prior to the
+        //     operator call.
+        //
+        //  4. Post-decrementing an object referring to the past-the-end
+        //     address moves the object to point to the rightmost element in
+        //     the tree.
         //
         // Plan:
-        //: 1 Use the address of 'operator--(iter, int)' to initialize a
-        //:   member-function pointer having the appropriate signature and
-        //:   return type for the post-decrement operator defined in this
-        //:   component.  (C-2)
-        //:
-        //: 2 Create a tree with N nodes.  (C-1,3,4)
-        //:
-        //: 3 For each node 'N1' (including the sentinel node) that is not the
-        //:   leftmost node in the tree of P-2:
-        //:
-        //:   1 Create a modifiable 'Obj', 'mX', and a 'const' 'Obj', 'Y', both
-        //:     pointing to 'N1'.
-        //:
-        //:   2 Create a 'const' 'Obj', 'Z', pointing to the node to the left
-        //:     of 'N1'.
-        //:
-        //:   2 Invoke the post-decrement operator on 'mX'.
-        //:
-        //:   3 Verify that value returned compare equals to that of 'Y'.
-        //:     (C-3)
-        //:
-        //:   4 Verify using the equality-comparison operator that 'mX' has the
-        //:     same value as that of 'Z'.  (C-1, 4)
+        // 1. Use the address of `operator--(iter, int)` to initialize a
+        //    member-function pointer having the appropriate signature and
+        //    return type for the post-decrement operator defined in this
+        //    component.  (C-2)
+        //
+        // 2. Create a tree with N nodes.  (C-1,3,4)
+        //
+        // 3. For each node `N1` (including the sentinel node) that is not the
+        //    leftmost node in the tree of P-2:
+        //
+        //   1. Create a modifiable `Obj`, `mX`, and a `const` `Obj`, `Y`, both
+        //      pointing to `N1`.
+        //
+        //   2. Create a `const` `Obj`, `Z`, pointing to the node to the left
+        //      of `N1`.
+        //
+        //   2. Invoke the post-decrement operator on `mX`.
+        //
+        //   3. Verify that value returned compare equals to that of `Y`.
+        //      (C-3)
+        //
+        //   4. Verify using the equality-comparison operator that `mX` has the
+        //      same value as that of `Z`.  (C-1, 4)
         //
         // Testing
         //   TreeIterator operator--(iter, int);
@@ -707,44 +712,44 @@ int main(int argc, char *argv[])
       case 13: {
         // --------------------------------------------------------------------
         // POST-INCREMENT OPERATOR
-        //   Ensure that 'operator++(iter, int)' behaves according to its
+        //   Ensure that `operator++(iter, int)` behaves according to its
         //   contract.
         //
         // Concerns:
-        //:  1 The post-increment operator changes the value of the object to
-        //:    refer to the next element in the tree.
-        //:
-        //:  2 The signature and return type are standard.
-        //:
-        //:  3 The value returned is the value of the object prior to the
-        //:    operator call.
-        //:
-        //:  4 Post-incrementing an object referring to the last element in the
-        //:    tree moves the object to point to the sentinel node.
+        //  1. The post-increment operator changes the value of the object to
+        //     refer to the next element in the tree.
+        //
+        //  2. The signature and return type are standard.
+        //
+        //  3. The value returned is the value of the object prior to the
+        //     operator call.
+        //
+        //  4. Post-incrementing an object referring to the last element in the
+        //     tree moves the object to point to the sentinel node.
         //
         // Plan:
-        //: 1 Use the address of 'operator++(iter, int)' to initialize a
-        //:   member-function pointer having the appropriate signature and
-        //:   return type for the post-increment operator defined in this
-        //:   component.  (C-2)
-        //:
-        //: 2 Create a tree with N nodes.  (C-1,3,4)
-        //:
-        //: 3 For each node 'N1' node in the tree of P-2:
-        //:
-        //:   1 Create a modifiable 'Obj', 'mX', and a 'const' 'Obj', 'Y', both
-        //:     pointing to 'N1'.
-        //:
-        //:   2 Create a 'const' 'Obj', 'Z', pointing the node to the right of
-        //:     'N1'.
-        //:
-        //:   2 Invoke the post-increment operator on 'mX'.
-        //:
-        //:   3 Verify that value returned compare equals to that of 'Y'.
-        //:     (C-3)
-        //:
-        //:   4 Verify using the equality-comparison operator that 'mX' has the
-        //:     same value as that of 'Z'.  (C-1, 4)
+        // 1. Use the address of `operator++(iter, int)` to initialize a
+        //    member-function pointer having the appropriate signature and
+        //    return type for the post-increment operator defined in this
+        //    component.  (C-2)
+        //
+        // 2. Create a tree with N nodes.  (C-1,3,4)
+        //
+        // 3. For each node `N1` node in the tree of P-2:
+        //
+        //   1. Create a modifiable `Obj`, `mX`, and a `const` `Obj`, `Y`, both
+        //      pointing to `N1`.
+        //
+        //   2. Create a `const` `Obj`, `Z`, pointing the node to the right of
+        //      `N1`.
+        //
+        //   2. Invoke the post-increment operator on `mX`.
+        //
+        //   3. Verify that value returned compare equals to that of `Y`.
+        //      (C-3)
+        //
+        //   4. Verify using the equality-comparison operator that `mX` has the
+        //      same value as that of `Z`.  (C-1, 4)
         //
         // Testing:
         //   TreeIterator operator++(iter, int);
@@ -807,42 +812,42 @@ int main(int argc, char *argv[])
       case 12: {
         // --------------------------------------------------------------------
         // PRE-DECREMENT OPERATOR
-        //   Ensure that 'operator--' behaves according to its contract.
+        //   Ensure that `operator--` behaves according to its contract.
         //
         // Concerns:
-        //:  1 The pre-decrement operator changes the value of the object to
-        //:    refer to the previous element in the tree.
-        //:
-        //:  2 The signature and return type are standard.
-        //:
-        //:  3 The reference returned is to the object on which the operator
-        //:    was invoked.
-        //:
-        //:  4 Pre-decrementing an object referring to the past-the-end address
-        //:    moves the object to point to the rightmost element in the tree.
+        //  1. The pre-decrement operator changes the value of the object to
+        //     refer to the previous element in the tree.
+        //
+        //  2. The signature and return type are standard.
+        //
+        //  3. The reference returned is to the object on which the operator
+        //     was invoked.
+        //
+        //  4. Pre-decrementing an object referring to the past-the-end address
+        //     moves the object to point to the rightmost element in the tree.
         //
         // Plan:
-        //: 1 Use the address of 'operator--' to initialize a member-function
-        //:   pointer having the appropriate signature and return type for the
-        //:   pre-decrement operator defined in this component.  (C-2)
-        //:
-        //: 2 Create a tree with N nodes.  (C-1,3,4)
-        //:
-        //: 3 For each node 'N1' (including the sentinel node) that is not the
-        //:   leftmost node in the tree of P-2:
-        //:
-        //:   1 Create a modifiable 'Obj', 'mX', pointing to 'N1'.
-        //:
-        //:   2 Create a 'const' 'Obj', 'Z', pointing to the node to the left
-        //:     of 'N1'.
-        //:
-        //:   2 Invoke the pre-decrement operator on 'mX'.
-        //:
-        //:   3 Verify that the address of the return value is the same as
-        //:     that of 'mX'.  (C-3)
-        //:
-        //:   4 Verify using the equality-comparison operator that 'mX' has the
-        //:     same value as that of 'Z'.  (C-1, 4)
+        // 1. Use the address of `operator--` to initialize a member-function
+        //    pointer having the appropriate signature and return type for the
+        //    pre-decrement operator defined in this component.  (C-2)
+        //
+        // 2. Create a tree with N nodes.  (C-1,3,4)
+        //
+        // 3. For each node `N1` (including the sentinel node) that is not the
+        //    leftmost node in the tree of P-2:
+        //
+        //   1. Create a modifiable `Obj`, `mX`, pointing to `N1`.
+        //
+        //   2. Create a `const` `Obj`, `Z`, pointing to the node to the left
+        //      of `N1`.
+        //
+        //   2. Invoke the pre-decrement operator on `mX`.
+        //
+        //   3. Verify that the address of the return value is the same as
+        //      that of `mX`.  (C-3)
+        //
+        //   4. Verify using the equality-comparison operator that `mX` has the
+        //      same value as that of `Z`.  (C-1, 4)
         //
         // Testing:
         //   TreeIterator operator--();
@@ -906,42 +911,42 @@ int main(int argc, char *argv[])
       case 11: {
         // --------------------------------------------------------------------
         // PRE-INCREMENT OPERATOR
-        //   Ensure that 'operator++' behaves according to its contract.
+        //   Ensure that `operator++` behaves according to its contract.
         //
         // Concerns:
-        //:  1 The pre-increment operator changes the value of the object to
-        //:    refer to the next element in the tree.
-        //:
-        //:  2 The signature and return type are standard.
-        //:
-        //:  3 The reference returned is to the object on which the operator
-        //:    was invoked.
-        //:
-        //:  4 Pre-increment an object referring to the rightmost element in
-        //:    the tree moves the object to point to the past-the-end address.
+        //  1. The pre-increment operator changes the value of the object to
+        //     refer to the next element in the tree.
+        //
+        //  2. The signature and return type are standard.
+        //
+        //  3. The reference returned is to the object on which the operator
+        //     was invoked.
+        //
+        //  4. Pre-increment an object referring to the rightmost element in
+        //     the tree moves the object to point to the past-the-end address.
         //
         // Plan:
-        //: 1 Use the address of 'operator++' to initialize a member-function
-        //:   pointer having the appropriate signature and return type for the
-        //:   pre-decrement operator defined in this component.  (C-2)
-        //:
-        //: 2 Create a tree with N nodes.  (C-1,3,4)
-        //:
-        //: 3 For each node 'N1' (including the sentinel node) that is not the
-        //:   leftmost node in the tree of P-2:
-        //:
-        //:   1 Create a modifiable 'Obj', 'mX', pointing to 'N1'.
-        //:
-        //:   2 Create a 'const' 'Obj', 'Z', pointing to the node to the right
-        //:     of 'N1'.
-        //:
-        //:   2 Invoke the pre-increment operator on 'mX'.
-        //:
-        //:   3 Verify that the address of the return value is the same as
-        //:     that of 'mX'.  (C-3)
-        //:
-        //:   4 Verify using the equality-comparison operator that 'mX' has the
-        //:     same value as that of 'Z'.  (C-1, 4)
+        // 1. Use the address of `operator++` to initialize a member-function
+        //    pointer having the appropriate signature and return type for the
+        //    pre-decrement operator defined in this component.  (C-2)
+        //
+        // 2. Create a tree with N nodes.  (C-1,3,4)
+        //
+        // 3. For each node `N1` (including the sentinel node) that is not the
+        //    leftmost node in the tree of P-2:
+        //
+        //   1. Create a modifiable `Obj`, `mX`, pointing to `N1`.
+        //
+        //   2. Create a `const` `Obj`, `Z`, pointing to the node to the right
+        //      of `N1`.
+        //
+        //   2. Invoke the pre-increment operator on `mX`.
+        //
+        //   3. Verify that the address of the return value is the same as
+        //      that of `mX`.  (C-3)
+        //
+        //   4. Verify using the equality-comparison operator that `mX` has the
+        //      same value as that of `Z`.  (C-1, 4)
         //
         // Testing:
         //   TreeIterator operator++();
@@ -1014,59 +1019,59 @@ int main(int argc, char *argv[])
         //   have the same value.
         //
         // Concerns:
-        //: 1 The assignment operator can change the value of any modifiable
-        //:   target object to that of any source object.
-        //:
-        //: 2 The signature and return type are standard.
-        //:
-        //: 3 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 4 The value of the source object is not modified.
-        //:
-        //: 5 Assigning an object to itself behaves as expected (alias-safety).
+        // 1. The assignment operator can change the value of any modifiable
+        //    target object to that of any source object.
+        //
+        // 2. The signature and return type are standard.
+        //
+        // 3. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 4. The value of the source object is not modified.
+        //
+        // 5. Assigning an object to itself behaves as expected (alias-safety).
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a member-function
-        //:   pointer having the appropriate signature and return type for the
-        //:   copy-assignment operator defined in this component.  (C-2)
-        //:
-        //: 2 Create a tree with N nodes.
-        //:
-        //: 3 For each node 'N1' in the tree of P-2:  (C-1,3..4)
-        //:
-        //:   1 Create two 'const' 'Obj', 'Z' and 'ZZ', pointing to 'N1'.
-        //:
-        //:   2 For each node 'N2' in the tree of P-2:  (C-1,3..4)
-        //:
-        //:     1 Create a modifiable 'Obj', 'mX', pointing to 'N2'.
-        //:
-        //:     2 Assign 'mX' from 'Z'.  (C-1)
-        //:
-        //:     3 Verify that the address of the return value is the same as
-        //:       that of 'mX'.  (C-3)
-        //:
-        //:     4 Use the equality-comparison operator to verify that:
-        //:
-        //:       1 The target object, 'mX', now has the same value as that of
-        //:         'Z'.  (C-1)
-        //:
-        //:       2 'Z' still has the same value as that of 'ZZ'.  (C-4)
-        //:
-        //: 4 For each node 'N1' in tree of P-2:  (C-3, 5)
-        //:
-        //:   1 Create a modifiable 'Obj', 'mX', pointing to 'N1'.
-        //:
-        //:   1 Create a 'const' 'Obj', 'ZZ', pointing to 'N1'.
-        //:
-        //:   2 Let 'Z' be a reference providing only 'const' access to 'mX'.
-        //:
-        //:   3 Assign 'mX' from 'Z'.
-        //:
-        //:   4 Verify that the address of the return value is the same as
-        //:       that of 'mX'.  (C-3)
-        //:
-        //:   5 Use the equal-comparison operator to verify that 'mX' has the
-        //:     same value as 'ZZ'.  (C-5)
+        // 1. Use the address of `operator=` to initialize a member-function
+        //    pointer having the appropriate signature and return type for the
+        //    copy-assignment operator defined in this component.  (C-2)
+        //
+        // 2. Create a tree with N nodes.
+        //
+        // 3. For each node `N1` in the tree of P-2:  (C-1,3..4)
+        //
+        //   1. Create two `const` `Obj`, `Z` and `ZZ`, pointing to `N1`.
+        //
+        //   2. For each node `N2` in the tree of P-2:  (C-1,3..4)
+        //
+        //     1. Create a modifiable `Obj`, `mX`, pointing to `N2`.
+        //
+        //     2. Assign `mX` from `Z`.  (C-1)
+        //
+        //     3. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-3)
+        //
+        //     4. Use the equality-comparison operator to verify that:
+        //
+        //       1. The target object, `mX`, now has the same value as that of
+        //          `Z`.  (C-1)
+        //
+        //       2. `Z` still has the same value as that of `ZZ`.  (C-4)
+        //
+        // 4. For each node `N1` in tree of P-2:  (C-3, 5)
+        //
+        //   1. Create a modifiable `Obj`, `mX`, pointing to `N1`.
+        //
+        //   1. Create a `const` `Obj`, `ZZ`, pointing to `N1`.
+        //
+        //   2. Let `Z` be a reference providing only `const` access to `mX`.
+        //
+        //   3. Assign `mX` from `Z`.
+        //
+        //   4. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-3)
+        //
+        //   5. Use the equal-comparison operator to verify that `mX` has the
+        //      same value as `ZZ`.  (C-5)
         //
         // Testing:
         //   TreeIterator& operator=(const TreeIterator& rhs);
@@ -1151,42 +1156,42 @@ int main(int argc, char *argv[])
         //   other one, such that the two objects have the same value.
         //
         // Concerns:
-        //: 1 The copy constructor creates an object having the same value as
-        //:   that of the supplied original object.
-        //:
-        //: 2 The original object is passed as a reference providing
-        //:   non-modifiable access to that object.
-        //:
-        //: 3 The value of the original object is unchanged.
-        //:
-        //: 4 An object having the parameterized 'VALUE_TYPE' declared 'const'
-        //:   can be used to create an object having a the same 'VALUE_TYPE'
-        //:   declared as non-'const'.
+        // 1. The copy constructor creates an object having the same value as
+        //    that of the supplied original object.
+        //
+        // 2. The original object is passed as a reference providing
+        //    non-modifiable access to that object.
+        //
+        // 3. The value of the original object is unchanged.
+        //
+        // 4. An object having the parameterized `VALUE_TYPE` declared `const`
+        //    can be used to create an object having a the same `VALUE_TYPE`
+        //    declared as non-`const`.
         //
         // Plan:
-        //: 1 Create a tree with N nodes.
-        //:
-        //: 2 For each node 'N1' in the tree of P-1:  (C-1..4)
-        //:
-        //:   1 Create two 'const' 'Obj' 'Z', and 'ZZ' both pointing to 'N1'.
-        //:
-        //:   2 Create a 'const' object having the parameterized 'VALUE_TYPE'
-        //:     declared 'const', 'Y', pointing to 'N1'.
-        //:
-        //:   3 Use the copy constructor to create an object 'X1', supplying it
-        //:     the 'const' object 'Z'.  (C-2)
-        //:
-        //:   4 Verify that the newly constructed object 'X1', has the same
-        //:     value as that of 'Z'.  Verify that 'Z' still has the same value
-        //:     as that of 'ZZ'.  (C-1,3)
-        //:
-        //:   5 Use the copy constructor to create an object having the
-        //:     parameterized 'VALUE_TYPE' declared 'const' ,'X2', supplying it
-        //:     the 'const' object 'Z'.  (C-2, 4)
-        //:
-        //:   6 Verify that the newly constructed object 'X2', has the same
-        //:     value as that of 'Y'.  Verify that 'Z' still has the same value
-        //:     as that of 'ZZ'.  (C-1,3)
+        // 1. Create a tree with N nodes.
+        //
+        // 2. For each node `N1` in the tree of P-1:  (C-1..4)
+        //
+        //   1. Create two `const` `Obj` `Z`, and `ZZ` both pointing to `N1`.
+        //
+        //   2. Create a `const` object having the parameterized `VALUE_TYPE`
+        //      declared `const`, `Y`, pointing to `N1`.
+        //
+        //   3. Use the copy constructor to create an object `X1`, supplying it
+        //      the `const` object `Z`.  (C-2)
+        //
+        //   4. Verify that the newly constructed object `X1`, has the same
+        //      value as that of `Z`.  Verify that `Z` still has the same value
+        //      as that of `ZZ`.  (C-1,3)
+        //
+        //   5. Use the copy constructor to create an object having the
+        //      parameterized `VALUE_TYPE` declared `const` ,`X2`, supplying it
+        //      the `const` object `Z`.  (C-2, 4)
+        //
+        //   6. Verify that the newly constructed object `X2`, has the same
+        //      value as that of `Y`.  Verify that `Z` still has the same value
+        //      as that of `ZZ`.  (C-1,3)
         //
         // Testing:
         //   TreeIterator(const NcIter& original);
@@ -1238,58 +1243,58 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // EQUALITY-COMPARISON OPERATORS
-        //   Ensure that '==' and '!=' are the operational definition of value.
+        //   Ensure that `==` and `!=` are the operational definition of value.
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if they point
-        //:   to the same node in the same tree.
-        //:
-        //: 2 'true  == (X == X)'  (i.e., identity)
-        //:
-        //: 3 'false == (X != X)'  (i.e., identity)
-        //:
-        //: 4 'X == Y' if and only if 'Y == X'  (i.e., commutativity)
-        //:
-        //: 5 'X != Y' if and only if 'Y != X'  (i.e., commutativity)
-        //:
-        //: 6 'X != Y' if and only if '!(X == Y)'
-        //:
-        //: 7 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., both comparison operators are free functions).
-        //:
-        //: 8 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //: 9 The equality operator's signature and return type are standard.
-        //:
-        //:10 The inequality operator's signature and return type are standard.
+        // 1. Two objects, `X` and `Y`, compare equal if and only if they point
+        //    to the same node in the same tree.
+        //
+        // 2. `true  == (X == X)`  (i.e., identity)
+        //
+        // 3. `false == (X != X)`  (i.e., identity)
+        //
+        // 4. `X == Y` if and only if `Y == X`  (i.e., commutativity)
+        //
+        // 5. `X != Y` if and only if `Y != X`  (i.e., commutativity)
+        //
+        // 6. `X != Y` if and only if `!(X == Y)`
+        //
+        // 7. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., both comparison operators are free functions).
+        //
+        // 8. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        // 9. The equality operator's signature and return type are standard.
+        //
+        // 10. The inequality operator's signature and return type are standard.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the two homogeneous, free equality-
-        //:   comparison operators defined in this component.
-        //:   (C-7..10)
-        //:
-        //: 2 Create a tree with N nodes.
-        //:
-        //: 3 For each node 'N1' in the tree of P-2:  (C-1..6)
-        //:
-        //:   1 Create a single object pointing to 'N1', and use it to verity
-        //:     the reflexive (anti-reflexive) property of equality
-        //:     (inequality) in the presence of aliasing.  (C-2..3)
-        //:
-        //:   2 For each node 'N2' in the tree of P-2:  (C-1, 4..6)
-        //:
-        //:     1 Record, in 'EXP', whether or not distinct objects created
-        //:       from 'N1' and 'N2', respectively, are expected to have the
-        //:       same value.
-        //:
-        //:     2 Create an object 'X' having the value of 'R1'.  Create
-        //:       another object 'Y' having the value of 'R2'.
-        //:
-        //:     3 Verify the commutativity property and the expected return
-        //:       value for both '==' and '!='.  (C-1, 4..6)
+        // 1. Use the respective addresses of `operator==` and `operator!=` to
+        //    initialize function pointers having the appropriate signatures
+        //    and return types for the two homogeneous, free equality-
+        //    comparison operators defined in this component.
+        //    (C-7..10)
+        //
+        // 2. Create a tree with N nodes.
+        //
+        // 3. For each node `N1` in the tree of P-2:  (C-1..6)
+        //
+        //   1. Create a single object pointing to `N1`, and use it to verity
+        //      the reflexive (anti-reflexive) property of equality
+        //      (inequality) in the presence of aliasing.  (C-2..3)
+        //
+        //   2. For each node `N2` in the tree of P-2:  (C-1, 4..6)
+        //
+        //     1. Record, in `EXP`, whether or not distinct objects created
+        //        from `N1` and `N2`, respectively, are expected to have the
+        //        same value.
+        //
+        //     2. Create an object `X` having the value of `R1`.  Create
+        //        another object `Y` having the value of `R2`.
+        //
+        //     3. Verify the commutativity property and the expected return
+        //        value for both `==` and `!=`.  (C-1, 4..6)
         //
         // Testing:
         //   bool operator==(const TreeIterator& lhs, const TreeIterator& rhs);
@@ -1307,7 +1312,7 @@ int main(int argc, char *argv[])
             // Verify that the signatures and return types are standard.
 
             operatorPtr operatorEq = bslstl::operator==;
-                                        // See {DRQS 131792157} for 'bslstl::'.
+                                        // See {DRQS 131792157} for `bslstl::`.
             (void) operatorEq;  // quash potential compiler warnings
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
@@ -1316,7 +1321,7 @@ int main(int argc, char *argv[])
             };
 #else
             operatorPtr operatorNe = bslstl::operator!=;
-                                        // See {DRQS 131792157} for 'bslstl::'.
+                                        // See {DRQS 131792157} for `bslstl::`.
             (void) operatorNe;
 #endif
         }
@@ -1374,45 +1379,45 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // BASIC ACCESSORS, 'operator*', and 'operator->'
-        //   Ensure that the basic accessor 'node' as well as 'operator*' and
-        //   'operator->' properly interprets object state.
+        // BASIC ACCESSORS, `operator*`, and `operator->`
+        //   Ensure that the basic accessor `node` as well as `operator*` and
+        //   `operator->` properly interprets object state.
         //
         // Concerns:
-        //: 1 The 'node' method returns the address of the node to which this
-        //:   object refers.
-        //:
-        //: 2 The 'operator*' returns the reference to the value of the element
-        //:   to which this object refers.
-        //:
-        //: 3 The 'operator->' returns the address to the value of the element
-        //:   to which this object refers.
-        //:
-        //: 4 Each of the three methods are declared 'const'.
-        //:
-        //: 5 The signature and return type are standard.
+        // 1. The `node` method returns the address of the node to which this
+        //    object refers.
+        //
+        // 2. The `operator*` returns the reference to the value of the element
+        //    to which this object refers.
+        //
+        // 3. The `operator->` returns the address to the value of the element
+        //    to which this object refers.
+        //
+        // 4. Each of the three methods are declared `const`.
+        //
+        // 5. The signature and return type are standard.
         //
         // Plan:
-        //: 1 Use the addresses of 'operator*' and 'operator->' to initialize
-        //:   member-function pointers having the appropriate signatures and
-        //:   return types for the operators defined in this component.  (C-5)
-        //:
-        //: 2 Create a tree with N nodes.
-        //:
-        //: 3 Use the primary manipulators to create an object, 'mX', and
-        //:   iterator through the nodes of the tree.  For each iteration do
-        //:   the following: (C-1..4)
-        //:
-        //:   1 Create a const reference to the object 'X'.
-        //:
-        //:   2 Invoke the method 'node' on 'X' and verify that it returns the
-        //:     expected value.  (C-1,4)
-        //:
-        //:   3 Invoke 'operator*' on 'X' and verify that it returns the
-        //:     expected value.  (C-2,4)
-        //:
-        //:   4 Invoke 'operator->' on 'X' and verify that it returns the
-        //:     expected value.  (C-3,4)
+        // 1. Use the addresses of `operator*` and `operator->` to initialize
+        //    member-function pointers having the appropriate signatures and
+        //    return types for the operators defined in this component.  (C-5)
+        //
+        // 2. Create a tree with N nodes.
+        //
+        // 3. Use the primary manipulators to create an object, `mX`, and
+        //    iterator through the nodes of the tree.  For each iteration do
+        //    the following: (C-1..4)
+        //
+        //   1. Create a const reference to the object `X`.
+        //
+        //   2. Invoke the method `node` on `X` and verify that it returns the
+        //      expected value.  (C-1,4)
+        //
+        //   3. Invoke `operator*` on `X` and verify that it returns the
+        //      expected value.  (C-2,4)
+        //
+        //   4. Invoke `operator->` on `X` and verify that it returns the
+        //      expected value.  (C-3,4)
         //
         // Testing:
         //   reference operator*() const;
@@ -1421,7 +1426,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nBASIC ACCESSORS, 'operator*', and 'operator->'"
+            printf("\nBASIC ACCESSORS, `operator*`, and `operator->`"
                    "\n==============================================\n");
 
         if (verbose)
@@ -1494,36 +1499,36 @@ int main(int argc, char *argv[])
         //   relevant for thorough testing.
         //
         // Concerns:
-        //:  1 An object can be created with the default constructor.  Two
-        //:    objects created with the default constructor has the same value.
-        //:
-        //:  2 An object created with the value constructor have the
-        //:    contractually specified value.
-        //:
-        //:  3 An object initialized using a value constructor to a valid
-        //:    'RbTreeNode' can be post-incremented using the (as yet unproven)
-        //:    'operator++'.
-        //:
-        //:  4 An object can be used to traverse the all nodes in a tree in
-        //:    order using the value constructor and the (as yet unproven)
-        //:    operator++.
+        //  1. An object can be created with the default constructor.  Two
+        //     objects created with the default constructor has the same value.
+        //
+        //  2. An object created with the value constructor have the
+        //     contractually specified value.
+        //
+        //  3. An object initialized using a value constructor to a valid
+        //     `RbTreeNode` can be post-incremented using the (as yet unproven)
+        //     `operator++`.
+        //
+        //  4. An object can be used to traverse the all nodes in a tree in
+        //     order using the value constructor and the (as yet unproven)
+        //     operator++.
         //
         // Plan:
-        //:  1 Construct two objects using the default constructor.  Verify
-        //:    that the two objects refers to the same tree node by using the
-        //:    (as yet unproven) salient attribute accessor.  (C-1)
-        //:
-        //:  2 Create a tree with a N nodes.
-        //:
-        //:  3 For each node in the tree, use the value constructor to create
-        //:    an object to point to that node.  Verify the state of the object
-        //:    with the (as yet unproven) salient attribute accessor.  (C-2)
-        //:
-        //:  4 Instantiate an object with the value constructor, passing in a
-        //:    pointer to the first node of the tree.  Iterate over the nodes
-        //:    of the tree with the pre-increment.  After construction and each
-        //:    iteration, verify the state of the object with the (as yet
-        //:    unproven) salient attribute accessor.  (C-2..4)
+        //  1. Construct two objects using the default constructor.  Verify
+        //     that the two objects refers to the same tree node by using the
+        //     (as yet unproven) salient attribute accessor.  (C-1)
+        //
+        //  2. Create a tree with a N nodes.
+        //
+        //  3. For each node in the tree, use the value constructor to create
+        //     an object to point to that node.  Verify the state of the object
+        //     with the (as yet unproven) salient attribute accessor.  (C-2)
+        //
+        //  4. Instantiate an object with the value constructor, passing in a
+        //     pointer to the first node of the tree.  Iterate over the nodes
+        //     of the tree with the pre-increment.  After construction and each
+        //     iteration, verify the state of the object with the (as yet
+        //     unproven) salient attribute accessor.  (C-2..4)
         //
         // Testing:
         //   TreeIterator();

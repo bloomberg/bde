@@ -70,8 +70,8 @@ enum ReadMode {
                        // representable 'Datetime' object)
 };
 
+/// The byte sequence of the header of the Zoneinfo binary data format.
 struct RawHeader {
-    // The byte sequence of the header of the Zoneinfo binary data format.
 
     char d_headerId[4];           // must be 'EXPECTED_HEADER_ID'
     char d_version[1];            // must be '\0', '2' or '3' (as of 2013)
@@ -86,9 +86,9 @@ struct RawHeader {
 
 BSLMF_ASSERT(44 == sizeof(RawHeader));
 
+/// The byte sequence of a local-time type in the Zoneinfo binary data
+/// format.
 struct RawLocalTimeType {
-    // The byte sequence of a local-time type in the Zoneinfo binary data
-    // format.
 
     char          d_offset[4];          // UTC offset in number of seconds
     unsigned char d_isDst;              // indicates whether local time is DST
@@ -97,9 +97,9 @@ struct RawLocalTimeType {
 
 BSLMF_ASSERT(6 == sizeof(RawLocalTimeType));
 
+/// The byte sequence of a leap correction in the Zoneinfo binary data
+/// format version '\0'.
 struct RawLeapInfo {
-    // The byte sequence of a leap correction in the Zoneinfo binary data
-    // format version '\0'.
 
     char d_transition[4];  // POSIX time at which the leap second occur
     char d_correction[4];  // accumulated leap correction
@@ -107,9 +107,9 @@ struct RawLeapInfo {
 
 BSLMF_ASSERT(8 == sizeof(RawLeapInfo));
 
+/// The byte sequence of a leap correction in the Zoneinfo binary data
+/// format version `2` or `3`.
 struct RawLeapInfo64 {
-    // The byte sequence of a leap correction in the Zoneinfo binary data
-    // format version '2' or '3'.
 
     char d_transition[8];  // POSIX time at which the leap second occur
     char d_correction[4];  // accumulated leap correction
@@ -117,21 +117,21 @@ struct RawLeapInfo64 {
 
 BSLMF_ASSERT(12 == sizeof(RawLeapInfo64));
 
+/// The value is a constant, used by the ZIC compiler (which "compiles" the
+/// data into zoneinfo binary files), and is used as the time point for the
+/// first local time transition to simplify the logic for determining the
+/// local time prior to time zones being established.  Note that time zones
+/// typically use "apparent solar time" (which has a fixed offset from UTC)
+/// as local time prior to laws regarding time zones being established (see
+/// https://en.wikipedia.org/wiki/Time_zone).
 const bsls::Types::Int64 MINIMUM_ZIC_TRANSITION = -576460752303423488LL;
-    // The value is a constant, used by the ZIC compiler (which "compiles" the
-    // data into zoneinfo binary files), and is used as the time point for the
-    // first local time transition to simplify the logic for determining the
-    // local time prior to time zones being established.  Note that time zones
-    // typically use "apparent solar time" (which has a fixed offset from UTC)
-    // as local time prior to laws regarding time zones being established (see
-    // https://en.wikipedia.org/wiki/Time_zone).
 
 }  // close unnamed namespace
 
+/// Return `true` if every character in the specified `buffer` of the
+/// specified `length` is printable, and `false` otherwise.
 static
 bool areAllPrintable(const char *buffer, int length)
-    // Return 'true' if every character in the specified 'buffer' of the
-    // specified 'length' is printable, and 'false' otherwise.
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= length);
@@ -144,14 +144,14 @@ bool areAllPrintable(const char *buffer, int length)
     return true;
 }
 
+/// Load the specified `formattedHeader` with characters from the specified
+/// `buffer` of the specified `length` if each of those characters is
+/// printable, and with the hexadecimal representation of those characters
+/// otherwise.
 static
 void formatHeaderId(bsl::string *formattedHeader,
                     const char  *buffer,
                     int          length)
-    // Load the specified 'formattedHeader' with characters from the specified
-    // 'buffer' of the specified 'length' if each of those characters is
-    // printable, and with the hexadecimal representation of those characters
-    // otherwise.
 {
     BSLS_ASSERT(formattedHeader);
     BSLS_ASSERT(buffer);
@@ -166,18 +166,18 @@ void formatHeaderId(bsl::string *formattedHeader,
     }
 }
 
+/// The first 4 bytes of a valid Zoneinfo database file.
 static const char *EXPECTED_HEADER_ID = "TZif";
-    // The first 4 bytes of a valid Zoneinfo database file.
 
+/// Read the specified `numValues` of the parameterized `TYPE` from the
+/// specified `stream` into the specified `result`.  Return 0 on success and
+/// -1 if the read failed.  Note that `sizeof(TYPE)` must equal the size of
+/// the packed stream data.
 template <class TYPE>
 static inline
 int readRawArray(bsl::vector<TYPE> *result,
                  bsl::istream&      stream,
                  int                numValues)
-    // Read the specified 'numValues' of the parameterized 'TYPE' from the
-    // specified 'stream' into the specified 'result'.  Return 0 on success and
-    // -1 if the read failed.  Note that 'sizeof(TYPE)' must equal the size of
-    // the packed stream data.
 {
     BSLS_ASSERT(result);
 
@@ -191,14 +191,14 @@ int readRawArray(bsl::vector<TYPE> *result,
     return 0;
 }
 
+/// Read the trailing POSIX(-like) TZ environment string  from the specified
+/// `stream` and append it to the specified `result`.  Return 0 on success,
+/// and non-zero value otherwise.  The first character is discarded from the
+/// stream whether it is newline character or not.  The final '\n' is not
+/// appended to the `result`.
 static inline
 int readRawTz(bsl::string   *result,
               bsl::istream&  stream)
-    // Read the trailing POSIX(-like) TZ environment string  from the specified
-    // 'stream' and append it to the specified 'result'.  Return 0 on success,
-    // and non-zero value otherwise.  The first character is discarded from the
-    // stream whether it is newline character or not.  The final '\n' is not
-    // appended to the 'result'.
 {
     BSLS_ASSERT(result);
 
@@ -217,20 +217,20 @@ int readRawTz(bsl::string   *result,
     return 0;
 }
 
+/// Return `true` if the specified `index` is within the range of valid
+/// indices of the specified `vector`, and `false` otherwise.
 template <class TYPE>
 static inline
 bool validIndex(const bsl::vector<TYPE>& vector, int index)
-    // Return 'true' if the specified 'index' is within the range of valid
-    // indices of the specified 'vector', and 'false' otherwise.
 {
     return 0 <= index && (unsigned int) index < vector.size();
 }
 
+/// Read the 32-bit big-endian integer in the array of bytes located at the
+/// specified `address` and return that value.  The behavior is undefined
+/// unless `address` points to an accessible memory location.
 static inline
 int decode32(const char *address)
-    // Read the 32-bit big-endian integer in the array of bytes located at the
-    // specified 'address' and return that value.  The behavior is undefined
-    // unless 'address' points to an accessible memory location.
 {
     BSLS_ASSERT(address);
 
@@ -239,12 +239,12 @@ int decode32(const char *address)
     return BSLS_BYTEORDER_BE_U32_TO_HOST(temp);
 }
 
+/// Extract header information from the specified `stream` and, if the data
+/// meets the requirements of the Zoneinfo binary file format, populate the
+/// specified `result` with the extracted information.  Return 0 if `result`
+/// is successfully read, and a non-zero value otherwise.
 static inline
 int readHeader(baltzo::ZoneinfoBinaryHeader *result, bsl::istream& stream)
-    // Extract header information from the specified 'stream' and, if the data
-    // meets the requirements of the Zoneinfo binary file format, populate the
-    // specified 'result' with the extracted information.  Return 0 if 'result'
-    // is successfully read, and a non-zero value otherwise.
 {
     BSLS_ASSERT(result);
 
@@ -331,16 +331,16 @@ int readHeader(baltzo::ZoneinfoBinaryHeader *result, bsl::istream& stream)
     return 0;
 }
 
+/// Load the specified `descriptors` with the sequence of local time
+/// descriptors described by the specified `localTimeDescriptors` holding
+/// raw information read from the file, and referring to null-terminated
+/// abbreviations in the specified `abbreviationBuffer`.  Return 0 on
+/// success, and a non-zero value otherwise.
 static
 int loadLocalTimeDescriptors(
                 bsl::vector<baltzo::LocalTimeDescriptor> *descriptors,
                 const bsl::vector<RawLocalTimeType>&      localTimeDescriptors,
                 const bsl::vector<char>&                  abbreviationBuffer)
-    // Load the specified 'descriptors' with the sequence of local time
-    // descriptors described by the specified 'localTimeDescriptors' holding
-    // raw information read from the file, and referring to null-terminated
-    // abbreviations in the specified 'abbreviationBuffer'.  Return 0 on
-    // success, and a non-zero value otherwise.
 {
 
     for (bsl::size_t i = 0; i < localTimeDescriptors.size(); ++i) {
@@ -388,21 +388,21 @@ int loadLocalTimeDescriptors(
     return 0;
 }
 
+/// Read time zone information in the version `2` or `3` file format from
+/// the specified `stream`, and load the description into the specified
+/// `zoneinfoResult`, and the header information into the specified
+/// `headerResult` in accordance with the specified `mode`.  Return 0 on
+/// success and a non-zero value if `stream` does not provide a sequence of
+/// bytes consistent with version `2` or `3` Zoneinfo binary format.  The
+/// `stream` must refer to the first byte of the version `2` or `3` header
+/// (which typically follows the version '\0' format data in a Zoneinfo
+/// binary file).  If an error occurs during the operation, the resulting
+/// value of `zoneinfoResult` is unspecified.
 static int readVersion2Or3FormatData(
                                   baltzo::Zoneinfo             *zoneinfoResult,
                                   baltzo::ZoneinfoBinaryHeader *headerResult,
                                   ReadMode                      mode,
                                   bsl::istream&                 stream)
-    // Read time zone information in the version '2' or '3' file format from
-    // the specified 'stream', and load the description into the specified
-    // 'zoneinfoResult', and the header information into the specified
-    // 'headerResult' in accordance with the specified 'mode'.  Return 0 on
-    // success and a non-zero value if 'stream' does not provide a sequence of
-    // bytes consistent with version '2' or '3' Zoneinfo binary format.  The
-    // 'stream' must refer to the first byte of the version '2' or '3' header
-    // (which typically follows the version '\0' format data in a Zoneinfo
-    // binary file).  If an error occurs during the operation, the resulting
-    // value of 'zoneinfoResult' is unspecified.
 {
     int rc = readHeader(headerResult, stream);
     if (0 != rc) {

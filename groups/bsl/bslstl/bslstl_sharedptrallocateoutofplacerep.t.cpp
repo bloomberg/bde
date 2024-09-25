@@ -11,7 +11,7 @@
 
 #include <stddef.h>
 #include <stdio.h>
-#include <stdlib.h>            // 'atoi'
+#include <stdlib.h>            // `atoi`
 
 #include <new>
 
@@ -129,9 +129,9 @@ class MyAllocTestDeleter;
 //              GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Delete the specified `ptr`, using `delete ptr`.
 template <class TYPE>
 void deleterFunction(TYPE *ptr)
-    // Delete the specified 'ptr', using 'delete ptr'.
 {
     delete ptr;
 }
@@ -140,13 +140,13 @@ void deleterFunction(TYPE *ptr)
                          // struct BasicDeleter
                          // ===================
 
+/// Basic deleter to simply forward a call to `delete` with a pointer passed
+/// to the function call operator.
 template <class TYPE>
 struct BasicDeleter {
-    // Basic deleter to simply forward a call to 'delete' with a pointer passed
-    // to the function call operator.
 
+    /// Delete the specified `ptr`, using `delete ptr`.
     void operator()(TYPE *ptr) const
-        // Delete the specified 'ptr', using 'delete ptr'.
     {
         delete ptr;
     }
@@ -157,32 +157,35 @@ struct BasicDeleter {
                          // =====================
 
 
+/// Stateful deleter to simply forward a call to `delete` with a pointer
+/// passed to the overloaded function call operator, while counting the
+/// number of calls to that operator.  The operator must not be `const`
+/// qualified in order to support the mutating state - which is a specific
+/// testing concern.  This will also test the case that the overloaded
+/// operator is a function member template.
 class StatefulDeleter {
-    // Stateful deleter to simply forward a call to 'delete' with a pointer
-    // passed to the overloaded function call operator, while counting the
-    // number of calls to that operator.  The operator must not be 'const'
-    // qualified in order to support the mutating state - which is a specific
-    // testing concern.  This will also test the case that the overloaded
-    // operator is a function member template.
 
   private:
     int d_count;
 
   public:
     // CREATORS
+
+    /// Create a `StatefulDeleter` object having a `count` of 0.
     StatefulDeleter();
-        // Create a 'StatefulDeleter' object having a 'count' of 0.
 
     // MANIPULATORS
+
+    /// Delete the specified `ptr` (using `delete ptr`) and increment the
+    /// stored `count` of calls to this function.
     template <class TYPE>
     void operator()(TYPE *ptr);
-        // Delete the specified 'ptr' (using 'delete ptr') and increment the
-        // stored 'count' of calls to this function.
 
     // ACCESSORS
+
+    /// Return the number of time that `operator()` has been called on this
+    /// object.
     int count() const;
-        // Return the number of time that 'operator()' has been called on this
-        // object.
 };
 
 
@@ -213,9 +216,10 @@ int StatefulDeleter::count() const
                          // ==================
                          // class MyTestObject
                          // ==================
+
+/// This class provides an implementation for `bslma::SharedPtrRep` so that
+/// it can be initialized and tested.
 class MyTestObject {
-    // This class provides an implementation for 'bslma::SharedPtrRep' so that
-    // it can be initialized and tested.
 
     // DATA
     int        d_data;  // Non-static data member that serves no clear purpose
@@ -223,16 +227,18 @@ class MyTestObject {
 
   public:
     // CREATORS
-    MyTestObject();
-        // Create a 'MyTestObject' having '0 == d_data'.
 
+    /// Create a `MyTestObject` having `0 == d_data`.
+    MyTestObject();
+
+    /// Destroy this object and increment the static count of destroyed
+    /// objects.
     ~MyTestObject();
-        // Destroy this object and increment the static count of destroyed
-        // objects.
 
     // ACCESSORS
+
+    /// Return the number of `MyTestObject`s that have been destroyed.
     static int getNumDeletes();
-        // Return the number of 'MyTestObject's that have been destroyed.
 };
 
                          // ------------------
@@ -270,7 +276,7 @@ typedef BasicDeleter<MyTestObject> MyDeleteFunctor;
 
 class MyAllocTestDeleter {
     // This class provides a prototypical function-like deleter that takes a
-    // 'bslma::Allocator' at construction.  It is used to check that the
+    // `bslma::Allocator` at construction.  It is used to check that the
     // allocator used to construct the representation is passed correctly to
     // the deleter.
 
@@ -361,15 +367,15 @@ class MyTestFactory {
     // MANIPULATORS
     MyTestObject *createObject(bslma::Allocator *basicAllocator = 0)
     {
-        // Create a 'MyTestObject' object.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // Create a `MyTestObject` object.  Optionally specify a
+        // `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
         // the currently installed default allocator is used.
         return new MyTestObject();
     }
 
     void deleteObject(MyTestObject *object)
     {
-        // Delete the specified 'object'.
+        // Delete the specified `object`.
         delete object;
     }
 };
@@ -383,7 +389,7 @@ class MyTestFactory {
 
 class MySharedDatetime {
     // This class provide a reference counted smart pointer to support shared
-    // ownership of a 'bdlt_Datetime' object.
+    // ownership of a `bdlt_Datetime` object.
 
   private:
     bdlt::Datetime      *d_ptr_p;  // pointer to the managed object
@@ -401,11 +407,11 @@ class MySharedDatetime {
         // Dereference the shared Datetime
 
     bdlt::Datetime *operator->() const;
-        // Return address of the modifiable 'bdlt::Datetime' referred to by
+        // Return address of the modifiable `bdlt::Datetime` referred to by
         // this class.
 
     bdlt::Datetime *ptr() const;
-        // Return address of the modifiable 'bdlt::Datetime' referred to by
+        // Return address of the modifiable `bdlt::Datetime` referred to by
         // this class.
 };
 
@@ -457,11 +463,11 @@ bdlt::Datetime *MySharedDatetime::ptr() const {
                               // class StdAllocator
                               // ==================
 
+/// This class template conforms to the requirements of an allocator, as
+/// specified in section 17.6.3.5 ([allocator.requirements]) of the ISO
+/// C++11 standard.
 template <class TYPE>
 class StdAllocator {
-    // This class template conforms to the requirements of an allocator, as
-    // specified in section 17.6.3.5 ([allocator.requirements]) of the ISO
-    // C++11 standard.
 
   public:
     // PUBLIC TYPES
@@ -477,33 +483,35 @@ class StdAllocator {
     };
 
     // CREATORS
+
+    /// Create a `StdAllocator` object.
     StdAllocator();
-        // Create a 'StdAllocator' object.
 
     // StdAllocator(const StdAllocator<BDE_OTHER_TYPE>& other) = default;
-    // Create a 'StdAllocator' object from the specified 'other', using the
+    // Create a `StdAllocator` object from the specified `other`, using the
     // implicitly generated trivial copy constructor.  Note that as
-    // 'StdAllocator' is an empty class, the 'other' object is not used.
+    // `StdAllocator` is an empty class, the `other` object is not used.
 
+    /// Create a `StdAllocator` object from the specified `other`.  Note
+    /// that as `StdAllocator` is an empty class, the `other` object is not
+    /// used.
     template <class BDE_OTHER_TYPE>
     StdAllocator(const StdAllocator<BDE_OTHER_TYPE>& other);
-        // Create a 'StdAllocator' object from the specified 'other'.  Note
-        // that as 'StdAllocator' is an empty class, the 'other' object is not
-        // used.
 
     // ~StdAllocator() = default;
         // Destroy this object.
 
     // MANIPULATORS
-    TYPE *allocate(size_t numObjects);
-        // Allocate a contiguous block of memory large enough to hold the
-        // specified 'numObjects' of (template parameter) 'TYPE' using the C
-        // function 'malloc', and return the address of that block.
 
+    /// Allocate a contiguous block of memory large enough to hold the
+    /// specified `numObjects` of (template parameter) `TYPE` using the C
+    /// function `malloc`, and return the address of that block.
+    TYPE *allocate(size_t numObjects);
+
+    /// Return to the system the memory occupied by the specified
+    /// `numObjects` of (template parameter) `TYPE` starting at the address
+    /// given by the specified `ptr`, using the C function `free`.
     void deallocate(TYPE *ptr, size_t numObjects);
-        // Return to the system the memory occupied by the specified
-        // 'numObjects' of (template parameter) 'TYPE' starting at the address
-        // given by the specified 'ptr', using the C function 'free'.
 };
 
                               // ------------------
@@ -618,7 +626,7 @@ int main(int argc, char *argv[])
 #endif  // 0
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'getDeleter'
+        // TESTING `getDeleter`
         //
         // Concerns:
         //   1) ...
@@ -630,7 +638,7 @@ int main(int argc, char *argv[])
         //   void *getDeleter(const std::type_info& type);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'getDeleter'"
+        if (verbose) printf("\nTESTING `getDeleter`"
                             "\n====================\n");
 
         {
@@ -654,25 +662,25 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'releaseRef' AND 'releaseWeakRef'
+        // TESTING `releaseRef` AND `releaseWeakRef`
         //
         // Concerns:
-        //   1) 'releaseRef' and 'releaseWeakRef' is decrementing the reference
+        //   1) `releaseRef` and `releaseWeakRef` is decrementing the reference
         //      count correctly.
         //   2) disposeObject() is called when there is no shared reference.
         //   3) disposeRep() is called only when there is no shared reference
         //      and no weak reference.
         //
         // Plan:
-        //   1) Call 'acquireRef' then 'releaseRef' and verify 'numReference'
-        //      did not change.  Call 'acquireWeakRef' then 'releaseWeakRef'
-        //      and verify 'numWeakReference' did not change.
-        //   2) Call 'releaseRef' when there is only one reference remaining.
-        //      Then verify that both 'disposeObject' and 'disposeRep' is
+        //   1) Call `acquireRef` then `releaseRef` and verify `numReference`
+        //      did not change.  Call `acquireWeakRef` then `releaseWeakRef`
+        //      and verify `numWeakReference` did not change.
+        //   2) Call `releaseRef` when there is only one reference remaining.
+        //      Then verify that both `disposeObject` and `disposeRep` is
         //      called.
-        //   3) Create another object and call 'acquireWeakRef' before calling
-        //      'releaseRef'.  Verify that only 'disposeObject' is called.
-        //      Then call 'releaseWeakRef' and verify that 'disposeRep' is
+        //   3) Create another object and call `acquireWeakRef` before calling
+        //      `releaseRef`.  Verify that only `disposeObject` is called.
+        //      Then call `releaseWeakRef` and verify that `disposeRep` is
         //      called.
         //
         // Testing:
@@ -680,7 +688,7 @@ int main(int argc, char *argv[])
         //   void releaseWeakRef();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'releaseRef' AND 'releaseWeakRef'"
+        if (verbose) printf("\nTESTING `releaseRef` AND `releaseWeakRef`"
                             "\n=========================================\n");
 
 #if 0
@@ -725,7 +733,7 @@ int main(int argc, char *argv[])
             ASSERT(true == X.hasUniqueOwner());
 
             if (verbose) printf(
-                        "\nTesting 'releaseRef' with no weak reference'"
+                        "\nTesting `releaseRef` with no weak reference'"
                         "\n--------------------------------------------\n");
 
             x.releaseRef();
@@ -737,7 +745,7 @@ int main(int argc, char *argv[])
 #endif
         }
 
-        if (verbose) printf("\nTesting 'releaseRef' with weak reference'"
+        if (verbose) printf("\nTesting `releaseRef` with weak reference'"
                             "\n-----------------------------------------\n");
 
         {

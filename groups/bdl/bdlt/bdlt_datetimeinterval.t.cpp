@@ -28,10 +28,10 @@
 #include <bslx_testoutstream.h>
 #include <bslx_versionfunctions.h>
 
-#include <bsl_climits.h>     // 'INT_MAX', 'INT_MIN'
+#include <bsl_climits.h>     // `INT_MAX`, `INT_MIN`
 #include <bsl_cmath.h>
-#include <bsl_cstdlib.h>     // 'atoi'
-#include <bsl_cstring.h>     // 'memcmp'
+#include <bsl_cstdlib.h>     // `atoi`
+#include <bsl_cstring.h>     // `memcmp`
 #include <bsl_iostream.h>
 #include <bsl_limits.h>
 #include <bsl_sstream.h>
@@ -49,18 +49,18 @@ using namespace bsl;
 // (value-semantic) attribute class.  The Primary Manipulators and Basic
 // Accessors are therefore, respectively, the attribute setters and getters,
 // each of which follows our standard unconstrained attribute-type naming
-// conventions: 'setAttributeName' and 'attributeName'.
+// conventions: `setAttributeName` and `attributeName`.
 //
 // Primary Manipulator:
-//: o 'setInterval'
+//  - `setInterval`
 //
 // Basic Accessors:
-//: o 'days'
-//: o 'fractionalDayInMicroseconds'
+//  - `days`
+//  - `fractionalDayInMicroseconds`
 //
 // This particular attribute class also provides a value constructor capable of
 // creating an object in any state relevant for thorough testing, obviating the
-// primitive generator function, 'gg', normally used for this purpose.  We will
+// primitive generator function, `gg`, normally used for this purpose.  We will
 // therefore follow our standard 10-case approach to testing value-semantic
 // types except that we will leave case 3 empty.
 //-----------------------------------------------------------------------------
@@ -155,7 +155,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [21] USAGE EXAMPLE
-// [ 8] Reserved for 'swap' testing.
+// [ 8] Reserved for `swap` testing.
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -358,7 +358,7 @@ int main(int argc, char *argv[])
 
     // CONCERN: This test driver is reusable w/other, similar components.
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -379,13 +379,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -399,22 +399,22 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic 'bdlt::DatetimeInterval' Usage
+///Example 1: Basic `bdlt::DatetimeInterval` Usage
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to create and use a 'bdlt::DatetimeInterval'
+// This example demonstrates how to create and use a `bdlt::DatetimeInterval`
 // object.
 //
-// First, create an object 'i1' having the default value:
-//..
+// First, create an object `i1` having the default value:
+// ```
     bdlt::DatetimeInterval i1;         ASSERT(  0 == i1.days());
                                        ASSERT(  0 == i1.hours());
                                        ASSERT(  0 == i1.minutes());
                                        ASSERT(  0 == i1.seconds());
                                        ASSERT(  0 == i1.milliseconds());
                                        ASSERT(  0 == i1.microseconds());
-//..
-// Then, set the value of 'i1' to -5 days, and then add 16 hours to that value:
-//..
+// ```
+// Then, set the value of `i1` to -5 days, and then add 16 hours to that value:
+// ```
     i1.setTotalDays(-5);
     i1.addHours(16);                   ASSERT( -4 == i1.days());
                                        ASSERT( -8 == i1.hours());
@@ -422,19 +422,19 @@ int main(int argc, char *argv[])
                                        ASSERT(  0 == i1.seconds());
                                        ASSERT(  0 == i1.milliseconds());
                                        ASSERT(  0 == i1.microseconds());
-//..
-// Next, create 'i2' as a copy of 'i1':
-//..
+// ```
+// Next, create `i2` as a copy of `i1`:
+// ```
     bdlt::DatetimeInterval i2(i1);     ASSERT( -4 == i2.days());
                                        ASSERT( -8 == i2.hours());
                                        ASSERT(  0 == i2.minutes());
                                        ASSERT(  0 == i2.seconds());
                                        ASSERT(  0 == i2.milliseconds());
                                        ASSERT(  0 == i2.microseconds());
-//..
-// Then, add 2 days and 4 seconds to the value of 'i2' (in two steps), and
-// confirm that 'i2' has a value that is greater than that of 'i1':
-//..
+// ```
+// Then, add 2 days and 4 seconds to the value of `i2` (in two steps), and
+// confirm that `i2` has a value that is greater than that of `i1`:
+// ```
     i2.addDays(2);
     i2.addSeconds(4);                  ASSERT( -2 == i2.days());
                                        ASSERT( -7 == i2.hours());
@@ -443,21 +443,21 @@ int main(int argc, char *argv[])
                                        ASSERT(  0 == i2.milliseconds());
                                        ASSERT(  0 == i2.microseconds());
                                        ASSERT(i2 > i1);
-//..
-// Next, add 2 days and 4 seconds to the value of 'i1' in one step by using the
-// 'addInterval' method, and confirm that 'i1' now has the same value as 'i2':
-//..
+// ```
+// Next, add 2 days and 4 seconds to the value of `i1` in one step by using the
+// `addInterval` method, and confirm that `i1` now has the same value as `i2`:
+// ```
     i1.addInterval(2, 0, 0, 4);        ASSERT(i2 == i1);
-//..
-// Finally, write the value of 'i2' to 'stdout':
-//..
+// ```
+// Finally, write the value of `i2` to `stdout`:
+// ```
 if (veryVerbose)
     bsl::cout << i2 << bsl::endl;
-//..
-// The output operator produces the following format on 'stdout':
-//..
+// ```
+// The output operator produces the following format on `stdout`:
+// ```
 //  -2_07:59:56.000000
-//..
+// ```
 
       } break;
       case 20: {
@@ -465,20 +465,20 @@ if (veryVerbose)
         // TESTING: hashAppend
         //
         // Concerns:
-        //: 1 Hope that different inputs hash differently
-        //: 2 Verify that equal inputs hash identically
-        //: 3 Works for 'const' and non-'const' values
+        // 1. Hope that different inputs hash differently
+        // 2. Verify that equal inputs hash identically
+        // 3. Works for `const` and non-`const` values
         //
         // Plan:
-        //: 1 Use a table specifying a set of distinct objects, verify that
-        //:   hashes of equivalent objects match and hashes on unequal objects
-        //:   do not.
+        // 1. Use a table specifying a set of distinct objects, verify that
+        //    hashes of equivalent objects match and hashes on unequal objects
+        //    do not.
         //
         // Testing:
         //    void hashAppend(HASHALG&, const DatetimeInterval&);
         // --------------------------------------------------------------------
         if (verbose)
-            cout << "\nTESTING 'hashAppend'"
+            cout << "\nTESTING `hashAppend`"
                  << "\n====================\n";
 
         typedef ::BloombergLP::bslh::Hash<> Hasher;
@@ -539,22 +539,22 @@ if (veryVerbose)
         //   operand.
         //
         // Concerns:
-        //: 1 The free operator work as expected.
-        //:
-        //: 2 The signature and return type are standard.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The free operator work as expected.
+        //
+        // 2. The signature and return type are standard.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For a sequence of independent test values, use the value
-        //:   constructor to create an object of specified value.  Use the
-        //:   free operator to compute a second object.  Verify the value of
-        //:   this object by comparing to an object, created with the value
-        //:   constructor, with the expected value.  (C-1)
-        //:
-        //: 2 Directly verify the function signature.  (C-2)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. For a sequence of independent test values, use the value
+        //    constructor to create an object of specified value.  Use the
+        //    free operator to compute a second object.  Verify the value of
+        //    this object by comparing to an object, created with the value
+        //    constructor, with the expected value.  (C-1)
+        //
+        // 2. Directly verify the function signature.  (C-2)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   DatetimeInterval operator-(const DatetimeInterval& value);
@@ -636,22 +636,22 @@ if (veryVerbose)
         //   Ensure that each operator correctly computes the returned object.
         //
         // Concerns:
-        //: 1 The free operators work as expected.
-        //:
-        //: 2 The signatures and return types are standard.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The free operators work as expected.
+        //
+        // 2. The signatures and return types are standard.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For a sequence of independent test values, use the value
-        //:   constructor to create two objects of specified value.  Use the
-        //:   free operator to compute a third object.  Verify the value of
-        //:   this object by comparing to an object, created with the value
-        //:   constructor, with the expected value.  (C-1)
-        //:
-        //: 2 Directly verify the function signatures.  (C-2)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. For a sequence of independent test values, use the value
+        //    constructor to create two objects of specified value.  Use the
+        //    free operator to compute a third object.  Verify the value of
+        //    this object by comparing to an object, created with the value
+        //    constructor, with the expected value.  (C-1)
+        //
+        // 2. Directly verify the function signatures.  (C-2)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   DatetimeInterval operator+(const DatetimeInterval& lhs, rhs);
@@ -824,22 +824,22 @@ if (veryVerbose)
         //   representation of the object.
         //
         // Concerns:
-        //: 1 The manipulators work as expected, including for self-assignment.
-        //:
-        //: 2 The signatures and return types are standard.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The manipulators work as expected, including for self-assignment.
+        //
+        // 2. The signatures and return types are standard.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For a sequence of independent test values, use the value
-        //:   constructor to create two objects of specified value.  Use the
-        //:   manipulator to adjust the value of the first obect.  Verify the
-        //:   value by comparing to an object, created with the value
-        //:   constructor, with the expected value.  (C-1)
-        //:
-        //: 2 Directly verify the function signatures.  (C-2)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. For a sequence of independent test values, use the value
+        //    constructor to create two objects of specified value.  Use the
+        //    manipulator to adjust the value of the first obect.  Verify the
+        //    value by comparing to an object, created with the value
+        //    constructor, with the expected value.  (C-1)
+        //
+        // 2. Directly verify the function signatures.  (C-2)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   DatetimeInterval& operator+=(const DatetimeInterval& rhs);
@@ -1057,30 +1057,30 @@ if (veryVerbose)
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING ADDITIONAL 'add' MANIPULATORS
-        //   Verify the 'add*' methods work as expected.
+        // TESTING ADDITIONAL `add` MANIPULATORS
+        //   Verify the `add*` methods work as expected.
         //
         // Concerns:
-        //: 1 The numerical constants used to generate the modified object
-        //:   value are correct.
-        //:
-        //: 2 The correct object value is obtained.
+        // 1. The numerical constants used to generate the modified object
+        //    value are correct.
         //
-        //: 3 The expected value is returned.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 2. The correct object value is obtained.
+        //
+        // 3. The expected value is returned.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For a set of independent test values, use the default
-        //:   constructor to create an object and use the 'add' manipulators to
-        //:   adjust its value.  Verify the values using the 'setInterval'
-        //:   manipulator.  (C-1,2)
-        //:
-        //: 2 At each step in P-1 compare the address of the objected
-        //:   referenced by the return value to the address of the object under
-        //:   test.  (C-3)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. For a set of independent test values, use the default
+        //    constructor to create an object and use the `add` manipulators to
+        //    adjust its value.  Verify the values using the `setInterval`
+        //    manipulator.  (C-1,2)
+        //
+        // 2. At each step in P-1 compare the address of the objected
+        //    referenced by the return value to the address of the object under
+        //    test.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   void addDays(int days);
@@ -1098,13 +1098,13 @@ if (veryVerbose)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING ADDITIONAL 'add' MANIPULATORS" << endl
+                          << "TESTING ADDITIONAL `add` MANIPULATORS" << endl
                           << "=====================================" << endl;
 
-        if (verbose) cout << "\nTesting 'addXXX' methods." << endl;
+        if (verbose) cout << "\nTesting `addXXX` methods." << endl;
         {
             {
-                const char *testing = "'addDays'";
+                const char *testing = "`addDays`";
                 int         DATA[] = { -1, 0, 1 };
                 bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1141,7 +1141,7 @@ if (veryVerbose)
             }
 
             {
-                const char *testing = "'addHours'";
+                const char *testing = "`addHours`";
                 Int64       DATA[] = { -1, 0, 1 };
                 bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1178,7 +1178,7 @@ if (veryVerbose)
             }
 
             {
-                const char *testing = "'addMinutes'";
+                const char *testing = "`addMinutes`";
                 Int64       DATA[] = { -1, 0, 1 };
                 bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1215,7 +1215,7 @@ if (veryVerbose)
             }
 
             {
-                const char *testing = "'addSeconds'";
+                const char *testing = "`addSeconds`";
                 Int64       DATA[] = { -1, 0, 1 };
                 bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1252,7 +1252,7 @@ if (veryVerbose)
             }
 
             {
-                const char *testing = "'addMilliseconds'";
+                const char *testing = "`addMilliseconds`";
                 Int64       DATA[] = { -1, 0, 1 };
                 bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1289,7 +1289,7 @@ if (veryVerbose)
             }
 
             {
-                const char *testing = "'addMicroseconds'";
+                const char *testing = "`addMicroseconds`";
                 Int64       DATA[] = { -1, 0, 1 };
                 bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1627,34 +1627,34 @@ if (veryVerbose)
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // TESTING 'addInterval'
+        // TESTING `addInterval`
         //   Verify the manipulator work as expected.
         //
         // Concerns:
-        //: 1 The separate time fields must be multiplied by the appropriate
-        //:   factors to convert the six-parameter input representation to the
-        //:   internal representation and added to the current value, with
-        //:   appropriate handling of potential overflow.
-        //:
-        //: 2 The expected value is returned.
-        //:
-        //: 3 The default values are correctly defined.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The separate time fields must be multiplied by the appropriate
+        //    factors to convert the six-parameter input representation to the
+        //    internal representation and added to the current value, with
+        //    appropriate handling of potential overflow.
+        //
+        // 2. The expected value is returned.
+        //
+        // 3. The default values are correctly defined.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For a sequence of independent test values, use the value
-        //:   constructor to create an object of a specified value.  Add an
-        //:   interval to this value using the manipulator.  Verify the value
-        //:   using the basic accessors.  (C-1)
-        //:
-        //: 2 At each step in P-1 compare the address of the objected
-        //:   referenced by the return value to the address of the object under
-        //:   test.  (C-2)
-        //:
-        //: 3 Directly verify the value of defaulted arguments.  (C-3)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. For a sequence of independent test values, use the value
+        //    constructor to create an object of a specified value.  Add an
+        //    interval to this value using the manipulator.  Verify the value
+        //    using the basic accessors.  (C-1)
+        //
+        // 2. At each step in P-1 compare the address of the objected
+        //    referenced by the return value to the address of the object under
+        //    test.  (C-2)
+        //
+        // 3. Directly verify the value of defaulted arguments.  (C-3)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   void addInterval(int d, Int64 h = 0, m = 0, s = 0, ms = 0);
@@ -1663,11 +1663,11 @@ if (veryVerbose)
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'addInterval'" << endl
+                 << "TESTING `addInterval`" << endl
                  << "=====================" << endl;
         }
 
-        if (verbose) cout << "\nTesting 'addInterval'." << endl;
+        if (verbose) cout << "\nTesting `addInterval`." << endl;
         {
             const int                    NUM_DATA  = DEFAULT_NUM_DATA;
             const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
@@ -2644,16 +2644,16 @@ if (veryVerbose)
         //   Verify the accessors work as expected.
         //
         // Concerns:
-        //: 1 Each accessor performs the appropriate arithmetic to convert
-        //:   the internal representation.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. Each accessor performs the appropriate arithmetic to convert
+        //    the internal representation.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For each of a sequence of unique object values, verify that each
-        //:   of the basic accessors returns the correct value.  (C-1)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
+        // 1. For each of a sequence of unique object values, verify that each
+        //    of the basic accessors returns the correct value.  (C-1)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //   int hours() const;
@@ -2785,8 +2785,8 @@ if (veryVerbose)
  || BSLS_PLATFORM_CMP_VERSION >= 0x5140
 
             // Older versions of the Sun compiler (e.g., 5.12.3 and 5.12.4)
-            // fail to compile the 'BSLS_ASSERT' corresponding to the
-            // following 'ASSERT_SAFE_FAIL' correctly in optimized builds.
+            // fail to compile the `BSLS_ASSERT` corresponding to the
+            // following `ASSERT_SAFE_FAIL` correctly in optimized builds.
 
             ASSERT_SAFE_FAIL(Obj(0,
                                  0,
@@ -2804,13 +2804,13 @@ if (veryVerbose)
         //   Verify the relational operators evaluate correctly.
         //
         // Concerns:
-        //: 1 Each operator implements the corresponding operators on the
-        //:   underlying attributes correctly.
+        // 1. Each operator implements the corresponding operators on the
+        //    underlying attributes correctly.
         //
         // Plan:
-        //: 1 Specify an ordered set 'S' of unique object values.  For each
-        //:   '(u, v)' in the set 'S x S', verify the result of 'u OP v' for
-        //:   each 'OP' in '{<, <=, >=, >}'.  (C-1)
+        // 1. Specify an ordered set `S` of unique object values.  For each
+        //    `(u, v)` in the set `S x S`, verify the result of `u OP v` for
+        //    each `OP` in `{<, <=, >=, >}`.  (C-1)
         //
         // Testing:
         //   bool operator< (const DatetimeInterval& lhs, rhs);
@@ -2824,8 +2824,8 @@ if (veryVerbose)
                           << "============================" << endl;
 
         if (verbose) {
-            cout << "\nTesting 'operator<', 'operator<=', 'operator>=', "
-                 << "and 'operator>'." << endl;
+            cout << "\nTesting `operator<`, `operator<=`, `operator>=`, "
+                 << "and `operator>`." << endl;
         }
 
         if (verbose) cout <<
@@ -2938,24 +2938,24 @@ if (veryVerbose)
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING ADDITIONAL 'set' MANIPULATORS
-        //   Verify the 'set*' methods work as expected.
+        // TESTING ADDITIONAL `set` MANIPULATORS
+        //   Verify the `set*` methods work as expected.
         //
         // Concerns:
-        //: 1 The numerical constants used to generate the modified object
-        //:   value are correct.
-        //:
-        //: 2 The correct object value is obtained.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The numerical constants used to generate the modified object
+        //    value are correct.
+        //
+        // 2. The correct object value is obtained.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For a set of independent test values, use the default
-        //:   constructor to create an object and use the 'set' manipulators to
-        //:   set its value.  Verify the values using the 'setInterval'
-        //:   manipulator.  (C-1,2)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
+        // 1. For a set of independent test values, use the default
+        //    constructor to create an object and use the `set` manipulators to
+        //    set its value.  Verify the values using the `setInterval`
+        //    manipulator.  (C-1,2)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //   void setTotalDays(int days);
@@ -2973,10 +2973,10 @@ if (veryVerbose)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING ADDITIONAL 'set' MANIPULATORS" << endl
+                          << "TESTING ADDITIONAL `set` MANIPULATORS" << endl
                           << "=====================================" << endl;
 
-        if (verbose) cout << "\nTesting 'setXXX' methods." << endl;
+        if (verbose) cout << "\nTesting `setXXX` methods." << endl;
         {
             Obj mX;   const Obj& X = mX;
             Obj mY;   const Obj& Y = mY;
@@ -2987,7 +2987,7 @@ if (veryVerbose)
             int rc;
 
             {
-                const char *testing = "'setTotalDays'";
+                const char *testing = "`setTotalDays`";
                 int         DATA[] = { INT_MIN, -1, 0, 1, INT_MAX };
                 bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -2999,7 +2999,7 @@ if (veryVerbose)
             }
 
             {
-                const char *testing = "'setTotalHours'";
+                const char *testing = "`setTotalHours`";
                 Int64       DATA[] = { k_HOURS_MIN, -1, 0, 1, k_HOURS_MAX };
                 bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -3016,7 +3016,7 @@ if (veryVerbose)
             }
 
             {
-                const char *testing = "'setTotalMinutes'";
+                const char *testing = "`setTotalMinutes`";
                 Int64       DATA[] = { k_MINS_MIN, -1, 0, 1, k_MINS_MAX };
                 bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -3033,7 +3033,7 @@ if (veryVerbose)
             }
 
             {
-                const char *testing = "'setTotalSeconds(Int64)'";
+                const char *testing = "`setTotalSeconds(Int64)`";
                 Int64       DATA[] = { k_SECS_MIN, -1, 0, 1, k_SECS_MAX };
                 bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -3050,10 +3050,10 @@ if (veryVerbose)
             }
 
             {
-                const char *testing = "'setTotalSecondsFromDouble(double)'";
+                const char *testing = "`setTotalSecondsFromDouble(double)`";
 
+                // Small delta that double can represent around 1.0e-6
                 static const double k_DELTA = 1.0e-20;
-                    // Small delta that double can represent around 1.0e-6
 
                 static const struct {
                     int    d_line;          // source line number
@@ -3124,7 +3124,7 @@ if (veryVerbose)
                 ASSERT(0 == mYY.setTotalSecondsFromDoubleIfValid(maxSecs+.5));
                 ASSERT(0 == mYY.setTotalSecondsFromDoubleIfValid(minSecs-.5));
 
-                // The resolution of the mantissa of 'maxSecs / minSecs' is
+                // The resolution of the mantissa of `maxSecs / minSecs` is
                 // such that if we do +/-0.99 it's the same as +/-1.0.
 
                 // It turns out +/-0.98 is OK.
@@ -3150,7 +3150,7 @@ if (veryVerbose)
 
 
             {
-                const char *testing = "'setTotalMilliseconds'";
+                const char *testing = "`setTotalMilliseconds`";
                 Int64       DATA[] = { k_MSECS_MIN, -1, 0, 1, k_MSECS_MAX };
                 bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -3167,7 +3167,7 @@ if (veryVerbose)
             }
 
             {
-                const char *testing = "'setTotalMicroseconds'";
+                const char *testing = "`setTotalMicroseconds`";
                 Int64       DATA[] = { k_USECS_MIN, -1, 0, 1, k_USECS_MAX };
                 bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -3185,19 +3185,19 @@ if (veryVerbose)
         //   Verify the initializing constructor works as expected.
         //
         // Concerns:
-        //: 1 The separate time fields must be multiplied by the appropriate
-        //:   factors to convert the six-parameter input representation to the
-        //:   internal representation, with appropriate handling of potential
-        //:   overflow.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. The separate time fields must be multiplied by the appropriate
+        //    factors to convert the six-parameter input representation to the
+        //    internal representation, with appropriate handling of potential
+        //    overflow.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For a sequence of independent test values, use the value
-        //:   constructor to create an object.  Verify the value using the
-        //:   basic accessors.  (C-1)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
+        // 1. For a sequence of independent test values, use the value
+        //    constructor to create an object.  Verify the value using the
+        //    basic accessors.  (C-1)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //   DatetimeInterval(int d, Int64 h = 0, m = 0, s = 0, ms = 0);
@@ -3299,7 +3299,7 @@ if (veryVerbose)
         {
             bsls::AssertTestHandlerGuard hG;
 
-            // '+ 0's are added to avoid most vexing parse
+            // `+ 0`s are added to avoid most vexing parse
 
             ASSERT_PASS(Obj(0));
 
@@ -3327,83 +3327,83 @@ if (veryVerbose)
         //   neutrality.
         //
         // Concerns:
-        //: 1 The class method 'maxSupportedBdexVersion' returns the correct
-        //:   version to be used for the specified 'versionSelector'.
-        //:
-        //: 2 The 'bdexStreamOut' method is callable on a reference providing
-        //:   only non-modifiable access.
-        //:
-        //: 3 For valid streams, externalization and unexternalization are
-        //:   inverse operations.
-        //:
-        //: 4 For invalid streams, externalization leaves the stream invalid
-        //:   and unexternalization does not alter the value of the object and
-        //:   leaves the stream invalid.
-        //:
-        //: 5 Unexternalizing of incomplete, invalid, or corrupted data results
-        //:   in a valid object of unspecified value and an invalidated stream.
-        //:
-        //: 6 The wire format of the object is as expected.
-        //:
-        //: 7 All methods are exception neutral.
-        //:
-        //: 8 The 'bdexStreamIn' and 'bdexStreamOut' methods return a reference
-        //:   to the provided stream in all situations.
-        //:
-        //: 9 The initial value of the object has no affect on
-        //:   unexternalization.
+        // 1. The class method `maxSupportedBdexVersion` returns the correct
+        //    version to be used for the specified `versionSelector`.
+        //
+        // 2. The `bdexStreamOut` method is callable on a reference providing
+        //    only non-modifiable access.
+        //
+        // 3. For valid streams, externalization and unexternalization are
+        //    inverse operations.
+        //
+        // 4. For invalid streams, externalization leaves the stream invalid
+        //    and unexternalization does not alter the value of the object and
+        //    leaves the stream invalid.
+        //
+        // 5. Unexternalizing of incomplete, invalid, or corrupted data results
+        //    in a valid object of unspecified value and an invalidated stream.
+        //
+        // 6. The wire format of the object is as expected.
+        //
+        // 7. All methods are exception neutral.
+        //
+        // 8. The `bdexStreamIn` and `bdexStreamOut` methods return a reference
+        //    to the provided stream in all situations.
+        //
+        // 9. The initial value of the object has no affect on
+        //    unexternalization.
         //
         // Plan:
-        //: 1 Test 'maxSupportedBdexVersion' explicitly.  (C-1)
-        //:
-        //: 2 All calls to the 'bdexStreamOut' accessor will be done from a
-        //:   'const' object or reference and all calls to the 'bdexStreamOut'
-        //:   free function (provided by 'bslx') will be supplied a 'const'
-        //:   object or reference.  (C-2)
-        //:
-        //: 3 Perform a direct test of the 'bdexStreamOut' and 'bdexStreamIn'
-        //:   methods (the rest of the testing will use the free functions
-        //:   'bslx::OutStreamFunctions::bdexStreamOut' and
-        //:   'bslx::InStreamFunctions::bdexStreamIn').
-        //:
-        //: 4 Define a set 'S' of test values to be used throughout the test
-        //:   case.
-        //:
-        //: 5 For all '(u, v)' in the cross product 'S X S', stream the value
-        //:   of 'u' into (a temporary copy of) 'v', 'T', and assert 'T == u'.
-        //:   (C-3, 9)
-        //:
-        //: 6 For all 'u' in 'S', create a copy of 'u' and attempt to stream
-        //:   into it from an invalid stream.  Verify after each attempt that
-        //:   the object is unchanged and that the stream is invalid.  (C-4)
-        //:
-        //: 7 Write 3 distinct objects to an output stream buffer of total
-        //:   length 'N'.  For each partial stream length from 0 to 'N - 1',
-        //:   construct an input stream and attempt to read into objects
-        //:   initialized with distinct values.  Verify values of objects
-        //:   that are either successfully modified or left entirely
-        //:   unmodified, and that the stream became invalid immediately after
-        //:   the first incomplete read.  Finally, ensure that each object
-        //:   streamed into is in some valid state.
-        //:
-        //: 8 Use the underlying stream package to simulate a typical valid
-        //:   (control) stream and verify that it can be streamed in
-        //:   successfully.  Then for each data field in the stream (beginning
-        //:   with the version number), provide one or more similar tests with
-        //:   that data field corrupted.  After each test, verify that the
-        //:   object is in some valid state after streaming, and that the
-        //:   input stream has become invalid.  (C-5)
-        //:
-        //: 9 Explicitly test the wire format.  (C-6)
-        //:
-        //:10 In all cases, confirm exception neutrality using the specially
-        //:   instrumented 'bslx::TestInStream' and a pair of standard macros,
-        //:   'BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN' and
-        //:   'BSLX_TESTINSTREAM_EXCEPTION_TEST_END', which configure the
-        //:   'bslx::TestInStream' object appropriately in a loop.  (C-7)
-        //:
-        //:11 In all cases, verify the return value of the tested method.
-        //:   (C-8)
+        // 1. Test `maxSupportedBdexVersion` explicitly.  (C-1)
+        //
+        // 2. All calls to the `bdexStreamOut` accessor will be done from a
+        //    `const` object or reference and all calls to the `bdexStreamOut`
+        //    free function (provided by `bslx`) will be supplied a `const`
+        //    object or reference.  (C-2)
+        //
+        // 3. Perform a direct test of the `bdexStreamOut` and `bdexStreamIn`
+        //    methods (the rest of the testing will use the free functions
+        //    `bslx::OutStreamFunctions::bdexStreamOut` and
+        //    `bslx::InStreamFunctions::bdexStreamIn`).
+        //
+        // 4. Define a set `S` of test values to be used throughout the test
+        //    case.
+        //
+        // 5. For all `(u, v)` in the cross product `S X S`, stream the value
+        //    of `u` into (a temporary copy of) `v`, `T`, and assert `T == u`.
+        //    (C-3, 9)
+        //
+        // 6. For all `u` in `S`, create a copy of `u` and attempt to stream
+        //    into it from an invalid stream.  Verify after each attempt that
+        //    the object is unchanged and that the stream is invalid.  (C-4)
+        //
+        // 7. Write 3 distinct objects to an output stream buffer of total
+        //    length `N`.  For each partial stream length from 0 to `N - 1`,
+        //    construct an input stream and attempt to read into objects
+        //    initialized with distinct values.  Verify values of objects
+        //    that are either successfully modified or left entirely
+        //    unmodified, and that the stream became invalid immediately after
+        //    the first incomplete read.  Finally, ensure that each object
+        //    streamed into is in some valid state.
+        //
+        // 8. Use the underlying stream package to simulate a typical valid
+        //    (control) stream and verify that it can be streamed in
+        //    successfully.  Then for each data field in the stream (beginning
+        //    with the version number), provide one or more similar tests with
+        //    that data field corrupted.  After each test, verify that the
+        //    object is in some valid state after streaming, and that the
+        //    input stream has become invalid.  (C-5)
+        //
+        // 9. Explicitly test the wire format.  (C-6)
+        //
+        // 10. In all cases, confirm exception neutrality using the specially
+        //    instrumented `bslx::TestInStream` and a pair of standard macros,
+        //    `BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN` and
+        //    `BSLX_TESTINSTREAM_EXCEPTION_TEST_END`, which configure the
+        //    `bslx::TestInStream` object appropriately in a loop.  (C-7)
+        //
+        // 11. In all cases, verify the return value of the tested method.
+        //    (C-8)
         //
         // Testing:
         //   static int maxSupportedBdexVersion(int versionSelector);
@@ -3439,7 +3439,7 @@ if (veryVerbose)
                                                 / sizeof *VALUES);
 
         if (verbose) {
-            cout << "\nTesting 'maxSupportedBdexVersion'." << endl;
+            cout << "\nTesting `maxSupportedBdexVersion`." << endl;
         }
         {
             ASSERT(1 == Obj::maxSupportedBdexVersion(0));
@@ -3470,8 +3470,8 @@ if (veryVerbose)
             }
 
             if (verbose) {
-                cout << "\tDirect initial trial of 'bdexStreamOut' and "
-                     << "(valid) 'bdexStreamIn'." << endl;
+                cout << "\tDirect initial trial of `bdexStreamOut` and "
+                     << "(valid) `bdexStreamIn`." << endl;
             }
             {
                 const Obj X(VC);
@@ -3498,13 +3498,13 @@ if (veryVerbose)
                 ASSERT(in.isEmpty());
             }
 
-            // We will use the stream free functions provided by 'bslx', as
-            // opposed to the class member functions, since the 'bslx'
+            // We will use the stream free functions provided by `bslx`, as
+            // opposed to the class member functions, since the `bslx`
             // implementation gives priority to the free function
             // implementations; we want to test what will be used.
             // Furthermore, toward making this test case more reusable in other
-            // components, from here on we generally use the 'bdexStreamIn' and
-            // 'bdexStreamOut' free functions that are defined in the 'bslx'
+            // components, from here on we generally use the `bdexStreamIn` and
+            // `bdexStreamOut` free functions that are defined in the `bslx`
             // package rather than call the like-named member functions
             // directly.
 
@@ -3724,7 +3724,7 @@ if (veryVerbose)
                             LOOP_ASSERT(i, !in);
                             LOOP_ASSERT(i, W3 == T3);
                         }
-                        else {  // 'LOD2 <= i < LOD3'
+                        else {  // `LOD2 <= i < LOD3`
                             In& rvIn1 = bdexStreamIn(in, mT1, VERSION);
                             if (1 == VERSION) {
                                 // Version 1 loses microseconds; replace.
@@ -3861,7 +3861,7 @@ if (veryVerbose)
             cout << "\t\tBad version." << endl;
         }
         {
-            const char version = 0; // too small ('version' must be >= 1)
+            const char version = 0; // too small (`version` must be >= 1)
 
             Out out(VERSION_SELECTOR, &allocator);
 
@@ -4234,19 +4234,19 @@ if (veryVerbose)
         //   Verify the assignment operator works as expected.
         //
         // Concerns:
-        //: 1 Any value is assignable to an object having any initial value
-        //:   without affecting the rhs operand value.
-        //:
-        //: 2 Any object must be assignable to itself.
+        // 1. Any value is assignable to an object having any initial value
+        //    without affecting the rhs operand value.
+        //
+        // 2. Any object must be assignable to itself.
         //
         // Plan:
-        //: 1 Construct and initialize a set S of (unique) objects with
-        //:   substantial and varied differences in value.  Using all
-        //:   combinations (u, v) in the cross product S x S, assign v to u and
-        //:   assert that u == v and v is unchanged.  (C-1)
-        //:
-        //: 2 Test aliasing by assigning (a temporary copy of) each u to
-        //:   itself and verifying that its value remains unchanged.  (C-2)
+        // 1. Construct and initialize a set S of (unique) objects with
+        //    substantial and varied differences in value.  Using all
+        //    combinations (u, v) in the cross product S x S, assign v to u and
+        //    assert that u == v and v is unchanged.  (C-1)
+        //
+        // 2. Test aliasing by assigning (a temporary copy of) each u to
+        //    itself and verifying that its value remains unchanged.  (C-2)
         //
         // Testing:
         //   DatetimeInterval& operator=(const DatetimeInterval& rhs);
@@ -4324,7 +4324,7 @@ if (veryVerbose)
       case 8: {
         // --------------------------------------------------------------------
         // SWAP MEMBER AND FREE FUNCTIONS
-        //   Ensure that, when member and free 'swap' are implemented, we can
+        //   Ensure that, when member and free `swap` are implemented, we can
         //   exchange the values of any two objects.
         //
         // Concerns:
@@ -4334,14 +4334,14 @@ if (veryVerbose)
         //   N/A
         //
         // Testing:
-        //  Reserved for 'swap' testing.
+        //  Reserved for `swap` testing.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "SWAP MEMBER AND FREE FUNCTIONS" << endl
                           << "==============================" << endl;
 
-        if (verbose) cout << "Not implemented for 'bdlt::DatetimeInterval'."
+        if (verbose) cout << "Not implemented for `bdlt::DatetimeInterval`."
                                                                        << endl;
 
       } break;
@@ -4351,16 +4351,16 @@ if (veryVerbose)
         //   Verify the copy constructor works as expected.
         //
         // Concerns:
-        //: 1 Any value must be able to be copy constructed without affecting
-        //:   the argument.
+        // 1. Any value must be able to be copy constructed without affecting
+        //    the argument.
         //
         // Plan:
-        //: 1 Specify a set S of control objects with substantial and varied
-        //:   differences in value.  For each object w in S, construct and
-        //:   initialize an identically valued object x using the primary
-        //:   manipulator, and copy construct an object y from x.  Use the
-        //:   equality operator to assert that both x and y have the same value
-        //:   as w.  (C-1)
+        // 1. Specify a set S of control objects with substantial and varied
+        //    differences in value.  For each object w in S, construct and
+        //    initialize an identically valued object x using the primary
+        //    manipulator, and copy construct an object y from x.  Use the
+        //    equality operator to assert that both x and y have the same value
+        //    as w.  (C-1)
         //
         //
         // Testing:
@@ -4407,63 +4407,63 @@ if (veryVerbose)
       case 6: {
         // --------------------------------------------------------------------
         // EQUALITY-COMPARISON OPERATORS
-        //   Ensure that '==' and '!=' are the operational definition of value.
+        //   Ensure that `==` and `!=` are the operational definition of value.
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if their
-        //:   corresponding total-milliseconds representations compare equal.
-        //:
-        //: 2 'true  == (X == X)' (i.e., identity).
-        //:
-        //: 3 'false == (X != X)' (i.e., identity).
-        //:
-        //: 4 'X == Y' if and only if 'Y == X' (i.e., commutativity).
-        //:
-        //: 5 'X != Y' if and only if 'Y != X' (i.e., commutativity).
-        //:
-        //: 6 'X != Y' if and only if '!(X == Y)'.
-        //:
-        //: 7 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., both comparison operators are free functions).
-        //:
-        //: 8 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //: 9 The equality-comparison operators' signatures and return types
-        //:   are standard.
+        // 1. Two objects, `X` and `Y`, compare equal if and only if their
+        //    corresponding total-milliseconds representations compare equal.
+        //
+        // 2. `true  == (X == X)` (i.e., identity).
+        //
+        // 3. `false == (X != X)` (i.e., identity).
+        //
+        // 4. `X == Y` if and only if `Y == X` (i.e., commutativity).
+        //
+        // 5. `X != Y` if and only if `Y != X` (i.e., commutativity).
+        //
+        // 6. `X != Y` if and only if `!(X == Y)`.
+        //
+        // 7. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., both comparison operators are free functions).
+        //
+        // 8. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        // 9. The equality-comparison operators' signatures and return types
+        //    are standard.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the two homogeneous, free equality-
-        //:   comparison operators defined in this component.  (C-7..9)
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their total-milliseconds
-        //:   representation.
-        //:
-        //: 3 For each row 'R1' in the table of P-2:  (C-1..6)
-        //:
-        //:   1 Create an object 'W' using the default constructor, then set
-        //:     'W' to the value from 'R1' (using 'setTotalMilliseconds').
-        //:
-        //:   2 Using 'W', verify the reflexive (anti-reflexive) property of
-        //:     equality (inequality) in the presence of aliasing.  (C-2..3)
-        //:
-        //:   3 For each row 'R2' in the table of P-2:  (C-1, 4..6)
-        //:
-        //:     1 Record, in 'EXP', whether or not distinct objects set to
-        //:       values from 'R1' and 'R2', respectively, are expected to have
-        //:       the same value.
-        //:
-        //:     2 Create an object 'X' using the default constructor, then set
-        //:       'X' to the value from 'R1' (using 'setTotalMilliseconds').
-        //:
-        //:     3 Create an object 'Y' using the default constructor, then set
-        //:       'Y' to the value from 'R2'.
-        //:
-        //:     4 Using 'X' and 'Y', verify the commutativity property and
-        //:       expected return value for both '==' and '!='.  (C-1, 4..6)
+        // 1. Use the respective addresses of `operator==` and `operator!=` to
+        //    initialize function pointers having the appropriate signatures
+        //    and return types for the two homogeneous, free equality-
+        //    comparison operators defined in this component.  (C-7..9)
+        //
+        // 2. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their total-milliseconds
+        //    representation.
+        //
+        // 3. For each row `R1` in the table of P-2:  (C-1..6)
+        //
+        //   1. Create an object `W` using the default constructor, then set
+        //      `W` to the value from `R1` (using `setTotalMilliseconds`).
+        //
+        //   2. Using `W`, verify the reflexive (anti-reflexive) property of
+        //      equality (inequality) in the presence of aliasing.  (C-2..3)
+        //
+        //   3. For each row `R2` in the table of P-2:  (C-1, 4..6)
+        //
+        //     1. Record, in `EXP`, whether or not distinct objects set to
+        //        values from `R1` and `R2`, respectively, are expected to have
+        //        the same value.
+        //
+        //     2. Create an object `X` using the default constructor, then set
+        //        `X` to the value from `R1` (using `setTotalMilliseconds`).
+        //
+        //     3. Create an object `Y` using the default constructor, then set
+        //        `Y` to the value from `R2`.
+        //
+        //     4. Using `X` and `Y`, verify the commutativity property and
+        //        expected return value for both `==` and `!=`.  (C-1, 4..6)
         //
         // Testing:
         //   bool operator==(const DatetimeInterval& lhs, rhs);
@@ -4575,91 +4575,91 @@ if (veryVerbose)
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // PRINT, OUTPUT OPERATOR, AND 'printToBuffer'
+        // PRINT, OUTPUT OPERATOR, AND `printToBuffer`
         //   Ensure that the value of the object can be formatted appropriately
-        //   on an 'ostream' in some standard, human-readable form.
+        //   on an `ostream` in some standard, human-readable form.
         //
         // Concerns:
-        //: 1 The 'print' method writes the value to the specified 'ostream'.
-        //:
-        //: 2 The 'print' method writes the value in the intended format.  In
-        //:   particular:
-        //:
-        //:   1 The attributes always appear on a single line.
-        //:
-        //:   2 A negative value of 'level' always suppresses all indentation
-        //:     (since there is never a second line to indent).,
-        //:
-        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)'.
-        //:
-        //: 4 The 'print' method signature and return type are standard.
-        //:
-        //: 5 The 'print' method returns the supplied 'ostream'.
-        //:
-        //: 6 The optional 'level' and 'spacesPerLevel' parameters have the
-        //:   correct default values.
-        //:
-        //: 7 The output 'operator<<' signature and return type are standard.
-        //:
-        //: 8 The output 'operator<<' returns the supplied 'ostream'.
-        //:
-        //: 9 The 'printToBuffer' method:
-        //:   1 Writes in the expected format.
-        //:   2 Never writes more than the specified limit.
-        //:   3 Writes in the specified buffer.
-        //:   4 QoI: Asserted precondition violations are detected when
-        //:     enabled.
+        // 1. The `print` method writes the value to the specified `ostream`.
+        //
+        // 2. The `print` method writes the value in the intended format.  In
+        //    particular:
+        //
+        //   1. The attributes always appear on a single line.
+        //
+        //   2. A negative value of `level` always suppresses all indentation
+        //      (since there is never a second line to indent).,
+        //
+        // 3. The output using `s << obj` is the same as `obj.print(s, 0, -1)`.
+        //
+        // 4. The `print` method signature and return type are standard.
+        //
+        // 5. The `print` method returns the supplied `ostream`.
+        //
+        // 6. The optional `level` and `spacesPerLevel` parameters have the
+        //    correct default values.
+        //
+        // 7. The output `operator<<` signature and return type are standard.
+        //
+        // 8. The output `operator<<` returns the supplied `ostream`.
+        //
+        // 9. The `printToBuffer` method:
+        //   1. Writes in the expected format.
+        //   2. Never writes more than the specified limit.
+        //   3. Writes in the specified buffer.
+        //   4. QoI: Asserted precondition violations are detected when
+        //      enabled.
         //
         // Plan:
-        //: 1 Use the addresses of the 'print' member function and 'operator<<'
-        //:   free function defined in this component to initialize,
-        //:   respectively, member-function and free-function pointers having
-        //:   the appropriate signatures and return types.  (C-4, 7)
-        //:
-        //: 2 Using the table-driven technique: (C-1..3, 5..6, 8)
-        //:
-        //:   1 Define fourteen carefully selected combinations of (two) object
-        //:     values ('A' and 'B'), having distinct values for each
-        //:     corresponding salient attribute, and various values for the two
-        //:     formatting parameters, along with the expected output.
-        //:
-        //:     ( 'value' x  'level'   x 'spacesPerLevel' ):
-        //:     1 { A } x { 0 } x { 0, 1, -1, -8 } --> 3 expected o/ps
-        //:     2 { A } x { 3, -3 } x { 0, 2, -2, -8 } --> 6 expected o/ps
-        //:     3 { B } x { 2 } x { 3 } --> 1 expected o/p
-        //:     4 { A B } x { -8 } x { -8 } --> 2 expected o/ps
-        //:     5 { A B } x { -9 } x { -9 } --> 2 expected o/ps
-        //:
-        //:   2 For each row in the table defined in P-2.1: (C-1..3, 5..6, 8)
-        //:
-        //:     1 Using a 'const' 'Obj', supply each object value and pair of
-        //:       formatting parameters to 'print', omitting the 'level' or
-        //:       'spacesPerLevel' parameter if the value of that argument is
-        //:       '-8'.  If the parameters are, arbitrarily, (-9, -9), then
-        //:       invoke the 'operator<<' instead.
-        //:
-        //:     2 Use a standard 'ostringstream' to capture the actual output.
-        //:
-        //:     3 Verify the address of what is returned is that of the
-        //:       supplied stream.  (C-5, 8)
-        //:
-        //:     4 Compare the contents captured in P-2.2.2 with what is
-        //:       expected.  (C-1..3, 6)
-        //:
-        //:   3 Test 'printToBuffer' using a table-driven approach.  (C-9)
-        //:
-        //:     1 Define an assortment of different input values and limits on
-        //:       the number of bytes written.
-        //:
-        //:     2 For each input value, write the result into an over-sized
-        //:       buffer that is pre-filled with an "unset" character.  Data is
-        //:       written into the middle of the buffer.  After writing,
-        //:       confirm that all characters outside the targeted range have
-        //:       their initial value.
-        //:
-        //:     4 Verify that, in appropriate build modes, defensive checks are
-        //:       triggered for invalid attribute values, but not triggered for
-        //:       adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+        // 1. Use the addresses of the `print` member function and `operator<<`
+        //    free function defined in this component to initialize,
+        //    respectively, member-function and free-function pointers having
+        //    the appropriate signatures and return types.  (C-4, 7)
+        //
+        // 2. Using the table-driven technique: (C-1..3, 5..6, 8)
+        //
+        //   1. Define fourteen carefully selected combinations of (two) object
+        //      values (`A` and `B`), having distinct values for each
+        //      corresponding salient attribute, and various values for the two
+        //      formatting parameters, along with the expected output.
+        //
+        //      ( `value` x  `level`   x `spacesPerLevel` ):
+        //     1. { A } x { 0 } x { 0, 1, -1, -8 } --> 3 expected o/ps
+        //     2. { A } x { 3, -3 } x { 0, 2, -2, -8 } --> 6 expected o/ps
+        //     3. { B } x { 2 } x { 3 } --> 1 expected o/p
+        //     4. { A B } x { -8 } x { -8 } --> 2 expected o/ps
+        //     5. { A B } x { -9 } x { -9 } --> 2 expected o/ps
+        //
+        //   2. For each row in the table defined in P-2.1: (C-1..3, 5..6, 8)
+        //
+        //     1. Using a `const` `Obj`, supply each object value and pair of
+        //        formatting parameters to `print`, omitting the `level` or
+        //        `spacesPerLevel` parameter if the value of that argument is
+        //        `-8`.  If the parameters are, arbitrarily, (-9, -9), then
+        //        invoke the `operator<<` instead.
+        //
+        //     2. Use a standard `ostringstream` to capture the actual output.
+        //
+        //     3. Verify the address of what is returned is that of the
+        //        supplied stream.  (C-5, 8)
+        //
+        //     4. Compare the contents captured in P-2.2.2 with what is
+        //        expected.  (C-1..3, 6)
+        //
+        //   3. Test `printToBuffer` using a table-driven approach.  (C-9)
+        //
+        //     1. Define an assortment of different input values and limits on
+        //        the number of bytes written.
+        //
+        //     2. For each input value, write the result into an over-sized
+        //        buffer that is pre-filled with an "unset" character.  Data is
+        //        written into the middle of the buffer.  After writing,
+        //        confirm that all characters outside the targeted range have
+        //        their initial value.
+        //
+        //     4. Verify that, in appropriate build modes, defensive checks are
+        //        triggered for invalid attribute values, but not triggered for
+        //        adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
         //
         // Testing:
         //   ostream& print(ostream& os, int level = 0, int spl = 4) const;
@@ -4672,11 +4672,11 @@ if (veryVerbose)
 
         if (verbose) cout
                       << endl
-                      << "PRINT, OUTPUT OPERATOR, AND 'printToBuffer'" << endl
+                      << "PRINT, OUTPUT OPERATOR, AND `printToBuffer`" << endl
                       << "===========================================" << endl;
 
-        if (verbose) cout << "\nAssign the addresses of 'print' and "
-                             "the output 'operator<<' to variables." << endl;
+        if (verbose) cout << "\nAssign the addresses of `print` and "
+                             "the output `operator<<` to variables." << endl;
         {
             typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
             typedef ostream& (*operatorPtr)(ostream&, const Obj&);
@@ -4829,7 +4829,7 @@ if (veryVerbose)
 
                 // Verify output is formatted as expected.
 
-                // Avoid invoking 'ss.str()' which returns a string by value
+                // Avoid invoking `ss.str()` which returns a string by value
                 // and may introduce use of the default allocator.
 
                 bsl::string result(bsl::istreambuf_iterator<char>(ss),
@@ -4842,7 +4842,7 @@ if (veryVerbose)
             }
         }
 
-        if (verbose) cout << "\nTesting 'printToBuffer'." << endl;
+        if (verbose) cout << "\nTesting `printToBuffer`." << endl;
         {
             static const struct {
                 int         d_line;
@@ -4987,7 +4987,7 @@ if (veryVerbose)
 
                 char buf[BUF_SIZE];
 
-                // Preset 'buf' to "unset" values.
+                // Preset `buf` to "unset" values.
                 memset(buf, XX, sizeof(buf));
 
                 Obj        x(DAY, HOUR, MINUTE, SECOND, MSEC, USEC);
@@ -5046,7 +5046,7 @@ if (veryVerbose)
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 
-        if (verbose) cout << "\nTesting 'streamOut'." << endl;
+        if (verbose) cout << "\nTesting `streamOut`." << endl;
         {
             static const struct {
                 int         d_lineNum;  // source line number
@@ -5078,7 +5078,7 @@ if (veryVerbose)
             const int SIZE = 1000;     // Must be able to hold output string.
 
             const char XX = static_cast<char>(0xFF);  // Value used for an
-                                                      // unset 'char'.
+                                                      // unset `char`.
 
             char        mCtrlBuf[SIZE];  memset(mCtrlBuf, XX, SIZE);
             const char *CTRL_BUF = mCtrlBuf; // Used for extra character check.
@@ -5104,7 +5104,7 @@ if (veryVerbose)
                     cout << "\tACTUAL FORMAT:   " << out.str() << endl;
                 }
 
-                // Avoid invoking 'out.str()' which returns a string by value
+                // Avoid invoking `out.str()` which returns a string by value
                 // and may introduce use of the default allocator.
 
                 bsl::string result(bsl::istreambuf_iterator<char>(out),
@@ -5132,13 +5132,13 @@ if (veryVerbose)
         //   Verify the basic accessors work as expected.
         //
         // Concerns:
-        //: 1 Each accessor performs the appropriate arithmetic to convert
-        //:   the internal representation to the two-parameter (d, us)
-        //:   representation.
+        // 1. Each accessor performs the appropriate arithmetic to convert
+        //    the internal representation to the two-parameter (d, us)
+        //    representation.
         //
         // Plan:
-        //: 1 For each of a sequence of unique object values, verify that each
-        //:   of the basic accessors returns the correct value.  (C-1)
+        // 1. For each of a sequence of unique object values, verify that each
+        //    of the basic accessors returns the correct value.  (C-1)
         //
         // Testing:
         //   int days() const;
@@ -5150,7 +5150,7 @@ if (veryVerbose)
                           << "=======================" << endl;
 
         if (verbose) {
-            cout << "\nTesting 'days' and 'fractionalDayInMicroseconds'."
+            cout << "\nTesting `days` and `fractionalDayInMicroseconds`."
                  << endl;
         }
         {
@@ -5189,8 +5189,8 @@ if (veryVerbose)
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING GENERATOR FUNCTION 'gg'
-        //   Void for 'bdlt_datetimeinterval'.
+        // TESTING GENERATOR FUNCTION `gg`
+        //   Void for `bdlt_datetimeinterval`.
         //
         // Testing:
         //   Obj& gg(Obj *object, const char *spec);
@@ -5198,7 +5198,7 @@ if (veryVerbose)
 
         if (verbose) {
             cout << endl
-                 << "TESTING GENERATOR FUNCTION 'gg'" << endl
+                 << "TESTING GENERATOR FUNCTION `gg`" << endl
                  << "===============================" << endl;
         }
       } break;
@@ -5208,25 +5208,25 @@ if (veryVerbose)
         //   Verify the primary manipulators work as expected.
         //
         // Concerns:
-        //: 1 The separate time fields must be multiplied by the appropriate
-        //:   factors to convert the six-parameter input representation to the
-        //:   internal representation, with appropriate handling of potential
-        //:   overflow.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. The separate time fields must be multiplied by the appropriate
+        //    factors to convert the six-parameter input representation to the
+        //    internal representation, with appropriate handling of potential
+        //    overflow.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Verify the default constructor by testing the value of the
-        //:   resulting object.
-        //:
-        //: 2 For a sequence of independent test values, use the default
-        //:   constructor to create a default object and use the primary
-        //:   manipulator to set its value.  Verify the value using the basic
-        //:   accessors.  Note that the destructor is exercised on each
-        //:   configuration as the object being tested leaves scope (thereby
-        //:   enabling assertions of internal invariants).  (C-1)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-2)
+        // 1. Verify the default constructor by testing the value of the
+        //    resulting object.
+        //
+        // 2. For a sequence of independent test values, use the default
+        //    constructor to create a default object and use the primary
+        //    manipulator to set its value.  Verify the value using the basic
+        //    accessors.  Note that the destructor is exercised on each
+        //    configuration as the object being tested leaves scope (thereby
+        //    enabling assertions of internal invariants).  (C-1)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //   DatetimeInterval();
@@ -5249,7 +5249,7 @@ if (veryVerbose)
         ASSERT(0 == X.days());
         ASSERT(0 == X.fractionalDayInMicroseconds());
 
-        if (verbose) cout << "\nTesting 'setInterval'." << endl;
+        if (verbose) cout << "\nTesting `setInterval`." << endl;
         {
             const int                    NUM_DATA  = DEFAULT_NUM_DATA;
             const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
@@ -5953,20 +5953,20 @@ if (veryVerbose)
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create four test objects by using the default, initializing, and
-        //:   copy constructors.
-        //:
-        //: 2 Exercise the basic value-semantic methods and the equality
-        //:   operators using these test objects.
-        //:
-        //: 3 Invoke the primary manipulator, copy constructor, and assignment
-        //:   operator without and with aliasing.
-        //:
-        //: 4 Use the basic accessors to verify the expected results.  (C-1)
+        // 1. Create four test objects by using the default, initializing, and
+        //    copy constructors.
+        //
+        // 2. Exercise the basic value-semantic methods and the equality
+        //    operators using these test objects.
+        //
+        // 3. Invoke the primary manipulator, copy constructor, and assignment
+        //    operator without and with aliasing.
+        //
+        // 4. Use the basic accessors to verify the expected results.  (C-1)
         //
         // Testing:
         //   BREATHING TEST

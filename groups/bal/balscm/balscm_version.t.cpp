@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -96,22 +96,22 @@ int main(int argc, char *argv[])
             if (verbose) {
 ///USAGE 1
 ///-------
-// The version of the 'bal' package group linked into a program can be
-// obtained at runtime using the 'version' 'static' member function as follows:
-//..
+// The version of the `bal` package group linked into a program can be
+// obtained at runtime using the `version` `static` member function as follows:
+// ```
 //        #include <balscm_version.h>
 
           ASSERT(0 != balscm::Version::version());
 
           bsl::cout << "BAL version: " << balscm::Version::version()
                     << bsl::endl;
-//..
-// Output similar to the following will be printed to 'stdout':
-//..
+// ```
+// Output similar to the following will be printed to `stdout`:
+// ```
 //        BAL version: BLP_LIB_BDE_BAL_0.01.0
-//..
+// ```
 // The "0.01.0" portion of the string distinguishes different versions of the
-// 'bal' package group.
+// `bal` package group.
             }
         }
       } break;
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
         //   static const char *version();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "Testing 'version()'" << endl
+        if (verbose) cout << endl << "Testing `version()`" << endl
                                   << "===================" << endl;
 
         {

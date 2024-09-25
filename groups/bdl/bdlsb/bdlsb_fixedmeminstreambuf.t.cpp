@@ -21,9 +21,9 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // This test driver exercises all the protected virtual methods from the
-// 'basic_streambuf' protocol that are overridden by the derived concrete class
-// 'FixedMemInStreamBuf', as well as each new (non-protocol) public method
-// added in the 'FixedMemInStreamBuf' class.
+// `basic_streambuf` protocol that are overridden by the derived concrete class
+// `FixedMemInStreamBuf`, as well as each new (non-protocol) public method
+// added in the `FixedMemInStreamBuf` class.
 //
 // Our goal here is to ensure that the implementations comply exactly with the
 // IOStreams portion of the C++ standard where the standard explicitly defines
@@ -41,16 +41,16 @@ using namespace bsl;
 // class-provided implementations that use them.
 //
 // Primary Manipulators:
-//: o Value constructor 'FixedMemInStreamBuf(const char *, streamsize)'
-//: o 'sbumpc'
+//  - Value constructor `FixedMemInStreamBuf(const char *, streamsize)`
+//  - `sbumpc`
 //
 /// Basic Accessors:
-//: o 'data'
-//: o 'length'
+//  - `data`
+//  - `length`
 //
 // Global Concerns:
-//: o Ensure correct interaction between reloaded methods of the
-//:   'FixedMemInStreamBuf' class  and the base class methods that use them.
+//  - Ensure correct interaction between reloaded methods of the
+//    `FixedMemInStreamBuf` class  and the base class methods that use them.
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] FixedMemInStreamBuf(const char *, streamsize);
@@ -75,8 +75,8 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] ostream& operator<<(ostream&, const FixedMemInStreamBuf&);
-// [ 9] CONCERN: 'pbackfail' base class implementation works correctly.
-// [11] CONCERN: 'setbuf' overrides base class method.
+// [ 9] CONCERN: `pbackfail` base class implementation works correctly.
+// [11] CONCERN: `setbuf` overrides base class method.
 // [12] USAGE EXAMPLE
 
 // ============================================================================
@@ -187,10 +187,11 @@ void fillBuffer(char* buffer, bsl::size_t length)
                // ==================================
 
 // FREE OPERATORS
+
+/// Write the contents of the specified `streamBuffer` (as well as a marker
+/// indicating eight bytes groupings) to the specified output `stream` in
+/// binary format, and return a reference to the modifiable `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const Obj& streamBuffer);
-    // Write the contents of the specified 'streamBuffer' (as well as a marker
-    // indicating eight bytes groupings) to the specified output 'stream' in
-    // binary format, and return a reference to the modifiable 'stream'.
 
 bsl::ostream& operator<<(bsl::ostream& stream, const Obj& streamBuffer)
 {
@@ -227,7 +228,7 @@ int main(int argc, char **argv)
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
@@ -237,13 +238,13 @@ int main(int argc, char **argv)
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -256,37 +257,37 @@ int main(int argc, char **argv)
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic usage of the 'bdlsb::FixedMemInStreamBuf'
+///Example 1: Basic usage of the `bdlsb::FixedMemInStreamBuf`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// 'bdlsb::FixedMemInStreamBuf' can be used in situations when you already
+// `bdlsb::FixedMemInStreamBuf` can be used in situations when you already
 // have an array of bytes in memory and you'd like to wrap it in an input
 // stream to extract data in a formatted manner.  A
-// 'bdlsb::FixedMemInStreamBuf' object refers to an externally managed buffer
-// that is supplied either at construction, or using the 'pubsetbuf' method of
-// the 'bsl::streambuf' base-class.
+// `bdlsb::FixedMemInStreamBuf` object refers to an externally managed buffer
+// that is supplied either at construction, or using the `pubsetbuf` method of
+// the `bsl::streambuf` base-class.
 //
 // First, we create an array of characters to provide data that needs to be
-// parsed, and construct 'bdlsb::FixedMemInStreamBuf' on that array:
-//..
+// parsed, and construct `bdlsb::FixedMemInStreamBuf` on that array:
+// ```
     {
         const char *inputText = "1 1 2 3 5 8 13 21";
         bdlsb::FixedMemInStreamBuf buffer(inputText, strlen(inputText));
-//..
-// Notice that 'bdlsb::FixedMemInStreamBuf' can be used with buffers referring
+// ```
+// Notice that `bdlsb::FixedMemInStreamBuf` can be used with buffers referring
 // to stack memory or to heap memory.
 //
-// Then, we use 'buffer' to construct a 'bsl::istream':
-//..
+// Then, we use `buffer` to construct a `bsl::istream`:
+// ```
         bsl::istream stream(&buffer);
-//..
+// ```
 // Finally, we can input the data from the stream in a formatted manner:
-//..
+// ```
         int value;
         while (stream >> value) {
             cout << "Value is: " << value << endl;
         }
     }
-//..
+// ```
 //
 ///Example 2: Scanning input data
 /// - - - - - - - - - - - - - - -
@@ -295,34 +296,34 @@ int main(int argc, char **argv)
 // number.
 //
 // First, we create an array of characters to provide data that needs to be
-// parsed, and construct 'bdlsb::FixedMemInStreamBuf' on that array:
-//..
+// parsed, and construct `bdlsb::FixedMemInStreamBuf` on that array:
+// ```
     {
         const char *inputText = "The answer is: 42.";
         bdlsb::FixedMemInStreamBuf buffer(inputText, strlen(inputText));
-//..
-// Then, we use 'buffer' to construct a 'bsl::istream' that will be used later
+// ```
+// Then, we use `buffer` to construct a `bsl::istream` that will be used later
 // to read found number:
-//..
+// ```
         bsl::istream stream(&buffer);
-//..
+// ```
 // Next, we scan input buffer one character at a time searching for the first
 // digit:
-//..
+// ```
         char ch;
         do {
             ch = static_cast<char>(buffer.sbumpc());
 
             if ( (ch >= '0') && (ch <= '9') ) {
-//..
+// ```
 // Now, when the digit character is found, we return the first digit into the
 // input stream buffer for subsequent read:
-//..
+// ```
                 buffer.sputbackc(ch);
                 int n;
-//..
+// ```
 // Finally, we read out the whole number:
-//..
+// ```
                 stream >> n;
                 ASSERT( 42 == n );
                 cout << "The answer is " << n << " indeed..." << endl;
@@ -330,16 +331,16 @@ int main(int argc, char **argv)
             }
         } while ( ch != EOF );
     }
-//..
+// ```
 
       } break;
 
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'setbuf' OVERRIDE
-        //   Due to the presence of second 'setbuf' protected method with a
+        // TESTING `setbuf` OVERRIDE
+        //   Due to the presence of second `setbuf` protected method with a
         //   const qualifier for the client-provided buffer, Coverity gives a
-        //   "bad override" error on 'setbuf', claiming that:
+        //   "bad override" error on `setbuf`, claiming that:
         //
         //   bad_override: Method
         //   BloombergLP::bdlsb::FixedMemInStreamBuf::setbuf hides but does not
@@ -349,23 +350,23 @@ int main(int argc, char **argv)
         //   This test case confirms that the override actually does work.
         //
         // Concerns:
-        //: 1 'setbuf' can be called from a base class pointer.
-        //:
-        //: 2 Calling 'setbuf' through a base class pointer replaces the
-        //:   internal buffer.
+        // 1. `setbuf` can be called from a base class pointer.
+        //
+        // 2. Calling `setbuf` through a base class pointer replaces the
+        //    internal buffer.
         //
         // Plan:
-        //: 1 Create a 'bdlsb::FixedMemInStreamBuf' with a known source buffer.
-        //:   Replace the buffer with a second known source by calling
-        //:   'pubsetbuf' through a base class pointer.  Observe that the
-        //:   buffer has been replaced.
+        // 1. Create a `bdlsb::FixedMemInStreamBuf` with a known source buffer.
+        //    Replace the buffer with a second known source by calling
+        //    `pubsetbuf` through a base class pointer.  Observe that the
+        //    buffer has been replaced.
         //
         // Testing:
-        //   CONCERN: 'setbuf' overrides base class method.
+        //   CONCERN: `setbuf` overrides base class method.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-               << "TESTING 'setbuf' OVERRIDE" << endl
+               << "TESTING `setbuf` OVERRIDE" << endl
                << "=========================" << endl;
 
         const char* text = "Lorem ipsum dolor sit amet, consectetur";
@@ -384,27 +385,27 @@ int main(int argc, char **argv)
 
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'showmanyc' METHOD
+        // TESTING `showmanyc` METHOD
         //
         // Concerns:
-        //: 1 That 'showmanyc' return the correct number of items left
+        // 1. That `showmanyc` return the correct number of items left
         //    to consume in the streambuf.
         //
         // Plan:
-        //: 1 Using the table-driven test-case-implementation technique, test
-        //:   the output of the 'showmanyc' method for remaining-characters
-        //:   categories 0, [1..stream buffer capacity-1] and [entire capacity]
-        //:   (C-1)
+        // 1. Using the table-driven test-case-implementation technique, test
+        //    the output of the `showmanyc` method for remaining-characters
+        //    categories 0, [1..stream buffer capacity-1] and [entire capacity]
+        //    (C-1)
         //
         // Testing:
         //   streamsize showmanyc();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'showmanyc' METHOD" << endl
+                          << "TESTING `showmanyc` METHOD" << endl
                           << "==========================" << endl;
 
-        if (verbose) cout << "\nTesting 'showmanyc' with no buffer." << endl;
+        if (verbose) cout << "\nTesting `showmanyc` with no buffer." << endl;
         {
             Obj mSB(0, 0);
 
@@ -412,7 +413,7 @@ int main(int argc, char **argv)
         }
 
         if (verbose) cout <<
-            "\nTesting 'showmanyc' in various positions." << endl;
+            "\nTesting `showmanyc` in various positions." << endl;
         {
             static const struct {
                 int           d_line;          // line number
@@ -453,7 +454,7 @@ int main(int argc, char **argv)
                 const streamsize  EXPECTED_AVAIL = DATA[i].d_expectedAvail;
 
                 if (veryVerbose) {
-                    cout << "\tTesting 'showmanyc'  for streambuf of size "
+                    cout << "\tTesting `showmanyc`  for streambuf of size "
                          << BUFFER_SIZE << "." << endl ;
                 }
 
@@ -480,40 +481,40 @@ int main(int argc, char **argv)
 
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'pbackfail' METHOD
+        // TESTING `pbackfail` METHOD
         //
-        // 'pfailback' is protected method that can be called by 2 public
-        // methods 'sungetc' and 'sputbackc' under certain corner conditions.
+        // `pfailback` is protected method that can be called by 2 public
+        // methods `sungetc` and `sputbackc` under certain corner conditions.
         //
         // Concerns:
-        //: 1 Ensure that base class implementation of 'pfailback' works
-        //:   for this class.
-        //:
-        //: 2 Ensure that characters can be put back into the buffer.
-        //:
-        //: 3 Ensure that when 'pbackfail' is called, it correctly handles
-        //:   corner cases.
+        // 1. Ensure that base class implementation of `pfailback` works
+        //    for this class.
+        //
+        // 2. Ensure that characters can be put back into the buffer.
+        //
+        // 3. Ensure that when `pbackfail` is called, it correctly handles
+        //    corner cases.
         //
         // Plan:
-        //: 1 Invoke the 'sputbackc' and 'sungetc' public methods for the cases
-        //:   when they do not call 'pbackfail'.  Ensure that the stream buffer
-        //:   position indicator updated correctly. (C-2)
-        //:
-        //: 2 Invoke the 'sputbackc' and 'sungetc' public methods for the cases
-        //:   when they call 'pbackfail'.  Ensure that the content of the
-        //:   streambuf is not modified, position indicator is not changed.
-        //:   (C-1, 3)
+        // 1. Invoke the `sputbackc` and `sungetc` public methods for the cases
+        //    when they do not call `pbackfail`.  Ensure that the stream buffer
+        //    position indicator updated correctly. (C-2)
+        //
+        // 2. Invoke the `sputbackc` and `sungetc` public methods for the cases
+        //    when they call `pbackfail`.  Ensure that the content of the
+        //    streambuf is not modified, position indicator is not changed.
+        //    (C-1, 3)
         //
         // Testing:
         //   int_type pbackfail(int_type);
-        //   CONCERN: 'pbackfail' base class implementation works correctly.
+        //   CONCERN: `pbackfail` base class implementation works correctly.
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'pbackfail' METHOD" << endl
+                          << "TESTING `pbackfail` METHOD" << endl
                           << "==========================" << endl;
 
         if (verbose) cout <<
-            "\nTesting 'pbackfail' is called by public methods." << endl;
+            "\nTesting `pbackfail` is called by public methods." << endl;
         {
 
             static const struct {
@@ -571,7 +572,7 @@ int main(int argc, char **argv)
         }
 
         if (verbose) cout <<
-            "\nTesting 'pbackfail' is not called by public methods." << endl;
+            "\nTesting `pbackfail` is not called by public methods." << endl;
         {
 
             static const struct {
@@ -581,7 +582,7 @@ int main(int argc, char **argv)
             } DATA[] = {
                //LINE        START_POS                     RETVAL
                //----  ----------------  ------------------------
-               // 'pbackfail' is not invoked for position > 0
+               // `pbackfail` is not invoked for position > 0
                { L_,                 1,                       'a' },
                { L_,                 2,                       'b' },
                { L_,          MIDPOINT,      'a' + (MIDPOINT - 1) },
@@ -658,27 +659,27 @@ int main(int argc, char **argv)
 
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'setbuf' METHODS
+        // TESTING `setbuf` METHODS
         //
-        // Protected 'setbuf' methods are called by the public 'pubsetbuf'
+        // Protected `setbuf` methods are called by the public `pubsetbuf`
         // method.  Ensure that we can reset put area to client-provided buffer
         // for a constructed stream buffer object
         //
         // Concerns:
-        //: 1 Ensure the 'setbuf' methods reset internal buffer via base public
-        //:   interface.
-        //:
-        //: 2 Ensure the 'setbuf' methods reset position indicator.
-        //:
-        //: 3 Ensure 'const' and non-'const' buffers can be used as new
-        //:   buffers.
+        // 1. Ensure the `setbuf` methods reset internal buffer via base public
+        //    interface.
+        //
+        // 2. Ensure the `setbuf` methods reset position indicator.
+        //
+        // 3. Ensure `const` and non-`const` buffers can be used as new
+        //    buffers.
         //
         // Plan:
-        //: 1 Manually call 'pubsetbuf' methods and verify that the buffer has
-        //:   been reset to the new address and length. (C-1, C-3)
-        //:
-        //: 2 Manually verify position indicator value after resetting the
-        //:   stream buffer. (C-2)
+        // 1. Manually call `pubsetbuf` methods and verify that the buffer has
+        //    been reset to the new address and length. (C-1, C-3)
+        //
+        // 2. Manually verify position indicator value after resetting the
+        //    stream buffer. (C-2)
         //
         // Testing:
         //   FixedMemInStreamBuf *setbuf(char *, streamsize);
@@ -688,11 +689,11 @@ int main(int argc, char **argv)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'setbuf' METHODS" << endl
+                          << "TESTING `setbuf` METHODS" << endl
                           << "========================" << endl;
 
         if (verbose) cout <<
-            "\nTesting 'setbuf' using non-'const' C arrays." << endl;
+            "\nTesting `setbuf` using non-`const` C arrays." << endl;
 
         {
             static const bsl::size_t sampleSizes[] = { 0, 1, INIT_BUFSIZE };
@@ -737,7 +738,7 @@ int main(int argc, char **argv)
         }
 
         if (verbose) cout <<
-            "\nTesting 'setbuf' using const C arrays." << endl;
+            "\nTesting `setbuf` using const C arrays." << endl;
         {
             static const bsl::size_t sampleSizes[] = { 0, 1, INIT_BUFSIZE };
 
@@ -784,42 +785,42 @@ int main(int argc, char **argv)
 
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'seek' METHODS
+        // TESTING `seek` METHODS
         //
-        // As the only action performed in 'seekpos' is the call for 'seekoff'
-        // with predetermined second parameter, then we can test 'seekpos'
-        // superficially.  Public 'pubseekoff' and 'pubseekpos' methods are
-        // used to test protected 'seekoff' and 'seekpos' methods.
+        // As the only action performed in `seekpos` is the call for `seekoff`
+        // with predetermined second parameter, then we can test `seekpos`
+        // superficially.  Public `pubseekoff` and `pubseekpos` methods are
+        // used to test protected `seekoff` and `seekpos` methods.
         //
         // Concerns:
-        //: 1 Seeking is correct for:
-        //:   - all relative positions.
-        //:   - positive, 0, and negative values.
-        //:   - out of buffer boundaries.
-        //:
-        //: 2 Seeking into the "get" area has no effect.
-        //:
-        //: 3 'seekpos' calls 'seekoff' with correctly predetermined second
-        //:   parameter (bsl::ios_base::beg).
+        // 1. Seeking is correct for:
+        //    - all relative positions.
+        //    - positive, 0, and negative values.
+        //    - out of buffer boundaries.
+        //
+        // 2. Seeking into the "get" area has no effect.
+        //
+        // 3. `seekpos` calls `seekoff` with correctly predetermined second
+        //    parameter (bsl::ios_base::beg).
         //
         // Plan:
-        //: 1 Perform a variety of seeks, using representative test vectors
-        //:   from the cross-product of offset categories beginning-pointer,
-        //:   current-pointer and end-pointer, with direction categories
-        //:   negative-forcing-past-beginning, negative-falling-within-bounds,
-        //:   0, positive-falling-within bounds, and positive-forcing-past-end.
-        //:   Note that seekoff method is called by base class method
-        //:   'pubseekoff'. (C-1..2)
-        //:
-        //: 2 Perform several seeks with different initial states of the
-        //:   tested object. (C-3)
+        // 1. Perform a variety of seeks, using representative test vectors
+        //    from the cross-product of offset categories beginning-pointer,
+        //    current-pointer and end-pointer, with direction categories
+        //    negative-forcing-past-beginning, negative-falling-within-bounds,
+        //    0, positive-falling-within bounds, and positive-forcing-past-end.
+        //    Note that seekoff method is called by base class method
+        //    `pubseekoff`. (C-1..2)
+        //
+        // 2. Perform several seeks with different initial states of the
+        //    tested object. (C-3)
         //
         // Testing:
         //   pos_type seekoff(off_type, seekdir, openmode);
         //   pos_type seekpos(pos_type, openmode);
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'seek' METHODS" << endl
+                          << "TESTING `seek` METHODS" << endl
                           << "======================" << endl;
 
         if (verbose) cout <<
@@ -984,30 +985,30 @@ int main(int argc, char **argv)
 
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'xsgetn' METHOD
+        // TESTING `xsgetn` METHOD
         //
-        // 'xsgetn' is a protected methods that is called by public 'sgetn'
+        // `xsgetn` is a protected methods that is called by public `sgetn`
         // method.
         //
         // Concerns:
-        //: 1 Ensure that 'xsgetn' reads the correct bytes from the streambuf.
-        //:
-        //: 2 Ensure that 'xsgetn' properly handle requests for any number of
-        //:   characters from streambufs of various length.
-        //:
-        //: 3 Ensure that no more than specified number of characters can be
-        //:   read from the streambuf.
+        // 1. Ensure that `xsgetn` reads the correct bytes from the streambuf.
+        //
+        // 2. Ensure that `xsgetn` properly handle requests for any number of
+        //    characters from streambufs of various length.
+        //
+        // 3. Ensure that no more than specified number of characters can be
+        //    read from the streambuf.
         //
         // Plan:
-        //: 1 Read out characters from specifically constructed streambuf and
-        //:   verify that all border cases handled correctly.
+        // 1. Read out characters from specifically constructed streambuf and
+        //    verify that all border cases handled correctly.
         //
         // Testing:
         //   streamsize xsgetn(char_type, streamsize);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'xsgetn' METHOD" << endl
+                          << "TESTING `xsgetn` METHOD" << endl
                           << "======================" << endl;
 
         static const struct {
@@ -1031,7 +1032,7 @@ int main(int argc, char **argv)
 
         enum { NUM_DATA = sizeof(DATA) / sizeof(DATA[0]) };
 
-        if (verbose) cout << "\nTesting 'sgetn' right after streambuf "
+        if (verbose) cout << "\nTesting `sgetn` right after streambuf "
                              "creation." << endl;
 
         {
@@ -1062,7 +1063,7 @@ int main(int argc, char **argv)
             }
         }
 
-        if (verbose) cout << "\nTesting successive 'sgetn' from same "
+        if (verbose) cout << "\nTesting successive `sgetn` from same "
                              "streambuf." << endl;
         {
             const int BUFFER_SIZE = 100;
@@ -1116,23 +1117,23 @@ int main(int argc, char **argv)
         // --------------------------------------------------------------------
         // BASIC ACCESSORS
         //
-        // Verify the basic accessors of the 'bdlsb::FixedMemInStreamBuf'
+        // Verify the basic accessors of the `bdlsb::FixedMemInStreamBuf`
         // object.  Note that none of the accessors are strictly needed for
         // followup tests, but simplify the overall test logic.
         //
         // Concerns:
-        //: 1 Accessors work off of a references to 'const' objects.
-        //:
-        //: 2 The address of the user provided buffer is correctly reported.
-        //:
-        //: 3 The number of characters read from the stream buffer is
-        //:   correctly reported.
+        // 1. Accessors work off of a references to `const` objects.
+        //
+        // 2. The address of the user provided buffer is correctly reported.
+        //
+        // 3. The number of characters read from the stream buffer is
+        //    correctly reported.
         //
         // Plan:
-        //: 1 Verify accessors for corner cases. (C 1..3)
-        //:
-        //: 2 Read data from the stream buffer and verify that all accessors
-        //:   report expected values. (C 1..3)
+        // 1. Verify accessors for corner cases. (C 1..3)
+        //
+        // 2. Read data from the stream buffer and verify that all accessors
+        //    report expected values. (C 1..3)
         //
         // Testing:
         //   const char *data() const;
@@ -1143,7 +1144,7 @@ int main(int argc, char **argv)
                           << "===============" << endl;
 
         if (verbose) cout <<
-            "\nTesting 'data' and 'length' with no buffer." << endl;
+            "\nTesting `data` and `length` with no buffer." << endl;
         {
             Obj        mSB(0, 0);
             const Obj&  SB = mSB;
@@ -1156,7 +1157,7 @@ int main(int argc, char **argv)
         }
 
         if (verbose) cout <<
-            "\nTesting 'data' and 'length' after streambuf creation." << endl;
+            "\nTesting `data` and `length` after streambuf creation." << endl;
         {
             char buffer[INIT_BUFSIZE];
             fillBuffer(buffer, INIT_BUFSIZE);
@@ -1172,7 +1173,7 @@ int main(int argc, char **argv)
         }
 
         if (verbose) cout <<
-          "\nTesting 'data' and 'length' after character consumption." << endl;
+          "\nTesting `data` and `length` after character consumption." << endl;
         {
             char buffer[INIT_BUFSIZE];
             fillBuffer(buffer, INIT_BUFSIZE);
@@ -1217,17 +1218,17 @@ int main(int argc, char **argv)
         // provide human readable test traces.
         //
         // Concerns:
-        //: 1 Output operator formats the stream buffer correctly.
-        //:
-        //: 2 Output operator does not produce any trailing characters.
-        //:
-        //: 3 Output operator works on references to 'const' object.
+        // 1. Output operator formats the stream buffer correctly.
+        //
+        // 2. Output operator does not produce any trailing characters.
+        //
+        // 3. Output operator works on references to `const` object.
         //
         // Plan:
-        //:  1 For each of a small representative set of object values use
-        //:    'stringstream' to write that object's value to two separate
-        //:    strings.  Compare the contents of these strings with the literal
-        //:    expected output format and verify that they are equal. (C-1..3)
+        //  1. For each of a small representative set of object values use
+        //     `stringstream` to write that object's value to two separate
+        //     strings.  Compare the contents of these strings with the literal
+        //     expected output format and verify that they are equal. (C-1..3)
         //
         // Testing:
         //   ostream& operator<<(ostream&, const FixedMemInStreamBuf&);
@@ -1292,46 +1293,46 @@ int main(int argc, char **argv)
         //   the destructor to destroy it safely.
         //   There are no public functions with which to cleanly observe the
         //   state of the object without manipulating it.  This test will rely
-        //   on using the base-class-implemented 'sbumpc' to check that
+        //   on using the base-class-implemented `sbumpc` to check that
         //   reading from the stream buffer in fact reads from the
         //   client-provided buffer.
         //
         // Concerns:
-        //: 1 The 2-argument value constructor can create an object to have any
-        //:   value that does not violate the method's documented
-        //:   preconditions.
-        //:
-        //: 2 The constructor sets up all streambuf machinery properly
-        //:   so that streambuf operations use the client-provided buffer.
-        //:
-        //: 3 The streambuf is capable of using the entirety of the available
-        //:   storage, i.e., the full amount specified by the client.
-        //:
-        //: 4 An object can be safely destroyed.
-        //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The 2-argument value constructor can create an object to have any
+        //    value that does not violate the method's documented
+        //    preconditions.
+        //
+        // 2. The constructor sets up all streambuf machinery properly
+        //    so that streambuf operations use the client-provided buffer.
+        //
+        // 3. The streambuf is capable of using the entirety of the available
+        //    storage, i.e., the full amount specified by the client.
+        //
+        // 4. An object can be safely destroyed.
+        //
+        // 5. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using 2-argument constructor, create and object with the
-        //:   specified buffer of the specified length. (C-1)
-        //:
-        //: 2 Let the object created in P-1 go out of scope. (C-4)
-        //:
-        //: 3 Use 'data' method to ensure that the buffer is set correctly.
-        //:   (C-2)
-        //:
-        //: 4 Read the stream buffer content via base class method 'sbumpc'
-        //:   and verify that the data is read from the client-provided buffer.
-        //:   (C-2..3)
-        //:
-        //: 5 Read enough characters to verify that the length as specified is
-        //:   completely usable, and then read one more to ensure that the
-        //:   stream buffer is using the client-provided length as an upper
-        //:   bound as well as a lower bound. (C-3)
-        //:
-        //: 6 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid constructor parameter values, but not
-        //:   triggered for adjacent valid ones. (C-5)
+        // 1. Using 2-argument constructor, create and object with the
+        //    specified buffer of the specified length. (C-1)
+        //
+        // 2. Let the object created in P-1 go out of scope. (C-4)
+        //
+        // 3. Use `data` method to ensure that the buffer is set correctly.
+        //    (C-2)
+        //
+        // 4. Read the stream buffer content via base class method `sbumpc`
+        //    and verify that the data is read from the client-provided buffer.
+        //    (C-2..3)
+        //
+        // 5. Read enough characters to verify that the length as specified is
+        //    completely usable, and then read one more to ensure that the
+        //    stream buffer is using the client-provided length as an upper
+        //    bound as well as a lower bound. (C-3)
+        //
+        // 6. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid constructor parameter values, but not
+        //    triggered for adjacent valid ones. (C-5)
         //
         // Testing:
         //   FixedMemInStreamBuf(const char *, streamsize);
@@ -1348,7 +1349,7 @@ int main(int argc, char **argv)
         enum { SAMPLE_NUM = sizeof(sampleSizes) / sizeof(sampleSizes[0]) };
 
         if (verbose) cout <<
-            "\nTesting constructor using non-'const' C arrays" << endl;
+            "\nTesting constructor using non-`const` C arrays" << endl;
         {
             for (int j = 0; j < SAMPLE_NUM; ++j) {
                 const bsl::size_t BUFFER_SIZE = sampleSizes[j];
@@ -1449,11 +1450,11 @@ int main(int argc, char **argv)
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Developer test sandbox. (C-1)
+        // 1. Developer test sandbox. (C-1)
         //
         // Testing:
         //   BREATHING TEST
@@ -1464,7 +1465,7 @@ int main(int argc, char **argv)
                           << "==============" << endl;
 
         if (verbose) cout <<
-            "\nMake sure we can create and use a 'bdlsb::FixedMemInStreamBuf'."
+            "\nMake sure we can create and use a `bdlsb::FixedMemInStreamBuf`."
                           << endl;
 
         char buffer[INIT_BUFSIZE];
@@ -1477,28 +1478,28 @@ int main(int argc, char **argv)
         ASSERT(INIT_BUFSIZE == SB.length());
         ASSERT(buffer       == SB.data());
 
-        if (verbose) cout << "\nCalling 'sgetc' to get character 'a'." << endl;
+        if (verbose) cout << "\nCalling `sgetc` to get character `a`." << endl;
 
         Obj::int_type result;
         result = mSB.sgetc();
         ASSERT('a' == result);
-        // 'sgetc' does not advance read position
+        // `sgetc` does not advance read position
         ASSERT(INIT_BUFSIZE == SB.length());
 
         if (verbose)
-            cout << "\nCalling 'sbumpc' to get character 'a'." << endl;
+            cout << "\nCalling `sbumpc` to get character `a`." << endl;
 
         result = mSB.sbumpc();
         ASSERT('a' == result);
-        // 'sbumpc' advances read position
+        // `sbumpc` advances read position
         ASSERT(INIT_BUFSIZE - 1 == mSB.length());
 
-        if (verbose) cout << "\nCalling 'sgetn' to get 10 characters." << endl;
+        if (verbose) cout << "\nCalling `sgetn` to get 10 characters." << endl;
 
         char temp[11];
         memset(temp, 'X', 11);
         mSB.sgetn(temp, 10);
-        // 'sgetn' internally calls 'sbumpc'
+        // `sgetn` internally calls `sbumpc`
         ASSERT(INIT_BUFSIZE - 11 == SB.length());
         ASSERT(  0 == strncmp(temp, "bcdefghijk", 10));
         ASSERT('X' == temp[10]);

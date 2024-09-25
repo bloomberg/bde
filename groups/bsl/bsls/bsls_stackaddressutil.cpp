@@ -81,14 +81,14 @@ int getProcessId()
 }
 #endif
 
+/// Load the system specific process name for the currently running process
+/// into the specified `output` bufffer having the specified `length`.
+/// Return 0 on success, and a non-zero value otherwise.  The behavior is
+/// undefined unless `0 <= length` and `output` has the capacity for at
+/// least `length` bytes.  Note that this has been adapted from
+/// `bdls_processutil` to work within the constraints of the level of this
+/// component.
 int getProcessName(char *output, int length)
-    // Load the system specific process name for the currently running process
-    // into the specified 'output' bufffer having the specified 'length'.
-    // Return 0 on success, and a non-zero value otherwise.  The behavior is
-    // undefined unless '0 <= length' and 'output' has the capacity for at
-    // least 'length' bytes.  Note that this has been adapted from
-    // 'bdls_processutil' to work within the constraints of the level of this
-    // component.
 {
 #if defined(BSLS_PLATFORM_OS_AIX)
 
@@ -275,11 +275,11 @@ uintptr_t getStackOffset()
 
 namespace {
 
+/// Return the `pwhat` variable with the specified `tag`.  The behavior is
+/// undefined unless `tag` is a non-empty null-terminated string.  Return
+/// `0` if the `plink_timestamp___` global variable does not contain the
+/// `tag` or is not well formed.
 const char *getPwhatVar(const char *const tag)
-    // Return the 'pwhat' variable with the specified 'tag'.  The behavior is
-    // undefined unless 'tag' is a non-empty null-terminated string.  Return
-    // '0' if the 'plink_timestamp___' global variable does not contain the
-    // 'tag' or is not well formed.
 {
     // This is a modified version of 'sysutil_pwhat_getvar', adjusted to not
     // use additional static data and to be more resilient if

@@ -31,7 +31,7 @@ using bsls::NameOf;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test provides a namespace, 'TemplateTestFacility', and a
+// The component under test provides a namespace, `TemplateTestFacility`, and a
 // set of macros that facilitate the testing of templates with parameterized
 // types.
 //
@@ -128,7 +128,7 @@ void aSsErT(bool condition, const char *message, int line)
 #if defined(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND)
 # define BSL_DO_NOT_TEST_MOVE_FORWARDING 1
 // Some compilers produce ambiguities when trying to construct our test types
-// for 'emplace'-type functionality with the C++03 move-emulation.  This is a
+// for `emplace`-type functionality with the C++03 move-emulation.  This is a
 // compiler bug triggering in lower level components, so we simply disable
 // those aspects of testing, and rely on the extensive test coverage on other
 // platforms.
@@ -148,22 +148,24 @@ static bool verbose, veryVerbose, veryVeryVerbose, veryVeryVeryVerbose;
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using the 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' Macro
+///Example 1: Using the `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE` Macro
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we demonstrate how to use
-// 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' to call a class method template
+// `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE` to call a class method template
 // for a list of types.
 //
-// First, we define a 'struct' template 'TestTemplate' taking in a
-// parameterized 'TYPE' that has a class method, 'printTypeName':
-//..
+// First, we define a `struct` template `TestTemplate` taking in a
+// parameterized `TYPE` that has a class method, `printTypeName`:
+// ```
+
+/// This `struct` provides a namespace for a simple test method.
 template <class TYPE>
 struct TestTemplate {
-    // This 'struct' provides a namespace for a simple test method.
 
     // CLASS METHODS
+
+    /// Prints the name of the parameterized `TYPE` to the console.
     static void printTypeName();
-        // Prints the name of the parameterized 'TYPE' to the console.
 };
 
 template <>
@@ -183,24 +185,25 @@ void TestTemplate<double>::printTypeName()
 {
     printf("double\n");
 }
-//..
+// ```
 
 ///Example 2: Writing a Type Independent Test Driver
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example, we demonstrate using the 'TemplateTestFacility' 'struct'
+// In this example, we demonstrate using the `TemplateTestFacility` `struct`
 // and the macros provided by this component to test the default constructor
 // and primary manipulator of a class template in the context of a typical
 // BDE-style test driver.  Note that a goal of the demonstrated test is to
 // validate the class template with a broad range of types emulating those with
 // which the template might be instantiated.
 //
-// First, we define a simple class template, 'MyNullableValue', that we will
+// First, we define a simple class template, `MyNullableValue`, that we will
 // later need to test:
-//..
+// ```
+
+/// This (value-semantic) class template extends the parameterized
+/// `TYPE` to include the notion of a "null" value.
 template <class TYPE>
 class MyNullableValue {
-    // This (value-semantic) class template extends the parameterized
-    // 'TYPE' to include the notion of a "null" value.
 
     // DATA
     TYPE d_value;     // non-null value
@@ -208,80 +211,84 @@ class MyNullableValue {
 
   public:
     // CREATORS
+
+    /// Create a `MyNullableValue` that initially has a value of null.
     MyNullableValue()
-        // Create a 'MyNullableValue' that initially has a value of null.
     : d_nullFlag(true)
     {
     }
 
     // MyNullableValue(const MyNullableValue& original) = default;
-        // Create a 'MyNullableValue' object having the same value as the
-        // specified 'original' object.
+        // Create a `MyNullableValue` object having the same value as the
+        // specified `original` object.
 
     // ~MyNullableValue() = default;
         // Destroy this object.
 
     // MANIPULATORS
     // MyNullableValue& operator=(const MyNullableValue& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
+        // Assign to this object the value of the specified `rhs` object, and
         // return a reference providing modifiable access to this object.
 
+    /// Set this object to the null value.
     void makeNull()
-        // Set this object to the null value.
     {
         d_nullFlag = true;
     }
 
+    /// Set the value of this object to be that of the specified `value`
+    /// of the parameterized `TYPE`.
     void makeValue(const TYPE& value)
-        // Set the value of this object to be that of the specified 'value'
-        // of the parameterized 'TYPE'.
     {
         d_nullFlag = false;
         d_value = value;
     }
 
     // ACCESSORS
+
+    /// Return `true` if this object is null, and `false` otherwise.
     bool isNull() const
-        // Return 'true' if this object is null, and 'false' otherwise.
     {
         return d_nullFlag;
     }
 
+    /// Return a reference providing non-modifiable access to the
+    /// underlying object of the parameterized `TYPE`.  The behavior is
+    /// undefined if the object is null.
     const TYPE& value() const
-        // Return a reference providing non-modifiable access to the
-        // underlying object of the parameterized 'TYPE'.  The behavior is
-        // undefined if the object is null.
     {
         return d_value;
     }
 };
-//..
+// ```
 // Then, we define some aliases for the micros that will be used by the test
 // driver:
-//..
+// ```
 #define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
 #define TEST_TYPES_REGULAR BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR
-//..
-// Next, we define a 'struct' template, 'MyTestDriver', that provides a
-// namespace containing the test cases (here, only 'testCase2' is defined for
+// ```
+// Next, we define a `struct` template, `MyTestDriver`, that provides a
+// namespace containing the test cases (here, only `testCase2` is defined for
 // brevity) of the test driver:
-//..
+// ```
+
+/// This `struct` provides a namespace for the class methods used to
+/// implement the test driver.
 template <class TYPE>
 struct MyTestDriver {
-    // This 'struct' provides a namespace for the class methods used to
-    // implement the test driver.
 
     // TYPES
-    typedef MyNullableValue<TYPE> Obj;
-        // This 'typedef' provides an alias to the type under testing.
 
+    /// This `typedef` provides an alias to the type under testing.
+    typedef MyNullableValue<TYPE> Obj;
+
+    /// Test primary manipulators.
     static void testCase2();
-        // Test primary manipulators.
 
 };
-//..
-// Now, we define the implementation of 'MyTestDriver::testCase2':
-//..
+// ```
+// Now, we define the implementation of `MyTestDriver::testCase2`:
+// ```
 template <class TYPE>
 void MyTestDriver<TYPE>::testCase2()
 {
@@ -293,52 +300,52 @@ void MyTestDriver<TYPE>::testCase2()
     //   thorough testing, and use the destructor to destroy it safely.
     //
     // Concerns:
-    //: 1 An object created using the default constructor (with or without
-    //:   a supplied allocator) has the contractually specified value.
-    //:
-    //: 2 The 'makeValue' method sets the value of a object to any specified
-    //:   value.
-    //:
-    //: 3 The 'makeNull' method set the value of a object to null.
-    //:
-    //: 4 Objects of different values can coexist.
-    //:
-    //: 5 The destructor does not modify other objects.
+    // 1. An object created using the default constructor (with or without
+    //    a supplied allocator) has the contractually specified value.
+    //
+    // 2. The `makeValue` method sets the value of a object to any specified
+    //    value.
+    //
+    // 3. The `makeNull` method set the value of a object to null.
+    //
+    // 4. Objects of different values can coexist.
+    //
+    // 5. The destructor does not modify other objects.
     //
     // Plan:
-    //: 1 Default-construct an object and use the (as yet unproven) salient
-    //:   attribute accessors to verify that the value of the object is the
-    //:   null value.  (C-1)
-    //:
-    //: 2 Default-construct another object, and use the 'makeValue' method,
-    //:   passing in an object created with the 'TemplateTestFacility::create'
-    //:   class method template, to set the value of the object to a non-null
-    //:   value.  Use the (as yet unproven) salient attribute accessors and the
-    //:   'TemplateTestFacility::getIdentifier' class method template to verify
-    //:   that the new object the expected value and the object created in P-1
-    //:   still has the same value.  (C-2, 4)
-    //:
-    //: 3 Using the loop-based approach, for each identifier in a range of
-    //:   integer identifiers:
-    //:
-    //:   1 Default-construct a modifiable object, 'mL', and use the (as yet
-    //:     unproven) salient attribute accessors to verify the value of the
-    //:     default constructed object is the null value.  (C-1)
-    //:
-    //:   2 Create an object of the parameterized 'TYPE', 'LV', using the
-    //:     'TemplateTestFacility::create' class method template, specifying
-    //:     the integer loop identifier.
-    //:
-    //:   3 Use the 'makeValue' method to set the value of 'mL' to 'LV'.  Use
-    //:     the (as yet unproven) salient attribute accessors and the
-    //:     'TemplateTestFacility::getIdentifier' class method template to
-    //:     verify 'mL' has the expected value.  (C-2)
-    //:
-    //:   4 Invoke the 'makeNull' method of 'mL'.  Use the attribute
-    //:     accessors to verify the value of the object is now null.  (C-3)
-    //:
-    //: 4 Create an object in a nested block.  Below the block, verify the
-    //:   objects created in P-1 and P-2 still have the same value.  (C-5)
+    // 1. Default-construct an object and use the (as yet unproven) salient
+    //    attribute accessors to verify that the value of the object is the
+    //    null value.  (C-1)
+    //
+    // 2. Default-construct another object, and use the `makeValue` method,
+    //    passing in an object created with the `TemplateTestFacility::create`
+    //    class method template, to set the value of the object to a non-null
+    //    value.  Use the (as yet unproven) salient attribute accessors and the
+    //    `TemplateTestFacility::getIdentifier` class method template to verify
+    //    that the new object the expected value and the object created in P-1
+    //    still has the same value.  (C-2, 4)
+    //
+    // 3. Using the loop-based approach, for each identifier in a range of
+    //    integer identifiers:
+    //
+    //   1. Default-construct a modifiable object, `mL`, and use the (as yet
+    //      unproven) salient attribute accessors to verify the value of the
+    //      default constructed object is the null value.  (C-1)
+    //
+    //   2. Create an object of the parameterized `TYPE`, `LV`, using the
+    //      `TemplateTestFacility::create` class method template, specifying
+    //      the integer loop identifier.
+    //
+    //   3. Use the `makeValue` method to set the value of `mL` to `LV`.  Use
+    //      the (as yet unproven) salient attribute accessors and the
+    //      `TemplateTestFacility::getIdentifier` class method template to
+    //      verify `mL` has the expected value.  (C-2)
+    //
+    //   4. Invoke the `makeNull` method of `mL`.  Use the attribute
+    //      accessors to verify the value of the object is now null.  (C-3)
+    //
+    // 4. Create an object in a nested block.  Below the block, verify the
+    //    objects created in P-1 and P-2 still have the same value.  (C-5)
     //
     // Testing:
     //   MyNullableValue();
@@ -392,24 +399,24 @@ void MyTestDriver<TYPE>::testCase2()
     ASSERT(true == W.isNull());
     ASSERT(XV == X.value());
 }
-//..
-// Notice that, we create objects of the parameterized 'TYPE' using the
-// 'TemplateTestFacility::create' class method template specifying an integer
+// ```
+// Notice that, we create objects of the parameterized `TYPE` using the
+// `TemplateTestFacility::create` class method template specifying an integer
 // identifier; the created object has a value that is uniquely associated with
 // the integer identifier.
 //
-// Also notice that we verified that an object of the parameterized 'TYPE' has
+// Also notice that we verified that an object of the parameterized `TYPE` has
 // the expected value in two ways:
 //
-//: 1 By equal comparing (1) the integer identifier returned from calling the
-//:   'TemplateTestFacility::getIdentifier' class method template (specifying
-//:   the object), and (2) the integer identifier uniquely associated with the
-//:   expected value of the object.
-//:
-//: 2 By directly using the equality comparison operator for the parameterized
-//:   'TYPE'.  In general, the equality comparison operator is defined for all
-//:   types intended for testing in the 'bsltf' package unless specified
-//:   otherwise (e.g., bsltf::NonEqualComparableTestType).
+// 1. By equal comparing (1) the integer identifier returned from calling the
+//    `TemplateTestFacility::getIdentifier` class method template (specifying
+//    the object), and (2) the integer identifier uniquely associated with the
+//    expected value of the object.
+//
+// 2. By directly using the equality comparison operator for the parameterized
+//    `TYPE`.  In general, the equality comparison operator is defined for all
+//    types intended for testing in the `bsltf` package unless specified
+//    otherwise (e.g., bsltf::NonEqualComparableTestType).
 
 // ============================================================================
 //                               TEST APPARATUS
@@ -706,13 +713,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -728,26 +735,26 @@ int main(int argc, char *argv[])
             redirect.enable();
         }
 
-// Now, we can instantiate and call the 'TestTemplate::printTypeName' class
-// method template for each of the types 'int', 'char', and 'double' using the
-// 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' macro:
-//..
+// Now, we can instantiate and call the `TestTemplate::printTypeName` class
+// method template for each of the types `int`, `char`, and `double` using the
+// `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE` macro:
+// ```
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestTemplate,
                                                  printTypeName,
                                                  int, char, double);
-//..
+// ```
 // Finally, we observe the console output:
-//..
+// ```
 //  int
 //  char
 //  double
-//..
+// ```
 
 //
-// Finally, we invoke instantiate and call 'MyTestDriver::testCase2' for each
-// of the types listed in 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR' using
-// the 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' macro:
-//..
+// Finally, we invoke instantiate and call `MyTestDriver::testCase2` for each
+// of the types listed in `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR` using
+// the `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE` macro:
+// ```
 //    case 2 {
           // ------------------------------------------------------------------
           // DEFAULT CTOR & PRIMARY MANIPULATORS
@@ -758,36 +765,36 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(MyTestDriver, testCase2, TEST_TYPES_REGULAR);
 //    } break;
-//..
+// ```
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'debugprint' FREE FUNCTION
+        // TESTING `debugprint` FREE FUNCTION
         //
         // Concerns:
-        //: 1 Ensure that the 'debugprint' function overloads are defined for
-        //:   all supported user-defined types intended for testing defined in
-        //:   the 'bsltf' package.
-        //:
-        //: 2 Ensure that the 'debugprint' function overloads print the
-        //:   integer specified to the 'TemplateTestFacility::create' class
-        //:   method used to create the function argument.
-        //:
-        //: 3 Ensure that the macros defined in 'bsls_bsltestutil' supports the
-        //:   types for which 'debugprint' are defined.
+        // 1. Ensure that the `debugprint` function overloads are defined for
+        //    all supported user-defined types intended for testing defined in
+        //    the `bsltf` package.
+        //
+        // 2. Ensure that the `debugprint` function overloads print the
+        //    integer specified to the `TemplateTestFacility::create` class
+        //    method used to create the function argument.
+        //
+        // 3. Ensure that the macros defined in `bsls_bsltestutil` supports the
+        //    types for which `debugprint` are defined.
         //
         // Plan:
-        //: 1 Create an object for each supported user-defined type using
-        //:   'TemplateTestFacility::create' specifying a unique integer value
-        //:   for each type.
-        //:
-        //: 2 Call 'debugprint' for each object created in P-1.  Manually
-        //:   verify that all integer values used in P-1 are printed on the
-        //:   console.  (C-1..2)
-        //:
-        //: 4 Call the 'BSLS_BSLTESTUTIL_P' macro for each object created in
-        //:   P-1.  Manually verify that all integer values used in P-1 are
-        //:   printed on the console.  (C-3)
+        // 1. Create an object for each supported user-defined type using
+        //    `TemplateTestFacility::create` specifying a unique integer value
+        //    for each type.
+        //
+        // 2. Call `debugprint` for each object created in P-1.  Manually
+        //    verify that all integer values used in P-1 are printed on the
+        //    console.  (C-1..2)
+        //
+        // 4. Call the `BSLS_BSLTESTUTIL_P` macro for each object created in
+        //    P-1.  Manually verify that all integer values used in P-1 are
+        //    printed on the console.  (C-3)
         //
         // Testing:
         //   void debugprint(const EnumeratedTestType::Enum& obj);
@@ -804,7 +811,7 @@ int main(int argc, char *argv[])
         //   void debugprint(const WellBehavedMoveOnlyAllocTestType& obj);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'debugprint' FREE FUNCTION"
+        if (verbose) printf("\nTESTING `debugprint` FREE FUNCTION"
                             "\n==================================\n");
 
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
@@ -812,7 +819,7 @@ int main(int argc, char *argv[])
                                     test7Helper,
                                     BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
-        // The following types are not in 'all' yet
+        // The following types are not in `all` yet
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
                                     TestHelper,
                                     test7Helper,
@@ -833,42 +840,42 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'emplace'
-        //   Ensure that the class method 'TemplateTestFacility::emplace'
+        // CLASS METHOD `emplace`
+        //   Ensure that the class method `TemplateTestFacility::emplace`
         //   overloads behave according to their contracts.
         //
         // Concerns:
-        //: 1 For all test types, invoking the 'TemplateTestFacility::emplace'
-        //:   class method passing in an integer value creates a new object of
-        //:   that type, at the specified address.  Henceforth invoking the
-        //:   'TemplateTestFacility::getIdentifier' class method passing in the
-        //:   just created object returns the previously used integer value.
-        //:
-        //: 2 For all test types, the 'TemplateTestFacility::create' method
-        //:   supports integer values from 0 to 127.
-        //:
-        //: 3 All memory is supplied by the specified allocator.  No memory is
-        //:   supplied by the default or global allocators.
+        // 1. For all test types, invoking the `TemplateTestFacility::emplace`
+        //    class method passing in an integer value creates a new object of
+        //    that type, at the specified address.  Henceforth invoking the
+        //    `TemplateTestFacility::getIdentifier` class method passing in the
+        //    just created object returns the previously used integer value.
+        //
+        // 2. For all test types, the `TemplateTestFacility::create` method
+        //    supports integer values from 0 to 127.
+        //
+        // 3. All memory is supplied by the specified allocator.  No memory is
+        //    supplied by the default or global allocators.
         //
         // Plan:
-        //: 1 Create a function member template parameterized on a type and
-        //:   does the following: For each integer value from 0 to 127, create
-        //:   an object using 'TemplateTestFacility::emplace' passing in the
-        //:   integer value.  Verify that the integer value return from
-        //:   'TemplateTestFacility::getIdentifier' compare equal to the value
-        //:   passed to 'create'.
-        //:
-        //: 2 Invoke the 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' macro
-        //:   passing in the function member template defined in P-1 and
-        //:   'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL' to run the instances
-        //:   of the template for all test types.  (C-1,2)
+        // 1. Create a function member template parameterized on a type and
+        //    does the following: For each integer value from 0 to 127, create
+        //    an object using `TemplateTestFacility::emplace` passing in the
+        //    integer value.  Verify that the integer value return from
+        //    `TemplateTestFacility::getIdentifier` compare equal to the value
+        //    passed to `create`.
+        //
+        // 2. Invoke the `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE` macro
+        //    passing in the function member template defined in P-1 and
+        //    `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL` to run the instances
+        //    of the template for all test types.  (C-1,2)
         //
         // Testing:
         //   void emplace<TYPE>(TYPE *, int, bslma::Allocator *);
         //   void emplace<TYPE>(TYPE **, int, bslma::Allocator *);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nCLASS METHOD 'emplace'"
+        if (verbose) printf("\nCLASS METHOD `emplace`"
                             "\n======================\n");
 
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
@@ -882,7 +889,7 @@ int main(int argc, char *argv[])
                                     bsltf::MoveOnlyAllocTestType,
                                     bsltf::WellBehavedMoveOnlyAllocTestType);
 
-        // The following types are not in 'all' yet
+        // The following types are not in `all` yet
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) ||               \
     !defined(BSL_DO_NOT_TEST_MOVE_FORWARDING)
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
@@ -896,33 +903,33 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING CLASS METHODS 'create' AND 'getIdentifier'
-        //   Ensure that the class methods 'TemplateTestFacility::create' and
-        //   'TemplateTestFacility::getIdentifier' behave according to their
+        // TESTING CLASS METHODS `create` AND `getIdentifier`
+        //   Ensure that the class methods `TemplateTestFacility::create` and
+        //   `TemplateTestFacility::getIdentifier` behave according to their
         //   contracts.
         //
         // Concerns:
-        //: 1 For all test types, invoking the 'TemplateTestFacility::create'
-        //:   class method passing in an integer value return a new object of
-        //:   that type.  Henceforth invoking the
-        //:   'TemplateTestFacility::getIdentifier' class method passing in the
-        //:   just created object returns the previously used integer value.
-        //:
-        //: 2 For all test types, the 'TemplateTestFacility::create' method
-        //:   supports integer values from 0 to 127.
+        // 1. For all test types, invoking the `TemplateTestFacility::create`
+        //    class method passing in an integer value return a new object of
+        //    that type.  Henceforth invoking the
+        //    `TemplateTestFacility::getIdentifier` class method passing in the
+        //    just created object returns the previously used integer value.
+        //
+        // 2. For all test types, the `TemplateTestFacility::create` method
+        //    supports integer values from 0 to 127.
         //
         // Plan:
-        //: 1 Create a function member template parameterized on a type and
-        //:   does the following: For each integer value from 0 to 127, create
-        //:   an object using 'TemplateTestFacility::create' passing in the
-        //:   integer value.  Verify that the integer value return from
-        //:   'TemplateTestFacility::getIdentifier' compare equal to the value
-        //:   passed to 'create'.
-        //:
-        //: 2 Invoke the 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' macro
-        //:   passing in the function member template defined in P-1 and
-        //:   'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL' to run the instances
-        //:   of the template for all test types.  (C-1,2)
+        // 1. Create a function member template parameterized on a type and
+        //    does the following: For each integer value from 0 to 127, create
+        //    an object using `TemplateTestFacility::create` passing in the
+        //    integer value.  Verify that the integer value return from
+        //    `TemplateTestFacility::getIdentifier` compare equal to the value
+        //    passed to `create`.
+        //
+        // 2. Invoke the `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE` macro
+        //    passing in the function member template defined in P-1 and
+        //    `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL` to run the instances
+        //    of the template for all test types.  (C-1,2)
         //
         // Testing:
         //   void TemplateTestFacility::create(int value);
@@ -930,7 +937,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                     "\nTESTING CLASS METHODS 'create' AND 'getIdentifier'"
+                     "\nTESTING CLASS METHODS `create` AND `getIdentifier`"
                      "\n==================================================\n");
 
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
@@ -938,7 +945,7 @@ int main(int argc, char *argv[])
                                     test5Helper,
                                     BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
 
-        // The following types are not in 'all' yet
+        // The following types are not in `all` yet
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
                                     TestHelper,
@@ -958,56 +965,56 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES*' MACROS
+        // `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES*` MACROS
         //   Ensure that the macros defining the list of test types contain all
         //   the types specified their contracts.
         //
         // Concerns:
-        //: 1 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE' contains all of
-        //:   the primitive test types.
-        //:
-        //: 2 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED' contains all
-        //:   of the user defined test types.
-        //:
-        //: 3 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR' contains all of
-        //:   the regular test types.
-        //:
-        //: 4 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_AWKWARD' contains all of
-        //:   the awkward test types.
-        //:
-        //: 5 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL' contains every test
-        //:   type.
+        // 1. `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE` contains all of
+        //    the primitive test types.
+        //
+        // 2. `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED` contains all
+        //    of the user defined test types.
+        //
+        // 3. `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR` contains all of
+        //    the regular test types.
+        //
+        // 4. `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_AWKWARD` contains all of
+        //    the awkward test types.
+        //
+        // 5. `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL` contains every test
+        //    type.
         //
         // Plan:
-        //: 1 Create a function member template that specializes on every test
-        //:   type.  For each type specialization, the template sets a unique
-        //:   global flag values that is used to indicate whether the template
-        //:   instance has been invoked.
-        //:
-        //: 2 Invoke instances of the template defined in P-1 parameterized on
-        //:   each type in 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE'
-        //:   using 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE'.  Verify that
-        //:   the corresponding flags has been set.  (C-1)
-        //:
-        //: 3 Invoke instances of the template defined in P-1 parameterized on
-        //:   each type in 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED'
-        //:   using 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE'.  Verify that
-        //:   the corresponding flags has been set.  (C-2)
-        //:
-        //: 4 Invoke instances of the template defined in P-1 parameterized on
-        //:   each type in 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR'
-        //:   using 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE'.  Verify that
-        //:   the corresponding flags has been set.  (C-3)
-        //:
-        //: 5 Invoke instances of the template defined in P-1 parameterized on
-        //:   each type in 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_AWKWARD'
-        //:   using 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE'.  Verify that
-        //:   the corresponding flags has been set.  (C-4)
-        //:
-        //: 2 Invoke instances of the template defined in P-1 parameterized on
-        //:   each type in 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL' using
-        //:   'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE'.  Verify that the
-        //:   corresponding flags has been set.  (C-5)
+        // 1. Create a function member template that specializes on every test
+        //    type.  For each type specialization, the template sets a unique
+        //    global flag values that is used to indicate whether the template
+        //    instance has been invoked.
+        //
+        // 2. Invoke instances of the template defined in P-1 parameterized on
+        //    each type in `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE`
+        //    using `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE`.  Verify that
+        //    the corresponding flags has been set.  (C-1)
+        //
+        // 3. Invoke instances of the template defined in P-1 parameterized on
+        //    each type in `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED`
+        //    using `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE`.  Verify that
+        //    the corresponding flags has been set.  (C-2)
+        //
+        // 4. Invoke instances of the template defined in P-1 parameterized on
+        //    each type in `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR`
+        //    using `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE`.  Verify that
+        //    the corresponding flags has been set.  (C-3)
+        //
+        // 5. Invoke instances of the template defined in P-1 parameterized on
+        //    each type in `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_AWKWARD`
+        //    using `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE`.  Verify that
+        //    the corresponding flags has been set.  (C-4)
+        //
+        // 2. Invoke instances of the template defined in P-1 parameterized on
+        //    each type in `BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL` using
+        //    `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE`.  Verify that the
+        //    corresponding flags has been set.  (C-5)
         //
         // Testing:
         //   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE
@@ -1074,45 +1081,45 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // MACRO 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE'
-        //   Ensure that the 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' macro
+        // MACRO `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE`
+        //   Ensure that the `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE` macro
         //   behave according to its contract.
         //
         // Concerns:
-        //: 1 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' invokes instances of a
-        //:   function member template each parameterized on a type from a
-        //:   specified list of types.
-        //:
-        //: 2 Up to 20 types are supported in the argument list of the macro.
-        //:
-        //: 3 Compilation will fail if more than 20 types are specified in the
-        //:   macro.
+        // 1. `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE` invokes instances of a
+        //    function member template each parameterized on a type from a
+        //    specified list of types.
+        //
+        // 2. Up to 20 types are supported in the argument list of the macro.
+        //
+        // 3. Compilation will fail if more than 20 types are specified in the
+        //    macro.
         //
         // Plan:
-        //: 1 Define 20 types, each with a method, 'value', that returns an
-        //:   unique integer value.
-        //:
-        //: 2 Define an global array of 20 flags to indicate if a specific
-        //:   instance of a template has been invoked.
-        //:
-        //: 3 Create a function member template that sets a value in the array
-        //:   defined by P-2 at the identifier returned by the 'value' method
-        //:   of the parameterized type.
-        //:
-        //: 4 Invoke 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE', passing the
-        //:   function member template defined in P-3, and the list of types
-        //:   defined in P-1.  Verify that all the corresponding flags in the
-        //:   array defined by P-2 have been set.  (C-1..2)
-        //:
-        //: 5 Manually verify that specified a list of 21 types will cause the
-        //:   compilation to fail.
+        // 1. Define 20 types, each with a method, `value`, that returns an
+        //    unique integer value.
+        //
+        // 2. Define an global array of 20 flags to indicate if a specific
+        //    instance of a template has been invoked.
+        //
+        // 3. Create a function member template that sets a value in the array
+        //    defined by P-2 at the identifier returned by the `value` method
+        //    of the parameterized type.
+        //
+        // 4. Invoke `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE`, passing the
+        //    function member template defined in P-3, and the list of types
+        //    defined in P-1.  Verify that all the corresponding flags in the
+        //    array defined by P-2 have been set.  (C-1..2)
+        //
+        // 5. Manually verify that specified a list of 21 types will cause the
+        //    compilation to fail.
         //
         // Testing:
         //   BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nMACRO 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE'"
+            printf("\nMACRO `BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE`"
                    "\n================================================\n");
 
         BSLTF_TTF_TEST3_N(0);
@@ -1143,8 +1150,8 @@ int main(int argc, char *argv[])
         // ALIASES
         //
         // Concerns:
-        //: 1 The 'typedef' aliases defined in this component is of the correct
-        //:   type.
+        // 1. The `typedef` aliases defined in this component is of the correct
+        //    type.
         //
         // Testing:
         //   CONCERN: Aliases provided are of the correct type.
@@ -1171,11 +1178,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
+        // 1. Perform and ad-hoc test of the primary modifiers and accessors.
         //
         // Testing:
         //   BREATHING TEST

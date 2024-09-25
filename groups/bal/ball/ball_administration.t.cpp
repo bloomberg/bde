@@ -22,10 +22,10 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // The component under test is merely a facade for several methods defined in
-// the 'ball_loggermanager' and 'ball_loggercategoryutil' components.  It is
+// the `ball_loggermanager` and `ball_loggercategoryutil` components.  It is
 // sufficient to test that each "facade" method correctly forwards its
-// arguments to the corresponding methods of 'ball_loggermanager' and
-// 'ball_loggercategoryutil', and that the correct value is returned.
+// arguments to the corresponding methods of `ball_loggermanager` and
+// `ball_loggercategoryutil`, and that the correct value is returned.
 //
 // Note that places where test drivers in this family are likely to require
 // adjustment are indicated by the tag: "ADJ".
@@ -112,7 +112,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef ball::Administration Obj;
 
-// Note: the following *must* be kept in sync with 'ball_loggermanager'.
+// Note: the following *must* be kept in sync with `ball_loggermanager`.
 
 const char *DEFAULT_CATEGORY_NAME                 = "";
 const int   DEFAULT_CATEGORY_RECORD_THRESHOLD     = 0;
@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -177,12 +177,12 @@ int main(int argc, char *argv[])
 //
 // First we initialize the logger manager (for the purposes of this example,
 // we use a minimal configuration):
-//..
+// ```
     ball::LoggerManagerConfiguration lmConfig;
     ball::LoggerManagerScopedGuard   lmGuard(lmConfig);
-//..
+// ```
 // Next define some hypothetical category names:
-//..
+// ```
     const char *equityCategories[] = {
         "EQUITY.MARKET.NYSE",
         "EQUITY.MARKET.NASDAQ",
@@ -191,17 +191,17 @@ int main(int argc, char *argv[])
     };
     const int NUM_CATEGORIES = sizeof equityCategories
                              / sizeof equityCategories[0];
-//..
+// ```
 // Category naming is by convention only.  In this example, we have chosen a
 // hierarchical naming convention that uses '.' to separate the constituents
 // of category names.
 //
-// In the following, the 'addCategory' method is used to define a category for
-// each of the category names in 'equityCategories'.  The threshold levels
+// In the following, the `addCategory` method is used to define a category for
+// each of the category names in `equityCategories`.  The threshold levels
 // for each of the categories are set to slightly different values to help
-// distinguish them when they are printed later.  The 'addCategory' method
+// distinguish them when they are printed later.  The `addCategory` method
 // returns the address of the new category:
-//..
+// ```
     for (int i = 0; i < NUM_CATEGORIES; ++i) {
         int retValue = ball::Administration::addCategory(
                                                   equityCategories[i],
@@ -211,10 +211,10 @@ int main(int argc, char *argv[])
                                                   ball::Severity::e_FATAL + i);
         ASSERT(0 == retValue);  // added new category
     }
-//..
+// ```
 // In the following, each of the new categories is accessed from the registry
-// and its name and threshold levels are printed to 'bsl::cout':
-//..
+// and its name and threshold levels are printed to `bsl::cout`:
+// ```
     for (int i = 0; i < NUM_CATEGORIES; ++i) {
         const char* name    = equityCategories[i];
         int recordLevel     = ball::Administration::recordLevel(name);
@@ -229,9 +229,9 @@ int main(int argc, char *argv[])
         cout << "\tTrigger level:     " << triggerLevel    << endl;
         cout << "\tTrigger-all level: " << triggerAllLevel << endl;
     }
-//..
-// The following is printed to 'stdout':
-//..
+// ```
+// The following is printed to `stdout`:
+// ```
 //  Category name: EQUITY.MARKET.NYSE
 //          Record level:      192
 //          Pass level:        96
@@ -255,12 +255,12 @@ int main(int argc, char *argv[])
 //          Pass level:        99
 //          Trigger level:     67
 //          Trigger-all level: 35
-//..
+// ```
 // The following is similar to the first for-loop above, but this time the
-// 'setThresholdLevels' method is used to modify the threshold levels of
-// existing categories.  The 'setThresholdLevels' method returns 1 to indicate
+// `setThresholdLevels` method is used to modify the threshold levels of
+// existing categories.  The `setThresholdLevels` method returns 1 to indicate
 // the number of existing categories that were affected by the call:
-//..
+// ```
     for (int i = 0; i < NUM_CATEGORIES; ++i) {
         const int returnValue = ball::Administration::setThresholdLevels(
                                                   equityCategories[i],
@@ -270,11 +270,11 @@ int main(int argc, char *argv[])
                                                   ball::Severity::e_FATAL - i);
         ASSERT(1 == returnValue);  // modified one category
     }
-//..
-// When the 'NUM_CATEGORIES' categories are accessed from the registry a second
-// time and printed, the following is output to 'stdout' showing the new
+// ```
+// When the `NUM_CATEGORIES` categories are accessed from the registry a second
+// time and printed, the following is output to `stdout` showing the new
 // threshold levels of the categories:
-//..
+// ```
 //  Category name: EQUITY.MARKET.NYSE
 //          Record level:      192
 //          Pass level:        96
@@ -298,16 +298,16 @@ int main(int argc, char *argv[])
 //          Pass level:        93
 //          Trigger level:     61
 //          Trigger-all level: 29
-//..
+// ```
 // Finally, the category registry is closed to further additions by setting its
-// maximum capacity to (the original) 'NUM_CATEGORIES':
-//..
+// maximum capacity to (the original) `NUM_CATEGORIES`:
+// ```
     ball::Administration::setMaxNumCategories(NUM_CATEGORIES);
-//..
-// Following this call to 'setMaxNumCategories', subsequent calls to
-// 'addCategory' will fail (until such time as 'setMaxNumCategories' is called
+// ```
+// Following this call to `setMaxNumCategories`, subsequent calls to
+// `addCategory` will fail (until such time as `setMaxNumCategories` is called
 // again with an argument value of either 0 or one that is greater than
-// 'NUM_CATEGORIES').
+// `NUM_CATEGORIES`).
 
             if (veryVerbose) {
                 bsl::cout << cout.str() << bsl::endl;
@@ -319,33 +319,33 @@ int main(int argc, char *argv[])
         // TESTING: setAllThresholdLevels
         //
         // Concerns:
-        //: 1 'setAllThresholdLevels' sets the default threshold level to
-        //:   the supplied thresholds.
-        //:
-        //: 2 'setAllThresholdLevels' sets supplies the correct record, pass,
-        //:    trigger, and trigger all levels to both the default threshold
-        //:    level and the existing categories threshold levels.
-        //:
-        //: 3 'setAllThresholdLevels' sets any existing category threshold
-        //:    levels to the supplied thresholds.
-        //:
-        //: 4  'setAllThresholdLevels' returns 0 on success.
-        //:
-        //: 5 If the supplied pass-through level is not in the range '[0..255]'
-        //:   the 'setAllThresholdLevels' returns a non-zero value.
+        // 1. `setAllThresholdLevels` sets the default threshold level to
+        //    the supplied thresholds.
+        //
+        // 2. `setAllThresholdLevels` sets supplies the correct record, pass,
+        //     trigger, and trigger all levels to both the default threshold
+        //     level and the existing categories threshold levels.
+        //
+        // 3. `setAllThresholdLevels` sets any existing category threshold
+        //     levels to the supplied thresholds.
+        //
+        // 4.  `setAllThresholdLevels` returns 0 on success.
+        //
+        // 5. If the supplied pass-through level is not in the range `[0..255]`
+        //    the `setAllThresholdLevels` returns a non-zero value.
         //
         // Plan:
-        //: 1 Manually call method with valid values and verify the return is
-        //:   0 and the default threshold levels are set (C-1, C-2, C-4)
-        //:
-        //: 2 Create a couple categories and call method with valid values and
-        //:   verify the return is 0 and the default threshold levels as well
-        //:   the created threshold levels are set (C-2..4))
-        //:
-        //: 2 Call the method several times, supplying an invalid level
-        //:   for a different threshold each time, verify the return value is
-        //:   not 0, the default threshold level isn't set, and the existing
-        //:   categories threshold levels are not modified. (C-5)
+        // 1. Manually call method with valid values and verify the return is
+        //   0. and the default threshold levels are set (C-1, C-2, C-4)
+        //
+        // 2. Create a couple categories and call method with valid values and
+        //    verify the return is 0 and the default threshold levels as well
+        //    the created threshold levels are set (C-2..4))
+        //
+        // 2. Call the method several times, supplying an invalid level
+        //    for a different threshold each time, verify the return value is
+        //    not 0, the default threshold level isn't set, and the existing
+        //    categories threshold levels are not modified. (C-5)
         //
         // Testing:
         //   int setDefaultThresholdLevels(int);
@@ -360,7 +360,7 @@ int main(int argc, char *argv[])
         ball::LoggerManagerScopedGuard   lmGuard(lmConfig);
 
         if (verbose) cout
-            << "\nTest 'setAllThresholdLevels' sets the default threshold"
+            << "\nTest `setAllThresholdLevels` sets the default threshold"
             << endl;
         {
             ASSERT(0 == Obj::setDefaultThresholdLevels(0, 0, 0, 0));
@@ -373,7 +373,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout
-            << "\nTest 'setAllThresholdLevels' updates existing categories"
+            << "\nTest `setAllThresholdLevels` updates existing categories"
             << endl;
         {
             ASSERT(0 == Obj::setDefaultThresholdLevels(0, 0, 0, 0));
@@ -396,7 +396,7 @@ int main(int argc, char *argv[])
             ASSERT(8 == Obj::triggerAllLevel("B"));
         }
         if (verbose) cout
-            << "\nTest 'setAllThresholdLevels' with invalid thresholds"
+            << "\nTest `setAllThresholdLevels` with invalid thresholds"
             << endl;
         {
             ASSERT(0 == Obj::setDefaultThresholdLevels(0, 0, 0, 0));
@@ -471,8 +471,8 @@ int main(int argc, char *argv[])
         // TESTING REGISTRY CAPACITY METHODS
         //
         // Concerns:
-        //   The 'setMaxNumCategories' method should have the expected effect
-        //   on the registry capacity and the 'maxNumCategories' method should
+        //   The `setMaxNumCategories` method should have the expected effect
+        //   on the registry capacity and the `maxNumCategories` method should
         //   return the current registry capacity.
         //
         // Plan:
@@ -486,7 +486,7 @@ int main(int argc, char *argv[])
         //         categories can be added to the registry.
         //     (3) Set the capacity to be unlimited.  Then for n > m, add
         //         n - m new categories to the registry.  Finally, set the
-        //         capacity to n and verify that 'addCategory' fails.
+        //         capacity to n and verify that `addCategory` fails.
         //
         // Testing:
         //   static void setMaxNumCategories(int length);
@@ -516,11 +516,11 @@ int main(int argc, char *argv[])
             // ----   ----
             {  L_,    ""              },  // *Default* *Category*
 
-            {  L_,    "A"             },  // "A" - "C" added in 1st 'for' loop
+            {  L_,    "A"             },  // "A" - "C" added in 1st `for` loop
             {  L_,    "B"             },
             {  L_,    "C"             },
 
-            {  L_,    "D"             },  // "D" - "G" added in 2nd 'for' loop
+            {  L_,    "D"             },  // "D" - "G" added in 2nd `for` loop
             {  L_,    "E"             },
             {  L_,    "F"             },
             {  L_,    "G"             },
@@ -561,15 +561,15 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   (1) Each method under test must correctly forward its arguments
-        //       to the corresponding method of 'ball_loggermanager' or
-        //       'ball_loggercategoryutil'.
-        //   (2) Methods not defined to return 'void' must return the expected
+        //       to the corresponding method of `ball_loggermanager` or
+        //       `ball_loggercategoryutil`.
+        //   (2) Methods not defined to return `void` must return the expected
         //       value.
         //
         // Plan:
         //   Exercise the methods with various valid and invalid argument
         //   values and assert the expected results.  Test the value returned
-        //   by all methods not defined to return 'void'.
+        //   by all methods not defined to return `void`.
         //
         // Testing:
         //   static int addCategory(const char *name, int, int, int, int);
@@ -619,7 +619,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
-        const char *XNAME = "X";  // control name for 'BAD_DATA'
+        const char *XNAME = "X";  // control name for `BAD_DATA`
 
         static const struct {
             int         d_lineNum;          // source line number

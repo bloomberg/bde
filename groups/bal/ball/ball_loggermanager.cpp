@@ -111,14 +111,14 @@ namespace {
                     // struct RecordSharedPtrUtil
                     // ==========================
 
+/// This `struct` provides a namespace for utilities on
+/// `bsl::shared_ptr<Record>`, specifically, shared pointers that are
+/// obtained from the shared object pool (`d_recordPool`) of `Logger`
+/// instances.  Note that we use this facility to maintain support for the
+/// function signature for `Logger::getRecord`, which returns a raw pointer
+/// to a `Record` and was introduced prior to the use of
+/// `bsl::shared_ptr<Record>` in this component.
 struct RecordSharedPtrUtil {
-    // This 'struct' provides a namespace for utilities on
-    // 'bsl::shared_ptr<Record>', specifically, shared pointers that are
-    // obtained from the shared object pool ('d_recordPool') of 'Logger'
-    // instances.  Note that we use this facility to maintain support for the
-    // function signature for 'Logger::getRecord', which returns a raw pointer
-    // to a 'Record' and was introduced prior to the use of
-    // 'bsl::shared_ptr<Record>' in this component.
 
     // PUBLIC CLASS DATA
     static std::ptrdiff_t s_sharedObjectOffset;  // offset (in bytes) of the
@@ -136,30 +136,31 @@ struct RecordSharedPtrUtil {
                                                                        RepType;
 
     // CLASS METHODS
+
+    /// Acquire an additional reference to the specified `record` shared
+    /// pointer, and return a raw pointer its managed value.  The behavior
+    /// is undefined unless `initializeSharedObjectOffset` has been called.
+    /// Note that the shared pointer must be reconstituted by a subsequent
+    /// call to `reassembleSharedPtr`.
     static
     Record *disassembleSharedPtr(const bsl::shared_ptr<Record>& record);
-        // Acquire an additional reference to the specified 'record' shared
-        // pointer, and return a raw pointer its managed value.  The behavior
-        // is undefined unless 'initializeSharedObjectOffset' has been called.
-        // Note that the shared pointer must be reconstituted by a subsequent
-        // call to 'reassembleSharedPtr'.
 
+    /// Reassemble a shared pointer to the specified `record` (taking
+    /// ownership of the additional reference acquired when
+    /// `disassembleSharedPtr` was called), and return the shared pointer.
+    /// The behavior is undefined unless `initializeSharedObjectOffset` has
+    /// been called and `record` was obtained from a call to
+    /// `disassembleSharedPtr`.
     static
     bsl::shared_ptr<Record> reassembleSharedPtr(Record *record);
-        // Reassemble a shared pointer to the specified 'record' (taking
-        // ownership of the additional reference acquired when
-        // 'disassembleSharedPtr' was called), and return the shared pointer.
-        // The behavior is undefined unless 'initializeSharedObjectOffset' has
-        // been called and 'record' was obtained from a call to
-        // 'disassembleSharedPtr'.
 
+    /// Initialize `s_sharedObjectOffset` to the value of the offset (in
+    /// bytes) of the specified `record.ptr()` with respect to
+    /// `record.rep()`.  The behavior is undefined unless the shared object
+    /// managed by `record` is stored in-place within the concrete
+    /// `bslma::SharedPtrRep` object.
     static
     void initializeSharedObjectOffset(const bsl::shared_ptr<Record>& record);
-        // Initialize 's_sharedObjectOffset' to the value of the offset (in
-        // bytes) of the specified 'record.ptr()' with respect to
-        // 'record.rep()'.  The behavior is undefined unless the shared object
-        // managed by 'record' is stored in-place within the concrete
-        // 'bslma::SharedPtrRep' object.
 };
 
                     // --------------------------
@@ -213,11 +214,12 @@ void RecordSharedPtrUtil::initializeSharedObjectOffset(
 }
 
 // HELPER FUNCTIONS
+
+/// Release the specified `buffer` back to the specified `pool`.  The
+/// behavior is undefined unless `pool` refers to an instance of
+/// `bdlma::ConcurrentPool`, and `buffer` was allocated from `pool` and has
+/// not yet been deallocated.
 void bufferPoolDeleter(void *buffer, void *pool)
-    // Release the specified 'buffer' back to the specified 'pool'.  The
-    // behavior is undefined unless 'pool' refers to an instance of
-    // 'bdlma::ConcurrentPool', and 'buffer' was allocated from 'pool' and has
-    // not yet been deallocated.
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(pool);
@@ -226,15 +228,15 @@ void bufferPoolDeleter(void *buffer, void *pool)
     p->deallocate(buffer);
 }
 
+/// If the specified category `nameFilter` is a non-null functor, apply
+/// `nameFilter` to the specified `originalName`, store the translated
+/// result in the specified `filteredNameBuffer`, and return the address of
+/// the non-modifiable data of `filteredNameBuffer`; return `originalName`
+/// otherwise (i.e., if `nameFilter` is null).
 const char *filterName(
    bsl::string                                             *filteredNameBuffer,
    const char                                              *originalName,
    const bsl::function<void(bsl::string *, const char *)>&  nameFilter)
-    // If the specified category 'nameFilter' is a non-null functor, apply
-    // 'nameFilter' to the specified 'originalName', store the translated
-    // result in the specified 'filteredNameBuffer', and return the address of
-    // the non-modifiable data of 'filteredNameBuffer'; return 'originalName'
-    // otherwise (i.e., if 'nameFilter' is null).
 {
     BSLS_ASSERT(filteredNameBuffer);
     BSLS_ASSERT(originalName);
@@ -252,13 +254,13 @@ const char *filterName(
     return name;
 }
 
+/// Load, into the specified `levels`, the active threshold levels for the
+/// specified `category`, and return `true` if the specified `severity` is
+/// more severe (i.e., is numerically less than) at least one of the
+/// threshold levels of `category`, and `false` otherwise.
 bool isCategoryEnabled(ball::ThresholdAggregate *levels,
                        const ball::Category&     category,
                        int                       severity)
-    // Load, into the specified 'levels', the active threshold levels for the
-    // specified 'category', and return 'true' if the specified 'severity' is
-    // more severe (i.e., is numerically less than) at least one of the
-    // threshold levels of 'category', and 'false' otherwise.
 
 {
     if (category.relevantRuleMask()) {
@@ -271,10 +273,10 @@ bool isCategoryEnabled(ball::ThresholdAggregate *levels,
     return category.maxLevel() >= severity;
 }
 
+/// Return the `ball` log severity equivalent to the specified `bsls` log
+/// `severity`.
 inline static
 ball::Severity::Level convertBslsLogSeverity(bsls::LogSeverity::Enum severity)
-    // Return the 'ball' log severity equivalent to the specified 'bsls' log
-    // 'severity'.
 {
     switch (severity) {
       case bsls::LogSeverity::e_FATAL: return ball::Severity::e_FATAL;
@@ -288,30 +290,30 @@ ball::Severity::Level convertBslsLogSeverity(bsls::LogSeverity::Enum severity)
     return ball::Severity::e_ERROR;
 }
 
+/// The lock used to protect the configuration of the `bsls::Log` callback
+/// handler.  This lock prevents the logger manager singleton from being
+/// destroyed concurrently with an attempt to log a `bsls::Log` record.
 static bslmt::QLock bslsLogQLock = BSLMT_QLOCK_INITIALIZER;
-    // The lock used to protect the configuration of the 'bsls::Log' callback
-    // handler.  This lock prevents the logger manager singleton from being
-    // destroyed concurrently with an attempt to log a 'bsls::Log' record.
 
+/// This variable is used to save the `bsls::Log` message handler that is in
+/// effect prior to creating the singleton, so that it can be restored when
+/// the singleton is destroyed.
 static bsls::Log::LogMessageHandler savedBslsLogMessageHandler = 0;
-    // This variable is used to save the 'bsls::Log' message handler that is in
-    // effect prior to creating the singleton, so that it can be restored when
-    // the singleton is destroyed.
 
+/// Address of the category to which `bsls::Log` messages are logged when
+/// the logger manager singleton exists.
 static ball::Category *bslsLogCategoryPtr = 0;
-    // Address of the category to which 'bsls::Log' messages are logged when
-    // the logger manager singleton exists.
 
 const char *const k_BSLS_LOG_CATEGORY_NAME = "BSLS.LOG";
 
+/// Write a `ball` record having the specified `severity`, `fileName`,
+/// `lineNumber`, and `message`.  Note that this function signature matches
+/// `bsls::Log::LogMessageHandler` and is intended to be installed as a
+/// `bsls::Log` message handler.
 void bslsLogMessage(bsls::LogSeverity::Enum  severity,
                     const char              *fileName,
                     int                      lineNumber,
                     const char              *message)
-    // Write a 'ball' record having the specified 'severity', 'fileName',
-    // 'lineNumber', and 'message'.  Note that this function signature matches
-    // 'bsls::Log::LogMessageHandler' and is intended to be installed as a
-    // 'bsls::Log' message handler.
 {
     bslmt::QLockGuard qLockGuard(&bslsLogQLock);
 
@@ -366,10 +368,10 @@ const char *const k_TRIGGER_ALL_BEGIN =
 const char *const k_TRIGGER_ALL_END =
                                "--- END RECORD DUMP CAUSED BY TRIGGER ALL ---";
 
+/// Load into the specified `record` all fixed fields except `message`,
+/// `fileName`, and `lineNumber` from the specified `srcAttribute`.
 void copyAttributesWithoutMessage(ball::Record                  *record,
                                   const ball::RecordAttributes&  srcAttribute)
-    // Load into the specified 'record' all fixed fields except 'message',
-    // 'fileName', and 'lineNumber' from the specified 'srcAttribute'.
 {
     record->fixedFields().setTimestamp(srcAttribute.timestamp());
     record->fixedFields().setProcessID(srcAttribute.processID());
@@ -666,9 +668,9 @@ bool           LoggerManager::s_isSingletonOwned = true;
 
 namespace {
 
+/// The lock used to protect logger manager singleton (re)initialization and
+/// shutdown.
 static bslmt::QLock singletonQLock = BSLMT_QLOCK_INITIALIZER;
-    // The lock used to protect logger manager singleton (re)initialization and
-    // shutdown.
 
 }  // close unnamed namespace
 

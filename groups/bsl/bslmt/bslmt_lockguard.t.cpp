@@ -3,8 +3,8 @@
 
 #include <bslim_testutil.h>
 
-#include <bsl_cstring.h>  // 'strcmp'
-#include <bsl_cstdlib.h>  // 'atoi'
+#include <bsl_cstring.h>  // `strcmp`
+#include <bsl_cstdlib.h>  // `atoi`
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -15,11 +15,11 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              OVERVIEW
 //                              --------
-// This program tests the functionality of the 'bslmt::LockGuard' class.  It
+// This program tests the functionality of the `bslmt::LockGuard` class.  It
 // verifies that the class properly locks the synchronization object at
 // construction time, and that it properly unlocks the object at destruction
-// time.  A helper class, 'my_Mutex', is created to facilitate the test
-// process.  'my_Mutex' implements the required lock and unlock interfaces and
+// time.  A helper class, `my_Mutex`, is created to facilitate the test
+// process.  `my_Mutex` implements the required lock and unlock interfaces and
 // provides a means to determine when the functions are called.
 //
 //-----------------------------------------------------------------------------
@@ -41,9 +41,9 @@ using namespace bsl;
 // [4] ~bslmt::LockGuardTryLock();
 // [4] release();
 //-----------------------------------------------------------------------------
-// [1] Ensure helper class 'my_Mutex' works as expected
-// [5] INTERACTION BETWEEN 'bslmt::LockGuard' AND 'bslmt::LockGuardUnlock'
-// [6] DEPRECATED 'bslmt::TryLockGuard' and 'bslmt::UnLockGuard'
+// [1] Ensure helper class `my_Mutex` works as expected
+// [5] INTERACTION BETWEEN `bslmt::LockGuard` AND `bslmt::LockGuardUnlock`
+// [6] DEPRECATED `bslmt::TryLockGuard` and `bslmt::UnLockGuard`
 // [7] USAGE EXAMPLES
 
 // ============================================================================
@@ -97,14 +97,14 @@ void aSsErT(bool condition, const char *message, int line)
 int someCondition = 0;
 int someOtherCondition = 0;
 
+/// This class provides a simulated mutual exclusion mechanism which
+/// conforms to the interface required by the bslmt::LockGuard class.  It
+/// operates using a counter to track the symbolic "locked" state.  Each
+/// call to the lock and unlock functions increment or decrement the lock
+/// count respectively.  The current state of the lock count is accessible
+/// through the lockCount method.  The `tryLock` is designed to fail the
+/// first time, then succeed every other time.
 struct my_Mutex {
-    // This class provides a simulated mutual exclusion mechanism which
-    // conforms to the interface required by the bslmt::LockGuard class.  It
-    // operates using a counter to track the symbolic "locked" state.  Each
-    // call to the lock and unlock functions increment or decrement the lock
-    // count respectively.  The current state of the lock count is accessible
-    // through the lockCount method.  The 'tryLock' is designed to fail the
-    // first time, then succeed every other time.
 
     int d_count;
     int d_attempt;
@@ -141,9 +141,9 @@ struct my_Object {
 /// - - - - - - - - - - -
 // Use this component to ensure that in the event of an exception or exit from
 // any point in a given scope, the synchronization object will be properly
-// unlocked.  The following function, 'errorProneFunc', is overly complex, not
+// unlocked.  The following function, `errorProneFunc`, is overly complex, not
 // exception safe, and contains a bug.
-//..
+// ```
     static void errorProneFunc(my_Object *obj, my_Mutex *mutex)
     {
         mutex->lock();
@@ -160,12 +160,12 @@ struct my_Object {
         mutex->unlock();
         return;
     }
-//..
+// ```
 // The function can be rewritten with a cleaner and safer implementation using
-// a guard object.  The 'safeFunc' function is simpler than 'errorProneFunc',
+// a guard object.  The `safeFunc` function is simpler than `errorProneFunc`,
 // is exception safe, and avoids the multiple calls to unlock that can be a
 // source of errors.
-//..
+// ```
     static void safeFunc(my_Object *obj, my_Mutex *mutex)
     {
         bslmt::LockGuard<my_Mutex> guard(mutex);
@@ -180,13 +180,14 @@ struct my_Object {
         obj->defaultMethod();
         return;
     }
-//..
+// ```
 // When blocking while acquiring the lock is not desirable, one may instead use
-// a 'bslmt::LockGuardTryLock' in the typical following fashion:
-//..
+// a `bslmt::LockGuardTryLock` in the typical following fashion:
+// ```
+
+    /// Perform task and return positive value if locking succeeds.  Return
+    /// 0 if locking fails.
     static int safeButNonBlockingFunc(my_Object *obj, my_Mutex *mutex)
-        // Perform task and return positive value if locking succeeds.  Return
-        // 0 if locking fails.
     {
         const int RETRIES = 1; // use higher values for higher success rate
         bslmt::LockGuardTryLock<my_Mutex> guard(mutex, RETRIES);
@@ -203,11 +204,11 @@ struct my_Object {
         }
         return 0;
     }
-//..
-// Instantiations of 'bslmt::LockGuardUnlock' can be interleaved with
-// instantiations of 'bslmt::LockGuard' to create both critical sections and
+// ```
+// Instantiations of `bslmt::LockGuardUnlock` can be interleaved with
+// instantiations of `bslmt::LockGuard` to create both critical sections and
 // regions where the lock is released.
-//..
+// ```
     void f(my_Mutex *mutex)
     {
         bslmt::LockGuard<my_Mutex> guard(mutex);
@@ -224,7 +225,7 @@ struct my_Object {
         // critical section here
 
     } // mutex is unlocked here
-//..
+// ```
 // Care must be taken so as not to interleave guard objects in such a way as to
 // cause an illegal sequence of calls on a lock (two sequential lock calls or
 // two sequential unlock calls on a non-recursive mutex).
@@ -314,7 +315,7 @@ int main(int argc, char *argv[])
         // TESTING backwards-compatibility
         //
         // Concern:
-        //   That 'bslmt::TryLockGuard' and 'bslmt::UnLockGuard' are equivalent
+        //   That `bslmt::TryLockGuard` and `bslmt::UnLockGuard` are equivalent
         //   to their new, properly-named counterparts.
         //
         // Plan:
@@ -416,26 +417,26 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // INTERACTION BETWEEN 'bslmt::LockGuard' AND 'bslmt::LockGuardUnlock'
+        // INTERACTION BETWEEN `bslmt::LockGuard` AND `bslmt::LockGuardUnlock`
         //
         // Concern:
         //   That bslmt::LockGuard and bslmt::LockGuardUnlock interact together
         //   as expected.  That two different lock guards on two different
-        //   'my_Mutex' objects do not interfere with each other.
+        //   `my_Mutex` objects do not interfere with each other.
         //
         // Plan:
-        //   We verify that using two independent 'my_Mutex' objects with two
-        //   distinct 'bslmt::LockGuard' *and* 'bslmt::LockGuardUnlock' objects
+        //   We verify that using two independent `my_Mutex` objects with two
+        //   distinct `bslmt::LockGuard` *and* `bslmt::LockGuardUnlock` objects
         //   in the same scope have no effect on each other.
         //
         // Testing:
         //   Interaction between lock and unlock guards, as well as
-        //   between two lock guards on two different 'my_Mutex' objects.
+        //   between two lock guards on two different `my_Mutex` objects.
         // --------------------------------------------------------------------
 
         if (verbose)
             cout << "\tTesting interaction between "
-                    "'bslmt::LockGuard' and bslmt::LockGuardUnlock'" << endl
+                    "`bslmt::LockGuard` and bslmt::LockGuardUnlock'" << endl
                  << "=============================="
                     "========================================" << endl;
 
@@ -466,29 +467,29 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING CLASS 'bslmt::LockGuardTryLock'
+        // TESTING CLASS `bslmt::LockGuardTryLock`
         //
         // Concern:
-        //   That the basic functionality of the 'bslmt::LockGuardTryLock'
+        //   That the basic functionality of the `bslmt::LockGuardTryLock`
         //   class template is correct.
         //
         // Plan:
-        //   We begin by creating a series of nested 'bslmt::LockGuardTryLock'
-        //   objects using a common 'my_Mutex' object.  With each new object we
+        //   We begin by creating a series of nested `bslmt::LockGuardTryLock`
+        //   objects using a common `my_Mutex` object.  With each new object we
         //   verify that the lock function is called only if the constructor
         //   succeeds.  As each object is destroyed, we verify that the unlock
         //   function is called.
         //
-        //   Next, we verify that the 'release' function works properly by
-        //   constructing a new 'bslmt::LockGuard' and calling 'release'.  We
+        //   Next, we verify that the `release` function works properly by
+        //   constructing a new `bslmt::LockGuard` and calling `release`.  We
         //   verify that the returned pointer matches the value we supplied
         //   only if the constructor succeeded in acquiring the lock.  We then
-        //   verify that 'release' makes no attempt to unlock the supplied
-        //   object and that when the 'bslmt::LockGuardTryLock' object is
+        //   verify that `release` makes no attempt to unlock the supplied
+        //   object and that when the `bslmt::LockGuardTryLock` object is
         //   destroyed, it does not unlock the object.
         //
-        //   Finally we test that a 'bslmt::LockGuardTryLock' can be created
-        //   with a null lock, and that 'release' may be called on the guard.
+        //   Finally we test that a `bslmt::LockGuardTryLock` can be created
+        //   with a null lock, and that `release` may be called on the guard.
         //
         // Testing:
         //   bslmt::LockGuardTryLock();
@@ -558,27 +559,27 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING CLASS 'bslmt::LockGuardUnlock'
+        // TESTING CLASS `bslmt::LockGuardUnlock`
         //
         // Concern:
-        //   That the basic functionality of the 'bslmt::LockUnGuard' class
+        //   That the basic functionality of the `bslmt::LockUnGuard` class
         //   template is correct.
         //
         // Plan:
-        //   We begin by creating a series of nested 'bslmt::LockGuardUnlock'
-        //   objects using a common 'my_Mutex' object.  With each new object
+        //   We begin by creating a series of nested `bslmt::LockGuardUnlock`
+        //   objects using a common `my_Mutex` object.  With each new object
         //   we verify that the unlock function is called.  As each object is
         //   destroyed, we verify that the lock function is called.
         //
-        //   Next, we verify that the 'release' function works properly by
-        //   constructing a new 'bslmt::LockGuardUnlock' and calling 'release'.
+        //   Next, we verify that the `release` function works properly by
+        //   constructing a new `bslmt::LockGuardUnlock` and calling `release`.
         //   We verify that the returned pointer matches the value we supplied.
-        //   We then verify that 'release' makes no attempt to unlock
-        //   the supplied object and that when the 'bslmt::LockGuardUnlock'
+        //   We then verify that `release` makes no attempt to unlock
+        //   the supplied object and that when the `bslmt::LockGuardUnlock`
         //   object is destroyed, it does not unlock the object.
         //
-        //   Finally we test that a 'bslmt::LockGuardUnlock' can be created
-        //   with a null lock, and that 'release' may be called on the guard.
+        //   Finally we test that a `bslmt::LockGuardUnlock` can be created
+        //   with a null lock, and that `release` may be called on the guard.
         //
         // Testing:
         //   bslmt::LockGuardUnlock();
@@ -650,27 +651,27 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING CLASS 'bslmt::LockGuard'
+        // TESTING CLASS `bslmt::LockGuard`
         //
         // Concern:
-        //   That the basic functionality of the 'bslmt::LockGuard' class
+        //   That the basic functionality of the `bslmt::LockGuard` class
         //   template is correct.
         //
         // Plan:
-        //   We begin by creating a series of nested 'bslmt::LockGuard'
-        //   objects using a common 'my_Mutex' object.  With each new object
+        //   We begin by creating a series of nested `bslmt::LockGuard`
+        //   objects using a common `my_Mutex` object.  With each new object
         //   we verify that the lock function was called.  As each object is
         //   destroyed, we verify that the unlock function is called.
         //
-        //   Next, we verify that the 'release' function works properly by
-        //   constructing a new 'bslmt::LockGuard' and calling 'release'.
+        //   Next, we verify that the `release` function works properly by
+        //   constructing a new `bslmt::LockGuard` and calling `release`.
         //   We verify that the returned pointer matches the value we supplied.
-        //   We then verify that 'release' makes no attempt to unlock
-        //   the supplied object and that when the 'bslmt::LockGuard' object is
+        //   We then verify that `release` makes no attempt to unlock
+        //   the supplied object and that when the `bslmt::LockGuard` object is
         //   destroyed, it does not unlock the object.
         //
-        //   Finally we test that a 'bslmt::LockGuard' can be created with a
-        //   null lock, and that 'release' may be called on the guard.
+        //   Finally we test that a `bslmt::LockGuard` can be created with a
+        //   null lock, and that `release` may be called on the guard.
         //
         // Testing:
         //   bslmt::LockGuard();
@@ -742,7 +743,7 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // HELPER CLASS TEST
-        //   The 'my_Mutex' class is a simple type that supports the lock and
+        //   The `my_Mutex` class is a simple type that supports the lock and
         //   unlock methods used by the guard class.  These methods simply
         //   increment and decrement a count integer data member.
         //

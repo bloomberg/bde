@@ -123,13 +123,13 @@ int main(int argc, char *argv[])
         // TESTING USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into driver, remove leading
-        //:   comment characters, and replace 'assert' with 'ASSERT' and writes
-        //:   to 'bsl::cout' with writes to an in-memory stream.
+        // 1. Incorporate usage example from header into driver, remove leading
+        //    comment characters, and replace `assert` with `ASSERT` and writes
+        //    to `bsl::cout` with writes to an in-memory stream.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -142,70 +142,70 @@ int main(int argc, char *argv[])
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -
 // The following snippets of code provide a simple illustration of using
-// 'bdljsn::WriteStyle'.
+// `bdljsn::WriteStyle`.
 //
-// First, we create a variable 'value' of type 'bdljsn::WriteStyle::Enum' and
-// initialize it with the enumerator value 'bdljsn::WriteStyle::e_PRETTY':
-//..
+// First, we create a variable `value` of type `bdljsn::WriteStyle::Enum` and
+// initialize it with the enumerator value `bdljsn::WriteStyle::e_PRETTY`:
+// ```
     bdljsn::WriteStyle::Enum value = bdljsn::WriteStyle::e_PRETTY;
-//..
+// ```
 // Now, we store the address of its ASCII representation in a pointer variable,
-// 'asciiValue', of type 'const char *':
-//..
+// `asciiValue`, of type `const char *`:
+// ```
     const char *asciiValue = bdljsn::WriteStyle::toAscii(value);
     ASSERT(0 == bsl::strcmp(asciiValue, "PRETTY"));
-//..
-// Finally, we print 'value' to 'bsl::cout'.
-//..
+// ```
+// Finally, we print `value` to `bsl::cout`.
+// ```
 //  bsl::cout << value << bsl::endl;
     bslma::TestAllocator tmpDfltAlloc;
     ostringstream        oss(&tmpDfltAlloc);
     oss << value << bsl::endl;
-//..
-// This statement produces the following output on 'stdout':
-//..
+// ```
+// This statement produces the following output on `stdout`:
+// ```
 //  PRETTY
-//..
+// ```
     ASSERT(0 == bsl::strcmp(oss.str().c_str(), "PRETTY\n"));
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'print'
+        // TESTING `print`
         //
         // Concerns:
-        //: 1 The 'print' method writes the output to the specified stream.
+        // 1. The `print` method writes the output to the specified stream.
         //
-        //: 2 The 'print' method writes the string representation of each
-        //:   enumerator in the intended format.
+        // 2. The `print` method writes the string representation of each
+        //    enumerator in the intended format.
         //
-        //: 3 The 'print' method writes a distinguished string when passed an
-        //:   out-of-band value.
+        // 3. The `print` method writes a distinguished string when passed an
+        //    out-of-band value.
         //
-        //: 4 There is no output when the stream is invalid.
+        // 4. There is no output when the stream is invalid.
         //
-        //: 5 The 'print' method has the expected signature.
+        // 5. The `print` method has the expected signature.
         //
-        //: 6 That 'print' returns a reference to the 'ostream' passed to it.
+        // 6. That `print` returns a reference to the `ostream` passed to it.
         //
         // Plan:
-        //: 1 Verify that the 'print' method produces the expected results for
-        //:   each enumerator, and that 'print' returns a reference to the
-        //:   'ostream' passed to it.  (C-1 .. 2, 7)
+        // 1. Verify that the `print` method produces the expected results for
+        //    each enumerator, and that `print` returns a reference to the
+        //    `ostream` passed to it.  (C-1 .. 2, 7)
         //
-        //: 2 Verify that the 'print' method writes a distinguished string when
-        //:   passed an out-of-band value.  (C-3)
+        // 2. Verify that the `print` method writes a distinguished string when
+        //    passed an out-of-band value.  (C-3)
         //
-        //: 3 Verify that there is no output when the stream is invalid.  (C-4)
+        // 3. Verify that there is no output when the stream is invalid.  (C-4)
         //
-        //: 4 Take the address of the 'print' (class) method and use the
-        //:   result to initialize a variable of the appropriate type.  (C-5)
+        // 4. Take the address of the `print` (class) method and use the
+        //    result to initialize a variable of the appropriate type.  (C-5)
         //
         // Testing:
         //   ostream& print(ostream&, WriteStyle::Enum, int, int)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'print'" << endl
+                          << "TESTING `print`" << endl
                           << "===============" << endl;
 
 // BDE_VERIFY pragma: push
@@ -250,7 +250,7 @@ int main(int argc, char *argv[])
 
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout << "\nTesting 'print'." << endl;
+        if (verbose) cout << "\nTesting `print`." << endl;
 
         bslma::TestAllocator tmpDfltAlloc;
 
@@ -279,7 +279,7 @@ int main(int argc, char *argv[])
 
             if (0 == LEVEL && 4 == SPL) {
                 if (veryVerbose)
-                    cout << "\tRepeat for 'print' default arguments." << endl;
+                    cout << "\tRepeat for `print` default arguments." << endl;
 
                 oss.str("");
                 ostream *po = &Obj::print(oss, VALUE);
@@ -314,7 +314,7 @@ int main(int argc, char *argv[])
             ASSERTV(LINE, ti, "" == oss.str());
         }
 
-        if (verbose) cout << "\nVerify 'print' signature." << endl;
+        if (verbose) cout << "\nVerify `print` signature." << endl;
 
         {
             typedef bsl::ostream& (*FuncPtr)(bsl::ostream&, Enum, int, int);
@@ -326,21 +326,21 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // -------------------------------------------------------------------
-        // TESTING 'toAscii'
+        // TESTING `toAscii`
         //
         // Concerns:
-        //: 1 The 'toString' method returns the expected string representation
-        //:   for each enumerator.
+        // 1. The `toString` method returns the expected string representation
+        //    for each enumerator.
         //
         // Plan:
-        //: 1 Test 'toString' with different enumerator values and checking
-        //:   against the expected string representation.
+        // 1. Test `toString` with different enumerator values and checking
+        //    against the expected string representation.
         //
         // Testing:
         //   static const char *toAscii(WriteStyle::Enum val);
         // -------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING 'toAscii'"
+        if (verbose) cout << endl << "TESTING `toAscii`"
                           << endl << "================="
                           << endl;
 
@@ -381,12 +381,12 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create a 'WriteStyle::Enum' object and assign it the valid
-        //:   enumerator values.
+        // 1. Create a `WriteStyle::Enum` object and assign it the valid
+        //    enumerator values.
         //
         // Testing:
         //   enum Enum { ... };

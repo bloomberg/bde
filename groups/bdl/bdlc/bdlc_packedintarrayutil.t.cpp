@@ -22,10 +22,10 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'bdlc::PackedIntArrayUtil' provides a suite of common non-primitive
-// operations on 'bdlc::PackedIntArray' objects.  This test driver tests each
-// implemented utility function, using either an oracle (i.e., 'bsl::vector'
-// and 'bsl::lower_bound') or a set of tabulated test vectors.
+// `bdlc::PackedIntArrayUtil` provides a suite of common non-primitive
+// operations on `bdlc::PackedIntArray` objects.  This test driver tests each
+// implemented utility function, using either an oracle (i.e., `bsl::vector`
+// and `bsl::lower_bound`) or a set of tabulated test vectors.
 //-----------------------------------------------------------------------------
 // [ 1] bool isSorted(PIACI first, PIACI last);
 // [ 2] PIACI lowerBound(PIACI first, PIACI last, const T& value);
@@ -114,13 +114,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -134,12 +134,12 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: 'lowerBound'
+///Example 1: `lowerBound`
 /// - - - - - - - - - - -
-// Suppose that given a sorted 'bdlc::PackedIntArray', we want to find the
+// Suppose that given a sorted `bdlc::PackedIntArray`, we want to find the
 // first value greater than or equal to the value 17.  First, create and
-// populate with sorted data the 'bdlc::PackedIntArray' to be searched:
-//..
+// populate with sorted data the `bdlc::PackedIntArray` to be searched:
+// ```
     bdlc::PackedIntArray<int> array;
 
     array.push_back( 5);
@@ -149,36 +149,36 @@ int main(int argc, char *argv[])
     array.push_back(23);
     array.push_back(36);
     ASSERT(6 == array.length());
-//..
+// ```
 // Then, verify the array's data has sorted values:
-//..
+// ```
     ASSERT(bdlc::PackedIntArrayUtil::isSorted(array.begin(), array.end()));
-//..
-// Finally, use 'bdlc::PackedIntArrayUtil::lowerBound' to find the desired
+// ```
+// Finally, use `bdlc::PackedIntArrayUtil::lowerBound` to find the desired
 // value:
-//..
+// ```
     bdlc::PackedIntArrayConstIterator<int> iterator =
                             bdlc::PackedIntArrayUtil::lowerBound(array.begin(),
                                                                  array.end(),
                                                                  17);
     ASSERT(iterator != array.end() && 19 == *iterator);
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'lowerBound' AND 'upperBound'
+        // TESTING `lowerBound` AND `upperBound`
         //   The methods operate as expected.
         //
         // Concerns:
-        //: 1 The methods return the expected iterator value.
-        //:
-        //: 2 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods return the expected iterator value.
+        //
+        // 2. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use a 'bsl::vector', 'bsl::lower_bound', and 'bsl::upper_bound'
-        //:   as an oracle to verify the methods' operation.  (C-1)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
+        // 1. Use a `bsl::vector`, `bsl::lower_bound`, and `bsl::upper_bound`
+        //    as an oracle to verify the methods' operation.  (C-1)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //   PIACI lowerBound(PIACI first, PIACI last, const T& value);
@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'lowerBound' AND 'upperBound'" << endl
+                          << "TESTING `lowerBound` AND `upperBound`" << endl
                           << "=====================================" << endl;
 
         if (verbose) cout << "\nVerifying results against oracle." << endl;
@@ -256,7 +256,7 @@ int main(int argc, char *argv[])
             ASSERT_PASS(Util::lowerBound(ARRAY.begin(), ARRAY.end(), 3));
             ASSERT_PASS(Util::upperBound(ARRAY.begin(), ARRAY.end(), 3));
 
-            // 'first > last'
+            // `first > last`
 
             ASSERT_FAIL(Util::lowerBound(ARRAY.end(), ARRAY.begin(), 3));
             ASSERT_FAIL(Util::upperBound(ARRAY.end(), ARRAY.begin(), 3));
@@ -271,35 +271,35 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'isSorted'
+        // TESTING `isSorted`
         //   The method operates as expected.
         //
         // Concerns:
-        //: 1 The method returns the expected value.
-        //:
-        //: 2 If the range is empty, the method always returns 'true'.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The method returns the expected value.
+        //
+        // 2. If the range is empty, the method always returns `true`.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use the table-driven technique to test the method.  (C-1)
-        //:
-        //: 2 Directly test empty ranges.  (C-2)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Use the table-driven technique to test the method.  (C-1)
+        //
+        // 2. Directly test empty ranges.  (C-2)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   bool isSorted(PIACI first, PIACI last);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'isSorted'" << endl
+                          << "TESTING `isSorted`" << endl
                           << "==================" << endl;
 
         static const struct {
             int         d_line;       // source line number
             const int   d_array[6];   // data to test
-            bsl::size_t d_len;        // length of 'd_array'
+            bsl::size_t d_len;        // length of `d_array`
             bool        d_exp;        // expected value
         } DATA[] = {
             // LINE                ARRAY                   LEN  EXP
@@ -362,7 +362,7 @@ int main(int argc, char *argv[])
 
             ASSERT_PASS(Util::isSorted(ARRAY.begin(), ARRAY.end()));
 
-            // 'first > last'
+            // `first > last`
 
             ASSERT_FAIL(Util::isSorted(ARRAY.end(), ARRAY.begin()));
         }

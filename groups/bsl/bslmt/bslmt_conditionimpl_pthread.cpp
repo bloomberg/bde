@@ -18,10 +18,10 @@ namespace {
 #if !defined(BSLS_PLATFORM_OS_DARWIN)
 // Set the condition clock type, except on Darwin which doesn't support it.
 
+/// This class is a thin wrapper over `pthread_condattr_t` structure which
+/// gets configured with the proper clock type for the purpose of
+/// initializing the `pthread_cond_t` object.
 class CondAttr {
-    // This class is a thin wrapper over 'pthread_condattr_t' structure which
-    // gets configured with the proper clock type for the purpose of
-    // initializing the 'pthread_cond_t' object.
 
     // DATA
     pthread_condattr_t d_attr;
@@ -32,9 +32,9 @@ class CondAttr {
     CondAttr& operator=(const CondAttr&);
 
 public:
+    /// Create the `pthread_condattr_t` structure and initialize it with the
+    /// specified `clockType`.
     CondAttr(bsls::SystemClockType::Enum clockType)
-        // Create the 'pthread_condattr_t' structure and initialize it with the
-        // specified 'clockType'.
     {
         int rc = pthread_condattr_init(&d_attr);
         (void) rc; BSLS_ASSERT(0 == rc);  // can only fail on 'ENOMEM'
@@ -57,8 +57,8 @@ public:
                                           // input
     }
 
+    /// Destroy the `pthread_condattr_t` structure.
     ~CondAttr()
-        // Destroy the 'pthread_condattr_t' structure.
     {
         int rc = pthread_condattr_destroy(&d_attr);
         (void) rc; BSLS_ASSERT(0 == rc);  // can only fail on invalid 'd_attr'
@@ -72,11 +72,11 @@ public:
 
 #endif
 
+/// Initialize the specified `condition` variable with the specified
+/// `clockType`.
 static
 void initializeCondition(pthread_cond_t              *condition,
                          bsls::SystemClockType::Enum  clockType)
-    // Initialize the specified 'condition' variable with the specified
-    // 'clockType'.
 {
 #ifdef BSLS_PLATFORM_OS_DARWIN
     (void) clockType;

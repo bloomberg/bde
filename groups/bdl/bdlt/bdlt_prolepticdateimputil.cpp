@@ -145,20 +145,27 @@ static const unsigned char dayOfYear2Month[2][k_DAYS_IN_LEAP_YEAR] = {
 
 // FORWARD DECLARATIONS OF STATIC HELPER FUNCTIONS
 
+/// Return the address of a static array that, for the specified `year`, can
+/// be used to determine the number of days up to and including the month
+/// indicated by an integer index in the range `[0 .. k_MAX_MONTH]`, where
+/// an index of 0 always results in the value 0.  The behavior is undefined
+/// unless `k_MIN_YEAR <= year <= k_MAX_YEAR`.
 static inline
 const int *getArrayDaysThroughMonth(int);
 
+/// Return the number of leap years from year 1 to the specified `year`.
+/// The behavior is undefined unless `0 <= year <= k_MAX_YEAR`.
 static inline
 int numLeapYearsSoFar(int);
 
 // STATIC HELPER FUNCTIONS
 
+/// Return the number of calendar days since the start of the specified
+/// `year` and including the days in the specified `month`.  The behavior is
+/// undefined unless `k_MIN_YEAR <= year <= k_MAX_YEAR` and
+/// `0 <= month <= k_MAX_MONTH`.
 static inline
 int calendarDaysThroughMonth(int year, int month)
-    // Return the number of calendar days since the start of the specified
-    // 'year' and including the days in the specified 'month'.  The behavior is
-    // undefined unless 'k_MIN_YEAR <= year <= k_MAX_YEAR' and
-    // '0 <= month <= k_MAX_MONTH'.
 {
     BSLS_REVIEW(k_MIN_YEAR <= year);
     BSLS_REVIEW(              year  <= k_MAX_YEAR);
@@ -170,11 +177,6 @@ int calendarDaysThroughMonth(int year, int month)
 
 static inline
 const int *getArrayDaysThroughMonth(int year)
-    // Return the address of a static array that, for the specified 'year', can
-    // be used to determine the number of days up to and including the month
-    // indicated by an integer index in the range '[0 .. k_MAX_MONTH]', where
-    // an index of 0 always results in the value 0.  The behavior is undefined
-    // unless 'k_MIN_YEAR <= year <= k_MAX_YEAR'.
 {
     BSLS_REVIEW(k_MIN_YEAR <= year);
     BSLS_REVIEW(              year <= k_MAX_YEAR);
@@ -184,11 +186,11 @@ const int *getArrayDaysThroughMonth(int year)
            : normDaysThroughMonth;
 }
 
+/// Return the total number of days in all years, beginning with the year 1,
+/// up to but not including the specified `year`.  The behavior is undefined
+/// unless `k_MIN_YEAR <= year <= k_MAX_YEAR`.
 static inline
 int numDaysInPreviousYears(int year)
-    // Return the total number of days in all years, beginning with the year 1,
-    // up to but not including the specified 'year'.  The behavior is undefined
-    // unless 'k_MIN_YEAR <= year <= k_MAX_YEAR'.
 {
     BSLS_REVIEW(k_MIN_YEAR <= year);
     BSLS_REVIEW(              year <= k_MAX_YEAR);
@@ -200,8 +202,6 @@ int numDaysInPreviousYears(int year)
 
 static inline
 int numLeapYearsSoFar(int year)
-    // Return the number of leap years from year 1 to the specified 'year'.
-    // The behavior is undefined unless '0 <= year <= k_MAX_YEAR'.
 {
     BSLS_REVIEW(0 <= year);
     BSLS_REVIEW(     year <= k_MAX_YEAR);

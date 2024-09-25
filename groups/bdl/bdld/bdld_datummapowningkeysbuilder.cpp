@@ -22,12 +22,12 @@ namespace bdld {
 
 namespace {
 
+/// Calculate the new capacity needed to accommodate data/keys having the
+/// specified `size` for the datum-key-owning map having the specified
+/// `capacity` as its capacity/`keys-capacity`.
 static DatumMapOwningKeysBuilder::SizeType getNewCapacity(
                                   DatumMapOwningKeysBuilder::SizeType capacity,
                                   DatumMapOwningKeysBuilder::SizeType size)
-    // Calculate the new capacity needed to accommodate data/keys having the
-    // specified 'size' for the datum-key-owning map having the specified
-    // 'capacity' as its capacity/'keys-capacity'.
 {
     // Maximum allowed size (theoretical limit)
     static const DatumMapOwningKeysBuilder::SizeType MAX_BYTES =
@@ -47,14 +47,14 @@ static DatumMapOwningKeysBuilder::SizeType getNewCapacity(
     return capacity;
 }
 
+/// Load the specified `mapping` with a reference to newly created
+/// datum-key-owning map having the specified `capacity` and `keysCapacity`
+/// using the specified `basicAllocator`.
 static void createMapStorage(
                            DatumMutableMapOwningKeysRef        *mapping,
                            DatumMapOwningKeysBuilder::SizeType  capacity,
                            DatumMapOwningKeysBuilder::SizeType  keysCapacity,
                            bslma::Allocator                    *basicAllocator)
-    // Load the specified 'mapping' with a reference to newly created
-    // datum-key-owning map having the specified 'capacity' and 'keysCapacity'
-    // using the specified 'basicAllocator'.
 {
     Datum::createUninitializedMap(mapping,
                                   capacity,
@@ -78,9 +78,9 @@ static bool compareGreater(const DatumMapEntry& lhs, const DatumMapEntry& rhs)
 }
 #endif
 
+/// Return `true` if key in the specified `lhs` is less than key in the
+/// specified `rhs` and `false` otherwise.
 static bool compareLess(const DatumMapEntry& lhs, const DatumMapEntry& rhs)
-    // Return 'true' if key in the specified 'lhs' is less than key in the
-    // specified 'rhs' and 'false' otherwise.
 {
     return lhs.key() < rhs.key();
 }

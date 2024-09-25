@@ -34,9 +34,9 @@ using bsl::endl;
 // provide type specific instance counts.
 //
 // Global Concerns:
-//: o The test driver is robust w.r.t. reuse in other, similar components.
-//: o At no time is memory allocated from the global allocator except examples.
-//: o At no time is memory allocated from the default alloc. except examples.
+//  - The test driver is robust w.r.t. reuse in other, similar components.
+//  - At no time is memory allocated from the global allocator except examples.
+//  - At no time is memory allocated from the default alloc. except examples.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 1] InstanceCount::Value nextInstanceNumber<OBJECT_TYPE>();
@@ -100,10 +100,10 @@ struct WorkerData {
 //                         GLOBAL METHODS FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Populate the specified `arg`, which is a pointer to a `WorkerData`
+/// instance, with the results of invoking
+/// `bslm::InstanceCount::nextInstanceNumber<short>`.
 extern "C" void *worker(void *arg)
-    // Populate the specified 'arg', which is a pointer to a 'WorkerData'
-    // instance, with the results of invoking
-    // 'bslm::InstanceCount::nextInstanceNumber<short>'.
 {
     WorkerData& wd = *static_cast<WorkerData *>(arg);
 
@@ -133,7 +133,7 @@ int main(int argc, char* argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -155,14 +155,14 @@ int main(int argc, char* argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -176,60 +176,60 @@ int main(int argc, char* argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using 'bdlm::InstanceCount'
+///Example 1: Using `bdlm::InstanceCount`
 ///- - - - - - - - - - - - - - - - - - -
-// This example demonstrates the usage of 'bdlm::InstanceCount' to obtain type
+// This example demonstrates the usage of `bdlm::InstanceCount` to obtain type
 // specific instance counts.
 //
 // First, we obtain and verify the instance counts for a few types:
-//..
+// ```
     ASSERT(1 == bdlm::InstanceCount::nextInstanceNumber<char>());
     ASSERT(1 == bdlm::InstanceCount::nextInstanceNumber<int>());
     ASSERT(1 == bdlm::InstanceCount::nextInstanceNumber<double>());
-//..
+// ```
 // Then, we obtain and verify the instance counts for the previous types and
 // some new types:
-//..
+// ```
     ASSERT(2 == bdlm::InstanceCount::nextInstanceNumber<char>());
     ASSERT(2 == bdlm::InstanceCount::nextInstanceNumber<int>());
     ASSERT(1 == bdlm::InstanceCount::nextInstanceNumber<unsigned>());
     ASSERT(1 == bdlm::InstanceCount::nextInstanceNumber<float>());
     ASSERT(2 == bdlm::InstanceCount::nextInstanceNumber<double>());
-//..
+// ```
 // Finally, we obtain and verify the next instance counts for these types:
-//..
+// ```
     ASSERT(3 == bdlm::InstanceCount::nextInstanceNumber<char>());
     ASSERT(3 == bdlm::InstanceCount::nextInstanceNumber<int>());
     ASSERT(2 == bdlm::InstanceCount::nextInstanceNumber<unsigned>());
     ASSERT(2 == bdlm::InstanceCount::nextInstanceNumber<float>());
     ASSERT(3 == bdlm::InstanceCount::nextInstanceNumber<double>());
-//..
+// ```
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'nextInstanceNumber<TYPE>()'
+        // TESTING `nextInstanceNumber<TYPE>()`
         //   Ensure the class method functions as expected.
         //
         // Concerns:
-        //: 1 The method 'nextInstanceNumber' produces the expected value.
-        //:
-        //: 2 The method 'nextInstanceNumber' is thread-safe.
+        // 1. The method `nextInstanceNumber` produces the expected value.
+        //
+        // 2. The method `nextInstanceNumber` is thread-safe.
         //
         // Plan:
-        //: 1 Invoke 'nextInstanceNumber' with a variety of types and directly
-        //:   verify the returned value.  (C-1)
-        //:
-        //: 2 Stress test 'nextInstanceNumber' by creating a number of threads,
-        //:   have each thread invoke 'nextInstanceNumber' a number of times
-        //:   and store the returned values, and finally ensure the returned
-        //:   values have no duplicates.  (C-2)
+        // 1. Invoke `nextInstanceNumber` with a variety of types and directly
+        //    verify the returned value.  (C-1)
+        //
+        // 2. Stress test `nextInstanceNumber` by creating a number of threads,
+        //    have each thread invoke `nextInstanceNumber` a number of times
+        //    and store the returned values, and finally ensure the returned
+        //    values have no duplicates.  (C-2)
         //
         // Testing:
         //   InstanceCount::Value nextInstanceNumber<OBJECT_TYPE>();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'nextInstanceNumber'" << endl
+                          << "TESTING `nextInstanceNumber`" << endl
                           << "============================" << endl;
 
         expectDefaultAllocation = true;

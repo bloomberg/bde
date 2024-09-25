@@ -6,7 +6,7 @@
 
 #include <bsls_asserttest.h>
 
-#include <bsl_cstring.h>  // 'bsl::strncmp'
+#include <bsl_cstring.h>  // `bsl::strncmp`
 #include <bsl_list.h>
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
@@ -22,7 +22,7 @@ using namespace bsl;
 // The component under test implements an encoder for converting characters
 // into their hexadecimal representation.
 //
-// Testing of 'bdlde::HexEncoder' consists of verifying that characters are
+// Testing of `bdlde::HexEncoder` consists of verifying that characters are
 // converted correctly and the object itself takes the expected state as a
 // result of method calls.
 //
@@ -134,16 +134,16 @@ const char *BLOOMBERG_NEWS =
 "expenses.  \n"
 "     Comb through some of the 117,687 items that turn up when you \n"
 "do a ``pay for college'' search on the Web site of Amazon.com.  \n"
-"Read articles like ``Understanding the Aid Form,'' a discussion \n"
+"Read articles like ``Understanding the Aid Form,`` a discussion \n"
 "of something called the FAFSA that ran as part of a 28-page \n"
 "special ``Paying for College'' section in the Sept.  6 U.S.  News & \n"
 "World Report.  \n"
 "     ``A college education is a worthwhile, but expensive, \n"
-"investment,'' says the Vanguard Group in a current bulletin to \n"
+"investment,`` says the Vanguard Group in a current bulletin to \n"
 "investors in its $730 billion stable of mutual funds.  ``The right \n"
 "savings plan can help ease the financial burden, but with the \n"
 "variety of alternatives available you may need a crash course on \n"
-"the pros and cons of each one.'' \n"
+"the pros and cons of each one.`` \n"
 "     Please, life already has all the crash courses it needs.  Is \n"
 "this the best we can do? Even if each piece of the system was \n"
 "designed with the best of intentions, the aggregate has become an \n"
@@ -176,7 +176,7 @@ const char *BLOOMBERG_NEWS =
 "apply and build on after the degree is awarded.  The college- \n"
 "finance system is completely out of synch with that ideal.  \n"
 "     In the few years while the teenagers in a family struggle \n"
-"through the miasma known as the ``admissions process,'' college- \n"
+"through the miasma known as the ``admissions process,`` college- \n"
 "finance information presents itself as vital.  Immediately after \n"
 "the last child matriculates, it becomes junk to be jettisoned as \n"
 "fast as the brain cells will allow.  \n"
@@ -187,14 +187,14 @@ const char *BLOOMBERG_NEWS =
 "presented without the slightest moral compunction, is learning \n"
 "the slyest ways to game the system.  \n"
 "     Parents saving for a child's tuition are confronted with \n"
-"issues such as ``can that stash hurt your aid?'' to quote one \n"
+"issues such as ``can that stash hurt your aid?`` to quote one \n"
 "headline in the U.S.  News college-planning report.  Here, son, you \n"
 "go study Plato and Aristotle, and we'll scrounge up the money to \n"
 "pay for it by hiding assets in Aunt Adelaide's name.  \n"
 " \n"
 "                        Lessons to Learn \n"
 " \n"
-"     ``Mankind, left free, instinctively complicates life,'' said \n"
+"     ``Mankind, left free, instinctively complicates life,`` said \n"
 "the writer Katharine Fullerton Gerould.  \n"
 "     Beyond the portrait it paints of human folly, though, maybe \n"
 "there is something to be learned from the sorry state of college \n"
@@ -228,34 +228,35 @@ const char *BLOOMBERG_NEWS =
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Usage of 'bdlde::HexEncoder'
+///Example 1: Basic Usage of `bdlde::HexEncoder`
 ///- - - - - - - - - - - - - - - - - - - - - - -
-// The following example shows using a 'bdlde::HexEncoder' object to encode
+// The following example shows using a `bdlde::HexEncoder` object to encode
 // bytes into a hexidecimal format. For dependency reasons, a more complete
 // example, showing both encoding and decoding can be found in
-// 'bdlde_hexdecoder'.
+// `bdlde_hexdecoder`.
 //
-// In the example below, we implement a function 'streamEncoder', that reads
-// text from 'bsl::istream', encodes that text into hex representation, and
-// writes the encoded text to a 'bsl::ostream'.  'streamEncoder' returns 0 on
+// In the example below, we implement a function `streamEncoder`, that reads
+// text from `bsl::istream`, encodes that text into hex representation, and
+// writes the encoded text to a `bsl::ostream`.  `streamEncoder` returns 0 on
 // success and a negative value if the input data could not be successfully
 // encoded or if there is an I/O  error.
-//..
+// ```
+
+    /// Read the entire contents of the specified input stream `is`, convert
+    /// the input plain text to hex representation, and write the encoded
+    /// text to the specified output stream `os`.  Return 0 on success, and
+    /// a negative value otherwise.
     int streamEncoder(bsl::ostream& os, bsl::istream& is)
-        // Read the entire contents of the specified input stream 'is', convert
-        // the input plain text to hex representation, and write the encoded
-        // text to the specified output stream 'os'.  Return 0 on success, and
-        // a negative value otherwise.
     {
         enum {
             SUCCESS      =  0,
             ENCODE_ERROR = -1,
             IO_ERROR     = -2
         };
-//..
+// ```
 // First we create an object, create buffers for storing data, and start loop
 // that runs while the input stream contains some data:
-//..
+// ```
         bdlde::HexEncoder converter;
 
         const int INBUFFER_SIZE  = 1 << 10;
@@ -268,9 +269,9 @@ const char *BLOOMBERG_NEWS =
         char *outputEnd = outputBuffer + sizeof outputBuffer;
 
         while (is.good()) {  // input stream not exhausted
-//..
+// ```
 // On each iteration we read some data from the input stream:
-//..
+// ```
             is.read(inputBuffer, sizeof inputBuffer);
 
             const char *input    = inputBuffer;
@@ -280,9 +281,9 @@ const char *BLOOMBERG_NEWS =
 
                 int numOut;
                 int numIn;
-//..
-// Convert obtained text using 'bdlde::HexEncoder':
-//..
+// ```
+// Convert obtained text using `bdlde::HexEncoder`:
+// ```
                 int status = converter.convert(
                                          output,
                                          &numOut,
@@ -296,9 +297,9 @@ const char *BLOOMBERG_NEWS =
 
                 output += numOut;
                 input  += numIn;
-//..
+// ```
 // And write encoded text to the output stream:
-//..
+// ```
                 if (output == outputEnd) {  // output buffer full; write data
                     os.write(outputBuffer, sizeof outputBuffer);
                     if (os.fail()) {
@@ -311,10 +312,10 @@ const char *BLOOMBERG_NEWS =
 
         while (1) {
             int numOut = 0;
-//..
+// ```
 // Then, we need to store the unhandled symbol (if there is one) to the output
 // buffer and complete the work of our encoder:
-//..
+// ```
             int more = converter.endConvert(
                                         output,
                                         &numOut,
@@ -344,7 +345,7 @@ const char *BLOOMBERG_NEWS =
 
         return is.eof() && os.good() ? SUCCESS : IO_ERROR;
     }
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -364,22 +365,22 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //   Extracted from component header file.
         //
-        //   Note that 'streamDecoder' implementation has been removed from
+        //   Note that `streamDecoder` implementation has been removed from
         //   this test driver to avoid cycle dependency between encoder and
-        //   decoder components.  So the use of the 'streamDecoder' has been
+        //   decoder components.  So the use of the `streamDecoder` has been
         //   commented in this usage example.  The full test that checks the
-        //   'encoder - decoder' round trip is still run in the
-        //   'bdlde_hexdecoder' test driver.  The 'streamDecoder'
+        //   `encoder - decoder` round trip is still run in the
+        //   `bdlde_hexdecoder` test driver.  The `streamDecoder`
         //   implementation can be seen there.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -391,40 +392,40 @@ int main(int argc, char *argv[])
 
 // Next, to demonstrate how our function works we need to create a stream with
 // data to encode.  Assume that we have some character buffer,
-// 'BLOOMBERG_NEWS', and a function, 'streamDecoder' mirroring the work of the
-// 'streamEncoder'.  Below we should encode this string into a hexidecimal
+// `BLOOMBERG_NEWS`, and a function, `streamDecoder` mirroring the work of the
+// `streamEncoder`.  Below we should encode this string into a hexidecimal
 // format:
-//..
+// ```
     bsl::istringstream inStream(bsl::string(BLOOMBERG_NEWS,
                                             strlen(BLOOMBERG_NEWS)));
     bsl::stringstream  outStream;
     bsl::stringstream  backInStream;
-//..
+// ```
 // Then, we use our function to encode text:
-//..
+// ```
     ASSERT(0 == streamEncoder(outStream, inStream));
-//..
+// ```
 // This example does *not* decode the resulting hexidecimal text, for a
-// more complete example, see 'bdlde_hexdecoder'.
+// more complete example, see `bdlde_hexdecoder`.
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'reset'
+        // TESTING `reset`
         //
         // Concerns:
-        //: 1 The 'reset' method can be successfully called in any object's
-        //:   state and returns the object to its initial state.
+        // 1. The `reset` method can be successfully called in any object's
+        //    state and returns the object to its initial state.
         //
         // Plan:
-        //: 1 Create an object and set it to different states.  In each state
-        //:   call the 'reset' method and verify object's status.  (C-1)
+        // 1. Create an object and set it to different states.  In each state
+        //    call the `reset` method and verify object's status.  (C-1)
         //
         // Testing:
         //   void reset();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'reset'" << endl
+                          << "TESTING `reset`" << endl
                           << "===============" << endl;
 
         char SOURCE = 'D';
@@ -491,27 +492,27 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'isAcceptable'
+        // TESTING `isAcceptable`
         //
         // Concerns:
-        //: 1 The 'isAcceptable' method  takes into account not only the state
-        //:   of the object but also the presence of a pending character in the
-        //:   internal buffer.
-        //:
-        //: 2 The accessor is 'const'.
+        // 1. The `isAcceptable` method  takes into account not only the state
+        //    of the object but also the presence of a pending character in the
+        //    internal buffer.
+        //
+        // 2. The accessor is `const`.
         //
         // Plan:
-        //: 1 Create an object and set it to different states.  In each state
-        //:   invoke the function under test from a reference providing
-        //:   non-modifiable access to the object and verify the returned
-        //:   value.  (C-1,2)
+        // 1. Create an object and set it to different states.  In each state
+        //    invoke the function under test from a reference providing
+        //    non-modifiable access to the object and verify the returned
+        //    value.  (C-1,2)
         //
         // Testing:
         //   bool isAcceptable() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'isAcceptable'" << endl
+                          << "TESTING `isAcceptable`" << endl
                           << "======================" << endl;
 
         char SOURCE = 'D';
@@ -566,16 +567,16 @@ int main(int argc, char *argv[])
         //   here, bringing the object into the required state and checking it.
         //
         // Concerns:
-        //: 1 'isInitialState' takes into account not only the state of the
-        //:   object but also the output length.
-        //:
-        //: 2 All accessors are 'const'.
+        // 1. `isInitialState` takes into account not only the state of the
+        //    object but also the output length.
+        //
+        // 2. All accessors are `const`.
         //
         // Plan:
-        //: 1 Create an object and set it to different states.  In each state
-        //:   invoke the functions under test from a reference providing
-        //:   non-modifiable access to the object and verify the returned
-        //:   value.  (C-1,2)
+        // 1. Create an object and set it to different states.  In each state
+        //    invoke the functions under test from a reference providing
+        //    non-modifiable access to the object and verify the returned
+        //    value.  (C-1,2)
         //
         // Testing:
         //   bool isUpperCase() const;
@@ -657,96 +658,96 @@ int main(int argc, char *argv[])
         // PRIMARY MANIPULATORS
         //   To bring an object into any possible state we have to use three
         //   methods: constructor to create an object and put it to the initial
-        //   state, 'convert' to modify the output length and put the object to
-        //   the 'error' state and 'endConvert' to put object to the 'done'
-        //   state.  In order to completely test the 'convert' function we need
-        //   to call it from the 'error' and 'done' states, which in turn
-        //   requires a fully tested 'endConvert' function.  To resolve this
-        //   conflict we test single calls of the 'convert' method first, then
-        //   we test the 'endConvert' method and finally we test sequential
-        //   calls of the 'convert' function.
+        //   state, `convert` to modify the output length and put the object to
+        //   the `error` state and `endConvert` to put object to the `done`
+        //   state.  In order to completely test the `convert` function we need
+        //   to call it from the `error` and `done` states, which in turn
+        //   requires a fully tested `endConvert` function.  To resolve this
+        //   conflict we test single calls of the `convert` method first, then
+        //   we test the `endConvert` method and finally we test sequential
+        //   calls of the `convert` function.
         //
         // Concerns:
-        //: 1 Either uppercase or lowercase characters are used depending on
-        //:   the parameter passed on the object's construction.
-        //:
-        //: 2 All characters are correctly converted to their hexadecimal
-        //:   representations.
-        //:
-        //: 3 Any pending character is taken into account when checking if the
-        //:   'maxNumOut' threshold is exceeded.
-        //:
-        //: 4 Any pending character is stored in the output buffer before
-        //:   processing any new input symbol.
-        //:
-        //: 5 The output length value considers the results of all successive
-        //:   'convert' calls, not just the last one.
-        //:
-        //: 6 The 'convert' method returns different values for different
-        //:   errors.
-        //:
-        //: 7 The 'endConvert' method writes any pending character to the
-        //:   output buffer and increases output length counter.
-        //:
-        //: 8 The 'endConvert' method returns the number of pending characters.
-        //:
-        //: 9 The manipulators correctly handle "real-life" iterators.
-        //:
-        //:10 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Either uppercase or lowercase characters are used depending on
+        //    the parameter passed on the object's construction.
+        //
+        // 2. All characters are correctly converted to their hexadecimal
+        //    representations.
+        //
+        // 3. Any pending character is taken into account when checking if the
+        //    `maxNumOut` threshold is exceeded.
+        //
+        // 4. Any pending character is stored in the output buffer before
+        //    processing any new input symbol.
+        //
+        // 5. The output length value considers the results of all successive
+        //    `convert` calls, not just the last one.
+        //
+        // 6. The `convert` method returns different values for different
+        //    errors.
+        //
+        // 7. The `endConvert` method writes any pending character to the
+        //    output buffer and increases output length counter.
+        //
+        // 8. The `endConvert` method returns the number of pending characters.
+        //
+        // 9. The manipulators correctly handle "real-life" iterators.
+        //
+        // 10. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create an object and verify that it is in the expected state.
-        //:
-        //: 2 Using a predefined sequence of different characters run the loop
-        //:   by changing the start point and the length of incoming data,
-        //:   the maximum output length and the letter case.
-        //:
-        //:   1 On each iteration create an object and call the 'convert'
-        //:     method.
-        //:
-        //:   2 Compare output with predefined expected sequence and verify
-        //:     that all characters are converted correctly.  (C-1..2)
-        //:
-        //:   3 Verify that the number of processed symbols and the number
-        //:     of symbols written to the output buffer are stored in the
-        //:     corresponding variables.
-        //:
-        //:   4 Verify the state of the object after conversion.
-        //:
-        //: 3 Create an object and set it to different states, using the
-        //:   'convert' method. Call the 'endConvert' method and verify that
-        //:   the expected value is returned and the object is set to the
-        //:   expected state.  (C-7..8)
-        //:
-        //: 4 Create an object and using predefined sequence of the same
-        //:   characters run the loop by changing the length of incoming data
-        //:   and the maximum output length.
-        //:
-        //:   1 On each iteration call the 'convert' method.
-        //:
-        //:   2 Compare the output with predefined expected sequence and verify
-        //:     that all characters are converted correctly, that the output
-        //:     length is increased accordingly.  (C-3..5)
-        //:
-        //:   3 Verify that the number of processed symbols and the number
-        //:     of symbols written to the output buffer are stored in the
-        //:     corresponding variables.
-        //:
-        //:   4 Verify the state of the object after conversion.
-        //:
-        //: 5 Create an object, set it to the 'error' state and to the 'done'
-        //:   state.  Call the 'convert' method and verify the returned
-        //:   value and the state of the object afterwards.  (C-6)
-        //:
-        //: 6 Create an object.  Create a couple of standard containers to use
-        //:   them as the input and output buffers.  Call the manipulators
-        //:   passing iterators to the containers as parameters.  Verify the
-        //:   results.  (C-9)
-        //:
-        //: 7 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-10)
+        // 1. Create an object and verify that it is in the expected state.
+        //
+        // 2. Using a predefined sequence of different characters run the loop
+        //    by changing the start point and the length of incoming data,
+        //    the maximum output length and the letter case.
+        //
+        //   1. On each iteration create an object and call the `convert`
+        //      method.
+        //
+        //   2. Compare output with predefined expected sequence and verify
+        //      that all characters are converted correctly.  (C-1..2)
+        //
+        //   3. Verify that the number of processed symbols and the number
+        //      of symbols written to the output buffer are stored in the
+        //      corresponding variables.
+        //
+        //   4. Verify the state of the object after conversion.
+        //
+        // 3. Create an object and set it to different states, using the
+        //    `convert` method. Call the `endConvert` method and verify that
+        //    the expected value is returned and the object is set to the
+        //    expected state.  (C-7..8)
+        //
+        // 4. Create an object and using predefined sequence of the same
+        //    characters run the loop by changing the length of incoming data
+        //    and the maximum output length.
+        //
+        //   1. On each iteration call the `convert` method.
+        //
+        //   2. Compare the output with predefined expected sequence and verify
+        //      that all characters are converted correctly, that the output
+        //      length is increased accordingly.  (C-3..5)
+        //
+        //   3. Verify that the number of processed symbols and the number
+        //      of symbols written to the output buffer are stored in the
+        //      corresponding variables.
+        //
+        //   4. Verify the state of the object after conversion.
+        //
+        // 5. Create an object, set it to the `error` state and to the `done`
+        //    state.  Call the `convert` method and verify the returned
+        //    value and the state of the object afterwards.  (C-6)
+        //
+        // 6. Create an object.  Create a couple of standard containers to use
+        //    them as the input and output buffers.  Call the manipulators
+        //    passing iterators to the containers as parameters.  Verify the
+        //    results.  (C-9)
+        //
+        // 7. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-10)
         //
         // Testing:
         //   HexEncoder();
@@ -886,7 +887,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\tTesting 'endConvert'" << endl;
+        if (verbose) cout << "\tTesting `endConvert`" << endl;
         {
 
             char source = 'A';
@@ -1014,7 +1015,7 @@ int main(int argc, char *argv[])
                 ASSERTV(X.numOutputPending(), 0   == X.numOutputPending());
             }
 
-            // Testing default value of 'maxNumOut'
+            // Testing default value of `maxNumOut`
             {
                 Obj        mX;
                 const Obj& X = mX;
@@ -1048,7 +1049,7 @@ int main(int argc, char *argv[])
                 ASSERTV(X.numOutputPending(), 0 == X.numOutputPending());
             }
 
-            // Testing correctness of 'maxNumOut' handling
+            // Testing correctness of `maxNumOut` handling
             {
                 for (int i = -2; i < 2; ++i) {
                     const int  MAX_NUM_OUT       = i;
@@ -1252,7 +1253,7 @@ int main(int argc, char *argv[])
                                                BEGIN,
                                                END);
 
-                // truncated 'convert'
+                // truncated `convert`
 
                 int rc = mX.convert(buffer, BEGIN, END);
 
@@ -1272,7 +1273,7 @@ int main(int argc, char *argv[])
 
                 expected = mXModel.endConvert(modelBuffer, &numOut);
 
-                // truncated 'endConvert'
+                // truncated `endConvert`
 
                 rc = mX.endConvert(buffer);
 
@@ -1389,11 +1390,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Execute each methods to verify functionality for simple case.
+        // 1. Execute each methods to verify functionality for simple case.
         //
         // Testing:
         //   BREATHING TEST

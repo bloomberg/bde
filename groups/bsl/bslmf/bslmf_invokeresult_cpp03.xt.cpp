@@ -15,7 +15,7 @@
 // delimited regions of C++11 code, then this test driver is a minimal 'main'
 // program that tests nothing and is not '#include'd in the original.
 //
-// Generated on Sun Jul 14 13:47:46 2024
+// Generated on Tue Oct  1 13:55:03 2024
 // Command line: sim_cpp11_features.pl bslmf_invokeresult.xt.cpp
 
 // Expanded test driver only when compiling bslmf_invokeresult.cpp
@@ -59,10 +59,10 @@ using namespace BloombergLP;
 //                                 Overview
 //                                 --------
 // This component is a transformation metafunction.  Testing consists primarily
-// of instantiating 'bsl::invoke_result<FN, Args...>' with representative
-// combinations of 'Fn' and 'Args' and verifying that the resulting 'type' is
+// of instantiating `bsl::invoke_result<FN, Args...>` with representative
+// combinations of `Fn` and `Args` and verifying that the resulting `type` is
 // what was expected.  The test is broken up as one test case per category of
-// invocable 'Fn' parameter.
+// invocable `Fn` parameter.
 //-----------------------------------------------------------------------------
 // [2] FUNCTION INVOCABLES
 // [3] POINTER-TO-MEMBER-FUNCTION INVOCABLES
@@ -170,7 +170,7 @@ void aSsErT(bool condition, const char *message, int line)
 // other things not relevant to this test driver, changes the algorithm used to
 // determine the value category of pointer-to-member operator expressions,
 // which affects the reference qualification (or lack thereof) of the type
-// of 'bsl::invoke_result' for pointers to data members.  Prior to the
+// of `bsl::invoke_result` for pointers to data members.  Prior to the
 // resolution of CWG616, the value category of a pointer-to-member operator
 // expression was the same as the value category of its left-hand side -- that
 // of the object.  After the resolution of CWG616, such an expression has
@@ -185,16 +185,16 @@ void aSsErT(bool condition, const char *message, int line)
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 // The MSVC 18.0 and 19.0 compilers have a bug whereby an expression like,
-// 'func().*ptrtomem', where 'func()' returns 'volatile SomeClass&&' and
-// 'ptrtomem' is a declared as 'RET SomeClass::*ptrtomem', yields an lvalue
+// `func().*ptrtomem`, where `func()` returns `volatile SomeClass&&` and
+// `ptrtomem` is a declared as `RET SomeClass::*ptrtomem`, yields an lvalue
 // instead of an rvalue reference. Defining this macro will disable certain
 // tests that would fail using the MSVC compiler.
 #   define MSVC_PTR_TO_MEMBER_OF_RVALUE_REF_BUG
 
-// These compilers also have a bug whereby similar expressions where 'func()'
-// returns a const- and/or volatile-qualified class type, and 'ptrtomem' is
-// declared as a 'RET SomeClass::*ptrtomem' yields an expression of
-// reference-to-'RET' type lacking the appropriate qualifiers if 'RET' is an
+// These compilers also have a bug whereby similar expressions where `func()`
+// returns a const- and/or volatile-qualified class type, and `ptrtomem` is
+// declared as a `RET SomeClass::*ptrtomem` yields an expression of
+// reference-to-`RET` type lacking the appropriate qualifiers if `RET` is an
 // array type.
 #   define MSVC_PTR_TO_ARRAY_MEMBER_QUALIFIER_PROPAGATION_BUG
 
@@ -231,20 +231,21 @@ void aSsErT(bool condition, const char *message, int line)
 //@bdetdsplit FOR 3,7 BEGIN
 namespace {
 
+/// This class template provides a stub implementation of
+/// `bsl::reference_wrapper` with just enough real interface to allow code
+/// within this test driver to compile.  The real `reference_wrapper` is
+/// not available, as it is in a higher-level component than this one.
 template <class TP>
 class stub_reference_wrapper {
-    // This class template provides a stub implementation of
-    // 'bsl::reference_wrapper' with just enough real interface to allow code
-    // within this test driver to compile.  The real 'reference_wrapper' is
-    // not available, as it is in a higher-level component than this one.
 
   public:
     // ACCESSORS
-    operator TP&() const BSLS_KEYWORD_NOEXCEPT;
-        // This member operator is declared but not defined.
 
+    /// This member operator is declared but not defined.
+    operator TP&() const BSLS_KEYWORD_NOEXCEPT;
+
+    /// This member function is declared but not defined.
     TP& get() const BSLS_KEYWORD_NOEXCEPT;
-        // This member function is declared but not defined.
 };
 
 }  // close unnamed namespace
@@ -272,6 +273,7 @@ struct IsReferenceWrapper<stub_reference_wrapper<TP> > : bsl::true_type {
 #endif
 
 namespace {
+
 
 
 template <class EXPECTED_INVOKE_RESULT,
@@ -678,6 +680,7 @@ struct IsInvokeResult<EXPECTED_INVOKE_RESULT, INVOCABLE, ARGS_01,
 
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
 
 
 template <class INVOCABLE
@@ -1170,6 +1173,7 @@ struct IsInvokeResultT<INVOCABLE, ARGS_01,
 namespace {
 
 
+
 template <class EXPECTED_INVOKE_RESULT, class INVOCABLE, class... ARGS>
 struct IsInvokeResult
 : bsl::is_same<EXPECTED_INVOKE_RESULT,
@@ -1177,6 +1181,7 @@ struct IsInvokeResult
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
 
 
 template <class INVOCABLE, class... ARGS>
@@ -1521,7 +1526,9 @@ namespace {
 
 class SfinaeFriendlinessTest {
   public:
+
     SfinaeFriendlinessTest() {}
+
 
 #if BSLMF_INVOKERESULT_VARIADIC_LIMIT_C >= 0
     template <bool IS_TYPE_DEFINED, class INVOCABLE>
@@ -1642,7 +1649,9 @@ namespace {
 
 class SfinaeFriendlinessTest {
   public:
+
     SfinaeFriendlinessTest() {}
+
 
     template <bool IS_TYPE_DEFINED, class INVOCABLE, class... ARGS>
     void run(int LINE) const
@@ -1683,11 +1692,12 @@ typedef bsl::integral_constant<int, 14> Ic14;
 //@bdetdsplit FOR 2,3,4 END
 
 //@bdetdsplit FOR 1,4,5 BEGIN
+
+/// An object of type `MetaType<TP>` can represent `TP` at run-time without
+/// actually creating an instance of `TP`.  Note that `TP` can be a
+/// reference and/or cv-qualified.
 template <class TP>
 struct MetaType {
-    // An object of type 'MetaType<TP>' can represent 'TP' at run-time without
-    // actually creating an instance of 'TP'.  Note that 'TP' can be a
-    // reference and/or cv-qualified.
 
     typedef TP type;
 };
@@ -1701,82 +1711,88 @@ enum MyEnum {
 //@bdetdsplit FOR 2..6 END
 
 //@bdetdsplit FOR 1..7 BEGIN
+
+/// Simple class type that can be returned by value and to which member
+/// variables and functions that can be referenced via pointer-to-member.
 struct MyClass {
-    // Simple class type that can be returned by value and to which member
-    // variables and functions that can be referenced via pointer-to-member.
 
     char *d_str_p;
-    int foo();
-        // Declared but not defined.
 
+    /// Declared but not defined.
+    int foo();
+
+    /// Declared but not defined.
     MyClass() : d_str_p(0) {}
     MyClass(MyClass&);
     MyClass(const MyClass&);
     MyClass(volatile MyClass&);
     MyClass(const volatile MyClass&);
-        // Declared but not defined.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    /// Declared but not defined.
     MyClass(MyClass&&);
     MyClass(const MyClass&&);
     MyClass(volatile MyClass&&);
     MyClass(const volatile MyClass&&);
-        // Declared but not defined.
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 };
 //@bdetdsplit FOR 1..7 END
 
 //@bdetdsplit FOR 2..5, 7 BEGIN
+
+/// A class derived from MyClass, for testing pointer-to-base-member.
 struct MyDerivedClass : MyClass {
-    // A class derived from MyClass, for testing pointer-to-base-member.
 };
 //@bdetdsplit FOR 2..5, 7 END
 
 //@bdetdsplit FOR 3,4,7 BEGIN
+
+/// This template has the interface of a smart pointer.  Specifically, the
+/// dereference operator returns a reference to `TP`.
 template <class TP>
 struct SmartPtr {
-    // This template has the interface of a smart pointer.  Specifically, the
-    // dereference operator returns a reference to 'TP'.
 
+    /// Pointer-like operators (declared but not defined).
     TP& operator*() const volatile;
     TP* operator->() const volatile;
-        // Pointer-like operators (declared but not defined).
 };
 //@bdetdsplit FOR 3,4,7 END
 
 //@bdetdsplit FOR 2,3,7 BEGIN
+
+/// Objects of this class are convertible to long long.
 struct ToLongLong
 {
-    // Objects of this class are convertible to long long.
 
+    /// Convertion to `long long` (declared but not defined).
     operator long long() const;
-        // Convertion to 'long long' (declared but not defined).
 };
 //@bdetdsplit FOR 2,3,7 END
 
 //@bdetdsplit FOR 1,4,5 BEGIN
-struct ManyFunc {
-    // Generic functor class with many overloads of 'operator()'.
 
+/// Generic functor class with many overloads of `operator()`.
+struct ManyFunc {
+
+    /// Invocation operators for breathing test (declared but not defined)
     bool operator()(float, void*);
     float operator()(float, void*) const;
-        // Invocation operators for breathing test (declared but not defined)
 
+    /// Invocation overloads based on types and numbers of arguments
+    /// (declared but not defined)
     bool  operator()();
     short operator()(int);
     int   operator()(int, float);
     long  operator()(int, float, short, int, int, int, int, int, int, float);
     unsigned int   operator()(int,   int);
     unsigned short operator()(short, int);
-        // Invocation overloads based on types and numbers of arguments
-        // (declared but not defined)
 
+    /// Invocation overloads based on `const` and `volatile` (declared but
+    /// not defined)
     bool&  operator()(int, int, int);
     short& operator()(int, int, int) const;
     int&   operator()(int, int, int) volatile;
     long&  operator()(int, int, int) const volatile;
-        // Invocation overloads based on 'const' and 'volatile' (declared but
-        // not defined)
 
 #if defined(BSLS_PLATFORM_CMP_SUN) || defined(BSLS_PLATFORM_CMP_IBM)
     // sun and xlC do not correctly strip top-level cv qualifiers from return
@@ -1787,16 +1803,18 @@ struct ManyFunc {
     template <class TP>
     TP operator()(MetaType<TP>, ...);
 #endif
+    /// Return type deduced from first argument (declared but not defined)
     template <class TP>
     typename bsl::add_const<TP>::type operator()(MetaType<TP>, ...) const;
-        // Return type deduced from first argument (declared but not defined)
 
+    /// Return type is `TP`.  `invoke_result` is specialized for this case
+    /// (declared but not defined)
     template <class TP>
     TP operator()(char*, MetaType<TP>);
-        // Return type is 'TP'.  'invoke_result' is specialized for this case
-        // (declared but not defined)
 
     typedef void *P;
+    /// Invocation overloads for 1 to 10 pointer arguments (declared but
+    /// not defined)
     char        operator()(P);
     short       operator()(P,P);
     int         operator()(P,P,P);
@@ -1807,103 +1825,103 @@ struct ManyFunc {
     long double operator()(P,P,P,P,P,P,P,P);
     const char *operator()(P,P,P,P,P,P,P,P,P);
     void       *operator()(P,P,P,P,P,P,P,P,P,P);
-        // Invocation overloads for 1 to 10 pointer arguments (declared but
-        // not defined)
 };
 //@bdetdsplit FOR 1,4,5 END
 
 //@bdetdsplit FOR 5,7 BEGIN
+
+/// Class that is convertible to pointer-to-function or
+/// reference-to-function, depending on the overload used.
 struct ConvertibleToFunc {
-    // Class that is convertible to pointer-to-function or
-    // reference-to-function, depending on the overload used.
 
     typedef bool    (*boolFPtr)();
     typedef short   (*shortFPtr)(int);
     typedef int*    (&intStarFRef)(int, float);
     typedef MyClass (&udtFRef)(int, float, short);
 
+    /// Conversion to pointer to function returning bool.
     operator boolFPtr() const;
-        // Conversion to pointer to function returning bool.
 
+    /// Conversion to pointer to function taking one argument.
     operator shortFPtr() const;
-        // Conversion to pointer to function taking one argument.
 
+    /// Conversion to reference to function returning pointer.
     operator intStarFRef() const;
-        // Conversion to reference to function returning pointer.
 
+    /// Conversion to reference to function returning pointer.
     operator udtFRef() const;
-        // Conversion to reference to function returning pointer.
 };
 
+/// Functor type with two overloads of `operator()`: one that returns
+/// `result_type`, which is an alias for `RT`, and another overload that
+/// always returns `int`, regardless of `result_type`.
 template <class RT>
 struct FuncRt1 {
-    // Functor type with two overloads of 'operator()': one that returns
-    // 'result_type', which is an alias for 'RT', and another overload that
-    // always returns 'int', regardless of 'result_type'.
 
-    typedef RT result_type; // Used by 'invoke_result' to determine return type
+    typedef RT result_type; // Used by `invoke_result` to determine return type
 
+    /// Used to test return type can be deduced via `result_type` (declared
+    /// but not defined)
     result_type operator()(const char*);
-        // Used to test return type can be deduced via 'result_type' (declared
-        // but not defined)
 
+    /// Used to test that deduction of fundamental type `int` supercedes
+    /// `result_type` (declared but not defined)
     int operator()(int);
-        // Used to test that deduction of fundamental type 'int' supercedes
-        // 'result_type' (declared but not defined)
 };
 
+/// Functor type with two overloads of `operator()`, one that returns
+/// `ResultType`, which is an alias for `RT`, and another overload that
+/// always returns `int`, regardless of `ResultType`.
 template <class RT>
 struct FuncRt2 {
-    // Functor type with two overloads of 'operator()', one that returns
-    // 'ResultType', which is an alias for 'RT', and another overload that
-    // always returns 'int', regardless of 'ResultType'.
 
-    typedef RT ResultType; // Used by 'invoke_result' to determine return type
+    typedef RT ResultType; // Used by `invoke_result` to determine return type
 
+    /// Used to test return type can be deduced via `ResultType` (declared
+    /// but not defined)
     ResultType operator()(const char*);
-        // Used to test return type can be deduced via 'ResultType' (declared
-        // but not defined)
 
+    /// Used to test that deduction of fundamental type `int` supercedes
+    /// `ResultType` (declared but not defined)
     int operator()(int);
-        // Used to test that deduction of fundamental type 'int' supercedes
-        // 'ResultType' (declared but not defined)
 };
 
+/// Functor type with two overloads of `operator()`, one that returns
+/// `result_type`, which is an alias for `RT`, and another overload that
+/// always returns `int`, regardless of `result_type`.  This struct also
+/// defines `ResultType`, which should be ignored in preference to
+/// `result_type`.
 template <class RT>
 struct FuncRt3 {
-    // Functor type with two overloads of 'operator()', one that returns
-    // 'result_type', which is an alias for 'RT', and another overload that
-    // always returns 'int', regardless of 'result_type'.  This struct also
-    // defines 'ResultType', which should be ignored in preference to
-    // 'result_type'.
 
-    typedef RT   result_type; // Used by 'invoke_result' to get return type
-    typedef void ResultType;  // Ignored by 'invoke_result'.
+    typedef RT   result_type; // Used by `invoke_result` to get return type
+    typedef void ResultType;  // Ignored by `invoke_result`.
 
+    /// Used to test return type can be deduced via `result_type` (declared
+    /// but not defined)
     result_type operator()(const char*) const;
-        // Used to test return type can be deduced via 'result_type' (declared
-        // but not defined)
 
+    /// Used to test that deduction of fundamental type `int` supercedes
+    /// `result_type` (declared but not defined)
     int operator()(int) const;
-        // Used to test that deduction of fundamental type 'int' supercedes
-        // 'result_type' (declared but not defined)
 };
 //@bdetdsplit FOR 5,7 END
 
 //@bdetdsplit FOR 2..5 BEGIN
+
+/// Used by `applyPtrAndRef` to apply the specified `TEST_KERNEL` template
+/// parameter to each of `RT`, `RT&`, `const RT&`, `volatile RT&`,
+/// `const volatile RT&`, and `RT&&`.  Requires: `TEST_KERNEL` is a class
+/// type with an `apply<TP>()` static member that tests `invoke_result` on
+/// invocables that return `TP`.
 template <class TEST_KERNEL, class RT>
 struct ApplyRef {
-    // Used by 'applyPtrAndRef' to apply the specified 'TEST_KERNEL' template
-    // parameter to each of 'RT', 'RT&', 'const RT&', 'volatile RT&',
-    // 'const volatile RT&', and 'RT&&'.  Requires: 'TEST_KERNEL' is a class
-    // type with an 'apply<TP>()' static member that tests 'invoke_result' on
-    // invocables that return 'TP'.
 
+    /// Call, using the specified `LINE`, `TEST_KERNEL::apply<RT>(LINE)` and
+    /// `TEST_KERNEL::apply<cv RT&>(LINE)`, where `cv` is all four
+    /// combinations of `const` and `volatile`.  On compilers that support
+    /// rvalue references, also call `TEST_KERNEL::apply<RT&&>(LINE)`.
     static void apply(int LINE)
-        // Call, using the specified 'LINE', 'TEST_KERNEL::apply<RT>(LINE)' and
-        // 'TEST_KERNEL::apply<cv RT&>(LINE)', where 'cv' is all four
-        // combinations of 'const' and 'volatile'.  On compilers that support
-        // rvalue references, also call 'TEST_KERNEL::apply<RT&&>(LINE)'.
     {
         TEST_KERNEL::template apply<RT>(LINE);
         TEST_KERNEL::template apply<RT&>(LINE);
@@ -1915,8 +1933,8 @@ struct ApplyRef {
 # ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 #  if !MSVC_2013 // MSVC 2013 does not have a sufficiently functional
                  // implementation of expression sfinae for
-                 // 'bslmf_invokeresult' to make use of 'decltype'.  This means
-                 // that 'bslmf_invokeresult' cannot support
+                 // `bslmf_invokeresult` to make use of `decltype`.  This means
+                 // that `bslmf_invokeresult` cannot support
                  // rvalue-reference-qualified types on MSVC 2013.
         TEST_KERNEL::template apply<RT&&>(LINE);
         TEST_KERNEL::template apply<const RT&&>(LINE);
@@ -1924,34 +1942,34 @@ struct ApplyRef {
         TEST_KERNEL::template apply<const volatile RT&&>(LINE);
 #  endif
 # else
-#  error "Rvalue refs without 'decltype' not supported by 'bsl::invoke_result'"
+#  error "Rvalue refs without `decltype` not supported by `bsl::invoke_result`"
 # endif
 #endif
     }
 };
 
+/// For the specified `TEST_KERNEL` template parameter, apply `TEST_KERNEL`
+/// such that it tests invocations that should return `void`.  This
+/// specialization avoids trying to create a reference-to-void.
 template <class TEST_KERNEL>
 struct ApplyRef<TEST_KERNEL, void> {
-    // For the specified 'TEST_KERNEL' template parameter, apply 'TEST_KERNEL'
-    // such that it tests invocations that should return 'void'.  This
-    // specialization avoids trying to create a reference-to-void.
 
+    /// Call, using the specified `LINE`, `TEST_KERNEL::apply<void>(LINE)`.
     static void apply(int LINE)
-        // Call, using the specified 'LINE', 'TEST_KERNEL::apply<void>(LINE)'.
     {
         TEST_KERNEL::template apply<void>(LINE);
     }
 };
 
+/// Call, using the specified `LINE`, `TEST_KERNEL::apply<X>(LINE)`, where
+/// `X` is each of the following: the specified `RT` template parameter, a
+/// pointer to (cv-qualified) `RT`, a reference to cv-qualified of `RT`, and
+/// a reference to a cv-qualified pointer to cv-qualified `RT` (for every
+/// combination of cv qualifications).  Requires: `TEST_KERNEL` is a class
+/// type with an `apply<TP>()` static member that tests `invoke_result` on
+/// invocables that return `TP`.
 template <class TEST_KERNEL, class RT>
 static void applyPtrAndRef(int LINE)
-    // Call, using the specified 'LINE', 'TEST_KERNEL::apply<X>(LINE)', where
-    // 'X' is each of the following: the specified 'RT' template parameter, a
-    // pointer to (cv-qualified) 'RT', a reference to cv-qualified of 'RT', and
-    // a reference to a cv-qualified pointer to cv-qualified 'RT' (for every
-    // combination of cv qualifications).  Requires: 'TEST_KERNEL' is a class
-    // type with an 'apply<TP>()' static member that tests 'invoke_result' on
-    // invocables that return 'TP'.
 {
     ApplyRef<TEST_KERNEL, RT>::apply(LINE);
     ApplyRef<TEST_KERNEL, RT*>::apply(LINE);
@@ -2026,11 +2044,12 @@ static void applyPtrAndRef(int LINE)
                             // struct FuncTest
                             // ===============
 //@bdetdsplit FOR 2 BEGIN
+
+/// A test kernel, intended as the `TEST_KERNEL` template argument to
+/// `applyPtrAndRef`, which tests `invoke_result<Fn, Args...>`, where `Fn`
+/// is a function type, pointer-to-function type, reference to function
+/// type, or reference to cv-qualified pointer to function type.
 struct FuncTest {
-    // A test kernel, intended as the 'TEST_KERNEL' template argument to
-    // 'applyPtrAndRef', which tests 'invoke_result<Fn, Args...>', where 'Fn'
-    // is a function type, pointer-to-function type, reference to function
-    // type, or reference to cv-qualified pointer to function type.
 
     template <class RT>
     static void apply(int LINE)
@@ -2038,11 +2057,11 @@ struct FuncTest {
         apply<RT, RT>(LINE);
     }
 
+    /// Instantiate `invoke_result` for function type `RT(int)` and pointers
+    /// and references to that function type.  Verify that it yields `RT` as
+    /// the result type.  Uses `ASSERTV` to show the specified `LINE`.
     template <class RT, class EXPECTED_RT>
     static void apply(int LINE)
-        // Instantiate 'invoke_result' for function type 'RT(int)' and pointers
-        // and references to that function type.  Verify that it yields 'RT' as
-        // the result type.  Uses 'ASSERTV' to show the specified 'LINE'.
     {
         typedef RT Fn(int);
 
@@ -2058,7 +2077,7 @@ struct FuncTest {
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
-        // Testing 'bsl::invoke_result_t'.
+        // Testing `bsl::invoke_result_t`.
 
         ASSERTV(LINE, (IsInvokeResultT<Fn,         char>::value));
         ASSERTV(LINE, (IsInvokeResultT<Fn&,        char>::value));
@@ -2096,12 +2115,13 @@ PREINSTANTIATE_APR(FuncTest, MyEnum);
 //@bdetdsplit FOR 2 END
 
 //@bdetdsplit FOR 3 BEGIN
+
+/// A test kernel, intended as the `TEST_KERNEL` template argument to
+/// `applyPtrAndRef`, which tests `invoke_result<Fn, Args...>`, where `Fn`
+/// is a pointer-to-member-function type, or reference to cv-qualified
+/// pointer-to-member-function type.
 template <class T1 = MyClass>
 struct PtrToMemFuncTest {
-    // A test kernel, intended as the 'TEST_KERNEL' template argument to
-    // 'applyPtrAndRef', which tests 'invoke_result<Fn, Args...>', where 'Fn'
-    // is a pointer-to-member-function type, or reference to cv-qualified
-    // pointer-to-member-function type.
 
     template <class RT>
     static void apply(int LINE)
@@ -2109,13 +2129,13 @@ struct PtrToMemFuncTest {
         apply<RT, RT>(LINE);
     }
 
+    /// Instantiate `invoke_result` for function type
+    /// `RT (MyClass::*Fp)(int);` and references to that function type.
+    ///
+    /// Verify that it yields `RT` as the result type.  The specified `LINE`
+    /// is passed into the `ASSERTV` calls.
     template <class RT, class EXP>
     static void apply(int LINE)
-        // Instantiate 'invoke_result' for function type
-        // 'RT (MyClass::*Fp)(int);' and references to that function type.
-        //
-        // Verify that it yields 'RT' as the result type.  The specified 'LINE'
-        // is passed into the 'ASSERTV' calls.
     {
         typedef RT (MyClass::*Fp)(int);
 
@@ -2168,7 +2188,7 @@ struct PtrToMemFuncTest {
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
-        // Testing 'bsl::invoke_result_t'
+        // Testing `bsl::invoke_result_t`
 
         ASSERTV(LINE, (IsInvokeResultT<Fp,                 T1, char>::value));
         ASSERTV(LINE, (IsInvokeResultT<Fp&,                T1, char>::value));
@@ -2231,12 +2251,12 @@ PREINSTANTIATE_APR(PtrToMemFuncTest<MyClass>, float);
 PREINSTANTIATE_APR(PtrToMemFuncTest<MyClass>, MyClass);
 PREINSTANTIATE_APR(PtrToMemFuncTest<MyClass>, MyEnum);
 
+/// The number of template instantiations from a single call to
+/// `applyPtrAndRef<PtrToMemFuncTest<MyClass>, C3Fp>` overwhelmed AIX, so
+/// this function performs the first half of that call (covering
+/// non-volatile functions). The specified `LINE` is passed into the
+/// `apply()` calls for display using `ASSERTV`.
 void applyPtrAndRefMemberFunctionTestForFunctionPointer(int LINE)
-    // The number of template instantiations from a single call to
-    // 'applyPtrAndRef<PtrToMemFuncTest<MyClass>, C3Fp>' overwhelmed AIX, so
-    // this function performs the first half of that call (covering
-    // non-volatile functions). The specified 'LINE' is passed into the
-    // 'apply()' calls for display using 'ASSERTV'.
 {
     typedef Ic01 (*C3Fp)(MyClass, int);
     ApplyRef<PtrToMemFuncTest<MyClass>, C3Fp>::apply(LINE);
@@ -2244,24 +2264,24 @@ void applyPtrAndRefMemberFunctionTestForFunctionPointer(int LINE)
     ApplyRef<PtrToMemFuncTest<MyClass>, const C3Fp *>::apply(LINE);
 }
 
+/// The number of template instantiations from a single call to
+/// `applyPtrAndRef<PtrToMemFuncTest<MyClass>, C3Fp>` overwhelmed AIX, so
+/// this function performs the second half of that call (covering volatile
+/// functions). The specified `LINE` is passed into the `apply()` calls for
+/// display using `ASSERTV`.
 void applyPtrAndRefMemberFunctionTestForFunctionPointerVolatile(int LINE)
-    // The number of template instantiations from a single call to
-    // 'applyPtrAndRef<PtrToMemFuncTest<MyClass>, C3Fp>' overwhelmed AIX, so
-    // this function performs the second half of that call (covering volatile
-    // functions). The specified 'LINE' is passed into the 'apply()' calls for
-    // display using 'ASSERTV'.
 {
     typedef Ic01 (*C3Fp)(MyClass, int);
     ApplyRef<PtrToMemFuncTest<MyClass>, volatile C3Fp *>::apply(LINE);
     ApplyRef<PtrToMemFuncTest<MyClass>, const volatile C3Fp *>::apply(LINE);
 }
 
+/// The number of template instantiations from a single call to
+/// `applyPtrAndRef<PtrToMemFuncTest<MyClass>, C3MFp>` overwhelmed AIX, so
+/// this function performs the first half of that call (covering
+/// non-volatile functions). The specified `LINE` is passed into the
+/// `apply()` calls for display using `ASSERTV`.
 void applyPtrAndRefMemberFunctionTestForMemberFunctionPointer(int LINE)
-    // The number of template instantiations from a single call to
-    // 'applyPtrAndRef<PtrToMemFuncTest<MyClass>, C3MFp>' overwhelmed AIX, so
-    // this function performs the first half of that call (covering
-    // non-volatile functions). The specified 'LINE' is passed into the
-    // 'apply()' calls for display using 'ASSERTV'.
 {
     typedef Ic02 (MyClass::*C3MFp)(int);
     ApplyRef<PtrToMemFuncTest<MyClass>, C3MFp>::apply(LINE);
@@ -2269,12 +2289,12 @@ void applyPtrAndRefMemberFunctionTestForMemberFunctionPointer(int LINE)
     ApplyRef<PtrToMemFuncTest<MyClass>, const C3MFp *>::apply(LINE);
 }
 
+/// The number of template instantiations from a single call to
+/// `applyPtrAndRef<PtrToMemFuncTest<MyClass>, C3MFp>` overwhelmed AIX, so
+/// this function performs the second half of that call (covering volatile
+/// functions). The specified `LINE` is passed into the `apply()` calls for
+/// display using `ASSERTV`.
 void applyPtrAndRefMemberFunctionTestForMemberFunctionPointerVolatile(int LINE)
-    // The number of template instantiations from a single call to
-    // 'applyPtrAndRef<PtrToMemFuncTest<MyClass>, C3MFp>' overwhelmed AIX, so
-    // this function performs the second half of that call (covering volatile
-    // functions). The specified 'LINE' is passed into the 'apply()' calls for
-    // display using 'ASSERTV'.
 {
     typedef Ic02 (MyClass::*C3MFp)(int);
     ApplyRef<PtrToMemFuncTest<MyClass>, volatile C3MFp *>::apply(LINE);
@@ -2286,36 +2306,37 @@ PREINSTANTIATE_APR(PtrToMemFuncTest<MyClass>, Ic02 (MyClass::*)(int));
 //@bdetdsplit FOR 3 END
 
 //@bdetdsplit FOR 4 BEGIN
+
+/// For debugging purposes, instantiating this template with two types that
+/// are not the same will result in a compile-time error that, on most
+/// compilers, will print `T1` and `T2` as well as a trace of the
+/// instantiation stack.
 template <class T1, class T2>
 struct AssertSame;
-    // For debugging purposes, instantiating this template with two types that
-    // are not the same will result in a compile-time error that, on most
-    // compilers, will print 'T1' and 'T2' as well as a trace of the
-    // instantiation stack.
 
+/// Specialization of `AssertSame` when instantiated with two parameters of
+/// the same type yields a successful compilation.
 template <class T1>
 struct AssertSame<T1, T1> : bsl::true_type
 {
-    // Specialization of 'AssertSame' when instantiated with two parameters of
-    // the same type yields a successful compilation.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+/// This template has the interface of a smart pointer except that, the
+/// dereference operator returns an RVALUE reference to `TP` instead of an
+/// LVALUE reference.
 template <class TP>
 struct MovePtr {
-    // This template has the interface of a smart pointer except that, the
-    // dereference operator returns an RVALUE reference to 'TP' instead of an
-    // LVALUE reference.
 
+    /// Dereference operator (declared but not defined).
     TP&& operator*() const volatile;
-        // Dereference operator (declared but not defined).
 };
 #endif
 
+/// This template has the interface of a "proxy" pointer, where the
+/// dereference operator returns an rvalue of type `TP`.
 template <class TP>
 struct ProxyPtr {
-    // This template has the interface of a "proxy" pointer, where the
-    // dereference operator returns an rvalue of type 'TP'.
 
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     typedef typename bsl::remove_const<TP>::type value_type;
@@ -2323,12 +2344,12 @@ struct ProxyPtr {
         // older Sun/Oracle compiler (they get confused with lvalues in our
         // metaprograms).
 #else
+    /// Type being proxied.
     typedef TP value_type;
-        // Type being proxied.
 #endif
 
+    /// Dereference operator (declared but not defined)
     value_type operator*() const volatile;
-        // Dereference operator (declared but not defined)
 };
 
 struct ValueCategory {
@@ -2339,76 +2360,92 @@ struct ValueCategory {
     };
 };
 
+/// Apply the cv-qualifications from the specified template parameter type
+/// `T1` to the specified template parameter `T2`, producing a typedef
+/// `type`.  More specifically: `type` is `cvq T2&`, where `cvq` is the
+/// cv-qualifiers (if any) on `T1`.  Note that any cv-qualifiers already on
+/// `T2` are unioned with `cvq` to produce the result.
 template <class T1, class T2>
 struct PropagateCVQ {
-    // Apply the cv-qualifications from the specified template parameter type
-    // 'T1' to the specified template parameter 'T2', producing a typedef
-    // 'type'.  More specifically: 'type' is 'cvq T2&', where 'cvq' is the
-    // cv-qualifiers (if any) on 'T1'.  Note that any cv-qualifiers already on
-    // 'T2' are unioned with 'cvq' to produce the result.
 
     typedef T2 type;
 };
 
+/// Specialization of `PropagateCVQ` for `const T1`.
 template <class T1, class T2>
 struct PropagateCVQ<const T1, T2> {
-    // Specialization of 'PropagateCVQ' for 'const T1'.
 
     typedef const T2 type;
 };
 
+/// Specialization of `PropagateCVQ` for `volatile T1`.
 template <class T1, class T2>
 struct PropagateCVQ<volatile T1, T2> {
-    // Specialization of 'PropagateCVQ' for 'volatile T1'.
 
     typedef volatile T2 type;
 };
 
+/// Specialization of `PropagateCVQ` for `const volatile T1`.
 template <class T1, class T2>
 struct PropagateCVQ<const volatile T1, T2> {
-    // Specialization of 'PropagateCVQ' for 'const volatile T1'.
 
     typedef const volatile T2 type;
 };
 
+/// Apply the reference and cv-qualifications from the specified template
+/// parameter type `T1` to the specified template parameter `T2`, producing
+/// a typedef `type`.  More specifically: if `T1` is an rvalue, `type` is
+/// simply `T2` (unmodified); otherwise, `type` is `cvq T2&`, where `cvq`
+/// is the cv-qualifiers (if any) on `T1`.  Note that any cv-qualifiers
+/// already on `T2` are unioned with `cvq` to produce the result.  This
+/// primary template is instantiated when `T1` is not a reference.
 template <class T1, class T2>
 struct PropagateCVQRef {
-    // Apply the reference and cv-qualifications from the specified template
-    // parameter type 'T1' to the specified template parameter 'T2', producing
-    // a typedef 'type'.  More specifically: if 'T1' is an rvalue, 'type' is
-    // simply 'T2' (unmodified); otherwise, 'type' is 'cvq T2&', where 'cvq'
-    // is the cv-qualifiers (if any) on 'T1'.  Note that any cv-qualifiers
-    // already on 'T2' are unioned with 'cvq' to produce the result.  This
-    // primary template is instantiated when 'T1' is not a reference.
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     typedef T2 type;
-        // Result type.  In C++03, if 'T1' is an rvalue, then 'T2' is returned
-        // unchanged.  The cv-qualifications on 'T1' are ignored.
+        // Result type.  In C++03, if `T1` is an rvalue, then `T2` is returned
+        // unchanged.  The cv-qualifications on `T1` are ignored.
 #else
+    /// Result type.  In C++11 and later, if `T1` is a prvalue, then `T2`
+    /// is returned as an rvalue reference, with the cv-qualifications
+    /// copied from `T1`.
     typedef typename PropagateCVQ<T1, T2>::type&& type;
-        // Result type.  In C++11 and later, if 'T1' is a prvalue, then 'T2'
-        // is returned as an rvalue reference, with the cv-qualifications
-        // copied from 'T1'.
 #endif
 };
 
+/// Specialization of `PropagateCVQRef` for lvalue reference `T1`.
 template <class T1, class T2>
 struct PropagateCVQRef<T1&, T2> {
-    // Specialization of 'PropagateCVQRef' for lvalue reference 'T1'.
 
     typedef typename PropagateCVQ<T1, T2>::type& type;
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+/// Specialization of `PropagateCVQRef` for rvalue reference `T1`.
 template <class T1, class T2>
 struct PropagateCVQRef<T1&&, T2> {
-    // Specialization of 'PropagateCVQRef' for rvalue reference 'T1'.
 
     typedef typename PropagateCVQ<T1, T2>::type&& type;
 };
 #endif
 
+/// A test kernel, intended as the `TEST_KERNEL` template argument to
+/// `applyPtrAndRef`, which tests `invoke_result<Fn, T1>`, where `Fn` is a
+/// pointer-to-member-object type, or reference to cv-qualified
+/// pointer-to-member-object type.
+///
+/// If the specified `T1` is `MyClass` or a class derived from `MyClass`,
+/// let the expression I be `std::decltype<T1>()`.  If the specified `T1` is
+/// a specialization of `bsl::reference_wrapper`, let the expression I be
+/// `std::decltype<T1>().get()`.  Otherwise, let the expression I be
+/// `*std::decltype<T1>()`.  The behavior is undefined unless the specified
+/// `EFFECTIVE_ARG` is the type of the expression I, and the specified
+/// `VALUE_CATEGORY` identifies the value category of the expression I.
+/// Note that in most cases (e.g. unless `T1` is `bsl::reference_wrapper`, a
+/// pointer type, or a smart pointer type,) the default arguments for
+/// `EFFECTIVE_ARG` and `VALUE_CATEGORY` are equal to the type and value
+/// category of the expression I, respectively.
 template <class               T1             = MyClass,
           class               EFFECTIVE_ARG  = T1,
           ValueCategory::Enum VALUE_CATEGORY =
@@ -2416,32 +2453,16 @@ template <class               T1             = MyClass,
                   ? ValueCategory::e_LVALUE
                   : ValueCategory::e_XVALUE>
 struct PtrToMemObjTest {
-    // A test kernel, intended as the 'TEST_KERNEL' template argument to
-    // 'applyPtrAndRef', which tests 'invoke_result<Fn, T1>', where 'Fn' is a
-    // pointer-to-member-object type, or reference to cv-qualified
-    // pointer-to-member-object type.
-    //
-    // If the specified 'T1' is 'MyClass' or a class derived from 'MyClass',
-    // let the expression I be 'std::decltype<T1>()'.  If the specified 'T1' is
-    // a specialization of 'bsl::reference_wrapper', let the expression I be
-    // 'std::decltype<T1>().get()'.  Otherwise, let the expression I be
-    // '*std::decltype<T1>()'.  The behavior is undefined unless the specified
-    // 'EFFECTIVE_ARG' is the type of the expression I, and the specified
-    // 'VALUE_CATEGORY' identifies the value category of the expression I.
-    // Note that in most cases (e.g. unless 'T1' is 'bsl::reference_wrapper', a
-    // pointer type, or a smart pointer type,) the default arguments for
-    // 'EFFECTIVE_ARG' and 'VALUE_CATEGORY' are equal to the type and value
-    // category of the expression I, respectively.
 
+    /// For `Fn` of type `RT MyClass::*Mp`, instantiate `invoke_result<Fn>`
+    /// and `invoke_result<Fn cvq&>`.  Verify that it yields `RT` as the
+    /// result type.
+    ///
+    /// The specified `LINE` is passed to `ASSERTV` for diagnostics.
     template <class RT>
     static void apply(int LINE)
-        // For 'Fn' of type 'RT MyClass::*Mp', instantiate 'invoke_result<Fn>'
-        // and 'invoke_result<Fn cvq&>'.  Verify that it yields 'RT' as the
-        // result type.
-        //
-        // The specified 'LINE' is passed to 'ASSERTV' for diagnostics.
     {
-        // If 'RT' is 'void' or a reference type, 'doApply' is a no-op.  There
+        // If `RT` is `void` or a reference type, `doApply` is a no-op.  There
         // is no such thing as a member pointer to void or reference.
         enum { kIS_VOID_OR_REF = (bsl::is_void<RT>::value ||
                                   bsl::is_reference<RT>::value) };
@@ -2450,26 +2471,26 @@ struct PtrToMemObjTest {
                     LINE);
     }
 
+    /// No-op implementation of `apply` for when `RT` is `void` or a
+    /// reference type.  There is no such thing as a member pointer to void
+    /// or reference.
+    ///
+    /// The specified `LINE` is passed to `ASSERTV` for diagnostics.
     template <class RT>
     static void doApply(bsl::true_type /* void or reference */,
                         BSLA_MAYBE_UNUSED int                  LINE)
-        // No-op implementation of 'apply' for when 'RT' is 'void' or a
-        // reference type.  There is no such thing as a member pointer to void
-        // or reference.
-        //
-        // The specified 'LINE' is passed to 'ASSERTV' for diagnostics.
     {
     }
 
+    /// For `Fn` of type `RT MyClass::*Mp`, instantiate
+    /// `invoke_result<Fn, T1>` and `invoke_result<Fn cvq&, T1>`.  Verify
+    /// that it yields `RT` as the result type.  This overload is called
+    /// when `RT` is not `void` and is not a reference.
+    ///
+    /// The specified `LINE` is passed to `ASSERTV` for diagnostics.
     template <class RT>
     static void doApply(bsl::false_type /* void or reference */,
                         BSLA_MAYBE_UNUSED int                   LINE)
-        // For 'Fn' of type 'RT MyClass::*Mp', instantiate
-        // 'invoke_result<Fn, T1>' and 'invoke_result<Fn cvq&, T1>'.  Verify
-        // that it yields 'RT' as the result type.  This overload is called
-        // when 'RT' is not 'void' and is not a reference.
-        //
-        // The specified 'LINE' is passed to 'ASSERTV' for diagnostics.
     {
         typedef RT MyClass::*Mp;
 
@@ -2517,7 +2538,7 @@ struct PtrToMemObjTest {
         ASSERTV(LINE, (IsInvokeResult<CvqR, Mp&&, T1>::value));
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
-        // Testing 'bsl::invoke_result_t'.
+        // Testing `bsl::invoke_result_t`.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
         ASSERTV(LINE, (IsInvokeResultT<Mp,                 T1>::value));
@@ -2651,61 +2672,62 @@ PREINSTANTIATE_APR_FOR_BASIC_TYPES(
 //@bdetdsplit FOR 4 END
 
 //@bdetdsplit FOR 5 BEGIN
+
+/// Objects of this class are convertible to pointer-to-int.
 struct ToIntPtr
 {
-    // Objects of this class are convertible to pointer-to-int.
 
+    /// Convertion to `int*` (declared but not defined).
     operator int*() const;
-        // Convertion to 'int*' (declared but not defined).
 };
 
 namespace bsl {
 
+/// Specialization of `invoke_result` for a situation where, in C++03 mode,
+/// return-type deduction would otherwise fail.
 template <class TP>
 class invoke_result<ManyFunc, char*, MetaType<TP> > {
-    // Specialization of 'invoke_result' for a situation where, in C++03 mode,
-    // return-type deduction would otherwise fail.
 
   public:
+    /// Correct return type for `ManyFunc::operator()(char*, MetaType<TP>)`
     typedef TP type;
-        // Correct return type for 'ManyFunc::operator()(char*, MetaType<TP>)'
 };
 
 }  // close namespace bsl
 
+/// A test kernel, intended as the `TEST_KERNEL` template argument to
+/// `applyPtrAndRef`, which tests `invoke_result<Fn>`, where `Fn` is a class
+/// (functor) type, or reference to cv-qualified functor type.  If the
+/// specified `RET_USER_TYPE` template parameter is true, it indicates that
+/// the caller intends to call `apply<RT>` with user-defined (class or
+/// enumeration) type for `RT`.  Otherwise, the caller must supply a basic
+/// (numeric, pointer, or void) type for `RT`.
 template <bool RET_USER_TYPE = false>
 struct FunctorTest
 {
-    // A test kernel, intended as the 'TEST_KERNEL' template argument to
-    // 'applyPtrAndRef', which tests 'invoke_result<Fn>', where 'Fn' is a class
-    // (functor) type, or reference to cv-qualified functor type.  If the
-    // specified 'RET_USER_TYPE' template parameter is true, it indicates that
-    // the caller intends to call 'apply<RT>' with user-defined (class or
-    // enumeration) type for 'RT'.  Otherwise, the caller must supply a basic
-    // (numeric, pointer, or void) type for 'RT'.
 
+    /// Instantiate `invoke_result<Fn, Args...>` where `Fn` is a variety of
+    /// functor types, and verify that it yields a `type` of the specified
+    /// template parameter type `RT`.  This test checks the return type for
+    /// the following functor types:
+    ///
+    /// * `FuncRt1`, which uses the `result_type` idiom
+    /// * `FuncRt2`, which uses the `ResultType` idiom
+    /// * `FuncRt3`, which uses both `result_type` and `ResultType`
+    /// * `ManyFunc`, which uses neither `result_type` and `ResultType`
+    ///
+    /// If `RET_USER_TYPE` is true and the compiler does not support
+    /// `decltype`, then the expected result type for `ManyFunc` cannot be
+    /// deduced and `invoke_result` is expected to yield
+    /// `bslmf::InvokeResultDeductionFailed`.  As a special case, for
+    /// `FuncRt1`, `FuncRt2`, and `FuncRt3`, test that using `invoke_result`
+    /// arguments that choose an overload that returns `int` will correctly
+    /// yield `int` regardless of the `result_type` and `ResultType`
+    /// idioms.
+    ///
+    /// The specified parmeter `LINE` is passed to `ASSERTV()` calls.
     template <class RT>
     static void apply(int LINE)
-        // Instantiate 'invoke_result<Fn, Args...>' where 'Fn' is a variety of
-        // functor types, and verify that it yields a 'type' of the specified
-        // template parameter type 'RT'.  This test checks the return type for
-        // the following functor types:
-        //
-        //: o 'FuncRt1', which uses the 'result_type' idiom
-        //: o 'FuncRt2', which uses the 'ResultType' idiom
-        //: o 'FuncRt3', which uses both 'result_type' and 'ResultType'
-        //: o 'ManyFunc', which uses neither 'result_type' and 'ResultType'
-        //
-        // If 'RET_USER_TYPE' is true and the compiler does not support
-        // 'decltype', then the expected result type for 'ManyFunc' cannot be
-        // deduced and 'invoke_result' is expected to yield
-        // 'bslmf::InvokeResultDeductionFailed'.  As a special case, for
-        // 'FuncRt1', 'FuncRt2', and 'FuncRt3', test that using 'invoke_result'
-        // arguments that choose an overload that returns 'int' will correctly
-        // yield 'int' regardless of the 'result_type' and 'ResultType'
-        // idioms.
-        //
-        // The specified parmeter 'LINE' is passed to 'ASSERTV()' calls.
     {
         using bsl::invoke_result;
         using bslmf::InvokeResultDeductionFailed;
@@ -2714,8 +2736,8 @@ struct FunctorTest
         using bsl::invoke_result_t;
 #endif
 
-        // The 'char*' overload of 'FuncRt1<RT>::operator()' will return 'RT',
-        // whereas the 'int' overload will return 'int'.
+        // The `char*` overload of `FuncRt1<RT>::operator()` will return `RT`,
+        // whereas the `int` overload will return `int`.
         typedef typename invoke_result<FuncRt1<RT> , char*>::type Rt1ResultR;
         typedef typename invoke_result<FuncRt1<RT>&, char*>::type Rt1rResultR;
         typedef typename invoke_result<FuncRt1<RT> , int  >::type Rt1ResultInt;
@@ -2727,8 +2749,8 @@ struct FunctorTest
         ASSERTV(LINE, (bsl::is_same<int, Rt1ResultInt>::value));
         ASSERTV(LINE, (bsl::is_same<int, Rt1rResultInt>::value));
 
-        // The 'char*' overload of 'FuncRt2<RT>::operator()' will return 'RT',
-        // whereas the 'int' overload will return 'int'.
+        // The `char*` overload of `FuncRt2<RT>::operator()` will return `RT`,
+        // whereas the `int` overload will return `int`.
         typedef typename invoke_result<FuncRt2<RT> , char*>::type Rt2ResultR;
         typedef typename invoke_result<FuncRt2<RT>&, char*>::type Rt2rResultR;
         typedef typename invoke_result<FuncRt2<RT> , int  >::type Rt2ResultInt;
@@ -2739,8 +2761,8 @@ struct FunctorTest
         ASSERTV(LINE, (bsl::is_same<int, Rt2ResultInt>::value));
         ASSERTV(LINE, (bsl::is_same<int, Rt2rResultInt>::value));
 
-        // The 'char*' overload of 'FuncRt3<RT>::operator()' will return 'RT',
-        // whereas the 'int' overload will return 'int'.
+        // The `char*` overload of `FuncRt3<RT>::operator()` will return `RT`,
+        // whereas the `int` overload will return `int`.
         typedef typename invoke_result<FuncRt3<RT> , char*>::type Rt3ResultR;
         typedef typename invoke_result<FuncRt3<RT>&, char*>::type Rt3rResultR;
         typedef typename invoke_result<FuncRt3<RT> , int  >::type Rt3ResultInt;
@@ -2756,16 +2778,16 @@ struct FunctorTest
         typedef typename invoke_result<ManyFunc&, MetaType<RT>, int>::type
             MFrResult;
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE) && !MSVC_2013
-        // 'decltype' is supported, the result type will always be correct.
+        // `decltype` is supported, the result type will always be correct.
         ASSERTV(LINE, (bsl::is_same<RT, MFResult>::value));
         ASSERTV(LINE, (bsl::is_same<RT, MFrResult>::value));
 #else
-        // 'decltype' is not supported, the result type will always be correct
-        // for basic types like 'int', 'int*' and 'void', but will be a
+        // `decltype` is not supported, the result type will always be correct
+        // for basic types like `int`, `int*` and `void`, but will be a
         // place-holder for user-defined types that don't support the
-        // 'result_type' or 'ResultType' idioms.
+        // `result_type` or `ResultType` idioms.
         if (RET_USER_TYPE) {
-            // User-defined type, expect 'InvokeResultDeductionFailed' place
+            // User-defined type, expect `InvokeResultDeductionFailed` place
             // holder.
             ASSERTV(LINE, (bsl::is_same<InvokeResultDeductionFailed,
                                  MFResult>::value));
@@ -2781,7 +2803,7 @@ struct FunctorTest
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
-        // Testing 'bsl::invoke_result_t'.
+        // Testing `bsl::invoke_result_t`.
 
         ASSERTV(LINE, (IsInvokeResultT<FuncRt1<RT> , char*>::value));
         ASSERTV(LINE, (IsInvokeResultT<FuncRt1<RT>&, char*>::value));
@@ -2837,12 +2859,12 @@ PREINSTANTIATE_AR(FunctorTest<true>, const MyDerivedClass*);
 PREINSTANTIATE_AR(FunctorTest<true>, volatile MyDerivedClass*);
 PREINSTANTIATE_AR(FunctorTest<true>, const volatile MyDerivedClass*);
 
+/// This function was originally a call to the function:
+/// applyPtrAndRef<FunctorTest<true>, TYPE >(L_).  However xlC and Sun CC
+/// became overwhelmed with the number of nested template instantiations, so
+/// the call was replaced with a function replicating the behaviour of the
+/// original applyPtrAndRef call.  This unfortunately does add duplication.
 void testCase5APRforEnum()
-    // This function was originally a call to the function:
-    // applyPtrAndRef<FunctorTest<true>, TYPE >(L_).  However xlC and Sun CC
-    // became overwhelmed with the number of nested template instantiations, so
-    // the call was replaced with a function replicating the behaviour of the
-    // original applyPtrAndRef call.  This unfortunately does add duplication.
 {
 #if !BSLMF_INVOKERESULT_ABRIDGED_TEST
     applyPtrAndRef<FunctorTest<true>, MyEnum            >(L_);
@@ -2854,12 +2876,12 @@ void testCase5APRforEnum()
     ApplyRef<FunctorTest<true>, const volatile MyEnum*>::apply(L_);
 }
 
+/// This function was originally a call to the function:
+/// applyPtrAndRef<FunctorTest<true>, TYPE >(L_).  However xlC and Sun CC
+/// became overwhelmed with the number of nested template instantiations, so
+/// the call was replaced with a function replicating the behaviour of the
+/// original applyPtrAndRef call.  This unfortunately does add duplication.
 void testCase5APRforClass()
-    // This function was originally a call to the function:
-    // applyPtrAndRef<FunctorTest<true>, TYPE >(L_).  However xlC and Sun CC
-    // became overwhelmed with the number of nested template instantiations, so
-    // the call was replaced with a function replicating the behaviour of the
-    // original applyPtrAndRef call.  This unfortunately does add duplication.
 {
 #if !BSLMF_INVOKERESULT_ABRIDGED_TEST
     applyPtrAndRef<FunctorTest<true>, MyClass           >(L_);
@@ -2871,12 +2893,12 @@ void testCase5APRforClass()
     ApplyRef<FunctorTest<true>, const volatile MyClass*>::apply(L_);
 }
 
+/// This function was originally a call to the function:
+/// applyPtrAndRef<FunctorTest<true>, TYPE >(L_).  However xlC and Sun CC
+/// became overwhelmed with the number of nested template instantiations, so
+/// the call was replaced with a function replicating the behaviour of the
+/// original applyPtrAndRef call.  This unfortunately does add duplication.
 void testCase5APRforDerivedClass()
-    // This function was originally a call to the function:
-    // applyPtrAndRef<FunctorTest<true>, TYPE >(L_).  However xlC and Sun CC
-    // became overwhelmed with the number of nested template instantiations, so
-    // the call was replaced with a function replicating the behaviour of the
-    // original applyPtrAndRef call.  This unfortunately does add duplication.
 {
 #if !BSLMF_INVOKERESULT_ABRIDGED_TEST
     applyPtrAndRef<FunctorTest<true>, MyDerivedClass    >(L_);
@@ -2888,12 +2910,12 @@ void testCase5APRforDerivedClass()
     ApplyRef<FunctorTest<true>, const volatile MyDerivedClass*>::apply(L_);
 }
 
+/// This function was originally a call to the function:
+/// applyPtrAndRef<FunctorTest<>, TYPE >(L_).  However xlC and Sun CC became
+/// overwhelmed with the number of nested template instantiations, so the
+/// call was replaced with a function replicating the behaviour of the
+/// original applyPtrAndRef call.  This unfortunately does add duplication.
 void testCase5APRforVoid()
-    // This function was originally a call to the function:
-    // applyPtrAndRef<FunctorTest<>, TYPE >(L_).  However xlC and Sun CC became
-    // overwhelmed with the number of nested template instantiations, so the
-    // call was replaced with a function replicating the behaviour of the
-    // original applyPtrAndRef call.  This unfortunately does add duplication.
 {
     // Step 3 & 5, concerns 4 and 7
 #if !BSLMF_INVOKERESULT_ABRIDGED_TEST
@@ -2906,12 +2928,12 @@ void testCase5APRforVoid()
     ApplyRef<FunctorTest<>, const volatile void*>::apply(L_);
 }
 
+/// This function was originally a call to the function:
+/// applyPtrAndRef<FunctorTest<>, TYPE >(L_).  However xlC and Sun CC became
+/// overwhelmed with the number of nested template instantiations, so the
+/// call was replaced with a function replicating the behaviour of the
+/// original applyPtrAndRef call.  This unfortunately does add duplication.
 void testCase5APRforChar()
-    // This function was originally a call to the function:
-    // applyPtrAndRef<FunctorTest<>, TYPE >(L_).  However xlC and Sun CC became
-    // overwhelmed with the number of nested template instantiations, so the
-    // call was replaced with a function replicating the behaviour of the
-    // original applyPtrAndRef call.  This unfortunately does add duplication.
 {
     // Step 3 & 5, concerns 4 and 7
 #if !BSLMF_INVOKERESULT_ABRIDGED_TEST
@@ -2930,12 +2952,12 @@ PREINSTANTIATE_AR(FunctorTest<>,          const long double*);
 PREINSTANTIATE_AR(FunctorTest<>,       volatile long double*);
 PREINSTANTIATE_AR(FunctorTest<>, const volatile long double*);
 
+/// This function was originally a call to the function:
+/// applyPtrAndRef<FunctorTest<>, TYPE >(L_).  However xlC and Sun CC became
+/// overwhelmed with the number of nested template instantiations, so the
+/// call was replaced with a function replicating the behaviour of the
+/// original applyPtrAndRef call.  This unfortunately does add duplication.
 void testCase5APRforLongDouble()
-    // This function was originally a call to the function:
-    // applyPtrAndRef<FunctorTest<>, TYPE >(L_).  However xlC and Sun CC became
-    // overwhelmed with the number of nested template instantiations, so the
-    // call was replaced with a function replicating the behaviour of the
-    // original applyPtrAndRef call.  This unfortunately does add duplication.
 {
 #if !BSLMF_INVOKERESULT_ABRIDGED_TEST
     applyPtrAndRef<FunctorTest<>, long double       >(L_);
@@ -2953,12 +2975,12 @@ PREINSTANTIATE_AR(FunctorTest<>,          const bsl::nullptr_t*);
 PREINSTANTIATE_AR(FunctorTest<>,       volatile bsl::nullptr_t*);
 PREINSTANTIATE_AR(FunctorTest<>, const volatile bsl::nullptr_t*);
 
+/// This function was originally a call to the function:
+/// applyPtrAndRef<FunctorTest<>, TYPE >(L_).  However xlC and Sun CC became
+/// overwhelmed with the number of nested template instantiations, so the
+/// call was replaced with a function replicating the behaviour of the
+/// original applyPtrAndRef call.  This unfortunately does add duplication.
 void testCase5APRforNullptr()
-    // This function was originally a call to the function:
-    // applyPtrAndRef<FunctorTest<>, TYPE >(L_).  However xlC and Sun CC became
-    // overwhelmed with the number of nested template instantiations, so the
-    // call was replaced with a function replicating the behaviour of the
-    // original applyPtrAndRef call.  This unfortunately does add duplication.
 {
 #if !BSLMF_INVOKERESULT_ABRIDGED_TEST
     applyPtrAndRef<FunctorTest<>, bsl::nullptr_t    >(L_);
@@ -2970,10 +2992,10 @@ void testCase5APRforNullptr()
     ApplyRef<FunctorTest<>, const volatile bsl::nullptr_t*>::apply(L_);
 }
 
+/// Only used for the non-abridged (full) test, this contains all of the
+/// calls to applyPtrAndRef previously contained within testCase5() but not
+/// split into the individual functions required to support abridged tests.
 void testCase5APRforOther()
-    // Only used for the non-abridged (full) test, this contains all of the
-    // calls to applyPtrAndRef previously contained within testCase5() but not
-    // split into the individual functions required to support abridged tests.
 {
 #if !BSLMF_INVOKERESULT_ABRIDGED_TEST
     // Step 3 & 5, concerns 4 and 7
@@ -3002,60 +3024,61 @@ void testCase5APRforOther()
 //@bdetdsplit FOR 5 END
 
 //@bdetdsplit FOR 6 BEGIN
+
+/// Return a value-initialized object of type `TP`.
 template <class TP>
 TP returnObj()
-    // Return a value-initialized object of type 'TP'.
 {
     return TP();
 }
 
+/// Return a reference to a value-initialized object of type `TP`. `TP` is
+/// assumed not to be cv-qualified.
 template <class TP>
 TP& returnNoCVRef()
-    // Return a reference to a value-initialized object of type 'TP'. 'TP' is
-    // assumed not to be cv-qualified.
 {
     static TP obj;
     return obj;
 }
 
+/// Return an lvalue reference to a value-initialized object of type
+/// `TP`.  `TP` may be cv-qualified.
 template <class TP>
 TP& returnLvalueRef()
-    // Return an lvalue reference to a value-initialized object of type
-    // 'TP'.  'TP' may be cv-qualified.
 {
     return returnNoCVRef<typename bsl::remove_cv<TP>::type>();
 }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+/// Return an rvalue reference to a value-initialized object of type `TP`.
 template <class TP>
 TP&& returnRvalueRef()
-    // Return an rvalue reference to a value-initialized object of type 'TP'.
 {
     return std::move(returnLvalueRef<TP>());
 }
 #endif
 
+/// Return an `bslmf::InvokeResultDeductionFailed` object initialized from
+/// an rvalue of type `TP`.
 template <class TP>
 bslmf::InvokeResultDeductionFailed discardObj()
-    // Return an 'bslmf::InvokeResultDeductionFailed' object initialized from
-    // an rvalue of type 'TP'.
 {
     return returnObj<TP>();
 }
 
+/// Return an `bslmf::InvokeResultDeductionFailed` object initialized from
+/// an lvalue reference of type `TP&`.  `TP` may be cv-qualified.
 template <class TP>
 bslmf::InvokeResultDeductionFailed discardLvalueRef()
-    // Return an 'bslmf::InvokeResultDeductionFailed' object initialized from
-    // an lvalue reference of type 'TP&'.  'TP' may be cv-qualified.
 {
     return returnLvalueRef<TP>();
 }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+/// Return an `bslmf::InvokeResultDeductionFailed` object initialized from
+/// an rvalue reference of type `TP&&`.  `TP` may be cv-qualified.
 template <class TP>
 bslmf::InvokeResultDeductionFailed discardRvalueRef()
-    // Return an 'bslmf::InvokeResultDeductionFailed' object initialized from
-    // an rvalue reference of type 'TP&&'.  'TP' may be cv-qualified.
 {
     return returnRvalueRef<TP>();
 }
@@ -3068,20 +3091,21 @@ bslmf::InvokeResultDeductionFailed discardRvalueRef()
 //-----------------------------------------------------------------------------
 
 // Suppose we want to create a wrapper that executes an invocable object and
-// sets a 'done' flag.  The 'done' flag will not be set if the invocation
-// exits via an exception.  The wrapper takes an invocable 'f' and an argument
-// 'x' and evaluates 'f(x)', returning the result.  In the absence of C++14
+// sets a `done` flag.  The `done` flag will not be set if the invocation
+// exits via an exception.  The wrapper takes an invocable `f` and an argument
+// `x` and evaluates `f(x)`, returning the result.  In the absence of C++14
 // automatically-deduced function return declarations, we use
-// 'bsl::invoke_result' to deduce the return type of 'f(x)'.
+// `bsl::invoke_result` to deduce the return type of `f(x)`.
 //
 // First, we write the wrapper template as follows:
-//..
+// ```
+
+    /// Use the specified parameters `done`, `f`, and `x` to call `f(x)` and
+    /// return the result, having set `*done` to true if no exception (or
+    /// false if exception).
     template <class FT, class XT>
     typename bsl::invoke_result<FT, XT>::type
     invokeAndSetFlag(bool *done, FT f, XT x)
-        // Use the specified parameters 'done', 'f', and 'x' to call 'f(x)' and
-        // return the result, having set '*done' to true if no exception (or
-        // false if exception).
     {
         typedef typename bsl::invoke_result<FT, XT>::type ResultType;
         *done = false; // Clear flag in case of exception
@@ -3089,44 +3113,46 @@ bslmf::InvokeResultDeductionFailed discardRvalueRef()
         *done = true;  // Set flag on success
         return result;
     }
-//..
+// ```
 // Note that additional metaprogramming would be required to make this
-// template work for return type 'void'; such metaprogramming is beyond the
+// template work for return type `void`; such metaprogramming is beyond the
 // scope of this usage example.
 //
 // Then we define a couple of simple functors to be used with the wrapper.
 // The first functor is a simple template that triples its invocation
 // argument:
-//..
+// ```
+
+    /// Functor that triples its argument.
     template <class TP>
     struct Triple {
-        // Functor that triples its argument.
 
+        /// Return three times the specified `v` value.
         TP operator()(TP v) const { return static_cast<TP>(v * 3); }
-            // Return three times the specified 'v' value.
     };
-//..
-// Next, we define a second functor that returns an enumerator 'ODD' or
-// 'EVEN', depending on whether its argument is exactly divisible by 2.  Since
+// ```
+// Next, we define a second functor that returns an enumerator `ODD` or
+// `EVEN`, depending on whether its argument is exactly divisible by 2.  Since
 // the return type is not a fundamental type, this functor indicates its
-// return type using the 'ResultType' idiom:
-//..
+// return type using the `ResultType` idiom:
+// ```
     enum EvenOdd { e_EVEN, e_ODD };
 
+    /// Functor that determines whether its argument is odd or even.
     struct CalcEvenOdd {
-        // Functor that determines whether its argument is odd or even.
 
         typedef EvenOdd ResultType;
 
+        /// Return `e_ODD` if the specified `i` is odd; otherwise return
+        /// `e_EVEN`
         EvenOdd operator()(int i) const { return (i & 1) ? e_ODD : e_EVEN; }
-            // Return 'e_ODD' if the specified 'i' is odd; otherwise return
-            // 'e_EVEN'
     };
-//..
+// ```
 // Finally, we can invoke these functors through our wrapper:
-//..
+// ```
+
+    /// Run the usage example.
     int usageExample()
-        // Run the usage example.
     {
         bool done = false;
 
@@ -3168,12 +3194,12 @@ int main(int argc, char *argv[])
         // USAGE TEST
         //
         // Concerns:
-        //: 1 The usage example in the component documentation compiles and
-        //:   runs.
+        // 1. The usage example in the component documentation compiles and
+        //    runs.
         //
         // Plan:
-        //: 1  Copy the usage example verbatim but replace 'assert' with
-        //:   'ASSERT'.
+        // 1.  Copy the usage example verbatim but replace `assert` with
+        //    `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -3188,20 +3214,20 @@ int main(int argc, char *argv[])
         // TESTING C++17 SEMANTICS
         //
         // Concerns:
-        //: 1 In C++11, 'bsl::invoke_result<F, ARGS...>' has a nested typedef
-        //:   'type' if the expression 'INVOKE(f, args...)' is well-defined
-        //:   according to the C++17 standard, given 'f' is an object of type
-        //:   'F', and 'args...' are objects of type 'ARGS...', and has no such
-        //:   typedef otherwise, for all types 'F' and 'ARGS...'.
+        // 1. In C++11, `bsl::invoke_result<F, ARGS...>` has a nested typedef
+        //    `type` if the expression `INVOKE(f, args...)` is well-defined
+        //    according to the C++17 standard, given `f` is an object of type
+        //    `F`, and `args...` are objects of type `ARGS...`, and has no such
+        //    typedef otherwise, for all types `F` and `ARGS...`.
         //
         // Plan:
-        //: 1 For a large array of various 'const'-, 'volatile'-, and/or
-        //:   reference-qualified invocable types, instantiate
-        //:   'bsl::invoke_result' with that invocable type, and several
-        //:   argument lists for which that type is and is not invocable.
-        //:   Verify that 'bsl::invoke_result' has a nested typedef 'type' if
-        //:   the invocable type is invocable, for each particular argument
-        //:   list, and has no such typedef otherwise.
+        // 1. For a large array of various `const`-, `volatile`-, and/or
+        //    reference-qualified invocable types, instantiate
+        //    `bsl::invoke_result` with that invocable type, and several
+        //    argument lists for which that type is and is not invocable.
+        //    Verify that `bsl::invoke_result` has a nested typedef `type` if
+        //    the invocable type is invocable, for each particular argument
+        //    list, and has no such typedef otherwise.
         //
         // Testing:
         //   C++17 SEMANTICS
@@ -3298,7 +3324,7 @@ int main(int argc, char *argv[])
 
         const SfinaeFriendlinessTest TEST;
 
-        //          'type' IS DEFINED                         LINE NUMBER
+        //          `type` IS DEFINED                         LINE NUMBER
         //         .=================                         ===========.
         //        /    INVOCABLE TYPE          ARGUMENT TYPES             \.
         //       === ================== ================================  ==
@@ -3773,55 +3799,55 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'InvokeResultDeductionFailed'
+        // TESTING `InvokeResultDeductionFailed`
         //
         // Concerns:
-        //: 1 'bslmf::InvokeResultDeductionFailed' can be constructed from any
-        //:   object type.
-        //: 2 'bslmf::InvokeResultDeductionFailed' can be constructed from any
-        //:   lvalue reference.
-        //: 3 The previous concerns apply if the initializer is cv qualified.
-        //: 4 In C++11 and later compilations,
-        //:   'bslmf::InvokeResultDeductionFailed' can be constructed from any
-        //:   rvalue reference.
-        //: 5 The above concerns apply to values that are the result of a
-        //:   function return.
-        //: 6 The 'return' statement of a function returning a
-        //:   'bslmf::InvokeResultDeductionFailed' can specify an lvalue or
-        //:   rvalue of any type, resulting in the value being ignored.
+        // 1. `bslmf::InvokeResultDeductionFailed` can be constructed from any
+        //    object type.
+        // 2. `bslmf::InvokeResultDeductionFailed` can be constructed from any
+        //    lvalue reference.
+        // 3. The previous concerns apply if the initializer is cv qualified.
+        // 4. In C++11 and later compilations,
+        //    `bslmf::InvokeResultDeductionFailed` can be constructed from any
+        //    rvalue reference.
+        // 5. The above concerns apply to values that are the result of a
+        //    function return.
+        // 6. The `return` statement of a function returning a
+        //    `bslmf::InvokeResultDeductionFailed` can specify an lvalue or
+        //    rvalue of any type, resulting in the value being ignored.
         //
         // Plan:
-        //: 1 For concern 1, construct 'bslmf::InvokeResultDeductionFailed'
-        //:   objects from value-initialized objects of numeric type,
-        //:   pointer type, class type, and enumeration type. There is nothing
-        //:   to verify -- simply compiling successfully is enough.
-        //: 2 For concern 2, create variables of the same types as in the
-        //:   previous step. Construct a 'bslmf::InvokeResultDeductionFailed'
-        //:   object from each (lvalue) variable.
-        //: 3 For concern 3, repeat step 2, using a 'const_cast' to add cv
-        //:   qualifiers to the lvalues.
-        //: 4 For concern 4, repeat step 2, applying 'std::move' to each
-        //:   variable used to construct an object (C++11 and later only).
-        //: 5 For concern 5, implement a function 'returnObj<TP>' that returns
-        //:   an object of type 'TP', a function 'returnLvalueRef<TP>', that
-        //:   returns a reference of type 'TP&' and (for C++11 and later)
-        //:   'returnRvalueRef<TP>' that returns a reference of type
-        //:   'TP&&'. Construct a 'bslmf::InvokeResultDeductionFailed' object
-        //:   from a call to each function template instantiated with each of
-        //:   the types from step 1 and various cv-qualifier combinations.
-        //: 6 For concern 6, implement function templates returning
-        //:   'bslmf::InvokeResultDeductionFailed' objects 'discardObj<TP>',
-        //:   'discardLvalueRef<TP>', and 'discardRvalueRef<TP>'. These
-        //:   functions respectively contain the statements 'return
-        //:   returnObj<TP>', 'return returnLvalueRef<TP>', and 'return
-        //:   returnRvalueRef<TP>'. Invoke each function with the same types
-        //:   as in step 5.
+        // 1. For concern 1, construct `bslmf::InvokeResultDeductionFailed`
+        //    objects from value-initialized objects of numeric type,
+        //    pointer type, class type, and enumeration type. There is nothing
+        //    to verify -- simply compiling successfully is enough.
+        // 2. For concern 2, create variables of the same types as in the
+        //    previous step. Construct a `bslmf::InvokeResultDeductionFailed`
+        //    object from each (lvalue) variable.
+        // 3. For concern 3, repeat step 2, using a `const_cast` to add cv
+        //    qualifiers to the lvalues.
+        // 4. For concern 4, repeat step 2, applying `std::move` to each
+        //    variable used to construct an object (C++11 and later only).
+        // 5. For concern 5, implement a function `returnObj<TP>` that returns
+        //    an object of type `TP`, a function `returnLvalueRef<TP>`, that
+        //    returns a reference of type `TP&` and (for C++11 and later)
+        //    `returnRvalueRef<TP>` that returns a reference of type
+        //    `TP&&`. Construct a `bslmf::InvokeResultDeductionFailed` object
+        //    from a call to each function template instantiated with each of
+        //    the types from step 1 and various cv-qualifier combinations.
+        // 6. For concern 6, implement function templates returning
+        //    `bslmf::InvokeResultDeductionFailed` objects `discardObj<TP>`,
+        //    `discardLvalueRef<TP>`, and `discardRvalueRef<TP>`. These
+        //    functions respectively contain the statements 'return
+        //    returnObj<TP>`, `return returnLvalueRef<TP>`, and `return
+        //    returnRvalueRef<TP>'. Invoke each function with the same types
+        //    as in step 5.
         //
         // Testing
-        //     'InvokeResultDeductionFailed'
+        //     `InvokeResultDeductionFailed`
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'InvokeResultDeductionFailed'"
+        if (verbose) printf("\nTESTING `InvokeResultDeductionFailed`"
                             "\n=====================================\n");
 
         int            v1 = 0;
@@ -3947,7 +3973,7 @@ int main(int argc, char *argv[])
             (void) x5; // Suppress "set but not used" warning
         }
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-        // Step 6: Return 'bslmf::InvokeResultDeductionFailed'
+        // Step 6: Return `bslmf::InvokeResultDeductionFailed`
         {
             discardObj<int>();
             discardObj<bsl::nullptr_t>();
@@ -3975,110 +4001,110 @@ int main(int argc, char *argv[])
         // TESTING FUNCTOR CLASS INVOCABLES
         //
         // Concerns:
-        //: 1 For invocables of functor class type, 'bsl::invoke_result' can
-        //:   deduce the return type of 'operator()' if that return type is a
-        //:   simple built-in integral type.
-        //: 2 The correct overload of 'operator()' is selected, depending on
-        //:   the number and types of arguments.
-        //: 3 Appropriate overloads of 'operator()' are selected depending on
-        //:   the const and/or volatile qualifiers on the functor type.
-        //: 4 The return-type deduction described in concerns 1-3 additionally
-        //:   extends to return types of:
-        //:    o 'void'
-        //:    o 'bsl::nullptr_t'
-        //:    o built-in numeric types
-        //:    o pointer to (possibly cv-qualified) numeric type or 'void'
-        //:    o Reference to any of the (possibly cv-qualified) types above
-        //:      except 'void', including reference-to-pointer types. Rvalue
-        //:      references should be tested on C++11-compliant compilers.
-        //: 5 In C++03, if the invocable returns a user-defined type, pointer
-        //:   to a user-defined type, or reference to one of these, and the
-        //:   invocable has a nested type 'result_type' or 'ResultType',
-        //:   'invoke_result' yields that nested type; otherwise it yields
-        //:   'bslmf::InvokeResultDeductionFailed'.  If the invocable has both
-        //:   'result_type' and 'ResultType' nested types, then 'invoke_result'
-        //:   yields 'result_type'.  However, if the invocation would return a
-        //:   type listed in concern 4, 'result_type' and 'ResultType' are
-        //:   ignored.
-        //: 6 In C++11 or later, if the invocable returns a user-defined type,
-        //:   pointer to a user-defined type, or reference to one of these,
-        //:   'invoke_result' always yields the correct return type, regardless
-        //:    of whether or not there exists a nested 'result_type' or
-        //:   'ResultType' type.
-        //: 7 The previous concerns apply when the invocable is a *reference*
-        //:   to functor class type.
-        //: 8 If 'invoke_result<FN, args...>' is specialized or partially
-        //:   specialized for a specific 'FN' and/or 'args...', that
-        //:   specialization is used instead of the primary template.  Such
-        //:   specializations can produce usable results even if deduction
-        //:   of the return value would have failed for the unspecialized
-        //:   template.
-        //: 9 The above concerns apply to functors taking 0 to 13 arguments.
-        //:10 Though not technically a functor, a class that is convertible to
-        //:   a pointer-to-function or reference-to-function behaves like a
-        //:   functor within this component.  If the class is convertible to
-        //:   more than one function type, then the correct one is chosen
-        //:   based on overloading rules.  If the chosen (pointer or reference
-        //:   to) function returns a user-defined type, then return
-        //:   'bslmf::InvokeResultDeductionFailed' in C++03 mode.
-        //:11 The 'bsl::invoke_result_t' represents the expected type for
-        //:   invocables of functor class type.
+        // 1. For invocables of functor class type, `bsl::invoke_result` can
+        //    deduce the return type of `operator()` if that return type is a
+        //    simple built-in integral type.
+        // 2. The correct overload of `operator()` is selected, depending on
+        //    the number and types of arguments.
+        // 3. Appropriate overloads of `operator()` are selected depending on
+        //    the const and/or volatile qualifiers on the functor type.
+        // 4. The return-type deduction described in concerns 1-3 additionally
+        //    extends to return types of:
+        //     o `void`
+        //     o `bsl::nullptr_t`
+        //     o built-in numeric types
+        //     o pointer to (possibly cv-qualified) numeric type or `void`
+        //     o Reference to any of the (possibly cv-qualified) types above
+        //       except `void`, including reference-to-pointer types. Rvalue
+        //       references should be tested on C++11-compliant compilers.
+        // 5. In C++03, if the invocable returns a user-defined type, pointer
+        //    to a user-defined type, or reference to one of these, and the
+        //    invocable has a nested type `result_type` or `ResultType`,
+        //    `invoke_result` yields that nested type; otherwise it yields
+        //    `bslmf::InvokeResultDeductionFailed`.  If the invocable has both
+        //    `result_type` and `ResultType` nested types, then `invoke_result`
+        //    yields `result_type`.  However, if the invocation would return a
+        //    type listed in concern 4, `result_type` and `ResultType` are
+        //    ignored.
+        // 6. In C++11 or later, if the invocable returns a user-defined type,
+        //    pointer to a user-defined type, or reference to one of these,
+        //    `invoke_result` always yields the correct return type, regardless
+        //     of whether or not there exists a nested `result_type` or
+        //    `ResultType` type.
+        // 7. The previous concerns apply when the invocable is a *reference*
+        //    to functor class type.
+        // 8. If `invoke_result<FN, args...>` is specialized or partially
+        //    specialized for a specific `FN` and/or `args...`, that
+        //    specialization is used instead of the primary template.  Such
+        //    specializations can produce usable results even if deduction
+        //    of the return value would have failed for the unspecialized
+        //    template.
+        // 9. The above concerns apply to functors taking 0 to 13 arguments.
+        // 10. Though not technically a functor, a class that is convertible to
+        //    a pointer-to-function or reference-to-function behaves like a
+        //    functor within this component.  If the class is convertible to
+        //    more than one function type, then the correct one is chosen
+        //    based on overloading rules.  If the chosen (pointer or reference
+        //    to) function returns a user-defined type, then return
+        //    `bslmf::InvokeResultDeductionFailed` in C++03 mode.
+        // 11. The `bsl::invoke_result_t` represents the expected type for
+        //    invocables of functor class type.
         //
         // Plan:
-        //: 1 For concerns 1 and 2, define a functor class, 'ManyFunc', with
-        //:   'operator()' overloaded to return different integral types for a
-        //:   variety of argument combinations.  Verify that
-        //:   'bsl::invoke_result' yields the return type corresponding to the
-        //:   best overload for a set of specific arguments types.
-        //: 2 For concern 3, add 'const' and 'volatile' overloads. Using
-        //:   typedefs for 'const' and 'volitile' references to 'ManyFunc',
-        //:   verify that the best overload is selected.
-        //: 3 For concern 4 add overloads of 'operator()' to 'ManyFunc' that
-        //:   return 'TP' when called with a first argument of type
-        //:   'MetaType<TP>'. Define a struct 'FunctorTest' whose 'apply<R>'
-        //:   method verifies that 'invoke_result' yields the expected result
-        //:   of invoking a 'ManyFunc' object with an argument of type
-        //:   'MetaType<R>'.  Invoke 'FunctorTest' through the function
-        //:   'applyPtrAndRef' that adds every combination of pointer,
-        //:   reference, and cv qualifiers to 'R'. Repeat this test with every
-        //:   numeric type and with 'void' for 'R'.
-        //: 4 For concerns 5 and 6, define three invocables: 'FuncRt1<R>' that
-        //:   defines 'result_type' as 'R', 'FuncRt2<R>' that defines
-        //:   'ResultType' as 'R', and 'FuncRt3<R>' that defines 'result_type'
-        //:   as 'R' and 'ResultType' as 'void'.  Each of them would define 'R
-        //:   operator()(const char*)' and 'int operator()(int)'. Modify
-        //:   'FunctorTest' such that the method 'FunctorTest<true>::apply<R>'
-        //:   verifies that, if 'F' is 'FuncRt?<R>' and 'R' is one of the
-        //:   types listed in concern 5, 'invoke_result<F, char*>::type' is
-        //:   'R'; 'invoke_result<F, int>::type' is 'int', regardless of 'R';
-        //:   and 'invoke_result<ManyFunc, MetaType<R>>::type' is
-        //:   'bslmf::InvokeResultDeductionFailed' in C++03 mode and 'R' in
-        //:   C++11 mode.  Invoke 'FunctorTest<true>' through the function
-        //:   'applyPtrAndRef' as in step 3, to generate every 'R' with every
-        //:   combination of pointer and reference qualifiers to user-defined
-        //:   class 'MyClass' and user-defined enumeration 'MyEnum'.
-        //: 5 For concern 7, repeat each step using a reference as the first
-        //:   argument. For many of the tests, the modification would be in
-        //:   one or more 'apply<R>' functions.
-        //: 6 For concern 8, add an easily-distinguished set of overloads to
-        //:   'ManyFunc::operator()' that return 'MyClass', 'MyClass *', etc..
-        //:   Create explicit specializations of 'bsl::invoke_result' for those
-        //:   overloads.  Verify that the explicit specializations yield the
-        //:   expected type.
-        //: 7 For concern 9, instantiate 'bsl::invoke_result' on overloads of
-        //:   'ManyFunc::operator()' taking 0 to 10 arguments. Concern 8 does
-        //:   not interact with the others, so it is not necessary to
-        //:   test every combination of 0 to 10 arguments with every possible
-        //:   return type.
-        //: 8 For concern 10, define a type, 'ConvertibleToFunc' which is
-        //:   convertible to pointer-to-function and reference-to-function,
-        //:   where the result of each conversion has a different prototype.
-        //:   Instantiate 'bsl::invoke_result' with arguments that select
-        //:   each of the overloads and verify the correct result.
-        //: 9 For concern 11, verify, for each of the parameter types specified
-        //:   in concern 4, that the type yielded by the 'bsl::invoke_result_t'
-        //:   matches the type yielded by the 'bsl::invoke_result'
-        //:   meta-function.
+        // 1. For concerns 1 and 2, define a functor class, `ManyFunc`, with
+        //    `operator()` overloaded to return different integral types for a
+        //    variety of argument combinations.  Verify that
+        //    `bsl::invoke_result` yields the return type corresponding to the
+        //    best overload for a set of specific arguments types.
+        // 2. For concern 3, add `const` and `volatile` overloads. Using
+        //    typedefs for `const` and `volitile` references to `ManyFunc`,
+        //    verify that the best overload is selected.
+        // 3. For concern 4 add overloads of `operator()` to `ManyFunc` that
+        //    return `TP` when called with a first argument of type
+        //    `MetaType<TP>`. Define a struct `FunctorTest` whose `apply<R>`
+        //    method verifies that `invoke_result` yields the expected result
+        //    of invoking a `ManyFunc` object with an argument of type
+        //    `MetaType<R>`.  Invoke `FunctorTest` through the function
+        //    `applyPtrAndRef` that adds every combination of pointer,
+        //    reference, and cv qualifiers to `R`. Repeat this test with every
+        //    numeric type and with `void` for `R`.
+        // 4. For concerns 5 and 6, define three invocables: `FuncRt1<R>` that
+        //    defines `result_type` as `R`, `FuncRt2<R>` that defines
+        //    `ResultType` as `R`, and `FuncRt3<R>` that defines `result_type`
+        //    as `R` and `ResultType` as `void`.  Each of them would define 'R
+        //    operator()(const char*)` and `int operator()(int)'. Modify
+        //    `FunctorTest` such that the method `FunctorTest<true>::apply<R>`
+        //    verifies that, if `F` is `FuncRt?<R>` and `R` is one of the
+        //    types listed in concern 5, `invoke_result<F, char*>::type` is
+        //    `R`; `invoke_result<F, int>::type` is `int`, regardless of `R`;
+        //    and `invoke_result<ManyFunc, MetaType<R>>::type` is
+        //    `bslmf::InvokeResultDeductionFailed` in C++03 mode and `R` in
+        //    C++11 mode.  Invoke `FunctorTest<true>` through the function
+        //    `applyPtrAndRef` as in step 3, to generate every `R` with every
+        //    combination of pointer and reference qualifiers to user-defined
+        //    class `MyClass` and user-defined enumeration `MyEnum`.
+        // 5. For concern 7, repeat each step using a reference as the first
+        //    argument. For many of the tests, the modification would be in
+        //    one or more `apply<R>` functions.
+        // 6. For concern 8, add an easily-distinguished set of overloads to
+        //    `ManyFunc::operator()` that return `MyClass`, `MyClass *`, etc..
+        //    Create explicit specializations of `bsl::invoke_result` for those
+        //    overloads.  Verify that the explicit specializations yield the
+        //    expected type.
+        // 7. For concern 9, instantiate `bsl::invoke_result` on overloads of
+        //    `ManyFunc::operator()` taking 0 to 10 arguments. Concern 8 does
+        //    not interact with the others, so it is not necessary to
+        //    test every combination of 0 to 10 arguments with every possible
+        //    return type.
+        // 8. For concern 10, define a type, `ConvertibleToFunc` which is
+        //    convertible to pointer-to-function and reference-to-function,
+        //    where the result of each conversion has a different prototype.
+        //    Instantiate `bsl::invoke_result` with arguments that select
+        //    each of the overloads and verify the correct result.
+        // 9. For concern 11, verify, for each of the parameter types specified
+        //    in concern 4, that the type yielded by the `bsl::invoke_result_t`
+        //    matches the type yielded by the `bsl::invoke_result`
+        //    meta-function.
         //
         // Testing:
         //     FUNCTOR CLASS INVOCABLES
@@ -4164,90 +4190,90 @@ int main(int argc, char *argv[])
         // TESTING POINTER-TO-MEMBER-OBJECT INVOCABLES
         //
         // Concerns:
-        //: 1 Given class 'B', class 'D' derived from 'B' and
-        //:   pointer-to-member type 'typedef R B::*MP',
-        //:   'bsl::invoke_result<MP, T1>', yields an rvalue type 'R' if 'T1'
-        //:   is (rvalue type) 'B' or 'D'. In C++03 mode, the rvalue type is
-        //:   'R'; in C++11 and subsequent modes, the rvalue type is 'R&&'.
-        //: 2 Similar to concern 1, except for 'T1' being a smart pointer type
-        //:   which, when dereferenced, yields an rvalue of 'B' or 'D'. CV and
-        //:   reference qualifiers on the smart pointer have no effect.
-        //: 3 Given the same 'MP' as in concern 1,
-        //:   'bsl::invoke_result<MP, T1>', yields type 'R&' if 'T1' is 'B&'
-        //:   or 'D&'.
-        //: 4 Similar to concern 3, except with 'T1' being a pointer or smart
-        //:   pointer type that, when dereferenced, yields an lvalue of type
-        //:   'B&' or 'D&'.
-        //: 5 Similar to concerns 3 and 4, in C++11 and later,
-        //:   'bsl::invoke_result<MP, T1>', yields type 'R&&' if 'T1' is 'B&&'
-        //:   or is a smart pointer type that, when dereferenced, yields an
-        //:   rvalue reference of type 'B&&' or 'D&&'.
-        //: 6 If 'B' or 'D' in concerns 1-5 are cv-qualified, the result has
-        //:   the union of cv qualifications of 'R' and the class type 'B' or
-        //:   'D'. Reference and CV qualifiers on a pointer or smart pointer
-        //:   itself have no effect.
-        //: 7 Concerns 1-6 apply for 'R' of the following types:
-        //:    o built-in numeric types
-        //:    o user-defined class and enumeration types
-        //:    o pointer (possibly cv-qualified) to any of the above
-        //:    o pointer to (possibly cv-qualified) void
-        //:    o cv-qualified types
-        //:    o arrays (which do not decay)
-        //: 8 The 'bsl::invoke_result_t' represents the expected type for
-        //:   invocables of pointer-to-member-object type.
+        // 1. Given class `B`, class `D` derived from `B` and
+        //    pointer-to-member type `typedef R B::*MP`,
+        //    `bsl::invoke_result<MP, T1>`, yields an rvalue type `R` if `T1`
+        //    is (rvalue type) `B` or `D`. In C++03 mode, the rvalue type is
+        //    `R`; in C++11 and subsequent modes, the rvalue type is `R&&`.
+        // 2. Similar to concern 1, except for `T1` being a smart pointer type
+        //    which, when dereferenced, yields an rvalue of `B` or `D`. CV and
+        //    reference qualifiers on the smart pointer have no effect.
+        // 3. Given the same `MP` as in concern 1,
+        //    `bsl::invoke_result<MP, T1>`, yields type `R&` if `T1` is `B&`
+        //    or `D&`.
+        // 4. Similar to concern 3, except with `T1` being a pointer or smart
+        //    pointer type that, when dereferenced, yields an lvalue of type
+        //    `B&` or `D&`.
+        // 5. Similar to concerns 3 and 4, in C++11 and later,
+        //    `bsl::invoke_result<MP, T1>`, yields type `R&&` if `T1` is `B&&`
+        //    or is a smart pointer type that, when dereferenced, yields an
+        //    rvalue reference of type `B&&` or `D&&`.
+        // 6. If `B` or `D` in concerns 1-5 are cv-qualified, the result has
+        //    the union of cv qualifications of `R` and the class type `B` or
+        //    `D`. Reference and CV qualifiers on a pointer or smart pointer
+        //    itself have no effect.
+        // 7. Concerns 1-6 apply for `R` of the following types:
+        //     o built-in numeric types
+        //     o user-defined class and enumeration types
+        //     o pointer (possibly cv-qualified) to any of the above
+        //     o pointer to (possibly cv-qualified) void
+        //     o cv-qualified types
+        //     o arrays (which do not decay)
+        // 8. The `bsl::invoke_result_t` represents the expected type for
+        //    invocables of pointer-to-member-object type.
         //
         // Plan:
-        //: 1 For concern 1, define a functor template 'PtrToMemObjTest<T1>'
-        //:   with an 'apply<R>' member function template that declares a
-        //:   pointer to 'R' member of 'MyClass' and verifies that
-        //:   applying 'bsl::invoke_result' to 'R (MyClass::*)(T1)' yields
-        //:   'R'. Invoke this functor through a function 'applyPtrAndRef'
-        //:   that adds every combination of pointer, reference, and const
-        //:   qualifiers to 'R'. Use 'MyClass' and 'MyDerivedClass' for 'T1',
-        //:   along with a sampling of CV qualifications for those.
-        //: 2 For concern 2, add a parameter to 'PtrToMemObjTest' to indicate
-        //:   "effective argument" type, i.e., the variation of 'MyClass'
-        //:   yielded by the second template parameter to 'invoke_result'.
-        //:   Create a smart pointer class template 'ProxyPtr<TP>' that defines
-        //:   'TP operator*()'.  Repeat step 1, using 'ProxyPtr<MyClass>' and
-        //:   'ProxyPtr<MyDerivedClass>' for 'T1', and 'MyClass' and
-        //:   'MyDerivedClass', respectively, for the effective argument
-        //:   type. Also try a sampling of CV qualifications on both the
-        //:   'ProxyPtr' and on its template parameter. Show that a reference
-        //:   qualifier on the 'ProxyPtr' has no effect, as well.
-        //: 3 Repeat step 1 using 'MyClass&' and 'MyDerivedClass&' for 'T1'
-        //:   and indicating an expected lvalue result.
-        //: 4 For concern 4, repeat step 3, using 'MyClass*' and
-        //:   'MyDerivedClass*' insted of 'MyClass&' and
-        //:   'MyDerivedClass&'.  Create a class template 'SmartPtr<TP>' that
-        //:   defines 'TP& operator*()' and repeat step 3, using
-        //:   'SmartPtr<MyClass>' and 'SmartPtr<MyDerivedClass>' for 'T1' and
-        //:   using 'MyClass&' and 'MyDerivedClass&', respectively, for the
-        //:   effective argument type.  Use a sampling of reference and CV
-        //:   qualifiers on the 'SmartPtr' (but not it's template parameter)
-        //:   to show that it has no effect.
-        //: 5 For concern 5, repeat step 3 using 'MyClass&' and
-        //:   'MyDerivedClass&' for 'T1' and indicating an expected rvalue
-        //:   reference result. Create a class template 'MovePtr<TP>' that
-        //:   defines 'TP&& operator*()' and repeat step 3 using
-        //:   'MovePtr<MyClass>' and 'MovePtr<MyDerivedClass>' for 'T1' and
-        //:   using 'MyClass&&' and 'MyDerivedClass&&', respectively, for the
-        //:   effective argument type. Use a sampling of reference and CV
-        //:   qualifiers on the 'MovePtr' (but not it's template parameter) to
-        //:   show that it has no effect.
-        //: 6 For concern 6, modify 'PtrToMemObjTest' so that it expects the
-        //:   union of the cv-qualifications specified in the effective
-        //:   argument type parameter and those already on 'R'. Repeat steps
-        //:   1-5, supplying different cv qualifications for the 'MyClass'
-        //:   and 'MyDerivedClass' parameters.
-        //: 7 For concern 7, modify steps 1-6 with 'R' of type 'void',
-        //:   'int', 'float', user-defined type 'Ic01', 'const int',
-        //:   'volatile short', and 'const volatile MyEnum'. Note that 'void'
-        //:   will be ignored, but *pointer to (cv-qualified)* 'void' will not.
-        //: 8 For concern 8, verify, for each of the parameter types specified
-        //:   in concern 7, that the type yielded by the 'bsl::invoke_result_t'
-        //:   matches the type yielded by the 'bsl::invoke_result'
-        //:   meta-function.
+        // 1. For concern 1, define a functor template `PtrToMemObjTest<T1>`
+        //    with an `apply<R>` member function template that declares a
+        //    pointer to `R` member of `MyClass` and verifies that
+        //    applying `bsl::invoke_result` to `R (MyClass::*)(T1)` yields
+        //    `R`. Invoke this functor through a function `applyPtrAndRef`
+        //    that adds every combination of pointer, reference, and const
+        //    qualifiers to `R`. Use `MyClass` and `MyDerivedClass` for `T1`,
+        //    along with a sampling of CV qualifications for those.
+        // 2. For concern 2, add a parameter to `PtrToMemObjTest` to indicate
+        //    "effective argument" type, i.e., the variation of `MyClass`
+        //    yielded by the second template parameter to `invoke_result`.
+        //    Create a smart pointer class template `ProxyPtr<TP>` that defines
+        //    `TP operator*()`.  Repeat step 1, using `ProxyPtr<MyClass>` and
+        //    `ProxyPtr<MyDerivedClass>` for `T1`, and `MyClass` and
+        //    `MyDerivedClass`, respectively, for the effective argument
+        //    type. Also try a sampling of CV qualifications on both the
+        //    `ProxyPtr` and on its template parameter. Show that a reference
+        //    qualifier on the `ProxyPtr` has no effect, as well.
+        // 3. Repeat step 1 using `MyClass&` and `MyDerivedClass&` for `T1`
+        //    and indicating an expected lvalue result.
+        // 4. For concern 4, repeat step 3, using `MyClass*` and
+        //    `MyDerivedClass*` insted of `MyClass&` and
+        //    `MyDerivedClass&`.  Create a class template `SmartPtr<TP>` that
+        //    defines `TP& operator*()` and repeat step 3, using
+        //    `SmartPtr<MyClass>` and `SmartPtr<MyDerivedClass>` for `T1` and
+        //    using `MyClass&` and `MyDerivedClass&`, respectively, for the
+        //    effective argument type.  Use a sampling of reference and CV
+        //    qualifiers on the `SmartPtr` (but not it's template parameter)
+        //    to show that it has no effect.
+        // 5. For concern 5, repeat step 3 using `MyClass&` and
+        //    `MyDerivedClass&` for `T1` and indicating an expected rvalue
+        //    reference result. Create a class template `MovePtr<TP>` that
+        //    defines `TP&& operator*()` and repeat step 3 using
+        //    `MovePtr<MyClass>` and `MovePtr<MyDerivedClass>` for `T1` and
+        //    using `MyClass&&` and `MyDerivedClass&&`, respectively, for the
+        //    effective argument type. Use a sampling of reference and CV
+        //    qualifiers on the `MovePtr` (but not it's template parameter) to
+        //    show that it has no effect.
+        // 6. For concern 6, modify `PtrToMemObjTest` so that it expects the
+        //    union of the cv-qualifications specified in the effective
+        //    argument type parameter and those already on `R`. Repeat steps
+        //    1-5, supplying different cv qualifications for the `MyClass`
+        //    and `MyDerivedClass` parameters.
+        // 7. For concern 7, modify steps 1-6 with `R` of type `void`,
+        //    `int`, `float`, user-defined type `Ic01`, `const int`,
+        //    `volatile short`, and `const volatile MyEnum`. Note that `void`
+        //    will be ignored, but *pointer to (cv-qualified)* `void` will not.
+        // 8. For concern 8, verify, for each of the parameter types specified
+        //    in concern 7, that the type yielded by the `bsl::invoke_result_t`
+        //    matches the type yielded by the `bsl::invoke_result`
+        //    meta-function.
         //
         // Testing:
         //     POINTER-TO-MEMBER-OBJECT INVOCABLES
@@ -4272,7 +4298,7 @@ int main(int argc, char *argv[])
 
         static const ValueCategory::Enum RV = ValueCategory::e_PRVALUE;
 
-        // Step 1: rvalue of 'MyClass' or 'MyDerivedClass'
+        // Step 1: rvalue of `MyClass` or `MyDerivedClass`
         applyPtrAndRef<PtrToMemObjTest<Mc>                       , void  >(L_);
         applyPtrAndRef<PtrToMemObjTest<Mc>                       , int   >(L_);
         applyPtrAndRef<PtrToMemObjTest<Mc>                       , float >(L_);
@@ -4290,7 +4316,7 @@ int main(int argc, char *argv[])
         applyPtrAndRef<PtrToMemObjTest<Mdc>                      , CVenum>(L_);
         applyPtrAndRef<PtrToMemObjTest<Mdc>                      , Arry  >(L_);
 
-        // Step 2: rvalue proxy of 'MyClass' or 'MyDerivedClass'
+        // Step 2: rvalue proxy of `MyClass` or `MyDerivedClass`
         applyPtrAndRef<PtrToMemObjTest<ProxyPtr<Mc>, Mc, RV>     , void  >(L_);
         applyPtrAndRef<PtrToMemObjTest<ProxyPtr<Mc>, Mc, RV>     , int   >(L_);
         applyPtrAndRef<PtrToMemObjTest<ProxyPtr<Mc>, Mc, RV>     , float >(L_);
@@ -4308,7 +4334,7 @@ int main(int argc, char *argv[])
         applyPtrAndRef<PtrToMemObjTest<ProxyPtr<Mdc>, Mc, RV>    , CVenum>(L_);
         applyPtrAndRef<PtrToMemObjTest<ProxyPtr<Mdc>, Mc, RV>    , Arry  >(L_);
 
-        // Reference qualifications on 'ProxyPtr' have no affect
+        // Reference qualifications on `ProxyPtr` have no affect
         applyPtrAndRef<PtrToMemObjTest<ProxyPtr<Mc>&, Mc, RV>    , Vshort>(L_);
         applyPtrAndRef<PtrToMemObjTest<const ProxyPtr<Mdc>&, Mc, RV>
                                                                 , CVenum>(L_);
@@ -4316,7 +4342,7 @@ int main(int argc, char *argv[])
         applyPtrAndRef<PtrToMemObjTest<const volatile ProxyPtr<Mc>&, Mc, RV>
                                                                  , int>(L_);
 
-        // Step 3: lvalue of 'MyClass' or 'MyDerivedClass'
+        // Step 3: lvalue of `MyClass` or `MyDerivedClass`
         applyPtrAndRef<PtrToMemObjTest<Mc&>                      , void  >(L_);
         applyPtrAndRef<PtrToMemObjTest<Mc&>                      , int   >(L_);
         applyPtrAndRef<PtrToMemObjTest<Mc&>                      , float >(L_);
@@ -4334,7 +4360,7 @@ int main(int argc, char *argv[])
         applyPtrAndRef<PtrToMemObjTest<Mdc&>                     , CVenum>(L_);
         applyPtrAndRef<PtrToMemObjTest<Mdc&>                     , Arry  >(L_);
 
-        // Step 4a: pointer to 'MyClass' or 'MyDerivedClass'
+        // Step 4a: pointer to `MyClass` or `MyDerivedClass`
         applyPtrAndRef<PtrToMemObjTest<Mc*, Mc&>                 , void  >(L_);
         applyPtrAndRef<PtrToMemObjTest<Mc*, Mc&>                 , int   >(L_);
         applyPtrAndRef<PtrToMemObjTest<Mc*, Mc&>                 , float >(L_);
@@ -4352,7 +4378,7 @@ int main(int argc, char *argv[])
         applyPtrAndRef<PtrToMemObjTest<Mdc*, Mdc&>               , CVenum>(L_);
         applyPtrAndRef<PtrToMemObjTest<Mdc*, Mdc&>               , Arry  >(L_);
 
-        // Step 4b: smart pointer to (lvalue of) 'MyClass' or 'MyDerivedClass'
+        // Step 4b: smart pointer to (lvalue of) `MyClass` or `MyDerivedClass`
         applyPtrAndRef<PtrToMemObjTest<SmartPtr<Mc>, Mc&>        , void  >(L_);
         applyPtrAndRef<PtrToMemObjTest<SmartPtr<Mc>, Mc&>        , int   >(L_);
         applyPtrAndRef<PtrToMemObjTest<SmartPtr<Mc>, Mc&>        , float >(L_);
@@ -4370,14 +4396,14 @@ int main(int argc, char *argv[])
         applyPtrAndRef<PtrToMemObjTest<SmartPtr<Mdc>, Mc&>       , CVenum>(L_);
         applyPtrAndRef<PtrToMemObjTest<SmartPtr<Mdc>, Mc&>       , Arry  >(L_);
 
-        // Reference and CV qualifications on 'SmartPtr' have no affect
+        // Reference and CV qualifications on `SmartPtr` have no affect
         applyPtrAndRef<PtrToMemObjTest<SmartPtr<CMc>&, CMc&>     , Vshort>(L_);
         applyPtrAndRef<PtrToMemObjTest<const SmartPtr<VMc>&, VMc&>
                                                                  , CVenum>(L_);
         applyPtrAndRef<PtrToMemObjTest<const volatile SmartPtr<Mc>&, Mc&>
                                                                  , int>(L_);
 
-        // Step 5a: rvalue reference to 'MyClass' or 'MyDerivedClass'
+        // Step 5a: rvalue reference to `MyClass` or `MyDerivedClass`
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         applyPtrAndRef<PtrToMemObjTest<Mc&&>                     , void  >(L_);
         applyPtrAndRef<PtrToMemObjTest<Mc&&>                     , int   >(L_);
@@ -4388,7 +4414,7 @@ int main(int argc, char *argv[])
         applyPtrAndRef<PtrToMemObjTest<Mdc&&>                    , CVenum>(L_);
         applyPtrAndRef<PtrToMemObjTest<Mdc&&>                    , Arry  >(L_);
 
-        // Step 5b: smart pointer returning 'MyClass&&' or 'MyDerivedClass&&'
+        // Step 5b: smart pointer returning `MyClass&&` or `MyDerivedClass&&`
         applyPtrAndRef<PtrToMemObjTest<MovePtr<Mdc>, Mc&&>       , void  >(L_);
         applyPtrAndRef<PtrToMemObjTest<MovePtr<Mdc>, Mc&&>       , int   >(L_);
         applyPtrAndRef<PtrToMemObjTest<MovePtr<Mdc>, Mc&&>       , float >(L_);
@@ -4398,14 +4424,14 @@ int main(int argc, char *argv[])
         applyPtrAndRef<PtrToMemObjTest<MovePtr<Mc>, Mc&&>        , CVenum>(L_);
         applyPtrAndRef<PtrToMemObjTest<MovePtr<Mc>, Mc&&>        , Arry  >(L_);
 
-        // Reference and CV qualifications on 'MovePtr' have no affect
+        // Reference and CV qualifications on `MovePtr` have no affect
         applyPtrAndRef<PtrToMemObjTest<MovePtr<CMc>&&, CMc&&>    , Vshort>(L_);
         applyPtrAndRef<PtrToMemObjTest<const volatile MovePtr<Mc>&, Mc&&>
                                                                  , int>(L_);
         applyPtrAndRef<PtrToMemObjTest<const MovePtr<Mc>&, Mc&&> , CVenum>(L_);
 
 #ifndef MSVC_PTR_TO_MEMBER_OF_RVALUE_REF_BUG
-        // 'MovePtr<volatile MyClass>' conditionally compiled for non-MSVC
+        // `MovePtr<volatile MyClass>` conditionally compiled for non-MSVC
         // compiler to avoid bug.
         applyPtrAndRef<PtrToMemObjTest<const MovePtr<VMc>&, VMc&&>
                                                                  , CVenum>(L_);
@@ -4514,7 +4540,7 @@ int main(int argc, char *argv[])
         applyPtrAndRef<PtrToMemObjTest<MovePtr<CMc>, CMc&&>      , CVenum>(L_);
 
 #ifndef MSVC_PTR_TO_MEMBER_OF_RVALUE_REF_BUG
-        // 'MovePtr<volatile MyClass>' conditionally compiled for non-MSVC
+        // `MovePtr<volatile MyClass>` conditionally compiled for non-MSVC
         // compiler to avoid bug.
         applyPtrAndRef<PtrToMemObjTest<MovePtr<VMdc>, VMc&&>     , float >(L_);
         applyPtrAndRef<PtrToMemObjTest<MovePtr<VMc>, VMc&&>      , Cint  >(L_);
@@ -4534,53 +4560,53 @@ int main(int argc, char *argv[])
         // TESTING POINTER-TO-MEMBER-FUNCTION INVOCABLES
         //
         // Concerns:
-        //: 1 For invocables of type pointer-to-member-function,
-        //:   'bsl::invoke_result' returns the return type of the function.
-        //: 2 Concern 1 applies to functions returning
-        //:    o 'void'
-        //:    o built-in numeric types
-        //:    o user-defined class and enumeration types
-        //:    o pointer (possibly cv-qualified) to any of the above
-        //:    o Pointer-to-function, reference-to-function, and
-        //:      pointer-to-member function.  No recursion is expected.
-        //:    o Reference to any of the (possibly cv-qualified) types above
-        //:      except 'void', including reference-to-pointer types.
-        //:    o Reference-to-array or (in C++11) rvalue-reference-to-array.
-        //: 3 Given, 'bsl::invoke_result<F, T1, ...>', where 'F' is a pointer
-        //:   to member function of class 'B' and class 'D' is either 'B' or a
-        //:   class derived from 'B', 'T1' can be 'D', cv-qualified 'D&',
-        //:   'bsl::reference_wrapper<D>', 'D*', or 'smart_ptr<D>' for some
-        //:   smart-pointer template.
-        //: 4 Concern 1 applies to member functions that are cv-qualified
-        //:   and/or ref-qualified.
-        //: 5 Concern 1 applies for pointers to member functions taking 0 to 9
-        //:   arguments, where some of the arguments are convertible to the
-        //:    function parameters, rather than being an exact match.
-        //: 6 The 'bsl::invoke_result_t' represents the expected type for
-        //:   invocables of pointer-to-member-function type.
+        // 1. For invocables of type pointer-to-member-function,
+        //    `bsl::invoke_result` returns the return type of the function.
+        // 2. Concern 1 applies to functions returning
+        //     o `void`
+        //     o built-in numeric types
+        //     o user-defined class and enumeration types
+        //     o pointer (possibly cv-qualified) to any of the above
+        //     o Pointer-to-function, reference-to-function, and
+        //       pointer-to-member function.  No recursion is expected.
+        //     o Reference to any of the (possibly cv-qualified) types above
+        //       except `void`, including reference-to-pointer types.
+        //     o Reference-to-array or (in C++11) rvalue-reference-to-array.
+        // 3. Given, `bsl::invoke_result<F, T1, ...>`, where `F` is a pointer
+        //    to member function of class `B` and class `D` is either `B` or a
+        //    class derived from `B`, `T1` can be `D`, cv-qualified `D&`,
+        //    `bsl::reference_wrapper<D>`, `D*`, or `smart_ptr<D>` for some
+        //    smart-pointer template.
+        // 4. Concern 1 applies to member functions that are cv-qualified
+        //    and/or ref-qualified.
+        // 5. Concern 1 applies for pointers to member functions taking 0 to 9
+        //    arguments, where some of the arguments are convertible to the
+        //     function parameters, rather than being an exact match.
+        // 6. The `bsl::invoke_result_t` represents the expected type for
+        //    invocables of pointer-to-member-function type.
         //
         // Plan:
-        //: 1 For concerns 1 and 2, define a functor template
-        //:   'PtrToMemFuncTest' which declares a pointer to
-        //:   member-function-returning-R type and verifies that applying
-        //:   'bsl::invoke_result' to that type yields 'R'. Invoke this functor
-        //:   through a function 'applyPtrAndRef' that adds every combination
-        //:   of pointer and reference qualifiers to 'R'.
-        //: 2 For concern 3, parameterize 'PtrToMemFuncTest' on the type of
-        //:   the first argument. Repeat step 1, supplying different
-        //:   first-argument types that comprise the types in the concern.
-        //: 3 For concern 4, include in 'PtrToMemFuncTest' pointers to member
-        //:   functions that are lvalue-ref-qualified and
-        //:   rvalue-ref-qualified, with every combination of cv-qualifiers.
-        //: 4 For concern 5, instantiate 'bsl::invoke_result' on
-        //:   member-function-pointer types taking 0 to 9 arguments.
-        //:   Concerns 2 and 3 do not interact, so it is not necessary to
-        //:   test every combination of 0 to 9 arguments with every possible
-        //:   return type.
-        //: 5 For concern 6, verify, for each of the parameter types specified
-        //:   in concern 2, that the type yielded by the 'bsl::invoke_result_t'
-        //:   matches the type yielded by the 'bsl::invoke_result'
-        //:   meta-function.
+        // 1. For concerns 1 and 2, define a functor template
+        //    `PtrToMemFuncTest` which declares a pointer to
+        //    member-function-returning-R type and verifies that applying
+        //    `bsl::invoke_result` to that type yields `R`. Invoke this functor
+        //    through a function `applyPtrAndRef` that adds every combination
+        //    of pointer and reference qualifiers to `R`.
+        // 2. For concern 3, parameterize `PtrToMemFuncTest` on the type of
+        //    the first argument. Repeat step 1, supplying different
+        //    first-argument types that comprise the types in the concern.
+        // 3. For concern 4, include in `PtrToMemFuncTest` pointers to member
+        //    functions that are lvalue-ref-qualified and
+        //    rvalue-ref-qualified, with every combination of cv-qualifiers.
+        // 4. For concern 5, instantiate `bsl::invoke_result` on
+        //    member-function-pointer types taking 0 to 9 arguments.
+        //    Concerns 2 and 3 do not interact, so it is not necessary to
+        //    test every combination of 0 to 9 arguments with every possible
+        //    return type.
+        // 5. For concern 6, verify, for each of the parameter types specified
+        //    in concern 2, that the type yielded by the `bsl::invoke_result_t`
+        //    matches the type yielded by the `bsl::invoke_result`
+        //    meta-function.
         //
         // Testing:
         //     POINTER-TO-MEMBER-FUNCTION INVOCABLES
@@ -4604,11 +4630,11 @@ int main(int argc, char *argv[])
 
         // Arrays and functions cannot be returned by value, so we test only
         // references.  Can't apply a pointer or reference to something that is
-        // already a reference, so simply call the 'apply' method directly.
+        // already a reference, so simply call the `apply` method directly.
         // MSVC 2022 and earlier fails to propagate the reference qualifier.
         // However, MSVC 2013 uses the C++03 implementation of
-        // 'bsl::invoke_result', which calculates the return type manually,
-        // without 'decltype' machinery, and is correct.
+        // `bsl::invoke_result`, which calculates the return type manually,
+        // without `decltype` machinery, and is correct.
 #if MSVC_2022 || MSVC_2019 || MSVC_2017 || MSVC_2015
         PtrToMemFuncTest<MyClass>::apply<Arry&      , Arry>(L_);
         PtrToMemFuncTest<MyClass>::apply<Arry const&, Arry const>(L_);
@@ -4724,55 +4750,55 @@ int main(int argc, char *argv[])
         // TESTING FUNCTION INVOCABLES
         //
         // Concerns:
-        //: 1 For invocables of function type,
-        //:   'bsl::invoke_result' returns the return type of the function.
-        //: 2 Concern 1 applies to functions returning
-        //:    o 'void'
-        //:    o built-in numeric types
-        //:    o user-defined class and enumeration types
-        //:    o pointer (possibly cv-qualified) to any of the above
-        //:    o Pointer-to-function, reference-to-function, and
-        //:      pointer-to-member function.  No recursion is expected.
-        //:    o Reference to any of the (possibly cv-qualified) types above
-        //:      except 'void', including reference-to-pointer types.
-        //:    o Reference-to-array or (in C++11) rvalue-reference-to-array.
-        //: 3 Concern 1 applies for pointers to functions taking 0 to 10
-        //:   arguments, where some arguments are convertible to the function
-        //:   argument rather than an exact match.
-        //: 4 Concerns 1 to 3 apply equally for invocables of
-        //:   pointer-to-function type.
-        //: 5 Concerns 1 to 3 apply equally for invocables of (lvalue & rvalue)
-        //:   reference-to-function type.
-        //: 6 Results are not affected by arguments that decay (arrays,
-        //:   functions), reference binding, or valid volatile arguments.
-        //: 7 The 'bsl::invoke_result_t' represents the expected type for
-        //:   invocables of function type.
+        // 1. For invocables of function type,
+        //    `bsl::invoke_result` returns the return type of the function.
+        // 2. Concern 1 applies to functions returning
+        //     o `void`
+        //     o built-in numeric types
+        //     o user-defined class and enumeration types
+        //     o pointer (possibly cv-qualified) to any of the above
+        //     o Pointer-to-function, reference-to-function, and
+        //       pointer-to-member function.  No recursion is expected.
+        //     o Reference to any of the (possibly cv-qualified) types above
+        //       except `void`, including reference-to-pointer types.
+        //     o Reference-to-array or (in C++11) rvalue-reference-to-array.
+        // 3. Concern 1 applies for pointers to functions taking 0 to 10
+        //    arguments, where some arguments are convertible to the function
+        //    argument rather than an exact match.
+        // 4. Concerns 1 to 3 apply equally for invocables of
+        //    pointer-to-function type.
+        // 5. Concerns 1 to 3 apply equally for invocables of (lvalue & rvalue)
+        //    reference-to-function type.
+        // 6. Results are not affected by arguments that decay (arrays,
+        //    functions), reference binding, or valid volatile arguments.
+        // 7. The `bsl::invoke_result_t` represents the expected type for
+        //    invocables of function type.
         //
         // Plan:
-        //: 1 For concerns 1 and 2, define a functor template 'FuncTest' which
-        //:   declares a function-returning-R type and verifies that applying
-        //:   'bsl::invoke_result' to that type yields 'R'. Invoke this functor
-        //:   through a function 'applyPtrAndRef' that adds every combination
-        //:   of pointer and reference qualifiers to 'R'.
-        //: 2 For concerns 1 and 3, instantiate 'bsl::invoke_result' on a
-        //:   function type taking 0 to 10 arguments.  Concerns 2 and
-        //:   3 do not interract, so it is not necessary to test every
-        //:   combination of 0 to 10 arguments with every possible return
-        //:   type.
-        //: 3 For concern 4, extend 'FuncTest' to also test
-        //:   pointer-to-function, reference to pointer-to-function, and
-        //:   reference to 'const' pointer-to-function.  Also repeat step 2
-        //:   with pointer-to-function types.
-        //: 4 For concern 5, extend 'FuncTest' to also test (lvalue & rvalue)
-        //:   reference-to-function.  Also repeat step 2 with
-        //:   reference-to-function types.
-        //: 5 For concern 6, invoke 'bsl::invoke_result' in a one-off fashion
-        //:   with the argument categories listed in the concern and verify
-        //:   correct operation.
-        //: 6 For concern 7, verify, for each of the parameter types specified
-        //:   in concern 2, that the type yielded by the 'bsl::invoke_result_t'
-        //:   matches the type yielded by the 'bsl::invoke_result'
-        //:   meta-function.
+        // 1. For concerns 1 and 2, define a functor template `FuncTest` which
+        //    declares a function-returning-R type and verifies that applying
+        //    `bsl::invoke_result` to that type yields `R`. Invoke this functor
+        //    through a function `applyPtrAndRef` that adds every combination
+        //    of pointer and reference qualifiers to `R`.
+        // 2. For concerns 1 and 3, instantiate `bsl::invoke_result` on a
+        //    function type taking 0 to 10 arguments.  Concerns 2 and
+        //   3. do not interract, so it is not necessary to test every
+        //    combination of 0 to 10 arguments with every possible return
+        //    type.
+        // 3. For concern 4, extend `FuncTest` to also test
+        //    pointer-to-function, reference to pointer-to-function, and
+        //    reference to `const` pointer-to-function.  Also repeat step 2
+        //    with pointer-to-function types.
+        // 4. For concern 5, extend `FuncTest` to also test (lvalue & rvalue)
+        //    reference-to-function.  Also repeat step 2 with
+        //    reference-to-function types.
+        // 5. For concern 6, invoke `bsl::invoke_result` in a one-off fashion
+        //    with the argument categories listed in the concern and verify
+        //    correct operation.
+        // 6. For concern 7, verify, for each of the parameter types specified
+        //    in concern 2, that the type yielded by the `bsl::invoke_result_t`
+        //    matches the type yielded by the `bsl::invoke_result`
+        //    meta-function.
         //
         // Testing:
         //     FUNCTION INVOCABLES
@@ -4796,10 +4822,10 @@ int main(int argc, char *argv[])
 
         // Arrays and functions cannot be returned by value, so we test only
         // references.  We can't apply a pointer or reference to something that
-        // is already a reference, so simply call the 'apply' method directly.
+        // is already a reference, so simply call the `apply` method directly.
         // MSVC 2022 and earlier fails to propagate the reference qualifier.
         // However, MSVC 2013 uses the C++03 implementation of
-        // 'bsl::invoke_result', which correctly calculates the return type.
+        // `bsl::invoke_result`, which correctly calculates the return type.
 
 #if MSVC_2022 || MSVC_2019 || MSVC_2017 || MSVC_2015
         FuncTest::apply<Arry&      , Arry>(L_);
@@ -4885,7 +4911,7 @@ int main(int argc, char *argv[])
         TEST(Ic09, F09&,i,q,i,s,i,q,i,s,i           );
         TEST(Ic10, F10&,i,i,i,i,i,i,i,i,i,i         );
 
-        // Steps 3 & 4 incorporated into 'FuncTest' (step 1) and into step 2
+        // Steps 3 & 4 incorporated into `FuncTest` (step 1) and into step 2
 
         // Step 5, concern 6
         typedef Ic05 FArry(Ic03[6]);
@@ -4914,20 +4940,20 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 'bsl::invoke_result<FT, ARGS...>' compiles for a sampling of
-        //:   parameter types
-        //:
-        //: 2 The 'bsl::invoke_result_t<FT, ARGS...>' represents the expected
-        //:   type for a sampling of parameter types
+        // 1. `bsl::invoke_result<FT, ARGS...>` compiles for a sampling of
+        //    parameter types
+        //
+        // 2. The `bsl::invoke_result_t<FT, ARGS...>` represents the expected
+        //    type for a sampling of parameter types
         //
         // Plan:
-        //: 1 Instantiate 'bsl::resulf_of' on a sampling of invocable types
-        //:   and verify that the computed return type matches the expected
-        //:   return type.
-        //:
-        //: 2 Compare 'bsl::invoke_result_t' type and the type yielded by the
-        //:   'bsl::invoke_result' meta-function for a variety of template
-        //:   parameter types.
+        // 1. Instantiate `bsl::resulf_of` on a sampling of invocable types
+        //    and verify that the computed return type matches the expected
+        //    return type.
+        //
+        // 2. Compare `bsl::invoke_result_t` type and the type yielded by the
+        //    `bsl::invoke_result` meta-function for a variety of template
+        //    parameter types.
         //
         // Testing:
         //      BREATHING TEST
@@ -4985,7 +5011,7 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
-        // Testing 'bsl::invoke_result_t'.
+        // Testing `bsl::invoke_result_t`.
 
         //     Arguments
         //     ===============================================

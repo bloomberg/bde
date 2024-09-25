@@ -14,7 +14,7 @@ using namespace std;
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
 // This test driver tests utility functions provided by the
-// 'bsls::PointerCastUtil' namespace.
+// `bsls::PointerCastUtil` namespace.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 1] cast(const From& from);
@@ -89,7 +89,7 @@ extern "C" typedef int (*printf_t)(const char *, ...);
 // object, passing back the closure.
 //
 // First we define the service and its handler:
-//..
+// ```
     struct Handler { virtual void handle(void *closure) = 0; };
     class Service {
         Handler *d_handler_p;
@@ -101,24 +101,24 @@ extern "C" typedef int (*printf_t)(const char *, ...);
         }
         void eventOccurred() { d_handler_p->handle(d_closure_p); }
     };
-//..
+// ```
 // Then, we want to define a handler that will receive a function pointer as
 // the closure object and invoke it.  In order to do that, we must cast it to a
 // function pointer, but some compilers may not allow it.  We can use
-// 'bsls::PointerCastUtil::cast' to accomplish this:
-//..
+// `bsls::PointerCastUtil::cast` to accomplish this:
+// ```
     struct MyHandler : Handler {
         void handle(void *closure) {
              bsls::PointerCastUtil::cast<void(*)()>(closure)();
         }
     };
-//..
+// ```
 // Next, we will set up a sample service and our handler function:
-//..
+// ```
     Service aService;
     static int counter = 0;
     void event() { ++counter; }
-//..
+// ```
 
 // BDE_VERIFY pragma: pop
 
@@ -140,13 +140,13 @@ int main(int argc, char *argv[])
       //   Extracted from component header file.
       //
       // Concerns:
-      //: 1 The usage example provided in the component header file compiles,
-      //:   links, and runs as shown.
+      // 1. The usage example provided in the component header file compiles,
+      //    links, and runs as shown.
       //
       // Plan:
-      //: 1 Incorporate usage example from header into test driver, remove
-      //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-      //:   (C-1)
+      // 1. Incorporate usage example from header into test driver, remove
+      //    leading comment characters, and replace `assert` with `ASSERT`.
+      //    (C-1)
       //
       // Testing:
       //   USAGE EXAMPLE
@@ -161,35 +161,35 @@ int main(int argc, char *argv[])
 // Finally, we will register our handler and then trigger events to verify that
 // our handler is recording them correctly.  To register the function pointer
 // as a closure object, we must cast it to a data pointer.  Again, we can use
-// 'bsls::PointerCastUtil::cast' to accomplish this:
-//..
+// `bsls::PointerCastUtil::cast` to accomplish this:
+// ```
     MyHandler ah;
     aService.registerHandler(&ah, bsls::PointerCastUtil::cast<void *>(event));
     aService.eventOccurred();
     aService.eventOccurred();
     ASSERT(counter == 2);
-//..
+// ```
 
 // BDE_VERIFY pragma: pop
       } break;
       case 1: {
       // --------------------------------------------------------------------
-      // TESTING 'cast'
+      // TESTING `cast`
       //
       // Concerns:
-      //: 1 Casting from a function pointer to a data pointer and back yields
-      //:   the original pointer.
+      // 1. Casting from a function pointer to a data pointer and back yields
+      //    the original pointer.
       //
       // Plan:
-      //: 1 Take a function pointer, cast it to a data pointer, cast that back
-      //:   to a function pointer, and verify that the value remains the same.
-      //:   (C-1)
+      // 1. Take a function pointer, cast it to a data pointer, cast that back
+      //    to a function pointer, and verify that the value remains the same.
+      //    (C-1)
       //
       // Testing:
       //   cast(const From& from);
       // --------------------------------------------------------------------
 
-      if (verbose) printf("\nTESTING 'cast'"
+      if (verbose) printf("\nTESTING `cast`"
                           "\n==============\n");
 
       {

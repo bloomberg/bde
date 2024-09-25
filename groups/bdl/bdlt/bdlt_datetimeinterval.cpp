@@ -377,12 +377,12 @@ void DatetimeInterval::setTotalSecondsFromDouble(double seconds)
         // checking that we are not about to run into UB when casting to
         // bsls::Types::Int64.
 
+    // On GCC x86 platforms we have to force copying a floating-point value
+    // to memory using `volatile` type qualifier to round-down the value
+    // stored in x87 unit register.
     volatile double microseconds =
                    (seconds - wholeDays * TimeUnitRatio::k_S_PER_D)
                    * TimeUnitRatio::k_US_PER_S + copysign(0.5, seconds);
-        // On GCC x86 platforms we have to force copying a floating-point value
-        // to memory using 'volatile' type qualifier to round-down the value
-        // stored in x87 unit register.
 
     int rc = assignIfValid(static_cast<bsls::Types::Int64>(wholeDays),
                            static_cast<bsls::Types::Int64>(microseconds));

@@ -6,12 +6,12 @@
 
   namespace BloombergLP {
 
+  /// Log the specified `message` at the `ball::Severity::e_INFO` severity
+  /// level.  The category to which `message` is logged is defined in
+  /// the implementation.  Note that this function may affect the
+  /// operation of other logging operations that do not explicitly set
+  /// their own categories.
   void logThisInfoMsg(const char *message);
-      // Log the specified 'message' at the 'ball::Severity::e_INFO' severity
-      // level.  The category to which 'message' is logged is defined in
-      // the implementation.  Note that this function may affect the
-      // operation of other logging operations that do not explicitly set
-      // their own categories.
 
   }  // close enterprise namespace
 
@@ -60,17 +60,17 @@
 
   int main(int argc, char *argv[])
   {
+      // Enable command-line control of program behavior.
       int verbose = argc > 1;
-          // Enable command-line control of program behavior.
 
+      // Get global allocator.
       bslma::Allocator *alloc_p = bslma::Default::globalAllocator();
-          // Get global allocator.
 
+      // Instantiate the default configuration.
       ball::LoggerManagerConfiguration configuration;
-          // Instantiate the default configuration.
 
+      // Instantiate the logger manager singleton.
       ball::LoggerManagerScopedGuard scopedGuard(configuration);
-          // Instantiate the logger manager singleton.
 
       ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
@@ -80,10 +80,10 @@
                     ball::Severity::e_ERROR,   // sets "Trigger" threshold
                     ball::Severity::e_FATAL);  // sets "Trigger-All" threshold
 
+      // Create simple observer; writes to `stdout`.
       bsl::shared_ptr<ball::StreamObserver> observer(
                                 new(*alloc_p) ball::StreamObserver(&bsl::cout),
                                 alloc_p);
-          // Create simple observer; writes to 'stdout'.
 
       manager.registerObserver(observer, "default");
           // Register the observer under (arbitrary) name "default".

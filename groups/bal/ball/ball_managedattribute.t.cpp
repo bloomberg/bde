@@ -31,8 +31,8 @@ using namespace bsl;
 //                              --------
 // The class under test is a standard value-semantic type.  For the standard
 // 10-step test procedure, we choose the constructor that takes a name and a
-// value of type 'ball::Attribute::Value' as the primary manipulator, and the
-// 'name' and 'value' methods as the basic accessors.  Our concerns regarding
+// value of type `ball::Attribute::Value` as the primary manipulator, and the
+// `name` and `value` methods as the basic accessors.  Our concerns regarding
 // the implementation of this component are that (1) all supported
 // value-semantic methods are implemented correctly; (2) the hash values must
 // be calculated correctly and must be re-calculated after the objects have
@@ -521,10 +521,10 @@ const int NUM_PRINT_DATA = sizeof PRINT_DATA / sizeof *PRINT_DATA;
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Return an attribute created from value at the specified location `i` in
+/// the specified `values` array of the specified `size`.
 template <class VALUE>
 Value createValue(const VALUE *values, int size, int i)
-    // Return an attribute created from value at the specified location 'i' in
-    // the specified 'values' array of the specified 'size'.
 {
     BSLS_ASSERT(0 <= i);
     BSLS_ASSERT(i <  size);  (void)size;
@@ -563,14 +563,14 @@ Value createValue(const VALUE *values, int size, int i)
     return variant;
 }
 
+/// Return `true` if the specified `lhs` has the same value as the specified
+/// `rhs` and `false` otherwise.  Optionally specify an `errorStream`, on
+/// which, if `lhs` and `rhs` are not the same', a description of how the
+/// two strings differ will be written.  If `errorStream` is not supplied,
+/// `cout` will be used to report an error description.
 bool compareText(const bsl::string_view& lhs,
                  const bsl::string_view& rhs,
                  bsl::ostream&           errorStream = bsl::cout)
-    // Return 'true' if the specified 'lhs' has the same value as the specified
-    // 'rhs' and 'false' otherwise.  Optionally specify an 'errorStream', on
-    // which, if 'lhs' and 'rhs' are not the same', a description of how the
-    // two strings differ will be written.  If 'errorStream' is not supplied,
-    // 'cout' will be used to report an error description.
 {
     for (unsigned int i = 0; i < lhs.length() && i < rhs.length(); ++i) {
         if (lhs[i] != rhs[i]) {
@@ -626,7 +626,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -636,13 +636,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -657,9 +657,9 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Basic properties of ManagedAttribute
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// This example create few 'ball::ManagedAttribute' object and show basic
+// This example create few `ball::ManagedAttribute` object and show basic
 // properties of those objects:
-//..
+// ```
     ball::ManagedAttribute p1("uuid", 4044457);
     ball::ManagedAttribute p2("name", "Bloomberg");
 
@@ -670,15 +670,15 @@ int main(int argc, char *argv[])
     ASSERT(4044457     == p1.value().the<int>());
     ASSERT(true        == p2.value().is<bsl::string>());
     ASSERT("Bloomberg" == p2.value().the<bsl::string>());
-//..
-// Finaly, we show that 'ball::ManagedAttribute' manages the storage for the
+// ```
+// Finaly, we show that `ball::ManagedAttribute` manages the storage for the
 // attribute name after construction:
-//..
+// ```
     char buffer[] = "Hello";
     ball::ManagedAttribute p3(buffer, 1);
     bsl::strcpy(buffer, "World");
     ASSERT("Hello" == p3.key());
-//..
+// ```
 
       } break;
       case 13: {
@@ -686,14 +686,14 @@ int main(int argc, char *argv[])
         // TESTING HASH FUNCTION
         //   Verify the hash of this object is the same as the hash of the
         //   contained attribute object.  Note that absolute value of the hash
-        //   function is tested in the 'ball::Attribute' test driver.
+        //   function is tested in the `ball::Attribute` test driver.
         //
         // Concerns:
-        //: 1 The hash value is correctly calculated for the contained
-        //:   'ball::Attribute' object with the same value.
+        // 1. The hash value is correctly calculated for the contained
+        //    `ball::Attribute` object with the same value.
         //
         // Plan:
-        //: 1  Specifying a set of test vectors and verify the return value.
+        // 1.  Specifying a set of test vectors and verify the return value.
         //
         // Testing:
         //   static int hash(const ManagedAttribute&, int size);
@@ -724,7 +724,7 @@ int main(int argc, char *argv[])
       case 12: {
         // --------------------------------------------------------------------
         // TESTING NAME/VALUE MANIPULATORS
-        //   The 'setName' and 'setValue' method should set the corresponding
+        //   The `setName` and `setValue` method should set the corresponding
         //   fields correctly.
         //
         // Plan:
@@ -885,7 +885,7 @@ int main(int argc, char *argv[])
       case 11: {
         // --------------------------------------------------------------------
         // TESTING NAME/VALUE MANIPULATORS
-        //   The 'setName' and 'setValue' method should set the corresponding
+        //   The `setName` and `setValue` method should set the corresponding
         //   fields correctly.
         //
         // Plan:
@@ -999,13 +999,13 @@ int main(int argc, char *argv[])
         //   The name/value constructors must initialize members correctly.
         //
         // Plan:
-        //: 1 Specify a set S whose elements have substantial and varied
-        //:   differences in value.
-        //: 2 For each element in S, construct an object X using the primary
-        //:   constructor, and another object Y using the corresponding
-        //:   name/value constructor.
-        //: 3 Use the equality operator to assert that both X and Y have the
-        //:   same value as W.
+        // 1. Specify a set S whose elements have substantial and varied
+        //    differences in value.
+        // 2. For each element in S, construct an object X using the primary
+        //    constructor, and another object Y using the corresponding
+        //    name/value constructor.
+        // 3. Use the equality operator to assert that both X and Y have the
+        //    same value as W.
         //
         // Testing:
         //   ManagedAttribute(const str_view& n, int v, alloc);
@@ -1240,7 +1240,7 @@ int main(int argc, char *argv[])
       case 8: {
         // --------------------------------------------------------------------
         // TESTING SECONDARY TEST APPARATUS:
-        //   Void for 'ball::ManagedAttribute'.
+        //   Void for `ball::ManagedAttribute`.
         // --------------------------------------------------------------------
 
       } break;
@@ -1292,12 +1292,12 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Specify a set S of unique names and a set T of unique value.
-        //   Construct a set W of unique 'ball::ManagedAttribute' objects using
+        //   Construct a set W of unique `ball::ManagedAttribute` objects using
         //   every element of the cross product S X T.  Verify the correctness
-        //   of 'operator==' and 'operator!=' for all elements (u, v) of the
+        //   of `operator==` and `operator!=` for all elements (u, v) of the
         //   cross product W X W.  Next for each element in W, make a copy of
         //   of the attribute, and then use that copy along with the same
-        //   attribute value to create another 'ball::ManagedAttribute' object
+        //   attribute value to create another `ball::ManagedAttribute` object
         //   to verify that is the same as that created directly from the
         //   name/value pair.
         //
@@ -1372,12 +1372,12 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING OUTPUT (<<) OPERATOR
         //   The output operator is trivially implemented using the
-        //   'bsl::ostream' output operators; a very few test vectors can
+        //   `bsl::ostream` output operators; a very few test vectors can
         //   sufficiently test wc this functionality.
         //
         // Plan:
         //   For each of a small representative set of object values, use
-        //   'ostrstream' to write that object's value to a character buffer
+        //   `ostrstream` to write that object's value to a character buffer
         //   and then compare the contents of that buffer with the expected
         //   output format.
         //
@@ -1388,7 +1388,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING OUTPUT (<<) OPERATOR"
                           << "\n============================" << endl;
 
-        if (verbose) cout << "\nTesting 'operator<<' (ostream)." << endl;
+        if (verbose) cout << "\nTesting `operator<<` (ostream)." << endl;
 
         for (int i = 0; i < NUM_PRINT_DATA; ++i) {
             int LINE = PRINT_DATA[i].d_line;
@@ -1408,7 +1408,7 @@ int main(int argc, char *argv[])
             ASSERTV(LINE, compareText(os.str(), PRINT_DATA[i].d_output));
         }
 
-        if (verbose) cout << "\nTesting 'const void *'." << endl;
+        if (verbose) cout << "\nTesting `const void *`." << endl;
 
         {
             bsltf::SimpleTestType value;
@@ -1454,7 +1454,7 @@ int main(int argc, char *argv[])
 
         const int NUM_PDATA = sizeof PDATA / sizeof *PDATA;
 
-        if (verbose) cout << "\nTesting 'print'." << endl;
+        if (verbose) cout << "\nTesting `print`." << endl;
 
         for (int i = 0; i < NUM_PDATA; ++i) {
             int   LINE  = PDATA[i].d_line;
@@ -1524,13 +1524,13 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TESTING TEST APPARATUS
-        //   The 'createValue' method must correctly create a 'bdlb::Variant'
+        //   The `createValue` method must correctly create a `bdlb::Variant`
         //   object having the specified type and value.
         //
         // Plan:
         //   Specify a set S of (unique) objects with substantial and varied
         //   differences in type and value.  For each element in S, construct
-        //   a 'bdlb::Variant' object using the 'createValue' method, and
+        //   a `bdlb::Variant` object using the `createValue` method, and
         //   verify that the resultant has the specified type and value.
         //
         // Testing:
@@ -1540,7 +1540,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING TEST APPARATUS"
                           << "\n======================" << endl;
 
-        if (verbose) cout << "\nTesting 'createValue'." << endl;
+        if (verbose) cout << "\nTesting `createValue`." << endl;
 
         for (int i = 0; i < NUM_VALUES; ++i) {
             int LINE = VALUES[i].d_line;
@@ -1768,7 +1768,7 @@ int main(int argc, char *argv[])
         //   manipulator [3, 6], copy constructor [2, 8], and assignment
         //   operator without [9, 10] and with [11] aliasing.  Use the direct
         //   accessors to verify the expected results.  Display object values
-        //   frequently in verbose mode.  Note that 'VA', 'VB', 'VC', and 'VD'
+        //   frequently in verbose mode.  Note that `VA`, `VB`, `VC`, and `VD`
         //   denote unique, but otherwise arbitrary, object values.
         //
         // 1.  Create an object x1 using VA.        { x1:VA }

@@ -80,10 +80,10 @@ const int NUM_ENUMERATORS = 3;
 
 ///Usage
 ///-----
-// Suppose that we want to create a static function, 'allocateFromBuffer', that
+// Suppose that we want to create a static function, `allocateFromBuffer`, that
 // takes a buffer, the size of the buffer, a cursor indicating a position
 // within the buffer, an allocation request size, and a memory alignment
-// strategy; 'allocateFromBuffer' returns a pointer to a block of memory,
+// strategy; `allocateFromBuffer` returns a pointer to a block of memory,
 // wholly contained within the buffer, having the specified size and alignment.
 // As a side-effect, the cursor is updated to refer to the next available free
 // byte in the buffer.  Such a function could be used by a memory manager to
@@ -91,94 +91,98 @@ const int NUM_ENUMERATORS = 3;
 // this function indicate which alignment strategy to use based on their
 // specific requirements.
 //
-// Our 'allocateFromBuffer' function depends on an alignment utility,
-// 'my_AlignmentUtil', whose minimal interface is limited to that required by
-// this usage example.  (See the 'bsls_alignmentutil' component for a more
+// Our `allocateFromBuffer` function depends on an alignment utility,
+// `my_AlignmentUtil`, whose minimal interface is limited to that required by
+// this usage example.  (See the `bsls_alignmentutil` component for a more
 // realistic alignment utility.):
-//..
+// ```
+
+    /// This `struct` provides a namespace for basic types and utilities
+    /// related to memory alignment.
     struct my_AlignmentUtil {
-        // This 'struct' provides a namespace for basic types and utilities
-        // related to memory alignment.
 
         // TYPES
+
+        /// Provide the *minimal* value that satisfies the alignment
+        /// requirements for *all* types on the host platform.  Note that 8
+        /// is used for illustration purposes only; an actual implementation
+        /// would employ template meta-programming to deduce the value at
+        /// compile time.
         enum {
             MY_MAX_PLATFORM_ALIGNMENT = 8
         };
-            // Provide the *minimal* value that satisfies the alignment
-            // requirements for *all* types on the host platform.  Note that 8
-            // is used for illustration purposes only; an actual implementation
-            // would employ template meta-programming to deduce the value at
-            // compile time.
 
         // CLASS METHODS
-        static int calculateAlignmentFromSize(int size);
-            // Calculate a usable alignment for a memory block of the specified
-            // 'size' (in bytes) in the absence of compile-time knowledge of
-            // the block's alignment requirements.  Return the largest power of
-            // two that evenly divides 'size', up to a maximum of
-            // 'MY_MAX_PLATFORM_ALIGNMENT'.  It is guaranteed that a block of
-            // 'size' bytes can be safely aligned on the return value.   The
-            // behavior is undefined unless '0 < size'.
 
+        /// Calculate a usable alignment for a memory block of the specified
+        /// `size` (in bytes) in the absence of compile-time knowledge of
+        /// the block's alignment requirements.  Return the largest power of
+        /// two that evenly divides `size`, up to a maximum of
+        /// `MY_MAX_PLATFORM_ALIGNMENT`.  It is guaranteed that a block of
+        /// `size` bytes can be safely aligned on the return value.   The
+        /// behavior is undefined unless `0 < size`.
+        static int calculateAlignmentFromSize(int size);
+
+        /// Return the smallest non-negative offset (in bytes) that, when
+        /// added to the specified `address`, yields the specified
+        /// `alignment`.  The behavior is undefined unless `0 != alignment`
+        /// and `alignment` is a non-negative, integral power of 2.
         static int calculateAlignmentOffset(const void *address,
                                             int         alignment);
-            // Return the smallest non-negative offset (in bytes) that, when
-            // added to the specified 'address', yields the specified
-            // 'alignment'.  The behavior is undefined unless '0 != alignment'
-            // and 'alignment' is a non-negative, integral power of 2.
     };
-//..
-// The definition of our 'allocateFromBuffer' function is as follows:
-//..
+// ```
+// The definition of our `allocateFromBuffer` function is as follows:
+// ```
+
+    /// Allocate a memory block of the specified `size` (in bytes) from the
+    /// specified `buffer` having the specified `bufferSize` at the
+    /// specified `cursor` position, using the specified alignment
+    /// `strategy`.  Return the address of the allocated memory block if
+    /// `buffer` contains sufficient available memory, and 0 otherwise.  The
+    /// `cursor` is set to the first byte position immediately after the
+    /// allocated memory (which might be 1 byte past the end of `buffer`) if
+    /// there is sufficient memory, and is not modified otherwise.  The
+    /// behavior is undefined unless `0 <= bufferSize`, `0 < size`, and
+    /// `cursor` refers to a valid position in `buffer`.
     static void *allocateFromBuffer(int                       *cursor,
                                     char                      *buffer,
                                     int                        bufferSize,
                                     int                        size,
                                     bsls::Alignment::Strategy  strategy)
-        // Allocate a memory block of the specified 'size' (in bytes) from the
-        // specified 'buffer' having the specified 'bufferSize' at the
-        // specified 'cursor' position, using the specified alignment
-        // 'strategy'.  Return the address of the allocated memory block if
-        // 'buffer' contains sufficient available memory, and 0 otherwise.  The
-        // 'cursor' is set to the first byte position immediately after the
-        // allocated memory (which might be 1 byte past the end of 'buffer') if
-        // there is sufficient memory, and is not modified otherwise.  The
-        // behavior is undefined unless '0 <= bufferSize', '0 < size', and
-        // 'cursor' refers to a valid position in 'buffer'.
     {
-//..
+// ```
 // First we assert the function pre-conditions:
-//..
+// ```
         ASSERT(cursor);
         ASSERT(buffer);
         ASSERT(0 <= bufferSize);
         ASSERT(0 < size);
-//..
-// Then, based on the alignment 'strategy', we calculate the alignment value
+// ```
+// Then, based on the alignment `strategy`, we calculate the alignment value
 // that can satisfy the allocation request.  In the case of
-// 'bsls::Alignment::BSLS_NATURAL', we calculate the alignment from 'size'; for
-// 'bsls::Alignment::BSLS_MAXIMUM', we use the platform-dependent
-// 'my_AlignmentUtil::MY_MAX_PLATFORM_ALIGNMENT' value; and for
-// 'bsls::Alignment::BSLS_BYTEALIGNED', we simply use 1:
-//..
+// `bsls::Alignment::BSLS_NATURAL`, we calculate the alignment from `size`; for
+// `bsls::Alignment::BSLS_MAXIMUM`, we use the platform-dependent
+// `my_AlignmentUtil::MY_MAX_PLATFORM_ALIGNMENT` value; and for
+// `bsls::Alignment::BSLS_BYTEALIGNED`, we simply use 1:
+// ```
         const int alignment =
                            strategy == bsls::Alignment::BSLS_NATURAL
                            ? my_AlignmentUtil::calculateAlignmentFromSize(size)
                            : strategy == bsls::Alignment::BSLS_MAXIMUM
                              ? my_AlignmentUtil::MY_MAX_PLATFORM_ALIGNMENT
                              : 1;
-//..
-// Now we calculate the offset from the current 'cursor' value that can satisfy
-// the 'alignment' requirements:
-//..
+// ```
+// Now we calculate the offset from the current `cursor` value that can satisfy
+// the `alignment` requirements:
+// ```
         const int offset = my_AlignmentUtil::calculateAlignmentOffset(
                                                               buffer + *cursor,
                                                               alignment);
 
-//..
-// Next we check if the available free memory in 'buffer' can satisfy the
+// ```
+// Next we check if the available free memory in `buffer` can satisfy the
 // allocation request; 0 is returned if the request cannot be satisfied:
-//..
+// ```
         if (*cursor + offset + size > bufferSize) {
             return 0;                                                 // RETURN
         }
@@ -186,18 +190,18 @@ const int NUM_ENUMERATORS = 3;
         void *result = &buffer[*cursor + offset];
         *cursor += offset + size;
 
-//..
+// ```
 // Finally, return the address of the correctly aligned memory block:
-//..
+// ```
         return result;
     }
-//..
-// The 'allocateFromBuffer' function may be used by a memory manager that needs
+// ```
+// The `allocateFromBuffer` function may be used by a memory manager that needs
 // to appropriately align memory blocks that are allocated from
-// internally-managed buffers.  For an example, see the 'bslma_bufferimputil'
+// internally-managed buffers.  For an example, see the `bslma_bufferimputil`
 // component.
 
-// Provide dummy implementations of 'my_AlignmentUtil' functions, so that the
+// Provide dummy implementations of `my_AlignmentUtil` functions, so that the
 // test driver links successfully on all platforms.
 
 int my_AlignmentUtil::calculateAlignmentFromSize(int)
@@ -228,14 +232,14 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run as shown.  (P-1)
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run as shown.  (P-1)
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -244,41 +248,41 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-        // Silence 'defined but not used' warning:
+        // Silence `defined but not used` warning:
 
         (void)&allocateFromBuffer;
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'enum' AND 'toAscii'
+        // TESTING `enum` AND `toAscii`
         //
         // Concerns:
-        //: 1 The enumerator values are sequential, starting from 0.  (P-1)
-        //: 2 The 'toAscii' method returns the expected string representation
-        //:   for each enumerator.  (P-2)
-        //: 3 The 'toAscii' method returns a distinguished string when passed
-        //:   an out-of-band value.  (P-3)
-        //: 4 The string returned by 'toAscii' is non-modifiable.  (P-4)
-        //: 5 The 'toAscii' method has the expected signature.  (P-4)
+        // 1. The enumerator values are sequential, starting from 0.  (P-1)
+        // 2. The `toAscii` method returns the expected string representation
+        //    for each enumerator.  (P-2)
+        // 3. The `toAscii` method returns a distinguished string when passed
+        //    an out-of-band value.  (P-3)
+        // 4. The string returned by `toAscii` is non-modifiable.  (P-4)
+        // 5. The `toAscii` method has the expected signature.  (P-4)
         //
         // Plan:
-        //: 1 Verify that the enumerator values are sequential, starting from
-        //:   0.  (C-1)
-        //: 2 Verify that the 'toAscii' method returns the expected string
-        //:   representation for each enumerator.  (C-2)
-        //: 3 Verify that the 'toAscii' method returns a distinguished string
-        //:   when passed an out-of-band value.  (C-3)
-        //: 4 Take the address of the 'toAscii' (class) method and use the
-        //:   result to initialize a variable of the appropriate type.
-        //:   (C-4, C-5)
+        // 1. Verify that the enumerator values are sequential, starting from
+        //    0.  (C-1)
+        // 2. Verify that the `toAscii` method returns the expected string
+        //    representation for each enumerator.  (C-2)
+        // 3. Verify that the `toAscii` method returns a distinguished string
+        //    when passed an out-of-band value.  (C-3)
+        // 4. Take the address of the `toAscii` (class) method and use the
+        //    result to initialize a variable of the appropriate type.
+        //    (C-4, C-5)
         //
         // Testing:
         //   enum Strategy { ... };
         //   const char *toAscii(Alignment::Strategy value);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting 'enum' and 'toAscii'"
+        if (verbose) printf("\nTesting `enum` and `toAscii`"
                             "\n============================\n");
 
         static const struct {
@@ -311,7 +315,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(ti, ti == VALUE);
         }
 
-        if (verbose) printf("\nTesting 'toAscii'.\n");
+        if (verbose) printf("\nTesting `toAscii`.\n");
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE  = DATA[ti].d_lineNum;
@@ -326,7 +330,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(LINE, ti,           0 == strcmp(EXP, result));
         }
 
-        if (verbose) printf("\nVerify 'toAscii' signature.\n");
+        if (verbose) printf("\nVerify `toAscii` signature.\n");
 
         {
             typedef const char *(*FuncPtr)(Enum);

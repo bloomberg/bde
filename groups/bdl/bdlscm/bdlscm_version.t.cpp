@@ -4,7 +4,7 @@
 
 #include <bslim_testutil.h>
 
-#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstdlib.h>     // `atoi`
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Use the exact text of the usage example from the user
-        //   documentation, but change uses of 'assert' to 'ASSERT'.
+        //   documentation, but change uses of `assert` to `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -47,11 +47,11 @@ int main(int argc, char *argv[])
 ///Usage
 ///-----
 // A program can display the version of BDL that was used to build it by
-// printing the version string returned by 'bdlscm::Version::version()' to
-// 'stdout' as follows:
-//..
+// printing the version string returned by `bdlscm::Version::version()` to
+// `stdout` as follows:
+// ```
     bsl::cout << "BDL version: " <<  bdlscm::Version::version() << bsl::endl;
-//..
+// ```
         }
       } break;
       default: {

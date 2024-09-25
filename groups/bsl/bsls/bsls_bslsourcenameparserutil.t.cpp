@@ -7,7 +7,7 @@
 
 #ifdef BDE_VERIFY
 // Suppress some pedantic bde_verify checks in this test driver
-#pragma bde_verify -MN04   // Pointer members must end in '_p'
+#pragma bde_verify -MN04   // Pointer members must end in `_p`
 #endif
 
 using namespace BloombergLP;
@@ -16,7 +16,7 @@ using namespace BloombergLP;
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
 // This test driver tests utility functions provided by the
-// 'bsls::BslSourceNameParserUtil' namespace.
+// `bsls::BslSourceNameParserUtil` namespace.
 //-----------------------------------------------------------------------------
 // [ 2] int getComponentName(p, l, srcname, kind);
 // [ 3] const char *errorMessage(int errorCode);
@@ -168,28 +168,28 @@ static void aSsErT(bool b, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 namespace {
+/// Print the specified `v` to `stdout`.
 static inline void printTestingValue(int v)
-    // Print the specified 'v' to 'stdout'.
 {
     printf("%d", v);
 }
 
+/// Print the specified `v` to `stdout`.
 static inline void printTestingValue(unsigned v)
-    // Print the specified 'v' to 'stdout'.
 {
     printf("%u", v);
 }
 
 #if defined(__clang__)
 // We do not use '<bsls_platform.h> here so this component can be used if
-// necessary in any other component (including '<bsls_platform>' or components
+// necessary in any other component (including `<bsls_platform>` or components
 // depending on it).
 //
 // clang ignores the indication that we don't care if (function) names are used
 // or not, it still emits a different kind of warning:
-//..
-// function 'functionName' is not needed and will not be emitted
-//..
+// ```
+// function `functionName` is not needed and will not be emitted
+// ```
 // We disable that warning for this test driver, as it has no value.
 #pragma clang diagnostic ignored "-Wunneeded-internal-declaration"
 #endif
@@ -198,19 +198,19 @@ static inline void printTestingValue(unsigned v)
 #pragma bde_verify push
 #pragma bde_verify -CC01   // C-style cast is used
 #endif
+/// Print the specified `v` to `stdout`.
 static inline void printTestingValue(unsigned long v)
-    // Print the specified 'v' to 'stdout'.
 {
-    // these functions may be unused depending on what type 'size_t' is
+    // these functions may be unused depending on what type `size_t` is
     (void)(void(*)(unsigned long))& printTestingValue;
 
     printf("%lu", v);
 }
 
+/// Print the specified `v` to `stdout`.
 static inline void printTestingValue(unsigned long long v)
-    // Print the specified 'v' to 'stdout'.
 {
-    // these functions may be unused depending on what type 'size_t' is
+    // these functions may be unused depending on what type `size_t` is
     (void)(void(*)(unsigned long long))& printTestingValue;
 
     printf("%llu", v);
@@ -219,8 +219,8 @@ static inline void printTestingValue(unsigned long long v)
 #pragma bde_verify pop
 #endif
 
+/// Print the specified `text` to `stdout`.
 static inline void printTestingValue(const char* text)
-    // Print the specified 'text' to 'stdout'.
 {
     fputc('"', stdout);
     fputs(text, stdout);
@@ -232,19 +232,19 @@ static inline void printTestingValue(const char* text)
 //                            PRINTERS WITH NAMES
 //-----------------------------------------------------------------------------
 
+/// Print the specified `name` followed by the specified `v1` to `stdout`.
 template <class T1>
 void assertPrint(const char *name, const T1& v1)
-    // Print the specified 'name' followed by the specified 'v1' to 'stdout'.
 {
     fputs(name, stdout);
     printTestingValue(v1);
     fputc('\n', stdout);
 }
 
+/// Print the specified `names` followed by their corresponding specified
+/// `v1`, and `v2` values to `stdout`.
 template <class T1, class T2>
 void assertPrint(const char* (&names)[2], const T1& v1, const T2& v2)
-    // Print the specified 'names' followed by their corresponding specified
-    // 'v1', and 'v2' values to 'stdout'.
 {
     fputs(names[0], stdout);
     printTestingValue(v1);
@@ -253,13 +253,13 @@ void assertPrint(const char* (&names)[2], const T1& v1, const T2& v2)
     fputc('\n', stdout);
 }
 
+/// Print the specified `names` followed by their corresponding specified
+/// `v1`, `v2`, and `v3` values to `stdout`.
 template <class T1, class T2, class T3>
 void assertPrint(const char* (&names)[3],
                  const T1&     v1,
                  const T2&     v2,
                  const T3&     v3)
-    // Print the specified 'names' followed by their corresponding specified
-    // 'v1', 'v2', and 'v3' values to 'stdout'.
 {
     fputs(names[0], stdout);
     printTestingValue(v1);
@@ -270,14 +270,14 @@ void assertPrint(const char* (&names)[3],
     fputc('\n', stdout);
 }
 
+/// Print the specified `names` followed by their corresponding specified
+/// `v1`, `v2`, `v3`, and `v4` values to `stdout`.
 template <class T1, class T2, class T3, class T4>
 void assertPrint(const char* (&names)[4],
                  const T1&     v1,
                  const T2&     v2,
                  const T3&     v3,
                  const T4&     v4)
-    // Print the specified 'names' followed by their corresponding specified
-    // 'v1', 'v2', 'v3', and 'v4' values to 'stdout'.
 {
     fputs(names[0], stdout);
     printTestingValue(v1);
@@ -290,6 +290,8 @@ void assertPrint(const char* (&names)[4],
     fputc('\n', stdout);
 }
 
+/// Print the specified `names` followed by their corresponding specified
+/// `v1`, `v2`, `v3`, `v4`, and `v5` values to `stdout`.
 template <class T1, class T2, class T3, class T4, class T5>
 void assertPrint(const char* (&names)[5],
                  const T1&     v1,
@@ -297,8 +299,6 @@ void assertPrint(const char* (&names)[5],
                  const T3&     v3,
                  const T4&     v4,
                  const T5&     v5)
-    // Print the specified 'names' followed by their corresponding specified
-    // 'v1', 'v2', 'v3', 'v4', and 'v5' values to 'stdout'.
 {
     fputs(names[0], stdout);
     printTestingValue(v1);
@@ -313,6 +313,8 @@ void assertPrint(const char* (&names)[5],
     fputc('\n', stdout);
 }
 
+/// Print the specified `names` followed by their corresponding specified
+/// `v1`, `v2`, `v3`, `v4`, `v5`, and `v6` values to `stdout`.
 template <class T1, class T2, class T3, class T4, class T5, class T6>
 void assertPrint(const char* (&names)[6],
                  const T1&     v1,
@@ -321,8 +323,6 @@ void assertPrint(const char* (&names)[6],
                  const T4&     v4,
                  const T5&     v5,
                  const T6&     v6)
-    // Print the specified 'names' followed by their corresponding specified
-    // 'v1', 'v2', 'v3', 'v4', 'v5', and 'v6' values to 'stdout'.
 {
     fputs(names[0], stdout);
     printTestingValue(v1);
@@ -339,6 +339,8 @@ void assertPrint(const char* (&names)[6],
     fputc('\n', stdout);
 }
 
+/// Print the specified `names` followed by their corresponding specified
+/// `v1`, `v2`, `v3`, `v4`, `v5`, `v6`, and `v7` values to `stdout`.
 template <class T1, class T2, class T3, class T4, class T5, class T6,
           class T7>
 void assertPrint(const char* (&names)[7],
@@ -349,8 +351,6 @@ void assertPrint(const char* (&names)[7],
                  const T5&     v5,
                  const T6&     v6,
                  const T7&     v7)
-    // Print the specified 'names' followed by their corresponding specified
-    // 'v1', 'v2', 'v3', 'v4', 'v5', 'v6', and 'v7' values to 'stdout'.
 {
     fputs(names[0], stdout);
     printTestingValue(v1);
@@ -394,16 +394,16 @@ namespace {
                               // class SubString
                               // ===============
 
+/// A not null terminated reference string type whose value is defined by a
+/// pointer into another string and the number of characters it contains.
+/// This simple type is used to be able easily compare, for equality,
+/// substrings with C (null-terminated) strings and to easily print
+/// substrings when using the `ASSERTV` and `P` test facilities.  Note that
+/// this is a very simple type, not a template, and it uses C facilities for
+/// printing and comparison so it can be used anywhere in `bsl`.  Also note
+/// that the unlike the standard string view this type does not support
+/// embedded null characters!
 class SubString {
-    // A not null terminated reference string type whose value is defined by a
-    // pointer into another string and the number of characters it contains.
-    // This simple type is used to be able easily compare, for equality,
-    // substrings with C (null-terminated) strings and to easily print
-    // substrings when using the 'ASSERTV' and 'P' test facilities.  Note that
-    // this is a very simple type, not a template, and it uses C facilities for
-    // printing and comparison so it can be used anywhere in 'bsl'.  Also note
-    // that the unlike the standard string view this type does not support
-    // embedded null characters!
 
   private:
     // DATA
@@ -412,24 +412,26 @@ class SubString {
 
   public:
     // CREATORS
-    explicit SubString(const char *begin, size_t length);
-        // Create a new 'SubString' object using the specified 'begin' and
-        // 'length'.  The behavior is undefined if any of the 'length' count of
-        // character starting at 'begin' is the null character.
 
+    /// Create a new `SubString` object using the specified `begin` and
+    /// `length`.  The behavior is undefined if any of the `length` count of
+    /// character starting at `begin` is the null character.
+    explicit SubString(const char *begin, size_t length);
+
+    /// Create a new `SubString` object from the specified C string
+    /// `literal`, not including its closing null character.
     template <size_t LENGTH_WITH_NULL_TERMINATOR>
     explicit
     SubString(const char (&literal)[LENGTH_WITH_NULL_TERMINATOR]);
-        // Create a new 'SubString' object from the specified C string
-        // 'literal', not including its closing null character.
 
     // ACCESSORS
-    const char *begin() const;
-        // Return a pointer to the first character of the substring of this
-        // object.
 
+    /// Return a pointer to the first character of the substring of this
+    /// object.
+    const char *begin() const;
+
+    /// Return the number of characters in the substring of this object.
     size_t length() const;
-        // Return the number of characters in the substring of this object.
 };
 
                               // ---------------
@@ -463,34 +465,35 @@ size_t SubString::length() const
 
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` refer to the same number
+/// of characters, and that sequence of characters have equal value.  Return
+/// `false` if `lhs` and `rhs` refer to different number of characters or if
+/// any of those characters in the sequence is different.
 inline
 bool operator==(const SubString& lhs, const SubString& rhs)
-    // Return 'true' if the specified 'lhs' and 'rhs' refer to the same number
-    // of characters, and that sequence of characters have equal value.  Return
-    // 'false' if 'lhs' and 'rhs' refer to different number of characters or if
-    // any of those characters in the sequence is different.
 {
     return lhs.length() == rhs.length()
         && 0 == memcmp(lhs.begin(), rhs.begin(), rhs.length());
 }
 
+/// Return `true` if the specified `lhs` and `rhs` refer to the same number
+/// of characters, and that sequence of characters have equal value.  Return
+/// `false` if `lhs` and `rhs` refer to different number of characters or if
+/// any of those characters in the sequence is different.
 inline
 bool operator==(const SubString& lhs, const char *rhs)
-    // Return 'true' if the specified 'lhs' and 'rhs' refer to the same number
-    // of characters, and that sequence of characters have equal value.  Return
-    // 'false' if 'lhs' and 'rhs' refer to different number of characters or if
-    // any of those characters in the sequence is different.
 {
     return lhs.length() == strlen(rhs)
         && 0 == strncmp(lhs.begin(), rhs, lhs.length());
 }
 
+/// Return `true` if the specified `lhs` and `rhs` refer to the same number
+/// of characters, and that sequence of characters have equal value.  Return
+/// `false` if `lhs` and `rhs` refer to different number of characters or if
+/// any of those characters in the sequence is different.
 inline
 bool operator==(const char *lhs, const SubString& rhs)
-    // Return 'true' if the specified 'lhs' and 'rhs' refer to the same number
-    // of characters, and that sequence of characters have equal value.  Return
-    // 'false' if 'lhs' and 'rhs' refer to different number of characters or if
-    // any of those characters in the sequence is different.
 {
     return rhs == lhs;
 }
@@ -499,12 +502,12 @@ bool operator==(const char *lhs, const SubString& rhs)
 #pragma bde_verify push
 #pragma bde_verify -CC01   // C-style cast is used
 #endif
+/// Return `true` if the specified `lhs` and `rhs` refer to different number
+/// of characters, or any two corresponding characters in those sequences
+/// differ.  Return `false` if `lhs` and `rhs` refer to the same number of
+/// characters and those characters are the same in the same sequence.
 inline
 bool operator!=(const SubString& lhs, const SubString& rhs)
-    // Return 'true' if the specified 'lhs' and 'rhs' refer to different number
-    // of characters, or any two corresponding characters in those sequences
-    // differ.  Return 'false' if 'lhs' and 'rhs' refer to the same number of
-    // characters and those characters are the same in the same sequence.
 {
     // this function may be unused but it is necessary for completeness
     (void)(bool(*)(const SubString&, const SubString&))& operator!=;
@@ -512,12 +515,12 @@ bool operator!=(const SubString& lhs, const SubString& rhs)
     return !(lhs == rhs);
 }
 
+/// Return `true` if the specified `lhs` and `rhs` refer to different number
+/// of characters, or any two corresponding characters in those sequences
+/// differ.  Return `false` if `lhs` and `rhs` refer to the same number of
+/// characters and those characters are the same in the same sequence.
 inline
 bool operator!=(const SubString& lhs, const char* rhs)
-    // Return 'true' if the specified 'lhs' and 'rhs' refer to different number
-    // of characters, or any two corresponding characters in those sequences
-    // differ.  Return 'false' if 'lhs' and 'rhs' refer to the same number of
-    // characters and those characters are the same in the same sequence.
 {
     // this function may be unused but it is necessary for completeness
     (void)(bool(*)(const SubString&, const char*))& operator!=;
@@ -525,12 +528,12 @@ bool operator!=(const SubString& lhs, const char* rhs)
     return !(lhs == rhs);
 }
 
+/// Return `true` if the specified `lhs` and `rhs` refer to different number
+/// of characters, or any two corresponding characters in those sequences
+/// differ.  Return `false` if `lhs` and `rhs` refer to the same number of
+/// characters and those characters are the same in the same sequence.
 inline
 bool operator!=(const char* lhs, const SubString& rhs)
-    // Return 'true' if the specified 'lhs' and 'rhs' refer to different number
-    // of characters, or any two corresponding characters in those sequences
-    // differ.  Return 'false' if 'lhs' and 'rhs' refer to the same number of
-    // characters and those characters are the same in the same sequence.
 {
     // this function may be unused but it is necessary for completeness
     (void)(bool(*)(const char*, const SubString&))& operator!=;
@@ -542,11 +545,12 @@ bool operator!=(const char* lhs, const SubString& rhs)
 #endif
 
 // ASPECT FREE FUNCTIONS
+
+/// Print the string referred by the specified `object` to the `stdout`
+/// stream, in quotes.
 static
 inline
 void printTestingValue(const SubString& object)
-    // Print the string referred by the specified 'object' to the 'stdout'
-    // stream, in quotes.
 {
     printf("\"%.*s\"", static_cast<int>(object.length()), object.begin());
 }
@@ -555,9 +559,9 @@ void printTestingValue(const SubString& object)
                           // class SourcenameBuilder
                           // =======================
 
+/// This non-copyable helper class is used to maintain the buffer for, and
+/// assemble a source file name for testing 'getComponentName.
 class SourcenameBuilder {
-    // This non-copyable helper class is used to maintain the buffer for, and
-    // assemble a source file name for testing 'getComponentName.
 
   private:
     // DATA
@@ -570,10 +574,11 @@ class SourcenameBuilder {
 
   public:
     // CREATORS
+
+    /// Create an empty `SourcenameBuilder` object.  Note that the behavior
+    /// is undefined unless the `reset` method is called next to set a
+    /// value, or the object is destroyed.
     SourcenameBuilder();
-        // Create an empty 'SourcenameBuilder' object.  Note that the behavior
-        // is undefined unless the 'reset' method is called next to set a
-        // value, or the object is destroyed.
 
     // MANIPULATORS
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -581,25 +586,26 @@ class SourcenameBuilder {
         // If the current source file name string in the buffer of this object
         // has non-empty UNIX style path (that ends with a '/') replace its
         // path separators with backslash to test them as a Windows path.  If
-        // a replacement was made return 'true'.  Otherwise, if the path was
-        // empty or not a UNIX path, return 'false'.
+        // a replacement was made return `true`.  Otherwise, if the path was
+        // empty or not a UNIX path, return `false`.
 #endif
 
+    /// Insert to the end of the component name part in the buffer of this
+    /// object the "_cpp03" suffix.  Return `false` if the result would be
+    /// too long.
     bool insertCpp03Suffix();
-        // Insert to the end of the component name part in the buffer of this
-        // object the "_cpp03" suffix.  Return 'false' if the result would be
-        // too long.
 
+    /// Create, in this object's buffer, the full source file name
+    /// (optionally with path) from the specified `path`, `name`, and `exts`
+    /// (extensions).  Note that the buffers content is overwritten.  Return
+    /// `false` if the name would not fit into the available buffer.
     bool reset(const char *path, const char *name, const char *exts);
-        // Create, in this object's buffer, the full source file name
-        // (optionally with path) from the specified 'path', 'name', and 'exts'
-        // (extensions).  Note that the buffers content is overwritten.  Return
-        // 'false' if the name would not fit into the available buffer.
 
     // ACCESSORS
+
+    /// Return a pointer to the beginning of the current source file name
+    /// buffer of this object.
     const char *sourceName() const;
-        // Return a pointer to the beginning of the current source file name
-        // buffer of this object.
 };
 
                           // -----------------------
@@ -699,32 +705,32 @@ const char *SourcenameBuilder::sourceName() const
 //                          HELPER FREE FUNCTIONS
 //-----------------------------------------------------------------------------
 
+/// Return `true` if the specified `p` points into the specified `buffer` of
+/// the specified `length`, and return `false` otherwise.
 static
 inline
 bool isIn(const char *p, const char *buffer, size_t length)
-    // Return 'true' if the specified 'p' points into the specified 'buffer' of
-    // the specified 'length', and return 'false' otherwise.
 {
     return p >= buffer && p < buffer + length;
 }
 
+/// Return `true` if the character sequence starting at the specified `s`,
+/// and consisting of the specified `sLen` number of characters fully
+/// resides withing the specified `buffer` of the specified `length`, and
+/// `false` otherwise.
 static
 inline
 bool isIn(const char *s, size_t sLen, const char *buffer, size_t length)
-    // Return 'true' if the character sequence starting at the specified 's',
-    // and consisting of the specified 'sLen' number of characters fully
-    // resides withing the specified 'buffer' of the specified 'length', and
-    // 'false' otherwise.
 {
     return isIn(s, buffer, length) && isIn(s + sLen, buffer, length);
 }
 
+/// Determines if the string specified by `p` and `len` is within the
+/// specified `s1` or `s2` null terminated strings, excluding the null
+/// terminator character.  Used to check if it is safe to print `p`.
 static
 inline
 bool isSafe(const char *p, size_t len, const char *s1, const char *s2)
-    // Determines if the string specified by 'p' and 'len' is within the
-    // specified 's1' or 's2' null terminated strings, excluding the null
-    // terminator character.  Used to check if it is safe to print 'p'.
 {
     return isIn(p, len, s1, strlen(s1)) || isIn(p, len, s2, strlen(s2));
 }
@@ -733,6 +739,15 @@ bool isSafe(const char *p, size_t len, const char *s1, const char *s2)
 //                        TESTER FREE FUNCTIONS
 //-----------------------------------------------------------------------------
 
+/// Execute and verify against the specified `EXPECTED_COMPONENT_NAME` and
+/// `EXPECTED_TYPE` values the parsing of the specified valid, BDE-style
+/// source `TESTED_FILENAME` using `bsls::AssertTest_ParseFilename`.  Use
+/// the specified `PATH_LINE`, `NAME_LINE`, and `EXTS_LINE` line numbers in
+/// assertions to refer to the source code line number for test data table
+/// row number source for the path, name, and extension(s) that contributed
+/// to `TESTED_FILENAME`, and the specified `CALLER_LINE` line number that
+/// called this function (it is called several times with the same input but
+/// input but slightly different `TESTED_FILENAME`).
 static
 void verifyValidSourceParse(int                 PATH_LINE,
                             int                 NAME_LINE,
@@ -741,15 +756,6 @@ void verifyValidSourceParse(int                 PATH_LINE,
                             const char         *TESTED_FILENAME,
                             const char         *EXPECTED_COMPONENT_NAME,
                             unsigned            EXPECTED_TYPE)
-    // Execute and verify against the specified 'EXPECTED_COMPONENT_NAME' and
-    // 'EXPECTED_TYPE' values the parsing of the specified valid, BDE-style
-    // source 'TESTED_FILENAME' using 'bsls::AssertTest_ParseFilename'.  Use
-    // the specified 'PATH_LINE', 'NAME_LINE', and 'EXTS_LINE' line numbers in
-    // assertions to refer to the source code line number for test data table
-    // row number source for the path, name, and extension(s) that contributed
-    // to 'TESTED_FILENAME', and the specified 'CALLER_LINE' line number that
-    // called this function (it is called several times with the same input but
-    // input but slightly different 'TESTED_FILENAME').
 {
 #define ASSERTL(X)                                                            \
     ASSERT5(PATH_LINE, NAME_LINE, EXTS_LINE, CALLER_LINE, TESTED_FILENAME, X)
@@ -783,16 +789,16 @@ void verifyValidSourceParse(int                 PATH_LINE,
 #undef ASSERTL
 }
 
+/// Attempt to parse the specified `TESTED_BAD_FILENAME` using
+/// `bsls::AssertTest_ParseFilename` and verify that the parsing result is
+/// the specified `EXPECTED_RETURN` code.  Use the specified `BAD_NAME_LINE`
+/// and `PATH_LINE` in assertions to refer to the test data table row for
+/// `TESTED_BAD_FILENAME`.
 static
 void verifyInvalidSourceParse(int                 BAD_NAME_LINE,
                               int                 PATH_LINE,
                               const char         *TESTED_BAD_FILENAME,
                               int                 EXPECTED_RETURN)
-    // Attempt to parse the specified 'TESTED_BAD_FILENAME' using
-    // 'bsls::AssertTest_ParseFilename' and verify that the parsing result is
-    // the specified 'EXPECTED_RETURN' code.  Use the specified 'BAD_NAME_LINE'
-    // and 'PATH_LINE' in assertions to refer to the test data table row for
-    // 'TESTED_BAD_FILENAME'.
 {
 #define ASSERTL2(I, J, X)                                                     \
     ASSERT5(BAD_NAME_LINE, PATH_LINE, TESTED_BAD_FILENAME, I, J, X)
@@ -823,26 +829,26 @@ void example1()
 // names.  To ease understanding we use string literals for source file names.
 //
 // First, we declare the result variables that the parser will fill:
-//..
+// ```
     const char *componentStart  = 0;
     size_t      componentLength = 0;
-//..
+// ```
 // Next, we call the parser, saving its return value:
-//..
+// ```
     int returnCode =  bsls::BslSourceNameParserUtil::getComponentName(
                                           &componentStart,
                                           &componentLength,
                                           "groups/abc/abcx/abcx_name_cpp03.h");
-//..
+// ```
 // Now, we verify that the parsing was successful:
-//..
+// ```
     ASSERT(0 == returnCode);
-//..
+// ```
 // Finally, we can verify that the expected component name is found:
-//..
+// ```
     ASSERT(9 == componentLength &&
            0 == memcmp("abcx_name", componentStart, 9));
-//..
+// ```
 // Notice how the "_cpp03" suffix of the generated file has been removed.
 }
 
@@ -855,31 +861,31 @@ void example2()
 // for source file names.
 {
 // First, we declare the result variables that the parser will fill:
-//..
+// ```
     const char *componentStart  = 0;
     size_t      componentLength = 0;
     unsigned    sourceType      = ~0u;
-//..
+// ```
 // Next, we call the parser with the first name, passing the address of the
 // optional output variable after the source file name:
-//..
+// ```
     int returnCode =  bsls::BslSourceNameParserUtil::getComponentName(
                                            &componentStart,
                                            &componentLength,
                                            "groups/abc/abcx/abcx_name_cpp03.h",
                                            &sourceType);
-//..
+// ```
 // Then, we verify that the parsing was successful, and the expected component
 // name is found:
-//..
+// ```
     ASSERT(0 == returnCode);
     ASSERT(9 == componentLength &&
            0 == memcmp("abcx_name", componentStart, 9));
-//..
+// ```
 // Next, we verify the determined source file type by examining the "kind",
-// stored in the bits masked by 'bsls::BslSourceNameParserUtil::k_MASK_KIND',
+// stored in the bits masked by `bsls::BslSourceNameParserUtil::k_MASK_KIND`,
 // and the flags stored in other bits:
-//..
+// ```
     typedef bsls::BslSourceNameParserUtil Util;  // For brevity
 
     ASSERT(Util::k_HEADER == (sourceType & Util::k_MASK_KIND));
@@ -887,12 +893,12 @@ void example2()
     ASSERT(0 == (sourceType & Util::k_IS_MULTIFILE_TEST  ));
     ASSERT(0 == (sourceType & Util::k_IS_SUBORDINATE_TEST));
     ASSERT(0 != (sourceType & Util::k_IS_CPP03_GENERATED ));
-//..
+// ```
 // Then, we can verify a subordinate test component implementation file name.
 // These names, and also headers for subordinate test components are special as
 // they are not supposed to contain executable code.  They are just another
 // test driver for their main component.
-//..
+// ```
     returnCode =  bsls::BslSourceNameParserUtil::getComponentName(
                                         &componentStart,
                                         &componentLength,
@@ -902,18 +908,18 @@ void example2()
     ASSERT(0 == returnCode);
     ASSERT(9 == componentLength &&
            0 == memcmp("abcx_name", componentStart, 9));
-//..
+// ```
 // Note that the main component name is reported.
-//..
+// ```
     ASSERT(Util::k_IMPL == (sourceType & Util::k_MASK_KIND));
 
     ASSERT(0 == (sourceType & Util::k_IS_MULTIFILE_TEST  ));
     ASSERT(0 != (sourceType & Util::k_IS_SUBORDINATE_TEST));
     ASSERT(0 == (sourceType & Util::k_IS_CPP03_GENERATED ));
-//..
+// ```
 // Now, we verify a traditional test driver file name of a subordinate test
 // component:
-//..
+// ```
     returnCode =  bsls::BslSourceNameParserUtil::getComponentName(
                                       &componentStart,
                                       &componentLength,
@@ -929,9 +935,9 @@ void example2()
     ASSERT(0 == (sourceType & Util::k_IS_MULTIFILE_TEST  ));
     ASSERT(0 != (sourceType & Util::k_IS_SUBORDINATE_TEST));
     ASSERT(0 == (sourceType & Util::k_IS_CPP03_GENERATED ));
-//..
+// ```
 // Finally, we verify a multi-file test driver source:
-//..
+// ```
     returnCode =  bsls::BslSourceNameParserUtil::getComponentName(
                                                     &componentStart,
                                                     &componentLength,
@@ -947,7 +953,7 @@ void example2()
     ASSERT(0 != (sourceType & Util::k_IS_MULTIFILE_TEST  ));
     ASSERT(0 == (sourceType & Util::k_IS_SUBORDINATE_TEST));
     ASSERT(0 != (sourceType & Util::k_IS_CPP03_GENERATED ));
-//..
+// ```
 }
 
 void example3()
@@ -959,34 +965,34 @@ void example3()
 // source file names.
 {
 // First, we declare the result variables that the parser will fill:
-//..
+// ```
     const char *componentStart  = 0;
     size_t      componentLength = 0;
-//..
+// ```
 // Next, we can call the parser with a too short file name and save the return
 // value:
-//..
+// ```
     int returnCode =  bsls::BslSourceNameParserUtil::getComponentName(
                                                               &componentStart,
                                                               &componentLength,
                                                               "a.h");
-//..
+// ```
 // Then, we verify that the parsing has failed:
-//..
+// ```
     ASSERT(0 != returnCode);
-//..
+// ```
 // Next, we output a brief error message to the user if requested:
-//..
+// ```
     if (verbose) {
         printf("Error parsing source file name \"%s\": %s\n",
                "a.h",
                bsls::BslSourceNameParserUtil::errorMessage(returnCode));
         // Output will indicate the file name was too short (to be a BDE name)
     }
-//..
+// ```
 // Now, we demonstrate another failing-to-parse source name and its error
 // message:
-//..
+// ```
     returnCode =  bsls::BslSourceNameParserUtil::getComponentName(
                                                             &componentStart,
                                                             &componentLength,
@@ -998,9 +1004,9 @@ void example3()
                bsls::BslSourceNameParserUtil::errorMessage(returnCode));
         // Output will indicate an unsupported extension
     }
-//..
+// ```
 // Finally, we demonstrate the "missing test driver tag" error:
-//..
+// ```
     returnCode =  bsls::BslSourceNameParserUtil::getComponentName(
                                                            &componentStart,
                                                            &componentLength,
@@ -1012,7 +1018,7 @@ void example3()
                bsls::BslSourceNameParserUtil::errorMessage(returnCode));
         // Output will indicate two dots next to each other in the file name
     }
-//..
+// ```
 }
 }  // close namespace Usage
 
@@ -1035,12 +1041,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Replace 'assert' with 'ASSERT' and silence output unless a
-        //:   verbosity flag is set.
+        // 1. Replace `assert` with `ASSERT` and silence output unless a
+        //    verbosity flag is set.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -1058,12 +1064,12 @@ int main(int argc, char *argv[])
         // ERROR MESSSAGES
         //
         // Concerns:
-        //:  1 The possible error return code translate to text messages.
-        //:
+        //  1. The possible error return code translate to text messages.
+        //
         //
         // Plan:
-        //:  1 White box testing to verify all codes.
-        //:
+        //  1. White box testing to verify all codes.
+        //
         // Testing:
         //   const char *errorMessage(int errorCode);
         // --------------------------------------------------------------------
@@ -1091,81 +1097,81 @@ int main(int argc, char *argv[])
         // SOURCE FILE NAME PARSING
         //
         // Concerns:
-        //:  1 Path portion, if exists, is not included in component name.
-        //:
-        //:  2 Path portion is not required for a successful parsing.
-        //:
-        //:  3 For successful parsing the package name prefix is included in
-        //:    the reported component name.
-        //:
-        //:  4 The optional '_cpp03' suffix is removed from the component name
-        //:    if present as the last suffix.
-        //:
-        //:  5 Normal (not subordinate or package private) component source and
-        //:    test driver file names are parsed correctly, the result
-        //:    indicating their type, and the correct component name.
-        //:
-        //:  6 Package private component source and test driver file names are
-        //:    parsed correctly, the result indicating their type and the
-        //:    correct component name with all private suffixes present.
-        //:
-        //:  7 Subordinate test component source and test driver file names are
-        //:    parsed correctly, the result indicating their type and the
-        //:    correct component name without the '_test[a-z0-9]*' suffix.
-        //:
-        //:  8 Both BDE traditional and gtest test drivers are properly
-        //:    detected as test drivers, and their component names properly
-        //:    reported.
-        //:
-        //:  9 Multi-file test driver file names are properly parsed for both
-        //:    styles of test drivers (traditional and gtest), with the part
-        //:    extension (e.g., ".00.t.cpp") fully removed from the reported
-        //:    component name.
-        //:
-        //: 10 Parsing errors are reported as expected:
-        //:    1 File names less than 8 character long are rejected.
-        //:    2 Unknown (not '.h'. '.cpp') extensions are rejected.
-        //:    3 Missing test driver part (number) ("abc..t.cpp") is rejected.
+        //  1. Path portion, if exists, is not included in component name.
+        //
+        //  2. Path portion is not required for a successful parsing.
+        //
+        //  3. For successful parsing the package name prefix is included in
+        //     the reported component name.
+        //
+        //  4. The optional `_cpp03` suffix is removed from the component name
+        //     if present as the last suffix.
+        //
+        //  5. Normal (not subordinate or package private) component source and
+        //     test driver file names are parsed correctly, the result
+        //     indicating their type, and the correct component name.
+        //
+        //  6. Package private component source and test driver file names are
+        //     parsed correctly, the result indicating their type and the
+        //     correct component name with all private suffixes present.
+        //
+        //  7. Subordinate test component source and test driver file names are
+        //     parsed correctly, the result indicating their type and the
+        //     correct component name without the `_test[a-z0-9]*` suffix.
+        //
+        //  8. Both BDE traditional and gtest test drivers are properly
+        //     detected as test drivers, and their component names properly
+        //     reported.
+        //
+        //  9. Multi-file test driver file names are properly parsed for both
+        //     styles of test drivers (traditional and gtest), with the part
+        //     extension (e.g., ".00.t.cpp") fully removed from the reported
+        //     component name.
+        //
+        // 10. Parsing errors are reported as expected:
+        //    1. File names less than 8 character long are rejected.
+        //    2. Unknown (not `.h`. `.cpp`) extensions are rejected.
+        //    3. Missing test driver part (number) ("abc..t.cpp") is rejected.
         //
         // Plan:
-        //:  1 Create a set of valid component names with different prefixes:
-        //:    normal package prefix, and additional single character prefix
-        //:    ("a_" - adapter, "m_" - executable, "z_" -wrapper library, an so
-        //:    on).  Component base names ranging from one to several
-        //:    characters long.  Different suffixes: subordinate test component
-        //:    suffix with and without additional characters after '_test',
-        //:    package private component suffixes and combination of the two.
-        //:    Do *not* use the '_cpp03' suffix, we repeat every test by adding
-        //:    '_cpp03' to the end of the base name.  This table also contains
-        //:    the expected component name, and a 'bool' that tells if it is a
-        //:    subordinate test component name.
-        //:
-        //:  2 Use the following extensions: '.h', '.cpp', and test driver
-        //:    extensions '.t.cpp' and '.g.cpp'.  This table will contain the
-        //:    expected tag value (see 'AssertTest_ParseFilename::tag()').
-        //:
-        //:  3 Create a set of valid path portions, including the empty path
-        //:    (while all non-empty path ending with the path delimiter)
-        //:    appropriate for the target platform (Windows or Unix
-        //:    style), including but not limited to empty path, absolute and
-        //:    relative path, UNC path on Windows.  (Beware that programs
-        //:    compiled for Windows may use forward slash as a path delimiter
-        //:    so all Unix path should also be tested on Windows.)
-        //:
-        //:  4 In nested loops:
-        //:    1 Combine the above parts into a source file name to parse
-        //:
-        //:    2 Parse and verify the expected result (name and tag)
-        //:
-        //:    3 Add '_cpp03' to the end of the component name part in
-        //:      the source file name and verify that the parse result is the
-        //:      same.
-        //:
-        //:    4 On Windows also verify all non-empty Unix path (that ends with
-        //:      '/') by replacing all slash characters with backslash.
-        //:
-        //:  5 Create a table of malformed source file names to verify concerns
-        //:    of C-16 in a loop.
+        //  1. Create a set of valid component names with different prefixes:
+        //     normal package prefix, and additional single character prefix
+        //     ("a_" - adapter, "m_" - executable, "z_" -wrapper library, an so
+        //     on).  Component base names ranging from one to several
+        //     characters long.  Different suffixes: subordinate test component
+        //     suffix with and without additional characters after `_test`,
+        //     package private component suffixes and combination of the two.
+        //     Do *not* use the `_cpp03` suffix, we repeat every test by adding
+        //     `_cpp03` to the end of the base name.  This table also contains
+        //     the expected component name, and a `bool` that tells if it is a
+        //     subordinate test component name.
+        //
+        //  2. Use the following extensions: `.h`, `.cpp`, and test driver
+        //     extensions `.t.cpp` and `.g.cpp`.  This table will contain the
+        //     expected tag value (see `AssertTest_ParseFilename::tag()`).
+        //
+        //  3. Create a set of valid path portions, including the empty path
+        //     (while all non-empty path ending with the path delimiter)
+        //     appropriate for the target platform (Windows or Unix
+        //     style), including but not limited to empty path, absolute and
+        //     relative path, UNC path on Windows.  (Beware that programs
+        //     compiled for Windows may use forward slash as a path delimiter
+        //     so all Unix path should also be tested on Windows.)
+        //
+        //  4. In nested loops:
+        //    1. Combine the above parts into a source file name to parse
+        //
+        //    2. Parse and verify the expected result (name and tag)
+        //
+        //    3. Add `_cpp03` to the end of the component name part in
+        //       the source file name and verify that the parse result is the
+        //       same.
+        //
+        //    4. On Windows also verify all non-empty Unix path (that ends with
+        //       '/') by replacing all slash characters with backslash.
+        //
+        //  5. Create a table of malformed source file names to verify concerns
+        //     of C-16 in a loop.
         //
         // Testing:
         //   int getComponentName(p, l, srcname, kind);
@@ -1428,12 +1434,12 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Verify parsing results of a sufficiently complex source file name
-        //:   with path.
+        // 1. Verify parsing results of a sufficiently complex source file name
+        //    with path.
         //
         // Testing:
         //   BREATHING TEST

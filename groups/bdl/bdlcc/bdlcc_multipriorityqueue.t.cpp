@@ -133,7 +133,7 @@ int veryVerbose;
 int veryVeryVerbose;
 int veryVeryVeryVerbose;
 
-// Struct 'Element' is used in many examples, it behaves similarly to a double,
+// Struct `Element` is used in many examples, it behaves similarly to a double,
 // but it also keeps track of the number instances of it in existence, useful
 // for detecting leaks.
 
@@ -182,8 +182,8 @@ typedef bsls::Types::Int64                      Int64;
 
 namespace u {
 
+/// Return the current time, as a `TimeInterval`.
 bsls::TimeInterval now()
-    // Return the current time, as a 'TimeInterval'.
 {
     return bsls::SystemTime::nowRealtimeClock();
 }
@@ -217,8 +217,8 @@ struct TestDriver {
 
     // TEST CASES
 
+    /// Primate manipulators (Bootstrap).
     static void testCase2();
-        // Primate manipulators (Bootstrap).
 };
 
 template <class TYPE>
@@ -227,22 +227,22 @@ void TestDriver<TYPE>::testCase2()
     // TESTING PRIMARY MANIPULATORS (BOOTSTRAP, SINGLE THREADED)
     //
     // Concerns:
-    //: 1 That 'pushBack' enqueues multiple items of different value at the
-    //:   same priority.
-    //:
-    //: 2 That 'pushBack' enqueues multiple items of the same value at the same
-    //:   priority.
-    //:
-    //: 3 That repeated calls to 'popFront' dequeue the items in turn.
-    //:
-    //: 4 That 'tryPopFront' dequeues items in turn, returning success then
-    //:   returns a non-zero value when the queue is empty.
+    // 1. That `pushBack` enqueues multiple items of different value at the
+    //    same priority.
+    //
+    // 2. That `pushBack` enqueues multiple items of the same value at the same
+    //    priority.
+    //
+    // 3. That repeated calls to `popFront` dequeue the items in turn.
+    //
+    // 4. That `tryPopFront` dequeues items in turn, returning success then
+    //    returns a non-zero value when the queue is empty.
     //
     // Plan:
     //   Have a vector of distinct values to be pushed one by one with a single
-    //   priority and pop the values with various incarnations of 'popFront'
-    //   and 'tryPopFront', testing them all and verifying expected values are
-    //   popped.  Also verify periodically that 'length' and 'isEmpty' are
+    //   priority and pop the values with various incarnations of `popFront`
+    //   and `tryPopFront`, testing them all and verifying expected values are
+    //   popped.  Also verify periodically that `length` and `isEmpty` are
     //   what's expected.  Also use Element::s_allocCount to verify
     //   periodically that the expected number of Elements are in existence.
     //
@@ -553,7 +553,7 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_1 {
 ///-----
 ///Example 1: Simple Thread Pool
 ///- - - - - - - - - - - - - - -
-// This example demonstrates how we might use a 'bdlcc::MultipriorityQueue' to
+// This example demonstrates how we might use a `bdlcc::MultipriorityQueue` to
 // communicate between a single "producer" thread and multiple "consumer"
 // threads.  The "producer" pushes work requests of varying priority onto the
 // queue, and each "consumer" iteratively takes the highest priority work
@@ -561,7 +561,7 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_1 {
 //
 // We begin our example with some utility classes that define a simple "work
 // item":
-//..
+// ```
     enum {
         k_MAX_CONSUMER_THREADS = 10
     };
@@ -583,10 +583,10 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_1 {
 
         // Work data...
     };
-//..
+// ```
 // Next, we provide a simple function to service an individual work item, and a
 // function to get a work item.  The details are unimportant for this example:
-//..
+// ```
     void myDoWork(MyWorkData& data)
     {
         // Do work...
@@ -597,25 +597,25 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_1 {
     {
         static int count = 0;
         result->d_i = rand();   // Only one thread runs this routine, so it
-                                // does not matter that 'rand()' is not
-                                // thread-safe, or that 'count' is 'static'.
+                                // does not matter that `rand()` is not
+                                // thread-safe, or that `count` is `static`.
 
         return ++count >= 100;
     }
-//..
-// The 'myConsumer' function (below) will pop elements off the queue in
+// ```
+// The `myConsumer` function (below) will pop elements off the queue in
 // priority order and process them.  As discussed above, note that the call to
-// 'queue->popFront(&item)' will block until there is an element available on
+// `queue->popFront(&item)` will block until there is an element available on
 // the queue.  This function will be executed in multiple threads, so that each
-// thread waits in 'queue->popFront()'; 'bdlcc::MultipriorityQueue' guarantees
+// thread waits in `queue->popFront()`; `bdlcc::MultipriorityQueue` guarantees
 // that each thread gets a unique element from the queue:
-//..
+// ```
     void myConsumer(bdlcc::MultipriorityQueue<MyWorkRequest> *queue)
     {
         MyWorkRequest item;
         while (1) {
 
-            // The 'popFront' function will wait for a 'MyWorkRequest' until
+            // The `popFront` function will wait for a `MyWorkRequest` until
             // one is available.
 
             queue->popFront(&item);
@@ -627,37 +627,37 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_1 {
             myDoWork(item.d_data);
         }
     }
-//..
-// The 'myConsumerThread' function below is a callback for 'bslmt::ThreadUtil',
-// which requires a "C" signature.  'bslmt::ThreadUtil::create()' expects a
+// ```
+// The `myConsumerThread` function below is a callback for `bslmt::ThreadUtil`,
+// which requires a "C" signature.  `bslmt::ThreadUtil::create()` expects a
 // pointer to this function, and provides that function pointer to the
 // newly-created thread.  The new thread then executes this function.
 //
-// Since 'bslmt::ThreadUtil::create()' uses the familiar "C" convention of
-// passing a 'void' pointer, our function simply casts that pointer to our
-// required type ('bdlcc::MultipriorityQueue<MyWorkRequest> *'), and then
-// delegates to the queue-specific function 'myConsumer' (above):
-//..
+// Since `bslmt::ThreadUtil::create()` uses the familiar "C" convention of
+// passing a `void` pointer, our function simply casts that pointer to our
+// required type (`bdlcc::MultipriorityQueue<MyWorkRequest> *`), and then
+// delegates to the queue-specific function `myConsumer` (above):
+// ```
     extern "C" void *myConsumerThread(void *queuePtr)
     {
         myConsumer ((bdlcc::MultipriorityQueue<MyWorkRequest>*) queuePtr);
         return queuePtr;
     }
-//..
-// In this simple example, the 'myProducer' function (below) serves multiple
-// roles: it creates the 'bdlcc::MultipriorityQueue', starts the consumer
+// ```
+// In this simple example, the `myProducer` function (below) serves multiple
+// roles: it creates the `bdlcc::MultipriorityQueue`, starts the consumer
 // threads, and then produces and queues work items.  When work requests are
-// exhausted, this function queues one 'e_STOP' item for each consumer thread.
+// exhausted, this function queues one `e_STOP` item for each consumer thread.
 //
-// When each consumer thread reads a 'e_STOP', it terminates its
+// When each consumer thread reads a `e_STOP`, it terminates its
 // thread-handling function.  Note that, although the producer cannot control
 // which thread pops a particular work item, it can rely on the knowledge that
-// each consumer thread will read a single 'e_STOP' item and then terminate.
+// each consumer thread will read a single `e_STOP` item and then terminate.
 //
-// Finally, the 'myProducer' function "joins" each consumer thread, which
+// Finally, the `myProducer` function "joins" each consumer thread, which
 // ensures that the thread itself will terminate correctly (see the
-// 'bslmt_threadutil' component-level documentation for details):
-//..
+// `bslmt_threadutil` component-level documentation for details):
+// ```
     void myProducer()
     {
         enum {
@@ -710,7 +710,7 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_1 {
             bslmt::ThreadUtil::join(consumerHandles[i]);
         }
     }
-//..
+// ```
 
 }  // close namespace MULTIPRIORITYQUEUE_TEST_USAGE_1
 
@@ -730,7 +730,7 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_2 {
 //
 // The simple strategy used in the first example works well for tasks that
 // share no state, and are completely independent of one another.  For
-// instance, a web server might use a similar strategy to distribute 'http'
+// instance, a web server might use a similar strategy to distribute `http`
 // requests across multiple worker threads.
 //
 // In more complicated examples, it is often necessary or desirable to
@@ -738,15 +738,15 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_2 {
 // shows a single "Observer" mechanism that receives event notification from
 // the various worker threads.
 //
-// We first create a simple 'MyEvent' data type.  Worker threads will use this
+// We first create a simple `MyEvent` data type.  Worker threads will use this
 // type to report information about their work.  In our example, we will report
 // the "worker Id", the event number, and some arbitrary text.
 //
-// As with the previous example, class 'MyEvent' also contains an 'EventType',
+// As with the previous example, class `MyEvent` also contains an `EventType`,
 // an enumeration that indicates whether the worker has completed all work.
 // The "Observer" will use this enumerated value to note when a worker thread
 // has completed its work:
-//..
+// ```
     enum {
         k_MAX_CONSUMER_THREADS = 10,
         k_MAX_EVENT_TEXT       = 80
@@ -763,36 +763,36 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_2 {
         int       d_eventNumber;
         char      d_eventText[k_MAX_EVENT_TEXT];
     };
-//..
-// As noted in the previous example, 'bslmt::ThreadUtil::create()' spawns a new
-// thread, which invokes a simple "C" function taking a 'void' pointer.  In the
-// previous example, we simply converted that 'void' pointer into a pointer to
-// 'bdlcc::MultipriorityQueue<MyWorkRequest>'.
+// ```
+// As noted in the previous example, `bslmt::ThreadUtil::create()` spawns a new
+// thread, which invokes a simple "C" function taking a `void` pointer.  In the
+// previous example, we simply converted that `void` pointer into a pointer to
+// `bdlcc::MultipriorityQueue<MyWorkRequest>`.
 //
 // In this example, however, we want to pass an additional data item.  Each
 // worker thread is initialized with a unique integer value ("worker Id"),
-// which identifies that thread.  We therefore create a simple 'struct' that
+// which identifies that thread.  We therefore create a simple `struct` that
 // contains both of these values:
-//..
+// ```
     struct MyWorkerData {
         int                               d_workerId;
         bdlcc::MultipriorityQueue<MyEvent> *d_queue;
     };
-//..
-// Function 'myWorker' (below) simulates a working thread by enqueuing multiple
-// 'MyEvent' events during execution.  In a realistic application, each
-// 'MyEvent' structure would likely contain different textual information.  For
+// ```
+// Function `myWorker` (below) simulates a working thread by enqueuing multiple
+// `MyEvent` events during execution.  In a realistic application, each
+// `MyEvent` structure would likely contain different textual information.  For
 // the sake of simplicity, however, our loop uses a constant value for the text
 // field.  Note that various priorities are generated to illustrate the
 // multi-priority aspect of this particular queue:
-//..
+// ```
     void myWorker(int workerId, bdlcc::MultipriorityQueue<MyEvent> *queue)
     {
         const int N = queue->numPriorities();
         const int NUM_EVENTS = 5;
         int eventNumber;    // used also to generate mixed priorities
 
-        // First push 'NUM_EVENTS' events onto 'queue' with mixed priorities.
+        // First push `NUM_EVENTS` events onto `queue` with mixed priorities.
 
         for (eventNumber = 0; eventNumber < NUM_EVENTS; ++eventNumber) {
             MyEvent ev = {
@@ -814,33 +814,33 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_2 {
         };
         queue->pushBack(ev, N - 1);                     // lowest priority
     }
-//..
-// The callback function 'myWorkerThread' (below) invoked by
-// 'bslmt::ThreadUtil::create' takes the traditional 'void' pointer.  The
-// expected data is the composite structure 'MyWorkerData'.  The callback
-// function casts the 'void' pointer to the application-specific data type and
-// then uses the referenced object to construct a call to the 'myWorker'
+// ```
+// The callback function `myWorkerThread` (below) invoked by
+// `bslmt::ThreadUtil::create` takes the traditional `void` pointer.  The
+// expected data is the composite structure `MyWorkerData`.  The callback
+// function casts the `void` pointer to the application-specific data type and
+// then uses the referenced object to construct a call to the `myWorker`
 // function:
-//..
+// ```
     extern "C" void *myWorkerThread(void *vWorkerPtr)
     {
         MyWorkerData *workerPtr = (MyWorkerData *)vWorkerPtr;
         myWorker(workerPtr->d_workerId, workerPtr->d_queue);
         return vWorkerPtr;
     }
-//..
+// ```
 // For the sake of simplicity, we will implement the Observer behavior (below)
-// in the main thread.  The 'void' function 'myObserver' starts multiple
-// threads running the 'myWorker' function, reads 'MyEvent' values from the
+// in the main thread.  The `void` function `myObserver` starts multiple
+// threads running the `myWorker` function, reads `MyEvent` values from the
 // queue, and logs all messages in the order of arrival.
 //
-// As each 'myWorker' thread terminates, it sends a 'e_TASK_COMPLETE' event.
-// Upon receiving this event, the 'myObserver' function uses the 'd_workerId'
+// As each `myWorker` thread terminates, it sends a `e_TASK_COMPLETE` event.
+// Upon receiving this event, the `myObserver` function uses the `d_workerId`
 // to find the relevant thread, and then "joins" that thread.
 //
-// The 'myObserver' function determines when all tasks have completed simply by
-// counting the number of 'e_TASK_COMPLETE' messages received:
-//..
+// The `myObserver` function determines when all tasks have completed simply by
+// counting the number of `e_TASK_COMPLETE` messages received:
+// ```
     void myObserver()
     {
         const int k_NUM_THREADS    = 10;
@@ -852,7 +852,7 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_2 {
             && k_NUM_THREADS <= static_cast<int>(k_MAX_CONSUMER_THREADS));
         bslmt::ThreadUtil::Handle workerHandles[k_MAX_CONSUMER_THREADS];
 
-        // Create 'k_NUM_THREADS' threads, each having a unique "worker id".
+        // Create `k_NUM_THREADS` threads, each having a unique "worker id".
 
         MyWorkerData workerData[k_NUM_THREADS];
         for (int i = 0; i < k_NUM_THREADS; ++i) {
@@ -863,9 +863,9 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_2 {
                                      &workerData[i]);
         }
 
-        // Now print out each of the 'MyEvent' values as the threads complete.
-        // This function ends after a total of 'k_NUM_THREADS'
-        // 'MyEvent::e_TASK_COMPLETE' events have been printed.
+        // Now print out each of the `MyEvent` values as the threads complete.
+        // This function ends after a total of `k_NUM_THREADS`
+        // `MyEvent::e_TASK_COMPLETE` events have been printed.
 
         int nStop = 0;
         while (nStop < k_NUM_THREADS) {
@@ -880,7 +880,7 @@ namespace MULTIPRIORITYQUEUE_TEST_USAGE_2 {
             }
         }
     }
-//..
+// ```
 
 }  // close namespace MULTIPRIORITYQUEUE_TEST_USAGE_2
 
@@ -896,7 +896,7 @@ namespace MULTIPRIORITYQUEUE_TEST_CASE_11 {
 // safe.  Push copies the object into the queue, pops assign the object from
 // the queue.  So what we need is a type that we can program to throw
 // exceptions either during push or pop, or in neither case.  We call this type
-// 'Thrower'.
+// `Thrower`.
 
 struct Thrower {
     Element d_value;            // use Element type to monitor for leaks.
@@ -1342,9 +1342,9 @@ int main(int argc, char *argv[])
         // Plan:
         //   Incorporate the usage example from the header file into the test
         //   driver.  Make use of existing test apparatus by instantiating
-        //   objects with a 'bslma::TestAllocator' object where applicable.
-        //   Additionally, replace all calls to 'assert' in the usage example
-        //   with calls to 'ASSERT'.  This now becomes the source, which is
+        //   objects with a `bslma::TestAllocator` object where applicable.
+        //   Additionally, replace all calls to `assert` in the usage example
+        //   with calls to `ASSERT`.  This now becomes the source, which is
         //   then "copied" back to the header file by reversing the above
         //   process.
         //
@@ -1367,9 +1367,9 @@ int main(int argc, char *argv[])
         // Plan:
         //   Incorporate the usage example from the header file into the test
         //   driver.  Make use of existing test apparatus by instantiating
-        //   objects with a 'bslma::TestAllocator' object where applicable.
-        //   Additionally, replace all calls to 'assert' in the usage example
-        //   with calls to 'ASSERT'.  This now becomes the source, which is
+        //   objects with a `bslma::TestAllocator` object where applicable.
+        //   Additionally, replace all calls to `assert` in the usage example
+        //   with calls to `ASSERT`.  This now becomes the source, which is
         //   then "copied" back to the header file by reversing the above
         //   process.
         //
@@ -1559,7 +1559,7 @@ int main(int argc, char *argv[])
         //   on any allocation?
         //
         // Plan:
-        //   Standard use of the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros.
+        //   Standard use of the `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*` macros.
         // --------------------------------------------------------------------
 
         bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
@@ -1625,12 +1625,12 @@ int main(int argc, char *argv[])
         //   during pushing and popping.
         //
         // Plan:
-        //   Declare a class 'Thrower' which can be programmed to throw on
+        //   Declare a class `Thrower` which can be programmed to throw on
         //   copy, assign, neither, or both.  Use this class to cause
         //   pushes and pops, respectively, to throw.  Verify that the queue
         //   is unchanged when these throws occur, and that no aborts or
         //   segmentation faults are caused by these throws.  Have an instance
-        //   of type 'Element' within the 'Thrower' class for monitoring leaks.
+        //   of type `Element` within the `Thrower` class for monitoring leaks.
         // --------------------------------------------------------------------
 
         using namespace MULTIPRIORITYQUEUE_TEST_CASE_11;
@@ -1754,20 +1754,20 @@ int main(int argc, char *argv[])
         //   queue uses the allocator passed at construction.
         //
         // Plan:
-        //   Create 3 test allocators: 'taDefault', which we will make the
-        //   default allocator, 'taString', which we will use to initially
-        //   create strings, and 'ta', which we will use to create a
+        //   Create 3 test allocators: `taDefault`, which we will make the
+        //   default allocator, `taString`, which we will use to initially
+        //   create strings, and `ta`, which we will use to create a
         //   multipriority queue.
         //   Push and pop some strings onto and out of the queue and call
-        //   'removeAll()', closely monitoring allocator usage to verify
+        //   `removeAll()`, closely monitoring allocator usage to verify
         //   that no persistent memory is being allocated with the default
         //   allocator.  Verify at the end that no memory is leaked from
-        //   'ta'.
-        //   Note 'taString' and 'ta' must be different allocators, because
+        //   `ta`.
+        //   Note `taString` and `ta` must be different allocators, because
         //   copying strings that share the same allocator does not
         //   necessarily allocate memory -- the two strings might both
         //   point to a single, reference-counted entity.  Hence the need
-        //   for 'taString' to ensure that when strings are copied into
+        //   for `taString` to ensure that when strings are copied into
         //   and out of the multipriority queue, their memory allocator
         //   is used.
         //
@@ -1866,17 +1866,17 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   That there are no race or deadlock conditions, and no leaks,
-        //   when calling 'removeAll' while other operations are being
+        //   when calling `removeAll` while other operations are being
         //   executed.
         //
         // Plan:
         //   We will conduct a stress test, only with threads periodically
-        //   calling 'removeAll'.  We will no longer be able to predict as
+        //   calling `removeAll`.  We will no longer be able to predict as
         //   much about the data, but we can detect deadlocks and by using
-        //   the 'Element' type we can detect leaks.
+        //   the `Element` type we can detect leaks.
         //
         // Testing:
-        //   Stress 'RemoveAll' test
+        //   Stress `RemoveAll` test
         // --------------------------------------------------------------------
 
         using namespace MULTIPRIORITYQUEUE_TEST_CASE_9;
@@ -2052,7 +2052,7 @@ int main(int argc, char *argv[])
         //   Test multipriority queue with many simultaneous threads pushing
         //   and popping with many items, to maximize the possibility of
         //   encountering race conditions or deadlocks.  Configure
-        //   with the value of 'veryVeryVerbose' controlling the number of
+        //   with the value of `veryVeryVerbose` controlling the number of
         //   items that the test will process so the test can be run for a long
         //   time on a non-routine basis.
         //
@@ -2232,20 +2232,20 @@ int main(int argc, char *argv[])
       }  break;
       case 7: {
         // --------------------------------------------------------------------
-        // 'POPFRONT' AND 'TRYPOPFRONT' BLOCKING BEHAVIOR TEST
+        // `POPFRONT` AND `TRYPOPFRONT` BLOCKING BEHAVIOR TEST
         //
         // Concerns:
-        //   That 'popFront' blocks properly when the queue is empty.
-        //   That 'tryPopFront' never blocks.
+        //   That `popFront` blocks properly when the queue is empty.
+        //   That `tryPopFront` never blocks.
         //
         // Plan:
         //   Start a thread, which will attempt to pop data off the queue.
-        //   First, the thread will verify that 'tryPopFront' with both
+        //   First, the thread will verify that `tryPopFront` with both
         //   possible argument combinations returns failure without blocking
         //   when called on an empty queue.  Then it will reach a barrier
         //   and, once past the barrier, will attempt to pop data off the
         //   queue, once with each possible argument combination for
-        //   'popFront'.  The spawning thread sleeps for about 200
+        //   `popFront`.  The spawning thread sleeps for about 200
         //   milliSeconds, then pushes data into the queue, and the spawned
         //   thread, once it pops data, verifies the value is what was
         //   expected, showing that the pops blocked as they should have until
@@ -2259,7 +2259,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << "=================================================\n"
-                    "Testing 'popFront' and 'tryPopFront' blocking\n"
+                    "Testing `popFront` and `tryPopFront` blocking\n"
                     "=================================================\n";
         }
 
@@ -2292,15 +2292,15 @@ int main(int argc, char *argv[])
         // TESTING REMOVEALL AND DESTRUCTOR
         //
         // Concerns:
-        //   That 'removeAll' and the destructor work both when the queue
+        //   That `removeAll` and the destructor work both when the queue
         //   contains items and when it is empty, and never leak items.
         //
         // Plan:
-        //   Create multipriority queues, call 'removeAll' while empty,
-        //   push items, call 'removeAll' again, destroy when empty, create
+        //   Create multipriority queues, call `removeAll` while empty,
+        //   push items, call `removeAll` again, destroy when empty, create
         //   again, push items, destroy when items are in queue.  All the
-        //   while, monitor queue size both by calling 'length' and 'isEmpty'
-        //   and by monitoring the count of 'Element's in existence.
+        //   while, monitor queue size both by calling `length` and `isEmpty`
+        //   and by monitoring the count of `Element`s in existence.
         //
         // Testing:
         //   removeAll()
@@ -2368,7 +2368,7 @@ int main(int argc, char *argv[])
         // POPPED OBJECTS - SORTED BY PRIORITY AND FIFO WITHIN PRIORITY
         //
         // Concerns:
-        //   That 'popFront' and 'tryPopFront' pop items according to their
+        //   That `popFront` and `tryPopFront` pop items according to their
         //   priority, and that they pop items of the same priority in
         //   the same order in which they were pushed.
         //
@@ -2408,7 +2408,7 @@ int main(int argc, char *argv[])
             mX.pushBack(vPush[i].d_value, vPush[i].d_priority);
         }
 
-        // Set up 'expected[]' to contain the same pairs we pushed, only
+        // Set up `expected[]` to contain the same pairs we pushed, only
         // ordered in the order we expect them to be popped.
 
         PushPoint expected[VPUSH_LEN];
@@ -2420,7 +2420,7 @@ int main(int argc, char *argv[])
             double value;
             int priority;
 
-            // arbitarily choose between 'popFront' and 'tryPopFront'.
+            // arbitarily choose between `popFront` and `tryPopFront`.
 
             if (3 == i % 4 || 2 == i % 5) {
                 mX.popFront(&value, &priority);
@@ -2573,10 +2573,10 @@ int main(int argc, char *argv[])
         // TEST ELIMINATED
         //
         // Concerns:
-        //: 1 The testing of this case has been incorporated into TC 2.
+        // 1. The testing of this case has been incorporated into TC 2.
         //
         // Plan:
-        //: 1 Do nothing.
+        // 1. Do nothing.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TEST ELIMINATED\n"
@@ -2587,20 +2587,20 @@ int main(int argc, char *argv[])
         // TESTING PRIMARY MANIPULATORS (BOOTSTRAP, SINGLE THREADED)
         //
         // Concerns:
-        //   * That 'pushBack' enqueues multiple items of different value
+        //   * That `pushBack` enqueues multiple items of different value
         //     at the same priority.
-        //   * That 'pushBack' enqueues multiple items of the same value
+        //   * That `pushBack` enqueues multiple items of the same value
         //     at the same priority.
-        //   * That repeated calls to 'popFront' dequeue the items in turn.
-        //   * That 'tryPopFront' dequeues items in turn, returning success
+        //   * That repeated calls to `popFront` dequeue the items in turn.
+        //   * That `tryPopFront` dequeues items in turn, returning success
         //     then returns a non-zero value when the queue is empty.
         //
         // Plan:
         //   Have a vector of distinct values to be pushed one by one with a
         //   single priority and pop the values with various incarnations
-        //   of 'popFront' and 'tryPopFront', testing them all and verifying
+        //   of `popFront` and `tryPopFront`, testing them all and verifying
         //   expected values are popped.  Also verify periodically that
-        //   'length' and 'isEmpty' are what's expected.  Also use
+        //   `length` and `isEmpty` are what's expected.  Also use
         //   Element::s_allocCount to verify periodically that the expected
         //   number of Elements are in existence.
         //

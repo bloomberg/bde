@@ -19,8 +19,8 @@ namespace bdlma {
 // ACCESSORS
 void MemoryBlockDescriptor::print() const
 {
+/// Unfortunately, %zu is not correctly supported across all platforms.
 #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
-    // Unfortunately, %zu is not correctly supported across all platforms.
 
     std::printf("[%p, " ZU "]", address(), size());
 #undef ZU

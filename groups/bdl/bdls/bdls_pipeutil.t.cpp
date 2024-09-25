@@ -125,7 +125,7 @@ void testCase1_makeCanonicalName(const STRING_TYPE& typeName,
     if (verbose) { P(name) }
 
     if (0 == bsl::getenv("SOCKDIR")) {
-        // 'SOCKDIR' is not set.  Set it and retest.
+        // `SOCKDIR` is not set.  Set it and retest.
         static char sockdir[] = "SOCKDIR=bozonono";
         ::putenv(sockdir);
         compare = bsl::getenv("SOCKDIR");
@@ -135,8 +135,8 @@ void testCase1_makeCanonicalName(const STRING_TYPE& typeName,
         if (verbose) { P(name) }
     }
     else if (0 != bsl::getenv("TMPDIR")) {
-        // Both 'SOCKDIR' and 'TMPDIR' are set.  If 'SOCKDIR' can be
-        // removed, retest 'TMPDIR'.
+        // Both `SOCKDIR` and `TMPDIR` are set.  If `SOCKDIR` can be
+        // removed, retest `TMPDIR`.
         static char sockdir[] = "SOCKDIR";
         ::putenv(sockdir);
         if (0 == bsl::getenv("SOCKDIR")) {
@@ -152,9 +152,9 @@ void testCase1_makeCanonicalName(const STRING_TYPE& typeName,
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 bool namedPipeExists(const bsl::string_view& pipeName)
-    // Returns 'true' if a named pipe exists at the path given by the specified
-    // 'pipeName', and 'false' otherwise.  The result is unspecified if
-    // 'pipeName' does not start with R"(\\.\pipe\)".
+    // Returns `true` if a named pipe exists at the path given by the specified
+    // `pipeName`, and `false` otherwise.  The result is unspecified if
+    // `pipeName` does not start with R"(\\.\pipe\)".
 {
     wstring wPipeName;
     ASSERT(0 == bdlde::CharConvertUtf16::utf8ToUtf16(&wPipeName, pipeName));
@@ -175,19 +175,19 @@ struct ConnectAndRead {
     ConnectAndRead(HANDLE handle) : d_handle(handle) {}
 
     void operator()() const
-        // Connect to the specified 'handle' and read until the client end has
+        // Connect to the specified `handle` and read until the client end has
         // disconnected, then disconnect.
     {
-        // Note that 'ConnectNamedPipe' returns the value 0, normally
-        // associated with failure, when a client has called 'CreateFile'
+        // Note that `ConnectNamedPipe` returns the value 0, normally
+        // associated with failure, when a client has called `CreateFile`
         // first.  To detect this situation, we have to check that
-        // 'GetLastError' is 'ERROR_PIPE_CONNECTED'.  In this case, the
+        // `GetLastError` is `ERROR_PIPE_CONNECTED`.  In this case, the
         // connection has been established.
         if (!ConnectNamedPipe(d_handle, NULL) &&
             ERROR_PIPE_CONNECTED != GetLastError()) {
-            puts("'ConnectNamedPipe' failed");
+            puts("`ConnectNamedPipe` failed");
             fflush(stdout);
-            // This situation will cause 'isOpenForReading' to hang
+            // This situation will cause `isOpenForReading` to hang
             // indefinitely, so we might as well terminate the process.
             abort();
         }
@@ -216,59 +216,59 @@ int main(int argc, char *argv[]) {
     switch(test) { case 0:
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'isOpenForReading'
+        // TESTING `isOpenForReading`
         //
         // Concerns:
-        //: 1 'isOpenForReading' returns 'true' for a named pipe opened with
-        //:   'PIPE_ACCESS_INBOUND' and 'PIPE_READMODE_BYTE' (which are the
-        //:   mode flags used by 'balb_pipecontrolchannel') when there is a
-        //:   pending call to 'ConnectNamedPipe'.
-        //:
-        //: 2 'isOpenForReading' returns 'false' immediately for a named pipe
-        //:   opened with 'PIPE_ACCESS_OUTBOUND' and 'PIPE_READMODE_BYTE'
-        //:   (meaning that the server end is only writing, not reading).
-        //:
-        //: 3 If a named pipe is busy, 'isOpenForReading' still returns
-        //:   immediately and doesn't block.
-        //:
-        //: 4 'isOpenForReading' returns 'false' when given a filename that
-        //:   refers to a nonexistent named pipe.
-        //:
-        //: 5 'isOpenForReadding' returns 'false' when given a filename that
-        //:   refers to a file other than a pipe.
+        // 1. `isOpenForReading` returns `true` for a named pipe opened with
+        //    `PIPE_ACCESS_INBOUND` and `PIPE_READMODE_BYTE` (which are the
+        //    mode flags used by `balb_pipecontrolchannel`) when there is a
+        //    pending call to `ConnectNamedPipe`.
+        //
+        // 2. `isOpenForReading` returns `false` immediately for a named pipe
+        //    opened with `PIPE_ACCESS_OUTBOUND` and `PIPE_READMODE_BYTE`
+        //    (meaning that the server end is only writing, not reading).
+        //
+        // 3. If a named pipe is busy, `isOpenForReading` still returns
+        //    immediately and doesn't block.
+        //
+        // 4. `isOpenForReading` returns `false` when given a filename that
+        //    refers to a nonexistent named pipe.
+        //
+        // 5. `isOpenForReadding` returns `false` when given a filename that
+        //    refers to a file other than a pipe.
         //
         // Plan:
-        //: 1 Create a named pipe using 'PIPE_ACCESS_INBOUND' and
-        //:   'PIPE_READMODE_BYTE' and start a new thread that calls
-        //:   'ConnectNamedPipe' on the server end of the pipe.  In the main
-        //:   thread, call 'isOpenForReading' on the name of the pipe and
-        //:   verify that it returns 'true'.  (C-1)
-        //:
-        //: 2 Create a named pipe using 'PIPE_ACCESS_OUTBOUND' and
-        //:   'PIPE_READMODE_BYTE'.  Call 'isOpenForReading' on the name of the
-        //:   pipe and verify that it returns 'false'.  (C-2)
-        //:
-        //: 3 Create a named pipe as in P-1, call 'CreateFile' to create a
-        //:   handle to the client end, and then call 'ConnectNamedPipe' on
-        //:   the server end to establish a connection.  Finally, call
-        //:   'isOpenForReading'.  Then, create a named pipe as in P-2 and
-        //:   repeat.  (C-3)
-        //:
-        //: 4 Use the 'CreateFile' function to ensure that a hardcoded pipe
-        //:   name doesn't exist.  Then, call 'isOpenForReading' and verify
-        //:   that it returns 'false'.  (This will fail if someone meddles
-        //:   around and creates the pipe after we check for its existence.)
-        //:   (C-4)
-        //:
-        //: 5 Call 'isOpenForReading' on the current executable name and verify
-        //:   that it returns 'false'.  (C-5)
+        // 1. Create a named pipe using `PIPE_ACCESS_INBOUND` and
+        //    `PIPE_READMODE_BYTE` and start a new thread that calls
+        //    `ConnectNamedPipe` on the server end of the pipe.  In the main
+        //    thread, call `isOpenForReading` on the name of the pipe and
+        //    verify that it returns `true`.  (C-1)
+        //
+        // 2. Create a named pipe using `PIPE_ACCESS_OUTBOUND` and
+        //    `PIPE_READMODE_BYTE`.  Call `isOpenForReading` on the name of the
+        //    pipe and verify that it returns `false`.  (C-2)
+        //
+        // 3. Create a named pipe as in P-1, call `CreateFile` to create a
+        //    handle to the client end, and then call `ConnectNamedPipe` on
+        //    the server end to establish a connection.  Finally, call
+        //    `isOpenForReading`.  Then, create a named pipe as in P-2 and
+        //    repeat.  (C-3)
+        //
+        // 4. Use the `CreateFile` function to ensure that a hardcoded pipe
+        //    name doesn't exist.  Then, call `isOpenForReading` and verify
+        //    that it returns `false`.  (This will fail if someone meddles
+        //    around and creates the pipe after we check for its existence.)
+        //    (C-4)
+        //
+        // 5. Call `isOpenForReading` on the current executable name and verify
+        //    that it returns `false`.  (C-5)
         //
         // Testing:
         //   bool isOpenForReading(const string_view& pipeName);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'isOpenForReading'" << endl
+                          << "TESTING `isOpenForReading`" << endl
                           << "==========================" << endl;
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         {
@@ -376,8 +376,8 @@ int main(int argc, char *argv[]) {
 
                 bdls::FileDescriptorGuard clientGuard(clientHandle);
 
-                // See 'ConnectAndRead::operator()' above for an explanation of
-                // 'ERROR_PIPE_CONNECTED'.
+                // See `ConnectAndRead::operator()` above for an explanation of
+                // `ERROR_PIPE_CONNECTED`.
                 ASSERT(0 == ConnectNamedPipe(serverHandle, NULL) &&
                        ERROR_PIPE_CONNECTED == GetLastError());
 

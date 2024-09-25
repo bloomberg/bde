@@ -77,9 +77,9 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
-// Let's start with a simple class, 'my::FilePath', which allocates storage
-// using a 'bslma::Allocator':
-//..
+// Let's start with a simple class, `my::FilePath`, which allocates storage
+// using a `bslma::Allocator`:
+// ```
     #include <bslma_allocator.h>
     #include <bslma_default.h>
     #include <bsls_nullptr.h>
@@ -89,8 +89,8 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
     namespace my {
 
+    /// Store the path of a file or directory
     class FilePath {
-        // Store the path of a file or directory
         bslma::Allocator *d_allocator;
         char             *d_data;
 
@@ -109,14 +109,14 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
         bslma::Allocator *getAllocator() const { return d_allocator; }
 
-        //...
+        // ```.
     };
 
     } // close namespace my
-//..
+// ```
 // Next, assume that an STL-allocator exists that uses memory exactly the way
 // you need:
-//..
+// ```
     template <class TYPE>
     class MagicAllocator {
         bool d_useMalloc;
@@ -176,11 +176,11 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     {
         return a.getUseMalloc() != b.getUseMalloc();
     }
-//..
-// Now, if we want to create a 'FilePath' using a 'MagicAllocator', we
-// need to adapt the 'MagicAllocator' to the 'bslma::Allocator' protocol.
-// This is where 'bslma::AllocatorAdaptor' comes in:
-//..
+// ```
+// Now, if we want to create a `FilePath` using a `MagicAllocator`, we
+// need to adapt the `MagicAllocator` to the `bslma::Allocator` protocol.
+// This is where `bslma::AllocatorAdaptor` comes in:
+// ```
     int usageExample1()
     {
         MagicAllocator<char> ma(true);
@@ -193,7 +193,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
         return 0;
     }
-//..
+// ```
 
 //=============================================================================
 //                              TEST CLASSES
@@ -300,13 +300,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -324,10 +324,10 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 Exercise basic functionality of component
+        // 1. Exercise basic functionality of component
         //
         // Plan:
-        //: 1
+        //  1
         //
         // Testing:
         // --------------------------------------------------------------------

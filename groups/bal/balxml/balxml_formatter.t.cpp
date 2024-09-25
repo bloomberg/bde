@@ -106,7 +106,7 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
-    // 'snprintf' on older Windows libraries outputs an additional '0' in the
+    // `snprintf` on older Windows libraries outputs an additional '0' in the
     // exponent for scientific notation.
 # define BALXML_FORMATTER_EXTRA_ZERO_PADDING_FOR_EXPONENTS 1
 #endif
@@ -168,8 +168,8 @@ enum Test {
 //                            Perturbation class
 // ----------------------------------------------------------------------------
 
+/// Provides permutations for orthogonal perturbation
 struct Pert {
-    // Provides permutations for orthogonal perturbation
     static bool s_doFlush[];
     static int s_initialIndent[];
     static int s_spacesPerLevel[];
@@ -184,8 +184,9 @@ struct Pert {
           d_spacesPerLevel(0), d_wrapColumn(0),
           d_count(-1) { }
     // MANIPULATORS
+
+    /// Return true if next perturbation is obtained
     bool next();
-        // Return true if next perturbation is obtained
     // ACCESSORS
     int count() const { return d_count; }
   private:
@@ -249,10 +250,10 @@ struct FieldType {
     };
 };
 
+/// This class facilitates reading data of different types from the same
+/// field in a table and provides a uniform interface to test these
+/// different types.
 class ScalarData {
-    // This class facilitates reading data of different types from the same
-    // field in a table and provides a uniform interface to test these
-    // different types.
   private:
     typedef FieldType Ft;
 
@@ -274,6 +275,9 @@ class ScalarData {
     bdlt::Time         d_time;
 
   public:
+    /// Call addAttribute method of the specified `formatter` with
+    /// `attrName` as attribute name and the d_typeValue corresponding to
+    /// the d_type
     ScalarData(char c) : d_type(Ft::e_CHAR), d_char(c) {}
     ScalarData(short s) : d_type(Ft::e_SHORT), d_short(s) {}
     ScalarData(int i) : d_type(Ft::e_INT), d_int(i) {}
@@ -294,18 +298,18 @@ class ScalarData {
     ScalarData(const bdlt::Time& t) : d_type(Ft::e_TIME), d_time(t) {}
     void addAttribute(const bsl::string&  attrName,
                       balxml::Formatter  *formatter) const;
-        // Call addAttribute method of the specified 'formatter' with
-        // 'attrName' as attribute name and the d_typeValue corresponding to
-        // the d_type
+
+    /// Call addListData method of the specified `formatter` with the
+    /// d_typeValue corresponding to the d_type.
     void addListData(Obj *formatter) const;
-        // Call addListData method of the specified 'formatter' with the
-        // d_typeValue corresponding to the d_type.
+
+    /// Call addData method of the specified `formatter` with the
+    /// d_typeValue corresponding to the d_type.
     void addData(Obj *formatter) const;
-        // Call addData method of the specified 'formatter' with the
-        // d_typeValue corresponding to the d_type.
+
+    /// Output only ScalarData of type short, int, bsls::Types::Int64,
+    /// float, double.  Other types result in undefined behavior
     friend bsl::ostream& operator<<(bsl::ostream& os, const ScalarData& data);
-        // Output only ScalarData of type short, int, bsls::Types::Int64,
-        // float, double.  Other types result in undefined behavior
 };
 
 void ScalarData::addAttribute(const bsl::string&  attrName,
@@ -436,9 +440,9 @@ using namespace bsl;  // automatically added by script
                          // struct FormatterModelState
                          // ==========================
 
+/// An approximation of the state of the formatter used to determine whether
+/// or not it is legal to call a particular member function.
 struct FormatterModelState {
-    // An approximation of the state of the formatter used to determine whether
-    // or not it is legal to call a particular member function.
 
     enum Enum {
         e_START,
@@ -452,8 +456,8 @@ struct FormatterModelState {
                         // struct FormatterModelAction
                         // ===========================
 
+/// A list of all XML-printing member functions on the formatter.
 struct FormatterModelAction {
-    // A list of all XML-printing member functions on the formatter.
 
     // TYPES
     enum Enum {
@@ -546,30 +550,36 @@ struct FormatterModelUtil {
     typedef FormatterModelState  State;
 
     // CLASS METHODS
+
+    /// Return `true` if the behavior of invoking the member function
+    /// identified by the specified `action` on a `balxml::Formatter` in the
+    /// specified `state` with the specified `indentLevel` is defined, and
+    /// return `false` otherwise.
     static bool isActionAllowed(State::Enum  state,
                                 int          nestingDepth,
                                 Action::Enum action);
-        // Return 'true' if the behavior of invoking the member function
-        // identified by the specified 'action' on a 'balxml::Formatter' in the
-        // specified 'state' with the specified 'indentLevel' is defined, and
-        // return 'false' otherwise.
 
+    /// Return the next state after performing the specified `action` at the
+    /// specified `state` with the specified `nestingDepth`.
     static State::Enum getNextState(State::Enum  state,
                                     int          nestingDepth,
                                     Action::Enum action);
-        // Return the next state after performing the specified 'action' at the
-        // specified 'state' with the specified 'nestingDepth'.
 
+    /// Return the next nesting depth after performing the specified
+    /// `action` at the specified `state` with the specified `nestingDepth`.
     static int getNextNestingDepth(State::Enum  state,
                                    int          nestingDepth,
                                    Action::Enum action);
-        // Return the next nesting depth after performing the specified
-        // 'action' at the specified 'state' with the specified 'nestingDepth'.
 
+    /// Invoke the member function identified by the specified `action` on
+    /// the specified `formatter`, providing placeholders for any arguments.
     static void performAction(Obj *formatter, Action::Enum action);
-        // Invoke the member function identified by the specified 'action' on
-        // the specified 'formatter', providing placeholders for any arguments.
 
+    /// Append to the specified `digest` the output of all valid sequences
+    /// of XML-printing member functions of the specified `numActions`
+    /// length on a `balxml::Formatter` initialized with the specified
+    /// `initialIndentLevel`, `spacesPerLevel`, `wrapColumn`, and
+    /// `encoderOptions`.
     static void appendBehavior(
                              bdlde::Md5                    *digest,
                              int                            numActions,
@@ -577,11 +587,6 @@ struct FormatterModelUtil {
                              int                            spacesPerLevel,
                              int                            wrapColumn,
                              const balxml::EncoderOptions&  encoderOptions);
-        // Append to the specified 'digest' the output of all valid sequences
-        // of XML-printing member functions of the specified 'numActions'
-        // length on a 'balxml::Formatter' initialized with the specified
-        // 'initialIndentLevel', 'spacesPerLevel', 'wrapColumn', and
-        // 'encoderOptions'.
 };
 
 // CLASS METHODS
@@ -938,12 +943,12 @@ void FormatterModelUtil::appendBehavior(
                            // class Method_Protocol
                            // =====================
 
+/// This abstract base class provides a protocol for an object that can be
+/// invoked on a `balxml::Formatter *` (i.e. is a "method" of
+/// `balxml::Formatter`) and copied.
+///
+/// Note that this class is an implementation detail of `Method` below.
 class Method_Protocol {
-    // This abstract base class provides a protocol for an object that can be
-    // invoked on a 'balxml::Formatter *' (i.e. is a "method" of
-    // 'balxml::Formatter') and copied.
-    //
-    // Note that this class is an implementation detail of 'Method' below.
 
   public:
     // CREATORS
@@ -961,13 +966,13 @@ class Method_Protocol {
                               // class Method_Imp
                               // ================
 
+/// This mechanism class template provides an implementation of the
+/// `Method_Protocol` whose virtual function call operator invokes
+/// an object of the specified `METHOD` type with the supplied formatter.
+///
+/// Note that this class is an implementation detail of `Method` below.
 template <class METHOD>
 class Method_Impl : public Method_Protocol {
-    // This mechanism class template provides an implementation of the
-    // 'Method_Protocol' whose virtual function call operator invokes
-    // an object of the specified 'METHOD' type with the supplied formatter.
-    //
-    // Note that this class is an implementation detail of 'Method' below.
 
   public:
     // TYPES
@@ -1000,10 +1005,10 @@ class Method_Impl : public Method_Protocol {
                                 // class Method
                                 // ============
 
+/// This mechanism class provides a type-erased interface to an object of
+/// any type that is invocable with a `balxml::Formatter *` (e.g. that is a
+/// "method" of `balxml::Formatter`.)
 class Method {
-    // This mechanism class provides a type-erased interface to an object of
-    // any type that is invocable with a 'balxml::Formatter *' (e.g. that is a
-    // "method" of 'balxml::Formatter'.)
 
     // PRIVATE TYPES
     typedef Method_Protocol Protocol;
@@ -1049,10 +1054,10 @@ class Method {
                        // class AddElementAndDataMethod
                        // =============================
 
+/// This class provides a function-call operator that is a factory for
+/// `Method` objects that invokes `balxml::Formatter::addElementAndData`
+/// with bound `name`, `value`, and `formattingMode` arguments.
 class AddElementAndDataMethod {
-    // This class provides a function-call operator that is a factory for
-    // 'Method' objects that invokes 'balxml::Formatter::addElementAndData'
-    // with bound 'name', 'value', and 'formattingMode' arguments.
 
   public:
     // CREATORS
@@ -1079,10 +1084,10 @@ class AddElementAndDataMethod {
                           // class OpenElementMethod
                           // =======================
 
+/// This class provides a function-call operator that is a factory for
+/// `Method` objects that invokes `balxml::Formatter::openElement` with
+/// bound `name`, and `ws` arguments.
 class OpenElementMethod {
-    // This class provides a function-call operator that is a factory for
-    // 'Method' objects that invokes 'balxml::Formatter::openElement' with
-    // bound 'name', and 'ws' arguments.
 
   public:
     // CREATORS
@@ -1107,10 +1112,10 @@ class OpenElementMethod {
                           // class CloseElementMethod
                           // ========================
 
+/// This class provides a function-call operator that is a factory for
+/// `Method` objects that invokes `balxml::Formatter::closeElement` with
+/// a bound `name` argument.
 class CloseElementMethod {
-    // This class provides a function-call operator that is a factory for
-    // 'Method' objects that invokes 'balxml::Formatter::closeElement' with
-    // a bound 'name' argument.
 
   public:
     // CREATORS
@@ -1164,7 +1169,7 @@ int main(int argc, char *argv[])
 
 // Here is a basic example showing ten steps of how to create an XML document
 // using this component's major manipulators:
-//..
+// ```
     {
         // 1.  Create a formatter:
         bsl::ostringstream outStream;
@@ -1190,7 +1195,7 @@ int main(int argc, char *argv[])
         formatter.closeElement("pickDate");              // step 7
         formatter.addElementAndData("Quantity", 12);     // step 8
         // element "Quantity" has no attributes, can use shortcut
-        // 'addElementAndData' to complete steps 4, 6 and 7 in one shot.
+        // `addElementAndData` to complete steps 4, 6 and 7 in one shot.
 
         // 7. Close the element:
         formatter.closeElement("Oranges");
@@ -1203,11 +1208,11 @@ int main(int argc, char *argv[])
 
         // 9. Close the root element:
         formatter.closeElement("Fruits");
-//..
+// ```
 // Indentation is correctly taken care of and the user only needs to concern
 // themselves with the correct ordering of XML elements they're trying
 // to write.  The output of the above example is:
-//..
+// ```
         const char EXPECTED1[] =
             "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
             "<Fruits>\n"
@@ -1222,10 +1227,10 @@ int main(int argc, char *argv[])
 
         ASSERT(EXPECTED1 == outStream.str());
     }
-//..
+// ```
 // Following is a more complete usage example that use most of the
 // manipulators provided by balxml::Formatter:
-//..
+// ```
     {
         bsl::ostringstream outStream;
         balxml::Formatter formatter(outStream, 0, 4, 40);
@@ -1292,10 +1297,10 @@ int main(int argc, char *argv[])
         // formatter.addAttribute("country", "USA");
         formatter.addData("Corn, Wheat, Oat");
         formatter.closeElement("Grains");
-//..
+// ```
 // Following are the two resulting documents, as separated by the call to
 // reset(),
-//..
+// ```
         const char EXPECTED2[] =
             "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
             "<Fruits>\n"
@@ -1328,38 +1333,38 @@ int main(int argc, char *argv[])
 
         ASSERT(EXPECTED2 == outStream.str());
     }
-//..
+// ```
       } break;
       case 24: {
           // ------------------------------------------------------------------
-          // TESTING INDENTATION FOR 'closeElement'
-          //   Ensure that 'closeElement' indents the closing tag when
-          //   'wrapColumn' is set to 0.
+          // TESTING INDENTATION FOR `closeElement`
+          //   Ensure that `closeElement` indents the closing tag when
+          //   `wrapColumn` is set to 0.
           //
           // Concerns:
-          //: 1 When 'spacesPerLevel' is non-zero and 'wrapColumn' is 0 (which
-          //:   indicates an infinite wrap column), 'closeElement' properly
-          //:   indents the printed closing tag if said tag is not
-          //:   self-closing.
+          // 1. When `spacesPerLevel` is non-zero and `wrapColumn` is 0 (which
+          //    indicates an infinite wrap column), `closeElement` properly
+          //    indents the printed closing tag if said tag is not
+          //    self-closing.
           //
           // Plan:
-          //: 1 Set 'spacesPerLevel' to 1, 'wrapColumn' to 0, and the initial
-          //:   indent level to 0, and print XML documents having nesting
-          //:   depths of 0, 1, and 2, where no elements are self-closing, and
-          //:   verify that all closing tags are indented by 1 space per
-          //:   nesting level.
-          //:
-          //: 2 As a control, print the same documents using several other
-          //:   combinations of 'spacesPerLevel, 'wrapColumn', and initial
-          //:   indent level options, and verify the behavior of the formatter
-          //:   is consistent.
+          // 1. Set `spacesPerLevel` to 1, `wrapColumn` to 0, and the initial
+          //    indent level to 0, and print XML documents having nesting
+          //    depths of 0, 1, and 2, where no elements are self-closing, and
+          //    verify that all closing tags are indented by 1 space per
+          //    nesting level.
+          //
+          // 2. As a control, print the same documents using several other
+          //    combinations of `spacesPerLevel, `wrapColumn', and initial
+          //    indent level options, and verify the behavior of the formatter
+          //    is consistent.
           //
           // TESTING
-          //   'closeElement(const bslstl::StringRef& name)'
+          //   `closeElement(const bslstl::StringRef& name)`
           // ------------------------------------------------------------------
 
           if (verbose) {
-              bsl::cout << "\nTESTING INDENTATION FOR 'closeElement'"
+              bsl::cout << "\nTESTING INDENTATION FOR `closeElement`"
                         << "\n======================================"
                         << bsl::endl;
           }
@@ -1481,31 +1486,31 @@ int main(int argc, char *argv[])
       case 23: {
         // --------------------------------------------------------------------
         // TESTING BEHAVIOR CHECKSUMS
-        //   Ensure that the behavior of 'balxml::Formatter' with certain
+        //   Ensure that the behavior of `balxml::Formatter` with certain
         //   permutations of options has not changed.
         //
         //   At around the time this test case was added, the
-        //   'balxml_formatter' component underwent a heavy refactoring.  This
+        //   `balxml_formatter` component underwent a heavy refactoring.  This
         //   test case intends to detect and reject any difference in behavior
         //   for certain initial configurations of the formatter that may have
         //   been introduced by the refactoring, or a subsequent change.  The
         //   test performs a depth-ordered enumeration of all possible valid
-        //   sequences of method calls to 'balxml::Formatter' up to length 5,
+        //   sequences of method calls to `balxml::Formatter` up to length 5,
         //   given a set of initial options.  Since the amount of output
         //   produced by this enumeration is enormous, this test case verifies
         //   that the output has a specific MD5 checksum, as opposed to testing
         //   all the output for equality.
         //
         // Concerns:
-        //: 1 The checksum of all valid call sequences on 'balxml::Formatter'
-        //:   up to length 5 are equal to the checksums calculated from an
-        //:   earlier version of this component.
+        // 1. The checksum of all valid call sequences on `balxml::Formatter`
+        //    up to length 5 are equal to the checksums calculated from an
+        //    earlier version of this component.
         //
         // Plan:
-        //: 1 For several sets of settings, take the MD5 checksum of the output
-        //:   of all valid call sequences of 'balxml::Formatter' up to length
-        //:   5 (using sample arguments where necessary) and verify that the
-        //:   checksums are equal to "known-good" values.
+        // 1. For several sets of settings, take the MD5 checksum of the output
+        //    of all valid call sequences of `balxml::Formatter` up to length
+        //   5. (using sample arguments where necessary) and verify that the
+        //    checksums are equal to "known-good" values.
         //
         // TESTING
         //   ALL BEHAVIOR
@@ -1579,21 +1584,21 @@ int main(int argc, char *argv[])
         // TESTING that add* functions invalidate the stream on failure
         //
         // Concerns:
-        //: 1 That the add* functions, 'addData', 'addListData', and
-        //:   'addAttribute' invalidate the stream on error.
+        // 1. That the add* functions, `addData`, `addListData`, and
+        //    `addAttribute` invalidate the stream on error.
         //
         // Plan:
-        //: 1 Create a 'ostringstream' object, ss.
-        //:
-        //: 2 Create a 'balxml::Formatter' object and associate 'ss' with it.
-        //:
-        //: 3 Invoke each of the three functions under test passing either an
-        //:   invalid value or an incorrect formatting mode.
-        //:
-        //: 4 Verify that 'ss' is invalid after the call.
-        //:
-        //: 5 Repeat steps 1-4 for all the functions under test and for all
-        //:   the error conditions.
+        // 1. Create a `ostringstream` object, ss.
+        //
+        // 2. Create a `balxml::Formatter` object and associate `ss` with it.
+        //
+        // 3. Invoke each of the three functions under test passing either an
+        //    invalid value or an incorrect formatting mode.
+        //
+        // 4. Verify that `ss` is invalid after the call.
+        //
+        // 5. Repeat steps 1-4 for all the functions under test and for all
+        //    the error conditions.
         //
         // Testing:
         //   void addData(const TYPE& value, int formattingMode);
@@ -1730,13 +1735,13 @@ int main(int argc, char *argv[])
         // otherwise measured through the public interface.  Use the following
         // sequences of manipulator calls:
         //
-        //: addheader reset addHeader again
-        //: openElement reset flush does not output '>'
-        //: openElement closeElement reset addHeader
-        //: addComment reset addHeader
-        //: addBlankLine reset addHeader
-        //: reset addHeader
-        //: openElement flush reset addHeader
+        // - addheader reset addHeader again
+        // - openElement reset flush does not output '>'
+        // - openElement closeElement reset addHeader
+        // - addComment reset addHeader
+        // - addBlankLine reset addHeader
+        // - reset addHeader
+        // - openElement flush reset addHeader
         // --------------------------------------------------------------------
         if (verbose) {
             bsl::cout << "\nTESTING reset\n" << bsl::endl;
@@ -1929,36 +1934,36 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING 'addValidComment'
+        // TESTING `addValidComment`
         //
         // Concerns:
-        //: 1 That 'addValidComment' appends a '>' for an opened element if
-        //:   it's not closed with a '>'.  It correctly precedes the comment
-        //:   with newline and indent when it's called with 'forceNewline'
-        //:   true, and adds only a space when 'forceNewline' false.  It
-        //:   adds another newline after comment if 'forceNewline' is true.
-        //:
-        //: 2 That 'addValidComment' omits padding white spaces in open '<!--'
-        //:   and '-->' close comment tags if 'omitPaddingWhitespace' is true,
-        //:   and uses '<!-- ' and ' -->' tags otherwise.
-        //:
-        //: 3 That 'addValidComment' returns non-zero value if the 'comment'
-        //:   argument contains '--' (double-hyphen) sub-string.
-        //:
-        //: 4 That 'addValidComment' returns non-zero value if the 'comment'
-        //:   argument ending in '-'.
+        // 1. That `addValidComment` appends a '>' for an opened element if
+        //    it's not closed with a '>'.  It correctly precedes the comment
+        //    with newline and indent when it's called with `forceNewline`
+        //    true, and adds only a space when `forceNewline` false.  It
+        //    adds another newline after comment if `forceNewline` is true.
+        //
+        // 2. That `addValidComment` omits padding white spaces in open `<!--`
+        //    and `-->` close comment tags if `omitPaddingWhitespace` is true,
+        //    and uses `<!-- ` and ` -->` tags otherwise.
+        //
+        // 3. That `addValidComment` returns non-zero value if the `comment`
+        //    argument contains `--` (double-hyphen) sub-string.
+        //
+        // 4. That `addValidComment` returns non-zero value if the `comment`
+        //    argument ending in '-'.
         //
         // Plans:
-        //:
-        //: 1 Open an element with various initial indentations, with or
-        //:   without flush() afterwards.  Then add comment with 'forceNewline'
-        //:   true or false and 'omitPaddingWhitespace' true or false.  Check
-        //:   for resulting string and 'd_column' value.  (C-1..2)
-        //:
-        //: 2 Create a test table with a list of valid or invalid comments.
-        //:   Call 'addValidComment' to add the comment to 'Formatter' object.
-        //:   Test the resultant output for a valid comment, or test the error
-        //:   code for an invalid comment.  (C-3..4)
+        //
+        // 1. Open an element with various initial indentations, with or
+        //    without flush() afterwards.  Then add comment with `forceNewline`
+        //    true or false and `omitPaddingWhitespace` true or false.  Check
+        //    for resulting string and `d_column` value.  (C-1..2)
+        //
+        // 2. Create a test table with a list of valid or invalid comments.
+        //    Call `addValidComment` to add the comment to `Formatter` object.
+        //    Test the resultant output for a valid comment, or test the error
+        //    code for an invalid comment.  (C-3..4)
         //
         // Testing:
         //   int addValidComment(const bslstl::StringRef&, bool, bool);
@@ -2429,13 +2434,13 @@ int main(int argc, char *argv[])
         // addElementAndData
         //
         // Concerns:
-        //: 1 addElementAndData(name, value) is as the sequence of
-        //:   openElement(name), addData(value), closeElement(name)
+        // 1. addElementAndData(name, value) is as the sequence of
+        //    openElement(name), addData(value), closeElement(name)
         //
         // Plans:
-        //: 1 For a combination of tagName and dataValue, call both
-        //:   addElementAndData, and its equivalent sequence and compare the
-        //:   result.
+        // 1. For a combination of tagName and dataValue, call both
+        //    addElementAndData, and its equivalent sequence and compare the
+        //    result.
         // --------------------------------------------------------------------
           if (verbose) {
               bsl::cout << "\nTESTING nested closeElement\n" << bsl::endl;
@@ -2490,10 +2495,10 @@ int main(int argc, char *argv[])
         // closeElement for nested elements
         //
         // Concerns:
-        //: 1 when called multiple times, each time for a nested element,
-        //:   closeElement properly decrements the indent level.
-        //: 2 add </tag> for each non-innermost element with proper
-        //:   indentation, irrespective of whitespace constraint.
+        // 1. when called multiple times, each time for a nested element,
+        //    closeElement properly decrements the indent level.
+        // 2. add </tag> for each non-innermost element with proper
+        //    indentation, irrespective of whitespace constraint.
         //
         // Plans:
         //
@@ -2586,19 +2591,19 @@ int main(int argc, char *argv[])
         // closeElement for the root element
         //
         // Concerns:
-        //: 1 closeElement properly decrements the indent level and add </tag>
-        //:   to the element of name 'tag'.
-        //:
-        //: 2 After it closes the element, it gives a newline.
-        //:
-        //: 3 In the case of element opened with BAEXML_NEWLINE_INDENT
-        //:   whitespace handling constraint, the closing tag does not share
-        //:   the same line as the opening tag, nor does it share the same line
-        //:   as the data if there is any.
-        //:
-        //: 4 In the case of an opened element that has not been completed with
-        //:   '>', (d_state is BAEXML_IN_TAG), it closes the element with '/>',
-        //:   no matter what whitespace constraint it was opened with.
+        // 1. closeElement properly decrements the indent level and add </tag>
+        //    to the element of name `tag`.
+        //
+        // 2. After it closes the element, it gives a newline.
+        //
+        // 3. In the case of element opened with BAEXML_NEWLINE_INDENT
+        //    whitespace handling constraint, the closing tag does not share
+        //    the same line as the opening tag, nor does it share the same line
+        //    as the data if there is any.
+        //
+        // 4. In the case of an opened element that has not been completed with
+        //    '>', (d_state is BAEXML_IN_TAG), it closes the element with `/>`,
+        //    no matter what whitespace constraint it was opened with.
         //
         // Plans:
         //     Open a single element (the root element) with tag name of
@@ -2715,24 +2720,24 @@ int main(int argc, char *argv[])
         // addListData<bsl::string> - no escaping is tested here
         //
         // Concerns:
-        //: 1 addListData puts the formatter in the correct state of
-        //:   BAEXML_BETWEEN_TAGS.
-        //:
-        //: 2 It performs limited line-wrapping for input values if the element
-        //:   is opened with BAEXML_WORDWRAP;
-        //:
-        //: 3 It performs indentation after limited line-wrapping for
-        //:   BAEXML_WORDWRAP_INDENT;
-        //:
-        //: 4 In the case of BAEXML_NEWLINE_INDENT, addListData starts from the
-        //:   new line, and performs indentation after line-wrapping.
-        //:
-        //: 5 In the case of more than one call to addListData within a pair of
-        //:   tags, a single space is inserted between adjacent data unless
-        //:   when line is wrapped a newline and optionally indentation spaces
-        //:   are inserted as in 2, 3, 4.
-        //:
-        //: 6 Empty data value should not change d_column.
+        // 1. addListData puts the formatter in the correct state of
+        //    BAEXML_BETWEEN_TAGS.
+        //
+        // 2. It performs limited line-wrapping for input values if the element
+        //    is opened with BAEXML_WORDWRAP;
+        //
+        // 3. It performs indentation after limited line-wrapping for
+        //    BAEXML_WORDWRAP_INDENT;
+        //
+        // 4. In the case of BAEXML_NEWLINE_INDENT, addListData starts from the
+        //    new line, and performs indentation after line-wrapping.
+        //
+        // 5. In the case of more than one call to addListData within a pair of
+        //    tags, a single space is inserted between adjacent data unless
+        //    when line is wrapped a newline and optionally indentation spaces
+        //    are inserted as in 2, 3, 4.
+        //
+        // 6. Empty data value should not change d_column.
         //
         // Plans:
         //     Add one root element with various whitespace handling.  Call
@@ -2905,18 +2910,18 @@ int main(int argc, char *argv[])
         // addData<bsl::string> - no escaping is tested here
         //
         // Concerns:
-        //: 1 addData puts the formatter in the correct state of
-        //:   BAEXML_BETWEEN_TAGS.
-        //:
-        //: 2 addData performs no indentation or line-wrapping for any input
-        //:   value.
-        //:
-        //: 3 In the case of openElement with BAEXML_NEWLINE_INDENT, addData
-        //:  starts from the new line, and performs only initial indentation,
-        //:  but no other indentation or line-wrapping.
-        //:
-        //: 4 In the case of more than one call to addData within a pair of
-        //:   tags, no spacing is inserted between adjacent data whatsoever.
+        // 1. addData puts the formatter in the correct state of
+        //    BAEXML_BETWEEN_TAGS.
+        //
+        // 2. addData performs no indentation or line-wrapping for any input
+        //    value.
+        //
+        // 3. In the case of openElement with BAEXML_NEWLINE_INDENT, addData
+        //   starts from the new line, and performs only initial indentation,
+        //   but no other indentation or line-wrapping.
+        //
+        // 4. In the case of more than one call to addData within a pair of
+        //    tags, no spacing is inserted between adjacent data whatsoever.
         //
         // Plans:
         //     Add one root element with various whitespace handling.  Call
@@ -3124,7 +3129,7 @@ int main(int argc, char *argv[])
                                                + bsl::strlen(VALUE)
                                                + 3) >= WRAP_COLUMN)) {
                           // these numbers refer to the added characters one
-                          // attribute might introduce: ' NAME="VALUE"/>'
+                          // attribute might introduce: ` NAME="VALUE"/>`
                           //                            -1-  -2 -   -3  -
                           isWrapped = true;
                       }
@@ -3385,8 +3390,8 @@ int main(int argc, char *argv[])
                   bsl::string ssDoc;  // document from formatter
                   ssDoc += ss.str();
 
+                  // Expected XML doc
                   bsl::string expectedDoc;
-                      // Expected XML doc
                   expectedDoc.append(INIT_INDENT * SPACES_PERLEVEL, ' ');
                   expectedDoc += '<';
                   expectedDoc += NAME;
@@ -3420,10 +3425,10 @@ int main(int argc, char *argv[])
 
                       expectedDoc += expected;
 
+                      // -1 to offset "\n", -2 to offset ">\n"
                       int expectedColumn = DOFLUSH
                                      ? static_cast<int>(expected.length()) - 1
                                      : static_cast<int>(expected.length()) - 2;
-                          // -1 to offset "\n", -2 to offset ">\n"
                       LOOP6_ASSERT(LINE, INIT_INDENT, SPACES_PERLEVEL,
                                    WRAP_COLUMN, DOFLUSH, level,
                                    expected == ss.str());
@@ -3994,7 +3999,7 @@ int main(int argc, char *argv[])
 }
 
 #ifdef BSLS_PLATFORM_CMP_MSVC
-// Pop the stack of disabled warnings that were pushed before the 'main'
+// Pop the stack of disabled warnings that were pushed before the `main`
 // function definition.
 #pragma warning( pop )
 #endif

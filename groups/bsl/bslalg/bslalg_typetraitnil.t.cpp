@@ -6,8 +6,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 using namespace BloombergLP;
 
@@ -16,7 +16,7 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// Verify that the trait under test is detected using 'bslalg::HasTrait' on
+// Verify that the trait under test is detected using `bslalg::HasTrait` on
 // every type.
 //-----------------------------------------------------------------------------
 
@@ -102,10 +102,10 @@ int main(int argc, char *argv[])
         // TESTING TRAIT CLASS
         //
         // Concerns:
-        //: 1 The name of the trait class does not change over time.
+        // 1. The name of the trait class does not change over time.
         //
         // Plan:
-        //: 1 Create an instance of the trait class.
+        // 1. Create an instance of the trait class.
         //
         // Testing:
         //   class bslalg::TypeTraitNil;

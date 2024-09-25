@@ -25,8 +25,8 @@
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 
-// It is very important not to say 'using BloombergLP;' in this test driver, in
-// order to test that the macros will work when 'BloombergLP' is not in scope.
+// It is very important not to say `using BloombergLP;` in this test driver, in
+// order to test that the macros will work when `BloombergLP` is not in scope.
 
 namespace Corp = BloombergLP;
 namespace BALM = BloombergLP::balm;
@@ -41,14 +41,14 @@ using bsl::flush;
 //                                  Overview
 //                                  --------
 // The macros defined in this component primarily provide user-friendly access
-// to a 'balm::Collector' object.  Most of the tests can be performed by
-// creating an "oracle" 'balm::Collector' object and verifying that operations
+// to a `balm::Collector` object.  Most of the tests can be performed by
+// creating an "oracle" `balm::Collector` object and verifying that operations
 // performed on with a macro have the same effect as the same operation
-// performed directly on the "oracle" 'balm::Collector'.  Note that, the
-// "STANDARD" macro variants (i.e., 'BALM_METRICS_UPDATE') and the
-// "THREAD_LOCAL" macro variants (i.e., 'BALM_METRICS_THREAD_LOCAL_UPDATE')
+// performed directly on the "oracle" `balm::Collector`.  Note that, the
+// "STANDARD" macro variants (i.e., `BALM_METRICS_UPDATE`) and the
+// "THREAD_LOCAL" macro variants (i.e., `BALM_METRICS_THREAD_LOCAL_UPDATE`)
 // have more complex behavior with respect to their statically cached (or
-// thread-local statically cached) 'balm::Collector' object.
+// thread-local statically cached) `balm::Collector` object.
 // ----------------------------------------------------------------------------
 // MACROS
 // [ 2] BALM_METRICS_UPDATE(CATEGORY, NAME, VALUE)
@@ -151,31 +151,31 @@ typedef bsl::vector<IColSPtr>                    IColSPtrVector;
 //                     CLASSES FOR AND FUNCTIONS TESTING
 // ----------------------------------------------------------------------------
 
+/// Return the current record value of the specified `collector`.
 inline
 BALM::MetricRecord recordVal(const BALM::Collector *collector)
-    // Return the current record value of the specified 'collector'.
 {
     BALM::MetricRecord record;
     collector->load(&record);
     return record;
 }
 
+/// Return the current record value of the specified `collector`.
 inline
 BALM::MetricRecord recordVal(const BALM::IntegerCollector *collector)
-    // Return the current record value of the specified 'collector'.
 {
     BALM::MetricRecord record;
     collector->load(&record);
     return record;
 }
 
+/// Return `true` if the specified `value` in the specified `scale` is
+/// within the specified `windowMs` (milliseconds) of the specified
+/// `expectedS` (seconds).
 bool within(double         value,
             SWGuard::Units scale,
             double         expectedS,
             double         windowMs)
-    // Return 'true' if the specified 'value' in the specified 'scale' is
-    // within the specified 'windowMs' (milliseconds) of the specified
-    // 'expectedS' (seconds).
 {
     double expected = expectedS * static_cast<double>(scale);
     double window   = windowMs * 1000 * static_cast<double>(scale);
@@ -194,21 +194,21 @@ bool withinInt(int value, int min, int max)
     return (min <= value) && (max >= value);
 }
 
+/// Record, using the static `BALM_TIME_BLOCK` macro, an empty function to
+/// a metric identified by the specified `category` and `name`.  Optionally
+/// specify the `units` to report elapsed time values.  If no `units` value
+/// is supplied, time is reported in seconds.  Note that the identity of
+/// the metric is defined on the *first* invocation of this macro.
 void staticTimeEmptyFunction(const char     *category,
                              const char     *metric,
                              SWGuard::Units  units = SWGuard::k_SECONDS)
-    // Record, using the static 'BALM_TIME_BLOCK' macro, an empty function to
-    // a metric identified by the specified 'category' and 'name'.  Optionally
-    // specify the 'units' to report elapsed time values.  If no 'units' value
-    // is supplied, time is reported in seconds.  Note that the identity of
-    // the metric is defined on the *first* invocation of this macro.
 {
     BALM_METRICS_TIME_BLOCK(category, metric, units);
 }
 
+/// Record, using the `e_DYNAMIC_TIME_BLOCK_SECONDS` macro, an empty
+/// function to a metric identified by the specified `category` and `name`.
 void dynamicTimeEmptyFunction(const char *category, const char *metric)
-    // Record, using the 'e_DYNAMIC_TIME_BLOCK_SECONDS' macro, an empty
-    // function to a metric identified by the specified 'category' and 'name'.
 {
     BALM_METRICS_DYNAMIC_TIME_BLOCK_SECONDS(category, metric);
 }
@@ -246,11 +246,11 @@ namespace {
 typedef BloombergLP::bsls::Log         Log;
 typedef BloombergLP::bsls::LogSeverity Severity;
 
+/// This struct provides a namespace for a utility function,
+/// `testMessageHandler`, which is a valid log message handler
+/// (`bsls::Log::LogMessageHandler`) that will simply copy all arguments
+/// into a set of `public` `static` data members.
 struct LogTestMessageHandler {
-    // This struct provides a namespace for a utility function,
-    // 'testMessageHandler', which is a valid log message handler
-    // ('bsls::Log::LogMessageHandler') that will simply copy all arguments
-    // into a set of 'public' 'static' data members.
 
     // This class is designed as fully static (instead of using a singleton) in
     // order to more easily support registration of the log message handler.
@@ -274,21 +274,22 @@ struct LogTestMessageHandler {
                                             // message buffer
 
     // CLASS METHODS
+
+    /// Return the last message logged through `testMessage`.
     static const char *message();
-        // Return the last message logged through 'testMessage'.
 
+    /// Set `s_hasBeenCalled` to `false`, write a null byte to the beginning
+    /// of `s_file`, set `s_line` to 0, and write a null byte to the
+    /// beginning of `s_message`.
     static void reset();
-        // Set 's_hasBeenCalled' to 'false', write a null byte to the beginning
-        // of 's_file', set 's_line' to 0, and write a null byte to the
-        // beginning of 's_message'.
 
+    /// Copy the specified `severity`, `file`, `line`, and `message` to the
+    /// correspondng public data members of this `struct`.  The behavior is
+    /// undefined unless `line >= 0`.
     static void testMessageHandler(Severity::Enum  severity,
                                    const char     *file,
                                    int             line,
                                    const char     *message);
-        // Copy the specified 'severity', 'file', 'line', and 'message' to the
-        // correspondng public data members of this 'struct'.  The behavior is
-        // undefined unless 'line >= 0'.
 };
 
 // PUBLIC CLASS DATA
@@ -341,16 +342,17 @@ void LogTestMessageHandler::testMessageHandler(Severity::Enum  severity,
 
 // ------------------- case 11 StandardMacroConcurrencyTest -----------------
 
+/// Invoke a set of operations operations synchronously.
 class StandardMacroConcurrencyTest {
-    // Invoke a set of operations operations synchronously.
 
     // DATA
     Corp::bdlmt::FixedThreadPool  d_pool;
     Corp::bslmt::Barrier          d_barrier;
 
     // PRIVATE MANIPULATORS
+
+    /// Execute a single test.
     void execute();
-        // Execute a single test.
 
   public:
 
@@ -366,8 +368,9 @@ class StandardMacroConcurrencyTest {
     ~StandardMacroConcurrencyTest() {}
 
     // MANIPULATORS
+
+    /// Run the test.
     void runTest();
-        // Run the test.
 };
 
 void StandardMacroConcurrencyTest::execute()
@@ -448,7 +451,7 @@ void StandardMacroConcurrencyTest::execute()
     }
     {
         // Verify macros respect enabled status by examining
-        // 'ENABLED_CATEGORY' metric values.
+        // `ENABLED_CATEGORY` metric values.
         BALM::Collector *A = repository.getDefaultCollector("B", "A");
         BALM::Collector *B = repository.getDefaultCollector("B", "B");
         BALM::Collector *C = repository.getDefaultCollector("B", "C");
@@ -486,16 +489,17 @@ void StandardMacroConcurrencyTest::runTest()
 
 // ------------------- case 12: DynamicMacroConcurrencyTest ------------------
 
+/// Invoke a set of operations operations synchronously.
 class DynamicMacroConcurrencyTest {
-    // Invoke a set of operations operations synchronously.
 
     // DATA
     Corp::bdlmt::FixedThreadPool  d_pool;
     Corp::bslmt::Barrier          d_barrier;
 
     // PRIVATE MANIPULATORS
+
+    /// Execute a single test.
     void execute();
-        // Execute a single test.
 
   public:
     // CREATORS
@@ -510,14 +514,15 @@ class DynamicMacroConcurrencyTest {
     ~DynamicMacroConcurrencyTest() {}
 
     // MANIPULATORS
+
+    /// Run the test.
     void runTest();
-        // Run the test.
 };
 
 void DynamicMacroConcurrencyTest::execute()
 {
-    // Update 2 metrics 'TEST_CATEGORY.UPDATE' and 'ENABLED_CATEGORY.UPDATE'
-    // while enabling and disabling the category 'ENABLED_CATEGORY'.  Verify
+    // Update 2 metrics `TEST_CATEGORY.UPDATE` and `ENABLED_CATEGORY.UPDATE`
+    // while enabling and disabling the category `ENABLED_CATEGORY`.  Verify
     // collectors being used by the macros holds a value that matches the
     // expected value (or expected range of values) for the metric.
 
@@ -544,7 +549,7 @@ void DynamicMacroConcurrencyTest::execute()
     const int NUM_THREADS = d_pool.numThreads();
     const int TOTAL = (COUNT * (COUNT - 1)) / 2;
     {
-        // Verify basic macro behavior for 'TEST_CATEGORY'.
+        // Verify basic macro behavior for `TEST_CATEGORY`.
 
         BALM::Collector *upCol  =
                          repository.getDefaultCollector(TEST_CATEGORY, UPDATE);
@@ -558,7 +563,7 @@ void DynamicMacroConcurrencyTest::execute()
     }
     {
         // Verify macros respect enabled status by examining
-        // 'ENABLED_CATEGORY' metric values.
+        // `ENABLED_CATEGORY` metric values.
 
         BALM::Collector *upCol  =
                       repository.getDefaultCollector(ENABLED_CATEGORY, UPDATE);
@@ -624,14 +629,14 @@ class TlsMacroConcurrencyTest {
 
 void TlsMacroConcurrencyTest::execute()
 {
-    // Using 4 metrics 'TEST_CATEGORY.UPDATE', 'TEST_CATEGORY.INCREMENT',
-    // 'ENABLED_CATEGORY.UPDATE' and 'ENABLED_CATEGORY.INCREMENT': use the
-    // increment macro on the 'INCREMENT' metrics and the update macro on the
-    // 'UPDATE' metrics, while enabling and disabling the category
-    // 'ENABLED_CATEGORY'.  Verify collectors being used by the macros holds a
+    // Using 4 metrics `TEST_CATEGORY.UPDATE`, `TEST_CATEGORY.INCREMENT`,
+    // `ENABLED_CATEGORY.UPDATE` and `ENABLED_CATEGORY.INCREMENT`: use the
+    // increment macro on the `INCREMENT` metrics and the update macro on the
+    // `UPDATE` metrics, while enabling and disabling the category
+    // `ENABLED_CATEGORY`.  Verify collectors being used by the macros holds a
     // value that matches the expected value (or expected range of values) for
     // the metric.  Note that this test uses
-    // 'BALM::CollectorRepository::collectAndReset', which modifies the
+    // `BALM::CollectorRepository::collectAndReset`, which modifies the
     // metric values as it collects them, so verification can only be performed
     // on a single thread.
 
@@ -663,7 +668,7 @@ void TlsMacroConcurrencyTest::execute()
     d_barrier.wait();
 
     // Verification must be performed on a single thread because
-    // 'BALM::CollectorRepository::collectAndReset' modifies the object
+    // `BALM::CollectorRepository::collectAndReset` modifies the object
     // state when it collects the metric values.
 
     static bool executedTest; executedTest = false;
@@ -677,7 +682,7 @@ void TlsMacroConcurrencyTest::execute()
     const int NUM_THREADS = d_pool.numThreads();
     const int TOTAL = (COUNT * (COUNT - 1)) / 2;
     {
-        // Verify basic macro behavior for 'TEST_CATEGORY'.
+        // Verify basic macro behavior for `TEST_CATEGORY`.
         BALM::MetricId upId  = registry.getId(TEST_CATEGORY,
                                              UPDATE);
         BALM::MetricId incId = registry.getId(TEST_CATEGORY,
@@ -724,7 +729,7 @@ void TlsMacroConcurrencyTest::execute()
     }
     {
         // Verify macros respect enabled status by examining
-        // 'ENABLED_CATEGORY' metric values.
+        // `ENABLED_CATEGORY` metric values.
 
         BALM::MetricId upId  = registry.getId(ENABLED_CATEGORY, UPDATE);
         BALM::MetricId incId = registry.getId(ENABLED_CATEGORY, INCREMENT);
@@ -792,16 +797,17 @@ void TlsMacroConcurrencyTest::runTest()
 
 // ------------------- case 14: StandardIntMacroConcurrencyTest ---------------
 
+/// Invoke a set of operations operations synchronously.
 class StandardIntMacroConcurrencyTest {
-    // Invoke a set of operations operations synchronously.
 
     // DATA
     Corp::bdlmt::FixedThreadPool   d_pool;
     Corp::bslmt::Barrier           d_barrier;
 
     // PRIVATE MANIPULATORS
+
+    /// Execute a single test.
     void execute();
-        // Execute a single test.
 
   public:
 
@@ -817,8 +823,9 @@ class StandardIntMacroConcurrencyTest {
     ~StandardIntMacroConcurrencyTest() {}
 
     // MANIPULATORS
+
+    /// Run the test.
     void runTest();
-        // Run the test.
 };
 
 void StandardIntMacroConcurrencyTest::execute()
@@ -901,7 +908,7 @@ void StandardIntMacroConcurrencyTest::execute()
     }
     {
         // Verify macros respect enabled status by examining
-        // 'ENABLED_CATEGORY' metric values.
+        // `ENABLED_CATEGORY` metric values.
         IntCollector *A = repository.getDefaultIntegerCollector("B", "A");
         IntCollector *B = repository.getDefaultIntegerCollector("B", "B");
         IntCollector *C = repository.getDefaultIntegerCollector("B", "C");
@@ -938,16 +945,17 @@ void StandardIntMacroConcurrencyTest::runTest()
 
 // ------------------- case 15: DynamicIntMacroConcurrencyTest ----------------
 
+/// Invoke a set of operations operations synchronously.
 class DynamicIntMacroConcurrencyTest {
-    // Invoke a set of operations operations synchronously.
 
     // DATA
     Corp::bdlmt::FixedThreadPool  d_pool;
     Corp::bslmt::Barrier          d_barrier;
 
     // PRIVATE MANIPULATORS
+
+    /// Execute a single test.
     void execute();
-        // Execute a single test.
 
   public:
     // CREATORS
@@ -962,17 +970,18 @@ class DynamicIntMacroConcurrencyTest {
     ~DynamicIntMacroConcurrencyTest() {}
 
     // MANIPULATORS
+
+    /// Run the test.
     void runTest();
-        // Run the test.
 };
 
 void DynamicIntMacroConcurrencyTest::execute()
 {
-    // Using 4 metrics 'TEST_CATEGORY.UPDATE', 'TEST_CATEGORY.INCREMENT',
-    // 'ENABLED_CATEGORY.UPDATE' and 'ENABLED_CATEGORY.INCREMENT': use the
-    // increment macro on the 'INCREMENT' metrics and the update macro on the
-    // 'UPDATE' metrics, while enabling and disabling the category
-    // 'ENABLED_CATEGORY'.  Verify collectors being used by the macros holds a
+    // Using 4 metrics `TEST_CATEGORY.UPDATE`, `TEST_CATEGORY.INCREMENT`,
+    // `ENABLED_CATEGORY.UPDATE` and `ENABLED_CATEGORY.INCREMENT`: use the
+    // increment macro on the `INCREMENT` metrics and the update macro on the
+    // `UPDATE` metrics, while enabling and disabling the category
+    // `ENABLED_CATEGORY`.  Verify collectors being used by the macros holds a
     // value that matches the expected value (or expected range of values) for
     // the metric.
 
@@ -1002,7 +1011,7 @@ void DynamicIntMacroConcurrencyTest::execute()
     const int NUM_THREADS = d_pool.numThreads();
     const int TOTAL = (COUNT * (COUNT - 1)) / 2;
     {
-        // Verify basic macro behavior for 'TEST_CATEGORY'.
+        // Verify basic macro behavior for `TEST_CATEGORY`.
 
         IntCollector *upCol  = repository.getDefaultIntegerCollector(
                                                         TEST_CATEGORY, UPDATE);
@@ -1023,7 +1032,7 @@ void DynamicIntMacroConcurrencyTest::execute()
     }
     {
         // Verify macros respect enabled status by examining
-        // 'ENABLED_CATEGORY' metric values.
+        // `ENABLED_CATEGORY` metric values.
 
         IntCollector *upCol  = repository.getDefaultIntegerCollector(
                                                      ENABLED_CATEGORY, UPDATE);
@@ -1097,14 +1106,14 @@ class TlsIntMacroConcurrencyTest {
 
 void TlsIntMacroConcurrencyTest::execute()
 {
-    // Using 4 metrics 'TEST_CATEGORY.UPDATE', 'TEST_CATEGORY.INCREMENT',
-    // 'ENABLED_CATEGORY.UPDATE' and 'ENABLED_CATEGORY.INCREMENT': use the
-    // increment macro on the 'INCREMENT' metrics and the update macro on the
-    // 'UPDATE' metrics, while enabling and disabling the category
-    // 'ENABLED_CATEGORY'.  Verify collectors being used by the macros holds a
+    // Using 4 metrics `TEST_CATEGORY.UPDATE`, `TEST_CATEGORY.INCREMENT`,
+    // `ENABLED_CATEGORY.UPDATE` and `ENABLED_CATEGORY.INCREMENT`: use the
+    // increment macro on the `INCREMENT` metrics and the update macro on the
+    // `UPDATE` metrics, while enabling and disabling the category
+    // `ENABLED_CATEGORY`.  Verify collectors being used by the macros holds a
     // value that matches the expected value (or expected range of values) for
     // the metric.  Note that this test uses
-    // 'BALM::CollectorRepository::collectAndReset', which modifies the
+    // `BALM::CollectorRepository::collectAndReset`, which modifies the
     // metric values as it collects them, so verification can only be performed
     // on a single thread.
 
@@ -1135,7 +1144,7 @@ void TlsIntMacroConcurrencyTest::execute()
     d_barrier.wait();
 
     // Verification must be performed on a single thread because
-    // 'BALM::CollectorRepository::collectAndReset' modifies the object
+    // `BALM::CollectorRepository::collectAndReset` modifies the object
     // state when it collects the metric values.
 
     static bool executedTest; executedTest = false;
@@ -1149,7 +1158,7 @@ void TlsIntMacroConcurrencyTest::execute()
     const int NUM_THREADS = d_pool.numThreads();
     const int TOTAL = (COUNT * (COUNT - 1)) / 2;
     {
-        // Verify basic macro behavior for 'TEST_CATEGORY'.
+        // Verify basic macro behavior for `TEST_CATEGORY`.
         BALM::MetricId upId  = registry.getId(TEST_CATEGORY,
                                              UPDATE);
         BALM::MetricId incId = registry.getId(TEST_CATEGORY,
@@ -1196,7 +1205,7 @@ void TlsIntMacroConcurrencyTest::execute()
     }
     {
         // Verify macros respect enabled status by examining
-        // 'ENABLED_CATEGORY' metric values.
+        // `ENABLED_CATEGORY` metric values.
 
         BALM::MetricId upId  = registry.getId(ENABLED_CATEGORY, UPDATE);
         BALM::MetricId incId = registry.getId(ENABLED_CATEGORY, INCREMENT);
@@ -1271,22 +1280,23 @@ void TlsIntMacroConcurrencyTest::runTest()
 ///- - - - - - - - - - - - - - -
 // Once a metrics manager is initialized, we can use the various macros to
 // record metric values.  In this second example, we collect metrics from a
-// hypothetical event-processing function.  We use 'BALM_METRICS_UPDATE' to
+// hypothetical event-processing function.  We use `BALM_METRICS_UPDATE` to
 // record the size of the data being processed to a metric named
 // "msgSize", and the elapsed time (in milliseconds) to process the event to a
-// metric named "elapsedTime".  Finally, we use 'BALM_METRICS_INCREMENT'
+// metric named "elapsedTime".  Finally, we use `BALM_METRICS_INCREMENT`
 // to record a count of failures to a metric named "failureCount".
-// Note that we do not use the '*_DYNAMIC_*' variants of the
-// 'BALM_METRICS_UPDATE' or 'BALM_METRICS_INCREMENT' macros because the
+// Note that we do not use the `*_DYNAMIC_*` variants of the
+// `BALM_METRICS_UPDATE` or `BALM_METRICS_INCREMENT` macros because the
 // category and metric names are constant across all applications of the macro
-// at a particular instantiation point (the 'DYNAMIC' variants look up the
+// at a particular instantiation point (the `DYNAMIC` variants look up the
 // category and metric name on each application, which would incur unnecessary
 // runtime overhead).
-//..
+// ```
+
+    /// Process the event described by the specified `eventId` and
+    /// `eventMessage`.  Return 0 on success, and a non-zero
+    /// value otherwise.
     int processEvent(int eventId, const bsl::string& eventMessage)
-        // Process the event described by the specified 'eventId' and
-        // 'eventMessage'.  Return 0 on success, and a non-zero
-        // value otherwise.
     {
         (void)eventId;
 
@@ -1297,7 +1307,7 @@ void TlsIntMacroConcurrencyTest::runTest()
                             static_cast<double>(eventMessage.size()));
         BALM_METRICS_TIME_BLOCK_MILLISECONDS("processingEvent", "elapsedTime");
 
-        // Process 'data'.
+        // Process `data`.
 
         if (0 != returnCode) {
             BALM_METRICS_INCREMENT("processEvent", "failureCount");
@@ -1305,24 +1315,25 @@ void TlsIntMacroConcurrencyTest::runTest()
 
         return returnCode;
     }
-//..
-///Example 3 - Using 'BALM_METRICS_IF_CATEGORY_ENABLED'
+// ```
+///Example 3 - Using `BALM_METRICS_IF_CATEGORY_ENABLED`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this next example, we use 'BALM_METRICS_IF_CATEGORY_ENABLED' to
+// In this next example, we use `BALM_METRICS_IF_CATEGORY_ENABLED` to
 // conditionally disable a (relatively) expensive operation involved in
-// computing a metric value.  The 'processEvent2' function, defined below, uses
-// a 'bsls::Stopwatch' to record the elapsed system, user, and wall time,
+// computing a metric value.  The `processEvent2` function, defined below, uses
+// a `bsls::Stopwatch` to record the elapsed system, user, and wall time,
 // involved in processing the event.  The system calls used (via
-// 'bsls::Stopwatch') to record the elapsed time may be relatively expensive,
-// so we use 'BALM_METRICS_IF_CATEGORY_ENABLED' to ensure we only perform
+// `bsls::Stopwatch`) to record the elapsed time may be relatively expensive,
+// so we use `BALM_METRICS_IF_CATEGORY_ENABLED` to ensure we only perform
 // those operations if metrics collection is enabled.  Finally, we use
-// 'BALM_METRICS_UPDATE3' to update the three metrics, this is (slightly) more
-// efficient than updating each metric individually using 'BALM_METRIC_UPDATE'.
-//..
+// `BALM_METRICS_UPDATE3` to update the three metrics, this is (slightly) more
+// efficient than updating each metric individually using `BALM_METRIC_UPDATE`.
+// ```
+
+    /// Process the event described by the specified `eventId` and
+    /// `eventMessage`.  Return 0 on success, and a non-zero
+    /// value otherwise.
     int processEvent2(int eventId, const bsl::string& eventMessage)
-        // Process the event described by the specified 'eventId' and
-        // 'eventMessage'.  Return 0 on success, and a non-zero
-        // value otherwise.
     {
         (void)eventId;
         (void)eventMessage;
@@ -1334,7 +1345,7 @@ void TlsIntMacroConcurrencyTest::runTest()
             stopwatch.start(true);
         }
 
-        // Process 'data'.
+        // Process `data`.
 
         BALM_METRICS_IF_CATEGORY_ENABLED("processEvent2") {
             double systemTime, userTime, wallTime;
@@ -1347,7 +1358,7 @@ void TlsIntMacroConcurrencyTest::runTest()
 
         return returnCode;
     }
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -1378,7 +1389,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -1394,37 +1405,37 @@ int main(int argc, char *argv[])
 // The following examples demonstrate how to configure, collect, and publish
 // metrics.
 //
-///Example 1 - Create and access the default 'balm::MetricsManager' instance
+///Example 1 - Create and access the default `balm::MetricsManager` instance
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to create the default 'balm::MetricManager'
+// This example demonstrates how to create the default `balm::MetricManager`
 // instance and perform a trivial configuration.
 //
-// Create a 'balm::DefaultMetricsManagerScopedGuard' to manage the lifetime of
-// the default metrics manager instance, and provide it a stream ('stdout')
+// Create a `balm::DefaultMetricsManagerScopedGuard` to manage the lifetime of
+// the default metrics manager instance, and provide it a stream (`stdout`)
 // that we want to publish metrics to.  Note that the default metrics
-// manager is intended to be created and released by the *owner* of  'main'.
+// manager is intended to be created and released by the *owner* of  `main`.
 // The instance should be created during the initialization of an
 // application (while the task has a single thread) and released just prior to
 // termination (when there is similarly a single thread).
-//..
+// ```
 //  int main(int argc, char *argv[])
     {
     // ...
 
         balm::DefaultMetricsManagerScopedGuard managerGuard(bsl::cout);
-//..
+// ```
 // Once the default instance has been created, it can be accessed using the
-// 'instance' operation
-//..
+// `instance` operation
+// ```
        balm::MetricsManager *manager = balm::DefaultMetricsManager::instance();
        ASSERT(0 != manager);
 
     }
-//..
+// ```
 // Note that the default metrics manager will be released when the
-// 'managerGuard' exits this scoped and is destroyed.  Clients that choose to
-// explicitly call 'balm::DefaultMetricsManager::create()' must also explicitly
-// call 'balm::DefaultMetricsManager::release()'.
+// `managerGuard` exits this scoped and is destroyed.  Clients that choose to
+// explicitly call `balm::DefaultMetricsManager::create()` must also explicitly
+// call `balm::DefaultMetricsManager::release()`.
 
       } break;
       case 19: {
@@ -1432,15 +1443,15 @@ int main(int argc, char *argv[])
         // TESTING DEFAULT MANGER REPLACEMENT
         //
         // Concerns:
-        //: 1 BALM_METRICS_TIME_BLOCK* macros correctly handle repetitive
-        //:   creation and destruction of the 'DefaultMetricsManager'
-        //:   (DRQS 175971077).
+        // 1. BALM_METRICS_TIME_BLOCK* macros correctly handle repetitive
+        //    creation and destruction of the `DefaultMetricsManager`
+        //    (DRQS 175971077).
         //
         // Plan:
-        //: 1 Create and destroy 'DefaultMetricsManager' several times in a row
-        //:   using 'balm::DefaultMetricsManagerScopedGuard'.  At each
-        //:   iteration update a metric using 'BALM_METRICS_DYNAMIC_TIME_BLOCK'
-        //:   macro and verify the result.
+        // 1. Create and destroy `DefaultMetricsManager` several times in a row
+        //    using `balm::DefaultMetricsManagerScopedGuard`.  At each
+        //    iteration update a metric using `BALM_METRICS_DYNAMIC_TIME_BLOCK`
+        //    macro and verify the result.
         //
         // Testing:
         //   CONCERN: Macros support repetitive default manager replacement
@@ -1465,24 +1476,24 @@ int main(int argc, char *argv[])
       case 18: {
         // --------------------------------------------------------------------
         // Testing:
-        //    MACROS using 'logEmptyName'.
+        //    MACROS using `logEmptyName`.
         //
         // Concerns:
-        //    That all macros using 'logEmptyName' is producing a warning
-        //    message if the 'CATEGORY' or 'METRIC' parameters are empty
+        //    That all macros using `logEmptyName` is producing a warning
+        //    message if the `CATEGORY` or `METRIC` parameters are empty
         //    strings.
         //
         // Plan:
-        //    Invoke 'BALM_METRICS_UPDATE' with an empty string as parameter
+        //    Invoke `BALM_METRICS_UPDATE` with an empty string as parameter
         //    and verify that the expected warning message is logged.  Also
         //    verify that a warning message is not issued if all the parameters
-        //    are non-empty.  Invoke 'BALM_METRICS_UPDATEn' with an empty
-        //    string for parameter 'METRICn' and verify that a warning message
-        //    is logged.  Invoke 'BALM_METRICS_INT_UPDATE' with non-empty
+        //    are non-empty.  Invoke `BALM_METRICS_UPDATEn` with an empty
+        //    string for parameter `METRICn` and verify that a warning message
+        //    is logged.  Invoke `BALM_METRICS_INT_UPDATE` with non-empty
         //    parameters and verify that no warning is issued.  Invoke
-        //    'BALM_METRICS_INT_UPDATE' again with empty parameters, and verify
+        //    `BALM_METRICS_INT_UPDATE` again with empty parameters, and verify
         //    that a warning message is logged.  Perform the same test on
-        //    'BALM_METRICS_INT_UPDATEn' as with 'BALM_METRICS_UPDATE'.
+        //    `BALM_METRICS_INT_UPDATEn` as with `BALM_METRICS_UPDATE`.
         //
         // Testing:
         //    BALM_METRICS_UPDATE(CATEGORY, NAME, VALUE)
@@ -1615,16 +1626,16 @@ int main(int argc, char *argv[])
       case 17: {
         // --------------------------------------------------------------------
         // Testing:
-        //    Warning messages created by 'logEmptyName'.
+        //    Warning messages created by `logEmptyName`.
         //
         // Concerns:
-        //    That 'logEmptyName' is detecting an empty name correctly and
+        //    That `logEmptyName` is detecting an empty name correctly and
         //    logging the correct warning message.
         //
         // Plan:
         //    Specify a set of objects containing the name, type and whether or
         //    not a warning is expected.  For each object in the set, invoke
-        //   'logEmptyName' against the object and verify that expected the
+        //   `logEmptyName` against the object and verify that expected the
         //   warning message is received.
         //
         // Testing:
@@ -1686,7 +1697,7 @@ int main(int argc, char *argv[])
 // variables are supported on all platforms.
 
         // --------------------------------------------------------------------
-        // CONCURRENCY TEST: 'THREAD_LOCAL' MACROS
+        // CONCURRENCY TEST: `THREAD_LOCAL` MACROS
         //
         // Testing:
         //     Thread-safety of thread-local macros
@@ -1719,7 +1730,7 @@ int main(int argc, char *argv[])
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // CONCURRENCY TEST: 'DYNAMIC' MACROS
+        // CONCURRENCY TEST: `DYNAMIC` MACROS
         //
         // Testing:
         //     Thread-safety of dynamic macros
@@ -1789,7 +1800,7 @@ int main(int argc, char *argv[])
 // variables are supported on all platforms.
 
         // --------------------------------------------------------------------
-        // CONCURRENCY TEST: 'THREAD_LOCAL' MACROS
+        // CONCURRENCY TEST: `THREAD_LOCAL` MACROS
         //
         // Testing:
         //     Thread-safety of thread-local macros
@@ -1822,7 +1833,7 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // CONCURRENCY TEST: 'DYNAMIC' MACROS
+        // CONCURRENCY TEST: `DYNAMIC` MACROS
         //
         // Testing:
         //     Thread-safety of dynamic macros
@@ -1888,7 +1899,7 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING: 'BALM_IF_CATEGORY_ENABLED'
+        // TESTING: `BALM_IF_CATEGORY_ENABLED`
         //
         // Testing:
         //   BALM_METRICS_IF_CATEGORY_ENABLED(CATEGORY)
@@ -1964,7 +1975,7 @@ int main(int argc, char *argv[])
         // TESTING MACRO'S REPORTED TIME UNITS
         //
         // Concerns:
-        //    That the '_TIME_BLOCK_*' report in the correct time units
+        //    That the `_TIME_BLOCK_*` report in the correct time units
         //
         // Testing:
         //     BALM_METRICS_TIME_BLOCK(CATEGORY, METRIC, TIME_UNITS)
@@ -2063,11 +2074,11 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'BALM_METRICS_TIME_BLOCK' and
-        //         'BALM_METRICS_DYNAMIC_TIME_BLOCK'
+        // TESTING `BALM_METRICS_TIME_BLOCK` and
+        //         `BALM_METRICS_DYNAMIC_TIME_BLOCK`
         //
         // Concerns:
-        //    That the '*_TIME_BLOCK' macros record the elapsed time of a
+        //    That the `*_TIME_BLOCK` macros record the elapsed time of a
         //    block of code to the indicated metric using the default metrics
         //    manager.  That the macros function if the default metrics
         //    manager has not been created, or has been destroyed.  That the
@@ -2081,8 +2092,8 @@ int main(int argc, char *argv[])
         typedef BALM::StopwatchScopedGuard TU; // Time unit enumeration
         if (verbose) cout
             << endl
-            << "TESTING 'BALM_METRICS_TIME_BLOCK' & "
-            << "'BALM_METRICS_DYNAMIC_TIME_BLOCK'\n"
+            << "TESTING `BALM_METRICS_TIME_BLOCK` & "
+            << "`BALM_METRICS_DYNAMIC_TIME_BLOCK`\n"
             << "===========================================================\n";
         {
             if (veryVerbose) cout << "\tTest without default metrics manager"
@@ -2258,15 +2269,15 @@ int main(int argc, char *argv[])
 // variables are supported on all platforms.
 
         // --------------------------------------------------------------------
-        // TESTING: 'BALM_METRICS_THREAD_LOCAL_INT_UPDATE',
-        //          'BALM_INCREMENT_THREADLOCALMETRIC'
+        // TESTING: `BALM_METRICS_THREAD_LOCAL_INT_UPDATE`,
+        //          `BALM_INCREMENT_THREADLOCALMETRIC`
         //
         // Concerns:
         //    That the two standard macros
-        //    ('BALM_METRICS_THREAD_LOCAL_INT_UPDATE' and
-        //    'BALM_METRICS_THREAD_LOCAL_INT_INCREMENT') correctly update the
+        //    (`BALM_METRICS_THREAD_LOCAL_INT_UPDATE` and
+        //    `BALM_METRICS_THREAD_LOCAL_INT_INCREMENT`) correctly update the
         //    appropriate metric, statically cache the identified metrics
-        //    identifier, and respect the supplied categories 'enabled'
+        //    identifier, and respect the supplied categories `enabled`
         //    property.
         //
         // Plan:
@@ -2275,8 +2286,8 @@ int main(int argc, char *argv[])
         //
         //   Specify a set S of unique object values having various minor or
         //   subtle differences.  For each value create an "oracle" collector,
-        //   then invoke 'BALM_METRICS_THREAD_LOCAL_INT_UPDATE' and
-        //   'BALM_METRICS_THREAD_LOCAL_INT_INCREMENT' on the identified metric
+        //   then invoke `BALM_METRICS_THREAD_LOCAL_INT_UPDATE` and
+        //   `BALM_METRICS_THREAD_LOCAL_INT_INCREMENT` on the identified metric
         //   and perform the corresponding operation on the "oracle" collector.
         //   Verify the collector underlying the metric has the same value as
         //   the "oracle" collector.  Also verify that only the collector for
@@ -2342,8 +2353,8 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
-            // Verify only the first identified metric (i.e., a 'CATEGORY',
-            // 'NAME' pair) for which the macro was invoked was modified.
+            // Verify only the first identified metric (i.e., a `CATEGORY`,
+            // `NAME` pair) for which the macro was invoked was modified.
             bsl::vector<BALM::Collector *> cols(Z);
             bsl::vector<BALM::IntegerCollector *> intCols(Z);
             for (int i = 1; i < NUM_IDS; ++i) {
@@ -2360,7 +2371,7 @@ int main(int argc, char *argv[])
             }
         }
         if (veryVerbose)
-            cout << "\tverify thread-local macros respects 'isActive' flag.\n";
+            cout << "\tverify thread-local macros respects `isActive` flag.\n";
 
         {
             BALM::DefaultMetricsManagerScopedGuard guard(Z);
@@ -2396,8 +2407,8 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
-            // Verify only the first identified metric (i.e., a 'CATEGORY',
-            // 'NAME' pair) for which the macro was invoked was modified.
+            // Verify only the first identified metric (i.e., a `CATEGORY`,
+            // `NAME` pair) for which the macro was invoked was modified.
             bsl::vector<BALM::Collector *> cols(Z);
             bsl::vector<BALM::IntegerCollector *> intCols(Z);
             for (int i = 1; i < NUM_IDS; ++i) {
@@ -2417,13 +2428,13 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING: 'BALM_METRICS_DYNAMIC_INT_UPDATE',
-        //          'BALM_METRICS_DYNAMIC_INT_INCREMENT'
+        // TESTING: `BALM_METRICS_DYNAMIC_INT_UPDATE`,
+        //          `BALM_METRICS_DYNAMIC_INT_INCREMENT`
         //
         // Concerns:
-        //    That the two dynamic macros ('BALM_METRICS_DYNAMIC_INT_UPDATE'
-        //    and 'BALM_METRICS_DYNAMIC_INT_INCREMENT') correctly update the
-        //    appropriate metric and respect the supplied categories 'enabled'
+        //    That the two dynamic macros (`BALM_METRICS_DYNAMIC_INT_UPDATE`
+        //    and `BALM_METRICS_DYNAMIC_INT_INCREMENT`) correctly update the
+        //    appropriate metric and respect the supplied categories `enabled`
         //    property.
         //
         // Plan:
@@ -2432,8 +2443,8 @@ int main(int argc, char *argv[])
         //
         //   Specify a set S of unique object values having various minor or
         //   subtle differences.  For each value create an "oracle" collector,
-        //   then invoke 'BALM_METRICS_DYNAMIC_INT_UPDATE' and
-        //   'BALM_METRICS_DYNAMIC_INT_INCREMENT' on the identified metric and
+        //   then invoke `BALM_METRICS_DYNAMIC_INT_UPDATE` and
+        //   `BALM_METRICS_DYNAMIC_INT_INCREMENT` on the identified metric and
         //   perform the corresponding operation on the "oracle" collector.
         //   Verify the collector underlying the metric has the same value as
         //   the "oracle" collector.
@@ -2495,7 +2506,7 @@ int main(int argc, char *argv[])
             }
         }
         if (veryVerbose)
-            cout << "\tverify dynamic macros respect 'isActive' flag.\n";
+            cout << "\tverify dynamic macros respect `isActive` flag.\n";
 
         {
             BALM::DefaultMetricsManagerScopedGuard guard(Z);
@@ -2533,13 +2544,13 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING: 'BALM_METRICS_INT_UPDATE', 'BALM_METRICS_INT_INCREMENT'
-        //          'BALM_UPDATE_INT_TYPED_METRIC'
+        // TESTING: `BALM_METRICS_INT_UPDATE`, `BALM_METRICS_INT_INCREMENT`
+        //          `BALM_UPDATE_INT_TYPED_METRIC`
         // Concerns:
-        //    That the two standard macros ('BALM_METRICS_INT_UPDATE' and
-        //    'BALM_METRICS_INT_INCREMENT') correctly update the appropriate
+        //    That the two standard macros (`BALM_METRICS_INT_UPDATE` and
+        //    `BALM_METRICS_INT_INCREMENT`) correctly update the appropriate
         //    metric, statically cache the identified metrics identifier, and
-        //    respect the supplied categories 'enabled' property.
+        //    respect the supplied categories `enabled` property.
         //
         // Plan:
         //   Verify that invoking the macros without a default metrics manager
@@ -2547,8 +2558,8 @@ int main(int argc, char *argv[])
         //
         //   Specify a set S of unique object values having various minor or
         //   subtle differences.  For each value create an "oracle" collector,
-        //   then invoke 'BALM_METRICS_INT_UPDATE' and
-        //   'BALM_METRICS_INT_INCREMENT' on the identified metric and perform
+        //   then invoke `BALM_METRICS_INT_UPDATE` and
+        //   `BALM_METRICS_INT_INCREMENT` on the identified metric and perform
         //   the corresponding operation on the "oracle" collector.  Verify
         //   the collector underlying the metric has the same value as the
         //   "oracle" collector.  Also verify that only the collector for the
@@ -2643,8 +2654,8 @@ int main(int argc, char *argv[])
             ASSERT(recordVal(&expTUpdate)    == recordVal(tupCol));
             ASSERT(recordVal(&expTIncrement) == recordVal(tincCol));
 
-            // Verify only the first identified metric (i.e., a 'CATEGORY',
-            // 'NAME' pair) for which the macro was invoked was modified.
+            // Verify only the first identified metric (i.e., a `CATEGORY`,
+            // `NAME` pair) for which the macro was invoked was modified.
             ColSPtrVector cols(Z);
             IColSPtrVector intCols(Z);
             for (int i = 1; i < NUM_IDS; ++i) {
@@ -2668,7 +2679,7 @@ int main(int argc, char *argv[])
             }
         }
         if (veryVerbose)
-            cout << "\tverify macros respects 'isActive' flag.\n";
+            cout << "\tverify macros respects `isActive` flag.\n";
 
         {
             BALM::DefaultMetricsManagerScopedGuard guard(Z);
@@ -2726,8 +2737,8 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
-            // Verify only the first identified metric (i.e., a 'CATEGORY',
-            // 'NAME' pair) for which the macro was invoked was modified.
+            // Verify only the first identified metric (i.e., a `CATEGORY`,
+            // `NAME` pair) for which the macro was invoked was modified.
             ColSPtrVector  cols(Z);
             IColSPtrVector intCols(Z);
             for (int i = 1; i < NUM_IDS; ++i) {
@@ -2903,14 +2914,14 @@ int main(int argc, char *argv[])
 // variables are supported on all platforms.
 
         // --------------------------------------------------------------------
-        // TESTING: 'BALM_METRICS_THREAD_LOCAL_UPDATE',
-        //          'BALM_INCREMENT_THREADLOCALMETRIC'
+        // TESTING: `BALM_METRICS_THREAD_LOCAL_UPDATE`,
+        //          `BALM_INCREMENT_THREADLOCALMETRIC`
         //
         // Concerns:
-        //    That the two standard macros ('BALM_METRICS_THREAD_LOCAL_UPDATE'
-        //    and 'BALM_METRICS_THREAD_LOCAL_INCREMENT') correctly update the
+        //    That the two standard macros (`BALM_METRICS_THREAD_LOCAL_UPDATE`
+        //    and `BALM_METRICS_THREAD_LOCAL_INCREMENT`) correctly update the
         //    appropriate metric, statically cache the identified metrics
-        //    identifier, and respect the supplied categories 'enabled'
+        //    identifier, and respect the supplied categories `enabled`
         //    property.
         //
         // Plan:
@@ -2919,8 +2930,8 @@ int main(int argc, char *argv[])
         //
         //   Specify a set S of unique object values having various minor or
         //   subtle differences.  For each value create an "oracle" collector,
-        //   then invoke 'BALM_METRICS_THREAD_LOCAL_UPDATE' and
-        //   'BALM_METRICS_THREAD_LOCAL_INCREMENT' on the identified metric and
+        //   then invoke `BALM_METRICS_THREAD_LOCAL_UPDATE` and
+        //   `BALM_METRICS_THREAD_LOCAL_INCREMENT` on the identified metric and
         //   perform the corresponding operation on the "oracle" collector.
         //   Verify the collector underlying the metric has the same value as
         //   the "oracle" collector.  Also verify that only the collector for
@@ -2982,8 +2993,8 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
-            // Verify only the first identified metric (i.e., a 'CATEGORY',
-            // 'NAME' pair) for which the macro was invoked was modified.
+            // Verify only the first identified metric (i.e., a `CATEGORY`,
+            // `NAME` pair) for which the macro was invoked was modified.
             bsl::vector<BALM::Collector *> cols(Z);
             bsl::vector<BALM::IntegerCollector *> intCols(Z);
             for (int i = 1; i < NUM_IDS; ++i) {
@@ -2999,7 +3010,7 @@ int main(int argc, char *argv[])
             }
         }
         if (veryVerbose)
-            cout << "\tverify thread-local macros respects 'isActive' flag.\n";
+            cout << "\tverify thread-local macros respects `isActive` flag.\n";
 
         {
             BALM::DefaultMetricsManagerScopedGuard guard(Z);
@@ -3032,8 +3043,8 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
-            // Verify only the first identified metric (i.e., a 'CATEGORY',
-            // 'NAME' pair) for which the macro was invoked was modified.
+            // Verify only the first identified metric (i.e., a `CATEGORY`,
+            // `NAME` pair) for which the macro was invoked was modified.
             bsl::vector<BALM::Collector *> cols(Z);
             bsl::vector<BALM::IntegerCollector *> intCols(Z);
             for (int i = 1; i < NUM_IDS; ++i) {
@@ -3052,12 +3063,12 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING: 'BALM_METRICS_DYNAMIC_UPDATE',
-        // 'BALM_METRICS_DYNAMIC_INCREMENT'
+        // TESTING: `BALM_METRICS_DYNAMIC_UPDATE`,
+        // `BALM_METRICS_DYNAMIC_INCREMENT`
         //
-        // Concerns: That the two dynamic macros ('BALM_METRICS_DYNAMIC_UPDATE'
-        // and 'BALM_METRICS_DYNAMIC_INCREMENT') correctly update the
-        // appropriate metric and respect the supplied categories 'enabled'
+        // Concerns: That the two dynamic macros (`BALM_METRICS_DYNAMIC_UPDATE`
+        // and `BALM_METRICS_DYNAMIC_INCREMENT`) correctly update the
+        // appropriate metric and respect the supplied categories `enabled`
         // property.
         //
         // Plan: Verify that invoking the macros without a default metrics
@@ -3065,8 +3076,8 @@ int main(int argc, char *argv[])
         //
         // Specify a set S of unique object values having various minor or
         // subtle differences.  For each value create an "oracle" collector,
-        // then invoke 'BALM_METRICS_DYNAMIC_UPDATE' and
-        // 'BALM_METRICS_DYNAMIC_INCREMENT' on the identified metric and
+        // then invoke `BALM_METRICS_DYNAMIC_UPDATE` and
+        // `BALM_METRICS_DYNAMIC_INCREMENT` on the identified metric and
         // perform the corresponding operation on the "oracle" collector.
         // Verify the collector underlying the metric has the same value as the
         // "oracle" collector.
@@ -3118,7 +3129,7 @@ int main(int argc, char *argv[])
             }
         }
         if (veryVerbose)
-            cout << "\tverify dynamic macros respect 'isActive' flag.\n";
+            cout << "\tverify dynamic macros respect `isActive` flag.\n";
 
         {
             BALM::DefaultMetricsManagerScopedGuard guard(Z);
@@ -3145,15 +3156,15 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING: 'BALM_METRICS_UPDATE', 'BALM_METRICS_INCREMENT'
-        //          'BALM_METRICS_TYPED_UPDATE'
+        // TESTING: `BALM_METRICS_UPDATE`, `BALM_METRICS_INCREMENT`
+        //          `BALM_METRICS_TYPED_UPDATE`
         //
         // Concerns:
-        //    That the three standard macros ('BALM_METRICS_UPDATE' and
-        //    'BALM_METRICS_INCREMENT' and 'BALM_METRICS_TYPED_UPDATE')
+        //    That the three standard macros (`BALM_METRICS_UPDATE` and
+        //    `BALM_METRICS_INCREMENT` and `BALM_METRICS_TYPED_UPDATE`)
         //    correctly update the appropriate metric, statically cache the
         //    identified metrics identifier, and respect the supplied
-        //    categories 'enabled' property.
+        //    categories `enabled` property.
         //
         // Plan:
         //   Verify that invoking the macros without a default metrics manager
@@ -3161,7 +3172,7 @@ int main(int argc, char *argv[])
         //
         //   Specify a set S of unique object values having various minor or
         //   subtle differences.  For each value create an "oracle" collector,
-        //   then invoke 'BALM_METRICS_UPDATE' and 'BALM_METRICS_INCREMENT' on
+        //   then invoke `BALM_METRICS_UPDATE` and `BALM_METRICS_INCREMENT` on
         //   the identified metric and perform the corresponding operation on
         //   the "oracle" collector.  Verify the collector underlying the
         //   metric has the same value as the "oracle" collector.  Also verify
@@ -3235,8 +3246,8 @@ int main(int argc, char *argv[])
             ASSERT(recordVal(&expUpdate)     == recordVal(upCol));
             ASSERT(recordVal(&expTUpdate)    == recordVal(tupCol));
 
-            // Verify only the first identified metric (i.e., a 'CATEGORY',
-            // 'NAME' pair) for which the macro was invoked was modified.
+            // Verify only the first identified metric (i.e., a `CATEGORY`,
+            // `NAME` pair) for which the macro was invoked was modified.
             ColSPtrVector cols(Z);
             IColSPtrVector intCols(Z);
             for (int i = 1; i < NUM_IDS; ++i) {
@@ -3252,7 +3263,7 @@ int main(int argc, char *argv[])
             }
         }
         if (veryVerbose)
-            cout << "\tverify macros respects 'isActive' flag.\n";
+            cout << "\tverify macros respects `isActive` flag.\n";
 
         {
             BALM::DefaultMetricsManagerScopedGuard guard(Z);
@@ -3291,8 +3302,8 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == defaultAllocator.numBytesInUse());
 
-            // Verify only the first identified metric (i.e., a 'CATEGORY',
-            // 'NAME' pair) for which the macro was invoked was modified.
+            // Verify only the first identified metric (i.e., a `CATEGORY`,
+            // `NAME` pair) for which the macro was invoked was modified.
             ColSPtrVector  cols(Z);
             IColSPtrVector intCols(Z);
             for (int i = 1; i < NUM_IDS; ++i) {

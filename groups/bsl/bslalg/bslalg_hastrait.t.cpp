@@ -7,8 +7,8 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_types.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 using namespace BloombergLP;
 
@@ -18,8 +18,8 @@ using namespace BloombergLP;
 //                             Overview
 //                             --------
 // Define some test traits and verify that they can be detected using
-// 'bslalg::HasTrait' whether the trait is ascribed to a type using the C++11
-// idiom for defining traits or using the 'BSLMF_NESTED_TRAIT_DECLARATION'
+// `bslalg::HasTrait` whether the trait is ascribed to a type using the C++11
+// idiom for defining traits or using the `BSLMF_NESTED_TRAIT_DECLARATION`
 // macro.
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
@@ -75,7 +75,7 @@ void aSsErT(bool condition, const char *message, int line)
 //              GLOBAL TRAITS AND HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-// Define "base" test traits patterned after 'bslalg::HasStlIterators'.
+// Define "base" test traits patterned after `bslalg::HasStlIterators`.
 
 namespace bslabc {
 
@@ -91,7 +91,7 @@ struct ColorGreen : bslmf::DetectNestedTrait<TYPE, ColorGreen>
 
 }  // close namespace bslabc
 
-// Define "shim" test traits that are compatible with 'bslalg::HasTrait'.
+// Define "shim" test traits that are compatible with `bslalg::HasTrait`.
 
 namespace bslxyz {
 
@@ -150,19 +150,19 @@ unsigned traitBits()
     return result;
 }
 
+/// Use this struct to convert a cast-style type (e.g., `void (*)(int)`)
+/// into a named type (e.g., `void (*Type)(int)`).  For example:
+/// ```
+/// typedef Identity<void (*)(int)>::Type Type;
+/// ```
 template <class TYPE>
 struct Identity {
-    // Use this struct to convert a cast-style type (e.g., 'void (*)(int)')
-    // into a named type (e.g., 'void (*Type)(int)').  For example:
-    //..
-    //  typedef Identity<void (*)(int)>::Type Type;
-    //..
 
     typedef TYPE Type;
 };
 
-// Test that 'traitBits<TYPE>()' returns the value 'TRAIT_BITS' for every
-// combination of cv-qualified 'TYPE' and reference to 'TYPE'.
+// Test that `traitBits<TYPE>()` returns the value `TRAIT_BITS` for every
+// combination of cv-qualified `TYPE` and reference to `TYPE`.
 #define TRAIT_TEST(TYPE, TRAIT_BITS) {                                   \
     typedef Identity<TYPE>::Type Type;                                   \
     typedef Type const          cType;                                   \
@@ -184,25 +184,25 @@ enum my_Enum {
     MY_ENUM_0
 };
 
+/// Class with no defined traits.
 struct my_ClassNoTraits {
-    // Class with no defined traits.
 
     int d_dummy;
 
+    /// Explicitly supply constructors that do nothing, to ensure that this
+    /// class has no trivial traits detected with a conforming C++11 library
+    /// implementation.
     my_ClassNoTraits(){}
     my_ClassNoTraits(const my_ClassNoTraits&){}
-        // Explicitly supply constructors that do nothing, to ensure that this
-        // class has no trivial traits detected with a conforming C++11 library
-        // implementation.
 };
 
+/// Derived class with no defined traits.
 struct my_DerivedNoTraits : my_ClassNoTraits {
-    // Derived class with no defined traits.
 };
 
 // In the names of the next several test classes:
-//: o "NB" means "has Nested Blue trait"
-//: o "XG" means "has eXternally defined Green trait" (via C++11 idiom)
+//  - "NB" means "has Nested Blue trait"
+//  - "XG" means "has eXternally defined Green trait" (via C++11 idiom)
 
 struct my_ClassNB {
     BSLMF_NESTED_TRAIT_DECLARATION(my_ClassNB, bslabc::ColorBlue);
@@ -227,12 +227,12 @@ struct my_ClassNBXG {
 struct my_DerivedNBXG : my_ClassNBXG {
 };
 
+/// Type that can be converted to any type.  `DetectNestedTrait` shouldn't
+/// assign it any traits.  The concern is that since
+/// `BSLMF_NESTED_TRAIT_DECLARATION` defines its own conversion operator,
+/// the "convert to anything" operator shouldn't interfere with the nested
+/// trait logic.
 struct ConvertibleToAnyNoTraits : my_ClassNoTraits {
-    // Type that can be converted to any type.  'DetectNestedTrait' shouldn't
-    // assign it any traits.  The concern is that since
-    // 'BSLMF_NESTED_TRAIT_DECLARATION' defines its own conversion operator,
-    // the "convert to anything" operator shouldn't interfere with the nested
-    // trait logic.
 
     template <class T>
     operator T() const { return T(); }
@@ -261,11 +261,11 @@ template <>
 struct ColorGreen<my_ClassNBXG> : bsl::true_type {
 };
 
+/// Even though the nested trait logic is disabled by the template
+/// conversion operator, the out-of-class trait specialization should still
+/// work.
 template <>
 struct ColorBlue<ConvertibleToAnyWithTraits> : bsl::true_type {
-    // Even though the nested trait logic is disabled by the template
-    // conversion operator, the out-of-class trait specialization should still
-    // work.
 };
 
 }  // close namespace bslabc

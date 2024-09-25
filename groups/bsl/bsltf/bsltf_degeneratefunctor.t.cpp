@@ -18,11 +18,11 @@ using namespace BloombergLP;
 // The component under test implements a wrapper for generic functors, that
 // offers the minimal set of operations.  There are two kinds of tests we are
 // interested in to validate this class template:
-//: o It correctly wraps and support use of arbitrary functors satisfying the
-//:   minimal contract of this type.
-//:
-//: o It supports only a restricted interface, and attempts to use many regular
-//:   operations should fail to compile.
+//  - It correctly wraps and support use of arbitrary functors satisfying the
+//    minimal contract of this type.
+//
+//  - It supports only a restricted interface, and attempts to use many regular
+//    operations should fail to compile.
 // The second set of tests are difficult to automate, as compilation failures
 // will break the test driver.  Hence, these tests will be moved below the line
 // as negative test numbers, explicitly enabled and run manually.
@@ -95,11 +95,11 @@ void aSsErT(bool condition, const char *message, int line)
 //                          HELPER CLASS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Return `true` if the specified `a` compares equal to the specified
+/// `b` using the operator `==`.
 template <class TYPE>
 struct Compare {
     bool operator()(const TYPE& a, const TYPE& b) const;
-        // Return 'true' if the specified 'a' compares equal to the specified
-        // 'b' using the operator '=='.
 };
 
 template <class TYPE>

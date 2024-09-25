@@ -86,16 +86,17 @@ struct PublisherTest : bsls::ProtocolTestImp<balm::Publisher> {
 //                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
-///Example 1 -- Implementing the 'balm::Publisher' Protocol
+///Example 1 -- Implementing the `balm::Publisher` Protocol
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following example demonstrates a simple implementation of the
-// 'balm::Publisher' protocol.  This implementation publishes the metric
+// `balm::Publisher` protocol.  This implementation publishes the metric
 // records to an output stream provided on construction.
-//..
+// ```
     // simplestreampublisher.h
+
+    /// A simple implementation of the `balm::Publisher` protocol that
+    /// writes metric records to a stream.
     class SimpleStreamPublisher : public balm::Publisher {
-        // A simple implementation of the 'balm::Publisher' protocol that
-        // writes metric records to a stream.
 
         // DATA
         bsl::ostream& d_stream; // output stream (held, not owned)
@@ -106,9 +107,10 @@ struct PublisherTest : bsls::ProtocolTestImp<balm::Publisher> {
 
     public:
         // CREATORS
+
+        /// Create this publisher that will publish metrics to the specified
+        /// `stream`.
         SimpleStreamPublisher(bsl::ostream& stream);
-            // Create this publisher that will publish metrics to the specified
-            // 'stream'.
 
         ~SimpleStreamPublisher() BSLS_KEYWORD_OVERRIDE;
              // Destroy this publisher.
@@ -116,8 +118,8 @@ struct PublisherTest : bsls::ProtocolTestImp<balm::Publisher> {
         // MANIPULATORS
         void publish(const balm::MetricSample& metricValues)
                                                          BSLS_KEYWORD_OVERRIDE;
-            // Publish the specified 'metricValues'.  This implementation will
-            // write the 'metricValues' to the output stream specified on
+            // Publish the specified `metricValues`.  This implementation will
+            // write the `metricValues` to the output stream specified on
             // construction.
     };
 
@@ -157,17 +159,18 @@ struct PublisherTest : bsls::ProtocolTestImp<balm::Publisher> {
             }
         }
     }
-//..
-///Example 2 -- Using the 'balm::Publisher' Protocol
+// ```
+///Example 2 -- Using the `balm::Publisher` Protocol
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// The following example defines a trivial 'EventManager' class that uses the
-// 'balm::Publisher' protocol to publish metrics related to the incoming
+// The following example defines a trivial `EventManager` class that uses the
+// `balm::Publisher` protocol to publish metrics related to the incoming
 // event.  Note that this event manager does no actual processing and is
 // intended only to illustrate how the publisher protocol might be used.
-//..
+// ```
+
+    /// This class provides a dummy event handling mechanism that publishes
+    /// a metric for the size of the processed event messages.
     class EventManager {
-        // This class provides a dummy event handling mechanism that publishes
-        // a metric for the size of the processed event messages.
 
         // DATA
         balm::Collector  d_eventMessageSize;  // metric for the message size
@@ -179,20 +182,22 @@ struct PublisherTest : bsls::ProtocolTestImp<balm::Publisher> {
 
       public:
         // CREATORS
+
+        /// Create this event manager using the specified `messageSizeId`
+        /// to identify the event message size metric.
         EventManager(const balm::MetricId& messageSizeId)
-            // Create this event manager using the specified 'messageSizeId'
-            // to identify the event message size metric.
         : d_eventMessageSize(messageSizeId)
         , d_lastPublish(bdlt::CurrentTime::utc(), 0)
         {}
 
         // MANIPULATORS
+
+        /// Process the event described by the specified `eventId` and
+        /// `eventMessage`.  Return 0 on success, and a non-zero value if
+        /// there was an error processing the event.
         int handleEvent(int eventId, const bsl::string& eventMessage)
-            // Process the event described by the specified 'eventId' and
-            // 'eventMessage'.  Return 0 on success, and a non-zero value if
-            // there was an error processing the event.
         {
-            // Update the metrics with the size of the 'eventMessage'.
+            // Update the metrics with the size of the `eventMessage`.
             d_eventMessageSize.update(
                                      static_cast<double>(eventMessage.size()));
 
@@ -201,11 +206,11 @@ struct PublisherTest : bsls::ProtocolTestImp<balm::Publisher> {
 
             return 0;
         }
-//..
-// We use a 'balm::Publisher' to publish the metrics recorded by this event
+// ```
+// We use a `balm::Publisher` to publish the metrics recorded by this event
 // manager.  Note that most of the functionality illustrated here is
-// normally provided by the 'balm::MetricsManager'.
-//..
+// normally provided by the `balm::MetricsManager`.
+// ```
         void publishMetrics(balm::Publisher *publisher)
         {
             bdlt::DatetimeTz now(bdlt::CurrentTime::utc(), 0);
@@ -228,7 +233,7 @@ struct PublisherTest : bsls::ProtocolTestImp<balm::Publisher> {
             d_lastPublish = now;
         }
     };
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -255,7 +260,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -264,44 +269,44 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Usage Example"
                           << "\n=====================" << endl;
 
-///Example 3 -- Publishing Collected Metrics Using 'EventManager'
+///Example 3 -- Publishing Collected Metrics Using `EventManager`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this final example, we publish metrics collected using a
-// 'EventManager' object (defined above).
+// `EventManager` object (defined above).
 //
-// We start by creating a 'balm::MetricId' object by hand, but in
-// practice, an id should be obtained from a 'balm::MetricRegistry' object
-// (such as the one owned by a 'balm::MetricsManager').
-//..
+// We start by creating a `balm::MetricId` object by hand, but in
+// practice, an id should be obtained from a `balm::MetricRegistry` object
+// (such as the one owned by a `balm::MetricsManager`).
+// ```
     balm::Category           myCategory("MyCategory");
     balm::MetricDescription  description(&myCategory, "EventMessageSize");
     balm::MetricId           eventMessageSizeId(&description);
-//..
-// Now we create a 'EventManager' object and supply it the metric id we have
+// ```
+// Now we create a `EventManager` object and supply it the metric id we have
 // created.
-//..
+// ```
     EventManager eventManager(eventMessageSizeId);
-//..
-// We use the 'EventManager' object to process two events and then publish the
-// metrics for those events with a 'SimpleStreamPublisher' object (also defined
+// ```
+// We use the `EventManager` object to process two events and then publish the
+// metrics for those events with a `SimpleStreamPublisher` object (also defined
 // above).
-//..
+// ```
     eventManager.handleEvent(0, "123");
     eventManager.handleEvent(0, "456789");
 
     SimpleStreamPublisher myPublisher(bsl::cout);
     balm::Publisher *publisher = &myPublisher;
     eventManager.publishMetrics(publisher);
-//..
+// ```
 // Note that we have delivered two events, with the messages "123" and
 // "456789", so the count should be 2, the total message size should be 9, the
 // minimum should be 3, and the maximum should be 6.  The output to the
 // console should be:
-//..
+// ```
 // 05FEB2009_19:49:30.173+0000 1 Records
 //         Elapsed Time: 1e-09s
 //         MyCategory.EventMessageSize [count = 2, total = 9, min = 3, max = 6]
-//..
+// ```
 
       } break;
       case 1: {
@@ -310,13 +315,13 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   That the virtual methods of the abstract base class
-        //   'balm::Publisher' will call the methods of concrete
+        //   `balm::Publisher` will call the methods of concrete
         //   implementations.
         //
         // Plan:
-        //  Construct a TestPublisher.  Obtain a 'balm::Publisher' reference to
+        //  Construct a TestPublisher.  Obtain a `balm::Publisher` reference to
         //  it and call the various methods on the
-        //  'balm::Publisher'.
+        //  `balm::Publisher`.
         //
         // Testing:
         //    ~balm::Publisher();

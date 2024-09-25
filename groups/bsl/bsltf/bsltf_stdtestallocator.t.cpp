@@ -28,20 +28,20 @@ using namespace BloombergLP::bsltf;
 //                              Overview
 //                              --------
 // The component under test implements a value-semantic type,
-// 'StdTestAllocator', a utility, 'StdTestAllocatorConfiguration', and a
-// mechanism, 'StdTestAllocatorConfigurationGuard'.  'StdTestAllocator' holds
-// no internal state and delegate its operations to a static 'bslma::Allocator'
-// object referred by 'StdTestAllocatorConfiguration', which provides static
+// `StdTestAllocator`, a utility, `StdTestAllocatorConfiguration`, and a
+// mechanism, `StdTestAllocatorConfigurationGuard`.  `StdTestAllocator` holds
+// no internal state and delegate its operations to a static `bslma::Allocator`
+// object referred by `StdTestAllocatorConfiguration`, which provides static
 // methods to access and manipulate the static pointer to that delegate
-// allocator.  'StdTestAllocatorConfigurationGuard' provides a scoped guard
+// allocator.  `StdTestAllocatorConfigurationGuard` provides a scoped guard
 // that temporarily replace the delegate allocator with a user specified
 // allocator.
 //
-// The fact that 'StdTestAllocator' doesn't hold an internal state means that
+// The fact that `StdTestAllocator` doesn't hold an internal state means that
 // we will differ from our usual method to test value-semantic types.
 // Specifically, instead of testing the primary manipulators and basic
-// accessors of 'StdTestAllocator', we will instead test the class methods
-// provided by 'StdTestAllocatorConfiguration'.
+// accessors of `StdTestAllocator`, we will instead test the class methods
+// provided by `StdTestAllocatorConfiguration`.
 //
 // In addition, many test cases can be relaxed or made trivial, such as the
 // test cases for the copy constructor, assignment operator, and equality
@@ -175,12 +175,13 @@ typedef StdTestAllocatorConfigurationGuard Grd;
 //
 // First we define a simple container type intended to be used with a C++03
 // standard compliant allocator:
-//..
+// ```
+
+/// This container type is parameterized on a standard allocator type and
+/// contains a single object, always initialized, which can be replaced and
+/// accessed.
 template <class TYPE, class ALLOCATOR>
 class MyContainer {
-    // This container type is parameterized on a standard allocator type and
-    // contains a single object, always initialized, which can be replaced and
-    // accessed.
 
     // DATA MEMBERS
     ALLOCATOR  d_allocator;  // allocator used to supply memory (held, not
@@ -190,26 +191,29 @@ class MyContainer {
 
   public:
     // CREATORS
-    explicit MyContainer(const TYPE& object);
-        // Create an container containing the specified 'object', using the
-        // parameterized 'ALLOCATOR' to allocate memory.
 
+    /// Create an container containing the specified `object`, using the
+    /// parameterized `ALLOCATOR` to allocate memory.
+    explicit MyContainer(const TYPE& object);
+
+    /// Destroy this container.
     ~MyContainer();
-        // Destroy this container.
 
     // MANIPULATORS
+
+    /// Return a reference providing modifiable access to the object
+    /// contained in this container.
     TYPE& object();
-        // Return a reference providing modifiable access to the object
-        // contained in this container.
 
     // ACCESSORS
+
+    /// Return a reference providing non-modifiable access to the object
+    /// contained in this container.
     const TYPE& object() const;
-        // Return a reference providing non-modifiable access to the object
-        // contained in this container.
 };
-//..
-// Then, we define the member functions of 'MyContainer':
-//..
+// ```
+// Then, we define the member functions of `MyContainer`:
+// ```
 // CREATORS
 template <class TYPE, class ALLOCATOR>
 MyContainer<TYPE, ALLOCATOR>::MyContainer(const TYPE& object)
@@ -294,11 +298,11 @@ int main(int argc, char *argv[])
           if (verbose) printf("\nUSAGE EXAMPLE"
                               "\n=============\n");
 
-//..
-// Now, we use 'StdTestAllocator' to implement a simple test for 'MyContainer'
+// ```
+// Now, we use `StdTestAllocator` to implement a simple test for `MyContainer`
 // to verify it correctly uses a parameterized allocator using only the C++03
 // standard methods:
-//..
+// ```
           bslma::TestAllocator oa("object", veryVeryVeryVerbose);
           Grd stag(&oa);
           {
@@ -314,26 +318,26 @@ int main(int argc, char *argv[])
           }
 
           ASSERT(0 == oa.numBytesInUse());
-//..
+// ```
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // 'max_size'
+        // `max_size`
         //
         // Concerns:
-        //: 1 The result of the 'max_size' method fits and represents the
-        //:   maximum possible number of bytes in a
-        //:   'bslma::Allocator::size_type'.
+        // 1. The result of the `max_size` method fits and represents the
+        //    maximum possible number of bytes in a
+        //    `bslma::Allocator::size_type`.
         //
         // Plan:
-        //: 1 Use 'std::numeric_limits' to verify that the value return by
-        //:   'max_size' is the largest possible value for 'size_type'.
+        // 1. Use `std::numeric_limits` to verify that the value return by
+        //    `max_size` is the largest possible value for `size_type`.
         //
         // Testing:
         //   size_type max_size() const;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\'max_size'"
+        if (verbose) printf("`max_size`"
                             "\n=========\n");
 
         // This part has been copied from bslstl_allocator's test driver and
@@ -351,16 +355,16 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // 'address'
+        // `address`
         //
         // Concerns:
-        //: 1 The 'address' method with a return type 'const_pointer' returns a
-        //:   const pointer of the passed-in modifiable reference of the
-        //:   parameterized type.
-        //:
-        //: 2 The 'address' method with a return type 'pointer' returns a const
-        //:   pointer of the passed-in non-modifiable reference of the
-        //:   parameterized type.
+        // 1. The `address` method with a return type `const_pointer` returns a
+        //    const pointer of the passed-in modifiable reference of the
+        //    parameterized type.
+        //
+        // 2. The `address` method with a return type `pointer` returns a const
+        //    pointer of the passed-in non-modifiable reference of the
+        //    parameterized type.
         //
         // Plan:
         //
@@ -387,36 +391,36 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // 'construct' AND 'destroy'
+        // `construct` AND `destroy`
         //
         // Concerns:
-        //: 1 The 'construct' method copy-construct the object of the
-        //:   parameterized type at a specified memory 'address'.
-        //:
-        //: 2 The 'destroy' method calls the destructor for the object of the
-        //:   parameterized type at a specified memory 'address'.
+        // 1. The `construct` method copy-construct the object of the
+        //    parameterized type at a specified memory `address`.
+        //
+        // 2. The `destroy` method calls the destructor for the object of the
+        //    parameterized type at a specified memory `address`.
         //
         // Plan:
-        //: 1 Create a 'StdTestAllocator' object parameterized on a test type.
-        //:   Use the object to allocate memory required for one object of the
-        //:   test type.
-        //:
-        //: 2 Construct a test type object with a unique value.  Use the
-        //:   'construct' method to copy-construct the just created test object
-        //:   to the address of the memory block allocated in P-1.  Verify that
-        //:   the copy-constructed test object has the same value as the
-        //:   original object.  (C-1)
-        //:
-        //: 3 Use the 'destroy' method to destroy the copy-constructed object
-        //:   in P-2.  Verify that the destructor of the object has been called
-        //:   by checking a global flag set in the destructor.  (C-2)
+        // 1. Create a `StdTestAllocator` object parameterized on a test type.
+        //    Use the object to allocate memory required for one object of the
+        //    test type.
+        //
+        // 2. Construct a test type object with a unique value.  Use the
+        //    `construct` method to copy-construct the just created test object
+        //    to the address of the memory block allocated in P-1.  Verify that
+        //    the copy-constructed test object has the same value as the
+        //    original object.  (C-1)
+        //
+        // 3. Use the `destroy` method to destroy the copy-constructed object
+        //    in P-2.  Verify that the destructor of the object has been called
+        //    by checking a global flag set in the destructor.  (C-2)
         //
         // Testing:
         //   void construct(pointer address, const TYPE& value);
         //   void destroy(pointer address);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'construct' AND 'destroy'"
+        if (verbose) printf("\n`construct` AND `destroy`"
                             "\n=========================\n");
 
         bslma::TestAllocator oa;
@@ -440,33 +444,33 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // 'allocate' AND 'deallocate'
+        // `allocate` AND `deallocate`
         //
         // Concerns:
-        //: 1 The 'allocate' method forwards allocation requests to the
-        //:   appropriate delegate allocator.
-        //:
-        //: 2 The 'deallocate' method forwards the deallocation requests to the
-        //:   appropriate delegate allocator.
+        // 1. The `allocate` method forwards allocation requests to the
+        //    appropriate delegate allocator.
+        //
+        // 2. The `deallocate` method forwards the deallocation requests to the
+        //    appropriate delegate allocator.
         //
         // Plan:
-        //: 1 Create a 'bslma::Allocator' object and install it as the delegate
-        //:   allocator for 'StdTestAllocator'.
-        //:
-        //: 2 Create a new 'StdTestAllocator' object and invoke the 'allocate'
-        //:   method.  Verify that the correct amount of memory has been
-        //:   allocated from the delegate allocator.  (C-1)
-        //:
-        //: 3 Invoke the 'deallocate' method and verify that the correct amount
-        //:   of memory has been deallocated from the delegate allocator.
-        //:   (C-2)
+        // 1. Create a `bslma::Allocator` object and install it as the delegate
+        //    allocator for `StdTestAllocator`.
+        //
+        // 2. Create a new `StdTestAllocator` object and invoke the `allocate`
+        //    method.  Verify that the correct amount of memory has been
+        //    allocated from the delegate allocator.  (C-1)
+        //
+        // 3. Invoke the `deallocate` method and verify that the correct amount
+        //    of memory has been deallocated from the delegate allocator.
+        //    (C-2)
         //
         // Testing:
         //   pointer allocate(size_type numElements, const void *hint = 0);
         //   void deallocate(pointer address, size_type numElements = 1);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'allocate' AND 'deallocate'"
+        if (verbose) printf("\n`allocate` AND `deallocate`"
                             "\n===========================\n");
 
         bslma::TestAllocator oa;
@@ -489,33 +493,33 @@ int main(int argc, char *argv[])
         // NESTED TYPES
         //
         // Concerns:
-        //: 1 The 'typedef' aliases defined in this component are as specified
-        //:   by the C++03 standard for template instances parameterized on the
-        //:   'void' and other types .
-        //:
-        //: 2 'size_type' is 'unsigned int' while 'difference_type' is 'int'.
-        //:
-        //: 3 'rebind<BDE_OTHER_TYPE>::other' defines a template instance for
-        //:   'StdTestAllocator' parameterized on the 'BDE_OTHER_TYPE' type.
+        // 1. The `typedef` aliases defined in this component are as specified
+        //    by the C++03 standard for template instances parameterized on the
+        //    `void` and other types .
+        //
+        // 2. `size_type` is `unsigned int` while `difference_type` is `int`.
+        //
+        // 3. `rebind<BDE_OTHER_TYPE>::other` defines a template instance for
+        //    `StdTestAllocator` parameterized on the `BDE_OTHER_TYPE` type.
         //
         // Plan:
-        //: 1 Define three aliases for 'StdTestAllocator' parameterized on
-        //:   'int', 'float', and 'void' types.
-        //:
-        //: 2 For each alias defines in P-1:
-        //:
-        //:   1 Use the 'sizeof' operator to verify that 'size_type' and
-        //:     'difference_type' are the right size and verify they are
-        //:     unsigned values.  (C-1..2)
-        //:
-        //:   2 For all other type aliases, use 'bsl::is_same' to verify that
-        //:     they are the expected types, except for 'reference' and
-        //:     'const_reference' for the instance parameterized on the 'void'
-        //:     type.  (C-1)
-        //:
-        //:   3 Verify using 'bsl::is_same' that 'rebind<U>::other', where 'U'
-        //:     is the other two aliases defined by P-1, defines the correct
-        //:     type.  (C-3)
+        // 1. Define three aliases for `StdTestAllocator` parameterized on
+        //    `int`, `float`, and `void` types.
+        //
+        // 2. For each alias defines in P-1:
+        //
+        //   1. Use the `sizeof` operator to verify that `size_type` and
+        //      `difference_type` are the right size and verify they are
+        //      unsigned values.  (C-1..2)
+        //
+        //   2. For all other type aliases, use `bsl::is_same` to verify that
+        //      they are the expected types, except for `reference` and
+        //      `const_reference` for the instance parameterized on the `void`
+        //      type.  (C-1)
+        //
+        //   3. Verify using `bsl::is_same` that `rebind<U>::other`, where `U`
+        //      is the other two aliases defined by P-1, defines the correct
+        //      type.  (C-3)
         //
         // Testing:
         //   size_type
@@ -535,52 +539,52 @@ int main(int argc, char *argv[])
         typedef StdTestAllocator<float> AF;
         typedef StdTestAllocator<void>  AV;
 
-        if (verbose) printf("\tTesting 'size_type'.\n");
+        if (verbose) printf("\tTesting `size_type`.\n");
         {
             ASSERT((bsl::is_same<AI::size_type, size_t>::value));
             ASSERT((bsl::is_same<AV::size_type, size_t>::value));
         }
 
-        if (verbose) printf("\tTesting 'difference_type'.\n");
+        if (verbose) printf("\tTesting `difference_type`.\n");
         {
             ASSERT((bsl::is_same<AI::difference_type, ptrdiff_t>::value));
             ASSERT((bsl::is_same<AV::difference_type, ptrdiff_t>::value));
         }
 
-        if (verbose) printf("\tTesting 'pointer'.\n");
+        if (verbose) printf("\tTesting `pointer`.\n");
         {
             ASSERT((bsl::is_same<AI::pointer, int*>::value));
             ASSERT((bsl::is_same<AF::pointer, float*>::value));
             ASSERT((bsl::is_same<AV::pointer, void*>::value));
         }
 
-        if (verbose) printf("\tTesting 'const_pointer'.\n");
+        if (verbose) printf("\tTesting `const_pointer`.\n");
         {
             ASSERT((bsl::is_same<AI::const_pointer, const int*>::value));
             ASSERT((bsl::is_same<AF::const_pointer, const float*>::value));
             ASSERT((bsl::is_same<AV::const_pointer, const void*>::value));
         }
 
-        if (verbose) printf("\tTesting 'reference'.\n");
+        if (verbose) printf("\tTesting `reference`.\n");
         {
             ASSERT((bsl::is_same<AI::reference, int&>::value));
             ASSERT((bsl::is_same<AF::reference, float&>::value));
         }
 
-        if (verbose) printf("\tTesting 'const_reference'.\n");
+        if (verbose) printf("\tTesting `const_reference`.\n");
         {
             ASSERT((bsl::is_same<AI::const_reference, const int&>::value));
             ASSERT((bsl::is_same<AF::const_reference, const float&>::value));
         }
 
-        if (verbose) printf("\tTesting 'value_type'.\n");
+        if (verbose) printf("\tTesting `value_type`.\n");
         {
             ASSERT((bsl::is_same<AI::value_type, int>::value));
             ASSERT((bsl::is_same<AF::value_type, float>::value));
             ASSERT((bsl::is_same<AV::value_type, void>::value));
         }
 
-        if (verbose) printf("\tTesting 'rebind'.\n");
+        if (verbose) printf("\tTesting `rebind`.\n");
         {
             ASSERT((bsl::is_same<AI::rebind<int  >::other, AI>::value));
             ASSERT((bsl::is_same<AI::rebind<float>::other, AF>::value));
@@ -602,24 +606,24 @@ int main(int argc, char *argv[])
       case 9: {
         // --------------------------------------------------------------------
         // COPY-ASSIGNMENT OPERATOR
-        //   Since 'StdTestAllocator' doesn't hold any state and provides the
+        //   Since `StdTestAllocator` doesn't hold any state and provides the
         //   compiler supplied assignment operator, there are no concerns
         //   beyond the signatures are correctly defined.
         //
         // Concerns:
-        //: 1 The signature and return type are standard.
-        //:
-        //: 2 Assignment operator can assign any modifiable target object to
-        //:   any source object.
+        // 1. The signature and return type are standard.
+        //
+        // 2. Assignment operator can assign any modifiable target object to
+        //    any source object.
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a member-function
-        //:   pointer having the appropriate signature and return type for the
-        //:   copy-assignment operator defined in this component.  (C-1)
-        //:
-        //: 2 Create two sets of 'StdTestAllocator' objects (parameterized on
-        //:   void and int) and assign a non-modifiable reference of one to the
-        //:   other.  (C-2)
+        // 1. Use the address of `operator=` to initialize a member-function
+        //    pointer having the appropriate signature and return type for the
+        //    copy-assignment operator defined in this component.  (C-1)
+        //
+        // 2. Create two sets of `StdTestAllocator` objects (parameterized on
+        //    void and int) and assign a non-modifiable reference of one to the
+        //    other.  (C-2)
         //
         // Testing:
         //   StdTestAllocator& operator=(const StdTestAllocator& rhs);
@@ -656,25 +660,25 @@ int main(int argc, char *argv[])
       case 7: {
         // --------------------------------------------------------------------
         // COPY CONSTRUCTORS
-        //   Since 'StdTestAllocator' doesn't hold any state and provides the
+        //   Since `StdTestAllocator` doesn't hold any state and provides the
         //   compiler supplied copy constructor, there are no concerns beyond
         //   the signatures are correctly defined.
         //
         // Concerns:
-        //: 1 A 'StdTestAllocator' object can be copy constructed from a const
-        //:   reference of another object of the same type.
-        //:
-        //: 2 A 'StdTestAllocator' object can be copy constructed from a const
-        //:   reference of another object of the 'StdTestAllocator' template
-        //:   instance parameterized on a different type.
+        // 1. A `StdTestAllocator` object can be copy constructed from a const
+        //    reference of another object of the same type.
+        //
+        // 2. A `StdTestAllocator` object can be copy constructed from a const
+        //    reference of another object of the `StdTestAllocator` template
+        //    instance parameterized on a different type.
         //
         // Plan:
-        //: 1 Create a 'StdTestAllocator' object.  Use a const reference of the
-        //:   object to copy construct another object of the same type.  (C-1)
-        //:
-        //: 2 Use the object created in P-1 to copy construct an object of the
-        //:   'StdTestAllocator' template instant parameterized on a different
-        //:   type.  (C-2)
+        // 1. Create a `StdTestAllocator` object.  Use a const reference of the
+        //    object to copy construct another object of the same type.  (C-1)
+        //
+        // 2. Use the object created in P-1 to copy construct an object of the
+        //    `StdTestAllocator` template instant parameterized on a different
+        //    type.  (C-2)
         //
         // Testing:
         //   StdTestAllocator(const StdTestAllocator& original);
@@ -695,28 +699,28 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // EQUALITY-COMPARISON OPERATORS
-        //   Ensure that '==' and '!=' are the operational definition of value.
+        //   Ensure that `==` and `!=` are the operational definition of value.
         //
         // Concerns:
-        //: 1 'operator==' always return true, even for objects of different
-        //:   template instances.
-        //:
-        //: 2 'operator!=' always return false, even for objects of different
-        //:   template instances.
+        // 1. `operator==` always return true, even for objects of different
+        //    template instances.
         //
-        //: 3 The equality operator's signature and return type are standard.
-        //:
-        //: 4 The inequality operator's signature and return type are standard.
+        // 2. `operator!=` always return false, even for objects of different
+        //    template instances.
+        //
+        // 3. The equality operator's signature and return type are standard.
+        //
+        // 4. The inequality operator's signature and return type are standard.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the two homogeneous, free equality-
-        //:   comparison operators defined in this component.  (C-3..4)
+        // 1. Use the respective addresses of `operator==` and `operator!=` to
+        //    initialize function pointers having the appropriate signatures
+        //    and return types for the two homogeneous, free equality-
+        //    comparison operators defined in this component.  (C-3..4)
         //
-        //: 2 Create a few 'StdTestAllocator' objects of different template
-        //:   instances.  Verify invoking 'operator==' returns true and
-        //:   invoking 'operator!=' returns false.  (C-1..2)
+        // 2. Create a few `StdTestAllocator` objects of different template
+        //    instances.  Verify invoking `operator==` returns true and
+        //    invoking `operator!=` returns false.  (C-1..2)
         //
         // Testing:
         //   bool operator==(const StdTestAllocator<TYPE>& lhs, rhs);
@@ -773,25 +777,25 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // 'StdTestAllocatorConfigurationGuard'
+        // `StdTestAllocatorConfigurationGuard`
         //
         // Concerns:
-        //: 1 The 'StdTestAllocatorConfigurationGuard' constructor changes the
-        //:   delegate allocator.
-        //:
-        //: 2 The 'StdTestAllocatorConfigurationGuard' destructor restores the
-        //:   original delegate allocator.
+        // 1. The `StdTestAllocatorConfigurationGuard` constructor changes the
+        //    delegate allocator.
+        //
+        // 2. The `StdTestAllocatorConfigurationGuard` destructor restores the
+        //    original delegate allocator.
         //
         // Plan:
-        //: 1 In a code block, create a 'bslma::TestAllocator' object, and
-        //:   create a 'StdTestAllocatorConfigurationGuard' object passing in a
-        //:   pointer to the just created allocator.  Verify that
-        //:   'StdTestAllocatorConfiguration::delegateAllocator' returns the
-        //:   pointer passed in the constructor.  (C-1)
-        //:
-        //: 2 Out side of the code block created in P-1, verify that
-        //:   'StdTestAllocatorConfiguration::delegateAllocator' returns the
-        //:   original delegate allocator.  (C-2)
+        // 1. In a code block, create a `bslma::TestAllocator` object, and
+        //    create a `StdTestAllocatorConfigurationGuard` object passing in a
+        //    pointer to the just created allocator.  Verify that
+        //    `StdTestAllocatorConfiguration::delegateAllocator` returns the
+        //    pointer passed in the constructor.  (C-1)
+        //
+        // 2. Out side of the code block created in P-1, verify that
+        //    `StdTestAllocatorConfiguration::delegateAllocator` returns the
+        //    original delegate allocator.  (C-2)
         //
         // Testing:
         //   StdTestAllocatorConfigurationGuard(bslma::Allocator *temporary);
@@ -813,28 +817,28 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'setDelegateAllocatorRaw' and 'delegateAllocator'
+        // `setDelegateAllocatorRaw` and `delegateAllocator`
         //
         // Concerns:
-        //: 1 The 'StdTestAllocatorConfiguration::setDelegateAllocatorRaw'
-        //:   class method set the allocator to which 'StdTestAllocator'
-        //:   delegates.
-        //:
-        //: 2 The 'StdTestAllocatorConfiguration::delegateAllocator' class
-        //:   method returns the current delegate allocator.
+        // 1. The `StdTestAllocatorConfiguration::setDelegateAllocatorRaw`
+        //    class method set the allocator to which `StdTestAllocator`
+        //    delegates.
+        //
+        // 2. The `StdTestAllocatorConfiguration::delegateAllocator` class
+        //    method returns the current delegate allocator.
         //
         // Plan:
-        //: 1 Verify that, by default, 'delegateAllocator' returns a pointer
-        //:   to the 'bslma::NewDeleteAllocator' singleton.  (C-2)
-        //:
-        //: 2 Create a 'bslma::TestAllocator' object and invoke
-        //:   'setDelegateAllocatorRaw' passing in a pointer to the just
-        //:   created allocator.  Verify that 'delegateAllocator' returns the
-        //:   pointer passed in the previous call.  (C-1)
-        //:
-        //: 3 Create a 'StdTestAllocator' object and use the (as yet unproven)
-        //:   'allocate' method allocates from the just test allocator created
-        //:   by P-3.  (C-1)
+        // 1. Verify that, by default, `delegateAllocator` returns a pointer
+        //    to the `bslma::NewDeleteAllocator` singleton.  (C-2)
+        //
+        // 2. Create a `bslma::TestAllocator` object and invoke
+        //    `setDelegateAllocatorRaw` passing in a pointer to the just
+        //    created allocator.  Verify that `delegateAllocator` returns the
+        //    pointer passed in the previous call.  (C-1)
+        //
+        // 3. Create a `StdTestAllocator` object and use the (as yet unproven)
+        //    `allocate` method allocates from the just test allocator created
+        //    by P-3.  (C-1)
         //
         // Testing:
         //   void setDelegateAllocatorRaw(bslma::Allocator *basicAllocator);
@@ -844,7 +848,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
           if (verbose)
-              printf("\n'setDelegateAllocatorRaw' and 'delegateAllocator'"
+              printf("\n'setDelegateAllocatorRaw' and `delegateAllocator`"
                      "\n=================================================\n");
 
           ASSERT(&bslma::NewDeleteAllocator::singleton() ==
@@ -872,11 +876,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
+        // 1. Perform and ad-hoc test of the primary modifiers and accessors.
         //
         // Testing:
         //   BREATHING TEST

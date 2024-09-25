@@ -26,11 +26,11 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The interface of the 'bdlat_EnumFunctions' component consists of two traits
-// classes and seven free function templates, all in the 'bdlat_EnumFunctions'
+// The interface of the `bdlat_EnumFunctions` component consists of two traits
+// classes and seven free function templates, all in the `bdlat_EnumFunctions`
 // namespace.  These classes and functions are defined to have certain
-// behaviors depending on whether the type template parameter is a 'bdlat'
-// "basic enumeration", a non-"basic enumeration" declared as a 'bdlat'
+// behaviors depending on whether the type template parameter is a `bdlat`
+// "basic enumeration", a non-"basic enumeration" declared as a `bdlat`
 // enumeration, or neither, and whether or not the type template parameter
 // supports a fallback enumerator.  We will test all relevant combinations.
 //-----------------------------------------------------------------------------
@@ -128,10 +128,11 @@ enum PolygonType {
 const int k_NUM_POLYGON_TYPES = 3;
 
 // FREE FUNCTIONS
+
+/// Load into the specified `result` the enumerator matching the specified
+/// `number`.  Return 0 on success, and a non-zero value with no effect on
+/// `result` if `number` does not match any enumerator.
 int bdlat_enumFromInt(PolygonType* result, int number)
-    // Load into the specified 'result' the enumerator matching the specified
-    // 'number'.  Return 0 on success, and a non-zero value with no effect on
-    // 'result' if 'number' does not match any enumerator.
 {
     switch (number) {
       case 5: {
@@ -152,13 +153,13 @@ int bdlat_enumFromInt(PolygonType* result, int number)
     }
 }
 
+/// Load into the specified `result` the enumerator matching the specified
+/// `string` of the specified `stringLength`.  Return 0 on success, and a
+/// non-zero value with no effect on `result` if `string` and `stringLength`
+/// do not match any enumerator.
 int bdlat_enumFromString(PolygonType *result,
                          const char  *string,
                          int          stringLength)
-    // Load into the specified 'result' the enumerator matching the specified
-    // 'string' of the specified 'stringLength'.  Return 0 on success, and a
-    // non-zero value with no effect on 'result' if 'string' and 'stringLength'
-    // do not match any enumerator.
 {
     const bsl::string s(string, stringLength);
     if ("RHOMBUS" == s) {
@@ -176,9 +177,9 @@ int bdlat_enumFromString(PolygonType *result,
     return -1;
 }
 
+/// Load into the specified `result` the integer representation of the
+/// enumerator value held by the specified `value`.
 void bdlat_enumToInt(int *result, const PolygonType& value)
-    // Load into the specified 'result' the integer representation of the
-    // enumerator value held by the specified 'value'.
 {
     switch (value) {
       case e_RHOMBUS: {
@@ -197,9 +198,9 @@ void bdlat_enumToInt(int *result, const PolygonType& value)
     ASSERT(0 == "invalid enumerator");
 }
 
+/// Load into the specified `result` the string representation of the
+/// enumerator value held by the specified `value`.
 void bdlat_enumToString(bsl::string *result, const PolygonType& value)
-    // Load into the specified 'result' the string representation of the
-    // enumerator value held by the specified 'value'.
 {
     switch (value) {
       case e_RHOMBUS: {
@@ -231,11 +232,11 @@ struct IsEnumeration<test::PolygonType> : public bsl::true_type {
 //                         GLOBAL FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 namespace {
+/// Test the `fromInt`, `toInt`, `fromString`, and `toString` functions in
+/// the `bdlat_EnumFunctions` namespace for the template parameter type
+/// `ENUM`, given the specified `info` pertaining to `ENUM`.
 template <class ENUM, int NUM_ENUMERATORS>
 void testToAndFrom(const test::EnumeratorInfo<ENUM> (&info)[NUM_ENUMERATORS])
-    // Test the 'fromInt', 'toInt', 'fromString', and 'toString' functions in
-    // the 'bdlat_EnumFunctions' namespace for the template parameter type
-    // 'ENUM', given the specified 'info' pertaining to 'ENUM'.
 {
     for (int i = 0; i < NUM_ENUMERATORS; i++) {
         if (veryVerbose) { T_ P(i) }
@@ -252,7 +253,7 @@ void testToAndFrom(const test::EnumeratorInfo<ENUM> (&info)[NUM_ENUMERATORS])
         BEF::toString(&mS, X);
         ASSERT(info[i].d_name_p == S);
 
-        // 'fromInt'/'fromString' with inputs that don't match any enumerator
+        // `fromInt`/`fromString` with inputs that don't match any enumerator
         ASSERT(0 != BEF::fromInt(&mX, -1));
         ASSERT(info[i].d_enumerator == X);
 
@@ -262,13 +263,13 @@ void testToAndFrom(const test::EnumeratorInfo<ENUM> (&info)[NUM_ENUMERATORS])
         for (int j = 0; j < NUM_ENUMERATORS; j++) {
             if (veryVerbose) { T_ P_(i) P(j) }
 
-            // Put mX in the 'i'th state, then call 'fromInt' to put it into
-            // the 'j'th state.
+            // Put mX in the `i`th state, then call `fromInt` to put it into
+            // the `j`th state.
             mX = info[i].d_enumerator;
             ASSERT(0 == BEF::fromInt(&mX, info[j].d_int_value));
             ASSERT(info[j].d_enumerator == X);
 
-            // Same with 'fromString'.
+            // Same with `fromString`.
             mX = info[i].d_enumerator;
             ASSERT(0 == BEF::fromString(
                             &mX,
@@ -289,8 +290,8 @@ namespace test {
                              // class PrimaryColor
                              // ==================
 
+/// TBD: Provide annotation
 struct PrimaryColor {
-    // TBD: Provide annotation
 
   public:
     // TYPES
@@ -301,80 +302,83 @@ struct PrimaryColor {
     };
 
     enum {
+        /// the number of enumerators in the `Value` enumeration
         NUM_ENUMERATORS = 3
-            // the number of enumerators in the 'Value' enumeration
     };
 
     // CONSTANTS
-    static const char CLASS_NAME[];
-        // the name of this class (i.e., "PrimaryColor")
 
+    /// the name of this class (i.e., "PrimaryColor")
+    static const char CLASS_NAME[];
+
+    /// enumerator information for each enumerator
     static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
-        // enumerator information for each enumerator
 
     // CLASS METHODS
+
+    /// Return the most current `bdex` streaming version number supported by
+    /// this class.  See the `bdex` package-level documentation for more
+    /// information on `bdex` streaming of value-semantic types and
+    /// containers.
     static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.
 
+    /// Return the string representation exactly matching the enumerator
+    /// name corresponding to the specified enumeration `value`.
     static const char *toString(Value value);
-        // Return the string representation exactly matching the enumerator
-        // name corresponding to the specified enumeration 'value'.
 
+    /// Load into the specified `result` the enumerator matching the
+    /// specified `string` of the specified `stringLength`.  Return 0 on
+    /// success, and a non-zero value with no effect on `result` otherwise
+    /// (i.e., `string` does not match any enumerator).
     static int fromString(Value        *result,
                           const char   *string,
                           int           stringLength);
-        // Load into the specified 'result' the enumerator matching the
-        // specified 'string' of the specified 'stringLength'.  Return 0 on
-        // success, and a non-zero value with no effect on 'result' otherwise
-        // (i.e., 'string' does not match any enumerator).
 
+    /// Load into the specified `result` the enumerator matching the
+    /// specified `number`.  Return 0 on success, and a non-zero value with
+    /// no effect on `result` otherwise (i.e., `number` does not match any
+    /// enumerator).
     static int fromInt(Value *result, int number);
-        // Load into the specified 'result' the enumerator matching the
-        // specified 'number'.  Return 0 on success, and a non-zero value with
-        // no effect on 'result' otherwise (i.e., 'number' does not match any
-        // enumerator).
 
+    /// Assign to the specified `value` the value read from the specified
+    /// input `stream` using the specified `version` format and return a
+    /// reference to the modifiable `stream`.  If `stream` is initially
+    /// invalid, this operation has no effect.  If `stream` becomes invalid
+    /// during this operation, the `value` is valid, but its value is
+    /// undefined.  If the `version` is not supported, `stream` is marked
+    /// invalid, but `value` is unaltered.  Note that no version is read
+    /// from `stream`.  (See the package-group-level documentation for more
+    /// information on `bdex` streaming of container types.)
     template <class STREAM>
     static STREAM& bdexStreamIn(STREAM&  stream,
                                 Value&   value,
                                 int      version);
-        // Assign to the specified 'value' the value read from the specified
-        // input 'stream' using the specified 'version' format and return a
-        // reference to the modifiable 'stream'.  If 'stream' is initially
-        // invalid, this operation has no effect.  If 'stream' becomes invalid
-        // during this operation, the 'value' is valid, but its value is
-        // undefined.  If the 'version' is not supported, 'stream' is marked
-        // invalid, but 'value' is unaltered.  Note that no version is read
-        // from 'stream'.  (See the package-group-level documentation for more
-        // information on 'bdex' streaming of container types.)
 
+    /// Write to the specified `stream` the string representation of the
+    /// specified enumeration `value`.  Return a reference to the modifiable
+    /// `stream`.
     static bsl::ostream& print(bsl::ostream& stream, Value value);
-        // Write to the specified 'stream' the string representation of the
-        // specified enumeration 'value'.  Return a reference to the modifiable
-        // 'stream'.
 
+    /// Write the specified `value` to the specified output `stream` and
+    /// return a reference to the modifiable `stream`.  Optionally specify
+    /// an explicit `version` format; by default, the maximum supported
+    /// version is written to `stream` and used as the format.  If `version`
+    /// is specified, that format is used but *not* written to `stream`.  If
+    /// `version` is not supported, `stream` is left unmodified.  (See the
+    /// package-group-level documentation for more information on `bdex`
+    /// streaming of container types).
     template <class STREAM>
     static STREAM& bdexStreamOut(STREAM&  stream,
                                  Value    value,
                                  int      version);
-        // Write the specified 'value' to the specified output 'stream' and
-        // return a reference to the modifiable 'stream'.  Optionally specify
-        // an explicit 'version' format; by default, the maximum supported
-        // version is written to 'stream' and used as the format.  If 'version'
-        // is specified, that format is used but *not* written to 'stream'.  If
-        // 'version' is not supported, 'stream' is left unmodified.  (See the
-        // package-group-level documentation for more information on 'bdex'
-        // streaming of container types).
 };
 
 // FREE OPERATORS
+
+/// Format the specified `rhs` to the specified output `stream` and return a
+/// reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, PrimaryColor::Value rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and return a
-    // reference to the modifiable 'stream'.
 
 }  // close namespace test
 
@@ -387,8 +391,8 @@ namespace test {
                           // class MyEnumWithFallback
                           // ========================
 
-// This class was originally called 'MyEnumerationWithFallback' (see
-// 's_baltst_myenumerationwithfallback.cpp'), but its name has been shortened
+// This class was originally called `MyEnumerationWithFallback` (see
+// `s_baltst_myenumerationwithfallback.cpp`), but its name has been shortened
 // here to make certain lines fit into 79 characters.
 struct MyEnumWithFallback {
 
@@ -410,55 +414,57 @@ struct MyEnumWithFallback {
     static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
 
     // CLASS METHODS
-    static const char *toString(Value value);
-        // Return the string representation exactly matching the enumerator
-        // name corresponding to the specified enumeration 'value'.
 
+    /// Return the string representation exactly matching the enumerator
+    /// name corresponding to the specified enumeration `value`.
+    static const char *toString(Value value);
+
+    /// Load into the specified `result` the enumerator matching the
+    /// specified `string` of the specified `stringLength`.  Return 0 on
+    /// success, and a non-zero value with no effect on `result` otherwise
+    /// (i.e., `string` does not match any enumerator).
     static int fromString(Value        *result,
                           const char   *string,
                           int           stringLength);
-        // Load into the specified 'result' the enumerator matching the
-        // specified 'string' of the specified 'stringLength'.  Return 0 on
-        // success, and a non-zero value with no effect on 'result' otherwise
-        // (i.e., 'string' does not match any enumerator).
 
+    /// Load into the specified `result` the enumerator matching the
+    /// specified `string`.  Return 0 on success, and a non-zero value with
+    /// no effect on `result` otherwise (i.e., `string` does not match any
+    /// enumerator).
     static int fromString(Value              *result,
                           const bsl::string&  string);
-        // Load into the specified 'result' the enumerator matching the
-        // specified 'string'.  Return 0 on success, and a non-zero value with
-        // no effect on 'result' otherwise (i.e., 'string' does not match any
-        // enumerator).
 
+    /// Load into the specified `result` the enumerator matching the
+    /// specified `number`.  Return 0 on success, and a non-zero value with
+    /// no effect on `result` otherwise (i.e., `number` does not match any
+    /// enumerator).
     static int fromInt(Value *result, int number);
-        // Load into the specified 'result' the enumerator matching the
-        // specified 'number'.  Return 0 on success, and a non-zero value with
-        // no effect on 'result' otherwise (i.e., 'number' does not match any
-        // enumerator).
 
+    /// Load into the specified `result` the fallback enumerator value and
+    /// return 0 to indicate success.
     static int makeFallback(Value *result);
-        // Load into the specified 'result' the fallback enumerator value and
-        // return 0 to indicate success.
 
+    /// Return `true` to indicate that this type supports a fallback
+    /// enumerator.
     static bool hasFallback(Value);
-        // Return 'true' to indicate that this type supports a fallback
-        // enumerator.
 
+    /// Return `true` if the specified `value` equals the fallback
+    /// enumerator, and `false` otherwise.
     static bool isFallback(Value value);
-        // Return 'true' if the specified 'value' equals the fallback
-        // enumerator, and 'false' otherwise.
 
+    /// Write to the specified `stream` the string representation of the
+    /// specified enumeration `value`.  Return a reference to the modifiable
+    /// `stream`.
     static bsl::ostream& print(bsl::ostream& stream, Value value);
-        // Write to the specified 'stream' the string representation of the
-        // specified enumeration 'value'.  Return a reference to the modifiable
-        // 'stream'.
 };
 
 // FREE FUNCTIONS
+
+/// Format the specified `rhs` to the specified output `stream` and return a
+/// reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream&             stream,
                          MyEnumWithFallback::Value rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and return a
-    // reference to the modifiable 'stream'.
 
 }  // close namespace test
 
@@ -611,8 +617,8 @@ namespace test {
 
 // CONSTANTS
 
+/// the name of this class
 const char PrimaryColor::CLASS_NAME[] = "PrimaryColor";
-    // the name of this class
 
 const bdlat_EnumeratorInfo PrimaryColor::ENUMERATOR_INFO_ARRAY[] = {
     {
@@ -786,50 +792,52 @@ enum ImageType {
     GIF     = 2,
     UNKNOWN = 100
 };
-//..
-// We can now make 'ImageType' expose "enumeration" behavior by implementing
-// all the necessary 'bdlat_enum*' functions for 'ImageType' inside the 'mine'
+// ```
+// We can now make `ImageType` expose "enumeration" behavior by implementing
+// all the necessary `bdlat_enum*` functions for `ImageType` inside the `mine`
 // namespace (*not* by attempting to declare specializations or overloads in
-// the 'bdlat_EnumFunctions' namespace).  First we should forward declare all
-// the functions that we will implement inside the 'mine' namespace:
-//..
+// the `bdlat_EnumFunctions` namespace).  First we should forward declare all
+// the functions that we will implement inside the `mine` namespace:
+// ```
 // MANIPULATORS
-int bdlat_enumFromInt(ImageType *result, int number);
-    // Load into the specified 'result' the enumerator matching the specified
-    // 'number'.  Return 0 on success, and a non-zero value with no effect on
-    // 'result' if 'number' does not match any enumerator.
 
+/// Load into the specified `result` the enumerator matching the specified
+/// `number`.  Return 0 on success, and a non-zero value with no effect on
+/// `result` if `number` does not match any enumerator.
+int bdlat_enumFromInt(ImageType *result, int number);
+
+/// Load into the specified `result` the enumerator matching the specified
+/// `string` of the specified `stringLength`.  Return 0 on success, and a
+/// non-zero value with no effect on `result` if `string` and `stringLength`
+/// do not match any enumerator.
 int bdlat_enumFromString(ImageType  *result,
                          const char *string,
                          int         stringLength);
-    // Load into the specified 'result' the enumerator matching the specified
-    // 'string' of the specified 'stringLength'.  Return 0 on success, and a
-    // non-zero value with no effect on 'result' if 'string' and 'stringLength'
-    // do not match any enumerator.
 
+/// Load into the specified `result` the fallback enumerator value and
+/// return 0 to indicate success.
 int bdlat_enumMakeFallback(ImageType *result);
-    // Load into the specified 'result' the fallback enumerator value and
-    // return 0 to indicate success.
 
 // ACCESSORS
+
+/// Load into the specified `result` the integer representation of the
+/// enumerator value held by the specified `value`.
 void bdlat_enumToInt(int *result, const ImageType& value);
-    // Load into the specified 'result' the integer representation of the
-    // enumerator value held by the specified 'value'.
 
+/// Load into the specified `result` the string representation of the
+/// enumerator value held by the specified `value`.
 void bdlat_enumToString(bsl::string *result, const ImageType& value);
-    // Load into the specified 'result' the string representation of the
-    // enumerator value held by the specified 'value'.
 
+/// Return `true` to indicate that this type supports a fallback enumerator.
 bool bdlat_enumHasFallback(const ImageType&);
-    // Return 'true' to indicate that this type supports a fallback enumerator.
 
+/// Return `true` if the specified `value` equals the fallback enumerator,
+/// and `false` otherwise.
 bool bdlat_enumIsFallback(const ImageType& value);
-    // Return 'true' if the specified 'value' equals the fallback enumerator,
-    // and 'false' otherwise.
 }  // close namespace mine
-//..
+// ```
 // Next, we provide the definitions for each of these functions:
-//..
+// ```
 // MANIPULATORS
 
 inline
@@ -938,13 +946,13 @@ bool mine::bdlat_enumIsFallback(const ImageType& value)
 {
     return value == UNKNOWN;
 }
-//..
-// Finally, we need to specialize the 'IsEnumeration' and
-// 'HasFallbackEnumerator' meta-functions in the 'bdlat_EnumFunctions'
-// namespace for the 'mine::ImageType' type.  This makes the 'bdlat'
-// infrastructure recognize 'ImageType' as an enumeration abstraction with a
+// ```
+// Finally, we need to specialize the `IsEnumeration` and
+// `HasFallbackEnumerator` meta-functions in the `bdlat_EnumFunctions`
+// namespace for the `mine::ImageType` type.  This makes the `bdlat`
+// infrastructure recognize `ImageType` as an enumeration abstraction with a
 // fallback enumerator:
-//..
+// ```
 namespace bdlat_EnumFunctions {
 template <>
 struct IsEnumeration<mine::ImageType> : public bsl::true_type {
@@ -954,17 +962,17 @@ struct HasFallbackEnumerator<mine::ImageType> : public bsl::true_type {
 };
 }  // close namespace bdlat_EnumFunctions
 }  // close enterprise namespace
-//..
-// The 'bdlat' infrastructure (and any component that uses this infrastructure)
-// will now recognize 'ImageType' as an "enumeration" type with a fallback
+// ```
+// The `bdlat` infrastructure (and any component that uses this infrastructure)
+// will now recognize `ImageType` as an "enumeration" type with a fallback
 // enumerator.  For example, suppose we have the following XML data:
-//..
+// ```
 //  <?xml version='1.0' encoding='UTF-8' ?>
 //  <ImageType>PNG</ImageType>
-//..
-// Using the 'balxml_decoder' component, we can load this XML data into a
-// 'ImageType' object:
-//..
+// ```
+// Using the `balxml_decoder` component, we can load this XML data into a
+// `ImageType` object:
+// ```
 //  #include <balxml_decoder.h>
 //
 //  void decodeImageTypeFromXML(bsl::istream& inputData)
@@ -983,13 +991,13 @@ struct HasFallbackEnumerator<mine::ImageType> : public bsl::true_type {
 //      assert(0   == result);
 //      assert(PNG == object);
 //  }
-//..
-// Note that the 'bdlat' framework can be used for functionality other than
-// encoding/decoding into XML.  When 'mine::ImageType' is plugged into the
+// ```
+// Note that the `bdlat` framework can be used for functionality other than
+// encoding/decoding into XML.  When `mine::ImageType` is plugged into the
 // framework, then it will be automatically usable within the framework. For
 // example, consider the following generic functions that read a string from a
-// stream and decode its value into a 'bdlat' "enumeration" object:
-//..
+// stream and decode its value into a `bdlat` "enumeration" object:
+// ```
 template <class TYPE>
 int readEnum(bsl::istream& stream, TYPE *object)
 {
@@ -1006,9 +1014,9 @@ int readEnumOrFallback(bsl::istream& stream, TYPE *object)
     const int rc = readEnum(stream, object);
     return (0 == rc) ? rc : bdlat_EnumFunctions::makeFallback(object);
 }
-//..
-// We can use these generic functions with 'mine::ImageType' as follows:
-//..
+// ```
+// We can use these generic functions with `mine::ImageType` as follows:
+// ```
 void usageExample()
 {
     using namespace BloombergLP;
@@ -1027,7 +1035,7 @@ void usageExample()
     ASSERT(0             == readEnumOrFallback(ss, &object));
     ASSERT(mine::UNKNOWN == object);
 }
-//..
+// ```
 
 // ============================================================================
 //           ADDITIONAL METADATA FOR ENUMERATIONS IN THIS TEST DRIVER
@@ -1085,11 +1093,11 @@ int main(int argc, char *argv[])
         // TESTING USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header compiles and
-        //:   runs as expected.
+        // 1. The usage example provided in the component header compiles and
+        //    runs as expected.
         //
         // Plan:
-        //: 1 Copy-paste the example and change 'assert' to 'ASSERT'.  (C-1)
+        // 1. Copy-paste the example and change `assert` to `ASSERT`.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -1105,35 +1113,35 @@ int main(int argc, char *argv[])
         // TESTING FALLBACK ENUMERATOR FUNCTIONS
         //
         // Concerns:
-        //: 1 When 'E' is a "basic enumeration" type without a fallback
-        //:   enumerator, the 3 functions below work correctly (i.e., by always
-        //:   failing) without any additional machinery having to be provided.
-        //: 2 When 'E' has been declared as an "enumeration" type by
-        //:   specializing 'IsEnumeration' but has not implemented the
-        //:   fallback-related customization points, the 3 functions below work
-        //:   correctly (i.e., by always failing) and do not attempt to call
-        //:   the non-existent customization point overloads.
-        //: 3 When 'E' is a "basic enumeration" type declared to have a
-        //:   fallback enumerator, the 3 functions below properly delegate to
-        //:   the implementations in the wrapper class for 'E'.
-        //: 4 When 'E' has been declared as an "enumeration" type by
-        //:   specializing 'IsEnumeration', the 3 functions properly delegate
-        //:   to the customization point overloads.
+        // 1. When `E` is a "basic enumeration" type without a fallback
+        //    enumerator, the 3 functions below work correctly (i.e., by always
+        //    failing) without any additional machinery having to be provided.
+        // 2. When `E` has been declared as an "enumeration" type by
+        //    specializing `IsEnumeration` but has not implemented the
+        //    fallback-related customization points, the 3 functions below work
+        //    correctly (i.e., by always failing) and do not attempt to call
+        //    the non-existent customization point overloads.
+        // 3. When `E` is a "basic enumeration" type declared to have a
+        //    fallback enumerator, the 3 functions below properly delegate to
+        //    the implementations in the wrapper class for `E`.
+        // 4. When `E` has been declared as an "enumeration" type by
+        //    specializing `IsEnumeration`, the 3 functions properly delegate
+        //    to the customization point overloads.
         //
         // Plan:
-        //: 1 Call the 3 functions listed below for a "basic enumeration" type
-        //:   without a fallback enumerator and verify that they meet their
-        //:   contracts.  (C-1)
-        //: 2 Call the 3 functions listed below for a non-"basic enumeration"
-        //:   type as described in C-2 and verify that they meet their
-        //:   contracts.  (C-2)
-        //: 3 Call the 3 functions listed below for a type that has been
-        //:   declared as a "basic enumeration" with a fallback enumerator, and
-        //:   verify that they have the behavior expected of the
-        //:   implementations in the wrapper class.  (C-3)
-        //: 4 Call the 3 functions listed below for a type as described in
-        //:   C-4 and verify that they have the behavior expected of the
-        //:   customization point overloads.  (C-4)
+        // 1. Call the 3 functions listed below for a "basic enumeration" type
+        //    without a fallback enumerator and verify that they meet their
+        //    contracts.  (C-1)
+        // 2. Call the 3 functions listed below for a non-"basic enumeration"
+        //    type as described in C-2 and verify that they meet their
+        //    contracts.  (C-2)
+        // 3. Call the 3 functions listed below for a type that has been
+        //    declared as a "basic enumeration" with a fallback enumerator, and
+        //    verify that they have the behavior expected of the
+        //    implementations in the wrapper class.  (C-3)
+        // 4. Call the 3 functions listed below for a type as described in
+        //    C-4 and verify that they have the behavior expected of the
+        //    customization point overloads.  (C-4)
         //
         // Testing:
         //   template <class E> int makeFallback(E*)
@@ -1149,9 +1157,9 @@ int main(int argc, char *argv[])
                 cout << "Testing fallback enumerator functions on "
                         "PrimaryColor\n";
             }
-            // 'test::PrimaryColor::Value' is a "basic enumeration".  Note that
-            // here, the 'Obj' typedef refers to the enclosing class
-            // 'test::PrimaryColor'.
+            // `test::PrimaryColor::Value` is a "basic enumeration".  Note that
+            // here, the `Obj` typedef refers to the enclosing class
+            // `test::PrimaryColor`.
             typedef test::PrimaryColor Obj;
             typedef test::EnumeratorInfo<Obj::Value> InfoType;
             const InfoType (&enumeratorInfo)[Obj::NUM_ENUMERATORS] =
@@ -1173,7 +1181,7 @@ int main(int argc, char *argv[])
                 cout << "Testing fallback enumerator functions on "
                         "PolygonType\n";
             }
-            // 'test::Polygon' is not a "basic enumeration".
+            // `test::Polygon` is not a "basic enumeration".
             typedef test::PolygonType Obj;
             typedef test::EnumeratorInfo<Obj> InfoType;
             const InfoType(&enumeratorInfo)[test::k_NUM_POLYGON_TYPES] =
@@ -1195,9 +1203,9 @@ int main(int argc, char *argv[])
                 cout << "Testing fallback enumerator functions on "
                         "MyEnumWithFallback\n";
             }
-            // 'test::MyEnumWithFallback::Value' is a "basic enumeration" with
-            // a fallback enumerator.  Note that here, the 'Obj' typedef refers
-            // to the enclosing class, 'test::MyEnumWithFallback'.
+            // `test::MyEnumWithFallback::Value` is a "basic enumeration" with
+            // a fallback enumerator.  Note that here, the `Obj` typedef refers
+            // to the enclosing class, `test::MyEnumWithFallback`.
             typedef test::MyEnumWithFallback Obj;
             typedef test::EnumeratorInfo<Obj::Value> InfoType;
             const InfoType (&enumeratorInfo)[Obj::NUM_ENUMERATORS] =
@@ -1220,7 +1228,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 cout << "Testing fallback enumerator functions on ImageType\n";
             }
-            // 'mine::ImageType' is not a "basic enumeration" but has been
+            // `mine::ImageType` is not a "basic enumeration" but has been
             // declared to be an "enumeration" with a fallback enumerator.
             typedef mine::ImageType Obj;
             typedef test::EnumeratorInfo<Obj> InfoType;
@@ -1244,21 +1252,21 @@ int main(int argc, char *argv[])
         // TESTING COMMON METHOD FORWARDING
         //
         // Concerns:
-        //: 1 When 'E' meets the requirements of a "basic enumeration" type and
-        //:   is declared as such, the 4 functions listed below work correctly
-        //:   without any additional machinery having to be provided.
-        //: 2 When 'E' is not a "basic enumeration" type but has been declared
-        //:   as an "enumeration" type by specializing 'IsEnumeration' and
-        //:   overloading the 'bdlat_enum'-prefixed customization points, the 4
-        //:   functions listed below work correctly by delegating to the
-        //:   latter.
+        // 1. When `E` meets the requirements of a "basic enumeration" type and
+        //    is declared as such, the 4 functions listed below work correctly
+        //    without any additional machinery having to be provided.
+        // 2. When `E` is not a "basic enumeration" type but has been declared
+        //    as an "enumeration" type by specializing `IsEnumeration` and
+        //    overloading the `bdlat_enum`-prefixed customization points, the 4
+        //    functions listed below work correctly by delegating to the
+        //    latter.
         //
         // Plan:
-        //: 1 Call the 4 functions listed below for a "basic enumeration" type
-        //:   and verify that they meet their contracts.  (C-1)
-        //: 2 Call the 4 functions listed below for a non-"basic enumeration"
-        //:   type as described above and verify that they meet their
-        //:   contracts.  (C-2)
+        // 1. Call the 4 functions listed below for a "basic enumeration" type
+        //    and verify that they meet their contracts.  (C-1)
+        // 2. Call the 4 functions listed below for a non-"basic enumeration"
+        //    type as described above and verify that they meet their
+        //    contracts.  (C-2)
         //
         // Testing:
         //   template <class E> int fromInt(E*, int)
@@ -1273,15 +1281,15 @@ int main(int argc, char *argv[])
         if (veryVerbose) {
             cout << "Testing method forwarding on PrimaryColor\n";
         }
-        // 'test::PrimaryColor::Value' is a "basic enumeration".  Note that
-        // here, the 'Obj' typedef refers to the enclosing class
-        // 'test::PrimaryColor'.
+        // `test::PrimaryColor::Value` is a "basic enumeration".  Note that
+        // here, the `Obj` typedef refers to the enclosing class
+        // `test::PrimaryColor`.
         testToAndFrom<test::PrimaryColor::Value>(test::k_PRIMARY_COLOR_INFO);
 
         if (veryVerbose) {
             cout << "Testing method forwarding on PolygonType\n";
         }
-        // 'test::Polygon' is not a "basic enumeration". Also, its enumerator
+        // `test::Polygon` is not a "basic enumeration". Also, its enumerator
         // values are not consecutive.
         testToAndFrom<test::PolygonType>(test::k_POLYGON_TYPE_INFO);
       } break;
@@ -1290,41 +1298,41 @@ int main(int argc, char *argv[])
         // TESTING META-FUNCTIONS
         //
         // Concerns:
-        //: 1 For a type that has not been declared to be an "enumeration"
-        //:   type, the 'IsEnumeration' and 'HasFallbackEnumerator'
-        //:   meta-functions yield 'false' (even if it is a language
-        //:   enumeration type).
-        //: 2 For a type that has been declared to be an "enumeration" type,
-        //:   but not declared to have a fallback enumerator, the
-        //:   'IsEnumeration' meta-function yields true, while the
-        //:   'HasFallbackEnumerator' meta-function yields false.
-        //: 3 For a type that has been declared to be an "enumeration" type and
-        //:   to have a fallback enumerator, the 'IsEnumeration' and
-        //:   'HasFallbackEnumerator' meta-functions yield 'true'.
+        // 1. For a type that has not been declared to be an "enumeration"
+        //    type, the `IsEnumeration` and `HasFallbackEnumerator`
+        //    meta-functions yield `false` (even if it is a language
+        //    enumeration type).
+        // 2. For a type that has been declared to be an "enumeration" type,
+        //    but not declared to have a fallback enumerator, the
+        //    `IsEnumeration` meta-function yields true, while the
+        //    `HasFallbackEnumerator` meta-function yields false.
+        // 3. For a type that has been declared to be an "enumeration" type and
+        //    to have a fallback enumerator, the `IsEnumeration` and
+        //    `HasFallbackEnumerator` meta-functions yield `true`.
         //
         // Plan:
-        //: 1 Statically assert that the 'IsEnumeration' and
-        //:   'HasFallbackEnumerator' meta-functions have the correct values
-        //:   for a plain enumeration type that has not been declared to be a
-        //:   'bdlat' "enumeration" type. (C-1)
-        //: 2 Statically assert that the 'IsEnumeration' and
-        //:   'HasFallbackEnumerator' meta-functions have the correct values
-        //:   for a type that has been declared to be a 'bdlat' "basic
-        //:   enumeration" (but not to have a fallback enumerator).  (C-2)
-        //: 3 Statically assert that the 'IsEnumeration' and
-        //:   'HasFallbackEnumerator' meta-functions have the correct values
-        //:   for a type that has been explicitly declared to be a 'bdlat'
-        //:   "enumeration" (but not a "basic enumeration"), and that has not
-        //:   been declared to have a fallback enumerator.  (C-2)
-        //: 4 Statically assert that the 'IsEnumeration' and
-        //:   'HasFallbackEnumerator' meta-functions have the correct values
-        //:   for a type that has been declared to be a 'bdlat' "basic
-        //:   enumeration" with a fallback enumerator.  (C-3)
-        //: 5 Statically assert that the 'IsEnumeration' and
-        //:   'HasFallbackEnumerator' meta-functions have the correct values
-        //:   for a type that has been explicitly declared to be an
-        //:   "enumeration" type with a fallback enumerator (but not a 'bdlat'
-        //:   "basic enumeration").  (C-3)
+        // 1. Statically assert that the `IsEnumeration` and
+        //    `HasFallbackEnumerator` meta-functions have the correct values
+        //    for a plain enumeration type that has not been declared to be a
+        //    `bdlat` "enumeration" type. (C-1)
+        // 2. Statically assert that the `IsEnumeration` and
+        //    `HasFallbackEnumerator` meta-functions have the correct values
+        //    for a type that has been declared to be a `bdlat` "basic
+        //    enumeration" (but not to have a fallback enumerator).  (C-2)
+        // 3. Statically assert that the `IsEnumeration` and
+        //    `HasFallbackEnumerator` meta-functions have the correct values
+        //    for a type that has been explicitly declared to be a `bdlat`
+        //    "enumeration" (but not a "basic enumeration"), and that has not
+        //    been declared to have a fallback enumerator.  (C-2)
+        // 4. Statically assert that the `IsEnumeration` and
+        //    `HasFallbackEnumerator` meta-functions have the correct values
+        //    for a type that has been declared to be a `bdlat` "basic
+        //    enumeration" with a fallback enumerator.  (C-3)
+        // 5. Statically assert that the `IsEnumeration` and
+        //    `HasFallbackEnumerator` meta-functions have the correct values
+        //    for a type that has been explicitly declared to be an
+        //    "enumeration" type with a fallback enumerator (but not a `bdlat`
+        //    "basic enumeration").  (C-3)
         //
         // Testing:
         //   template <class E> struct IsEnumeration

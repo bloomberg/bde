@@ -41,15 +41,15 @@
 #include <bsl_climits.h>
 #include <bsl_cmath.h>
 #include <bsl_cstddef.h>
-#include <bsl_cstdio.h>      // 'remove'
+#include <bsl_cstdio.h>      // `remove`
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
-#include <bsl_ctime.h>       // 'time_t'
-#include <bsl_iomanip.h>     // 'setfill'
+#include <bsl_ctime.h>       // `time_t`
+#include <bsl_iomanip.h>     // `setfill`
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
-#include <bsl_c_stdlib.h>    // 'unsetenv'
+#include <bsl_c_stdlib.h>    // `unsetenv`
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -84,7 +84,7 @@ using bsl::flush;
 //                              Overview
 //                              --------
 // The component under test defines an asynchronous observer
-// ('ball::AsyncFileObserver') that writes log records to a file and stdout
+// (`ball::AsyncFileObserver`) that writes log records to a file and stdout
 // from a dedicated thread.
 // ----------------------------------------------------------------------------
 // CREATORS
@@ -141,7 +141,7 @@ using bsl::flush;
 // [ 9] CONCERN: ROTATION
 // [14] USAGE EXAMPLE
 
-// Note assert and debug macros all output to 'cerr' instead of cout, unlike
+// Note assert and debug macros all output to `cerr` instead of cout, unlike
 // most other test drivers.  This is necessary because test case 2 plays tricks
 // with cout and examines what is written there.
 
@@ -232,13 +232,13 @@ typedef bdls::FilesystemUtil::Offset Offset;
 
 namespace {
 
+/// Return a newly created `ball::Record` having the specifed `message` and
+/// `severity`, and using the specified `allocator` to allocate memory.  The
+/// created `ball::Record` will have valid but unspecified values for the other record
+/// fields.
 bsl::shared_ptr<ball::Record> createRecord(const bsl::string&     message,
                                            ball::Severity::Level  severity,
                                            bslma::Allocator      *allocator)
-    // Return a newly created `ball::Record` having the specifed 'message' and
-    // 'severity', and using the specified 'allocator' to allocate memory.  The
-    // created 'ball::Record' will have valid but unspecified values for the other record
-    // fields.
 {
     bsl::shared_ptr<ball::Record> result =
         bsl::allocate_shared<ball::Record>(allocator);
@@ -255,10 +255,10 @@ bsl::shared_ptr<ball::Record> createRecord(const bsl::string&     message,
     return result;
 }
 
+/// Replace the second space character (' ') in the specified `input` string
+/// with the specified `value`.  Return the index position of the character
+/// that was replaced on success, and `bsl::string::npos` otherwise.
 bsl::string::size_type replaceSecondSpace(bsl::string *input, char value)
-    // Replace the second space character (' ') in the specified 'input' string
-    // with the specified 'value'.  Return the index position of the character
-    // that was replaced on success, and 'bsl::string::npos' otherwise.
 {
     bsl::string::size_type index = input->find(' ');
     if (bsl::string::npos != index) {
@@ -270,8 +270,8 @@ bsl::string::size_type replaceSecondSpace(bsl::string *input, char value)
     return index;
 }
 
+/// Return current local time as `bdlt::Datetime` value.
 bdlt::Datetime getCurrentTimestamp()
-    // Return current local time as 'bdlt::Datetime' value.
 {
     time_t    currentTime = time(0);
     struct tm localtm;
@@ -286,8 +286,8 @@ bdlt::Datetime getCurrentTimestamp()
     return stamp;
 }
 
+/// Remove the files with the specified `prefix`.
 void removeFilesByPrefix(const char *prefix)
-    // Remove the files with the specified 'prefix'.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     bsl::string filename(prefix);
@@ -344,9 +344,9 @@ void removeFilesByPrefix(const char *prefix)
 #endif
 }
 
+/// Read the content of a file with the specified `fileName` starting at the
+/// specified `startOffset` to the end-of-file and return it as a string.
 bsl::string readPartialFile(bsl::string& fileName, Offset startOffset)
-    // Read the content of a file with the specified 'fileName' starting at the
-    // specified 'startOffset' to the end-of-file and return it as a string.
 {
     bsl::string result;
     result.reserve(static_cast<bsl::string::size_type>(
@@ -370,9 +370,9 @@ bsl::string readPartialFile(bsl::string& fileName, Offset startOffset)
     return result;
 }
 
+/// Return the number of log records in a file with the specified
+/// `fileName`.
 int countLoggedRecords(const bsl::string& fileName)
-    // Return the number of log records in a file with the specified
-    // 'fileName'.
 {
     bsl::string   line;
     int           numLines = 0;
@@ -387,17 +387,17 @@ int countLoggedRecords(const bsl::string& fileName)
     }
     fs.close();
 
-    // Note that we divide 'numLines' by 2 because there are 2 lines written
+    // Note that we divide `numLines` by 2 because there are 2 lines written
     // to the log file for each logged record (when using the default record
     // formatter typically used in this test driver).
 
     return numLines / 2;
 }
 
+/// Wait (for up to 5 seconds) until the specified `observer` drains its
+/// record queue (by processing all pending log records).
 void waitEmptyRecordQueue(
                        bsl::shared_ptr<const ball::AsyncFileObserver> observer)
-    // Wait (for up to 5 seconds) until the specified 'observer' drains its
-    // record queue (by processing all pending log records).
 {
     bsls::Stopwatch timer;
     timer.start();
@@ -414,12 +414,12 @@ void waitEmptyRecordQueue(
     bslmt::ThreadUtil::microSleep(1000, 0);
 }
 
+/// This class can be used as a functor matching the signature of
+/// `ball::FileObserver2::OnFileRotationCallback`.  This class records every
+/// invocation of the function-call operator, and is intended to test
+/// whether `ball::FileObserver2` calls the log-rotation callback
+/// appropriately.
 class LogRotationCallbackTester {
-    // This class can be used as a functor matching the signature of
-    // 'ball::FileObserver2::OnFileRotationCallback'.  This class records every
-    // invocation of the function-call operator, and is intended to test
-    // whether 'ball::FileObserver2' calls the log-rotation callback
-    // appropriately.
 
     // PRIVATE TYPES
     struct Rep {
@@ -438,9 +438,10 @@ class LogRotationCallbackTester {
         BSLMF_NESTED_TRAIT_DECLARATION(Rep, bslma::UsesBslmaAllocator);
 
         // CREATORS
+
+        /// Create an object with default attribute values.  Use the
+        /// specified `basicAllocator` to supply memory.
         explicit Rep(bslma::Allocator *basicAllocator)
-            // Create an object with default attribute values.  Use the
-            // specified 'basicAllocator' to supply memory.
         : d_invocations(0)
         , d_status(0)
         , d_rotatedFileName(basicAllocator)
@@ -457,27 +458,29 @@ class LogRotationCallbackTester {
 
   public:
     // CREATORS
+
+    /// Create a callback tester object with default attribute values.  Use
+    /// the specified `basicAllocator` to supply memory.
     explicit LogRotationCallbackTester(bslma::Allocator *basicAllocator)
-        // Create a callback tester object with default attribute values.  Use
-        // the specified 'basicAllocator' to supply memory.
     {
         d_rep.createInplace(basicAllocator, basicAllocator);
         reset();
     }
 
     // MANIPULATORS
+
+    /// Set the value at the status address supplied at construction to the
+    /// specified `status`, and set the value at the log file name address
+    /// supplied at construction to the specified `rotatedFileName`.
     void operator()(int status, const bsl::string& rotatedFileName)
-        // Set the value at the status address supplied at construction to the
-        // specified 'status', and set the value at the log file name address
-        // supplied at construction to the specified 'rotatedFileName'.
     {
         ++d_rep->d_invocations;
         d_rep->d_status          = status;
         d_rep->d_rotatedFileName = rotatedFileName;
     }
 
+    /// Reset the attributes of this object to their default values.
     void reset()
-        // Reset the attributes of this object to their default values.
     {
         d_rep->d_invocations     = 0;
         d_rep->d_status          = k_UNINITIALIZED;
@@ -485,20 +488,21 @@ class LogRotationCallbackTester {
     }
 
     // ACCESSORS
+
+    /// Return the number of times that the function-call operator has been
+    /// invoked since the most recent call to `reset`, or if `reset` has
+    /// not been called, since this objects construction.
     int numInvocations() const { return d_rep->d_invocations; }
-        // Return the number of times that the function-call operator has been
-        // invoked since the most recent call to 'reset', or if 'reset' has
-        // not been called, since this objects construction.
 
+    /// Return the status passed to the most recent invocation of the
+    /// function-call operation, or `UNINITIALIZED` if `numInvocations` is
+    /// 0.
     int status() const { return d_rep->d_status; }
-        // Return the status passed to the most recent invocation of the
-        // function-call operation, or 'UNINITIALIZED' if 'numInvocations' is
-        // 0.
 
+    /// Return a `const` reference to the file name supplied to the most
+    /// recent invocation of the function-call operator, or the empty string
+    /// if `numInvocations` is 0.
     const bsl::string& rotatedFileName() const
-        // Return a 'const' reference to the file name supplied to the most
-        // recent invocation of the function-call operator, or the empty string
-        // if 'numInvocations' is 0.
     {
         return d_rep->d_rotatedFileName;
     }
@@ -512,9 +516,9 @@ typedef LogRotationCallbackTester RotCb;
 
 namespace BALL_ASYNCFILEOBSERVER_TEST_CONCURRENCY {
 
+/// Create the specified `numThreads`, each executing the specified `func`.
 void executeInParallel(int                                numThreads,
                        bslmt::ThreadUtil::ThreadFunction  function)
-    // Create the specified 'numThreads', each executing the specified 'func'.
 {
     bslmt::ThreadUtil::Handle *threads =
                                      new bslmt::ThreadUtil::Handle[numThreads];
@@ -580,16 +584,16 @@ extern "C" void *workerThread2(void *arg)
 
 namespace BALL_ASYNCFILEOBSERVER_RELEASERECORDS_TEST {
 
+/// Publish arbitrary log records to the specifeid `observer` until the
+/// specified `releaseCounter` is 0, using the specified `barrier` to
+/// synchronize the start and completetion of the publication of records.
+/// Note that this method is designed to be the entry point function of a
+/// thread that publishes many records, while a second thread in the
+/// corresponding `releaser` test function (below) concurrently calls the
+/// `releaseRecords` function.
 void publisher(ball::AsyncFileObserver *observer,
                bsls::AtomicInt         *releaseCounter,
                bslmt::Barrier          *barrier)
-    // Publish arbitrary log records to the specifeid 'observer' until the
-    // specified 'releaseCounter' is 0, using the specified 'barrier' to
-    // synchronize the start and completetion of the publication of records.
-    // Note that this method is designed to be the entry point function of a
-    // thread that publishes many records, while a second thread in the
-    // corresponding 'releaser' test function (below) concurrently calls the
-    // 'releaseRecords' function.
 {
     bsl::shared_ptr<ball::Record> record = createRecord(
         "test", ball::Severity::e_ERROR, bslma::Default::allocator());
@@ -602,17 +606,17 @@ void publisher(ball::AsyncFileObserver *observer,
     barrier->wait();
 }
 
+/// Call `releaseRecords` on the specified `observer` the specified
+/// `releaseCounter` number of times, each time decrementing
+/// `releaseCounter`; use the specified `barrier` to synchronize the start
+/// and completion of the series of calls to `releaseRecords`.  Note that
+/// this method is designed to be the entry point function of a thread that
+/// calls `releaseRecords` many times, while a second thread in the
+/// corresponding `publisher` test function (above) concurrently calls the
+/// `publish` function.
 void releaser(ball::AsyncFileObserver *observer,
               bsls::AtomicInt         *releaseCounter,
               bslmt::Barrier          *barrier)
-    // Call 'releaseRecords' on the specified 'observer' the specified
-    // 'releaseCounter' number of times, each time decrementing
-    // 'releaseCounter'; use the specified 'barrier' to synchronize the start
-    // and completion of the series of calls to 'releaseRecords'.  Note that
-    // this method is designed to be the entry point function of a thread that
-    // calls 'releaseRecords' many times, while a second thread in the
-    // corresponding 'publisher' test function (above) concurrently calls the
-    // 'publish' function.
 {
     barrier->wait();
     while (*releaseCounter > 0) {
@@ -648,13 +652,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -674,110 +678,110 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Publication Through the Logger Manager
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates using a 'ball::AsyncFileObserver' within the
-// 'ball' logging system.
+// This example demonstrates using a `ball::AsyncFileObserver` within the
+// `ball` logging system.
 //
-// First, we initialize the 'ball' logging subsystem with the default
+// First, we initialize the `ball` logging subsystem with the default
 // configuration:
-//..
+// ```
     ball::LoggerManagerConfiguration configuration;
     ball::LoggerManagerScopedGuard   guard(configuration);
 
     ball::LoggerManager& manager = ball::LoggerManager::singleton();
-//..
-// Note that the application is now prepared to log messages using the 'ball'
+// ```
+// Note that the application is now prepared to log messages using the `ball`
 // logging subsystem, but until the application registers an observer, all log
 // records will be discarded.
 //
-// Then, we create a shared pointer to a 'ball::AsyncFileObserver' object,
-// 'observer', having default attributes.  Note that a default-constructed
+// Then, we create a shared pointer to a `ball::AsyncFileObserver` object,
+// `observer`, having default attributes.  Note that a default-constructed
 // async file observer has a maximum (fixed) size of 8192 for its log record
 // queue and will drop incoming log records when that queue is full.  (See {Log
 // Record Queue} for further information.)
-//..
+// ```
     bsl::shared_ptr<ball::AsyncFileObserver> observer =
                                    bsl::make_shared<ball::AsyncFileObserver>();
-//..
-// Next, we set the required logging format by calling the 'setLogFormat'
+// ```
+// Next, we set the required logging format by calling the `setLogFormat`
 // method.  The statement below outputs timestamps in ISO 8601 format to a log
-// file and in 'bdlt'-style (default) format to 'stdout', where timestamps are
+// file and in `bdlt`-style (default) format to `stdout`, where timestamps are
 // output with millisecond precision in both cases:
-//..
+// ```
     observer->setLogFormat("%I %p:%t %s %f:%l %c %m\n",
                            "%d %p:%t %s %f:%l %c %m\n");
-//..
-// Note that both of the above format specifications omit user fields ('%u') in
+// ```
+// Note that both of the above format specifications omit user fields (`%u`) in
 // the output.  Also note that, unlike the default, this format does not emit a
 // blank line between consecutive log messages.
 //
-// Next, we start the publication thread by invoking 'startPublicationThread':
-//..
+// Next, we start the publication thread by invoking `startPublicationThread`:
+// ```
     observer->startPublicationThread();
-//..
+// ```
 // Then, we register the async file observer with the logger manager.  Upon
 // successful registration, the observer will start to receive log records via
-// the 'publish' method:
-//..
+// the `publish` method:
+// ```
     int rc = manager.registerObserver(observer, "asyncObserver");
     ASSERT(0 == rc);
-//..
+// ```
 // Next, we set the log category and log a few records with different logging
-// severity.  By default, only the records with 'e_WARN', 'e_ERROR', or
-// 'e_FATAL' severity will be logged to 'stdout'.  Note that logging to a file
+// severity.  By default, only the records with `e_WARN`, `e_ERROR`, or
+// `e_FATAL` severity will be logged to `stdout`.  Note that logging to a file
 // is not enabled by default:
-//..
+// ```
     BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
-    BALL_LOG_INFO << "Will not be published on 'stdout'.";
-    BALL_LOG_WARN << "This warning *will* be published on 'stdout'.";
-//..
-// Then, we change the default severity for logging to 'stdout' by calling the
-// 'setStdoutThreshold' method:
-//..
+    BALL_LOG_INFO << "Will not be published on `stdout`.";
+    BALL_LOG_WARN << "This warning *will* be published on `stdout`.";
+// ```
+// Then, we change the default severity for logging to `stdout` by calling the
+// `setStdoutThreshold` method:
+// ```
     observer->setStdoutThreshold(ball::Severity::e_INFO);
 
-    BALL_LOG_DEBUG << "This debug message is not published on 'stdout'.";
-    BALL_LOG_INFO  << "This info will be published on 'stdout'.";
-    BALL_LOG_WARN  << "This warning will be published on 'stdout'.";
-//..
-// Next, we disable logging to 'stdout' and enable logging to a file:
-//..
+    BALL_LOG_DEBUG << "This debug message is not published on `stdout`.";
+    BALL_LOG_INFO  << "This info will be published on `stdout`.";
+    BALL_LOG_WARN  << "This warning will be published on `stdout`.";
+// ```
+// Next, we disable logging to `stdout` and enable logging to a file:
+// ```
     observer->setStdoutThreshold(ball::Severity::e_OFF);
 
     observer->enableFileLogging(fileName.c_str());  // test driver only
-//..
+// ```
 // Note that logs are now asynchronously written to the file.
 //
 // Then, we specify rules for log file rotation based on the size and time
 // interval:
-//..
+// ```
     // Rotate the file when its size becomes greater than or equal to 32
     // megabytes.
     observer->rotateOnSize(1024 * 32);
 
     // Rotate the file every 24 hours.
     observer->rotateOnTimeInterval(bdlt::DatetimeInterval(1));
-//..
+// ```
 // Note that in this configuration the user may end up with multiple log files
 // for a specific day (because of the rotation-on-size rule).
 //
 // Next, we demonstrate how to correctly shut down the async file observer.  We
 // first stop the publication thread by explicitly calling the
-// 'stopPublicationThread' method.  This method blocks until all the log
-// records that were on the record queue on entry to 'stopPublicationThread'
+// `stopPublicationThread` method.  This method blocks until all the log
+// records that were on the record queue on entry to `stopPublicationThread`
 // have been published:
-//..
+// ```
     observer->stopPublicationThread();
-//..
+// ```
 // Then, we disable the log rotation rules established earlier and also
 // completely disable logging to a file:
-//..
+// ```
     observer->disableSizeRotation();
 
     observer->disableTimeIntervalRotation();
 
     observer->disableFileLogging();
-//..
+// ```
 // Note that stopping the publication thread and disabling various features of
 // the async file observer is not strictly necessary before object destruction.
 // In particular, if a publication thread is still running when the destructor
@@ -786,12 +790,12 @@ int main(int argc, char *argv[])
 // async file observer.  In any case, all resources managed by the async file
 // observer will be released when the object is destroyed.
 //
-// Finally, we can deregister our async file observer from the 'ball' logging
+// Finally, we can deregister our async file observer from the `ball` logging
 // subsystem entirely (and destroy the observer later):
-//..
+// ```
     rc = manager.deregisterObserver("asyncObserver");
     ASSERT(0 == rc);
-//..
+// ```
 
       } break;
       case 14: {
@@ -799,13 +803,13 @@ int main(int argc, char *argv[])
         // TESTING SUPPRESS UNIQUE FILE NAME ON ROTATION
         //
         // Concerns:
-        //: 1 'suppressUniqueFileNameOnRotation(true)' suppresses unique
-        //:   filename generation for the rotated log file on rotation.
+        // 1. `suppressUniqueFileNameOnRotation(true)` suppresses unique
+        //    filename generation for the rotated log file on rotation.
         //
         // Plan:
-        //:  Call 'suppressUniqueFileNameOnRotation(true)'.  Force rotation and
-        //:  ensure that the rotation took place and the log file name and
-        //:  rotated filename are the same.
+        //   Call `suppressUniqueFileNameOnRotation(true)`.  Force rotation and
+        //   ensure that the rotation took place and the log file name and
+        //   rotated filename are the same.
         //
         // Testing:
         //   CONCERN: suppressUniqueFileNameOnRotation(bool);
@@ -882,19 +886,19 @@ int main(int argc, char *argv[])
         // Test case for DRQS 165535115.
         //
         // Concerns:
-        //:  1 No memory refering to records remains after a call to
-        //:    'releaseRecords'.  This includes the publication thread
-        //:    holding a (still valid shared_ptr) to a record it is
-        //:    activel published.  Note that, on destruction, the logger
-        //:    manager destroys its pool of memory for records after calling
-        //:    'releaseRecords' (so any 'shared_ptr' objects will refer to
-        //:    deallocated memory, even if they remain valid).
+        //  1. No memory refering to records remains after a call to
+        //     `releaseRecords`.  This includes the publication thread
+        //     holding a (still valid shared_ptr) to a record it is
+        //     activel published.  Note that, on destruction, the logger
+        //     manager destroys its pool of memory for records after calling
+        //     `releaseRecords` (so any `shared_ptr` objects will refer to
+        //     deallocated memory, even if they remain valid).
         //
         // Plan:
-        //:  1 Create a async-file observer, and publish a series a
-        //:    of shared_ptr<Record> objects allocated from a memory
-        //:    pool.  Call 'releaseRecords' and then destroy the pool, without
-        //:    stopping the publication thread.
+        //  1. Create a async-file observer, and publish a series a
+        //     of shared_ptr<Record> objects allocated from a memory
+        //     pool.  Call `releaseRecords` and then destroy the pool, without
+        //     stopping the publication thread.
         //
         // Testing:
         //   CONCERN: MEMORY ACCESS AFTER RELEASERECORDS
@@ -933,7 +937,7 @@ int main(int argc, char *argv[])
                 record.reset();
                 mX.releaseRecords();
 
-                // NOTE: Test allocator 'ra' will be destroyed here while the
+                // NOTE: Test allocator `ra` will be destroyed here while the
                 // publication thread continues.
 
                 delete ra;
@@ -945,16 +949,16 @@ int main(int argc, char *argv[])
         // CONCERN: DEADLOCK ON RELEASERECORDS (DRQS 164688087)
         //
         // Concerns:
-        //:  1 When the queue of an async-file observer is almost full,
-        //:    calling 'releaseRecords' will not block the task
-        //:    (previously 'stopThread' would use 'pushBack' which would
-        //:    block when the queue is full).
+        //  1. When the queue of an async-file observer is almost full,
+        //     calling `releaseRecords` will not block the task
+        //     (previously `stopThread` would use `pushBack` which would
+        //     block when the queue is full).
         //
         // Plan:
-        //:  1 Create a async-file observer with a very small queue.  Start
-        //:    one thread publishing records (filling the queue), start
-        //:    a second thread calling 'releaseRecords', which attempts
-        //:    to start and then re-start the publication thread. (C-1)
+        //  1. Create a async-file observer with a very small queue.  Start
+        //     one thread publishing records (filling the queue), start
+        //     a second thread calling `releaseRecords`, which attempts
+        //     to start and then re-start the publication thread. (C-1)
         //
         // Testing:
         //   CONCERN: DEADLOCK ON RELEASERECORDS (DRQS 164688087)
@@ -1001,7 +1005,7 @@ int main(int argc, char *argv[])
 
         if (0 != rc) {
             ASSERTV(0 &&
-                    "FAILURE: case 12 'releaseRecords' timed out (deadlock?)");
+                    "FAILURE: case 12 `releaseRecords` timed out (deadlock?)");
             bsl::exit(testStatus);
         }
 
@@ -1013,46 +1017,46 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'recordQueueLength'
-        //  Note that this is a white box text, in that 'recordQueueLength'
-        //  delegates to 'bdlcc_fixedqueue'.  This test verifies that records
+        // TESTING `recordQueueLength`
+        //  Note that this is a white box text, in that `recordQueueLength`
+        //  delegates to `bdlcc_fixedqueue`.  This test verifies that records
         //  are added from and removed from the queue correctly (and the length
         //  reflects the queue size), and a sanity test for concurrent access.
         //  Exhaustive testing of the thread-safety is left to
-        //  'bdlcc_fixedqueue'.
+        //  `bdlcc_fixedqueue`.
         //
         // Concerns:
-        //:  1 'recordQueueLength' returns the current number of log records
-        //:    that have been published, but not yet written to the file log.
-        //:
-        //:  2 That 'recordQueueLength' may be called concurrently with record
-        //:    publication.
+        //  1. `recordQueueLength` returns the current number of log records
+        //     that have been published, but not yet written to the file log.
+        //
+        //  2. That `recordQueueLength` may be called concurrently with record
+        //     publication.
         //
         // Plan:
-        //:  1 Create a async-file observer, publish a series of records,
-        //:    and verify the updated 'recordQueueLength' correctly increments
-        //:    as records are published.  Start asynchronous record
-        //:    publication, then stop it, and verify the length of the record
-        //:    queue reflects the number of records that have been published
-        //:    to the log file (and removed from the queue). (C-1)
-        //:
-        //:  2 Create a async-file observer, start asynchronous publication,
-        //:    and, for a number of iterations, publish a series of records,
-        //:    and then repeatedly call 'recordQueueLength' and sanity test
-        //:    the returned value (it should be decreasing) until the record
-        //:    queue is empty. (C-2)
+        //  1. Create a async-file observer, publish a series of records,
+        //     and verify the updated `recordQueueLength` correctly increments
+        //     as records are published.  Start asynchronous record
+        //     publication, then stop it, and verify the length of the record
+        //     queue reflects the number of records that have been published
+        //     to the log file (and removed from the queue). (C-1)
+        //
+        //  2. Create a async-file observer, start asynchronous publication,
+        //     and, for a number of iterations, publish a series of records,
+        //     and then repeatedly call `recordQueueLength` and sanity test
+        //     the returned value (it should be decreasing) until the record
+        //     queue is empty. (C-2)
         //
         // Testing:
         //   int recordQueueLength() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'recordQueueLength'."
+        if (verbose) cout << "\nTESTING `recordQueueLength`."
                           << "\n============================" << endl;
 
         const int ERROR = ball::Severity::e_ERROR;
 
         if (veryVerbose) {
-            cout << "\tTesting basic 'recordQueueLength' behavior" << endl;
+            cout << "\tTesting basic `recordQueueLength` behavior" << endl;
         }
         {
             bdls::TempDirectoryGuard tempDirGuard("ball_");
@@ -1104,7 +1108,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose) {
-            cout << "\tCall 'recordQueueLength' concurrently with publication"
+            cout << "\tCall `recordQueueLength` concurrently with publication"
                  << endl;
         }
         {
@@ -1165,14 +1169,14 @@ int main(int argc, char *argv[])
         // TESTING CONCURRENT PUBLICATION
         //
         // Concerns:
-        //:  1 Concurrent calls to 'publish' should work correctly that writes
-        //:    records from different threads into same log file in defined
-        //:    format.
+        //  1. Concurrent calls to `publish` should work correctly that writes
+        //     records from different threads into same log file in defined
+        //     format.
         //
         // Plan:
-        //:  1 Concurrently invoke 'publish' of a fair large amount of records
-        //:    from threads.  Verify that all the records from all threads are
-        //:    written into log file and the format is not broken.
+        //  1. Concurrently invoke `publish` of a fair large amount of records
+        //     from threads.  Verify that all the records from all threads are
+        //     written into log file and the format is not broken.
         //
         // Testing:
         //   CONCERN: CONCURRENT PUBLICATION
@@ -1249,18 +1253,18 @@ int main(int argc, char *argv[])
         // TESTING TIME-BASED ROTATION
         //
         // Concern:
-        //: 1 'rotateOnTimeInterval' correctly forward call to
-        //:   'ball::FileObserver2'.
+        // 1. `rotateOnTimeInterval` correctly forward call to
+        //    `ball::FileObserver2`.
         //
         // Plan:
-        //: 1 Setup test infrastructure.
-        //:
-        //: 2 Call 'rotateOnTimeInterval' with a large interval and a reference
-        //:   time such that the next rotation will occur soon.  Verify that
-        //:   rotation occurs on the scheduled time.
-        //:
-        //: 3 Call 'disableTimeIntervalRotation' and verify that no rotation
-        //:   occurs afterwards.
+        // 1. Setup test infrastructure.
+        //
+        // 2. Call `rotateOnTimeInterval` with a large interval and a reference
+        //    time such that the next rotation will occur soon.  Verify that
+        //    rotation occurs on the scheduled time.
+        //
+        // 3. Call `disableTimeIntervalRotation` and verify that no rotation
+        //    occurs afterwards.
         //
         // Testing:
         //   CONCERN: ROTATION
@@ -1352,7 +1356,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (veryVerbose) cout << "Testing 'disableTimeIntervalRotation'"
+        if (veryVerbose) cout << "Testing `disableTimeIntervalRotation`"
                               << endl;
         {
             cb.reset();
@@ -1373,20 +1377,20 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'setOnFileRotationCallback'
+        // TESTING `setOnFileRotationCallback`
         //
         // Concerns:
-        //: 1 'setOnFileRotationCallback' is properly forwarded to the
-        //:   corresponding function in 'ball::FileObserver2'
+        // 1. `setOnFileRotationCallback` is properly forwarded to the
+        //    corresponding function in `ball::FileObserver2`
         //
         // Plan:
-        //: 1 Setup callback with 'setOnFileRotationCallback' and verify that
-        //:   the callback is invoked on rotation.
+        // 1. Setup callback with `setOnFileRotationCallback` and verify that
+        //    the callback is invoked on rotation.
         //
         // Testing:
         //  void setOnFileRotationCallback(const OnFileRotationCallback&);
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTESTING 'setOnFileRotationCallback'."
+        if (verbose) cout << "\nTESTING `setOnFileRotationCallback`."
                           << "\n====================================" << endl;
 
         // Create temporary directory for log files.
@@ -1414,10 +1418,10 @@ int main(int argc, char *argv[])
         // TESTING LOGGING TO A FAILING STREAM
         //
         // Concerns:
-        //: 1 Logging can be done to a stream that fails.
+        // 1. Logging can be done to a stream that fails.
         //
         // Plan:
-        //: 1 Emulate stream failure.
+        // 1. Emulate stream failure.
         //
         // Testing:
         //   CONCERN: LOGGING TO A FAILING STREAM
@@ -1427,7 +1431,7 @@ int main(int argc, char *argv[])
                           << "\n====================================" << endl;
 
 #if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_CYGWIN)
-        // 'setrlimit' is not implemented on Cygwin.
+        // `setrlimit` is not implemented on Cygwin.
 
         // Don't run this if we're in the debugger because the debugger stops
         // and refuses to continue when we hit the file size limit.
@@ -1479,7 +1483,7 @@ int main(int argc, char *argv[])
 
             // We want to capture the error message that will be written to
             // stderr (not cerr).  Redirect stderr to a file.  We can't
-            // redirect it back; we'll have to use 'ASSERT2' (which outputs to
+            // redirect it back; we'll have to use `ASSERT2` (which outputs to
             // cout, not cerr) from now on and report a summary to cout at the
             // end of this case.
 
@@ -1527,17 +1531,17 @@ int main(int argc, char *argv[])
         // TESTING FILE ROTATION
         //
         // Concerns:
-        //:  1 'rotateOnSize' triggers a rotation when expected.
-        //:  2 'disableSizeRotation' disables rotation on size
-        //:  3 'forceRotation' triggers a rotation
-        //:  4 'rotateOnTimeInterval' triggers a rotation when expected
-        //:  5 'disableTimeIntervalRotation' disables rotation on lifetime
+        //  1. `rotateOnSize` triggers a rotation when expected.
+        //  2. `disableSizeRotation` disables rotation on size
+        //  3. `forceRotation` triggers a rotation
+        //  4. `rotateOnTimeInterval` triggers a rotation when expected
+        //  5. `disableTimeIntervalRotation` disables rotation on lifetime
         //
         // Plan:
-        //:  1 We will exercise both rotation rules to verify that they work
-        //:    properly using glob to count the files and proper timing.  We
-        //:    also verify that the size rule is followed by checking the size
-        //:    of log files.
+        //  1. We will exercise both rotation rules to verify that they work
+        //     properly using glob to count the files and proper timing.  We
+        //     also verify that the size rule is followed by checking the size
+        //     of log files.
         //
         // Testing:
         //   void disableTimeIntervalRotation();
@@ -1868,29 +1872,29 @@ int main(int argc, char *argv[])
         // TESTING LOG RECORDS DROP
         //
         // Concerns:
-        //:  1 Asynchronous observer is configured to drop records when the
-        //:    fixed queue is full by default.  An alert should be printed to
-        //:    the logfile for all dropped records.  This alert should not be
-        //:    printed excessively.  (Specifically, it should be printed when
-        //:    the queue is half empty or the count has reached a threshold).
-        //:
-        //:  2 Asynchronous observer can be configured to block the caller of
-        //:    'publish'  when the fixed queue is full instead of dropping
-        //:    records.  In that case no record should be dropped.
-        //:
-        //:  3 Note, this test can be run as a negative test case.  Doing so
-        //:    will preserve the logfiles.
+        //  1. Asynchronous observer is configured to drop records when the
+        //     fixed queue is full by default.  An alert should be printed to
+        //     the logfile for all dropped records.  This alert should not be
+        //     printed excessively.  (Specifically, it should be printed when
+        //     the queue is half empty or the count has reached a threshold).
+        //
+        //  2. Asynchronous observer can be configured to block the caller of
+        //     `publish`  when the fixed queue is full instead of dropping
+        //     records.  In that case no record should be dropped.
+        //
+        //  3. Note, this test can be run as a negative test case.  Doing so
+        //     will preserve the logfiles.
         //
         // Plan:
-        //:  1 To test non-blocking caller thread, we will first create an
-        //:    async file observer. Then publish a fair large amount of
-        //:    records.  We verify dropped records alerts being raised.
-        //:
-        //:  2 To test blocking caller thread, we will first create an async
-        //:    file observer by passing 'true' in the 'blocking' parameter.
-        //:    Then publish a fairly large amount of records.  We verify all
-        //:    the records published are actually written to file and nothing
-        //:    gets dropped.
+        //  1. To test non-blocking caller thread, we will first create an
+        //     async file observer. Then publish a fair large amount of
+        //     records.  We verify dropped records alerts being raised.
+        //
+        //  2. To test blocking caller thread, we will first create an async
+        //     file observer by passing `true` in the `blocking` parameter.
+        //     Then publish a fairly large amount of records.  We verify all
+        //     the records published are actually written to file and nothing
+        //     gets dropped.
         //
         // Testing:
         //   AsyncFileObserver(Severity::Level, bool, int, bslma::Allocator *);
@@ -2005,21 +2009,21 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'releaseRecords'
+        // TESTING `releaseRecords`
         //
         // Concerns:
-        //:  1 The 'releaseRecords' method clears all shared pointers in async
-        //:    file observer's fixed queue without logging them.
+        //  1. The `releaseRecords` method clears all shared pointers in async
+        //     file observer's fixed queue without logging them.
         //
         // Plan:
-        //:  1 We will first create an async file observer and a logger manager
-        //:    with limited life-time through scoped guard.  Then publish a
-        //:    fairly large amount of records after which let the scoped guard
-        //:    run out of scope immediately.  The logger manager will be
-        //:    released and it should call the 'releaseRecords' method of async
-        //:    file observer before destruction.  We verify the
-        //:    'releaseRecords' being called and clears the fixed queue
-        //:    immediately.
+        //  1. We will first create an async file observer and a logger manager
+        //     with limited life-time through scoped guard.  Then publish a
+        //     fairly large amount of records after which let the scoped guard
+        //     run out of scope immediately.  The logger manager will be
+        //     released and it should call the `releaseRecords` method of async
+        //     file observer before destruction.  We verify the
+        //     `releaseRecords` being called and clears the fixed queue
+        //     immediately.
         //
         // Helper Function:
         //   The helper function is run as a child task with stdout redirected
@@ -2032,7 +2036,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   void releaseRecords();
         // --------------------------------------------------------------------
-        if (verbose) cerr << "\nTESTING 'releaseRecords'"
+        if (verbose) cerr << "\nTESTING `releaseRecords`"
                           << "\n========================" << endl;
 
         bslma::TestAllocator ta;
@@ -2096,13 +2100,13 @@ int main(int argc, char *argv[])
                 // After this code block the logger manager will be destroyed.
             }
 
-            // The 'releaseRecords' method should clear the queue immediately.
+            // The `releaseRecords` method should clear the queue immediately.
 
             ASSERTV(record.use_count(), record.use_count() == 1);
 
             mX->stopPublicationThread();
 
-            // Check that the records cleared by 'releaseRecords' do not get
+            // Check that the records cleared by `releaseRecords` do not get
             // published.
 
             int actuallyLogged = countLoggedRecords(stdoutFileName);
@@ -2115,18 +2119,18 @@ int main(int argc, char *argv[])
         // TESTING PUBLICATION THREAD
         //
         // Concerns:
-        //: 1 Publication thread can be started/stopped and shutdown at any
-        //:   object state.
-        //:
-        //: 2 Shutdown of the publication thread also drain all log records
-        //:   held in the internal queue.
+        // 1. Publication thread can be started/stopped and shutdown at any
+        //    object state.
+        //
+        // 2. Shutdown of the publication thread also drain all log records
+        //    held in the internal queue.
         //
         // Plan:
-        //: 1 Start/stop/shutdown the publication thread at various initial
-        //:   object states.
-        //:
-        //: 2 Verify that the after publication thread is shutdown, there are
-        //:   no log records held by the object.
+        // 1. Start/stop/shutdown the publication thread at various initial
+        //    object states.
+        //
+        // 2. Verify that the after publication thread is shutdown, there are
+        //    no log records held by the object.
         //
         // Testing:
         //   void startPublicationThread();
@@ -2218,50 +2222,50 @@ int main(int argc, char *argv[])
         // TESTING CREATORS
         //
         // Concerns:
-        //: 1 An object created with the default and value constructor (with or
-        //:   without a supplied allocator) has the contractually specified
-        //:   value.
-        //:
-        //: 2 If an allocator is NOT supplied to the constructor, the default
-        //:   allocator in effect at the time of construction becomes the
-        //:   object allocator for the resulting object.
-        //:
-        //: 3 If an allocator IS supplied to the constructor, that allocator
-        //:   becomes the object allocator for the resulting object.
-        //:
-        //: 4 Supplying a null allocator address has the same effect as not
-        //:   supplying an allocator.
-        //:
-        //: 5 Supplying an allocator to the constructor has no effect on
-        //:   subsequent object values.
-        //:
-        //: 6 Any memory allocation is from the object allocator.
-        //:
-        //: 7 Every object releases any allocated memory at destruction.
+        // 1. An object created with the default and value constructor (with or
+        //    without a supplied allocator) has the contractually specified
+        //    value.
+        //
+        // 2. If an allocator is NOT supplied to the constructor, the default
+        //    allocator in effect at the time of construction becomes the
+        //    object allocator for the resulting object.
+        //
+        // 3. If an allocator IS supplied to the constructor, that allocator
+        //    becomes the object allocator for the resulting object.
+        //
+        // 4. Supplying a null allocator address has the same effect as not
+        //    supplying an allocator.
+        //
+        // 5. Supplying an allocator to the constructor has no effect on
+        //    subsequent object values.
+        //
+        // 6. Any memory allocation is from the object allocator.
+        //
+        // 7. Every object releases any allocated memory at destruction.
         //
         // Plan:
-        //: 1 Using a loop-based approach, construct distinct objects, in turn,
-        //:   but configured differently: (a) without passing an allocator, (b)
-        //:   passing a null allocator address explicitly, and (c) passing the
-        //:   address of a test allocator distinct from the default.  For each
-        //:   of these iterations:  (C-1..8)
-        //:
-        //:   1 Create three 'bslma::TestAllocator' objects, and install one as
-        //:     the current default allocator (note that a ubiquitous test
-        //:     allocator is already installed as the global allocator).
-        //:
-        //:   2 Use a constructor to dynamically create an object 'X', with its
-        //:     object allocator configured appropriately (see P-1); use a
-        //:     distinct test allocator for the object's footprint.
-        //:
-        //:   4 Use the appropriate test allocators to verify that memory is
-        //:     allocated by the correct allocator.  (C-2..4,6)
-        //:
-        //:   5 Use the individual (as yet unproven) salient attribute
-        //:     accessors to verify the constructed value.  (C-1,5)
-        //:
-        //:   6 Verify that all object memory is released when the object is
-        //:     destroyed.  (C-7)
+        // 1. Using a loop-based approach, construct distinct objects, in turn,
+        //    but configured differently: (a) without passing an allocator, (b)
+        //    passing a null allocator address explicitly, and (c) passing the
+        //    address of a test allocator distinct from the default.  For each
+        //    of these iterations:  (C-1..8)
+        //
+        //   1. Create three `bslma::TestAllocator` objects, and install one as
+        //      the current default allocator (note that a ubiquitous test
+        //      allocator is already installed as the global allocator).
+        //
+        //   2. Use a constructor to dynamically create an object `X`, with its
+        //      object allocator configured appropriately (see P-1); use a
+        //      distinct test allocator for the object's footprint.
+        //
+        //   4. Use the appropriate test allocators to verify that memory is
+        //      allocated by the correct allocator.  (C-2..4,6)
+        //
+        //   5. Use the individual (as yet unproven) salient attribute
+        //      accessors to verify the constructed value.  (C-1,5)
+        //
+        //   6. Verify that all object memory is released when the object is
+        //      destroyed.  (C-7)
         //
         // Testing:
         //   AsyncFileObserver(bslma::Allocator *);
@@ -2370,44 +2374,44 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //:  1 The publication thread starts and stops properly
-        //:
-        //:  2 Records are published asynchronously
-        //:
-        //:  3 The 'publish' method logs in the expected format using
-        //:    enable/disableStdoutLogging
-        //:
-        //:  4 The 'publish' method properly ignores the severity below the one
-        //:    specified at construction on 'stdout'
-        //:
-        //:  5 The 'publish' publishes all messages to a file if file logging
-        //:    is enabled
-        //:
-        //:  6 The name of the log file should be in accordance with what is
-        //:    defined by the given pattern if file logging is enabled by a
-        //:    pattern
-        //:
-        //:  7 The 'setLogFormat' method can change to the desired output
-        //:    format for both 'stdout' and the log file
+        //  1. The publication thread starts and stops properly
+        //
+        //  2. Records are published asynchronously
+        //
+        //  3. The `publish` method logs in the expected format using
+        //     enable/disableStdoutLogging
+        //
+        //  4. The `publish` method properly ignores the severity below the one
+        //     specified at construction on `stdout`
+        //
+        //  5. The `publish` publishes all messages to a file if file logging
+        //     is enabled
+        //
+        //  6. The name of the log file should be in accordance with what is
+        //     defined by the given pattern if file logging is enabled by a
+        //     pattern
+        //
+        //  7. The `setLogFormat` method can change to the desired output
+        //     format for both `stdout` and the log file
         //
         // Plan:
-        //:  1 First, we setup up an observer and call 'startPublicationThread'
-        //:    and 'stopPublicationThread' a couple of times to verify the
-        //:    publication thread starts and stops as expected.
-        //:
-        //:  2 Then, we directly call 'publish' method to verify the
-        //:    publication is indeed asynchronous.  This is done by checking
-        //:    records being written even after the 'publish' methods are done
-        //:    invoked.
-        //:
-        //:  3 Last, we will set up the observer and check if logged messages
-        //:    are in the expected format and contain the expected data by
-        //:    comparing the output of this observer with
-        //:    'ball::StreamObserver', that we slightly modify.  Then, we will
-        //:    configure the observer to ignore different severity and test if
-        //:    only the expected messages are published.  We will use different
-        //:    manipulators to affect output format and verify that it has
-        //:    changed where expected.
+        //  1. First, we setup up an observer and call `startPublicationThread`
+        //     and `stopPublicationThread` a couple of times to verify the
+        //     publication thread starts and stops as expected.
+        //
+        //  2. Then, we directly call `publish` method to verify the
+        //     publication is indeed asynchronous.  This is done by checking
+        //     records being written even after the `publish` methods are done
+        //     invoked.
+        //
+        //  3. Last, we will set up the observer and check if logged messages
+        //     are in the expected format and contain the expected data by
+        //     comparing the output of this observer with
+        //     `ball::StreamObserver`, that we slightly modify.  Then, we will
+        //     configure the observer to ignore different severity and test if
+        //     only the expected messages are published.  We will use different
+        //     manipulators to affect output format and verify that it has
+        //     changed where expected.
         //
         // Helper Function:
         //   The helper function is run as a child task with stdout redirected
@@ -2515,7 +2519,7 @@ int main(int argc, char *argv[])
                 cout << "FileOffset after publish: " << afterFileOffset
                      << endl;
 
-            // Verify writing is in process even after all 'publish' calls are
+            // Verify writing is in process even after all `publish` calls are
             // finished.
 
             bslmt::ThreadUtil::microSleep(0, 1);
@@ -3385,7 +3389,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == manager.deregisterObserver("asyncObserver"));
         }
 
-        if (verbose) cerr << "Testing '%%' in file name pattern." << endl;
+        if (verbose) cerr << "Testing `%%` in file name pattern." << endl;
         {
             static const struct {
                 int         d_lineNum;           // source line number
@@ -3457,7 +3461,7 @@ int main(int argc, char *argv[])
 
             BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
-            // Redirect 'stdout' to a string stream.
+            // Redirect `stdout` to a string stream.
 
             {
                 bsl::string baseName(tempDirGuard.getTempDirName());

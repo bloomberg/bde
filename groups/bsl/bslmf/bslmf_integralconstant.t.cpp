@@ -22,7 +22,7 @@ using namespace BloombergLP;
 // interface to the (public static) value of the object.
 //
 // Basic Accessors:
-//: o 'operator TYPE() const'
+//  - `operator TYPE() const`
 //
 // Although it is an empty class, an instantiation is nevertheless
 // default-constructible, copy-constructible and assignable.  The class is not
@@ -30,17 +30,17 @@ using namespace BloombergLP;
 // no-ops and there is no equality comparison operator.
 //
 // Global Concerns:
-//: o The test driver is robust w.r.t. reuse in other, similar components.
-//: o The template can be instantiated with different integer types.
-//: o The template can be instantiated with different integer values,
-//:   including min and max values for the instance type.
-//: o ACCESSOR methods are declared 'const'.
+//  - The test driver is robust w.r.t. reuse in other, similar components.
+//  - The template can be instantiated with different integer types.
+//  - The template can be instantiated with different integer values,
+//    including min and max values for the instance type.
+//  - ACCESSOR methods are declared `const`.
 //
 // Global Assumption:
-//: o The component under test does not allocate memory from the heap or from
-//:   any allocator.
-//: o All operations a fully thread safe (because there is no runtime code
-//:   executed).
+//  - The component under test does not allocate memory from the heap or from
+//    any allocator.
+//  - All operations a fully thread safe (because there is no runtime code
+//    executed).
 // ----------------------------------------------------------------------------
 // VARIABLES:
 // [ 3] const TYPE value;
@@ -64,11 +64,11 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 5] USAGE EXAMPLE
-// [ 4] CONCERN: '{true|false}_type::VALUE' is deprecated
+// [ 4] CONCERN: `{true|false}_type::VALUE` is deprecated
 // [ 3] CONCERN: The template can be instantiated with different integer types.
 // [ 3] CONCERN: The template can be instantiated with different integer
 //      values, including min and max values for the instance type.
-// [ 3] CONCERN: ACCESSOR methods are declared 'const'.
+// [ 3] CONCERN: ACCESSOR methods are declared `const`.
 //
 // TEST APPARATUS
 // [ 2] IsSameType<class A, class B>
@@ -132,27 +132,27 @@ struct DummyType
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Provide a member enum `VALUE` that has a true value if `A` and `B` are
+/// the same type and a false value otherwise.
 template <class A, class B>
 struct IsSameType
 {
-    // Provide a member enum 'VALUE' that has a true value if 'A' and 'B' are
-    // the same type and a false value otherwise.
 
     enum { VALUE = false };
 };
 
+/// Provide a member enum `VALUE` that has a true value if `A` and `B` are
+/// the same type and a false value otherwise.
 template <class A>
 struct IsSameType<A, A>
 {
-    // Provide a member enum 'VALUE' that has a true value if 'A' and 'B' are
-    // the same type and a false value otherwise.
 
     enum { VALUE = true };
 };
 
+/// Return `true` if the specified argument is `const` and false otherwise.
 template <class T> inline bool isConst(T&) { return false; }
 template <class T> inline bool isConst(const T&) { return true; }
-    // Return 'true' if the specified argument is 'const' and false otherwise.
 
 //=============================================================================
 //                  CODE FOR TESTING USAGE EXAMPLES
@@ -168,13 +168,13 @@ template <class T> inline bool isConst(const T&) { return true; }
 // dispatching based on a compile-time calculation.  Often the calculation is
 // nothing more than a simple predicate, allowing us to select one of two
 // functions based on whether the predicate holds.  The following function,
-// 'doSomething', uses a fast implementation (e.g., using 'memcpy') if the
+// `doSomething`, uses a fast implementation (e.g., using `memcpy`) if the
 // parameterized type allows for such operations, otherwise it will use a more
 // generic and slower implementation (e.g., using the copy constructor).  This
-// example uses the types 'true_type' and 'false_type', which are simple
-// typedefs for 'integral_constant<bool, true>' and
-// 'integral_constant<bool, false>', respectively.
-//..
+// example uses the types `true_type` and `false_type`, which are simple
+// typedefs for `integral_constant<bool, true>` and
+// `integral_constant<bool, false>`, respectively.
+// ```
       #include <bslmf_integralconstant.h>
 
       template <class t_T>
@@ -189,7 +189,7 @@ template <class T> inline bool isConst(const T&) { return true; }
       template <class t_T>
       int doSomethingImp(t_T *t, bsl::false_type)
       {
-          // fast implementation that works only for some types of 't_T'
+          // fast implementation that works only for some types of `t_T`
           // ...
           (void) t;
           return 55;
@@ -199,15 +199,15 @@ template <class T> inline bool isConst(const T&) { return true; }
       int doSomething(t_T *t)
       {
           // Dispatch to an implementation depending on the (compile-time)
-          // value of 'IsSlow'.
+          // value of `IsSlow`.
           return doSomethingImp(t, bsl::integral_constant<bool, IsSlow>());
       }
-//..
-// For some parameter types, the fast version of 'doSomethingImp' is not
+// ```
+// For some parameter types, the fast version of `doSomethingImp` is not
 // legal.  The power of this approach is that the compiler will not attempt
 // semantic analysis on the implementation that does not match the appropriate
-// 'integral_constant' argument.
-//..
+// `integral_constant` argument.
+// ```
       int usageExample1()
       {
           int r;
@@ -222,32 +222,32 @@ template <class T> inline bool isConst(const T&) { return true; }
 
           return 0;
       }
-//..
+// ```
 ///Example 2: Base class for metafunctions
 /// - - - - - - - - - - - - - - - - - - -
-// Hard-coding the value of an 'integral_constant' is not especially useful.
-// Rather, 'integral_constant' is typically used as the base class for
+// Hard-coding the value of an `integral_constant` is not especially useful.
+// Rather, `integral_constant` is typically used as the base class for
 // "metafunction" classes, classes that yield the value of compile-time
 // properties, including properties that are associated with types, rather
 // than with values.  For example, the following metafunction can be used at
 // compile time to determine whether a type is a floating point type:
-//..
+// ```
       template <class TYPE> struct IsFloatingPoint    : bsl::false_type { };
       template <> struct IsFloatingPoint<float>       : bsl::true_type { };
       template <> struct IsFloatingPoint<double>      : bsl::true_type { };
       template <> struct IsFloatingPoint<long double> : bsl::true_type { };
-//..
-// The value 'IsFloatingPoint<int>::value' is false and
-// 'IsFloatingPoint<double>::value' is true.  The 'integral_constant' base
-// class has a member type, 'type', that refers to itself and is inherited by
-// 'IsFloatingPoint'. Thus 'IsFloatingPoint<float>::type' is 'true_type' and
-// 'IsFloatingPoint<char>::type' is 'false_type'.  'IsFloatingPoint' is an a
+// ```
+// The value `IsFloatingPoint<int>::value` is false and
+// `IsFloatingPoint<double>::value` is true.  The `integral_constant` base
+// class has a member type, `type`, that refers to itself and is inherited by
+// `IsFloatingPoint`. Thus `IsFloatingPoint<float>::type` is `true_type` and
+// `IsFloatingPoint<char>::type` is `false_type`.  `IsFloatingPoint` is an a
 // member of a common category of metafunctions known as "type traits" because
 // they express certain properties (traits) of a type.  Using this
-// metafunction, we can rewrite the 'doSomething' function from first example
-// so that it does not require the user to specify the 'IsSlow' template
+// metafunction, we can rewrite the `doSomething` function from first example
+// so that it does not require the user to specify the `IsSlow` template
 // argument:
-//..
+// ```
       template <class t_T>
       int doSomething2(t_T *t)
       {
@@ -270,7 +270,7 @@ template <class T> inline bool isConst(const T&) { return true; }
 
           return 0;
       }
-//..
+// ```
 
 //=============================================================================
 //                   FUNCTIONS FOR INDIVIDUAL TEST CASES
@@ -281,15 +281,15 @@ static bool         veryVerbose = false;
 static bool     veryVeryVerbose = false;
 static bool veryVeryVeryVerbose = false;
 
+/// Perform the full suite of tests on `integral_constant` instantiated with
+/// the specified `TYPE` and `VAL`.  The specified `TYPENAME` string
+/// contains a printable representation of the name of `TYPE`.  This
+/// function reads the global `verbose` variable and (if an error is
+/// detected) changes the value of the global `status` variable.  See the
+/// "FULL TEST" case in `main` for a full description of the concerns and
+/// plan for this test.
 template <class TYPE, TYPE VAL>
 void fullTest(const char TYPENAME[])
-    // Perform the full suite of tests on 'integral_constant' instantiated with
-    // the specified 'TYPE' and 'VAL'.  The specified 'TYPENAME' string
-    // contains a printable representation of the name of 'TYPE'.  This
-    // function reads the global 'verbose' variable and (if an error is
-    // detected) changes the value of the global 'status' variable.  See the
-    // "FULL TEST" case in 'main' for a full description of the concerns and
-    // plan for this test.
 {
     if (verbose) {
         printf("\nRun fullTest<%s, ", TYPENAME);
@@ -299,12 +299,12 @@ void fullTest(const char TYPENAME[])
 
     typedef bsl::integral_constant<TYPE, VAL> Obj;
 
-    if (verbose) printf("\tTest 'value' static member constant\n");
+    if (verbose) printf("\tTest `value` static member constant\n");
     LOOP2_ASSERT(TYPENAME, VAL, isConst(Obj::value));
     const TYPE* p = &Obj::value; (void) p;  // Test that address can be taken
     LOOP2_ASSERT(TYPENAME, VAL, VAL == Obj::value);
 
-    if (verbose) printf("\tTest 'type' and 'value_type' member types\n");
+    if (verbose) printf("\tTest `type` and `value_type` member types\n");
     LOOP2_ASSERT(TYPENAME, VAL, VAL == Obj::type::value);
     LOOP2_ASSERT(TYPENAME, VAL, (IsSameType<Obj, typename Obj::type>::VALUE));
     LOOP2_ASSERT(TYPENAME, VAL,
@@ -313,7 +313,7 @@ void fullTest(const char TYPENAME[])
     if (verbose) printf("\tTest default constructor\n");
     Obj x; const Obj& X = x;
 
-    if (verbose) printf("\tTest conversion to 'TYPE'\n");
+    if (verbose) printf("\tTest conversion to `TYPE`\n");
     TYPE v = X;
     LOOP2_ASSERT(TYPENAME, VAL, VAL == v);
 
@@ -357,12 +357,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file
-        //:   compiles, links, and runs as shown.
+        // 1. The usage example provided in the component header file
+        //    compiles, links, and runs as shown.
         //
         // Plan:
-        //: 1 Copy the usage examples from the header into this test
-        //:   driver.  (C-1)
+        // 1. Copy the usage examples from the header into this test
+        //    driver.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -377,31 +377,31 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'false_type' AND 'true_type'
+        // TESTING `false_type` AND `true_type`
         //
         // Concerns:
-        //: 1 'false_type' is identical to 'integral_constant<bool, false>'.
-        //:
-        //: 2 'true_type' is identical to 'integral_constant<bool, true>'.
-        //:
-        //: 3 '{true|false}_type::VALUE' is deprecated
+        // 1. `false_type` is identical to `integral_constant<bool, false>`.
+        //
+        // 2. `true_type` is identical to `integral_constant<bool, true>`.
+        //
+        // 3. `{true|false}_type::VALUE` is deprecated
         //
         // Plan:
-        //: 1 Use 'IsSameType' to verify the type of 'false_type' and
-        //:   'true_type'.  (C-1..2)
-        //:
-        //: 2 The compiler should produce deprecation warnings when
-        //:   'BSLS_DEPRECATE_FEATURE_ENABLE_ALL_DEPRECATIONS_FOR_TESTING'
-        //:   macro is defined and '{true|false}_type::VALUE' is used.  THIS IS
-        //:   A COMPILE-TIME NONAUTOMATIC TEST!
+        // 1. Use `IsSameType` to verify the type of `false_type` and
+        //    `true_type`.  (C-1..2)
+        //
+        // 2. The compiler should produce deprecation warnings when
+        //    `BSLS_DEPRECATE_FEATURE_ENABLE_ALL_DEPRECATIONS_FOR_TESTING`
+        //    macro is defined and `{true|false}_type::VALUE` is used.  THIS IS
+        //    A COMPILE-TIME NONAUTOMATIC TEST!
         //
         // Testing:
         //   bsl::false_type
         //   bsl::true_type
-        //   CONCERN: '{true|false}_type::VALUE' is deprecated
+        //   CONCERN: `{true|false}_type::VALUE` is deprecated
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'false_type' AND 'true_type'"
+        if (verbose) printf("\nTESTING `false_type` AND `true_type`"
                             "\n====================================\n");
 
         ASSERT((IsSameType<bsl::false_type,
@@ -417,54 +417,54 @@ int main(int argc, char *argv[])
         // FULL TEST
         //
         // Concerns:
-        //: 1 'value' type is a const lvalue of type 'TYPE' with value 'VAL'
-        //:
-        //: 2 'type' member is the same as 'integral_constant<TYPE, VAL>'
-        //:
-        //: 3 'value_type' member is the same as 'TYPE'
-        //:
-        //: 4 An 'integral_constant<TYPE, VAL>' object is convertible to an
-        //:   object of type 'TYPE' with a 'value' of 'VAL.
-        //:
-        //: 5 'integral_constant<TYPE, VAL>' is default constructible.
-        //:
-        //: 6 'integral_constant<TYPE, VAL>' is copy constructible such that
-        //:   the copy constructor has exactly the same behavior as the default
-        //:   constructor (i.e., the argument to the copy constructor is
-        //:   ignored).
-        //:
-        //: 7 'integral_constant<TYPE, VAL>' is assignable, though the
-        //:   assignment operator has no effect.
-        //:
-        //: 8 'integral_constant<TYPE, VAL>' is destructible.
-        //:
-        //: 9 All of the above concerns apply to each built-in integer type.
-        //:
-        //: 10 All of the above concerns apply to multiple values, including
-        //     the minimum and maximum values of 'TYPE'.
+        // 1. `value` type is a const lvalue of type `TYPE` with value `VAL`
+        //
+        // 2. `type` member is the same as `integral_constant<TYPE, VAL>`
+        //
+        // 3. `value_type` member is the same as `TYPE`
+        //
+        // 4. An `integral_constant<TYPE, VAL>` object is convertible to an
+        //    object of type `TYPE` with a `value` of 'VAL.
+        //
+        // 5. `integral_constant<TYPE, VAL>` is default constructible.
+        //
+        // 6. `integral_constant<TYPE, VAL>` is copy constructible such that
+        //    the copy constructor has exactly the same behavior as the default
+        //    constructor (i.e., the argument to the copy constructor is
+        //    ignored).
+        //
+        // 7. `integral_constant<TYPE, VAL>` is assignable, though the
+        //    assignment operator has no effect.
+        //
+        // 8. `integral_constant<TYPE, VAL>` is destructible.
+        //
+        // 9. All of the above concerns apply to each built-in integer type.
+        //
+        // 10. All of the above concerns apply to multiple values, including
+        //     the minimum and maximum values of `TYPE`.
         //
         // Plan:
-        //: 1 Assert that 'value' is const and verify that its address can be
-        //:   taken and stored in a pointer to 'const TYPE'.  (C-1)
-        //:
-        //: 2 Use 'IsSameType' verify that the 'type' and 'value_type' are as
-        //:   expected. (C-2 and C-3)
-        //:
-        //: 3 Construct an object of type 'integral_constant<TYPE, VAL>' and
-        //:   use it to initialize a variable of type 'TYPE'.  Verify that
-        //:   the variable compares equal to 'VAL'. (C-4)
-        //:
-        //: 4 Default construct, copy construct, and assign objects of type
-        //:   'integral_constant<TYPE, VAL>'.  In each case, verify that
-        //:   converting the result to 'TYPE' yields 'VAL'.  (C5..7)
-        //:
-        //: 5 The destructor is tested automatically when the objects created
-        //:   in step 4 go out of scope. (C-8)
-        //:
-        //: 6 Instantiate the entire test in a template function, 'fullTest',
-        //:   instantiate 'fullTest' with each C++ integer type and with
-        //:   several different values, including the minimum and maximum
-        //:   values for the type.  (C-9..10)
+        // 1. Assert that `value` is const and verify that its address can be
+        //    taken and stored in a pointer to `const TYPE`.  (C-1)
+        //
+        // 2. Use `IsSameType` verify that the `type` and `value_type` are as
+        //    expected. (C-2 and C-3)
+        //
+        // 3. Construct an object of type `integral_constant<TYPE, VAL>` and
+        //    use it to initialize a variable of type `TYPE`.  Verify that
+        //    the variable compares equal to `VAL`. (C-4)
+        //
+        // 4. Default construct, copy construct, and assign objects of type
+        //    `integral_constant<TYPE, VAL>`.  In each case, verify that
+        //    converting the result to `TYPE` yields `VAL`.  (C5..7)
+        //
+        // 5. The destructor is tested automatically when the objects created
+        //    in step 4 go out of scope. (C-8)
+        //
+        // 6. Instantiate the entire test in a template function, `fullTest`,
+        //    instantiate `fullTest` with each C++ integer type and with
+        //    several different values, including the minimum and maximum
+        //    values for the type.  (C-9..10)
         //
         // Testing:
         //   value
@@ -542,32 +542,32 @@ int main(int argc, char *argv[])
         // TESTING TEST APPARATUS
         //
         // Concerns:
-        //: 1 When called with values of the same type, 'IsSameType' returns
-        //:   true
-        //:
-        //: 2 When called with values of different type, 'IsSameType' returns
-        //:   false
-        //:
-        //: 3 When called with values of the same type but where
-        //:   one is a reference, 'IsSameType' returns false.
-        //:
-        //: 4 When called with values of the same type but with
-        //:   different cv-qualifiers, 'IsSameType' returns false.
-        //:
-        //: 5 Arguments to 'IsSameType' can be class type or integral type.
-        //:
-        //: 6 For a variable 'x', 'isConst(x)' returns true if 'x' is 'const'
-        //:   and false otherwise.
+        // 1. When called with values of the same type, `IsSameType` returns
+        //    true
+        //
+        // 2. When called with values of different type, `IsSameType` returns
+        //    false
+        //
+        // 3. When called with values of the same type but where
+        //    one is a reference, `IsSameType` returns false.
+        //
+        // 4. When called with values of the same type but with
+        //    different cv-qualifiers, `IsSameType` returns false.
+        //
+        // 5. Arguments to `IsSameType` can be class type or integral type.
+        //
+        // 6. For a variable `x`, `isConst(x)` returns true if `x` is `const`
+        //    and false otherwise.
         //
         // Plan:
-        //: 1 Instantiate 'IsSameType' with every combination of types 'int',
-        //:   'char', 'DummyType'; with every combination of 'int', 'const
-        //:   int', 'volatile int', and with every combination of 'int'
-        //:   'int&' and 'const int&'.  Verify that its 'VALUE' member is
-        //:   true only when the types are identically the same.  (C-1..5)
-        //:
-        //: 2 Call 'isConst' for both 'const' and non-'const' variables and
-        //:   verify the result.  (C-6)
+        // 1. Instantiate `IsSameType` with every combination of types `int`,
+        //    `char`, `DummyType`; with every combination of `int`, 'const
+        //    int', `volatile int`, and with every combination of `int`
+        //    `int&` and `const int&`.  Verify that its `VALUE` member is
+        //    true only when the types are identically the same.  (C-1..5)
+        //
+        // 2. Call `isConst` for both `const` and non-`const` variables and
+        //    verify the result.  (C-6)
         //
         // Testing:
         //   IsSameType<class A, class B>
@@ -638,17 +638,17 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 The basic functionality of 'integral_constant' works as
-        //:   expected.
+        // 1. The basic functionality of `integral_constant` works as
+        //    expected.
         //
         // Plan:
-        //: 1 Instantiate 'integral_constant' with several combinations of
-        //:   types and values.  For each combination test that the (static)
-        //:   'value' member has the expected value, that the 'type' member
-        //:   exists and has the same 'value', that the 'value_type' member
-        //:   exists and can hold 'value', and that an object of
-        //:   'integral_constant' can be constructed and is convertible to the
-        //:   specified 'TYPE'.  (C-1)
+        // 1. Instantiate `integral_constant` with several combinations of
+        //    types and values.  For each combination test that the (static)
+        //    `value` member has the expected value, that the `type` member
+        //    exists and has the same `value`, that the `value_type` member
+        //    exists and can hold `value`, and that an object of
+        //    `integral_constant` can be constructed and is convertible to the
+        //    specified `TYPE`.  (C-1)
         //
         // Testing:
         //   BREATHING TEST
@@ -659,7 +659,7 @@ int main(int argc, char *argv[])
 
         using namespace bsl;
 
-        if (verbose) printf("... With 'bool' type\n");
+        if (verbose) printf("... With `bool` type\n");
         {
             typedef integral_constant<bool, false> TypeFalse;
             typedef integral_constant<bool, true>  TypeTrue;
@@ -679,7 +679,7 @@ int main(int argc, char *argv[])
             ASSERT(true == vTrue);
         }
 
-        if (verbose) printf("... With 'int' type\n");
+        if (verbose) printf("... With `int` type\n");
         {
             typedef integral_constant<int, 0>  Type0;
             typedef integral_constant<int, 99> Type99;
@@ -699,7 +699,7 @@ int main(int argc, char *argv[])
             ASSERT(99 == v99);
         }
 
-        if (verbose) printf("... With 'unsigned char' type\n");
+        if (verbose) printf("... With `unsigned char` type\n");
         {
             typedef integral_constant<unsigned char, 0>  Type0;
             typedef integral_constant<unsigned char, 99> Type99;

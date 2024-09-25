@@ -132,66 +132,66 @@ int main(int argc, char* argv[])
       case 4: {
         // --------------------------------------------------------------------
         // TESTING EQUALITY-COMPARISON OPERATORS
-        //   Ensure that '==' and '!=' are the operational definition of value.
+        //   Ensure that `==` and `!=` are the operational definition of value.
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if each of
-        //:   their corresponding salient attributes respectively compares
-        //:   equal.
-        //:
-        //: 2 All salient attributes participate in the comparison.
-        //:
-        //: 3 'true  == (X == X)'  (i.e., identity)
-        //:
-        //: 4 'false == (X != X)'  (i.e., identity)
-        //:
-        //: 5 'X == Y' if and only if 'Y == X'  (i.e., commutativity)
-        //:
-        //: 6 'X != Y' if and only if 'Y != X'  (i.e., commutativity)
-        //:
-        //: 7 'X != Y' if and only if '!(X == Y)'
-        //:
-        //: 8 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., both comparison operators are free functions).
-        //:
-        //: 9 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //:10 The equality operator's signature and return type are standard.
-        //:
-        //:11 The inequality operator's signature and return type are standard.
+        // 1. Two objects, `X` and `Y`, compare equal if and only if each of
+        //    their corresponding salient attributes respectively compares
+        //    equal.
+        //
+        // 2. All salient attributes participate in the comparison.
+        //
+        // 3. `true  == (X == X)`  (i.e., identity)
+        //
+        // 4. `false == (X != X)`  (i.e., identity)
+        //
+        // 5. `X == Y` if and only if `Y == X`  (i.e., commutativity)
+        //
+        // 6. `X != Y` if and only if `Y != X`  (i.e., commutativity)
+        //
+        // 7. `X != Y` if and only if `!(X == Y)`
+        //
+        // 8. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., both comparison operators are free functions).
+        //
+        // 9. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        // 10. The equality operator's signature and return type are standard.
+        //
+        // 11. The inequality operator's signature and return type are standard.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the two homogeneous, free equality-
-        //:   comparison operators defined in this component.
-        //:   (C-8..11)
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their individual salient
-        //:   attributes such that for each salient attribute, there exists a
-        //:   pair of rows that differ (slightly) in only the column
-        //:   corresponding to that attribute.
-        //:
-        //: 3 For each row 'R1' in the table of P-3:  (C-1..7)
-        //:
-        //:   1 Create a single object, and use it to verify the reflexive
-        //:     (anti-reflexive) property of equality (inequality) in the
-        //:     presence of aliasing.  (C-3..4)
-        //:
-        //:   2 For each row 'R2' in the table of P-3:  (C-1..2, 5..7)
-        //:
-        //:     1 Record, in 'EXP', whether or not distinct objects created
-        //:       from 'R1' and 'R2', respectively, are expected to have the
-        //:       same value.
-        //:
-        //:     2 Create an object 'X' having the value 'R1'.
-        //:
-        //:     3 Create an object 'Y' having the value 'R2'.
-        //:
-        //:     4 Verify the commutative property and expected return value for
-        //:       both '==' and '!='.  (C-1..2, 5..7)
+        // 1. Use the respective addresses of `operator==` and `operator!=` to
+        //    initialize function pointers having the appropriate signatures
+        //    and return types for the two homogeneous, free equality-
+        //    comparison operators defined in this component.
+        //    (C-8..11)
+        //
+        // 2. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their individual salient
+        //    attributes such that for each salient attribute, there exists a
+        //    pair of rows that differ (slightly) in only the column
+        //    corresponding to that attribute.
+        //
+        // 3. For each row `R1` in the table of P-3:  (C-1..7)
+        //
+        //   1. Create a single object, and use it to verify the reflexive
+        //      (anti-reflexive) property of equality (inequality) in the
+        //      presence of aliasing.  (C-3..4)
+        //
+        //   2. For each row `R2` in the table of P-3:  (C-1..2, 5..7)
+        //
+        //     1. Record, in `EXP`, whether or not distinct objects created
+        //        from `R1` and `R2`, respectively, are expected to have the
+        //        same value.
+        //
+        //     2. Create an object `X` having the value `R1`.
+        //
+        //     3. Create an object `Y` having the value `R2`.
+        //
+        //     4. Verify the commutative property and expected return value for
+        //        both `==` and `!=`.  (C-1..2, 5..7)
         //
         // Testing:
         //   bool operator==(const Metric& lhs, rhs);
@@ -291,19 +291,19 @@ int main(int argc, char* argv[])
         // GAUGE METHODS
         //
         // Concerns:
-        //: 1 The gauge value constructor creates the correct initial value.
-        //:
-        //: 2 The gauge value assignment operator works as expected.
-        //:
-        //: 3 The gauge value accessors, 'isGauge' and 'theGauge', work as
-        //:   expected.
+        // 1. The gauge value constructor creates the correct initial value.
+        //
+        // 2. The gauge value assignment operator works as expected.
+        //
+        // 3. The gauge value accessors, `isGauge` and `theGauge`, work as
+        //    expected.
         //
         // Plan:
-        //: 1 Create objects using the value constructor and verify the value
-        //:   using the accessors.  (C-1)
-        //:
-        //: 2 Modify the objects using the assignment operator and verify the
-        //:   value using the accessors.  (C-2,3)
+        // 1. Create objects using the value constructor and verify the value
+        //    using the accessors.  (C-1)
+        //
+        // 2. Modify the objects using the assignment operator and verify the
+        //    value using the accessors.  (C-2,3)
         //
         // Testing:
         //   Metric(const Gauge& value);
@@ -350,15 +350,15 @@ int main(int argc, char* argv[])
         //   destructor operate as expected.
         //
         // Concerns:
-        //: 1 The default constructor creates the correct initial value.
+        // 1. The default constructor creates the correct initial value.
         //
-        //: 2 The destructor works as expected.
+        // 2. The destructor works as expected.
         //
         // Plan:
-        //: 1 Create an object using the default constructor and verify the
-        //:   value (empty).  (C-1)
-        //:
-        //: 2 Allow the created object to go out-of-scope.  (C-2)
+        // 1. Create an object using the default constructor and verify the
+        //    value (empty).  (C-1)
+        //
+        // 2. Allow the created object to go out-of-scope.  (C-2)
         //
         // Testing:
         //   Metric();
@@ -379,12 +379,12 @@ int main(int argc, char* argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an object 'X'.
-        //: 2 Get access to each attribute.
+        // 1. Create an object `X`.
+        // 2. Get access to each attribute.
         //
         // Testing:
         //   BREATHING TEST

@@ -14,7 +14,7 @@
 #include <bsls_platform.h>
 
 #include <bsl_algorithm.h>
-#include <bsl_cstddef.h>    // 'bsl::size_t'
+#include <bsl_cstddef.h>    // `bsl::size_t`
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -25,11 +25,11 @@
 
 #include <fcntl.h>
 
-#include <sys/types.h>  // for 'struct stat'; required on Sun and Windows only
+#include <sys/types.h>  // for `struct stat`; required on Sun and Windows only
 #include <sys/stat.h>   // (ditto)
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
-    #include <io.h>        // '_dup2'
+    #include <io.h>        // `_dup2`
     #define snprintf _snprintf
 #else
     #include <unistd.h>
@@ -42,7 +42,7 @@
     #pragma GCC diagnostic ignored "-Wstringop-overread"
 #endif
 
-// Ensure that the 'BSLMT_TESTUTIL_*' macros do not require:
+// Ensure that the `BSLMT_TESTUTIL_*` macros do not require:
 //  using namespace BloombergLP;
 //  using namespace bsl;
 
@@ -52,16 +52,16 @@
 //                              Overview
 //                              --------
 // The component under test implements a set of macros that write to the
-// standard outputs ('bsl::cout' and 'bsl::cerr').
+// standard outputs (`bsl::cout` and `bsl::cerr`).
 //
 // The macros provided mirror the standard test macros normally used in test
 // drivers.  The intention is that the standard test macros should be
-// implemented as aliases of the 'BSLMT_TESTUTIL_*' macros, as illustrated in
+// implemented as aliases of the `BSLMT_TESTUTIL_*` macros, as illustrated in
 // the first usage example.  As a result, the identifiers normally used in a
 // test driver conflict with the identifiers used in the usage example.
 // Therefore, this test driver avoids the standard test macros (and support
 // functions), and uses the following instead:
-//..
+// ```
 //      STANDARD        bslmt_testutil.t.cpp
 //  ----------------    --------------------
 //  LOOP1_ASSERT        REALLOOP1_ASSERT
@@ -75,19 +75,19 @@
 //  P_                  REALT_
 //  T_                  REALT_
 //  L_                  not used
-//  'void aSsErT()'     'void realaSsErT()'
-//  'int testStatus'    'int realTestStatus'
-//..
-// All of the methods write output to 'stdout' and do nothing more.  Therefore,
+//  `void aSsErT()`     `void realaSsErT()`
+//  `int testStatus`    `int realTestStatus`
+// ```
+// All of the methods write output to `stdout` and do nothing more.  Therefore,
 // there are no Primary Manipulators or Basic Accessors to test.  All of the
 // tests fall under the category of Print Operations.
 //
 // The main difficulty with writing this test driver is capturing the output of
 // the methods under test so that it can be checked for accuracy.  In addition,
 // error messages and other output produced by the test driver itself must
-// still appear on 'stdout' for compatibility with the standard building and
-// testing scripts.  For this purpose, a support class named 'OutputRedirector'
-// is provided.  'OutputRedirector' redirects 'stdout' to a temporary file and
+// still appear on `stdout` for compatibility with the standard building and
+// testing scripts.  For this purpose, a support class named `OutputRedirector`
+// is provided.  `OutputRedirector` redirects `stdout` to a temporary file and
 // verifies that the contents of the temporary file match the character buffers
 // provided by the user.
 //-----------------------------------------------------------------------------
@@ -125,20 +125,20 @@
 //                VARIATIONS ON STANDARD BDE ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 //
-// In order to accommodate the use of the identifiers 'testStatus' and 'aSsErT'
+// In order to accommodate the use of the identifiers `testStatus` and `aSsErT`
 // in the usage example, the rest of the test driver uses the identifiers
-// 'realTestStatus' and 'realaSsErT' instead.
+// `realTestStatus` and `realaSsErT` instead.
 //
 // Additionally, in order to allow capturing the output of the
-// 'BSLMT_TESTUTIL_*' macros, the standard macros output to 'stderr' instead of
-// 'stdout'.
+// `BSLMT_TESTUTIL_*` macros, the standard macros output to `stderr` instead of
+// `stdout`.
 
 static int realTestStatus = 0;
 
+/// Implement `aSsErT` for the `REAL*` macros.  If the specified `b` is
+/// false, emit a message showing the specified code expression `s` and the
+/// specified line number `i`.
 static void realaSsErT(bool b, const char *s, int i)
-    // Implement 'aSsErT' for the 'REAL*' macros.  If the specified 'b' is
-    // false, emit a message showing the specified code expression 's' and the
-    // specified line number 'i'.
 {
     if (b) {
         bsl::cerr << "Error " << __FILE__ << "(" << i << "): " << s
@@ -146,11 +146,11 @@ static void realaSsErT(bool b, const char *s, int i)
         if (realTestStatus >= 0 && realTestStatus <= 100) ++realTestStatus;
     }
 }
-// The standard 'ASSERT' macro definition is deferred until after the usage
+// The standard `ASSERT` macro definition is deferred until after the usage
 // example code:
-//..
+// ```
 // #define ASSERT(X) { realaSsErT(!(X), #X, __LINE__); }
-//..
+// ```
 
 #define REAL_ASSERT(X)                                                        \
     if (X) ; else do { realaSsErT(1, #X, __LINE__); } while (false)
@@ -214,21 +214,22 @@ namespace Usage {
 //
 ///Example 1: Use of Thread-Safe Asserts and Guard in a Test Driver
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// First, we write a function, 'sumOfSquares', to test:
-//..
+// First, we write a function, `sumOfSquares`, to test:
+// ```
     namespace xyzde {
 
+    /// This utility class provides sample functionality to demonstrate how
+    /// a multi-threaded test driver might be written.
     struct SumUtil {
-        // This utility class provides sample functionality to demonstrate how
-        // a multi-threaded test driver might be written.
 
         // CLASS METHODS
+
+        /// Return the sum of the squares of one to 4 arguments, the
+        /// specified `a` and the optionally specified `b`, `c`, and `d`.
         static double sumOfSquares(double a,
                                    double b = 0,
                                    double c = 0,
                                    double d = 0);
-            // Return the sum of the squares of one to 4 arguments, the
-            // specified 'a' and the optionally specified 'b', 'c', and 'd'.
     };
 
     // CLASS METHODS
@@ -239,7 +240,7 @@ namespace Usage {
                                  double d)
     {
         // Note that there is a bug here in that we have added the cube, rather
-        // than the square, of 'd'.
+        // than the square, of `d`.
 
         double ret = a * a;
         ret += b * b;
@@ -249,13 +250,13 @@ namespace Usage {
     }
 
     }  // close namespace xyzde
-//..
+// ```
 // Then, we can write a test driver for this component.  We start by providing
-// the standard BDE 'ASSERT' test macro, which is not thread-safe, and is the
-// same as it is for a test driver using 'bslim_testutil'.  The macros in
-// 'bslmt_testutil' ensure that any time this function is called, the global
+// the standard BDE `ASSERT` test macro, which is not thread-safe, and is the
+// same as it is for a test driver using `bslim_testutil`.  The macros in
+// `bslmt_testutil` ensure that any time this function is called, the global
 // mutex has been acquired.
-//..
+// ```
     // ========================================================================
     //                       STANDARD BDE ASSERT TEST FUNCTION
     // ------------------------------------------------------------------------
@@ -269,10 +270,10 @@ namespace Usage {
             if (testStatus >= 0 && testStatus <= 100) ++testStatus;
         }
     }
-//..
-// Next, we define the standard output and 'ASSERT*' macros, as aliases to the
+// ```
+// Next, we define the standard output and `ASSERT*` macros, as aliases to the
 // macros defined by this component:
-//..
+// ```
     // ========================================================================
     //                       STANDARD BDE TEST DRIVER MACROS
     // ------------------------------------------------------------------------
@@ -298,11 +299,11 @@ namespace Usage {
     #define GUARDED_STREAM(STREAM)   BSLMT_TESTUTIL_GUARDED_STREAM(STREAM)
     #define COUT                     BSLMT_TESTUTIL_COUT
     #define CERR                     BSLMT_TESTUTIL_CERR
-//..
+// ```
 // Then, we define global verbosity flags to be used for controlling debug
-// traces.  The flags will be set by elided code at the beginning of 'main' to
+// traces.  The flags will be set by elided code at the beginning of `main` to
 // determine the level of output verbosity the client wants:
-//..
+// ```
     // ========================================================================
     //                     GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
     // ------------------------------------------------------------------------
@@ -311,10 +312,10 @@ namespace Usage {
     bool  veryVerbose;
     bool  veryVeryVerbose;
     bool  veryVeryVeryVerbose;
-//..
-// Next begin the usage test case, defining a 'typedef' and some 'enum's used
+// ```
+// Next begin the usage test case, defining a `typedef` and some `enum`s used
 // by this test case:
-//..
+// ```
                                 // ---------------
                                 // Usage Test Case
                                 // ---------------
@@ -325,24 +326,25 @@ namespace Usage {
            k_LIMIT       =  100 };
     const double limit   =  100;
 
-//..
+// ```
 // Then, using our test macros, we write our test functor that can be run
 // concurrently to test the static function:
-//..
+// ```
+
+    /// Test `TestUtil::sumOfSquares` with a variety of randomly
+    /// generated arguments.
     struct SumUtilTest {
         void operator()()
-            // Test 'TestUtil::sumOfSquares' with a variety of randomly
-            // generated arguments.
         {
             int    threadIdx;
             double x[4];                // randomly-generated test values
-//..
-// Next, we use the 'GUARD' macro to serialize the initialization of
-// 'threadIdx' and the 'x' array.  We call 'bsl::srand' and 'bsl::rand', which
+// ```
+// Next, we use the `GUARD` macro to serialize the initialization of
+// `threadIdx` and the `x` array.  We call `bsl::srand` and `bsl::rand`, which
 // are not thread-safe, so the calls to them must be mutex-guarded.  Because
-// all access to 'mainThreadIdx' is guarded by the 'GUARD' call, it does not
+// all access to `mainThreadIdx` is guarded by the `GUARD` call, it does not
 // need to be an atomic variable.
-//..
+// ```
             {
                 GUARD;
 
@@ -353,7 +355,7 @@ namespace Usage {
                 bsl::srand(randSeed);
 
                 for (int ii = 0; ii < 4; ++ii) {
-                    // Note that 'bsl::rand' always returns a non-negative
+                    // Note that `bsl::rand` always returns a non-negative
                     // value.
 
                     const double characteristic =  bsl::rand() % k_LIMIT;
@@ -361,9 +363,9 @@ namespace Usage {
                                static_cast<double>(bsl::rand() % 1024) / 1024;
                     const int    sign           = (bsl::rand() & 1) ? +1 : -1;
 
-                    // Note that it is safe to use 'ASSERTV', which redundantly
+                    // Note that it is safe to use `ASSERTV`, which redundantly
                     // locks the mutex, even though the mutex has already been
-                    // acquired by the 'GUARD' call above.
+                    // acquired by the `GUARD` call above.
 
                     ASSERTV(threadIdx,ii, characteristic, 0 <= characteristic);
                     ASSERTV(threadIdx,ii, characteristic,
@@ -373,23 +375,23 @@ namespace Usage {
 
                     x[ii] = sign * (characteristic + mantissa / 1000);
                 }
-//..
+// ```
 // Then we close the block, allowing other threads to do output with the
-// 'BSLMT_TESTUTIL_*' macros or enter sections guarded by 'GUARD's.  Now, if we
+// `BSLMT_TESTUTIL_*` macros or enter sections guarded by `GUARD`s.  Now, if we
 // want to do output, we have to acquire the critical section again, which we
-// can do by using the 'COUT' (aliased to 'BSLMT_TESTUTIL_COUT') macro:
-//..
+// can do by using the `COUT` (aliased to `BSLMT_TESTUTIL_COUT`) macro:
+// ```
             }
 
             if (veryVerbose) COUT << "threadIdx: " << threadIdx <<
                        ", x[] = { " << x[0] << ", " << x[1] << ", " << x[2] <<
                                                          ", " << x[3] <<" }\n";
-//..
-// Next, if any of the 'ASSERTV's following this point fail with no 'GUARD'
+// ```
+// Next, if any of the `ASSERTV`s following this point fail with no `GUARD`
 // call in scope, they will lock the mutex before doing output.  Note that the
-// 'ASSERTV's do not lock the mutex while checking to see if the predicate
-// passed to them is 'false'.
-//..
+// `ASSERTV`s do not lock the mutex while checking to see if the predicate
+// passed to them is `false`.
+// ```
             for (int ii = 0; ii < 4; ++ii) {
                 ASSERTV(threadIdx, ii, x[ii], x[ii] < limit);
                 ASSERTV(threadIdx, ii, x[ii], -limit < x[ii]);
@@ -411,11 +413,11 @@ namespace Usage {
             ASSERTV(x[0], x[1], x[2], x[3], exp,
                                       SU::sumOfSquares(x[0], x[1], x[2], x[3]),
                               exp == SU::sumOfSquares(x[0], x[1], x[2], x[3]));
-//..
+// ```
 // Then, if we want to do any more output, since the mutex has not been
 // acquired at this point, we have to re-acquire it.  We have a choice between
-// using 'COUT' again, as we did above, or by using 'GUARD' and 'bsl::cout':
-//..
+// using `COUT` again, as we did above, or by using `GUARD` and `bsl::cout`:
+// ```
             if (veryVerbose) {
                 GUARD;
 
@@ -423,9 +425,9 @@ namespace Usage {
             }
         }
     };
-//..
-// Next, in 'main', we spawn our threads and let them run:
-//..
+// ```
+// Next, in `main`, we spawn our threads and let them run:
+// ```
     int main()
     {
         // ..
@@ -437,17 +439,17 @@ namespace Usage {
             int rc = Util::create(&handles[ii], SumUtilTest());
             REAL_ASSERT(0 == rc);
         }
-//..
+// ```
 // Then, we join the threads:
-//..
+// ```
         for (int ii = 0; ii < k_NUM_THREADS; ++ii) {
             int rc = Util::join(handles[ii]);
             REAL_ASSERT(0 == rc);
         }
-//..
+// ```
 // Now, we observe output something like this (tabs eliminated, long lines
 // wrapped).  Note that each of the five test threads reported a failure:
-//..
+// ```
 //  x[0]: 24.0005  x[1]: 80.0001  x[2]: 14.0009  x[3]: 3.00029  exp: 7181.07
 //  SU::sumOfSquares(x[0], x[1], x[2], x[3]): 7199.08
 //  Error ../../bde/groups/bsl/bslmt/bslmt_testutil.t.cpp(380):
@@ -468,13 +470,13 @@ namespace Usage {
 //  SU::sumOfSquares(x[0], x[1], x[2], x[3]): -83960.1
 //  Error ../../bde/groups/bsl/bslmt/bslmt_testutil.t.cpp(380):
 //                  exp == SU::sumOfSquares(x[0], x[1], x[2], x[3])    (failed)
-//..
-// Finally, at the end of 'main' examine 'testStatus'.  If it's greater than 0,
+// ```
+// Finally, at the end of `main` examine `testStatus`.  If it's greater than 0,
 // report that the test failed.  Note that since there is a bug in
-// 'SU::sumOfSquares' with 4 args, we expect the last assert in
-// 'SumUtil::operator()' to fail 5 times, so the following message will report
-// 'test status = 5'.
-//..
+// `SU::sumOfSquares` with 4 args, we expect the last assert in
+// `SumUtil::operator()` to fail 5 times, so the following message will report
+// `test status = 5`.
+// ```
 
         if (testStatus > 0) {
             bsl::cerr << "Error, non-zero test status = " << testStatus << "."
@@ -483,7 +485,7 @@ namespace Usage {
 
         return testStatus;
     }
-//..
+// ```
 
 }  // close namespace Usage
 
@@ -549,15 +551,15 @@ namespace BSLMT_TESTUTIL_TEST_FUNCTION_CALL {
 
 int callCount = 0;
 
+/// Increment call counter and return the specified `arg`.
 void *testFunctionAdd(void *arg)
-    // Increment call counter and return the specified 'arg'.
 {
     ++callCount;
     return arg;
 }
 
+/// Decrement call counter and return the specified `arg`.
 void *testFunctionSub(void *arg)
-    // Decrement call counter and return the specified 'arg'.
 {
     --callCount;
     return arg;
@@ -567,24 +569,24 @@ void *testFunctionSub(void *arg)
 namespace {
 namespace u {
 
+/// This class provides a facility for redirecting `stdout` to a temporary
+/// file, retrieving output from the temporary file, and comparing the
+/// output to user-supplied character buffers.  An `OutputRedirector` object
+/// can exist in one of two states, un-redirected or redirected.  In the
+/// un-redirected state, the process' `stdout` and `stderr` are connected to
+/// their normal targets.  In the redirected state, the process' `stdout` is
+/// connected to a temporary file, and the process' `stderr` is connected to
+/// the original target of `stdout`.  The redirected state of an
+/// `OutputRedirector` object can be tested by calling `isRedirected`.  An
+/// `OutputRedirector` object has the concept of a scratch buffer, where
+/// output captured from the process' `stdout` stream is stored when the
+/// `OutputRedirector` object is in the redirected state.  Throughout this
+/// class, the term "captured output" refers to data that has been written
+/// to the `stdout` stream and is waiting to be loaded into the scratch
+/// buffer.  Each time the `load` method is called, the scratch buffer is
+/// truncated, and the captured output is moved into the scratch buffer.
+/// When this is done, there is no longer any captured output.
 class OutputRedirector {
-    // This class provides a facility for redirecting 'stdout' to a temporary
-    // file, retrieving output from the temporary file, and comparing the
-    // output to user-supplied character buffers.  An 'OutputRedirector' object
-    // can exist in one of two states, un-redirected or redirected.  In the
-    // un-redirected state, the process' 'stdout' and 'stderr' are connected to
-    // their normal targets.  In the redirected state, the process' 'stdout' is
-    // connected to a temporary file, and the process' 'stderr' is connected to
-    // the original target of 'stdout'.  The redirected state of an
-    // 'OutputRedirector' object can be tested by calling 'isRedirected'.  An
-    // 'OutputRedirector' object has the concept of a scratch buffer, where
-    // output captured from the process' 'stdout' stream is stored when the
-    // 'OutputRedirector' object is in the redirected state.  Throughout this
-    // class, the term "captured output" refers to data that has been written
-    // to the 'stdout' stream and is waiting to be loaded into the scratch
-    // buffer.  Each time the 'load' method is called, the scratch buffer is
-    // truncated, and the captured output is moved into the scratch buffer.
-    // When this is done, there is no longer any captured output.
 
     // DATA
     const bsl::string d_fileName;
@@ -592,7 +594,7 @@ class OutputRedirector {
     char *d_outputBuffer_p;                   // scratch buffer for holding
                                               // captured output
 
-    bool d_isRedirectedFlag;                  // has 'stdout' been redirected
+    bool d_isRedirectedFlag;                  // has `stdout` been redirected
 
     bool d_isFileCreatedFlag;                 // has a temp file been created
 
@@ -600,24 +602,26 @@ class OutputRedirector {
                                               // temp file
 
     long d_outputSize;                        // size of output loaded into
-                                              // 'd_outputBuffer_p'
+                                              // `d_outputBuffer_p`
 
     struct stat d_originalStdoutStat;         // status information for
-                                              // 'stdout' just before
+                                              // `stdout` just before
                                               // redirection
 
     Allocator *d_allocator_p;
 
   private:
     // PRIVATE CLASS METHODS
+
+    /// Redirect stderr to stdout.  Return 0 on success, and a negative
+    /// value otherwise.
     static int redirectStderrToStdout();
-        // Redirect stderr to stdout.  Return 0 on success, and a negative
-        // value otherwise.
 
     // PRIVATE MANIPULATORS
+
+    /// Close `stdout`, if redirected, and delete the temporary output
+    /// capture file.
     void cleanup();
-        // Close 'stdout', if redirected, and delete the temporary output
-        // capture file.
 
   private:
     // NOT IMPLEMENTED
@@ -626,92 +630,95 @@ class OutputRedirector {
 
   public:
     // CREATORS
+
+    /// Create an `OutputRedirector` in an un-redirected state having empty
+    /// scratch buffer, ready to open the specified `fileName`.  Use the
+    /// specified `alloc` to supply memory.
     OutputRedirector(const bsl::string&  fileName,
                      Allocator          *alloc);
-        // Create an 'OutputRedirector' in an un-redirected state having empty
-        // scratch buffer, ready to open the specified 'fileName'.  Use the
-        // specified 'alloc' to supply memory.
 
+    /// Destroy this `OutputRedirector` object.  If the object is in a
+    /// redirected state, `stdout` will be closed and the temporary file to
+    /// which `stdout` was redirected will be removed.
     ~OutputRedirector();
-        // Destroy this 'OutputRedirector' object.  If the object is in a
-        // redirected state, 'stdout' will be closed and the temporary file to
-        // which 'stdout' was redirected will be removed.
 
     // MANIPULATORS
+
+    /// Return the address providing modifiable access to the scratch
+    /// buffer.  Note that this method is used only for error reporting and
+    /// to test the correctness of `OutputRedirector`.
     char *buffer();
-        // Return the address providing modifiable access to the scratch
-        // buffer.  Note that this method is used only for error reporting and
-        // to test the correctness of 'OutputRedirector'.
 
+    /// Read captured output into the scratch buffer.  Return `true` if all
+    /// captured output was successfully loaded, and `false` otherwise.  The
+    /// behavior is undefined unless `redirect` has been previously called
+    /// successfully.  Note that captured output is allowed to have 0
+    /// length.
     bool load();
-        // Read captured output into the scratch buffer.  Return 'true' if all
-        // captured output was successfully loaded, and 'false' otherwise.  The
-        // behavior is undefined unless 'redirect' has been previously called
-        // successfully.  Note that captured output is allowed to have 0
-        // length.
 
+    /// Redirect `stdout` to a temp file, and `stderr` to the original
+    /// `stdout`, putting this `OutputRedirector` object into the redirected
+    /// state.  The temp file to which `stdout` is redirected will be
+    /// created the first time `redirect` is called, and will be removed
+    /// when this object is destroyed.  Subsequent calls to this method no
+    /// effect on `stdout` and `stderr`.  If this method fails to redirect
+    /// either `stdout` or `stderr`, `bsl::abort` is called.
     void redirect();
-        // Redirect 'stdout' to a temp file, and 'stderr' to the original
-        // 'stdout', putting this 'OutputRedirector' object into the redirected
-        // state.  The temp file to which 'stdout' is redirected will be
-        // created the first time 'redirect' is called, and will be removed
-        // when this object is destroyed.  Subsequent calls to this method no
-        // effect on 'stdout' and 'stderr'.  If this method fails to redirect
-        // either 'stdout' or 'stderr', 'bsl::abort' is called.
 
+    /// Reset the scratch buffer to empty.  The behavior is undefined unless
+    /// `redirect` has been previously called successfully.
     void reset();
-        // Reset the scratch buffer to empty.  The behavior is undefined unless
-        // 'redirect' has been previously called successfully.
 
+    /// Reset the output size to the length of the null-terminated
+    /// `buffer()`.
     void resetSize();
-        // Reset the output size to the length of the null-terminated
-        // 'buffer()'.
 
+    /// Set output size to the specified `size`.
     void setSize(bsl::size_t size);
-        // Set output size to the specified 'size'.
 
     // ACCESSORS
+
+    /// Compare the specified `expected` character buffer with any output
+    /// that has been loaded into the scratch buffer.  `expected` is assumed
+    /// to be an NTBS (null-terminated binary string), and its length is
+    /// taken to be the string length of the NTBS.  Return 0 if `expected`
+    /// has the same length and contents as the scratch buffer, and non-zero
+    /// otherwise.  The behavior is undefined unless `redirect` has been
+    /// previously called successfully.
     int compare(const char *expected) const;
-        // Compare the specified 'expected' character buffer with any output
-        // that has been loaded into the scratch buffer.  'expected' is assumed
-        // to be an NTBS (null-terminated binary string), and its length is
-        // taken to be the string length of the NTBS.  Return 0 if 'expected'
-        // has the same length and contents as the scratch buffer, and non-zero
-        // otherwise.  The behavior is undefined unless 'redirect' has been
-        // previously called successfully.
 
+    /// Compare the specified `expected` character buffer of the specified
+    /// `expectedLength` with any output that has been loaded into the
+    /// scratch buffer.  Return 0 if `expected` has the same length and
+    /// contents as the scratch buffer, and non-zero otherwise.  The
+    /// behavior is undefined unless `redirect` has been previously called
+    /// successfully.  Note that `expected` may contain embedded null
+    /// characters.
     int compare(const char *expected, bsl::size_t expectedLength) const;
-        // Compare the specified 'expected' character buffer of the specified
-        // 'expectedLength' with any output that has been loaded into the
-        // scratch buffer.  Return 0 if 'expected' has the same length and
-        // contents as the scratch buffer, and non-zero otherwise.  The
-        // behavior is undefined unless 'redirect' has been previously called
-        // successfully.  Note that 'expected' may contain embedded null
-        // characters.
 
+    /// Return `true` if captured output been loaded into the scratch
+    /// buffer, and `false` otherwise.
     bool isOutputReady() const;
-        // Return 'true' if captured output been loaded into the scratch
-        // buffer, and 'false' otherwise.
 
+    /// Return a reference providing non-modifiable access to the status
+    /// information for `stdout` collected just before redirection.  Note
+    /// that this method is used only to test the correctness of
+    /// `OutputRedirector`.
     const struct stat& originalStdoutStat() const;
-        // Return a reference providing non-modifiable access to the status
-        // information for 'stdout' collected just before redirection.  Note
-        // that this method is used only to test the correctness of
-        // 'OutputRedirector'.
 
+    /// Return the number of bytes currently loaded into the scratch buffer.
     bsl::size_t outputSize() const;
-        // Return the number of bytes currently loaded into the scratch buffer.
 };
 
 // PRIVATE CLASS METHODS
 int OutputRedirector::redirectStderrToStdout()
 {
-    // The canonical way to redirect 'stderr' to 'stdout' is:
-    //..
+    // The canonical way to redirect `stderr` to `stdout` is:
+    // ```
     //  freopen("/dev/stdout", "w", stderr);
-    //..
-    // but we use 'dup2' instead of 'freopen', because 'freopen' fails on AIX
-    // with 'errno == 13' ("Permission denied") when redirecting 'stderr'.
+    // ```
+    // but we use `dup2` instead of `freopen`, because `freopen` fails on AIX
+    // with `errno == 13` ("Permission denied") when redirecting `stderr`.
 
 #if defined(BSLS_PLATFORM_OS_AIX)
     FILE *from = stderr;
@@ -797,7 +804,7 @@ bool OutputRedirector::load()
             REALP_(d_outputSize); REALP(charsRead);
             if (ferror(stdout)) {
 
-                // We encountered a file error, not 'EOF'.
+                // We encountered a file error, not `EOF`.
 
                 perror("\tError message: ");
                 clearerr(stdout);
@@ -844,23 +851,23 @@ void OutputRedirector::redirect()
         return;                                                       // RETURN
     }
 
-    // Retain information about the original 'stdout' file descriptor for use
+    // Retain information about the original `stdout` file descriptor for use
     // in later tests.
 
     const int originalStdoutFD = fileno(stdout);
     REAL_ASSERT(-1 != originalStdoutFD);
     REAL_ASSERT(0 == fstat(originalStdoutFD, &d_originalStdoutStat));
 
-    // Redirect 'stderr' to 'stdout'.
+    // Redirect `stderr` to `stdout`.
 
     if (0 != redirectStderrToStdout()) {
-        // We want 'stderr' to point to 'stdout', so we have to redirect it
-        // before we change the meaning of 'stdout'.
+        // We want `stderr` to point to `stdout`, so we have to redirect it
+        // before we change the meaning of `stdout`.
 
         if (veryVerbose) {
 
-            // Note that we print this error message on 'stdout' instead of
-            // 'stderr', because 'stdout' has not been redirected.
+            // Note that we print this error message on `stdout` instead of
+            // `stderr`, because `stdout` has not been redirected.
 
             bsl::fprintf(stdout,
                          "Error " __FILE__ "(%d): Failed to redirect stderr\n",
@@ -869,13 +876,13 @@ void OutputRedirector::redirect()
         bsl::abort();
     }
 
-    // Redirect 'stdout' to our test file.
+    // Redirect `stdout` to our test file.
 
     if (!freopen(d_fileName.c_str(), "w+", stdout)) {
         if (veryVerbose) {
 
-            // Note that we print this error message on 'stderr', because we
-            // have just redirected 'stdout' to the capture file.
+            // Note that we print this error message on `stderr`, because we
+            // have just redirected `stdout` to the capture file.
 
             REALP(d_fileName.c_str());
             bsl::fprintf(stderr,
@@ -886,7 +893,7 @@ void OutputRedirector::redirect()
         bsl::abort();
     }
 
-    // 'stderr' and 'stdout' have been successfully redirected.
+    // `stderr` and `stdout` have been successfully redirected.
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
     if (-1 == _setmode(_fileno(stdout), _O_BINARY)) {
@@ -900,13 +907,13 @@ void OutputRedirector::redirect()
     d_isRedirectedFlag  = true;
 
     if (EOF == fflush(stdout)) {
-        // Not flushing 'stdout' is not a fatal condition, so we print out a
+        // Not flushing `stdout` is not a fatal condition, so we print out a
         // warning, but do not abort.
 
         if (veryVerbose) {
 
-            // Note that we print this error message on 'stderr', because we
-            // have just redirected 'stdout' to the capture file.
+            // Note that we print this error message on `stderr`, because we
+            // have just redirected `stdout` to the capture file.
 
             perror("Error message: ");
             bsl::fprintf(stderr,
@@ -959,8 +966,8 @@ int OutputRedirector::compare(const char  *expected,
         return -1;                                                    // RETURN
     }
 
-    // Use 'memcmp' instead of 'strncmp' to compare 'd_outputBuffer_p' with
-    // 'expected' because 'expected' may contain embedded null characters.
+    // Use `memcmp` instead of `strncmp` to compare `d_outputBuffer_p` with
+    // `expected` because `expected` may contain embedded null characters.
 
     return d_outputSize != static_cast<long>(expectedLength)
         || bsl::memcmp(d_outputBuffer_p, expected, expectedLength);
@@ -999,14 +1006,14 @@ u::OutputRedirector         *outputRedirector_p = 0;
 BloombergLP::bslmt::Mutex    patternVecMutex;
 bsl::vector<const char *>    patternVec(&ta);
 
+/// Data for one thread.  All the variables will be initialized to have
+/// distinct values for each thread, so that output take takes variables
+/// will all be unique to each thread, and should be able to be found in
+/// the output buffer.
 struct TestFunctor {
-    // Data for one thread.  All the variables will be initialized to have
-    // distinct values for each thread, so that output take takes variables
-    // will all be unique to each thread, and should be able to be found in
-    // the output buffer.
 
     // DATA
-    bool d_enablePush;     // Enable the 'push' method.
+    bool d_enablePush;     // Enable the `push` method.
 
     // CREATORS
     TestFunctor() : d_enablePush(false) {}
@@ -1016,25 +1023,26 @@ struct TestFunctor {
     // MANIPULATORS
     //! TestFunctor& operator=(const TestFunctor& original) == default;
 
+    /// Iterate `k_NUM_ITERATIONS` times, doing various kinds of output
+    /// simultaneous.  All output patterns should occur exactly
+    /// `k_NUM_ITERATIONS * k_NUM_THREADS` times.  Also, if the thread index
+    /// is zero, then on that last iteration set `d_enablePush`, which will
+    /// enable `push`.  After doing each form of output, call `push` on the
+    /// string expected to be output.  The `0`th thread on the last
+    /// iteration will, via `push`, populate `patternVec` with all the
+    /// patterns we expect to match.
     void operator()();
-        // Iterate 'k_NUM_ITERATIONS' times, doing various kinds of output
-        // simultaneous.  All output patterns should occur exactly
-        // 'k_NUM_ITERATIONS * k_NUM_THREADS' times.  Also, if the thread index
-        // is zero, then on that last iteration set 'd_enablePush', which will
-        // enable 'push'.  After doing each form of output, call 'push' on the
-        // string expected to be output.  The '0'th thread on the last
-        // iteration will, via 'push', populate 'patternVec' with all the
-        // patterns we expect to match.
 
+    /// Does some output in a context where a guard has already locked the
+    /// mutex.  The behavior is undefined unless the mutex was already
+    /// locked.
     void subRoutine();
-        // Does some output in a context where a guard has already locked the
-        // mutex.  The behavior is undefined unless the mutex was already
-        // locked.
 
     // ACCESSOR
+
+    /// `d_enablePush` enables this method.  If enabled, add the specified
+    /// `str` to the current pattern to be matched.
     void push(const char *str) const
-        // 'd_enablePush' enables this method.  If enabled, add the specified
-        // 'str' to the current pattern to be matched.
     {
         if (d_enablePush) {
             BloombergLP::bslmt::LockGuard<BloombergLP::bslmt::Mutex> guard(
@@ -1065,7 +1073,7 @@ void TestFunctor::operator()()
     for (int ii = k_NUM_ITERATIONS; 0 < ii--; ) {
         d_enablePush = zeroThread && 0 == ii;
 
-        // Test 'MT_Q', 'MT_P', and 'MT_P_', all of which have built-in mutex
+        // Test `MT_Q`, `MT_P`, and `MT_P_`, all of which have built-in mutex
         // control so their respective outputs will occur distinct but intact.
 
         MT_Q(A stitch in time saves nine.);
@@ -1077,8 +1085,8 @@ void TestFunctor::operator()()
         MT_P_(222);
         push("222 = 222, ");
 
-        // Output a block out output.  The 'MT_GUARD' creates a guard locking
-        // the output mutex, and the 'MT_P_', 'MT_P', 'MT_Q', and 'MT_T_'
+        // Output a block out output.  The `MT_GUARD` creates a guard locking
+        // the output mutex, and the `MT_P_`, `MT_P`, `MT_Q`, and `MT_T_`
         // macros will all detect the presence of that guard and not try to
         // lock the mutex themselves.
 
@@ -1215,11 +1223,11 @@ void TestFunctor::operator()()
     }
 }
 
+/// Check the output in `*outputRedirector_p`.  `patternVec` contains a
+/// collection of strings, each of which should occur exactly
+/// `k_EXPECTED_MATCHES` times.  Each instance of each string should be
+/// intact.  There should be no other output.
 void checkOutput()
-    // Check the output in '*outputRedirector_p'.  'patternVec' contains a
-    // collection of strings, each of which should occur exactly
-    // 'k_EXPECTED_MATCHES' times.  Each instance of each string should be
-    // intact.  There should be no other output.
 {
     bsl::size_t totalPatternLen = 0;
     for (unsigned uu = 0; uu < patternVec.size(); ++uu) {
@@ -1233,9 +1241,9 @@ void checkOutput()
     REALLOOP3_ASSERT(len, totalPatternLen, expLen, expLen == len);
     REAL_ASSERT(0 == bsl::count(pc, pc + len, '#'));
 
-    // Go through 'patternVec', and for each string in the vector, count the
+    // Go through `patternVec`, and for each string in the vector, count the
     // number of times it occurs in the output buffer.  They should all occur
-    // exactly 'k_EXPECTED_MATCHES' times.  Replace the matched strings with
+    // exactly `k_EXPECTED_MATCHES` times.  Replace the matched strings with
     // '#'s, so that when we're done the entire buffer should be completely
     // filled with '#'.
 
@@ -1307,22 +1315,22 @@ void checkOutput()
     }
 }
 
+/// Return `true` is the specified `c` is not a digit and `false` otherwise.
 bool notDigit(char c)
-    // Return 'true' is the specified 'c' is not a digit and 'false' otherwise.
 {
     return c < '0' || '9' < c;
 }
 
-// It's extremely difficult to predict '__LINE__' values in multi-line
-// 'ASSERTV' calls.  In fact it's awkward to even predict whether the line
+// It's extremely difficult to predict `__LINE__` values in multi-line
+// `ASSERTV` calls.  In fact it's awkward to even predict whether the line
 // numbers will be 3 or 4 digit.  We've already tested that the asserts get the
 // line numbers right in a single-threaded test case, so this filter just
 // removes all line number information from the buffer.
 
+/// Go through all the output in the buffer, and remove the line numbers
+/// from output generated by various `ASSERT`s, turning all instances of
+/// "Error <filename>([0-9]*)" into "Error <filename>()".
 void eliminateLineNumbers()
-    // Go through all the output in the buffer, and remove the line numbers
-    // from output generated by various 'ASSERT's, turning all instances of
-    // "Error <filename>([0-9]*)" into "Error <filename>()".
 {
     char       *bufOut    = outputRedirector_p->buffer();
     const char *bufIn     = bufOut;
@@ -1404,7 +1412,7 @@ int main(int argc, char *argv[])
     static const int usageTest = 10;    // test number of usage test case
     static const int cerrTest  = 9;
 
-    // Capture 'stdout' to a file, and send 'stderr' to 'stdout', unless we are
+    // Capture `stdout` to a file, and send `stderr` to `stdout`, unless we are
     // running the usage example.
 
     u::OutputRedirector output(scratchFileName, &ta);
@@ -1420,13 +1428,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -1450,12 +1458,12 @@ int main(int argc, char *argv[])
         // BSLMT_TESTUTIL_CERR TEST
         //
         // Concerns:
-        //: 1 That 'BSLMT_TESTUTIL_CERR' properly outputs to 'bsl::cerr'.
+        // 1. That `BSLMT_TESTUTIL_CERR` properly outputs to `bsl::cerr`.
         //
         // Plan:
-        //: 1 Capture 'bsl::cerr' to a 'stringstream' and do output to it with
-        //:  'BSLMT_TESTUTIL_CERR' and observe that the output is properly
-        //:   redirected.
+        // 1. Capture `bsl::cerr` to a `stringstream` and do output to it with
+        //   `BSLMT_TESTUTIL_CERR` and observe that the output is properly
+        //    redirected.
         //
         // Testing:
         //   BSLMT_TESTUTIL_CERR
@@ -1484,25 +1492,25 @@ int main(int argc, char *argv[])
         // MULTITHREADED TEST, GUARD TEST
         //
         // Concern:
-        //: 1 That the macros all operate properly in a multithreaded context.
-        //:
-        //: 2 That output from macros not contained in a guarded block are
-        //:   always preserved intact in their entirety.
-        //:
-        //: 3 That output done within a guarded block is preserved intact in
-        //:   its entirety.
+        // 1. That the macros all operate properly in a multithreaded context.
+        //
+        // 2. That output from macros not contained in a guarded block are
+        //    always preserved intact in their entirety.
+        //
+        // 3. That output done within a guarded block is preserved intact in
+        //    its entirety.
         //
         // Plan:
-        //: 1 Launch 40 threads that will simultaneously use the macros to do
-        //:   output, and output directly within guarded blocks, which will be
-        //:   captured by 'output'.
-        //:
-        //: 2 Load the captured output into a buffer.
-        //:
-        //: 3 Search for the discrete patterns that we expect to be output
-        //:   in the buffer, filling matched patterns with '#'.  Observe that
-        //:   we match exactly as many of the patterns as we expect, and that
-        //:   the output buffer is completely filled with '#'s.
+        // 1. Launch 40 threads that will simultaneously use the macros to do
+        //    output, and output directly within guarded blocks, which will be
+        //    captured by `output`.
+        //
+        // 2. Load the captured output into a buffer.
+        //
+        // 3. Search for the discrete patterns that we expect to be output
+        //    in the buffer, filling matched patterns with '#'.  Observe that
+        //    we match exactly as many of the patterns as we expect, and that
+        //    the output buffer is completely filled with '#'s.
         //
         // Testing:
         //   BSLMT_TESTUTIL_GUARD
@@ -1529,14 +1537,14 @@ int main(int argc, char *argv[])
             REAL_ASSERT(0 == rc);
         }
 
-        // Threads are initializing their 'ThreadData' objects.
+        // Threads are initializing their `ThreadData` objects.
 
         while (TC::atomicBarrier) ;
 
         REALLOOP2_ASSERT(TC::k_NUM_THREADS, TC::threadIdx,
                                            TC::k_NUM_THREADS == TC::threadIdx);
 
-        // Subthreads are all running 'Data::doOutput' concurrently.
+        // Subthreads are all running `Data::doOutput` concurrently.
 
         for (int ii = 0; ii < TC::k_NUM_THREADS; ++ii) {
             int rc = Util::join(handles[ii]);
@@ -1551,23 +1559,23 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'callFunc' AND 'setFunc' METHODS
+        // TESTING `callFunc` AND `setFunc` METHODS
         //
         // Concerns:
-        //: 1 A custom function with external linkage can be installed and
-        //:   later called via 'bslmt' test utility component.
+        // 1. A custom function with external linkage can be installed and
+        //    later called via `bslmt` test utility component.
         //
         // Plan:
-        //: 1 Install custom function using 'setFunc' method.
-        //:
-        //: 2 Invoke previously installed function and verify the result of
-        //:   its invocation.
+        // 1. Install custom function using `setFunc` method.
+        //
+        // 2. Invoke previously installed function and verify the result of
+        //    its invocation.
         //
         // Testing:
         //   FUNCTION makeFunctionCallNonInline(FUNCTION);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cerr << "TESTING 'callFunc' AND 'setFunc' METHODS\n"
+        if (verbose) bsl::cerr << "TESTING `callFunc` AND `setFunc` METHODS\n"
                                   "========================================\n";
 
         using namespace BSLMT_TESTUTIL_TEST_FUNCTION_CALL;
@@ -1604,34 +1612,34 @@ int main(int argc, char *argv[])
         // BSLMT_TESTUTIL_LOOP*_ASSERT AND BSLMT_ASSERTV MACROS
         //
         // Concerns:
-        //: 1 Macros do not call 'aSsErT' and emit no output when the assertion
-        //:   is 'true'.
-        //:
-        //: 2 Macros call 'aSsErT' and emit output each time the assertion is
-        //:   'false'.
-        //:
-        //: 3 Macros emit properly formatted output for each loop variable
-        //:   supplied.
+        // 1. Macros do not call `aSsErT` and emit no output when the assertion
+        //    is `true`.
+        //
+        // 2. Macros call `aSsErT` and emit output each time the assertion is
+        //    `false`.
+        //
+        // 3. Macros emit properly formatted output for each loop variable
+        //    supplied.
         //
         // Plan:
-        //: 1 Loop through an arbitrary number of iterations, calling one of
-        //:   the loop assert macros with distinct values for each loop
-        //:   variable and an assertion that evaluates to 'true'.  Confirm that
-        //:   the value of 'testStatus' does not change, and that no output is
-        //:   captured by the output redirection apparatus.  (C-1)
-        //:
-        //: 2 Loop through an arbitrary number of iterations, calling one of
-        //:   the loop assert macros with distinct values for each loop
-        //:   variable and an assertion that evaluates to 'false'.  Confirm
-        //:   that 'testStatus' increments each time the loop assert macro is
-        //:   called, and that the expected error output is captured by the
-        //:   output redirection apparatus.  Note that using distinct values
-        //:   for each loop variable allows us to detect omissions,
-        //:   repetitions, or mis-ordering of the loop assert macro's
-        //:   arguments.  Also note that we test the loop assert macro with
-        //:   only one set of variable types, since we test separately in test
-        //:   case 3 the ability of the underlying apparatus to identify and
-        //:   correctly format each primitive type.  (C-2..3)
+        // 1. Loop through an arbitrary number of iterations, calling one of
+        //    the loop assert macros with distinct values for each loop
+        //    variable and an assertion that evaluates to `true`.  Confirm that
+        //    the value of `testStatus` does not change, and that no output is
+        //    captured by the output redirection apparatus.  (C-1)
+        //
+        // 2. Loop through an arbitrary number of iterations, calling one of
+        //    the loop assert macros with distinct values for each loop
+        //    variable and an assertion that evaluates to `false`.  Confirm
+        //    that `testStatus` increments each time the loop assert macro is
+        //    called, and that the expected error output is captured by the
+        //    output redirection apparatus.  Note that using distinct values
+        //    for each loop variable allows us to detect omissions,
+        //    repetitions, or mis-ordering of the loop assert macro's
+        //    arguments.  Also note that we test the loop assert macro with
+        //    only one set of variable types, since we test separately in test
+        //    case 3 the ability of the underlying apparatus to identify and
+        //    correctly format each primitive type.  (C-2..3)
         //
         // Testing:
         //   BSLMT_TESTUTIL_ASSERT(X)
@@ -1662,9 +1670,9 @@ int main(int argc, char *argv[])
                                                       // output that will be
                                                       // compared to real
                                                       // output captured from
-                                                      // 'stdout'
+                                                      // `stdout`
 
-        // 'BSLMT_TESTUTIL_ASSERT(X)'
+        // `BSLMT_TESTUTIL_ASSERT(X)`
         {
             REAL_ASSERT(0 == testStatus);
             for (int idx = 0; idx < k_REPEAT; ++idx) {
@@ -1701,7 +1709,7 @@ int main(int argc, char *argv[])
             testStatus = 0;
         }
 
-        // 'BSLMT_TESTUTIL_LOOP0_ASSERT(X)'
+        // `BSLMT_TESTUTIL_LOOP0_ASSERT(X)`
         {
             REAL_ASSERT(0 == testStatus);
             for (int idx = 0; idx < k_REPEAT; ++idx) {
@@ -1738,7 +1746,7 @@ int main(int argc, char *argv[])
             testStatus = 0;
         }
 
-        // 'BSLMT_TESTUTIL_LOOP1_ASSERT(I,X)'
+        // `BSLMT_TESTUTIL_LOOP1_ASSERT(I,X)`
         {
             REAL_ASSERT(0 == testStatus);
             for (int idx = 0; idx < k_REPEAT; ++idx) {
@@ -1779,7 +1787,7 @@ int main(int argc, char *argv[])
             REAL_ASSERT(k_REPEAT == testStatus);
             testStatus = 0;
 
-            // Repeat for 'ASSERTV'.
+            // Repeat for `ASSERTV`.
 
             for (int idx = 0; idx < k_REPEAT; ++idx) {
                 const int I = idx;
@@ -1805,7 +1813,7 @@ int main(int argc, char *argv[])
             testStatus = 0;
         }
 
-        // 'BSLMT_TESTUTIL_LOOP2_ASSERT(I,J,X)'
+        // `BSLMT_TESTUTIL_LOOP2_ASSERT(I,J,X)`
         {
             REAL_ASSERT(0 == testStatus);
             for (int idx = 0; idx < k_REPEAT; ++idx) {
@@ -1848,7 +1856,7 @@ int main(int argc, char *argv[])
             REAL_ASSERT(k_REPEAT == testStatus);
             testStatus = 0;
 
-            // Repeat for 'ASSERTV'.
+            // Repeat for `ASSERTV`.
 
             for (int idx = 0; idx < k_REPEAT; ++idx) {
                 const int I = idx;
@@ -1876,7 +1884,7 @@ int main(int argc, char *argv[])
             testStatus = 0;
         }
 
-        // 'BSLMT_TESTUTIL_LOOP3_ASSERT(I,J,K,X)'
+        // `BSLMT_TESTUTIL_LOOP3_ASSERT(I,J,K,X)`
         {
             REAL_ASSERT(0 == testStatus);
             for (int idx = 0; idx < k_REPEAT; ++idx) {
@@ -1921,7 +1929,7 @@ int main(int argc, char *argv[])
             REAL_ASSERT(k_REPEAT == testStatus);
             testStatus = 0;
 
-            // Repeat for 'ASSERTV'.
+            // Repeat for `ASSERTV`.
 
             for (int idx = 0; idx < k_REPEAT; ++idx) {
                 const int I = idx;
@@ -1950,7 +1958,7 @@ int main(int argc, char *argv[])
             testStatus = 0;
         }
 
-        // 'BSLMT_TESTUTIL_LOOP4_ASSERT(I,J,K,L,X)'
+        // `BSLMT_TESTUTIL_LOOP4_ASSERT(I,J,K,L,X)`
         {
             REAL_ASSERT(0 == testStatus);
             for (int idx = 0; idx < k_REPEAT; ++idx) {
@@ -1997,7 +2005,7 @@ int main(int argc, char *argv[])
             REAL_ASSERT(k_REPEAT == testStatus);
             testStatus = 0;
 
-            // Repeat for 'ASSERTV'.
+            // Repeat for `ASSERTV`.
 
             for (int idx = 0; idx < k_REPEAT; ++idx) {
                 const int I = idx;
@@ -2027,7 +2035,7 @@ int main(int argc, char *argv[])
             testStatus = 0;
         }
 
-        // 'BSLMT_TESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)'
+        // `BSLMT_TESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)`
         {
             REAL_ASSERT(0 == testStatus);
             for (int idx = 0; idx < k_REPEAT; ++idx) {
@@ -2076,7 +2084,7 @@ int main(int argc, char *argv[])
             REAL_ASSERT(k_REPEAT == testStatus);
             testStatus = 0;
 
-            // Repeat for 'ASSERTV'.
+            // Repeat for `ASSERTV`.
 
             for (int idx = 0; idx < k_REPEAT; ++idx) {
                 const int I = idx;
@@ -2089,9 +2097,9 @@ int main(int argc, char *argv[])
 
                 output.reset();
 
-                // Which line number '__LINE__' expands to in a multi-line
-                // 'ASSERTV' call varies with the platform and compiler, and is
-                // very difficult to predict, so we make sure our 'ASSERTV'
+                // Which line number `__LINE__` expands to in a multi-line
+                // `ASSERTV` call varies with the platform and compiler, and is
+                // very difficult to predict, so we make sure our `ASSERTV`
                 // calls fit on a single line.
 
                 const int LINE = __LINE__ + 1;
@@ -2113,7 +2121,7 @@ int main(int argc, char *argv[])
             testStatus = 0;
         }
 
-        // 'BSLMT_TESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)'
+        // `BSLMT_TESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)`
         {
             REAL_ASSERT(0 == testStatus);
             for (int idx = 0; idx < k_REPEAT; ++idx) {
@@ -2164,7 +2172,7 @@ int main(int argc, char *argv[])
             REAL_ASSERT(k_REPEAT == testStatus);
             testStatus = 0;
 
-            // Repeat for 'ASSERTV'.
+            // Repeat for `ASSERTV`.
 
             for (int idx = 0; idx < k_REPEAT; ++idx) {
                 const int I = idx;
@@ -2198,24 +2206,24 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // 'Q' (IDENTIFIER OUTPUT MACRO)
+        // `Q` (IDENTIFIER OUTPUT MACRO)
         //
         // Concerns:
-        //: 1 The identifier output macro emits the correct output,
-        //:   '<| [macro argument] |>', where '[macro argument]' is the
-        //:   tokenization of the text supplied as an argument to the macro.
+        // 1. The identifier output macro emits the correct output,
+        //    `<| [macro argument] |>`, where `[macro argument]` is the
+        //    tokenization of the text supplied as an argument to the macro.
         //
         // Plan:
-        //: 1 Call 'BSLMT_TESTUTIL_Q' with a series of arbitrary
-        //:   identifiers containing single and multiple tokens, with and
-        //:   without initial, final, and repeated whitespace and compare each
-        //:   captured output to the expected output.  (C-1)
+        // 1. Call `BSLMT_TESTUTIL_Q` with a series of arbitrary
+        //    identifiers containing single and multiple tokens, with and
+        //    without initial, final, and repeated whitespace and compare each
+        //    captured output to the expected output.  (C-1)
         //
         // Testing:
         //   BSLMT_TESTUTIL_Q(X)
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cerr << "'Q' (IDENTIFIER OUTPUT MACRO)\n"
+        if (verbose) bsl::cerr << "`Q` (IDENTIFIER OUTPUT MACRO)\n"
                                   "=============================\n";
         {
             output.reset();
@@ -2247,34 +2255,34 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // 'P' AND 'P_' (VALUE OUTPUT MACROS)
+        // `P` AND `P_` (VALUE OUTPUT MACROS)
         //
         // Concerns:
-        //: 1 The value output macros emit output.
-        //:
-        //: 2 Output emitted is in the correct format for the standard 'P' and
-        //:   'P_' macros, i.e., 'identifier = value' (with following newline
-        //:   in the case of 'BSLMT_TESTUTIL_P') where
-        //:   'identifier' is the name of the argument supplied to the macro,
-        //:   and 'value' is the value of that argument.
+        // 1. The value output macros emit output.
+        //
+        // 2. Output emitted is in the correct format for the standard `P` and
+        //    `P_` macros, i.e., `identifier = value` (with following newline
+        //    in the case of `BSLMT_TESTUTIL_P`) where
+        //    `identifier` is the name of the argument supplied to the macro,
+        //    and `value` is the value of that argument.
         //
         // Plan:
-        //: 1 Call the value output macros on a variable of known value, and
-        //:   confirm that the captured output is in the correct format.  Note
-        //:   that it is only necessary to conduct this test once with a single
-        //:   variable type because the underlying type-differentiation and
-        //:   formatting mechanisms are handled by the input operators.
-        //:   (C-1..2)
+        // 1. Call the value output macros on a variable of known value, and
+        //    confirm that the captured output is in the correct format.  Note
+        //    that it is only necessary to conduct this test once with a single
+        //    variable type because the underlying type-differentiation and
+        //    formatting mechanisms are handled by the input operators.
+        //    (C-1..2)
         //
         // Testing:
         //   BSLMT_TESTUTIL_P(X)
         //   BSLMT_TESTUTIL_P_(X)
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cerr << "'P' AND 'P_' (VALUE OUTPUT MACROS)\n"
+        if (verbose) bsl::cerr << "`P` AND `P_` (VALUE OUTPUT MACROS)\n"
                                   "==================================\n";
 
-        // 'BSLMT_TESTUTIL_P(X)'
+        // `BSLMT_TESTUTIL_P(X)`
         {
             const int INPUT = 42;
 
@@ -2285,7 +2293,7 @@ int main(int argc, char *argv[])
                              0 == output.compare("INPUT = 42\n"));
         }
 
-        // 'BSLMT_TESTUTIL_P_(X)'
+        // `BSLMT_TESTUTIL_P_(X)`
         {
             const int INPUT = 42;
 
@@ -2298,34 +2306,34 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // 'L_' AND 'T_' (STATIC MACROS)
+        // `L_` AND `T_` (STATIC MACROS)
         //
         // Concerns:
-        //: 1 The line number macro has the correct value.
-        //:
-        //: 2 The tab output macro emits output.
-        //:
-        //: 3 The output of the tab output macro is emitted in the correct
-        //:   format.
+        // 1. The line number macro has the correct value.
+        //
+        // 2. The tab output macro emits output.
+        //
+        // 3. The output of the tab output macro is emitted in the correct
+        //    format.
         //
         // Plan:
-        //: 1 Compare the value of the line number macro to '__LINE__'.  (C-1)
-        //:
-        //: 2 Call the tab output macro and confirm that the captured output
-        //:   is in the correct format.  (C-2..3)
+        // 1. Compare the value of the line number macro to `__LINE__`.  (C-1)
+        //
+        // 2. Call the tab output macro and confirm that the captured output
+        //    is in the correct format.  (C-2..3)
         //
         // Testing:
         //   BSLMT_TESTUTIL_L_
         //   BSLMT_TESTUTIL_T_
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cerr << "'L_' AND 'T_' (STATIC MACROS)\n"
+        if (verbose) bsl::cerr << "`L_` AND `T_` (STATIC MACROS)\n"
                                   "=============================\n";
 
-        // 'BSLMT_TESTUTIL_L_'
+        // `BSLMT_TESTUTIL_L_`
         {
             // Line spacing is significant as it assures
-            // 'BSLMT_TESTUTIL_L_' is not a simple sequence.
+            // `BSLMT_TESTUTIL_L_` is not a simple sequence.
 
             REAL_ASSERT(__LINE__ == BSLMT_TESTUTIL_L_);
 
@@ -2340,7 +2348,7 @@ int main(int argc, char *argv[])
             REAL_ASSERT(__LINE__ == BSLMT_TESTUTIL_L_);
         }
 
-        // 'BSLMT_TESTUTIL_T_'
+        // `BSLMT_TESTUTIL_T_`
         {
             output.reset();
             BSLMT_TESTUTIL_T_;
@@ -2353,87 +2361,87 @@ int main(int argc, char *argv[])
         // TEST APPARATUS
         //
         // Concerns:
-        //: 1 Output is redirected.
-        //:
-        //: 2 Captured output is readable.
-        //:
-        //: 3 'load' works.
-        //:
-        //: 4 'reset' works.
-        //:
-        //: 5 'compare' works.
-        //:
-        //: 6 Incorrect output is correctly diagnosed.
-        //:
-        //: 7 Embedded newlines work.
-        //:
-        //: 8 Empty output works.
-        //:
-        //: 9 Embedded null characters work.
-        //:
-        //:10 Filesystem-dependent control sequences work.
-        //:
-        //:11 'stderr' points to the original target of 'stdout'.
+        // 1. Output is redirected.
+        //
+        // 2. Captured output is readable.
+        //
+        // 3. `load` works.
+        //
+        // 4. `reset` works.
+        //
+        // 5. `compare` works.
+        //
+        // 6. Incorrect output is correctly diagnosed.
+        //
+        // 7. Embedded newlines work.
+        //
+        // 8. Empty output works.
+        //
+        // 9. Embedded null characters work.
+        //
+        // 10. Filesystem-dependent control sequences work.
+        //
+        // 11. `stderr` points to the original target of `stdout`.
         //
         // Plan:
-        //: 1 Confirm that 'ftell(stdout)' succeeds.  This demonstrates that
-        //:   'stdout' is a seekable file.  (C-1)
-        //:
-        //: 2 Write a string to 'stdout' and confirm that 'stdout's seek
-        //:   position has changed; read back the contents of 'stdout' and
-        //:   compare them to the original string.  (C-2)
-        //:
-        //: 3 Write a string to 'stdout'.  Confirm that
-        //:   'OutputRedirector::load' changes the contents of the output
-        //:   buffer and that it changes the result of
-        //:   'OutputRedirector::isOutputReady' from 'false' to 'true'.
-        //:   Confirm that the contents of the output buffer match the
-        //:   original string.  (C-3)
-        //:
-        //: 4 Write a string to 'stdout' and load it with
-        //:   'OutputRedirector::load'.  Confirm that
-        //:   'OutputRedirector::reset' rewinds 'stdout', changes the output
-        //:   of 'OutputRedirector::isOutputReady' from 'true' to 'false', and
-        //:   sets the length of the output buffer to 0.  (C-4)
-        //:
-        //: 5 Write a string to 'stdout' and load it with
-        //:   'OutputRedirector::load'.  Confirm that
-        //:   'OutputRedirector::compare' gives the correct results when the
-        //:   captured output is compared with the following data:  (C-5)
-        //:
-        //:       Data                           Comparison Result
-        //:   ------------                   -------------------------
-        //:   input string                           true
-        //:   input string with appended data        false
-        //:   input string truncated                 false
-        //:   string different from input:
-        //:     at beginning                         false
-        //:     at end                               false
-        //:     elsewhere                            false
-        //:
-        //: 6 Confirm that 'load' fails when there is more data in 'stdout'
-        //:   than can fit in the capture buffer.  Confirm that 'compare' fails
-        //:   if 'load' has not been first called to read data into the capture
-        //:   buffer.  (C-6)
-        //:
-        //: 7 Confirm that strings containing embedded newlines are correctly
-        //:   captured and correctly identified by 'compare'.  (C-7)
-        //:
-        //: 8 Write an empty string to 'stdout'.  Confirm that it can be
-        //:   correctly loaded and compared with the original.  (C-8)
-        //:
-        //: 9 Write a series of strings to 'stdout' containing '\0' at the
-        //:   beginning, end, or interior of the string.  Confirm that the
-        //:   captured output can be correctly loaded and compared with the
-        //:   original input.  (C-9)
-        //:
-        //:10 Write a series of strings to 'stdout' containing '^D' and
-        //:   '<CRLF>' and confirm that these strings are correctly captured
-        //:   and loaded.  (C-10)
-        //:
-        //:11 Use 'fstat' to find out the device and inode of the current
-        //:   (post-redirection) 'stderr'.  Compare these values to the device
-        //:   and inode of 'stdout' before redirection.  (C-11)
+        // 1. Confirm that `ftell(stdout)` succeeds.  This demonstrates that
+        //    `stdout` is a seekable file.  (C-1)
+        //
+        // 2. Write a string to `stdout` and confirm that `stdout`s seek
+        //    position has changed; read back the contents of `stdout` and
+        //    compare them to the original string.  (C-2)
+        //
+        // 3. Write a string to `stdout`.  Confirm that
+        //    `OutputRedirector::load` changes the contents of the output
+        //    buffer and that it changes the result of
+        //    `OutputRedirector::isOutputReady` from `false` to `true`.
+        //    Confirm that the contents of the output buffer match the
+        //    original string.  (C-3)
+        //
+        // 4. Write a string to `stdout` and load it with
+        //    `OutputRedirector::load`.  Confirm that
+        //    `OutputRedirector::reset` rewinds `stdout`, changes the output
+        //    of `OutputRedirector::isOutputReady` from `true` to `false`, and
+        //    sets the length of the output buffer to 0.  (C-4)
+        //
+        // 5. Write a string to `stdout` and load it with
+        //    `OutputRedirector::load`.  Confirm that
+        //    `OutputRedirector::compare` gives the correct results when the
+        //    captured output is compared with the following data:  (C-5)
+        //
+        //        Data                           Comparison Result
+        //    ------------                   -------------------------
+        //    input string                           true
+        //    input string with appended data        false
+        //    input string truncated                 false
+        //    string different from input:
+        //      at beginning                         false
+        //      at end                               false
+        //      elsewhere                            false
+        //
+        // 6. Confirm that `load` fails when there is more data in `stdout`
+        //    than can fit in the capture buffer.  Confirm that `compare` fails
+        //    if `load` has not been first called to read data into the capture
+        //    buffer.  (C-6)
+        //
+        // 7. Confirm that strings containing embedded newlines are correctly
+        //    captured and correctly identified by `compare`.  (C-7)
+        //
+        // 8. Write an empty string to `stdout`.  Confirm that it can be
+        //    correctly loaded and compared with the original.  (C-8)
+        //
+        // 9. Write a series of strings to `stdout` containing '\0' at the
+        //    beginning, end, or interior of the string.  Confirm that the
+        //    captured output can be correctly loaded and compared with the
+        //    original input.  (C-9)
+        //
+        // 10. Write a series of strings to `stdout` containing `^D` and
+        //    `<CRLF>` and confirm that these strings are correctly captured
+        //    and loaded.  (C-10)
+        //
+        // 11. Use `fstat` to find out the device and inode of the current
+        //    (post-redirection) `stderr`.  Compare these values to the device
+        //    and inode of `stdout` before redirection.  (C-11)
         //
         // Testing:
         //   TEST APPARATUS
@@ -2476,7 +2484,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            // 3) 'load' works.
+            // 3) `load` works.
 
             const char        *testString       = "This is output";
             const bsl::size_t  testStringLength = bsl::strlen(testString);
@@ -2496,7 +2504,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            // 4) 'reset' works.
+            // 4) `reset` works.
 
             const char        *testString       = "This is output";
             const bsl::size_t  testStringLength = bsl::strlen(testString);
@@ -2514,7 +2522,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            // 5) 'compare' works.
+            // 5) `compare` works.
 
             const char *testString            = "This is output";
             const char *longString            = "This is outputA";
@@ -2634,7 +2642,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            // 11) 'stderr' points to the original target of 'stdout'.
+            // 11) `stderr` points to the original target of `stdout`.
 
             const int newStderrFD = fileno(stderr);
             REAL_ASSERT(-1 != newStderrFD);
@@ -2642,9 +2650,9 @@ int main(int argc, char *argv[])
 #if !defined(BSLS_PLATFORM_OS_WINDOWS) && !defined(BSLS_PLATFORM_OS_AIX)
             struct stat stderrStat;
             REAL_ASSERT(-1 != fstat(newStderrFD, &stderrStat));
-            // The 'stat' fields only seem to be well-preserved when output was
-            // re-directed via 'freopen' and not necessary when it's redirected
-            // through forms of 'dup2'.
+            // The `stat` fields only seem to be well-preserved when output was
+            // re-directed via `freopen` and not necessary when it's redirected
+            // through forms of `dup2`.
 
             REALLOOP2_ASSERT(stderrStat.st_dev,
                                            output.originalStdoutStat().st_dev,
@@ -2664,11 +2672,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The macros are sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The macros are sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform an ad-hoc test of the macros.  (C-1)
+        // 1. Perform an ad-hoc test of the macros.  (C-1)
         //
         // Testing:
         //   BREATHING TEST
@@ -2718,7 +2726,7 @@ int main(int argc, char *argv[])
         }
 
         // Ensure that all the above macros still work with namespace
-        // 'BloombergLP' in scope.
+        // `BloombergLP` in scope.
 
         if (verbose) {
             using namespace BloombergLP;

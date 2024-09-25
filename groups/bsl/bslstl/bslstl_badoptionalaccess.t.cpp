@@ -17,13 +17,13 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// The type under test is 'bsl::bad_optional_access', an exception type whose
+// The type under test is `bsl::bad_optional_access`, an exception type whose
 // interface and contract is dictated by the C++ standard.  If
-// 'std::bad_optional_access' exception is available, we need to check that
-// 'bsl::bad_optional_access' is a typedef to the standard's exception type.
-// If 'std::bad_optional_access' exception isn't available, we need to check
-// that 'bsl::bad_optional_access' satisfies the interface and contract of
-// 'std::bad_optional_access'.
+// `std::bad_optional_access` exception is available, we need to check that
+// `bsl::bad_optional_access` is a typedef to the standard's exception type.
+// If `std::bad_optional_access` exception isn't available, we need to check
+// that `bsl::bad_optional_access` satisfies the interface and contract of
+// `std::bad_optional_access`.
 //
 // ----------------------------------------------------------------------------
 // creators:
@@ -36,7 +36,7 @@ using namespace BloombergLP;
 // [ 4] typedef bsl::bad_optional_access
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] CONCERN: Methods qualified 'noexcept' in standard are so.
+// [ 2] CONCERN: Methods qualified `noexcept` in standard are so.
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -121,17 +121,17 @@ int main(int argc, char *argv[])
 #ifdef BDE_BUILD_TARGET_EXC
       case 4: {
         // --------------------------------------------------------------------
-        // 'bsl::bad_optional_access' TYPEDEF
+        // `bsl::bad_optional_access` TYPEDEF
         //
         // Concerns:
-        //: 1 The 'bsl::bad_optional_access' is a typedef for
-        //:   'std::bad_optional_access' if 'std::bad_optional_access' is
-        //:    available.
+        // 1. The `bsl::bad_optional_access` is a typedef for
+        //    `std::bad_optional_access` if `std::bad_optional_access` is
+        //     available.
         //
         // Plan:
-        //: 1 For concern 1, if we're using CPP17 library, check that
-        //:   'bsl::bad_optional_access' is the same type as
-        //:   'std::bad_optional_access' using 'bsl::is_same'.
+        // 1. For concern 1, if we're using CPP17 library, check that
+        //    `bsl::bad_optional_access` is the same type as
+        //    `std::bad_optional_access` using `bsl::is_same`.
         //
         // Testing:
         //   typedef bsl::bad_optional_access
@@ -147,31 +147,31 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // DEFAULT CONSTRUCTION AND 'what' METHOD
+        // DEFAULT CONSTRUCTION AND `what` METHOD
         //
         // Concerns:
-        //: 1 A 'bad_optional_access' object can be default constructed.
-        //: 2 Invoking a 'what' method on a 'bad_optional_access' object
-        //:   returns a "bad_optional_access" string.
-        //: 3 'what' method can be invoked on a const 'bad_optional_access'
-        //:   object.
+        // 1. A `bad_optional_access` object can be default constructed.
+        // 2. Invoking a `what` method on a `bad_optional_access` object
+        //    returns a "bad_optional_access" string.
+        // 3. `what` method can be invoked on a const `bad_optional_access`
+        //    object.
         //
         // Plan:
-        //: 1 For concern 1, default construct a 'bad_optional_access' object.
-        //: 2 For concern 2, invoke the 'what' method on a
-        //:   'bad_optional_access' object and check that the returned string
-        //:   is "bad_optional_access".
-        //: 3 For concern 3, in step 2, use a const qualified
-        //:   'bad_optional_access' object.
+        // 1. For concern 1, default construct a `bad_optional_access` object.
+        // 2. For concern 2, invoke the `what` method on a
+        //    `bad_optional_access` object and check that the returned string
+        //    is "bad_optional_access".
+        // 3. For concern 3, in step 2, use a const qualified
+        //    `bad_optional_access` object.
         //
         // Testing:
         //   bad_optional_access();
         //   const char *what() const;
         // --------------------------------------------------------------------
-        if (verbose) printf("\nDEFAULT CONSTRUCTION AND 'what' METHOD"
+        if (verbose) printf("\nDEFAULT CONSTRUCTION AND `what` METHOD"
                             "\n======================================\n");
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-        // string returned by 'what()' method is implementation specific so we
+        // string returned by `what()` method is implementation specific so we
         // can only check our own implementation
         const bsl::bad_optional_access b;
         ASSERT(0 == strcmp("bad_optional_access", b.what()));
@@ -180,37 +180,37 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'noexcept' SPECIFICATION
+        // `noexcept` SPECIFICATION
         //
         // Concerns:
-        //: 1 The 'noexcept' specification has been applied to
-        //:   'bad_optional_access' constructor as required by the standard.
-        //: 2 The 'noexcept' specification has been applied to
-        //:   'bad_optional_access' 'what' method as required by the standard.
+        // 1. The `noexcept` specification has been applied to
+        //    `bad_optional_access` constructor as required by the standard.
+        // 2. The `noexcept` specification has been applied to
+        //    `bad_optional_access` `what` method as required by the standard.
         // Plan:
-        //: 1 Apply the unary 'noexcept' operator to a 'bad_optional_access'
-        //:   constructor and, for concern 1, confirm that calculated boolean
-        //:   value matches the expected value.
-        //: 2 Apply the unary 'noexcept' operator to 'bad_optional_access'
-        //:   'what' method and, for concern 2, confirm that calculated boolean
-        //:   value matches the expected value.
+        // 1. Apply the unary `noexcept` operator to a `bad_optional_access`
+        //    constructor and, for concern 1, confirm that calculated boolean
+        //    value matches the expected value.
+        // 2. Apply the unary `noexcept` operator to `bad_optional_access`
+        //    `what` method and, for concern 2, confirm that calculated boolean
+        //    value matches the expected value.
         //
         // Testing:
-        //   CONCERN: Methods qualified 'noexcept' in standard are so.
+        //   CONCERN: Methods qualified `noexcept` in standard are so.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\n'noexcept' SPECIFICATION"
                             "\n========================\n");
 
-        // N4835: 20.6.5 Class 'bad_optional_access' [optional.bad.access]
-        //..
+        // N4835: 20.6.5 Class `bad_optional_access` [optional.bad.access]
+        // ```
         //     namespace std {
         //       class bad_optional_access: public std::exception {
         //       public:
         //         const char* what() const noexcept override;
         //       };
         //     } // namespace std
-        //..
+        // ```
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
         // While noexcept specification is a standard requirement, at least one
         // library implementation does not apply the noexcept specification
@@ -229,11 +229,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
+        // 1. Perform and ad-hoc test of the primary modifiers and accessors.
         //
         // Testing:
         //   BREATHING TEST

@@ -66,10 +66,10 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test defines a utility 'struct' used to encode and
-// decode objects of 'bdlat' 'Simple' type according to the specification of
+// The component under test defines a utility `struct` used to encode and
+// decode objects of `bdlat` `Simple` type according to the specification of
 // the BER ("Basic Encoding Rules") format defined by ITU-T X.690.  The
-// 'Simple' types include the C++ fundamental types, BDE date and time types,
+// `Simple` types include the C++ fundamental types, BDE date and time types,
 // and strings, etc.  The utility also provides ancillary operations associated
 // with the encoding and decoding of these types in BER, such operating on
 // encoded BER meta-information, etc.  This component also provides
@@ -77,12 +77,12 @@ using namespace bsl;
 // alternate, compact format for representing date and time values.
 //
 // The primary operations provided by this component are
-// 'balber::BerUtil::putValue', and 'balber::BerUtil::getValue', which are
-// responsible for the encoding and decoding objects of 'Simple' types,
+// `balber::BerUtil::putValue`, and `balber::BerUtil::getValue`, which are
+// responsible for the encoding and decoding objects of `Simple` types,
 // respectively.
 //
-// This test driver checks "behavioral fingerprints" of 'putValue', and
-// 'getValue', which are checksums of the output for a large, pseudo-randomly
+// This test driver checks "behavioral fingerprints" of `putValue`, and
+// `getValue`, which are checksums of the output for a large, pseudo-randomly
 // generated set of inputs for said functions.  In order to generate the input,
 // this test driver provides machinery for pseudo-randomly creating values of
 // types used in the input space of the functions.  Further, it provides an
@@ -94,12 +94,12 @@ using namespace bsl;
 // nearly-identical inputs have different hashes with near certainty.
 //
 // Global Concerns:
-//: o Except for non-standard extensions, the encoding and decoding of objects
-//:   provided by this component comply with the Basic Encoding Rules of the
-//:   ITU-T X.690 specification, according to the ASN.1 interpretation of the
-//:   values of said objects.
-//: o Ancillary functions provided by this component that calculate values
-//:   specified by ITU-T X.690 comply with the specification.
+//  - Except for non-standard extensions, the encoding and decoding of objects
+//    provided by this component comply with the Basic Encoding Rules of the
+//    ITU-T X.690 specification, according to the ASN.1 interpretation of the
+//    values of said objects.
+//  - Ancillary functions provided by this component that calculate values
+//    specified by ITU-T X.690 comply with the specification.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
 // [16] int getEndOfContentsOctets(bsl::streambuf *, int *nBytes);
@@ -115,27 +115,27 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [-1] PERFORMANCE TEST
 // [ 1] BREATHING TEST
-// [ 2] CONCERN: 'putValue' & 'getValue' for bool values
-// [ 3] CONCERN: 'putValue' & 'getValue' for signed char values
-// [ 4] CONCERN: 'putValue' & 'getValue' for unsigned char values
-// [ 5] CONCERN: 'numBytesToStream' (component-private)
-// [ 6] CONCERN: 'numBytesToStream' (component-private) for unsigned types
-// [ 7] CONCERN: 'putIntegerGivenLength' (component-private)
-// [ 8] CONCERN: 'get/putIntegetGivenLength' for unsigned values
-// [ 9] CONCERN: 'putValue' & 'getValue' for signed integral values
-// [10] CONCERN: 'putValue' & 'getValue' for unsigned integral types
-// [11] CONCERN: 'get/putDoubleValue' (c-p) for 'float' and 'double'
-// [12] CONCERN: 'putLength' & 'getLength'
-// [13] CONCERN: 'putValue' & 'getValue' for 'bsl::string'
-// [14] CONCERN: 'putValue' for 'bsl::string_view' & 'bslstl::StringRef'
-// [15] CONCERN: 'putValue' & 'getValue' for date/time types
-// [18] CONCERN: 'putValue' & 'getValue' for date/time types
-// [19] CONCERN: 'putValue' & 'getVaule' for date/time types brute force
-// [20] CONCERN: 'putValue' for date/time types
-// [21] CONCERN: 'getValue' for date/time and timezone variant types
-// [27] CONCERN: 'getValue' reports all failures to read from stream buffer
-// [28] CONCERN: 'put'- & 'getValue' for date/time types in extended binary fmt
-// [29] CONCERN: 'putValue' encoding formation selection
+// [ 2] CONCERN: `putValue` & `getValue` for bool values
+// [ 3] CONCERN: `putValue` & `getValue` for signed char values
+// [ 4] CONCERN: `putValue` & `getValue` for unsigned char values
+// [ 5] CONCERN: `numBytesToStream` (component-private)
+// [ 6] CONCERN: `numBytesToStream` (component-private) for unsigned types
+// [ 7] CONCERN: `putIntegerGivenLength` (component-private)
+// [ 8] CONCERN: `get/putIntegetGivenLength` for unsigned values
+// [ 9] CONCERN: `putValue` & `getValue` for signed integral values
+// [10] CONCERN: `putValue` & `getValue` for unsigned integral types
+// [11] CONCERN: `get/putDoubleValue` (c-p) for `float` and `double`
+// [12] CONCERN: `putLength` & `getLength`
+// [13] CONCERN: `putValue` & `getValue` for `bsl::string`
+// [14] CONCERN: `putValue` for `bsl::string_view` & `bslstl::StringRef`
+// [15] CONCERN: `putValue` & `getValue` for date/time types
+// [18] CONCERN: `putValue` & `getValue` for date/time types
+// [19] CONCERN: `putValue` & `getVaule` for date/time types brute force
+// [20] CONCERN: `putValue` for date/time types
+// [21] CONCERN: `getValue` for date/time and timezone variant types
+// [27] CONCERN: `getValue` reports all failures to read from stream buffer
+// [28] CONCERN: `put`- & `getValue` for date/time types in extended binary fmt
+// [29] CONCERN: `putValue` encoding formation selection
 // [30] CONCERN: ISO 8601 TEXT LENGTH ANOMALIES
 // [31] CONCERN: TESTING +/- ZERO FLOATING-POINT\n"
 // [32] USAGE EXAMPLE
@@ -271,9 +271,9 @@ typedef balber::BerUtil         Util;
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Return the number of octets contained in the specified `s`.  Note that
+/// it is assumed that each octet in `s` is specified in hex format.
 int numOctets(const char *s)
-    // Return the number of octets contained in the specified 's'.  Note that
-    // it is assumed that each octet in 's' is specified in hex format.
 {
     int length = 0;
     for (; *s; ++s) {
@@ -299,9 +299,9 @@ int getIntValue(char c)
     return -1;
 }
 
+/// Compare the data written to the specified `stream` with the data in the
+/// specified `buffer`.  Return 0 on success, and -1 otherwise.
 int compareBuffers(const char *stream, const char *buffer)
-    // Compare the data written to the specified 'stream' with the data in the
-    // specified 'buffer'.  Return 0 on success, and -1 otherwise.
 {
     while (*buffer) {
         if (' ' == *buffer) {
@@ -320,9 +320,9 @@ int compareBuffers(const char *stream, const char *buffer)
     return 0;
 }
 
+/// Print the specified `buffer` of the specified `length` in hex form to
+/// the specified `stream`.
 void printBuffer(bsl::ostream& stream, const char *buffer, bsl::size_t length)
-    // Print the specified 'buffer' of the specified 'length' in hex form to
-    // the specified 'stream'.
 {
     stream << hex;
     int numOutput = 0;
@@ -339,8 +339,8 @@ void printBuffer(bsl::ostream& stream, const char *buffer, bsl::size_t length)
     stream << dec << endl;
 }
 
+/// Print the specified `buffer` of the specified `length` in hex form
 void printBuffer(const char *buffer, bsl::size_t length)
-    // Print the specified 'buffer' of the specified 'length' in hex form
 {
     printBuffer(cout, buffer, length);
 }
@@ -384,25 +384,35 @@ namespace u {
                                // struct TestUtil
                                // ===============
 
+/// This utility `struct` provides a namespace for a suite of functions used
+/// by various tests in this test driver.
 struct TestUtil {
-    // This utility 'struct' provides a namespace for a suite of functions used
-    // by various tests in this test driver.
 
     // CLASS METHODS
+
+    /// Return `true` if `balber::BerUtil::getValue` decodes the contents of
+    /// the specified `buffer` having the specified `bufferLength` to the
+    /// specified `value` and consumes the specified `numBytesConsumed` in
+    /// the process, and return `false` otherwise.  If `buffer` does not
+    /// successfully decode to `value`, then write an unspecified,
+    /// human-readable description of the error condition to the specified
+    /// `log`.
     template <class TYPE>
     static bool bytesDecodeToValue(bsl::ostream&  log,
                                    const char    *buffer,
                                    bsl::size_t    bufferLength,
                                    const TYPE&    value,
                                    int            numBytesConsumed);
-        // Return 'true' if 'balber::BerUtil::getValue' decodes the contents of
-        // the specified 'buffer' having the specified 'bufferLength' to the
-        // specified 'value' and consumes the specified 'numBytesConsumed' in
-        // the process, and return 'false' otherwise.  If 'buffer' does not
-        // successfully decode to 'value', then write an unspecified,
-        // human-readable description of the error condition to the specified
-        // 'log'.
 
+    /// Return `true` if `balber::BerUtil::putValue` encodes the specified
+    /// `value` to the bytes specified by the `hexadecimalExpression` using
+    /// the specified `options` and consumes the specified
+    /// `numBytesConsumed` from the bytes specified by
+    /// `hexadecimalExpression` when doing so, and return `false` otherwise.
+    /// Load into the specified `bytes` the encoded contents of `value`.  If
+    /// `value` does not encode to the bytes specified by
+    /// `hexadecimalExpression`, write an unspecified, human-readable
+    /// description of the error condition to the specified `log`.
     template <class TYPE>
     static bool valueEncodesToBytes(
                        bsl::ostream&                     log,
@@ -411,83 +421,77 @@ struct TestUtil {
                        const balber::BerEncoderOptions&  options,
                        const char                       *hexadecimalExpression,
                        bsl::size_t                       numBytesConsumed);
-        // Return 'true' if 'balber::BerUtil::putValue' encodes the specified
-        // 'value' to the bytes specified by the 'hexadecimalExpression' using
-        // the specified 'options' and consumes the specified
-        // 'numBytesConsumed' from the bytes specified by
-        // 'hexadecimalExpression' when doing so, and return 'false' otherwise.
-        // Load into the specified 'bytes' the encoded contents of 'value'.  If
-        // 'value' does not encode to the bytes specified by
-        // 'hexadecimalExpression', write an unspecified, human-readable
-        // description of the error condition to the specified 'log'.
 };
 
                              // ==================
                              // class Case27Tester
                              // ==================
 
+/// This function-object class implements an operation that tests that
+/// `getValue` returns a non-zero value when the supplied stream buffer
+/// reaches the end of its source before a value has finished being read.
 class Case27Tester {
-    // This function-object class implements an operation that tests that
-    // 'getValue' returns a non-zero value when the supplied stream buffer
-    // reaches the end of its source before a value has finished being read.
 
   public:
     // ACCESSORS
+
+    /// Increment the `testStatus` and log an unspecified human-readable
+    /// error message mentioning the specified `LINE` to `bsl::cout` unless
+    /// the conditions that are concerns in test case 27 are verified.  See
+    /// the documentation for test case 27 for more details.
     template <class SIMPLE_TYPE>
     void operator()(int LINE, const SIMPLE_TYPE& VALUE) const;
-        // Increment the 'testStatus' and log an unspecified human-readable
-        // error message mentioning the specified 'LINE' to 'bsl::cout' unless
-        // the conditions that are concerns in test case 27 are verified.  See
-        // the documentation for test case 27 for more details.
 };
 
                             // =====================
                             // struct ByteBufferUtil
                             // =====================
 
+/// This utility `struct` provides a namespace for a suite of function that
+/// operate arrays of `char` values.
 struct ByteBufferUtil {
-    // This utility 'struct' provides a namespace for a suite of function that
-    // operate arrays of 'char' values.
 
     // CLASS METHODS
+
+    /// Load to the specified `buffer` the bytes corresponding to the
+    /// sequence of big-endian hexadecimal digits defined by the specified
+    /// `expression` having the specified `expressionSize` length.  Load to
+    /// the specified `numBytesWritten` the number of bytes loaded to
+    /// `buffer`.  Return 0 on success, and a non-zero value value if the
+    /// expression defines a sequence of hexadecimal digits that is longer
+    /// than `bufferSize`.  Each digit loaded to the `buffer` is defnied by
+    /// a pair of digits in `expression`.  The behavior is defnied by a pair
+    /// of digits in `expression`.  The behavior is undefined unless
+    /// `expression` contains an even number of digits and `expression`
+    /// matches the regular expression `([A-F]|[0-9])*`, where whitespace
+    /// has no semantic meaning, `A-F` indicate numerical values 10-15
+    /// respectively, and `0-9` indicate numerical values 0-9 respectively.
     static int loadBuffer(int        *numBytesWritten,
                           char       *buffer,
                           int         bufferSize,
                           const char *expression,
                           int         expressionSize);
-        // Load to the specified 'buffer' the bytes corresponding to the
-        // sequence of big-endian hexadecimal digits defined by the specified
-        // 'expression' having the specified 'expressionSize' length.  Load to
-        // the specified 'numBytesWritten' the number of bytes loaded to
-        // 'buffer'.  Return 0 on success, and a non-zero value value if the
-        // expression defines a sequence of hexadecimal digits that is longer
-        // than 'bufferSize'.  Each digit loaded to the 'buffer' is defnied by
-        // a pair of digits in 'expression'.  The behavior is defnied by a pair
-        // of digits in 'expression'.  The behavior is undefined unless
-        // 'expression' contains an even number of digits and 'expression'
-        // matches the regular expression '([A-F]|[0-9])*', where whitespace
-        // has no semantic meaning, 'A-F' indicate numerical values 10-15
-        // respectively, and '0-9' indicate numerical values 0-9 respectively.
 };
 
                           // =========================
                           // class RandomInputIterator
                           // =========================
 
+/// This value-semantic class provides an implementation of the
+/// `InputIterator` concept for a sequence of pseudo-random
+/// `unsigned char` values.
 class RandomInputIterator {
-    // This value-semantic class provides an implementation of the
-    // 'InputIterator' concept for a sequence of pseudo-random
-    // 'unsigned char' values.
 
     // DATA
     int           d_seed;   // linear congruential generator seed
     unsigned char d_value;  // current pseudo-random value
 
     // PRIVATE CLASS METHODS
+
+    /// Return a pseudo-random value deterministically generated from the
+    /// value of the integer addressed by the specified `seed` and update
+    /// set the integer to a new pseudo-random value.
     static unsigned char generateValue(int *seed);
-        // Return a pseudo-random value deterministically generated from the
-        // value of the integer addressed by the specified 'seed' and update
-        // set the integer to a new pseudo-random value.
 
   public:
     // TRAITS
@@ -498,103 +502,114 @@ class RandomInputIterator {
     typedef bsl::input_iterator_tag  iterator_category;
 
     // CLASS METHODS
+
+    /// Return `true` if the specified `lhs` and `rhs` have the same value,
+    /// and return `false` otherwise.  Two `RandomInputIterator` objects
+    /// have the same value if and only if they have the same `seed`
+    /// attribute.
     BSLA_MAYBE_UNUSED
     static bool areEqual(const RandomInputIterator& lhs,
                          const RandomInputIterator& rhs);
-        // Return 'true' if the specified 'lhs' and 'rhs' have the same value,
-        // and return 'false' otherwise.  Two 'RandomInputIterator' objects
-        // have the same value if and only if they have the same 'seed'
-        // attribute.
 
     // CREATORS
+
+    /// Create a new `RandomInputIterator` object having a 0 `seed`
+    /// attribute.
     BSLA_MAYBE_UNUSED
     RandomInputIterator();
-        // Create a new 'RandomInputIterator' object having a 0 'seed'
-        // attribute.
 
+    /// Create a new `RandomInputIterator` object having a `seed` attribute
+    /// with the specified `seed` value.
     explicit RandomInputIterator(int seed);
-        // Create a new 'RandomInputIterator' object having a 'seed' attribute
-        // with the specified 'seed' value.
 
+    /// Create a new `RandomInputIterator` object having a copy of the value
+    /// of the specified `original` object.
     RandomInputIterator(const RandomInputIterator& original);
-        // Create a new 'RandomInputIterator' object having a copy of the value
-        // of the specified 'original' object.
 
     // MANIPULATORS
+
+    /// Assign a copy of the value of the specified `original` object to the
+    /// value of this object.  Return a reference providing modifiable
+    /// access to this object.
     BSLA_MAYBE_UNUSED
     RandomInputIterator& operator=(const RandomInputIterator& original);
-        // Assign a copy of the value of the specified 'original' object to the
-        // value of this object.  Return a reference providing modifiable
-        // access to this object.
 
+    /// Assign to this object a new pseudo-random value deterministically
+    /// generated from the `seed` attribute of this object.  Return a
+    /// reference providing modifiable access to this object.
     RandomInputIterator& operator++();
-        // Assign to this object a new pseudo-random value deterministically
-        // generated from the 'seed' attribute of this object.  Return a
-        // reference providing modifiable access to this object.
 
+    /// Assign to this object a new pseudo-random value deterministically
+    /// generated from the `seed` attribute of this object.  Return a copy
+    /// of the value of this object prior to assigning a new value.
     RandomInputIterator operator++(int);
-        // Assign to this object a new pseudo-random value deterministically
-        // generated from the 'seed' attribute of this object.  Return a copy
-        // of the value of this object prior to assigning a new value.
 
     // ACCESSORS
-    const unsigned char& operator*() const;
-        // Return a reference providing non-modifiable access to the
-        // current pseudo-random value generated by this object.
 
+    /// Return a reference providing non-modifiable access to the
+    /// current pseudo-random value generated by this object.
+    const unsigned char& operator*() const;
+
+    /// Return a pointer providing non-modifiable access to the
+    /// current pseudo-random value generated by this object.
     BSLA_MAYBE_UNUSED
     const unsigned char *operator->() const;
-        // Return a pointer providing non-modifiable access to the
-        // current pseudo-random value generated by this object.
 };
 
                         // ============================
                         // class BasicRandomValueLoader
                         // ============================
 
+/// This mechanism class provides a function-object whose function-call
+/// operator may be used to load pseudo-random values into objects of some
+/// fundamental types.  These pseudo-random values are deterministically
+/// generated based on the sequence of `unsigned char` values received from
+/// an internally-managed object of the specified `INPUT_ITERATOR`.  The
+/// program is ill-formed unless the `INPUT_ITERATOR` satisfies the
+/// `InputIterator` concept having an `unsigned char` `value_type`, and
+/// which has no `end`.
 template <class INPUT_ITERATOR>
 class BasicRandomValueLoader {
-    // This mechanism class provides a function-object whose function-call
-    // operator may be used to load pseudo-random values into objects of some
-    // fundamental types.  These pseudo-random values are deterministically
-    // generated based on the sequence of 'unsigned char' values received from
-    // an internally-managed object of the specified 'INPUT_ITERATOR'.  The
-    // program is ill-formed unless the 'INPUT_ITERATOR' satisfies the
-    // 'InputIterator' concept having an 'unsigned char' 'value_type', and
-    // which has no 'end'.
 
   public:
     // TYPES
+
+    /// The `InputIterator` implementation wrapped by this object that
+    /// provides the underlying source of pseudo-random data.
     typedef INPUT_ITERATOR InputIteratorType;
-        // The 'InputIterator' implementation wrapped by this object that
-        // provides the underlying source of pseudo-random data.
 
   private:
     // DATA
+
+    // underlying source of pseudo-random data
     InputIteratorType d_iterator;
-        // underlying source of pseudo-random data
 
   public:
     // CREATORS
+
+    /// Create a new `BasicRandomValueLoader` object having a default
+    /// underlying `iterator` attribute.
     BasicRandomValueLoader();
-        // Create a new 'BasicRandomValueLoader' object having a default
-        // underlying 'iterator' attribute.
 
+    /// Create a new `BasicRandomValueLoader` object an underlying
+    /// `iterator` attribute with a copy of the value of the
+    /// specified `iterator`.
     explicit BasicRandomValueLoader(InputIteratorType iterator);
-        // Create a new 'BasicRandomValueLoader' object an underlying
-        // 'iterator' attribute with a copy of the value of the
-        // specified 'iterator'.
 
+    /// Create a new `BasicRandomValueLoader` object having a copy of value
+    /// of the specified `original` object.
     BasicRandomValueLoader(const BasicRandomValueLoader& original);
-        // Create a new 'BasicRandomValueLoader' object having a copy of value
-        // of the specified 'original' object.
 
     // MANIPULATORS
-    BasicRandomValueLoader& operator=(const BasicRandomValueLoader& original);
-        // Assign to this object a copy of the value of the specified
-        // 'original' object and return a reference providing modifiable access
-        // to this object.
 
+    /// Assign to this object a copy of the value of the specified
+    /// `original` object and return a reference providing modifiable access
+    /// to this object.
+    BasicRandomValueLoader& operator=(const BasicRandomValueLoader& original);
+
+    /// Deterministically load a pseudo-random value into the specified
+    /// `value` based on the underlying `iterator` attribute of this object
+    /// and increment the `iterator` attribute of this object.
     void operator()(bool *value);
     void operator()(char *value);
     void operator()(unsigned char *value);
@@ -605,9 +620,6 @@ class BasicRandomValueLoader {
     void operator()(long long *value);
     void operator()(float *value);
     void operator()(double *value);
-        // Deterministically load a pseudo-random value into the specified
-        // 'value' based on the underlying 'iterator' attribute of this object
-        // and increment the 'iterator' attribute of this object.
 };
 
                        // ==============================
@@ -617,10 +629,11 @@ class BasicRandomValueLoader {
 namespace RandomValueFunctions {
 
     // FREE FUNCTIONS
+
+    /// Deterministically load a pseudo-random value into the specified
+    /// `value` using the specified `loader`.
     template <class VALUE_TYPE, class LOADER>
     void loadRandomValue(VALUE_TYPE *value, LOADER& loader);
-        // Deterministically load a pseudo-random value into the specified
-        // 'value' using the specified 'loader'.
 
 }  // close namespace RandomValueFunctions
 
@@ -628,43 +641,51 @@ namespace RandomValueFunctions {
                            // struct RandomValueUtil
                            // ======================
 
+/// This utility `struct` provides a namespace for a suite of functions that
+/// provide non-primitive functionality for psuedo-random value `loader`
+/// objects.
 struct RandomValueUtil {
-    // This utility 'struct' provides a namespace for a suite of functions that
-    // provide non-primitive functionality for psuedo-random value 'loader'
-    // objects.
 
     // CLASS METHODS
+
+    /// Deterministically load a pseudo-random value into the specified
+    /// `value` using the specified `loader` object.
     template <class VALUE_TYPE, class LOADER>
     static void load(VALUE_TYPE *value, LOADER& loader);
-        // Deterministically load a pseudo-random value into the specified
-        // 'value' using the specified 'loader' object.
 
+    /// Return a pseudo-random value of the specified `VALUE_TYPE`
+    /// using the specified `loader` object.
     template <class VALUE_TYPE, class LOADER>
     static VALUE_TYPE generate(LOADER& loader);
-        // Return a pseudo-random value of the specified 'VALUE_TYPE'
-        // using the specified 'loader' object.
 
+    /// Return a pseudo-random value of the specified `INTEGRAL_TYPE` having
+    /// a value with magnitude no greater than the specified `base` using
+    /// the specified `loader`.  The program is ill-formed unless the
+    /// `INTEGRAL_TYPE` is a fundamental integral type.
     template <class INTEGRAL_TYPE, class LOADER>
     static INTEGRAL_TYPE generateModulo(LOADER& loader, INTEGRAL_TYPE base);
-        // Return a pseudo-random value of the specified 'INTEGRAL_TYPE' having
-        // a value with magnitude no greater than the specified 'base' using
-        // the specified 'loader'.  The program is ill-formed unless the
-        // 'INTEGRAL_TYPE' is a fundamental integral type.
 
+    /// Return a pseudo-random value of the specified `INTEGRAL_TYPE` having
+    /// a value no less than `minimum` and no greater than `maximum` using
+    /// the specified `loader`.  The program is ill-formed unless the
+    /// `INTEGRAL_TYPE` is a fundamental integral type.
     template <class INTEGRAL_TYPE, class LOADER>
     static INTEGRAL_TYPE generateInInterval(LOADER&       loader,
                                             INTEGRAL_TYPE minimum,
                                             INTEGRAL_TYPE maximum);
-        // Return a pseudo-random value of the specified 'INTEGRAL_TYPE' having
-        // a value no less than 'minimum' and no greater than 'maximum' using
-        // the specified 'loader'.  The program is ill-formed unless the
-        // 'INTEGRAL_TYPE' is a fundamental integral type.
 };
 
                      // ===================================
                      // customization point loadRandomValue
                      // ===================================
 
+/// Deterministically load a pseudo-random value into the specified `value`
+/// using the specified `loader`.  Note that the values are not guaranteed
+/// to be distributed according to any particular criteria.  Individual
+/// values considered uninteresting may be common and repeated.  This
+/// function is intended to be used to sample large numbers of values, such
+/// that potential low quality of the sample distribution is compensated by
+/// the large number of samples.
 template <class LOADER>
 void loadRandomValue(bdldfp::Decimal64 *value, LOADER& loader);
 template <class LOADER>
@@ -683,189 +704,188 @@ template <class LOADER>
 void loadRandomValue(bdlt::TimeTz *value, LOADER& loader);
 template <class LOADER, class TYPE, class TYPETZ>
 void loadRandomValue(bdlb::Variant2<TYPE, TYPETZ> *value, LOADER& loader);
-    // Deterministically load a pseudo-random value into the specified 'value'
-    // using the specified 'loader'.  Note that the values are not guaranteed
-    // to be distributed according to any particular criteria.  Individual
-    // values considered uninteresting may be common and repeated.  This
-    // function is intended to be used to sample large numbers of values, such
-    // that potential low quality of the sample distribution is compensated by
-    // the large number of samples.
 
                             // ===================
                             // class ByteArrayUtil
                             // ===================
 
+/// This utility `struct` provides a suite of functions that provide
+/// non-primitive functionality on a "byte array" pseudo-type defined by a
+/// pair of `begin` and `end` pointers to a contiguous array of 'unsigned
+/// char' objects.
 struct ByteArrayUtil {
-    // This utility 'struct' provides a suite of functions that provide
-    // non-primitive functionality on a "byte array" pseudo-type defined by a
-    // pair of 'begin' and 'end' pointers to a contiguous array of 'unsigned
-    // char' objects.
 
     // CLASS METHODS
+
+    /// Write the sequence of 4 bytes of the little-endian representation of
+    /// the specified `value` to the index in the `[begin, end)` byte array
+    /// starting at the position `index * 4`.  The behavior is undefined
+    /// unless `end - begin end > index * 4`.
     static void setTheUintAt(unsigned char *begin,
                              unsigned char *end,
                              bsl::size_t    index,
                              unsigned int   value);
-        // Write the sequence of 4 bytes of the little-endian representation of
-        // the specified 'value' to the index in the '[begin, end)' byte array
-        // starting at the position 'index * 4'.  The behavior is undefined
-        // unless 'end - begin end > index * 4'.
 
+    /// Write the sequence of 7 bytes of the little-endian representation of
+    /// the specified `value` to the index in the `[begin, end)` byte array
+    /// starting at the position `index * 8`.  The behavior is undefined
+    /// unless `end - begin > index * 8`.
     static void setTheUint64At(unsigned char       *begin,
                                unsigned char       *end,
                                bsl::size_t          index,
                                bsls::Types::Uint64  value);
-        // Write the sequence of 7 bytes of the little-endian representation of
-        // the specified 'value' to the index in the '[begin, end)' byte array
-        // starting at the position 'index * 8'.  The behavior is undefined
-        // unless 'end - begin > index * 8'.
 
+    /// Returned the `unsigned int` value synthesized by interpreting
+    /// the 4 bytes in the range
+    /// `[begin + index * 4, begin + (index + 1) * 4)` as a little-endian
+    /// representation of an unsigned integer value.  The behavior is
+    /// undefined unless `end - begin > index * 4`.
     static unsigned int theUintAt(const unsigned char *begin,
                                   const unsigned char *end,
                                   bsl::size_t          index);
-        // Returned the 'unsigned int' value synthesized by interpreting
-        // the 4 bytes in the range
-        // '[begin + index * 4, begin + (index + 1) * 4)' as a little-endian
-        // representation of an unsigned integer value.  The behavior is
-        // undefined unless 'end - begin > index * 4'.
 };
 
                             // ====================
                             // class Md5Fingerprint
                             // ====================
 
+/// This in-core value-semantic class represents an MD5 "fingerprint", or
+/// "digest", which is an ordered sequence of 128 bits.  This class provides
+/// modifiable access to this sequence through `unsigned char` and
+/// `unsigned int` values.  Many array-like operations are provided by this
+/// class, including the ability to access iterators to the underlying
+/// `unsigned char` array.
+///
+/// The underlying array of 16 `unsigned char` values the define the value
+/// of this class are referred to as its `array` attribute.
 class Md5Fingerprint {
-    // This in-core value-semantic class represents an MD5 "fingerprint", or
-    // "digest", which is an ordered sequence of 128 bits.  This class provides
-    // modifiable access to this sequence through 'unsigned char' and
-    // 'unsigned int' values.  Many array-like operations are provided by this
-    // class, including the ability to access iterators to the underlying
-    // 'unsigned char' array.
-    //
-    // The underlying array of 16 'unsigned char' values the define the value
-    // of this class are referred to as its 'array' attribute.
 
   private:
     // DATA
+
+    // underlying array of 128 bits, represented using `unsigned char`s
     unsigned char d_value[16];
-        // underlying array of 128 bits, represented using 'unsigned char's
 
   public:
     // PUBLIC CLASS DATA
     enum {
-        k_SIZE = 16 // number of 'unsigned char' values in the underlying array
+        k_SIZE = 16 // number of `unsigned char` values in the underlying array
     };
 
     // CREATORS
-    Md5Fingerprint();
-        // Create a new 'Md5Fingerprint' object having the zero value for each
-        // 'unsigned char' element in its 'array' attribute.
 
+    /// Create a new `Md5Fingerprint` object having the zero value for each
+    /// `unsigned char` element in its `array` attribute.
+    Md5Fingerprint();
+
+    /// Create a new `Md5Fingerprint` object having a copy of the value of
+    /// the specified `original` object.
     Md5Fingerprint(const Md5Fingerprint& original);
-        // Create a new 'Md5Fingerprint' object having a copy of the value of
-        // the specified 'original' object.
 
     // MANIPULATORS
-    Md5Fingerprint& operator=(const Md5Fingerprint& original);
-        // Assign to this object a copy of the value of the specified
-        // 'original' object and return a reference providing modifiable access
-        // to this object.
 
+    /// Assign to this object a copy of the value of the specified
+    /// `original` object and return a reference providing modifiable access
+    /// to this object.
+    Md5Fingerprint& operator=(const Md5Fingerprint& original);
+
+    /// Return a reference providing modifiable access to the
+    /// `unsigned char` element of the `array` attribute of this object at
+    /// the specified `index`.  The behavior is undefined unless
+    /// `16 > index`.
     BSLA_MAYBE_UNUSED
     unsigned char& operator[](bsl::size_t index);
-        // Return a reference providing modifiable access to the
-        // 'unsigned char' element of the 'array' attribute of this object at
-        // the specified 'index'.  The behavior is undefined unless
-        // '16 > index'.
 
+    /// Assign to the 4 `unsigned char` elements of the `array` attribute of
+    /// this object at the specified `index * 4` index the little-endian
+    /// representation of the specified `value`.  The behavior is undefined
+    /// unless `4 > index`.
     void setTheUintAt(bsl::size_t index, unsigned int value);
-        // Assign to the 4 'unsigned char' elements of the 'array' attribute of
-        // this object at the specified 'index * 4' index the little-endian
-        // representation of the specified 'value'.  The behavior is undefined
-        // unless '4 > index'.
 
+    /// Return a pointer providing access to the first `unsigned char`
+    /// element of the contiguous array of `unsigned char` objects that make
+    /// up the `array` attribute of this object.
     BSLA_MAYBE_UNUSED
     unsigned char *data();
-        // Return a pointer providing access to the first 'unsigned char'
-        // element of the contiguous array of 'unsigned char' objects that make
-        // up the 'array' attribute of this object.
 
+    /// Return a pointer to the first element of the `array` attribute of
+    /// this object.
     BSLA_MAYBE_UNUSED
     unsigned char *begin();
-        // Return a pointer to the first element of the 'array' attribute of
-        // this object.
 
+    /// Return a pointer to the "1-past-the-end" element of the `array`
+    /// attribute of this object.
     BSLA_MAYBE_UNUSED
     unsigned char *end();
-        // Return a pointer to the "1-past-the-end" element of the 'array'
-        // attribute of this object.
 
     // ACCESSORS
+
+    /// Return a reference providing non-modifiable access to the 'unsigned
+    /// char' element of the `array` attribute of this object at the
+    /// specified `index`.  The behavior is undefined unless `16 > index`.
     BSLA_MAYBE_UNUSED
     const unsigned char& operator[](bsl::size_t index) const;
-        // Return a reference providing non-modifiable access to the 'unsigned
-        // char' element of the 'array' attribute of this object at the
-        // specified 'index'.  The behavior is undefined unless '16 > index'.
 
+    /// Return the `unsigned int` value that results from interpreting the 4
+    /// `unsigned char` objects of the `array` attribute of this object in
+    /// the range [index * 4, (index + 1) * 4)' as the little-endian
+    /// representation of an `unsigned int` value.
     unsigned int theUintAt(bsl::size_t index) const;
-        // Return the 'unsigned int' value that results from interpreting the 4
-        // 'unsigned char' objects of the 'array' attribute of this object in
-        // the range [index * 4, (index + 1) * 4)' as the little-endian
-        // representation of an 'unsigned int' value.
 
+    /// Return a pointer providing non-modifiable access to the first
+    /// `unsigned char` element of the contiguous array of `unsigned char`
+    /// objects that make up the `array` attribute of this object.
     const unsigned char *data() const;
-        // Return a pointer providing non-modifiable access to the first
-        // 'unsigned char' element of the contiguous array of 'unsigned char'
-        // objects that make up the 'array' attribute of this object.
 
+    /// Return the size of the `array` attribute of this object.
     BSLA_MAYBE_UNUSED
     bsl::size_t size() const;
-        // Return the size of the 'array' attribute of this object.
 
+    /// Return a pointer providing non-modifiable access to the first
+    /// element of the `array` attribute of this object.
     BSLA_MAYBE_UNUSED
     const unsigned char *begin() const;
-        // Return a pointer providing non-modifiable access to the first
-        // element of the 'array' attribute of this object.
 
+    /// Return a pointer providing non-modifiable access to the
+    /// "1-past-the-end" element of the `array` attribute of this object.
     BSLA_MAYBE_UNUSED
     const unsigned char *end() const;
-        // Return a pointer providing non-modifiable access to the
-        // "1-past-the-end" element of the 'array' attribute of this object.
 
+    /// Format the referenced object to the specified output `stream` at
+    /// the (absolute value of) the optionally specified indentation
+    /// `level` and return a reference to `stream`.  If `level` is
+    /// specified, optionally specify `spacesPerLevel`, the number of
+    /// spaces per indentation level for this and all of its nested
+    /// objects.  If `level` is negative, suppress indentation of the first
+    /// line.  If `spacesPerLevel` is negative, format the entire output on
+    /// one line.  If `stream` is not valid on entry, this operation has no
+    /// effect.  For scalars and arrays of scalars, this `print` function
+    /// delegates to the appropriate printing mechanism for referenced
+    /// object -- the aggregate adds no additional text to the
+    /// output.  (E.g., the result of printing an aggregate that references
+    /// a string is indistinguishable from the result of printing the
+    /// string directly.)  For list, row, choice, choice array item, table,
+    /// and choice array, this print function prepend's each field with the
+    /// name of the field.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level          = 0,
                         int           spacesPerLevel = 4) const;
-        // Format the referenced object to the specified output 'stream' at
-        // the (absolute value of) the optionally specified indentation
-        // 'level' and return a reference to 'stream'.  If 'level' is
-        // specified, optionally specify 'spacesPerLevel', the number of
-        // spaces per indentation level for this and all of its nested
-        // objects.  If 'level' is negative, suppress indentation of the first
-        // line.  If 'spacesPerLevel' is negative, format the entire output on
-        // one line.  If 'stream' is not valid on entry, this operation has no
-        // effect.  For scalars and arrays of scalars, this 'print' function
-        // delegates to the appropriate printing mechanism for referenced
-        // object -- the aggregate adds no additional text to the
-        // output.  (E.g., the result of printing an aggregate that references
-        // a string is indistinguishable from the result of printing the
-        // string directly.)  For list, row, choice, choice array item, table,
-        // and choice array, this print function prepend's each field with the
-        // name of the field.
 };
 
 // FREE FUNCTIONS
+
+/// Format the specified `rhs` in a human-readable form (same format as
+/// `rhs.print(stream, 0, -1)`) and return a reference providing modifiable
+/// access to the specified `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const Md5Fingerprint& rhs);
-    // Format the specified 'rhs' in a human-readable form (same format as
-    // 'rhs.print(stream, 0, -1)') and return a reference providing modifiable
-    // access to the specified 'stream'.
 
                           // ========================
                           // class Md5FingerprintUtil
                           // ========================
 
+/// This utility `struct` provides a suite of functions that provide
+/// non-primitive functionality for `Md5Fingerprint` objects.
 struct Md5FingerprintUtil {
-    // This utility 'struct' provides a suite of functions that provide
-    // non-primitive functionality for 'Md5Fingerprint' objects.
 
   private:
     // PRIVATE CLASS DATA
@@ -878,18 +898,19 @@ struct Md5FingerprintUtil {
 
   public:
     // CLASS METHODS
+
+    /// Return an `Md5Fingerprint` object having the initial value for
+    /// the "MD5" algorithm.
     static Md5Fingerprint getSeedValue();
-        // Return an 'Md5Fingerprint' object having the initial value for
-        // the "MD5" algorithm.
 };
 
                                // ==============
                                // class Md5Block
                                // ==============
 
+/// This in-core value-semantic class provides a representation of a
+/// resizable array of `unsigned char` values having a maximum size of `64`.
 class Md5Block {
-    // This in-core value-semantic class provides a representation of a
-    // resizable array of 'unsigned char' values having a maximum size of '64'.
 
   public:
     // PUBLIC CLASS DATA
@@ -904,151 +925,157 @@ class Md5Block {
 
   public:
     // CREATORS
-    Md5Block();
-        // Create a new 'Md5Block' object having an 'array' attribute with size
-        // 0.
 
+    /// Create a new `Md5Block` object having an `array` attribute with size
+    /// 0.
+    Md5Block();
+
+    /// Create a new `Md5Block` object having an `array` attribute defined
+    /// by the sequence of bytes specified by the range `[begin, end)`.  The
+    /// program is ill-formed unless `begin` and `end` satisfy the
+    /// `InputIterator` concept having an `unsigned char` `value_type`.  The
+    /// behavior is undefined unless the range `[begin, end)` has a size
+    /// no greater than 64.
     template <class INPUT_ITERATOR>
     Md5Block(INPUT_ITERATOR begin, INPUT_ITERATOR end);
-        // Create a new 'Md5Block' object having an 'array' attribute defined
-        // by the sequence of bytes specified by the range '[begin, end)'.  The
-        // program is ill-formed unless 'begin' and 'end' satisfy the
-        // 'InputIterator' concept having an 'unsigned char' 'value_type'.  The
-        // behavior is undefined unless the range '[begin, end)' has a size
-        // no greater than 64.
 
+    /// Create a new `Md5Block` object having a copy of the value of the
+    /// specified `original` object.
     Md5Block(const Md5Block& original);
-        // Create a new 'Md5Block' object having a copy of the value of the
-        // specified 'original' object.
 
     // MANIPULATORS
-    Md5Block& operator=(const Md5Block& original);
-        // Assign to this object a copy of the value of the specified
-        // 'original' object and return a reference providing modifiable access
-        // to this object.
 
+    /// Assign to this object a copy of the value of the specified
+    /// `original` object and return a reference providing modifiable access
+    /// to this object.
+    Md5Block& operator=(const Md5Block& original);
+
+    /// Return a reference providing modifiable access to the 'unsigned
+    /// char' element of the `array` attribute of this object at the
+    /// specified `index`.  The behavior is undefined unless
+    /// `size() > index`.
     BSLA_MAYBE_UNUSED
     unsigned char& operator[](bsl::size_t index);
-        // Return a reference providing modifiable access to the 'unsigned
-        // char' element of the 'array' attribute of this object at the
-        // specified 'index'.  The behavior is undefined unless
-        // 'size() > index'.
 
+    /// Assign to the 4 `unsigned char` elements of the `array` attribute of
+    /// this object at the specified `index * 4` index the little-endian
+    /// representation of the specified `value`.  The behavior is undefined
+    /// unless `4 > index`.
     BSLA_MAYBE_UNUSED
     void setTheUintAt(bsl::size_t index, unsigned int value);
-        // Assign to the 4 'unsigned char' elements of the 'array' attribute of
-        // this object at the specified 'index * 4' index the little-endian
-        // representation of the specified 'value'.  The behavior is undefined
-        // unless '4 > index'.
 
+    /// Return a pointer to the first element of the `array` attribute of
+    /// this object.
     unsigned char *begin();
-        // Return a pointer to the first element of the 'array' attribute of
-        // this object.
 
+    /// Return a pointer to the "1-past-the-end" element of the `array`
+    /// attribute of this object.
     unsigned char *end();
-        // Return a pointer to the "1-past-the-end" element of the 'array'
-        // attribute of this object.
 
+    /// Reset this object to the empty value, having an `array` attribute
+    /// with size 0.
     void clear();
-        // Reset this object to the empty value, having an 'array' attribute
-        // with size 0.
 
+    /// Change the `array` attribute to have the specified `newSize` size.
+    /// If `newSize == size()`, do nothing.  If `newSize > size()` then
+    /// append `newSize() - size` `unsigned char` elements having the value
+    /// 0 to the end of the array attribute of this object.  Otherwise,
+    /// remove the `size() - newSize` elements from the end of the `array`
+    /// attribute of this object.  The behavior is undefined unless '64 >=
+    /// newSize'.
     void resize(bsl::size_t newSize);
-        // Change the 'array' attribute to have the specified 'newSize' size.
-        // If 'newSize == size()', do nothing.  If 'newSize > size()' then
-        // append 'newSize() - size' 'unsigned char' elements having the value
-        // 0 to the end of the array attribute of this object.  Otherwise,
-        // remove the 'size() - newSize' elements from the end of the 'array'
-        // attribute of this object.  The behavior is undefined unless '64 >=
-        // newSize'.
 
     // ACCESSORS
+
+    /// Return a reference providing non-modifiable access to the 'unsigned
+    /// char' element of the `array` attribute of this object at the
+    /// specified `index`.  The behavior is undefined unless `16 > index`.
     BSLA_MAYBE_UNUSED
     const unsigned char& operator[](bsl::size_t index) const;
-        // Return a reference providing non-modifiable access to the 'unsigned
-        // char' element of the 'array' attribute of this object at the
-        // specified 'index'.  The behavior is undefined unless '16 > index'.
 
+    /// Return the `unsigned int` value that results from interpreting the 4
+    /// `unsigned char` objects of the `array` attribute of this object in
+    /// the range [index * 4, (index + 1) * 4)' as the little-endian
+    /// representation of an `unsigned int` value.
     unsigned int theUintAt(bsl::size_t index) const;
-        // Return the 'unsigned int' value that results from interpreting the 4
-        // 'unsigned char' objects of the 'array' attribute of this object in
-        // the range [index * 4, (index + 1) * 4)' as the little-endian
-        // representation of an 'unsigned int' value.
 
+    /// Return a pointer providing non-modifiable access to the first
+    /// element of the `array` attribute of this object.
     const unsigned char *begin() const;
-        // Return a pointer providing non-modifiable access to the first
-        // element of the 'array' attribute of this object.
 
+    /// Return a pointer providing non-modifiable access to the
+    /// "1-past-the-end" element of the `array` attribute of this object.
     const unsigned char *end() const;
-        // Return a pointer providing non-modifiable access to the
-        // "1-past-the-end" element of the 'array' attribute of this object.
 
+    /// Return `true` if `0 == size()`, and return `false` otherwise.
     bool empty() const;
-        // Return 'true' if '0 == size()', and return 'false' otherwise.
 
+    /// Return `true` if `64 == size()`, and return `false` otherwise.
     bool full() const;
-        // Return 'true' if '64 == size()', and return 'false' otherwise.
 
+    /// Return the number of elements in the `unsigned char` attribute of
+    /// this object.
     bsl::size_t size() const;
-        // Return the number of elements in the 'unsigned char' attribute of
-        // this object.
 };
 
 // FREE FUNCTIONS
+
+/// Return `true` if the specified `lhs` and `rhs` have the same value, and
+/// `false` otherwise.  Two `Md5Block` objects have the same value if and
+/// only if their `array` attributes have the same value (including the same
+/// size.)
 BSLA_MAYBE_UNUSED
 bool operator==(const Md5Block& lhs, const Md5Block& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' have the same value, and
-    // 'false' otherwise.  Two 'Md5Block' objects have the same value if and
-    // only if their 'array' attributes have the same value (including the same
-    // size.)
 
+/// Return `true` if the specified `lhs` and `rhs` have the different
+/// values, and `false` otherwise.  Two `Md5Block` objects have different
+/// values if and only if their `array` attributes have different values,
+/// (which may or may not including having different sizes.)
 BSLA_MAYBE_UNUSED
 bool operator!=(const Md5Block& lhs, const Md5Block& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' have the different
-    // values, and 'false' otherwise.  Two 'Md5Block' objects have different
-    // values if and only if their 'array' attributes have different values,
-    // (which may or may not including having different sizes.)
 
                             // ===================
                             // struct Md5BlockUtil
                             // ===================
 
+/// This utility `struct` is a namespace for a suite of functions that
+/// provide non-primitive functionality for `Md5Block` objects.
 struct Md5BlockUtil {
-    // This utility 'struct' is a namespace for a suite of functions that
-    // provide non-primitive functionality for 'Md5Block' objects.
 
     // TYPES
+
+    /// Convenience alias for a pair of `Md5Block` objects.
     typedef bsl::pair<Md5Block, Md5Block> Md5BlockPair;
-        // Convenience alias for a pair of 'Md5Block' objects.
 
     // CLASS METHODS
-    static void appendUint64(Md5Block *block, bsls::Types::Uint64 value);
-        // Append the 8 bytes making up the little-endian representation of the
-        // specified 'value' to the end of the specified 'block'.  The 'size'
-        // of the 'block' increases by 8.  The behavior is undefined unless
-        // '56 >= block->size()'.
 
+    /// Append the 8 bytes making up the little-endian representation of the
+    /// specified `value` to the end of the specified `block`.  The `size`
+    /// of the `block` increases by 8.  The behavior is undefined unless
+    /// `56 >= block->size()`.
+    static void appendUint64(Md5Block *block, bsls::Types::Uint64 value);
+
+    /// If the specified `first` block is not full, append the lesser of
+    /// `64 - first->size()` or `second->size()` bytes from the front of
+    /// the specified `second` block to the `first`, and remove those bytes
+    /// from the `second` block.
     static void concatenate(Md5Block *first, Md5Block *second);
-        // If the specified 'first' block is not full, append the lesser of
-        // '64 - first->size()' or 'second->size()' bytes from the front of
-        // the specified 'second' block to the 'first', and remove those bytes
-        // from the 'second' block.
 };
 
                          // ===========================
                          // class Md5BlockInputIterator
                          // ===========================
 
+/// This class provides read-only uni-directional access to a sequence of
+/// `Md5Block` objects.  A pair of `begin` and `end` pointers that address a
+/// valid contiguous `[begin, end)` range of `unsigned char` objects specify
+/// the sequence of `Md5Block` objects accessed by a
+/// `Md5BlockInputIterator`.  A `Md5BlockInputIterator` iterates over groups
+/// of up to 64 elements of the underlying range to provide access to a
+/// `Md5Block` consisting of those elements.  If less than 64 elements are
+/// available in the range, the size of the provided `Md5Block` object will
+/// be equal to the number of elements available in the range.
 class Md5BlockInputIterator {
-    // This class provides read-only uni-directional access to a sequence of
-    // 'Md5Block' objects.  A pair of 'begin' and 'end' pointers that address a
-    // valid contiguous '[begin, end)' range of 'unsigned char' objects specify
-    // the sequence of 'Md5Block' objects accessed by a
-    // 'Md5BlockInputIterator'.  A 'Md5BlockInputIterator' iterates over groups
-    // of up to 64 elements of the underlying range to provide access to a
-    // 'Md5Block' consisting of those elements.  If less than 64 elements are
-    // available in the range, the size of the provided 'Md5Block' object will
-    // be equal to the number of elements available in the range.
 
     // DATA
     Md5Block             d_block;       // current block adapted from range
@@ -1057,97 +1084,102 @@ class Md5BlockInputIterator {
 
   public:
     // CLASS METHODS
+
+    /// Return `true` if the specified `lhs` and `rhs` objects have the same
+    /// value, and return `false` otherwise.  Two `Md5BlockInputIterator`
+    /// objects have the same value if and only if they address the same
+    /// first `unsigned char` and have the same `end`.
     static bool areEqual(const Md5BlockInputIterator& lhs,
                          const Md5BlockInputIterator& rhs);
-        // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-        // value, and return 'false' otherwise.  Two 'Md5BlockInputIterator'
-        // objects have the same value if and only if they address the same
-        // first 'unsigned char' and have the same 'end'.
 
     // CREATORS
+
+    /// Create a `Md5BlockInputIterator` object that has the past-the-end
+    /// value for an unspecified range.
     BSLA_MAYBE_UNUSED
     Md5BlockInputIterator();
-        // Create a 'Md5BlockInputIterator' object that has the past-the-end
-        // value for an unspecified range.
 
+    /// Create a `Md5BlockInputIterator` object that addresses an `Md5Block`
+    /// consisting of the lesser of the first 64 bytes in the `[begin, end)`
+    /// range or the size of the range.
     Md5BlockInputIterator(const unsigned char *begin,
                           const unsigned char *end);
-        // Create a 'Md5BlockInputIterator' object that addresses an 'Md5Block'
-        // consisting of the lesser of the first 64 bytes in the '[begin, end)'
-        // range or the size of the range.
 
+    /// Create a `Md5BlockInputIterator` object having the same value as the
+    /// specified `original` object.
     Md5BlockInputIterator(const Md5BlockInputIterator& original);
-        // Create a 'Md5BlockInputIterator' object having the same value as the
-        // specified 'original' object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
+    /// Return a reference providing modifiable access to this object.
     BSLA_MAYBE_UNUSED
     Md5BlockInputIterator& operator=(const Md5BlockInputIterator& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
-        // Return a reference providing modifiable access to this object.
 
+    /// Advance this object to the next position.  Return a reference
+    /// providing modifiable access to this object.  The next position is 64
+    /// elements past the current position in the `[begin, end)` range
+    /// supplied on construction if there are at least 64 elements remaining
+    /// in the range.  If there are less than 64 elements remaining, the
+    /// next position includes all remaining elements.  Otherwise, the next
+    /// position is the past-the-end position.  The behavior is undefined if
+    /// this object is in the past-the-end position.
     Md5BlockInputIterator& operator++();
-        // Advance this object to the next position.  Return a reference
-        // providing modifiable access to this object.  The next position is 64
-        // elements past the current position in the '[begin, end)' range
-        // supplied on construction if there are at least 64 elements remaining
-        // in the range.  If there are less than 64 elements remaining, the
-        // next position includes all remaining elements.  Otherwise, the next
-        // position is the past-the-end position.  The behavior is undefined if
-        // this object is in the past-the-end position.
 
+    /// Advance this object to the next position, and return, *by* *value*,
+    /// an iterator referring to the original position (*before* the
+    /// advancement).  The behavior is undefined if this object is in the
+    /// past-the-end position.
     BSLA_MAYBE_UNUSED
     Md5BlockInputIterator operator++(int);
-        // Advance this object to the next position, and return, *by* *value*,
-        // an iterator referring to the original position (*before* the
-        // advancement).  The behavior is undefined if this object is in the
-        // past-the-end position.
 
     // ACCESSORS
-    const Md5Block& operator*() const;
-        // Return a reference providing non-modifiable access to the 'Md5Block'
-        // at the position in the underlying sequence referred to by this
-        // object.  The behavior is undefined if this object is in the
-        // past-the-end position.
 
+    /// Return a reference providing non-modifiable access to the `Md5Block`
+    /// at the position in the underlying sequence referred to by this
+    /// object.  The behavior is undefined if this object is in the
+    /// past-the-end position.
+    const Md5Block& operator*() const;
+
+    /// Return an address providing non-modifiable access to the `Md5Block`
+    /// at the position in the underlying sequence referred to by this
+    /// object.  The behavior is undefined if this object is in the
+    /// past-the-end position.
     BSLA_MAYBE_UNUSED
     const Md5Block *operator->() const;
-        // Return an address providing non-modifiable access to the 'Md5Block'
-        // at the position in the underlying sequence referred to by this
-        // object.  The behavior is undefined if this object is in the
-        // past-the-end position.
 
 };
 
 // FREE FUNCTIONS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and return `false` otherwise.  Two `Md5BlockInputIterator`
+/// objects have the same value if and only if they address the same first
+/// `unsigned char` and have the same `end`.
 BSLA_MAYBE_UNUSED
 bool operator==(const Md5BlockInputIterator& lhs,
                 const Md5BlockInputIterator& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and return 'false' otherwise.  Two 'Md5BlockInputIterator'
-    // objects have the same value if and only if they address the same first
-    // 'unsigned char' and have the same 'end'.
 
+/// Return `true` if the specified `lhs` and `rhs` objects have different
+/// values, and return `false` otherwise.  Two `Md5BlockInputIterator`
+/// objects have different values if and only if they address different
+/// first `unsigned char` objects or have different `end` values.
 BSLA_MAYBE_UNUSED
 bool operator!=(const Md5BlockInputIterator& lhs,
                 const Md5BlockInputIterator& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have different
-    // values, and return 'false' otherwise.  Two 'Md5BlockInputIterator'
-    // objects have different values if and only if they address different
-    // first 'unsigned char' objects or have different 'end' values.
 
                           // ========================
                           // class Md5BlockInputRange
                           // ========================
 
+/// This class provides an adapter from a `[begin, end)` contiguous range of
+/// `unsigned char` values to a range of `Md5Block` objects.  The value of
+/// each subsequent object in the adapted range is the `Md5Block` value
+/// defined by the subsequence 64 elements of the underlying range.  When
+/// less than 64 elements are available (at the end of the range, or the
+/// beginning of a small range, for example), the value of the `Md5Block`
+/// will consist of all remaining elements.
 class Md5BlockInputRange {
-    // This class provides an adapter from a '[begin, end)' contiguous range of
-    // 'unsigned char' values to a range of 'Md5Block' objects.  The value of
-    // each subsequent object in the adapted range is the 'Md5Block' value
-    // defined by the subsequence 64 elements of the underlying range.  When
-    // less than 64 elements are available (at the end of the range, or the
-    // beginning of a small range, for example), the value of the 'Md5Block'
-    // will consist of all remaining elements.
 
     // DATA
     Md5BlockInputIterator d_begin;  // iterator to first block
@@ -1155,29 +1187,31 @@ class Md5BlockInputRange {
 
   public:
     // CREATORS
+
+    /// Create a `Md5BlockInputRange` that adapts the contiguous range of
+    /// defined by `[begin, end)` to a range of `Md5Block` objects.
     Md5BlockInputRange(const unsigned char *begin,
                        const unsigned char *end);
-        // Create a 'Md5BlockInputRange' that adapts the contiguous range of
-        // defined by '[begin, end)' to a range of 'Md5Block' objects.
 
     // ACCESSORS
-    Md5BlockInputIterator begin() const;
-        // Return an iterator to the first 'Md5Block' of the range supplied
-        // to this object upon construction.
 
+    /// Return an iterator to the first `Md5Block` of the range supplied
+    /// to this object upon construction.
+    Md5BlockInputIterator begin() const;
+
+    /// Return the past-the-end iterator of the range supplied to this
+    /// object upon construction.
     Md5BlockInputIterator end() const;
-        // Return the past-the-end iterator of the range supplied to this
-        // object upon construction.
 };
 
                                // ==============
                                // class Md5State
                                // ==============
 
+/// This in-core value-semantic attribute class provides a representation
+/// of the 3 fields quantities maintained during the calculation of a
+/// MD5 fingerprint for a stream of data.
 class Md5State {
-    // This in-core value-semantic attribute class provides a representation
-    // of the 3 fields quantities maintained during the calculation of a
-    // MD5 fingerprint for a stream of data.
 
     // DATA
     Md5Fingerprint      d_fingerprint;       // current MD5 fingerprint
@@ -1186,164 +1220,169 @@ class Md5State {
 
   public:
     // CREATORS
-    Md5State();
-        // Create a 'Md5State' object having a zero fingerprint, an empty
-        // block, and having consumed no blocks.
 
+    /// Create a `Md5State` object having a zero fingerprint, an empty
+    /// block, and having consumed no blocks.
+    Md5State();
+
+    /// Create a `Md5State` object having the specified `fingerprint`,
+    /// an empty block, and having consumed no blocks.
     BSLA_MAYBE_UNUSED
     explicit Md5State(const Md5Fingerprint& fingerprint);
-        // Create a 'Md5State' object having the specified 'fingerprint',
-        // an empty block, and having consumed no blocks.
 
+    /// Create a `Md5State` object having the specified `fingerprint`,
+    /// the specified `block`, and having consumed no blocks.
     BSLA_MAYBE_UNUSED
     Md5State(const Md5Fingerprint& fingerprint, const Md5Block& block);
-        // Create a 'Md5State' object having the specified 'fingerprint',
-        // the specified 'block', and having consumed no blocks.
 
+    /// Create a `Md5State` object having the specified `fingerprint`,
+    /// the specified `block`, and having consumed the specified
+    /// `numBlocksConsumed` number of blocks.
     BSLA_MAYBE_UNUSED
     Md5State(const Md5Fingerprint& fingerprint,
              const Md5Block&       block,
              bsls::Types::Uint64   numBlocksConsumed);
-        // Create a 'Md5State' object having the specified 'fingerprint',
-        // the specified 'block', and having consumed the specified
-        // 'numBlocksConsumed' number of blocks.
 
+    /// Create a `Md5State` object having the same value as the specified
+    /// `original` object.
     Md5State(const Md5State& original);
-        // Create a 'Md5State' object having the same value as the specified
-        // 'original' object.
 
     // MANIPULATORS
+
+    /// Assign to this object the same value as the specified `rhs` object.
+    /// Return a reference providing non-modifiable access to this object.
     BSLA_MAYBE_UNUSED
     Md5State& operator=(const Md5State& rhs);
-        // Assign to this object the same value as the specified 'rhs' object.
-        // Return a reference providing non-modifiable access to this object.
 
+    /// Set the value of the `fingerprint` attribute of this object to
+    /// the specified `value`.
     void setFingerprint(const Md5Fingerprint& value);
-        // Set the value of the 'fingerprint' attribute of this object to
-        // the specified 'value'.
 
+    /// Set the `block` attribute of this object to the specified `value`.
     void setBlock(const Md5Block& value);
-        // Set the 'block' attribute of this object to the specified 'value'.
 
+    /// set the `number of blocks consumed` attribute of this object to
+    /// the specified `value`.
     void setNumBlocksConsumed(bsls::Types::Uint64 value);
-        // set the 'number of blocks consumed' attribute of this object to
-        // the specified 'value'.
 
     // ACCESSORS
+
+    /// Return a reference providing non-modifiable access to the
+    /// `fingerprint` attribute of this object.
     const Md5Fingerprint& fingerprint() const;
-        // Return a reference providing non-modifiable access to the
-        // 'fingerprint' attribute of this object.
 
+    /// Return a reference providing non-modifiable access to the
+    /// `block` attribute of this object.
     const Md5Block& block() const;
-        // Return a reference providing non-modifiable access to the
-        // 'block' attribute of this object.
 
+    /// Return the value of the `number of blocks consumed` attribute of
+    /// this object.
     bsls::Types::Uint64 numBlocksConsumed() const;
-        // Return the value of the 'number of blocks consumed' attribute of
-        // this object.
 };
 
                              // ===================
                              // struct Md5StateUtil
                              // ===================
 
+/// This utility `struct` is a namespace for a suite of functions that
+/// provide non-primitive functionality for `Md5State` objects.
 struct Md5StateUtil {
-    // This utility 'struct' is a namespace for a suite of functions that
-    // provide non-primitive functionality for 'Md5State' objects.
 
     // CLASS METHODS
+
+    /// Return a `Md5State` object having the initial value for the
+    /// "MD5" algorithm.
     static Md5State getSeedValue();
-        // Return a 'Md5State' object having the initial value for the
-        // "MD5" algorithm.
 
+    /// Load into the specified `value` the initial value used for
+    /// the "MD5" algorithm.
     static void loadSeedValue(Md5State *value);
-        // Load into the specified 'value' the initial value used for
-        // the "MD5" algorithm.
 
+    /// Append the specified `block` to the end of the `block` of the
+    /// specified `state`.  If, during the course of this operation,
+    /// the `size` of the `block` of the `state` reaches 64, first
+    /// digest the `state` (thereby updating its `fingerprint`) and
+    /// then reset its `block` before continuing to append the
+    /// remainder of the contents of the specified `block`.
     static void append(Md5State *state, const Md5Block& block);
-        // Append the specified 'block' to the end of the 'block' of the
-        // specified 'state'.  If, during the course of this operation,
-        // the 'size' of the 'block' of the 'state' reaches 64, first
-        // digest the 'state' (thereby updating its 'fingerprint') and
-        // then reset its 'block' before continuing to append the
-        // remainder of the contents of the specified 'block'.
 
+    /// Append the bytes in the specified contiguous range `[begin, end)` to
+    /// the end of the `block` of the specified `state`.  When, during the
+    /// course of this operation, the `size` of the `block` of the `state`
+    /// reaches 64, first digest the `state` (thereby updating its
+    /// `fingerprint`) and then reset its `block` before continuing to
+    /// append the remainder of the content of the specified range.  Note
+    /// that the digest operation may be performed more than once or not at
+    /// all, depending on the size of the specified range.
     static void append(Md5State            *state,
                        const unsigned char *begin,
                        const unsigned char *end);
-        // Append the bytes in the specified contiguous range '[begin, end)' to
-        // the end of the 'block' of the specified 'state'.  When, during the
-        // course of this operation, the 'size' of the 'block' of the 'state'
-        // reaches 64, first digest the 'state' (thereby updating its
-        // 'fingerprint') and then reset its 'block' before continuing to
-        // append the remainder of the content of the specified range.  Note
-        // that the digest operation may be performed more than once or not at
-        // all, depending on the size of the specified range.
 
+    /// Load into the `fingerprint` of the specified `state` the final MD5
+    /// fingerprint of all of the data supplied to the `state` so far.  If
+    /// the `block` of the state has a `size() < 56`, then append a single
+    /// `0x80` byte to the block, followed by `63 - size()` zero bytes.  If
+    /// the `block` has a `size() == 56`, reset the `block` to one `0x80`
+    /// byte followed by 55 zero bytes.  Otherwise, reset the block to `56`
+    /// zero bytes.
     static void appendPaddingAndLength(Md5State *state);
-        // Load into the 'fingerprint' of the specified 'state' the final MD5
-        // fingerprint of all of the data supplied to the 'state' so far.  If
-        // the 'block' of the state has a 'size() < 56', then append a single
-        // '0x80' byte to the block, followed by '63 - size()' zero bytes.  If
-        // the 'block' has a 'size() == 56', reset the 'block' to one '0x80'
-        // byte followed by 55 zero bytes.  Otherwise, reset the block to '56'
-        // zero bytes.
 
+    /// Load into the `fingerprint` of the specified `state` the next
+    /// non-final MD5 fingerprint defined by the current `fingerprint`
+    /// and `block` of the state.
     BSLA_MAYBE_UNUSED
     static void digest(Md5State *state);
-        // Load into the 'fingerprint' of the specified 'state' the next
-        // non-final MD5 fingerprint defined by the current 'fingerprint'
-        // and 'block' of the state.
 
+    /// Load into the `fingerprint` the next non-final MD5 fingerprint
+    /// defined by the current value of `fingerprint` and the specified
+    /// `block`.
     static void digest(Md5Fingerprint *fingerprint, const Md5Block& block);
-        // Load into the 'fingerprint' the next non-final MD5 fingerprint
-        // defined by the current value of 'fingerprint' and the specified
-        // 'block'.
 
+    /// Return the next non-final MD5 fingerprint of the specified `state`
+    /// defined by the current `fingerprint` and `block` of the state.
     static Md5Fingerprint digest(const Md5State& state);
-        // Return the next non-final MD5 fingerprint of the specified 'state'
-        // defined by the current 'fingerprint' and 'block' of the state.
 
+    /// Return the next non-final MD5 fingerprint defined by the specified
+    /// `fingerprint` and `block`.
     static Md5Fingerprint digest(const Md5Fingerprint& fingerprint,
                                  const Md5Block&       block);
-        // Return the next non-final MD5 fingerprint defined by the specified
-        // 'fingerprint' and 'block'.
 };
 
                         // ============================
                         // struct Md5StateUtil_ImplUtil
                         // ============================
 
+/// This utility `struct` is a namespace for a suite of functions that
+/// provide non-primitive functionality on `Md5State` objects.
+/// Note that many of the member names of this class are short and opaque.
+/// These names are meant to reflect the names used in the specification
+/// of the MD5 algorithm from the April 1992 revision of IETF RFC 1321.
 struct Md5StateUtil_ImplUtil {
-    // This utility 'struct' is a namespace for a suite of functions that
-    // provide non-primitive functionality on 'Md5State' objects.
-    // Note that many of the member names of this class are short and opaque.
-    // These names are meant to reflect the names used in the specification
-    // of the MD5 algorithm from the April 1992 revision of IETF RFC 1321.
 
   private:
     // CLASS INVARIANTS
     BSLMF_ASSERT(4 == sizeof(int));
 
     // PRIVATE CLASS METHODS
+
+    /// Return `xy | ~xz` where juxtaposition denotes binary conjunction,
+    /// '|' binary disjunction, and '~' binary negation.
     static unsigned int f(unsigned int x, unsigned int y, unsigned int z);
-        // Return 'xy | ~xz' where juxtaposition denotes binary conjunction,
-        // '|' binary disjunction, and '~' binary negation.
 
+    /// Return `xz | y(~z)` where juxtaposition denotes binary conjunction,
+    /// '|' binary disjunction, and '~' binary negation.
     static unsigned int g(unsigned int x, unsigned int y, unsigned int z);
-        // Return 'xz | y(~z)' where juxtaposition denotes binary conjunction,
-        // '|' binary disjunction, and '~' binary negation.
 
+    /// Return `z XOR y XOR z`.
     static unsigned int h(unsigned int x, unsigned int y, unsigned int z);
-        // Return 'z XOR y XOR z'.
 
+    /// Return `y XOR (x | ~z)` where '|' denotes binary disjunction and
+    /// '~' binary negation.
     static unsigned int i(unsigned int x, unsigned int y, unsigned int z);
-        // Return 'y XOR (x | ~z)' where '|' denotes binary disjunction and
-        // '~' binary negation.
 
+    /// Return the result of circularly rotating the bits of the specified
+    /// `value` to the left by the specified `numBits` number of bits.
     static unsigned int rotateLeft(unsigned int value, unsigned int numBits);
-        // Return the result of circularly rotating the bits of the specified
-        // 'value' to the left by the specified 'numBits' number of bits.
 
   public:
     // CLASS DATA
@@ -1352,33 +1391,39 @@ struct Md5StateUtil_ImplUtil {
         k_BLOCK_SIZE      = 16
     };
 
+    /// Table of contents used as the values indexed by the values in the
+    /// `k_I_TABLE`.  This is used in the implementations of `round1Op`,
+    /// `round2Op`, `round3Op`, and `round4Op`.
     static const unsigned int k_T_TABLE[64];
-        // Table of contents used as the values indexed by the values in the
-        // 'k_I_TABLE'.  This is used in the implementations of 'round1Op',
-        // 'round2Op', 'round3Op', and 'round4Op'.
 
+    /// Table of constants used as the argument for the `i` parameter in
+    /// `round1Op`, `round2Op`, `round3Op`, and `round4Op` when digesting
+    /// an Md5Block as part of computing an MD5 fingerprint.  This table
+    /// is first indexed by round number and then by the index of the
+    /// operation in that round.
     static const unsigned int k_I_TABLE[4][16];
-        // Table of constants used as the argument for the 'i' parameter in
-        // 'round1Op', 'round2Op', 'round3Op', and 'round4Op' when digesting
-        // an Md5Block as part of computing an MD5 fingerprint.  This table
-        // is first indexed by round number and then by the index of the
-        // operation in that round.
 
+    /// Table of constants used as the argument for the `k` parameter in
+    /// `round1Op`, `round2Op`, `round3Op`, and `round4Op` when digesting
+    /// an Md5Block as part of computing an MD5 fingerprint.  This table
+    /// is first indexed by round number and then by the index of the
+    /// operation in that round.
     static const unsigned int k_K_TABLE[4][16];
-        // Table of constants used as the argument for the 'k' parameter in
-        // 'round1Op', 'round2Op', 'round3Op', and 'round4Op' when digesting
-        // an Md5Block as part of computing an MD5 fingerprint.  This table
-        // is first indexed by round number and then by the index of the
-        // operation in that round.
 
+    /// Table of constants used as the argument for the `s` parameter in
+    /// `round1Op`, `round2Op`, `round3Op`, and `round4Op` when digesting
+    /// an Md5Block as part of computing an MD5 fingerprint.  This table
+    /// is first indexed by round number and then by the index of the
+    /// operation in that round.
     static const unsigned int k_S_TABLE[4][16];
-        // Table of constants used as the argument for the 's' parameter in
-        // 'round1Op', 'round2Op', 'round3Op', and 'round4Op' when digesting
-        // an Md5Block as part of computing an MD5 fingerprint.  This table
-        // is first indexed by round number and then by the index of the
-        // operation in that round.
 
     // CLASS METHODS
+
+    /// Load into the specified `a`, `b`, `c`, and `d` a value
+    /// deterministically determined from the specified `x`, `i`, `k`, and
+    /// `s`.   The essential behavior of this function is equivalent to the
+    /// first round operation for updating the MD5 state as specified in the
+    /// April 1992 revision of IETF RFC 1321.
     static void round1Op(unsigned int    *a,
                          unsigned int    *b,
                          unsigned int    *c,
@@ -1387,12 +1432,12 @@ struct Md5StateUtil_ImplUtil {
                          unsigned int     i,
                          unsigned int     k,
                          unsigned int     s);
-        // Load into the specified 'a', 'b', 'c', and 'd' a value
-        // deterministically determined from the specified 'x', 'i', 'k', and
-        // 's'.   The essential behavior of this function is equivalent to the
-        // first round operation for updating the MD5 state as specified in the
-        // April 1992 revision of IETF RFC 1321.
 
+    /// Load into the specified `a`, `b`, `c`, and `d` a value
+    /// deterministically determined from the specified `x`, `i`, `k`, and
+    /// `s`.  The essential behavior of this function is equivalent to the
+    /// second round operation for updating the MD5 state as specified in
+    /// the April 1992 revision of IETF RFC 1321.
     static void round2Op(unsigned int    *a,
                          unsigned int    *b,
                          unsigned int    *c,
@@ -1401,12 +1446,12 @@ struct Md5StateUtil_ImplUtil {
                          unsigned int     i,
                          unsigned int     k,
                          unsigned int     s);
-        // Load into the specified 'a', 'b', 'c', and 'd' a value
-        // deterministically determined from the specified 'x', 'i', 'k', and
-        // 's'.  The essential behavior of this function is equivalent to the
-        // second round operation for updating the MD5 state as specified in
-        // the April 1992 revision of IETF RFC 1321.
 
+    /// Load into the specified `a`, `b`, `c`, and `d` a value
+    /// deterministically determined from the specified `x`, `i`, `k`, and
+    /// `s`.   The essential behavior of this function is equivalent to the
+    /// third round operation for updating the MD5 state as specified in the
+    /// April 1992 revision of IETF RFC 1321.
     static void round3Op(unsigned int    *a,
                          unsigned int    *b,
                          unsigned int    *c,
@@ -1415,12 +1460,12 @@ struct Md5StateUtil_ImplUtil {
                          unsigned int     i,
                          unsigned int     k,
                          unsigned int     s);
-        // Load into the specified 'a', 'b', 'c', and 'd' a value
-        // deterministically determined from the specified 'x', 'i', 'k', and
-        // 's'.   The essential behavior of this function is equivalent to the
-        // third round operation for updating the MD5 state as specified in the
-        // April 1992 revision of IETF RFC 1321.
 
+    /// Load into the specified `a`, `b`, `c`, and `d` a value
+    /// deterministically determined from the specified `x`, `i`, `k`, and
+    /// `s`.   The essential behavior of this function is equivalent to the
+    /// fourth round operation for updating the MD5 state as specified in
+    /// the April 1992 revision of IETF RFC 1321.
     static void round4Op(unsigned int    *a,
                          unsigned int    *b,
                          unsigned int    *c,
@@ -1429,39 +1474,35 @@ struct Md5StateUtil_ImplUtil {
                          unsigned int     i,
                          unsigned int     k,
                          unsigned int     s);
-        // Load into the specified 'a', 'b', 'c', and 'd' a value
-        // deterministically determined from the specified 'x', 'i', 'k', and
-        // 's'.   The essential behavior of this function is equivalent to the
-        // fourth round operation for updating the MD5 state as specified in
-        // the April 1992 revision of IETF RFC 1321.
 };
 
                                // ==============
                                // struct Md5Util
                                // ==============
 
+/// This utility `struct` is a namespace for a suite of top-level functions
+/// pertaining to computing the MD5 fingerprint of a sequence of data.
 struct Md5Util {
-    // This utility 'struct' is a namespace for a suite of top-level functions
-    // pertaining to computing the MD5 fingerprint of a sequence of data.
 
     // CLASS METHODS
+
+    /// Return the MD5 fingerprint of the data in the contiguous range
+    /// `[begin, end)`.
     static Md5Fingerprint getFingerprint(const unsigned char *begin,
                                          const unsigned char *end);
-        // Return the MD5 fingerprint of the data in the contiguous range
-        // '[begin, end)'.
 };
 
                          // ==========================
                          // class Md5ChecksumAlgorithm
                          // ==========================
 
+/// This function-object class provides an implementation of the
+/// requirements for a hashing algorithm as specified in the `bslh_hash`
+/// component.  It is suitable for use as a message digest.  Note that
+/// the `result_type` of this function object is not convertible to
+/// `bsl::size_t`, and so this class cannot be used as the hashing
+/// algorithm for a `bslh::Hash` object.
 class Md5ChecksumAlgorithm {
-    // This function-object class provides an implementation of the
-    // requirements for a hashing algorithm as specified in the 'bslh_hash'
-    // component.  It is suitable for use as a message digest.  Note that
-    // the 'result_type' of this function object is not convertible to
-    // 'bsl::size_t', and so this class cannot be used as the hashing
-    // algorithm for a 'bslh::Hash' object.
 
     // DATA
     Md5State d_state; // current MD5 state
@@ -1474,315 +1515,338 @@ class Md5ChecksumAlgorithm {
 
   public:
     // TYPES
+
+    /// `result_type` is an alias to the value type returned by this hash
+    /// algorithm.
     typedef Md5Fingerprint result_type;
-        // 'result_type' is an alias to the value type returned by this hash
-        // algorithm.
 
     // CREATORS
+
+    /// Create a `Md5ChecksumAlgorithm` object.
     Md5ChecksumAlgorithm();
-        // Create a 'Md5ChecksumAlgorithm' object.
 
     // MANIPULATORS
-    void operator()(const void *data, bsl::size_t numBytes);
-        // Incorporate the specified 'data', of at least the specified
-        // 'numBytes' length, into the internal state of this hashing
-        // algorithm.  Every bit of data incorporated into the internal state
-        // of the algorithm will contribute to the final hash produced by
-        // 'computeHash()'.  The same hash value will be produced regardless of
-        // whether a sequence of bytes is passed in all at once or through
-        // multiple calls to this member function.  Input where 'numBytes' is 0
-        // will have no affect on the internal state of the algorithm.  The
-        // behavior is undefined unless 'data' addresses a contiguous array of
-        // at least 'numBytes' initialized memory.
 
+    /// Incorporate the specified `data`, of at least the specified
+    /// `numBytes` length, into the internal state of this hashing
+    /// algorithm.  Every bit of data incorporated into the internal state
+    /// of the algorithm will contribute to the final hash produced by
+    /// `computeHash()`.  The same hash value will be produced regardless of
+    /// whether a sequence of bytes is passed in all at once or through
+    /// multiple calls to this member function.  Input where `numBytes` is 0
+    /// will have no affect on the internal state of the algorithm.  The
+    /// behavior is undefined unless `data` addresses a contiguous array of
+    /// at least `numBytes` initialized memory.
+    void operator()(const void *data, bsl::size_t numBytes);
+
+    /// Return the finalized version of the hash that has been accumulated
+    /// and make an unspecified change to the internal state of the
+    /// algorithm.  Note that calling `computeHash` multiple times in a row
+    /// will return different results, and only the first result returned
+    /// will match the expected result of the algorithm.
     result_type computeChecksum();
-        // Return the finalized version of the hash that has been accumulated
-        // and make an unspecified change to the internal state of the
-        // algorithm.  Note that calling 'computeHash' multiple times in a row
-        // will return different results, and only the first result returned
-        // will match the expected result of the algorithm.
 };
 
                                // ==============
                                // class Checksum
                                // ==============
 
+/// This function-object class provides a wrapper around the specified
+/// `HASH_ALGORITHM` capable of computing a checksum, or "fingerprint" of
+/// objects.  This class template is structured similarly to `bslh::Hash`,
+/// but has the ability to return the `result_type` of the `HASH_ALGORITHM`,
+/// rather than `bsl::size_t`.  The program is ill-formed unless the
+/// `HASH_ALGORITHM` class meets the requirements of a `HashAlgorithm`
+/// specified in the `bslh_hash` component.
 template <class CHECKSUM_ALGORITHM>
 class Checksum {
-    // This function-object class provides a wrapper around the specified
-    // 'HASH_ALGORITHM' capable of computing a checksum, or "fingerprint" of
-    // objects.  This class template is structured similarly to 'bslh::Hash',
-    // but has the ability to return the 'result_type' of the 'HASH_ALGORITHM',
-    // rather than 'bsl::size_t'.  The program is ill-formed unless the
-    // 'HASH_ALGORITHM' class meets the requirements of a 'HashAlgorithm'
-    // specified in the 'bslh_hash' component.
 
   public:
     // TYPES
-    typedef CHECKSUM_ALGORITHM ChecksumAlgorithm;
-        // 'ChecksumAlgorithm' is an alias to the specified
-        // 'CHECKSUM_ALGORITHM'.
 
+    /// `ChecksumAlgorithm` is an alias to the specified
+    /// `CHECKSUM_ALGORITHM`.
+    typedef CHECKSUM_ALGORITHM ChecksumAlgorithm;
+
+    /// `result_type` is an alias to the value type returned by the
+    /// function-call operator of objects of `HASH_ALGORITHM` type, as well
+    /// as the function-call operator of this class.
     typedef typename ChecksumAlgorithm::result_type result_type;
-        // 'result_type' is an alias to the value type returned by the
-        // function-call operator of objects of 'HASH_ALGORITHM' type, as well
-        // as the function-call operator of this class.
 
     // ACCESSORS
+
+    /// Return a hash value generated by the `HASH_ALGORITHM` for the
+    /// specified `object`.
     template <class TYPE>
     result_type operator()(const TYPE& object) const;
-        // Return a hash value generated by the 'HASH_ALGORITHM' for the
-        // specified 'object'.
 };
 
                              // ===================
                              // struct ChecksumUtil
                              // ===================
 
+/// This utility `struct` is a namespace for a suite of functions that
+/// compute a checksum for an object.
 struct ChecksumUtil {
-    // This utility 'struct' is a namespace for a suite of functions that
-    // compute a checksum for an object.
 
     // CLASS METHODS
+
+    /// Return the MD5 fingerprint of the specified `object` as specified by
+    /// applying the MD5 Message-Digest algorithm to the sequence of bytes
+    /// supplied to the `HASH_ALG` of the overload of `hashAppend` provided
+    /// for the specified `object`.  The behavior is undefined unless a
+    /// well-formed overload of `hashAppend` for the specified `object` is
+    /// reachable.
     template <class OBJECT_TYPE>
     static Md5Fingerprint getMd5(const OBJECT_TYPE& object);
-        // Return the MD5 fingerprint of the specified 'object' as specified by
-        // applying the MD5 Message-Digest algorithm to the sequence of bytes
-        // supplied to the 'HASH_ALG' of the overload of 'hashAppend' provided
-        // for the specified 'object'.  The behavior is undefined unless a
-        // well-formed overload of 'hashAppend' for the specified 'object' is
-        // reachable.
 };
 
                          // =========================
                          // class PutValueFingerprint
                          // =========================
 
+/// This in-core value-semantic attribute type provides a set of
+/// configuration parameters that determine an equivalence class of
+/// partially-applied `balber::BerUtil::putValue` functions.  The
+/// `hashAppend` overload provided by this class appends the hash values of
+/// the output for a large, deterministically and pseudo-randomly generated
+/// set of input for `balber::BerUtil::putValue`.  The attributes of this
+/// class constitute the partially-applied parameters, are not
+/// pseudo-randomly generated during the calculation of the hash of this
+/// object, and instead are fixed to the value of the attribute.
 class PutValueFingerprint {
-    // This in-core value-semantic attribute type provides a set of
-    // configuration parameters that determine an equivalence class of
-    // partially-applied 'balber::BerUtil::putValue' functions.  The
-    // 'hashAppend' overload provided by this class appends the hash values of
-    // the output for a large, deterministically and pseudo-randomly generated
-    // set of input for 'balber::BerUtil::putValue'.  The attributes of this
-    // class constitute the partially-applied parameters, are not
-    // pseudo-randomly generated during the calculation of the hash of this
-    // object, and instead are fixed to the value of the attribute.
 
     // DATA
+
+    // pseudo-random seed
     int  d_seed;
-        // pseudo-random seed
 
+    // number of input-output pairs to generate
     int  d_numSamples;
-        // number of input-output pairs to generate
 
+    // value to fix for the `datetimeFractionalSecondPrecision`
+    // `balber::BerEncoderOptions` attribute to supply to
+    // `balber::BerUtil::putValue`
     int  d_fractionalSecondPrecision;
-        // value to fix for the 'datetimeFractionalSecondPrecision'
-        // 'balber::BerEncoderOptions' attribute to supply to
-        // 'balber::BerUtil::putValue'
 
+    // value to fix for the `encodeDateAndTimeTypesAsBinary`
+    // `balber::BerEncoderOptions` attribute to supply to
+    // `balber::BerUtil::putValue`
     bool d_encodeDateAndTimeTypesAsBinary;
-        // value to fix for the 'encodeDateAndTimeTypesAsBinary'
-        // 'balber::BerEncoderOptions' attribute to supply to
-        // 'balber::BerUtil::putValue'
 
+    // value to fix for the `encodeDateAndTimeTypesAsBinary`
+    // `balber::BerEncoderOptions` attribute to supply to
+    // `balber::BerUtil::putValue`
     bool d_preserveSignOfNegativeZero;
-        // value to fix for the 'encodeDateAndTimeTypesAsBinary'
-        // 'balber::BerEncoderOptions' attribute to supply to
-        // 'balber::BerUtil::putValue'
 
   public:
     // CREATORS
+
+    /// Create a `PutValueFingerprint` object having a 0 `seed` attribute, a
+    /// 0 `numSamples` attribute, a 0 `fractionalSecondPrecision` attribute,
+    /// and a `false` `encodeDateAndTimeTypesAsBinary` attribute.
     PutValueFingerprint();
-        // Create a 'PutValueFingerprint' object having a 0 'seed' attribute, a
-        // 0 'numSamples' attribute, a 0 'fractionalSecondPrecision' attribute,
-        // and a 'false' 'encodeDateAndTimeTypesAsBinary' attribute.
 
     // MANIPULATORS
+
+    /// Assign the specified `value` to the `seed` attribute of this
+    /// object.
     void setSeed(int value);
-        // Assign the specified 'value' to the 'seed' attribute of this
-        // object.
 
+    /// Assign the specified `value` to the `numSamples` attribute of this
+    /// object.
     void setNumSamples(int value);
-        // Assign the specified 'value' to the 'numSamples' attribute of this
-        // object.
 
+    /// Assign the specified `value` to the `fractionalSecondPrecision`
+    /// attribute of this object.
     void setFractionalSecondPrecision(int value);
-        // Assign the specified 'value' to the 'fractionalSecondPrecision'
-        // attribute of this object.
 
+    /// Assign the specified `value` to the `encodeDateAndTimeTypesAsBinary`
+    /// attribute of this object.
     void setEncodeDateAndTimeTypesAsBinary(bool value);
-        // Assign the specified 'value' to the 'encodeDateAndTimeTypesAsBinary'
-        // attribute of this object.
 
+    /// Assign the specified `value` to the `preserveSignOfNegativeZero`
+    /// attribute of this object.
     void setPreserveSignOfNegativeZero(bool value);
-        // Assign the specified 'value' to the 'preserveSignOfNegativeZero'
-        // attribute of this object.
 
     // ACCESSORS
+
+    /// Return the value of the `seed` attribute of this object.
     int seed() const;
-        // Return the value of the 'seed' attribute of this object.
 
+    /// Return the value of the `numSamples` attribute of this object.
     int numSamples() const;
-        // Return the value of the 'numSamples' attribute of this object.
 
+    /// Return the value of the `fractionalSecondPrecision` attribute of
+    /// this object.
     int fractionalSecondPrecision() const;
-        // Return the value of the 'fractionalSecondPrecision' attribute of
-        // this object.
 
+    /// Return the value of the `encodeDateAndTimeTypesAsBinary` attribute
+    /// of this object.
     bool encodeDateAndTimeTypesAsBinary() const;
-        // Return the value of the 'encodeDateAndTimeTypesAsBinary' attribute
-        // of this object.
 
+    /// Return the value of the `preserveSignOfNegativeZero` attribute of
+    /// this object.
     bool preserveSignOfNegativeZero() const;
-        // Return the value of the 'preserveSignOfNegativeZero' attribute of
-        // this object.
 };
 
 // FREE FUNCTIONS
+
+/// Deterministically and pseudo-randomly generate `object.numSamples()`
+/// number of inputs for `balber::BerUtil::putValue` using `object.seed()`
+/// as a pseudo-random seed.  Supply a `balber::BerEncoderOptions` object
+/// having the default value except for the attributes
+/// `datetimeFractionalSecondPrecision` and
+/// `encodeDateAndTimeTypesAsBinary`, which have the value
+/// `object.fractionalSecondPrecision()` and
+/// `object.encodeDateAndTimeTypesAsBinary()` respectively, instead.  Supply
+/// all of the output of invoking `balber::BerUtil::putValue` with the
+/// encoding options and generated input to the specified checksum
+/// `algorithm`.
 template <class ALGORITHM>
 void checksumAppend(ALGORITHM& algorithm, const PutValueFingerprint& object);
-    // Deterministically and pseudo-randomly generate 'object.numSamples()'
-    // number of inputs for 'balber::BerUtil::putValue' using 'object.seed()'
-    // as a pseudo-random seed.  Supply a 'balber::BerEncoderOptions' object
-    // having the default value except for the attributes
-    // 'datetimeFractionalSecondPrecision' and
-    // 'encodeDateAndTimeTypesAsBinary', which have the value
-    // 'object.fractionalSecondPrecision()' and
-    // 'object.encodeDateAndTimeTypesAsBinary()' respectively, instead.  Supply
-    // all of the output of invoking 'balber::BerUtil::putValue' with the
-    // encoding options and generated input to the specified checksum
-    // 'algorithm'.
 
                      // ===================================
                      // struct PutValueFingerprint_ImplUtil
                      // ===================================
 
+/// This utility `struct` is a namespace for a suite of functions used in
+/// the implementation of the `PutValueFingerprint` class.
 struct PutValueFingerprint_ImplUtil {
-    // This utility 'struct' is a namespace for a suite of functions used in
-    // the implementation of the 'PutValueFingerprint' class.
 
     // CLASS METHODS
+
+    /// Encode a pseudo-random value loaded by the specified `loader` into
+    /// the specified `streamBuf` using the encoding provided by invoking
+    /// `balber::BerUtil::putValue` with the pseudo-random value and the
+    /// specified `options`.
     template <class VALUE, class LOADER>
     static void putRandomValue(bsl::streambuf                   *streamBuf,
                                LOADER&                           loader,
                                const balber::BerEncoderOptions&  options);
-        // Encode a pseudo-random value loaded by the specified 'loader' into
-        // the specified 'streamBuf' using the encoding provided by invoking
-        // 'balber::BerUtil::putValue' with the pseudo-random value and the
-        // specified 'options'.
 };
 
                           // =========================
                           // class GetValueFingerprint
                           // =========================
 
+/// This in-core value-semantic attribute type provides a set of
+/// configuration parameters that determine an equivalence class of
+/// partially-applied `balber::BerUtil::getValue` functions.  The
+/// `hashAppend` overload provided by this class appends the hash values of
+/// the output of a large, deterministically, and pseudo-randomly generated
+/// set of input for `balber::BerUtil::getValue`.  The attributes of this
+/// class constitute the partially-applied parameters, are not
+/// pseudo-randomly generated during the calculation of the hash value of
+/// this object, and instead are fixed to the value of the attribute.
 class GetValueFingerprint {
-    // This in-core value-semantic attribute type provides a set of
-    // configuration parameters that determine an equivalence class of
-    // partially-applied 'balber::BerUtil::getValue' functions.  The
-    // 'hashAppend' overload provided by this class appends the hash values of
-    // the output of a large, deterministically, and pseudo-randomly generated
-    // set of input for 'balber::BerUtil::getValue'.  The attributes of this
-    // class constitute the partially-applied parameters, are not
-    // pseudo-randomly generated during the calculation of the hash value of
-    // this object, and instead are fixed to the value of the attribute.
 
     // DATA
+
+    // pseudo-random seed
     int  d_seed;
-        // pseudo-random seed
 
+    // number of input-output pairs to generate
     int  d_numSamples;
-        // number of input-output pairs to generate
 
+    // value to fix for the `datetimeFractionalSecondPrecision`
+    // `balber::BerEncoderOptions` attribute to supply to
+    // `balber::BerUtil::putValue`
     int  d_fractionalSecondPrecision;
-        // value to fix for the 'datetimeFractionalSecondPrecision'
-        // 'balber::BerEncoderOptions' attribute to supply to
-        // 'balber::BerUtil::putValue'
 
+    // value to fix for the `encodeDateAndTimeTypesAsBinary`
+    // `balber::BerEncoderOptions` attribute to supply to
+    // `balber::BerUtil::putValue`
     bool d_encodeDateAndTimeTypesAsBinary;
-        // value to fix for the 'encodeDateAndTimeTypesAsBinary'
-        // 'balber::BerEncoderOptions' attribute to supply to
-        // 'balber::BerUtil::putValue'
 
+    // value to fix for the `encodeDateAndTimeTypesAsBinary`
+    // `balber::BerEncoderOptions` attribute to supply to
+    // `balber::BerUtil::putValue`
     bool d_preserveSignOfNegativeZero;
-        // value to fix for the 'encodeDateAndTimeTypesAsBinary'
-        // 'balber::BerEncoderOptions' attribute to supply to
-        // 'balber::BerUtil::putValue'
 
   public:
     // CREATORS
+
+    /// Create a `GetValueFingerprint` object having a 0 `seed` attribute, a
+    /// 0 `numSamples` attribute, a 0 `fractionalSecondPrecision` attribute,
+    /// and a `false` `encodeDateAndTimeTypesAsBinary` attribute.
     GetValueFingerprint();
-        // Create a 'GetValueFingerprint' object having a 0 'seed' attribute, a
-        // 0 'numSamples' attribute, a 0 'fractionalSecondPrecision' attribute,
-        // and a 'false' 'encodeDateAndTimeTypesAsBinary' attribute.
 
     // MANIPULATORS
+
+    /// Assign the specified `value` to the `seed` attribute of this
+    /// object.
     void setSeed(int value);
-        // Assign the specified 'value' to the 'seed' attribute of this
-        // object.
 
+    /// Assign the specified `value` to the `numSamples` attribute of this
+    /// object.
     void setNumSamples(int value);
-        // Assign the specified 'value' to the 'numSamples' attribute of this
-        // object.
 
+    /// Assign the specified `value` to the `fractionalSecondPrecision`
+    /// attribute of this object.
     void setFractionalSecondPrecision(int value);
-        // Assign the specified 'value' to the 'fractionalSecondPrecision'
-        // attribute of this object.
 
+    /// Assign the specified `value` to the `encodeDateAndTimeTypesAsBinary`
+    /// attribute of this object.
     void setEncodeDateAndTimeTypesAsBinary(bool value);
-        // Assign the specified 'value' to the 'encodeDateAndTimeTypesAsBinary'
-        // attribute of this object.
 
+    /// Assign the specified `value` to the `preserveSignOfNegativeZero`
+    /// attribute of this object.
     void setPreserveSignOfNegativeZero(bool value);
-        // Assign the specified 'value' to the 'preserveSignOfNegativeZero'
-        // attribute of this object.
 
     // ACCESSORS
+
+    /// Return the value of the `seed` attribute of this object.
     int seed() const;
-        // Return the value of the 'seed' attribute of this object.
 
+    /// Return the value of the `numSamples` attribute of this object.
     int numSamples() const;
-        // Return the value of the 'numSamples' attribute of this object.
 
+    /// Return the value of the `fractionalSecondPrecision` attribute of
+    /// this object.
     int fractionalSecondPrecision() const;
-        // Return the value of the 'fractionalSecondPrecision' attribute of
-        // this object.
 
+    /// Return the value of the `encodeDateAndTimeTypesAsBinary` attribute
+    /// of this object.
     bool encodeDateAndTimeTypesAsBinary() const;
-        // Return the value of the 'encodeDateAndTimeTypesAsBinary' attribute
-        // of this object.
 
+    /// Return the value of the `preserveSignOfNegativeZero` attribute of
+    /// this object.
     bool preserveSignOfNegativeZero() const;
-        // Return the value of the 'preserveSignOfNegativeZero' attribute of
-        // this object.
 };
 
 // FREE FUNCTIONS
+
+/// Deterministically and pseudo-randomly generate `object.numSamples()`
+/// number of inputs for `balber::BerUtil::getValue` using `object.seed()`
+/// as a pseudo-random seed.  Provide input to `balber::BerUtil::getValue`
+/// using an invocation of `balber::BerUtil::putValue` supplied with a
+/// `balber::BerEncoderOptions` object having the default value except for
+/// the attributes `datetimeFractionalSecondPrecision` and
+/// `encodeDateAndTimeTypesAsBinary`, which have the value
+/// `object.fractionalSecondPrecision()` and
+/// `object.encodeDateAndTimeTypesAsBinary()` respectively, instead.  Supply
+/// all of the output of invoking `balber::BerUtil::getValue` with the
+/// encoding options and generated input to the specified checksum
+/// `algorithm`.
 template <class ALGORITHM>
 void checksumAppend(ALGORITHM& algorithm, const GetValueFingerprint& object);
-    // Deterministically and pseudo-randomly generate 'object.numSamples()'
-    // number of inputs for 'balber::BerUtil::getValue' using 'object.seed()'
-    // as a pseudo-random seed.  Provide input to 'balber::BerUtil::getValue'
-    // using an invocation of 'balber::BerUtil::putValue' supplied with a
-    // 'balber::BerEncoderOptions' object having the default value except for
-    // the attributes 'datetimeFractionalSecondPrecision' and
-    // 'encodeDateAndTimeTypesAsBinary', which have the value
-    // 'object.fractionalSecondPrecision()' and
-    // 'object.encodeDateAndTimeTypesAsBinary()' respectively, instead.  Supply
-    // all of the output of invoking 'balber::BerUtil::getValue' with the
-    // encoding options and generated input to the specified checksum
-    // 'algorithm'.
 
                      // ===================================
                      // struct GetValueFingerprint_ImplUtil
                      // ===================================
 
+/// This utility `struct` is a namespace for a suite of functions used in
+/// the implementation of the `GetValueFingerprint` class.
 struct GetValueFingerprint_ImplUtil {
-    // This utility 'struct' is a namespace for a suite of functions used in
-    // the implementation of the 'GetValueFingerprint' class.
 
     // CLASS METHODS
+
+    /// Decode a pseudo-random value loaded by the specified `loader` and
+    /// encoded by supplied the value and the specified `options` to
+    /// `balber::BerUtil::putValue`.  Load the value of the decoded object
+    /// into the specified `value`, and the number of bytes decoded to
+    /// produce the value into the specified `accumNumBytesConsumed`.
     template <class VALUE, class VALUETZ, class LOADER>
     static void getRandomValue(
                        bdlb::Variant2<VALUE, VALUETZ>   *value,
@@ -1795,17 +1859,15 @@ struct GetValueFingerprint_ImplUtil {
                        int                              *accumNumBytesConsumed,
                        LOADER&                           loader,
                        const balber::BerEncoderOptions&  options);
-        // Decode a pseudo-random value loaded by the specified 'loader' and
-        // encoded by supplied the value and the specified 'options' to
-        // 'balber::BerUtil::putValue'.  Load the value of the decoded object
-        // into the specified 'value', and the number of bytes decoded to
-        // produce the value into the specified 'accumNumBytesConsumed'.
 };
 
                      // ==================================
                      // customization point checksumAppend
                      // ==================================
 
+/// Pass the specified `value` into the specified `checksum`, which combines
+/// the value into the internal state of the algorithm.  The internal state
+/// of the algorithm is used to produce the resulting checksum value.
 template <class CHECKSUM_ALGORITHM>
 static void checksumAppend(CHECKSUM_ALGORITHM& checksum, bool value);
 template <class CHECKSUM_ALGORITHM>
@@ -1855,29 +1917,26 @@ static void checksumAppend(CHECKSUM_ALGORITHM& checksum,
 template <class CHECKSUM_ALGORITHM, class VALUE_1, class VALUE_2>
 static void checksumAppend(CHECKSUM_ALGORITHM&                     checksum,
                            const bdlb::Variant2<VALUE_1, VALUE_2>& value);
-    // Pass the specified 'value' into the specified 'checksum', which combines
-    // the value into the internal state of the algorithm.  The internal state
-    // of the algorithm is used to produce the resulting checksum value.
 
                             // ===================
                             // struct TestDataUtil
                             // ===================
 
+/// This utility `struct` is a namespace for a set of static,
+/// constant-initialized data used in the implementation of some cases of
+/// this test driver.
 struct TestDataUtil {
-    // This utility 'struct' is a namespace for a set of static,
-    // constant-initialized data used in the implementation of some cases of
-    // this test driver.
 
     // CLASS DATA
     enum {
         k_EXTENDED_BINARY_MIN_BDE_VERSION = 35500
     };
 
+    /// 1024 bytes sampled from `/dev/urandom`.
     static const unsigned char s_RANDOM_GARBAGE_1K[1024];
-        // 1024 bytes sampled from '/dev/urandom'.
 
+    /// 5 paragraphs of randomly-generated "lorem ipsum" placeholder text.
     static const char s_RANDOM_LOREM_IPSUM[];
-        // 5 paragraphs of randomly-generated "lorem ipsum" placeholder text.
 };
 
 // ===========================================================================
@@ -2124,12 +2183,12 @@ unsigned char RandomInputIterator::generateValue(int *seed)
     ///Implementation Note
     ///-------------------
     // The following function implements a 15-bit linear congruential generator
-    // based on the implementation of 'bdlb::Random::generate15' from BDE
+    // based on the implementation of `bdlb::Random::generate15` from BDE
     // 3.44.0.  This function implements its own LCG and not use
-    // 'bdlb::Random::generate15' to ensure that randomly generated data in
-    // this test driver does not change if 'bdlb::Random' were to change
+    // `bdlb::Random::generate15` to ensure that randomly generated data in
+    // this test driver does not change if `bdlb::Random` were to change
     // behavior.  It is modified from its original form to fit the API
-    // requirement of yielding 'unsigned char' values, rather than 'int'
+    // requirement of yielding `unsigned char` values, rather than `int`
     // values.
 
     unsigned int unsignedSeed = *seed;
@@ -3531,10 +3590,10 @@ void Md5StateUtil::digest(Md5Fingerprint *fingerprint, const Md5Block& block)
     unsigned int c = fingerprint->theUintAt(2);
     unsigned int d = fingerprint->theUintAt(3);
 
-    // Create a concise alias for 'block'.
+    // Create a concise alias for `block`.
     const Md5Block& x = block;
 
-    // Save 'a' as 'aa', 'b' as 'bb', 'c' as 'cc', and 'd' as 'dd'.
+    // Save `a` as `aa`, `b` as `bb`, `c` as `cc`, and `d` as `dd`.
     unsigned int aa = a;
     unsigned int bb = b;
     unsigned int cc = c;
@@ -5067,7 +5126,7 @@ template <class CHECKSUM_ALGORITHM>
 void checksumAppend(CHECKSUM_ALGORITHM& checksum, float value)
 {
     // Note that the implementation of this operation requires that the
-    // platform represents 'float' values using the 32 bit IEEE 754 binary
+    // platform represents `float` values using the 32 bit IEEE 754 binary
     // floating point format.
 
     BSLMF_ASSERT(4 == sizeof(value));
@@ -5091,7 +5150,7 @@ template <class CHECKSUM_ALGORITHM>
 void checksumAppend(CHECKSUM_ALGORITHM& checksum, double value)
 {
     // Note that the implementation of this operation requires that the
-    // platform represents 'float' values using the 32 bit IEEE 754 binary
+    // platform represents `float` values using the 32 bit IEEE 754 binary
     // floating point format.
 
     BSLMF_ASSERT(8 == sizeof(value));
@@ -5408,7 +5467,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -5418,13 +5477,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -5444,15 +5503,15 @@ int main(int argc, char *argv[])
 //
 // Suppose we wanted to write the identifier octets for a BER tag having the
 // following properties:
-//..
+// ```
 //    Tag Class:   Context-specific
 //    Tag Type:    Primitive
 //    Tag Number:  31
-//..
+// ```
 // According to the BER specification, this should generate two octets
 // containing the values 0x9F and 0x1F.  The following function demonstrates
 // this:
-//..
+// ```
     bdlsb::MemOutStreamBuf osb;
 
     balber::BerConstants::TagClass tagClass  =
@@ -5469,10 +5528,10 @@ int main(int argc, char *argv[])
     ASSERT(2    == osb.length());
     ASSERT(0x9F == (unsigned char)osb.data()[0]);
     ASSERT(0x1F == (unsigned char)osb.data()[1]);
-//..
+// ```
 // The next part of the function will read the identifier octets from the
 // stream and verify its contents:
-//..
+// ```
     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
 
     balber::BerConstants::TagClass tagClassIn;
@@ -5490,7 +5549,7 @@ int main(int argc, char *argv[])
     ASSERT(tagClass  == tagClassIn);
     ASSERT(tagType   == tagTypeIn);
     ASSERT(tagNumber == tagNumberIn);
-//..
+// ```
 
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
       } break;
@@ -5499,34 +5558,34 @@ int main(int argc, char *argv[])
         // CONCERN: TESTING +/- ZERO FLOATING-POINT
         //
         // Concerns:
-        //: 1 That the code correctly translates both positive and negative
-        //:   zero values.
+        // 1. That the code correctly translates both positive and negative
+        //    zero values.
         //
         // Plan:
-        //: 1 Have two constant binary arrays, 'plusZeroSeq' and
-        //:   'minusZeroSeq', which contain representations of how positive and
-        //:   negative zero are encoded by BER.
-        //:
-        //: 2 For both 'float' and 'double' types of floating-point variables,
-        //:   o Use 'Util::putValue' to translate them both to output
-        //:     'streambuf's.
-        //:
-        //:   o Verify that the output in the two streambufs correspond to
-        //:     'plusZeroSeq' and 'minusZeroSeq' as expected.
-        //:
-        //:   o Load the two output sequences to two input 'streambuf's.
-        //:
-        //:   o Use 'Util::getValue' to translate from the input 'streambuf's
-        //:     to a different pair of floating-point varilables.
-        //:
-        //:   o Verify that the values are as expected using
-        //:     'bdld::Float::classifyFine'.
-        //:
-        //:   o Verify that the number of bytes consumed by 'getValue' is
-        //:     correct.
-        //:
-        //:   o Verify that the values produced exactly match the input values
-        //:     using 'memcmp'.
+        // 1. Have two constant binary arrays, `plusZeroSeq` and
+        //    `minusZeroSeq`, which contain representations of how positive and
+        //    negative zero are encoded by BER.
+        //
+        // 2. For both `float` and `double` types of floating-point variables,
+        //    - Use `Util::putValue` to translate them both to output
+        //      `streambuf`s.
+        //
+        //    - Verify that the output in the two streambufs correspond to
+        //      `plusZeroSeq` and `minusZeroSeq` as expected.
+        //
+        //    - Load the two output sequences to two input `streambuf`s.
+        //
+        //    - Use `Util::getValue` to translate from the input `streambuf`s
+        //      to a different pair of floating-point varilables.
+        //
+        //    - Verify that the values are as expected using
+        //      `bdld::Float::classifyFine`.
+        //
+        //    - Verify that the number of bytes consumed by `getValue` is
+        //      correct.
+        //
+        //    - Verify that the values produced exactly match the input values
+        //      using `memcmp`.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "CONCERN: TESTING +/- ZERO FLOATING-POINT\n"
@@ -5719,44 +5778,44 @@ int main(int argc, char *argv[])
         //
         //
         // Concerns:
-        //: 1 ISO 8601-encoded strings longer than the maximum length result in
-        //:   a decoding error.
-        //:
-        //: 2 Valid ISO 8601-encoded strings of exactly the maximum length are
-        //:   decoded properly.
-        //:
-        //: 3 If no data is available for the specified length decoding results
-        //:   in an error even if the available ISO 8601-encoded strings forms
-        //:   a valid value.
-        //:
-        //: 4 Decoding obeys the length parameter even if more data is
-        //:   available from the buffer.
+        // 1. ISO 8601-encoded strings longer than the maximum length result in
+        //    a decoding error.
+        //
+        // 2. Valid ISO 8601-encoded strings of exactly the maximum length are
+        //    decoded properly.
+        //
+        // 3. If no data is available for the specified length decoding results
+        //    in an error even if the available ISO 8601-encoded strings forms
+        //    a valid value.
+        //
+        // 4. Decoding obeys the length parameter even if more data is
+        //    available from the buffer.
         //
         // Plan:
-        //: 1 Specify valid ISO 8601 strings for each individual date, time,
-        //:   and the duration type.
-        //:
-        //: 2 Create variations of the above valid strings that are exactly the
-        //:   maximum length, and are still valid ISO 8601.
-        //:
-        //: 3 Create variations of the above valid strings that are exactly one
-        //:   character longer than the maximum length, and are still valid ISO
-        //:   8601.
-        //:
-        //: 4 Execute 'getValue' on each value and verify that failure occurs
-        //:   only on the too long value.
-        //:
-        //: 5 Execute 'getValue' on each value while specifying a length longer
-        //:   than the available data in the buffer and verify that a failure
-        //:   occurs for all three values.
-        //:
-        //: 6 Execute 'getValue' on the valid values while specifying a length
-        //:   short-enough to truncate the data in the buffer to an invalid
-        //:   string and verify that a failure occurs for all valid values.
-        //:
-        //: 7 Execute 'getValue' on the invalid values while specifying a
-        //:   length short-enough to truncate invalid data to a valid ISO 8601
-        //:   string and verify that no failure occurs.
+        // 1. Specify valid ISO 8601 strings for each individual date, time,
+        //    and the duration type.
+        //
+        // 2. Create variations of the above valid strings that are exactly the
+        //    maximum length, and are still valid ISO 8601.
+        //
+        // 3. Create variations of the above valid strings that are exactly one
+        //    character longer than the maximum length, and are still valid ISO
+        //    8601.
+        //
+        // 4. Execute `getValue` on each value and verify that failure occurs
+        //    only on the too long value.
+        //
+        // 5. Execute `getValue` on each value while specifying a length longer
+        //    than the available data in the buffer and verify that a failure
+        //    occurs for all three values.
+        //
+        // 6. Execute `getValue` on the valid values while specifying a length
+        //    short-enough to truncate the data in the buffer to an invalid
+        //    string and verify that a failure occurs for all valid values.
+        //
+        // 7. Execute `getValue` on the invalid values while specifying a
+        //    length short-enough to truncate invalid data to a valid ISO 8601
+        //    string and verify that no failure occurs.
         //
         // Testing:
         //  int BerUtil_Iso8601ImpUtil::getValue(buf, TYPE, length);
@@ -6254,35 +6313,35 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING DATE/TIME FORMAT SELECTION
         //   This case tests the encoding format that
-        //   'balber::BerUtil::putValue'  selects for data and time types given
+        //   `balber::BerUtil::putValue`  selects for data and time types given
         //   a value to encode and a set of encoding options.
         //
         // Concerns:
-        //: 1 'putValue' selects the encoding format for all 'bdlt::Time',
-        //:   'bdlt::TimeTz', 'bdlt::Datetime', and 'bdlt::DatetimeTz' values
-        //:   according to the following algorithm:
-        //:  o if the 'EncodeDateAndTimeTypesAsBinary' option is 'false',
-        //:    use the ISO 8601 format, otherwise
-        //:  o if the 'BdeVersionConformance' option is no lower than
-        //:    35500, (indicating a BDE version no lower than 3.55.0) then
-        //:    use the extended-binary format if one or both
-        //:    of the following is true:
-        //:    o the 'DatetimeFractionalSecondPrecision' option is 6
-        //:    o the value of the 'time' or 'localTime' attribute, whichever
-        //:      is appropriate for the corresponding value, is '24:00:00',
-        //:      otherwise,
-        //:  o use the compact-binary format
+        // 1. `putValue` selects the encoding format for all `bdlt::Time`,
+        //    `bdlt::TimeTz`, `bdlt::Datetime`, and `bdlt::DatetimeTz` values
+        //    according to the following algorithm:
+        //   o if the `EncodeDateAndTimeTypesAsBinary` option is `false`,
+        //     use the ISO 8601 format, otherwise
+        //   o if the `BdeVersionConformance` option is no lower than
+        //     35500, (indicating a BDE version no lower than 3.55.0) then
+        //     use the extended-binary format if one or both
+        //     of the following is true:
+        //     o the `DatetimeFractionalSecondPrecision` option is 6
+        //     o the value of the `time` or `localTime` attribute, whichever
+        //       is appropriate for the corresponding value, is `24:00:00`,
+        //       otherwise,
+        //   o use the compact-binary format
         //
         // Plan:
-        //: 1 For a large selection of boundary values of the 'bdlt::Time',
-        //:   'bdlt::TimeTz', 'bdlt::Datetime', and 'bdlt::DatetimeTz' types,
-        //:   and combinations of each relevant encoding option as described in
-        //:   the above algorithm, encode the value using the configuration
-        //:   options and verify that the encoded representation is in the
-        //:   format prescribed by the above algorithm.
+        // 1. For a large selection of boundary values of the `bdlt::Time`,
+        //    `bdlt::TimeTz`, `bdlt::Datetime`, and `bdlt::DatetimeTz` types,
+        //    and combinations of each relevant encoding option as described in
+        //    the above algorithm, encode the value using the configuration
+        //    options and verify that the encoded representation is in the
+        //    format prescribed by the above algorithm.
         //
         // Testing:
-        //   CONCERN: 'putValue' encoding formation selection
+        //   CONCERN: `putValue` encoding formation selection
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -6294,7 +6353,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose)
             bsl::cout << bsl::endl
-                      << "TESTING 'bdlt::Time' FORMAT SELECTION"
+                      << "TESTING `bdlt::Time` FORMAT SELECTION"
                       << bsl::endl
                       << "-------------------------------------"
                       << bsl::endl;
@@ -6552,7 +6611,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose)
             bsl::cout << bsl::endl
-                      << "TESTING 'bdlt::TimeTz' FORMAT SELECTION"
+                      << "TESTING `bdlt::TimeTz` FORMAT SELECTION"
                       << bsl::endl
                       << "---------------------------------------"
                       << bsl::endl;
@@ -6872,7 +6931,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose)
             bsl::cout << bsl::endl
-                      << "TESTING 'bdlt::Datetime' FORMAT SELECTION"
+                      << "TESTING `bdlt::Datetime` FORMAT SELECTION"
                       << bsl::endl
                       << "-----------------------------------------"
                       << bsl::endl;
@@ -7375,7 +7434,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose)
             bsl::cout << bsl::endl
-                      << "TESTING 'bdlt::DatetimeTz' FORMAT SELECTION"
+                      << "TESTING `bdlt::DatetimeTz` FORMAT SELECTION"
                       << bsl::endl
                       << "-------------------------------------------"
                       << bsl::endl;
@@ -8009,69 +8068,69 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING EXTENDED BINARY DATE/TIME FORMAT
         //   This case tests the essential behavior of
-        //   'balber::BerUtil::putValue' and 'balber::BerUtil::getValue' for
+        //   `balber::BerUtil::putValue` and `balber::BerUtil::getValue` for
         //   the extended-binary representation of date and time types.
         //
         // Concerns:
-        //: 1 The encoded representation of all date and time types in the
-        //:   extended binary representation is correct w.r.t. the
-        //:   specification of the extended-binary representation.
-        //:
-        //: 2 Any error to write a character to the stream buffer during
-        //:   encoding an extended-binary formatted date or time type
-        //:   is propagated to the caller
-        //:
-        //: 3 When a decoding operation has proceeded for enough to determine
-        //:   it will decode using the extended-binary representation,
-        //:   encountering any bit pattern that is not a valid extended-binary
-        //:   representation causes the decoding operation to fail
-        //:
-        //: 4 The composition of decoding with encoding with the compact-binary
-        //:   representation is an isomorphism for all date and time types.
-        //:
-        //: 5 Decoding a 'bdlb::Variant2<bdlt::Time, bdlt::TimeTz>' from a
-        //:   compact-binary encoded 'bdlt::Time' loads the expected value to
-        //:   the 'bdlt::Time' selection of the variant.
-        //:
-        //: 6 Decoding a 'bdlb::Variant2<bdlt::Time, bdlt::TimeTz>' from a
-        //:   compact-binary encoded 'bdlt::TImeTz' loads the expected value to
-        //:   the 'bdlt::TimeTz' selection of the variant.
-        //:
-        //: 7 Decoding a
-        //:   'bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>' from a
-        //:   compact-binary encoded 'bdlt::Datetime' loads the expected value
-        //:   to the 'bdlt::Datetime' selection of the variant.
-        //:
-        //: 8 Decoding a
-        //:   'bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>' from a
-        //:   compact-binary encoded 'bdlt::DatetimeTz' loads the expected
-        //:   value to the 'bdlt::DatetimeTz' selection of the variant.
+        // 1. The encoded representation of all date and time types in the
+        //    extended binary representation is correct w.r.t. the
+        //    specification of the extended-binary representation.
+        //
+        // 2. Any error to write a character to the stream buffer during
+        //    encoding an extended-binary formatted date or time type
+        //    is propagated to the caller
+        //
+        // 3. When a decoding operation has proceeded for enough to determine
+        //    it will decode using the extended-binary representation,
+        //    encountering any bit pattern that is not a valid extended-binary
+        //    representation causes the decoding operation to fail
+        //
+        // 4. The composition of decoding with encoding with the compact-binary
+        //    representation is an isomorphism for all date and time types.
+        //
+        // 5. Decoding a `bdlb::Variant2<bdlt::Time, bdlt::TimeTz>` from a
+        //    compact-binary encoded `bdlt::Time` loads the expected value to
+        //    the `bdlt::Time` selection of the variant.
+        //
+        // 6. Decoding a `bdlb::Variant2<bdlt::Time, bdlt::TimeTz>` from a
+        //    compact-binary encoded `bdlt::TImeTz` loads the expected value to
+        //    the `bdlt::TimeTz` selection of the variant.
+        //
+        // 7. Decoding a
+        //    `bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>` from a
+        //    compact-binary encoded `bdlt::Datetime` loads the expected value
+        //    to the `bdlt::Datetime` selection of the variant.
+        //
+        // 8. Decoding a
+        //    `bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>` from a
+        //    compact-binary encoded `bdlt::DatetimeTz` loads the expected
+        //    value to the `bdlt::DatetimeTz` selection of the variant.
         //
         // Plan:
-        //: 1 Verify that the encoded representation of boundary 'bdlt::Time',
-        //:   'bdlt::TimeTz', 'bdlt::Datetime', and 'bdlt::DatetimeTz'
-        //:   values all conform to the specification of the compact-binary
-        //:   time representation when that representation is selected for use.
-        //:
-        //: 2 Verify that encoding extended-binary representations of boundary
-        //:   'bdlt::Time', 'bdlt::TimeTz', 'bdlt::Datetime', and
-        //:   'bdlt::DatetimeTz' values to fixed-size buffers that are too
-        //:   small always results in 'putValue' returning a non-zero status.
-        //:
-        //: 3 Verify that decoding many invalid bit-patterns as extended-binary
-        //:   representations of a 'bdlt::Time', 'bdlt::TimeTz',
-        //:   'bdlt::Datetime', or 'bdlt::DatetimeTz' always results in
-        //:   'getValue' returning a non-zero status.
-        //:
-        //: 4 Verify, for a large swatch of values, that decoding the encoding
-        //:   of a 'bdlt::Time', 'bdlt::TimeTz', 'bdlt::Datetime', or
-        //:   'bdlt::DatetimeTz' value in the extended-binary representation
-        //:   results in exactly that same value that was encoded.
-        //:   In essence, verify that 'getValue' composed with 'putValue' is
-        //:   an isomorphism when the extended-binary representation is chosen.
+        // 1. Verify that the encoded representation of boundary `bdlt::Time`,
+        //    `bdlt::TimeTz`, `bdlt::Datetime`, and `bdlt::DatetimeTz`
+        //    values all conform to the specification of the compact-binary
+        //    time representation when that representation is selected for use.
+        //
+        // 2. Verify that encoding extended-binary representations of boundary
+        //    `bdlt::Time`, `bdlt::TimeTz`, `bdlt::Datetime`, and
+        //    `bdlt::DatetimeTz` values to fixed-size buffers that are too
+        //    small always results in `putValue` returning a non-zero status.
+        //
+        // 3. Verify that decoding many invalid bit-patterns as extended-binary
+        //    representations of a `bdlt::Time`, `bdlt::TimeTz`,
+        //    `bdlt::Datetime`, or `bdlt::DatetimeTz` always results in
+        //    `getValue` returning a non-zero status.
+        //
+        // 4. Verify, for a large swatch of values, that decoding the encoding
+        //    of a `bdlt::Time`, `bdlt::TimeTz`, `bdlt::Datetime`, or
+        //    `bdlt::DatetimeTz` value in the extended-binary representation
+        //    results in exactly that same value that was encoded.
+        //    In essence, verify that `getValue` composed with `putValue` is
+        //    an isomorphism when the extended-binary representation is chosen.
         //
         // Testing:
-        //   CONCERN: 'put'- & 'getValue' for date/time types in ext-bin fmt
+        //   CONCERN: `put`- & `getValue` for date/time types in ext-bin fmt
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -8083,7 +8142,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose)
             bsl::cout << bsl::endl
-                      << "TESTING 'bdlt::Time' ENCODING"
+                      << "TESTING `bdlt::Time` ENCODING"
                       << bsl::endl
                       << "-----------------------------"
                       << bsl::endl;
@@ -8182,7 +8241,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose)
             bsl::cout << bsl::endl
-                      << "TESTING 'bdlt::Time' ENCODING FAILURE MODES"
+                      << "TESTING `bdlt::Time` ENCODING FAILURE MODES"
                       << bsl::endl
                       << "-------------------------------------------"
                       << bsl::endl;
@@ -8259,7 +8318,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose)
             bsl::cout << bsl::endl
-                      << "TESTING 'bdlt::Time' DECODING FAILURE MODES"
+                      << "TESTING `bdlt::Time` DECODING FAILURE MODES"
                       << bsl::endl
                       << "-------------------------------------------"
                       << bsl::endl;
@@ -8305,7 +8364,7 @@ int main(int argc, char *argv[])
                 { L_, "07  E0 00  00 00 00 00 00"    , false },
                 { L_, "07  F0 00  00 00 00 00 00"    , false },
                     // Verify that the decode operation requires the control
-                    // nibble field of the header to be '0b1000'.
+                    // nibble field of the header to be `0b1000`.
 
                 { L_, "07  80 01  00 00 00 00 00"    , false },
                 { L_, "07  80 02  00 00 00 00 00"    , false },
@@ -8394,7 +8453,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose)
             bsl::cout << bsl::endl
-                      << "TESTING 'bdlt::Time' ENCODING/DECODING ISOMORPHISM"
+                      << "TESTING `bdlt::Time` ENCODING/DECODING ISOMORPHISM"
                       << bsl::endl
                       << "--------------------------------------------------"
                       << bsl::endl;
@@ -8524,7 +8583,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose)
             bsl::cout << bsl::endl
-                      << "TESTING 'bdlt::TimeTz' ENCODING"
+                      << "TESTING `bdlt::TimeTz` ENCODING"
                       << bsl::endl
                       << "-------------------------------"
                       << bsl::endl;
@@ -8734,7 +8793,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose)
             bsl::cout << bsl::endl
-                      << "TESTING 'bdlt::TimeTz' ENCODING FAILURE MODES"
+                      << "TESTING `bdlt::TimeTz` ENCODING FAILURE MODES"
                       << bsl::endl
                       << "---------------------------------------------"
                       << bsl::endl;
@@ -8819,7 +8878,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose)
             bsl::cout << bsl::endl
-                      << "TESTING 'bdlt::TimeTz' DECODING FAILURE MODES"
+                      << "TESTING `bdlt::TimeTz` DECODING FAILURE MODES"
                       << bsl::endl
                       << "---------------------------------------------"
                       << bsl::endl;
@@ -8865,7 +8924,7 @@ int main(int argc, char *argv[])
                 { L_, "07  E0 00  00 00 00 00 00"     , false },
                 { L_, "07  F0 00  00 00 00 00 00"     , false },
                     // Verify that the decode operation requires the control
-                    // nibble field of the header to be '0b1000' or '0b1001'.
+                    // nibble field of the header to be `0b1000` or `0b1001`.
 
                 { L_, "07  80 01  00 00 00 00 00"     , false },
                 { L_, "07  80 02  00 00 00 00 00"     , false },
@@ -8957,7 +9016,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose)
             bsl::cout << bsl::endl
-                      << "TESTING 'bdlt::TimeTz' ENCODING/DECODING ISOMORPHISM"
+                      << "TESTING `bdlt::TimeTz` ENCODING/DECODING ISOMORPHISM"
                       << bsl::endl
                       << "----------------------------------------------------"
                       << bsl::endl;
@@ -9226,7 +9285,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose)
             bsl::cout << bsl::endl
-                      << "TESTING 'bdlt::Datetime' ENCODING"
+                      << "TESTING `bdlt::Datetime` ENCODING"
                       << bsl::endl
                       << "---------------------------------"
                       << bsl::endl;
@@ -9362,7 +9421,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose)
             bsl::cout << bsl::endl
-                      << "TESTING 'bdlt::Datetime' ENCODING FAILURE MODES"
+                      << "TESTING `bdlt::Datetime` ENCODING FAILURE MODES"
                       << bsl::endl
                       << "-----------------------------------------------"
                       << bsl::endl;
@@ -9455,7 +9514,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose)
             bsl::cout << bsl::endl
-                      << "TESTING 'bdlt::Datetime' DECODING FAILURE MODES"
+                      << "TESTING `bdlt::Datetime` DECODING FAILURE MODES"
                       << bsl::endl
                       << "-----------------------------------------------"
                       << bsl::endl;
@@ -9522,7 +9581,7 @@ int main(int argc, char *argv[])
               { L_, "0A  80 00  37 B9 DB  00 00 00 00 00"    , false , false },
               { L_, "0A  80 00  FF FF FF  00 00 00 00 00"    , false , false },
 
-              // DRQS 175207012 ASSERT_SAFE during 'DatetimeTZ' decoding
+              // DRQS 175207012 ASSERT_SAFE during `DatetimeTZ` decoding
               { L_, "0A  90 01  09 C3 2D"                    , false , false },
             };
 
@@ -9598,7 +9657,7 @@ int main(int argc, char *argv[])
         if (veryVerbose)
             bsl::cout
                 << bsl::endl
-                << "TESTING 'bdlt::Datetime' ENCODING/DECODING ISOMORPHISM"
+                << "TESTING `bdlt::Datetime` ENCODING/DECODING ISOMORPHISM"
                 << bsl::endl
                 << "------------------------------------------------------"
                 << bsl::endl;
@@ -9771,7 +9830,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose)
             bsl::cout << bsl::endl
-                      << "TESTING 'bdlt::DatetimeTz' ENCODING"
+                      << "TESTING `bdlt::DatetimeTz` ENCODING"
                       << bsl::endl
                       << "-----------------------------------"
                       << bsl::endl;
@@ -9927,7 +9986,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose)
             bsl::cout << bsl::endl
-                      << "TESTING 'bdlt::DatetimeTz' ENCODING FAILURE MODES"
+                      << "TESTING `bdlt::DatetimeTz` ENCODING FAILURE MODES"
                       << bsl::endl
                       << "-------------------------------------------------"
                       << bsl::endl;
@@ -10033,7 +10092,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose)
             bsl::cout << bsl::endl
-                      << "TESTING 'bdlt::DatetimeTz' DECODING FAILURE MODES"
+                      << "TESTING `bdlt::DatetimeTz` DECODING FAILURE MODES"
                       << bsl::endl
                       << "-------------------------------------------------"
                       << bsl::endl;
@@ -10098,7 +10157,7 @@ int main(int argc, char *argv[])
                 { L_, "0A  80 00  37 B9 DB  00 00 00 00 00"    , false },
                 { L_, "0A  80 00  FF FF FF  00 00 00 00 00"    , false },
 
-                // DRQS 175207012 ASSERT_SAFE during 'DatetimeTZ' decoding
+                // DRQS 175207012 ASSERT_SAFE during `DatetimeTZ` decoding
                 { L_, "0A  90 01  09 C3 2D"                    , false },
             };
 
@@ -10173,7 +10232,7 @@ int main(int argc, char *argv[])
         if (veryVerbose)
             bsl::cout
                 << bsl::endl
-                << "TESTING 'bdlt::DatetimeTz' ENCODING/DECODING ISOMORPHISM"
+                << "TESTING `bdlt::DatetimeTz` ENCODING/DECODING ISOMORPHISM"
                 << bsl::endl
                 << "--------------------------------------------------------"
                 << bsl::endl;
@@ -10557,70 +10616,70 @@ int main(int argc, char *argv[])
       } break;
       case 27: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' FAILURE REPORTING
-        //   This case tests that 'getValue' returns a non-zero value when
+        // TESTING `getValue` FAILURE REPORTING
+        //   This case tests that `getValue` returns a non-zero value when
         //   the stream buffer reaches the end of its source before a
         //   value has finished being read.  Note that the "source" of a
-        //   'bsl::streambuf' is standard shorthand for the input-side of
-        //   the associated character sequence of the 'bsl::streambuf'.
+        //   `bsl::streambuf` is standard shorthand for the input-side of
+        //   the associated character sequence of the `bsl::streambuf`.
         //
         // Concerns:
-        //: 1 For all 'Simple' types, 'getValue' returns a non-zero value
-        //:   when the stream buffer reaches the end of its source before
-        //:   the value has finished being read.
+        // 1. For all `Simple` types, `getValue` returns a non-zero value
+        //    when the stream buffer reaches the end of its source before
+        //    the value has finished being read.
         //
         // Plan:
-        //: 1 For several boundary values of each supported 'Simple' type:
-        //:
-        //:   1 Encode the value to a buffer
-        //:
-        //:   2 Starting with a 1-byte view of the buffer, and repeatedly
-        //:     increasing the view size by 1 until the full buffer is visible:
-        //:
-        //:     1 Create an input stream given the view of the buffer and
-        //:       attempt to read back the same value
-        //:
-        //:     2a If the buffer is not the full view, verify that the read
-        //:        operation fails
-        //:
-        //:     2b If the buffer is the full view, verify that the read
-        //:        operation succeeds
+        // 1. For several boundary values of each supported `Simple` type:
+        //
+        //   1. Encode the value to a buffer
+        //
+        //   2. Starting with a 1-byte view of the buffer, and repeatedly
+        //      increasing the view size by 1 until the full buffer is visible:
+        //
+        //     1. Create an input stream given the view of the buffer and
+        //        attempt to read back the same value
+        //
+        //      2a If the buffer is not the full view, verify that the read
+        //         operation fails
+        //
+        //      2b If the buffer is the full view, verify that the read
+        //         operation succeeds
         //
         // Testing:
         // --------------------------------------------------------------------
 
         if (verbose)
             bsl::cout << bsl::endl
-                      << "TESTING 'getValue' FAILURE REPORTING"
+                      << "TESTING `getValue` FAILURE REPORTING"
                       << bsl::endl
                       << "===================================="
                       << bsl::endl;
 
         u::Case27Tester t;
 
-        // 'char'
+        // `char`
         t(L_, '\x00');
         t(L_, '\x01');
         t(L_, '\xFE');
         t(L_, '\xFF');
 
-        // 'signed char'
+        // `signed char`
         t(L_, static_cast<signed char>('\x00'));
         t(L_, static_cast<signed char>('\x01'));
         t(L_, static_cast<signed char>('\xFE'));
         t(L_, static_cast<signed char>('\xFF'));
 
-        // 'unsigned char'
+        // `unsigned char`
         t(L_, static_cast<unsigned char>('\x00'));
         t(L_, static_cast<unsigned char>('\x01'));
         t(L_, static_cast<unsigned char>('\xFE'));
         t(L_, static_cast<unsigned char>('\xFF'));
 
-        // 'bool'
+        // `bool`
         t(L_, true);
         t(L_, false);
 
-        // 'int'
+        // `int`
         t(L_, INT_MIN    );
         t(L_, INT_MIN + 1);
         t(L_,          -1);
@@ -10629,12 +10688,12 @@ int main(int argc, char *argv[])
         t(L_, INT_MAX - 1);
         t(L_, INT_MAX    );
 
-        // 'unsigned int'
+        // `unsigned int`
         t(L_,           0u);
         t(L_, UINT_MAX - 1);
         t(L_, UINT_MAX    );
 
-        // 'bsls::Types::Int64'
+        // `bsls::Types::Int64`
         t(L_, bsl::numeric_limits<bsls::Types::Int64>::min()    );
         t(L_, bsl::numeric_limits<bsls::Types::Int64>::min() + 1);
         t(L_, static_cast<bsls::Types::Int64>(-1)               );
@@ -10643,7 +10702,7 @@ int main(int argc, char *argv[])
         t(L_, bsl::numeric_limits<bsls::Types::Int64>::max() - 1);
         t(L_, bsl::numeric_limits<bsls::Types::Int64>::max()    );
 
-        // 'bsls::Types::Uint64'
+        // `bsls::Types::Uint64`
         t(L_, bsl::numeric_limits<bsls::Types::Uint64>::min()    );
         t(L_, bsl::numeric_limits<bsls::Types::Uint64>::min() + 1);
         t(L_, static_cast<bsls::Types::Uint64>(-1)               );
@@ -10652,7 +10711,7 @@ int main(int argc, char *argv[])
         t(L_, bsl::numeric_limits<bsls::Types::Uint64>::max() - 1);
         t(L_, bsl::numeric_limits<bsls::Types::Uint64>::max()    );
 
-        // 'float'
+        // `float`
         t(L_, bsl::numeric_limits<float>::min());
         t(L_, -1.f);
         t(L_, 0.f);
@@ -10660,7 +10719,7 @@ int main(int argc, char *argv[])
         t(L_, 1.f);
         t(L_, bsl::numeric_limits<float>::max());
 
-        // 'double'
+        // `double`
         t(L_, bsl::numeric_limits<double>::min());
         t(L_, 1.0);
         t(L_, 0.0);
@@ -10668,22 +10727,22 @@ int main(int argc, char *argv[])
         t(L_, -1.0);
         t(L_, bsl::numeric_limits<double>::max());
 
-        // 'bdldfp::Decimal64'
+        // `bdldfp::Decimal64`
         t(L_, bsl::numeric_limits<bdldfp::Decimal64>::min());
         t(L_, bdldfp::Decimal64(-1.0));
         t(L_, bdldfp::Decimal64(0.0));
         t(L_, bdldfp::Decimal64(1.0));
         t(L_, bsl::numeric_limits<bdldfp::Decimal64>::max());
 
-        // 'bsl::string'
+        // `bsl::string`
         t(L_, bsl::string("Lorem ipsum dolor sit amet"));
 
-        // 'bdlt::Date'
+        // `bdlt::Date`
         t(L_, bdlt::Date());
         t(L_, bdlt::Date(1, 1, 1));
         t(L_, bdlt::Date(9999, 12, 31));
 
-        // 'bdlt::DateTz'
+        // `bdlt::DateTz`
         t(L_, bdlt::DateTz(bdlt::Date(), 0));
         t(L_, bdlt::DateTz(bdlt::Date(1, 1, 1), -1439));
         t(L_, bdlt::DateTz(bdlt::Date(1, 1, 1), 0));
@@ -10692,11 +10751,11 @@ int main(int argc, char *argv[])
         t(L_, bdlt::DateTz(bdlt::Date(9999, 12, 31), 0));
         t(L_, bdlt::DateTz(bdlt::Date(9999, 12, 31), 1439));
 
-        // 'bdlt::Datetime'
+        // `bdlt::Datetime`
         t(L_, bdlt::Datetime(1, 1, 1, 0, 0, 0, 0, 0));
         t(L_, bdlt::Datetime(9999, 12, 31, 23, 59, 59, 999, 0));
 
-        // 'bdlt::DatetimeTz'
+        // `bdlt::DatetimeTz`
         t(L_, bdlt::DatetimeTz(bdlt::Datetime(1, 1, 1, 0, 0, 0, 0, 0), -1439));
         t(L_, bdlt::DatetimeTz(bdlt::Datetime(1, 1, 1, 0, 0, 0, 0, 0), 0));
         t(L_, bdlt::DatetimeTz(bdlt::Datetime(1, 1, 1, 0, 0, 0, 0, 0), 1439));
@@ -10710,11 +10769,11 @@ int main(int argc, char *argv[])
           bdlt::DatetimeTz(bdlt::Datetime(9999, 12, 31, 23, 59, 59, 999, 0),
                            1439));
 
-        // 'bdlt::Time'
+        // `bdlt::Time`
         t(L_, bdlt::Time(0, 0, 0, 0, 0));
         t(L_, bdlt::Time(23, 59, 59, 999, 0));
 
-        // 'bdlt::TimeTz'
+        // `bdlt::TimeTz`
         t(L_, bdlt::TimeTz(bdlt::Time(0, 0, 0, 0, 0), -1439));
         t(L_, bdlt::TimeTz(bdlt::Time(0, 0, 0, 0, 0), 0));
         t(L_, bdlt::TimeTz(bdlt::Time(0, 0, 0, 0, 0), 1439));
@@ -10725,15 +10784,15 @@ int main(int argc, char *argv[])
       } break;
       case 26: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' BEHAVIORAL FINGERPRINT
+        // TESTING `getValue` BEHAVIORAL FINGERPRINT
         //
         //   This case tests that the values decoded by
-        //   'balber::BerUtil::getValue' for a large, deterministically and
+        //   `balber::BerUtil::getValue` for a large, deterministically and
         //   pseudo-randomly generated set of inputs, are *likely* equivalent
         //   to the values it decodes as of BDE 3.44.0.  This case tests the
         //   decoded values for too many encodings to explicitly enumerate.
         //   Instead, the encodings are generated during the execution of the
-        //   test, and the results of each invocation of 'getValue' are
+        //   test, and the results of each invocation of `getValue` are
         //   concatenated and the resulting information "fingerprinted" using
         //   an implementation of the MD5 Message-Digest Algorithm, which
         //   removes the need to explicitly enumerate said results.  This
@@ -10741,8 +10800,8 @@ int main(int argc, char *argv[])
         //   function applied to the same input as of BDE 3.44.0.
         //
         //   This case provides a regression test for the input-output space of
-        //   'balber::BerUtil::getValue' from BDE release 3.44.0.  If the
-        //   behavior of 'getValue' changes in any way, this test provides a
+        //   `balber::BerUtil::getValue` from BDE release 3.44.0.  If the
+        //   behavior of `getValue` changes in any way, this test provides a
         //   high likelihood of failing.  Intentional behavioral modifications
         //   should update the behavioral fingerprints in this test case
         //   accordingly.
@@ -10755,33 +10814,33 @@ int main(int argc, char *argv[])
         //   Note however, that this probability is astronomically small.
         //
         // Concerns:
-        //: 1 The sampled input-output space does not have incidental patterns
-        //:   arising from the use of an underlying linear congruential
-        //:   generator supplied with a single seed.
-        //:
-        //: 2 The fingerprint of 'getValue' does not change when the
-        //:   encoding is configured to use binary date and time values and
-        //:   the fractional second precision is varied between 3 and 6.
+        // 1. The sampled input-output space does not have incidental patterns
+        //    arising from the use of an underlying linear congruential
+        //    generator supplied with a single seed.
+        //
+        // 2. The fingerprint of `getValue` does not change when the
+        //    encoding is configured to use binary date and time values and
+        //    the fractional second precision is varied between 3 and 6.
         //
         // Plan:
-        //: 1 Using 3 different random seeds, and taking 50,000 samples with
-        //:   each seed, test the fingerprint of 'getValue' using a default
-        //:   'balber::BerEncoderOptions' except for the following options, the
-        //:   for which all combinations of the values mentioned should be
-        //:   permuted:
-        //:
-        //:   1 'encodeDateAndTimeTypesAsBinary', which may take values
-        //:      'true' and 'false'.
-        //:
-        //:   2 'datetimeFractionalSecondPrecision', which may take values
-        //:      3 and 6.
+        // 1. Using 3 different random seeds, and taking 50,000 samples with
+        //    each seed, test the fingerprint of `getValue` using a default
+        //    `balber::BerEncoderOptions` except for the following options, the
+        //    for which all combinations of the values mentioned should be
+        //    permuted:
+        //
+        //   1. `encodeDateAndTimeTypesAsBinary`, which may take values
+        //       `true` and `false`.
+        //
+        //   2. `datetimeFractionalSecondPrecision`, which may take values
+        //      3. and 6.
         //
         // Testing:
         // --------------------------------------------------------------------
 
         if (verbose)
             bsl::cout << bsl::endl
-                      << "TESTING 'getValue' BEHAVIORAL FINGERPRINT"
+                      << "TESTING `getValue` BEHAVIORAL FINGERPRINT"
                       << bsl::endl
                       << "========================================="
                       << bsl::endl;
@@ -10814,7 +10873,7 @@ int main(int argc, char *argv[])
             //    /     /      /    /  /  PRESERVE -0.0
             //   /     /      /    /  /  .-------------
             //  /     /      /    /  /  /
-            // /     /      /    /  /  /  'putValue' BEHAVIORAL FINGERPRINT
+            // /     /      /    /  /  /  `putValue` BEHAVIORAL FINGERPRINT
             //-- ------- ------ -- -- -- ------------------------------------
             { L_, SEED_0, 50000, 3, 0, 0, "a4f4796fce831c62afed26b178c63715"},
             { L_, SEED_0, 50000, 3, 1, 0, "a9e9d0fbbc1487449bf928907792f211"},
@@ -10881,14 +10940,14 @@ int main(int argc, char *argv[])
       } break;
       case 25: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' BEHAVIORAL FINGERPRINT
+        // TESTING `putValue` BEHAVIORAL FINGERPRINT
         //   This case tests that the encodings provided by
-        //   'balber::BerUtil::putValue' for a large, deterministically and
+        //   `balber::BerUtil::putValue` for a large, deterministically and
         //   pseudo-randomly generated set of inputs, is *likely* equivalent to
         //   the encodings it provides as of BDE 3.44.0.  This case tests the
         //   encodings for too many inputs to explicitly enumerate.  Instead,
         //   the input is generated during the execution of the test, and the
-        //   result of invoking 'putValue' on all of the input is collated
+        //   result of invoking `putValue` on all of the input is collated
         //   and "fingerprinted" using an implementation of the MD5
         //   Message-Digest Algorithm, which removes the need to explicitly
         //   enumerate said results.  This "fingerprint" is compared against
@@ -10896,8 +10955,8 @@ int main(int argc, char *argv[])
         //   of BDE 3.44.0.
         //
         //   This case provides a regression test for the input-output space of
-        //   'balber::BerUtil::putValue' from BDE release 3.44.0.  If the
-        //   behavior of 'putValue' changes in any way, this test provides a
+        //   `balber::BerUtil::putValue` from BDE release 3.44.0.  If the
+        //   behavior of `putValue` changes in any way, this test provides a
         //   high likelihood of failing.  Intentional behavioral modifications
         //   should update the behavioral fingerprints in this test case
         //   accordingly.
@@ -10910,33 +10969,33 @@ int main(int argc, char *argv[])
         //   Note however, that this probability is astronomically small.
         //
         // Concerns:
-        //: 1 The sampled input-output space of 'putValue' does not have
-        //:   incidental patterns arising from the use of an underlying
-        //:   linear congruential generator supplied with a single seed.
-        //:
-        //: 2 The fingerprint of 'putValue' does not change when the
-        //:   encoding is configured to use binary date and time values and
-        //:   the fractional second precision is varied between 3 and 6.
+        // 1. The sampled input-output space of `putValue` does not have
+        //    incidental patterns arising from the use of an underlying
+        //    linear congruential generator supplied with a single seed.
+        //
+        // 2. The fingerprint of `putValue` does not change when the
+        //    encoding is configured to use binary date and time values and
+        //    the fractional second precision is varied between 3 and 6.
         //
         // Test Plan:
-        //: 1 Using 3 different random seeds, and taking 50,000 samples with
-        //:   each seed, test the fingerprint of 'putValue' using a default
-        //:   'balber::BerEncoderOptions' except for the following options, the
-        //:   for which all combinations of the values mentioned should be
-        //:   permuted:
-        //:
-        //:   1 'encodeDateAndTimeTypesAsBinary', which may take values
-        //:     'true' and 'false'.
-        //:
-        //:   2 'datetimeFractionalSecondPrecision', which may take values
-        //:     3 and 6.
+        // 1. Using 3 different random seeds, and taking 50,000 samples with
+        //    each seed, test the fingerprint of `putValue` using a default
+        //    `balber::BerEncoderOptions` except for the following options, the
+        //    for which all combinations of the values mentioned should be
+        //    permuted:
+        //
+        //   1. `encodeDateAndTimeTypesAsBinary`, which may take values
+        //      `true` and `false`.
+        //
+        //   2. `datetimeFractionalSecondPrecision`, which may take values
+        //     3. and 6.
         //
         // Testing:
         // --------------------------------------------------------------------
 
         if (verbose)
             bsl::cout << bsl::endl
-                      << "TESTING 'putValue' BEHAVIORAL FINGERPRINT"
+                      << "TESTING `putValue` BEHAVIORAL FINGERPRINT"
                       << bsl::endl
                       << "========================================="
                       << bsl::endl;
@@ -10968,7 +11027,7 @@ int main(int argc, char *argv[])
             //    .---- /      /    /   .---------------------------------
             //   /     /      /    /   /   SUPPORT NEGATIVE ZERO
             //  /     /      /    /   /  .----------------------
-            // /     /      /    /   /  /   'putValue' BEHAVIORAL FINGERPRINT
+            // /     /      /    /   /  /   `putValue` BEHAVIORAL FINGERPRINT
             //-- ------- ------ -- -- --  ------------------------------------
             { L_, SEED_0, 50000, 3, 0, 0, "a893e5c4643b5b40b45aa8d93c90a097"},
             { L_, SEED_0, 50000, 3, 1, 0, "7166428b5ca3e18a0953877091f37ce7"},
@@ -11051,32 +11110,32 @@ int main(int argc, char *argv[])
         //   the "reference implementation".
         //
         // Concerns:
-        //: 1 The MD5 apparatus produces the same fingerprints as the
-        //:   reference implementation for the messages specified in the
-        //:   'MDTestSuite' function in the April 1992 revision of IETF RFC
-        //:   1321 Appendix A.
-        //:
-        //: 2 Fingerprints do not depend on the chunking of a message.
-        //:
-        //: 3 That MD5 is demonstrably a high-quality message digest algorithm,
-        //:   where quality is defined as a measure of the probability that two
-        //:   randomly-selected and near identical messages have different
-        //:   fingerprints, and where message similarity can be measured by
-        //:   minimum edit distance.  Stated another way, it is a measure
-        //:   of the risk that two similar messages will have a checksum
-        //:   collision.
+        // 1. The MD5 apparatus produces the same fingerprints as the
+        //    reference implementation for the messages specified in the
+        //    `MDTestSuite` function in the April 1992 revision of IETF RFC
+        //   1321 Appendix A.
+        //
+        // 2. Fingerprints do not depend on the chunking of a message.
+        //
+        // 3. That MD5 is demonstrably a high-quality message digest algorithm,
+        //    where quality is defined as a measure of the probability that two
+        //    randomly-selected and near identical messages have different
+        //    fingerprints, and where message similarity can be measured by
+        //    minimum edit distance.  Stated another way, it is a measure
+        //    of the risk that two similar messages will have a checksum
+        //    collision.
         //
         // Plan:
-        //: 1 Verify that the MD5 apparatus produces the same fingerprints
-        //:   as the reference implementation for the messages specified
-        //:   in the 'MDTestSuite' function in the April 1992 revision of
-        //:   IETF RFC 1321 Appendix A.
-        //:
-        //: 2 Verify that the apparatus produces the same fingerprint
-        //:   regardless of the chunking of a message.
-        //:
-        //: 3 Verify that the quality of MD5 is at least 99% for a reasonable
-        //:   sample set of messages.
+        // 1. Verify that the MD5 apparatus produces the same fingerprints
+        //    as the reference implementation for the messages specified
+        //    in the `MDTestSuite` function in the April 1992 revision of
+        //    IETF RFC 1321 Appendix A.
+        //
+        // 2. Verify that the apparatus produces the same fingerprint
+        //    regardless of the chunking of a message.
+        //
+        // 3. Verify that the quality of MD5 is at least 99% for a reasonable
+        //    sample set of messages.
         //
         // Testing:
         //   u::Md5Fingerprint
@@ -11110,7 +11169,7 @@ int main(int argc, char *argv[])
                 { L_, ""              , "d41d8cd98f00b204e9800998ecf8427e" },
                     // Verify that the MD5 apparatus calculates the correct
                     // fingerprint for the empty message, as provided in the
-                    // 'MDTestSuite' from Appendix A of the specification.
+                    // `MDTestSuite` from Appendix A of the specification.
 
                 { L_, "a"             , "0cc175b9c0f1b6a831c399e269772661" },
                 { L_, "abc"           , "900150983cd24fb0d6963f7d28e17f72" },
@@ -11130,7 +11189,7 @@ int main(int argc, char *argv[])
                       "1234567890"
                       "1234567890"
                       "1234567890"    , "57edf4a22be3c955ac49da2e2107b67a" },
-                    // Verify that the MD5 apparatus passes the 'MDTestSuite'
+                    // Verify that the MD5 apparatus passes the `MDTestSuite`
                     // from Appendix A of the specification.
 
                 { L_, u::TestDataUtil::s_RANDOM_LOREM_IPSUM
@@ -11174,18 +11233,18 @@ int main(int argc, char *argv[])
                 k_NUM_CHUNK_SIZES = 10 // num chunk sizes per data row
             };
 
+            // A pointer to the first byte of
+            // `u::TestDataUtil::s_RANDOM_GARBAGE_1K`, which acts as an
+            // iterator to that byte.
             static const unsigned char *k_DATA_BEGIN =
                 u::TestDataUtil::s_RANDOM_GARBAGE_1K;
-                // A pointer to the first byte of
-                // 'u::TestDataUtil::s_RANDOM_GARBAGE_1K', which acts as an
-                // iterator to that byte.
 
+            // The expected fingerprint for
+            // `u::TestDataUtil::s_RANDOM_GARBAGE_1K`.  Note that this
+            // fingerprint was computed using a third party implementation
+            // that is assumed to be correct.
             static const char k_EXPECTED_FINGERPRINT[] =
                 "044d5905fa983dd9845075cb302dbe76";
-                // The expected fingerprint for
-                // 'u::TestDataUtil::s_RANDOM_GARBAGE_1K'.  Note that this
-                // fingerprint was computed using a third party implementation
-                // that is assumed to be correct.
 
             static const struct {
                 int d_line;                           // line number
@@ -11274,9 +11333,9 @@ int main(int argc, char *argv[])
                 { L_, {   65,  65, 894,   0,   0,   0,   0,   0,   0,   0 } },
                     // Verify the fingerprint is correct for chunkings making
                     // use of chunk sizes that create edge cases in the
-                    // algorithm, such as '56', '64'.  Note that '56' is the
-                    // size that the final 'u::Md5Block' needs to be padded to
-                    // reach, and '64' is the capacity of a  'u::Md5Block'.
+                    // algorithm, such as `56`, `64`.  Note that `56` is the
+                    // size that the final `u::Md5Block` needs to be padded to
+                    // reach, and `64` is the capacity of a  `u::Md5Block`.
             };
 
             static const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -11332,18 +11391,18 @@ int main(int argc, char *argv[])
             const unsigned char (&k_RANDOM_GARBAGE)[1024] =
                     u::TestDataUtil::s_RANDOM_GARBAGE_1K;
 
+            // The expected fingerprint for
+            // `u::TestDataUtil::s_RANDOM_GARBAGE_1K`.  Note that this
+            // fingerprint was computed using a third party implementation
+            // that is assumed to be correct.
             static const char k_FINGERPRINT[] =
                 "044d5905fa983dd9845075cb302dbe76";
-                // The expected fingerprint for
-                // 'u::TestDataUtil::s_RANDOM_GARBAGE_1K'.  Note that this
-                // fingerprint was computed using a third party implementation
-                // that is assumed to be correct.
 
             for (int i = 0; i != 8 * sizeof(k_RANDOM_GARBAGE); ++i) {
                 bsl::vector<unsigned char> randomGarbageCopy(
                     k_RANDOM_GARBAGE,
                     k_RANDOM_GARBAGE + sizeof(k_RANDOM_GARBAGE));
-                // A copy of the value of 'RANDOM_GARBAGE' for which to change
+                // A copy of the value of `RANDOM_GARBAGE` for which to change
                 // a single bit.
 
                 const unsigned char byteAtIdx = randomGarbageCopy[i / 8];
@@ -11362,7 +11421,7 @@ int main(int argc, char *argv[])
                                                           byteAtIdx & bitMask);
 
                 // Calculate the unsigned char value having the same value
-                // as 'byteAtIdx' except for having exactly 1 of its 8 bits
+                // as `byteAtIdx` except for having exactly 1 of its 8 bits
                 // flipped.
                 const unsigned char newByteAtIdx = static_cast<unsigned char>(
                                                        (byteAtIdx & byteMask) |
@@ -11392,20 +11451,20 @@ int main(int argc, char *argv[])
       } break;
       case 23: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' for textual time values of differing lengths
+        // TESTING `getValue` for textual time values of differing lengths
         //   This case tests whether, for differing lengths, decoding date/time
         //   values into a variant are considered to have their timezone
         //   information or not.
         //
         // Concerns:
-        //: 1 Sample some ISO 8601-encoded time values for which decoding into
-        //:   a date/time value that optionally includes a time zone either
-        //:   erroneously drops the time zone information, or erroneously
-        //:   treats non-time zone information as a time zone.
+        // 1. Sample some ISO 8601-encoded time values for which decoding into
+        //    a date/time value that optionally includes a time zone either
+        //    erroneously drops the time zone information, or erroneously
+        //    treats non-time zone information as a time zone.
         //
         // Plan:
-        //: 1 Enumerate some of the aforementioned values and verify the
-        //:   defective behavior.
+        // 1. Enumerate some of the aforementioned values and verify the
+        //    defective behavior.
         //
         // Testing:
         //  int getValue(bsl::streambuf *, TYPE *, int length, const Options&);
@@ -11421,7 +11480,7 @@ int main(int argc, char *argv[])
                    // the value will not be used
         };
 
-        // 'getValue' currently possesses some defects with regards to whether
+        // `getValue` currently possesses some defects with regards to whether
         // it interprets encoded date and time values of varying lengths as
         // having timezone information or not.  For backwards-compatibility
         // purposes, some of these defects are checked below.  Lines in the
@@ -11553,15 +11612,15 @@ int main(int argc, char *argv[])
       } break;
       case 22: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' and 'getValue' for Decimal64
+        // TESTING `putValue` and `getValue` for Decimal64
         //
         // Concerns:
-        //: 1 'putValue' insert correctly encodes a Decimal64 value by first
-        //:   insert a length and then the output of
-        //:   'DecimalConvertUtil::decimal64ToMultiWidthEncoding'.
-        //:
-        //: 2 'getValue' decodes a Decimal64 by delegating its operation to
-        //:   'DecimalConvertUtil::decimal64FromMultiWidthEncoding'.
+        // 1. `putValue` insert correctly encodes a Decimal64 value by first
+        //    insert a length and then the output of
+        //    `DecimalConvertUtil::decimal64ToMultiWidthEncoding`.
+        //
+        // 2. `getValue` decodes a Decimal64 by delegating its operation to
+        //    `DecimalConvertUtil::decimal64FromMultiWidthEncoding`.
         //
         // Plan:
         //
@@ -11616,7 +11675,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        // '{DRQS 162368178}'
+        // `{DRQS 162368178}`
         {
             const char                 fuzz[] = {
                 0, 0, 7, 'Z', 0, 1, 127, 1, 0, 0, 1
@@ -11629,7 +11688,7 @@ int main(int argc, char *argv[])
       } break;
       case 21: {
         // --------------------------------------------------------------------
-        // TESTING 'getValue' FOR DATE/TIME COMPONENTS USING A VARIANT
+        // TESTING `getValue` FOR DATE/TIME COMPONENTS USING A VARIANT
         //
         // Concerns:
         //
@@ -11639,7 +11698,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\n"
-                         "TESTING 'getValue' FOR DATE/TIME USING VARIANT" "\n"
+                         "TESTING `getValue` FOR DATE/TIME USING VARIANT" "\n"
                          "==============================================" "\n";
 
         balber::BerEncoderOptions options;
@@ -11824,8 +11883,8 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) bsl::cout << "\nTesting variant of 'bdlt::Date'"
-                               << " and 'bdlt::DateTz'." << bsl::endl;
+        if (verbose) bsl::cout << "\nTesting variant of `bdlt::Date`"
+                               << " and `bdlt::DateTz`." << bsl::endl;
         {
             typedef bdlb::Variant2<bdlt::Date, bdlt::DateTz> Variant;
 
@@ -11886,7 +11945,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting 'bdlt::DateTz'." << bsl::endl;
+        if (verbose) bsl::cout << "\nTesting `bdlt::DateTz`." << bsl::endl;
         {
             typedef bdlb::Variant2<bdlt::Date, bdlt::DateTz> Variant;
 
@@ -11948,8 +12007,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting variant of 'bdlt::Time'"
-                               << " and 'bdlt::TimeTz'." << bsl::endl;
+        if (verbose) bsl::cout << "\nTesting variant of `bdlt::Time`"
+                               << " and `bdlt::TimeTz`." << bsl::endl;
         {
             typedef bdlb::Variant2<bdlt::Time, bdlt::TimeTz> Variant;
 
@@ -12011,7 +12070,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting 'bdlt::TimeTz'." << bsl::endl;
+        if (verbose) bsl::cout << "\nTesting `bdlt::TimeTz`." << bsl::endl;
         {
             typedef bdlb::Variant2<bdlt::Time, bdlt::TimeTz> Variant;
 
@@ -12075,8 +12134,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting variant of 'bdlt::Datetime'"
-                               << " and 'bdlt::DatetimeTz'." << bsl::endl;
+        if (verbose) bsl::cout << "\nTesting variant of `bdlt::Datetime`"
+                               << " and `bdlt::DatetimeTz`." << bsl::endl;
         {
             typedef bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz> Variant;
 
@@ -12150,7 +12209,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting 'bdlt::DatetimeTz'." << bsl::endl;
+        if (verbose) bsl::cout << "\nTesting `bdlt::DatetimeTz`." << bsl::endl;
         {
             typedef bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz> Variant;
 
@@ -12221,7 +12280,7 @@ int main(int argc, char *argv[])
       } break;
       case 20: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' FOR DATE/TIME COMPONENTS
+        // TESTING `putValue` FOR DATE/TIME COMPONENTS
         //
         // Concerns:
         //
@@ -12230,7 +12289,7 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\n" "TESTING 'putValue' FOR DATE/TIME" "\n"
+        if (verbose) bsl::cout << "\n" "TESTING `putValue` FOR DATE/TIME" "\n"
                                        "================================" "\n";
 
         if (verbose) bsl::cout << "\nTesting Date." << bsl::endl;
@@ -13991,7 +14050,7 @@ int main(int argc, char *argv[])
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // TESTING BRUTE FORCE 'putValue'/'getValue' FOR DATE/TIME
+        // TESTING BRUTE FORCE `putValue`/`getValue` FOR DATE/TIME
         //
         // Concerns:
         //
@@ -14001,7 +14060,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\n"
-                           "TESTING 'putValue', 'getValue' FOR DATE/TIME" "\n"
+                           "TESTING `putValue`, `getValue` FOR DATE/TIME" "\n"
                            "============================================" "\n";
 
         balber::BerEncoderOptions options;
@@ -14668,7 +14727,7 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue', 'getValue' FOR DATE/TIME
+        // TESTING `putValue`, `getValue` FOR DATE/TIME
         //
         // Concerns:
         //
@@ -14678,7 +14737,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\n"
-                           "TESTING 'putValue', 'getValue' FOR DATE/TIME" "\n"
+                           "TESTING `putValue`, `getValue` FOR DATE/TIME" "\n"
                            "============================================" "\n";
 
         balber::BerEncoderOptions options;
@@ -14861,7 +14920,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) bsl::cout << "\nTesting 'bdlt::Date'." << bsl::endl;
+        if (verbose) bsl::cout << "\nTesting `bdlt::Date`." << bsl::endl;
         {
             typedef bdlt::Date Type;
 
@@ -14937,7 +14996,7 @@ int main(int argc, char *argv[])
 #endif
         }
 
-        if (verbose) bsl::cout << "\nTesting 'bdlt::DateTz'." << bsl::endl;
+        if (verbose) bsl::cout << "\nTesting `bdlt::DateTz`." << bsl::endl;
         {
             typedef bdlt::DateTz Type;
 
@@ -15023,7 +15082,7 @@ int main(int argc, char *argv[])
 #endif
         }
 
-        if (verbose) bsl::cout << "\nTesting 'bdlt::Time'." << bsl::endl;
+        if (verbose) bsl::cout << "\nTesting `bdlt::Time`." << bsl::endl;
         {
             typedef bdlt::Time Type;
 
@@ -15076,7 +15135,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting 'bdlt::TimeTz'." << bsl::endl;
+        if (verbose) bsl::cout << "\nTesting `bdlt::TimeTz`." << bsl::endl;
         {
             typedef bdlt::TimeTz Type;
 
@@ -15130,7 +15189,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) bsl::cout << "\nTesting 'bdlt::Datetime'." << bsl::endl;
+        if (verbose) bsl::cout << "\nTesting `bdlt::Datetime`." << bsl::endl;
         {
             typedef bdlt::Datetime Type;
 
@@ -15206,7 +15265,7 @@ int main(int argc, char *argv[])
 #endif
         }
 
-        if (verbose) bsl::cout << "\nTesting 'bdlt::DatetimeTz'." << bsl::endl;
+        if (verbose) bsl::cout << "\nTesting `bdlt::DatetimeTz`." << bsl::endl;
         {
             typedef bdlt::DatetimeTz Type;
 
@@ -15311,7 +15370,7 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING 'put/getIdentifierOctets'
+        // TESTING `put/getIdentifierOctets`
         //
         // Concerns:
         //
@@ -15321,7 +15380,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\n"
-                                      "TESTING 'put/getIdentifierOctets'" "\n"
+                                      "TESTING `put/getIdentifierOctets`" "\n"
                                       "=================================" "\n";
 
         {
@@ -15487,7 +15546,7 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING 'putIndefiniteLengthOctet' & 'put/getEndOfContentOctets'
+        // TESTING `putIndefiniteLengthOctet` & `put/getEndOfContentOctets`
         //
         // Concerns:
         //
@@ -15496,13 +15555,13 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'putIndefiniteLengthOctet', "
-                                  "'put/getEndOfContentOctets'"
+        if (verbose) bsl::cout << "\nTESTING `putIndefiniteLengthOctet`, "
+                                  "`put/getEndOfContentOctets`"
                                << "\n===================================="
                                   "=================="
                                << bsl::endl;
 
-        if (verbose) bsl::cout << "\nTesting 'putIndefiniteLengthOctet'."
+        if (verbose) bsl::cout << "\nTesting `putIndefiniteLengthOctet`."
                                << bsl::endl;
         {
             bdlsb::MemOutStreamBuf osb;
@@ -15516,7 +15575,7 @@ int main(int argc, char *argv[])
             ASSERT(k_INDEFINITE_LENGTH_OCTET == (unsigned char)osb.data()[0]);
         }
 
-        if (verbose) bsl::cout << "\nTesting 'putEndOfContentOctets'."
+        if (verbose) bsl::cout << "\nTesting `putEndOfContentOctets`."
                                << bsl::endl;
         {
             bdlsb::MemOutStreamBuf osb;
@@ -15526,7 +15585,7 @@ int main(int argc, char *argv[])
             ASSERT(0       == osb.data()[1]);
         }
 
-        if (verbose) bsl::cout << "\nTesting 'getEndOfContentOctets'."
+        if (verbose) bsl::cout << "\nTesting `getEndOfContentOctets`."
                                << bsl::endl;
         {
             char buffer[] = { 0 };
@@ -15615,7 +15674,7 @@ int main(int argc, char *argv[])
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' & 'getValue' for date/time components
+        // TESTING `putValue` & `getValue` for date/time components
         //
         // Concerns:
         //
@@ -15625,7 +15684,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout
-                            << "\nTESTING 'putValue', 'getValue' for date/time"
+                            << "\nTESTING `putValue`, `getValue` for date/time"
                             << "\n============================================"
                             << bsl::endl;
 
@@ -15633,7 +15692,7 @@ int main(int argc, char *argv[])
         ASSERT(options.datetimeFractionalSecondPrecision() == 3);
         options.setDatetimeFractionalSecondPrecision(6);
 
-        if (verbose) bsl::cout << "\nTesting 'bdlt::Date'." << bsl::endl;
+        if (verbose) bsl::cout << "\nTesting `bdlt::Date`." << bsl::endl;
         {
             typedef bdlt::Date Type;
 
@@ -15673,7 +15732,7 @@ int main(int argc, char *argv[])
             ASSERT(LENGTH  == numBytesConsumed);
         }
 
-        if (verbose) bsl::cout << "\nTesting 'bdlt::DateTz'." << bsl::endl;
+        if (verbose) bsl::cout << "\nTesting `bdlt::DateTz`." << bsl::endl;
         {
             typedef bdlt::DateTz Type;
 
@@ -15714,7 +15773,7 @@ int main(int argc, char *argv[])
             ASSERT(LENGTH  == numBytesConsumed);
         }
 
-        if (verbose) bsl::cout << "\nTesting 'bdlt::Datetime'." << bsl::endl;
+        if (verbose) bsl::cout << "\nTesting `bdlt::Datetime`." << bsl::endl;
         {
             typedef bdlt::Datetime Type;
 
@@ -15755,7 +15814,7 @@ int main(int argc, char *argv[])
             ASSERT(LENGTH  == numBytesConsumed);
         }
 
-        if (verbose) bsl::cout << "\nTesting 'bdlt::DatetimeTz'." << bsl::endl;
+        if (verbose) bsl::cout << "\nTesting `bdlt::DatetimeTz`." << bsl::endl;
         {
             typedef bdlt::DatetimeTz Type;
 
@@ -15797,7 +15856,7 @@ int main(int argc, char *argv[])
             ASSERT(LENGTH  == numBytesConsumed);
         }
 
-        if (verbose) bsl::cout << "\nTesting 'bdlt::Time'." << bsl::endl;
+        if (verbose) bsl::cout << "\nTesting `bdlt::Time`." << bsl::endl;
         {
             typedef bdlt::Time Type;
 
@@ -15838,7 +15897,7 @@ int main(int argc, char *argv[])
             ASSERT(LENGTH  == numBytesConsumed);
         }
 
-        if (verbose) bsl::cout << "\nTesting 'bdlt::TimeTz'." << bsl::endl;
+        if (verbose) bsl::cout << "\nTesting `bdlt::TimeTz`." << bsl::endl;
         {
             typedef bdlt::TimeTz Type;
 
@@ -15883,7 +15942,7 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' for 'bsl::string_view' & 'bslstl::StringRef'
+        // TESTING `putValue` for `bsl::string_view` & `bslstl::StringRef`
         //
         // Concerns:
         //
@@ -15893,7 +15952,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout
-         << "\nTESTING 'putValue' for 'bsl::string_view' & 'bslstl::StringRef'"
+         << "\nTESTING `putValue` for `bsl::string_view` & `bslstl::StringRef`"
          << "\n==============================================================="
          << bsl::endl;
 
@@ -15992,7 +16051,7 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' & 'getValue' for bsl::string
+        // TESTING `putValue` & `getValue` for bsl::string
         //
         // Concerns:
         //
@@ -16001,7 +16060,7 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'putValue', 'getValue' for string"
+        if (verbose) bsl::cout << "\nTESTING `putValue`, `getValue` for string"
                                << "\n========================================="
                                << bsl::endl;
         struct Data {
@@ -16065,7 +16124,7 @@ int main(int argc, char *argv[])
             const int length = 1024;  // the claimed length
             bdlsb::MemOutStreamBuf osb;
             ASSERT(SUCCESS == Util::putLength(&osb, length));
-            // Write 'length - 10' bytes
+            // Write `length - 10` bytes
             ASSERT(length > 10);
             for (int n = length - 10; n > 0; --n) {
                 ASSERT(osb.sputc('X') == 'X');
@@ -16110,7 +16169,7 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING 'putLength' & 'getLength'
+        // TESTING `putLength` & `getLength`
         //
         // Concerns:
         //
@@ -16119,7 +16178,7 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'putLength', 'getLength'"
+        if (verbose) bsl::cout << "\nTESTING `putLength`, `getLength`"
                                << "\n================================"
                                << bsl::endl;
 
@@ -16188,7 +16247,7 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'putDoubleValue' & 'getDoubleValue' for float and double
+        // TESTING `putDoubleValue` & `getDoubleValue` for float and double
         //
         // Concerns:
         //
@@ -16197,7 +16256,7 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'putDoubleValue','getDoubleValue'"
+        if (verbose) bsl::cout << "\nTESTING `putDoubleValue`,`getDoubleValue`"
                                << "\n========================================="
                                << bsl::endl;
 
@@ -16443,7 +16502,7 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' & 'getValue' for unsigned integral values
+        // TESTING `putValue` & `getValue` for unsigned integral values
         //
         // Concerns:
         //
@@ -16452,7 +16511,7 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'putValue' and 'getValue'"
+        if (verbose) bsl::cout << "\nTESTING `putValue` and `getValue`"
                                << "\n================================="
                                << bsl::endl;
 
@@ -16701,7 +16760,7 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' & 'getValue' for signed integral values
+        // TESTING `putValue` & `getValue` for signed integral values
         //
         // Concerns:
         //
@@ -16710,7 +16769,7 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'putValue' and 'getValue'"
+        if (verbose) bsl::cout << "\nTESTING `putValue` and `getValue`"
                                << "\n================================="
                                << bsl::endl;
 
@@ -16979,8 +17038,8 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'putIntegerGivenLength' "
-                               << "and 'getIntegerGivenLength' for unsigned"
+        if (verbose) bsl::cout << "\nTESTING `putIntegerGivenLength` "
+                               << "and `getIntegerGivenLength` for unsigned"
                                << "\n================================="
                                << "========================================"
                                << bsl::endl;
@@ -17201,7 +17260,7 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'putIntegerGivenLength' & 'getIntegerValue'
+        // TESTING `putIntegerGivenLength` & `getIntegerValue`
         //
         // Concerns:
         //
@@ -17210,8 +17269,8 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'putIntegerGivenLength' "
-                               << "and 'getIntegerValue'"
+        if (verbose) bsl::cout << "\nTESTING `putIntegerGivenLength` "
+                               << "and `getIntegerValue`"
                                << "\n================================="
                                << "==========================="
                                << bsl::endl;
@@ -17458,7 +17517,7 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'numBytesToStream' for unsigned types
+        // TESTING `numBytesToStream` for unsigned types
         //
         // Concerns:
         //
@@ -17468,7 +17527,7 @@ int main(int argc, char *argv[])
         //   int numBytesToStream(TYPE value);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'numBytesToStream' for unsigned"
+        if (verbose) bsl::cout << "\nTESTING `numBytesToStream` for unsigned"
                                << "\n======================================="
                                << bsl::endl;
 
@@ -17520,7 +17579,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'numBytesToStream'
+        // TESTING `numBytesToStream`
         //
         // Concerns:
         //
@@ -17530,7 +17589,7 @@ int main(int argc, char *argv[])
         //   int numBytesToStream(TYPE value);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'numBytesToStream'"
+        if (verbose) bsl::cout << "\nTESTING `numBytesToStream`"
                                << "\n=========================="
                                << bsl::endl;
 
@@ -17627,7 +17686,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' & 'getValue' for unsigned char values
+        // TESTING `putValue` & `getValue` for unsigned char values
         //
         // Concerns:
         //
@@ -17636,7 +17695,7 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'putValue' and 'getValue'"
+        if (verbose) bsl::cout << "\nTESTING `putValue` and `getValue`"
                                << "\n================================="
                                << bsl::endl;
 
@@ -17694,7 +17753,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' & 'getValue' for signed char values
+        // TESTING `putValue` & `getValue` for signed char values
         //
         // Concerns:
         //
@@ -17703,7 +17762,7 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'putValue' and 'getValue'"
+        if (verbose) bsl::cout << "\nTESTING `putValue` and `getValue`"
                                << "\n================================="
                                << bsl::endl;
 
@@ -17790,7 +17849,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' & 'getValue' for bool values
+        // TESTING `putValue` & `getValue` for bool values
         //
         // Concerns:
         //
@@ -17799,7 +17858,7 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING 'putValue' and 'getValue'"
+        if (verbose) bsl::cout << "\nTESTING `putValue` and `getValue`"
                                << "\n================================="
                                << bsl::endl;
 
@@ -17854,9 +17913,9 @@ int main(int argc, char *argv[])
         // PERFORMANCE TEST
         //
         // Concerns: There are several concerns about performance.  For one
-        //   thing, the use of 'bsl::streambuf' can slow things down (if the
+        //   thing, the use of `bsl::streambuf` can slow things down (if the
         //   length of the buffer is known in advance, a direct access through
-        //   a 'bdlsb::FixedMemInput' or 'bdlsb::FixedMemOutput' can bypass
+        //   a `bdlsb::FixedMemInput` or `bdlsb::FixedMemOutput` can bypass
         //   virtual function calls.  Then there is the encoding/decoding
         //   proper.
         //

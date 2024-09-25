@@ -5,7 +5,7 @@
 
 #include <bsls_asserttest.h>
 
-#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstdlib.h>     // `atoi`
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -20,7 +20,7 @@ using bsl::flush;
 //                              Overview
 //                              --------
 // The component under test consists of a series of static member functions
-// that translate between 'bdlt::Time' objects and 'int' values.
+// that translate between `bdlt::Time` objects and `int` values.
 //-----------------------------------------------------------------------------
 // [ 1] static bdlt::Time convertFromHHMM(int timeValue);
 // [ 2] static bdlt::Time convertFromHHMMSS(int timeValue);
@@ -120,12 +120,12 @@ int main(int argc, char *argv[])
         //   file.
         //
         // Concerns:
-        //: 1 The usage examples provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage examples provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into driver, remove leading
-        //:   comment characters, and replace 'assert' with 'ASSERT'.
+        // 1. Incorporate usage example from header into driver, remove leading
+        //    comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -143,10 +143,10 @@ if (verbose) bsl::cout << "\nUsage Example 1" << endl;
 
 ///Example 1
 ///- - - - -
-// First, we demonstrate how to use 'bdlt::TimeUtil' to
+// First, we demonstrate how to use `bdlt::TimeUtil` to
 // convert from an integer representation of time in "HHMMSSmmm" format to a
-// 'bdlt::Time'.  Our first time will be around 3:45 pm.
-//..
+// `bdlt::Time`.  Our first time will be around 3:45 pm.
+// ```
     //      format: HHMMSSmmm
     int timeValue = 154502789;
 
@@ -155,50 +155,50 @@ if (verbose) bsl::cout << "\nUsage Example 1" << endl;
 if (veryVerbose) {
     bsl::cout << result << bsl::endl;
 }
-//..
-// The code above produces the following on 'stdout':
-//..
+// ```
+// The code above produces the following on `stdout`:
+// ```
 //  15:45:02.789
-//..
+// ```
 // Then, we demonstrate a different time, 3:32:24.832 am.  Note that we do not
-// lead the integer value with '0':
-//..
+// lead the integer value with `0`:
+// ```
     //  format: HHMMSSmmm
-    timeValue =  33224832;      // Do not start with leading '0' as that would
+    timeValue =  33224832;      // Do not start with leading `0` as that would
                                 // make the value octal and incorrect.
 
     result = bdlt::TimeUtil::convertFromHHMMSSmmm(timeValue);
 
 if (veryVerbose)
     bsl::cout << result << bsl::endl;
-//..
-// The code above produces the following on 'stdout':
-//..
+// ```
+// The code above produces the following on `stdout`:
+// ```
 //  03:32:24.832
-//..
-// Now, we demonstrate how 'bdlt::TimeUtil' provides methods that can be used
+// ```
+// Now, we demonstrate how `bdlt::TimeUtil` provides methods that can be used
 // to validate integral time values before passing them to the various
 // "convert" methods.  For example:
-//..
+// ```
     ASSERT( bdlt::TimeUtil::isValidHHMMSSmmm(timeValue));
-//..
+// ```
 // Finally, we demonstrate catching an invalid time value, 12:61:02.789 pm:
-//..
+// ```
     //         format: HHMMSSmmm
     int badTimeValue = 126102789;
 
     ASSERT(!bdlt::TimeUtil::isValidHHMMSSmmm(badTimeValue));
-//..
+// ```
 //
 
 if (verbose) bsl::cout << "\nUsage Example 2" << endl;
 
 ///Example 2
 ///- - - - -
-// The following snippet of code demonstrates how to use 'bdlt::TimeUtil' to
-// convert from a 'bdlt::Time' to an integer representation of time in "HHMM",
+// The following snippet of code demonstrates how to use `bdlt::TimeUtil` to
+// convert from a `bdlt::Time` to an integer representation of time in "HHMM",
 // "HHMMSS", and "HHMMSSmmm" formats:
-//..
+// ```
     bdlt::Time time(12, 45, 2, 789);
     int        timeHHMM      = bdlt::TimeUtil::convertToHHMM(time);
     int        timeHHMMSS    = bdlt::TimeUtil::convertToHHMMSS(time);
@@ -209,14 +209,14 @@ if (veryVerbose) {
     bsl::cout << "Time in HHMMSS:    " << timeHHMMSS    << bsl::endl;
     bsl::cout << "Time in HHMMSSmmm: " << timeHHMMSSmmm << bsl::endl;
 }
-//..
-// The code above produces the following on 'stdout':
-//..
+// ```
+// The code above produces the following on `stdout`:
+// ```
 //  Time in HHMM:      1245
 //  Time in HHMMSS:    124502
 //  Time in HHMMSSmmm: 124502789
-//..
-// Note that the millisecond and/or second fields of 'bdlt::Time' are ignored
+// ```
+// Note that the millisecond and/or second fields of `bdlt::Time` are ignored
 // depending on the conversion method that is called.
 
       } break;
@@ -225,28 +225,28 @@ if (veryVerbose) {
         // TESTING convertToHHMMSS, convertToHHMMSSmmm, convertToHHMM:
         //
         // Concerns:
-        //: 1 Verify the 'Time' -> 'int' conversions are correct.
-        //:   o Verify minimal values of each field the 'Time' value is created
-        //:     with.
-        //:   o Verify maximal values of each field the 'Time' value is created
-        //:     with.
-        //:   o Verify intermediate values of each field the 'Time' value is
-        //:     created with.
-        //:   o Verify the special value 24:00:00.000.
+        // 1. Verify the `Time` -> `int` conversions are correct.
+        //    - Verify minimal values of each field the `Time` value is created
+        //      with.
+        //    - Verify maximal values of each field the `Time` value is created
+        //      with.
+        //    - Verify intermediate values of each field the `Time` value is
+        //      created with.
+        //    - Verify the special value 24:00:00.000.
         //
         // Plan:
-        //: 1 Create a table containing minimal, maximal, and intermediate
-        //:   values for each field of a 'Time' c'tor, and each combination
-        //:   thereof.
-        //: 2 The table must also contain, for each possible time value:
-        //:   o The corresponding HHMM 'int' value.
-        //:   o The corresponding HHMMSS 'int' value.
-        //:   o The corresponding HHMMSSmmm 'int' value.
-        //: 3 Iterate through the table values:
-        //:   o Created a 'Time' object based on the c'tor fields.
-        //:   o Use the conversion methods to create integer 'hhmm', 'hhmmss',
-        //:     and 'hhmmssmmm' values.
-        //:   o Verify the correctness of the translated 'int' values.
+        // 1. Create a table containing minimal, maximal, and intermediate
+        //    values for each field of a `Time` c'tor, and each combination
+        //    thereof.
+        // 2. The table must also contain, for each possible time value:
+        //    - The corresponding HHMM `int` value.
+        //    - The corresponding HHMMSS `int` value.
+        //    - The corresponding HHMMSSmmm `int` value.
+        // 3. Iterate through the table values:
+        //    - Created a `Time` object based on the c'tor fields.
+        //    - Use the conversion methods to create integer `hhmm`, `hhmmss`,
+        //      and `hhmmssmmm` values.
+        //    - Verify the correctness of the translated `int` values.
         //
         // Testing:
         //   static int convertToHHMM(const bdlt::Time& timeValue);
@@ -606,37 +606,37 @@ if (veryVerbose) {
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'convertFromHHMMSSmmm' & 'isValidHHMMSSmmm'
+        // TESTING `convertFromHHMMSSmmm` & `isValidHHMMSSmmm`
         //
         // Concerns:
-        //: 1 Verify 'isValidHHMMSSmmm' correctly determines the validity of
-        //:   'int' representations of times.
-        //:   o Verify with minimal valid values of each field.
-        //:   o Verify with maximal valid values of each field.
-        //:   o Verify with intermedial valid values of each field.
-        //:   o Verify the special value 24:00:00.000.
-        //:   o Verify with invalid values of each field (other than
-        //:     milliseconds, which will just carry over into seconds).
-        //: 2 Verify the conversion produces a correct result in the case of
-        //:   the 'int' value being valid.
-        //: o Verify the conversion detects an incorrect 'int' value.
+        // 1. Verify `isValidHHMMSSmmm` correctly determines the validity of
+        //    `int` representations of times.
+        //    - Verify with minimal valid values of each field.
+        //    - Verify with maximal valid values of each field.
+        //    - Verify with intermedial valid values of each field.
+        //    - Verify the special value 24:00:00.000.
+        //    - Verify with invalid values of each field (other than
+        //      milliseconds, which will just carry over into seconds).
+        // 2. Verify the conversion produces a correct result in the case of
+        //    the `int` value being valid.
+        //  - Verify the conversion detects an incorrect `int` value.
         //
         // Plan:
-        //: 1 Specify test vectors outlining the values of each field of the
-        //:   int, and whether each 'int' repreents a valid 'Time' or not.
-        //: 2 Iterate through the test vectors.
-        //: 3 Combine the fields into an 'int' value.
-        //: 4 Test the validity with 'isValidHHMMSSmmm' and verify it matches
-        //:   the expected value from the table.
-        //: 5 If the 'int' value is valid:
-        //:   o Construct an expected 'Time' value from the fields from the
-        //:     table.
-        //:   o Convert the 'int' value to a 'Time' value with
-        //:     'convertFromHHMMSSmmm'.
-        //:   o Verify the two values are equal.
-        //: 6 If the 'int' value is not valid:
-        //:   o Do negative testing to verify that 'convertFromHHMMSSmmm'
-        //:     catches the invalid value.
+        // 1. Specify test vectors outlining the values of each field of the
+        //    int, and whether each `int` repreents a valid `Time` or not.
+        // 2. Iterate through the test vectors.
+        // 3. Combine the fields into an `int` value.
+        // 4. Test the validity with `isValidHHMMSSmmm` and verify it matches
+        //    the expected value from the table.
+        // 5. If the `int` value is valid:
+        //    - Construct an expected `Time` value from the fields from the
+        //      table.
+        //    - Convert the `int` value to a `Time` value with
+        //      `convertFromHHMMSSmmm`.
+        //    - Verify the two values are equal.
+        // 6. If the `int` value is not valid:
+        //    - Do negative testing to verify that `convertFromHHMMSSmmm`
+        //      catches the invalid value.
         //
         // Testing:
         //   static bdlt::Time convertFromHHMMSSmmm(int value);
@@ -644,7 +644,7 @@ if (veryVerbose) {
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-                    "\nTESTING 'convertFromHHMMSSmmm' & 'isValidHHMMSSmmm'\n"
+                    "\nTESTING `convertFromHHMMSSmmm` & `isValidHHMMSSmmm`\n"
                       "===================================================\n";
 
         static const struct {
@@ -1062,36 +1062,36 @@ if (veryVerbose) {
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'convertFromHHMMSS' & 'isValidHHMMSS'
+        // TESTING `convertFromHHMMSS` & `isValidHHMMSS`
         //
         // Concerns:
-        //: 1 Verify 'isValidHHMMSS' correctly determines the validity of 'int'
-        //:   representations of times.
-        //:   o Verify with minimal valid values of each field.
-        //:   o Verify with maximal valid values of each field.
-        //:   o Verify with intermedial valid values of each field.
-        //:   o Verify the special value 24:00:00.
-        //:   o Verify with invalid values of each field.
-        //: 2 Verify the conversion produces a correct result in the case of
-        //:   the 'int' value being valid.
-        //: o Verify the conversion detects an incorrect 'int' value.
+        // 1. Verify `isValidHHMMSS` correctly determines the validity of `int`
+        //    representations of times.
+        //    - Verify with minimal valid values of each field.
+        //    - Verify with maximal valid values of each field.
+        //    - Verify with intermedial valid values of each field.
+        //    - Verify the special value 24:00:00.
+        //    - Verify with invalid values of each field.
+        // 2. Verify the conversion produces a correct result in the case of
+        //    the `int` value being valid.
+        //  - Verify the conversion detects an incorrect `int` value.
         //
         // Plan:
-        //: 1 Specify test vectors outlining the values of each field of the
-        //:   int, and whether each 'int' repreents a valid 'Time' or not.
-        //: 2 Iterate through the test vectors.
-        //: 3 Combine the fields into an 'int' value.
-        //: 4 Test the validity with 'isValidHHMMSS' and verify it matches the
-        //:   expected value from the table.
-        //: 5 If the 'int' value is valid:
-        //:   o Construct an expected 'Time' value from the fields from the
-        //:     table.
-        //:   o Convert the 'int' value to a 'Time' value with
-        //:     'convertFromHHMMSS'.
-        //:   o Verify the two values are equal.
-        //: 6 If the 'int' value is not valid:
-        //:   o Do negative testing to verify that 'convertFromHHMMSS' catches
-        //:     the invalid value.
+        // 1. Specify test vectors outlining the values of each field of the
+        //    int, and whether each `int` repreents a valid `Time` or not.
+        // 2. Iterate through the test vectors.
+        // 3. Combine the fields into an `int` value.
+        // 4. Test the validity with `isValidHHMMSS` and verify it matches the
+        //    expected value from the table.
+        // 5. If the `int` value is valid:
+        //    - Construct an expected `Time` value from the fields from the
+        //      table.
+        //    - Convert the `int` value to a `Time` value with
+        //      `convertFromHHMMSS`.
+        //    - Verify the two values are equal.
+        // 6. If the `int` value is not valid:
+        //    - Do negative testing to verify that `convertFromHHMMSS` catches
+        //      the invalid value.
         //
         // Testing:
         //   static bdlt::Time convertFromHHMMSS(int value);
@@ -1099,7 +1099,7 @@ if (veryVerbose) {
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-                           "\nTESTING 'convertFromHHMMSS' & 'isValidHHMMSS'\n"
+                           "\nTESTING `convertFromHHMMSS` & `isValidHHMMSS`\n"
                              "=============================================\n";
 
         static const struct {
@@ -1241,43 +1241,43 @@ if (veryVerbose) {
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'convertFromHHMM' & 'isValidHHMM'
+        // TESTING `convertFromHHMM` & `isValidHHMM`
         //
         // Concerns:
-        //: 1 Verify 'isValidHHMM' correctly determines the validity of 'int'
-        //:   representations of times.
-        //:   o Verify with minimal valid values of each field.
-        //:   o Verify with maximal valid values of each field.
-        //:   o Verify with intermedial valid values of each field.
-        //:   o Verify the special value 24:00.
-        //:   o Verify with invalid values of each field.
-        //: 2 Verify the conversion produces a correct result in the case of
-        //:   the 'int' value being valid.
-        //: o Verify the conversion detects an incorrect 'int' value.
+        // 1. Verify `isValidHHMM` correctly determines the validity of `int`
+        //    representations of times.
+        //    - Verify with minimal valid values of each field.
+        //    - Verify with maximal valid values of each field.
+        //    - Verify with intermedial valid values of each field.
+        //    - Verify the special value 24:00.
+        //    - Verify with invalid values of each field.
+        // 2. Verify the conversion produces a correct result in the case of
+        //    the `int` value being valid.
+        //  - Verify the conversion detects an incorrect `int` value.
         //
         // Plan:
-        //: 1 Specify test vectors outlining the values of each field of the
-        //:   int, and whether each 'int' repreents a valid 'Time' or not.
-        //: 2 Iterate through the test vectors.
-        //: 3 Combine the fields into an 'int' value.
-        //: 4 Test the validity with 'isValidHHMM' and verify it matches the
-        //:   expected value from the table.
-        //: 5 If the 'int' value is valid:
-        //:   o Construct an expected 'Time' value from the fields from the
-        //:     table.
-        //:   o Convert the 'int' value to a 'Time' value with
-        //:     'convertFromHHMM'.
-        //:   o Verify the two values are equal.
-        //: 6 If the 'int' value is not valid:
-        //:   o Do negative testing to verify that 'convertFromHHMM' catches
-        //:     the invalid value.
+        // 1. Specify test vectors outlining the values of each field of the
+        //    int, and whether each `int` repreents a valid `Time` or not.
+        // 2. Iterate through the test vectors.
+        // 3. Combine the fields into an `int` value.
+        // 4. Test the validity with `isValidHHMM` and verify it matches the
+        //    expected value from the table.
+        // 5. If the `int` value is valid:
+        //    - Construct an expected `Time` value from the fields from the
+        //      table.
+        //    - Convert the `int` value to a `Time` value with
+        //      `convertFromHHMM`.
+        //    - Verify the two values are equal.
+        // 6. If the `int` value is not valid:
+        //    - Do negative testing to verify that `convertFromHHMM` catches
+        //      the invalid value.
         //
         // Testing:
         //   static bdlt::Time convertFromHHMM(int value);
         //   static bool isValidHHMM(int value);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'convertFromHHMM' & 'isValidHHMM'\n"
+        if (verbose) cout << "\nTESTING `convertFromHHMM` & `isValidHHMM`\n"
                                "=========================================\n";
 
         static const struct {

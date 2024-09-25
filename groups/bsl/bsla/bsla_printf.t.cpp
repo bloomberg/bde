@@ -9,8 +9,8 @@
 
 #include <stdarg.h>
 #include <stdio.h>
-#include <stdlib.h>  // 'calloc', 'realloc', 'atoi'
-#include <string.h>  // 'strcmp'
+#include <stdlib.h>  // `calloc`, `realloc`, `atoi`
+#include <string.h>  // `strcmp`
 
 // Set this preprocessor macro to 1 to enable compile warnings being generated,
 // 0 to disable them.
@@ -25,22 +25,22 @@
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
 // test driver using a compliant compiler, each time defining different values
-// of the boolean 'U_TRIGGER_WARNINGS' preprocessor macro.  In each case, the
+// of the boolean `U_TRIGGER_WARNINGS` preprocessor macro.  In each case, the
 // concerns are:
 //
-//: o Did the build succeed or not?
-//:
-//: o Was the expected warning observed or not?
-//:
-//: o Was the expected suppression of some warning suppressed or not?
-//:
-//: o For annotations taking arguments, do the results show if the arguments
-//:   were properly passed to the underlying compiler directives?
+//  - Did the build succeed or not?
+//
+//  - Was the expected warning observed or not?
+//
+//  - Was the expected suppression of some warning suppressed or not?
+//
+//  - For annotations taking arguments, do the results show if the arguments
+//    were properly passed to the underlying compiler directives?
 //
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
 // does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor macro is 'U_TRIGGER_WARNINGS', which, if set to
+// The controlling preprocessor macro is `U_TRIGGER_WARNINGS`, which, if set to
 // 1, provokes all the compiler warnings caused by the macros under test.  If
 // set to 0, prevents any warnings from happening.
 //
@@ -51,11 +51,11 @@
 // right-most column appear as comments throughout this test driver.  They can
 // be used as an aid to navigation to the test code for each annotation, and an
 // aid to assuring test coverage.
-//..
+// ```
 //  Annotation                            Result
 //  ------------------------------------  --------
 //  BSLA_PRINTF(FMTIDX, STARTIDX)         Warning
-//..
+// ```
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 // [ 1] BREATHING TEST
@@ -118,28 +118,29 @@ void aSsErT(bool condition, const char *message, int line)
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: 'printf'-Like Function That Returns a 'bsl::string' by Value
+///Example 1: `printf`-Like Function That Returns a `bsl::string` by Value
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// First, we define a function, 'strPrintf', that takes a variable number of
+// First, we define a function, `strPrintf`, that takes a variable number of
 // arguments.  The second argument is the format string, and we annotate it
-// with 'BSLA_PRINTF':
-//..
+// with `BSLA_PRINTF`:
+// ```
+
+    /// Do a `sprintf`-style write to a `std::string` and return the string
+    /// by value.  Ensure that the write can't overflow unless memory or
+    /// address space is exhausted.  The specified `*numChars` is the number
+    /// of characters written, the specified `format` is the `printf`-style
+    /// format string, and the specified `...` is the variable-length list
+    /// of arguments to be formatted.
     std::string strPrintf(size_t *numChars, const char *format, ...)
                                                              BSLA_PRINTF(2, 3);
     std::string strPrintf(size_t *numChars, const char *format, ...)
-        // Do a 'sprintf'-style write to a 'std::string' and return the string
-        // by value.  Ensure that the write can't overflow unless memory or
-        // address space is exhausted.  The specified '*numChars' is the number
-        // of characters written, the specified 'format' is the 'printf'-style
-        // format string, and the specified '...' is the variable-length list
-        // of arguments to be formatted.
     {
         std::string ret = " ";
 //
         va_list ap;
         va_start(ap, format);
 
-        // 'vsnprintf' returns the number of characters that WOULD have been
+        // `vsnprintf` returns the number of characters that WOULD have been
         // written (not including the terminating '\0') had the buffer been
         // long enough.
 
@@ -157,15 +158,15 @@ void aSsErT(bool condition, const char *message, int line)
         ret.resize(*numChars);
         return ret;
     }
-//..
+// ```
 
 // ============================================================================
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// Do nothing with the specified `pattern`.
 void test_PRINTF(const char *pattern, ...) BSLA_PRINTF(1, 2);
 void test_PRINTF(const char *pattern, ...)
-    // Do nothing with the specified 'pattern'.
 {
     (void) pattern;
 }
@@ -182,8 +183,8 @@ void test_PRINTF(const char *pattern, ...)
 //                  USAGE WITH NO EXPECTED COMPILER WARNINGS
 // ----------------------------------------------------------------------------
 
+/// Call `test_PRINTF` a few times with correct arguments.
 void use_without_diagnostic_message_PRINTF()
-    // Call 'test_PRINTF' a few times with correct arguments.
 {
     test_PRINTF("%s", "string");
     test_PRINTF("%d", 1);
@@ -213,11 +214,11 @@ void use_with_warning_message_PRINTF()
 //                              HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// Print a diagnostic message to standard output if any of the preprocessor
+/// flags of interest are defined, and their value if a value had been set.
+/// An "Enter" and "Leave" message is printed unconditionally so there is
+/// some report even if all of the flags are undefined.
 static void printFlags()
-    // Print a diagnostic message to standard output if any of the preprocessor
-    // flags of interest are defined, and their value if a value had been set.
-    // An "Enter" and "Leave" message is printed unconditionally so there is
-    // some report even if all of the flags are undefined.
 {
     printf("printFlags: Enter\n");
 
@@ -300,10 +301,10 @@ int main(int argc, char **argv)
         // USAGE EXAMPLE
         //
         // Concern:
-        //: 1 That the usage example builds and performs as expected.
+        // 1. That the usage example builds and performs as expected.
         //
         // Plan:
-        //: 1 Build and test the usage example.
+        // 1. Build and test the usage example.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -313,14 +314,14 @@ int main(int argc, char **argv)
                             "=============\n");
 
 #if BSLS_PLATFORM_OS_WINDOWS
-        // '::vsnprintf' doesn't behave the same on Windows as it does on other
+        // `::vsnprintf` doesn't behave the same on Windows as it does on other
         // platforms, though MSDN says that it should.
 
         break;
 #endif
 
-// Then, in 'main', we call the function correctly a couple of times:
-//..
+// Then, in `main`, we call the function correctly a couple of times:
+// ```
         size_t len;
         std::string s;
 //
@@ -335,27 +336,27 @@ int main(int argc, char **argv)
         ASSERT("The rain in Spain falls mainly in the plain\n" == s);
         ASSERT(44 == len);
         ASSERT(len == s.length());
-//..
+// ```
 // Now, we call it with too many arguments and of the wrong type:
-//..
+// ```
 #if U_TRIGGER_WARNINGS
         s = strPrintf(&len, "%c %f %g", "arf", 27, 32, 65, 27);
 #endif
-//..
+// ```
 // Finally, we observe the compiler warnings with clang:
-//..
-//  .../bsla_printf.t.cpp:328:41: warning: format specifies type 'int' but the
-//  argument has type 'const char *' [-Wformat]
+// ```
+//  .../bsla_printf.t.cpp:328:41: warning: format specifies type `int` but the
+//  argument has type `const char *` [-Wformat]
 //      s = strPrintf(&len, "%c %f %g", "arf", 27, 32, 65, 27);
 //                           ~~         ^~~~~
 //                           %s
-//  .../bsla_printf.t.cpp:328:48: warning: format specifies type 'double' but
-//  the argument has type 'int' [-Wformat]
+//  .../bsla_printf.t.cpp:328:48: warning: format specifies type `double` but
+//  the argument has type `int` [-Wformat]
 //      s = strPrintf(&len, "%c %f %g", "arf", 27, 32, 65, 27);
 //                              ~~             ^~
 //                              %d
-//  .../bsla_printf.t.cpp:328:52: warning: format specifies type 'double' but
-//  the argument has type 'int' [-Wformat]
+//  .../bsla_printf.t.cpp:328:52: warning: format specifies type `double` but
+//  the argument has type `int` [-Wformat]
 //      s = strPrintf(&len, "%c %f %g", "arf", 27, 32, 65, 27);
 //                                 ~~              ^~
 //                                 %d
@@ -363,7 +364,7 @@ int main(int argc, char **argv)
 //  string [-Wformat-extra-args]
 //      s = strPrintf(&len, "%c %f %g", "arf", 27, 32, 65, 27);
 //                          ~~~~~~~~~~                 ^
-//..
+// ```
         (void) s;
       } break;
       case 1: {
@@ -371,20 +372,20 @@ int main(int argc, char **argv)
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 This test driver builds with all expected compiler warning
-        //:   messages and no unexpected warnings when the 'U_TRIGGER_WARNINGS'
-        //:   preprocessor variable is defined to 1.
-        //:
-        //: 2 When 'U_TRIGGER_WARNINGS' is defined to 0, the compile is
-        //:   successful and with no warnings.
+        // 1. This test driver builds with all expected compiler warning
+        //    messages and no unexpected warnings when the `U_TRIGGER_WARNINGS`
+        //    preprocessor variable is defined to 1.
+        //
+        // 2. When `U_TRIGGER_WARNINGS` is defined to 0, the compile is
+        //    successful and with no warnings.
         //
         // Plan:
-        //: 1 Build with 'U_TRIGGER_WARNINGS' defined to 1 and externally
-        //:   examine compiler output for expected warnings and the absence of
-        //:   warnings expected to be suppressed.  (C-1)
-        //:
-        //: 2 Build with 'U_TRIGGER_WARNINGS' defined to 0 and observe that the
-        //:   compile is successful with no warnings.  (C-2)
+        // 1. Build with `U_TRIGGER_WARNINGS` defined to 1 and externally
+        //    examine compiler output for expected warnings and the absence of
+        //    warnings expected to be suppressed.  (C-1)
+        //
+        // 2. Build with `U_TRIGGER_WARNINGS` defined to 0 and observe that the
+        //    compile is successful with no warnings.  (C-2)
         //
         // Testing:
         //   BREATHING TEST
@@ -400,7 +401,7 @@ int main(int argc, char **argv)
 
             if (!veryVeryVerbose) printFlags();
 
-            ASSERT(true); // remove unused warning for 'aSsErT'
+            ASSERT(true); // remove unused warning for `aSsErT`
         }
 
       } break;

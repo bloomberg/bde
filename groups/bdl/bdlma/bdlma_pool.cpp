@@ -13,11 +13,12 @@ namespace bdlma {
 namespace {
 
 // TYPES
+
+/// This `struct` implements a link data structure that stores the address
+/// of the next link, used to implement the internal linked list of free
+/// memory blocks.  Note that this type was copied from `bdlma_pool.h` to
+/// provide access to this type from static methods.
 struct Link {
-    // This 'struct' implements a link data structure that stores the address
-    // of the next link, used to implement the internal linked list of free
-    // memory blocks.  Note that this type was copied from 'bdlma_pool.h' to
-    // provide access to this type from static methods.
 
     Link *d_next_p;
 };
@@ -33,11 +34,12 @@ enum {
 };
 
 // LOCAL FUNCTIONS
+
+/// Round up the specified `x` to the nearest whole integer multiple of the
+/// specified `y`.  The behavior is undefined unless `1 <= y`.
 static inline
 bsls::Types::size_type roundUp(bsls::Types::size_type x,
                                bsls::Types::size_type y)
-    // Round up the specified 'x' to the nearest whole integer multiple of the
-    // specified 'y'.  The behavior is undefined unless '1 <= y'.
 {
     BSLS_ASSERT(1 <= y);
 

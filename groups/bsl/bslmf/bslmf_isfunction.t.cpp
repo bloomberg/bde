@@ -5,8 +5,8 @@
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 
@@ -23,8 +23,8 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines a meta-function, 'bsl::is_function' and a
-// template variable 'bsl::is_function_v', that determine whether a template
+// The component under test defines a meta-function, `bsl::is_function` and a
+// template variable `bsl::is_function_v`, that determine whether a template
 // parameter type is a function type.  Thus, we need to ensure that the value
 // returned by this meta-function is correct for each possible category of
 // types.
@@ -87,83 +87,83 @@ void aSsErT(bool condition, const char *message, int line)
 namespace {
 
 enum EnumTestType {
-    // This user-defined 'enum' type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::is_function'.
+    // This user-defined `enum` type is intended to be used for testing as the
+    // template parameter `TYPE` of `bsl::is_function`.
 };
 
+/// This user-defined `struct` type is intended to be used for testing as
+/// the template parameter `TYPE` of `bsl::is_function`.
 struct StructTestType {
-    // This user-defined 'struct' type is intended to be used for testing as
-    // the template parameter 'TYPE' of 'bsl::is_function'.
 };
 
+/// This user-defined `union` type is intended to be used for testing as the
+/// template parameter `TYPE` of `bsl::is_function`.
 union UnionTestType {
-    // This user-defined 'union' type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::is_function'.
 };
 
+/// This user-defined base class type is intended to be used for testing as
+/// the template parameter `TYPE` of `bsl::is_function`.
 class BaseClassTestType {
-    // This user-defined base class type is intended to be used for testing as
-    // the template parameter 'TYPE' of 'bsl::is_function'.
 };
 
+/// This user-defined derived class type is intended to be used for testing
+/// as the template parameter `TYPE` of `bsl::is_function`.
 class DerivedClassTestType : public BaseClassTestType {
-    // This user-defined derived class type is intended to be used for testing
-    // as the template parameter 'TYPE' of 'bsl::is_function'.
 };
 
+/// This pointer to non-static member function type is intended to be used
+/// for testing as the template parameter `TYPE` of `bsl::is_function`.
 typedef int (StructTestType::*MethodPtrTestType) ();
-    // This pointer to non-static member function type is intended to be used
-    // for testing as the template parameter 'TYPE' of 'bsl::is_function'.
 
+/// This function pointer type is intended to be used for testing as the
+/// template parameter `TYPE` of `bsl::is_function`.
 typedef void (*FunctionPtrTestType) ();
-    // This function pointer type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::is_function'.
 
+/// This function type having `void` return type and no parameters is
+/// intended to be used for testing as the template parameter `TYPE` of
+/// `bsl::is_function`.
 typedef void VoidRetNoParamFunctionTestType();
-    // This function type having 'void' return type and no parameters is
-    // intended to be used for testing as the template parameter 'TYPE' of
-    // 'bsl::is_function'.
 
+/// This function type having `void` return type and two `int` parameters is
+/// intended to be used for testing as the template parameter `TYPE` of
+/// `bsl::is_function`.
 typedef void VoidRetParamFunctionTestType(int);
-    // This function type having 'void' return type and two 'int' parameters is
-    // intended to be used for testing as the template parameter 'TYPE' of
-    // 'bsl::is_function'.
 
+/// This function type having `int` return type and no parameters is
+/// intended to be used for testing as the template parameter `TYPE` of
+/// `bsl::is_function`.
 typedef int IntRetNoParamFunctionTestType();
-    // This function type having 'int' return type and no parameters is
-    // intended to be used for testing as the template parameter 'TYPE' of
-    // 'bsl::is_function'.
 
+/// This function type having `int` return type and two `int` parameters is
+/// intended to be used for testing as the template parameter `TYPE` of
+/// `bsl::is_function`.
 typedef int IntRetParamFunctionTestType(int, int);
-    // This function type having 'int' return type and two 'int' parameters is
-    // intended to be used for testing as the template parameter 'TYPE' of
-    // 'bsl::is_function'.
 
+/// This pointer to member object type is intended to be used for testing as
+/// the template parameter `TYPE` of `bsl::is_function`.
 typedef int StructTestType::*PMD;
-    // This pointer to member object type is intended to be used for testing as
-    // the template parameter 'TYPE' of 'bsl::is_function'.
 
 struct Incomplete;
-    // This incomplete 'struct' type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::is_function'.
+    // This incomplete `struct` type is intended to be used for testing as the
+    // template parameter `TYPE` of `bsl::is_function`.
 
+/// This abstract class is intended to be used for testing as the template
+/// parameter `TYPE` of `bsl::is_function`.
 struct Abstract {
-    // This abstract class is intended to be used for testing as the template
-    // parameter 'TYPE' of 'bsl::is_function'.
 
     virtual ~Abstract() = 0;
 };
 
+/// This awkward class is intended to be used for testing as the template
+/// parameter `TYPE` of `bsl::is_function`.
 class NotConstructible {
-    // This awkward class is intended to be used for testing as the template
-    // parameter 'TYPE' of 'bsl::is_function'.
 
     NotConstructible(const NotConstructible&);
 };
 
+/// This awkward class is intended to be used for testing as the template
+/// parameter `TYPE` of `bsl::is_function`.
 class EvilOverloads {
-    // This awkward class is intended to be used for testing as the template
-    // parameter 'TYPE' of 'bsl::is_function'.
 
     void operator&();
 
@@ -190,80 +190,80 @@ typedef int ExternCFunc15Elipsis(int, int, int, int, int, int, int, int, int,
 }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+/// `ASSERT` that `is_function_v` has the same value as
+/// `is_function::value`.
 #define ASSERT_V_SAME(TYPE)                                                   \
     ASSERT( bsl::is_function<TYPE>::value == bsl::is_function_v<TYPE>)
-    // 'ASSERT' that 'is_function_v' has the same value as
-    // 'is_function::value'.
 #else
 #define ASSERT_V_SAME(TYPE)
 #endif
 
+/// Test that the result of `META_FUNC` has the same value as the expected
+/// `result`.  Confirm that the result value of the `META_FUNC` and the
+/// value of the `META_FUNC_v` variable are the same.
 #define TYPE_ASSERT_IS_FUNCTION(META_FUNC, TYPE, result)                      \
     ASSERT(result == META_FUNC<TYPE>::value);                                 \
     ASSERT_V_SAME(TYPE)
-    // Test that the result of 'META_FUNC' has the same value as the expected
-    // 'result'.  Confirm that the result value of the 'META_FUNC' and the
-    // value of the 'META_FUNC_v' variable are the same.
 
+/// Test cv-qualified combinations on the specified `TYPE`.
 #define TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE, result)                       \
     TYPE_ASSERT_IS_FUNCTION(META_FUNC,                TYPE, result);          \
     TYPE_ASSERT_IS_FUNCTION(META_FUNC, const          TYPE, result);          \
     TYPE_ASSERT_IS_FUNCTION(META_FUNC,       volatile TYPE, result);          \
     TYPE_ASSERT_IS_FUNCTION(META_FUNC, const volatile TYPE, result);
-    // Test cv-qualified combinations on the specified 'TYPE'.
 
+/// Test cv-qualified combinations on the specified `TYPE`.
 #define TYPE_ASSERT_CVQ_SUFFIX(META_FUNC, TYPE, result)                       \
     TYPE_ASSERT_IS_FUNCTION(META_FUNC, TYPE,                result);          \
     TYPE_ASSERT_IS_FUNCTION(META_FUNC, TYPE const,          result);          \
     TYPE_ASSERT_IS_FUNCTION(META_FUNC, TYPE volatile,       result);          \
     TYPE_ASSERT_IS_FUNCTION(META_FUNC, TYPE const volatile, result);
-    // Test cv-qualified combinations on the specified 'TYPE'.
 
+/// Test references to cv-qualified combinations on the specified `TYPE`.
 #define TYPE_ASSERT_CVQ_REF(META_FUNC, TYPE, result)                          \
     TYPE_ASSERT_IS_FUNCTION(META_FUNC, TYPE&,                result);         \
     TYPE_ASSERT_IS_FUNCTION(META_FUNC, TYPE const&,          result);         \
     TYPE_ASSERT_IS_FUNCTION(META_FUNC, TYPE volatile&,       result);         \
     TYPE_ASSERT_IS_FUNCTION(META_FUNC, TYPE const volatile&, result);
-    // Test references to cv-qualified combinations on the specified 'TYPE'.
 
+/// Test references to cv-qualified combinations on the specified `noexcept`
+/// `TYPE`.
 #define TYPE_ASSERT_CVQ_REF_NOEXCEPT(META_FUNC, TYPE, result)                 \
     TYPE_ASSERT_IS_FUNCTION(META_FUNC, TYPE& noexcept,                result);\
     TYPE_ASSERT_IS_FUNCTION(META_FUNC, TYPE const& noexcept,          result);\
     TYPE_ASSERT_IS_FUNCTION(META_FUNC, TYPE volatile& noexcept,       result);\
     TYPE_ASSERT_IS_FUNCTION(META_FUNC, TYPE const volatile& noexcept, result);
-    // Test references to cv-qualified combinations on the specified 'noexcept'
-    // 'TYPE'.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+/// Test an r-value  references to cv-qualified combinations on the
+/// specified `TYPE`.
 # define TYPE_ASSERT_CVQ_RVALREF(META_FUNC, TYPE, result)                     \
     TYPE_ASSERT_IS_FUNCTION(META_FUNC, TYPE&&,                result);        \
     TYPE_ASSERT_IS_FUNCTION(META_FUNC, TYPE const&&,          result);        \
     TYPE_ASSERT_IS_FUNCTION(META_FUNC, TYPE volatile&&,       result);        \
     TYPE_ASSERT_IS_FUNCTION(META_FUNC, TYPE const volatile&&, result);
-    // Test an r-value  references to cv-qualified combinations on the
-    // specified 'TYPE'.
 #else
 # define TYPE_ASSERT_CVQ_RVALREF(META_FUNC, TYPE, result)
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+/// Test an r-value  references to cv-qualified combinations on the
+///  specified `noexcept` `TYPE`.
 # define TYPE_ASSERT_CVQ_RVALREF_NOEXCEPT(META_FUNC, TYPE, result)            \
    TYPE_ASSERT_IS_FUNCTION(META_FUNC, TYPE&& noexcept,                result);\
    TYPE_ASSERT_IS_FUNCTION(META_FUNC, TYPE const&& noexcept,          result);\
    TYPE_ASSERT_IS_FUNCTION(META_FUNC, TYPE volatile&& noexcept,       result);\
    TYPE_ASSERT_IS_FUNCTION(META_FUNC, TYPE const volatile&& noexcept, result);
-    // Test an r-value  references to cv-qualified combinations on the
-    //  specified 'noexcept' 'TYPE'.
 #else
 # define TYPE_ASSERT_CVQ_RVALREF_NOEXCEPT(META_FUNC, TYPE, result)
 #endif
 
+/// Test all cv-qualified combinations on the specified `TYPE`.
 #define TYPE_ASSERT_CVQ(META_FUNC, TYPE, result)                     \
     TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE,                result);  \
     TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE const,          result);  \
     TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE       volatile, result);  \
     TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE const volatile, result);
-    // Test all cv-qualified combinations on the specified 'TYPE'.
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -291,13 +291,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -314,58 +314,58 @@ int main(int argc, char *argv[])
 /// - - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a set of types are function types.
 //
-// Now, we instantiate the 'bsl::is_function' template for a non-function type
-// and a function type, and assert the 'value' static data member of each
+// Now, we instantiate the `bsl::is_function` template for a non-function type
+// and a function type, and assert the `value` static data member of each
 // instantiation:
-//..
+// ```
     ASSERT(false == bsl::is_function<int>::value);
     ASSERT(true  == bsl::is_function<int (int)>::value);
-//..
+// ```
 // Note that if the current compiler supports the variable templates C++14
 // feature then we can re-write the snippet of code above using the
-// 'bsl::is_function_v' variable as follows:
-//..
+// `bsl::is_function_v` variable as follows:
+// ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
     ASSERT(false == bsl::is_function_v<int>);
     ASSERT(true  == bsl::is_function_v<int (int)>);
 #endif
-//..
+// ```
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::is_function::value'
-        //   Ensure that the static data member 'value' of 'bsl::is_function'
-        //   instantiations having various (template parameter) 'TYPE's has the
+        // `bsl::is_function::value`
+        //   Ensure that the static data member `value` of `bsl::is_function`
+        //   instantiations having various (template parameter) `TYPE`s has the
         //   correct value.
         //
         // Concerns:
-        //: 1 'is_function::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) primitive type.
-        //:
-        //: 2 'is_function::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) user-defined type.
-        //:
-        //: 3 'is_function::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) pointer or pointer-to-member type.
-        //:
-        //: 4 'is_function::value' is 'false' when 'TYPE' is a reference type,
-        //:   and 'false' for function references in particular.
-        //:
-        //: 5 'is_function::value' is 'true' when 'TYPE' is a function type.
-        //:   Note that cv-qualified is irrelevant for a function type.
-        //:
-        //: 6  That 'is_function<T>::value' has the same value as
-        //:    'is_function_v<T>' for a variety of template parameter types.
+        // 1. `is_function::value` is `false` when `TYPE` is a (possibly
+        //    cv-qualified) primitive type.
+        //
+        // 2. `is_function::value` is `false` when `TYPE` is a (possibly
+        //    cv-qualified) user-defined type.
+        //
+        // 3. `is_function::value` is `false` when `TYPE` is a (possibly
+        //    cv-qualified) pointer or pointer-to-member type.
+        //
+        // 4. `is_function::value` is `false` when `TYPE` is a reference type,
+        //    and `false` for function references in particular.
+        //
+        // 5. `is_function::value` is `true` when `TYPE` is a function type.
+        //    Note that cv-qualified is irrelevant for a function type.
+        //
+        // 6.  That `is_function<T>::value` has the same value as
+        //     `is_function_v<T>` for a variety of template parameter types.
         //
         // Plan:
-        //   Verify that 'bsl::is_function::value' has the correct value for
-        //   each (template parameter) 'TYPE' in the concerns.
+        //   Verify that `bsl::is_function::value` has the correct value for
+        //   each (template parameter) `TYPE` in the concerns.
         //
         // Testing:
         //   bsl::is_function::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("'bsl::is_function::value'\n"
+        if (verbose) printf("`bsl::is_function::value`\n"
                             "=========================\n");
 
         // C-1

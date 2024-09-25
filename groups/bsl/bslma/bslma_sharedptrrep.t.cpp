@@ -9,8 +9,8 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_keyword.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 
 #ifdef BSLS_PLATFORM_CMP_MSVC  // Microsoft Compiler
@@ -138,9 +138,9 @@ typedef MyTestImplementation TObj;
                          // class MyTestImplementation
                          // ==========================
 
+/// This class provides an implementation for `bslma::SharedPtrRep` so that
+/// it can be initialized and tested.
 class MyTestImplementation : public bslma::SharedPtrRep {
-    // This class provides an implementation for 'bslma::SharedPtrRep' so that
-    // it can be initialized and tested.
 
     // DATA
     int d_numRepDisposed;
@@ -176,7 +176,7 @@ MyTestImplementation::MyTestImplementation()
 void MyTestImplementation::disposeObject()
 {
     // The implementation of this method allows verification on whether
-    // 'disposeObject' is called or not.
+    // `disposeObject` is called or not.
 
     ++d_numObjectDisposed;
 }
@@ -184,7 +184,7 @@ void MyTestImplementation::disposeObject()
 void MyTestImplementation::disposeRep()
 {
     // The implementation of this method allows verification on whether
-    // 'disposeRep' is called or not.
+    // `disposeRep` is called or not.
 
     ++d_numRepDisposed;
 }
@@ -217,7 +217,7 @@ void *MyTestImplementation::originalPtr() const
 
 class MySharedDatetimeRepImpl : public bslma::SharedPtrRep {
   private:
-    // Implementation of 'bslma::SharedPtrRep' for in-place object.
+    // Implementation of `bslma::SharedPtrRep` for in-place object.
 
     // DATA
     bslma::Allocator *d_allocator_p; // memory allocator (held, not owned)
@@ -229,23 +229,23 @@ class MySharedDatetimeRepImpl : public bslma::SharedPtrRep {
                             int               year,
                             int               month,
                             int               day);
-        // Create a shared representation of a 'bdlt::Datetime' object having
-        // the specified 'year', 'month' and 'day' using the specified
-        // 'basicAllocator' to allocate memory.
+        // Create a shared representation of a `bdlt::Datetime` object having
+        // the specified `year`, `month` and `day` using the specified
+        // `basicAllocator` to allocate memory.
 
     // MANIPULATORS
     virtual void disposeRep();
-        // Dispose of this 'MySharedDatetimeRepImpl' object.
+        // Dispose of this `MySharedDatetimeRepImpl` object.
 
     virtual void disposeObject();
-        // Dispose of the managed 'bdlt::Datetime' object.
+        // Dispose of the managed `bdlt::Datetime` object.
 
     // ACCESSORS
     bdlt::Datetime *ptr();
-        // Returns a modifiable pointer to the managed 'bdlt::Datetime' object.
+        // Returns a modifiable pointer to the managed `bdlt::Datetime` object.
 
     virtual void *originalPtr() const;
-        // Returns a void pointer to the to the managed 'bdlt::Datetime'
+        // Returns a void pointer to the to the managed `bdlt::Datetime`
         // object.
 };
 
@@ -286,7 +286,7 @@ void *MySharedDatetimeRepImpl::originalPtr() const {
 
 class MySharedDatetime {
     // This class provide a reference counted managed pointer to supporting
-    // shared ownership of a 'bdlt::Datetime' object.
+    // shared ownership of a `bdlt::Datetime` object.
 
   private:
     bdlt::Datetime      *d_ptr_p;  // pointer to the managed object
@@ -299,11 +299,11 @@ class MySharedDatetime {
 
     MySharedDatetime(bdlt::Datetime* ptr, bslma::SharedPtrRep* rep);
         // Create a shared datetime that adopts ownership of the specified
-        // 'ptr' and the specified 'rep.
+        // `ptr` and the specified 'rep.
 
     MySharedDatetime(const MySharedDatetime& original);
         // Create a shared datetime that refers to the same object managed by
-        // the specified 'original'
+        // the specified `original`
 
     ~MySharedDatetime();
         // Destroy this shared datetime and release the reference any object it
@@ -314,21 +314,21 @@ class MySharedDatetime {
                        int               year,
                        int               month,
                        int               day);
-        // Create a new 'MySharedDatetimeRepImpl', using the specified
-        // 'basicAllocator' to supply memory, using the specified 'year',
-        // 'month' and 'day' to initialize the 'bdlt::Datetime' within the
-        // newly created 'MySharedDatetimeRepImpl', and make this
-        // 'MySharedDatetime' refer to the newly created 'bdlt::Datetime'.
+        // Create a new `MySharedDatetimeRepImpl`, using the specified
+        // `basicAllocator` to supply memory, using the specified `year`,
+        // `month` and `day` to initialize the `bdlt::Datetime` within the
+        // newly created `MySharedDatetimeRepImpl`, and make this
+        // `MySharedDatetime` refer to the newly created `bdlt::Datetime`.
 
     bdlt::Datetime& operator*() const;
         // Return a modifiable reference to the shared datetime.
 
     bdlt::Datetime *operator->() const;
-        // Return the address of the modifiable 'bdlt::Datetime' to which this
+        // Return the address of the modifiable `bdlt::Datetime` to which this
         // object refers.
 
     bdlt::Datetime *ptr() const;
-        // Return the address of the modifiable 'bdlt::Datetime' to which this
+        // Return the address of the modifiable `bdlt::Datetime` to which this
         // object refers.
 };
 
@@ -466,21 +466,21 @@ int main(int argc, char *argv[])
 #endif
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'managedPtrDeleter'
+        // TESTING `managedPtrDeleter`
         //
         // Concerns:
-        //   'managedPtrDeleter' decrement the number of references as
+        //   `managedPtrDeleter` decrement the number of references as
         //   expected.
         //
         // Plan:
-        //   Call 'managedPtrDeleter' and verify the number of references
+        //   Call `managedPtrDeleter` and verify the number of references
         //   change as specified.
         //
         // Testing:
         //   void managedPtrDeleter(void*, bslma::SharedPtrRep *rep);
         //   void managedPtrEmptyDeleter(void *, bslma::SharedPtrRep *rep);
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING 'managedPtrDeleter'"
+        if (verbose) printf("\nTESTING `managedPtrDeleter`"
                             "\n===========================\n");
         {
             TObj t;
@@ -495,7 +495,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == t.getNumRepDisposed());
         }
 
-        if (verbose) printf("\nNEGATIVE TESTING 'managedPtrDeleter'"
+        if (verbose) printf("\nNEGATIVE TESTING `managedPtrDeleter`"
                             "\n------------------------------------\n");
         {
             TObj t;
@@ -507,7 +507,7 @@ int main(int argc, char *argv[])
             ASSERT_SAFE_PASS(X.managedPtrDeleter(0, &x));
         }
 
-        if (verbose) printf("\nNEGATIVE TESTING 'managedPtrEmptyDeleter'"
+        if (verbose) printf("\nNEGATIVE TESTING `managedPtrEmptyDeleter`"
                             "\n-----------------------------------------\n");
         {
             TObj t;
@@ -521,20 +521,20 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'incrementRefs'
+        // TESTING `incrementRefs`
         //
         // Concerns:
-        //   'incrementRefs' increase the number of references by the specified
+        //   `incrementRefs` increase the number of references by the specified
         //   amount.
         //
         // Plan:
-        //   Call 'incrementRefs' with different parameters and verify the
+        //   Call `incrementRefs` with different parameters and verify the
         //   number of references change as specified.
         //
         // Testing:
         //   void incrementRefs(int incrementAmount = 1);
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING 'incrementRefs'"
+        if (verbose) printf("\nTESTING `incrementRefs`"
                             "\n=======================\n");
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
         {
@@ -574,23 +574,23 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'tryAcquireRef'
+        // TESTING `tryAcquireRef`
         //
         // Concerns:
-        //   'tryAcquireRef' increments the number of shared references if
-        //   'numReference' > 0 and do nothing otherwise.
+        //   `tryAcquireRef` increments the number of shared references if
+        //   `numReference` > 0 and do nothing otherwise.
         //
         // Plan:
-        //   Call 'tryAcquireRef'.  Verify that 'tryAcquireRef' returns true
-        //   and the 'numReference' is correct.  Call 'acquireWeakRef' and two
-        //   'releaseRef', then call 'tryAcquireRef'.   Verify that
-        //   'tryAcquireRef' return false and it does not change
-        //   'numReference'.
+        //   Call `tryAcquireRef`.  Verify that `tryAcquireRef` returns true
+        //   and the `numReference` is correct.  Call `acquireWeakRef` and two
+        //   `releaseRef`, then call `tryAcquireRef`.   Verify that
+        //   `tryAcquireRef` return false and it does not change
+        //   `numReference`.
         //
         // Testing:
         //   bool tryAcquireRef();
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING 'tryAcquireRef'"
+        if (verbose) printf("\nTESTING `tryAcquireRef`"
                             "\n=======================\n");
         {
             TObj t;
@@ -610,14 +610,14 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'resetCountsRaw'
+        // TESTING `resetCountsRaw`
         //
         // Concerns:
-        //   'resetCountsRaw' is setting number of shared references and weak
+        //   `resetCountsRaw` is setting number of shared references and weak
         //   references to the correct value.
         //
         // Plan:
-        //   Call 'resetCountsRaw' with enumeration in two dimension up to two
+        //   Call `resetCountsRaw` with enumeration in two dimension up to two
         //   levels deep and verify the number of shared/weak references are
         //   correct.
         //
@@ -625,7 +625,7 @@ int main(int argc, char *argv[])
         //   void resetCountsRaw(int numSharedReferences,
         //                       int numWeakReferences);
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING 'resetCountsRaw'"
+        if (verbose) printf("\nTESTING `resetCountsRaw`"
                             "\n========================\n");
         {
             TObj t;
@@ -651,7 +651,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'disposeObject' AND 'disposeRep'
+        // TESTING `disposeObject` AND `disposeRep`
         //
         // Concerns:
         //   1) disposeObject() is called when there is no shared reference.
@@ -659,17 +659,17 @@ int main(int argc, char *argv[])
         //   and no weak reference.
         //
         // Plan:
-        //   Create an object and call 'releaseRef'.  Then verify that both
-        //   'disposeObject' and 'disposeRep' is called.  Create another object
-        //   and call 'acquireWeakRef' before calling 'releaseRef'.  Verify
-        //   that only 'disposeObject' is called.  Then call 'releaseWeakRef'
-        //   and verify that 'disposeRep' is called.
+        //   Create an object and call `releaseRef`.  Then verify that both
+        //   `disposeObject` and `disposeRep` is called.  Create another object
+        //   and call `acquireWeakRef` before calling `releaseRef`.  Verify
+        //   that only `disposeObject` is called.  Then call `releaseWeakRef`
+        //   and verify that `disposeRep` is called.
         //
         // Testing:
         //   void disposeObject();
         //   void disposeRep();
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING 'disposeObject' AND 'disposeRep'"
+        if (verbose) printf("\nTESTING `disposeObject` AND `disposeRep`"
                             "\n========================================\n");
         {
             TObj t;
@@ -712,22 +712,22 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'releaseRef' AND 'releaseWeakRef'
+        // TESTING `releaseRef` AND `releaseWeakRef`
         //
         // Concerns:
-        //   'releaseRef' and 'releaseWeakRef' is decrementing the reference
+        //   `releaseRef` and `releaseWeakRef` is decrementing the reference
         //   count correctly.
         //
         // Plan:
-        //   Call 'acquireRef' then 'releaseRef' and verify 'numReference' did
-        //   not change.  Call 'acquireWeakRef' then 'releaseWeakRef' and
-        //   verify 'numWeakReference' did not change.
+        //   Call `acquireRef` then `releaseRef` and verify `numReference` did
+        //   not change.  Call `acquireWeakRef` then `releaseWeakRef` and
+        //   verify `numWeakReference` did not change.
         //
         // Testing:
         //   void releaseRef();
         //   void releaseWeakRef();
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING 'releaseRef' AND 'releaseWeakRef'"
+        if (verbose) printf("\nTESTING `releaseRef` AND `releaseWeakRef`"
                             "\n=========================================\n");
         {
             TObj t;
@@ -766,21 +766,21 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'acquireRef' AND 'acquireWeakRef'
+        // TESTING `acquireRef` AND `acquireWeakRef`
         //
         // Concerns:
-        //   'acquireRef' and 'acquireWeakRef' is incrementing the reference
+        //   `acquireRef` and `acquireWeakRef` is incrementing the reference
         //   count correctly.
         //
         // Plan:
-        //   Call 'acquireRef' and 'acquireWeakRef' and verify 'numReference'
-        //   and 'numWeakReference' is incremented correctly.
+        //   Call `acquireRef` and `acquireWeakRef` and verify `numReference`
+        //   and `numWeakReference` is incremented correctly.
         //
         // Testing:
         //   void acquireRef();
         //   void acquireWeakRef();
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING 'acquireRef' AND 'acquireWeakRef'"
+        if (verbose) printf("\nTESTING `acquireRef` AND `acquireWeakRef`"
                             "\n=========================================\n");
         {
             TObj t;

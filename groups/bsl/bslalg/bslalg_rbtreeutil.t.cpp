@@ -60,13 +60,13 @@ using namespace bslalg;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'RbTreeUtil' provides a suite of functions for managing red-black binary
+// `RbTreeUtil` provides a suite of functions for managing red-black binary
 // search trees.  These tests must verify that each of the functions behaves
 // as documented, and works correctly on the full range of data that a
 // red-black tree may be created for.  Within this test driver we develop a
-// test-framework (similar to 'bsltf') for testing the templatized methods of
+// test-framework (similar to `bsltf`) for testing the templatized methods of
 // this type on a variety of types.  Note that because of package dependencies
-// this test-driver cannot depend on 'bsltf'.
+// this test-driver cannot depend on `bsltf`.
 //-----------------------------------------------------------------------------
 //                              CLASS METHODS
 // ----------------------------------------------------------------------------
@@ -111,7 +111,7 @@ using namespace bslalg;
 // [ 1] BREATHING TEST
 // [26] USAGE EXAMPLE
 // [ 3] CONCERN: gg Generator
-// [25] CONCERN: Additional verification of exception safety of 'copyTree'
+// [25] CONCERN: Additional verification of exception safety of `copyTree`
 
 //=============================================================================
 
@@ -183,87 +183,89 @@ static bool     veryVerbose = false;
 static bool veryVeryVerbose = false;
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+/// A global source of random numbers to be used by `shuffle` algorithms
+/// throughout this test driver.  As multiple shuffles are required, and
+/// only one thread is running, a single global source of randomness should
+/// provide the best guarantees to avoid accidentally repeating the same
+/// shuffle with the same seeds.
 static std::default_random_engine g_randomSource;
-    // A global source of random numbers to be used by 'shuffle' algorithms
-    // throughout this test driver.  As multiple shuffles are required, and
-    // only one thread is running, a single global source of randomness should
-    // provide the best guarantees to avoid accidentally repeating the same
-    // shuffle with the same seeds.
 #endif
 
 // ============================================================================
 //                         GLOBAL CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// A trivial node type holding an integer payload.
 class IntNode : public RbTreeNode {
-    // A trivial node type holding an integer payload.
 
     // DATA
     int d_value;
 
   public:
     // MANIPULATORS
+
+    /// Return a reference providing modifiable access to the `value` of
+    /// this object.
     int& value() { return d_value; }
-        // Return a reference providing modifiable access to the 'value' of
-        // this object.
 
     // ACCESSORS
+
+    /// Return a reference providing non-modifiable access to the
+    /// `value` of this object.
     const int& value() const {return d_value; }
-        // Return a reference providing non-modifiable access to the
-        // 'value' of this object.
 };
 
 void printIntNodeValue(FILE *file, const RbTreeNode *node)
-   // Print the integer value of the specified 'node' to the specified 'file'.
-   // The behavior is undefined unless 'node' is a 'IntNode' object.
+   // Print the integer value of the specified `node` to the specified `file`.
+   // The behavior is undefined unless `node` is a `IntNode` object.
 {
     fprintf(file, "%d", static_cast<const IntNode *>(node)->value());
 }
 
 void printIntTree(const RbTreeAnchor& tree)
-   // Print the specified 'tree' to 'stdout'.  The behavior is undefined
-   // unless 'tree' is comprised of 'IntNode' objects.
+   // Print the specified `tree` to `stdout`.  The behavior is undefined
+   // unless `tree` is comprised of `IntNode` objects.
 
 {
     Obj::printTreeStructure(stdout, tree.rootNode(), printIntNodeValue, 0, 3);
     printf("===================\n");
 }
 
+/// A `RbTreeUtil` complaint node comparison functor for `IntNode` objects.
 struct IntNodeComparator {
-    // A 'RbTreeUtil' complaint node comparison functor for 'IntNode' objects.
 
+    /// Return `true` if the integer value in the specified `lhs` node is
+    /// less than that of the specified `rhs` node.
     bool operator()(const RbTreeNode& lhs, const RbTreeNode& rhs) const {
-        // Return 'true' if the integer value in the specified 'lhs' node is
-        // less than that of the specified 'rhs' node.
 
         return static_cast<const IntNode&>(lhs).value() <
                static_cast<const IntNode&>(rhs).value();
     }
 };
 
+/// A `RbTreeUtil` complaint node-value comparison functor for `IntNode`
+/// objects.
 struct IntNodeValueComparator {
-    // A 'RbTreeUtil' complaint node-value comparison functor for 'IntNode'
-    // objects.
 
+    /// Return `true` if the integer value in the specified `node` is
+    /// less than the specified `value`.
     bool operator()(const RbTreeNode& node, int value) const {
-        // Return 'true' if the integer value in the specified 'node' is
-        // less than the specified 'value'.
 
         return static_cast<const IntNode&>(node).value() < value;
     }
 
+    /// Return `true` if the specified `value` is less than the integer
+    /// value in the specified `rhs` node.
     bool operator()(int value, const RbTreeNode& node) const {
-        // Return 'true' if the specified 'value' is less than the integer
-        // value in the specified 'rhs' node.
 
         return value < static_cast<const IntNode&>(node).value();
     }
 };
 
+/// Assign to the specified `node` the specified `value`.  Note that this
+/// function signature is designed to be used by the `gg` generator function
+/// below.
 void assignIntNodeValue(IntNode *node, int value)
-    // Assign to the specified 'node' the specified 'value'.  Note that this
-    // function signature is designed to be used by the 'gg' generator function
-    // below.
 {
     node->value() = value;
 }
@@ -291,10 +293,10 @@ int nextIntNodeValue(const RbTreeAnchor& tree, RbTreeNode *node)
     return toIntNode(next)->value();
 }
 
+/// Provide a factory for allocating `IntNode` objects.  Note that the
+/// signatures of this type match those required by `FACTORY` template
+/// parameters of `RbTreeUtil` methods.
 class IntNodeAllocator{
-    // Provide a factory for allocating 'IntNode' objects.  Note that the
-    // signatures of this type match those required by 'FACTORY' template
-    // parameters of 'RbTreeUtil' methods.
 
     // DATA
     IntNode     *d_nodes;
@@ -359,25 +361,25 @@ class ThrowableIntNodeAllocator{
     }
 };
 
+/// Load into the specified `tree` a static tree of nodes matching the
+/// following description.  The resulting `tree` is built from a contiguous
+/// array of `IntNode`, where the element with 0 index is at
+/// `tree->rootNode()`.
+/// ```
+/// {N : [R|B]} - N indicates the index of the node in `nodes`
+///             - [R|B] indicates whether the node is Red or Black
+///
+///                          20{0:B}
+///                        /        \.
+///                       /          \.
+///                    10{1:R}        30{5:R}
+///                   /    \         /    \.
+///                5{2:B}  15{4:B} 25{6:B}  35{8:B}
+///                /                \.
+///               1{3:R}            27{7:R}
+/// ```
+/// The behavior is undefined if the returned `tree` is modified.
 void createBreathingTestTree(RbTreeAnchor *tree)
-    // Load into the specified 'tree' a static tree of nodes matching the
-    // following description.  The resulting 'tree' is built from a contiguous
-    // array of 'IntNode', where the element with 0 index is at
-    // 'tree->rootNode()'.
-    //..
-    // {N : [R|B]} - N indicates the index of the node in 'nodes'
-    //             - [R|B] indicates whether the node is Red or Black
-    //
-    //                          20{0:B}
-    //                        /        \.
-    //                       /          \.
-    //                    10{1:R}        30{5:R}
-    //                   /    \         /    \.
-    //                5{2:B}  15{4:B} 25{6:B}  35{8:B}
-    //                /                \.
-    //               1{3:R}            27{7:R}
-    //..
-    // The behavior is undefined if the returned 'tree' is modified.
 {
     static IntNode nodes[9];
     memset(nodes, 0, sizeof(IntNode) * 9);
@@ -448,9 +450,9 @@ inline
 const RbTreeNode *testNodeAtIndex(const IntNode       *nodes,
                                   const RbTreeAnchor&  tree,
                                   int                  nodeIndex)
-   // Return the node at the specified 'nodeIndex' in the specified array of
-   // 'nodes' if 'nodeIndex >= 0', and the sentinel node of the specified
-   // 'tree' otherwise.
+   // Return the node at the specified `nodeIndex` in the specified array of
+   // `nodes` if `nodeIndex >= 0`, and the sentinel node of the specified
+   // `tree` otherwise.
 {
     return nodeIndex >= 0 ? &nodes[nodeIndex] : tree.sentinel();
 }
@@ -459,9 +461,9 @@ template <class NODE_COMPARATOR, class NODE_PRINT_FUNC>
 int validateTestRbTree(const RbTreeNode       *rootNode,
                        const NODE_COMPARATOR&  comparator,
                        const NODE_PRINT_FUNC&  nodePrintFunction)
-     // Return the value of 'RbTreeUtil::validateRbTree' for the
-     // specified 'node' using the specified 'comparator', and the specified
-     // 'nodePrintFunction' to record the nodes value.  Note that this method
+     // Return the value of `RbTreeUtil::validateRbTree` for the
+     // specified `node` using the specified `comparator`, and the specified
+     // `nodePrintFunction` to record the nodes value.  Note that this method
      // is provided to record additional error information regarding an
      // invalid tree.
 {
@@ -481,22 +483,22 @@ int validateTestRbTree(const RbTreeNode       *rootNode,
     return ret;
 }
 
+/// Return the value of `RbTreeUtil::validateRbTree` and log any
+/// error to the console.  Note that this method is provided to record
+/// additional error information regarding an invalid tree.
 int validateIntRbTree(const RbTreeNode *rootNode)
-    // Return the value of 'RbTreeUtil::validateRbTree' and log any
-    // error to the console.  Note that this method is provided to record
-    // additional error information regarding an invalid tree.
 {
     IntNodeComparator nodeComparator;
     return validateTestRbTree(rootNode, nodeComparator, &printIntNodeValue);
 }
 
+/// This class provides an array of objects of the parameterized `VALUE`
+/// type.  The size of the array is initialized by a call to `reset`.  Note
+/// that this provides a replacement for `vector`, which cannot be used
+/// below `bslstl`, but is considerably simpler to implement because it is
+/// no exception safe and does not grow dynamically.
 template <class VALUE, class ALLOCATOR = bsl::allocator<VALUE> >
 class Array {
-    // This class provides an array of objects of the parameterized 'VALUE'
-    // type.  The size of the array is initialized by a call to 'reset'.  Note
-    // that this provides a replacement for 'vector', which cannot be used
-    // below 'bslstl', but is considerably simpler to implement because it is
-    // no exception safe and does not grow dynamically.
 
     // DATA
     VALUE           *d_data_p;
@@ -510,24 +512,26 @@ class Array {
   public:
 
     // CREATORS
+
+    /// Create a new `Array` for holding objects of the parameterized
+    /// `VALUE` type, using the specified `allocator` to supply memory.
     Array(const ALLOCATOR& basicAllocator)
-        // Create a new 'Array' for holding objects of the parameterized
-        // 'VALUE' type, using the specified 'allocator' to supply memory.
     : d_data_p(0)
     , d_size(0)
     , d_allocator(basicAllocator)
     {
     }
 
+    /// Destroy this object.
     ~Array()
-        // Destroy this object.
     {
         clear();
     }
 
     // MANIPULATORS
+
+    /// Destroy all the elements in the array and set its size to 0.
     void clear() {
-        // Destroy all the elements in the array and set its size to 0.
         if (d_data_p) {
             bslalg::ArrayDestructionPrimitives::destroy(d_data_p,
                                                         d_data_p + d_size,
@@ -539,9 +543,9 @@ class Array {
         }
     }
 
+    /// Destroy all the any elements in the array, and reallocate a
+    /// contiguous sequence of `VALUE` objects of the specified `size`
     void reset(int size) {
-        // Destroy all the any elements in the array, and reallocate a
-        // contiguous sequence of 'VALUE' objects of the specified 'size'
         clear();
         if (0 != size) {
             d_data_p = bsl::allocator_traits<ALLOCATOR>::allocate(d_allocator,
@@ -553,23 +557,24 @@ class Array {
         d_size = size;
     }
 
+    /// Return the element at the specified `offset`.
     VALUE& operator[](int offset) { return d_data_p[offset]; }
-        // Return the element at the specified 'offset'.
 
+    /// Return the address of the first data element in this array.
     VALUE *data() { return d_data_p; }
-        // Return the address of the first data element in this array.
 
     // ACCESSORS
+
+    /// Return the address of the first data element in this array.
     const VALUE *data() const { return d_data_p; }
-        // Return the address of the first data element in this array.
 
 
+    /// Return the address of the first data element in this array.
     int size() const { return d_size; }
-        // Return the address of the first data element in this array.
 };
 
 struct DeleteTestNode : public RbTreeNode {
-   // This 'struct' provides a test node type used to verify a deleter
+   // This `struct` provides a test node type used to verify a deleter
    // has been called on a node.
 
    // DATA
@@ -583,8 +588,8 @@ struct DeleteTestNode : public RbTreeNode {
                        // ==============================
 
 
+/// Provide a comparison functor for `DeleteTestNode` objects.
 class DeleteTestNodeComparator {
-    // Provide a comparison functor for 'DeleteTestNode' objects.
 
   public:
 
@@ -610,8 +615,8 @@ class DeleteTestNodeComparator {
 };
 
 
+/// Write the value of `node` to the specified `file`.
 void printDeleteTestNode(FILE *file, const RbTreeNode *node)
-    // Write the value of 'node' to the specified 'file'.
 {
     fprintf(file,
             "%d",
@@ -623,10 +628,10 @@ void deleteTestNodeAssign(DeleteTestNode *node, int value)
     node->d_value = value;
 }
 
+/// Create a factory for `DeleteTestNode` objects whose signatures
+/// match the requirements of `RbTreeUtil` methods accepting a `FACTORY`
+/// template parameter.
 class DeleteTestNodeFactory {
-    // Create a factory for 'DeleteTestNode' objects whose signatures
-    // match the requirements of 'RbTreeUtil' methods accepting a 'FACTORY'
-    // template parameter.
 
     // DATA
     int d_invocationCount;
@@ -652,9 +657,9 @@ class DeleteTestNodeFactory {
         return 0;
     }
 
+    /// Mark the specified `node` as deleted, and set its left, right, and
+    /// parent pointers to invalid pointer values.
     void deleteNode(RbTreeNode *node)
-        // Mark the specified 'node' as deleted, and set its left, right, and
-        // parent pointers to invalid pointer values.
     {
         ++d_invocationCount;
         DeleteTestNode *removedNode = static_cast<DeleteTestNode *>(node);
@@ -668,23 +673,21 @@ class DeleteTestNodeFactory {
     int numInvocations() const { return d_invocationCount; }
 };
 
+/// Return `true` if the specified `node` refers to a valid binary search
+/// tree ordered according to the specified `comparator`.  This method
+/// returns `true` if and only if:
+/// 1. Both non-null children of every node refer to that node as their
+/// 2. All nodes to the left of `node` are ordered at or before `node`,
+///    and all nodes to the right of `node` are ordered at or after
+///    `node`, as determined by the specified `comparator`.
+/// 3. Rule (2) is recursively true of the left and right sub-trees of
+///    `node`.
+/// Note that this method explicitly doesn't verify that the tree is
+/// valid red-black tree.
 template <class NODE_COMPARATOR, class NODE_PRINT_FUNC>
 bool isValidSearchTree(const RbTreeNode       *rootNode,
                        const NODE_COMPARATOR&  comparator,
                        const NODE_PRINT_FUNC&  nodePrinter)
-    // Return 'true' if the specified 'node' refers to a valid binary search
-    // tree ordered according to the specified 'comparator'.  This method
-    // returns 'true' if and only if:
-    //: 1 Both non-null children of every node refer to that node as their
-    //:
-    //: 2 All nodes to the left of 'node' are ordered at or before 'node',
-    //:   and all nodes to the right of 'node' are ordered at or after
-    //:   'node', as determined by the specified 'comparator'.
-    //:
-    //: 3 Rule (2) is recursively true of the left and right sub-trees of
-    //:   'node'.
-    // Note that this method explicitly doesn't verify that the tree is
-    // valid red-black tree.
 {
     if (0 == rootNode) {
         return true;                                                  // RETURN
@@ -721,15 +724,15 @@ bool isValidSearchTree(const RbTreeNode       *rootNode,
          : false;
 }
 
+/// Return `true` if the trees rooted at the specified `left` and
+/// `specified` right compare equal using the specified `nodeComparator`.
+/// The behavior is undefined unless `nodeComparator` provides a weak
+/// ordering on the elements of both `left` and `right` trees.  Note that
+/// this implementation uses recursion for simplicity.
 template <class NODE_COMPARATOR>
 bool areTreesEqual(const RbTreeNode       *left,
                    const RbTreeNode       *right,
                    const NODE_COMPARATOR&  comparator)
-    // Return 'true' if the trees rooted at the specified 'left' and
-    // 'specified' right compare equal using the specified 'nodeComparator'.
-    // The behavior is undefined unless 'nodeComparator' provides a weak
-    // ordering on the elements of both 'left' and 'right' trees.  Note that
-    // this implementation uses recursion for simplicity.
 {
 
     if (0 == left && 0 == right) {
@@ -743,8 +746,8 @@ bool areTreesEqual(const RbTreeNode       *left,
         && areTreesEqual(left->rightChild(), right->rightChild(), comparator);
 }
 
+/// Return the count of nodes under (and including) the specified `node`.
 int countNodes(RbTreeNode *node)
-    // Return the count of nodes under (and including) the specified 'node'.
 {
     if (0 == node) {
         return 0;                                                     // RETURN
@@ -753,19 +756,19 @@ int countNodes(RbTreeNode *node)
 }
 
 
+/// This class provides a trivial iterator to simplify the process of
+/// iterating over an inclusive range of `RbTreeNode` objects.
 class RbTreeNodeRangeIterator {
-    // This class provides a trivial iterator to simplify the process of
-    // iterating over an inclusive range of 'RbTreeNode' objects.
 
      const RbTreeNode *d_it;  // current position
      const RbTreeNode *d_end; // end of the range (inclusive)
 
   public:
 
+    /// Create a `RbTreeNodeRangeIterator` that iterates over the range of
+    /// nodes between the specified `begin` and `end`, inclusive.
     RbTreeNodeRangeIterator(const RbTreeNode *begin,
                             const RbTreeNode *end)
-        // Create a 'RbTreeNodeRangeIterator' that iterates over the range of
-        // nodes between the specified 'begin' and 'end', inclusive.
     : d_it(begin)
     , d_end(end)
     {
@@ -781,11 +784,11 @@ class RbTreeNodeRangeIterator {
     }
 };
 
+/// Return `true` if the specified `node` is between the `first` and `last`
+/// node inclusive.
 bool isInRange(const RbTreeNode *node,
                const RbTreeNode *first,
                const RbTreeNode *last)
-    // Return 'true' if the specified 'node' is between the 'first' and 'last'
-    // node inclusive.
 {
     RbTreeNodeRangeIterator it(first, last);
     for (RbTreeNode *itNode = it.next(); 0 != itNode; itNode = it.next()) {
@@ -796,9 +799,9 @@ bool isInRange(const RbTreeNode *node,
     return false;
 }
 
+/// Return the node at the specified `offset`, according to an infix tree
+/// traversal starting from the left-most node in `tree`.
 RbTreeNode *nodeAtOffset(RbTreeAnchor *tree, int offset)
-    // Return the node at the specified 'offset', according to an infix tree
-    // traversal starting from the left-most node in 'tree'.
 {
     RbTreeNode *node = tree->firstNode();
     while (offset > 0) {
@@ -832,8 +835,8 @@ const char *tempFileName(bool verboseFlag)
     return result;
 }
 
+/// Remove the file having the specified `fileName` from the file-system.
 void removeFile(const char *fileName)
-    // Remove the file having the specified 'fileName' from the file-system.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     DeleteFile(fileName);
@@ -846,35 +849,35 @@ void removeFile(const char *fileName)
 //                           TEMPLATE TEST FACILITIES
 //=============================================================================
 
-// This section provides a facility analogous to 'bsltf_templatetestfacility'
+// This section provides a facility analogous to `bsltf_templatetestfacility`
 // (which cannot be directly included here for dependency reasons).
 //
 ///Test Types and Associated Policies
 ///----------------------------------
-//: o PrimitiveTestTypes         - a set of typedefs for primitive types
-//: o SimpleTestType             - a simple non-allocating test object type
-//: o AllocTestType              - a simple allocating test object
-//: o TestTypeValue<VALUE>       - a policy for creating a test type value
-//: o TestTypeComparator<VALUE>  - a policy for comparing test type objects
+//  - PrimitiveTestTypes         - a set of typedefs for primitive types
+//  - SimpleTestType             - a simple non-allocating test object type
+//  - AllocTestType              - a simple allocating test object
+//  - TestTypeValue<VALUE>       - a policy for creating a test type value
+//  - TestTypeComparator<VALUE>  - a policy for comparing test type objects
 //
 // The above allows support for primitive and two non-primitive types as the
 // payload for test trees.  On top of the above types we also provide a
-// framework for managing 'RbTreeNode' objects whose payload is one of
-// those test types.  These types are analogous to 'bslstl_treenode',
-// 'bslstl_treenodepool', and 'bslstl_setcomparator'.
+// framework for managing `RbTreeNode` objects whose payload is one of
+// those test types.  These types are analogous to `bslstl_treenode`,
+// `bslstl_treenodepool`, and `bslstl_setcomparator`.
 //
-///'RbTreeNode' Facilities
+///`RbTreeNode` Facilities
 ///-----------------------
-//: o TestTreeNode<VALUE>         - a test node parameterized on payload value
-//:                                 type.
-//: o TestTreeNodeFactory<VALUE>  - a factory for creating and destroying
-//:                                'TestNode' objects.
-//: o TestNodeComparator<VALUE>   - a comparator for comparing 'TestNode'
-//:                                 objects.
-//: o TestNodeAssign<VALUE>       - a functor for assigning a value to a node
+//  - TestTreeNode<VALUE>         - a test node parameterized on payload value
+//                                  type.
+//  - TestTreeNodeFactory<VALUE>  - a factory for creating and destroying
+//                                 `TestNode` objects.
+//  - TestNodeComparator<VALUE>   - a comparator for comparing `TestNode`
+//                                  objects.
+//  - TestNodeAssign<VALUE>       - a functor for assigning a value to a node
 //
 // Finally, a macros are provided to run a test on a series of test types:
-//: o RUN_ON_ALL_TEST_TYPES(TestClass, TestFunction);
+//  - RUN_ON_ALL_TEST_TYPES(TestClass, TestFunction);
 
 
 
@@ -882,18 +885,19 @@ void removeFile(const char *fileName)
                         // struct PrimitiveTestTypes
                         // =========================
 
+/// This `struct` provides a namespace for utility functions that
 struct PrimitiveTestTypes {
-    // This 'struct' provides a namespace for utility functions that
 
     // PUBLIC TYPES
+
+    /// This `typedef` is an alias for a object pointer type.
     typedef PrimitiveTestTypes* ObjectPtr;
-        // This 'typedef' is an alias for a object pointer type.
 
+    /// This `typedef` is an alias for a function pointer type.
     typedef void (*FunctionPtr) ();
-        // This 'typedef' is an alias for a function pointer type.
 
+    /// This `typedef` is an alias for the `size_t` type.
     typedef std::size_t SizeT;
-        // This 'typedef' is an alias for the 'size_t' type.
 };
 
 
@@ -901,11 +905,11 @@ struct PrimitiveTestTypes {
                         // class SimpleTestType
                         // ====================
 
+/// This unconstrained (value-semantic) attribute class does not allocate
+/// memory and does not define any traits.  See the Attributes section under
+/// @DESCRIPTION in the component-level documentation for information on the
+/// class attributes.
 class SimpleTestType {
-    // This unconstrained (value-semantic) attribute class does not allocate
-    // memory and does not define any traits.  See the Attributes section under
-    // @DESCRIPTION in the component-level documentation for information on the
-    // class attributes.
 
     // DATA
     int d_data;  // integer class value
@@ -913,47 +917,51 @@ class SimpleTestType {
   public:
 
     // CREATORS
+
+    /// Create a `SimpleTestType` object having the (default) attribute
+    /// values:
+    /// ```
+    /// data() == 0
+    /// ```
     SimpleTestType();
-        // Create a 'SimpleTestType' object having the (default) attribute
-        // values:
-        //..
-        //  data() == 0
-        //..
 
+    /// Create a `SimpleTestType` object having the specified `data`
+    /// attribute value.
     explicit SimpleTestType(int data);
-        // Create a 'SimpleTestType' object having the specified 'data'
-        // attribute value.
 
+    /// Create a `SimpleTestType` object having the same value
+    /// as the specified `original` object.
     SimpleTestType(const SimpleTestType& original);
-        // Create a 'SimpleTestType' object having the same value
-        // as the specified 'original' object.
 
     // ~SimpleTestType() = default;
         // Destroy this object.
 
     // MANIPULATORS
-    SimpleTestType& operator=(const SimpleTestType& rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
 
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.
+    SimpleTestType& operator=(const SimpleTestType& rhs);
+
+    /// Set the `data` attribute of this object to the specified `value`.
     void setData(int value);
-        // Set the 'data' attribute of this object to the specified 'value'.
 
     // ACCESSORS
+
+    /// Return the value of the `data` attribute of this object.
     int data() const;
-        // Return the value of the 'data' attribute of this object.
 };
 
 // FREE OPERATORS
-bool operator==(const SimpleTestType& lhs, const SimpleTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'SimpleTestType' objects
-    // have the same if their 'data' attributes are the same.
 
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `SimpleTestType` objects
+/// have the same if their `data` attributes are the same.
+bool operator==(const SimpleTestType& lhs, const SimpleTestType& rhs);
+
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `SimpleTestType` objects do not
+/// have the same value if their `data` attributes are not the same.
 bool operator!=(const SimpleTestType& lhs, const SimpleTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'SimpleTestType' objects do not
-    // have the same value if their 'data' attributes are not the same.
 
                         // --------------------
                         // class SimpleTestType
@@ -1018,12 +1026,12 @@ bool operator!=(const SimpleTestType& lhs, const SimpleTestType& rhs)
                         // class AllocTestType
                         // ===================
 
+/// This unconstrained (value-semantic) attribute class that uses a
+/// `bslma::Allocator` to allocate memory and defines the type trait
+/// `bslma::UsesBslmaAllocator`.  See the Attributes section under
+/// @DESCRIPTION in the component-level documentation for information on the
+/// class attributes.
 class AllocTestType {
-    // This unconstrained (value-semantic) attribute class that uses a
-    // 'bslma::Allocator' to allocate memory and defines the type trait
-    // 'bslma::UsesBslmaAllocator'.  See the Attributes section under
-    // @DESCRIPTION in the component-level documentation for information on the
-    // class attributes.
 
     // DATA
     int             *d_data_p;       // pointer to the integer class value
@@ -1032,43 +1040,46 @@ class AllocTestType {
 
   public:
     // CREATORS
+
+    /// Create a `AllocTestType` object having the (default) attribute
+    /// values:
+    /// ```
+    /// data() == 0
+    /// ```
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     explicit AllocTestType(bslma::Allocator *basicAllocator = 0);
-        // Create a 'AllocTestType' object having the (default) attribute
-        // values:
-        //..
-        //  data() == 0
-        //..
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Create a `AllocTestType` object having the specified `data`
+    /// attribute value.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     explicit AllocTestType(int data, bslma::Allocator *basicAllocator = 0);
-        // Create a 'AllocTestType' object having the specified 'data'
-        // attribute value.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create a `AllocTestType` object having the same value as the
+    /// specified `original` object.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
     AllocTestType(const AllocTestType&  original,
                   bslma::Allocator      *basicAllocator = 0);
-        // Create a 'AllocTestType' object having the same value as the
-        // specified 'original' object.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
 
+    /// Destroy this object.
     ~AllocTestType();
-        // Destroy this object.
 
     // MANIPULATORS
-    AllocTestType& operator=(const AllocTestType& rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
 
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.
+    AllocTestType& operator=(const AllocTestType& rhs);
+
+    /// Set the `data` attribute of this object to the specified `value`.
     void setData(int value);
-        // Set the 'data' attribute of this object to the specified 'value'.
 
     // ACCESSORS
+
+    /// Return the value of the `data` attribute of this object.
     int data() const;
-        // Return the value of the 'data' attribute of this object.
 };
 
 // TRAITS
@@ -1079,15 +1090,16 @@ template <> struct UsesBslmaAllocator<AllocTestType> : bsl::true_type {};
 }  // close enterprise namespace
 
 // FREE OPERATORS
-bool operator==(const AllocTestType& lhs, const AllocTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'AllocTestType' objects have the same
-    // if their 'data' attributes are the same.
 
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `AllocTestType` objects have the same
+/// if their `data` attributes are the same.
+bool operator==(const AllocTestType& lhs, const AllocTestType& rhs);
+
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `AllocTestType` objects do not
+/// have the same value if their `data` attributes are not the same.
 bool operator!=(const AllocTestType& lhs, const AllocTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'AllocTestType' objects do not
-    // have the same value if their 'data' attributes are not the same.
 
                         // -------------------
                         // class AllocTestType
@@ -1174,13 +1186,13 @@ bool operator!=(const AllocTestType& lhs, const AllocTestType& rhs)
                         // class TestTypeValue
                         // ===================
 
+/// Provide a functor for creating values of the parameterized `VALUE`
+/// type from an int, and to load an int from an object of the
+/// parameterized `VALUE` type.  Note that this primary template is
+/// provided for fundamental types, while specializations provide support
+/// for non-fundamental types (e.g., `AllocTestType`, `SimpleTestType`).
 template <class VALUE>
 struct TestTypeValue {
-    // Provide a functor for creating values of the parameterized 'VALUE'
-    // type from an int, and to load an int from an object of the
-    // parameterized 'VALUE' type.  Note that this primary template is
-    // provided for fundamental types, while specializations provide support
-    // for non-fundamental types (e.g., 'AllocTestType', 'SimpleTestType').
 
     VALUE create(int value) const {
         BSLS_ASSERT(0 <= value);
@@ -1226,10 +1238,10 @@ struct TestTypeValue<PrimitiveTestTypes::FunctionPtr>
 };
 
 
+/// Provide a specialization of `TestTypeValue` to create, and obtain
+/// the value of an `AllocTestType`.
 template <>
 struct TestTypeValue<AllocTestType> {
-    // Provide a specialization of 'TestTypeValue' to create, and obtain
-    // the value of an 'AllocTestType'.
 
     AllocTestType create(int value) const {
         BSLS_ASSERT(0 <= value);
@@ -1243,10 +1255,10 @@ struct TestTypeValue<AllocTestType> {
     }
 };
 
+/// Provide a specialization of `TestTypeValue` to create, and obtain
+/// the value of an `SimpleTestType`.
 template <>
 struct TestTypeValue<SimpleTestType> {
-    // Provide a specialization of 'TestTypeValue' to create, and obtain
-    // the value of an 'SimpleTestType'.
 
     SimpleTestType create(int value) const {
         BSLS_ASSERT(0 <= value);
@@ -1291,25 +1303,25 @@ struct TestTypeComparator<AllocTestType>{
                         // class TestTreeNode
                         // ==================
 
+/// This POD-like `class` describes a node suitable for use in a red-black
+/// binary search tree of values of the parameterized `VALUE`.  This class
+/// is a "POD-like" to facilitate efficient allocation and use in the
+/// context of a container implementation.  In order to meet the essential
+/// requirements of a POD type, this `class` does not define a constructor
+/// or destructor.  The manipulator, `value`, returns a modifiable reference
+/// to `d_value` so that it may be constructed in-place by the appropriate
+/// `bsl::allocator_traits` object.
 template <class VALUE>
 class TestTreeNode : public bslalg::RbTreeNode {
-    // This POD-like 'class' describes a node suitable for use in a red-black
-    // binary search tree of values of the parameterized 'VALUE'.  This class
-    // is a "POD-like" to facilitate efficient allocation and use in the
-    // context of a container implementation.  In order to meet the essential
-    // requirements of a POD type, this 'class' does not define a constructor
-    // or destructor.  The manipulator, 'value', returns a modifiable reference
-    // to 'd_value' so that it may be constructed in-place by the appropriate
-    // 'bsl::allocator_traits' object.
 
     // DATA
     VALUE d_value;  // payload value
 
   private:
-    // The following functions are not defined because a 'TestTreeNode' should
-    // never be constructed, destructed, or assigned.  The 'd_value' member
+    // The following functions are not defined because a `TestTreeNode` should
+    // never be constructed, destructed, or assigned.  The `d_value` member
     // should be separately constructed and destroyed using an appropriate
-    // 'bsl::allocator_traits' object.
+    // `bsl::allocator_traits` object.
 
     TestTreeNode(const TestTreeNode&);             // Declared but not defined
     TestTreeNode& operator=(const TestTreeNode&);  // Declared but not defined
@@ -1319,14 +1331,16 @@ class TestTreeNode : public bslalg::RbTreeNode {
     TestTreeNode() : d_value() {}
 
     // MANIPULATORS
+
+    /// Return a reference providing modifiable access to the `value` of
+    /// this object.
     VALUE& value() { return d_value; }
-        // Return a reference providing modifiable access to the 'value' of
-        // this object.
 
     // ACCESSORS
+
+    /// Return a reference providing non-modifiable access to the `value` of
+    /// this object.
     const VALUE& value() const { return d_value; }
-        // Return a reference providing non-modifiable access to the 'value' of
-        // this object.
 };
 
                        // ============================
@@ -1344,9 +1358,10 @@ class TestTreeNodeComparator {
      TestTreeNodeComparator& operator=(const TestTreeNodeComparator &);
   public:
     // TYPES
+
+    /// This `typedef` is an alias for the node type, holding `KEY` values,
+    /// on which comparisons are performed.
     typedef TestTreeNode<VALUE> NodeType;
-        // This 'typedef' is an alias for the node type, holding 'KEY' values,
-        // on which comparisons are performed.
 
     // CREATORS
     TestTreeNodeComparator() : d_numComparisons(0) {}
@@ -1388,9 +1403,10 @@ class TestTreeNodeAssign {
 
   public:
     // TYPES
+
+    /// This `typedef` is an alias for the node type, holding `KEY` values,
+    /// on which comparisons are performed.
     typedef TestTreeNode<VALUE> NodeType;
-        // This 'typedef' is an alias for the node type, holding 'KEY' values,
-        // on which comparisons are performed.
 
     // CREATORS
     void operator()(NodeType *node, int value) const {
@@ -1409,9 +1425,10 @@ class TestNodeFactory {
 
   public:
     // PUBLIC TYPES
+
+    /// This `typedef` is an alias for the node type, holding `KEY` values,
+    /// on which comparisons are performed.
     typedef TestTreeNode<VALUE> NodeType;
-        // This 'typedef' is an alias for the node type, holding 'KEY' values,
-        // on which comparisons are performed.
 
     enum {
         STATE_INVALID,
@@ -1425,10 +1442,10 @@ class TestNodeFactory {
   private:
     // DATA
     Array<NodeType> d_nodes;           // array of nodes to be returned
-    Array<int>      d_nodeState;       // state of each node in 'd_nodes'
+    Array<int>      d_nodeState;       // state of each node in `d_nodes`
     int             d_numCreated;      // number of nodes allocated
     int             d_numDeleted;      // number of nodes deleted
-    int             d_creationLimit;   // limit after which 'createNode' throws
+    int             d_creationLimit;   // limit after which `createNode` throws
 
     // NOT IMPLEMENTED
     TestNodeFactory(const TestNodeFactory&);
@@ -1533,7 +1550,7 @@ class TestNodeFactory {
 //                        GENERATOR LANGUAGE FOR gg
 //=============================================================================
 //
-// The gg function interprets a given 'spec' in order from left to right to
+// The gg function interprets a given `spec` in order from left to right to
 // build up a schedule according to a custom language.
 //
 //  Spec := NodeOrNull
@@ -1549,7 +1566,7 @@ class TestNodeFactory {
 //  RedOrBlack := 'R' | 'B'
 //
 //
-// 'gg' syntax usage examples:
+// `gg` syntax usage examples:
 //
 // Spec String                                Resulting Tree
 // -----------                                -------------
@@ -1569,19 +1586,19 @@ class TestNodeFactory {
 //                                           4(B)
 //                                         /    \.
 //                                        1(R)   1(B)
-//..
+// ```
 
 // PARSE_ASSERT(CONDITION, SPEC)
-//      Abort the task if the specified 'CONDITION' is false,  and provide a
-//      helpful error message include the specified tree 'SPEC'.
+//      Abort the task if the specified `CONDITION` is false,  and provide a
+//      helpful error message include the specified tree `SPEC`.
 #define PARSE_ASSERT(CONDITION, SPEC)                                         \
     if (!(CONDITION)) {                                                       \
         printf("Parse error " #CONDITION ": %s\n", (SPEC));                   \
         BSLS_ASSERT(false);                                                   \
     }                                                                         \
 
+/// Return the first non-white space character in the specified `spec`.
 const char *ltrim(const char *spec)
-    // Return the first non-white space character in the specified 'spec'.
 {
     while (*spec && isspace(*spec)) {
         ++spec;
@@ -1590,22 +1607,22 @@ const char *ltrim(const char *spec)
 }
 
 
+/// Populate the specified `nextNode` with the first node described in the
+/// specified `spec` and advance `nextNode` to the next free node in the
+/// sequence of nodes after parsing the rest of the sub-tree described by
+/// the first node in `spec`.  Return the first character in `spec` that
+/// does not refer to the sub-tree of the first element described by
+/// `spec`.  The behavior is undefined unless `spec` is a valid `gg`
+/// specification for a red-black tree, and `nextNode` is not an address
+/// of an address of an array of nodes large enough to contain the tree
+/// described by `spec`.
 template <class NODE_TYPE, class NODE_ASSIGN_FUNCTOR>
 const char *ggParseNode(
                NODE_TYPE                  **nextNode,
                const char                  *spec,
                const NODE_ASSIGN_FUNCTOR&   assignFunction)
-    // Populate the specified 'nextNode' with the first node described in the
-    // specified 'spec' and advance 'nextNode' to the next free node in the
-    // sequence of nodes after parsing the rest of the sub-tree described by
-    // the first node in 'spec'.  Return the first character in 'spec' that
-    // does not refer to the sub-tree of the first element described by
-    // 'spec'.  The behavior is undefined unless 'spec' is a valid 'gg'
-    // specification for a red-black tree, and 'nextNode' is not an address
-    // of an address of an array of nodes large enough to contain the tree
-    // described by 'spec'.
 {
-    // Pop the first node off the 'nextNode' to use for the root of this
+    // Pop the first node off the `nextNode` to use for the root of this
     // sub-tree.
 
     NODE_TYPE *newNode = *nextNode;
@@ -1680,18 +1697,18 @@ const char *ggParseNode(
 
 // CLASS METHODS
 bool isWellFormedAnchor(const RbTreeAnchor& tree)
-   // Return 'true' if the specified 'tree' is well-formed, and 'false'
+   // Return `true` if the specified `tree` is well-formed, and `false`
    // otherwise.  This enforces the rules required by a well formed anchor, as
-   // documented in 'RbTreeUtil_Validator::isWellFormedAnchor' *except* that
+   // documented in `RbTreeUtil_Validator::isWellFormedAnchor` *except* that
    // the root node of the tree may be red.  Note that this method is provided
-   // for use by 'gg' to enable the creation of test tree's with a red root
-   // node in order to, for example, test 'RbTreeUtil::validateRbTree'.
+   // for use by `gg` to enable the creation of test tree's with a red root
+   // node in order to, for example, test `RbTreeUtil::validateRbTree`.
 {
     // We will test rule 2 last, as iterating over the nodes in tee results in
     // undefined behavior if the other rules are not met.
 
-    //: 1 'tree.firstNode()' must refer to 'tree.sentinel()' if
-    //:   'tree.rootNode()' is 0, and leftmost(tree.rootNode())' otherwise.
+    // 1. `tree.firstNode()` must refer to `tree.sentinel()` if
+    //    `tree.rootNode()` is 0, and leftmost(tree.rootNode())' otherwise.
 
     if (!tree.rootNode() && tree.firstNode() != tree.sentinel()) {
         return false;                                                 // RETURN
@@ -1701,17 +1718,17 @@ bool isWellFormedAnchor(const RbTreeAnchor& tree)
         return false;                                                 // RETURN
     }
 
-    //: 3 'tree.sentinel()->leftchild()' is 'tree.rootNode()', and (if
-    //:   'tree.rootNode()' is not 0), 'tree.rootNode()->parent()' is
-    //:   'tree.sentinel().
+    // 3. `tree.sentinel()->leftchild()` is `tree.rootNode()`, and (if
+    //    `tree.rootNode()` is not 0), `tree.rootNode()->parent()` is
+    //    'tree.sentinel().
 
     if ((tree.sentinel()->leftChild() != tree.rootNode()) ||
         (tree.rootNode() && (tree.rootNode()->parent() != tree.sentinel()))) {
         return false;                                                 // RETURN
     }
 
-    //: 2 'tree.nodeCount()' must be the count of nodes in 'tree' (not
-    //:    including the sentinel node).
+    // 2. `tree.nodeCount()` must be the count of nodes in `tree` (not
+    //     including the sentinel node).
 
     int count = 0;
     const RbTreeNode *node = tree.firstNode();
@@ -1727,9 +1744,9 @@ void gg(RbTreeAnchor                *tree,
         Array<NODE_TYPE>            *nodes,
         const char                  *spec,
         const NODE_ASSIGN_FUNCTOR&   assignFunction)
-   // Return the root of a red-black tree described by the specified 'spec',
-   // and populate 'nodes' with the array of nodes that make up that tree,
-   // using the specified 'nodeAssignValueFunc' to assign a value for a node
+   // Return the root of a red-black tree described by the specified `spec`,
+   // and populate `nodes` with the array of nodes that make up that tree,
+   // using the specified `nodeAssignValueFunc` to assign a value for a node
    // from an integer value.
 {
     // Count the number of nodes.
@@ -1789,27 +1806,28 @@ void intNodeTreeToSpec(IntNode *root)
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Creating and Using a Tree with 'RbTreeUtil'
+///Example 1: Creating and Using a Tree with `RbTreeUtil`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates how to create a tree of integers using
-// 'RbTreeUtil'.
+// `RbTreeUtil`.
 //
-// First, we define a type 'SimpleIntNode' that will represent a nodes in our
-// tree of integer values.  'SimpleIntNode' contains an 'int' payload, and
-// inherits from 'RbTreeNode', allowing it to be operated on by
-// 'RbTreeUtil'.
-//..
+// First, we define a type `SimpleIntNode` that will represent a nodes in our
+// tree of integer values.  `SimpleIntNode` contains an `int` payload, and
+// inherits from `RbTreeNode`, allowing it to be operated on by
+// `RbTreeUtil`.
+// ```
     struct SimpleIntNode : public RbTreeNode {
         int d_value;
     };
-//..
-// Then, we define a comparison function for 'SimpleIntNode' objects (note
-// that we static-cast 'RBTreeNode' objects to the actual node type,
-// 'SimpleIntNode', for comparison purposes):
-//..
+// ```
+// Then, we define a comparison function for `SimpleIntNode` objects (note
+// that we static-cast `RBTreeNode` objects to the actual node type,
+// `SimpleIntNode`, for comparison purposes):
+// ```
+
+    /// This class defines a comparator providing comparison operations
+    /// between `SimpleIntNode` objects, and `int` values.
     struct SimpleIntNodeValueComparator {
-        // This class defines a comparator providing comparison operations
-        // between 'SimpleIntNode' objects, and 'int' values.
 //
         bool operator()(const RbTreeNode& lhs, int rhs) const
         {
@@ -1822,36 +1840,36 @@ void intNodeTreeToSpec(IntNode *root)
         }
     };
 //
-//..
+// ```
 // Next, we begin to define the example function that will build a tree of
 // nodes holding integer values:
-//..
+// ```
     void createTestTreeExample()
     {
-//..
-// Then, within this function, we define a 'RbTreeAnchor' object that will
+// ```
+// Then, within this function, we define a `RbTreeAnchor` object that will
 // hold the root, first, last, and sentinel nodes of tree, as well a count of
 // the number of nodes in the tree:
-//..
+// ```
         RbTreeAnchor tree;
-//..
-// Next, we define an array of 5 'SimpleIntNode' objects that we will insert
+// ```
+// Next, we define an array of 5 `SimpleIntNode` objects that we will insert
 // into the tree; in practice, nodes are more often allocated on the heap (see
 // example 2):
-//..
+// ```
         const int NUM_NODES = 5;
         SimpleIntNode nodes[NUM_NODES];
-//..
-// Then, we assign unique values to each of the 'nodes':
-//..
+// ```
+// Then, we assign unique values to each of the `nodes`:
+// ```
         for (int i = 0; i < NUM_NODES; ++i) {
             nodes[i].d_value = i;
         }
-//..
-// Now, for each node in the tree, we use 'RbTreeUtil' to first find the
+// ```
+// Now, for each node in the tree, we use `RbTreeUtil` to first find the
 // location at which the node should be inserted, and then insert that node
 // into the tree:
-//..
+// ```
         for (int i = 0; i < NUM_NODES; ++i) {
             int comparisonResult;
             SimpleIntNodeValueComparator comparator;
@@ -1866,16 +1884,16 @@ void intNodeTreeToSpec(IntNode *root)
                                  comparisonResult < 0,
                                  &nodes[i]);
         }
-//..
-// And verify the resulting 'tree' holds 5 nodes, and the first node has
+// ```
+// And verify the resulting `tree` holds 5 nodes, and the first node has
 // the value 0:
-//..
+// ```
         ASSERT(5 == tree.numNodes());
         ASSERT(0 == static_cast<SimpleIntNode *>(tree.firstNode())->d_value);
-//..
-// Finally, we use 'RbTreeUtil' to iterate through the nodes of 'tree', and
+// ```
+// Finally, we use `RbTreeUtil` to iterate through the nodes of `tree`, and
 // write the value of each node to the console:
-//..
+// ```
         const RbTreeNode *nodeIterator = tree.firstNode();
         while (tree.sentinel() != nodeIterator) {
 if (verbose) {
@@ -1885,144 +1903,155 @@ if (verbose) {
             nodeIterator = RbTreeUtil::next(nodeIterator);
         }
     }
-//..
-// Notice that each of the 'RbTreeNode' objects must be 'static_cast' to the
-// derived type, 'SimpleIntNode', in order to access their values.
+// ```
+// Notice that each of the `RbTreeNode` objects must be `static_cast` to the
+// derived type, `SimpleIntNode`, in order to access their values.
 //
 // The resulting output is displayed on the console:
-//..
+// ```
 //  Node value: 0
 //  Node value: 1
 //  Node value: 2
 //  Node value: 3
 //  Node value: 4
-//..
+// ```
 //
 ///Example 2: Implementing a Set of Integers
 ///- - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to use 'RbTreeUtil' to implement a simple
+// This example demonstrates how to use `RbTreeUtil` to implement a simple
 // container holding a set of (unique) integer values as a red-black binary
 // search tree.
 //
-// Before defining the 'IntSet' class, we need to define a series of
+// Before defining the `IntSet` class, we need to define a series of
 // associated helper types:
-//: 1 The node-type, for the nodes in the tree.
-//: 2 An iterator, for iterating over nodes in the tree.
-//: 3 A comparison functor for comparing nodes and values.
-//: 4 A factory for creating and destroying nodes.
+// 1. The node-type, for the nodes in the tree.
+// 2. An iterator, for iterating over nodes in the tree.
+// 3. A comparison functor for comparing nodes and values.
+// 4. A factory for creating and destroying nodes.
 //
-// First, we define a type, 'IntSet_Node', that will represent the nodes in our
-// tree of integer values; it contains an 'int' payload, and inherits from
-// 'RbTreeNode', allowing it to be operated on by 'RbTreeUtil' (note that the
+// First, we define a type, `IntSet_Node`, that will represent the nodes in our
+// tree of integer values; it contains an `int` payload, and inherits from
+// `RbTreeNode`, allowing it to be operated on by `RbTreeUtil` (note that the
 // underscore "_" indicates that this type is a private implementation type of
-// 'IntSet', and not for use by clients of 'IntSet'):
-//..
+// `IntSet`, and not for use by clients of `IntSet`):
+// ```
+
+    /// A red-black tree node containing an integer data-value.
     class IntSet_Node : public RbTreeNode {
-        // A red-black tree node containing an integer data-value.
 //
         // DATA
         int d_value;  // actual value represented by the node
 //
       public:
         // MANIPULATORS
+
+        /// Return a reference providing modifiable access to the `value` of
+        /// this object.
         int& value() { return d_value; }
-            // Return a reference providing modifiable access to the 'value' of
-            // this object.
 //
         // ACCESSORS
+
+        /// Return a reference providing non-modifiable access to the
+        /// `value` of this object.
         const int& value() const { return d_value; }
-            // Return a reference providing non-modifiable access to the
-            // 'value' of this object.
     };
-//..
-// Then, we define a iterator over 'IntSet_Node' objects.  We use the 'next'
-// function of 'RbTreeUtil' to increment the iterator (note that, for
+// ```
+// Then, we define a iterator over `IntSet_Node` objects.  We use the `next`
+// function of `RbTreeUtil` to increment the iterator (note that, for
 // simplicity, this iterator is *not* a fully STL compliant iterator
 // implementation):
-//..
+// ```
+
+    /// This class defines an STL-style iterator over a non-modifiable tree
+    /// of `IntSet_Node` objects.
     class IntSetConstIterator {
-        // This class defines an STL-style iterator over a non-modifiable tree
-        // of 'IntSet_Node' objects.
 //
         // DATA
         const RbTreeNode *d_node_p;  // current location of this iterator
 //
       public:
+        /// Create an iterator that does not refer to a node.
         IntSetConstIterator() : d_node_p(0) {}
-            // Create an iterator that does not refer to a node.
 //
+
+        /// Create an iterator referring to the specified `node`.
         IntSetConstIterator(const RbTreeNode *node) : d_node_p(node) {}
-            // Create an iterator referring to the specified 'node'.
 //
     //  IntSetConstIterator(const IntSetConstIterator&) = default;
 //
         // MANIPULATOR
     //  IntSetConstIterator& operator=(const IntSetConstIterator&) = default;
 //
-//..
-// Here, we implement the prefix-increment operator using the 'next' function
+// ```
+// Here, we implement the prefix-increment operator using the `next` function
 // of 'RbTreeUtil:
-//..
+// ```
         IntSetConstIterator& operator++()
-           // Advance this iterator to the subsequent value it the 'IntSet',
+           // Advance this iterator to the subsequent value it the `IntSet`,
            // and return a reference providing modifiable access to this
            // iterator.   The behavior is undefined unless this iterator
-           // refers to a element in an 'IntSet'.
+           // refers to a element in an `IntSet`.
         {
             d_node_p = RbTreeUtil::next(d_node_p);
             return *this;
         }
 //
         // ACCESSORS
+
+        /// Return a reference providing non-modifiable access to the value
+        /// referred to by this iterator.
         const int& operator*() const
-            // Return a reference providing non-modifiable access to the value
-            // referred to by this iterator.
         {
             return static_cast<const IntSet_Node *>(d_node_p)->value();
         }
 //
+
+        /// Return an address providing non-modifiable access to the value
+        /// referred to by this iterator.
         const int *operator->() const
-            // Return an address providing non-modifiable access to the value
-            // referred to by this iterator.
         {
             return &(static_cast<const IntSet_Node *>(d_node_p)->value());
         }
 //
+
+        /// Return the address of the non-modifiable int-set node referred
+        /// to by this iterator
         const IntSet_Node *nodePtr() const
-            // Return the address of the non-modifiable int-set node referred
-            // to by this iterator
         {
             return static_cast<const IntSet_Node *>(d_node_p);
         }
     };
 //
     // FREE OPERATORS
+
+    /// Return `true` if the `lhs` and `rhs` objects have the same value,
+    /// and `false` otherwise.  Two `IntSetConstIterator` objects have the
+    /// same value if they refer to the same node.
     bool operator==(const IntSetConstIterator &lhs,
                     const IntSetConstIterator &rhs)
-        // Return 'true' if the 'lhs' and 'rhs' objects have the same value,
-        // and 'false' otherwise.  Two 'IntSetConstIterator' objects have the
-        // same value if they refer to the same node.
     {
         return lhs.nodePtr() == rhs.nodePtr();
     }
 //
+
+    /// Return `true` if the specified `lhs` and `rhs` objects do not have
+    /// the same value, and `false` otherwise.  Two `IntSetConstIterator`
+    /// objects do not have the same value if they refer to different nodes.
     bool operator!=(const IntSetConstIterator &lhs,
                     const IntSetConstIterator &rhs)
-        // Return 'true' if the specified 'lhs' and 'rhs' objects do not have
-        // the same value, and 'false' otherwise.  Two 'IntSetConstIterator'
-        // objects do not have the same value if they refer to different nodes.
     {
         return lhs.nodePtr() != rhs.nodePtr();
     }
-//..
-// Next, we define a comparison functor for 'IntSet_Node' objects, which will
-// be supplied to 'RbTreeUtil' functions that must compare nodes with values
-// -- i.e., those with a 'NODE_VALUE_COMPARATOR' template parameter (e.g.,
-// 'find' and 'findInsertLocation'):
-//..
+// ```
+// Next, we define a comparison functor for `IntSet_Node` objects, which will
+// be supplied to `RbTreeUtil` functions that must compare nodes with values
+// -- i.e., those with a `NODE_VALUE_COMPARATOR` template parameter (e.g.,
+// `find` and `findInsertLocation`):
+// ```
+
+    /// This class defines a comparator providing comparison operations
+    /// between `IntSet_Node` objects, and `int` values.
     struct IntSet_NodeValueComparator {
-        // This class defines a comparator providing comparison operations
-        // between 'IntSet_Node' objects, and 'int' values.
 //
         bool operator()(const RbTreeNode& lhs, int rhs) const
         {
@@ -2034,20 +2063,21 @@ if (verbose) {
             return lhs < static_cast<const IntSet_Node&>(rhs).value();
         }
     };
-//..
-// Notice that we static-cast 'RbTreeNode' objects to the actual node type,
-// 'IntSet_Node' for comparison.
+// ```
+// Notice that we static-cast `RbTreeNode` objects to the actual node type,
+// `IntSet_Node` for comparison.
 //
-// Next, we define a factory for creating and destroying 'IntSet_Node'
-// objects.  This factory provides the operations 'createNode' and
-// 'deleteNode'.  These operations will be used directly by our container
-// implementation, and they are also required by 'RbTreeUtil' functions taking
-// a 'FACTORY' template parameter (e.g., 'copyTree' and 'deleteTree'):
-//..
+// Next, we define a factory for creating and destroying `IntSet_Node`
+// objects.  This factory provides the operations `createNode` and
+// `deleteNode`.  These operations will be used directly by our container
+// implementation, and they are also required by `RbTreeUtil` functions taking
+// a `FACTORY` template parameter (e.g., `copyTree` and `deleteTree`):
+// ```
+
+    /// This class defines a creator object, that when invoked, creates a
+    /// new `IntSet_Node` (either from a int value, or an existing
+    /// `IntSet_Node` object) using the allocator supplied at construction.
     class IntSet_NodeFactory {
-        // This class defines a creator object, that when invoked, creates a
-        // new 'IntSet_Node' (either from a int value, or an existing
-        // 'IntSet_Node' object) using the allocator supplied at construction.
 //
         bslma::Allocator *d_allocator_p;  // allocator, (held, not owned)
 //
@@ -2082,23 +2112,24 @@ if (verbose) {
             return d_allocator_p;
         }
     };
-//..
+// ```
 // Then, having defined the requisite helper types, we define the public
-// interface for our 'IntSet' type.  Note that for the purposes of
-// illustrating the use of 'RbTreeUtil' a number of simplifications have been
+// interface for our `IntSet` type.  Note that for the purposes of
+// illustrating the use of `RbTreeUtil` a number of simplifications have been
 // made.  For example, this implementation provides only a minimal set of
 // critical operations, and it does not use the empty base-class optimization
-// for the comparator, etc.  We define the interface of 'IntSet' as follows:
-//..
+// for the comparator, etc.  We define the interface of `IntSet` as follows:
+// ```
+
+    /// This class implements a set of (unique) `int` values.
     class IntSet {
-        // This class implements a set of (unique) 'int' values.
 //
         // DATA
         RbTreeAnchor           d_tree;         // root, first, and last tree
                                                // nodes
 //
         IntSet_NodeValueComparator
-                               d_comparator;   // comparison functor for 'int's
+                               d_comparator;   // comparison functor for `int`s
 //
         IntSet_NodeFactory     d_nodeFactory;  // factory for creating and
                                                // destroying nodes
@@ -2111,81 +2142,95 @@ if (verbose) {
         typedef IntSetConstIterator const_iterator;
 //
         // CREATORS
+
+        /// Create a empty `IntSet`.  Optionally specify a `basicAllocator`
+        /// used to supply memory.  If `basicAllocator` is 0, the currently
+        /// installed default allocator is used.
         IntSet(bslma::Allocator *basicAllocator = 0);
-            // Create a empty 'IntSet'.  Optionally specify a 'basicAllocator'
-            // used to supply memory.  If 'basicAllocator' is 0, the currently
-            // installed default allocator is used.
 //
+
+        /// Create a `IntSet` object having the same value as the specified
+        /// `original` object.  If `basicAllocator` is 0, the currently
+        /// installed default allocator is used.
         IntSet(const IntSet& original, bslma::Allocator *basicAllocator = 0);
-            // Create a 'IntSet' object having the same value as the specified
-            // 'original' object.  If 'basicAllocator' is 0, the currently
-            // installed default allocator is used.
 //
+
+        /// Destroy this object.
         ~IntSet();
-            // Destroy this object.
 //
         // MANIPULATORS
+
+        /// Assign to this object the value of the specified `rhs` object,
+        /// and return a reference providing modifiable access to this
+        /// object.
         IntSet& operator=(const IntSet& rhs);
-            // Assign to this object the value of the specified 'rhs' object,
-            // and return a reference providing modifiable access to this
-            // object.
 //
+
+        /// If the specified `value` is not already a member of this set,
+        /// insert it into this set, returning an iterator referring to the
+        /// newly added value, and return an iterator referring to the
+        /// existing instance of `value` in this set, with no other effect,
+        /// otherwise.
         const_iterator insert(int value);
-            // If the specified 'value' is not already a member of this set,
-            // insert it into this set, returning an iterator referring to the
-            // newly added value, and return an iterator referring to the
-            // existing instance of 'value' in this set, with no other effect,
-            // otherwise.
 //
+
+        /// Remove the value referred to by the specified `iterator` from
+        /// this set, and return an iterator referring to the value
+        /// subsequent to `iterator` (prior to its removal).  The behavior
+        /// is undefined unless `iterator` refers to a valid value in this
+        /// set.
         const_iterator erase(const_iterator iterator);
-            // Remove the value referred to by the specified 'iterator' from
-            // this set, and return an iterator referring to the value
-            // subsequent to 'iterator' (prior to its removal).  The behavior
-            // is undefined unless 'iterator' refers to a valid value in this
-            // set.
 //
+
+        /// Remove all the elements from this set.
         void clear();
-            // Remove all the elements from this set.
 //
+
+        /// Efficiently exchange the value of this object with the value of
+        /// the specified `other` object.
         void swap(IntSet& other);
-            // Efficiently exchange the value of this object with the value of
-            // the specified 'other' object.
 //
         // ACCESSORS
+
+        /// Return an iterator referring leftmost node value in this set, or
+        /// `end()` if this set is empty.
         const_iterator begin() const;
-            // Return an iterator referring leftmost node value in this set, or
-            // 'end()' if this set is empty.
 //
+
+        /// Return an iterator referring to the value one past the
+        /// rightmost value in this set.
         const_iterator end() const;
-            // Return an iterator referring to the value one past the
-            // rightmost value in this set.
 //
+
+        /// Return a iterator referring to the specified `value` in this
+        /// set, or `end()` if `value` is not a member of this set.
         const_iterator find(int value) const;
-            // Return a iterator referring to the specified 'value' in this
-            // set, or 'end()' if 'value' is not a member of this set.
 //
+
+        /// Return the number of elements in this set.
         int size() const;
-            // Return the number of elements in this set.
     };
 //
     // FREE OPERATORS
+
+    /// Return `true` if the `lhs` and `rhs` objects have the same value,
+    /// and `false` otherwise.  Two `IntSet` objects have the same value if
+    /// they contain the same number of elements, and if for each element
+    /// in `lhs` there is a corresponding element in `rhs` with the same
+    /// value.
     bool operator==(const IntSet& lhs, const IntSet& rhs);
-        // Return 'true' if the 'lhs' and 'rhs' objects have the same value,
-        // and 'false' otherwise.  Two 'IntSet' objects have the same value if
-        // they contain the same number of elements, and if for each element
-        // in 'lhs' there is a corresponding element in 'rhs' with the same
-        // value.
 //
+
+    /// Return `true` if the specified `lhs` and `rhs` objects do not have
+    /// the same value, and `false` otherwise.  Two `IntSet` objects do not
+    /// have the same value if they differ in the number of elements they
+    /// contain, or if for any element in `lhs` there is not a
+    /// corresponding element in `rhs` with the same value.
     bool operator!=(const IntSet& lhs, const IntSet& rhs);
-        // Return 'true' if the specified 'lhs' and 'rhs' objects do not have
-        // the same value, and 'false' otherwise.  Two 'IntSet' objects do not
-        // have the same value if they differ in the number of elements they
-        // contain, or if for any element in 'lhs' there is not a
-        // corresponding element in 'rhs' with the same value.
-//..
-// Now, we implement the methods of 'IntSet' using 'RbTreeUtil' and the
+// ```
+// Now, we implement the methods of `IntSet` using `RbTreeUtil` and the
 // helper types we defined earlier:
-//..
+// ```
     // CREATORS
     IntSet::IntSet(bslma::Allocator *basicAllocator)
     : d_tree()
@@ -2217,14 +2262,14 @@ if (verbose) {
         return *this;
     }
 //
-//..
-// Here, we implement 'insert' by using the 'RbTreeUtil' algorithms
-// 'findUniqueInsertLocation' and 'insertAt':
-//..
+// ```
+// Here, we implement `insert` by using the `RbTreeUtil` algorithms
+// `findUniqueInsertLocation` and `insertAt`:
+// ```
     IntSet::const_iterator IntSet::insert(int value)
     {
         // To insert a value into the tree, we first find the location where
-        // the node would be added, and whether 'value' is unique.  If 'value'
+        // the node would be added, and whether `value` is unique.  If `value`
         // is not unique we do not want to incur the expense of allocating
         // memory for a node.
 //
@@ -2235,14 +2280,14 @@ if (verbose) {
                                                            d_comparator,
                                                            value);
         if (0 == comparisonResult) {
-            // 'value' already exists in 'd_tree'.
+            // `value` already exists in `d_tree`.
 //
             return const_iterator(insertLocation);                    // RETURN
         }
 //
-        // If 'value' is unique, we create a new node and supply it to
-        // 'insertAt', along with the tree location returned by
-        // 'findUniqueInsertLocation'.
+        // If `value` is unique, we create a new node and supply it to
+        // `insertAt`, along with the tree location returned by
+        // `findUniqueInsertLocation`.
 //
         RbTreeNode *newNode = d_nodeFactory.createNode(value);
         RbTreeUtil::insertAt(&d_tree,
@@ -2299,9 +2344,9 @@ if (verbose) {
     {
         return d_tree.numNodes();
     }
-//..
-// Finally, we implement the free operators on 'IntSet':
-//..
+// ```
+// Finally, we implement the free operators on `IntSet`:
+// ```
     // FREE OPERATORS
     bool operator==(const IntSet& lhs, const IntSet& rhs)
     {
@@ -2317,7 +2362,7 @@ if (verbose) {
     {
         return !(lhs == rhs);
     }
-//..
+// ```
 
 void printIntSetNode(FILE *file, const RbTreeNode *node)
 {
@@ -2448,13 +2493,13 @@ const int NUM_TREE_VALUES         = NUM_TREE_VALUES_W_EMPTY - 1;
 //                            GLOBAL TEST-DRIVER
 //-----------------------------------------------------------------------------
 
+/// This templatized struct provide a namespace for testing `RbTreeUtil`
+/// functions having template parameters.  The parameterized `VALUE`
+/// specifies the type of the nodes held within the tree.  Each
+/// "testCase*" method tests a specific aspect of `RbTreeUtil`, and should
+/// be invoked with various parameterized types to full test `RbTreeUtil`.
 template <class VALUE>
 class TestDriver {
-    // This templatized struct provide a namespace for testing 'RbTreeUtil'
-    // functions having template parameters.  The parameterized 'VALUE'
-    // specifies the type of the nodes held within the tree.  Each
-    // "testCase*" method tests a specific aspect of 'RbTreeUtil', and should
-    // be invoked with various parameterized types to full test 'RbTreeUtil'.
 
   private:
     typedef TestTypeValue<VALUE>          ValueConverter;
@@ -2475,47 +2520,47 @@ class TestDriver {
     }
 
   public:
+    /// Test `validateRbTree`.
     static void testCase7();
-        // Test 'validateRbTree'.
 
+    /// Test `isWellFormed`.
     static void testCase8();
-        // Test 'isWellFormed'.
 
+    /// Test `insert`.
     static void testCase9();
-        // Test 'insert'.
 
+    /// Test `find`.
     static void testCase10();
-        // Test 'find'.
 
+    /// Test `lowerBound`
     static void testCase11();
-        // Test 'lowerBound'
 
+    /// Test `upperBound`
     static void testCase12();
-        // Test 'upperBound'
 
+    /// Test `findInsertLocation`
     static void testCase13();
-        // Test 'findInsertLocation'
 
+    /// Test `findInsertLocation w/ hint`
     static void testCase14();
-        // Test 'findInsertLocation w/ hint'
 
+    /// Test `findUniqueInsertLocation`
     static void testCase15();
-        // Test 'findUniqueInsertLocation'
 
+    /// Test `findUniqueInsertLocation w/ Hint`
     static void testCase16();
-        // Test 'findUniqueInsertLocation w/ Hint'
 
+    /// Test `insertAt`
     static void testCase17();
-        // Test 'insertAt'
 
+    /// Test `remove`
     static void testCase18();
-        // Test 'remove'
 
+    /// Test `copyTree`
     static void testCase20();
-        // Test 'copyTree'
 
+    /// Test `swapTree`
     static void testCase21();
-        // Test 'swapTree'
 
 
 };
@@ -2528,67 +2573,67 @@ void TestDriver<VALUE>::testCase7()
     // CLASS METHODS: RbTreeUtil::validateRbTree
     //
     // Concerns:
-    //:  1 That 'validateRbTree' returns 0 for an empty tree.
-    //:
-    //:  2 That 'validateRbTree' returns a negative value if any node in
-    //:    the tree has children whose parent pointer do not refer back to
-    //:    that node.
-    //:
-    //:  3 That 'validateRbTree' returns a negative value if the supplied
-    //:    binary tree is not correctly ordered according to the
-    //:    comparator.
-    //:
-    //:  4 That 'validateRbTree' returns a negative value if a RED colored
-    //:    node has a red colored child.
-    //:
-    //:  5 That 'validateRbTree' returns a negative value if the path from
-    //:    each leaf node to the root of the tree does not contain the same
-    //:    number of BLACK colored nodes (where null children are
-    //:    considered BLACK nodes).
-    //:
-    //:  6 That 'validateRbTree' returns the depth of the tree if none of
-    //:    the above criteria are violated.
-    //:
-    //:  7 That 'validateRbTree' returns the 'true' for valid red-black tree's
-    //:    with a red root node.  Note that such a tree is a valid red-black
-    //:    tree, by the canonical definition, but does not meet the invariants
-    //:    of this component (as expressed by 'isWellFormed').
-    //:
-    //:  8 That 'validateRbTree' optionally returns a description and node
-    //:    related to the error.
-    //:
-    //:  9 QoI: Asserted precondition violations are detected when enabled.
+    //  1. That `validateRbTree` returns 0 for an empty tree.
+    //
+    //  2. That `validateRbTree` returns a negative value if any node in
+    //     the tree has children whose parent pointer do not refer back to
+    //     that node.
+    //
+    //  3. That `validateRbTree` returns a negative value if the supplied
+    //     binary tree is not correctly ordered according to the
+    //     comparator.
+    //
+    //  4. That `validateRbTree` returns a negative value if a RED colored
+    //     node has a red colored child.
+    //
+    //  5. That `validateRbTree` returns a negative value if the path from
+    //     each leaf node to the root of the tree does not contain the same
+    //     number of BLACK colored nodes (where null children are
+    //     considered BLACK nodes).
+    //
+    //  6. That `validateRbTree` returns the depth of the tree if none of
+    //     the above criteria are violated.
+    //
+    //  7. That `validateRbTree` returns the `true` for valid red-black tree's
+    //     with a red root node.  Note that such a tree is a valid red-black
+    //     tree, by the canonical definition, but does not meet the invariants
+    //     of this component (as expressed by `isWellFormed`).
+    //
+    //  8. That `validateRbTree` optionally returns a description and node
+    //     related to the error.
+    //
+    //  9. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //:  1 Create an empty tree and verify 'validateRbTree' returns true. (C-1)
-    //:
-    //:  2 Create a tree for each test spec and verify the 'validateRbTree'
-    //:    returns the correct depth. (C-6)
-    //:
-    //:  3 Create a tree for each test spec, for each node adjust its parent
-    //:    pointer to an invalid parent, then verify 'validateRbTree' returns
-    //:    a negative value. (C-2)
-    //:
-    //:  4 Create a tree for each test spec, for each node adjust the next
-    //:    nodes value to be less than that node, verify that 'validateRbTree'
-    //:    returns a negative value, then adjust the current nodes value to be
-    //:    greater than the next node, and verify 'validateRbTree' returns a
-    //:    negative value. (C-3)
-    //:
-    //:  5 Create a tree for each test spec, for each red node adjust its
-    //:    parent pointer to be red, then verify 'validateRbTree' returns
-    //:    a negative value. (C-4)
-    //:
-    //:  6 Create a tree for each test spec, for each red node adjust its color
-    //:    to be black, then verify 'validateRbTree' returns a negative
-    //:    value. (C-5)
-    //:
-    //:  7 Create a tree for each test spec, for each red node adjust its
-    //:    parent to be red, then verify 'validateRbTree' returns an error
-    //:    node and message. (C-8)
-    //:
-    //:  8 Call 'validateRbTree' with 0 addresses and verify assertions are
-    //:    invoked. (C-9)
+    //  1. Create an empty tree and verify `validateRbTree` returns true. (C-1)
+    //
+    //  2. Create a tree for each test spec and verify the `validateRbTree`
+    //     returns the correct depth. (C-6)
+    //
+    //  3. Create a tree for each test spec, for each node adjust its parent
+    //     pointer to an invalid parent, then verify `validateRbTree` returns
+    //     a negative value. (C-2)
+    //
+    //  4. Create a tree for each test spec, for each node adjust the next
+    //     nodes value to be less than that node, verify that `validateRbTree`
+    //     returns a negative value, then adjust the current nodes value to be
+    //     greater than the next node, and verify `validateRbTree` returns a
+    //     negative value. (C-3)
+    //
+    //  5. Create a tree for each test spec, for each red node adjust its
+    //     parent pointer to be red, then verify `validateRbTree` returns
+    //     a negative value. (C-4)
+    //
+    //  6. Create a tree for each test spec, for each red node adjust its color
+    //     to be black, then verify `validateRbTree` returns a negative
+    //     value. (C-5)
+    //
+    //  7. Create a tree for each test spec, for each red node adjust its
+    //     parent to be red, then verify `validateRbTree` returns an error
+    //     node and message. (C-8)
+    //
+    //  8. Call `validateRbTree` with 0 addresses and verify assertions are
+    //     invoked. (C-9)
     //
     // Testing:
     //   int validateRbTree(const RbTreeNode *, const NODE_COMPARATOR& );
@@ -2911,53 +2956,53 @@ void TestDriver<VALUE>::testCase8()
     // CLASS METHODS: RbTreeUtil::isWellFormed()
     //
     // Concerns:
-    //:  1 That 'isWellFormed' returns 'false' for an empty tree if the first
-    //:    node of the tree is not the sentinel node.
-    //:
-    //:  2 That 'isWellFormed' returns 'false' for an empty tree if the node
-    //:    count is not 0.
-    //:
-    //:  3 That 'isWellFormed' returns 'false' for an empty tree if the
-    //:    sentinel node's left child is not 0.
-    //:
-    //:  4 That 'isWellFormed' returns 'true' for an empty tree if concerns
-    //:    1-3 are not violated.
-    //:
-    //:  5 That 'isWellFormed' returns 'false' if the supplied tree is not a
-    //:    valid red-black tree.  Note that we have already thoroughly tested
-    //:    'validateRbTree', to which this method delegates.
-    //:
-    //:  6 That 'isWellFormed' returns 'false' if the first node of the tree
-    //:    does not refer to the left most node of the root.
-    //:
-    //:  7 That 'isWellFormed' returns 'false' if the node count is not the
-    //:    number of nodes in the tree.
-    //:
-    //:  8 That 'isWellFormed' returns 'false' if the sentinel nodes left
-    //:    child is not the root node, and the root node's left child is not
-    //:    the sentinel node.
-    //:
-    //:  9 That 'isWellFormed' returns 'true' if none of the above criteria
-    //:    are violated.
+    //  1. That `isWellFormed` returns `false` for an empty tree if the first
+    //     node of the tree is not the sentinel node.
+    //
+    //  2. That `isWellFormed` returns `false` for an empty tree if the node
+    //     count is not 0.
+    //
+    //  3. That `isWellFormed` returns `false` for an empty tree if the
+    //     sentinel node's left child is not 0.
+    //
+    //  4. That `isWellFormed` returns `true` for an empty tree if concerns
+    //     1-3 are not violated.
+    //
+    //  5. That `isWellFormed` returns `false` if the supplied tree is not a
+    //     valid red-black tree.  Note that we have already thoroughly tested
+    //     `validateRbTree`, to which this method delegates.
+    //
+    //  6. That `isWellFormed` returns `false` if the first node of the tree
+    //     does not refer to the left most node of the root.
+    //
+    //  7. That `isWellFormed` returns `false` if the node count is not the
+    //     number of nodes in the tree.
+    //
+    //  8. That `isWellFormed` returns `false` if the sentinel nodes left
+    //     child is not the root node, and the root node's left child is not
+    //     the sentinel node.
+    //
+    //  9. That `isWellFormed` returns `true` if none of the above criteria
+    //     are violated.
     //
     // Plan:
-    //:  1 Create an empty tree, modify its first node, node-count, and
-    //:    sentinel node and verify 'isWellFormed' is 'false'.  (C-1, C-2, C-3,
-    //:    C-4).
-    //:
-    //:  2 For a set of valid test tree's, adjust the parent of each red node
-    //:    to be red and verify 'isWellFormed' is 'false'.  Note that this is
-    //:    a white-box test as 'validateRbTree' has already been tested. (C-5)
-    //:
-    //:  3 For a set of valid test tree's, adjust the first node of the tree
-    //:    and verify 'isWellFormed' is 'false'.  (C-6)
-    //:
-    //:  4 For a set of valid test tree's, adjust the node count of the tree
-    //:    and verify 'isWellFormed' is 'false'.  (C-7)
-    //:
-    //:  5 For a set of valid test tree's, adjust the sentinel node's left
-    //:    child and then the root node's parent, and and verify
-    //:    'isWellFormed' is 'false'.  (C-8, C-9).
+    //  1. Create an empty tree, modify its first node, node-count, and
+    //     sentinel node and verify `isWellFormed` is `false`.  (C-1, C-2, C-3,
+    //     C-4).
+    //
+    //  2. For a set of valid test tree's, adjust the parent of each red node
+    //     to be red and verify `isWellFormed` is `false`.  Note that this is
+    //     a white-box test as `validateRbTree` has already been tested. (C-5)
+    //
+    //  3. For a set of valid test tree's, adjust the first node of the tree
+    //     and verify `isWellFormed` is `false`.  (C-6)
+    //
+    //  4. For a set of valid test tree's, adjust the node count of the tree
+    //     and verify `isWellFormed` is `false`.  (C-7)
+    //
+    //  5. For a set of valid test tree's, adjust the sentinel node's left
+    //     child and then the root node's parent, and and verify
+    //     `isWellFormed` is `false`.  (C-8, C-9).
     //
     // Testing:
     //   bool isWellFormed(const RbTreeAnchor&, const NODE_COMPARATOR&);
@@ -2969,7 +3014,7 @@ void TestDriver<VALUE>::testCase8()
     bslma::TestAllocator   ta;
     Comparator C; Assigner A;
 
-    if (veryVerbose) printf("\tTest 'isWellFormed' on an empty node.\n");
+    if (veryVerbose) printf("\tTest `isWellFormed` on an empty node.\n");
     {
         RbTreeAnchor x; const RbTreeAnchor& X = x;
         Node node;
@@ -2979,7 +3024,7 @@ void TestDriver<VALUE>::testCase8()
         ASSERT(Obj::isWellFormed(X, C));
 
         // Concern 1 - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        //   1 That 'isWellFormed' returns 'false' for an empty tree if the
+        //   1 That `isWellFormed` returns `false` for an empty tree if the
         //   first node of the tree is not the sentinel node.
 
         x.setFirstNode(0);
@@ -2990,7 +3035,7 @@ void TestDriver<VALUE>::testCase8()
         ASSERT(Obj::isWellFormed(X, C));
 
         // Concern 2 - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        //   2 That 'isWellFormed' returns 'false' for an empty tree if the
+        //   2 That `isWellFormed` returns `false` for an empty tree if the
         //      node count is not 0.
 
         for (int i = 0; i < 10; ++i) {
@@ -3001,7 +3046,7 @@ void TestDriver<VALUE>::testCase8()
         ASSERT(Obj::isWellFormed(X, C));
 
         // Concern 3 - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        //   3 That 'isWellFormed' returns 'false' for an empty tree if the
+        //   3 That `isWellFormed` returns `false` for an empty tree if the
         //     sentinel node's left child is not 0.
 
         x.sentinel()->setLeftChild(&node);
@@ -3009,18 +3054,18 @@ void TestDriver<VALUE>::testCase8()
         x.sentinel()->setLeftChild(0);
 
         // Concern 4 - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        //   4 That 'isWellFormed' returns 'true' for an empty tree if concerns
+        //   4 That `isWellFormed` returns `true` for an empty tree if concerns
         //     1-3 are not violated.
 
         ASSERT(Obj::isWellFormed(X, C));
     }
 
     // Concern 5 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    //   5 That 'isWellFormed' returns 'false' if the supplied tree is not a
+    //   5 That `isWellFormed` returns `false` if the supplied tree is not a
     //     valid red-black tree.  Note that we have already thoroughly tested
-    //     'validateRbTree', to which this method delegates.
+    //     `validateRbTree`, to which this method delegates.
 
-    // Note that this is a white-box test as 'validateRbTree' has already
+    // Note that this is a white-box test as `validateRbTree` has already
     // been tested extensively.  This test sets the parents of red-nodes
     // to red.
 
@@ -3058,7 +3103,7 @@ void TestDriver<VALUE>::testCase8()
     }
 
     // Concern 6 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    //   6 That 'isWellFormed' returns 'false' if the first node of the tree
+    //   6 That `isWellFormed` returns `false` if the first node of the tree
     //     does not refer to the left most node of the root.
 
     if (veryVerbose) printf("\tTest first node is not the leftmost node.\n");
@@ -3098,7 +3143,7 @@ void TestDriver<VALUE>::testCase8()
     }
 
     // Concern 7 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    //   7 That 'isWellFormed' returns 'false' if the node count is not the
+    //   7 That `isWellFormed` returns `false` if the node count is not the
     //     number of nodes in the tree.
 
     if (veryVerbose) printf(
@@ -3132,7 +3177,7 @@ void TestDriver<VALUE>::testCase8()
     }
 
     // Concern 8 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    //   8 That 'isWellFormed' returns 'false' if the sentinel nodes left
+    //   8 That `isWellFormed` returns `false` if the sentinel nodes left
     //     child is not the root node, and the root node's left child is not
     //     the sentinel node.
 
@@ -3184,47 +3229,47 @@ void TestDriver<VALUE>::testCase9()
     // CLASS METHODS: RbTreeUtil::insert
     //
     // Concerns:
-    //:  1 That inserting a node in an empty tree returns a well-formed
-    //:    red-black tree.
-    //:
-    //:  2 That inserting any value in a valid red-black tree results in a
-    //:    valid red-black tree containing the original set of nodes plus the
-    //:    additional node.
-    //:
-    //:  3 Inserting a value into a large red-black tree results in a valid
-    //:    red-black tree containing the values in the original tree and the
-    //:    new value.
-    //:
-    //:  4 Inserting a duplicate value into a tree results in a valid
-    //:    red-black tree containing the values in the original tree and the
-    //:    new duplicate value.
-    //:
-    //:  5 QoI: Asserted precondition violations are detected when enabled.
+    //  1. That inserting a node in an empty tree returns a well-formed
+    //     red-black tree.
+    //
+    //  2. That inserting any value in a valid red-black tree results in a
+    //     valid red-black tree containing the original set of nodes plus the
+    //     additional node.
+    //
+    //  3. Inserting a value into a large red-black tree results in a valid
+    //     red-black tree containing the values in the original tree and the
+    //     new value.
+    //
+    //  4. Inserting a duplicate value into a tree results in a valid
+    //     red-black tree containing the values in the original tree and the
+    //     new duplicate value.
+    //
+    //  5. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //:  1 Insert a node into an empty tree and verify the properties of the
-    //:    resulting tree.  (C-1)
-    //:
-    //:  2 For the series of pre-defined test trees, insert a node and verify
-    //:    that its value appears in the tree. (C-2)
-    //:
-    //:  3 Insert every possible permutation of 6 nodes, ensure the tree is
-    //:    well-formed at all times, and contains the expected nodes. (C-2)
-    //:
-    //:  4 Insert random shuffles of 200 nodes, ensure the tree is well
-    //:    formed at all times, and contains the expected nodes when
-    //:    finished. (C-2)
-    //:
-    //:  5 Insert a random shuffle of 50000 nodes, ensure that when finished
-    //:    the tree is well formed and contains the expected nodes. (C-3)
-    //:
-    //:  6 Insert random shuffles of 100 nodes with many duplicates, and
-    //:    ensure the tree is well formed at all times, and contains the
-    //:    expected nodes when finished. (C-4)
-    //:
-    //:  8 Call 'insert' with 0 for the tree-anchor and node respectively,
-    //:    verify that assertion is invoked.  Call insert with a not-well
-    //:    formed binary tree and verify an assertion is invoked. (C-5)
+    //  1. Insert a node into an empty tree and verify the properties of the
+    //     resulting tree.  (C-1)
+    //
+    //  2. For the series of pre-defined test trees, insert a node and verify
+    //     that its value appears in the tree. (C-2)
+    //
+    //  3. Insert every possible permutation of 6 nodes, ensure the tree is
+    //     well-formed at all times, and contains the expected nodes. (C-2)
+    //
+    //  4. Insert random shuffles of 200 nodes, ensure the tree is well
+    //     formed at all times, and contains the expected nodes when
+    //     finished. (C-2)
+    //
+    //  5. Insert a random shuffle of 50000 nodes, ensure that when finished
+    //     the tree is well formed and contains the expected nodes. (C-3)
+    //
+    //  6. Insert random shuffles of 100 nodes with many duplicates, and
+    //     ensure the tree is well formed at all times, and contains the
+    //     expected nodes when finished. (C-4)
+    //
+    //  8. Call `insert` with 0 for the tree-anchor and node respectively,
+    //     verify that assertion is invoked.  Call insert with a not-well
+    //     formed binary tree and verify an assertion is invoked. (C-5)
     //
     // Testing:
     //   void insert(RbTreeAnchor *, const NODE_COMPARATOR& , RbTreeNode *);
@@ -3256,7 +3301,7 @@ void TestDriver<VALUE>::testCase9()
         const TreeSpec *VALUES     = TREE_VALUES;
         const int       NUM_VALUES = NUM_TREE_VALUES_W_EMPTY;
 
-        // Iterate over the set of test trees 'TREE_VALUES'
+        // Iterate over the set of test trees `TREE_VALUES`
         for (int i = 0; i < NUM_VALUES; ++i) {
             for (int j = 0; j < 5; j+=5) {
                 const char *SPEC = VALUES[i].d_spec;
@@ -3468,37 +3513,37 @@ void TestDriver<VALUE>::testCase10()
     // CLASS METHODS: RbTreeUtil::find
     //
     // Concerns:
-    //:  1 That finding a node value in an empty tree returns the tree's
-    //:    sentinel node.
-    //:
-    //:  2 That, for all well-formed trees, finding a value that is in the
-    //:    tree returns the address of the node containing that value.
-    //:
-    //:  2 That, for all well-formed trees, finding a value that is not in the
-    //:    returns the address of tree's sentinel node.
-    //:
-    //:  4 That, for all well-formed trees containing duplicate values, finding
-    //:    a value that occurs multiple times returns the leftmost value.
-    //:
-    //:  5 That 'find' behaves correctly on both 'const' and non-'const' trees
-    //:
-    //:  6 That 'find' behaves correctly on very large trees.
+    //  1. That finding a node value in an empty tree returns the tree's
+    //     sentinel node.
+    //
+    //  2. That, for all well-formed trees, finding a value that is in the
+    //     tree returns the address of the node containing that value.
+    //
+    //  2. That, for all well-formed trees, finding a value that is not in the
+    //     returns the address of tree's sentinel node.
+    //
+    //  4. That, for all well-formed trees containing duplicate values, finding
+    //     a value that occurs multiple times returns the leftmost value.
+    //
+    //  5. That `find` behaves correctly on both `const` and non-`const` trees
+    //
+    //  6. That `find` behaves correctly on very large trees.
     //
     // Plan:
-    //:  1 Create an empty tree and verify that 'find' returns the sentinel
-    //:    node (C-1).
-    //:
-    //:  2 For a series of pre-defined test trees, test all the values from
-    //:    the 0 value through the maximum value in the tree plus 1, verify the
-    //:    result of 'find' matches the result of linearly searching the
-    //:    tree. (C-2, C-3, C-4)
-    //:
-    //:  3 For a series of random trees containing duplicates, test all values
-    //:    from 0 through a maximum possible value plus 1, verify the
-    //:    result of 'find' matches the result of linearly searching the tree.
-    //:
-    //:  4 For a very large tree of random values, test all possible values in
-    //:    the tree and verify the results of find against a linear search.
+    //  1. Create an empty tree and verify that `find` returns the sentinel
+    //     node (C-1).
+    //
+    //  2. For a series of pre-defined test trees, test all the values from
+    //     the 0 value through the maximum value in the tree plus 1, verify the
+    //     result of `find` matches the result of linearly searching the
+    //     tree. (C-2, C-3, C-4)
+    //
+    //  3. For a series of random trees containing duplicates, test all values
+    //     from 0 through a maximum possible value plus 1, verify the
+    //     result of `find` matches the result of linearly searching the tree.
+    //
+    //  4. For a very large tree of random values, test all possible values in
+    //     the tree and verify the results of find against a linear search.
     //
     // Testing:
     //   const RbTreeNode *find(const RbTreeAnchor&
@@ -3530,7 +3575,7 @@ void TestDriver<VALUE>::testCase10()
         const TreeSpec *VALUES     = TREE_VALUES;
         const int       NUM_VALUES = NUM_TREE_VALUES;
 
-        // Iterate over the set of test trees 'TREE_VALUES'
+        // Iterate over the set of test trees `TREE_VALUES`
         for (int i = 0; i < NUM_VALUES; ++i) {
             const char *SPEC = VALUES[i].d_spec;
             const int   LINE = VALUES[i].d_line;
@@ -3660,46 +3705,46 @@ void TestDriver<VALUE>::testCase11()
     // CLASS METHODS: RbTreeUtil::lowerBound
     //
     // Concerns:
-    //:  1 That lowerBound returns sentinel node for an empty tree.
-    //:
-    //:  2 That, for all well-formed trees, when searching for a value that
-    //:    is in the tree, return the leftmost matching value.
-    //:
-    //:  3 That, for all well-formed trees, when searching for a value not in
-    //:    the tree, return the first value greater than the value being
-    //:    searched for.
-    //:
-    //:  4 That, for all well-formed trees, when searching for a value greater
-    //:    than any node in the tree, lowerBound returns the sentinel node.
-    //:
-    //:  5 That, for all well-formed trees, lowerBound returns the first node
-    //:    less than or equal to the value being searched for.
-    //:
-    //:  6 That 'lowerBound' behaves correctly on both 'const' and non-'const'
-    //:    trees
-    //:
-    //:  7 That 'lowerBound' behaves correctly on very large trees.
+    //  1. That lowerBound returns sentinel node for an empty tree.
+    //
+    //  2. That, for all well-formed trees, when searching for a value that
+    //     is in the tree, return the leftmost matching value.
+    //
+    //  3. That, for all well-formed trees, when searching for a value not in
+    //     the tree, return the first value greater than the value being
+    //     searched for.
+    //
+    //  4. That, for all well-formed trees, when searching for a value greater
+    //     than any node in the tree, lowerBound returns the sentinel node.
+    //
+    //  5. That, for all well-formed trees, lowerBound returns the first node
+    //     less than or equal to the value being searched for.
+    //
+    //  6. That `lowerBound` behaves correctly on both `const` and non-`const`
+    //     trees
+    //
+    //  7. That `lowerBound` behaves correctly on very large trees.
     //
     // Plan:
-    //:  1 Create an empty tree and verify that 'lowerBound' returns the
-    //:    sentinel node (C-1).
-    //:
-    //:  2 For a series of pre-defined test trees, test all the values from
-    //:    the 0 value through the maximum value in the tree plus 1, verify the
-    //:    result of 'lowerBound' is the first node whose value is greater
-    //:    than or equal to the value being searched for. (C-2, C-3, C-4, C-5,
-    //:    C-6)
-    //:
-    //:  3 For a series of random trees containing duplicates, test all values
-    //:    from 0 through a maximum possible value plus 1, verify the
-    //:    result of 'lowerBound' is the first node whose value is greater
-    //:    than or equal to the value being searched for. (C-2, C-3, C-4, C-5,
-    //:    C-6)
-    //:
-    //:  4 For a very large tree of random values, test all possible values in
-    //:    the tree and verify that 'lowerBound' returns the first node whose
-    //:    value is greater than or equal to the value being searched for.
-    //:    (C-7)
+    //  1. Create an empty tree and verify that `lowerBound` returns the
+    //     sentinel node (C-1).
+    //
+    //  2. For a series of pre-defined test trees, test all the values from
+    //     the 0 value through the maximum value in the tree plus 1, verify the
+    //     result of `lowerBound` is the first node whose value is greater
+    //     than or equal to the value being searched for. (C-2, C-3, C-4, C-5,
+    //     C-6)
+    //
+    //  3. For a series of random trees containing duplicates, test all values
+    //     from 0 through a maximum possible value plus 1, verify the
+    //     result of `lowerBound` is the first node whose value is greater
+    //     than or equal to the value being searched for. (C-2, C-3, C-4, C-5,
+    //     C-6)
+    //
+    //  4. For a very large tree of random values, test all possible values in
+    //     the tree and verify that `lowerBound` returns the first node whose
+    //     value is greater than or equal to the value being searched for.
+    //     (C-7)
     //
     // Testing:
     //   const RbTreeNode *lowerBound(const RbTreeAnchor&          ,
@@ -3730,7 +3775,7 @@ void TestDriver<VALUE>::testCase11()
         const TreeSpec *VALUES     = TREE_VALUES;
         const int       NUM_VALUES = NUM_TREE_VALUES;
 
-        // Iterate over the set of test trees 'TREE_VALUES'
+        // Iterate over the set of test trees `TREE_VALUES`
         for (int i = 0; i < NUM_VALUES; ++i) {
             const char *SPEC = VALUES[i].d_spec;
             const int   LINE = VALUES[i].d_line;
@@ -3880,44 +3925,44 @@ void TestDriver<VALUE>::testCase12()
     // CLASS METHODS: RbTreeUtil::upperBound
     //
     // Concerns:
-    //:  1 That upperBound returns sentinel node for an empty tree.
-    //:
-    //:  2 That, for all well-formed trees, when searching for a value that
-    //:    is in the tree, return the rightmost matching value.
-    //:
-    //:  3 That, for all well-formed trees, when searching for a value not in
-    //:    the tree, return the first value greater than the value being
-    //:    searched for.
-    //:
-    //:  4 That, for all well-formed trees, when searching for a value greater
-    //:    than or equal to the last node in the tree, upperBound returns the
-    //:    sentinel node.
-    //:
-    //:  5 That, for all well-formed trees, upperBound returns the last node
-    //:    less than or equal to the value being searched for.
-    //:
-    //:  6 That 'upperBound' behaves correctly on both 'const' and non-'const'
-    //:    trees
-    //:
-    //:  7 That 'upperBound' behaves correctly on very large trees.
+    //  1. That upperBound returns sentinel node for an empty tree.
+    //
+    //  2. That, for all well-formed trees, when searching for a value that
+    //     is in the tree, return the rightmost matching value.
+    //
+    //  3. That, for all well-formed trees, when searching for a value not in
+    //     the tree, return the first value greater than the value being
+    //     searched for.
+    //
+    //  4. That, for all well-formed trees, when searching for a value greater
+    //     than or equal to the last node in the tree, upperBound returns the
+    //     sentinel node.
+    //
+    //  5. That, for all well-formed trees, upperBound returns the last node
+    //     less than or equal to the value being searched for.
+    //
+    //  6. That `upperBound` behaves correctly on both `const` and non-`const`
+    //     trees
+    //
+    //  7. That `upperBound` behaves correctly on very large trees.
     //
     // Plan:
-    //:  1 Create an empty tree and verify that 'upperBound' returns the
-    //:    sentinel node (C-1).
-    //:
-    //:  2 For a series of pre-defined test trees, test all the values from
-    //:    the 0 value through the maximum value in the tree plus 1, verify the
-    //:    result of 'upperBound' is the first node whose value is greater
-    //:    than the value being searched for. (C-2, C-3, C-4, C-5, C-6)
-    //:
-    //:  3 For a series of random trees containing duplicates, test all values
-    //:    from 0 through a maximum possible value plus 1, verify the
-    //:    result of 'upperBound' is the first node whose value is greater
-    //:    than the value being searched for. (C-2, C-3, C-4, C-5, C-6)
-    //:
-    //:  4 For a very large tree of random values, test all possible values in
-    //:    the tree and verify that 'upperBound' returns the first node whose
-    //:    value is greater than value being searched for. (C-7)
+    //  1. Create an empty tree and verify that `upperBound` returns the
+    //     sentinel node (C-1).
+    //
+    //  2. For a series of pre-defined test trees, test all the values from
+    //     the 0 value through the maximum value in the tree plus 1, verify the
+    //     result of `upperBound` is the first node whose value is greater
+    //     than the value being searched for. (C-2, C-3, C-4, C-5, C-6)
+    //
+    //  3. For a series of random trees containing duplicates, test all values
+    //     from 0 through a maximum possible value plus 1, verify the
+    //     result of `upperBound` is the first node whose value is greater
+    //     than the value being searched for. (C-2, C-3, C-4, C-5, C-6)
+    //
+    //  4. For a very large tree of random values, test all possible values in
+    //     the tree and verify that `upperBound` returns the first node whose
+    //     value is greater than value being searched for. (C-7)
     //
     // Testing:
     //   const RbTreeNode *upperBound(const RbTreeAnchor&          ,
@@ -3948,7 +3993,7 @@ void TestDriver<VALUE>::testCase12()
         const TreeSpec *VALUES     = TREE_VALUES;
         const int       NUM_VALUES = NUM_TREE_VALUES;
 
-        // Iterate over the set of test trees 'TREE_VALUES'
+        // Iterate over the set of test trees `TREE_VALUES`
         for (int i = 0; i < NUM_VALUES; ++i) {
             const char *SPEC = VALUES[i].d_spec;
             const int   LINE = VALUES[i].d_line;
@@ -4099,43 +4144,43 @@ void TestDriver<VALUE>::testCase13()
     // CLASS METHODS: RbTreeUtil::findInsertLocation
     //
     // Concerns:
-    //:  1 That 'findInsertLocation' called on an empty tree returns the
-    //:    sentinel node, and 'isLeftChild' is 'true'.
-    //:
-    //:  2 That 'findInsertLocation' always returns a leaf node of the tree.
-    //:
-    //:  3 If the returned 'isLeftChild' is 'true' then the returned node
-    //:    must be first node greater than the supplied value.
-    //:
-    //:  4 If the returned 'isLeftChild' is 'false'. then the returned node
-    //:    must be the last node less than the supplied value.
-    //:
-    //:  5 'findInsertLocation' behaves correctly for a very large tree.
+    //  1. That `findInsertLocation` called on an empty tree returns the
+    //     sentinel node, and `isLeftChild` is `true`.
+    //
+    //  2. That `findInsertLocation` always returns a leaf node of the tree.
+    //
+    //  3. If the returned `isLeftChild` is `true` then the returned node
+    //     must be first node greater than the supplied value.
+    //
+    //  4. If the returned `isLeftChild` is `false`. then the returned node
+    //     must be the last node less than the supplied value.
+    //
+    //  5. `findInsertLocation` behaves correctly for a very large tree.
     //
     // Plan:
-    //:  1 Create an empty tree and verify that 'findInsertLocation' returns
-    //:    the sentinel node and 'isLeftChild' is 'true' (C-1).
-    //:
-    //:  2 For a series of pre-defined test trees, test all the values from
-    //:    the 0 value through the maximum value in the tree plus 1, verify
-    //:    either (1) 'isLeftChild' is 'true' and the returned node is the
-    //:    'upperBound' for the value being searched for, or (2) 'isLeftChild'
-    //:    is 'false' and the subsequent node from the returned node is the
-    //:    'upperBound' of the value being searched for. (C-2, C-3, C-4)
-    //:
-    //:  3 For a series of random trees containing duplicates, test all values
-    //:    from 0 through a maximum possible value plus 1, verify either (1)
-    //:    'isLeftChild' is 'true' and the returned node is the 'upperBound'
-    //:    for the value being searched for, or (2) 'isLeftChild' is 'false'
-    //:    and the subsequent node from the returned node is the 'upperBound'
-    //:    of the value being searched for. (C-2, C-3, C-4)
-    //:
-    //:  4 For a very large tree of random values, test all possible values in
-    //:    the tree and verify either (1) 'isLeftChild' is 'true' and the
-    //:    returned node is the 'upperBound' for the value being searched for,
-    //:    or (2) 'isLeftChild' is 'false' and the subsequent node from the
-    //:    returned node is the 'upperBound' of the value being searched
-    //:    for. (C-5)
+    //  1. Create an empty tree and verify that `findInsertLocation` returns
+    //     the sentinel node and `isLeftChild` is `true` (C-1).
+    //
+    //  2. For a series of pre-defined test trees, test all the values from
+    //     the 0 value through the maximum value in the tree plus 1, verify
+    //     either (1) `isLeftChild` is `true` and the returned node is the
+    //     `upperBound` for the value being searched for, or (2) `isLeftChild`
+    //     is `false` and the subsequent node from the returned node is the
+    //     `upperBound` of the value being searched for. (C-2, C-3, C-4)
+    //
+    //  3. For a series of random trees containing duplicates, test all values
+    //     from 0 through a maximum possible value plus 1, verify either (1)
+    //     `isLeftChild` is `true` and the returned node is the `upperBound`
+    //     for the value being searched for, or (2) `isLeftChild` is `false`
+    //     and the subsequent node from the returned node is the `upperBound`
+    //     of the value being searched for. (C-2, C-3, C-4)
+    //
+    //  4. For a very large tree of random values, test all possible values in
+    //     the tree and verify either (1) `isLeftChild` is `true` and the
+    //     returned node is the `upperBound` for the value being searched for,
+    //     or (2) `isLeftChild` is `false` and the subsequent node from the
+    //     returned node is the `upperBound` of the value being searched
+    //     for. (C-5)
     //
     // Testing:
     //   RbTreeNode *findInsertLocation(bool *,
@@ -4167,7 +4212,7 @@ void TestDriver<VALUE>::testCase13()
         const TreeSpec *VALUES     = TREE_VALUES;
         const int       NUM_VALUES = NUM_TREE_VALUES;
 
-        // Iterate over the set of test trees 'TREE_VALUES'
+        // Iterate over the set of test trees `TREE_VALUES`
         for (int i = 0; i < NUM_VALUES; ++i) {
             const char *SPEC = VALUES[i].d_spec;
             const int   LINE = VALUES[i].d_line;
@@ -4304,55 +4349,55 @@ void TestDriver<VALUE>::testCase14()
     // CLASS METHODS: RbTreeUtil::findInsertLocation w/ Hint
     //
     // Concerns:
-    //:  1 That 'findInsertLocation' called on an empty tree returns the
-    //:    sentinel node, and 'isLeftChild' is 'true'.
-    //:
-    //:  2 That 'findInsertLocation' called with an invalid hint returns the
-    //:    same result as 'findInsertLocation' without a hint.
-    //:
-    //:  3 That 'findInsertLocation' is called with a valid hint, and 'isLeft'
-    //:    child is 'true', the returned node is the hint node.
-    //:
-    //:  4 That 'findInsertLocation' is called with a valid hint, and 'isLeft'
-    //:    child is 'false', the returned node's successor is the hint node.
-    //:
-    //:  5 That 'findInsertLocation' is called with a valid hint, the number
-    //:    of comparisons performed is less than or equal to 2.
+    //  1. That `findInsertLocation` called on an empty tree returns the
+    //     sentinel node, and `isLeftChild` is `true`.
+    //
+    //  2. That `findInsertLocation` called with an invalid hint returns the
+    //     same result as `findInsertLocation` without a hint.
+    //
+    //  3. That `findInsertLocation` is called with a valid hint, and `isLeft`
+    //     child is `true`, the returned node is the hint node.
+    //
+    //  4. That `findInsertLocation` is called with a valid hint, and `isLeft`
+    //     child is `false`, the returned node's successor is the hint node.
+    //
+    //  5. That `findInsertLocation` is called with a valid hint, the number
+    //     of comparisons performed is less than or equal to 2.
     //
     // Plan:
-    //:  1 Create an empty tree and verify that 'findInsertLocation' returns
-    //:    the sentinel node and 'isLeftChild' is 'true' with the sentinel
-    //:    node as the hint (C-1).
-    //:
-    //:  2 For a series of pre-defined test trees, values from the 0 value
-    //:    through the maximum value in the tree plus 1.
-    //:    1 For each node in the tree, call 'findInsertLocation' for the
-    //:      selected value supplying that node as a hint.
-    //:
-    //:    2 If the hint node is in the range between the lowerBound and
-    //:       upperBound of the value being inserted, ensure that the hint
-    //:       would be the subsequent node of the insert location, and that
-    //:       only 2 comparisons are performed. (C-3, C-4, C-5)
-    //:
-    //:    3 If the hint node is not in the range between the lowerBound and
-    //:       upperBound of the value being inserted, ensure that the result
-    //:       is equivalent to calling 'findInsertLocation' without a hint.
-    //:       (C-2).
-    //:
-    //:  3 For a series of random trees containing duplicates, test all values
-    //:    from 0 through a maximum possible value plus 1.
-    //:    1 For each node in the tree, call 'findInsertLocation' for the
-    //:      selected value supplying that node as a hint.
-    //:
-    //:    2 If the hint node is in the range between the lowerBound and
-    //:       upperBound of the value being inserted, ensure that the hint
-    //:       would be the subsequent node of the insert location, and that
-    //:       only 2 comparisons are performed. (C-3, C-4, C-5)
-    //:
-    //:    3 If the hint node is not in the range between the lowerBound and
-    //:       upperBound of the value being inserted, ensure that the result
-    //:       is equivalent to calling 'findInsertLocation' without a hint.
-    //:       (C-2).
+    //  1. Create an empty tree and verify that `findInsertLocation` returns
+    //     the sentinel node and `isLeftChild` is `true` with the sentinel
+    //     node as the hint (C-1).
+    //
+    //  2. For a series of pre-defined test trees, values from the 0 value
+    //     through the maximum value in the tree plus 1.
+    //    1. For each node in the tree, call `findInsertLocation` for the
+    //       selected value supplying that node as a hint.
+    //
+    //    2. If the hint node is in the range between the lowerBound and
+    //        upperBound of the value being inserted, ensure that the hint
+    //        would be the subsequent node of the insert location, and that
+    //        only 2 comparisons are performed. (C-3, C-4, C-5)
+    //
+    //    3. If the hint node is not in the range between the lowerBound and
+    //        upperBound of the value being inserted, ensure that the result
+    //        is equivalent to calling `findInsertLocation` without a hint.
+    //        (C-2).
+    //
+    //  3. For a series of random trees containing duplicates, test all values
+    //     from 0 through a maximum possible value plus 1.
+    //    1. For each node in the tree, call `findInsertLocation` for the
+    //       selected value supplying that node as a hint.
+    //
+    //    2. If the hint node is in the range between the lowerBound and
+    //        upperBound of the value being inserted, ensure that the hint
+    //        would be the subsequent node of the insert location, and that
+    //        only 2 comparisons are performed. (C-3, C-4, C-5)
+    //
+    //    3. If the hint node is not in the range between the lowerBound and
+    //        upperBound of the value being inserted, ensure that the result
+    //        is equivalent to calling `findInsertLocation` without a hint.
+    //        (C-2).
     //
     // Testing:
     //   RbTreeNode *findInsertLocation(bool *,
@@ -4387,7 +4432,7 @@ void TestDriver<VALUE>::testCase14()
         const TreeSpec *VALUES     = TREE_VALUES;
         const int       NUM_VALUES = NUM_TREE_VALUES;
 
-        // Iterate over the set of test trees 'TREE_VALUES'
+        // Iterate over the set of test trees `TREE_VALUES`
         for (int i = 0; i < NUM_VALUES; ++i) {
             const char *SPEC = VALUES[i].d_spec;
             const int   LINE = VALUES[i].d_line;
@@ -4518,56 +4563,56 @@ void TestDriver<VALUE>::testCase15()
     // CLASS METHODS: RbTreeUtil::findUniqueInsertLocation
     //
     // Concerns:
-    //:  1 That 'findUniqueInsertLocation' called on an empty tree returns the
-    //:    sentinel node, and 'comparisonResult' is negative.
-    //:
-    //:  2 If the tree is not empty, and the value does not exist in the tree,
-    //:    that a leaf node is always returned.
-    //:
-    //:  3 If the value already exists in the tree 'comparisonResult' will be
-    //:    0, and node returned will contain the matching value.
-    //:
-    //:  3 If the value is not in the tree 'comparisonResult' will be non-0.
-    //:
-    //:  4 If 'comparisonResult' is negative, the returned node
-    //:    must be first node greater than the supplied value.
-    //:
-    //:  5 If 'comparisonResult' is positive, the returned node
-    //:    must be first node less than the supplied value.
-    //:
-    //:  6 'findUniqueInsertLocation' behaves correctly for a very large tree.
+    //  1. That `findUniqueInsertLocation` called on an empty tree returns the
+    //     sentinel node, and `comparisonResult` is negative.
+    //
+    //  2. If the tree is not empty, and the value does not exist in the tree,
+    //     that a leaf node is always returned.
+    //
+    //  3. If the value already exists in the tree `comparisonResult` will be
+    //     0, and node returned will contain the matching value.
+    //
+    //  3. If the value is not in the tree `comparisonResult` will be non-0.
+    //
+    //  4. If `comparisonResult` is negative, the returned node
+    //     must be first node greater than the supplied value.
+    //
+    //  5. If `comparisonResult` is positive, the returned node
+    //     must be first node less than the supplied value.
+    //
+    //  6. `findUniqueInsertLocation` behaves correctly for a very large tree.
     //
     // Plan:
-    //:  1 Create an empty tree and verify that 'findUniqueInsertLocation'
-    //:    returns the sentinel node and a negative 'comparisonResult' value
-    //:    (C-1).
-    //:
-    //:  2 For a series of pre-defined test trees, test all the values from
-    //:    the 0 value through the maximum value in the tree plus 1, verify
-    //:    either (1) the value is in the tree, 'comparisonResult' is 0, and
-    //:    the returned node is a node containing the value, (2)
-    //:    'comparisonResult' is negative, and the returned node is the
-    //:    'upperBound' of the value being searched for, or (3)
-    //:    'comparisonResult' is positive, and the returned node is the node
-    //:    prior to the 'upperBound' if the value being searched for.  (C-2,
-    //:    C-3, C-3, C-4, C-5)
-    //:
-    //:  3 For a series of random trees containing duplicates, test all values
-    //:    from 0 through a maximum possible value plus 1, verify either (1)
-    //:    the value is in the tree, 'comparisonResult' is 0, and the returned
-    //:    node is a node containing the value, (2) 'comparisonResult' is
-    //:    negative, and the returned node is the 'upperBound' of the value
-    //:    being searched for, or (3) 'comparisonResult' is positive, and the
-    //:    returned node is the node prior to the 'upperBound' if the value
-    //:    being searched for.  (C-2, C-3, C-3, C-4, C-5)
-    //:
-    //:  4 For a very large tree of random values, test all possible values in
-    //:    the tree and verify either (1) the value is in the tree,
-    //:    'comparisonResult' is 0, and the returned node is a node containing
-    //:    the value, (2) 'comparisonResult' is negative, and the returned
-    //:    node is the 'upperBound' of the value being searched for, or (3)
-    //:    'comparisonResult' is positive, and the returned node is the node
-    //:    prior to the 'upperBound' if the value being searched for.  (C-6)
+    //  1. Create an empty tree and verify that `findUniqueInsertLocation`
+    //     returns the sentinel node and a negative `comparisonResult` value
+    //     (C-1).
+    //
+    //  2. For a series of pre-defined test trees, test all the values from
+    //     the 0 value through the maximum value in the tree plus 1, verify
+    //     either (1) the value is in the tree, `comparisonResult` is 0, and
+    //     the returned node is a node containing the value, (2)
+    //     `comparisonResult` is negative, and the returned node is the
+    //     `upperBound` of the value being searched for, or (3)
+    //     `comparisonResult` is positive, and the returned node is the node
+    //     prior to the `upperBound` if the value being searched for.  (C-2,
+    //     C-3, C-3, C-4, C-5)
+    //
+    //  3. For a series of random trees containing duplicates, test all values
+    //     from 0 through a maximum possible value plus 1, verify either (1)
+    //     the value is in the tree, `comparisonResult` is 0, and the returned
+    //     node is a node containing the value, (2) `comparisonResult` is
+    //     negative, and the returned node is the `upperBound` of the value
+    //     being searched for, or (3) `comparisonResult` is positive, and the
+    //     returned node is the node prior to the `upperBound` if the value
+    //     being searched for.  (C-2, C-3, C-3, C-4, C-5)
+    //
+    //  4. For a very large tree of random values, test all possible values in
+    //     the tree and verify either (1) the value is in the tree,
+    //     `comparisonResult` is 0, and the returned node is a node containing
+    //     the value, (2) `comparisonResult` is negative, and the returned
+    //     node is the `upperBound` of the value being searched for, or (3)
+    //     `comparisonResult` is positive, and the returned node is the node
+    //     prior to the `upperBound` if the value being searched for.  (C-6)
     //
     // Testing:
     //   RbTreeNode *findUniqueInsertLocation(int *,
@@ -4602,7 +4647,7 @@ void TestDriver<VALUE>::testCase15()
         const TreeSpec *VALUES     = TREE_VALUES;
         const int       NUM_VALUES = NUM_TREE_VALUES;
 
-        // Iterate over the set of test trees 'TREE_VALUES'
+        // Iterate over the set of test trees `TREE_VALUES`
         for (int i = 0; i < NUM_VALUES; ++i) {
             const char *SPEC = VALUES[i].d_spec;
             const int   LINE = VALUES[i].d_line;
@@ -4762,65 +4807,65 @@ void TestDriver<VALUE>::testCase16()
     // CLASS METHODS: RbTreeUtil::findUniqueInsertLocation w/ Hint
     //
     // Concerns:
-    //:  1 That 'findUniqueInsertLocation' called on an empty tree returns the
-    //:    sentinel node, and 'comparisonResult' is negative.
-    //:
-    //:  2 That 'findUniqueInsertLocation' called with an invalid hint returns
-    //:    the same result as 'findUniqueInsertLocation' without a hint.
-    //:
-    //:  3 That 'findUniqueInsertLocation' is called with a valid hint, and
-    //:    'comparisonResult' is 0, the returned node has the value being
-    //:    searched for and is either the hint node or the predecessor of the
-    //:    hint node.
-    //:
-    //:  4 That 'findUniqueInsertLocation' is called with a valid hint, and
-    //:    'comparisonResult' is negative, the returned node is the hint node.
-    //:
-    //:  5 That 'findUniqueInsertLocation' is called with a valid hint, and
-    //:    'comparisonResult' is positive, the returned node's successor is
-    //:    the hint node.
-    //:
-    //:  6 That 'findUniqueInsertLocation' is called with a valid hint, the
-    //:    number of comparisons performed is less than or equal to 4.
+    //  1. That `findUniqueInsertLocation` called on an empty tree returns the
+    //     sentinel node, and `comparisonResult` is negative.
+    //
+    //  2. That `findUniqueInsertLocation` called with an invalid hint returns
+    //     the same result as `findUniqueInsertLocation` without a hint.
+    //
+    //  3. That `findUniqueInsertLocation` is called with a valid hint, and
+    //     `comparisonResult` is 0, the returned node has the value being
+    //     searched for and is either the hint node or the predecessor of the
+    //     hint node.
+    //
+    //  4. That `findUniqueInsertLocation` is called with a valid hint, and
+    //     `comparisonResult` is negative, the returned node is the hint node.
+    //
+    //  5. That `findUniqueInsertLocation` is called with a valid hint, and
+    //     `comparisonResult` is positive, the returned node's successor is
+    //     the hint node.
+    //
+    //  6. That `findUniqueInsertLocation` is called with a valid hint, the
+    //     number of comparisons performed is less than or equal to 4.
     //
     // Plan:
-    //:  1 Create an empty tree and verify that 'findUniqueInsertLocation'
-    //:    returns the sentinel node and 'comparisonResult' is negative with
-    //:    the sentinel node as the hint (C-1).
-    //:
-    //:  2 For a series of pre-defined test trees, values from the 0 value
-    //:    through the maximum value in the tree plus 1.
-    //:    1 For each node in the tree, call 'findUniqueInsertLocation' for the
-    //:      selected value supplying that node as a hint.
-    //:
-    //:    2 If the hint node is in the range between the lowerBound and
-    //:       upperBound of the value being inserted, ensure either that the
-    //:       value is a duplicate, and a matching node is returned, or that
-    //:       the hint would be the subsequent node of the insert location.
-    //:       In all cases only 4 comparisons are performed. (C-2, C-3, C-4,
-    //:       C-6)
-    //:
-    //:    3 If the hint node is not in the range between the lowerBound and
-    //:       upperBound of the value being inserted, ensure that the result
-    //:       is equivalent to calling 'findUniqueInsertLocation' without a
-    //:       hint. (C-5).
-    //:
-    //:  3 For a series of random trees containing duplicates, test all values
-    //:    from 0 through a maximum possible value plus 1.
-    //:    1 For each node in the tree, call 'findUniqueInsertLocation' for the
-    //:      selected value supplying that node as a hint.
-    //:
-    //:    2 If the hint node is in the range between the lowerBound and
-    //:       upperBound of the value being inserted, ensure either that the
-    //:       value is a duplicate, and a matching node is returned, or that
-    //:       the hint would be the subsequent node of the insert location.
-    //:       In all cases only 4 comparisons are performed. (C-2, C-3, C-4,
-    //:       C-6)
-    //:
-    //:    3 If the hint node is not in the range between the lowerBound and
-    //:       upperBound of the value being inserted, ensure that the result
-    //:       is equivalent to calling 'findUniqueInsertLocation' without a
-    //:       hint. (C-5).
+    //  1. Create an empty tree and verify that `findUniqueInsertLocation`
+    //     returns the sentinel node and `comparisonResult` is negative with
+    //     the sentinel node as the hint (C-1).
+    //
+    //  2. For a series of pre-defined test trees, values from the 0 value
+    //     through the maximum value in the tree plus 1.
+    //    1. For each node in the tree, call `findUniqueInsertLocation` for the
+    //       selected value supplying that node as a hint.
+    //
+    //    2. If the hint node is in the range between the lowerBound and
+    //        upperBound of the value being inserted, ensure either that the
+    //        value is a duplicate, and a matching node is returned, or that
+    //        the hint would be the subsequent node of the insert location.
+    //        In all cases only 4 comparisons are performed. (C-2, C-3, C-4,
+    //        C-6)
+    //
+    //    3. If the hint node is not in the range between the lowerBound and
+    //        upperBound of the value being inserted, ensure that the result
+    //        is equivalent to calling `findUniqueInsertLocation` without a
+    //        hint. (C-5).
+    //
+    //  3. For a series of random trees containing duplicates, test all values
+    //     from 0 through a maximum possible value plus 1.
+    //    1. For each node in the tree, call `findUniqueInsertLocation` for the
+    //       selected value supplying that node as a hint.
+    //
+    //    2. If the hint node is in the range between the lowerBound and
+    //        upperBound of the value being inserted, ensure either that the
+    //        value is a duplicate, and a matching node is returned, or that
+    //        the hint would be the subsequent node of the insert location.
+    //        In all cases only 4 comparisons are performed. (C-2, C-3, C-4,
+    //        C-6)
+    //
+    //    3. If the hint node is not in the range between the lowerBound and
+    //        upperBound of the value being inserted, ensure that the result
+    //        is equivalent to calling `findUniqueInsertLocation` without a
+    //        hint. (C-5).
     //
     // Testing:
     //   RbTreeNode *findUniqueInsertLocation(int *,
@@ -4858,7 +4903,7 @@ void TestDriver<VALUE>::testCase16()
         const TreeSpec *VALUES     = TREE_VALUES;
         const int       NUM_VALUES = NUM_TREE_VALUES;
 
-        // Iterate over the set of test trees 'TREE_VALUES'
+        // Iterate over the set of test trees `TREE_VALUES`
         for (int i = 0; i < NUM_VALUES; ++i) {
             const char *SPEC = VALUES[i].d_spec;
             const int   LINE = VALUES[i].d_line;
@@ -5017,58 +5062,58 @@ void TestDriver<VALUE>::testCase17()
     // CLASS METHODS: RbTreeUtil::insertAt
     //
     // Concerns:
-    //:  1 That 'insertAt' will successfully insert a node into an empty tree,
-    //:    regardless if 'parentNode' is the sentinel node, and
-    //:    'isLeftChildFlag' is true.
-    //:
-    //:  2 That 'insertAt' will successfully insert a node and rebalance the
-    //:    tree, if the 'parentNode' and 'isLeftChildFlag' indicate a node
-    //:    position at which the node could be inserted and still for a
-    //:    binary tree.
-    //:
-    //:  3 That 'insertAt' will successfully insert a node regardless of its
-    //:    state.
-    //:
-    //:  4 QoI: Asserted precondition violations are detected when enabled.
+    //  1. That `insertAt` will successfully insert a node into an empty tree,
+    //     regardless if `parentNode` is the sentinel node, and
+    //     `isLeftChildFlag` is true.
+    //
+    //  2. That `insertAt` will successfully insert a node and rebalance the
+    //     tree, if the `parentNode` and `isLeftChildFlag` indicate a node
+    //     position at which the node could be inserted and still for a
+    //     binary tree.
+    //
+    //  3. That `insertAt` will successfully insert a node regardless of its
+    //     state.
+    //
+    //  4. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //:  1 Create an empty tree and verify that 'insertAt' correctly inserts a
-    //:    node if supplied a sentinel node, and 'true' for
-    //:    'isLeftChildFlag'. (C-1, C-3)
-    //:
-    //:  2 For a series of pre-defined test trees:
-    //:    1 For the set of values between 0 and the max value in the tree +2:
-    //:      1 For every node in the tree:
-    //:        1 Test if the left child of that node is a valid insertion
-    //:          location, and if so, call 'insertAt' with that node as the
-    //:          'parent' and 'isLeftChildFlag' as 'true' and verify the
-    //:          resulting tree is well formed and includes the node. (C-2,
-    //:          C-3)
-    //:
-    //:        2 Test if the right child of that node is a valid insertion
-    //:          location, and if so, call 'insertAt' with that node as the
-    //:          'parent' and 'isLeftChildFlag' as 'false' and verify the
-    //:          resulting tree is well formed and includes the node. (C-2,
-    //:          C-3).
-    //:
-    //:  3 For a series of random trees containing duplicate values:
-    //:    1 For the set of values between 0 and the max value in the tree +2:
-    //:      1 For every node in the tree:
-    //:        1 Test if the left child of that node is a valid insertion
-    //:          location, and if so, call 'insertAt' with that node as the
-    //:          'parent' and 'isLeftChildFlag' as 'true' and verify the
-    //:          resulting tree is well formed and includes the node. (C-2,
-    //:          C-3)
-    //:
-    //:        2 Test if the right child of that node is a valid insertion
-    //:          location, and if so, call 'insertAt' with that node as the
-    //:          'parent' and 'isLeftChildFlag' as 'false' and verify the
-    //:          resulting tree is well formed and includes the node. (C-2,
-    //:          C-3)
-    //:
-    //:  4 Call 'insertAt' with 0 for 'tree', 'parentNode', and 'newNode',
-    //:    respectively and ensure that assertions are thrown from appropriate
-    //:    build modes.
+    //  1. Create an empty tree and verify that `insertAt` correctly inserts a
+    //     node if supplied a sentinel node, and `true` for
+    //     `isLeftChildFlag`. (C-1, C-3)
+    //
+    //  2. For a series of pre-defined test trees:
+    //    1. For the set of values between 0 and the max value in the tree +2:
+    //      1. For every node in the tree:
+    //        1. Test if the left child of that node is a valid insertion
+    //           location, and if so, call `insertAt` with that node as the
+    //           `parent` and `isLeftChildFlag` as `true` and verify the
+    //           resulting tree is well formed and includes the node. (C-2,
+    //           C-3)
+    //
+    //        2. Test if the right child of that node is a valid insertion
+    //           location, and if so, call `insertAt` with that node as the
+    //           `parent` and `isLeftChildFlag` as `false` and verify the
+    //           resulting tree is well formed and includes the node. (C-2,
+    //           C-3).
+    //
+    //  3. For a series of random trees containing duplicate values:
+    //    1. For the set of values between 0 and the max value in the tree +2:
+    //      1. For every node in the tree:
+    //        1. Test if the left child of that node is a valid insertion
+    //           location, and if so, call `insertAt` with that node as the
+    //           `parent` and `isLeftChildFlag` as `true` and verify the
+    //           resulting tree is well formed and includes the node. (C-2,
+    //           C-3)
+    //
+    //        2. Test if the right child of that node is a valid insertion
+    //           location, and if so, call `insertAt` with that node as the
+    //           `parent` and `isLeftChildFlag` as `false` and verify the
+    //           resulting tree is well formed and includes the node. (C-2,
+    //           C-3)
+    //
+    //  4. Call `insertAt` with 0 for `tree`, `parentNode`, and `newNode`,
+    //     respectively and ensure that assertions are thrown from appropriate
+    //     build modes.
     //
     // Testing:
     //    void insertAt(RbTreeAnchor *, RbTreeNode *,bool, RbTreeNode *);
@@ -5104,7 +5149,7 @@ void TestDriver<VALUE>::testCase17()
         const TreeSpec *VALUES     = TREE_VALUES;
         const int       NUM_VALUES = NUM_TREE_VALUES;
 
-        // Iterate over the set of test trees 'TREE_VALUES'
+        // Iterate over the set of test trees `TREE_VALUES`
         for (int i = 0; i < NUM_VALUES; ++i) {
             const char *SPEC = VALUES[i].d_spec;
             const int   LINE = VALUES[i].d_line;
@@ -5120,7 +5165,7 @@ void TestDriver<VALUE>::testCase17()
             // Iterate over the range of all values (+2) in the tree.
             for (int value = 0; value <= MAX_VALUE + 2; ++value) {
                 // Test whether each node in the tree is a valid parent for
-                // 'value'.
+                // `value`.
 
                 for (int nodeIdx = 0; nodeIdx < X.numNodes(); ++nodeIdx) {
                     RbTreeNode *node = nodeAtOffset(&x, nodeIdx);
@@ -5137,7 +5182,7 @@ void TestDriver<VALUE>::testCase17()
                     }
 
                     // Test if value could be inserted as the leftChild of
-                    // 'node'.
+                    // `node`.
                     if ((prevValue <= value)     &&
                         (value     <= nodeValue) &&
                         (!node->leftChild())) {
@@ -5216,7 +5261,7 @@ void TestDriver<VALUE>::testCase17()
         // Iterate over the range of all values (+2) in the tree.
         for (int value = 0; value <= VALUE_LIMIT + 2; ++value) {
             // Test whether each node in the tree is a valid parent for
-            // 'value'.
+            // `value`.
 
             for (int nodeIdx = 0; nodeIdx < NUM_VALUES; ++nodeIdx) {
                 RbTreeNode *node = nodeAtOffset(&x, nodeIdx);
@@ -5233,7 +5278,7 @@ void TestDriver<VALUE>::testCase17()
                 }
 
                 // Test if value could be inserted as the leftChild of
-                // 'node'.
+                // `node`.
                 if ((prevValue <= value)     &&
                     (value     <= nodeValue) &&
                     (!node->leftChild())) {
@@ -5312,36 +5357,36 @@ void TestDriver<VALUE>::testCase18()
     // CLASS METHODS: RbTreeUtil::remove
     //
     // Concerns:
-    //:  1 That 'remove' removes the indicated node from the tree, and the
-    //:    resulting tree is a balanced red-black tree.
-    //:
-    //:  2 QoI: Asserted precondition violations are detected when enabled.
+    //  1. That `remove` removes the indicated node from the tree, and the
+    //     resulting tree is a balanced red-black tree.
+    //
+    //  2. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //:  1 For a series of pre-defined test trees (C-1):
-    //:    1 Iterate over the number of nodes in the tree, selecting that node
-    //:      as a starting index:
-    //:      1 Remove all the nodes from the tree starting from the starting
-    //:        index.
-    //:
-    //:      2 For each removed node, verify the node is no longer in the tree
-    //:        and the tree is still well-formed.
-    //:
-    //:      3 After all the nodes are removed, verify the tree is empty.
-    //:
-    //:  2 For a series of random trees containing duplicate values (C-1):
-    //:    1 Iterate over the number of nodes in the tree, selecting that node
-    //:      as a starting index:
-    //:      1 Remove all the nodes from the tree starting from the starting
-    //:        index.
-    //:
-    //:      2 For each removed node, verify the node is no longer in the tree
-    //:        and the tree is still well-formed.
-    //:
-    //:      3 After all the nodes are removed, verify the tree is empty.
-    //:
-    //:  3 Call 'remove' with 0 for 'tree' 'newNode', respectively and ensure
-    //:    that assertions are thrown from appropriate build modes.
+    //  1. For a series of pre-defined test trees (C-1):
+    //    1. Iterate over the number of nodes in the tree, selecting that node
+    //       as a starting index:
+    //      1. Remove all the nodes from the tree starting from the starting
+    //         index.
+    //
+    //      2. For each removed node, verify the node is no longer in the tree
+    //         and the tree is still well-formed.
+    //
+    //      3. After all the nodes are removed, verify the tree is empty.
+    //
+    //  2. For a series of random trees containing duplicate values (C-1):
+    //    1. Iterate over the number of nodes in the tree, selecting that node
+    //       as a starting index:
+    //      1. Remove all the nodes from the tree starting from the starting
+    //         index.
+    //
+    //      2. For each removed node, verify the node is no longer in the tree
+    //         and the tree is still well-formed.
+    //
+    //      3. After all the nodes are removed, verify the tree is empty.
+    //
+    //  3. Call `remove` with 0 for `tree` `newNode`, respectively and ensure
+    //     that assertions are thrown from appropriate build modes.
     //
     // Testing:
     //    void remove(RbTreeAnchor *, RbTreeNode *);
@@ -5356,7 +5401,7 @@ void TestDriver<VALUE>::testCase18()
         const TreeSpec *VALUES     = TREE_VALUES;
         const int       NUM_VALUES = NUM_TREE_VALUES;
 
-        // Iterate over the set of test trees 'TREE_VALUES'
+        // Iterate over the set of test trees `TREE_VALUES`
         for (int i = 0; i < NUM_VALUES; ++i) {
             const char *SPEC = VALUES[i].d_spec;
             const int   LINE = VALUES[i].d_line;
@@ -5446,46 +5491,46 @@ void TestDriver<VALUE>::testCase20()
     // CLASS METHODS: RbTreeUtil::copyTree
     //
     // Concerns:
-    //:  1 That 'copyTree' does nothing on an empty tree.
-    //:
-    //:  2 That 'copyTree' constructs a well-formed tree having the same
-    //:    structure as the source tree.
-    //:
-    //:  3 For each node in the source tree, the corresponding node in the
-    //:    result tree is created by invoking the factory 'createNode' function
-    //:    on the source tree.
-    //:
-    //:  4 If an exception is thrown by 'createNode', then 'deleteNode' is
-    //:    called on every newly created node.
-    //:
-    //:  5 QoI: Asserted precondition violations are detected when enabled.
+    //  1. That `copyTree` does nothing on an empty tree.
+    //
+    //  2. That `copyTree` constructs a well-formed tree having the same
+    //     structure as the source tree.
+    //
+    //  3. For each node in the source tree, the corresponding node in the
+    //     result tree is created by invoking the factory `createNode` function
+    //     on the source tree.
+    //
+    //  4. If an exception is thrown by `createNode`, then `deleteNode` is
+    //     called on every newly created node.
+    //
+    //  5. QoI: Asserted precondition violations are detected when enabled.
     //
     //Plan:
-    //:  1 Create an empty tree, call 'copyTree' on it, and verify the
-    //:    resulting tree is empty and no nodes were allocated or deleted by
-    //:    the factory. (C-1)
-    //:
-    //:  2 For a series of pre-defined test trees, call 'copyTree' and verify
-    //:    the factory created the correct number of nodes, and that the
-    //:    resulting tree is a well-formed tree having the same set of node
-    //:    values (but different node addresses). (C-2, C-3)
-    //:
-    //:  3 For a series of random trees containing some duplicate values (C-1),
-    //:    call 'copyTree' and verify the factory created the correct number
-    //:    of nodes, and that the resulting tree is a well-formed tree having
-    //:    the same set of node values (but different node addresses). (C-2,
-    //:    C-3)
-    //:
-    //:  3 For a series of random trees containing some duplicate values (C-1),
-    //:    create a test factory having a series of node-creation limits, then
-    //:    call 'copyTree' and verify that an exception is passed to the
-    //:    caller, the resulting tree is a well-formed empty tree, and that
-    //:    the node-creation and node-deletion factory function have each been
-    //:    correctly called node-limit times.
-    //:
-    //:  4 Call 'copyTree' with 0 for the factory, 0 for the result, and a
-    //:    non-empty tree for the result, respectively, and ensure
-    //:    that assertions are thrown from appropriate build modes.
+    //  1. Create an empty tree, call `copyTree` on it, and verify the
+    //     resulting tree is empty and no nodes were allocated or deleted by
+    //     the factory. (C-1)
+    //
+    //  2. For a series of pre-defined test trees, call `copyTree` and verify
+    //     the factory created the correct number of nodes, and that the
+    //     resulting tree is a well-formed tree having the same set of node
+    //     values (but different node addresses). (C-2, C-3)
+    //
+    //  3. For a series of random trees containing some duplicate values (C-1),
+    //     call `copyTree` and verify the factory created the correct number
+    //     of nodes, and that the resulting tree is a well-formed tree having
+    //     the same set of node values (but different node addresses). (C-2,
+    //     C-3)
+    //
+    //  3. For a series of random trees containing some duplicate values (C-1),
+    //     create a test factory having a series of node-creation limits, then
+    //     call `copyTree` and verify that an exception is passed to the
+    //     caller, the resulting tree is a well-formed empty tree, and that
+    //     the node-creation and node-deletion factory function have each been
+    //     correctly called node-limit times.
+    //
+    //  4. Call `copyTree` with 0 for the factory, 0 for the result, and a
+    //     non-empty tree for the result, respectively, and ensure
+    //     that assertions are thrown from appropriate build modes.
     //
     // Testing:
     //   void RbTreeUtil::copyTree(RbTreeAnchor *, RbTreeAnchor &, FACTORY *);
@@ -5517,7 +5562,7 @@ void TestDriver<VALUE>::testCase20()
         const TreeSpec *VALUES     = TREE_VALUES;
         const int       NUM_VALUES = NUM_TREE_VALUES_W_EMPTY;
 
-        // Iterate over the set of test trees 'TREE_VALUES'
+        // Iterate over the set of test trees `TREE_VALUES`
         for (int i = 0; i < NUM_VALUES; ++i) {
             const char *SPEC = VALUES[i].d_spec;
             const int   LINE = VALUES[i].d_line;
@@ -5672,9 +5717,9 @@ void TestDriver<VALUE>::testCase21()
     // CLASS METHODS: RbTreeUtil::swapTree
     //
     // Concerns:
-    //   1 That 'swap' does nothing on two empty trees.
+    //   1 That `swap` does nothing on two empty trees.
     //
-    //   2 That after a call to 'swap' the lhs contains the equivalent
+    //   2 That after a call to `swap` the lhs contains the equivalent
     //     tree as rhs, and the rhs contains a tree equivalent to the lhs.
     //
     //   3 QoI: Asserted precondition violations are detected when enabled.
@@ -5710,12 +5755,12 @@ void TestDriver<VALUE>::testCase21()
         const TreeSpec *VALUES     = TREE_VALUES;
         const int       NUM_VALUES = NUM_TREE_VALUES_W_EMPTY;
 
-        // Iterate over the set of test trees 'TREE_VALUES'
+        // Iterate over the set of test trees `TREE_VALUES`
         for (int i = 0; i < NUM_VALUES; ++i) {
             const char *SPECX = VALUES[i].d_spec;
             const int   LINEX = VALUES[i].d_line;
 
-            // Iterate over the set of test trees 'TREE_VALUES'
+            // Iterate over the set of test trees `TREE_VALUES`
             for (int j = 0; j < NUM_VALUES; ++j) {
                 const char *SPECY = VALUES[j].d_spec;
                 const int   LINEY = VALUES[j].d_line;
@@ -5826,13 +5871,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -5902,21 +5947,21 @@ int main(int argc, char *argv[])
         // CLASS METHOD: copyTree (Additional Exception Safety Tests)
         //
         // Concern:
-        //   1 Additional testing of exception safety of 'copyTree' using
-        //     standard 'bslma::Allocator' exception test machinery (rather
+        //   1 Additional testing of exception safety of `copyTree` using
+        //     standard `bslma::Allocator` exception test machinery (rather
         //     than machinery defined in this component).  Note that exception
         //     safety has already been verified.
         //
         // Plan:
         //   1 Create a test tree, then, use the
-        //     'BSLMA_TESTALLOCATOR_EXCEPTION' macros to test copying that
+        //     `BSLMA_TESTALLOCATOR_EXCEPTION` macros to test copying that
         //     tree.
         //
         // Testing:
         //
         // --------------------------------------------------------------------
         if (verbose)
-            printf("\nEXCEPTION SAFETY 'copyTree' w/ bslma::Allocator"
+            printf("\nEXCEPTION SAFETY `copyTree` w/ bslma::Allocator"
                    "\n==============================================\n");
 
         {
@@ -5958,21 +6003,21 @@ int main(int argc, char *argv[])
         // CLASS METHODS: printTreeStructure
         //
         // Concerns:
-        //: 1 That 'printTreeStructure' writes to the supplied 'FILE' object.
-        //:
-        //: 2 The 'print' method writes the value in the intended format.
-        //:
-        //: 3 That 'printTreeStructure' calls the supplied functor for writing
-        //:   values.
-        //:
-        //: 4 The optional 'level' and 'spacesPerLevel' parameters have the
-        //:   correct default values.
+        // 1. That `printTreeStructure` writes to the supplied `FILE` object.
+        //
+        // 2. The `print` method writes the value in the intended format.
+        //
+        // 3. That `printTreeStructure` calls the supplied functor for writing
+        //    values.
+        //
+        // 4. The optional `level` and `spacesPerLevel` parameters have the
+        //    correct default values.
         //
         // Plan:
-        //: 1 Create a series of test trees, with varying values for level and
-        //:   spacesPerLevel, and their expected print output.  Print to a
-        //:   temporary file and verify the output matches the expected
-        //:   output.
+        // 1. Create a series of test trees, with varying values for level and
+        //    spacesPerLevel, and their expected print output.  Print to a
+        //    temporary file and verify the output matches the expected
+        //    output.
         //
         // Testing:
         //   void printTreeStructure(FILE *,
@@ -6074,7 +6119,7 @@ int main(int argc, char *argv[])
             bsls::AssertTestHandlerGuard hG;
 
             RbTreeNode node; const RbTreeNode& NODE = node;
-            (void) NODE;  // Suppress 'unused variable' warnings
+            (void) NODE;  // Suppress `unused variable` warnings
                           // in non-SAFE modes
             ASSERT_FAIL(Obj::printTreeStructure(0,
                                                 &NODE,
@@ -6090,43 +6135,43 @@ int main(int argc, char *argv[])
         // CLASS METHODS: rotateLeft, rotateRight
         //
         // Concerns:
-        //: 1 That 'rotateLeft' rotates a node's right child (the pivot) to
-        //:   be the node's parent, and attach the pivot's left child as the
-        //:   node's right child.
-        //:
-        //: 2 That 'rotateRight' the rotates the node's left child (the pivot)
-        //:   to be the node's parent, and attach the pivot's right child as
-        //:   the node's left child.
-        //:
-        //: 3 That neither 'rotateLeft' or 'rotateRight' modify any other than
-        //:   the rotated node, the pivot node, their children and respective
-        //:   parents.
-        //:
-        //: 4 Calling 'rotateLeft' and then 'rotateRight' on the same node
-        //:   leaves the tree to its initial state.  Similarly, calling
-        //:   'rotateRight' and then 'rotateLeft' on the same node leaves the
-        //:   tree in its initial state.
-        //:
-        //: 5 That neither 'rotateLeft' or 'rotateRight' modify the relative
-        //:   ordering of the tree in which the rotation occurs.
-        //:
-        //: 6 QoI: Asserted precondition violations are detected when
-        //:   enabled.
+        // 1. That `rotateLeft` rotates a node's right child (the pivot) to
+        //    be the node's parent, and attach the pivot's left child as the
+        //    node's right child.
+        //
+        // 2. That `rotateRight` the rotates the node's left child (the pivot)
+        //    to be the node's parent, and attach the pivot's right child as
+        //    the node's left child.
+        //
+        // 3. That neither `rotateLeft` or `rotateRight` modify any other than
+        //    the rotated node, the pivot node, their children and respective
+        //    parents.
+        //
+        // 4. Calling `rotateLeft` and then `rotateRight` on the same node
+        //    leaves the tree to its initial state.  Similarly, calling
+        //    `rotateRight` and then `rotateLeft` on the same node leaves the
+        //    tree in its initial state.
+        //
+        // 5. That neither `rotateLeft` or `rotateRight` modify the relative
+        //    ordering of the tree in which the rotation occurs.
+        //
+        // 6. QoI: Asserted precondition violations are detected when
+        //    enabled.
         //
         // Plan:
-        //: 1 Create a series of test trees with a selected rotation node, and
-        //:   an expected result for the rotation.  Verify a left-rotation
-        //:   generates the expected result, and that the tree is correctly
-        //:   ordered after the rotation.
-        //:
-        //: 2 Create a series of test trees with a selected rotation node, and
-        //:   an expected result for the rotation.  Verify a right-rotation
-        //:   generates the expected result, and that the tree is correctly
-        //:   ordered after the rotation.
-        //:
-        //: 3 Call 'rotateLeft' and 'rotateRight' with 0 for the rotation
-        //:   node, or 0 for the pivot node, verify that the correct
-        //:   assertions are invoked in the appropriate build mode.
+        // 1. Create a series of test trees with a selected rotation node, and
+        //    an expected result for the rotation.  Verify a left-rotation
+        //    generates the expected result, and that the tree is correctly
+        //    ordered after the rotation.
+        //
+        // 2. Create a series of test trees with a selected rotation node, and
+        //    an expected result for the rotation.  Verify a right-rotation
+        //    generates the expected result, and that the tree is correctly
+        //    ordered after the rotation.
+        //
+        // 3. Call `rotateLeft` and `rotateRight` with 0 for the rotation
+        //    node, or 0 for the pivot node, verify that the correct
+        //    assertions are invoked in the appropriate build mode.
         //
         // Testing:
         //    void rotateLeft(RbTreeNode *);
@@ -6143,13 +6188,13 @@ int main(int argc, char *argv[])
 
         {
             // Left Rotation
-            //..
+            // ```
             //     (node)              (pivot)
             //     /    \              /     \.
             //    a   (pivot)  --->  (node)   c
             //         /   \         /    \.
             //        b     c       a      b
-            //..
+            // ```
 
             struct TestTrees {
                 int         d_line;
@@ -6198,13 +6243,13 @@ int main(int argc, char *argv[])
             printf("\tVerify right-rotations.\n");
         {
             // Right Rotation
-            //..
+            // ```
             //       (node)            (pivot)
             //       /    \            /     \.
             //   (pivot)   c   --->   a     (node)
             //    /  \                      /    \.
             //   a    b                    b      c
-            //..
+            // ```
 
             struct TestTrees {
                 int         d_line;
@@ -6284,22 +6329,22 @@ int main(int argc, char *argv[])
         // CLASS METHODS: isLeftChild, isRightChild
         //
         // Concerns:
-        //:  1 That 'isLeftChild' returns 'true' if a node is the left-child
-        //:    of its parent, and 'false' if it is the right child.
-        //:
-        //:  2 That 'isRightChild' returns 'true' if a node is the right-child
-        //:    of its parent, and 'false' if it is the left child.
-        //:
-        //:  3 QoI: Asserted precondition violations are detected when
-        //:    enabled.
+        //  1. That `isLeftChild` returns `true` if a node is the left-child
+        //     of its parent, and `false` if it is the right child.
+        //
+        //  2. That `isRightChild` returns `true` if a node is the right-child
+        //     of its parent, and `false` if it is the left child.
+        //
+        //  3. QoI: Asserted precondition violations are detected when
+        //     enabled.
         //
         // Plan:
-        //:  1 Call 'isLeftChild' and 'isRightChild' on several configurations
-        //:    of three nodes. (C-1, C-2)
-        //:
-        //:  2 Call isLeftChild and isRightChild with a 0 node, and a node
-        //:    with a 0 parent, and verify that assertions are invoked in
-        //:    appropriate build modes. (C-3)
+        //  1. Call `isLeftChild` and `isRightChild` on several configurations
+        //     of three nodes. (C-1, C-2)
+        //
+        //  2. Call isLeftChild and isRightChild with a 0 node, and a node
+        //     with a 0 parent, and verify that assertions are invoked in
+        //     appropriate build modes. (C-3)
         //
         // Testing:
         //    bool isLeftChild(const RbTreeNode *);
@@ -6397,18 +6442,18 @@ int main(int argc, char *argv[])
         // CLASS METHODS: deleteTree
         //
         // Concerns:
-        //:  1 That 'deleteTree' does nothing on an empty tree.
-        //:
-        //:  2 That 'deleteTree' calls the factory provided 'deleteNode' on all
-        //:    the nodes of the supplied tree.
-        //:
-        //:  3 QoI: Asserted precondition violations are detected when
-        //:    enabled.
+        //  1. That `deleteTree` does nothing on an empty tree.
+        //
+        //  2. That `deleteTree` calls the factory provided `deleteNode` on all
+        //     the nodes of the supplied tree.
+        //
+        //  3. QoI: Asserted precondition violations are detected when
+        //     enabled.
         //
         // Plan:
-        //:  1 Create a series of test trees made of 'DeleteTestNode' objects
-        //:    and then call 'deleteTree' using a 'DeleteTestNodeFactory' and
-        //:    verify that all the nodes are marked as deleted.
+        //  1. Create a series of test trees made of `DeleteTestNode` objects
+        //     and then call `deleteTree` using a `DeleteTestNodeFactory` and
+        //     verify that all the nodes are marked as deleted.
         //
         // Testing:
         //    void deleteTree(RbTreeAnchor *, FACTORY *);
@@ -6626,25 +6671,25 @@ int main(int argc, char *argv[])
         // CLASS METHODS: previous
         //
         // Concerns:
-        //: 1 That 'previous' returns the previous node in an infix traversal
-        //:   of a binary tree.
-        //:
-        //: 2 That the right most node of the tree is returned if previous' is
-        //:   called on the tree's sentinel node.
-        //:
-        //: 3 That 'previous' is defined for both const and non-'const'
-        //:   'RbTreeNode' objects
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. That `previous` returns the previous node in an infix traversal
+        //    of a binary tree.
+        //
+        // 2. That the right most node of the tree is returned if previous' is
+        //    called on the tree's sentinel node.
+        //
+        // 3. That `previous` is defined for both const and non-`const`
+        //    `RbTreeNode` objects
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create a test table with describing the specification for
-        //:   various trees and call 'previous" on each node in each tree and
-        //:   verify the results. (C-1, C-2, C-3)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid input (using the 'BSLS_ASSERTTEST_*'
-        //:   macros). (C-3)
+        // 1. Create a test table with describing the specification for
+        //    various trees and call 'previous" on each node in each tree and
+        //    verify the results. (C-1, C-2, C-3)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid input (using the `BSLS_ASSERTTEST_*`
+        //    macros). (C-3)
         //
         // Testing:
         //   static const RbTreeNode *previous(const RbTreeNode *);
@@ -6753,25 +6798,25 @@ int main(int argc, char *argv[])
         // CLASS METHODS: next
         //
         // Concerns:
-        //: 1 That 'next' returns the next node in an infix traversal of a
-        //:   binary tree.
-        //:
-        //: 2 That the tree's sentinel node is returned if 'next' is called on
-        //:   the tree's 'rightmost' node.
-        //:
-        //: 3 That 'next' is defined for both const and non-'const'
-        //:   'RbTreeNode' objects
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. That `next` returns the next node in an infix traversal of a
+        //    binary tree.
+        //
+        // 2. That the tree's sentinel node is returned if `next` is called on
+        //    the tree's `rightmost` node.
+        //
+        // 3. That `next` is defined for both const and non-`const`
+        //    `RbTreeNode` objects
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create a test table with describing the specification for
-        //:   various trees and call 'next" on each node in each tree and
-        //:   verify the results. (C-1, C-2, C-3)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid input (using the 'BSLS_ASSERTTEST_*'
-        //:   macros). (C-3)
+        // 1. Create a test table with describing the specification for
+        //    various trees and call 'next" on each node in each tree and
+        //    verify the results. (C-1, C-2, C-3)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid input (using the `BSLS_ASSERTTEST_*`
+        //    macros). (C-3)
         //
         // Testing:
         //   static const RbTreeNode *next(const RbTreeNode *);
@@ -6878,22 +6923,22 @@ int main(int argc, char *argv[])
         // CLASS METHODS: leftmost, rightmost
         //
         // Concerns:
-        //: 1 That 'leftmost' returns the left-most node of a binary tree and
-        //:   'rightmost' returns the right-most node of a binary tree.
+        // 1. That `leftmost` returns the left-most node of a binary tree and
+        //    `rightmost` returns the right-most node of a binary tree.
         //
-        //: 2 That 'leftmost' and 'rightmost' methods are defined on both
-        //:   'const' and non-'const' 'RbTreeNode' objects
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 2. That `leftmost` and `rightmost` methods are defined on both
+        //    `const` and non-`const` `RbTreeNode` objects
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create a test table with describing the specification for
-        //:   various trees and call 'leftmost' and 'rightmost' on each and
-        //:   verify the results. (C-1, C-2)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid input (using the 'BSLS_ASSERTTEST_*'
-        //:   macros). (C-3)
+        // 1. Create a test table with describing the specification for
+        //    various trees and call `leftmost` and `rightmost` on each and
+        //    verify the results. (C-1, C-2)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid input (using the `BSLS_ASSERTTEST_*`
+        //    macros). (C-3)
         //
         // Testing:
         //   static const RbTreeNode *leftmost(const RbTreeNode *);
@@ -6994,7 +7039,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING GENERATOR FUNCTION 'gg'
+        // TESTING GENERATOR FUNCTION `gg`
         //
         // Concerns:
         //
@@ -7003,7 +7048,7 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING GENERATOR FUNCTION: 'gg'"
+        if (verbose) printf("\nTESTING GENERATOR FUNCTION: `gg`"
                             "\n================================\n");
 
         if (veryVerbose) printf("\tTest empty tree\n");
@@ -7129,43 +7174,43 @@ int main(int argc, char *argv[])
         // CLASS METHODS: RbTreeUtil_Validator::isWellFormedAnchor
         //
         // Concerns:
-        //: 1 That 'isWellFormedAnchor' returns 'false' if 'tree.rootNode()' is
-        //:   0, and 'tree.firstNode() != tree.sentinelNode'
-        //:
-        //: 2 That 'isWellFormedAnchor' returns 'false' if 'tree.rootNode' is
-        //:   not 0, and
-        //:   'tree.firstNode() != RbTreeUtil::leftmost(tree.rootNode())'
-        //:
-        //: 3 That 'isWellFormedAnchor' returns 'false' if 'tree.numNodes()'
-        //:   does not equal the number of nodes in the tree
-        //:
-        //: 4 That 'isWellFormedAnchor' returns 'false' if
-        //:   'tree.sentinel()->leftChild() != tree.rootNode()'
-        //:
-        //: 5 That 'isWellFormedAnchor' returns 'false' if 'tree.rootNode()'
-        //:    is not 0, and 'tree.rootNode()->parent != tree.sentinel()'.
-        //:
-        //: 6 That 'isWellFormedAnchor' returns 'false' if 'tree.rootNode()'
-        //:    is not 0, and 'tree.rootNode()->isBlack()' is 'false.
-        //:
-        //: 7 That 'isWellFormedAnchor' returns 'true' if none of the above
-        //:   criteria are violated.
+        // 1. That `isWellFormedAnchor` returns `false` if `tree.rootNode()` is
+        //    0, and `tree.firstNode() != tree.sentinelNode`
+        //
+        // 2. That `isWellFormedAnchor` returns `false` if `tree.rootNode` is
+        //    not 0, and
+        //    `tree.firstNode() != RbTreeUtil::leftmost(tree.rootNode())`
+        //
+        // 3. That `isWellFormedAnchor` returns `false` if `tree.numNodes()`
+        //    does not equal the number of nodes in the tree
+        //
+        // 4. That `isWellFormedAnchor` returns `false` if
+        //    `tree.sentinel()->leftChild() != tree.rootNode()`
+        //
+        // 5. That `isWellFormedAnchor` returns `false` if `tree.rootNode()`
+        //     is not 0, and `tree.rootNode()->parent != tree.sentinel()`.
+        //
+        // 6. That `isWellFormedAnchor` returns `false` if `tree.rootNode()`
+        //     is not 0, and `tree.rootNode()->isBlack()` is 'false.
+        //
+        // 7. That `isWellFormedAnchor` returns `true` if none of the above
+        //    criteria are violated.
         //
         // Plan:
-        //: 1 Create a valid empty tree, verify 'isWellFormedAnchor' returns
-        //:   'true, adjust various properties so that it violates each
-        //:   different rule independently, and verify 'isWellFormedAnchor'
-        //:   returns 'false'.
-        //:
-        //: 2 Create a 3 node tree, verify 'isWellFormedAnchor' returns
-        //:   'true, adjust various properties so that it violates each
-        //:   different rule independently, and verify 'isWellFormedAnchor'
-        //:   returns 'false'.
-        //:
-        //: 3 Create a larger tree, verify 'isWellFormedAnchor' returns
-        //:   'true, adjust various properties so that it violates each
-        //:   different rule independently, and verify 'isWellFormedAnchor'
-        //:   returns 'false'.
+        // 1. Create a valid empty tree, verify `isWellFormedAnchor` returns
+        //    'true, adjust various properties so that it violates each
+        //    different rule independently, and verify `isWellFormedAnchor`
+        //    returns `false`.
+        //
+        // 2. Create a 3 node tree, verify `isWellFormedAnchor` returns
+        //    'true, adjust various properties so that it violates each
+        //    different rule independently, and verify `isWellFormedAnchor`
+        //    returns `false`.
+        //
+        // 3. Create a larger tree, verify `isWellFormedAnchor` returns
+        //    'true, adjust various properties so that it violates each
+        //    different rule independently, and verify `isWellFormedAnchor`
+        //    returns `false`.
         //
         // Testing:
         //   static bool isWellFormedAnchor(const RbTreeAnchor& );
@@ -7182,24 +7227,24 @@ int main(int argc, char *argv[])
             RbTreeAnchor tree;
             ASSERT(true  == RbTreeUtil_Validator::isWellFormedAnchor(tree));
 
-            // 1 That 'isWellFormedAnchor' returns 'false' if
-            //   'tree.rootNode()' is 0, and
-            //   'tree.firstNode() != tree.sentinelNode'
+            // 1 That `isWellFormedAnchor` returns `false` if
+            //   `tree.rootNode()` is 0, and
+            //   `tree.firstNode() != tree.sentinelNode`
             ASSERT(true  == RbTreeUtil_Validator::isWellFormedAnchor(tree));
             tree.setFirstNode(&dummyNode);
             ASSERT(false == RbTreeUtil_Validator::isWellFormedAnchor(tree));
             tree.setFirstNode(tree.sentinel());
 
-            //  3 That 'isWellFormedAnchor' returns 'false' if
-            //    'tree.numNodes()' does not equal the number of nodes in the
+            //  3 That `isWellFormedAnchor` returns `false` if
+            //    `tree.numNodes()` does not equal the number of nodes in the
             //    tree
             ASSERT(true  == RbTreeUtil_Validator::isWellFormedAnchor(tree));
             tree.setNumNodes(1);
             ASSERT(false == RbTreeUtil_Validator::isWellFormedAnchor(tree));
             tree.setNumNodes(0);
 
-            //  4 That 'isWellFormedAnchor' returns 'false' if
-            //    'tree.sentinel()->leftChild() != tree.rootNode()'
+            //  4 That `isWellFormedAnchor` returns `false` if
+            //    `tree.sentinel()->leftChild() != tree.rootNode()`
             ASSERT(true  == RbTreeUtil_Validator::isWellFormedAnchor(tree));
             tree.sentinel()->setLeftChild(&dummyNode);
             ASSERT(false == RbTreeUtil_Validator::isWellFormedAnchor(tree));
@@ -7226,9 +7271,9 @@ int main(int argc, char *argv[])
 
             tree.reset(&nodeA, &nodeC, 3);
 
-            // 2 That 'isWellFormedAnchor' returns 'false' if 'tree.rootNode'
+            // 2 That `isWellFormedAnchor` returns `false` if `tree.rootNode`
             //   is not 0, and
-            //   'tree.firstNode() != RbTreeUtil::leftmost(tree.rootNode())'
+            //   `tree.firstNode() != RbTreeUtil::leftmost(tree.rootNode())`
             ASSERT(true  == RbTreeUtil_Validator::isWellFormedAnchor(tree));
             tree.setFirstNode(&dummyNode);
             ASSERT(false == RbTreeUtil_Validator::isWellFormedAnchor(tree));
@@ -7238,8 +7283,8 @@ int main(int argc, char *argv[])
             ASSERT(false == RbTreeUtil_Validator::isWellFormedAnchor(tree));
             tree.setFirstNode(&nodeC);
 
-            //  3 That 'isWellFormedAnchor' returns 'false' if
-            //  'tree.numNodes()' does not equal the number of nodes in the
+            //  3 That `isWellFormedAnchor` returns `false` if
+            //  `tree.numNodes()` does not equal the number of nodes in the
             //  tree
             ASSERT(true == RbTreeUtil_Validator::isWellFormedAnchor(tree));
             tree.setNumNodes(0);
@@ -7248,8 +7293,8 @@ int main(int argc, char *argv[])
             ASSERT(false == RbTreeUtil_Validator::isWellFormedAnchor(tree));
             tree.setNumNodes(3);
 
-            //  4 That 'isWellFormedAnchor' returns 'false' if
-            //    'tree.sentinel()->leftChild() != tree.rootNode()'
+            //  4 That `isWellFormedAnchor` returns `false` if
+            //    `tree.sentinel()->leftChild() != tree.rootNode()`
             ASSERT(true == RbTreeUtil_Validator::isWellFormedAnchor(tree));
             tree.sentinel()->setLeftChild(&dummyNode);
             ASSERT(false == RbTreeUtil_Validator::isWellFormedAnchor(tree));
@@ -7259,9 +7304,9 @@ int main(int argc, char *argv[])
             ASSERT(false == RbTreeUtil_Validator::isWellFormedAnchor(tree));
             tree.sentinel()->setLeftChild(&nodeA);
 
-            //  5 That 'isWellFormedAnchor' returns 'false' if
-            //  'tree.rootNode()' is not 0, and
-            // 'tree.rootNode()->parent != tree.sentinel()'.
+            //  5 That `isWellFormedAnchor` returns `false` if
+            //  `tree.rootNode()` is not 0, and
+            // `tree.rootNode()->parent != tree.sentinel()`.
             ASSERT(true  == RbTreeUtil_Validator::isWellFormedAnchor(tree));
             tree.rootNode()->setParent(0);
             ASSERT(false == RbTreeUtil_Validator::isWellFormedAnchor(tree));
@@ -7271,8 +7316,8 @@ int main(int argc, char *argv[])
             ASSERT(false == RbTreeUtil_Validator::isWellFormedAnchor(tree));
             tree.rootNode()->setParent(tree.sentinel());
 
-            // 6 That 'isWellFormedAnchor' returns 'false' if 'tree.rootNode()'
-            //   is not 0, and 'tree.rootNode()->isBlack()' is 'false.
+            // 6 That `isWellFormedAnchor` returns `false` if `tree.rootNode()`
+            //   is not 0, and `tree.rootNode()->isBlack()` is 'false.
             ASSERT(true  == RbTreeUtil_Validator::isWellFormedAnchor(tree));
             tree.rootNode()->makeRed();
             ASSERT(false == RbTreeUtil_Validator::isWellFormedAnchor(tree));
@@ -7323,9 +7368,9 @@ int main(int argc, char *argv[])
 
             ASSERT(true == Validator::isWellFormedAnchor(tree));
 
-            // 2 That 'isWellFormedAnchor' returns 'false' if 'tree.rootNode'
+            // 2 That `isWellFormedAnchor` returns `false` if `tree.rootNode`
             //   is not 0, and
-            //   'tree.firstNode() != RbTreeUtil::leftmost(tree.rootNode())'
+            //   `tree.firstNode() != RbTreeUtil::leftmost(tree.rootNode())`
             ASSERT(true == Validator::isWellFormedAnchor(tree));
             for (int i = 0; i < NUM_NODES; ++i) {
                 tree.setFirstNode(&nodes[i]);
@@ -7333,8 +7378,8 @@ int main(int argc, char *argv[])
             }
             tree.setFirstNode(&nodes[2]);
 
-            //  3 That 'isWellFormedAnchor' returns 'false' if
-            //  'tree.numNodes()' does not equal the number of nodes in the
+            //  3 That `isWellFormedAnchor` returns `false` if
+            //  `tree.numNodes()` does not equal the number of nodes in the
             //  tree
             ASSERT(true == Validator::isWellFormedAnchor(tree));
             for (int i = 0; i < NUM_NODES; ++i) {
@@ -7343,8 +7388,8 @@ int main(int argc, char *argv[])
             }
             tree.setNumNodes(NUM_NODES);
 
-            //  4 That 'isWellFormedAnchor' returns 'false' if
-            //    'tree.sentinel()->leftChild() != tree.rootNode()'
+            //  4 That `isWellFormedAnchor` returns `false` if
+            //    `tree.sentinel()->leftChild() != tree.rootNode()`
             ASSERT(true == Validator::isWellFormedAnchor(tree));
             for (int i = 0; i < NUM_NODES; ++i) {
                 tree.sentinel()->setLeftChild(&nodes[i]);
@@ -7352,9 +7397,9 @@ int main(int argc, char *argv[])
             }
             tree.sentinel()->setLeftChild(&nodes[0]);
 
-            //  5 That 'isWellFormedAnchor' returns 'false' if
-            //  'tree.rootNode()' is not 0, and
-            // 'tree.rootNode()->parent != tree.sentinel()'.
+            //  5 That `isWellFormedAnchor` returns `false` if
+            //  `tree.rootNode()` is not 0, and
+            // `tree.rootNode()->parent != tree.sentinel()`.
             ASSERT(true == Validator::isWellFormedAnchor(tree));
             for (int i = 0; i < NUM_NODES; ++i) {
                 tree.rootNode()->setParent(&nodes[i]);
@@ -7364,8 +7409,8 @@ int main(int argc, char *argv[])
             ASSERT(true == Validator::isWellFormedAnchor(tree));
 
 
-            // 6 That 'isWellFormedAnchor' returns 'false' if 'tree.rootNode()'
-            //   is not 0, and 'tree.rootNode()->isBlack()' is 'false.
+            // 6 That `isWellFormedAnchor` returns `false` if `tree.rootNode()`
+            //   is not 0, and `tree.rootNode()->isBlack()` is 'false.
             ASSERT(true  == RbTreeUtil_Validator::isWellFormedAnchor(tree));
             tree.rootNode()->makeRed();
             ASSERT(false == RbTreeUtil_Validator::isWellFormedAnchor(tree));
@@ -7425,8 +7470,8 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 printf("\tvalidateRbTree\n");
             }
-    //..
-    // {N : [R|B]} - N indicates the index of the node in 'nodes'
+    // ```
+    // {N : [R|B]} - N indicates the index of the node in `nodes`
     //             - [R|B] indicates whether the node is Red or Black
     //
     //                          20{0:B}
@@ -7437,12 +7482,12 @@ int main(int argc, char *argv[])
     //                5{2:B}  15{4:B} 25{6:B}  35{8:B}
     //                /                \.
     //               1{3:R}            27{7:R}
-    //..
+    // ```
 
             RbTreeAnchor tree;
             createBreathingTestTree(&tree);
 
-            // 'createBreathingTestTree' returns a contiguous sequences of 9
+            // `createBreathingTestTree` returns a contiguous sequences of 9
             // nodes.
             IntNode *nodes = (IntNode *)tree.rootNode();
 
@@ -7497,8 +7542,8 @@ int main(int argc, char *argv[])
                 printf("\tisWellFormed\n");
             }
 
-    //..
-    // {N : [R|B]} - N indicates the index of the node in 'nodes'
+    // ```
+    // {N : [R|B]} - N indicates the index of the node in `nodes`
     //             - [R|B] indicates whether the node is Red or Black
     //
     //                          20{0:B}
@@ -7509,7 +7554,7 @@ int main(int argc, char *argv[])
     //                5{2:B}  15{4:B} 25{6:B}  35{8:B}
     //                /                \.
     //               1{3:R}            27{7:R}
-    //..
+    // ```
             IntNodeComparator comp;
             RbTreeAnchor      tree;
             ASSERT(Obj::isWellFormed(tree, comp));
@@ -7521,8 +7566,8 @@ int main(int argc, char *argv[])
 
             // Rule 1: The root node refers to a valid red-black tree.
             {
-                // Modify 'tree' so its not a valid red-black tree.  Note
-                // that we've already verified 'validateRbTree'.
+                // Modify `tree` so its not a valid red-black tree.  Note
+                // that we've already verified `validateRbTree`.
 
                 nodes[4].setColor(RED);
                 ASSERT(!Obj::isWellFormed(tree, comp));
@@ -7588,8 +7633,8 @@ int main(int argc, char *argv[])
             if (veryVeryVerbose) {
                 printIntTree(tree);
             }
-    //..
-    // {N : [R|B]} - N indicates the index of the node in 'nodes'
+    // ```
+    // {N : [R|B]} - N indicates the index of the node in `nodes`
     //             - [R|B] indicates whether the node is Red or Black
     //
     //                          20{0:B}
@@ -7600,7 +7645,7 @@ int main(int argc, char *argv[])
     //                5{2:B}  15{4:B} 25{6:B}  35{8:B}
     //                /                \.
     //               1{3:R}            27{7:R}
-    //..
+    // ```
             struct {
                int d_line;
                int d_index;
@@ -7652,8 +7697,8 @@ int main(int argc, char *argv[])
         {
             RbTreeAnchor tree;
             createBreathingTestTree(&tree);
-    //..
-    // {N : [R|B]} - N indicates the index of the node in 'nodes'
+    // ```
+    // {N : [R|B]} - N indicates the index of the node in `nodes`
     //             - [R|B] indicates whether the node is Red or Black
     //
     //                          20{0:B}
@@ -7664,7 +7709,7 @@ int main(int argc, char *argv[])
     //                5{2:B}  15{4:B} 25{6:B}  35{8:B}
     //                /                \.
     //               1{3:R}            27{7:R}
-    //..
+    // ```
 
             struct {
                int d_line;
@@ -7840,7 +7885,7 @@ int main(int argc, char *argv[])
             RbTreeAnchor           tree;
             IntNode                nodes[NUM_VALUES];
 
-            // Insert odd values, up to '2 * NUM_VALUES + 1' into a tree.
+            // Insert odd values, up to `2 * NUM_VALUES + 1` into a tree.
             for (int i = 0; i < NUM_VALUES; ++i) {
                 nodes[i].value() = 2 * i + 1;
                 Obj::insert(&tree, nodeComparator, &nodes[i]);
@@ -7851,7 +7896,7 @@ int main(int argc, char *argv[])
                 printIntTree(tree);
             }
 
-            // Test, using reasonable valid hints & 'upperBound'
+            // Test, using reasonable valid hints & `upperBound`
             for (int i = 0; i < 2 * NUM_VALUES; ++i ) {
                 const int VALUE = i;
                 bool left;
@@ -7873,7 +7918,7 @@ int main(int argc, char *argv[])
                 ASSERTV(VALUE, prevVal <= VALUE);
                 ASSERTV(VALUE, nextVal > VALUE);
             }
-            // Test, using reasonable valid hints & 'lowerBound'
+            // Test, using reasonable valid hints & `lowerBound`
             for (int i = 0; i < 2 * NUM_VALUES; ++i ) {
                 const int VALUE = i;
                 bool left;
@@ -7937,7 +7982,7 @@ int main(int argc, char *argv[])
             RbTreeAnchor           tree;
             IntNode                nodes[NUM_VALUES];
 
-            // Insert odd values, up to '2 * NUM_VALUES + 1' into a tree.
+            // Insert odd values, up to `2 * NUM_VALUES + 1` into a tree.
             for (int i = 0; i < NUM_VALUES; ++i) {
                 nodes[i].value() = 2 * i + 1;
                 Obj::insert(&tree, nodeComparator, &nodes[i]);
@@ -8324,9 +8369,9 @@ int main(int argc, char *argv[])
         // Tree Generator:
         //
         //   The test-case code below can be used to generate tree
-        //   specifications that are accepted by the 'gg' generator function,
+        //   specifications that are accepted by the `gg` generator function,
         //   and was used to create several of the random trees in
-        //   'TREE_VALUES'
+        //   `TREE_VALUES`
         // --------------------------------------------------------------------
           IntNodeComparator nodeComparator;
           if (veryVerbose)

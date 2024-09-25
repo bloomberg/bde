@@ -38,9 +38,9 @@
 #include <bsls_review.h>
 #include <bsls_types.h>
 
-#include <bsl_cstddef.h>  // 'bsl::size_t'
+#include <bsl_cstddef.h>  // `bsl::size_t`
 #include <bsl_cstdlib.h>
-#include <bsl_cstring.h>  // 'bsl::strlen', 'bsl::strcmp'
+#include <bsl_cstring.h>  // `bsl::strlen`, `bsl::strcmp`
 #include <bsl_ios.h>
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>
@@ -59,10 +59,10 @@ using bsl::ends;
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// The component under test implements a utility for reading and writing 'Json'
+// The component under test implements a utility for reading and writing `Json`
 // objects from/to various stream or string-like sources or destinations.
 // Since the functions are independent and do not share any state we will test
-// them independently.  There is one "main" overload each of 'read' and 'write'
+// them independently.  There is one "main" overload each of `read` and `write`
 // - these will be tested fully, and then the "delegating" overloads will be
 // tested to make sure the arguments are forwarded and/or defaulted correctly.
 //
@@ -208,9 +208,9 @@ bool veryVerbose;
 bool veryVeryVerbose;
 bool veryVeryVeryVerbose;
 
+/// Return `true` if the specified `lhs` and `rhs` compare equal, and print
+/// diagnostics detailing the difference and return `false` otherwise.
 bool areEqual(const bsl::string_view& lhs, const bsl::string_view& rhs)
-    // Return 'true' if the specified 'lhs' and 'rhs' compare equal, and print
-    // diagnostics detailing the difference and return 'false' otherwise.
 {
     if (lhs == rhs) {
         return true;                                                  // RETURN
@@ -225,7 +225,7 @@ bool areEqual(const bsl::string_view& lhs, const bsl::string_view& rhs)
             if (*lhsIt != *rhsIt) {
                 bsl::cout << "Strings differ at position "
                           << int(&*lhsIt - lhs.data()) << " lhs='" << *lhsIt
-                          << "' rhs='" << *rhsIt << "\n";
+                          << "` rhs=`" << *rhsIt << "\n";
                 break;
             }
         }
@@ -236,10 +236,10 @@ bool areEqual(const bsl::string_view& lhs, const bsl::string_view& rhs)
     return false;
 }
 
+/// Add to the specified `object` a member with the specified `name` and a
+/// value consisting of an empty `JsonObject`, and return a pointer to the
+/// newly added `JsonObject`.
 JsonObject *addMemberObject(JsonObject *object, const bsl::string_view& name)
-    // Add to the specified 'object' a member with the specified 'name' and a
-    // value consisting of an empty 'JsonObject', and return a pointer to the
-    // newly added 'JsonObject'.
 {
     ASSERT(0 != object);
 
@@ -253,9 +253,9 @@ JsonObject *addMemberObject(JsonObject *object, const bsl::string_view& name)
     return &newObject;
 }
 
+/// Append to the specified `array` a value consisting of an empty
+/// `JsonObject`, and return a pointer to the newly added `JsonObject`.
 JsonObject *appendMemberObject(JsonArray *array)
-    // Append to the specified 'array' a value consisting of an empty
-    // 'JsonObject', and return a pointer to the newly added 'JsonObject'.
 {
     ASSERT(0 != array);
 
@@ -266,10 +266,10 @@ JsonObject *appendMemberObject(JsonArray *array)
     return &newObject;
 }
 
+/// Add to the specified `object` a member with the specified `name` and a
+/// value consisting of an empty `JsonArray`, and return a pointer to the
+/// newly added `JsonArray`.
 JsonArray *addMemberArray(JsonObject *object, const bsl::string_view& name)
-    // Add to the specified 'object' a member with the specified 'name' and a
-    // value consisting of an empty 'JsonArray', and return a pointer to the
-    // newly added 'JsonArray'.
 {
     ASSERT(0 != object);
 
@@ -283,9 +283,9 @@ JsonArray *addMemberArray(JsonObject *object, const bsl::string_view& name)
     return &newArray;
 }
 
+/// Append to the specified `array` a value consisting of an empty
+/// `JsonArray`, and return a pointer to the newly added `JsonArray`.
 JsonArray *appendMemberArray(JsonArray *array)
-    // Append to the specified 'array' a value consisting of an empty
-    // 'JsonArray', and return a pointer to the newly added 'JsonArray'.
 {
     ASSERT(0 != array);
 
@@ -296,9 +296,9 @@ JsonArray *appendMemberArray(JsonArray *array)
     return &newArray;
 }
 
+/// Append to the specified `array` a `JsonNull` value, and return a pointer
+/// to `array`.
 JsonArray *appendNull(JsonArray *array)
-    // Append to the specified 'array' a 'JsonNull' value, and return a pointer
-    // to 'array'.
 {
     ASSERT(0 != array);
 
@@ -309,9 +309,9 @@ JsonArray *appendNull(JsonArray *array)
     return array;
 }
 
+/// Append to the specified `object` a `JsonNull` value with the specified
+/// `name`, and return a pointer to `object`.
 JsonObject *appendNull(JsonObject *object, const bsl::string_view& name)
-    // Append to the specified 'object' a 'JsonNull' value with the specified
-    // 'name', and return a pointer to 'object'.
 {
     ASSERT(0 != object);
 
@@ -325,9 +325,9 @@ JsonObject *appendNull(JsonObject *object, const bsl::string_view& name)
     return object;
 }
 
+/// Append to the specified `array` the specified boolean `value`, and
+/// return a pointer to `array`.
 JsonArray *appendBoolean(JsonArray *array, bool value)
-    // Append to the specified 'array' the specified boolean 'value', and
-    // return a pointer to 'array'.
 {
     ASSERT(0 != array);
 
@@ -338,11 +338,11 @@ JsonArray *appendBoolean(JsonArray *array, bool value)
     return array;
 }
 
+/// Append to the specified `object` a the specified boolean `value` with
+/// the specified `name`, and return a pointer to `object`.
 JsonObject *appendBoolean(JsonObject              *object,
                           const bsl::string_view&  name,
                           bool                     value)
-    // Append to the specified 'object' a the specified boolean 'value' with
-    // the specified 'name', and return a pointer to 'object'.
 {
     ASSERT(0 != object);
 
@@ -356,9 +356,9 @@ JsonObject *appendBoolean(JsonObject              *object,
     return object;
 }
 
+/// Append to the specified `array` the specified numerical `value`, and
+/// return a pointer to `array`.
 JsonArray *appendNumber(JsonArray *array, const bsl::string_view& value)
-    // Append to the specified 'array' the specified numerical 'value', and
-    // return a pointer to 'array'.
 {
     ASSERT(0 != array);
 
@@ -369,11 +369,11 @@ JsonArray *appendNumber(JsonArray *array, const bsl::string_view& value)
     return array;
 }
 
+/// Append to the specified `object` a the specified numerical `value` with
+/// the specified `name`, and return a pointer to `object`.
 JsonObject *appendNumber(JsonObject              *object,
                          const bsl::string_view&  name,
                          const bsl::string_view&  value)
-    // Append to the specified 'object' a the specified numerical 'value' with
-    // the specified 'name', and return a pointer to 'object'.
 {
     ASSERT(0 != object);
 
@@ -387,9 +387,9 @@ JsonObject *appendNumber(JsonObject              *object,
     return object;
 }
 
+/// Append to the specified `array` the specified string `value`, and
+/// return a pointer to `array`.
 JsonArray *appendString(JsonArray *array, const bsl::string_view& value)
-    // Append to the specified 'array' the specified string 'value', and
-    // return a pointer to 'array'.
 {
     ASSERT(0 != array);
 
@@ -400,11 +400,11 @@ JsonArray *appendString(JsonArray *array, const bsl::string_view& value)
     return array;
 }
 
+/// Append to the specified `object` a the specified string `value` with the
+/// specified `name`, and return a pointer to `object`.
 JsonObject *appendString(JsonObject              *object,
                          const bsl::string_view&  name,
                          const bsl::string_view&  value)
-    // Append to the specified 'object' a the specified string 'value' with the
-    // specified 'name', and return a pointer to 'object'.
 {
     ASSERT(0 != object);
 
@@ -418,14 +418,14 @@ JsonObject *appendString(JsonObject              *object,
     return object;
 }
 
+/// Using the specified `line` to annotate messages, check that a `Json`
+/// `read` from the specified `string` matches the specified `value` if the
+/// specified `isValid` is `true`, and that `read` returns a non-0 result
+/// otherwise with all correct error-handling behavior.
 void checkResult(int                     line,
                  const bsl::string_view& string,
                  const Json&             value,
                  bool                    isValid)
-    // Using the specified 'line' to annotate messages, check that a 'Json'
-    // 'read' from the specified 'string' matches the specified 'value' if the
-    // specified 'isValid' is 'true', and that 'read' returns a non-0 result
-    // otherwise with all correct error-handling behavior.
 {
     if (veryVerbose) {
         T_ P_(line) P_(string) P_(value) P(isValid)
@@ -442,30 +442,30 @@ void checkResult(int                     line,
     if (0 == rc) {
         // Verify that success was expected.
         ASSERTV(line, string, isValid, isValid);
-        // Verify that 'json.isArray()' matches 'value.isArray()'
+        // Verify that `json.isArray()` matches `value.isArray()`
         ASSERTV(line,
                 json.isArray(),
                 value.isArray(),
                 value.isArray() == json.isArray());
-        // Verify that 'json.isObject()' matches 'value.isObject()'
+        // Verify that `json.isObject()` matches `value.isObject()`
         ASSERTV(line,
                 json.isObject(),
                 value.isObject(),
                 value.isObject() == json.isObject());
-        // Verify that 'err.location()' is unset.
+        // Verify that `err.location()` is unset.
         ASSERTV(line,
                 string,
                 rc,
                 err.location(),
                 Location(0) == err.location());
-        // Verify that 'err.message()' is unset.
+        // Verify that `err.message()` is unset.
         ASSERTV(line,
                 string,
                 rc,
                 err.message(),
                 err.message().length(),
                 0 == err.message().length());
-        // Verify that 'json' returns the expected 'value'.
+        // Verify that `json` returns the expected `value`.
         ASSERTV(line,
                 string,
                 value,
@@ -475,15 +475,15 @@ void checkResult(int                     line,
     else {
         // Verify that failure was expected.
         ASSERTV(line, string, isValid, !isValid);
-        // Verify that 'json' is unchanged on failure.
+        // Verify that `json` is unchanged on failure.
         ASSERTV(line, string, rc, true == json.isNull());
-        // Verify that 'err.location()' is set.
+        // Verify that `err.location()` is set.
         ASSERTV(line,
                 string,
                 rc,
                 err.location(),
                 Location(0) != err.location());
-        // Verify that 'err.message()' is set.
+        // Verify that `err.message()` is set.
         ASSERTV(line,
                 string,
                 rc,
@@ -498,7 +498,7 @@ void checkResult(int                     line,
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The following function, 'LLVMFuzzerTestOneInput', is the entry point for the
+// The following function, `LLVMFuzzerTestOneInput`, is the entry point for the
 // clang fuzz testing facility.  See {http://bburl/BDEFuzzTesting} for details
 // on how to build and run with fuzz testing enabled.
 // ----------------------------------------------------------------------------
@@ -508,9 +508,9 @@ void checkResult(int                     line,
 #endif
 
 extern "C"
+/// Use the specified `data` array of `size` bytes as input to methods of
+/// this component and return zero.
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
-    // Use the specified 'data' array of 'size' bytes as input to methods of
-    // this component and return zero.
 {
     const int test = 3;
 
@@ -520,7 +520,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
         bslim::FuzzDataView fdv(data, size);
 
-        // 'INT_MAX' saw stack overflow at 245 recursions of '[' on a Linux
+        // `INT_MAX` saw stack overflow at 245 recursions of '[' on a Linux
         // machine.  Now set to a saner, but still generous, value.
 
         const int FUZZ_MAX_NESTED_DEPTH = 200;
@@ -570,19 +570,19 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 }
 
 // ===========================================================================
-//                      JSON TEST SUITE FOR 'bdljsn'
+//                      JSON TEST SUITE FOR `bdljsn`
 // ---------------------------------------------------------------------------
-// The expected values assigned for the 'i_' cases correspond to
-// 'bdljsn_jsonutil', an implementation that uses a 'bdljsn::Tokenizer' in
+// The expected values assigned for the `i_` cases correspond to
+// `bdljsn_jsonutil`, an implementation that uses a `bdljsn::Tokenizer` in
 // "strict' conformance mode.
-//..
+// ```
 //  +-----------------------------+-------+-----------------+
-//  | 'i_' Categories             | Count | Expected result |
+//  | `i_` Categories             | Count | Expected result |
 //  +-----------------------------+-------+-----------------+
 //  | Tests of numeric limits     |    10 | All accepted    |
 //  | Tests of encoding tolerance |    25 | All rejected    |
 //  +-----------------------------+-------+-----------------+
-//..
+// ```
 
 typedef bdljsn::JsonTestSuiteUtil JTSU;
 
@@ -641,10 +641,10 @@ static  bsl::size_t NUM_JSON_TEST_SUITE_FOR_BDLJSN
                                           = sizeof  JSON_TEST_SUITE_FOR_BDLJSN
                                           / sizeof *JSON_TEST_SUITE_FOR_BDLJSN;
 
+/// Return the result expected from `bdljsn::JsonUtil` for the *JSON* *Test*
+/// *Suite* data point having the specified `testName`, or 0 if `testName`
+/// is unknown.
 static JtsuforBdljsnDatum *findBdljsnDatum(const char *testName)
-    // Return the result expected from 'bdljsn::JsonUtil' for the *JSON* *Test*
-    // *Suite* data point having the specified 'testName', or 0 if 'testName'
-    // is unknown.
 {
     for (JtsuforBdljsnDatum *itr  =     JSON_TEST_SUITE_FOR_BDLJSN,
                             *end  =     JSON_TEST_SUITE_FOR_BDLJSN
@@ -676,7 +676,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -691,13 +691,13 @@ int main(int argc, char *argv[])
         //   First usage example extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -712,10 +712,10 @@ int main(int argc, char *argv[])
 ///Example 1: Reading and Writing JSON Data
 /// - - - - - - - - - - - - - - - - - - - -
 // This component provides methods for reading and writing JSON data to/from
-// 'Json' objects.
+// `Json` objects.
 //
 // First, we define the JSON data we plan to read:
-//..
+// ```
     const char *INPUT_JSON =
     "{\n"
     "  \"a boolean\": true,\n"
@@ -740,9 +740,9 @@ int main(int argc, char *argv[])
     "    \"success\": true\n"
     "  }\n"
     "}";
-//..
-// Next, we read the JSON data into a 'Json' object:
-//..
+// ```
+// Next, we read the JSON data into a `Json` object:
+// ```
     bdljsn::Json        result;
     bdljsn::Error       error;
 
@@ -755,19 +755,19 @@ int main(int argc, char *argv[])
                   << bsl::endl;
     }
 
-//..
+// ```
 // Then, we check the values of a few selected fields:
-//..
+// ```
     ASSERT(result.type() == JsonType::e_OBJECT);
     ASSERT(result["array of values"][2].theNumber().asDouble()
            == 2.718281828459045);
     ASSERT(result["event"]["date"].theString() == "1969-07-16");
     ASSERT(result["event"]["passengers"][1].theString() == "Buzz Aldrin");
-//..
-// Finally, we'll 'write' the 'result' back into another string and make sure
-// we got the same value back, by using the correct 'WriteOptions' to match
+// ```
+// Finally, we'll `write` the `result` back into another string and make sure
+// we got the same value back, by using the correct `WriteOptions` to match
 // the input format:
-//..
+// ```
     bsl::string resultString;
 
     // Set the WriteOptions to match the initial style:
@@ -780,21 +780,21 @@ int main(int argc, char *argv[])
     bdljsn::JsonUtil::write(&resultString, result, writeOptions);
 
     ASSERT(resultString == INPUT_JSON);
-//..
+// ```
         }
         if (verbose)
             cout << "Testing usage example 2" << endl;
         {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
 
-///Example 2: The Effect of 'options' on 'write'
+///Example 2: The Effect of `options` on `write`
 ///- - - - - - - - - - - - - - - - - - - - - - -
-// By populating a 'WriteOptions' object and passing it to 'write', the format
+// By populating a `WriteOptions` object and passing it to `write`, the format
 // of the resulting JSON can be controlled.
 //
-// First, let's populate a 'Json' object named 'json' from an input string
-// using 'read', and create an empty 'options' (see 'bdljsn::WriteOptions'):
-//..
+// First, let's populate a `Json` object named `json` from an input string
+// using `read`, and create an empty `options` (see `bdljsn::WriteOptions`):
+// ```
 //  const bsl::string JSON = R"JSON(
 //        {
 //          "a" : 1,
@@ -803,7 +803,7 @@ int main(int argc, char *argv[])
 //      )JSON";
 
     const bsl::string JSON =
-      "{"            "\n" 
+      "{"            "\n"
       "  \"a\" : 1," "\n"
       "  \"b\" : []" "\n"
       "}"            "\n" ;
@@ -814,33 +814,33 @@ int main(int argc, char *argv[])
     int rc = bdljsn::JsonUtil::read(&json, JSON);
 
     ASSERT(0 == rc);
-//..
+// ```
 // There are 4 options, which can be broken down into 2 unrelated sets.
 //
-// The first set consists of the 'sortMembers' option, which controls whether
+// The first set consists of the `sortMembers` option, which controls whether
 // members of objects are printed in lexicogaphical order.
 //
-// The second set consists of the 'style', 'initialIndentLevel', and
-// 'spacesPerLevel' options - 'style' controls which format is used to render a
-// 'Json', and, if 'bdljsn::WriteStyle::e_PRETTY == options.style()', the
-// 'spacesPerLevel' and 'initialIndentLevel' options are used to control the
-// indentation of the output.  For any other value of 'options.style()', the
-// 'spacesPerLevel' and 'initialIndentLevel' options have no effect.
+// The second set consists of the `style`, `initialIndentLevel`, and
+// `spacesPerLevel` options - `style` controls which format is used to render a
+// `Json`, and, if `bdljsn::WriteStyle::e_PRETTY == options.style()`, the
+// `spacesPerLevel` and `initialIndentLevel` options are used to control the
+// indentation of the output.  For any other value of `options.style()`, the
+// `spacesPerLevel` and `initialIndentLevel` options have no effect.
 //
-///'sortMembers'
+///`sortMembers`
 ///-  -  -  -  -
-// If 'sortMembers' is true, then the members of an object output by 'write'
+// If `sortMembers` is true, then the members of an object output by `write`
 // will be in sorted order.  Otherwise, the elements are written in an
 // (implementation defined) order (that may change).
 //
-// The 'sortMembers' option defaults to 'false' for performance reasons, but
-// applications that rely on stable output text should set 'sortMembers' to
-// 'true' (e.g., in a test where the resulting JSON text is compared for
+// The `sortMembers` option defaults to `false` for performance reasons, but
+// applications that rely on stable output text should set `sortMembers` to
+// `true` (e.g., in a test where the resulting JSON text is compared for
 // equality) .
 //
-// Here, we set 'sortMembers' to 'true', and verify the resulting JSON text
+// Here, we set `sortMembers` to `true`, and verify the resulting JSON text
 // matches the expected text:
-//..
+// ```
     options.setSortMembers(true);
     bsl::string output;
 
@@ -848,55 +848,55 @@ int main(int argc, char *argv[])
 
     ASSERT(0 == rc);
     ASSERT(R"JSON({"a":1,"b":[]})JSON" == output);
-//..
-// Had we not specified 'setSortMembers(true)', the order of the "a" and "b"
-// members in the 'output' string would be unpredictable.
+// ```
+// Had we not specified `setSortMembers(true)`, the order of the "a" and "b"
+// members in the `output` string would be unpredictable.
 //
-///'style' And 'style'-related options
+///`style` And `style`-related options
 /// -  -  -  -  -  -  -  -  -  -  -  -
-// There are 3 options for 'style' (see 'bdljsn::WriteStyle'):
-//: o bdljsn::WriteStyle::e_COMPACT
-//: o bdljsn::WriteStyle::e_ONELINE
-//: o bdljsn::WriteStyle::e_PRETTY
+// There are 3 options for `style` (see `bdljsn::WriteStyle`):
+//  - bdljsn::WriteStyle::e_COMPACT
+//  - bdljsn::WriteStyle::e_ONELINE
+//  - bdljsn::WriteStyle::e_PRETTY
 //
-// Next, we write 'json' using the style 'e_COMPACT' (the default), a single
+// Next, we write `json` using the style `e_COMPACT` (the default), a single
 // line presentation with no added spaces after ':' and ',' elements.
-//..
+// ```
     rc = bdljsn::JsonUtil::write(&output, json, options);
 
     ASSERT(0 == rc);
 
-    // Using 'e_COMPACT' style:
+    // Using `e_COMPACT` style:
     ASSERT(R"JSON({"a":1,"b":[]})JSON" == output);
-//..
-// Next, we write 'json' using the 'e_ONELINE' style, another single line
+// ```
+// Next, we write `json` using the `e_ONELINE` style, another single line
 // format, which adds single ' ' characters after ':' and ',' elements for
 // readability.
-//..
+// ```
     options.setStyle(bdljsn::WriteStyle::e_ONELINE);
     rc = bdljsn::JsonUtil::write(&output, json, options);
 
     ASSERT(0 == rc);
 
-    // Using 'e_ONELINE' style:
+    // Using `e_ONELINE` style:
     ASSERT(R"JSON({"a": 1, "b": []})JSON" == output);
-//..
-// Next, we write 'json' using the 'e_PRETTY' style, a multiline format where
+// ```
+// Next, we write `json` using the `e_PRETTY` style, a multiline format where
 // newlines are introduced after each (non-terminal) '{', '[', ',', ']', and
 // '}' character.  Furthermore, the indentation of JSON rendered in the
-// 'e_PRETTY' style is controlled by the other 2 attributes, 'spacesPerLevel'
-// and 'initialIndentLevel'.
+// `e_PRETTY` style is controlled by the other 2 attributes, `spacesPerLevel`
+// and `initialIndentLevel`.
 //
-// 'e_PRETTY' styling does not add a newline to the end of the output.
+// `e_PRETTY` styling does not add a newline to the end of the output.
 //
-// 'spacesPerLevel' controls the number of spaces added for each successive
-// indentation level - e.g., if 'spacesPerLevel' is 2, then each nesting level
+// `spacesPerLevel` controls the number of spaces added for each successive
+// indentation level - e.g., if `spacesPerLevel` is 2, then each nesting level
 // of the rendered JSON is indented 2 spaces.
 //
-// 'initialIndentLevel' controls how much the entire JSON output is indented.
+// `initialIndentLevel` controls how much the entire JSON output is indented.
 // It defaults to 0 - if it's a positive value, then the entire JSON is
-// indented by 'initialIndentLevel * spacesPerLevel' spaces.
-//..
+// indented by `initialIndentLevel * spacesPerLevel` spaces.
+// ```
     options.setStyle(bdljsn::WriteStyle::e_PRETTY);
     options.setSpacesPerLevel(4);     // the default
     options.setInitialIndentLevel(0); // the default
@@ -905,7 +905,7 @@ int main(int argc, char *argv[])
 
     ASSERT(0 == rc);
 
-    // Using 'e_PRETTY' style:
+    // Using `e_PRETTY` style:
 //        ASSERT(
 //     R"JSON({
 //        "a": 1,
@@ -916,17 +916,17 @@ int main(int argc, char *argv[])
         "    \"a\": 1," "\n"
         "    \"b\": []" "\n"
         "}" == output);
-//..
-// Finally, if we set 'initialIndentLevel' to 1, then an extra set of 4 spaces
-// is prepended to each line, where 4 is the value of 'spacesPerLevel':
-//..
+// ```
+// Finally, if we set `initialIndentLevel` to 1, then an extra set of 4 spaces
+// is prepended to each line, where 4 is the value of `spacesPerLevel`:
+// ```
     options.setInitialIndentLevel(1);
 
     rc = bdljsn::JsonUtil::write(&output, json, options);
 
     ASSERT(0 == rc);
 
-    // Using 'e_PRETTY' style (with 'initialIndentLevel' as 1):
+    // Using `e_PRETTY` style (with `initialIndentLevel` as 1):
 //  ASSERT(
 //  R"JSON(    {
 //          "a": 1,
@@ -937,7 +937,7 @@ int main(int argc, char *argv[])
         "        \"a\": 1," "\n"
         "        \"b\": []" "\n"
         "    }" == output);
-//..
+// ```
 #endif //  BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
         }
       } break;
@@ -946,21 +946,21 @@ int main(int argc, char *argv[])
         // TESTING JSON TEST SUITE COMPLIANCE
         //
         // Concerns:
-        //: 1 The 'read' function of this utility produces the results expected
-        //:   by the widely used "Json Test Suite" published at:
-        //:   https://github.com/nst/JSONTestSuite/tree/master
+        // 1. The `read` function of this utility produces the results expected
+        //    by the widely used "Json Test Suite" published at:
+        //    https://github.com/nst/JSONTestSuite/tree/master
         //
         // Plan:
-        //: 1 Use the JSON conformance test points provided by
-        //:   'bdljsn_jsontestsuiteutil'.
-        //:
-        //: 2 For each member of the table, create an input string view from
-        //:   the 'd_JSON_p' and 'd_length' members and pass that string view
-        //:   to the 'read' function of the utility under test.
-        //:
-        //: 3 Confirm that the returned value (0 or non-zero) and
-        //:   'errorMessage' (empty or not) match the expectations of the
-        //:   'd_isValid' member.
+        // 1. Use the JSON conformance test points provided by
+        //    `bdljsn_jsontestsuiteutil`.
+        //
+        // 2. For each member of the table, create an input string view from
+        //    the `d_JSON_p` and `d_length` members and pass that string view
+        //    to the `read` function of the utility under test.
+        //
+        // 3. Confirm that the returned value (0 or non-zero) and
+        //    `errorMessage` (empty or not) match the expectations of the
+        //    `d_isValid` member.
         //
         // Testing:
         //   CONCERN: JSON TEST SUITE COMPLIANCE
@@ -1023,27 +1023,27 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // PRINTERROR TESTS
-        //   Test 'printError' overloads
+        //   Test `printError` overloads
         //
         // Concerns:
-        //: 1 Verify that printError writes an description of the error
-        //:   including line and column number.
-        //:
-        //: 2 That printError will write a simple description of the
-        //:   error if the line and column number can't be determined
-        //:
-        //: 3 That printError can accept input in any of the available
-        //:   overloads.
+        // 1. Verify that printError writes an description of the error
+        //    including line and column number.
+        //
+        // 2. That printError will write a simple description of the
+        //    error if the line and column number can't be determined
+        //
+        // 3. That printError can accept input in any of the available
+        //    overloads.
         //
         // Plan:
-        //: 1 Perform a table based test on a example input with a
-        //:   variety of locations and error messages.
-        //:
-        //: 2 Perform a sanity test on an error reported from
-        //:   'JsonUtil::read'
-        //:
-        //: 3 Perform a manual test for each of the non-primary
-        //:   overloads.
+        // 1. Perform a table based test on a example input with a
+        //    variety of locations and error messages.
+        //
+        // 2. Perform a sanity test on an error reported from
+        //    `JsonUtil::read`
+        //
+        // 3. Perform a manual test for each of the non-primary
+        //    overloads.
         //
         // Testing:
         //   static ostream& printError(ostream&, streambuf *, const Error&);
@@ -1139,16 +1139,16 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // WRITE OVERLOAD TESTS
-        //   Test 'write' overloads
+        //   Test `write` overloads
         //
         // Concerns:
-        //: 1 Verify that that the overloads of 'write' delegate correctly to
-        //:   'static int write(std::string*, const Json&, const WriteOpts&)'
+        // 1. Verify that that the overloads of `write` delegate correctly to
+        //    `static int write(std::string*, const Json&, const WriteOpts&)`
         //
         // Plan:
-        //: 1 Test each overload making sure the arguments are passed through
-        //:   correctly using the same set of table-based inputs.
-        //:   (C-1)
+        // 1. Test each overload making sure the arguments are passed through
+        //    correctly using the same set of table-based inputs.
+        //    (C-1)
         //
         // Testing:
         //   static int write(bsl::ostream&, const Json&);
@@ -1199,7 +1199,7 @@ int main(int argc, char *argv[])
         OPTIONS_IIL_1_SPL_2.setStyle(P);
 
         if (verbose)
-            cout << "Testing 'static int write(bsl::ostream&, const Json&);'"
+            cout << "Testing `static int write(bsl::ostream&, const Json&);`"
                  << endl;
         {
             bslma::TestAllocator ta;
@@ -1211,7 +1211,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "Testing 'static int write(bsl::streambuf*, const Json&);'"
+            cout << "Testing `static int write(bsl::streambuf*, const Json&);`"
                  << endl;
         {
             char                        outputStr[256];
@@ -1248,7 +1248,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "Testing 'static int write(bsl::string*, const Json&);'"
+            cout << "Testing `static int write(bsl::string*, const Json&);`"
                  << endl;
         {
             bslma::TestAllocator ta;
@@ -1350,16 +1350,16 @@ int main(int argc, char *argv[])
       case 4: {
         // --------------------------------------------------------------------
         // WRITE IMPLEMENTATION TEST
-        //   Test the principal 'write' overload
+        //   Test the principal `write` overload
         //
         // Concerns:
-        //: 1 Verify that that the principal overload of 'write' functions
-        //:   correctly.
+        // 1. Verify that that the principal overload of `write` functions
+        //    correctly.
         //
         // Plan:
-        //: 1 Use a table-driven approach to exercise all possible 'Json'
-        //:   subtypes and make sure they're written out correctly.
-        //:   (C-1)
+        // 1. Use a table-driven approach to exercise all possible `Json`
+        //    subtypes and make sure they're written out correctly.
+        //    (C-1)
         //
         // Testing:
         //   static int write(bsl::ostream&, const Json&, const WriteOptions&);
@@ -1741,23 +1741,23 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // READ OVERLOAD TESTS
-        //   Test 'read' overloads
+        //   Test `read` overloads
         //
         // Concerns:
-        //: 1 Verify that that overloads of 'read' forward to the principal
-        //:   'read' method correctly.
-        //:
-        //: 2 If 'allowTrailingText' is 'true' a 'streambuf' will refer to
-        //:   the character immediately following the JSON document.
+        // 1. Verify that that overloads of `read` forward to the principal
+        //    `read` method correctly.
+        //
+        // 2. If `allowTrailingText` is `true` a `streambuf` will refer to
+        //    the character immediately following the JSON document.
         //
         // Plan:
-        //: 1 Test each overload making sure the arguments are passed through
-        //:   correctly using the same set of table-based inputs.
-        //:   (C-1)
-        //:
-        //: 2 Perform a table based test, with a variety of JSON document with
-        //:  'allowTrailingText' as 'true', verify the
-        //:   the 'streambuf' refers to the expected character after 'read'.
+        // 1. Test each overload making sure the arguments are passed through
+        //    correctly using the same set of table-based inputs.
+        //    (C-1)
+        //
+        // 2. Perform a table based test, with a variety of JSON document with
+        //   `allowTrailingText` as `true`, verify the
+        //    the `streambuf` refers to the expected character after `read`.
         //
         // Testing:
         //   static int read(Json*, istream&);
@@ -1887,7 +1887,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\n\tTesting 'static int read(Json*, const string_view&);'"
+            cout << "\n\tTesting `static int read(Json*, const string_view&);`"
                  << endl;
         {
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -1947,10 +1947,10 @@ int main(int argc, char *argv[])
             int rc = Util::read(&json, &err, iss);
             ASSERTV(rc, badJson, json, 0 != rc);
             ASSERTV(json.isNull(), true == json.isNull());
-            // Verify that 'err.location()' is set.
+            // Verify that `err.location()` is set.
             ASSERTV(err.location(),
                     Location(0) != err.location());
-            // Verify that 'err.message()' is set.
+            // Verify that `err.message()` is set.
             ASSERTV(err.message(),
                     err.message().length(),
                     0 != err.message().length());
@@ -1962,9 +1962,9 @@ int main(int argc, char *argv[])
             ASSERTV(rc, goodJson, json, 0 == rc);
             ASSERTV(json.isBoolean(), true == json.isBoolean());
             ASSERTV(json, true == json.theBoolean());
-            // Verify that 'err.location()' is unset.
+            // Verify that `err.location()` is unset.
             ASSERTV(err.location(), Location(0) == err.location());
-            // Verify that 'err.message()' is unset.
+            // Verify that `err.message()` is unset.
             ASSERTV(err.message(),
                     err.message().length(),
                     0 == err.message().length());
@@ -1993,10 +1993,10 @@ int main(int argc, char *argv[])
             int rc = Util::read(&json, &err, iss, ro);
             ASSERTV(rc, json65DeepArray, json, 0 != rc);
             ASSERTV(json.isNull(), true == json.isNull());
-            // Verify that 'err.location()' is set.
+            // Verify that `err.location()` is set.
             ASSERTV(err.location(),
                     Location(0) != err.location());
-            // Verify that 'err.message()' is set.
+            // Verify that `err.message()` is set.
             ASSERTV(err.message(),
                     err.message().length(),
                     0 != err.message().length());
@@ -2008,9 +2008,9 @@ int main(int argc, char *argv[])
             rc = Util::read(&json, &err, iss, ro);
             ASSERTV(rc, json65DeepArray, json, 0 == rc);
             ASSERTV(json.isArray(), true == json.isArray());
-            // Verify that 'err.location()' is unset.
+            // Verify that `err.location()` is unset.
             ASSERTV(err.location(), Location(0) == err.location());
-            // Verify that 'err.message()' is unset.
+            // Verify that `err.message()` is unset.
             ASSERTV(err.message(),
                     err.message().length(),
                     0 == err.message().length());
@@ -2031,10 +2031,10 @@ int main(int argc, char *argv[])
             int rc = Util::read(&json, &err, &badStream);
             ASSERTV(rc, badJson, json, 0 != rc);
             ASSERTV(json.isNull(), true == json.isNull());
-            // Verify that 'err.location()' is set.
+            // Verify that `err.location()` is set.
             ASSERTV(err.location(),
                     Location(0) != err.location());
-            // Verify that 'err.message()' is set.
+            // Verify that `err.message()` is set.
             ASSERTV(err.message(),
                     err.message().length(),
                     0 != err.message().length());
@@ -2046,9 +2046,9 @@ int main(int argc, char *argv[])
             ASSERTV(rc, goodJson, json, 0 == rc);
             ASSERTV(json.isBoolean(), true == json.isBoolean());
             ASSERTV(json, true == json.theBoolean());
-            // Verify that 'err.location()' is unset.
+            // Verify that `err.location()` is unset.
             ASSERTV(err.location(), Location(0) == err.location());
-            // Verify that 'err.message()' is unset.
+            // Verify that `err.message()` is unset.
             ASSERTV(err.message(),
                     err.message().length(),
                     0 == err.message().length());
@@ -2078,10 +2078,10 @@ int main(int argc, char *argv[])
             int rc = Util::read(&json, &err, &json65DeepStream, ro);
             ASSERTV(rc, json65DeepArray, json, 0 != rc);
             ASSERTV(json.isNull(), true == json.isNull());
-            // Verify that 'err.location()' is set.
+            // Verify that `err.location()` is set.
             ASSERTV(err.location(),
                     Location(0) != err.location());
-            // Verify that 'err.message()' is set.
+            // Verify that `err.message()` is set.
             ASSERTV(err.message(),
                     err.message().length(),
                     0 != err.message().length());
@@ -2094,9 +2094,9 @@ int main(int argc, char *argv[])
             rc = Util::read(&json, &err, &json65DeepStream, ro);
             ASSERTV(rc, json65DeepArray, json, 0 == rc);
             ASSERTV(json.isArray(), true == json.isArray());
-            // Verify that 'err.location()' is unset.
+            // Verify that `err.location()` is unset.
             ASSERTV(err.location(), Location(0) == err.location());
-            // Verify that 'err.message()' is unset.
+            // Verify that `err.message()` is unset.
             ASSERTV(err.message(),
                     err.message().length(),
                     0 == err.message().length());
@@ -2116,9 +2116,9 @@ int main(int argc, char *argv[])
             int                    rc = Util::read(&json, &err, badJsonView);
             ASSERTV(rc, badJson, json, 0 != rc);
             ASSERTV(json.isNull(), true == json.isNull());
-            // Verify that 'err.location()' is set.
+            // Verify that `err.location()` is set.
             ASSERTV(err.location(), Location(0) != err.location());
-            // Verify that 'err.message()' is set.
+            // Verify that `err.message()` is set.
             ASSERTV(err.message(),
                     err.message().length(),
                     0 != err.message().length());
@@ -2130,9 +2130,9 @@ int main(int argc, char *argv[])
             ASSERTV(rc, goodJson, json, 0 == rc);
             ASSERTV(json.isBoolean(), true == json.isBoolean());
             ASSERTV(json, true == json.theBoolean());
-            // Verify that 'err.location()' is unset.
+            // Verify that `err.location()` is unset.
             ASSERTV(err.location(), Location(0) == err.location());
-            // Verify that 'err.message()' is unset.
+            // Verify that `err.message()` is unset.
             ASSERTV(err.message(),
                     err.message().length(),
                     0 == err.message().length());
@@ -2158,10 +2158,10 @@ int main(int argc, char *argv[])
             int rc = Util::read(&json, &err, json65DeepArray, ro);
             ASSERTV(rc, json65DeepArray, json, 0 != rc);
             ASSERTV(json.isNull(), true == json.isNull());
-            // Verify that 'err.location()' is set.
+            // Verify that `err.location()` is set.
             ASSERTV(err.location(),
                     Location(0) != err.location());
-            // Verify that 'err.message()' is set.
+            // Verify that `err.message()` is set.
             ASSERTV(err.message(),
                     err.message().length(),
                     0 != err.message().length());
@@ -2172,16 +2172,16 @@ int main(int argc, char *argv[])
             rc = Util::read(&json, &err, json65DeepArray, ro);
             ASSERTV(rc, json65DeepArray, json, 0 == rc);
             ASSERTV(json.isArray(), true == json.isArray());
-            // Verify that 'err.location()' is unset.
+            // Verify that `err.location()` is unset.
             ASSERTV(err.location(), Location(0) == err.location());
-            // Verify that 'err.message()' is unset.
+            // Verify that `err.message()` is unset.
             ASSERTV(err.message(),
                     err.message().length(),
                     0 == err.message().length());
         }
 
         if (verbose)
-            cout << "\n\tTest next input position after 'read'"
+            cout << "\n\tTest next input position after `read`"
                  << endl;
         {
             const char k_EOF = 0;
@@ -2266,51 +2266,51 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // READ IMPLEMENTATION TEST
-        //   Test the principal 'read' overload
+        //   Test the principal `read` overload
         //
         // Concerns:
-        //: 1 The principal overload of 'read' functions correctly for any
-        //:   valid 'JSON' inputs.
-        //:
-        //: 2 All allocations take place from the passed-in
-        //:   allocator.
-        //:
-        //: 3 On error, the 'Error*' argument is populated correctly, the
-        //:   return code is non-0, and the 'Json*' object is left unchanged.
-        //:
-        //: 4 The 'readOptions.maxNestedDepth()' argument is honored.
-        //:
-        //: 5 If 'allowTrailingText' is 'true', 'read' will succeed if their
-        //:   are tokens following a valid JSON document as long as they are
-        //:   separated by a delimiter.
-        //:
-        //: 6 If 'allowTrailingText' is 'false', 'read' will fail if their
-        //:   are tokens other than white space after a valid JSON.
+        // 1. The principal overload of `read` functions correctly for any
+        //    valid `JSON` inputs.
+        //
+        // 2. All allocations take place from the passed-in
+        //    allocator.
+        //
+        // 3. On error, the `Error*` argument is populated correctly, the
+        //    return code is non-0, and the `Json*` object is left unchanged.
+        //
+        // 4. The `readOptions.maxNestedDepth()` argument is honored.
+        //
+        // 5. If `allowTrailingText` is `true`, `read` will succeed if their
+        //    are tokens following a valid JSON document as long as they are
+        //    separated by a delimiter.
+        //
+        // 6. If `allowTrailingText` is `false`, `read` will fail if their
+        //    are tokens other than white space after a valid JSON.
         //
         // Plan:
-        //: 1 Test each 'simple' subtype ('null', 'boolean', 'number',
-        //:   'string') independently using a table driven approach in each
-        //:   case.
-        //:
-        //: 2 Test the 'array' subtype using each 'simple' subtype as the
-        //:   element, using a manual approach.
-        //:
-        //: 3 Test the 'object' subtype using each 'simple' subtype as the
-        //:   element, using a manual approach.
-        //:
-        //: 4 Test nested 'array' and 'object' subtypes using 'simple',
-        //:   'array', and 'object' elements as recursively nested types, using
-        //:   a manual approach.
-        //:
-        //: 5 Validate that the 'ReadOptions.maxNestedDepth()' attribute is
-        //:   honored by 'array', 'object', and heterogenous nested values,
-        //:   using a table driven approach.
-        //:
-        //: 6 Ensure that the 'Error*' argument is correctly populated when an
-        //:   error occurs.
-        //:
-        //: 7 Perform a table based test for a variety of input with
-        //:  'allowTrailingText' both 'true' and 'false'.
+        // 1. Test each `simple` subtype (`null`, `boolean`, `number`,
+        //    `string`) independently using a table driven approach in each
+        //    case.
+        //
+        // 2. Test the `array` subtype using each `simple` subtype as the
+        //    element, using a manual approach.
+        //
+        // 3. Test the `object` subtype using each `simple` subtype as the
+        //    element, using a manual approach.
+        //
+        // 4. Test nested `array` and `object` subtypes using `simple`,
+        //    `array`, and `object` elements as recursively nested types, using
+        //    a manual approach.
+        //
+        // 5. Validate that the `ReadOptions.maxNestedDepth()` attribute is
+        //    honored by `array`, `object`, and heterogenous nested values,
+        //    using a table driven approach.
+        //
+        // 6. Ensure that the `Error*` argument is correctly populated when an
+        //    error occurs.
+        //
+        // 7. Perform a table based test for a variety of input with
+        //   `allowTrailingText` both `true` and `false`.
         //
         // Testing:
         //   static int read(Json*, Error*, string_view&,const ReadOptions&);
@@ -2328,7 +2328,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);
 
-        if (verbose) cout << "\n\tTest 'read' of 'null' value." << endl;
+        if (verbose) cout << "\n\tTest `read` of `null` value." << endl;
         {
             static const struct {
                 int               d_line;
@@ -2367,8 +2367,8 @@ int main(int argc, char *argv[])
                 if (0 == rc) {
                     // Verify that success was expected.
                     ASSERTV(LINE, STRING, IS_VALID, IS_VALID);
-                    // Verify that 'json.isNull()' is 'true' on successful
-                    // 'read'.
+                    // Verify that `json.isNull()` is `true` on successful
+                    // `read`.
                     ASSERTV(LINE,
                             STRING,
                             rc,
@@ -2378,18 +2378,18 @@ int main(int argc, char *argv[])
                 else {
                     // Verify that failure was expected.
                     ASSERTV(LINE, STRING, IS_VALID, !IS_VALID);
-                    // Verify that 'json' is unchanged on failure.
+                    // Verify that `json` is unchanged on failure.
                     ASSERTV(LINE,
                             STRING,
                             rc,
                             true == json.isBoolean());
-                    // Verify that 'err.location()' is set.
+                    // Verify that `err.location()` is set.
                     ASSERTV(LINE,
                             STRING,
                             rc,
                             err.location(),
                             Location(0) != err.location());
-                    // Verify that 'err.message()' is set.
+                    // Verify that `err.message()` is set.
                     ASSERTV(LINE,
                             STRING,
                             rc,
@@ -2400,7 +2400,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\n\tTest 'read' of 'boolean' values." << endl;
+        if (verbose) cout << "\n\tTest `read` of `boolean` values." << endl;
         {
             static const struct {
                 int               d_line;
@@ -2444,12 +2444,12 @@ int main(int argc, char *argv[])
                 if (0 == rc) {
                     // Verify that success was expected.
                     ASSERTV(LINE, STRING, IS_VALID, IS_VALID);
-                    // Verify that 'json.isBoolean()' is 'true' on successful
-                    // 'read'.
+                    // Verify that `json.isBoolean()` is `true` on successful
+                    // `read`.
                     ASSERTV(LINE,
                             json.isBoolean(),
                             true == json.isBoolean());
-                    // Verify that 'json.theBoolean()' returns the expected
+                    // Verify that `json.theBoolean()` returns the expected
                     // value.
                     ASSERTV(LINE,
                             STRING,
@@ -2460,18 +2460,18 @@ int main(int argc, char *argv[])
                 else {
                     // Verify that failure was expected.
                     ASSERTV(LINE, STRING, IS_VALID, !IS_VALID);
-                    // Verify that 'json' is unchanged on failure.
+                    // Verify that `json` is unchanged on failure.
                     ASSERTV(LINE,
                             STRING,
                             rc,
                             true == json.isNull());
-                    // Verify that 'err.location()' is set.
+                    // Verify that `err.location()` is set.
                     ASSERTV(LINE,
                             STRING,
                             rc,
                             err.location(),
                             Location(0) != err.location());
-                    // Verify that 'err.message()' is set.
+                    // Verify that `err.message()` is set.
                     ASSERTV(LINE,
                             STRING,
                             rc,
@@ -2482,7 +2482,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\n\tTest 'read' of 'number' values." << endl;
+        if (verbose) cout << "\n\tTest `read` of `number` values." << endl;
         {
             ///(from the bdljsn_jsonnumber.h header)
             ///JSON String Specification
@@ -2490,9 +2490,9 @@ int main(int argc, char *argv[])
             // JSON numbers are defined by strings that match the grammar given
             // at https://www.rfc-editor.org/rfc/rfc8259#section-6.  The
             // equivalent regular expression is:
-            //..
+            // ```
             //  /^-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][-+]?[0-9]+)?$/
-            //..
+            // ```
 
             typedef JsonNumber JN;
             static const struct {
@@ -2580,12 +2580,12 @@ int main(int argc, char *argv[])
                 if (0 == rc) {
                     // Verify that success was expected.
                     ASSERTV(LINE, STRING, IS_VALID, IS_VALID);
-                    // Verify that 'json.isNumber()' is 'true' on successful
-                    // 'read'.
+                    // Verify that `json.isNumber()` is `true` on successful
+                    // `read`.
                     ASSERTV(LINE,
                             json.isBoolean(),
                             true == json.isNumber());
-                    // Verify that 'json.theNumber()' returns the expected
+                    // Verify that `json.theNumber()` returns the expected
                     // value.
                     ASSERTV(LINE,
                             STRING,
@@ -2596,18 +2596,18 @@ int main(int argc, char *argv[])
                 else {
                     // Verify that failure was expected.
                     ASSERTV(LINE, STRING, IS_VALID, !IS_VALID);
-                    // Verify that 'json' is unchanged on failure.
+                    // Verify that `json` is unchanged on failure.
                     ASSERTV(LINE,
                             STRING,
                             rc,
                             true == json.isNull());
-                    // Verify that 'err.location()' is set.
+                    // Verify that `err.location()` is set.
                     ASSERTV(LINE,
                             STRING,
                             rc,
                             err.location(),
                             Location(0) != err.location());
-                    // Verify that 'err.message()' is set.
+                    // Verify that `err.message()` is set.
                     ASSERTV(LINE,
                             STRING,
                             rc,
@@ -2618,7 +2618,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\n\tTest 'read' of 'string' values." << endl;
+        if (verbose) cout << "\n\tTest `read` of `string` values." << endl;
         {
             /*
                From https://www.rfc-editor.org/rfc/rfc8259#section-7
@@ -2732,12 +2732,12 @@ int main(int argc, char *argv[])
                 if (0 == rc) {
                     // Verify that success was expected.
                     ASSERTV(LINE, STRING, IS_VALID, IS_VALID);
-                    // Verify that 'json.isString()' is 'true' on successful
-                    // 'read'.
+                    // Verify that `json.isString()` is `true` on successful
+                    // `read`.
                     ASSERTV(LINE,
                             json.isBoolean(),
                             true == json.isString());
-                    // Verify that 'json.theString()' returns the expected
+                    // Verify that `json.theString()` returns the expected
                     // value.
                     ASSERTV(LINE,
                             STRING,
@@ -2748,18 +2748,18 @@ int main(int argc, char *argv[])
                 else {
                     // Verify that failure was expected.
                     ASSERTV(LINE, STRING, IS_VALID, !IS_VALID);
-                    // Verify that 'json' is unchanged on failure.
+                    // Verify that `json` is unchanged on failure.
                     ASSERTV(LINE,
                             STRING,
                             rc,
                             true == json.isNull());
-                    // Verify that 'err.location()' is set.
+                    // Verify that `err.location()` is set.
                     ASSERTV(LINE,
                             STRING,
                             rc,
                             err.location(),
                             Location(0) != err.location());
-                    // Verify that 'err.message()' is set.
+                    // Verify that `err.message()` is set.
                     ASSERTV(LINE,
                             STRING,
                             rc,
@@ -2771,7 +2771,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\n\tTest 'read' of simple 'array' values." << endl;
+            cout << "\n\tTest `read` of simple `array` values." << endl;
         {
             // Positive tests
             {
@@ -2986,7 +2986,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\n\tTest 'read' of simple 'object' values." << endl;
+            cout << "\n\tTest `read` of simple `object` values." << endl;
         {
             // Positive tests
             {
@@ -3192,7 +3192,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\n\tTest 'read' of complex nested 'array' values."
+            cout << "\n\tTest `read` of complex nested `array` values."
                  << endl;
         {
             {
@@ -3361,7 +3361,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\n\tTest 'read' of complex nested 'object' values."
+            cout << "\n\tTest `read` of complex nested `object` values."
                  << endl;
         {
             {
@@ -3536,7 +3536,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\n\tTest 'read' handling of 'maxNestedDepth' 'readOption'"
+            cout << "\n\tTest `read` handling of `maxNestedDepth` `readOption`"
                  << endl;
         {
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -3574,7 +3574,7 @@ int main(int argc, char *argv[])
                 "}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}"
                 "}}}}";
 
-            // Reset 'json'
+            // Reset `json`
             json.makeNull();
 
             ro.reset();
@@ -3589,7 +3589,7 @@ int main(int argc, char *argv[])
             ASSERTV(json.isObject(), true == json.isObject());
         }
         if (verbose)
-            cout << "\n\tTest 'allowTrailingText' option"
+            cout << "\n\tTest `allowTrailingText` option"
                  << endl;
         {
             static const struct {
@@ -3733,11 +3733,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Call 'printValue' on each value type.
+        // 1. Call `printValue` on each value type.
         //
         // Testing:
         //   BREATHING TEST
@@ -4032,7 +4032,7 @@ int main(int argc, char *argv[])
 
                     const char *J = DATA[i];
 
-                    // Works with default 'options.maxNestedDepth()'
+                    // Works with default `options.maxNestedDepth()`
                     {
                         bslma::TestAllocator       ta;
                         bdlsb::FixedMemInStreamBuf input(J, bsl::strlen(J));
@@ -4049,7 +4049,7 @@ int main(int argc, char *argv[])
                                 (0 == rc));
                     }
 
-                    // Fails with 'options.maxNestedDepth() == 63'
+                    // Fails with `options.maxNestedDepth() == 63`
                     {
                         bslma::TestAllocator       ta;
                         bdlsb::FixedMemInStreamBuf input(J, bsl::strlen(J));
@@ -4072,7 +4072,7 @@ int main(int argc, char *argv[])
             cout << "\tRead with/without options overload check" << endl;
         }
         {
-            // TBD: repeat this for 'istream', 'streambuf', and 'string_view'.
+            // TBD: repeat this for `istream`, `streambuf`, and `string_view`.
             if (veryVerbose) cout << "... bsl::string input" << endl;
             {
                 bslma::TestAllocator ta;

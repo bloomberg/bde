@@ -63,7 +63,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 ///Usage
 ///-----
-// This component is an implementation detail of 'bslmt' and is *not* intended
+// This component is an implementation detail of `bslmt` and is *not* intended
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 

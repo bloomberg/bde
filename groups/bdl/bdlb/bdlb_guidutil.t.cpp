@@ -36,8 +36,8 @@
 #include <bslstl_pair.h>
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-#include <unistd.h>             // 'fork', 'pipe', 'close' and 'dup'.
-#include <sys/wait.h>           // 'wait'
+#include <unistd.h>             // `fork`, `pipe`, `close` and `dup`.
+#include <sys/wait.h>           // `wait`
 #else
 #include <windows.h>
 #include <fileapi.h>
@@ -84,7 +84,7 @@ using namespace bsl;
 // [ 9] Guid x500Namespace()
 // ----------------------------------------------------------------------------
 // [10] MULTI-THREADING TEST CASE
-// [11] TESTING 'generateNonSecure' FROM FORK PER DRQS 168925481
+// [11] TESTING `generateNonSecure` FROM FORK PER DRQS 168925481
 // [12] USAGE EXAMPLE
 
 // ============================================================================
@@ -149,14 +149,14 @@ void aSsErT(bool condition, const char *message, int line)
 namespace BloombergLP {
 namespace bdlb {
 
+/// Print the specified `guid` to the standard output stream.
 void debugprint(const Guid& guid)
-    // Print the specified 'guid' to the standard output stream.
 {
     guid.print(bsl::cout);
 }
 
+/// Print the specified `string` to the standard output stream.
 void debugprint(const bsl::string& string)
-    // Print the specified 'string' to the standard output stream.
 {
     bsl::cout << string;
 }
@@ -243,9 +243,9 @@ extern "C" void *threadFunction(void *data)
     return (void *) 0;
 }
 
+/// A struct containg the parameters for individual guid generation threads,
+/// used in benchmark testing (case -1).
 struct PerfThreadData {
-    // A struct containg the parameters for individual guid generation threads,
-    // used in benchmark testing (case -1).
 
     // DATA
     bsl::size_t   d_batchSize;     // size of each batch of generated guids
@@ -257,13 +257,13 @@ struct PerfThreadData {
     bslmt::Latch *d_endLatch_p;    // latch arrived at after GUID generation
 };
 
+/// The function executed by an individual thread for benchmark testing
+/// (case -1).  The specified `data` is a pointer to a `PerfThreadData`
+/// object.  Performs `d_iterations` loops, each generating and discarding
+/// `d_batchSize` guids.  The `d_startLatch_p` and `d_endLatch_p` are used
+/// to coordinate between threads and ensure the loops are executed
+/// cotemporaneously.
 extern "C" void *threadMultiPerfFunction(void *data)
-    // The function executed by an individual thread for benchmark testing
-    // (case -1).  The specified 'data' is a pointer to a 'PerfThreadData'
-    // object.  Performs 'd_iterations' loops, each generating and discarding
-    // 'd_batchSize' guids.  The 'd_startLatch_p' and 'd_endLatch_p' are used
-    // to coordinate between threads and ensure the loops are executed
-    // cotemporaneously.
 {
     PerfThreadData& threadData = *(PerfThreadData *)data;
 
@@ -289,10 +289,10 @@ extern "C" void *threadMultiPerfFunction(void *data)
     return (void *)0;
 }
 
+/// Update the specified `val` to fix the values of specific bits in such a
+/// way that the randomness cannot exceed that of an RFC4122-compliant guid.
 void simulateRfc4122(
                   bsl::uint32_t (*val)[bdlb::GuidState_Imp::k_GENERATOR_COUNT])
-    // Update the specified 'val' to fix the values of specific bits in such a
-    // way that the randomness cannot exceed that of an RFC4122-compliant guid.
 {
     ASSERT(val);
     ASSERT(*val);
@@ -304,10 +304,10 @@ void simulateRfc4122(
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
 
+/// Return the potential name for a temporary file.  The returned C-string
+/// refers to a static memory buffer (so this method is not thread safe).
+/// Additional output is generated based on the specified `verboseFlag`.
 bsl::string tempFileName(bool verboseFlag)
-    // Return the potential name for a temporary file.  The returned C-string
-    // refers to a static memory buffer (so this method is not thread safe).
-    // Additional output is generated based on the specified 'verboseFlag'.
 {
     enum { k_MAX_LENGTH = 4096 };
     static char result[k_MAX_LENGTH];
@@ -320,10 +320,10 @@ bsl::string tempFileName(bool verboseFlag)
     return result;
 }
 
+/// Delete the file with the specified `path`.  Return 0 on success and
+/// non-zero otherwise.
 static inline
 int removeFile(const char *path)
-    // Delete the file with the specified 'path'.  Return 0 on success and
-    // non-zero otherwise.
 {
     BSLS_ASSERT(path);
 
@@ -332,12 +332,12 @@ int removeFile(const char *path)
 
 #endif // BSLS_PLATFORM_OS_WINDOWS
 
+/// A simple bloom filter, limited to taking inputs of k_GENERATOR_COUNT-int
+/// arrays, which treats the values in that array as flatly distributed
+/// random variables, thus does not perform any additional hashing.  The
+/// number of bits set per insert is hard coded to k_GENERATOR_COUNT.
 template <bsl::size_t BITS>
 struct BasicBloomFilter
-    // A simple bloom filter, limited to taking inputs of k_GENERATOR_COUNT-int
-    // arrays, which treats the values in that array as flatly distributed
-    // random variables, thus does not perform any additional hashing.  The
-    // number of bits set per insert is hard coded to k_GENERATOR_COUNT.
 {
     BSLMF_ASSERT(0 == (BITS % 64ull));
 
@@ -346,19 +346,19 @@ struct BasicBloomFilter
 
     bsl::vector<uint64_t> d_filter;   // The filter of BITS bits.
 
+    /// Construct a BasicBloomFilter object.
     BasicBloomFilter() : d_filter(k_BUCKETS)
-        // Construct a BasicBloomFilter object.
     {
     }
 
+    /// Check if the specified `randomInts` array could have been added
+    /// previously.  Return false if `randomInts` is not in the filter, and
+    /// true if it may have been in the filter.  If `randomInts` has been
+    /// added previously then true is returned, otherwise false will
+    /// probably be returned, but true may be returned.
     inline
     bool check(
      const bsl::uint32_t (&randomInts)[bdlb::GuidState_Imp::k_GENERATOR_COUNT])
-        // Check if the specified 'randomInts' array could have been added
-        // previously.  Return false if 'randomInts' is not in the filter, and
-        // true if it may have been in the filter.  If 'randomInts' has been
-        // added previously then true is returned, otherwise false will
-        // probably be returned, but true may be returned.
     {
         uint64_t rnd = randomInts[bdlb::GuidState_Imp::k_GENERATOR_COUNT - 1];
 
@@ -376,16 +376,16 @@ struct BasicBloomFilter
         return true;
     }
 
+    /// Check if the specified `randomInts` array could have been added
+    /// previously.  Add `randomInts` to the filter.  Return false if
+    /// `randomInts` is not in the filter, and true if it may have been in
+    /// the filter.  If `randomInts` has been added previously then true is
+    /// returned, otherwise false will probably be returned, but true may be
+    /// returned.
     inline
     bool
     checkAndAdd(
      const bsl::uint32_t (&randomInts)[bdlb::GuidState_Imp::k_GENERATOR_COUNT])
-        // Check if the specified 'randomInts' array could have been added
-        // previously.  Add 'randomInts' to the filter.  Return false if
-        // 'randomInts' is not in the filter, and true if it may have been in
-        // the filter.  If 'randomInts' has been added previously then true is
-        // returned, otherwise false will probably be returned, but true may be
-        // returned.
     {
         bool     exists = true;
         uint64_t rnd = randomInts[bdlb::GuidState_Imp::k_GENERATOR_COUNT - 1];
@@ -406,9 +406,9 @@ struct BasicBloomFilter
     }
 };
 
+/// Return a string that contains every value of `char` exactly once, sorted
+/// in numerical order.
 string allCharacters()
-    // Return a string that contains every value of 'char' exactly once, sorted
-    // in numerical order.
 {
     string result;
     for (int c = -128; c != 128; ++c) {
@@ -427,14 +427,15 @@ string allCharacters()
 // used as a unique ID, so a GUID must be created for each employee.
 //
 // First let us define a value-type for employees.
-//..
+// ```
+
+    /// This class provides a value-semantic type to represent an employee
+    /// record.  These records are for internal use only.
     class MyEmployee {
-        // This class provides a value-semantic type to represent an employee
-        // record.  These records are for internal use only.
-//..
+// ```
 // For the sake of brevity, we provide a limited amount of data in each record.
 // We additionally show a very limited scope of functionality.
-//..
+// ```
         // DATA
         bsl::string d_name;    // name of the employee
         double      d_salary;  // salary in some common currency
@@ -442,39 +443,42 @@ string allCharacters()
 
       public:
         // CREATORS
+
+        /// Create an object with the specified `name` and specified
+        ///`salary`, generating a new GUID to represent the employee.
         MyEmployee(const bsl::string& name, double salary);
-            // Create an object with the specified 'name' and specified
-            //'salary', generating a new GUID to represent the employee.
 
         // ...
 
         // ACCESSORS
+
+        /// Return the `guid` of this object.
         const bdlb::Guid& Guid() const;
-            // Return the 'guid' of this object.
 
+        /// Return the `name` of this object.
         const bsl::string& name() const;
-            // Return the 'name' of this object.
 
+        /// Return the `salary` of this object.
         double salary() const;
-            // Return the 'salary' of this object.
         // ...
  };
-//..
-// Next, we create free functions 'operator<' and 'operator==' to allow
-// comparison of 'MyEmployee' objects.  We take advantage of the monotonically
+// ```
+// Next, we create free functions `operator<` and `operator==` to allow
+// comparison of `MyEmployee` objects.  We take advantage of the monotonically
 // increasing nature of sequential GUIDs to implement these methods.
-//..
-bool operator== (const MyEmployee& lhs, const MyEmployee& rhs);
-    // Return 'true' if the specified 'lhs' object has the same value as the
-    // specified 'rhs' object, and 'false' otherwise.  Note that two
-    // 'MyEmployee' objects have the same value if they have the same guid.
+// ```
 
+/// Return `true` if the specified `lhs` object has the same value as the
+/// specified `rhs` object, and `false` otherwise.  Note that two
+/// `MyEmployee` objects have the same value if they have the same guid.
+bool operator== (const MyEmployee& lhs, const MyEmployee& rhs);
+
+/// Return `true` if the value of the specified `lhs` MyEmployee object is
+/// less than the value of the specified `rhs` MyEmployee object, and
+/// `false` otherwise.  A MyEmployee object is less than another if the
+/// guid is less than the other.  Note that this is equivalent to saying
+/// that one employee object was created before another.
 bool operator< (const MyEmployee& lhs, const MyEmployee& rhs);
-    // Return 'true' if the value of the specified 'lhs' MyEmployee object is
-    // less than the value of the specified 'rhs' MyEmployee object, and
-    // 'false' otherwise.  A MyEmployee object is less than another if the
-    // guid is less than the other.  Note that this is equivalent to saying
-    // that one employee object was created before another.
 
 // ...
 
@@ -512,7 +516,7 @@ bool operator<(const MyEmployee& lhs, const MyEmployee& rhs)
 {
      return lhs.Guid() < rhs.Guid();
 }
-//..
+// ```
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -525,7 +529,7 @@ int main(int argc, char *argv[])
     bool veryVerbose     = argc > 3;
     bool veryVeryVerbose = argc > 4;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVerbose);
@@ -542,14 +546,14 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -557,49 +561,49 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
-//..
+// ```
 //  Next, we create some employees:
-//..
+// ```
         MyEmployee e1("Foo Bar"     , 1011970);
         MyEmployee e2("John Doe"    , 12345);
         MyEmployee e3("Joe Six-pack", 1);
-//..
+// ```
 //  Finally, we verify that the generated GUIDs are unique.
-///..
+/// ```
         ASSERT(e1 < e2 || e2 < e1);
         ASSERT(e2 < e3 || e3 < e2);
         ASSERT(e1 < e3 || e3 < e1);
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'generateNonSecure' FROM FORK PER DRQS 168925481
+        // TESTING `generateNonSecure` FROM FORK PER DRQS 168925481
         //
         // Concerns:
-        //: 1 That, when a fork happens, the random number generator in the
-        //:   child will be reseeded, thus shall not generate overlapping
-        //:   guids.
-        //:
-        //: 2 Note: On Windows, this is neither an issue nor is testable, as
-        //:   Windows does not use the 'fork' mechanism for process creation.
+        // 1. That, when a fork happens, the random number generator in the
+        //    child will be reseeded, thus shall not generate overlapping
+        //    guids.
+        //
+        // 2. Note: On Windows, this is neither an issue nor is testable, as
+        //    Windows does not use the `fork` mechanism for process creation.
         //
         // Plan:
-        //: 1 Generate a set of guids.
-        //: 2 Call 'fork'.
-        //: 3 In the parent process generate a post-fork set of guids
-        //: 4 In the child process generate a post-fork set of guids.
-        //: 5 In the child process write the generated guids to a temp file.
-        //: 6 In the child process call 'exit'.
-        //: 7 In the parent process wait for the child process to terminate.
-        //: 8 In the parent process read the child's guids from the temp file.
-        //: 9 In the parent process verify that all of the guids generated in
-        //:   steps 1, 3 and 4 are distinct.
+        // 1. Generate a set of guids.
+        // 2. Call `fork`.
+        // 3. In the parent process generate a post-fork set of guids
+        // 4. In the child process generate a post-fork set of guids.
+        // 5. In the child process write the generated guids to a temp file.
+        // 6. In the child process call `exit`.
+        // 7. In the parent process wait for the child process to terminate.
+        // 8. In the parent process read the child's guids from the temp file.
+        // 9. In the parent process verify that all of the guids generated in
+        //    steps 1, 3 and 4 are distinct.
         //
         // Testing:
-        //   TESTING 'generateNonSecure' FROM FORK PER DRQS 168925481
+        //   TESTING `generateNonSecure` FROM FORK PER DRQS 168925481
         // --------------------------------------------------------------------
         if (verbose) cout
                << endl
-               << "TESTING 'generateNonSecure' FROM FORK PER DRQS 168925481"
+               << "TESTING `generateNonSecure` FROM FORK PER DRQS 168925481"
                << endl
                << "========================================================"
                << endl;
@@ -662,7 +666,7 @@ int main(int argc, char *argv[])
 
             ASSERTV(fileName, !output.bad());
 
-            // Return from 'main' and thus exit the child process.
+            // Return from `main` and thus exit the child process.
             return 0;                                                 // RETURN
         }
 
@@ -735,24 +739,24 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'generateNonSecure' FROM MULTIPLE THREADS
+        // TESTING `generateNonSecure` FROM MULTIPLE THREADS
         //
         // Concerns:
-        //: 1 Calls to 'generateNonSecure' in separate threads behave
-        //:   correctly.
+        // 1. Calls to `generateNonSecure` in separate threads behave
+        //    correctly.
         //
         // Plan:
-        //: 1 Create multiple threads.
-        //:
-        //: 2 Exercise all 'generateNonSecure' methods in multiple threads to
-        //:   test that there is no deadlock and sane results are produced.
+        // 1. Create multiple threads.
+        //
+        // 2. Exercise all `generateNonSecure` methods in multiple threads to
+        //    test that there is no deadlock and sane results are produced.
         //
         // Testing:
         //   MULTI-THREADING TEST CASE
         // --------------------------------------------------------------------
         if (verbose) cout
                << endl
-               << "TESTING 'generateNonSecure' FROM MULTIPLE THREADS"
+               << "TESTING `generateNonSecure` FROM MULTIPLE THREADS"
                << endl
                << "================================================="
                << endl;
@@ -778,15 +782,15 @@ int main(int argc, char *argv[])
         // TESTING PREDEFINED NAMESPACE IDS
         //
         // Concerns:
-        //: 1 The functions 'dnsNamespace', 'urlNamespace', 'oidNamespace', and
-        //:   'x500Namespace' defined in this component return the correct
-        //:   values defined in RFC 4122, Appendix C.
+        // 1. The functions `dnsNamespace`, `urlNamespace`, `oidNamespace`, and
+        //    `x500Namespace` defined in this component return the correct
+        //    values defined in RFC 4122, Appendix C.
         //
         // Plan:
-        //: 1 Convert the string form of each of the predefined namespace IDs
-        //:   defined in Appendix C to a 'bdlb::Guid' value, and verify that it
-        //:   is the same as the value returned by the corresponding method.
-        //:   (C-1)
+        // 1. Convert the string form of each of the predefined namespace IDs
+        //    defined in Appendix C to a `bdlb::Guid` value, and verify that it
+        //    is the same as the value returned by the corresponding method.
+        //    (C-1)
         //
         // Testing:
         //   Guid dnsNamespace()
@@ -809,49 +813,49 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'generateFromName'
+        // TESTING `generateFromName`
         //
         // Concerns:
-        //: 1 The class method 'generateFromName' generates the unique correct
-        //:   UUID when given a namespace ID and name string as input according
-        //:   to the specification in RFC 4122, version 5.
+        // 1. The class method `generateFromName` generates the unique correct
+        //    UUID when given a namespace ID and name string as input according
+        //    to the specification in RFC 4122, version 5.
         //
         // Plan:
-        //: 1 Specify a set of namespace IDs generated from (hard-coded)
-        //:   randomly generated UUID strings.  Also specify a set of name
-        //:   strings.
-        //:
-        //: 2 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of rows representing all possible combinations of
-        //:     a namespace ID and a name string selected from the sets
-        //:     specified in P-1.
-        //:
-        //:   2 Additionally provide a column, 'EXPECTED', that specifies the
-        //:     string form of the UUID that is expected to be generated from
-        //:     the namespace ID and name string.  Note that the expected
-        //:     values were generated using a canonical implementation provided
-        //:     by the 'libuuid' library.
-        //:
-        //: 3 For each row (representing a distinct combination of a namespace
-        //:   ID 'ID' and name string 'N') in the table described in P-2:
-        //:   (C-1)
-        //:
-        //:   1 Generate a 'Guid' using 'Util::generateFromName' supplied with
-        //:     the namespace ID 'ID' and name 'N'.
-        //:
-        //:   2 Convert the expected string representation of the expected
-        //:     value into a 'Guid'.
-        //:
-        //:   3 Verify that the generated value equals the expected value.
-        //:
-        //:   4 Specifically verify that the generated value has the correct
-        //:     4-bit version field, namely '0101', representing a version 5
-        //:     UUID.
-        //:
-        //:   5 Specifically verify that bits 6 and 7 of the
-        //:     'clock_seq_hi_and_reserved' field are 0 and 1, respectively, as
-        //:     specified in RFC 4122.
+        // 1. Specify a set of namespace IDs generated from (hard-coded)
+        //    randomly generated UUID strings.  Also specify a set of name
+        //    strings.
+        //
+        // 2. Using the table-driven technique:
+        //
+        //   1. Specify a set of rows representing all possible combinations of
+        //      a namespace ID and a name string selected from the sets
+        //      specified in P-1.
+        //
+        //   2. Additionally provide a column, `EXPECTED`, that specifies the
+        //      string form of the UUID that is expected to be generated from
+        //      the namespace ID and name string.  Note that the expected
+        //      values were generated using a canonical implementation provided
+        //      by the `libuuid` library.
+        //
+        // 3. For each row (representing a distinct combination of a namespace
+        //    ID `ID` and name string `N`) in the table described in P-2:
+        //    (C-1)
+        //
+        //   1. Generate a `Guid` using `Util::generateFromName` supplied with
+        //      the namespace ID `ID` and name `N`.
+        //
+        //   2. Convert the expected string representation of the expected
+        //      value into a `Guid`.
+        //
+        //   3. Verify that the generated value equals the expected value.
+        //
+        //   4. Specifically verify that the generated value has the correct
+        //      4-bit version field, namely `0101`, representing a version 5
+        //      UUID.
+        //
+        //   5. Specifically verify that bits 6 and 7 of the
+        //      `clock_seq_hi_and_reserved` field are 0 and 1, respectively, as
+        //      specified in RFC 4122.
         //
         // Note: One of the important properties of UUIDv5 is that two UUIDs
         // generated from the same name, but two different name space IDs,
@@ -864,7 +868,7 @@ int main(int argc, char *argv[])
         //   Guid generateFromName(const Guid& nsId, const string_view& name)
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'generateFromName'" << endl
+                          << "TESTING `generateFromName`" << endl
                           << "==========================" << endl;
         const char *nsIdStrings[] = {
             "88515314-9c0d-44ac-bf6d-9a4cb5b2ec89",
@@ -926,26 +930,26 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'generateNonSecure'
+        // TESTING `generateNonSecure`
         //
         // Concerns:
-        //: 1 A single GUID can be passed and loaded.
-        //: 2 If 'numGuids' is passed, 'numGuids' GUIDs are returned.
-        //: 3 The correct type of GUID is returned.
-        //: 4 Memory outside the designated range is left unchanged.
+        // 1. A single GUID can be passed and loaded.
+        // 2. If `numGuids` is passed, `numGuids` GUIDs are returned.
+        // 3. The correct type of GUID is returned.
+        // 4. Memory outside the designated range is left unchanged.
         //
         // Plan:
-        //: 1 Call the 'generateNonSecure' method with 'numGuids' set to 1, and
-        //:   call the single-value 'generateNonSecure' method.  (C-1)
-        //:
-        //: 2 Call the 'generateNonSecure' method with different 'numGuids'
-        //:   values.  (C-2)
-        //:
-        //: 3 Check the internal structure of returned GUIDs to verify that
-        //:   they are the right type.  (C-3)
-        //:
-        //: 4 Inspect memory areas just before and after the region that
-        //:   receives GUIDs to verify that it is unchanged.  (C-4)
+        // 1. Call the `generateNonSecure` method with `numGuids` set to 1, and
+        //    call the single-value `generateNonSecure` method.  (C-1)
+        //
+        // 2. Call the `generateNonSecure` method with different `numGuids`
+        //    values.  (C-2)
+        //
+        // 3. Check the internal structure of returned GUIDs to verify that
+        //    they are the right type.  (C-3)
+        //
+        // 4. Inspect memory areas just before and after the region that
+        //    receives GUIDs to verify that it is unchanged.  (C-4)
         //
         // Testing:
         //   void generateNonSecure(Guid *result, size_t numGuids)
@@ -953,7 +957,7 @@ int main(int argc, char *argv[])
         //   Guid generateNonSecure()
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'generateNonSecure'" << endl
+                          << "TESTING `generateNonSecure`" << endl
                           << "===========================" << endl;
         enum  { NUM_ITERS = 15 };
 
@@ -1017,21 +1021,21 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'getLeastSignificantBits'
+        // TESTING `getLeastSignificantBits`
         //
         // Concerns:
-        //: 1 The least significant bytes are returned.
-        //: 2 The method does not modify the passed in 'Guid'.
+        // 1. The least significant bytes are returned.
+        // 2. The method does not modify the passed in `Guid`.
         //
         // Plan:
-        //: 1 Generate 'NUM_ITERS' Guids of each type, verifying the version
-        //:   for each.
+        // 1. Generate `NUM_ITERS` Guids of each type, verifying the version
+        //    for each.
         //
         // Testing:
         //   Uint64 getLeastSignificantBits(const Guid& guid)
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'getLeastSignificantBits'" << endl
+                          << "TESTING `getLeastSignificantBits`" << endl
                           << "=================================" << endl;
             static const struct {
                   int            d_lineNum;  // source line number
@@ -1070,21 +1074,21 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'getMostSignificantBits'
+        // TESTING `getMostSignificantBits`
         //
         // Concerns:
-        //: 1 The most significant bytes are returned.
-        //: 2 The method does not modify the passed in 'Guid'.
+        // 1. The most significant bytes are returned.
+        // 2. The method does not modify the passed in `Guid`.
         //
         // Plan:
-        //: 1 Generate various 'Guids' with different values, request the most
-        //:   significant bytes and verify that the match the expected value.
+        // 1. Generate various `Guids` with different values, request the most
+        //    significant bytes and verify that the match the expected value.
         //
         // Testing:
         //   Uint64 getMostSignificantBits(const Guid& guid)
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'getMostSignificantBits'" << endl
+                          << "TESTING `getMostSignificantBits`" << endl
                           << "================================" << endl;
             static const struct {
                   int            d_lineNum;  // source line number
@@ -1123,14 +1127,14 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'guidToString'
+        // TESTING `guidToString`
         //
         // Concerns:
-        //: 1 The guid loaded GUID makes the expected value.
+        // 1. The guid loaded GUID makes the expected value.
         //
         // Plan:
-        //: 1 Compose various guid strings of various types, and check the
-        //:   return values.
+        // 1. Compose various guid strings of various types, and check the
+        //    return values.
         //
         // Testing:
         //  void guidToString(bsl::string *result, const Guid& guid)
@@ -1139,7 +1143,7 @@ int main(int argc, char *argv[])
         //  bsl::string guidToString(const Guid& guid)
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'guidToString'" << endl
+                          << "TESTING `guidToString`" << endl
                           << "======================" << endl;
 
         static const struct {
@@ -1195,28 +1199,28 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'guidFromString'
+        // TESTING `guidFromString`
         //
         // Concerns:
-        //:  1 Each of the various GUID formats are accepted, with the correct
-        //:    Guid and return code.
-        //:
-        //:  2 If a string does not match the grammar it is rejected.
-        //:
-        //:  3 If a string is rejected, the result is unchanged.
-        //:
-        //:  4 If a string is rejected, the return code is non-zero.
+        //  1. Each of the various GUID formats are accepted, with the correct
+        //     Guid and return code.
+        //
+        //  2. If a string does not match the grammar it is rejected.
+        //
+        //  3. If a string is rejected, the result is unchanged.
+        //
+        //  4. If a string is rejected, the return code is non-zero.
         //
         // Plan:
-        //:  1 Compose various guid strings of various types, and check the
-        //:    return values.
+        //  1. Compose various guid strings of various types, and check the
+        //     return values.
         //
         // Testing:
         //   int guidFromString(Guid *result, bsl::string_view guidString)
         //   Guid guidFromString(bsl::string_view guidString)
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'guidFromString''" << endl
+                          << "TESTING `guidFromString`'" << endl
                           << "=========================" << endl;
 
         static const struct {
@@ -1321,19 +1325,19 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'getVersion'
+        // TESTING `getVersion`
         //
         // Concerns:
-        //: 1 The correct type is returned for a generated GUID.
+        // 1. The correct type is returned for a generated GUID.
         //
         // Plan:
-        //: 1 Generate 'NUM_ITERS' Guids, verifying the version for each.
+        // 1. Generate `NUM_ITERS` Guids, verifying the version for each.
         //
         // Testing:
         //   int getVersion(const Guid& guid)
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'getVersion'" << endl
+                          << "TESTING `getVersion`" << endl
                           << "====================" << endl;
 
         enum  { NUM_ITERS = 25 };
@@ -1346,25 +1350,25 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'generate'
+        // TESTING `generate`
         //
         // Concerns:
-        //: 1 A single GUID can be passed and loaded.
-        //: 2 If 'count' is passed, 'count' GUIDs are returned.
-        //: 3 The correct type of GUID is returned.
-        //: 4 Memory outside the designated range is left unchanged.
+        // 1. A single GUID can be passed and loaded.
+        // 2. If `count` is passed, `count` GUIDs are returned.
+        // 3. The correct type of GUID is returned.
+        // 4. Memory outside the designated range is left unchanged.
         //
         // Plan:
-        //: 1 Call the 'generate' method with a count of 1, and call the
-        //:   single-value 'generate' method.  (C-1)
-        //:
-        //: 2 Call the 'generate' method with different count values.  (C-2)
-        //:
-        //: 3 Check the internal structure of returned GUIDs to verify that
-        //:   they are the right type.  (C-3)
-        //:
-        //: 4 Inspect memory areas just before and after the region that
-        //:   receives GUIDs to verify that it is unchanged.
+        // 1. Call the `generate` method with a count of 1, and call the
+        //    single-value `generate` method.  (C-1)
+        //
+        // 2. Call the `generate` method with different count values.  (C-2)
+        //
+        // 3. Check the internal structure of returned GUIDs to verify that
+        //    they are the right type.  (C-3)
+        //
+        // 4. Inspect memory areas just before and after the region that
+        //    receives GUIDs to verify that it is unchanged.
         //
         // Testing:
         //   void generate(Guid *out, size_t numGuids)
@@ -1372,7 +1376,7 @@ int main(int argc, char *argv[])
         //   Guid generate()
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'generate'" << endl
+                          << "TESTING `generate`" << endl
                           << "==================" << endl;
         enum  { NUM_ITERS = 15 };
 
@@ -1439,26 +1443,26 @@ int main(int argc, char *argv[])
       } break;
       case -1: {
         // --------------------------------------------------------------------
-        // PERFORMANCE TESTING 'generateNonSecure' FROM MULTIPLE THREADS
+        // PERFORMANCE TESTING `generateNonSecure` FROM MULTIPLE THREADS
         //
         // Concerns:
-        //: 1 Performance benchmark of 'generateNonSecure'.
+        // 1. Performance benchmark of `generateNonSecure`.
         //
         // Plan:
-        //: 1 For various batch sizes and thread counts:
-        //:
-        //:   1 Create multiple threads.
-        //:
-        //:   2 Exercise all 'generateNonSecure' methods in batches.
-        //:
-        //:   3 Output stopwatch results.
+        // 1. For various batch sizes and thread counts:
+        //
+        //   1. Create multiple threads.
+        //
+        //   2. Exercise all `generateNonSecure` methods in batches.
+        //
+        //   3. Output stopwatch results.
         //
         // Testing:
-        //   PERFORMANCE TESTING 'generateNonSecure' FROM MULTIPLE THREADS
+        //   PERFORMANCE TESTING `generateNonSecure` FROM MULTIPLE THREADS
         // --------------------------------------------------------------------
         if (verbose)
             cout << endl
-                 << "PERFORMANCE TESTING 'generateNonSecure' FROM MULTIPLE "
+                 << "PERFORMANCE TESTING `generateNonSecure` FROM MULTIPLE "
                     "THREADS"
                  << endl
                  << "========================================================="
@@ -1540,39 +1544,39 @@ int main(int argc, char *argv[])
       } break;
       case -2: {
         // --------------------------------------------------------------------
-        // COLLISION TESTING 'GuidState_Imp'
+        // COLLISION TESTING `GuidState_Imp`
         //
         // Concerns:
-        //: 1 'GuidState_Imp' will, when 'generate' is called a large number of
-        //:   times, result in the expected number of collisions.
+        // 1. `GuidState_Imp` will, when `generate` is called a large number of
+        //    times, result in the expected number of collisions.
         //
         // Plan:
-        //: 1 Seed a 'GuidState_Imp' with known seed values (such as zero).
-        //:
-        //: 2 Perform a large number of calls to 'generate' on
-        //:   'GuidState_Imp' counts
-        //:
-        //: 3 For each of the results produced in step 2, check that result to
-        //:   a bloom filter.
-        //:
-        //: 4 If the bloom filter check in step 3 indicates the guid may have
-        //:   previously been generated, add that guid into a set.
-        //:
-        //: 5 Reset 'GuidState_Imp' with the same seeds as used in step 1
-        //:
-        //: 6 Repeat step 2.
-        //:
-        //: 7 For each of the guids generated in step 6, if that guid appears
-        //:   in the set populated in step 4, keep count of the number of
-        //:   appearances, printing a message where that count is greater than
-        //:   one.
+        // 1. Seed a `GuidState_Imp` with known seed values (such as zero).
+        //
+        // 2. Perform a large number of calls to `generate` on
+        //    `GuidState_Imp` counts
+        //
+        // 3. For each of the results produced in step 2, check that result to
+        //    a bloom filter.
+        //
+        // 4. If the bloom filter check in step 3 indicates the guid may have
+        //    previously been generated, add that guid into a set.
+        //
+        // 5. Reset `GuidState_Imp` with the same seeds as used in step 1
+        //
+        // 6. Repeat step 2.
+        //
+        // 7. For each of the guids generated in step 6, if that guid appears
+        //    in the set populated in step 4, keep count of the number of
+        //    appearances, printing a message where that count is greater than
+        //    one.
         //
         // Testing:
-        //   COLLISION TESTING 'GuidState_Imp'
+        //   COLLISION TESTING `GuidState_Imp`
         // --------------------------------------------------------------------
         if (verbose)
             cout << endl
-                 << "COLLISION TESTING 'GuidState_Imp'"
+                 << "COLLISION TESTING `GuidState_Imp`"
                  << endl
                  << "================================="
                  << endl;

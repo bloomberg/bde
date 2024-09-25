@@ -57,16 +57,16 @@ struct IsPair {
            || bsl::is_same<PAIR, std::pair<FirstType, SecondType> >::value;
 };
 
+/// Return the invalid scheduling interval value.  Note that this function
+/// is provided to avoid creating a statically initialized constant.
 inline
 bsls::TimeInterval makeInvalidInterval()
-    // Return the invalid scheduling interval value.  Note that this function
-    // is provided to avoid creating a statically initialized constant.
 {
     return bsls::TimeInterval(0, 0);
 }
 
+/// A functor to sort schedule elements alphabetically by category name.
 struct ScheduleElementSort {
-    // A functor to sort schedule elements alphabetically by category name.
 
     // TYPES
     typedef bsl::pair<const balm::Category *,
@@ -80,8 +80,8 @@ struct ScheduleElementSort {
     }
 };
 
+/// A functor to sort categories alphabetically.
 struct CategorySort {
-    // A functor to sort categories alphabetically.
 
     // ACCESSOR
     bool operator()(const balm::Category *lhs, const balm::Category *rhs) const
@@ -90,11 +90,11 @@ struct CategorySort {
     }
 };
 
+/// Print, to the specified `stream` the specified `categories` in
+/// alphabetic order.
 bsl::ostream& printCategorySet(
                             bsl::ostream&                           stream,
                             const bsl::set<const balm::Category *>& categories)
-    // Print, to the specified 'stream' the specified 'categories' in
-    // alphabetic order.
 {
     bsl::vector<const balm::Category *> categoryList;
     categoryList.reserve(categories.size());
@@ -116,16 +116,16 @@ bsl::ostream& printCategorySet(
 
 typedef bsl::map<const balm::Category *, bsls::TimeInterval>   Categories;
 
+/// Load into the specified `result` the sequence of
+/// `Category *, TimeInterval` pairs from the specified `Categories`.  Use
+/// the specified `mutex` for synchronization.  The schedule is represented
+/// using a series of (category address, time interval) pairs; each pair in
+/// the series indicates the periodic time interval that the associated
+/// category will be published.
 template <class VECTOR>
 int getCategoryScheduleImp(VECTOR               *result,
                            bslmt::Mutex         *mutex,
                            const u::Categories&  categories)
-    // Load into the specified 'result' the sequence of
-    // 'Category *, TimeInterval' pairs from the specified 'Categories'.  Use
-    // the specified 'mutex' for synchronization.  The schedule is represented
-    // using a series of (category address, time interval) pairs; each pair in
-    // the series indicates the periodic time interval that the associated
-    // category will be published.
 {
     BSLMF_ASSERT(u::IsVector<VECTOR>::value);
 
@@ -163,25 +163,25 @@ namespace balm {
                    // struct PublicationScheduler_ClockData
                    // =====================================
 
+/// The `PublicationScheduler_ClockData` class implements an unconstrained
+/// pure-attribute class containing the data associated with a scheduled
+/// publication interval.  Each "clock" created by the publication scheduler
+/// with the `bdlmt::TimerEventScheduler` is associated with a `ClockData`
+/// object describing the categories to publish when the clock event occurs.
+///  The `handle` property holds a handle to the
+/// `bdlmt::TimerEventScheduler` "clock" that this `ClockData` contains data
+/// for.  The `categories` property holds the set of categories scheduled at
+/// the clock's publication interval.  The `defaultClock` property
+/// indicates whether the publication interval associated with this
+/// `ClockData` is the default publication period.  Finally, if
+/// `defaultClock` is `true`, then the `nonDefaultCategories` property holds
+/// the set of categories that are *not* published as part of the default
+/// publication; otherwise (if `defaultSchedule` is `false`) the meaning of
+/// `nonDefaultCategories` is undefined.  Note that a shared pointer to a
+/// `ClockData` object is bound (by `PublicationScheduler`), with the
+/// `PublicationScheduler::publish` method, into the `bsl::function` object
+/// supplied to `bdlmt::TimerEventScheduler::startClock`.
 class PublicationScheduler_ClockData {
-    // The 'PublicationScheduler_ClockData' class implements an unconstrained
-    // pure-attribute class containing the data associated with a scheduled
-    // publication interval.  Each "clock" created by the publication scheduler
-    // with the 'bdlmt::TimerEventScheduler' is associated with a 'ClockData'
-    // object describing the categories to publish when the clock event occurs.
-    //  The 'handle' property holds a handle to the
-    // 'bdlmt::TimerEventScheduler' "clock" that this 'ClockData' contains data
-    // for.  The 'categories' property holds the set of categories scheduled at
-    // the clock's publication interval.  The 'defaultClock' property
-    // indicates whether the publication interval associated with this
-    // 'ClockData' is the default publication period.  Finally, if
-    // 'defaultClock' is 'true', then the 'nonDefaultCategories' property holds
-    // the set of categories that are *not* published as part of the default
-    // publication; otherwise (if 'defaultSchedule' is 'false') the meaning of
-    // 'nonDefaultCategories' is undefined.  Note that a shared pointer to a
-    // 'ClockData' object is bound (by 'PublicationScheduler'), with the
-    // 'PublicationScheduler::publish' method, into the 'bsl::function' object
-    // supplied to 'bdlmt::TimerEventScheduler::startClock'.
 
     // DATA
     bslmt::Mutex                d_mutex;       // synchronize access to data
@@ -213,42 +213,44 @@ class PublicationScheduler_ClockData {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
-    explicit PublicationScheduler_ClockData(bslma::Allocator *basicAllocator);
-        // Create a 'ClockData' object.  By default 'handle()' is invalid,
-        // 'categories()' and 'nonDefaultCategories()' are empty, and
-        // 'defaultClock()' is 'false'.
 
+    /// Create a `ClockData` object.  By default `handle()` is invalid,
+    /// `categories()` and `nonDefaultCategories()` are empty, and
+    /// `defaultClock()` is `false`.
+    explicit PublicationScheduler_ClockData(bslma::Allocator *basicAllocator);
+
+    /// Destroy this `ClockData` object.
     ~PublicationScheduler_ClockData();
-        // Destroy this 'ClockData' object.
 
     // MANIPULATORS
+
+    /// Return the address of the modifiable `bslmt::Mutex` used to
+    /// synchronize access to the properties of this object.  Note that
+    /// access to `handle()` does not need to be synchronized because
+    /// `handle()` is only modified or accessed by the
+    /// `PublicationScheduler` object's manipulators (which are themselves
+    /// synchronized by a mutex).
     bslmt::Mutex *mutex();
-        // Return the address of the modifiable 'bslmt::Mutex' used to
-        // synchronize access to the properties of this object.  Note that
-        // access to 'handle()' does not need to be synchronized because
-        // 'handle()' is only modified or accessed by the
-        // 'PublicationScheduler' object's manipulators (which are themselves
-        // synchronized by a mutex).
 
+    /// Return a reference to the modifiable
+    /// `bdlmt::TimerEventScheduler::Handle` object used to access the
+    /// `bdlmt::TimerEventScheduler` "clock" this `ClockData` is associated
+    /// with.
     bdlmt::TimerEventScheduler::Handle& handle();
-        // Return a reference to the modifiable
-        // 'bdlmt::TimerEventScheduler::Handle' object used to access the
-        // 'bdlmt::TimerEventScheduler' "clock" this 'ClockData' is associated
-        // with.
 
+    /// Return a reference to the modifiable set of categories scheduled at
+    /// the clock's publication interval.
     bsl::set<const Category *>& categories();
-        // Return a reference to the modifiable set of categories scheduled at
-        // the clock's publication interval.
 
+    /// Return a reference to the boolean indicating whether the clock's
+    /// publication interval is the default publication interval.
     bool& defaultClock();
-        // Return a reference to the boolean indicating whether the clock's
-        // publication interval is the default publication interval.
 
+    /// Return a reference to the modifiable set of categories that, if
+    /// `defaultClock()` is `true`, should *not* be published as part of the
+    /// default publication.  If `defaultClock()` is false, the meaning of
+    /// this property is undefined and the value must be an empty set.
     bsl::set<const Category *>& nonDefaultCategories();
-        // Return a reference to the modifiable set of categories that, if
-        // 'defaultClock()' is 'true', should *not* be published as part of the
-        // default publication.  If 'defaultClock()' is false, the meaning of
-        // this property is undefined and the value must be an empty set.
 };
 
                    // -------------------------------------
@@ -306,18 +308,18 @@ PublicationScheduler_ClockData::nonDefaultCategories()
                     // struct PublicationScheduler_Proctor
                     // ===================================
 
+/// This class implements a proctor that, unless `release()` is called, sets
+/// the `PublicationScheduler` object supplied at construction to its
+/// default state.  On construction a proctor object is provided the address
+/// of a `PublicationScheduler` object, on destruction, if `release()` has
+/// not been called, the proctor will clear all of the scheduler's internal
+/// state and cancel any managed clocks with the underlying
+/// `bdlmt::TimerEventScheduler`.  If `release()` is called on a proctor
+/// object, then the proctor object's destructor will have no effect.  Note
+/// that the `PublicationScheduler_Proctor` class is a friend of
+/// `PublicationScheduler` and has access to a scheduler's private data
+/// members.
 class PublicationScheduler_Proctor {
-    // This class implements a proctor that, unless 'release()' is called, sets
-    // the 'PublicationScheduler' object supplied at construction to its
-    // default state.  On construction a proctor object is provided the address
-    // of a 'PublicationScheduler' object, on destruction, if 'release()' has
-    // not been called, the proctor will clear all of the scheduler's internal
-    // state and cancel any managed clocks with the underlying
-    // 'bdlmt::TimerEventScheduler'.  If 'release()' is called on a proctor
-    // object, then the proctor object's destructor will have no effect.  Note
-    // that the 'PublicationScheduler_Proctor' class is a friend of
-    // 'PublicationScheduler' and has access to a scheduler's private data
-    // members.
 
     // DATA
     PublicationScheduler *d_scheduler_p; // managed scheduler (held, not owned)
@@ -330,23 +332,25 @@ class PublicationScheduler_Proctor {
 
    public:
     // CREATORS
-    explicit PublicationScheduler_Proctor(PublicationScheduler *scheduler);
-        // Create a proctor object that, unless 'release()' is called, will, on
-        // destruction, set the specified 'scheduler' to its default state and
-        // cancel any timer events managed by 'scheduler' with the underlying
-        // 'bdlmt::TimerEventScheduler' object.
 
+    /// Create a proctor object that, unless `release()` is called, will, on
+    /// destruction, set the specified `scheduler` to its default state and
+    /// cancel any timer events managed by `scheduler` with the underlying
+    /// `bdlmt::TimerEventScheduler` object.
+    explicit PublicationScheduler_Proctor(PublicationScheduler *scheduler);
+
+    /// Unless `release()` has been called, clear all the internal state
+    /// variables of `PublicationScheduler` object supplied at construction
+    /// and cancel any managed clocks with the underlying
+    /// `bdlmt::TimerEventScheduler`.
     ~PublicationScheduler_Proctor();
-        // Unless 'release()' has been called, clear all the internal state
-        // variables of 'PublicationScheduler' object supplied at construction
-        // and cancel any managed clocks with the underlying
-        // 'bdlmt::TimerEventScheduler'.
 
     // MANIPULATORS
+
+    /// Release from management the `PublicationScheduler` object supplied
+    /// at construction.  After invoking this method, this object's
+    /// destructor will have no effect.
     void release();
-        // Release from management the 'PublicationScheduler' object supplied
-        // at construction.  After invoking this method, this object's
-        // destructor will have no effect.
 };
 
                     // -----------------------------------

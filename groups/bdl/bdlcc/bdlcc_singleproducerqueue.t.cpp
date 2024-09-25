@@ -45,35 +45,35 @@ using namespace bsl;
 //                              --------
 // The component under test implements a concurrent FIFO queue container
 // requiring a single producer.  The primary manipulators are the methods for
-// adding elements ('pushBack') and emptying the queue ('removeAll').  The
+// adding elements (`pushBack`) and emptying the queue (`removeAll`).  The
 // provided basic accessors are the methods for obtaining the allocator
-// ('allocator') and the number of elements in the queue ('numElements').  The
-// manipulator 'popFront' will be used extensively to verify the value of
+// (`allocator`) and the number of elements in the queue (`numElements`).  The
+// manipulator `popFront` will be used extensively to verify the value of
 // resultant queues.  The basic functionality of the queue will be verified
 // initially with a single thread of execution, and then concurrency concerns
 // will be addressed.  Effort is made to use only the primary manipulators,
-// basic accessors, and 'popFront' whenever possible, thus making every test
+// basic accessors, and `popFront` whenever possible, thus making every test
 // case independent.
 //
 // Note that the move-semantics testing types are not universally supported.
 // Move-only type is supported in C++11 mode.  Allocating move-only type is
-// supported in C++11 mode.  'IncorrectlyMatchingMoveConstructorTestType' works
+// supported in C++11 mode.  `IncorrectlyMatchingMoveConstructorTestType` works
 // in C++03 mode.
 //
 // Global Concerns:
-//: o The test driver is robust w.r.t. reuse in other, similar components.
-//: o ACCESSOR methods are declared 'const'.
-//: o CREATOR & MANIPULATOR pointer/reference parameters are declared 'const'.
-//: o No memory is ever allocated from the global allocator.
-//: o Any allocated memory is always from the object allocator.
-//: o An object's value is independent of the allocator used to supply memory.
-//: o Injected exceptions are safely propagated during memory allocation.
-//: o Precondition violations are detected in appropriate build modes.
+//  - The test driver is robust w.r.t. reuse in other, similar components.
+//  - ACCESSOR methods are declared `const`.
+//  - CREATOR & MANIPULATOR pointer/reference parameters are declared `const`.
+//  - No memory is ever allocated from the global allocator.
+//  - Any allocated memory is always from the object allocator.
+//  - An object's value is independent of the allocator used to supply memory.
+//  - Injected exceptions are safely propagated during memory allocation.
+//  - Precondition violations are detected in appropriate build modes.
 //
 // Global Assumptions:
-//: o All explicit memory allocations are presumed to use the global, default,
-//:   or object allocator.
-//: o ACCESSOR methods are 'const' thread-safe.
+//  - All explicit memory allocations are presumed to use the global, default,
+//    or object allocator.
+//  - ACCESSOR methods are `const` thread-safe.
 // ----------------------------------------------------------------------------
 // [ 2] SingleProducerQueue(bslma::Allocator *basicAllocator = 0);
 // [ 5] SingleProducerQueue(capacity, *bA = 0);
@@ -102,7 +102,7 @@ using namespace bsl;
 // [ 3] Obj& gg(Obj *object, const char *spec);
 // [ 3] int ggg(Obj *object, const char *spec);
 // [ 2] CONCERN: 0 == e_SUCCESS
-// [10] CONCERN: 'popFront' and 'tryPopFront' honor move-semantics
+// [10] CONCERN: `popFront` and `tryPopFront` honor move-semantics
 // [11] CONCERN: template requirements
 // [12] CONCERN: ordering guarantee
 // ----------------------------------------------------------------------------
@@ -154,12 +154,12 @@ void aSsErT(int c, const char *s, int i)
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
          && defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
+/// This macro indicates whether the component uses C++11 r-value references
+/// to implement `bslmf::MovableRef<TYPE>`.  It will evaluate to `false` for
+/// C++03 implementations and to `true` for proper C++11 implementations.
+/// For partial C++11 implementations it may evaluate to `false` because
+/// both r-value reference and alias templates need to be supported.
 #    define BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
-    // This macro indicates whether the component uses C++11 r-value references
-    // to implement 'bslmf::MovableRef<TYPE>'.  It will evaluate to 'false' for
-    // C++03 implementations and to 'true' for proper C++11 implementations.
-    // For partial C++11 implementations it may evaluate to 'false' because
-    // both r-value reference and alias templates need to be supported.
 #endif
 
 // ============================================================================
@@ -228,29 +228,32 @@ class MoveTester {
 
   public:
     // CREATORS
-    explicit MoveTester(int value, int *moveCounter = 0);
-        // Construct a new 'MoveTester' object with the specified 'value'.
-        // Optionally specify a 'moveCounter' that, if specified, will be
-        // incremented when this object is moved from.
 
+    /// Construct a new `MoveTester` object with the specified `value`.
+    /// Optionally specify a `moveCounter` that, if specified, will be
+    /// incremented when this object is moved from.
+    explicit MoveTester(int value, int *moveCounter = 0);
+
+    /// Move-construct a new `MoveTester` object from the specified `other`.
     explicit MoveTester(bslmf::MovableRef<MoveTester> other);
-        // Move-construct a new 'MoveTester' object from the specified 'other'.
 
     // MANIPULATORS
-    MoveTester& operator=(bslmf::MovableRef<MoveTester> other);
-        // Move-assign the value of the specified 'other' object to this one.
-        // Set 'isMoved' to 'true', and if non-null value is specified at
-        // construction time also set '*d_moveCounter_p' to 'true'
 
+    /// Move-assign the value of the specified `other` object to this one.
+    /// Set `isMoved` to `true`, and if non-null value is specified at
+    /// construction time also set `*d_moveCounter_p` to `true`
+    MoveTester& operator=(bslmf::MovableRef<MoveTester> other);
+
+    /// Reset `isMoved` to false.
     void reset();
-        // Reset 'isMoved' to false.
 
     // ACCESSORS
-    bool isMoved() const;
-        // Return the value of the moved non-salient attribute.
 
+    /// Return the value of the moved non-salient attribute.
+    bool isMoved() const;
+
+    /// Return the value of this object.
     int value() const;
-        // Return the value of this object.
 };
 
                                 // ----------
@@ -308,52 +311,55 @@ int MoveTester::value() const
              // class IncorrectlyMatchingMoveConstructorTestType
              // ================================================
 
+/// This class is convertible from any type that has a `data` method
+/// returning a `int` value.  It is used to facilitate testing that the
+/// implementation of `bdlcc::SingleProducerQueue` does not pass a
+/// `bslmf::MovableRef<T>` object to a class whose interface does not
+/// support it (in C++03 mode).
 class IncorrectlyMatchingMoveConstructorTestType {
-    // This class is convertible from any type that has a 'data' method
-    // returning a 'int' value.  It is used to facilitate testing that the
-    // implementation of 'bdlcc::SingleProducerQueue' does not pass a
-    // 'bslmf::MovableRef<T>' object to a class whose interface does not
-    // support it (in C++03 mode).
 
     // DATA
     int d_data;  // value not meaningful
 
   public:
     // CREATORS
+
+    /// Create a `IncorrectlyMatchingMoveConstructorTestType` object having
+    /// the default value.
     IncorrectlyMatchingMoveConstructorTestType();
-        // Create a 'IncorrectlyMatchingMoveConstructorTestType' object having
-        // the default value.
 
+    /// Create a `IncorrectlyMatchingMoveConstructorTestType` object having
+    /// the specified `data` value.
     explicit IncorrectlyMatchingMoveConstructorTestType(int data);
-        // Create a 'IncorrectlyMatchingMoveConstructorTestType' object having
-        // the specified 'data' value.
 
+    /// Create a `IncorrectlyMatchingMoveConstructorTestType` object having
+    /// the same value as the specified `original` object.
     IncorrectlyMatchingMoveConstructorTestType(
                    const IncorrectlyMatchingMoveConstructorTestType& original);
-        // Create a 'IncorrectlyMatchingMoveConstructorTestType' object having
-        // the same value as the specified 'original' object.
 
+    /// Create a `IncorrectlyMatchingMoveConstructorTestType` object having
+    /// the same value as the specified `other` object of (template
+    /// parameter) `TYPE`.
     template <class TYPE>
     IncorrectlyMatchingMoveConstructorTestType(const TYPE& other);  // IMPLICIT
-        // Create a 'IncorrectlyMatchingMoveConstructorTestType' object having
-        // the same value as the specified 'other' object of (template
-        // parameter) 'TYPE'.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a non-`const` reference to this object.
     IncorrectlyMatchingMoveConstructorTestType& operator=(
                         const IncorrectlyMatchingMoveConstructorTestType& rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a non-'const' reference to this object.
 
+    /// Assign to this object the value of the specified `rhs` object of
+    /// (template parameter) `TYPE`, and return a non-`const` reference to
+    /// this object.
     template <class TYPE>
     IncorrectlyMatchingMoveConstructorTestType& operator=(const TYPE& rhs);
-        // Assign to this object the value of the specified 'rhs' object of
-        // (template parameter) 'TYPE', and return a non-'const' reference to
-        // this object.
 
     // ACCESSORS
+
+    /// Return the (meaningless) value held by this object.
     int data() const;
-        // Return the (meaningless) value held by this object.
 };
 
              // ------------------------------------------------
@@ -686,9 +692,9 @@ void orderingGuaranteeTest(const int numPushThread, const int numPopThread)
 }
 
 // ============================================================================
-//               GENERATOR FUNCTIONS 'gg' AND 'ggg' FOR TESTING
+//               GENERATOR FUNCTIONS `gg` AND `ggg` FOR TESTING
 // ----------------------------------------------------------------------------
-// The following functions interpret the given 'spec' in order from left to
+// The following functions interpret the given `spec` in order from left to
 // right to configure the object according to a custom language.
 //
 // LANGUAGE SPECIFICATION:
@@ -704,11 +710,11 @@ void orderingGuaranteeTest(const int numPushThread, const int numPopThread)
 //
 // <ELEMENT> ::= 'a' | 'b' | 'c' | 'd' | 'e'
 
+/// Place into the specified `value` the value corresponding to the
+/// specified `specChar` and display errors to `cerr` if the specified
+/// `verboseFlag` is set.  Return 0 if operation successful, return non-zero
+/// otherwise.
 int getValue(int *value, char specChar, int verboseFlag);
-    // Place into the specified 'value' the value corresponding to the
-    // specified 'specChar' and display errors to 'cerr' if the specified
-    // 'verboseFlag' is set.  Return 0 if operation successful, return non-zero
-    // otherwise.
 
 enum { e_SUCCESS_PUSHBACK = -1, e_SUCCESS_REMOVEALL = -2 };
 
@@ -733,14 +739,14 @@ int getValue(int *value, char specChar, int verboseFlag)
     return 1;
 }
 
+/// Configure the specified `object` according to the specified `spec`,
+/// using only the primary manipulator functions `pushBack` and `removeAll`.
+/// Optionally specify a zero `verboseFlag` to suppress `spec` syntax error
+/// messages.  Return the index of the first invalid character, and a
+/// negative value otherwise.  Note that this function is used to implement
+/// `gg` as well as allow for verification of syntax error detection.
 template <class OBJ>
 int ggg(OBJ *object, const char *spec, int verboseFlag = 1)
-    // Configure the specified 'object' according to the specified 'spec',
-    // using only the primary manipulator functions 'pushBack' and 'removeAll'.
-    // Optionally specify a zero 'verboseFlag' to suppress 'spec' syntax error
-    // messages.  Return the index of the first invalid character, and a
-    // negative value otherwise.  Note that this function is used to implement
-    // 'gg' as well as allow for verification of syntax error detection.
 {
     enum { e_SUCCESS = -1 };
 
@@ -762,10 +768,10 @@ int ggg(OBJ *object, const char *spec, int verboseFlag = 1)
     return e_SUCCESS;
 }
 
+/// Return, by reference, the specified `object` with its value adjusted
+/// according to the specified `spec`.
 template <class OBJ>
 OBJ& gg(OBJ *object, const char *spec)
-    // Return, by reference, the specified 'object' with its value adjusted
-    // according to the specified 'spec'.
 {
     ASSERT(ggg(object, spec) < 0);
     return *object;
@@ -781,18 +787,19 @@ OBJ& gg(OBJ *object, const char *spec)
 //
 ///Example 1: A Simple Thread Pool
 ///- - - - - - - - - - - - - - - -
-// In the following example a 'bdlcc::SingleProducerQueue' is used to
+// In the following example a `bdlcc::SingleProducerQueue` is used to
 // communicate between a single "producer" thread and multiple "consumer"
 // threads.  The "producer" will push work requests onto the queue, and each
 // "consumer" will iteratively take a work request from the queue and service
 // the request.  This example shows a partial, simplified implementation of the
-// 'bdlmt::FixedThreadPool' class.  See component 'bdlmt_fixedthreadpool' for
+// `bdlmt::FixedThreadPool` class.  See component `bdlmt_fixedthreadpool` for
 // more information.
 //
 // First, we define a utility classes that handles a simple "work item":
-//..
+// ```
+
+    /// Work data...
     struct my_WorkData {
-        // Work data...
     };
 
     struct my_WorkRequest {
@@ -808,27 +815,27 @@ OBJ& gg(OBJ *object, const char *spec)
         // CREATORS
         my_WorkRequest() : d_type(), d_data() {}
     };
-//..
+// ```
 // Next, we provide a simple function to service an individual work item.  The
 // details are unimportant for this example:
-//..
+// ```
     void myDoWork(my_WorkData& data)
     {
         // do some stuff...
         (void)data;
     }
-//..
-// Then, we define a 'myConsumer' function that will pop elements off the queue
-// and process them.  Note that the call to 'queue->popFront(&item)' will block
+// ```
+// Then, we define a `myConsumer` function that will pop elements off the queue
+// and process them.  Note that the call to `queue->popFront(&item)` will block
 // until there is an element available on the queue.  This function will be
 // executed in multiple threads, so that each thread waits in
-// 'queue->popFront(&item)', and 'bdlcc::SingleProducerQueue' guarantees that
+// `queue->popFront(&item)`, and `bdlcc::SingleProducerQueue` guarantees that
 // each thread gets a unique element from the queue:
-//..
+// ```
     void myConsumer(bdlcc::SingleProducerQueue<my_WorkRequest> *queue)
     {
         while (1) {
-            // 'popFront()' will wait for a 'my_WorkRequest' until available.
+            // `popFront()` will wait for a `my_WorkRequest` until available.
 
             my_WorkRequest item;
             queue->popFront(&item);
@@ -836,18 +843,18 @@ OBJ& gg(OBJ *object, const char *spec)
             myDoWork(item.d_data);
         }
     }
-//..
-// Finally, we define a 'myProducer' function that serves multiple roles: it
-// creates the 'bdlcc::SingleProducerQueue', starts the consumer threads, and
+// ```
+// Finally, we define a `myProducer` function that serves multiple roles: it
+// creates the `bdlcc::SingleProducerQueue`, starts the consumer threads, and
 // then produces and enqueues work items.  When work requests are exhausted,
-// this function enqueues one 'e_STOP' item for each consumer queue.  This
-// 'e_STOP' item indicates to the consumer thread to terminate its
+// this function enqueues one `e_STOP` item for each consumer queue.  This
+// `e_STOP` item indicates to the consumer thread to terminate its
 // thread-handling function.
 //
-// Note that, although the producer cannot control which thread 'pop's a
+// Note that, although the producer cannot control which thread `pop`s a
 // particular work item, it can rely on the knowledge that each consumer thread
-// will read a single 'e_STOP' item and then terminate.
-//..
+// will read a single `e_STOP` item and then terminate.
+// ```
     void myProducer(int numThreads)
     {
         enum {
@@ -875,7 +882,7 @@ OBJ& gg(OBJ *object, const char *spec)
 
         consumerThreads.joinAll();
     }
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -906,13 +913,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -949,19 +956,19 @@ int main(int argc, char *argv[])
         //   the order these elements were enqueued.
         //
         // Concerns:
-        //: 1 If the queue has a single producer and a single consumer, the
-        //:   strong form of the ordering guarantee is provided.
-        //:
-        //: 2 Under normal operation, the weak form of the ordering guarantee
-        //:   is provided.
+        // 1. If the queue has a single producer and a single consumer, the
+        //    strong form of the ordering guarantee is provided.
+        //
+        // 2. Under normal operation, the weak form of the ordering guarantee
+        //    is provided.
         //
         // Plan:
-        //: 1 Using elements that store a sequence number, ensure the dequeued
-        //:   elements' sequence number increases by one.  (C-1)
-        //:
-        //: 2 Using elements that store a sequence number, ensure the dequeued
-        //:   elements' sequence number for the source thread is increasing.
-        //:   (C-2)
+        // 1. Using elements that store a sequence number, ensure the dequeued
+        //    elements' sequence number increases by one.  (C-1)
+        //
+        // 2. Using elements that store a sequence number, ensure the dequeued
+        //    elements' sequence number for the source thread is increasing.
+        //    (C-2)
         //
         // Testing:
         //   CONCERN: ordering guarantee
@@ -981,12 +988,12 @@ int main(int argc, char *argv[])
         //   constructor and a 1-arg copy constructor.
         //
         // Concerns:
-        //: 1 The queue should work for types that have no default
-        //:   constructor and a 1-arg copy constructor.
+        // 1. The queue should work for types that have no default
+        //    constructor and a 1-arg copy constructor.
         //
         // Plan:
-        //: 1 Create and exercise a queue using 'TemplateRequirementTestType'
-        //:   (C-1)
+        // 1. Create and exercise a queue using `TemplateRequirementTestType`
+        //    (C-1)
         //
         // Testing:
         //   CONCERN: template requirements
@@ -1014,21 +1021,21 @@ int main(int argc, char *argv[])
         //   Ensure move-semantics are honored.  Note that the testing types
         //   are not universally supported.  Move-only type is supported in
         //   C++11 mode.  Allocating move-only type is supported in C++11 mode.
-        //   'IncorrectlyMatchingMoveConstructorTestType' works in C++03 mode.
+        //   `IncorrectlyMatchingMoveConstructorTestType` works in C++03 mode.
         //
         // Concerns:
-        //: 1 The manipulators 'pushBack', 'tryPushBack' 'popFront', and
-        //:   'tryPopFront' honor move-semantics.
+        // 1. The manipulators `pushBack`, `tryPushBack` `popFront`, and
+        //    `tryPopFront` honor move-semantics.
         //
         // Plan:
-        //: 1 After pushing back a value, verify the value is in moved-from
-        //:   state.  After popping a value, verify the global moved-from
-        //:   counter has increased.  (C-1)
+        // 1. After pushing back a value, verify the value is in moved-from
+        //    state.  After popping a value, verify the global moved-from
+        //    counter has increased.  (C-1)
         //
         // Testing:
         //   int pushBack(bslmf::MovableRef<TYPE> value);
         //   int tryPushBack(bslmf::MovableRef<TYPE> value);
-        //   CONCERN: 'popFront' and 'tryPopFront' honor move-semantics
+        //   CONCERN: `popFront` and `tryPopFront` honor move-semantics
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1071,7 +1078,7 @@ int main(int argc, char *argv[])
 
             ASSERT(4 == moveCtr);
 
-            // Test 'popFront', 'tryPopFront'
+            // Test `popFront`, `tryPopFront`
 
             MoveTester popped(42);
             queue.popFront(&popped);
@@ -1317,40 +1324,40 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'waitUntilEmpty'
+        // TESTING `waitUntilEmpty`
         //   Ensure the accessor functions as expected.
         //
         // Concerns:
-        //: 1 The method 'waitUntilEmpty' returns at the appropriate time with
-        //:   the expected value.
-        //:
-        //: 2 The accessor method is declared 'const'.
-        //:
-        //: 3 The accessor does not allocate any memory.
+        // 1. The method `waitUntilEmpty` returns at the appropriate time with
+        //    the expected value.
+        //
+        // 2. The accessor method is declared `const`.
+        //
+        // 3. The accessor does not allocate any memory.
         //
         // Plan:
-        //: 1 Create objects and set their state using 'pushBack'.  Schedule a
-        //:   deferred 'popFront' or 'disablePopFront' on a created thread.
-        //:   Invoke 'waitUntilEmpty', verify when the accessor returns and
-        //:   the returned value.  (C-1)
-        //:
-        //: 2 The accessor will only be accessed from a 'const' reference to
-        //:   the created object.  (C-2)
-        //:
-        //: 3 The default allocator will be used for all created objects
-        //:   (excluding those used to test 'allocator') and the number of
-        //:   allocation will be verified to ensure that no memory was
-        //:   allocated during use of the accessor.  (C-3)
+        // 1. Create objects and set their state using `pushBack`.  Schedule a
+        //    deferred `popFront` or `disablePopFront` on a created thread.
+        //    Invoke `waitUntilEmpty`, verify when the accessor returns and
+        //    the returned value.  (C-1)
+        //
+        // 2. The accessor will only be accessed from a `const` reference to
+        //    the created object.  (C-2)
+        //
+        // 3. The default allocator will be used for all created objects
+        //    (excluding those used to test `allocator`) and the number of
+        //    allocation will be verified to ensure that no memory was
+        //    allocated during use of the accessor.  (C-3)
         //
         // Testing:
         //   int waitUntilEmpty();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'waitUntilEmpty'" << endl
+                          << "TESTING `waitUntilEmpty`" << endl
                           << "========================" << endl;
 
-        if (verbose) cout << "\nTesting 'waitUntilEmpty'." << endl;
+        if (verbose) cout << "\nTesting `waitUntilEmpty`." << endl;
         {
             bslmt::ThreadUtil::Handle watchdogHandle;
 
@@ -1456,44 +1463,44 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'tryPopFront'
+        // TESTING `tryPopFront`
         //   Ensure the manipulator functions as expected.
         //
         // Concerns:
-        //: 1 The method 'tryPopFront' produces the expected value, does not
-        //:   affect allocated memory, and is exception neutral with respect to
-        //:   memory allocation.
-        //:
-        //: 2 The method 'tryPopFront' does not block, the argument is not
-        //:   modified, and the return value appropriately indicates whether
-        //:   the method failed to pop an element.
-        //:
-        //: 3 Memory is not leaked by any method and the destructor properly
-        //:   deallocates the residual allocated memory.
+        // 1. The method `tryPopFront` produces the expected value, does not
+        //    affect allocated memory, and is exception neutral with respect to
+        //    memory allocation.
+        //
+        // 2. The method `tryPopFront` does not block, the argument is not
+        //    modified, and the return value appropriately indicates whether
+        //    the method failed to pop an element.
+        //
+        // 3. Memory is not leaked by any method and the destructor properly
+        //    deallocates the residual allocated memory.
         //
         // Plan:
-        //: 1 Create objects using the 'bslma::TestAllocator', use 'pushBack'
-        //:   to obtain various states, use 'tryPopFront', verify the returned
-        //:   value, and that objects have a reduced length but unchanged
-        //:   capacity.  Also vary the test allocator's allocation limit to
-        //:   verify behavior in the presence of exceptions.  (C-1)
-        //:
-        //: 2 Use 'tryPopFront' on empty objects, verify the argument is
-        //:   unmodified and the return value indicates failure.
-        //:
-        //: 3 Use a supplied 'bslma::TestAllocator' that goes out-of-scope
-        //:   at the conclusion of each test to ensure all memory is returned
-        //:   to the allocator.  (C-3)
+        // 1. Create objects using the `bslma::TestAllocator`, use `pushBack`
+        //    to obtain various states, use `tryPopFront`, verify the returned
+        //    value, and that objects have a reduced length but unchanged
+        //    capacity.  Also vary the test allocator's allocation limit to
+        //    verify behavior in the presence of exceptions.  (C-1)
+        //
+        // 2. Use `tryPopFront` on empty objects, verify the argument is
+        //    unmodified and the return value indicates failure.
+        //
+        // 3. Use a supplied `bslma::TestAllocator` that goes out-of-scope
+        //    at the conclusion of each test to ensure all memory is returned
+        //    to the allocator.  (C-3)
         //
         // Testing:
         //   int tryPopFront(TYPE *value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'tryPopFront'" << endl
+                          << "TESTING `tryPopFront`" << endl
                           << "=====================" << endl;
 
-        if (verbose) cout << "\nTesting 'tryPopFront'." << endl;
+        if (verbose) cout << "\nTesting `tryPopFront`." << endl;
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
 
@@ -1619,21 +1626,21 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'tryPushBack'
+        // TESTING `tryPushBack`
         //   Ensure the manipulators forwards correctly.
         //
         // Concerns:
-        //: 1 The manipulators forward their argument to 'pushBack' correctly.
-        //:
-        //: 2 The return value is propogated.
+        // 1. The manipulators forward their argument to `pushBack` correctly.
+        //
+        // 2. The return value is propogated.
         //
         // Plan:
-        //: 1 Create an object and use 'tryPushBack' to modify the object's
-        //:   value.  Verify the state of the object using the basic accessors
-        //:   and 'popFront'.  (C-1)
-        //:
-        //: 2 Verify the return value of 'tryPushBack' before and after use of
-        //:   'disablePushBack'.  (C-2)
+        // 1. Create an object and use `tryPushBack` to modify the object's
+        //    value.  Verify the state of the object using the basic accessors
+        //    and `popFront`.  (C-1)
+        //
+        // 2. Verify the return value of `tryPushBack` before and after use of
+        //    `disablePushBack`.  (C-2)
         //
         // Testing:
         //   int tryPushBack(const TYPE& value);
@@ -1641,10 +1648,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'tryPushBack'" << endl
+                          << "TESTING `tryPushBack`" << endl
                           << "=====================" << endl;
 
-        if (verbose) cout << "\nTesting 'tryPushBack(const TYPE&)'." << endl;
+        if (verbose) cout << "\nTesting `tryPushBack(const TYPE&)`." << endl;
         {
             Obj mX;  const Obj& X = mX;
             ASSERT(0 == X.numElements());
@@ -1675,7 +1682,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'tryPushBack(bslmf::MovableRef<TYPE>)'."
+            cout << "\nTesting `tryPushBack(bslmf::MovableRef<TYPE>)`."
                  << endl;
         }
 #ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
@@ -1723,40 +1730,40 @@ int main(int argc, char *argv[])
         //   disabling enqueueing and dequeueing work as expected.
         //
         // Concerns:
-        //: 1 Each manipulator appropriated changes the state of the object.
-        //:
-        //: 2 Each accessor returns the value of the corresponding attribute of
-        //:   the object.
-        //:
-        //: 3 Each accessor method is declared 'const'.
-        //:
-        //: 4 No accessor allocates any memory.
-        //:
-        //: 5 The behavior of the associated enqueueing and dequeueing methods
-        //:   is correctly modified.
-        //:
-        //: 6 Blocked threads are released as appropriate.
+        // 1. Each manipulator appropriated changes the state of the object.
+        //
+        // 2. Each accessor returns the value of the corresponding attribute of
+        //    the object.
+        //
+        // 3. Each accessor method is declared `const`.
+        //
+        // 4. No accessor allocates any memory.
+        //
+        // 5. The behavior of the associated enqueueing and dequeueing methods
+        //    is correctly modified.
+        //
+        // 6. Blocked threads are released as appropriate.
         //
         // Plan:
-        //: 1 Create an object and directly modify the state.  Verify the state
-        //:   changes through use of the accessors.  (C-1,2)
-        //:
-        //: 2 The accessors will only be accessed from a 'const' reference to
-        //:   the created object.  (C-3)
-        //:
-        //: 3 The default allocator will be used for all created objects
-        //:   (excluding those used to test 'allocator') and the number of
-        //:   allocation will be verified to ensure that no memory was
-        //:   allocated during use of the accessors.  (C-4)
-        //:
-        //: 4 Create an object and directly verify the effect on the methods
-        //:   'waitUntilEmpty', 'popFront', and 'pushBack', as well as their
-        //:   return values.  (C-5)
-        //:
-        //: 5 Create objects and cause threads to block on the 'waitUntilEmpty'
-        //:   and 'popFront' methods.  Verify the threads are released, with
-        //:   appropriate return value, upon disabling the relevant
-        //:   functionality.  (C-6)
+        // 1. Create an object and directly modify the state.  Verify the state
+        //    changes through use of the accessors.  (C-1,2)
+        //
+        // 2. The accessors will only be accessed from a `const` reference to
+        //    the created object.  (C-3)
+        //
+        // 3. The default allocator will be used for all created objects
+        //    (excluding those used to test `allocator`) and the number of
+        //    allocation will be verified to ensure that no memory was
+        //    allocated during use of the accessors.  (C-4)
+        //
+        // 4. Create an object and directly verify the effect on the methods
+        //    `waitUntilEmpty`, `popFront`, and `pushBack`, as well as their
+        //    return values.  (C-5)
+        //
+        // 5. Create objects and cause threads to block on the `waitUntilEmpty`
+        //    and `popFront` methods.  Verify the threads are released, with
+        //    appropriate return value, upon disabling the relevant
+        //    functionality.  (C-6)
         //
         // Testing:
         //   void disablePopFront();
@@ -1838,31 +1845,31 @@ int main(int argc, char *argv[])
         //   The initial capacity constructor operates as expected.
         //
         // Concerns:
-        //: 1 The constructor creates the correct initial value and has the
-        //:   internal memory management system hooked up properly so that
-        //:   *all* internally allocated memory draws from the same
-        //:   user-supplied allocator whenever one is specified.
-        //:
-        //: 2 An allocation excepetion during construction results in a valid
-        //:   object.
-        //:
-        //: 3 Memory is not leaked by the constructor and the destructor
-        //:   properly deallocates the residual allocated memory.
+        // 1. The constructor creates the correct initial value and has the
+        //    internal memory management system hooked up properly so that
+        //    *all* internally allocated memory draws from the same
+        //    user-supplied allocator whenever one is specified.
+        //
+        // 2. An allocation excepetion during construction results in a valid
+        //    object.
+        //
+        // 3. Memory is not leaked by the constructor and the destructor
+        //    properly deallocates the residual allocated memory.
         //
         // Plan:
-        //: 1 Create an object using the constructor with and without passing
-        //:   in an allocator, verify the allocator is stored using the
-        //:   'allocator' accessor, and verifying all allocations are done from
-        //:   the allocator by using 'pushBack' to exceed the requested
-        //:   capacity.  (C-1)
-        //:
-        //: 2 Create objects using the 'bslma::TestAllocator'.  Vary the test
-        //:   allocator's allocation limit to verify behavior in the presence
-        //:   of exceptions.  (C-2)
-        //:
-        //: 3 Use a supplied 'bslma::TestAllocator' the goes out-of-scope
-        //:   at the conclusion of each test to ensure all memory is returned
-        //:   to the allocator.  (C-3)
+        // 1. Create an object using the constructor with and without passing
+        //    in an allocator, verify the allocator is stored using the
+        //    `allocator` accessor, and verifying all allocations are done from
+        //    the allocator by using `pushBack` to exceed the requested
+        //    capacity.  (C-1)
+        //
+        // 2. Create objects using the `bslma::TestAllocator`.  Vary the test
+        //    allocator's allocation limit to verify behavior in the presence
+        //    of exceptions.  (C-2)
+        //
+        // 3. Use a supplied `bslma::TestAllocator` the goes out-of-scope
+        //    at the conclusion of each test to ensure all memory is returned
+        //    to the allocator.  (C-3)
         //
         // Testing:
         //   SingleProducerQueue(capacity, *bA = 0);
@@ -1967,28 +1974,28 @@ int main(int argc, char *argv[])
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 Each accessor returns the value of the corresponding attribute of
-        //:   the object.
-        //:
-        //: 2 Each accessor method is declared 'const'.
-        //:
-        //: 3 No accessor allocates any memory.
+        // 1. Each accessor returns the value of the corresponding attribute of
+        //    the object.
+        //
+        // 2. Each accessor method is declared `const`.
+        //
+        // 3. No accessor allocates any memory.
         //
         // Plan:
-        //: 1 To test 'allocator', create object with various allocators and
-        //:   ensure the returned value matches the supplied allocator.
-        //:
-        //: 2 Use the generator function to produce objects of arbitrary state
-        //:   and verify the accessor's return value against expected values.
-        //:   (C-1)
-        //:
-        //: 3 The accessors will only be accessed from a 'const' reference to
-        //:   the created object.  (C-2)
-        //:
-        //: 4 The default allocator will be used for all created objects
-        //:   (excluding those used to test 'allocator') and the number of
-        //:   allocation will be verified to ensure that no memory was
-        //:   allocated during use of the accessors.  (C-3)
+        // 1. To test `allocator`, create object with various allocators and
+        //    ensure the returned value matches the supplied allocator.
+        //
+        // 2. Use the generator function to produce objects of arbitrary state
+        //    and verify the accessor's return value against expected values.
+        //    (C-1)
+        //
+        // 3. The accessors will only be accessed from a `const` reference to
+        //    the created object.  (C-2)
+        //
+        // 4. The default allocator will be used for all created objects
+        //    (excluding those used to test `allocator`) and the number of
+        //    allocation will be verified to ensure that no memory was
+        //    allocated during use of the accessors.  (C-3)
         //
         // Testing:
         //   bslma::Allocator *allocator() const;
@@ -2001,7 +2008,7 @@ int main(int argc, char *argv[])
                           << "BASIC ACCESSORS" << endl
                           << "===============" << endl;
 
-        if (verbose) cout << "\nTesting 'allocator'." << endl;
+        if (verbose) cout << "\nTesting `allocator`." << endl;
         {
             Obj mX;  const Obj& X = mX;
             ASSERT(&defaultAllocator == X.allocator());
@@ -2077,17 +2084,17 @@ int main(int argc, char *argv[])
         //   in any state.
         //
         // Concerns:
-        //: 1 Valid syntax produces the expected results.
-        //:
-        //: 2 Invalid syntax is detected and reported.
+        // 1. Valid syntax produces the expected results.
+        //
+        // 2. Invalid syntax is detected and reported.
         //
         // Plan:
-        //: 1 Evaluate a series of test strings of increasing complexity to
-        //:   set the state of a newly created object and verify the returned
-        //:   object using basic accessors and 'popFront'.  (C-1)
-        //:
-        //: 2 Evaluate the 'ggg' function with a series of test strings of
-        //:   increasing complexity and verify its return value.  (C-2)
+        // 1. Evaluate a series of test strings of increasing complexity to
+        //    set the state of a newly created object and verify the returned
+        //    object using basic accessors and `popFront`.  (C-1)
+        //
+        // 2. Evaluate the `ggg` function with a series of test strings of
+        //    increasing complexity and verify its return value.  (C-2)
         //
         // Testing:
         //    Obj& gg(Obj *object, const char *spec);
@@ -2215,58 +2222,58 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // PRIMARY MANIPULATORS TEST
         //   The basic concern is that the default constructor, the destructor,
-        //   'popFront', and the primary manipulators:
+        //   `popFront`, and the primary manipulators:
         //      - pushBack
         //      - removeAll
         //   operate as expected.
         //
         // Concerns:
-        //: 1 The default constructor creates the correct initial value and has
-        //:   the internal memory management system hooked up properly so that
-        //:   *all* internally allocated memory draws from the same
-        //:   user-supplied allocator whenever one is specified.
-        //:
-        //: 2 The method 'pushBack' produces the expected value, increases
-        //:   capacity as needed, and is exception neutral with respect to
-        //:   memory allocation.
-        //:
-        //: 3 The method 'removeAll' produces the expected value (empty) and
-        //:   does not affect allocated memory.
-        //:
-        //: 4 The method 'popFront' produces the expected value, does not
-        //:   affect allocated memory, and is exception neutral with respect to
-        //:   memory allocation.
-        //:
-        //: 5 Memory is not leaked by any method and the destructor properly
-        //:   deallocates the residual allocated memory.
+        // 1. The default constructor creates the correct initial value and has
+        //    the internal memory management system hooked up properly so that
+        //    *all* internally allocated memory draws from the same
+        //    user-supplied allocator whenever one is specified.
+        //
+        // 2. The method `pushBack` produces the expected value, increases
+        //    capacity as needed, and is exception neutral with respect to
+        //    memory allocation.
+        //
+        // 3. The method `removeAll` produces the expected value (empty) and
+        //    does not affect allocated memory.
+        //
+        // 4. The method `popFront` produces the expected value, does not
+        //    affect allocated memory, and is exception neutral with respect to
+        //    memory allocation.
+        //
+        // 5. Memory is not leaked by any method and the destructor properly
+        //    deallocates the residual allocated memory.
         //
         // Plan:
-        //: 1 Create an object using the default constructor with and without
-        //:   passing in an allocator, verify the allocator is stored using the
-        //:   (untested) 'allocator' accessor, and verifying all allocations
-        //:   are done from the allocator in future tests.
-        //:
-        //: 2 Create objects using the
-        //:   'bslma::TestAllocator', use the 'pushBack' method with various
-        //:   values, and the (untested) accessors to verify the value of the
-        //:   object and that allocation occurred when expected.  Also vary the
-        //:   test allocator's allocation limit to verify behavior in the
-        //:   presence of exceptions.  (C-1,2)
-        //:
-        //: 3 Create objects using the 'bslma::TestAllocator', use 'pushBack'
-        //:   to obtain various states, use 'removeAll', verify the objects are
-        //:   empty, then repopulate the objects and ensure no allocation
-        //:   occurs.  (C-3)
-        //:
-        //: 4 Create objects using the 'bslma::TestAllocator', use 'pushBack'
-        //:   to obtain various states, use 'popFront', verify the objects have
-        //:   a reduced length but unchanged capacity.  Also vary the test
-        //:   allocator's allocation limit to verify behavior in the presence
-        //:   of exceptions.  (C-4)
-        //:
-        //: 5 Use a supplied 'bslma::TestAllocator' that goes out-of-scope
-        //:   at the conclusion of each test to ensure all memory is returned
-        //:   to the allocator.  (C-5)
+        // 1. Create an object using the default constructor with and without
+        //    passing in an allocator, verify the allocator is stored using the
+        //    (untested) `allocator` accessor, and verifying all allocations
+        //    are done from the allocator in future tests.
+        //
+        // 2. Create objects using the
+        //    `bslma::TestAllocator`, use the `pushBack` method with various
+        //    values, and the (untested) accessors to verify the value of the
+        //    object and that allocation occurred when expected.  Also vary the
+        //    test allocator's allocation limit to verify behavior in the
+        //    presence of exceptions.  (C-1,2)
+        //
+        // 3. Create objects using the `bslma::TestAllocator`, use `pushBack`
+        //    to obtain various states, use `removeAll`, verify the objects are
+        //    empty, then repopulate the objects and ensure no allocation
+        //    occurs.  (C-3)
+        //
+        // 4. Create objects using the `bslma::TestAllocator`, use `pushBack`
+        //    to obtain various states, use `popFront`, verify the objects have
+        //    a reduced length but unchanged capacity.  Also vary the test
+        //    allocator's allocation limit to verify behavior in the presence
+        //    of exceptions.  (C-4)
+        //
+        // 5. Use a supplied `bslma::TestAllocator` that goes out-of-scope
+        //    at the conclusion of each test to ensure all memory is returned
+        //    to the allocator.  (C-5)
         //
         // Testing:
         //   SingleProducerQueue(bslma::Allocator *basicAllocator = 0);
@@ -2387,7 +2394,7 @@ int main(int argc, char *argv[])
             ASSERT(7 == sa.numAllocations());
         }
 
-        if (verbose) cout << "\nTesting 'pushBack'." << endl;
+        if (verbose) cout << "\nTesting `pushBack`." << endl;
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
 
@@ -2423,7 +2430,7 @@ int main(int argc, char *argv[])
             ASSERT(allocations == defaultAllocator.numAllocations());
         }
 
-        if (verbose) cout << "\nTesting 'removeAll'." << endl;
+        if (verbose) cout << "\nTesting `removeAll`." << endl;
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
 
@@ -2465,7 +2472,7 @@ int main(int argc, char *argv[])
             ASSERT(allocations == defaultAllocator.numAllocations());
         }
 
-        if (verbose) cout << "\nTesting 'popFront'." << endl;
+        if (verbose) cout << "\nTesting `popFront`." << endl;
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
 
@@ -2581,11 +2588,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Instantiate an object and verify basic functionality.  (C-1)
+        // 1. Instantiate an object and verify basic functionality.  (C-1)
         //
         // Testing:
         //   BREATHING TEST

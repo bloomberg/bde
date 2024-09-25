@@ -15,9 +15,9 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines a meta-function, 'bsl::is_const' and a
-// template variable 'bsl::is_const_v', that determine whether a template
-// parameter type is a 'const'-qualified type.  Thus, we need to ensure that
+// The component under test defines a meta-function, `bsl::is_const` and a
+// template variable `bsl::is_const_v`, that determine whether a template
+// parameter type is a `const`-qualified type.  Thus, we need to ensure that
 // the value returned by the meta-function is correct for each possible
 // category of types.
 //
@@ -82,28 +82,28 @@ void aSsErT(bool condition, const char *message, int line)
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900
 // The xlC and Sun CC compilers mistakenly detect function types with trailing
 // cv-qualifiers as being cv-qualified themselves.  However, in such cases the
-// cv-qualifier applies to the (hidden) 'this' pointer, as these function types
+// cv-qualifier applies to the (hidden) `this` pointer, as these function types
 // exist only to be the result-type of a pointer-to-member type.  By definition
 // no function type can ever be cv-qualified.  The Microsoft compiler cannot
 // parse such types at all.
 //
-// Note that we could obtain the correct answer by deriving 'is_const' from
-// (the negation of) 'is_function', but that simply exposes that our current
-// implementation of 'is_function' does not detect such types either.
+// Note that we could obtain the correct answer by deriving `is_const` from
+// (the negation of) `is_function`, but that simply exposes that our current
+// implementation of `is_function` does not detect such types either.
 #   define BSLMF_ISCONST_COMPILER_CANNOT_PARSE_ABOMINABLE_FUNCTION_TYPES
 # endif
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
 // The xlC and Sun CC compilers mistakenly detect function types with trailing
 // cv-qualifiers as being cv-qualified themselves.  However, in such cases the
-// cv-qualifier applies to the (hidden) 'this' pointer, as these function types
+// cv-qualifier applies to the (hidden) `this` pointer, as these function types
 // exist only to be the result-type of a pointer-to-member type.  By definition
 // no function type can ever be cv-qualified.  The Microsoft compiler cannot
 // parse such types at all.
 //
-// Note that we could obtain the correct answer by deriving 'is_const' from
-// (the negation of) 'is_function', but that simply exposes that our current
-// implementation of 'is_function' does not detect such types either.
+// Note that we could obtain the correct answer by deriving `is_const` from
+// (the negation of) `is_function`, but that simply exposes that our current
+// implementation of `is_function` does not detect such types either.
 #   define BSLMF_ISCONST_COMPILER_CANNOT_QUALIFY_ABOMINABLE_FUNCTION_TYPES
 #   if BSLS_PLATFORM_CMP_VERSION == 0x1001 // 0x1001 is xlc version 16.01
 //    The xlC 12 compiler can correctly parse abominable function types, but
@@ -126,9 +126,9 @@ void aSsErT(bool condition, const char *message, int line)
 
 # if defined(BSLS_PLATFORM_CMP_IBM)                                           \
   || defined(BSLMF_ISCONST_COMPILER_DEDUCES_BAD_CV_QUAL_FOR_ARRAYS)
-// The IBM xlC compiler correctly matches an array of 'const volatile' elements
-// to a function template taking 'const T&', but incorrectly deduces 'T' to be
-// 'const volatile X[N]' rather than simply 'volatile X[N]'.  The trait is
+// The IBM xlC compiler correctly matches an array of `const volatile` elements
+// to a function template taking `const T&`, but incorrectly deduces `T` to be
+// `const volatile X[N]` rather than simply `volatile X[N]`.  The trait is
 // manually tested to confirm that it gives the correct result, so we define
 // a macro allowing us to disable the affected tests on this platform.
 #   define BSLMF_ISCONST_COMPILER_DEDUCES_BAD_TYPE_FOR_CV_ARRAY
@@ -169,41 +169,41 @@ struct TestType {
 //                      FUNCTIONS TO SUPPORT TESTING
 //-----------------------------------------------------------------------------
 
+/// Return `TRAIT::value`, and `ASSERT` that the deduced type `TRAIT` has
+/// the same `value` and `type` as the `bsl::true_type` trait.
 template <class TRAIT>
 bool eval_dispatch(TRAIT, bsl::true_type)
-    // Return 'TRAIT::value', and 'ASSERT' that the deduced type 'TRAIT' has
-    // the same 'value' and 'type' as the 'bsl::true_type' trait.
 {
     ASSERT((bsl::is_same<typename TRAIT::type, bsl::true_type>::value));
     ASSERT(true == TRAIT::value);
     return TRAIT::value;
 }
 
+/// Return `TRAIT::value`, and `ASSERT` that the deduced type `TRAIT` has
+/// the same `value` and `type` as the `bsl::false_type` trait.
 template <class TRAIT>
 bool eval_dispatch(TRAIT, bsl::false_type)
-    // Return 'TRAIT::value', and 'ASSERT' that the deduced type 'TRAIT' has
-    // the same 'value' and 'type' as the 'bsl::false_type' trait.
 {
     ASSERT((bsl::is_same<typename TRAIT::type, bsl::false_type>::value));
     ASSERT(false == TRAIT::value);
     return TRAIT::value;
 }
 
+/// Return `TRAIT::value`, and confirm that the deduced type `TRAIT` has the
+/// base-characteristics of either `bsl::true_type` or `bsl::false_type`.
 template <class TRAIT>
 bool eval(const TRAIT& value)
-    // Return 'TRAIT::value', and confirm that the deduced type 'TRAIT' has the
-    // base-characteristics of either 'bsl::true_type' or 'bsl::false_type'.
 {
     return eval_dispatch(value, value);
 }
 
+/// Return `is_const<TYPE>::value`, and confirm that the deduced type
+/// `is_const<TYPE>` has the base-characteristics of either `bsl::true_type`
+/// or `bsl::false_type`.  If the current compiler supports the variable
+/// templates C++14 feature then asserts on `bsl::is_const<TYPE>::value` and
+/// `bsl::is_const_v` values equality.
 template <class TYPE>
 bool eval()
-    // Return 'is_const<TYPE>::value', and confirm that the deduced type
-    // 'is_const<TYPE>' has the base-characteristics of either 'bsl::true_type'
-    // or 'bsl::false_type'.  If the current compiler supports the variable
-    // templates C++14 feature then asserts on 'bsl::is_const<TYPE>::value' and
-    // 'bsl::is_const_v' values equality.
 {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
     ASSERT(bsl::is_const<TYPE>::value == bsl::is_const_v<TYPE>);
@@ -247,12 +247,12 @@ bool testIsNotConstable()
 }
 
 
+/// Call this function with a pointer-to-member pointing specifically to a
+/// cv-qualified member function.  This will allow validation that a
+/// cv-qualified "abominable" function does not carry a `const` qualifier,
+/// even on platforms that do not allow us to enter the type directly.
 template <class MEMBER, class HOST>
 void testNoConstOnMemberFunction(MEMBER HOST::*)
-    // Call this function with a pointer-to-member pointing specifically to a
-    // cv-qualified member function.  This will allow validation that a
-    // cv-qualified "abominable" function does not carry a 'const' qualifier,
-    // even on platforms that do not allow us to enter the type directly.
 {
     ASSERT(!testIsConst<MEMBER>());
 }
@@ -288,13 +288,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -307,32 +307,32 @@ int main(int argc, char *argv[])
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Verify 'Const' Types
+///Example 1: Verify `Const` Types
 ///- - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a particular type is
-// 'const'-qualified.
+// `const`-qualified.
 //
-// First, we create two 'typedef's -- a 'const'-qualified type and an
+// First, we create two `typedef`s -- a `const`-qualified type and an
 // unqualified type:
-//..
+// ```
     typedef int        MyType;
     typedef const int  MyConstType;
-//..
-// Now, we instantiate the 'bsl::is_const' template for each of the 'typedef's
-// and assert the 'value' static data member of each instantiation:
-//..
+// ```
+// Now, we instantiate the `bsl::is_const` template for each of the `typedef`s
+// and assert the `value` static data member of each instantiation:
+// ```
     ASSERT(false == bsl::is_const<MyType>::value);
     ASSERT(true  == bsl::is_const<MyConstType>::value);
-//..
+// ```
 // Note that if the current compiler supports the variable templates C++14
 // feature then we can re-write the snippet of code above using 'the
 // bsl::is_const_v' variable as follows:
-//..
+// ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
     ASSERT(false == bsl::is_const_v<MyType>);
     ASSERT(true  == bsl::is_const_v<MyConstType>);
 #endif
-//..
+// ```
 
       } break;
       case 3: {
@@ -345,24 +345,24 @@ int main(int argc, char *argv[])
         //   a type.
         //
         // Concerns:
-        //: 1 'is_const<TYPE>::value' has the value expected for the type
-        //:   deduced for a single function template, with no overloads, that
-        //:   deduces the complete type, including cv-qualifiers, from its
-        //:   argument passed by reference.
-        //:
-        //: 2 'is_const<TYPE>::value' is always 'false' for a type deduced from
-        //:   a pair of function template overloads taking their arguments by
-        //:   reference, and by const-reference.
-        //:
-        //: 3 Given the specific information that some platforms require a
-        //:   special implementation for arrays, multidimensional arrays should
-        //:   have the same result as this trait applied to an array of a
-        //:   single dimension with the same (potentially cv-qualified) element
-        //:   type.
+        // 1. `is_const<TYPE>::value` has the value expected for the type
+        //    deduced for a single function template, with no overloads, that
+        //    deduces the complete type, including cv-qualifiers, from its
+        //    argument passed by reference.
+        //
+        // 2. `is_const<TYPE>::value` is always `false` for a type deduced from
+        //    a pair of function template overloads taking their arguments by
+        //    reference, and by const-reference.
+        //
+        // 3. Given the specific information that some platforms require a
+        //    special implementation for arrays, multidimensional arrays should
+        //    have the same result as this trait applied to an array of a
+        //    single dimension with the same (potentially cv-qualified) element
+        //    type.
         //
         // Plan:
-        //: 1 Verify that 'bsl::is_const<TYPE>::value' has the correct value
-        //:   for each concern.
+        // 1. Verify that `bsl::is_const<TYPE>::value` has the correct value
+        //    for each concern.
         //
         // Testing:
         //   CONCERN: not all types support cv-qualifiers
@@ -436,24 +436,24 @@ int main(int argc, char *argv[])
         //   types deduced by the compiler in generic code.
         //
         // Concerns:
-        //: 1 'is_const<TYPE>::value' has the value expected for the type
-        //:   deduced for a single function template, with no overloads, that
-        //:   deduces the complete type, including cv-qualifiers, from its
-        //:   argument passed by reference.
-        //:
-        //: 2 'is_const<TYPE>::value' is always 'false' for a type deduced from
-        //:   a pair of function template overloads taking their arguments by
-        //:   reference, and by const-reference.
-        //:
-        //: 3 Given the specific information that some platforms require a
-        //:   special implementation for arrays, multidimensional arrays should
-        //:   have the same result as this trait applied to an array of a
-        //:   single dimension with the same (potentially cv-qualified) element
-        //:   type.
+        // 1. `is_const<TYPE>::value` has the value expected for the type
+        //    deduced for a single function template, with no overloads, that
+        //    deduces the complete type, including cv-qualifiers, from its
+        //    argument passed by reference.
+        //
+        // 2. `is_const<TYPE>::value` is always `false` for a type deduced from
+        //    a pair of function template overloads taking their arguments by
+        //    reference, and by const-reference.
+        //
+        // 3. Given the specific information that some platforms require a
+        //    special implementation for arrays, multidimensional arrays should
+        //    have the same result as this trait applied to an array of a
+        //    single dimension with the same (potentially cv-qualified) element
+        //    type.
         //
         // Plan:
-        //: 1 Verify that 'bsl::is_const<TYPE>::value' has the correct value
-        //:   for each concern.
+        // 1. Verify that `bsl::is_const<TYPE>::value` has the correct value
+        //    for each concern.
         //
         // Testing:
         //   Function-overload consistency
@@ -513,8 +513,8 @@ int main(int argc, char *argv[])
         ASSERT(false == testCVDeduction(volatileArrayUB2D));
         ASSERT( true == testCVDeduction(constVolatileArrayUB2D));
 
-        // Overload match should implicitly strip off 'const', so the following
-        // test functions should always return 'false'.
+        // Overload match should implicitly strip off `const`, so the following
+        // test functions should always return `false`.
 
         ASSERT(false == testCVOverload(data));
         ASSERT(false == testCVOverload(constData));
@@ -547,42 +547,42 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'bsl::is_const<TYPE>'
-        //   Ensure that 'bsl::is_const' has the correct base-characteristics
+        // TESTING `bsl::is_const<TYPE>`
+        //   Ensure that `bsl::is_const` has the correct base-characteristics
         //   for a variety of template parameter types, and neither hides nor
-        //   makes ambiguous the salient elements of the 'integral_constant'
+        //   makes ambiguous the salient elements of the `integral_constant`
         //   interface.
         //
         // Concerns:
-        //: 1 'is_const<T>::value' is 'false' when 'T' is a (possibly
-        //:   'volatile'-qualified) type.
-        //:
-        //: 2 'is_const<T>::value' is 'true' when 'T' is a 'const'-qualified or
-        //:    cv-qualified type.
-        //:
-        //: 3 'is_const<T>' is publicly and unambiguously derived from either
-        //:   'true_type' or 'false_type', according to concerns 1 and 2.
-        //:
-        //: 4 Objects of type 'is_const<T>' can be default constructed and
-        //:   copied, for use in tag-dispatch schemes.
-        //:
-        //: 5 That 'is_const_v<T>' has the same value as 'is_const<T>::value'
-        //:   for a variety of template parameter types.
+        // 1. `is_const<T>::value` is `false` when `T` is a (possibly
+        //    `volatile`-qualified) type.
+        //
+        // 2. `is_const<T>::value` is `true` when `T` is a `const`-qualified or
+        //     cv-qualified type.
+        //
+        // 3. `is_const<T>` is publicly and unambiguously derived from either
+        //    `true_type` or `false_type`, according to concerns 1 and 2.
+        //
+        // 4. Objects of type `is_const<T>` can be default constructed and
+        //    copied, for use in tag-dispatch schemes.
+        //
+        // 5. That `is_const_v<T>` has the same value as `is_const<T>::value`
+        //    for a variety of template parameter types.
         //
         // Plan:
-        //: 1 Call a test function template with a value-initialized object of
-        //:   type 'is_const<T>' for a 'T' of each possible value category
-        //:
-        //:  1a) That function shall dispatch to a further overload set that
-        //:      tag-dispatches on 'true_type' and 'false_type'.
-        //:  1b) Return 'value' to compare with the expected result for the
-        //:      template argument 'T'.
+        // 1. Call a test function template with a value-initialized object of
+        //    type `is_const<T>` for a `T` of each possible value category
+        //
+        //   1a) That function shall dispatch to a further overload set that
+        //       tag-dispatches on `true_type` and `false_type`.
+        //   1b) Return `value` to compare with the expected result for the
+        //       template argument `T`.
         //
         // Testing:
         //   bsl::is_const<TYPE>
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'bsl::is_const<TYPE>'"
+        if (verbose) printf("\nTESTING `bsl::is_const<TYPE>`"
                             "\n=============================\n");
 
         // C-1

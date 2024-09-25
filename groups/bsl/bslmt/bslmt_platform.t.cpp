@@ -14,7 +14,7 @@
 #include <bsls_platform.h>
 
 #include <bsl_iostream.h>
-#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstdlib.h>     // `atoi`
 
 using namespace BloombergLP;
 using namespace bsl;

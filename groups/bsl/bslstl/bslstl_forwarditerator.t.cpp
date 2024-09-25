@@ -19,9 +19,9 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'bslstl::ForwardIterator' is an in-core value-semantic type that adapts a
+// `bslstl::ForwardIterator` is an in-core value-semantic type that adapts a
 // more limited type, which offers a basic set of operations, so that the
-// resulting 'bslstl::ForwardIterator' object meets all the requirements of a
+// resulting `bslstl::ForwardIterator` object meets all the requirements of a
 // standard Forward Iterator.  These requirements are spelled out in
 // [forward.iterators], Table 103 - Forward iterator requirements.  The primary
 // manipulator of an iterator is the pre-increment operator that, together
@@ -33,7 +33,7 @@ using namespace BloombergLP;
 //
 // In order to test this iterator adaptor, a simple container supporting
 // forward iterators will be implemented, to provide the basic type to be
-// adapted.  This container will use the 'bslstl::ForwardIterator' template
+// adapted.  This container will use the `bslstl::ForwardIterator` template
 // to declare its iterators, as suggested in the usage example.
 //
 //  SKETCH NOTES FOR A PLAN THAT NEEDS UPDATING
@@ -139,13 +139,13 @@ void aSsErT(bool condition, const char *message, int line)
 namespace
 {
 
+///  A basic algorithm to verify the iterator can type walk the range
+///  specified by the pair of iterators `first` and `last`, and return at
+///  end of the range.  We choose to calculate distance as this might prove
+///  useful in verifying the number of iterations and operations in further
+///  tests.
 template<class Iter>
 int testDistance( Iter first, Iter last ) {
-    //  A basic algorithm to verify the iterator can type walk the range
-    //  specified by the pair of iterators 'first' and 'last', and return at
-    //  end of the range.  We choose to calculate distance as this might prove
-    //  useful in verifying the number of iterations and operations in further
-    //  tests.
     int result = 0;
     while( first != last ) {
         ++result;
@@ -275,8 +275,8 @@ public:
     // IncorrectDereferenceIter& operator=(const IncorrectDereferenceIter&);
     // ~IncorrectDereferenceIter();
 
+    /// This type of signature should fail to compile
     TYPE operator*() const;
-        // This type of signature should fail to compile
 
     bool operator==(const IncorrectDereferenceIter& rhs) const;
     void operator++();
@@ -294,7 +294,7 @@ public:
 //  validating the iterator adaptor is that the iterator-like class being
 //  adapted for the container's iterators support only the minimum set of
 //  operations required for the adaptor.  If not for this requirement, we would
-//  use 'slist' as an already well-tested component.  Note that this simple
+//  use `slist` as an already well-tested component.  Note that this simple
 //  list container supports appending items to the front of the list, but does
 //  not support insertion at any other location, nor erasure.  This provides
 //  the minimal set of facilities needed to validate the iterator under test.
@@ -405,7 +405,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   ForwardIterator operator++(ForwardIterator&, int);
@@ -609,8 +609,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING EQUALITY OPERATOR
         //   The equality operator defines the notion of value for a type.  It
-        //   shall return 'true' when two iterators have the same value, and
-        //   'false' otherwise.  Likewise, operator!= shall return
+        //   shall return `true` when two iterators have the same value, and
+        //   `false` otherwise.  Likewise, operator!= shall return
         //
         // Concerns:
         //    Iterators must compare equal to themselves.
@@ -624,14 +624,14 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Create a list with a single element, so that the sequence is not
-        //   empty, but two increments will take an iterator from 'begin' to
-        //   'end'.  Validate that both the begin and end iterators compare
+        //   empty, but two increments will take an iterator from `begin` to
+        //   `end`.  Validate that both the begin and end iterators compare
         //   equal to themselves, and do not compare equal to each other.  Then
-        //   verify that an iterator copied from a 'begin' iterator compares
-        //   equal to 'begin' and not 'end', after a single increment compares
+        //   verify that an iterator copied from a `begin` iterator compares
+        //   equal to `begin` and not `end`, after a single increment compares
         //   equal to neither, and after a third increment compares equal to
-        //   the 'end' iterator.  Validating two iterators compare equal means
-        //   asserting both the '==' and '!=' operators yield the correct
+        //   the `end` iterator.  Validating two iterators compare equal means
+        //   asserting both the `==` and `!=` operators yield the correct
         //   values.
         //
         // Testing:
@@ -685,12 +685,12 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'print' AND 'operator<<'
+        // TESTING `print` AND `operator<<`
         //   N/A for this component, although a debug printer might be
         //   considered in the future.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'print' AND 'operator<<'"
+        if (verbose) printf("\nTESTING `print` AND `operator<<`"
                             "\n================================\n");
 
         if (verbose) printf("\nIterators do not support printing or streaming."
@@ -793,7 +793,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING (PRIMITIVE) GENERATORS
         //   The primitive generators for our iterator, the primary piece of
-        //   test apparatus, are the 'begin' and 'end' member functions of the
+        //   test apparatus, are the `begin` and `end` member functions of the
         //   sample container type.  It is difficult to test the value of these
         //   iterators without any basic accessors, but we can assert several
         //   basic properties:
@@ -801,7 +801,7 @@ int main(int argc, char *argv[])
         //    1/ No generated iterator shall have the value of a default-
         //       constructed iterator.
         //    2/ The generated iterators shall compare equal to themselves.
-        //    3/ The iterators generated by 'begin' and 'end' shall compare
+        //    3/ The iterators generated by `begin` and `end` shall compare
         //       equal if, and only if, the underlying container is empty.
         //   ..
         //   Note that while it is not possible to compare an iterator with
@@ -896,7 +896,7 @@ int main(int argc, char *argv[])
                             "\n============================\n");
 
         if (verbose) printf("\nTesting default constructor, destructor, "
-                             "and 'operator++'.\n");
+                             "and `operator++`.\n");
 
         //  Declare test data and types
         int testData[4] = { 0, 1, 2, 3 };
@@ -943,11 +943,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Invoke all methods and verify their behavior.
+        // 1. Invoke all methods and verify their behavior.
         //
         // Testing:
         //   BREATHING TEST
@@ -1026,7 +1026,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(wit2->data,          13 == wit2->data);
         LOOP2_ASSERT(&*wit1, &*wit2, &*wit1 == &*wit2);
 
-        //  Verify 'const_iterator' iterates, just like non-'const' 'iterator'
+        //  Verify `const_iterator` iterates, just like non-`const` `iterator`
         ++wit1;
         ++wit2;
         LOOP2_ASSERT(&*wit1, &*wit2, wit1 == wit2);
@@ -1133,13 +1133,13 @@ int main(int argc, char *argv[])
         }
 
         for (my_List<int>::iterator it = a.begin(); it != a.end(); ) {
-            //  Each iteration of the loop shall advance 'it' exactly once.
+            //  Each iteration of the loop shall advance `it` exactly once.
 
-            // Test 'const_iterator' can be initialized from non-'const'.
+            // Test `const_iterator` can be initialized from non-`const`.
             my_List<int>::const_iterator itc = it;
             ASSERT(itc == it);
 
-            // Test assignment from non-'const' to 'const_iterator'.
+            // Test assignment from non-`const` to `const_iterator`.
             ++itc;
             ASSERT(itc != it);
             itc = it;

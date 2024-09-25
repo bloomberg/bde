@@ -7,8 +7,8 @@
 #include <bsls_asserttest.h>
 #include <bsls_keyword.h>
 
-#include <bsl_cstdlib.h>     // 'atoi'
-#include <bsl_cstring.h>     // 'memcpy'
+#include <bsl_cstdlib.h>     // `atoi`
+#include <bsl_cstring.h>     // `memcpy`
 #include <bsl_iostream.h>
 #include <bsl_memory.h>
 
@@ -112,8 +112,8 @@ class my_Factory : public bdlma::Factory<my_Obj> {
         ASSERT(X == &d_obj);
     }
 
+    /// Return descriptive code for the function called.
     int fun() const
-        // Return descriptive code for the function called.
     {
        return d_fun;
     }
@@ -135,40 +135,40 @@ int main(int argc, char *argv[]) {
 ///Usage
 ///-----
 // Suppose that we would like to transfer an object between threads using
-// 'bsl::shared_ptr'.  For the sake of discussion, the type of this object is
-// 'my_Obj' and we will suppose that it is created using a concrete
-// implementation of 'bdlma::Factory', say, 'my_Factory', the implementation of
+// `bsl::shared_ptr`.  For the sake of discussion, the type of this object is
+// `my_Obj` and we will suppose that it is created using a concrete
+// implementation of `bdlma::Factory`, say, `my_Factory`, the implementation of
 // which is assumed:
-//..
+// ```
     my_Factory  factory;
     my_Obj     *object = factory.createObject();
-//..
-// Next we create a shared pointer passing to it 'object' and the 'factory'
-// that was used to create 'object':
-//..
+// ```
+// Next we create a shared pointer passing to it `object` and the `factory`
+// that was used to create `object`:
+// ```
     bsl::shared_ptr<my_Obj> handle(object, &factory);
-//..
-// Now the 'handle' can be passed to another thread or enqueued efficiently.
-// Once the reference count of 'handle' goes to 0, 'object' is automatically
-// deleted via the 'deleteObject' method of 'factory', which in turn will
-// invoke the destructor of 'object'.  Note that since the type of the factory
-// used to both create the object under management and to instantiate 'handle'
-// is 'bdlma::Factory<my_Obj>', any kind of creator/deleter that implements
+// ```
+// Now the `handle` can be passed to another thread or enqueued efficiently.
+// Once the reference count of `handle` goes to 0, `object` is automatically
+// deleted via the `deleteObject` method of `factory`, which in turn will
+// invoke the destructor of `object`.  Note that since the type of the factory
+// used to both create the object under management and to instantiate `handle`
+// is `bdlma::Factory<my_Obj>`, any kind of creator/deleter that implements
 // this protocol can be passed.  Also note, on the downside, that the lifetime
-// of 'factory' must be longer than the lifetime of all associated object
+// of `factory` must be longer than the lifetime of all associated object
 // instances.
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // PROTOCOL TEST:
         //   All we need to do is make sure that a subclass of the
-        //   'bdlma::Factory' class compiles and links when all virtual
+        //   `bdlma::Factory` class compiles and links when all virtual
         //   functions are defined.
         //
         // Plan:
-        //   Construct an object of a class derived from 'bdlma::Factory'.
-        //   Cast a reference to the object to the base class 'bdlma::Factory'.
-        //   Using the base class reference invoke both 'delete' method and
+        //   Construct an object of a class derived from `bdlma::Factory`.
+        //   Cast a reference to the object to the base class `bdlma::Factory`.
+        //   Using the base class reference invoke both `delete` method and
         //   verify that the correct implementations of the methods are called.
         //
         // Testing:
@@ -183,17 +183,17 @@ int main(int argc, char *argv[]) {
         bdlma::Factory<my_Obj>& a = myA;
         my_Obj *X = (my_Obj*)NULL;
 
-        if (verbose) cout << "\tTesting 'createObject'" << endl;
+        if (verbose) cout << "\tTesting `createObject`" << endl;
         {
             X = a.createObject();
             ASSERT(2 == myA.fun()); ASSERT(X);
         }
 
-        if (verbose) cout << "\tTesting 'deleteObject'" << endl;
+        if (verbose) cout << "\tTesting `deleteObject`" << endl;
         {
             a.deleteObject(X);  ASSERT(1 == myA.fun());
         }
-        if (verbose) cout << "\tTesting '~bdlma::Factory'" << endl;
+        if (verbose) cout << "\tTesting `~bdlma::Factory`" << endl;
         {
             bdlma::Factory<my_Obj> *mX = new my_Factory(&destructorFlag);
             delete mX;

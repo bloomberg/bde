@@ -210,24 +210,24 @@ bool globalVerbose = false;
 
 namespace BDLF_BIND_TEST_CASE_11 {
 
+/// Small function to test small object optimization.  The specified `x` is
+/// an unused parameter, though is assigned to avoid optimizer issues.
 void myTinyTrivialFunction(int x)
-    // Small function to test small object optimization.  The specified 'x' is
-    // an unused parameter, though is assigned to avoid optimizer issues.
 {
     BSLA_MAYBE_UNUSED volatile int y = x;
 }
 
+/// Large object used to prevent small object optimization.
 struct BigThing {
-    // Large object used to prevent small object optimization.
     int d_data[2048];
 
     BigThing() : d_data()  {}
 };
 
+/// Function taking a large parameter reference to test binding parameters
+/// too large for small object optimization.  The specified `bt` and `y` are
+/// used in the body to avoid optimizer issues.
 void bigThingProcessor(const BigThing& bt, int y)
-    // Function taking a large parameter reference to test binding parameters
-    // too large for small object optimization.  The specified 'bt' and 'y' are
-    // used in the body to avoid optimizer issues.
 {
     myTinyTrivialFunction(bt.d_data[y] + y);
 }
@@ -238,8 +238,8 @@ void bigThingProcessor(const BigThing& bt, int y)
 //                   TESTING FUNCTIONS/CLASSES FOR CASE 9
 // ----------------------------------------------------------------------------
 
+/// Functor with a mix of rvalue and non-const reference arguments.
 struct MixedArgFunctor {
-    // Functor with a mix of rvalue and non-const reference arguments.
 
     typedef void ResultType;
 
@@ -294,10 +294,10 @@ int myFunctionWithVolatile(volatile int const& a1, volatile int* a2)
     return 1;
 }
 
+/// This stateless `struct` provides several function operators with
+/// different signatures, including one of them being a template, all
+/// returning a different value.
 struct MyFunctionObjectWithMultipleSignatures {
-    // This stateless 'struct' provides several function operators with
-    // different signatures, including one of them being a template, all
-    // returning a different value.
 
     // TYPES
     typedef int ResultType;
@@ -320,8 +320,8 @@ struct MyFunctionObjectWithMultipleSignatures {
     }
 };
 
+/// This stateless `struct` declares `result_type` rather than `ResultType`.
 struct MyFunctionObjectWithAlternateResultType {
-    // This stateless 'struct' declares 'result_type' rather than 'ResultType'.
 
     // TYPES
     typedef int result_type;
@@ -333,9 +333,9 @@ struct MyFunctionObjectWithAlternateResultType {
     }
 };
 
+/// This stateless `struct` declares both `result_type` and `ResultType`.
+/// `result_type` should be used.
 struct MyFunctionObjectWithBothResultTypes {
-    // This stateless 'struct' declares both 'result_type' and 'ResultType'.
-    // 'result_type' should be used.
 
     // TYPES
     typedef long long result_type;
@@ -348,11 +348,11 @@ struct MyFunctionObjectWithBothResultTypes {
     }
 };
 
+/// This `struct` declares `result_type` and a `const` function-call
+/// operator taking no arguments.
+///
+/// This tests for a failure case highlighted in DRQS 164900532.
 struct MyFunctionObjectWithConstVoidFunction {
-    // This 'struct' declares 'result_type' and a 'const' function-call
-    // operator taking no arguments.
-    //
-    // This tests for a failure case highlighted in DRQS 164900532.
 
     // PUBLIC INSTANCE DATA
     mutable int d_state;
@@ -361,24 +361,26 @@ struct MyFunctionObjectWithConstVoidFunction {
     typedef void result_type;
 
     // CREATORS
+
+    /// Initialize counters.
     MyFunctionObjectWithConstVoidFunction()
-        // Initialize counters.
     : d_state(0) {}
 
     // ACCESSORS
+
+    /// Function called by test run.  Increments value to facilitate assert
+    /// test.
     void operator()() const
-        // Function called by test run.  Increments value to facilitate assert
-        // test.
     {
         ++d_state;
     }
 };
 
+/// This `struct` declares `result_type` and a `const` noexcept
+/// function-call operator taking no arguments.
+///
+/// This tests for a failure case highlighted in DRQS 169178201.
 struct MyFunctionObjectWithConstNoexceptVoidFunction {
-    // This 'struct' declares 'result_type' and a 'const' noexcept
-    // function-call operator taking no arguments.
-    //
-    // This tests for a failure case highlighted in DRQS 169178201.
 
     // PUBLIC INSTANCE DATA
     mutable int d_state;
@@ -387,24 +389,26 @@ struct MyFunctionObjectWithConstNoexceptVoidFunction {
     typedef void result_type;
 
     // CREATORS
+
+    /// Initialize counters.
     MyFunctionObjectWithConstNoexceptVoidFunction()
-        // Initialize counters.
     : d_state(0) {}
 
     // ACCESSORS
+
+    /// Function called by test run.  Increments value to facilitate assert
+    /// test.
     void operator()() const BSLS_KEYWORD_NOEXCEPT
-        // Function called by test run.  Increments value to facilitate assert
-        // test.
     {
         ++d_state;
     }
 };
 
+/// This `struct` declares `result_type` and a non-`const` function-call
+/// operator taking no arguments.
+///
+/// This tests for a failure case highlighted in DRQS 164900532.
 struct MyFunctionObjectWithNonConstVoidFunction {
-    // This 'struct' declares 'result_type' and a non-'const' function-call
-    // operator taking no arguments.
-    //
-    // This tests for a failure case highlighted in DRQS 164900532.
 
     // PUBLIC INSTANCE DATA
     int d_state;
@@ -413,24 +417,26 @@ struct MyFunctionObjectWithNonConstVoidFunction {
     typedef void result_type;
 
     // CREATORS
+
+    /// Initialize counters.
     MyFunctionObjectWithNonConstVoidFunction()
-        // Initialize counters.
     : d_state(0) {}
 
     // MANIPULATORS
+
+    /// Function called by test run.  Increments value to facilitate assert
+    /// test.
     void operator()()
-        // Function called by test run.  Increments value to facilitate assert
-        // test.
     {
         ++d_state;
     }
 };
 
+/// This `struct` declares `result_type` and a non-`const` noexcept
+/// function-call operator taking no arguments.
+///
+/// This tests for a failure case highlighted in DRQS 169178201.
 struct MyFunctionObjectWithNonConstNoexceptVoidFunction {
-    // This 'struct' declares 'result_type' and a non-'const' noexcept
-    // function-call operator taking no arguments.
-    //
-    // This tests for a failure case highlighted in DRQS 169178201.
 
     // PUBLIC INSTANCE DATA
     int d_state;
@@ -439,24 +445,26 @@ struct MyFunctionObjectWithNonConstNoexceptVoidFunction {
     typedef void result_type;
 
     // CREATORS
+
+    /// Initialize counters.
     MyFunctionObjectWithNonConstNoexceptVoidFunction()
-        // Initialize counters.
     : d_state(0) {}
 
     // MANIPULATORS
+
+    /// Function called by test run.  Increments value to facilitate assert
+    /// test.
     void operator()() BSLS_KEYWORD_NOEXCEPT
-        // Function called by test run.  Increments value to facilitate assert
-        // test.
     {
         ++d_state;
     }
 };
 
+/// This `struct` declares `result_type` and two non-`const` function-call
+/// operators, one taking an `int` and the other taking no arguments.
+///
+/// This tests for a failure case highlighted in DRQS 164900532.
 struct MyFunctionObjectWithNonConstVoidAndNonConstIntFunction {
-    // This 'struct' declares 'result_type' and two non-'const' function-call
-    // operators, one taking an 'int' and the other taking no arguments.
-    //
-    // This tests for a failure case highlighted in DRQS 164900532.
 
     // PUBLIC INSTANCE DATA
     int d_state;
@@ -466,31 +474,33 @@ struct MyFunctionObjectWithNonConstVoidAndNonConstIntFunction {
     typedef void result_type;
 
     // CREATORS
+
+    /// Initialize counters.
     MyFunctionObjectWithNonConstVoidAndNonConstIntFunction()
-        // Initialize counters.
     : d_state(0), d_stateI(0) {}
 
     // MANIPULATORS
+
+    /// Function called by test run.  Increments value to facilitate assert
+    /// test.
     void operator()()
-        // Function called by test run.  Increments value to facilitate assert
-        // test.
     {
         ++d_state;
     }
 
+    /// Function called by test run.  Increments counter value by the
+    /// specified `increment` to facilitate assert test.
     void operator()(int increment)
-        // Function called by test run.  Increments counter value by the
-        // specified 'increment' to facilitate assert test.
     {
         d_stateI += increment;
     }
 };
 
+/// This `struct` declares `result_type` and both a non-`const` and a
+/// `const` function-call operator, each taking no arguments.
+///
+/// This tests for a failure case highlighted in DRQS 164900532.
 struct MyFunctionObjectWithConstAndNonConstVoidFunction {
-    // This 'struct' declares 'result_type' and both a non-'const' and a
-    // 'const' function-call operator, each taking no arguments.
-    //
-    // This tests for a failure case highlighted in DRQS 164900532.
 
     // PUBLIC INSTANCE DATA
     int         d_stateNC;
@@ -500,22 +510,25 @@ struct MyFunctionObjectWithConstAndNonConstVoidFunction {
     typedef void result_type;
 
     // CREATORS
+
+    /// Initialize counters.
     MyFunctionObjectWithConstAndNonConstVoidFunction()
-        // Initialize counters.
     : d_stateNC(0), d_stateC(0) {}
 
     // MANIPULATORS
+
+    /// Function called by test run.  Increments value to facilitate assert
+    /// test.
     void operator()()
-        // Function called by test run.  Increments value to facilitate assert
-        // test.
     {
         ++d_stateNC;
     }
 
     // ACCESSORS
+
+    /// Function called by test run.  Increments value to facilitate assert
+    /// test.
     void operator()() const
-        // Function called by test run.  Increments value to facilitate assert
-        // test.
     {
         ++d_stateC;
     }
@@ -536,9 +549,9 @@ void testMultipleSignatureBinder(Binder binder)
     ASSERT(3 == binder(1.0));
 }
 
+/// This stateless `struct` provides several function operators with
+/// `const` and non-`const` signature.
 struct MyFunctionObjectWithConstAndNonConstOperator {
-    // This stateless 'struct' provides several function operators with
-    // 'const' and non-'const' signature.
 
     // TYPES
     typedef int ResultType;
@@ -583,10 +596,10 @@ void testMyFunctionObjectWithConstAndNonConstOperator()
     ASSERT(1 == bdlf::BindUtil::bind(mBinder, _1)(I));
 }
 
+/// This struct is so small that we inline its members to keep it more
+/// readable.  Its `test` method is virtual, and returns 1 for the base
+/// class.
 struct BaseClass {
-    // This struct is so small that we inline its members to keep it more
-    // readable.  Its 'test' method is virtual, and returns 1 for the base
-    // class.
 
     // CREATORS
     BaseClass() { }
@@ -596,9 +609,9 @@ struct BaseClass {
     virtual int test() const { return 1; }
 };
 
+/// This struct is so small that we inline its members to keep it more
+/// readable.  Its `test` method returns 2 for this derived class.
 struct DerivedClass : public BaseClass {
-    // This struct is so small that we inline its members to keep it more
-    // readable.  Its 'test' method returns 2 for this derived class.
 
     // CREATORS
     DerivedClass() { }
@@ -608,10 +621,10 @@ struct DerivedClass : public BaseClass {
     int test() const BSLS_KEYWORD_OVERRIDE { return 2; }
 };
 
+/// This struct is so small that we inline its members to keep it more
+/// readable.  Its `test` method is virtual, and returns 1 for the base
+/// class.
 struct AbstractBaseClass {
-    // This struct is so small that we inline its members to keep it more
-    // readable.  Its 'test' method is virtual, and returns 1 for the base
-    // class.
 
     // CREATORS
     AbstractBaseClass() { }
@@ -621,9 +634,9 @@ struct AbstractBaseClass {
     virtual int test() const = 0;
 };
 
+/// This struct is so small that we inline its members to keep it more
+/// readable.  Its `test` method returns 2 for this derived class.
 struct ConcreteDerivedClass : public AbstractBaseClass {
-    // This struct is so small that we inline its members to keep it more
-    // readable.  Its 'test' method returns 2 for this derived class.
 
     // CREATORS
     ConcreteDerivedClass() { }
@@ -640,6 +653,9 @@ struct ConcreteDerivedClass : public AbstractBaseClass {
 // ----------------------------------------------------------------------------
 namespace BDLF_BIND_TEST_CASE_5 {
 
+/// The declarations of 14 arguments for each of these functions gets a
+/// little repetitive for no benefits, it is clearer to make it into a
+/// macro.
 #define BDLF_BIND_TEST_NO_ALLOC_14_ARGUMENTS                                  \
                     NoAllocTestArg1  const& a1,  NoAllocTestArg2  const& a2,  \
                     NoAllocTestArg3  const& a3,  NoAllocTestArg4  const& a4,  \
@@ -648,16 +664,13 @@ namespace BDLF_BIND_TEST_CASE_5 {
                     NoAllocTestArg9  const& a9,  NoAllocTestArg10 const& a10, \
                     NoAllocTestArg11 const& a11, NoAllocTestArg12 const& a12, \
                     NoAllocTestArg13 const& a13, NoAllocTestArg14 const& a14
-    // The declarations of 14 arguments for each of these functions gets a
-    // little repetitive for no benefits, it is clearer to make it into a
-    // macro.
 
+/// The use of the 14 arguments for each of these functions to avoid getting
+/// an unused parameter compiler warning.
 #define USE_BCEF_BIND_TEST_NO_ALLOC_14_ARGUMENTS                              \
         (void) a1, (void) a2, (void) a3, (void) a4, (void) a5, (void) a6,     \
         (void) a7, (void) a8, (void) a9, (void) a10, (void) a11, (void) a12,  \
         (void) a13, (void) a14;
-    // The use of the 14 arguments for each of these functions to avoid getting
-    // an unused parameter compiler warning.
 
 int sumOf14Arguments( BDLF_BIND_TEST_NO_ALLOC_14_ARGUMENTS )
 {
@@ -965,8 +978,9 @@ using namespace bdlf::PlaceHolders;
 // provided at invocation of the binder.  For example, given the following
 // 'invocable' (here a free function for simplicity):
 //..
+
+    /// Do something with `i`, `j` and `str` ... e.g.:
     void invocable(int i, int j, const char *str) {
-        // Do something with 'i', 'j' and 'str' ... e.g.:
         printf("Invoked with: %d %d %s\n", i, j, str);
     }
 //..
@@ -1411,8 +1425,9 @@ using namespace bdlf::PlaceHolders;
 // will use a typical pair of event and scheduler classes, where the event is
 // defined as:
 //..
+
+    /// Event data, for illustration purpose here:
     struct MyEvent {
-        // Event data, for illustration purpose here:
         int d_value;
 
         MyEvent() : d_value(0) {}
@@ -1420,11 +1435,12 @@ using namespace bdlf::PlaceHolders;
 //..
 // and the scheduler is defined as follows:
 //..
+
+    /// This class owns a callback function object that takes an `int` and
+    /// an instance of `MyEvent`.  When the `run` method is called, it
+    ///invokes the callback with a series of events that it obtains using
+    ///its own stream of events.
     class MyEventScheduler {
-        // This class owns a callback function object that takes an 'int' and
-        // an instance of 'MyEvent'.  When the 'run' method is called, it
-        //invokes the callback with a series of events that it obtains using
-        //its own stream of events.
 
         // PRIVATE INSTANCE DATA
         bsl::function<void(int, MyEvent)> d_callback;
@@ -1434,9 +1450,10 @@ using namespace bdlf::PlaceHolders;
         int d_count;
 
         // PRIVATE MANIPULATORS
+
+        /// Create a copy of the next event in the specified `eventBuffer`
+        /// Return 0 on success, and non-zero if no event is available.
         int getNextEvent(MyEvent *eventBuffer) {
-            // Create a copy of the next event in the specified 'eventBuffer'
-            // Return 0 on success, and non-zero if no event is available.
 
             if (--d_count) {
                 eventBuffer->d_value = d_count;
@@ -1652,8 +1669,9 @@ using namespace bdlf::PlaceHolders;
 // 'bdlf::BindUtil'.  Upon invocation, the invocation arguments are forwarded
 // to the nested binder.
 //..
+
+    /// Do something to `event` ...
     MyEvent annotateEvent(int, MyEvent const& event) {
-        // Do something to 'event' ...
         return event;
     }
 

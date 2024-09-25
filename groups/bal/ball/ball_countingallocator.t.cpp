@@ -8,7 +8,7 @@
 
 #include <bsl_cstddef.h>
 #include <bsl_iostream.h>
-#include <bsl_new.h>          // placement 'new' syntax
+#include <bsl_new.h>          // placement `new` syntax
 #include <bsl_vector.h>
 
 #include <bsl_c_stdlib.h>     // atoi()
@@ -156,23 +156,23 @@ int main(int argc, char *argv[])
         //   We want to demonstrate a base-line level of correct operation.
         //
         // Plan:
-        //   Create a counting allocator, invoke 'allocate' once, verify
-        //   the accessor, invoke the 'deallocate' and verify the
+        //   Create a counting allocator, invoke `allocate` once, verify
+        //   the accessor, invoke the `deallocate` and verify the
         //   accessor.
         //
-        //   Create a counting allocator, invoke 'allocate' twice,
+        //   Create a counting allocator, invoke `allocate` twice,
         //   verifying the accessor after each allocation, invoke the
-        //   'deallocate' twice (in the order of allocations) verifying
+        //   `deallocate` twice (in the order of allocations) verifying
         //   the accessor after each deallocation.
         //
-        //   Create a counting allocator, invoke 'allocate' twice,
+        //   Create a counting allocator, invoke `allocate` twice,
         //   verifying the accessor after each allocation, invoke the
-        //   'deallocate' twice (in the reverse order of allocations)
+        //   `deallocate` twice (in the reverse order of allocations)
         //   verifying the accessor after each deallocation.
         //
-        //   Create a counting allocator, invoke 'allocate' twice,
+        //   Create a counting allocator, invoke `allocate` twice,
         //   verifying the accessor after each allocation, invoke
-        //   'resetNumBytesTotal' and verify the accessor.
+        //   `resetNumBytesTotal` and verify the accessor.
         //
         // Testing:
         //   ball::CountingAllocator(bslma::Allocator *ba = 0);
@@ -258,7 +258,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(ca.numBytesTotal(), ca.numBytesTotal() == 0);
         LOOP_ASSERT(ta.numBytesInUse(), ta.numBytesInUse() == 0);
 
-        // two allocations and invoke 'resetNumBytesTotal'
+        // two allocations and invoke `resetNumBytesTotal`
         // -----------------------------------------------
         p1 = ca.allocate(SZ1);
         ASSERT(0 != p1);

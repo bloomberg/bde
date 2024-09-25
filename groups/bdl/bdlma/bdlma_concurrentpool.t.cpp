@@ -20,10 +20,10 @@
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
-#include <bsl_cmath.h>       // 'log'
-#include <bsl_cstdlib.h>     // 'atoi'
-#include <bsl_cstring.h>     // 'memcpy'
-#include <bsl_new.h>         // 'bad_alloc'
+#include <bsl_cmath.h>       // `log`
+#include <bsl_cstdlib.h>     // `atoi`
+#include <bsl_cstring.h>     // `memcpy`
+#include <bsl_new.h>         // `bad_alloc`
 #include <bsl_vector.h>
 #include <bsl_iostream.h>
 
@@ -41,26 +41,26 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The goals of this 'bdlma::ConcurrentPool' test suite are to verify that 1)
-// the 'allocate' method distributes memory of the correct object size; 2) the
-// pool replenishes correctly according to the 'numObjects' parameter; 3) the
-// 'deallocate' method returns the memory to the pool; and 4) the 'release'
+// The goals of this `bdlma::ConcurrentPool` test suite are to verify that 1)
+// the `allocate` method distributes memory of the correct object size; 2) the
+// pool replenishes correctly according to the `numObjects` parameter; 3) the
+// `deallocate` method returns the memory to the pool; and 4) the `release`
 // method and the destructor releases all memory allocated through the pool.
 //
 // To achieve goal 1, initialize pools of varying object sizes.  Invoke
-// 'allocate' repeatedly and verify that the difference between the returned
+// `allocate` repeatedly and verify that the difference between the returned
 // memory addresses of two consecutive requests is equal to the specified
 // object size for the current pool.  To achieve goal 2, initialize a pool with
-// a test allocator and varying 'numObjects'.  Invoke 'allocate' repeatedly and
+// a test allocator and varying `numObjects`.  Invoke `allocate` repeatedly and
 // verify that the pool requests memory blocks of the expected sizes from the
 // allocator.  To achieve goal 3, allocate multiple memory from the pool and
 // store the returned addresses in an array.  Deallocate the memory in reverse
 // order, then allocate memory again and verify that the allocated memory are
 // in the same order as those stored in the array.  Note that this test depends
-// on the implementation detail of 'deallocate', in which a deallocated memory
+// on the implementation detail of `deallocate`, in which a deallocated memory
 // is placed at the beginning of the free memory list.  To achieve goal 4,
 // initialize two pools, each supplied with its own test allocator.  Invoke
-// 'allocate' repeatedly.  Invoke 'release' on one pool, and allow the other
+// `allocate` repeatedly.  Invoke `release` on one pool, and allow the other
 // pool to go out of scope.  Verify that both test allocators indicate all
 // memory is released.
 //-----------------------------------------------------------------------------
@@ -139,7 +139,7 @@ static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
 
-// This type is copied from the 'bdlma_infrequentdeleteblocklist.h' for testing
+// This type is copied from the `bdlma_infrequentdeleteblocklist.h` for testing
 // purposes.
 
 struct InfrequentDeleteBlock {
@@ -147,8 +147,8 @@ struct InfrequentDeleteBlock {
     bsls::AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
 };
 
-// This type is copied from 'bdlma_concurrentpool.cpp' to determine the
-// internal limits of 'bdlma::ConcurrentPool'.
+// This type is copied from `bdlma_concurrentpool.cpp` to determine the
+// internal limits of `bdlma::ConcurrentPool`.
 enum {
     k_INITIAL_CHUNK_SIZE  =   1,
     k_GROW_FACTOR         =   2,
@@ -188,8 +188,8 @@ struct MostDerived : LeftChild, MiddleChild, RightChild {
 //                      FILE-STATIC FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Note that this type is copied from `bdlma_concurrentpool.h`.
 struct LLink {
-    // Note that this type is copied from 'bdlma_concurrentpool.h'.
 
     union {
         bsls::AtomicOperations::AtomicTypes::Int               d_refCount;
@@ -198,10 +198,10 @@ struct LLink {
     LLink *d_next_p;
 };
 
+/// Return the adjusted block size based on the specified `numBytes` using
+/// the calculation performed by the
+/// `bdlma::InfrequentDeleteBlockList::allocate` method.
 static int blockSize(int numBytes)
-    // Return the adjusted block size based on the specified 'numBytes' using
-    // the calculation performed by the
-    // 'bdlma::InfrequentDeleteBlockList::allocate' method.
 {
     ASSERT(0 <= numBytes);
 
@@ -213,18 +213,18 @@ static int blockSize(int numBytes)
     return numBytes;
 }
 
+/// Round up the specified `x` to the nearest multiples of the specified
+/// `y`.  The behavior is undefined unless `0 <= x` and `0 < y`;
 inline static int roundUp(int x, int y)
-    // Round up the specified 'x' to the nearest multiples of the specified
-    // 'y'.  The behavior is undefined unless '0 <= x' and '0 < y';
 {
     ASSERT(0 <= x);
     ASSERT(0 < y);
     return (x + y - 1) / y * y;
 }
 
+/// Return the actual object size used by the pool when given the specified
+/// `size`.
 inline static int poolObjectSize(int size)
-    // Return the actual object size used by the pool when given the specified
-    // 'size'.
 {
     const int HEADER_SIZE = offsetof(LLink, d_next_p);
     return roundUp(size + HEADER_SIZE < (int)sizeof(LLink)
@@ -232,17 +232,17 @@ inline static int poolObjectSize(int size)
                    bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 }
 
+/// Assign a non-zero value to each of the specified `size` bytes starting
+/// at the specified `address`.
 static void scribble(char *address, int size)
-    // Assign a non-zero value to each of the specified 'size' bytes starting
-    // at the specified 'address'.
 {
     memset(address, 0xff, size);
 }
 
+/// Using only primary manipulators, extend the capacity of the specified
+/// `object` to (at least) the specified `numElements`.  The behavior is
+/// undefined unless `0 <= numElements` and `0 <= objSize`.
 void stretch(Obj *object, int numElements)
-    // Using only primary manipulators, extend the capacity of the specified
-    // 'object' to (at least) the specified 'numElements'.  The behavior is
-    // undefined unless '0 <= numElements' and '0 <= objSize'.
 {
     ASSERT(object);
     ASSERT(0 <= numElements);
@@ -252,11 +252,11 @@ void stretch(Obj *object, int numElements)
     }
 }
 
+/// Using only primary manipulators, extend the capacity of the specified
+/// `object` to (at least) the specified `numElements`, then remove all
+/// elements leaving `object` empty.  The behavior is undefined unless
+/// `0 <= numElements` and `0 <= objSize`.
 void stretchRemoveAll(Obj *object, int numElements)
-    // Using only primary manipulators, extend the capacity of the specified
-    // 'object' to (at least) the specified 'numElements', then remove all
-    // elements leaving 'object' empty.  The behavior is undefined unless
-    // '0 <= numElements' and '0 <= objSize'.
 {
     ASSERT(object);
     ASSERT(0 <= numElements);
@@ -274,20 +274,20 @@ void stretchRemoveAll(Obj *object, int numElements)
 
 ///Usage
 ///-----
-// A 'bdlma::ConcurrentPool' can be used by node-based containers (such as
+// A `bdlma::ConcurrentPool` can be used by node-based containers (such as
 // lists, trees, and hash tables that hold multiple elements of uniform size)
 // for efficient memory allocation of new elements.  The following container
-// class, 'my_PooledArray', stores templatized values "out-of-place" as nodes
-// in a 'vector' of pointers.  Since the size of each node is fixed and known
-// *a priori*, the class uses a 'bdlma::ConcurrentPool' to allocate memory for
+// class, `my_PooledArray`, stores templatized values "out-of-place" as nodes
+// in a `vector` of pointers.  Since the size of each node is fixed and known
+// *a priori*, the class uses a `bdlma::ConcurrentPool` to allocate memory for
 // the nodes to improve memory allocation efficiency:
-//..
+// ```
     // my_poolarray.h
 
+    /// This class implements a container that stores `double` values
+    /// out-of-place.
     template <class T>
     class my_PooledArray {
-        // This class implements a container that stores 'double' values
-        // out-of-place.
 
         // DATA
         bsl::vector<T *>      d_array_p;  // array of pooled elements
@@ -299,36 +299,39 @@ void stretchRemoveAll(Obj *object, int numElements)
 
       public:
         // CREATORS
-        explicit my_PooledArray(bslma::Allocator *basicAllocator = 0);
-            // Create a pooled array that stores the parameterized values
-            // "out-of-place".  Optionally specify a 'basicAllocator' used to
-            // supply memory.  If 'basicAllocator' is 0, the currently
-            // installed default allocator is used.
 
+        /// Create a pooled array that stores the parameterized values
+        /// "out-of-place".  Optionally specify a `basicAllocator` used to
+        /// supply memory.  If `basicAllocator` is 0, the currently
+        /// installed default allocator is used.
+        explicit my_PooledArray(bslma::Allocator *basicAllocator = 0);
+
+        /// Destroy this array and all elements held by it.
         ~my_PooledArray();
-            // Destroy this array and all elements held by it.
 
         // MANIPULATORS
-        void append(const T &value);
-            // Append the specified 'value' to this array.
 
+        /// Append the specified `value` to this array.
+        void append(const T &value);
+
+        /// Remove all elements from this array.
         void removeAll();
-            // Remove all elements from this array.
 
         // ACCESSORS
-        int length() const;
-            // Return the number of elements in this array.
 
+        /// Return the number of elements in this array.
+        int length() const;
+
+        /// Return a reference to the non-modifiable value at the specified
+        /// `index` in this array.  The behavior is undefined unless
+        /// `0 <= index < length()`.
         const T& operator[](int index) const;
-            // Return a reference to the non-modifiable value at the specified
-            // 'index' in this array.  The behavior is undefined unless
-            // '0 <= index < length()'.
     };
-//..
-// In the 'removeAll' method, all elements are deallocated by invoking the
-// pool's 'release' method.  This technique implies significant performance
+// ```
+// In the `removeAll` method, all elements are deallocated by invoking the
+// pool's `release` method.  This technique implies significant performance
 // gain when the array contains many elements:
-//..
+// ```
     // MANIPULATORS
     template <class T>
     inline
@@ -355,10 +358,10 @@ void stretchRemoveAll(Obj *object, int numElements)
 
         return *d_array_p[index];
     }
-//..
+// ```
 // Note that the growth strategy and maximum chunk size of the pool is left as
 // the default value:
-//..
+// ```
     // my_poolarray.cpp
 
     // CREATORS
@@ -368,26 +371,26 @@ void stretchRemoveAll(Obj *object, int numElements)
     , d_pool(sizeof(T), basicAllocator)
     {
     }
-//..
-// Since all memory is managed by 'd_pool', we do not have to explicitly invoke
-// 'deleteObject' to reclaim outstanding memory.  The destructor of the pool
+// ```
+// Since all memory is managed by `d_pool`, we do not have to explicitly invoke
+// `deleteObject` to reclaim outstanding memory.  The destructor of the pool
 // will automatically deallocate all array elements:
-//..
+// ```
     template <class T>
     my_PooledArray<T>::~my_PooledArray()
     {
-        // Elements are automatically deallocated when 'd_pool' is destroyed.
+        // Elements are automatically deallocated when `d_pool` is destroyed.
     }
-//..
-// Note that the overloaded "placement" 'new' is used to allocate new nodes:
-//..
+// ```
+// Note that the overloaded "placement" `new` is used to allocate new nodes:
+// ```
     template <class T>
     void my_PooledArray<T>::append(const T& value)
     {
         T *tmp = new (d_pool) T(value);
         d_array_p.push_back(tmp);
     }
-//..
+// ```
 
 //=============================================================================
 //                               OLD  USAGE EXAMPLE
@@ -434,7 +437,7 @@ ostream& operator<<(ostream& stream, const my_DoubleArray2& array);
 
 enum {
     k_MY_INITIAL_SIZE = 1, // initial physical capacity
-    k_MY_GROW_FACTOR = 2   // multiplicative factor by which to grow 'd_size'
+    k_MY_GROW_FACTOR = 2   // multiplicative factor by which to grow `d_size`
 };
 
 inline
@@ -443,18 +446,18 @@ static int nextSize(int size)
     return size * k_MY_GROW_FACTOR;
 }
 
+/// Reallocate memory in the specified `array` using the specified
+/// `basicAllocator` and update the specified `size` to the specified
+/// `newSize`.  The specified `length` number of leading elements are
+/// preserved.  If `new` should throw an exception, this function has no
+/// effect.  The behavior is undefined unless `1 <= newSize`, `0 <= length`,
+/// and `newSize <= length`.
 inline
 static void reallocate(double           ***array,
                        int                *size,
                        int                 newSize,
                        int                 length,
                        bslma::Allocator   *basicAllocator)
-    // Reallocate memory in the specified 'array' using the specified
-    // 'basicAllocator' and update the specified 'size' to the specified
-    // 'newSize'.  The specified 'length' number of leading elements are
-    // preserved.  If 'new' should throw an exception, this function has no
-    // effect.  The behavior is undefined unless '1 <= newSize', '0 <= length',
-    // and 'newSize <= length'.
 {
     ASSERT(array);
     ASSERT(*array);
@@ -499,7 +502,7 @@ my_DoubleArray2::~my_DoubleArray2()
     ASSERT(d_allocator_p);
     ASSERT(d_length <= d_size);
 
-    // Elements are automatically deallocated when 'd_pool' is destroyed.
+    // Elements are automatically deallocated when `d_pool` is destroyed.
     d_allocator_p->deallocate(d_array_p);
 }
 
@@ -523,7 +526,7 @@ ostream& operator<<(ostream& stream, const my_DoubleArray2& array)
 // BDE_VERIFY pragma: pop
 
 //=============================================================================
-//                CONCRETE OBJECTS FOR TESTING 'deleteObject'
+//                CONCRETE OBJECTS FOR TESTING `deleteObject`
 //-----------------------------------------------------------------------------
 
 static int my_ClassCode = 0;
@@ -699,9 +702,9 @@ int main(int argc, char *argv[]) {
         // USAGE EXAMPLE
         //   Make sure main usage example compiles and works.
         //
-        //   Test the usage example.  Create a 'my_PooledArray<double>'
+        //   Test the usage example.  Create a `my_PooledArray<double>`
         //   object and append varying values to it.  Verify that the values
-        //   are correctly appended using 'operator[]'.  Invoke 'removeAll'
+        //   are correctly appended using `operator[]`.  Invoke `removeAll`
         //   and verify that the array length becomes 0.
         //
         // Testing:
@@ -711,7 +714,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << endl << "USAGE EXAMPLE" << endl
                                   << "=============" << endl;
 
-        if (verbose) cout << "\nTesting 'my_PooledArray<double>'." << endl;
+        if (verbose) cout << "\nTesting `my_PooledArray<double>`." << endl;
 
         const double DATA[] = { 0.0, 1.2, 2.3, 3.4, 4.5, 5.6, 6.7 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -732,9 +735,9 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // ORIGINAL USAGE EXAMPLE
         //
-        //   Test the old (removed) usage example.  Create a 'my_DoubleArray2'
+        //   Test the old (removed) usage example.  Create a `my_DoubleArray2`
         //   object and append varying values to it.  Verify that the values
-        //   are correctly appended using 'operator[]'.  Invoke 'removeAll'
+        //   are correctly appended using `operator[]`.  Invoke `removeAll`
         //   and verify that the array length becomes 0.
         //
         // Testing:
@@ -744,7 +747,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << endl << "ORIGINAL USAGE EXAMPLE" << endl
                                   << "======================" << endl;
 
-        if (verbose) cout << "\nTesting 'my_DoubleArray2'." << endl;
+        if (verbose) cout << "\nTesting `my_DoubleArray2`." << endl;
 
         const double DATA[] = { 0.0, 1.2, 2.3, 3.4, 4.5, 5.6, 6.7 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -819,16 +822,16 @@ int main(int argc, char *argv[]) {
         // ALLOCATOR ACCESSOR TEST
         //
         // Concerns:
-        //: 1. 'allocator()' accessor returns the expected value.
-        //:
-        //: 2. 'allocator()' accessor is declared const.
+        //  1. `allocator()` accessor returns the expected value.
+        //
+        //  2. `allocator()` accessor is declared const.
         //
         // Plan:
-        //: 1 To test 'allocator', create object with various allocators and
-        //:   ensure the returned value matches the supplied allocator.  (C-1)
-        //:
-        //: 2 Directly test that 'allocator()', invoked on a 'const' object,
-        //:   returns the expected value.  (C-1..2)
+        // 1. To test `allocator`, create object with various allocators and
+        //    ensure the returned value matches the supplied allocator.  (C-1)
+        //
+        // 2. Directly test that `allocator()`, invoked on a `const` object,
+        //    returns the expected value.  (C-1..2)
         //
         // Testing:
         //   bslma::Allocator *allocator() const;
@@ -839,7 +842,7 @@ int main(int argc, char *argv[]) {
 
         const int BLOCK_SIZE = 5;
 
-        if (verbose) cout << "\nTesting 'allocator'." << endl;
+        if (verbose) cout << "\nTesting `allocator`." << endl;
         {
             Obj mX(BLOCK_SIZE);  const Obj& X = mX;
             ASSERT(&defaultAllocator == X.allocator());
@@ -864,7 +867,7 @@ int main(int argc, char *argv[]) {
         // TESTING ALTERNATIVE CONSTRUCTOR
         //
         // Concerns:
-        //   That the alternative 'bdlma::ConcurrentPool'  constructor uses
+        //   That the alternative `bdlma::ConcurrentPool`  constructor uses
         //   the correct default argument values for the unspecified
         //   parameters.
         //
@@ -948,18 +951,18 @@ int main(int argc, char *argv[]) {
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'deleteObject' AND 'deleteObjectRaw'
+        // TESTING `deleteObject` AND `deleteObjectRaw`
         //
         // Concerns:
-        //   That 'deleteObject' and 'deleteObjectRaw' properly destroy and
+        //   That `deleteObject` and `deleteObjectRaw` properly destroy and
         //   deallocate managed objects.
         //
         // Plan:
         //   Iterate where at the beginning of the loop, we create an object
-        //   of type 'mostDerived' that multiply inherits from two types with
+        //   of type `mostDerived` that multiply inherits from two types with
         //   virtual destructors.  Then in the middle of the loop we switch
         //   into several ways of destroying and deallocating the object with
-        //   various forms of 'deleteObjectRaw' and 'deleteObject', after
+        //   various forms of `deleteObjectRaw` and `deleteObject`, after
         //   which we verify that the destructors have been run.  Each
         //   iteration we verify that the memory we got was the same as for
         //   the previous iteration, which shows that memory is being
@@ -972,7 +975,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose)
                 cout << endl
-                     << "TESTING 'deleteObject' AND 'deleteObjectRaw'" << endl
+                     << "TESTING `deleteObject` AND `deleteObjectRaw`" << endl
                      << "============================================" << endl;
 
         bslma::TestAllocator alloc, *Z = &alloc;
@@ -1041,24 +1044,24 @@ int main(int argc, char *argv[]) {
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'deleteObject'
-        //   We want to make sure that when 'deleteObject' is used both
-        //   destructor and 'deallocate' are invoked.
+        // TESTING `deleteObject`
+        //   We want to make sure that when `deleteObject` is used both
+        //   destructor and `deallocate` are invoked.
         //
         // Plan:
         //   Using a pool and placement new operator construct objects of
-        //   two different classes.  Invoke 'deleteObject' to delete
+        //   two different classes.  Invoke `deleteObject` to delete
         //   constructed objects and check that both destructor and
-        //   'deallocate' have been called.
+        //   `deallocate` have been called.
         //
         // Testing:
         //   template<typename TYPE> void deleteObject(TYPE *object)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING 'deleteObject'" << endl
+        if (verbose) cout << endl << "TESTING `deleteObject`" << endl
                                   << "======================" << endl;
 
-        if (verbose) cout << "\nTesting 'deleteObject':" << endl;
+        if (verbose) cout << "\nTesting `deleteObject`:" << endl;
         {
             bslma::TestAllocator a(veryVeryVerbose);
             const bslma::TestAllocator& A = a;
@@ -1089,7 +1092,7 @@ int main(int argc, char *argv[]) {
             ASSERT(A.numAllocations() == 1);
                   // By observing that the number of allocations stays at one
                   // we confirm that the memory obtained from the pool has been
-                  // returned by 'deleteObject'.  Had it not been returned, the
+                  // returned by `deleteObject`.  Had it not been returned, the
                   // call to allocate would have required another allocation
                   // from the allocator.
 
@@ -1109,7 +1112,7 @@ int main(int argc, char *argv[]) {
             ASSERT(A.numAllocations() == 2);
         }
 
-        if (verbose) cout << "\nTesting 'deleteObject' on polymorphic types:"
+        if (verbose) cout << "\nTesting `deleteObject` on polymorphic types:"
                           << endl;
         {
             bslma::TestAllocator a(veryVeryVerbose);
@@ -1207,16 +1210,16 @@ int main(int argc, char *argv[]) {
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'reserviceCapacity'
+        // TESTING `reserviceCapacity`
         //
         // Testing:
         //   void reserveCapacity(int numObjects);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING 'reserviceCapacity'" << endl
+        if (verbose) cout << endl << "TESTING `reserviceCapacity`" << endl
                                   << "===========================" << endl;
 
-        if (verbose) cout << "\nTesting 'reserveCapacity'." << endl;
+        if (verbose) cout << "\nTesting `reserveCapacity`." << endl;
 
         const int RESERVED[] = {
             0, 1, 2, 3, 4, 5, 15, 16, 17
@@ -1253,7 +1256,7 @@ int main(int argc, char *argv[]) {
                         const bsls::BlockGrowth::Strategy STRATEGY =
                                                                 STRATEGIES[si];
 
-                        // Add 'EXTEND' elements to mX, and add 'EXTEND'
+                        // Add `EXTEND` elements to mX, and add `EXTEND`
                         // elements to mY and then remove those elements.
                         Obj mX(BLOCK_SIZE, STRATEGY, &a);
                         Obj mY(BLOCK_SIZE, STRATEGY, &a);
@@ -1285,10 +1288,10 @@ int main(int argc, char *argv[]) {
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'release'
-        //   Initialize two pools with varying object sizes and 'numObjects',
-        //   and supply each with its own test allocator.  Invoke 'allocate'
-        //   repeatedly.  Invoke 'release' on one pool, and allow the other
+        // TESTING `release`
+        //   Initialize two pools with varying object sizes and `numObjects`,
+        //   and supply each with its own test allocator.  Invoke `allocate`
+        //   repeatedly.  Invoke `release` on one pool, and allow the other
         //   pool to go out of scope.  Verify that both allocators indicate all
         //   memory has been released by the pools.
         //
@@ -1297,10 +1300,10 @@ int main(int argc, char *argv[]) {
         //   ~bdlma::ConcurrentPool();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING 'release'" << endl
+        if (verbose) cout << endl << "TESTING `release`" << endl
                                   << "=================" << endl;
 
-        if (verbose) cout << "\nTesting 'release' and destructor." << endl;
+        if (verbose) cout << "\nTesting `release` and destructor." << endl;
 
         struct {
             int  d_line;
@@ -1351,7 +1354,7 @@ int main(int argc, char *argv[]) {
                 if (veryVerbose) { T_; P(TAX.numBytesInUse()); }
 
                 if (veryVerbose) { T_; P_(TAY.numBytesInUse()); }
-                // Let 'mY' go out of scope.
+                // Let `mY` go out of scope.
             }
             if (veryVerbose) { T_; P(TAY.numBytesInUse()); }
 
@@ -1361,9 +1364,9 @@ int main(int argc, char *argv[]) {
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'deallocate'
-        //   Initialize a pool with varying object sizes and 'numObjects'.
-        //   Invoke 'allocate' repeatedly and store the returned memory address
+        // TESTING `deallocate`
+        //   Initialize a pool with varying object sizes and `numObjects`.
+        //   Invoke `allocate` repeatedly and store the returned memory address
         //   in an array.  Then deallocate the allocated memory address in
         //   reverse order.  Finally, allocate memory again and verify that the
         //   returned memory addresses are in the same order as those stored in
@@ -1374,10 +1377,10 @@ int main(int argc, char *argv[]) {
         //   void deallocate(address);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING 'deallocate'" << endl
+        if (verbose) cout << endl << "TESTING `deallocate`" << endl
                                   << "====================" << endl;
 
-        if (verbose) cout << "\nTesting 'deallocate'." << endl;
+        if (verbose) cout << "\nTesting `deallocate`." << endl;
 
         struct {
             int  d_line;
@@ -1440,14 +1443,14 @@ int main(int argc, char *argv[]) {
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'bdlma::ConcurrentPool(objectSize, basicAllocator)'
+        // TESTING `bdlma::ConcurrentPool(objectSize, basicAllocator)`
         //
         // Plan:
         //   Initialize a pool with a chosen object size, default
-        //   'maxBlocksPerChunk' and a test allocator.  Initialize a second
+        //   `maxBlocksPerChunk` and a test allocator.  Initialize a second
         //   pool as a reference with the same object size,
-        //   k_MAXBLOCKS_PER_CHUNK for 'numObjects' and a second test
-        //   allocator.  Invoke 'allocate' repeatedly on both pools so that
+        //   k_MAXBLOCKS_PER_CHUNK for `numObjects` and a second test
+        //   allocator.  Invoke `allocate` repeatedly on both pools so that
         //   the pools deplete and replenish until the pools stop growing in
         //   size.  Verify that for each replenishment the allocator for the
         //   pool under test contains the same number of memory requests and
@@ -1466,8 +1469,8 @@ int main(int argc, char *argv[]) {
                  << endl;
         }
 
-        if (verbose) cout << "\nTesting constructor and 'allocate' w/ default "
-                             "'numObjects'." << endl;
+        if (verbose) cout << "\nTesting constructor and `allocate` w/ default "
+                             "`numObjects`." << endl;
 
         const int OBJECT_SIZE = 4;
 
@@ -1483,7 +1486,7 @@ int main(int argc, char *argv[]) {
 
         // Number of iterations is number of chunk allocations before the max
         // chunk size is reached, that is,
-        // 'logBase2(CURRENT_MAX_BLOCKS_PER_CHUNK)', plus an arbitrary fudge
+        // `logBase2(CURRENT_MAX_BLOCKS_PER_CHUNK)`, plus an arbitrary fudge
         // factor.
         const int NUM_ITERATIONS = 4 +
                               (int)(bsl::log((double)k_MAXBLOCKS_PER_CHUNK) /
@@ -1527,7 +1530,7 @@ int main(int argc, char *argv[]) {
         //   void *allocate();
         //
         //   Ensure pool replenishes the correct size of memory with negative
-        //   'numObjects'.
+        //   `numObjects`.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "GEOMETRIC GROWTH TEST" << endl
@@ -1553,7 +1556,7 @@ int main(int argc, char *argv[]) {
             bslma::TestAllocator& testAllocator = ta;  (void)testAllocator;
 
             const int CURRENT_MAX_BLOCKS_PER_CHUNK = DATA[di];
-            if (veryVerbose) cout << "\t[Starting 'numObjects' : "
+            if (veryVerbose) cout << "\t[Starting `numObjects` : "
                                   << CURRENT_MAX_BLOCKS_PER_CHUNK
                                   << "]" << endl;
 
@@ -1601,7 +1604,7 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // CONSTANT GROWTH TEST
         //   Initialize a pool with a chosen object size, varying positive
-        //   (non-zero) 'numObjects' and a test allocator.  Invoke 'allocate'
+        //   (non-zero) `numObjects` and a test allocator.  Invoke `allocate`
         //   repeatedly so that the pool depletes and replenishes.  Verify that
         //   for each replenishment the pool requests memory of the expected
         //   size from the allocator and that no additional memory requests
@@ -1615,14 +1618,14 @@ int main(int argc, char *argv[]) {
         //   void *allocate();
         //
         //   Ensure pool replenishes the correct size of memory with positive
-        //   'numObjects'.
+        //   `numObjects`.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "CONSTANT GROWTH TEST" << endl
                                   << "====================" << endl;
 
-        if (verbose) cout << "\nTesting constructor and 'allocate' w/ varying "
-                             "positive 'numObjects'." << endl;
+        if (verbose) cout << "\nTesting constructor and `allocate` w/ varying "
+                             "positive `numObjects`." << endl;
 
         const int DATA[] = { 1, 2, 10, k_MAXBLOCKS_PER_CHUNK };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1664,8 +1667,8 @@ int main(int argc, char *argv[]) {
       case 2: {
         // --------------------------------------------------------------------
         // BLOCK SIZE TEST
-        //   Initialize a pool with a positive 'numObjects' and varying object
-        //   sizes.  Invoke 'allocate' repeatedly and verify that the
+        //   Initialize a pool with a positive `numObjects` and varying object
+        //   sizes.  Invoke `allocate` repeatedly and verify that the
         //   difference between the memory addresses of two consecutive
         //   requests is equal to the expected object size.
         //
@@ -1676,13 +1679,13 @@ int main(int argc, char *argv[]) {
         //              basicAllocator);
         //   void *allocate();
         //
-        //   Ensure 'allocate' returns memory of the correct object size.
+        //   Ensure `allocate` returns memory of the correct object size.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "BLOCK SIZE TEST" << endl
                                   << "===============" << endl;
 
-        if (verbose) cout << "\nTesting constructor and 'allocate' w/ varying "
+        if (verbose) cout << "\nTesting constructor and `allocate` w/ varying "
                              "object sizes." << endl;
 
         const bsls::Types::size_type DATA[] = { 1, 2, 5, 6, 12, 24, 32 };
@@ -1720,13 +1723,13 @@ int main(int argc, char *argv[]) {
       case 1: {
         // --------------------------------------------------------------------
         // FILE-STATIC FUNCTION TEST
-        //   To test 'blockSize', create a 'bdlma::BlockList' object
-        //   initialized with a test allocator.  Invoke both the 'blockSize'
-        //   function and the 'bdlma::BlockList::allocate' method with varying
-        //   memory sizes, and verify that the sizes returned by 'blockSize'
+        //   To test `blockSize`, create a `bdlma::BlockList` object
+        //   initialized with a test allocator.  Invoke both the `blockSize`
+        //   function and the `bdlma::BlockList::allocate` method with varying
+        //   memory sizes, and verify that the sizes returned by `blockSize`
         //   are equal to the sizes recorded by the allocator.
         //
-        //   To test 'poolObjectSize', invoke the function with varying sizes,
+        //   To test `poolObjectSize`, invoke the function with varying sizes,
         //   and verify that the returned value is equal to the difference
         //   between the returned memory addresses of two consecutive requests
         //   (i.e., the size of each returned memory) to a pool initialized
@@ -1740,7 +1743,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << endl << "FILE-STATIC FUNCTION TEST" << endl
                                   << "=========================" << endl;
 
-        if (verbose) cout << "\nTesting 'blockSize'." << endl;
+        if (verbose) cout << "\nTesting `blockSize`." << endl;
         {
             const int DATA[] = { 0, 1, 5, 12, 24, 64, 1000 };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1759,7 +1762,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'poolObjectSize'." << endl;
+        if (verbose) cout << "\nTesting `poolObjectSize`." << endl;
         {
             const bsls::Types::size_type DATA[]   = { 1, 2, 5, 6, 12, 24, 32 };
             const int                    NUM_DATA = sizeof DATA / sizeof *DATA;

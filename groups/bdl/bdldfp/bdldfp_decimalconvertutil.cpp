@@ -39,10 +39,10 @@ namespace bdldfp {
 namespace {
                         // Reverse Memory
 
+/// Reverse the order of the first specified `count` bytes, at the beginning
+/// of the specified `buffer`.  `count % 2` must be zero.
 inline
 void memrev(void *buffer, size_t count)
-    // Reverse the order of the first specified 'count' bytes, at the beginning
-    // of the specified 'buffer'.  'count % 2' must be zero.
 {
     unsigned char *b = static_cast<unsigned char *>(buffer);
     bsl::reverse(b, b + count);
@@ -50,11 +50,11 @@ void memrev(void *buffer, size_t count)
 
                         // Memory copy with reversal functions
 
+/// Reverse the first specified `count` bytes from the specified `buffer`,
+/// if the host endian is different from network endian, and return the
+/// address computed from `static_cast<unsigned char *>(buffer) + count`.
 inline
 unsigned char *memReverseIfNeeded(void *buffer, size_t count)
-    // Reverse the first specified 'count' bytes from the specified 'buffer',
-    // if the host endian is different from network endian, and return the
-    // address computed from 'static_cast<unsigned char *>(buffer) + count'.
 {
 #ifdef BDLDFP_DECIMALPLATFORM_LITTLE_ENDIAN
     // little endian, needs to do some byte juggling
@@ -65,14 +65,14 @@ unsigned char *memReverseIfNeeded(void *buffer, size_t count)
 
                         // Decimal-network conversion functions
 
+/// Construct into the specified `decimal`, the base-10 value represented by
+/// the network-ordered bytes in the specified `buffer`, and return a raw
+/// memory pointer, providing modifiable access, to one byte past the last
+/// byte read from `buffer`.
 template <class DECIMAL_TYPE>
 inline
 const unsigned char *decimalFromNetworkT(DECIMAL_TYPE        *decimal,
                                          const unsigned char *buffer)
-    // Construct into the specified 'decimal', the base-10 value represented by
-    // the network-ordered bytes in the specified 'buffer', and return a raw
-    // memory pointer, providing modifiable access, to one byte past the last
-    // byte read from 'buffer'.
 {
     bsl::memcpy(decimal, buffer, sizeof(DECIMAL_TYPE));
     memReverseIfNeeded(decimal, sizeof(DECIMAL_TYPE));
@@ -85,13 +85,13 @@ const unsigned char *decimalFromNetworkT(DECIMAL_TYPE        *decimal,
 }
 
 
+/// Construct into the specified `buffer`, the network-ordered byte
+/// representation of the base-10 value of the specified `decimal`, and,
+/// return a raw memory pointer, providing modifiable access, to one byte
+/// past the last written byte of the `buffer`.
 template <class DECIMAL_TYPE>
 inline
 unsigned char *decimalToNetworkT(unsigned char *buffer, DECIMAL_TYPE decimal)
-    // Construct into the specified 'buffer', the network-ordered byte
-    // representation of the base-10 value of the specified 'decimal', and,
-    // return a raw memory pointer, providing modifiable access, to one byte
-    // past the last written byte of the 'buffer'.
 {
     DecimalConvertUtil::decimalToDPD(buffer, decimal);
     return memReverseIfNeeded(buffer, sizeof(DECIMAL_TYPE));
@@ -101,53 +101,53 @@ unsigned char *decimalToNetworkT(unsigned char *buffer, DECIMAL_TYPE decimal)
                         // class DecimalTraits
                         // ===================
 
+/// This `struct` template provides a way to create an object of the
+/// template parameter type `DECIMAL_TYPE` though a consistent interface.
 template <class DECIMAL_TYPE> struct DecimalTraits;
-    // This 'struct' template provides a way to create an object of the
-    // template parameter type 'DECIMAL_TYPE' though a consistent interface.
 
 
+/// This template specialization of `DecimalTraits` provides functions to
+/// create `Decimal32` values.
 template <>
 struct DecimalTraits<Decimal32> {
-    // This template specialization of 'DecimalTraits' provides functions to
-    // create 'Decimal32' values.
 
+    /// This `typedef` defines a type that is large enough to hold the
+    /// significant of `Decimal32`.
     typedef int SignificandType;
-        // This 'typedef' defines a type that is large enough to hold the
-        // significant of 'Decimal32'.
 
+    /// Return a `Decimal32` value having the specified `significand` and
+    /// the specified `exponent`.
     static Decimal32 make(int significand, int exponent);
-        // Return a 'Decimal32' value having the specified 'significand' and
-        // the specified 'exponent'.
 };
 
+/// This template specialization of `DecimalTraits` provides utilities to
+/// create `Decimal64` values.
 template <>
 struct DecimalTraits<Decimal64> {
-    // This template specialization of 'DecimalTraits' provides utilities to
-    // create 'Decimal64' values.
 
+    /// This `typedef` defines a type that is large enough to hold the
+    /// significant of `Decimal64`.
     typedef long long SignificandType;
-        // This 'typedef' defines a type that is large enough to hold the
-        // significant of 'Decimal64'.
 
+    /// Return a `Decimal64` value having the specified `significand` and
+    /// the specified `exponent`.
     static Decimal64 make(long long significand, int exponent);
-        // Return a 'Decimal64' value having the specified 'significand' and
-        // the specified 'exponent'.
 
 };
 
+/// This template specialization of `DecimalTraits` provides utilities to
+/// create `Decimal128` values.
 template <>
 struct DecimalTraits<bdldfp::Decimal128> {
-    // This template specialization of 'DecimalTraits' provides utilities to
-    // create 'Decimal128' values.
 
+    /// This `typedef` defines a type that is large enough to hold the
+    /// significant of `Decimal128` if it's small enough to be convertible
+    /// to a double.
     typedef long long SignificandType;
-        // This 'typedef' defines a type that is large enough to hold the
-        // significant of 'Decimal128' if it's small enough to be convertible
-        // to a double.
 
+    /// Return a `Decimal128` value having the specified `significand` and
+    /// the specified `exponent`.
     static bdldfp::Decimal128 make(long long significand, int exponent);
-        // Return a 'Decimal128' value having the specified 'significand' and
-        // the specified 'exponent'.
 };
 
                         // ===================
@@ -195,12 +195,12 @@ const float  k_6_DIGIT_OFR_THRESHOLD = 5e-7f;
 const float  k_7_DIGIT_OFR_THRESHOLD = 1e-8f;
 const double k_9_DIGIT_OFR_THRESHOLD = 1e-17;
 
+/// Return true iff the non-singular argument is in the representable range
+/// of `DECIMAL_TYPE`.  Only `isInRange<Decimal32, double>` actually needs
+/// to test the value of the argument.
 template <class DECIMAL_TYPE, class BINARY_TYPE>
 inline
 bool isInRange(BINARY_TYPE)
-    // Return true iff the non-singular argument is in the representable range
-    // of 'DECIMAL_TYPE'.  Only 'isInRange<Decimal32, double>' actually needs
-    // to test the value of the argument.
 {
     return true;
 }
@@ -215,14 +215,14 @@ bool isInRange<Decimal32, double>(double value)
     return bsl::abs(value) <= max_decimal;
 }
 
+/// If the specified `binary` is a singular value (`Inf`, `Nan`, or 0) or is
+/// out of range of `DECIMAL_TYPE`, construct the equivalent decimal form or
+/// the infinity of the appropriate sign in the specified `decimal` and
+/// return true, otherwise leave `decimal` unchanged and return false.
 template <class DECIMAL_TYPE, class BINARY_TYPE>
 inline
 bool restoreSingularDecimalFromBinary(DECIMAL_TYPE *decimal,
                                       BINARY_TYPE   binary)
-    // If the specified 'binary' is a singular value ('Inf', 'Nan', or 0) or is
-    // out of range of 'DECIMAL_TYPE', construct the equivalent decimal form or
-    // the infinity of the appropriate sign in the specified 'decimal' and
-    // return true, otherwise leave 'decimal' unchanged and return false.
 {
     switch (bdlb::Float::classify(binary))
     {
@@ -255,47 +255,47 @@ bool restoreSingularDecimalFromBinary(DECIMAL_TYPE *decimal,
     return true;
 }
 
+/// Return the specified `low` if the specified `value` is less than 1, the
+/// specified `high` if `value` is greater than `high`, and `value`
+/// otherwise.
 inline
 int bound(int value, int low, int high)
-    // Return the specified 'low' if the specified 'value' is less than 1, the
-    // specified 'high' if 'value' is greater than 'high', and 'value'
-    // otherwise.
 {
     return value < 1 ? low : value > high ? high : value;
 }
 
+/// Set the specified `result` to the result of calling
+/// `DecimalUtil::parseDecimal32` on the specified `buffer`.
 inline
 void parseDecimal(Decimal32 *result, const char *buffer)
-    // Set the specified 'result' to the result of calling
-    // 'DecimalUtil::parseDecimal32' on the specified 'buffer'.
 {
     DecimalUtil::parseDecimal32(result, buffer);
 }
 
+/// Set the specified `result` to the result of calling
+/// `DecimalUtil::parseDecimal64` on the specified `buffer`.
 inline
 void parseDecimal(Decimal64 *result, const char *buffer)
-    // Set the specified 'result' to the result of calling
-    // 'DecimalUtil::parseDecimal64' on the specified 'buffer'.
 {
     DecimalUtil::parseDecimal64(result, buffer);
 }
 
+/// Set the specified `result` to the result of calling
+/// `DecimalUtil::parseDecimal128` on the specified `buffer`.
 inline
 void parseDecimal(Decimal128 *result, const char *buffer)
-    // Set the specified 'result' to the result of calling
-    // 'DecimalUtil::parseDecimal128' on the specified 'buffer'.
 {
     DecimalUtil::parseDecimal128(result, buffer);
 }
 
+/// Return the closest decimal value with the specified `digits` significant
+/// digits to the specified `binary`.  Singular (infinity, NaN, and -0) and
+/// out-of-range `binary` values are converted to appropriate decimal
+/// singular values.  If `digits` is less than 1, use `LIMIT` instead, and
+/// if `digits` is greater than the number of digits that `DECIMAL_TYPE` can
+/// hold, use that number instead.
 template <class DECIMAL_TYPE, int LIMIT, class BINARY_TYPE>
 DECIMAL_TYPE restoreDecimalDigits(BINARY_TYPE binary, int digits)
-    // Return the closest decimal value with the specified 'digits' significant
-    // digits to the specified 'binary'.  Singular (infinity, NaN, and -0) and
-    // out-of-range 'binary' values are converted to appropriate decimal
-    // singular values.  If 'digits' is less than 1, use 'LIMIT' instead, and
-    // if 'digits' is greater than the number of digits that 'DECIMAL_TYPE' can
-    // hold, use that number instead.
 {
     DECIMAL_TYPE result;
     char         buffer[42];
@@ -315,11 +315,11 @@ DECIMAL_TYPE restoreDecimalDigits(BINARY_TYPE binary, int digits)
     return result;
 }
 
+/// Return the DECIMAL_TYPE value with the fewest significant digits that
+/// converts back exactly to the specified `binary` if it exists, and the
+/// closest value to `binary` otherwise.
 template <class DECIMAL_TYPE, class BINARY_TYPE>
 DECIMAL_TYPE shortestDecimalFromBinary(BINARY_TYPE binary);
-    // Return the DECIMAL_TYPE value with the fewest significant digits that
-    // converts back exactly to the specified 'binary' if it exists, and the
-    // closest value to 'binary' otherwise.
 
 template<>
 Decimal32 shortestDecimalFromBinary<Decimal32, float>(float binary)
@@ -382,14 +382,14 @@ Decimal128 shortestDecimalFromBinary<Decimal128, double>(double binary)
     }
 }
 
+/// Divide the value of the specified `*significand` by 10 and increment the
+/// specified `*exponent` as few times as needed to either make
+/// `*significand` not be divisible by 10 or to make `*exponent`
+/// non-negative.  The purpose is to avoid scaling artifacts when converting
+/// to decimal floating point; e.g., given .001, we want 1e-3 instead of
+/// 1000e-6.
 template <class INTEGER_TYPE>
 inline void reduce(INTEGER_TYPE *significand, int *exponent)
-    // Divide the value of the specified '*significand' by 10 and increment the
-    // specified '*exponent' as few times as needed to either make
-    // '*significand' not be divisible by 10 or to make '*exponent'
-    // non-negative.  The purpose is to avoid scaling artifacts when converting
-    // to decimal floating point; e.g., given .001, we want 1e-3 instead of
-    // 1000e-6.
 {
     INTEGER_TYPE n     = *significand;
     int          scale = *exponent;
@@ -412,18 +412,18 @@ inline void reduce(INTEGER_TYPE *significand, int *exponent)
     *exponent = scale;
 }
 
+/// Return `true` iff an attempt to set the specified `result` to a "quick"
+/// conversion from the specified `binary` succeeds.  This occurs when
+/// `binary` is in an appropriate range and scaling and rounding it to an
+/// integer results in a remainder whose ratio with the result is less than
+/// the specified `threshold`.  If the intermediate integer is larger than
+/// the specified `limit`, fail due to extra precision {DRQS 150430751}.
 template <class DECIMAL_TYPE>
 inline
 bool quickDecimalFromDouble(DECIMAL_TYPE *result,
                             double        binary,
                             double        threshold,
                             long long     limit)
-    // Return 'true' iff an attempt to set the specified 'result' to a "quick"
-    // conversion from the specified 'binary' succeeds.  This occurs when
-    // 'binary' is in an appropriate range and scaling and rounding it to an
-    // integer results in a remainder whose ratio with the result is less than
-    // the specified 'threshold'.  If the intermediate integer is larger than
-    // the specified 'limit', fail due to extra precision {DRQS 150430751}.
 {
     BSLS_ASSERT(result);
 
@@ -479,18 +479,18 @@ bool quickDecimalFromDouble(DECIMAL_TYPE *result,
     return false;
 }
 
+/// Return `true` if an attempt to set the specified `result` to a "quick"
+/// conversion from the specified `binary` succeeds.  This occurs when
+/// `binary` is in an appropriate range and scaling and rounding it to an
+/// integer results in a remainder whose ratio with the result is less than
+/// the specified `threshold`.  If the intermediate integer is larger than
+/// the specified `limit`, fail due to extra precision {DRQS 150430751}.
 template <class DECIMAL_TYPE>
 inline
 bool quickDecimalFromFloat(DECIMAL_TYPE *result,
                            float         binary,
                            float         threshold,
                            int           limit)
-    // Return 'true' if an attempt to set the specified 'result' to a "quick"
-    // conversion from the specified 'binary' succeeds.  This occurs when
-    // 'binary' is in an appropriate range and scaling and rounding it to an
-    // integer results in a remainder whose ratio with the result is less than
-    // the specified 'threshold'.  If the intermediate integer is larger than
-    // the specified 'limit', fail due to extra precision {DRQS 150430751}.
 {
     // Try the "Olkin-Farber-Rosen" method for speed.  Multiply the float by a
     // power of 10, round it to an integer, then use the faster scaled

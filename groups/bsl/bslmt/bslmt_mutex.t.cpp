@@ -69,44 +69,48 @@ void aSsErT(bool condition, const char *message, int line)
 
 ///Usage
 ///-----
-// The following snippets of code illustrate the use of 'bslmt::Mutex' to write
-// a thread-safe class, 'my_SafeAccount', given a thread-unsafe class,
-// 'my_Account'.  The simple 'my_Account' class is defined as follows:
-//..
+// The following snippets of code illustrate the use of `bslmt::Mutex` to write
+// a thread-safe class, `my_SafeAccount`, given a thread-unsafe class,
+// `my_Account`.  The simple `my_Account` class is defined as follows:
+// ```
+
+    /// This `class` represents a bank account with a single balance.  It
+    /// is not thread-safe.
     class my_Account {
-        // This 'class' represents a bank account with a single balance.  It
-        // is not thread-safe.
 
         // DATA
         double d_money;  // amount of money in the account
 
       public:
         // CREATORS
+
+        /// Create an account with zero balance.
         my_Account();
-            // Create an account with zero balance.
 
+        /// Create an account having the value of the specified `original`
+        /// account.
         my_Account(const my_Account& original);
-            // Create an account having the value of the specified 'original'
-            // account.
 
+        /// Destroy this account.
         ~my_Account();
-            // Destroy this account.
 
         // MANIPULATORS
+
+        /// Assign to this account the value of the specified `rhs` account,
+        /// and return a reference to this modifiable account.
         my_Account& operator=(const my_Account& rhs);
-            // Assign to this account the value of the specified 'rhs' account,
-            // and return a reference to this modifiable account.
 
+        /// Deposit the specified `amount` of money into this account.
         void deposit(double amount);
-            // Deposit the specified 'amount' of money into this account.
 
+        /// Withdraw the specified `amount` of money from this account.
         void withdraw(double amount);
-            // Withdraw the specified 'amount' of money from this account.
 
         // ACCESSORS
+
+        /// Return the amount of money that is available for withdrawal
+        /// from this account.
         double balance() const;
-            // Return the amount of money that is available for withdrawal
-            // from this account.
     };
 
     // CREATORS
@@ -146,18 +150,19 @@ void aSsErT(bool condition, const char *message, int line)
     {
         return d_money;
     }
-//..
-// Next, we use a 'bslmt::Mutex' object to render atomic the function calls of
+// ```
+// Next, we use a `bslmt::Mutex` object to render atomic the function calls of
 // a new thread-safe class that uses the thread-unsafe class in its
-// implementation.  Note the typical use of 'mutable' for the lock:
-//..
+// implementation.  Note the typical use of `mutable` for the lock:
+// ```
+
+    /// This `class` provides a thread-safe handle to an account (held, not
+    /// owned) passed at construction.
     class my_SafeAccountHandle {
-        // This 'class' provides a thread-safe handle to an account (held, not
-        // owned) passed at construction.
 
         // DATA
         my_Account          *d_account_p;  // held, not owned
-        mutable bslmt::Mutex  d_lock;       // guard access to 'd_account_p'
+        mutable bslmt::Mutex  d_lock;       // guard access to `d_account_p`
 
         // NOT IMPLEMENTED
         my_SafeAccountHandle(const my_SafeAccountHandle&);
@@ -165,44 +170,47 @@ void aSsErT(bool condition, const char *message, int line)
 
       public:
         // CREATORS
-        my_SafeAccountHandle(my_Account *account);
-            // Create a thread-safe handle to the specified 'account'.
 
+        /// Create a thread-safe handle to the specified `account`.
+        my_SafeAccountHandle(my_Account *account);
+
+        /// Destroy this handle.  Note that the held account is unaffected
+        /// by this operation.
         ~my_SafeAccountHandle();
-            // Destroy this handle.  Note that the held account is unaffected
-            // by this operation.
 
         // MANIPULATORS
+
+        /// Atomically deposit the specified `amount` of money into the
+        /// account held by this handle.  Note that this operation is
+        /// thread-safe; no `lock` is needed.
         void deposit(double amount);
-            // Atomically deposit the specified 'amount' of money into the
-            // account held by this handle.  Note that this operation is
-            // thread-safe; no 'lock' is needed.
 
+        /// Provide exclusive access to the underlying account held by this
+        /// object.
         void lock();
-            // Provide exclusive access to the underlying account held by this
-            // object.
 
+        /// Release exclusivity of the access to the underlying account held
+        /// by this object.
         void unlock();
-            // Release exclusivity of the access to the underlying account held
-            // by this object.
 
+        /// Atomically withdraw the specified `amount` of money from the
+        /// account held by this handle.  Note that this operation is
+        /// thread-safe; no `lock` is needed.
         void withdraw(double amount);
-            // Atomically withdraw the specified 'amount' of money from the
-            // account held by this handle.  Note that this operation is
-            // thread-safe; no 'lock' is needed.
 
         // ACCESSORS
-        my_Account *account() const;
-            // Return the address of the modifiable account held by this
-            // handle.
 
+        /// Return the address of the modifiable account held by this
+        /// handle.
+        my_Account *account() const;
+
+        /// Atomically return the amount of money that is available for
+        /// withdrawal from the account held by this handle.
         double balance() const;
-            // Atomically return the amount of money that is available for
-            // withdrawal from the account held by this handle.
     };
-//..
-// The implementation show-casing the use of 'bslmt::Mutex' follows:
-//..
+// ```
+// The implementation show-casing the use of `bslmt::Mutex` follows:
+// ```
     // CREATORS
     my_SafeAccountHandle::my_SafeAccountHandle(my_Account *account)
     : d_account_p(account)
@@ -216,12 +224,12 @@ void aSsErT(bool condition, const char *message, int line)
     // MANIPULATORS
     void my_SafeAccountHandle::deposit(double amount)
     {
-//..
+// ```
 // Where appropriate, clients should use a lock-guard to ensure that an
 // acquired mutex is always properly released, even if an exception is thrown.
-// See 'bslmt_lockguard' for more information:
-//..
-        d_lock.lock();  // consider using 'bslmt::LockGuard'
+// See `bslmt_lockguard` for more information:
+// ```
+        d_lock.lock();  // consider using `bslmt::LockGuard`
         d_account_p->deposit(amount);
         d_lock.unlock();
     }
@@ -238,7 +246,7 @@ void aSsErT(bool condition, const char *message, int line)
 
     void my_SafeAccountHandle::withdraw(double amount)
     {
-        d_lock.lock();  // consider using 'bslmt::LockGuard'
+        d_lock.lock();  // consider using `bslmt::LockGuard`
         d_account_p->withdraw(amount);
         d_lock.unlock();
     }
@@ -251,12 +259,12 @@ void aSsErT(bool condition, const char *message, int line)
 
     double my_SafeAccountHandle::balance() const
     {
-        d_lock.lock();  // consider using 'bslmt::LockGuard'
+        d_lock.lock();  // consider using `bslmt::LockGuard`
         const double res = d_account_p->balance();
         d_lock.unlock();
         return res;
     }
-//..
+// ```
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -417,8 +425,8 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 2: {
 // The handle's atomic methods are used just as the corresponding methods in
-// 'my_Account':
-//..
+// `my_Account`:
+// ```
     my_Account account;
     account.deposit(100.50);
     double paycheck = 50.25;
@@ -426,13 +434,13 @@ int main(int argc, char *argv[])
 
                                ASSERT(100.50 == handle.balance());
     handle.deposit(paycheck);  ASSERT(150.75 == handle.balance());
-//..
-// We can also use the handle's 'lock' and 'unlock' methods to implement
+// ```
+// We can also use the handle's `lock` and `unlock` methods to implement
 // non-primitive atomic transactions on the account:
-//..
+// ```
     double check[5] = { 25.0, 100.0, 99.95, 75.0, 50.0 };
 
-    handle.lock();  // consider using 'bslmt::LockGuard'
+    handle.lock();  // consider using `bslmt::LockGuard`
 
     double originalBalance = handle.account()->balance();
     for (int i = 0; i < 5; ++i) {
@@ -440,7 +448,7 @@ int main(int argc, char *argv[])
     }
     ASSERT(originalBalance + 349.95 == handle.account()->balance());
     handle.unlock();
-//..
+// ```
       } break;
       case 1: {
         // ------------------------------------------------------------------

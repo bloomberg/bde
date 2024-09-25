@@ -40,16 +40,17 @@ const unsigned char s_partialWeeks[8][7] =
    {0x00, 0x80, 0x82, 0x86, 0x8E, 0x9E, 0xBE} };
 
 // HELPER FUNCTIONS
+
+/// Insert the specified `date` into the range of the calendar object
+/// represented by the specified `firstDate`, `endDate`, and
+/// `holidayOffsets`.  If the `date` is outside the range of the calendar,
+/// this range will be extended to include it and `firstDate` or `endDate`
+/// will be appropriately modified.  Otherwise, this function has no effect.
 static
 void addDayImp(Date                      *firstDate,
                Date                      *endDate,
                bdlc::PackedIntArray<int> *holidayOffsets,
                const bdlt::Date&          date)
-    // Insert the specified 'date' into the range of the calendar object
-    // represented by the specified 'firstDate', 'endDate', and
-    // 'holidayOffsets'.  If the 'date' is outside the range of the calendar,
-    // this range will be extended to include it and 'firstDate' or 'endDate'
-    // will be appropriately modified.  Otherwise, this function has no effect.
 {
     BSLS_ASSERT(firstDate);
     BSLS_ASSERT(endDate);
@@ -67,6 +68,9 @@ void addDayImp(Date                      *firstDate,
     }
 }
 
+/// Append, onto the specified `resHolidayOffsets`, `resHolidayCodesIndex`,
+/// and `resHolidayCodes`, the holiday at the specified `holidayOffset` with
+/// the specified `lhsHC .. lhsHCE` holiday codes.
 static
 void appendHoliday(
                 bdlc::PackedIntArray<int>                *resHolidayOffsets,
@@ -75,9 +79,6 @@ void appendHoliday(
                 int                                       holidayOffset,
                 PackedCalendar::HolidayCodeConstIterator  lhsHC,
                 PackedCalendar::HolidayCodeConstIterator  lhsHCE)
-    // Append, onto the specified 'resHolidayOffsets', 'resHolidayCodesIndex',
-    // and 'resHolidayCodes', the holiday at the specified 'holidayOffset' with
-    // the specified 'lhsHC .. lhsHCE' holiday codes.
 {
     resHolidayOffsets->push_back(holidayOffset);
     resHolidayCodesIndex->push_back(
@@ -88,6 +89,10 @@ void appendHoliday(
     }
 }
 
+/// Append, onto the specified `resHolidayOffsets`, `resHolidayCodesIndex`,
+/// and `resHolidayCodes`, the holiday at the specified `holidayOffset` with
+/// the union of the specified `lhsHC .. lhsHCE` holiday codes and the
+/// specified `rhsHC .. rhsHCE` holiday codes.
 static
 void appendHoliday(
                 bdlc::PackedIntArray<int>                *resHolidayOffsets,
@@ -98,10 +103,6 @@ void appendHoliday(
                 PackedCalendar::HolidayCodeConstIterator  lhsHCE,
                 PackedCalendar::HolidayCodeConstIterator  rhsHC,
                 PackedCalendar::HolidayCodeConstIterator  rhsHCE)
-    // Append, onto the specified 'resHolidayOffsets', 'resHolidayCodesIndex',
-    // and 'resHolidayCodes', the holiday at the specified 'holidayOffset' with
-    // the union of the specified 'lhsHC .. lhsHCE' holiday codes and the
-    // specified 'rhsHC .. rhsHCE' holiday codes.
 {
     resHolidayOffsets->push_back(holidayOffset);
     resHolidayCodesIndex->push_back(
@@ -132,14 +133,14 @@ void appendHoliday(
     }
 }
 
+/// Emit the number of spaces indicated by the absolute value of the
+/// product of the specified `level` and `spacesPerLevel` to the specified
+/// output `stream` and return a reference to the modifiable `stream`.  If
+/// the `level` is negative, this function has no effect.
 static
 bsl::ostream& indent(bsl::ostream& stream,
                      int           level,
                      int           spacesPerLevel)
-    // Emit the number of spaces indicated by the absolute value of the
-    // product of the specified 'level' and 'spacesPerLevel' to the specified
-    // output 'stream' and return a reference to the modifiable 'stream'.  If
-    // the 'level' is negative, this function has no effect.
 {
     if (spacesPerLevel < 0) {
         spacesPerLevel = -spacesPerLevel;
@@ -161,14 +162,14 @@ bsl::ostream& indent(bsl::ostream& stream,
     return stream;
 }
 
+/// Return the number of days in the range starting from the specified
+/// `firstDate` to `lastDate` whose day-of-week are in the specified
+/// `weekendDays` set.  Note that this function returns 0 if
+/// `lastDate < firstDate`.
 static
 int numWeekendDaysInRangeImp(const Date&         firstDate,
                              const Date&         lastDate,
                              const DayOfWeekSet& weekendDays)
-    // Return the number of days in the range starting from the specified
-    // 'firstDate' to 'lastDate' whose day-of-week are in the specified
-    // 'weekendDays' set.  Note that this function returns 0 if
-    // 'lastDate < firstDate'.
 {
     const int len = firstDate <= lastDate ? lastDate - firstDate + 1 : 0;
 
@@ -189,13 +190,13 @@ int numWeekendDaysInRangeImp(const Date&         firstDate,
 
 typedef bsl::vector<bsl::pair<Date, DayOfWeekSet> > WTransitions;
 
+/// Load, into the specified `result`, the intersection of the specified
+/// `lhs` weekend-days transitions and the specified `rhs` weekend-days
+/// transitions.
 static
 void intersectWeekendDaysTransitions(WTransitions        *result,
                                      const WTransitions&  lhs,
                                      const WTransitions&  rhs)
-    // Load, into the specified 'result', the intersection of the specified
-    // 'lhs' weekend-days transitions and the specified 'rhs' weekend-days
-    // transitions.
 {
     if (lhs.empty() || rhs.empty()) {
         return;                                                       // RETURN
@@ -235,13 +236,13 @@ void intersectWeekendDaysTransitions(WTransitions        *result,
     }
 }
 
+/// Load, into the specified `result`, the union of the specified `lhs`
+/// weekend-days transitions and the specified `rhs` weekend-days
+/// transitions.
 static
 void unionWeekendDaysTransitions(WTransitions        *result,
                                  const WTransitions&  lhs,
                                  const WTransitions&  rhs)
-    // Load, into the specified 'result', the union of the specified 'lhs'
-    // weekend-days transitions and the specified 'rhs' weekend-days
-    // transitions.
 {
     if (lhs.empty()) {
         *result = rhs;

@@ -45,32 +45,32 @@ using bsl::flush;
 //                                  Overview
 //                                  --------
 // This component under test provides two classes that represent time zones.
-// The 'baltzo::ZoneinfoTransition' is an unconstrained in-core
-// (value-semantic) class.  The 'class' supports a subset of the value-semantic
-// functionality: basic accessors, equality operators, and 'operator<'.
+// The `baltzo::ZoneinfoTransition` is an unconstrained in-core
+// (value-semantic) class.  The `class` supports a subset of the value-semantic
+// functionality: basic accessors, equality operators, and `operator<`.
 //
 // This particular attribute class does not provide a public default/value
 // constructor capable of creating an object in any state relevant for testing.
-// The only way to create a transition object is by calling 'addTransition'
+// The only way to create a transition object is by calling `addTransition`
 // with the attribute values required for the transition and accessing the
-// transition via the 'firstTransition' or 'beginTransitions' methods.  We will
-// implement a 'gg' function for creating a zone info having any value.  We
+// transition via the `firstTransition` or `beginTransitions` methods.  We will
+// implement a `gg` function for creating a zone info having any value.  We
 // will then use this generator function to create a single transition and
 // test its various properties.
 //
 // We will then follow a subset of our standard 10-case approach to testing
 // value-semantic types.
 //
-// The 'baltzo::Zoneinfo' is a value semantic type containing, an 'identifier'
+// The `baltzo::Zoneinfo` is a value semantic type containing, an `identifier`
 // string, a sequence of transitions (specified by
-// 'baltzo::ZoneinfoTransition'), and the 'baltzo::LocalTimeDescriptor'
-// corresponding to the contained transitions.  The 'class' supports a subset
+// `baltzo::ZoneinfoTransition`), and the `baltzo::LocalTimeDescriptor`
+// corresponding to the contained transitions.  The `class` supports a subset
 // of the value-semantic functionality: default constructor, copy constructor,
 // assignment operator, swap, and basic accessors.
 //
 // This particular attribute class provides a default constructor and
-// 'addTransition' manipulator capable of creating an object in any state
-// relevant for testing.  We will implement a 'gg' function for creating a zone
+// `addTransition` manipulator capable of creating an object in any state
+// relevant for testing.  We will implement a `gg` function for creating a zone
 // info having any value.  We will then use the accessors to verify the state.
 //-----------------------------------------------------------------------------
 //
@@ -131,7 +131,7 @@ using bsl::flush;
 // FREE FUNCTIONS
 // [13] void swap(baltzo::Zoneinfo& first, baltzo::Zoneinfo& second);
 // ----------------------------------------------------------------------------
-// [ 1] BREATHING TEST: 'baltzo::Zoneinfo', 'baltzo::ZoneinfoTransition'
+// [ 1] BREATHING TEST: `baltzo::Zoneinfo`, `baltzo::ZoneinfoTransition`
 // [17] USAGE EXAMPLE
 
 // ============================================================================
@@ -204,7 +204,7 @@ static void aSsErT(int c, const char *s, int i)
 // ----------------------------------------------------------------------------
 
 typedef baltzo::Zoneinfo     Obj;
-typedef Obj::allocator_type  AllocType; // Test 'allocator_type' exists.
+typedef Obj::allocator_type  AllocType; // Test `allocator_type` exists.
 
 typedef baltzo::ZoneinfoTransition    Transition;
 typedef Obj::TransitionConstIterator  TransitionConstIter;
@@ -219,19 +219,19 @@ typedef bsl::pair<TimeT64, Descriptor>        my_Transition;
 
 // Attribute values for the local time descriptor
 
-// 'D' values: These are the default constructed values.
+// `D` values: These are the default constructed values.
 
-const int              D1   = 0;        // 'utcOffsetInSeconds'
-const bool             D2   = false;    // 'dstInEffectFlag'
-const bsl::string_view D3;    // 'description'
+const int              D1   = 0;        // `utcOffsetInSeconds`
+const bool             D2   = false;    // `dstInEffectFlag`
+const bsl::string_view D3;    // `description`
 
-// 'A' values: Should cause memory allocation if possible.
+// `A` values: Should cause memory allocation if possible.
 
 const int              A1   = -24 * 60 * 60 + 1;
 const bool             A2   = true;
 const bsl::string_view A3 = "a_" SUFFICIENTLY_LONG_STRING;
 
-// 'B' values: Should NOT cause allocation (use alternate string type).
+// `B` values: Should NOT cause allocation (use alternate string type).
 
 const int              B1 =  24 * 60 * 60 - 1;
 const bool             B2 = false;
@@ -298,12 +298,12 @@ bsl::string transitionOperatorOutput(const Transition& T)
 
 
 //=============================================================================
-//            GENERATOR FUNCTIONS 'g', 'gg' and 'ggg' FOR TESTING
+//            GENERATOR FUNCTIONS `g`, `gg` and `ggg` FOR TESTING
 //-----------------------------------------------------------------------------
-// The following functions interpret the given 'spec' in order from left to
+// The following functions interpret the given `spec` in order from left to
 // right to configure the zone info object according to a custom language.
-// The given 'spec' contains the data that will be parsed and called on the
-// primary manipulator ('addTransition') to bring the object into any state
+// The given `spec` contains the data that will be parsed and called on the
+// primary manipulator (`addTransition`) to bring the object into any state
 // suitable for testing.
 //
 // LANGUAGE SPECIFICATION
@@ -351,12 +351,12 @@ void loadDescriptor(Descriptor *d, char spec)
     *d = DESCRIPTORS[index];
 }
 
+/// Configure the specified `object` according to the specified `spec` using
+/// the primary manipulator function.  Return the index of the first
+/// invalid character, and a negative value otherwise.  Note that this
+/// function is used to implement `gg` as well as allow for verification of
+/// syntax error detection.
 int ggg(Obj *object, const char *spec)
-    // Configure the specified 'object' according to the specified 'spec' using
-    // the primary manipulator function.  Return the index of the first
-    // invalid character, and a negative value otherwise.  Note that this
-    // function is used to implement 'gg' as well as allow for verification of
-    // syntax error detection.
 {
     enum { SUCCESS = -1 };
 
@@ -390,16 +390,16 @@ int ggg(Obj *object, const char *spec)
     return SUCCESS;
 }
 
+/// Return, by reference, the specified `object` with its value adjusted
+/// according to the specified `spec`.
 Obj& gg(Obj *object, const char *spec)
-    // Return, by reference, the specified 'object' with its value adjusted
-    // according to the specified 'spec'.
 {
     ASSERT(ggg(object, spec) < 0);
     return *object;
 }
 
+/// Return, by value, a new object corresponding to the specified `spec`.
 Obj g(const char *spec)
-    // Return, by value, a new object corresponding to the specified 'spec'.
 {
     Obj object;
     return gg(&object, spec);
@@ -408,51 +408,51 @@ Obj g(const char *spec)
 //=============================================================================
 //                                USAGE
 //-----------------------------------------------------------------------------
-// First we declare the function 'utcToLocalTime' and its contract:
-//..
+// First we declare the function `utcToLocalTime` and its contract:
+// ```
     static bdlt::DatetimeTz utcToLocalTime(const bdlt::Datetime&   utcTime,
                                            const baltzo::Zoneinfo& timeZone)
     {
-        // Return the 'bdlt::DatetimeTz' value representing the date, time and
+        // Return the `bdlt::DatetimeTz` value representing the date, time and
         // offset from UTC (rounded to the minute) value of the local time,
-        // corresponding to the specified 'utcTime' in the specified
-        // 'timeZone'.  The behavior is undefined if the 'utcTime' precedes the
-        // time of the first transition contained in 'timeZone' and
-        // '0 < timeZone.numTransitions()'.
-//..
-// Then, we check the precondition of 'utcToLocalTime', by checking that
-// 'timeZone' contains at least one transitions and comparing 'utcTime' to the
-// first transition time in 'timeZone':
-//..
+        // corresponding to the specified `utcTime` in the specified
+        // `timeZone`.  The behavior is undefined if the `utcTime` precedes the
+        // time of the first transition contained in `timeZone` and
+        // `0 < timeZone.numTransitions()`.
+// ```
+// Then, we check the precondition of `utcToLocalTime`, by checking that
+// `timeZone` contains at least one transitions and comparing `utcTime` to the
+// first transition time in `timeZone`:
+// ```
         BSLS_ASSERT(0 < timeZone.numTransitions());
         BSLS_ASSERT(timeZone.firstTransition().utcTime() <=
                                    bdlt::EpochUtil::convertToTimeT64(utcTime));
-//..
-// Next, we obtain the appropriate 'baltzo::ZoneinfoTransition' object,
-// invoking the method 'findTransitionForUtcTime' on 'timeZone':
-//..
+// ```
+// Next, we obtain the appropriate `baltzo::ZoneinfoTransition` object,
+// invoking the method `findTransitionForUtcTime` on `timeZone`:
+// ```
         baltzo::Zoneinfo::TransitionConstIterator it =
                                     timeZone.findTransitionForUtcTime(utcTime);
-//..
-// Then, we access the descriptor associated with the transition to which 'it'
+// ```
+// Then, we access the descriptor associated with the transition to which `it`
 // refers, and calculate the offset from UTC rounded to the minute:
 // ..
         const baltzo::ZoneinfoTransition& transition = *it;
         const int offsetInMinutes =
                              transition.descriptor().utcOffsetInSeconds() / 60;
-//..
-// Now, we apply the obtained 'offsetInMinutes' to the originally specified
-// 'utcTime' obtaining the corresponding local time in the specified
-// 'timeZone':
-//..
+// ```
+// Now, we apply the obtained `offsetInMinutes` to the originally specified
+// `utcTime` obtaining the corresponding local time in the specified
+// `timeZone`:
+// ```
         bdlt::Datetime temp(utcTime);
         temp.addMinutes(offsetInMinutes);
-//..
+// ```
 // Finally, return the local time value together with its offset from UTC:
-//..
+// ```
         return bdlt::DatetimeTz(temp, offsetInMinutes);
     }
-//..
+// ```
 
 int main(int argc, char *argv[])
 {
@@ -464,7 +464,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
@@ -484,59 +484,59 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-///Example 1: Populate a 'baltzo::Zoneinfo'
+///Example 1: Populate a `baltzo::Zoneinfo`
 ///- - - - - - - - - - - - - - - - - - - -
 // Suppose we want to represent the time-zone information for New York, in 2010
-// using a 'baltzo::Zoneinfo' object.  In order to do so,  we need to provide
+// using a `baltzo::Zoneinfo` object.  In order to do so,  we need to provide
 // the UTC date-times (transitions) after which the time zone changes its
 // offset from UTC, or daylight-saving Time starts or ends.
 //
 // First, we define two times "Mar 14, 2010 6:00 AM" and "Nov 07, 2010 7:00 AM"
 // representing respectively the UTC time at which New York transitions to
 // Eastern Daylight-saving Time (EDT) and Eastern Standard Time (EST) in 2010:
-//..
+// ```
     bdlt::Datetime edtDatetime(2010, 03, 14, 2, 0);
     bdlt::Datetime estDatetime(2010, 11, 07, 2, 0);
-//..
+// ```
 // Then, we create two local-time descriptors that hold the offset from UTC and
 // DST status for EST and EDT in New York in 2010, in terms of their
-// 'offsetFromUtcInSeconds', 'dstInEffectFlag' and 'description' attributes:
-//..
+// `offsetFromUtcInSeconds`, `dstInEffectFlag` and `description` attributes:
+// ```
     const baltzo::LocalTimeDescriptor est(-5 * 60 * 60, false, "EST");
     const baltzo::LocalTimeDescriptor edt(-4 * 60 * 60, true,  "EDT");
-//..
+// ```
 // Note that these descriptors will be associated with the created transition
 // times, to reflect how local time in New York changes its offset from UTC and
 // DST status after specific times.
 //
-// Next, we create an empty 'baltzo::Zoneinfo' object that will be populated
+// Next, we create an empty `baltzo::Zoneinfo` object that will be populated
 // with the information necessary to describe the time zone for New York:
-//..
+// ```
     baltzo::Zoneinfo newYorkTimeZone;
-//..
+// ```
 // Then, before being able to associate the transition times with their
 // corresponding descriptors, we need translate the transition times to
-// 'bdlt::EpochUtil::TimeT64':
-//..
+// `bdlt::EpochUtil::TimeT64`:
+// ```
     bdlt::EpochUtil::TimeT64 edtTransitionTime =
                                 bdlt::EpochUtil::convertToTimeT64(edtDatetime);
     bdlt::EpochUtil::TimeT64 estTransitionTime =
                                 bdlt::EpochUtil::convertToTimeT64(estDatetime);
-//..
+// ```
 // Now, we associate the created descriptors with the transitions we indicated
-// previously and add them to 'newYorkTimeZone' using the 'addTransition'
+// previously and add them to `newYorkTimeZone` using the `addTransition`
 // method:
-//..
+// ```
     newYorkTimeZone.addTransition(edtTransitionTime, edt);
     newYorkTimeZone.addTransition(estTransitionTime, est);
-//..
+// ```
 // Note that this insertion operation maintains the transitions in order of
 // transition time, and therefore inserting transitions out-of-order, while not
 // illegal, is very inefficient.
 //
-// Finally we verify that the 'newYorkTimeZone' contains the transitions we
+// Finally we verify that the `newYorkTimeZone` contains the transitions we
 // indicated:
-//..
+// ```
     {
         baltzo::Zoneinfo::TransitionConstIterator it =
                                             newYorkTimeZone.beginTransitions();
@@ -547,87 +547,87 @@ int main(int argc, char *argv[])
         ASSERT(it->utcTime()    == estTransitionTime);
         ASSERT(it->descriptor() == est);
     }
-//..
-// Notice that the iterator refers to a 'baltzo::ZoneinfoTransition' object.
+// ```
+// Notice that the iterator refers to a `baltzo::ZoneinfoTransition` object.
 //
 ///Example 2: Converting UTC to Local Time
 ///- - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to program a function, 'utcToLocalTime' to perform the
+// Suppose that we want to program a function, `utcToLocalTime` to perform the
 // conversion from a UTC time value to the corresponding local time value, in a
 // given time zone, and return the computed local time:
 //
 // Suppose, now, we want to convert UTC time to the corresponding local time in
 // New York.  We can do so using the previously defined function
-// 'utcToLocalTime' and reusing the 'baltzo::Zoneinfo' object,
-// 'newYorkTimeZone' of Example 1.
+// `utcToLocalTime` and reusing the `baltzo::Zoneinfo` object,
+// `newYorkTimeZone` of Example 1.
 //
-// First, we define 'bdlt::Datetime' object representing the UTC time "Apr 10,
+// First, we define `bdlt::Datetime` object representing the UTC time "Apr 10,
 // 2010 12:00":
-//..
+// ```
     bdlt::Datetime utcDatetime(2010, 04, 10, 12, 0, 0);
-//..
-// Then, we invoke 'utcToLocalTime' passing 'newYorkTimeZone' as a time zone
+// ```
+// Then, we invoke `utcToLocalTime` passing `newYorkTimeZone` as a time zone
 // and save the result:
-//..
+// ```
     bdlt::DatetimeTz nyDatetime = utcToLocalTime(utcDatetime, newYorkTimeZone);
-//..
-// Finally, we compute the New York local time corresponding to 'utcDatetime',
+// ```
+// Finally, we compute the New York local time corresponding to `utcDatetime`,
 // verify that "April 10, 2010 8:00" is the computed time:
-//..
+// ```
     const bdlt::Datetime expectedTime(2010, 4, 10, 8, 0, 0);
     ASSERT(-4 * 60 == nyDatetime.offset());
     ASSERT(expectedTime == nyDatetime.localDatetime());
-//..
+// ```
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // 'baltzo::Zoneinfo' 'findTransitionForUtcTime'
+        // `baltzo::Zoneinfo` `findTransitionForUtcTime`
         //   Ensure that the correct transition is returned for specified time.
         //
         // Concerns:
-        //: 1 The function correctly returns the transition corresponding to
-        //:   the supplied utc time.
-        //:
-        //: 2 There is no allocation from any allocator.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The function correctly returns the transition corresponding to
+        //    the supplied utc time.
+        //
+        // 2. There is no allocation from any allocator.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create a 'bslma::TestAllocator' object, and install it as the
-        //:   default allocator (note that a ubiquitous test allocator is
-        //:   already installed as the global allocator).
-        //:
-        //: 2 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of widely varying object values (one per row).
-        //:
-        //:   2 For each object value also specify a 'utcTime' and expected
-        //:     'index' for that 'utcTime'.
-        //:
-        //: 3 For each row 'R1' in the table of P-3:  (C-1..3)
-        //:
-        //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
-        //:
-        //:   2 Use the generator function to create a modifiable 'Obj', 'mX',
-        //:     using 'oa' and having the value described by 'R1'; also create
-        //:     a 'bdlt::Datetime' corresponding to the 'utcTime' in that row.
-        //:
-        //:   3 Verify that the returned transition is as expected.  (C-1)
-        //:
-        //:   4 Verify that no memory is allocated from any allocator.  (C-2)
-        //:
-        //: 4 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when an attempt is made to call this function when the
-        //:   object contains no transitions or the 'utcTime' is less than the
-        //:   'utcTime' of the first transition (using the 'BSLS_ASSERTTEST_*'
-        //:   macros).  (C-3)
+        // 1. Create a `bslma::TestAllocator` object, and install it as the
+        //    default allocator (note that a ubiquitous test allocator is
+        //    already installed as the global allocator).
+        //
+        // 2. Using the table-driven technique:
+        //
+        //   1. Specify a set of widely varying object values (one per row).
+        //
+        //   2. For each object value also specify a `utcTime` and expected
+        //      `index` for that `utcTime`.
+        //
+        // 3. For each row `R1` in the table of P-3:  (C-1..3)
+        //
+        //   1. Create a `bslma::TestAllocator` object, `oa`.
+        //
+        //   2. Use the generator function to create a modifiable `Obj`, `mX`,
+        //      using `oa` and having the value described by `R1`; also create
+        //      a `bdlt::Datetime` corresponding to the `utcTime` in that row.
+        //
+        //   3. Verify that the returned transition is as expected.  (C-1)
+        //
+        //   4. Verify that no memory is allocated from any allocator.  (C-2)
+        //
+        // 4. Verify that, in appropriate build modes, defensive checks are
+        //    triggered when an attempt is made to call this function when the
+        //    object contains no transitions or the `utcTime` is less than the
+        //    `utcTime` of the first transition (using the `BSLS_ASSERTTEST_*`
+        //    macros).  (C-3)
         //
         // Testing:
         //   TransitionConstIterator findTransitionForUtcTime(utcTime) const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "'baltzo::Zoneinfo' 'findTransitionForUtcTime"
+                          << "`baltzo::Zoneinfo` 'findTransitionForUtcTime"
                           << endl
                           << "==========================================="
                           << endl;
@@ -736,153 +736,153 @@ int main(int argc, char *argv[])
         //   unchanged if allocators are different.
         //
         // Concerns:
-        //: 1 The move assignment operator can change the value of any
-        //:   modifiable target object to that of any source object.
-        //:
-        //: 2 The allocator used by the target object is unchanged.
-        //:
-        //: 3 Any memory allocation is from the target object's allocator.
-        //:
-        //: 4 The signature and return type are standard.
-        //:
-        //: 5 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 6 If the allocators are different, the value of the source object
-        //:   is not modified.
-        //:
-        //: 7 If the allocators are the same, no new allocations happen when
-        //:   the move assignment happens.
-        //:
-        //: 8 The allocator used by the source object is unchanged.
-        //:
-        //: 9 Any memory allocation is exception neutral.
-        //:
-        //:10 Assigning an object to itself behaves as expected (alias-safety).
-        //:
-        //:11 Every object releases any allocated memory at destruction.
+        // 1. The move assignment operator can change the value of any
+        //    modifiable target object to that of any source object.
+        //
+        // 2. The allocator used by the target object is unchanged.
+        //
+        // 3. Any memory allocation is from the target object's allocator.
+        //
+        // 4. The signature and return type are standard.
+        //
+        // 5. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 6. If the allocators are different, the value of the source object
+        //    is not modified.
+        //
+        // 7. If the allocators are the same, no new allocations happen when
+        //    the move assignment happens.
+        //
+        // 8. The allocator used by the source object is unchanged.
+        //
+        // 9. Any memory allocation is exception neutral.
+        //
+        // 10. Assigning an object to itself behaves as expected (alias-safety).
+        //
+        // 11. Every object releases any allocated memory at destruction.
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a member-function
-        //:   pointer having the appropriate signature and return type for the
-        //:   copy-assignment operator defined in this component.  (C-4)
-        //:
-        //: 2 Create a 'bslma::TestAllocator' object, and install it as the
-        //:   default allocator (note that a ubiquitous test allocator is
-        //:   already installed as the global allocator).
-        //:
-        //: 3 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of (unique) valid object values (one per row) in
-        //:     terms of their individual attributes, including (a) first, the
-        //:     default value, (b) boundary values corresponding to every range
-        //:     of values that each individual attribute can independently
-        //:     attain, and (c) values that should require allocation from each
-        //:     individual attribute that can independently allocate memory.
-        //:
-        //:   2 Additionally, provide a (tri-valued) column, 'MEM', indicating
-        //:     the expectation of memory allocation for all typical
-        //:     implementations of individual attribute types: ('Y') "Yes",
-        //:     ('N') "No", or ('?') "implementation-dependent".
-        //:
-        //: 4 For each row 'R1' (representing a distinct object value, 'V') in
-        //:   the table described in P-3:  (C-1..3, 5-6,8-11)
-        //:
-        //:   1 Use the value constructor and a "scratch" allocator to create
-        //:     two 'const' 'Obj', 'Z' and 'ZZ', each having the value 'V'.
-        //:
-        //:   2 Execute an inner loop that iterates over each row 'R2'
-        //:     (representing a distinct object value, 'W') in the table
-        //:     described in P-3:
-        //:
-        //:   3 For each of the iterations (P-4.2):  (C-1..2, 5..8, 11)
-        //:
-        //:     1 Create a 'bslma::TestAllocator' objects 's1'.
-        //:
-        //:     2 Use the value constructor and 's1' to create a modifiable
-        //:       'Obj', 'mF', having the value 'V'.
-        //:
-        //:     3 Use the value constructor and 's1' to create a modifiable
-        //:       'Obj', 'mX', having the value 'W'.
-        //:
-        //:     4 Move-assign 'mX' from 'bslmf::MovableRefUtil::move(mF)'.
-        //:
-        //:     5 Verify that the address of the return value is the same as
-        //:       that of 'mX'.  (C-5)
-        //:
-        //:     6 Use the equality-comparison operator to verify that the
-        //:       target object, 'mX', now has the same value as that of 'Z'.
-        //:
-        //:     7 Use the 'get_allocator' accessor of both 'mX' and 'mF' to
-        //:       verify that the respective allocators used by the target and
-        //:       source objects are unchanged.  (C-2, 7)
-        //:
-        //:     8 Use the appropriate test allocators to verify that no new
-        //:       allocations were made by the move assignment operation.
-        //:
-        //:   4 For each of the iterations (P-4.2):  (C-1..2, 5, 7-9, 11)
-        //:
-        //:     1 Create two 'bslma::TestAllocator' objects 's1' and 's2'.
-        //:
-        //:     2 Use the value constructor and 's1' to create a modifiable
-        //:       'Obj', 'mF', having the value 'V'.
-        //:
-        //:     3 Use the value constructor and 's2' to create a modifiable
-        //:       'Obj', 'mX', having the value 'W'.
-        //:
-        //:     4 Move-assign 'mX' from 'bslmf::MovableRefUtil::move(mF)'.
-        //:
-        //:     5 Verify that the address of the return value is the same as
-        //:       that of 'mX'.  (C-5)
-        //:
-        //:     6 Use the equality-comparison operator to verify that the
-        //:       target object, 'mX', now has the same value as that of 'Z'.
-        //:
-        //:     7 Use the equality-comparison operator to verify that the
-        //:       source object, 'mF', now has the same value as that of 'Z'.
-        //:
-        //:     8 Use the 'get_allocator' accessor of both 'mX' and 'mF' to
-        //:       verify that the respective allocators used by the target and
-        //:       source objects are unchanged.  (C-2, 7)
-        //:
-        //: 5 Repeat steps similar to those described in P-2 except that, this
-        //:   time, there is no inner loop (as in P-4.2); instead, the source
-        //:   object, 'Z', is a reference to the target object, 'mX', and both
-        //:   'mX' and 'ZZ' are initialized to have the value 'V'.  For each
-        //:   row (representing a distinct object value, 'V') in the table
-        //:   described in P-3:  (C-10)
-        //:
-        //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
-        //:
-        //:   2 Use the value constructor and 'oa' to create a modifiable 'Obj'
-        //:     'mX'; also use the value constructor and a distinct "scratch"
-        //:     allocator to create a 'const' 'Obj' 'ZZ'.
-        //:
-        //:   3 Let 'Z' be a  reference to 'mX'.
-        //:
-        //:   4 Assign 'mX' from 'bslmf::MovableRefUtil::move(Z)'.
-        //:
-        //:   5 Verify that the address of the return value is the same as that
-        //:     of 'mX'.
-        //:
-        //:   6 Use the equality-comparison operator to verify that the
-        //:     target object, 'Z', still has the same value as that of 'ZZ'.
-        //:     (C-10)
-        //:
-        //:   7 Use the 'get_allocator' accessor of 'mX' to verify that it is
-        //:     still the object allocator.
-        //:
-        //:   8 Use the appropriate test allocators to verify that:
-        //:
-        //:     1 Any memory that is allocated is from the object allocator.
-        //:
-        //:     2 No additional (e.g., temporary) object memory is allocated
-        //:       when assigning an object value that did NOT initially require
-        //:       allocated memory.
-        //:
-        //:     3 All object memory is released when the object is destroyed.
-        //:
-        //: 6 Use the test allocator from P-2 to verify that no memory is ever
-        //:   allocated from the default allocator.  (C-3)
+        // 1. Use the address of `operator=` to initialize a member-function
+        //    pointer having the appropriate signature and return type for the
+        //    copy-assignment operator defined in this component.  (C-4)
+        //
+        // 2. Create a `bslma::TestAllocator` object, and install it as the
+        //    default allocator (note that a ubiquitous test allocator is
+        //    already installed as the global allocator).
+        //
+        // 3. Using the table-driven technique:
+        //
+        //   1. Specify a set of (unique) valid object values (one per row) in
+        //      terms of their individual attributes, including (a) first, the
+        //      default value, (b) boundary values corresponding to every range
+        //      of values that each individual attribute can independently
+        //      attain, and (c) values that should require allocation from each
+        //      individual attribute that can independently allocate memory.
+        //
+        //   2. Additionally, provide a (tri-valued) column, `MEM`, indicating
+        //      the expectation of memory allocation for all typical
+        //      implementations of individual attribute types: ('Y') "Yes",
+        //      ('N') "No", or ('?') "implementation-dependent".
+        //
+        // 4. For each row `R1` (representing a distinct object value, `V`) in
+        //    the table described in P-3:  (C-1..3, 5-6,8-11)
+        //
+        //   1. Use the value constructor and a "scratch" allocator to create
+        //      two `const` `Obj`, `Z` and `ZZ`, each having the value `V`.
+        //
+        //   2. Execute an inner loop that iterates over each row `R2`
+        //      (representing a distinct object value, `W`) in the table
+        //      described in P-3:
+        //
+        //   3. For each of the iterations (P-4.2):  (C-1..2, 5..8, 11)
+        //
+        //     1. Create a `bslma::TestAllocator` objects `s1`.
+        //
+        //     2. Use the value constructor and `s1` to create a modifiable
+        //        `Obj`, `mF`, having the value `V`.
+        //
+        //     3. Use the value constructor and `s1` to create a modifiable
+        //        `Obj`, `mX`, having the value `W`.
+        //
+        //     4. Move-assign `mX` from `bslmf::MovableRefUtil::move(mF)`.
+        //
+        //     5. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-5)
+        //
+        //     6. Use the equality-comparison operator to verify that the
+        //        target object, `mX`, now has the same value as that of `Z`.
+        //
+        //     7. Use the `get_allocator` accessor of both `mX` and `mF` to
+        //        verify that the respective allocators used by the target and
+        //        source objects are unchanged.  (C-2, 7)
+        //
+        //     8. Use the appropriate test allocators to verify that no new
+        //        allocations were made by the move assignment operation.
+        //
+        //   4. For each of the iterations (P-4.2):  (C-1..2, 5, 7-9, 11)
+        //
+        //     1. Create two `bslma::TestAllocator` objects `s1` and `s2`.
+        //
+        //     2. Use the value constructor and `s1` to create a modifiable
+        //        `Obj`, `mF`, having the value `V`.
+        //
+        //     3. Use the value constructor and `s2` to create a modifiable
+        //        `Obj`, `mX`, having the value `W`.
+        //
+        //     4. Move-assign `mX` from `bslmf::MovableRefUtil::move(mF)`.
+        //
+        //     5. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-5)
+        //
+        //     6. Use the equality-comparison operator to verify that the
+        //        target object, `mX`, now has the same value as that of `Z`.
+        //
+        //     7. Use the equality-comparison operator to verify that the
+        //        source object, `mF`, now has the same value as that of `Z`.
+        //
+        //     8. Use the `get_allocator` accessor of both `mX` and `mF` to
+        //        verify that the respective allocators used by the target and
+        //        source objects are unchanged.  (C-2, 7)
+        //
+        // 5. Repeat steps similar to those described in P-2 except that, this
+        //    time, there is no inner loop (as in P-4.2); instead, the source
+        //    object, `Z`, is a reference to the target object, `mX`, and both
+        //    `mX` and `ZZ` are initialized to have the value `V`.  For each
+        //    row (representing a distinct object value, `V`) in the table
+        //    described in P-3:  (C-10)
+        //
+        //   1. Create a `bslma::TestAllocator` object, `oa`.
+        //
+        //   2. Use the value constructor and `oa` to create a modifiable `Obj`
+        //      `mX`; also use the value constructor and a distinct "scratch"
+        //      allocator to create a `const` `Obj` `ZZ`.
+        //
+        //   3. Let `Z` be a  reference to `mX`.
+        //
+        //   4. Assign `mX` from `bslmf::MovableRefUtil::move(Z)`.
+        //
+        //   5. Verify that the address of the return value is the same as that
+        //      of `mX`.
+        //
+        //   6. Use the equality-comparison operator to verify that the
+        //      target object, `Z`, still has the same value as that of `ZZ`.
+        //      (C-10)
+        //
+        //   7. Use the `get_allocator` accessor of `mX` to verify that it is
+        //      still the object allocator.
+        //
+        //   8. Use the appropriate test allocators to verify that:
+        //
+        //     1. Any memory that is allocated is from the object allocator.
+        //
+        //     2. No additional (e.g., temporary) object memory is allocated
+        //        when assigning an object value that did NOT initially require
+        //        allocated memory.
+        //
+        //     3. All object memory is released when the object is destroyed.
+        //
+        // 6. Use the test allocator from P-2 to verify that no memory is ever
+        //    allocated from the default allocator.  (C-3)
         //
         // Testing:
         //   baltzo::Zoneinfo& operator=(MovableRef<Zoneinfo> rhs);
@@ -1114,154 +1114,154 @@ int main(int argc, char *argv[])
         //   have the same value.
         //
         // Concerns:
-        //: 1 The assignment operator can change the value of any target object
-        //:   to that of any source object.
-        //;
-        //: 2 The address of the target object's allocator is unchanged.
-        //:
-        //: 3 Any memory allocation is from the target object's allocator.
-        //:
-        //: 4 The signature and return type are standard.
-        //:
-        //: 5 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 6 The value of the source object is not modified.
-        //:
-        //: 7 The allocator of the source object is not modified.
-        //:
-        //: 8 Any memory allocation is exception neutral.
-        //:
-        //: 9 Assigning an object to itself behaves as expected (alias-safety).
+        // 1. The assignment operator can change the value of any target object
+        //    to that of any source object.
+        //
+        // 2. The address of the target object's allocator is unchanged.
+        //
+        // 3. Any memory allocation is from the target object's allocator.
+        //
+        // 4. The signature and return type are standard.
+        //
+        // 5. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 6. The value of the source object is not modified.
+        //
+        // 7. The allocator of the source object is not modified.
+        //
+        // 8. Any memory allocation is exception neutral.
+        //
+        // 9. Assigning an object to itself behaves as expected (alias-safety).
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a function pointer
-        //:   having the appropriate structure for the copy assignment operator
-        //:   defined in this component.  (C-4)
-        //:
-        //: 2 Construct a 'bslma::TestAllocator' object and install it as the
-        //:   default allocator (note that a ubiquitous test allocator is
-        //:   already installed as the global allocator).
-        //:
-        //: 3 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of valid object values (one per row) in terms of
-        //:     their individual attributes, including (a) first, the default
-        //:     value, (b) boundary values corresponding to every range of
-        //:     values that each individual attribute can independently attain,
-        //:     and (c) values that should require allocation from each
-        //:     individual attribute that can independently allocate memory.
-        //:     Note that each each object value is specified by a combination
-        //:     of two items, obtained from different tables ('DATA' and
-        //:     'TZ_DATA').
-        //:
-        //: 4 For each row 'R1' (representing a distinct object value, 'V') in
-        //:   the table 'DATA' described in P-3:  (C-1..3, 5..9)
-        //:
-        //:   1 Use the value constructor to create two 'const' 'Obj', 'Z' and
-        //:     'ZZ', each having the value 'V' and using a "scratch"
-        //:     allocator.
-        //:
-        //:   2 For each row (representing a distinct object extended
-        //:     transitions description) in the table 'TZ_DATA' described in
-        //:     P-1:
-        //:
-        //:     1 Use the 'setPosixExtendedRangeDescription' manipulator to
-        //:       shape values of objects described in P-4.1.
-        //:
-        //:     2 Execute an inner loop that iterates over each row 'R2'
-        //:       (representing a distinct object value, 'W') in the table
-        //:       'DATA' described in P-3:
-        //:
-        //:     3 For each of the iterations (P-4.2.2):
-        //:
-        //:       1 Construct a 'bslma::TestAllocator' object, 'oa'.
-        //:
-        //:       2 Use the value constructor to create a modifiable 'Obj',
-        //:         'mX', using 'oa' and having the value 'W'.
-        //:
-        //:       3 For each row (representing a distinct object extended
-        //:         transitions description) in the table 'TZ_DATA' described
-        //:         in P-3:
-        //:
-        //:         1 Use the 'setPosixExtendedRangeDescription' manipulator to
-        //:           shape values of  objects described in P-4.2.3.2.
-        //:
-        //:         2 Assign 'mX' from 'Z' in the presence of injected
-        //:           exceptions (using the
-        //:           'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).
-        //:
-        //:         3 Verify that the address of the return value is the same
-        //:           as that of 'mX'.  (C-5)
-        //:
-        //:         4 Use the equality comparison operators to verify that:
-        //:           (C-1, 6)
-        //:
-        //:           1 The target object, 'mX', now has the same value as 'Z'.
-        //:
-        //:           2 'Z' still has the same value as 'ZZ'.
-        //:
-        //:         5 Use the 'get_allocator' accessor of both 'mX' and 'Z' to
-        //:           verify that both object allocators are unchanged.
-        //:           (C-2, 7)
-        //:
-        //:         6 Use appropriate test allocators to verify that:  (C-3, 8)
-        //:
-        //:           1 No additional memory is allocated by the source object.
-        //:
-        //:           2 All object memory is released when the object is
-        //:             destroyed.
-        //:
-        //: 5 Repeat steps similar to those described in P-2 except that, this
-        //:   time, there is no inner loop (as in P-4.2.2); instead, the source
-        //:   object, 'Z', is a reference to the target object, 'mX', and both
-        //:   'mX' and 'ZZ' are initialized to have the value 'V'.  For each
-        //:   row (representing a distinct object value, 'V') in the table
-        //:   'DATA' described in P-3:  (C-1..3, 5..10)
-        //:
-        //:   2 For each row (representing a distinct object extended
-        //:     transitions description) in the table 'TZ_DATA' described in
-        //:     P-3:
-        //:
-        //:     1 Construct a 'bslma::TestAllocator' object, 'oa'.
-        //:
-        //:     2 Use the value constructor to create a modifiable 'Obj' 'mX'
-        //:       using 'oa' and a 'const' 'Obj' 'ZZ' (using a distinct
-        //:       "scratch" allocator).
-        //:
-        //:     3 Use the 'setPosixExtendedRangeDescription' manipulator to
-        //:       shape values of objects described in P-1.1.
-        //:
-        //:     4 Let 'Z' be a reference providing only 'const' access to 'mX'.
-        //:
-        //:     5 Use the equality comparison operators to verify that the
-        //:       target object, 'mX', has the same value as 'ZZ'.
-        //:
-        //:     6 Assign 'mX' from 'Z' in the presence of injected exceptions
-        //:       (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).
-        //:       (C-9)
-        //:
-        //:     7 Verify that the address of the return value is the same as
-        //:       that of 'mX'.  (C-5)
-        //:
-        //:     8 Use the equality comparison operators to verify that the
-        //:       target object, 'mX', still has the same value as 'ZZ'.
-        //:       (C-10)
-        //:
-        //:     9 Use the 'get_allocator' accessor of 'mX' to verify that it is
-        //:       still the object allocator.  (C-2)
-        //:
-        //:    10 Use appropriate test allocators to verify that:  (C-3, 8)
-        //:
-        //:       1 Any memory that is allocated is from the object allocator.
-        //:
-        //:       2 No additional (e.g., temporary) object memory is allocated
-        //:         when assigning an object value that did NOT initially
-        //:         require allocated memory.
-        //:
-        //:       3 All object memory is released when the object is destroyed.
-        //:
-        //: 6 Use the test allocator from P-2 to verify that no memory is ever
-        //:   allocated from the default allocator.  (C-3)
+        // 1. Use the address of `operator=` to initialize a function pointer
+        //    having the appropriate structure for the copy assignment operator
+        //    defined in this component.  (C-4)
+        //
+        // 2. Construct a `bslma::TestAllocator` object and install it as the
+        //    default allocator (note that a ubiquitous test allocator is
+        //    already installed as the global allocator).
+        //
+        // 3. Using the table-driven technique:
+        //
+        //   1. Specify a set of valid object values (one per row) in terms of
+        //      their individual attributes, including (a) first, the default
+        //      value, (b) boundary values corresponding to every range of
+        //      values that each individual attribute can independently attain,
+        //      and (c) values that should require allocation from each
+        //      individual attribute that can independently allocate memory.
+        //      Note that each each object value is specified by a combination
+        //      of two items, obtained from different tables (`DATA` and
+        //      `TZ_DATA`).
+        //
+        // 4. For each row `R1` (representing a distinct object value, `V`) in
+        //    the table `DATA` described in P-3:  (C-1..3, 5..9)
+        //
+        //   1. Use the value constructor to create two `const` `Obj`, `Z` and
+        //      `ZZ`, each having the value `V` and using a "scratch"
+        //      allocator.
+        //
+        //   2. For each row (representing a distinct object extended
+        //      transitions description) in the table `TZ_DATA` described in
+        //      P-1:
+        //
+        //     1. Use the `setPosixExtendedRangeDescription` manipulator to
+        //        shape values of objects described in P-4.1.
+        //
+        //     2. Execute an inner loop that iterates over each row `R2`
+        //        (representing a distinct object value, `W`) in the table
+        //        `DATA` described in P-3:
+        //
+        //     3. For each of the iterations (P-4.2.2):
+        //
+        //       1. Construct a `bslma::TestAllocator` object, `oa`.
+        //
+        //       2. Use the value constructor to create a modifiable `Obj`,
+        //          `mX`, using `oa` and having the value `W`.
+        //
+        //       3. For each row (representing a distinct object extended
+        //          transitions description) in the table `TZ_DATA` described
+        //          in P-3:
+        //
+        //         1. Use the `setPosixExtendedRangeDescription` manipulator to
+        //            shape values of  objects described in P-4.2.3.2.
+        //
+        //         2. Assign `mX` from `Z` in the presence of injected
+        //            exceptions (using the
+        //            `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*` macros).
+        //
+        //         3. Verify that the address of the return value is the same
+        //            as that of `mX`.  (C-5)
+        //
+        //         4. Use the equality comparison operators to verify that:
+        //            (C-1, 6)
+        //
+        //           1. The target object, `mX`, now has the same value as `Z`.
+        //
+        //           2. `Z` still has the same value as `ZZ`.
+        //
+        //         5. Use the `get_allocator` accessor of both `mX` and `Z` to
+        //            verify that both object allocators are unchanged.
+        //            (C-2, 7)
+        //
+        //         6. Use appropriate test allocators to verify that:  (C-3, 8)
+        //
+        //           1. No additional memory is allocated by the source object.
+        //
+        //           2. All object memory is released when the object is
+        //              destroyed.
+        //
+        // 5. Repeat steps similar to those described in P-2 except that, this
+        //    time, there is no inner loop (as in P-4.2.2); instead, the source
+        //    object, `Z`, is a reference to the target object, `mX`, and both
+        //    `mX` and `ZZ` are initialized to have the value `V`.  For each
+        //    row (representing a distinct object value, `V`) in the table
+        //    `DATA` described in P-3:  (C-1..3, 5..10)
+        //
+        //   2. For each row (representing a distinct object extended
+        //      transitions description) in the table `TZ_DATA` described in
+        //      P-3:
+        //
+        //     1. Construct a `bslma::TestAllocator` object, `oa`.
+        //
+        //     2. Use the value constructor to create a modifiable `Obj` `mX`
+        //        using `oa` and a `const` `Obj` `ZZ` (using a distinct
+        //        "scratch" allocator).
+        //
+        //     3. Use the `setPosixExtendedRangeDescription` manipulator to
+        //        shape values of objects described in P-1.1.
+        //
+        //     4. Let `Z` be a reference providing only `const` access to `mX`.
+        //
+        //     5. Use the equality comparison operators to verify that the
+        //        target object, `mX`, has the same value as `ZZ`.
+        //
+        //     6. Assign `mX` from `Z` in the presence of injected exceptions
+        //        (using the `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*` macros).
+        //        (C-9)
+        //
+        //     7. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-5)
+        //
+        //     8. Use the equality comparison operators to verify that the
+        //        target object, `mX`, still has the same value as `ZZ`.
+        //        (C-10)
+        //
+        //     9. Use the `get_allocator` accessor of `mX` to verify that it is
+        //        still the object allocator.  (C-2)
+        //
+        //    10. Use appropriate test allocators to verify that:  (C-3, 8)
+        //
+        //       1. Any memory that is allocated is from the object allocator.
+        //
+        //       2. No additional (e.g., temporary) object memory is allocated
+        //          when assigning an object value that did NOT initially
+        //          require allocated memory.
+        //
+        //       3. All object memory is released when the object is destroyed.
+        //
+        // 6. Use the test allocator from P-2 to verify that no memory is ever
+        //    allocated from the default allocator.  (C-3)
         //
         // Testing:
         //   baltzo::Zoneinfo& operator=(const baltzo::Zoneinfo& rhs);
@@ -1481,133 +1481,133 @@ int main(int argc, char *argv[])
       case 13: {
         // --------------------------------------------------------------------
         // SWAP MEMBER AND FREE FUNCTIONS
-        //   Ensure that, when member and free 'swap' are implemented, we can
+        //   Ensure that, when member and free `swap` are implemented, we can
         //   exchange the values of any two objects that use the same
         //   allocator.
         //
         // Concerns:
-        //: 1 Both functions exchange the values of the (two) supplied objects.
-        //:
-        //: 2 The common object allocator used by both objects is unchanged.
-        //:
-        //: 3 The member function does not allocate memory from any allocator;
-        //:   nor does the free function when the two objects being swapped use
-        //:   the same allocator.
-        //:
-        //: 4 The free function can be called with two objects that use
-        //:   different allocators.
-        //:
-        //: 5 Both functions have standard signatures and return types.
-        //:
-        //: 6 Using either function to swap an object with itself does not
-        //:   affect the value of the object (alias-safety).
-        //:
-        //: 7 The free 'swap' function is discoverable through ADL (Argument
-        //:   Dependent Lookup).
-        //:
-        //: 8 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Both functions exchange the values of the (two) supplied objects.
+        //
+        // 2. The common object allocator used by both objects is unchanged.
+        //
+        // 3. The member function does not allocate memory from any allocator;
+        //    nor does the free function when the two objects being swapped use
+        //    the same allocator.
+        //
+        // 4. The free function can be called with two objects that use
+        //    different allocators.
+        //
+        // 5. Both functions have standard signatures and return types.
+        //
+        // 6. Using either function to swap an object with itself does not
+        //    affect the value of the object (alias-safety).
+        //
+        // 7. The free `swap` function is discoverable through ADL (Argument
+        //    Dependent Lookup).
+        //
+        // 8. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use the addresses of the 'swap' member and free functions defined
-        //:   in this component to initialize, respectively, member-function
-        //:   and free-function pointers having the appropriate signatures and
-        //:   return types.  (C-5)
-        //:
-        //: 2 Create a 'bslma::TestAllocator' object, and install it as the
-        //:   default allocator (note that a ubiquitous test allocator is
-        //:   already installed as the global allocator).
-        //:
-        //: 3 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of (unique) valid object values (one per row) in
-        //:     terms of their individual attributes, including (a) first, the
-        //:     default value, (b) boundary values corresponding to every range
-        //:     of values that each individual attribute can independently
-        //:     attain, and (c) values that should require allocation from each
-        //:     individual attribute that can independently allocate memory.
-        //:
-        //:   2 Additionally, provide a (tri-valued) column, 'MEM', indicating
-        //:     the expectation of memory allocation for all typical
-        //:     implementations of individual attribute types: ('Y') "Yes",
-        //:     ('N') "No", or ('?') "implementation-dependent".
-        //:
-        //: 4 For each row 'R1' in the table of P-3:  (C-1..2, 6)
-        //:
-        //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
-        //:
-        //:   2 Use the value constructor and 'oa' to create a modifiable
-        //:     'Obj', 'mW', having the value described by 'R1'; also use the
-        //:     copy constructor and a "scratch" allocator to create a 'const'
-        //:     'Obj' 'XX' from 'mW'.
-        //:
-        //:   3 Use the member and free 'swap' functions to swap the value of
-        //:     'mW' with itself; verify, after each swap, that:  (C-6)
-        //:
-        //:     1 The value is unchanged.  (C-6)
-        //:
-        //:     2 The allocator used by the object is unchanged.
-        //:
-        //:     3 There was no additional object memory allocation.
-        //:
-        //:   4 For each row 'R2' in the table of P-3:  (C-1..2)
-        //:
-        //:     1 Use the copy constructor and 'oa' to create a modifiable
-        //:       'Obj', 'mX', from 'XX' (P-4.2).
-        //:
-        //:     2 Use the value constructor and 'oa' to create a modifiable
-        //:       'Obj', 'mY', and having the value described by 'R2'; also use
-        //:       the copy constructor to create, using a "scratch" allocator,
-        //:       a 'const' 'Obj', 'YY', from 'Y'.
-        //:
-        //:     3 Use, in turn, the member and free 'swap' functions to swap
-        //:       the values of 'mX' and 'mY'; verify, after each swap, that:
-        //:       (C-1..2)
-        //:
-        //:       1 The values have been exchanged.  (C-1)
-        //:
-        //:       2 The common object allocator used by 'mX' and 'mY'
-        //:         is unchanged in both objects.  (C-2)
-        //:
-        //:       3 There was no additional object memory allocation.
-        //:
-        //: 5 Verify that the free 'swap' function is discoverable through ADL:
-        //:   (C-7)
-        //:
-        //:   1 Create a set of attribute values, 'A', distinct from the values
-        //:     corresponding to the default-constructed object, choosing
-        //:     values that allocate memory if possible.
-        //:
-        //:   2 Create a 'bslma::TestAllocator' object, 'oa'.
-        //:
-        //:   3 Use the default constructor and 'oa' to create a modifiable
-        //:     'Obj' 'mX' (having default attribute values); also use the copy
-        //:     constructor and a "scratch" allocator to create a 'const' 'Obj'
-        //:     'XX' from 'mX'.
-        //:
-        //:   4 Use the value constructor and 'oa' to create a modifiable 'Obj'
-        //:     'mY' having the value described by the 'Ai' attributes; also
-        //:     use the copy constructor and a "scratch" allocator to create a
-        //:     'const' 'Obj' 'YY' from 'mY'.
-        //:
-        //:   5 Use the 'bslalg::SwapUtil' helper function template to swap the
-        //:     values of 'mX' and 'mY', using the free 'swap' function defined
-        //:     in this component, then verify that:  (C-7)
-        //:
-        //:     1 The values have been exchanged.
-        //:
-        //:     2 There was no additional object memory allocation.  (C-7)
-        //:
-        //: 6 Use the test allocator from P-2 to verify that no memory was
-        //:   allocated from the default allocator.  (C-3)
-        //:
-        //: 7 Verify that free 'swap' exchanges the values of any two objects
-        //:   that use different allocators.  (C-4)
-        //:
-        //: 8 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when, using the member 'swap' function, an attempt is
-        //:   made to swap objects that do not refer to the same allocator, but
-        //:   not when the allocators are the same (using the
-        //:   'BSLS_ASSERTTEST_*' macros).  (C-8)
+        // 1. Use the addresses of the `swap` member and free functions defined
+        //    in this component to initialize, respectively, member-function
+        //    and free-function pointers having the appropriate signatures and
+        //    return types.  (C-5)
+        //
+        // 2. Create a `bslma::TestAllocator` object, and install it as the
+        //    default allocator (note that a ubiquitous test allocator is
+        //    already installed as the global allocator).
+        //
+        // 3. Using the table-driven technique:
+        //
+        //   1. Specify a set of (unique) valid object values (one per row) in
+        //      terms of their individual attributes, including (a) first, the
+        //      default value, (b) boundary values corresponding to every range
+        //      of values that each individual attribute can independently
+        //      attain, and (c) values that should require allocation from each
+        //      individual attribute that can independently allocate memory.
+        //
+        //   2. Additionally, provide a (tri-valued) column, `MEM`, indicating
+        //      the expectation of memory allocation for all typical
+        //      implementations of individual attribute types: ('Y') "Yes",
+        //      ('N') "No", or ('?') "implementation-dependent".
+        //
+        // 4. For each row `R1` in the table of P-3:  (C-1..2, 6)
+        //
+        //   1. Create a `bslma::TestAllocator` object, `oa`.
+        //
+        //   2. Use the value constructor and `oa` to create a modifiable
+        //      `Obj`, `mW`, having the value described by `R1`; also use the
+        //      copy constructor and a "scratch" allocator to create a `const`
+        //      `Obj` `XX` from `mW`.
+        //
+        //   3. Use the member and free `swap` functions to swap the value of
+        //      `mW` with itself; verify, after each swap, that:  (C-6)
+        //
+        //     1. The value is unchanged.  (C-6)
+        //
+        //     2. The allocator used by the object is unchanged.
+        //
+        //     3. There was no additional object memory allocation.
+        //
+        //   4. For each row `R2` in the table of P-3:  (C-1..2)
+        //
+        //     1. Use the copy constructor and `oa` to create a modifiable
+        //        `Obj`, `mX`, from `XX` (P-4.2).
+        //
+        //     2. Use the value constructor and `oa` to create a modifiable
+        //        `Obj`, `mY`, and having the value described by `R2`; also use
+        //        the copy constructor to create, using a "scratch" allocator,
+        //        a `const` `Obj`, `YY`, from `Y`.
+        //
+        //     3. Use, in turn, the member and free `swap` functions to swap
+        //        the values of `mX` and `mY`; verify, after each swap, that:
+        //        (C-1..2)
+        //
+        //       1. The values have been exchanged.  (C-1)
+        //
+        //       2. The common object allocator used by `mX` and `mY`
+        //          is unchanged in both objects.  (C-2)
+        //
+        //       3. There was no additional object memory allocation.
+        //
+        // 5. Verify that the free `swap` function is discoverable through ADL:
+        //    (C-7)
+        //
+        //   1. Create a set of attribute values, `A`, distinct from the values
+        //      corresponding to the default-constructed object, choosing
+        //      values that allocate memory if possible.
+        //
+        //   2. Create a `bslma::TestAllocator` object, `oa`.
+        //
+        //   3. Use the default constructor and `oa` to create a modifiable
+        //      `Obj` `mX` (having default attribute values); also use the copy
+        //      constructor and a "scratch" allocator to create a `const` `Obj`
+        //      `XX` from `mX`.
+        //
+        //   4. Use the value constructor and `oa` to create a modifiable `Obj`
+        //      `mY` having the value described by the `Ai` attributes; also
+        //      use the copy constructor and a "scratch" allocator to create a
+        //      `const` `Obj` `YY` from `mY`.
+        //
+        //   5. Use the `bslalg::SwapUtil` helper function template to swap the
+        //      values of `mX` and `mY`, using the free `swap` function defined
+        //      in this component, then verify that:  (C-7)
+        //
+        //     1. The values have been exchanged.
+        //
+        //     2. There was no additional object memory allocation.  (C-7)
+        //
+        // 6. Use the test allocator from P-2 to verify that no memory was
+        //    allocated from the default allocator.  (C-3)
+        //
+        // 7. Verify that free `swap` exchanges the values of any two objects
+        //    that use different allocators.  (C-4)
+        //
+        // 8. Verify that, in appropriate build modes, defensive checks are
+        //    triggered when, using the member `swap` function, an attempt is
+        //    made to swap objects that do not refer to the same allocator, but
+        //    not when the allocators are the same (using the
+        //    `BSLS_ASSERTTEST_*` macros).  (C-8)
         //
         // Testing:
         //   void swap(baltzo::Zoneinfo& other);
@@ -1704,7 +1704,7 @@ int main(int argc, char *argv[])
                     firstFlag = false;
                 }
 
-                // member 'swap'
+                // member `swap`
                 {
                     bslma::TestAllocatorMonitor oam(&oa);
 
@@ -1715,7 +1715,7 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE1, oam.isTotalSame());
                 }
 
-                // free function 'swap'
+                // free function `swap`
                 {
                     bslma::TestAllocatorMonitor oam(&oa);
 
@@ -1745,7 +1745,7 @@ int main(int argc, char *argv[])
 
                         if (veryVerbose) { T_ P_(LINE2) P_(X) P_(Y) P_(YY) }
 
-                        // member 'swap'
+                        // member `swap`
                         {
                             bslma::TestAllocatorMonitor oam(&oa);
 
@@ -1760,7 +1760,7 @@ int main(int argc, char *argv[])
                             LOOP2_ASSERT(LINE1, LINE2, oam.isTotalSame());
                         }
 
-                        // free function 'swap', same allocator
+                        // free function `swap`, same allocator
                         {
                             bslma::TestAllocatorMonitor oam(&oa);
 
@@ -1780,7 +1780,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-                "\nInvoke free 'swap' function in a context where ADL is used."
+                "\nInvoke free `swap` function in a context where ADL is used."
                                                                        << endl;
         {
             bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
@@ -1810,7 +1810,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(da.numBlocksTotal(), !da.numBlocksTotal());
 
         if (verbose) cout <<
-                   "\nFree 'swap' function with different allocators." << endl;
+                   "\nFree `swap` function with different allocators." << endl;
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE1 = DATA[ti].d_line;
             const char *const SPEC1 = DATA[ti].d_spec_p;
@@ -1848,7 +1848,7 @@ int main(int argc, char *argv[])
 
                         if (veryVerbose) { T_ P_(LINE2) P_(X) P_(Y) P(YY) }
 
-                        // free function 'swap', different allocators
+                        // free function `swap`, different allocators
                         {
                             swap(mX, mY);
 
@@ -1892,111 +1892,111 @@ int main(int argc, char *argv[])
         //   object has the original value.
         //
         // Concerns:
-        //: 1 The move constructor (with or without a supplied allocator)
-        //:   creates an object having the same value as the original object
-        //:   started with.
-        //:
-        //: 2 If an allocator is NOT supplied, the allocator of the new object
-        //:   is the same as the original object, and no new allocations occur.
-        //:
-        //: 3 If an allocator is supplied that is the same as the original
-        //:   object, then no new allocations occur.
-        //:
-        //: 4 If an allocator is supplied that is different from the original
-        //:   object, then the original object's value remains unchanged.
-        //:
-        //: 5 Supplying a default-constructed allocator explicitly is the same
-        //:   as supplying the default allocator.
-        //:
-        //: 6 Any memory allocation is from the object allocator.
-        //:
-        //: 7 There is no temporary memory allocation from any allocator.
-        //:
-        //: 8 Every object releases any allocated memory at destruction.
-        //:
-        //: 9 The allocator used by the original object is unchanged.
-        //:
-        //:10 Any memory allocation is exception neutral.
+        // 1. The move constructor (with or without a supplied allocator)
+        //    creates an object having the same value as the original object
+        //    started with.
+        //
+        // 2. If an allocator is NOT supplied, the allocator of the new object
+        //    is the same as the original object, and no new allocations occur.
+        //
+        // 3. If an allocator is supplied that is the same as the original
+        //    object, then no new allocations occur.
+        //
+        // 4. If an allocator is supplied that is different from the original
+        //    object, then the original object's value remains unchanged.
+        //
+        // 5. Supplying a default-constructed allocator explicitly is the same
+        //    as supplying the default allocator.
+        //
+        // 6. Any memory allocation is from the object allocator.
+        //
+        // 7. There is no temporary memory allocation from any allocator.
+        //
+        // 8. Every object releases any allocated memory at destruction.
+        //
+        // 9. The allocator used by the original object is unchanged.
+        //
+        // 10. Any memory allocation is exception neutral.
         //
         // Plan:
-        //: 1 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of (unique) valid object values (one per row) in
-        //:     terms of their individual attributes, including (a) first, the
-        //:     default value, (b) boundary values corresponding to every range
-        //:     of values that each individual attribute can independently
-        //:     attain, and (c) values that should require allocation from each
-        //:     individual attribute that can independently allocate memory.
-        //:
-        //:   2 Additionally, provide a (tri-valued) column, 'MEM', indicating
-        //:     the expectation of memory allocation for all typical
-        //:     implementations of individual attribute types: ('Y') "Yes",
-        //:     ('N') "No", or ('?') "implementation-dependent".
-        //:
-        //: 2 For each row (representing a distinct object value, 'V') in the
-        //:   table described in P-1:  (C-1..9)
-        //:
-        //:   1 Use the value constructor and a "scratch" allocator to create
-        //:     two 'const' 'Obj', 'Z' and 'ZZ', each having the value 'V'.
-        //:
-        //:   2 Execute an inner loop that creates an object by
-        //:     move-constructing from a newly created object with value V,
-        //:     but invokes the move constructor differently in each
-        //:     iteration: (a) using the standard single-argument move
-        //:     constructor, (b) using the extended move constructor with a
-        //:     default-constructed allocator argument (to use the default
-        //:     allocator), (c) using the extended move constructor with the
-        //:     same allocator as the moved-from object, and (d) using the
-        //:     extended move constructor with a different allocator than the
-        //:     moved-from object.
-        //:
-        //: 3 For each of these iterations (P-2.2):
-        //:
-        //:   1 Create four 'bslma::TestAllocator' objects, and install one as
-        //:     the current default allocator (note that a ubiquitous test
-        //:     allocator is already installed as the global allocator).
-        //:
-        //:   2 Dynamically allocate another object 'F" using the 's1'
-        //:     allocator having the same value V, using a distinct allocator
-        //:     for the object's footprint.
-        //:
-        //:   3 Dynamically allocate an object 'X' using the appropriate move
-        //:     constructor to move from 'F', passing as a second argument
-        //:     (a) nothing, (b) 'allocator_type()', (c) '&s1', or (d)
-        //:     'allocator_type(&s2)'.
-        //:
-        //:   4 Record the allocator expected to be used by the new object and
-        //:     how much memory it used before the move constructor.
-        //:
-        //:   5 Verify that space for 2 objects is used in the footprint
-        //:     allocator
-        //:
-        //:   6 Verify that the moved-to object has the expected value 'V' by
-        //:     comparing to 'Z'.
-        //:
-        //:   7 If the allocators of 'F' and 'X' are different, verify that the
-        //:     value of 'F' is still 'V', and that the amount of memory
-        //:     used in the allocator for 'X' is the same as the amount of
-        //:     that was used by 'F'.
-        //:
-        //:   8 If the allocators of 'F' and 'X' are the same, verify that no
-        //:     extra memory was used by the move constructor.
-        //:
-        //:   9 Verify that no memory was used by the move constructor as
-        //:     temporary memory, and no unused allocators have had any memory
-        //:     used.
-        //:
-        //:  10 Delete both dynamically allocated objects and verify that all
-        //:     temporary allocators have had all memory returned to them.
-        //:
-        //: 3 Test again, using the data of P-1, but this time just for the
-        //:   supplied allocator configuration (P-2.2c), and create the object
-        //:   as an automatic variable in the presence of injected exceptions
-        //:   (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).  Do
-        //:   this by creating one object with one test allocator ('s1') and
-        //:   then using the move constructor with a separate test allocator
-        //:   that is injecting exceptions ('s2').
-        //:   (C-10)
+        // 1. Using the table-driven technique:
+        //
+        //   1. Specify a set of (unique) valid object values (one per row) in
+        //      terms of their individual attributes, including (a) first, the
+        //      default value, (b) boundary values corresponding to every range
+        //      of values that each individual attribute can independently
+        //      attain, and (c) values that should require allocation from each
+        //      individual attribute that can independently allocate memory.
+        //
+        //   2. Additionally, provide a (tri-valued) column, `MEM`, indicating
+        //      the expectation of memory allocation for all typical
+        //      implementations of individual attribute types: ('Y') "Yes",
+        //      ('N') "No", or ('?') "implementation-dependent".
+        //
+        // 2. For each row (representing a distinct object value, `V`) in the
+        //    table described in P-1:  (C-1..9)
+        //
+        //   1. Use the value constructor and a "scratch" allocator to create
+        //      two `const` `Obj`, `Z` and `ZZ`, each having the value `V`.
+        //
+        //   2. Execute an inner loop that creates an object by
+        //      move-constructing from a newly created object with value V,
+        //      but invokes the move constructor differently in each
+        //      iteration: (a) using the standard single-argument move
+        //      constructor, (b) using the extended move constructor with a
+        //      default-constructed allocator argument (to use the default
+        //      allocator), (c) using the extended move constructor with the
+        //      same allocator as the moved-from object, and (d) using the
+        //      extended move constructor with a different allocator than the
+        //      moved-from object.
+        //
+        // 3. For each of these iterations (P-2.2):
+        //
+        //   1. Create four `bslma::TestAllocator` objects, and install one as
+        //      the current default allocator (note that a ubiquitous test
+        //      allocator is already installed as the global allocator).
+        //
+        //   2. Dynamically allocate another object `F" using the `s1'
+        //      allocator having the same value V, using a distinct allocator
+        //      for the object's footprint.
+        //
+        //   3. Dynamically allocate an object `X` using the appropriate move
+        //      constructor to move from `F`, passing as a second argument
+        //      (a) nothing, (b) `allocator_type()`, (c) `&s1`, or (d)
+        //      `allocator_type(&s2)`.
+        //
+        //   4. Record the allocator expected to be used by the new object and
+        //      how much memory it used before the move constructor.
+        //
+        //   5. Verify that space for 2 objects is used in the footprint
+        //      allocator
+        //
+        //   6. Verify that the moved-to object has the expected value `V` by
+        //      comparing to `Z`.
+        //
+        //   7. If the allocators of `F` and `X` are different, verify that the
+        //      value of `F` is still `V`, and that the amount of memory
+        //      used in the allocator for `X` is the same as the amount of
+        //      that was used by `F`.
+        //
+        //   8. If the allocators of `F` and `X` are the same, verify that no
+        //      extra memory was used by the move constructor.
+        //
+        //   9. Verify that no memory was used by the move constructor as
+        //      temporary memory, and no unused allocators have had any memory
+        //      used.
+        //
+        //  10. Delete both dynamically allocated objects and verify that all
+        //      temporary allocators have had all memory returned to them.
+        //
+        // 3. Test again, using the data of P-1, but this time just for the
+        //    supplied allocator configuration (P-2.2c), and create the object
+        //    as an automatic variable in the presence of injected exceptions
+        //    (using the `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*` macros).  Do
+        //    this by creating one object with one test allocator (`s1`) and
+        //    then using the move constructor with a separate test allocator
+        //    that is injecting exceptions (`s2`).
+        //    (C-10)
         //
         // Testing:
         //   baltzo::Zoneinfo(MovableRef<Zoneinfo> o);
@@ -2164,13 +2164,13 @@ int main(int argc, char *argv[])
 
                     if (objAllocatorPtr != F.get_allocator()) {
                         // If the allocators are different, verify that the
-                        // value of 'fX' has not changed.
+                        // value of `fX` has not changed.
 
                          ASSERTV(LINE, CONFIG, Z, F, Z == F);
 
                          // If memory was used, we can't verify that the same
                          // amount was used by the moved-to object, since the
-                         // 'reserve()' on the transitions may have improved
+                         // `reserve()` on the transitions may have improved
                          // things for the move target.
 
                          // bsls::Types::Int64 moveBytesUsed =
@@ -2194,8 +2194,8 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, CONFIG,
                             &oa == X.identifier().get_allocator());
 
-                    // Also invoke the object's 'get_allocator' accessor, as
-                    // well as that of 'Z'.
+                    // Also invoke the object's `get_allocator` accessor, as
+                    // well as that of `Z`.
 
                     ASSERTV(LINE, CONFIG, &oa, ALLOC_OF(X),
                             &oa == X.get_allocator());
@@ -2216,7 +2216,7 @@ int main(int argc, char *argv[])
 
                     // We can't verify that no temporary memory was allocated
                     // from the object allocator if the object allocator is
-                    // 's1', since not all memory is released in 'F'.
+                    // `s1`, since not all memory is released in `F`.
 
                     if (objAllocatorPtr != &s1) {
                         ASSERTV(LINE,
@@ -2315,120 +2315,120 @@ int main(int argc, char *argv[])
         //   other one, such that the two objects have the same value.
         //
         // Concerns:
-        //: 1 The copy constructor (with or without a supplied allocator)
-        //:   creates an object having the same value as the supplied original
-        //:   object.
-        //:
-        //: 2 If an allocator is *not* supplied to the copy constructor, the
-        //:   default allocator in effect at the time of construction becomes
-        //:   the object allocator for the resulting object (i.e., the
-        //:   allocator of the original object is never copied).
-        //:
-        //: 3 If an allocator is supplied to the copy constructor, that
-        //:   allocator becomes the object allocator for the resulting object.
-        //:
-        //: 4 Supplying a null allocator address has the same effect as not
-        //:   supplying an allocator.
-        //:
-        //: 5 Supplying an allocator to the copy constructor has no effect
-        //:   on subsequent object values.
-        //:
-        //: 6 Any memory allocation is from the object allocator, which is
-        //:   returned by the 'get_allocator' accessor method.
-        //:
-        //: 7 There is no temporary memory allocation from any allocator.
-        //:
-        //: 8 Every object releases any allocated memory at destruction.
-        //:
-        //: 9 The original object is passed as a reference providing
-        //:   non-modifiable access to the object.
-        //:
-        //:10 The value of the original object is unchanged.
-        //:
-        //:11 The allocator used by the original object is unchanged.
-        //:
-        //:12 Any memory allocation is exception neutral.
+        // 1. The copy constructor (with or without a supplied allocator)
+        //    creates an object having the same value as the supplied original
+        //    object.
+        //
+        // 2. If an allocator is *not* supplied to the copy constructor, the
+        //    default allocator in effect at the time of construction becomes
+        //    the object allocator for the resulting object (i.e., the
+        //    allocator of the original object is never copied).
+        //
+        // 3. If an allocator is supplied to the copy constructor, that
+        //    allocator becomes the object allocator for the resulting object.
+        //
+        // 4. Supplying a null allocator address has the same effect as not
+        //    supplying an allocator.
+        //
+        // 5. Supplying an allocator to the copy constructor has no effect
+        //    on subsequent object values.
+        //
+        // 6. Any memory allocation is from the object allocator, which is
+        //    returned by the `get_allocator` accessor method.
+        //
+        // 7. There is no temporary memory allocation from any allocator.
+        //
+        // 8. Every object releases any allocated memory at destruction.
+        //
+        // 9. The original object is passed as a reference providing
+        //    non-modifiable access to the object.
+        //
+        // 10. The value of the original object is unchanged.
+        //
+        // 11. The allocator used by the original object is unchanged.
+        //
+        // 12. Any memory allocation is exception neutral.
         //
         // Plan:
-        //: 1 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of widely varying object values (one per row) in
-        //:     terms of their individual attributes, including (a) first, the
-        //:     default value, (b) boundary values corresponding to every range
-        //:     of values that each individual attribute can independently
-        //:     attain, and (c) values that should require allocation from each
-        //:     individual attribute that can independently allocate memory.
-        //:     Note that each each object value is specified by a combination
-        //:     of two items, obtained from different tables ('DATA' and
-        //:     'TZ_DATA').
-        //:
-        //: 2 For each row (representing a distinct object value, 'V') in the
-        //:   table 'DATA' described in P-1:  (C-1..12)
-        //:
-        //:   1 Use the value constructor to create two 'const' 'Obj', 'Z' and
-        //:     'ZZ', each having the value 'V' and using a "scratch"
-        //:     allocator.
-        //:
-        //:   2 For each row (representing a distinct object extended
-        //:     transitions description) in the table 'TZ_DATA' described in
-        //:     P-1:
-        //:
-        //:     1 Use the 'setPosixExtendedRangeDescription' manipulator to
-        //:       shape values of objects described in P-1.1.
-        //:
-        //:     2 Execute an inner loop creating three distinct objects in
-        //:       turn, each using the copy constructor on 'Z' from P-2.1, but
-        //:       configured differently: (a) without passing an allocator, (b)
-        //:       passing a null allocator address explicitly, and (c) passing
-        //:       the address of a test allocator distinct from the default.
-        //:
-        //:     3 For each of these three iterations (P-2.2.2):  (C-1..12)
-        //:
-        //:       1 Construct three 'bslma::TestAllocator' objects and install
-        //:         one as the current default allocator (note that a
-        //:         ubiquitous test allocator is already installed as the
-        //:         global allocator).
-        //:
-        //:       2 Use the copy constructor to dynamically create an object
-        //:         'X', supplying it the 'const' object 'Z' (see P-2.1),
-        //:         configured appropriately (see P-2.2.2) using a distinct
-        //:         test allocator for the object's footprint.  (C-9)
-        //:
-        //:       3 Use the equality comparison operators to verify that:
-        //:
-        //:         1 The newly constructed object, 'X', has the same value as
-        //:           'Z'.  (C-1, 5)
-        //:
-        //:         2 'Z' still has the same value as 'ZZ'.  (C-10)
-        //:
-        //:       4 Use the 'get_allocator' accessor of each underlying
-        //:         attribute capable of allocating memory to ensure that its
-        //:         object allocator is properly installed; also apply the
-        //:         object's 'get_allocator' accessor, as well as that of 'Z'.
-        //:         (C-6, 11)
-        //:
-        //:       5 Use appropriate test allocators to verify that:  (C-2..4,
-        //:         7, 8, 12)
-        //:
-        //:         1 Memory is always allocated, and comes from the object
-        //:           allocator only (irrespective of the specific number of
-        //:           allocations or the total amount of memory allocated).
-        //:           (C-2, 4)
-        //:
-        //:         2 If an allocator was supplied at construction (P-2.2.2c),
+        // 1. Using the table-driven technique:
+        //
+        //   1. Specify a set of widely varying object values (one per row) in
+        //      terms of their individual attributes, including (a) first, the
+        //      default value, (b) boundary values corresponding to every range
+        //      of values that each individual attribute can independently
+        //      attain, and (c) values that should require allocation from each
+        //      individual attribute that can independently allocate memory.
+        //      Note that each each object value is specified by a combination
+        //      of two items, obtained from different tables (`DATA` and
+        //      `TZ_DATA`).
+        //
+        // 2. For each row (representing a distinct object value, `V`) in the
+        //    table `DATA` described in P-1:  (C-1..12)
+        //
+        //   1. Use the value constructor to create two `const` `Obj`, `Z` and
+        //      `ZZ`, each having the value `V` and using a "scratch"
+        //      allocator.
+        //
+        //   2. For each row (representing a distinct object extended
+        //      transitions description) in the table `TZ_DATA` described in
+        //      P-1:
+        //
+        //     1. Use the `setPosixExtendedRangeDescription` manipulator to
+        //        shape values of objects described in P-1.1.
+        //
+        //     2. Execute an inner loop creating three distinct objects in
+        //        turn, each using the copy constructor on `Z` from P-2.1, but
+        //        configured differently: (a) without passing an allocator, (b)
+        //        passing a null allocator address explicitly, and (c) passing
+        //        the address of a test allocator distinct from the default.
+        //
+        //     3. For each of these three iterations (P-2.2.2):  (C-1..12)
+        //
+        //       1. Construct three `bslma::TestAllocator` objects and install
+        //          one as the current default allocator (note that a
+        //          ubiquitous test allocator is already installed as the
+        //          global allocator).
+        //
+        //       2. Use the copy constructor to dynamically create an object
+        //          `X`, supplying it the `const` object `Z` (see P-2.1),
+        //          configured appropriately (see P-2.2.2) using a distinct
+        //          test allocator for the object's footprint.  (C-9)
+        //
+        //       3. Use the equality comparison operators to verify that:
+        //
+        //         1. The newly constructed object, `X`, has the same value as
+        //            `Z`.  (C-1, 5)
+        //
+        //         2. `Z` still has the same value as `ZZ`.  (C-10)
+        //
+        //       4. Use the `get_allocator` accessor of each underlying
+        //          attribute capable of allocating memory to ensure that its
+        //          object allocator is properly installed; also apply the
+        //          object's `get_allocator` accessor, as well as that of `Z`.
+        //          (C-6, 11)
+        //
+        //       5. Use appropriate test allocators to verify that:  (C-2..4,
+        //          7, 8, 12)
+        //
+        //         1. Memory is always allocated, and comes from the object
+        //            allocator only (irrespective of the specific number of
+        //            allocations or the total amount of memory allocated).
+        //            (C-2, 4)
+        //
+        //         2. If an allocator was supplied at construction (P-2.2.2c),
         //            the current default allocator doesn't allocate any
         //            memory.  (C-3)
-        //:
-        //:         3 No temporary memory is allocated from the object
-        //:           allocator.  (C-7)
-        //:
-        //:         4 All object memory is released when the object is
-        //:           destroyed.  (C-8)
-        //:
-        //: 3 Create an object as an automatic variable in the presence of
-        //:   injected exceptions (using the
-        //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros) and verify that
-        //:   no memory is leaked.  (C-12)
+        //
+        //         3. No temporary memory is allocated from the object
+        //            allocator.  (C-7)
+        //
+        //         4. All object memory is released when the object is
+        //            destroyed.  (C-8)
+        //
+        // 3. Create an object as an automatic variable in the presence of
+        //    injected exceptions (using the
+        //    `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*` macros) and verify that
+        //    no memory is leaked.  (C-12)
         //
         // Testing:
         //   baltzo::Zoneinfo(const baltzo::Zoneinfo& original, alloc = {});
@@ -2563,7 +2563,7 @@ int main(int argc, char *argv[])
 
                         LOOP4_ASSERT(LINE, CONFIG,  X, Z,  X == Z);
 
-                        // Verify that the value of 'Z' has not changed.
+                        // Verify that the value of `Z` has not changed.
 
                         LOOP4_ASSERT(LINE, CONFIG, ZZ, Z, ZZ == Z);
 
@@ -2576,8 +2576,8 @@ int main(int argc, char *argv[])
                                      &oa == X.posixExtendedRangeDescription()
                                              .get_allocator());
 
-                        // Also apply the object's 'get_allocator' accessor, as
-                        // well as that of 'Z'.
+                        // Also apply the object's `get_allocator` accessor, as
+                        // well as that of `Z`.
 
                         LOOP4_ASSERT(LINE, CONFIG, &oa, ALLOC_OF(X),
                                      &oa == X.get_allocator());
@@ -2662,68 +2662,68 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // 'baltzo::Zoneinfo' 'setIdentifier' & 'identifier'
-        //   Ensure that the 'identifier' attribute can be set and accessed
+        // `baltzo::Zoneinfo` `setIdentifier` & `identifier`
+        //   Ensure that the `identifier` attribute can be set and accessed
         //   correctly.
         //
         // Concerns:
-        //: 1 The 'identifier' attribute can be set to represent any value.
-        //:
-        //: 2 The 'identifier' accessor returns the attribute value.
-        //:
-        //: 3 The string argument can be of type 'const char *' or
-        //:   'const string&'
-        //:
-        //: 4 Any memory allocation is from the object allocator.
-        //:
-        //: 5 There is no temporary allocation from any allocator.
-        //:
-        //: 6 Each accessor method is declared 'const'.
-        //:
-        //: 7 No accessor allocates any memory.
-        //:
-        //: 8 Any memory allocation is exception neutral.
+        // 1. The `identifier` attribute can be set to represent any value.
+        //
+        // 2. The `identifier` accessor returns the attribute value.
+        //
+        // 3. The string argument can be of type `const char *` or
+        //    `const string&`
+        //
+        // 4. Any memory allocation is from the object allocator.
+        //
+        // 5. There is no temporary allocation from any allocator.
+        //
+        // 6. Each accessor method is declared `const`.
+        //
+        // 7. No accessor allocates any memory.
+        //
+        // 8. Any memory allocation is exception neutral.
         //
         // Plan:
-        //: 1 Using the table-driven approach:
-        //:
-        //:   1 Specify a set of widely varying 'identifier' values (one per
-        //:     row), including (a) first, the default value, and (b) values
-        //:     that should require allocation from each individual attribute
-        //:     that can independently allocate memory.
-        //:
-        //:   2 Additionally, provide a (tri-valued) column, 'MEM', indicating
-        //:     the expectation of memory allocation for all typical
-        //:     implementations of individual attribute types: ('Y') "Yes",
-        //:     ('N') "No", or ('?') "implementation-dependent".
-        //:
-        //: 2 For each row (representing a distinct attribute value, 'V') in
-        //:   the table described in P-1:  (C-1..8)
-        //:
-        //:     1 Create three 'bslma::TestAllocator' objects, and install one
-        //:       as the current default allocator (note that a ubiquitous test
-        //:       allocator is already installed as the global allocator).
-        //:
-        //:     2 Create two representations of the attribute value, one as a
-        //:       'const char *' and the other as a 'string'.  (C-3)
-        //:
-        //:     3 In individual blocks default constructor an object by
-        //:       specifying an object allocator.  Within each block, set the
-        //:       attribute value to 'V' by passing a 'const char *' and a
-        //:       'const string&' respectively.
-        //:
-        //:     4 Use the attribute accessors to verify the value.  (C-2)
-        //:
-        //:     5 Verify that no temporary memory is allocated from the object
-        //:       allocator.  (C-5)
-        //:
-        //:     6 Monitor the memory allocated from both the default and object
-        //:       allocators before and after calling the accessor; verify that
-        //:       there is no change in total memory allocation.  (C-7)
-        //:
-        //:     7 Verify that the object manipulator and accessor work in the
-        //:       presence of injected exceptions (using the
-        //:       'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).  (C-8)
+        // 1. Using the table-driven approach:
+        //
+        //   1. Specify a set of widely varying `identifier` values (one per
+        //      row), including (a) first, the default value, and (b) values
+        //      that should require allocation from each individual attribute
+        //      that can independently allocate memory.
+        //
+        //   2. Additionally, provide a (tri-valued) column, `MEM`, indicating
+        //      the expectation of memory allocation for all typical
+        //      implementations of individual attribute types: ('Y') "Yes",
+        //      ('N') "No", or ('?') "implementation-dependent".
+        //
+        // 2. For each row (representing a distinct attribute value, `V`) in
+        //    the table described in P-1:  (C-1..8)
+        //
+        //     1. Create three `bslma::TestAllocator` objects, and install one
+        //        as the current default allocator (note that a ubiquitous test
+        //        allocator is already installed as the global allocator).
+        //
+        //     2. Create two representations of the attribute value, one as a
+        //        `const char *` and the other as a `string`.  (C-3)
+        //
+        //     3. In individual blocks default constructor an object by
+        //        specifying an object allocator.  Within each block, set the
+        //        attribute value to `V` by passing a `const char *` and a
+        //        `const string&` respectively.
+        //
+        //     4. Use the attribute accessors to verify the value.  (C-2)
+        //
+        //     5. Verify that no temporary memory is allocated from the object
+        //        allocator.  (C-5)
+        //
+        //     6. Monitor the memory allocated from both the default and object
+        //        allocators before and after calling the accessor; verify that
+        //        there is no change in total memory allocation.  (C-7)
+        //
+        //     7. Verify that the object manipulator and accessor work in the
+        //        presence of injected exceptions (using the
+        //        `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*` macros).  (C-8)
         //
         // Testing:
         //   void setIdentifier(const bsl::string_view& identifier);
@@ -2731,7 +2731,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\n'baltzo::Zoneinfo' 'setIdentifier' & 'identifier'"
+            cout << "\n'baltzo::Zoneinfo' `setIdentifier` & `identifier`"
                  << "\n=================================================\n";
 
         if (verbose) cout <<
@@ -2851,79 +2851,79 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // 'baltzo::Zoneinfo' EQUALITY OPERATORS
-        //   Ensure that '==' and '!=' are the operational definition of value.
+        // `baltzo::Zoneinfo` EQUALITY OPERATORS
+        //   Ensure that `==` and `!=` are the operational definition of value.
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if each of
-        //:   their corresponding salient attributes respectively compare
-        //:   equal.
-        //:
-        //: 2 All salient attributes participate in the comparison.
-        //:
-        //: 3 'true  == (X == X)'  (i.e., aliasing)
-        //:
-        //: 4 'false == (X != X)'  (i.e., aliasing)
-        //:
-        //: 5 'X == Y' if and only if 'Y == X'  (i.e., commutativity)
-        //:
-        //: 6 'X != Y' if and only if 'Y != X'  (i.e., commutativity)
-        //:
-        //: 7 'X != Y' if and only if '!(X == Y)'
-        //:
-        //: 8 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., both comparison operators are free functions).
-        //:
-        //: 9 Non-modifiable objects can be compared (i.e., objects providing
-        //:   only non-modifiable access).
-        //:
-        //:10 No memory allocation occurs as a result of comparison (e.g., the
-        //:   arguments are not passed by value).
-        //:
-        //:11 The return type of the equality comparison operators is 'bool'.
+        // 1. Two objects, `X` and `Y`, compare equal if and only if each of
+        //    their corresponding salient attributes respectively compare
+        //    equal.
+        //
+        // 2. All salient attributes participate in the comparison.
+        //
+        // 3. `true  == (X == X)`  (i.e., aliasing)
+        //
+        // 4. `false == (X != X)`  (i.e., aliasing)
+        //
+        // 5. `X == Y` if and only if `Y == X`  (i.e., commutativity)
+        //
+        // 6. `X != Y` if and only if `Y != X`  (i.e., commutativity)
+        //
+        // 7. `X != Y` if and only if `!(X == Y)`
+        //
+        // 8. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., both comparison operators are free functions).
+        //
+        // 9. Non-modifiable objects can be compared (i.e., objects providing
+        //    only non-modifiable access).
+        //
+        // 10. No memory allocation occurs as a result of comparison (e.g., the
+        //    arguments are not passed by value).
+        //
+        // 11. The return type of the equality comparison operators is `bool`.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-        //:   initialize function pointers having the appropriate structure for
-        //:   the two homogeneous, free equality comparison operators defined
-        //:   in this component.  (C-8..9, 11)
-        //:
-        //: 2 Construct a 'bslma::TestAllocator' object and install it as the
-        //:   default allocator (note that a ubiquitous test allocator is
-        //:   already installed as the global allocator).
-        //:
-        //: 3 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their individual salient
-        //:   attributes such that (a) for each salient attribute, there exists
-        //:   a pair of rows that differ (slightly) in only the column
-        //:   corresponding to that attribute, and (b) all attribute values
-        //:   that can allocate memory on construction do so.
-        //:
-        //: 4 For each row 'R1' in the table of P-3:  (C-1..8)
-        //:   1 Construct a single object and use it to verify the reflexive
-        //:     (anti-reflexive) property of equality (inequality) in the
-        //:     presence of aliasing.  (C-4..5)
-        //:
-        //:   2 For each row 'R2' in the table of P-3:  (C-1..3, 6..8)
-        //:     1 Record, in 'EXP', whether or not distinct objects created,
-        //:       from 'R1' and 'R2', respectively, are expected to have the
-        //:       same value.
-        //:
-        //:     2 For each of two configurations, 'a' and 'b':  (C-1..3, 6..8)
-        //:       1 Create two allocators 'pa' and 'qa'.
-        //:
-        //:       2 Create an object 'X' having the value 'R1' and using 'pa'.
-        //:
-        //:       3 Create an object 'Y' having the value 'R2' and using 'pa'
-        //:         (in configuration 'a') or 'qa' (in configuration 'b').
-        //:
-        //:       4 Verify the commutativity property and expected return value
-        //:         for both '==' and '!=', while monitoring both 'pa' and 'qa'
-        //:         to ensure that no object memory is ever allocated by either
-        //:         operator.  (C-1..3, 6..8)
-        //:
-        //: 5 Use the test allocator from P-2 to verify that no memory is ever
-        //:   allocated from the default allocator.  (C-11)
+        // 1. Use the respective addresses of `operator==` and `operator!=` to
+        //    initialize function pointers having the appropriate structure for
+        //    the two homogeneous, free equality comparison operators defined
+        //    in this component.  (C-8..9, 11)
+        //
+        // 2. Construct a `bslma::TestAllocator` object and install it as the
+        //    default allocator (note that a ubiquitous test allocator is
+        //    already installed as the global allocator).
+        //
+        // 3. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their individual salient
+        //    attributes such that (a) for each salient attribute, there exists
+        //    a pair of rows that differ (slightly) in only the column
+        //    corresponding to that attribute, and (b) all attribute values
+        //    that can allocate memory on construction do so.
+        //
+        // 4. For each row `R1` in the table of P-3:  (C-1..8)
+        //   1. Construct a single object and use it to verify the reflexive
+        //      (anti-reflexive) property of equality (inequality) in the
+        //      presence of aliasing.  (C-4..5)
+        //
+        //   2. For each row `R2` in the table of P-3:  (C-1..3, 6..8)
+        //     1. Record, in `EXP`, whether or not distinct objects created,
+        //        from `R1` and `R2`, respectively, are expected to have the
+        //        same value.
+        //
+        //     2. For each of two configurations, `a` and `b`:  (C-1..3, 6..8)
+        //       1. Create two allocators `pa` and `qa`.
+        //
+        //       2. Create an object `X` having the value `R1` and using `pa`.
+        //
+        //       3. Create an object `Y` having the value `R2` and using `pa`
+        //          (in configuration `a`) or `qa` (in configuration `b`).
+        //
+        //       4. Verify the commutativity property and expected return value
+        //          for both `==` and `!=`, while monitoring both `pa` and `qa`
+        //          to ensure that no object memory is ever allocated by either
+        //          operator.  (C-1..3, 6..8)
+        //
+        // 5. Use the test allocator from P-2 to verify that no memory is ever
+        //    allocated from the default allocator.  (C-11)
         //
         // Testing:
         //   bool operator==(const baltzo::Zoneinfo& lhs, rhs);
@@ -2931,7 +2931,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "'baltzo::Zoneinfo' EQUALITY OPERATORS" << endl
+                          << "`baltzo::Zoneinfo` EQUALITY OPERATORS" << endl
                           << "====================================" << endl;
 
         if (verbose) cout <<
@@ -3014,14 +3014,14 @@ int main(int argc, char *argv[])
 
                     for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
 
-                        const char CONFIG = cfg;  // Determines 'Y's allocator.
+                        const char CONFIG = cfg;  // Determines `Y`s allocator.
 
-                        // Create two distinct test allocators 'pa' and 'qa'.
+                        // Create two distinct test allocators `pa` and `qa`.
 
                         bslma::TestAllocator pa("p", veryVeryVeryVerbose);
                         bslma::TestAllocator qa("q", veryVeryVeryVerbose);
 
-                        // Map allocators above to objects 'X' and 'Y' below.
+                        // Map allocators above to objects `X` and `Y` below.
 
                         bslma::TestAllocator& xa = pa;
                         bslma::TestAllocator& ya = 'a' == CONFIG ? pa : qa;
@@ -3127,14 +3127,14 @@ int main(int argc, char *argv[])
 
                     for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
 
-                        const char CONFIG = cfg;  // Determines 'Y's allocator.
+                        const char CONFIG = cfg;  // Determines `Y`s allocator.
 
-                        // Create two distinct test allocators 'pa' and 'qa'.
+                        // Create two distinct test allocators `pa` and `qa`.
 
                         bslma::TestAllocator pa("p", veryVeryVeryVerbose);
                         bslma::TestAllocator qa("q", veryVeryVeryVerbose);
 
-                        // Map allocators above to objects 'X' and 'Y' below.
+                        // Map allocators above to objects `X` and `Y` below.
 
                         bslma::TestAllocator& xa = pa;
                         bslma::TestAllocator& ya = 'a' == CONFIG ? pa : qa;
@@ -3190,57 +3190,57 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // 'baltzo::Zoneinfo' PRINT AND OUTPUT OPERATOR
+        // `baltzo::Zoneinfo` PRINT AND OUTPUT OPERATOR
         //   Ensure that the value of the object can be formatted appropriately
-        //   on an 'ostream' in some standard, human-readable form.
+        //   on an `ostream` in some standard, human-readable form.
         //
         // Concerns:
-        //: 1 The 'print' method writes the value to the specified 'ostream'.
-        //:
-        //: 2 The 'print' method writes the value in the intended format.
-        //:
-        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)'
-        //:   but with each "attributeName = " elided.
-        //:
-        //: 4 The 'print' method signature and return value is standard.
-        //:
-        //: 5 The output 'operator<<' signature and return value is standard.
-        //:
-        //: 6 The 'print' method returns the address of supplied stream.
-        //:
-        //: 7 The output 'operator<<' returns the address of supplied stream.
+        // 1. The `print` method writes the value to the specified `ostream`.
+        //
+        // 2. The `print` method writes the value in the intended format.
+        //
+        // 3. The output using `s << obj` is the same as `obj.print(s, 0, -1)`
+        //    but with each "attributeName = " elided.
+        //
+        // 4. The `print` method signature and return value is standard.
+        //
+        // 5. The output `operator<<` signature and return value is standard.
+        //
+        // 6. The `print` method returns the address of supplied stream.
+        //
+        // 7. The output `operator<<` returns the address of supplied stream.
         //
         // Plan:
-        //: 1 Use the addresses of the 'print' method and 'operator<<' defined
-        //:   in this component to initialize, respectively, pointers to member
-        //:   and free functions having the appropriate structure.  (C-4, 5)
-        //:
-        //: 2 Using the table-driven technique:  (C-1..3, 6..7)
-        //:
-        //:   1 Define thirteen carefully selected combinations of (three)
-        //:     object values ('A', 'B' and 'C'), having distinct values for
-        //:     each corresponding salient attribute, and various values for
-        //:     the formatting parameters ('level' and 'spacesPerLevel'), along
-        //:     with the expected output:
-        //:     1. { A } x { 0 }     x { 0, 1, -1 }  -->  3 expected outputs
-        //:     2. { A } x { 3, -3 } x { 0, 2, -2 }  -->  6 expected outputs
-        //:     3. { B } x { 2 }     x { 3 }         -->  1 expected output
-        //:     4. { A B } x { -9 }  x { -9 }        -->  2 expected output
-        //:
-        //:   2 For each row in the table defined in P2-1:  (C-1..3, 6..7)
-        //:
-        //:     1 Using a 'const' 'Obj', supply each object value and pair of
-        //:       formatting parameters to 'print', unless the parameters are
-        //:       (-9, -9) in which case 'operator<<' will be invoked instead.
-        //:       (C-3, 7)
-        //:
-        //:     2 Use a standard 'ostringstream' to capture the actual output.
-        //:
-        //:     3 Very the address of what is returned is that of the supplied
-        //:       stream.  (C-6)
-        //:
-        //:     4 Compare the contents captured in P2-2 with what is expected.
-        //:       (C-1..2)
+        // 1. Use the addresses of the `print` method and `operator<<` defined
+        //    in this component to initialize, respectively, pointers to member
+        //    and free functions having the appropriate structure.  (C-4, 5)
+        //
+        // 2. Using the table-driven technique:  (C-1..3, 6..7)
+        //
+        //   1. Define thirteen carefully selected combinations of (three)
+        //      object values (`A`, `B` and `C`), having distinct values for
+        //      each corresponding salient attribute, and various values for
+        //      the formatting parameters (`level` and `spacesPerLevel`), along
+        //      with the expected output:
+        //      1. { A } x { 0 }     x { 0, 1, -1 }  -->  3 expected outputs
+        //      2. { A } x { 3, -3 } x { 0, 2, -2 }  -->  6 expected outputs
+        //      3. { B } x { 2 }     x { 3 }         -->  1 expected output
+        //      4. { A B } x { -9 }  x { -9 }        -->  2 expected output
+        //
+        //   2. For each row in the table defined in P2-1:  (C-1..3, 6..7)
+        //
+        //     1. Using a `const` `Obj`, supply each object value and pair of
+        //        formatting parameters to `print`, unless the parameters are
+        //        (-9, -9) in which case `operator<<` will be invoked instead.
+        //        (C-3, 7)
+        //
+        //     2. Use a standard `ostringstream` to capture the actual output.
+        //
+        //     3. Very the address of what is returned is that of the supplied
+        //        stream.  (C-6)
+        //
+        //     4. Compare the contents captured in P2-2 with what is expected.
+        //        (C-1..2)
         //
         // Testing:
         //   ostream& print(ostream& s, int level = 0, sPL = 4) const;
@@ -3497,77 +3497,77 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // 'baltzo::ZoneinfoTransition' 'operator<'
+        // `baltzo::ZoneinfoTransition` `operator<`
         //   Ensure that the less than operator compares the values of two
         //   objects correctly.
         //
         // Concerns:
-        //: 1 An object, 'X', compares less than an object 'Y', if and only
-        //:   if 'X.utcTime() < Y.utcTime()'.
-        //:
-        //: 2 'false == (X < X)'.
-        //:
-        //: 3 'X < Y' != 'Y < X' unless 'X.utcTime() == Y.utcTime()'.
-        //:
-        //: 4 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., both comparison operators are free functions).
-        //:
-        //: 5 The values of the passed in objects are unmodified.
-        //:
-        //: 6 The signature and return type are standard.
-        //:
-        //: 7 There is no allocation from any allocator.
+        // 1. An object, `X`, compares less than an object `Y`, if and only
+        //    if `X.utcTime() < Y.utcTime()`.
+        //
+        // 2. `false == (X < X)`.
+        //
+        // 3. `X < Y` != `Y < X` unless `X.utcTime() == Y.utcTime()`.
+        //
+        // 4. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., both comparison operators are free functions).
+        //
+        // 5. The values of the passed in objects are unmodified.
+        //
+        // 6. The signature and return type are standard.
+        //
+        // 7. There is no allocation from any allocator.
         //
         // Plan:
-        //: 1 Use the address of the 'operator<' to initialize a pointer to a
-        //:   function having the appropriate structure.  (C-4, 6)
-        //:
-        //: 2 Create a 'bslma::TestAllocator' object, and install it as the
-        //:   default allocator (note that a ubiquitous test allocator is
-        //:   already installed as the global allocator).
-        //:
-        //: 3 Using the table-driven technique:
-        //:
-        //:   1 Select candidate attribute values (including the boundaries)
-        //:     such that there are transitions that have similar and different
-        //:     values for 'utcTime'.
-        //:
-        //: 4 For each row 'R1' in the table of P-3 having value 'V':  (C-1..7)
-        //:
-        //:   1 Create two objects, 'X' and 'C' having the value 'V'.
-        //:
-        //:   2 Verify using 'X' that an object is not less than itself.  (C-2)
-        //:
-        //:   3 Confirm using the equality operators that the value of 'X' is
-        //:     unchanged (and is equal to 'C').  (C-5)
-        //:
-        //:   4 Verify that no memory is allocated from any allocator.  (C-7)
-        //:
-        //:   5 For each row 'R2' in the table of P-3 having value 'W':
-        //:     (C-1..7)
-        //:
-        //:     1 Create two objects, 'Y' and 'D' having the value 'W'.
-        //:
-        //:     2 Record, in 'EXP', whether or not distinct objects 'X' and
-        //:       'Y' are expected to compare less than the other.
-        //:
-        //:     3 Verify that 'EXP == X < Y' and '!EXP == Y < X'.  (C-1, 3)
-        //:
-        //:     4 Verify that if 'X.utcTime() == Y.utcTime()' then both
-        //:       'X < Y' and 'Y < X' return 'false'.  (C-1..3)
-        //:
-        //:     5 Confirm using the equality operators that the value of 'X'
-        //:       and 'Y is unchanged (and is equal to 'C' and 'D'
-        //:       respectively).  (C-5)
-        //:
-        //:     6 Verify that no memory is allocated from any allocator.  (C-7)
+        // 1. Use the address of the `operator<` to initialize a pointer to a
+        //    function having the appropriate structure.  (C-4, 6)
+        //
+        // 2. Create a `bslma::TestAllocator` object, and install it as the
+        //    default allocator (note that a ubiquitous test allocator is
+        //    already installed as the global allocator).
+        //
+        // 3. Using the table-driven technique:
+        //
+        //   1. Select candidate attribute values (including the boundaries)
+        //      such that there are transitions that have similar and different
+        //      values for `utcTime`.
+        //
+        // 4. For each row `R1` in the table of P-3 having value `V`:  (C-1..7)
+        //
+        //   1. Create two objects, `X` and `C` having the value `V`.
+        //
+        //   2. Verify using `X` that an object is not less than itself.  (C-2)
+        //
+        //   3. Confirm using the equality operators that the value of `X` is
+        //      unchanged (and is equal to `C`).  (C-5)
+        //
+        //   4. Verify that no memory is allocated from any allocator.  (C-7)
+        //
+        //   5. For each row `R2` in the table of P-3 having value `W`:
+        //      (C-1..7)
+        //
+        //     1. Create two objects, `Y` and `D` having the value `W`.
+        //
+        //     2. Record, in `EXP`, whether or not distinct objects `X` and
+        //        `Y` are expected to compare less than the other.
+        //
+        //     3. Verify that `EXP == X < Y` and `!EXP == Y < X`.  (C-1, 3)
+        //
+        //     4. Verify that if `X.utcTime() == Y.utcTime()` then both
+        //        `X < Y` and `Y < X` return `false`.  (C-1..3)
+        //
+        //     5. Confirm using the equality operators that the value of `X`
+        //        and `Y is unchanged (and is equal to `C' and `D`
+        //        respectively).  (C-5)
+        //
+        //     6. Verify that no memory is allocated from any allocator.  (C-7)
         //
         // Testing:
         //   bool operator<(const baltzo::ZoneinfoTransition& lhs, rhs);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "'baltzo::ZoneinfoTransition' 'operator<'" << endl
+                          << "`baltzo::ZoneinfoTransition` `operator<`" << endl
                           << "=======================================" << endl;
 
         if (verbose) cout <<
@@ -3609,13 +3609,13 @@ int main(int argc, char *argv[])
         };
         enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-        if (verbose) cout << "\nTesting 'operator<'" << endl;
+        if (verbose) cout << "\nTesting `operator<`" << endl;
         {
             for (int ti = 0; ti < NUM_DATA ; ++ti) {
                 const int         LINE1 = DATA[ti].d_lineNum;
                 const char *const SPEC1 = DATA[ti].d_spec_p;
 
-                // Ensure an object 'operator<'s itself correctly (alias test).
+                // Ensure an object `operator<`s itself correctly (alias test).
                 {
                     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -3689,74 +3689,74 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // 'baltzo::ZoneinfoTransition' EQUALITY OPERATORS
-        //   Ensure that '==' and '!=' are the operational definition of value.
+        // `baltzo::ZoneinfoTransition` EQUALITY OPERATORS
+        //   Ensure that `==` and `!=` are the operational definition of value.
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if each of
-        //:   their corresponding salient attributes respectively compare
-        //:   equal.
-        //:
-        //: 2 All salient attributes participate in the comparison.
-        //:
-        //: 3 'true  == (X == X)'  (i.e., aliasing)
-        //:
-        //: 4 'false == (X != X)'  (i.e., aliasing)
-        //:
-        //: 5 'X == Y' if and only if 'Y == X'  (i.e., commutativity)
-        //:
-        //: 6 'X != Y' if and only if 'Y != X'  (i.e., commutativity)
-        //:
-        //: 7 'X != Y' if and only if '!(X == Y)'
-        //:
-        //: 8 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., both comparison operators are free functions).
-        //:
-        //: 9 Non-modifiable objects can be compared (i.e., objects providing
-        //:   only non-modifiable access).
-        //:
-        //:10 No memory allocation occurs as a result of comparison (e.g., the
-        //:   arguments are not passed by value).
-        //:
-        //:11 The return type of the equality comparison operators is 'bool'.
+        // 1. Two objects, `X` and `Y`, compare equal if and only if each of
+        //    their corresponding salient attributes respectively compare
+        //    equal.
+        //
+        // 2. All salient attributes participate in the comparison.
+        //
+        // 3. `true  == (X == X)`  (i.e., aliasing)
+        //
+        // 4. `false == (X != X)`  (i.e., aliasing)
+        //
+        // 5. `X == Y` if and only if `Y == X`  (i.e., commutativity)
+        //
+        // 6. `X != Y` if and only if `Y != X`  (i.e., commutativity)
+        //
+        // 7. `X != Y` if and only if `!(X == Y)`
+        //
+        // 8. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., both comparison operators are free functions).
+        //
+        // 9. Non-modifiable objects can be compared (i.e., objects providing
+        //    only non-modifiable access).
+        //
+        // 10. No memory allocation occurs as a result of comparison (e.g., the
+        //    arguments are not passed by value).
+        //
+        // 11. The return type of the equality comparison operators is `bool`.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-        //:   initialize function pointers having the appropriate structure for
-        //:   the two homogeneous, free equality comparison operators defined
-        //:   in this component.  (C-8..9, 11)
-        //:
-        //: 2 Construct a 'bslma::TestAllocator' object and install it as the
-        //:   default allocator (note that a ubiquitous test allocator is
-        //:   already installed as the global allocator).
-        //:
-        //: 3 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their individual salient
-        //:   attributes such that (a) for each salient attribute, there exists
-        //:   a pair of rows that differ (slightly) in only the column
-        //:   corresponding to that attribute, and (b) all attribute values
-        //:   that can allocate memory on construction do so.
-        //:
-        //: 4 For each row 'R1' in the table of P-3:  (C-1..8)
-        //:   1 Construct a single object and use it to verify the reflexive
-        //:     (anti-reflexive) property of equality (inequality) in the
-        //:     presence of aliasing.  (C-4..5)
-        //:
-        //:   2 For each row 'R2' in the table of P-3:  (C-1..3, 6..8)
-        //:     1 Record, in 'EXP', whether or not distinct objects created,
-        //:       from 'R1' and 'R2', respectively, are expected to have the
-        //:       same value.
-        //:
-        //:     2 Create an object 'X' having the value 'R1'.
-        //:
-        //:     3 Create an object 'Y' having the value 'R2'.
-        //:
-        //:     4 Verify the commutativity property and expected return value
-        //:       for both '==' and '!=', while monitoring that no object
-        //:       memory is ever allocated by either operator.  (C-1..3, 6..8)
-        //:
-        //: 5 Use the test allocator from P-2 to verify that no memory is ever
-        //:   allocated from the default allocator.  (C-11)
+        // 1. Use the respective addresses of `operator==` and `operator!=` to
+        //    initialize function pointers having the appropriate structure for
+        //    the two homogeneous, free equality comparison operators defined
+        //    in this component.  (C-8..9, 11)
+        //
+        // 2. Construct a `bslma::TestAllocator` object and install it as the
+        //    default allocator (note that a ubiquitous test allocator is
+        //    already installed as the global allocator).
+        //
+        // 3. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their individual salient
+        //    attributes such that (a) for each salient attribute, there exists
+        //    a pair of rows that differ (slightly) in only the column
+        //    corresponding to that attribute, and (b) all attribute values
+        //    that can allocate memory on construction do so.
+        //
+        // 4. For each row `R1` in the table of P-3:  (C-1..8)
+        //   1. Construct a single object and use it to verify the reflexive
+        //      (anti-reflexive) property of equality (inequality) in the
+        //      presence of aliasing.  (C-4..5)
+        //
+        //   2. For each row `R2` in the table of P-3:  (C-1..3, 6..8)
+        //     1. Record, in `EXP`, whether or not distinct objects created,
+        //        from `R1` and `R2`, respectively, are expected to have the
+        //        same value.
+        //
+        //     2. Create an object `X` having the value `R1`.
+        //
+        //     3. Create an object `Y` having the value `R2`.
+        //
+        //     4. Verify the commutativity property and expected return value
+        //        for both `==` and `!=`, while monitoring that no object
+        //        memory is ever allocated by either operator.  (C-1..3, 6..8)
+        //
+        // 5. Use the test allocator from P-2 to verify that no memory is ever
+        //    allocated from the default allocator.  (C-11)
         //
         // Testing:
         //   bool operator==(const baltzo::ZoneinfoTransition& lhs, rhs);
@@ -3764,7 +3764,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                         << "'baltzo::ZoneinfoTransition' EQUALITY OPS" << endl
+                         << "`baltzo::ZoneinfoTransition` EQUALITY OPS" << endl
                          << "========================================" << endl;
 
         if (verbose) cout <<
@@ -3853,57 +3853,57 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // 'baltzo::ZoneinfoTransition' PRINT AND OUTPUT OPERATOR
+        // `baltzo::ZoneinfoTransition` PRINT AND OUTPUT OPERATOR
         //   Ensure that the value of the object can be formatted appropriately
-        //   on an 'ostream' in some standard, human-readable form.
+        //   on an `ostream` in some standard, human-readable form.
         //
         // Concerns:
-        //: 1 The 'print' method writes the value to the specified 'ostream'.
-        //:
-        //: 2 The 'print' method writes the value in the intended format.
-        //:
-        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)'
-        //:   but with each "attributeName = " elided.
-        //:
-        //: 4 The 'print' method signature and return value is standard.
-        //:
-        //: 5 The output 'operator<<' signature and return value is standard.
-        //:
-        //: 6 The 'print' method returns the address of supplied stream.
-        //:
-        //: 7 The output 'operator<<' returns the address of supplied stream.
+        // 1. The `print` method writes the value to the specified `ostream`.
+        //
+        // 2. The `print` method writes the value in the intended format.
+        //
+        // 3. The output using `s << obj` is the same as `obj.print(s, 0, -1)`
+        //    but with each "attributeName = " elided.
+        //
+        // 4. The `print` method signature and return value is standard.
+        //
+        // 5. The output `operator<<` signature and return value is standard.
+        //
+        // 6. The `print` method returns the address of supplied stream.
+        //
+        // 7. The output `operator<<` returns the address of supplied stream.
         //
         // Plan:
-        //: 1 Use the addresses of the 'print' method and 'operator<<' defined
-        //:   in this component to initialize, respectively, pointers to member
-        //:   and free functions having the appropriate structure.  (C-4, 5)
-        //:
-        //: 2 Using the table-driven technique:  (C-1..3, 6..7)
-        //:
-        //:   1 Define twelve carefully selected combinations of (two) object
-        //:     values ('A' and 'B'), having distinct values for each
-        //:     corresponding salient attribute, and various values for the
-        //:     formatting parameters ('level' and 'spacesPerLevel'), along
-        //:     with the expected output:
-        //:     1. { A } x { 0 }     x { 0, 1, -1 }  -->  3 expected outputs
-        //:     2. { A } x { 3, -3 } x { 0, 2, -2 }  -->  6 expected outputs
-        //:     3. { B } x { 2 }     x { 3 }         -->  1 expected output
-        //:     4. { A B } x { -9 }  x { -9 }        -->  2 expected output
-        //:
-        //:   2 For each row in the table defined in P2-1:  (C-1..3, 6..7)
-        //:
-        //:     1 Using a 'const' 'Obj', supply each object value and pair of
-        //:       formatting parameters to 'print', unless the parameters are
-        //:       (-9, -9) in which case 'operator<<' will be invoked instead.
-        //:       (C-3, 7)
-        //:
-        //:     2 Use a standard 'ostringstream' to capture the actual output.
-        //:
-        //:     3 Very the address of what is returned is that of the supplied
-        //:       stream.  (C-6)
-        //:
-        //:     4 Compare the contents captured in P2-2 with what is expected.
-        //:       (C-1..2)
+        // 1. Use the addresses of the `print` method and `operator<<` defined
+        //    in this component to initialize, respectively, pointers to member
+        //    and free functions having the appropriate structure.  (C-4, 5)
+        //
+        // 2. Using the table-driven technique:  (C-1..3, 6..7)
+        //
+        //   1. Define twelve carefully selected combinations of (two) object
+        //      values (`A` and `B`), having distinct values for each
+        //      corresponding salient attribute, and various values for the
+        //      formatting parameters (`level` and `spacesPerLevel`), along
+        //      with the expected output:
+        //      1. { A } x { 0 }     x { 0, 1, -1 }  -->  3 expected outputs
+        //      2. { A } x { 3, -3 } x { 0, 2, -2 }  -->  6 expected outputs
+        //      3. { B } x { 2 }     x { 3 }         -->  1 expected output
+        //      4. { A B } x { -9 }  x { -9 }        -->  2 expected output
+        //
+        //   2. For each row in the table defined in P2-1:  (C-1..3, 6..7)
+        //
+        //     1. Using a `const` `Obj`, supply each object value and pair of
+        //        formatting parameters to `print`, unless the parameters are
+        //        (-9, -9) in which case `operator<<` will be invoked instead.
+        //        (C-3, 7)
+        //
+        //     2. Use a standard `ostringstream` to capture the actual output.
+        //
+        //     3. Very the address of what is returned is that of the supplied
+        //        stream.  (C-6)
+        //
+        //     4. Compare the contents captured in P2-2 with what is expected.
+        //        (C-1..2)
         //
         // Testing:
         //   ostream& print(ostream& s, int level = 0, sPL = 4) const;
@@ -4121,44 +4121,44 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // 'baltzo::ZoneinfoTransition' ACCESSORS
+        // `baltzo::ZoneinfoTransition` ACCESSORS
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 Each accessor returns the value of the corresponding attribute
-        //:   of the object.
-        //:
-        //: 2 Each accessor method is declared 'const'.
-        //:
-        //: 3 No accessor allocates any memory.
-        //:
-        //: 4 Attributes that can allocate memory are returned by reference
-        //:   providing only non-modifiable access.
+        // 1. Each accessor returns the value of the corresponding attribute
+        //    of the object.
+        //
+        // 2. Each accessor method is declared `const`.
+        //
+        // 3. No accessor allocates any memory.
+        //
+        // 4. Attributes that can allocate memory are returned by reference
+        //    providing only non-modifiable access.
         //
         // Plan:
         //
-        //: 1 Create two 'bslma::TestAllocator' objects, and install one as
-        //:   the current default allocator (note that a ubiquitous test
-        //:   allocator is already installed as the global allocator).
-        //:
-        //: 2 Use the default constructor to create an object (having default
-        //:   attribute values) holding the other test allocator created in
-        //:   P-1.
-        //:
-        //: 3 Verify that each basic accessor, invoked on a reference providing
-        //:   non-modifiable access to the object created in P2, returns the
-        //:   expected value.  (C-2)
-        //:
-        //: 4 For each salient attribute (contributing to value):  (C-1, 3..4)
-        //:   1 Use the corresponding primary manipulator to set the attribute
-        //:     to a unique value, making sure to allocate memory if possible.
-        //:
-        //:   2 Use the corresponding basic accessor to verify the new
-        //:     expected value.  (C-1)
-        //:
-        //:   3 Monitor the memory allocated from both the default and object
-        //:     allocators before and after calling the accessor; verify that
-        //:     there is no change in total memory allocation.  (C-3..4)
+        // 1. Create two `bslma::TestAllocator` objects, and install one as
+        //    the current default allocator (note that a ubiquitous test
+        //    allocator is already installed as the global allocator).
+        //
+        // 2. Use the default constructor to create an object (having default
+        //    attribute values) holding the other test allocator created in
+        //    P-1.
+        //
+        // 3. Verify that each basic accessor, invoked on a reference providing
+        //    non-modifiable access to the object created in P2, returns the
+        //    expected value.  (C-2)
+        //
+        // 4. For each salient attribute (contributing to value):  (C-1, 3..4)
+        //   1. Use the corresponding primary manipulator to set the attribute
+        //      to a unique value, making sure to allocate memory if possible.
+        //
+        //   2. Use the corresponding basic accessor to verify the new
+        //      expected value.  (C-1)
+        //
+        //   3. Monitor the memory allocated from both the default and object
+        //      allocators before and after calling the accessor; verify that
+        //      there is no change in total memory allocation.  (C-3..4)
         //
         // Testing:
         //   baltzo::ZoneinfoTransition
@@ -4183,19 +4183,19 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
-        // 'D' values: These are the default-constructed values.
+        // `D` values: These are the default-constructed values.
 
-        const TimeT64    D1 = 0;              // 'time'
-        const Descriptor D2;                  // 'descriptor'
+        const TimeT64    D1 = 0;              // `time`
+        const Descriptor D2;                  // `descriptor`
 
-        // 'A' values: Should cause memory allocation if possible.
+        // `A` values: Should cause memory allocation if possible.
 
         const int   OFF    = -24 * 60 * 60 + 1;
         const bool  DST    = true;
         const char  DESC[] = "a_" SUFFICIENTLY_LONG_STRING;
 
-        const TimeT64    A1 = 100;            // 'time'
-        const Descriptor A2(OFF, DST, DESC);  // 'descriptor'
+        const TimeT64    A1 = 100;            // `time`
+        const Descriptor A2(OFF, DST, DESC);  // `descriptor`
 
         bslma::TestAllocator da("default",  veryVeryVeryVerbose);
         bslma::TestAllocator oa("object", veryVeryVeryVerbose);
@@ -4291,7 +4291,7 @@ int main(int argc, char *argv[])
             bsls::AssertTestHandlerGuard hG;
 
             if (veryVerbose) cout <<
-                 "\t'ACCESSOR 'firstTransition' with no transitions" << endl;
+                 "\t'ACCESSOR `firstTransition` with no transitions" << endl;
             {
                 Obj temp;  const Obj& TEMP = temp;
                 LOOP_ASSERT(TEMP.numTransitions(), 0 == TEMP.numTransitions());
@@ -4305,12 +4305,12 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // GENERATOR FUNCTION 'gg'
+        // GENERATOR FUNCTION `gg`
         //   Ensure that the generator function is able to create an object in
         //   any state.
         //
         // Concerns:
-        //   The 'gg' generator is implemented as a finite state machine (FSM).
+        //   The `gg` generator is implemented as a finite state machine (FSM).
         //   All symbols must be recognized successfully, and all possible
         //   state transitions must be verified.
         //
@@ -4325,7 +4325,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Generator Function 'gg'" << endl
+                          << "Generator Function `gg`" << endl
                           << "=======================" << endl;
 
         if (verbose) cout << "\nTesting generator" << endl;
@@ -4414,136 +4414,136 @@ int main(int argc, char *argv[])
         //   testing.
         //
         // Concerns:
-        //: 1 An object created with the default constructor (with or without
-        //:   a supplied allocator) has the contractually specified default
-        //:   value.
-        //:
-        //: 2 If an allocator is *not* supplied to the default constructor, the
-        //:   default allocator in effect at the time of construction becomes
-        //:   the object allocator for the resulting object.
-        //:
-        //: 3 If an allocator is supplied to the default constructor, that
-        //:   allocator becomes the object allocator for the resulting object.
-        //:
-        //: 4 Supplying a null allocator address has the same effect as not
-        //:   supplying an allocator.
-        //:
-        //: 5 Supplying an allocator to the default constructor has no effect
-        //:   on subsequent object values.
-        //:
-        //: 6 Any memory allocation is from the object allocator, which is
-        //:   returned by the 'allocator' accessor method.
-        //:
-        //: 7 There is no temporary allocation from any allocator.
-        //:
-        //: 8 Every object releases any allocated memory at destruction.
-        //:
-        //: 9 Each attribute is modifiable independently.
-        //:
-        //:10 Each attribute can be set to represent any value that does not
-        //:   violate that attribute's documented preconditions.
-        //:
-        //:11 Any argument can be 'const'.
-        //:
-        //:12 Any memory allocation is exception neutral.
-        //:
-        //:13 QoI: Asserted precondition violations are detected when enabled.
+        // 1. An object created with the default constructor (with or without
+        //    a supplied allocator) has the contractually specified default
+        //    value.
+        //
+        // 2. If an allocator is *not* supplied to the default constructor, the
+        //    default allocator in effect at the time of construction becomes
+        //    the object allocator for the resulting object.
+        //
+        // 3. If an allocator is supplied to the default constructor, that
+        //    allocator becomes the object allocator for the resulting object.
+        //
+        // 4. Supplying a null allocator address has the same effect as not
+        //    supplying an allocator.
+        //
+        // 5. Supplying an allocator to the default constructor has no effect
+        //    on subsequent object values.
+        //
+        // 6. Any memory allocation is from the object allocator, which is
+        //    returned by the `allocator` accessor method.
+        //
+        // 7. There is no temporary allocation from any allocator.
+        //
+        // 8. Every object releases any allocated memory at destruction.
+        //
+        // 9. Each attribute is modifiable independently.
+        //
+        // 10. Each attribute can be set to represent any value that does not
+        //    violate that attribute's documented preconditions.
+        //
+        // 11. Any argument can be `const`.
+        //
+        // 12. Any memory allocation is exception neutral.
+        //
+        // 13. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create three sets of attribute values for the object: ('D')
-        //:   default-constructed values, ('A') values that allocate memory if
-        //:   possible, and ('B') other values that do not cause additional
-        //:   memory allocation, but use an alternate C++ type if appropriate
-        //:   (e.g., 'string' instead of 'char *').  Note that both the 'A' and
-        //:   'B' attribute values should be chosen to be boundary values where
-        //:   possible.
-        //:
-        //: 2 Using a loop-based approach, default-construct three distinct
-        //:   objects in turn, but configured differently: (a) without passing
-        //:   an allocator, (b) passing a null allocator address explicitly,
-        //:   and (c) passing the address of a test allocator distinct from the
-        //:   default.  For each of these three iterations:  (C-1..12)
-        //:
-        //:   1 Construct three 'bslma::TestAllocator' objects and install
-        //:     one as the current default allocator (note that a ubiquitous
-        //:     test allocator is already installed as the global allocator).
-        //:
-        //:   2 Dynamically default construct an object, configured
-        //:     appropriately (see P-2) using a distinct test allocator for
-        //:     the object's footprint.
-        //:
-        //:   3 Use the 'get_allocator' accessor of each underlying attribute
-        //:     capable of allocating memory to ensure that its object
-        //:     allocator is properly installed; also apply the (as yet
-        //:     unproven) 'get_allocator' accessor of the object under test.
-        //:     (C-6)
-        //:
-        //:   4 Use the individual (as yet unproven) salient attribute
-        //:     accessors to verify the default-constructed value.  (C-1)
-        //:
-        //:   5 For each attribute 'i', in turn, create a local block.  Then
-        //:     inside the block, using brute force, set that attribute's
-        //:     values, passing a 'const' argument of each value, in turn:
-        //:     first to 'Ai', then to 'Bi', and finally back to 'Di' (see
-        //:     P-1).  If attribute 'i' can allocate memory, verify that it
-        //:     does so on the first value transition ('Di' -> 'Ai') and that
-        //:     the corresponding primary manipulator is exception neutral.  In
-        //:     all other cases, verify that no memory allocation occurs.
-        //:     After each transition, use the (as yet unproven) basic
-        //:     accessors to verify that only the intended attribute value
-        //:     changed.  (C-2..5, 9..12)
-        //:
-        //:   7 Verify that no temporary memory is allocated from the object
-        //:     allocator.  (C-7)
-        //:
-        //:   8 Verify that all object memory is released when the object is
-        //:     destroyed.  (C-8)
-        //:
-        //: 3 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of widely varying object values (one per row)
-        //:     having different extended transitions descriptions.
-        //:
-        //:   2 Construct three 'bslma::TestAllocator' objects and install
-        //:     one as the current default allocator (note that a ubiquitous
-        //:     test allocator is already installed as the global allocator).
-        //:
-        //:   3 Use the default constructor to create two objects (having
-        //:     default attribute values) holding the other test allocator
-        //:     created in P-3.2.
-        //:
-        //:   4 For each row (representing a distinct object value, 'V') in the
-        //:     table described in P-3.1:
-        //:
-        //:     1 Use the 'setPosixExtendedRangeDescription' manipulator to set
-        //:       extended transitions description for one object described in
-        //:       P-3.3 (passing const pointer to const character as a
-        //:       parameter).
-        //:
-        //:     2 Use the 'setPosixExtendedRangeDescription' manipulator to set
-        //:       extended transitions description for another object described
-        //:       in P-3.3 (passing const reference to StringRef object as a
-        //:       parameter).
-        //:
-        //:     3 Create a local block.  Then inside the block, using brute
-        //:       force, set extended transitions description values, passing a
-        //:       const pointer to const character for one object and const
-        //:       reference to StringRef for another.  Verify that the
-        //:       'setPosixExtendedRangeDescription' manipulator is exception
-        //:       neutral.  Use the (as yet unproven) basic accessor to verify
-        //:       that only the intended attribute value changed.  (C-10..12)
-        //:
-        //:     4 Verify that no temporary memory is allocated from the default
-        //:       allocator.  (C-7)
-        //:
-        //:     5 Verify that all object memory is released when the object is
-        //:       destroyed.  (C-8)
-        //:
-        //:
-        //: 5 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-13)
+        // 1. Create three sets of attribute values for the object: (`D`)
+        //    default-constructed values, (`A`) values that allocate memory if
+        //    possible, and (`B`) other values that do not cause additional
+        //    memory allocation, but use an alternate C++ type if appropriate
+        //    (e.g., `string` instead of `char *`).  Note that both the `A` and
+        //    `B` attribute values should be chosen to be boundary values where
+        //    possible.
+        //
+        // 2. Using a loop-based approach, default-construct three distinct
+        //    objects in turn, but configured differently: (a) without passing
+        //    an allocator, (b) passing a null allocator address explicitly,
+        //    and (c) passing the address of a test allocator distinct from the
+        //    default.  For each of these three iterations:  (C-1..12)
+        //
+        //   1. Construct three `bslma::TestAllocator` objects and install
+        //      one as the current default allocator (note that a ubiquitous
+        //      test allocator is already installed as the global allocator).
+        //
+        //   2. Dynamically default construct an object, configured
+        //      appropriately (see P-2) using a distinct test allocator for
+        //      the object's footprint.
+        //
+        //   3. Use the `get_allocator` accessor of each underlying attribute
+        //      capable of allocating memory to ensure that its object
+        //      allocator is properly installed; also apply the (as yet
+        //      unproven) `get_allocator` accessor of the object under test.
+        //      (C-6)
+        //
+        //   4. Use the individual (as yet unproven) salient attribute
+        //      accessors to verify the default-constructed value.  (C-1)
+        //
+        //   5. For each attribute `i`, in turn, create a local block.  Then
+        //      inside the block, using brute force, set that attribute's
+        //      values, passing a `const` argument of each value, in turn:
+        //      first to `Ai`, then to `Bi`, and finally back to `Di` (see
+        //      P-1).  If attribute `i` can allocate memory, verify that it
+        //      does so on the first value transition (`Di` -> `Ai`) and that
+        //      the corresponding primary manipulator is exception neutral.  In
+        //      all other cases, verify that no memory allocation occurs.
+        //      After each transition, use the (as yet unproven) basic
+        //      accessors to verify that only the intended attribute value
+        //      changed.  (C-2..5, 9..12)
+        //
+        //   7. Verify that no temporary memory is allocated from the object
+        //      allocator.  (C-7)
+        //
+        //   8. Verify that all object memory is released when the object is
+        //      destroyed.  (C-8)
+        //
+        // 3. Using the table-driven technique:
+        //
+        //   1. Specify a set of widely varying object values (one per row)
+        //      having different extended transitions descriptions.
+        //
+        //   2. Construct three `bslma::TestAllocator` objects and install
+        //      one as the current default allocator (note that a ubiquitous
+        //      test allocator is already installed as the global allocator).
+        //
+        //   3. Use the default constructor to create two objects (having
+        //      default attribute values) holding the other test allocator
+        //      created in P-3.2.
+        //
+        //   4. For each row (representing a distinct object value, `V`) in the
+        //      table described in P-3.1:
+        //
+        //     1. Use the `setPosixExtendedRangeDescription` manipulator to set
+        //        extended transitions description for one object described in
+        //        P-3.3 (passing const pointer to const character as a
+        //        parameter).
+        //
+        //     2. Use the `setPosixExtendedRangeDescription` manipulator to set
+        //        extended transitions description for another object described
+        //        in P-3.3 (passing const reference to StringRef object as a
+        //        parameter).
+        //
+        //     3. Create a local block.  Then inside the block, using brute
+        //        force, set extended transitions description values, passing a
+        //        const pointer to const character for one object and const
+        //        reference to StringRef for another.  Verify that the
+        //        `setPosixExtendedRangeDescription` manipulator is exception
+        //        neutral.  Use the (as yet unproven) basic accessor to verify
+        //        that only the intended attribute value changed.  (C-10..12)
+        //
+        //     4. Verify that no temporary memory is allocated from the default
+        //        allocator.  (C-7)
+        //
+        //     5. Verify that all object memory is released when the object is
+        //        destroyed.  (C-8)
+        //
+        //
+        // 5. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-13)
         //
         // Testing:
         //   baltzo::Zoneinfo();
@@ -4621,7 +4621,7 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(CONFIG, X.posixExtendedRangeDescription(),
                              "" == X.posixExtendedRangeDescription());
 
-                // Also apply the object's 'allocator' accessor.
+                // Also apply the object's `allocator` accessor.
 
                 LOOP3_ASSERT(CONFIG, &oa, ALLOC_OF(X),
                              &oa == X.get_allocator());
@@ -4634,7 +4634,7 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(fa.numBlocksInUse(),  0 == fa.numBlocksInUse());
 
-                // QOA: The default-constructed 'set' data member does not
+                // QOA: The default-constructed `set` data member does not
                 // allocate.
 
                 LOOP2_ASSERT(CONFIG,  oa.numBlocksTotal(),
@@ -4647,7 +4647,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'addTransition' (with exceptions)"
+        if (verbose) cout << "\nTesting `addTransition` (with exceptions)"
                           << endl;
         {
             static const struct {
@@ -4742,7 +4742,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(oa.numBlocksTotal(), 0 == oa.numBlocksInUse());
         }
 
-        if (verbose) cout << "\nTesting 'setPosixExtendedRangeDescription'"
+        if (verbose) cout << "\nTesting `setPosixExtendedRangeDescription`"
                           << endl;
         {
             static const char *DATA[] = {
@@ -4813,7 +4813,7 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // BREATHING TEST: 'baltzo::Zoneinfo' & 'baltzo::ZoneinfoTransition'
+        // BREATHING TEST: `baltzo::Zoneinfo` & `baltzo::ZoneinfoTransition`
         //
         // Concerns:
         //   We want to exercise basic value-semantic functionality.  In
@@ -4821,10 +4821,10 @@ int main(int argc, char *argv[])
         //   operation of the following methods and operators:
         //      - default and copy constructors (and also the destructor)
         //      - the assignment operator (including aliasing)
-        //      - equality operators: 'operator==()' and 'operator!=()'
-        //      - the (test-driver supplied) output operator: 'operator<<()'
-        //      - primary manipulators: 'addTransition'
-        //      - basic accessors: 'beginTransitions', 'endTransitions'
+        //      - equality operators: `operator==()` and `operator!=()`
+        //      - the (test-driver supplied) output operator: `operator<<()`
+        //      - primary manipulators: `addTransition`
+        //      - basic accessors: `beginTransitions`, `endTransitions`
         //   In addition we would like to exercise objects with potentially
         //   different internal organizations representing the same value.
         //
@@ -4835,8 +4835,8 @@ int main(int argc, char *argv[])
         //   primary manipulator [3, 6], copy constructor [2, 5], and
         //   assignment operator without [7, 8] and with [9] aliasing.  Use the
         //   basic accessors to verify the expected results.  Display object
-        //   values frequently in verbose mode.  Note that 'VA', 'VB', and 'VC'
-        //   denote unique, but otherwise arbitrary, object values, while 'U'
+        //   values frequently in verbose mode.  Note that `VA`, `VB`, and `VC`
+        //   denote unique, but otherwise arbitrary, object values, while `U`
         //   denotes the valid, but "unknown", default object value.
         //
         // 1.  Create an object x1 (init. to VA).    { x1:VA }

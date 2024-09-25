@@ -33,10 +33,10 @@
 #include <bsl_sstream.h>
 
 #include <bsl_cstdlib.h>
-#include <bsl_cstring.h>                  // for 'strcmp'
+#include <bsl_cstring.h>                  // for `strcmp`
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-#include <unistd.h>                      // for 'getpid'
+#include <unistd.h>                      // for `getpid`
 #endif
 
 using namespace BloombergLP;
@@ -62,11 +62,11 @@ using bsl::uppercase;
 // ----------------------------------------------------------------------------
 //                                   Overview
 //                                   --------
-// The component under test is implemented using one 'bsl::string' object and
-// one 'bdlt::DatetimeInterval' object.  The value-semantic correctness of this
+// The component under test is implemented using one `bsl::string` object and
+// one `bdlt::DatetimeInterval` object.  The value-semantic correctness of this
 // component therefore largely depends on that of those two contained class.
 // We simply follow the standard 10-case test suite.  In addition, since the
-// implemented class is a function object, the 'operator()' method that
+// implemented class is a function object, the `operator()` method that
 // provides string-based formatting support is extensively tested.
 //
 // CREATORS
@@ -291,43 +291,43 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 15: {
         // --------------------------------------------------------------------
-        // TESTING: Overload resolution for 'RecordStringFormatter' changed due
-        //   to 'allocator_type' (See {DRQS 165125904}).  The compiler prefers
-        //   the constructor overload that takes 'bool' instead of the overload
-        //   that takes 'const allocator_type&' when creating the
-        //   'RecordStringFormatter' object providing a pointer to the
-        //   'bslma::Allocator' object as an argument.  To resolve overload
+        // TESTING: Overload resolution for `RecordStringFormatter` changed due
+        //   to `allocator_type` (See {DRQS 165125904}).  The compiler prefers
+        //   the constructor overload that takes `bool` instead of the overload
+        //   that takes `const allocator_type&` when creating the
+        //   `RecordStringFormatter` object providing a pointer to the
+        //   `bslma::Allocator` object as an argument.  To resolve overload
         //   correctly we add a constructor overload that takes
-        //   'bslma::Allocator*'.
+        //   `bslma::Allocator*`.
         //
         // Concerns:
-        //: 1 From the list of constructor overloads:
-        //:   o RecordStringFormatter(const alloc& = alloc());
-        //:   o RecordStringFormatter(bool, const alloc& = alloc());
-        //:   o RecordStringFormatter(bslma::Allocator*);
-        //:   the compiler chooses the third overload when creating the
-        //:   'RecordStringFormatter' object supplying it with a pointer to the
-        //:   'bslma::Allocator' object.
-        //:
-        //: 2 From the list of constructor overloads:
-        //:   o RecordStringFormatter(const char*, alloc);
-        //:   o RecordStringFormatter(const char*, bool, alloc);
-        //:   o RecordStringFormatter(const char*, *ba);
-        //:   the compiler chooses the third overload when creating the
-        //:   'RecordStringFormatter' object supplying it with c-string and a
-        //:   pointer to the 'bslma::Allocator' object.
+        // 1. From the list of constructor overloads:
+        //    - RecordStringFormatter(const alloc& = alloc());
+        //    - RecordStringFormatter(bool, const alloc& = alloc());
+        //    - RecordStringFormatter(bslma::Allocator*);
+        //    the compiler chooses the third overload when creating the
+        //    `RecordStringFormatter` object supplying it with a pointer to the
+        //    `bslma::Allocator` object.
+        //
+        // 2. From the list of constructor overloads:
+        //    - RecordStringFormatter(const char*, alloc);
+        //    - RecordStringFormatter(const char*, bool, alloc);
+        //    - RecordStringFormatter(const char*, *ba);
+        //    the compiler chooses the third overload when creating the
+        //    `RecordStringFormatter` object supplying it with c-string and a
+        //    pointer to the `bslma::Allocator` object.
         //
         // Plan:
-        //: 1 Create objects using the different constructors and verify that
-        //:   objects have expected allocator.  (C-1..2)
+        // 1. Create objects using the different constructors and verify that
+        //    objects have expected allocator.  (C-1..2)
         //
         // Testing:
-        //:   RecordStringFormatter(const alloc& = alloc());
-        //:   RecordStringFormatter(bool, const alloc& = alloc());
-        //:   RecordStringFormatter(bslma::Allocator*);
-        //:   RecordStringFormatter(const char*, alloc);
-        //:   RecordStringFormatter(const char*, bool, alloc);
-        //:   RecordStringFormatter(const char*, *ba);
+        //    RecordStringFormatter(const alloc& = alloc());
+        //    RecordStringFormatter(bool, const alloc& = alloc());
+        //    RecordStringFormatter(bslma::Allocator*);
+        //    RecordStringFormatter(const char*, alloc);
+        //    RecordStringFormatter(const char*, bool, alloc);
+        //    RecordStringFormatter(const char*, *ba);
         // --------------------------------------------------------------------
         {   // C-1
 
@@ -449,45 +449,45 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING: Records Show Calculated Local-Time Offset
         //   Per DRQS 13681097, records observe DST time transitions when
-        //   'publishInLocalTime' attribute is 'true'.
+        //   `publishInLocalTime` attribute is `true`.
         //
         // Concerns:
-        //: 1 The CTORs that take a 'publishInLocalTime' parameter create
-        //:   objects with the specified attribute.
-        //:
-        //: 2 The CTORs that do not take a 'publishInLocalTime' parameter
-        //:   create objects having a 'publishInLocalTime' attribute that is
-        //:   'false'.
-        //:
-        //: 3 The manipulators of the 'publishInLocalTime' attribute can set
-        //:   the unset that attribute, and the accessor for that attribute
-        //:   always returns the expected value.
-        //:
-        //: 4 The manipulators of the 'publishInLocalTime' attribute are
-        //:   idempotent.
-        //:
-        //: 5 Objects having the 'publishInLocalTime' attribute actually
-        //:   resolve the '%i' format specifcation in local time, irrespective
-        //:   of how that attribute was set (at construction or by
-        //:   manipulator).
-        //:
-        //: 6 Objects having the 'publishInLocalTime' attribute 'false' resolve
-        //:   the '%i' format specification with their specified offset.
+        // 1. The CTORs that take a `publishInLocalTime` parameter create
+        //    objects with the specified attribute.
+        //
+        // 2. The CTORs that do not take a `publishInLocalTime` parameter
+        //    create objects having a `publishInLocalTime` attribute that is
+        //    `false`.
+        //
+        // 3. The manipulators of the `publishInLocalTime` attribute can set
+        //    the unset that attribute, and the accessor for that attribute
+        //    always returns the expected value.
+        //
+        // 4. The manipulators of the `publishInLocalTime` attribute are
+        //    idempotent.
+        //
+        // 5. Objects having the `publishInLocalTime` attribute actually
+        //    resolve the `%i` format specifcation in local time, irrespective
+        //    of how that attribute was set (at construction or by
+        //    manipulator).
+        //
+        // 6. Objects having the `publishInLocalTime` attribute `false` resolve
+        //    the `%i` format specification with their specified offset.
         //
         // Plan:
-        //: 1 Create objects using the different
-        //:   constructors and verify that the 'publishInLocalTime' attribute
-        //:   has the expected value.  (C-1..2)
-        //:
-        //: 2 Default create an object and use the manipulator to
-        //:   change the attribute, and then reset the attribute to the
-        //:   original state.  Each use of a manipulator is done twice
-        //:   to confirm idempotence. (C-3..4)
-        //:
-        //: 3 Create an object with a distinguished local time offset and
-        //:   verify that the '%i' format specification is resolved to
-        //:   the specified offset or the actual local time offset according
-        //:   to the state of the 'publishInLocalTime' attribute.  (C-5..6)
+        // 1. Create objects using the different
+        //    constructors and verify that the `publishInLocalTime` attribute
+        //    has the expected value.  (C-1..2)
+        //
+        // 2. Default create an object and use the manipulator to
+        //    change the attribute, and then reset the attribute to the
+        //    original state.  Each use of a manipulator is done twice
+        //    to confirm idempotence. (C-3..4)
+        //
+        // 3. Create an object with a distinguished local time offset and
+        //    verify that the `%i` format specification is resolved to
+        //    the specified offset or the actual local time offset according
+        //    to the state of the `publishInLocalTime` attribute.  (C-5..6)
         //
         // Testing:
         //   ball::RecordStringFormatter(bool, alloc);
@@ -668,8 +668,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.  Suppress
-        //   all 'cout' statements in non-verbose mode, and add streaming to
+        //   comment characters, and replace `assert` with `ASSERT`.  Suppress
+        //   all `cout` statements in non-verbose mode, and add streaming to
         //   a buffer to test programmatically the printing examples.
         //
         // Testing:
@@ -686,36 +686,36 @@ int main(int argc, char *argv[])
 ///Usage
 ///-----
 // The following snippets of code illustrate how to use an instance of
-// 'ball::RecordStringFormatter' to format log records.
+// `ball::RecordStringFormatter` to format log records.
 //
 // First we instantiate a record formatter with an explicit format
 // specification (but we accept the default timestamp offset since it will not
 // be used in this example):
-//..
+// ```
     ball::RecordStringFormatter formatter("\n%t: %m\n");
-//..
+// ```
 // The chosen format specification indicates that, when a record is formatted
-// using 'formatter', the thread Id attribute of the record will be output
+// using `formatter`, the thread Id attribute of the record will be output
 // followed by the message attribute of the record.
 //
-// Next we create a default 'ball::Record' and set the thread Id and message
+// Next we create a default `ball::Record` and set the thread Id and message
 // attributes of the record to dummy values:
-//..
+// ```
     ball::Record record;
 //
     record.fixedFields().setThreadID(6);
     record.fixedFields().setMessage("Hello, World!");
-//..
-// The following "invocation" of the 'formatter' function object formats
-// 'record' to 'bsl::cout' according to the format specification supplied at
+// ```
+// The following "invocation" of the `formatter` function object formats
+// `record` to `bsl::cout` according to the format specification supplied at
 // construction:
-//..
+// ```
 //  formatter(bsl::cout, record);
-//..
-// As a result of this call, the following is printed to 'stdout':
-//..
+// ```
+// As a result of this call, the following is printed to `stdout`:
+// ```
 //  6: Hello, World!
-//..
+// ```
         ostringstream oss;
         formatter(oss, record);
         if (veryVerbose) cout << oss.str();
@@ -726,39 +726,39 @@ int main(int argc, char *argv[])
         // TESTING ATTRIBUTE FORMATTING
         //
         // Concerns:
-        //: 1 The '%A' specifier in the format string outputs all the
-        //:   attributes of the record, separated by space.
-        //:
-        //: 2 The '%a[key]' specifier (where 'key' is the name of the
-        //:   attribute belonged to the record) outputs the attribute in the
-        //:   form 'key=value', while '%av[key]' outputs the attribute's value
-        //:   only.
-        //:
-        //: 3 The '%a' specifier output only those attributes not already
-        //:   rendered by a qualified '%a'/'%av' instance.
-        //:
-        //: 4 The '%a' and '%a[key]'/'%av[key]' do not duplicate attribute
-        //:   rendering.
-        //:
-        //: 5 All specifiers output attributes in the order in which they were
-        //:   added.
-        //:
-        //: 6 If an attribute with 'key' specified in the qualified '%a[key]'
-        //:   specifier is not found in the record then it is marked as "N/A"
-        //:   in the output string.
+        // 1. The `%A` specifier in the format string outputs all the
+        //    attributes of the record, separated by space.
+        //
+        // 2. The `%a[key]` specifier (where `key` is the name of the
+        //    attribute belonged to the record) outputs the attribute in the
+        //    form `key=value`, while `%av[key]` outputs the attribute's value
+        //    only.
+        //
+        // 3. The `%a` specifier output only those attributes not already
+        //    rendered by a qualified `%a`/`%av` instance.
+        //
+        // 4. The `%a` and `%a[key]`/`%av[key]` do not duplicate attribute
+        //    rendering.
+        //
+        // 5. All specifiers output attributes in the order in which they were
+        //    added.
+        //
+        // 6. If an attribute with `key` specified in the qualified `%a[key]`
+        //    specifier is not found in the record then it is marked as "N/A"
+        //    in the output string.
         //
         // Test plan:
-        //: 1 Create a log record and add to the record a set of arbitrary
-        //:   attributes.
-        //:
-        //: 2 Using the table-driven technique:
-        //:
-        //:   2.1 Set a combination of '%a', '%a[key]', '%av[key] and '%A'
-        //:       specifiers as a format string to the object under the test.
-        //:
-        //:   2.2 Invoke 'operator(bsl::ostream&, const ball::Record&)' and
-        //:       make sure that the object under the test writes to the
-        //:       stream the expected output.
+        // 1. Create a log record and add to the record a set of arbitrary
+        //    attributes.
+        //
+        // 2. Using the table-driven technique:
+        //
+        //    2.1 Set a combination of `%a`, `%a[key]`, `%av[key] and `%A'
+        //        specifiers as a format string to the object under the test.
+        //
+        //    2.2 Invoke `operator(bsl::ostream&, const ball::Record&)` and
+        //        make sure that the object under the test writes to the
+        //        stream the expected output.
         //
         // Testing:
         //   void operator()(bsl::ostream&, const ball::Record&) const;
@@ -927,8 +927,8 @@ int main(int argc, char *argv[])
       case 11: {
         // --------------------------------------------------------------------
         // TESTING OPERATOR()
-        //   Operator () should print out the given 'record' in the format
-        //   defined by 'd_format'.
+        //   Operator () should print out the given `record` in the format
+        //   defined by `d_format`.
         //
         // Test plan:
         //   Test every pattern to see if the output is the same as expected.
@@ -1110,7 +1110,7 @@ int main(int argc, char *argv[])
 
 #ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
         // Although an offset greater than 24 hours is undefined behavior, such
-        // invalid 'DatetimeTz' objects still can be created under certain
+        // invalid `DatetimeTz` objects still can be created under certain
         // circumstances.  We want to enable clients to detect these errors as
         // quickly as possible (DRQS 12693813).
 
@@ -1184,7 +1184,7 @@ int main(int argc, char *argv[])
 
 #ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
         // Although an offset greater than 24 hours is undefined behavior, such
-        // invalid 'DatetimeTz' objects still can be created under certain
+        // invalid `DatetimeTz` objects still can be created under certain
         // circumstances.  We want to enable clients to detect these errors as
         // quickly as possible (DRQS 12693813).
 
@@ -1504,8 +1504,8 @@ int main(int argc, char *argv[])
 #endif
             static const struct {
                 int         d_lineNum;     // line number of test vector
-                const char *d_recordFile;  // '__FILE__' in record
-                const char *d_outputFile;  // part of '__FILE__' output
+                const char *d_recordFile;  // `__FILE__` in record
+                const char *d_outputFile;  // part of `__FILE__` output
             } DATA[] = {
                 // line   record filename             output filename
                 // ----   ---------------             ---------------
@@ -2146,8 +2146,8 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING GENERATOR FUNCTION 'g':
-        //   Void for 'ball::RecordStringFormatter'.
+        // TESTING GENERATOR FUNCTION `g`:
+        //   Void for `ball::RecordStringFormatter`.
         // --------------------------------------------------------------------
       } break;
       case 7: {
@@ -2232,8 +2232,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Specify a set S of unique object values having various minor or
-        //   subtle differences.  Verify the correctness of 'operator==' and
-        //   'operator!=' using all elements (u, v) of the cross product
+        //   subtle differences.  Verify the correctness of `operator==` and
+        //   `operator!=` using all elements (u, v) of the cross product
         //    S X S.
         //
         // Testing:
@@ -2340,13 +2340,13 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING OUTPUT (<<) OPERATOR:
         //   The output operator is trivially implemented using the
-        //   fully-tested 'bsl::string' and 'bdlt::DatetimeInterval' output
+        //   fully-tested `bsl::string` and `bdlt::DatetimeInterval` output
         //   operators; a very few test vectors can thoroughly test this
         //   functionality.
         //
         // Plan:
         //   For each of a small representative set of object values, use
-        //   'ostrstream' to write that object's value to a character buffer
+        //   `ostrstream` to write that object's value to a character buffer
         //   and then compare the contents of that buffer with the expected
         //   output format.
         //
@@ -2402,9 +2402,9 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING GENERATOR FUNCTION 'gg':
+        // TESTING GENERATOR FUNCTION `gg`:
         //
-        //   Void for 'ball::RecordStringFormatter'.
+        //   Void for `ball::RecordStringFormatter`.
         // --------------------------------------------------------------------
       } break;
       case 2: {
@@ -2531,9 +2531,9 @@ int main(int argc, char *argv[])
         //   primary manipulator [3, 6], copy constructor [2, 8], and
         //   assignment operator without [9, 10] and with [11] aliasing.  Use
         //   the direct accessors to verify the expected results.  Display
-        //   object values frequently in verbose mode.  Note that 'VA', 'VB',
-        //   and 'VC' denote unique, but otherwise arbitrary, object values,
-        //   while '0' denotes the default object value.
+        //   object values frequently in verbose mode.  Note that `VA`, `VB`,
+        //   and `VC` denote unique, but otherwise arbitrary, object values,
+        //   while `0` denotes the default object value.
         //
         // 1.  Create a default object x1.          { x1:0 }
         // 2.  Create an object x2 (copy from x1).  { x1:0  x2:0 }

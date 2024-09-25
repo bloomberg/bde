@@ -16,15 +16,15 @@
 #include <bsls_nameof.h>
 
 #include <bsl_cstdlib.h>
-#include <bsl_cstring.h>    // 'bsl::strcpy' 'bsl::strcat'
+#include <bsl_cstring.h>    // `bsl::strcpy` `bsl::strcat`
 #include <bsl_deque.h>
 #include <bsl_iostream.h>
 #include <bsl_map.h>
-#include <bsl_numeric.h>    // 'bsl::accumulate'
-#include <bsl_utility.h>    // 'bsl::make_pair'
+#include <bsl_numeric.h>    // `bsl::accumulate`
+#include <bsl_utility.h>    // `bsl::make_pair`
 #include <bsl_vector.h>
 
-#include <float.h>    // 'DBL_MIN'
+#include <float.h>    // `DBL_MIN`
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -37,21 +37,21 @@ using bsl::endl;
 //                              Overview
 //                              --------
 // Two main testing strategies are employed here:
-//: 1 Assert on a locked lock object and observe nothing happens.
-//: 2 Assert on an unlocked lock object with an assert handler installed that
-//:   will throw an exception, catch the exception, and verify that an
-//:   exception was thrown.
+// 1. Assert on a locked lock object and observe nothing happens.
+// 2. Assert on an unlocked lock object with an assert handler installed that
+//    will throw an exception, catch the exception, and verify that an
+//    exception was thrown.
 //-----------------------------------------------------------------------------
 // MACROS
-//: o 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED'
-//: o 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_SAFE'
-//: o 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_OPT'
-//: o 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ'
-//: o 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_SAFE'
-//: o 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_OPT'
-//: o 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE'
-//: o 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_SAFE'
-//: o 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_OPT'
+//  - `BSLMT_READERWRITERLOCKASSERT_IS_LOCKED`
+//  - `BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_SAFE`
+//  - `BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_OPT`
+//  - `BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ`
+//  - `BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_SAFE`
+//  - `BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ_OPT`
+//  - `BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE`
+//  - `BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_SAFE`
+//  - `BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE_OPT`
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] USAGE EXAMPLE
@@ -121,27 +121,28 @@ int veryVeryVerbose;
 //
 ///Example 1: Checking Consistency Within Private Methods
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example is an generalization of {'bslmt_mutexassert'|Example 1:
+// This example is an generalization of {`bslmt_mutexassert`|Example 1:
 // Checking Consistency Within a Private Method}.  In that example, a mutex was
 // used to control access.  Here, the (simple) mutex is replaced with a
-// 'bslmt::ReaderWriterLock' that is allows multiple concurrent access to the
+// `bslmt::ReaderWriterLock` that is allows multiple concurrent access to the
 // queue when possible.
 //
 // Sometimes multithreaded code is written such that the author of a function
 // requires that a caller has already acquired a lock.  The
-// 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED*' family of assertions allows the
+// `BSLMT_READERWRITERLOCKASSERT_IS_LOCKED*` family of assertions allows the
 // programmers to detect, using defensive programming techniques, if the
 // required lock has *not* been acquired.
 //
-// Suppose we have a fully thread-safe queue that contains 'int' values, and is
-// guarded by an internal 'bslmt::ReaderWriterLock' object.
+// Suppose we have a fully thread-safe queue that contains `int` values, and is
+// guarded by an internal `bslmt::ReaderWriterLock` object.
 //
 // First, we define the container class:
-//..
+// ```
+
+    /// This `class` provides a fully *thread-safe* unidirectional queue of
+    /// `int` values.  See {`bsls_glossary`|Fully Thread-Safe}.  All public
+    /// methods operate as single, atomic actions.
     class MyThreadSafeQueue {
-        // This 'class' provides a fully *thread-safe* unidirectional queue of
-        // 'int' values.  See {'bsls_glossary'|Fully Thread-Safe}.  All public
-        // methods operate as single, atomic actions.
 
         // DATA
         bsl::deque<int>      d_deque;    // underlying non-*thread-safe*
@@ -151,65 +152,68 @@ int veryVeryVerbose;
                              d_rwLock;   // coordinate thread access
 
         // PRIVATE MANIPULATOR
+
+        /// Assign the value at the front of the queue to the specified
+        /// `*result`, and remove the value at the front of the queue;
+        /// return 0 if the queue was not initially empty, and a non-zero
+        /// value (with no effect) otherwise.  The behavior is undefined
+        /// unless `d_rwLock` is locked for writing.
         int popImp(int *result);
-            // Assign the value at the front of the queue to the specified
-            // '*result', and remove the value at the front of the queue;
-            // return 0 if the queue was not initially empty, and a non-zero
-            // value (with no effect) otherwise.  The behavior is undefined
-            // unless 'd_rwLock' is locked for writing.
 
         // PRIVATE ACCESSOR
+
+        /// Return a `bsl::pair<int, int>` containing the number of elements
+        /// and the mean value of the elements of this queue.  The mean
+        /// values is set to `DBL_MIN` if the number of elements is 0.  The
+        /// behavior is undefined unless the call has locked this queue
+        /// (either a read lock or write lock).
         bsl::pair<int, double> getStats() const;
-            // Return a 'bsl::pair<int, int>' containing the number of elements
-            // and the mean value of the elements of this queue.  The mean
-            // values is set to 'DBL_MIN' if the number of elements is 0.  The
-            // behavior is undefined unless the call has locked this queue
-            // (either a read lock or write lock).
 
       public:
         // ...
 
         // MANIPULATORS
 
+        /// Assign the value at the front of the queue to the specified
+        /// `*result`, and remove the value at the front of the queue;
+        /// return 0 if the queue was not initially empty, and a non-zero
+        /// value (with no effect) otherwise.
         int pop(int *result);
-            // Assign the value at the front of the queue to the specified
-            // '*result', and remove the value at the front of the queue;
-            // return 0 if the queue was not initially empty, and a non-zero
-            // value (with no effect) otherwise.
 
+        /// Assign the values of all the elements from this queue, in order,
+        /// to the specified `*result`, and remove them from this queue.
+        /// Any previous contents of `*result` are discarded.  Note that, as
+        /// with the other public manipulators, this entire operation occurs
+        /// as a single, atomic action.
         void popAll(bsl::vector<int> *result);
-            // Assign the values of all the elements from this queue, in order,
-            // to the specified '*result', and remove them from this queue.
-            // Any previous contents of '*result' are discarded.  Note that, as
-            // with the other public manipulators, this entire operation occurs
-            // as a single, atomic action.
 
+        /// Remove all elements from this queue if their mean exceeds the
+        /// specified `limit`.
         void purgeAll(double limit);
-            // Remove all elements from this queue if their mean exceeds the
-            // specified 'limit'.
 
+        /// Push the specified `value` onto this queue.
         void push(int value);
-            // Push the specified 'value' onto this queue.
 
+        /// Push the values from the specified `first` (inclusive) to the
+        /// specified `last` (exclusive) onto this queue.
         template <class INPUT_ITER>
         void pushRange(const INPUT_ITER& first, const INPUT_ITER& last);
-            // Push the values from the specified 'first' (inclusive) to the
-            // specified 'last' (exclusive) onto this queue.
 
         // ACCESSORS
-        double mean() const;
-            // Return the mean value of the elements of this queue.
 
+        /// Return the mean value of the elements of this queue.
+        double mean() const;
+
+        /// Return the number of elements in this queue.
         std::size_t numElements() const;
-            // Return the number of elements in this queue.
     };
-//..
-// Notice that this version of the 'MyThreadSafeQueue' class has two public
-// accessors, 'numElements' and 'mean', and an additional manipulator,
-// 'purgeAll'.
+// ```
+// Notice that this version of the `MyThreadSafeQueue` class has two public
+// accessors, `numElements` and `mean`, and an additional manipulator,
+// `purgeAll`.
 //
 // Then, we implement most of the manipulators:
-//..
+// ```
     // PRIVATE MANIPULATOR
     int MyThreadSafeQueue::popImp(int *result)
     {
@@ -264,23 +268,23 @@ int veryVeryVerbose;
         d_deque.insert(d_deque.begin(), first, last);
         d_rwLock.unlockWrite();
     }
-//..
+// ```
 // Notice that these implementations are identical to those shown in
-// {'bslmt_mutexassert'|Example 1} except that the 'lock' calls to the
-// 'bslmt::Mutex' there have been changed here to 'lockWrite' calls on a
-// 'bslmt::ReaderWriterLock'.  Both operations provide exclusive access to the
+// {`bslmt_mutexassert`|Example 1} except that the `lock` calls to the
+// `bslmt::Mutex` there have been changed here to `lockWrite` calls on a
+// `bslmt::ReaderWriterLock`.  Both operations provide exclusive access to the
 // container.
 //
-// Also notice that, having learned the lesson of {'bslmt_mutexassert'|Example
+// Also notice that, having learned the lesson of {`bslmt_mutexassert`|Example
 // 1}, we were careful to acquire a write lock for the duration of each of
-// these operation and to check the precondition of the private 'popImp'
-// method by using the 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE' macro.
+// these operation and to check the precondition of the private `popImp`
+// method by using the `BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_WRITE` macro.
 //
 // Finally notice that we use the "normal" flavor of the macro (rather than the
-// '*_SAFE' version) because this test is not particularly expensive.
+// `*_SAFE` version) because this test is not particularly expensive.
 //
 // Next, we implement the accessor methods of the container:
-//..
+// ```
     // ACCESSORS
     double MyThreadSafeQueue::mean() const
     {
@@ -297,21 +301,21 @@ int veryVeryVerbose;
         d_rwLock.unlockRead();
         return numElements;
     }
-//..
+// ```
 // Notice that each of these methods acquire a read lock for the duration of
 // the operation.  These locks allow shared access provided that the container
-// is not changed, a reasonable assumption for these 'const'-qualified methods.
+// is not changed, a reasonable assumption for these `const`-qualified methods.
 //
-// Also notice that the bulk of the work of 'mean' is done by the private
-// method 'getStats'.  One's might except the private method to confirm that a
+// Also notice that the bulk of the work of `mean` is done by the private
+// method `getStats`.  One's might except the private method to confirm that a
 // lock was acquired by using the
-// 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ' macro; however, the reason
+// `BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_READ` macro; however, the reason
 // for creating that private method is so that it can be reused by the
-// 'purgeAll' method, a non-'const' method that requires a write lock.  Thus,
-// 'getStats' is an occassion to use the
-// 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED' check (for either a read lock *or*
+// `purgeAll` method, a non-`const` method that requires a write lock.  Thus,
+// `getStats` is an occassion to use the
+// `BSLMT_READERWRITERLOCKASSERT_IS_LOCKED` check (for either a read lock *or*
 // a write lock).
-//..
+// ```
     // PRIVATE ACCESSORS
     bsl::pair<int, double> MyThreadSafeQueue::getStats() const
     {
@@ -329,9 +333,9 @@ int veryVeryVerbose;
 
         return std::make_pair(numElements, mean);
     }
-//..
-// Next, we implement the 'purgeAll' method:
-//..
+// ```
+// Next, we implement the `purgeAll` method:
+// ```
     void MyThreadSafeQueue::purgeAll(double limit)
     {
         d_rwLock.lockWrite();
@@ -345,11 +349,12 @@ int veryVeryVerbose;
         }
         d_rwLock.unlockWrite();
     }
-//..
+// ```
 // Finally, we confirm that our accessors work as expected:
-//..
+// ```
+
+    /// Exercise the added methods of the `MyThreadSafeQueue` class.
     void testEnhancedThreadSafeQueue()
-        // Exercise the added methods of the 'MyThreadSafeQueue' class.
     {
         MyThreadSafeQueue queue;
 
@@ -367,7 +372,7 @@ int veryVeryVerbose;
         ASSERTV(queue.numElements(), 0       == queue.numElements());
         ASSERTV(queue.mean()       , DBL_MIN == queue.mean());
     }
-//..
+// ```
 
                                   // ------
                                   // case 3
@@ -378,8 +383,8 @@ struct TestCase3SubThread {
     bslmt::ReaderWriterLock *d_lockThatMainThreadWillUnlock_p;
     bsls::AtomicInt         *d_subthreadWillIncrementValue_p;
 
+    /// Interact with the main thread.
     void operator()()
-        // Interact with the main thread.
     {
         d_lockToAssertOn_p->lockWrite();
         ++*d_subthreadWillIncrementValue_p;
@@ -406,10 +411,10 @@ char        cfg;
 const char *expectedLevel;
 
 #ifdef BDE_BUILD_TARGET_EXC
+/// Confirm that the specified `violation` has attributes consistent with
+/// those set in the global variables `mode`, `expectedLine`, `cfg`, and
+/// `level`.
 void myViolationHandler(const bsls::AssertViolation& violation)
-    // Confirm that the specified 'violation' has attributes consistent with
-    // those set in the global variables 'mode', 'expectedLine', 'cfg', and
-    // 'level'.
 {
     if (veryVerbose) {
         P_(mode) P_(expectedLine) P(cfg)
@@ -498,7 +503,7 @@ void test()
                                               bsls::Assert::violationHandler();
         bsls::Assert::setViolationHandler(&TestCase2::myViolationHandler);
 
-        if (veryVeryVerbose) cout << "testing '*_SAFE' macros" << endl;
+        if (veryVeryVerbose) cout << "testing `*_SAFE` macros" << endl;
 #ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
         TestCase2::mode          = TestCase2::e_SAFE_MODE;
         TestCase2::expectedLevel = bsls::Assert::k_LEVEL_SAFE;
@@ -545,7 +550,7 @@ void test()
 
 #endif // BSLS_ASSERT_SAFE_IS_ACTIVE
 
-        if (veryVeryVerbose) cout << "testing 'normal' macros" << endl;
+        if (veryVeryVerbose) cout << "testing `normal` macros" << endl;
 #ifdef BSLS_ASSERT_IS_ACTIVE
         TestCase2::mode          = TestCase2::e_NORMAL_MODE;
         TestCase2::expectedLevel = bsls::Assert::k_LEVEL_ASSERT;
@@ -588,7 +593,7 @@ void test()
         }
 #endif // BSLS_ASSERT_IS_ACTIVE
 
-        if (veryVeryVerbose) cout << "testing '*_OPT' macros" << endl;
+        if (veryVeryVerbose) cout << "testing `*_OPT` macros" << endl;
 #ifdef BSLS_ASSERT_OPT_IS_ACTIVE
         TestCase2::mode          = TestCase2::e_OPT_MODE;
         TestCase2::expectedLevel = bsls::Assert::k_LEVEL_OPT;
@@ -663,11 +668,11 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 That the usage example compiles and functions as expected.
+        // 1. That the usage example compiles and functions as expected.
         //
         // Plan:
-        //: 1 Call 'testEnhancedThreadSafeQueue', which implements and runs the
-        //:   usage example
+        // 1. Call `testEnhancedThreadSafeQueue`, which implements and runs the
+        //    usage example
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -681,47 +686,47 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED*'
+        // TESTING `BSLMT_READERWRITERLOCKASSERT_IS_LOCKED*`
         //
         // Concerns:
-        //: 1 The 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED*' macros do not call
-        //:   'bsls::Assert::invokeHander' if the reader-writer lock is locked
-        //:   -- read locked, write locked, or either, depending on the macro.
-        //:
-        //: 2 In the expected build mode, if any of these macros are called
-        //:   when the reader-writer lock does *not* have the expected lock,
-        //:   the currently installed 'bsls::Assert::invokeHander' is called
-        //:   with the expected values.
-        //:
-        //: 3 Each of these macros become no-ops except in the build mode for
-        //:   which each is intended to be active.
-        //:
-        //: 4 The macros perform identically irrespective of the type of lock
-        //:   used -- provide the lock provides 'isLocked', 'isLockedRead', and
-        //:   'isLockWrite' methods.
+        // 1. The `BSLMT_READERWRITERLOCKASSERT_IS_LOCKED*` macros do not call
+        //    `bsls::Assert::invokeHander` if the reader-writer lock is locked
+        //    -- read locked, write locked, or either, depending on the macro.
+        //
+        // 2. In the expected build mode, if any of these macros are called
+        //    when the reader-writer lock does *not* have the expected lock,
+        //    the currently installed `bsls::Assert::invokeHander` is called
+        //    with the expected values.
+        //
+        // 3. Each of these macros become no-ops except in the build mode for
+        //    which each is intended to be active.
+        //
+        // 4. The macros perform identically irrespective of the type of lock
+        //    used -- provide the lock provides `isLocked`, `isLockedRead`, and
+        //    `isLockWrite` methods.
         //
         // Plan:
-        //: 1 With a reader-writer lock object locked for read, and the assert
-        //:   handler set to 'bsls::failAbort' (the default), call all the
-        //:   read-related macros and confirm that they do not fire.  Repeat
-        //:   with a write lock and the write-related macros.
-        //:
-        //: 2 For each build level: '_SAFE', "normal", and '_OPT' if build
-        //:   modes where the macros are expected to be enabled, test each of
-        //:   the three on an unlocked reader-writer lock and confirm that the
-        //:   custom 'TestCase2::myHandler" function is called.  That function
-        //:   will confirm that it was called with the expected arguments.
+        // 1. With a reader-writer lock object locked for read, and the assert
+        //    handler set to `bsls::failAbort` (the default), call all the
+        //    read-related macros and confirm that they do not fire.  Repeat
+        //    with a write lock and the write-related macros.
         //
-        //: 3 For each build level: '_SAFE', "normal", and '_OPT' if build
-        //:   modes where the macros are expected to be *disabled*, test each
-        //:   of the three on an unlocked reader-writer lock and confirm that
-        //:   the custom 'TestCase2::myHandler" function is *not* called.
-        //:
-        //: 4 Write the test as a function templated on the lock type and
-        //:   instantiate the test for two lock types that meet the
-        //:   requirements:
-        //:   o 'bslmt::ReaderWriterLock'
-        //:   o 'bslmt::ReaderWriterMutex'
+        // 2. For each build level: `_SAFE`, "normal", and `_OPT` if build
+        //    modes where the macros are expected to be enabled, test each of
+        //    the three on an unlocked reader-writer lock and confirm that the
+        //    custom 'TestCase2::myHandler" function is called.  That function
+        //    will confirm that it was called with the expected arguments.
+        //
+        // 3. For each build level: `_SAFE`, "normal", and `_OPT` if build
+        //    modes where the macros are expected to be *disabled*, test each
+        //    of the three on an unlocked reader-writer lock and confirm that
+        //    the custom 'TestCase2::myHandler" function is *not* called.
+        //
+        // 4. Write the test as a function templated on the lock type and
+        //    instantiate the test for two lock types that meet the
+        //    requirements:
+        //    - `bslmt::ReaderWriterLock`
+        //    - `bslmt::ReaderWriterMutex`
         //
         // Testing:
         //   CONCERN: Testing macros on locks held by the current thread.
@@ -729,7 +734,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout
-                     << "TESTING 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED*'\n"
+                     << "TESTING `BSLMT_READERWRITERLOCKASSERT_IS_LOCKED*`\n"
                         "=================================================\n";
 
         TestCase2::test<bslmt::ReaderWriterLock>();
@@ -741,14 +746,14 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 The component is sufficiently same to justify comprehensive
-        //:   testing.
-        //:
-        //: 2 Create and destroy a reader-writer lock, write lock it, and
-        //:   confirm that the three "IS_LOCKED*" macros pass.
+        // 1. The component is sufficiently same to justify comprehensive
+        //    testing.
+        //
+        // 2. Create and destroy a reader-writer lock, write lock it, and
+        //    confirm that the three "IS_LOCKED*" macros pass.
         //
         // Plan
-        //: 1 Exercise the component lightly.
+        // 1. Exercise the component lightly.
         //
         // Testing:
         //   BREATHING TEST
@@ -771,19 +776,19 @@ int main(int argc, char *argv[])
       } break;
       case -1: {
         // ------------------------------------------------------------------
-        // TESTING 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_OPT'
+        // TESTING `BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_OPT`
         //
         // Concerns:
-        //: 1 The macros can actually abort the process.
+        // 1. The macros can actually abort the process.
         //
         // Plan:
-        //: 1 Execute several failure cases and observe the crash.
+        // 1. Execute several failure cases and observe the crash.
         //
         // Testing:
         // --------------------------------------------------------------------
 
         if (verbose) cout
-                  << "TESTING 'BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_OPT'\n"
+                  << "TESTING `BSLMT_READERWRITERLOCKASSERT_IS_LOCKED_OPT`\n"
                      "=====================================================\n";
 
         if (veryVerbose) cout << "WATCH ASSERT BLOW UP\n"

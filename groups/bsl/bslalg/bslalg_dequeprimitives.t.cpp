@@ -20,10 +20,10 @@
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
-#include <ctype.h>     // 'isalpha'
+#include <ctype.h>     // `isalpha`
 #include <stdio.h>
-#include <stdlib.h>     // 'atoi'
-#include <string.h>     // 'strlen'
+#include <stdlib.h>     // `atoi`
+#include <string.h>     // `strlen`
 
 using namespace BloombergLP;
 
@@ -41,13 +41,13 @@ using namespace BloombergLP;
 // the class to be moved, by verifying that bitwise copy was used rather than
 // construction, assignment, or destruction, whenever traits demand so.
 // Finally, one more concern is with the possible overloading ambiguity when
-// using 'FWD_ITER' instead of pointer types to specify an input range.  We
+// using `FWD_ITER` instead of pointer types to specify an input range.  We
 // verify that there is no overloading ambiguity by instantiating (but not
 // running) a comprehensive selection of overloads, taking care to have
 // standard as well as user conversions in the candidate selection.
 //
 // In order to facilitate the generation of test object instances, we make a
-// text object have the value semantics of a 'char', and generate an deque of
+// text object have the value semantics of a `char`, and generate an deque of
 // test objects from a string specification via a generating function
 // parameterized by the actual test object type.  This lets us reuse the same
 // test code for bitwise-copyable/moveable test types as well as those that do
@@ -147,7 +147,7 @@ void aSsErT(bool condition, const char *message, int line)
                     printf("\n");                                             \
                 }                                                             \
                 else if (0 == bslmaExceptionLimit) {                          \
-                    printf(" [ Note: 'bslmaExceptionLimit' reached. ]\n");    \
+                    printf(" [ Note: `bslmaExceptionLimit` reached. ]\n");    \
                 }                                                             \
             }                                                                 \
             testAllocator.setAllocationLimit(++bslmaExceptionCounter);        \
@@ -186,11 +186,11 @@ class BitwiseMoveableTestType;
 class BitwiseCopyableTestType;
 class SelfMoveAssignTestType;
 
-typedef TestType                      T;    // uses 'bslma' allocators
-typedef TestTypeNoAlloc               TNA;  // does not use 'bslma' allocators
-typedef BitwiseMoveableTestType       BMT;  // uses 'bslma' allocators
-typedef BitwiseCopyableTestType       BCT;  // uses 'bslma' allocators
-typedef SelfMoveAssignTestType        SMA;  // does not use 'bslma' allocators
+typedef TestType                      T;    // uses `bslma` allocators
+typedef TestTypeNoAlloc               TNA;  // does not use `bslma` allocators
+typedef BitwiseMoveableTestType       BMT;  // uses `bslma` allocators
+typedef BitwiseCopyableTestType       BCT;  // uses `bslma` allocators
+typedef SelfMoveAssignTestType        SMA;  // does not use `bslma` allocators
 
 typedef bsls::Types::Int64      Int64;
 typedef bsls::Types::Uint64     Uint64;
@@ -224,30 +224,30 @@ bslma::TestAllocator *Z;  // initialized at the start of main()
                                // class TestDeque
                                // ===============
 
+/// This `struct` provides a namespace for a set of types used to define the
+/// base-class of a `TestDeque`.  The parameterized `ALLOCATOR` is bound to
+/// `Block` type defined in `bslalg_dequeimputil`.
 template <class ALLOCATOR>
 struct TestDeque_Type {
-    // This 'struct' provides a namespace for a set of types used to define the
-    // base-class of a 'TestDeque'.  The parameterized 'ALLOCATOR' is bound to
-    // 'Block' type defined in 'bslalg_dequeimputil'.
 
+    /// Alias for the allocator traits rebound to `Block` in `Imp`.
     typedef typename bsl::allocator_traits<ALLOCATOR>::template
             rebind_traits<bsls::AlignmentUtil::MaxAlignedType> AllocatorTraits;
-        // Alias for the allocator traits rebound to 'Block' in 'Imp'.
 
+    /// Alias for the allocator type for
+    /// `bsls::AlignmentUtil::MaxAlignedType`.
     typedef typename AllocatorTraits::allocator_type AllocatorType;
-        // Alias for the allocator type for
-        // 'bsls::AlignmentUtil::MaxAlignedType'.
 };
 
+/// This test deque is created to allow testing of the
+/// `bslalg::DequePrimitives` on a data structure that is modeled after
+/// `bslstl_Deque`.  It has a block length of 3 and a total of 5 blocks for
+/// holding a total of 15 objects of type "VALUE_TYPE".
 template <class VALUE_TYPE,
           int BLOCK_LENGTH,
           class ALLOCATOR = bsl::allocator<VALUE_TYPE> >
 class TestDeque : public TestDeque_Type<ALLOCATOR>::AllocatorType
 {
-    // This test deque is created to allow testing of the
-    // 'bslalg::DequePrimitives' on a data structure that is modeled after
-    // 'bslstl_Deque'.  It has a block length of 3 and a total of 5 blocks for
-    // holding a total of 15 objects of type "VALUE_TYPE".
 
     typedef TestDeque_Type<ALLOCATOR>  Types;
   public:
@@ -268,8 +268,8 @@ class TestDeque : public TestDeque_Type<ALLOCATOR>::AllocatorType
     // DATA
     BlockPtr         *d_blocks_p;     // array of block pointers (owned)
     int               d_blockNum;
-    Iterator          d_start;        // start of the 'TestDeque'
-    Iterator          d_finish;       // end of the 'TestDeque'
+    Iterator          d_start;        // start of the `TestDeque`
+    Iterator          d_finish;       // end of the `TestDeque`
     bslma::Allocator *d_allocator_p;
 
   public:
@@ -373,12 +373,12 @@ class TestDeque : public TestDeque_Type<ALLOCATOR>::AllocatorType
                                // class TestType
                                // ==============
 
+/// This test type contains a `char` in some allocated storage.  It counts
+/// the number of default and copy constructions, assignments, and
+/// destructions.  It has no traits other than using a `bslma` allocator.
+/// It could have the bit-wise moveable traits but we defer that trait to
+/// the `MoveableTestType`.
 class TestType {
-    // This test type contains a 'char' in some allocated storage.  It counts
-    // the number of default and copy constructions, assignments, and
-    // destructions.  It has no traits other than using a 'bslma' allocator.
-    // It could have the bit-wise moveable traits but we defer that trait to
-    // the 'MoveableTestType'.
 
     char             *d_data_p;
     bslma::Allocator *d_allocator_p;
@@ -474,12 +474,12 @@ bool operator==(const TestType& lhs, const TestType& rhs)
                        // class TestTypeNoAlloc
                        // =====================
 
+/// This test type has footprint and interface identical to `TestType`.  It
+/// also counts the number of default and copy constructions, assignments,
+/// and destructions.  It does not allocate, and thus could have the
+/// bit-wise copyable trait, but we defer this to the
+/// `BitwiseCopyableTestType`.
 class TestTypeNoAlloc {
-    // This test type has footprint and interface identical to 'TestType'.  It
-    // also counts the number of default and copy constructions, assignments,
-    // and destructions.  It does not allocate, and thus could have the
-    // bit-wise copyable trait, but we defer this to the
-    // 'BitwiseCopyableTestType'.
 
     // DATA
     union {
@@ -548,9 +548,9 @@ bool operator==(const TestTypeNoAlloc& lhs,
                        // class BitwiseMoveableTestType
                        // =============================
 
+/// This test type is identical to `TestType` except that it has the
+/// bit-wise moveable trait.  All members are inherited.
 class BitwiseMoveableTestType : public TestType {
-    // This test type is identical to 'TestType' except that it has the
-    // bit-wise moveable trait.  All members are inherited.
 
   public:
     // CREATORS
@@ -574,7 +574,7 @@ class BitwiseMoveableTestType : public TestType {
     // MANIPULATORS
     BitwiseMoveableTestType& operator=(const BitwiseMoveableTestType& rhs)
                                                                      = default;
-        // Assign to this object the value of the specified 'rhs', and return
+        // Assign to this object the value of the specified `rhs`, and return
         // a reference providing modifiable access to this object.
 #endif
 };
@@ -596,9 +596,9 @@ template <> struct IsBitwiseMoveable<BitwiseMoveableTestType>
                        // class BitwiseCopyableTestType
                        // =============================
 
+/// This test type is identical to `TestTypeNoAlloc` except that it has the
+/// bit-wise copyable trait.  All members are inherited.
 class BitwiseCopyableTestType : public TestTypeNoAlloc {
-    // This test type is identical to 'TestTypeNoAlloc' except that it has the
-    // bit-wise copyable trait.  All members are inherited.
 
   public:
     // CREATORS
@@ -622,7 +622,7 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
     // MANIPULATORS
     BitwiseCopyableTestType& operator=(const BitwiseCopyableTestType& rhs)
                                                                      = default;
-        // Assign to this object the value of the specified 'rhs', and return
+        // Assign to this object the value of the specified `rhs`, and return
         // a reference providing modifiable access to this object.
 #endif
 };
@@ -639,13 +639,14 @@ template <> struct IsBitwiseCopyable<BitwiseCopyableTestType>
                        // class SelfMoveAssignTestType
                        // ============================
 
+/// This test type is identical to `TestTypeNoAlloc` except that it has its
+/// move assignment operator defined.  All other members are inherited.
 class SelfMoveAssignTestType : public TestTypeNoAlloc {
-    // This test type is identical to 'TestTypeNoAlloc' except that it has its
-    // move assignment operator defined.  All other members are inherited.
 
     // PRIVATE TYPES
+
+    /// Used in move construction and assignment to make lines shorter.
     typedef bslmf::MovableRefUtil MoveUtil;
-        // Used in move construction and assignment to make lines shorter.
 
 public:
     // CREATORS
@@ -704,13 +705,14 @@ public:
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
+/// Destroy elements in the specified `deque` according to the specified
+/// `spec`.  For `0 <= i < strlen(spec)`, `deque[i]` is destroyed if and
+/// only if `1 == isalpha(spec[i])`.
 template <class TYPE, int BLOCK_LENGTH, class ALLOCATOR>
 void cleanup(TestDeque<TYPE, BLOCK_LENGTH> *deque,
              const char *spec,
              ALLOCATOR   ba)
-    // Destroy elements in the specified 'deque' according to the specified
-    // 'spec'.  For '0 <= i < strlen(spec)', 'deque[i]' is destroyed if and
-    // only if '1 == isalpha(spec[i])'.
 {
     for (int i = 0; spec[i]; ++i) {
         char c = spec[i];
@@ -720,10 +722,10 @@ void cleanup(TestDeque<TYPE, BLOCK_LENGTH> *deque,
     }
 }
 
+/// Verify that elements in the specified `deque` have values according to
+/// the specified `spec`.
 template <class TYPE, int BLOCK_LENGTH>
 void verify(TestDeque<TYPE, BLOCK_LENGTH> *deque, const char *spec)
-    // Verify that elements in the specified 'deque' have values according to
-    // the specified 'spec'.
 {
     for (int i = 0; spec[i]; ++i) {
         char c = spec[i];
@@ -736,33 +738,33 @@ void verify(TestDeque<TYPE, BLOCK_LENGTH> *deque, const char *spec)
     }
 }
 
+/// Generate an array of objects of `TYPE` in the specified memory location
+/// `ary` according to the specified `SPEC`.
 template <class TYPE, class ALLOCATOR>
 void generateAry(TYPE *ary, const char *spec, ALLOCATOR ba)
-    // Generate an array of objects of 'TYPE' in the specified memory location
-    // 'ary' according to the specified 'SPEC'.
 {
     for (int i = 0; spec[i]; ++i) {
         bsl::allocator_traits<ALLOCATOR>::construct(ba, &ary[i], spec[i]);
     }
 }
 
+/// Destroy an array of objects of `TYPE` in the specified memory location
+/// `ary` according to the specified `SPEC.`
 template <class TYPE, class ALLOCATOR>
 void destroyAry(TYPE *ary, const char *spec, ALLOCATOR ba)
-    // Destroy an array of objects of 'TYPE' in the specified memory location
-    // 'ary' according to the specified 'SPEC.'
 {
     for (int i = 0; spec[i]; ++i) {
         bsl::allocator_traits<ALLOCATOR>::destroy(ba, &ary[i]);
     }
 }
 
+/// Set the start position (starting at 0) of an empty deque.  The behavior
+/// is undefined unless the deque is empty and
+/// `position <= BLOCK_LENGTH * blockNum`.
 template <class TYPE, int BLOCK_LENGTH>
 void setInitPos(TestDeque<TYPE, BLOCK_LENGTH> *deque,
                 int                            /*blockNum*/,
                 int                            position)
-    // Set the start position (starting at 0) of an empty deque.  The behavior
-    // is undefined unless the deque is empty and
-    // 'position <= BLOCK_LENGTH * blockNum'.
 {
     typedef TestDeque<TYPE, BLOCK_LENGTH> Deque;
     typedef typename Deque::Iterator      Iterator;
@@ -844,12 +846,12 @@ class CleanupGuard
 };
 
 //=============================================================================
-//              GENERATOR FUNCTIONS 'gg' AND 'ggg' FOR TESTING
+//              GENERATOR FUNCTIONS `gg` AND `ggg` FOR TESTING
 //-----------------------------------------------------------------------------
-// The following functions interpret the given 'spec' in order from left to
+// The following functions interpret the given `spec` in order from left to
 // right to configure an deque according to a custom language.  Letters
 // [a .. z, A .. Z] correspond to arbitrary (but unique) char values used to
-// initialize elements of an deque of 'T' objects.  An underscore ('_')
+// initialize elements of an deque of `T` objects.  An underscore ('_')
 // indicates that an element should be left uninitialized.
 //
 // LANGUAGE SPECIFICATION
@@ -878,16 +880,16 @@ class CleanupGuard
 // "a"          ...
 //-----------------------------------------------------------------------------
 
+/// Configure the specified `deque` of objects of the parameterized `TYPE`
+/// (assumed to be uninitialized) according to the specified `spec`.
+/// Optionally specify a zero `verboseFlag` to suppress `spec` syntax error
+/// messages.  Return the index of the first invalid character, and a
+/// negative value otherwise.  Note that this function is used to implement
+/// `gg` as well as allow for verification of syntax error detection.
 template <class TYPE, int BLOCK_LENGTH>
 int ggg(TestDeque<TYPE, BLOCK_LENGTH> *deque,
         const char *spec,
         int         verboseFlag = 1)
-    // Configure the specified 'deque' of objects of the parameterized 'TYPE'
-    // (assumed to be uninitialized) according to the specified 'spec'.
-    // Optionally specify a zero 'verboseFlag' to suppress 'spec' syntax error
-    // messages.  Return the index of the first invalid character, and a
-    // negative value otherwise.  Note that this function is used to implement
-    // 'gg' as well as allow for verification of syntax error detection.
 {
     enum { SUCCESS = -1 };
     typedef typename TestDeque<TYPE, BLOCK_LENGTH>::Iterator Iterator;
@@ -910,7 +912,7 @@ int ggg(TestDeque<TYPE, BLOCK_LENGTH> *deque,
         }
         else {
             if (verboseFlag) {
-                printf("Error, bad character ('%c') in spec \"%s\""
+                printf("Error, bad character (`%c`) in spec \"%s\""
                        " at position %d.\n", spec[i], spec, i);
             }
             return i;  // Discontinue processing this spec.           // RETURN
@@ -919,11 +921,11 @@ int ggg(TestDeque<TYPE, BLOCK_LENGTH> *deque,
     return SUCCESS;
 }
 
+/// Return a modifiable reference to the specified `deque` after the value
+/// of `deque` had been adjusted according to the specified `spec`.
 template <class TYPE, int BLOCK_LENGTH>
 TestDeque<TYPE, BLOCK_LENGTH>&
 gg(TestDeque<TYPE, BLOCK_LENGTH> *deque, const char *spec)
-    // Return a modifiable reference to the specified 'deque' after the value
-    // of 'deque' had been adjusted according to the specified 'spec'.
 {
     ASSERT(ggg(deque, spec) < 0);
     return *deque;
@@ -1057,7 +1059,7 @@ void testInsertAndMoveToFrontRange(bool exceptionSafetyFlag = false)
                         typename Deque::Iterator begin;
 
                         // Guard just have to destruct according to the given
-                        // 'SPEC'.  'insertAndMoveToBack' will not modify the
+                        // `SPEC`.  `insertAndMoveToBack` will not modify the
                         // existing range of objects in case of an exception.
                         CleanupGuard<TYPE, BLOCK_LENGTH>
                                   guard(&deque, &begin, begin, SPEC, false, Z);
@@ -1236,7 +1238,7 @@ void testInsertAndMoveToBackRange(bool exceptionSafetyFlag = false)
                         typename Deque::Iterator end;
 
                         // Guard just have to destruct according to the given
-                        // 'SPEC'.  'insertAndMoveToBack' will not modify the
+                        // `SPEC`.  `insertAndMoveToBack` will not modify the
                         // existing range of objects in case of an exception.
                         CleanupGuard<TYPE, BLOCK_LENGTH>
                                       guard(&deque, &end, end, SPEC, false, Z);
@@ -1412,7 +1414,7 @@ void testInsertAndMoveToFrontRaw(bool exceptionSafetyFlag = false)
                         typename Deque::Iterator begin;
 
                         // Guard just have to destruct according to the given
-                        // 'SPEC'.  'insertAndMovetoBack' will not modify the
+                        // `SPEC`.  `insertAndMovetoBack` will not modify the
                         // existing range of objects in case of an exception.
                         CleanupGuard<TYPE, BLOCK_LENGTH>
                                   guard(&deque, &begin, begin, SPEC, false, Z);
@@ -1591,7 +1593,7 @@ void testInsertAndMoveToBackRaw(bool exceptionSafetyFlag = false)
                         typename Deque::Iterator end;
 
                         // Guard just have to destruct according to the given
-                        // 'SPEC'.  'insertAndMovetoBack' will not modify the
+                        // `SPEC`.  `insertAndMovetoBack` will not modify the
                         // existing range of objects in case of an exception.
                         CleanupGuard<TYPE, BLOCK_LENGTH>
                                       guard(&deque, &end, end, SPEC, false, Z);
@@ -1958,7 +1960,7 @@ static const struct {
     int         d_ei;        // expected iterator returned
 } DATA_3[] = {
     //                                                                 ordered
-    //line spec      begin  first  last   end  expected    eb  ee  ei  by 'end'
+    //line spec      begin  first  last   end  expected    eb  ee  ei  by `end`
     //---- ----      -----  -----  ----   ---  --------    --  --  --  --------
     { L_,  "___",       1,     1,     1,    2, "___",      1,  2,  1},  // 2
     { L_,  "_b_",       1,     1,     1,    2, "_b_",      1,  2,  1},
@@ -2118,7 +2120,7 @@ void testErase(bool exceptionSafetyFlag = false)
                         typename Deque::Iterator ret;
 
                         // Guard just have to destruct according to the given
-                        // 'SPEC'.  'erase' will not modify the existing range
+                        // `SPEC`.  `erase` will not modify the existing range
                         // of objects in case of an exception.
                         CleanupGuard<TYPE, BLOCK_LENGTH> guard(
                                         &deque, &begin, begin, SPEC, false, Z);
@@ -2186,7 +2188,7 @@ static const struct {
     int         d_ne;        // number of elements (ne = end - begin).
     const char *d_expected;  // expected result array
 } DATA_2[] = {
-    // Order test data by increasing 'ne'.
+    // Order test data by increasing `ne`.
 
     //line spec         begin    ne      expected
     //---- ----         -----    --      --------
@@ -2289,24 +2291,24 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'insertAndMoveToFront' ITERATOR RANGE
+        // TESTING `insertAndMoveToFront` ITERATOR RANGE
         //
         // Concerns:
-        //   1. 'insertAndMoveToFront' properly moves the original
+        //   1. `insertAndMoveToFront` properly moves the original
         //      [fromBegin, position) objects to
         //      [fromBegin - numElements, position - numElements).
-        //   2. 'insertAndMoveToFront' properly fills the range
+        //   2. `insertAndMoveToFront` properly fills the range
         //      [position - numElements, position) with the values under the
         //      specified range [first, last).
-        //   3. 'toBegin' is properly updated with the new start position.
+        //   3. `toBegin` is properly updated with the new start position.
         //   4. Exception safety.
         //   5. No potentially destructive self-move assignment is used.
         //
         // Plan:
         //   Create objects in a deque-like structure using a "source SPEC".
-        //   Then run 'insertAndMoveToFront' on the deque and check with the
+        //   Then run `insertAndMoveToFront` on the deque and check with the
         //   "expected SPEC" (concerns 1, 2).  Also check the returned
-        //   'toBegin' iterator (concern 3).  For exception safety, run the
+        //   `toBegin` iterator (concern 3).  For exception safety, run the
         //   test under the standard bslma exception macro.
         //
         // Testing:
@@ -2319,7 +2321,7 @@ int main(int argc, char *argv[])
         //                             bslma::Allocator  *allocator);
         // --------------------------------------------------------------------
         if (verbose) printf(
-                          "\nTESTING 'insertAndMoveToFront' ITERATOR RANGE"
+                          "\nTESTING `insertAndMoveToFront` ITERATOR RANGE"
                           "\n=============================================\n");
 
         if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
@@ -2367,23 +2369,23 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'insertAndMoveToBack' ITERATOR RANGE
+        // TESTING `insertAndMoveToBack` ITERATOR RANGE
         //
         // Concerns:
-        //   1. 'insertAndMoveToBack' properly moves the original
+        //   1. `insertAndMoveToBack` properly moves the original
         //      [position, fromEnd) objects to
         //      [position + numElements, fromEnd + numElements).
-        //   2. 'insertAndMoveToBack' properly fills the range
+        //   2. `insertAndMoveToBack` properly fills the range
         //      [position, position + numElements) with the values under the
         //      specified range [first, last).
-        //   3. 'toEnd' is properly updated with the new end position.
+        //   3. `toEnd` is properly updated with the new end position.
         //   4. Exception safety.
         //   5. No potentially destructive self-move assignment is used.
         //
         // Plan:
         //   Create objects in a deque-like structure using a "source SPEC".
-        //   Then run 'insertAndMoveToBack' on the deque and check with the
-        //   "expected SPEC" (concern 1, 2).  Also check the returned 'toEnd'
+        //   Then run `insertAndMoveToBack` on the deque and check with the
+        //   "expected SPEC" (concern 1, 2).  Also check the returned `toEnd`
         //   iterator (concern 3).  For exception safety, run the test under
         //   the standard bslma exception macro.
         //
@@ -2397,7 +2399,7 @@ int main(int argc, char *argv[])
         //                            bslma::Allocator *allocator);
         // --------------------------------------------------------------------
         if (verbose) printf(
-                           "\nTESTING 'insertAndMoveToBack' ITERATOR RANGE"
+                           "\nTESTING `insertAndMoveToBack` ITERATOR RANGE"
                            "\n============================================\n");
 
         if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
@@ -2445,22 +2447,22 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'insertAndMoveToFront(p, n, v)'
+        // TESTING `insertAndMoveToFront(p, n, v)`
         //
         // Concerns:
-        //   1. 'insertAndMoveToFront' properly moves the original
+        //   1. `insertAndMoveToFront` properly moves the original
         //      [position, fromEnd) objects to
         //      [position + numElements, fromEnd + numElements).
-        //   2. 'insertAndMoveToFront' properly fills the range
-        //      [position, position + numElements) with the specified 'value'.
-        //   3. 'toBegin' is properly updated with the new start position.
+        //   2. `insertAndMoveToFront` properly fills the range
+        //      [position, position + numElements) with the specified `value`.
+        //   3. `toBegin` is properly updated with the new start position.
         //   4. Exception safety.
         //   5. No potentially destructive self-move assignment is used.
         //
         // Plan:
         //   Create objects in a deque-like structure using a "source SPEC".
-        //   Then run 'insertAndMoveToFront' on the deque and check with the
-        //   "expected SPEC" (concern 1, 2).  Also check the returned 'toEnd'
+        //   Then run `insertAndMoveToFront` on the deque and check with the
+        //   "expected SPEC" (concern 1, 2).  Also check the returned `toEnd`
         //   iterator (concern 3).  For exception safety, run the test under
         //   the standard bslma exception macro.
         //
@@ -2472,7 +2474,7 @@ int main(int argc, char *argv[])
         //                             const VALUE_TYPE&   value,
         //                             bslma::Allocator   *allocator);
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING 'insertAndMoveToFront(p, n, v)'"
+        if (verbose) printf("\nTESTING `insertAndMoveToFront(p, n, v)`"
                             "\n=======================================\n");
 
         if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
@@ -2520,22 +2522,22 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'insertAndMoveToBack(p, n, v)'
+        // TESTING `insertAndMoveToBack(p, n, v)`
         //
         // Concerns:
-        //   1. 'insertAndMoveToBack' properly moves the original
+        //   1. `insertAndMoveToBack` properly moves the original
         //      [position, fromEnd) objects to
         //      [position + numElements, fromEnd + numElements).
-        //   2. 'insertAndMoveToBack' properly fills the range
-        //      [position, position + numElements) with the specified 'value'.
-        //   3. 'toEnd' is properly updated with the new end position.
+        //   2. `insertAndMoveToBack` properly fills the range
+        //      [position, position + numElements) with the specified `value`.
+        //   3. `toEnd` is properly updated with the new end position.
         //   4. Exception safety.
         //   5. No potentially destructive self-move assignment is used.
         //
         // Plan:
         //   Create objects in a deque-like structure using a "source SPEC".
-        //   Then run 'insertAndMoveToBack' on the deque and check with the
-        //   "expected SPEC" (concern 1, 2).  Also check the returned 'toEnd'
+        //   Then run `insertAndMoveToBack` on the deque and check with the
+        //   "expected SPEC" (concern 1, 2).  Also check the returned `toEnd`
         //   iterator (concern 3).  For exception safety, run the test under
         //   the standard bslma exception macro.
         //
@@ -2547,7 +2549,7 @@ int main(int argc, char *argv[])
         //                            const VALUE_TYPE&   value,
         //                            bslma::Allocator   *allocator);
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING 'insertAndMoveToBack(p, n, v)'"
+        if (verbose) printf("\nTESTING `insertAndMoveToBack(p, n, v)`"
                             "\n======================================\n");
 
         if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
@@ -2595,24 +2597,24 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'uninitializedFillNFront'
+        // TESTING `uninitializedFillNFront`
         //
         // Concerns:
-        //   1. 'uninitializedFillNFront' properly fills
+        //   1. `uninitializedFillNFront` properly fills
         //      [fromBegin - numElements, fromBegin) with the specified
-        //      'value'.
+        //      `value`.
         //   2. Nothing outside the range [fromBegin - numElements, fromBegin)
         //      is polluted.
-        //   3. The 'toBegin' iterator is properly updated to reflect the new
+        //   3. The `toBegin` iterator is properly updated to reflect the new
         //      start of the deque.
         //   4. Exception safety.
         //   5. No potentially destructive self-move assignment is used.
         //
         // Plan:
         //   Create objects in a deque-like structure using a "source SPEC".
-        //   Then run 'uninitializedFillNFront' on the deque and check with
+        //   Then run `uninitializedFillNFront` on the deque and check with
         //   the "expected SPEC" (concern 1, 2).  Also check the returned
-        //   'toBegin' iterator (concern 3).  For exception safety, run the
+        //   `toBegin` iterator (concern 3).  For exception safety, run the
         //   test under the standard bslma exception macro.
         //
         // Testing:
@@ -2622,7 +2624,7 @@ int main(int argc, char *argv[])
         //                                const VALUE_TYPE&   value,
         //                                bslma::Allocator   *allocator)
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING 'uninitializedFillNFront'"
+        if (verbose) printf("\nTESTING `uninitializedFillNFront`"
                             "\n=================================\n");
 
         if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
@@ -2670,23 +2672,23 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'uninitializedFillNBack'
+        // TESTING `uninitializedFillNBack`
         //
         // Concerns:
-        //   1. 'uninitializedFillNBack' properly fills
-        //      [fromEnd, fromEnd + numElements) with the specified 'value'.
+        //   1. `uninitializedFillNBack` properly fills
+        //      [fromEnd, fromEnd + numElements) with the specified `value`.
         //   2. Nothing outside the range [fromEnd, fromEnd + numElements)
         //      is polluted.
-        //   3. The 'toEnd' iterator is properly updated to reflect the new
+        //   3. The `toEnd` iterator is properly updated to reflect the new
         //      end of the deque.
         //   4. Exception safety.
         //   5. No potentially destructive self-move assignment is used.
         //
         // Plan:
         //   Create objects in a deque-like structure using a "source SPEC".
-        //   Then run 'uninitializedFillNBack' on the deque and check with the
+        //   Then run `uninitializedFillNBack` on the deque and check with the
         //   "expected SPEC" (concern 1, 2).  Also check the returned and
-        //   'toEnd' iterators (concern 3).  For exception safety, run the test
+        //   `toEnd` iterators (concern 3).  For exception safety, run the test
         //   under the standard bslma exception macro.
         //
         // Testing:
@@ -2696,7 +2698,7 @@ int main(int argc, char *argv[])
         //                               const VALUE_TYPE&   value,
         //                               bslma::Allocator   *allocator)
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING 'uninitializedFillNBack'"
+        if (verbose) printf("\nTESTING `uninitializedFillNBack`"
                             "\n================================\n");
 
         if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
@@ -2744,22 +2746,22 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'erase'
+        // TESTING `erase`
         //
         // Concerns:
-        //   1. 'erase' properly destroys objects in the range
+        //   1. `erase` properly destroys objects in the range
         //      [first, last).
-        //   2. 'erase' properly updates 'toBegin' and 'toEnd'.
-        //   3. 'erase' properly shifts the smaller portion of the front / end
+        //   2. `erase` properly updates `toBegin` and `toEnd`.
+        //   3. `erase` properly shifts the smaller portion of the front / end
         //      to fill in the gaps after erasing.
         //   4. Exception safety
         //   5. No potentially destructive self-move assignment is used.
         //
         // Plan:
         //   Create objects in a deque-like structure using a "source SPEC".
-        //   Then run 'erase' over a range of the deque and check with the
-        //   "expected SPEC" (concern 1, 3).  Also check the returned 'toBegin'
-        //   and 'toEnd' iterators (concern 2).  For exception safety, run
+        //   Then run `erase` over a range of the deque and check with the
+        //   "expected SPEC" (concern 1, 3).  Also check the returned `toBegin`
+        //   and `toEnd` iterators (concern 2).  For exception safety, run
         //   the test under the standard bslma exception macro.
         //
         // Testing:
@@ -2771,7 +2773,7 @@ int main(int argc, char *argv[])
         //              Iterator          fromEnd,
         //              bslma::Allocator *allocator)
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING 'erase'"
+        if (verbose) printf("\nTESTING `erase`"
                             "\n===============\n");
 
         if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
@@ -2819,16 +2821,16 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'destruct'
+        // TESTING `destruct`
         //
         // Concerns:
-        //   1. 'destruct' properly destroys objects in range [begin, end).
-        //   2. 'destruct' does not destroy objects outside the range
+        //   1. `destruct` properly destroys objects in range [begin, end).
+        //   2. `destruct` does not destroy objects outside the range
         //      [begin, end).
         //
         // Plan:
         //   Create objects in a deque-like structure using a "source SPEC".
-        //   Then run 'destruct' over a range of the deque and check with the
+        //   Then run `destruct` over a range of the deque and check with the
         //   "expected SPEC" (concern 2).  Clean up according to the
         //   "expected SPEC".  If destruct did not work as expected, the test
         //   allocator will detect memory leaks (concern 1).
@@ -2836,7 +2838,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   void destruct(Iterator begin, Iterator end)
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING 'destruct'"
+        if (verbose) printf("\nTESTING `destruct`"
                             "\n==================\n");
 
         if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");

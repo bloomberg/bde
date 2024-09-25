@@ -220,9 +220,9 @@ class SlowerCharArrayPool {
 ///-----
 // This component is intended to improve the efficiency of code which provides
 // shared pointers to pooled objects.  As an example, consider a class which
-// maintains a pool of 'vector<char>' objects and provides shared pointers to
-// them.  Using 'bdlcc::ObjectPool', the class might be implemented like this:
-//..
+// maintains a pool of `vector<char>` objects and provides shared pointers to
+// them.  Using `bdlcc::ObjectPool`, the class might be implemented like this:
+// ```
     typedef vector<char> CharArray;
 
     class SlowCharArrayPool {
@@ -268,16 +268,16 @@ class SlowerCharArrayPool {
                                 &d_spAllocator);
         }
     };
-//..
-// Note that 'SlowCharArrayPool' must allocate the shared pointer itself from
-// its 'd_spAllocator' in addition to allocating the charArray from its pool.
+// ```
+// Note that `SlowCharArrayPool` must allocate the shared pointer itself from
+// its `d_spAllocator` in addition to allocating the charArray from its pool.
 // Moreover, note that since the same function will handle resetting the object
 // and returning it to the pool, we must define a special function for that
 // purpose and bind its arguments.
 //
-// We can solve both of these issues by using 'bdlcc::SharedObjectPool'
+// We can solve both of these issues by using `bdlcc::SharedObjectPool`
 // instead:
-//..
+// ```
     class FastCharArrayPool {
         typedef bdlcc::SharedObjectPool<
                 CharArray,
@@ -311,7 +311,7 @@ class SlowerCharArrayPool {
             *charArray_sp = d_charArrayPool.getObject();
         }
     };
-//..
+// ```
 
 struct SpLink
 {
@@ -921,9 +921,9 @@ int main(int argc, char *argv[])
 // Now the shared pointer and the object are allocated as one unit from the
 // same allocator.  In addition, the resetter method is a fully-inlined class
 // that is only responsible for resetting the object, improving efficiency and
-// simplifying the design.  We can verify that use of 'bdlcc::SharedObjectPool'
+// simplifying the design.  We can verify that use of `bdlcc::SharedObjectPool`
 // reduces the number of allocation requests:
-//..
+// ```
     bslma::TestAllocator slowAllocator, fastAllocator;
     {
         SlowCharArrayPool slowPool(&slowAllocator);
@@ -939,7 +939,7 @@ int main(int argc, char *argv[])
     ASSERT(1 == fastAllocator.numAllocations());
     ASSERT(0 == slowAllocator.numBytesInUse());
     ASSERT(0 == fastAllocator.numBytesInUse());
-//..
+// ```
       } break;
 
       case 5: { // resetter test 2

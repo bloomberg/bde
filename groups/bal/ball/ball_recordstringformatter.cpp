@@ -66,9 +66,9 @@ namespace {
                        // class PublishInLocalTimeUtil
                        // ============================
 
+/// This "struct" provides a namespace for an enumeration that defines
+/// constants to control the publication of a datetime in local time.
 struct PublishInLocalTimeUtil {
-    // This "struct" provides a namespace for an enumeration that defines
-    // constants to control the publication of a datetime in local time.
 
     // TYPES
     enum {
@@ -95,9 +95,9 @@ struct PublishInLocalTimeUtil {
                        // class PrintUtil
                        // ===============
 
+/// This "struct" provides a namespace for utility functions that render
+/// values of various types to string.
 struct PrintUtil {
-    // This "struct" provides a namespace for utility functions that render
-    // values of various types to string.
 
     // TYPES
     enum FractionalSecondPrecision {
@@ -117,127 +117,129 @@ struct PrintUtil {
     };
 
     // CLASS METHODS
+
+    /// Append the key of the specified `attribute`, followed by the value
+    /// of `attribute` to the specified `result` string.  Optionally specify
+    /// `printKey` to indicate whether the key should be appended or
+    /// omitted.  If `printKey` is not supplied the key will be appended.
+    /// Note that this method is invoked when processing "%a", "%a[key]" or
+    /// "%A" specifiers.
     static void appendAttribute(bsl::string             *result,
                                 const ManagedAttribute&  attribute,
                                 bool                     printKey = true);
-        // Append the key of the specified 'attribute', followed by the value
-        // of 'attribute' to the specified 'result' string.  Optionally specify
-        // 'printKey' to indicate whether the key should be appended or
-        // omitted.  If 'printKey' is not supplied the key will be appended.
-        // Note that this method is invoked when processing "%a", "%a[key]" or
-        // "%A" specifiers.
 
+    /// Append a category provided by the specified `record` to the
+    /// specified `result` string.  Note that this method is invoked when
+    /// processing "%c" specifier.
     static void appendCategory(bsl::string *result, const Record& record);
-        // Append a category provided by the specified 'record' to the
-        // specified 'result' string.  Note that this method is invoked when
-        // processing "%c" specifier.
 
+    /// Append to the specified `result` the datetime provided by the
+    /// specified `record` in the specified `timestampFormat`, having the
+    /// specified fractional `secondPrecision` numbers, and the specified
+    /// `timestampOffset`.  Note that this method is invoked when processing
+    /// "%d", "%D", "%dtz", "%Dtz", "%i", "%I" or  "%O" specifiers.
     static void appendDatetime(bsl::string                  *result,
                                const Record&                 record,
                                const bdlt::DatetimeInterval *timestampOffset,
                                TimestampFormat               timestampFormat,
                                FractionalSecondPrecision     secondPrecision);
-        // Append to the specified 'result' the datetime provided by the
-        // specified 'record' in the specified 'timestampFormat', having the
-        // specified fractional 'secondPrecision' numbers, and the specified
-        // 'timestampOffset'.  Note that this method is invoked when processing
-        // "%d", "%D", "%dtz", "%Dtz", "%i", "%I" or  "%O" specifiers.
 
+    /// Append a path to a file-name provided by the specified `record` to
+    /// the specified `result` string if the specified `fullPath` is true,
+    /// and a base-name only otherwise.  Note that this method is invoked
+    /// when processing "%f" or "%F" specifiers.
     static void appendFilename(bsl::string   *result,
                                bool           fullPath,
                                const Record&  record);
-        // Append a path to a file-name provided by the specified 'record' to
-        // the specified 'result' string if the specified 'fullPath' is true,
-        // and a base-name only otherwise.  Note that this method is invoked
-        // when processing "%f" or "%F" specifiers.
 
+    /// Append to the specified `result` string the uppercase hex encoding
+    /// of the byte sequence defined by the specified `string`.
     static void appendHexDump(bsl::string             *result,
                               const bsl::string_view&  string);
-        // Append to the specified 'result' string the uppercase hex encoding
-        // of the byte sequence defined by the specified 'string'.
 
+    /// Append to the specified `result` a line-number provided by the
+    /// specified `record`.  Note that this method is invoked when
+    /// processing "%l" specifier.
     static void appendLineNumber(bsl::string *result, const Record& record);
-        // Append to the specified 'result' a line-number provided by the
-        // specified 'record'.  Note that this method is invoked when
-        // processing "%l" specifier.
 
+    /// Append a message provided by the specified `record` to the specified
+    /// `result` string.  Note that this method is invoked when processing
+    /// "%m" specifier.
     static void appendMessage(bsl::string *result, const Record& record);
-        // Append a message provided by the specified 'record' to the specified
-        // 'result' string.  Note that this method is invoked when processing
-        // "%m" specifier.
 
+    /// Append a message with non-printable characters in hex provided by
+    /// the specified `record` to the specified `result` string.  Note that
+    /// this method is invoked when processing "%x" specifier.
     static void appendMessageNonPrintableChars(bsl::string   *result,
                                                const Record&  record);
-        // Append a message with non-printable characters in hex provided by
-        // the specified 'record' to the specified 'result' string.  Note that
-        // this method is invoked when processing "%x" specifier.
 
+    /// Append a message provided by the specified `record` to the specified
+    /// `result` string in hex format.  Note that this method is invoked
+    /// when processing "%X" specifier.
     static void appendMessageAsHex(bsl::string *result, const Record& record);
-        // Append a message provided by the specified 'record' to the specified
-        // 'result' string in hex format.  Note that this method is invoked
-        // when processing "%X" specifier.
 
+    /// Append a process ID provided by the specified `record` to the
+    /// specified `result` string.  Note that this method is invoked when
+    /// processing "%p" specifier.
     static void appendProcessId(bsl::string *result, const Record& record);
-        // Append a process ID provided by the specified 'record' to the
-        // specified 'result' string.  Note that this method is invoked when
-        // processing "%p" specifier.
 
+    /// Append the specified `value` to the specified `result` string.  If
+    /// the optionally specified `notPrintable` flag is `true`, then all
+    /// non-printable characters in `value` will be printed in their
+    /// hexadecimal representation ('\xHH').
     static void appendString(bsl::string             *result,
                              const bsl::string_view&  value,
                              bool                     notPrintable = false);
-        // Append the specified 'value' to the specified 'result' string.  If
-        // the optionally specified 'notPrintable' flag is 'true', then all
-        // non-printable characters in 'value' will be printed in their
-        // hexadecimal representation ('\xHH').
 
+    /// Append a thread ID provided by the specified `record` to the
+    /// specified `result` string.  Note that this method is invoked when
+    /// processing "%t" specifier.
     static void appendThreadId(bsl::string *result, const Record& record);
-        // Append a thread ID provided by the specified 'record' to the
-        // specified 'result' string.  Note that this method is invoked when
-        // processing "%t" specifier.
 
+    /// Append a thread ID provided by the specified `record` to the
+    /// specified `result` string in hex format.  Note that this method is
+    /// invoked when processing "%T" specifier.
     static void appendThreadIdAsHex(bsl::string *result, const Record& record);
-        // Append a thread ID provided by the specified 'record' to the
-        // specified 'result' string in hex format.  Note that this method is
-        // invoked when processing "%T" specifier.
 
+    /// Append a severity provided by the specified `record` to the
+    /// specified `result` string.  Note that this method is invoked when
+    /// processing "%s" specifier.
     static void appendSeverity(bsl::string *result, const Record& record);
-        // Append a severity provided by the specified 'record' to the
-        // specified 'result' string.  Note that this method is invoked when
-        // processing "%s" specifier.
 
+    /// Append the specified `value` to the specified `result` string
+    /// according to the specified `format`.
     template <class T>
     static void appendValue(bsl::string  *result,
                             const char   *format,
                             T             value);
-        // Append the specified 'value' to the specified 'result' string
-        // according to the specified 'format'.
 
+    /// Append the specified `value` to the specified `result` string.
     static void appendValue(bsl::string  *result, int                value);
     static void appendValue(bsl::string  *result, long               value);
     static void appendValue(bsl::string  *result, long long          value);
     static void appendValue(bsl::string  *result, unsigned int       value);
     static void appendValue(bsl::string  *result, unsigned long      value);
     static void appendValue(bsl::string  *result, unsigned long long value);
-        // Append the specified 'value' to the specified 'result' string.
 
+    /// Append user fields provided by the specified `record` to the
+    /// specified `result` string.  Note that this method is invoked when
+    /// processing "%u" specifier.
     static void appendUserFields(bsl::string *result, const Record& record);
-        // Append user fields provided by the specified 'record' to the
-        // specified 'result' string.  Note that this method is invoked when
-        // processing "%u" specifier.
 };
 
                        // ========================
                        // class AttributeFormatter
                        // ========================
 
+/// This class implements a functional object that renders an attribute
+/// string.
 class AttributeFormatter {
-    // This class implements a functional object that renders an attribute
-    // string.
 
     // PRIVATE TYPES
+
+    /// `Attributes` is an alias for the vector of `ball::ManagedAttribute`
+    /// objects.
     typedef bsl::vector<ball::ManagedAttribute> Attributes;
-        // 'Attributes' is an alias for the vector of 'ball::ManagedAttribute'
-        // objects.
 
     enum { k_UNSET = -1 };  // Unspecified index
 
@@ -248,41 +250,44 @@ class AttributeFormatter {
 
   public:
     // CREATORS
+
+    /// Create an attribute formatter object having the specified `key` of
+    /// an attribute to be rendered.  If optionally specified `renderKey` is
+    /// `true`, render attribute as "key=value", and render only the value
+    /// of the attribute otherwize.
     explicit
     AttributeFormatter(const bsl::string_view& key, bool renderKey = true);
-        // Create an attribute formatter object having the specified 'key' of
-        // an attribute to be rendered.  If optionally specified 'renderKey' is
-        // 'true', render attribute as "key=value", and render only the value
-        // of the attribute otherwize.
 
     // MANIPULATORS
+
+    /// Render an attribute having the key supplied at construction of this
+    /// object and provided by the specified `record` to the specified
+    ///`result` string.
     void operator()(bsl::string *result, const Record& record);
-        // Render an attribute having the key supplied at construction of this
-        // object and provided by the specified 'record' to the specified
-        //'result' string.
 };
 
                        // =========================
                        // class AttributesFormatter
                        // =========================
 
+/// This class implements a functional object that renders a collection of
+/// attribute values to string.
 class AttributesFormatter {
-    // This class implements a functional object that renders a collection of
-    // attribute values to string.
 
     // PRIVATE TYPES
+
+    /// `Attributes` is an alias for the vector of `ball::ManagedAttribute`
+    /// objects.
     typedef bsl::vector<ball::ManagedAttribute>        Attributes;
-        // 'Attributes' is an alias for the vector of 'ball::ManagedAttribute'
-        // objects.
 
+    /// `AttributeCache` is an alias for a vector of pairs of an attribute's
+    /// key and a flag indicating whether the attribute should be displayed
+    /// or not.
     typedef bsl::vector<bsl::pair<bsl::string, bool> > AttributeCache;
-        // 'AttributeCache' is an alias for a vector of pairs of an attribute's
-        // key and a flag indicating whether the attribute should be displayed
-        // or not.
 
+    /// `SkipAttributes` is an alias for a set of keys of attributes that
+    /// should not be printed as part of `%a` format specifier.
     typedef bsl::set<bsl::string_view>                 SkipAttributes;
-        // 'SkipAttributes' is an alias for a set of keys of attributes that
-        // should not be printed as part of '%a' format specifier.
 
     // DATA
     const SkipAttributes *d_skipAttributes_p;  // collection of keys of skipped
@@ -291,14 +296,15 @@ class AttributesFormatter {
     AttributeCache        d_cache;             // cached attributes
 
     // PRIVATE MANIPULATORS
-    void renderAllAttributes(bsl::string *result, const Record& record);
-        // Render all attribute provided by the specified 'record' to the
-        // specified 'result' string.
 
+    /// Render all attribute provided by the specified `record` to the
+    /// specified `result` string.
+    void renderAllAttributes(bsl::string *result, const Record& record);
+
+    /// Render all attribute provided by the specified `record` except
+    /// attributes whose keys are listed in the collection supplied at
+    /// construction of this object to the specified `result` string.
     void renderNonSkippedAttributes(bsl::string *result, const Record& record);
-        // Render all attribute provided by the specified 'record' except
-        // attributes whose keys are listed in the collection supplied at
-        // construction of this object to the specified 'result' string.
 
   public:
     // TRAITS
@@ -309,27 +315,29 @@ class AttributesFormatter {
     typedef bsl::allocator<char> allocator_type;
 
     // CREATORS
+
+    /// Create an attribute formatter object having the specified
+    /// `skipAttributes` collection.  Optionally specify an `allocator`
+    /// (e.g., the address of a `bslma::Allocator` object) to supply memory;
+    /// otherwise, the default allocator is used.
     explicit AttributesFormatter(
                           const SkipAttributes  *skipAttributes,
                           const allocator_type&  allocator = allocator_type());
-        // Create an attribute formatter object having the specified
-        // 'skipAttributes' collection.  Optionally specify an 'allocator'
-        // (e.g., the address of a 'bslma::Allocator' object) to supply memory;
-        // otherwise, the default allocator is used.
 
+    /// Create an attribute formatter initialized to the value of the
+    /// specified `original` record formatter.  Optionally specify an
+    /// `allocator` (e.g., the address of a `bslma::Allocator` object) to
+    /// supply memory; otherwise, the default allocator is used.
     AttributesFormatter(
                       const AttributesFormatter& original,
                       const allocator_type&      allocator = allocator_type());
-        // Create an attribute formatter initialized to the value of the
-        // specified 'original' record formatter.  Optionally specify an
-        // 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
-        // supply memory; otherwise, the default allocator is used.
 
     // MANIPULATORS
+
+    /// Render all attribute provided by the specified `record` except
+    /// attributes whose keys are listed in the collection supplied at
+    /// construction of this object to the specified `result` string.
     void operator()(bsl::string *result, const Record& record);
-        // Render all attribute provided by the specified 'record' except
-        // attributes whose keys are listed in the collection supplied at
-        // construction of this object to the specified 'result' string.
 };
 
                        // ---------------

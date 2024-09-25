@@ -7,8 +7,8 @@
 
 #include <bsls_keyword.h>
 
-#include <bsl_cstdlib.h>     // 'atoi'
-#include <bsl_cstring.h>     // 'memcpy'
+#include <bsl_cstdlib.h>     // `atoi`
+#include <bsl_cstring.h>     // `memcpy`
 #include <bsl_iostream.h>
 #include <bsl_memory.h>
 
@@ -76,8 +76,8 @@ void aSsErT(int c, const char *s, int i)
 class my_Obj {
 };
 
+/// Test class used to verify protocol.
 class my_Deleter : public bdlma::Deleter<my_Obj>
-    // Test class used to verify protocol.
 {
 
     int *d_destructorFlag_p;
@@ -113,8 +113,8 @@ class my_Deleter : public bdlma::Deleter<my_Obj>
         d_fun = 1;
     }
 
+    /// Return descriptive code for the function called.
     int fun() const
-        // Return descriptive code for the function called.
     {
         return d_fun;
     }
@@ -136,45 +136,45 @@ int main(int argc, char *argv[]) {
 ///Usage
 ///-----
 // Suppose that we would like to transfer ownership of an object between
-// threads using 'bsl::shared_ptr'.  For the sake of discussion, the type of
-// this object is 'my_Obj', we will suppose that it is created using a given
-// 'basicAllocator', and that a concrete implementation of 'bdlma::Deleter',
-// say 'my_Deleter', is to be used.  Note that we assume that 'my_Obj' does not
+// threads using `bsl::shared_ptr`.  For the sake of discussion, the type of
+// this object is `my_Obj`, we will suppose that it is created using a given
+// `basicAllocator`, and that a concrete implementation of `bdlma::Deleter`,
+// say `my_Deleter`, is to be used.  Note that we assume that `my_Obj` does not
 // require an allocator for any of its members:
-//..
+// ```
     bslma::NewDeleteAllocator basicAllocator;
     my_Obj *object = new(basicAllocator) my_Obj;
-//..
-// Next, create a concrete deleter for 'object' using the same allocator as was
+// ```
+// Next, create a concrete deleter for `object` using the same allocator as was
 // used to allocate its footprint:
-//..
+// ```
     my_Deleter deleter(&basicAllocator);
-//..
-// Finally, create a shared pointer passing to it 'object' and the address of
-// 'deleter':
-//..
+// ```
+// Finally, create a shared pointer passing to it `object` and the address of
+// `deleter`:
+// ```
     bsl::shared_ptr<my_Obj> handle(object, &deleter, &basicAllocator);
-//..
-// Now the 'handle' can be passed to another thread or enqueued efficiently.
-// When the reference count of 'handle' goes to 0, 'object' is automatically
-// deleted via the 'deleteObject' method of 'deleter', which in turn will
-// invoke the destructor of 'object'.  Note that since the type of the deleter
-// used to instantiate 'handle' is 'bdlma::Deleter<my_Obj>', any kind of
+// ```
+// Now the `handle` can be passed to another thread or enqueued efficiently.
+// When the reference count of `handle` goes to 0, `object` is automatically
+// deleted via the `deleteObject` method of `deleter`, which in turn will
+// invoke the destructor of `object`.  Note that since the type of the deleter
+// used to instantiate `handle` is `bdlma::Deleter<my_Obj>`, any kind of
 // deleter that implements this protocol can be passed.  Also note, on the
-// downside, that the lifetime of 'deleter' must be longer than the lifetime of
+// downside, that the lifetime of `deleter` must be longer than the lifetime of
 // all associated instances.
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // PROTOCOL TEST:
         //   All we need to do is make sure that a subclass of the
-        //   'bdlma::Deleter' class compiles and links when all virtual
+        //   `bdlma::Deleter` class compiles and links when all virtual
         //   functions are defined.
         //
         // Plan:
-        //   Construct an object of a class derived from 'bdlma::Deleter'.
-        //   Cast a reference to the object to the base class 'bdlma::Deleter'.
-        //   Using the base class reference invoke both 'delete' method and
+        //   Construct an object of a class derived from `bdlma::Deleter`.
+        //   Cast a reference to the object to the base class `bdlma::Deleter`.
+        //   Using the base class reference invoke both `delete` method and
         //   verify that the correct implementations of the methods are called.
         //
         // Testing:
@@ -189,11 +189,11 @@ int main(int argc, char *argv[]) {
         bdlma::Deleter<my_Obj>& a = myA;
         my_Obj X;
 
-        if (verbose) cout << "\tTesting 'delete'" << endl;
+        if (verbose) cout << "\tTesting `delete`" << endl;
         {
             a.deleteObject(&X);  ASSERT(1 == myA.fun());
         }
-        if (verbose) cout << "\tTesting '~bdlma::Deleter'" << endl;
+        if (verbose) cout << "\tTesting `~bdlma::Deleter`" << endl;
         {
             bdlma::Deleter<my_Obj> *mX = new my_Deleter(&destructorFlag);
             delete mX;

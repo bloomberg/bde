@@ -62,17 +62,18 @@ void aSsErT(bool condition, const char *message, int line)
 
 ///Usage
 ///-----
-// Suppose we have a 'bslmt::Condition' object, 'condition', and a boolean
-// predicate associated with 'condition' (represented here as a free function
-// that returns a 'bool' value):
-//..
+// Suppose we have a `bslmt::Condition` object, `condition`, and a boolean
+// predicate associated with `condition` (represented here as a free function
+// that returns a `bool` value):
+// ```
+
+    /// Return `true` if the invariant holds for `condition`, and `false`
+    /// otherwise.
     bool predicate()
-        // Return 'true' if the invariant holds for 'condition', and 'false'
-        // otherwise.
     {
         return true;
     }
-//..
+// ```
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -91,11 +92,11 @@ typedef bslmt::Condition Obj;
             // class AnotherClock
             // ==================
 
+/// `AnotherClock` is a C++11-compatible clock that is very similar to
+/// `bsl::chrono::steady_clock`.  The only difference is that it uses a
+/// different epoch; it begins 10000 "ticks" after the beginning of
+/// `steady_clock`s epoch.
 class AnotherClock {
-    // 'AnotherClock' is a C++11-compatible clock that is very similar to
-    // 'bsl::chrono::steady_clock'.  The only difference is that it uses a
-    // different epoch; it begins 10000 "ticks" after the beginning of
-    // 'steady_clock's epoch.
 
   private:
     typedef bsl::chrono::steady_clock base_clock;
@@ -109,9 +110,10 @@ class AnotherClock {
     static const bool is_steady = base_clock::is_steady;
 
     // CLASS METHODS
+
+    /// Return a time point representing the time since the beginning of the
+    /// epoch.
     static time_point now();
-        // Return a time point representing the time since the beginning of the
-        // epoch.
 };
 
 // CLASS METHODS
@@ -125,10 +127,10 @@ AnotherClock::time_point AnotherClock::now()
             // class HalfClock
             // ===============
 
+/// `HalfClock` is a C++11-compatible clock that is very similar to
+/// `bsl::chrono::steady_clock`.  The difference is that it runs "half as
+/// fast" as `steady_clock`.
 class HalfClock {
-    // 'HalfClock' is a C++11-compatible clock that is very similar to
-    // 'bsl::chrono::steady_clock'.  The difference is that it runs "half as
-    // fast" as 'steady_clock'.
 
   private:
     typedef bsl::chrono::steady_clock base_clock;
@@ -142,9 +144,10 @@ class HalfClock {
     static const bool is_steady = base_clock::is_steady;
 
     // CLASS METHODS
+
+    /// Return a time point representing the time since the beginning of the
+    /// epoch.
     static time_point now();
-        // Return a time point representing the time since the beginning of the
-        // epoch.
 };
 
 // CLASS METHODS
@@ -156,13 +159,13 @@ HalfClock::time_point HalfClock::now()
 
 // BDE_VERIFY pragma: pop
 
+/// Wait on the specified `Condition` `mX` for the specified `secondsToWait`
+/// seconds based on the specified `CLOCK`.  If the call to `timedWait`
+/// (using the specified mutex `m`) returns `e_TIMED_OUT`, indicating that
+/// a timeout has occurred, verify that at least that much time has elapsed
+/// (measured by the clock).
 template <class CLOCK>
 int WaitForTimeout(bslmt::Condition& mX, bslmt::Mutex *m, int secondsToWait)
-    // Wait on the specified 'Condition' 'mX' for the specified 'secondsToWait'
-    // seconds based on the specified 'CLOCK'.  If the call to 'timedWait'
-    // (using the specified mutex 'm') returns 'e_TIMED_OUT', indicating that
-    // a timeout has occurred, verify that at least that much time has elapsed
-    // (measured by the clock).
 {
     typename CLOCK::time_point tp = CLOCK::now() +
                                            bsl::chrono::seconds(secondsToWait);
@@ -189,7 +192,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 3: {
 // The following usage pattern should always be followed:
-//..
+// ```
       // ...
 
       bslmt::Condition condition;
@@ -205,16 +208,16 @@ int main(int argc, char *argv[])
       mutex.unlock();
 
       // ...
-//..
+// ```
 // The usage pattern for a timed wait is similar, but has extra branches to
 // handle a timeout:
-//..
+// ```
       // ...
 
       enum { e_TIMED_OUT = -1 };
       bsls::TimeInterval absTime = bsls::SystemTime::nowRealtimeClock();
 
-      // Advance 'absTime' to some delta into the future here.
+      // Advance `absTime` to some delta into the future here.
 
       mutex.lock();
       while (false == predicate()) {
@@ -225,14 +228,14 @@ int main(int argc, char *argv[])
       }
 
       if (false == predicate()) {
-          // The wait timed out and 'predicate' returned 'false'.  Perform
+          // The wait timed out and `predicate` returned `false`.  Perform
           // timeout logic here.
 
           // ...
       }
       else {
           // The condition variable was either signaled or timed out and
-          // 'predicate' returned 'true'.  Modify shared resources and adjust
+          // `predicate` returned `true`.  Modify shared resources and adjust
           // predicate here.
 
           // ...
@@ -240,27 +243,27 @@ int main(int argc, char *argv[])
       mutex.unlock();
 
       // ...
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'clockType'
+        // TESTING `clockType`
         //
         // Concerns:
-        //: 1 'clockType' returns the clock type passed to the constructor.
-        //:
-        //: 2 'clockType' is declared 'const'.
+        // 1. `clockType` returns the clock type passed to the constructor.
+        //
+        // 2. `clockType` is declared `const`.
         //
         // Plan:
-        //: 1 Create a 'const' object, and then query it to make sure that the
-        //:   correct clock type is returned.
+        // 1. Create a `const` object, and then query it to make sure that the
+        //    correct clock type is returned.
         //
         // Testing:
         //   bsls::SystemClockType::Enum clockType() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'clockType'" << endl
+                          << "TESTING `clockType`" << endl
                           << "===================" << endl;
 
         const Obj def;
@@ -288,7 +291,7 @@ int main(int argc, char *argv[])
         // this object likely forwards to an appropriate implementation.  We'll
         // test that timedWait on a default-constructed Condition object
         // returns in roughly the right amount of time.  Finally, we'll verify
-        // waiting with times in the past returns '-1'.
+        // waiting with times in the past returns `-1`.
         // --------------------------------------------------------------------
           if (verbose) cout << "Basic forwarding test" << endl
                             << "=====================" << endl;

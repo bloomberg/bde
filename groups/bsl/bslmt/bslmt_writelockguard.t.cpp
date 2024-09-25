@@ -4,8 +4,8 @@
 #include <bslim_testutil.h>
 
 #include <bsl_iostream.h>
-#include <bsl_cstring.h>  // 'strcmp'
-#include <bsl_cstdlib.h>  // 'atoi'
+#include <bsl_cstring.h>  // `strcmp`
+#include <bsl_cstdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -15,11 +15,11 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              OVERVIEW
 //                              --------
-// This program tests the functionality of the 'bslmt::WriteLockGuard' class.
+// This program tests the functionality of the `bslmt::WriteLockGuard` class.
 // It verifies that the class properly locks the synchronization object for
 // writing at construction time, and that it properly unlocks the object at
-// destruction time.  A helper class, 'my_RWLock', is created to facilitate the
-// test process.  'my_RWLock' implements the required lock and unlock
+// destruction time.  A helper class, `my_RWLock`, is created to facilitate the
+// test process.  `my_RWLock` implements the required lock and unlock
 // interfaces and provides a means to determine when the functions are called.
 //
 //-----------------------------------------------------------------------------
@@ -44,9 +44,9 @@ using namespace bsl;
 // [4] bslmt::WriteLockGuardTryLock::release();
 // [4] bslmt::WriteLockGuardTryLock::ptr();
 //-----------------------------------------------------------------------------
-// [1] Ensure helper class 'my_RWLock' works as expected
-// [5] INTERACTION BET 'bslmt::WriteLockGuard' & 'bslmt::WriteLockGuardUnlock'
-// [6] DEPRECATED 'bslmt::LockWriteGuard'
+// [1] Ensure helper class `my_RWLock` works as expected
+// [5] INTERACTION BET `bslmt::WriteLockGuard` & `bslmt::WriteLockGuardUnlock`
+// [6] DEPRECATED `bslmt::LockWriteGuard`
 // [7] USAGE EXAMPLES
 
 // ============================================================================
@@ -100,14 +100,14 @@ void aSsErT(bool condition, const char *message, int line)
 int someUpgradeCondition = 0;
 int someOtherUpgradeCondition = 0;
 
+/// This class provides a simulated mutual exclusion mechanism which
+/// conforms to the interface required by the `bslmt::WriteLockGuard` class.
+/// It operates using a counter to track the symbolic "locked" state.  Each
+/// call to the lock and unlock functions increment or decrement the lock
+/// count respectively.  The current state of the lock count is accessible
+/// through the lockCount method.  The `tryLock` is designed to fail the
+/// first time, then succeed every other time.
 struct my_RWLock {
-    // This class provides a simulated mutual exclusion mechanism which
-    // conforms to the interface required by the 'bslmt::WriteLockGuard' class.
-    // It operates using a counter to track the symbolic "locked" state.  Each
-    // call to the lock and unlock functions increment or decrement the lock
-    // count respectively.  The current state of the lock count is accessible
-    // through the lockCount method.  The 'tryLock' is designed to fail the
-    // first time, then succeed every other time.
 
     int d_count;
     int d_attempt;
@@ -141,9 +141,9 @@ struct my_Object {
 /// - - - - - - - - - - -
 // Use this component to ensure that in the event of an exception or exit from
 // any point in a given scope, the synchronization object will be properly
-// unlocked.  The following function, 'errorProneFunc', is overly complex, not
+// unlocked.  The following function, `errorProneFunc`, is overly complex, not
 // exception safe, and contains a bug.
-//..
+// ```
     static void errorProneFunc(my_Object *obj, my_RWLock *rwlock)
     {
         rwlock->lockWrite();
@@ -160,12 +160,12 @@ struct my_Object {
         rwlock->unlock();
         return;
     }
-//..
+// ```
 // The function can be rewritten with a cleaner and safer implementation using
-// a guard object.  The 'safeFunc' function is simpler than 'errorProneFunc',
+// a guard object.  The `safeFunc` function is simpler than `errorProneFunc`,
 // is exception safe, and avoids the multiple calls to unlock that can be a
 // source of errors.
-//..
+// ```
     static void safeFunc(my_Object *obj, my_RWLock *rwlock)
     {
         bslmt::WriteLockGuard<my_RWLock> guard(rwlock);
@@ -180,13 +180,14 @@ struct my_Object {
         obj->defaultUpgradeMethod();
         return;
     }
-//..
+// ```
 // When blocking while acquiring the lock is not desirable, one may instead use
-// a 'bslmt::WriteLockGuardTryLock' in the typical following fashion:
-//..
+// a `bslmt::WriteLockGuardTryLock` in the typical following fashion:
+// ```
+
+    /// Perform upgrade and return positive value if locking succeeds.
+    /// Return 0 if locking fails.
     static int safeButNonBlockingFunc(my_Object *obj, my_RWLock *rwlock)
-        // Perform upgrade and return positive value if locking succeeds.
-        // Return 0 if locking fails.
     {
         const int RETRIES = 1; // use higher values for higher success rate
         bslmt::WriteLockGuardTryLock<my_RWLock> guard(rwlock, RETRIES);
@@ -203,13 +204,13 @@ struct my_Object {
         }
         return 0;
     }
-//..
+// ```
 // If the underlying lock object provides an upgrade from a lock for read to a
-// lock for write (as does 'bslmt::ReaderWriterLock' with the
-// 'upgradeToWriteLock' function, for example), and the lock is already guarded
-// by a 'bslmt::LockReadGuard', then it is not necessary to transfer the guard
-// to a 'bslmt::WriteLockGuard'.  In fact, a combination of
-// 'bslmt::LockReadGuard' and 'bslmt::WriteLockGuard' guarding a common lock
+// lock for write (as does `bslmt::ReaderWriterLock` with the
+// `upgradeToWriteLock` function, for example), and the lock is already guarded
+// by a `bslmt::LockReadGuard`, then it is not necessary to transfer the guard
+// to a `bslmt::WriteLockGuard`.  In fact, a combination of
+// `bslmt::LockReadGuard` and `bslmt::WriteLockGuard` guarding a common lock
 // object should probably never be needed.
 //
 // Care must be taken so as not to interleave guard objects in such a way as to
@@ -296,7 +297,7 @@ int main(int argc, char *argv[])
         // DEPRECATED CLASSES
         //
         // Concern:
-        //   Backwards compatibility: ensure that the 'bslmt::LockWriteGuard'
+        //   Backwards compatibility: ensure that the `bslmt::LockWriteGuard`
         //   class exists and still works.
         //
         // Plan:
@@ -355,29 +356,29 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // INTERACTION BETWEEN 'bslmt::WriteLockGuard' AND
-        // 'bslmt::WriteLockGuardUnlock'
+        // INTERACTION BETWEEN `bslmt::WriteLockGuard` AND
+        // `bslmt::WriteLockGuardUnlock`
         //
         // Concern:
-        //   That 'bslmt::WriteLockGuard' and 'bslmt::WriteLockGuardUnlock'
+        //   That `bslmt::WriteLockGuard` and `bslmt::WriteLockGuardUnlock`
         //   interact together as expected.  That two different lock guards on
-        //   two different 'my_RWLock' objects do not interfere with each
+        //   two different `my_RWLock` objects do not interfere with each
         //   other.
         //
         // Plan:
-        //   We verify that using two independent 'my_RWLock' objects with two
-        //   distinct 'bslmt::WriteLockGuard' *and*
-        //   'bslmt::WriteLockGuardUnlock' objects in the same scope have no
+        //   We verify that using two independent `my_RWLock` objects with two
+        //   distinct `bslmt::WriteLockGuard` *and*
+        //   `bslmt::WriteLockGuardUnlock` objects in the same scope have no
         //   effect on each other.
         //
         // Testing:
         //   Interaction between lock and unlock guards, as well as
-        //   between two lock guards on two different 'my_RWLock' objects.
+        //   between two lock guards on two different `my_RWLock` objects.
         // --------------------------------------------------------------------
 
         if (verbose)
             cout << "\tTesting interaction between "
-                    "'bslmt::WriteLockGuard' and bslmt::WriteLockGuardUnlock'"
+                    "`bslmt::WriteLockGuard` and bslmt::WriteLockGuardUnlock'"
                  << endl
                  << "=============================="
                     "========================================"
@@ -410,29 +411,29 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING CLASS 'bslmt::WriteLockGuardTryLock'
+        // TESTING CLASS `bslmt::WriteLockGuardTryLock`
         //
         // Concern:
-        //   That the basic functionality of the 'bslmt::WriteLockGuardTryLock'
+        //   That the basic functionality of the `bslmt::WriteLockGuardTryLock`
         //   class template is correct.
         //
         // Plan:
         //   We begin by creating a series of nested
-        //   'bslmt::WriteLockGuardTryLock' objects using a common 'my_RWLock'
+        //   `bslmt::WriteLockGuardTryLock` objects using a common `my_RWLock`
         //   object.  With each new object we verify that the lock function is
         //   called only if the constructor succeeds.  As each object is
         //   destroyed, we verify that the unlock function is called.
         //
-        //   Next, we verify that the 'release' function works properly by
-        //   constructing a new 'bslmt::WriteLockGuard' and calling 'release'.
+        //   Next, we verify that the `release` function works properly by
+        //   constructing a new `bslmt::WriteLockGuard` and calling `release`.
         //   We verify that the returned pointer matches the value we supplied
         //   only if the constructor succeeded in acquiring the lock.  We then
-        //   verify that 'release' makes no attempt to unlock the supplied
-        //   object and that when the 'bslmt::WriteLockGuardTryLock' object is
+        //   verify that `release` makes no attempt to unlock the supplied
+        //   object and that when the `bslmt::WriteLockGuardTryLock` object is
         //   destroyed, it does not unlock the object.
         //
-        //   Finally we test that a 'bslmt::WriteLockGuardTryLock' can be
-        //   created with a null lock, and that 'release' may be called on the
+        //   Finally we test that a `bslmt::WriteLockGuardTryLock` can be
+        //   created with a null lock, and that `release` may be called on the
         //   guard.
         //
         // Testing:
@@ -504,29 +505,29 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING CLASS 'bslmt::WriteLockGuardUnlock'
+        // TESTING CLASS `bslmt::WriteLockGuardUnlock`
         //
         // Concern:
-        //   That the basic functionality of the 'bslmt::WriteLockGuardUnlock'
+        //   That the basic functionality of the `bslmt::WriteLockGuardUnlock`
         //   class template is correct.
         //
         // Plan:
         //   We begin by creating a series of nested
-        //   'bslmt::WriteLockGuardUnlock' objects using a common 'my_RWLock'
+        //   `bslmt::WriteLockGuardUnlock` objects using a common `my_RWLock`
         //   object.  With each new object we verify that the unlock function
         //   is called.  As each object is destroyed, we verify that the lock
         //   function is called.
         //
-        //   Next, we verify that the 'release' function works properly by
-        //   constructing a new 'bslmt::WriteLockGuardUnlock' and calling
-        //   'release'.  We verify that the returned pointer matches the value
-        //   we supplied.  We then verify that 'release' makes no attempt to
+        //   Next, we verify that the `release` function works properly by
+        //   constructing a new `bslmt::WriteLockGuardUnlock` and calling
+        //   `release`.  We verify that the returned pointer matches the value
+        //   we supplied.  We then verify that `release` makes no attempt to
         //   unlock the supplied object and that when the
-        //   'bslmt::WriteLockGuardUnlock' object is destroyed, it does not
+        //   `bslmt::WriteLockGuardUnlock` object is destroyed, it does not
         //   unlock the object.
         //
-        //   Finally we test that a 'bslmt::WriteLockGuardUnlock' can be
-        //   created with a null lock, and that 'release' may be called on the
+        //   Finally we test that a `bslmt::WriteLockGuardUnlock` can be
+        //   created with a null lock, and that `release` may be called on the
         //   guard.
         //
         // Testing:
@@ -602,27 +603,27 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING CLASS 'bslmt::WriteLockGuard'
+        // TESTING CLASS `bslmt::WriteLockGuard`
         //
         // Concern:
-        //   That the basic functionality of the 'bslmt::WriteLockGuard' class
+        //   That the basic functionality of the `bslmt::WriteLockGuard` class
         //   template is correct.
         //
         // Plan:
-        //   We begin by creating a series of nested 'bslmt::WriteLockGuard'
-        //   objects using a common 'my_RWLock' object.  With each new object
+        //   We begin by creating a series of nested `bslmt::WriteLockGuard`
+        //   objects using a common `my_RWLock` object.  With each new object
         //   we verify that the lock function was called.  As each object is
         //   destroyed, we verify that the unlock function is called.
         //
-        //   Next, we verify that the 'release' function works properly by
-        //   constructing a new 'bslmt::WriteLockGuard' and calling 'release'.
+        //   Next, we verify that the `release` function works properly by
+        //   constructing a new `bslmt::WriteLockGuard` and calling `release`.
         //   We verify that the returned pointer matches the value we supplied.
-        //   We then verify that 'release' makes no attempt to unlock the
-        //   supplied object and that when the 'bslmt::WriteLockGuard' object
+        //   We then verify that `release` makes no attempt to unlock the
+        //   supplied object and that when the `bslmt::WriteLockGuard` object
         //   is destroyed, it does not unlock the object.
         //
-        //   Finally we test that a 'bslmt::WriteLockGuard' can be created with
-        //   a null lock, and that 'release' may be called on the guard.
+        //   Finally we test that a `bslmt::WriteLockGuard` can be created with
+        //   a null lock, and that `release` may be called on the guard.
         //
         // Testing:
         //   bslmt::WriteLockGuard();
@@ -695,7 +696,7 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // HELPER CLASS TEST
-        //   The 'my_RWLock' class is a simple type that supports the lock and
+        //   The `my_RWLock` class is a simple type that supports the lock and
         //   unlock methods used by the guard class.  These methods simply
         //   increment and decrement a count integer data member.
         //

@@ -32,24 +32,24 @@ static void aSsErT(int c, const char *s, int i) {
 //=============================================================================
 //                        TESTING USAGE EXAMPLE
 //-----------------------------------------------------------------------------
-///Example 1 - Force a Link-Time Dependency on 's_coerce'
+///Example 1 - Force a Link-Time Dependency on `s_coerce`
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
-// First, declare a variable 's_coerce' of type 'const char *':
-//..
+// First, declare a variable `s_coerce` of type `const char *`:
+// ```
     extern const char *s_coerce;
-//..
-// Then, use 'BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY' to add a dependency on
+// ```
+// Then, use `BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY` to add a dependency on
 // this symbol into any object which includes the header:
-//..
+// ```
     BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(const char *,
                                               bsls_coerceexample_coerce,
                                               s_coerce)
-//..
-// Finally, in the corresponding '.cpp' file, the 's_coerce' symbol needs to be
+// ```
+// Finally, in the corresponding `.cpp` file, the `s_coerce` symbol needs to be
 // defined:
-//..
+// ```
     const char *s_coerce = "Link me in!";
-//..
+// ```
 
 //=============================================================================
 //                              MAIN PROGRAM

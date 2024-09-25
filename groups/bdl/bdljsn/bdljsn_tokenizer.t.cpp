@@ -29,7 +29,7 @@
 #include <bsl_algorithm.h>
 #include <bsl_cfloat.h>
 #include <bsl_climits.h>
-#include <bsl_cstddef.h>    // 'bsl::size_t'
+#include <bsl_cstddef.h>    // `bsl::size_t`
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
@@ -54,7 +54,7 @@ using bsl::endl;
 // The component under test implements a tokenizer for traversing a stream
 // filled with JSON data and allows populating an in-memory structure with
 // almost no memory allocations.  The implementation works as a finite state
-// machine moving from one token to another when the 'advanceToNextToken'
+// machine moving from one token to another when the `advanceToNextToken`
 // function is called.  The majority of this test driver tests that function by
 // starting at a particular token, calling that function, and ensuring that
 // after the advance the next token and the data value is as expected.
@@ -91,13 +91,13 @@ using bsl::endl;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [24] USAGE EXAMPLE
-// [ 2] CONCERN: 'advanceToNextToken' FIRST CHARACTER
-// [ 4] CONCERN: 'advanceToNextToken' TO 'e_START_OBJECT'
-// [ 5] CONCERN: 'advanceToNextToken' TO 'e_NAME'
-// [ 6] CONCERN: 'advanceToNextToken' TO 'e_VALUE'
-// [ 7] CONCERN: 'advanceToNextToken' TO 'e_END_OBJECT'
-// [ 8] CONCERN: 'advanceToNextToken' TO 'e_START_ARRAY'
-// [ 9] CONCERN: 'advanceToNextToken' TO 'e_END_ARRAY'
+// [ 2] CONCERN: `advanceToNextToken` FIRST CHARACTER
+// [ 4] CONCERN: `advanceToNextToken` TO `e_START_OBJECT`
+// [ 5] CONCERN: `advanceToNextToken` TO `e_NAME`
+// [ 6] CONCERN: `advanceToNextToken` TO `e_VALUE`
+// [ 7] CONCERN: `advanceToNextToken` TO `e_END_OBJECT`
+// [ 8] CONCERN: `advanceToNextToken` TO `e_START_ARRAY`
+// [ 9] CONCERN: `advanceToNextToken` TO `e_END_ARRAY`
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -385,7 +385,7 @@ static const struct Utf8Data {
 
     int         d_status;
                               // number of UTF-8 code points (or "ErrorStatus'
-                              // if invalid.  Note that all the 'ErrorStatus'
+                              // if invalid.  Note that all the `ErrorStatus`
                               // enums are -ve.
 
     int         d_errOffset;  // byte offset to first invalid sequence;
@@ -539,13 +539,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -561,39 +561,39 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Extracting JSON data into an object
 ///----------------------------------------------
-// For this example, we will use 'bdljsn::Tokenizer' to read each node in a
-// JSON document and populate a simple 'Employee' object.
+// For this example, we will use `bdljsn::Tokenizer` to read each node in a
+// JSON document and populate a simple `Employee` object.
 //
 // First, we will define the JSON data that the tokenizer will traverse over:
-//..
+// ```
     const char *INPUT = "    {\n"
                         "        \"street\" : \"Lexington Ave\",\n"
                         "        \"state\" : \"New York\",\n"
                         "        \"zipcode\" : \"10022-1331\",\n"
                         "        \"floorCount\" : 55\n"
                         "    }";
-//..
-// Next, we will construct populate a 'streambuf' with this data:
-//..
+// ```
+// Next, we will construct populate a `streambuf` with this data:
+// ```
     bdlsb::FixedMemInStreamBuf isb(INPUT, bsl::strlen(INPUT));
-//..
-// Then, we will create a 'bdljsn::Tokenizer' object and associate the above
+// ```
+// Then, we will create a `bdljsn::Tokenizer` object and associate the above
 // streambuf with it:
-//..
+// ```
     bdljsn::Tokenizer tokenizer;
     tokenizer.reset(&isb);
-//..
+// ```
 // Next, we will create an address record type and object.
-//..
+// ```
     struct Address {
         bsl::string d_street;
         bsl::string d_state;
         bsl::string d_zipcode;
         int         d_floorCount;
     } address = { "", "", "", 0 };
-//..
+// ```
 // Then, we will traverse the JSON data one node at a time:
-//..
+// ```
     // Read '{'
 
     int rc = tokenizer.advanceToNextToken();
@@ -656,55 +656,55 @@ int main(int argc, char *argv[])
         ASSERT(!rc);
         token = tokenizer.tokenType();
     }
-//..
-// Finally, we will verify that the 'address' aggregate has the correct values:
-//..
+// ```
+// Finally, we will verify that the `address` aggregate has the correct values:
+// ```
     ASSERT("Lexington Ave" == address.d_street);
     ASSERT("New York"      == address.d_state);
     ASSERT("10022-1331"    == address.d_zipcode);
     ASSERT(55              == address.d_floorCount);
-//..
+// ```
       } break;
       case 23: {
         // --------------------------------------------------------------------
-        // TESTING 'conformanceMode'
+        // TESTING `conformanceMode`
         //
         // Concerns:
-        //: 1 The default constructed tokenizer has the expected
-        //:   'conformanceMode' ('e_RELAXED') and the individual token options
-        //:   have their default values.
-        //:
-        //: 2 Setting 'conformanceMode' to 'e_STRICT_20240119' changes the
-        //:   reported 'conformanceMode' to that value and each individual
-        //:   token option has the expected value for strict mode.
-        //:
-        //: 3 Setting 'conformanceMode' from 'e_STRICT_20240119' to 'e_RELAXED'
-        //:   changes the reported mode to that value and each individual token
-        //:   option retains the value it had in strict mode.
-        //:
-        //: 4 In relaxed mode the token options can be set to arbitrary values.
-        //:
-        //: 5 The manipulator returns the expected type and  value.
-        //:
-        //: 6 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The default constructed tokenizer has the expected
+        //    `conformanceMode` (`e_RELAXED`) and the individual token options
+        //    have their default values.
+        //
+        // 2. Setting `conformanceMode` to `e_STRICT_20240119` changes the
+        //    reported `conformanceMode` to that value and each individual
+        //    token option has the expected value for strict mode.
+        //
+        // 3. Setting `conformanceMode` from `e_STRICT_20240119` to `e_RELAXED`
+        //    changes the reported mode to that value and each individual token
+        //    option retains the value it had in strict mode.
+        //
+        // 4. In relaxed mode the token options can be set to arbitrary values.
+        //
+        // 5. The manipulator returns the expected type and  value.
+        //
+        // 6. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Default construct a 'bdljsn::Tokenizer' object and use
-        //:   'setConformanceMode' from relaxed to strict to relaxed again.
-        //:   Once back in relaxed mode, flip the token options (now allowed).
-        //:   At each transition use the relevant accessor to confirm the
-        //:   expected values of conformance mode and token option value.
-        //:   (C-1..4)
-        //:
-        //: 2 At each step in P-1, compare the address of the object referenced
-        //:   by the return value of the manipulator to the address of the
-        //:   object under test.  (C-5)
+        // 1. Default construct a `bdljsn::Tokenizer` object and use
+        //    `setConformanceMode` from relaxed to strict to relaxed again.
+        //    Once back in relaxed mode, flip the token options (now allowed).
+        //    At each transition use the relevant accessor to confirm the
+        //    expected values of conformance mode and token option value.
+        //    (C-1..4)
         //
-        //: 3 Using the 'BSLS_ASSERTTEST_*' macros, verify that, in appropriate
-        //:   build modes, defensive checks are triggered when setting, either
-        //:   'true' or 'false' any of the tokenizer options when the tokenizer
-        //:   conformance mode is 'e_STRICT_20240119', but not when that mode
-        //:   is 'e_RELAXED'.  (C-6)
+        // 2. At each step in P-1, compare the address of the object referenced
+        //    by the return value of the manipulator to the address of the
+        //    object under test.  (C-5)
+        //
+        // 3. Using the `BSLS_ASSERTTEST_*` macros, verify that, in appropriate
+        //    build modes, defensive checks are triggered when setting, either
+        //    `true` or `false` any of the tokenizer options when the tokenizer
+        //    conformance mode is `e_STRICT_20240119`, but not when that mode
+        //    is `e_RELAXED`.  (C-6)
         //
         // Testing:
         //   Tokenizer& setConformanceMode(ConformanceMode mode);
@@ -713,7 +713,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "TESTING 'conformanceMode'" << "\n"
+                 << "TESTING `conformanceMode`" << "\n"
                  << "=========================" << endl;
 
         if (veryVerbose) cout << endl
@@ -820,55 +820,55 @@ int main(int argc, char *argv[])
         // TESTING OPTION FOR FORMFEED AS WHITESPACE
         //
         // Concerns:
-        //: 1 A newly created 'Tokenizer' object has the expected value,
-        //:   'true', for the option.
-        //:
-        //: 2 The 'set*' method for the option:
-        //:
-        //:   1 Can be used to the option to either 'true' or 'false'.
-        //:
-        //:   2 Does not change the value of any of the other options.
-        //:
-        //:   3 The value returned is a non-'const' reference to the tokenizer.
-        //:
-        //: 3 The two accessor reports the expected value for the option.
-        //:
-        //: 4 When the option is 'true', strings containing multiple, control
-        //:   characters are allowed in JSON strings; otherwise, only the
-        //:   escaped representation(s) are allowed.
+        // 1. A newly created `Tokenizer` object has the expected value,
+        //    `true`, for the option.
+        //
+        // 2. The `set*` method for the option:
+        //
+        //   1. Can be used to the option to either `true` or `false`.
+        //
+        //   2. Does not change the value of any of the other options.
+        //
+        //   3. The value returned is a non-`const` reference to the tokenizer.
+        //
+        // 3. The two accessor reports the expected value for the option.
+        //
+        // 4. When the option is `true`, strings containing multiple, control
+        //    characters are allowed in JSON strings; otherwise, only the
+        //    escaped representation(s) are allowed.
         //
         // Plan:
-        //: 1 For each control character, create several input strings:
-        //:   each having once occurrence of the control character but using
-        //:   different representations:  (C-4)
-        //:  
-        //:   o The actual control character using \ooo representation.
-        //:   o The \uhhhh represenation.
-        //:   o For the several control characters also having two-letter
-        //:     representation, create additional input strings, one
-        //:     escaped, and one not:  e.g., \\t and \t.
-        //:
-        //:   1 Confirm that 'advanceToNextToken' succeeds until the end of
-        //:     input is reached when the option is 'true'.
-        //:
-        //:   2 Confirm that 'advancetoNextToken fails before the end of input
-        //:     when the option is 'false'.  To avoid ambiguity, the point
-        //:     of error must not be the last character of the input.
-        //:
-        //: 2 Confirm correctness (P-1) for a newly created 'Tokenizer'
-        //:   (unsescaped control characters allowed), after the option has
-        //:   been set to 'false', and after the option has been set back to
-        //:   'true'.  (C-2.1)
-        //:
-        //: 3 Confirm that the option accessors show the expected value at each
-        //:   stage.  (C-3)
-        //:
-        //: 4 Save the value of each of the other options before each 'set'
-        //:   options and confirm that the values are *not* changed by the
-        //:   after the 'set'.  (C-2.2)
-        //:
-        //: 5 Compare the address of the value returned to the address of the
-        //:   tokenizer object.  (C-2.3)
+        // 1. For each control character, create several input strings:
+        //    each having once occurrence of the control character but using
+        //    different representations:  (C-4)
+        //
+        //    - The actual control character using \ooo representation.
+        //    - The \uhhhh represenation.
+        //    - For the several control characters also having two-letter
+        //      representation, create additional input strings, one
+        //      escaped, and one not:  e.g., \\t and \t.
+        //
+        //   1. Confirm that `advanceToNextToken` succeeds until the end of
+        //      input is reached when the option is `true`.
+        //
+        //   2. Confirm that 'advancetoNextToken fails before the end of input
+        //      when the option is `false`.  To avoid ambiguity, the point
+        //      of error must not be the last character of the input.
+        //
+        // 2. Confirm correctness (P-1) for a newly created `Tokenizer`
+        //    (unsescaped control characters allowed), after the option has
+        //    been set to `false`, and after the option has been set back to
+        //    `true`.  (C-2.1)
+        //
+        // 3. Confirm that the option accessors show the expected value at each
+        //    stage.  (C-3)
+        //
+        // 4. Save the value of each of the other options before each `set`
+        //    options and confirm that the values are *not* changed by the
+        //    after the `set`.  (C-2.2)
+        //
+        // 5. Compare the address of the value returned to the address of the
+        //    tokenizer object.  (C-2.3)
         //
         // Testing:
         //   Tokenizer& setAllowFormFeedAsWhitespace(bool value)
@@ -884,55 +884,55 @@ int main(int argc, char *argv[])
         // TESTING OPTION FOR UNESCAPED CONTROL CHARACTERS
         //
         // Concerns:
-        //: 1 A newly created 'Tokenizer' object has the expected value,
-        //:   'true', for the option.
-        //:
-        //: 2 The 'set*' method for the option:
-        //:
-        //:   1 Can be used to the option to either 'true' or 'false'.
-        //:
-        //:   2 Does not change the value of any of the other options.
-        //:
-        //:   3 The value returned is a non-'const' reference to the tokenizer.
-        //:
-        //: 3 The two accessor reports the expected value for the option.
-        //:
-        //: 4 When the option is 'true', strings containing multiple, control
-        //:   characters are allowed in JSON strings; otherwise, only the
-        //:   escaped representation(s) are allowed.
+        // 1. A newly created `Tokenizer` object has the expected value,
+        //    `true`, for the option.
+        //
+        // 2. The `set*` method for the option:
+        //
+        //   1. Can be used to the option to either `true` or `false`.
+        //
+        //   2. Does not change the value of any of the other options.
+        //
+        //   3. The value returned is a non-`const` reference to the tokenizer.
+        //
+        // 3. The two accessor reports the expected value for the option.
+        //
+        // 4. When the option is `true`, strings containing multiple, control
+        //    characters are allowed in JSON strings; otherwise, only the
+        //    escaped representation(s) are allowed.
         //
         // Plan:
-        //: 1 For each control character, create several input strings:
-        //:   each having once occurrence of the control character but using
-        //:   different representations:  (C-4)
-        //:  
-        //:   o The actual control character using \ooo representation.
-        //:   o The \uhhhh represenation.
-        //:   o For the several control characters also having two-letter
-        //:     representation, create additional input strings, one
-        //:     escaped, and one not:  e.g., \\t and \t.
-        //:
-        //:   1 Confirm that 'advanceToNextToken' succeeds until the end of
-        //:     input is reached when the option is 'true'.
-        //:
-        //:   2 Confirm that 'advancetoNextToken fails before the end of input
-        //:     when the option is 'false'.  To avoid ambiguity, the point
-        //:     of error must not be the last character of the input.
-        //:
-        //: 2 Confirm correctness (P-1) for a newly created 'Tokenizer'
-        //:   (unsescaped control characters allowed), after the option has
-        //:   been set to 'false', and after the option has been set back to
-        //:   'true'.  (C-2.1)
-        //:
-        //: 3 Confirm that the option accessors show the expected value at each
-        //:   stage.  (C-3)
-        //:
-        //: 4 Save the value of each of the other options before each 'set'
-        //:   options and confirm that the values are *not* changed by the
-        //:   after the 'set'.  (C-2.2)
-        //:
-        //: 5 Compare the address of the value returned to the address of the
-        //:   tokenizer object.  (C-2.3)
+        // 1. For each control character, create several input strings:
+        //    each having once occurrence of the control character but using
+        //    different representations:  (C-4)
+        //
+        //    - The actual control character using \ooo representation.
+        //    - The \uhhhh represenation.
+        //    - For the several control characters also having two-letter
+        //      representation, create additional input strings, one
+        //      escaped, and one not:  e.g., \\t and \t.
+        //
+        //   1. Confirm that `advanceToNextToken` succeeds until the end of
+        //      input is reached when the option is `true`.
+        //
+        //   2. Confirm that 'advancetoNextToken fails before the end of input
+        //      when the option is `false`.  To avoid ambiguity, the point
+        //      of error must not be the last character of the input.
+        //
+        // 2. Confirm correctness (P-1) for a newly created `Tokenizer`
+        //    (unsescaped control characters allowed), after the option has
+        //    been set to `false`, and after the option has been set back to
+        //    `true`.  (C-2.1)
+        //
+        // 3. Confirm that the option accessors show the expected value at each
+        //    stage.  (C-3)
+        //
+        // 4. Save the value of each of the other options before each `set`
+        //    options and confirm that the values are *not* changed by the
+        //    after the `set`.  (C-2.2)
+        //
+        // 5. Compare the address of the value returned to the address of the
+        //    tokenizer object.  (C-2.3)
         //
         // Testing:
         //   Tokenizer& setAllowUnescapedControlCharacters(bool value)
@@ -1192,49 +1192,49 @@ int main(int argc, char *argv[])
         // TESTING OPTION FOR CONSECUTIVE SEPARATORS
         //
         // Concerns:
-        //: 1 A newly created 'Tokenizer' object has the expected value,
-        //:   'true', for the option.
-        //:
-        //: 2 The 'set*' method for the option:
-        //:
-        //:   1 Can be used to the option to either 'true' or 'false'.
-        //:
-        //:   2 Does not change the value of any of the other options.
-        //:
-        //:   3 The value returned is a non-'const' reference to the tokenizer.
-        //:
-        //: 3 The two accessor reports the expected value for the option.
-        //:
-        //: 4 When the option is 'true' strings containing multiple,
-        //:   consecutive colons (commas) can be processed successfully but not
-        //:   when that option is 'false'.
+        // 1. A newly created `Tokenizer` object has the expected value,
+        //    `true`, for the option.
+        //
+        // 2. The `set*` method for the option:
+        //
+        //   1. Can be used to the option to either `true` or `false`.
+        //
+        //   2. Does not change the value of any of the other options.
+        //
+        //   3. The value returned is a non-`const` reference to the tokenizer.
+        //
+        // 3. The two accessor reports the expected value for the option.
+        //
+        // 4. When the option is `true` strings containing multiple,
+        //    consecutive colons (commas) can be processed successfully but not
+        //    when that option is `false`.
         //
         // Plan:
-        //: 1 Create sets of input strings that are valid except for a single
-        //:   occurrence of multiple, consecutive colons (commas).  For each
-        //:   input string: (C-4)
-        //:
-        //:   1 Confirm that 'advanceToNextToken' succeeds until the end of
-        //:     input is reached when the option is 'true'.
-        //:
-        //:   2 Confirm that 'advancetoNextToken fails before the end of input
-        //:     when the option is 'false'.  To avoid ambiguity, the point
-        //:     of error must not be the last character of the input.
-        //:
-        //: 2 Confirm correctness (P-1) for a newly created 'Tokenizer'
-        //:   (multiple consecutive allowed), after the option has been
-        //;   set to 'false', and after the option has been set back to 'true'.
-        //:   (C-2.1)
-        //:
-        //: 3 Confirm that the option accessors show the expected value at each
-        //:   stage.  (C-3)
-        //:
-        //: 4 Save the value of each of the other options before each 'set'
-        //:   options and confirm that the values are *not* changed by the
-        //:   after the 'set'.  (C-2.2)
-        //:
-        //: 5 Compare the address of the value returned to the address of the
-        //:   tokenizer object.  (C-2.3)
+        // 1. Create sets of input strings that are valid except for a single
+        //    occurrence of multiple, consecutive colons (commas).  For each
+        //    input string: (C-4)
+        //
+        //   1. Confirm that `advanceToNextToken` succeeds until the end of
+        //      input is reached when the option is `true`.
+        //
+        //   2. Confirm that 'advancetoNextToken fails before the end of input
+        //      when the option is `false`.  To avoid ambiguity, the point
+        //      of error must not be the last character of the input.
+        //
+        // 2. Confirm correctness (P-1) for a newly created `Tokenizer`
+        //    (multiple consecutive allowed), after the option has been
+        //    set to `false`, and after the option has been set back to `true`.
+        //    (C-2.1)
+        //
+        // 3. Confirm that the option accessors show the expected value at each
+        //    stage.  (C-3)
+        //
+        // 4. Save the value of each of the other options before each `set`
+        //    options and confirm that the values are *not* changed by the
+        //    after the `set`.  (C-2.2)
+        //
+        // 5. Compare the address of the value returned to the address of the
+        //    tokenizer object.  (C-2.3)
         //
         // Testing:
         //   Tokenizer& setAllowConsecutiveSeparators(bool value);
@@ -1256,15 +1256,15 @@ int main(int argc, char *argv[])
             int         d_line;
             const char *d_json_p;
         } DATA[] = {
-            { L_, "{\"x\"::\"b\"}" } // 'n_object_double_colon.json'
+            { L_, "{\"x\"::\"b\"}" } // `n_object_double_colon.json`
           , { L_, "[[0,,0]]"       }
           , { L_, "[[0,,,0]]"      }
           , { L_, "[[0],,[0]]"     }
           , { L_, "[[0],,,[0]]"    }
-          , { L_, "[1,,2]"         } // 'n_array_double_comma.json'
+          , { L_, "[1,,2]"         } // `n_array_double_comma.json`
           , { L_, "{\"a\":\"b\",,\"c\":\"d\"}" }
-                                    // 'n_object_two_commas_in_a_row.json'
-      
+                                    // `n_object_two_commas_in_a_row.json`
+
         //, { L_, "[1,,::,,2]"         }  // mixed
         //, { L_, "{\"x\"::,,::\"b\"}" }  // mixed
         };
@@ -1406,21 +1406,21 @@ int main(int argc, char *argv[])
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // TESTING 'currentPosition'
+        // TESTING `currentPosition`
         //
         // Concerns:
-        //: 1 In both valid and error states, the currentPosition is
-        //:   correctly returned.
-        //:
+        // 1. In both valid and error states, the currentPosition is
+        //    correctly returned.
+        //
         // Plan:
-        //: 1 Test various length valid json strings, making sure the
-        //:   currentPosition is correctly reported at each step, taking
-        //:   varying amounts of whitespace and token lengths into account.
-        //:
-        //: 2 Test various length invalid json strings, making sure the
-        //:   currentPosition is correctly reported at each step and after
-        //:   the failure, taking varying amounts of whitespace and token
-        //:   lengths into account.
+        // 1. Test various length valid json strings, making sure the
+        //    currentPosition is correctly reported at each step, taking
+        //    varying amounts of whitespace and token lengths into account.
+        //
+        // 2. Test various length invalid json strings, making sure the
+        //    currentPosition is correctly reported at each step and after
+        //    the failure, taking varying amounts of whitespace and token
+        //    lengths into account.
         //
         // Testing:
         //   Uint64 currentPosition() const;
@@ -1428,7 +1428,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "TESTING 'currentPosition'" << "\n"
+                 << "TESTING `currentPosition`" << "\n"
                  << "=========================" << endl;
 
         typedef int TOffsetList[20];
@@ -1580,66 +1580,66 @@ int main(int argc, char *argv[])
         // TESTING UTF-8
         //
         // Concerns:
-        //: 1 That the tokenizer can accurately detect and report invalid
-        //:   UTF-8.
-        //:   o The tokenizer accurately identifies the type of error.
-        //:
-        //:   o The tokenizer accurately identifies the offset of the error.
-        //:
-        //: 2 That the tokenizer in UTF-8 mode can work on strings that fill up
-        //:   more than one buffer, or that exactly fill up a buffer.
-        //:
-        //: 3 That the tokenizer will work on strings ending with a quad octet
-        //:   UTF-8 sequence that exactly fills up the buffer.
-        //:
+        // 1. That the tokenizer can accurately detect and report invalid
+        //    UTF-8.
+        //    - The tokenizer accurately identifies the type of error.
+        //
+        //    - The tokenizer accurately identifies the offset of the error.
+        //
+        // 2. That the tokenizer in UTF-8 mode can work on strings that fill up
+        //    more than one buffer, or that exactly fill up a buffer.
+        //
+        // 3. That the tokenizer will work on strings ending with a quad octet
+        //    UTF-8 sequence that exactly fills up the buffer.
+        //
         // Plan:
-        //: 1 Create large table, 'UTF8_DATA' contain valid and invalid UTF-8
-        //:   sequences, including a very large valid sequence that nearly
-        //:   fills up the buffer.
-        //:
-        //: 2 Iterate through the table, visiting only valid UTF-8 strings.
-        //:   o Nest a loop iterating through the same table, again visiting
-        //:     only valid UTF-8 strings.
-        //:
-        //:   o Splice the strings from the inner and outer loops together,
-        //:     surrounded by double quotes.
-        //:
-        //:   o Initialize a stringstream to the spliced string.
-        //:
-        //:   o Reset the tokenizer to the stringstream's 'streambuf'.
-        //:
-        //:   o Call 'advanceToNextToken' and observe:
-        //:     1 It returns 0.
-        //:
-        //:     2 The tokenizer does not report a UTF-8 error.
-        //:
-        //:     3 Call 'value' on the tokenizer and observe the result matches
-        //:       the spliced string.
-        //:
-        //:   o Finish the nested loop and start another nested loop, this time
-        //:     iterating through invalid UTF-8 sequences.
-        //:
-        //:   o Create a string that is '"' + the valid string + the invalid
-        //:     string.
-        //:
-        //:   o Initialize a stringstream to the spliced string.
-        //:
-        //:   o Reset the tokenizer to the stringstream's 'streambuf'.
-        //:
-        //:   o Call 'advanceToNextToken' and observe:
-        //:     1 It does not return 0.
-        //:
-        //:     2 The tokenizer reports a UTF-8 error.
-        //:
-        //:     3 The tokenizer correctly reports the type of the error.
-        //:
-        //:     4 The tokenizer correctly reports the offset of the beginning
-        //:       of the invalid UTF-8 code point.
-        //:
-        //:   o If the type of error was end of input truncation, append a '"'
-        //:     to the string, initialize the stringstream to it, reset the
-        //:     tokenizer to the 'streambuf', and repeat the above steps,
-        //:     except this time expecting a non-continuation octet error.
+        // 1. Create large table, `UTF8_DATA` contain valid and invalid UTF-8
+        //    sequences, including a very large valid sequence that nearly
+        //    fills up the buffer.
+        //
+        // 2. Iterate through the table, visiting only valid UTF-8 strings.
+        //    - Nest a loop iterating through the same table, again visiting
+        //      only valid UTF-8 strings.
+        //
+        //    - Splice the strings from the inner and outer loops together,
+        //      surrounded by double quotes.
+        //
+        //    - Initialize a stringstream to the spliced string.
+        //
+        //    - Reset the tokenizer to the stringstream's `streambuf`.
+        //
+        //    - Call `advanceToNextToken` and observe:
+        //     1. It returns 0.
+        //
+        //     2. The tokenizer does not report a UTF-8 error.
+        //
+        //     3. Call `value` on the tokenizer and observe the result matches
+        //        the spliced string.
+        //
+        //    - Finish the nested loop and start another nested loop, this time
+        //      iterating through invalid UTF-8 sequences.
+        //
+        //    - Create a string that is '"' + the valid string + the invalid
+        //      string.
+        //
+        //    - Initialize a stringstream to the spliced string.
+        //
+        //    - Reset the tokenizer to the stringstream's `streambuf`.
+        //
+        //    - Call `advanceToNextToken` and observe:
+        //     1. It does not return 0.
+        //
+        //     2. The tokenizer reports a UTF-8 error.
+        //
+        //     3. The tokenizer correctly reports the type of the error.
+        //
+        //     4. The tokenizer correctly reports the offset of the beginning
+        //        of the invalid UTF-8 code point.
+        //
+        //    - If the type of error was end of input truncation, append a '"'
+        //      to the string, initialize the stringstream to it, reset the
+        //      tokenizer to the `streambuf`, and repeat the above steps,
+        //      except this time expecting a non-continuation octet error.
         //
         // Testing:
         //   Tokenizer& setAllowNonUtf8StringLiterals(bool);
@@ -1784,7 +1784,7 @@ int main(int argc, char *argv[])
                 ASSERT(ERROFF == sOff);
 
                 if (EIT == JSTATUS) {
-                    // Now expect 'NCO' (Non Continuation Octet)
+                    // Now expect `NCO` (Non Continuation Octet)
 
                     str += '"';
                     iss.str(str);
@@ -1814,13 +1814,13 @@ int main(int argc, char *argv[])
         // TESTING THAT ARRAYS OF HETEROGENEOUS TYPES ARE HANDLED CORRECTLY
         //
         // Concerns:
-        //: 1 In an array, all nested types are allowed, in any order.
-        //:   (DRQS 146756621)
-        //:
+        // 1. In an array, all nested types are allowed, in any order.
+        //    (DRQS 146756621)
+        //
         // Plan:
-        //: 1 Exhaustively test all possible combinations of 1, 2, and 3-length
-        //:   arrays containing an empty sub-array, empty sub-hash, string,
-        //:   number, or bool in each of the positions.
+        // 1. Exhaustively test all possible combinations of 1, 2, and 3-length
+        //    arrays containing an empty sub-array, empty sub-hash, string,
+        //    number, or bool in each of the positions.
         //
         // Testing:
         // --------------------------------------------------------------------
@@ -1902,7 +1902,7 @@ int main(int argc, char *argv[])
                     }
                 }
 
-                // '+ 1' for the closing outer array.
+                // `+ 1` for the closing outer array.
                 ASSERTV(i,
                         candidates[i],
                         item_count,
@@ -1916,32 +1916,32 @@ int main(int argc, char *argv[])
         // TESTING THAT TRUNCATED DATA IS HANDLED CORRECTLY
         //
         // Concerns:
-        //: 1 A stream of data that is truncated at any point -- within an
-        //:   element name or value -- is correctly handled.
-        //:
-        //: 2 After advancing past the truncated data the tokenizer reflects
-        //:   that it is in an error state.
+        // 1. A stream of data that is truncated at any point -- within an
+        //    element name or value -- is correctly handled.
+        //
+        // 2. After advancing past the truncated data the tokenizer reflects
+        //    that it is in an error state.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows consisting of input text with an 'X' at the expected final
-        //:   location, the number of 'advanceToNextToken' calls to be made,
-        //:   the expected token type and data value.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Create an 'bsl::istringstream', 'is', with the input text.
-        //:
-        //:   2 Create a 'bdljsn::Tokenizer' object, mX, and associate the
-        //:     'bsl::streambuf' of 'is' with 'mX'.
-        //:
-        //:   3 Invoke 'advanceToNextToken' on 'mX' the specified number of
-        //:     times.
-        //:
-        //:   4 Confirm that the token type and value is as expected.
-        //:
-        //:   5 The next 'advanceToNextToken' should result in an error and
-        //:     the state of 'mX' should also be reflected as the error state.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows consisting of input text with an `X` at the expected final
+        //    location, the number of `advanceToNextToken` calls to be made,
+        //    the expected token type and data value.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Create an `bsl::istringstream`, `is`, with the input text.
+        //
+        //   2. Create a `bdljsn::Tokenizer` object, mX, and associate the
+        //      `bsl::streambuf` of `is` with `mX`.
+        //
+        //   3. Invoke `advanceToNextToken` on `mX` the specified number of
+        //      times.
+        //
+        //   4. Confirm that the token type and value is as expected.
+        //
+        //   5. The next `advanceToNextToken` should result in an error and
+        //      the state of `mX` should also be reflected as the error state.
         //
         // Testing:
         // --------------------------------------------------------------------
@@ -2100,39 +2100,39 @@ int main(int argc, char *argv[])
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // TESTING 'setAllowHeterogenousArrays' AND 'allowHeterogenousArrays'
+        // TESTING `setAllowHeterogenousArrays` AND `allowHeterogenousArrays`
         //
         // Concerns:
-        //: 1 'allowHeterogenousArrays' returns 'true' by default.
-        //:
-        //: 2 'setAllowHeterogenousArrays' method sets the
-        //:   'allowHeterogenousArrays' option to the specified value.
-        //:
-        //: 3 'allowHeterogenousArrays' method returns the correct value of the
-        //:   'allowHeterogenousArrays' option.
-        //:
-        //: 4 If 'allowHeterogenousArrays' option is 'false' then only JSON
-        //:   arrays that have homogeneous values are accepted.  Note that
-        //:   homogeneous implies that the values are all simple types (number
-        //:   or string) or all arrays or all objects.
-        //:
-        //: 5 If 'allowHeterogenousArrays' option is 'true' then arrays of
-        //:   heterogeneous values are accepted.
+        // 1. `allowHeterogenousArrays` returns `true` by default.
+        //
+        // 2. `setAllowHeterogenousArrays` method sets the
+        //    `allowHeterogenousArrays` option to the specified value.
+        //
+        // 3. `allowHeterogenousArrays` method returns the correct value of the
+        //    `allowHeterogenousArrays` option.
+        //
+        // 4. If `allowHeterogenousArrays` option is `false` then only JSON
+        //    arrays that have homogeneous values are accepted.  Note that
+        //    homogeneous implies that the values are all simple types (number
+        //    or string) or all arrays or all objects.
+        //
+        // 5. If `allowHeterogenousArrays` option is `true` then arrays of
+        //    heterogeneous values are accepted.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows consisting of input text, the value of the
-        //:   'allowHeterogenousArrays' option, the expected token type after
-        //:   invoking 'advanceToNextToken', and the expected value.
-        //:
-        //: 2 For each row in the table, construct a 'Tokenizer', 'mX',
-        //:   with the values in that row.
-        //:
-        //: 3 Confirm that the 'allowHeterogenousArrays' manipulator and
-        //:   accessor functions work as expected.
-        //:
-        //: 4 Confirm that the if 'allowHeterogenousArrays' value is 'true'
-        //:   then arrays of heterogeneous values are tokenized correctly.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows consisting of input text, the value of the
+        //    `allowHeterogenousArrays` option, the expected token type after
+        //    invoking `advanceToNextToken`, and the expected value.
+        //
+        // 2. For each row in the table, construct a `Tokenizer`, `mX`,
+        //    with the values in that row.
+        //
+        // 3. Confirm that the `allowHeterogenousArrays` manipulator and
+        //    accessor functions work as expected.
+        //
+        // 4. Confirm that the if `allowHeterogenousArrays` value is `true`
+        //    then arrays of heterogeneous values are tokenized correctly.
         //
         // Testing:
         //   Tokenizer& setAllowHeterogenousArrays(bool value);
@@ -2140,7 +2140,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-        << "TESTING 'setAllowHeterogenousArrays' AND 'allowHeterogenousArrays'"
+        << "TESTING `setAllowHeterogenousArrays` AND `allowHeterogenousArrays`"
         << endl
         << "=================================================================="
         << endl;
@@ -2261,38 +2261,38 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING 'setAllowStandAloneValues' AND 'allowStandAloneValues'
+        // TESTING `setAllowStandAloneValues` AND `allowStandAloneValues`
         //
         // Concerns:
-        //: 1 'allowStandAloneValues' returns 'true' by default.
-        //:
-        //: 2 'setAllowStandAloneValues' method sets the
-        //:   'allowStandAloneValues' option to the specified value.
-        //:
-        //: 3 'allowStandAloneValues' method returns the correct value of the
-        //:   'allowStandAloneValues' option.
-        //:
-        //: 4 If 'allowStandAloneValues' option is 'false' then only JSON
-        //:   objects and arrays are accepted as top-level elements.
-        //:
-        //: 5 If 'allowStandAloneValues' option is 'true' then JSON objects,
-        //:   arrays, and values are accepted as top-level elements.
+        // 1. `allowStandAloneValues` returns `true` by default.
+        //
+        // 2. `setAllowStandAloneValues` method sets the
+        //    `allowStandAloneValues` option to the specified value.
+        //
+        // 3. `allowStandAloneValues` method returns the correct value of the
+        //    `allowStandAloneValues` option.
+        //
+        // 4. If `allowStandAloneValues` option is `false` then only JSON
+        //    objects and arrays are accepted as top-level elements.
+        //
+        // 5. If `allowStandAloneValues` option is `true` then JSON objects,
+        //    arrays, and values are accepted as top-level elements.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows consisting of input text, the value of the
-        //:   'allowStandAloneValues' option, the expected token type after
-        //:   invoking 'advanceToNextToken', and the expected value.
-        //:
-        //: 2 For each row in the table, construct a 'bdljsn::Tokenizer', 'mX',
-        //:   with the values in that row.
-        //:
-        //: 3 Confirm that the 'allowStandAloneValues' setter and getter
-        //:   functions works as expected.
-        //:
-        //: 4 Confirm that the if 'allowStandAloneValues' value is 'true' then
-        //:   stand-alone values are correctly tokenized else only object and
-        //:   array values are tokenized.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows consisting of input text, the value of the
+        //    `allowStandAloneValues` option, the expected token type after
+        //    invoking `advanceToNextToken`, and the expected value.
+        //
+        // 2. For each row in the table, construct a `bdljsn::Tokenizer`, `mX`,
+        //    with the values in that row.
+        //
+        // 3. Confirm that the `allowStandAloneValues` setter and getter
+        //    functions works as expected.
+        //
+        // 4. Confirm that the if `allowStandAloneValues` value is `true` then
+        //    stand-alone values are correctly tokenized else only object and
+        //    array values are tokenized.
         //
         // Testing:
         //   Tokenizer& setAllowStandAloneValues(bool value);
@@ -2300,7 +2300,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-            << "TESTING 'setAllowStandAloneValues' AND 'allowStandAloneValues'"
+            << "TESTING `setAllowStandAloneValues` AND `allowStandAloneValues`"
             << endl
             << "=============================================================="
             << endl;
@@ -2685,39 +2685,39 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'resetStreamBufGetPointer'
+        // TESTING `resetStreamBufGetPointer`
         //
         // Concerns:
-        //: 1 'resetStreamBufGetPointer' correctly resets the offset of the
-        //:   underlying 'streambuf' to the next character after a token.
+        // 1. `resetStreamBufGetPointer` correctly resets the offset of the
+        //    underlying `streambuf` to the next character after a token.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows consisting of input text with an 'X' at the expected final
-        //:   location, the number of 'advanceToNextToken' calls to be made,
-        //:   and the number of available characters in the 'streambuf' after
-        //:   the function call.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Create an 'bsl::istringstream', 'iss', with the input text.
-        //:
-        //:   2 Create a 'bdljsn::Tokenizer' object, mX, and associate the
-        //:     'bsl::streambuf' of 'iss' with 'mX'.
-        //:
-        //:   3 Confirm that no characters are available in the 'streambuf'.
-        //:
-        //:   3 Invoke 'advanceToNextToken' on 'mX' the specified number of
-        //:     times.
-        //:
-        //:   4 Confirm that the value of that token is as expected.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows consisting of input text with an `X` at the expected final
+        //    location, the number of `advanceToNextToken` calls to be made,
+        //    and the number of available characters in the `streambuf` after
+        //    the function call.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Create an `bsl::istringstream`, `iss`, with the input text.
+        //
+        //   2. Create a `bdljsn::Tokenizer` object, mX, and associate the
+        //      `bsl::streambuf` of `iss` with `mX`.
+        //
+        //   3. Confirm that no characters are available in the `streambuf`.
+        //
+        //   3. Invoke `advanceToNextToken` on `mX` the specified number of
+        //      times.
+        //
+        //   4. Confirm that the value of that token is as expected.
         //
         // Testing:
         //   int resetStreamBufGetPointer();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'resetStreamBufGetPointer'" << endl
+                          << "TESTING `resetStreamBufGetPointer`" << endl
                           << "==================================" << endl;
 
 // Define data block of 1400 bytes
@@ -2969,9 +2969,9 @@ int main(int argc, char *argv[])
                 P_(LINE) P_(TEXT)  P_(TEXT.size())  P_(NADV) P(NAVAIL)
             }
 
-            // Try different 'streambuf' types
+            // Try different `streambuf` types
 
-            // default 'bsl::streambuf' implementation
+            // default `bsl::streambuf` implementation
             {
                 bsl::ostringstream os;
                 os << TEXT;
@@ -2989,7 +2989,7 @@ int main(int argc, char *argv[])
                                       CHECK_UTF8);
             }
 
-            // 'bdlsb::FixedMemInStreamBuf'
+            // `bdlsb::FixedMemInStreamBuf`
             {
                 bdlsb::MemOutStreamBuf osb;
                 bsl::ostream           os(&osb);
@@ -3028,23 +3028,23 @@ int main(int argc, char *argv[])
         // TESTING THAT STRINGS WITH ESCAPED QUOTES ARE HANDLED CORRECTLY
         //
         // Concerns:
-        //: 1 Values having escaped quotes are handled correctly.
+        // 1. Values having escaped quotes are handled correctly.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows consisting of input text and expected output.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Create an 'bsl::istringstream', 'iss', with the input text.
-        //:
-        //:   2 Create a 'bdljsn::Tokenizer' object, mX, and associate the
-        //:     'bsl::streambuf' of 'iss' with 'mX'.
-        //:
-        //:   3 Invoke 'advanceToNextToken' on 'mX' till an ELEMENT_VALUE
-        //:     token is reached.
-        //:
-        //:   4 Confirm that the value of that token is as expected.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows consisting of input text and expected output.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Create an `bsl::istringstream`, `iss`, with the input text.
+        //
+        //   2. Create a `bdljsn::Tokenizer` object, mX, and associate the
+        //      `bsl::streambuf` of `iss` with `mX`.
+        //
+        //   3. Invoke `advanceToNextToken` on `mX` till an ELEMENT_VALUE
+        //      token is reached.
+        //
+        //   4. Confirm that the value of that token is as expected.
         //
         // Testing:
         // --------------------------------------------------------------------
@@ -3308,29 +3308,29 @@ int main(int argc, char *argv[])
         // TESTING THAT LARGE VALUES (GREATER THAN 8K) ARE HANDLED CORRECTLY
         //
         // Concerns:
-        //: 1 Values of larger sizes are handled correctly.
-        //:
-        //: 2 Only values larger than 1K result in an allocation.
+        // 1. Values of larger sizes are handled correctly.
+        //
+        // 2. Only values larger than 1K result in an allocation.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows consisting of input text and whether external memory is
-        //:   allocated.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Create an 'bsl::istringstream', 'iss', with the input text and
-        //:     including the opening brace and name.
-        //:
-        //:   2 Create a 'bdljsn::Tokenizer' object, mX, and associate the
-        //:     'bsl::streambuf' of 'iss' with 'mX'.
-        //:
-        //:   3 Invoke 'advanceToNextToken' on 'mX' the number of times
-        //:     to get to a value token.
-        //:
-        //:   4 Confirm that the value of that token is as expected.
-        //:
-        //:   5 Verify that memory is allocated when expected.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows consisting of input text and whether external memory is
+        //    allocated.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Create an `bsl::istringstream`, `iss`, with the input text and
+        //      including the opening brace and name.
+        //
+        //   2. Create a `bdljsn::Tokenizer` object, mX, and associate the
+        //      `bsl::streambuf` of `iss` with `mX`.
+        //
+        //   3. Invoke `advanceToNextToken` on `mX` the number of times
+        //      to get to a value token.
+        //
+        //   4. Confirm that the value of that token is as expected.
+        //
+        //   5. Verify that memory is allocated when expected.
         //
         // Testing:
         // --------------------------------------------------------------------
@@ -3523,91 +3523,91 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'reset'
+        // TESTING `reset`
         //
         // Concerns:
-        //: 1 TBD
+        // 1. TBD
         //
         // Plan:
-        //: 1 TBD
+        // 1. TBD
         //
         // Testing:
         //   void reset(bsl::streambuf &streamBuf);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'reset'" << endl
+                          << "TESTING `reset`" << endl
                           << "===============" << endl;
 
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'advanceToNextToken' TO 'e_END_ARRAY'
+        // TESTING `advanceToNextToken` TO `e_END_ARRAY`
         //
         // Concerns:
-        //: 1 The following transitions are correctly handled:
-        //:
-        //:   1 START_ARRAY    -> END_ARRAY                          '[' -> ']'
-        //:
-        //:   2 VALUE (number) -> END_ARRAY                        VALUE -> ']'
-        //:
-        //:   3 VALUE (string) -> END_ARRAY                          '"' -> ']'
-        //:
-        //:   4 END_OBJECT     -> END_ARRAY                          '}' -> ']'
-        //:
-        //:   5 END_ARRAY      -> END_ARRAY                          ']' -> ']'
-        //:
-        //: 2 The return code is 0 on success and non-zero on failure.
+        // 1. The following transitions are correctly handled:
+        //
+        //   1. START_ARRAY    -> END_ARRAY                          '[' -> ']'
+        //
+        //   2. VALUE (number) -> END_ARRAY                        VALUE -> ']'
+        //
+        //   3. VALUE (string) -> END_ARRAY                          '"' -> ']'
+        //
+        //   4. END_OBJECT     -> END_ARRAY                          '}' -> ']'
+        //
+        //   5. END_ARRAY      -> END_ARRAY                          ']' -> ']'
+        //
+        // 2. The return code is 0 on success and non-zero on failure.
         //
         // Errors:
-        //: 1 The following transitions return an error:
-        //:
-        //:   1 NAME (no ':')         -> END_ARRAY                   '"' -> ']'
-        //:
-        //:   2 NAME (with ':')       -> END_ARRAY                   ':' -> ']'
-        //:
-        //:   3 NAME (with ',')       -> END_ARRAY           NAME -> ',' -> ']'
-        //:
-        //:   4 VALUE (with ',')      -> END_ARRAY          VALUE -> ',' -> ']'
-        //:
-        //:   5 START_OBJECT          -> END_ARRAY                   '{' -> ']'
-        //:
-        //:   6 END_OBJECT (with ',') -> END_ARRAY            '}' -> ',' -> ']'
-        //:
-        //:   7 END_ARRAY (with ',')  -> END_ARRAY            ']' -> ',' -> ']'
+        // 1. The following transitions return an error:
+        //
+        //   1. NAME (no ':')         -> END_ARRAY                   '"' -> ']'
+        //
+        //   2. NAME (with ':')       -> END_ARRAY                   ':' -> ']'
+        //
+        //   3. NAME (with ',')       -> END_ARRAY           NAME -> ',' -> ']'
+        //
+        //   4. VALUE (with ',')      -> END_ARRAY          VALUE -> ',' -> ']'
+        //
+        //   5. START_OBJECT          -> END_ARRAY                   '{' -> ']'
+        //
+        //   6. END_OBJECT (with ',') -> END_ARRAY            '}' -> ',' -> ']'
+        //
+        //   7. END_ARRAY (with ',')  -> END_ARRAY            ']' -> ',' -> ']'
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows consisting of input text, the number of times to invoke
-        //:   'advanceToNextToken', the result of an additional invocation of
-        //:   'advanceToNextToken', and the expected token and value, if
-        //:   applicable, after that invocation.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Create an 'bsl::istringstream', 'iss', with the input text.
-        //:
-        //:   2 Create a 'bdljsn::Tokenizer' object, mX, and associate the
-        //:     'bsl::streambuf' of 'iss' with 'mX'.
-        //:
-        //:   3 Invoke 'advanceToNextToken' on 'mX' the number of times
-        //:     specified in that row.
-        //:
-        //:   4 Invoke 'advanceToNextToken' one more time and record the
-        //:     return value, the token type, and the value of that token.
-        //:
-        //:   5 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.  Also confirm that the token type is as expected.
-        //:     Finally, if that token is expected to have a value, then the
-        //:     value of that token is as expected.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows consisting of input text, the number of times to invoke
+        //    `advanceToNextToken`, the result of an additional invocation of
+        //    `advanceToNextToken`, and the expected token and value, if
+        //    applicable, after that invocation.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Create an `bsl::istringstream`, `iss`, with the input text.
+        //
+        //   2. Create a `bdljsn::Tokenizer` object, mX, and associate the
+        //      `bsl::streambuf` of `iss` with `mX`.
+        //
+        //   3. Invoke `advanceToNextToken` on `mX` the number of times
+        //      specified in that row.
+        //
+        //   4. Invoke `advanceToNextToken` one more time and record the
+        //      return value, the token type, and the value of that token.
+        //
+        //   5. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.  Also confirm that the token type is as expected.
+        //      Finally, if that token is expected to have a value, then the
+        //      value of that token is as expected.
         //
         // Testing:
-        //    CONCERN: 'advanceToNextToken' TO 'e_END_ARRAY'
+        //    CONCERN: `advanceToNextToken` TO `e_END_ARRAY`
         //    int advanceToNextToken();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                 << "TESTING 'advanceToNextToken' TO 'e_END_ARRAY'" << endl
+                 << "TESTING `advanceToNextToken` TO `e_END_ARRAY`" << endl
                  << "=============================================" << endl;
 
         const struct Data {
@@ -4565,23 +4565,23 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'advanceToNextToken' TO 'e_START_ARRAY'
+        // TESTING `advanceToNextToken` TO `e_START_ARRAY`
         //
         // Concerns:
-        //: 1 The following transitions are correctly handled:
-        //..
+        // 1. The following transitions are correctly handled:
+        // ```
         //    1 NAME             -> START_ARRAY                      ':' -> '['
         //
         //    2 START_ARRAY      -> START_ARRAY                      '[' -> '['
         //
         //    3 END_ARRAY        -> START_ARRAY               ']' -> ',' -> '['
-        //..
-        //:
-        //: 2 The return code is 0 on success and non-zero on failure.
+        // ```
+        //
+        // 2. The return code is 0 on success and non-zero on failure.
         //
         // Errors:
         //  1 The following transitions return an error:
-        //..
+        // ```
         //    1 NAME (no ':')    -> START_ARRAY                      '"' -> '['
         //
         //    2 VALUE (with ',') -> START_ARRAY             VALUE -> ',' -> '['
@@ -4589,39 +4589,39 @@ int main(int argc, char *argv[])
         //    3 START_OBJECT     -> START_ARRAY                      '{' -> '['
         //
         //    4 END_OBJECT       -> START_ARRAY                      '}' -> '['
-        //..
+        // ```
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows consisting of input text, the number of times to invoke
-        //:   'advanceToNextToken', the result of an additional invocation of
-        //:   'advanceToNextToken', and the expected token and value, if
-        //:   applicable, after that invocation.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Create an 'bsl::istringstream', 'iss', with the input text.
-        //:
-        //:   2 Create a 'bdljsn::Tokenizer' object, mX, and associate the
-        //:     'bsl::streambuf' of 'iss' with 'mX'.
-        //:
-        //:   3 Invoke 'advanceToNextToken' on 'mX' the number of times
-        //:     specified in that row.
-        //:
-        //:   4 Invoke 'advanceToNextToken' one more time and record the
-        //:     return value, the token type, and the value of that token.
-        //:
-        //:   5 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.  Also confirm that the token type is as expected.
-        //:     Finally, if that token is expected to have a value, then the
-        //:     value of that token is as expected.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows consisting of input text, the number of times to invoke
+        //    `advanceToNextToken`, the result of an additional invocation of
+        //    `advanceToNextToken`, and the expected token and value, if
+        //    applicable, after that invocation.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Create an `bsl::istringstream`, `iss`, with the input text.
+        //
+        //   2. Create a `bdljsn::Tokenizer` object, mX, and associate the
+        //      `bsl::streambuf` of `iss` with `mX`.
+        //
+        //   3. Invoke `advanceToNextToken` on `mX` the number of times
+        //      specified in that row.
+        //
+        //   4. Invoke `advanceToNextToken` one more time and record the
+        //      return value, the token type, and the value of that token.
+        //
+        //   5. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.  Also confirm that the token type is as expected.
+        //      Finally, if that token is expected to have a value, then the
+        //      value of that token is as expected.
         //
         // Testing:
-        //   CONCERN: 'advanceToNextToken' TO 'e_START_ARRAY'
+        //   CONCERN: `advanceToNextToken` TO `e_START_ARRAY`
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                  << "TESTING 'advanceToNextToken' TO 'e_START_ARRAY'" << endl
+                  << "TESTING `advanceToNextToken` TO `e_START_ARRAY`" << endl
                   << "===============================================" << endl;
 
         const struct Data {
@@ -4913,71 +4913,71 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'advanceToNextToken' TO 'e_END_OBJECT'
+        // TESTING `advanceToNextToken` TO `e_END_OBJECT`
         //
         // Concerns:
-        //: 1 The following transitions are correctly handled:
-        //:
-        //:   1 START_OBJECT     -> END_OBJECT                       '{' -> '}'
-        //:
-        //:   2 VALUE (number)   -> END_OBJECT                     VALUE -> '}'
-        //:
-        //:   3 VALUE (string)   -> END_OBJECT                       '"' -> '}'
-        //:
-        //:   4 START_OBJECT     -> END_OBJECT                '[' -> '{' -> '}'
-        //:
-        //:   5 START_OBJECT     -> END_OBJECT                '{' -> '{' -> '}'
-        //:
-        //:   6 END_OBJECT       -> END_OBJECT         '{' -> '{' -> '}' -> '}'
-        //:
-        //:   7 END_OBJECT       -> END_OBJECT  '{' -> '{' -> '{' -> '}' -> '}'
-        //:
-        //:   8 END_ARRAY        -> END_OBJECT                '[' -> ']' -> '}'
-        //:
-        //: 2 The return code is 0 on success and non-zero on failure.
+        // 1. The following transitions are correctly handled:
+        //
+        //   1. START_OBJECT     -> END_OBJECT                       '{' -> '}'
+        //
+        //   2. VALUE (number)   -> END_OBJECT                     VALUE -> '}'
+        //
+        //   3. VALUE (string)   -> END_OBJECT                       '"' -> '}'
+        //
+        //   4. START_OBJECT     -> END_OBJECT                '[' -> '{' -> '}'
+        //
+        //   5. START_OBJECT     -> END_OBJECT                '{' -> '{' -> '}'
+        //
+        //   6. END_OBJECT       -> END_OBJECT         '{' -> '{' -> '}' -> '}'
+        //
+        //   7. END_OBJECT       -> END_OBJECT  '{' -> '{' -> '{' -> '}' -> '}'
+        //
+        //   8. END_ARRAY        -> END_OBJECT                '[' -> ']' -> '}'
+        //
+        // 2. The return code is 0 on success and non-zero on failure.
         //
         // Errors:
-        //: 1 The following transitions return an error:
-        //:
-        //:   1 NAME             -> END_OBJECT                    '"'  -> '}'
-        //:
-        //:   2 NAME (with ':')  -> END_OBJECT                    ':'  -> '}'
-        //:
-        //:   3 VALUE (with ',') -> END_OBJECT                  VALUE  -> '}'
-        //:
-        //:   4 START_ARRAY      -> END_OBJECT                  '['    -> VALUE
+        // 1. The following transitions return an error:
+        //
+        //   1. NAME             -> END_OBJECT                    '"'  -> '}'
+        //
+        //   2. NAME (with ':')  -> END_OBJECT                    ':'  -> '}'
+        //
+        //   3. VALUE (with ',') -> END_OBJECT                  VALUE  -> '}'
+        //
+        //   4. START_ARRAY      -> END_OBJECT                  '['    -> VALUE
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows consisting of input text, the number of times to invoke
-        //:   'advanceToNextToken', the result of an additional invocation of
-        //:   'advanceToNextToken', and the expected token and value, if
-        //:   applicable, after that invocation.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Create an 'bsl::istringstream', 'iss', with the input text.
-        //:
-        //:   2 Create a 'bdljsn::Tokenizer' object, mX, and associate the
-        //:     'bsl::streambuf' of 'iss' with 'mX'.
-        //:
-        //:   3 Invoke 'advanceToNextToken' on 'mX' the number of times
-        //:     specified in that row.
-        //:
-        //:   4 Invoke 'advanceToNextToken' one more time and record the
-        //:     return value, the token type, and the value of that token.
-        //:
-        //:   5 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.  Also confirm that the token type is as expected.
-        //:     Finally, if that token is expected to have a value, then the
-        //:     value of that token is as expected.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows consisting of input text, the number of times to invoke
+        //    `advanceToNextToken`, the result of an additional invocation of
+        //    `advanceToNextToken`, and the expected token and value, if
+        //    applicable, after that invocation.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Create an `bsl::istringstream`, `iss`, with the input text.
+        //
+        //   2. Create a `bdljsn::Tokenizer` object, mX, and associate the
+        //      `bsl::streambuf` of `iss` with `mX`.
+        //
+        //   3. Invoke `advanceToNextToken` on `mX` the number of times
+        //      specified in that row.
+        //
+        //   4. Invoke `advanceToNextToken` one more time and record the
+        //      return value, the token type, and the value of that token.
+        //
+        //   5. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.  Also confirm that the token type is as expected.
+        //      Finally, if that token is expected to have a value, then the
+        //      value of that token is as expected.
         //
         // Testing:
-        //   CONCERN: 'advanceToNextToken' TO 'e_END_OBJECT'
+        //   CONCERN: `advanceToNextToken` TO `e_END_OBJECT`
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                << "TESTING 'advanceToNextToken' TO 'e_END_OBJECT'" << endl
+                << "TESTING `advanceToNextToken` TO `e_END_OBJECT`" << endl
                 << "==============================================" << endl;
 
         const struct Data {
@@ -5753,11 +5753,11 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'advanceToNextToken' TO 'e_VALUE'
+        // TESTING `advanceToNextToken` TO `e_VALUE`
         //
         // Concerns:
-        //: 1 The following transitions are correctly handled:
-        //..
+        // 1. The following transitions are correctly handled:
+        // ```
         //    1 NAME           -> VALUE (number)                   ':' -> VALUE
         //
         //    2 NAME           -> VALUE (string)                   ':' -> VALUE
@@ -5773,51 +5773,51 @@ int main(int argc, char *argv[])
         //    7 VALUE (number) -> VALUE (string)                 VALUE -> VALUE
         //
         //    8 VALUE (string) -> VALUE (number)                 VALUE -> VALUE
-        //..
-        //:
-        //: 2 The return code is 0 on success and non-zero on failure.
+        // ```
+        //
+        // 2. The return code is 0 on success and non-zero on failure.
         //
         // Errors:
-        //: 1 The following transitions return an error:
-        //..
+        // 1. The following transitions return an error:
+        // ```
         //    1 VALUE (no ,)   -> VALUE                         VALUE  -> VALUE
         //
         //    2 END_OBJECT     -> VALUE                           '}'  -> VALUE
         //
         //    3 END_ARRAY      -> VALUE                           ']'  -> VALUE
-        //..
+        // ```
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows consisting of input text, the number of times to invoke
-        //:   'advanceToNextToken', the result of an additional invocation of
-        //:   'advanceToNextToken', and the expected token and value, if
-        //:   applicable, after that invocation.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Create an 'bsl::istringstream', 'iss', with the input text.
-        //:
-        //:   2 Create a 'bdljsn::Tokenizer' object, mX, and associate the
-        //:     'bsl::streambuf' of 'iss' with 'mX'.
-        //:
-        //:   3 Invoke 'advanceToNextToken' on 'mX' the number of times
-        //:     specified in that row.
-        //:
-        //:   4 Invoke 'advanceToNextToken' one more time and record the
-        //:     return value, the token type, and the value of that token.
-        //:
-        //:   5 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.  Also confirm that the token type is as expected.
-        //:     Finally, if that token is expected to have a value, then the
-        //:     value of that token is as expected.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows consisting of input text, the number of times to invoke
+        //    `advanceToNextToken`, the result of an additional invocation of
+        //    `advanceToNextToken`, and the expected token and value, if
+        //    applicable, after that invocation.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Create an `bsl::istringstream`, `iss`, with the input text.
+        //
+        //   2. Create a `bdljsn::Tokenizer` object, mX, and associate the
+        //      `bsl::streambuf` of `iss` with `mX`.
+        //
+        //   3. Invoke `advanceToNextToken` on `mX` the number of times
+        //      specified in that row.
+        //
+        //   4. Invoke `advanceToNextToken` one more time and record the
+        //      return value, the token type, and the value of that token.
+        //
+        //   5. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.  Also confirm that the token type is as expected.
+        //      Finally, if that token is expected to have a value, then the
+        //      value of that token is as expected.
         //
         // Testing:
-        //   CONCERN: 'advanceToNextToken' TO 'e_VALUE'
+        //   CONCERN: `advanceToNextToken` TO `e_VALUE`
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                     << "TESTING 'advanceToNextToken' TO 'e_VALUE'" << endl
+                     << "TESTING `advanceToNextToken` TO `e_VALUE`" << endl
                      << "=========================================" << endl;
 
         const struct Data {
@@ -6310,10 +6310,10 @@ int main(int argc, char *argv[])
                 "\"" WS "New" WS "Deal" WS "\""
             },
 
-            //..
+            // ```
             // value (integer) -> value (string)
             // value (string)  -> value (integer)
-            //..
+            // ```
             {
                 L_,
                 "{"
@@ -6668,11 +6668,11 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'advanceToNextToken' TO 'e_NAME'
+        // TESTING `advanceToNextToken` TO `e_NAME`
         //
         // Concerns:
-        //: 1 The following transitions are correctly handled:
-        //..
+        // 1. The following transitions are correctly handled:
+        // ```
         //    1 START_OBJECT   -> NAME                               '{' -> '"'
         //
         //    2 END_OBJECT     -> NAME          ':' -> '{' -> '}' -> ',' -> '"'
@@ -6682,51 +6682,51 @@ int main(int argc, char *argv[])
         //    4 VALUE (number) -> NAME               ':' -> VALUE -> ',' -> '"'
         //
         //    5 VALUE (string) -> NAME               ':' -> VALUE -> ',' -> '"'
-        //..
-        //:
-        //: 2 The return code is 0 on success and non-zero on failure.
+        // ```
+        //
+        // 2. The return code is 0 on success and non-zero on failure.
         //
         // Errors:
-        //: 1 The following transitions return an error:
-        //..
+        // 1. The following transitions return an error:
+        // ```
         //    1 END_OBJECT (no ',') -> NAME                         '}'  -> '"'
         //
         //    2 END_ARRAY (no ',')  -> NAME                         ']'  -> '"'
         //
         //    3 NAME                -> NAME                         '"'  -> '"'
-        //..
+        // ```
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows consisting of input text, the number of times to invoke
-        //:   'advanceToNextToken', the result of an additional invocation of
-        //:   'advanceToNextToken', and the expected token and value, if
-        //:   applicable, after that invocation.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Create an 'bsl::istringstream', 'iss', with the input text.
-        //:
-        //:   2 Create a 'bdljsn::Tokenizer' object, mX, and associate the
-        //:     'bsl::streambuf' of 'iss' with 'mX'.
-        //:
-        //:   3 Invoke 'advanceToNextToken' on 'mX' the number of times
-        //:     specified in that row.
-        //:
-        //:   4 Invoke 'advanceToNextToken' one more time and record the
-        //:     return value, the token type, and the value of that token.
-        //:
-        //:   5 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.  Also confirm that the token type is as expected.
-        //:     Finally, if that token is expected to have a value, then the
-        //:     value of that token is as expected.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows consisting of input text, the number of times to invoke
+        //    `advanceToNextToken`, the result of an additional invocation of
+        //    `advanceToNextToken`, and the expected token and value, if
+        //    applicable, after that invocation.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Create an `bsl::istringstream`, `iss`, with the input text.
+        //
+        //   2. Create a `bdljsn::Tokenizer` object, mX, and associate the
+        //      `bsl::streambuf` of `iss` with `mX`.
+        //
+        //   3. Invoke `advanceToNextToken` on `mX` the number of times
+        //      specified in that row.
+        //
+        //   4. Invoke `advanceToNextToken` one more time and record the
+        //      return value, the token type, and the value of that token.
+        //
+        //   5. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.  Also confirm that the token type is as expected.
+        //      Finally, if that token is expected to have a value, then the
+        //      value of that token is as expected.
         //
         // Testing:
-        //   CONCERN: 'advanceToNextToken' TO 'e_NAME'
+        //   CONCERN: `advanceToNextToken` TO `e_NAME`
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                      << "TESTING 'advanceToNextToken' TO 'e_NAME'" << endl
+                      << "TESTING `advanceToNextToken` TO `e_NAME`" << endl
                       << "========================================" << endl;
 
         const struct Data {
@@ -7218,11 +7218,11 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'advanceToNextToken' TO 'e_START_OBJECT'
+        // TESTING `advanceToNextToken` TO `e_START_OBJECT`
         //
         // Concerns:
-        //: 1 The following transitions are correctly handled:
-        //..
+        // 1. The following transitions are correctly handled:
+        // ```
         //    1 BEGIN          -> START_OBJECT                     BEGIN -> '{'
         //
         //    2 NAME           -> START_OBJECT                       ':' -> '{'
@@ -7230,13 +7230,13 @@ int main(int argc, char *argv[])
         //    3 START_ARRAY    -> START_OBJECT                       '[' -> '{'
         //
         //    4 END_OBJECT     -> START_OBJECT  '[' -> '{' -> '}' -> ',' -> '{'
-        //..
+        // ```
         //
-        //: 2 The return code is 0 on success and non-zero on failure.
+        // 2. The return code is 0 on success and non-zero on failure.
         //
         // Errors:
-        //: 1 The following transitions return an error:
-        //..
+        // 1. The following transitions return an error:
+        // ```
         //    1 NAME (no ':')  -> START_OBJECT                      '"'  -> '{'
         //
         //    2 START_OBJECT   -> START_OBJECT                      '{'  -> '{'
@@ -7244,41 +7244,41 @@ int main(int argc, char *argv[])
         //    3 END_ARRAY      -> START_OBJECT                      ']'  -> '{'
         //
         //    4 VALUE          -> START_OBJECT                     VALUE -> '{'
-        //..
+        // ```
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows consisting of input text, the number of times to invoke
-        //:   'advanceToNextToken', the result of an additional invocation of
-        //:   'advanceToNextToken', and the expected token and value, if
-        //:   applicable, after that invocation.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Create an 'bsl::istringstream', 'iss', with the input text.
-        //:
-        //:   2 Create a 'bdljsn::Tokenizer' object, mX, and associate the
-        //:     'bsl::streambuf' of 'iss' with 'mX'.
-        //:
-        //:   3 Invoke 'advanceToNextToken' on 'mX' the number of times
-        //:     specified in that row.
-        //:
-        //:   4 Invoke 'advanceToNextToken' one more time and record the
-        //:     return value, the token type, and the value of that token.
-        //:
-        //:   5 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.  Also confirm that the token type is as expected.
-        //:     Finally, if that token is expected to have a value, then the
-        //:     value of that token is as expected.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows consisting of input text, the number of times to invoke
+        //    `advanceToNextToken`, the result of an additional invocation of
+        //    `advanceToNextToken`, and the expected token and value, if
+        //    applicable, after that invocation.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Create an `bsl::istringstream`, `iss`, with the input text.
+        //
+        //   2. Create a `bdljsn::Tokenizer` object, mX, and associate the
+        //      `bsl::streambuf` of `iss` with `mX`.
+        //
+        //   3. Invoke `advanceToNextToken` on `mX` the number of times
+        //      specified in that row.
+        //
+        //   4. Invoke `advanceToNextToken` one more time and record the
+        //      return value, the token type, and the value of that token.
+        //
+        //   5. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.  Also confirm that the token type is as expected.
+        //      Finally, if that token is expected to have a value, then the
+        //      value of that token is as expected.
         //
         // Testing:
         //   TokenType tokenType() const;
         //   int value(bslstl::StringRef *data) const;
-        //   CONCERN: 'advanceToNextToken' TO 'e_START_OBJECT'
+        //   CONCERN: `advanceToNextToken` TO `e_START_OBJECT`
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-              << "TESTING 'advanceToNextToken' TO 'e_START_OBJECT'" << endl
+              << "TESTING `advanceToNextToken` TO `e_START_OBJECT`" << endl
               << "================================================" << endl;
 
         const struct Data {
@@ -7996,28 +7996,28 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'setAllowTrailingTopLevelComma'
+        // TESTING `setAllowTrailingTopLevelComma`
         //
         // Concerns:
-        //: 1 Top-level trailing commas are allowed by default.
-        //:
-        //: 2 Passing 'false' to 'setAllowTrailingTopLevelComma' disallows
-        //:   them.
-        //:
-        //: 3 The accessor 'allowTrailingTopLevelComma' reports a value
-        //:   consistent with the expected value and the demonstrated behavior.
-        //:
-        //: 4 The manipulator returns the expected type and value.
+        // 1. Top-level trailing commas are allowed by default.
+        //
+        // 2. Passing `false` to `setAllowTrailingTopLevelComma` disallows
+        //    them.
+        //
+        // 3. The accessor `allowTrailingTopLevelComma` reports a value
+        //    consistent with the expected value and the demonstrated behavior.
+        //
+        // 4. The manipulator returns the expected type and value.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct rows
-        //:   consisting of otherwise-valid input text with trailing commas,
-        //:   and make sure the result of calling 'advanceToNextToken' to
-        //:   completion matches the 'setAllowTrailingTopLevelComma' value.
-        //:
-        //:   o Compare the address of the object referenced by the
-        //:     return value of the manipulator to the address of the object
-        //:     under test.
+        // 1. Using the table-driven technique, specify a set of distinct rows
+        //    consisting of otherwise-valid input text with trailing commas,
+        //    and make sure the result of calling `advanceToNextToken` to
+        //    completion matches the `setAllowTrailingTopLevelComma` value.
+        //
+        //    - Compare the address of the object referenced by the
+        //      return value of the manipulator to the address of the object
+        //      under test.
         //
         // Testing:
         //   Tokenizer& setAllowTrailingTopLevelComma(bool value);
@@ -8025,7 +8025,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                    << "TESTING 'setAllowTrailingTopLevelComma'" << endl
+                    << "TESTING `setAllowTrailingTopLevelComma`" << endl
                     << "=======================================" << endl;
 
         const struct Data {
@@ -8174,16 +8174,16 @@ int main(int argc, char *argv[])
        } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'advanceToNextToken' FIRST CHARACTER
+        // TESTING `advanceToNextToken` FIRST CHARACTER
         //
         // Concerns:
-        //: 1 The first character is always '{' or '['
-        //:
-        //: 2 The return code is 0 on success and non-zero on failure.
+        // 1. The first character is always '{' or '['
+        //
+        // 2. The return code is 0 on success and non-zero on failure.
         //
         // Errors:
-        //: 1 The following transitions return an error:
-        //..
+        // 1. The following transitions return an error:
+        // ```
         //    1 WHITESPACE ONLY                                  " \t\n\v\f\r"
         //
         //    2 BEGIN -> START_ARRAY                             BEGIN -> '['
@@ -8199,39 +8199,39 @@ int main(int argc, char *argv[])
         //    7 BEGIN -> ':'                                     BEGIN -> ':'
         //
         //    8 BEGIN -> VALUE                                   BEGIN -> VALUE
-        //..
+        // ```
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   rows consisting of input text, the number of times to invoke
-        //:   'advanceToNextToken', the result of an additional invocation of
-        //:   'advanceToNextToken', and the expected token and value, if
-        //:   applicable, after that invocation.
-        //:
-        //: 2 For each row in the table of P-1:
-        //:
-        //:   1 Create an 'bsl::istringstream', 'iss', with the input text.
-        //:
-        //:   2 Create a 'bdljsn::Tokenizer' object, mX, and associate the
-        //:     'bsl::streambuf' of 'iss' with 'mX'.
-        //:
-        //:   3 Invoke 'advanceToNextToken' on 'mX' the number of times
-        //:     specified in that row.
-        //:
-        //:   4 Invoke 'advanceToNextToken' one more time and record the
-        //:     return value, the token type, and the value of that token.
-        //:
-        //:   5 Confirm that the return code is 0 on success and non-zero
-        //:     otherwise.  Also confirm that the token type is as expected.
-        //:     Finally, if that token is expected to have a value, then the
-        //:     value of that token is as expected.
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    rows consisting of input text, the number of times to invoke
+        //    `advanceToNextToken`, the result of an additional invocation of
+        //    `advanceToNextToken`, and the expected token and value, if
+        //    applicable, after that invocation.
+        //
+        // 2. For each row in the table of P-1:
+        //
+        //   1. Create an `bsl::istringstream`, `iss`, with the input text.
+        //
+        //   2. Create a `bdljsn::Tokenizer` object, mX, and associate the
+        //      `bsl::streambuf` of `iss` with `mX`.
+        //
+        //   3. Invoke `advanceToNextToken` on `mX` the number of times
+        //      specified in that row.
+        //
+        //   4. Invoke `advanceToNextToken` one more time and record the
+        //      return value, the token type, and the value of that token.
+        //
+        //   5. Confirm that the return code is 0 on success and non-zero
+        //      otherwise.  Also confirm that the token type is as expected.
+        //      Finally, if that token is expected to have a value, then the
+        //      value of that token is as expected.
         //
         // Testing:
-        //   CONCERN: 'advanceToNextToken' FIRST CHARACTER
+        //   CONCERN: `advanceToNextToken` FIRST CHARACTER
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                    << "TESTING 'advanceToNextToken' FIRST CHARACTER" << endl
+                    << "TESTING `advanceToNextToken` FIRST CHARACTER" << endl
                     << "============================================" << endl;
 
         const struct Data {
@@ -8490,12 +8490,12 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Confirm that the default constructed object is in the expected
-        //:   token state.
+        // 1. Confirm that the default constructed object is in the expected
+        //    token state.
         //
         // Testing:
         //   BREATHING TEST

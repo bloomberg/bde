@@ -38,10 +38,10 @@ using bsl::endl;
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// The component under test implements a utility for printing 'bdeat'
-// compatible simple types onto an 'bsl::ostream'.  The printing is done via
-// overloaded 'printValue' functions that are overloaded for fundamental types
-// and 'bdlt' types.  Since the functions are independent and do not share any
+// The component under test implements a utility for printing `bdeat`
+// compatible simple types onto an `bsl::ostream`.  The printing is done via
+// overloaded `printValue` functions that are overloaded for fundamental types
+// and `bdlt` types.  Since the functions are independent and do not share any
 // state we will test them independently.
 //
 // We use standard table-based approach to testing where we put both input and
@@ -128,7 +128,7 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
-    // 'snprintf' on older Windows libraries outputs an additional '0' in the
+    // `snprintf` on older Windows libraries outputs an additional '0' in the
     // exponent for scientific notation.
 # define BALJSN_PRINTUTIL_EXTRA_ZERO_PADDING_FOR_EXPONENTS 1
 #endif
@@ -170,7 +170,7 @@ bool canRepresentImpl(Int64 VALUE, bsl::false_type)  // an unsigned type
 template <class TYPE>
 bool canRepresent(Int64 VALUE)
 {
-    // Unfortunately at the moment 'bsl::is_signed' is not available on C++03
+    // Unfortunately at the moment `bsl::is_signed` is not available on C++03
     return canRepresentImpl<TYPE>(
                VALUE,
                bsl::integral_constant<bool,
@@ -317,13 +317,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -336,28 +336,28 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Encoding a Simple 'struct' into JSON
+///Example 1: Encoding a Simple `struct` into JSON
 ///-----------------------------------------------
 // Suppose we want to serialize some data into JSON.
 //
-// First, we define a struct, 'Employee', to contain the data:
-//..
+// First, we define a struct, `Employee`, to contain the data:
+// ```
     struct Employee {
         const char *d_firstName;
         const char *d_lastName;
         int         d_age;
     };
-//..
-// Then, we create an 'Employee' object and populate it with data:
-//..
+// ```
+// Then, we create an `Employee` object and populate it with data:
+// ```
     Employee john;
     john.d_firstName = "John";
     john.d_lastName = "Doe";
     john.d_age = 20;
-//..
+// ```
 //  Now, we create an output stream and manually construct the JSON string
-//  using 'baljsn::PrintUtil':
-//..
+//  using `baljsn::PrintUtil`:
+// ```
     bsl::ostringstream oss;
     oss << '{' << '\n';
     baljsn::PrintUtil::printValue(oss, "firstName");
@@ -372,49 +372,49 @@ int main(int argc, char *argv[])
     oss << ':';
     baljsn::PrintUtil::printValue(oss, john.d_age);
     oss << '\n' << '}';
-//..
+// ```
 //  Finally, we print out the JSON string:
-//..
+// ```
     if (verbose) {
         bsl::cout << oss.str();
     }
-//..
+// ```
 //  The output should look like:
-//..
+// ```
 //  {
 //  "firstName":"John",
 //  "lastName":"Doe",
 //  "age":20
 //  }
-//..
+// ```
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // ENCODING 'INF' AND 'NaN' FLOATING POINT VALUES
+        // ENCODING `INF` AND `NaN` FLOATING POINT VALUES
         //
         // Concerns:
-        //: 1 INF and NaN floating point values can be encoded as strings by
-        //:   setting the 'encodeInfAndNaNAsStrings' encoder option to 'true'.
-        //:
-        //: 2 Encoding INF and NaN floating point values as strings by
-        //:   setting the 'encodeInfAndNaNAsStrings' encoder option to 'true'
-        //:   will result in the correct encoding.
-        //:
-        //: 3 Encoding INF and NaN floating point values results in an error
-        //:   if 'encodeInfAndNaNAsStrings' encoder option is either not
-        //:   specified or set to 'false'.
+        // 1. INF and NaN floating point values can be encoded as strings by
+        //    setting the `encodeInfAndNaNAsStrings` encoder option to `true`.
+        //
+        // 2. Encoding INF and NaN floating point values as strings by
+        //    setting the `encodeInfAndNaNAsStrings` encoder option to `true`
+        //    will result in the correct encoding.
+        //
+        // 3. Encoding INF and NaN floating point values results in an error
+        //    if `encodeInfAndNaNAsStrings` encoder option is either not
+        //    specified or set to `false`.
         //
         // Plan:
-        //: 1 Use the table-driven technique:
-        //:
-        //:   1 Specify a set of valid values, whether encoder options should
-        //:     be used, the value for the 'encodeInfAndNaNAsStrings' option,
-        //:     the expected return code and the expected output.
-        //:
-        //:   2 Encode these values for 'float', 'double', and
-        //:     'bdldfp::Decimal64'.
-        //:
-        //:   3 Verify the output is as expected.
+        // 1. Use the table-driven technique:
+        //
+        //   1. Specify a set of valid values, whether encoder options should
+        //      be used, the value for the `encodeInfAndNaNAsStrings` option,
+        //      the expected return code and the expected output.
+        //
+        //   2. Encode these values for `float`, `double`, and
+        //      `bdldfp::Decimal64`.
+        //
+        //   3. Verify the output is as expected.
         //
         // Testing:
         //  static int printValue(bsl::ostream& s, float v, options);
@@ -422,7 +422,7 @@ int main(int argc, char *argv[])
         //  static int printValue(bsl::ostream& s, Decimal64 v, options);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nENCODING 'INF' AND 'NaN' FLOATING POINT VALUES"
+        if (verbose) cout << "\nENCODING `INF` AND `NaN` FLOATING POINT VALUES"
                           << "\n=============================================="
                           << endl;
 
@@ -436,16 +436,16 @@ int main(int argc, char *argv[])
         //  Ensure that DatetimeInterval values are correctly encoded.
         //
         // Concerns:
-        //: 1 DatetimeInterval is encoded in quoted 'bdlt::DatetimeInterval'
-        //:   print format.
-        //:
+        // 1. DatetimeInterval is encoded in quoted `bdlt::DatetimeInterval`
+        //    print format.
+        //
         // Plan:
-        //: 1 Use the table-driven technique:
-        //:
-        //:   1 Specify a set of valid values.
-        //:
-        //:   2 Encode each value and verify the output is as expected.
-        //:
+        // 1. Use the table-driven technique:
+        //
+        //   1. Specify a set of valid values.
+        //
+        //   2. Encode each value and verify the output is as expected.
+        //
         //
         // Testing:
         //   static int printValue(bsl::ostream& s,
@@ -521,20 +521,20 @@ int main(int argc, char *argv[])
         // ENCODING DATE AND TIME TYPES
         //
         // Concerns:
-        //: 1 Date/time are encoded in ISO 8601 format.
-        //:
-        //: 2 Output contains only information contained in the type being
-        //:   encoded.  (i.e., encoding 'bdlt::Date' will not print out a time
-        //:   or offset.)
+        // 1. Date/time are encoded in ISO 8601 format.
+        //
+        // 2. Output contains only information contained in the type being
+        //    encoded.  (i.e., encoding `bdlt::Date` will not print out a time
+        //    or offset.)
         //
         // Plan:
-        //: 1 Use the table-driven technique:
-        //:
-        //:   1 Specify a set of valid values.
-        //:
-        //:   2 Encode each value and verify the output is as expected.
-        //:
-        //: 2 Perform step one for every date/time type.
+        // 1. Use the table-driven technique:
+        //
+        //   1. Specify a set of valid values.
+        //
+        //   2. Encode each value and verify the output is as expected.
+        //
+        // 2. Perform step one for every date/time type.
         //
         // Testing:
         //   static int printValue(bsl::ostream& s, const bdlt::Time&       v);
@@ -743,7 +743,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, result, EXPECTED, result == EXPECTED);
             }
 
-            if (verbose) cout << "Encode 'DateOrDateTz' ('Date')" << endl;
+            if (verbose) cout << "Encode `DateOrDateTz` (`Date`)" << endl;
             {
                 Util::DateOrDateTz  dateVariant(theDate);
                 const char         *EXPECTED = expectedDate[ti];
@@ -755,7 +755,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, result, EXPECTED, result == EXPECTED);
             }
 
-            if (verbose) cout << "Encode 'DateOrDateTz' ('DateTz')" << endl;
+            if (verbose) cout << "Encode `DateOrDateTz` (`DateTz`)" << endl;
             {
                 Util::DateOrDateTz  dateTzVariant(theDateTz);
                 const char         *EXPECTED = expectedDateTz[ti];
@@ -767,7 +767,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, result, EXPECTED, result == EXPECTED);
             }
 
-            if (verbose) cout << "Encode 'TimeOrTimeTz' ('Time')" << endl;
+            if (verbose) cout << "Encode `TimeOrTimeTz` (`Time`)" << endl;
             {
                 Util::TimeOrTimeTz  timeVariant(theTime);
                 const char         *EXPECTED = expectedTime[ti];
@@ -779,7 +779,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, result, EXPECTED, result == EXPECTED);
             }
 
-            if (verbose) cout << "Encode 'TimeOrTimeTz' ('TimeTz')" << endl;
+            if (verbose) cout << "Encode `TimeOrTimeTz` (`TimeTz`)" << endl;
             {
                 Util::TimeOrTimeTz  timeTzVariant(theTimeTz);
                 const char         *EXPECTED = expectedTimeTz[ti];
@@ -792,7 +792,7 @@ int main(int argc, char *argv[])
             }
 
             if (verbose)
-                cout << "Encode 'DatetimeOrDatetimeTz' ('Datetime')" << endl;
+                cout << "Encode `DatetimeOrDatetimeTz` (`Datetime`)" << endl;
             {
                 Util::DatetimeOrDatetimeTz  datetimeVariant(theDatetime);
                 const char                 *EXPECTED = expectedDatetime[ti];
@@ -806,7 +806,7 @@ int main(int argc, char *argv[])
             }
 
             if (verbose)
-                cout << "Encode 'DatetimeOrDatetimeTz' ('DatetimeTz')" << endl;
+                cout << "Encode `DatetimeOrDatetimeTz` (`DatetimeTz`)" << endl;
             {
                 Util::DatetimeOrDatetimeTz  datetimeTzVariant(theDatetimeTz);
                 const char                 *EXPECTED = expectedDatetimeTz[ti];
@@ -825,20 +825,20 @@ int main(int argc, char *argv[])
         // ENCODING NUMBERS
         //
         // Concerns:
-        //: 1 Encoded numbers have the expected precisions.
-        //:
-        //: 2 Encoded numbers use default format when no options are specified,
-        //:   or options with default values are specified.
-        //:
-        //: 3 Encoding 'unsigned char' prints a number instead of string.
+        // 1. Encoded numbers have the expected precisions.
+        //
+        // 2. Encoded numbers use default format when no options are specified,
+        //    or options with default values are specified.
+        //
+        // 3. Encoding `unsigned char` prints a number instead of string.
         //
         // Plan:
-        //: 1 Use the table-driven technique:
-        //:
-        //:   1 Specify a set of valid values, including those that will test
-        //:     the precision of the output.
-        //:
-        //:   2 Encode each value and verify the output is as expected.
+        // 1. Use the table-driven technique:
+        //
+        //   1. Specify a set of valid values, including those that will test
+        //      the precision of the output.
+        //
+        //   2. Encode each value and verify the output is as expected.
         //
         // Testing:
         //  static int printValue(bsl::ostream& s, char                    v);
@@ -858,7 +858,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nENCODING NUMBERS"
                           << "\n================" << endl;
 
-        if (verbose) cout << "Encode 'float'" << endl;
+        if (verbose) cout << "Encode `float`" << endl;
         {
             typedef bsl::numeric_limits<float> Limits;
 
@@ -901,7 +901,7 @@ int main(int argc, char *argv[])
                 // Full Mantissa Integers
                 { L_, 1.0f * 0xFFFFFF,  "16777215"        },
                 { L_, 1.0f * 0xFFFFFF      // this happens to be also
-                       * (1ull << 63)      // 'Limits::max()'
+                       * (1ull << 63)      // `Limits::max()`
                        * (1ull << 41),    "3.4028235e+38" },
 
                 // Boundary Values
@@ -935,7 +935,7 @@ int main(int argc, char *argv[])
                 result = oss.str();
                 ASSERTV(LINE, result, EXPECTED, result == EXPECTED);
 
-                // Verify that 0 'maxFloatPrecision' is the same as default
+                // Verify that 0 `maxFloatPrecision` is the same as default
                 baljsn::EncoderOptions setOptions;
                 setOptions.setMaxFloatPrecision(0);
 
@@ -947,7 +947,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "Encoding invalid 'float' values" << endl;
+        if (verbose) cout << "Encoding invalid `float` values" << endl;
         {
             bsl::ostringstream oss;
 
@@ -983,7 +983,7 @@ int main(int argc, char *argv[])
         }
 
 
-        if (verbose) cout << "Encode 'float' with 'maxFloatPrecision' option"
+        if (verbose) cout << "Encode `float` with `maxFloatPrecision` option"
                           << endl;
         {
             float neg0 = copysignf(0.0f, -1.0f);
@@ -1040,7 +1040,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "Encode 'double'" << endl;
+        if (verbose) cout << "Encode `double`" << endl;
         {
             typedef bsl::numeric_limits<double> Limits;
 
@@ -1126,7 +1126,7 @@ int main(int argc, char *argv[])
                 result = oss.str();
                 ASSERTV(LINE, result, EXPECTED, result == EXPECTED);
 
-                // Verify that 0 'maxDoublePrecision' is the same as no options
+                // Verify that 0 `maxDoublePrecision` is the same as no options
                 baljsn::EncoderOptions setOptions;
                 setOptions.setMaxDoublePrecision(0);
 
@@ -1138,7 +1138,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "Encode 'double' with 'maxDoublePrecision' option"
+        if (verbose) cout << "Encode `double` with `maxDoublePrecision` option"
                           << endl;
         {
             double neg0 = copysign(0.0, -1.0);
@@ -1215,7 +1215,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "Encode invalid 'double' values" << endl;
+        if (verbose) cout << "Encode invalid `double` values" << endl;
         {
             bsl::ostringstream oss;
 
@@ -1250,7 +1250,7 @@ int main(int argc, char *argv[])
 #undef VERIFY_NONUMERIC_FAILS2
         }
 
-        if (verbose) cout << "Encode 'Decimal64'" << endl;
+        if (verbose) cout << "Encode `Decimal64`" << endl;
         {
 #define DEC(X) BDLDFP_DECIMAL_DD(X)
 
@@ -1295,7 +1295,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, result, EXPECTED, result == EXPECTED);
 
                 // Verify that default options are the same as
-                // 'setEncodeQuotedDecimal64 == true' option set.
+                // `setEncodeQuotedDecimal64 == true` option set.
                 baljsn::EncoderOptions options;
                 oss.str("");
                 ASSERTV(LINE, 0 == Util::printValue(oss, VALUE, &options));
@@ -1304,7 +1304,7 @@ int main(int argc, char *argv[])
                 const bsl::string QUOTED(asQuoted(EXPECTED));
                 ASSERTV(LINE, result, QUOTED, result == QUOTED);
 
-                // Verify that 'setEncodeQuotedDecimal64' 'false' is the
+                // Verify that `setEncodeQuotedDecimal64` `false` is the
                 // same as no options
                 options.setEncodeQuotedDecimal64(false);
 
@@ -1314,7 +1314,7 @@ int main(int argc, char *argv[])
                 result = oss.str();
                 ASSERTV(LINE, result, EXPECTED, result == EXPECTED);
 
-                // Verify that 'setEncodeQuotedDecimal64' 'true' quotes the
+                // Verify that `setEncodeQuotedDecimal64` `true` quotes the
                 // numbers as if they were strings
                 options.setEncodeQuotedDecimal64(true);
 
@@ -1327,7 +1327,7 @@ int main(int argc, char *argv[])
 #undef DEC
         }
 
-        if (verbose) cout << "Encode 'Decimal64' Inf and NaN" << endl;
+        if (verbose) cout << "Encode `Decimal64` Inf and NaN" << endl;
         {
             typedef bdldfp::Decimal64 Type;
 
@@ -1395,23 +1395,23 @@ int main(int argc, char *argv[])
         // ENCODING STRINGS
         //
         // Concerns:
-        //: 1 Character are encoded as a single character string.
-        //:
-        //: 2 All escape characters are encoded corrected.
-        //:
-        //: 3 Control characters are encoded as hex.
-        //:
-        //: 4 Invalid UTF-8 strings are rejected.
+        // 1. Character are encoded as a single character string.
+        //
+        // 2. All escape characters are encoded corrected.
+        //
+        // 3. Control characters are encoded as hex.
+        //
+        // 4. Invalid UTF-8 strings are rejected.
         //
         // Plan:
-        //: 1 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of values that include all escaped characters and
-        //:     some control characters.
-        //:
-        //:   2 Encode the value and verify the results.
-        //:
-        //: 2 Repeat for strings and Customized type.
+        // 1. Using the table-driven technique:
+        //
+        //   1. Specify a set of values that include all escaped characters and
+        //      some control characters.
+        //
+        //   2. Encode the value and verify the results.
+        //
+        // 2. Repeat for strings and Customized type.
         //
         // Testing:
         //  static int printString(bsl::ostream&, const bsl::string_view&);
@@ -1497,7 +1497,7 @@ int main(int argc, char *argv[])
                 const char *const VALUE    = DATA[ti].d_value;
                 const char *const EXPECTED = DATA[ti].d_result;
 
-                if (veryVeryVerbose) cout << "Test 'char *'" << endl;
+                if (veryVeryVerbose) cout << "Test `char *`" << endl;
                 {
                     bsl::ostringstream oss;
                     ASSERTV(LINE, 0 == Util::printValue(oss, VALUE));
@@ -1506,7 +1506,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, result, EXPECTED, result == EXPECTED);
                 }
 
-                if (veryVeryVerbose) cout << "Test 'string'" << endl;
+                if (veryVeryVerbose) cout << "Test `string`" << endl;
                 {
                     bsl::ostringstream oss;
                     ASSERTV(LINE, 0 == Util::printValue(oss,
@@ -1516,7 +1516,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, result, EXPECTED, result == EXPECTED);
                 }
 
-                if (veryVeryVerbose) cout << "Test 'printString'" << endl;
+                if (veryVeryVerbose) cout << "Test `printString`" << endl;
                 {
                     bsl::ostringstream oss;
                     ASSERTV(LINE, 0 == Util::printString(oss,
@@ -1551,20 +1551,20 @@ int main(int argc, char *argv[])
                 const int         LINE  = DATA[ti].d_line;
                 const char *const VALUE = DATA[ti].d_value;
 
-                if (veryVeryVerbose) cout << "Test 'char *'" << endl;
+                if (veryVeryVerbose) cout << "Test `char *`" << endl;
                 {
                     bsl::ostringstream oss;
                     ASSERTV(LINE, 0 != Util::printValue(oss, VALUE));
                 }
 
-                if (veryVeryVerbose) cout << "Test 'string'" << endl;
+                if (veryVeryVerbose) cout << "Test `string`" << endl;
                 {
                     bsl::ostringstream oss;
                     ASSERTV(LINE, 0 != Util::printValue(oss,
                                                         bsl::string(VALUE)));
                 }
 
-                if (veryVeryVerbose) cout << "Test 'printString'" << endl;
+                if (veryVeryVerbose) cout << "Test `printString`" << endl;
                 {
                     bsl::ostringstream oss;
                     ASSERTV(LINE, 0 != Util::printString(oss,
@@ -1578,11 +1578,11 @@ int main(int argc, char *argv[])
         // ENCODING BOOLEAN
         //
         // Concerns:
-        //: 1 'true' is encoded into "true" and 'false' is encoded into
-        //:   "false".
+        // 1. `true` is encoded into "true" and `false` is encoded into
+        //    "false".
         //
         // Plan:
-        //: 1 Use a brute force approach to test both cases.
+        // 1. Use a brute force approach to test both cases.
         //
         // Testing:
         //   static int printValue(bsl::ostream& s, bool                    v);
@@ -1591,7 +1591,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nENCODING BOOLEAN"
                           << "\n================" << endl;
 
-        if (verbose) cout << "Encode 'true'" << endl;
+        if (verbose) cout << "Encode `true`" << endl;
         {
             bsl::ostringstream oss;
             ASSERTV(0 == Util::printValue(oss, true));
@@ -1609,7 +1609,7 @@ int main(int argc, char *argv[])
             ASSERTV(result, result == "true");
         }
 
-        if (verbose) cout << "Encode 'false'" << endl;
+        if (verbose) cout << "Encode `false`" << endl;
         {
             bsl::ostringstream oss;
             ASSERTV(0 == Util::printValue(oss, false));
@@ -1633,11 +1633,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Call 'printValue' on each value type.
+        // 1. Call `printValue` on each value type.
         //
         // Testing:
         //   BREATHING TEST

@@ -286,8 +286,8 @@ const char *const k_VALUE_HEXADECIMAL    = "hex";
 const char *const k_VALUE_FILE           = "file";
 const char *const k_VALUE_FULL           = "full";
 
+/// Return the default record JSON format specification.
 bsl::string_view getDefaultFormat()
-    // Return the default record JSON format specification.
 {
     const  int  k_BUFFER_SIZE = 256;
     static char buffer[k_BUFFER_SIZE];
@@ -313,29 +313,31 @@ bsl::string_view getDefaultFormat()
                    // class RecordJsonFormatter_FieldFormatter
                    // ========================================
 
+/// This class defines an abstract protocol for parsing a field from a
+/// format specification (using `parse`), and then rendering fields from a
+/// `ball::Record` to a stream according to that specification (using
+/// `format`).
 class RecordJsonFormatter_FieldFormatter {
-    // This class defines an abstract protocol for parsing a field from a
-    // format specification (using 'parse'), and then rendering fields from a
-    // 'ball::Record' to a stream according to that specification (using
-    // 'format').
 
   public:
     // CREATORS
+
+    /// Destroy this object.
     virtual ~RecordJsonFormatter_FieldFormatter() {};
-        // Destroy this object.
 
     // MANIPULATORS
-    virtual void deleteSelf(const bsl::allocator<> allocator) = 0;
-        // Call the destructor for the most-derived class then deallocate this
-        // object to the specified 'allocator'.  Derived-class implementations
-        // of this method should communicate the type of the most-derived
-        // object to the allocator so that the correct size can be computed.
 
+    /// Call the destructor for the most-derived class then deallocate this
+    /// object to the specified `allocator`.  Derived-class implementations
+    /// of this method should communicate the type of the most-derived
+    /// object to the allocator so that the correct size can be computed.
+    virtual void deleteSelf(const bsl::allocator<> allocator) = 0;
+
+    /// Format a field of the specified `record` and render it to the
+    /// specified `formatter`.  Return 0 on success, and a non-zero value
+    /// otherwise.
     virtual
     int format(baljsn::SimpleFormatter *formatter, const Record& record) = 0;
-        // Format a field of the specified 'record' and render it to the
-        // specified 'formatter'.  Return 0 on success, and a non-zero value
-        // otherwise.
 
     virtual int parse(bdld::DatumMapRef v) = 0;
        // Parse the specified 'v' datum map and initialize this object with the
@@ -349,8 +351,8 @@ namespace {
                    // class TimestampFormatter
                    // ========================
 
+/// This class implements JSON field formatter for the `timestamp` tag.
 class TimestampFormatter : public RecordJsonFormatter_FieldFormatter {
-    // This class implements JSON field formatter for the 'timestamp' tag.
 
     // PRIVATE TYPES
     enum FractionalSecondPrecision {
@@ -384,10 +386,11 @@ class TimestampFormatter : public RecordJsonFormatter_FieldFormatter {
     typedef bsl::allocator<>  allocator_type;
 
     // CREATORS
+
+    /// Create the `timestamp` formatter object.  Use the specified
+    /// `allocator` (e.g., the address of a `bslma::Allocator` object) to
+    /// supply memory.
     explicit TimestampFormatter(const allocator_type& allocator)
-        // Create the 'timestamp' formatter object.  Use the specified
-        // 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
-        // supply memory.
     : d_name(k_KEY_TIMESTAMP, allocator)
     , d_format(e_FORMAT_ISO_8601)
     , d_timeZone(e_TZ_UTC)
@@ -395,9 +398,10 @@ class TimestampFormatter : public RecordJsonFormatter_FieldFormatter {
     {}
 
     // MANIPULATORS
+
+    /// Call the destructor for this object deallocate this object to the
+    /// specified `allocator`.
     void deleteSelf(const bsl::allocator<> allocator) BSLS_KEYWORD_OVERRIDE;
-        // Call the destructor for this object deallocate this object to the
-        // specified 'allocator'.
 
     int format(baljsn::SimpleFormatter *formatter, const Record& record)
                                                          BSLS_KEYWORD_OVERRIDE;
@@ -415,8 +419,8 @@ class TimestampFormatter : public RecordJsonFormatter_FieldFormatter {
                    // class ThreadIdFormatter
                    // =======================
 
+/// This class implements JSON field formatter for the `tid` tag.
 class ThreadIdFormatter : public RecordJsonFormatter_FieldFormatter {
-    // This class implements JSON field formatter for the 'tid' tag.
 
     // PRIVATE TYPES
     enum Format {
@@ -434,19 +438,21 @@ class ThreadIdFormatter : public RecordJsonFormatter_FieldFormatter {
     typedef bsl::allocator<> allocator_type;
 
     // CREATORS
+
+    /// Create thread id formatter object.  Use the specified
+    /// `allocator` (e.g., the address of a `bslma::Allocator` object) to
+    /// supply memory.
     explicit
     ThreadIdFormatter(const allocator_type& allocator)
-        // Create thread id formatter object.  Use the specified
-        // 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
-        // supply memory.
     : d_name(k_KEY_THREAD_ID, allocator)
     , d_format(e_DECIMAL)
     {}
 
     // MANIPULATORS
+
+    /// Call the destructor for this object deallocate this object to the
+    /// specified `allocator`.
     void deleteSelf(const bsl::allocator<> allocator) BSLS_KEYWORD_OVERRIDE;
-        // Call the destructor for this object deallocate this object to the
-        // specified 'allocator'.
 
     int format(baljsn::SimpleFormatter *formatter, const Record& record)
                                                          BSLS_KEYWORD_OVERRIDE;
@@ -464,10 +470,10 @@ class ThreadIdFormatter : public RecordJsonFormatter_FieldFormatter {
                    // class FixedFieldFormatter
                    // =========================
 
+/// This class implements the field formatter protocol for JSON format
+/// tag that has a single `name` attribute (`pid`, line', `category`,
+/// `message` and a user-defined attribute).
 class FixedFieldFormatter : public RecordJsonFormatter_FieldFormatter {
-    // This class implements the field formatter protocol for JSON format
-    // tag that has a single 'name' attribute ('pid', line', 'category',
-    // 'message' and a user-defined attribute).
 
     // DATA
     bsl::string d_name;
@@ -477,12 +483,13 @@ class FixedFieldFormatter : public RecordJsonFormatter_FieldFormatter {
     typedef bsl::allocator<>  allocator_type;
 
     // CREATORS
+
+    /// Create fixed field formatter object.  Use the specified
+    /// `allocator` (e.g., the address of a `bslma::Allocator` object) to
+    /// supply memory.
     FixedFieldFormatter(const bsl::string&    name,
                         const allocator_type& allocator)
     : d_name(name, allocator)
-        // Create fixed field formatter object.  Use the specified
-        // 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
-        // supply memory.
     {}
 
     // MANIPULATORS
@@ -500,25 +507,27 @@ class FixedFieldFormatter : public RecordJsonFormatter_FieldFormatter {
                    // class ProcessIdFormatter
                    // ========================
 
+/// This class implements JSON field formatter for the `pid` tag.
 class ProcessIdFormatter : public FixedFieldFormatter {
-    // This class implements JSON field formatter for the 'pid' tag.
 
   public:
     // TYPES
     typedef bsl::allocator<> allocator_type;
 
     // CREATORS
+
+    /// Create process id formatter object.  Use the specified
+    /// `allocator` (e.g., the address of a `bslma::Allocator` object) to
+    /// supply memory.
     explicit ProcessIdFormatter(const allocator_type& allocator)
     : FixedFieldFormatter(k_KEY_PROCESS_ID, allocator)
-        // Create process id formatter object.  Use the specified
-        // 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
-        // supply memory.
     {}
 
     // MANIPULATORS
+
+    /// Call the destructor for this object deallocate this object to the
+    /// specified `allocator`.
     void deleteSelf(const bsl::allocator<> allocator) BSLS_KEYWORD_OVERRIDE;
-        // Call the destructor for this object deallocate this object to the
-        // specified 'allocator'.
 
     int format(baljsn::SimpleFormatter *formatter, const Record& record)
                                                          BSLS_KEYWORD_OVERRIDE;
@@ -531,25 +540,27 @@ class ProcessIdFormatter : public FixedFieldFormatter {
                    // class LineFormatter
                    // ===================
 
+/// This class implements JSON field formatter for the `line` tag.
 class LineFormatter : public FixedFieldFormatter {
-    // This class implements JSON field formatter for the 'line' tag.
 
   public:
     // TYPES
     typedef bsl::allocator<>  allocator_type;
 
     // CREATORS
+
+    /// Create the `line` formatter object.  Use the specified
+    /// `allocator` (e.g., the address of a `bslma::Allocator` object) to
+    /// supply memory.
     explicit LineFormatter(const allocator_type& allocator)
     : FixedFieldFormatter(k_KEY_LINE, allocator)
-        // Create the 'line' formatter object.  Use the specified
-        // 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
-        // supply memory.
     {}
 
     // MANIPULATORS
+
+    /// Call the destructor for this object deallocate this object to the
+    /// specified `allocator`.
     void deleteSelf(const bsl::allocator<> allocator) BSLS_KEYWORD_OVERRIDE;
-        // Call the destructor for this object deallocate this object to the
-        // specified 'allocator'.
 
     int format(baljsn::SimpleFormatter *formatter, const Record& record)
                                                          BSLS_KEYWORD_OVERRIDE;
@@ -562,25 +573,27 @@ class LineFormatter : public FixedFieldFormatter {
                    // class CategoryFormatter
                    // =======================
 
+/// This class implements JSON field formatter for the `category` tag.
 class CategoryFormatter : public FixedFieldFormatter {
-    // This class implements JSON field formatter for the 'category' tag.
 
   public:
     // TYPES
     typedef bsl::allocator<> allocator_type;
 
     // CREATORS
+
+    /// Create the `category` formatter object.  Use the specified
+    /// `allocator` (e.g., the address of a `bslma::Allocator` object) to
+    /// supply memory.
     explicit CategoryFormatter(const allocator_type& allocator)
     : FixedFieldFormatter(k_KEY_CATEGORY, allocator)
-        // Create the 'category' formatter object.  Use the specified
-        // 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
-        // supply memory.
     {}
 
     // MANIPULATORS
+
+    /// Call the destructor for this object deallocate this object to the
+    /// specified `allocator`.
     void deleteSelf(const bsl::allocator<> allocator) BSLS_KEYWORD_OVERRIDE;
-        // Call the destructor for this object deallocate this object to the
-        // specified 'allocator'.
 
     int format(baljsn::SimpleFormatter *formatter, const Record& record)
                                                          BSLS_KEYWORD_OVERRIDE;
@@ -593,25 +606,27 @@ class CategoryFormatter : public FixedFieldFormatter {
                    // class SeverityFormatter
                    // =======================
 
+/// This class implements JSON field formatter for the `severity` tag.
 class SeverityFormatter : public FixedFieldFormatter {
-    // This class implements JSON field formatter for the 'severity' tag.
 
   public:
     // TYPES
     typedef bsl::allocator<> allocator_type;
 
     // CREATORS
+
+    /// Create the `severity` formatter object.  Use the specified
+    /// `allocator` (e.g., the address of a `bslma::Allocator` object) to
+    /// supply memory.
     explicit SeverityFormatter(const allocator_type& allocator)
     : FixedFieldFormatter(k_KEY_SEVERITY, allocator)
-        // Create the 'severity' formatter object.  Use the specified
-        // 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
-        // supply memory.
     {}
 
     // MANIPULATORS
+
+    /// Call the destructor for this object deallocate this object to the
+    /// specified `allocator`.
     void deleteSelf(const bsl::allocator<> allocator) BSLS_KEYWORD_OVERRIDE;
-        // Call the destructor for this object deallocate this object to the
-        // specified 'allocator'.
 
     int format(baljsn::SimpleFormatter *formatter, const Record& record)
                                                          BSLS_KEYWORD_OVERRIDE;
@@ -624,25 +639,27 @@ class SeverityFormatter : public FixedFieldFormatter {
                    // class MessageFormatter
                    // ======================
 
+/// This class implements JSON field formatter for the `message` tag.
 class MessageFormatter : public FixedFieldFormatter {
-    // This class implements JSON field formatter for the 'message' tag.
 
   public:
     // TYPES
     typedef bsl::allocator<> allocator_type;
 
     // CREATORS
+
+    /// Create the `message` formatter object.  Use the specified
+    /// `allocator` (e.g., the address of a `bslma::Allocator` object) to
+    /// supply memory.
     explicit MessageFormatter(const allocator_type& allocator)
     : FixedFieldFormatter(k_KEY_MESSAGE, allocator)
-        // Create the 'message' formatter object.  Use the specified
-        // 'allocator' (e.g., the address of a 'bslma::Allocator' object) to
-        // supply memory.
     {}
 
     // MANIPULATORS
+
+    /// Call the destructor for this object deallocate this object to the
+    /// specified `allocator`.
     void deleteSelf(const bsl::allocator<> allocator) BSLS_KEYWORD_OVERRIDE;
-        // Call the destructor for this object deallocate this object to the
-        // specified 'allocator'.
 
     int format(baljsn::SimpleFormatter *formatter, const Record& record)
                                                          BSLS_KEYWORD_OVERRIDE;
@@ -655,8 +672,8 @@ class MessageFormatter : public FixedFieldFormatter {
                    // class FileFormatter
                    // ===================
 
+/// This class implements JSON field formatter for the `file` tag.
 class FileFormatter : public RecordJsonFormatter_FieldFormatter {
-    // This class implements JSON field formatter for the 'file' tag.
 
     // PRIVATE TYPES
     enum Path {
@@ -674,17 +691,19 @@ class FileFormatter : public RecordJsonFormatter_FieldFormatter {
     typedef bsl::allocator<> allocator_type;
 
     // CREATORS
+
+    /// Create the `file` formatter object.  Use the specified `allocator`
+    /// (e.g., the address of a `bslma::Allocator` object) to supply memory.
     explicit FileFormatter(const allocator_type& allocator)
-        // Create the 'file' formatter object.  Use the specified 'allocator'
-        // (e.g., the address of a 'bslma::Allocator' object) to supply memory.
     : d_name(k_KEY_FILE, allocator)
     , d_path(e_FULL)
     {}
 
     // MANIPULATORS
+
+    /// Call the destructor for this object deallocate this object to the
+    /// specified `allocator`.
     void deleteSelf(const bsl::allocator<> allocator) BSLS_KEYWORD_OVERRIDE;
-        // Call the destructor for this object deallocate this object to the
-        // specified 'allocator'.
 
     int format(baljsn::SimpleFormatter *formatter, const Record& record)
                                                          BSLS_KEYWORD_OVERRIDE;
@@ -702,8 +721,8 @@ class FileFormatter : public RecordJsonFormatter_FieldFormatter {
                        // class AttributeFormatter
                        // ========================
 
+/// This class implements JSON field formatter for a user-defined attribute.
 class AttributeFormatter : public RecordJsonFormatter_FieldFormatter {
-    // This class implements JSON field formatter for a user-defined attribute.
 
     // PRIVATE TYPES
     enum { k_UNSET = -1 };  // Unspecified index
@@ -727,9 +746,10 @@ class AttributeFormatter : public RecordJsonFormatter_FieldFormatter {
     {}
 
     // MANIPULATORS
+
+    /// Call the destructor for this object deallocate this object to the
+    /// specified `allocator`.
     void deleteSelf(const bsl::allocator<> allocator) BSLS_KEYWORD_OVERRIDE;
-        // Call the destructor for this object deallocate this object to the
-        // specified 'allocator'.
 
     int format(baljsn::SimpleFormatter *formatter, const Record& record)
                                                          BSLS_KEYWORD_OVERRIDE;
@@ -751,33 +771,35 @@ class AttributeFormatter : public RecordJsonFormatter_FieldFormatter {
                        // class AttributesFormatter
                        // =========================
 
+/// This class implements JSON field formatter for the `attributes` tag.
 class AttributesFormatter : public RecordJsonFormatter_FieldFormatter {
-    // This class implements JSON field formatter for the 'attributes' tag.
 
   public:
     // TYPES
+
+    /// `SkipAttributes` is an alias for a set of names of attributes that
+    /// should not be printed as part of the `attributes` format tag,
+    /// because they are printed as individual user-defined attributes.
     typedef bsl::set<bsl::string_view>                 SkipAttributes;
-        // 'SkipAttributes' is an alias for a set of names of attributes that
-        // should not be printed as part of the 'attributes' format tag,
-        // because they are printed as individual user-defined attributes.
 
+    /// Allocator type used to provide memory.
     typedef SkipAttributes::allocator_type             allocator_type;
-        // Allocator type used to provide memory.
 
+    /// `SkipAttributesSp` is an alias for the shared pointer to the
+    /// `SkipAttributes` type.
     typedef bsl::shared_ptr<SkipAttributes>            SkipAttributesSp;
-        // 'SkipAttributesSp' is an alias for the shared pointer to the
-        // 'SkipAttributes' type.
 
   private:
     // PRIVATE TYPES
-    typedef bsl::vector<ball::ManagedAttribute>        Attributes;
-        // 'Attributes' is an alias for the vector of 'ball::ManagedAttribute'
-        // objects.
 
+    /// `Attributes` is an alias for the vector of `ball::ManagedAttribute`
+    /// objects.
+    typedef bsl::vector<ball::ManagedAttribute>        Attributes;
+
+    /// `AttributeCache` is an alias for a vector of pairs of an attribute's
+    /// key and a flag indicating whether the attribute should be displayed
+    /// or not.
     typedef bsl::vector<bsl::pair<bsl::string, bool> > AttributeCache;
-        // 'AttributeCache' is an alias for a vector of pairs of an attribute's
-        // key and a flag indicating whether the attribute should be displayed
-        // or not.
 
     // DATA
     SkipAttributesSp      d_skipAttributes_sp;
@@ -785,18 +807,20 @@ class AttributesFormatter : public RecordJsonFormatter_FieldFormatter {
 
   public:
     // CREATORS
+
+    /// Create an attribute formatter object having the specified
+    /// `skipAttributesSp` collection.  Optionally specify an `allocator` to
+    /// provide memory.  The behavior is undefined unless `allocator` and
+    /// `skipAttributesSp->get_allocator()` compare equal.
     explicit AttributesFormatter(const SkipAttributesSp& skipAttributesSp,
                                  const allocator_type&   allocator =
                                                              allocator_type());
-        // Create an attribute formatter object having the specified
-        // 'skipAttributesSp' collection.  Optionally specify an 'allocator' to
-        // provide memory.  The behavior is undefined unless 'allocator' and
-        // 'skipAttributesSp->get_allocator()' compare equal.
 
     // MANIPULATORS
+
+    /// Call the destructor for this object deallocate this object to the
+    /// specified `allocator`.
     void deleteSelf(const bsl::allocator<> allocator) BSLS_KEYWORD_OVERRIDE;
-        // Call the destructor for this object deallocate this object to the
-        // specified 'allocator'.
 
     int format(baljsn::SimpleFormatter *formatter, const Record& record)
                                                          BSLS_KEYWORD_OVERRIDE;
@@ -815,35 +839,37 @@ class AttributesFormatter : public RecordJsonFormatter_FieldFormatter {
                     // class DatumParser
                     // =================
 
+/// This class implements a parser that transforms the `bdld::Datum` object
+/// into a collection of the `RecordJsonFormatter_FieldFormatter` objects.
 class DatumParser {
-    // This class implements a parser that transforms the 'bdld::Datum' object
-    // into a collection of the 'RecordJsonFormatter_FieldFormatter' objects.
 
     // PRIVATE TYPES
+
+    /// `FieldFormatter` is an alias for the
+    /// `RecordJsonFormatter_FieldFormatter` type.
     typedef RecordJsonFormatter_FieldFormatter FieldFormatter;
-        // 'FieldFormatter' is an alias for the
-        // 'RecordJsonFormatter_FieldFormatter' type.
 
+    /// `FieldFormatters` is an alias for the
+    /// `RecordJsonFormatter::FieldFormatters` type.
     typedef RecordJsonFormatter::FieldFormatters  FieldFormatters;
-        // 'FieldFormatters' is an alias for the
-        // 'RecordJsonFormatter::FieldFormatters' type.
 
+    /// `SkipAttributesSp` is an alias for the
+    /// `AttributesFormatter::SkipAttributesSp` type.
     typedef AttributesFormatter::SkipAttributesSp SkipAttributesSp;
-        // 'SkipAttributesSp' is an alias for the
-        // 'AttributesFormatter::SkipAttributesSp' type.
 
+    /// `SkipAttributesSp` is an alias for the shared pointer to the
+    /// `SkipAttributes` type.
     typedef SkipAttributesSp::element_type        SkipAttributes;
-        // 'SkipAttributesSp' is an alias for the shared pointer to the
-        // 'SkipAttributes' type.
 
     // DATA
     SkipAttributesSp d_skipAttributes_sp;
     bsl::allocator<> d_allocator;
 
     // CLASS METHODS
+
+    /// Create a field formatter by the specified `v` value.
     RecordJsonFormatter_FieldFormatter *make(const bslstl::StringRef&  v);
     RecordJsonFormatter_FieldFormatter *make(bdld::DatumMapRef         v);
-        // Create a field formatter by the specified 'v' value.
 
   public:
     // TYPES
@@ -853,60 +879,63 @@ class DatumParser {
     BSLMF_NESTED_TRAIT_DECLARATION(DatumParser, bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create a datum parser object having the specified `allocator` (e.g.,
+    /// the address of a `bslma::Allocator` object) to supply memory.
     explicit DatumParser(const allocator_type& allocator)
     : d_skipAttributes_sp()
     , d_allocator(allocator)
-        // Create a datum parser object having the specified 'allocator' (e.g.,
-        // the address of a 'bslma::Allocator' object) to supply memory.
     {}
 
+    /// Parse the specified `v` datum and load the specified `formatters`
+    /// with the newly created field formatters supplied with the specified
+    /// `skipAttributesPtr` reference to the skip attribute container.
     int parse(FieldFormatters *formatters, const bdld::Datum&  v);
-        // Parse the specified 'v' datum and load the specified 'formatters'
-        // with the newly created field formatters supplied with the specified
-        // 'skipAttributesPtr' reference to the skip attribute container.
 };
 
                        // ================
                        // class FormatUtil
                        // ================
 
+/// This "struct" provides a namespace for utility functions that format
+/// values of various types to JSON.
 struct FormatUtil {
-    // This "struct" provides a namespace for utility functions that format
-    // values of various types to JSON.
 
     // CLASS METHODS
+
+    /// Add the specified `attribute` having the specified `name` to
+    /// `formatter`.
     static int formatAttribute(baljsn::SimpleFormatter *formatter,
                                const ManagedAttribute&  attribute,
                                const bsl::string_view&  name);
-        // Add the specified 'attribute' having the specified 'name' to
-        // 'formatter'.
 };
 
                         // ===============================
                         // class FieldFormattersDestructor
                         // ===============================
 
+/// This class provides a guard to automatically destroy items of field
+/// container supplied at construction of an object of this class.
 class FieldFormattersDestructor {
-    // This class provides a guard to automatically destroy items of field
-    // container supplied at construction of an object of this class.
 
     // DATA
     RecordJsonFormatter::FieldFormatters *d_formatters_p;  // field formatters
 
   public:
     // CREATORS
+
+    /// Create a field formatter destructor having the specified
+    /// `formattersPtr` reference to a container whose elements will be
+    /// destroyed when this object is destroyed.
     FieldFormattersDestructor(
                            RecordJsonFormatter::FieldFormatters *formattersPtr)
-        // Create a field formatter destructor having the specified
-        // 'formattersPtr' reference to a container whose elements will be
-        // destroyed when this object is destroyed.
     : d_formatters_p(formattersPtr)
     {
     }
 
+    /// Destroy this object and destroy all field formatters in the
+    /// container supplied to this object at construction.
     ~FieldFormattersDestructor()
-        // Destroy this object and destroy all field formatters in the
-        // container supplied to this object at construction.
     {
         if (d_formatters_p) {
             typedef RecordJsonFormatter::FieldFormatters::iterator iterator;

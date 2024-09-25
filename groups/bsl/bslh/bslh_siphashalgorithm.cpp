@@ -83,19 +83,19 @@ typedef bsls::Types::Uint64 u64;
 typedef unsigned int        u32;
 typedef unsigned char       u8;
 
+/// Return the bits of the specified `x` rotated to the left by the
+/// specified `b` number of bits.  Bits that are rotated off the end are
+/// wrapped around to the beginning.
 inline
 static u64 rotl(u64 x, u64 b)
-    // Return the bits of the specified 'x' rotated to the left by the
-    // specified 'b' number of bits.  Bits that are rotated off the end are
-    // wrapped around to the beginning.
 {
     return (x << b) | (x >> (64 - b));
 }
 
+/// Mix the specified `v0`, `v1`, `v2`, and `v3` in a "Sip Round" as
+/// described in the SipHash algorithm
 inline
 static void sipround(u64& v0, u64& v1, u64& v2, u64& v3)
-    // Mix the specified 'v0', 'v1', 'v2', and 'v3' in a "Sip Round" as
-    // described in the SipHash algorithm
 {
     v0 += v1;
     v1 = rotl(v1, 13);
@@ -113,11 +113,11 @@ static void sipround(u64& v0, u64& v1, u64& v2, u64& v3)
     v2 = rotl(v2, 32);
 }
 
+/// Return the 64-bit integer representation of the specified `p` taking
+/// into account endianness.  Undefined unless `p` points to at least eight
+/// bytes of initialized memory.
 inline
 static u64 u8to64_le(const u8* p)
-    // Return the 64-bit integer representation of the specified 'p' taking
-    // into account endianness.  Undefined unless 'p' points to at least eight
-    // bytes of initialized memory.
 {
     BSLS_ASSERT(p);
 

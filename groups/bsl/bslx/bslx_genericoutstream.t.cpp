@@ -28,15 +28,15 @@ using namespace bslx;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// For all output methods in 'GenericOutStream', the primary concerns are the
+// For all output methods in `GenericOutStream`, the primary concerns are the
 // formatting of the input value to its correct byte representation and the
 // proper placement and alignment of bytes in the output stream.  We verify
 // these properties by inserting chosen "marker" bytes between each output
 // method call, and ensure that the new output bytes are properly interleaved
 // between the "marker" bytes.
 //
-// We have chosen the primary black-box manipulator for 'GenericOutStream' to
-// be 'putInt8'.
+// We have chosen the primary black-box manipulator for `GenericOutStream` to
+// be `putInt8`.
 // ----------------------------------------------------------------------------
 // [ 2] GenericOutStream(STREAMBUF *streamBuf, int sV);
 // [ 2] ~GenericOutStream();
@@ -144,18 +144,18 @@ static void aSsErT(int c, const char *s, int i)
 //                      HELPER CLASSES AND FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// This class implements a very basic stream buffer suitable for use in
+/// `bslx::GenericOutStream`.
 class TestOutStreamBuf {
-    // This class implements a very basic stream buffer suitable for use in
-    // 'bslx::GenericOutStream'.
 
     // DATA
     bsl::stringbuf      d_buffer;      // output buffer
 
-    mutable bsl::string d_cache;       // caches the data for the 'data' method
+    mutable bsl::string d_cache;       // caches the data for the `data` method
 
-    int                 d_flushCount;  // number of calls to 'pubsync'
+    int                 d_flushCount;  // number of calls to `pubsync`
 
-    bool                d_flushFail;   // cause all 'pubsync' to fail
+    bool                d_flushFail;   // cause all `pubsync` to fail
 
     int                 d_limit;       // number of bytes to write before
                                        // failure; -1 implies will never fail
@@ -170,49 +170,53 @@ class TestOutStreamBuf {
     };
 
     // CREATORS
-    TestOutStreamBuf();
-        // Create an empty stream buffer.
 
+    /// Create an empty stream buffer.
+    TestOutStreamBuf();
+
+    /// Destroy this stream buffer.
     ~TestOutStreamBuf();
-        // Destroy this stream buffer.
 
     // MANIPULATORS
+
+    /// Increments the flush count.
     int pubsync();
-        // Increments the flush count.
 
+    /// Set all `pubsync` methods to fail.
     void setFlushFail();
-        // Set all 'pubsync' methods to fail.
 
+    /// Set the input limit to the specified `limit`.
     void setLimit(int limit);
-        // Set the input limit to the specified 'limit'.
 
+    /// Write the specified character `c` to this buffer.  If the write is
+    /// successful, return the value `c`; otherwise, `EOF`.
     int sputc(char c);
-        // Write the specified character 'c' to this buffer.  If the write is
-        // successful, return the value 'c'; otherwise, 'EOF'.
 
+    /// Write the specified `length` characters at the specified address `s`
+    /// to this buffer and return the number of characters written.
     bsl::streamsize sputn(const char *s, bsl::streamsize length);
-        // Write the specified 'length' characters at the specified address 's'
-        // to this buffer and return the number of characters written.
 
     // ACCESSORS
+
+    /// Return the address of the non-modifiable character buffer held by
+    /// this stream buffer.
     const char *data() const;
-        // Return the address of the non-modifiable character buffer held by
-        // this stream buffer.
 
+    /// Return the number of calls to `pubsync` since the creation of this
+    /// stream buffer.
     int flushCount() const;
-        // Return the number of calls to 'pubsync' since the creation of this
-        // stream buffer.
 
+    /// Return the number of characters from the beginning of the buffer to
+    /// the current write position.
     bsl::streamsize length() const;
-        // Return the number of characters from the beginning of the buffer to
-        // the current write position.
 };
 
 // FREE OPERATORS
+
+/// Write the specified `object` to the specified output `stream` in some
+/// reasonable (multi-line) format, and return a reference to `stream`.
 bsl::ostream& operator<<(bsl::ostream&           stream,
                          const TestOutStreamBuf& object);
-    // Write the specified 'object' to the specified output 'stream' in some
-    // reasonable (multi-line) format, and return a reference to 'stream'.
 
 // CREATORS
 TestOutStreamBuf::TestOutStreamBuf()
@@ -344,9 +348,9 @@ const int SIZEOF_FLOAT32 = 4;
 //                                 USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
+    /// This class implements a very basic stream buffer suitable for use in
+    /// `bslx::GenericOutStream`.
     class MyOutStreamBuf {
-        // This class implements a very basic stream buffer suitable for use in
-        // 'bslx::GenericOutStream'.
 
         // DATA
         bsl::string d_buffer;  // output buffer
@@ -363,32 +367,35 @@ const int SIZEOF_FLOAT32 = 4;
         };
 
         // CREATORS
-        MyOutStreamBuf();
-            // Create an empty stream buffer.
 
+        /// Create an empty stream buffer.
+        MyOutStreamBuf();
+
+        /// Destroy this stream buffer.
         ~MyOutStreamBuf();
-            // Destroy this stream buffer.
 
         // MANIPULATORS
+
+        /// Return 0.
         int pubsync();
-            // Return 0.
 
+        /// Write the specified character `c` to this buffer.  Return `c` on
+        /// success, and `traits_type::eof()` otherwise.
         int sputc(char c);
-            // Write the specified character 'c' to this buffer.  Return 'c' on
-            // success, and 'traits_type::eof()' otherwise.
 
+        /// Write the specified `length` characters at the specified address
+        /// `s` to this buffer, and return the number of characters written.
         bsl::streamsize sputn(const char *s, bsl::streamsize length);
-            // Write the specified 'length' characters at the specified address
-            // 's' to this buffer, and return the number of characters written.
 
         // ACCESSORS
-        const char *data() const;
-            // Return the address of the non-modifiable character buffer held
-            // by this stream buffer.
 
+        /// Return the address of the non-modifiable character buffer held
+        /// by this stream buffer.
+        const char *data() const;
+
+        /// Return the number of characters from the beginning of the buffer
+        /// to the current write position.
         bsl::streamsize size() const;
-            // Return the number of characters from the beginning of the buffer
-            // to the current write position.
     };
 
     // ========================================================================
@@ -465,14 +472,14 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -484,39 +491,39 @@ int main(int argc, char *argv[])
 ///Usage
 ///-----
 // This section illustrates intended use of this component.  The first example
-// depicts usage with a 'bsl::stringbuf'.  The second example replaces the
-// 'bsl::stringbuf' with a user-defined 'STREAMBUF'.
+// depicts usage with a `bsl::stringbuf`.  The second example replaces the
+// `bsl::stringbuf` with a user-defined `STREAMBUF`.
 //
 ///Example 1: Basic Externalization
 ///- - - - - - - - - - - - - - - -
-// A 'bslx::GenericOutStream' can be used to externalize values in a
-// platform-neutral way.  Writing out fundamental C++ types and 'bsl::string'
+// A `bslx::GenericOutStream` can be used to externalize values in a
+// platform-neutral way.  Writing out fundamental C++ types and `bsl::string`
 // requires no additional work on the part of the client; the client can simply
 // use the stream directly.  The following code serializes a few representative
-// values using a 'bslx::GenericOutStream', compares the contents of this
+// values using a `bslx::GenericOutStream`, compares the contents of this
 // stream to the expected value, and then writes the contents of this stream's
-// buffer to 'stdout'.
+// buffer to `stdout`.
 //
-// First, we create a 'bslx::GenericOutStream', with an arbitrary value for its
-// 'versionSelector', and externalize some values:
-//..
+// First, we create a `bslx::GenericOutStream`, with an arbitrary value for its
+// `versionSelector`, and externalize some values:
+// ```
     bsl::stringbuf                         buffer1;
     bslx::GenericOutStream<bsl::stringbuf> outStream1(&buffer1, 20131127);
     outStream1.putInt32(1);
     outStream1.putInt32(2);
     outStream1.putInt8('c');
     outStream1.putString(bsl::string("hello"));
-//..
+// ```
 // Then, we compare the contents of the buffer to the expected value:
-//..
+// ```
     bsl::string  theChars = buffer1.str();
     ASSERT(15 == theChars.size());
     ASSERT( 0 == bsl::memcmp(theChars.data(),
                              "\x00\x00\x00\x01\x00\x00\x00\x02""c\x05""hello",
                              15));
-//..
-// Finally, we print the buffer's contents to 'bsl::cout'.
-//..
+// ```
+// Finally, we print the buffer's contents to `bsl::cout`.
+// ```
     if (veryVerbose)
     for (bsl::size_t i = 0; i < theChars.size(); ++i) {
         if (bsl::isalnum(static_cast<unsigned char>(theChars[i]))) {
@@ -528,9 +535,9 @@ int main(int argc, char *argv[])
                       << bsl::endl;
         }
     }
-//..
+// ```
 // Executing the above code results in the following output:
-//..
+// ```
 //  nextByte (int): 0
 //  nextByte (int): 0
 //  nextByte (int): 0
@@ -546,35 +553,35 @@ int main(int argc, char *argv[])
 //  nextByte (char): l
 //  nextByte (char): l
 //  nextByte (char): o
-//..
-// See the 'bslx_genericinstream' component usage example for a more practical
-// example of using 'bslx' streams.
-// example of using 'bslx' streams.
+// ```
+// See the `bslx_genericinstream` component usage example for a more practical
+// example of using `bslx` streams.
+// example of using `bslx` streams.
 //
-///Example 2: Sample 'STREAMBUF' Implementation
+///Example 2: Sample `STREAMBUF` Implementation
 ///- - - - - - - - - - - - - - - - - - - - - -
-// For this example, we will implement 'MyOutStreamBuf', a minimal 'STREAMBUF'
-// to be used with 'bslx::GenericOutStream'.  The implementation will consist
+// For this example, we will implement `MyOutStreamBuf`, a minimal `STREAMBUF`
+// to be used with `bslx::GenericOutStream`.  The implementation will consist
 // of only what is required of the type and two accessors to verify correct
-// functionality ('data' and 'length').
+// functionality (`data` and `length`).
 //
-// First, we implement 'MyOutStreamBuf' (which, for brevity, simply uses the
+// First, we implement `MyOutStreamBuf` (which, for brevity, simply uses the
 // default allocator):
-//..
-//..
-// Then, we create 'buffer2', an instance of 'MyOutStreamBuf', and a
-// 'bslx::GenericOutStream' using 'buffer2', with an arbitrary value for its
-// 'versionSelector', and externalize some values:
-//..
+// ```
+// ```
+// Then, we create `buffer2`, an instance of `MyOutStreamBuf`, and a
+// `bslx::GenericOutStream` using `buffer2`, with an arbitrary value for its
+// `versionSelector`, and externalize some values:
+// ```
     MyOutStreamBuf                         buffer2;
     bslx::GenericOutStream<MyOutStreamBuf> outStream2(&buffer2, 20131127);
     outStream2.putInt32(1);
     outStream2.putInt32(2);
     outStream2.putInt8('c');
     outStream2.putString(bsl::string("hello"));
-//..
+// ```
 // Finally, we compare the contents of the buffer to the expected value:
-//..
+// ```
     ASSERT(15 == buffer2.size());
     ASSERT( 0 == bsl::memcmp(buffer2.data(),
                              "\x00\x00\x00\x01\x00\x00\x00\x02""c\x05""hello",
@@ -583,20 +590,20 @@ int main(int argc, char *argv[])
       case 27: {
         // --------------------------------------------------------------------
         // EXTERNALIZATION FREE OPERATOR
-        //   Verify 'operator<<' works correctly.
+        //   Verify `operator<<` works correctly.
         //
         // Concerns:
-        //: 1 The method inline-forwards to the implementation correctly.
-        //:
-        //: 2 Invocations of the method can be chained.
+        // 1. The method inline-forwards to the implementation correctly.
+        //
+        // 2. Invocations of the method can be chained.
         //
         // Plan:
-        //: 1 Externalize a set of values and ensure the resultant buffer
-        //:   matches the one produced by the oracle implementation (the one
-        //:   forwarded to).  (C-1)
-        //:
-        //: 2 Externalize a set of values to the stream in one code line.
-        //:   (C-2)
+        // 1. Externalize a set of values and ensure the resultant buffer
+        //    matches the one produced by the oracle implementation (the one
+        //    forwarded to).  (C-1)
+        //
+        // 2. Externalize a set of values to the stream in one code line.
+        //    (C-2)
         //
         // Testing:
         //   GenericOutStream& operator<<(GenericOutStream&, value);
@@ -682,16 +689,16 @@ int main(int argc, char *argv[])
         //   Verify the method forwards correctly.
         //
         // Concerns:
-        //: 1 The method forwards correctly.
-        //:
-        //: 2 If there is a failure, the stream is invalidated.
+        // 1. The method forwards correctly.
+        //
+        // 2. If there is a failure, the stream is invalidated.
         //
         // Plan:
-        //: 1 Directly test the method using the testing methods of
-        //:   'TestOutStreamBuf'.  (C-1)
-        //:
-        //: 2 Use the 'setFlushFail' method of the 'TestOutStreamBuf' to verify
-        //:   errors are handled correctly.  (C-2)
+        // 1. Directly test the method using the testing methods of
+        //    `TestOutStreamBuf`.  (C-1)
+        //
+        // 2. Use the `setFlushFail` method of the `TestOutStreamBuf` to verify
+        //    errors are handled correctly.  (C-2)
         //
         // Testing:
         //   GenericOutStream& flush();
@@ -702,7 +709,7 @@ int main(int argc, char *argv[])
                           << "==========" << endl;
 
 
-        if (verbose) cout << "\nTesting 'flush'." << endl;
+        if (verbose) cout << "\nTesting `flush`." << endl;
         {
             Buf mB;  const Buf& B = mB;
             ASSERT(0 == B.flushCount());
@@ -737,19 +744,19 @@ int main(int argc, char *argv[])
         //   Verify the method externalizes the expected bytes.
         //
         // Concerns:
-        //: 1 The method externalizes the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 If there is a failure writing to the underlying buffer, the
-        //:   stream is invalidated.
+        // 1. The method externalizes the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. If there is a failure writing to the underlying buffer, the
+        //    stream is invalidated.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Use the 'setLimit' method of the 'TestOutStreamBuf' to verify
-        //:   errors are handled correctly.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Use the `setLimit` method of the `TestOutStreamBuf` to verify
+        //    errors are handled correctly.  (C-3)
         //
         // Testing:
         //   putString(const bsl::string& value);
@@ -760,7 +767,7 @@ int main(int argc, char *argv[])
                           << "===============" << endl;
 
 
-        if (verbose) cout << "\nTesting 'putString'." << endl;
+        if (verbose) cout << "\nTesting `putString`." << endl;
         {
             const bsl::string DATA = "hello";
             const int         SIZE = SIZEOF_INT8 + 5 * SIZEOF_INT8;
@@ -830,23 +837,23 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 If there is a failure writing to the underlying buffer, the
-        //:   stream is invalidated.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. If there is a failure writing to the underlying buffer, the
+        //    stream is invalidated.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Use the 'setLimit' method of the 'TestOutStreamBuf' to verify
-        //:   errors are handled correctly.  (C-3)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Use the `setLimit` method of the `TestOutStreamBuf` to verify
+        //    errors are handled correctly.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putLength(int length);
@@ -1030,23 +1037,23 @@ int main(int argc, char *argv[])
         //   Verify the method externalizes the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 If there is a failure writing to the underlying buffer, the
-        //:   stream is invalidated.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. If there is a failure writing to the underlying buffer, the
+        //    stream is invalidated.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Use the 'setLimit' method of the 'TestOutStreamBuf' to verify
-        //:   errors are handled correctly.  (C-3)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Use the `setLimit` method of the `TestOutStreamBuf` to verify
+        //    errors are handled correctly.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putArrayFloat64(const double *array, int count);
@@ -1149,23 +1156,23 @@ int main(int argc, char *argv[])
         //   Verify the method externalizes the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 If there is a failure writing to the underlying buffer, the
-        //:   stream is invalidated.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. If there is a failure writing to the underlying buffer, the
+        //    stream is invalidated.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Use the 'setLimit' method of the 'TestOutStreamBuf' to verify
-        //:   errors are handled correctly.  (C-3)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Use the `setLimit` method of the `TestOutStreamBuf` to verify
+        //    errors are handled correctly.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putArrayFloat32(const float *array, int count);
@@ -1268,23 +1275,23 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 If there is a failure writing to the underlying buffer, the
-        //:   stream is invalidated.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. If there is a failure writing to the underlying buffer, the
+        //    stream is invalidated.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Use the 'setLimit' method of the 'TestOutStreamBuf' to verify
-        //:   errors are handled correctly.  (C-3)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Use the `setLimit` method of the `TestOutStreamBuf` to verify
+        //    errors are handled correctly.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putArrayInt64(const bsls::Types::Int64 *array, int count);
@@ -1472,23 +1479,23 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 If there is a failure writing to the underlying buffer, the
-        //:   stream is invalidated.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. If there is a failure writing to the underlying buffer, the
+        //    stream is invalidated.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Use the 'setLimit' method of the 'TestOutStreamBuf' to verify
-        //:   errors are handled correctly.  (C-3)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Use the `setLimit` method of the `TestOutStreamBuf` to verify
+        //    errors are handled correctly.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putArrayInt56(const bsls::Types::Int64 *array, int count);
@@ -1676,23 +1683,23 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 If there is a failure writing to the underlying buffer, the
-        //:   stream is invalidated.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. If there is a failure writing to the underlying buffer, the
+        //    stream is invalidated.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Use the 'setLimit' method of the 'TestOutStreamBuf' to verify
-        //:   errors are handled correctly.  (C-3)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Use the `setLimit` method of the `TestOutStreamBuf` to verify
+        //    errors are handled correctly.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putArrayInt48(const bsls::Types::Int64 *array, int count);
@@ -1880,23 +1887,23 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 If there is a failure writing to the underlying buffer, the
-        //:   stream is invalidated.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. If there is a failure writing to the underlying buffer, the
+        //    stream is invalidated.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Use the 'setLimit' method of the 'TestOutStreamBuf' to verify
-        //:   errors are handled correctly.  (C-3)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Use the `setLimit` method of the `TestOutStreamBuf` to verify
+        //    errors are handled correctly.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putArrayInt40(const bsls::Types::Int64 *array, int count);
@@ -2084,23 +2091,23 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 If there is a failure writing to the underlying buffer, the
-        //:   stream is invalidated.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. If there is a failure writing to the underlying buffer, the
+        //    stream is invalidated.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Use the 'setLimit' method of the 'TestOutStreamBuf' to verify
-        //:   errors are handled correctly.  (C-3)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Use the `setLimit` method of the `TestOutStreamBuf` to verify
+        //    errors are handled correctly.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putArrayInt32(const int *array, int count);
@@ -2287,23 +2294,23 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 If there is a failure writing to the underlying buffer, the
-        //:   stream is invalidated.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. If there is a failure writing to the underlying buffer, the
+        //    stream is invalidated.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Use the 'setLimit' method of the 'TestOutStreamBuf' to verify
-        //:   errors are handled correctly.  (C-3)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Use the `setLimit` method of the `TestOutStreamBuf` to verify
+        //    errors are handled correctly.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putArrayInt24(const int *array, int count);
@@ -2490,23 +2497,23 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 If there is a failure writing to the underlying buffer, the
-        //:   stream is invalidated.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. If there is a failure writing to the underlying buffer, the
+        //    stream is invalidated.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Use the 'setLimit' method of the 'TestOutStreamBuf' to verify
-        //:   errors are handled correctly.  (C-3)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Use the `setLimit` method of the `TestOutStreamBuf` to verify
+        //    errors are handled correctly.  (C-3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putArrayInt16(const short *array, int count);
@@ -2682,21 +2689,21 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 If there is a failure writing to the underlying buffer, the
-        //:   stream is invalidated.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. If there is a failure writing to the underlying buffer, the
+        //    stream is invalidated.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1)
-        //:
-        //: 2 Use the 'setLimit' method of the 'TestOutStreamBuf' to verify
-        //:   errors are handled correctly.  (C-2)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1)
+        //
+        // 2. Use the `setLimit` method of the `TestOutStreamBuf` to verify
+        //    errors are handled correctly.  (C-2)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   putArrayInt8(const char *array, int count);
@@ -2963,19 +2970,19 @@ int main(int argc, char *argv[])
         //   Verify the method externalizes the expected bytes.
         //
         // Concerns:
-        //: 1 The method externalizes the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 If there is a failure writing to the underlying buffer, the
-        //:   stream is invalidated.
+        // 1. The method externalizes the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. If there is a failure writing to the underlying buffer, the
+        //    stream is invalidated.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Use the 'setLimit' method of the 'TestOutStreamBuf' to verify
-        //:   errors are handled correctly.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Use the `setLimit` method of the `TestOutStreamBuf` to verify
+        //    errors are handled correctly.  (C-3)
         //
         // Testing:
         //   putFloat64(double value);
@@ -3051,19 +3058,19 @@ int main(int argc, char *argv[])
         //   Verify the method externalizes the expected bytes.
         //
         // Concerns:
-        //: 1 The method externalizes the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 If there is a failure writing to the underlying buffer, the
-        //:   stream is invalidated.
+        // 1. The method externalizes the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. If there is a failure writing to the underlying buffer, the
+        //    stream is invalidated.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Use the 'setLimit' method of the 'TestOutStreamBuf' to verify
-        //:   errors are handled correctly.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Use the `setLimit` method of the `TestOutStreamBuf` to verify
+        //    errors are handled correctly.  (C-3)
         //
         // Testing:
         //   putFloat32(float value);
@@ -3139,19 +3146,19 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 If there is a failure writing to the underlying buffer, the
-        //:   stream is invalidated.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. If there is a failure writing to the underlying buffer, the
+        //    stream is invalidated.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Use the 'setLimit' method of the 'TestOutStreamBuf' to verify
-        //:   errors are handled correctly.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Use the `setLimit` method of the `TestOutStreamBuf` to verify
+        //    errors are handled correctly.  (C-3)
         //
         // Testing:
         //   putInt64(bsls::Types::Int64 value);
@@ -3288,19 +3295,19 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 If there is a failure writing to the underlying buffer, the
-        //:   stream is invalidated.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. If there is a failure writing to the underlying buffer, the
+        //    stream is invalidated.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Use the 'setLimit' method of the 'TestOutStreamBuf' to verify
-        //:   errors are handled correctly.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Use the `setLimit` method of the `TestOutStreamBuf` to verify
+        //    errors are handled correctly.  (C-3)
         //
         // Testing:
         //   putInt56(bsls::Types::Int64 value);
@@ -3437,19 +3444,19 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 If there is a failure writing to the underlying buffer, the
-        //:   stream is invalidated.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. If there is a failure writing to the underlying buffer, the
+        //    stream is invalidated.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Use the 'setLimit' method of the 'TestOutStreamBuf' to verify
-        //:   errors are handled correctly.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Use the `setLimit` method of the `TestOutStreamBuf` to verify
+        //    errors are handled correctly.  (C-3)
         //
         // Testing:
         //   putInt48(bsls::Types::Int64 value);
@@ -3586,19 +3593,19 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 If there is a failure writing to the underlying buffer, the
-        //:   stream is invalidated.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. If there is a failure writing to the underlying buffer, the
+        //    stream is invalidated.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Use the 'setLimit' method of the 'TestOutStreamBuf' to verify
-        //:   errors are handled correctly.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Use the `setLimit` method of the `TestOutStreamBuf` to verify
+        //    errors are handled correctly.  (C-3)
         //
         // Testing:
         //   putInt40(bsls::Types::Int64 value);
@@ -3735,19 +3742,19 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 If there is a failure writing to the underlying buffer, the
-        //:   stream is invalidated.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. If there is a failure writing to the underlying buffer, the
+        //    stream is invalidated.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Use the 'setLimit' method of the 'TestOutStreamBuf' to verify
-        //:   errors are handled correctly.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Use the `setLimit` method of the `TestOutStreamBuf` to verify
+        //    errors are handled correctly.  (C-3)
         //
         // Testing:
         //   putInt32(int value);
@@ -3884,19 +3891,19 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 If there is a failure writing to the underlying buffer, the
-        //:   stream is invalidated.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. If there is a failure writing to the underlying buffer, the
+        //    stream is invalidated.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Use the 'setLimit' method of the 'TestOutStreamBuf' to verify
-        //:   errors are handled correctly.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Use the `setLimit` method of the `TestOutStreamBuf` to verify
+        //    errors are handled correctly.  (C-3)
         //
         // Testing:
         //   putInt24(int value);
@@ -4033,19 +4040,19 @@ int main(int argc, char *argv[])
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
-        //: 1 The methods externalize the expected bytes.
-        //:
-        //: 2 The externalization position does not affect the output.
-        //:
-        //: 3 If there is a failure writing to the underlying buffer, the
-        //:   stream is invalidated.
+        // 1. The methods externalize the expected bytes.
+        //
+        // 2. The externalization position does not affect the output.
+        //
+        // 3. If there is a failure writing to the underlying buffer, the
+        //    stream is invalidated.
         //
         // Plan:
-        //: 1 Externalize values at different offsets and verify the bytes.
-        //:   (C-1..2)
-        //:
-        //: 2 Use the 'setLimit' method of the 'TestOutStreamBuf' to verify
-        //:   errors are handled correctly.  (C-3)
+        // 1. Externalize values at different offsets and verify the bytes.
+        //    (C-1..2)
+        //
+        // 2. Use the `setLimit` method of the `TestOutStreamBuf` to verify
+        //    errors are handled correctly.  (C-3)
         //
         // Testing:
         //   putInt16(int value);
@@ -4182,16 +4189,16 @@ int main(int argc, char *argv[])
         //   Verify that the validity methods work correctly.
         //
         // Concerns:
-        //: 1 The stream initializes valid.
-        //:
-        //: 2 'invalidate' marks the stream invalid.
-        //:
-        //: 3 Both validity accessors return the correct validity state.
+        // 1. The stream initializes valid.
+        //
+        // 2. `invalidate` marks the stream invalid.
+        //
+        // 3. Both validity accessors return the correct validity state.
         //
         // Plan:
-        //: 1 Initialize a stream and verify the accessors' values.  (C-1)
-        //:
-        //: 2 'invalidate' the stream and verify the values.  (C-2..3)
+        // 1. Initialize a stream and verify the accessors' values.  (C-1)
+        //
+        // 2. `invalidate` the stream and verify the values.  (C-2..3)
         //
         // Testing:
         //   void invalidate();
@@ -4223,12 +4230,12 @@ int main(int argc, char *argv[])
         //   Verify functionality of the basic accessors.
         //
         // Concerns:
-        //: 1 'bdexVersionSelector' returns correct value.
+        // 1. `bdexVersionSelector` returns correct value.
         //
         // Plan:
-        //: 1 Create empty objects with different 'versionSelector' constructor
-        //:   values and verify the 'bdexVersionSelector' method's return
-        //:   value.  (C-1)
+        // 1. Create empty objects with different `versionSelector` constructor
+        //    values and verify the `bdexVersionSelector` method's return
+        //    value.  (C-1)
         //
         // Testing:
         //   int bdexVersionSelector() const;
@@ -4255,26 +4262,26 @@ int main(int argc, char *argv[])
         //   Verify functionality of primary manipulators.
         //
         // Concerns:
-        //: 1 'putInt8' and 'putUint8' produce the expected results.
-        //:
-        //: 2 If there is a failure writing to the underlying buffer, the
-        //:   stream is invalidated.
-        //:
-        //: 3 The destructor functions properly.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. `putInt8` and `putUint8` produce the expected results.
+        //
+        // 2. If there is a failure writing to the underlying buffer, the
+        //    stream is invalidated.
+        //
+        // 3. The destructor functions properly.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Externalize data with the primary manipulator and verify the
-        //:   produced output.  (C-1)
-        //:
-        //: 2 Use the 'setLimit' method of the 'TestOutStreamBuf' to verify
-        //:   errors are handled correctly.  (C-2)
-        //:
-        //: 3 Since the destructor for this object is empty, the concern
-        //:   regarding the destructor is trivially satisfied.  (C-3)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Externalize data with the primary manipulator and verify the
+        //    produced output.  (C-1)
+        //
+        // 2. Use the `setLimit` method of the `TestOutStreamBuf` to verify
+        //    errors are handled correctly.  (C-2)
+        //
+        // 3. Since the destructor for this object is empty, the concern
+        //    regarding the destructor is trivially satisfied.  (C-3)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   GenericOutStream(STREAMBUF *streamBuf, int sV);
@@ -4401,15 +4408,15 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create 'GenericOutStream' objects.
-        //:
-        //: 2 Exercise these objects using various methods.
-        //:
-        //: 3 Verify expected values throughout.  (C-1)
+        // 1. Create `GenericOutStream` objects.
+        //
+        // 2. Exercise these objects using various methods.
+        //
+        // 3. Verify expected values throughout.  (C-1)
         //
         // Testing:
         //   BREATHING TEST

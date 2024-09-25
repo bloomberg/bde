@@ -15,10 +15,10 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_stopwatch.h>
 
-#include <ctype.h>      // 'isalpha'
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
-#include <string.h>     // 'strlen'
+#include <ctype.h>      // `isalpha`
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
+#include <string.h>     // `strlen`
 
 using namespace BloombergLP;
 
@@ -30,9 +30,9 @@ using namespace BloombergLP;
 // The component to be tested provides a proctor to help with exception-safety
 // guarantees.  The test sequence is very simple: we only have to ascertain
 // that the index computation is correct and that the proctor does destroy its
-// guarded range unless 'release' has been called.  We use a test type that
+// guarded range unless `release` has been called.  We use a test type that
 // monitors the number of constructions and destructions, and that allocates in
-// order to take advantage of the standard 'bslma' exception test.
+// order to take advantage of the standard `bslma` exception test.
 //-----------------------------------------------------------------------------
 // [ 2] bslalg::AutoArrayMoveDestructor(T *b, T *e);
 // [ 2] ~bslalg::AutoArrayMoveDestructor();
@@ -95,7 +95,7 @@ void aSsErT(bool condition, const char *message, int line)
 // TYPES
 class TestType;
 
-typedef TestType                      T;    // uses 'bslma' allocators
+typedef TestType                      T;    // uses `bslma` allocators
 
 // STATIC DATA
 static int numDefaultCtorCalls = 0;
@@ -110,7 +110,7 @@ bslma::TestAllocator *Z;  // initialized at the start of main()
 //                            USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-// Note that the class 'TestType' is used both in the usage example and in
+// Note that the class `TestType` is used both in the usage example and in
 // some other cases.
 
 ///Usage
@@ -119,19 +119,19 @@ bslma::TestAllocator *Z;  // initialized at the start of main()
 //
 ///Example 1: Doubling the Length of an Array
 /// - - - - - - - - - - - - - - - - - - - - -
-// First, we create the class 'TestType', which is bitwise-movable and
+// First, we create the class `TestType`, which is bitwise-movable and
 // allocates memory upon construction:
-//..
+// ```
                                // ==============
                                // class TestType
                                // ==============
 
+    /// This test type contains a `char` in some allocated storage.  It
+    /// counts the number of default and copy constructions, assignments,
+    /// and destructions.  It has no traits other than using a `bslma`
+    /// allocator.  It could have the bit-wise moveable traits but we defer
+    /// that trait to the `MoveableTestType`.
     class TestType {
-        // This test type contains a 'char' in some allocated storage.  It
-        // counts the number of default and copy constructions, assignments,
-        // and destructions.  It has no traits other than using a 'bslma'
-        // allocator.  It could have the bit-wise moveable traits but we defer
-        // that trait to the 'MoveableTestType'.
 
         char             *d_data_p;
         bslma::Allocator *d_allocator_p;
@@ -224,40 +224,41 @@ bslma::TestAllocator *Z;  // initialized at the start of main()
     }  // close namespace bslmf
 
     }  // close enterprise namespace
-//..
-// Then, we define the function 'insertItems' which uses
-// 'AutoArrayMoveDestructor' to ensure that if an exception is thrown (e.g.,
+// ```
+// Then, we define the function `insertItems` which uses
+// `AutoArrayMoveDestructor` to ensure that if an exception is thrown (e.g.,
 // when allocating memory), the array will be left in a state where it has the
 // same number of elements, in the same location, as when the function begin
 // (though not necessarily the same value).
-//..
+// ```
+
+    /// The memory in the specified range `[ start, divider )` contains
+    /// valid elements, and the range of valid elements is to be doubled by
+    /// inserting `divider - start` copies of the specified `value` at
+    /// `start`, shifting the existing valid values back in memory.  Assume
+    /// that following the pointer `divider` is sufficient uninitialized
+    /// memory, and that the type `TestType` is bitwise-movable
+    /// (`AutoArrayMoveDestructor` will only work bitwise-movable types).
     void insertItems(TestType         *start,
                      TestType         *divider,
                      const TestType    value,
                      bslma::Allocator *allocator)
-        // The memory in the specified range '[ start, divider )' contains
-        // valid elements, and the range of valid elements is to be doubled by
-        // inserting 'divider - start' copies of the specified 'value' at
-        // 'start', shifting the existing valid values back in memory.  Assume
-        // that following the pointer 'divider' is sufficient uninitialized
-        // memory, and that the type 'TestType' is bitwise-movable
-        // ('AutoArrayMoveDestructor' will only work bitwise-movable types).
     {
         TestType *finish = divider + (divider - start);
 
         BSLMF_ASSERT(bslmf::IsBitwiseMoveable< TestType>::value);
         BSLMF_ASSERT(bslma::UsesBslmaAllocator<TestType>::value);
 
-        // The range '[ start, divider )' contains valid elements.  The range
-        // '[ divider, finish )' is of equal length and contains uninitialized
-        // memory.  We want to insert 'divider - start' copies of the specified
-        // 'value' at the front half of the range '[ start, finish )', moving
+        // The range `[ start, divider )` contains valid elements.  The range
+        // `[ divider, finish )` is of equal length and contains uninitialized
+        // memory.  We want to insert `divider - start` copies of the specified
+        // `value` at the front half of the range `[ start, finish )`, moving
         // the existing elements back to make room for them.  Note that the
-        // copy constructor of 'TestType' allocates memory and may throw, so we
+        // copy constructor of `TestType` allocates memory and may throw, so we
         // have to leave the array in a somewhat predictable state if we do
         // throw.  What the bslalg::AutoArrayMoveDestructor will do is
         // guarantee that, if it is destroyed before the insertion is complete,
-        // the range '[ start, divider )' will contain valid elements, and that
+        // the range `[ start, divider )` will contain valid elements, and that
         // no other valid elements will exist.
         //
         // Note that the existing elements, which are bitwise-moveable, may be
@@ -265,8 +266,8 @@ bslma::TestAllocator *Z;  // initialized at the start of main()
         // exception, but the newly inserted elements must be copy-constructed
         // (requiring memory allocation).
         //
-        // First, move the valid elements from '[ start, divider )' to
-        // '[ divider, finish )'.  This can be done without risk of a throw
+        // First, move the valid elements from `[ start, divider )` to
+        // `[ divider, finish )`.  This can be done without risk of a throw
         // occurring.
 
         std::memcpy((void *)divider,
@@ -281,13 +282,13 @@ bslma::TestAllocator *Z;  // initialized at the start of main()
 
             new (guard.destination()) TestType(value, allocator);
 
-            // 'guard.advance()' increments 'guard.destination()' and
-            // 'guard.middle()' by one.
+            // `guard.advance()` increments `guard.destination()` and
+            // `guard.middle()` by one.
 
             guard.advance();
         }
     }
-//..
+// ```
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -328,70 +329,70 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-// Next, within the 'main' function of our task, we create our 'value' object,
-// whose value will be 'v', to be inserted into the front of our range.
-//..
+// Next, within the `main` function of our task, we create our `value` object,
+// whose value will be `v`, to be inserted into the front of our range.
+// ```
     TestType value('v');
-//..
+// ```
 // Then, we create a test allocator, and use it to allocate memory for an array
-// of 'TestType' objects:
-//..
+// of `TestType` objects:
+// ```
     bslma::TestAllocator ta;
 
     TestType *array = (TestType *) ta.allocate(10 * sizeof(TestType));
-//..
+// ```
 // Next, we construct the first 5 elements of the array to have the values
-// 'ABCDE'.
-//..
+// `ABCDE`.
+// ```
     TestType *p = array;
     new (p++) TestType('A', &ta);
     new (p++) TestType('B', &ta);
     new (p++) TestType('C', &ta);
     new (p++) TestType('D', &ta);
     new (p++) TestType('E', &ta);
-//..
+// ```
 // Then, we record the number of outstanding blocks in the allocator:
-//..
+// ```
     const bsls::Types::Int64 N = ta.numBlocksInUse();
-//..
-// Next, we enter an 'exception test' block, which will repeatedly enter a
-// block of code, catching exceptions throw by the test allocator 'ta' on each
+// ```
+// Next, we enter an `exception test` block, which will repeatedly enter a
+// block of code, catching exceptions throw by the test allocator `ta` on each
 // iteration:
-//..
+// ```
     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ta)
-//..
+// ```
 // Then, we observe that even if we've just caught an exception and re-entered
 // the block, the amount of memory outstanding is unchanged from before we
 // entered the block.
-//..
+// ```
         ASSERT(ta.numBlocksInUse() == N);
-//..
+// ```
 // Note that when we threw, some of the values of the 5 elements of the array
-// may have been changed to 'v', otherwise they will be unchanged.
+// may have been changed to `v`, otherwise they will be unchanged.
 //
 // Next, we re-initialize those elements that have been overwritten in the last
-// pass with 'value' to their values before we entered the block:
-//..
+// pass with `value` to their values before we entered the block:
+// ```
         if ('v' == array[0].datum()) array[0].setDatum('A');
         if ('v' == array[1].datum()) array[1].setDatum('B');
         if ('v' == array[2].datum()) array[2].setDatum('C');
         if ('v' == array[3].datum()) array[3].setDatum('D');
         if ('v' == array[4].datum()) array[4].setDatum('E');
-//..
-// Then, we call 'insertItems', which may throw:
-//..
+// ```
+// Then, we call `insertItems`, which may throw:
+// ```
         insertItems(array, p, value, &ta);
-//..
+// ```
 // Next, we exit the except testing block.
-//..
+// ```
     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-//..
+// ```
 // Now, we verify that:
-//: 1 we have allocated exactly 5 more blocks of memory, since each 'TestType'
-//:   object allocates one block and 'insertItems' created 5 more 'TestType'
-//:   objects.
-//: 2 the values of the elements of the array are as expected.
-//..
+// 1. we have allocated exactly 5 more blocks of memory, since each `TestType`
+//    object allocates one block and `insertItems` created 5 more `TestType`
+//    objects.
+// 2. the values of the elements of the array are as expected.
+// ```
     ASSERT(ta.numBlocksInUse() == N + 5);
 
     ASSERT('v' == array[0].datum());
@@ -404,21 +405,21 @@ int main(int argc, char *argv[])
     ASSERT('C' == array[7].datum());
     ASSERT('D' == array[8].datum());
     ASSERT('E' == array[9].datum());
-//..
+// ```
 // Finally, we destroy our array and check the allocator to verify no memory
 // was leaked:
-//..
+// ```
     for (int i = 0; i < 10; ++i) {
         array[i].~TestType();
     }
     ta.deallocate(array);
 
     ASSERT(0 == ta.numBytesInUse());
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'class AutoArrayMoveDestructor'
+        // TESTING `class AutoArrayMoveDestructor`
         //
         // Concerns:  That the guard frees guarded memory properly upon
         //   exceptions.
@@ -439,7 +440,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nTESTING 'class AutoArrayMoveDestructor'"
+            printf("\nTESTING `class AutoArrayMoveDestructor`"
                    "\n=======================================\n");
 
         const int GUARD_SIZE = 8;
@@ -499,10 +500,11 @@ int main(int argc, char *argv[])
                            &buf[0],
                            &buf[GUARD_SIZE],
                            Z);
+
+                    // guards as follows (upon destruction): destroys first
+                    // portion of first half, move second portion of first
+                    // half beyond constructed elements in second half
                     const Obj& G = mG;
-                        // guards as follows (upon destruction): destroys first
-                        // portion of first half, move second portion of first
-                        // half beyond constructed elements in second half
 
                     mExcGuard.moveBegin(GUARD_SIZE);
                     mExcGuard.moveEnd(MAX_SIZE - GUARD_SIZE); // second half
@@ -537,8 +539,8 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Testing:
         //   BREATHING TEST

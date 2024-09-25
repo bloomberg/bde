@@ -5,8 +5,8 @@
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 
-#include <bsl_cstdlib.h>       // 'atoi'
-#include <bsl_cstring.h>       // 'strcmp', 'memcmp', 'memcpy'
+#include <bsl_cstdlib.h>       // `atoi`
+#include <bsl_cstring.h>       // `strcmp`, `memcmp`, `memcpy`
 #include <bsl_ios.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -88,7 +88,7 @@ static void aSsErT(int c, const char *s, int i)
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
+#define P_(X) cout << #X " = " << (X) << ", " << flush; // `P(X)` without '\n'
 #define T_ cout << "\t" << flush;             // Print tab w/o newline.
 #define L_ __LINE__                           // current Line number
 
@@ -132,14 +132,14 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE

@@ -108,8 +108,8 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // Allow compilation of individual test-cases (for test drivers that take a
-// very long time to compile).  Specify '-DSINGLE_TEST=<testcase>' to compile
-// only the '<testcase>' test case.
+// very long time to compile).  Specify `-DSINGLE_TEST=<testcase>` to compile
+// only the `<testcase>` test case.
 #define TEST_IS_ENABLED(num) (! defined(SINGLE_TEST) || SINGLE_TEST == (num))
 
 // ============================================================================
@@ -131,7 +131,7 @@ static int veryVeryVerbose = 0;
 // Abbreviation for balxml::ErrorInfo
 typedef balxml::ErrorInfo Obj;
 
-#ifdef NO_FAULT // 'NO_FAULT' is #define'd in a windows header
+#ifdef NO_FAULT // `NO_FAULT` is #define'd in a windows header
 #undef NO_FAULT
 #endif
 
@@ -141,9 +141,9 @@ const Obj::Severity CAUTION     = Obj::e_WARNING;
 const Obj::Severity FAULT       = Obj::e_ERROR;
 const Obj::Severity FATAL_FAULT = Obj::e_FATAL_ERROR;
 
+/// Test vector structure
 struct TestVector
 {
-    // Test vector structure
 
     Obj::Severity   d_severity;
     int             d_lineNumber;
@@ -157,15 +157,15 @@ struct TestVector
     bool            d_isAnyError;
 };
 
+/// Set the specified `v` test vector to the test vector at the specified
+/// `index` in a simulated array of test vectors and return true on success
+/// and false if there are no more test vectors.  If the (optionally)
+/// specified `skipUnsettable` is true (the default), then test vectors
+/// that can never be translated into a `balxml::ErrorInfo` object are
+/// skipped.  Specifically, if severity is NO_FAULT, then any values other
+/// than the defaults for line number, column number, source, and message
+/// can not be set in an object.
 bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
-    // Set the specified 'v' test vector to the test vector at the specified
-    // 'index' in a simulated array of test vectors and return true on success
-    // and false if there are no more test vectors.  If the (optionally)
-    // specified 'skipUnsettable' is true (the default), then test vectors
-    // that can never be translated into a 'balxml::ErrorInfo' object are
-    // skipped.  Specifically, if severity is NO_FAULT, then any values other
-    // than the defaults for line number, column number, source, and message
-    // can not be set in an object.
 {
     static const int NUM_LINE_NUMBERS = 2;
     static const int NUM_COLUMN_NUMBERS = 2;
@@ -188,7 +188,7 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
                                                  NUM_MESSAGES);
 
     // The total number of test vectors depends on whether we are skipping
-    // those vectors that cannot be used to set a 'balxml::ErrorInfo' object.
+    // those vectors that cannot be used to set a `balxml::ErrorInfo` object.
     // If we are skipping unsettable test vectors, then we have a full set of
     // test vectors for each severity except BAEXML_NO_ERROR but only one test
     // vector for BAEXML_NO_ERROR.  If we are not skipping any vectors, then we
@@ -215,7 +215,7 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
 
     // Severity is the high-order field.  This formula is designed so that
     // BAEXML_NO_ERROR is the last (instead of the first) severity generated.
-    // That way, if 'skipUnsettable' is true, then the test vectors that are
+    // That way, if `skipUnsettable` is true, then the test vectors that are
     // eliminated will all be for BAEXML_NO_ERROR.
     v->d_severity = (Obj::Severity) ((index + 1) % NUM_SEVERITIES);
     index /= NUM_SEVERITIES;
@@ -243,49 +243,49 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
 // file is formatted as a sequence of lines, with each line containing a
 // decimal number in the range "0" to "100", inclusive.  Leading whitespace and
 // blank lines are ignored.  When an error occurs during parsing, the error
-// data is stored in a 'balxml::ErrorInfo' object.  Our parser's interface is
+// data is stored in a `balxml::ErrorInfo` object.  Our parser's interface is
 // as follows:
-//..
+// ```
 
+    /// Parse a document stream consisting of a sequence of integral
+    /// percentages (0 to 100) in decimal text format, one per line.
     class PercentParser {
-        // Parse a document stream consisting of a sequence of integral
-        // percentages (0 to 100) in decimal text format, one per line.
 
         bsl::istream *d_input;    // Input document stream
         bsl::string   d_docName;  // Document name
         int           d_line;     // Current line number
 
       public:
+        /// Construct a parser to parse the data in the specified `input`
+        /// stream having the optionally specified `docName`.  A valid
+        /// `input` stream contains a sequence of integers in the range 0
+        /// to 100, one per line, in decimal text format.  Each line may
+        /// contain leading but not trailing tabs and spaces.  Characters
+        /// after the 20th character on each line are ignored and will
+        /// generate a warning.
         PercentParser(bsl::istream       *input,
                       const bsl::string&  docName = "INPUT");
-            // Construct a parser to parse the data in the specified 'input'
-            // stream having the optionally specified 'docName'.  A valid
-            // 'input' stream contains a sequence of integers in the range 0
-            // to 100, one per line, in decimal text format.  Each line may
-            // contain leading but not trailing tabs and spaces.  Characters
-            // after the 20th character on each line are ignored and will
-            // generate a warning.
 
+        /// Read and parse the next percentage in the input stream and
+        /// return the percentage or -1 on eof or -2 on error.  Set the
+        /// value of the specified `errorInfo` structure on error or
+        /// warning and leave it unchanged otherwise.  Do nothing and
+        /// return -2 if `errorInfo->severity()` >= `BAEXML_ERROR`.
         int parseNext(balxml::ErrorInfo *errorInfo);
-            // Read and parse the next percentage in the input stream and
-            // return the percentage or -1 on eof or -2 on error.  Set the
-            // value of the specified 'errorInfo' structure on error or
-            // warning and leave it unchanged otherwise.  Do nothing and
-            // return -2 if 'errorInfo->severity()' >= 'BAEXML_ERROR'.
     };
-//..
+// ```
 // The constructor is straight-forward:
-//..
+// ```
     PercentParser::PercentParser(bsl::istream       *input,
                                  const bsl::string&  docName)
     : d_input(input), d_docName(docName), d_line(0)
     {
     }
-//..
-// The 'parseNext' function begins by testing if a previous error occurred.  By
-// testing this condition, we can call 'parseNext' several times, knowing that
+// ```
+// The `parseNext` function begins by testing if a previous error occurred.  By
+// testing this condition, we can call `parseNext` several times, knowing that
 // the first error will stop the parse operation.
-//..
+// ```
     int PercentParser::parseNext(balxml::ErrorInfo *errorInfo)
     {
         static const int MAX_LINE = 20;
@@ -294,10 +294,10 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
             // Don't advance if errorInfo shows a previous error.
             return -2;                                                // RETURN
         }
-//..
+// ```
 // The parser skips leading whitespace and lines containing only whitespace.
 // It loops until a non-empty line is found:
-//..
+// ```
         char buffer[MAX_LINE + 1];
         buffer[0] = '\0';
 
@@ -308,12 +308,12 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
             ++d_line;
             d_input->getline(buffer, MAX_LINE + 1, '\n');
             len = bsl::strlen(buffer);
-//..
-// The input stream reports that the input line is longer than 'MAX_LINE' by
+// ```
+// The input stream reports that the input line is longer than `MAX_LINE` by
 // setting the fail() condition.  In this case, we set the error object to a
 // warning state, indicating the line and column where the problem occurred.
 // Then we clear the stream condition and discard the rest of the line.
-//..
+// ```
             if (MAX_LINE == len && d_input->fail()) {
                 // 20 characters read without encountering newline.  Warn about
                 // long line and discard rest of line.
@@ -323,10 +323,10 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
                 d_input->clear();
                 d_input->ignore(INT_MAX, '\n');
             }
-//..
+// ```
 // If we detect an EOF condition, we just return -1.  Otherwise, we skip the
 // leading whitespace and go on.
-//..
+// ```
             else if (0 == len && d_input->eof()) {
                 // Encountered eof before any other characters.
                 return -1;                                            // RETURN
@@ -336,12 +336,12 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
             startColumn = bsl::strspn(buffer, " \t");
         }
 
-//..
+// ```
 // Now we perform two more error checks: one or superfluous characters after
-// the integer, the other for an out-of-range integer.  If the 'errorInfo'
+// the integer, the other for an out-of-range integer.  If the `errorInfo`
 // object is already in warning state, either of these errors will overwrite
 // the existing warning with the new error condition.
-//..
+// ```
         char *endp = 0;
         long result = bsl::strtol(buffer + startColumn, &endp, 10);
         int endColumn = endp - buffer;
@@ -358,18 +358,18 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
                                 "Value is not between 0 and 100");
             return -2;                                                // RETURN
         }
-//..
-// If there were no errors, return the result.  Note that the 'errorInfo'
+// ```
+// If there were no errors, return the result.  Note that the `errorInfo`
 // object may contain a warning, but warnings typically do not cause a change
 // in the error value.
-//..
+// ```
         return result;
     }
-//..
-// The main program uses the 'PercentParser' class to parse a list of values
+// ```
+// The main program uses the `PercentParser` class to parse a list of values
 // and compute the average.  Typically, the data would be stored in a file,
 // but we'll use a literal string for demonstration purposes:
-//..
+// ```
     int usageExample()
     {
         static const char INPUTS[] =
@@ -379,37 +379,37 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
             "99x\n"                     // Error: bad character
             "     101\n"                // Error: out of range
             "                 1010\n";  // Out-of-range overrides warning
-//..
+// ```
 // We convert the string into a stream and initialize the parser.  We name our
 // input stream "Inputs" for the purpose of error handling.  We also
 // initialize our working variables:
-//..
+// ```
         bsl::istringstream inputstream(INPUTS);
         PercentParser parser(&inputstream, "Inputs");
         int result;
         int sum = 0;
         int numValues = 0;
-//..
-// Any error in parsing will be stored in the 'errorInfo' object.  When first
-// constructed, it has a severity of 'BAEXML_NO_ERROR'.
-//..
+// ```
+// Any error in parsing will be stored in the `errorInfo` object.  When first
+// constructed, it has a severity of `BAEXML_NO_ERROR`.
+// ```
         balxml::ErrorInfo errorInfo;
         ASSERT(errorInfo.isNoError());
-//..
+// ```
 // Normally, parsing would proceed in a loop.  However, to illustrate the
 // different error-handling situations, we have unrolled the loop below.
 //
 // The first parse succeeds, and no error is reported:
-//..
+// ```
         result = parser.parseNext(&errorInfo);
         ASSERT(20 == result);
         ASSERT(errorInfo.isNoError());
         sum += result;
         ++numValues;
-//..
+// ```
 // The next parse also succeeds but, because the input line was very long, a
 // warning was generated:
-//..
+// ```
         result = parser.parseNext(&errorInfo);
         ASSERT(3 == result);  // Truncated at 20th column
         ASSERT(errorInfo.isWarning());
@@ -418,11 +418,11 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
         ASSERT("Text after 20th column was discarded" == errorInfo.message());
         sum += result;
         ++numValues;
-//..
-// After resetting the 'errorInfo' object, the we call 'nextParse' again.  This
+// ```
+// After resetting the `errorInfo` object, the we call `nextParse` again.  This
 // time it fails with an error.  The line, column, and source of the error are
 // reported in the object.
-//..
+// ```
         errorInfo.reset();
         result = parser.parseNext(&errorInfo);
         ASSERT(-2 == result);
@@ -431,20 +431,20 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
         ASSERT(4 == errorInfo.lineNumber());
         ASSERT(3 == errorInfo.columnNumber());
         ASSERT("Bad input character" == errorInfo.message());
-//..
-// If the 'errorInfo' object is not reset, calling 'parseNext' becomes a
+// ```
+// If the `errorInfo` object is not reset, calling `parseNext` becomes a
 // no-op:
-//..
+// ```
         result = parser.parseNext(&errorInfo);
         ASSERT(-2 == result);
         ASSERT(errorInfo.isError());
         ASSERT(4 == errorInfo.lineNumber());
         ASSERT(3 == errorInfo.columnNumber());
         ASSERT("Bad input character" == errorInfo.message());
-//..
-// After calling 'reset', the next call to 'parseNext' produces a different
+// ```
+// After calling `reset`, the next call to `parseNext` produces a different
 // error message:
-//..
+// ```
         errorInfo.reset();
         result = parser.parseNext(&errorInfo);
         ASSERT(-2 == result);
@@ -452,13 +452,13 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
         ASSERT(5 == errorInfo.lineNumber());
         ASSERT(6 == errorInfo.columnNumber());
         ASSERT("Value is not between 0 and 100" == errorInfo.message());
-//..
+// ```
 // The last line of the file contains two problems: a long line, which would
 // produce a warning, and a range error, which would produce an error.  The
 // warning message is overwritten by the error message because the error has a
-// higher severity.  Therefore, on return from 'parseNext', only the error
-// message is stored in 'errorInfo' and the warning is lost:
-//..
+// higher severity.  Therefore, on return from `parseNext`, only the error
+// message is stored in `errorInfo` and the warning is lost:
+// ```
         errorInfo.reset();
         result = parser.parseNext(&errorInfo);
         ASSERT(-2 == result);
@@ -466,18 +466,18 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
         ASSERT(6 == errorInfo.lineNumber());
         ASSERT(18 == errorInfo.columnNumber());
         ASSERT("Value is not between 0 and 100" == errorInfo.message());
-//..
-// Writing the 'errorInfo' object to a log or file will produce a readable
+// ```
+// Writing the `errorInfo` object to a log or file will produce a readable
 // error message:
-//..
+// ```
         bsl::cerr << errorInfo << bsl::endl;
-//..
+// ```
 // The resulting message to standard error looks as follows:
-//..
+// ```
 //  Inputs:6.18: Error: Value is not between 0 and 100
-//..
+// ```
 // Finally, we reach the end of the input stream and can compute our average.
-//..
+// ```
         errorInfo.reset();
         result = parser.parseNext(&errorInfo);
         ASSERT(-1 == result);
@@ -488,7 +488,7 @@ bool getTestVector(TestVector *v, int index, bool skipUnsettable = true)
 
         return 0;
     }
-//..
+// ```
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic pop
@@ -551,7 +551,7 @@ int main(int argc, char *argv[])
         //     output of the expected form.
         //
         // Plan:
-        //   - Construct and initialize four 'balxml::ErrorInfo' objects, one
+        //   - Construct and initialize four `balxml::ErrorInfo` objects, one
         //     at each severity.
         //   - Print each object to an bsl::stringstream
         //   - Verify that the output is as expected.
@@ -617,15 +617,15 @@ int main(int argc, char *argv[])
         //    left-hand-side.
         //
         // Plan:
-        //  - In a loop, create a 'balxml::ErrorInfo' object and set it
+        //  - In a loop, create a `balxml::ErrorInfo` object and set it
         //    according to a test vector.
-        //  - Copy-construct another 'balxml::ErrorInfo' object from the first,
+        //  - Copy-construct another `balxml::ErrorInfo` object from the first,
         //    using the default constructor.  Verify that the copy compares
         //    equal to the original and that the correct allocator was used.
-        //  - Copy-construct another 'balxml::ErrorInfo' object from the first,
+        //  - Copy-construct another `balxml::ErrorInfo` object from the first,
         //    using a test constructor.  Verify that the copy compares
         //    equal to the original and that the correct allocator was used.
-        //  - Construct an empty 'balxml::ErrorInfo' object and give it a
+        //  - Construct an empty `balxml::ErrorInfo` object and give it a
         //    value.
         //  - Assign the new object the value of the first object.  Verify
         //    that copy matches the original and that the copy uses the
@@ -721,18 +721,18 @@ int main(int argc, char *argv[])
         // Concerns:
         //  - Objects that are equal compare equal.
         //  - Objects that are not equal don't compare equal .
-        //  - 'operator!=' has the opposite result of 'operator=='.
+        //  - `operator!=` has the opposite result of `operator==`.
         //
         // Plan:
         //  - In a 2-level nested loop, generate two test vectors.
-        //  - Create two 'balxml::ErrorInfo' objects and set their values
+        //  - Create two `balxml::ErrorInfo` objects and set their values
         //    according to each test vector.
         //  - If the test vectors were generated from the same index,
-        //    verify that calling 'operator==' on the two objects returns true
-        //    and calling 'operator!=' on the two objects returns false.
+        //    verify that calling `operator==` on the two objects returns true
+        //    and calling `operator!=` on the two objects returns false.
         //  - If the test vectors were generated from the different indexes,
-        //    verify that calling 'operator==' on the two objects returns false
-        //    and calling 'operator!=' on the two objects returns true.
+        //    verify that calling `operator==` on the two objects returns false
+        //    and calling `operator!=` on the two objects returns true.
         //
         // Testing:
         //     bool operator==(const balxml::ErrorInfo& lhs,
@@ -787,39 +787,39 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //  - The default constructor produces a NO_FAULT object.
-        //  - 'setError' on a NO_FAULT object overwrites the current settings
-        //  - 'setError' on an object with lower severity overwrites the
+        //  - `setError` on a NO_FAULT object overwrites the current settings
+        //  - `setError` on an object with lower severity overwrites the
         //    current settings.
-        //  - 'setError' on an object with same or higher priority does
+        //  - `setError` on an object with same or higher priority does
         //    nothing.
         //  - reset sets the object back to its initial state.
         //  - The allocator passed to the constructor is used for all strings.
         //
         // Plan:
-        //  - Construct a 'balxml::ErrorInfo' using the default allocator.
+        //  - Construct a `balxml::ErrorInfo` using the default allocator.
         //    Verify default attributes of the newly-constructed object.
         //  - Set attributes on the new object.  Verify the attributes and the
         //    use of the allocator.
         //  - Repeat the previous 2 steps using a test allocator.
         //  - Loop through two sets of data values
-        //  - Within the loop, construct three 'balxml::ErrorInfo' objects
-        //    using a test allocator.  Call them 'e1', 'e2', and 'e3'.
-        //  - Use the multiple-argument 'setError' to set 'e1' to one data
-        //    value.  Verify the attributes of 'e1'
-        //  - Use the multiple-argument 'setError' to set 'e2' and 'e3' to the
+        //  - Within the loop, construct three `balxml::ErrorInfo` objects
+        //    using a test allocator.  Call them `e1`, `e2`, and `e3`.
+        //  - Use the multiple-argument `setError` to set `e1` to one data
+        //    value.  Verify the attributes of `e1`
+        //  - Use the multiple-argument `setError` to set `e2` and `e3` to the
         //    other data value.
-        //  - Use the multiple-argument 'setError' to set 'e2' to the first
+        //  - Use the multiple-argument `setError` to set `e2` to the first
         //    data value.
         //  - If the first data value has a higher severity than the second
-        //    data value, verify that 'e2' now has the first data value, else
+        //    data value, verify that `e2` now has the first data value, else
         //    verify that it still has the second data value.
-        //  - Use the single-argument 'setError' to set 'e3' to 'e1'.
+        //  - Use the single-argument `setError` to set `e3` to `e1`.
         //  - If the first data value has a higher severity than the second
-        //    data value, verify that 'e3' now has the first data value, else
+        //    data value, verify that `e3` now has the first data value, else
         //    verify that it still has the second data value.
         //  - Verify that the test allocator was used and the default
         //    allocator was not.
-        //  - Call 'reset' on 'e3'.  Verify that it is back to the default
+        //  - Call `reset` on `e3`.  Verify that it is back to the default
         //    state.
         //
         // Testing
@@ -968,7 +968,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(E2, V2.d_message      == E2.message());
                 LOOP_ASSERT(E2, 0 == da.numBlocksInUse());
 
-                // Set 'e2' to 'V1' if 'V1' severity is greater
+                // Set `e2` to `V1` if `V1` severity is greater
                 e2.setError(V1.d_severity,
                             V1.d_lineNumber,
                             V1.d_columnNumber,
@@ -1007,7 +1007,7 @@ int main(int argc, char *argv[])
                             V2.d_source,
                             V2.d_message);
 
-                // Set 'e3' to 'e1' if 'e1' severity is greater
+                // Set `e3` to `e1` if `e1` severity is greater
                 e3.setError(E1);
                 if (V1.d_severity > V2.d_severity) {
                     LOOP_ASSERT(E3, V1.d_isNoError    == E3.isNoError());

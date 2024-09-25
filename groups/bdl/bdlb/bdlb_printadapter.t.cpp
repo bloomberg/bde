@@ -4,7 +4,7 @@
 #include <bdlb_random.h>
 
 #include <bdlb_indexspan.h>
-#include <bdlb_printmethods.h> // 'bdlb::HasPrintMethod'
+#include <bdlb_printmethods.h> // `bdlb::HasPrintMethod`
 
 #include <bslim_printer.h>
 #include <bslim_testutil.h>
@@ -20,11 +20,11 @@
 #include <bsls_review.h>
 #include <bsls_types.h>
 
-#include <bsl_cmath.h>                    // 'bsl::abs'
-#include <bsl_cstdlib.h>                  // 'bsl::atoi'
+#include <bsl_cmath.h>                    // `bsl::abs`
+#include <bsl_cstdlib.h>                  // `bsl::atoi`
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
-#include <bsl_string.h>                   // 'bsl::string', 'bsl::to_string'
+#include <bsl_string.h>                   // `bsl::string`, `bsl::to_string`
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
@@ -152,39 +152,39 @@ bool veryVeryVeryVerbose;
 namespace {
 namespace u {
 
+/// Use `TYPE::print` to stream the specified `value` to the specified
+/// `stream`, using the specified `level` and `spacesPerLevel`.
 template <class TYPE>
 void streamValueImp(bsl::ostream& stream,
                     const TYPE&   value,
                     int           level,
                     int           spacesPerLevel,
                     bsl::true_type)
-    // Use 'TYPE::print' to stream the specified 'value' to the specified
-    // 'stream', using the specified 'level' and 'spacesPerLevel'.
 {
     value.print(stream, level, spacesPerLevel);
 }
 
+/// The template parameter `TYPE` has no `print` method.  Use
+/// `bdlb::PrintMethods::print` to stream the specified `value` to the
+/// specified `stream`, using the speceified `level` and `spacesPerLevel`.
 template <class TYPE>
 void streamValueImp(bsl::ostream& stream,
                     const TYPE&   value,
                     int           level,
                     int           spacesPerLevel,
                     bsl::false_type)
-    // The template parameter 'TYPE' has no 'print' method.  Use
-    // 'bdlb::PrintMethods::print' to stream the specified 'value' to the
-    // specified 'stream', using the speceified 'level' and 'spacesPerLevel'.
 {
     bdlb::PrintMethods::print(stream, value, level, spacesPerLevel);
 }
 
+/// If `TYPE` has a `print` method, use that to stream the specified `value`
+/// to the specified `stream`, passing `print` the specified `level` and
+/// `spacesPerLevel`.  If not, stream using `bdlb::PrintMethods::print`.
 template <class TYPE>
 void streamValue(bsl::ostream& stream,
                  const TYPE&   value,
                  int           level,
                  int           spacesPerLevel)
-    // If 'TYPE' has a 'print' method, use that to stream the specified 'value'
-    // to the specified 'stream', passing 'print' the specified 'level' and
-    // 'spacesPerLevel'.  If not, stream using 'bdlb::PrintMethods::print'.
 {
     u::streamValueImp(stream,
                       value,
@@ -193,8 +193,8 @@ void streamValue(bsl::ostream& stream,
                       bdlb::HasPrintMethod<TYPE>());
 }
 
+/// This `struct` provides a stateful type that has no `print` operator.
 struct NoPrintType {
-    // This 'struct' provides a stateful type that has no 'print' operator.
 
     // DATA
     int d_ii;
@@ -225,8 +225,8 @@ bsl::ostream& operator<<(bsl::ostream& stream, const NoPrintType& value)
     return stream;
 }
 
+/// This `struct` provides a stateful type that has a `print` operator.
 struct HasPrintType {
-    // This 'struct' provides a stateful type that has a 'print' operator.
 
     // DATA
     int d_woof;
@@ -265,49 +265,49 @@ void testValues(const TYPE *valueArray, int valueArrayLen)
     // CONSTRUCTOR, STREAM, and MAKEADAPTER
     //
     // Concerns:
-    //: 1 That the output created by the 'class' under test streams the desired
-    //:   output over a wide range of inputs.
-    //:
-    //: 2 That 'operator<<' returns a reference to the 'ostream' that it is
-    //:   passed.
+    // 1. That the output created by the `class` under test streams the desired
+    //    output over a wide range of inputs.
+    //
+    // 2. That `operator<<` returns a reference to the `ostream` that it is
+    //    passed.
     //
     // PlAN:
-    //: 1 Iterate a reference 'X' through the specified 'valueArray'.
-    //:
-    //: 2 Within that loop, iterate through several values of 'level'.
-    //:
-    //: 3 Within that loop, iterate through several values of 'spacesPerLevel'.
-    //:
-    //: 4 Use 'bdlb::HasPrintMethod' to determine whether 'TYPE' has a BDE
-    //:   standard 'print' member, and call the template function
-    //:   'streamValue':
-    //:   1 If 'TYPE' has a print member, call that directly with the 'level'
-    //:     and 'spacesPerLevel' from the loop variables.
-    //:
-    //:   2 If 'TYPE' has no print member, call 'bdlb::PrintMethods' to stream
-    //:     'X'.
-    //:
-    //:   3 After either '1' or '2', capture the streamed output to a string,
-    //:     'rawResult' to be compared to output streamed using 'PrintAdapter'.
-    //:
-    //: 5 If the compiler supports CTAD, construct a 'PrintAdapter' object from
-    //:   'X' (without supplying a template argument) and the 'level' and
-    //:   'spacesPerLevel' from the loop variables, and stream it, capturing
-    //:   the result in the 'string' 'ctadResult' and compare it to
-    //:   'rawResult'.
-    //:
-    //: 6 Construct a 'PrintAdapter<TYPE>' object from 'X' and the 'level' and
-    //:   'spacesPerLevel' from the loop variables, and stream it, capturing
-    //:   the result in the 'string' 'adapterResult' and compare it to
-    //:   'rawResults'.
-    //:
-    //: 7 In P-5 and P-6, if it is possible to default the 'level' and
-    //:   'spacesPerLevel' arguments to the 'PrintAdapter', do that instead of
-    //:   passing values.
-    //:
-    //: 8 In P-5 and P-6, take a pointer to the stream reference returned, and
-    //:   verify that it matches the address of the 'ostringstream' passed to
-    //:   'operator<<' call.
+    // 1. Iterate a reference `X` through the specified `valueArray`.
+    //
+    // 2. Within that loop, iterate through several values of `level`.
+    //
+    // 3. Within that loop, iterate through several values of `spacesPerLevel`.
+    //
+    // 4. Use `bdlb::HasPrintMethod` to determine whether `TYPE` has a BDE
+    //    standard `print` member, and call the template function
+    //    `streamValue`:
+    //   1. If `TYPE` has a print member, call that directly with the `level`
+    //      and `spacesPerLevel` from the loop variables.
+    //
+    //   2. If `TYPE` has no print member, call `bdlb::PrintMethods` to stream
+    //      `X`.
+    //
+    //   3. After either '1' or '2', capture the streamed output to a string,
+    //      `rawResult` to be compared to output streamed using `PrintAdapter`.
+    //
+    // 5. If the compiler supports CTAD, construct a `PrintAdapter` object from
+    //    `X` (without supplying a template argument) and the `level` and
+    //    `spacesPerLevel` from the loop variables, and stream it, capturing
+    //    the result in the `string` `ctadResult` and compare it to
+    //    `rawResult`.
+    //
+    // 6. Construct a `PrintAdapter<TYPE>` object from `X` and the `level` and
+    //    `spacesPerLevel` from the loop variables, and stream it, capturing
+    //    the result in the `string` `adapterResult` and compare it to
+    //    `rawResults`.
+    //
+    // 7. In P-5 and P-6, if it is possible to default the `level` and
+    //    `spacesPerLevel` arguments to the `PrintAdapter`, do that instead of
+    //    passing values.
+    //
+    // 8. In P-5 and P-6, take a pointer to the stream reference returned, and
+    //    verify that it matches the address of the `ostringstream` passed to
+    //    `operator<<` call.
     // --------------------------------------------------------------------
 {
     const char *name = bsls::NameOf<TYPE>().name();
@@ -413,7 +413,7 @@ int main(int argc, char **argv)
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
 
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
@@ -423,12 +423,12 @@ int main(int argc, char **argv)
         // USAGE EXAMPLE 3 -- C++17
         //
         // Concern:
-        //: 1 Demonstrate the usage of the component in C++17.
+        // 1. Demonstrate the usage of the component in C++17.
         //
         // Plan:
-        //: 1 Call the 'PrintAdapter' constructor directly without explicitly
-        //:   specifying the template parameter and taking advantage of CTAD.
-        //:   fully-specified c'tor.
+        // 1. Call the `PrintAdapter` constructor directly without explicitly
+        //    specifying the template parameter and taking advantage of CTAD.
+        //    fully-specified c'tor.
         //
         // Testing:
         //   USAGE EXAMPLE 3 -- C++17
@@ -441,27 +441,27 @@ int main(int argc, char **argv)
 //
 ///Example 3: Use in C++17 With CTAD
 ///- - - - - - - - - - - - - - - - -
-// Suppose you have a few 'bdlb::IdentSpan' objects that you want to print,
-// only you want to stream them with 'operator<<' and you want to specify
-// non-default values of 'level' and 'spacesPerLevel' to their streaming.
-//..
+// Suppose you have a few `bdlb::IdentSpan` objects that you want to print,
+// only you want to stream them with `operator<<` and you want to specify
+// non-default values of `level` and `spacesPerLevel` to their streaming.
+// ```
     const bdlb::IndexSpan a(3, 7), b(241, 22), c(23, 17);
-//..
+// ```
 // First, we create a line of dashes:
-//..
+// ```
     const char * const line = "------------------------------------"
                               "------------------------------------\n";
-//..
-// Now, you call the constructor 'PrintAdapter' on the 'IndexSpan' objects to
+// ```
+// Now, you call the constructor `PrintAdapter` on the `IndexSpan` objects to
 // stream and CTAD will create the right template specification:
-//..
+// ```
 if (verbose)
     cout << "    a: " << line << bdlb::PrintAdapter(&a, 2, 2)
          << "    b: " << line << bdlb::PrintAdapter(&b, 3, 2)
          << "    c: " << line << bdlb::PrintAdapter(&c, 4, 2);
-//..
+// ```
 // Finally, we see the output:
-//..
+// ```
 //  a: ------------------------------------------------------------------------
 //  [
 //    position = 3
@@ -477,7 +477,7 @@ if (verbose)
 //        position = 23
 //        length = 17
 //      ]
-//..
+// ```
 #else
     if (verbose) cout << "USAGE EXAMPLE 3 *DISABLED* PRE-C++17\n"
                          "====================================\n";
@@ -485,13 +485,13 @@ if (verbose)
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE 2 -- 'PrintAdapterUtil'
+        // USAGE EXAMPLE 2 -- `PrintAdapterUtil`
         //
         // Concern:
-        //: 1 Demonstrate the use of 'PrintAdapterUtil::makeAdapter'.
+        // 1. Demonstrate the use of `PrintAdapterUtil::makeAdapter`.
         //
         // Plan:
-        //: 2 Call 'bdlb::PrintAdapterUtil::makeAdapter' to print 3 objects.
+        // 2. Call `bdlb::PrintAdapterUtil::makeAdapter` to print 3 objects.
         //
         // Testing:
         //   USAGE EXAMPLE 2 -- C++03
@@ -501,33 +501,33 @@ if (verbose)
                          "========================\n";
 
 //
-///Example 2: Use of 'PrintAdapterUtil::makeAdapter'
+///Example 2: Use of `PrintAdapterUtil::makeAdapter`
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we have a few 'bdlb::IdentSpan' objects that we want to print, only
-// we want to stream them with 'operator<<' and we want to specify
-// non-default values of 'level' and 'spacesPerLevel' to their streaming.
-//..
+// Suppose we have a few `bdlb::IdentSpan` objects that we want to print, only
+// we want to stream them with `operator<<` and we want to specify
+// non-default values of `level` and `spacesPerLevel` to their streaming.
+// ```
     const bdlb::IndexSpan a(3, 7), b(241, 22), c(23, 17);
-//..
-// First, we make a typedef to the namespace 'struct':
+// ```
+// First, we make a typedef to the namespace `struct`:
     typedef bdlb::PrintAdapterUtil Util;
-//..
+// ```
 // Then, we create a line of dashes:
-//..
+// ```
     const char * const line = "------------------------------------"
                               "------------------------------------\n";
-//..
-// Now, we call the static function 'PrintAdapterUtil::makeAdapter' on the
-// 'IndexSpan' objects to stream which will return streamable 'PrintAdapter'
+// ```
+// Now, we call the static function `PrintAdapterUtil::makeAdapter` on the
+// `IndexSpan` objects to stream which will return streamable `PrintAdapter`
 // objects:
-//..
+// ```
 if (verbose)
     cout << "    a: " << line << Util::makeAdapter(a, 2, 2)
          << "    b: " << line << Util::makeAdapter(b, 3, 2)
          << "    c: " << line << Util::makeAdapter(c, 4, 2);
-//..
+// ```
 // Finally, we see the output:
-//..
+// ```
 //  a: ------------------------------------------------------------------------
 //  [
 //    position = 3
@@ -543,18 +543,18 @@ if (verbose)
 //        position = 23
 //        length = 17
 //      ]
-//..
+// ```
       } break;
       case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 1 -- C++03
         //
         // Concern:
-        //: 1 Demonstrate the usage of the component in C++03.
+        // 1. Demonstrate the usage of the component in C++03.
         //
         // Plan:
-        //: 1 Create a 'typedef' of 'PrintAdapter<IndexSpan>' for calling the
-        //:   fully-specified c'tor.
+        // 1. Create a `typedef` of `PrintAdapter<IndexSpan>` for calling the
+        //    fully-specified c'tor.
         //
         // Testing:
         //   USAGE EXAMPLE 1 -- C++03
@@ -569,31 +569,31 @@ if (verbose)
 //
 ///Example 1: Use in C++03
 ///- - - - - - - - - - - -
-// Suppose we have a few 'bdlb::IdentSpan' objects that we want to print, only
-// we want to stream them with 'operator<<' and we want to specify non-default
-// values of 'level' and 'spacesPerLevel' to their streaming.
-//..
+// Suppose we have a few `bdlb::IdentSpan` objects that we want to print, only
+// we want to stream them with `operator<<` and we want to specify non-default
+// values of `level` and `spacesPerLevel` to their streaming.
+// ```
     const bdlb::IndexSpan a(3, 7), b(241, 22), c(23, 17);
-//..
-// First, we create a typedef of 'PrintAdapter<IdentSpan>' to use:
-//..
+// ```
+// First, we create a typedef of `PrintAdapter<IdentSpan>` to use:
+// ```
     typedef bdlb::PrintAdapter<bdlb::IndexSpan> PAIS;
-//..
+// ```
 // Then, we create a line of dashes:
-//..
+// ```
     const char * const line = "------------------------------------"
                               "------------------------------------\n";
-//..
-// Now, we use the 'typedef' to construct temporary 'PrintAdapter' objects to
-// stream our 'IndexSpan' objects:
-//..
+// ```
+// Now, we use the `typedef` to construct temporary `PrintAdapter` objects to
+// stream our `IndexSpan` objects:
+// ```
 if (verbose)
     cout << "    a: " << line << PAIS(&a, 2, 2)
          << "    b: " << line << PAIS(&b, 3, 2)
          << "    c: " << line << PAIS(&c, 4, 2);
-//..
+// ```
 // Finally, we see the output:
-//..
+// ```
 //  a: ------------------------------------------------------------------------
 //  [
 //    position = 3
@@ -609,36 +609,36 @@ if (verbose)
 //        position = 23
 //        length = 17
 //      ]
-//..
+// ```
       } break;
       case 3: {
         // --------------------------------------------------------------------
         // CONSTRUCTOR, STREAM, and MAKEADAPTER -- NO PRINT
         //
         // Concerns:
-        //: 1 That 'PrintAdapter' construction works properly.
-        //:
-        //: 2 That streaming works properly for types that do not have a
-        //:   'print' method.
-        //:
-        //: 3 That 'makeAdapter' properly constructs 'PrintAdapter' objects.
+        // 1. That `PrintAdapter` construction works properly.
+        //
+        // 2. That streaming works properly for types that do not have a
+        //    `print` method.
+        //
+        // 3. That `makeAdapter` properly constructs `PrintAdapter` objects.
         //
         // Plan:
-        //: 1 For several types:
-        //:   o Create an array of values of the type.
-        //:
-        //:   o Call 'u::testValues' on that array (see doc of 'u::testValues'
-        //:     to see full description of that function).
-        //:
-        //: 2 Types testing include:
-        //:   o 'u::NoPrintType': a simple struct with no 'print' method, but
-        //:     for which 'operator<<' is defined.
-        //:
-        //:   o 'int'
-        //:
-        //:   o 'vector<int>', which has no 'print' method, but does have the
-        //:     'HasStlIterators' trait defined, and contains 'int', for which
-        //:     'operator<<' is defined.
+        // 1. For several types:
+        //    - Create an array of values of the type.
+        //
+        //    - Call `u::testValues` on that array (see doc of `u::testValues`
+        //      to see full description of that function).
+        //
+        // 2. Types testing include:
+        //    - `u::NoPrintType`: a simple struct with no `print` method, but
+        //      for which `operator<<` is defined.
+        //
+        //    - `int`
+        //
+        //    - `vector<int>`, which has no `print` method, but does have the
+        //      `HasStlIterators` trait defined, and contains `int`, for which
+        //      `operator<<` is defined.
         //
         // Testing:
         //   PrintAdapter (C++17)(...);
@@ -682,25 +682,25 @@ if (verbose)
         // CONSTRUCTOR, STREAM, and MAKEADAPTER -- HAS PRINT
         //
         // Concerns:
-        //: 1 That 'PrintAdapter' construction works properly.
-        //:
-        //: 2 That streaming works properly for types that do not have a
-        //:   'print' method.
-        //:
-        //: 3 That 'makeAdapter' properly constructs 'PrintAdapter' objects.
+        // 1. That `PrintAdapter` construction works properly.
+        //
+        // 2. That streaming works properly for types that do not have a
+        //    `print` method.
+        //
+        // 3. That `makeAdapter` properly constructs `PrintAdapter` objects.
         //
         // Plan:
-        //: 1 For several types:
-        //:   o Create an array of values of the type.
-        //:
-        //:   o Call 'u::testValues' on that array (see doc of 'u::testValues'
-        //:     to see full description of that function).
-        //:
-        //: 2 Types testing include:
-        //:   o 'bdlb::IndexSpan', which has a 'print' method.
-        //:
-        //:   o 'u::HasPrintType': a simple struct with 'print' method, but for
-        //:     which no 'operator<<' is defined.
+        // 1. For several types:
+        //    - Create an array of values of the type.
+        //
+        //    - Call `u::testValues` on that array (see doc of `u::testValues`
+        //      to see full description of that function).
+        //
+        // 2. Types testing include:
+        //    - `bdlb::IndexSpan`, which has a `print` method.
+        //
+        //    - `u::HasPrintType`: a simple struct with `print` method, but for
+        //      which no `operator<<` is defined.
         //
         // Testing:
         //   PrintAdapter (C++17)(...);
@@ -738,21 +738,21 @@ if (verbose)
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 Use the 'class' under test a couple of times, and verify that
-        //:   the output is as expected.
+        // 1. Use the `class` under test a couple of times, and verify that
+        //    the output is as expected.
         //
         // Plan:
-        //: 1 Use 'bdlb::IndexSpan' as the type of object to be printed.
-        //:
-        //: 2 Call 'bdlb::IndexSpan::print' explicitly to get 'exp', the
-        //:   expected output.
-        //:
-        //: 3 If we're on C++17, pass the 'IndexSpan' object to the
-        //:   'PrintAdapter' constructor, without specifying the template
-        //:   parameter, and stream the result.  Compare the result to 'exp'.
-        //:
-        //: 4 Pass the 'IndexSpan' object to the 'PrintAdapter<IndexSpan>'
-        //:   constructor and stream the result.  Compare the result to 'exp'.
+        // 1. Use `bdlb::IndexSpan` as the type of object to be printed.
+        //
+        // 2. Call `bdlb::IndexSpan::print` explicitly to get `exp`, the
+        //    expected output.
+        //
+        // 3. If we're on C++17, pass the `IndexSpan` object to the
+        //    `PrintAdapter` constructor, without specifying the template
+        //    parameter, and stream the result.  Compare the result to `exp`.
+        //
+        // 4. Pass the `IndexSpan` object to the `PrintAdapter<IndexSpan>`
+        //    constructor and stream the result.  Compare the result to `exp`.
         //
         // Testing:
         //   BREATHING TEST

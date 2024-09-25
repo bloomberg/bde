@@ -3,7 +3,7 @@
 
 #include <bsls_platform.h>
 
-// the following suppresses warnings from '#include' inlined functions
+// the following suppresses warnings from `#include` inlined functions
 #ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
@@ -35,25 +35,25 @@ using namespace BloombergLP::bsltf;
 // attribute class, except it doesn't provide equality comparison operators.
 // The Primary Manipulators and Basic Accessors are therefore, respectively,
 // the attribute setters and getters, each of which follows our standard
-// unconstrained attribute-type naming conventions: 'setAttributeName' and
-// 'attributeName'.
+// unconstrained attribute-type naming conventions: `setAttributeName` and
+// `attributeName`.
 //
 // Primary Manipulators:
-//: o 'setData'
+//  - `setData`
 //
 // Basic Accessors:
-//: o 'data'
+//  - `data`
 //
 // This particular attribute class also provides a value constructor capable of
 // creating an object in any state relevant for thorough testing, obviating the
-// primitive generator function, 'gg', normally used for this purpose.  We will
+// primitive generator function, `gg`, normally used for this purpose.  We will
 // therefore follow our standard 10-case approach to testing value-semantic
 // types except that we will test the value constructor in case 3 (in lieu of
 // the generator function), with the default constructor and primary
 // manipulators tested fully in case 2.
 //
 // Global Concerns:
-//: o No memory is every allocated from this component.
+//  - No memory is every allocated from this component.
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] NonEqualComparableTestType();
@@ -73,8 +73,8 @@ using namespace BloombergLP::bsltf;
 // [11] USAGE EXAMPLE
 // [ 6] TEST APPARATUS
 // [ *] CONCERN: No memory is ever allocated.
-// [ 6] CONCERN: 'operator==' is not defined
-// [ 6] CONCERN: 'operator!=' is not defined
+// [ 6] CONCERN: `operator==` is not defined
+// [ 6] CONCERN: `operator!=` is not defined
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -154,7 +154,7 @@ const DefaultValueRow DEFAULT_VALUES[] =
     // default (must be first)
     { L_,         0 },
 
-    // 'data'
+    // `data`
     { L_,   INT_MIN },
     { L_,        -1 },
     { L_,         1 },
@@ -167,7 +167,7 @@ const int DEFAULT_NUM_VALUES = sizeof DEFAULT_VALUES / sizeof *DEFAULT_VALUES;
 //                               TEST APPARATUS
 // ----------------------------------------------------------------------------
 // JSL: REMOVE THIS after it is moved to the test allocator.
-// JSL: change the name to 'TestAllocatorMonitor'.
+// JSL: change the name to `TestAllocatorMonitor`.
 
 namespace {
 
@@ -216,12 +216,12 @@ struct op_not_equal_exist
 
 namespace u {
 
+/// Compare the specified memory segments `segmentA` and `segmentB`, both of
+/// the specified `size` bytes, and return the number of bits that differ
+/// between them.
 unsigned numBitsChanged(const void *segmentA,
                         const void *segmentB,
                         size_t      size)
-    // Compare the specified memory segments 'segmentA' and 'segmentB', both of
-    // the specified 'size' bytes, and return the number of bits that differ
-    // between them.
 {
     const unsigned char *a = static_cast<const unsigned char *>(segmentA);
     const unsigned char *b = static_cast<const unsigned char *>(segmentB);
@@ -244,13 +244,14 @@ struct Thing {
     char d_byte;
 
     // CLASS METHOD
+
+    /// Return `true` if the destructor of a `Thing` is observed to execute
+    /// on object destruction, and `false` otherwise.
+    ///
+    /// On some compilers in optimized mode, destructors that change only
+    /// the footprint of the object are optimized away and are not executed.
     static
     bool isDtorExecuted();
-        // Return 'true' if the destructor of a 'Thing' is observed to execute
-        // on object destruction, and 'false' otherwise.
-        //
-        // On some compilers in optimized mode, destructors that change only
-        // the footprint of the object are optimized away and are not executed.
 
     // CREATORS
     Thing() : d_byte(0) {}
@@ -301,18 +302,18 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Demonstrating The Type Can't Be Equal Compared
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we wanted to show 'NonEqualComparableTestType' can't be equal
+// Suppose we wanted to show `NonEqualComparableTestType` can't be equal
 // compared.
 //
-// First, we create two 'NonEqualComparableTestType' objects, 'X' and 'Y':
-//..
+// First, we create two `NonEqualComparableTestType` objects, `X` and `Y`:
+// ```
           NonEqualComparableTestType X(1);
           NonEqualComparableTestType Y(2);
-//..
-// Now, we show that equal comparing 'X' and 'Y' will not compile:
-//..
+// ```
+// Now, we show that equal comparing `X` and `Y` will not compile:
+// ```
           // assert(X != Y); // This will not compile
-//..
+// ```
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -328,61 +329,61 @@ int main(int argc, char *argv[])
         //   have the same value.
         //
         // Concerns:
-        //: 1 The assignment operator can change the value of any modifiable
-        //:   target object to that of any source object.
-        //:
-        //: 2 The signature and return type are standard.
-        //:
-        //: 3 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 4 The value of the source object is not modified.
-        //:
-        //: 5 Assigning an object to itself behaves as expected (alias-safety).
+        // 1. The assignment operator can change the value of any modifiable
+        //    target object to that of any source object.
+        //
+        // 2. The signature and return type are standard.
+        //
+        // 3. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 4. The value of the source object is not modified.
+        //
+        // 5. Assigning an object to itself behaves as expected (alias-safety).
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a member-function
-        //:   pointer having the appropriate signature and return type for the
-        //:   copy-assignment operator defined in this component.  (C-2)
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their attributes.
-        //:
-        //: 3 For each row 'R1' in the table of P-2:  (C-1, 3..4)
-        //:
-        //:   1 Create two 'const' 'Obj', 'Z' and 'ZZ', having the value of
-        //:     'R1'.
-        //:
-        //:   2 For each row 'R2 in the tree of P-2:  (C-1, 3..4)
-        //:
-        //:     1 Create a modifiable 'Obj', 'mX', having the value of 'R2'.
-        //:
-        //:     2 Assign 'mX' from 'Z'.  (C-1)
-        //:
-        //:     3 Verify that the address of the return value is the same as
-        //:       that of 'mX'.  (C-3)
-        //:
-        //:     4 Use the equality-comparison operator to verify that:
-        //:
-        //:       1 The target object, 'mX', now has the same value as that of
-        //:         'Z'.  (C-1)
-        //:
-        //:       2 'Z' still has the same value as that of 'ZZ'.  (C-4)
-        //:
-        //: 4 For each node 'N1' in tree of P-2:  (C-3, 5)
-        //:
-        //:   1 Create a modifiable 'Obj', 'mX', pointing to 'N1'.
-        //:
-        //:   1 Create a 'const' 'Obj', 'ZZ', pointing to 'N1'.
-        //:
-        //:   2 Let 'Z' be a reference providing only 'const' access to 'mX'.
-        //:
-        //:   3 Assign 'mX' from 'Z'.
-        //:
-        //:   4 Verify that the address of the return value is the same as
-        //:       that of 'mX'.  (C-3)
-        //:
-        //:   5 Use the equal-comparison operator to verify that 'mX' has the
-        //:     same value as 'ZZ'.  (C-5)
+        // 1. Use the address of `operator=` to initialize a member-function
+        //    pointer having the appropriate signature and return type for the
+        //    copy-assignment operator defined in this component.  (C-2)
+        //
+        // 2. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their attributes.
+        //
+        // 3. For each row `R1` in the table of P-2:  (C-1, 3..4)
+        //
+        //   1. Create two `const` `Obj`, `Z` and `ZZ`, having the value of
+        //      `R1`.
+        //
+        //   2. For each row 'R2 in the tree of P-2:  (C-1, 3..4)
+        //
+        //     1. Create a modifiable `Obj`, `mX`, having the value of `R2`.
+        //
+        //     2. Assign `mX` from `Z`.  (C-1)
+        //
+        //     3. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-3)
+        //
+        //     4. Use the equality-comparison operator to verify that:
+        //
+        //       1. The target object, `mX`, now has the same value as that of
+        //          `Z`.  (C-1)
+        //
+        //       2. `Z` still has the same value as that of `ZZ`.  (C-4)
+        //
+        // 4. For each node `N1` in tree of P-2:  (C-3, 5)
+        //
+        //   1. Create a modifiable `Obj`, `mX`, pointing to `N1`.
+        //
+        //   1. Create a `const` `Obj`, `ZZ`, pointing to `N1`.
+        //
+        //   2. Let `Z` be a reference providing only `const` access to `mX`.
+        //
+        //   3. Assign `mX` from `Z`.
+        //
+        //   4. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-3)
+        //
+        //   5. Use the equal-comparison operator to verify that `mX` has the
+        //      same value as `ZZ`.  (C-5)
         //
         // Testing:
         //   NonEqualComparableTestType& operator=(rhs);
@@ -462,31 +463,31 @@ int main(int argc, char *argv[])
         //   other one, such that the two objects have the same value.
         //
         // Concerns:
-        //: 1 The copy constructor creates an object having the same value as
-        //:   that of the supplied original object.
-        //:
-        //: 2 The original object is passed as a reference providing
-        //:   non-modifiable access to that object.
-        //:
-        //: 3 The value of the original object is unchanged.
+        // 1. The copy constructor creates an object having the same value as
+        //    that of the supplied original object.
+        //
+        // 2. The original object is passed as a reference providing
+        //    non-modifiable access to that object.
+        //
+        // 3. The value of the original object is unchanged.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their attributes.
-        //:
-        //: 2 For each row 'R1' in the table of P-1:  (C-1..3)
-        //:
-        //:   1 Create two 'const' 'Obj', 'Z' and 'ZZ', having the value of
-        //:     'R1'.
-        //:
-        //:   2 Use the copy constructor to create an object 'X', supplying it
-        //:     the 'const' object 'Z'.  (C-2)
-        //:
-        //:   3 Verify that the newly constructed object 'X', has the same
-        //:     value as that of 'Z'.  (C-1)
-        //:
-        //:   4 Verify that 'Z' still has the same value as that of 'ZZ'.
-        //:     (C-3)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their attributes.
+        //
+        // 2. For each row `R1` in the table of P-1:  (C-1..3)
+        //
+        //   1. Create two `const` `Obj`, `Z` and `ZZ`, having the value of
+        //      `R1`.
+        //
+        //   2. Use the copy constructor to create an object `X`, supplying it
+        //      the `const` object `Z`.  (C-2)
+        //
+        //   3. Verify that the newly constructed object `X`, has the same
+        //      value as that of `Z`.  (C-1)
+        //
+        //   4. Verify that `Z` still has the same value as that of `ZZ`.
+        //      (C-3)
         //
         // Testing:
         //   NonEqualComparableTestType(const NonEqualComparableTestType&);
@@ -517,76 +518,76 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // EQUALITY-COMPARISON OPERATORS
-        //   Ensure that the test apparatus functions 'isEqual' and
-        //   'isNotEqual', for use in later test cases, behaves according to
-        //   'operator==' and 'operator!=' in value-semantic types.  Also
-        //   ensure that 'operator==' and 'operator!=' are not defined by this
+        //   Ensure that the test apparatus functions `isEqual` and
+        //   `isNotEqual`, for use in later test cases, behaves according to
+        //   `operator==` and `operator!=` in value-semantic types.  Also
+        //   ensure that `operator==` and `operator!=` are not defined by this
         //   component.
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if they point
-        //:   to the same node in the same tree.
-        //:
-        //: 2 'true  == isEqual(X, X)'  (i.e., identity)
-        //:
-        //: 3 'false == isNotEqual(X, X)'  (i.e., identity)
-        //:
-        //: 4 'isEqual(X, Y)' if and only if 'isEqual(Y, X)' (i.e.,
-        //:   commutativity)
-        //:
-        //: 5 'isNotEqual(X, Y)' if and only if 'isNotEqual(Y, X)' (i.e.,
-        //:   commutativity)
-        //:
-        //: 6 'isNotEqual(X, Y)' if and only if '!isEqual(X, Y)'
-        //:
-        //: 7 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., both comparison operators are free functions).
-        //:
-        //: 8 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //:10 The 'isEqual' function's signature and return type are standard.
-        //:
-        //:11 The 'isNotEqual' function's signature and return type are
-        //:   standard.
-        //:
-        //:12 'operator==' and 'operator!=' are not defined by this component.
+        // 1. Two objects, `X` and `Y`, compare equal if and only if they point
+        //    to the same node in the same tree.
+        //
+        // 2. `true  == isEqual(X, X)`  (i.e., identity)
+        //
+        // 3. `false == isNotEqual(X, X)`  (i.e., identity)
+        //
+        // 4. `isEqual(X, Y)` if and only if `isEqual(Y, X)` (i.e.,
+        //    commutativity)
+        //
+        // 5. `isNotEqual(X, Y)` if and only if `isNotEqual(Y, X)` (i.e.,
+        //    commutativity)
+        //
+        // 6. `isNotEqual(X, Y)` if and only if `!isEqual(X, Y)`
+        //
+        // 7. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., both comparison operators are free functions).
+        //
+        // 8. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        // 10. The `isEqual` function's signature and return type are standard.
+        //
+        // 11. The `isNotEqual` function's signature and return type are
+        //    standard.
+        //
+        // 12. `operator==` and `operator!=` are not defined by this component.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'isEqual' and 'isNotEqual' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the two homogeneous, free equality-
-        //:   comparison operators defined in this component.
-        //:   (C-7..10)
-        //:
-        //: 2 Use a meta function to verify that 'operator==' and 'operator!='
-        //:   are not defined by this component.
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their attributes.
-        //:
-        //: 3 For each row 'R1' in the table of P-2:  (C-1..6)
-        //:
-        //:   1 Create a single object, and use it to verify the reflexive
-        //:     (anti-reflexive) property of equality (inequality) in the
-        //:     presence of aliasing.  (C-2..3)
-        //:
-        //:   2 For each row 'R2' in the table of P-3:  (C-1, 4..6)
-        //:
-        //:     1 Record, in 'EXP', whether or not distinct objects created
-        //:       from 'R1' and 'R2', respectively, are expected to have the
-        //:       same value.
-        //:
-        //:     2 Create an object 'X' having the value of 'R1'.  Create
-        //:       another object 'Y' having the value of 'R2'.
-        //:
-        //:     3 Verify the commutativity property and the expected return
-        //:       value for both '==' and '!='.  (C-1, 4..6)
+        // 1. Use the respective addresses of `isEqual` and `isNotEqual` to
+        //    initialize function pointers having the appropriate signatures
+        //    and return types for the two homogeneous, free equality-
+        //    comparison operators defined in this component.
+        //    (C-7..10)
+        //
+        // 2. Use a meta function to verify that `operator==` and `operator!=`
+        //    are not defined by this component.
+        //
+        // 2. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their attributes.
+        //
+        // 3. For each row `R1` in the table of P-2:  (C-1..6)
+        //
+        //   1. Create a single object, and use it to verify the reflexive
+        //      (anti-reflexive) property of equality (inequality) in the
+        //      presence of aliasing.  (C-2..3)
+        //
+        //   2. For each row `R2` in the table of P-3:  (C-1, 4..6)
+        //
+        //     1. Record, in `EXP`, whether or not distinct objects created
+        //        from `R1` and `R2`, respectively, are expected to have the
+        //        same value.
+        //
+        //     2. Create an object `X` having the value of `R1`.  Create
+        //        another object `Y` having the value of `R2`.
+        //
+        //     3. Verify the commutativity property and the expected return
+        //        value for both `==` and `!=`.  (C-1, 4..6)
         //
         // Testing:
         //   TEST APPARATUS
-        //   CONCERN: 'operator==' is not defined
-        //   CONCERN: 'operator!=' is not defined
+        //   CONCERN: `operator==` is not defined
+        //   CONCERN: `operator!=` is not defined
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nEQUALITY-COMPARISON OPERATORS"
@@ -656,21 +657,21 @@ int main(int argc, char *argv[])
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 Each accessor returns the value of the corresponding attribute
-        //:    of the object.
-        //:
-        //: 2 Each accessor method is declared 'const'.
+        // 1. Each accessor returns the value of the corresponding attribute
+        //     of the object.
+        //
+        // 2. Each accessor method is declared `const`.
         //
         // Plan:
-        //: 1 Use the default constructor, create an object having default
-        //:   attribute values.  Verify that the accessor for the 'data'
-        //:   attribute invoked on a reference providing non-modifiable access
-        //:   to the object return the expected value.  (C-1)
-        //:
-        //: 2 Set the 'data' attribute of the object to another value.  Verify
-        //:   that the accessor for the 'data' attribute invoked on a reference
-        //:   providing non-modifiable access to the object return the expected
-        //:   value.  (C-1, 2)
+        // 1. Use the default constructor, create an object having default
+        //    attribute values.  Verify that the accessor for the `data`
+        //    attribute invoked on a reference providing non-modifiable access
+        //    to the object return the expected value.  (C-1)
+        //
+        // 2. Set the `data` attribute of the object to another value.  Verify
+        //    that the accessor for the `data` attribute invoked on a reference
+        //    providing non-modifiable access to the object return the expected
+        //    value.  (C-1, 2)
         //
         // Testing:
         //   int data() const;
@@ -694,20 +695,20 @@ int main(int argc, char *argv[])
         //   for thorough testing.
         //
         // Concerns:
-        //: 1 The value constructor can create an object having any value that
-        //:   does not violate the documented constraints.
+        // 1. The value constructor can create an object having any value that
+        //    does not violate the documented constraints.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their attributes.
-        //:
-        //: 2 For each row 'R1' in the table of P-1:  (C-1)
-        //:
-        //:   1 Use the value constructor to create an object 'X', having the
-        //:     value of 'R1'.
-        //:
-        //:   2 Use the (as yet unproven) salient attribute accessors to verify
-        //:     the attributes of the object have their expected value.  (C-1)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their attributes.
+        //
+        // 2. For each row `R1` in the table of P-1:  (C-1)
+        //
+        //   1. Use the value constructor to create an object `X`, having the
+        //      value of `R1`.
+        //
+        //   2. Use the (as yet unproven) salient attribute accessors to verify
+        //      the attributes of the object have their expected value.  (C-1)
         //
         // Testing:
         //   NonEqualComparableTestType(int data);
@@ -740,24 +741,24 @@ int main(int argc, char *argv[])
         //   relevant for thorough testing.
         //
         // Concerns:
-        //: 1 An object created with the default constructor has the
-        //:   contractually specified default value.
-        //:
-        //: 2 Each attribute can be set to represent any value that does not
-        //:   violate that attribute's documented constraints.
+        // 1. An object created with the default constructor has the
+        //    contractually specified default value.
+        //
+        // 2. Each attribute can be set to represent any value that does not
+        //    violate that attribute's documented constraints.
         //
         // Plan:
-        //: 1 Create three attribute values for the 'data' attribute 'D', 'A',
-        //:   and 'B'.  'D' should be the default value.  'A' and 'B' should be
-        //:   the boundary values.
-        //:
-        //: 2 Default-construct an object and use the individual (as yet
-        //:   unproven) salient attribute accessors to verify the
-        //:   default-constructed value.  (C-1)
-        //:
-        //: 3 Set and object's 'data' attribute to 'A' and 'B'.  Verify the
-        //:   state of object using the (as yet unproven) salient attribute
-        //:   accessors.  (C-2)
+        // 1. Create three attribute values for the `data` attribute `D`, `A`,
+        //    and `B`.  `D` should be the default value.  `A` and `B` should be
+        //    the boundary values.
+        //
+        // 2. Default-construct an object and use the individual (as yet
+        //    unproven) salient attribute accessors to verify the
+        //    default-constructed value.  (C-1)
+        //
+        // 3. Set and object's `data` attribute to `A` and `B`.  Verify the
+        //    state of object using the (as yet unproven) salient attribute
+        //    accessors.  (C-2)
         //
         // Testing:
         //   NonEqualComparableTestType();
@@ -823,11 +824,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
+        // 1. Perform and ad-hoc test of the primary modifiers and accessors.
         //
         // Testing:
         //   BREATHING TEST

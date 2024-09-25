@@ -22,9 +22,9 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// This test driver exercises all the public methods from the 'basic_streambuf'
-// protocol that are implemented by the 'FixedMemInput', as well as each new
-// (non-protocol) public method added in the 'FixedMemInput' class.
+// This test driver exercises all the public methods from the `basic_streambuf`
+// protocol that are implemented by the `FixedMemInput`, as well as each new
+// (non-protocol) public method added in the `FixedMemInput` class.
 //
 // Our goal here is to ensure that the implementations comply exactly with the
 // IOStreams portion of the C++ standard where the standard explicitly defines
@@ -35,12 +35,12 @@ using namespace bsl;
 // documentation.
 //
 // Primary Manipulators:
-//: o Value constructor 'FixedMemInput(const char *, streamsize)'
-//: o 'sbumpc'
+//  - Value constructor `FixedMemInput(const char *, streamsize)`
+//  - `sbumpc`
 //
 /// Basic Accessors:
-//: o 'data'
-//: o 'length'
+//  - `data`
+//  - `length`
 //
 //-----------------------------------------------------------------------------
 // CREATORS
@@ -177,10 +177,11 @@ void fillBuffer(char* buffer, bsl::size_t length)
                // ============================
 
 // FREE OPERATORS
+
+/// Write the contents of the specified `streamBuffer` (as well as a marker
+/// indicating eight bytes groupings) to the specified output `stream` in
+/// binary format, and return a reference to the modifiable `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const Obj& streamBuffer);
-    // Write the contents of the specified 'streamBuffer' (as well as a marker
-    // indicating eight bytes groupings) to the specified output 'stream' in
-    // binary format, and return a reference to the modifiable 'stream'.
 
 bsl::ostream& operator<<(bsl::ostream& stream, const Obj& streamBuffer)
 {
@@ -219,7 +220,7 @@ int main(int argc, char **argv)
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
@@ -229,13 +230,13 @@ int main(int argc, char **argv)
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -247,24 +248,24 @@ int main(int argc, char **argv)
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'bdlsb::FixedMemInput'
+///Example 1: Basic Use of `bdlsb::FixedMemInput`
 /// - - - - - - - - - - - - - - - - - - - - - - -
-// The 'bdlsb::FixedMemInput' class is intended to be used as a template
-// parameter to the 'bslx::GenericInStream' class.  Such specialization
+// The `bdlsb::FixedMemInput` class is intended to be used as a template
+// parameter to the `bslx::GenericInStream` class.  Such specialization
 // provides user with performance efficient way to unexternalize BDEX encoded
 // data from existing character buffer.
 //
-// See the 'bslx_genericinstream' component usage example for a more practical
-// example of using 'bslx' streams.
+// See the `bslx_genericinstream` component usage example for a more practical
+// example of using `bslx` streams.
 //
-// This example demonstrates instantiating a template, 'bslx::GenericInStream',
-// on a 'bdlsb::FixedMemInput' object and using the 'bslx::GenericInStream'
+// This example demonstrates instantiating a template, `bslx::GenericInStream`,
+// on a `bdlsb::FixedMemInput` object and using the `bslx::GenericInStream`
 // object to stream in some data.
 //
-// First, create 'bslx::ByteOutStream' 'outStream' and externalize some user
+// First, create `bslx::ByteOutStream` `outStream` and externalize some user
 // data to it.  Note that this code only prepares the character buffer that is
-// used to illustrate the purpose of the 'bdlsb::FixedMemInput' class.
-//..
+// used to illustrate the purpose of the `bdlsb::FixedMemInput` class.
+// ```
     bslx::ByteOutStream outStream(20131127);
 
     unsigned int MAGIC = 0x1812;
@@ -273,19 +274,19 @@ int main(int argc, char **argv)
     outStream.putInt32(83);
     outStream.putString(bsl::string("test"));
     ASSERT(outStream.isValid());
-//..
-// Next, create a 'bdlsb::FixedMemInput' stream buffer initialized with the
-// buffer from the 'bslx::ByteOutStream' object 'outStream':
-//..
+// ```
+// Next, create a `bdlsb::FixedMemInput` stream buffer initialized with the
+// buffer from the `bslx::ByteOutStream` object `outStream`:
+// ```
     bdlsb::FixedMemInput streamBuffer(outStream.data(), outStream.length());
-//..
-// Then, create the 'bslx::GenericInStream' stream parametrized with
-// 'bdlsb::FixedMemInput':
-//..
+// ```
+// Then, create the `bslx::GenericInStream` stream parametrized with
+// `bdlsb::FixedMemInput`:
+// ```
     bslx::GenericInStream<bdlsb::FixedMemInput>  inStream(&streamBuffer);
-//..
-// Now, use resulting 'inStream' to unexternalize user data:
-//..
+// ```
+// Now, use resulting `inStream` to unexternalize user data:
+// ```
     unsigned int  magic = 0;
     int           key;
     bsl::string   value;
@@ -294,40 +295,40 @@ int main(int argc, char **argv)
     inStream.getInt32(key);
     inStream.getString(value);
     ASSERT(inStream.isValid());
-//..
+// ```
 // Finally, verify that the data from the supplied buffer was unexternalized
 // correctly:
-//..
+// ```
     ASSERT(MAGIC  == magic);
     ASSERT(83     == key);
     ASSERT("test" == value);
-//..
+// ```
 
       } break;
 
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING 'in_avail' METHOD
+        // TESTING `in_avail` METHOD
         //
         // Concerns:
-        //: 1 That 'in_avail' returns the correct number of items left to
-        //:   consume in the streambuf.
+        // 1. That `in_avail` returns the correct number of items left to
+        //    consume in the streambuf.
         //
         // Plan:
-        //: 1 Using the table-driven test-case-implementation technique, test
-        //:   the output of the 'in_avail' method for remaining-characters
-        //:   categories 0, [1..stream buffer capacity-1] and [entire capacity]
-        //:   (C-1)
+        // 1. Using the table-driven test-case-implementation technique, test
+        //    the output of the `in_avail` method for remaining-characters
+        //    categories 0, [1..stream buffer capacity-1] and [entire capacity]
+        //    (C-1)
         //
         // Testing:
         //   streamsize in_avail();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'in_avail' METHOD" << endl
+                          << "TESTING `in_avail` METHOD" << endl
                           << "=========================" << endl;
 
-        if (verbose) cout << "\nTesting 'in_avail' with no buffer." << endl;
+        if (verbose) cout << "\nTesting `in_avail` with no buffer." << endl;
         {
             Obj mSB(0, 0);
 
@@ -335,7 +336,7 @@ int main(int argc, char **argv)
         }
 
         if (verbose) cout <<
-            "\nTesting 'in_avail' in various positions." << endl;
+            "\nTesting `in_avail` in various positions." << endl;
         {
             static const struct {
                 int           d_line;          // line number
@@ -401,27 +402,27 @@ int main(int argc, char **argv)
 
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'sungetc' METHOD
+        // TESTING `sungetc` METHOD
         //
         // Concerns:
-        //: 1 Ensure that characters can be put back into the buffer.
-        //:
-        //: 2 Ensure that method correctly handles corner cases.
+        // 1. Ensure that characters can be put back into the buffer.
+        //
+        // 2. Ensure that method correctly handles corner cases.
         //
         // Plan:
-        //: 1 Using the table-driven test-case-implementation technique, test
-        //:   the output of the 'sungetc' method. Ensure that the stream buffer
-        //:    position indicator updated correctly. (C-1..2)
+        // 1. Using the table-driven test-case-implementation technique, test
+        //    the output of the `sungetc` method. Ensure that the stream buffer
+        //     position indicator updated correctly. (C-1..2)
         //
         // Testing:
         //   int_type sungetc();
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'sungetc' METHOD" << endl
+                          << "TESTING `sungetc` METHOD" << endl
                           << "========================" << endl;
 
         if (verbose) cout <<
-            "\nTesting 'sungetc' method at position 0." << endl;
+            "\nTesting `sungetc` method at position 0." << endl;
         {
 
             static const struct {
@@ -465,7 +466,7 @@ int main(int argc, char **argv)
         }
 
         if (verbose) cout <<
-            "\nTesting 'sungetc' at various position." << endl;
+            "\nTesting `sungetc` at various position." << endl;
         {
 
             static const struct {
@@ -517,27 +518,27 @@ int main(int argc, char **argv)
 
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'sputbackc' METHOD
+        // TESTING `sputbackc` METHOD
         //
         // Concerns:
-        //: 1 Ensure that characters can be put back into the buffer.
-        //:
-        //: 2 Ensure that method correctly handles corner cases.
+        // 1. Ensure that characters can be put back into the buffer.
+        //
+        // 2. Ensure that method correctly handles corner cases.
         //
         // Plan:
-        //: 1 Using the table-driven test-case-implementation technique, test
-        //:   the output of the 'sputbackc' method. Ensure that the stream
-        //:   buffer position indicator updated correctly. (C-1..2)
+        // 1. Using the table-driven test-case-implementation technique, test
+        //    the output of the `sputbackc` method. Ensure that the stream
+        //    buffer position indicator updated correctly. (C-1..2)
         //
         // Testing:
         //   int_type sputbackc(char_type);
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'sputbackc' METHOD" << endl
+                          << "TESTING `sputbackc` METHOD" << endl
                           << "==========================" << endl;
 
         if (verbose) cout <<
-            "\nTesting 'sputbackc' method at position 0." << endl;
+            "\nTesting `sputbackc` method at position 0." << endl;
         {
 
             static const struct {
@@ -596,7 +597,7 @@ int main(int argc, char **argv)
         }
 
         if (verbose) cout <<
-            "\nTesting 'sputbackc' at various position." << endl;
+            "\nTesting `sputbackc` at various position." << endl;
         {
 
             static const struct {
@@ -666,28 +667,28 @@ int main(int argc, char **argv)
 
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'snextc' METHOD
+        // TESTING `snextc` METHOD
         //
         // Concerns:
-        //: 1 Ensure that 'snextc' correctly reads character from the current
-        //:   position.
-        //:
-        //: 2 Ensure that method correctly handles corner cases.
+        // 1. Ensure that `snextc` correctly reads character from the current
+        //    position.
+        //
+        // 2. Ensure that method correctly handles corner cases.
         //
         // Plan:
-        //: 1 Using the table-driven test-case-implementation technique, test
-        //:   the output of the 'snextc' method. Ensure that the stream
-        //:   buffer position indicator updated correctly. (C-1..2)
+        // 1. Using the table-driven test-case-implementation technique, test
+        //    the output of the `snextc` method. Ensure that the stream
+        //    buffer position indicator updated correctly. (C-1..2)
         //
         // Testing:
         //   int_type snextc();
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'snextc' METHOD" << endl
+                          << "TESTING `snextc` METHOD" << endl
                           << "=======================" << endl;
 
         if (verbose) cout <<
-            "\nTesting 'snextc' method at position 0." << endl;
+            "\nTesting `snextc` method at position 0." << endl;
         {
 
             static const struct {
@@ -736,7 +737,7 @@ int main(int argc, char **argv)
         }
 
         if (verbose) cout <<
-            "\nTesting 'snextc' at various position." << endl;
+            "\nTesting `snextc` at various position." << endl;
         {
 
             static const struct {
@@ -792,28 +793,28 @@ int main(int argc, char **argv)
 
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'sgetc' METHOD
+        // TESTING `sgetc` METHOD
         //
         // Concerns:
-        //: 1 Ensure that 'sgetc' correctly reads character from the current
-        //:   position.
-        //:
-        //: 2 Ensure that method correctly handles corner cases.
+        // 1. Ensure that `sgetc` correctly reads character from the current
+        //    position.
+        //
+        // 2. Ensure that method correctly handles corner cases.
         //
         // Plan:
-        //: 1 Using the table-driven test-case-implementation technique, test
-        //:   the output of the 'sgetc' method. Ensure that the stream
-        //:   buffer position indicator updated correctly. (C-1..2)
+        // 1. Using the table-driven test-case-implementation technique, test
+        //    the output of the `sgetc` method. Ensure that the stream
+        //    buffer position indicator updated correctly. (C-1..2)
         //
         // Testing:
         //   int_type sgetc();
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'sgetc' METHOD" << endl
+                          << "TESTING `sgetc` METHOD" << endl
                           << "======================" << endl;
 
         if (verbose) cout <<
-            "\nTesting 'sgetc' method at position 0." << endl;
+            "\nTesting `sgetc` method at position 0." << endl;
         {
 
             static const struct {
@@ -861,7 +862,7 @@ int main(int argc, char **argv)
         }
 
         if (verbose) cout <<
-            "\nTesting 'sgetc' at various position." << endl;
+            "\nTesting `sgetc` at various position." << endl;
         {
 
             static const struct {
@@ -916,26 +917,26 @@ int main(int argc, char **argv)
 
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'pubsetbuf' METHODS
+        // TESTING `pubsetbuf` METHODS
         //
-        // Protected 'setbuf' methods are called by the public 'pubsetbuf'
+        // Protected `setbuf` methods are called by the public `pubsetbuf`
         // method.  Ensure that we can reset put area to client-provided buffer
         // for a constructed stream buffer object
         //
         // Concerns:
-        //: 1 Ensure the 'pubsetbuf' methods reset internal buffer.
-        //:
-        //: 2 Ensure the 'pubsetbuf' methods reset position indicator.
-        //:
-        //: 3 Ensure 'const' and non-'const' buffers can be used as new
-        //:   buffers.
+        // 1. Ensure the `pubsetbuf` methods reset internal buffer.
+        //
+        // 2. Ensure the `pubsetbuf` methods reset position indicator.
+        //
+        // 3. Ensure `const` and non-`const` buffers can be used as new
+        //    buffers.
         //
         // Plan:
-        //: 1 Manually call 'pubsetbuf' methods and verify that the buffer has
-        //:   been reset to the new address and length. (C-1, C-3)
-        //:
-        //: 2 Manually verify position indicator value after resetting the
-        //:   stream buffer. (C-2)
+        // 1. Manually call `pubsetbuf` methods and verify that the buffer has
+        //    been reset to the new address and length. (C-1, C-3)
+        //
+        // 2. Manually verify position indicator value after resetting the
+        //    stream buffer. (C-2)
         //
         // Testing:
         //   FixedMemInput *pubsetbuf(char *, streamsize);
@@ -943,11 +944,11 @@ int main(int argc, char **argv)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'pubsetbuf' METHODS" << endl
+                          << "TESTING `pubsetbuf` METHODS" << endl
                           << "===========================" << endl;
 
         if (verbose) cout <<
-            "\nTesting 'pubsetbuf' using non-'const' C arrays." << endl;
+            "\nTesting `pubsetbuf` using non-`const` C arrays." << endl;
 
         {
             static const bsl::size_t sampleSizes[] = { 0, 1, INIT_BUFSIZE };
@@ -993,7 +994,7 @@ int main(int argc, char **argv)
         }
 
         if (verbose) cout <<
-            "\nTesting 'pubsetbuf' using const C arrays." << endl;
+            "\nTesting `pubsetbuf` using const C arrays." << endl;
         {
             static const bsl::size_t sampleSizes[] = { 0, 1, INIT_BUFSIZE };
 
@@ -1042,36 +1043,36 @@ int main(int argc, char **argv)
 
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'seek' METHODS
+        // TESTING `seek` METHODS
         //
         // Concerns:
-        //: 1 Seeking is correct for:
-        //:   - all relative positions.
-        //:   - positive, 0, and negative values.
-        //:   - out of buffer boundaries.
-        //:
-        //: 2 Seeking into the "put" area has no effect.
-        //:
+        // 1. Seeking is correct for:
+        //    - all relative positions.
+        //    - positive, 0, and negative values.
+        //    - out of buffer boundaries.
+        //
+        // 2. Seeking into the "put" area has no effect.
+        //
         //
         // Plan:
-        //: 1 Perform a variety of seeks, using representative test vectors
-        //:   from the cross-product of offset categories beginning-pointer,
-        //:   current-pointer and end-pointer, with direction categories
-        //:   negative-forcing-past-beginning, negative-falling-within-bounds,
-        //:   0, positive-falling-within bounds, and positive-forcing-past-end.
-        //:   (C-1..2)
-        //:
+        // 1. Perform a variety of seeks, using representative test vectors
+        //    from the cross-product of offset categories beginning-pointer,
+        //    current-pointer and end-pointer, with direction categories
+        //    negative-forcing-past-beginning, negative-falling-within-bounds,
+        //    0, positive-falling-within bounds, and positive-forcing-past-end.
+        //    (C-1..2)
+        //
         //
         // Testing:
         //   pos_type pubseekoff(off_type, seekdir, openmode);
         //   pos_type pubseekpos(pos_type, openmode);
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'seek' METHODS" << endl
+                          << "TESTING `seek` METHODS" << endl
                           << "======================" << endl;
 
         if (verbose) cout <<
-                "\nTesting 'seekoff' after buffer creation." << endl;
+                "\nTesting `seekoff` after buffer creation." << endl;
 
         {
             static const struct {
@@ -1139,7 +1140,7 @@ int main(int argc, char **argv)
             }
         }
 
-        if (verbose) cout << "\nTesting 'pubseekoff' from a variety of "
+        if (verbose) cout << "\nTesting `pubseekoff` from a variety of "
                              "current-pointer positions." << endl;
         {
             static const struct {
@@ -1193,7 +1194,7 @@ int main(int argc, char **argv)
             }
         }
 
-        if (verbose) cout << "\nTesting 'pubseekpos' method." << endl;
+        if (verbose) cout << "\nTesting `pubseekpos` method." << endl;
         {
             static const struct {
                 int           d_line;          // line number
@@ -1233,27 +1234,27 @@ int main(int argc, char **argv)
 
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'sgetn' METHOD
+        // TESTING `sgetn` METHOD
         //
         // Concerns:
-        //: 1 Ensure that 'sgetn' reads the correct bytes from the streambuf.
-        //:
-        //: 2 Ensure that 'sgetn' properly handle requests for any number of
-        //:   characters from stream buffers of various length.
-        //:
-        //: 3 Ensure that no more than specified number of characters can be
-        //:   read from the streambuf.
+        // 1. Ensure that `sgetn` reads the correct bytes from the streambuf.
+        //
+        // 2. Ensure that `sgetn` properly handle requests for any number of
+        //    characters from stream buffers of various length.
+        //
+        // 3. Ensure that no more than specified number of characters can be
+        //    read from the streambuf.
         //
         // Plan:
-        //: 1 Read out characters from specifically constructed streambuf and
-        //:   verify that all border cases handled correctly.
+        // 1. Read out characters from specifically constructed streambuf and
+        //    verify that all border cases handled correctly.
         //
         // Testing:
         //   streamsize sgetn(char_type, streamsize);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'sgetn' METHOD" << endl
+                          << "TESTING `sgetn` METHOD" << endl
                           << "======================" << endl;
 
         static const struct {
@@ -1277,7 +1278,7 @@ int main(int argc, char **argv)
 
         enum { NUM_DATA = sizeof(DATA) / sizeof(DATA[0]) };
 
-        if (verbose) cout << "\nTesting 'sgetn' right after streambuf "
+        if (verbose) cout << "\nTesting `sgetn` right after streambuf "
                              "creation." << endl;
 
         {
@@ -1308,7 +1309,7 @@ int main(int argc, char **argv)
             }
         }
 
-        if (verbose) cout << "\nTesting successive 'sgetn' from same "
+        if (verbose) cout << "\nTesting successive `sgetn` from same "
                              "streambuf." << endl;
         {
             const int BUFFER_SIZE = 100;
@@ -1347,23 +1348,23 @@ int main(int argc, char **argv)
         // --------------------------------------------------------------------
         // BASIC ACCESSORS
         //
-        // Verify the basic accessors of the 'bdlsb::FixedMemInput' object.
+        // Verify the basic accessors of the `bdlsb::FixedMemInput` object.
         // Note that none of the accessors are strictly needed for followup
         // tests, but simplify the overall test logic.
         //
         // Concerns:
-        //: 1 Accessors work off of a references to 'const' objects.
-        //:
-        //: 2 The address of the user provided buffer is correctly reported.
-        //:
-        //: 3 The number of characters read from the stream buffer is
-        //:   correctly reported.
+        // 1. Accessors work off of a references to `const` objects.
+        //
+        // 2. The address of the user provided buffer is correctly reported.
+        //
+        // 3. The number of characters read from the stream buffer is
+        //    correctly reported.
         //
         // Plan:
-        //: 1 Verify accessors for corner cases. (C 1..3)
-        //:
-        //: 2 Read data from the stream buffer and verify that all accessors
-        //:   report expected values. (C 1..3)
+        // 1. Verify accessors for corner cases. (C 1..3)
+        //
+        // 2. Read data from the stream buffer and verify that all accessors
+        //    report expected values. (C 1..3)
         //
         // Testing:
         //   const char *data() const;
@@ -1451,17 +1452,17 @@ int main(int argc, char **argv)
         // provide human readable test traces.
         //
         // Concerns:
-        //: 1 Output operator formats the stream buffer correctly.
-        //:
-        //: 2 Output operator does not produce any trailing characters.
-        //:
-        //: 3 Output operator works on references to 'const' object.
+        // 1. Output operator formats the stream buffer correctly.
+        //
+        // 2. Output operator does not produce any trailing characters.
+        //
+        // 3. Output operator works on references to `const` object.
         //
         // Plan:
-        //:  1 For each of a small representative set of object values use
-        //:    'stringstream' to write that object's value to two separate
-        //:    strings.  Compare the contents of these strings with the literal
-        //:    expected output format and verify that they are equal. (C-1..3)
+        //  1. For each of a small representative set of object values use
+        //     `stringstream` to write that object's value to two separate
+        //     strings.  Compare the contents of these strings with the literal
+        //     expected output format and verify that they are equal. (C-1..3)
         //
         // Testing:
         //   ostream& operator<<(ostream&, const FixedMemInput&);
@@ -1526,42 +1527,42 @@ int main(int argc, char **argv)
         //   the destructor to destroy it safely.
         //   There are no public functions with which to cleanly observe the
         //   state of the object without manipulating it.  This test will rely
-        //   on using the 'sbumpc' to check that reading from the stream buffer
+        //   on using the `sbumpc` to check that reading from the stream buffer
         //   in fact reads from the client-provided buffer.
         //
         // Concerns:
-        //: 1 The 2-argument value constructor can create an object to have any
-        //:   value that does not violate the method's documented
-        //:   preconditions.
-        //:
-        //: 2 The constructor sets up all streambuf machinery properly
-        //:   so that streambuf operations use the client-provided buffer.
-        //:
-        //: 3 The streambuf is capable of using the entirety of the available
-        //:   storage, i.e., the full amount specified by the client.
-        //:
-        //: 4 An object can be safely destroyed.
-        //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The 2-argument value constructor can create an object to have any
+        //    value that does not violate the method's documented
+        //    preconditions.
+        //
+        // 2. The constructor sets up all streambuf machinery properly
+        //    so that streambuf operations use the client-provided buffer.
+        //
+        // 3. The streambuf is capable of using the entirety of the available
+        //    storage, i.e., the full amount specified by the client.
+        //
+        // 4. An object can be safely destroyed.
+        //
+        // 5. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using 2-argument constructor, create and object with the
-        //:   specified buffer of the specified length. (C-1)
-        //:
-        //: 2 Let the object created in P-1 go out of scope. (C-4)
-        //:
-        //: 3 Read the stream buffer content via class method 'sbumpc'
-        //:   and verify that the data is read from the client-provided buffer.
-        //:   (C-2..3)
-        //:
-        //: 4 Read enough characters to verify that the length as specified is
-        //:   completely usable, and then read one more to ensure that the
-        //:   stream buffer is using the client-provided length as an upper
-        //:   bound as well as a lower bound. (C-3)
-        //:
-        //: 5 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid constructor parameter values, but not
-        //:   triggered for adjacent valid ones. (C-5)
+        // 1. Using 2-argument constructor, create and object with the
+        //    specified buffer of the specified length. (C-1)
+        //
+        // 2. Let the object created in P-1 go out of scope. (C-4)
+        //
+        // 3. Read the stream buffer content via class method `sbumpc`
+        //    and verify that the data is read from the client-provided buffer.
+        //    (C-2..3)
+        //
+        // 4. Read enough characters to verify that the length as specified is
+        //    completely usable, and then read one more to ensure that the
+        //    stream buffer is using the client-provided length as an upper
+        //    bound as well as a lower bound. (C-3)
+        //
+        // 5. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid constructor parameter values, but not
+        //    triggered for adjacent valid ones. (C-5)
         //
         // Testing:
         //   FixedMemInput(const char *, streamsize);
@@ -1578,7 +1579,7 @@ int main(int argc, char **argv)
         enum { SAMPLE_NUM = sizeof(sampleSizes) / sizeof(sampleSizes[0]) };
 
         if (verbose) cout <<
-            "\nTesting constructor using non-'const' C arrays" << endl;
+            "\nTesting constructor using non-`const` C arrays" << endl;
         {
             for (int j = 0; j < SAMPLE_NUM; ++j) {
                 const bsl::size_t BUFFER_SIZE = sampleSizes[j];
@@ -1662,11 +1663,11 @@ int main(int argc, char **argv)
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Developer test sandbox. (C-1)
+        // 1. Developer test sandbox. (C-1)
         //
         // Testing:
         //   BREATHING TEST
@@ -1677,7 +1678,7 @@ int main(int argc, char **argv)
                           << "==============" << endl;
 
         if (verbose) cout <<
-            "\nMake sure we can create and use a 'bdlsb::FixedMemInput'."
+            "\nMake sure we can create and use a `bdlsb::FixedMemInput`."
                           << endl;
 
         char buffer[INIT_BUFSIZE];
@@ -1690,36 +1691,36 @@ int main(int argc, char **argv)
         ASSERT(INIT_BUFSIZE == SB.length());
         ASSERT(buffer == SB.data());
 
-        if (verbose) cout << "\nCalling 'sgetc' to get character 'a'." << endl;
+        if (verbose) cout << "\nCalling `sgetc` to get character `a`." << endl;
 
         int result;
         result = mSB.sgetc();
         ASSERT('a' == result);
-        // 'sgetc' does not advance read position
+        // `sgetc` does not advance read position
         ASSERT(INIT_BUFSIZE == SB.length());
 
         if (verbose)
-            cout << "\nCalling 'sbumpc' to get character 'a'." << endl;
+            cout << "\nCalling `sbumpc` to get character `a`." << endl;
 
         result = mSB.sbumpc();
         ASSERT('a' == result);
-        // 'sbumpc' advances read position
+        // `sbumpc` advances read position
         ASSERT(INIT_BUFSIZE - 1 == mSB.length());
 
         if (verbose)
-            cout << "\nCalling 'snextc' to get character 'c'." << endl;
+            cout << "\nCalling `snextc` to get character `c`." << endl;
 
         result = mSB.snextc();
         ASSERT('c' == result);
-        // 'snextc' advances read position
+        // `snextc` advances read position
         ASSERT(INIT_BUFSIZE - 2 == mSB.length());
 
-        if (verbose) cout << "\nCalling 'sgetn' to get 10 characters." << endl;
+        if (verbose) cout << "\nCalling `sgetn` to get 10 characters." << endl;
 
         char temp[11];
         memset(temp, 'X', 11);
         mSB.sgetn(temp, 10);
-        // 'sgetn' internally calls 'sbumpc'
+        // `sgetn` internally calls `sbumpc`
         ASSERT(INIT_BUFSIZE - 12 == SB.length());
         ASSERT(  0 == strncmp(temp, "cdefghijkl", 10));
         ASSERT('X' == temp[10]);

@@ -101,27 +101,27 @@ BSLS_IDENT_RCSID(balxml_minireader_cpp,"$Id$ $CSID$")
 
 namespace {
 
+/// Return the specified `s` if `s` != 0, or "" otherwise.  Never returns a
+/// null pointer.
 inline
 const char* nonNullStr(const char *s)
-    // Return the specified 's' if 's' != 0, or "" otherwise.  Never returns a
-    // null pointer.
 {
     return s ? s : "";
 }
 
+/// Return the specified `val` cast to a `char`.  Bits of `val` that are
+/// too high-order to fit in a `char` will be discarded.
 inline
 char toChar(unsigned val)
-    // Return the specified 'val' cast to a 'char'.  Bits of 'val' that are
-    // too high-order to fit in a 'char' will be discarded.
 {
     return static_cast<char>(val);
 }
 
+/// Convert the specified unicode `val` from 32-bit unicode to UTF-8 format
+/// and write the characters to the character array at the specified
+/// `output` address.  Return the number of characters output or 0 if `val`
+/// is not in the legal range.
 int unicodeToUtf8(char *output, unsigned val)
-    // Convert the specified unicode 'val' from 32-bit unicode to UTF-8 format
-    // and write the characters to the character array at the specified
-    // 'output' address.  Return the number of characters output or 0 if 'val'
-    // is not in the legal range.
 {
     /*
      * Borrowed from LibXml2

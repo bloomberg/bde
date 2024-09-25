@@ -520,7 +520,7 @@ class TimerEventScheduler {
                       d_clockType;          // clock type used
 
     const bsl::string d_eventSchedulerName; // name of this scheduler
-    
+
     bsls::AtomicInt64 d_cachedClockMicroseconds;
                                             // microseconds from epoch of next
                                             // cached clock

@@ -183,11 +183,11 @@ bsl::ostream& operator<<(bsl::ostream&                             stream,
             // class AnotherClock
             // ==================
 
+/// `AnotherClock` is a C++11-compatible clock that is very similar to
+/// `bsl::chrono::steady_clock`.  The only difference is that it uses a
+/// different epoch; it begins 10000 "ticks" after the beginning of
+/// `steady_clock`s epoch.
 class AnotherClock {
-    // 'AnotherClock' is a C++11-compatible clock that is very similar to
-    // 'bsl::chrono::steady_clock'.  The only difference is that it uses a
-    // different epoch; it begins 10000 "ticks" after the beginning of
-    // 'steady_clock's epoch.
 
   private:
     // PRIVATE TYPES
@@ -204,9 +204,10 @@ class AnotherClock {
     static const bool is_steady = base_clock::is_steady;
 
     // CLASS METHODS
+
+    /// Return a time point representing the time since the beginning of the
+    /// epoch.
     static time_point now();
-        // Return a time point representing the time since the beginning of the
-        // epoch.
 };
 
 // CLASS METHODS
@@ -220,10 +221,10 @@ AnotherClock::time_point AnotherClock::now()
             // class HalfClock
             // ===============
 
+/// `HalfClock` is a C++11-compatible clock that is very similar to
+/// `bsl::chrono::steady_clock`.  The difference is that it runs "half as
+/// fast" as `steady_clock`.
 class HalfClock {
-    // 'HalfClock' is a C++11-compatible clock that is very similar to
-    // 'bsl::chrono::steady_clock'.  The difference is that it runs "half as
-    // fast" as 'steady_clock'.
 
   private:
     // PRIVATE TYPES
@@ -240,9 +241,10 @@ class HalfClock {
     static const bool is_steady = base_clock::is_steady;
 
     // CLASS METHODS
+
+    /// Return a time point representing the time since the beginning of the
+    /// epoch.
     static time_point now();
-        // Return a time point representing the time since the beginning of the
-        // epoch.
 };
 
 // CLASS METHODS
@@ -254,11 +256,11 @@ HalfClock::time_point HalfClock::now()
 
 // BDE_VERIFY pragma: pop
 
+/// Sleep for the specified `sleepTime`.  Return `true` if the elapsed time
+/// is greater than `sleepTime`, and `false` otherwise.
 template <class REP_TYPE, class PERIOD_TYPE>
 bool SleepOnADuration(
                  const bsl::chrono::duration<REP_TYPE, PERIOD_TYPE>& sleepTime)
-    // Sleep for the specified 'sleepTime'.  Return 'true' if the elapsed time
-    // is greater than 'sleepTime', and 'false' otherwise.
 {
     using namespace bsl::chrono;
 
@@ -267,11 +269,11 @@ bool SleepOnADuration(
     return (steady_clock::now() - tp) >= sleepTime;
 }
 
+/// Sleep until the specified `CLOCK` has counted off the specified
+/// `secondsToSleep` seconds.  Return `true` if the elapsed time on the
+/// `CLOCK` has elapsed, and `false` otherwise.
 template <class CLOCK>
 bool SleepOnAClock(int secondsToSleep)
-    // Sleep until the specified 'CLOCK' has counted off the specified
-    // 'secondsToSleep' seconds.  Return 'true' if the elapsed time on the
-    // 'CLOCK' has elapsed, and 'false' otherwise.
 {
     typename CLOCK::time_point tp = CLOCK::now() +
                                           bsl::chrono::seconds(secondsToSleep);
@@ -280,10 +282,10 @@ bool SleepOnAClock(int secondsToSleep)
 }
 #endif
 
+/// Convert the specified `seconds` and `nanoseconds` into a
+/// `bsls::TimeInterval`.  Sleep for that amount of time.  Return `true` if
+/// the elapsed time is greater than `sleepTime`, and `false` otherwise.
 bool SleepOnATimeInterval(bsls::Types::Int64 seconds, int nanoseconds)
-    // Convert the specified 'seconds' and 'nanoseconds' into a
-    // 'bsls::TimeInterval'.  Sleep for that amount of time.  Return 'true' if
-    // the elapsed time is greater than 'sleepTime', and 'false' otherwise.
 {
     ASSERT(bsls::TimeInterval::isValid(seconds, nanoseconds));
     bsls::TimeInterval sleepTime(seconds, nanoseconds);
@@ -400,7 +402,7 @@ class Mutex {
 
     void unlock()
         // Release a lock on this mutex that was previously acquired through a
-        // successful call to 'lock', or 'tryLock'.  The behavior is undefined,
+        // successful call to `lock`, or `tryLock`.  The behavior is undefined,
         // unless the calling thread currently owns the lock on this mutex.
     {
         LeaveCriticalSection(reinterpret_cast<_RTL_CRITICAL_SECTION*>(d_lock));
@@ -415,11 +417,11 @@ namespace u {
                             // Mutex
                             // =====
 
+/// This class provides a full specialization of `Mutex` for pthreads.  It
+/// provides a efficient proxy for the `pthread_mutex_t` pthreads type, and
+/// related operations.  Note that the mutex implemented in this class is
+/// *not* error checking, and is non-recursive.
 class Mutex {
-    // This class provides a full specialization of 'Mutex' for pthreads.  It
-    // provides a efficient proxy for the 'pthread_mutex_t' pthreads type, and
-    // related operations.  Note that the mutex implemented in this class is
-    // *not* error checking, and is non-recursive.
 
     // DATA
     pthread_mutex_t d_lock;
@@ -508,8 +510,8 @@ bsl::ostream& operator<<(bsl::ostream& stream, CreateMode cm)
     return stream;
 }
 
+/// This `class` is used in the allocator test.
 class AllCreateTestFunctor {
-    // This 'class' is used in the allocator test.
 
     enum { k_BUFFER_SIZE = 20 << 10 };
 
@@ -530,7 +532,7 @@ class AllCreateTestFunctor {
     , d_numToInc(numToInc)
     , d_name(name)
     {
-        (void) d_buffer;    // suppress 'unused' warnings
+        (void) d_buffer;    // suppress `unused` warnings
     }
 
     // MANIPULATORS
@@ -574,8 +576,8 @@ namespace {
                              // class BigFunctor
                              // ================
 
+/// This `class` is used in the allocator test.
 class BigFunctor {
-    // This 'class' is used in the allocator test.
 
     enum { k_BUFFER_SIZE = 20 << 10 };
 
@@ -638,9 +640,9 @@ class ThreadChecker {
     }
 };
 
+/// Print to standard output "Another second has passed" every second for
+/// five seconds.
 extern "C" void *myThreadFunction(void *)
-    // Print to standard output "Another second has passed" every second for
-    // five seconds.
 {
     for (int i = 0; i < 3; ++i) {
         bslmt::ThreadUtil::microSleep(0, 1);
@@ -650,8 +652,8 @@ extern "C" void *myThreadFunction(void *)
     return 0;
 }
 
+/// Initialize a small object on the stack and do some work.
 extern "C" void *mySmallStackThreadFunction(void *threadArg)
-    // Initialize a small object on the stack and do some work.
 {
     char *initValue = (char *)threadArg;
     char Small[8];
@@ -660,8 +662,8 @@ extern "C" void *mySmallStackThreadFunction(void *threadArg)
     return 0;
 }
 
+/// Create a detached thread with the small stack size and perform some work
 void createSmallStackSizeThread()
-    // Create a detached thread with the small stack size and perform some work
 {
     enum { k_STACK_SIZE = 16384 };
     bslmt::ThreadAttributes attributes;
@@ -842,14 +844,14 @@ namespace NAMED_DETACHED_THREAD_TEST_CASE {
 enum {  k_NUM_THREADS = 10,
 
 #if   defined(BSLS_PLATFORM_OS_WINDOWS)
-        // There is one allocation for the thread name in 'attr' variable in
+        // There is one allocation for the thread name in `attr` variable in
         // this function, then for each thread there is:
-        //: o One allocation for the 'u::NamedFuncPtrRecord' in the imp file.
-        //:
-        //: o One allocation for the string object in the
-        //:   'u::NamedFuncPtrRecord' in the imp file.
-        //:
-        //: o One allocation for the string in 'TC::subThread' in this file.
+        //  - One allocation for the `u::NamedFuncPtrRecord` in the imp file.
+        //
+        //  - One allocation for the string object in the
+        //    `u::NamedFuncPtrRecord` in the imp file.
+        //
+        //  - One allocation for the string in `TC::subThread` in this file.
 
         k_EXP_TA_ALLOCS = 1 + 3 * k_NUM_THREADS,
 
@@ -861,7 +863,7 @@ enum {  k_NUM_THREADS = 10,
 
 #elif   defined(BSLS_PLATFORM_OS_UNIX)
         // The max thread name is short enough to fit in a short string, but we
-        // still have to allocate 'u::NamedFuncPtrRecord' for each thread.
+        // still have to allocate `u::NamedFuncPtrRecord` for each thread.
 
         k_EXP_TA_ALLOCS = k_NUM_THREADS,
 
@@ -966,8 +968,8 @@ extern "C" void *priorityEffectivenessTestFunc(void *arg)
     return 0;
 }
 
+/// Run the priority effectiveness test.
 void priorityEffectivenessTest()
-    // Run the priority effectiveness test.
 {
     typedef Attr::SchedulingPolicy Policy;
 
@@ -1000,8 +1002,8 @@ void priorityEffectivenessTest()
             continue;
         }
 
-        // Create two 'Attr' objects, an 'urgent' one with max priority, and a
-        // 'notUrgent' one with min priority.
+        // Create two `Attr` objects, an `urgent` one with max priority, and a
+        // `notUrgent` one with min priority.
 
         Attr urgentAttr;
 
@@ -1086,14 +1088,14 @@ void priorityEffectivenessTest()
 
 namespace BSLMT_THREAD_POLICY_CREATION_TEST {
 
+/// functor
 struct Touch {
-    // functor
 
     // DATA
     bool *d_finished;
 
+    /// When called, touches `*d_finished` to prove it ran, and returns.
     void operator()()
-        // When called, touches '*d_finished' to prove it ran, and returns.
     {
         ASSERT(! *d_finished);
         *d_finished = true;
@@ -1152,16 +1154,16 @@ struct Func {
     char       *d_lastBuf;
     static bool s_success;
 
+    /// Recurse to create depth on stack
     void recurser(char *base);
-        // Recurse to create depth on stack
 
+    /// Initialize, then call `recurser`, then set `d_success`
     void operator()();
-        // Initialize, then call 'recurser', then set 'd_success'
 };
 bool Func::s_success;
 
+/// Consume greater than `d_stackToUse` of stack depth
 void Func::recurser(char *base)
-    // Consume greater than 'd_stackToUse' of stack depth
 {
     char buf[5 * 1000];
 
@@ -1397,7 +1399,7 @@ Obj::Key childKey2;
 int terminated = 0;
 
 struct CreateKeyTestFunctor {
-    bool d_doDestructor;    // do the destructor if and only if this is 'true'
+    bool d_doDestructor;    // do the destructor if and only if this is `true`
 
     // CREATORS
     explicit
@@ -1632,10 +1634,10 @@ int main(int argc, char *argv[])
         // THREAD LIBRARY CONSISTENCY
         //
         // Concern:
-        //: 1 The used thread library matches the one used in 'std'.
+        // 1. The used thread library matches the one used in `std`.
         //
         // Plan:
-        //: 1 Assert the native types for thread handles match.  (C-1)
+        // 1. Assert the native types for thread handles match.  (C-1)
         // --------------------------------------------------------------------
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
@@ -1651,23 +1653,23 @@ int main(int argc, char *argv[])
         // NAMED DETACHED THREADS
         //
         // Concern:
-        //: 1 That named detached threads can be created without leaking
-        //:   memory.  Note that this is only possible with the
-        //:   'Obj::ThreadFunction' interface, it is not possible with the
-        //:   'INVOKABLE' interface.
+        // 1. That named detached threads can be created without leaking
+        //    memory.  Note that this is only possible with the
+        //    `Obj::ThreadFunction` interface, it is not possible with the
+        //    `INVOKABLE` interface.
         //
         // Plan:
-        //: 1 Create a bunch of named threads using the 'Obj::ThreadFunction'
-        //:   interface, that increment atomic 'TC::started' at the beginning
-        //:   of the function.
-        //:
-        //: 2 Once they are all started, verify that allocations have taken
-        //:   place, and that the allocator no longer has any allocated memory.
-        //:
-        //: 3 Signal all threads to stop with the 'stopped' atomic variable.
-        //:
-        //: 4 Verify that no memory has been leaked and that all allocations
-        //:   were performed using the test allocator.
+        // 1. Create a bunch of named threads using the `Obj::ThreadFunction`
+        //    interface, that increment atomic `TC::started` at the beginning
+        //    of the function.
+        //
+        // 2. Once they are all started, verify that allocations have taken
+        //    place, and that the allocator no longer has any allocated memory.
+        //
+        // 3. Signal all threads to stop with the `stopped` atomic variable.
+        //
+        // 4. Verify that no memory has been leaked and that all allocations
+        //    were performed using the test allocator.
         // --------------------------------------------------------------------
 
         namespace TC = NAMED_DETACHED_THREAD_TEST_CASE;
@@ -1697,7 +1699,7 @@ int main(int argc, char *argv[])
             Obj::yield();
         }
 
-        // 'stopped' is statically initialized to -1, the threads don't start
+        // `stopped` is statically initialized to -1, the threads don't start
         // incrementing it until it's non-negative.
 
         TC::stopped = 0;
@@ -1726,24 +1728,24 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING 'sleep'
-        //   Ensure that the 'sleep' function actually pauses execution.
+        // TESTING `sleep`
+        //   Ensure that the `sleep` function actually pauses execution.
         //
         // Concerns:
-        //: 1 'sleep' sleeps for at least the appropriate amount of time.
+        // 1. `sleep` sleeps for at least the appropriate amount of time.
         //
         // Plan:
-        //: 1 Capture a time_point from the monotonic system clock, then call
-        //:   'sleep'.  After the call has returned. compare the current time
-        //:   from the clock and ensure that at least that much time has
-        //:   elapsed.
+        // 1. Capture a time_point from the monotonic system clock, then call
+        //    `sleep`.  After the call has returned. compare the current time
+        //    from the clock and ensure that at least that much time has
+        //    elapsed.
         //
         // Testing:
         //   void sleep(const bsls::TimeInterval& sleepTime)
         //   void sleep(const bsl::chrono::duration& sleepTime)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'sleep'\n"
+        if (verbose) cout << "TESTING `sleep`\n"
                              "===============\n";
 
         ASSERT(SleepOnATimeInterval(2,         0));
@@ -1762,28 +1764,28 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING 'hardwareConcurrency'
+        // TESTING `hardwareConcurrency`
         //   As there is no universal alternative function to get number of
         //   logical processors (and so available threads), we will recon on
         //   C++11 realization on supporting platforms.  And perform formal
         //   check for AIX and Solaris, which compilers do not support C++11
-        //   standard.  Negative manual test '-7' can be used for supplementary
+        //   standard.  Negative manual test `-7` can be used for supplementary
         //   check on these platforms.
         //
         // Concerns:
-        //: 1 The 'hardwareConcurrency' returns number of logical processors.
+        // 1. The `hardwareConcurrency` returns number of logical processors.
         //
         // Plan:
-        //: 1 Compare value returned by the 'hardwareConcurrency' function with
-        //:   the result returned by 'std::thread:hardware_concurrency'
-        //:   function on platforms supporting C++11, and perform formal check
-        //:   on the other platforms.
+        // 1. Compare value returned by the `hardwareConcurrency` function with
+        //    the result returned by `std::thread:hardware_concurrency`
+        //    function on platforms supporting C++11, and perform formal check
+        //    on the other platforms.
         //
         // Testing:
         //   unsigned int hardwareConcurrency();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'hardwareConcurrency'\n"
+        if (verbose) cout << "TESTING `hardwareConcurrency`\n"
                              "=============================\n";
 
         unsigned int threadsNum = Obj::hardwareConcurrency();
@@ -1807,38 +1809,38 @@ int main(int argc, char *argv[])
         //   Ensure that all the functions that create threads work properly.
         //
         // Concerns:
-        //: 1 That all overloads of 'create' and 'createWithAllocator'
-        //:   successfully spawn threads, whether any 'attribute' used
-        //:   specifies a name or not.
-        //:
-        //: 2 If a name is specified on the attribute, the thread is named
-        //:   correctly (on platforms supporting thread naming).
-        //:
-        //: 3 That the return 'status' returned by 'join' is as expected.
-        //:
-        //: 4 That the global allocator is not used if a different allocator
-        //:   was passed to 'createWithAllocator' (except on Windows) and
-        //:   the default allocator was not used.
+        // 1. That all overloads of `create` and `createWithAllocator`
+        //    successfully spawn threads, whether any `attribute` used
+        //    specifies a name or not.
+        //
+        // 2. If a name is specified on the attribute, the thread is named
+        //    correctly (on platforms supporting thread naming).
+        //
+        // 3. That the return `status` returned by `join` is as expected.
+        //
+        // 4. That the global allocator is not used if a different allocator
+        //    was passed to `createWithAllocator` (except on Windows) and
+        //    the default allocator was not used.
         //
         // Plan:
-        //: 1 Specify an enum, 'CreateMode', outlining the 1 possibilities
-        //:   of calling the 8 overloads of 'create*', with or without a name
-        //:   specified in a passed attribute object.
-        //:
-        //: 2 Iterate through all values of 'CreateMode', doing the appropriate
-        //:   'create*' call.
-        //:   1 After joining the created thread, observe that the thread
-        //:     modified a variable, proving it ran.  (C-1)
-        //:
-        //:   2 Observe the value of a string the thread assigned to from
-        //:     'bslmt::ThreadUtil::threadName()', observing that the thread
-        //:     name was as expected.  (C-2)
-        //:
-        //:   3 Observe that the value returned in the 'status' field of 'join'
-        //:     was as expected.  (C-3)
-        //:
-        //:   4 Observe that the default allocator and global allocator weren't
-        //:     used.  (C-4)
+        // 1. Specify an enum, `CreateMode`, outlining the 1 possibilities
+        //    of calling the 8 overloads of `create*`, with or without a name
+        //    specified in a passed attribute object.
+        //
+        // 2. Iterate through all values of `CreateMode`, doing the appropriate
+        //    `create*` call.
+        //   1. After joining the created thread, observe that the thread
+        //      modified a variable, proving it ran.  (C-1)
+        //
+        //   2. Observe the value of a string the thread assigned to from
+        //      `bslmt::ThreadUtil::threadName()`, observing that the thread
+        //      name was as expected.  (C-2)
+        //
+        //   3. Observe that the value returned in the `status` field of `join`
+        //      was as expected.  (C-3)
+        //
+        //   4. Observe that the default allocator and global allocator weren't
+        //      used.  (C-4)
         //
         // Testing:
         //   int create(Hdl *, const Inv&);
@@ -2112,13 +2114,13 @@ int main(int argc, char *argv[])
         // CREATE ALLOCATION TEST
         //
         // Concerns:
-        //   Get the 'create' function to stop using the global allocator on
-        //   Unix.  Note this concern is only relevant to the 'create' methods
+        //   Get the `create` function to stop using the global allocator on
+        //   Unix.  Note this concern is only relevant to the `create` methods
         //   that take a functor, the ones that take a function pointer don't
         //   do any memory allocation.
         //
         // Plan:
-        //   Create a thread with each of the relevant 'create' functions,
+        //   Create a thread with each of the relevant `create` functions,
         //   passing a functor that is very large that will necessitate memory
         //   allocation.  Observe that the default and global allocators are
         //   not used.
@@ -2173,50 +2175,50 @@ int main(int argc, char *argv[])
         // PRIORITY EFFECTIVENESS TEST
         //
         // Concerns:
-        //: 1 We want to observe thread priorities making a difference.  It has
-        //:   been empirically determined that rarely will a more urgent thread
-        //:   interrupt a less urgent thread that is running, the only place
-        //:   where it seems to make a difference is when the threads are both
-        //:   blocked -- then priority seems to make a difference in which one
-        //:   is allowed to run first.
-        //: 2 This test verifies that higher numbers signify more urgent
-        //:   priorities.  The pthreads doc never seems to make that clear.
-        //:   This test is to verify that priorities never work 'backwards' --
-        //:   that is, whether we expect priorities to work or not, never do
-        //:   lower-numbered priorities get treated with significantly more
-        //:   urgency than higher numbered priorities.
-        //: 3 We also verify that on platforms where the component doc promises
-        //:   that priorities will work, they do work, and that a thread
-        //:   specified as more urgent will complete a certain task more
-        //:   quickly than less urgent threads.
+        // 1. We want to observe thread priorities making a difference.  It has
+        //    been empirically determined that rarely will a more urgent thread
+        //    interrupt a less urgent thread that is running, the only place
+        //    where it seems to make a difference is when the threads are both
+        //    blocked -- then priority seems to make a difference in which one
+        //    is allowed to run first.
+        // 2. This test verifies that higher numbers signify more urgent
+        //    priorities.  The pthreads doc never seems to make that clear.
+        //    This test is to verify that priorities never work `backwards` --
+        //    that is, whether we expect priorities to work or not, never do
+        //    lower-numbered priorities get treated with significantly more
+        //    urgency than higher numbered priorities.
+        // 3. We also verify that on platforms where the component doc promises
+        //    that priorities will work, they do work, and that a thread
+        //    specified as more urgent will complete a certain task more
+        //    quickly than less urgent threads.
         //
         // Plan:
-        //: 1 We create a scenario where a large number of threads are
-        //:   contending many times for a single mutex.  One of these threads
-        //:   has max priority, all the others have min priority.  We verify
-        //:   that the one thread with max priority is successful at getting
-        //:   more rapid access to the mutex.  We have an atomic variable
-        //:   's_finished' which counts how many threads have finished
-        //:   acquiring the mutex a large number of times.  When the urgent
-        //:   thread finishes, it sets the value 's_urgentPlace' to the value
-        //:   of 's_finished' when it finished, so after all threads have
-        //:   finished, 's_urgentPlace' tells us how many threads finished
-        //:   before the urgent thread.
-        //: 2 We do a number of trials, inserting the value of 's_urgentPlace'
-        //:   into a multiset each time.
-        //: 3 If priorities are working backwards (C-2), the best value of
-        //:   's_urgentPlace' (which will be at the front of the multiset) will
-        //:   place among the last threads to complete.  Verify that didn't
-        //:   happen.
-        //: 4 Examining the first few elements of this multiset tells us how
-        //:   the best trials turned out (C-3):
-        //:   o We confirm that 's_urgentPlace' was 0 for the best trial, and
-        //:     near the front on subsequent trials.  The worst couple of
-        //:     trials we ignore.
+        // 1. We create a scenario where a large number of threads are
+        //    contending many times for a single mutex.  One of these threads
+        //    has max priority, all the others have min priority.  We verify
+        //    that the one thread with max priority is successful at getting
+        //    more rapid access to the mutex.  We have an atomic variable
+        //    `s_finished` which counts how many threads have finished
+        //    acquiring the mutex a large number of times.  When the urgent
+        //    thread finishes, it sets the value `s_urgentPlace` to the value
+        //    of `s_finished` when it finished, so after all threads have
+        //    finished, `s_urgentPlace` tells us how many threads finished
+        //    before the urgent thread.
+        // 2. We do a number of trials, inserting the value of `s_urgentPlace`
+        //    into a multiset each time.
+        // 3. If priorities are working backwards (C-2), the best value of
+        //    `s_urgentPlace` (which will be at the front of the multiset) will
+        //    place among the last threads to complete.  Verify that didn't
+        //    happen.
+        // 4. Examining the first few elements of this multiset tells us how
+        //    the best trials turned out (C-3):
+        //    - We confirm that `s_urgentPlace` was 0 for the best trial, and
+        //      near the front on subsequent trials.  The worst couple of
+        //      trials we ignore.
         //
         // Testing
-        //: o Attr::setSchedulingPolicy
-        //: o Attr::setSchedulingPriority
+        //  - Attr::setSchedulingPolicy
+        //  - Attr::setSchedulingPriority
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Thread Priorities Test\n"
@@ -2240,32 +2242,32 @@ int main(int argc, char *argv[])
         // THREAD POLICY AND PRIORITY CREATION TEST
         //
         // Concerns:
-        //: o Determine which policies and priority values it will be possible
-        //:   create a thread at, and for which platform, and verify that our
-        //:   component doc about which polices will work on which platform is
-        //:   accurate.
+        //  - Determine which policies and priority values it will be possible
+        //    create a thread at, and for which platform, and verify that our
+        //    component doc about which polices will work on which platform is
+        //    accurate.
         //
         // Plan:
-        //: o Iterate through all possible thread policies.
-        //: o For each policy, set the bool constant 'willFail' to indicate
-        //:   whether the component doc predicts that thread creation will fail
-        //:   for the current platform and policy.
-        //: o Set a thread attributes object with the given policy.
-        //: o Iterate variable 'priority' from the min to the max priority for
-        //:   the given platform as specified by
-        //:   'Obj::getMinSchedulingPriority' and
-        //:   'Obj::getMaxSchedulingPriority'.
-        //: o Attempt to spawn a thread running the 'Touch' functor, which if
-        //:   it runs will set a boolean variable 'finished'.
-        //: o Verify from the return code of 'Obj::create' that thread creation
-        //:   either succeeded or failed as predicted by 'willFail'.
-        //: o Verify from the value of 'finished' whether the spawned thread
-        //:   indeed ran or not.
+        //  - Iterate through all possible thread policies.
+        //  - For each policy, set the bool constant `willFail` to indicate
+        //    whether the component doc predicts that thread creation will fail
+        //    for the current platform and policy.
+        //  - Set a thread attributes object with the given policy.
+        //  - Iterate variable `priority` from the min to the max priority for
+        //    the given platform as specified by
+        //    `Obj::getMinSchedulingPriority` and
+        //    `Obj::getMaxSchedulingPriority`.
+        //  - Attempt to spawn a thread running the `Touch` functor, which if
+        //    it runs will set a boolean variable `finished`.
+        //  - Verify from the return code of `Obj::create` that thread creation
+        //    either succeeded or failed as predicted by `willFail`.
+        //  - Verify from the value of `finished` whether the spawned thread
+        //    indeed ran or not.
         //
         // Testing:
-        //: o Obj::getMinSchedulingPriority
-        //: o Obj::getMaxSchedulingPriority
-        //: o Obj::create
+        //  - Obj::getMinSchedulingPriority
+        //  - Obj::getMaxSchedulingPriority
+        //  - Obj::create
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Thread Policy and Priority Creation Test\n"
@@ -2361,38 +2363,38 @@ int main(int argc, char *argv[])
         //
         // Note that this is a system-call wrapper, and this test is intended
         // to ensure the system call is correctly called by the
-        // 'bslmt_threadutil'.  This test specifically does *not* test the
+        // `bslmt_threadutil`.  This test specifically does *not* test the
         // accuracy of the underlying system call.  Also note that due to the
         // nature of the system call, testing values at the upper bound of the
         // valid range is not reasonable.  Test case -5, has been created and
         // run by hand to verify (slightly) longer time periods.
         //
         // Concerns:
-        //: 1 'sleepUntil' suspends the current thread until the indicated
-        //:    time in the future (within some reasonable limit).
-        //:
-        //: 2 'sleepUntil' does not suspend the current thread (or suspends it
-        //:    very briefly), for the current time, or times in the past.
-        //:
-        //: 3 'sleepUntil' works as expected with the monotonic system clock.
-        //:
-        //: 4  QoI: Asserted precondition violations are detected when enabled.
+        // 1. `sleepUntil` suspends the current thread until the indicated
+        //     time in the future (within some reasonable limit).
+        //
+        // 2. `sleepUntil` does not suspend the current thread (or suspends it
+        //     very briefly), for the current time, or times in the past.
+        //
+        // 3. `sleepUntil` works as expected with the monotonic system clock.
+        //
+        // 4.  QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Call 'sleepUntil' for a series of values less than a second in
-        //:   the future, and verify that system time after sleeping is within
-        //:   a reasonable range of the expected target time. (C-1)
-        //:
-        //: 2 Call 'sleepUntil' for a value in the past, and verify that
-        //:   the function returns to the caller in a reasonably small amount
-        //:   of time. (C-2)
-        //:
-        //: 3 Repeat these two tests for 'sleepUntil' with the monotonic
-        //:   system clock specified.
-        //:
-        //: 4 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid time-interval values. (using the
-        //:   'BSLS_ASSERTTEST_*' macros) (C-4)
+        // 1. Call `sleepUntil` for a series of values less than a second in
+        //    the future, and verify that system time after sleeping is within
+        //    a reasonable range of the expected target time. (C-1)
+        //
+        // 2. Call `sleepUntil` for a value in the past, and verify that
+        //    the function returns to the caller in a reasonably small amount
+        //    of time. (C-2)
+        //
+        // 3. Repeat these two tests for `sleepUntil` with the monotonic
+        //    system clock specified.
+        //
+        // 4. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid time-interval values. (using the
+        //    `BSLS_ASSERTTEST_*` macros) (C-4)
         //
         // Testing:
         //   void sleepUntil(const bsls::TimeInterval& );
@@ -2401,7 +2403,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "CLASS METHOD 'sleepUntil'" << endl
+                 << "CLASS METHOD `sleepUntil`" << endl
                  << "=========================" << endl;
         }
 
@@ -2479,7 +2481,7 @@ int main(int argc, char *argv[])
         {
             bsls::AssertTestHandlerGuard guard;
 
-            // Note that we must use 'RAW' handlers as the assertions are
+            // Note that we must use `RAW` handlers as the assertions are
             // generated by implementation components.
 
             ASSERT_PASS(Obj::sleepUntil(bsls::TimeInterval(0)));
@@ -2522,7 +2524,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
 #if defined(BSLS_PLATFORM_OS_CYGWIN)
-        // Spawning threads fails on Cygwin unless 'inheritSchedule == true'.
+        // Spawning threads fails on Cygwin unless `inheritSchedule == true`.
 
         if (verbose) {
             cout << "Skipping case 11 on Cygwin..." << endl;
@@ -2649,11 +2651,11 @@ int main(int argc, char *argv[])
         // TESTING: convertToSchedulingPriority
         //
         // Concern:
-        //   That 'convertToSchedulingPriority' works as expected.
+        //   That `convertToSchedulingPriority` works as expected.
         //
         // Plan:
-        //   Call 'get{Min,Max}SchedPriority' and compare the results they
-        //   return to results returned by 'convertToSchedulingPriority'.
+        //   Call `get{Min,Max}SchedPriority` and compare the results they
+        //   return to results returned by `convertToSchedulingPriority`.
         // --------------------------------------------------------------------
 
         typedef bslmt::ThreadAttributes Attr;
@@ -2722,7 +2724,7 @@ int main(int argc, char *argv[])
         // STACK SIZE
         //
         // Concern:
-        //   Does setting 'stackSize' allow one to create a buffer of nearly
+        //   Does setting `stackSize` allow one to create a buffer of nearly
         //   that size in the thread?
         //
         // Plan:
@@ -2742,7 +2744,7 @@ int main(int argc, char *argv[])
 #ifdef PTHREAD_STACK_MIN
             P(PTHREAD_STACK_MIN);
 #else
-            cout << "'PTHREAD_STACK_MIN' undefined\n";
+            cout << "`PTHREAD_STACK_MIN` undefined\n";
 #endif
         }
 
@@ -2824,8 +2826,8 @@ int main(int argc, char *argv[])
         // DELETEKEY, THREAD-SPECIFICITY OF DATA TEST ON TLS
         //
         // Concerns:
-        //   That 'deleteKey' deletes a TLS key for ALL threads, that data
-        //   associated with a key by 'setSpecific' is thread-specific.
+        //   That `deleteKey` deletes a TLS key for ALL threads, that data
+        //   associated with a key by `setSpecific` is thread-specific.
         //
         // Plan: Create 2 keys in the parent thread.  Verify both exist in the
         // child thread -- delete 1 in the child thread, verify the data set in
@@ -2834,7 +2836,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-                       "'deleteKey', THREAD SPECIFICITY OF DATA IN TLS TEST\n"
+                       "`deleteKey`, THREAD SPECIFICITY OF DATA IN TLS TEST\n"
                        "===================================================\n";
 
         namespace TC = BSLMT_THREADUTIL_TLSKEY_TEST6;
@@ -2880,16 +2882,16 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING CREATEKEY, SETSPECIFIC, AND GETSPECIFIC
         //
-        // Concerns: That the destructor function passed to 'createKey' is
-        //   executed by the thread that is terminating, that 'createKey',
-        //   'setSpecific', // and 'getSpecific' all work in the thread as well
+        // Concerns: That the destructor function passed to `createKey` is
+        //   executed by the thread that is terminating, that `createKey`,
+        //   `setSpecific`, // and `getSpecific` all work in the thread as well
         //   as in the destructor function.
         //
         // Plan:
         //   Spawn a thread, and within that thread create 2 keys and associate
         //   non-zero values with them, and both keys associated with the same
         //   destructor.  Verify that the destructor is called twice.  Repeat
-        //   the process passing 0 in the 'destructor' fields of the keys, and
+        //   the process passing 0 in the `destructor` fields of the keys, and
         //   verify that the destructor is not called.
         //       The second time the destructor is terminated, associate a
         //   non-zero value with one of the keys and verify this results in its
@@ -2948,7 +2950,7 @@ int main(int argc, char *argv[])
         // TESTING MICROSLEEP
         //
         // Concerns:
-        //   That 'microSleep' always sleeps at least the given amount of
+        //   That `microSleep` always sleeps at least the given amount of
         //   time, and does not sleep an unreasonable amount of extra time.
         //
         // Plan:
@@ -2998,7 +3000,7 @@ int main(int argc, char *argv[])
         // TESTING USAGE Example 1
         //
         // Concern: that the usage examples (including those that were
-        // previously in the 'bslmt_thread' component) compile and work
+        // previously in the `bslmt_thread` component) compile and work
         // properly.
         // --------------------------------------------------------------------
 
@@ -3022,7 +3024,7 @@ int main(int argc, char *argv[])
     }  break;
     case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'isEqual'
+        // TESTING `isEqual`
         //
         // Concerns: A valid thread handle is equal to itself.  Two valid
         // thread handles are equal.  An invalid thread handle is unequal to
@@ -3206,7 +3208,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Specify a stack size at run time and verify that threads can be
-        //   spawned with that stack size.  Since this test uses 'alloca.h',
+        //   spawned with that stack size.  Since this test uses `alloca.h`,
         //   which doesn't exist on Windows, the test is disabled there.
         // --------------------------------------------------------------------
 
@@ -3308,14 +3310,14 @@ int main(int argc, char *argv[])
         // be run in a typical build cycle.
         //
         // Concerns:
-        //: 1 'sleepUntil' suspends the current thread until the indicated
-        //:    time in the future (within some reasonable limit).  For
-        //:    times > 1s in the future.
+        // 1. `sleepUntil` suspends the current thread until the indicated
+        //     time in the future (within some reasonable limit).  For
+        //     times > 1s in the future.
         //
         // Plan:
-        //: 1 Call 'sleepUntil' for a series of values less than a second in
-        //:   the future, and verify that system time after sleeping is within
-        //:   a reasonable range of the expected target time. (C-1)
+        // 1. Call `sleepUntil` for a series of values less than a second in
+        //    the future, and verify that system time after sleeping is within
+        //    a reasonable range of the expected target time. (C-1)
         //
         // Testing:
         //   void sleepUntil(const bsls::TimeInterval& );
@@ -3323,7 +3325,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << endl
-                 << "CLASS METHOD 'sleepUntil'" << endl
+                 << "CLASS METHOD `sleepUntil`" << endl
                  << "=========================" << endl;
         }
 
@@ -3356,13 +3358,13 @@ int main(int argc, char *argv[])
         // PRIORITY EFFECTIVENESS TEST
         //
         // Concerns:
-        //: 1 The priority effectiveness test cannot be run nightly on Solaris
-        //:   since it takes prohibitive time on that platform, so we enable
-        //:   its running as a negative test case here.
+        // 1. The priority effectiveness test cannot be run nightly on Solaris
+        //    since it takes prohibitive time on that platform, so we enable
+        //    its running as a negative test case here.
         //
         // Testing
-        //: o Attr::setSchedulingPolicy
-        //: o Attr::setSchedulingPriority
+        //  - Attr::setSchedulingPolicy
+        //  - Attr::setSchedulingPriority
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Thread Priorities Test\n"
@@ -3374,18 +3376,18 @@ int main(int argc, char *argv[])
       }  break;
       case -7: {
         // --------------------------------------------------------------------
-        // 'hardwareConcurrency' MANUAL TEST
+        // `hardwareConcurrency` MANUAL TEST
         //
         // Concerns:
-        //: 1 The 'hardwareConcurrency' test cannot be run nightly on AIX and
-        //:   Solaris since it uses C++11 code to verify values, so we give an
-        //:   opportunity to verify them manually as a negative test case here.
+        // 1. The `hardwareConcurrency` test cannot be run nightly on AIX and
+        //    Solaris since it uses C++11 code to verify values, so we give an
+        //    opportunity to verify them manually as a negative test case here.
         //
         // Testing
-        //: unsigned int hardwareConcurrency();
+        //  unsigned int hardwareConcurrency();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "'hardwareConcurrency' MANUAL TEST\n"
+        if (verbose) cout << "`hardwareConcurrency` MANUAL TEST\n"
                              "=================================\n";
 #ifdef BSLS_PLATFORM_OS_UNIX
 

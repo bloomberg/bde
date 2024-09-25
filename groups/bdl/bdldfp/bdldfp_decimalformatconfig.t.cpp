@@ -25,45 +25,45 @@ using bsl::atoi;
 //                                  Overview
 //                                  --------
 // The component under test implements a simple in-core value-semantic
-// attribute class.  The 'class' supports a subset of the value-semantic
+// attribute class.  The `class` supports a subset of the value-semantic
 // functionality: Primary Manipulators and Basic Accessors.
 //
 // Primary Manipulators:
-//: o 'setPrecision'
-//: o 'setStyle'
-//: o 'setSign'
-//: o 'setInfinity'
-//: o 'setNan'
-//: o 'setSNan'
-//: o 'setDecimalPoint'
-//: o 'setExponent'
-//: o 'setShowpoint'
-//: o 'setExpWidth'
+//  - `setPrecision`
+//  - `setStyle`
+//  - `setSign`
+//  - `setInfinity`
+//  - `setNan`
+//  - `setSNan`
+//  - `setDecimalPoint`
+//  - `setExponent`
+//  - `setShowpoint`
+//  - `setExpWidth`
 //
 // Basic Accessors:
-//: o 'precision'
-//: o 'style'
-//: o 'sign'
-//: o 'infinity'
-//: o 'nan'
-//: o 'sNan'
-//: o 'decimalPoint'
-//: o 'exponent'
-//: o 'showpoint'
-//: o 'expWidth'
+//  - `precision`
+//  - `style`
+//  - `sign`
+//  - `infinity`
+//  - `nan`
+//  - `sNan`
+//  - `decimalPoint`
+//  - `exponent`
+//  - `showpoint`
+//  - `expWidth`
 //
 // This particular attribute class also provides a value constructor capable of
 // creating an object in any state relevant for thorough testing, obviating the
-// primitive generator function, 'gg', normally used for this purpose.  We will
+// primitive generator function, `gg`, normally used for this purpose.  We will
 // therefore follow our standard 10-case approach to testing value-semantic
 // types except that we will test the value constructor in case 3 (in lieu of
 // the generator function), with the default constructor and primary
 // manipulators tested fully in case 2.
 //
 // Certain standard value-semantic-type test cases are omitted:
-//: o [ 5] -- 'print' and 'operator<<' for this class.
-//: o [ 8] -- 'swap' is not implemented for this class.
-//: o [10] -- BDEX streaming is not (yet) implemented for this class.
+//  - [ 5] -- `print` and `operator<<` for this class.
+//  - [ 8] -- `swap` is not implemented for this class.
+//  - [10] -- BDEX streaming is not (yet) implemented for this class.
 //
 // ----------------------------------------------------------------------------
 // CREATORS
@@ -191,35 +191,35 @@ static const DefaultDataRow DEFAULT_DATA[] = {
 
 { L_, 0,       NAT, NEG, "inf", "nan", "snan", '.', 'e'},
 
-// 'precision'
+// `precision`
 { L_, 1,       FXD, ALS, "",    "",    "",     '.', 'e'},
 { L_, INT_MAX, FXD, ALS, "",    "",    "",     '.', 'e'},
 
-// 'style'
+// `style`
 { L_, 1,       NAT, NEG, "",    "",    "",     '.', 'e'},
 { L_, INT_MAX, SCI, ALS, "",    "",    "",     '.', 'e'},
 
-// 'sign'
+// `sign`
 { L_, 1,       NAT, ALS, "",    "",    "",     '.', 'e'},
 { L_, INT_MAX, SCI, NEG, "",    "",    "",     '.', 'e'},
 
-// 'infinity'
+// `infinity`
 { L_, 1,       NAT, ALS, "inf", "",    "",     '.', 'e'},
 { L_, INT_MAX, SCI, NEG, "INF", "",    "",     '.', 'e'},
 
-// 'nan'
+// `nan`
 { L_, 1,       NAT, ALS, "inf", "nan", "",     '.', 'e'},
 { L_, INT_MAX, SCI, NEG, "INF", "NAN", "",     '.', 'e'},
 
-// 'snan'
+// `snan`
 { L_, 1,       NAT, ALS, "inf", "nan", "snan", '.', 'e'},
 { L_, INT_MAX, NAT, NEG, "INF", "NAN", "SNAN", '.', 'e'},
 
-// 'point'
+// `point`
 { L_, 1,       FXD, ALS, "inf", "nan", "snan", '.', 'e'},
 { L_, INT_MAX, FXD, NEG, "INF", "NAN", "SNAN", ',', 'e'},
 
-// 'exponent'
+// `exponent`
 { L_, 1,       SCI, ALS, "inf", "nan", "snan", '.', 'e'},
 { L_, INT_MAX, SCI, NEG, "INF", "NAN", "SNAN", ',', 'E'},
 };
@@ -286,74 +286,74 @@ int main(int argc, char* argv[])
         //   have the same value.
         //
         // Concerns:
-        //: 1 The assignment operator can change the value of any modifiable
-        //:   target object to that of any source object.
-        //:
-        //: 2 The signature and return type are standard.
-        //:
-        //: 3 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 4 The value of the source object is not modified.
-        //:
-        //: 5 Assigning an object to itself behaves as expected (alias-safety).
+        // 1. The assignment operator can change the value of any modifiable
+        //    target object to that of any source object.
+        //
+        // 2. The signature and return type are standard.
+        //
+        // 3. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 4. The value of the source object is not modified.
+        //
+        // 5. Assigning an object to itself behaves as expected (alias-safety).
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a member-function
-        //:   pointer having the appropriate signature and return type for the
-        //:   copy-assignment operator defined in this component.  (C-2)
-        //:
-        //: 2 Using the table-driven technique, specify a set of (unique) valid
-        //:   object values (one per row) in terms of their individual
-        //:   attributes, including (a) first, the default value, and (b)
-        //:   boundary values corresponding to every range of values that each
-        //:   individual attribute can independently attain.
-        //:
-        //: 3 For each row 'R1' (representing a distinct object value, 'V') in
-        //:   the table described in P-3:  (C-1, 3..4)
-        //:
-        //:   1 Create two 'const' 'Obj', 'Z' and 'ZZ', each having the value
-        //:     'V'.
-        //:
-        //:   2 Execute an inner loop that iterates over each row 'R2'
-        //:     (representing a distinct object value, 'W') in the table
-        //:     described in P-3:
-        //:
-        //:   3 For each of the iterations (P-3.2):  (C-1, 3..4)
-        //:
-        //:     1 Use the value constructor to create a modifiable 'Obj', 'mX',
-        //:       having the value 'W'.
-        //:
-        //:     2 Assign 'mX' from 'Z'.
-        //:
-        //:     3 Verify that the address of the return value is the same as
-        //:       that of 'mX'.  (C-3)
-        //:
-        //:     4 Use the equality-comparison operator to verify that: (C-1, 4)
-        //:
-        //:       1 The target object, 'mX', now has the same value as that of
-        //:         'Z'.  (C-1)
-        //:
-        //:       2 'Z' still has the same value as that of 'ZZ'.  (C-4)
-        //:
-        //: 4 Repeat steps similar to those described in P-2 except that, this
-        //:   time, the source object, 'Z', is a reference to the target
-        //:   object, 'mX', and both 'mX' and 'ZZ' are initialized to have the
-        //:   value 'V'.  For each row (representing a distinct object value,
-        //:   'V') in the table described in P-2:  (C-5)
-        //:
-        //:   1 Use the value constructor to create a modifiable 'Obj' 'mX';
-        //:     also use the value constructor to create a 'const' 'Obj' 'ZZ'.
-        //:
-        //:   2 Let 'Z' be a reference providing only 'const' access to 'mX'.
-        //:
-        //:   3 Assign 'mX' from 'Z'.
-        //:
-        //:   4 Verify that the address of the return value is the same as that
-        //:     of 'mX'.  (C-3)
-        //:
-        //:   5 Use the equality-comparison operator to verify that the
-        //:     target object, 'Z', still has the same value as that of 'ZZ'.
-        //:     (C-5)
+        // 1. Use the address of `operator=` to initialize a member-function
+        //    pointer having the appropriate signature and return type for the
+        //    copy-assignment operator defined in this component.  (C-2)
+        //
+        // 2. Using the table-driven technique, specify a set of (unique) valid
+        //    object values (one per row) in terms of their individual
+        //    attributes, including (a) first, the default value, and (b)
+        //    boundary values corresponding to every range of values that each
+        //    individual attribute can independently attain.
+        //
+        // 3. For each row `R1` (representing a distinct object value, `V`) in
+        //    the table described in P-3:  (C-1, 3..4)
+        //
+        //   1. Create two `const` `Obj`, `Z` and `ZZ`, each having the value
+        //      `V`.
+        //
+        //   2. Execute an inner loop that iterates over each row `R2`
+        //      (representing a distinct object value, `W`) in the table
+        //      described in P-3:
+        //
+        //   3. For each of the iterations (P-3.2):  (C-1, 3..4)
+        //
+        //     1. Use the value constructor to create a modifiable `Obj`, `mX`,
+        //        having the value `W`.
+        //
+        //     2. Assign `mX` from `Z`.
+        //
+        //     3. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-3)
+        //
+        //     4. Use the equality-comparison operator to verify that: (C-1, 4)
+        //
+        //       1. The target object, `mX`, now has the same value as that of
+        //          `Z`.  (C-1)
+        //
+        //       2. `Z` still has the same value as that of `ZZ`.  (C-4)
+        //
+        // 4. Repeat steps similar to those described in P-2 except that, this
+        //    time, the source object, `Z`, is a reference to the target
+        //    object, `mX`, and both `mX` and `ZZ` are initialized to have the
+        //    value `V`.  For each row (representing a distinct object value,
+        //    `V`) in the table described in P-2:  (C-5)
+        //
+        //   1. Use the value constructor to create a modifiable `Obj` `mX`;
+        //      also use the value constructor to create a `const` `Obj` `ZZ`.
+        //
+        //   2. Let `Z` be a reference providing only `const` access to `mX`.
+        //
+        //   3. Assign `mX` from `Z`.
+        //
+        //   4. Verify that the address of the return value is the same as that
+        //      of `mX`.  (C-3)
+        //
+        //   5. Use the equality-comparison operator to verify that the
+        //      target object, `Z`, still has the same value as that of `ZZ`.
+        //      (C-5)
         //
         // Testing:
         //   operator=(const bdldfp::DecimalFormatConfig& rhs);
@@ -497,7 +497,7 @@ int main(int argc, char* argv[])
         //   N/A
         //
         // Testing:
-        //  Reserved for 'swap' testing.
+        //  Reserved for `swap` testing.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -511,37 +511,37 @@ int main(int argc, char* argv[])
         //   other one, such that the two objects have the same value.
         //
         // Concerns:
-        //: 1 The copy constructor creates an object having the same value as
-        //:   that of the supplied original object.
-        //:
-        //: 2 The original object is passed as a reference providing
-        //:   non-modifiable access to that object.
-        //:
-        //: 3 The value of the original object is unchanged.
+        // 1. The copy constructor creates an object having the same value as
+        //    that of the supplied original object.
+        //
+        // 2. The original object is passed as a reference providing
+        //    non-modifiable access to that object.
+        //
+        // 3. The value of the original object is unchanged.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   object values (one per row) in terms of their individual
-        //:   attributes, including (a) first, the default value, and (b)
-        //:   boundary values corresponding to every range of values that each
-        //:   individual attribute can independently attain.
-        //:
-        //: 2 For each row (representing a distinct object value, 'V') in the
-        //:   table described in P-1:  (C-1..3)
-        //:
-        //:   1 Use the value constructor to create two 'const' 'Obj', 'Z' and
-        //:     'ZZ', each having the value 'V'.
-        //:
-        //:   2 Use the copy constructor to create an object 'X',
-        //:     supplying it the 'const' object 'Z'.  (C-2)
-        //:
-        //:   3 Use the equality-comparison operator to verify that:
-        //:     (C-1, 3)
-        //:
-        //:     1 The newly constructed object, 'X', has the same value as 'Z'.
-        //:       (C-1)
-        //:
-        //:     2 'Z' still has the same value as 'ZZ'.  (C-3)
+        // 1. Using the table-driven technique, specify a set of (unique) valid
+        //    object values (one per row) in terms of their individual
+        //    attributes, including (a) first, the default value, and (b)
+        //    boundary values corresponding to every range of values that each
+        //    individual attribute can independently attain.
+        //
+        // 2. For each row (representing a distinct object value, `V`) in the
+        //    table described in P-1:  (C-1..3)
+        //
+        //   1. Use the value constructor to create two `const` `Obj`, `Z` and
+        //      `ZZ`, each having the value `V`.
+        //
+        //   2. Use the copy constructor to create an object `X`,
+        //      supplying it the `const` object `Z`.  (C-2)
+        //
+        //   3. Use the equality-comparison operator to verify that:
+        //      (C-1, 3)
+        //
+        //     1. The newly constructed object, `X`, has the same value as `Z`.
+        //        (C-1)
+        //
+        //     2. `Z` still has the same value as `ZZ`.  (C-3)
         //
         // Testing:
         //   bdldfp::DecimalFormatConfig(const bdldfp::DecimalFormatConfig& o);
@@ -605,7 +605,7 @@ int main(int argc, char* argv[])
 
             LOOP1_ASSERT(LINE, Z == X);
 
-            // Verify that the value of 'Z' has not changed.
+            // Verify that the value of `Z` has not changed.
 
             LOOP1_ASSERT(LINE, ZZ == Z);
 
@@ -614,66 +614,66 @@ int main(int argc, char* argv[])
       case 6: {
         // --------------------------------------------------------------------
         // TESTING EQUALITY-COMPARISON OPERATORS
-        //   Ensure that '==' and '!=' are the operational definition of value.
+        //   Ensure that `==` and `!=` are the operational definition of value.
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if each of
-        //:   their corresponding salient attributes respectively compares
-        //:   equal.
-        //:
-        //: 2 All salient attributes participate in the comparison.
-        //:
-        //: 3 'true  == (X == X)'  (i.e., identity)
-        //:
-        //: 4 'false == (X != X)'  (i.e., identity)
-        //:
-        //: 5 'X == Y' if and only if 'Y == X'  (i.e., commutativity)
-        //:
-        //: 6 'X != Y' if and only if 'Y != X'  (i.e., commutativity)
-        //:
-        //: 7 'X != Y' if and only if '!(X == Y)'
-        //:
-        //: 8 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., both comparison operators are free functions).
-        //:
-        //: 9 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //:10 The equality operator's signature and return type are standard.
-        //:
-        //:11 The inequality operator's signature and return type are standard.
+        // 1. Two objects, `X` and `Y`, compare equal if and only if each of
+        //    their corresponding salient attributes respectively compares
+        //    equal.
+        //
+        // 2. All salient attributes participate in the comparison.
+        //
+        // 3. `true  == (X == X)`  (i.e., identity)
+        //
+        // 4. `false == (X != X)`  (i.e., identity)
+        //
+        // 5. `X == Y` if and only if `Y == X`  (i.e., commutativity)
+        //
+        // 6. `X != Y` if and only if `Y != X`  (i.e., commutativity)
+        //
+        // 7. `X != Y` if and only if `!(X == Y)`
+        //
+        // 8. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., both comparison operators are free functions).
+        //
+        // 9. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        // 10. The equality operator's signature and return type are standard.
+        //
+        // 11. The inequality operator's signature and return type are standard.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the two homogeneous, free equality-
-        //:   comparison operators defined in this component.
-        //:   (C-8..11)
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their individual salient
-        //:   attributes such that for each salient attribute, there exists a
-        //:   pair of rows that differ (slightly) in only the column
-        //:   corresponding to that attribute.
-        //:
-        //: 3 For each row 'R1' in the table of P-3:  (C-1..7)
-        //:
-        //:   1 Create a single object, and use it to verify the reflexive
-        //:     (anti-reflexive) property of equality (inequality) in the
-        //:     presence of aliasing.  (C-3..4)
-        //:
-        //:   2 For each row 'R2' in the table of P-3:  (C-1..2, 5..7)
-        //:
-        //:     1 Record, in 'EXP', whether or not distinct objects created
-        //:       from 'R1' and 'R2', respectively, are expected to have the
-        //:       same value.
-        //:
-        //:     2 Create an object 'X' having the value 'R1'.
-        //:
-        //:     3 Create an object 'Y' having the value 'R2'.
-        //:
-        //:     4 Verify the commutative property and expected return value for
-        //:       both '==' and '!='.  (C-1..2, 5..7)
+        // 1. Use the respective addresses of `operator==` and `operator!=` to
+        //    initialize function pointers having the appropriate signatures
+        //    and return types for the two homogeneous, free equality-
+        //    comparison operators defined in this component.
+        //    (C-8..11)
+        //
+        // 2. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their individual salient
+        //    attributes such that for each salient attribute, there exists a
+        //    pair of rows that differ (slightly) in only the column
+        //    corresponding to that attribute.
+        //
+        // 3. For each row `R1` in the table of P-3:  (C-1..7)
+        //
+        //   1. Create a single object, and use it to verify the reflexive
+        //      (anti-reflexive) property of equality (inequality) in the
+        //      presence of aliasing.  (C-3..4)
+        //
+        //   2. For each row `R2` in the table of P-3:  (C-1..2, 5..7)
+        //
+        //     1. Record, in `EXP`, whether or not distinct objects created
+        //        from `R1` and `R2`, respectively, are expected to have the
+        //        same value.
+        //
+        //     2. Create an object `X` having the value `R1`.
+        //
+        //     3. Create an object `Y` having the value `R2`.
+        //
+        //     4. Verify the commutative property and expected return value for
+        //        both `==` and `!=`.  (C-1..2, 5..7)
         //
         // Testing:
         //   bool operator==(const bdldfp::DecimalFormatConfig& lhs, rhs);
@@ -700,72 +700,72 @@ int main(int argc, char* argv[])
         }
 
         if (verbose) cout <<
-            "\nDefine appropriate individual attribute values, 'Ai' and 'Bi'."
+            "\nDefine appropriate individual attribute values, `Ai` and `Bi`."
                                                                        << endl;
         // ---------------
         // Attribute Types
         // ---------------
 
-        typedef int         T1;   // 'precision'
-        typedef Obj::Style  T2;   // 'style'
-        typedef Obj::Sign   T3;   // 'sign'
-        typedef const char* T4;   // 'infinity'
-        typedef const char* T5;   // 'nan'
-        typedef const char* T6;   // 'snan'
-        typedef char        T7;   // 'point'
+        typedef int         T1;   // `precision`
+        typedef Obj::Style  T2;   // `style`
+        typedef Obj::Sign   T3;   // `sign`
+        typedef const char* T4;   // `infinity`
+        typedef const char* T5;   // `nan`
+        typedef const char* T6;   // `snan`
+        typedef char        T7;   // `point`
         typedef char        T8;   // 'exponent
 
                  // -------------------------------
-                 // Attribute 1 Values: 'precision'
+                 // Attribute 1 Values: `precision`
                  // -------------------------------
 
         const T1 A1 = 1;               // baseline
         const T1 B1 = INT_MAX;
 
                  // ---------------------------
-                 // Attribute 2 Values: 'style'
+                 // Attribute 2 Values: `style`
                  // ---------------------------
 
         const T2 A2 = Obj::e_SCIENTIFIC;    // baseline
         const T2 B2 = Obj::e_FIXED;
 
                  // --------------------------
-                 // Attribute 3 Values: 'sign'
+                 // Attribute 3 Values: `sign`
                  // --------------------------
 
         const T3 A3 = Obj::e_NEGATIVE_ONLY; // baseline
         const T3 B3 = Obj::e_ALWAYS;
 
                  // ------------------------------
-                 // Attribute 4 Values: 'infinity'
+                 // Attribute 4 Values: `infinity`
                  // ------------------------------
 
         const T4 A4 = "inf";           // baseline
         const T4 B4 = "Inf";
 
                  // -------------------------
-                 // Attribute 5 Values: 'nan'
+                 // Attribute 5 Values: `nan`
                  // -------------------------
 
         const T5 A5 = "nan";           // baseline
         const T5 B5 = "NaN";
 
                  // -------------------------
-                 // Attribute 6 Values: 'nan'
+                 // Attribute 6 Values: `nan`
                  // -------------------------
 
         const T6 A6 = "snan";          // baseline
         const T6 B6 = "sNaN";
 
                  // --------------------------
-                 // Attribute 7 Values: 'point'
+                 // Attribute 7 Values: `point`
                  // --------------------------
 
         const T7 A7 = '.';             // baseline
         const T7 B7 = ',';
 
                  // ------------------------------
-                 // Attribute 8 Values: 'exponent'
+                 // Attribute 8 Values: `exponent`
                  // ------------------------------
 
         const T8 A8 = 'e';             // baseline
@@ -898,7 +898,7 @@ int main(int argc, char* argv[])
         //   N/A
         //
         // Testing:
-        //   Reserved for 'print' and 'operator<<' testing.
+        //   Reserved for `print` and `operator<<` testing.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -910,29 +910,29 @@ int main(int argc, char* argv[])
         // TESTING ACCESSORS
         //
         // Concerns:
-        //: 1 Each accessor returns the value of the corresponding attribute
-        //:   of the object.
-        //:
-        //: 2 Each accessor method is declared 'const'.
+        // 1. Each accessor returns the value of the corresponding attribute
+        //    of the object.
+        //
+        // 2. Each accessor method is declared `const`.
         //
         // Plan:
         //   Here we use the default constructor and primary manipulators,
         //   which were fully tested in case 2, to further corroborate that
         //   these accessors are properly interpreting object state.
         //
-        //: 1 Use the default constructor to create an object (having default
-        //:   attribute values).
-        //:
-        //: 2 Verify that each basic accessor, invoked on a reference providing
-        //:   non-modifiable access to the object created in P2, returns the
-        //:   expected value.  (C-2)
-        //:
-        //: 3 For each salient attribute (contributing to value):  (C-1)
-        //:   1 Use the corresponding primary manipulator to set the attribute
-        //:     to a unique value.
-        //:
-        //:   2 Use the corresponding basic accessor to verify the new
-        //:     expected value.  (C-1)
+        // 1. Use the default constructor to create an object (having default
+        //    attribute values).
+        //
+        // 2. Verify that each basic accessor, invoked on a reference providing
+        //    non-modifiable access to the object created in P2, returns the
+        //    expected value.  (C-2)
+        //
+        // 3. For each salient attribute (contributing to value):  (C-1)
+        //   1. Use the corresponding primary manipulator to set the attribute
+        //      to a unique value.
+        //
+        //   2. Use the corresponding basic accessor to verify the new
+        //      expected value.  (C-1)
         //
         // Testing:
         //   int         precision() const;
@@ -953,48 +953,48 @@ int main(int argc, char* argv[])
         // Attribute Types
         //----------------
 
-        typedef int         T1;   // 'precision'
-        typedef Obj::Style  T2;   // 'style'
-        typedef Obj::Sign   T3;   // 'sign'
-        typedef const char* T4;   // 'infinity'
-        typedef const char* T5;   // 'nan'
-        typedef const char* T6;   // 'snan'
-        typedef char        T7;   // 'point'
+        typedef int         T1;   // `precision`
+        typedef Obj::Style  T2;   // `style`
+        typedef Obj::Sign   T3;   // `sign`
+        typedef const char* T4;   // `infinity`
+        typedef const char* T5;   // `nan`
+        typedef const char* T6;   // `snan`
+        typedef char        T7;   // `point`
         typedef char        T8;   // 'exponent
-        typedef bool        T9;   // 'showpoint'
-        typedef int         T10;  // 'expwidth'
+        typedef bool        T9;   // `showpoint`
+        typedef int         T10;  // `expwidth`
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
           // -----------------------------------------------------
-          // 'D' values: These are the default-constructed values.
+          // `D` values: These are the default-constructed values.
           // -----------------------------------------------------
 
-        const int         D1  = 0;                     // 'precision'
-        const Obj::Style  D2  = Obj::e_NATURAL;        // 'style'
-        const Obj::Sign   D3  = Obj::e_NEGATIVE_ONLY;  // 'sign'
-        const char       *D4  = "inf";                 // 'infinity'
-        const char       *D5  = "nan";                 // 'nan'
-        const char       *D6  = "snan";                // 'snan'
-        const char        D7  = '.';                   // 'point'
+        const int         D1  = 0;                     // `precision`
+        const Obj::Style  D2  = Obj::e_NATURAL;        // `style`
+        const Obj::Sign   D3  = Obj::e_NEGATIVE_ONLY;  // `sign`
+        const char       *D4  = "inf";                 // `infinity`
+        const char       *D5  = "nan";                 // `nan`
+        const char       *D6  = "snan";                // `snan`
+        const char        D7  = '.';                   // `point`
         const char        D8  = 'e';                   // 'exponent
-        const bool        D9  = false;                 // 'showpoint'
-        const int         D10 = 2;                     // 'expwidth'
+        const bool        D9  = false;                 // `showpoint`
+        const int         D10 = 2;                     // `expwidth`
 
                         // ----------------------------
-                        // 'A' values: Boundary values.
+                        // `A` values: Boundary values.
                         // ----------------------------
 
-        const int         A1  = INT_MAX;            // 'precision'
-        const Obj::Style  A2  = Obj::e_SCIENTIFIC;  // 'style'
-        const Obj::Sign   A3  = Obj::e_ALWAYS;      // 'sign'
-        const char       *A4  = "";                 // 'infinity'
-        const char       *A5  = "";                 // 'nan'
-        const char       *A6  = "";                 // 'snan'
-        const char        A7  = ',';                // 'point'
+        const int         A1  = INT_MAX;            // `precision`
+        const Obj::Style  A2  = Obj::e_SCIENTIFIC;  // `style`
+        const Obj::Sign   A3  = Obj::e_ALWAYS;      // `sign`
+        const char       *A4  = "";                 // `infinity`
+        const char       *A5  = "";                 // `nan`
+        const char       *A6  = "";                 // `snan`
+        const char        A7  = ',';                // `point`
         const char        A8  = 'E';                // 'exponent
-        const bool        A9  = false;              // 'showpoint'
-        const int         A10 = 4;                  // 'expwidth'
+        const bool        A9  = false;              // `showpoint`
+        const int         A10 = 4;                  // `expwidth`
 
         if (verbose) cout << "\nCreate an object." << endl;
 
@@ -1122,41 +1122,41 @@ int main(int argc, char* argv[])
         // TESTING MANIPULATORS
         //
         // Concerns:
-        //: 1 Any argument can be 'const'.
-        //:
-        //: 2 Each attribute is modifiable independently.
-        //:
-        //: 3 Each attribute can be set to represent any value that does not
-        //:   violate that attribute's documented constraints.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Any argument can be `const`.
+        //
+        // 2. Each attribute is modifiable independently.
+        //
+        // 3. Each attribute can be set to represent any value that does not
+        //    violate that attribute's documented constraints.
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create three sets of attribute values for the object: 'D', 'A',
-        //:   and 'B'.  'D' values correspond to the attribute values, and 'A'
-        //:   and 'B' values are chosen to be distinct boundary values where
-        //:   possible.
-        //:
-        //: 2 Use the default constructor to create an object 'X'.
-        //:
-        //: 3 For each attribute 'i', in turn, create a local block.  Then
-        //:   inside the block, using brute force, set that attribute's
-        //:   value, passing a 'const' argument representing each of the
-        //:   three test values, in turn (see P-1), first to 'Ai', then to
-        //:   'Bi', and finally back to 'Di'.  After each transition, use the
-        //:   (as yet unproven) basic accessors to verify that only the
-        //:   intended attribute value changed.  (C-1, 3)
-        //:
-        //: 4 Corroborate that attributes are modifiable independently by
-        //:   first setting all of the attributes to their 'A' values.  Then
-        //:   incrementally set each attribute to its 'B' value and verify
-        //:   after each manipulation that only that attribute's value
-        //:   changed.  (C-2)
-        //:
-        //: 5 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-4)
+        // 1. Create three sets of attribute values for the object: `D`, `A`,
+        //    and `B`.  `D` values correspond to the attribute values, and `A`
+        //    and `B` values are chosen to be distinct boundary values where
+        //    possible.
+        //
+        // 2. Use the default constructor to create an object `X`.
+        //
+        // 3. For each attribute `i`, in turn, create a local block.  Then
+        //    inside the block, using brute force, set that attribute's
+        //    value, passing a `const` argument representing each of the
+        //    three test values, in turn (see P-1), first to `Ai`, then to
+        //    `Bi`, and finally back to `Di`.  After each transition, use the
+        //    (as yet unproven) basic accessors to verify that only the
+        //    intended attribute value changed.  (C-1, 3)
+        //
+        // 4. Corroborate that attributes are modifiable independently by
+        //    first setting all of the attributes to their `A` values.  Then
+        //    incrementally set each attribute to its `B` value and verify
+        //    after each manipulation that only that attribute's value
+        //    changed.  (C-2)
+        //
+        // 5. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-4)
         //
         // Testing:
         //   bdldfp::DecimalFormatConfig(int,Style,Sign,s,s,s,c,c,bool,int);
@@ -1178,41 +1178,41 @@ int main(int argc, char* argv[])
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
-        // 'D' values: These are the default-constructed values.
-        const int         D1  = 0;                     // 'precision'
-        const Obj::Style  D2  = Obj::e_NATURAL;        // 'style'
-        const Obj::Sign   D3  = Obj::e_NEGATIVE_ONLY;  // 'sign'
-        const char       *D4  = "inf";                 // 'infinity'
-        const char       *D5  = "nan";                 // 'nan'
-        const char       *D6  = "snan";                // 'snan'
-        const char        D7  = '.';                   // 'point'
-        const char        D8  = 'e';                   // 'exponent'
-        const bool        D9  = false;                 // 'showpoint'
-        const int         D10 = 2;                     // 'expwidth'
+        // `D` values: These are the default-constructed values.
+        const int         D1  = 0;                     // `precision`
+        const Obj::Style  D2  = Obj::e_NATURAL;        // `style`
+        const Obj::Sign   D3  = Obj::e_NEGATIVE_ONLY;  // `sign`
+        const char       *D4  = "inf";                 // `infinity`
+        const char       *D5  = "nan";                 // `nan`
+        const char       *D6  = "snan";                // `snan`
+        const char        D7  = '.';                   // `point`
+        const char        D8  = 'e';                   // `exponent`
+        const bool        D9  = false;                 // `showpoint`
+        const int         D10 = 2;                     // `expwidth`
 
-        // 'A' values.
-        const int         A1  = 15;             // 'precision'
-        const Obj::Style  A2  = Obj::e_FIXED;   // 'style'
-        const Obj::Sign   A3  = Obj::e_ALWAYS;  // 'sign'
-        const char       *A4  = "";             // 'infinity'
-        const char       *A5  = "";             // 'nan'
-        const char       *A6  = "";             // 'snan'
-        const char        A7  = ',';            // 'point'
+        // `A` values.
+        const int         A1  = 15;             // `precision`
+        const Obj::Style  A2  = Obj::e_FIXED;   // `style`
+        const Obj::Sign   A3  = Obj::e_ALWAYS;  // `sign`
+        const char       *A4  = "";             // `infinity`
+        const char       *A5  = "";             // `nan`
+        const char       *A6  = "";             // `snan`
+        const char        A7  = ',';            // `point`
         const char        A8  = 'E';            // 'exponent
-        const bool        A9  = true;           // 'showpoint'
-        const int         A10 = 1;              // 'expwidth'
+        const bool        A9  = true;           // `showpoint`
+        const int         A10 = 1;              // `expwidth`
 
-        // 'B' values.
-        const int         B1  = INT_MAX;               // 'precision'
-        const Obj::Style  B2  = Obj::e_SCIENTIFIC;     // 'style'
-        const Obj::Sign   B3  = Obj::e_NEGATIVE_ONLY;  // 'sign'
-        const char       *B4  = "Inf";                 // 'infinity'
-        const char       *B5  = "NaN";                 // 'nan'
-        const char       *B6  = "sNaN";                // 'snan'
-        const char        B7  = ' ';                   // 'point'
-        const char        B8  = '^';                   // 'exponent'
-        const bool        B9  = true;                  // 'showpoint'
-        const int         B10 = 3;                     // 'expwidth'
+        // `B` values.
+        const int         B1  = INT_MAX;               // `precision`
+        const Obj::Style  B2  = Obj::e_SCIENTIFIC;     // `style`
+        const Obj::Sign   B3  = Obj::e_NEGATIVE_ONLY;  // `sign`
+        const char       *B4  = "Inf";                 // `infinity`
+        const char       *B5  = "NaN";                 // `nan`
+        const char       *B6  = "sNaN";                // `snan`
+        const char        B7  = ' ';                   // `point`
+        const char        B8  = '^';                   // `exponent`
+        const bool        B9  = true;                  // `showpoint`
+        const int         B10 = 3;                     // `expwidth`
 
         Obj mX(D1, D2, D3, D4, D5, D6, D7, D8, D9, D10);  const Obj& X = mX;
 
@@ -1220,7 +1220,7 @@ int main(int argc, char* argv[])
                "Verify that each attribute is independently settable." << endl;
 
         // -----------
-        // 'precision'
+        // `precision`
         // -----------
         {
             mX.setPrecision(A1);
@@ -1261,7 +1261,7 @@ int main(int argc, char* argv[])
         }
 
         // -------
-        // 'style'
+        // `style`
         // -------
         {
             mX.setStyle(A2);
@@ -1302,7 +1302,7 @@ int main(int argc, char* argv[])
         }
 
         // ------
-        // 'sign'
+        // `sign`
         // ------
         {
             mX.setSign(A3);
@@ -1343,7 +1343,7 @@ int main(int argc, char* argv[])
         }
 
         // ----------
-        // 'infinity'
+        // `infinity`
         // ----------
         {
             mX.setInfinity(A4);
@@ -1384,7 +1384,7 @@ int main(int argc, char* argv[])
         }
 
         // -----
-        // 'nan'
+        // `nan`
         // -----
         {
             mX.setNan(A5);
@@ -1425,7 +1425,7 @@ int main(int argc, char* argv[])
         }
 
         // ------
-        // 'snan'
+        // `snan`
         // ------
         {
             mX.setSNan(A6);
@@ -1466,7 +1466,7 @@ int main(int argc, char* argv[])
         }
 
         // -------
-        // 'point'
+        // `point`
         // -------
         {
             mX.setDecimalPoint(A7);
@@ -1507,7 +1507,7 @@ int main(int argc, char* argv[])
         }
 
         // ----------
-        // 'exponent'
+        // `exponent`
         // ----------
         {
             mX.setExponent(A8);
@@ -1548,7 +1548,7 @@ int main(int argc, char* argv[])
         }
 
         // -----------
-        // 'showpoint'
+        // `showpoint`
         // -----------
         {
             mX.setShowpoint(A9);
@@ -1589,7 +1589,7 @@ int main(int argc, char* argv[])
         }
 
         // ----------
-        // 'expwidth'
+        // `expwidth`
         // ----------
         {
             mX.setExpWidth(A10);
@@ -1632,7 +1632,7 @@ int main(int argc, char* argv[])
         if (verbose) cout << "Corroborate attribute independence." << endl;
         {
             // ---------------------------------------
-            // Set all attributes to their 'A' values.
+            // Set all attributes to their `A` values.
             // ---------------------------------------
             mX.setPrecision(A1);
             mX.setStyle(A2);
@@ -1657,7 +1657,7 @@ int main(int argc, char* argv[])
             ASSERT(A10 == X.expWidth());
 
               // ---------------------------------------
-              // Set all attributes to their 'B' values.
+              // Set all attributes to their `B` values.
               // ---------------------------------------
 
             mX.setPrecision(B1);
@@ -1849,14 +1849,14 @@ int main(int argc, char* argv[])
         // TESTING CREATORS
         //
         // Concerns:
-        //: 1 An object created with the default constructor has the
-        //:   contractually specified default value.
+        // 1. An object created with the default constructor has the
+        //    contractually specified default value.
         //
         // Plan:
-        //: 1 Use the default constructor to create an object 'X'.
-        //:
-        //: 2 Use the individual (as yet unproven) salient attribute
-        //:   accessors to verify the default-constructed value.  (C-1)
+        // 1. Use the default constructor to create an object `X`.
+        //
+        // 2. Use the individual (as yet unproven) salient attribute
+        //    accessors to verify the default-constructed value.  (C-1)
         //
         // Testing:
         //   bdldfp::DecimalFormatConfig();
@@ -1869,18 +1869,18 @@ int main(int argc, char* argv[])
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
-        // 'D' values: These are the default-constructed values.
+        // `D` values: These are the default-constructed values.
 
-        const int         D1  = 0;                     // 'precision'
-        const Obj::Style  D2  = Obj::e_NATURAL;        // 'style'
-        const Obj::Sign   D3  = Obj::e_NEGATIVE_ONLY;  // 'sign'
-        const char       *D4  = "inf";                 // 'infinity'
-        const char       *D5  = "nan";                 // 'nan'
-        const char       *D6  = "snan";                // 'snan'
-        const char        D7  = '.';                   // 'point'
-        const char        D8  = 'e';                   // 'exponent'
-        const bool        D9  = false;                 // 'showpoint'
-        const int         D10 = 2;                     // 'expwidth'
+        const int         D1  = 0;                     // `precision`
+        const Obj::Style  D2  = Obj::e_NATURAL;        // `style`
+        const Obj::Sign   D3  = Obj::e_NEGATIVE_ONLY;  // `sign`
+        const char       *D4  = "inf";                 // `infinity`
+        const char       *D5  = "nan";                 // `nan`
+        const char       *D6  = "snan";                // `snan`
+        const char        D7  = '.';                   // `point`
+        const char        D8  = 'e';                   // `exponent`
+        const bool        D9  = false;                 // `showpoint`
+        const int         D10 = 2;                     // `expwidth`
 
         if (verbose) cout <<
                      "Create an object using the default constructor." << endl;
@@ -1911,12 +1911,12 @@ int main(int argc, char* argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an object 'X'.
-        //: 2 Get access to each attribute.
+        // 1. Create an object `X`.
+        // 2. Get access to each attribute.
         //
         // Testing:
         //   BREATHING TEST

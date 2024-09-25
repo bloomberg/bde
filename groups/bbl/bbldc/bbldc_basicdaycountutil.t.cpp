@@ -9,7 +9,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
-#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstdlib.h>     // `atoi`
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -126,13 +126,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -149,60 +149,60 @@ int main(int argc, char *argv[])
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
-// 'bbldc::BasicDayCountUtil' methods.  First, create two 'bdlt::Date'
-// variables, 'd1' and 'd2':
-//..
+// `bbldc::BasicDayCountUtil` methods.  First, create two `bdlt::Date`
+// variables, `d1` and `d2`:
+// ```
     const bdlt::Date d1(2003, 10, 19);
     const bdlt::Date d2(2003, 12, 31);
-//..
-// Now, compute the day count between 'd1' and 'd2' according to the ISDA
+// ```
+// Now, compute the day count between `d1` and `d2` according to the ISDA
 // Actual/Actual convention:
-//..
+// ```
     const int daysDiff = bbldc::BasicDayCountUtil::daysDiff(
                               d1,
                               d2,
                               bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL);
     ASSERT(73 == daysDiff);
-//..
+// ```
 // Finally, compute the year fraction between the two dates according to the
 // ISDA Actual/Actual convention:
-//..
+// ```
     const double yearsDiff = bbldc::BasicDayCountUtil::yearsDiff(
                               d1,
                               d2,
                               bbldc::DayCountConvention::e_ISDA_ACTUAL_ACTUAL);
-    // Need fuzzy comparison since 'yearsDiff' is a 'double'.
+    // Need fuzzy comparison since `yearsDiff` is a `double`.
     ASSERT(0.1999 < yearsDiff && 0.2001 > yearsDiff);
-//..
+// ```
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'yearsDiff'
+        // TESTING `yearsDiff`
         //   Verify the method correctly computes the number of years between
         //   two dates for the provided convention.
         //
         // Concerns:
-        //: 1 The 'yearsDiff' method produces the correct results for the
-        //:   provided convention.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The `yearsDiff` method produces the correct results for the
+        //    provided convention.
+        //
+        // 2. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Specify a set S of {convention C, pairs of dates (d1, d2), and
-        //:   their difference in years D}.  For the method under test, in a
-        //:   loop over the elements of S, apply the method to dates having the
-        //:   values d1 and d2 using convention C and confirm the result using
-        //:   the value D with a fuzzy comparison (since the return value is a
-        //:   floating-point number).  (C-1)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
+        // 1. Specify a set S of {convention C, pairs of dates (d1, d2), and
+        //    their difference in years D}.  For the method under test, in a
+        //    loop over the elements of S, apply the method to dates having the
+        //    values d1 and d2 using convention C and confirm the result using
+        //    the value D with a fuzzy comparison (since the return value is a
+        //    floating-point number).  (C-1)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //   double yearsDiff(beginDate, endDate, convention);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'yearsDiff'" << endl
+                          << "TESTING `yearsDiff`" << endl
                           << "===================" << endl;
 
         {
@@ -257,7 +257,7 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             if (verbose) cout <<
-                "\nTesting: 'yearsDiff(beginDate, endDate, type)'" << endl;
+                "\nTesting: `yearsDiff(beginDate, endDate, type)`" << endl;
 
             // Ensure the test data differentiates each convention type.
 
@@ -344,31 +344,31 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'daysDiff'
+        // TESTING `daysDiff`
         //   Verify the method correctly computes the number of days between
         //   two dates for the provided convention.
         //
         // Concerns:
-        //: 1 The 'daysDiff' method produces the correct results for the
-        //:   provided convention.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The `daysDiff` method produces the correct results for the
+        //    provided convention.
+        //
+        // 2. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Specify a set S of {convention C, pairs of dates (d1, d2), and
-        //:   their difference in days D}.  For the method under test, in a
-        //:   loop over the elements of S, apply the method to dates having the
-        //:   values d1 and d2 using convention C and confirm the result using
-        //:   the value D.  (C-1)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
+        // 1. Specify a set S of {convention C, pairs of dates (d1, d2), and
+        //    their difference in days D}.  For the method under test, in a
+        //    loop over the elements of S, apply the method to dates having the
+        //    values d1 and d2 using convention C and confirm the result using
+        //    the value D.  (C-1)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
         //   int daysDiff(beginDate, endDate, convention);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'daysDiff'" << endl
+                          << "TESTING `daysDiff`" << endl
                           << "==================" << endl;
 
         {
@@ -424,7 +424,7 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             if (verbose) cout <<
-                "\nTesting: 'daysDiff(beginDate, endDate, type)'" << endl;
+                "\nTesting: `daysDiff(beginDate, endDate, type)`" << endl;
 
             // Ensure the test data differentiates each convention type.  Note:
             // this part of the test is getting inappropriate as we add more
@@ -518,23 +518,23 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'isSupported'
+        // TESTING `isSupported`
         //   Verify the method correctly indicates whether or not the provided
         //   convention is supported by this component.
         //
         // Concerns:
-        //: 1 The 'isSupported' method produces the correct results for the
-        //:   provided convention.
+        // 1. The `isSupported` method produces the correct results for the
+        //    provided convention.
         //
         // Plan:
-        //: 1 Directly test the return value of the method.  (C-1)
+        // 1. Directly test the return value of the method.  (C-1)
         //
         // Testing:
         //   bool isSupported(convention);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'isSupported'" << endl
+                          << "TESTING `isSupported`" << endl
                           << "=====================" << endl;
 
         for (int i = 0; i < 1000; ++i) {

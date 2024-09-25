@@ -35,10 +35,10 @@ using namespace bsl;
 //                              Overview
 //                              --------
 //
-// This test driver exercises all the public methods from the 'basic_streambuf'
-// protocol that are implemented by the class 'bdlsb::OverflowMemOutStreamBuf',
-// as well as each public method in the 'bdlsb::OverflowMemOutStreamBuf' class
-// that is not part of the 'basic_streambuf' protocol.
+// This test driver exercises all the public methods from the `basic_streambuf`
+// protocol that are implemented by the class `bdlsb::OverflowMemOutStreamBuf`,
+// as well as each public method in the `bdlsb::OverflowMemOutStreamBuf` class
+// that is not part of the `basic_streambuf` protocol.
 //
 // Our goal here is to ensure that the implementations comply exactly with the
 // IOStreams portion of the C++ standard where the standard explicitly defines
@@ -49,20 +49,20 @@ using namespace bsl;
 // function documentation.
 //
 /// Primary Constructors:
-//: o OverflowMemOutStreamBuf(char *, int, bslma::Allocator *);
+//  - OverflowMemOutStreamBuf(char *, int, bslma::Allocator *);
 //
 // Primary Manipulators:
-//: o int_type sputc(char_type);
-//: o pos_type seekoff(off_type, seekdir, openmode);
+//  - int_type sputc(char_type);
+//  - pos_type seekoff(off_type, seekdir, openmode);
 //
 // Basic accessors:
-//: o size_t dataLength() const;
-//: o size_t dataLengthInInitialBuffer() const;
-//: o size_t dataLengthInOverflowBuffer() const;
-//: o const char *initialBuffer() const;
-//: o size_t initialBufferSize() const;
-//: o const char *overflowBuffer() const;
-//: o size_t overflowBufferSize() const;
+//  - size_t dataLength() const;
+//  - size_t dataLengthInInitialBuffer() const;
+//  - size_t dataLengthInOverflowBuffer() const;
+//  - const char *initialBuffer() const;
+//  - size_t initialBufferSize() const;
+//  - const char *overflowBuffer() const;
+//  - size_t overflowBufferSize() const;
 //
 //-----------------------------------------------------------------------------
 // CREATORS
@@ -186,11 +186,12 @@ const io_seekdir  END = bsl::ios_base::end;
               // ================================================
 
 // FREE OPERATORS
+
+/// Write the contents of the specified `streamBuffer` (as well as a marker
+/// indicating eight bytes groupings) to the specified output `stream` in
+/// binary format, and return a reference to the modifiable `stream`.
 bsl::ostream& operator<<(bsl::ostream&                         stream,
                          const bdlsb::OverflowMemOutStreamBuf& streamBuffer);
-    // Write the contents of the specified 'streamBuffer' (as well as a marker
-    // indicating eight bytes groupings) to the specified output 'stream' in
-    // binary format, and return a reference to the modifiable 'stream'.
 
 bsl::ostream& operator<<(bsl::ostream&                         stream,
                          const bdlsb::OverflowMemOutStreamBuf& streamBuffer)
@@ -237,24 +238,25 @@ namespace {
 ///-----
 // This section illustrates intended use of this component.
 //
-/// Example 1: Basic Use of 'bdlsb::OverflowMemOutStreamBuf'
+/// Example 1: Basic Use of `bdlsb::OverflowMemOutStreamBuf`
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates using a 'bdlsb::OverflowMemOutStreamBuf' in order
-// to test a user defined stream type, 'CapitalizingStream'. In this example,
-// we'll define a simple example stream type 'CapitalizingStream' that
+// This example demonstrates using a `bdlsb::OverflowMemOutStreamBuf` in order
+// to test a user defined stream type, `CapitalizingStream`. In this example,
+// we'll define a simple example stream type `CapitalizingStream` that
 // capitalizes lower-case ASCII data written to the stream. In order to test
-// this 'CapitalizingStream' type, we'll create an instance, and supply it a
-// 'bdlsb::OverflowMemOutStreamBuf' object as its stream buffer; after we write
-// some character data to the 'CapitalizingStream' we'll inspect the buffer of
-// the 'bdlsb::OverflowMemOutStreamBuf' and verify its contents match our
+// this `CapitalizingStream` type, we'll create an instance, and supply it a
+// `bdlsb::OverflowMemOutStreamBuf` object as its stream buffer; after we write
+// some character data to the `CapitalizingStream` we'll inspect the buffer of
+// the `bdlsb::OverflowMemOutStreamBuf` and verify its contents match our
 // expected output. Note that to simplify the example, we do not include the
 // functions for streaming non-character data, e.g., numeric values.
 //
-// First, we define our example stream class, 'CapitalizingStream' (which we
+// First, we define our example stream class, `CapitalizingStream` (which we
 // will later test using 'bdlsb::OverflowMemOutStreamBuf):
-//..
+// ```
+
+    /// This class capitalizes lower-case ASCII characters that are output.
     class CapitalizingStream {
-        // This class capitalizes lower-case ASCII characters that are output.
 
         // DATA
         bsl::streambuf  *d_streamBuffer_p;   // pointer to a stream buffer
@@ -264,41 +266,44 @@ namespace {
                                               const char          *data);
       public:
         // CREATORS
+
+        /// Create a capitalizing stream using the specified `streamBuffer`
+        /// as the underlying stream buffer for the stream.
         explicit CapitalizingStream(bsl::streambuf *streamBuffer);
-            // Create a capitalizing stream using the specified 'streamBuffer'
-            // as the underlying stream buffer for the stream.
     };
 
     // FREE OPERATORS
+
+    /// Write the specified `data` in capitalized form to the specified
+    /// `stream`.
     CapitalizingStream& operator<<(CapitalizingStream&  stream,
                                    const char          *data);
-        // Write the specified 'data' in capitalized form to the specified
-        // 'stream'.
 
     CapitalizingStream::CapitalizingStream(bsl::streambuf *streamBuffer)
     : d_streamBuffer_p(streamBuffer)
     {
     }
-//..
+// ```
 // As is typical, the streaming operators are made friends of the class.
 //
-// Note that we cannot directly use 'bsl::toupper' to capitalize each
-// individual character, because 'bsl::toupper' operates on 'int' instead of
-// 'char'.  Instead, we call a function 'ucharToUpper' that works in terms of
-// 'unsigned char'.  some care must be made to avoid undefined and
-// implementation-specific behavior during the conversions to and from 'int'.
-// Therefore we wrap 'bsl::toupper' in an interface that works in terms of
-// 'unsigned char':
-//..
+// Note that we cannot directly use `bsl::toupper` to capitalize each
+// individual character, because `bsl::toupper` operates on `int` instead of
+// `char`.  Instead, we call a function `ucharToUpper` that works in terms of
+// `unsigned char`.  some care must be made to avoid undefined and
+// implementation-specific behavior during the conversions to and from `int`.
+// Therefore we wrap `bsl::toupper` in an interface that works in terms of
+// `unsigned char`:
+// ```
+
+    /// Return the upper-case equivalent to the specified `input` character.
     static unsigned char ucharToUpper(unsigned char input)
-        // Return the upper-case equivalent to the specified 'input' character.
     {
         return static_cast<unsigned char>(bsl::toupper(input));
     }
-//..
-// Finally, we use the 'transform' algorithm to convert lower-case characters
+// ```
+// Finally, we use the `transform` algorithm to convert lower-case characters
 // to upper-case.
-//..
+// ```
     // FREE OPERATORS
     CapitalizingStream& operator<<(CapitalizingStream&  stream,
                                    const char          *data)
@@ -311,7 +316,7 @@ namespace {
         stream.d_streamBuffer_p->sputn(tmp.data(), tmp.length());
         return stream;
     }
-//..
+// ```
 
 }  // close unnamed namespace
 
@@ -340,13 +345,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, and replace 'assert' with
-        //:   'ASSERT'.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, and replace `assert` with
+        //    `ASSERT`.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -355,25 +360,25 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "USAGE EXAMPLE" << endl
                                   << "=============" << endl;
         {
-// Now, we create an instance of 'bdlsb::OverflowMemOutStreamBuf' that will
-// serve as underlying stream buffer for our 'CapitalingStream':
-//..
+// Now, we create an instance of `bdlsb::OverflowMemOutStreamBuf` that will
+// serve as underlying stream buffer for our `CapitalingStream`:
+// ```
     enum { INITIAL_CAPACITY = 10 };
     char buffer[INITIAL_CAPACITY];
 
     bdlsb::OverflowMemOutStreamBuf streamBuffer(buffer, INITIAL_CAPACITY);
-//..
-// Now, we test our 'CapitalingStream' by supplying the created instance of
-// 'bdlsb::OverflowMemOutStreamBuf' and using it to inspect the output of the
+// ```
+// Now, we test our `CapitalingStream` by supplying the created instance of
+// `bdlsb::OverflowMemOutStreamBuf` and using it to inspect the output of the
 // stream:
-//..
+// ```
     CapitalizingStream  testStream(&streamBuffer);
     testStream << "Hello world.";
-//..
+// ```
 // Finally, we verify that the streamed data has been capitalized and the
 // portion of the data that does not fit into initial buffer is placed into
 // dynamically allocated overflow buffer:
-//..
+// ```
     ASSERT(10 == streamBuffer.dataLengthInInitialBuffer());
     ASSERT(0  == strncmp("HELLO WORL",
                          streamBuffer.initialBuffer(),
@@ -382,34 +387,34 @@ int main(int argc, char *argv[])
     ASSERT(0  == strncmp("D.",
                          streamBuffer.overflowBuffer(),
                          streamBuffer.dataLengthInOverflowBuffer()));
-//..
+// ```
         }
       } break;
       case 7: {
         // --------------------------------------------------------------------
         // GROW TEST
-        //   Various public methods of the 'bdlsb::OverflowMemOutStreamBuf' can
+        //   Various public methods of the `bdlsb::OverflowMemOutStreamBuf` can
         //   lead to internal growth of the internal overflow memory buffer.
         //
         // Concerns:
-        //: 1 On any operation that writes/positions past initial buffer
-        //:   capacity, the overflow buffer should be allocated ( if is does
-        //:   not exist ) and sized appropriately.
-        //:
-        //: 2 When the overflow buffer grows, the new overflow buffer should
-        //:   have double capacity, the data from the old overflow buffer
-        //:   should be copied over and the old overflow buffer should be
-        //:   deallocated.
+        // 1. On any operation that writes/positions past initial buffer
+        //    capacity, the overflow buffer should be allocated ( if is does
+        //    not exist ) and sized appropriately.
+        //
+        // 2. When the overflow buffer grows, the new overflow buffer should
+        //    have double capacity, the data from the old overflow buffer
+        //    should be copied over and the old overflow buffer should be
+        //    deallocated.
         //
         // Plan:
-        //: 1 Create a stream buffer at various different states.  For each
-        //:   state, invoke methods that can lead to internal grow of the
-        //:   overflow buffer.  Verify that growth size and data is correct.
-        //:   The methods that can trigger internal overflow memory buffer grow
-        //:   grow are:
-        //:   1 'sputc'
-        //:   2 'sputn'
-        //:   3 'pubseekoff'
+        // 1. Create a stream buffer at various different states.  For each
+        //    state, invoke methods that can lead to internal grow of the
+        //    overflow buffer.  Verify that growth size and data is correct.
+        //    The methods that can trigger internal overflow memory buffer grow
+        //    grow are:
+        //   1. `sputc`
+        //   2. `sputn`
+        //   3. `pubseekoff`
         //
         // Testing:
         //   void grow(size_t numBytes);
@@ -580,38 +585,38 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // SEEKPOS TEST
-        //   As the only action performed in 'seekpos' is the call for
-        //   'seekoff' with predetermined second parameter, then we can test
-        //   'seekpos' superficially.  Note that 'seekpos' method is called by
-        //   the base class method 'pubseekpos'.
+        //   As the only action performed in `seekpos` is the call for
+        //   `seekoff` with predetermined second parameter, then we can test
+        //   `seekpos` superficially.  Note that `seekpos` method is called by
+        //   the base class method `pubseekpos`.
         //
         // Concerns:
-        //: 1 Seeking uses the correct location from which to offset.
-        //:
-        //: 2 Both negative and positive offsets compute correctly.
-        //:
-        //: 3 Seeking sets the "cursor" (i.e., the base-class' pptr()) position
-        //:   to the correct location.
-        //:
-        //: 4 Seeking out of bounds is handled correctly and returns invalid
-        //:   value.
-        //:
-        //: 5 Trying to seek in the "get" area has no effect and returns
-        //:   invalid value.
+        // 1. Seeking uses the correct location from which to offset.
+        //
+        // 2. Both negative and positive offsets compute correctly.
+        //
+        // 3. Seeking sets the "cursor" (i.e., the base-class' pptr()) position
+        //    to the correct location.
+        //
+        // 4. Seeking out of bounds is handled correctly and returns invalid
+        //    value.
+        //
+        // 5. Trying to seek in the "get" area has no effect and returns
+        //    invalid value.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of offsets for
-        //:   seek operations.
-        //:
-        //: 2 For each row 'R' in the table of P-2:
-        //:
-        //:   1 Create two identical 'bdlsb::OverflowMemOutStreamBuf' objects
-        //:     and fill their buffers with the same content.
-        //:
-        //:   2 Perform 'seekpos' operation for one object and 'seekoff'
-        //:     operation for another (reference sample) with specified offset.
-        //:
-        //:   3 Verify that two objects have the same state.  (C-1..5)
+        // 1. Using the table-driven technique, specify a set of offsets for
+        //    seek operations.
+        //
+        // 2. For each row `R` in the table of P-2:
+        //
+        //   1. Create two identical `bdlsb::OverflowMemOutStreamBuf` objects
+        //      and fill their buffers with the same content.
+        //
+        //   2. Perform `seekpos` operation for one object and `seekoff`
+        //      operation for another (reference sample) with specified offset.
+        //
+        //   3. Verify that two objects have the same state.  (C-1..5)
         //
         // Testing:
         //   pos_type seekpos(pos_type, openmode);
@@ -647,7 +652,7 @@ int main(int argc, char *argv[])
                { PUT,  QIBS - 1         },
                { PUT,  QIBS             },
                { PUT,  QIBS + 1         },
-               // seek into the 'get' area
+               // seek into the `get` area
                { GET,  22               }
             };
             const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
@@ -694,34 +699,34 @@ int main(int argc, char *argv[])
         // XSPUTN TEST
         //
         // Concerns:
-        //: 1 Ensure 'sputn' correctly writes string of varying length.
-        //:
-        //: 2 Ensure that no more than the specified number of characters are
-        //:   written.
-        //:
-        //: 3 Ensure that 'sputn' correctly uses current write position
-        //:   indicator.
-        //:
-        //: 4 Ensure that overflow buffer re-locations triggered by 'sputn' do
-        //:   not corrupt existing buffer content.
-        //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Ensure `sputn` correctly writes string of varying length.
+        //
+        // 2. Ensure that no more than the specified number of characters are
+        //    written.
+        //
+        // 3. Ensure that `sputn` correctly uses current write position
+        //    indicator.
+        //
+        // 4. Ensure that overflow buffer re-locations triggered by `sputn` do
+        //    not corrupt existing buffer content.
+        //
+        // 5. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Write out representative strings from the categories 0
-        //:   characters, 1 character, and > 1 character, into stream buffer
-        //:   with representative contents "empty", substantially less than
-        //:   capacity, almost-full-so-that-next-write-exceeds-capacity and
-        //:   substantially more than current capacity.  (C-1..3)
-        //:
-        //: 2 After the whole sequence has been output into the stream buffer,
-        //:   verify that the content is intact by internal overflow buffer
-        //:   re-locations.  (C-4)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when an attempt is made to perform operations with
-        //:   invalid input parameters values (using the 'BSLS_ASSERTTEST_*'
-        //:   macros).  (C-5)
+        // 1. Write out representative strings from the categories 0
+        //    characters, 1 character, and > 1 character, into stream buffer
+        //    with representative contents "empty", substantially less than
+        //    capacity, almost-full-so-that-next-write-exceeds-capacity and
+        //    substantially more than current capacity.  (C-1..3)
+        //
+        // 2. After the whole sequence has been output into the stream buffer,
+        //    verify that the content is intact by internal overflow buffer
+        //    re-locations.  (C-4)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered when an attempt is made to perform operations with
+        //    invalid input parameters values (using the `BSLS_ASSERTTEST_*`
+        //    macros).  (C-5)
         //
         // Testing:
         //   streamsize xsputn(const char_type *, streamsize);
@@ -758,8 +763,8 @@ int main(int argc, char *argv[])
             const char        SPUTN_FILLER = 'b';
 
             // This test builds a stream buffer with a content of the form
-            // "aaaaa...abbbbb...", where the 'b' string is output using
-            // 'sputn'.  The test verifies that the 'b' string start at the
+            // "aaaaa...abbbbb...", where the `b` string is output using
+            // `sputn`.  The test verifies that the `b` string start at the
             // correct position, has correct length.
 
             // This segment verifies correct behavior across different initial
@@ -854,13 +859,13 @@ int main(int argc, char *argv[])
         //   Verify the basic accessors functionality.
         //
         // Concerns:
-        //: 1 Ensure that basic accessors return valid, expected values.
-        //:
+        // 1. Ensure that basic accessors return valid, expected values.
+        //
         //
         // Plan:
-        //: 1 Put stream buffer into various states using 'sputc' and
-        //:   'pubseeoff' methods and verify that accessors report correct
-        //:   values.  (C-1)
+        // 1. Put stream buffer into various states using `sputc` and
+        //    `pubseeoff` methods and verify that accessors report correct
+        //    values.  (C-1)
         //
         // Testing:
         //   size_t dataLength() const;
@@ -937,41 +942,41 @@ int main(int argc, char *argv[])
         //   provide human readable test traces.
         //
         // Concerns:
-        //: 1 Output operator formats the stream buffer correctly.
-        //:
-        //: 2 Output operator does not produce any trailing characters.
-        //:
-        //: 3 Output operator works on references to 'const' object.
-        //:
-        //: 4 Output operator returns a reference to the modifiable stream
-        //:   argument.
+        // 1. Output operator formats the stream buffer correctly.
+        //
+        // 2. Output operator does not produce any trailing characters.
+        //
+        // 3. Output operator works on references to `const` object.
+        //
+        // 4. Output operator returns a reference to the modifiable stream
+        //    argument.
         //
         // Plan:
-        //: 1 Create a 'bdlbs::OverflowMemOutStreamBuf' object and write some
-        //:   characters to it.  Use 'ostrstream' to write that object's value
-        //:   to two separate character buffers each with different initial
-        //:   values.  Compare the contents of these buffers with the literal
-        //:   expected output format and verify that the characters beyond the
-        //:   length of the streambuf contents are unaffected in both buffers.
-        //:   (C-1..3)
-        //:
-        //: 2 Create an empty 'bdlbs::OverflowMemOutStreamBuf' object.  Use
-        //:   'ostrstream' to write that object's value to the character
-        //:   buffer.  Compare the content of this buffer with the literal
-        //:   expected output format and verify that the characters beyond the
-        //:   length of the streambuf contents are unaffected.  (C-1..3)
-        //:
-        //: 3 Create a 'bdlbs::OverflowMemOutStreamBuf' object and write to it
-        //:   number of characters enough to fulfil initial buffer.  Write one
-        //:   more character.   Use 'ostrstream' to write that object's value
-        //:   to the character buffer.  Compare the content of this buffer with
-        //:   the literal expected output format and verify that the characters
-        //:   beyond the length of the streambuf contents are unaffected.
-        //:   (C-1..3)
-        //:
-        //: 4 Create a 'bdlbs::OverflowMemOutStreamBuf' object.  Use
-        //:    'ostrstream' to write that object's value and some characters in
-        //:    consecutive order.  (C-4)
+        // 1. Create a `bdlbs::OverflowMemOutStreamBuf` object and write some
+        //    characters to it.  Use `ostrstream` to write that object's value
+        //    to two separate character buffers each with different initial
+        //    values.  Compare the contents of these buffers with the literal
+        //    expected output format and verify that the characters beyond the
+        //    length of the streambuf contents are unaffected in both buffers.
+        //    (C-1..3)
+        //
+        // 2. Create an empty `bdlbs::OverflowMemOutStreamBuf` object.  Use
+        //    `ostrstream` to write that object's value to the character
+        //    buffer.  Compare the content of this buffer with the literal
+        //    expected output format and verify that the characters beyond the
+        //    length of the streambuf contents are unaffected.  (C-1..3)
+        //
+        // 3. Create a `bdlbs::OverflowMemOutStreamBuf` object and write to it
+        //    number of characters enough to fulfil initial buffer.  Write one
+        //    more character.   Use `ostrstream` to write that object's value
+        //    to the character buffer.  Compare the content of this buffer with
+        //    the literal expected output format and verify that the characters
+        //    beyond the length of the streambuf contents are unaffected.
+        //    (C-1..3)
+        //
+        // 4. Create a `bdlbs::OverflowMemOutStreamBuf` object.  Use
+        //     `ostrstream` to write that object's value and some characters in
+        //     consecutive order.  (C-4)
         //
         // Testing:
         //   TEST APPARATUS: os& operator<<(os&, const OverflowMemOutStrBuf&);
@@ -1080,80 +1085,80 @@ int main(int argc, char *argv[])
         //   Note that this test does not constitute proof, because the
         //   accessors have not been tested, and so cannot be relied upon
         //   completely.
-        //   Also note that 'seekoff' method is called by base class method
-        //   'pubseekoff'.
+        //   Also note that `seekoff` method is called by base class method
+        //   `pubseekoff`.
         //
         // Concerns:
-        //: 1 Object can be created and "wired-up" properly with value
-        //:   constructor.
-        //:
-        //: 2 The default allocator comes from 'bslma::Default::allocator'.
-        //:
-        //: 3 The internal memory management system is hooked up properly
-        //:   so that internally allocated memory draws from a user-supplied
-        //:   allocator whenever one is specified.
-        //:
-        //: 4 Method 'sputc' writes printing and non-printing characters
-        //:   correctly.
-        //:
-        //: 5 Method 'sputc' writes bytes with leading bit set correctly.
-        //:
-        //: 6 Method 'sputc' writes no more than one character.
-        //:
-        //: 7 Virtual method 'overflow' is called if there is no place to store
-        //:   a character, written by 'sputc' method.
-        //:
-        //: 8 Method 'seekoff' uses the correct location from which to offset.
-        //:
-        //: 9 Method 'seekoff' computes both negative and positive offsets
-        //:    correctly.
-        //:
-        //:10 Method 'seekoff' sets the "cursor" (i.e., the base-class' pptr())
-        //:   position to the correct location.
-        //:
-        //:11 Seeking out of bounds is handled correctly and returns invalid
-        //:   value.
-        //:
-        //:12 Trying to seek in the "get" area has no effect and returns
-        //:   invalid value.
-        //:
-        //:13 The destructor works properly and releases allocated memory.
+        // 1. Object can be created and "wired-up" properly with value
+        //    constructor.
+        //
+        // 2. The default allocator comes from `bslma::Default::allocator`.
+        //
+        // 3. The internal memory management system is hooked up properly
+        //    so that internally allocated memory draws from a user-supplied
+        //    allocator whenever one is specified.
+        //
+        // 4. Method `sputc` writes printing and non-printing characters
+        //    correctly.
+        //
+        // 5. Method `sputc` writes bytes with leading bit set correctly.
+        //
+        // 6. Method `sputc` writes no more than one character.
+        //
+        // 7. Virtual method `overflow` is called if there is no place to store
+        //    a character, written by `sputc` method.
+        //
+        // 8. Method `seekoff` uses the correct location from which to offset.
+        //
+        // 9. Method `seekoff` computes both negative and positive offsets
+        //     correctly.
+        //
+        // 10. Method `seekoff` sets the "cursor" (i.e., the base-class' pptr())
+        //    position to the correct location.
+        //
+        // 11. Seeking out of bounds is handled correctly and returns invalid
+        //    value.
+        //
+        // 12. Trying to seek in the "get" area has no effect and returns
+        //    invalid value.
+        //
+        // 13. The destructor works properly and releases allocated memory.
         //
         // Plan:
-        //: 1 Create an object with constructor.  Verify values, received from
-        //:   the accessors.  (C-1)
-        //:
-        //: 2 Construct three distinct objects, in turn, but configured
-        //:   differently: (a) without passing an allocator, (b) passing a null
-        //:   allocator address explicitly, and (c) passing the address of a
-        //:   test allocator distinct from the default.  Verify that right
-        //:   allocator is used to obtain memory in each case.  (C-2..3)
-        //:
-        //: 3 Using the table-driven technique, specify a set of characters to
-        //:   write to the stream buffer.
-        //:
-        //: 4 For each row 'R' in the table of P-3:
-        //:
-        //:   1 Write character using the 'sputc' method, and verify that the
-        //:     bit pattern for that character is correct present and in the
-        //:     stream buffer.  (C-4..5)
-        //:
-        //:   2 Verify that no more than one symbol has been written.  (C-6)
-        //:
-        //: 5 Write character using the 'sputc' method, to overflow existed
-        //:   buffers (initial and overflow).  Verify that new overflow buffer
-        //:   is created and correct amount of memory is allocated.  (C-7)
-        //:
-        //: 6 Perform a variety of seeks, using representative test vectors
-        //:   from the cross-product of offset categories beginning-pointer,
-        //:   current-pointer and end-pointer, with direction categories
-        //:   negative-forcing-past-beginning, negative-falling-within-bounds,
-        //:   0, positive-falling-within bounds, and positive-forcing-past-end.
-        //:   (C-8..11)
-        //:
-        //: 7 Create an 'bdlsb::OverflowMemOutStreamBuf' object, write some
-        //:   characters to overflow initial buffer and let it go out of scope.
-        //:   Verify that all memory has been released.  (C-12)
+        // 1. Create an object with constructor.  Verify values, received from
+        //    the accessors.  (C-1)
+        //
+        // 2. Construct three distinct objects, in turn, but configured
+        //    differently: (a) without passing an allocator, (b) passing a null
+        //    allocator address explicitly, and (c) passing the address of a
+        //    test allocator distinct from the default.  Verify that right
+        //    allocator is used to obtain memory in each case.  (C-2..3)
+        //
+        // 3. Using the table-driven technique, specify a set of characters to
+        //    write to the stream buffer.
+        //
+        // 4. For each row `R` in the table of P-3:
+        //
+        //   1. Write character using the `sputc` method, and verify that the
+        //      bit pattern for that character is correct present and in the
+        //      stream buffer.  (C-4..5)
+        //
+        //   2. Verify that no more than one symbol has been written.  (C-6)
+        //
+        // 5. Write character using the `sputc` method, to overflow existed
+        //    buffers (initial and overflow).  Verify that new overflow buffer
+        //    is created and correct amount of memory is allocated.  (C-7)
+        //
+        // 6. Perform a variety of seeks, using representative test vectors
+        //    from the cross-product of offset categories beginning-pointer,
+        //    current-pointer and end-pointer, with direction categories
+        //    negative-forcing-past-beginning, negative-falling-within-bounds,
+        //    0, positive-falling-within bounds, and positive-forcing-past-end.
+        //    (C-8..11)
+        //
+        // 7. Create an `bdlsb::OverflowMemOutStreamBuf` object, write some
+        //    characters to overflow initial buffer and let it go out of scope.
+        //    Verify that all memory has been released.  (C-12)
         //
         // Testing:
         //   OverflowMemOutStreamBuf(char *, int, bslma::Allocator *);
@@ -1227,7 +1232,7 @@ int main(int argc, char *argv[])
 
             const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
-            // This loop verifies that 'sputc' both:
+            // This loop verifies that `sputc` both:
             //    1. adds the character, and
             //    2. does not overwrite beyond the character.
             bslma::TestAllocator ta(veryVeryVerbose);
@@ -1403,7 +1408,7 @@ int main(int argc, char *argv[])
             ASSERT(INIT_CAPACITY     == ta.lastDeallocatedNumBytes());
         }
 
-        if (verbose) cout << "\nTesting 'seekoff'." << endl;
+        if (verbose) cout << "\nTesting `seekoff`." << endl;
         {
             int startRangeBeg =  0;
             int startRangeEnd =  INIT_BUFSIZE * 4;
@@ -1506,7 +1511,7 @@ int main(int argc, char *argv[])
                         }
                     }
 
-                    // Seeking into 'get' area should always fail.
+                    // Seeking into `get` area should always fail.
                     {
                         Obj mSB(buffer, INIT_BUFSIZE);
                         // Initialize start position.
@@ -1621,11 +1626,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Developer test sandbox.  (C-1)
+        // 1. Developer test sandbox.  (C-1)
         //
         // Testing:
         //   BREATHING TEST
@@ -1636,7 +1641,7 @@ int main(int argc, char *argv[])
                           << "==============" << endl;
 
         if (verbose) cout << "\nMake sure we can create and use a "
-                          << "'bdlsb::OverflowMemOutStreamBuf'."
+                          << "`bdlsb::OverflowMemOutStreamBuf`."
                           << endl;
 
         {

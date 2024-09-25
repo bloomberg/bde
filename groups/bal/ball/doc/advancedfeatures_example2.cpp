@@ -54,10 +54,11 @@ using namespace BloombergLP;
 //..
 //  // serviceattributes.h
 //
+
+    /// Provide a concrete implementation of the `ball::AttributeContainer`
+    /// protocol that holds the `uuid`, `luw`, and `firmId` associated with a
+    /// request to the example service.
     class ServiceAttributes : public ball::AttributeContainer {
-        // Provide a concrete implementation of the 'ball::AttributeContainer'
-        // protocol that holds the 'uuid', 'luw', and 'firmId' associated with a
-        // request to the example service.
 
         int d_uuid;
         int d_luw;
@@ -67,9 +68,10 @@ using namespace BloombergLP;
 //
       public:
         // CREATORS
+
+        /// Create a service-attributes object with the specified `uuid`,
+        /// `luw`, and `firmId`.
         ServiceAttributes(int uuid, int luw, int firmId);
-            // Create a service-attributes object with the specified 'uuid',
-            // 'luw', and 'firmId'.
 //
         virtual ~ServiceAttributes();
 
@@ -79,10 +81,10 @@ using namespace BloombergLP;
         virtual void visitAttributes(
              const bsl::function<void(const ball::Attribute&)>& visitor) const;
 
+        /// Format this object to the specified output `stream`.
         virtual bsl::ostream& print(bsl::ostream& stream,
                                     int           level = 0,
                                     int           spacesPerLevel = 4) const;
-            // Format this object to the specified output 'stream'.
     };
 //
     // CREATORS
@@ -135,11 +137,12 @@ using namespace BloombergLP;
 //..
     class ServiceAttributesGuard {
         // DATA
-        ServiceAttributes                      d_attributes;
-            // attributes
 
+        // attributes
+        ServiceAttributes                      d_attributes;
+
+        // reference to attribute container
         const ball::AttributeContext::iterator d_it;
-            // reference to attribute container
 
       public:
         ServiceAttributesGuard(int uuid, int luw, int firmId)

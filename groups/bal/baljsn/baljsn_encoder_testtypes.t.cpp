@@ -10,9 +10,9 @@
 #include <bsls_asserttest.h>
 #include <bsls_review.h>
 
-#include <bsl_climits.h>     // 'INT_MAX', 'INT_MIN'
-#include <bsl_cstdlib.h>     // 'atoi'
-#include <bsl_cstring.h>     // 'memcmp', 'strcmp'
+#include <bsl_climits.h>     // `INT_MAX`, `INT_MIN`
+#include <bsl_cstdlib.h>     // `atoi`
+#include <bsl_cstring.h>     // `memcmp`, `strcmp`
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 
     // CONCERN: This test driver is reusable w/other, similar components.
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.

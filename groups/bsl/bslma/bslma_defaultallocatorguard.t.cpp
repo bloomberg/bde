@@ -10,8 +10,8 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_keyword.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 using namespace BloombergLP;
 
@@ -196,8 +196,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove
-        //   leading comment characters, and replace 'assert' with
-        //   'ASSERT'.
+        //   leading comment characters, and replace `assert` with
+        //   `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE

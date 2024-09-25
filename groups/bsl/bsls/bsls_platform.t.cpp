@@ -2,9 +2,9 @@
 
 #include <bsls_platform.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
-#include <string.h>     // 'strcmp', 'strlen'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
+#include <string.h>     // `strcmp`, `strlen`
 
 #if defined(_MSC_VER)
     #include <intrin.h>
@@ -67,7 +67,7 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 // BDE_VERIFY pragma: -TP19
-//  This component is levelized below 'bsls_bsltestutil', so cannot directly
+//  This component is levelized below `bsls_bsltestutil`, so cannot directly
 //  alias the standard test macros.
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
@@ -79,11 +79,11 @@ void aSsErT(bool condition, const char *message, int line)
 //                   SUPPORTING FUNCTIONS USED FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Return `true` if this machine is observed to be big endian, and `false`
+/// otherwise.  Internally, assert that this machine is observed to be
+/// either big endian or little endian.
 static
 bool isBigEndian()
-    // Return 'true' if this machine is observed to be big endian, and 'false'
-    // otherwise.  Internally, assert that this machine is observed to be
-    // either big endian or little endian.
 {
     union U {
         int  d_int;
@@ -106,11 +106,11 @@ bool isBigEndian()
 
 // ----------------------------------------------------------------------------
 
+/// Return `true` if this machine is observed to be little endian, and
+/// `false` otherwise.  Internally, assert that this machine is observed to
+/// be either big endian or little endian.
 static
 bool isLittleEndian()
-    // Return 'true' if this machine is observed to be little endian, and
-    // 'false' otherwise.  Internally, assert that this machine is observed to
-    // be either big endian or little endian.
 {
     union U {
         int  d_int;
@@ -137,10 +137,10 @@ bool isLittleEndian()
 
 namespace {
 
+/// A statically-sized table for pointers to C strings for collecting
+/// information about macros.
 template <size_t t_MAX_SIZE>
 class StaticStringsTable {
-    // A statically-sized table for pointers to C strings for collecting
-    // information about macros.
 
   public:
     // PUBLIC CONSTANTS
@@ -155,19 +155,21 @@ class StaticStringsTable {
 
   public:
     // CREATORS
+
+    /// Create a new `StaticStringsTable` with the specified `name`.  The
+    /// behavior is undefined unless `name` outlives the created object.
     explicit StaticStringsTable(const char *name)
-        // Create a new 'StaticStringsTable' with the specified 'name'.  The
-        // behavior is undefined unless 'name' outlives the created object.
     : d_name_p(name)
     , d_index(0)
     {
     }
 
     // MANIPULATORS
+
+    /// If there are no more free locations in the table report that error
+    /// to `stdout`.  Otherwise store the specified `string` to the next
+    /// free location then increment the next free location.
     void pushBack(const char *string)
-        // If there are no more free locations in the table report that error
-        // to 'stdout'.  Otherwise store the specified 'string' to the next
-        // free location then increment the next free location.
     {
         if (k_MAX_SIZE == d_index) {
             fputs(d_name_p, stdout);
@@ -181,9 +183,10 @@ class StaticStringsTable {
     }
 
     // ACCESSORS
+
+    /// Return the string pointer at the specified `idx` position or return
+    /// an error if `idx` is out of bounds.
     const char *operator[](size_t idx) const
-        // Return the string pointer at the specified 'idx' position or return
-        // an error if 'idx' is out of bounds.
     {
         ASSERT(idx < count());
         if (idx >= count()) {
@@ -192,8 +195,8 @@ class StaticStringsTable {
         return d_table[idx];
     }
 
+    /// Return the number of string pointers store in this object.
     size_t count() const
-        // Return the number of string pointers store in this object.
     {
         return d_index;
     }
@@ -201,11 +204,11 @@ class StaticStringsTable {
 
 }  // close unnamed namespace
 
+/// Print a diagnostic message to standard output if any of the preprocessor
+/// flags of interest are defined, and their value if a value had been set.
+/// An "Enter" and "Leave" message is printed unconditionally so there is
+/// some report even if all of the flags are undefined.
 static void printFlags()
-    // Print a diagnostic message to standard output if any of the preprocessor
-    // flags of interest are defined, and their value if a value had been set.
-    // An "Enter" and "Leave" message is printed unconditionally so there is
-    // some report even if all of the flags are undefined.
 {
     StaticStringsTable<512> undefinedMacros("undefinedMacros");
 
@@ -214,13 +217,13 @@ static void printFlags()
     puts("\n  printFlags: Configuration Macros");
     puts(  "  --------------------------------");
 
+/// Add the specified macro named by `X` to the list of macros to report as
+/// not defined.
 #define D_MACRO(X) undefinedMacros.pushBack(#X);
-    // Add the specified macro named by 'X' to the list of macros to report as
-    // not defined.
 
+/// Print the name of the specified object-like macro named by `X`, and the
+/// source it expands to.
 #define P_MACRO(X) printf("\t  %s:\t%s\n", #X, STRINGIFY(X));
-    // Print the name of the specified object-like macro named by 'X', and the
-    // source it expands to.
 
 #if defined(BDE_BUILD_TARGET_AGGRESSIVE_INLINE)
     P_MACRO(BDE_BUILD_TARGET_AGGRESSIVE_INLINE);
@@ -1075,7 +1078,7 @@ static void printFlags()
              // Microsoft Visual Studio compiler specific macros
 
     // Source for compiler specific predefined macros was
-    //: https://learn.microsoft.com/en-us/cpp/preprocessor/predefined-macros
+    //  https://learn.microsoft.com/en-us/cpp/preprocessor/predefined-macros
     // at 2020-12-13 03:15-05:00 (EST/New York).  Please visit that page for
     // interpretation of the Microsoft specific macros/values.
 
@@ -2020,18 +2023,18 @@ static void printFlags()
     #define cpuid(info, x) __cpuidex(info, x, 0)
 #elif (defined(__clang__) || defined(__GNUC__) || defined(__EDG__)) \
         && (BSLS_PLATFORM_CPU_X86 || BSLS_PLATFORM_CPU_X86_64)
+    /// Load into the specified `info` the results of the intrinsic
+    /// `__cpuid_count` command invoked with the specified `infoType` for
+    /// the `level` parameter and zero for `count` the parameter.  Note
+    /// that this intrinsic command provides information on the instruction
+    /// sets supported by the processor.
     void cpuid(int info[4], int infoType)
-        // Load into the specified 'info' the results of the intrinsic
-        // '__cpuid_count' command invoked with the specified 'infoType' for
-        // the 'level' parameter and zero for 'count' the parameter.  Note
-        // that this intrinsic command provides information on the instruction
-        // sets supported by the processor.
     {
         __cpuid_count(infoType, 0, info[0], info[1], info[2], info[3]);
     }
 #else
     void cpuid(int info[4], int)
-        // Load zero into each element of the specified 'info'.
+        // Load zero into each element of the specified `info`.
     {
         info[0] = 0;
         info[1] = 0;
@@ -2065,19 +2068,19 @@ int main(int argc, char *argv[])
         // TESTING SSE MACROS
         //
         // Concerns:
-        //: 1 If an SSE-detection macro is defined, 'cpuid' indicates that the
-        //:   associated instruction set is supported.  Note that the converse
-        //:   need not be true because the compiler can be configured to not
-        //:   emit SSE instructions even if the target supports them.
-        //:
-        //: 2 If any SSE-detection macro is defined, then either or both of
-        //:   the x86-family-detection macros are also defined.
+        // 1. If an SSE-detection macro is defined, `cpuid` indicates that the
+        //    associated instruction set is supported.  Note that the converse
+        //    need not be true because the compiler can be configured to not
+        //    emit SSE instructions even if the target supports them.
+        //
+        // 2. If any SSE-detection macro is defined, then either or both of
+        //    the x86-family-detection macros are also defined.
         //
         // Plan:
-        //: 1 Use 'cpuinfo' to verify macro settings.
-        //:
-        //: 2 Ensure that either the x86- or x86_64-detection macro is defined
-        //:   if any SSE-detection macro is defined.
+        // 1. Use `cpuinfo` to verify macro settings.
+        //
+        // 2. Ensure that either the x86- or x86_64-detection macro is defined
+        //    if any SSE-detection macro is defined.
         //
         // Testing
         //   BSLS_PLATFORM_CPU_SSE*
@@ -2163,21 +2166,21 @@ int main(int argc, char *argv[])
         // TESTING CONCERN: REPORT DEFINITION OF ALL PLATFORM MACROS
         //
         // Concerns:
-        //: 1 Audit the set of macros of concern to this component.
+        // 1. Audit the set of macros of concern to this component.
         //
         // Plan:
-        //: 1 In 'verbose' mode, iterate, in alphanumerical order within themed
-        //:   groupings, over all macros that are either defined by this
-        //:   component, or are platform supplied macros of interest when
-        //:   defining the macros of this component.
-        //:
-        //:   1 If a macro is defined, write its name and value to the console.
-        //:
-        //:   2 If a macro is not defined, append its name to a global list of
-        //:     macro names that are not defined.
-        //:
-        //: 2 If in 'verbose' mode, write out the list of macro names that are
-        //:   not defined.
+        // 1. In `verbose` mode, iterate, in alphanumerical order within themed
+        //    groupings, over all macros that are either defined by this
+        //    component, or are platform supplied macros of interest when
+        //    defining the macros of this component.
+        //
+        //   1. If a macro is defined, write its name and value to the console.
+        //
+        //   2. If a macro is not defined, append its name to a global list of
+        //      macro names that are not defined.
+        //
+        // 2. If in `verbose` mode, write out the list of macro names that are
+        //    not defined.
         //
         // Testing
         //   CONCERN: report definition of all platform macros.
@@ -2196,28 +2199,28 @@ int main(int argc, char *argv[])
         // TESTING 64-BIT LITERALS
         //
         // Concerns:
-        //: 1 Since the actual flag indicates the lack of support for
-        //:   64-bit integer literals, the only way to test the flag is
-        //:   for the compiler to fail.  Therefore the test will check for the
-        //:   absence of the flag and attempt to assign 64-bit literals to a
-        //:   variable, ensuring the compile-time macro for support of
-        //:   64-bit integer literals agrees with the capability of the
-        //:   compiler.
+        // 1. Since the actual flag indicates the lack of support for
+        //    64-bit integer literals, the only way to test the flag is
+        //    for the compiler to fail.  Therefore the test will check for the
+        //    absence of the flag and attempt to assign 64-bit literals to a
+        //    variable, ensuring the compile-time macro for support of
+        //    64-bit integer literals agrees with the capability of the
+        //    compiler.
         //
         // Plan:
-        //: 1 Assign both signed and unsigned 64-bit integer literals to
-        //:   variables of each type.
-        //:
-        //: 2 Verify that the compiler does not truncate the assignment or the
-        //:   constant by splitting the constant into 2 32-bit constants and
-        //:   combining them using logical operations into another
-        //:   64-bit value.
-        //:
-        //: 3 Verify the constructed value is equal to the 64-bit value
-        //:   directly assigned.
-        //:
-        //: 4 Verify no truncation is occurring by logically masking and
-        //:   shifting the 64-bit value with the 32-bit lo and hi words.
+        // 1. Assign both signed and unsigned 64-bit integer literals to
+        //    variables of each type.
+        //
+        // 2. Verify that the compiler does not truncate the assignment or the
+        //    constant by splitting the constant into 2 32-bit constants and
+        //    combining them using logical operations into another
+        //    64-bit value.
+        //
+        // 3. Verify the constructed value is equal to the 64-bit value
+        //    directly assigned.
+        //
+        // 4. Verify no truncation is occurring by logically masking and
+        //    shifting the 64-bit value with the 32-bit lo and hi words.
         //
         // Testing:
         //   BSLS_PLATFORM_NO_64_BIT_LITERALS
@@ -2273,22 +2276,22 @@ int main(int argc, char *argv[])
         // TESTING BIG ENDIAN AND LITTLE ENDIAN
         //
         // Concerns:
-        //: 1 The macros BSLS_PLATFORM_IS_BIG_ENDIAN and
-        //:   BSLS_PLATFORM_IS_LITTLE_ENDIAN must have boolean values.
-        //:
-        //: 2 The macros BSLS_PLATFORM_IS_BIG_ENDIAN and
-        //:   BSLS_PLATFORM_IS_LITTLE_ENDIAN are assigned at compile time based
-        //:   on the platform (see overview above).  If any one of the flags or
-        //:   inferences is wrong, the "endian-ness" of a given platform could
-        //:   be wrong.  Fortunately it is possible to make run-time
-        //:   determination of a platform's "endian-ness" by using a union.
-        //:   Unfortunately such a test is more expensive than checking a flag.
-        //:   However, such a function is perfect for a test driver.
+        // 1. The macros BSLS_PLATFORM_IS_BIG_ENDIAN and
+        //    BSLS_PLATFORM_IS_LITTLE_ENDIAN must have boolean values.
+        //
+        // 2. The macros BSLS_PLATFORM_IS_BIG_ENDIAN and
+        //    BSLS_PLATFORM_IS_LITTLE_ENDIAN are assigned at compile time based
+        //    on the platform (see overview above).  If any one of the flags or
+        //    inferences is wrong, the "endian-ness" of a given platform could
+        //    be wrong.  Fortunately it is possible to make run-time
+        //    determination of a platform's "endian-ness" by using a union.
+        //    Unfortunately such a test is more expensive than checking a flag.
+        //    However, such a function is perfect for a test driver.
         //
         // Plan:
-        //: 1 First ensure the values for the endian macros return boolean
-        //:   values.  Next, ensure the compile-time macros and test functions
-        //:   agree with the values calculated at runtime.
+        // 1. First ensure the values for the endian macros return boolean
+        //    values.  Next, ensure the compile-time macros and test functions
+        //    agree with the values calculated at runtime.
         //
         // Testing:
         //   BSLS_PLATFORM_IS_LITTLE_ENDIAN
@@ -2318,15 +2321,15 @@ int main(int argc, char *argv[])
         // MINIMAL DEFINITION TEST
         //
         // Concerns:
-        //: 1 The platform is correctly detected.
+        // 1. The platform is correctly detected.
         //
         // Plan:
-        //: 1 We want to make sure that exactly one each of OS, PROCESSOR,
-        //:   COMPILER and ENDIAN type is set.  We also want to make sure that
-        //:   at most one subtype of OS is set.  Furthermore, we want to make
-        //:   sure that a minor version implies a major version, and that for
-        //:   OS, a major version implies a subtype.  Finally, we want to make
-        //:   sure that one endian-ness type is defined for the platform.
+        // 1. We want to make sure that exactly one each of OS, PROCESSOR,
+        //    COMPILER and ENDIAN type is set.  We also want to make sure that
+        //    at most one subtype of OS is set.  Furthermore, we want to make
+        //    sure that a minor version implies a major version, and that for
+        //    OS, a major version implies a subtype.  Finally, we want to make
+        //    sure that one endian-ness type is defined for the platform.
         //
         // Testing:
         //   CONCERN: exactly one compiler vendor macro is defined.

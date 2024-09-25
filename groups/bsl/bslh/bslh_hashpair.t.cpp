@@ -9,9 +9,9 @@
 #include <bsls_types.h>
 
 #include <assert.h>
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'realloc', 'free'
-#include <string.h>  // 'memcmp', 'memcpy'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `realloc`, `free`
+#include <string.h>  // `memcmp`, `memcpy`
 
 using namespace BloombergLP;
 using namespace bslh;
@@ -23,10 +23,10 @@ using namespace bslh;
 //                                  --------
 // The component under test is a standards-conformant hashing algorithm
 // functor.  The component will be tested for conformance to the interface
-// requirements on 'std::hash', outlined in the C++ Standard.  The output of
+// requirements on `std::hash`, outlined in the C++ Standard.  The output of
 // the component will also be tested to check that it matches the expected
 // output of the underlying hashing algorithms.  This component also contains
-// 'hashAppend' free functions written for fundamental types.  These free
+// `hashAppend` free functions written for fundamental types.  These free
 // functions will be tested to ensure they properly pass data into the hashing
 // algorithms they are given.
 // ----------------------------------------------------------------------------
@@ -95,57 +95,58 @@ void aSsErT(bool condition, const char *message, int line)
 //          GLOBAL TYPEDEFS, HELPER FUNCTIONS, AND CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// This class implements a mock hashing algorithm that provides a way to
+/// accumulate and then examine data that is being passed into hashing
+/// algorithms by `hashAppend`.
 class MockAccumulatingHashingAlgorithm {
-    // This class implements a mock hashing algorithm that provides a way to
-    // accumulate and then examine data that is being passed into hashing
-    // algorithms by 'hashAppend'.
 
     void   *d_data_p;  // Data we were asked to hash
     size_t  d_length;  // Length of the data we were asked to hash
 
   public:
+    /// Create an object of this type.
     MockAccumulatingHashingAlgorithm()
     : d_data_p(0)
     , d_length(0)
-        // Create an object of this type.
     {
     }
 
+    /// Destroy this object
     ~MockAccumulatingHashingAlgorithm()
-        // Destroy this object
     {
         free(d_data_p);
     }
 
+    /// Append the data of the specified `length` at `voidPtr` for later
+    /// inspection.
     void operator()(const void *voidPtr, size_t length)
-        // Append the data of the specified 'length' at 'voidPtr' for later
-        // inspection.
     {
         d_data_p = realloc(d_data_p, d_length += length);
         memcpy(getData() + d_length - length, voidPtr, length);
     }
 
+    /// Return a pointer to the stored data.
     char *getData()
-        // Return a pointer to the stored data.
     {
         return static_cast<char *>(d_data_p);
     }
 
+    /// Return the length of the stored data.
     size_t getLength() const
-        // Return the length of the stored data.
     {
         return d_length;
     }
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` have the same value and
+/// `false` otherwise.  Two objects have the same value if they both have
+/// the same length and if they both point to data that compares equal.
+/// Note that for simplicity of implementation the arguments are
+/// (unconventionally) non-`const`.
 bool operator==(MockAccumulatingHashingAlgorithm& lhs,
                 MockAccumulatingHashingAlgorithm& rhs)
-    // Return 'true' if the specified 'lhs' and 'rhs' have the same value and
-    // 'false' otherwise.  Two objects have the same value if they both have
-    // the same length and if they both point to data that compares equal.
-    // Note that for simplicity of implementation the arguments are
-    // (unconventionally) non-'const'.
 {
     if (lhs.getLength() != rhs.getLength()) {
         return false;                                                 // RETURN
@@ -163,9 +164,10 @@ class MyType {
 
   public:
     // CREATORS
+
+    /// Create a `MyType` object that holds the address of the specified
+    /// '\0'-terminate `value`.
     explicit MyType(const char *value)
-        // Create a 'MyType' object that holds the address of the specified
-        // '\0'-terminate 'value'.
     : d_value_p(value)
     {
         assert(value);
@@ -173,16 +175,17 @@ class MyType {
     }
 
     // ACCESSORS
+
+    /// Return the length of the '\0'-terminated string supplied on
+    /// construction.
     size_t length() const
-        // Return the length of the '\0'-terminated string supplied on
-        // construction.
     {
         return d_length;
     }
 
+    /// Return the address of the '\0'-terminated string supplied on
+    /// construction.
     const char *value() const
-        // Return the address of the '\0'-terminated string supplied on
-        // construction.
     {
         return d_value_p;
     }
@@ -190,10 +193,11 @@ class MyType {
 };
 
 // FREE FUNCTIONS
+
+/// Pass the contents of (address and length) of the specified `input`,
+/// which holds a '\0'-terminated string, to the specified `algorithm`.
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM& algorithm, const MyType& input)
-    // Pass the contents of (address and length) of the specified 'input',
-    // which holds a '\0'-terminated string, to the specified 'algorithm'.
 {
     algorithm(input.value(), input.length());
 }
@@ -222,11 +226,11 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Run the usage example (C-1)
+        // 1. Run the usage example (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -242,80 +246,80 @@ int main(int argc, char *argv[])
 /// - - - - - - - - - - - - - - - - - - - - - -
 // Suppose one must compute has that combines the hashes of several integer
 // values, each of a different type:
-//..
+// ```
     char  c = 'a';
     short s = static_cast<short>(1);
-//..
+// ```
 // First, we can make that calculation by repeated invocations of a
 // 'bslh::DefaultHashAlogorithm object:
-//..
+// ```
     bslh::DefaultHashAlgorithm hasherS;
     hasherS(&c, sizeof(char));
     hasherS(&s, sizeof(short));
 
     bslh::DefaultHashAlgorithm::result_type hashS = hasherS.computeHash();
-//..
+// ```
 // Now, the same calculation can also be be made if those same values are
-// contained in a single 'std::pair' object.
-//..
+// contained in a single `std::pair` object.
+// ```
     std::pair<char, short> t = std::make_pair(c, s);
 
     bslh::DefaultHashAlgorithm hasherT;
     bslh::hashAppend(hasherT, t);
 
     bslh::DefaultHashAlgorithm::result_type hashT = hasherT.computeHash();
-//..
+// ```
 // Finally, we confirm that we computed the same result.
-//..
+// ```
     ASSERT(hashS == hashT);
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'hashAppend'
-        //   Verify that the 'hashAppend' free functions have been implemented
+        // TESTING `hashAppend`
+        //   Verify that the `hashAppend` free functions have been implemented
         //   for all of the fundamental types and do not truncate or pass extra
         //   data into the algorithms.
         //
         // Concerns:
-        //: 1 The 'hashAppend' function ("the function") uses the specified
-        //:   algorithm.
-        //:
-        //: 2 The function visits each element of the pair once and in the
-        //:   order of their placement in the pair ('first' then 'second').
-        //:
-        //: 3 The function works for pairs consisting of heterogeneous types,
-        //:   including a user-defined type that defines as custom 'hashAppend'
-        //:   function in its namespace.
+        // 1. The `hashAppend` function ("the function") uses the specified
+        //    algorithm.
+        //
+        // 2. The function visits each element of the pair once and in the
+        //    order of their placement in the pair (`first` then `second`).
+        //
+        // 3. The function works for pairs consisting of heterogeneous types,
+        //    including a user-defined type that defines as custom `hashAppend`
+        //    function in its namespace.
         //
         // Plan:
-        //: 1 Use a locally defined algorithm class,
-        //:   'MockAccumulatingHashingAlgorithm', to show that 'hashAppend'
-        //:   uses the supplied algorithm object.  (C-1)
-        //:
-        //: 2 The 'MockAccumulatingHashingAlgorithm' functor stores a
-        //:   concatenation of each of the input supplied.  This allows one to
-        //:   compare the results of separate invocations of the algorithm on
-        //:   the individual pair elements with the result of single invocation
-        //:   of the algorithm on the analogous pair.
-        //:
-        //: 4 In P-2 use elements of different values.  Any omission,
-        //:   duplication, or mis-ordering of element visits would become
-        //:   manifest when comparing the concatenations of the two
-        //:   computations.  (C-2)
-        //:
-        //: 5 Use the function to compute the hash of a pair an integer type
-        //:   and the locally defined class 'my::MyType'.  As before, compare
-        //:   the concatenated results of hashing the individual elements with
-        //:   that of hashing the pair.  Additionally, check that the
-        //:   concatenation shows the expected result of the locally defined
-        //:   'hashAppend' defined for 'my::MyType'.  (C-3)
+        // 1. Use a locally defined algorithm class,
+        //    `MockAccumulatingHashingAlgorithm`, to show that `hashAppend`
+        //    uses the supplied algorithm object.  (C-1)
+        //
+        // 2. The `MockAccumulatingHashingAlgorithm` functor stores a
+        //    concatenation of each of the input supplied.  This allows one to
+        //    compare the results of separate invocations of the algorithm on
+        //    the individual pair elements with the result of single invocation
+        //    of the algorithm on the analogous pair.
+        //
+        // 4. In P-2 use elements of different values.  Any omission,
+        //    duplication, or mis-ordering of element visits would become
+        //    manifest when comparing the concatenations of the two
+        //    computations.  (C-2)
+        //
+        // 5. Use the function to compute the hash of a pair an integer type
+        //    and the locally defined class `my::MyType`.  As before, compare
+        //    the concatenated results of hashing the individual elements with
+        //    that of hashing the pair.  Additionally, check that the
+        //    concatenation shows the expected result of the locally defined
+        //    `hashAppend` defined for `my::MyType`.  (C-3)
         //
         // Testing:
         //   void hashAppend(HASHALG& algorithm, const std::pair<T1, T2>&);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'hashAppend'"
+        if (verbose) printf("\nTESTING `hashAppend`"
                             "\n====================\n");
 
         if (veryVerbose) printf("\tpair of integers\n");
@@ -371,19 +375,19 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an instance of 'bslh::Hash<>'.  (C-1)
-        //:
-        //: 2 Verify different hashes are produced for different pairs.  (C-1)
-        //:
-        //: 3 Verify that a change in any element of a pair changes the hash
-        //:   of the pair.  (C-1)
-        //:
-        //: 4 Verify that the position of a value in the pair changes the hash
-        //:   of the pair.  (C-1)
+        // 1. Create an instance of `bslh::Hash<>`.  (C-1)
+        //
+        // 2. Verify different hashes are produced for different pairs.  (C-1)
+        //
+        // 3. Verify that a change in any element of a pair changes the hash
+        //    of the pair.  (C-1)
+        //
+        // 4. Verify that the position of a value in the pair changes the hash
+        //    of the pair.  (C-1)
         //
         // Testing:
         //   BREATHING TEST
@@ -398,10 +402,10 @@ int main(int argc, char *argv[])
             == hasher(std::make_pair(0, 1)));  // Baseline value
 
         ASSERT(hasher(std::make_pair(0, 1))
-            != hasher(std::make_pair(9, 1)));  // Change in 'first'
+            != hasher(std::make_pair(9, 1)));  // Change in `first`
 
         ASSERT(hasher(std::make_pair(0, 1))
-            != hasher(std::make_pair(0, 9)));  // Change in 'second'
+            != hasher(std::make_pair(0, 9)));  // Change in `second`
 
         ASSERT(hasher(std::make_pair(0, 1))
             != hasher(std::make_pair(1, 0)));  // Order matters.

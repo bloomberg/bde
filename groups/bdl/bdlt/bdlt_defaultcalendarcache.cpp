@@ -26,23 +26,23 @@ namespace {
 
 // STATIC DATA
 
+/// `g_cachePtr` holds the address of the default calendar cache.  Its value
+/// is non-zero if the cache is currently in the initialized state (i.e.,
+/// constructed and available for use), and 0 otherwise.
 static
 bsls::AtomicOperations::AtomicTypes::Pointer g_cachePtr = { 0 };
-    // 'g_cachePtr' holds the address of the default calendar cache.  Its value
-    // is non-zero if the cache is currently in the initialized state (i.e.,
-    // constructed and available for use), and 0 otherwise.
 
+/// `g_buffer` provides the "footprint" within which the default calendar
+/// cache is constructed.
 static
 bsls::ObjectBuffer<CalendarCache>            g_buffer;
-    // 'g_buffer' provides the "footprint" within which the default calendar
-    // cache is constructed.
 
 // STATIC HELPER FUNCTIONS
 
+/// Return the address of the lock used to initialize and destroy the
+/// default calendar cache in a thread-safe manner.
 static
 bslmt::Mutex *getLock()
-    // Return the address of the lock used to initialize and destroy the
-    // default calendar cache in a thread-safe manner.
 {
     static bslmt::Mutex *theLockPtr = 0;
 
@@ -57,22 +57,22 @@ bslmt::Mutex *getLock()
     return theLockPtr;
 }
 
+/// Initialize the default `bdlt::CalendarCache` object managed by
+/// `bdlt::DefaultCalendarCache` to use the specified `loader` to obtain
+/// calendars and the specified `allocator` to supply memory.  If the
+/// specified `hasTimeOutFlag` is `true`, initialize the default cache to
+/// have the specified `timeout`.  Otherwise, initialize the default cache
+/// to have no timeout.  If the default cache is already in the initialized
+/// state, this method has no effect.  Return 0 on success, and a non-zero
+/// value otherwise.  The behavior is undefined unless `loader` and
+/// `allocator` remain valid until a subsequent call to
+/// `bdlt::DefaultCalendarCache::destroy`, and
+/// `bsls::TimeInterval() <= timeout <= bsls::TimeInterval(INT_MAX, 0)`.
 static
 int initializePrivate(CalendarLoader            *loader,
                       bool                       hasTimeOutFlag,
                       const bsls::TimeInterval&  timeout,
                       bslma::Allocator          *allocator)
-    // Initialize the default 'bdlt::CalendarCache' object managed by
-    // 'bdlt::DefaultCalendarCache' to use the specified 'loader' to obtain
-    // calendars and the specified 'allocator' to supply memory.  If the
-    // specified 'hasTimeOutFlag' is 'true', initialize the default cache to
-    // have the specified 'timeout'.  Otherwise, initialize the default cache
-    // to have no timeout.  If the default cache is already in the initialized
-    // state, this method has no effect.  Return 0 on success, and a non-zero
-    // value otherwise.  The behavior is undefined unless 'loader' and
-    // 'allocator' remain valid until a subsequent call to
-    // 'bdlt::DefaultCalendarCache::destroy', and
-    // 'bsls::TimeInterval() <= timeout <= bsls::TimeInterval(INT_MAX, 0)'.
 {
     BSLS_ASSERT(loader);
     BSLS_ASSERT(allocator);

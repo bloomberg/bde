@@ -15,10 +15,10 @@ namespace u {
 
 using namespace BloombergLP;
 
+/// Print the specified `object` in 2 digit hex, preceded by "0x", to the
+/// specified `stream`.
 inline
 void printHexChar(bsl::ostream& stream, unsigned char object)
-    // Print the specified 'object' in 2 digit hex, preceded by "0x", to the
-    // specified 'stream'.
 {
     bslim::FormatGuard guard(&stream);
 

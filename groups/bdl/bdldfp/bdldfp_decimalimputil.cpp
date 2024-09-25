@@ -82,10 +82,10 @@ struct DecimalTraits<DecimalImpUtil::ValueType128>
     }
 };
 
+/// Load the resultant value of dividing the specified value `v` by 10 into
+/// `v`.  Return the remainder of the division.
 template <class T>
 T divmod10(T* v)
-    // Load the resultant value of dividing the specified value 'v' by 10 into
-    // 'v'.  Return the remainder of the division.
 {
     BSLS_ASSERT(v);
     T r =  *v % 10;
@@ -93,9 +93,9 @@ T divmod10(T* v)
     return r;
 }
 
+/// Load the resultant value of dividing the specified value `v` by 10 into
+/// `v`.  Return the remainder of the division.
 bsls::Types::Uint64 divmod10(Uint128* v)
-    // Load the resultant value of dividing the specified value 'v' by 10 into
-    // 'v'.  Return the remainder of the division.
 {
     // Set a = v.high(), b = v.low().
     // Let Q = (2^64 * a + b) / 10 and R = (2^64 * a + b) % 10.
@@ -120,9 +120,9 @@ bool operator !=(const Uint128& lhr, const bsls::Types::Uint64& rhr)
     return lhr.high() || lhr.low() != rhr;
 }
 
+/// Return the most significant decimal place of the specified `value`.
 template <class T>
 int getMostSignificandPlace(T value)
-    // Return the most significant decimal place of the specified 'value'.
 {
     int place = 0;
     do {
@@ -133,12 +133,12 @@ int getMostSignificandPlace(T value)
     return place;
 }
 
+/// Convert the specified `value` to a character string, place the result
+/// into the buffer specified by `b` and `e` and return the number of
+/// characters written.  The behavior is undefined if the buffer is
+/// insufficiently large.
 template <class T>
 int print(char *b, char *e, T value)
-    // Convert the specified 'value' to a character string, place the result
-    // into the buffer specified by 'b' and 'e' and return the number of
-    // characters written.  The behavior is undefined if the buffer is
-    // insufficiently large.
 {
     char *i = e;
     do {
@@ -154,20 +154,20 @@ int print(char *b, char *e, T value)
     return static_cast<int>(e - i);
 }
 
+/// Convert the specified decimal `value` to character string using
+/// `e_FIXED` style and the specified `cfg` formatting options.  Load the
+/// result into the specified `buffer`.  If the length of resultant string
+/// exceeds the specified `length`, then the `buffer` will be left in an
+/// unspecified state, with the returned value indicating the necessary
+/// size.  The behavior is undefined if the `length` is negative and
+/// `buffer` is not null.  The `buffer` is permitted to be null if the
+/// `length` is not  positive.  This can be used to determine the necessary
+/// buffer size.
 template <class DECIMAL>
 int formatFixed(char                      *buffer,
                 int                        length,
                 DECIMAL                    value,
                 const DecimalFormatConfig& cfg)
-    // Convert the specified decimal 'value' to character string using
-    // 'e_FIXED' style and the specified 'cfg' formatting options.  Load the
-    // result into the specified 'buffer'.  If the length of resultant string
-    // exceeds the specified 'length', then the 'buffer' will be left in an
-    // unspecified state, with the returned value indicating the necessary
-    // size.  The behavior is undefined if the 'length' is negative and
-    // 'buffer' is not null.  The 'buffer' is permitted to be null if the
-    // 'length' is not  positive.  This can be used to determine the necessary
-    // buffer size.
 {
     BSLS_ASSERT(buffer || length < 0);
 
@@ -248,20 +248,20 @@ int formatFixed(char                      *buffer,
     return outputLength;
 }
 
+/// Convert the specified decimal `value` to character string using
+/// `e_SCIENTIFIC` style and the specified `cfg` formatting options.  Load
+/// the result into the specified `buffer`.  If the length of resultant
+/// string exceeds the specified `length`, then the `buffer` will be left in
+/// an unspecified state, with the returned value indicating the necessary
+/// size.  The behavior is undefined if the `length` is negative and
+/// `buffer` is not null.  The `buffer` is permitted to be null if the
+/// `length` is not  positive.  This can be used to determine the necessary
+/// buffer size.
 template <class DECIMAL>
 int formatScientific(char                      *buffer,
                      int                        length,
                      DECIMAL                    value,
                      const DecimalFormatConfig& cfg)
-    // Convert the specified decimal 'value' to character string using
-    // 'e_SCIENTIFIC' style and the specified 'cfg' formatting options.  Load
-    // the result into the specified 'buffer'.  If the length of resultant
-    // string exceeds the specified 'length', then the 'buffer' will be left in
-    // an unspecified state, with the returned value indicating the necessary
-    // size.  The behavior is undefined if the 'length' is negative and
-    // 'buffer' is not null.  The 'buffer' is permitted to be null if the
-    // 'length' is not  positive.  This can be used to determine the necessary
-    // buffer size.
 {
     BSLS_ASSERT(buffer || length < 0);
 
@@ -346,20 +346,20 @@ int formatScientific(char                      *buffer,
     return outputLength;
 }
 
+/// Convert the specified decimal `value` to character string using
+/// `e_NATURAL` style and the specified `cfg` formatting options.  Load the
+/// result into the specified `buffer`.  If the length of resultant string
+/// exceeds the specified `length`, then the `buffer` will be left in an
+/// unspecified state, with the returned value indicating the necessary
+/// size.  The behavior is undefined if the `length` is negative and
+/// `buffer` is not null.  The `buffer` is permitted to be null if the
+/// `length` is not  positive.  This can be used to determine the necessary
+/// buffer size.
 template <class DECIMAL>
 int formatNatural(char                      *buffer,
                   int                        length,
                   DECIMAL                    value,
                   const DecimalFormatConfig& cfg)
-    // Convert the specified decimal 'value' to character string using
-    // 'e_NATURAL' style and the specified 'cfg' formatting options.  Load the
-    // result into the specified 'buffer'.  If the length of resultant string
-    // exceeds the specified 'length', then the 'buffer' will be left in an
-    // unspecified state, with the returned value indicating the necessary
-    // size.  The behavior is undefined if the 'length' is negative and
-    // 'buffer' is not null.  The 'buffer' is permitted to be null if the
-    // 'length' is not  positive.  This can be used to determine the necessary
-    // buffer size.
 {
     BSLS_ASSERT(buffer || length < 0);
 
@@ -492,9 +492,9 @@ int formatImpl(char                      *buffer,
     return decimalLength;
 }
 
+/// Properties64, contains constants and member functions identifying key
+/// properties of the 64-bit decimal type.
 struct Properties64
-    // Properties64, contains constants and member functions identifying key
-    // properties of the 64-bit decimal type.
 {
     static const int       digits                        = 16;
     static const int       bias                          = 398;
@@ -504,13 +504,13 @@ struct Properties64
 
                         // classification functions
 
+/// Return a standard mandated constant indicating the kind of floating
+/// point value specified by `classification`.  The behavior is undefined
+/// unless `classification` is a valid classification code for the
+/// underlying implementation.  Note that `classification` is of an
+/// implementation defined type, and corresponds to specific underlying
+/// library constants.
 static int canonicalizeDecimalValueClassification(int classification)
-    // Return a standard mandated constant indicating the kind of floating
-    // point value specified by 'classification'.  The behavior is undefined
-    // unless 'classification' is a valid classification code for the
-    // underlying implementation.  Note that 'classification' is of an
-    // implementation defined type, and corresponds to specific underlying
-    // library constants.
 {
     enum class_types cl = static_cast<class_types>(classification);
     switch (cl) {

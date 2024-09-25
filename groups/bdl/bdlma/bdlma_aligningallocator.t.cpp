@@ -28,7 +28,7 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-// 'bdlma::AligningAllocator' is a wrapper to place around another allocator
+// `bdlma::AligningAllocator` is a wrapper to place around another allocator
 // that, if the wrapped allocator guarantees natural or maximum aligning, will
 // guarantee a minimum alignment specified at construction.  The primary
 // concern is that alignment is guaranteed.  To test this, we needed an
@@ -38,7 +38,7 @@ using bsl::flush;
 // alignment, so we could re-use that framework in test case 2 and thus verify
 // that our new component was achieving better alignment of that in spite of of
 // the underlying allocator not providing it.  In test case 3, we verified that
-// the 'deallocate' function was indeed freeing memory.
+// the `deallocate` function was indeed freeing memory.
 //-----------------------------------------------------------------------------
 // [4] deallocate(void *address);
 // [3] AligningAllocator(size_type alignment, Allocator *allocator);
@@ -100,10 +100,10 @@ void aSsErT(bool condition, const char *message, int line)
                         // class AlignmentTestAllocator
                         // ============================
 
+/// This `class` provides a mechanism to wrap another allocator and return,
+/// in sequence, blocks with alignments that cover useful sample alignment
+/// offsets.
 class AlignmentTestAllocator : public bslma::Allocator {
-    // This 'class' provides a mechanism to wrap another allocator and return,
-    // in sequence, blocks with alignments that cover useful sample alignment
-    // offsets.
 
     // DATA
     bsls::Types::size_type  d_alignment;        // alignment passed at
@@ -121,8 +121,8 @@ class AlignmentTestAllocator : public bslma::Allocator {
     // CREATORS
      AlignmentTestAllocator(bsls::Types::size_type  alignment,
                             bslma::Allocator       *allocator);
-        // Create an "AlignmentTestAllocator' with the specified 'alignment'
-        // and 'allocator'.
+        // Create an "AlignmentTestAllocator' with the specified `alignment`
+        // and `allocator`.
 
     // MANIPULATORS
     void *allocate(bsls::Types::size_type size) BSLS_KEYWORD_OVERRIDE;
@@ -211,44 +211,47 @@ namespace USAGE_EXAMPLE {
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using 'bdlma::AligningAllocator'
+///Example 1: Using `bdlma::AligningAllocator`
 ///- - - - - - - - - - - - - - - - - - - - - -
 // Suppose we are dealing with an externally supplied library function that
 // creates a linked list of null-terminated strings, and we want to use a
 // default-constructed buffered sequential allocator for memory allocation.
 //
-// First, the externally supplied library defines the 'struct' describing a
+// First, the externally supplied library defines the `struct` describing a
 // node in the linked list:
-//..
+// ```
+
+/// This `struct` describes one node in a linked list containing
+/// strings.
 struct Node {
-    // This 'struct' describes one node in a linked list containing
-    // strings.
 
     Node *d_next;
     char  d_string[1];
 
     // CLASS METHODS
+
+    /// Return the size in bytes needed to store a `Node` containing a
+    /// copy of the specified `string`.
     static
     bsl::size_t sizeNeededForString(const char *string)
-        // Return the size in bytes needed to store a 'Node' containing a
-        // copy of the specified 'string'.
     {
         Node node;
 
         return sizeof(node.d_next) + bsl::strlen(string) + 1;
     }
 };
-//..
+// ```
 // Then, the externally-supplied library defines the function that will create
 // the linked list of nodes from a null-terminated array of pointers to
 // C-strings:
-//..
+// ```
+
+/// Create a linked list of strings beginning with the specified `*head`
+/// containing the null-terminated strings from the null-terminated
+/// `stringArray`.  Use the specified `allocator` to supply memory.
 void externalPopulateStringList(Node             **head,
                                 const char       **stringArray,
                                 bslma::Allocator  *allocator)
-    // Create a linked list of strings beginning with the specified '*head'
-    // containing the null-terminated strings from the null-terminated
-    // 'stringArray'.  Use the specified 'allocator' to supply memory.
 {
     *head = 0;
     const char *string;
@@ -263,35 +266,35 @@ void externalPopulateStringList(Node             **head,
         *head = newNode;
     }
 }
-//..
+// ```
 // Next, our example function will begin with the externally-supplied buffered
 // sequential allocator that we are to use:
-//..
+// ```
 void printFromNodes(bsl::ostream *out) {
     enum { k_BUFFER_SIZE = 4 * 1024 };
     char                               buffer4k[k_BUFFER_SIZE];
     bdlma::BufferedSequentialAllocator bsAlloc(buffer4k, k_BUFFER_SIZE);
-//..
+// ```
 // There is a problem here, in that the nodes must be aligned by
-// 'sizeof(Node *)', but our buffered sequential allocator, like most BDE
-// allocators, has a "natural alignment" strategy (see {'bsls_alignment'}),
+// `sizeof(Node *)`, but our buffered sequential allocator, like most BDE
+// allocators, has a "natural alignment" strategy (see {`bsls_alignment`}),
 // meaning that it infers the required alignment from the size of the
 // allocation requested.  This would normally give us properly aligned memory
-// if we were allocating by 'sizeof(Node)', but our 'Node' objects are variable
+// if we were allocating by `sizeof(Node)`, but our `Node` objects are variable
 // length, which will mislead the allocator to sometimes align the new segments
-// by less than 'sizeof(Node *)'.
+// by less than `sizeof(Node *)`.
 //
 // Then, we solve this problem by using an aligning allocator to wrap the
 // buffered sequential allocator, ensuring that the memory will still come from
 // the buffered sequential allocator, but nonetheless be aligned to the
-// alignment requirement of 'Node'.
-//..
+// alignment requirement of `Node`.
+// ```
     enum { k_ALIGNMENT = bsls::AlignmentFromType<Node>::VALUE };
     bdlma::AligningAllocator aligningAllocator(k_ALIGNMENT, &bsAlloc);
-//..
+// ```
 // Next, we define a null-terminated array of strings we would like to store in
 // the list:
-//..
+// ```
     const char *strings[] = {
         "A zinger is not a rebuttal.\n",
         "Humor is mankind's greatest blessing.\n",
@@ -306,16 +309,16 @@ void printFromNodes(bsl::ostream *out) {
         "Chance fights ever on the side of the prudent.\n",
         "The best time to make friends is before you need them.\n",
         0  };
-//..
+// ```
 // Now, we call the function to put the strings into a linked list, passing it
 // the aligning allocator:
-//..
+// ```
     Node *head = 0;
     externalPopulateStringList(&head, strings, &aligningAllocator);
-//..
+// ```
 // Finally, we traverse the list and print out the strings, verifying that the
 // nodes are properly aligned:
-//..
+// ```
     for (const Node *node = head; node; node = node->d_next) {
         ASSERT(0 == (reinterpret_cast<bsl::size_t>(node) &
                      (k_ALIGNMENT - 1)));
@@ -324,7 +327,7 @@ void printFromNodes(bsl::ostream *out) {
         }
     }
 }
-//..
+// ```
 
 }  // close namespace USAGE_EXAMPLE
 
@@ -351,12 +354,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 That the usage example compiles and works, to demonstrate the
-        //:   usage of this component.
+        // 1. That the usage example compiles and works, to demonstrate the
+        //    usage of this component.
         //
         // Plan:
-        //: 1 Code and test the usage example, then propagate it to the include
-        //:   file.
+        // 1. Code and test the usage example, then propagate it to the include
+        //    file.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -373,17 +376,17 @@ int main(int argc, char *argv[])
         // DEALLOCATE TEST
         //
         // Concerns:
-        //: 1 That deallocate properly frees memory.
-        //:
-        //: 2 That the memory allocated is of at least the requested size.
+        // 1. That deallocate properly frees memory.
+        //
+        // 2. That the memory allocated is of at least the requested size.
         //
         // Plan:
-        //: 1 Repeat the test framework from the previous cases, except using
-        //:   bslma::TestAllocator as the underlying allocator, writing data to
-        //:   the entirety of the returned buffer, and free all the memory with
-        //:   'deallocate'.  When the test allocator is destroyed, it will
-        //:   abort if any memory wasn't freed, or if there was an overrun of
-        //:   the buffers it had allocated.
+        // 1. Repeat the test framework from the previous cases, except using
+        //    bslma::TestAllocator as the underlying allocator, writing data to
+        //    the entirety of the returned buffer, and free all the memory with
+        //    `deallocate`.  When the test allocator is destroyed, it will
+        //    abort if any memory wasn't freed, or if there was an overrun of
+        //    the buffers it had allocated.
         //
         // Testing:
         //   deallocate(void *address);
@@ -407,7 +410,7 @@ int main(int argc, char *argv[])
 
                     ASSERT(0 == size || segment);
 
-                    // write to entire buffer (allowing 'ta' to hopefully catch
+                    // write to entire buffer (allowing `ta` to hopefully catch
                     // if we did not actually get sufficient memory allocated).
                     if (size) {
                         bsl::memset(segment, 17, size);
@@ -427,13 +430,13 @@ int main(int argc, char *argv[])
         // ALIGNING ALLOCATOR ALIGNMENT TEST
         //
         // Concerns:
-        //: 1 That the aligning allocator enforces alignment.
+        // 1. That the aligning allocator enforces alignment.
         //
         // Plan:
-        //: 1 Repeat the same framework used in case 1, except using a
-        //:   'bdlma::AligningAllocator' around the buffered sequential
-        //:   allocator, and verify that the allocated memory is appropriately
-        //:   aligned.
+        // 1. Repeat the same framework used in case 1, except using a
+        //    `bdlma::AligningAllocator` around the buffered sequential
+        //    allocator, and verify that the allocated memory is appropriately
+        //    aligned.
         //
         // Testing:
         //   AligningAllocator(size_type alignment, Allocator *allocator);
@@ -479,12 +482,12 @@ int main(int argc, char *argv[])
         //   misalignments.
         //
         // Concerns:
-        //: 1 'AlignmentTestAllocator' needs to return allocations with the
-        //:   full range of possible misalignments.
+        // 1. `AlignmentTestAllocator` needs to return allocations with the
+        //    full range of possible misalignments.
         //
         // Plan:
-        //: 1 Track the alignments returned and validate they they are all
-        //:   covered.
+        // 1. Track the alignments returned and validate they they are all
+        //    covered.
         //
         // Testing:
         //   AlignmentTestAllocator
@@ -567,19 +570,19 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // UNDERLYING ALLOCATOR TEST
-        //   We need to make sure that 'bdlma::BufferedSequentialAllocator',
+        //   We need to make sure that `bdlma::BufferedSequentialAllocator`,
         //   which we will use as the underlying allocator, does not
         //   automatically align memory by default (which would render our
         //   later test useless).
         //
         // Concerns:
-        //: 1 'bdlma::BufferedSequentialAllocator' is capable of allocating
-        //:    poorly aligned memory.
+        // 1. `bdlma::BufferedSequentialAllocator` is capable of allocating
+        //     poorly aligned memory.
         //
         // Plan:
-        //: 1 Construct a 'bdlma::BufferedSequentialAllocator' configured for
-        //:   natural alignment and verify that we can make it allocate memory
-        //:   that is poorly aligned.
+        // 1. Construct a `bdlma::BufferedSequentialAllocator` configured for
+        //    natural alignment and verify that we can make it allocate memory
+        //    that is poorly aligned.
         //
         // Testing:
         //   bdlma_bufferedsequentialallocator -- Test Framework

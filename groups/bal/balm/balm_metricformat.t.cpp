@@ -138,60 +138,63 @@ typedef balm::MetricFormat      Obj;
                          // class CombinationIterator
                          // =========================
 
+/// This class provides an iterator over the set of possible combinations
+/// of elements.  A `CombinationIterator` object is supplied a vector of
+/// values of parameterized type `T` at construction.  The behavior is
+/// undefined unless the supplied vector contains unique elements and has a
+/// size between 1 and 31 (inclusive).  The `current` method returns a
+/// reference to a vector containing the current combination of elements.
+/// The `next` method increments the iterator to the next possible
+/// combination of elements.  Note that the sequence of combinations always
+/// begins with the empty set and ends with the set containing all values.
 template <class T>
 class CombinationIterator {
-    // This class provides an iterator over the set of possible combinations
-    // of elements.  A 'CombinationIterator' object is supplied a vector of
-    // values of parameterized type 'T' at construction.  The behavior is
-    // undefined unless the supplied vector contains unique elements and has a
-    // size between 1 and 31 (inclusive).  The 'current' method returns a
-    // reference to a vector containing the current combination of elements.
-    // The 'next' method increments the iterator to the next possible
-    // combination of elements.  Note that the sequence of combinations always
-    // begins with the empty set and ends with the set containing all values.
 
     // DATA
     bsl::vector<T> d_values;               // sequence of values to combine
     bsl::vector<T> d_currentCombination;   // current combination
-    int            d_bits;                 // current bit mask of 'd_values'
-    int            d_maxBits;              // max bit mask of 'd_values'
+    int            d_bits;                 // current bit mask of `d_values`
+    int            d_maxBits;              // max bit mask of `d_values`
 
     // PRIVATE MANIPULATORS
+
+    /// Populate `d_currentCombination` with those elements of `d_values`
+    /// whose corresponding bit in the `d_bits` bit-mask is 1.
     void createCurrentCombination();
-        // Populate 'd_currentCombination' with those elements of 'd_values'
-        // whose corresponding bit in the 'd_bits' bit-mask is 1.
 
   public:
 
     // CREATORS
+
+    /// Create an iterator through all possible combinations of the
+    /// specified `values`, and initialize it with the first
+    /// combination of values (the empty set of values), use the specified
+    /// `allocator` to supply memory.  The behavior is undefined unless '
+    /// the number of values is less than 32 and each element of `values`
+    /// appears only once.
     CombinationIterator(const T          *values,
                         int               numValues,
                         bslma::Allocator *allocator);
     CombinationIterator(const bsl::vector<T>&  values,
                         bslma::Allocator      *allocator);
-        // Create an iterator through all possible combinations of the
-        // specified 'values', and initialize it with the first
-        // combination of values (the empty set of values), use the specified
-        // 'allocator' to supply memory.  The behavior is undefined unless '
-        // the number of values is less than 32 and each element of 'values'
-        // appears only once.
 
+    /// If this iterator is not at the end of the sequence of combinations,
+    /// iterator to the next combination of value and return `true`,
+    /// otherwise return `false`.
     bool next();
-        // If this iterator is not at the end of the sequence of combinations,
-        // iterator to the next combination of value and return 'true',
-        // otherwise return 'false'.
 
     // ACCESSORS
+
+    /// Return a reference to the non-modifiable combination of
+    /// values that the iterator currently is positioned at.
     const bsl::vector<T>& current() const;
-        // Return a reference to the non-modifiable combination of
-        // values that the iterator currently is positioned at.
 
+    /// Return `true` if the `current()` combination contains the value at
+    /// the specified `index` in the sequence supplied at construction.
     bool includesElement(int index) const;
-        // Return 'true' if the 'current()' combination contains the value at
-        // the specified 'index' in the sequence supplied at construction.
 
+    /// Return the current position in the iteration.
     int position() const;
-        // Return the current position in the iteration.
 
 };
 
@@ -329,7 +332,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -342,66 +345,66 @@ int main(int argc, char *argv[])
 ///Usage
 ///-----
 // The following example demonstrates how to create and configure a
-// 'balm::MetricFormat'.  Note that clients of the 'balm' package can set the
-// format for a metric through 'balm_configurationutil' or
-// 'balm_metricregistry'.
+// `balm::MetricFormat`.  Note that clients of the `balm` package can set the
+// format for a metric through `balm_configurationutil` or
+// `balm_metricregistry`.
 //
-// We start by creating a 'balm::MetricFormat' object:
-//..
+// We start by creating a `balm::MetricFormat` object:
+// ```
     bslma::Allocator  *allocator = bslma::Default::allocator(0);
     balm::MetricFormat  format(allocator);
-//..
+// ```
 // Next we specify that average values should only be printed to two decimal
 // places:
-//..
+// ```
     format.setFormatSpec(balm::PublicationType::e_AVG,
                          balm::MetricFormatSpec(1.0, "%.2f"));
-//..
+// ```
 // Next we specify that rate values should be formatted as a percentage --
 // i.e., multiplied by 100, and then displayed with a "%" character.
-//..
+// ```
     format.setFormatSpec(balm::PublicationType::e_RATE,
                          balm::MetricFormatSpec(100.0, "%.2f%%"));
-//..
+// ```
 // We can verify that the correct format specifications have been set.
-//..
+// ```
     ASSERT(balm::MetricFormatSpec(1.0, "%.2f") ==
            *format.formatSpec(balm::PublicationType::e_AVG));
     ASSERT(balm::MetricFormatSpec(100.0, "%.2f%%") ==
            *format.formatSpec(balm::PublicationType::e_RATE));
     ASSERT(0 == format.formatSpec(balm::PublicationType::e_TOTAL));
-//..
-// We can use the 'balm::MetricFormatSpec::formatValue' utility function to
+// ```
+// We can use the `balm::MetricFormatSpec::formatValue` utility function to
 // format the value 0.055 to the console.  Note however, that there is no
-// guarantee that every implementation of 'balm::Publisher' will format metrics
+// guarantee that every implementation of `balm::Publisher` will format metrics
 // in this way.
-//..
+// ```
     balm::MetricFormatSpec::formatValue(
             bsl::cout, .055, *format.formatSpec(balm::PublicationType::e_AVG));
     bsl::cout << bsl::endl;
     balm::MetricFormatSpec::formatValue(
            bsl::cout, .055, *format.formatSpec(balm::PublicationType::e_RATE));
     bsl::cout << bsl::endl;
-//..
+// ```
 // The resulting console output will be:
-//..
+// ```
 //  0.06
 //  5.50%
-//..
+// ```
     } break;
       case 17: {
         // --------------------------------------------------------------------
         // TESTING MANIPULATOR: clearFormatSpec
         //
         // Concerns:
-        //   That 'clearFormatSpec' removes the indicated format spec from a
-        //   'balm::MetricFormat'.
+        //   That `clearFormatSpec` removes the indicated format spec from a
+        //   `balm::MetricFormat`.
         //
         // Plan:
-        //   Create a set 'S' of possible values for a 'balm::MetricFormat'.
-        //   For each possible value in set 'S', initialize a
-        //   'balm::MetricFormat' (using the 'gg' generator), and then call
-        //   'clearFormatSpec' on each initialized format spec, and verify
+        //   Create a set `S` of possible values for a `balm::MetricFormat`.
+        //   For each possible value in set `S`, initialize a
+        //   `balm::MetricFormat` (using the `gg` generator), and then call
+        //   `clearFormatSpec` on each initialized format spec, and verify
         //   that all the format spec has been removed.  Finally, re-add
         //   format specs and verify they are added correctly.
         //
@@ -454,13 +457,13 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   That clear format specs clears all the format specs from a
-        //   'balm::MetricFormat'.
+        //   `balm::MetricFormat`.
         //
         // Plan:
-        //   Create a set 'S' of possible values for a 'balm::MetricFormat'.
-        //   For each possible value in set 'S', initialize a
-        //   'balm::MetricFormat' (using the 'gg' generator), and then call
-        //   'clearFormatSpecs', and verify that all the format specs have
+        //   Create a set `S` of possible values for a `balm::MetricFormat`.
+        //   For each possible value in set `S`, initialize a
+        //   `balm::MetricFormat` (using the `gg` generator), and then call
+        //   `clearFormatSpecs`, and verify that all the format specs have
         //   been removed.  Finally, re-add format specs and verify they are
         //   added correctly.
         //
@@ -503,7 +506,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   For each of a small representative set of object values, use
-        //   'ostrstream' to write that object's value to a character buffer
+        //   `ostrstream` to write that object's value to a character buffer
         //   and then compare the contents of that buffer with the expected
         //   output format.
         //
@@ -662,11 +665,11 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Specify a set S of unique object values having various minor or
-        //   subtle differences.  Verify the correctness of 'operator==' and
-        //   'operator!=' using all elements (u, v) of the cross product
+        //   subtle differences.  Verify the correctness of `operator==` and
+        //   `operator!=` using all elements (u, v) of the cross product
         //    S X S.
         //
-        //   Use different addresses to the same 'balm::MetricDescription'
+        //   Use different addresses to the same `balm::MetricDescription`
         //   value to verify comparisons are made by address (rather than by
         //   value).
         //
@@ -698,18 +701,18 @@ int main(int argc, char *argv[])
         // TESTING GENERATOR: gg
         //
         // Concerns:
-        //   That the generator function 'gg' correctly populates a
-        //   'balm::MetricFormat' based on a vector of publication types.
+        //   That the generator function `gg` correctly populates a
+        //   `balm::MetricFormat` based on a vector of publication types.
         // Plan:
         //   Specify a set S of unique object values having various minor or
-        //   subtle differences.  Verify the correctness of 'gg' using the set
-        //   'S' and the primary accessors.
+        //   subtle differences.  Verify the correctness of `gg` using the set
+        //   `S` and the primary accessors.
         //
         // Testing:
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTesting generator function 'gg': balm::MetricFormat"
+            cout << "\nTesting generator function `gg`: balm::MetricFormat"
                  << endl;
 
         CombinationIterator<Type::Value> cIter(ALL_TYPES, NUM_TYPES, Z);
@@ -815,7 +818,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   For each of a small set of possible input values test that
-        //   'formatValue' correctly formats the input value:
+        //   `formatValue` correctly formats the input value:
         //
         // Testing:
         //   static bsl::ostream& formatValue(bsl::ostream&                ,
@@ -867,7 +870,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   For each of a small representative set of object values, use
-        //   'ostrstream' to write that object's value to a character buffer
+        //   `ostrstream` to write that object's value to a character buffer
         //   and then compare the contents of that buffer with the expected
         //   output format.
         //
@@ -1045,11 +1048,11 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Specify a set S of unique object values having various minor or
-        //   subtle differences.  Verify the correctness of 'operator==' and
-        //   'operator!=' using all elements (u, v) of the cross product
+        //   subtle differences.  Verify the correctness of `operator==` and
+        //   `operator!=` using all elements (u, v) of the cross product
         //    S X S.
         //
-        //   Use different addresses to the same 'balm::MetricDescription'
+        //   Use different addresses to the same `balm::MetricDescription`
         //   value to verify comparisons are made by address (rather than by
         //   value).
         //
@@ -1295,10 +1298,10 @@ int main(int argc, char *argv[])
         //   operation of the following methods and operators:
         //      - default and copy constructors (and also the destructor)
         //      - the assignment operator (including aliasing)
-        //      - equality operators: 'operator==()' and 'operator!=()'
-        //      - the (test-driver supplied) output operator: 'operator<<()'
-        //      - primary manipulators: 'push_back' and 'clear' methods
-        //      - basic accessors: 'size' and 'operator[]()'
+        //      - equality operators: `operator==()` and `operator!=()`
+        //      - the (test-driver supplied) output operator: `operator<<()`
+        //      - primary manipulators: `push_back` and `clear` methods
+        //      - basic accessors: `size` and `operator[]()`
         //   In addition we would like to exercise objects with potentially
         //   different internal organizations representing the same value.
         //
@@ -1339,7 +1342,7 @@ int main(int argc, char *argv[])
 
         {
             if (veryVerbose) {
-                cout << "\tTesting 'balm::MetricFormatSpec'" << endl;
+                cout << "\tTesting `balm::MetricFormatSpec`" << endl;
             }
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             if (verbose) cout << "\n 1. Create an object x1 (init. to VA)."
@@ -1509,7 +1512,7 @@ int main(int argc, char *argv[])
 
         {
             if (veryVerbose) {
-                cout << "\tTesting 'balm::MetricFormatSpec'" << endl;
+                cout << "\tTesting `balm::MetricFormatSpec`" << endl;
             }
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             if (verbose) cout << "\n 1. Create an object x1 (init. to VA)."

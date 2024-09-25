@@ -33,19 +33,19 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// A 'bdlma::Multipool' is a mechanism (i.e., having state but no value) that
-// is used as a memory manager to manage an array of 'bdlma::Pool' objects.
-// Each of the internal pools of a 'bdlma::Multipool' has a distinct block
+// A `bdlma::Multipool` is a mechanism (i.e., having state but no value) that
+// is used as a memory manager to manage an array of `bdlma::Pool` objects.
+// Each of the internal pools of a `bdlma::Multipool` has a distinct block
 // size, and each pool may also be configured to have a distinct growth
 // strategy and/or a maximum blocks per chunk.
 //
 // Primary testing concerns are: 1) that the constructors configure the
 // individual internal pools as expected, and 2) that the manipulators and
-// overloaded 'operator new' operate on the correct internal pool (or all of
-// the pools in the case of the 'release' method).  Since this component is a
-// memory manager, the 'bslma_testallocator' component is used extensively to
+// overloaded `operator new` operate on the correct internal pool (or all of
+// the pools in the case of the `release` method).  Since this component is a
+// memory manager, the `bslma_testallocator` component is used extensively to
 // verify expected behavior.  Note that memory allocation must be tested for
-// exception neutrality (also via the 'bslma_testallocator' component).
+// exception neutrality (also via the `bslma_testallocator` component).
 // Several small helper functions are also used to facilitate testing.
 //-----------------------------------------------------------------------------
 // [ 7] bdlma::Multipool(Allocator *ba = 0);
@@ -134,8 +134,9 @@ typedef bsls::BlockGrowth::Strategy Strategy;
 const int MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
 // Warning: keep this in sync with bdlma_multipool.h!
+
+/// Stores pool number of this item.
 struct Header {
-    // Stores pool number of this item.
     union {
         int                                 d_pool;   // pool for this item
         bsls::AlignmentUtil::MaxAlignedType d_dummy;  // force max. alignment
@@ -171,13 +172,13 @@ struct MostDerived : LeftChild, RightChild {
 //                      HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Return the index of the pool that should allocate objects that are of
+/// the specified `objSize` bytes in size from a multipool managing the
+/// specified `numPools` memory pools, or -1 if `objSize` exceeds the size
+/// of the blocks managed by all of the pools.  The behavior is undefined
+/// unless `0 < numPools` and `0 < objSize`.
 static
 int calcPool(int numPools, int objSize)
-    // Return the index of the pool that should allocate objects that are of
-    // the specified 'objSize' bytes in size from a multipool managing the
-    // specified 'numPools' memory pools, or -1 if 'objSize' exceeds the size
-    // of the blocks managed by all of the pools.  The behavior is undefined
-    // unless '0 < numPools' and '0 < objSize'.
 {
     ASSERT(0 < numPools);
     ASSERT(0 < objSize);
@@ -197,12 +198,12 @@ int calcPool(int numPools, int objSize)
     return pool;
 }
 
+/// Return the index of the pool that allocated the memory at the specified
+/// `address`, or -1 if the memory was allocated directly from the
+/// underlying allocator.  The behavior is undefined unless `address` is
+/// non-null.
 static inline
 int recPool(char *address)
-    // Return the index of the pool that allocated the memory at the specified
-    // 'address', or -1 if the memory was allocated directly from the
-    // underlying allocator.  The behavior is undefined unless 'address' is
-    // non-null.
 {
     ASSERT(address);
 
@@ -211,30 +212,30 @@ int recPool(char *address)
     return h->d_header.d_pool;
 }
 
+/// Return the number of bytes between the specified `address1` and the
+/// specified `address2`.
 inline
 bsl::intptr_t delta(char *address1, char *address2)
-    // Return the number of bytes between the specified 'address1' and the
-    // specified 'address2'.
 {
     return address1 < address2
         ? static_cast<bsl::intptr_t>(address2 - address1)
         : static_cast<bsl::intptr_t>(address1 - address2);
 }
 
+/// Assign a non-zero value to each of the specified `size` bytes starting
+/// at the specified `address`.
 static inline
 void scribble(char *address, int size)
-    // Assign a non-zero value to each of the specified 'size' bytes starting
-    // at the specified 'address'.
 {
     memset(address, 0xff, size);
 }
 
+/// Using only primary manipulators, extend the capacity of the specified
+/// `object` to (at least) the specified `numElements`, each of the
+/// specified `objSize` bytes, then remove all elements leaving `object`
+/// empty.  The behavior is undefined unless `0 <= numElements` and
+/// `0 <= objSize`.
 void stretchRemoveAll(Obj *object, int numElements, int objSize)
-    // Using only primary manipulators, extend the capacity of the specified
-    // 'object' to (at least) the specified 'numElements', each of the
-    // specified 'objSize' bytes, then remove all elements leaving 'object'
-    // empty.  The behavior is undefined unless '0 <= numElements' and
-    // '0 <= objSize'.
 {
     ASSERT(object);
     ASSERT(0 <= numElements);
@@ -254,37 +255,39 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using a 'bdlma::Multipool' Directly
+///Example 1: Using a `bdlma::Multipool` Directly
 /// - - - - - - - - - - - - - - - - - - - - - - -
-// A 'bdlma::Multipool' can be used by containers that hold different types of
+// A `bdlma::Multipool` can be used by containers that hold different types of
 // elements, each of uniform size, for efficient memory allocation of new
-// elements.  Suppose we have a factory class, 'my_MessageFactory', that
+// elements.  Suppose we have a factory class, `my_MessageFactory`, that
 // creates messages based on user requests.  Each message is created with the
 // most efficient memory storage possible, using predefined 8-byte, 16-byte,
 // and 32-byte buffers.  If the message size exceeds the three predefined
 // values, a generic message is used.  For efficient memory allocation of
-// messages, we use a 'bdlma::Multipool'.
+// messages, we use a `bdlma::Multipool`.
 //
 // First, we define our message types as follows:
-//..
+// ```
     class my_MessageFactory;
 
+    /// This class represents a general message interface that provides a
+    /// `getMessage` method for clients to retrieve the underlying message.
     class my_Message {
-        // This class represents a general message interface that provides a
-        // 'getMessage' method for clients to retrieve the underlying message.
 
       public:
         // CREATORS
+
+        /// Destroy this object.
         virtual ~my_Message() {}
-            // Destroy this object.
 
         // ACCESSORS
+
+        /// Return the null-terminated message string.
         virtual const char *getMessage() = 0;
-            // Return the null-terminated message string.
     };
 
+    /// This class represents an 8-byte message (including null terminator).
     class my_SmallMessage : public my_Message {
-        // This class represents an 8-byte message (including null terminator).
 
         // DATA
         char d_buffer[8];
@@ -306,8 +309,8 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
             d_buffer[length] = '\0';
         }
 
+        /// Destroy this object.
         ~my_SmallMessage() BSLS_KEYWORD_OVERRIDE {}
-            // Destroy this object.
 
         // PRIVATE ACCESSORS
         const char *getMessage() BSLS_KEYWORD_OVERRIDE
@@ -316,9 +319,9 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
         }
     };
 
+    /// This class represents a 16-byte message (including null
+    /// terminator).
     class my_MediumMessage : public my_Message {
-        // This class represents a 16-byte message (including null
-        // terminator).
 
         // DATA
         char d_buffer[16];
@@ -340,8 +343,8 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
             d_buffer[length] = '\0';
         }
 
+        /// Destroy this object.
         ~my_MediumMessage() BSLS_KEYWORD_OVERRIDE {}
-            // Destroy this object.
 
         // PRIVATE ACCESSORS
         const char *getMessage() BSLS_KEYWORD_OVERRIDE
@@ -350,9 +353,9 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
         }
     };
 
+    /// This class represents a 32-byte message (including null
+    /// terminator).
     class my_LargeMessage : public my_Message {
-        // This class represents a 32-byte message (including null
-        // terminator).
 
         // DATA
         char d_buffer[32];
@@ -374,8 +377,8 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
             d_buffer[length] = '\0';
         }
 
+        /// Destroy this object.
         ~my_LargeMessage() BSLS_KEYWORD_OVERRIDE {}
-            // Destroy this object.
 
         // PRIVATE ACCESSORS
         const char *getMessage() BSLS_KEYWORD_OVERRIDE
@@ -384,8 +387,8 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
         }
     };
 
+    /// This class represents a generic message.
     class my_GenericMessage : public my_Message {
-        // This class represents a generic message.
 
         // DATA
         char *d_buffer;
@@ -403,8 +406,8 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
         {
         }
 
+        /// Destroy this object.
         ~my_GenericMessage() BSLS_KEYWORD_OVERRIDE {}
-            // Destroy this object.
 
         // PRIVATE ACCESSORS
         const char *getMessage() BSLS_KEYWORD_OVERRIDE
@@ -412,13 +415,14 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
             return d_buffer;
         }
     };
-//..
-// Then, we define our factory class, 'my_MessageFactory', as follows:
-//..
+// ```
+// Then, we define our factory class, `my_MessageFactory`, as follows:
+// ```
+
+    /// This class implements an efficient message factory that builds and
+    /// returns messages.  The life-time of the messages created by this
+    /// factory is the same as this factory.
     class my_MessageFactory {
-        // This class implements an efficient message factory that builds and
-        // returns messages.  The life-time of the messages created by this
-        // factory is the same as this factory.
 
         // DATA
         bdlma::Multipool d_multipool;  // multipool used to supply memory
@@ -429,53 +433,55 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 
       public:
         // CREATORS
-        my_MessageFactory(bslma::Allocator *basicAllocator = 0);
-            // Create a message factory.  Optionally specify a 'basicAllocator'
-            // used to supply memory.  If 'basicAllocator' is 0, the currently
-            // installed default allocator is used.
 
+        /// Create a message factory.  Optionally specify a `basicAllocator`
+        /// used to supply memory.  If `basicAllocator` is 0, the currently
+        /// installed default allocator is used.
+        my_MessageFactory(bslma::Allocator *basicAllocator = 0);
+
+        /// Destroy this factory and reclaim all messages created by it.
         ~my_MessageFactory();
-            // Destroy this factory and reclaim all messages created by it.
 
         // MANIPULATORS
+
+        /// Create a message storing the specified `data`.  The behavior is
+        /// undefined unless `data` is null-terminated.
         my_Message *createMessage(const char *data);
-            // Create a message storing the specified 'data'.  The behavior is
-            // undefined unless 'data' is null-terminated.
 
+        /// Dispose of all created messages.
         void disposeAllMessages();
-            // Dispose of all created messages.
 
+        /// Dispose of the specified `message`.  The behavior is undefined
+        /// unless `message` was created by this factory, and has not
+        /// already been disposed.
         void disposeMessage(my_Message *message);
-            // Dispose of the specified 'message'.  The behavior is undefined
-            // unless 'message' was created by this factory, and has not
-            // already been disposed.
     };
-//..
-// Next, we define the 'inline' methods of 'my_MessageFactory'.
+// ```
+// Next, we define the `inline` methods of `my_MessageFactory`.
 //
-// In calling the multipool's 'release' method, 'disposeAllMessages' quickly
+// In calling the multipool's `release` method, `disposeAllMessages` quickly
 // deallocates all memory blocks that were used to create messages currently
-// outstanding from the factory.  Following the call to 'release', *all* memory
+// outstanding from the factory.  Following the call to `release`, *all* memory
 // that had been allocated from the multipool is available for reuse:
-//..
+// ```
     // MANIPULATORS
     inline
     void my_MessageFactory::disposeAllMessages()
     {
         d_multipool.release();
     }
-//..
-// Similarly, the call to the multipool's 'deleteObject' method in
-// 'disposeMessage' first destroys the message, then releases the memory that
+// ```
+// Similarly, the call to the multipool's `deleteObject` method in
+// `disposeMessage` first destroys the message, then releases the memory that
 // had been allocated for it back to the multipool for use in creating another
 // message having the same size:
-//..
+// ```
     inline
     void my_MessageFactory::disposeMessage(my_Message *message)
     {
         d_multipool.deleteObject(message);
     }
-//..
+// ```
 // A multipool optimizes the allocation of memory by using
 // dynamically-allocated buffers (also known as chunks) to supply memory.  As
 // each chunk can satisfy multiple memory block requests before requiring
@@ -485,32 +491,32 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 // For the number of pools managed by the multipool, we chose to use the
 // implementation-defined default value instead of calculating and specifying a
 // value.  If users instead want to specify the number of pools, the value can
-// be calculated as the smallest value, 'N', such that the following
+// be calculated as the smallest value, `N`, such that the following
 // relationship holds:
-//..
+// ```
 //  N > log2(sizeof(Object Type)) - 2
-//..
-// Next, we define the creators of 'my_MessageFactory':
-//..
+// ```
+// Next, we define the creators of `my_MessageFactory`:
+// ```
     // CREATORS
     my_MessageFactory::my_MessageFactory(bslma::Allocator *basicAllocator)
     : d_multipool(basicAllocator)
     {
     }
-//..
+// ```
 // Note that in the destructor, all outstanding messages are reclaimed
-// automatically when 'd_multipool' is destroyed:
-//..
+// automatically when `d_multipool` is destroyed:
+// ```
     my_MessageFactory::~my_MessageFactory()
     {
     }
-//..
-// Finally, we define the 'createMessage' factory method that actually creates
-// the messages using memory provided by the multipool.  A 'bdlma::Multipool'
+// ```
+// Finally, we define the `createMessage` factory method that actually creates
+// the messages using memory provided by the multipool.  A `bdlma::Multipool`
 // is ideal for allocating the different sized messages since repeated
-// deallocations might be necessary, which renders a 'bdlma::SequentialPool'
+// deallocations might be necessary, which renders a `bdlma::SequentialPool`
 // unsuitable:
-//..
+// ```
     // MANIPULATORS
     my_Message *my_MessageFactory::createMessage(const char *data)
     {
@@ -539,23 +545,24 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
         return new(d_multipool.allocate(sizeof(my_GenericMessage)))
                                                      my_GenericMessage(buffer);
     }
-//..
+// ```
 //
-///Example 2: Implementing an Allocator Using 'bdlma::Multipool'
+///Example 2: Implementing an Allocator Using `bdlma::Multipool`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to create a multipool allocator (i.e., that implements
-// the 'bslma::Allocator' interface) that allocates memory from multiple
-// 'bdlma::Pool' objects in a similar fashion to 'bdlma::Multipool'.  In this
-// example, we create just such a multipool allocator, 'my_MultipoolAllocator',
-// that uses a 'bdlma::Multipool' to manage the multiple pools.
+// the `bslma::Allocator` interface) that allocates memory from multiple
+// `bdlma::Pool` objects in a similar fashion to `bdlma::Multipool`.  In this
+// example, we create just such a multipool allocator, `my_MultipoolAllocator`,
+// that uses a `bdlma::Multipool` to manage the multiple pools.
 //
-// First, we define the interface of 'my_MultipoolAllocator':
-//..
+// First, we define the interface of `my_MultipoolAllocator`:
+// ```
+
+    /// This class implements the `bslma::Allocator` protocol to provide an
+    /// allocator that manages a set of memory pools, each dispensing memory
+    /// blocks of a unique size, with each successive pool's block size
+    /// being twice that of the previous one.
     class my_MultipoolAllocator : public bslma::Allocator {
-        // This class implements the 'bslma::Allocator' protocol to provide an
-        // allocator that manages a set of memory pools, each dispensing memory
-        // blocks of a unique size, with each successive pool's block size
-        // being twice that of the previous one.
 
         // DATA
         bdlma::Multipool d_multiPool;  // memory manager for allocated memory
@@ -563,36 +570,38 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
 
       public:
         // CREATORS
+
+        /// Create a multipool allocator.  Optionally specify a
+        /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+        /// 0, the currently installed default allocator is used.
         my_MultipoolAllocator(bslma::Allocator *basicAllocator = 0);
-            // Create a multipool allocator.  Optionally specify a
-            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-            // 0, the currently installed default allocator is used.
 
         // ...
 
+        /// Destroy this multipool allocator.  All memory allocated from
+        /// this memory pool is released.
         ~my_MultipoolAllocator() BSLS_KEYWORD_OVERRIDE;
-            // Destroy this multipool allocator.  All memory allocated from
-            // this memory pool is released.
 
         // MANIPULATORS
-        void *allocate(bsls::Types::size_type size) BSLS_KEYWORD_OVERRIDE;
-            // Return the address of a contiguous block of maximally-aligned
-            // memory of (at least) the specified 'size' (in bytes).  If 'size'
-            // is 0, no memory is allocated and 0 is returned.
 
+        /// Return the address of a contiguous block of maximally-aligned
+        /// memory of (at least) the specified `size` (in bytes).  If `size`
+        /// is 0, no memory is allocated and 0 is returned.
+        void *allocate(bsls::Types::size_type size) BSLS_KEYWORD_OVERRIDE;
+
+        /// Relinquish the memory block at the specified `address` back to
+        /// this multipool allocator for reuse.  The behavior is undefined
+        /// unless `address` is non-zero, was allocated by this multipool
+        /// allocator, and has not already been deallocated.
         void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
-            // Relinquish the memory block at the specified 'address' back to
-            // this multipool allocator for reuse.  The behavior is undefined
-            // unless 'address' is non-zero, was allocated by this multipool
-            // allocator, and has not already been deallocated.
     };
-//..
+// ```
 // Note that the interface and documentation for this class is simplified for
-// this usage example.  Please see 'bdlma_multipoolallocator' for a similar
+// this usage example.  Please see `bdlma_multipoolallocator` for a similar
 // class meant for production use.
 //
-// Finally, we provide the trivial implementation of 'my_MultipoolAllocator':
-//..
+// Finally, we provide the trivial implementation of `my_MultipoolAllocator`:
+// ```
     // CREATORS
     inline
     my_MultipoolAllocator::my_MultipoolAllocator(
@@ -621,7 +630,7 @@ void stretchRemoveAll(Obj *object, int numElements, int objSize)
     {
         d_multiPool.deallocate(address);
     }
-//..
+// ```
 
 //=============================================================================
 //                                MAIN PROGRAM
@@ -636,7 +645,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -657,13 +666,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -705,16 +714,16 @@ int main(int argc, char *argv[])
         // ALLOCATOR ACCESSOR TEST
         //
         // Concerns:
-        //: 1. 'allocator()' accessor returns the expected value.
-        //:
-        //: 2. 'allocator()' accessor is declared const.
+        //  1. `allocator()` accessor returns the expected value.
+        //
+        //  2. `allocator()` accessor is declared const.
         //
         // Plan:
-        //: 1 To test 'allocator', create object with various allocators and
-        //:   ensure the returned value matches the supplied allocator.  (C-1)
-        //:
-        //: 2 Directly test that 'allocator()', invoked on a 'const' object,
-        //:   returns the expected value.  (C-1..2)
+        // 1. To test `allocator`, create object with various allocators and
+        //    ensure the returned value matches the supplied allocator.  (C-1)
+        //
+        // 2. Directly test that `allocator()`, invoked on a `const` object,
+        //    returns the expected value.  (C-1..2)
         //
         // Testing:
         //   bslma::Allocator *allocator() const;
@@ -723,7 +732,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "ALLOCATOR ACCESSOR TEST" << endl
                                   << "=======================" << endl;
 
-        if (verbose) cout << "\nTesting 'allocator'." << endl;
+        if (verbose) cout << "\nTesting `allocator`." << endl;
         {
             Obj mX;  const Obj& X = mX;
             ASSERT(&defaultAllocator == X.allocator());
@@ -743,20 +752,20 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'numPools' and 'maxPooledBlockSize'
+        // TESTING `numPools` and `maxPooledBlockSize`
         //
         // Concerns:
-        //   1) That 'numPools' returns the number of pools managed by the
+        //   1) That `numPools` returns the number of pools managed by the
         //      multipool.
         //
-        //   2) That 'maxPooledBlockSize' returns the correct maximum block
-        //      size managed by the multipool given the specified 'numPools'.
+        //   2) That `maxPooledBlockSize` returns the correct maximum block
+        //      size managed by the multipool given the specified `numPools`.
         //
         // Plan:
         //   Since the constructors are thoroughly tested at this point, simply
-        //   construct a multipool passing in different 'numPools' arguments
-        //   specified in a test array, and verify that 'numPools' and
-        //   'maxPooledBlockSize' return the expected values.
+        //   construct a multipool passing in different `numPools` arguments
+        //   specified in a test array, and verify that `numPools` and
+        //   `maxPooledBlockSize` return the expected values.
         //
         // Testing:
         //   int numPools() const;
@@ -764,7 +773,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                      << "TESTING 'numPools' and 'maxPooledBlockSize'" << endl
+                      << "TESTING `numPools` and `maxPooledBlockSize`" << endl
                       << "===========================================" << endl;
 
         static const struct {
@@ -803,18 +812,18 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'deleteObject' AND 'deleteObjectRaw'
+        // TESTING `deleteObject` AND `deleteObjectRaw`
         //
         // Concerns:
-        //   That 'deleteObject' and 'deleteObjectRaw' properly destroy and
+        //   That `deleteObject` and `deleteObjectRaw` properly destroy and
         //   deallocate managed objects.
         //
         // Plan:
         //   Iterate, where at the beginning of the loop we create an object
-        //   of type 'MostDerived' that multiply inherits from two types with
+        //   of type `MostDerived` that multiply inherits from two types with
         //   virtual destructors.  Then in the middle of the loop we switch on
         //   the various ways to destroy and deallocate the object with various
-        //   forms of 'deleteObjectRaw' and 'deleteObject', after which we
+        //   forms of `deleteObjectRaw` and `deleteObject`, after which we
         //   verify that the destructors have been run.  In each iteration we
         //   verify that the memory we got was the same as the previous
         //   iteration, showing that memory is being deallocated and recovered
@@ -826,7 +835,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                     << "TESTING 'deleteObject' and 'deleteObjectRaw'" << endl
+                     << "TESTING `deleteObject` and `deleteObjectRaw`" << endl
                      << "============================================" << endl;
 
         bool finished = false;
@@ -905,16 +914,16 @@ int main(int argc, char *argv[])
         // Plan:
         //   First, create different arrays of test data for growth strategy,
         //   max blocks per chunk, and allocation sizes.  Then, create an array
-        //   of 'bdlma::Pool', each initialized with the corresponding growth
+        //   of `bdlma::Pool`, each initialized with the corresponding growth
         //   strategy, max blocks per chunk, and managing memory blocks
         //   doubling in size - just as what is managed within
-        //   'bdlma::Multipool'.  Then create a multipool.  Allocate different
+        //   `bdlma::Multipool`.  Then create a multipool.  Allocate different
         //   object sizes from the multipool, and test that the growth of the
         //   internal chunks within the multipool is the same as the
-        //   appropriate 'bdlma::Pool', determined by the 'calcPool' method.
+        //   appropriate `bdlma::Pool`, determined by the `calcPool` method.
         //
         //   To test the default arguments (the different constructors), we
-        //   repeat the test above, but initialize the 'bdlma::Pool' with the
+        //   repeat the test above, but initialize the `bdlma::Pool` with the
         //   expected default argument.
         //
         // Testing:
@@ -970,7 +979,7 @@ int main(int argc, char *argv[])
         const int NUM_MDATA = sizeof MDATA / sizeof *MDATA;
 
         if (verbose) {
-            cout << "'bdlma::Multipool(numPools, *gs, *mbpc, *ba)'" << endl;
+            cout << "`bdlma::Multipool(numPools, *gs, *mbpc, *ba)`" << endl;
         }
         for (int si = 0; si < NUM_SDATA; ++si) {
             for (int mi = 0; mi < NUM_MDATA; ++mi) {
@@ -1070,7 +1079,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "'bdlma::Multipool(*ba)'" << endl;
+            cout << "`bdlma::Multipool(*ba)`" << endl;
         }
 
         {
@@ -1165,7 +1174,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "'bdlma::Multipool(numPools, *ba)'" << endl;
+            cout << "`bdlma::Multipool(numPools, *ba)`" << endl;
         }
         {
             bslma::TestAllocator pta("pool",   veryVeryVerbose);
@@ -1258,7 +1267,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "'bdlma::Multipool(gs, *ba)'" << endl;
+            cout << "`bdlma::Multipool(gs, *ba)`" << endl;
         }
         {
             bslma::TestAllocator pta("pool",   veryVeryVerbose);
@@ -1329,7 +1338,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "'bdlma::Multipool(numPools, gs, *ba)'" << endl;
+            cout << "`bdlma::Multipool(numPools, gs, *ba)`" << endl;
         }
         {
             bslma::TestAllocator pta("pool",   veryVeryVerbose);
@@ -1399,7 +1408,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "'bdlma::Multipool(numPools, *gs, *ba)'" << endl;
+            cout << "`bdlma::Multipool(numPools, *gs, *ba)`" << endl;
         }
         for (int si = 0; si < NUM_SDATA; ++si) {
             bslma::TestAllocator pta("pool",   veryVeryVerbose);
@@ -1495,7 +1504,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "'bdlma::Multipool(numPools, gs, mbpc, *ba)'" << endl;
+            cout << "`bdlma::Multipool(numPools, gs, mbpc, *ba)`" << endl;
         }
         {
             bslma::TestAllocator pta("pool",   veryVeryVerbose);
@@ -1588,7 +1597,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "'bdlma::Multipool(numPools, gs, *mbpc, *ba)'" << endl;
+            cout << "`bdlma::Multipool(numPools, gs, *mbpc, *ba)`" << endl;
         }
         for (int mi = 0; mi < NUM_MDATA; ++mi) {
 
@@ -1682,7 +1691,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "'bdlma::Multipool(numPools, gs, mbpc, *ba)'" << endl;
+            cout << "`bdlma::Multipool(numPools, gs, mbpc, *ba)`" << endl;
         }
         {
             bslma::TestAllocator pta("pool",   veryVeryVerbose);
@@ -1752,7 +1761,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "'bdlma::Multipool(numPools, *gs, mbpc, *ba)'" << endl;
+            cout << "`bdlma::Multipool(numPools, *gs, mbpc, *ba)`" << endl;
         }
         for (int si = 0; si < NUM_SDATA; ++si) {
             bslma::TestAllocator pta("pool",   veryVeryVerbose);
@@ -1848,7 +1857,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "'bdlma::Multipool(numPools, gs, *mbpc, *ba)'" << endl;
+            cout << "`bdlma::Multipool(numPools, gs, *mbpc, *ba)`" << endl;
         }
         for (int mi = 0; mi < NUM_MDATA; ++mi) {
 
@@ -2008,21 +2017,21 @@ int main(int argc, char *argv[])
         // TESTING RESERVECAPACITY
         //
         // Concerns:
-        //   Our primary concern is that 'reserveCapacity(sz, n)' reserves
-        //   sufficient memory to satisfy 'n' allocation requests from the
-        //   pool managing objects of size 'sz'.
+        //   Our primary concern is that `reserveCapacity(sz, n)` reserves
+        //   sufficient memory to satisfy `n` allocation requests from the
+        //   pool managing objects of size `sz`.
         //
         //   QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //   To test 'reserveCapacity', specify a table of capacities to
+        //   To test `reserveCapacity`, specify a table of capacities to
         //   reserve.  Construct an object managing three pools and call
-        //   'reserveCapacity' for each of the three pools with the tabulated
+        //   `reserveCapacity` for each of the three pools with the tabulated
         //   number of elements.  Allocate as many objects as required to
         //   bring the size of the pool under test to the specified number of
-        //   elements and use 'bslma::TestAllocator' to verify that no
+        //   elements and use `bslma::TestAllocator` to verify that no
         //   additional allocations have occurred.  Perform each test in the
-        //   standard 'bslma' exception-testing macro block.
+        //   standard `bslma` exception-testing macro block.
         //
         // Testing:
         //   void reserveCapacity(bsls::Types::size_type size, int numBlocks);
@@ -2100,7 +2109,7 @@ int main(int argc, char *argv[])
         // TESTING RELEASE
         //
         // Concerns:
-        //   Our primary concern is that 'release' relinquishes all
+        //   Our primary concern is that `release` relinquishes all
         //   outstanding memory to the allocator that is in use by the
         //   multipool.
         //
@@ -2111,9 +2120,9 @@ int main(int argc, char *argv[])
         //   scribble over the extent of all allocated objects.  This
         //   ensures that no portion of the object is used by the multipool
         //   for bookkeeping.  Make use of the facilities available in
-        //   'bslma::TestAllocator' to monitor memory usage.  Verify with
+        //   `bslma::TestAllocator` to monitor memory usage.  Verify with
         //   appropriate assertions that all memory is indeed relinquished
-        //   to the memory allocator following each 'release'.
+        //   to the memory allocator following each `release`.
         //
         // Testing:
         //   void release();
@@ -2140,7 +2149,7 @@ int main(int argc, char *argv[])
                 for (int j = 0; j < i; ++j) {
                     const int OBJ_SIZE = POOL_QUANTA[j];
                     p = (char *) mX.allocate(OBJ_SIZE);  // garbage-collected
-                                                         //  by 'release'
+                                                         //  by `release`
                     LOOP3_ASSERT(i, j, its, p);
                     scribble(p, OBJ_SIZE);
                 }
@@ -2162,7 +2171,7 @@ int main(int argc, char *argv[])
         // TESTING DEALLOCATE
         //
         // Concerns:
-        //   Our primary concern is that 'deallocate' returns the block of
+        //   Our primary concern is that `deallocate` returns the block of
         //   memory to the underlying pool making it available for future
         //   allocation.
         //
@@ -2175,7 +2184,7 @@ int main(int argc, char *argv[])
         //   scribble over the extent of all allocated objects.  This
         //   ensures that no portion of the object is used by the multipool
         //   for bookkeeping.  Make use of the facilities available in
-        //   'bslma::TestAllocator' to monitor memory usage.  Verify with
+        //   `bslma::TestAllocator` to monitor memory usage.  Verify with
         //   appropriate assertions that no demands are put on the memory
         //   allocation beyond those attributable to start-up.
         //
@@ -2264,8 +2273,8 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   We have the following concerns:
-        //    1) The memory returned by 'allocate' is properly aligned.
-        //    2) The memory returned by 'allocate' is of sufficient size.
+        //    1) The memory returned by `allocate` is properly aligned.
+        //    2) The memory returned by `allocate` is of sufficient size.
         //    3) The allocation request is distributed to the proper underlying
         //       pool, or to the "overflow" block list.
         //
@@ -2276,7 +2285,7 @@ int main(int argc, char *argv[])
         //   scribble over the extent of all allocated objects.
         //
         //   Concern 1 is addressed with a simple "%" calculation on the value
-        //   returned by 'allocate'.  Concern 2 cannot be verified with 100%
+        //   returned by `allocate`.  Concern 2 cannot be verified with 100%
         //   certainty, but a necessary condition can be tested, namely that
         //   the difference between the memory addresses returned by two
         //   successive allocation requests is at least as great as an object's
@@ -2313,7 +2322,7 @@ int main(int argc, char *argv[])
                 Obj mX(NUM_POOLS);
 
                 {
-                    // Test allocation with 'size == 0'.
+                    // Test allocation with `size == 0`.
 
                     bsls::Types::Int64 numInUse = allocator.numBytesInUse();
                     mX.allocate(0);
@@ -2383,7 +2392,7 @@ int main(int argc, char *argv[])
                 Obj mX(NUM_POOLS, Z);
 
                 {
-                    // Test allocation with 'size == 0'.
+                    // Test allocation with `size == 0`.
 
                     bsls::Types::Int64 numInUse =
                                                  testAllocator.numBytesInUse();
@@ -2446,11 +2455,11 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'NUMPOOLS' CTOR AND DTOR
+        // TESTING `NUMPOOLS` CTOR AND DTOR
         //
         // Concerns:
         //   We have the following concerns:
-        //    1) The 'bdlma::Multipool' 'numPools' constructor works properly:
+        //    1) The `bdlma::Multipool` `numPools` constructor works properly:
         //       a. The constructor is exception neutral w.r.t. memory
         //          allocation.
         //       b. The internal memory management system is hooked up properly
@@ -2466,12 +2475,12 @@ int main(int argc, char *argv[])
         // Plan:
         //   Create a test object using the constructor: 1) without exceptions
         //   and 2) in the presence of exceptions during memory allocations
-        //   using a 'bslma::TestAllocator' and varying its *allocation*
+        //   using a `bslma::TestAllocator` and varying its *allocation*
         //   *limit*.  When the object goes out of scope, verify that the
         //   destructor properly deallocates all memory that had been allocated
         //   to it.
         //
-        //   Concern 2 is addressed by making use of the 'allocate' method
+        //   Concern 2 is addressed by making use of the `allocate` method
         //   (which is thoroughly tested in case 3).
         //
         //   At the end, include a constructor test specifying a static buffer
@@ -2636,12 +2645,12 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   That the basic functionality of 'bdlma::Multipool' works properly.
+        //   That the basic functionality of `bdlma::Multipool` works properly.
         //
         // Plan:
         //   Create a multipool that manages three pools.  Allocate memory from
         //   the first two pools, as well as from the "overflow" block list.
-        //   Then 'deallocate' or 'release' the allocated blocks.  Finally, let
+        //   Then `deallocate` or `release` the allocated blocks.  Finally, let
         //   the multipool go out of scope to exercise the destructor.
         //
         // Testing:
@@ -2673,7 +2682,7 @@ int main(int argc, char *argv[])
 
             mX.deallocate(p);
 
-            // Address 'p' is no longer valid.
+            // Address `p` is no longer valid.
 
             // 4.
             if (verbose)
@@ -2705,7 +2714,7 @@ int main(int argc, char *argv[])
 
             mX.release();
 
-            // Addresses 'p', 'q', 'r' are no longer valid.
+            // Addresses `p`, `q`, `r` are no longer valid.
 
             // 8.
             if (verbose)

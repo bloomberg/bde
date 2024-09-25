@@ -2840,13 +2840,14 @@ int runPlainTextPerformanceTest(void)
 struct TestDriver
 {
     // TEST CASES
+
+    /// Test `ucs-2 -> utf-8` conversion.
     template <class STRING>
     static void testCase4();
-        // Test 'ucs-2 -> utf-8' conversion.
 
+    /// Test `utf-8 -> ucs-2` conversion.
     template <class VECTOR>
     static void testCase3();
-        // Test 'utf-8 -> ucs-2' conversion.
 };
 
 template <class STRING>

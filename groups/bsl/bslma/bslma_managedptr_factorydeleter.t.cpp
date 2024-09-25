@@ -8,8 +8,8 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 using namespace BloombergLP;
 
@@ -83,13 +83,13 @@ void aSsErT(bool condition, const char *message, int line)
 
 namespace {
 
+/// This test-class serves three purposes.  It provides a base class for the
+/// test classes in this test driver, so that derived -> base conversions
+/// can be tested.  It also signals when its destructor is run by
+/// incrementing an externally managed counter, supplied when each object is
+/// created.  Finally, it exposes an internal data structure that can be
+/// used to demonstrate the `bslma::ManagedPtr` aliasing facility.
 class MyTestObject {
-    // This test-class serves three purposes.  It provides a base class for the
-    // test classes in this test driver, so that derived -> base conversions
-    // can be tested.  It also signals when its destructor is run by
-    // incrementing an externally managed counter, supplied when each object is
-    // created.  Finally, it exposes an internal data structure that can be
-    // used to demonstrate the 'bslma::ManagedPtr' aliasing facility.
 
     // DATA
     int         *d_deleteCounter_p;
@@ -97,31 +97,33 @@ class MyTestObject {
 
   public:
     // CREATORS
+
+    /// Create a `MyTestObject` using the specified `counter` to record when
+    /// this object's destructor is run.
     explicit MyTestObject(int *counter);
-        // Create a 'MyTestObject' using the specified 'counter' to record when
-        // this object's destructor is run.
 
     //! MyTestObject(const MyTestObject& original) = default;
-        // Create a 'MyTestObject' object having the same value as the
-        // specified 'original' object.
+        // Create a `MyTestObject` object having the same value as the
+        // specified `original` object.
 
+    /// Destroy this object.
     virtual ~MyTestObject();
-        // Destroy this object.
 
     // MANIPULATORS
     //! MyTestObject& operator=(const MyTestObject& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
+        // Assign to this object the value of the specified `rhs` object, and
         // return a reference providing modifiable access to this object.
 
     // ACCESSORS
-    volatile int *deleteCounter() const;
-        // Return the address of the counter used to track when this object's
-        // destructor is run.
 
+    /// Return the address of the counter used to track when this object's
+    /// destructor is run.
+    volatile int *deleteCounter() const;
+
+    /// Return the address of the value associated with the optionally
+    /// specified `index`, and the address of the first such object if no
+    /// `index` is specified.
     int *valuePtr(int index = 0) const;
-        // Return the address of the value associated with the optionally
-        // specified 'index', and the address of the first such object if no
-        // 'index' is specified.
 };
 
 MyTestObject::MyTestObject(int *counter)
@@ -162,23 +164,25 @@ class CountedStackDeleter
 
   public:
     // CREATORS
+
+    /// Create a `CountedStackDeleter` using the specified `counter` to
+    /// record when this object is invoked as a deleter.
     explicit CountedStackDeleter(int *counter) : d_deleteCounter_p(counter) {}
-        // Create a 'CountedStackDeleter' using the specified 'counter' to
-        // record when this object is invoked as a deleter.
 
     //! ~CountedStackDeleter();
         // Destroy this object.
 
     // ACCESSORS
-    volatile int *deleteCounter() const { return d_deleteCounter_p; }
-        // Return the address of the counter used to track when this object is
-        // invoked as a deleter.
 
+    /// Return the address of the counter used to track when this object is
+    /// invoked as a deleter.
+    volatile int *deleteCounter() const { return d_deleteCounter_p; }
+
+    /// Increment the count of calls to this function.  Note that there is
+    /// no attempt to destroy the object pointed to by the function argument
+    /// as it is excepted to exist on the function call-stack and by
+    /// destroyed on exiting the relevant function scope.
     void deleteObject(void *) const
-        // Increment the count of calls to this function.  Note that there is
-        // no attempt to destroy the object pointed to by the function argument
-        // as it is excepted to exist on the function call-stack and by
-        // destroyed on exiting the relevant function scope.
     {
         ++*d_deleteCounter_p;
     }
@@ -219,29 +223,29 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'bslma::ManagedPtr_FactoryDeleter'
+        // TESTING `bslma::ManagedPtr_FactoryDeleter`
         //
         // Concerns:
-        //: 1 'bslma::ManagedPtr_FactoryDeleter<T,U>::deleter(obj, factory)'
-        //:   calls the 'deleteObject' method through the passed pointer to a
-        //:   'factory' of type 'U', with the argument 'obj' which is cast to a
-        //:   pointer to type 'T'.
-        //:
-        //: 2 The 'deleter' method can be used as a deleter policy by
-        //:   'bslma::ManagedPtr'.
-        //:
-        //: 3 The 'deleter' method asserts in safe builds if passed a null
-        //:   pointer for either argument.
-        //:
+        // 1. `bslma::ManagedPtr_FactoryDeleter<T,U>::deleter(obj, factory)`
+        //    calls the `deleteObject` method through the passed pointer to a
+        //    `factory` of type `U`, with the argument `obj` which is cast to a
+        //    pointer to type `T`.
+        //
+        // 2. The `deleter` method can be used as a deleter policy by
+        //    `bslma::ManagedPtr`.
+        //
+        // 3. The `deleter` method asserts in safe builds if passed a null
+        //    pointer for either argument.
+        //
         //
         // Plan:
-        //: 1 blah ...
+        // 1. blah ...
         //
         // Testing:
         //    void deleter(obj, factory)
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'bslma::ManagedPtr_FactoryDeleter'"
+        if (verbose) printf("\nTESTING `bslma::ManagedPtr_FactoryDeleter`"
                             "\n==========================================\n");
 
         typedef bslma::ManagedPtr_FactoryDeleter<MyTestObject,
@@ -316,44 +320,44 @@ int main(int argc, char *argv[])
         // TESTING TEST MACHINERY
         //
         // Concerns:
-        //: 1 'MyTestObject' objects do not allocate any memory from the
-        //:   default allocator nor from the global allocator for any of their
-        //:   operations.
-        //:
-        //: 2 'MyTestObject' objects, created with a pointer to an integer,
-        //:   increment the referenced integer exactly once when they are
-        //:   destroyed.
-        //:
-        //: 3 'MyTestObject' objects, created by copying another 'MyTestObject'
-        //:   object, increment the integer referenced by the original object
-        //:   exactly once when destroyed.
+        // 1. `MyTestObject` objects do not allocate any memory from the
+        //    default allocator nor from the global allocator for any of their
+        //    operations.
+        //
+        // 2. `MyTestObject` objects, created with a pointer to an integer,
+        //    increment the referenced integer exactly once when they are
+        //    destroyed.
+        //
+        // 3. `MyTestObject` objects, created by copying another `MyTestObject`
+        //    object, increment the integer referenced by the original object
+        //    exactly once when destroyed.
         //
         // Plan:
-        //: 1 Install test allocator monitors to verify that neither the global
-        //:   nor default allocators allocate any memory executing this test
-        //:   case.
-        //:
-        //: 2 For each test-class type:
-        //:   1 Initialize an 'int' counter to zero
-        //:   2 Create a object of tested type, having the address of the 'int'
-        //:     counter.
-        //:   3 Confirm the test object 'deleterCounter' points to the 'int'
-        //:     counter.
-        //:   4 Confirm the 'int' counter value has not changed.
-        //:   5 Destroy the test object and confirm the 'int' counter value
-        //:     has incremented by exactly 1.
-        //:   6 Create a second object of tested type, having the address of
-        //:     the 'int' counter.
-        //:   7 Create a copy of the second test object, and confirm both test
-        //:     object's 'deleterCount' point to the same 'int' counter.
-        //:   8 Confirm the 'int' counter value has not changed.
-        //:   9 Destroy one test object, and confirm test 'int' counter is
-        //:     incremented exactly once.
-        //:  10 Destroy the other test object, and confirm test 'int' counter
-        //:     is incremented exactly once.
-        //:
-        //: 3 Verify that no unexpected memory was allocated by inspecting the
-        //:   allocator guards.
+        // 1. Install test allocator monitors to verify that neither the global
+        //    nor default allocators allocate any memory executing this test
+        //    case.
+        //
+        // 2. For each test-class type:
+        //   1. Initialize an `int` counter to zero
+        //   2. Create a object of tested type, having the address of the `int`
+        //      counter.
+        //   3. Confirm the test object `deleterCounter` points to the `int`
+        //      counter.
+        //   4. Confirm the `int` counter value has not changed.
+        //   5. Destroy the test object and confirm the `int` counter value
+        //      has incremented by exactly 1.
+        //   6. Create a second object of tested type, having the address of
+        //      the `int` counter.
+        //   7. Create a copy of the second test object, and confirm both test
+        //      object's `deleterCount` point to the same `int` counter.
+        //   8. Confirm the `int` counter value has not changed.
+        //   9. Destroy one test object, and confirm test `int` counter is
+        //      incremented exactly once.
+        //  10. Destroy the other test object, and confirm test `int` counter
+        //      is incremented exactly once.
+        //
+        // 3. Verify that no unexpected memory was allocated by inspecting the
+        //    allocator guards.
         //
         // Testing:
         //    TEST MACHINERY

@@ -31,7 +31,7 @@
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
-#include <bsl_new.h>         // placement 'new' syntax
+#include <bsl_new.h>         // placement `new` syntax
 #include <bsl_set.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
@@ -47,12 +47,12 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // The component under test manages a thread-specific attribute map and
-// provides an interface ('hasRelevantActiveRules' and
-// 'determineThresholdLevels') to determine whether a given category is active
+// provides an interface (`hasRelevantActiveRules` and
+// `determineThresholdLevels`) to determine whether a given category is active
 // and what the aggregated threshold levels should be.  We must ensure that 1)
 // basic attribute manipulation works as expected, (2) different attribute
-// contexts don't interfere with each other, and (3) 'hasRelevantActiveRules'
-// and 'determineThresholdLevels' must return the expected values.
+// contexts don't interfere with each other, and (3) `hasRelevantActiveRules`
+// and `determineThresholdLevels` must return the expected values.
 //-----------------------------------------------------------------------------
 // ball::AttributeContext:
 // [ 2] static void initialize(CategoryManager *cm, Allocator *gA = 0);
@@ -75,7 +75,7 @@ using namespace bsl;
 // [ 6] ~AttributeContextProctor();
 //-----------------------------------------------------------------------------
 // [ 1] AttributeSet
-// [ 7] CONCERN: No false positives from 'hasRelevantActiveRules'.
+// [ 7] CONCERN: No false positives from `hasRelevantActiveRules`.
 // [ 8] (OLD) USAGE EXAMPLE
 // [ 9] USAGE EXAMPLE 1
 // [10] USAGE EXAMPLE 2
@@ -168,12 +168,13 @@ bool veryVeryVeryVerbose;
 struct AttributeComparator {
 
     // ACCESSORS
+
+    /// Return `true` if the specified `lhs` is ordered before the
+    /// specified `rhs`, and `false` otherwise.  Note that in the interest
+    /// of readable results, this comparator first orders attributes by
+    /// name, then by value type, then by value.
     bool operator()(const ball::Attribute& lhs,
                     const ball::Attribute& rhs) const
-        // Return 'true' if the specified 'lhs' is ordered before the
-        // specified 'rhs', and 'false' otherwise.  Note that in the interest
-        // of readable results, this comparator first orders attributes by
-        // name, then by value type, then by value.
     {
         const int cmp = bsl::strcmp(lhs.name(), rhs.name());
         if (0 != cmp) {
@@ -221,9 +222,9 @@ struct AttributeComparator {
     }
 };
 
+/// This class provides a simple set-based implementation of the
+/// `ball::AttributeContainer` protocol used for testing.
 class AttributeSet : public ball::AttributeContainer {
-    // This class provides a simple set-based implementation of the
-    // 'ball::AttributeContainer' protocol used for testing.
 
     // DATA
     bsl::set<ball::Attribute, AttributeComparator> d_set;
@@ -235,45 +236,47 @@ class AttributeSet : public ball::AttributeContainer {
 
   public:
     // CREATORS
-    AttributeSet(bslma::Allocator *basicAllocator = 0);
-        // Create an attribute set.
 
+    /// Create an attribute set.
+    AttributeSet(bslma::Allocator *basicAllocator = 0);
+
+    /// Destroy this attribute set.
     ~AttributeSet() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this attribute set.
 
     // MANIPULATORS
-    void insert(const ball::Attribute& value);
-        // Add the specified 'value' to this attribute set.
 
+    /// Add the specified `value` to this attribute set.
+    void insert(const ball::Attribute& value);
+
+    /// Remove the specified `value` from this attribute set.  Return `true`
+    /// if the attribute was found in this set, and `false` otherwise.
     bool remove(const ball::Attribute& value);
-        // Remove the specified 'value' from this attribute set.  Return 'true'
-        // if the attribute was found in this set, and 'false' otherwise.
 
     // ACCESSORS
+
+    /// Return `true` if the attribute having the specified `value` exists
+    /// in this set, and `false` otherwise.
     bool hasValue(const ball::Attribute& value) const BSLS_KEYWORD_OVERRIDE;
-        // Return 'true' if the attribute having the specified 'value' exists
-        // in this set, and 'false' otherwise.
 
-    bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
-                        int           spacesPerLevel = 4) const
-                                                         BSLS_KEYWORD_OVERRIDE;
-        // Format this object to the specified output 'stream' at the
-        // (absolute value of) the optionally specified indentation 'level'
-        // and return a reference to 'stream'.  If 'level' is specified,
-        // optionally specify 'spacesPerLevel', the number of spaces per
-        // indentation level for this and all of its nested objects.  If
-        // 'level' is negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, format the entire output on one line,
-        // suppressing all but the initial indentation (as governed by
-        // 'level').  If 'stream' is not valid on entry, this operation has no
-        // effect.
+    // Format this object to the specified output `stream` at the (absolute
+    // value of) the optionally specified indentation `level` and return a
+    // reference to `stream`.  If `level` is specified, optionally specify
+    // `spacesPerLevel`, the number of spaces per indentation level for this
+    // and all of its nested objects.  If
+    // `level` is negative, suppress indentation of the first line.  If
+    // `spacesPerLevel` is negative, format the entire output on one line,
+    // suppressing all but the initial indentation (as governed by
+    // `level`).  If `stream` is not valid on entry, this operation has no
+    // effect.
+    bsl::ostream& print(
+                 bsl::ostream& stream,
+                 int           level          = 0,
+                 int           spacesPerLevel = 4) const BSLS_KEYWORD_OVERRIDE;
 
-    void visitAttributes(
-        const bsl::function<void(const ball::Attribute&)>& visitor) const
-                                                         BSLS_KEYWORD_OVERRIDE;
-        // Invoke the specified 'visitor' function for all attributes in this
-        // container.
+    // Invoke the specified `visitor` function for all attributes in this
+    // container.
+    void visitAttributes(const bsl::function<void(const ball::Attribute&)>&
+                             visitor) const BSLS_KEYWORD_OVERRIDE;
 };
 
 // CREATORS
@@ -364,131 +367,131 @@ extern "C" void *usageExample2(void *args)
 // publication of every logger's record buffer), respectively.  Note that
 // clients are generally most interested in the "pass-through" threshold level.
 // Also note that a higher number indicates a lower severity.
-//..
+// ```
     const ball::Category *cat1 =
                     categoryManager.addCategory("MyCategory", 128, 96, 64, 32);
-//..
+// ```
 // Next we obtain the context for the current thread.
-//..
+// ```
     ball::AttributeContext *context = ball::AttributeContext::getContext();
-//..
-// We call 'hasRelevantActiveRules' on 'cat1'.  This will be 'false' because
+// ```
+// We call `hasRelevantActiveRules` on `cat1`.  This will be `false` because
 // we haven't supplied any rules:
-//..
+// ```
     ASSERT(!context->hasRelevantActiveRules(cat1));
-//..
-// We call 'determineThresholdLevels' on 'cat1'.  This will simply return the
-// logging threshold levels we defined for 'cat1' when it was created because
+// ```
+// We call `determineThresholdLevels` on `cat1`.  This will simply return the
+// logging threshold levels we defined for `cat1` when it was created because
 // no rules have been defined that might modify those thresholds:
-//..
+// ```
     ball::ThresholdAggregate cat1ThresholdLevels(0, 0, 0, 0);
     context->determineThresholdLevels(&cat1ThresholdLevels, cat1);
     ASSERT(128 == cat1ThresholdLevels.recordLevel());
     ASSERT( 96 == cat1ThresholdLevels.passLevel());
     ASSERT( 64 == cat1ThresholdLevels.triggerLevel());
     ASSERT( 32 == cat1ThresholdLevels.triggerAllLevel());
-//..
+// ```
 // Next, we create a rule that will apply to those categories whose names match
 // the pattern "My*", where '*' is a wild-card value.  The rule defines a set
 // of thresholds levels that may override the threshold levels of those
 // categories whose name matches the rule's pattern:
-//..
+// ```
     ball::Rule myRule("My*", 120, 110, 70, 40);
     categoryManager.addRule(myRule);
-//..
-// Now, we call 'hasRelevantActiveRules' again for 'cat1', but this time the
-// method returns 'true' because the rule we just added is both "relevant" to
-// 'cat1' and "active".  'myRule' is "relevant" to 'cat1' because the name of
-// 'cat1' ("MyCategory") matches the pattern for 'myRule' ("My*") (i.e.,
-// 'myRule' applies to 'cat1').  'myRule' is also "active" because all the
+// ```
+// Now, we call `hasRelevantActiveRules` again for `cat1`, but this time the
+// method returns `true` because the rule we just added is both "relevant" to
+// `cat1` and "active".  `myRule` is "relevant" to `cat1` because the name of
+// `cat1` ("MyCategory") matches the pattern for `myRule` ("My*") (i.e.,
+// `myRule` applies to `cat1`).  `myRule` is also "active" because all the
 // predicates defined for the rule are satisfied by the current thread (in this
 // case the rule has no predicates, so the rule is always "active").  Note
 // that we will discuss the meaning of "active" and the use of predicates later
 // in this example.
-//..
+// ```
     ASSERT(context->hasRelevantActiveRules(cat1));
-//..
-// Next, we call 'determineThresholdLevels' for 'cat1'.  This method compares
+// ```
+// Next, we call `determineThresholdLevels` for `cat1`.  This method compares
 // the threshold levels defined for a category with those of any active rules
 // that apply to that category, and determines the minimum severity (i.e., the
 // maximum numerical value) for each respective threshold amongst those values.
-//..
+// ```
     ball::ThresholdAggregate thresholdLevels(0, 0, 0, 0);
     context->determineThresholdLevels(&thresholdLevels, cat1);
     ASSERT(128 == thresholdLevels.recordLevel());
     ASSERT(110 == thresholdLevels.passLevel());
     ASSERT( 70 == thresholdLevels.triggerLevel());
     ASSERT( 40 == thresholdLevels.triggerAllLevel());
-//..
+// ```
 // In this case the "pass-through", "trigger", and "trigger-all" threshold
-// levels defined by 'myRule' (110, 70, and 40) are greater (i.e., define a
-// lower severity) than those respective values defined for 'cat1' (96, 64,
-// and 32), so those values override the values defined for 'cat1'.  On the
-// other hand, the "record" threshold level for 'cat1' (128) is greater than
-// the value defined by 'myRule' (120), so the threshold level defined for
-// 'cat1' is  returned.  In effect, 'myRule' has lowered the severity at which
+// levels defined by `myRule` (110, 70, and 40) are greater (i.e., define a
+// lower severity) than those respective values defined for `cat1` (96, 64,
+// and 32), so those values override the values defined for `cat1`.  On the
+// other hand, the "record" threshold level for `cat1` (128) is greater than
+// the value defined by `myRule` (120), so the threshold level defined for
+// `cat1` is  returned.  In effect, `myRule` has lowered the severity at which
 // messages logged in the "MyCategory" category will be published immediately,
 // trigger the publication of the current logger's record buffer, and trigger
 // the publication of every logger's record buffer.
 //
-// Next we modify 'myRule', adding a predicate indicating that the rule should
+// Next we modify `myRule`, adding a predicate indicating that the rule should
 // only apply if the attribute context for the current thread contains the
-// attribute '("uuid", 3938908)':
-//..
+// attribute `("uuid", 3938908)`:
+// ```
     categoryManager.removeRule(myRule);
     ball::Predicate predicate("uuid", 3938908);
     myRule.addPredicate(predicate);
     categoryManager.addRule(myRule);
-//..
-// When we again call 'hasRelevantActiveRules' for 'cat1', it now returns
-// 'false'.  The rule, 'myRule', still applies to 'cat1' (i.e., it is still
-// "relevant" to 'cat1'), but the predicates defined by 'myRule' are no longer
+// ```
+// When we again call `hasRelevantActiveRules` for `cat1`, it now returns
+// `false`.  The rule, `myRule`, still applies to `cat1` (i.e., it is still
+// "relevant" to `cat1`), but the predicates defined by `myRule` are no longer
 // satisfied by the current thread, i.e., the current thread's attribute
-// context does not contain an attribute matching '("uuid", 3938908)'.
-//..
+// context does not contain an attribute matching `("uuid", 3938908)`.
+// ```
     ASSERT(!context->hasRelevantActiveRules(cat1));
-//..
-// Next, we call 'determineThresholdLevels' on 'cat1' and find that it
-// returns the threshold levels we defined for 'cat1' when we created it:
-//..
+// ```
+// Next, we call `determineThresholdLevels` on `cat1` and find that it
+// returns the threshold levels we defined for `cat1` when we created it:
+// ```
     context->determineThresholdLevels(&thresholdLevels, cat1);
     ASSERT(thresholdLevels == cat1ThresholdLevels);
-//..
+// ```
 // Finally, we add an attribute to the current thread's attribute context (as
 // we did in the first example, "Managing Attributes").  Note that we keep an
 // iterator referring to the added attributes so that we can remove them before
-// 'attributes' goes out of scope and is destroyed.  Also note that the class
-// 'AttributeSet' is defined in the component documentation for
-// 'ball_attributecontainer'.
-//..
+// `attributes` goes out of scope and is destroyed.  Also note that the class
+// `AttributeSet` is defined in the component documentation for
+// `ball_attributecontainer`.
+// ```
     AttributeSet attributes;
     attributes.insert(ball::Attribute("uuid", 3938908));
     ball::AttributeContext::iterator it = context->addAttributes(&attributes);
-//..
-// The following call to 'hasRelevantActiveRules' will return 'true' for 'cat1'
-// because there is at least one rule, 'myRule', that is both "relevant"
-// (i.e., its pattern matches the category name of 'cat1') and "active" (i.e.,
-// all of the predicates defined for 'myRule' are satisfied by the attributes
+// ```
+// The following call to `hasRelevantActiveRules` will return `true` for `cat1`
+// because there is at least one rule, `myRule`, that is both "relevant"
+// (i.e., its pattern matches the category name of `cat1`) and "active" (i.e.,
+// all of the predicates defined for `myRule` are satisfied by the attributes
 // held by this thread's attribute context):
-//..
+// ```
     ASSERT(context->hasRelevantActiveRules(cat1));
-//..
-// Now, when we call 'determineThresholdLevels', it will again return the
-// maximum threshold level from 'cat1' and 'myRule':
-//..
+// ```
+// Now, when we call `determineThresholdLevels`, it will again return the
+// maximum threshold level from `cat1` and `myRule`:
+// ```
     context->determineThresholdLevels(&thresholdLevels, cat1);
     ASSERT(128 == thresholdLevels.recordLevel());
     ASSERT(110 == thresholdLevels.passLevel());
     ASSERT( 70 == thresholdLevels.triggerLevel());
     ASSERT( 40 == thresholdLevels.triggerAllLevel());
-//..
-// We must be careful to remove 'attributes' from the attribute context before
-// it goes out of scope and is destroyed.  Note that the 'ball' package
-// provides a component, 'ball_scopedattributes', for adding, and automatically
+// ```
+// We must be careful to remove `attributes` from the attribute context before
+// it goes out of scope and is destroyed.  Note that the `ball` package
+// provides a component, `ball_scopedattributes`, for adding, and automatically
 // removing, attributes from the current thread's attribute context.
-//..
+// ```
     context->removeAttributes(it);
-//..
+// ```
 
     return 0;
 }
@@ -506,18 +509,18 @@ struct ThreadArgs {
 ///Example 1: Managing Attributes
 ///- - - - - - - - - - - - - - -
 // First we will define a thread function that will create and install two
-// attributes.  Note that we will use the 'AttributeSet' implementation of the
-// 'ball::AttributeContainer' protocol defined in the component documentation
-// for 'ball_attributecontainer'; the 'ball' package provides a similar class
-// in the 'ball_defaultattributecontainer' component.
-//..
+// attributes.  Note that we will use the `AttributeSet` implementation of the
+// `ball::AttributeContainer` protocol defined in the component documentation
+// for `ball_attributecontainer`; the `ball` package provides a similar class
+// in the `ball_defaultattributecontainer` component.
+// ```
     extern "C" void *workerThread1(void *)
     {
-//..
+// ```
 // Inside this thread function, we create an attribute set to hold our
-// attribute values, then we create two 'ball::Attribute' objects and add them
+// attribute values, then we create two `ball::Attribute` objects and add them
 // to that set:
-//..
+// ```
         AttributeSet attributes;
         ball::Attribute a1("uuid", 4044457);
         ball::Attribute a2("name", "Gang Chen");
@@ -525,47 +528,47 @@ struct ThreadArgs {
         attributes.insert(a2);
 
         barrier.wait();  // *** added to Example 1 from header file
-//..
+// ```
 // Next, we obtain a reference to the current thread's attribute context using
-// the 'getContext' class method (note that in practice we would use a scoped
-// guard for this purpose; see {'ball_scopedattributes'}):
-//..
+// the `getContext` class method (note that in practice we would use a scoped
+// guard for this purpose; see {`ball_scopedattributes`}):
+// ```
         ball::AttributeContext *context = ball::AttributeContext::getContext();
         ASSERT(context);
         ASSERT(context == ball::AttributeContext::lookupContext());
-//..
-// We can add our attribute container, 'attributes', to the current context
-// using the 'addAttributes' method.  We store the returned iterator so that
-// we can remove 'attributes' before it goes out of scope and is destroyed:
-//..
+// ```
+// We can add our attribute container, `attributes`, to the current context
+// using the `addAttributes` method.  We store the returned iterator so that
+// we can remove `attributes` before it goes out of scope and is destroyed:
+// ```
         ball::AttributeContext::iterator it =
                                            context->addAttributes(&attributes);
         ASSERT(context->hasAttribute(a1));
         ASSERT(context->hasAttribute(a2));
-//..
-// We then call the 'removeAttributes' method to remove the attributes from
+// ```
+// We then call the `removeAttributes` method to remove the attributes from
 // the attribute context:
-//..
+// ```
         barrier.wait();  // *** added to Example 1 from header file
 
         context->removeAttributes(it);
         ASSERT(false == context->hasAttribute(a1));
         ASSERT(false == context->hasAttribute(a2));
-//..
+// ```
 // This completes the first thread function:
-//..
+// ```
         barrier.wait();  // *** added to Example 1 from header file
 
         return 0;
     }
 
-//..
+// ```
 // The second thread function will simply verify that there is no currently
 // available attribute context.  Note that attribute contexts are created and
 // managed by individual threads using thread-specific storage, and that
 // attribute contexts created by one thread are not visible in any other
 // threads:
-//..
+// ```
 
 extern "C" void *workerThread2(void *)
 {
@@ -735,11 +738,11 @@ struct ThreadArgs {
     unsigned int  d_seed;
 };
 
+/// Return a random value based on the specified `seed`.
 int randomValue(unsigned int *seed)
-    // Return a random value based on the specified 'seed'.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    // 'rand' is thread-safe on Windows when linked with the multi-threaded CRT
+    // `rand` is thread-safe on Windows when linked with the multi-threaded CRT
     // (common run-time) library (which we must be doing anyway).
 
     return rand();
@@ -903,8 +906,8 @@ extern "C" void *case4ContextThread(void *args)
     barrier.wait();
 
     if (veryVerbose) {
-        MTCOUT << "\n\tPhase 2: Verify 'hasRelevantActiveRules' and "
-               << "'determineThresholdLevels'."
+        MTCOUT << "\n\tPhase 2: Verify `hasRelevantActiveRules` and "
+               << "`determineThresholdLevels`."
                << MTENDL;
     }
 
@@ -921,7 +924,7 @@ extern "C" void *case4ContextThread(void *args)
         }
     }
 
-    // Category C0 has no relevant rules, so 'determineThresholdLevels' should
+    // Category C0 has no relevant rules, so `determineThresholdLevels` should
     // return its own threshold levels.
 
     ball::ThresholdAggregate levels(0, 0, 0, 0);
@@ -1009,7 +1012,7 @@ extern "C" void *case4ContextThread(void *args)
         LOOP_ASSERT(i, X.hasRelevantActiveRules(CATEGORIES[i]));
     }
 
-    // Category C0 has no relevant rules, so 'determineThresholdLevels' should
+    // Category C0 has no relevant rules, so `determineThresholdLevels` should
     // return its own threshold levels.
 
     X.determineThresholdLevels(&levels, CATEGORIES[0]);
@@ -1018,7 +1021,7 @@ extern "C" void *case4ContextThread(void *args)
     ASSERT(CATEGORIES[0]->triggerLevel()    == levels.triggerLevel());
     ASSERT(CATEGORIES[0]->triggerAllLevel() == levels.triggerAllLevel());
 
-    // For other categories, the 'recordLevel' is obtained from the category
+    // For other categories, the `recordLevel` is obtained from the category
     // itself, while all other levels should come from the corresponding
     // "largest" relevant rule.
 
@@ -1348,7 +1351,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator  testAllocator("test", veryVeryVeryVerbose);
@@ -1367,13 +1370,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The *second* usage example provided in the component header file
-        //:   compiles, links, and runs as shown.
+        // 1. The *second* usage example provided in the component header file
+        //    compiles, links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE 2
@@ -1384,26 +1387,26 @@ int main(int argc, char *argv[])
 
         using namespace BALL_ATTRIBUTECONTEXT_USAGE_EXAMPLE_2;
 
-///Example 2: Calling 'hasRelevantActiveRules' and 'determineThresholdLevels'
+///Example 2: Calling `hasRelevantActiveRules` and `determineThresholdLevels`
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example we demonstrate how to call the 'hasRelevantActiveRules' and
-// 'determineThresholdLevels' methods.  These methods are used (primarily by
-// other components in the 'ball' package) to determine the effect of the
+// In this example we demonstrate how to call the `hasRelevantActiveRules` and
+// `determineThresholdLevels` methods.  These methods are used (primarily by
+// other components in the `ball` package) to determine the effect of the
 // current logging rules on the logging thresholds of a category.  Note that a
 // rule is "relevant" if the rule's pattern matches the category's name, and a
-// rule is "active" if 'ball::Rule::evaluate' returns 'true' for the
+// rule is "active" if `ball::Rule::evaluate` returns `true` for the
 // collection of attributes maintained for the current thread by the thread's
-// 'ball::AttributeContext' object.
+// `ball::AttributeContext` object.
 //
-// We start by creating a 'ball::CategoryManager' and use it to initialize the
-// static data members of 'ball::AttributeContext'.  Note that, in practice,
-// this initialization *should* *not* be performed by clients of the 'ball'
-// package: 'ball::AttributeContext::initialize' is called *internally* as part
-// of the initialization of the 'ball::LoggerManager' singleton.
-//..
+// We start by creating a `ball::CategoryManager` and use it to initialize the
+// static data members of `ball::AttributeContext`.  Note that, in practice,
+// this initialization *should* *not* be performed by clients of the `ball`
+// package: `ball::AttributeContext::initialize` is called *internally* as part
+// of the initialization of the `ball::LoggerManager` singleton.
+// ```
     ball::CategoryManager categoryManager;
     ball::AttributeContext::initialize(&categoryManager);
-//..
+// ```
 
         ThreadArgs args = { &categoryManager };
 
@@ -1418,13 +1421,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The *first* usage example provided in the component header file
-        //:   compiles, links, and runs as shown.
+        // 1. The *first* usage example provided in the component header file
+        //    compiles, links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE 1
@@ -1451,11 +1454,11 @@ int main(int argc, char *argv[])
         //   remains in the test driver for completeness.
         //
         // Concerns:
-        //: 1 That the original usage example continues to compile and behave
-        //:   as expected.
+        // 1. That the original usage example continues to compile and behave
+        //    as expected.
         //
         // Plan:
-        //: 1 Retain the original usage example in perpetuity.  (C-1)
+        // 1. Retain the original usage example in perpetuity.  (C-1)
         //
         // Testing:
         //   (OLD) USAGE EXAMPLE
@@ -1478,64 +1481,64 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // NO FALSE POSITIVES FROM 'hasRelevantActiveRules'
+        // NO FALSE POSITIVES FROM `hasRelevantActiveRules`
         //
         // Concerns:
-        //: 1 That 'hasRelevantActiveRules' does not produce any false
-        //:   positives.  The basis for this concern is that the initial scheme
-        //:   for initializing the rule set sequence number in the category
-        //:   manager does open up 'hasRelevantActiveRules' for producing false
-        //:   positives now that the logger manager singleton, and necessarily
-        //:   the global state of 'AttributeContext', can be reinitialized.
-        //:   This is because the rule evaluation cache uses that sequence
-        //:   number to determine if the cache needs to be refreshed.
-        //:
-        //: 2 That 'determineThresholdLevels' returns the correct result after
-        //:   the global state of 'AttributeContext' has been reinitialized.
-        //:   The basis for this concern is that the logic used by
-        //:   'determineThresholdLevels' to determine if the cache needs to be
-        //:   refreshed is the same as that used by 'hasRelevantActiveRules'.
+        // 1. That `hasRelevantActiveRules` does not produce any false
+        //    positives.  The basis for this concern is that the initial scheme
+        //    for initializing the rule set sequence number in the category
+        //    manager does open up `hasRelevantActiveRules` for producing false
+        //    positives now that the logger manager singleton, and necessarily
+        //    the global state of `AttributeContext`, can be reinitialized.
+        //    This is because the rule evaluation cache uses that sequence
+        //    number to determine if the cache needs to be refreshed.
+        //
+        // 2. That `determineThresholdLevels` returns the correct result after
+        //    the global state of `AttributeContext` has been reinitialized.
+        //    The basis for this concern is that the logic used by
+        //    `determineThresholdLevels` to determine if the cache needs to be
+        //    refreshed is the same as that used by `hasRelevantActiveRules`.
         //
         // Plan:
-        //: 1 Using ad hoc testing: (C-1..2)
-        //:
-        //:   1 Create a category manager having one category and one rule that
-        //:     is relevant to that category.  The rule has one predicate.
-        //:
-        //:   2 Initialize the 'AttributeContext' global state with the
-        //:     category manager created in P-1.1.
-        //:
-        //:   3 Add an attribute to the main thread's attribute context that
-        //:     matches the predicate from P-1.1.  Leave the context unchanged
-        //:     for the remainder of the test.
-        //:
-        //:   4 Verify that both 'hasRelevantActiveRules' and
-        //:     'determineThresholdLevels' produce the expected result, i.e.,
-        //:     the rule *is* relevant and it *should* influence the category's
-        //:     threshold levels.
-        //:
-        //:   5 Reset the 'AttributeContext' global state (simulating what
-        //:     would happen when the logger manager singleton is shut down).
-        //:
-        //:   6 Repeat P-1.1, but this time the predicate added to the rule
-        //:     should not match the attribute that is (still) in the main
-        //:     thread's attribute context.
-        //:
-        //:   7 Again verify that both 'hasRelevantActiveRules' and
-        //:     'determineThresholdLevels' produce the expected result, i.e.,
-        //:     the rule is *not* relevant and it should *not* influence the
-        //:     category's threshold levels.  (C-1..2)
+        // 1. Using ad hoc testing: (C-1..2)
+        //
+        //   1. Create a category manager having one category and one rule that
+        //      is relevant to that category.  The rule has one predicate.
+        //
+        //   2. Initialize the `AttributeContext` global state with the
+        //      category manager created in P-1.1.
+        //
+        //   3. Add an attribute to the main thread's attribute context that
+        //      matches the predicate from P-1.1.  Leave the context unchanged
+        //      for the remainder of the test.
+        //
+        //   4. Verify that both `hasRelevantActiveRules` and
+        //      `determineThresholdLevels` produce the expected result, i.e.,
+        //      the rule *is* relevant and it *should* influence the category's
+        //      threshold levels.
+        //
+        //   5. Reset the `AttributeContext` global state (simulating what
+        //      would happen when the logger manager singleton is shut down).
+        //
+        //   6. Repeat P-1.1, but this time the predicate added to the rule
+        //      should not match the attribute that is (still) in the main
+        //      thread's attribute context.
+        //
+        //   7. Again verify that both `hasRelevantActiveRules` and
+        //      `determineThresholdLevels` produce the expected result, i.e.,
+        //      the rule is *not* relevant and it should *not* influence the
+        //      category's threshold levels.  (C-1..2)
         //
         // Note that assertions that would fail if the old scheme for
         // initializing the rule set sequence number in the category manager
         // was still in place are marked by "!*!*!*" comments.
         //
         // Testing:
-        //   CONCERN: No false positives from 'hasRelevantActiveRules'.
+        //   CONCERN: No false positives from `hasRelevantActiveRules`.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "NO FALSE POSITIVES FROM 'hasRelevantActiveRules'"
+                          << "NO FALSE POSITIVES FROM `hasRelevantActiveRules`"
                           << endl
                           << "================================================"
                           << endl;
@@ -1545,12 +1548,12 @@ int main(int argc, char *argv[])
             ball::ThresholdAggregate ruleLevels(130, 110, 70, 40);
             ball::ThresholdAggregate levels(      0,   0,  0,  0);
 
-            // [1] Initialize 'AttributeContext' with first category manager.
+            // [1] Initialize `AttributeContext` with first category manager.
             // Load category manager with:
             //   o category "ABC-Category", and
             //   o matching rule with predicate ("uuid", 2468).
             // Load context with attribute ("uuid", 2468).
-            // 'hasRelevantActiveRules' should return 'true'.
+            // `hasRelevantActiveRules` should return `true`.
 
             bsls::ObjectBuffer<CatMngr> buffer1;
             new (buffer1.address()) CatMngr(&globalAllocator);
@@ -1589,12 +1592,12 @@ int main(int argc, char *argv[])
 
             buffer1.object().~CatMngr();
 
-            // [2] Reinitialize 'AttributeContext' with new category manager.
+            // [2] Reinitialize `AttributeContext` with new category manager.
             // Load new category manager with:
             //   o category "ABC-Category" (same name), and
             //   o matching rule with predicate ("uuid", 1357).
             // Context attribute ("uuid", 2468) remains in place.
-            // 'hasRelevantActiveRules' should return 'false'.
+            // `hasRelevantActiveRules` should return `false`.
 
             bsls::ObjectBuffer<CatMngr> buffer2;
             new (buffer2.address()) CatMngr(&globalAllocator);
@@ -1621,12 +1624,12 @@ int main(int argc, char *argv[])
 
             buffer2.object().~CatMngr();
 
-            // [3] Reinitialize 'AttributeContext' again.
+            // [3] Reinitialize `AttributeContext` again.
             // Load new category manager with:
             //   o category "XYZ-Category" (different name), and
             //   o matching rule with predicate ("uuid", 1357).
             // Context attribute ("uuid", 2468) still remains in place.
-            // 'hasRelevantActiveRules' should return 'false'.
+            // `hasRelevantActiveRules` should return `false`.
 
             bsls::ObjectBuffer<CatMngr> buffer3;
             new (buffer3.address()) CatMngr(&globalAllocator);
@@ -1663,20 +1666,20 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'AttributeContextProctor'
+        // TESTING `AttributeContextProctor`
         //
         // Concerns:
-        //: 1 That the 'AttributeContextProctor' destructor destroys the
-        //:   current thread's context (if any) and releases all its memory.
+        // 1. That the `AttributeContextProctor` destructor destroys the
+        //    current thread's context (if any) and releases all its memory.
         //
         // Plan:
-        //: 1 First test that destroying an 'AttributeContextProctor' when
-        //:   there is no context has no effect.  Then test destroying proctors
-        //:   where (1) the context defaults to using the global allocator, and
-        //:   (2) the context uses the allocator established by a call to the
-        //:   'initialize' class method.  Verify in each case that the
-        //:   context's memory has been released following the destruction of
-        //:   the proctor.  (C-1)
+        // 1. First test that destroying an `AttributeContextProctor` when
+        //    there is no context has no effect.  Then test destroying proctors
+        //    where (1) the context defaults to using the global allocator, and
+        //    (2) the context uses the allocator established by a call to the
+        //    `initialize` class method.  Verify in each case that the
+        //    context's memory has been released following the destruction of
+        //    the proctor.  (C-1)
         //
         // Testing:
         //   AttributeContextProctor();
@@ -1684,7 +1687,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'AttributeContextProctor'\n"
+                          << "TESTING `AttributeContextProctor`\n"
                           << "=================================\n";
 
         bslma::TestAllocatorMonitor dam(&defaultAllocator);
@@ -1775,22 +1778,22 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'visitAttributes'
+        // TESTING `visitAttributes`
         //
         // Concerns:
-        //:  1 Attribute context can iterate via attribute container lists
-        //:    added to the context and invoke specified visitor function for
-        //:    all attributes.
+        //  1. Attribute context can iterate via attribute container lists
+        //     added to the context and invoke specified visitor function for
+        //     all attributes.
         //
         // Plan:
-        //:  1 Populate attribute context with a set of attribute containers
-        //:    and verify that the visit function is called for all of them.
+        //  1. Populate attribute context with a set of attribute containers
+        //     and verify that the visit function is called for all of them.
         //
         // Testing:
         //   static void visitAttributes(const bsl::function& visitor);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'visitAttributes'"
+        if (verbose) cout << "\nTESTING `visitAttributes`"
                              "\n-------------------------" << endl;
 
         // Make sure that the context will be freed after the test.
@@ -1809,10 +1812,10 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'hasRelevantActiveRules' and 'determineThresholdLevels'
+        // TESTING `hasRelevantActiveRules` and `determineThresholdLevels`
         //
         // Concerns:
-        //   'hasRelevantActiveRules' and 'determineThresholdLevels' must
+        //   `hasRelevantActiveRules` and `determineThresholdLevels` must
         //   return the correct values even in a multi-threaded environment.
         //
         // Plan:
@@ -1821,7 +1824,7 @@ int main(int argc, char *argv[])
         //   ..., C31, C32.  Set up the category names and rule patterns such
         //   that Ri is a rule relevant to Cj if i < j.  Also add to Ri all
         //   predicates {"uuid" = j | 0 <= j < 32 - i}.  The relation between
-        //   these categories and rules can be illustrated as follows (an 'X'
+        //   these categories and rules can be illustrated as follows (an `X`
         //   denotes the rule is relevant to the category):
         //
         //       R0      R1      R2    ...   R29      R30      R31
@@ -1848,7 +1851,7 @@ int main(int argc, char *argv[])
         //   the rule set one by one, and then removes all the rules.  In the
         //   meantime, another type of thread, called "context" threads, adds
         //   all the categories to the category manager and verifies that
-        //   'hasRelevantActiveRules' and 'determineThresholdLevels' return the
+        //   `hasRelevantActiveRules` and `determineThresholdLevels` return the
         //   expected values.  All threads are synchronized by a barrier that
         //   divides the running stage into 4 phases.
         //
@@ -1860,7 +1863,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout
             << endl
-            << "Test 'hasRelevantActiveRules' and 'determineThresholdLevels'\n"
+            << "Test `hasRelevantActiveRules` and `determineThresholdLevels`\n"
             << "============================================================"
             << endl;
 
@@ -1992,12 +1995,12 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Create a number of independent but synchronized threads, each of
-        //   which will create its own 'ball::AttributeContext' object.  Verify
-        //   that within each thread, only one 'ball::AttributeContext' is
-        //   created (by the first call to 'getContext') and that
-        //   'lookupContext' (and subsequent calls to 'getContext') correctly
+        //   which will create its own `ball::AttributeContext` object.  Verify
+        //   that within each thread, only one `ball::AttributeContext` is
+        //   created (by the first call to `getContext`) and that
+        //   `lookupContext` (and subsequent calls to `getContext`) correctly
         //   returns the context even in different scopes.  Also verify that
-        //   the 'ball::AttributeContext' objects created by different threads
+        //   the `ball::AttributeContext` objects created by different threads
         //   are distinct and that they draw dynamic memory from the expected
         //   allocator.
         //

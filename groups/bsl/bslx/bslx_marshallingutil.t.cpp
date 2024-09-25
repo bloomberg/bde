@@ -24,7 +24,7 @@ using namespace bslx;
 //                              --------
 // We are testing a suite of functions, each of which is independent (except
 // for those that are inline-forwarded).  We should make sure that we fully
-// understand the nature of a 'double' on this platform -- i.e., that it
+// understand the nature of a `double` on this platform -- i.e., that it
 // conforms to the IEEE standard.  After that, it is a simple matter of
 // verifying that each function produces the expected encoding.  Once encoded,
 // we should be able to decode it back to the identical value.  Therefore,
@@ -34,8 +34,8 @@ using namespace bslx;
 // to compare byte strings) will be needed.  A table-driven approach can then
 // be used throughout.
 //
-// Note also that since most 64-bit platforms treat 'short' as 16 bits and
-// 'int' as 32 bits, we either need to assert this as fact or make sure the
+// Note also that since most 64-bit platforms treat `short` as 16 bits and
+// `int` as 32 bits, we either need to assert this as fact or make sure the
 // test case verifies sign- and zero-extensions for get functions appropriately
 // (we have opted to do the latter).
 // ----------------------------------------------------------------------------
@@ -169,9 +169,9 @@ static void aSsErT(int c, const char *s, int i)
 //                      SUPPLEMENTARY TEST FUNCTIONALITY
 // ----------------------------------------------------------------------------
 
+/// Print a sequence of bytes, the specified `c` containing the specified
+/// `n` bytes, as space-separated 8-bit words in hexadecimal.
 static ostream& pBytes(const char *c, int n)
-    // Print a sequence of bytes, the specified 'c' containing the specified
-    // 'n' bytes, as space-separated 8-bit words in hexadecimal.
 {
     bsl::ios_base::fmtflags flags = cout.flags(std::ios::hex);
     for (int i = 0; i < n; ++i) {
@@ -186,22 +186,22 @@ static ostream& pBytes(const char *c, int n)
     return cout;
 }
 
+/// Swap the values of the specified objects `a` and `b`.  Note that `TYPE`
+/// must have value-semantic operators COPY CTOR and OP=.
 template <class TYPE>
 inline
 void swap(TYPE *a, TYPE *b)
-    // Swap the values of the specified objects 'a' and 'b'.  Note that 'TYPE'
-    // must have value-semantic operators COPY CTOR and OP=.
 {
     TYPE t = *a;
     *a = *b;
     *b = t;
 }
 
+/// Reverse the locations of the objects in the specified `array` containing
+/// the specified `numElements`.
 template <class TYPE>
 inline
 void reverse(TYPE *array, int numElements)
-    // Reverse the locations of the objects in the specified 'array' containing
-    // the specified 'numElements'.
 {
     TYPE *top = array + numElements - 1;
     int   middle = numElements/2;  // if odd, middle is reversed already
@@ -221,11 +221,11 @@ void reverse(TYPE *array, int numElements)
 //  LSB                                                              MSB
 // ----------------------------------------------------------------------------
 
+/// Format the bits in the specified `number` to the specified `stream` from
+/// least- to most-significant (space-separated) byte, printing
+/// most-significant bits in each byte first.  Return a reference to the
+/// modifiable `stream`.
 static ostream& printDoubleBits(ostream& stream, double number)
-    // Format the bits in the specified 'number' to the specified 'stream' from
-    // least- to most-significant (space-separated) byte, printing
-    // most-significant bits in each byte first.  Return a reference to the
-    // modifiable 'stream'.
 {
     const int SIZE = static_cast<int>(sizeof number);
     ASSERT(8 <= SIZE);
@@ -257,11 +257,11 @@ static ostream& printDoubleBits(ostream& stream, double number)
     return stream;
 }
 
+/// Format the bits in the specified `number` to the specified `stream` from
+/// least- to most-significant (space-separated) byte, printing
+/// most-significant bits in each byte first; followed by the a colon (:),
+/// the number, and a newline.
 static void printDouble(ostream& stream, double number)
-    // Format the bits in the specified 'number' to the specified 'stream' from
-    // least- to most-significant (space-separated) byte, printing
-    // most-significant bits in each byte first; followed by the a colon (:),
-    // the number, and a newline.
 {
     printDoubleBits(stream, number) << ": " << number << endl;
 }
@@ -277,11 +277,11 @@ static void printDouble(ostream& stream, double number)
 //    LSB                              MSB
 // ----------------------------------------------------------------------------
 
+/// Format the bits in the specified `number` to the specified `stream` from
+/// least- to most-significant (space-separated) byte, printing
+/// most-significant bits in each byte first.  Return a reference to the
+/// modifiable `stream`.
 static ostream& printFloatBits(ostream& stream, float number)
-    // Format the bits in the specified 'number' to the specified 'stream' from
-    // least- to most-significant (space-separated) byte, printing
-    // most-significant bits in each byte first.  Return a reference to the
-    // modifiable 'stream'.
 {
     const int SIZE = static_cast<int>(sizeof number);
     ASSERT(4 <= SIZE);
@@ -313,11 +313,11 @@ static ostream& printFloatBits(ostream& stream, float number)
     return stream;
 }
 
+/// Format the bits in the specified `number` to the specified `stream` from
+/// least- to most-significant (space-separated) byte, printing
+/// most-significant bits in each byte first; followed by the a colon (:),
+/// the number, and a newline.
 static void printFloat(ostream& stream, float number)
-    // Format the bits in the specified 'number' to the specified 'stream' from
-    // least- to most-significant (space-separated) byte, printing
-    // most-significant bits in each byte first; followed by the a colon (:),
-    // the number, and a newline.
 {
     printFloatBits(stream, number) << ": " << number << endl;
 }
@@ -341,13 +341,13 @@ int main(int argc, char *argv[]) {
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 the usage example provided in the component header file compiles,
-        //:   links, and runs as shown
+        // 1. the usage example provided in the component header file compiles,
+        //    links, and runs as shown
         //
         // Plan:
-        //: 1 incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'
-        //:   (C-1)
+        // 1. incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -363,30 +363,30 @@ int main(int argc, char *argv[]) {
 //
 ///Example 1: Round-Trip Marshalling
 ///- - - - - - - - - - - - - - - - -
-// The 'bslx::MarshallingUtil' component can be used stand-alone to marshal a
+// The `bslx::MarshallingUtil` component can be used stand-alone to marshal a
 // platform-neutral representation of fundamental data and arrays of
 // fundamental data to and from a buffer.  In this example, the round-trip
-// marshalling of an 'int' and an array of 'int' values will be demonstrated.
+// marshalling of an `int` and an array of `int` values will be demonstrated.
 // First, declare the buffer and the data to be marshalled:
-//..
+// ```
     char buffer[32];
     int  value = 17;
     int  values[] = { 1, 2, 3 };
-//..
-// Then, marshal all data into the 'buffer':
-//..
+// ```
+// Then, marshal all data into the `buffer`:
+// ```
     bslx::MarshallingUtil::putInt32(buffer + 0, value);
     bslx::MarshallingUtil::putArrayInt32(buffer + 4, values, 3);
-//..
+// ```
 // Next, declare variables to hold the values to be extracted from the
-// 'buffer':
-//..
+// `buffer`:
+// ```
     int newValue = 0;
     int newValues[] = { 0, 0, 0 };
-//..
-// Finally, marshal the data from the 'buffer' to these variables and confirm
+// ```
+// Finally, marshal the data from the `buffer` to these variables and confirm
 // the round-trip marshalling was successful:
-//..
+// ```
     bslx::MarshallingUtil::getInt32(&newValue, buffer + 0);
     bslx::MarshallingUtil::getArrayInt32(newValues, buffer + 4, 3);
 
@@ -394,7 +394,7 @@ int main(int argc, char *argv[]) {
     ASSERT(newValues[0] == values[0]);
     ASSERT(newValues[1] == values[1]);
     ASSERT(newValues[2] == values[2]);
-//..
+// ```
 
       } break;
       case 24: {
@@ -403,11 +403,11 @@ int main(int argc, char *argv[]) {
         //   Provide mechanism to determine performance characteristics.
         //
         // Concerns:
-        //: 1 Operations have reasonable run-time characteristics.
+        // 1. Operations have reasonable run-time characteristics.
         //
         // Plan:
-        //: 1 Put/get either an individual double or a double array a specified
-        //:   number of times.  (C-1)
+        // 1. Put/get either an individual double or a double array a specified
+        //    number of times.  (C-1)
         //
         // Testing:
         //   STRESS TEST - Used to determine performance characteristics.
@@ -498,22 +498,22 @@ int main(int argc, char *argv[]) {
         //   Verify put/get operations for 32-bit float arrays.
         //
         // Concerns:
-        //: 1 'put' produces the correct format.
-        //:
-        //: 2 'get' inverts the 'put' operation.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. `put` produces the correct format.
+        //
+        // 2. `get` inverts the `put` operation.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Assume individual elements can be written/read (previously
-        //:   tested).
-        //:
-        //: 2 Tests arrays of length 0, 1, 2, ...  (C-1)
-        //:
-        //: 3 'get' from the result values and verify this data matches the
-        //:   original data used in the 'put'.  (C-2)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Assume individual elements can be written/read (previously
+        //    tested).
+        //
+        // 2. Tests arrays of length 0, 1, 2, ...  (C-1)
+        //
+        // 3. `get` from the result values and verify this data matches the
+        //    original data used in the `put`.  (C-2)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   putArrayFloat32(char *buf, const float *ary, int count);
@@ -709,15 +709,15 @@ int main(int argc, char *argv[]) {
 
             bsls::AssertTestHandlerGuard guard;
 
-            // invalid 'buffer'
+            // invalid `buffer`
             ASSERT_FAIL(MarshallingUtil::putArrayFloat32(ZCHARPTR, VALUES, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayFloat32(VALUES, ZCHARPTR, 3));
 
-            // invalid 'values'
+            // invalid `values`
             ASSERT_FAIL(MarshallingUtil::putArrayFloat32(BUFFER, ZTPTR, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayFloat32(ZTPTR, BUFFER, 3));
 
-            // valid and invalid 'numValues'
+            // valid and invalid `numValues`
             ASSERT_FAIL(MarshallingUtil::putArrayFloat32(BUFFER, VALUES, -1));
             ASSERT_PASS(MarshallingUtil::putArrayFloat32(BUFFER, VALUES, 0));
             ASSERT_FAIL(MarshallingUtil::getArrayFloat32(VALUES, BUFFER, -1));
@@ -731,22 +731,22 @@ int main(int argc, char *argv[]) {
         //   Verify put/get operations for 64-bit float arrays.
         //
         // Concerns:
-        //: 1 'put' produces the correct format.
-        //:
-        //: 2 'get' inverts the 'put' operation.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. `put` produces the correct format.
+        //
+        // 2. `get` inverts the `put` operation.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Assume individual elements can be written/read (previously
-        //:   tested).
-        //:
-        //: 2 Tests arrays of length 0, 1, 2, ...  (C-1)
-        //:
-        //: 3 'get' from the result values and verify this data matches the
-        //:   original data used in the 'put'.  (C-2)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Assume individual elements can be written/read (previously
+        //    tested).
+        //
+        // 2. Tests arrays of length 0, 1, 2, ...  (C-1)
+        //
+        // 3. `get` from the result values and verify this data matches the
+        //    original data used in the `put`.  (C-2)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   putArrayFloat64(char *buf, const double *ary, int count);
@@ -957,15 +957,15 @@ int main(int argc, char *argv[]) {
 
             bsls::AssertTestHandlerGuard guard;
 
-            // invalid 'buffer'
+            // invalid `buffer`
             ASSERT_FAIL(MarshallingUtil::putArrayFloat64(ZCHARPTR, VALUES, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayFloat64(VALUES, ZCHARPTR, 3));
 
-            // invalid 'values'
+            // invalid `values`
             ASSERT_FAIL(MarshallingUtil::putArrayFloat64(BUFFER, ZTPTR, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayFloat64(ZTPTR, BUFFER, 3));
 
-            // valid and invalid 'numValues'
+            // valid and invalid `numValues`
             ASSERT_FAIL(MarshallingUtil::putArrayFloat64(BUFFER, VALUES, -1));
             ASSERT_PASS(MarshallingUtil::putArrayFloat64(BUFFER, VALUES, 0));
             ASSERT_FAIL(MarshallingUtil::getArrayFloat64(VALUES, BUFFER, -1));
@@ -979,22 +979,22 @@ int main(int argc, char *argv[]) {
         //   Verify put/get operations for 8-bit integer arrays.
         //
         // Concerns:
-        //: 1 'put' produces the correct format.
-        //:
-        //: 2 'get' inverts the 'put' operation.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. `put` produces the correct format.
+        //
+        // 2. `get` inverts the `put` operation.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Assume individual elements can be written/read (previously
-        //:   tested).
-        //:
-        //: 2 Tests arrays of length 0, 1, 2, ...  (C-1)
-        //:
-        //: 3 'get' from the result values and verify this data matches the
-        //:   original data used in the 'put'.  (C-2)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Assume individual elements can be written/read (previously
+        //    tested).
+        //
+        // 2. Tests arrays of length 0, 1, 2, ...  (C-1)
+        //
+        // 3. `get` from the result values and verify this data matches the
+        //    original data used in the `put`.  (C-2)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   putArrayInt8(char *buf, const char *ary, int count);
@@ -1200,7 +1200,7 @@ int main(int argc, char *argv[]) {
 
             bsls::AssertTestHandlerGuard guard;
 
-            // invalid 'buffer'
+            // invalid `buffer`
             ASSERT_SAFE_FAIL(MarshallingUtil::putArrayInt8(ZCHARPTR, TV, 3));
             ASSERT_SAFE_FAIL(MarshallingUtil::getArrayInt8(TV, ZCHARPTR, 3));
             ASSERT_SAFE_FAIL(MarshallingUtil::putArrayInt8(ZCHARPTR, SV, 3));
@@ -1208,7 +1208,7 @@ int main(int argc, char *argv[]) {
             ASSERT_SAFE_FAIL(MarshallingUtil::putArrayInt8(ZCHARPTR, UV, 3));
             ASSERT_SAFE_FAIL(MarshallingUtil::getArrayInt8(UV, ZCHARPTR, 3));
 
-            // invalid 'values'
+            // invalid `values`
             ASSERT_SAFE_FAIL(MarshallingUtil::putArrayInt8(BUFFER, ZTPTR, 3));
             ASSERT_SAFE_FAIL(MarshallingUtil::getArrayInt8(ZTPTR, BUFFER, 3));
             ASSERT_SAFE_FAIL(MarshallingUtil::putArrayInt8(BUFFER, ZSPTR, 3));
@@ -1216,7 +1216,7 @@ int main(int argc, char *argv[]) {
             ASSERT_SAFE_FAIL(MarshallingUtil::putArrayInt8(BUFFER, ZUPTR, 3));
             ASSERT_SAFE_FAIL(MarshallingUtil::getArrayInt8(ZUPTR, BUFFER, 3));
 
-            // valid and invalid 'numValues'
+            // valid and invalid `numValues`
             ASSERT_SAFE_FAIL(MarshallingUtil::putArrayInt8(BUFFER, TV, -1));
             ASSERT_SAFE_PASS(MarshallingUtil::putArrayInt8(BUFFER, TV, 0));
             ASSERT_SAFE_FAIL(MarshallingUtil::getArrayInt8(TV, BUFFER, -1));
@@ -1238,22 +1238,22 @@ int main(int argc, char *argv[]) {
         //   Verify put/get operations for 16-bit integer arrays.
         //
         // Concerns:
-        //: 1 'put' produces the correct format.
-        //:
-        //: 2 'get' inverts the 'put' operation.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. `put` produces the correct format.
+        //
+        // 2. `get` inverts the `put` operation.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Assume individual elements can be written/read (previously
-        //:   tested).
-        //:
-        //: 2 Tests arrays of length 0, 1, 2, ...  (C-1)
-        //:
-        //: 3 'get' from the result values and verify this data matches the
-        //:   original data used in the 'put'.  (C-2)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Assume individual elements can be written/read (previously
+        //    tested).
+        //
+        // 2. Tests arrays of length 0, 1, 2, ...  (C-1)
+        //
+        // 3. `get` from the result values and verify this data matches the
+        //    original data used in the `put`.  (C-2)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   putArrayInt16(char *buf, const short *ary, int count);
@@ -1428,19 +1428,19 @@ int main(int argc, char *argv[]) {
 
             bsls::AssertTestHandlerGuard guard;
 
-            // invalid 'buffer'
+            // invalid `buffer`
             ASSERT_FAIL(MarshallingUtil::putArrayInt16(ZCHARPTR, TV, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayInt16(TV, ZCHARPTR, 3));
             ASSERT_FAIL(MarshallingUtil::putArrayInt16(ZCHARPTR, UV, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayUint16(UV, ZCHARPTR, 3));
 
-            // invalid 'values'
+            // invalid `values`
             ASSERT_FAIL(MarshallingUtil::putArrayInt16(BUFFER, ZTPTR, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayInt16(ZTPTR, BUFFER, 3));
             ASSERT_FAIL(MarshallingUtil::putArrayInt16(BUFFER, ZUPTR, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayUint16(ZUPTR, BUFFER, 3));
 
-            // valid and invalid 'numValues'
+            // valid and invalid `numValues`
             ASSERT_FAIL(MarshallingUtil::putArrayInt16(BUFFER, TV, -1));
             ASSERT_PASS(MarshallingUtil::putArrayInt16(BUFFER, TV, 0));
             ASSERT_FAIL(MarshallingUtil::getArrayInt16(TV, BUFFER, -1));
@@ -1458,22 +1458,22 @@ int main(int argc, char *argv[]) {
         //   Verify put/get operations for 24-bit integer arrays.
         //
         // Concerns:
-        //: 1 'put' produces the correct format.
-        //:
-        //: 2 'get' inverts the 'put' operation.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. `put` produces the correct format.
+        //
+        // 2. `get` inverts the `put` operation.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Assume individual elements can be written/read (previously
-        //:   tested).
-        //:
-        //: 2 Tests arrays of length 0, 1, 2, ...  (C-1)
-        //:
-        //: 3 'get' from the result values and verify this data matches the
-        //:   original data used in the 'put'.  (C-2)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Assume individual elements can be written/read (previously
+        //    tested).
+        //
+        // 2. Tests arrays of length 0, 1, 2, ...  (C-1)
+        //
+        // 3. `get` from the result values and verify this data matches the
+        //    original data used in the `put`.  (C-2)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   putArrayInt24(char *buf, const int *ary, int count);
@@ -1661,19 +1661,19 @@ int main(int argc, char *argv[]) {
 
             bsls::AssertTestHandlerGuard guard;
 
-            // invalid 'buffer'
+            // invalid `buffer`
             ASSERT_FAIL(MarshallingUtil::putArrayInt24(ZCHARPTR, TV, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayInt24(TV, ZCHARPTR, 3));
             ASSERT_FAIL(MarshallingUtil::putArrayInt24(ZCHARPTR, UV, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayUint24(UV, ZCHARPTR, 3));
 
-            // invalid 'values'
+            // invalid `values`
             ASSERT_FAIL(MarshallingUtil::putArrayInt24(BUFFER, ZTPTR, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayInt24(ZTPTR, BUFFER, 3));
             ASSERT_FAIL(MarshallingUtil::putArrayInt24(BUFFER, ZUPTR, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayUint24(ZUPTR, BUFFER, 3));
 
-            // valid and invalid 'numValues'
+            // valid and invalid `numValues`
             ASSERT_FAIL(MarshallingUtil::putArrayInt24(BUFFER, TV, -1));
             ASSERT_PASS(MarshallingUtil::putArrayInt24(BUFFER, TV, 0));
             ASSERT_FAIL(MarshallingUtil::getArrayInt24(TV, BUFFER, -1));
@@ -1691,22 +1691,22 @@ int main(int argc, char *argv[]) {
         //   Verify put/get operations for 32-bit integer arrays.
         //
         // Concerns:
-        //: 1 'put' produces the correct format.
-        //:
-        //: 2 'get' inverts the 'put' operation.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. `put` produces the correct format.
+        //
+        // 2. `get` inverts the `put` operation.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Assume individual elements can be written/read (previously
-        //:   tested).
-        //:
-        //: 2 Tests arrays of length 0, 1, 2, ...  (C-1)
-        //:
-        //: 3 'get' from the result values and verify this data matches the
-        //:   original data used in the 'put'.  (C-2)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Assume individual elements can be written/read (previously
+        //    tested).
+        //
+        // 2. Tests arrays of length 0, 1, 2, ...  (C-1)
+        //
+        // 3. `get` from the result values and verify this data matches the
+        //    original data used in the `put`.  (C-2)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   putArrayInt32(char *buf, const int *ary, int count);
@@ -1890,19 +1890,19 @@ int main(int argc, char *argv[]) {
 
             bsls::AssertTestHandlerGuard guard;
 
-            // invalid 'buffer'
+            // invalid `buffer`
             ASSERT_FAIL(MarshallingUtil::putArrayInt32(ZCHARPTR, TV, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayInt32(TV, ZCHARPTR, 3));
             ASSERT_FAIL(MarshallingUtil::putArrayInt32(ZCHARPTR, UV, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayUint32(UV, ZCHARPTR, 3));
 
-            // invalid 'values'
+            // invalid `values`
             ASSERT_FAIL(MarshallingUtil::putArrayInt32(BUFFER, ZTPTR, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayInt32(ZTPTR, BUFFER, 3));
             ASSERT_FAIL(MarshallingUtil::putArrayInt32(BUFFER, ZUPTR, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayUint32(ZUPTR, BUFFER, 3));
 
-            // valid and invalid 'numValues'
+            // valid and invalid `numValues`
             ASSERT_FAIL(MarshallingUtil::putArrayInt32(BUFFER, TV, -1));
             ASSERT_PASS(MarshallingUtil::putArrayInt32(BUFFER, TV, 0));
             ASSERT_FAIL(MarshallingUtil::getArrayInt32(TV, BUFFER, -1));
@@ -1920,22 +1920,22 @@ int main(int argc, char *argv[]) {
         //   Verify put/get operations for 40-bit integer arrays.
         //
         // Concerns:
-        //: 1 'put' produces the correct format.
-        //:
-        //: 2 'get' inverts the 'put' operation.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. `put` produces the correct format.
+        //
+        // 2. `get` inverts the `put` operation.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Assume individual elements can be written/read (previously
-        //:   tested).
-        //:
-        //: 2 Tests arrays of length 0, 1, 2, ...  (C-1)
-        //:
-        //: 3 'get' from the result values and verify this data matches the
-        //:   original data used in the 'put'.  (C-2)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Assume individual elements can be written/read (previously
+        //    tested).
+        //
+        // 2. Tests arrays of length 0, 1, 2, ...  (C-1)
+        //
+        // 3. `get` from the result values and verify this data matches the
+        //    original data used in the `put`.  (C-2)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   putArrayInt40(char *buf, const Int64 *ary, int count);
@@ -2130,19 +2130,19 @@ int main(int argc, char *argv[]) {
 
             bsls::AssertTestHandlerGuard guard;
 
-            // invalid 'buffer'
+            // invalid `buffer`
             ASSERT_FAIL(MarshallingUtil::putArrayInt40(ZCHARPTR, TV, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayInt40(TV, ZCHARPTR, 3));
             ASSERT_FAIL(MarshallingUtil::putArrayInt40(ZCHARPTR, UV, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayUint40(UV, ZCHARPTR, 3));
 
-            // invalid 'values'
+            // invalid `values`
             ASSERT_FAIL(MarshallingUtil::putArrayInt40(BUFFER, ZTPTR, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayInt40(ZTPTR, BUFFER, 3));
             ASSERT_FAIL(MarshallingUtil::putArrayInt40(BUFFER, ZUPTR, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayUint40(ZUPTR, BUFFER, 3));
 
-            // valid and invalid 'numValues'
+            // valid and invalid `numValues`
             ASSERT_FAIL(MarshallingUtil::putArrayInt40(BUFFER, TV, -1));
             ASSERT_PASS(MarshallingUtil::putArrayInt40(BUFFER, TV, 0));
             ASSERT_FAIL(MarshallingUtil::getArrayInt40(TV, BUFFER, -1));
@@ -2160,22 +2160,22 @@ int main(int argc, char *argv[]) {
         //   Verify put/get operations for 48-bit integer arrays.
         //
         // Concerns:
-        //: 1 'put' produces the correct format.
-        //:
-        //: 2 'get' inverts the 'put' operation.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. `put` produces the correct format.
+        //
+        // 2. `get` inverts the `put` operation.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Assume individual elements can be written/read (previously
-        //:   tested).
-        //:
-        //: 2 Tests arrays of length 0, 1, 2, ...  (C-1)
-        //:
-        //: 3 'get' from the result values and verify this data matches the
-        //:   original data used in the 'put'.  (C-2)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Assume individual elements can be written/read (previously
+        //    tested).
+        //
+        // 2. Tests arrays of length 0, 1, 2, ...  (C-1)
+        //
+        // 3. `get` from the result values and verify this data matches the
+        //    original data used in the `put`.  (C-2)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   putArrayInt48(char *buf, const Int64 *ary, int count);
@@ -2370,19 +2370,19 @@ int main(int argc, char *argv[]) {
 
             bsls::AssertTestHandlerGuard guard;
 
-            // invalid 'buffer'
+            // invalid `buffer`
             ASSERT_FAIL(MarshallingUtil::putArrayInt48(ZCHARPTR, TV, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayInt48(TV, ZCHARPTR, 3));
             ASSERT_FAIL(MarshallingUtil::putArrayInt48(ZCHARPTR, UV, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayUint48(UV, ZCHARPTR, 3));
 
-            // invalid 'values'
+            // invalid `values`
             ASSERT_FAIL(MarshallingUtil::putArrayInt48(BUFFER, ZTPTR, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayInt48(ZTPTR, BUFFER, 3));
             ASSERT_FAIL(MarshallingUtil::putArrayInt48(BUFFER, ZUPTR, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayUint48(ZUPTR, BUFFER, 3));
 
-            // valid and invalid 'numValues'
+            // valid and invalid `numValues`
             ASSERT_FAIL(MarshallingUtil::putArrayInt48(BUFFER, TV, -1));
             ASSERT_PASS(MarshallingUtil::putArrayInt48(BUFFER, TV, 0));
             ASSERT_FAIL(MarshallingUtil::getArrayInt48(TV, BUFFER, -1));
@@ -2400,22 +2400,22 @@ int main(int argc, char *argv[]) {
         //   Verify put/get operations for 56-bit integer arrays.
         //
         // Concerns:
-        //: 1 'put' produces the correct format.
-        //:
-        //: 2 'get' inverts the 'put' operation.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. `put` produces the correct format.
+        //
+        // 2. `get` inverts the `put` operation.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Assume individual elements can be written/read (previously
-        //:   tested).
-        //:
-        //: 2 Tests arrays of length 0, 1, 2, ...  (C-1)
-        //:
-        //: 3 'get' from the result values and verify this data matches the
-        //:   original data used in the 'put'.  (C-2)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Assume individual elements can be written/read (previously
+        //    tested).
+        //
+        // 2. Tests arrays of length 0, 1, 2, ...  (C-1)
+        //
+        // 3. `get` from the result values and verify this data matches the
+        //    original data used in the `put`.  (C-2)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   putArrayInt56(char *buf, const Int64 *ary, int count);
@@ -2610,19 +2610,19 @@ int main(int argc, char *argv[]) {
 
             bsls::AssertTestHandlerGuard guard;
 
-            // invalid 'buffer'
+            // invalid `buffer`
             ASSERT_FAIL(MarshallingUtil::putArrayInt56(ZCHARPTR, TV, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayInt56(TV, ZCHARPTR, 3));
             ASSERT_FAIL(MarshallingUtil::putArrayInt56(ZCHARPTR, UV, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayUint56(UV, ZCHARPTR, 3));
 
-            // invalid 'values'
+            // invalid `values`
             ASSERT_FAIL(MarshallingUtil::putArrayInt56(BUFFER, ZTPTR, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayInt56(ZTPTR, BUFFER, 3));
             ASSERT_FAIL(MarshallingUtil::putArrayInt56(BUFFER, ZUPTR, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayUint56(ZUPTR, BUFFER, 3));
 
-            // valid and invalid 'numValues'
+            // valid and invalid `numValues`
             ASSERT_FAIL(MarshallingUtil::putArrayInt56(BUFFER, TV, -1));
             ASSERT_PASS(MarshallingUtil::putArrayInt56(BUFFER, TV, 0));
             ASSERT_FAIL(MarshallingUtil::getArrayInt56(TV, BUFFER, -1));
@@ -2640,22 +2640,22 @@ int main(int argc, char *argv[]) {
         //   Verify put/get operations for 64-bit integer arrays.
         //
         // Concerns:
-        //: 1 'put' produces the correct format.
-        //:
-        //: 2 'get' inverts the 'put' operation.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. `put` produces the correct format.
+        //
+        // 2. `get` inverts the `put` operation.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Assume individual elements can be written/read (previously
-        //:   tested).
-        //:
-        //: 2 Tests arrays of length 0, 1, 2, ...  (C-1)
-        //:
-        //: 3 'get' from the result values and verify this data matches the
-        //:   original data used in the 'put'.  (C-2)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Assume individual elements can be written/read (previously
+        //    tested).
+        //
+        // 2. Tests arrays of length 0, 1, 2, ...  (C-1)
+        //
+        // 3. `get` from the result values and verify this data matches the
+        //    original data used in the `put`.  (C-2)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   putArrayInt64(char *buf, const Int64 *ary, int count);
@@ -2846,19 +2846,19 @@ int main(int argc, char *argv[]) {
 
             bsls::AssertTestHandlerGuard guard;
 
-            // invalid 'buffer'
+            // invalid `buffer`
             ASSERT_FAIL(MarshallingUtil::putArrayInt64(ZCHARPTR, TV, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayInt64(TV, ZCHARPTR, 3));
             ASSERT_FAIL(MarshallingUtil::putArrayInt64(ZCHARPTR, UV, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayUint64(UV, ZCHARPTR, 3));
 
-            // invalid 'values'
+            // invalid `values`
             ASSERT_FAIL(MarshallingUtil::putArrayInt64(BUFFER, ZTPTR, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayInt64(ZTPTR, BUFFER, 3));
             ASSERT_FAIL(MarshallingUtil::putArrayInt64(BUFFER, ZUPTR, 3));
             ASSERT_FAIL(MarshallingUtil::getArrayUint64(ZUPTR, BUFFER, 3));
 
-            // valid and invalid 'numValues'
+            // valid and invalid `numValues`
             ASSERT_FAIL(MarshallingUtil::putArrayInt64(BUFFER, TV, -1));
             ASSERT_PASS(MarshallingUtil::putArrayInt64(BUFFER, TV, 0));
             ASSERT_FAIL(MarshallingUtil::getArrayInt64(TV, BUFFER, -1));
@@ -2876,24 +2876,24 @@ int main(int argc, char *argv[]) {
         //   Verify put/get operations for 32-bit floats.
         //
         // Concerns:
-        //: 1 Endianness of the platform does not affect 'put' encoding.
-        //:
-        //: 2 Alignment in the stream does not affect 'put' encoding.
-        //:
-        //: 3 'get' inverts the 'put'.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Endianness of the platform does not affect `put` encoding.
+        //
+        // 2. Alignment in the stream does not affect `put` encoding.
+        //
+        // 3. `get` inverts the `put`.
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Construct a table of test vectors that explore key values.
-        //:
-        //: 2 Iterate over the table and compare the results to the
-        //:   expected value and also invert the 'put' with 'get' and
-        //:   verify the initial value is recovered.  (C-1, C-3)
-        //:
-        //: 3 Iterate over the iteration at various byte offsets.  (C-2)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Construct a table of test vectors that explore key values.
+        //
+        // 2. Iterate over the table and compare the results to the
+        //    expected value and also invert the `put` with `get` and
+        //    verify the initial value is recovered.  (C-1, C-3)
+        //
+        // 3. Iterate over the iteration at various byte offsets.  (C-2)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putFloat32(char *buf, float val);
@@ -3095,11 +3095,11 @@ int main(int argc, char *argv[]) {
 
             bsls::AssertTestHandlerGuard guard;
 
-            // invalid 'buffer'
+            // invalid `buffer`
             ASSERT_SAFE_FAIL(MarshallingUtil::putFloat32(ZCHARPTR, TV));
             ASSERT_SAFE_FAIL(MarshallingUtil::getFloat32(&TV, ZCHARPTR));
 
-            // invalid 'value'
+            // invalid `value`
             ASSERT_SAFE_FAIL(MarshallingUtil::getFloat32(ZTPTR, BUFFER));
         }
 
@@ -3110,24 +3110,24 @@ int main(int argc, char *argv[]) {
         //   Verify put/get operations for 64-bit floats.
         //
         // Concerns:
-        //: 1 Endianness of the platform does not affect 'put' encoding.
-        //:
-        //: 2 Alignment in the stream does not affect 'put' encoding.
-        //:
-        //: 3 'get' inverts the 'put'.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Endianness of the platform does not affect `put` encoding.
+        //
+        // 2. Alignment in the stream does not affect `put` encoding.
+        //
+        // 3. `get` inverts the `put`.
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Construct a table of test vectors that explore key values.
-        //:
-        //: 2 Iterate over the table and compare the results to the
-        //:   expected value and also invert the 'put' with 'get' and
-        //:   verify the initial value is recovered.  (C-1, C-3)
-        //:
-        //: 3 Iterate over the iteration at various byte offsets.  (C-2)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Construct a table of test vectors that explore key values.
+        //
+        // 2. Iterate over the table and compare the results to the
+        //    expected value and also invert the `put` with `get` and
+        //    verify the initial value is recovered.  (C-1, C-3)
+        //
+        // 3. Iterate over the iteration at various byte offsets.  (C-2)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putFloat64(char *buf, double val);
@@ -3334,11 +3334,11 @@ int main(int argc, char *argv[]) {
 
             bsls::AssertTestHandlerGuard guard;
 
-            // invalid 'buffer'
+            // invalid `buffer`
             ASSERT_SAFE_FAIL(MarshallingUtil::putFloat64(ZCHARPTR, TV));
             ASSERT_SAFE_FAIL(MarshallingUtil::getFloat64(&TV, ZCHARPTR));
 
-            // invalid 'value'
+            // invalid `value`
             ASSERT_SAFE_FAIL(MarshallingUtil::getFloat64(ZTPTR, BUFFER));
         }
 
@@ -3349,29 +3349,29 @@ int main(int argc, char *argv[]) {
         //   Verify put/get operations for 8-bit integers.
         //
         // Concerns:
-        //: 1 Endianness of the platform does not affect 'put' encoding.
-        //:
-        //: 2 Alignment in the stream does not affect 'put' encoding.
-        //:
-        //: 3 'get' inverts the 'put'.
-        //:
-        //: 4 Only the least-significant byte is used by 'put'.
-        //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Endianness of the platform does not affect `put` encoding.
+        //
+        // 2. Alignment in the stream does not affect `put` encoding.
+        //
+        // 3. `get` inverts the `put`.
+        //
+        // 4. Only the least-significant byte is used by `put`.
+        //
+        // 5. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Construct a table of test vectors that explore key values.
-        //:
-        //: 2 Iterate over the table and compare the results to the
-        //:   expected value and also invert the 'put' with 'get' and
-        //:   verify the initial value is recovered.  (C-1, C-3)
-        //:
-        //: 3 Iterate over the iteration at various byte offsets.  (C-2)
-        //:
-        //: 4 Verify results for multi-byte inputs to 'put' to ensure only
-        //:   the least-significant byte is used.  (C-4)
-        //:
-        //: 5 Verify defensive checks are triggered for invalid values.  (C-5)
+        // 1. Construct a table of test vectors that explore key values.
+        //
+        // 2. Iterate over the table and compare the results to the
+        //    expected value and also invert the `put` with `get` and
+        //    verify the initial value is recovered.  (C-1, C-3)
+        //
+        // 3. Iterate over the iteration at various byte offsets.  (C-2)
+        //
+        // 4. Verify results for multi-byte inputs to `put` to ensure only
+        //    the least-significant byte is used.  (C-4)
+        //
+        // 5. Verify defensive checks are triggered for invalid values.  (C-5)
         //
         // Testing:
         //   putInt8(char *buf, int val);
@@ -3520,13 +3520,13 @@ int main(int argc, char *argv[]) {
 
             bsls::AssertTestHandlerGuard guard;
 
-            // invalid 'buffer'
+            // invalid `buffer`
             ASSERT_SAFE_FAIL(MarshallingUtil::putInt8(ZCHARPTR, V));
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt8(&TV, ZCHARPTR));
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt8(&TU, ZCHARPTR));
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt8(&TS, ZCHARPTR));
 
-            // invalid 'value'
+            // invalid `value`
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt8(ZTPTR, BUFFER));
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt8(ZUPTR, BUFFER));
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt8(ZSPTR, BUFFER));
@@ -3539,24 +3539,24 @@ int main(int argc, char *argv[]) {
         //   Verify put/get operations for 16-bit integers.
         //
         // Concerns:
-        //: 1 Endianness of the platform does not affect 'put' encoding.
-        //:
-        //: 2 Alignment in the stream does not affect 'put' encoding.
-        //:
-        //: 3 'get' inverts the 'put'.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Endianness of the platform does not affect `put` encoding.
+        //
+        // 2. Alignment in the stream does not affect `put` encoding.
+        //
+        // 3. `get` inverts the `put`.
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Construct a table of test vectors that explore key values.
-        //:
-        //: 2 Iterate over the table and compare the results to the
-        //:   expected value and also invert the 'put' with 'get' and
-        //:   verify the initial value is recovered.  (C-1, C-3)
-        //:
-        //: 3 Iterate over the iteration at various byte offsets.  (C-2)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Construct a table of test vectors that explore key values.
+        //
+        // 2. Iterate over the table and compare the results to the
+        //    expected value and also invert the `put` with `get` and
+        //    verify the initial value is recovered.  (C-1, C-3)
+        //
+        // 3. Iterate over the iteration at various byte offsets.  (C-2)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putInt16(char *buf, int val);
@@ -3671,12 +3671,12 @@ int main(int argc, char *argv[]) {
 
             bsls::AssertTestHandlerGuard guard;
 
-            // invalid 'buffer'
+            // invalid `buffer`
             ASSERT_SAFE_FAIL(MarshallingUtil::putInt16(ZCHARPTR, V));
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt16(&TV, ZCHARPTR));
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint16(&TU, ZCHARPTR));
 
-            // invalid 'value'
+            // invalid `value`
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt16(ZTPTR, BUFFER));
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint16(ZUPTR, BUFFER));
         }
@@ -3688,24 +3688,24 @@ int main(int argc, char *argv[]) {
         //   Verify put/get operations for 24-bit integers.
         //
         // Concerns:
-        //: 1 Endianness of the platform does not affect 'put' encoding.
-        //:
-        //: 2 Alignment in the stream does not affect 'put' encoding.
-        //:
-        //: 3 'get' inverts the 'put'.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Endianness of the platform does not affect `put` encoding.
+        //
+        // 2. Alignment in the stream does not affect `put` encoding.
+        //
+        // 3. `get` inverts the `put`.
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Construct a table of test vectors that explore key values.
-        //:
-        //: 2 Iterate over the table and compare the results to the
-        //:   expected value and also invert the 'put' with 'get' and
-        //:   verify the initial value is recovered.  (C-1, C-3)
-        //:
-        //: 3 Iterate over the iteration at various byte offsets.  (C-2)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Construct a table of test vectors that explore key values.
+        //
+        // 2. Iterate over the table and compare the results to the
+        //    expected value and also invert the `put` with `get` and
+        //    verify the initial value is recovered.  (C-1, C-3)
+        //
+        // 3. Iterate over the iteration at various byte offsets.  (C-2)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putInt24(char *buf, int val);
@@ -3828,12 +3828,12 @@ int main(int argc, char *argv[]) {
 
             bsls::AssertTestHandlerGuard guard;
 
-            // invalid 'buffer'
+            // invalid `buffer`
             ASSERT_SAFE_FAIL(MarshallingUtil::putInt24(ZCHARPTR, V));
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt24(&TV, ZCHARPTR));
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint24(&TU, ZCHARPTR));
 
-            // invalid 'value'
+            // invalid `value`
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt24(ZTPTR, BUFFER));
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint24(ZUPTR, BUFFER));
         }
@@ -3845,24 +3845,24 @@ int main(int argc, char *argv[]) {
         //   Verify put/get operations for 32-bit integers.
         //
         // Concerns:
-        //: 1 Endianness of the platform does not affect 'put' encoding.
-        //:
-        //: 2 Alignment in the stream does not affect 'put' encoding.
-        //:
-        //: 3 'get' inverts the 'put'.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Endianness of the platform does not affect `put` encoding.
+        //
+        // 2. Alignment in the stream does not affect `put` encoding.
+        //
+        // 3. `get` inverts the `put`.
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Construct a table of test vectors that explore key values.
-        //:
-        //: 2 Iterate over the table and compare the results to the
-        //:   expected value and also invert the 'put' with 'get' and
-        //:   verify the initial value is recovered.  (C-1, C-3)
-        //:
-        //: 3 Iterate over the iteration at various byte offsets.  (C-2)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Construct a table of test vectors that explore key values.
+        //
+        // 2. Iterate over the table and compare the results to the
+        //    expected value and also invert the `put` with `get` and
+        //    verify the initial value is recovered.  (C-1, C-3)
+        //
+        // 3. Iterate over the iteration at various byte offsets.  (C-2)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putInt32(char *buf, int val);
@@ -3978,12 +3978,12 @@ int main(int argc, char *argv[]) {
 
             bsls::AssertTestHandlerGuard guard;
 
-            // invalid 'buffer'
+            // invalid `buffer`
             ASSERT_SAFE_FAIL(MarshallingUtil::putInt32(ZCHARPTR, V));
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt32(&TV, ZCHARPTR));
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint32(&TU, ZCHARPTR));
 
-            // invalid 'value'
+            // invalid `value`
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt32(ZTPTR, BUFFER));
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint32(ZUPTR, BUFFER));
         }
@@ -3995,24 +3995,24 @@ int main(int argc, char *argv[]) {
         //   Verify put/get operations for 40-bit integers.
         //
         // Concerns:
-        //: 1 Endianness of the platform does not affect 'put' encoding.
-        //:
-        //: 2 Alignment in the stream does not affect 'put' encoding.
-        //:
-        //: 3 'get' inverts the 'put'.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Endianness of the platform does not affect `put` encoding.
+        //
+        // 2. Alignment in the stream does not affect `put` encoding.
+        //
+        // 3. `get` inverts the `put`.
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Construct a table of test vectors that explore key values.
-        //:
-        //: 2 Iterate over the table and compare the results to the
-        //:   expected value and also invert the 'put' with 'get' and
-        //:   verify the initial value is recovered.  (C-1, C-3)
-        //:
-        //: 3 Iterate over the iteration at various byte offsets.  (C-2)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Construct a table of test vectors that explore key values.
+        //
+        // 2. Iterate over the table and compare the results to the
+        //    expected value and also invert the `put` with `get` and
+        //    verify the initial value is recovered.  (C-1, C-3)
+        //
+        // 3. Iterate over the iteration at various byte offsets.  (C-2)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putInt40(char *buf, Int64 val);
@@ -4134,12 +4134,12 @@ int main(int argc, char *argv[]) {
 
             bsls::AssertTestHandlerGuard guard;
 
-            // invalid 'buffer'
+            // invalid `buffer`
             ASSERT_SAFE_FAIL(MarshallingUtil::putInt40(ZCHARPTR, V));
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt40(&TV, ZCHARPTR));
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint40(&TU, ZCHARPTR));
 
-            // invalid 'value'
+            // invalid `value`
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt40(ZTPTR, BUFFER));
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint40(ZUPTR, BUFFER));
         }
@@ -4151,24 +4151,24 @@ int main(int argc, char *argv[]) {
         //   Verify put/get operations for 48-bit integers.
         //
         // Concerns:
-        //: 1 Endianness of the platform does not affect 'put' encoding.
-        //:
-        //: 2 Alignment in the stream does not affect 'put' encoding.
-        //:
-        //: 3 'get' inverts the 'put'.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Endianness of the platform does not affect `put` encoding.
+        //
+        // 2. Alignment in the stream does not affect `put` encoding.
+        //
+        // 3. `get` inverts the `put`.
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Construct a table of test vectors that explore key values.
-        //:
-        //: 2 Iterate over the table and compare the results to the
-        //:   expected value and also invert the 'put' with 'get' and
-        //:   verify the initial value is recovered.  (C-1, C-3)
-        //:
-        //: 3 Iterate over the iteration at various byte offsets.  (C-2)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Construct a table of test vectors that explore key values.
+        //
+        // 2. Iterate over the table and compare the results to the
+        //    expected value and also invert the `put` with `get` and
+        //    verify the initial value is recovered.  (C-1, C-3)
+        //
+        // 3. Iterate over the iteration at various byte offsets.  (C-2)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putInt48(char *buf, Int64 val);
@@ -4291,12 +4291,12 @@ int main(int argc, char *argv[]) {
 
             bsls::AssertTestHandlerGuard guard;
 
-            // invalid 'buffer'
+            // invalid `buffer`
             ASSERT_SAFE_FAIL(MarshallingUtil::putInt48(ZCHARPTR, V));
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt48(&TV, ZCHARPTR));
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint48(&TU, ZCHARPTR));
 
-            // invalid 'value'
+            // invalid `value`
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt48(ZTPTR, BUFFER));
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint48(ZUPTR, BUFFER));
         }
@@ -4308,24 +4308,24 @@ int main(int argc, char *argv[]) {
         //   Verify put/get operations for 56-bit integers.
         //
         // Concerns:
-        //: 1 Endianness of the platform does not affect 'put' encoding.
-        //:
-        //: 2 Alignment in the stream does not affect 'put' encoding.
-        //:
-        //: 3 'get' inverts the 'put'.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Endianness of the platform does not affect `put` encoding.
+        //
+        // 2. Alignment in the stream does not affect `put` encoding.
+        //
+        // 3. `get` inverts the `put`.
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Construct a table of test vectors that explore key values.
-        //:
-        //: 2 Iterate over the table and compare the results to the
-        //:   expected value and also invert the 'put' with 'get' and
-        //:   verify the initial value is recovered.  (C-1, C-3)
-        //:
-        //: 3 Iterate over the iteration at various byte offsets.  (C-2)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Construct a table of test vectors that explore key values.
+        //
+        // 2. Iterate over the table and compare the results to the
+        //    expected value and also invert the `put` with `get` and
+        //    verify the initial value is recovered.  (C-1, C-3)
+        //
+        // 3. Iterate over the iteration at various byte offsets.  (C-2)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putInt56(char *buf, Int64 val);
@@ -4448,12 +4448,12 @@ int main(int argc, char *argv[]) {
 
             bsls::AssertTestHandlerGuard guard;
 
-            // invalid 'buffer'
+            // invalid `buffer`
             ASSERT_SAFE_FAIL(MarshallingUtil::putInt56(ZCHARPTR, V));
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt56(&TV, ZCHARPTR));
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint56(&TU, ZCHARPTR));
 
-            // invalid 'value'
+            // invalid `value`
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt56(ZTPTR, BUFFER));
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint56(ZUPTR, BUFFER));
         }
@@ -4465,24 +4465,24 @@ int main(int argc, char *argv[]) {
         //   Verify put/get operations for 64-bit integers.
         //
         // Concerns:
-        //: 1 Endianness of the platform does not affect 'put' encoding.
-        //:
-        //: 2 Alignment in the stream does not affect 'put' encoding.
-        //:
-        //: 3 'get' inverts the 'put'.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Endianness of the platform does not affect `put` encoding.
+        //
+        // 2. Alignment in the stream does not affect `put` encoding.
+        //
+        // 3. `get` inverts the `put`.
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Construct a table of test vectors that explore key values.
-        //:
-        //: 2 Iterate over the table and compare the results to the
-        //:   expected value and also invert the 'put' with 'get' and
-        //:   verify the initial value is recovered.  (C-1, C-3)
-        //:
-        //: 3 Iterate over the iteration at various byte offsets.  (C-2)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Construct a table of test vectors that explore key values.
+        //
+        // 2. Iterate over the table and compare the results to the
+        //    expected value and also invert the `put` with `get` and
+        //    verify the initial value is recovered.  (C-1, C-3)
+        //
+        // 3. Iterate over the iteration at various byte offsets.  (C-2)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   putInt64(char *buf, Int64 val);
@@ -4600,12 +4600,12 @@ int main(int argc, char *argv[]) {
 
             bsls::AssertTestHandlerGuard guard;
 
-            // invalid 'buffer'
+            // invalid `buffer`
             ASSERT_SAFE_FAIL(MarshallingUtil::putInt64(ZCHARPTR, V));
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt64(&TV, ZCHARPTR));
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint64(&TU, ZCHARPTR));
 
-            // invalid 'value'
+            // invalid `value`
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt64(ZTPTR, BUFFER));
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint64(ZUPTR, BUFFER));
         }
@@ -4617,14 +4617,14 @@ int main(int argc, char *argv[]) {
         //   Ensure generated format for 32-bit floats is IEEE-compliant.
         //
         // Concerns:
-        //: 1 Generated data for a floating-point value is IEEE-compliant.
+        // 1. Generated data for a floating-point value is IEEE-compliant.
         //
         // Plan:
-        //: 1 Enumerate a sequence of test vectors and verify the result
-        //:   matches the IEEE specification.
-        //:
-        //: 2 If the machine is little-endian, the bytes will be swapped
-        //:   before comparison.  (C-1)
+        // 1. Enumerate a sequence of test vectors and verify the result
+        //    matches the IEEE specification.
+        //
+        // 2. If the machine is little-endian, the bytes will be swapped
+        //    before comparison.  (C-1)
         //
         // Testing:
         //   EXPLORE FLOAT FORMAT -- make sure format is IEEE-COMPLIANT
@@ -4758,14 +4758,14 @@ int main(int argc, char *argv[]) {
         //   Ensure generated format for 64-bit floats is IEEE-compliant.
         //
         // Concerns:
-        //: 1 Generated data for a floating-point value is IEEE-compliant.
+        // 1. Generated data for a floating-point value is IEEE-compliant.
         //
         // Plan:
-        //: 1 Enumerate a sequence of test vectors and verify the result
-        //:   matches the IEEE specification.
-        //:
-        //: 2 If the machine is little-endian, the bytes will be swapped
-        //:   before comparison.  (C-1)
+        // 1. Enumerate a sequence of test vectors and verify the result
+        //    matches the IEEE specification.
+        //
+        // 2. If the machine is little-endian, the bytes will be swapped
+        //    before comparison.  (C-1)
         //
         // Testing:
         //   EXPLORE DOUBLE FORMAT -- make sure format is IEEE-COMPLIANT
@@ -4895,10 +4895,10 @@ int main(int argc, char *argv[]) {
         //   test functions work as expected.
         //
         // Concerns:
-        //: 1 Testing apparatus methods work as expected.
+        // 1. Testing apparatus methods work as expected.
         //
         // Plan:
-        //: 1 Directly verify functionality on a set of test vectors.  (C-1)
+        // 1. Directly verify functionality on a set of test vectors.  (C-1)
         //
         // Testing:
         //   SWAP FUNCTION: static inline void swap(T *x, T *y)

@@ -60,9 +60,9 @@ namespace bsls {
                               // ---------------
 namespace {
 
+/// Log a formatted message with the contents of the specified `comment`,
+/// `file`, `line` number, and a severity of `e_FATAL`.
 void printError(const char *comment, const char *file, int line)
-    // Log a formatted message with the contents of the specified 'comment',
-    // 'file', 'line' number, and a severity of 'e_FATAL'.
 {
     if (!comment) {
         comment = "(* Unspecified Comment Text *)";
@@ -85,9 +85,9 @@ void printError(const char *comment, const char *file, int line)
                                    comment);
 }
 
+/// Log a formatted message with the contents of the specified `violation`
+/// and a severity of `e_FATAL`.
 void printError(const bsls::AssertViolation& violation)
-    // Log a formatted message with the contents of the specified 'violation'
-    // and a severity of 'e_FATAL'.
 {
     const char *comment = violation.comment();
     if (!comment) {
@@ -128,22 +128,23 @@ void printError(const bsls::AssertViolation& violation)
 // STATIC DATA
 
 static const int k_KeyBufferSize = 29;
+
+/// Buffer for `k_permitOutOfPolicyReturningAssertionBuildKey`.
 static char      g_KeyBuffer[k_KeyBufferSize] = "No";
-    // Buffer for 'k_permitOutOfPolicyReturningAssertionBuildKey'.
 
+/// Flag for method `permitOutOfPolicyReturningFailureHandler`.
 static bool g_permitReturningHandlerRuntimeFlag = false;
-    // Flag for method 'permitOutOfPolicyReturningFailureHandler'.
 
+/// assertion-failure handler function
 bsls::AtomicOperations::AtomicTypes::Pointer
     g_violationHandler = {(void *) &Assert::failByAbort};
-    // assertion-failure handler function
 
+/// legacy assertion-failure handler
 bsls::AtomicOperations::AtomicTypes::Pointer
     g_handler = {(void *) NULL};
-    // legacy assertion-failure handler
 
+/// lock to disable `setFailureHandler`
 bsls::AtomicOperations::AtomicTypes::Int g_lockedFlag = {0};
-    // lock to disable 'setFailureHandler'
 
 }  // close unnamed namespace
 

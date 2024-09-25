@@ -9,8 +9,8 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_keyword.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 
 using namespace BloombergLP;
@@ -23,7 +23,7 @@ using namespace BloombergLP;
 // The component provides a meta-function for associating a trait with a type
 // and detecting whether a trait is associated with a type.  Testing involves
 // invoking the trait with the different types for which the trait should be
-// 'true' as well as other types for which the trait should be 'false',
+// `true` as well as other types for which the trait should be `false`,
 // including all combinations of cv- and ref-qualifiers.
 // ----------------------------------------------------------------------------
 //
@@ -45,10 +45,10 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 //                      U_ENABLE_TESTS_FOR_WARNINGS
 //
-// Set ' U_ENABLE_TESTS_FOR_WARNINGS'  to 1 to enable tests to determine if
+// Set ` U_ENABLE_TESTS_FOR_WARNINGS`  to 1 to enable tests to determine if
 // this component correctly generates warnings. Note that
-// 'bslma::UsesBslmaAllocator' has deprecated functionality where types
-// implicitly convertible from 'bslma::Allocator *' are considered allocator
+// `bslma::UsesBslmaAllocator` has deprecated functionality where types
+// implicitly convertible from `bslma::Allocator *` are considered allocator
 // aware. We provide a test to ensure the warning is generated, but disable it
 // in standard test runs to avoid generating compiler warnings.
 // ----------------------------------------------------------------------------
@@ -108,7 +108,7 @@ void aSsErT(bool condition, const char *message, int line)
 //-----------------------------------------------------------------------------
 
 #ifndef INCLUDED_BSLMA_BSLALLOCATOR
-// We don't want to create a dependency on 'bslma_bslallocator', so, for
+// We don't want to create a dependency on `bslma_bslallocator`, so, for
 // testing purposes, we copy the saliant parts of its interface here.
 
 namespace bsl {
@@ -134,57 +134,60 @@ class allocator {
 ///-----
 // This section illustrates intended usage of this component.
 //
-///Example 1: Associating the 'bslma' Allocator Trait with a Type
+///Example 1: Associating the `bslma` Allocator Trait with a Type
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we want to declare two types that make use of a 'bslma' allocator,
-// and need to associate the 'UsesBslmaAllocator' trait with those types (so
-// that they behave correctly when inserted into a 'bsl' container, for
+// Suppose we want to declare two types that make use of a `bslma` allocator,
+// and need to associate the `UsesBslmaAllocator` trait with those types (so
+// that they behave correctly when inserted into a `bsl` container, for
 // example).  In this example we will demonstrate two different mechanisms by
 // which a trait may be associated with a type.
 //
-// First, we define a type 'UsesAllocatorType1' and use the
-// 'BSLMF_NESTED_TRAIT_DECLARATION' macro to associate the type with the
-// 'UsesBslmaAllocator' trait:
-//..
+// First, we define a type `UsesAllocatorType1` and use the
+// `BSLMF_NESTED_TRAIT_DECLARATION` macro to associate the type with the
+// `UsesBslmaAllocator` trait:
+// ```
     namespace xyz {
 
+    /// ...
     class UsesAllocatorType1 {
-        // ...
 
       public:
         // TRAITS
         BSLMF_NESTED_TRAIT_DECLARATION(UsesAllocatorType1,
                                        bslma::UsesBslmaAllocator);
         // CREATORS
-        explicit UsesAllocatorType1(bslma::Allocator *basicAllocator = 0);
-            // ...
 
+        /// ...
+        explicit UsesAllocatorType1(bslma::Allocator *basicAllocator = 0);
+
+        /// ...
         UsesAllocatorType1(const UsesAllocatorType1&  original,
                            bslma::Allocator          *basicAllocator = 0);
-            // ...
     };
-//..
+// ```
 // Note that the macro declaration must appear within the scope of the class
-// declaration and must have 'public' access.
+// declaration and must have `public` access.
 //
-// Next, we define a type 'UsesAllocatorType2' and define a specialization of
-// the 'UsesBslmaAllocator' trait for 'UsesAllocatorType2' that associates the
-// 'UsesBslmaAllocator' trait with the type (sometimes referred to as a
+// Next, we define a type `UsesAllocatorType2` and define a specialization of
+// the `UsesBslmaAllocator` trait for `UsesAllocatorType2` that associates the
+// `UsesBslmaAllocator` trait with the type (sometimes referred to as a
 // "C++11-style" trait declaration, because it is more in keeping with the
 // style of trait declarations found in the C++11 Standard).  Note that the
-// specialization must be performed in the 'BloombergLP::bslma' namespace:
-//..
+// specialization must be performed in the `BloombergLP::bslma` namespace:
+// ```
+
+    /// ...
     class UsesAllocatorType2 {
-        // ...
 
       public:
         // CREATORS
-        explicit UsesAllocatorType2(bslma::Allocator *basicAllocator = 0);
-            // ...
 
+        /// ...
+        explicit UsesAllocatorType2(bslma::Allocator *basicAllocator = 0);
+
+        /// ...
         UsesAllocatorType2(const UsesAllocatorType2&  original,
                            bslma::Allocator          *basicAllocator = 0);
-            // ...
     };
 
     }  // close namespace xyz
@@ -199,14 +202,14 @@ class allocator {
 
     }  // close package namespace
     }  // close enterprise namespace
-//..
-// Next, we define a type 'BslAAClass', which provides a bsl-AA interface
-// based on 'bsl::allocator':
-//..
+// ```
+// Next, we define a type `BslAAClass`, which provides a bsl-AA interface
+// based on `bsl::allocator`:
+// ```
     namespace xyz {
 
+    /// ...
     class BslAAClass {
-        // ...
 
       public:
         // TYPES
@@ -218,13 +221,14 @@ class allocator {
         BslAAClass(const BslAAClass&     other,
                    const allocator_type& alloc = allocator_type());
     };
-//..
-// Finally, we define a type 'NonAAClass', which is derived from 'BslAAClass'
-// but is not AA itself.  Because it inherits 'allocator_type', this class
-// explicitly says it is *not* AA by overiding 'allocator_type' with 'void':
-//..
+// ```
+// Finally, we define a type `NonAAClass`, which is derived from `BslAAClass`
+// but is not AA itself.  Because it inherits `allocator_type`, this class
+// explicitly says it is *not* AA by overiding `allocator_type` with `void`:
+// ```
+
+    /// ...
     class NonAAClass : public BslAAClass {
-        // ...
 
       public:
         // TYPES
@@ -236,24 +240,24 @@ class allocator {
         NonAAClass(const NonAAClass& other);
     };
     }  // close namespace xyz
-//..
+// ```
 //
-///Example 2: Testing Whether a Type Uses a 'bslma' Allocator
+///Example 2: Testing Whether a Type Uses a `bslma` Allocator
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to test whether each of a set of different types uses a
-// 'bslma' allocator.
+// `bslma` allocator.
 //
 // First, we define a class that is not AA, for control purposes:
-//..
+// ```
     namespace xyz {
 
     class DoesNotUseAnAllocatorType { };
 
     }  // close namespace xyz
-//..
-// Now, we use the 'UsesBslmaAllocator' template to test whether this type, and
+// ```
+// Now, we use the `UsesBslmaAllocator` template to test whether this type, and
 // any of the other types in Example 1 use bslma allocators:
-//..
+// ```
     void usageExample2()
     {
         using namespace xyz;
@@ -264,17 +268,17 @@ class allocator {
         ASSERT(bslma::UsesBslmaAllocator<BslAAClass>::value);
         ASSERT(!bslma::UsesBslmaAllocator<NonAAClass>::value);
     }
-//..
+// ```
 // Finally, we demonstrate that the trait can be tested at compilation time by
-// testing the trait within the context of a compile-time 'BSLMF_ASSERT':
-//..
+// testing the trait within the context of a compile-time `BSLMF_ASSERT`:
+// ```
     BSLMF_ASSERT(
             !bslma::UsesBslmaAllocator<xyz::DoesNotUseAnAllocatorType>::value);
     BSLMF_ASSERT(bslma::UsesBslmaAllocator<xyz::UsesAllocatorType1>::value);
     BSLMF_ASSERT(bslma::UsesBslmaAllocator<xyz::UsesAllocatorType2>::value);
     BSLMF_ASSERT(bslma::UsesBslmaAllocator<xyz::BslAAClass>::value);
     BSLMF_ASSERT(!bslma::UsesBslmaAllocator<xyz::NonAAClass>::value);
-//..
+// ```
 
 
 //=============================================================================
@@ -283,8 +287,8 @@ class allocator {
 
 namespace {
 
+/// A `bslma`-style allocator type.
 struct DerivedAllocator : bslma::Allocator {
-    // A 'bslma'-style allocator type.
     void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;  // Never called
     void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;  // Never called
 };
@@ -294,10 +298,10 @@ void DerivedAllocator::deallocate(void *) { }
 
 DerivedAllocator unusedObj;  // Silence warnings on unused virtual functions
 
+/// This STL-like allocator class is implicitly convertible from
+/// `bslma::Allocator*`.  A class where `allocator_type` is an alias for
+/// this class should implicitly have the `UsesBslmaAllocator` trait.
 struct BslmaCompatibleSTLAllocator {
-    // This STL-like allocator class is implicitly convertible from
-    // 'bslma::Allocator*'.  A class where 'allocator_type' is an alias for
-    // this class should implicitly have the 'UsesBslmaAllocator' trait.
 
     typedef int value_type;
 
@@ -309,15 +313,15 @@ struct BslmaCompatibleSTLAllocator {
 
 #if  U_ENABLE_TESTS_FOR_WARNINGS
 struct UsesDeprecatedImplicitConversionForTraitWithWarnings {
-    // This class provides a implicit conversion from a 'bslma::Allocator *',
+    // This class provides a implicit conversion from a `bslma::Allocator *`,
     // which is a (deprecated) mechanism for types to be marked allocator-aware
-    // (i.e., 'UsesBslmaAllocator' will be 'true'. Note that this method of
+    // (i.e., `UsesBslmaAllocator` will be `true`. Note that this method of
     // associating the trait with a class is deprecated, and will produce a
     // warning when used.
 
     UsesDeprecatedImplicitConversionForTraitWithWarnings(
                                               bslma::Allocator *);  // IMPLICIT
-        // Create a 'UsesDeprecatedImplicitConversionForTraitWithWarnings'
+        // Create a `UsesDeprecatedImplicitConversionForTraitWithWarnings`
         // object.
 
     UsesDeprecatedImplicitConversionForTraitWithWarnings(
@@ -327,46 +331,46 @@ struct UsesDeprecatedImplicitConversionForTraitWithWarnings {
 };
 #endif
 
+/// This class provides a implicit conversion from a `bslma::Allocator *`,
+/// which is a (deprecated) mechanism for types to be marked allocator-aware
+/// (i.e., `UsesBslmaAllocator` will be `true`. Note that this method of
+/// associating the trait with a class is deprecated, but will not produce a
+/// warning when used, because they are intentionally suppressed by the
+/// `SuppressesImplicitConvertibilityWarnings` meta-function.
 struct UsesDeprecatedImplicitConversionForTraitWithSuppressedWarnings {
-    // This class provides a implicit conversion from a 'bslma::Allocator *',
-    // which is a (deprecated) mechanism for types to be marked allocator-aware
-    // (i.e., 'UsesBslmaAllocator' will be 'true'. Note that this method of
-    // associating the trait with a class is deprecated, but will not produce a
-    // warning when used, because they are intentionally suppressed by the
-    // 'SuppressesImplicitConvertibilityWarnings' meta-function.
 
+    /// Create a `UsesDeprecatedImplicitConversionForTraitWithWarnings`
+    /// object.
     UsesDeprecatedImplicitConversionForTraitWithSuppressedWarnings(
                                               bslma::Allocator *);  // IMPLICIT
-        // Create a 'UsesDeprecatedImplicitConversionForTraitWithWarnings'
-        // object.
 
+    /// Extended copy constructor
     UsesDeprecatedImplicitConversionForTraitWithSuppressedWarnings(
       const UsesDeprecatedImplicitConversionForTraitWithSuppressedWarnings&,
       bslma::Allocator                                                      *);
-        // Extended copy constructor
 };
 
+/// This class has the `UsesBslmaAllocator` trait explicitly specialized as
+/// `true_type`, below.
 struct HasExplicitlyTrueTrait {
-    // This class has the 'UsesBslmaAllocator' trait explicitly specialized as
-    // 'true_type', below.
 };
 
+/// This class has the `UsesBslmaAllocator` trait explicitly specialized as
+/// `false_type`, below.  Note that the explicit specialization overrides
+/// the implicitly sniffed trait arizing from the implicit constructor.
 struct HasExplicitlyFalseTrait {
-    // This class has the 'UsesBslmaAllocator' trait explicitly specialized as
-    // 'false_type', below.  Note that the explicit specialization overrides
-    // the implicitly sniffed trait arizing from the implicit constructor.
 
     HasExplicitlyFalseTrait(bslma::Allocator *);                    // IMPLICIT
 };
 
+/// This class defines the `UsesBslmaAllocator` trait to be `true` by means
+/// of `BSLMF_NESTED_TRAIT_DECLARATION`.
 struct HasNestedTrait {
-    // This class defines the 'UsesBslmaAllocator' trait to be 'true' by means
-    // of 'BSLMF_NESTED_TRAIT_DECLARATION'.
     BSLMF_NESTED_TRAIT_DECLARATION(HasNestedTrait, bslma::UsesBslmaAllocator);
 };
 
+/// Class with private copy constructor.
 class NotCopyConstructible {
-    // Class with private copy constructor.
     NotCopyConstructible(const NotCopyConstructible&);
 
   public:
@@ -374,33 +378,33 @@ class NotCopyConstructible {
 };
 
 
+/// The `UsesBslmaAllocator` trait is sniffable (i.e., detectable as being
+/// `true`) from this class's conversion constructor.  Additionally, this
+/// class defines the `UsesBslmaAllocator` trait to be `true` by means of
+/// `BSLMF_NESTED_TRAIT_DECLARATION`.
 class HasSniffableAndNestedTrait {
-    // The 'UsesBslmaAllocator' trait is sniffable (i.e., detectable as being
-    // 'true') from this class's conversion constructor.  Additionally, this
-    // class defines the 'UsesBslmaAllocator' trait to be 'true' by means of
-    // 'BSLMF_NESTED_TRAIT_DECLARATION'.
 
+    // Prevent generation of implicit copy constructor.  Trait sniffing
+    // has been known to cause compilation errors on IBM by instantiating
+    // a deleted implicit copy constructor.  However, the explicit trait
+    // *should* suppress that error because sniffing is not needed in that
+    // case.
     NotCopyConstructible d_obj;
-        // Prevent generation of implicit copy constructor.  Trait sniffing
-        // has been known to cause compilation errors on IBM by instantiating
-        // a deleted implicit copy constructor.  However, the explicit trait
-        // *should* suppress that error because sniffing is not needed in that
-        // case.
 
   public:
 
+    /// Create a `HasSniffableAndNestedTrait` object.
     HasSniffableAndNestedTrait(bslma::Allocator *);                 // IMPLICIT
-        // Create a 'HasSniffableAndNestedTrait' object.
 
     BSLMF_NESTED_TRAIT_DECLARATION(HasSniffableAndNestedTrait,
                                    bslma::UsesBslmaAllocator);
 };
 
+/// This class defines a nested `allocator_type` that is an alias for a type
+/// convertible from `bslma::Allocator *`.  `UsesAbslmaAllocator` should be
+/// `true` for such cases, but was unintuitively `false` prior to
+/// autodetection of this type.
 struct HasCompatibleAllocatorType {
-    // This class defines a nested 'allocator_type' that is an alias for a type
-    // convertible from 'bslma::Allocator *'.  'UsesAbslmaAllocator' should be
-    // 'true' for such cases, but was unintuitively 'false' prior to
-    // autodetection of this type.
 
     typedef BslmaCompatibleSTLAllocator allocator_type;
 };
@@ -408,33 +412,33 @@ struct HasCompatibleAllocatorType {
 struct EmptyClass {
 };
 
+/// Class implicitly convertible from any pointer type.  Even though it is
+/// implicitly convertible from `bslma::Allocator *`, the
+/// `UsesBslmaAllocator` trait should be `false` for this type.
 struct ConstructibleFromAnyPointer {
-    // Class implicitly convertible from any pointer type.  Even though it is
-    // implicitly convertible from 'bslma::Allocator *', the
-    // 'UsesBslmaAllocator' trait should be 'false' for this type.
 
     template <class TYPE>
     ConstructibleFromAnyPointer(TYPE *);                            // IMPLICIT
 };
 
+/// The `BslmaUsesAllocator` should be `false` for this type even though it
+/// has an `allocator_type` member because there is no implicit conversion
+/// from `bslma::Allocator *` to `allocator_type`.
 struct HasIncompatibleAllocatorType {
-    // The 'BslmaUsesAllocator' should be 'false' for this type even though it
-    // has an 'allocator_type' member because there is no implicit conversion
-    // from 'bslma::Allocator *' to 'allocator_type'.
 
     struct allocator_type { };
 };
 
+/// Type that can be converted to any type.  `DetectNestedTrait` shouldn't
+/// assign it any traits.  The concern is that since
+/// `BSLMF_NESTED_TRAIT_DECLARATION` defines its own conversion operator,
+/// the "convert to anything" operator shouldn't interfere with the nested
+/// trait logic.
 struct ConvertibleToAny {
-    // Type that can be converted to any type.  'DetectNestedTrait' shouldn't
-    // assign it any traits.  The concern is that since
-    // 'BSLMF_NESTED_TRAIT_DECLARATION' defines its own conversion operator,
-    // the "convert to anything" operator shouldn't interfere with the nested
-    // trait logic.
 
+    /// Return a default constructed object of `TYPE`.
     template <class TYPE>
     operator TYPE() const { return TYPE(); }
-        // Return a default constructed object of 'TYPE'.
 };
 
 }  // close unnamed namespace
@@ -454,11 +458,11 @@ struct UsesBslmaAllocator<HasExplicitlyTrueTrait> : bsl::true_type {};
 template <>
 struct UsesBslmaAllocator<HasExplicitlyFalseTrait> : bsl::false_type {};
 
+/// Even though the nested trait logic is disabled by the template
+/// conversion operator, the out-of-class trait specialization should still
+/// work.
 template <>
 struct UsesBslmaAllocator<ConvertibleToAny> : bsl::true_type {
-    // Even though the nested trait logic is disabled by the template
-    // conversion operator, the out-of-class trait specialization should still
-    // work.
 };
 
 }  // close package namespace
@@ -466,22 +470,22 @@ struct UsesBslmaAllocator<ConvertibleToAny> : bsl::true_type {
 
 namespace {
 
+/// Return `true` if the argument is convertible to `bsl::true_type` and
+/// `false` if the argument is convertible to `bsl::false_type`.  A call to
+/// this function template will fail during overload resolution unless the
+/// argument is convertible to one of `true_type` or `false_type`.
 template <bool TF>
 BSLS_KEYWORD_CONSTEXPR bool isTrueType(const bsl::integral_constant<bool, TF>&)
-    // Return 'true' if the argument is convertible to 'bsl::true_type' and
-    // 'false' if the argument is convertible to 'bsl::false_type'.  A call to
-    // this function template will fail during overload resolution unless the
-    // argument is convertible to one of 'true_type' or 'false_type'.
 {
     return TF;
 }
 
+/// For a call from the specified line, `L`, verify that
+/// `bslma::UsesBslmaAllocator<TYPE>::value` equals `EXP` and that adding
+/// cv-qualifiers to `TYPE` does not change the result, but that adding a
+/// reference qualifier to `TYPE` always produces a `false` result.
 template <class TYPE, bool EXP>
 void testTrait(const int L)
-    // For a call from the specified line, 'L', verify that
-    // 'bslma::UsesBslmaAllocator<TYPE>::value' equals 'EXP' and that adding
-    // cv-qualifiers to 'TYPE' does not change the result, but that adding a
-    // reference qualifier to 'TYPE' always produces a 'false' result.
 {
     using bslma::UsesBslmaAllocator;
 
@@ -531,12 +535,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 That the usage examples shown in the component-level
-        //:   documentation compile and run as described.
+        // 1. That the usage examples shown in the component-level
+        //    documentation compile and run as described.
         //
         // Plan:
-        //: 1 Copy the usage examples from the component header, changing
-        //    'assert' to 'ASSERT' and execute them.
+        // 1. Copy the usage examples from the component header, changing
+        //    `assert` to `ASSERT` and execute them.
         //
         // Testing:
         //     USAGE EXAMPLE
@@ -553,63 +557,63 @@ int main(int argc, char *argv[])
         // FULL TEST
         //
         // Concerns:
-        //: 1 If 'TYPE' is implicitly convertible from 'bslma::Allocator *',
-        //:   then 'UsesBslmaAllocator<TYPE>' derives from 'bsl::true_type'.
-        //: 2 If 'bslma::UsesBslmaAllocator<TYPE>' is explicitly specialized
-        //:   for 'TYPE', then the specialization will be used instead of the
-        //:   primary template.
-        //: 3 If 'TYPE' is a class that explicitly associates itself with the
-        //:   'bslma::UsesBslmaAllocator' trait by means of the
-        //:   'BSLMF_NESTED_TRAIT_DECLARATION' macro, then
-        //:   'UsesBslmaAllocator<TYPE>' derives from 'bsl::true_type'.
-        //: 4 If 'TYPE' has a nested type, 'allocator_type', and if
-        //:   'bslma::Allocator *' is convertible to 'allocator_type', then
-        //:   'UsesBslmaAllocator<TYPE>' derives from 'bsl::true_type'.
-        //: 5 Otherwise, if none of the above conditions are true, then
-        //:   'UsesBslmaAllocator<TYPE>' derives from 'bsl::false_type'.  This
-        //:   concern applies to all pointer types (even thouse convertible
-        //:   to 'bslma::Allocator'), all reference types, and all function
-        //:   types.
-        //: 6 Concern 1 does not apply if 'TYPE' is convertible from *any*
-        //:   arbitrary pointer, regardless of whether that pointer is related
-        //:   to 'bslma::Allocator*'.  In this case, 'UsesBslmaAllocator<TYPE>'
-        //:   derives from 'bsl::false_type' unless one of the conditions in
-        //:   concerns 2 through 4 apply.
-        //: 7 Condition 4 does not apply to 'TYPE's having an 'allocator_type'
-        //:   that is *not* convertible from 'bslma::Allocator *'.  In this
-        //:   case, 'UsesBslmaAllocator<TYPE>' derives from 'bsl::false_type'
-        //:   unless one of the conditions in concerns 1 through 3 apply.
-        //: 8 The cv-qualification of a 'TYPE' has no effect on the result of
-        //:   invoking 'UsesBslmaAllocator<TYPE>'.
+        // 1. If `TYPE` is implicitly convertible from `bslma::Allocator *`,
+        //    then `UsesBslmaAllocator<TYPE>` derives from `bsl::true_type`.
+        // 2. If `bslma::UsesBslmaAllocator<TYPE>` is explicitly specialized
+        //    for `TYPE`, then the specialization will be used instead of the
+        //    primary template.
+        // 3. If `TYPE` is a class that explicitly associates itself with the
+        //    `bslma::UsesBslmaAllocator` trait by means of the
+        //    `BSLMF_NESTED_TRAIT_DECLARATION` macro, then
+        //    `UsesBslmaAllocator<TYPE>` derives from `bsl::true_type`.
+        // 4. If `TYPE` has a nested type, `allocator_type`, and if
+        //    `bslma::Allocator *` is convertible to `allocator_type`, then
+        //    `UsesBslmaAllocator<TYPE>` derives from `bsl::true_type`.
+        // 5. Otherwise, if none of the above conditions are true, then
+        //    `UsesBslmaAllocator<TYPE>` derives from `bsl::false_type`.  This
+        //    concern applies to all pointer types (even thouse convertible
+        //    to `bslma::Allocator`), all reference types, and all function
+        //    types.
+        // 6. Concern 1 does not apply if `TYPE` is convertible from *any*
+        //    arbitrary pointer, regardless of whether that pointer is related
+        //    to `bslma::Allocator*`.  In this case, `UsesBslmaAllocator<TYPE>`
+        //    derives from `bsl::false_type` unless one of the conditions in
+        //    concerns 2 through 4 apply.
+        // 7. Condition 4 does not apply to `TYPE`s having an `allocator_type`
+        //    that is *not* convertible from `bslma::Allocator *`.  In this
+        //    case, `UsesBslmaAllocator<TYPE>` derives from `bsl::false_type`
+        //    unless one of the conditions in concerns 1 through 3 apply.
+        // 8. The cv-qualification of a `TYPE` has no effect on the result of
+        //    invoking `UsesBslmaAllocator<TYPE>`.
         //
         // Plan:
-        //: 1 Define a class that is implicitly constructible from
-        //:   'bslma::Allocator*', verify that 'UsesBslmaAllocator' is 'true'
-        //:   for that type.  (C-1)
-        //: 2 Define a pair of classes, and explicitly specialize
-        //:   'UsesBslmaAllocator' for each -- one derived from 'true_type',
-        //:   the other derived from 'false_type'.  Verify that instantiating
-        //:   the trait for each type yields the value of the specialization.
-        //:   (C-2)
-        //: 3 Define a class that uses 'BSLMF_NESTED_TRAIT_DECLARATION' to
-        //:   associate itself with the 'UsesBslmaAllocator' trait.  Verify
-        //:   that invoking the trait on that class type yields 'true'.  (C-3)
-        //: 4 Define an STL-style allocator that is implicitly constructible
-        //:   from 'bslma::Allocator *' and define a class with a nested
-        //:   'allocator_type' alias to that STL-style allocator.  Verify that
-        //:   invoking 'UsesBslmaAllocator' on that class yields 'true'.  (C-4)
-        //: 5 Invoke 'UsesBslmaAllocator' on scalar types, pointer types,
-        //:   reference types, function types, and empty class types and verify
-        //:   that the result is 'false'.  (C-5)
-        //: 6 Define a class having an implicit constructor template that
-        //:   accepts a pointer to any pointer type but is otherwise not an
-        //:   allocator-aware type.  Verify that 'UsesBslmaAllocator' yields
-        //:   false for that class.  (C-6)
-        //: 7 Define a class having a nested 'allocator_type' that is not
-        //:   convertible from 'bslma::Allocator*'. Verify that
-        //:   'UsesBslmaAllocator' yields false for that class.  (C-7)
-        //: 8 Repeat steps 1 through 7, adding cv qualifications to each type
-        //:   and verify that the results are the same.  (C-8)
+        // 1. Define a class that is implicitly constructible from
+        //    `bslma::Allocator*`, verify that `UsesBslmaAllocator` is `true`
+        //    for that type.  (C-1)
+        // 2. Define a pair of classes, and explicitly specialize
+        //    `UsesBslmaAllocator` for each -- one derived from `true_type`,
+        //    the other derived from `false_type`.  Verify that instantiating
+        //    the trait for each type yields the value of the specialization.
+        //    (C-2)
+        // 3. Define a class that uses `BSLMF_NESTED_TRAIT_DECLARATION` to
+        //    associate itself with the `UsesBslmaAllocator` trait.  Verify
+        //    that invoking the trait on that class type yields `true`.  (C-3)
+        // 4. Define an STL-style allocator that is implicitly constructible
+        //    from `bslma::Allocator *` and define a class with a nested
+        //    `allocator_type` alias to that STL-style allocator.  Verify that
+        //    invoking `UsesBslmaAllocator` on that class yields `true`.  (C-4)
+        // 5. Invoke `UsesBslmaAllocator` on scalar types, pointer types,
+        //    reference types, function types, and empty class types and verify
+        //    that the result is `false`.  (C-5)
+        // 6. Define a class having an implicit constructor template that
+        //    accepts a pointer to any pointer type but is otherwise not an
+        //    allocator-aware type.  Verify that `UsesBslmaAllocator` yields
+        //    false for that class.  (C-6)
+        // 7. Define a class having a nested `allocator_type` that is not
+        //    convertible from `bslma::Allocator*`. Verify that
+        //    `UsesBslmaAllocator` yields false for that class.  (C-7)
+        // 8. Repeat steps 1 through 7, adding cv qualifications to each type
+        //    and verify that the results are the same.  (C-8)
         //
         // Testing:
         //     FULL TEST
@@ -650,7 +654,7 @@ int main(int argc, char *argv[])
 
         TEST(HasIncompatibleAllocatorType                  , false);  // Step 7
 
-        // Note that step 8 is built into the 'testTrait' function template.
+        // Note that step 8 is built into the `testTrait` function template.
 
 #undef TEST
 
@@ -661,11 +665,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Execute each method to verify functionality for simple cases.
+        // 1. Execute each method to verify functionality for simple cases.
         //
         // Testing:
         //      BREATHING TEST

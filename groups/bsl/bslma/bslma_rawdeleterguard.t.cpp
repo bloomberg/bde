@@ -8,8 +8,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 #include <deque>    // usage example
 #include <string>   // breathing test, should be replaceable
@@ -25,25 +25,25 @@ using std::deque;
 // We are testing a guard object to ensure that, when the guard object goes
 // out of scope, it both destroys its managed object and deallocates memory
 // used by that object.  We achieve this goal by creating (using
-// 'bslma::TestAllocator') a dynamically-allocated, customized "test" object
+// `bslma::TestAllocator`) a dynamically-allocated, customized "test" object
 // that is initialized with the address of a global counter initialized to 0.
-// We then guard the object with a 'bslma::RawDeleterGuard'.  As the guard goes
+// We then guard the object with a `bslma::RawDeleterGuard`.  As the guard goes
 // out of scope, the object is destroyed, and that object's destructor
 // increments the counter held by the (test) object.  After the guard is
 // destroyed, we verify that the (global) counter of the (managed) object is
 // correctly incremented to 1, and that all memory allocated by the test
 // allocator has been returned.  We then repeat the above process for a
-// 'my_Pool' class, which also has a 'deallocate' method, but is non-virtual
-// (i.e., does not inherit its interface from 'bslma::Allocator').
+// `my_Pool` class, which also has a `deallocate` method, but is non-virtual
+// (i.e., does not inherit its interface from `bslma::Allocator`).
 //
 //-----------------------------------------------------------------------------
 // [3] bslma::RawDeleterGuard<TYPE, ALLOCATOR>(obj, allocator);
 // [3] ~bslma::RawDeleterGuard<TYPE, ALLOCATOR>();
 //-----------------------------------------------------------------------------
 // [1] Breathing Test
-// [2] Helper Class: 'my_Class'
-// [2] Helper Class: 'my_Pool'
-// [3] Concern: the (non-virtual) 'deallocate' method for pools is also invoked
+// [2] Helper Class: `my_Class`
+// [2] Helper Class: `my_Pool`
+// [3] Concern: the (non-virtual) `deallocate` method for pools is also invoked
 // [4] Usage Example
 //=============================================================================
 
@@ -109,31 +109,33 @@ void aSsErT(bool condition, const char *message, int line)
 //                          HELPER CLASS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// This class provides a `deallocate` method, used to exercise the
+/// contract promised by the destructor of the `bslma::RawDeleterGuard`.
+/// This object indicates that its `deallocate` method is called by
+/// incrementing the global counter (supplied at construction) that it
+/// *holds*.
 class my_Pool {
-    // This class provides a 'deallocate' method, used to exercise the
-    // contract promised by the destructor of the 'bslma::RawDeleterGuard'.
-    // This object indicates that its 'deallocate' method is called by
-    // incrementing the global counter (supplied at construction) that it
-    // *holds*.
 
     // DATA
-    int *d_counter_p;  // counter to be incremented when 'deallocate' is called
+    int *d_counter_p;  // counter to be incremented when `deallocate` is called
 
   public:
     // CREATORS
+
+    /// Create this object holding the specified (global) counter.
     explicit my_Pool(int *counter) : d_counter_p(counter) {}
-        // Create this object holding the specified (global) counter.
 
     // MANIPULATORS
+
+    /// Increment this object's counter.
     void deallocate(void *) { ++*d_counter_p; }
-        // Increment this object's counter.
 };
 
+/// This object indicates that its destructor is called by incrementing the
+/// global counter (supplied at construction) that it holds.  Note that the
+/// id is used by the usage example's `my_Queue` helper class to verify
+/// which element in the queue is popped.
 class my_Class {
-    // This object indicates that its destructor is called by incrementing the
-    // global counter (supplied at construction) that it holds.  Note that the
-    // id is used by the usage example's 'my_Queue' helper class to verify
-    // which element in the queue is popped.
 
     // DATA
     int *d_counter_p;  // (global) counter to be incremented at destruction
@@ -146,41 +148,42 @@ class my_Class {
     , d_id(id)
     {
     }
-        // Create this object using the address of the specified 'counter' to
-        // be held.  Optionally specify an 'id' used to distinguish this
-        // instance from others.  If 'id' is not specified, it will default to
+        // Create this object using the address of the specified `counter` to
+        // be held.  Optionally specify an `id` used to distinguish this
+        // instance from others.  If `id` is not specified, it will default to
         // 0.
 
+    /// Destroy this object and increment this object's (global) counter.
     ~my_Class() { ++*d_counter_p; }
-        // Destroy this object and increment this object's (global) counter.
 
     // ACCESSORS
+
+    /// Return the id of this object.
     int id() const { return d_id; }
-        // Return the id of this object.
 };
 
 //=============================================================================
 //                               USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-// This example shows how one might use a 'bslma::RawDeleterGuard' to guard a
+// This example shows how one might use a `bslma::RawDeleterGuard` to guard a
 // dynamically-allocated object, deleting that object automatically when the
 // guard goes out of scope.
 //
 // Suppose we have a simple queue class that stores object values using an
 // "out-of-place" representation (i.e., an array of dynamically-allocated
 // object pointers):
-//..
+// ```
 // myqueue.h
 // ...
 
+/// This class is a container that uses an "out-of-place"
+/// representation to manage objects of parameterized `TYPE`.  Note
+/// that this class is implemented with the native version of `deque`,
+/// instead of the version provided in `bslstl_Deque`.  This is so that
+/// a circular dependency in the physical hierarchy will not be created.
 template <class TYPE>
 class my_Queue {
-    // This class is a container that uses an "out-of-place"
-    // representation to manage objects of parameterized 'TYPE'.  Note
-    // that this class is implemented with the native version of 'deque',
-    // instead of the version provided in 'bslstl_Deque'.  This is so that
-    // a circular dependency in the physical hierarchy will not be created.
 
     // DATA
     deque<TYPE *>        d_objects;      // objects stored in the queue
@@ -188,31 +191,33 @@ class my_Queue {
 
   public:
     // CREATORS
-    explicit my_Queue(bslma::Allocator *basicAllocator = 0);
-        // Create a 'my_Queue' object.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-        // 0, the currently installed default allocator is used.
 
+    /// Create a `my_Queue` object.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+    /// 0, the currently installed default allocator is used.
+    explicit my_Queue(bslma::Allocator *basicAllocator = 0);
+
+    /// Destroy this `my_Queue` object and all elements currently stored.
     ~my_Queue();
-        // Destroy this 'my_Queue' object and all elements currently stored.
 
     // MANIPULATORS
-    void pushBack(const TYPE& object);
-        // Push the value of the specified 'object' of parameterized 'TYPE'
-        // onto the back of this queue.
 
+    /// Push the value of the specified `object` of parameterized `TYPE`
+    /// onto the back of this queue.
+    void pushBack(const TYPE& object);
+
+    /// Remove and return (by value) the object of parameterized `TYPE`
+    /// that is currently at the front of this queue.
     TYPE popFront();
-        // Remove and return (by value) the object of parameterized 'TYPE'
-        // that is currently at the front of this queue.
 
     // ...
 };
-//..
-// Note that the 'popFront' method returns an object by value because (1) there
+// ```
+// Note that the `popFront` method returns an object by value because (1) there
 // may be no reasonable default object to pass in, (2) there may be no
 // reasonable copy assignment semantics, or (3) it is simply more syntactically
 // convenient (e.g., if, say, the queued objects are themselves pointers):
-//..
+// ```
 // CREATORS
 template <class TYPE>
 inline
@@ -229,12 +234,12 @@ my_Queue<TYPE>::~my_Queue()
         d_allocator_p->deleteObjectRaw(d_objects[i]);
     }
 }
-//..
-// Note that the 'pushBack' method should be implemented with a constructor
-// proxy that determines whether 'TYPE' takes an allocator at construction (see
+// ```
+// Note that the `pushBack` method should be implemented with a constructor
+// proxy that determines whether `TYPE` takes an allocator at construction (see
 // bslalg_constructorproxy).  However, for the purpose of this example, the
-// implementation is simplified by assuming 'TYPE' takes an allocator.
-//..
+// implementation is simplified by assuming `TYPE` takes an allocator.
+// ```
 // MANIPULATORS
 template <class TYPE>
 inline
@@ -252,17 +257,17 @@ TYPE my_Queue<TYPE>::popFront()
     d_objects.pop_front();
 
     //***********************************************************
-    //* Note the use of the raw deleter guard on 'tmp' (below). *
+    //* Note the use of the raw deleter guard on `tmp` (below). *
     //***********************************************************
 
     bslma::RawDeleterGuard<TYPE, bslma::Allocator> guard(tmp, d_allocator_p);
 
     return *tmp;
 }
-//..
-// The 'pushBack' method defined above stores a copy of the provided object.
-// The 'popFront' method returns the leading object by value, and the
-// 'bslma::RawDeleterGuard' is used to automatically delete the copy the queue
+// ```
+// The `pushBack` method defined above stores a copy of the provided object.
+// The `popFront` method returns the leading object by value, and the
+// `bslma::RawDeleterGuard` is used to automatically delete the copy the queue
 // manages when the guard goes out of scope (i.e., when the function returns).
 
 //=============================================================================
@@ -292,7 +297,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Run the usage example and exercise the creators and manipulators
-        //   of 'my_Queue' using a 'bslma::TestAllocator' to verify that memory
+        //   of `my_Queue` using a `bslma::TestAllocator` to verify that memory
         //   is allocated and deallocated properly.
         //
         // Testing:
@@ -331,8 +336,8 @@ int main(int argc, char *argv[])
             ASSERT(i == obj.id());
 
             // Verify that destructor for the copy inside the queue is
-            // destroyed.  Need '2 * i' because the copy returned is also
-            // destroyed after the 'const' reference goes out of scope.
+            // destroyed.  Need `2 * i` because the copy returned is also
+            // destroyed after the `const` reference goes out of scope.
             ASSERT(INIT_SIZE + (2 * i) + 1 == counter);
 
             // Verify that memory is deallocated properly.
@@ -351,23 +356,23 @@ int main(int argc, char *argv[])
         //   1) The guard object properly deletes its managed object
         //   at destruction using the allocator supplied at construction.
         //   2) When an allocator (or pool) not inherited from
-        //   'bslma::Allocator' is supplied to the 'bslma::RawDeleterGuard',
-        //   the destructor of the managed object and 'deallocate' method of
+        //   `bslma::Allocator` is supplied to the `bslma::RawDeleterGuard`,
+        //   the destructor of the managed object and `deallocate` method of
         //   the allocator (or pool) supplied is still invoked.
         //
         // Plan:
-        //   Create a 'my_Class' object, which increments a counter every time
-        //   it is destructed, using a 'bslma::TestAllocator' which keeps track
+        //   Create a `my_Class` object, which increments a counter every time
+        //   it is destructed, using a `bslma::TestAllocator` which keeps track
         //   of how many bytes are allocated.  Next create a
-        //   'bslma::RawDeleterGuard' object to guard the created 'my_Class'
+        //   `bslma::RawDeleterGuard` object to guard the created `my_Class`
         //   object.  When the guard object goes out of scope, verify that both
         //   the counter is incremented and memory is deallocated.  Repeat for
-        //   'my_Pool', which does not inherit from 'bslma::Allocator'.
+        //   `my_Pool`, which does not inherit from `bslma::Allocator`.
         //
         // Testing:
         //   bslma::RawDeleterGuard<TYPE, ALLOCATOR>(obj, allocator);
         //   ~bslma::RawDeleterGuard<TYPE, ALLOCATOR>();
-        //   Concern: the (non-virtual) 'deallocate' method for pools is also
+        //   Concern: the (non-virtual) `deallocate` method for pools is also
         //            invoked
         // --------------------------------------------------------------------
 
@@ -462,32 +467,32 @@ int main(int argc, char *argv[])
         // HELPER CLASS TEST
         //
         // Concerns:
-        //   1) The helper class 'my_Class' properly increments its counter at
+        //   1) The helper class `my_Class` properly increments its counter at
         //      destruction.
-        //   2) The 'id' method of 'my_Class' returns the same id provided at
-        //      construction of the 'my_Class' object.
-        //   3) The helper class 'my_Pool' properly increments its counter when
-        //      its 'deallocate' method is called.
+        //   2) The `id` method of `my_Class` returns the same id provided at
+        //      construction of the `my_Class` object.
+        //   3) The helper class `my_Pool` properly increments its counter when
+        //      its `deallocate` method is called.
         //
         // Plan:
-        //   Create 'my_Class' objects and assign to each object a counter
+        //   Create `my_Class` objects and assign to each object a counter
         //   variable initialized to 0, and an id.  Verify that the id returned
-        //   by the 'id' method is the expected id.  Also verify that the
-        //   counter is incremented after each 'my_Class' object is destroyed.
+        //   by the `id` method is the expected id.  Also verify that the
+        //   counter is incremented after each `my_Class` object is destroyed.
         //
-        //   Next create 'my_Pool' objects and assign to each object a counter
-        //   variable initialized to 0.  Invoke the 'deallocate' method and
+        //   Next create `my_Pool` objects and assign to each object a counter
+        //   variable initialized to 0.  Invoke the `deallocate` method and
         //   verify that the counter is incremented.
         //
         // Testing:
-        //   Helper Class: 'my_Class'
-        //   Helper Class: 'my_Pool'
+        //   Helper Class: `my_Class`
+        //   Helper Class: `my_Pool`
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nHELPER CLASS TEST"
                             "\n=================\n");
 
-        if (verbose) printf("\nTesting 'my_Class'\n");
+        if (verbose) printf("\nTesting `my_Class`\n");
 
         if (verbose) printf("\tTesting default ctor, dtor, and id()\n");
         {
@@ -502,9 +507,9 @@ int main(int argc, char *argv[])
             ASSERT(NUM_TEST == counter);
         }
 
-        if (verbose) printf("\nTesting 'my_Pool'\n");
+        if (verbose) printf("\nTesting `my_Pool`\n");
 
-        if (verbose) printf("\tTesting default ctor and 'deallocate'\n");
+        if (verbose) printf("\tTesting default ctor and `deallocate`\n");
 
         {
             int counter = 0;
@@ -524,16 +529,16 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   1) The 'bslma::RawDeleterGuard' can be constructed and destructed
+        //   1) The `bslma::RawDeleterGuard` can be constructed and destructed
         //      gracefully.
-        //   1) The allocator's 'deallocate' method is invoked.
+        //   1) The allocator's `deallocate` method is invoked.
         //   2) The (managed) object's destructor is invoked.
         //
         // Plan:
-        //   Allocate an 'std::string' with a 'bslma::TestAllocator' and guard
-        //   it with 'bslma::RawDeleterGuard' to show that both the destructor
-        //   and 'deallocate' is called (by verifying all memory is returned
-        //   to the 'bslma::TestAllocator').
+        //   Allocate an `std::string` with a `bslma::TestAllocator` and guard
+        //   it with `bslma::RawDeleterGuard` to show that both the destructor
+        //   and `deallocate` is called (by verifying all memory is returned
+        //   to the `bslma::TestAllocator`).
         //
         // Testing:
         //   Breathing Test
@@ -548,7 +553,7 @@ int main(int argc, char *argv[])
         const bslma::TestAllocator *Z = &allocator;
 
         ASSERT(0 == Z->numBytesInUse());
-        if (verbose) printf("\tTesting with 'string' object\n");
+        if (verbose) printf("\tTesting with `string` object\n");
         {
             string *s = (string *)new(allocator)string();
             ASSERT(0 < Z->numBytesInUse());

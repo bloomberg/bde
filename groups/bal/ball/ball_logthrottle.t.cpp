@@ -63,10 +63,10 @@
 //                              --------
 // The component under test consists of a large number of preprocessor macros.
 //
-// Only macros are tested by this test driver -- no 'class'es, 'struct's, or
-// functions are tested directly.  The 'class'es, 'struct's, and functions
+// Only macros are tested by this test driver -- no `class`es, `struct`s, or
+// functions are tested directly.  The `class`es, `struct`s, and functions
 // accessed by the macros are furnished by other components, particularly
-// 'ball_log' and 'bdlmt_throttle'.
+// `ball_log` and `bdlmt_throttle`.
 // ----------------------------------------------------------------------------
 // [ 3] BALL_LOGTHROTTLE_TRACE_BLOCK
 // [ 3] BALL_LOGTHROTTLE_DEBUG_BLOCK
@@ -97,7 +97,7 @@
 // [ 4] MULTITHREADED PRINTF
 // ----------------------------------------------------------------------------
 
-// Please do not include the entire 'BloombergLP' or 'bsl' namespaces into
+// Please do not include the entire `BloombergLP` or `bsl` namespaces into
 // this component, because we want to make sure that the macros under test
 // work properly without them.
 
@@ -192,9 +192,9 @@ static bool veryVeryVerbose;
 static bool veryVeryVeryVerbose;
 
 static const bool k_HAS_MULTILINE_OFFSET =
-    // 'k_HAS_MULTILINE_OFFSET' is 'true' if the '__LINE__' macro is
+    // `k_HAS_MULTILINE_OFFSET` is `true` if the `__LINE__` macro is
     // substituted by the line number of the last line of a macro invocation
-    // split on several lines; and it is 'false' if the first line is reported.
+    // split on several lines; and it is `false` if the first line is reported.
 #if defined(BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST)
     false;
 #else
@@ -214,15 +214,15 @@ namespace {
 namespace u {
 
 const double epsilon = 2e-9;        // 2 nanoseconds (the timer used by the
-                                    // 'Throttle' is accurate to the
+                                    // `Throttle` is accurate to the
                                     // microsecond).
 
 const double minSleep = 0.00001 - epsilon;
 
+/// Return the time in seconds since New Year, 1970 GMT, according to a
+/// monotonic clock.
 inline
 double doubleClock()
-    // Return the time in seconds since New Year, 1970 GMT, according to a
-    // monotonic clock.
 {
     const double k_BILLION = 1000 * 1000 * 1000;
 
@@ -231,8 +231,8 @@ double doubleClock()
                                                                      k_BILLION;
 }
 
+/// Pause for the specified `timeInSeconds`.
 void doubleSleep(double timeInSeconds)
-    // Pause for the specified 'timeInSeconds'.
 {
     ASSERT(minSleep < timeInSeconds);   // 10 * 1000 microseconds is minimum
                                         // sleep, at least on some platforms.
@@ -244,9 +244,9 @@ void doubleSleep(double timeInSeconds)
                                                          timeInSeconds * 1e6));
 }
 
+/// Return a different severity from the `enum` `ball::Severity::Level`
+/// every time this is called, rotating through the defined values.
 BloombergLP::ball::Severity::Level nextSev()
-    // Return a different severity from the 'enum' 'ball::Severity::Level'
-    // every time this is called, rotating through the defined values.
 {
     static const Level severities[] = {Sev::e_TRACE,
                                        Sev::e_DEBUG,
@@ -269,9 +269,9 @@ enum TestType {
 }  // close namespace u
 }  // close unnamed namespace
 
+/// Stream the specified `testType` to the specified `stream`, and return
+/// `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, u::TestType testType)
-    // Stream the specified 'testType' to the specified 'stream', and return
-    // 'stream'.
 {
     switch (testType) {
       case u::e_PRINTF_STYLE: stream << "e_PRINTF_STYLE"; break;
@@ -284,16 +284,16 @@ bsl::ostream& operator<<(bsl::ostream& stream, u::TestType testType)
     return stream;
 }
 
+/// Return `true` if the last record published to the specified `observer`
+/// includes the name of the specified `category` and the specified
+/// `severity`, `fileName`, `lineNumber`, and `message`, and `false`
+/// otherwise.
 static bool isRecordOkay(const BloombergLP::ball::TestObserver&  observer,
                          const BloombergLP::ball::Category      *category,
                          int                                     severity,
                          const char                             *fileName,
                          int                                     lineNumber,
                          const char                             *message)
-    // Return 'true' if the last record published to the specified 'observer'
-    // includes the name of the specified 'category' and the specified
-    // 'severity', 'fileName', 'lineNumber', and 'message', and 'false'
-    // otherwise.
 {
     const BloombergLP::ball::RecordAttributes& attributes =
                                   observer.lastPublishedRecord().fixedFields();
@@ -329,14 +329,14 @@ struct RadiationMeterReceiver {
     static       Data         s_data[];
     static const bsl::size_t  s_numData;
 
+    /// Default-construct a `RadiationMeterReceiver`.
     RadiationMeterReceiver()
     : d_lastDetection(u::doubleClock())
     , d_data_p(&s_data[0])
-        // Default-construct a 'RadiationMeterReceiver'.
     {}
 
+    /// Yield a radiation level.
     double yield();
-        // Yield a radiation level.
 };
 
 Data RadiationMeterReceiver::s_data[] = {
@@ -382,37 +382,37 @@ double RadiationMeterReceiver::yield()
 //
 ///Example 1: C++ Stream-Style Throttling Macro Usage
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose a computer is reading 'double' values from a radio receiver, ten per
+// Suppose a computer is reading `double` values from a radio receiver, ten per
 // second, which represent readings of radiation detected by a Geiger counter
 // on a spacecraft, and is transmitting them to a ground control at Jet
 // Propulsion Laboratories in California.
 //
-// The readings are returned by the 'double yield()' manipulator of a
-// 'RadiationMeterReceiver' object (the implementation of which is omitted).
-// The 'yield' method blocks until it obtains a reading to return.  If called
-// in a tight loop, 'yield' returns ten readings per second.
+// The readings are returned by the `double yield()` manipulator of a
+// `RadiationMeterReceiver` object (the implementation of which is omitted).
+// The `yield` method blocks until it obtains a reading to return.  If called
+// in a tight loop, `yield` returns ten readings per second.
 //
 // Readings range from 0 to 100.
 //
-//: o Readings above 10 but not greater than 30 are a concern, but are not very
-//:   serious.  We will report those with an 'e_TRACE' severity, and at most
-//:   one per hour (i.e., messages will be throttled).
-//:
-//: o Readings above 30 but not greater than 60 are more of a worry.  We will
-//:   report those with an 'e_DEBUG' severity, and at most five per hour.
-//:
-//: o Readings above 60 but not greater than 90 are very serious.  They will be
-//:   reported with an 'e_INFO' severity, and at most twenty per hour.
-//:
-//: o Readings above 90 are potentially catastrophic, and will be reported with
-//:   an 'e_WARN' severity, with no limit on the number of readings reported
-//:   (i.e., no throttling).
+//  - Readings above 10 but not greater than 30 are a concern, but are not very
+//    serious.  We will report those with an `e_TRACE` severity, and at most
+//    one per hour (i.e., messages will be throttled).
+//
+//  - Readings above 30 but not greater than 60 are more of a worry.  We will
+//    report those with an `e_DEBUG` severity, and at most five per hour.
+//
+//  - Readings above 60 but not greater than 90 are very serious.  They will be
+//    reported with an `e_INFO` severity, and at most twenty per hour.
+//
+//  - Readings above 90 are potentially catastrophic, and will be reported with
+//    an `e_WARN` severity, with no limit on the number of readings reported
+//    (i.e., no throttling).
 //
 // We are to write a daemon process, which will loop gathering readings.  A
 // reading of an impossible value of -1.0 will indicate termination.
-//..
+// ```
 //  First we define a set of useful constants:
-//..
+// ```
     enum {
         k_NUM_INFO  = 20,       // max # of info messages in a very short time
         k_NUM_DEBUG =  5,       // max # of debug messages in a very short time
@@ -428,12 +428,13 @@ double RadiationMeterReceiver::yield()
                    // long-term minimum nanoseconds per debug message permitted
     const Int64 k_NS_PER_TRACE = k_NS_PER_HOUR / k_NUM_TRACE;
                    // long-term minimum nanoseconds per trace message permitted
-//..
+// ```
 // Then we implement the radiation monitor using the log-throttle macros to
 // throttle the number of log records being published:
-//..
+// ```
+
+    /// Daemon to run the radiation monitor.
     void radiationMonitorStreamDaemon()
-        // Daemon to run the radiation monitor.
     {
         BALL_LOG_SET_CATEGORY("RADIATION.MONITOR");
 //
@@ -466,10 +467,10 @@ double RadiationMeterReceiver::yield()
 //
         BALL_LOG_DEBUG << "Finished gathering data.";
     }
-//..
+// ```
 //
-// 'radiationMonitorPrintfDaemon' produces output like:
-//..
+// `radiationMonitorPrintfDaemon` produces output like:
+// ```
 //  24APR2018_16:36:22.791 61260 139907579877152 DEBUG ball_logthrottle.t.cpp
 //  460 RADIATION.MONITOR Start gathering data.
 //
@@ -487,7 +488,7 @@ double RadiationMeterReceiver::yield()
 //
 //  24APR2018_16:36:24.102 61260 139907579877152 INFO ball_logthrottle.t.cpp
 //  474 RADIATION.MONITOR Radiation reading of 67.4
-//..
+// ```
 
 void simpleExample()
 {
@@ -497,7 +498,7 @@ void simpleExample()
      bsls::Stopwatch s;
      s.start();
      while (s.elapsedTime() < 0.1) {
-//..
+// ```
     static const bsls::Types::Int64 k_NS_PER_S =
                              bdlt::TimeUnitRatio::k_NANOSECONDS_PER_SECOND;
 //
@@ -507,7 +508,7 @@ void simpleExample()
 //  // Log 1 WARN-level message every second on average, but allow a "burst"
 //  // of up to 2 messages to be published simultaneously:
     BALL_LOGTHROTTLE_WARN(2, k_NS_PER_S) << "message 2";
-//..
+// ```
      }
 }
 
@@ -519,18 +520,18 @@ void simpleExample()
 
 namespace MultiPeriodTest {
 
+/// This function runs the multi period test, one `period` being the
+/// `NANOSECONDS_PER_MESSAGE` passed to the throttle.  Use the specified
+/// observer `*TO`, and the specified `alloc` for memory allocation.  The
+/// specified `testType` indicates whether we are to perform a stream-style
+/// or printf-style test.
+///
+/// Note that this test, described in test cases 5 and 6 where it is called,
+/// is single threaded.
 void testMain(
              const bsl::shared_ptr<BloombergLP::ball::TestObserver>&  TO,
              u::TestType                                              testType,
              TestAllocator                                           *alloc)
-    // This function runs the multi period test, one 'period' being the
-    // 'NANOSECONDS_PER_MESSAGE' passed to the throttle.  Use the specified
-    // observer '*TO', and the specified 'alloc' for memory allocation.  The
-    // specified 'testType' indicates whether we are to perform a stream-style
-    // or printf-style test.
-    //
-    // Note that this test, described in test cases 5 and 6 where it is called,
-    // is single threaded.
 {
     BloombergLP::ball::LoggerManagerConfiguration lmc;
     BloombergLP::ball::LoggerManagerScopedGuard lmg(lmc, alloc);
@@ -596,7 +597,7 @@ void testMain(
         for (int jj = 1; jj <= k_JJ_LOOPS; ++jj) {
             switch (testType) {
               case u::e_PRINTF_STYLE: {
-                // Threshold is 'e_DEBUG', so trace shouldn't be published, but
+                // Threshold is `e_DEBUG`, so trace shouldn't be published, but
                 // info should.
 
                 BALL_LOGTHROTTLEVA_INFO(
@@ -610,7 +611,7 @@ void testMain(
                                       "Trace: Printf: ii: %d, jj: %d", ii, jj);
               } break;
               case u::e_STREAM_STYLE: {
-                // Threshold is 'e_DEBUG', so trace shouldn't be published, but
+                // Threshold is `e_DEBUG`, so trace shouldn't be published, but
                 // info should.
 
                 BALL_LOGTHROTTLE_INFO( k_BURST_SIZE,
@@ -684,8 +685,8 @@ BloombergLP::bsls::AtomicInt atomicBarrier(0);
 BloombergLP::bsls::AtomicInt idKey(0);
 BloombergLP::bsls::AtomicInt numAttempts(0);
 
+/// This `class` is a functor for multithreaded testing.
 class Func {
-    // This 'class' is a functor for multithreaded testing.
 
     BALL_LOG_SET_CLASS_CATEGORY("sieve");
 
@@ -694,23 +695,25 @@ class Func {
 
   public:
     // CREATOR
+
+    /// Create a functor object based upon the specified `testType`.
     explicit
     Func(u::TestType testType)
     : d_testType(testType)
-        // Create a functor object based upon the specified 'testType'.
     {}
 
     // Func(const Func&) = default;
     // Func& operator=(const Func&) = default;
 
     // ACCESSOR
+
+    /// Run one thread of the test.  Use `barrier` and `atomicBarrier` to
+    /// coordinate with other subthreads and the main thread.  Attempt
+    /// `k_ATTEMPTS_PER_THREAD` traces at `debug` and `trace` level (we
+    /// expect some of the `debug` messages and none of the `trace` messages
+    /// to go through'.  Keep a total of the attempts in the atomic
+    /// `numAttempts`.
     void operator()() const
-        // Run one thread of the test.  Use 'barrier' and 'atomicBarrier' to
-        // coordinate with other subthreads and the main thread.  Attempt
-        // 'k_ATTEMPTS_PER_THREAD' traces at 'debug' and 'trace' level (we
-        // expect some of the 'debug' messages and none of the 'trace' messages
-        // to go through'.  Keep a total of the attempts in the atomic
-        // 'numAttempts'.
     {
         const int id = idKey++;
 
@@ -721,7 +724,7 @@ class Func {
         switch (d_testType) {
           case u::e_PRINTF_STYLE: {
             for (int ii = 0; ii < k_ATTEMPTS_PER_THREAD; ++ii) {
-                // Threshold is 'e_DEBUG', so trace shouldn't be published, but
+                // Threshold is `e_DEBUG`, so trace shouldn't be published, but
                 // debug should.
 
                 BALL_LOGTHROTTLEVA_DEBUG(k_PERMITTED,k_NANOSECONDS_PER_MESSAGE,
@@ -732,7 +735,7 @@ class Func {
           } break;
           case u::e_STREAM_STYLE: {
             for (int ii = 0; ii < k_ATTEMPTS_PER_THREAD; ++ii) {
-                // Threshold is 'e_DEBUG', so trace shouldn't be published, but
+                // Threshold is `e_DEBUG`, so trace shouldn't be published, but
                 // debug should.
 
                 BALL_LOGTHROTTLE_DEBUG(k_PERMITTED,k_NANOSECONDS_PER_MESSAGE)<<
@@ -751,14 +754,14 @@ class Func {
     }
 };
 
+/// This test case is called from cases 3 and 4, and the test plan is
+/// described in detail there.  Use the specified observer `*TO`, with the
+/// specified `testType` indicating whether the test is `printf`-style or
+/// stream style.  Use the specified `alloc` for memory allocation.
 void testMain(
              const bsl::shared_ptr<BloombergLP::ball::TestObserver>&  TO,
              u::TestType                                              testType,
              TestAllocator                                           *alloc)
-    // This test case is called from cases 3 and 4, and the test plan is
-    // described in detail there.  Use the specified observer '*TO', with the
-    // specified 'testType' indicating whether the test is 'printf'-style or
-    // stream style.  Use the specified 'alloc' for memory allocation.
 {
     BloombergLP::ball::LoggerManagerConfiguration lmc;
     BloombergLP::ball::LoggerManagerScopedGuard lmg(lmc, alloc);
@@ -836,14 +839,14 @@ int main(int argc, char *argv[])
         // STREAM-BASED USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 Demonstrate the usage of the stream-based macros.
+        // 1. Demonstrate the usage of the stream-based macros.
         //
         // Plan:
-        //: 1 Compile and execute Example 1 from the component doc.
-        //:
-        //: 2 If 'veryVeryVerbose' is set, create a second radiation monitor
-        //:   and dump out the raw results returned by it before doing the
-        //:   usage example.
+        // 1. Compile and execute Example 1 from the component doc.
+        //
+        // 2. If `veryVeryVerbose` is set, create a second radiation monitor
+        //    and dump out the raw results returned by it before doing the
+        //    usage example.
         //
         // Testing:
         //   STREAM-BASED USAGE EXAMPLE
@@ -899,30 +902,30 @@ int main(int argc, char *argv[])
         // MULTI PERIOD STREAM TEST
         //
         // Concerns:
-        //: 1 That the stream-style macros will produce the correct number of
-        //:   traces over a timespan encompassing several
-        //:   'NANOSECONDS_PER_MESSAGE' periods.
+        // 1. That the stream-style macros will produce the correct number of
+        //    traces over a timespan encompassing several
+        //    `NANOSECONDS_PER_MESSAGE` periods.
         //
         // Plan:
-        //: 1 Do a single-threaded test, where attempts to are made to issue
-        //:   bursts of traces.
-        //:
-        //: 2 The length of each attempted burst will greatly exceed the number
-        //:   that the throttle is configured to permit.
-        //:
-        //: 3 Each attempted burst will be completed in less time than the
-        //:   'NANOSECONDS_PER_MESSAGE' period length specified to the
-        //:   throttle.
-        //:
-        //: 4 Between bursts, sleep barely over half a period.
-        //:
-        //: 5 It will thus be possible, at any point, to calculate the exact
-        //:   number of traces that will have been published.  Each iteration,
-        //:   do so, and query the observer to verify that that is what
-        //:   happened.
-        //:
-        //: 6 Confirm that the message in the last trace is exactly as
-        //:   predicted.
+        // 1. Do a single-threaded test, where attempts to are made to issue
+        //    bursts of traces.
+        //
+        // 2. The length of each attempted burst will greatly exceed the number
+        //    that the throttle is configured to permit.
+        //
+        // 3. Each attempted burst will be completed in less time than the
+        //    `NANOSECONDS_PER_MESSAGE` period length specified to the
+        //    throttle.
+        //
+        // 4. Between bursts, sleep barely over half a period.
+        //
+        // 5. It will thus be possible, at any point, to calculate the exact
+        //    number of traces that will have been published.  Each iteration,
+        //    do so, and query the observer to verify that that is what
+        //    happened.
+        //
+        // 6. Confirm that the message in the last trace is exactly as
+        //    predicted.
         //
         // Testing:
         //   MULTI PERIOD STREAM TEST
@@ -940,30 +943,30 @@ int main(int argc, char *argv[])
         // MULTI PERIOD PRINTF TEST
         //
         // Concerns:
-        //: 1 That the printf-style macros will produce the correct number of
-        //:   traces over a timespan encompassing several
-        //:   'NANOSECONDS_PER_MESSAGE' periods.
+        // 1. That the printf-style macros will produce the correct number of
+        //    traces over a timespan encompassing several
+        //    `NANOSECONDS_PER_MESSAGE` periods.
         //
         // Plan:
-        //: 1 Do a single-threaded test, where attempts to are made to issue
-        //:   bursts of traces.
-        //:
-        //: 2 The length of each attempted burst will greatly exceed the number
-        //:   that the throttle is configured to permit.
-        //:
-        //: 3 Each attempted burst will be completed in less time than the
-        //:   'NANOSECONDS_PER_MESSAGE' period length specified to the
-        //:   throttle.
-        //:
-        //: 4 Between bursts, sleep barely over half a period.
-        //:
-        //: 5 It will thus be possible, at any point, to calculate the exact
-        //:   number of traces that will have been published.  Each iteration,
-        //:   do so, and query the observer to verify that that is what
-        //:   happened.
-        //:
-        //: 6 Confirm that the message in the last trace is exactly as
-        //:   predicted.
+        // 1. Do a single-threaded test, where attempts to are made to issue
+        //    bursts of traces.
+        //
+        // 2. The length of each attempted burst will greatly exceed the number
+        //    that the throttle is configured to permit.
+        //
+        // 3. Each attempted burst will be completed in less time than the
+        //    `NANOSECONDS_PER_MESSAGE` period length specified to the
+        //    throttle.
+        //
+        // 4. Between bursts, sleep barely over half a period.
+        //
+        // 5. It will thus be possible, at any point, to calculate the exact
+        //    number of traces that will have been published.  Each iteration,
+        //    do so, and query the observer to verify that that is what
+        //    happened.
+        //
+        // 6. Confirm that the message in the last trace is exactly as
+        //    predicted.
         //
         // Testing:
         //   MULTI PERIOD PRINTF TEST
@@ -981,33 +984,33 @@ int main(int argc, char *argv[])
         // MULTITHREADED STREAM TEST
         //
         // Concerns:
-        //: 1 That the 'BALL_LOGTHROTTLEVA_*' macros operate correctly under
-        //:   heavy multithreaded contention.
-        //:
-        //: 2 That the number of traces permitted exactly equals the number
-        //:   specified to the macro.
-        //:
-        //: 3 That only traces with sufficient severity get logged.
+        // 1. That the `BALL_LOGTHROTTLEVA_*` macros operate correctly under
+        //    heavy multithreaded contention.
+        //
+        // 2. That the number of traces permitted exactly equals the number
+        //    specified to the macro.
+        //
+        // 3. That only traces with sufficient severity get logged.
         //
         // Plan:
-        //: 1 Start many threads, coordinate the start by spinning on the
-        //:   atomic variable 'atomicBarrier' so they all start at very nearly
-        //:   exactly the same time.
-        //:
-        //: 2 Have the threads attempt to log traces many times, so that they
-        //:   attempt 100 times as many traces as are to be permitted.
-        //:
-        //: 3 Observe that the elapsed time during which all logging took place
-        //:   is less than one period.
-        //:
-        //: 4 Sum up the total number of attempted traces and verify that it is
-        //:   as expected.
-        //:
-        //: 5 Query the observer and verify that exactly the number of traces
-        //:   permitted occurred.
-        //:
-        //: 6 Observe that the last published record was of sufficient severity
-        //:   to be logged.
+        // 1. Start many threads, coordinate the start by spinning on the
+        //    atomic variable `atomicBarrier` so they all start at very nearly
+        //    exactly the same time.
+        //
+        // 2. Have the threads attempt to log traces many times, so that they
+        //    attempt 100 times as many traces as are to be permitted.
+        //
+        // 3. Observe that the elapsed time during which all logging took place
+        //    is less than one period.
+        //
+        // 4. Sum up the total number of attempted traces and verify that it is
+        //    as expected.
+        //
+        // 5. Query the observer and verify that exactly the number of traces
+        //    permitted occurred.
+        //
+        // 6. Observe that the last published record was of sufficient severity
+        //    to be logged.
         //
         // Testing
         //   MULTITHREADED STREAM
@@ -1025,33 +1028,33 @@ int main(int argc, char *argv[])
         // MULTITHREADED PRINTF TEST
         //
         // Concerns:
-        //: 1 That the 'BALL_LOGTHROTTLEVA_*' macros operate correctly under
-        //:   heavy multithreaded contention.
-        //:
-        //: 2 That the number of traces permitted exactly equals the number
-        //:   specified to the macro.
-        //:
-        //: 3 That only traces with sufficient severity get logged.
+        // 1. That the `BALL_LOGTHROTTLEVA_*` macros operate correctly under
+        //    heavy multithreaded contention.
+        //
+        // 2. That the number of traces permitted exactly equals the number
+        //    specified to the macro.
+        //
+        // 3. That only traces with sufficient severity get logged.
         //
         // Plan:
-        //: 1 Start many threads, coordinate the start by spinning on the
-        //:   atomic variable 'atomicBarrier' so they all start at very nearly
-        //:   exactly the same time.
-        //:
-        //: 2 Have the threads attempt to log traces many times, so that they
-        //:   attempt 100 times as many traces as are to be permitted.
-        //:
-        //: 3 Observe that the elapsed time during which all logging took place
-        //:   is less than one period.
-        //:
-        //: 4 Sum up the total number of attempted traces and verify that it is
-        //:   as expected.
-        //:
-        //: 5 Query the observer and verify that exactly the number of traces
-        //:   permitted occurred.
-        //:
-        //: 6 Observe that the last published record was of sufficient severity
-        //:   to be logged.
+        // 1. Start many threads, coordinate the start by spinning on the
+        //    atomic variable `atomicBarrier` so they all start at very nearly
+        //    exactly the same time.
+        //
+        // 2. Have the threads attempt to log traces many times, so that they
+        //    attempt 100 times as many traces as are to be permitted.
+        //
+        // 3. Observe that the elapsed time during which all logging took place
+        //    is less than one period.
+        //
+        // 4. Sum up the total number of attempted traces and verify that it is
+        //    as expected.
+        //
+        // 5. Query the observer and verify that exactly the number of traces
+        //    permitted occurred.
+        //
+        // 6. Observe that the last published record was of sufficient severity
+        //    to be logged.
         //
         // Testing
         //   MULTITHREADED PRINTF
@@ -1069,23 +1072,23 @@ int main(int argc, char *argv[])
         // BLOCK MACRO TEST
         //
         // Concerns:
-        //: 1 That the block macros permit the expected number of events for
-        //:   the severity levels applied.
+        // 1. That the block macros permit the expected number of events for
+        //    the severity levels applied.
         //
         // Plan:
-        //: 1 Create the function 'oneTest', which will call the block macros a
-        //:   large number of times in less than the 'NANOSECONDS_PER_MESSAGE'
-        //:   arg of time with the category at a specified level and the
-        //:   attempted severity at another specified level.
-        //:
-        //: 2 Call 'oneTest' with every combination of threshold vs attempt
-        //:   severities, waiting
-        //:   '2 * MAX_SIMULTANEOUS_ACTIONS * NANOSECONDS_PER_MESSAGE' between
-        //:   calls.
-        //:
-        //: 3 Put the macros without '{}'s in the statement controlled by an
-        //:   'if' with an 'else' to verify that the macros expand to a single
-        //:   C++ statement.
+        // 1. Create the function `oneTest`, which will call the block macros a
+        //    large number of times in less than the `NANOSECONDS_PER_MESSAGE`
+        //    arg of time with the category at a specified level and the
+        //    attempted severity at another specified level.
+        //
+        // 2. Call `oneTest` with every combination of threshold vs attempt
+        //    severities, waiting
+        //    `2 * MAX_SIMULTANEOUS_ACTIONS * NANOSECONDS_PER_MESSAGE` between
+        //    calls.
+        //
+        // 3. Put the macros without `{}`s in the statement controlled by an
+        //    `if` with an `else` to verify that the macros expand to a single
+        //    C++ statement.
         //
         // Testing:
         //   BALL_LOGTHROTTLE_TRACE_BLOCK
@@ -1233,55 +1236,55 @@ int main(int argc, char *argv[])
         // TESTING OSTREAM MACROS
         //
         // Concerns:
-        //: 1 That the 'BALL_LOGTHROTTLE_STREAM' macro works as documented.
-        //:   o The 'severity' argument is able to be passed a non-'const'
-        //:     variable.
-        //:
-        //:   o If the 'severity' is less severe than the threshold, no trace
-        //:     occurs.
-        //:
-        //:   o That only the specified # of traces is allowed to occur within
-        //:     the specified time period.
-        //:
-        //: 2 That the severity-hard-coded 'BALL_LOGTHROTTLE_*' macros all work
-        //:   as documented.
-        //:   o If the 'severity' is less severe than the threshold, no trace
-        //:     occurs.
-        //:
-        //:   o That only the specified # of traces is allowed to occur within
-        //:     the specified time period.
-        //:
-        //: 3 That in buffer overflow, the full, untruncated trace appears.
-        //:
-        //: 4 That all of the macros, with a semicolon following the call, add
-        //:   up to a single C++ statement.
+        // 1. That the `BALL_LOGTHROTTLE_STREAM` macro works as documented.
+        //    - The `severity` argument is able to be passed a non-`const`
+        //      variable.
+        //
+        //    - If the `severity` is less severe than the threshold, no trace
+        //      occurs.
+        //
+        //    - That only the specified # of traces is allowed to occur within
+        //      the specified time period.
+        //
+        // 2. That the severity-hard-coded `BALL_LOGTHROTTLE_*` macros all work
+        //    as documented.
+        //    - If the `severity` is less severe than the threshold, no trace
+        //      occurs.
+        //
+        //    - That only the specified # of traces is allowed to occur within
+        //      the specified time period.
+        //
+        // 3. That in buffer overflow, the full, untruncated trace appears.
+        //
+        // 4. That all of the macros, with a semicolon following the call, add
+        //    up to a single C++ statement.
         //
         // Plan:
-        //: 1 In all cases, the time period chosen is one second.  The whole
-        //:   test should take much less than that, which we enforce by
-        //:   measuring the elapsed time and asserting it is less than 0.9
-        //:   seconds.
-        //:
-        //: 2 Each trace is called with 'numMessagesPerPeriod = 1', and they
-        //:   are called 10 times in a tight loop, and we assert that only
-        //:   the first trace happened.
-        //:
-        //: 3 In all of the tight loops there are two traces -- in both cases,
-        //:   the throttling is one trace per second, but the first trace is
-        //:   with the severity less severe than the category threshold, while
-        //:   the second trace is with the severity sufficiently severe to for
-        //:   the trace to occur.  We verify that the first trace was
-        //:   suppressed, that the second trace was not, and that the second
-        //:   trace happened only on the first iteration.
-        //:
-        //: 4 Call all the macros to print a very long string, observe that the
-        //:   string is truncated exactly as expected.
-        //:
-        //: 5 Call all the macros guarded by a satisfied 'if' followed by an
-        //:   'else', observe that it compiles and that 'else' is not executed.
-        //:   Can't put 'ASSERT(0);' in the else clause because our test driver
-        //:   macros suck and don't reduce to a single statement if followed by
-        //:   a semicolon.
+        // 1. In all cases, the time period chosen is one second.  The whole
+        //    test should take much less than that, which we enforce by
+        //    measuring the elapsed time and asserting it is less than 0.9
+        //    seconds.
+        //
+        // 2. Each trace is called with `numMessagesPerPeriod = 1`, and they
+        //    are called 10 times in a tight loop, and we assert that only
+        //    the first trace happened.
+        //
+        // 3. In all of the tight loops there are two traces -- in both cases,
+        //    the throttling is one trace per second, but the first trace is
+        //    with the severity less severe than the category threshold, while
+        //    the second trace is with the severity sufficiently severe to for
+        //    the trace to occur.  We verify that the first trace was
+        //    suppressed, that the second trace was not, and that the second
+        //    trace happened only on the first iteration.
+        //
+        // 4. Call all the macros to print a very long string, observe that the
+        //    string is truncated exactly as expected.
+        //
+        // 5. Call all the macros guarded by a satisfied `if` followed by an
+        //    `else`, observe that it compiles and that `else` is not executed.
+        //    Can't put `ASSERT(0);` in the else clause because our test driver
+        //    macros suck and don't reduce to a single statement if followed by
+        //    a semicolon.
         //
         // Testing:
         //   BALL_LOGTHROTTLE_STREAM
@@ -1380,7 +1383,7 @@ int main(int argc, char *argv[])
             int         np;
             const Int64 SECOND = 1000 * 1000 * 1000;
 
-            if (veryVerbose) cout << "\tTesting 'BALL_LOG_TRACE'\n";
+            if (veryVerbose) cout << "\tTesting `BALL_LOG_TRACE`\n";
             for (int ii = 0; ii < 10; ++ii) {
                 ASSERT(TRACE == sev);
                 np = TO->numPublishedRecords();
@@ -1393,7 +1396,7 @@ int main(int argc, char *argv[])
                 }
 
                 const int LINE = L_ + 2;
-                if (doTraces)        // deliberately no '{}'s
+                if (doTraces)        // deliberately no `{}`s
                     BALL_LOGTHROTTLE_STREAM(sev, 1, SECOND) <<
                                                    "message" << SEP << ARGS[0]
                                                              << SEP << ARGS[1]
@@ -1407,7 +1410,7 @@ int main(int argc, char *argv[])
                              isRecordOkay(*TO, CAT, sev, FILE, LINE, MESSAGE));
             }
 
-            if (veryVerbose) cout << "\tTesting 'BALL_LOG_TRACE'\n";
+            if (veryVerbose) cout << "\tTesting `BALL_LOG_TRACE`\n";
             for (int ii = 0; ii < 10; ++ii) {
                 np = TO->numPublishedRecords();
 
@@ -1419,7 +1422,7 @@ int main(int argc, char *argv[])
                 }
 
                 const int LINE = L_ + 2;
-                if (doTraces)        // deliberately no '{}'s
+                if (doTraces)        // deliberately no `{}`s
                     BALL_LOGTHROTTLE_TRACE(1, SECOND) <<
                                                     "message"<< SEP << ARGS[0]
                                                              << SEP << ARGS[1]
@@ -1433,7 +1436,7 @@ int main(int argc, char *argv[])
                            isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE));
             }
 
-            if (veryVerbose) cout << "\tTesting 'BALL_LOG_DEBUG'\n";
+            if (veryVerbose) cout << "\tTesting `BALL_LOG_DEBUG`\n";
             for (int ii = 0; ii < 10; ++ii) {
                 np = TO->numPublishedRecords();
 
@@ -1445,7 +1448,7 @@ int main(int argc, char *argv[])
                 }
 
                 const int LINE = L_ + 2;
-                if (doTraces)        // deliberately no '{}'s
+                if (doTraces)        // deliberately no `{}`s
                     BALL_LOGTHROTTLE_DEBUG(1, SECOND)
                                                  << "message"<< SEP << ARGS[0]
                                                              << SEP << ARGS[1]
@@ -1459,7 +1462,7 @@ int main(int argc, char *argv[])
                            isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE));
             }
 
-            if (veryVerbose) cout << "\tTesting 'BALL_LOG_INFO'\n";
+            if (veryVerbose) cout << "\tTesting `BALL_LOG_INFO`\n";
             for (int ii = 0; ii < 10; ++ii) {
                 np = TO->numPublishedRecords();
 
@@ -1471,7 +1474,7 @@ int main(int argc, char *argv[])
                 }
 
                 const int LINE = L_ + 2;
-                if (doTraces)        // deliberately no '{}'s
+                if (doTraces)        // deliberately no `{}`s
                     BALL_LOGTHROTTLE_INFO( 1, SECOND) <<
                                                     "message"<< SEP << ARGS[0]
                                                              << SEP << ARGS[1]
@@ -1485,7 +1488,7 @@ int main(int argc, char *argv[])
                             isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE));
             }
 
-            if (veryVerbose) cout << "\tTesting 'BALL_LOG_WARN'\n";
+            if (veryVerbose) cout << "\tTesting `BALL_LOG_WARN`\n";
             for (int ii = 0; ii < 10; ++ii) {
                 np = TO->numPublishedRecords();
 
@@ -1497,7 +1500,7 @@ int main(int argc, char *argv[])
                 }
 
                 const int LINE = L_ + 2;
-                if (doTraces)        // deliberately no '{}'s
+                if (doTraces)        // deliberately no `{}`s
                     BALL_LOGTHROTTLE_WARN( 1, SECOND) <<
                                                     "message"<< SEP << ARGS[0]
                                                              << SEP << ARGS[1]
@@ -1511,7 +1514,7 @@ int main(int argc, char *argv[])
                             isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE));
             }
 
-            if (veryVerbose) cout << "\tTesting 'BALL_LOG_ERROR'" << endl;
+            if (veryVerbose) cout << "\tTesting `BALL_LOG_ERROR`" << endl;
             for (int ii = 0; ii < 10; ++ii) {
                 np = TO->numPublishedRecords();
 
@@ -1523,7 +1526,7 @@ int main(int argc, char *argv[])
                 }
 
                 const int LINE = L_ + 2;
-                if (doTraces)        // deliberately no '{}'s
+                if (doTraces)        // deliberately no `{}`s
                     BALL_LOGTHROTTLE_ERROR(1, SECOND) <<
                                                     "message"<< SEP << ARGS[0]
                                                              << SEP << ARGS[1]
@@ -1537,7 +1540,7 @@ int main(int argc, char *argv[])
                            isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE));
             }
 
-            if (veryVerbose) cout << "\tTesting 'BALL_LOG_FATAL'\n";
+            if (veryVerbose) cout << "\tTesting `BALL_LOG_FATAL`\n";
             for (int ii = 0; ii < 10; ++ii) {
                 np = TO->numPublishedRecords();
 
@@ -1549,7 +1552,7 @@ int main(int argc, char *argv[])
                 }
 
                 const int LINE = L_ + 2;
-                if (doTraces)        // deliberately no '{}'s
+                if (doTraces)        // deliberately no `{}`s
                     BALL_LOGTHROTTLE_FATAL(1, SECOND) <<
                                                     "message"<< SEP << ARGS[0]
                                                              << SEP << ARGS[1]
@@ -1573,7 +1576,7 @@ int main(int argc, char *argv[])
             elseCounter = 0;
 
             if (veryVerbose) cout <<
-                      "\tTesting Buffer Overflow with 'ostream' Macro" << endl;
+                      "\tTesting Buffer Overflow with `ostream` Macro" << endl;
             {
                 const int                BUFLEN     =
                     LoggerManager::singleton().getLogger().messageBufferSize();
@@ -1598,7 +1601,7 @@ int main(int argc, char *argv[])
                     ASSERT('x' == longString[BUFLEN - 1]);
 
                     const int LINE = L_ + 2;
-                    if (doTraces)                    // deliberately no '{}'
+                    if (doTraces)                    // deliberately no `{}`
                         BALL_LOGTHROTTLE_TRACE(1, SECOND) << longString;
                     else
                         ++elseCounter;
@@ -1615,7 +1618,7 @@ int main(int argc, char *argv[])
                     ASSERT('x' == longString[BUFLEN - 1]);
 
                     const int LINE = L_ + 2;
-                    if (doTraces)                    // deliberately no '{}'
+                    if (doTraces)                    // deliberately no `{}`
                         BALL_LOGTHROTTLE_DEBUG(1, SECOND) << longString;
                     else
                         ++elseCounter;
@@ -1632,7 +1635,7 @@ int main(int argc, char *argv[])
                     ASSERT('x' == longString[BUFLEN - 1]);
 
                     const int LINE = L_ + 2;
-                    if (doTraces)                    // deliberately no '{}'
+                    if (doTraces)                    // deliberately no `{}`
                         BALL_LOGTHROTTLE_INFO(1, SECOND) << longString;
                     else
                         ++elseCounter;
@@ -1649,7 +1652,7 @@ int main(int argc, char *argv[])
                     ASSERT('x' == longString[BUFLEN - 1]);
 
                     const int LINE = L_ + 2;
-                    if (doTraces)                    // deliberately no '{}'
+                    if (doTraces)                    // deliberately no `{}`
                         BALL_LOGTHROTTLE_WARN(1, SECOND) << longString;
                     else
                         ++elseCounter;
@@ -1666,7 +1669,7 @@ int main(int argc, char *argv[])
                     ASSERT('x' == longString[BUFLEN - 1]);
 
                     const int LINE = L_ + 2;
-                    if (doTraces)                    // deliberately no '{}'
+                    if (doTraces)                    // deliberately no `{}`
                         BALL_LOGTHROTTLE_ERROR(1, SECOND) << longString;
                     else
                         ++elseCounter;
@@ -1683,7 +1686,7 @@ int main(int argc, char *argv[])
                     ASSERT('x' == longString[BUFLEN - 1]);
 
                     const int LINE = L_ + 2;
-                    if (doTraces)                    // deliberately no '{}'
+                    if (doTraces)                    // deliberately no `{}`
                         BALL_LOGTHROTTLE_FATAL(1, SECOND) << longString;
                     else
                         ++elseCounter;
@@ -1711,55 +1714,55 @@ int main(int argc, char *argv[])
         // TESTING PRINTF-STYLE MACROS
         //
         // Concerns:
-        //: 1 That the 'BALL_LOGTHROTTLEVA' macro works as documented.
-        //:   o The 'severity' argument is able to be passed a non-'const'
-        //:     variable.
-        //:
-        //:   o If the 'severity' is less severe than the threshold, no trace
-        //:     occurs.
-        //:
-        //:   o That only the specified # of traces is allowed to occur within
-        //:     the specified time period.
-        //:
-        //: 2 That the severity-hard-coded 'BALL_LOGTHROTTLEVA_*' macros all
-        //:   work as documented.
-        //:   o If the 'severity' is less severe than the threshold, no trace
-        //:     occurs.
-        //:
-        //:   o That only the specified # of traces is allowed to occur within
-        //:     the specified time period.
-        //:
-        //: 3 That in buffer overflow, the trace is truncated as expected.
-        //:
-        //: 4 That all of the macros, with a semicolon following the call, add
-        //:   up to a single C++ statement.
+        // 1. That the `BALL_LOGTHROTTLEVA` macro works as documented.
+        //    - The `severity` argument is able to be passed a non-`const`
+        //      variable.
+        //
+        //    - If the `severity` is less severe than the threshold, no trace
+        //      occurs.
+        //
+        //    - That only the specified # of traces is allowed to occur within
+        //      the specified time period.
+        //
+        // 2. That the severity-hard-coded `BALL_LOGTHROTTLEVA_*` macros all
+        //    work as documented.
+        //    - If the `severity` is less severe than the threshold, no trace
+        //      occurs.
+        //
+        //    - That only the specified # of traces is allowed to occur within
+        //      the specified time period.
+        //
+        // 3. That in buffer overflow, the trace is truncated as expected.
+        //
+        // 4. That all of the macros, with a semicolon following the call, add
+        //    up to a single C++ statement.
         //
         // Plan:
-        //: 1 In all cases, the time period chosen is one second.  The whole
-        //:   test should take much less than that, which we enforce by
-        //:   measuring the elapsed time and asserting it is less than 0.9
-        //:   seconds.
-        //:
-        //: 2 Each trace is called with 'numMessagesPerPeriod = 1', and they
-        //:   are called 10 times in a tight loop, and we assert that only
-        //:   the first trace happened.
-        //:
-        //: 3 In all of the tight loops there are two traces -- in both cases,
-        //:   the throttling is one trace per second, but the first trace is
-        //:   with the severity less severe than the category threshold, while
-        //:   the second trace is with the severity sufficiently severe to for
-        //:   the trace to occur.  We verify that the first trace was
-        //:   suppressed, that the second trace was not, and that the second
-        //:   trace happened only on the first iteration.
-        //:
-        //: 4 Call all the macros to print a very long string, observe that the
-        //:   string is truncated exactly as expected.
-        //:
-        //: 5 Call all the macros guarded by a satisfied 'if' followed by an
-        //:   'else', observe that it compiles and that 'else' is not executed.
-        //:   Can't put 'ASSERT(0);' in the else clause because our test driver
-        //:   macros suck and don't reduce to a single statement if followed by
-        //:   a semicolon.
+        // 1. In all cases, the time period chosen is one second.  The whole
+        //    test should take much less than that, which we enforce by
+        //    measuring the elapsed time and asserting it is less than 0.9
+        //    seconds.
+        //
+        // 2. Each trace is called with `numMessagesPerPeriod = 1`, and they
+        //    are called 10 times in a tight loop, and we assert that only
+        //    the first trace happened.
+        //
+        // 3. In all of the tight loops there are two traces -- in both cases,
+        //    the throttling is one trace per second, but the first trace is
+        //    with the severity less severe than the category threshold, while
+        //    the second trace is with the severity sufficiently severe to for
+        //    the trace to occur.  We verify that the first trace was
+        //    suppressed, that the second trace was not, and that the second
+        //    trace happened only on the first iteration.
+        //
+        // 4. Call all the macros to print a very long string, observe that the
+        //    string is truncated exactly as expected.
+        //
+        // 5. Call all the macros guarded by a satisfied `if` followed by an
+        //    `else`, observe that it compiles and that `else` is not executed.
+        //    Can't put `ASSERT(0);` in the else clause because our test driver
+        //    macros suck and don't reduce to a single statement if followed by
+        //    a semicolon.
         //
         // Testing:
         //   BALL_LOGTHROTTLEVA
@@ -1884,8 +1887,8 @@ int main(int argc, char *argv[])
         const char *FILE = __FILE__;
 
         if (verbose) cout <<
-                           "Now test the variadic '*_LOGTHROTTLEVA' macros"
-                           " with non-'const' severity & varying arguments.\n";
+                           "Now test the variadic `*_LOGTHROTTLEVA` macros"
+                           " with non-`const` severity & varying arguments.\n";
 
         ASSERT(!bsl::strcmp("sieve", CAT->categoryName()));
 
@@ -2068,7 +2071,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout << "Now test the variadic"
-              " '*_LOGTHROTTLEVA_<SEVERITY>' macros with varying arguments.\n";
+              " `*_LOGTHROTTLEVA_<SEVERITY>` macros with varying arguments.\n";
 
         jj = -1;
 
@@ -3456,7 +3459,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose) cout <<
-                         "Truncation on buffer overflow with 'printf' macro\n";
+                         "Truncation on buffer overflow with `printf` macro\n";
         {
             const int                BUFLEN     =
                     LoggerManager::singleton().getLogger().messageBufferSize();
@@ -3751,9 +3754,9 @@ int main(int argc, char *argv[])
         }
 
         // Note that the following is expressly meant to test the modifications
-        // made to the 'printf'-style macros to use the 'do { ... } while(0)'
-        // idiom (DRQS 13261698).  In particular, the 'if' statements are
-        // *INTENTIONALLY* *NOT* fully bracketed ('{}'-enclosed), contrary to
+        // made to the `printf`-style macros to use the `do { ... } while(0)`
+        // idiom (DRQS 13261698).  In particular, the `if` statements are
+        // *INTENTIONALLY* *NOT* fully bracketed (`{}`-enclosed), contrary to
         // the BDE coding standard.
 
         if (veryVerbose)
@@ -3766,7 +3769,7 @@ int main(int argc, char *argv[])
             {
                 np += doTraces;
                 const int LINE = L_ + 2;
-                if (doTraces)  // *INTENTIONALLY* *NOT* '{}'ed
+                if (doTraces)  // *INTENTIONALLY* *NOT* `{}`ed
                     BALL_LOGTHROTTLEVA_TRACE(n, p, FORMAT_SPEC_0_ARGS);
                 else
                     ++numElses;
@@ -3778,7 +3781,7 @@ int main(int argc, char *argv[])
             {
                 np += doTraces;
                 const int LINE = L_ + 2;
-                if (doTraces)  // *INTENTIONALLY* *NOT* '{}'ed
+                if (doTraces)  // *INTENTIONALLY* *NOT* `{}`ed
                     BALL_LOGTHROTTLEVA_DEBUG(n, p, FORMAT_SPEC_1_ARGS, 1);
                 else
                     ++numElses;
@@ -3790,7 +3793,7 @@ int main(int argc, char *argv[])
             {
                 np += doTraces;
                 const int LINE = L_ + 2;
-                if (doTraces)  // *INTENTIONALLY* *NOT* '{}'ed
+                if (doTraces)  // *INTENTIONALLY* *NOT* `{}`ed
                     BALL_LOGTHROTTLEVA_INFO(n, p, FORMAT_SPEC_2_ARGS, 1, 2);
                 else
                     ++numElses;
@@ -3802,7 +3805,7 @@ int main(int argc, char *argv[])
             {
                 np += doTraces;
                 const int LINE = L_ + 2;
-                if (doTraces)  // *INTENTIONALLY* *NOT* '{}'ed
+                if (doTraces)  // *INTENTIONALLY* *NOT* `{}`ed
                     BALL_LOGTHROTTLEVA_WARN(n, p, FORMAT_SPEC_3_ARGS, 1, 2, 3);
                 else
                     ++numElses;
@@ -3814,7 +3817,7 @@ int main(int argc, char *argv[])
             {
                 np += doTraces;
                 const int LINE = L_ + 1 + (k_HAS_MULTILINE_OFFSET? 2 : 1);
-                if (doTraces)  // *INTENTIONALLY* *NOT* '{}'ed
+                if (doTraces)  // *INTENTIONALLY* *NOT* `{}`ed
                     BALL_LOGTHROTTLEVA_ERROR(n, p, FORMAT_SPEC_4_ARGS, 1, 2, 3,
                                                                             4);
                 else
@@ -3827,7 +3830,7 @@ int main(int argc, char *argv[])
             {
                 np += doTraces;
                 const int LINE = L_ + 1 + (k_HAS_MULTILINE_OFFSET? 2 : 1);
-                if (doTraces)  // *INTENTIONALLY* *NOT* '{}'ed
+                if (doTraces)  // *INTENTIONALLY* *NOT* `{}`ed
                     BALL_LOGTHROTTLEVA_FATAL(n, p,  FORMAT_SPEC_5_ARGS, 1, 2,
                                                                       3, 4, 5);
                 else
@@ -3851,10 +3854,10 @@ int main(int argc, char *argv[])
         // YIELDING RESULTS OF RADIATION METER
         //
         // Concerns:
-        //: 1 Unit-test the radiation meter used in both usage examples.
+        // 1. Unit-test the radiation meter used in both usage examples.
         //
         // Plan:
-        //: 2 Run the meter and print out the results.
+        // 2. Run the meter and print out the results.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "YIELDING RESULTS OF RADIATION METER\n"

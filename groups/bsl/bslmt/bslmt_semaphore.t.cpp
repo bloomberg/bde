@@ -88,9 +88,10 @@ void aSsErT(bool condition, const char *message, int line)
 // push integers to a queue, and later retrieve the integer values from the
 // queue in FIFO order.  It illustrates two potential uses of semaphores: to
 // enforce exclusive access, and to allow resource sharing.
-//..
+// ```
+
+    /// FIFO queue of integer values.
     class IntQueue {
-        // FIFO queue of integer values.
 
         // DATA
         bsl::deque<int> d_queue;        // underlying queue
@@ -103,27 +104,29 @@ void aSsErT(bool condition, const char *message, int line)
 
       public:
         // CREATORS
-        explicit IntQueue(bslma::Allocator *basicAllocator = 0);
-            // Create an 'IntQueue' object.  Optionally specified a
-            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-            // 0, the currently installed default allocator is used.
 
+        /// Create an `IntQueue` object.  Optionally specified a
+        /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+        /// 0, the currently installed default allocator is used.
+        explicit IntQueue(bslma::Allocator *basicAllocator = 0);
+
+        /// Destroy this `IntQueue` object.
         ~IntQueue();
-            // Destroy this 'IntQueue' object.
 
         // MANIPULATORS
-        int getInt();
-            // Retrieve an integer from this 'IntQueue' object.  Integer values
-            // are obtained from the queue in FIFO order.
 
+        /// Retrieve an integer from this `IntQueue` object.  Integer values
+        /// are obtained from the queue in FIFO order.
+        int getInt();
+
+        /// Push the specified `value` to this `IntQueue` object.
         void pushInt(int value);
-            // Push the specified 'value' to this 'IntQueue' object.
     };
-//..
-// Note that the 'IntQueue' constructor increments the count of the semaphore
+// ```
+// Note that the `IntQueue` constructor increments the count of the semaphore
 // to 1 so that values can be pushed into the queue immediately following
 // construction:
-//..
+// ```
     // CREATORS
     IntQueue::IntQueue(bslma::Allocator *basicAllocator)
     : d_queue(basicAllocator)
@@ -142,7 +145,7 @@ void aSsErT(bool condition, const char *message, int line)
         // Waiting for resources.
         d_resourceSem.wait();
 
-        // 'd_mutexSem' is used for exclusive access.
+        // `d_mutexSem` is used for exclusive access.
         d_mutexSem.wait();        // lock
         const int ret = d_queue.back();
         d_queue.pop_back();
@@ -159,7 +162,7 @@ void aSsErT(bool condition, const char *message, int line)
 
         d_resourceSem.post();  // Signal we have resources available.
     }
-//..
+// ```
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -314,15 +317,15 @@ int main(int argc, char *argv[])
         // CREATORS BENCHMARK
         //
         // Concern:
-        //: 1 Benchmark the time, in nanoseconds, to create and destroy a
-        //:   bslmt::Semaphore.
+        // 1. Benchmark the time, in nanoseconds, to create and destroy a
+        //    bslmt::Semaphore.
         //
         // Plan:
-        //: 1 Write a loop that times a large number of semaphore create /
-        //:   destroys, store 101 such trials in an array, sort it, then
-        //:   display 11 of these results from min to max.
-        //:
-        //: 2 The clock on Windows seems to have coarser resolution, so aim for
+        // 1. Write a loop that times a large number of semaphore create /
+        //    destroys, store 101 such trials in an array, sort it, then
+        //    display 11 of these results from min to max.
+        //
+        // 2. The clock on Windows seems to have coarser resolution, so aim for
         //    5 ms per sample on Unix and 20 ms per sample on Windows.
         //
         // Testing:
@@ -414,7 +417,7 @@ int main(int argc, char *argv[])
             u::benchmark(&sysTime, &userTime, &wallTime, iterations);
         }
 
-        // Aim for 5 ms per call (20 ms on Windows) to 'u::benchmark' as
+        // Aim for 5 ms per call (20 ms on Windows) to `u::benchmark` as
         // requested by the ticket.
 
 #if defined(BSLS_PLATFORM_OS_UNIX)

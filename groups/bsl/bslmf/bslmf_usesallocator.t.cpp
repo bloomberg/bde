@@ -12,7 +12,7 @@ using namespace BloombergLP;
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-// 'bslmf::Util' is a utility class, where each function will be tested in a
+// `bslmf::Util` is a utility class, where each function will be tested in a
 // separate test case.  Any significant test machinery will be tested before
 // any function whose test case relies upon it.
 //-----------------------------------------------------------------------------

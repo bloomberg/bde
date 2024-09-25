@@ -70,9 +70,9 @@ using namespace BloombergLP;
         }                                                                     \
     } while (false)
 
+/// Return a ptr to a string describing whether "/proc" exists or not.
 static
 const char *doesProcExist()
-    // Return a ptr to a string describing whether "/proc" exists or not.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     return "";
@@ -83,10 +83,10 @@ const char *doesProcExist()
 #endif
 }
 
+/// Return the process id.  Having this be separate from `Obj::getProcessId`
+/// allows us to call it inline within the component.
 static inline
 int getPid()
-    // Return the process id.  Having this be separate from 'Obj::getProcessId'
-    // allows us to call it inline within the component.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     return static_cast<int>(GetCurrentProcessId());
@@ -95,12 +95,12 @@ int getPid()
 #endif
 }
 
+/// On Unix, return `true` if the file at the specified `path` exists, is
+/// not a directory, and is executable (or is a symbolic link to such a
+/// file) and `false` otherwise.  On Windows, return `true` if the file
+/// exists and is not a directory.
 static inline
 bool isExecutable(const char *path)
-    // On Unix, return 'true' if the file at the specified 'path' exists, is
-    // not a directory, and is executable (or is a symbolic link to such a
-    // file) and 'false' otherwise.  On Windows, return 'true' if the file
-    // exists and is not a directory.
 {
 #if defined BSLS_PLATFORM_OS_UNIX
     const int executableBits = S_IXUSR | S_IXGRP | S_IXOTH;
@@ -133,13 +133,13 @@ bool isExecutable(const bsl::string& path)
 #if defined(BSLS_PLATFORM_OS_LINUX)   || \
     defined(BSLS_PLATFORM_OS_AIX)     || \
     defined(BSLS_PLATFORM_OS_SOLARIS)
+/// If the specified `fileName` is a symlink, resolve it and overwrite
+/// `fileName` with the new value, but only if the new value refers to an
+/// executable file.  The behavior is undefined unless `*fileName` is an
+/// executable file or a symlink to one.  Note that this will only write
+/// over `fileName` if `fileName` is a link to an executable file.
 static
 void resolveSymLinksIfAny(bsl::string *fileName)
-    // If the specified 'fileName' is a symlink, resolve it and overwrite
-    // 'fileName' with the new value, but only if the new value refers to an
-    // executable file.  The behavior is undefined unless '*fileName' is an
-    // executable file or a symlink to one.  Note that this will only write
-    // over 'fileName' if 'fileName' is a link to an executable file.
 {
     BSLS_ASSERT_SAFE(isExecutable(*fileName));
 

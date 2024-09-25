@@ -39,7 +39,7 @@
 #endif
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
-// 'getStackAddresses' will not be able to trace through our stack frames if
+// `getStackAddresses` will not be able to trace through our stack frames if
 // we're optimized on Windows
 
 # pragma optimize("", off)
@@ -54,8 +54,8 @@ using namespace BloombergLP;
 //                              Overview
 //                              --------
 // This component provides 2 primary functions, the lower-level
-// 'getStackAddress' and the simple 'formatCheapStack' that builds on it.  Test
-// cases are broken up in these levels, first testing 'getStackAddress' fully,
+// `getStackAddress` and the simple `formatCheapStack` that builds on it.  Test
+// cases are broken up in these levels, first testing `getStackAddress` fully,
 // then testing formatCheapStack and its usage example.
 //
 // ----------------------------------------------------------------------------
@@ -135,7 +135,7 @@ int main(int, char **);    // forward declaration
 
 namespace u {
 
-// 'lamePlatform' -- on lame platforms where StackAddressUtil doesn't work or
+// `lamePlatform` -- on lame platforms where StackAddressUtil doesn't work or
 // executables are stripped, disable some of the tests.
 #if defined(BDE_BUILD_TARGET_OPT) && defined(BSLS_PLATFORM_OS_WINDOWS)
 const bool lamePlatform = true;
@@ -173,15 +173,15 @@ static void  joinThread(ThreadType aHandle)
 #endif
 }
 
+/// The function just returns `funcPtr`, but only after putting it through a
+/// transform that the optimizer can't possibly understand that leaves it
+/// with its original value.  `TYPE` is expected to be a function pointer
+/// type.
+///
+/// Note that it's still necessary to put a lot of the routines through
+/// contortions to avoid the optimizer optimizing tail calls as jumps.
 template <class TYPE>
 TYPE foilOptimizer(const TYPE funcPtr)
-    // The function just returns 'funcPtr', but only after putting it through a
-    // transform that the optimizer can't possibly understand that leaves it
-    // with its original value.  'TYPE' is expected to be a function pointer
-    // type.
-    //
-    // Note that it's still necessary to put a lot of the routines through
-    // contortions to avoid the optimizer optimizing tail calls as jumps.
 {
     TYPE ret, ret2 = funcPtr;
 
@@ -198,8 +198,8 @@ TYPE foilOptimizer(const TYPE funcPtr)
 
     ret = (TYPE) u;
 
-    // That previous loop toggled all the bits in 'u' that it touched an even
-    // number of times, so 'ret == ret2', but I'm pretty sure the optimizer
+    // That previous loop toggled all the bits in `u` that it touched an even
+    // number of times, so `ret == ret2`, but I'm pretty sure the optimizer
     // can't figure that out.
 
     ASSERT(  u2 ==   u);
@@ -262,19 +262,19 @@ void topOfTheStack(int idMod)
         if (0 == idMod) {
             ASSERT(0 == framesToCaptureBase);
 
-            // We want to 'framesToCaptureBase' so that it just barely includes
-            // the function 'loopForEightSeconds' and everything above it.
+            // We want to `framesToCaptureBase` so that it just barely includes
+            // the function `loopForEightSeconds` and everything above it.
             // We know that that function is just preceded by many identical
-            // instances of 'recurseABunchOfTimes'.
+            // instances of `recurseABunchOfTimes`.
             //
             // We know that the stack trace will consist of
-            //: o (possibly) an ignored frame
-            //: o '&topOfTheStack' + off
-            //: o '&recurseABunchOfTimes' + off of call to 'topOfTheStack'
-            //: o many identical instances of '&recurseABunchOfTimes' recurse
-            //: o 'loopForEightSeconds' + off
+            //  - (possibly) an ignored frame
+            //  - `&topOfTheStack` + off
+            //  - `&recurseABunchOfTimes` + off of call to `topOfTheStack`
+            //  - many identical instances of `&recurseABunchOfTimes` recurse
+            //  - `loopForEightSeconds` + off
             // So we probe the array to find the repeating addresses, and then
-            // set 'framesToCaptureBase' to also capture the one frame after
+            // set `framesToCaptureBase` to also capture the one frame after
             // them.
 
             int ii = 1;
@@ -361,12 +361,12 @@ void *loopForEightSeconds(void *arg)
 
 namespace CASE_USAGE {
 
-// In this example we demonstrate how to use 'formatCheapStack' to generate a
+// In this example we demonstrate how to use `formatCheapStack` to generate a
 // string containing the current stack trace and instructions on how to print
 // it out from showfunc.tsk
 //
 // First we define our function where we want to format the stack:
-//..
+// ```
 struct MyTest {
     static void printCheapStack()
     {
@@ -375,30 +375,30 @@ struct MyTest {
         printf("%s", str);
     }
 };
-//..
+// ```
 // Calling this function will then result in something like this being printed
 // to standard output:
-//..
+// ```
 //  Please run "/bb/bin/showfunc.tsk <binary_name_here> 403308 402641 ...
 //                                ... 3710C1ED1D 400F49" to see the stack trace
-//..
+// ```
 // Then, if you had encountered this output running the binary "mybinary.tsk",
 // you could see your stack trace by running this command:
-//..
+// ```
 //  /bb/bin/showfunc.tsk mybinary.tsk 403308 402641 3710C1ED1D 400F49
-//..
+// ```
 // This will produce output like this:
-//..
+// ```
 //  0x403308 _ZN6MyTest15printCheapStackEv + 30
 //  0x402641 main + 265
 //  0x3710c1ed1d ???
 //  0x400f49 ???
-//..
-// Telling you that 'MyTest::printCheapStack' was called directly from 'main'.
+// ```
+// Telling you that `MyTest::printCheapStack` was called directly from `main`.
 // Note that if you had access to the binary name that was invoked then that
-// could be provided that as the optional last argument to 'printCheapStack' to
-// get a 'showfunc.tsk' command that can be more easily invoked, like this:
-//..
+// could be provided that as the optional last argument to `printCheapStack` to
+// get a `showfunc.tsk` command that can be more easily invoked, like this:
+// ```
 struct MyTest2 {
     static void printCheapStack()
     {
@@ -407,12 +407,12 @@ struct MyTest2 {
         printf("%s", str);
     }
 };
-//..
+// ```
 // resulting in output that looks like this:
-//..
+// ```
 //  Please run "/bb/bin/showfunc.tsk mybinary.tsk 403308 402641 3710C1ED1D ...
 //                                           ... 400F49" to see the stack trace
-//..
+// ```
 
 }  // close namespace CASE_USAGE
 
@@ -422,48 +422,49 @@ struct MyTest2 {
 
 namespace CASE_FOUR {
 
-// First, we define 'AddressEntry', which will contain a pointer to the
+// First, we define `AddressEntry`, which will contain a pointer to the
 // beginning of a function and an index corresponding to the function.  The '<'
 // operator is defined so that a vector of address entries can be sorted in the
 // order of the function addresses.  The address entries will be populated so
-// that the entry containing '&funcN' when 'N' is an integer will have an index
-// of 'N'.
+// that the entry containing `&funcN` when `N` is an integer will have an index
+// of `N`.
 
 struct AddressEntry {
     void *d_funcAddress;
     int   d_index;
 
     // CREATORS
+
+    /// Create an `AddressEntry` object and initialize it with the specified
+    /// `funcAddress` and `index`.
     AddressEntry(void *funcAddress, int index)
     : d_funcAddress(funcAddress)
     , d_index(index)
-        // Create an 'AddressEntry' object and initialize it with the specified
-        // 'funcAddress' and 'index'.
     {}
 
+    /// Return `true` if the address stored in the object is lower than the
+    /// address stored in `rhs` and `false` otherwise.  Note that this is a
+    /// member function for brevity, it only exists to facilitate sorting
+    /// `AddressEntry` objects in a vector.
     bool operator<(const AddressEntry& rhs) const
-        // Return 'true' if the address stored in the object is lower than the
-        // address stored in 'rhs' and 'false' otherwise.  Note that this is a
-        // member function for brevity, it only exists to facilitate sorting
-        // 'AddressEntry' objects in a vector.
     {
 
         return d_funcAddress < rhs.d_funcAddress;
     }
 };
-// Then, we define 'entries', a vector of address entries.  This will be
-// populated such that a given entry will contain function address '&funcN' and
-// index 'N'.  The elements will be sorted according to function address.
+// Then, we define `entries`, a vector of address entries.  This will be
+// populated such that a given entry will contain function address `&funcN` and
+// index `N`.  The elements will be sorted according to function address.
 
 std::vector<AddressEntry> entries;
 
-// Next, we define 'findIndex':
+// Next, we define `findIndex`:
 
+/// Return the index of the address entry whose function uses an instruction
+/// located at specified `retAddress`.  The behavior is undefined unless
+/// `retAddress` is the address of an instruction in use by a function
+/// referred to by an address entry in `entries`.
 static int findIndex(const void *retAddress)
-    // Return the index of the address entry whose function uses an instruction
-    // located at specified 'retAddress'.  The behavior is undefined unless
-    // 'retAddress' is the address of an instruction in use by a function
-    // referred to by an address entry in 'entries'.
 {
     unsigned int u = 0;
     while (u < entries.size()-1 && retAddress >= entries[u+1].d_funcAddress) {
@@ -482,7 +483,7 @@ static int findIndex(const void *retAddress)
 }
 
 // Next, we define a set of functions that will be called in a nested fashion
-// -- 'func5' calls 'func4' who calls 'fun3' and so on.
+// -- `func5` calls `func4` who calls `fun3` and so on.
 
 #define CASE4_FUNC(nMinus1, n)                                                \
     static unsigned int func ## n()                                           \
@@ -491,6 +492,8 @@ static int findIndex(const void *retAddress)
                                                      func ## nMinus1))();     \
     }
 
+/// Call `getAddresses` and verify that the returned set of addresses
+/// matches our expectations.
 static unsigned int func1();
 CASE4_FUNC(1, 2)
 CASE4_FUNC(2, 3)
@@ -499,7 +502,7 @@ CASE4_FUNC(4, 5)
 CASE4_FUNC(5, 6)
 
 // Next, we define the macro FUNC_ADDRESS, which will take a parameter of
-// '&<function name>' and return a pointer to the actual beginning of the
+// `&<function name>` and return a pointer to the actual beginning of the
 // function's code, which is a non-trivial and platform-dependent exercise.
 // Note: this doesn't work on Windows for global routines.
 
@@ -509,18 +512,16 @@ CASE4_FUNC(5, 6)
 # define FUNC_ADDRESS(p) ((void *) (p))
 #endif
 
-// Then, we define 'func1', the last function to be called in the chain of
-// nested function calls.  'func1' uses
-// 'bsls::StackAddressUtil::getStackAddresses' to get an ordered sequence of
+// Then, we define `func1`, the last function to be called in the chain of
+// nested function calls.  `func1` uses
+// `bsls::StackAddressUtil::getStackAddresses` to get an ordered sequence of
 // return addresses from the current thread's function call stack and uses the
-// previously defined 'findIndex' function to verify those address are correct.
+// previously defined `findIndex` function to verify those address are correct.
 
 unsigned int func1()
-    // Call 'getAddresses' and verify that the returned set of addresses
-    // matches our expectations.
 {
-    // Next, we populate and sort the 'entries' table, a sorted array of
-    // 'AddressEntry' objects that will allow 'findIndex' to look up within
+    // Next, we populate and sort the `entries` table, a sorted array of
+    // `AddressEntry` objects that will allow `findIndex` to look up within
     // which function a given return address can be found.
 
     entries.clear();
@@ -533,7 +534,7 @@ unsigned int func1()
     entries.push_back(AddressEntry(FUNC_ADDRESS(&func6), 6));
     std::sort(entries.begin(), entries.end());
 
-    // Then, we obtain the stack addresses with 'getStackAddresses'.
+    // Then, we obtain the stack addresses with `getStackAddresses`.
 
     enum { BUFFER_LENGTH = 100 };
     void *buffer[BUFFER_LENGTH];
@@ -547,14 +548,14 @@ unsigned int func1()
     ASSERT(0 == buffer[numAddresses]);
 
     // Finally, we go through several of the first addresses returned in
-    // 'buffer' and verify that each address corresponds to the routine we
+    // `buffer` and verify that each address corresponds to the routine we
     // expect it to.
 
     // Note that on some, but not all, platforms there is an extra
-    // "narcissistic" frame describing 'getStackAddresses' itself at the
-    // beginning of 'buffer'.  By starting our iteration through 'buffer' at
-    // 'k_IGNORE_FRAMES', we guarantee that the first address we examine will
-    // be in 'func1' on all platforms.
+    // "narcissistic" frame describing `getStackAddresses` itself at the
+    // beginning of `buffer`.  By starting our iteration through `buffer` at
+    // `k_IGNORE_FRAMES`, we guarantee that the first address we examine will
+    // be in `func1` on all platforms.
 
     int funcIdx  = 1;
     int stackIdx = bsls::StackAddressUtil::k_IGNORE_FRAMES;
@@ -599,10 +600,10 @@ bool operator<(const AddressEntry lhs, const AddressEntry rhs)
     return lhs.d_returnAddress < rhs.d_returnAddress;
 }
 
+/// `buffer` is a sorted list of `numAddresses` addresses, whose highest
+/// entry is the max possible value for a pointer.  Search the buffer and
+/// return the index of the first entry at or before `p`.
 static int findIndex(AddressEntry *entries, int numAddresses, UintPtr funcP)
-    // 'buffer' is a sorted list of 'numAddresses' addresses, whose highest
-    // entry is the max possible value for a pointer.  Search the buffer and
-    // return the index of the first entry at or before 'p'.
 {
     int i = 0;
     while (i < numAddresses && funcP > entries[i].d_returnAddress) {
@@ -722,9 +723,9 @@ enum {
     BUFFER_LENGTH = 1000
 };
 
+/// Recurses to a depth of the specified `depth` then copies the stack
+/// addresses into `buffer` for evaluation by subsequent tests.
 void recurser(int *depth)
-    // Recurses to a depth of the specified 'depth' then copies the stack
-    // addresses into 'buffer' for evaluation by subsequent tests.
 {
 
     if (--*depth > 0) {
@@ -823,12 +824,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE #2
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 The usage example is included above to be sure it compiles.
-        //: 2
+        // 1. The usage example is included above to be sure it compiles.
+        //  2
         //
         // Testing:
         //   USAGE EXAMPLE #2
@@ -846,21 +847,21 @@ int main(int argc, char *argv[])
         // MULTITHREADED TEST
         //
         // Concerns:
-        //: 1 We want to test that the stack walkback is thread safe.  Of
-        //:   particular concern is the Windows implementation, where we use
-        //:   'RtlCaptureStackBackTrace' which is not explicitly documented on
-        //:   MSDN as thread-safe, but it is argued that MSDN always calls out
-        //:   non-thread-safe functions as such.
+        // 1. We want to test that the stack walkback is thread safe.  Of
+        //    particular concern is the Windows implementation, where we use
+        //    `RtlCaptureStackBackTrace` which is not explicitly documented on
+        //    MSDN as thread-safe, but it is argued that MSDN always calls out
+        //    non-thread-safe functions as such.
         //
         // Plan:
-        //: 1 We do 10 different stack traces where we capture a stack trace to
-        //:   10 buffers, a different stack trace each time.
-        //:
-        //: 2 Then we repeat, in 10 threads, repeatedly doing stack traces,
-        //:   the stack traces in each thread matching one of those ten
-        //:   different traces, and check that the stack trace matches the
-        //:   so no two threads are doing matching traces.  Do this repeatedly
-        //:   for 8 seconds.
+        // 1. We do 10 different stack traces where we capture a stack trace to
+        //   10. buffers, a different stack trace each time.
+        //
+        // 2. Then we repeat, in 10 threads, repeatedly doing stack traces,
+        //    the stack traces in each thread matching one of those ten
+        //    different traces, and check that the stack trace matches the
+        //    so no two threads are doing matching traces.  Do this repeatedly
+        //    for 8 seconds.
         //
         // Testing:
         //   MULTITHREADED TEST
@@ -875,7 +876,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(10 == TC::threadId);
 
-        // Make sure the 'addressDataBase' is as we expect it to be.
+        // Make sure the `addressDataBase` is as we expect it to be.
 
         {
             ASSERT(10 < TC::framesToCaptureBase);
@@ -925,14 +926,14 @@ int main(int argc, char *argv[])
         // CHEAPSTACK PROCESS NAME TEST
         //
         // Concerns:
-        //: 1 'formatCheapStack' when not passed a 'taskName' parameter should
-        //:   get the process name, which for this test driver should contain
-        //:   the component name "bsls_stackaddressutil" somewhere in it.
-        //:
+        // 1. `formatCheapStack` when not passed a `taskName` parameter should
+        //    get the process name, which for this test driver should contain
+        //    the component name "bsls_stackaddressutil" somewhere in it.
+        //
         // Plan:
-        //: 1 Call 'formatCheapStack'.
-        //:
-        //: 2 Verify the result contains "bsls_stackaddressutil".
+        // 1. Call `formatCheapStack`.
+        //
+        // 2. Verify the result contains "bsls_stackaddressutil".
         //
         // Testing:
         //   CHEAPSTACK: test process name
@@ -957,13 +958,13 @@ int main(int argc, char *argv[])
         // CHEAPSTACK STACK TEST
         //
         // Concerns:
-        //: 1 'formatCheapStack' should produce the same output other than just
-        //:   one return point when called consecutively.
-        //:
+        // 1. `formatCheapStack` should produce the same output other than just
+        //    one return point when called consecutively.
+        //
         // Plan:
-        //: 1 Call 'formatCheapStack' twice.
-        //:
-        //: 2 Compare the outputs.
+        // 1. Call `formatCheapStack` twice.
+        //
+        // 2. Compare the outputs.
         //
         // Testing:
         //   CHEAPSTACK: test stacks
@@ -1042,19 +1043,19 @@ int main(int argc, char *argv[])
         // CHEAPSTACK TRUNCATION TEST
         //
         // Concerns:
-        //: 1 'formatCheapStack' should work properly even when given buffers
-        //:   too small for its full output.
+        // 1. `formatCheapStack` should work properly even when given buffers
+        //    too small for its full output.
         //
         // Plan:
-        //: 1 Repeatedly call formatCheapStack from the same place in a loop.
-        //:
-        //: 2 Increase the buffer size given to formatCheapStack in each
-        //:   iteration of the loop.
-        //:
-        //: 3 Verify that each consecutive call extends the output of the
-        //:   previous invocation.
-        //:
-        //: 4 Verify that the 0 case does not alter the buffer.
+        // 1. Repeatedly call formatCheapStack from the same place in a loop.
+        //
+        // 2. Increase the buffer size given to formatCheapStack in each
+        //    iteration of the loop.
+        //
+        // 3. Verify that each consecutive call extends the output of the
+        //    previous invocation.
+        //
+        // 4. Verify that the 0 case does not alter the buffer.
         //
         // Testing:
         //   CHEAPSTACK: test truncation
@@ -1108,14 +1109,14 @@ int main(int argc, char *argv[])
         // CHEAPSTACK TEST
         //
         // Concerns:
-        //: 1 Want to observe the basic call to cheapstack works.
+        // 1. Want to observe the basic call to cheapstack works.
         //
         // Plan:
-        //: 1 Call 'formatCheapStack' with a sufficiently large buffer.
-        //:
-        //: 2 Call 'formatCheapStack' again with an explicit taskname to be
-        //:   sure that the taskname is part of the output.
-        //:
+        // 1. Call `formatCheapStack` with a sufficiently large buffer.
+        //
+        // 2. Call `formatCheapStack` again with an explicit taskname to be
+        //    sure that the taskname is part of the output.
+        //
         // Testing
         //   static void formatCheapStack(char*,int,char*);
         // --------------------------------------------------------------------
@@ -1151,19 +1152,19 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE #1
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Have a sequence of records, each of which contains the address of
-        //:   the beginning of a function's code and an index corresponding to
-        //:   that function.
-        //:
-        //: 2 These functions are arranged in a chain to call each other and
-        //:   the final one of the chain calls 'getStackAddresses' and looks up
-        //:   the return addresses obtain in the sequence of records to verify
-        //:   that the addresses are within the functions we expect them to be
-        //:   in.
+        // 1. Have a sequence of records, each of which contains the address of
+        //    the beginning of a function's code and an index corresponding to
+        //    that function.
+        //
+        // 2. These functions are arranged in a chain to call each other and
+        //    the final one of the chain calls `getStackAddresses` and looks up
+        //    the return addresses obtain in the sequence of records to verify
+        //    that the addresses are within the functions we expect them to be
+        //    in.
         //
         // Testing:
         //   USAGE EXAMPLE #1
@@ -1175,7 +1176,7 @@ int main(int argc, char *argv[])
 #ifndef BSLS_PLATFORM_OS_WINDOWS
         // This test case just seems to fail on Windows, something to do with
         // '&' not working correctly, possibly because the compiler is creating
-        // 'thunk' functions that just call the actual routine.  I wish they
+        // `thunk` functions that just call the actual routine.  I wish they
         // wouldn't do that.
 
         unsigned int result = (*bsls::BslTestUtil::makeFunctionCallNonInline(
@@ -1185,43 +1186,43 @@ int main(int argc, char *argv[])
       }  break;
       case 3: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'getStackAddresses'
+        // CLASS METHOD `getStackAddresses`
         //
-        // Note: this was the original test that 'getStackAddresses' was
+        // Note: this was the original test that `getStackAddresses` was
         // finding the proper functions.  This test was later simplified into
         // case 4 for use as a usage example.
         //
         // Concerns:
-        //: 1 The method finds the functions we expect it to.
-        //:
-        //: 2 The returned addresses are in the right order.
-        //:
-        //: 3 The method returns non-zero on error.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The method finds the functions we expect it to.
+        //
+        // 2. The returned addresses are in the right order.
+        //
+        // 3. The method returns non-zero on error.
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Have a sequence of functions on the stack, and take pointers to
-        //:   those functions using '&<function name>', put those pointers into
-        //:   an array.
-        //:
-        //: 2 Collect the return addresses from the stack and put those
-        //:   addresses into an array of records, also storing an int in each
-        //:   record to identify which routine we expect the address to be in.
-        //:   Sort the array of records.  It then becomes possible to verify
-        //:   which return address is within which routine.
+        // 1. Have a sequence of functions on the stack, and take pointers to
+        //    those functions using `&<function name>`, put those pointers into
+        //    an array.
+        //
+        // 2. Collect the return addresses from the stack and put those
+        //    addresses into an array of records, also storing an int in each
+        //    record to identify which routine we expect the address to be in.
+        //    Sort the array of records.  It then becomes possible to verify
+        //    which return address is within which routine.
         //
         // Testing:
         //   int getStackAddresses(void **buffer, int maxFrames);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nCLASS METHOD 'getStackAddresses'"
+        if (verbose) printf("\nCLASS METHOD `getStackAddresses`"
                             "\n================================\n");
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
         // This test case just seems to fail on Windows, something to do with
         // '&' not working correctly, possibly because the compiler is creating
-        // 'thunk' functions that just call the actual routine.  I wish they
+        // `thunk` functions that just call the actual routine.  I wish they
         // wouldn't do that.
 
         int i = 0;
@@ -1234,15 +1235,15 @@ int main(int argc, char *argv[])
         // ZEROES TEST CASE
         //
         // Concerns:
-        //: 1 'getStackAddresses(0, 0)' doesn't segFault.
+        // 1. `getStackAddresses(0, 0)` doesn't segFault.
         //
         // Plan:
-        //: 1 Call 'getStackAddresses(0, 0)'.  In the debugger, verify that on
-        //:   Linux, the first call calls 'backtrace' and the second call calls
-        //:   neither 'dlopen' nor 'malloc'.
+        // 1. Call `getStackAddresses(0, 0)`.  In the debugger, verify that on
+        //    Linux, the first call calls `backtrace` and the second call calls
+        //    neither `dlopen` nor `malloc`.
         //
         // Testing:
-        //   CONCERN: 'getStackAddresses(0, 0)' doesn't segFault.
+        //   CONCERN: `getStackAddresses(0, 0)` doesn't segFault.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nZEROES TEST CASE"
@@ -1259,20 +1260,20 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
-        //:
-        //: 2 The method won't write past the end of the array it is passed.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
+        //
+        // 2. The method won't write past the end of the array it is passed.
         //
         // Plan:
-        //: 1 Recurse many times, call 'getStackAddresses', and check that the
-        //:   elements are either null or non-null as expected.
-        //:
-        //: 2 Do this twice, once in the case where the array is more than long
-        //:   enough to accommodate the entire stack depth, and once in the
-        //:   case where the array length passed is too short to hold the
-        //:   entire stack, and verify that elements past the specified length
-        //:   of the array are unaffected.
+        // 1. Recurse many times, call `getStackAddresses`, and check that the
+        //    elements are either null or non-null as expected.
+        //
+        // 2. Do this twice, once in the case where the array is more than long
+        //    enough to accommodate the entire stack depth, and once in the
+        //    case where the array length passed is too short to hold the
+        //    entire stack, and verify that elements past the specified length
+        //    of the array are unaffected.
         //
         // Testing:
         //   BREATHING TEST
@@ -1283,7 +1284,7 @@ int main(int argc, char *argv[])
 
         namespace TC = CASE_ONE;
 
-        // Call 'recurseAndPrintExample3' with will recurse 'depth' times, then
+        // Call `recurseAndPrintExample3` with will recurse `depth` times, then
         // print a stack trace.
 
         veryVerbose = std::max(0, veryVerbose);
@@ -1293,7 +1294,7 @@ int main(int argc, char *argv[])
         ASSERT(TC::recurseDepth == depth);
 
         if (verbose) P(BSLS_PLATFORM_CMP_VERSION);      // Used to calculate
-                                                        // 'k_IGNORE_FRAMES'.
+                                                        // `k_IGNORE_FRAMES`.
       }  break;
       default: {
           fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

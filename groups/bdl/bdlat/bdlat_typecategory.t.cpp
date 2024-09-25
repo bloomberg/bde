@@ -405,33 +405,33 @@ struct MyAccessor {
 //
 ///Example 1: Compile-Time Dispatch by Category Type
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// The 'bdlat_typecategory' framework provides facilities to control actions
-// based on the 'bdlat' type category of the objects being used.  Dispatching
+// The `bdlat_typecategory` framework provides facilities to control actions
+// based on the `bdlat` type category of the objects being used.  Dispatching
 // on type category can be achieved both at compile time and at runtime.
 // Depending on that context, different facilities, having different
 // restrictions/requirements are used.  There are interesting differences when
 // dealing with objects in the "dynamic" type category.
 //
 // This first example explores compile-time dispatch.  Suppose we have an
-// object that is compliant with one of the 'bdlat' type categories and that we
+// object that is compliant with one of the `bdlat` type categories and that we
 // wish to examine it to the extent of determining into which type category it
 // falls and what value it has.
 //
-// First, we declare a 'printCategoryAndValue' function that has a template
-// parameter 'TYPE':
-//..
+// First, we declare a `printCategoryAndValue` function that has a template
+// parameter `TYPE`:
+// ```
     namespace BloombergLP {
     namespace mine {
 
+    /// Print the category of the specified `object` followed by the value
+    /// of `object` to the specified output `stream`.
     template <class TYPE>
     void printCategoryAndValue(bsl::ostream& stream, const TYPE& object);
-        // Print the category of the specified 'object' followed by the value
-        // of 'object' to the specified output 'stream'.
-//..
+// ```
 // Then, to implement this function, we will use a set of helper functions that
 // are overloaded based on the category tag.  The first set of helper functions
 // address the category aspect of our assigned goal:
-//..
+// ```
     void printCategory(bsl::ostream& stream, bdlat_TypeCategory::Array)
     {
         stream << "Array";
@@ -472,10 +472,10 @@ struct MyAccessor {
     {
         stream << "Simple";
     }
-//..
+// ```
 // Next, we implement another helper function template to handle the value
 // aspect of our goal:
-//..
+// ```
     template <class TYPE, class CATEGORY>
     void printValue(bsl::ostream& stream,
                     const TYPE&   object,
@@ -491,14 +491,14 @@ struct MyAccessor {
     {
         stream << "Printing dynamic types requires extra work.";
     }
-//..
+// ```
 // Notice that a partial specialization was created for objects falling into
 // the "dynamic" category.  Determining the value of such objects will be
 // explored in {Example 3}.
 //
-// Now, we can implement the 'printCategoryAndValue' function in terms of the
-// 'printCategory' and 'printValue' helper functions:
-//..
+// Now, we can implement the `printCategoryAndValue` function in terms of the
+// `printCategory` and `printValue` helper functions:
+// ```
 
     template <class TYPE>
     void printCategoryAndValue(bsl::ostream& stream, const TYPE& object)
@@ -515,10 +515,10 @@ struct MyAccessor {
 
     }  // close package namespace
     }  // close enterprise namespace
-//..
-// Finally, we can exercise the 'printCategoryAndValue' function on objects
+// ```
+// Finally, we can exercise the `printCategoryAndValue` function on objects
 // that fall in different (non-dynamic) type categories.
-//..
+// ```
     using namespace BloombergLP;
 
     void runUsageExample1()
@@ -552,17 +552,17 @@ struct MyAccessor {
         mine::printCategoryAndValue(oss, vec);
         ASSERT("Array: [ 123 345 987 ]" == oss.str());
     }
-//..
+// ```
 //
-///Example 2: Run-Time Dispatch by 'bdlat_TypeCategoryUtil'
+///Example 2: Run-Time Dispatch by `bdlat_TypeCategoryUtil`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // For run-time dispatching we can use the utility functions provided by
-// 'bdlat_TypeCategoryUtil'.  Suppose we wish to examine the type category and
-// value of an arbitrary 'bdlat' compatible object, as we did in {Example 1}.
+// `bdlat_TypeCategoryUtil`.  Suppose we wish to examine the type category and
+// value of an arbitrary `bdlat` compatible object, as we did in {Example 1}.
 //
-// First, we define 'mine::PrintAccessor', a functor that encapsulates the
+// First, we define `mine::PrintAccessor`, a functor that encapsulates the
 // action to be taken:
-//..
+// ```
     namespace BloombergLP {
     namespace mine {
 
@@ -640,16 +640,16 @@ struct MyAccessor {
 
     }  // close package namespace
     }  // close enterprise namespace
-//..
-// Notice that this overload set for 'operator()' includes an overload for
-// 'bslmf::Nil' (as required) but does *not* include an overload for
-// 'bdlat_TypeCategory::DynamicType' which is never reported as a runtime type
+// ```
+// Notice that this overload set for `operator()` includes an overload for
+// `bslmf::Nil` (as required) but does *not* include an overload for
+// `bdlat_TypeCategory::DynamicType` which is never reported as a runtime type
 // category.
 //
-// Now, we can simply use 'bdlat_TypeCategoryUtil' to determine the type of a
+// Now, we can simply use `bdlat_TypeCategoryUtil` to determine the type of a
 // given object dispatch control to the corresponding overload of the accessor
 // functor:
-//..
+// ```
     using namespace BloombergLP;
 
     void runUsageExample2()
@@ -685,23 +685,23 @@ struct MyAccessor {
         LOOP_ASSERT(oss.str(), "Array: [ 123 345 987 ]" == oss.str());
         oss.str("");
     }
-//..
+// ```
 //
 ///Example 3: Dynamic (Run-Time) Typing and Dispatch
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example, we introduce a class that is the 'bdlat' "dyanmic" type
+// In this example, we introduce a class that is the `bdlat` "dyanmic" type
 // category and show how its behavior is a generalization of what we have seen
-// for the "static" 'bdlat' types.
+// for the "static" `bdlat` types.
 //
-// First, we define a class, 'mine::MyDynamicType', that can hold one of two
-// value types: either a 'bsl::vector<char>' or a 'bsl::string'.
-//..
+// First, we define a class, `mine::MyDynamicType`, that can hold one of two
+// value types: either a `bsl::vector<char>` or a `bsl::string`.
+// ```
     namespace BloombergLP {
     namespace mine {
 
+    /// This class can represent data in two forms: either a `bsl::string`
+    /// or as a `bsl::vector` of `char` values.
     class MyDynamicType {
-        // This class can represent data in two forms: either a 'bsl::string'
-        // or as a 'bsl::vector' of 'char' values.
 
         // PRIVATE DATA MEMBERS
         bsl::vector<char> d_vectorChar;  // Note: Production code should use a
@@ -731,16 +731,16 @@ struct MyAccessor {
 
     }  // close package namespace
     }  // close enterprise namespace
-//..
-// When acting as a vector this class is a 'bdlat' "array" type and when
-// holding a string, the class is a 'bdlat' "simple" type.  Since this type can
+// ```
+// When acting as a vector this class is a `bdlat` "array" type and when
+// holding a string, the class is a `bdlat` "simple" type.  Since this type can
 // be in two type categories (determined at runtime) this class is deemed a
 // "dynamic" class (for calculations at compile time).
 //
 // Then, to denote that this class is a dynamic type, we specialize the
-// 'bdlat_TypeCategoryDeclareDynamic' meta-function in the 'BloombergLP'
+// `bdlat_TypeCategoryDeclareDynamic` meta-function in the `BloombergLP`
 // namespace:
-//..
+// ```
     namespace BloombergLP {
 
         template <>
@@ -749,11 +749,11 @@ struct MyAccessor {
         };
 
     }  // close enterprise namespace
-//..
+// ```
 // Now, we define bdlat_typeCategorySelect', and a suite of four functions,
-// 'bdlat_typeCategory(Manipulate|Access)(Array|Simple)', each overloaded for
-// our type, 'MyDynamicType'.
-//..
+// `bdlat_typeCategory(Manipulate|Access)(Array|Simple)`, each overloaded for
+// our type, `MyDynamicType`.
+// ```
    namespace BloombergLP {
    namespace mine {
 
@@ -769,7 +769,7 @@ struct MyAccessor {
 
         ASSERT(0 == "Reached");
 
-        // Note that this 'return' is never reached and hence the returned
+        // Note that this `return` is never reached and hence the returned
         // value is immaterial.
 
         return bdlat_TypeCategory::e_SIMPLE_CATEGORY;
@@ -825,26 +825,26 @@ struct MyAccessor {
 
     }  // close package namespace
     }  // close enterprise namespace
-//..
+// ```
 // Notice that the customization points were implemented for just the two type
-// categories that 'MyDynamicType' can achieve: "array" and "simple".
+// categories that `MyDynamicType` can achieve: "array" and "simple".
 //
 // Finally, we can see how the facilities we developed in {Example 1} and
 // {Example 2} behave when given a "dynamic" type;
-//..
+// ```
     void runUsageExample3()
     {
-//..
-// We see that the 'Select' meta-function returns the expected value:
-//..
+// ```
+// We see that the `Select` meta-function returns the expected value:
+// ```
         ASSERT(bdlat_TypeCategory::e_DYNAMIC_CATEGORY
             == static_cast<bdlat_TypeCategory::Value>(
                bdlat_TypeCategory::Select<mine::MyDynamicType>::e_SELECTION));
-//..
+// ```
 // We create an object of our dynamic type and observe that the specialization
 // we created for printing the values (actually, for *not* printing the value
 // of) "dynamic" types is invoked:
-//..
+// ```
         bsl::ostringstream  oss;
         mine::MyDynamicType object;
 
@@ -852,12 +852,12 @@ struct MyAccessor {
         ASSERT("DynamicType: Printing dynamic types requires extra work."
                == oss.str());
         oss.str("");
-//..
-// We instruct object to behave as a vector and see that the 'bdlat' framework
+// ```
+// We instruct object to behave as a vector and see that the `bdlat` framework
 // treats the object as a member of the "array" category and the
-// 'PrintAccessor' we defined in {Example 2} treats 'object' as a member of the
+// `PrintAccessor` we defined in {Example 2} treats `object` as a member of the
 // "array" category:
-//..
+// ```
         object.makeVectorChar();
 
         ASSERT(bdlat_TypeCategory::e_ARRAY_CATEGORY
@@ -876,10 +876,10 @@ struct MyAccessor {
         ASSERT(0 == ret);
         LOOP_ASSERT(oss.str(), "Array: \"Hello\"" == oss.str());
         oss.str("");
-//..
-// Lastly, we instruct 'object' to behave as a string and find that the 'bdlat'
-// framework now considers 'object' to be the "simple" category:
-//..
+// ```
+// Lastly, we instruct `object` to behave as a string and find that the `bdlat`
+// framework now considers `object` to be the "simple" category:
+// ```
         object.makeString();
 
         ASSERT(bdlat_TypeCategory::e_SIMPLE_CATEGORY
@@ -892,10 +892,10 @@ struct MyAccessor {
         ASSERT("Simple: World" == oss.str());
         oss.str("");
     }
-//..
+// ```
 // Notice that the output of the accessor matches the state of the object,
-// reporting an "array" type when the object 'isVector' and a "simple" type
-// when the object 'isString'.
+// reporting an "array" type when the object `isVector` and a "simple" type
+// when the object `isString`.
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -954,19 +954,19 @@ int main(int argc, char *argv[])
         // TEST ENUMERATORS
         //
         // Concerns
-        //: 1 When BDE_OMIT_INTERNAL_DEPRECATED is not defined, the BDEAT_...
-        //:   enumeration literals should exist and evaluate to their e_...
-        //:   equivalents.
-        //:
-        //: 2 When BDE_OMIT_INTERNAL_DEPRECATED is defined, the BDEAT_...
-        //:   enumeration literals should not exist.
+        // 1. When BDE_OMIT_INTERNAL_DEPRECATED is not defined, the BDEAT_...
+        //    enumeration literals should exist and evaluate to their e_...
+        //    equivalents.
+        //
+        // 2. When BDE_OMIT_INTERNAL_DEPRECATED is defined, the BDEAT_...
+        //    enumeration literals should not exist.
         //
         // Plan
-        //: 1 When BDE_OMIT_INTERNAL_DEPRECATED is not defined, check that the
-        //:   BDEAT_... enumeration literals evaluate to their e_...
-        //:   equivalents.  (C-1)
-        //:
-        //: 2 We cannot check for (C-2), so hope for the best.
+        // 1. When BDE_OMIT_INTERNAL_DEPRECATED is not defined, check that the
+        //    BDEAT_... enumeration literals evaluate to their e_...
+        //    equivalents.  (C-1)
+        //
+        // 2. We cannot check for (C-2), so hope for the best.
         //
         // Testing:
         //   ENUMERATORS
@@ -1014,7 +1014,7 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'accessByCategory' FUNCTION
+        // TESTING `accessByCategory` FUNCTION
         //
         // Concerns:
         //
@@ -1023,7 +1023,7 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'accessByCategory' FUNCTION"
+        if (verbose) cout << "\nTESTING `accessByCategory` FUNCTION"
                           << "\n============= " << endl;
 
         {
@@ -1185,7 +1185,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'manipulateByCategory' FUNCTION
+        // TESTING `manipulateByCategory` FUNCTION
         //
         // Concerns:
         //
@@ -1194,7 +1194,7 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'manipulateByCategory' FUNCTION"
+        if (verbose) cout << "\nTESTING `manipulateByCategory` FUNCTION"
                           << "\n============= " << endl;
 
         {
@@ -1356,7 +1356,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'access<Category>' FUNCTIONS
+        // TESTING `access<Category>` FUNCTIONS
         //
         // Concerns:
         //
@@ -1365,7 +1365,7 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'acess<Category>' FUNCTIONS"
+        if (verbose) cout << "\nTESTING `acess<Category>` FUNCTIONS"
                           << "\n============= " << endl;
 
         {
@@ -1691,7 +1691,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'manipulate<Category>' FUNCTIONS
+        // TESTING `manipulate<Category>` FUNCTIONS
         //
         // Concerns:
         //
@@ -1700,7 +1700,7 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'manipulate<Category>' FUNCTIONS"
+        if (verbose) cout << "\nTESTING `manipulate<Category>` FUNCTIONS"
                           << "\n============= " << endl;
 
         {
@@ -2026,7 +2026,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'select' FUNCTION
+        // TESTING `select` FUNCTION
         //
         // Concerns:
         //
@@ -2035,7 +2035,7 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'select' FUNCTION"
+        if (verbose) cout << "\nTESTING `select` FUNCTION"
                           << "\n============= " << endl;
 
         {

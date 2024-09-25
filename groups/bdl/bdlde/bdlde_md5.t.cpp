@@ -181,8 +181,9 @@ typedef bslx::TestOutStream Out;
 // a 'bdex' output stream.  Note that 'Out' may be a 'typedef' of any class
 // that implements the 'bslx::OutStream' protocol:
 //..
+
+/// Write a message and its MD5 digest to the specified `output` stream.
 void senderExample(Out& output)
-    // Write a message and its MD5 digest to the specified 'output' stream.
 {
     // Prepare a message.
     bsl::string message = "This is a test message.";
@@ -204,9 +205,10 @@ void senderExample(Out& output)
 // that 'In' may be a 'typedef' of any class that implements the
 // 'bslx::InStream' protocol:
 //..
+
+/// Read a message and its MD5 digest from the specified `input` stream,
+/// and verify the integrity of the message.
 void receiverExample(In& input)
-    // Read a message and its MD5 digest from the specified 'input' stream,
-    // and verify the integrity of the message.
 {
     // Read the message from 'input'.
     bsl::string message;
@@ -229,9 +231,9 @@ void receiverExample(In& input)
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Print the specified `str` string to `bsl::cout`, taking care to expand
+/// non-printable characters into their hexadecimal representation.
 void printHex(const char *str)
-    // Print the specified 'str' string to 'bsl::cout', taking care to expand
-    // non-printable characters into their hexadecimal representation.
 {
     cout << "\"";
     for (int i = 0; str[i]; ++i) {
@@ -300,13 +302,13 @@ void printHex(const char *str)
 // ----------------------------------------------------------------------------
 //..
 
+/// Configure the specified `object` according to the specified `spec`
+/// using the primary manipulator function `update` and `reset`.  Optionally
+/// specify a zero `vF` to suppress `spec` syntax error messages.  Return
+/// the index of the first invalid character, and a negative value
+/// otherwise.  Note that this function is used to implement `gg` as well as
+/// allow for verification of syntax error detection.
 int ggg(Obj *object, const char *spec, int vF = 1)
-    // Configure the specified 'object' according to the specified 'spec'
-    // using the primary manipulator function 'update' and 'reset'.  Optionally
-    // specify a zero 'vF' to suppress 'spec' syntax error messages.  Return
-    // the index of the first invalid character, and a negative value
-    // otherwise.  Note that this function is used to implement 'gg' as well as
-    // allow for verification of syntax error detection.
 {
     enum { SUCCESS = -1 };
 
@@ -388,16 +390,16 @@ int ggg(Obj *object, const char *spec, int vF = 1)
     return SUCCESS;
 }
 
+/// Return, by reference, the specified `object` with its value adjusted
+/// according to the specified `spec`.
 Obj& gg(Obj *object, const char *spec)
-    // Return, by reference, the specified 'object' with its value adjusted
-    // according to the specified 'spec'.
 {
     ASSERT(ggg(object, spec) < 0);
     return *object;
 }
 
+/// Return, by value, a new object corresponding to the specified `spec`.
 Obj g(const char *spec)
-    // Return, by value, a new object corresponding to the specified 'spec'.
 {
     Obj object;
     return gg(&object, spec);

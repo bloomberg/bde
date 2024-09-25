@@ -73,14 +73,14 @@ namespace bslmftest {
                            // class SomeTemplateType
                            // ======================
 
+/// This specialization of `SomeTemplateType` defines an alias `Type` for a
+/// functor that delegates to a function pointer matching the parameterized
+/// `SOME_TYPE` type.
 template <class SOME_TYPE>
 class SomeTemplateType {
-    // This specialization of 'SomeTemplateType' defines an alias 'Type' for a
-    // functor that delegates to a function pointer matching the parameterized
-    // 'SOME_TYPE' type.
 
     BSLMF_ASSERT(4 == sizeof(SOME_TYPE));
-        // This 'BSLMF_ASSERT' statement ensures that the parameter 'SOME_TYPE'
+        // This `BSLMF_ASSERT` statement ensures that the parameter `SOME_TYPE`
         // must be a function pointer.
 };
 
@@ -116,8 +116,8 @@ namespace Bar {
 #endif
 }  // close namespace Bar
 
+/// class scope
 class MyType {
-    // class scope
 
     BSLMF_ASSERT(sizeof(int) >= sizeof(char));
     BSLMF_ASSERT(sizeof(int) >= sizeof(char));
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // BSLMF_ASSERT MACRO WITHIN TEMPLATE CLASS
         //   Sun Studio has historically required a special implementation of
-        //   'BSMF_ASSERT'.  According to DRQS 79918675, starting with Sun
+        //   `BSMF_ASSERT`.  According to DRQS 79918675, starting with Sun
         //   Studio 12.4 the special implementation causes build failures by
         //   its mere presence in a templatized class, even if that class is
         //   never instantiated.  On the other hand, Sun Studio 12.4 has
@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
                             "\n========================================\n");
 
         // Do nothing.  The test is entirely encapsulated in the definition of
-        // 'SomeTemplateType' above.
+        // `SomeTemplateType` above.
 
         ASSERT(true);
       } break;
@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Invoke the macro at namespace, class, and function scope (above)
         //   and verify that it does not cause a compiler error.  Please see
-        //   the 'ttt' test package group for test cases where the macro
+        //   the `ttt` test package group for test cases where the macro
         //   should cause a compile-time error.
         //
         // Testing:

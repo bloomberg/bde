@@ -15,7 +15,7 @@
 #include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
 
-#include <bsl_algorithm.h>   // 'bsl::min'
+#include <bsl_algorithm.h>   // `bsl::min`
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -34,9 +34,9 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // We begin by testing that a latch can be constructed and destroyed, and that
-// the non-blocking methods, 'arrive', 'countDown', and 'arriveAndWait' (on a
-// 'bslmt::Latch(1)'), are indeed non-blocking.  Also, a 'wait()' is tested on
-// a 'bslmt::Latch(0)'; indeed, in this case the synchronization point is
+// the non-blocking methods, `arrive`, `countDown`, and `arriveAndWait` (on a
+// `bslmt::Latch(1)`), are indeed non-blocking.  Also, a `wait()` is tested on
+// a `bslmt::Latch(0)`; indeed, in this case the synchronization point is
 // already reached.
 //
 // Some "non-blocking" smoke tests are performed by multiple threads.
@@ -46,11 +46,11 @@ using namespace bsl;
 // as Producers, some acting as Consumers, and some acting as both Producers
 // and Consumers.
 //
-//: o Producer Threads call:         'arrive()' or 'countDown(n)'
-//:
-//: o Consumer Threads call:         'wait()'
-//:
-//: o ProducerConsumer Threads call: 'arriveAndWait()'
+//  - Producer Threads call:         `arrive()` or `countDown(n)`
+//
+//  - Consumer Threads call:         `wait()`
+//
+//  - ProducerConsumer Threads call: `arriveAndWait()`
 //
 // In order to test that not a single thread in a "consumer group" passes the
 // latch before the synchronization point is reached the following strategy is
@@ -58,21 +58,21 @@ using namespace bsl;
 //
 // All threads will share the latch under test and an "atomic int".
 //
-//: o Producer threads perform 'x += 1' on the shared 'int' *before* the
-//:   'arrive()' or the 'countDown(1)'.
-//:
-//: o Consumer threads perform 'x *= 2' on the shared 'int' *after* the
-//:   'wait()'.
-//:
-//: o ProducerConsumer threads perform 'x += 1' on the shared 'int' *before*
-//:   the 'arriveAndWait()' and 'x *= 2' *after* it.
+//  - Producer threads perform `x += 1` on the shared `int` *before* the
+//    `arrive()` or the `countDown(1)`.
+//
+//  - Consumer threads perform `x *= 2` on the shared `int` *after* the
+//    `wait()`.
+//
+//  - ProducerConsumer threads perform `x += 1` on the shared `int` *before*
+//    the `arriveAndWait()` and `x *= 2` *after* it.
 //
 // After the threads execution the expected result is:
-//..
+// ```
 //  # producers * 2 ** # consumers)
-//..
-// If the latch doesn't provide the expected "isolation" and an 'x += 1' and an
-// 'x *= 2' are mixed the result will be not the expected one.
+// ```
+// If the latch doesn't provide the expected "isolation" and an `x += 1` and an
+// `x *= 2` are mixed the result will be not the expected one.
 //
 // Note that a ProducerConsumer thread counts toward the expected result
 // formula as one producer and one consumer.
@@ -112,13 +112,13 @@ using namespace bsl;
 // The following table shows how the three groups of threads described are
 // mixed together in each test case, where:
 //
-//: o A  threads issue: x += 1;  arrive();
-//:
-//: o CD threads issue: x += 1;  countDown(1);
-//:
-//: o W  threads issue:          wait();           x *= 2;
-//:
-//: o AW threads issue: x += 1;  arriveAndWait();  x *= 2;
+//  - A  threads issue: x += 1;  arrive();
+//
+//  - CD threads issue: x += 1;  countDown(1);
+//
+//  - W  threads issue:          wait();           x *= 2;
+//
+//  - AW threads issue: x += 1;  arriveAndWait();  x *= 2;
 //
 //     | C | C | C | C | C | C | C |
 //     | A | A | A | A | A | A | A |
@@ -210,11 +210,11 @@ void aSsErT(bool condition, const char *message, int line)
             // class AnotherClock
             // ==================
 
+/// `AnotherClock` is a C++11-compatible clock that is very similar to
+/// `bsl::chrono::steady_clock`.  The only difference is that it uses a
+/// different epoch; it begins 10000 "ticks" after the beginning of
+/// `steady_clock`s epoch.
 class AnotherClock {
-    // 'AnotherClock' is a C++11-compatible clock that is very similar to
-    // 'bsl::chrono::steady_clock'.  The only difference is that it uses a
-    // different epoch; it begins 10000 "ticks" after the beginning of
-    // 'steady_clock's epoch.
 
   private:
     typedef bsl::chrono::steady_clock base_clock;
@@ -228,9 +228,10 @@ class AnotherClock {
     static const bool is_steady = base_clock::is_steady;
 
     // CLASS METHODS
+
+    /// Return a time point representing the time since the beginning of the
+    /// epoch.
     static time_point now();
-        // Return a time point representing the time since the beginning of the
-        // epoch.
 };
 
 // CLASS METHODS
@@ -244,10 +245,10 @@ AnotherClock::time_point AnotherClock::now()
             // class HalfClock
             // ===============
 
+/// `HalfClock` is a C++11-compatible clock that is very similar to
+/// `bsl::chrono::steady_clock`.  The difference is that it runs "half as
+/// fast" as `steady_clock`.
 class HalfClock {
-    // 'HalfClock' is a C++11-compatible clock that is very similar to
-    // 'bsl::chrono::steady_clock'.  The difference is that it runs "half as
-    // fast" as 'steady_clock'.
 
   private:
     typedef bsl::chrono::steady_clock base_clock;
@@ -261,9 +262,10 @@ class HalfClock {
     static const bool is_steady = base_clock::is_steady;
 
     // CLASS METHODS
+
+    /// Return a time point representing the time since the beginning of the
+    /// epoch.
     static time_point now();
-        // Return a time point representing the time since the beginning of the
-        // epoch.
 };
 
 // CLASS METHODS
@@ -275,12 +277,12 @@ HalfClock::time_point HalfClock::now()
 
 // BDE_VERIFY pragma: pop
 
+/// Wait on the specified `Latch` `mX` for the specified `secondsToWait`
+/// seconds based on the specified `CLOCK`.  If the call to `timedWait`
+/// returns `e_TIMED_OUT`, indicating that a timeout has occurred, verify
+/// that at least that much time has elapsed (measured by the clock).
 template <class CLOCK>
 int WaitForTimeout(bslmt::Latch& mX, int secondsToWait)
-    // Wait on the specified 'Latch' 'mX' for the specified 'secondsToWait'
-    // seconds based on the specified 'CLOCK'.  If the call to 'timedWait'
-    // returns 'e_TIMED_OUT', indicating that a timeout has occurred, verify
-    // that at least that much time has elapsed (measured by the clock).
 {
     typename CLOCK::time_point tp = CLOCK::now() +
                                            bsl::chrono::seconds(secondsToWait);
@@ -303,10 +305,10 @@ bool veryVerbose         = false;
 bool veryVeryVerbose     = false;
 bool veryVeryVeryVerbose = false;
 
+/// This class facilitates the launching of a thread.  Derived classes must
+/// implement the (pure) `virtual` `mainLoop` function.  See the contract
+/// of `mainLoop` below.
 class Thread {
-    // This class facilitates the launching of a thread.  Derived classes must
-    // implement the (pure) 'virtual' 'mainLoop' function.  See the contract
-    // of 'mainLoop' below.
 
   private:
     // NOT IMPLEMENTED
@@ -315,24 +317,26 @@ class Thread {
 
   public:
     // CREATORS
+
+    /// Create a `Thread` object.
     Thread()
-        // Create a 'Thread' object.
     {
     }
 
+    /// Destroy this object.  The behavior is undefined if the thread is
+    /// still running.
     virtual ~Thread()
-        // Destroy this object.  The behavior is undefined if the thread is
-        // still running.
     {
     }
 
     // MANIPULATORS
+
+    /// Invoke the (`virtual`) `mainLoop` method repeatedly until `mainLoop`
+    /// returns a non-zero value.  Note that this method serves as the entry
+    /// point for this `Thread` object.  Also note that this method prints
+    /// the exit status of `mainLoop` to `bsl::cout` in `veryVeryVerbose`
+    /// mode.
     void callable()
-        // Invoke the ('virtual') 'mainLoop' method repeatedly until 'mainLoop'
-        // returns a non-zero value.  Note that this method serves as the entry
-        // point for this 'Thread' object.  Also note that this method prints
-        // the exit status of 'mainLoop' to 'bsl::cout' in 'veryVeryVerbose'
-        // mode.
     {
         int rc = -1;
 
@@ -350,20 +354,19 @@ class Thread {
         }
     }
 
+    /// If this method returns a value that is:
+    ///   0. - `mainLoop` can be called again.
+    ///  > 0 - The function completed with no error and the exit code is the
+    ///        value returned.
+    ///
+    ///  < 0 - The function completed with an error and the error code is
+    ///        the value returned.
     virtual int mainLoop() = 0;
-        // If this method returns a value that is:
-        //:   0 - 'mainLoop' can be called again.
-        //:
-        //: > 0 - The function completed with no error and the exit code is the
-        //:       value returned.
-        //:
-        //: < 0 - The function completed with an error and the error code is
-        //:       the value returned.
 };
 
+/// This class provides an invokable that binds a `Thread` object to a
+/// `Thread` member function.
 class ThreadBinder {
-    // This class provides an invokable that binds a 'Thread' object to a
-    // 'Thread' member function.
 
     // DATA
     void (Thread::*d_memFunc)();  // member function to invoke (not owned)
@@ -371,25 +374,27 @@ class ThreadBinder {
 
   public:
     // CREATORS
+
+    /// Create a `ThreadBinder` object that binds the specified
+    /// `memberFunction` and `threadPtr`.
     ThreadBinder(void (Thread::*memberFunction)(), Thread *threadPtr)
-        // Create a 'ThreadBinder' object that binds the specified
-        // 'memberFunction' and 'threadPtr'.
     : d_memFunc(memberFunction)
     , d_thread_p(threadPtr)
     {
     }
 
     // MANIPULATORS
+
+    /// Invoke the member function on the `Thread` object that were supplied
+    /// at construction.
     void operator()()
-        // Invoke the member function on the 'Thread' object that were supplied
-        // at construction.
     {
         (d_thread_p->*d_memFunc)();
     }
 };
 
+/// This class provides a simple wrapper around `bslmt::ThreadGroup`.
 class ThreadGroup {
-    // This class provides a simple wrapper around 'bslmt::ThreadGroup'.
 
     // DATA
     bslmt::ThreadGroup d_theGroup;
@@ -401,34 +406,36 @@ class ThreadGroup {
 
   public:
     // CREATORS
+
+    /// Create a `ThreadGroup` object.
     ThreadGroup()
-        // Create a 'ThreadGroup' object.
     : d_theGroup()
     {
     }
 
+    /// Destroy this object after first joining all threads of this
+    /// `ThreadGroup` that are still active (if any).
     ~ThreadGroup()
-        // Destroy this object after first joining all threads of this
-        // 'ThreadGroup' that are still active (if any).
     {
         if (d_theGroup.numThreads() > 0) {
-            std::cout << "A 'ThreadGroup' is being destroyed with active "
+            std::cout << "A `ThreadGroup` is being destroyed with active "
                       << "threads.  Joining them." << std::endl;
             join();
         }
     }
 
     // MANIPULATORS
+
+    /// Add to this thread group the specified `thread` whose entry point is
+    /// the `Thread::callable` member function.
     void addThread(Thread& thread)
-        // Add to this thread group the specified 'thread' whose entry point is
-        // the 'Thread::callable' member function.
     {
         d_theGroup.addThread(ThreadBinder(&Thread::callable, &thread));
     }
 
+    /// Join all threads of this `ThreadGroup` that are still active (if
+    /// any).
     void join()
-        // Join all threads of this 'ThreadGroup' that are still active (if
-        // any).
     {
         d_theGroup.joinAll();
     }
@@ -446,73 +453,75 @@ namespace BSLMT_USAGE_EXAMPLE_1 {
 //
 ///Example 1: Implementing a Parallelizable Algorithm
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
-// In the following example we use a 'bslmt::Latch' object to help implement an
+// In the following example we use a `bslmt::Latch` object to help implement an
 // operation that can be parallelized across a series of sub-tasks (or "jobs").
 // The "parent" operation enqueue's the jobs and blocks on a thread pool, and
 // uses the latch as a signaling mechanism to indicate when all of the jobs
 // have been completed and return to the caller.
 //
-// The use of a 'bslmt::Latch', rather than a 'bslmt::Barrier', is important to
+// The use of a `bslmt::Latch`, rather than a `bslmt::Barrier`, is important to
 // ensure that jobs in the thread pool do not block until the entire task is
 // completed (preventing the thread pool from processing additional work).
 //
 // Suppose, for example, we want to provide a C++ type for computing a vector
-// sum (vector in the mathematical sense).  That is, for two input vectors, 'A'
-// and 'B', each of length 'N', the result is a vector, 'R', of length 'N',
-// where each element at index 'i' has the value:
-//..
+// sum (vector in the mathematical sense).  That is, for two input vectors, `A`
+// and `B`, each of length `N`, the result is a vector, `R`, of length `N`,
+// where each element at index `i` has the value:
+// ```
 //  R[i] = A[i] + B[i];
-//..
+// ```
 // This function can easily be computed in parallel because the value for each
 // result index only depends on the input vectors.
 //
-// First, assume we have a class, 'FixedThreadPool', providing the following
+// First, assume we have a class, `FixedThreadPool`, providing the following
 // public interface (for brevity, the details have been elided; see
-// 'bdlmt_fixedthreadpool' or 'bdlmt_threadpool' for examples of thread pools):
-//..
+// `bdlmt_fixedthreadpool` or `bdlmt_threadpool` for examples of thread pools):
+// ```
     class FixedThreadPool {
 
       public:
         // ...
 
+        /// Enqueue the specified `job` to be executed by the next available
+        /// thread.
         void enqueueJob(const bsl::function<void()>& job);
-            // Enqueue the specified 'job' to be executed by the next available
-            // thread.
     };
-//..
+// ```
 // Next, we declare the signature for our vector sum function,
-// 'parallelVectorSum':
-//..
+// `parallelVectorSum`:
+// ```
+
+    /// Load the specified `result` array with the vector sum of the
+    /// specified `inputA` and `inputB`, each having at least the specified
+    /// `numElements`, using the specified `threadPool` to perform the
+    /// operation in parallel using the specified `numJobs` parallel jobs.
+    /// The behavior is undefined unless `numElements > 0`, `numJobs > 0`,
+    /// and `result`, `inputA`, and `inputB` each contain at least
+    /// `numElements`.
     void parallelVectorSum(double          *result,
                            const double    *inputA,
                            const double    *inputB,
                            int              numElements,
                            FixedThreadPool *threadPool,
                            int              numJobs);
-        // Load the specified 'result' array with the vector sum of the
-        // specified 'inputA' and 'inputB', each having at least the specified
-        // 'numElements', using the specified 'threadPool' to perform the
-        // operation in parallel using the specified 'numJobs' parallel jobs.
-        // The behavior is undefined unless 'numElements > 0', 'numJobs > 0',
-        // and 'result', 'inputA', and 'inputB' each contain at least
-        // 'numElements'.
-//..
-// Now, we declare a helper function, 'vectorSumJob', that will be used as a
-// sub-task by 'parallelVectorSum'.  'vectorSumJob' computes a single-threaded
-// vector sum and uses a 'bslmt::Latch' object, 'completionSignal', to indicate
+// ```
+// Now, we declare a helper function, `vectorSumJob`, that will be used as a
+// sub-task by `parallelVectorSum`.  `vectorSumJob` computes a single-threaded
+// vector sum and uses a `bslmt::Latch` object, `completionSignal`, to indicate
 // to the parent task that the computation has been completed:
-//..
+// ```
+
+    /// Load the specified `result` array with the vector sum of the
+    /// specified `inputA` and `inputB`, each having at least the specified
+    /// `numElements`, and when the operation is complete signal the
+    /// specified `completionSignal`.  The behavior is undefined unless
+    /// `numElements > 0` and `result`, `inputA`, and `inputB` each contain
+    /// at least `numElements`.
     void vectorSumJob(double       *result,
                       bslmt::Latch *completionSignal,
                       const double *inputA,
                       const double *inputB,
                       int           numElements)
-        // Load the specified 'result' array with the vector sum of the
-        // specified 'inputA' and 'inputB', each having at least the specified
-        // 'numElements', and when the operation is complete signal the
-        // specified 'completionSignal'.  The behavior is undefined unless
-        // 'numElements > 0' and 'result', 'inputA', and 'inputB' each contain
-        // at least 'numElements'.
     {
         for (int i = 0; i < numElements; ++i) {
             result[i] = inputA[i] + inputB[i];
@@ -520,19 +529,20 @@ namespace BSLMT_USAGE_EXAMPLE_1 {
 
         completionSignal->arrive();
     }
-//..
-// Note that 'bslmt::Latch::arrive' does not block the current thread (unlike
-// 'bslmt::Barrier::wait'), and within the context of a thread pool, this job
+// ```
+// Note that `bslmt::Latch::arrive` does not block the current thread (unlike
+// `bslmt::Barrier::wait`), and within the context of a thread pool, this job
 // will complete and the thread will be returned to the pool to accept more
 // work.
 //
 // Next, we provide a rudimentary function argument binder (specific to this
 // usage example) in view of the fact that such a facility is not available at
 // this level in the BDE hierarchy:
-//..
+// ```
+
+    /// This class provides an invokable that is tailored to bind the
+    /// `vectorSumJob` (defined above) to its requisite five arguments.
     class UsageBinder {
-        // This class provides an invokable that is tailored to bind the
-        // 'vectorSumJob' (defined above) to its requisite five arguments.
 
       public:
         // TYPES
@@ -553,15 +563,16 @@ namespace BSLMT_USAGE_EXAMPLE_1 {
 
       public:
         // CREATORS
+
+        /// Create a `UsageBinder` object that binds the specified
+        /// `functionPtr` to the specified `arg1Ptr`, `arg2Ptr`, `arg3Ptr`,
+        /// `arg4Ptr`, and `arg5` arguments.
         UsageBinder(FREE_FUNCTION *functionPtr,
                     double        *arg1Ptr,
                     bslmt::Latch  *arg2Ptr,
                     const double  *arg3Ptr,
                     const double  *arg4Ptr,
                     int            arg5)
-            // Create a 'UsageBinder' object that binds the specified
-            // 'functionPtr' to the specified 'arg1Ptr', 'arg2Ptr', 'arg3Ptr',
-            // 'arg4Ptr', and 'arg5' arguments.
         : d_func_p(functionPtr)
         , d_arg1_p(arg1Ptr)
         , d_arg2_p(arg2Ptr)
@@ -572,16 +583,17 @@ namespace BSLMT_USAGE_EXAMPLE_1 {
         }
 
         // MANIPULATORS
+
+        /// Invoke the function that was supplied at construction on the
+        /// arguments that were supplied at construction.
         void operator()()
-            // Invoke the function that was supplied at construction on the
-            // arguments that were supplied at construction.
         {
             (*d_func_p)(d_arg1_p, d_arg2_p, d_arg3_p, d_arg4_p, d_arg5);
         }
     };
-//..
-// Then, we define 'parallelVectorSum':
-//..
+// ```
+// Then, we define `parallelVectorSum`:
+// ```
     void parallelVectorSum(double          *result,
                            const double    *inputA,
                            const double    *inputB,
@@ -596,14 +608,14 @@ namespace BSLMT_USAGE_EXAMPLE_1 {
         }
 
         const int jobSize = numElements / numJobs;
-//..
-// Now, we define a 'bslmt::Latch' object, 'completionSignal', that we will
+// ```
+// Now, we define a `bslmt::Latch` object, `completionSignal`, that we will
 // use to track the completion of this work:
-//..
+// ```
         bslmt::Latch completionSignal(numJobs);
 
         for (int i = 0; i < numJobs; ++i) {
-            // If 'numJobs' doesn't evenly divide 'numElements', the last job
+            // If `numJobs` doesn't evenly divide `numElements`, the last job
             // will process the remaining elements.  For simplicity, we have
             // chosen not distribute the elements between jobs as evenly as is
             // possible.
@@ -620,16 +632,16 @@ namespace BSLMT_USAGE_EXAMPLE_1 {
                                                inputB + offset,
                                                size));
         }
-//..
-// Finally, calling 'wait' on the latch will block this function from returning
+// ```
+// Finally, calling `wait` on the latch will block this function from returning
 // until all the queued jobs computing the vector sum have been completed:
-//..
+// ```
         completionSignal.wait();
     }
-//..
+// ```
 
 // Implementation Note:  The following code provides a stub implementation for
-// 'FixedThreadPool' sufficient for sanity testing the usage example:
+// `FixedThreadPool` sufficient for sanity testing the usage example:
 
 void FixedThreadPool::enqueueJob(const bsl::function<void()>& job)
 {
@@ -650,9 +662,9 @@ void FixedThreadPool::enqueueJob(const bsl::function<void()>& job)
 
 namespace groups {
 
+/// This class is shared by threads in order to test that producers and
+/// consumers do not mix `inc()` and `mult()` calls.
 class IndependentLinearValue {
-    // This class is shared by threads in order to test that producers and
-    // consumers do not mix 'inc()' and 'mult()' calls.
 
     // DATA
     bsls::SpinLock d_lock;
@@ -664,34 +676,35 @@ class IndependentLinearValue {
     IndependentLinearValue& operator=(const IndependentLinearValue&);
 
   public:
+    /// Create an `IndependentLinearValue` object having the default value.
     IndependentLinearValue()
-        // Create an 'IndependentLinearValue' object having the default value.
     : d_lock(bsls::SpinLock::s_unlocked)
     , d_value(0)
     {
     }
 
     // MANIPULATORS
+
+    /// Atomically increment the value of this `IndependentLinearValue`
+    /// object.
     void inc()
-        // Atomically increment the value of this 'IndependentLinearValue'
-        // object.
     {
         bsls::SpinLockGuard guard(&d_lock);
 
         ++d_value;
     }
 
+    /// Atomically multiply the value of this `IndependentLinearValue`
+    /// object by a factor of 2.
     void mult()
-        // Atomically multiply the value of this 'IndependentLinearValue'
-        // object by a factor of 2.
     {
         bsls::SpinLockGuard guard(&d_lock);
 
         d_value *= 2;
     }
 
+    /// Return the current value of this `IndependentLinearValue` object.
     int value() const
-        // Return the current value of this 'IndependentLinearValue' object.
     {
         return d_value;
     }
@@ -712,11 +725,12 @@ class ThreadTest : public Thread {
 
   public:
     // CREATORS
+
+    /// Create a `ThreadTest` object that uses the specified `latch`,
+    /// `barrier`, and `value`.
     ThreadTest(bslmt::Latch&           latch,
                bslmt::Barrier&         barrier,
                IndependentLinearValue& value)
-        // Create a 'ThreadTest' object that uses the specified 'latch',
-        // 'barrier', and 'value'.
     : Thread()
     , d_theLatch(latch)
     , d_theBarrier(barrier)
@@ -725,33 +739,35 @@ class ThreadTest : public Thread {
     }
 };
 
+/// Instances of this class execute the following operations (in the order
+/// shown) on the `Latch`, `Barrier`, and `IndependentLinearValue` that are
+/// supplied at construction:
+/// ```
+/// barrier.wait();
+/// value.inc();
+/// latch.arrive();
+/// ```
+/// This sequence of operations is intended to be run concurrently with
+/// those of other test objects.
 class ThreadProducerArrive : public ThreadTest {
-    // Instances of this class execute the following operations (in the order
-    // shown) on the 'Latch', 'Barrier', and 'IndependentLinearValue' that are
-    // supplied at construction:
-    //..
-    //  barrier.wait();
-    //  value.inc();
-    //  latch.arrive();
-    //..
-    // This sequence of operations is intended to be run concurrently with
-    // those of other test objects.
 
   public:
     // CREATORS
+
+    /// Create a `ThreadProducerArrive` object that uses the specified
+    /// `latch`, `barrier`, and `value`.
     ThreadProducerArrive(bslmt::Latch&           latch,
                          bslmt::Barrier&         barrier,
                          IndependentLinearValue& value)
-        // Create a 'ThreadProducerArrive' object that uses the specified
-        // 'latch', 'barrier', and 'value'.
     : ThreadTest(latch, barrier, value)
     {
     }
 
     // MANIPULATORS
+
+    /// Execute the sequence of operations specific to a
+    /// `ThreadProducerArrive` object, and return 1.
     int mainLoop() BSLS_KEYWORD_OVERRIDE
-        // Execute the sequence of operations specific to a
-        // 'ThreadProducerArrive' object, and return 1.
     {
         d_theBarrier.wait();
         d_theValue.inc();
@@ -761,33 +777,35 @@ class ThreadProducerArrive : public ThreadTest {
     }
 };
 
+/// Instances of this class execute the following operations (in the order
+/// shown) on the `Latch`, `Barrier`, and `IndependentLinearValue` that are
+/// supplied at construction:
+/// ```
+/// barrier.wait();
+/// value.inc();
+/// latch.countDown(1);
+/// ```
+/// This sequence of operations is intended to be run concurrently with
+/// those of other test objects.
 class ThreadProducerCountDown : public ThreadTest {
-    // Instances of this class execute the following operations (in the order
-    // shown) on the 'Latch', 'Barrier', and 'IndependentLinearValue' that are
-    // supplied at construction:
-    //..
-    //  barrier.wait();
-    //  value.inc();
-    //  latch.countDown(1);
-    //..
-    // This sequence of operations is intended to be run concurrently with
-    // those of other test objects.
 
   public:
     // CREATORS
+
+    /// Create a `ThreadProducerCountDown` object that uses the specified
+    /// `latch`, `barrier`, and `value`.
     ThreadProducerCountDown(bslmt::Latch&           latch,
                             bslmt::Barrier&         barrier,
                             IndependentLinearValue& value)
-        // Create a 'ThreadProducerCountDown' object that uses the specified
-        // 'latch', 'barrier', and 'value'.
     : ThreadTest(latch, barrier, value)
     {
     }
 
     // MANIPULATORS
+
+    /// Execute the sequence of operations specific to a
+    /// `ThreadProducerCountDown` object, and return 1.
     int mainLoop() BSLS_KEYWORD_OVERRIDE
-        // Execute the sequence of operations specific to a
-        // 'ThreadProducerCountDown' object, and return 1.
     {
         d_theBarrier.wait();
         d_theValue.inc();
@@ -797,33 +815,35 @@ class ThreadProducerCountDown : public ThreadTest {
     }
 };
 
+/// Instances of this class execute the following operations (in the order
+/// shown) on the `Latch`, `Barrier`, and `IndependentLinearValue` that are
+/// supplied at construction:
+/// ```
+/// barrier.wait();
+/// latch.wait();
+/// value.mult();
+/// ```
+/// This sequence of operations is intended to be run concurrently with
+/// those of other test objects.
 class ThreadConsumer : public ThreadTest {
-    // Instances of this class execute the following operations (in the order
-    // shown) on the 'Latch', 'Barrier', and 'IndependentLinearValue' that are
-    // supplied at construction:
-    //..
-    //  barrier.wait();
-    //  latch.wait();
-    //  value.mult();
-    //..
-    // This sequence of operations is intended to be run concurrently with
-    // those of other test objects.
 
   public:
     // CREATORS
+
+    /// Create a `ThreadConsumer` object that uses the specified `latch`,
+    /// `barrier`, and `value`.
     ThreadConsumer(bslmt::Latch&           latch,
                    bslmt::Barrier&         barrier,
                    IndependentLinearValue& value)
-        // Create a 'ThreadConsumer' object that uses the specified 'latch',
-        // 'barrier', and 'value'.
     : ThreadTest(latch, barrier, value)
     {
     }
 
     // MANIPULATORS
+
+    /// Execute the sequence of operations specific to a `ThreadConsumer`
+    /// object, and return 1.
     int mainLoop() BSLS_KEYWORD_OVERRIDE
-        // Execute the sequence of operations specific to a 'ThreadConsumer'
-        // object, and return 1.
     {
         d_theBarrier.wait();
         d_theLatch.wait();
@@ -833,34 +853,36 @@ class ThreadConsumer : public ThreadTest {
     }
 };
 
+/// Instances of this class execute the following operations (in the order
+/// shown) on the `Latch`, `Barrier`, and `IndependentLinearValue` that are
+/// supplied at construction:
+/// ```
+/// barrier.wait();
+/// value.inc();
+/// latch.arriveAndWait();
+/// value.mult();
+/// ```
+/// This sequence of operations is intended to be run concurrently with
+/// those of other test objects.
 class ThreadProducerConsumer : public ThreadTest {
-    // Instances of this class execute the following operations (in the order
-    // shown) on the 'Latch', 'Barrier', and 'IndependentLinearValue' that are
-    // supplied at construction:
-    //..
-    //  barrier.wait();
-    //  value.inc();
-    //  latch.arriveAndWait();
-    //  value.mult();
-    //..
-    // This sequence of operations is intended to be run concurrently with
-    // those of other test objects.
 
   public:
     // CREATORS
+
+    /// Create a `ThreadProducerConsumer` object that uses the specified
+    /// `latch`, `barrier`, and `value`.
     ThreadProducerConsumer(bslmt::Latch&           latch,
                            bslmt::Barrier&         barrier,
                            IndependentLinearValue& value)
-        // Create a 'ThreadProducerConsumer' object that uses the specified
-        // 'latch', 'barrier', and 'value'.
     : ThreadTest(latch, barrier, value)
     {
     }
 
     // MANIPULATORS
+
+    /// Execute the sequence of operations specific to a
+    /// `ThreadProducerConsumer` object, and return 1.
     int mainLoop() BSLS_KEYWORD_OVERRIDE
-        // Execute the sequence of operations specific to a
-        // 'ThreadProducerConsumer' object, and return 1.
     {
         d_theBarrier.wait();
         d_theValue.inc();
@@ -871,11 +893,11 @@ class ThreadProducerConsumer : public ThreadTest {
     }
 };
 
+/// Execute, concurrently, the specified `numProducers` of type `PRODUCER`,
+/// the specified `numConsumers` of type `CONSUMER`, and the specified
+/// `numProducerConsumers` of type `PRODUCERCONSUMER`.
 template <class PRODUCER, class CONSUMER, class PRODUCERCONSUMER>
 void test(int numProducers, int numConsumers, int numProducerConsumers)
-    // Execute, concurrently, the specified 'numProducers' of type 'PRODUCER',
-    // the specified 'numConsumers' of type 'CONSUMER', and the specified
-    // 'numProducerConsumers' of type 'PRODUCERCONSUMER'.
 {
     if (veryVerbose) {
         cout << "Testing: "
@@ -970,13 +992,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -988,7 +1010,7 @@ int main(int argc, char *argv[])
 
         using namespace BSLMT_USAGE_EXAMPLE_1;
 
-        // Perform a sanity test on 'parallelVectorSum' (defined above).
+        // Perform a sanity test on `parallelVectorSum` (defined above).
 
         const double inputA[] = { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0 };
         const double inputB[] = { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0 };
@@ -1021,23 +1043,23 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING 'clockType'
+        // TESTING `clockType`
         //
         // Concerns:
-        //: 1 'clockType' returns the clock type passed to the constructor.
-        //:
-        //: 2 'clockType' is declared 'const'.
+        // 1. `clockType` returns the clock type passed to the constructor.
+        //
+        // 2. `clockType` is declared `const`.
         //
         // Plan:
-        //: 1 Create a 'const' object, and then query it to make sure that the
-        //:   correct clock type is returned.
+        // 1. Create a `const` object, and then query it to make sure that the
+        //    correct clock type is returned.
         //
         // Testing:
         //   bsls::SystemClockType::Enum clockType() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'clockType'" << endl
+                          << "TESTING `clockType`" << endl
                           << "===================" << endl;
 
         const Obj def(1);
@@ -1062,26 +1084,26 @@ int main(int argc, char *argv[])
         // PRODUCERS(C-D), CONSUMERS, AND PRODUCERS-CONSUMERS
         //
         // Concerns:
-        //: 1 The latch must be a pass-through for 'countDown(n)' callers.
-        //:
-        //: 2 The latch must be a barrier for 'arriveAndWait()' and 'wait()'
-        //:   callers.
-        //:
-        //: 3 At the end of the test the latch has reached the synchronization
-        //:   point.
+        // 1. The latch must be a pass-through for `countDown(n)` callers.
+        //
+        // 2. The latch must be a barrier for `arriveAndWait()` and `wait()`
+        //    callers.
+        //
+        // 3. At the end of the test the latch has reached the synchronization
+        //    point.
         //
         // Plan:
-        //: 1 Create three groups of threads (from 1 to 'X' concurrent threads
-        //:   in each group).
-        //:
-        //: 2 The first group will call 'countDown(1)'.
-        //:
-        //: 3 The second group will call 'wait()'.
-        //:
-        //: 3 The third group will call 'arriveAndWait()'.
-        //:
-        //: 4 Verify that the operation produces the expected result (see the
-        //:   test plan overview).  (C-1..3)
+        // 1. Create three groups of threads (from 1 to `X` concurrent threads
+        //    in each group).
+        //
+        // 2. The first group will call `countDown(1)`.
+        //
+        // 3. The second group will call `wait()`.
+        //
+        // 3. The third group will call `arriveAndWait()`.
+        //
+        // 4. Verify that the operation produces the expected result (see the
+        //    test plan overview).  (C-1..3)
         //
         // Testing:
         //   countDown(int n); wait(); arriveAndWait();
@@ -1110,26 +1132,26 @@ int main(int argc, char *argv[])
         // PRODUCERS(ARRIVE), CONSUMERS, AND PRODUCERS-CONSUMERS
         //
         // Concerns:
-        //: 1 The latch must be a pass-through for 'arrive()' callers.
-        //:
-        //: 2 The latch must be a barrier for 'arriveAndWait()' and 'wait()'
-        //:   callers.
-        //:
-        //: 3 At the end of the test the latch has reached the synchronization
-        //:   point.
+        // 1. The latch must be a pass-through for `arrive()` callers.
+        //
+        // 2. The latch must be a barrier for `arriveAndWait()` and `wait()`
+        //    callers.
+        //
+        // 3. At the end of the test the latch has reached the synchronization
+        //    point.
         //
         // Plan:
-        //: 1 Create three groups of threads (from 1 to 'X' concurrent threads
-        //:   in each group).
-        //:
-        //: 2 The first group will call 'arrive()'.
-        //:
-        //: 3 The second group will call 'wait()'.
-        //:
-        //: 4 The third group will call 'arriveAndWait()'.
-        //:
-        //: 5 Verify that the operation produces the expected result (see the
-        //:   test plan overview).  (C-1..3)
+        // 1. Create three groups of threads (from 1 to `X` concurrent threads
+        //    in each group).
+        //
+        // 2. The first group will call `arrive()`.
+        //
+        // 3. The second group will call `wait()`.
+        //
+        // 4. The third group will call `arriveAndWait()`.
+        //
+        // 5. Verify that the operation produces the expected result (see the
+        //    test plan overview).  (C-1..3)
         //
         // Testing:
         //   arrive();         wait(); arriveAndWait();
@@ -1158,23 +1180,23 @@ int main(int argc, char *argv[])
         // PRODUCERS(COUNT DOWN) AND CONSUMERS
         //
         // Concerns:
-        //: 1 The latch must be a pass-through for 'countDown(n)' callers.
-        //:
-        //: 2 The latch must be a barrier for 'wait()' callers.
-        //:
-        //: 3 At the end of the test the latch has reached the synchronization
-        //:   point.
+        // 1. The latch must be a pass-through for `countDown(n)` callers.
+        //
+        // 2. The latch must be a barrier for `wait()` callers.
+        //
+        // 3. At the end of the test the latch has reached the synchronization
+        //    point.
         //
         // Plan:
-        //: 1 Create two groups of threads (from 1 to 'X' concurrent threads in
-        //:   each group).
-        //:
-        //: 2 The first group will call 'countDown()'.
-        //:
-        //: 3 The second group will call 'wait()'.
-        //:
-        //: 4 Verify that the operation produces the expected result (see the
-        //:   test plan overview).  (C-1..3)
+        // 1. Create two groups of threads (from 1 to `X` concurrent threads in
+        //    each group).
+        //
+        // 2. The first group will call `countDown()`.
+        //
+        // 3. The second group will call `wait()`.
+        //
+        // 4. Verify that the operation produces the expected result (see the
+        //    test plan overview).  (C-1..3)
         //
         // Testing:
         //   countDown(int n); wait();
@@ -1198,23 +1220,23 @@ int main(int argc, char *argv[])
         // PRODUCERS(ARRIVE) AND CONSUMERS
         //
         // Concerns:
-        //: 1 The latch must be a pass-through for 'arrive()' callers.
-        //:
-        //: 2 The latch must be a barrier for 'wait()' callers.
-        //:
-        //: 3 At the end of the test the latch has reached the synchronization
-        //:   point.
+        // 1. The latch must be a pass-through for `arrive()` callers.
+        //
+        // 2. The latch must be a barrier for `wait()` callers.
+        //
+        // 3. At the end of the test the latch has reached the synchronization
+        //    point.
         //
         // Plan:
-        //: 1 Create two groups of threads (from 1 to 'X' concurrent threads in
-        //:   each group).
-        //:
-        //: 2 The first group will call 'arrive()'.
-        //:
-        //: 3 The second group will call 'wait()'.
-        //:
-        //: 4 Verify that the operation produces the expected result (see the
-        //:   test plan overview).  (C-1..3)
+        // 1. Create two groups of threads (from 1 to `X` concurrent threads in
+        //    each group).
+        //
+        // 2. The first group will call `arrive()`.
+        //
+        // 3. The second group will call `wait()`.
+        //
+        // 4. Verify that the operation produces the expected result (see the
+        //    test plan overview).  (C-1..3)
         //
         // Testing:
         //   arrive();         wait();
@@ -1238,17 +1260,17 @@ int main(int argc, char *argv[])
         // PRODUCERS-CONSUMERS
         //
         // Concerns:
-        //: 1 The latch must be a barrier for 'arriveAndWait()' callers.
-        //:
-        //: 2 At the end of the test the latch has reached the synchronization
-        //:   point.
+        // 1. The latch must be a barrier for `arriveAndWait()` callers.
+        //
+        // 2. At the end of the test the latch has reached the synchronization
+        //    point.
         //
         // Plan:
-        //: 1 Create one group of threads (from 1 to 'X' concurrent threads)
-        //:   calling 'arriveAndWait()'.
-        //:
-        //: 2 Verify that the operation produces the expected result (see the
-        //:   test plan overview).  (C-1..2)
+        // 1. Create one group of threads (from 1 to `X` concurrent threads)
+        //    calling `arriveAndWait()`.
+        //
+        // 2. Verify that the operation produces the expected result (see the
+        //    test plan overview).  (C-1..2)
         //
         // Testing:
         //   arriveAndWait();
@@ -1270,17 +1292,17 @@ int main(int argc, char *argv[])
         // PRODUCERS(COUNT DOWN)
         //
         // Concerns:
-        //: 1 The latch must be a pass-through for 'countDown(1)' callers.
-        //:
-        //: 2 At the end of the test the latch has reached the synchronization
-        //:   point.
+        // 1. The latch must be a pass-through for `countDown(1)` callers.
+        //
+        // 2. At the end of the test the latch has reached the synchronization
+        //    point.
         //
         // Plan:
-        //: 1 Create one group of threads (from 1 to 'X' concurrent threads)
-        //:   calling 'countDown(1)'.
-        //:
-        //: 2 Verify that the operation produces the expected result (see the
-        //:   test plan overview).  (C-1..2)
+        // 1. Create one group of threads (from 1 to `X` concurrent threads)
+        //    calling `countDown(1)`.
+        //
+        // 2. Verify that the operation produces the expected result (see the
+        //    test plan overview).  (C-1..2)
         //
         // Testing:
         //   countDown(int n);
@@ -1302,17 +1324,17 @@ int main(int argc, char *argv[])
         // PRODUCERS(ARRIVE)
         //
         // Concerns:
-        //: 1 The latch must be a pass-through for 'arrive()' callers.
-        //:
-        //: 2 At the end of the test the latch has reached the synchronization
-        //:   point.
+        // 1. The latch must be a pass-through for `arrive()` callers.
+        //
+        // 2. At the end of the test the latch has reached the synchronization
+        //    point.
         //
         // Plan:
-        //: 1 Create one group of threads (from 1 to 'X' concurrent threads)
-        //:   calling 'arrive()'.
-        //:
-        //: 2 Verify that the operation produces the expected result (see the
-        //:   test plan overview).  (C-1..2)
+        // 1. Create one group of threads (from 1 to `X` concurrent threads)
+        //    calling `arrive()`.
+        //
+        // 2. Verify that the operation produces the expected result (see the
+        //    test plan overview).  (C-1..2)
         //
         // Testing:
         //   arrive();
@@ -1331,33 +1353,33 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'timedWait'
+        // TESTING `timedWait`
         //
         // Concerns:
-        //: 1 A latch built with 0 has already reached the synchronization
-        //:   point.
-        //:
-        //: 2 A latch built will timeout after reaching 'absTime' time.  The
-        //:   initial 'count' given the constructor is unchanged.
+        // 1. A latch built with 0 has already reached the synchronization
+        //    point.
+        //
+        // 2. A latch built will timeout after reaching `absTime` time.  The
+        //    initial `count` given the constructor is unchanged.
         //
         // Plan:
-        //: 1 Create a latch with an initial count of 0.
-        //:
-        //: 2 Verify that 'wait()' calls do not block the test execution.
-        //:   (C-1)
-        //:
-        //: 3 Create a latch with an initial count of 5.
-        //:
-        //: 4 Verify that 'timedWait()' call times out, and 'currentCount'
+        // 1. Create a latch with an initial count of 0.
+        //
+        // 2. Verify that `wait()` calls do not block the test execution.
+        //    (C-1)
+        //
+        // 3. Create a latch with an initial count of 5.
+        //
+        // 4. Verify that `timedWait()` call times out, and `currentCount`
         //    returns 5.
-        //:   (C-2)
+        //    (C-2)
         //
         // Testing:
         //   void timedWait(const bsls::TimeInterval& absTime);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'timedWait'" << endl
+                          << "TESTING `timedWait`" << endl
                           << "===================" << endl;
 
         {
@@ -1404,24 +1426,24 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'wait'
+        // TESTING `wait`
         //
         // Concerns:
-        //: 1 A latch built with 0 has already reached the synchronization
-        //:   point.
+        // 1. A latch built with 0 has already reached the synchronization
+        //    point.
         //
         // Plan:
-        //: 1 Create a latch with an initial count of 0.
-        //:
-        //: 2 Verify that 'wait()' calls do not block the test execution.
-        //:   (C-1)
+        // 1. Create a latch with an initial count of 0.
+        //
+        // 2. Verify that `wait()` calls do not block the test execution.
+        //    (C-1)
         //
         // Testing:
         //   void wait();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'wait'" << endl
+                          << "TESTING `wait`" << endl
                           << "==============" << endl;
 
         bslmt::Latch myLatch(0);
@@ -1430,25 +1452,25 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'arriveAndWait'
+        // TESTING `arriveAndWait`
         //
         // Concerns:
-        //: 1 A latch built with 1 will permit a single thread to not block
-        //:   on an 'arriveAndWait()' call.
+        // 1. A latch built with 1 will permit a single thread to not block
+        //    on an `arriveAndWait()` call.
         //
         // Plan:
-        //: 1 Create a latch with an initial count of 1 and verify that an
-        //:   'arriveAndWait()' call is not a blocking call.
-        //:
-        //: 2 Verify that the current count is 0 following the
-        //:   'arriveAndWait()' call.  (C-1)
+        // 1. Create a latch with an initial count of 1 and verify that an
+        //    `arriveAndWait()` call is not a blocking call.
+        //
+        // 2. Verify that the current count is 0 following the
+        //    `arriveAndWait()` call.  (C-1)
         //
         // Testing:
         //   void arriveAndWait();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'arriveAndWait'" << endl
+                          << "TESTING `arriveAndWait`" << endl
                           << "=======================" << endl;
 
         bslmt::Latch myLatch(1);
@@ -1462,23 +1484,23 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'tryWait'
+        // TESTING `tryWait`
         //
         // Concerns:
-        //: 1 'tryWait' returns 'false' if the latch has not been released.
-        //:
-        //: 2 'tryWait' returns 'true' if the latch has been released.
+        // 1. `tryWait` returns `false` if the latch has not been released.
+        //
+        // 2. `tryWait` returns `true` if the latch has been released.
         //
         // Plan:
-        //: 1 Perform a brute force test setting a latch to a variety of counts
-        //:   and verifying the result of 'tryWait'.  (C-1..2)
+        // 1. Perform a brute force test setting a latch to a variety of counts
+        //    and verifying the result of `tryWait`.  (C-1..2)
         //
         // Testing:
         //   bool tryWait() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'tryWait'" << endl
+                          << "TESTING `tryWait`" << endl
                           << "=================" << endl;
 
         {
@@ -1503,25 +1525,25 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'arrive'
+        // TESTING `arrive`
         //
         // Concerns:
-        //: 1 A latch built with 'x' will need (at least) a sequence of 'x'
-        //:   'arrive()' calls in order to reach the synchronization point.
+        // 1. A latch built with `x` will need (at least) a sequence of `x`
+        //    `arrive()` calls in order to reach the synchronization point.
         //
         // Plan:
-        //: 1 Create a latch with an initial count of 3.
-        //:
-        //: 2 Call 'wait' 3 times.
-        //:
-        //: 3 Verify that the synchronization point has been reached.  (C-1)
+        // 1. Create a latch with an initial count of 3.
+        //
+        // 2. Call `wait` 3 times.
+        //
+        // 3. Verify that the synchronization point has been reached.  (C-1)
         //
         // Testing:
         //   void arrive();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'arrive'" << endl
+                          << "TESTING `arrive`" << endl
                           << "================" << endl;
 
         bslmt::Latch myLatch(3);
@@ -1559,26 +1581,26 @@ int main(int argc, char *argv[])
         // DEFAULT CTOR, DTOR, AND PRIMARY MANIPULATORS
         //
         // Concerns:
-        //: 1 That after construction the current count of a latch is the
-        //:   supplied count value.
-        //:
-        //: 2 That 'countDown' decrements the supplied count by the indicated
-        //:   count.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. That after construction the current count of a latch is the
+        //    supplied count value.
+        //
+        // 2. That `countDown` decrements the supplied count by the indicated
+        //    count.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Construct a latch with a variety of initial counts and verify
-        //:   'currentCount' returns the supplied count.  (C-1)
-        //:
-        //: 2 Perform a loop-based test, creating a latch with a variety of
-        //:   initial counts, and use 'countDown' to decrement it by a variety
-        //:   of step sizes, comparing the 'currentCount' to an oracle count
-        //:   value.  (C-2)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values (using the
-        //:   'BSLS_ASSERTTEST_*' macros).  (C-3)
+        // 1. Construct a latch with a variety of initial counts and verify
+        //    `currentCount` returns the supplied count.  (C-1)
+        //
+        // 2. Perform a loop-based test, creating a latch with a variety of
+        //    initial counts, and use `countDown` to decrement it by a variety
+        //    of step sizes, comparing the `currentCount` to an oracle count
+        //    value.  (C-2)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values (using the
+        //    `BSLS_ASSERTTEST_*` macros).  (C-3)
         //
         // Testing:
         //   Latch(int count);
@@ -1602,7 +1624,7 @@ int main(int argc, char *argv[])
             ASSERT(i == X.currentCount());
         }
 
-        if (verbose) cout << "\nCheck 'countDown'." << endl;
+        if (verbose) cout << "\nCheck `countDown`." << endl;
 
         for (int stepSize = 1; stepSize < 10; ++stepSize) {
             if (veryVerbose) { T_ P(stepSize); }

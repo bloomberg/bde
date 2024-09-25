@@ -45,9 +45,10 @@ namespace {
                          // =======================
                          // class BufferScopedGuard
                          // =======================
+
+/// This class implements a scoped guard that unconditionally deallocates
+/// the memory allocated by its `allocate` method.
 class BufferScopedGuard {
-    // This class implements a scoped guard that unconditionally deallocates
-    // the memory allocated by its 'allocate' method.
 
   private:
     // DATA
@@ -60,21 +61,23 @@ class BufferScopedGuard {
 
   public:
     // CREATORS
-    BufferScopedGuard();
-        // Create a scoped guard that does not own an initial buffer.
 
+    /// Create a scoped guard that does not own an initial buffer.
+    BufferScopedGuard();
+
+    /// Deallocate the last buffer allocated by a call to the `allocate`
+    /// method, and destroy this object.
     ~BufferScopedGuard();
-        // Deallocate the last buffer allocated by a call to the 'allocate'
-        // method, and destroy this object.
 
     // MANIPULATORS
+
+    /// Return a pointer to a buffer guaranteed to be large enough to store
+    /// the specified `numBytes` bytes, or `NULL` if memory was not
+    /// available.  Deallocate the last buffer allocated by a call to this
+    /// method.  The returned pointer is owned by this object and will
+    /// remain valid until this object is destroyed or until this method is
+    /// called again.
     char* allocate(size_t numBytes);
-        // Return a pointer to a buffer guaranteed to be large enough to store
-        // the specified 'numBytes' bytes, or 'NULL' if memory was not
-        // available.  Deallocate the last buffer allocated by a call to this
-        // method.  The returned pointer is owned by this object and will
-        // remain valid until this object is destroyed or until this method is
-        // called again.
 
 };
 
@@ -112,20 +115,20 @@ char* BufferScopedGuard::allocate(size_t numBytes) {
 //                      LOCAL FUNCTION DEFINITIONS
 // ============================================================================
 
+/// Load, into the specified `buffer` having the specified `size`, the
+/// null-terminated output string formed by applying the `printf`-style
+/// formatting rules to the specified `format` string using the specified
+/// `substitutions` when `buffer` is large enough to hold this output
+/// string; otherwise, the contents of the buffer will be unspecified.
+/// Return the length of the formatted output string (not including the
+/// terminating null character) regardless of `size`.  The behavior is
+/// undefined unless `buffer` contains sufficient space to store `size`
+/// bytes and `format` is a valid `printf`-style format string with all
+/// expected substitutions present in `substitutions`.
 int vsnprintf_alwaysCount(char       *buffer,
                           size_t      size,
                           const char *format,
                           va_list     substitutions)
-    // Load, into the specified 'buffer' having the specified 'size', the
-    // null-terminated output string formed by applying the 'printf'-style
-    // formatting rules to the specified 'format' string using the specified
-    // 'substitutions' when 'buffer' is large enough to hold this output
-    // string; otherwise, the contents of the buffer will be unspecified.
-    // Return the length of the formatted output string (not including the
-    // terminating null character) regardless of 'size'.  The behavior is
-    // undefined unless 'buffer' contains sufficient space to store 'size'
-    // bytes and 'format' is a valid 'printf'-style format string with all
-    // expected substitutions present in 'substitutions'.
 {
 
     // Unfortunately, 'vsnprintf' has observably different behavior on
@@ -175,6 +178,24 @@ int vsnprintf_alwaysCount(char       *buffer,
     return count;
 }
 
+/// Load into the specified `outputBuffer` the address of a buffer
+/// containing the null-terminated string formed by applying the
+/// `printf`-style formatting rules to the specified `format` string using
+/// the specified `substitutions`.  Load into the specified
+/// `outputBufferSize` a size that is at least the number of bytes in the
+/// formatted string, including the terminating null byte.  If the specified
+/// `originalBuffer`, having the specified `originalBufferSize`, is large
+/// enough to hold the entire formatted string, then `originalBuffer` will
+/// be the loaded output buffer.  Otherwise, `outputBuffer` will point to a
+/// buffer allocated using the specified `guard`, and the contents of
+/// `originalBuffer` will be unspecified.  Return the number of characters
+/// in the formatted string, not including the terminating null byte.  If a
+/// memory allocation was necessary but available was insufficient, return a
+/// negative value; in this case, values stored for the output buffer and
+/// its size are unspecified.  The behavior is undefined unless
+/// `originalBuffer` contains at least `originalBufferSize` bytes, and
+/// `format` is a valid `printf`-style format string with all expected
+/// substitutions present in `substitutions`.
 int vsnprintf_allocate(char                 *originalBuffer,
                        size_t                originalBufferSize,
                        BufferScopedGuard&    guard,
@@ -182,24 +203,6 @@ int vsnprintf_allocate(char                 *originalBuffer,
                        size_t               *outputBufferSize,
                        const char           *format,
                        va_list               substitutions)
-    // Load into the specified 'outputBuffer' the address of a buffer
-    // containing the null-terminated string formed by applying the
-    // 'printf'-style formatting rules to the specified 'format' string using
-    // the specified 'substitutions'.  Load into the specified
-    // 'outputBufferSize' a size that is at least the number of bytes in the
-    // formatted string, including the terminating null byte.  If the specified
-    // 'originalBuffer', having the specified 'originalBufferSize', is large
-    // enough to hold the entire formatted string, then 'originalBuffer' will
-    // be the loaded output buffer.  Otherwise, 'outputBuffer' will point to a
-    // buffer allocated using the specified 'guard', and the contents of
-    // 'originalBuffer' will be unspecified.  Return the number of characters
-    // in the formatted string, not including the terminating null byte.  If a
-    // memory allocation was necessary but available was insufficient, return a
-    // negative value; in this case, values stored for the output buffer and
-    // its size are unspecified.  The behavior is undefined unless
-    // 'originalBuffer' contains at least 'originalBufferSize' bytes, and
-    // 'format' is a valid 'printf'-style format string with all expected
-    // substitutions present in 'substitutions'.
 {
     assert(originalBuffer);
     assert(outputBuffer);

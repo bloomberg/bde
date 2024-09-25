@@ -32,9 +32,9 @@ using namespace bslstl;
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-// 'bslstl::IteratorUtil' provides a namespace for a suite of utility functions
+// `bslstl::IteratorUtil` provides a namespace for a suite of utility functions
 // for iterator types.  This test driver verify that each of the functions
-// behaves as documented.  Note that only one function, 'insertDistance', is
+// behaves as documented.  Note that only one function, `insertDistance`, is
 // currently defined.
 //-----------------------------------------------------------------------------
 // [ 2] size_t insertDistance(InputIterator, InputIterator)
@@ -119,7 +119,7 @@ struct TestIterator {
     typedef CATEGORY  iterator_category;
 
     // DATA
-    pointer d_ptr;  // address of the element referred to by 'this'
+    pointer d_ptr;  // address of the element referred to by `this`
 
     // MANIPULATORS
     TestIterator& operator++ ()
@@ -176,17 +176,17 @@ DISTANCE operator-(
 }  // close unnamed namespace
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+/// This struct provides a namespace for functions testing template aliases.
+/// The tests are compile-time only; it is not necessary that these routines
+/// be called at run-time.
 struct TestTemplateAliases {
-    // This struct provides a namespace for functions testing template aliases.
-    // The tests are compile-time only; it is not necessary that these routines
-    // be called at run-time.
 
 #define ASSERT_SAME_TYPE(...) \
  static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
 
+    /// Test the template aliases in this component `return` the correct
+    /// type when instantiated with both iterators and pointers.
     static void TemplateAliases ()
-        // Test the template aliases in this component 'return' the correct
-        // type when instantiated with both iterators and pointers.
     {
         using TAG = bsl::input_iterator_tag;
 
@@ -267,13 +267,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -294,18 +294,18 @@ int main(int argc, char *argv[])
 // First, we create an array of integer values and two pointers (which are
 // considered random access iterators) referring to the beginning and end of a
 // range within that array:
-//..
+// ```
         int values[] = { 1, 2, 3, 4, 5 };
         int *begin = &values[0];
         int *end   = &values[3];
-//..
-// Now, we use the 'IteratorUtil::insertDistance' class method to calculate the
-// distance of the open range ['begin', 'end'):
-//..
+// ```
+// Now, we use the `IteratorUtil::insertDistance` class method to calculate the
+// distance of the open range [`begin`, `end`):
+// ```
         std::size_t distance = IteratorUtil::insertDistance(begin, end);
         ASSERT(3 == distance);
 
-//..
+// ```
 
       } break;
       case 3: {
@@ -316,14 +316,14 @@ int main(int argc, char *argv[])
         //   constructors.
         //
         // Concerns:
-        //: 1 Instantiation with both pointers and iterators 'returns' the
-        //:   correct type.
+        // 1. Instantiation with both pointers and iterators `returns` the
+        //    correct type.
         //
         // Plan:
-        //: 1 Instantiate the template aliases with different iterator and
-        //:   pointer types.
-        //:
-        //: 2 Verify that the 'returned' type is correct.
+        // 1. Instantiate the template aliases with different iterator and
+        //    pointer types.
+        //
+        // 2. Verify that the `returned` type is correct.
         //
         // Testing:
         //   TEMPLATE ALIASES FOR DEDUCTION GUIDES
@@ -341,28 +341,28 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'insertDistance'
+        // `insertDistance`
         //
         // Concerns:
-        //: 1 The function returns 0 for input iterators.
-        //:
-        //: 2 The function returns the distance between two iterators if the
-        //:   iterators are either forward, bidirectional, or random-access
-        //:   iterators.
+        // 1. The function returns 0 for input iterators.
+        //
+        // 2. The function returns the distance between two iterators if the
+        //    iterators are either forward, bidirectional, or random-access
+        //    iterators.
         //
         // Plan:
-        //: 1 Create a few pairs of input iterators.  Verify that the function
-        //:   returns 0.  (C-1)
-        //:
-        //: 2 For each of the iterator types -- forward, bidirectional, and
-        //:   random-access:  (C-2)
-        //:
-        //:   1 Verify the function returns 0 for a pair of iterators having an
-        //:     empty range.  (C-2)
-        //:
-        //:   2 Create pairs of iterators having non empty ranges.
-        //:
-        //:   3 Verify that the function returns the correct distances.  (C-2)
+        // 1. Create a few pairs of input iterators.  Verify that the function
+        //    returns 0.  (C-1)
+        //
+        // 2. For each of the iterator types -- forward, bidirectional, and
+        //    random-access:  (C-2)
+        //
+        //   1. Verify the function returns 0 for a pair of iterators having an
+        //      empty range.  (C-2)
+        //
+        //   2. Create pairs of iterators having non empty ranges.
+        //
+        //   3. Verify that the function returns the correct distances.  (C-2)
         //
         // Testing:
         //   size_t insertDistance(InputIterator, InputIterator)
@@ -465,11 +465,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform some ad-hoc tests.
+        // 1. Perform some ad-hoc tests.
         //
         // Testing:
         //   BREATHING TEST

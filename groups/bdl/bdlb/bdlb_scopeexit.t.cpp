@@ -116,17 +116,17 @@ void aSsErT(bool condition, const char *message, int line)
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     BSLMF_ASSERT(BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L);
-    // 'BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L' is implied here
+    // `BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L` is implied here
 
+    /// See header for meaning, replicated here for white box tests.
     #define BDLB_SCOPEEXIT_USES_MODERN_CPP
-        // See header for meaning, replicated here for white box tests.
 #endif
 
 #if defined(BDE_BUILD_TARGET_EXC) && defined(BDLB_SCOPEEXIT_USES_MODERN_CPP)
+    /// `BDLB_SCOPEEXIT_ENABLE_CPP11_EXAMPLE` is defined if all compilers
+    /// features (exceptions, C++11 `auto` and lambdas) are present that are
+    /// needed to compile the C++11 (and later) usage example.
     #define BDLB_SCOPEEXIT_ENABLE_CPP11_EXAMPLE
-        // 'BDLB_SCOPEEXIT_ENABLE_CPP11_EXAMPLE' is defined if all compilers
-        // features (exceptions, C++11 'auto' and lambdas) are present that are
-        // needed to compile the C++11 (and later) usage example.
 #endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
@@ -134,17 +134,17 @@ void aSsErT(bool condition, const char *message, int line)
 #else
     #define U_PARAM_TO_EXIT_FUNC_CONDITIONAL_EXPLICIT
 #endif
-    // This macro is defined to 'explicit' when explicit conversions from
-    // 'bdlb::ScopeExit<EXIT_FUNC>' constructor 'EXIT_FUNC_PARAM' parameters
-    // are supported by our implementation.  The 'bdlb::ScopeExit<EXIT_FUNC>'
-    // converting constructor itself is 'explicit' so this is fine.
+    // This macro is defined to `explicit` when explicit conversions from
+    // `bdlb::ScopeExit<EXIT_FUNC>` constructor `EXIT_FUNC_PARAM` parameters
+    // are supported by our implementation.  The `bdlb::ScopeExit<EXIT_FUNC>`
+    // converting constructor itself is `explicit` so this is fine.
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     #define U_DECLVAL(type) bsl::declval<type>()
 #else
     #define U_DECLVAL(type) (*(type*)(0))
 #endif
-    // "Portable 'std::declval<>()'".
+    // "Portable `std::declval<>()`".
 
 // ============================================================================
 //                           HELPER TYPE ALIASES
@@ -156,28 +156,28 @@ typedef bslmf::MovableRefUtil MoveUtil;
 //                             TEST MACHINERY
 // ----------------------------------------------------------------------------
 
+/// Characters that may be present in C/C++ identifiers.  Used from more
+/// than one function.  We avoid depending on `bdlb::CharType` just for
+/// testing as it would raise the level of this component.
 static const char k_IDENT_CHARS[] =
              "0123456789_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    // Characters that may be present in C/C++ identifiers.  Used from more
-    // than one function.  We avoid depending on 'bdlb::CharType' just for
-    // testing as it would raise the level of this component.
 
+/// Return `true` if the specified `macroText` contains the `expectedTokens`
+/// in the same order as in the argument, and `false` otherwise.
+/// Preprocessed tokens in C++ are separated by space characters that may be
+/// optional between certain tokens.  `expectedTokens` is a descriptor that
+/// contains literal characters (tokens), special token delimiter
+/// characters, and special unique identifier sequence indicator character:
+///  ' ': mandatory (at least one space) token separator
+///  '$': optional (space) token separator
+///  '#': indicates a non-empty sequence of identifier characters
+///
+/// The behavior is undefined if `expectedTokens` contains more than one
+/// special character without an intervening literal (token) character.  The
+/// behavior is also undefined if either or the arguments is empty or
+/// contains spaces only.
 bool testMacroText(const bsl::string_view& expectedTokens,
                    const bsl::string_view& macroText)
-    // Return 'true' if the specified 'macroText' contains the 'expectedTokens'
-    // in the same order as in the argument, and 'false' otherwise.
-    // Preprocessed tokens in C++ are separated by space characters that may be
-    // optional between certain tokens.  'expectedTokens' is a descriptor that
-    // contains literal characters (tokens), special token delimiter
-    // characters, and special unique identifier sequence indicator character:
-    //: ' ': mandatory (at least one space) token separator
-    //: '$': optional (space) token separator
-    //: '#': indicates a non-empty sequence of identifier characters
-    //
-    // The behavior is undefined if 'expectedTokens' contains more than one
-    // special character without an intervening literal (token) character.  The
-    // behavior is also undefined if either or the arguments is empty or
-    // contains spaces only.
 {
     static const bsl::string_view::size_type npos = bsl::string_view::npos;
 
@@ -220,7 +220,7 @@ bool testMacroText(const bsl::string_view& expectedTokens,
                 // Token does not match
                 return false;                                         // RETURN
             }
-            ePos += tLen - 1; // We have a '++ePos' in the 'for' above
+            ePos += tLen - 1; // We have a `++ePos` in the `for` above
             mPos += tLen;
           }
         }
@@ -233,23 +233,23 @@ bool testMacroText(const bsl::string_view& expectedTokens,
                          // struct IncrementValues
                          // ======================
 
+/// This `struct` provides unique counter-increment values that can be used
+/// to differentiate between different kinds of exit functions executed.
 struct IncrementValues {
-    // This 'struct' provides unique counter-increment values that can be used
-    // to differentiate between different kinds of exit functions executed.
 
     enum Enum {
         k_NONE,                          //  0 is unused/skipped
-        k_EXIT_FUNCTION_PARAM          , //  1 'ExitFunctionParam'
-        k_EXIT_FUNCTION_PARAM_THROW    , //  2 'ExitFunctionParamThrows'
-        k_EXIT_FUNCTION                , //  3 'ExitFunction'
-        k_MOVE_THROWS_EXIT_FUNCTION    , //  4 'MoveOnlyExitFunction'
-        k_COPY_THROWS_EXIT_FUNCTION    , //  5 'CopyOnlyExitFunction'
-        k_BOTH_THROW_EXIT_FUNCTION     , //  6 'CopyOnlyExitFunction'
-        k_MOVE_ONLY_EXIT_FUNCTION_PARAM, //  7 'MoveOnlyExitFunctionParam'
-        k_MOVE_ONLY_EXIT_FUNCTION      , //  8 'MoveOnlyExitFunction'
-        k_COPY_ONLY_EXIT_FUNCTION      , //  9 'CopyOnlyExitFunction'
-        k_MOVE_COPY_EXIT_FUNCTION      , // 10 'MoveCopyExitFunction'
-        k_FUNCTION_POINTER             , // 11 'void freeExitFunction()'
+        k_EXIT_FUNCTION_PARAM          , //  1 `ExitFunctionParam`
+        k_EXIT_FUNCTION_PARAM_THROW    , //  2 `ExitFunctionParamThrows`
+        k_EXIT_FUNCTION                , //  3 `ExitFunction`
+        k_MOVE_THROWS_EXIT_FUNCTION    , //  4 `MoveOnlyExitFunction`
+        k_COPY_THROWS_EXIT_FUNCTION    , //  5 `CopyOnlyExitFunction`
+        k_BOTH_THROW_EXIT_FUNCTION     , //  6 `CopyOnlyExitFunction`
+        k_MOVE_ONLY_EXIT_FUNCTION_PARAM, //  7 `MoveOnlyExitFunctionParam`
+        k_MOVE_ONLY_EXIT_FUNCTION      , //  8 `MoveOnlyExitFunction`
+        k_COPY_ONLY_EXIT_FUNCTION      , //  9 `CopyOnlyExitFunction`
+        k_MOVE_COPY_EXIT_FUNCTION      , // 10 `MoveCopyExitFunction`
+        k_FUNCTION_POINTER             , // 11 `void freeExitFunction()`
         k_STATELESS_LAMBDA             , // 12 any non-capturing lambda
         k_STATEFUL_LAMBDA                // 13 lambdas that capture
     };
@@ -260,18 +260,18 @@ struct IncrementValues {
                          // ======================
 
 #ifdef BDE_BUILD_TARGET_EXC
+/// This `struct` provides a unique exception type `Enum` and a bound set
+/// of unique exception values (the enumerators) that can be used to
+/// identify the exceptions thrown by copy or move of different type of
+/// functors.
 struct ExceptionValues {
-    // This 'struct' provides a unique exception type 'Enum' and a bound set
-    // of unique exception values (the enumerators) that can be used to
-    // identify the exceptions thrown by copy or move of different type of
-    // functors.
 
     enum Enum {
         k_EXIT_FUNCTION_PARAM_THROW,     //  0 ExitFunctionParamThrows
         k_MOVE_THROWS_EXIT_FUNCTION,     //  1 MoveThrowsExitFunction
         k_COPY_THROWS_EXIT_FUNCTION,     //  2 CopyThrowsExitFunction
-        k_MOVE_BOTH_THROW_EXIT_FUNCTION, //  3 move 'BothThrowsExitFunction'
-        k_COPY_BOTH_THROW_EXIT_FUNCTION, //  4 copy 'BothThrowsExitFunction'
+        k_MOVE_BOTH_THROW_EXIT_FUNCTION, //  3 move `BothThrowsExitFunction`
+        k_COPY_BOTH_THROW_EXIT_FUNCTION, //  4 copy `BothThrowsExitFunction`
         k_COPY_THROWS_LAMBDA,            //  5 lambdas that throws on copy
         k_MOVE_THROWS_LAMBDA             //  6 lambdas that throws on move
     };
@@ -282,9 +282,9 @@ struct ExceptionValues {
                           // ExitFunctionParam
                           // =================
 
+/// A functor class that and increments the counter supplied on construction
+/// when called, and `ExitFunction` below can be constructed from it.
 class ExitFunctionParam {
-    // A functor class that and increments the counter supplied on construction
-    // when called, and 'ExitFunction' below can be constructed from it.
 
   private:
     // DATA
@@ -292,20 +292,23 @@ class ExitFunctionParam {
 
   public:
     // CLASS METHODS
+
+    /// Return `IncrementValues::k_EXIT_FUNCTION_PARAM`.
     static int theIncrement();
-        // Return 'IncrementValues::k_EXIT_FUNCTION_PARAM'.
 
     // CREATORS
+
+    /// Create an `ExitFunctionParam` object that will increment the integer
+    /// pointed by the specified `counter_p` when it is called.
     explicit ExitFunctionParam(int *counter_p);
-        // Create an 'ExitFunctionParam' object that will increment the integer
-        // pointed by the specified 'counter_p' when it is called.
 
     // ACCESSORS
-    void operator()() const;
-        // Increment the counter by 'IncrementValues::k_EXIT_FUNCTION_PARAM'.
 
+    /// Increment the counter by `IncrementValues::k_EXIT_FUNCTION_PARAM`.
+    void operator()() const;
+
+    /// Return the counter pointer of this object.
     int *counterPtr() const;
-        // Return the counter pointer of this object.
 };
 
                           // -----------------
@@ -340,9 +343,9 @@ int *ExitFunctionParam::counterPtr() const
                         // =======================
 
 #ifdef BDE_BUILD_TARGET_EXC
+/// A functor class that increments the counter supplied on construction
+/// when called, and `ExitFunction` has a constructor for that throws.
 class ExitFunctionParamThrows {
-    // A functor class that increments the counter supplied on construction
-    // when called, and 'ExitFunction' has a constructor for that throws.
 
   private:
     // DATA
@@ -350,21 +353,24 @@ class ExitFunctionParamThrows {
 
   public:
     // CLASS METHODS
+
+    /// Return `IncrementValues::k_EXIT_FUNCTION_PARAM_THROW`.
     static int theIncrement();
-        // Return 'IncrementValues::k_EXIT_FUNCTION_PARAM_THROW'.
 
     // CREATORS
+
+    /// Create an `ExitFunctionParamThrows` object that will increment the
+    /// integer pointed by the specified `counter_p` when it is called.
     explicit ExitFunctionParamThrows(int *counter_p);
-        // Create an 'ExitFunctionParamThrows' object that will increment the
-        // integer pointed by the specified 'counter_p' when it is called.
 
     // ACCESSORS
-    void operator()() const;
-        // Increment the counter by
-        // 'IncrementValues::k_EXIT_FUNCTION_PARAM_THROW'.
 
+    /// Increment the counter by
+    /// `IncrementValues::k_EXIT_FUNCTION_PARAM_THROW`.
+    void operator()() const;
+
+    /// Return the counter pointer of this object.
     int *counterPtr() const;
-        // Return the counter pointer of this object.
 };
 
                         // -----------------------
@@ -399,9 +405,9 @@ int *ExitFunctionParamThrows::counterPtr() const
                              // ExitFunction
                              // ============
 
+/// A functor that increments the counter supplied on construction when
+/// called.
 class ExitFunction {
-    // A functor that increments the counter supplied on construction when
-    // called.
 
   private:
     // DATA
@@ -409,29 +415,32 @@ class ExitFunction {
 
   public:
     // CLASS METHODS
+
+    /// Return `IncrementValues::k_EXIT_FUNCTION`.
     static int theIncrement();
-        // Return 'IncrementValues::k_EXIT_FUNCTION'.
 
     // CREATORS
-    explicit ExitFunction(int *counter_p);
-        // Create an 'ExitFunction' object that will increment the specified
-        // 'counter_p' upon its invocation.
 
+    /// Create an `ExitFunction` object that will increment the specified
+    /// `counter_p` upon its invocation.
+    explicit ExitFunction(int *counter_p);
+
+    /// Create an `ExitFunction` object that will increment the same counter
+    /// that the specified `param` does.
     U_PARAM_TO_EXIT_FUNC_CONDITIONAL_EXPLICIT
     ExitFunction(const ExitFunctionParam& param);
-        // Create an 'ExitFunction' object that will increment the same counter
-        // that the specified 'param' does.
 
 #ifdef BDE_BUILD_TARGET_EXC
+    /// Unconditionally throw an integer of value
+    /// `ExceptionValues::k_EXIT_FUNCTION_PARAM_THROW`.
     U_PARAM_TO_EXIT_FUNC_CONDITIONAL_EXPLICIT
     ExitFunction(const ExitFunctionParamThrows&);
-        // Unconditionally throw an integer of value
-        // 'ExceptionValues::k_EXIT_FUNCTION_PARAM_THROW'.
 #endif
 
     // ACCESSORS
+
+    /// Increment the counter by `IncrementValues::k_EXIT_FUNCTION`.
     void operator()() const;
-        // Increment the counter by 'IncrementValues::k_EXIT_FUNCTION'.
 };
 
                              // ------------
@@ -474,10 +483,10 @@ void ExitFunction::operator()() const
                         // ======================
 
 #ifdef BDE_BUILD_TARGET_EXC
+/// A functor that increments the counter supplied on construction when
+/// called and throws when moved.  The copy constructor does not exist so
+/// we cannot use it by mistake.
 class MoveThrowsExitFunction {
-    // A functor that increments the counter supplied on construction when
-    // called and throws when moved.  The copy constructor does not exist so
-    // we cannot use it by mistake.
 
   private:
     // DATA
@@ -495,21 +504,24 @@ class MoveThrowsExitFunction {
 
   public:
     // CLASS METHODS
+
+    /// Return `IncrementValues::k_MOVE_THROWS_EXIT_FUNCTION`.
     static int theIncrement();
-        // Return 'IncrementValues::k_MOVE_THROWS_EXIT_FUNCTION'.
 
     // CREATORS
-    explicit MoveThrowsExitFunction(int *counter_p);
-        // Create an 'MoveThrowsExitFunction' object that will increment the
-        // specified 'counter_p' upon its invocation.
 
+    /// Create an `MoveThrowsExitFunction` object that will increment the
+    /// specified `counter_p` upon its invocation.
+    explicit MoveThrowsExitFunction(int *counter_p);
+
+    /// Throw `ExceptionValues::k_MOVE_THROWS_EXIT_FUNCTION`.
     MoveThrowsExitFunction(bslmf::MovableRef<MoveThrowsExitFunction>);
-        // Throw 'ExceptionValues::k_MOVE_THROWS_EXIT_FUNCTION'.
 
         // ACCESSORS
+
+    /// Increment the counter by
+    /// `IncrementValues::k_MOVE_THROWS_EXIT_FUNCTION`.
     void operator()() const;
-        // Increment the counter by
-        // 'IncrementValues::k_MOVE_THROWS_EXIT_FUNCTION'.
 };
 
                         // ----------------------
@@ -546,10 +558,10 @@ void MoveThrowsExitFunction::operator()() const
                         // ======================
 
 #ifdef BDE_BUILD_TARGET_EXC
+/// A functor that increments the counter supplied on construction when
+/// called and throws when copied.  The move constructor does not exist so
+/// we cannot use it by mistake.
 class CopyThrowsExitFunction {
-    // A functor that increments the counter supplied on construction when
-    // called and throws when copied.  The move constructor does not exist so
-    // we cannot use it by mistake.
 
   private:
     // DATA
@@ -567,21 +579,24 @@ class CopyThrowsExitFunction {
 
   public:
     // CLASS METHODS
+
+    /// Return `IncrementValues::k_MOVE_THROWS_EXIT_FUNCTION`.
     static int theIncrement();
-        // Return 'IncrementValues::k_MOVE_THROWS_EXIT_FUNCTION'.
 
     // CREATORS
-    explicit CopyThrowsExitFunction(int *counter_p);
-        // Create an 'CopyThrowsExitFunction' object that will increment the
-        // specified 'counter_p' upon its invocation.
 
+    /// Create an `CopyThrowsExitFunction` object that will increment the
+    /// specified `counter_p` upon its invocation.
+    explicit CopyThrowsExitFunction(int *counter_p);
+
+    /// Throw `ExceptionValues::k_COPY_THROWS_EXIT_FUNCTION`.
     CopyThrowsExitFunction(const CopyThrowsExitFunction&);
-        // Throw 'ExceptionValues::k_COPY_THROWS_EXIT_FUNCTION'.
 
         // ACCESSORS
+
+    /// Increment the counter by
+    /// `IncrementValues::k_COPY_THROWS_EXIT_FUNCTION`.
     void operator()() const;
-        // Increment the counter by
-        // 'IncrementValues::k_COPY_THROWS_EXIT_FUNCTION'.
 };
 
                         // ----------------------
@@ -618,9 +633,9 @@ void CopyThrowsExitFunction::operator()() const
                          // =====================
 
 #ifdef BDE_BUILD_TARGET_EXC
+/// A functor that increments the counter supplied on construction when
+/// called and throws when copied or moved.
 class BothThrowExitFunction {
-    // A functor that increments the counter supplied on construction when
-    // called and throws when copied or moved.
 
   private:
     // DATA
@@ -637,24 +652,27 @@ class BothThrowExitFunction {
 
   public:
     // CLASS METHODS
+
+    /// Return `IncrementValues::k_BOTH_THROW_EXIT_FUNCTION`.
     static int theIncrement();
-        // Return 'IncrementValues::k_BOTH_THROW_EXIT_FUNCTION'.
 
     // CREATORS
+
+    /// Create an `BothThrowExitFunction` object that will increment the
+    /// specified `counter_p` upon its invocation.
     explicit BothThrowExitFunction(int *counter_p);
-        // Create an 'BothThrowExitFunction' object that will increment the
-        // specified 'counter_p' upon its invocation.
 
+    /// Throw `ExceptionValues::k_COPY_BOTH_THROW_EXIT_FUNCTION`.
     BothThrowExitFunction(const BothThrowExitFunction&);
-        // Throw 'ExceptionValues::k_COPY_BOTH_THROW_EXIT_FUNCTION'.
 
+    /// Throw `ExceptionValues::k_MOVE_BOTH_THROW_EXIT_FUNCTION`.
     BothThrowExitFunction(bslmf::MovableRef<BothThrowExitFunction>);
-        // Throw 'ExceptionValues::k_MOVE_BOTH_THROW_EXIT_FUNCTION'.
 
         // ACCESSORS
+
+    /// Increment the counter by
+    /// `IncrementValues::k_BOTH_THROW_EXIT_FUNCTION`.
     void operator()() const;
-        // Increment the counter by
-        // 'IncrementValues::k_BOTH_THROW_EXIT_FUNCTION'.
 };
 
                         // ---------------------
@@ -695,10 +713,10 @@ void BothThrowExitFunction::operator()() const
                       // MoveOnlyExitFunctionParam
                       // =========================
 
+/// A move-only functor class that is convertible to `MoveOnlyExitFunction`
+/// (see below) and increments the counter supplied on construction when
+/// called.
 class MoveOnlyExitFunctionParam {
-    // A move-only functor class that is convertible to 'MoveOnlyExitFunction'
-    // (see below) and increments the counter supplied on construction when
-    // called.
 
   private:
     // DATA
@@ -717,35 +735,39 @@ class MoveOnlyExitFunctionParam {
 
   public:
     // CLASS METHODS
+
+    /// Return `IncrementValues::k_MOVE_ONLY_EXIT_FUNCTION_PARAM`.
     static int theIncrement();
-        // Return 'IncrementValues::k_MOVE_ONLY_EXIT_FUNCTION_PARAM'.
 
     // CREATORS
-    explicit MoveOnlyExitFunctionParam(int *counter_p);
-        // Create an 'MoveOnlyExitFunctionParam' object that will increment the
-        // integer pointed by the specified 'counter_p' when it is called.
 
+    /// Create an `MoveOnlyExitFunctionParam` object that will increment the
+    /// integer pointed by the specified `counter_p` when it is called.
+    explicit MoveOnlyExitFunctionParam(int *counter_p);
+
+    /// Create a `MoveOnlyExitFunctionParam` object having the same value as
+    /// the specified `original` object by initializing this object's
+    /// counter pointer to that of the `original` and setting the `original`
+    /// to the moved-from state by setting its pointer to null.  The
+    /// behavior is undefined if `original` is in a moved-from state.
     U_PARAM_TO_EXIT_FUNC_CONDITIONAL_EXPLICIT
     MoveOnlyExitFunctionParam(
                         bslmf::MovableRef<MoveOnlyExitFunctionParam> original);
-        // Create a 'MoveOnlyExitFunctionParam' object having the same value as
-        // the specified 'original' object by initializing this object's
-        // counter pointer to that of the 'original' and setting the 'original'
-        // to the moved-from state by setting its pointer to null.  The
-        // behavior is undefined if 'original' is in a moved-from state.
 
     // MANIPULATORS
+
+    /// Set this object to moved-from state.
     void reset();
-        // Set this object to moved-from state.
 
     // ACCESSORS
-    void operator()() const;
-        // Increment the counter by
-        // 'IncrementValues::k_MOVE_ONLY_EXIT_FUNCTION_PARAM'.  The behavior is
-        // undefined if this object is in a moved-from state.
 
+    /// Increment the counter by
+    /// `IncrementValues::k_MOVE_ONLY_EXIT_FUNCTION_PARAM`.  The behavior is
+    /// undefined if this object is in a moved-from state.
+    void operator()() const;
+
+    /// Return the counter pointer stored in this object.
     int *counterPtr() const;
-        // Return the counter pointer stored in this object.
 };
 
                       // -------------------------
@@ -797,23 +819,23 @@ int *MoveOnlyExitFunctionParam::counterPtr() const
                 //  ==========================================
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-// In case there is no reliable '<type_traits>' header we use 'bsl' a trait to
+// In case there is no reliable `<type_traits>` header we use `bsl` a trait to
 // mark our class no-throw-move-constructible.
 namespace bsl {
 template <>
 struct is_nothrow_move_constructible<MoveOnlyExitFunctionParam>
 : bsl::true_type
 {};
-}  // close 'bsl' namespace
+}  // close `bsl` namespace
 #endif
 
                           // ====================
                           // MoveOnlyExitFunction
                           // ====================
 
+/// Move-only functor that increments the counter supplied on construction
+/// when called.
 class MoveOnlyExitFunction {
-    // Move-only functor that increments the counter supplied on construction
-    // when called.
 
   private:
     // DATA
@@ -831,34 +853,37 @@ class MoveOnlyExitFunction {
 
   public:
     // CLASS METHODS
+
+    /// Return `IncrementValues::k_MOVE_ONLY_EXIT_FUNCTION`.
     static int theIncrement();
-        // Return 'IncrementValues::k_MOVE_ONLY_EXIT_FUNCTION'.
 
     // CREATORS
+
+    /// Create an `MoveOnlyExitFunction` object that will increment the
+    /// integer pointed by the specified `counter_p` when it is called,
+    /// unless this object is in a moved-from state.
     explicit MoveOnlyExitFunction(int *counter_p);
-        // Create an 'MoveOnlyExitFunction' object that will increment the
-        // integer pointed by the specified 'counter_p' when it is called,
-        // unless this object is in a moved-from state.
 
+    /// Create a `MoveOnlyExitFunction` object having the same value as the
+    /// specified `original` object by initializing this object's counter
+    /// pointer to that of the `original`, and setting the `original` object
+    /// to the moved-from state by setting its pointer to null.  The
+    /// behavior is undefined if `original` is in a moved-from state.
     MoveOnlyExitFunction(bslmf::MovableRef<MoveOnlyExitFunction> original);
-        // Create a 'MoveOnlyExitFunction' object having the same value as the
-        // specified 'original' object by initializing this object's counter
-        // pointer to that of the 'original', and setting the 'original' object
-        // to the moved-from state by setting its pointer to null.  The
-        // behavior is undefined if 'original' is in a moved-from state.
 
+    /// Create a `MoveOnlyExitFunction` object that increments the same
+    /// counter as the specified `param` and set `param` to a moved-from
+    /// state.  The behavior is undefined if `param` is already in a
+    /// moved-from state.
     MoveOnlyExitFunction(
               bslmf::MovableRef<MoveOnlyExitFunctionParam> param);  // IMPLICIT
-        // Create a 'MoveOnlyExitFunction' object that increments the same
-        // counter as the specified 'param' and set 'param' to a moved-from
-        // state.  The behavior is undefined if 'param' is already in a
-        // moved-from state.
 
     // ACCESSORS
+
+    /// Increment the counter by
+    /// `IncrementValues::k_MOVE_ONLY_EXIT_FUNCTION`.  The behavior is
+    /// undefined if this object is in a moved-from state.
     void operator()() const;
-        // Increment the counter by
-        // 'IncrementValues::k_MOVE_ONLY_EXIT_FUNCTION'.  The behavior is
-        // undefined if this object is in a moved-from state.
 };
 
                        // --------------------
@@ -908,23 +933,23 @@ void MoveOnlyExitFunction::operator()() const
                 //  =====================================
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-// In case there is no reliable '<type_traits>' header we use 'bsl' a trait to
+// In case there is no reliable `<type_traits>` header we use `bsl` a trait to
 // mark our class no-throw-move-constructible.
 namespace bsl {
 template <>
 struct is_nothrow_move_constructible<MoveOnlyExitFunction>
 : bsl::true_type
 {};
-}  // close 'bsl' namespace
+}  // close `bsl` namespace
 #endif
 
                           // ====================
                           // CopyOnlyExitFunction
                           // ====================
 
+/// Copy-only functor (move is disabled) that increments the counter
+/// supplied on construction when called.
 class CopyOnlyExitFunction {
-    // Copy-only functor (move is disabled) that increments the counter
-    // supplied on construction when called.
 
   private:
     // DATA
@@ -939,13 +964,15 @@ class CopyOnlyExitFunction {
 
   public:
     // CLASS METHODS
+
+    /// Return `IncrementValues::k_COPY_ONLY_EXIT_FUNCTION`.
     static int theIncrement();
-        // Return 'IncrementValues::k_COPY_ONLY_EXIT_FUNCTION'.
 
     // CREATORS
+
+    /// Create an `CopyOnlyExitFunction` object that will increment the
+    /// integer pointed by the specified `counter_p` when it is called.
     explicit CopyOnlyExitFunction(int *counter_p);
-        // Create an 'CopyOnlyExitFunction' object that will increment the
-        // integer pointed by the specified 'counter_p' when it is called.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     // We need to define the copy constructor explicitly because we have
@@ -954,15 +981,16 @@ class CopyOnlyExitFunction {
     CopyOnlyExitFunction(const CopyOnlyExitFunction&) = default;
 #else
     CopyOnlyExitFunction(const CopyOnlyExitFunction& original);
-        // Create a 'CopyOnlyExitFunction' instance that increments the same
-        // pointer as the 'original' object.
+        // Create a `CopyOnlyExitFunction` instance that increments the same
+        // pointer as the `original` object.
 #endif
 #endif
 //
     // ACCESSORS
+
+    /// Increment the counter by
+    /// `IncrementValues::k_COPY_ONLY_EXIT_FUNCTION`.
     void operator()() const;
-        // Increment the counter by
-        // 'IncrementValues::k_COPY_ONLY_EXIT_FUNCTION'.
 };
 
                        // --------------------
@@ -1002,17 +1030,18 @@ void CopyOnlyExitFunction::operator()() const
                           // struct MoveCopyCounts
                           // =====================
 
+/// Provides public, resettable static counters for move and copy counts.
+/// Shared by all counting code for brevity.
 struct MoveCopyCounts {
-    // Provides public, resettable static counters for move and copy counts.
-    // Shared by all counting code for brevity.
 
     // PUBLIC CLASS DATA
     static unsigned s_copyCount;
     static unsigned s_moveCount;
 
     // CLASS METHODS
+
+    /// Sets the copy and move counters to zero.
     static void resetCopyMoveCounts();
-        // Sets the copy and move counters to zero.
 };
 
                           // ---------------------
@@ -1033,17 +1062,17 @@ void MoveCopyCounts::resetCopyMoveCounts()
                       // template MoveCopyExitFunction
                       // =============================
 
+/// A functor that increments a counter supplied on construction when
+/// invoked, and also counts how many times its instances have been copy-
+/// or move-constructed.  The template parameters `MOVE_IS_NOEXCEPT` and
+/// `COPY_IS_NOEXCEPT` determine if the move and copy constructors are
+/// `noexcept`, respectively.  This feature is necessary in testing
+/// move/copy selection as well as the exception specification of the
+/// `ScopeExit` move constructor.  Note that to simplify the code the
+/// counters are shared between *all* instances of the template (we never
+/// use more than one instance in a test).
 template <bool MOVE_IS_NOEXCEPT, bool COPY_IS_NOEXCEPT>
 class MoveCopyExitFunction : public MoveCopyCounts {
-    // A functor that increments a counter supplied on construction when
-    // invoked, and also counts how many times its instances have been copy-
-    // or move-constructed.  The template parameters 'MOVE_IS_NOEXCEPT' and
-    // 'COPY_IS_NOEXCEPT' determine if the move and copy constructors are
-    // 'noexcept', respectively.  This feature is necessary in testing
-    // move/copy selection as well as the exception specification of the
-    // 'ScopeExit' move constructor.  Note that to simplify the code the
-    // counters are shared between *all* instances of the template (we never
-    // use more than one instance in a test).
 
   private:
     // DATA
@@ -1060,22 +1089,24 @@ class MoveCopyExitFunction : public MoveCopyCounts {
 
   public:
     // CLASS METHODS
+
+    /// Return `IncrementValues::k_MOVE_COPY_EXIT_FUNCTION`.
     static int theIncrement();
-        // Return 'IncrementValues::k_MOVE_COPY_EXIT_FUNCTION'.
 
     // CREATORS
-    explicit MoveCopyExitFunction(int *counter_p);
-        // Create an 'MoveCopyExitFunction' object that will increment the
-        // integer pointed by the specified 'counter_p' when it is called,
-        // unless this object is in a moved-from state.
 
+    /// Create an `MoveCopyExitFunction` object that will increment the
+    /// integer pointed by the specified `counter_p` when it is called,
+    /// unless this object is in a moved-from state.
+    explicit MoveCopyExitFunction(int *counter_p);
+
+    /// Create a `MoveCopyExitFunction` object having the same value as the
+    /// specified `original` object by initializing this object's counter
+    /// pointer to that of the `original`.  Also increase `s_copyCount` by
+    /// one.  The behavior is undefined if `original` is in a moved-from
+    /// state.
     MoveCopyExitFunction(const MoveCopyExitFunction& original)
                           BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(COPY_IS_NOEXCEPT)
-        // Create a 'MoveCopyExitFunction' object having the same value as the
-        // specified 'original' object by initializing this object's counter
-        // pointer to that of the 'original'.  Also increase 's_copyCount' by
-        // one.  The behavior is undefined if 'original' is in a moved-from
-        // state.
     : d_counter_p(original.d_counter_p)
     {
         // This function needs to be defined inline in the class body due to a
@@ -1087,22 +1118,23 @@ class MoveCopyExitFunction : public MoveCopyCounts {
         ++s_copyCount;
     }
 
+    /// Create a `MoveCopyExitFunction` object having the same value as the
+    /// specified `original` object by initializing this object's counter
+    /// pointer to that of the `original`, and setting the `original` object
+    /// to the moved-from state by setting its pointer to null.  Also
+    /// increase `s_moveCount` by one.  The behavior is undefined if
+    /// `original` is in a moved-from state.  Notice that this move
+    /// constructor must be `noexcept`, otherwise it will not be selected by
+    /// `ScopeExit` to use since we have a copy constructor present.
     MoveCopyExitFunction(bslmf::MovableRef<MoveCopyExitFunction> original)
             BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(MOVE_IS_NOEXCEPT);  // IMPLICIT
-        // Create a 'MoveCopyExitFunction' object having the same value as the
-        // specified 'original' object by initializing this object's counter
-        // pointer to that of the 'original', and setting the 'original' object
-        // to the moved-from state by setting its pointer to null.  Also
-        // increase 's_moveCount' by one.  The behavior is undefined if
-        // 'original' is in a moved-from state.  Notice that this move
-        // constructor must be 'noexcept', otherwise it will not be selected by
-        // 'ScopeExit' to use since we have a copy constructor present.
 
     // ACCESSORS
+
+    /// Increment the counter by
+    /// `IncrementValues::k_MOVE_COPY_EXIT_FUNCTION`. The behavior is
+    /// undefined if this object is in a moved-from state.
     void operator()() const;
-        // Increment the counter by
-        // 'IncrementValues::k_MOVE_COPY_EXIT_FUNCTION'. The behavior is
-        // undefined if this object is in a moved-from state.
 };
 
 // TRAITS
@@ -1113,7 +1145,7 @@ struct is_nothrow_move_constructible<MoveCopyExitFunction<MOVE_IS_NOEXCEPT,
                                                           COPY_IS_NOEXCEPT> >
 : bsl::integral_constant<bool, MOVE_IS_NOEXCEPT>
 {};
-}  // close 'bsl' namespace
+}  // close `bsl` namespace
 #endif
 
                           // --------------------
@@ -1168,12 +1200,12 @@ typedef MoveCopyExitFunction<true,  true>  MoveCopyBothNoexceptFunctor;
 //                Free Function and Stateless Lambda Support
 // ============================================================================
 
+/// Global counter for stateless lambdas and `void(*)()` functions.
 int g_counter = 0;
-    // Global counter for stateless lambdas and 'void(*)()' functions.
 
+/// Increment the global counter `g_counter` by
+/// `IncrementValues::k_FUNCTION_POINTER`.
 void freeExitFunction()
-    // Increment the global counter 'g_counter' by
-    // 'IncrementValues::k_FUNCTION_POINTER'.
 {
     g_counter += IncrementValues::k_FUNCTION_POINTER;
 }
@@ -1186,16 +1218,16 @@ template <class TESTED_TYPE, class PARAM_TYPE>
 struct VerifyExplicitConstructorUtil {
     struct LargerThanChar { char d_a[42]; };
 
+    /// An overload set that is used to determine if `EXIT_FUNC_PARAM`
+    /// converts explicitly to `TESTED_TYPE`.  See the compile time `bool`
+    /// definition of `k_PASSED` below.
     static LargerThanChar testcall(const TESTED_TYPE&);
     static char testcall(...);
-        // An overload set that is used to determine if 'EXIT_FUNC_PARAM'
-        // converts explicitly to 'TESTED_TYPE'.  See the compile time 'bool'
-        // definition of 'k_PASSED' below.
 #ifdef BSLS_PLATFORM_CMP_AIX
 #pragma  report(disable, "1540-2924")
     // 1540-2924 (W) Cannot pass an argument of non - POD class type "<type>"
     // through ellipsis.  Obviously no argument is passed through ellipsis,
-    // because 'testcall' is within 'sizeof', a *non-evaluated* context.
+    // because `testcall` is within `sizeof`, a *non-evaluated* context.
 #endif
     static const bool k_PASSED =
         sizeof(testcall(            U_DECLVAL(PARAM_TYPE))) == sizeof(char) &&
@@ -1222,9 +1254,9 @@ struct VerifyExplicitConstructorUtilTesterExplicitParam {};
                    // VerifyExplicitConstructorUtilTester
                    // ===================================
 
+/// Implicitly constructible from one type, explicitly from another.  Only
+/// for testing, no implementation for member functions on purpose.
 struct VerifyExplicitConstructorUtilTester {
-    // Implicitly constructible from one type, explicitly from another.  Only
-    // for testing, no implementation for member functions on purpose.
 
     VerifyExplicitConstructorUtilTester(
          const VerifyExplicitConstructorUtilTesterImplicitParam&);  // IMPLICIT
@@ -1234,11 +1266,11 @@ struct VerifyExplicitConstructorUtilTester {
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+/// Create a temporary `MoveCopyBothNoexceptFunctor` object that increments
+/// the specified `counter_p` for testing move from a temporary on C++11 and
+/// later.
 MoveCopyBothNoexceptFunctor
 makeMoveCopyBothNoexceptFunctor(int *counter_p)
-    // Create a temporary 'MoveCopyBothNoexceptFunctor' object that increments
-    // the specified 'counter_p' for testing move from a temporary on C++11 and
-    // later.
 {
     return MoveCopyBothNoexceptFunctor(counter_p);
 }
@@ -1268,7 +1300,7 @@ makeMoveCopyBothNoexceptFunctor(int *counter_p)
 // associated name fails.
 //
 // First, we emulate our database access with the following simple functions:
-//..
+// ```
 int removedAddressId = 0;
     int insertAddress(const char *address)
     {
@@ -1288,50 +1320,50 @@ int removedAddressId = 0;
     {
         removedAddressId = id;
     }
-//..
+// ```
 // Next, we draw up our complex, customer-creating function signature:
-//..
+// ```
 #ifdef BDLB_SCOPEEXIT_ENABLE_CPP11_EXAMPLE
     int addCustomer11(const char *name, const char *address)
     {
-//..
+// ```
 // Then we implement it, starting by inserting the address:
-//..
+// ```
         const int addressId = insertAddress(address);
-//..
+// ```
 // Our dummy function returns 42, indicating successful address insertion.
 //
 // Next, we create a proctor to remove the already inserted address if the name
 // insertion fails:
-//..
+// ```
         auto addressProctor = bdlb::ScopeExitUtil::makeScopeExit(
                                            [=](){ removeAddress(addressId); });
-//..
+// ```
 // Then, we attempt to insert the name:
-//..
+// ```
         const int custId = insertCustomer(name, addressId);
-//..
-// As our dummy 'insertCustomer' function will fail first time by throwing an
+// ```
+// As our dummy `insertCustomer` function will fail first time by throwing an
 // exception (when'removedAddressId' is zero) we exit this function to the
-// caller's error handling 'catch' clause.  While exiting the function due to
+// caller's error handling `catch` clause.  While exiting the function due to
 // the exception, the local stack is unwound.  The non-trivial destructors of
 // local variables are invoked (in the opposite order of their creation).  In
-// this case, the destructor of 'addressProctor' invokes its exit function,
-// saving our non-zero 'addressId' value into the global 'removedAddressId'
+// this case, the destructor of `addressProctor` invokes its exit function,
+// saving our non-zero `addressId` value into the global `removedAddressId`
 // variable.
 //
-// On the second call to this function, because 'removedAddressId' is now
-// non-zero, 'insertCustomer' will not fail, and we continue execution here.
+// On the second call to this function, because `removedAddressId` is now
+// non-zero, `insertCustomer` will not fail, and we continue execution here.
 //
 // Next, if the insertion succeeded we are done, so we need to release the
 // proctor to make the address permanent, after which we can return the ID:
-//..
+// ```
         addressProctor.release();
 
         return custId;                                                // RETURN
     }
-//..
-// See conclusion in USAGE EXAMPLE test case, in 'main'.
+// ```
+// See conclusion in USAGE EXAMPLE test case, in `main`.
 #endif // BDLB_SCOPEEXIT_ENABLE_CPP11_EXAMPLE
 
 ///Example 2: Using a Scope Exit Guard in C++03
@@ -1339,9 +1371,9 @@ int removedAddressId = 0;
 // Suppose we are in the same situation as in the C++11 or later example, but
 // we have to create a solution that supports C++03 as well.
 //
-// First, we have to hand-craft a functor that calls 'removeAddress' with a
+// First, we have to hand-craft a functor that calls `removeAddress` with a
 // given ID because C++03 does not support lambdas:
-//..
+// ```
     class RemoveAddress {
         int d_id;  // the identifier of the address (row) to remove
 
@@ -1356,125 +1388,125 @@ int removedAddressId = 0;
             removeAddress(d_id);
         }
     };
-//..
+// ```
 // Then, we implement the add customer function for C++03:
-//..
+// ```
     int addCustomer03(const char *name, const char *address)
     {
         const int addressId = insertAddress(address);
-//..
-// The code is almost the same code as was in 'addCustomer11' (the
+// ```
+// The code is almost the same code as was in `addCustomer11` (the
 // implementation that requires sufficiently functional C++11 or later
 // platform), except for the proctor variable definition.
 //
 // Next, we define the proctor variable with an explicitly spelled out type
 // (that uses the functor type template argument), and a functor object
 // initialized with the identifier of the address to remove:
-//..
+// ```
         bdlb::ScopeExit<RemoveAddress> addrProctor((RemoveAddress(addressId)));
-//..
+// ```
 // Notice the extra parentheses we had to use to avoid "the most vexing parse"
 // (https://en.wikipedia.org/wiki/Most_vexing_parse) issue.  Since we are in
 // C++03, we cannot use (curly) brace initialization to avoid that issue.
 //
-// Now, we can complete the rest of the 'addCustomer03', which is exactly the
-// same as the corresponding part of the 'addCustomer11' variant:
-//..
+// Now, we can complete the rest of the `addCustomer03`, which is exactly the
+// same as the corresponding part of the `addCustomer11` variant:
+// ```
         const int custId = insertCustomer(name, addressId);
         addrProctor.release();
 
         return custId;                                                // RETURN
     }
-//..
-// See conclusion in USAGE EXAMPLE test case, in 'main'.
+// ```
+// See conclusion in USAGE EXAMPLE test case, in `main`.
 
 /// Example 3: Unknown Exit Function Type In C++03
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we decide not to write a functor class for removing an address
-// but use the function itself directly with 'bdlf::BindUtil::bind' and that
+// but use the function itself directly with `bdlf::BindUtil::bind` and that
 // way keep the roll-back-code near the point of use like lambdas allow us in
 // C++11 and later, albeit with a less elegant syntax.
 
 // See introduction with direct call to the bind expression in the USAGE
-// EXAMPLE test case, in 'main', then return reading here.
+// EXAMPLE test case, in `main`, then return reading here.
 
 // Next, we create yet another customer adding function that differs only in
-// its proctor definition from the 'addCustomer11' variant:
-//..
+// its proctor definition from the `addCustomer11` variant:
+// ```
     int addCustomerAny(const char *name, const char *address)
     {
         const int addressId = insertAddress(address);
-//..
+// ```
 // Because we do not know the type of our exit function (it is "some functor
-// object of some type", created by 'bind') we have to use the 'bsl::function'
-// based 'bdlb::ScopeExitAny':
-//..
+// object of some type", created by `bind`) we have to use the `bsl::function`
+// based `bdlb::ScopeExitAny`:
+// ```
         bdlb::ScopeExitAny addressProctor(bdlf::BindUtil::bind(&removeAddress,
                                                                addressId));
-//..
+// ```
 // Consult {C++03 Restrictions When Exit Function Type Is Unknown} to be aware
 // what additional runtime costs this more compact code has compared to a
 // "hand made" functor with a known type.
 //
 // Note that since we have to take the address of a function to create the
-// 'bind'-expression-functor we cannot use this format with standard library
+// `bind`-expression-functor we cannot use this format with standard library
 // functions (unless taking their address is explicitly allowed by the C++
-// standard), and if 'removeAddress' were an overloaded function the code would
+// standard), and if `removeAddress` were an overloaded function the code would
 // not compile as the compiler would not know which address we want.
 //
 // The rest of the function is the same as before:
-//..
+// ```
         const int custId = insertCustomer(name, addressId);
         addressProctor.release();
 
         return custId;                                                // RETURN
     }
-//..
-// See conclusion in USAGE EXAMPLE test case, in 'main'.
+// ```
+// See conclusion in USAGE EXAMPLE test case, in `main`.
 
 ///Example 4: Using the Scope Exit Proctor Macro
 ///- - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have to create portable code that will compile with C++03 as well
 // as C++11 and later compilers.  We also want our code to use the more
-// efficient type-deducing 'auto' with factory-method variant when compiled
+// efficient type-deducing `auto` with factory-method variant when compiled
 // with a sufficiently functional C++11 or later compiler, and only fall back
-// to the slower 'bdlb::ScopeExitAny' solution on C++03 compilers.
+// to the slower `bdlb::ScopeExitAny` solution on C++03 compilers.
 //
-// We still need to use either functor ('RemoveAddress' in our examples) or a
+// We still need to use either functor (`RemoveAddress` in our examples) or a
 // bind expression for the exit function because C++03 has no lambdas,
 // therefore our portable code cannot use lambdas.  But we *can* choose the
-// easy-to-use 'BDLB_SCOPEEXIT_PROCTOR' macro and not sprinkle the add customer
-// function with '#ifdef' to see which proctor definition to use.
+// easy-to-use `BDLB_SCOPEEXIT_PROCTOR` macro and not sprinkle the add customer
+// function with `#ifdef` to see which proctor definition to use.
 //
 // To keep things simple this component provides a single proctor macro
 // instead of two macro names to remember (one for the case case when the type
 // of the exit function is known and one when it isn't).  In case the exit
 // function name is known we can just directly use
-// 'bdlb::ScopeExit< --ExitFunctionType-- >' on any compiler.
+// `bdlb::ScopeExit< --ExitFunctionType-- >` on any compiler.
 //
 // First, we start the add customer function as usual:
-//..
+// ```
     int addCustomerMacro(const char *name, const char *address)
     {
         const int addressId = insertAddress(address);
-//..
+// ```
 // Then, we define the proctor using a bind expression and the macro:
-//..
+// ```
         BDLB_SCOPEEXIT_PROCTOR(proctor, bdlf::BindUtil::bind(&removeAddress,
                                                              addressId));
-//..
+// ```
 // Alternatively, we could have also written a functor and write the shorter
-// 'BDLB_SCOPEEXIT_PROCTOR(proctor, RemoveAddress(addressId))' for the proctor.
+// `BDLB_SCOPEEXIT_PROCTOR(proctor, RemoveAddress(addressId))` for the proctor.
 //
 // The rest of the function is the same as before:
-//..
+// ```
         const int custId = insertCustomer(name, addressId);
         proctor.release();
 
         return custId;                                                // RETURN
     }
-//..
-// See conclusion in USAGE EXAMPLE test case, in 'main'.
+// ```
+// See conclusion in USAGE EXAMPLE test case, in `main`.
 
 #endif // BDE_BUILD_TARGET_EXC
 
@@ -1498,10 +1530,10 @@ static bsl::string outStreamContent()
 // look for a simple way to automate them.  We decide we don't want to change
 // the printing of the opening delimiters, just have a way to automate the
 // printing of the close delimiters without worrying about early returns or
-// 'break', 'continue', or other control flow changes.
+// `break`, `continue`, or other control flow changes.
 //
 // First, we create a functor type that prints closing delimiters:
-//..
+// ```
     class CloseDelimPrinter {
         const char *d_closingChars_p;  // held, not owned
 
@@ -1516,31 +1548,31 @@ static bsl::string outStreamContent()
             outStream << d_closingChars_p; // To a fixed stream for brevity
         }
     };
-//..
+// ```
 // Then, we can use the above functor and a scope exit guard to automate
 // closing of delimiters in the printing functions:
-//..
+// ```
     void printTemplateWithArgs(
                              const bsl::string_view&              templateName,
                              const bsl::vector<bsl::string_view>& args)
     {
-//..
+// ```
 // Next, we can move the printing of the opening delimiter and the closing one
 // near each other in code, so it is clearly visible if an opened delimiter is
 // closed:
-//..
+// ```
         outStream << templateName << '<';
         BDLB_SCOPEEXIT_GUARD(CloseDelimPrinter(">"));
-//..
+// ```
 // The macro works in C++03 and C++11 and later, gives the guard variable a
 // unique (but unspecified) name, adds an extra set of parentheses to take care
 // of "the most vexing parse" and suppresses unused variable compiler warnings.
 // The name for the guard variable created is unspecified.  Because this is a
-// guard meaning we do not need to call 'release()' (unlike a proctor),
+// guard meaning we do not need to call `release()` (unlike a proctor),
 // therefore the name is unimportant.
 //
 // Now, we can just print what goes inside the delimiters, and we are done:
-//..
+// ```
         if (args.empty()) {
             // Safe to just return, the guard takes care of closing the '<'
             return;                                                   // RETURN
@@ -1561,8 +1593,8 @@ static bsl::string outStreamContent()
             outStream << ' ';
         }
     }
-//..
-// See conclusion in USAGE EXAMPLE test case, in 'main'.
+// ```
+// See conclusion in USAGE EXAMPLE test case, in `main`.
 
 // BDE_VERIFY pragma: pop
 // BDE_VERIFY pragma: pop
@@ -1597,12 +1629,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
+        // 1. The usage example provided in the component header file compiles,
         //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //    leading comment characters, and replace 'assert' with 'ASSERT'.
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -1621,14 +1653,14 @@ int main(int argc, char *argv[])
 // inserted the address first, we need to remove it if insertion of the
 // associated name fails.
 
-// See the USAGE EXAMPLE section just before 'main' for type and function
+// See the USAGE EXAMPLE section just before `main` for type and function
 // definitions, then return here for the assertions.
 
 #ifdef BDLB_SCOPEEXIT_ENABLE_CPP11_EXAMPLE
-//..
+// ```
 // Now we can verify that a first attempt to add a customer fails with the
-// "right" exception and that 'removedAddressId' is the expected value:
-//..
+// "right" exception and that `removedAddressId` is the expected value:
+// ```
     bool seenException = false;
     try {
         addCustomer11("Quibi", "6555 Barton Ave, Los Angeles, CA, 90038");
@@ -1639,13 +1671,13 @@ int main(int argc, char *argv[])
     }
     ASSERT(seenException);
     ASSERT(2 == removedAddressId);
-//..
-// Finally we verify that calling 'addCustomer11' again succeeds with the right
-// identifier returned, and that 'removedAddressId' does not change:
-//..
+// ```
+// Finally we verify that calling `addCustomer11` again succeeds with the right
+// identifier returned, and that `removedAddressId` does not change:
+// ```
     ASSERT(7 == addCustomer11("Plum Inc.", "1i Imagine Sq, Coppertin, CA"));
     ASSERT(2 == removedAddressId);
-//..
+// ```
 #else
         bool seenException = false;
 #endif // BDLB_SCOPEEXIT_ENABLE_CPP11_EXAMPLE
@@ -1655,14 +1687,14 @@ int main(int argc, char *argv[])
 // Suppose we are in the same situation as in the C++11 or later example, but
 // we have to create a solution that supports C++03 as well.
 
-// See the USAGE EXAMPLE section just before 'main' for type and function
+// See the USAGE EXAMPLE section just before `main` for type and function
 // definitions, then return here for the assertions.
 
 // Finally, we can verify that both during the failing first attempt to add a
 // customer to our imaginary database and the successful second attempt the
-// 'RemoveAddress' functor based proctor works just as well as the lambda based
-// 'addCustomer11' variant did:
-//..
+// `RemoveAddress` functor based proctor works just as well as the lambda based
+// `addCustomer11` variant did:
+// ```
     removedAddressId = 0;
     seenException = false;
     try {
@@ -1677,36 +1709,36 @@ int main(int argc, char *argv[])
 
     ASSERT(7 == addCustomer03("Plum Inc.", "1i Imagine Sq, Coppertin, CA"));
     ASSERT(2 == removedAddressId);
-//..
+// ```
 
 
 /// Example 3: Unknown Exit Function Type In C++03
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we decide not to write a functor class for removing an address
-// but use the function itself directly with 'bdlf::BindUtil::bind' and that
+// but use the function itself directly with `bdlf::BindUtil::bind` and that
 // way keep the roll-back-code near the point of use like lambdas allow us in
 // C++11 and later, albeit with a less elegant syntax.
 //
 // First, we design our bind expression as
-// 'bdlf::BindUtil::bind(&removeAddress, addressId)'.
+// `bdlf::BindUtil::bind(&removeAddress, addressId)`.
 //
 // Then, we can even try it to see if it works as intended by calling the
 // result of a bind expression using a constant for the address ID:
-//..
+// ```
     removedAddressId = 0;
     bdlf::BindUtil::bind(&removeAddress, 11)();
     ASSERT(11 == removedAddressId);
-//..
-// Notice the subtle '()' after the bind expression.  We immediately call it
+// ```
+// Notice the subtle `()` after the bind expression.  We immediately call it
 // after creating it (then destroy it).  We have to do it this way.  We have no
 // idea what its type is so we cannot make a variable for it.
 
-// See the USAGE EXAMPLE section just before 'main' the function definition,
+// See the USAGE EXAMPLE section just before `main` the function definition,
 // then return here for the assertions.
 
-// Finally, we can verify that 'bind' and 'bdlb::ScopeExitAny' based proctor
+// Finally, we can verify that `bind` and `bdlb::ScopeExitAny` based proctor
 // works just as well:
-//..
+// ```
     removedAddressId = 0;
     seenException = false;
     try {
@@ -1721,21 +1753,21 @@ int main(int argc, char *argv[])
 
     ASSERT(7 == addCustomerAny("Plum Inc.", "1i Imagine Sq, Coppertin, CA"));
     ASSERT(2 == removedAddressId);
-//..
+// ```
 
 ///Example 4: Using the Scope Exit Proctor Macro
 ///- - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have to create portable code that will compile with C++03 as well
 // as C++11 and later compilers.  We also want our code to use the more
-// efficient type-deducing 'auto' with factory-method variant when compiled
+// efficient type-deducing `auto` with factory-method variant when compiled
 // with a sufficiently functional C++11 or later compiler, and only fall back
-// to the slower 'bdlb::ScopeExitAny' solution on C++03 compilers.
+// to the slower `bdlb::ScopeExitAny` solution on C++03 compilers.
 
-// See the USAGE EXAMPLE section just before 'main' the function definition,
+// See the USAGE EXAMPLE section just before `main` the function definition,
 // then return here for the assertions.
 
 // Finally, we can verify the easy proctor with the now customary code:
-//..
+// ```
     removedAddressId = 0;
     seenException = false;
     try {
@@ -1750,7 +1782,7 @@ int main(int argc, char *argv[])
 
     ASSERT(7 == addCustomerMacro("Plum Inc.", "1i Imagine Sq, Coppertin, CA"));
     ASSERT(2 == removedAddressId);
-//..
+// ```
 #endif // BDE_BUILD_TARGET_EXC
 
 ///Example 5: Using the Scope Exit Guard Macro
@@ -1762,14 +1794,14 @@ int main(int argc, char *argv[])
 // look for a simple way to automate them.  We decide we don't want to change
 // the printing of the opening delimiters, just have a way to automate the
 // printing of the close delimiters without worrying about early returns or
-// 'break', 'continue', or other control flow changes.
+// `break`, `continue`, or other control flow changes.
 
-// See the USAGE EXAMPLE section just before 'main' for type and function
+// See the USAGE EXAMPLE section just before `main` for type and function
 // definitions, then return here for the assertions.
 
 // Finally, we can print some templates and verify that the argument
 // delimiters are closed:
-//..
+// ```
     bsl::vector<bsl::string_view> targs;
     printTemplateWithArgs("TypeList", targs);
     ASSERT(outStreamContent() == "TypeList<>");
@@ -1782,22 +1814,22 @@ int main(int argc, char *argv[])
     printTemplateWithArgs("bsl::unordered_map", targs);
     ASSERTV(outStreamContent() ==
        "bsl::unordered_map<bsl::string_view, bsl::vector<bsl::string_view> >");
-//..
+// ```
       } break;
       case 10: {
         // --------------------------------------------------------------------
         // CLASS TEMPLATE ARGUMENT DEDUCTION
         //
         // Concerns:
-        //: 1 When CTAD is supported:
-        //:   1 Code using no template arguments for 'bdlb::ScopeExit' compiles
-        //:   2 The expected type is created.
-        //:   3 The created object works as expected.
+        // 1. When CTAD is supported:
+        //   1. Code using no template arguments for `bdlb::ScopeExit` compiles
+        //   2. The expected type is created.
+        //   3. The created object works as expected.
         //
         // Plan:
-        //: 1 Create scope exit objects from all supported types.
-        //: 2 Verify with 'bsl::is_same' they are the expected type.
-        //: 3 Verify they execute the given exit function by using counters.
+        // 1. Create scope exit objects from all supported types.
+        // 2. Verify with `bsl::is_same` they are the expected type.
+        // 3. Verify they execute the given exit function by using counters.
         //
         // Testing:
         //   CLASS TEMPLATE ARGUMENT DEDUCTION (CTAD)
@@ -1918,17 +1950,17 @@ int main(int argc, char *argv[])
         // GUARD MACRO
         //
         // Concerns:
-        //: 1 'BDLB_SCOPEEXIT_GUARD' creates a guard variable with a unique
-        //:   name (using the proctor macro).
-        //:
-        //: 2 The guard is created using the specified exit function.
+        // 1. `BDLB_SCOPEEXIT_GUARD` creates a guard variable with a unique
+        //    name (using the proctor macro).
+        //
+        // 2. The guard is created using the specified exit function.
         //
         // Plan:
-        //: 1 We turn the result of 'BDLB_SCOPEEXIT_GUARD' invocations into
-        //:   string literals and verify that:
-        //:   1 The "invariable" parts are as expected (beginning and end).
-        //:   2 The unique part of the variable name is unique.
-        //:   2 The unique part of the variable name is a valid identifier.
+        // 1. We turn the result of `BDLB_SCOPEEXIT_GUARD` invocations into
+        //    string literals and verify that:
+        //   1. The "invariable" parts are as expected (beginning and end).
+        //   2. The unique part of the variable name is unique.
+        //   3. The unique part of the variable name is a valid identifier.
         //
         // Testing:
         //   BDLB_SCOPEEXIT_GUARD
@@ -1996,19 +2028,19 @@ int main(int argc, char *argv[])
         // PROCTOR MACRO
         //
         // Concerns:
-        //: 1 'BDLB_SCOPEEXIT_PROCTOR' creates the proctor variable using the
-        //:    type appropriate for the build mode (C++03 or sufficiently
-        //:    functional C++11 or later).
-        //:
-        //: 2 The proctor is created using the specified variable name.
-        //:
-        //: 3 The proctor is created using the specified exit function.
+        // 1. `BDLB_SCOPEEXIT_PROCTOR` creates the proctor variable using the
+        //     type appropriate for the build mode (C++03 or sufficiently
+        //     functional C++11 or later).
+        //
+        // 2. The proctor is created using the specified variable name.
+        //
+        // 3. The proctor is created using the specified exit function.
         //
         // Plan:
-        //: 1 Create a proctor using the 'BDLB_SCOPEEXIT_PROCTOR' macro and
-        //:   make sure the type of the created object is either
-        //:   'bdlb::ScopeExitAny' (in C++03), or a type deduced from the
-        //:   return type of the factory function (in C++11 or later).
+        // 1. Create a proctor using the `BDLB_SCOPEEXIT_PROCTOR` macro and
+        //    make sure the type of the created object is either
+        //    `bdlb::ScopeExitAny` (in C++03), or a type deduced from the
+        //    return type of the factory function (in C++11 or later).
         //
         // Testing:
         //   BDLB_SCOPEEXIT_PROCTOR
@@ -2056,15 +2088,15 @@ int main(int argc, char *argv[])
         // SCOPEEXITANY
         //
         // Concerns:
-        //: 1 'ScopeExitAny' can store and properly execute an exit function
-        //:   that is not move-only (due to 'function' limitations).
+        // 1. `ScopeExitAny` can store and properly execute an exit function
+        //    that is not move-only (due to `function` limitations).
         //
         // Plan:
-        //: 1 Create 'bdlb::ScopeExitAny' objects using a different argument
-        //:   types for the constructor ('ExitFunction'/'ExitFunctionParam').
-        //:
-        //: 2 Verify that the object invokes the exit function upon its
-        //:   destruction *once*.
+        // 1. Create `bdlb::ScopeExitAny` objects using a different argument
+        //    types for the constructor (`ExitFunction`/`ExitFunctionParam`).
+        //
+        // 2. Verify that the object invokes the exit function upon its
+        //    destruction *once*.
         //
         // Testing:
         //   ScopeExitAny
@@ -2129,33 +2161,33 @@ int main(int argc, char *argv[])
         // FACTORY FUNCTION
         //
         // Concerns:
-        //: 1 The factory function allocates no memory.
-        //:
-        //: 2 The factory function creates a 'ScopeExit' object with the
-        //:   intended exit function.
-        //:
-        //: 3 Move only parameter and exit types work.
-        //:
-        //: 4 The factory function perfect forwards the argument and it returns
+        // 1. The factory function allocates no memory.
+        //
+        // 2. The factory function creates a `ScopeExit` object with the
+        //    intended exit function.
+        //
+        // 3. Move only parameter and exit types work.
+        //
+        // 4. The factory function perfect forwards the argument and it returns
         //    a temporary that will be moved by the compiler.
         //
         // Plan:
-        //: 1 Use an allocator monitor to verify that no memory is allocated
-        //:   during this test.
-        //:
-        //: 2 Create a 'bdlb::ScopeExit' object using 'bdlb::ScopeExitUtil',
-        //:   with a lambda for an exit function.  The lambda increments a
-        //:   counter used for later verification.
-        //:
-        //: 3 Verify that the object returned calls the intended exit function
-        //:   upon its destruction.  Verify the exact expected counter value to
-        //:   ensure that the lambda was called only once.
-        //:
-        //: 4 Using 'MoveOnlyExitFunction' verify that such types work.
-        //:
-        //: 5 Using 'MoveNoexceptCopyNotFunctor' verify that the factory
-        //:   function does perfect forwarding of its argument to the
-        //:   'bdlb::ScopeExit' constructor.
+        // 1. Use an allocator monitor to verify that no memory is allocated
+        //    during this test.
+        //
+        // 2. Create a `bdlb::ScopeExit` object using `bdlb::ScopeExitUtil`,
+        //    with a lambda for an exit function.  The lambda increments a
+        //    counter used for later verification.
+        //
+        // 3. Verify that the object returned calls the intended exit function
+        //    upon its destruction.  Verify the exact expected counter value to
+        //    ensure that the lambda was called only once.
+        //
+        // 4. Using `MoveOnlyExitFunction` verify that such types work.
+        //
+        // 5. Using `MoveNoexceptCopyNotFunctor` verify that the factory
+        //    function does perfect forwarding of its argument to the
+        //    `bdlb::ScopeExit` constructor.
         //
         // Testing:
         //   ScopeExitUtil::makeScopeExit()
@@ -2188,7 +2220,7 @@ int main(int argc, char *argv[])
                 MoveOnlyExitFunction::theIncrement() == counter);
 
         // Verifying that we perfect forward to the converting constructor
-        // which then chooses a 'noexcept' move over copy.  (The second move of
+        // which then chooses a `noexcept` move over copy.  (The second move of
         // the return value is eliminated by copy elision.)
         counter = 0;
         {
@@ -2214,50 +2246,50 @@ int main(int argc, char *argv[])
         // MOVE CONSTRUCTOR
         //
         // Concerns:
-        //: 1 Move constructing a 'ScopeExit' object from a source 'ScopeExit'
-        //:   object ensures that the exit function will only be called by the
-        //:   target object, and not the source.
-        //:
-        //: 2 If the 'EXIT_FUNC' type is movable it is moved, otherwise copied.
-        //:
-        //: 3 Move-only 'EXIT_FUNC' types are supported by the move
-        //:   constructor.
-        //:
-        //: 4 Concern 1 is fulfilled even if 'EXIT_FUNC' has no move support,
-        //:   only copy, by 'release()'-ing the source of the move.
-        //:
-        //: 5 The move operation is 'noexcept' in sufficiently function C++11
-        //:   or later  when either of the move- or copy-constructor is
-        //:   'noexcept'.  In C++03 only the pseudo move constructor can be
-        //:   tested for no exceptions as we have an explicit trait for that.
+        // 1. Move constructing a `ScopeExit` object from a source `ScopeExit`
+        //    object ensures that the exit function will only be called by the
+        //    target object, and not the source.
+        //
+        // 2. If the `EXIT_FUNC` type is movable it is moved, otherwise copied.
+        //
+        // 3. Move-only `EXIT_FUNC` types are supported by the move
+        //    constructor.
+        //
+        // 4. Concern 1 is fulfilled even if `EXIT_FUNC` has no move support,
+        //    only copy, by `release()`-ing the source of the move.
+        //
+        // 5. The move operation is `noexcept` in sufficiently function C++11
+        //    or later  when either of the move- or copy-constructor is
+        //    `noexcept`.  In C++03 only the pseudo move constructor can be
+        //    tested for no exceptions as we have an explicit trait for that.
         //
         // Plan:
-        //: 1 Use 3 kind of verifiable exit functions that support: move-only,
-        //:   copy-only, and both move and copy.  Repeat the following for each
-        //:   exit function type:
-        //:   1 Create a source 'ScopeExit' object for the move.
-        //:
-        //:   2 Move-construct a second 'ScopeExit' object from the source.
-        //:
-        //:   3 Verify that the exit function was not called during the move.
-        //:
-        //:   4 Destroy the move target and verify that the exit function was
-        //:     called once during its destruction.
-        //:
-        //:   5 Destroy the source object next and verify that the exit
-        //:     function is not called during its destruction.
-        //:
-        //:   6 Repeat with the destruction order reversed.  Use 'ManagedPtr'
-        //:     to control the destruction order (as it works in C++03 as well,
-        //:     unlike 'unique_ptr').
-        //:
-        //: 2 For the 'EXIT_FUNC' type that supports both move and copy verify
-        //:   that a move takes place and no copy during the explicit move.
-        //:   (We also verify the implicit move from temporary in C++11 or
-        //:   later if sufficiently functional r-value references are present.)
-        //:
-        //: 3 The 'noexcept' operator is used, if present, to verify the
-        //:   exception specification.
+        // 1. Use 3 kind of verifiable exit functions that support: move-only,
+        //    copy-only, and both move and copy.  Repeat the following for each
+        //    exit function type:
+        //   1. Create a source `ScopeExit` object for the move.
+        //
+        //   2. Move-construct a second `ScopeExit` object from the source.
+        //
+        //   3. Verify that the exit function was not called during the move.
+        //
+        //   4. Destroy the move target and verify that the exit function was
+        //      called once during its destruction.
+        //
+        //   5. Destroy the source object next and verify that the exit
+        //      function is not called during its destruction.
+        //
+        //   6. Repeat with the destruction order reversed.  Use `ManagedPtr`
+        //      to control the destruction order (as it works in C++03 as well,
+        //      unlike `unique_ptr`).
+        //
+        // 2. For the `EXIT_FUNC` type that supports both move and copy verify
+        //    that a move takes place and no copy during the explicit move.
+        //    (We also verify the implicit move from temporary in C++11 or
+        //    later if sufficiently functional r-value references are present.)
+        //
+        // 3. The `noexcept` operator is used, if present, to verify the
+        //    exception specification.
         //
         // Testing:
         //   ScopeExit(bslmf::MovableRef<ScopeExit> original)
@@ -2266,8 +2298,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nMOVE CONSTRUCTOR"
                              "\n================" << endl;
 
+/// Shorter, more readable lines
 #define U_MAKE_MANAGED bslma::ManagedPtrUtil::makeManaged<TestedScopeExitType>
-    // Shorter, more readable lines
 
         int counter = 0;
         {
@@ -2402,12 +2434,12 @@ int main(int argc, char *argv[])
         }
 #ifdef BDE_BUILD_TARGET_EXC
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-    // We can only test 'noexcept' specification if it is supported.
+    // We can only test `noexcept` specification if it is supported.
 
         ASSERT(bsl::is_nothrow_move_constructible<
                                     bdlb::ScopeExit<MoveNoexceptCopyNotFunctor>
                                                          >::value);
-        // We can detect 'noexcept' move via explicit traits specialization in
+        // We can detect `noexcept` move via explicit traits specialization in
         // C++03, and type traits in C++11 and later with sufficiently
         // functional type traits support.
 
@@ -2421,7 +2453,7 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
     // With C++11 or later with sufficiently functional type traits support we
-    // use a smarter specification that can also detect 'noexcept' copy
+    // use a smarter specification that can also detect `noexcept` copy
     // constructors.
         ASSERT(bsl::is_nothrow_move_constructible<
                                     bdlb::ScopeExit<CopyNoexceptMoveNotFunctor>
@@ -2436,45 +2468,45 @@ int main(int argc, char *argv[])
         // CONVERTING CONSTRUCTOR
         //
         // Concerns:
-        //: 1 The converting constructor:
-        //:   1 is not in the overload set if the constructor parameter is not
-        //:     convertible to the 'EXIT_FUNC' template argument.
-        //:
-        //:   2 is not in the overload set if the constructor parameter has the
-        //:     same type as t.
-        //:
-        //: 2 The constructor runs the exit function if the copy construction
-        //:   of the exit function throws.
-        //:
-        //: 3 Move-only parameter types are supported.
-        //:
-        //: 4 The converting constructor is explicit.
+        // 1. The converting constructor:
+        //   1. is not in the overload set if the constructor parameter is not
+        //      convertible to the `EXIT_FUNC` template argument.
+        //
+        //   2. is not in the overload set if the constructor parameter has the
+        //      same type as t.
+        //
+        // 2. The constructor runs the exit function if the copy construction
+        //    of the exit function throws.
+        //
+        // 3. Move-only parameter types are supported.
+        //
+        // 4. The converting constructor is explicit.
         //
         // Plan:
-        //: 1 The converting constructor's conditional presence in the overload
-        //:   set dependent on the argument type (C-1) cannot be fully verified
-        //:   in C++03, so we do what can be done by knowing that test code
-        //:   will not compile in case the 'enable_if' is not done right.
-        //:
-        //: 2 Create a 'bdlb::ScopeExit<ExitFunction>' guard using a different
-        //:   argument type for the constructor ('ExitFunctionParam'). C-1
-        //:
-        //: 2 Verify that the guard is created and invokes the exit function
-        //:   upon its destruction. C-1
-        //:
-        //: 3 Create a 'bdlb::ScopeExit<ExitFunction>' guard using an argument
-        //:   type for the constructor ('ExitFunctionParamThrows') that causes
-        //:   the constructor to throw. C-2, C-4 ('ExitFunctionParamThrows' is
-        //:   not copyable or movable.)
-        //:
-        //: 4 Verify that the guard invokes 'operator()' of the
-        //:   'ExitFunctionParamThrows' argument. C-2
-        //:
-        //: 5 Use 'MoveOnlyExitFunc' as a parameter to verify that the code
-        //:   compiles and works as intended by updating the counter.
-        //:
-        //: 6 Use the internal overload set of 'VerifyExplicitConstructorUtil'
-        //:   to verify that no implicit conversion takes place.
+        // 1. The converting constructor's conditional presence in the overload
+        //    set dependent on the argument type (C-1) cannot be fully verified
+        //    in C++03, so we do what can be done by knowing that test code
+        //    will not compile in case the `enable_if` is not done right.
+        //
+        // 2. Create a `bdlb::ScopeExit<ExitFunction>` guard using a different
+        //    argument type for the constructor (`ExitFunctionParam`). C-1
+        //
+        // 2. Verify that the guard is created and invokes the exit function
+        //    upon its destruction. C-1
+        //
+        // 3. Create a `bdlb::ScopeExit<ExitFunction>` guard using an argument
+        //    type for the constructor (`ExitFunctionParamThrows`) that causes
+        //    the constructor to throw. C-2, C-4 (`ExitFunctionParamThrows` is
+        //    not copyable or movable.)
+        //
+        // 4. Verify that the guard invokes `operator()` of the
+        //    `ExitFunctionParamThrows` argument. C-2
+        //
+        // 5. Use `MoveOnlyExitFunc` as a parameter to verify that the code
+        //    compiles and works as intended by updating the counter.
+        //
+        // 6. Use the internal overload set of `VerifyExplicitConstructorUtil`
+        //    to verify that no implicit conversion takes place.
         //
         // Testing:
         //   template ScopeExit::ScopeExit(EXIT_FUNC_PARAM function)
@@ -2566,7 +2598,7 @@ int main(int argc, char *argv[])
                     MoveOnlyExitFunction::theIncrement() == counter);
         }
 
-        if (veryVerbose) cout << "'noexcept' Value Constructor\n";
+        if (veryVerbose) cout << "`noexcept` Value Constructor\n";
         {
             counter = 0;
             MoveNoexceptCopyNotFunctor exitFunction(&counter);
@@ -2613,20 +2645,20 @@ int main(int argc, char *argv[])
         // DESTRUCTION
         //
         // Concerns:
-        //: 1 The destructor executes the scope exit function *once* if no
-        //:   'release()' has been called.
-        //:
-        //: 2 The destructor does not execute the scope exit function if
-        //:   'release()' has been called.
+        // 1. The destructor executes the scope exit function *once* if no
+        //    `release()` has been called.
+        //
+        // 2. The destructor does not execute the scope exit function if
+        //    `release()` has been called.
         //
         // Plan:
-        //: 1 Create a 'bdlb::ScopeExit<ExitFunction>' object with a counter.
-        //:   Verify that the counter has been increased by 1 after the object
-        //:   is destroyed. C-1
-        //:
-        //: 2 Create a 'bdlb::ScopeExit<ExitFunction>' object with a counter,
-        //:   then call 'release()' on it.  Verify that the counter has *not*
-        //:   been increased after the object is destroyed. C-2
+        // 1. Create a `bdlb::ScopeExit<ExitFunction>` object with a counter.
+        //    Verify that the counter has been increased by 1 after the object
+        //    is destroyed. C-1
+        //
+        // 2. Create a `bdlb::ScopeExit<ExitFunction>` object with a counter,
+        //    then call `release()` on it.  Verify that the counter has *not*
+        //    been increased after the object is destroyed. C-2
         //
         // Testing:
         //   ~ScopeExit()
@@ -2653,74 +2685,74 @@ int main(int argc, char *argv[])
         //   This case verifies that the test machinery works as expected.
         //
         // Concerns:
-        //: 1 All exit function test and exit function parameter test types and
-        //:   the free function, when called, increment their counter by their
-        //:   corresponding 'IncrementValues' enumerator value on every call
-        //:   but do not change change the counter on any other operation
-        //:   (construction, destruction, conversion).
-        //:
-        //: 2 Non-throwing exit function parameter const and r-value references
-        //:   convert to their counterpart exit function types and the
-        //:   resulting function object will increment the same counter as the
-        //:   parameter object they were constructed from.
-        //:
-        //: 3 Throwing exit function parameter const and r-value references
-        //:   convert to their counterpart exit function types and during the
-        //:   conversion throw an exception of type 'ExceptionValues::Enum'
-        //:   with their corresponding enumerator value.
-        //:
-        //: 4 'MoveOnlyExitFunction' can be moved but not copied.
-        //:
-        //: 5 'CopyOnlyExitFunction' cannot be moved, only copied.
-        //:
-        //: 6 'CopyMoveExitFunction' can be both moved and copied, it
-        //:   increments the class-level copy and move counters properly.
-        //:   'resetCopyMoveCounts()' sets the static counters to zero.
-        //:
-        //: 7 'VerifyExplicitConstructorUtil' detects 'explicit' construction
-        //:   as intended.
-        //:
-        //: 8 'testMacroText' ignores extra spaces between identifier tokens,
-        //:    but does not allows spaces into an identifier token.
+        // 1. All exit function test and exit function parameter test types and
+        //    the free function, when called, increment their counter by their
+        //    corresponding `IncrementValues` enumerator value on every call
+        //    but do not change change the counter on any other operation
+        //    (construction, destruction, conversion).
+        //
+        // 2. Non-throwing exit function parameter const and r-value references
+        //    convert to their counterpart exit function types and the
+        //    resulting function object will increment the same counter as the
+        //    parameter object they were constructed from.
+        //
+        // 3. Throwing exit function parameter const and r-value references
+        //    convert to their counterpart exit function types and during the
+        //    conversion throw an exception of type `ExceptionValues::Enum`
+        //    with their corresponding enumerator value.
+        //
+        // 4. `MoveOnlyExitFunction` can be moved but not copied.
+        //
+        // 5. `CopyOnlyExitFunction` cannot be moved, only copied.
+        //
+        // 6. `CopyMoveExitFunction` can be both moved and copied, it
+        //    increments the class-level copy and move counters properly.
+        //    `resetCopyMoveCounts()` sets the static counters to zero.
+        //
+        // 7. `VerifyExplicitConstructorUtil` detects `explicit` construction
+        //    as intended.
+        //
+        // 8. `testMacroText` ignores extra spaces between identifier tokens,
+        //     but does not allows spaces into an identifier token.
         //
         // Plan:
-        //: 1 C-3 is tested by creating a 'const' object with a counter,
-        //:   doing the verifying that the counter is unchanged with "other"
-        //:   operations, calling the functor in a short loop and verify that
-        //:   the counter changes as expected, and finally verifying the
-        //:   counter value has not been changed by destruction.
-        //:
-        //: 2 Non-throwing parameters (C-4) are verified by
-        //:
-        //: 3 The throwing
-        //:   parameter type conversion is tested by the usual 'try'-'catch'
-        //:   plus a 'bool' test.
-        //:
-        //: 2 In C++03 it is not possible to verify that a type is non-copyable
-        //:   without running into a compiler error, so we only verify that
-        //:   'MoveOnlyExitFunction' is move-only when reliable C++11
-        //:   '<type_traits>' are present.
-        //:
-        //: 3 'CopyOnlyExitFunction' not declared move constructor cannot be
-        //:   verified (even in C++11 or later), because the copy constructor
-        //:   "wins" the overload resolution. Copy-constructibility is verified
-        //:   using type traits under C++11 or later.  Notice that because we
-        //:   explicitly require the template arguments to be
-        //:   *MoveConstructible* 'CopyOnlyExitFunction' does not (and cannot)
-        //:   '= delete' its move constructor, so 'is_move_constructible' will
-        //:   say yes, because the type is constructible from an r-value
-        //:   reference using the copy constructor.
-        //:
-        //: 4 The 'static' counters of 'CopyMoveExitFunction' are tested by
-        //:   creating a copy from a 'const' source first and verifying the
-        //:   counters, the move construct a copy and verify the counters.
-        //:   Under C++11 or later with sufficiently functional r-value
-        //:   references we also verify move from a temporary object.
-        //:
-        //: 5 'VerifyExplicitConstructorUtil' is tested using 3 helper types:
-        //:   two parameter types, and one that has an explicit, and an
-        //:   implicit constructor using either of the two parameter types.
-        //:   This works both in C++03 and C++11 or later.
+        // 1. C-3 is tested by creating a `const` object with a counter,
+        //    doing the verifying that the counter is unchanged with "other"
+        //    operations, calling the functor in a short loop and verify that
+        //    the counter changes as expected, and finally verifying the
+        //    counter value has not been changed by destruction.
+        //
+        // 2. Non-throwing parameters (C-4) are verified by
+        //
+        // 3. The throwing
+        //    parameter type conversion is tested by the usual `try`-`catch`
+        //    plus a `bool` test.
+        //
+        // 2. In C++03 it is not possible to verify that a type is non-copyable
+        //    without running into a compiler error, so we only verify that
+        //    `MoveOnlyExitFunction` is move-only when reliable C++11
+        //    `<type_traits>` are present.
+        //
+        // 3. `CopyOnlyExitFunction` not declared move constructor cannot be
+        //    verified (even in C++11 or later), because the copy constructor
+        //    "wins" the overload resolution. Copy-constructibility is verified
+        //    using type traits under C++11 or later.  Notice that because we
+        //    explicitly require the template arguments to be
+        //    *MoveConstructible* `CopyOnlyExitFunction` does not (and cannot)
+        //    `= delete` its move constructor, so `is_move_constructible` will
+        //    say yes, because the type is constructible from an r-value
+        //    reference using the copy constructor.
+        //
+        // 4. The `static` counters of `CopyMoveExitFunction` are tested by
+        //    creating a copy from a `const` source first and verifying the
+        //    counters, the move construct a copy and verify the counters.
+        //    Under C++11 or later with sufficiently functional r-value
+        //    references we also verify move from a temporary object.
+        //
+        // 5. `VerifyExplicitConstructorUtil` is tested using 3 helper types:
+        //    two parameter types, and one that has an explicit, and an
+        //    implicit constructor using either of the two parameter types.
+        //    This works both in C++03 and C++11 or later.
         //
         // Testing:
         //   TEST MACHINERY
@@ -2733,7 +2765,7 @@ int main(int argc, char *argv[])
 
         const int k_LOOPCOUNT = 10;
 
-        int counter = 0;                                      // 'ExitFunction'
+        int counter = 0;                                      // `ExitFunction`
         {
             const ExitFunction ef(&counter);
             ASSERTV(counter, 0 == counter);
@@ -2748,7 +2780,7 @@ int main(int argc, char *argv[])
                 ExitFunction::theIncrement() * k_LOOPCOUNT == counter);
 
 #ifdef BDE_BUILD_TARGET_EXC
-        counter = 0;                                // 'MoveThrowsExitFunction'
+        counter = 0;                                // `MoveThrowsExitFunction`
         {
             MoveThrowsExitFunction        efm(&counter);
             const MoveThrowsExitFunction& ef(efm);
@@ -2774,7 +2806,7 @@ int main(int argc, char *argv[])
         ASSERTV(counter, MoveThrowsExitFunction::theIncrement(),
             MoveThrowsExitFunction::theIncrement() * k_LOOPCOUNT == counter);
 
-        counter = 0;                                // 'CopyThrowsExitFunction'
+        counter = 0;                                // `CopyThrowsExitFunction`
         {
             const CopyThrowsExitFunction ef(&counter);
             ASSERTV(counter, 0 == counter);
@@ -2799,7 +2831,7 @@ int main(int argc, char *argv[])
         ASSERTV(counter, CopyThrowsExitFunction::theIncrement(),
             CopyThrowsExitFunction::theIncrement() * k_LOOPCOUNT == counter);
 
-        counter = 0;                                 // 'BothThrowExitFunction'
+        counter = 0;                                 // `BothThrowExitFunction`
         {
             BothThrowExitFunction        efm(&counter);
             const BothThrowExitFunction& ef(efm);
@@ -2841,7 +2873,7 @@ int main(int argc, char *argv[])
             BothThrowExitFunction::theIncrement() * k_LOOPCOUNT == counter);
 #endif // BDE_BUILD_TARGET_EXC
 
-        counter = 0;                                  // 'MoveOnlyExitFunction'
+        counter = 0;                                  // `MoveOnlyExitFunction`
         {
             const MoveOnlyExitFunction moef(&counter);
             ASSERTV(counter, 0 == counter);
@@ -2860,7 +2892,7 @@ int main(int argc, char *argv[])
         ASSERT( bsl::is_move_constructible<MoveOnlyExitFunction>::value);
 #endif
 
-        counter = 0;                                  // 'CopyOnlyExitFunction'
+        counter = 0;                                  // `CopyOnlyExitFunction`
         {
             const CopyOnlyExitFunction coef(&counter);
             ASSERTV(counter, 0 == counter);
@@ -2877,12 +2909,12 @@ int main(int argc, char *argv[])
         ASSERT( bsl::is_copy_constructible<CopyOnlyExitFunction>::value);
         ASSERT(!bsl::is_copy_assignable<   CopyOnlyExitFunction>::value);
         ASSERT( bsl::is_move_constructible<CopyOnlyExitFunction>::value);
-            // 'is_move_constructible' tells if the type can be constructed
+            // `is_move_constructible` tells if the type can be constructed
             // from an r-value reference of itself.  This type can, and it uses
             // its copy constructor to do that.
 #endif
 
-        counter = 0;                           // 'MoveCopyBothNoexceptFunctor'
+        counter = 0;                           // `MoveCopyBothNoexceptFunctor`
         {
             const MoveCopyBothNoexceptFunctor mcef(&counter);
             ASSERTV(counter, 0 == counter);
@@ -2940,7 +2972,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "Verifying parameter functors\n";
 
-        counter = 0;                                     // 'ExitFunctionParam'
+        counter = 0;                                     // `ExitFunctionParam`
         {
             const ExitFunctionParam efp(&counter);
             ASSERTV(counter, 0 == counter);
@@ -2970,7 +3002,7 @@ int main(int argc, char *argv[])
                                     + ExitFunction::theIncrement() == counter);
 
 #ifdef BDE_BUILD_TARGET_EXC
-        counter = 0;                               // 'ExitFunctionParamThrows'
+        counter = 0;                               // `ExitFunctionParamThrows`
         {
             const ExitFunctionParamThrows efpt(&counter);
             ASSERTV(counter, 0 == counter);
@@ -3002,7 +3034,7 @@ int main(int argc, char *argv[])
                                                                    == counter);
 #endif
 
-        counter = 0;                             // 'MoveOnlyExitFunctionParam'
+        counter = 0;                             // `MoveOnlyExitFunctionParam`
         {
             MoveOnlyExitFunctionParam        moefpm(&counter);
             const MoveOnlyExitFunctionParam& moefp(moefpm);
@@ -3096,13 +3128,13 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create a scope exit guard that updates a counter on exit.
-        //: 2 Destroy the guard.
-        //: 3 Verify that the counter has been updated.
+        // 1. Create a scope exit guard that updates a counter on exit.
+        // 2. Destroy the guard.
+        // 3. Verify that the counter has been updated.
         //
         // Testing:
         //   BREATHING TEST
@@ -3119,7 +3151,7 @@ int main(int argc, char *argv[])
             ASSERTV(counter, 0 == counter);
         }
 
-        // The guard has invoked the action ('ExitFunction::operator()').
+        // The guard has invoked the action (`ExitFunction::operator()`).
         ASSERTV(counter, ExitFunction::theIncrement() == counter);
 
       } break;

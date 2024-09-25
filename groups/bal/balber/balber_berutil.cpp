@@ -36,13 +36,13 @@ typedef BloombergLP::balber::BerDecoderOptions     BerDecoderOptions;
                    // struct BerUtil_64BitFloatingPointMasks
                    // ======================================
 
+/// This internal-linkage, component-private utility `struct` provides a
+/// namespace for a suite of 64-bit mask constants used in the construction
+/// of floating-point values.
+///
+/// Note that the constants in this component have integral values that are
+/// too large to be used as enumerators on some platforms.
 struct BerUtil_64BitFloatingPointMasks {
-    // This internal-linkage, component-private utility 'struct' provides a
-    // namespace for a suite of 64-bit mask constants used in the construction
-    // of floating-point values.
-    //
-    // Note that the constants in this component have integral values that are
-    // too large to be used as enumerators on some platforms.
 
     // CLASS DATA
     static const u::Uint64 k_DOUBLE_EXPONENT_MASK;
@@ -73,9 +73,9 @@ const u::Uint64 BerUtil_64BitFloatingPointMasks::k_DOUBLE_SIGN_MASK =
                    // class ReadRestFunctor
                    // =====================
 
+/// A functor for `string::resize_and_overwrite`.  Appends read bytes to the
+/// buffer.
 class ReadRestFunctor {
-    // A functor for 'string::resize_and_overwrite'.  Appends read bytes to the
-    // buffer.
 
     // DATA
     bsl::streambuf  *d_streamBuf;
@@ -109,8 +109,9 @@ size_t ReadRestFunctor::operator()(char *buf, size_t newSize)
 }
 
 // FREE FUNCTIONS
+
+/// The first time this is called, issue an explanatory warning.
 void warnOnce()
-    // The first time this is called, issue an explanatory warning.
 {
     BSLMT_ONCE_DO {
         BSLS_LOG_WARN(
@@ -207,12 +208,12 @@ int BerUtil_IdentifierImpUtil::getIdentifierOctets(
     return FAILURE;
 }
 
+/// Write the specified `tag*` to the specified `streamBuf`.
 int BerUtil_IdentifierImpUtil::putIdentifierOctets(
                                              bsl::streambuf         *streamBuf,
                                              BerConstants::TagClass  tagClass,
                                              BerConstants::TagType   tagType,
                                              int                     tagNumber)
-    // Write the specified 'tag*' to the specified 'streamBuf'.
 {
     enum { SUCCESS = 0, FAILURE = -1 };
 

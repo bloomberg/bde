@@ -4,8 +4,8 @@
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>
-#include <stdlib.h>  // 'calloc', 'realloc', 'atoi'
-#include <string.h>  // 'strcmp'
+#include <stdlib.h>  // `calloc`, `realloc`, `atoi`
+#include <string.h>  // `strcmp`
 
 // Set this preprocessor macro to 1 to enable compile warnings being generated,
 // 0 to disable them.
@@ -19,22 +19,22 @@
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
 // test driver using a compliant compiler, each time defining different values
-// of the boolean 'U_TRIGGER_WARNINGS' preprocessor macro.  In each case, the
+// of the boolean `U_TRIGGER_WARNINGS` preprocessor macro.  In each case, the
 // concerns are:
 //
-//: o Did the build succeed or not?
-//:
-//: o Was the expected warning observed or not?
-//:
-//: o Was the expected suppression of some warning suppressed or not?
-//:
-//: o For annotations taking arguments, do the results show if the arguments
-//:   were properly passed to the underlying compiler directives?
+//  - Did the build succeed or not?
+//
+//  - Was the expected warning observed or not?
+//
+//  - Was the expected suppression of some warning suppressed or not?
+//
+//  - For annotations taking arguments, do the results show if the arguments
+//    were properly passed to the underlying compiler directives?
 //
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
 // does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor macro is 'U_TRIGGER_WARNINGS', which, if set to
+// The controlling preprocessor macro is `U_TRIGGER_WARNINGS`, which, if set to
 // 1, provokes all the compiler warnings caused by the macros under test.  If
 // set to 0, prevents any warnings from happening.
 //
@@ -45,11 +45,11 @@
 // right-most column appear as comments throughout this test driver.  They can
 // be used as an aid to navigation to the test code for each annotation, and an
 // aid to assuring test coverage.
-//..
+// ```
 //  Annotation                            Result
 //  ------------------------------------  --------
 //  BSLA_FORMAT                           Warning
-//..
+// ```
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // ----------------------------------------------------------------------------
@@ -113,26 +113,27 @@ void aSsErT(bool condition, const char *message, int line)
 //
 ///Example 1: A Language Translator Function
 ///- - - - - - - - - - - - - - - - - - - - -
-// First, we define an 'enum', 'Language', to indicate the choice of languages:
-//..
+// First, we define an `enum`, `Language`, to indicate the choice of languages:
+// ```
     enum Language {
         e_ENGLISH,
         e_SPANISH,
         e_DUTCH,
         e_FRENCH };
-//..
-// Then, we define a function, 'prefixName', which will take a format string
-// and prefix it with the word 'name' in the selected language.  The
-// 'BSLA_FORMAT' annotation indicates that the result will be a pointer to a
-// 'printf'-style format string equivalent to the format string passed to the
+// ```
+// Then, we define a function, `prefixName`, which will take a format string
+// and prefix it with the word `name` in the selected language.  The
+// `BSLA_FORMAT` annotation indicates that the result will be a pointer to a
+// `printf`-style format string equivalent to the format string passed to the
 // third argument:
-//..
+// ```
+
+    /// Create a buffer beginning with the word `name` translated to the
+    /// specified `lang`, followed by the specified format string `format`,
+    /// using the specified `buf` for memory.
     const char *prefixName(char *buf, Language lang, const char *format)
                                                                 BSLA_FORMAT(3);
     const char *prefixName(char *buf, Language lang, const char *format)
-        // Create a buffer beginning with the word 'name' translated to the
-        // specified 'lang', followed by the specified format string 'format',
-        // using the specified 'buf' for memory.
     {
         const char *name = "";
         switch (lang) {
@@ -147,16 +148,16 @@ void aSsErT(bool condition, const char *message, int line)
 
         return buf;
     }
-//..
+// ```
 
 // ============================================================================
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// Return a string literal with the word `name` translated according to
+/// the specified `locale`, similar to the specified `format`.
 const char *test_FORMAT(const char *locale, const char *format) BSLA_FORMAT(2);
 const char *test_FORMAT(const char *locale, const char *format)
-    // Return a string literal with the word 'name' translated according to
-    // the specified 'locale', similar to the specified 'format'.
 {
     if (0 == strcmp(locale, "FR") && 0 == strcmp(format, "Name: %s")) {
         return "Nom: %s";                                             // RETURN
@@ -203,11 +204,11 @@ void use_with_warning_message_FORMAT()
 //                              HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// Print a diagnostic message to standard output if any of the preprocessor
+/// flags of interest are defined, and their value if a value had been set.
+/// An "Enter" and "Leave" message is printed unconditionally so there is
+/// some report even if all of the flags are undefined.
 static void printFlags()
-    // Print a diagnostic message to standard output if any of the preprocessor
-    // flags of interest are defined, and their value if a value had been set.
-    // An "Enter" and "Leave" message is printed unconditionally so there is
-    // some report even if all of the flags are undefined.
 {
     printf("printFlags: Enter\n");
 
@@ -283,10 +284,10 @@ int main(int argc, char **argv)
         // USAGE EXAMPLE
         //
         // Concern:
-        //: 1 That the usage example builds and performs as expected.
+        // 1. That the usage example builds and performs as expected.
         //
         // Plan:
-        //: 1 Build and test the usage example.
+        // 1. Build and test the usage example.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -295,55 +296,55 @@ int main(int argc, char **argv)
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 
-// Next, in 'main', we call 'printf' and 'sscanf' using the return value of
-// 'prefixName'.  No warnings occur when correct arguments are passed:
-//..
+// Next, in `main`, we call `printf` and `sscanf` using the return value of
+// `prefixName`.  No warnings occur when correct arguments are passed:
+// ```
     char buffer[1000];
     ::printf(prefixName(buffer, e_SPANISH, "%s\n"), "Michael Bloomberg");
 //
     char name[100];
     ::sscanf("Emmanuel Macron", prefixName(buffer, e_FRENCH, "%s"), name);
-//..
-// Now, we call 'printf' and 'sscanf' passing arguments that won't match the
+// ```
+// Now, we call `printf` and `sscanf` passing arguments that won't match the
 // resulting format string:
-//..
+// ```
 #if U_TRIGGER_WARNINGS
     ::printf(prefixName(buffer, e_ENGLISH, "%s\n"), 2.7);
     int x;
     ::sscanf("Sharon den Adel", prefixName(buffer, e_DUTCH, "%s"), &x);
 #endif
-//..
+// ```
 // Finally, we observe the following warning messages with g++:
-//..
-//  .../bsla/bsla_format.t.cpp:306:56: warning: format '%s' expects argument
-//   of type 'char*', but argument 2 has type 'double' [-Wformat=]
+// ```
+//  .../bsla/bsla_format.t.cpp:306:56: warning: format `%s` expects argument
+//   of type `char*`, but argument 2 has type `double` [-Wformat=]
 //       ::printf(prefixName(buffer, e_ENGLISH, "%s\n"), 2.7);
 //                                                          ^
-//  .../bsla_format.t.cpp:308:70: warning: format '%s' expects argument of
-//   type 'char*', but argument 3 has type 'int*' [-Wformat=]
+//  .../bsla_format.t.cpp:308:70: warning: format `%s` expects argument of
+//   type `char*`, but argument 3 has type `int*` [-Wformat=]
 //       ::sscanf("Sharon den Adel", prefixName(buffer, e_DUTCH, "%s"), &x);
 //                                                                      ~~^
-//..
+// ```
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 This test driver builds with all expected compiler warning
-        //:   messages and no unexpected warnings when the 'U_TRIGGER_WARNINGS'
-        //:   preprocessor variable is defined to 1.
-        //:
-        //: 2 When 'U_TRIGGER_WARNINGS' is defined to 0, the compile is
-        //:   successful and with no warnings.
+        // 1. This test driver builds with all expected compiler warning
+        //    messages and no unexpected warnings when the `U_TRIGGER_WARNINGS`
+        //    preprocessor variable is defined to 1.
+        //
+        // 2. When `U_TRIGGER_WARNINGS` is defined to 0, the compile is
+        //    successful and with no warnings.
         //
         // Plan:
-        //: 1 Build with 'U_TRIGGER_WARNINGS' defined to 1 and externally
-        //:   examine compiler output for expected warnings and the absence of
-        //:   warnings expected to be suppressed.  (C-1)
-        //:
-        //: 2 Build with 'U_TRIGGER_WARNINGS' defined to 0 and observe that the
-        //:   compile is successful with no warnings.  (C-2)
+        // 1. Build with `U_TRIGGER_WARNINGS` defined to 1 and externally
+        //    examine compiler output for expected warnings and the absence of
+        //    warnings expected to be suppressed.  (C-1)
+        //
+        // 2. Build with `U_TRIGGER_WARNINGS` defined to 0 and observe that the
+        //    compile is successful with no warnings.  (C-2)
         //
         // Testing:
         //   BREATHING TEST
@@ -359,7 +360,7 @@ int main(int argc, char **argv)
 
             if (!veryVeryVerbose) printFlags();
 
-            ASSERT(true); // remove unused warning for 'aSsErT'
+            ASSERT(true); // remove unused warning for `aSsErT`
         }
 
       } break;

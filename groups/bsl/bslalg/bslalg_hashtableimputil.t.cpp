@@ -21,9 +21,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-// To resolve gcc warnings, while printing 'size_t' arguments portably on
+// To resolve gcc warnings, while printing `size_t` arguments portably on
 // Windows, we use a macro and string literal concatenation to produce the
-// correct 'printf' format flag.
+// correct `printf` format flag.
 #ifdef ZU
 #undef ZU
 #endif
@@ -141,7 +141,7 @@ struct ArrayLength_Imp {
 };
 
 // The following routine is never implemented, it is only called within a
-// 'sizeof' so the code to call it is never generated.
+// `sizeof` so the code to call it is never generated.
 
 template <class TYPE, size_t N>
 inline
@@ -220,10 +220,10 @@ size_t countElements(bslalg::BidirectionalLink *first,
     return result;
 }
 
+/// Pass argument by pointer rather than by reference to these methods so as
+/// not to break BDE rules and upset bdeflag.
 template <class EXPECTED_TYPE>
 struct IsExpectedType {
-    // Pass argument by pointer rather than by reference to these methods so as
-    // not to break BDE rules and upset bdeflag.
 
     template <class OBJECT_TYPE>
     bool operator()(OBJECT_TYPE *) const
@@ -392,12 +392,12 @@ struct HashNodeUsingHasherAndPolicy {
 // Suppose we want to build a hash set that will keep track of keys stored in
 // set.
 //
-// First, we define an abstract template class 'HashSet' that will provide a
+// First, we define an abstract template class `HashSet` that will provide a
 // hash set for any type that has a copy constructor, a destructor, an equality
-// comparator and a hash function.  We inherit from the 'HashTableAnchor' class
-// use the 'BidirectionalLinkListUtil' and 'HashTableImpUtil' classes to
+// comparator and a hash function.  We inherit from the `HashTableAnchor` class
+// use the `BidirectionalLinkListUtil` and `HashTableImpUtil` classes to
 // facilitate building the table:
-//..
+// ```
 template <class KEY, class HASHER, class EQUAL>
 class HashSet : public bslalg::HashTableAnchor {
     // PRIVATE TYPES
@@ -426,21 +426,23 @@ class HashSet : public bslalg::HashTableAnchor {
     bslma::Allocator *d_allocator_p;
 
     // PRIVATE MANIPULATORS
+
+    /// Roughly double the number of buckets, such that the number of
+    /// buckets shall always be `2^N - 1`.
     void grow();
-        // Roughly double the number of buckets, such that the number of
-        // buckets shall always be '2^N - 1'.
 
     // PRIVATE ACCESSORS
-    bool checkInvariants() const;
-        // Perform sanity checks on this table, returning 'true' if all the
-        // tests pass and 'false' otherwise.  Note that many of the checks
-        // are done with the 'ASSERTV' macro and will cause messages to be
-        // written to the console.
 
+    /// Perform sanity checks on this table, returning `true` if all the
+    /// tests pass and `false` otherwise.  Note that many of the checks
+    /// are done with the `ASSERTV` macro and will cause messages to be
+    /// written to the console.
+    bool checkInvariants() const;
+
+    /// Return a pointer to the node containing the specified `key`, and 0
+    /// if no such node is in the table.
     Node* find(const KEY& key,
                size_t     hashCode) const;
-        // Return a pointer to the node containing the specified 'key', and 0
-        // if no such node is in the table.
 
   private:
     // NOT IMPLEMENTED
@@ -449,38 +451,41 @@ class HashSet : public bslalg::HashTableAnchor {
 
   public:
     // CREATORS
+
+    /// Create a `HashSet`, using the specified `allocator`.  If no
+    /// allocator is specified, use the default allocator.
     explicit
     HashSet(bslma::Allocator *allocator = 0);
-        // Create a 'HashSet', using the specified 'allocator'.  If no
-        // allocator is specified, use the default allocator.
 
+    /// Destroy this `HashSet`, freeing all its memory.
     ~HashSet();
-        // Destroy this 'HashSet', freeing all its memory.
 
     // MANIPULATORS
-    bool insert(const KEY& key);
-        // If the specified 'key' is not in this hash table, add it, returning
-        // 'true'.  If it is already in the table, return 'false' with no
-        // action taken.
 
+    /// If the specified `key` is not in this hash table, add it, returning
+    /// `true`.  If it is already in the table, return `false` with no
+    /// action taken.
+    bool insert(const KEY& key);
+
+    /// If the specified `key` is in this hash table, remove it, returning
+    /// `true`.  If it is not found in the table, return `false` with no
+    /// action taken.
     bool erase(const KEY& key);
-        // If the specified 'key' is in this hash table, remove it, returning
-        // 'true'.  If it is not found in the table, return 'false' with no
-        // action taken.
 
     // ACCESSORS
-    std::size_t count(const KEY& key) const;
-        // Return 1 if the specified 'key' is in this table and 0 otherwise.
 
+    /// Return 1 if the specified `key` is in this table and 0 otherwise.
+    std::size_t count(const KEY& key) const;
+
+    /// Return the number of discrete keys that are stored in this table.
     std::size_t size() const;
-        // Return the number of discrete keys that are stored in this table.
 };
 
 // PRIVATE MANIPULATORS
 template <class KEY, class HASHER, class EQUAL>
 void HashSet<KEY, HASHER, EQUAL>::grow()
 {
-    // 'bucketArraySize' will always be '2^N - 1', so that if hashed values
+    // `bucketArraySize` will always be `2^N - 1`, so that if hashed values
     // are aligned by some 2^N they're likely to be relatively prime to the
     // length of the hash table.
 
@@ -499,10 +504,10 @@ void HashSet<KEY, HASHER, EQUAL>::grow()
 template <class KEY, class HASHER, class EQUAL>
 bool HashSet<KEY, HASHER, EQUAL>::checkInvariants() const
 {
-    // 'HashTableImpUtil's 'isWellFormed' will verify that all nodes are in
+    // `HashTableImpUtil`s `isWellFormed` will verify that all nodes are in
     // their proper buckets, that there are no buckets containing nodes that
     // are not in the main linked list, and no nodes in the main linked list
-    // that are not in buckets.  To verify that 'd_numNodes' is correct we have
+    // that are not in buckets.  To verify that `d_numNodes` is correct we have
     // to traverse the list and count the nodes ourselves.
 
     size_t numNodes = 0;
@@ -533,8 +538,8 @@ HashSet<KEY, HASHER, EQUAL>::HashSet(bslma::Allocator *allocator)
 , d_maxLoadFactor(0.4)
 , d_numNodes(0)
 {
-    enum { NUM_BUCKETS = 3 };    // 'NUM_BUCKETS' must be '2^N - 1' for some
-                                 // 'N'.
+    enum { NUM_BUCKETS = 3 };    // `NUM_BUCKETS` must be `2^N - 1` for some
+                                 // `N`.
 
     d_allocator_p = bslma::Default::allocator(allocator);
     std::size_t bucketArraySizeInBytes = NUM_BUCKETS * sizeof(Bucket);
@@ -646,23 +651,23 @@ std::size_t HashSet<KEY, HASHER, EQUAL>::size() const
 {
     return d_numNodes;
 }
-//..
-// Then, we customize our table to manipulate zero-terminated 'const char *'
+// ```
+// Then, we customize our table to manipulate zero-terminated `const char *`
 // strings.  We make the simplifying assumption that the strings pointed at by
-// the 'const char *'s are longer-lived that the 'HashSet' will be.  We must
+// the `const char *`s are longer-lived that the `HashSet` will be.  We must
 // provide an equality comparator so that two copies, in diffferent locations,
 // of the same sequence of characters will evaluate equal:
-//..
+// ```
 struct StringEqual {
     bool operator()(const char *lhs, const char *rhs) const
     {
         return !strcmp(lhs, rhs);
     }
 };
-//..
-// Next, we must provide a string hash function to convert a 'const char *' to
-// a 'size_t':
-//..
+// ```
+// Next, we must provide a string hash function to convert a `const char *` to
+// a `size_t`:
+// ```
 struct StringHash {
     std::size_t operator()(const char *string) const;
 };
@@ -713,84 +718,84 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Create a hash table using the functions in this component and
-        //   'HashTableAnchor'.
+        //   `HashTableAnchor`.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
-//..
+// ```
 // Then, we declare a test allocator and make it the default allocator to use
 // during our example, to observe if we leak any memory:
-//..
+// ```
         bslma::TestAllocator da("defaultAllocator");
         bslma::DefaultAllocatorGuard defaultGuard(&da);
-//..
-// Next, in 'main', we create an instance of our 'HashSet' type, configured to
-// contain 'const char *' strings:
-//..
+// ```
+// Next, in `main`, we create an instance of our `HashSet` type, configured to
+// contain `const char *` strings:
+// ```
         HashSet<const char *, StringHash, StringEqual> hs;
-//..
+// ```
 // Then, we insert a few values:
-//..
+// ```
         ASSERT(1 == hs.insert("woof"));
         ASSERT(1 == hs.insert("arf"));
         ASSERT(1 == hs.insert("meow"));
-//..
-// Next, we attempt to insert a redundant value, and observe that the 'insert'
-// mthod returns 'false' to indicate that the insert was refused:
-//..
+// ```
+// Next, we attempt to insert a redundant value, and observe that the `insert`
+// mthod returns `false` to indicate that the insert was refused:
+// ```
         ASSERT(0 == hs.insert("woof"));
-//..
-// Then, we use to 'size' method to observe that there are 3 strings stored in
-// our 'HashSet':
-//..
+// ```
+// Then, we use to `size` method to observe that there are 3 strings stored in
+// our `HashSet`:
+// ```
         ASSERT(3 == hs.size());
-//..
-// Next, we use the 'count' method to observe, specifically, which strings are
-// and are not in our 'HashSet':
-//..
+// ```
+// Next, we use the `count` method to observe, specifically, which strings are
+// and are not in our `HashSet`:
+// ```
         ASSERT(1 == hs.count("woof"));
         ASSERT(1 == hs.count("arf"));
         ASSERT(1 == hs.count("meow"));
         ASSERT(0 == hs.count("ruff"));
         ASSERT(0 == hs.count("chomp"));
-//..
-// Then, we attempt to erase a string which is not in our 'HashSet' and observe
-// that 'false' is returned, which tells us the 'erase' attempt was
+// ```
+// Then, we attempt to erase a string which is not in our `HashSet` and observe
+// that `false` is returned, which tells us the `erase` attempt was
 // unsuccesful:
-//..
+// ```
         ASSERT(0 == hs.erase("ruff"));
-//..
-// Next, we erase the string "meow", which is stored in our 'HashSet' and
-// observe that 'true' is returned, telling us the 'erase' attempt succeeded:
-//..
+// ```
+// Next, we erase the string "meow", which is stored in our `HashSet` and
+// observe that `true` is returned, telling us the `erase` attempt succeeded:
+// ```
         ASSERT(1 == hs.erase("meow"));
-//..
-// Now, we use the 'size' method to verify there are 2 strings remaining in our
-// 'HashSet':
-//..
+// ```
+// Now, we use the `size` method to verify there are 2 strings remaining in our
+// `HashSet`:
+// ```
         ASSERT(2 == hs.size());
-//..
-// Finally, we use the 'count' method to observe specifically which strings are
-// still in our 'HashSet'.  Note that "meow" is no longer there.  We observe
+// ```
+// Finally, we use the `count` method to observe specifically which strings are
+// still in our `HashSet`.  Note that "meow" is no longer there.  We observe
 // that the default allocator was never used.  When we leave the block, our
-// 'HashSet' will be destroyed, freeing its memory, then our 'TestAllocator'
+// `HashSet` will be destroyed, freeing its memory, then our `TestAllocator`
 // will be destroyed, verifying that our destructor worked correctly and that
 // no memory was leaked:
-//..
+// ```
         ASSERT(1 == hs.count("woof"));
         ASSERT(1 == hs.count("arf"));
         ASSERT(0 == hs.count("meow"));
         ASSERT(0 == hs.count("ruff"));
         ASSERT(0 == hs.count("chomp"));
-//..
+// ```
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING 'findTransparent'
+        // TESTING `findTransparent`
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING 'findTransparent'\n"
+        if (verbose) printf("TESTING `findTransparent`\n"
                             "=========================\n");
 
         bslma::TestAllocator da("defaultAllocator", veryVeryVeryVerbose);
@@ -917,7 +922,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING ATTEMPTED USAGE EXAMPLE"
                             "\n===============================\n");
 
-// Then, in 'main', we set up some typedefs to refer to frequently used
+// Then, in `main`, we set up some typedefs to refer to frequently used
 // types:
 
         typedef bslalg::HashTableImpUtil       Obj;
@@ -925,8 +930,8 @@ int main(int argc, char *argv[])
         typedef NodeUtil<int>                  IntNodeUtil;
 
 // Next, we create a hasher functor object that will take a link as input,
-// interpret it as a an 'IntNode', and hash the int to a size_t using
-// 'Mod8Hasher':
+// interpret it as a an `IntNode`, and hash the int to a size_t using
+// `Mod8Hasher`:
 
         HashNodeUsingHasherAndPolicy<Mod8Hasher, TestSetKeyPolicy<int> >
                                                                     nodeHasher;
@@ -976,7 +981,7 @@ int main(int argc, char *argv[])
         ASSERT(dam.isTotalUp());
         ASSERT(dam.isInUseSame());
 
-// Next, we call 'bucketContainsLink' to observe which bucket node '014' is in:
+// Next, we call `bucketContainsLink` to observe which bucket node `014` is in:
 
         for (int i = 0; i < numActiveBuckets; ++i) {
             ASSERTV(i, ((int) Obj::computeBucketIndex(nodeHasher(links[014]),
@@ -984,8 +989,8 @@ int main(int argc, char *argv[])
                               Obj::bucketContainsLink(buckets[i], links[014]));
         }
 
-// Then, we observe there are 4 nodes in 'buckets[0]' (they are '000', '001',
-// '004', '014'):
+// Then, we observe there are 4 nodes in `buckets[0]` (they are `000`, `001`,
+// `004`, `014`):
 
         ASSERT(4 == buckets[0].countElements());
         ASSERT(links[000] == buckets[0].first());
@@ -993,7 +998,7 @@ int main(int argc, char *argv[])
         ASSERT(links[004] == buckets[0].first()->nextLink()->nextLink());
         ASSERT(links[014] == buckets[0].last());
 
-// Next, we use 'remove' to remove node '014' from the table, and observe the
+// Next, we use `remove` to remove node `014` from the table, and observe the
 // state of the table and bucket after that:
 
         Obj::remove(&anchor, links[014], nodeHasher(links[014]));
@@ -1005,7 +1010,7 @@ int main(int argc, char *argv[])
         ASSERT(links[004] == buckets[0].last());
         ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
-// Then, we insert node '014' back into the table, but in the wrong bucket,
+// Then, we insert node `014` back into the table, but in the wrong bucket,
 // and observe that the table is no longer well-formed:
 
         Obj::insertAtBackOfBucket(&anchor, links[014], 3);
@@ -1014,10 +1019,10 @@ int main(int argc, char *argv[])
         ASSERT(0 == (Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
 // Next, we move it back to the bucket it was originally in, but put it at the
-// front of the bucket, rather than the rear, using 'insertAtFrontOfBucket'.
-// It has the same hash value as node '004', which is at the rear of the
+// front of the bucket, rather than the rear, using `insertAtFrontOfBucket`.
+// It has the same hash value as node `004`, which is at the rear of the
 // bucket.  The two nodes with the same hash value are now separated from each,
-// with the nodes '000' and '010' with hash value '0' in between.  In a former
+// with the nodes `000` and `010` with hash value `0` in between.  In a former
 // implementation, this would have meant the table was not well formed, but
 // in the current implementation, this still passes muster:
 
@@ -1037,7 +1042,7 @@ int main(int argc, char *argv[])
 
         ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
-// Then, we move the node to before node '004', which has the same hash value,
+// Then, we move the node to before node `004`, which has the same hash value,
 // so they'll be adjacent and the hash table will be well-formed:
 
         ASSERT(links[004] == buckets[0].last());
@@ -1057,7 +1062,7 @@ int main(int argc, char *argv[])
         ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
 // Now, we grow the table from having 4 buckets to having 8 buckets using
-// 'rehash':
+// `rehash`:
 
         numActiveBuckets = NUM_BUCKET_ARRAY;    // numActiveBuckets = 8;
         anchor.setBucketArrayAddressAndSize(anchor.bucketArrayAddress(),
@@ -1091,10 +1096,10 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'remove' and 'bucketContainsLink'
+        // TESTING `remove` and `bucketContainsLink`
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING 'remove' and 'bucketContainsLink'\n"
+        if (verbose) printf("TESTING `remove` and `bucketContainsLink`\n"
                             "=========================================\n");
 
         bslma::TestAllocator da("defaultAllocator", veryVeryVeryVerbose);
@@ -1359,10 +1364,10 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'find'
+        // TESTING `find`
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING 'find'\n"
+        if (verbose) printf("TESTING `find`\n"
                             "==============\n");
 
         bslma::TestAllocator da("defaultAllocator", veryVeryVeryVerbose);
@@ -1507,10 +1512,10 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'rehash'
+        // TESTING `rehash`
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING 'rehash'\n"
+        if (verbose) printf("TESTING `rehash`\n"
                             "================\n");
 
         bslma::TestAllocator da("defaultAllocator", veryVeryVeryVerbose);
@@ -1550,7 +1555,7 @@ int main(int argc, char *argv[])
         Anchor anchor(buckets, 2, 0);
         Mod8Hasher hasher;
 
-        // Make sure 'rehash' doesn't segfault or anything given an empty
+        // Make sure `rehash` doesn't segfault or anything given an empty
         // list.
 
         Obj::rehash<TestPolicy>(&anchor, 0, hasher);
@@ -1676,28 +1681,28 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'isWellFormed'
+        // TESTING `isWellFormed`
         //
         // Concerns:
-        //: o 'isWellFormed' performs as specced.
+        //  - `isWellFormed` performs as specced.
         //
         // Plan:
-        //: o Test on empty tables of various lengths.
-        //: o Test on healthy table.
-        //: o Sabotage table, one defect at a time, so that:
-        //:   1 A 'previousLink()' is incorrect.
-        //:   2 A node is in the wrong bucket.
-        //:   3 A bucket.first() is wrong, but not null.
-        //:   4 A bucket.last() is wrong, but not null.
-        //:   5 Both first() and last() of a bucket are null when they have
-        //:     a node in the root list.
-        //:   6 A bucket contains a link that is not in the root list.
-        //:   7 Two nodes with identical hash values are in the same bucket,
-        //:     but not in a contiguous sequence for that hash value.
-        //:     Was forbidden in earlier implementation, now permissible.
+        //  - Test on empty tables of various lengths.
+        //  - Test on healthy table.
+        //  - Sabotage table, one defect at a time, so that:
+        //   1. A `previousLink()` is incorrect.
+        //   2. A node is in the wrong bucket.
+        //   3. A bucket.first() is wrong, but not null.
+        //   4. A bucket.last() is wrong, but not null.
+        //   5. Both first() and last() of a bucket are null when they have
+        //      a node in the root list.
+        //   6. A bucket contains a link that is not in the root list.
+        //   7. Two nodes with identical hash values are in the same bucket,
+        //      but not in a contiguous sequence for that hash value.
+        //      Was forbidden in earlier implementation, now permissible.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING 'isWellFormed'\n"
+        if (verbose) printf("TESTING `isWellFormed`\n"
                             "======================\n");
 
         bslma::TestAllocator da("defaultAllocator", veryVeryVeryVerbose);
@@ -1947,16 +1952,16 @@ int main(int argc, char *argv[])
         // TESTING insertAtPosition
         //
         // Concerns:
-        //: o 'insertAtPosition' performs as specced.
+        //  - `insertAtPosition` performs as specced.
         //
         // Plan:
-        //: o Test insertion at beginning of a bucket, existing node is only
-        //:   node.
-        //: o Test insertion not at beginning of the bucket.
-        //: o Test insertion before the last node in the bucket (same as middle
-        //:   of many nodes in the bucket, same as if other buckets existed).
-        //: o Test insertion at beginning of new bucket, root list not empty.
-        //: o Test insertion at beginning of second bucket.
+        //  - Test insertion at beginning of a bucket, existing node is only
+        //    node.
+        //  - Test insertion not at beginning of the bucket.
+        //  - Test insertion before the last node in the bucket (same as middle
+        //    of many nodes in the bucket, same as if other buckets existed).
+        //  - Test insertion at beginning of new bucket, root list not empty.
+        //  - Test insertion at beginning of second bucket.
         // --------------------------------------------------------------------
 
         bslma::TestAllocator da("defaultAllocator", veryVeryVeryVerbose);
@@ -2091,14 +2096,14 @@ int main(int argc, char *argv[])
         // TESTING insertAtBackOfBucket
         //
         // Concerns:
-        //   That 'insertAtBackOfBucket' performs as specced
+        //   That `insertAtBackOfBucket` performs as specced
         //
         // Plan:
-        //: Test in 4 cases:
-        //: o Bucket empty, root empty
-        //: o Bucket not empty, root contains only bucket
-        //: o Bucket empty, root not empty
-        //: o Bucket not empty, root not empty, not pointing to bucket
+        //  Test in 4 cases:
+        //  - Bucket empty, root empty
+        //  - Bucket not empty, root contains only bucket
+        //  - Bucket empty, root not empty
+        //  - Bucket not empty, root not empty, not pointing to bucket
         // --------------------------------------------------------------------
 
         bslma::TestAllocator da("defaultAllocator", veryVeryVeryVerbose);
@@ -2200,14 +2205,14 @@ int main(int argc, char *argv[])
         // TESTING insertAtFrontOfBucket
         //
         // Concerns:
-        //   That 'insertAtFrontOfBucket' performs as specced
+        //   That `insertAtFrontOfBucket` performs as specced
         //
         // Plan:
-        //: Test in 4 cases:
-        //: o Bucket empty, root empty
-        //: o Bucket not empty, root contains only bucket
-        //: o Bucket empty, root not empty
-        //: o Bucket not empty, root not empty, not pointing to bucket
+        //  Test in 4 cases:
+        //  - Bucket empty, root empty
+        //  - Bucket not empty, root contains only bucket
+        //  - Bucket empty, root not empty
+        //  - Bucket not empty, root not empty, not pointing to bucket
         // --------------------------------------------------------------------
 
         bslma::TestAllocator da("defaultAllocator", veryVeryVeryVerbose);
@@ -2306,7 +2311,7 @@ int main(int argc, char *argv[])
         // TESTING EXTRACTVALUE AND EXTRACTKEY
         //
         // Concerns:
-        //   That 'extractValue' and 'extractKey' work as described;
+        //   That `extractValue` and `extractKey` work as described;
         // --------------------------------------------------------------------
 
 
@@ -2405,11 +2410,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
+        // 1. Perform and ad-hoc test of the primary modifiers and accessors.
         //
         // Testing:
         //   BREATHING TEST
@@ -2430,7 +2435,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocatorMonitor om(&oa);
 
         // [  ] const KeyType& extractKey(const BidirectionalLink *link);
-        if (veryVerbose) printf("\t\t Testing 'extractKey'\n");
+        if (veryVerbose) printf("\t\t Testing `extractKey`\n");
         {
             const int DATA[] = { INT_MIN, -2, 1, 3, INT_MAX };
             const size_t DATA_SIZE = sizeof(DATA) / sizeof(*DATA);
@@ -2444,7 +2449,7 @@ int main(int argc, char *argv[])
         ASSERTV(dm.isInUseSame());
 
         // [  ] typename ValueType& extractValue(BidirectionalLink *link);
-        if (veryVerbose) printf("\t\t Testing 'extractValue'\n");
+        if (veryVerbose) printf("\t\t Testing `extractValue`\n");
         {
             const int DATA[] = { INT_MIN, -2, 1, 3, INT_MAX };
             const size_t DATA_SIZE = sizeof(DATA) / sizeof(*DATA);
@@ -2459,7 +2464,7 @@ int main(int argc, char *argv[])
 
         // [  ] computeBucketIndex(size_t hashCode, size_t numBuckets);
 
-        if (veryVerbose) printf("\t\t Testing 'computeBucketIndex'\n");
+        if (veryVerbose) printf("\t\t Testing `computeBucketIndex`\n");
         {
             const struct {
                 size_t d_hash;
@@ -2488,7 +2493,7 @@ int main(int argc, char *argv[])
         IntTestHasherIdent defaultHasher;
 
         // [  ] isWellFormed(const Anchor *anchor);
-        if (veryVerbose) printf("\t\t Testing 'isWellFormed'\n");
+        if (veryVerbose) printf("\t\t Testing `isWellFormed`\n");
         {
             if(veryVeryVerbose) printf("\t\t\t Testing malformed anchor 1\n");
             Bucket badArray[7];
@@ -2593,10 +2598,10 @@ int main(int argc, char *argv[])
         ASSERTV(dm.isInUseSame());
 
 // [  ] insertAtFrontOfBucket(Anchor *a, BidirectionalLink *l, size_t h);
-        if(veryVerbose) printf("\t\t Testing 'insertAtFrontOfBucket'\n");
+        if(veryVerbose) printf("\t\t Testing `insertAtFrontOfBucket`\n");
         {
             if(veryVeryVerbose) printf(
-                                    "\t\t\t Test 'insertAtFrontOfBucket' 0\n");
+                                    "\t\t\t Test `insertAtFrontOfBucket` 0\n");
 
             const int DATA[] = { 0, 1, 2 };
             const size_t DATA_SIZE = sizeof(DATA) / sizeof(*DATA);
@@ -2605,7 +2610,7 @@ int main(int argc, char *argv[])
             memset(goodArray, 0, sizeof(goodArray));
 
             // Empty Hash Table
-            //..
+            // ```
             //              Root
             // [0F]->x       ~
             // [0L]->x
@@ -2613,7 +2618,7 @@ int main(int argc, char *argv[])
             // [1L]->x
             // [2F]->x
             // [2L]->x
-            //..
+            // ```
 
             Anchor anchor(goodArray, DATA_SIZE, 0);
             const Anchor& ANCHOR = anchor;
@@ -2629,7 +2634,7 @@ int main(int argc, char *argv[])
             ASSERTV(IS_VALID);
 
             // After insert 0
-            //..
+            // ```
             //                x
             //                |
             // [0F]--------> +-+  root
@@ -2641,9 +2646,9 @@ int main(int argc, char *argv[])
             // [1L]->x
             // [2F]->x
             // [2L]->x
-            //..
+            // ```
 
-            if(veryVeryVerbose) printf("\t\t\t Test 'remove' 0\n");
+            if(veryVeryVerbose) printf("\t\t\t Test `remove` 0\n");
             Obj::remove(&anchor, link, 0);
             ASSERTV(anchor.listRootAddress() == 0);
             ASSERTV(anchor.bucketArrayAddress()[0].first() == 0);
@@ -2653,7 +2658,7 @@ int main(int argc, char *argv[])
             ASSERTV(IS_VALID);
 
             // After remove 0
-            //..
+            // ```
             //              Root
             // [0F]->x       ~
             // [0L]->x
@@ -2661,10 +2666,10 @@ int main(int argc, char *argv[])
             // [1L]->x
             // [2F]->x
             // [2L]->x
-            //..
+            // ```
 
             if(veryVeryVerbose) printf(
-                                    "\t\t\t Test 'insertAtFrontOfBucket' 0\n");
+                                    "\t\t\t Test `insertAtFrontOfBucket` 0\n");
             Obj::insertAtFrontOfBucket(&anchor, link, 0);
             ASSERTV(anchor.listRootAddress() == link);
             ASSERTV(anchor.bucketArrayAddress()[0].first() == link);
@@ -2674,7 +2679,7 @@ int main(int argc, char *argv[])
             ASSERTV(IS_VALID);
 
             // After insert 0
-            //..
+            // ```
             //                x
             //                |
             // [0F]--------> +-+  root
@@ -2686,10 +2691,10 @@ int main(int argc, char *argv[])
             // [1L]->x
             // [2F]->x
             // [2L]->x
-            //..
+            // ```
 
             if(veryVeryVerbose) printf(
-                                    "\t\t\t 'Test insertAtFrontOfBucket' 1\n");
+                                    "\t\t\t `Test insertAtFrontOfBucket` 1\n");
             Link *link2 = IntNodeUtil::create(DATA[1], &oa);
 
             Obj::insertAtFrontOfBucket(&anchor, link2, 1);
@@ -2702,7 +2707,7 @@ int main(int argc, char *argv[])
             ASSERTV(IS_VALID);
 
             // After insert 1
-            //..
+            // ```
             //                x
             //                |   root
             // [0F]-----+    +-+
@@ -2719,7 +2724,7 @@ int main(int argc, char *argv[])
             // [1L]------------------+
             // [2F]->x
             // [2L]->x
-            //..
+            // ```
 
             if(veryVeryVerbose) printf("\t\t\t Test insert again 1\n");
             Link *link3 = IntNodeUtil::create(DATA[1], &oa);
@@ -2734,7 +2739,7 @@ int main(int argc, char *argv[])
             ASSERTV(IS_VALID);
 
             // After insert again 1
-            //..
+            // ```
             //                x
             //                |   root
             // [0F]-----+    +-+
@@ -2755,7 +2760,7 @@ int main(int argc, char *argv[])
             // [1L]------------------+
             // [2F]->x
             // [2L]->x
-            //..
+            // ```
 
             if(veryVeryVerbose) printf("\t\t\t Test remove 1\n");
             Obj::remove(&anchor, link2, 1);
@@ -2768,7 +2773,7 @@ int main(int argc, char *argv[])
             IntNodeUtil::destroy(link2, &oa);
 
             // After remove again 1
-            //..
+            // ```
             //                x
             //                |   root
             // [0F]-----+    +-+
@@ -2785,8 +2790,8 @@ int main(int argc, char *argv[])
             // [1L]------------------+
             // [2F]->x
             // [2L]->x
-            //..
-            if (veryVeryVerbose) printf("\tTest 'insertAtPosition' 1\n");
+            // ```
+            if (veryVeryVerbose) printf("\tTest `insertAtPosition` 1\n");
 
             Link *link4 = IntNodeUtil::create(DATA[1], &oa);
 
@@ -2800,7 +2805,7 @@ int main(int argc, char *argv[])
             ASSERTV(IS_VALID);
 
             // After insert at position 1
-            //..
+            // ```
             //                x
             //                |   root
             // [0F]-----+    +-+
@@ -2821,7 +2826,7 @@ int main(int argc, char *argv[])
             // [1L]------------------+
             // [2F]->x
             // [2L]->x
-            //..
+            // ```
 
             if(veryVeryVerbose) printf("\t\t\t Test remove 1\n");
             Obj::remove(&anchor, link4, 1);
@@ -2833,7 +2838,7 @@ int main(int argc, char *argv[])
             ASSERTV(IS_VALID);
 
             // After remove again 1
-            //..
+            // ```
             //                x
             //                |   root
             // [0F]-----+    +-+
@@ -2854,10 +2859,10 @@ int main(int argc, char *argv[])
             // [1L]------------------+
             // [2F]->x
             // [2L]->x
-            //..
+            // ```
             IntNodeUtil::destroy(link4, &oa);
 
-            if (veryVeryVerbose) printf("\tTest 'insertAtPosition' 0\n");
+            if (veryVeryVerbose) printf("\tTest `insertAtPosition` 0\n");
 
             Link *link5 = IntNodeUtil::create(DATA[0], &oa);
 
@@ -2879,7 +2884,7 @@ int main(int argc, char *argv[])
 // [  ] find(const Anchor& a, KeyType& key, comparator, size_t h);
 // [  ] rehash(Anchor *a, BidirectionalLink *r, const HASHER& h);
 
-        if(veryVerbose) printf("\tTest 'rehash'\n");
+        if(veryVerbose) printf("\tTest `rehash`\n");
         {
 
             const int DATA[] = { 0, 1, 2, 3, 4, 5, 6 };
@@ -2889,11 +2894,11 @@ int main(int argc, char *argv[])
             memset(goodArray, 0, sizeof(goodArray));
 
             // Empty Hash Table
-            //..
+            // ```
             //              Root
             // [0F]->x       ~
             // [0L]->x
-            //..
+            // ```
 
             Anchor anchor(goodArray, 1, 0);
             const Anchor& ANCHOR = anchor;
@@ -2920,7 +2925,7 @@ int main(int argc, char *argv[])
             Obj::insertAtFrontOfBucket(&anchor, link5, DATA[5]);
             Obj::insertAtFrontOfBucket(&anchor, link6, DATA[6]);
 
-            //..
+            // ```
             //                x
             //                |   root
             //               +-+
@@ -2952,7 +2957,7 @@ int main(int argc, char *argv[])
             //               +-+
             //                |
             //                x
-            //..
+            // ```
 
             IS_VALID =
                      Obj::isWellFormed<TestPolicy>(ANCHOR, defaultHasher);

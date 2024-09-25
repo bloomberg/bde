@@ -19,7 +19,7 @@
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
-#include <crtdbg.h>  // '_CrtSetReportMode', to suppress popups
+#include <crtdbg.h>  // `_CrtSetReportMode`, to suppress popups
 #else
 #include <pthread.h>
 #include <unistd.h>
@@ -33,13 +33,13 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-// 'bdlma::CountingAllocator' is a special-purpose allocator mechanism that
+// `bdlma::CountingAllocator` is a special-purpose allocator mechanism that
 // tracks the number of bytes currently in use and the cumulative number of
 // bytes that have ever been allocated.  The primary concerns are that these
-// two byte counts are correctly maintained, that 'allocate' returns maximally-
+// two byte counts are correctly maintained, that `allocate` returns maximally-
 // aligned memory blocks of the expected size from the object allocator, and
-// that 'deallocate' returns memory blocks back to the object allocator.  We
-// make heavy use of the 'bslma::TestAllocator' to ensure that these concerns
+// that `deallocate` returns memory blocks back to the object allocator.  We
+// make heavy use of the `bslma::TestAllocator` to ensure that these concerns
 // are satisfied.
 // ----------------------------------------------------------------------------
 // CREATORS
@@ -62,7 +62,7 @@ using namespace bsl;
 // [ *] CONCERN: In no case does memory come from the global allocator.
 // [ *] CONCERN: There is no temporary allocation from any allocator.
 // [ 4] CONCERN: Precondition violations are detected when enabled.
-// [ 6] CONCERN: The 'allocate' and 'deallocate' methods are thread-safe.
+// [ 6] CONCERN: The `allocate` and `deallocate` methods are thread-safe.
 
 // ============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
@@ -276,18 +276,18 @@ extern "C" void *threadFunction3(void *arg)
 ///----------------------------------------------------
 // In this example, we demonstrate how a counting allocator may be used to
 // track the amount of dynamic memory used by a container.  The container used
-// for illustration is 'DoubleStack', a stack of out-of-place 'double' values.
+// for illustration is `DoubleStack`, a stack of out-of-place `double` values.
 //
-// First, we show the interface of the 'DoubleStack' class:
-//..
+// First, we show the interface of the `DoubleStack` class:
+// ```
     // doublestack.h
 
+    /// This class implements a stack of out-of-place `double` values.
     class DoubleStack {
-        // This class implements a stack of out-of-place 'double' values.
 
         // DATA
         double           **d_stack_p;      // dynamically allocated array of
-                                           // 'd_capacity' elements
+                                           // `d_capacity` elements
 
         int                d_capacity;     // physical capacity of the stack
                                            // (in elements)
@@ -304,38 +304,41 @@ extern "C" void *threadFunction3(void *arg)
 
       private:
         // PRIVATE MANIPULATORS
+
+        /// Increase the capacity of this stack by at least one element.
         void increaseCapacity();
-            // Increase the capacity of this stack by at least one element.
 
       public:
         // CREATORS
+
+        /// Create a stack for `double` values having an initial capacity to
+        /// hold one element.  Optionally specify a `basicAllocator` used to
+        /// supply memory.  If `basicAllocator` is 0, the currently
+        /// installed default allocator is used.
         explicit
         DoubleStack(bslma::Allocator *basicAllocator = 0);
-            // Create a stack for 'double' values having an initial capacity to
-            // hold one element.  Optionally specify a 'basicAllocator' used to
-            // supply memory.  If 'basicAllocator' is 0, the currently
-            // installed default allocator is used.
 
+        /// Delete this object.
         ~DoubleStack();
-            // Delete this object.
 
         // MANIPULATORS
-        void push(double value);
-            // Add the specified 'value' to the top of this stack.
 
+        /// Add the specified `value` to the top of this stack.
+        void push(double value);
+
+        /// Remove the element at the top of this stack.  The behavior is
+        /// undefined unless this stack is non-empty.
         void pop();
-            // Remove the element at the top of this stack.  The behavior is
-            // undefined unless this stack is non-empty.
 
         // ACCESSORS
         // ...
     };
-//..
-// Next, we show the (elided) implementation of 'DoubleStack'.
+// ```
+// Next, we show the (elided) implementation of `DoubleStack`.
 //
 // The default constructor creates a stack having the capacity for one element
 // (the implementation of the destructor is not shown):
-//..
+// ```
     // doublestack.cpp
     // ...
 
@@ -352,11 +355,11 @@ extern "C" void *threadFunction3(void *arg)
         d_stack_p = (double **)
                        d_allocator_p->allocate(d_capacity * sizeof *d_stack_p);
     }
-//..
-// The 'push' method first ensures that the array has sufficient capacity to
+// ```
+// The `push` method first ensures that the array has sufficient capacity to
 // accommodate an additional value, then allocates a block in which to store
 // that value:
-//..
+// ```
     // MANIPULATORS
     void DoubleStack::push(double value)
     {
@@ -368,10 +371,10 @@ extern "C" void *threadFunction3(void *arg)
         d_stack_p[d_length] = stackValue;
         ++d_length;
     }
-//..
-// The 'pop' method asserts that the stack is not empty before deallocating the
+// ```
+// The `pop` method asserts that the stack is not empty before deallocating the
 // block used to store the element at the top of the stack:
-//..
+// ```
     void DoubleStack::pop()
     {
         BSLS_ASSERT(0 < d_length);
@@ -379,23 +382,24 @@ extern "C" void *threadFunction3(void *arg)
         d_allocator_p->deallocate(d_stack_p[d_length - 1]);
         --d_length;
     }
-//..
-// The 'push' method (above) made use of the private 'increaseCapacity' method,
-// which, in turn, makes use of the 'reallocate' helper function ('static' to
-// the '.cpp' file).  Note that 'increaseCapacity' (below) increases the
-// capacity of the 'double *' array by a factor of 2 each time that it is
+// ```
+// The `push` method (above) made use of the private `increaseCapacity` method,
+// which, in turn, makes use of the `reallocate` helper function (`static` to
+// the `.cpp` file).  Note that `increaseCapacity` (below) increases the
+// capacity of the `double *` array by a factor of 2 each time that it is
 // called:
-//..
+// ```
     // HELPER FUNCTIONS
+
+    /// Reallocate memory in the specified `array` to accommodate the
+    /// specified `newCapacity` elements using the specified `allocator`.
+    /// The specified `length` number of leading elements are preserved.
+    /// The behavior is undefined unless `newCapacity > length`.
     static
     void reallocate(double           ***array,
                     int                 newCapacity,
                     int                 length,
                     bslma::Allocator   *allocator)
-        // Reallocate memory in the specified 'array' to accommodate the
-        // specified 'newCapacity' elements using the specified 'allocator'.
-        // The specified 'length' number of leading elements are preserved.
-        // The behavior is undefined unless 'newCapacity > length'.
     {
         BSLS_ASSERT(newCapacity > length);
 
@@ -413,7 +417,7 @@ extern "C" void *threadFunction3(void *arg)
         reallocate(&d_stack_p, newCapacity, d_length, d_allocator_p);
         d_capacity = newCapacity;                       // commit
     }
-//..
+// ```
 
 DoubleStack::~DoubleStack()
 {
@@ -456,12 +460,12 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -471,85 +475,85 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-// Now, we are ready to employ a 'CountingAllocator' to illustrate the dynamic
-// memory use of 'DoubleStack'.  We first define two constants that facilitate
+// Now, we are ready to employ a `CountingAllocator` to illustrate the dynamic
+// memory use of `DoubleStack`.  We first define two constants that facilitate
 // portability of this example across 32- and 64-bit platforms:
-//..
+// ```
     const int DBLSZ = sizeof(double);
     const int PTRSZ = sizeof(double *);
-//..
-// First, we define a 'CountingAllocator', 'ca'.  At construction, a counting
+// ```
+// First, we define a `CountingAllocator`, `ca`.  At construction, a counting
 // allocator can be configured with an optional name and an optional allocator.
-// In this case, we give 'ca' a name to distinguish it from other counting
+// In this case, we give `ca` a name to distinguish it from other counting
 // allocators, but settle for using the default allocator:
-//..
-    bdlma::CountingAllocator ca("'DoubleStack' Allocator");
-//..
-// Next, we create a 'DoubleStack', supplying it with 'ca', and assert the
+// ```
+    bdlma::CountingAllocator ca("`DoubleStack` Allocator");
+// ```
+// Next, we create a `DoubleStack`, supplying it with `ca`, and assert the
 // expected memory use incurred by the default constructor:
-//..
+// ```
     DoubleStack stack(&ca);
                            ASSERT(1 * PTRSZ             == ca.numBytesInUse());
                            ASSERT(1 * PTRSZ             == ca.numBytesTotal());
-//..
+// ```
 // Next, we push an element onto the stack.  The first push incurs an
 // additional allocation to store (out-of-place) the value being inserted:
-//..
+// ```
     stack.push(1.54);      ASSERT(1 * PTRSZ + 1 * DBLSZ == ca.numBytesInUse());
                            ASSERT(1 * PTRSZ + 1 * DBLSZ == ca.numBytesTotal());
-//..
+// ```
 // Next, we push a second element onto the stack.  In this case, two
 // allocations result, one due to the resizing of the internal array and one
 // required to store the new value out-of-place:
-//..
+// ```
     stack.push(0.99);      ASSERT(2 * PTRSZ + 2 * DBLSZ == ca.numBytesInUse());
                            ASSERT(3 * PTRSZ + 2 * DBLSZ == ca.numBytesTotal());
-//..
+// ```
 // Next, we pop the top-most element from the stack.  The number of bytes in
 // use decreases by the amount used to store the popped element out-of-place:
-//..
+// ```
     stack.pop();           ASSERT(2 * PTRSZ + 1 * DBLSZ == ca.numBytesInUse());
                            ASSERT(3 * PTRSZ + 2 * DBLSZ == ca.numBytesTotal());
-//..
-// Finally, we print the state of 'ca' to standard output:
-//..
+// ```
+// Finally, we print the state of `ca` to standard output:
+// ```
 if (veryVerbose)
     ca.print(bsl::cout);
-//..
+// ```
 // which displays the following on a 32-bit platform:
-//..
+// ```
 //  ----------------------------------------
 //                          Counting Allocator State
 //  ----------------------------------------
-//  Allocator name: 'DoubleStack' Allocator
+//  Allocator name: `DoubleStack` Allocator
 //  Bytes in use:   16
 //  Bytes in total: 28
-//..
+// ```
 
       } break;
       case 6: {
         // --------------------------------------------------------------------
         // CONCURRENCY
-        //   Ensure that 'allocate' and 'deallocate' are thread-safe.
+        //   Ensure that `allocate` and `deallocate` are thread-safe.
         //
         // Concerns:
-        //: 1 That 'allocate' and 'deallocate' are thread-safe.  (Note that
-        //:   although all methods of 'bdlma::CountingAllocator' are
-        //:   thread-safe, the thread safety of 'allocate' and 'deallocate' are
-        //:   of paramount concern.)
+        // 1. That `allocate` and `deallocate` are thread-safe.  (Note that
+        //    although all methods of `bdlma::CountingAllocator` are
+        //    thread-safe, the thread safety of `allocate` and `deallocate` are
+        //    of paramount concern.)
         //
         // Plan:
-        //: 1 Create a 'bdlma::CountingAllocator'.
-        //:
-        //: 2 Within a loop, create three threads that iterate a specified
-        //:   number of times and that perform a different sequence of
-        //:   allocation and deallocation operations on the allocator from P-1.
-        //:
-        //: 3 After each iteration, use the accessors to verify the expected
-        //:   state of the counting allocator.  (C-1)
+        // 1. Create a `bdlma::CountingAllocator`.
+        //
+        // 2. Within a loop, create three threads that iterate a specified
+        //    number of times and that perform a different sequence of
+        //    allocation and deallocation operations on the allocator from P-1.
+        //
+        // 3. After each iteration, use the accessors to verify the expected
+        //    state of the counting allocator.  (C-1)
         //
         // Testing:
-        //   CONCERN: The 'allocate' and 'deallocate' methods are thread-safe.
+        //   CONCERN: The `allocate` and `deallocate` methods are thread-safe.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -591,40 +595,40 @@ if (veryVerbose)
         // --------------------------------------------------------------------
         // PRINT METHOD
         //   Ensure that the counting allocator properties can be formatted
-        //   appropriately on an 'ostream' in a reasonable form.
+        //   appropriately on an `ostream` in a reasonable form.
         //
         // Concerns:
-        //: 1 The 'print' method writes the allocator properties to the
-        //:   specified 'ostream'.
-        //:
-        //: 2 The 'print' method writes the allocator properties in the
-        //:   intended format.
-        //:
-        //: 3 The 'print' method has the expected signature and return type.
-        //:
-        //: 4 The 'print' method returns the supplied 'ostream'.
-        //:
-        //: 5 The 'print' method allocates no memory from the object
-        //:   allocator.
+        // 1. The `print` method writes the allocator properties to the
+        //    specified `ostream`.
+        //
+        // 2. The `print` method writes the allocator properties in the
+        //    intended format.
+        //
+        // 3. The `print` method has the expected signature and return type.
+        //
+        // 4. The `print` method returns the supplied `ostream`.
+        //
+        // 5. The `print` method allocates no memory from the object
+        //    allocator.
         //
         // Plan:
-        //: 1 Use the address of the 'print' member function to initialize
-        //:   a member-function pointer having the appropriate signature and
-        //:   return type.  (C-3)
-        //:
-        //: 2 Using brute force, configure three objects for printing: the
-        //:   first is *unnamed* and is in the default constructed state, the
-        //:   second is *unnamed* and has one outstanding memory block out of
-        //:   two total allocations, and the third is *named* and has one
-        //:   outstanding memory block out of two total allocations.
-        //:
-        //: 3 Print each of the objects defined in P-2 to a supplied
-        //:   'ostringstream' and verify that the output matches what is
-        //:   expected, and that the method returns a reference to the
-        //:   'ostream' that was supplied.  (C-1..2, 4)
-        //:
-        //: 4 Use a 'bslma::TestAllocatorMonitor' to verify that 'print'
-        //:   allocates no memory from the object allocator.  (C-5)
+        // 1. Use the address of the `print` member function to initialize
+        //    a member-function pointer having the appropriate signature and
+        //    return type.  (C-3)
+        //
+        // 2. Using brute force, configure three objects for printing: the
+        //    first is *unnamed* and is in the default constructed state, the
+        //    second is *unnamed* and has one outstanding memory block out of
+        //    two total allocations, and the third is *named* and has one
+        //    outstanding memory block out of two total allocations.
+        //
+        // 3. Print each of the objects defined in P-2 to a supplied
+        //    `ostringstream` and verify that the output matches what is
+        //    expected, and that the method returns a reference to the
+        //    `ostream` that was supplied.  (C-1..2, 4)
+        //
+        // 4. Use a `bslma::TestAllocatorMonitor` to verify that `print`
+        //    allocates no memory from the object allocator.  (C-5)
         //
         // Testing:
         //   bsl::ostream& print(bsl::ostream& stream) const;
@@ -634,7 +638,7 @@ if (veryVerbose)
                           << "PRINT METHOD" << endl
                           << "============" << endl;
 
-        if (veryVerbose) cout << "\tVerify 'print' signature and return type."
+        if (veryVerbose) cout << "\tVerify `print` signature and return type."
                               << endl;
         {
             typedef bsl::ostream& (Obj::*funcPtr)(bsl::ostream&) const;
@@ -753,72 +757,72 @@ if (veryVerbose)
         // --------------------------------------------------------------------
         // NAMING CTOR AND NAME ACCESSOR
         //   Ensure that a counting allocator can be named and that the name is
-        //   accessible through the 'name' method.
+        //   accessible through the `name` method.
         //
         // Concerns:
-        //: 1 If an allocator is NOT supplied to the naming constructor, the
-        //:   default allocator in effect at the time of construction becomes
-        //:   the object allocator for the resulting object.
-        //:
-        //: 2 If an allocator IS supplied to the naming constructor, that
-        //:   allocator becomes the object allocator for the resulting object.
-        //:
-        //: 3 Supplying a null allocator address has the same effect as not
-        //:   supplying an allocator.
-        //:
-        //: 4 The naming constructor allocates no memory.
-        //:
-        //: 5 Any memory allocation is from the object allocator.
-        //:
-        //: 6 There is no temporary allocation from any allocator.
-        //:
-        //: 7 The byte counts are initialized to 0.
-        //:
-        //: 8 An object created using the naming constructor has the supplied
-        //:   name, which is accessible via the 'name' method.
-        //:
-        //: 9 The 'name' accessor allocates no memory.
-        //:
-        //:10 The 'name' accessor returns 0 for an object created using the
-        //:   default constructor.
-        //:
-        //:11 QoI: Asserted precondition violations are detected when enabled.
+        // 1. If an allocator is NOT supplied to the naming constructor, the
+        //    default allocator in effect at the time of construction becomes
+        //    the object allocator for the resulting object.
+        //
+        // 2. If an allocator IS supplied to the naming constructor, that
+        //    allocator becomes the object allocator for the resulting object.
+        //
+        // 3. Supplying a null allocator address has the same effect as not
+        //    supplying an allocator.
+        //
+        // 4. The naming constructor allocates no memory.
+        //
+        // 5. Any memory allocation is from the object allocator.
+        //
+        // 6. There is no temporary allocation from any allocator.
+        //
+        // 7. The byte counts are initialized to 0.
+        //
+        // 8. An object created using the naming constructor has the supplied
+        //    name, which is accessible via the `name` method.
+        //
+        // 9. The `name` accessor allocates no memory.
+        //
+        // 10. The `name` accessor returns 0 for an object created using the
+        //    default constructor.
+        //
+        // 11. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using a loop-based approach, name-construct three distinct
-        //:   objects, in turn, but configured differently: (a) without passing
-        //:   an allocator, (b) passing a null allocator address explicitly,
-        //:   and (c) passing the address of a test allocator distinct from the
-        //:   default.  For each of these three iterations:  (C-1..9)
-        //:
-        //:   1 Create three 'bslma::TestAllocator' objects and install one as
-        //:     the current default allocator (note that a ubiquitous test
-        //:     allocator is already installed as the global allocator).
-        //:
-        //:   2 Use the naming constructor to dynamically create an object
-        //:     'mX', with its object allocator configured appropriately (see
-        //:     P-1); use a distinct test allocator for the object's footprint.
-        //:
-        //:   3 Use the appropriate test allocators to verify that no memory
-        //:     is allocated by the naming constructor.  (C-4)
-        //:
-        //:   4 Use the 'numBytesInUse' and 'numBytesTotal' accessors to verify
-        //:     that the byte counts are initialized to 0.  (C-7)
-        //:
-        //:   5 Verify that the 'name' accessor returns the name supplied at
-        //:     construction and that it allocates no memory.  (C-8..9)
-        //:
-        //:   6 Allocate a block from 'mX' and verify that the memory is
-        //:     allocated from the object allocator.  (C-1..3, 5)
-        //:
-        //:   7 Verify that no temporary memory is allocated from any
-        //:     allocator.  (C-6)
-        //:
-        //: 2 Provide a separate test that 'name' returns 0 for an object
-        //:   created using the default constructor.  (C-10)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered.  (C-11)
+        // 1. Using a loop-based approach, name-construct three distinct
+        //    objects, in turn, but configured differently: (a) without passing
+        //    an allocator, (b) passing a null allocator address explicitly,
+        //    and (c) passing the address of a test allocator distinct from the
+        //    default.  For each of these three iterations:  (C-1..9)
+        //
+        //   1. Create three `bslma::TestAllocator` objects and install one as
+        //      the current default allocator (note that a ubiquitous test
+        //      allocator is already installed as the global allocator).
+        //
+        //   2. Use the naming constructor to dynamically create an object
+        //      `mX`, with its object allocator configured appropriately (see
+        //      P-1); use a distinct test allocator for the object's footprint.
+        //
+        //   3. Use the appropriate test allocators to verify that no memory
+        //      is allocated by the naming constructor.  (C-4)
+        //
+        //   4. Use the `numBytesInUse` and `numBytesTotal` accessors to verify
+        //      that the byte counts are initialized to 0.  (C-7)
+        //
+        //   5. Verify that the `name` accessor returns the name supplied at
+        //      construction and that it allocates no memory.  (C-8..9)
+        //
+        //   6. Allocate a block from `mX` and verify that the memory is
+        //      allocated from the object allocator.  (C-1..3, 5)
+        //
+        //   7. Verify that no temporary memory is allocated from any
+        //      allocator.  (C-6)
+        //
+        // 2. Provide a separate test that `name` returns 0 for an object
+        //    created using the default constructor.  (C-10)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered.  (C-11)
         //
         // Testing:
         //   CountingAllocator(const char *name, Allocator *ba = 0);
@@ -872,7 +876,7 @@ if (veryVerbose)
             LOOP_ASSERT(CONFIG, 0 == X.numBytesInUse());
             LOOP_ASSERT(CONFIG, 0 == X.numBytesTotal());
 
-            // Verify 'name' accessor.
+            // Verify `name` accessor.
 
             LOOP2_ASSERT(CONFIG, X.name(), 0 == bsl::strcmp(NAME, X.name()));
 
@@ -948,79 +952,79 @@ if (veryVerbose)
       case 3: {
         // --------------------------------------------------------------------
         // ALLOCATE, DEALLOCATE, AND BYTE COUNTS
-        //   Ensure that 'allocate' and 'deallocate' work as expected, and that
+        //   Ensure that `allocate` and `deallocate` work as expected, and that
         //   the byte counts are correctly maintained.
         //
         // Concerns:
-        //: 1 Memory blocks returned by 'allocate' are obtained from the object
-        //:   allocator.
-        //:
-        //: 2 Memory blocks returned by 'allocate' are of at least the
-        //:   requested size (in bytes).
-        //:
-        //: 3 Memory blocks returned by 'allocate' are maximally aligned.
-        //:
-        //: 4 Calling 'allocate' with 0 returns 0 and has no effect.
-        //:
-        //: 5 'deallocate' returns memory to the object allocator.
-        //:
-        //: 6 Calling 'deallocate' with 0 has no effect.
-        //:
-        //: 7 Immediately following construction, the 'numBytesInUse' and
-        //:   'numBytesTotal' accessors each return 0.
-        //:
-        //: 8 The 'allocate' and 'deallocate' methods each correctly update the
-        //:   two byte counts ('numBytesInUse' and 'numBytesTotal').
-        //:
-        //: 9 There is no temporary allocation from any allocator.
+        // 1. Memory blocks returned by `allocate` are obtained from the object
+        //    allocator.
+        //
+        // 2. Memory blocks returned by `allocate` are of at least the
+        //    requested size (in bytes).
+        //
+        // 3. Memory blocks returned by `allocate` are maximally aligned.
+        //
+        // 4. Calling `allocate` with 0 returns 0 and has no effect.
+        //
+        // 5. `deallocate` returns memory to the object allocator.
+        //
+        // 6. Calling `deallocate` with 0 has no effect.
+        //
+        // 7. Immediately following construction, the `numBytesInUse` and
+        //    `numBytesTotal` accessors each return 0.
+        //
+        // 8. The `allocate` and `deallocate` methods each correctly update the
+        //    two byte counts (`numBytesInUse` and `numBytesTotal`).
+        //
+        // 9. There is no temporary allocation from any allocator.
         //
         // Plan:
-        //: 1 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of allocation/deallocation request sequences,
-        //:     together with the in-use and total byte/block counts that are
-        //:     expected to result from exercising each sequence on a newly-
-        //:     constructed counting allocator.
-        //:
-        //: 2 For each row 'R' (representing an allocation/deallocation request
-        //:   sequence, 'S') in the table described in P-1:  (C-1..3, 5, 7..9)
-        //:
-        //:   1 Create a 'bslma::TestAllocator' object and install it as the
-        //:     current default allocator.
-        //:
-        //:   2 Create a 'bslma::TestAllocator' object 'sa'.
-        //:
-        //:   3 Use the default constructor and 'sa' to create a modifiable
-        //:     'Obj' 'mX'.
-        //:
-        //:   4 Using the 'numBytesInUse' and 'numBytesTotal' accessors, verify
-        //:     that the byte counts are initially 0.  (C-7)
-        //:
-        //:   5 Perform the sequence of allocation and deallocation requests
-        //:     defined by 'S' (from P-2).
-        //:
-        //:   6 For each call to 'allocate' in P-2.5, verify that the returned
-        //:     memory address is non-null and maximally aligned, that the
-        //:     entire extent of the memory block can be written to, and that
-        //:     the memory was allocated from the object allocator.  (C-1..3)
-        //:
-        //:   7 Upon completion of the allocation and deallocation sequence
-        //:     'S', verify that the 'numBytesInUse' and 'numBytesTotal'
-        //:     methods report the expected values for the two byte counts.
-        //:     (P-8)
-        //:
-        //:   8 Verify, using the 'sa' test allocator, that 'deallocate'
-        //:     returns memory to the object allocator.  (C-5)
-        //:
-        //:   9 Verify that no temporary memory is allocated from any
-        //:     allocator.  (C-9)
-        //:
-        //: 3 Perform a separate brute-force test to verify that
-        //:   'mX.allocate(0)' returns 0 and has no effect on any allocator.
-        //:   (C-4)
-        //:
-        //: 4 Perform a separate brute-force test to verify that
-        //:   'mX.deallocate(0)' has no effect.  (C-6)
+        // 1. Using the table-driven technique:
+        //
+        //   1. Specify a set of allocation/deallocation request sequences,
+        //      together with the in-use and total byte/block counts that are
+        //      expected to result from exercising each sequence on a newly-
+        //      constructed counting allocator.
+        //
+        // 2. For each row `R` (representing an allocation/deallocation request
+        //    sequence, `S`) in the table described in P-1:  (C-1..3, 5, 7..9)
+        //
+        //   1. Create a `bslma::TestAllocator` object and install it as the
+        //      current default allocator.
+        //
+        //   2. Create a `bslma::TestAllocator` object `sa`.
+        //
+        //   3. Use the default constructor and `sa` to create a modifiable
+        //      `Obj` `mX`.
+        //
+        //   4. Using the `numBytesInUse` and `numBytesTotal` accessors, verify
+        //      that the byte counts are initially 0.  (C-7)
+        //
+        //   5. Perform the sequence of allocation and deallocation requests
+        //      defined by `S` (from P-2).
+        //
+        //   6. For each call to `allocate` in P-2.5, verify that the returned
+        //      memory address is non-null and maximally aligned, that the
+        //      entire extent of the memory block can be written to, and that
+        //      the memory was allocated from the object allocator.  (C-1..3)
+        //
+        //   7. Upon completion of the allocation and deallocation sequence
+        //      `S`, verify that the `numBytesInUse` and `numBytesTotal`
+        //      methods report the expected values for the two byte counts.
+        //      (P-8)
+        //
+        //   8. Verify, using the `sa` test allocator, that `deallocate`
+        //      returns memory to the object allocator.  (C-5)
+        //
+        //   9. Verify that no temporary memory is allocated from any
+        //      allocator.  (C-9)
+        //
+        // 3. Perform a separate brute-force test to verify that
+        //    `mX.allocate(0)` returns 0 and has no effect on any allocator.
+        //    (C-4)
+        //
+        // 4. Perform a separate brute-force test to verify that
+        //    `mX.deallocate(0)` has no effect.  (C-6)
         //
         // Testing:
         //   void *allocate(bsls::Types::size_type size);
@@ -1081,16 +1085,16 @@ if (veryVerbose)
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        // Interpret each 'd_sequence[i]' value, 'N', as follows:
+        // Interpret each `d_sequence[i]` value, `N`, as follows:
         //
-        //: -99 == N -- terminate the allocation/deallocation sequence
-        //:
-        //:   0 <  N -- allocate 'N' bytes
-        //:
-        //:   0 >= N -- deallocate the block allocated by 'd_sequence[abs(N)]'
+        //  -99 == N -- terminate the allocation/deallocation sequence
+        //
+        //   0. <  N -- allocate `N` bytes
+        //
+        //   0. >= N -- deallocate the block allocated by `d_sequence[abs(N)]`
 
         if (verbose) {
-            cout << "\nTesting 'allocate', 'deallocate', and byte counts."
+            cout << "\nTesting `allocate`, `deallocate`, and byte counts."
                  << endl;
         }
 
@@ -1160,7 +1164,7 @@ if (veryVerbose)
             LOOP2_ASSERT(LINE, ti, 0 == sa.numBlocksInUse());
         }
 
-        if (verbose) cout << "\nTesting 'allocate(0)'." << endl;
+        if (verbose) cout << "\nTesting `allocate(0)`." << endl;
         {
             bslma::TestAllocator da("default",  veryVeryVeryVerbose);
             bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
@@ -1182,7 +1186,7 @@ if (veryVerbose)
             ASSERT(0 == da.numBlocksTotal());
         }
 
-        if (verbose) cout << "\nTesting 'deallocate(0)'." << endl;
+        if (verbose) cout << "\nTesting `deallocate(0)`." << endl;
         {
             bslma::TestAllocator da("default",  veryVeryVeryVerbose);
             bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
@@ -1233,62 +1237,62 @@ if (veryVerbose)
         // --------------------------------------------------------------------
         // DEFAULT CTOR & DTOR
         //   Ensure that we can use the default constructor to create an
-        //   object, that we can 'allocate' memory from the object, and that we
+        //   object, that we can `allocate` memory from the object, and that we
         //   can safely destroy the object.
         //
         // Concerns:
-        //: 1 If an allocator is NOT supplied to the default constructor, the
-        //:   default allocator in effect at the time of construction becomes
-        //:   the object allocator for the resulting object.
-        //:
-        //: 2 If an allocator IS supplied to the default constructor, that
-        //:   allocator becomes the object allocator for the resulting object.
-        //:
-        //: 3 Supplying a null allocator address has the same effect as not
-        //:   supplying an allocator.
-        //:
-        //: 4 The default constructor allocates no memory.
-        //:
-        //: 5 Any memory allocation is from the object allocator.
-        //:
-        //: 6 There is no temporary allocation from any allocator.
-        //:
-        //: 7 The byte counts are initialized to 0.
-        //:
-        //: 8 An object created using the default constructor is unnamed.
-        //:
-        //: 9 The destructor has no effect on any outstanding allocated memory.
+        // 1. If an allocator is NOT supplied to the default constructor, the
+        //    default allocator in effect at the time of construction becomes
+        //    the object allocator for the resulting object.
+        //
+        // 2. If an allocator IS supplied to the default constructor, that
+        //    allocator becomes the object allocator for the resulting object.
+        //
+        // 3. Supplying a null allocator address has the same effect as not
+        //    supplying an allocator.
+        //
+        // 4. The default constructor allocates no memory.
+        //
+        // 5. Any memory allocation is from the object allocator.
+        //
+        // 6. There is no temporary allocation from any allocator.
+        //
+        // 7. The byte counts are initialized to 0.
+        //
+        // 8. An object created using the default constructor is unnamed.
+        //
+        // 9. The destructor has no effect on any outstanding allocated memory.
         //
         // Plan:
-        //: 1 Using a loop-based approach, default-construct three distinct
-        //:   objects, in turn, but configured differently: (a) without passing
-        //:   an allocator, (b) passing a null allocator address explicitly,
-        //:   and (c) passing the address of a test allocator distinct from the
-        //:   default.  For each of these three iterations:  (C-1..8)
-        //:
-        //:   1 Create three 'bslma::TestAllocator' objects and install one as
-        //:     the current default allocator (note that a ubiquitous test
-        //:     allocator is already installed as the global allocator).
-        //:
-        //:   2 Use the default constructor to dynamically create an object
-        //:     'mX', with its object allocator configured appropriately (see
-        //:     P-1); use a distinct test allocator for the object's footprint.
-        //:
-        //:   3 Use the appropriate test allocators to verify that no memory
-        //:     is allocated by the default constructor.  (C-4)
-        //:
-        //:   4 Use the (as yet untested) 'numBytesInUse', 'numBytesTotal', and
-        //:     'name' accessors to verify that the byte counts are initialized
-        //:     to 0 and that the object is unnamed.  (C-7..8)
-        //:
-        //:   5 Allocate a block from 'mX' and verify that the memory is
-        //:     allocated from the object allocator.  (C-1..3, 5)
-        //:
-        //:   6 Verify that no temporary memory is allocated from any
-        //:     allocator.  (C-6)
-        //:
-        //: 2 Perform a separate test to verify that the destructor has no
-        //:   effect on any outstanding allocated memory.  (C-9)
+        // 1. Using a loop-based approach, default-construct three distinct
+        //    objects, in turn, but configured differently: (a) without passing
+        //    an allocator, (b) passing a null allocator address explicitly,
+        //    and (c) passing the address of a test allocator distinct from the
+        //    default.  For each of these three iterations:  (C-1..8)
+        //
+        //   1. Create three `bslma::TestAllocator` objects and install one as
+        //      the current default allocator (note that a ubiquitous test
+        //      allocator is already installed as the global allocator).
+        //
+        //   2. Use the default constructor to dynamically create an object
+        //      `mX`, with its object allocator configured appropriately (see
+        //      P-1); use a distinct test allocator for the object's footprint.
+        //
+        //   3. Use the appropriate test allocators to verify that no memory
+        //      is allocated by the default constructor.  (C-4)
+        //
+        //   4. Use the (as yet untested) `numBytesInUse`, `numBytesTotal`, and
+        //      `name` accessors to verify that the byte counts are initialized
+        //      to 0 and that the object is unnamed.  (C-7..8)
+        //
+        //   5. Allocate a block from `mX` and verify that the memory is
+        //      allocated from the object allocator.  (C-1..3, 5)
+        //
+        //   6. Verify that no temporary memory is allocated from any
+        //      allocator.  (C-6)
+        //
+        // 2. Perform a separate test to verify that the destructor has no
+        //    effect on any outstanding allocated memory.  (C-9)
         //
         // Testing:
         //   CountingAllocator(Allocator *ba = 0);
@@ -1341,7 +1345,7 @@ if (veryVerbose)
             LOOP_ASSERT(CONFIG, 0 == X.numBytesInUse());
             LOOP_ASSERT(CONFIG, 0 == X.numBytesTotal());
 
-            // Verify unnamed (using untested 'name' accessor).
+            // Verify unnamed (using untested `name` accessor).
 
             LOOP_ASSERT(CONFIG, 0 == X.name());
 
@@ -1417,7 +1421,7 @@ if (veryVerbose)
 
             ASSERT('x' == *static_cast<const char *>(p));
 
-            // Suppress diagnostic on memory leak from 'mX'.
+            // Suppress diagnostic on memory leak from `mX`.
 
             sa.setQuiet(true);
         }
@@ -1429,18 +1433,18 @@ if (veryVerbose)
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:    testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //     testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create a modifiable object 'mX'.
-        //: 2 Allocate a block 'b1' from 'mX'.
-        //: 3 Deallocate block 'b1'.
-        //: 4 Allocate a block 'b2' from 'mX'.
-        //: 5 Allocate a block 'b3' from 'mX'.
-        //: 6 Deallocate block 'b2'.
-        //: 7 Deallocate block 'b3'.
-        //: 8 Allow 'mX' to go out of scope.
+        // 1. Create a modifiable object `mX`.
+        // 2. Allocate a block `b1` from `mX`.
+        // 3. Deallocate block `b1`.
+        // 4. Allocate a block `b2` from `mX`.
+        // 5. Allocate a block `b3` from `mX`.
+        // 6. Deallocate block `b2`.
+        // 7. Deallocate block `b3`.
+        // 8. Allow `mX` to go out of scope.
         //
         // Testing:
         //   BREATHING TEST

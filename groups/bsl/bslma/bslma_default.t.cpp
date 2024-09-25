@@ -10,8 +10,8 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_keyword.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 #include <string.h>
 
 #include <new>
@@ -27,16 +27,16 @@ using namespace BloombergLP;
 // default allocator and one for the global allocator.  The methods in the
 // interface for the global allocator have no perverse side-effects, so they
 // are tested straightforwardly in a single test case (case 9).  On the other
-// hand, the subtle side-effects of the 'defaultAllocator' and 'allocator'
+// hand, the subtle side-effects of the `defaultAllocator` and `allocator`
 // methods that pertain to the default allocator complicate testing of that
 // portion of the component's interface.  The aspects of the default allocator
 // interface for which these side-effects can be ignored are tested across
 // three test cases: case 2 is a "bootstrap" of sorts that tests
-// 'setDefaultAllocatorRaw' (primary manipulator) and 'defaultAllocator' (basic
-// accessor); case 3 tests 'setDefaultAllocator' and 'lockDefaultAllocator';
-// and case 4 tests 'allocator'.  The side-effects of 'defaultAllocator' and
-// 'allocator' are then tested in cases specifically targeted at them (cases 5
-// and 6 for 'defaultAllocator', and cases 7 and 8 for 'allocator').
+// `setDefaultAllocatorRaw` (primary manipulator) and `defaultAllocator` (basic
+// accessor); case 3 tests `setDefaultAllocator` and `lockDefaultAllocator`;
+// and case 4 tests `allocator`.  The side-effects of `defaultAllocator` and
+// `allocator` are then tested in cases specifically targeted at them (cases 5
+// and 6 for `defaultAllocator`, and cases 7 and 8 for `allocator`).
 //-----------------------------------------------------------------------------
 // [ 3] int setDefaultAllocator(*ba);
 // [ 2] void setDefaultAllocatorRaw(*ba);
@@ -130,20 +130,20 @@ typedef bslma::Default Obj;
 ///-----
 // The following sequence of usage examples illustrate recommended use of the
 // default and global allocators.  The examples employ the following simple
-// memory allocator, 'my_CountingAllocator', that counts both the number of
+// memory allocator, `my_CountingAllocator`, that counts both the number of
 // memory blocks that have been allocated, but not yet deallocated, and the
 // cumulative number of blocks ever allocated.  The two values are available
-// through the accessors 'numBlocksInUse' and 'numBlocksTotal', respectively.
-// For actual allocations and deallocations, 'my_CountingAllocator' uses global
-// operators 'new' and 'delete':
-//..
+// through the accessors `numBlocksInUse` and `numBlocksTotal`, respectively.
+// For actual allocations and deallocations, `my_CountingAllocator` uses global
+// operators `new` and `delete`:
+// ```
     // my_countingallocator.h
 //  #include <bslma_allocator.h>
 
+    /// This concrete allocator maintains (1) a count of the number of
+    /// blocks allocated that have not yet been deallocated, and (2) a count
+    /// of the cumulative number of blocks ever allocated.
     class my_CountingAllocator : public bslma::Allocator {
-        // This concrete allocator maintains (1) a count of the number of
-        // blocks allocated that have not yet been deallocated, and (2) a count
-        // of the cumulative number of blocks ever allocated.
 
         // PRIVATE DATA
         int d_numBlocksInUse;  // number of blocks currently allocated
@@ -155,35 +155,38 @@ typedef bslma::Default Obj;
 
       public:
         // CREATORS
-        my_CountingAllocator();
-            // Create a counting allocator.
 
+        /// Create a counting allocator.
+        my_CountingAllocator();
+
+        /// Destroy this counting allocator.
         ~my_CountingAllocator() BSLS_KEYWORD_OVERRIDE;
-            // Destroy this counting allocator.
 
         // MANIPULATORS
-        void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
-            // Return a newly allocated block of memory of (at least) the
-            // specified positive 'size' (bytes).  If 'size' is 0, a null
-            // pointer is returned with no effect.  Note that the alignment of
-            // the address returned is the maximum alignment for any
-            // fundamental type defined for this platform.
 
+        /// Return a newly allocated block of memory of (at least) the
+        /// specified positive `size` (bytes).  If `size` is 0, a null
+        /// pointer is returned with no effect.  Note that the alignment of
+        /// the address returned is the maximum alignment for any
+        /// fundamental type defined for this platform.
+        void *allocate(size_type size) BSLS_KEYWORD_OVERRIDE;
+
+        /// Return the memory at the specified `address` back to this
+        /// allocator.  If `address` is 0, this function has no effect.  The
+        /// behavior is undefined if `address` was not allocated using this
+        /// allocator, or has already been deallocated.
         void deallocate(void *address) BSLS_KEYWORD_OVERRIDE;
-            // Return the memory at the specified 'address' back to this
-            // allocator.  If 'address' is 0, this function has no effect.  The
-            // behavior is undefined if 'address' was not allocated using this
-            // allocator, or has already been deallocated.
 
         // ACCESSORS
-        int numBlocksInUse() const;
-            // Return the number of blocks currently in use from this counting
-            // allocator.
 
+        /// Return the number of blocks currently in use from this counting
+        /// allocator.
+        int numBlocksInUse() const;
+
+        /// Return the cumulative number of blocks ever allocated using this
+        /// counting allocator.  Note that
+        /// `numBlocksTotal() >= numBlocksInUse()`.
         int numBlocksTotal() const;
-            // Return the cumulative number of blocks ever allocated using this
-            // counting allocator.  Note that
-            // 'numBlocksTotal() >= numBlocksInUse()'.
     };
 
     // CREATORS
@@ -206,10 +209,10 @@ typedef bslma::Default Obj;
     {
         return d_numBlocksTotal;
     }
-//..
-// The 'virtual' methods of 'my_CountingAllocator' are defined in the component
-// '.cpp' file:
-//..
+// ```
+// The `virtual` methods of `my_CountingAllocator` are defined in the component
+// `.cpp` file:
+// ```
     // my_countingallocator.cpp
 //  #include <my_countingallocator.h>
 
@@ -231,32 +234,32 @@ typedef bslma::Default Obj;
         --d_numBlocksInUse;
         ::operator delete(address);
     }
-//..
+// ```
 ///Usage 1 -- Basic Default Allocator Use
 /// - - - - - - - - - - - - - - - - - - -
 // This usage example illustrates the basics of class design that relate to
 // proper use of the default allocator, and introduces the standard pattern to
 // apply when setting (and *locking*) the default allocator.  First we define a
-// trivial class, 'my_Id', that uses an allocator.  'my_Id' simply encapsulates
-// a C-style (null-terminated) id string that is accessible through the 'id'
+// trivial class, `my_Id`, that uses an allocator.  `my_Id` simply encapsulates
+// a C-style (null-terminated) id string that is accessible through the `id`
 // method.  Note that each constructor is declared to take an *optional*
-// 'bslma::Allocator *' as its last argument.  Also note that the expression:
-//..
+// `bslma::Allocator *` as its last argument.  Also note that the expression:
+// ```
 //  bslma::Default::allocator(basicAllocator)
-//..
+// ```
 // is used in applicable member initializers to propagate each constructor's
 // allocator argument to the data members that require it (in this case, the
-// object allocator that is held by each 'my_Id' instance).  If
-// 'basicAllocator' is 0, the object is created using the default allocator.
+// object allocator that is held by each `my_Id` instance).  If
+// `basicAllocator` is 0, the object is created using the default allocator.
 // Otherwise, the explicitly supplied allocator is used:
-//..
+// ```
     // my_id.h
 //  #include <bslma_allocator.h>
 //  #include <bslma_default.h>
 
+    /// This is a trivial class solely intended to illustrate proper use of
+    /// the default allocator.
     class my_Id {
-        // This is a trivial class solely intended to illustrate proper use of
-        // the default allocator.
 
         // PRIVATE DATA
         char             *d_buffer_p;     // allocated (*owned*)
@@ -267,24 +270,26 @@ typedef bslma::Default Obj;
 
       public:
         // CREATORS
+
+        /// Create an Id object having the specified `id`.  Optionally
+        /// specify a `basicAllocator` used to supply memory.  If
+        /// `basicAllocator` is 0, the currently installed default allocator
+        /// is used.
         explicit my_Id(const char *id, bslma::Allocator *basicAllocator = 0);
-            // Create an Id object having the specified 'id'.  Optionally
-            // specify a 'basicAllocator' used to supply memory.  If
-            // 'basicAllocator' is 0, the currently installed default allocator
-            // is used.
 
+        /// Create an Id object initialized to the value of the specified
+        /// `original` Id object.  Optionally specify a `basicAllocator`
+        /// used to supply memory.  If `basicAllocator` is 0, the currently
+        /// installed default allocator is used.
         my_Id(const my_Id& original, bslma::Allocator *basicAllocator = 0);
-            // Create an Id object initialized to the value of the specified
-            // 'original' Id object.  Optionally specify a 'basicAllocator'
-            // used to supply memory.  If 'basicAllocator' is 0, the currently
-            // installed default allocator is used.
 
+        /// Destroy this Id object.
         ~my_Id();
-            // Destroy this Id object.
 
         // ACCESSORS
+
+        /// Return the id of this Id object.
         const char *id() const;
-            // Return the id of this Id object.
     };
 
     // CREATORS
@@ -317,23 +322,23 @@ typedef bslma::Default Obj;
     {
         return d_buffer_p;
     }
-//..
+// ```
 
 ///Usage 2 -- Detecting Allocator Propagation Bugs
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates how the default allocator is used to detect a very
 // common programming error pertaining to allocator usage.  First we define the
-// trivial (but buggy) 'my_IdPair' class:
-//..
+// trivial (but buggy) `my_IdPair` class:
+// ```
     // my_idpair.h
 //  #include <my_id.h>
 //  #include <bslma_default.h>
 
+    /// This is a trivial class solely intended to help illustrate a common
+    /// programming error.  This class has two instances of `my_Id`, only
+    /// one of which has the allocator correctly passed to it in the
+    /// definition of the constructor.
     class my_IdPair {
-        // This is a trivial class solely intended to help illustrate a common
-        // programming error.  This class has two instances of 'my_Id', only
-        // one of which has the allocator correctly passed to it in the
-        // definition of the constructor.
 
         // PRIVATE DATA
         my_Id d_id;     // primary id (allocating)
@@ -345,23 +350,25 @@ typedef bslma::Default Obj;
 
       public:
         // CREATORS
+
+        /// Create an Id pair having the specified `id` and `alias` ids.
+        /// Optionally specify a `basicAllocator` used to supply memory.  If
+        /// `basicAllocator` is 0, the currently installed default allocator
+        /// is used.
         my_IdPair(const char       *id,
                   const char       *alias,
                   bslma::Allocator *basicAllocator = 0);
-            // Create an Id pair having the specified 'id' and 'alias' ids.
-            // Optionally specify a 'basicAllocator' used to supply memory.  If
-            // 'basicAllocator' is 0, the currently installed default allocator
-            // is used.
 
+        /// Destroy this Id pair.
         ~my_IdPair();
-            // Destroy this Id pair.
 
         // ACCESSORS
-        const char *alias() const;
-            // Return the alias of this Id pair.
 
+        /// Return the alias of this Id pair.
+        const char *alias() const;
+
+        /// Return the primary id of this Id pair.
         const char *id() const;
-            // Return the primary id of this Id pair.
     };
 
     // CREATORS
@@ -370,7 +377,7 @@ typedef bslma::Default Obj;
                          const char       *alias,
                          bslma::Allocator *basicAllocator)
     : d_id(id, bslma::Default::allocator(basicAllocator))
-    , d_alias(alias)  // drat! (forgot to pass along 'basicAllocator')
+    , d_alias(alias)  // drat! (forgot to pass along `basicAllocator`)
     {
     }
 
@@ -391,27 +398,28 @@ typedef bslma::Default Obj;
     {
         return d_id.id();
     }
-//..
-// The definition of the 'my_IdPair' constructor above intentionally includes a
+// ```
+// The definition of the `my_IdPair` constructor above intentionally includes a
 // common programming error: the allocator in use by the object is not passed
 // to *all* data members that require it.  We will see shortly how this error
 // is detected at runtime using the default allocator.
 
 ///Usage 3 -- Basic Global Allocator Use
 ///- - - - - - - - - - - - - - - - - - -
-// Next we define a simple singleton class, 'my_Singleton', that defaults to
+// Next we define a simple singleton class, `my_Singleton`, that defaults to
 // using the global allocator if one is not explicitly specified when the
 // singleton object is initialized.  Toward that end, note that in contrast to
-// 'my_Id', the constructor for 'my_Singleton' uses:
-//..
+// `my_Id`, the constructor for `my_Singleton` uses:
+// ```
 //  bslma::Default::globalAllocator(basicAllocator)
-//..
+// ```
 // in its member initializer:
-//..
+// ```
     // my_singleton.h
+
+    /// This is a trivial singleton class solely intended to illustrate use
+    /// of the global allocator.
     class my_Singleton {
-        // This is a trivial singleton class solely intended to illustrate use
-        // of the global allocator.
 
         // CLASS DATA
         static my_Singleton *s_singleton_p;  // pointer to singleton object
@@ -426,33 +434,36 @@ typedef bslma::Default Obj;
 
       private:
         // PRIVATE CREATORS
+
+        /// Create a singleton having the specified `id`.  Optionally
+        /// specify a `basicAllocator` used to supply memory.  If
+        /// `basicAllocator` is 0, the currently installed global allocator
+        /// is used.
         explicit my_Singleton(const char       *id,
                               bslma::Allocator *basicAllocator = 0);
-            // Create a singleton having the specified 'id'.  Optionally
-            // specify a 'basicAllocator' used to supply memory.  If
-            // 'basicAllocator' is 0, the currently installed global allocator
-            // is used.
 
+        /// Destroy this singleton.
         ~my_Singleton();
-            // Destroy this singleton.
 
       public:
         // CLASS METHODS
+
+        /// Initialize the singleton with the specified `id`.  Optionally
+        /// specify a `basicAllocator` used to supply memory.  If
+        /// `basicAllocator` is 0, the currently installed global allocator
+        /// is used.
         static void initSingleton(const char       *id,
                                   bslma::Allocator *basicAllocator = 0);
-            // Initialize the singleton with the specified 'id'.  Optionally
-            // specify a 'basicAllocator' used to supply memory.  If
-            // 'basicAllocator' is 0, the currently installed global allocator
-            // is used.
 
+        /// Return a reference to the non-modifiable singleton of this
+        /// class.  The behavior is undefined unless the singleton has been
+        /// initialized.
         static const my_Singleton& singleton();
-            // Return a reference to the non-modifiable singleton of this
-            // class.  The behavior is undefined unless the singleton has been
-            // initialized.
 
         // ACCESSORS
+
+        /// Return the id of this singleton.
         const char *id() const;
-            // Return the id of this singleton.
     };
 
     // CLASS METHODS
@@ -481,10 +492,10 @@ typedef bslma::Default Obj;
     {
         return d_id.id();
     }
-//..
-// The following completes the definition of 'my_Singleton' in the component
-// '.cpp' file:
-//..
+// ```
+// The following completes the definition of `my_Singleton` in the component
+// `.cpp` file:
+// ```
     // my_singleton.cpp
 //  #include <my_singleton.h>
 //  #include <bsls_alignedbuffer.h>
@@ -499,7 +510,7 @@ typedef bslma::Default Obj;
         s_singleton_p = new (singleton.buffer()) my_Singleton(id,
                                                               basicAllocator);
     }
-//..
+// ```
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -536,7 +547,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example #3 from header into driver, remove
-        //   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //   leading comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE 3
@@ -546,9 +557,9 @@ int main(int argc, char *argv[])
                             "\n===============\n");
 
 // In the following, the default and global allocators are set to distinct
-// instances of 'my_CountingAllocator'.  Note that the default allocator is set
+// instances of `my_CountingAllocator`.  Note that the default allocator is set
 // and locked identically to what was done in the previous two usage examples:
-//..
+// ```
     static my_CountingAllocator defaultCountingAllocator;
 
     int status = bslma::Default::setDefaultAllocator(
@@ -561,14 +572,14 @@ int main(int argc, char *argv[])
 
     bslma::Default::setGlobalAllocator(&globalCountingAllocator);
     ASSERT(bslma::Default::globalAllocator() == &globalCountingAllocator);
-//..
+// ```
 // Finally, we initialize the singleton object.  We explicitly specify the
-// desired allocator in the call to 'initSingleton' to make our intentions as
-// clear as possible.  Of course, because of the way the 'my_Singleton'
+// desired allocator in the call to `initSingleton` to make our intentions as
+// clear as possible.  Of course, because of the way the `my_Singleton`
 // constructor was written, the result would have been the same if no allocator
 // had been specified.  As in previous examples, the states of the default and
 // global allocators are asserted before and after initializing the singleton:
-//..
+// ```
     ASSERT(0 == defaultCountingAllocator.numBlocksInUse());
     ASSERT(0 == defaultCountingAllocator.numBlocksTotal());
     ASSERT(0 == globalCountingAllocator.numBlocksInUse());
@@ -580,7 +591,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == defaultCountingAllocator.numBlocksTotal());
     ASSERT(1 == globalCountingAllocator.numBlocksInUse());
     ASSERT(1 == globalCountingAllocator.numBlocksTotal());
-//..
+// ```
 
       } break;
       case 11: {
@@ -593,7 +604,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example #2 from header into driver, remove
-        //   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //   leading comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE 2
@@ -605,19 +616,19 @@ int main(int argc, char *argv[])
 //
 // Next, the default allocator is set and locked identically to what was done
 // in usage example 1:
-//..
+// ```
     static my_CountingAllocator defaultCountingAllocator;
 
     int status = bslma::Default::setDefaultAllocator(&defaultCountingAllocator);
     ASSERT(0 == status);
     bslma::Default::lockDefaultAllocator();
     ASSERT(bslma::Default::defaultAllocator() == &defaultCountingAllocator);
-//..
-// Now we instantiate an instance of 'my_IdPair' without explicitly specifying
+// ```
+// Now we instantiate an instance of `my_IdPair` without explicitly specifying
 // an allocator.  As a result, the object uses the default allocator.  The
 // assertions verify the expected changes in the state of the default
 // allocator:
-//..
+// ```
     ASSERT(0 == defaultCountingAllocator.numBlocksInUse());
     ASSERT(0 == defaultCountingAllocator.numBlocksTotal());
     {
@@ -627,16 +638,16 @@ int main(int argc, char *argv[])
     }
     ASSERT(0 == defaultCountingAllocator.numBlocksInUse());
     ASSERT(2 == defaultCountingAllocator.numBlocksTotal());
-//..
-// Next we instantiate a second instance of 'my_IdPair', this time supplying it
+// ```
+// Next we instantiate a second instance of `my_IdPair`, this time supplying it
 // with an instance of the counting allocator that is distinct from the default
 // allocator.  The assertions in the following code fragment that are commented
 // out indicate the *expected* states of the allocators (i.e., in a bug-free
-// implementation of 'my_IdPair') after the object has been constructed and
+// implementation of `my_IdPair`) after the object has been constructed and
 // again after it has been destroyed.  However, due to the (intentional) bug in
 // the constructor, the uncommented assertions reveal the *true* state of
 // affairs:
-//..
+// ```
     my_CountingAllocator objectCountingAllocator;
     ASSERT(0 == objectCountingAllocator.numBlocksInUse());
     ASSERT(0 == objectCountingAllocator.numBlocksTotal());
@@ -659,19 +670,19 @@ int main(int argc, char *argv[])
     ASSERT(1 == objectCountingAllocator.numBlocksTotal());
     ASSERT(0 == defaultCountingAllocator.numBlocksInUse());
     ASSERT(3 == defaultCountingAllocator.numBlocksTotal());
-//..
-// Note that, although not necessary in the case of the simple 'my_IdPair'
+// ```
+// Note that, although not necessary in the case of the simple `my_IdPair`
 // class, the default allocator can be used (and typically *should* be used)
 // within the body of a constructor, or any other member function, to allocate
 // dynamic memory that is *temporarily* needed by the method (and, hence, not
 // owned by the object after the method has returned).  Thus, the invariant
 // that must hold immediately after a method of an object returns is that the
-// value returned by 'defaultCountingAllocator.numBlocksInUse()' must be
+// value returned by `defaultCountingAllocator.numBlocksInUse()` must be
 // *identical* to what it was immediately prior to calling the method.  Of
 // course, note that the above invariant pertains to cases in *single*-threaded
 // programs where the object allocator in use by the instance is *distinct*
 // from the default allocator.  Also note that the value returned by
-// 'defaultCountingAllocator.numBlocksTotal()' *can* differ across function
+// `defaultCountingAllocator.numBlocksTotal()` *can* differ across function
 // invocations (i.e., even with correct code).
 
       } break;
@@ -685,7 +696,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example #1 from header into driver, remove
-        //   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //   leading comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE 1
@@ -696,14 +707,14 @@ int main(int argc, char *argv[])
 
 // Next we set the default allocator to an instance of our counting allocator.
 // Note that immediately after successfully setting it, we lock the default
-// allocator, so that subsequent calls to 'bslma::Default::setDefaultAllocator'
+// allocator, so that subsequent calls to `bslma::Default::setDefaultAllocator`
 // fail.  (The default allocator can still be modified by calling
-// 'bslma::Default::setDefaultAllocatorRaw', but calling that function in
+// `bslma::Default::setDefaultAllocatorRaw`, but calling that function in
 // production code is anti-social.  Our usage examples expressly do *not* call
 // that method.)  With the possible exception of test drivers, the default
-// allocator should be set and locked early in 'main' before threads are
+// allocator should be set and locked early in `main` before threads are
 // started and before objects are initialized:
-//..
+// ```
     static my_CountingAllocator defaultCountingAllocator;
 
     int status = bslma::Default::setDefaultAllocator(&defaultCountingAllocator);
@@ -715,14 +726,14 @@ int main(int argc, char *argv[])
                                       &bslma::NewDeleteAllocator::singleton());
     ASSERT(0 != status);
     ASSERT(bslma::Default::defaultAllocator() == &defaultCountingAllocator);
-//..
-// In the following, we instantiate two instances of 'my_Id'.  The first
-// instance, 'idA', is not supplied with an allocator, so it uses the default
-// allocator.  The second instance, 'idB', is supplied with an instance of
-// 'my_CountingAllocator'.  The assertions track the states of the two
+// ```
+// In the following, we instantiate two instances of `my_Id`.  The first
+// instance, `idA`, is not supplied with an allocator, so it uses the default
+// allocator.  The second instance, `idB`, is supplied with an instance of
+// `my_CountingAllocator`.  The assertions track the states of the two
 // allocators at each point in the code fragment.  In particular, note that the
-// state of the default allocator does not change during the lifetime of 'idB':
-//..
+// state of the default allocator does not change during the lifetime of `idB`:
+// ```
     ASSERT(0 == defaultCountingAllocator.numBlocksInUse());
     ASSERT(0 == defaultCountingAllocator.numBlocksTotal());
     {
@@ -747,7 +758,7 @@ int main(int argc, char *argv[])
     ASSERT(1 == objectCountingAllocator.numBlocksTotal());
     ASSERT(0 == defaultCountingAllocator.numBlocksInUse());
     ASSERT(1 == defaultCountingAllocator.numBlocksTotal());
-//..
+// ```
 
       } break;
       case 9: {
@@ -756,28 +767,28 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   1) Initially, the global allocator is the address of the
-        //      'bslma::NewDeleteAllocator' singleton.
-        //   2) 'globalAllocator', called with no argument, always returns the
+        //      `bslma::NewDeleteAllocator` singleton.
+        //   2) `globalAllocator`, called with no argument, always returns the
         //      global allocator that is in effect at the point of call.
-        //   3) 'globalAllocator', called with a non-zero argument, always
+        //   3) `globalAllocator`, called with a non-zero argument, always
         //      returns that argument and has no effect on the global
         //      allocator.
-        //   4) 'setGlobalAllocator' unconditionally sets the global allocator
+        //   4) `setGlobalAllocator` unconditionally sets the global allocator
         //      and returns the global allocator that was in effect prior to
         //      the call.
-        //   5) 'setGlobalAllocator', called with a 0 argument, resets the
+        //   5) `setGlobalAllocator`, called with a 0 argument, resets the
         //      global allocator to the address of the
-        //      'bslma::NewDeleteAllocator' singleton.
+        //      `bslma::NewDeleteAllocator` singleton.
         //
         // Plan:
-        //   Call 'globalAllocator', without an argument, in the first
+        //   Call `globalAllocator`, without an argument, in the first
         //   substantive line of the test case to verify that the global
         //   allocator is initially the address of the
-        //   'bslma::NewDeleteAllocator' singleton.  Subsequently, call
-        //   'globalAllocator', with and without an argument, and
-        //   'setGlobalAllocator' with various values and assert that the value
+        //   `bslma::NewDeleteAllocator` singleton.  Subsequently, call
+        //   `globalAllocator`, with and without an argument, and
+        //   `setGlobalAllocator` with various values and assert that the value
         //   returned by each method is as expected.  Finally test that calling
-        //   'setGlobalAllocator' with a 0 argument resets the global allocator
+        //   `setGlobalAllocator` with a 0 argument resets the global allocator
         //   to its initial setting.
         //
         // Testing:
@@ -820,31 +831,31 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'allocator' SIDE-EFFECTS
+        // TESTING `allocator` SIDE-EFFECTS
         //
         // Concerns:
-        //   1) Calling 'allocator' with a non-zero argument does *not* lock
+        //   1) Calling `allocator` with a non-zero argument does *not* lock
         //      the default allocator.
-        //   2) 'allocator', called with no argument, has the side-effect of
+        //   2) `allocator`, called with no argument, has the side-effect of
         //      locking the default allocator, if not already locked, to that
         //      which is in effect at the point of call.  In particular, the
         //      default allocator can be locked in this manner to something
         //      other than its initial setting.
         //
         // Plan:
-        //   Call 'allocator' with a non-zero argument, then call
-        //   'setDefaultAllocator' to set the default allocator to a value
-        //   distinct from its initial setting.  Next call 'allocator' without
+        //   Call `allocator` with a non-zero argument, then call
+        //   `setDefaultAllocator` to set the default allocator to a value
+        //   distinct from its initial setting.  Next call `allocator` without
         //   an argument to lock the default allocator to this new
         //   (non-initial) setting.  Verify that the default allocator is
-        //   locked by calling 'setDefaultAllocator' and asserting that the
+        //   locked by calling `setDefaultAllocator` and asserting that the
         //   call fails.
         //
         // Testing:
         //   bslma::Allocator *allocator(*ba = 0);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'allocator' SIDE-EFFECTS"
+        if (verbose) printf("\nTESTING `allocator` SIDE-EFFECTS"
                             "\n================================\n");
 
         ASSERT(V == Obj::allocator(V));
@@ -856,27 +867,27 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'allocator' SIDE-EFFECTS
+        // TESTING `allocator` SIDE-EFFECTS
         //
         // Concerns:
-        //   'allocator', called with no argument, has the side-effect of
+        //   `allocator`, called with no argument, has the side-effect of
         //   locking the default allocator, if not already locked, to that
         //   which is in effect at the point of call.  In particular, the
         //   default allocator can be locked in this manner to its initial
         //   setting.
         //
         // Plan:
-        //   Call 'allocator' without an argument in the first substantive line
+        //   Call `allocator` without an argument in the first substantive line
         //   of the test case to lock the default allocator to its initial
-        //   setting, namely the 'bslma::NewDeleteAllocator' singleton.  Verify
+        //   setting, namely the `bslma::NewDeleteAllocator` singleton.  Verify
         //   that the default allocator is locked by calling
-        //   'setDefaultAllocator' and asserting that the call fails.
+        //   `setDefaultAllocator` and asserting that the call fails.
         //
         // Testing:
         //   bslma::Allocator *allocator(*ba = 0);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'allocator' SIDE-EFFECTS"
+        if (verbose) printf("\nTESTING `allocator` SIDE-EFFECTS"
                             "\n================================\n");
 
         ASSERT(NDA == Obj::allocator());
@@ -886,27 +897,27 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'defaultAllocator' SIDE-EFFECTS
+        // TESTING `defaultAllocator` SIDE-EFFECTS
         //
         // Concerns:
-        //   'defaultAllocator' has the side-effect of locking the default
+        //   `defaultAllocator` has the side-effect of locking the default
         //   allocator, if not already locked, to that which is in effect at
         //   the point of call.  In particular, the default allocator can be
         //   locked in this manner to something other than its initial setting.
         //
         // Plan:
-        //   Call 'setDefaultAllocator' multiple times to set the default
+        //   Call `setDefaultAllocator` multiple times to set the default
         //   allocator to a value distinct from its initial setting, then call
-        //   'defaultAllocator' to lock the default allocator to this new
+        //   `defaultAllocator` to lock the default allocator to this new
         //   (non-initial) setting.  Verify that the default allocator is
-        //   locked by calling 'setDefaultAllocator' and asserting that the
+        //   locked by calling `setDefaultAllocator` and asserting that the
         //   call fails.
         //
         // Testing:
         //   bslma::Allocator *defaultAllocator();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'defaultAllocator' SIDE-EFFECTS"
+        if (verbose) printf("\nTESTING `defaultAllocator` SIDE-EFFECTS"
                             "\n=======================================\n");
 
         ASSERT(0 == Obj::setDefaultAllocator(V));
@@ -920,29 +931,29 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'defaultAllocator' SIDE-EFFECTS
+        // TESTING `defaultAllocator` SIDE-EFFECTS
         //
         // Concerns:
-        //   'defaultAllocator' has the side-effect of locking the default
+        //   `defaultAllocator` has the side-effect of locking the default
         //   allocator, if not already locked, to that which is in effect at
         //   the point of call.  In particular, the default allocator can be
         //   locked in this manner to its initial setting.  The result of
-        //   'std::pmr::get_default_resource()' matches that of
-        //   'defaultAllocator' whether called before or after the first use of
-        //   'defaultAllocator'.
+        //   `std::pmr::get_default_resource()` matches that of
+        //   `defaultAllocator` whether called before or after the first use of
+        //   `defaultAllocator`.
         //
         // Plan:
-        //   Call 'defaultAllocator' in the first substantive line of the test
+        //   Call `defaultAllocator` in the first substantive line of the test
         //   case to lock the default allocator to its initial setting, namely
-        //   the 'bslma::NewDeleteAllocator' singleton.  Verify that the
-        //   default allocator is locked by calling 'setDefaultAllocator' and
+        //   the `bslma::NewDeleteAllocator` singleton.  Verify that the
+        //   default allocator is locked by calling `setDefaultAllocator` and
         //   asserting that the call fails.
         //
         // Testing:
         //   bslma::Allocator *defaultAllocator();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'defaultAllocator' SIDE-EFFECTS"
+        if (verbose) printf("\nTESTING `defaultAllocator` SIDE-EFFECTS"
                             "\n=======================================\n");
 
         ASSERT_CPP17_PMR(NDA == std::pmr::get_default_resource());
@@ -955,34 +966,34 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'allocator' METHOD
+        // TESTING `allocator` METHOD
         //
         // Concerns:
-        //   1) 'allocator', called with no argument, always returns the
+        //   1) `allocator`, called with no argument, always returns the
         //      default allocator that is in effect at the point of call.
-        //   2) 'allocator', called with a non-zero argument, always returns
+        //   2) `allocator`, called with a non-zero argument, always returns
         //      that argument and has no effect on the default allocator.
         //
         // Plan:
-        //   Call 'allocator', without an argument, in the first substantive
+        //   Call `allocator`, without an argument, in the first substantive
         //   line of the test case to verify that the default allocator is
-        //   initially the address of the 'bslma::NewDeleteAllocator'
-        //   singleton.  Subsequently, use 'setDefaultAllocatorRaw' to set the
-        //   default allocator to various values and verify that 'allocator',
+        //   initially the address of the `bslma::NewDeleteAllocator`
+        //   singleton.  Subsequently, use `setDefaultAllocatorRaw` to set the
+        //   default allocator to various values and verify that `allocator`,
         //   when called without an argument, returns the expected result.
-        //   Regularly call 'allocator' *with* an argument throughout the test
+        //   Regularly call `allocator` *with* an argument throughout the test
         //   case, and verify that the argument is returned and that the
         //   setting of the default allocator is not affected.  Note that
-        //   side-effects of 'allocator' are ignored in this test case.
+        //   side-effects of `allocator` are ignored in this test case.
         //
         // Testing:
         //   bslma::Allocator *allocator(*ba = 0);     (ignore side-effects)
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'allocator'"
+        if (verbose) printf("\nTESTING `allocator`"
                             "\n===================\n");
 
-        if (veryVerbose) printf("\tIgnoring 'allocator' side-effects.\n");
+        if (veryVerbose) printf("\tIgnoring `allocator` side-effects.\n");
 
         ASSERT(NDA == Obj::allocator());
         ASSERT(  U == Obj::allocator(U));
@@ -1010,32 +1021,32 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'setDefaultAllocator' AND 'lockDefaultAllocator' METHODS
+        // TESTING `setDefaultAllocator` AND `lockDefaultAllocator` METHODS
         //
         // Concerns:
-        //   1) 'setDefaultAllocator' succeeds until the default allocator is
+        //   1) `setDefaultAllocator` succeeds until the default allocator is
         //      locked.
-        //   2) 'lockDefaultAllocator' locks the default allocator such that
-        //      all subsequent calls to 'setDefaultAllocator' fail.
-        //   3) Calling 'lockDefaultAllocator' after the default allocator is
+        //   2) `lockDefaultAllocator` locks the default allocator such that
+        //      all subsequent calls to `setDefaultAllocator` fail.
+        //   3) Calling `lockDefaultAllocator` after the default allocator is
         //      locked has no effect.
-        //   4) The default allocator may be set by 'setDefaultAllocatorRaw'
+        //   4) The default allocator may be set by `setDefaultAllocatorRaw`
         //      even if it is locked.
-        //   5) (C++17) 'std::pmr::get_default_resource' returns the value of
+        //   5) (C++17) `std::pmr::get_default_resource` returns the value of
         //      the default allocator whether or not it's locked.
         //
         // Plan:
-        //   Call 'setDefaultAllocator' in each of the first two substantive
+        //   Call `setDefaultAllocator` in each of the first two substantive
         //   lines of the test case and verify that they both succeed (but do
-        //   *not* call 'defaultAllocator' until later in the test as that has
+        //   *not* call `defaultAllocator` until later in the test as that has
         //   the side-effect of locking the default allocator).  Then call
-        //   'lockDefaultAllocator' and verify that a subsequent call to
-        //   'setDefaultAllocator' fails, and also verify that
-        //   'defaultAllocator' and 'std::pmr::get_default_resource' return the
+        //   `lockDefaultAllocator` and verify that a subsequent call to
+        //   `setDefaultAllocator` fails, and also verify that
+        //   `defaultAllocator` and `std::pmr::get_default_resource` return the
         //   value that was passed to the most recent *successful* call to
-        //   'setDefaultAllocator'.  Include individual tests to verify that a
-        //   subsequent call to 'lockDefaultAllocator' has no effect and that
-        //   'setDefaultAllocatorRaw' may be used to set the default allocator
+        //   `setDefaultAllocator`.  Include individual tests to verify that a
+        //   subsequent call to `lockDefaultAllocator` has no effect and that
+        //   `setDefaultAllocatorRaw` may be used to set the default allocator
         //   even after it has been locked.
         //
         // Testing:
@@ -1044,13 +1055,13 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nTESTING 'setDefaultAllocator', 'lockDefaultAllocator'"
+            printf("\nTESTING `setDefaultAllocator`, `lockDefaultAllocator`"
                    "\n====================================================="
                    "\n");
 
-        // Calls to 'getDefaultResource()' invoke
-        // 'std::pmr::get_default_resource()' in C++17 and
-        // 'Obj::defaultAllocator()' in earlier versions of C++.
+        // Calls to `getDefaultResource()` invoke
+        // `std::pmr::get_default_resource()` in C++17 and
+        // `Obj::defaultAllocator()` in earlier versions of C++.
 
         ASSERT(          0 == Obj::setDefaultAllocator(U));
         ASSERT_CPP17_PMR(U == std::pmr::get_default_resource());
@@ -1061,7 +1072,7 @@ int main(int argc, char *argv[])
         ASSERT(          V == Obj::defaultAllocator());
         ASSERT_CPP17_PMR(V == std::pmr::get_default_resource());
 
-        // 'lockDefaultAllocator()' is idempotent
+        // `lockDefaultAllocator()` is idempotent
         Obj::lockDefaultAllocator();
         ASSERT(          0 != Obj::setDefaultAllocator(U));
         ASSERT(          V == Obj::defaultAllocator());
@@ -1086,23 +1097,23 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   1) Initially, the default allocator is the address of the
-        //      'bslma::NewDeleteAllocator' singleton.
-        //   2) 'defaultAllocator' always returns the default allocator that is
+        //      `bslma::NewDeleteAllocator` singleton.
+        //   2) `defaultAllocator` always returns the default allocator that is
         //      in effect at the point of call.
-        //   3) 'setDefaultAllocatorRaw' unconditionally sets the default
+        //   3) `setDefaultAllocatorRaw` unconditionally sets the default
         //      allocator.
-        //   4) (C++17) After an initial call to 'defaultAllocator' or any call
-        //      to 'setDefaultAllocatorRaw', 'std::pmr::get_default_resource'
-        //      returns a pointer to the same object as 'defaultAllocator'.
+        //   4) (C++17) After an initial call to `defaultAllocator` or any call
+        //      to `setDefaultAllocatorRaw`, `std::pmr::get_default_resource`
+        //      returns a pointer to the same object as `defaultAllocator`.
         //
         // Plan:
-        //   Call 'defaultAllocator' in the first substantive line of the test
+        //   Call `defaultAllocator` in the first substantive line of the test
         //   case to verify that the default allocator is initially the address
-        //   of the 'bslma::NewDeleteAllocator' singleton.  Subsequently, use
-        //   'setDefaultAllocatorRaw' to set the default allocator to various
-        //   values and verify that 'defaultAllocator' and
-        //   'std::pmr::get_default_resource' return the expected results.
-        //   Note that side-effects of 'defaultAllocator' are ignored in this
+        //   of the `bslma::NewDeleteAllocator` singleton.  Subsequently, use
+        //   `setDefaultAllocatorRaw` to set the default allocator to various
+        //   values and verify that `defaultAllocator` and
+        //   `std::pmr::get_default_resource` return the expected results.
+        //   Note that side-effects of `defaultAllocator` are ignored in this
         //   test case.
         //
         // Testing:
@@ -1114,9 +1125,9 @@ int main(int argc, char *argv[])
                             "\n==============\n");
 
         if (veryVerbose) {
-            printf("\tTesting 'setDefaultAllocatorRaw', "
-                   "'defaultAllocator'.\n");
-            printf("\tIgnoring 'defaultAllocator' side-effects.\n");
+            printf("\tTesting `setDefaultAllocatorRaw`, "
+                   "`defaultAllocator`.\n");
+            printf("\tIgnoring `defaultAllocator` side-effects.\n");
         }
 
         ASSERT(          NDA == Obj::defaultAllocator());
@@ -1152,10 +1163,10 @@ int main(int argc, char *argv[])
         //   cases.
         //
         // Plan:
-        //   Breath all methods, except for 'lockDefaultAllocator', and assert
+        //   Breath all methods, except for `lockDefaultAllocator`, and assert
         //   the expected results.  Note that it is useless to test the lock
         //   method in this breathing test given the side-effects of
-        //   'allocator', when called with no argument, and 'defaultAllocator'.
+        //   `allocator`, when called with no argument, and `defaultAllocator`.
         //
         // Testing:
         //   This test exercises basic functionality.

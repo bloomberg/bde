@@ -4,8 +4,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 using namespace BloombergLP;
 
@@ -108,17 +108,17 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 'HasStlIterators<TYPE> compiles and gives the expected result for
-        //:   every category of type.
+        // 1. 'HasStlIterators<TYPE> compiles and gives the expected result for
+        //    every category of type.
         //
         // Plan:
-        //: 1 Implement a new class 'HasStlIteratorTrait' derived from
-        //:   'HasStlIterators<TYPE>::type' and attempt to detect this trait
-        //:   on a class that declares "nested traits" using
-        //:   'BSLMF_NESTED_TRAIT_DECLARATION' macro.
+        // 1. Implement a new class `HasStlIteratorTrait` derived from
+        //    `HasStlIterators<TYPE>::type` and attempt to detect this trait
+        //    on a class that declares "nested traits" using
+        //    `BSLMF_NESTED_TRAIT_DECLARATION` macro.
         //
-        //: 2 Make sure that this trait is not detected on a class that does
-        //:   not declare "nested traits".
+        // 2. Make sure that this trait is not detected on a class that does
+        //    not declare "nested traits".
         //
         // Testing: struct bslalg::HasStlIterators;
         // --------------------------------------------------------------------

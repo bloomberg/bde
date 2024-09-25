@@ -19,8 +19,8 @@ using namespace bsl;
 // This test plan follows the standard approach for components implementing a
 // constrained-attribute type.
 //
-// In the test plan documentation below, 'ball::LMD' is occasionally used for
-// 'ball::LoggerManagerDefaults' for brevity.
+// In the test plan documentation below, `ball::LMD` is occasionally used for
+// `ball::LoggerManagerDefaults` for brevity.
 //
 //-----------------------------------------------------------------------------
 // [ 1] ball::LoggerManagerDefaults();
@@ -99,7 +99,7 @@ const int NUM_VALUES = 7;
 
 // NOTE: In this test driver only, these values must be written as explicit
 // literals to provide an independent representation.  These values MUST NOT
-// be copied to other test drivers.  Use the 'Obj::defaultDefault...' class
+// be copied to other test drivers.  Use the `Obj::defaultDefault...` class
 // methods in other test drivers.
 
 const int RECORD_BUFFER_SIZE[NUM_VALUES] = { 32768, 10, 20, 30, 40, 50, 60 };
@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -152,28 +152,28 @@ int main(int argc, char *argv[])
         ASSERT( 64 == lmd.defaultPassLevel());
         ASSERT( 48 == lmd.defaultTriggerLevel());
         ASSERT( 32 == lmd.defaultTriggerAllLevel());
-//..
+// ```
 // The configuration object is now validly configured with our choice of
 // parameters.  If, however, we attempt to set an invalid configuration, the
 // "set" method will fail (with a non-zero return status), and the
 // configuration will be left unchanged.
-//..
+// ```
         ASSERT(  0 != lmd.setDefaultThresholdLevelsIfValid(256, 90, 60, 30));
         ASSERT(192 == lmd.defaultRecordLevel());
         ASSERT( 64 == lmd.defaultPassLevel());
         ASSERT( 48 == lmd.defaultTriggerLevel());
         ASSERT( 32 == lmd.defaultTriggerAllLevel());
-//..
-// Finally, we can print the configuration value to 'stdout'.
-//..
+// ```
+// Finally, we can print the configuration value to `stdout`.
+// ```
         if (verbose) {
             cout << "Executing: bsl::cout << lmd << bsl::endl;" << endl;
             bsl::cout << lmd << bsl::endl;
         }
 
-//..
+// ```
 // This produces the following (multi-line) output:
-//..
+// ```
 // [
 //     recordBufferSize : 32768
 //     loggerBufferSize : 2048
@@ -207,20 +207,20 @@ int main(int argc, char *argv[])
         // TESTING: setDefaultThresholdLevels
         //
         // Concerns:
-        //: 1 'setDefaultThresholdLevels' sets the pass-through level to the
-        //:    supplied value, and all the other thresholds to 0.
-        //:
-        //: 2 'setDefaultThresholdLevels' returns 0 on success
-        //:
-        //: 3 If the supplied pass-through level is not in the ranage [0..255]
-        //:   the 'setDefaultThresholdLevels' returns a non-zero value
+        // 1. `setDefaultThresholdLevels` sets the pass-through level to the
+        //     supplied value, and all the other thresholds to 0.
+        //
+        // 2. `setDefaultThresholdLevels` returns 0 on success
+        //
+        // 3. If the supplied pass-through level is not in the ranage [0..255]
+        //    the `setDefaultThresholdLevels` returns a non-zero value
         //
         // Plan:
-        //: 1 Manually call method with valid values and verify the expected
-        //:   configuration and the return value is 0.  (C-1, C-2)
-        //:
-        //: 2 Manually call method with invalid values and verify the
-        //:   configuraiton is not changed and the method is not 0.  (C-3)
+        // 1. Manually call method with valid values and verify the expected
+        //    configuration and the return value is 0.  (C-1, C-2)
+        //
+        // 2. Manually call method with invalid values and verify the
+        //    configuraiton is not changed and the method is not 0.  (C-3)
         //
         // Testing:
         //   int setDefaultThresholdLevels(int);
@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
 
 
         if (verbose) cout
-            << "\nTest successful call to 'setDefaultThresholdLevelsIfValid'."
+            << "\nTest successful call to `setDefaultThresholdLevelsIfValid`."
             << endl;
         {
             Obj mX; const Obj& X = mX;
@@ -250,7 +250,7 @@ int main(int argc, char *argv[])
             ASSERT(0   == X.defaultTriggerAllLevel());
         }
         if (verbose) cout
-            << "\nTest incorrect call to 'setDefaultThresholdLevelsIfValid'."
+            << "\nTest incorrect call to `setDefaultThresholdLevelsIfValid`."
             << endl;
 
         {

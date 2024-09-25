@@ -117,7 +117,7 @@ typedef char (&RA)[5];
 ///Usage
 ///-----
 // For example:
-//..
+// ```
      struct MyType {};
      typedef MyType& MyTypeRef;
 
@@ -130,7 +130,7 @@ namespace USAGE_EXAMPLE_1 {
 ///Example 1: A Simple Wrapper Class
 ///- - - - - - - - - - - - - - - - -
 // First, let us write a simple class that can wrap any other type:
-//..
+// ```
     template <class TYPE>
     class Wrapper {
       private:
@@ -142,40 +142,41 @@ namespace USAGE_EXAMPLE_1 {
         typedef typename bslmf::AddReference<TYPE>::Type WrappedType;
 
         // CREATORS
+
+        /// Create a `Wrapper` object having the specified `value`.
         Wrapper(TYPE value) : d_data(value) {}                      // IMPLICIT
-            // Create a 'Wrapper' object having the specified 'value'.
 
         //! ~Wrapper() = default;
             // Destroy this object.
-//..
+// ```
 // Then, we would like to expose access to the wrapped element through a
-// method that returns a reference to the data member 'd_data'.  However,
-// there would be a problem if the user supplied a parameterized type 'TYPE'
+// method that returns a reference to the data member `d_data`.  However,
+// there would be a problem if the user supplied a parameterized type `TYPE`
 // that is a reference type, as references-to-references were not permitted by
 // the language (prior the C++11 standard).  We can resolve such problems
-// using the meta-function 'bslmf::AddReference'.
-//..
+// using the meta-function `bslmf::AddReference`.
+// ```
         // MANIPULATORS
         typename bslmf::AddReference<TYPE>::Type value()
         {
             return d_data;
         }
-//..
-// Next, we supply an accessor function, 'value', that similarly wraps the
-// parameterized type 'TYPE' with the 'bslmf::AddReference' meta-function.
-// In this case we must remember to const-quality 'TYPE' before passing it
+// ```
+// Next, we supply an accessor function, `value`, that similarly wraps the
+// parameterized type `TYPE` with the `bslmf::AddReference` meta-function.
+// In this case we must remember to const-quality `TYPE` before passing it
 // on to the meta-function.
-//..
+// ```
         // ACCESSORS
         typename bslmf::AddReference<const TYPE>::Type value() const
         {
             return d_data;
         }
     };
-//..
-// Now, we write a test function, 'runTest', to verify our simple wrapper
-// type.  We start by wrapping a simple 'int' value:
-//..
+// ```
+// Now, we write a test function, `runTest`, to verify our simple wrapper
+// type.  We start by wrapping a simple `int` value:
+// ```
     void runTests()
     {
         int i = 42;
@@ -187,9 +188,9 @@ namespace USAGE_EXAMPLE_1 {
         ti.value() = 13;
         ASSERT(42 == i);
         ASSERT(13 == TI.value());
-//..
-// Finally, we test 'Wrapper' with a reference type:
-//..
+// ```
+// Finally, we test `Wrapper` with a reference type:
+// ```
         Wrapper<int&> tr(i);  const Wrapper<int&>& TR = tr;
         ASSERT(42 == i);
         ASSERT(42 == TR.value());
@@ -202,7 +203,7 @@ namespace USAGE_EXAMPLE_1 {
         ASSERT(42 == i);
         ASSERT(42 == TR.value());
     }
-//..
+// ```
 
 }  // close namespace USAGE_EXAMPLE_1
 
@@ -230,7 +231,7 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
-        //   Simple example illustrating use of 'bslmf::AddReference'.
+        //   Simple example illustrating use of `bslmf::AddReference`.
         //
         // Concerns:
         //
@@ -246,7 +247,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
-//..
+// ```
         ASSERT_SAME(bslmf::AddReference<int >::Type, int&);
         ASSERT_SAME(bslmf::AddReference<int&>::Type, int&);
         ASSERT_SAME(bslmf::AddReference<int volatile >::Type, volatile int&);
@@ -262,13 +263,13 @@ int main(int argc, char *argv[])
 
         ASSERT_SAME(bslmf::AddReference<void  >::Type, void);
         ASSERT_SAME(bslmf::AddReference<void *>::Type, void *&);
-//..
+// ```
 
       } break;
        case 2: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
-        //   Simple example illustrating use of 'bslmf::AddReference'.
+        //   Simple example illustrating use of `bslmf::AddReference`.
         //
         // Concerns:
         //
@@ -290,8 +291,8 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // Test Plan:
-        //   Instantiate 'bslmf::AddReference' with various types and verify
-        //   that its 'Type' typedef is set to a non-reference type.
+        //   Instantiate `bslmf::AddReference` with various types and verify
+        //   that its `Type` typedef is set to a non-reference type.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nbslmf::AddReference"

@@ -35,9 +35,9 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-// The subordinate component to 'balxml_formatter' under test provides an
-// in-core, value-semantic attribute type, 'balxml::Formatter_PrettyImplState',
-// and a utility 'struct', 'balxml::Formatter_PrettyImplUtil', that compose to
+// The subordinate component to `balxml_formatter` under test provides an
+// in-core, value-semantic attribute type, `balxml::Formatter_PrettyImplState`,
+// and a utility `struct`, `balxml::Formatter_PrettyImplUtil`, that compose to
 // provide a state machine capable of pretty-printing XML documents given a
 // sequence of tokens to emit.
 //
@@ -122,12 +122,13 @@ namespace u {
 
 struct TestUtil {
     // CLASS METHODS
-    static bsl::string_view view(const bdlsb::MemOutStreamBuf& streamBuffer);
-        // Return a string view to the contents of the specified
-        // 'streamBuffer'.
 
+    /// Return a string view to the contents of the specified
+    /// `streamBuffer`.
+    static bsl::string_view view(const bdlsb::MemOutStreamBuf& streamBuffer);
+
+    /// Return a string view to the specified `cString`.
     static bsl::string_view view(const char *cString);
-        // Return a string view to the specified 'cString'.
 };
 
 // CLASS METHODS
@@ -159,7 +160,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -174,15 +175,15 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The facilities in this component are sufficiently functional to
-        //:   enable comprehensive testing in the primary, non-subordinate
-        //:   component.
+        // 1. The facilities in this component are sufficiently functional to
+        //    enable comprehensive testing in the primary, non-subordinate
+        //    component.
         //
         // Plan:
-        //: 1 Write two documents to the same stream, resetting the state
-        //:   machine in between documents, such that  the first document shows
-        //:   the result for each of its print operations, while the second
-        //:   document shows the result as a whole.
+        // 1. Write two documents to the same stream, resetting the state
+        //    machine in between documents, such that  the first document shows
+        //    the result for each of its print operations, while the second
+        //    document shows the result as a whole.
         //
         // Testing:
         //   BREATHING TEST

@@ -190,10 +190,10 @@ static bool veryVeryVerbose;
 
 static bslmt::ThreadAttributes attr;
 
+/// This mechanism class installs a test allocator as the global allocator
+/// upon construction, and upon destruction it uninstalls the allocator and
+/// checks that no memory leaks have occurred.
 class GlobalAllocatorInstallation {
-    // This mechanism class installs a test allocator as the global allocator
-    // upon construction, and upon destruction it uninstalls the allocator and
-    // checks that no memory leaks have occurred.
 
     // DATA
     bslma::TestAllocator        d_ga;
@@ -209,10 +209,10 @@ class GlobalAllocatorInstallation {
     }
 };
 
+/// This global variable ensures that a test allocator is installed as the
+/// global allocator before main starts, and that there is no global memory
+/// leak after main exits.
 const GlobalAllocatorInstallation globalAllocatorInstallation;
-    // This global variable ensures that a test allocator is installed as the
-    // global allocator before main starts, and that there is no global memory
-    // leak after main exits.
 
 // ============================================================================
 //                            TEST HELPERS UTILITY
@@ -220,8 +220,8 @@ const GlobalAllocatorInstallation globalAllocatorInstallation;
 namespace {
 namespace u {
 
+/// A no-op.
 struct NoOp {
-    // A no-op.
 
     // TYPES
     typedef void ResultType;
@@ -276,31 +276,33 @@ struct NoOp {
     { }
 };
 
+/// This `class` is meant to behave just like a `bsls::TimeInterval` except
+/// that it will also implicitly cast to a `double`.
 struct DoubleTI : public bsls::TimeInterval {
-    // This 'class' is meant to behave just like a 'bsls::TimeInterval' except
-    // that it will also implicitly cast to a 'double'.
 
     // CREATORS
+
+    /// Copy construct from the specified `original`.
     DoubleTI() : TimeInterval() {}
     DoubleTI(const DoubleTI&          original)
     : TimeInterval(original)
-        // Copy construct from the specified 'original'.
     {}
 
+    /// Construct from the specified `other`.
     DoubleTI(const bsls::TimeInterval other)
     : TimeInterval(other)                                           // IMPLICIT
-        // Construct from the specified 'other'.
     {}
 
+    /// Construct from the specified `other`.
     explicit
     DoubleTI(const double             other)
     : TimeInterval(other)
-        // Construct from the specified 'other'.
     {}
 
     // MANIPULATORS
+
+    /// Copy-assign from the specified `rhs` and return this object.
     DoubleTI& operator=(const DoubleTI rhs)
-        // Copy-assign from the specified 'rhs' and return this object.
     {
         bsls::TimeInterval& base = *this;
         base = rhs;
@@ -308,8 +310,8 @@ struct DoubleTI : public bsls::TimeInterval {
         return *this;
     }
 
+    /// Assign from the specified `rhs` and return this object.
     DoubleTI& operator=(const TimeInterval rhs)
-        // Assign from the specified 'rhs' and return this object.
     {
         bsls::TimeInterval& base = *this;
         base = rhs;
@@ -317,8 +319,8 @@ struct DoubleTI : public bsls::TimeInterval {
         return *this;
     }
 
+    /// Assign from the specified `rhs` and return this object.
     DoubleTI& operator=(const double rhs)
-        // Assign from the specified 'rhs' and return this object.
     {
         bsls::TimeInterval& base = *this;
         base = rhs;
@@ -327,17 +329,18 @@ struct DoubleTI : public bsls::TimeInterval {
     }
 
     // ACCESSORS
+
+    /// Return the value of this object as a `double`.
     operator double() const
-        // Return the value of this object as a 'double'.
     {
         return this->totalSecondsAsDouble();
     }
 };
 
+/// Return the difference between the specified `lhs` and `rhs` and as
+/// `DoubleTI`.
 inline
 DoubleTI operator-(const DoubleTI& lhs, const DoubleTI& rhs)
-    // Return the difference between the specified 'lhs' and 'rhs' and as
-    // 'DoubleTI'.
 {
     const bsls::TimeInterval& lhsBase = lhs;
     const bsls::TimeInterval& rhsBase = rhs;
@@ -345,8 +348,8 @@ DoubleTI operator-(const DoubleTI& lhs, const DoubleTI& rhs)
     return DoubleTI(lhsBase - rhsBase);
 }
 
+/// Prints a string to a specified `ostringstream`.
 struct PrintStr1 {
-    // Prints a string to a specified 'ostringstream'.
 
     // ACCESSORS
     void operator()(bsl::ostringstream& out,
@@ -356,8 +359,8 @@ struct PrintStr1 {
     }
 };
 
+/// Prints two strings to a specified `ostringstream`.
 struct PrintStr2 {
-    // Prints two strings to a specified 'ostringstream'.
 
     // ACCESSORS
     void operator()(bsl::ostringstream& out,
@@ -378,25 +381,28 @@ TYPE abs(TYPE x)
                                 // RandGen
                                 // -------
 
+/// Random number generator using the high-order 32 bits of Donald Knuth's
+/// MMIX algorithm.
 class RandGen {
-    // Random number generator using the high-order 32 bits of Donald Knuth's
-    // MMIX algorithm.
 
     bsls::Types::Uint64 d_seed;
 
     // PRIVATE MANIPULATOR
+
+    /// Churn `d_seed`.
     void munge();
-        // Churn 'd_seed'.
 
   public:
     // CREATOR
+
+    /// Initialize the generator with the specified `startSeed`.
     explicit
     RandGen(int startSeed);
-        // Initialize the generator with the specified 'startSeed'.
 
     // MANIPULATOR
+
+    /// Return the next random number in the series;
     unsigned operator()();
-        // Return the next random number in the series;
 };
 
 // PRIVATE MANIPULATOR
@@ -424,18 +430,16 @@ unsigned RandGen::operator()()
     return static_cast<unsigned>(d_seed >> 32);
 }
 
+/// This functional object is used to test the waiting behavior of waiting
+/// disconnect functions.
+///
+/// It's call operator accepts an output synchronizable queue of
+/// `bsls::TimeInterval` and the number of seconds to sleep.  When invoked,
+/// does the following:
+/// 1. push the current timestamp to the queue (start timestamp)
+/// 2. sleeps for the specified number of seconds
+/// 3. push the current timestamp to the queue (end timestamp)
 struct SleepAndPushTimestamp {
-    // This functional object is used to test the waiting behavior of waiting
-    // disconnect functions.
-    //
-    // It's call operator accepts an output synchronizable queue of
-    // 'bsls::TimeInterval' and the number of seconds to sleep.  When invoked,
-    // does the following:
-    //: 1 push the current timestamp to the queue (start timestamp)
-    //:
-    //: 2 sleeps for the specified number of seconds
-    //:
-    //: 3 push the current timestamp to the queue (end timestamp)
 
     // ACCESSORS
     void operator()(double                     sleepForSec,
@@ -453,10 +457,10 @@ struct SleepAndPushTimestamp {
 
 // Commented out due to the test requiring it (test3_signaler_callOperator) not
 // being enabled.
-//..
+// ```
 // struct CondCall {
 //     // Conditionally call a specified signaler. Before calling, set the
-//     // condition to 'false'.
+//     // condition to `false`.
 //
 //     // ACCESSORS
 //     template <class SIGNALER>
@@ -469,10 +473,10 @@ struct SleepAndPushTimestamp {
 //         }
 //     }
 // };
-//..
+// ```
 
+/// Connects a specified slot to a specified signaler.
 struct Connect {
-    // Connects a specified slot to a specified signaler.
 
     // ACCESSORS
     template <class SIGNALER, class SLOT>
@@ -482,9 +486,9 @@ struct Connect {
     }
 };
 
+/// Conditionally disconnects a specified connection waiting for its
+/// associated slot completion.
 struct CondDisconnectAndWait {
-    // Conditionally disconnects a specified connection waiting for its
-    // associated slot completion.
 
     // ACCESSORS
     template <class CONNECTION>
@@ -499,8 +503,8 @@ struct CondDisconnectAndWait {
 
 #if defined(BDE_BUILD_TARGET_EXC)
 
+/// Throws an instance of `ThrowOnCall::ExceptionType` on call.
 struct ThrowOnCall {
-    // Throws an instance of 'ThrowOnCall::ExceptionType' on call.
 
     // TYPES
     struct ExceptionType { };
@@ -512,8 +516,8 @@ struct ThrowOnCall {
     }
 };
 
+/// Throws an instance of `ThrowOnCopy::ExceptionType` on copy.
 struct ThrowOnCopy {
-    // Throws an instance of 'ThrowOnCopy::ExceptionType' on copy.
 
     // TYPES
     struct ExceptionType { };
@@ -551,43 +555,48 @@ struct ThrowOnCopy {
 ///Usage
 ///-----
 // Suppose we want to implement a GUI button class that allows users to
-// keep track of its 'press' events.
+// keep track of its `press` events.
 //
-// First, we declare the 'class':
-//..
+// First, we declare the `class`:
+// ```
+
+    /// A pretend GUI button.
     class Button {
-        // A pretend GUI button.
 
         // DATA
         int d_numPresses;
 
       public:
         // TYPES
+
+        /// Slot argument is the number of times the button has been
+        /// pressed.
         typedef bsl::function<void(int)> OnPressSlotType;
-            // Slot argument is the number of times the button has been
-            // pressed.
 
       private:
         // PRIVATE DATA
+
+        // Signaler argument is the number of times the button has been
+        // pressed.
         bdlmt::Signaler<void(int)> d_onPress;
-            // Signaler argument is the number of times the button has been
-            // pressed.
 
       public:
         // CREATORS
+
+        /// Construct a `Button` object.
         Button();
-            // Construct a 'Button' object.
 
         // MANIPULATORS
-        bdlmt::SignalerConnection onPressConnect(const OnPressSlotType& slot);
-            // Connect the specified 'slot' to this button.
 
+        /// Connect the specified `slot` to this button.
+        bdlmt::SignalerConnection onPressConnect(const OnPressSlotType& slot);
+
+        /// Simulate user pressing on GUI button.
         void press();
-            // Simulate user pressing on GUI button.
     };
-//..
+// ```
 // Then, we define its methods:
-//..
+// ```
     // CREATORS
     Button::Button()
     : d_numPresses(0)
@@ -605,15 +614,15 @@ struct ThrowOnCopy {
     {
         d_onPress(++d_numPresses);
     }
-//..
+// ```
 // Next, we provide an event handler callback printing its argument, which the
 // class will pass the number of times the button has been pressed:
-//..
+// ```
     void showPresses(int numPresses)
     {
         bsl::cout << "Button pressed " << numPresses << " times.\n";
     }
-//..
+// ```
 
 }  // close namespace u
 }  // close unnamed namespace
@@ -631,7 +640,7 @@ static void test1_signaler_defaultConstructor()
     //   Ensure proper behavior of the default constructor.
     //
     // Plan:
-    //   Default-construct an instance of 'bdlmt::Signaler'. Check
+    //   Default-construct an instance of `bdlmt::Signaler`. Check
     //   postconditions.
     //
     // Testing:
@@ -774,7 +783,7 @@ static void callOperator()
         bsl::ostringstream                 out(&alloc);
         bdlmt::Signaler<void(const char*)> sig(&alloc);
 
-        // connect slots with low order '#1'
+        // connect slots with low order `#1`
 
         d.push_back(bdlf::BindUtil::bindR<void>(u::PrintStr2(),
                                                 bsl::ref(out),
@@ -794,7 +803,7 @@ static void callOperator()
         connectThem(&sig, d, groups);
         d.clear();
 
-        // connect slots with low order '#2'
+        // connect slots with low order `#2`
 
         d.push_back(bdlf::BindUtil::bindR<void>(u::PrintStr2(),
                                                 bsl::ref(out),
@@ -814,7 +823,7 @@ static void callOperator()
         connectThem(&sig, d, groups);
         d.clear();
 
-        // connect slots with low order '#3'
+        // connect slots with low order `#3`
 
         d.push_back(bdlf::BindUtil::bindR<void>(u::PrintStr2(),
                                                 bsl::ref(out),
@@ -907,11 +916,11 @@ static void test4_signaler_connect()
     // SIGNALER CONNECT
     //
     // Concerns:
-    //   Ensure proper behavior of the 'connect' method.
+    //   Ensure proper behavior of the `connect` method.
     //
     // Plan:
     //   1. Connect several slots to a signaler, obtaining an
-    //      'bdlmt::SignalerConnection' object for each connected slot, Check
+    //      `bdlmt::SignalerConnection` object for each connected slot, Check
     //      that each connection object corresponds to its respective slot.
     //
     //   2. Connect to a signaler a slot that, when invoked, connects another
@@ -1042,7 +1051,7 @@ static void test4_signaler_connect()
 
     if (major < 16 || (16 == major && minor <= 1)) {
         // There is a compiler bug on Aix {DRQS 166134166<GO>} that causes the
-        // 'this' pointer to be corrupted when a base class d'tor is called if
+        // `this` pointer to be corrupted when a base class d'tor is called if
         // the derived class c'tor throws.
 
         // We want to discontinue this workaround once we get to xlC_r 16.2 or
@@ -1139,31 +1148,31 @@ static void disconnectGroup()
     // SIGNALER DISCONNECT GROUP
     //
     // Concerns:
-    //   Ensure proper behavior of the 'disconnect' method.
+    //   Ensure proper behavior of the `disconnect` method.
     //
     // Plan:
-    //   1. Create a signaler having no connected slots. Call 'disconnect()'
+    //   1. Create a signaler having no connected slots. Call `disconnect()`
     //      specifying the group 0. Check that nothing happened.
     //
     //   2. Create a signaler. Connect several slots specifying different
-    //      groups. Call 'disconnect()' specifying a group having slots in it.
+    //      groups. Call `disconnect()` specifying a group having slots in it.
     //      Check that:
     //      - All slots in the specified group were disconnected;
     //      - No other slots were disconnected.
     //
     //   3. Create a signaler. Connect several slots, given that one of them,
-    //      when invoked, calls 'disconnect()' on the signaler instance
+    //      when invoked, calls `disconnect()` on the signaler instance
     //      specifying a group it (the slot) does not belong to. Invoke the
     //      signaler. Check that:
     //      - All slots in the specified group were disconnected;
     //      - No other slots were disconnected.
     //
     //   4. Create a signaler. Connect several slots, given that one of them,
-    //      when invoked, calls 'disconnect()' on the signaler instance
+    //      when invoked, calls `disconnect()` on the signaler instance
     //      specifying the same group it (the slot) belongs to. Invoke the
     //      signaler. Check that:
     //      - All slots in the specified group were disconnected, including the
-    //        slot that invoked 'disconnect()';
+    //        slot that invoked `disconnect()`;
     //      - No other slots were disconnected.
     //
     // Testing:
@@ -1187,7 +1196,7 @@ static void disconnectGroup()
     {
         bdlmt::Signaler<void()> sig(&alloc);
 
-        // connect slots with group '0'
+        // connect slots with group `0`
         bdlmt::SignalerConnection con1 = sig.connect(u::NoOp(), 0);
         bdlmt::SignalerConnection con2 = sig.connect(u::NoOp(), 0);
 
@@ -1218,12 +1227,12 @@ static void disconnectGroup()
     {
         bdlmt::Signaler<void()> sig(&alloc);
 
-        // connect slots with group '0'
+        // connect slots with group `0`
         bdlmt::SignalerConnection con1 = sig.connect(u::NoOp(), 0);
         bdlmt::SignalerConnection con2 = sig.connect(u::NoOp(), 0);
 
         // connect slots with group '1'
-        // the first slot in this group disconnects group '0'
+        // the first slot in this group disconnects group `0`
         // the second slot in this group disconnects group '2'
         bdlmt::SignalerConnection con3 = sig.connect(GroupDisconnector(&sig,
                                                                        0),
@@ -1240,7 +1249,7 @@ static void disconnectGroup()
         // call the signaler
         sig();
 
-        // groups '0' and '2' were disconnected
+        // groups `0` and '2' were disconnected
         ASSERT_EQ(con1.isConnected(), false);
         ASSERT_EQ(con2.isConnected(), false);
         ASSERT_EQ(con5.isConnected(), false);
@@ -1256,7 +1265,7 @@ static void disconnectGroup()
     {
         bdlmt::Signaler<void()> sig(&alloc);
 
-        // connect slots with group '0'
+        // connect slots with group `0`
         bdlmt::SignalerConnection con1 = sig.connect(u::NoOp(), 0);
         bdlmt::SignalerConnection con2 = sig.connect(u::NoOp(), 0);
 
@@ -1279,7 +1288,7 @@ static void disconnectGroup()
         ASSERT_EQ(con3.isConnected(), false);
         ASSERT_EQ(con4.isConnected(), false);
 
-        // groups '0' and '2' were not disconnected
+        // groups `0` and '2' were not disconnected
         ASSERT_EQ(sig.slotCount(),    4u);
         ASSERT_EQ(con1.isConnected(), true);
         ASSERT_EQ(con2.isConnected(), true);
@@ -1295,19 +1304,19 @@ static void test6_signaler_disconnectGroupAndWait()
     // SIGNALER DISCONNECT GROUP AND WAIT
     //
     // Concerns:
-    //   Ensure proper behavior of the 'disconnectGroupAndWait' method.
+    //   Ensure proper behavior of the `disconnectGroupAndWait` method.
     //
     // Plan:
-    //: 1 Create a signaler having no connected slots.  Call
-    //:   'disconnectGroupAndWait()' specifying the group 0.  Check that
-    //:   nothing happened.
-    //:
-    //: 2 Create a signaler.  Connect several slots.  Invoke the signaler from
-    //:   thread #1, and then again, from thread #2.  At the same time call
-    //:   'disconnectGroupAndWait()' from thread #0 (the main thread)
-    //:   specifying a group containing several slots.  Check that:
-    //:   o All slots in the specified group were disconnected;
-    //:   o No other slots were disconnected;
+    // 1. Create a signaler having no connected slots.  Call
+    //    `disconnectGroupAndWait()` specifying the group 0.  Check that
+    //    nothing happened.
+    //
+    // 2. Create a signaler.  Connect several slots.  Invoke the signaler from
+    //    thread #1, and then again, from thread #2.  At the same time call
+    //    `disconnectGroupAndWait()` from thread #0 (the main thread)
+    //    specifying a group containing several slots.  Check that:
+    //    - All slots in the specified group were disconnected;
+    //    - No other slots were disconnected;
     //
     // Testing:
     //   bdlmt::Signaler::disconnectGroup
@@ -1399,7 +1408,7 @@ static void test6_signaler_disconnectGroupAndWait()
             ASSERTV(elapsed1, 0.4 < elapsed1);
             ASSERTV(elapsed2, 0.4 < elapsed2);
 
-            // 'disconnectGroup(*)' has blocked the calling thread
+            // `disconnectGroup(*)` has blocked the calling thread
             const double diff1 = disconnectionTime - start1;
             ASSERTV(diff1, diff1 >= 0.4);
             const double diff2 = disconnectionTime - start2;
@@ -1456,17 +1465,17 @@ static void disconnectAllSlots()
     // SIGNALER DISCONNECT ALL SLOTS
     //
     // Concerns:
-    //   Ensure proper behavior of the 'disconnectAllSlots' method.
+    //   Ensure proper behavior of the `disconnectAllSlots` method.
     //
     // Plan:
     //   1. Create a signaler having no connected slots. Call
-    //      'disconnectAllSlots()' and check that nothing happened.
+    //      `disconnectAllSlots()` and check that nothing happened.
     //
     //   2. Create a signaler. Connect several slots. Call
-    //      'disconnectAllSlots()' and check that all slots were disconnected.
+    //      `disconnectAllSlots()` and check that all slots were disconnected.
     //
     //   3. Create a signaler. Connect several slots, given that one of them,
-    //      when invoked, calls 'disconnectAllSlots()' on the signaler
+    //      when invoked, calls `disconnectAllSlots()` on the signaler
     //      instance. Invoke the signaler. Check that all slots were
     //      disconnected.
     //
@@ -1510,7 +1519,7 @@ static void disconnectAllSlots()
     {
         bdlmt::Signaler<void()> sig(&alloc);
 
-        // connect 3 slots, the seconds one calls 'disconnectAllSlots()'
+        // connect 3 slots, the seconds one calls `disconnectAllSlots()`
         bdlmt::SignalerConnection con1 = sig.connect(u::NoOp());
 
         bdlmt::SignalerConnection con2 = sig.connect(AllSlotsDisconnector(
@@ -1538,18 +1547,18 @@ static void test8_signaler_disconnectAllSlotsAndWait()
     // SIGNALER  DISCONNECT ALL SLOTS AND WAIT
     //
     // Concerns:
-    //   Ensure proper behavior of the 'disconnectAllSlots(true)' method.
+    //   Ensure proper behavior of the `disconnectAllSlots(true)` method.
     //
     // Plan:
     //   1. Create a signaler having no connected slots. Call
-    //      'disconnectAllSlots(true)' and check that nothing happened.
+    //      `disconnectAllSlots(true)` and check that nothing happened.
     //
     //   2. Create a signaler. Connect several slots. Invoke the signaler from
     //      thread #1, and then again, from thread #2. At the same time call
-    //      'disconnectAllSlots(true)' from thread #0 (the main thread).
+    //      `disconnectAllSlots(true)` from thread #0 (the main thread).
     //      Check that:
     //      - All slot were disconnected;
-    //      - 'disconnectAllSlots(true)' have blocked the calling thread
+    //      - `disconnectAllSlots(true)` have blocked the calling thread
     //        pending completion of the currently executing slots.
     //
     // Testing:
@@ -1627,7 +1636,7 @@ static void test8_signaler_disconnectAllSlotsAndWait()
             // timestamp of target slot completion on thread #2
             u::DoubleTI completionTime2 = tQueue2.popFront();
 
-            // 'disconnectAllSlotsAndWait()' has blocked the calling thread
+            // `disconnectAllSlotsAndWait()` has blocked the calling thread
             ASSERT_EQ(disconnectionTime >= completionTime1, true);
             ASSERT_EQ(disconnectionTime >= completionTime2, true);
 
@@ -1648,11 +1657,11 @@ static void test9_signaler_slotCount()
     // SIGNALER SLOT COUNT
     //
     // Concerns:
-    //   Ensure proper behavior of the 'slotCount' method.
+    //   Ensure proper behavior of the `slotCount` method.
     //
     // Plan:
     //   Create a signaler. Connect, and then, disconnect slots one by one.
-    //   Check that 'slotCount()' always returns the right number of slots.
+    //   Check that `slotCount()` always returns the right number of slots.
     //
     // Testing:
     //   bdlmt::Signaler::slotCount()
@@ -1685,14 +1694,14 @@ static void test10_connection_creators()
     //   Ensure proper behavior of creators methods.
     //
     // Plan:
-    //: 1 Default-construct an instance of 'bdlmt::SignalerConnection'.  Check
-    //:   postconditions.
-    //:
-    //: 2 Copy-construct an instance of 'bdlmt::SignalerConnection'.  Check
-    //:   postconditions.
-    //:
-    //: 3 Move-construct an instance of 'bdlmt::SignalerConnection'.  Check
-    //:   postconditions.
+    // 1. Default-construct an instance of `bdlmt::SignalerConnection`.  Check
+    //    postconditions.
+    //
+    // 2. Copy-construct an instance of `bdlmt::SignalerConnection`.  Check
+    //    postconditions.
+    //
+    // 3. Move-construct an instance of `bdlmt::SignalerConnection`.  Check
+    //    postconditions.
     //
     // Testing:
     //   - bdlmt::SignalerConnection's default constructor
@@ -1719,7 +1728,7 @@ static void test10_connection_creators()
         // copy
         bdlmt::SignalerConnection con2(con1);
 
-        // 'con2' reffers to the same slot as 'con1'
+        // `con2` reffers to the same slot as `con1`
         ASSERT_EQ(con1.isConnected() && con2.isConnected(),   true);
         con1.disconnect();
         ASSERT_EQ(!con1.isConnected() && !con2.isConnected(), true);
@@ -1734,10 +1743,10 @@ static void test10_connection_creators()
         // move
         bdlmt::SignalerConnection con3(bslmf::MovableRefUtil::move(con1));
 
-        // 'con1' is now "empty"
+        // `con1` is now "empty"
         ASSERT_EQ(con1 == bdlmt::SignalerConnection(), true);
 
-        // 'con3' reffers to the same slot as 'con1' used to
+        // `con3` reffers to the same slot as `con1` used to
         ASSERT_EQ(con2.isConnected() &&
                   con3.isConnected(),   true);
         con2.disconnect();
@@ -1754,11 +1763,11 @@ static void test11_connection_assignment()
     //   Ensure proper behavior of assignment operators.
     //
     // Plan:
-    //: 1 Copy-assign an instance of 'bdlmt::SignalerConnection'.  Check
-    //:   postconditions.
-    //:
-    //: 2 Move-assign an instance of 'bdlmt::SignalerConnection'.  Check
-    //:   postconditions.
+    // 1. Copy-assign an instance of `bdlmt::SignalerConnection`.  Check
+    //    postconditions.
+    //
+    // 2. Move-assign an instance of `bdlmt::SignalerConnection`.  Check
+    //    postconditions.
     //
     // Testing:
     //   - bdlmt::SignalerConnection's copy assignment operator
@@ -1777,7 +1786,7 @@ static void test11_connection_assignment()
         bdlmt::SignalerConnection con2;
                                  con2 = con1;
 
-        // 'con2' reffers to the same slot as 'con1'
+        // `con2` reffers to the same slot as `con1`
         ASSERT_EQ(con1.isConnected() && con2.isConnected(),   true);
         con1.disconnect();
         ASSERT_EQ(!con1.isConnected() && !con2.isConnected(), true);
@@ -1793,10 +1802,10 @@ static void test11_connection_assignment()
         bdlmt::SignalerConnection con3;
                                  con3 = bslmf::MovableRefUtil::move(con1);
 
-        // 'con1' is now "empty"
+        // `con1` is now "empty"
         ASSERT_EQ(con1 == bdlmt::SignalerConnection(), true);
 
-        // 'con3' reffers to the same slot as 'con1' used to
+        // `con3` reffers to the same slot as `con1` used to
         ASSERT_EQ(con2.isConnected() &&
                   con3.isConnected(),   true);
         con2.disconnect();
@@ -1829,32 +1838,32 @@ static void connection_disconnect()
     // CONNECTION DISCONNECT
     //
     // Concerns:
-    //   Ensure proper behavior of the 'disconnect' method.
+    //   Ensure proper behavior of the `disconnect` method.
     //
     // Plan:
-    //   1. Default-construct an instance of 'bdlmt::SignalerConnection', 'c'.
-    //      Call 'c.disconnect()'. Check that nothing happened to the
+    //   1. Default-construct an instance of `bdlmt::SignalerConnection`, `c`.
+    //      Call `c.disconnect()`. Check that nothing happened to the
     //      connection object.
     //
-    //   2. Create a connection object 'c' by connecting a slot to a signaler.
-    //      Connect other slots to the same signaler. Call 'c.disconnect()'.
+    //   2. Create a connection object `c` by connecting a slot to a signaler.
+    //      Connect other slots to the same signaler. Call `c.disconnect()`.
     //      Check that:
-    //      - The slot associated with 'c' was disconnected;
-    //      - 'c' is not reset to a default-constructed state;
+    //      - The slot associated with `c` was disconnected;
+    //      - `c` is not reset to a default-constructed state;
     //      - No other slot was disconnected.
     //
-    //   3. Connect slots #1, #2, #3 and #4 obtaining connection objects 'c1',
-    //      'c2', 'c3' and 'c4' for each respective slot, given that slot #2,
+    //   3. Connect slots #1, #2, #3 and #4 obtaining connection objects `c1`,
+    //      `c2`, `c3` and `c4` for each respective slot, given that slot #2,
     //      when invoked, disconnects the slot #1 via a call to
-    //      'c1.disconnect()' and slot #3, when invoked, disconnects the slot
-    //      #4 via a call to 'c4.disconnect()'. Call the signaler.
+    //      `c1.disconnect()` and slot #3, when invoked, disconnects the slot
+    //      #4 via a call to `c4.disconnect()`. Call the signaler.
     //      Check that:
     //      - Slots #1 and #4 were disconnected;
     //      - Slots #2 and #4 were not disconnected;
     //
-    //   4. Connect slots #1, #2 and #3, obtaining connection objects 'c1',
-    //      'c2' and 'c3' for each respective slot, given that slot #2,
-    //      when invoked, disconnects itself via a call to 'c2.disconnect()'.
+    //   4. Connect slots #1, #2 and #3, obtaining connection objects `c1`,
+    //      `c2` and `c3` for each respective slot, given that slot #2,
+    //      when invoked, disconnects itself via a call to `c2.disconnect()`.
     //      Call the signaler.
     //      Check that:
     //      - Slot #2 was disconnected;
@@ -2044,21 +2053,21 @@ static void test13_connection_disconnectAndWait()
     // CONNECTION DISCONNECT AND WAIT
     //
     // Concerns:
-    //   Ensure proper behavior of the 'disconnect(true)' method.
+    //   Ensure proper behavior of the `disconnect(true)` method.
     //
     // Plan:
-    //   1. Default-construct an instance of 'bdlmt::SignalerConnection', 'c'.
-    //      Call 'c.disconnect(true)'. Check that nothing happened to the
+    //   1. Default-construct an instance of `bdlmt::SignalerConnection`, `c`.
+    //      Call `c.disconnect(true)`. Check that nothing happened to the
     //      connection object.
     //
-    //   2. Create a connection object 'c' by connecting a slot to a signaler.
+    //   2. Create a connection object `c` by connecting a slot to a signaler.
     //      Connect other slots to the same signaler. Invoke the signaler from
     //      thread #1 and thread #2. At the same time, call
-    //      'c.disconnect(true)' from thread #0 (the main thread). Check that:
-    //      - The slot associated with 'c' was disconnected;
-    //      - 'c' is not reset to a default-constructed state;
+    //      `c.disconnect(true)` from thread #0 (the main thread). Check that:
+    //      - The slot associated with `c` was disconnected;
+    //      - `c` is not reset to a default-constructed state;
     //      - No other slot was disconnected;
-    //      - 'disconnect(true)' have blocked the calling thread (thread #0)
+    //      - `disconnect(true)` have blocked the calling thread (thread #0)
     //        pending completion of the disconnected slot.
     //
     // Testing:
@@ -2140,7 +2149,7 @@ static void test13_connection_disconnectAndWait()
             // timestamp of target slot completion on thread #2
             u::DoubleTI completionTime2 = tQueue2.popFront();
 
-            // 'disconnect(true)' has blocked the calling thread
+            // `disconnect(true)` has blocked the calling thread
             ASSERT_EQ(disconnectionTime >= completionTime1, true);
             ASSERT_EQ(disconnectionTime >= completionTime2, true);
 
@@ -2172,7 +2181,7 @@ static void test14_connection_reset()
     // CONNECTION RESET
     //
     // Concerns:
-    //   Ensure proper behavior of the 'reset' method.
+    //   Ensure proper behavior of the `reset` method.
     //
     // Plan:
     //   Obtain a connection object by connecting a slot to a signaler. Release
@@ -2210,10 +2219,10 @@ static void test15_connection_swap()
     // CONNECTION SWAP
     //
     // Concerns:
-    //   Ensure proper behavior of the 'swap' method.
+    //   Ensure proper behavior of the `swap` method.
     //
     // Plan:
-    //   Create two instance of 'bdlmt::SignalerConnection', swap them. Check
+    //   Create two instance of `bdlmt::SignalerConnection`, swap them. Check
     //   that they were swapped.
     //
     // Testing:
@@ -2255,42 +2264,42 @@ static void test16_connection_isConnected()
     // CONNECTION IS CONNECTED, GUARDS
     //
     // Concerns:
-    //   Ensure proper behavior of the 'isConnected' method.
+    //   Ensure proper behavior of the `isConnected` method.
     //
     // Plan:
-    //: 1 Default-construct an instance of 'bdlmt::SignalerConnection'. Check
-    //:    that 'isConnected()' returns false.
-    //:
-    //: 2 Obtain an instance of 'bdlmt::SignalerConnection' by connecting a
-    //:   slot to a signaler. Check that 'isConnected()' returns true, then
-    //:   disconnect the slot and check that 'isConnected()' now returns
-    //:   false.
-    //:
-    //: 3 Construct guard from connection, single arg, observe disconnect on
-    //:   destruction.
-    //:
-    //: 4 Construct guard from connection, double arg, observe disconnect on
-    //:   destruction.
-    //:
-    //: 5 Construct guard from moved connection, single arg, observe disconnect
-    //:   on destruction.
-    //:
-    //: 6 Construct guard from moved connection, double arg, observe disconnect
-    //:   on destruction.
-    //:
-    //: 7 Construct guard from moved guard, single arg, observe disconnect on
-    //:   destruction.
-    //:
-    //: 8 Construct guard from moved default-constructed guard, single arg,
-    //:   observe disconnect on destruction.
-    //:
-    //: 9 Assign to guard, observe disconnect on assignment and destruction.
-    //:
-    //: 10 Assign to guard from default-constructed guard, observe disconnect
-    //:    on assignment.
-    //:
-    //: 11 Assign to default constructed guard, observe disconnect on
-    //:    destruction.
+    // 1. Default-construct an instance of `bdlmt::SignalerConnection`. Check
+    //     that `isConnected()` returns false.
+    //
+    // 2. Obtain an instance of `bdlmt::SignalerConnection` by connecting a
+    //    slot to a signaler. Check that `isConnected()` returns true, then
+    //    disconnect the slot and check that `isConnected()` now returns
+    //    false.
+    //
+    // 3. Construct guard from connection, single arg, observe disconnect on
+    //    destruction.
+    //
+    // 4. Construct guard from connection, double arg, observe disconnect on
+    //    destruction.
+    //
+    // 5. Construct guard from moved connection, single arg, observe disconnect
+    //    on destruction.
+    //
+    // 6. Construct guard from moved connection, double arg, observe disconnect
+    //    on destruction.
+    //
+    // 7. Construct guard from moved guard, single arg, observe disconnect on
+    //    destruction.
+    //
+    // 8. Construct guard from moved default-constructed guard, single arg,
+    //    observe disconnect on destruction.
+    //
+    // 9. Assign to guard, observe disconnect on assignment and destruction.
+    //
+    // 10. Assign to guard from default-constructed guard, observe disconnect
+    //     on assignment.
+    //
+    // 11. Assign to default constructed guard, observe disconnect on
+    //     destruction.
     //
     // Testing:
     //   bdlmt::SignalerConnection::isConnected()
@@ -2645,8 +2654,8 @@ static void test17_connection_bitwiseMoveability()
     //   Ensure that connection objects are bitwise-moveable.
     //
     // Plan:
-    //   Check that 'bdlmt::SignalerConnection' is a bitwise-moveable type.
-    //   NOTE: see 'bslmf_isbitwisemoveable' component documentation for the
+    //   Check that `bdlmt::SignalerConnection` is a bitwise-moveable type.
+    //   NOTE: see `bslmf_isbitwisemoveable` component documentation for the
     //   definition of a bitwise-moveable type.
     //
     // Testing:
@@ -2656,7 +2665,7 @@ static void test17_connection_bitwiseMoveability()
     bslma::TestAllocator    alloc;
     bdlmt::Signaler<void()> sig(&alloc);
 
-    // 'SignalerConnection' exports the 'IsBitwiseMoveable' trait
+    // `SignalerConnection` exports the `IsBitwiseMoveable` trait
     ASSERT(bslmf::IsBitwiseMoveable<bdlmt::SignalerConnection>::value);
 
     // connect a slot
@@ -2669,7 +2678,7 @@ static void test17_connection_bitwiseMoveability()
 
     ASSERT(connection1Buffer.object() == connection);
 
-    // move the connection using 'memcpy'
+    // move the connection using `memcpy`
     bsls::ObjectBuffer<bdlmt::SignalerConnection> connection2Buffer;
     bsl::memcpy(connection2Buffer.buffer(), // dst
                 connection1Buffer.buffer(), // src
@@ -2690,23 +2699,23 @@ static void test18_guard_creators()
     //   Ensure proper behavior of creators methods.
     //
     // Plan:
-    //: 1 Default-construct an instance of 'bdlmt::SignalerConnectionGuard'.
-    //:   Check postconditions.
-    //:
-    //: 2 Move-construct an instance of 'bdlmt::SignalerConnectionGuard'.
-    //:   Check postconditions.
-    //:
-    //: 3 Construct an instance of 'bdlmt::SignalerConnectionGuard', from an
-    //:   instance of bdlmt::SignalerConnection.  Check postconditions.
-    //:
-    //: 4 Construct an instance of 'bdlmt::SignalerConnectionGuard', from an
-    //:   instance of 'bdlmt::SignalerConnection' by moving it.  Check
-    //:   postconditions.
-    //:
-    //: 5 Construct an instance of 'bdlmt::SignalerConnectionGuard', from an
-    //:   instance of 'bdlmt::SignalerConnection', destroy the instance of
-    //:   'bdlmt::SignalerConnectionGuard' and check that 'disconnect()' was
-    //:   invoked.
+    // 1. Default-construct an instance of `bdlmt::SignalerConnectionGuard`.
+    //    Check postconditions.
+    //
+    // 2. Move-construct an instance of `bdlmt::SignalerConnectionGuard`.
+    //    Check postconditions.
+    //
+    // 3. Construct an instance of `bdlmt::SignalerConnectionGuard`, from an
+    //    instance of bdlmt::SignalerConnection.  Check postconditions.
+    //
+    // 4. Construct an instance of `bdlmt::SignalerConnectionGuard`, from an
+    //    instance of `bdlmt::SignalerConnection` by moving it.  Check
+    //    postconditions.
+    //
+    // 5. Construct an instance of `bdlmt::SignalerConnectionGuard`, from an
+    //    instance of `bdlmt::SignalerConnection`, destroy the instance of
+    //    `bdlmt::SignalerConnectionGuard` and check that `disconnect()` was
+    //    invoked.
     //
     // Testing:
     //   - bdlmt::SignalerConnectionGuard's default constructor
@@ -2738,11 +2747,11 @@ static void test18_guard_creators()
         bdlmt::SignalerConnectionGuard guard2(
                                           bslmf::MovableRefUtil::move(guard1));
 
-        // 'guard1' was reset to a default-constructed state
+        // `guard1` was reset to a default-constructed state
         ASSERT(guard1.connection()       == def);
         ASSERT(guard1.waitOnDisconnect() == false);
 
-        // 'guard2' assumed the state of 'guard1'
+        // `guard2` assumed the state of `guard1`
         ASSERT(guard2.connection()       == con);
         ASSERT(guard2.waitOnDisconnect() == true);
     }
@@ -2755,7 +2764,7 @@ static void test18_guard_creators()
         // copy
         bdlmt::SignalerConnectionGuard guard(con);
 
-        // 'guard' reffers to the same slot as 'con'
+        // `guard` reffers to the same slot as `con`
         ASSERT(guard.connection() == con);
     }
 
@@ -2769,10 +2778,10 @@ static void test18_guard_creators()
         bdlmt::SignalerConnectionGuard guard(
                                             bslmf::MovableRefUtil::move(con1));
 
-        // 'con1' is now "empty"
+        // `con1` is now "empty"
         ASSERT(con1 == def);
 
-        // 'guard' reffers to the same slot as 'con1' used to
+        // `guard` reffers to the same slot as `con1` used to
         ASSERT(guard.connection() == con2);
     }
 
@@ -2785,7 +2794,7 @@ static void test18_guard_creators()
             bdlmt::SignalerConnectionGuard guard(con);
         }
 
-        // 'guard's destructor invoked 'disconnect()'
+        // `guard`s destructor invoked `disconnect()`
         ASSERT_EQ(con.isConnected(), false);
     }
 }
@@ -2798,8 +2807,8 @@ static void test19_guard_assignment()
     //   Ensure proper behavior of assignment operators.
     //
     // Plan:
-    //: 1 Move-assign an instance of 'bdlmt::SignalerConnectionGuard'.  Check
-    //:   postconditions.
+    // 1. Move-assign an instance of `bdlmt::SignalerConnectionGuard`.  Check
+    //    postconditions.
     //
     // Testing:
     //   - bdlmt::SignalerConnectionGuard's move assignment operator
@@ -2819,11 +2828,11 @@ static void test19_guard_assignment()
                                        guard2 = bslmf::MovableRefUtil::move(
                                                                        guard1);
 
-        // 'guard1' was reset to a defaut-constructed state
+        // `guard1` was reset to a defaut-constructed state
         ASSERT(guard1.connection()       == def);
         ASSERT(guard1.waitOnDisconnect() == false);
 
-        // 'guard2' assumed the state of 'guard1'
+        // `guard2` assumed the state of `guard1`
         ASSERT(guard2.connection()       == con);
         ASSERT(guard2.waitOnDisconnect() == true);
     }
@@ -2834,7 +2843,7 @@ static void test20_guard_release()
     // GUARD RELEASE
     //
     // Concerns:
-    //   Ensure proper behavior of the 'release' method.
+    //   Ensure proper behavior of the `release` method.
     //
     // Plan:
     //  Obtain a connection object by connecting a slot to a signaler. Create
@@ -2878,10 +2887,10 @@ static void test21_guard_swap()
     // GUARD SWAP
     //
     // Concerns:
-    //   Ensure proper behavior of the 'swap' method.
+    //   Ensure proper behavior of the `swap` method.
     //
     // Plan:
-    //   Create two instance of 'bdlmt::SignalerConnectionGuard', swap them.
+    //   Create two instance of `bdlmt::SignalerConnectionGuard`, swap them.
     //   Check that they were swapped.
     //
     // Testing:
@@ -2975,8 +2984,8 @@ static void test22_guard_bitwiseMoveability()
     //   Ensure that guard objects are bitwise-moveable.
     //
     // Plan:
-    //   Check that 'bdlmt::SignalerConnectionGuard' is a bitwise-moveable
-    //   type. NOTE: see 'bslmf_isbitwisemoveable' component documentation for
+    //   Check that `bdlmt::SignalerConnectionGuard` is a bitwise-moveable
+    //   type. NOTE: see `bslmf_isbitwisemoveable` component documentation for
     //   the definition of a bitwise-moveable type.
     //
     // Testing:
@@ -2986,7 +2995,7 @@ static void test22_guard_bitwiseMoveability()
     bslma::TestAllocator    alloc;
     bdlmt::Signaler<void()> sig(&alloc);
 
-    // 'SignalerConnectionGuard' exports the 'IsBitwiseMoveable' trait
+    // `SignalerConnectionGuard` exports the `IsBitwiseMoveable` trait
     ASSERT(bslmf::IsBitwiseMoveable<bdlmt::SignalerConnectionGuard>::value);
 
     // connect a slot
@@ -3001,7 +3010,7 @@ static void test22_guard_bitwiseMoveability()
     ASSERT(guard1Buffer.object().connection()       == connection);
     ASSERT(guard1Buffer.object().waitOnDisconnect() == true);
 
-    // move the guard using 'memcpy'
+    // move the guard using `memcpy`
     bsls::ObjectBuffer<bdlmt::SignalerConnectionGuard> guard2Buffer;
     bsl::memcpy(guard2Buffer.buffer(), // dst
                 guard1Buffer.buffer(), // src
@@ -3446,13 +3455,13 @@ void test_lvalues()
     //   Ensure lvalues are communicated properly.
     //
     // Plan:
-    //: 1 'test_lvaluesComplex': a fairly complex test passing 9 arguments of
-    //:   a variety of types.
-    //:
-    //: 2 'test_lvaluesSimple': test emitting signals passing a range of 1-9
-    //:   lvalue arguments, checking tha they were passed correctly to slots,
-    //:   then having the slots modify them and having the caller check that
-    //:   the args we correctly modified by the called slot.
+    // 1. `test_lvaluesComplex`: a fairly complex test passing 9 arguments of
+    //    a variety of types.
+    //
+    // 2. `test_lvaluesSimple`: test emitting signals passing a range of 1-9
+    //    lvalue arguments, checking tha they were passed correctly to slots,
+    //    then having the slots modify them and having the caller check that
+    //    the args we correctly modified by the called slot.
     //
     // Testing:
     //   operator()(T1&);
@@ -3477,21 +3486,21 @@ static void test24_destroyGuardAndWait()
     // SIGNALER DISCONNECT GROUP AND WAIT
     //
     // Concerns:
-    //   Ensure proper behavior of the 'SignalerConnectionGuard' destructore.
+    //   Ensure proper behavior of the `SignalerConnectionGuard` destructore.
     //
     // Plan:
-    //: 1 Create a signaler having no connected slots.  Call
-    //:   'disconnectGroupAndWait()' specifying the group 0.  Check that
-    //:   nothing happened.
-    //:
-    //: 2 Create a signaler.  Connect several slots.  Invoke the signaler from
-    //:   thread #1, and then again, from thread #2.  At the same time call
-    //:   'disconnectGroupAndWait()' from thread #0 (the main thread)
-    //:   specifying a group containing several slots.  Check that:
-    //:   o All slots in the specified group were disconnected;
-    //:   o No other slots were disconnected;
-    //:   o 'disconnectAllSlotsAndWait()' have blocked the calling thread
-    //:     pending completion of the currently executing slots.
+    // 1. Create a signaler having no connected slots.  Call
+    //    `disconnectGroupAndWait()` specifying the group 0.  Check that
+    //    nothing happened.
+    //
+    // 2. Create a signaler.  Connect several slots.  Invoke the signaler from
+    //    thread #1, and then again, from thread #2.  At the same time call
+    //    `disconnectGroupAndWait()` from thread #0 (the main thread)
+    //    specifying a group containing several slots.  Check that:
+    //    - All slots in the specified group were disconnected;
+    //    - No other slots were disconnected;
+    //    - `disconnectAllSlotsAndWait()` have blocked the calling thread
+    //      pending completion of the currently executing slots.
     //
     // Testing:
     //   bdlmt::Signaler::disconnectGroupAndWait()
@@ -3578,7 +3587,7 @@ static void test24_destroyGuardAndWait()
             ASSERTV(elapsed1, 0.4 < elapsed1);
             ASSERTV(elapsed2, 0.4 < elapsed2);
 
-            // 'disconnectGroupAndWait(*)' has blocked the calling thread
+            // `disconnectGroupAndWait(*)` has blocked the calling thread
             const double diff1 = disconnectionTime - start1;
             ASSERTV(diff1, diff1 >= 0.4);
             const double diff2 = disconnectionTime - start2;
@@ -3621,26 +3630,26 @@ static void test25_usageExample()
     //   Usage example
     // ------------------------------------------------------------------------
 {
-// Then, in 'main', create a button and subscribe to its events.
-//..
+// Then, in `main`, create a button and subscribe to its events.
+// ```
     u::Button                 button;
     bdlmt::SignalerConnection connection = button.onPressConnect(
                                                               &u::showPresses);
-//..
+// ```
 // Next the button is "pressed", we will receive a notification.
-//..
+// ```
     button.press();
-//..
+// ```
 // Now, we see the following message:
-//..
+// ```
 //  Button pressed 1 times.
-//..
+// ```
 // Finally, unsubscribe from button's events when we don't want to receive
-// notifications anymore.  (If we didn't call 'disconnect', 'button' would
+// notifications anymore.  (If we didn't call `disconnect`, `button` would
 // clean up all the allocated resources when it went out of scope):
-//..
+// ```
     connection.disconnect();
-//..
+// ```
 }
 
 // ============================================================================
@@ -3655,7 +3664,7 @@ int main(int argc, char *argv[])
     veryVerbose     = argc > 3;    (void) veryVerbose;
     veryVeryVerbose = argc > 4;
 
-    // Install an assert handler to 'gracefully' mark the test as failure in
+    // Install an assert handler to `gracefully` mark the test as failure in
     // case of assert.
 
     // Default allocator
@@ -3666,9 +3675,9 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     // Prevent against compiler warning:
-    //..
-    // error: unused function template 'operator()' [-Werror,-Wunused-template]
-    //..
+    // ```
+    // error: unused function template `operator()` [-Werror,-Wunused-template]
+    // ```
 
     u::NoOp()(1);
     u::NoOp()(1, 2);

@@ -31,11 +31,11 @@ namespace u {
 
 // HELPER FUNCTIONS
 
+/// Set the specified `*result` to true if the specified `input` of
+/// specified length `inputLength` is "1" or "true" and false if `input` is
+/// "0" or "false".  Strings are case-insensitive.  Return 0 on success and
+/// non-zero if `input` is not "1", "0", "true", or "false".
 int parseBoolean(bool *result, const char *input, int inputLength)
-    // Set the specified '*result' to true if the specified 'input' of
-    // specified length 'inputLength' is "1" or "true" and false if 'input' is
-    // "0" or "false".  Strings are case-insensitive.  Return 0 on success and
-    // non-zero if 'input' is not "1", "0", "true", or "false".
 {
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
@@ -74,13 +74,13 @@ int parseBoolean(bool *result, const char *input, int inputLength)
     return BAEXML_FAILURE;
 }
 
+/// Parse a string representing a double into the specified `result`.  The
+/// specified `input` is a null-terminated string.  The specified
+/// `formatDecimal` should be true if `input` should contain only decimal
+/// digits, period and sign characters (i.e., INF/NaN, and exponential
+/// notation are not allowed); otherwise `input` can contain any floating-
+/// point representation form.  Return 0 on success and non-zero otherwise.
 int parseDoubleImpl(double *result, const char *input, bool formatDecimal)
-    // Parse a string representing a double into the specified 'result'.  The
-    // specified 'input' is a null-terminated string.  The specified
-    // 'formatDecimal' should be true if 'input' should contain only decimal
-    // digits, period and sign characters (i.e., INF/NaN, and exponential
-    // notation are not allowed); otherwise 'input' can contain any floating-
-    // point representation form.  Return 0 on success and non-zero otherwise.
 {
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
     static const char decimalChars[] = "+-.0123456789";
@@ -150,15 +150,15 @@ int parseDoubleImpl(double *result, const char *input, bool formatDecimal)
     return BAEXML_SUCCESS;
 }
 
+/// Parse a string representing a double into the specified `result`.  The
+/// specified `formatDecimal` will be true if the specified `input` of
+/// specified length `inputLength` should contain only decimal digits,
+/// period and sign characters; otherwise `input` can contain any floating-
+/// point representation form.  Return 0 on success and non-zero otherwise.
 int parseDouble(double     *result,
                 const char *input,
                 int         inputLength,
                 bool        formatDecimal)
-    // Parse a string representing a double into the specified 'result'.  The
-    // specified 'formatDecimal' will be true if the specified 'input' of
-    // specified length 'inputLength' should contain only decimal digits,
-    // period and sign characters; otherwise 'input' can contain any floating-
-    // point representation form.  Return 0 on success and non-zero otherwise.
 {
     // 'input' must be zero terminated string
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
@@ -184,8 +184,8 @@ int parseDouble(double     *result,
     }
 }
 
+/// Parse an unsigned long decimal string
 int parseInt(int *result, const char *input, int inputLength)
-    // Parse an unsigned long decimal string
 {
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
     enum { BUFLEN = 80 };
@@ -224,8 +224,8 @@ int parseInt(int *result, const char *input, int inputLength)
     return BAEXML_SUCCESS;
 }
 
+/// Parse an unsigned long decimal string
 int parseUnsignedInt(unsigned int *result, const char *input, int inputLength)
-    // Parse an unsigned long decimal string
 {
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
     enum { BUFLEN = 80 };
@@ -264,10 +264,10 @@ int parseUnsignedInt(unsigned int *result, const char *input, int inputLength)
     return BAEXML_SUCCESS;
 }
 
+/// Parse a signed integral value as decimal.
 template <class INT_TYPE>
 inline
 int parseSignedDecimal(INT_TYPE *result, const char *input, int inputLength)
-    // Parse a signed integral value as decimal.
 {
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
@@ -283,10 +283,10 @@ int parseSignedDecimal(INT_TYPE *result, const char *input, int inputLength)
     return BAEXML_SUCCESS;
 }
 
+/// Parse an unsigned integral value as decimal.
 template <class INT_TYPE>
 inline
 int parseUnsignedDecimal(INT_TYPE *result, const char *input, int inputLength)
-    // Parse an unsigned integral value as decimal.
 {
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
@@ -301,12 +301,12 @@ int parseUnsignedDecimal(INT_TYPE *result, const char *input, int inputLength)
     return BAEXML_SUCCESS;
 }
 
+/// Load, into the specificed `result`, the `Decimal64` value represented by
+/// the specified `input` string.  Return 0 on success and non-zero
+/// otherwise.
 int parseDecimal64Impl(bdldfp::Decimal64  *result,
                        const char         *input,
                        bool                decimalMode)
-    // Load, into the specificed 'result', the 'Decimal64' value represented by
-    // the specified 'input' string.  Return 0 on success and non-zero
-    // otherwise.
 {
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 

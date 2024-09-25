@@ -4,8 +4,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>      // 'printf', 'fprintf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`, `fprintf`
+#include <stdlib.h>     // `atoi`
 
 using namespace BloombergLP;
 
@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Use the exact text of the usage example from the user
-        //   documentation, but change uses of 'assert' to 'ASSERT'.
+        //   documentation, but change uses of `assert` to `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -59,10 +59,10 @@ int main(int argc, char *argv[])
 
 // If a program wants to display the version of BSL used to build the current
 // executable, it can simply print the version string returned by
-// 'bslscm::Version::version()':
-//..
+// `bslscm::Version::version()`:
+// ```
     if (verbose) printf("BSL version: %s\n", bslscm::Version::version());
-//..
+// ```
       } break;
 
       default: {

@@ -8,16 +8,16 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-// The component under test defines meta-functions 'bsl::decay' and
-// 'bsl::decay_t' with a well-defined set of input and output types.  This test
+// The component under test defines meta-functions `bsl::decay` and
+// `bsl::decay_t` with a well-defined set of input and output types.  This test
 // driver consists of applying a sequence of simple test input types and
 // verifying the correct output types.
 //
@@ -85,12 +85,12 @@ struct MyClass
 
 /// Usage Example 1
 /// - - - - - - - -
-// A class template needs to cache a value of type 'T'. There is nothing in the
-// definition of the class that would prevent it from working for 'T' of
+// A class template needs to cache a value of type `T`. There is nothing in the
+// definition of the class that would prevent it from working for `T` of
 // function type or array-of-unknown bound, but one cannot simply declare a
-// member of either of those types.  Instead, we use 'bsl::decay<T>::type',
+// member of either of those types.  Instead, we use `bsl::decay<T>::type`,
 // which can be stored, copied, and compared as needed:
-//..
+// ```
 //    #ifndef INCLUDED_BSLMF_DECAY
 //    #include <bslmf_decay.h>
 //    #endif
@@ -99,12 +99,12 @@ struct MyClass
     class Thing {
     public:
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-//..
+// ```
 // Note that if the current compiler supports alias templates C++11 feature, we
-// can use 'bsl::decay_t' alias to the "result" type of 'bsl::decay'
-// meta-function, that avoids the '::type' suffix and 'typename' prefix in the
+// can use `bsl::decay_t` alias to the "result" type of `bsl::decay`
+// meta-function, that avoids the `::type` suffix and `typename` prefix in the
 // declaration of the function return type:
-//..
+// ```
         using CacheType = bsl::decay_t<TYPE>;
 #else
         typedef typename bsl::decay<TYPE>::type CacheType;
@@ -117,10 +117,10 @@ struct MyClass
     public:
         CacheType cache() const { return d_cache; }
     };
-//..
-// Now verify that for function and array types, 'cache()' will return a simple
+// ```
+// Now verify that for function and array types, `cache()` will return a simple
 // pointer:
-//..
+// ```
     int usageExample1()
     {
         typedef const int A1[];
@@ -135,7 +135,7 @@ struct MyClass
 
         return 0;
     }
-//..
+// ```
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -163,12 +163,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example from the component documentation compiles and
-        //:   runs correctly.
+        // 1. The usage example from the component documentation compiles and
+        //    runs correctly.
         //
         // Plan:
-        //: 1 For concern 1, copy the usage example from the component
-        //:   documentation, replacing 'assert' with 'ASSERT'.
+        // 1. For concern 1, copy the usage example from the component
+        //    documentation, replacing `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -185,54 +185,54 @@ int main(int argc, char *argv[])
         // COMPLETE TEST
         //
         // Concerns:
-        //:  1 If 'TYPE' is a scalar, class, pointer type, pointer-to-member
-        //:    type, or void, 'bsl::decay<TYPE>::type' is 'TYPE' except with
-        //:    top-level cv-qualifiers removed.
-        //:
-        //:  2 If 'TYPE' is a pointer to cv-qualified type or pointer to
-        //:    cv-qualified member, 'bsl::decay<TYPE>::type' retains the
-        //:    cv-qualification on the pointed-to type.
-        //:
-        //:  3 If 'TYPE' is a one-dimentional array of unknown bound, 'U[]',
-        //:    then 'bsl::decay<TYPE>::type' is 'U*'
-        //:
-        //:  4 If 'TYPE' is a one-dimentional array of known bound, 'U[N]',
-        //:    then 'bsl::decay<TYPE>::type' is 'U*'
-        //:
-        //:  5 If 'TYPE' is a multi-dimentional array of unknown bound,
-        //:    'U[][M]', then 'bsl::decay<TYPE>::type' is 'U(*)[M]'
-        //:
-        //:  6 If 'TYPE' is a multi-dimentional array of known bound,
-        //:    'U[N][M]', then 'bsl::decay<TYPE>::type' is 'U(*)[M]'
-        //:
-        //:  7 Cv-qualification on array elements is preserved.
-        //:
-        //:  8 If 'TYPE' is a function type 'F', then 'bsl::decay<TYPE>::type'
-        //:    is 'F*'.
-        //:
-        //:  9 if 'TYPE' is a pointer-to-function type or pointer-to-array type
-        //:    then 'bsl::decay<TYPE>::type' is 'TYPE' except with top-level
-        //:    cv-qualifiers removed (i.e., 'TYPE' is treated as a normal
-        //:    pointer).
-        //:
-        //: 10 If 'TYPE' is an lvalue reference type 'U&', then
-        //:    'bsl::decay<TYPE>::type' is the same as 'bsl::decay<U>::type'.
-        //:
-        //: 11 If 'TYPE' is an rvalue reference (C++11) type 'U&&', then
-        //:    'bsl::decay<TYPE>::type' is the same as 'bsl::decay<U>::type'.
-        //:
-        //: 12 'bsl::decay_t' represents the return type of 'bsl::decay'
-        //:    meta-function for a variety of template parameter types.
+        //  1. If `TYPE` is a scalar, class, pointer type, pointer-to-member
+        //     type, or void, `bsl::decay<TYPE>::type` is `TYPE` except with
+        //     top-level cv-qualifiers removed.
+        //
+        //  2. If `TYPE` is a pointer to cv-qualified type or pointer to
+        //     cv-qualified member, `bsl::decay<TYPE>::type` retains the
+        //     cv-qualification on the pointed-to type.
+        //
+        //  3. If `TYPE` is a one-dimentional array of unknown bound, `U[]`,
+        //     then `bsl::decay<TYPE>::type` is `U*`
+        //
+        //  4. If `TYPE` is a one-dimentional array of known bound, `U[N]`,
+        //     then `bsl::decay<TYPE>::type` is `U*`
+        //
+        //  5. If `TYPE` is a multi-dimentional array of unknown bound,
+        //     `U[][M]`, then `bsl::decay<TYPE>::type` is `U(*)[M]`
+        //
+        //  6. If `TYPE` is a multi-dimentional array of known bound,
+        //     `U[N][M]`, then `bsl::decay<TYPE>::type` is `U(*)[M]`
+        //
+        //  7. Cv-qualification on array elements is preserved.
+        //
+        //  8. If `TYPE` is a function type `F`, then `bsl::decay<TYPE>::type`
+        //     is `F*`.
+        //
+        //  9. if `TYPE` is a pointer-to-function type or pointer-to-array type
+        //     then `bsl::decay<TYPE>::type` is `TYPE` except with top-level
+        //     cv-qualifiers removed (i.e., `TYPE` is treated as a normal
+        //     pointer).
+        //
+        // 10. If `TYPE` is an lvalue reference type `U&`, then
+        //     `bsl::decay<TYPE>::type` is the same as `bsl::decay<U>::type`.
+        //
+        // 11. If `TYPE` is an rvalue reference (C++11) type `U&&`, then
+        //     `bsl::decay<TYPE>::type` is the same as `bsl::decay<U>::type`.
+        //
+        // 12. `bsl::decay_t` represents the return type of `bsl::decay`
+        //     meta-function for a variety of template parameter types.
         //
         // Plan:
-        //   1 For each of the above concerns, instantiate 'bsl::decay<TYPE>'
-        //     with an appropriate 'TYPE'. Use 'bsl::is_same' to verify that
-        //     'bsl::decay<TYPE>::type' is as expected.
+        //   1 For each of the above concerns, instantiate `bsl::decay<TYPE>`
+        //     with an appropriate `TYPE`. Use `bsl::is_same` to verify that
+        //     `bsl::decay<TYPE>::type` is as expected.
         //
-        //   2 NOT TESTED: function prototypes, such as 'int () const', for
+        //   2 NOT TESTED: function prototypes, such as `int () const`, for
         //     which it is not possible to create a (non-member) pointer.  Not
         //     all of our compilers support such "abominable function types"
-        //     and 'bsl::add_pointer' does the wrong thing for them. Real code
+        //     and `bsl::add_pointer` does the wrong thing for them. Real code
         //     should not encounter such types.
         //
         // Testing:

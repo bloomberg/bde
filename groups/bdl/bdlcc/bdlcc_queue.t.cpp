@@ -47,12 +47,12 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// This component provides a thread-enabled proxy to the 'bdlc::Queue'
+// This component provides a thread-enabled proxy to the `bdlc::Queue`
 // component.  The purpose of this test driver is to assert that each operation
-// is properly "hooked up" to its respective 'bdlc::Queue' operation, and that
+// is properly "hooked up" to its respective `bdlc::Queue` operation, and that
 // the locking mechanisms work as expected when the boundary conditions on
 // length and high water mark are reached.  In addition, although all the
-// memory allocated is allocated by the underlying 'bdlc::Queue', we want to
+// memory allocated is allocated by the underlying `bdlc::Queue`, we want to
 // make sure that the allocator is correctly passed to it.  The component is
 // tested in a single thread by the breathing test.  In the rest of the test
 // cases, we use multiple threads and test the locking and concurrency
@@ -65,7 +65,7 @@ using bsl::flush;
 // is modified in another thread,
 //
 // [4] makes sure that the push functions block properly when high-water mark
-// is reached, but are non-blocking otherwise, and that 'forcePushFront' never
+// is reached, but are non-blocking otherwise, and that `forcePushFront` never
 // blocks,
 //
 // [5] makes sure that the timed push functions time out properly when high
@@ -115,7 +115,7 @@ using bsl::flush;
 // [ 1] BREATHING TEST
 // [ 8] Usage example 2
 // [ 9] Usage example 1
-// [10] Use of the 'bdlc::Queue' interface example
+// [10] Use of the `bdlc::Queue` interface example
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -198,7 +198,7 @@ enum VecType { e_BEGIN,
 };
 
 bsls::TimeInterval now()
-    // Return the current time, as a 'TimeInterval'.
+    // Return the current time, as a `TimeInterval`.
 {
     return bsls::SystemTime::nowRealtimeClock();
 }
@@ -256,7 +256,7 @@ class MyBarrier {
     {}
 
     void wait()
-        // wait until the other thread has reach the 'MyBarrier'
+        // wait until the other thread has reach the `MyBarrier`
     {
 
         if (0 == d_threadWaiting.testAndSwap(0, 1)) {
@@ -272,7 +272,7 @@ class MyBarrier {
 };
 
 // ============================================================================
-//           USAGE use of the 'bdlc::Queue' interface from header
+//           USAGE use of the `bdlc::Queue` interface from header
 // ----------------------------------------------------------------------------
 
 namespace QUEUE_USE_OF_QUEUE_INTERFACE {
@@ -319,7 +319,7 @@ namespace QUEUE_USAGE_EXAMPLE_1 {
 struct my_WorkData;
 
 int getWorkData(my_WorkData *)
-    // Dummy implementation of 'getWorkData' function required by the usage
+    // Dummy implementation of `getWorkData` function required by the usage
     // example.
 {
     static int i = 1;
@@ -330,18 +330,18 @@ int getWorkData(my_WorkData *)
 ///-----
 ///Example 1: Simple Thread Pool
 ///- - - - - - - - - - - - - - -
-// The following example demonstrates a typical usage of a 'bdlcc::Queue'.
+// The following example demonstrates a typical usage of a `bdlcc::Queue`.
 //
-// This 'bdlcc::Queue' is used to communicate between a single "producer"
+// This `bdlcc::Queue` is used to communicate between a single "producer"
 // thread and multiple "consumer" threads.  The "producer" will push work
 // requests onto the queue, and each "consumer" will iteratively take a work
 // request from the queue and service the request.  This example shows a
-// partial, simplified implementation of the 'bdlmt::ThreadPool' class.  See
-// component 'bdlmt_threadpool' for more information.
+// partial, simplified implementation of the `bdlmt::ThreadPool` class.  See
+// component `bdlmt_threadpool` for more information.
 //
 // We begin our example with some utility classes that define a simple "work
 // item":
-//..
+// ```
     enum {
         k_MAX_CONSUMER_THREADS = 10
     };
@@ -360,64 +360,64 @@ int getWorkData(my_WorkData *)
         my_WorkData d_data;
         // Work data...
     };
-//..
+// ```
 // Next, we provide a simple function to service an individual work item.  The
 // details are unimportant for this example.
-//..
+// ```
     void myDoWork(my_WorkData& data)
     {
         // do some stuff...
         (void)data;
     }
-//..
-// The 'myConsumer' function will pop items off the queue and process them.  As
-// discussed above, note that the call to 'queue->popFront()' will block until
+// ```
+// The `myConsumer` function will pop items off the queue and process them.  As
+// discussed above, note that the call to `queue->popFront()` will block until
 // there is an item available on the queue.  This function will be executed in
-// multiple threads, so that each thread waits in 'queue->popFront()', and
-// 'bdlcc::Queue' guarantees that each thread gets a unique item from the
+// multiple threads, so that each thread waits in `queue->popFront()`, and
+// `bdlcc::Queue` guarantees that each thread gets a unique item from the
 // queue.
-//..
+// ```
     void myConsumer(bdlcc::Queue<my_WorkRequest> *queue)
     {
         while (1) {
-            // 'popFront()' will wait for a 'my_WorkRequest' until available.
+            // `popFront()` will wait for a `my_WorkRequest` until available.
 
             my_WorkRequest item = queue->popFront();
             if (item.d_type == my_WorkRequest::e_STOP) break;
             myDoWork(item.d_data);
         }
     }
-//..
-// The function below is a callback for 'bslmt::ThreadUtil', which requires a
-// "C" signature.  'bslmt::ThreadUtil::create()' expects a pointer to this
+// ```
+// The function below is a callback for `bslmt::ThreadUtil`, which requires a
+// "C" signature.  `bslmt::ThreadUtil::create()` expects a pointer to this
 // function, and provides that function pointer to the newly created thread.
 // The new thread then executes this function.
 //
-// Since 'bslmt::ThreadUtil::create()' uses the familiar "C" convention of
-// passing a 'void' pointer, our function simply casts that pointer to our
-// required type ('bdlcc::Queue<my_WorkRequest*> *'), and then delegates to the
-// queue-specific function 'myConsumer', above.
-//..
+// Since `bslmt::ThreadUtil::create()` uses the familiar "C" convention of
+// passing a `void` pointer, our function simply casts that pointer to our
+// required type (`bdlcc::Queue<my_WorkRequest*> *`), and then delegates to the
+// queue-specific function `myConsumer`, above.
+// ```
     extern "C" void *myConsumerThread(void *queuePtr)
     {
         myConsumer ((bdlcc::Queue<my_WorkRequest> *)queuePtr);
         return queuePtr;
     }
-//..
-// In this simple example, the 'myProducer' function serves multiple roles: it
-// creates the 'bdlcc::Queue', starts out the consumer threads, and then
+// ```
+// In this simple example, the `myProducer` function serves multiple roles: it
+// creates the `bdlcc::Queue`, starts out the consumer threads, and then
 // produces and queues work items.  When work requests are exhausted, this
-// function queues one 'STOP' item for each consumer queue.
+// function queues one `STOP` item for each consumer queue.
 //
-// When each Consumer thread reads a 'STOP', it terminates its thread-handling
+// When each Consumer thread reads a `STOP`, it terminates its thread-handling
 // function.  Note that, although the producer cannot control which thread
-// 'pop's a particular work item, it can rely on the knowledge that each
-// Consumer thread will read a single 'STOP' item and then terminate.
+// `pop`s a particular work item, it can rely on the knowledge that each
+// Consumer thread will read a single `STOP` item and then terminate.
 //
-// Finally, the 'myProducer' function "joins" each Consumer thread, which
+// Finally, the `myProducer` function "joins" each Consumer thread, which
 // ensures that the thread itself will terminate correctly; see the
-// 'bslmt_threadutil' component for details.
-//..
+// `bslmt_threadutil` component for details.
+// ```
     void myProducer(int numThreads)
     {
         my_WorkRequest item;
@@ -449,7 +449,7 @@ int getWorkData(my_WorkData *)
             bslmt::ThreadUtil::join(consumerHandles[i]);
         }
     }
-//..
+// ```
 
 }  // close namespace QUEUE_USAGE_EXAMPLE_1
 
@@ -477,15 +477,15 @@ namespace QUEUE_USAGE_EXAMPLE_2 {
 // shows a single "Observer" mechanism that receives event notification from
 // the various worker threads.
 //
-// We first create a simple 'my_Event' data type.  Worker threads will use this
+// We first create a simple `my_Event` data type.  Worker threads will use this
 // data type to report information about their work.  In our example, we will
 // report the "worker Id", the event number, and some arbitrary text.
 //
-// As with the previous example, class 'my_Event' also contains an 'EventType',
+// As with the previous example, class `my_Event` also contains an `EventType`,
 // which is an enumeration which that indicates whether the worker has
 // completed all work.  The "Observer" will use this enumerated value to note
 // when a Worker thread has completed its work.
-//..
+// ```
     enum {
         k_MAX_CONSUMER_THREADS = 10,
         k_MAX_EVENT_TEXT       = 80
@@ -502,27 +502,27 @@ namespace QUEUE_USAGE_EXAMPLE_2 {
         int       d_eventNumber;
         char      d_eventText[k_MAX_EVENT_TEXT];
     };
-//..
-// As noted in the previous example, 'bslmt::ThreadUtil::create()' spawns a new
-// thread, which invokes a simple "C" function taking a 'void' pointer.  In the
-// previous example, we simply converted that 'void' pointer into a pointer to
-// the parameterized 'bdlcc::Queue<TYPE>' object.
+// ```
+// As noted in the previous example, `bslmt::ThreadUtil::create()` spawns a new
+// thread, which invokes a simple "C" function taking a `void` pointer.  In the
+// previous example, we simply converted that `void` pointer into a pointer to
+// the parameterized `bdlcc::Queue<TYPE>` object.
 //
 // In this example, we want to pass an additional data item.  Each worker
 // thread is initialized with a unique integer value ("worker Id") that
 // identifies that thread.  We create a simple data structure that contains
 // both of these values:
-//..
+// ```
     struct my_WorkerData {
         int                     d_workerId;
         bdlcc::Queue<my_Event> *d_queue_p;
     };
-//..
-// Function 'myWorker' simulates a working thread by enqueuing multiple
-// 'my_Event' events during execution.  In a normal application, each
-// 'my_Event' structure would likely contain different textual information; for
+// ```
+// Function `myWorker` simulates a working thread by enqueuing multiple
+// `my_Event` events during execution.  In a normal application, each
+// `my_Event` structure would likely contain different textual information; for
 // the sake of simplicity, our loop uses a constant value for the text field.
-//..
+// ```
     void myWorker(int workerId, bdlcc::Queue<my_Event> *queue)
     {
         const int NEVENTS = 5;
@@ -546,32 +546,32 @@ namespace QUEUE_USAGE_EXAMPLE_2 {
         };
         queue->pushBack(ev);
     }
-//..
-// The callback function invoked by 'bslmt::ThreadUtil::create()' takes the
-// traditional 'void' pointer.  The expected data is the composite structure
-// 'my_WorkerData'.  The callback function casts the 'void' pointer to the
+// ```
+// The callback function invoked by `bslmt::ThreadUtil::create()` takes the
+// traditional `void` pointer.  The expected data is the composite structure
+// `my_WorkerData`.  The callback function casts the `void` pointer to the
 // application-specific data type and then uses the referenced object to
-// construct a call to the 'myWorker' function.
-//..
+// construct a call to the `myWorker` function.
+// ```
     extern "C" void *myWorkerThread(void *v_worker_p)
     {
         my_WorkerData *worker_p = (my_WorkerData *) v_worker_p;
         myWorker(worker_p->d_workerId, worker_p->d_queue_p);
         return v_worker_p;
     }
-//..
+// ```
 // For the sake of simplicity, we will implement the Observer behavior in the
-// main thread.  The 'void' function 'myObserver' starts out multiple threads
-// running the 'myWorker' function, reads 'my_Event's from the queue, and logs
+// main thread.  The `void` function `myObserver` starts out multiple threads
+// running the `myWorker` function, reads `my_Event`s from the queue, and logs
 // all messages in the order of arrival.
 //
-// As each 'myWorker' thread terminates, it sends a 'e_TASK_COMPLETE' event.
-// Upon receiving this event, the 'myObserver' function uses the 'd_workerId'
+// As each `myWorker` thread terminates, it sends a `e_TASK_COMPLETE` event.
+// Upon receiving this event, the `myObserver` function uses the `d_workerId`
 // to find the relevant thread, and then "joins" that thread.
 //
-// The 'myObserver' function determines when all tasks have completed simply by
-// counting the number of 'e_TASK_COMPLETE' messages received.
-//..
+// The `myObserver` function determines when all tasks have completed simply by
+// counting the number of `e_TASK_COMPLETE` messages received.
+// ```
     void myObserver()
     {
         const int NTHREADS = 10;
@@ -600,7 +600,7 @@ namespace QUEUE_USAGE_EXAMPLE_2 {
             }
         }
     }
-//..
+// ```
 
 }  // close namespace QUEUE_USAGE_EXAMPLE_2
 
@@ -1075,20 +1075,20 @@ class TestClass6 {
     {
         d_barrier_p->wait();
 
-        // Stage 1: verify that 'pushBack' blocks on mutex in main thread
+        // Stage 1: verify that `pushBack` blocks on mutex in main thread
 
         d_stage = 1;
         d_queue_p->pushBack(1.); // blocks
         ASSERT(1. == d_queue_p->popFront()); // empty queue, does not block
         d_barrier_p->wait();
 
-        // Stage 2: verify that 'popFront' blocks on empty queue in main thread
+        // Stage 2: verify that `popFront` blocks on empty queue in main thread
 
         d_stage = 2;
         ASSERT(d_toBePopped == d_queue_p->popFront()); // blocks
         d_barrier_p->wait();
 
-        // Stage 3: verify that 'pushBack' blocks on full queue in main thread
+        // Stage 3: verify that `pushBack` blocks on full queue in main thread
 
         d_stage = 3;
         d_barrier_p->wait(); // until the queue is filled to the high-water
@@ -2052,11 +2052,11 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 20: {
         // ---------------------------------------------------------
-        // TESTING sequence constraints using 'backwards'
+        // TESTING sequence constraints using `backwards`
         // ---------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "sequence constraint test 'backwars'" << endl
+                          << "sequence constraint test `backwars`" << endl
                           << "===================================" << endl;
         enum {
             k_NUM_THREADS = 4,
@@ -2194,12 +2194,12 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TEST USAGE EXAMPLE 1
         //   The first usage example from the header has been incorporated into
-        //   this test driver.  All references to 'assert' have been replaced
-        //   with 'ASSERT'.  Call the test example function and assert that it
+        //   this test driver.  All references to `assert` have been replaced
+        //   with `ASSERT`.  Call the test example function and assert that it
         //   works as expected.
         //
         // Plan:
-        //   Call the 'myProducer' function(from the usage example) with an
+        //   Call the `myProducer` function(from the usage example) with an
         //   arbitrary number of threads.  Assert that the function runs
         //   as expected.
         //
@@ -2221,16 +2221,16 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TEST USAGE EXAMPLE 2
         //   The second usage example from the header has been incorporated
-        //   into this test driver.  All references to 'assert' have been
-        //   replaced with 'ASSERT'.  Call the test example function and
+        //   into this test driver.  All references to `assert` have been
+        //   replaced with `ASSERT`.  Call the test example function and
         //   assert that it works as expected.
         //
         // Plan:
-        //   1. Create a multi-threaded queue of 'my_Event's.
-        //   2. Create a set of an arbitrary number of 'myWorker' threads,
-        //      where each 'myWorker' thread simulates a single task.
-        //   3. Each 'myWorker' thread generates and enqueues multiple
-        //      'my_Event's.  Upon completion, each 'myWorker' thread enqueues
+        //   1. Create a multi-threaded queue of `my_Event`s.
+        //   2. Create a set of an arbitrary number of `myWorker` threads,
+        //      where each `myWorker` thread simulates a single task.
+        //   3. Each `myWorker` thread generates and enqueues multiple
+        //      `my_Event`s.  Upon completion, each `myWorker` thread enqueues
         //      a TASK_COMPLETE event.
         //   4. Count the TASK_COMPLETE events until all are complete; then
         //      "join" each thread.
@@ -2567,7 +2567,7 @@ int main(int argc, char *argv[])
       }  break;
       case 10: {
         // --------------------------------------------------------------------
-        // TEST 'tryPopFront', 'tryPopBack' -- SINGLE THREAD TEST
+        // TEST `tryPopFront`, `tryPopBack` -- SINGLE THREAD TEST
         //
         // Concern:
         //   That tryPopFront and tryPopBack work as designed in a single -
@@ -2598,7 +2598,7 @@ int main(int argc, char *argv[])
         // TEST USE OF THE QUEUE INTERFACE
         //
         // Concern:
-        //   That the example use of the 'bdlc::Queue' interface code
+        //   That the example use of the `bdlc::Queue` interface code
         //   from the header works as expected.
         //
         // Plan:
@@ -2606,7 +2606,7 @@ int main(int argc, char *argv[])
         //   section and assert that the two values have been removed properly.
         //
         // Testing:
-        //   USAGE use of the 'bdlc::Queue' interface
+        //   USAGE use of the `bdlc::Queue` interface
         // --------------------------------------------------------------------
 
         using namespace QUEUE_USE_OF_QUEUE_INTERFACE;
@@ -2625,18 +2625,18 @@ int main(int argc, char *argv[])
         // TESTING REMOVEALL
         //
         // Concerns:
-        //   That 'removeAll' empties the queue, that it saves the elements
+        //   That `removeAll` empties the queue, that it saves the elements
         //   in proper order into the specified buffer if one is provided, and
         //   destroys them properly otherwise.  Also check that it properly
-        //   signals threads waiting for the 'notFullCondition'.
+        //   signals threads waiting for the `notFullCondition`.
         //
         // Plan:
         //   Create a queue object with multiple elements enqueued.  Then
-        //   invoke 'removeAll' and verify that the queue is empty and that all
+        //   invoke `removeAll` and verify that the queue is empty and that all
         //   elements have been copied to the optionally specified buffer in
         //   the proper order.  Finally, create a queue with a high watermark,
         //   and fill it, then create a thread to push into it, verify that
-        //   thread is blocked.  In the main thread, invoke 'removeAll' and
+        //   thread is blocked.  In the main thread, invoke `removeAll` and
         //   verifies that pushing thread is unblocked.
         //
         // Testing:
@@ -2645,7 +2645,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'removeAll'" << endl
+                          << "TESTING `removeAll`" << endl
                           << "===================" << endl;
 
         Element VA = 1.2;
@@ -2722,8 +2722,8 @@ int main(int argc, char *argv[])
         //   That queue accessor gives internal access to queue, that mutex
         //   blocks other threads properly, and that the condition variables do
         //   signal other threads of the availability of data (for
-        //   'notFullCondition') or of room beneath the highWaterMark (for
-        //   'condition').
+        //   `notFullCondition`) or of room beneath the highWaterMark (for
+        //   `condition`).
         //
         // Plan:
         //   Create a queue object with a positive high-water mark, then get
@@ -2751,8 +2751,8 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl <<
-              "\nTESTING 'mutex', 'notEmptyCondition', 'notFullCondition'"
-                                                              " and 'queue'\n"
+              "\nTESTING `mutex`, `notEmptyCondition`, `notFullCondition`"
+                                                              " and `queue`\n"
                 "========================================================"
                                                               "============\n";
 
@@ -2780,7 +2780,7 @@ int main(int argc, char *argv[])
                 bslmt::ThreadUtil::yield();
 
                 // This is not bullet-proof because it does not ENSURE that
-                // testObj is blocking on the 'pushback', so we maximize our
+                // testObj is blocking on the `pushback`, so we maximize our
                 // chances by waiting more -- to prevent failure in high loads
                 // should the mutex destruction below execute before stage 2 of
                 // testObj (which unfortunately happens erratically).
@@ -2822,7 +2822,7 @@ int main(int argc, char *argv[])
             bslmt::ThreadUtil::microSleep(T);
             ASSERT(2 == testObj.stage());
 
-            // Make testObj stop waiting on 'popFront'.
+            // Make testObj stop waiting on `popFront`.
 
             x.notEmptyCondition().signal();
             barrier.wait();
@@ -2836,9 +2836,9 @@ int main(int argc, char *argv[])
             ASSERT(3 == testObj.stage());
 
             // Again, there is no way to test if the test thread is waiting on
-            // the condition variable, and the 'yield()' is not bullet-proof
+            // the condition variable, and the `yield()` is not bullet-proof
             // because it does not ENSURE that testObj is blocking on the
-            // 'pushBack', so we maximize our chances by waiting some more.
+            // `pushBack`, so we maximize our chances by waiting some more.
 
             iter = 10;
             while (0 < --iter) {
@@ -2857,7 +2857,7 @@ int main(int argc, char *argv[])
             bslmt::ThreadUtil::microSleep(T);
             ASSERT(3 == testObj.stage());
 
-            // Make testObj stop waiting on 'pushBack'.
+            // Make testObj stop waiting on `pushBack`.
 
             x.notFullCondition().signal();
             barrier.wait();
@@ -2877,7 +2877,7 @@ int main(int argc, char *argv[])
         // TESTING TIMED PUSH FUNCTIONS IN PRESENCE OF A HIGH WATER MARK
         //
         // Concerns:
-        //   That the 'timedPushBack' and 'timedPushFront' functions properly
+        //   That the `timedPushBack` and `timedPushFront` functions properly
         //   time out unless the queue has fewer items than the high-water mark
         //
         // Plan:
@@ -2899,7 +2899,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "TESTING 'timedPushBack' and 'timedPushFront'" << endl
+                 << "TESTING `timedPushBack` and `timedPushFront`" << endl
                  << "============================================" << endl;
 
         static  const struct {
@@ -2923,7 +2923,7 @@ int main(int argc, char *argv[])
         Element VA = 1.2;
         Element VB = -5.7;
 
-        if (verbose) cout << "\tWith 'timedPushBack'" << endl;
+        if (verbose) cout << "\tWith `timedPushBack`" << endl;
         for (int i = 0; i< NUM_VALUES; ++i)
         {
             bslma::TestAllocator ta(veryVeryVeryVerbose);
@@ -2972,14 +2972,14 @@ int main(int argc, char *argv[])
 
                         if (0 == testObj.timeOutFlag()) {
                             // Test that assert succeeded, otherwise
-                            // 'x.popBack()' would time out.
+                            // `x.popBack()` would time out.
 
                             LOOP_ASSERT(i, VB == x.popBack() );
                         }
                     } else {
                         bsl::cout << "*** Warning:  (line " << __LINE__ << ") "
                                   << "high load delays prevented test case 5 "
-                                  << "to run properly ('timedPushBack')"
+                                  << "to run properly (`timedPushBack`)"
                                   << endl;
                     }
                 }
@@ -3000,7 +3000,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) { P(ta); }
         }
 
-        if (verbose) cout << "\tWith 'timedPushFront'" << endl;
+        if (verbose) cout << "\tWith `timedPushFront`" << endl;
         for (int i = 0; i< NUM_VALUES; ++i)
         {
             bslma::TestAllocator ta(veryVeryVeryVerbose);
@@ -3046,14 +3046,14 @@ int main(int argc, char *argv[])
                         }
                         LOOP_ASSERT(i, 0 == testObj.timeOutFlag() );
                         if (0 == testObj.timeOutFlag()) {
-                            // Otherwise 'x.popFront()' would time out.
+                            // Otherwise `x.popFront()` would time out.
 
                             LOOP_ASSERT(i, VB == x.popFront() );
                         }
                     } else {
                         bsl::cout << "*** Warning:  (line " << __LINE__ << ") "
                                   << "high load delays prevented test case 5 "
-                                  << "to run properly ('timedPushFront')"
+                                  << "to run properly (`timedPushFront`)"
                                   << endl;
                     }
                 }
@@ -3080,9 +3080,9 @@ int main(int argc, char *argv[])
         // TESTING PUSH FUNCTIONS IN PRESENCE OF A HIGH WATER MARK
         //
         // Concerns:
-        //   That the 'pushBack' and 'pushFront' functions properly block
+        //   That the `pushBack` and `pushFront` functions properly block
         //   unless the queue has fewer items than the high-water mark.
-        //   That the 'forcePushFront' does not block.
+        //   That the `forcePushFront` does not block.
         //
         // Plan:
         //   Create a queue object with a positive high-water mark, then push
@@ -3105,8 +3105,8 @@ int main(int argc, char *argv[])
         using namespace QUEUE_TEST_CASE_4;
 
         if (verbose) cout << endl
-           << "TESTING 'highWaterMark' and associated c'tor along with" << endl
-           << "'pushBack' and 'pushFront'" << endl
+           << "TESTING `highWaterMark` and associated c'tor along with" << endl
+           << "`pushBack` and `pushFront`" << endl
            << "======================================================="
            << "==========================" << endl;
 
@@ -3129,7 +3129,7 @@ int main(int argc, char *argv[])
         const Element VA = 1.2;
         const Element VB = -5.7;
 
-        if (verbose) cout << "\tWith 'pushBack'" << endl;
+        if (verbose) cout << "\tWith `pushBack`" << endl;
         for (int i = 0; i< NUM_VALUES; ++i)
         {
             bslma::TestAllocator ta(veryVeryVeryVerbose);
@@ -3155,10 +3155,10 @@ int main(int argc, char *argv[])
 
                 if (0 < HIGH_WATER_MARK) {
                     // Yielding is not bullet-proof because it does not ENSURE
-                    // that testObj is blocking on the 'pushFront', so we make
+                    // that testObj is blocking on the `pushFront`, so we make
                     // sure by waiting as long as necessary -- to prevent
-                    // failure in high loads should the 'popBack' below execute
-                    // before 'pushFront' in testObj (which actually happens
+                    // failure in high loads should the `popBack` below execute
+                    // before `pushFront` in testObj (which actually happens
                     // erratically).
 
                     int iter = 100;
@@ -3186,7 +3186,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) { P(ta); }
         }
 
-        if (verbose) cout << "\tWith 'push_front'" << endl;
+        if (verbose) cout << "\tWith `push_front`" << endl;
         for (int i = 0; i< NUM_VALUES; ++i)
         {
             bslma::TestAllocator ta(veryVeryVeryVerbose);
@@ -3247,7 +3247,7 @@ int main(int argc, char *argv[])
         // TESTING TIMED POP FUNCTIONS IN MULTI-THREAD
         //
         // Concerns:
-        //   That the 'timedPopBack' and 'timedPopFront' functions block
+        //   That the `timedPopBack` and `timedPopFront` functions block
         //   properly when an item is not available, and that they time out
         //   properly.
         //
@@ -3267,10 +3267,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout
                        << endl
-                       << "TESTING 'timedPopBack' and 'timedPopFront'" << endl
+                       << "TESTING `timedPopBack` and `timedPopFront`" << endl
                        << "==========================================" << endl;
 
-        if (verbose) cout << "\tWith 'timedPopBack'" << endl;
+        if (verbose) cout << "\tWith `timedPopBack`" << endl;
         bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             const int T = 1 * MICRO_DECI_SEC; // in microseconds
@@ -3312,7 +3312,7 @@ int main(int argc, char *argv[])
                 bsl::cout
                     << "*** Warning:  (line " << __LINE__ << ") "
                     << "high load delays prevented test"
-                    << " case 3 to run properly ('timedPopBack')" << endl;
+                    << " case 3 to run properly (`timedPopBack`)" << endl;
             }
 
             bslmt::ThreadUtil::join(thread);
@@ -3322,7 +3322,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numMismatches());
         if (veryVerbose) { P(ta); }
 
-        if (verbose) cout << "\tWith 'timedPopFront'" << endl;
+        if (verbose) cout << "\tWith `timedPopFront`" << endl;
         {
             const int T = 1 * MICRO_DECI_SEC; // in microseconds
             bsls::TimeInterval T4(4 * DECI_SEC);   // .4s
@@ -3362,7 +3362,7 @@ int main(int argc, char *argv[])
                 bsl::cout
                     << "*** Warning: (line " << __LINE__ << ") "
                     << "high load delays prevented test"
-                    << " case 3 to run properly ('timedPopFront') " << endl;
+                    << " case 3 to run properly (`timedPopFront`) " << endl;
             }
 
             bslmt::ThreadUtil::join(thread);
@@ -3395,7 +3395,7 @@ int main(int argc, char *argv[])
         // TESTING PUSH AND POP FUNCTIONS IN MULTI-THREAD
         //
         // Concerns:
-        //   That the 'popBack' and 'popFront' functions properly block until
+        //   That the `popBack` and `popFront` functions properly block until
         //   an item is available.
         //
         // Plan:
@@ -3411,10 +3411,10 @@ int main(int argc, char *argv[])
         using namespace QUEUE_TEST_CASE_2;
 
         if (verbose) cout << endl
-                          << "TESTING 'popBack' and 'popFront'" << endl
+                          << "TESTING `popBack` and `popFront`" << endl
                           << "================================" << endl;
 
-        if (verbose) cout << "\tWith 'popBack'" << endl;
+        if (verbose) cout << "\tWith `popBack`" << endl;
         bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             const int T = 1 * MICRO_DECI_SEC; // in microseconds
@@ -3427,10 +3427,10 @@ int main(int argc, char *argv[])
             bslmt::ThreadUtil::create(&thread, test2back, &testObj);
 
             // Yielding is not bullet-proof because it does not ENSURE that
-            // 'testObj' is blocking on the 'popFront', so we make sure by
+            // `testObj` is blocking on the `popFront`, so we make sure by
             // waiting as long as necessary -- to prevent failure in high loads
-            // should the 'pushBack' below execute before 'popFront' in
-            // 'testObj'.
+            // should the `pushBack` below execute before `popFront` in
+            // `testObj`.
 
             int iter = 100;
             while (0 == testObj.waitingFlag() && 0 < --iter) {
@@ -3449,7 +3449,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numMismatches());
         if (veryVerbose) { P(ta); }
 
-        if (verbose) cout << "\tWith 'popFront'" << endl;
+        if (verbose) cout << "\tWith `popFront`" << endl;
         {
             const int T = 1 * MICRO_DECI_SEC; // in microseconds
             Obj x(&ta);
@@ -3485,70 +3485,70 @@ int main(int argc, char *argv[])
         // SINGLE_THREADED TESTING PUSHES, POPS, AND LENGTH
         //
         // Concerns:
-        //: 1 That for a 'bdlcc::Queue' 'q', 'q.length() == q.queue().length()'
-        //:   always.  This is verified by the 'myLength' function.  Since
-        //:   it is usually impossible to test manipulators without calling
-        //:   accessors, or accessors without calling manipulators, this
-        //:   testing will take place while the manipulators are being tested
-        //:   rather than in a separate section.
-        //:
-        //: 2 That 'pushBack' has the same effect on the queue as calling
-        //:   'pushBack on the underlying 'bdlc::Queue'.
-        //:
-        //: 3 That 'popBack' calls 'popBack' on the underlying 'bdlc::Queue',
-        //:   except it also returns the popped value.
-        //:
-        //: 4 That 'pushFront' has the same effect on the queue as calling
-        //:   'pushFront on the underlying 'bdlc::Queue'.
-        //:
-        //: 5 That 'popFront' calls 'popFront' on the underlying 'bdlc::Queue',
-        //:   except it also returns the popped value.
+        // 1. That for a `bdlcc::Queue` `q`, `q.length() == q.queue().length()`
+        //    always.  This is verified by the `myLength` function.  Since
+        //    it is usually impossible to test manipulators without calling
+        //    accessors, or accessors without calling manipulators, this
+        //    testing will take place while the manipulators are being tested
+        //    rather than in a separate section.
+        //
+        // 2. That `pushBack` has the same effect on the queue as calling
+        //    `pushBack on the underlying `bdlc::Queue'.
+        //
+        // 3. That `popBack` calls `popBack` on the underlying `bdlc::Queue`,
+        //    except it also returns the popped value.
+        //
+        // 4. That `pushFront` has the same effect on the queue as calling
+        //    `pushFront on the underlying `bdlc::Queue'.
+        //
+        // 5. That `popFront` calls `popFront` on the underlying `bdlc::Queue`,
+        //    except it also returns the popped value.
         //
         // Plan:
-        //: 1 Testing 'pushBack', 'popBack', 'pushFront', and 'popFront':
-        //:
-        //:   o Push a couple of different values into 'x', the queue, with
-        //:     'pushBack', monitoring the length of the queue with 'myLength'
-        //:     and monitoring the contents of the queue with
-        //:     'x.queue().back()' and 'x.queue().front()'. C-2, C-1.
-        //:
-        //:   o Pop the two values from the 'x', the queue, using 'popBack',
-        //:     observing that the correct values are returned, and monitoring
-        //:     the length of the queue with 'myLength' and monitoring the
-        //:     contents of the queue with 'x.queue().back()' and
-        //:     'x.queue().front()'. C-3, C-1.
-        //:
-        //:   o Push a couple of new, different values into 'x', the queue,
-        //:     with 'pushFront', monitoring the length of the queue with
-        //:     'myLength' and monitoring the contents of the queue with
-        //:     'x.queue().back()' and 'x.queue().front()'. C-4, C-1.
-        //:
-        //:   o Pop the two values from the 'x', the queue, using 'popFront',
-        //:     observing that the correct values are returned, and monitoring
-        //:     the length of the queue with 'myLength' and monitoring the
-        //:     contents of the queue with 'x.queue().back()' and
-        //:     'x.queue().front()'. C-5, C-1.
-        //:
-        //: 2 Iterate, randomly choosing a queue length in the range 0-7.  This
+        // 1. Testing `pushBack`, `popBack`, `pushFront`, and `popFront`:
+        //
+        //    - Push a couple of different values into `x`, the queue, with
+        //      `pushBack`, monitoring the length of the queue with `myLength`
+        //      and monitoring the contents of the queue with
+        //      `x.queue().back()` and `x.queue().front()`. C-2, C-1.
+        //
+        //    - Pop the two values from the `x`, the queue, using `popBack`,
+        //      observing that the correct values are returned, and monitoring
+        //      the length of the queue with `myLength` and monitoring the
+        //      contents of the queue with `x.queue().back()` and
+        //      `x.queue().front()`. C-3, C-1.
+        //
+        //    - Push a couple of new, different values into `x`, the queue,
+        //      with `pushFront`, monitoring the length of the queue with
+        //      `myLength` and monitoring the contents of the queue with
+        //      `x.queue().back()` and `x.queue().front()`. C-4, C-1.
+        //
+        //    - Pop the two values from the `x`, the queue, using `popFront`,
+        //      observing that the correct values are returned, and monitoring
+        //      the length of the queue with `myLength` and monitoring the
+        //      contents of the queue with `x.queue().back()` and
+        //      `x.queue().front()`. C-5, C-1.
+        //
+        // 2. Iterate, randomly choosing a queue length in the range 0-7.  This
         //    test tests C-1, C-2, C-3, C-4, and C-5, just more thoroughly.
-        //:
-        //:   o If the chosen length is longer than the existing queue length,
-        //:     grow the queue to the desired queue length by random choosing
-        //:     'pushFront' or 'pushBack', and pushing random doubles into the
-        //:     queue.  Simultaneously push the same value onto the same end of
-        //:     a 'bsl::deque' kept in parallel.
-        //;
-        //:   o If the chosen length is shorter than the existing queue, shrink
-        //:     the queue to the designated queue length by randomly calling
-        //:     'popFront' or 'popBack'.  Simultaneously do a similar pop from
-        //:     the parallel 'bsl::deque', and observe the values popped are
-        //:     identical.
-        //;
-        //:   o Each iteration, whether growing or shrinking, frequently check
-        //:     the length is as expected, via 'myLength', but also verify it
-        //:     matches the length of the 'deque'. check the length of the
-        //:     deque, and call '.queue().length()' on the queue and observe
-        //:     that all three lengths match with the expected value.
+        //
+        //    - If the chosen length is longer than the existing queue length,
+        //      grow the queue to the desired queue length by random choosing
+        //      `pushFront` or `pushBack`, and pushing random doubles into the
+        //      queue.  Simultaneously push the same value onto the same end of
+        //      a `bsl::deque` kept in parallel.
+        //
+        //    - If the chosen length is shorter than the existing queue, shrink
+        //      the queue to the designated queue length by randomly calling
+        //      `popFront` or `popBack`.  Simultaneously do a similar pop from
+        //      the parallel `bsl::deque`, and observe the values popped are
+        //      identical.
+        //
+        //    - Each iteration, whether growing or shrinking, frequently check
+        //      the length is as expected, via `myLength`, but also verify it
+        //      matches the length of the `deque`. check the length of the
+        //      deque, and call `.queue().length()` on the queue and observe
+        //      that all three lengths match with the expected value.
         //
         // Testing:
         //   pushFront
@@ -3584,7 +3584,7 @@ int main(int argc, char *argv[])
 
             Obj x(&ta);
 
-            if (verbose) cout << "\t\t'pushBack' && 'length'\n";
+            if (verbose) cout << "\t\t'pushBack' && `length`\n";
             {
                 ASSERT(0 == myLength(&x));
 
@@ -3600,7 +3600,7 @@ int main(int argc, char *argv[])
                 ASSERT(V[1] == x.queue().back());
             }
 
-            if (verbose) cout << "\t\t'popBack' && 'length'\n";
+            if (verbose) cout << "\t\t'popBack' && `length`\n";
             {
                 ASSERT(2 == myLength(&x));
 
@@ -3615,7 +3615,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == myLength(&x));
             }
 
-            if (verbose) cout << "\t\t'pushFront' && 'length'\n";
+            if (verbose) cout << "\t\t'pushFront' && `length`\n";
             {
                 ASSERT(0 == myLength(&x));
 
@@ -3631,7 +3631,7 @@ int main(int argc, char *argv[])
                 ASSERT(V[2] == x.queue().back());
             }
 
-            if (verbose) cout << "\t\t'popFront' && 'length'\n";
+            if (verbose) cout << "\t\t'popFront' && `length`\n";
             {
                 ASSERT(2 == myLength(&x));
 
@@ -3673,7 +3673,7 @@ int main(int argc, char *argv[])
                         ASSERT(expectedLength == (int) D.size());
                         ASSERT(expectedLength == myLength(&x));
 
-                        // Generate a fairly random double using 'generate15'.
+                        // Generate a fairly random double using `generate15`.
 
                         const Element v = randElement(&seed);
 
@@ -3747,13 +3747,13 @@ int main(int argc, char *argv[])
         //   That basic essential functionality is operational for one thread
         //
         // Plan:
-        //   Create a queue object using the various constructors, 'pushBack'
-        //   three elements and verify that 'popFront'ing them results in same
-        //   order, then 'pushBack' three elements again and verify that
-        //   'popBack'ing them results in opposite order.  Verify that
-        //   'timedPopFront' will time out, then 'pushFront' another item,
-        //   verify that 'timedPopFront' pops the item, then 'pushFront'
-        //   another item and verify that 'timedPopFront' pops the item.
+        //   Create a queue object using the various constructors, `pushBack`
+        //   three elements and verify that `popFront`ing them results in same
+        //   order, then `pushBack` three elements again and verify that
+        //   `popBack`ing them results in opposite order.  Verify that
+        //   `timedPopFront` will time out, then `pushFront` another item,
+        //   verify that `timedPopFront` pops the item, then `pushFront`
+        //   another item and verify that `timedPopFront` pops the item.
         //   Finally, verify that one can gain modifiable access to the mutex,
         //   condition variable, and queue, perform same operations and release
         //   the mutex.
@@ -3971,7 +3971,7 @@ int main(int argc, char *argv[])
 
         {
             if (verbose)
-                cout << "Exercising 'highWaterMark'" << endl;
+                cout << "Exercising `highWaterMark`" << endl;
 
             const int HIGH_WATER_MARK = 10;
             Obj x(&ta), x2(HIGH_WATER_MARK, &ta), x3(-HIGH_WATER_MARK, &ta);

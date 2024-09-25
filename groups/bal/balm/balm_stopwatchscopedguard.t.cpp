@@ -41,12 +41,12 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-// The 'balm::StopwatchScopedGuard' provides a mechanism and macros for
+// The `balm::StopwatchScopedGuard` provides a mechanism and macros for
 // recording the elapsed time of a block of code.  The class provides several
 // constructor variants, but no manipulator methods, and single accessor, so
 // there are relatively few tests.  All the tests, except the
-// 'ELAPSED TIME VALUE' test, ensure that the correct metric is updated,
-// the 'ELAPSED TIME VALUE' test verifies that the class records a reasonable
+// `ELAPSED TIME VALUE` test, ensure that the correct metric is updated,
+// the `ELAPSED TIME VALUE` test verifies that the class records a reasonable
 // elapsed time to that metric.
 // ----------------------------------------------------------------------------
 // CREATORS
@@ -62,7 +62,7 @@ using bsl::flush;
 // [ 3]  bool isActive() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] 'TestPublisher'                             (helper classes)
+// [ 2] `TestPublisher`                             (helper classes)
 // [ 3] TESTING REPORTED TIME UNITS
 // [ 6] ELAPSED TIME VALUE
 // [ 7] USAGE
@@ -122,10 +122,10 @@ typedef bsl::shared_ptr<balm::Publisher> PublisherPtr;
 //                            CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Return `true` if the specified `value` in the specified `scale` is
+/// within the specified `windowMs` (milliseconds) of the specified
+/// `expectedS` (seconds).
 bool within(double value, Units scale, double expectedS, double windowMs)
-    // Return 'true' if the specified 'value' in the specified 'scale' is
-    // within the specified 'windowMs' (milliseconds) of the specified
-    // 'expectedS' (seconds).
 {
     double expected = expectedS * static_cast<double>(scale);
     double window   = windowMs * 1000 * static_cast<double>(scale);
@@ -134,18 +134,18 @@ bool within(double value, Units scale, double expectedS, double windowMs)
         && ((expected + window) > value);
 }
 
+/// Return `true` if the specified `lhs` is less than (ordered before) the
+/// specified `rhs`, and `false` otherwise.  A `balm::MetricRecord` are
+/// ordered by their the `metricId` method.
 bool recordLess(const balm::MetricRecord& lhs, const balm::MetricRecord& rhs)
-    // Return 'true' if the specified 'lhs' is less than (ordered before) the
-    // specified 'rhs', and 'false' otherwise.  A 'balm::MetricRecord' are
-    // ordered by their the 'metricId' method.
 {
 
     return lhs.metricId() < rhs.metricId();
 }
 
+/// Return the current value of the metric record being collected by the
+/// specified `collector`.
 balm::MetricRecord recordValue(balm::Collector *collector)
-    // Return the current value of the metric record being collected by the
-    // specified 'collector'.
 {
     balm::MetricRecord record;
     collector->load(&record);
@@ -156,17 +156,17 @@ balm::MetricRecord recordValue(balm::Collector *collector)
                             // class TestPublisher
                             // ===================
 
+/// This class defines a test implementation of the `balm::Publisher` that
+/// protocol can be used to record information about invocations of the
+/// `publish` method.  Each `TestPublisher` instance tracks the number of
+/// times `publish` has been called, and maintains `lastElapsedTime()`,
+/// `lastTimeStamp()`, and `lastRecords()` values holding the elapsed time,
+/// time stamp, and record values (in sorted order) of the last
+/// published `balm::MetricSample` object.  The `TestPublisher` also
+/// provides a `reset()` operation to reset the invocation count to 0 and
+/// clear the `lastRecords` information.  Note that the `publish` method is
+/// *not* thread-safe.
 class TestPublisher : public balm::Publisher {
-    // This class defines a test implementation of the 'balm::Publisher' that
-    // protocol can be used to record information about invocations of the
-    // 'publish' method.  Each 'TestPublisher' instance tracks the number of
-    // times 'publish' has been called, and maintains 'lastElapsedTime()',
-    // 'lastTimeStamp()', and 'lastRecords()' values holding the elapsed time,
-    // time stamp, and record values (in sorted order) of the last
-    // published 'balm::MetricSample' object.  The 'TestPublisher' also
-    // provides a 'reset()' operation to reset the invocation count to 0 and
-    // clear the 'lastRecords' information.  Note that the 'publish' method is
-    // *not* thread-safe.
 
     // DATA
     bsls::AtomicInt                 d_numInvocations;  // # of invocations
@@ -178,7 +178,7 @@ class TestPublisher : public balm::Publisher {
 
     balm::MetricSample              d_sample;          // reconstructed last
                                                       // sample (using
-                                                      // 'd_recordsBuffer')
+                                                      // `d_recordsBuffer`)
 
     bsl::set<bsls::TimeInterval>    d_elapsedTimes;    // last elapsed times
 
@@ -189,67 +189,70 @@ class TestPublisher : public balm::Publisher {
   public:
 
     // CREATORS
-    TestPublisher(bslma::Allocator *allocator);
-        // Create a test publisher with 0 'invocations()' and the default
-        // constructed 'lastSample()' using the specified 'allocator' to
-        // supply memory.
 
+    /// Create a test publisher with 0 `invocations()` and the default
+    /// constructed `lastSample()` using the specified `allocator` to
+    /// supply memory.
+    TestPublisher(bslma::Allocator *allocator);
+
+    /// Destroy this test publisher.
     ~TestPublisher() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this test publisher.
 
     // MANIPULATORS
+
+    /// Increment the number of `invocations()`, set the
+    /// `lastElapsedTime()` and `lastTimeStamp()` equal to the elapsed time
+    /// and time stamp of the specified `sample`, and set `lastRecords()`
+    /// to be the list of sequence in `sample` in *sorted* order.   Note
+    /// that this method is *not* thread-safe.
     void publish(const balm::MetricSample& sample) BSLS_KEYWORD_OVERRIDE;
-        // Increment the number of 'invocations()', set the
-        // 'lastElapsedTime()' and 'lastTimeStamp()' equal to the elapsed time
-        // and time stamp of the specified 'sample', and set 'lastRecords()'
-        // to be the list of sequence in 'sample' in *sorted* order.   Note
-        // that this method is *not* thread-safe.
 
    void reset();
-        // Set 'invocations()' to 0, clear the 'lastRecords()' sequence.
+        // Set `invocations()` to 0, clear the `lastRecords()` sequence.
 
     // ACCESSORS
+
+    /// Return the number of times the `publish` method has been invoked
+    /// since this test publisher was constructed or the last call to
+    /// `reset()`.
     int invocations() const;
-        // Return the number of times the 'publish' method has been invoked
-        // since this test publisher was constructed or the last call to
-        // 'reset()'.
 
+    /// Return a reference to the non-modifiable reconstruction of the last
+    /// sample passed to the `publish` method.  The returned sample value
+    /// contains the same metric record values organized into the same
+    /// groups as the published sample, but the returned sample does not
+    /// refer to the same addresses in memory: so the returned sample is
+    /// equivalent but *not* *equal* to the published sample.
     const balm::MetricSample& lastSample() const;
-        // Return a reference to the non-modifiable reconstruction of the last
-        // sample passed to the 'publish' method.  The returned sample value
-        // contains the same metric record values organized into the same
-        // groups as the published sample, but the returned sample does not
-        // refer to the same addresses in memory: so the returned sample is
-        // equivalent but *not* *equal* to the published sample.
 
+    /// Return a reference to the non-modifiable sequence of records
+    /// containing the values of the records in the last sample passed to
+    /// the `publish` method in *sorted* order, or an empty vector if the
+    /// `publish` method has not been called since this object was created
+    /// or last reset.
     const bsl::vector<balm::MetricRecord>& lastRecords() const;
-        // Return a reference to the non-modifiable sequence of records
-        // containing the values of the records in the last sample passed to
-        // the 'publish' method in *sorted* order, or an empty vector if the
-        // 'publish' method has not been called since this object was created
-        // or last reset.
 
+    /// Return a reference to the non-modifiable elapsed time value of the
+    /// last sample passed to the `publish` method.  The behavior is
+    /// undefined unless the `publish` method has invoked since this object
+    /// was created or last reset.
     const bsl::set<bsls::TimeInterval>& lastElapsedTimes() const;
-        // Return a reference to the non-modifiable elapsed time value of the
-        // last sample passed to the 'publish' method.  The behavior is
-        // undefined unless the 'publish' method has invoked since this object
-        // was created or last reset.
 
+    /// Return a reference to the non-modifiable time stamp of the
+    /// last sample passed to the `publish` method.  The behavior is
+    /// undefined unless the `publish` method has invoked since this object
+    /// was created or last reset.
     const bdlt::DatetimeTz& lastTimeStamp() const;
-        // Return a reference to the non-modifiable time stamp of the
-        // last sample passed to the 'publish' method.  The behavior is
-        // undefined unless the 'publish' method has invoked since this object
-        // was created or last reset.
 
+    /// Return the index into `lastRecords()` of the specified `id`, or -1
+    /// if there is no record with `id` in `lastRecords()`.
     int indexOf(const balm::MetricId& id) const;
-        // Return the index into 'lastRecords()' of the specified 'id', or -1
-        // if there is no record with 'id' in 'lastRecords()'.
 
+    /// Return `true` if the `lastSample` contains a `balm::MetricRecord`
+    /// object whose `metricId()` equals the specified `id`, and `false`
+    /// otherwise.  Note that this operation is logical equivalent to
+    /// `index(id) != -1`.
     bool contains(const balm::MetricId& id) const;
-        // Return 'true' if the 'lastSample' contains a 'balm::MetricRecord'
-        // object whose 'metricId()' equals the specified 'id', and 'false'
-        // otherwise.  Note that this operation is logical equivalent to
-        // 'index(id) != -1'.
 
 };
 
@@ -374,15 +377,15 @@ bool TestPublisher::contains(const balm::MetricId& id) const
 //                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
-//..
-///Example 2 - Metric Collection with 'balm::StopwatchScopedGuard'
+// ```
+///Example 2 - Metric Collection with `balm::StopwatchScopedGuard`
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Alternatively, we can use the 'balm::StopwatchScopedGuard' to record metric
+// Alternatively, we can use the `balm::StopwatchScopedGuard` to record metric
 // values.  In the following example we implement a hypothetical request
-// processor similar to the one in example 3.  We use a 'balm::Metric'
-// ('d_elapsedTime') and a 'balm::StopwatchScopedGuard' ('guard') to record the
+// processor similar to the one in example 3.  We use a `balm::Metric`
+// (`d_elapsedTime`) and a `balm::StopwatchScopedGuard` (`guard`) to record the
 // elapsed time of the request-processing function.
-//..
+// ```
     class RequestProcessor {
 
         // DATA
@@ -396,9 +399,10 @@ bool TestPublisher::contains(const balm::MetricId& id) const
         {}
 
         // MANIPULATORS
+
+        /// Process the specified `request`.  Return 0 on success, and a
+        /// non-zero value otherwise.
         int processRequest(const bsl::string& request)
-            // Process the specified 'request'.  Return 0 on success, and a
-            // non-zero value otherwise.
         {
             (void)request;
 
@@ -413,7 +417,7 @@ bool TestPublisher::contains(const balm::MetricId& id) const
 
     // ...
     };
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -442,7 +446,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -451,37 +455,37 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Usage Example"
                           << "\n=====================" << endl;
 
-///Example 1 - Create and Configure the Default 'balm::MetricsManager' Instance
+///Example 1 - Create and Configure the Default `balm::MetricsManager` Instance
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to create the default 'balm::MetricManager'
+// This example demonstrates how to create the default `balm::MetricManager`
 // instance and perform a trivial configuration.
 //
-// First we create a 'balm::DefaultMetricsManagerScopedGuard', which manages
+// First we create a `balm::DefaultMetricsManagerScopedGuard`, which manages
 // the lifetime of the default metrics manager instance.  At construction, we
-// provide the scoped guard an output stream ('stdout') that it will publish
+// provide the scoped guard an output stream (`stdout`) that it will publish
 // metrics to.  Note that the default metrics manager is intended to be created
-// and destroyed by the *owner* of 'main'.  An instance of the manager should
+// and destroyed by the *owner* of `main`.  An instance of the manager should
 // be created during the initialization of an application (while the task has a
 // single thread) and destroyed just prior to termination (when there is
 // similarly a single thread).
-//..
+// ```
 //  int main(int argc, char *argv[])
     {
 
     // ...
 
         balm::DefaultMetricsManagerScopedGuard managerGuard(bsl::cout);
-//..
+// ```
 // Once the default instance has been created, it can be accessed using the
-// 'instance' operation.
-//..
+// `instance` operation.
+// ```
        balm::MetricsManager *manager = balm::DefaultMetricsManager::instance();
        ASSERT(0 != manager);
-//..
-// Note that the default metrics manager will be released when 'managerGuard'
+// ```
+// Note that the default metrics manager will be released when `managerGuard`
 // exits this scoped and is destroyed.  Clients that choose to explicitly call
-// the 'balm::DefaultMetricsManager::create' method must also explicitly call
-// the 'balm::DefaultMetricsManager::release' method.
+// the `balm::DefaultMetricsManager::create` method must also explicitly call
+// the `balm::DefaultMetricsManager::release` method.
 
         RequestProcessor processor;
 
@@ -565,7 +569,7 @@ int main(int argc, char *argv[])
         // TESTING REPORTED TIME UNITS:
         //
         // Concerns:
-        //    That the value reported by the 'balm::StopwatchScopedGuard' is
+        //    That the value reported by the `balm::StopwatchScopedGuard` is
         //    scaled into the appropriate time units.
         //
         // Plan:
@@ -1103,10 +1107,10 @@ int main(int argc, char *argv[])
         //   operation of the following methods and operators:
         //      - default and copy constructors (and also the destructor)
         //      - the assignment operator (including aliasing)
-        //      - equality operators: 'operator==' and 'operator!='
-        //      - the (test-driver supplied) output operator: 'operator<<'
-        //      - primary manipulators: 'push_back' and 'clear' methods
-        //      - basic accessors: 'size' and 'operator[]'
+        //      - equality operators: `operator==` and `operator!=`
+        //      - the (test-driver supplied) output operator: `operator<<`
+        //      - primary manipulators: `push_back` and `clear` methods
+        //      - basic accessors: `size` and `operator[]`
         //   In addition we would like to exercise objects with potentially
         //   different internal organizations representing the same value.
         //

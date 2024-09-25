@@ -11,17 +11,17 @@ BSLS_IDENT("$Id$ $CSID$")
 namespace BloombergLP {
 namespace bsls {
 namespace {
+/// This parameterized `struct` is declared but not defined except for the
+/// single specialization below.  It is used with the `sizeof` operator to
+/// verify the assumption that `BSLS_MAX_ALIGNMENT` is a positive, integral
+/// power of 2.  Note that `bslmf_assert` cannot be used in `bsls`.
 template <int INTEGER>
 struct AlignmentUtil_Assert;
-    // This parameterized 'struct' is declared but not defined except for the
-    // single specialization below.  It is used with the 'sizeof' operator to
-    // verify the assumption that 'BSLS_MAX_ALIGNMENT' is a positive, integral
-    // power of 2.  Note that 'bslmf_assert' cannot be used in 'bsls'.
 
+/// Applying `sizeof` to this specialization will allow compilation to
+/// succeed (i.e., the associated compile-time assert will succeed).
 template <>
 struct AlignmentUtil_Assert<1> {
-    // Applying 'sizeof' to this specialization will allow compilation to
-    // succeed (i.e., the associated compile-time assert will succeed).
 
     enum { VALUE = 1 };
 };

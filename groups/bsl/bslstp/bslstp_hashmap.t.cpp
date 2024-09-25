@@ -3,8 +3,8 @@
 
 template class bsl::hash_map<short, char>;
 
+/// Smoke test
 int main() {
-    // Smoke test
     bsl::hash_map<int, int> x;
     x[5] = 6;
     x.erase(x.begin());

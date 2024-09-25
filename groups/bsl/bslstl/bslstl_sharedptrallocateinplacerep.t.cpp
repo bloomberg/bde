@@ -15,16 +15,16 @@
 
 #include <bsltf_stdstatefulallocator.h>
 
-#include <stdint.h>            // 'uintptr_t'
+#include <stdint.h>            // `uintptr_t`
 #include <stdio.h>
-#include <stdlib.h>             // 'atoi'
+#include <stdlib.h>             // `atoi`
 
 #include <new>
 
 #if defined(BSLS_PLATFORM_OS_AIX) && BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L
 #define BSLSTL_SHAREDPTR_REP_DONT_TEST_UNBOUNDED_ARRAYS
 // Some compilers (AIX) do not like unbounded arrays in types in C++03.  Things
-// like 'shared_ptr<int[]>' cause them to complain.
+// like `shared_ptr<int[]>` cause them to complain.
 #endif
 
 using namespace BloombergLP;
@@ -122,7 +122,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 class MySharedDatetime {
     // This class provide a reference counted smart pointer to support shared
-    // ownership of a 'bdlt::Datetime' object.
+    // ownership of a `bdlt::Datetime` object.
 
   private:
     bdlt::Datetime      *d_ptr_p;  // pointer to the managed object
@@ -139,11 +139,11 @@ class MySharedDatetime {
 
     MySharedDatetime(bdlt::Datetime* ptr, bslma::SharedPtrRep* rep);
         // Create a shared datetime that adopts ownership of the specified
-        // 'ptr' and the specified 'rep.
+        // `ptr` and the specified 'rep.
 
     MySharedDatetime(const MySharedDatetime& original);
         // Create a shared datetime that refers to the same object managed by
-        // the specified 'original'
+        // the specified `original`
 
     ~MySharedDatetime();
         // Destroy this shared datetime and release the reference any object it
@@ -155,21 +155,21 @@ class MySharedDatetime {
                        int               year,
                        int               month,
                        int               day);
-        // Create a new 'MySharedDatetimeRepImpl', using the specified
-        // 'allocator' to supply memory, using the specified 'year', 'month'
-        // and 'day' to initialize the 'bdlt::Datetime' within the newly
-        // created 'MySharedDatetimeRepImpl', and make this 'MySharedDatetime'
-        // refer to the 'bdlt::Datetime'.
+        // Create a new `MySharedDatetimeRepImpl`, using the specified
+        // `allocator` to supply memory, using the specified `year`, `month`
+        // and `day` to initialize the `bdlt::Datetime` within the newly
+        // created `MySharedDatetimeRepImpl`, and make this `MySharedDatetime`
+        // refer to the `bdlt::Datetime`.
 
     bdlt::Datetime& operator*() const;
-        // Return a modifiable reference to the shared 'bdlt::Datetime' object.
+        // Return a modifiable reference to the shared `bdlt::Datetime` object.
 
     bdlt::Datetime *operator->() const;
-        // Return the address of the modifiable 'bdlt::Datetime' to which this
+        // Return the address of the modifiable `bdlt::Datetime` to which this
         // object refers.
 
     bdlt::Datetime *ptr() const;
-        // Return the address of the modifiable 'bdlt::Datetime' to which this
+        // Return the address of the modifiable `bdlt::Datetime` to which this
         // object refers.
 };
 
@@ -241,7 +241,7 @@ bdlt::Datetime *MySharedDatetime::ptr() const {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-// 'MyTestObject' CLASS HIERARCHY (defined below)
+// `MyTestObject` CLASS HIERARCHY (defined below)
 class MyTestObject;
 
 // OTHER TEST OBJECTS (defined below)
@@ -261,11 +261,11 @@ typedef MyTestObject TObj;
 //              GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Check the alignment of the specified pointer `ptr`, and return true if
+/// the pointer is sufficiently aligned to hold objects of the template
+/// parameter `TYPE`.  Otherwise, return false
 template <class TYPE>
 bool CheckPointerAlignment(void *ptr)
-    // Check the alignment of the specified pointer 'ptr', and return true if
-    // the pointer is sufficiently aligned to hold objects of the template
-    // parameter 'TYPE'.  Otherwise, return false
 {
     const uintptr_t ptrValue = reinterpret_cast<uintptr_t>(ptr);
     return 0 == ptrValue % bsls::AlignmentFromType<TYPE>::VALUE;
@@ -275,10 +275,10 @@ bool CheckPointerAlignment(void *ptr)
                              // class MyTestObject
                              // ==================
 
+/// This class provides a test object that keeps track of how many objects
+/// have been deleted.  Optionally, also keeps track of how many objects
+/// have been copied.
 class MyTestObject {
-    // This class provides a test object that keeps track of how many objects
-    // have been deleted.  Optionally, also keeps track of how many objects
-    // have been copied.
 
     // DATA
     bsls::Types::Int64 *d_deleteCounter_p;
@@ -286,23 +286,25 @@ class MyTestObject {
 
   public:
     // CREATORS
+
+    /// Create a copy of the specified `original` object.
     MyTestObject(const MyTestObject& original);
-        // Create a copy of the specified 'original' object.
 
     explicit MyTestObject(bsls::Types::Int64 *deleteCounter,
                           bsls::Types::Int64 *copyCounter = 0);
 
+    /// Destroy this object.
     virtual ~MyTestObject();
-        // Destroy this object.
 
     // ACCESSORS
-    bsls::Types::Int64 *copyCounter() const;
-        // Return a pointer to the counter (if any) used to track the number of
-        // times an object of type 'MyTestObject' has been copied.
 
+    /// Return a pointer to the counter (if any) used to track the number of
+    /// times an object of type `MyTestObject` has been copied.
+    bsls::Types::Int64 *copyCounter() const;
+
+    /// Return a pointer to the counter used to track the number of times an
+    /// object of type `MyTestObject` has been copied.
     bsls::Types::Int64 *deleteCounter() const;
-        // Return a pointer to the counter used to track the number of times an
-        // object of type 'MyTestObject' has been copied.
 
 };
 
@@ -345,27 +347,29 @@ bsls::Types::Int64* MyTestObject::deleteCounter() const
                          // class MyTestArg<int>
                          // ====================
 
+/// This class template declares a separate type for each template parameter
+/// value `N`, that wraps an integer value and provides implicit conversion
+/// to and from `int`.  Its main purpose is that having separate types for
+/// testing enables distinguishing them when calling through a function
+/// template interface, thereby avoiding ambiguities or accidental switching
+/// of arguments in the implementation of in-place constructors.
 template <int N>
 class MyTestArg {
-    // This class template declares a separate type for each template parameter
-    // value 'N', that wraps an integer value and provides implicit conversion
-    // to and from 'int'.  Its main purpose is that having separate types for
-    // testing enables distinguishing them when calling through a function
-    // template interface, thereby avoiding ambiguities or accidental switching
-    // of arguments in the implementation of in-place constructors.
 
     // DATA
     int d_value;
 
   public:
     // CREATORS
+
+    /// Create a test argument object having the optionally specified
+    /// `value`, and having the value `-1` otherwise.
     explicit MyTestArg(int value = -1) : d_value(value) {}
-        // Create a test argument object having the optionally specified
-        // 'value', and having the value '-1' otherwise.
 
     // ACCESSORS
+
+    /// Return the value of this test argument object.
     operator int() const { return d_value; }
-        // Return the value of this test argument object.
 };
 
 typedef MyTestArg< 1> MyTestArg1;
@@ -381,18 +385,19 @@ typedef MyTestArg<10> MyTestArg10;
 typedef MyTestArg<11> MyTestArg11;
 typedef MyTestArg<12> MyTestArg12;
 typedef MyTestArg<13> MyTestArg13;
+
+/// Define fourteen test argument types `MyTestArg1..14` to be used with the
+/// in-place constructors of `MyInplaceTestObject`.
 typedef MyTestArg<14> MyTestArg14;
-    // Define fourteen test argument types 'MyTestArg1..14' to be used with the
-    // in-place constructors of 'MyInplaceTestObject'.
 
                          // =========================
                          // class MyInplaceTestObject
                          // =========================
 
+/// This class provides a test object used to check that the arguments
+/// passed for creating a shared pointer with an in-place representation are
+/// of the correct types and values.
 class MyInplaceTestObject {
-    // This class provides a test object used to check that the arguments
-    // passed for creating a shared pointer with an in-place representation are
-    // of the correct types and values.
 
     // DATA
     MyTestArg1  d_a1;
@@ -413,6 +418,10 @@ class MyInplaceTestObject {
 
   public:
     // CREATORS
+
+    /// Create a `MyInplaceTestObject` by initializing the data members
+    /// `d_a1`..`d_a14` with the specified `a1`..`a14`, and initializing any
+    /// remaining data members with their default value (-1).
     MyInplaceTestObject();
     explicit MyInplaceTestObject(MyTestArg1 a1);
     MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2);
@@ -454,24 +463,22 @@ class MyInplaceTestObject {
                         MyTestArg7  a7,  MyTestArg8  a8,  MyTestArg9  a9,
                         MyTestArg10 a10, MyTestArg11 a11, MyTestArg12 a12,
                         MyTestArg13 a13, MyTestArg14 a14);
-        // Create a 'MyInplaceTestObject' by initializing the data members
-        // 'd_a1'..'d_a14' with the specified 'a1'..'a14', and initializing any
-        // remaining data members with their default value (-1).
 
+    /// Increment the count of calls to this destructor, and destroy this
+    /// object.
     ~MyInplaceTestObject();
-        // Increment the count of calls to this destructor, and destroy this
-        // object.
 
     // ACCESSORS
-    bool operator==(const MyInplaceTestObject& rhs) const;
-        // Return 'true' if the specified 'rhs' has the same value as this
-        // object, and 'false' otherwise.  Two 'MyInplaceTestObject' objects
-        // have the same value if each of their corresponding data members
-        // 'd1'..'d14' have the same value.
 
+    /// Return `true` if the specified `rhs` has the same value as this
+    /// object, and `false` otherwise.  Two `MyInplaceTestObject` objects
+    /// have the same value if each of their corresponding data members
+    /// `d1`..`d14` have the same value.
+    bool operator==(const MyInplaceTestObject& rhs) const;
+
+    /// Return the number of times an object of this type has been
+    /// destroyed.
     static int getNumDeletes();
-        // Return the number of times an object of this type has been
-        // destroyed.
 };
 
                          // -------------------------
@@ -753,52 +760,53 @@ struct TestHarness {
     typedef typename TCObj::ReboundAllocator TCObj_Alloc;
 
     // CLASS METHODS
+
+    /// Implement test case 2 using the specified `verbose`, `veryVerbose`,
+    /// `veryVeryVerbose` and `veryVeryVeryVerbose` flags to control the
+    /// level of user feedback.  See the test case function for documented
+    /// concerns and test plan.
     static void testCase2(bool verbose,
                           bool veryVerbose,
                           bool veryVeryVerbose,
                           bool veryVeryVeryVerbose);
-        // Implement test case 2 using the specified 'verbose', 'veryVerbose',
-        // 'veryVeryVerbose' and 'veryVeryVeryVerbose' flags to control the
-        // level of user feedback.  See the test case function for documented
-        // concerns and test plan.
 
+    /// Implement test case 3 using the specified `verbose`, `veryVerbose`,
+    /// `veryVeryVerbose` and `veryVeryVeryVerbose` flags to control the
+    /// level of user feedback.  See the test case function for documented
+    /// concerns and test plan.
     static void testCase3(bool verbose,
                           bool veryVerbose,
                           bool veryVeryVerbose,
                           bool veryVeryVeryVerbose);
-        // Implement test case 3 using the specified 'verbose', 'veryVerbose',
-        // 'veryVeryVerbose' and 'veryVeryVeryVerbose' flags to control the
-        // level of user feedback.  See the test case function for documented
-        // concerns and test plan.
 
 
+    /// Implement test case 4 using the specified `verbose`, `veryVerbose`,
+    /// `veryVeryVerbose` and `veryVeryVeryVerbose` flags to control the
+    /// level of user feedback.  See the test case function for documented
+    /// concerns and test plan.
     static void testCase4(bool verbose,
                           bool veryVerbose,
                           bool veryVeryVerbose,
                           bool veryVeryVeryVerbose);
-        // Implement test case 4 using the specified 'verbose', 'veryVerbose',
-        // 'veryVeryVerbose' and 'veryVeryVeryVerbose' flags to control the
-        // level of user feedback.  See the test case function for documented
-        // concerns and test plan.
 
 
+    /// Implement test case 5 using the specified `verbose`, `veryVerbose`,
+    /// `veryVeryVerbose` and `veryVeryVeryVerbose` flags to control the
+    /// level of user feedback.  See the test case function for documented
+    /// concerns and test plan.
     static void testCase5(bool verbose,
                           bool veryVerbose,
                           bool veryVeryVerbose,
                           bool veryVeryVeryVerbose);
-        // Implement test case 5 using the specified 'verbose', 'veryVerbose',
-        // 'veryVeryVerbose' and 'veryVeryVeryVerbose' flags to control the
-        // level of user feedback.  See the test case function for documented
-        // concerns and test plan.
 
+    /// Implement test case 6 using the specified `verbose`, `veryVerbose`,
+    /// `veryVeryVerbose` and `veryVeryVeryVerbose` flags to control the
+    /// level of user feedback.  See the test case function for documented
+    /// concerns and test plan.
     static void testCase6(bool verbose,
                           bool veryVerbose,
                           bool veryVeryVerbose,
                           bool veryVeryVeryVerbose);
-        // Implement test case 6 using the specified 'verbose', 'veryVerbose',
-        // 'veryVeryVerbose' and 'veryVeryVeryVerbose' flags to control the
-        // level of user feedback.  See the test case function for documented
-        // concerns and test plan.
 
 };
 
@@ -854,7 +862,7 @@ void TestHarness<ALLOCATOR>::testCase2(bool verbose,
 //        ASSERT(EXP == *(x.ptr()));
         ASSERT(x.originalPtr() == static_cast<void*>(x.ptr()));
 
-        // Manually deallocate the representation using 'disposeRep'.
+        // Manually deallocate the representation using `disposeRep`.
 
         x.disposeRep();
 
@@ -873,7 +881,7 @@ void TestHarness<ALLOCATOR>::testCase2(bool verbose,
         ASSERT(++numAllocations == ta.numAllocations());
         ASSERT(x.originalPtr() == static_cast<void*>(x.ptr()));
 
-        // Manually deallocate the representation using 'disposeRep'.
+        // Manually deallocate the representation using `disposeRep`.
         x.disposeRep();
 
         ASSERT(++numDeallocations == ta.numDeallocations());
@@ -891,7 +899,7 @@ void TestHarness<ALLOCATOR>::testCase2(bool verbose,
         ASSERT(++numAllocations == ta.numAllocations());
         ASSERT(x.originalPtr() == static_cast<void*>(x.ptr()));
 
-        // Manually deallocate the representation using 'disposeRep'.
+        // Manually deallocate the representation using `disposeRep`.
         x.disposeRep();
 
         ASSERT(++numDeallocations == ta.numDeallocations());
@@ -1008,14 +1016,14 @@ void TestHarness<ALLOCATOR>::testCase4(bool verbose,
                                        bool veryVeryVeryVerbose)
 {
     // --------------------------------------------------------------------
-    // TESTING 'disposeObject'
+    // TESTING `disposeObject`
     //
     // Concerns:
-    //   The destructor of the object is called when 'disposeObject' is
+    //   The destructor of the object is called when `disposeObject` is
     //   called.
     //
     // Plan:
-    //   Call 'disposeObject' and verify that the destructor is called.
+    //   Call `disposeObject` and verify that the destructor is called.
     //
     // Testing:
     //   void disposeObject();
@@ -1150,25 +1158,25 @@ void TestHarness<ALLOCATOR>::testCase5(bool verbose,
                                        bool veryVeryVeryVerbose)
 {
     // --------------------------------------------------------------------
-    // TESTING 'releaseRef' and 'releaseWeakRef'
+    // TESTING `releaseRef` and `releaseWeakRef`
     //
     // Concerns:
-    //   1) 'releaseRef' and 'releaseWeakRef' is decrementing the reference
+    //   1) `releaseRef` and `releaseWeakRef` is decrementing the reference
     //      count correctly.
     //   2) disposeObject() is called when there is no shared reference.
     //   3) disposeRep() is called only when there is no shared reference
     //      and no weak reference.
     //
     // Plan:
-    //   1) Call 'acquireRef' then 'releaseRef' and verify 'numReference'
-    //      did not change.  Call 'acquireWeakRef' then 'releaseWeakRef'
-    //      and verify 'numWeakReference' did not change.
-    //   2) Call 'releaseRef' when there is only one reference remaining.
-    //      Then verify that both 'disposeObject' and 'disposeRep' is
+    //   1) Call `acquireRef` then `releaseRef` and verify `numReference`
+    //      did not change.  Call `acquireWeakRef` then `releaseWeakRef`
+    //      and verify `numWeakReference` did not change.
+    //   2) Call `releaseRef` when there is only one reference remaining.
+    //      Then verify that both `disposeObject` and `disposeRep` is
     //      called.
-    //   3) Create another object and call 'acquireWeakRef' before calling
-    //      'releaseRef'.  Verify that only 'disposeObject' is called.
-    //      Then call 'releaseWeakRef' and verify that 'disposeRep' is
+    //   3) Create another object and call `acquireWeakRef` before calling
+    //      `releaseRef`.  Verify that only `disposeObject` is called.
+    //      Then call `releaseWeakRef` and verify that `disposeRep` is
     //      called.
     //
     // Testing:
@@ -1176,7 +1184,7 @@ void TestHarness<ALLOCATOR>::testCase5(bool verbose,
     //   void releaseWeakRef();
     // --------------------------------------------------------------------
 
-    if (verbose) printf("\nTesting 'releaseRef' and 'releaseWeakRef'"
+    if (verbose) printf("\nTesting `releaseRef` and `releaseWeakRef`"
                         "\n=========================================\n");
 
     (void)veryVerbose;
@@ -1216,7 +1224,7 @@ void TestHarness<ALLOCATOR>::testCase5(bool verbose,
         ASSERT(true == X.hasUniqueOwner());
 
         if (verbose) printf(
-                           "\nTesting 'releaseRef' with no weak reference'"
+                           "\nTesting `releaseRef` with no weak reference'"
                            "\n--------------------------------------------\n");
 
         x.releaseRef();
@@ -1226,7 +1234,7 @@ void TestHarness<ALLOCATOR>::testCase5(bool verbose,
     }
 
     if (verbose) printf(
-           "\nTesting 'releaseRef' for sized array with no weak reference'"
+           "\nTesting `releaseRef` for sized array with no weak reference'"
            "\n------------------------------------------------------------\n");
 
     ASSERT(numAllocations   == ta.numAllocations());
@@ -1263,7 +1271,7 @@ void TestHarness<ALLOCATOR>::testCase5(bool verbose,
     }
 
     if (verbose) printf(
-         "\nTesting 'releaseRef' for unsized array with no weak reference'"
+         "\nTesting `releaseRef` for unsized array with no weak reference'"
          "\n--------------------------------------------------------------\n");
 
     ASSERT(numAllocations   == ta.numAllocations());
@@ -1299,7 +1307,7 @@ void TestHarness<ALLOCATOR>::testCase5(bool verbose,
         ASSERT(++numDeallocations == ta.numDeallocations());
     }
 
-    if (verbose) printf("\nTesting 'releaseRef' with weak reference'"
+    if (verbose) printf("\nTesting `releaseRef` with weak reference'"
                         "\n-----------------------------------------\n");
     {
         bsls::Types::Int64 numDeletes = 0;
@@ -1326,7 +1334,7 @@ void TestHarness<ALLOCATOR>::testCase5(bool verbose,
     }
 
     if (verbose) printf(
-              "\nTesting 'releaseRef' for sized array with weak reference'"
+              "\nTesting `releaseRef` for sized array with weak reference'"
               "\n---------------------------------------------------------\n");
 
     ASSERT(numAllocations   == ta.numAllocations());
@@ -1356,7 +1364,7 @@ void TestHarness<ALLOCATOR>::testCase5(bool verbose,
     }
 
     if (verbose) printf(
-            "\nTesting 'releaseRef' for unsized array with weak reference'"
+            "\nTesting `releaseRef` for unsized array with weak reference'"
             "\n-----------------------------------------------------------\n");
 
     ASSERT(numAllocations   == ta.numAllocations());
@@ -1393,13 +1401,13 @@ void TestHarness<ALLOCATOR>::testCase6(bool verbose,
                                        bool veryVeryVeryVerbose)
 {
     // --------------------------------------------------------------------
-    // TESTING 'getDeleter'
+    // TESTING `getDeleter`
     //
     // Concerns:
-    //   1) 'getDeleter' overrides the pure virtual function in the base
+    //   1) `getDeleter` overrides the pure virtual function in the base
     //      class.
-    //   2) 'getDeleter' returns a null pointer when called, regardless of the
-    //      supplied 'type_info'.
+    //   2) `getDeleter` returns a null pointer when called, regardless of the
+    //      supplied `type_info`.
     //
     // Plan:
     //   1) ...
@@ -1408,7 +1416,7 @@ void TestHarness<ALLOCATOR>::testCase6(bool verbose,
     //   void *getDeleter(const std::type_info& type);
     // --------------------------------------------------------------------
 
-    if (verbose) printf("\nTESTING 'getDeleter'"
+    if (verbose) printf("\nTESTING `getDeleter`"
                         "\n====================\n");
 
     (void)veryVerbose;
@@ -1555,18 +1563,18 @@ int main(int argc, char *argv[])
         // TESTING ARRAY_SIZING AND ALIGNMENT
         //
         // Concerns:
-        //:  1 SharedPtrArrayAllocateInplaceRep::alloc_size returns an amount
-        //:    of space that is sufficient to hold the array that we want.
-        //:  2 SharedPtrArrayAllocateInplaceRep::originalPtr() returns a
-        //:    pointer that is correctly aligned for the type that we are
-        //:    storing.
+        //  1. SharedPtrArrayAllocateInplaceRep::alloc_size returns an amount
+        //     of space that is sufficient to hold the array that we want.
+        //  2. SharedPtrArrayAllocateInplaceRep::originalPtr() returns a
+        //     pointer that is correctly aligned for the type that we are
+        //     storing.
         //
         // Plan:
-        //:  1 Check that the sizes returned by 'alloc_size' increase when the
-        //:    array size increases.
-        //:  2 Create 'SharedPtrArrayAllocateInplaceRep's for various types,
-        //:    and verify that the alignment of the arrays is big enough for
-        //:    the type that is being stored.
+        //  1. Check that the sizes returned by `alloc_size` increase when the
+        //     array size increases.
+        //  2. Create `SharedPtrArrayAllocateInplaceRep`s for various types,
+        //     and verify that the alignment of the arrays is big enough for
+        //     the type that is being stored.
         //
         // Testing:
         //   static size_t alloc_size();
@@ -1642,13 +1650,13 @@ int main(int argc, char *argv[])
 
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'getDeleter'
+        // TESTING `getDeleter`
         //
         // Concerns:
-        //   1) 'getDeleter' overrides the pure virtual function in the base
+        //   1) `getDeleter` overrides the pure virtual function in the base
         //      class.
-        //   2) 'getDeleter' returns a null pointer when called, regardless of
-        //      the supplied 'type_info'.
+        //   2) `getDeleter` returns a null pointer when called, regardless of
+        //      the supplied `type_info`.
         //
         // Plan:
         //   1) ...
@@ -1657,7 +1665,7 @@ int main(int argc, char *argv[])
         //   void *getDeleter(const std::type_info& type);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'getDeleter'"
+        if (verbose) printf("\nTESTING `getDeleter`"
                             "\n====================\n");
 
         using BloombergLP::bsltf::StdStatefulAllocator;
@@ -1685,25 +1693,25 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'releaseRef' AND 'releaseWeakRef'
+        // TESTING `releaseRef` AND `releaseWeakRef`
         //
         // Concerns:
-        //   1) 'releaseRef' and 'releaseWeakRef' is decrementing the reference
+        //   1) `releaseRef` and `releaseWeakRef` is decrementing the reference
         //      count correctly.
         //   2) disposeObject() is called when there is no shared reference.
         //   3) disposeRep() is called only when there is no shared reference
         //      and no weak reference.
         //
         // Plan:
-        //   1) Call 'acquireRef' then 'releaseRef' and verify 'numReference'
-        //      did not change.  Call 'acquireWeakRef' then 'releaseWeakRef'
-        //      and verify 'numWeakReference' did not change.
-        //   2) Call 'releaseRef' when there is only one reference remaining.
-        //      Then verify that both 'disposeObject' and 'disposeRep' is
+        //   1) Call `acquireRef` then `releaseRef` and verify `numReference`
+        //      did not change.  Call `acquireWeakRef` then `releaseWeakRef`
+        //      and verify `numWeakReference` did not change.
+        //   2) Call `releaseRef` when there is only one reference remaining.
+        //      Then verify that both `disposeObject` and `disposeRep` is
         //      called.
-        //   3) Create another object and call 'acquireWeakRef' before calling
-        //      'releaseRef'.  Verify that only 'disposeObject' is called.
-        //      Then call 'releaseWeakRef' and verify that 'disposeRep' is
+        //   3) Create another object and call `acquireWeakRef` before calling
+        //      `releaseRef`.  Verify that only `disposeObject` is called.
+        //      Then call `releaseWeakRef` and verify that `disposeRep` is
         //      called.
         //
         // Testing:
@@ -1711,7 +1719,7 @@ int main(int argc, char *argv[])
         //   void releaseWeakRef();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'releaseRef' AND 'releaseWeakRef'"
+        if (verbose) printf("\nTESTING `releaseRef` AND `releaseWeakRef`"
                             "\n=========================================\n");
 
 #if 0
@@ -1740,7 +1748,7 @@ int main(int argc, char *argv[])
             ASSERT(true == X.hasUniqueOwner());
 
             if (verbose) printf(
-                        "\nTesting 'releaseRef' with no weak reference'"
+                        "\nTesting `releaseRef` with no weak reference'"
                         "\n--------------------------------------------\n");
 
             x.releaseRef();
@@ -1748,7 +1756,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == numDeletes);
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
-        if (verbose) printf("\nTesting 'releaseRef' with weak reference'"
+        if (verbose) printf("\nTesting `releaseRef` with weak reference'"
                             "\n-----------------------------------------\n");
 
         {
@@ -1798,20 +1806,20 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'disposeObject'
+        // TESTING `disposeObject`
         //
         // Concerns:
-        //   The destructor of the object is called when 'disposeObject' is
+        //   The destructor of the object is called when `disposeObject` is
         //   called.
         //
         // Plan:
-        //   Call 'disposeObject' and verify that the destructor is called.
+        //   Call `disposeObject` and verify that the destructor is called.
         //
         // Testing:
         //   void disposeObject();
         //
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING 'disposeObject'"
+        if (verbose) printf("\nTESTING `disposeObject`"
                             "\n=======================\n");
 
 #if 0
@@ -1951,7 +1959,7 @@ int main(int argc, char *argv[])
             ASSERT(EXP == *(x.ptr()));
             ASSERT(x.originalPtr() == static_cast<void*>(x.ptr()));
 
-            // Manually deallocate the representation using 'disposeRep'.
+            // Manually deallocate the representation using `disposeRep`.
 
             x.disposeRep();
 

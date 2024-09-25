@@ -96,13 +96,13 @@ static const int leapDaysPerMonth[] = { 0,
     31,  29,  31,  30,  31,  30,  31,  31,  30,  31,  30,  31
 };
 
+/// Return the address of a static array that, for the specified `year`, can
+/// be used to determine the number of days up to and including the month
+/// indicated by an integer index in the range `[ 0 .. k_MAX_MONTH ]`, where
+/// an index of 0 always results in the value 0.  The behavior is undefined
+/// unless `k_MIN_YEAR <= year <= k_MAX_YEAR`.
 static inline
 const int *getArrayDaysThroughMonth(int year)
-    // Return the address of a static array that, for the specified 'year', can
-    // be used to determine the number of days up to and including the month
-    // indicated by an integer index in the range '[ 0 .. k_MAX_MONTH ]', where
-    // an index of 0 always results in the value 0.  The behavior is undefined
-    // unless 'k_MIN_YEAR <= year <= k_MAX_YEAR'.
 {
     BSLS_REVIEW(k_MIN_YEAR <= year);
     BSLS_REVIEW(              year <= k_MAX_YEAR);
@@ -114,11 +114,11 @@ const int *getArrayDaysThroughMonth(int year)
            : normDaysThroughMonth;
 }
 
+/// Return the total number of days in all years, beginning with the year 1,
+/// up to but not including the specified `year`.  The behavior is undefined
+/// unless `k_MIN_YEAR <= year <= k_MAX_YEAR`.
 static
 int numDaysInPreviousYears(int year)
-    // Return the total number of days in all years, beginning with the year 1,
-    // up to but not including the specified 'year'.  The behavior is undefined
-    // unless 'k_MIN_YEAR <= year <= k_MAX_YEAR'.
 {
     BSLS_ASSERT(k_MIN_YEAR <= year);
     BSLS_ASSERT(              year <= k_MAX_YEAR);
@@ -146,10 +146,10 @@ int numDaysInPreviousYears(int year)
     return numDays;
 }
 
+/// Return the number of leap years from year 1 to the specified `year`.
+/// The behavior is undefined unless `0 <= year <= k_MAX_YEAR`.
 static
 int numLeapYearsSoFar(int year)
-    // Return the number of leap years from year 1 to the specified 'year'.
-    // The behavior is undefined unless '0 <= year <= k_MAX_YEAR'.
 {
     BSLS_ASSERT(0 <= year);
     BSLS_ASSERT(     year <= k_MAX_YEAR);

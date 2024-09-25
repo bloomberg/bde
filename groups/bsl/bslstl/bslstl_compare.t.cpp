@@ -8,7 +8,7 @@
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>
-#include <stdlib.h>  // 'atoi'
+#include <stdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 
@@ -18,7 +18,7 @@ using namespace BloombergLP;
 //                              Overview
 //                              --------
 // The component under test provides library support for three-way comparison
-// operator '<=>'.
+// operator `<=>`.
 // ----------------------------------------------------------------------------
 // [ 1] BASIC FUNCTIONALITY
 
@@ -128,14 +128,14 @@ int main(int argc, char *argv[])
         // TESTING BASIC FUNCTIONALITY
         //
         // Concerns:
-        //: 1 The definitions from '<compare>' defined by the C++20 Standard
-        //:   are available in C++20 mode in the 'bsl' namespace to users who
-        //:   include 'bslstl_compare.h'.
+        // 1. The definitions from `<compare>` defined by the C++20 Standard
+        //    are available in C++20 mode in the `bsl` namespace to users who
+        //    include `bslstl_compare.h`.
         //
         // Plan:
-        //: 1 For every identifier aliased from the 'std' namespace, verify
-        //:   that the identifier exists and is usable with the 'bsl' namespace
-        //:   prefix.
+        // 1. For every identifier aliased from the `std` namespace, verify
+        //    that the identifier exists and is usable with the `bsl` namespace
+        //    prefix.
         //
         // Testing:
         //   BASIC FUNCTIONALITY

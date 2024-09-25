@@ -47,10 +47,11 @@ namespace {
                         // ---------------
 
 // LOCAL METHODS
+
+/// Convert the character in the specified `c` to it suitable hex
+/// equivalent if one exists, load the value into the specified `hex`.
+/// Return 0 if the conversion was successful, and non-zero otherwise.
 int charToHex(unsigned char* hex, unsigned char c)
-    // Convert the character in the specified 'c' to it suitable hex
-    // equivalent if one exists, load the value into the specified 'hex'.
-    // Return 0 if the conversion was successful, and non-zero otherwise.
 {
     switch (c) {
       default: return -1;                                             // RETURN
@@ -74,10 +75,10 @@ int charToHex(unsigned char* hex, unsigned char c)
     return 0;
 }
 
+/// Validate the specified `guidString` against the language given in
+/// {LANGUAGE SPECIFICATION}.  Return 0 if `guidString` is accepted, and
+/// non-zero otherwise.
 int vaildateGuidString(const bsl::string_view& guidString)
-    // Validate the specified 'guidString' against the language given in
-    // {LANGUAGE SPECIFICATION}.  Return 0 if 'guidString' is accepted, and
-    // non-zero otherwise.
 {
     bsl::size_t length = guidString.length();
     if (length < 32 || length > 40){
@@ -131,13 +132,13 @@ int vaildateGuidString(const bsl::string_view& guidString)
     return 0;
 }
 
+/// Make the buffer starting at the specified `bytes` and ending at the
+/// address just before the specified `end` comply with RFC 4122 version 4.
+/// The behavior is undefined unless `bytes <= end` and the size of the
+/// buffer defined by `end - bytes` is a non-negative multiple of
+/// `Guid::k_GUID_NUM_BYTES`.
 inline
 void makeRfc4122Compliant(unsigned char *bytes, const unsigned char *end)
-    // Make the buffer starting at the specified 'bytes' and ending at the
-    // address just before the specified 'end' comply with RFC 4122 version 4.
-    // The behavior is undefined unless 'bytes <= end' and the size of the
-    // buffer defined by 'end - bytes' is a non-negative multiple of
-    // 'Guid::k_GUID_NUM_BYTES'.
 {
     BSLS_ASSERT(bytes);
     BSLS_ASSERT(end);
@@ -152,15 +153,15 @@ void makeRfc4122Compliant(unsigned char *bytes, const unsigned char *end)
     }
 }
 
+/// A functor suitable for passing into `bsl::string::resize_and_overwrite`
+/// which formats a `bdlb::Guid` into a string buffer.
 struct GuidUtil_GuidToStringFormatter
-    // A functor suitable for passing into 'bsl::string::resize_and_overwrite'
-    // which formats a 'bdlb::Guid' into a string buffer.
 {
     const Guid *d_guid_p;  // the GUID to format
 
+    /// Format this object's GUID into the specified `data` buffer.  Return
+    /// the number of characters written.
     size_t operator()(char *data, size_t) const
-        // Format this object's GUID into the specified 'data' buffer.  Return
-        // the number of characters written.
     {
         bsl::span<char, Guid::k_GUID_NUM_CHARS> span(data,
                                                      Guid::k_GUID_NUM_CHARS);
@@ -169,10 +170,10 @@ struct GuidUtil_GuidToStringFormatter
     }
 };
 
+/// Load into the specified `result` the string representation of the
+/// specified `guid`.
 template <class t_STRING>
 void guidToStringImpl(t_STRING *result, const Guid& guid)
-    // Load into the specified 'result' the string representation of the
-    // specified 'guid'.
 {
     BSLS_ASSERT(result);
 
@@ -182,10 +183,10 @@ void guidToStringImpl(t_STRING *result, const Guid& guid)
     guid.format(span);
 }
 
+/// Load into the specified `result` the string representation of the
+/// specified `guid`.
 template <>
 void guidToStringImpl<bsl::string>(bsl::string *result, const Guid& guid)
-    // Load into the specified 'result' the string representation of the
-    // specified 'guid'.
 {
     BSLS_ASSERT(result);
 
@@ -193,9 +194,9 @@ void guidToStringImpl<bsl::string>(bsl::string *result, const Guid& guid)
     result->resize_and_overwrite(Guid::k_GUID_NUM_CHARS, fmt);
 }
 
+/// Return the process id.  Having this be separate from `Obj::getProcessId`
+/// allows us to call it inline within the component.
 inline int getPid()
-    // Return the process id.  Having this be separate from 'Obj::getProcessId'
-    // allows us to call it inline within the component.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     // Return a placeholder; the actual PID is not important since there is no
@@ -208,28 +209,28 @@ inline int getPid()
 
 static bsls::AtomicInt s_pid;
 
+/// Callback for the child process as set by pthread_atfork.  If the process
+/// forks we need to reset the state and s_pid to force a reseed.  At this
+/// point during the forking process we are guaranteed to only have a single
+/// running thread.
 extern "C" void guidUtilForkChildCallback()
-    // Callback for the child process as set by pthread_atfork.  If the process
-    // forks we need to reset the state and s_pid to force a reseed.  At this
-    // point during the forking process we are guaranteed to only have a single
-    // running thread.
 {
     s_pid = 0;
 }
 
+/// Register `guidUtilForkChildCallback` as a callback function for the
+/// child of a call to `fork`.
 void registerForkCallback()
-    // Register 'guidUtilForkChildCallback' as a callback function for the
-    // child of a call to 'fork'.
 {
 #ifndef BSLS_PLATFORM_OS_WINDOWS
     pthread_atfork(NULL, NULL, (guidUtilForkChildCallback));
 #endif
 }
 
+/// Reseed the array of random number generators of length 4 in the
+/// specified `guidStatePtr` with seeds from `RandomDevice`.
 inline
 void reseed(GuidState_Imp *guidStatePtr)
-    // Reseed the array of random number generators of length 4 in the
-    // specified 'guidStatePtr' with seeds from 'RandomDevice'.
 {
     BSLS_ASSERT(guidStatePtr);
 

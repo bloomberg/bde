@@ -12,11 +12,11 @@ BSLS_IDENT_RCSID(bbldc_periodicmaactualactual_cpp,"$Id$ $CSID$")
 namespace {
 namespace u {
 
+/// Return `true` if all values between the specified `begin` and `end`
+/// iterators are unique and sorted from minimum to maximum value, and
+/// `false` otherwise.
 template <class ITER>
 static bool isSortedAndUnique(const ITER& begin, const ITER& end)
-    // Return 'true' if all values between the specified 'begin' and 'end'
-    // iterators are unique and sorted from minimum to maximum value, and
-    // 'false' otherwise.
 {
     if (begin == end) {
         return true;                                                  // RETURN

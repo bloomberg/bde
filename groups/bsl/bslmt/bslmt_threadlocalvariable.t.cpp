@@ -45,12 +45,12 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-// The 'bslmt_threadlocalvariable' component defines a macro
-// 'BSLMT_THREAD_LOCAL_VARIABLE' that declares a thread local variable.  The
+// The `bslmt_threadlocalvariable` component defines a macro
+// `BSLMT_THREAD_LOCAL_VARIABLE` that declares a thread local variable.  The
 // tests verify that the variable is static (i.e., it has the same address on
 // every invocation on the same thread), that it is thread-local (i.e., it has
 // a different address for very thread), that it is initialized correctly with
-// the supplied 'INITIAL_VALUE', and that it can be created for any pointer
+// the supplied `INITIAL_VALUE`, and that it can be created for any pointer
 // type.
 //-----------------------------------------------------------------------------
 // [ 5] BSLMT_DECLARE_THREAD_LOCAL_VARIABLE: data types test
@@ -58,7 +58,7 @@ using bsl::flush;
 // [ 3] BSLMT_DECLARE_THREAD_LOCAL_VARIABLE: global scope test
 // [ 2] BSLMT_DECLARE_THREAD_LOCAL_VARIABLE: function scope static test
 //-----------------------------------------------------------------------------
-// [ 1] Helper Test: 'my_Barrier'
+// [ 1] Helper Test: `my_Barrier`
 // [ 6] Usage examples
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -123,7 +123,7 @@ typedef void* (*THREAD_ENTRY)(void *arg);
 }
 
 // Implementation Note: these classes were copied from
-// 'bsls_atomicoperations.t.cpp'
+// `bsls_atomicoperations.t.cpp`
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
@@ -134,9 +134,9 @@ typedef HANDLE my_thread_t;
 typedef pthread_t my_thread_t;
 #endif
 
+/// This class implements a cross-platform mutual exclusion primitive
+/// similar to posix mutexes.
 class my_Mutex {
-    // This class implements a cross-platform mutual exclusion primitive
-    // similar to posix mutexes.
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     HANDLE d_mutex;
 #else
@@ -144,23 +144,24 @@ class my_Mutex {
 #endif
 
   public:
+    /// Construct an `my_Mutex` object.
     my_Mutex();
-        // Construct an 'my_Mutex' object.
+
+    /// Destroy an `my_Mutex` object.
     ~my_Mutex();
-        // Destroy an 'my_Mutex' object.
 
+    /// Lock this mutex.
     void lock();
-        // Lock this mutex.
 
+    /// Unlock this mutex;
     void unlock();
-        // Unlock this mutex;
 };
 
+/// This class implements a cross-platform waitable state indicator used for
+/// testing.  It has two states, signaled and non-signaled.  Once
+/// signaled(`signal`), the state will persist until explicitly `reset`.
+/// Calls to wait when the state is signaled, will succeed immediately.
 class my_Conditional {
-    // This class implements a cross-platform waitable state indicator used for
-    // testing.  It has two states, signaled and non-signaled.  Once
-    // signaled('signal'), the state will persist until explicitly 'reset'.
-    // Calls to wait when the state is signaled, will succeed immediately.
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     HANDLE d_cond;
 #else
@@ -173,22 +174,22 @@ class my_Conditional {
     my_Conditional();
     ~my_Conditional();
 
+    /// Reset the state of this indicator to non-signaled.
     void reset();
-        // Reset the state of this indicator to non-signaled.
 
+    /// Signal the state of the indicator and unblock any thread waiting for
+    /// the state to be signaled.
     void signal();
-        // Signal the state of the indicator and unblock any thread waiting for
-        // the state to be signaled.
 
+    /// Wait until the state of this indicator becomes signaled.  If the
+    /// state is already signaled then return immediately.
     void wait();
-        // Wait until the state of this indicator becomes signaled.  If the
-        // state is already signaled then return immediately.
 
+    /// Wait until the state of this indicator becomes signaled or until or
+    /// for the specified `timeout`(in milliseconds).  Return 0 if the state
+    /// is signaled, non-zero if the timeout has expired.  If the state is
+    /// already signaled then return immediately.
     int  timedWait(int timeout);
-        // Wait until the state of this indicator becomes signaled or until or
-        // for the specified 'timeout'(in milliseconds).  Return 0 if the state
-        // is signaled, non-zero if the timeout has expired.  If the state is
-        // already signaled then return immediately.
 };
 
 inline
@@ -333,62 +334,65 @@ static void  myJoinThread(my_thread_t aHandle)
 
 // --------------------------- Additional thread classes ----------------------
 
+/// A scoped guard for calling `lock` and `unlock` on an object of
+/// parameterized type `T` (presumably a mutex).
 template <class T>
 class LockGuard {
-    // A scoped guard for calling 'lock' and 'unlock' on an object of
-    // parameterized type 'T' (presumably a mutex).
 
     // DATA
     T *d_lock;
 
   public:
     // CREATORS
-    LockGuard(T *lock) : d_lock(lock) { d_lock->lock(); }
-        // Construct a lock guard for the specified 'lock', and call 'lock()'
-        // on 'lock'.
 
+    /// Construct a lock guard for the specified `lock`, and call `lock()`
+    /// on `lock`.
+    LockGuard(T *lock) : d_lock(lock) { d_lock->lock(); }
+
+    /// Destroy this lock guard and call `unlock()` on the object supplied
+    /// at construction.
     ~LockGuard() { d_lock->unlock(); }
-        // Destroy this lock guard and call 'unlock()' on the object supplied
-        // at construction.
 };
 
+/// This class defines a barrier for synchronizing multiple threads.  A
+/// barrier is initialized with the number of threads to expect.  Each
+/// invocation of `wait()` will block the active thread until the expected
+/// number of threads have entered the barrier, at which point all threads
+/// are released and return from `wait()`.
+///
+/// *NOTE*: The `my_Conditional` operation `wait` does *not* take a mutex,
+/// so it cannot be atomically combined with another operation (e.g.,
+/// incrementing the `d_waiting` counter), it also does not provide
+/// `broadcast` method, so each thread must be signaled individually.
 class my_Barrier {
-    // This class defines a barrier for synchronizing multiple threads.  A
-    // barrier is initialized with the number of threads to expect.  Each
-    // invocation of 'wait()' will block the active thread until the expected
-    // number of threads have entered the barrier, at which point all threads
-    // are released and return from 'wait()'.
-    //
-    // *NOTE*: The 'my_Conditional' operation 'wait' does *not* take a mutex,
-    // so it cannot be atomically combined with another operation (e.g.,
-    // incrementing the 'd_waiting' counter), it also does not provide
-    // 'broadcast' method, so each thread must be signaled individually.
 
     // DATA
     my_Conditional d_waitCondition;  // waiting threads wait on this condition
-    my_Mutex       d_waitMutex;      // mutex for 'd_waiting' counter
-    my_Mutex       d_awakeMutex;     // mutex for 'd_awake' counter
+    my_Mutex       d_waitMutex;      // mutex for `d_waiting` counter
+    my_Mutex       d_awakeMutex;     // mutex for `d_awake` counter
     int            d_waiting;        // # of threads blocked on d_waitCondition
-    int            d_awake;          // # of threads exited 'wait'
+    int            d_awake;          // # of threads exited `wait`
     volatile int   d_genCounter;     // generation counter
     const int      d_expected;       // number of threads to expected
 
   public:
     // CREATORS
-    my_Barrier(int numThreads);
-        // Create a barrier that will synchronize the specified 'numThreads'
-        // number of threads.  The behavior is undefined unless
-        // '0 < expectedThreads'.
 
+    /// Create a barrier that will synchronize the specified `numThreads`
+    /// number of threads.  The behavior is undefined unless
+    /// `0 < expectedThreads`.
+    my_Barrier(int numThreads);
+
+    /// Destroy this barrier.
     ~my_Barrier();
-        // Destroy this barrier.
 
     // MANIPULATORS
+
+    /// Block the current thread until the number of expectedThreads,
+    /// supplied at construction, have entered this barrier's `wait()`
+    /// method, then return (all blocked threads, including the current
+    /// thread).
     void wait();
-        // Block the current thread until the number of expectedThreads,
-        // supplied at construction, have entered this barrier's 'wait()'
-        // method, then return (all blocked threads, including the current
-        // thread).
 };
 
 // CREATORS
@@ -408,15 +412,15 @@ my_Barrier::~my_Barrier()
 // MANIPULATORS
 void my_Barrier::wait()
 {
-    // *NOTE*: The 'my_Conditional' operation 'wait' does *not* take a mutex,
+    // *NOTE*: The `my_Conditional` operation `wait` does *not* take a mutex,
     // so it cannot be atomically combined with another operation (e.g.,
-    // incrementing the 'd_waiting' counter), it also does not provide
-    // 'broadcast' method, so each thread must be signaled individually.
+    // incrementing the `d_waiting` counter), it also does not provide
+    // `broadcast` method, so each thread must be signaled individually.
 
-    // For the first 'd_expected - 1' threads, increment the 'd_waiting'
+    // For the first `d_expected - 1` threads, increment the `d_waiting`
     // counter, wait on the condition variable, and then increment the
-    // 'd_awake' counter.  For the last thread, loop signaling the condition
-    // variable until all threads are awake (i.e., 'd_awake == d_expected - 1')
+    // `d_awake` counter.  For the last thread, loop signaling the condition
+    // variable until all threads are awake (i.e., `d_awake == d_expected - 1`)
     d_waitMutex.lock();
     int generation = d_genCounter;
     if (d_waiting < d_expected - 1) {
@@ -658,11 +662,11 @@ extern "C" void *typesTest(void *voidArgs)
 //
 ///Example 1: A Service Request Processor with Thread Local Context
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In the following example we create a 'RequestProcessor' that places context
+// In the following example we create a `RequestProcessor` that places context
 // information for the current request in a thread-local variable.
 //
 // First, we define a trivial structure for a request context.
-//..
+// ```
     // requestprocessor.h
 
     struct RequestContext {
@@ -671,55 +675,60 @@ extern "C" void *typesTest(void *voidArgs)
         int d_userId;       // BB user id
         int d_workstation;  // BB LUW
     };
-//..
-// Next, we create a trivial 'RequestProcessor' that provides a 'static' class
-// method that returns the 'RequestContext' for the current thread, or 0 if the
+// ```
+// Next, we create a trivial `RequestProcessor` that provides a `static` class
+// method that returns the `RequestContext` for the current thread, or 0 if the
 // current thread is not processing a request.
-//..
+// ```
+
+    /// This class implements an "example" request processor.
     class RequestProcessor {
-        // This class implements an "example" request processor.
 
         // NOT IMPLEMENTED
         RequestProcessor(const RequestProcessor&);
         RequestProcessor& operator=(const RequestProcessor&);
 
         // PRIVATE CLASS METHODS
+
+        /// Return a reference to a *modifiable* thread-local pointer to the
+        /// non-modifiable request context for this thread.  Note that this
+        /// method explicitly allows the pointer (but not the
+        /// `RequestContext` object) to be modified by the caller to allow
+        /// other methods to assign the thread-local context pointer to a
+        /// new address.
         static const RequestContext *&contextReference();
-            // Return a reference to a *modifiable* thread-local pointer to the
-            // non-modifiable request context for this thread.  Note that this
-            // method explicitly allows the pointer (but not the
-            // 'RequestContext' object) to be modified by the caller to allow
-            // other methods to assign the thread-local context pointer to a
-            // new address.
 
       public:
 
         // CLASS METHODS
+
+        /// Return the address of the non-modifiable, request context for
+        /// this thread, or 0 if none has been set.
         static const RequestContext *requestContext();
-            // Return the address of the non-modifiable, request context for
-            // this thread, or 0 if none has been set.
 
         // CREATORS
-        RequestProcessor() {}
-            // Create a 'RequestProcessor'.
 
+        /// Create a `RequestProcessor`.
+        RequestProcessor() {}
+
+        /// Destroy this request processor.
         ~RequestProcessor() {}
-            // Destroy this request processor.
 
         // MANIPULATORS
+
+        /// Process (in the caller's thread) the specified `request` for
+        /// the specified `userId` and `workstation`.
         void processRequest(int userId, int workstation, const char *request);
-            // Process (in the caller's thread) the specified 'request' for
-            // the specified 'userId' and 'workstation'.
     };
 
     // requestprocessor.cpp
 
     // PRIVATE CLASS METHODS
-//..
-// Now, we define the 'contextReference' method, which defines a thread-local
-// 'RequestContext' pointer, 'context', initialized to 0, and returns a
+// ```
+// Now, we define the `contextReference` method, which defines a thread-local
+// `RequestContext` pointer, `context`, initialized to 0, and returns a
 // reference providing modifiable access to that pointer.
-//..
+// ```
     const RequestContext *&RequestProcessor::contextReference()
     {
         BSLMT_THREAD_LOCAL_VARIABLE(const RequestContext *, context, 0);
@@ -733,11 +742,11 @@ extern "C" void *typesTest(void *voidArgs)
     }
 
     // MANIPULATORS
-//..
-// Then, we define the 'processRequest' method, which first sets the
+// ```
+// Then, we define the `processRequest` method, which first sets the
 // thread-local pointer containing the request context, and then processes the
-// 'request'.
-//..
+// `request`.
+// ```
     void RequestProcessor::processRequest(int         userId,
                                           int         workstation,
                                           const char *request)
@@ -751,20 +760,20 @@ extern "C" void *typesTest(void *voidArgs)
 
         contextReference() = 0;
     }
-//..
-// Finally, we define a separate function 'myFunction' that uses the
-// 'RequestProcessor' class to access the 'RequestContext' for the current
+// ```
+// Finally, we define a separate function `myFunction` that uses the
+// `RequestProcessor` class to access the `RequestContext` for the current
 // thread.
-//..
+// ```
     void myFunction()
     {
         const RequestContext *context = RequestProcessor::requestContext();
 
-        // Perform some task that makes use of this threads 'requestContext'.
+        // Perform some task that makes use of this threads `requestContext`.
         // ...
         (void)context;
     }
-//..
+// ```
 struct UsageTestArgs {
     my_Barrier       *d_barrier;
     RequestProcessor *d_processor;
@@ -807,7 +816,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -835,7 +844,7 @@ int main(int argc, char *argv[])
         // TEST TYPES
         //
         // Concerns:
-        //    That 'BSLMT_THREAD_LOCAL_VARIABLE' creates variables of the
+        //    That `BSLMT_THREAD_LOCAL_VARIABLE` creates variables of the
         //    correct type.
         //
         // Plan:
@@ -868,8 +877,8 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //    That a variable declared with
-        //    'BSLMT_THREAD_LOCAL_VARIABLE'
-        //    is initialized with the specified 'INITIAL_VALUE'
+        //    `BSLMT_THREAD_LOCAL_VARIABLE`
+        //    is initialized with the specified `INITIAL_VALUE`
         //
         // Plan:
         //    Declares a thread local pointers with different initial values
@@ -899,7 +908,7 @@ int main(int argc, char *argv[])
         // TEST GLOBAL VARIABLE ADDRESS
         //
         // Concerns:
-        //    That the 'BSLMT_THREAD_LOCAL_VARIABLE' macro declares a
+        //    That the `BSLMT_THREAD_LOCAL_VARIABLE` macro declares a
         //    static global address that is different for each thread.
         //
         // Plan:
@@ -927,7 +936,7 @@ int main(int argc, char *argv[])
             myJoinThread(handles[i]);
         }
 
-        // Use the set to verify there are 'NUM_THREADS' unique addresses.
+        // Use the set to verify there are `NUM_THREADS` unique addresses.
         bsl::set<void *> addresses(Z);
         for (int i = 0; i < NUM_THREADS; ++i) {
             ASSERT(0 != args[i].d_address);
@@ -943,7 +952,7 @@ int main(int argc, char *argv[])
         // TEST FUNCTION SCOPE VARIABLE ADDRESS
         //
         // Concerns:
-        //    That the 'BSLMT_THREAD_LOCAL_VARIABLE' macro declares a
+        //    That the `BSLMT_THREAD_LOCAL_VARIABLE` macro declares a
         //    static function scoped address that is different for each thread.
         //
         // Plan:
@@ -973,7 +982,7 @@ int main(int argc, char *argv[])
             myJoinThread(handles[i]);
         }
 
-        // Use the set to verify there are 'NUM_THREADS' unique addresses.
+        // Use the set to verify there are `NUM_THREADS` unique addresses.
         bsl::set<void *> addresses(Z);
         for (int i = 0; i < NUM_THREADS; ++i) {
             ASSERT(0 != args[i].d_address);
@@ -988,7 +997,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING HELPER CLASS: my_Barrier
         //
-        // Concerns: That 'my_Barrier' waits for the correct number of threads
+        // Concerns: That `my_Barrier` waits for the correct number of threads
         // to enter, that it releases all threads, and can be used multiple
         // times with no side effects.
         //
@@ -1000,7 +1009,7 @@ int main(int argc, char *argv[])
         //   wait();
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTesting Helper: 'my_Barrier'"
+        if (verbose) bsl::cout << "\nTesting Helper: `my_Barrier`"
                                   "\n============================\n";
 
         for (int numThreads = 1; numThreads < 9; ++numThreads) {

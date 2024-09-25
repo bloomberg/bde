@@ -343,9 +343,9 @@ static const char *printableCharacters[256]=
     "\\xff"   // 255  ff
 };
 
+/// Specialize for char*.  Need to expand \r, \n, \t and surround with
+/// DQUOTE characters.
 void printValue(bsl::ostream& out, const char* value)
-    // Specialize for char*.  Need to expand \r, \n, \t and surround with
-    // DQUOTE characters.
 {
     out << '"';
 
@@ -357,14 +357,14 @@ void printValue(bsl::ostream& out, const char* value)
     out << '"';
 }
 
+/// Need to expand \r, \n, \t and surround with DQUOTE characters.
 void printValue(bsl::ostream& out, const bsl::string& value)
-    // Need to expand \r, \n, \t and surround with DQUOTE characters.
 {
     printValue(out, value.c_str());
 }
 
+/// Need to expand \r, \n, \t and surround with SQUOTE characters.
 void printValue(bsl::ostream& out, const char& value)
-    // Need to expand \r, \n, \t and surround with SQUOTE characters.
 {
     out << '\'' << printableCharacters[value] << '\'';
 }
@@ -413,9 +413,9 @@ int HelperFunctions::parse(double *result, const char *data, int dataLength)
 
 // The following snippets of code illustrate the usage of this component.
 // Suppose you had an input stream that contained a list of doubles.  The
-// following 'loadDoublesFromListStream' function loads this data into an
-// 'bsl::vector<double>':
-//..
+// following `loadDoublesFromListStream` function loads this data into an
+// `bsl::vector<double>`:
+// ```
 //  #include <balxml_listparser.h>
 //
 //  #include <bdlt_date.h>
@@ -448,19 +448,19 @@ int loadDoublesFromListStream(bsl::vector<double> *result,
 
     return parser.endParse();
 }
-//..
-// The 'parseDouble' function is implemented as follows:
-//..
+// ```
+// The `parseDouble` function is implemented as follows:
+// ```
 int parseDouble(double *result, const char *data, int dataLength)
 {
     bsl::stringstream ss(bsl::string(data, dataLength));
     ss >> (*result);
     return 0;
 }
-//..
-// The following function demonstrates the 'loadDoublesFromListStream'
+// ```
+// The following function demonstrates the `loadDoublesFromListStream`
 // function:
-//..
+// ```
 void usageExample()
 {
     const char INPUT[] = "1.5 2.0 3.8 1.0";
@@ -477,7 +477,7 @@ void usageExample()
     ASSERT(3.8 == vec[2]);
     ASSERT(1.0 == vec[3]);
 }
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -492,7 +492,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -513,28 +513,28 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // THOROUGH TEST
-        //   This will thoroughly test the 'balxml::ListParser' class.
+        //   This will thoroughly test the `balxml::ListParser` class.
         //
         // Concerns:
-        //   The parser must reset the associated object when 'beginParse' is
+        //   The parser must reset the associated object when `beginParse` is
         //   called.  It should decode incoming objects that may be passed
-        //   through multiple calls of 'pushCharacters' and detect whitespace
+        //   through multiple calls of `pushCharacters` and detect whitespace
         //   boundaries correctly.  The parsed object must be appended to the
         //   associated array.
         //
         // Plan:
-        //   Use 'bsl::vector<int>' for the 'TYPE' parameter and use
-        //   'HelperFunctions::parse(int*, const char*, int)' for the parse
+        //   Use `bsl::vector<int>` for the `TYPE` parameter and use
+        //   `HelperFunctions::parse(int*, const char*, int)` for the parse
         //   element callback.  For each item in a set of test data, create an
-        //   'balxml::ListParser<TYPE>' object and associate it with an
-        //   'bsl::vector<int>' object, 'mX', that has been filled with some
-        //   arbitrary data.  Verify that 'mX' has been reset.
+        //   `balxml::ListParser<TYPE>` object and associate it with an
+        //   `bsl::vector<int>` object, `mX`, that has been filled with some
+        //   arbitrary data.  Verify that `mX` has been reset.
         //
         //   Push the characters from the dataset into the parser object and
         //   check that the return value is as expected.
         //
-        //   Call 'endParse' and check that the return value is as expected.
-        //   Finally, verify the contents of 'mX'.
+        //   Call `endParse` and check that the return value is as expected.
+        //   Finally, verify the contents of `mX`.
         //
         // Testing:
         //   balxml::ListParser
@@ -553,7 +553,7 @@ int main(int argc, char *argv[])
                 bool        d_success;                  // true if push
                                                         // successful
             }    d_input[MAX_NUM_PUSHES];
-            bool d_endSuccess;                      // true if 'endParse'
+            bool d_endSuccess;                      // true if `endParse`
                                                     // successful
             int  d_resultData[MAX_NUM_ELEMENTS];    // expected result data
             int  d_resultLength;                    // result length

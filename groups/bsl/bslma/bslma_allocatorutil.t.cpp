@@ -12,9 +12,9 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_keyword.h>
 
-#include <cstdio>   // 'printf'
-#include <cstdlib>  // 'atoi'
-#include <typeinfo> // 'type_info'
+#include <cstdio>   // `printf`
+#include <cstdlib>  // `atoi`
+#include <typeinfo> // `type_info`
 
 #ifdef BDE_VERIFY
 // Suppress some pedantic bde_verify checks in this test driver
@@ -134,9 +134,9 @@ class DerivedAllocator : public bsl::allocator<TYPE> {
         : Base(other.mechanism()) { }
 };
 
+/// A class that meets the minimum requirements for a C++17 allocator.
 template <class TYPE>
 class StlAllocator {
-    // A class that meets the minimum requirements for a C++17 allocator.
 
     bsl::allocator<TYPE> d_imp;
 
@@ -152,7 +152,7 @@ class StlAllocator {
     void deallocate(TYPE *p, std::size_t n) { d_imp.deallocate(p, n); }
 
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    // C++03 requires that the 'construct' functions be defined.
+    // C++03 requires that the `construct` functions be defined.
     // This collection is not generalized to arbitrary arguments, but is the
     // minimum useful set for this test driver.
     void construct(TYPE *p) { ::new (static_cast<void *>(p)) TYPE(); }
@@ -185,11 +185,11 @@ bool operator!=(const StlAllocator<T1>& lhs, const StlAllocator<T2>& rhs)
     return lhs.bslmaAlloc() != rhs.bslmaAlloc();
 }
 
-int g_ConstructingAllocCount = 0; // # calls to 'ConstructingAlloc::construct'
+int g_ConstructingAllocCount = 0; // # calls to `ConstructingAlloc::construct`
 
+/// An allocator class with a custom `construct` method
 template <class TYPE>
 class ConstructingAlloc {
-    // An allocator class with a custom 'construct' method
 
     bsl::allocator<TYPE> d_imp;
 
@@ -235,20 +235,20 @@ bool operator!=(const ConstructingAlloc<T1>& lhs,
     return lhs.mechanism() != rhs.mechanism();
 }
 
+/// A `memory_resource` that checks that each deallocation is matched with a
+/// corresponding allocation having the same address, size, and alignment.
+/// Can have up to a maximum of 128 blocks outstanding.  This extension to
+/// `bslma::TestAllocator` functionality will eventually be moved into
+/// `bslma_testallocator` itself, at which point this class will be removed
+/// and the test driver will use `bslma::TestAllocator` directly.
+/// See {DRQS 174865686}.
 class CheckedResource : public bslma::TestAllocator {
-    // A 'memory_resource' that checks that each deallocation is matched with a
-    // corresponding allocation having the same address, size, and alignment.
-    // Can have up to a maximum of 128 blocks outstanding.  This extension to
-    // 'bslma::TestAllocator' functionality will eventually be moved into
-    // 'bslma_testallocator' itself, at which point this class will be removed
-    // and the test driver will use 'bslma::TestAllocator' directly.
-    // See {DRQS 174865686}.
 
     // PRIVATE TYPES
     typedef bslma::TestAllocator Base;
 
+    /// Information about a block of memory allocated from this resource.
     struct BlockInfo {
-        // Information about a block of memory allocated from this resource.
         std::size_t  d_bytes;          // requested bytes
         std::size_t  d_alignment;      // requested alignment
         void        *d_block_p;        // raw allocated block
@@ -258,7 +258,7 @@ class CheckedResource : public bslma::TestAllocator {
     // DATA
     enum { k_MAX_OUTSTANDING_BLOCKS = 128 };
 
-    // Keep track of allocations in an array of 'BlockInfo' objects.
+    // Keep track of allocations in an array of `BlockInfo` objects.
     BlockInfo             d_blocks[k_MAX_OUTSTANDING_BLOCKS];
     BlockInfo            *d_nextBlock;  // Next unallocated block info
 
@@ -268,9 +268,10 @@ class CheckedResource : public bslma::TestAllocator {
     int                   d_numAlignmentMismatches;
 
     // PRIVATE ACCESSORS
+
+    /// Return the index of the block associated with `blockPtr` or -1
+    /// if not found.
     int blockIndex(void *blockPtr) const;
-        // Return the index of the block associated with 'blockPtr' or -1
-        // if not found.
 
     // PRIVATE VIRTUAL METHODS
     void *do_allocate(std::size_t bytes,
@@ -376,14 +377,14 @@ void *CheckedResource::do_allocate(std::size_t bytes, std::size_t alignment)
 {
     BSLS_ASSERT_OPT(d_nextBlock < d_blocks + k_MAX_OUTSTANDING_BLOCKS);
 
-    // 'slack' is the amount of extra memory we need to allocate to be able to
-    // correct for 'alignment' greater than max alignment.
+    // `slack` is the amount of extra memory we need to allocate to be able to
+    // correct for `alignment` greater than max alignment.
     std::ptrdiff_t slack = 0;
     if (alignment > k_MAX_ALIGNMENT)
         slack = alignment - k_MAX_ALIGNMENT;
 
     // Allocate memory and compute the first address with the desired
-    // 'alignment'.
+    // `alignment`.
     void *block_p        = Base::allocate(bytes + slack);
     void *alignedBlock_p = static_cast<char*>(block_p) +
         bsls::AlignmentUtil::calculateAlignmentOffset(block_p, int(alignment));
@@ -462,8 +463,8 @@ bool CheckedResource::hasExpAlignment(void *block, std::size_t expAlign) const
     }
 }
 
+/// Allocator for which assignment allowed.
 class AssignableAllocator {
-    // Allocator for which assignment allowed.
 
     int d_id;
 
@@ -492,14 +493,14 @@ inline bool operator!=(const AssignableAllocator& lhs,
     return lhs.id() != rhs.id();
 }
 
+/// Allocator for which assignment is not allowed.
 class NonAssignableAllocator {
-    // Allocator for which assignment is not allowed.
 
     int d_id;
 
+    /// Disabled assignment
     NonAssignableAllocator& operator=(const NonAssignableAllocator&)
                                                           BSLS_KEYWORD_DELETED;
-        // Disabled assignment
 
   public:
     typedef char            value_type;
@@ -526,9 +527,9 @@ inline bool operator!=(const NonAssignableAllocator& lhs,
     return lhs.id() != rhs.id();
 }
 
+/// Non-raw pointer type.
 template <class TYPE>
 class FancyPtr {
-    // Non-raw pointer type.
 
     TYPE *d_ptr;
 
@@ -557,9 +558,9 @@ class FancyPtr {
     TYPE *get() const { return d_ptr; }
 };
 
+/// Non-raw void pointer type.
 template <>
 class FancyPtr<void> {
-    // Non-raw void pointer type.
 
     void *d_ptr;
 
@@ -592,11 +593,11 @@ T* rawPtr(T* p) { return p; }
 template <class T>
 T* rawPtr(FancyPtr<T> p) { return p.get(); }
 
+/// An allocator class that uses non-raw pointers and meets the requirements
+/// for a C++17 allocator.
 template <class TYPE>
 class FancyAllocator
 {
-    // An allocator class that uses non-raw pointers and meets the requirements
-    // for a C++17 allocator.
 
     bsl::allocator<TYPE> d_mechanism;
 
@@ -640,8 +641,8 @@ bool operator!=(const FancyAllocator<T1>& lhs, const FancyAllocator<T2>& rhs)
     return lhs.mechanism() != rhs.mechanism();
 }
 
+/// Legacy-AA class.
 class LegacyAAClass {
-    // Legacy-AA class.
 
     bslma::Allocator *d_allocator_p;
     // ...
@@ -653,8 +654,8 @@ class LegacyAAClass {
     bslma::Allocator *allocator() const { return d_allocator_p; }
 };
 
+/// Bsl-AA class.
 class BslAAClass {
-    // Bsl-AA class.
 
     bsl::allocator<int> d_allocator;
     // ...
@@ -668,8 +669,8 @@ class BslAAClass {
     allocator_type get_allocator() const { return d_allocator; }
 };
 
+/// Stl-AA class.
 class StlAAClass {
-    // Stl-AA class.
 
     StlAllocator<int> d_allocator;
     // ...
@@ -683,8 +684,8 @@ class StlAAClass {
     allocator_type get_allocator() const { return d_allocator; }
 };
 
+/// Class that tracks the number of outstanding objects.
 class TrackedObj {
-    // Class that tracks the number of outstanding objects.
 
     static int s_ctorCount;
     static int s_dtorCount;
@@ -702,9 +703,9 @@ class TrackedObj {
 int TrackedObj::s_ctorCount = 0;
 int TrackedObj::s_dtorCount = 0;
 
+/// Type with alignment greater than largest native platform alignment.
+/// In C++03, this type simply has the largest native platform alignment.
 struct OveralignedObj {
-    // Type with alignment greater than largest native platform alignment.
-    // In C++03, this type simply has the largest native platform alignment.
 #ifdef BSLS_ALIGNMENTTOTYPE_USES_ALIGNAS
     alignas(k_MAX_ALIGNMENT * 2) char d_data[k_MAX_ALIGNMENT * 2];
 #else
@@ -720,11 +721,11 @@ bool operator==(const OveralignedObj&, const OveralignedObj&) { return true; }
 BSLA_MAYBE_UNUSED
 bool operator!=(const OveralignedObj&, const OveralignedObj&) { return false; }
 
+/// An allocator-aware test type that tracks its construction and
+/// destruction.  To enable exception testing, this class allocates memory
+/// (i.e., construction can fail with an out-of-memory exception generated
+/// by a test allocator).
 class TestType {
-    // An allocator-aware test type that tracks its construction and
-    // destruction.  To enable exception testing, this class allocates memory
-    // (i.e., construction can fail with an out-of-memory exception generated
-    // by a test allocator).
 
     static int s_ctorCount;
     static int s_dtorCount;
@@ -732,9 +733,9 @@ class TestType {
     bsl::polymorphic_allocator<long>  d_allocator;
     long                             *d_valuePtr; // holds sum of ctor args
 
+    /// Return a pointer to storage obtained from the allocator holding the
+    /// specified `v` value.
     long *makeValue(long v = 0);
-        // Return a pointer to storage obtained from the allocator holding the
-        // specified 'v' value.
 
   public:
     // TRAITS
@@ -829,9 +830,9 @@ long *TestType::makeValue(long v)
 //                  TEST CASE IMPLEMENTATIONS
 // ----------------------------------------------------------------------------
 
+/// Test `allocateBytes` and `deallocateBytes`
 template <class ALLOCATOR, class POINTER>
 void testAllocBytes(int line)
-    // Test 'allocateBytes' and 'deallocateBytes'
 {
     const std::size_t SIZES[] = { 1, 2, 3, 4, 8, 10, 16, 64, 256 };
     const std::size_t NUM_SIZES = sizeof(SIZES) / sizeof(SIZES[0]);
@@ -906,9 +907,9 @@ void testAllocObjImp(int Tline, int Aline)
     ASSERTV(Tline, Aline, expSize, expAlign, cr.hasExpAlignment(raw2_p, 0));
 }
 
+/// Test `allocateObject` and `deallocatObject`.
 template <class TYPE>
 void testAllocObj(int line)
-    // Test 'allocateObject' and 'deallocatObject'.
 {
 #define TEST_IMP(ALLOC, PTR) testAllocObjImp<ALLOC, TYPE, PTR>(line, L_)
 
@@ -965,9 +966,9 @@ void testNewObjImp(int Tline, int Aline)
     ASSERTV(Tline, Aline, expSize, expAlign, cr.hasExpAlignment(raw_p, 0));
 }
 
+/// Test `allocateObject` and `deallocatObject`.
 template <class TYPE>
 void testNewObj(int line)
-    // Test 'allocateObject' and 'deallocatObject'.
 {
 #define TEST_IMP(ALLOC, PTR) testNewObjImp<ALLOC, TYPE, PTR>(line, L_)
 
@@ -996,15 +997,16 @@ void testNewObj(int line)
 ///Example 1: Future-proofing Member Construction
 ///- - - - - - - - - - - - - - - - - - - - - - -
 // This example shows how we construct an AA member variable, using
-// 'bslma::AllocatorUtil::adapt' so that it is both self-documenting and robust
+// `bslma::AllocatorUtil::adapt` so that it is both self-documenting and robust
 // in case the member type is modernized from *legacy-AA* (using
-// 'bslma::Allocator *' directly in its interface) to *bsl-AA* (using
-// 'bsl::allocator' in its interface).
+// `bslma::Allocator *` directly in its interface) to *bsl-AA* (using
+// `bsl::allocator` in its interface).
 //
-// First, we define a class, 'Data1', that has a legacy-AA interface:
-//..
+// First, we define a class, `Data1`, that has a legacy-AA interface:
+// ```
+
+    /// Legacy-AA data class.
     class Data1 {
-        // Legacy-AA data class.
 
         bslma::Allocator *d_allocator_p;
         // ...
@@ -1015,10 +1017,10 @@ void testNewObj(int line)
 
         bslma::Allocator *allocator() const { return d_allocator_p; }
     };
-//..
-// Next, we define a class, 'MyClass1', that has a member of type 'Data1'.
-// 'MyClass' uses a modern, bsl-AA interface:
-//..
+// ```
+// Next, we define a class, `MyClass1`, that has a member of type `Data1`.
+// `MyClass` uses a modern, bsl-AA interface:
+// ```
     class MyClass1 {
         bsl::allocator<char> d_allocator;
         Data1                d_data;
@@ -1031,23 +1033,24 @@ void testNewObj(int line)
         const Data1& data() const { return d_data; }
         allocator_type get_allocator() const { return d_allocator; }
     };
-//..
-// Next, we define the constructor for 'MyClass1'.  Since 'MyClass1' uses
-// 'bsl::allocator' and the 'Data1' uses 'bslma::Allocator *', we employ
-// 'bslma::AllocatorUtil::adapt' to obtain an allocator suitable for passing to
-// the constructor for 'd_data':
-//..
+// ```
+// Next, we define the constructor for `MyClass1`.  Since `MyClass1` uses
+// `bsl::allocator` and the `Data1` uses `bslma::Allocator *`, we employ
+// `bslma::AllocatorUtil::adapt` to obtain an allocator suitable for passing to
+// the constructor for `d_data`:
+// ```
     MyClass1::MyClass1(const allocator_type& allocator)
         : d_allocator(allocator)
         , d_data(bslma::AllocatorUtil::adapt(allocator))
     {
     }
-//..
-// Next, assume that we update our 'Data' class from legacy-AA to bsl-AA
-// (renamed from 'Data1' to 'Data2' for illustrative purposes):
-//..
+// ```
+// Next, assume that we update our `Data` class from legacy-AA to bsl-AA
+// (renamed from `Data1` to `Data2` for illustrative purposes):
+// ```
+
+    /// Bsl-AA data class.
     class Data2 {
-        // Bsl-AA data class.
 
         bsl::allocator<int> d_allocator;
         // ...
@@ -1060,10 +1063,10 @@ void testNewObj(int line)
 
         allocator_type get_allocator() const { return d_allocator; }
     };
-//..
-// Now, we notice that **nothing** about 'MyClass' needs to change, not even
-// the way its constructor passes an allocator to 'd_data':
-//..
+// ```
+// Now, we notice that **nothing** about `MyClass` needs to change, not even
+// the way its constructor passes an allocator to `d_data`:
+// ```
     class MyClass2 {
         bsl::allocator<char> d_allocator;
         Data2                d_data;
@@ -1082,10 +1085,10 @@ void testNewObj(int line)
         , d_data(bslma::AllocatorUtil::adapt(allocator))
     {
     }
-//..
-// Finally, we test both versions of 'MyClass' and show that the allocator that
-// is passed to the 'MyClass' constructor gets forwarded to its data member:
-//..
+// ```
+// Finally, we test both versions of `MyClass` and show that the allocator that
+// is passed to the `MyClass` constructor gets forwarded to its data member:
+// ```
     void usageExample1()
     {
         bslma::TestAllocator ta;
@@ -1097,16 +1100,16 @@ void testNewObj(int line)
         MyClass2 obj2(alloc);
         ASSERT(alloc == obj2.data().get_allocator());
     }
-//..
+// ```
 //
 ///Example 2: Building an AA object on the heap
 ///- - - - - - - - - - - - - - - - - - - - - -
 // This example shows how we can allocate a *bsl-AA* object from an allocator
 // and construct the object, passing the allocator along, in one step.
 //
-// First, we define a simple class, 'BslAAType', that uses 'bsl::allocator' to
+// First, we define a simple class, `BslAAType`, that uses `bsl::allocator` to
 // allocate memory (i.e., it is *bsl-AA*):
-//..
+// ```
 //  #include <bslma_bslallocator.h>
     class BslAAType {
         bsl::allocator<> d_allocator;
@@ -1126,11 +1129,11 @@ void testNewObj(int line)
         allocator_type get_allocator() const { return d_allocator; }
         int            value()         const { return d_value;     }
     };
-//..
-// Now we can use 'bslma::AllocatorUtil::newObject' to, in a single operation,
-// allocate and construct an 'BslAAType' object.  We can see that the right
+// ```
+// Now we can use `bslma::AllocatorUtil::newObject` to, in a single operation,
+// allocate and construct an `BslAAType` object.  We can see that the right
 // allocator and value are passed to the new object:
-//..
+// ```
 //  #include <bslma_testallocator.h>
     void usageExample2()
     {
@@ -1139,24 +1142,24 @@ void testNewObj(int line)
         ASSERT(sizeof(BslAAType) == ta.numBytesInUse());
         ASSERT(77 == p->value());
         ASSERT(&ta == p->get_allocator().mechanism());
-//..
-// Finally, we use 'deleteObject' to destroy and return the object to the
+// ```
+// Finally, we use `deleteObject` to destroy and return the object to the
 // allocator:
         bslma::AllocatorUtil::deleteObject(&ta, p);
         ASSERT(0 == ta.numBytesInUse());
     }
-//..
+// ```
 //
 ///Example 3: Safe container swap
 ///- - - - - - - - - - - - - - -
-// In this example, we see how 'bslma::AllocatorUtil::swap' can be used to swap
+// In this example, we see how `bslma::AllocatorUtil::swap` can be used to swap
 // allocators without the risk of calling a non-existant swap.
 //
-// First, we create a class, 'StdAAType', that uses any valid STL-compatible
+// First, we create a class, `StdAAType`, that uses any valid STL-compatible
 // allocator (i.e., it is *stl-AA*).  Note that this class has non-default copy
 // constructor and assignment operations (whose implementation is not shown)
-// and a non-default 'swap' operation:
-//..
+// and a non-default `swap` operation:
+// ```
     template <class TYPE, class ALLOCATOR = bsl::allocator<TYPE> >
     class StlAAType {
         ALLOCATOR  d_allocator;
@@ -1193,13 +1196,13 @@ void testNewObj(int line)
     {
         a.swap(b);
     }
-//..
-// Next, we write the 'swap' member function.  This function should follow our
+// ```
+// Next, we write the `swap` member function.  This function should follow our
 // standard AA rule for member swap: if the allocators compare equal or if the
 // allocators should propagate on swap, then perform a fast swap, moving only
 // pointers and (possibly) allocators, rather than copying elements; otherwise
 // revert to element-by-element swap:
-//..
+// ```
     template <class TYPE, class ALLOCATOR>
     void StlAAType<TYPE, ALLOCATOR>::swap(StlAAType& other)
     {
@@ -1221,18 +1224,18 @@ void testNewObj(int line)
             swap(*d_value_p, *other.d_value_p);
         }
     }
-//..
-// Note that, in the above implementation of 'swap', that we swap the
-// allocators using 'bslma::AllocatorUtil::swap' instead of calling 'swap'
-// directly.  If the 'ALLOCATOR' type does not propagate on container
+// ```
+// Note that, in the above implementation of `swap`, that we swap the
+// allocators using `bslma::AllocatorUtil::swap` instead of calling `swap`
+// directly.  If the `ALLOCATOR` type does not propagate on container
 // assignment or swap, the allocator itself is not required to support
 // assignment or swap.  By using this utility, we avoid trying to compile a
-// call to allocator 'swap' when it is not needed.
+// call to allocator `swap` when it is not needed.
 //
-// Next, we'll define an allocator that illustrates this point.  Our 'MyAlloc'
+// Next, we'll define an allocator that illustrates this point.  Our `MyAlloc`
 // allocator does not support allocator propogation and deletes the assignment
 // operators (thus also disabling swap):
-//..
+// ```
 //  #include <bsls_keyword.h>
     template <class TYPE>
     class MyAlloc {
@@ -1265,10 +1268,10 @@ void testNewObj(int line)
         void construct(TYPE *p, const ARG& arg)
             { ::new (static_cast<void *>(p)) TYPE(arg); }
     };
-//..
-// Finally, we create two 'StlAAType' objects with the same allocator and show
+// ```
+// Finally, we create two `StlAAType` objects with the same allocator and show
 // that they can be swapped even though the allocator type cannot be swapped:
-//..
+// ```
     void usageExample3()
     {
         MyAlloc<int> alloc;
@@ -1283,7 +1286,7 @@ void testNewObj(int line)
         ASSERT(2 == objA.value());
         ASSERT(1 == objB.value());
     }
-//..
+// ```
 
 }  // close unnamed namespace
 
@@ -1307,12 +1310,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLES
         //
         // Concerns:
-        //: 1 That the usage examples shown in the component-level
-        //:   documentation compile and run as described.
+        // 1. That the usage examples shown in the component-level
+        //    documentation compile and run as described.
         //
         // Plan:
-        //: 1 Copy the usage examples from the component header, changing
-        //    'assert' to 'ASSERT' and execute them.
+        // 1. Copy the usage examples from the component header, changing
+        //    `assert` to `ASSERT` and execute them.
         //
         // Testing:
         //     USAGE EXAMPLES
@@ -1329,40 +1332,40 @@ int main(int argc, char *argv[])
 
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'swap'
+        // TESTING `swap`
         //
         // Concerns:
-        //: 1 Calling 'swap' with two arguments that compare equal before the
-        //:   call and a 'false_type' last argument succeeds and has no effect.
-        //: 2 Calling 'swap' with two arguments that do not compare equal
-        //:   before the call and a 'false_type' last argument is detected as a
-        //:   precondition violation in certain build modes.
-        //: 3 When the last argument of 'swap' is 'false_type', the
-        //:   'swap' free function for the allocator type is not called (and
-        //:   need not be callable).
-        //: 4 Calling 'swap' with a last argument of 'true_type' will invoke
-        //:   the the ADL free function 'swap' for the first two arguments.
-        //:   Note that compilation will fail if the type cannot be swapped.
+        // 1. Calling `swap` with two arguments that compare equal before the
+        //    call and a `false_type` last argument succeeds and has no effect.
+        // 2. Calling `swap` with two arguments that do not compare equal
+        //    before the call and a `false_type` last argument is detected as a
+        //    precondition violation in certain build modes.
+        // 3. When the last argument of `swap` is `false_type`, the
+        //    `swap` free function for the allocator type is not called (and
+        //    need not be callable).
+        // 4. Calling `swap` with a last argument of `true_type` will invoke
+        //    the the ADL free function `swap` for the first two arguments.
+        //    Note that compilation will fail if the type cannot be swapped.
         //
         // Plan:
-        //: 1 Given two objects 'a' and 'b' that compare equal, verify that
-        //:   'AllocatorUtil::swap(&a, &b, false_type())' has no effect.  (C-1)
-        //: 2 (Negative test) Given two objects 'a' and 'b' that do not compare
-        //:   equal, verify that 'swap(&a, b, false_type())' fails with a
-        //:   precondition violation in a non-optimized build.  (C-2)
-        //: 3 Repeat steps 1 and 2 with a type that cannot be swapped.  Verify
-        //:   that compilation succeeds and the results are the same.  (C-3)
-        //: 4 Given two objects 'a' and 'b' that do not compare equal, verify
-        //:   that 'swap(&a, &b, false_type())' invokes 'swap(a, b)'.  Note
-        //:   that this step would fail to compile if the objects are not
-        //:   swappable (not testable).
+        // 1. Given two objects `a` and `b` that compare equal, verify that
+        //    `AllocatorUtil::swap(&a, &b, false_type())` has no effect.  (C-1)
+        // 2. (Negative test) Given two objects `a` and `b` that do not compare
+        //    equal, verify that `swap(&a, b, false_type())` fails with a
+        //    precondition violation in a non-optimized build.  (C-2)
+        // 3. Repeat steps 1 and 2 with a type that cannot be swapped.  Verify
+        //    that compilation succeeds and the results are the same.  (C-3)
+        // 4. Given two objects `a` and `b` that do not compare equal, verify
+        //    that `swap(&a, &b, false_type())` invokes `swap(a, b)`.  Note
+        //    that this step would fail to compile if the objects are not
+        //    swappable (not testable).
         //
         // Testing:
         //    TYPE& swap(TYPE *, TYPE*, bsl::false_type);
         //    TYPE& swap(TYPE *, TYPE*, bsl::true_type);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'swap'"
+        if (verbose) printf("\nTESTING `swap`"
                             "\n==============\n");
 
         const bsl::true_type  trueV;
@@ -1403,42 +1406,42 @@ int main(int argc, char *argv[])
 
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'assign'
+        // TESTING `assign`
         //
         // Concerns:
-        //: 1 Calling 'assign' with two arguments that compare equal before the
-        //:   call and a 'false_type' last argument succeeds and has no effect.
-        //: 2 Calling 'assign' with two arguments that do not compare equal
-        //:   before the call and a 'false_type' last argument is detected as a
-        //:   precondition violation in certain build modes.
-        //: 3 When the last argument of 'assign' is 'false_type', the
-        //:   assignment operator for the allocator type is not called (and
-        //:   need not exist).
-        //: 4 Calling 'assign' with a last argument of 'true_type' will invoke
-        //:   the assignment operator for the allocators.  Note that
-        //:   compilation will fail if the assignment operator is deleted or
-        //:   private.
+        // 1. Calling `assign` with two arguments that compare equal before the
+        //    call and a `false_type` last argument succeeds and has no effect.
+        // 2. Calling `assign` with two arguments that do not compare equal
+        //    before the call and a `false_type` last argument is detected as a
+        //    precondition violation in certain build modes.
+        // 3. When the last argument of `assign` is `false_type`, the
+        //    assignment operator for the allocator type is not called (and
+        //    need not exist).
+        // 4. Calling `assign` with a last argument of `true_type` will invoke
+        //    the assignment operator for the allocators.  Note that
+        //    compilation will fail if the assignment operator is deleted or
+        //    private.
         //
         // Plan:
-        //: 1 Given two objects 'a' and 'b' that compare equal, verify that
-        //:   'assign(&a, b, false_type())' has no effect.  (C-1)
-        //: 2 (Negative test) Given two objects 'a' and 'b' that do not compare
-        //:   equal, verify that 'assign(&a, b, false_type())' fails with a
-        //:   precondition violation in a non-optimized build.  (C-2)
-        //: 3 Repeat steps 1 and 2 with a type that has a deleted assignment
-        //:   operator.  Verify that compilation succeeds and the results are
-        //:   the same.  (C-3)
-        //: 4 Given two objects 'a' and 'b' that do not compare equal, verify
-        //:   that 'assign(&a, b, false_type())' invokes 'a = b'.  Note that
-        //:   this step would not compile if 'a' and 'b' have a deleted
-        //:   assignment operator (not testable).
+        // 1. Given two objects `a` and `b` that compare equal, verify that
+        //    `assign(&a, b, false_type())` has no effect.  (C-1)
+        // 2. (Negative test) Given two objects `a` and `b` that do not compare
+        //    equal, verify that `assign(&a, b, false_type())` fails with a
+        //    precondition violation in a non-optimized build.  (C-2)
+        // 3. Repeat steps 1 and 2 with a type that has a deleted assignment
+        //    operator.  Verify that compilation succeeds and the results are
+        //    the same.  (C-3)
+        // 4. Given two objects `a` and `b` that do not compare equal, verify
+        //    that `assign(&a, b, false_type())` invokes `a = b`.  Note that
+        //    this step would not compile if `a` and `b` have a deleted
+        //    assignment operator (not testable).
         //
         // Testing:
         //    TYPE& assign(TYPE *, const TYPE&, bsl::true_type);
         //    TYPE& assign(TYPE *, const TYPE&, bsl::false_type);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'assign'"
+        if (verbose) printf("\nTESTING `assign`"
                             "\n================\n");
 
         const bsl::true_type  trueV;
@@ -1473,55 +1476,55 @@ int main(int argc, char *argv[])
 
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'newObject' AND 'deleteObject'
+        // TESTING `newObject` AND `deleteObject`
         //
         // Concerns:
-        //: 1 The 'newObject' method allocates a block of sufficient size
-        //:   to hold an object of the specified type and attempts honor the
-        //:   object's alignment requirements.
-        //: 2 The 'newObject' method initializes passes its arguments through
-        //:   to the object's constructor and returns a pointer to the
-        //:   initialized object.
-        //: 3 The returned object is constructed via a call to the 'construct'
-        //:   method of the allocator (if any).  Specifically, if the allocator
-        //:   is a scoped allocator (such as 'bsl::polymorphic_allocator',
-        //:   'bsl::allocator' or 'bslma::Allocator *') and the type being
-        //:   constructed uses a compatible allocator, the allocator is passed
-        //:   to the constructor of the new object.
-        //: 4 The 'deleteObject' method calls the object destructor then
-        //:   returns the memory block back to the allocator.
-        //: 5 The previous concerns apply to any type of allocator, including
-        //:   'bslma::Allocator *', 'bsl::allocator', and
-        //:   'bsl::polymorphic_allocator'.
-        //: 6 The pointer type returned by 'allocateObject' and accepted by
-        //:   'deleteObject' matches the pointer type for the specified
-        //:   allocator, including for STL-style allocators that use fancy
-        //:   pointers.
-        //: 7 If an exception is thrown by the type's constructor, no memory is
-        //:   leaked.
+        // 1. The `newObject` method allocates a block of sufficient size
+        //    to hold an object of the specified type and attempts honor the
+        //    object's alignment requirements.
+        // 2. The `newObject` method initializes passes its arguments through
+        //    to the object's constructor and returns a pointer to the
+        //    initialized object.
+        // 3. The returned object is constructed via a call to the `construct`
+        //    method of the allocator (if any).  Specifically, if the allocator
+        //    is a scoped allocator (such as `bsl::polymorphic_allocator`,
+        //    `bsl::allocator` or `bslma::Allocator *`) and the type being
+        //    constructed uses a compatible allocator, the allocator is passed
+        //    to the constructor of the new object.
+        // 4. The `deleteObject` method calls the object destructor then
+        //    returns the memory block back to the allocator.
+        // 5. The previous concerns apply to any type of allocator, including
+        //    `bslma::Allocator *`, `bsl::allocator`, and
+        //    `bsl::polymorphic_allocator`.
+        // 6. The pointer type returned by `allocateObject` and accepted by
+        //    `deleteObject` matches the pointer type for the specified
+        //    allocator, including for STL-style allocators that use fancy
+        //    pointers.
+        // 7. If an exception is thrown by the type's constructor, no memory is
+        //    leaked.
         //
         // Plan:
-        //: 1 Using a special test resource ('CheckedResource'), to initialize
-        //:   an allocator, test that the specified byte count and alignment
-        //:   are correctly passed to the allocator by a call to 'newObject'
-        //:   and that a pointer to the allocated block is returned by
-        //:   'allocateObject'.  Verify that the object was constructed using
-        //:   the allocator's 'construct' method, if any.  (C-1, C-2, C-3)
-        //: 2 Given the object pointer returned in step one, call
-        //:   'deleteObject' and verify that the destructor is called and that
-        //:   the pointer, size, and alignment are correctly passed to the
-        //:   resource.  (C-4)
-        //: 3 Repeat the above steps with a representative sample of object
-        //:   sizes and alignments, including alignments greater than the
-        //:   largest native platform alignment (on platforms that support
-        //:   'alignas').  (C-1)
-        //: 4 Repeat the above steps and with a wide variety of allocators and
-        //:   types being allocated.  (C-5, C-6)
-        //: 5 Using a test type that takes 0 - 14 integer constructor
-        //:   arguments, verify that the constructor arguments are passed to
-        //:   the constructor.  (C-2)
-        //: 6 Perform step 5 within an EXCEPTION_TEST_BEGIN/END pair.  Verify
-        //:   that no memory leaks when an exception is thrown.  (C-7)
+        // 1. Using a special test resource (`CheckedResource`), to initialize
+        //    an allocator, test that the specified byte count and alignment
+        //    are correctly passed to the allocator by a call to `newObject`
+        //    and that a pointer to the allocated block is returned by
+        //    `allocateObject`.  Verify that the object was constructed using
+        //    the allocator's `construct` method, if any.  (C-1, C-2, C-3)
+        // 2. Given the object pointer returned in step one, call
+        //    `deleteObject` and verify that the destructor is called and that
+        //    the pointer, size, and alignment are correctly passed to the
+        //    resource.  (C-4)
+        // 3. Repeat the above steps with a representative sample of object
+        //    sizes and alignments, including alignments greater than the
+        //    largest native platform alignment (on platforms that support
+        //    `alignas`).  (C-1)
+        // 4. Repeat the above steps and with a wide variety of allocators and
+        //    types being allocated.  (C-5, C-6)
+        // 5. Using a test type that takes 0 - 14 integer constructor
+        //    arguments, verify that the constructor arguments are passed to
+        //    the constructor.  (C-2)
+        // 6. Perform step 5 within an EXCEPTION_TEST_BEGIN/END pair.  Verify
+        //    that no memory leaks when an exception is thrown.  (C-7)
         //
         // Testing:
         //    pointer newObject<TYPE&>(const ALLOCATOR&, ARGS&&...);
@@ -1529,7 +1532,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nTESTING 'newObject' AND 'deleteObject'"
+            printf("\nTESTING `newObject` AND `deleteObject`"
                    "\n======================================\n");
 
         testNewObj<char          >(L_);
@@ -1590,47 +1593,47 @@ int main(int argc, char *argv[])
 
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'allocateObject' AND 'deallocateObject'
+        // TESTING `allocateObject` AND `deallocateObject`
         //
         // Concerns:
-        //: 1 The 'allocateObject' method allocates a block of sufficient size
-        //:   to hold the number of objects and attempts honor the
-        //:   object's alignment requirements.
-        //: 2 The 'deallocateObject' method returns the memory block back to
-        //:   the allocator.
-        //: 3 The previous concerns apply for any object size and alignment
-        //:   and alignment.
-        //: 4 If the allocator cannot honor the specified alignment, the
-        //:   maximum platform alignment is used.
-        //: 5 The previous concerns apply to any type of allocator, including
-        //:   'bslma::Allocator *', 'bsl::allocator',
-        //:   'bsl::polymorphic_allocator'.
-        //: 6 The pointer type returned by 'allocateObject' and accepted by
-        //:   'deallocateObject' matches the pointer type for the specified
-        //:   allocator, including for STL-style allocators that use fancy
-        //:   pointers.
-        //: 7 No constructors or destructors are called.
+        // 1. The `allocateObject` method allocates a block of sufficient size
+        //    to hold the number of objects and attempts honor the
+        //    object's alignment requirements.
+        // 2. The `deallocateObject` method returns the memory block back to
+        //    the allocator.
+        // 3. The previous concerns apply for any object size and alignment
+        //    and alignment.
+        // 4. If the allocator cannot honor the specified alignment, the
+        //    maximum platform alignment is used.
+        // 5. The previous concerns apply to any type of allocator, including
+        //    `bslma::Allocator *`, `bsl::allocator`,
+        //    `bsl::polymorphic_allocator`.
+        // 6. The pointer type returned by `allocateObject` and accepted by
+        //    `deallocateObject` matches the pointer type for the specified
+        //    allocator, including for STL-style allocators that use fancy
+        //    pointers.
+        // 7. No constructors or destructors are called.
         //
         // Plan:
-        //: 1 Using a special test resource ('CheckedResource'), to initialize
-        //:   an allocator, test that the specified byte count and alignment
-        //:   are correctly passed to the allocator by a call to
-        //:   'allocateObject' and that a pointer to the allocated block is
-        //:   returned by 'allocateObject'.  (C-1)
-        //: 2 Given the object pointer returned in step one, call
-        //:   'deallocateObject' and verify that the pointer, size, and
-        //:   alignment are correctly passed to the resource.  (C-2)
-        //: 3 Repeat the above steps with a representative sample of object
-        //:   sizes and alignments, including alignments greater than the
-        //:   largest native platform alignment (on platforms that support
-        //:   'alignas').  (C-3, C-4)
-        //: 4 Repeat the above steps and with a wide variety of allocators and
-        //:   types being allocated.  For allocators that use fancy pointers,
-        //:   verify that the returned pointer type is the appropriate void
-        //:   pointer type.  (C-5, C-6)
-        //: 5 Among the types checked in step 4, include one that tracks it
-        //:   constructor and destructor calls.  Verify that no constructor or
-        //:   destructor is called.
+        // 1. Using a special test resource (`CheckedResource`), to initialize
+        //    an allocator, test that the specified byte count and alignment
+        //    are correctly passed to the allocator by a call to
+        //    `allocateObject` and that a pointer to the allocated block is
+        //    returned by `allocateObject`.  (C-1)
+        // 2. Given the object pointer returned in step one, call
+        //    `deallocateObject` and verify that the pointer, size, and
+        //    alignment are correctly passed to the resource.  (C-2)
+        // 3. Repeat the above steps with a representative sample of object
+        //    sizes and alignments, including alignments greater than the
+        //    largest native platform alignment (on platforms that support
+        //    `alignas`).  (C-3, C-4)
+        // 4. Repeat the above steps and with a wide variety of allocators and
+        //    types being allocated.  For allocators that use fancy pointers,
+        //    verify that the returned pointer type is the appropriate void
+        //    pointer type.  (C-5, C-6)
+        // 5. Among the types checked in step 4, include one that tracks it
+        //    constructor and destructor calls.  Verify that no constructor or
+        //    destructor is called.
         //
         // Testing:
         //    pointer allocateObject(const ALLOCATOR&, size_t);;
@@ -1638,7 +1641,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nTESTING 'allocateObject' AND 'deallocateObject'"
+            printf("\nTESTING `allocateObject` AND `deallocateObject`"
                    "\n===============================================\n");
 
         testAllocObj<char          >(L_);
@@ -1655,41 +1658,41 @@ int main(int argc, char *argv[])
 
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'allocateBytes' AND 'deallocateBytes'
+        // TESTING `allocateBytes` AND `deallocateBytes`
         //
         // Concerns:
-        //: 1 The 'allocateBytes' method allocates the specified number of
-        //:   bytes and attempts honor the specified alignment.
-        //: 2 The 'deallocateBytes' method returns the bytes back to the
-        //:   allocator.
-        //: 3 The previous concerns apply for any reasonable number of bytes
-        //:   and alignment.
-        //: 4 If the allocator cannot honor the specified alignment, the
-        //:   maximum platform alignment is used.
-        //: 5 The previous concerns apply to any type of allocator, including
-        //:   'bslma::Allocator *', 'bsl::allocator',
-        //:   'bsl::polymorphic_allocator'.
-        //: 6 The pointer type returned by 'allocateBytes' and accepted by
-        //:   'deallocateBytes' matches the void pointer type for the specified
-        //:   allocator, including for STL-style allocators that use fancy
-        //:   pointers.
+        // 1. The `allocateBytes` method allocates the specified number of
+        //    bytes and attempts honor the specified alignment.
+        // 2. The `deallocateBytes` method returns the bytes back to the
+        //    allocator.
+        // 3. The previous concerns apply for any reasonable number of bytes
+        //    and alignment.
+        // 4. If the allocator cannot honor the specified alignment, the
+        //    maximum platform alignment is used.
+        // 5. The previous concerns apply to any type of allocator, including
+        //    `bslma::Allocator *`, `bsl::allocator`,
+        //    `bsl::polymorphic_allocator`.
+        // 6. The pointer type returned by `allocateBytes` and accepted by
+        //    `deallocateBytes` matches the void pointer type for the specified
+        //    allocator, including for STL-style allocators that use fancy
+        //    pointers.
         //
         // Plan:
-        //: 1 Using a special test resource ('CheckedResource'), to initialize
-        //:   an allocator, test that the specified byte count and alignment
-        //:   are correctly passed to the allocator by a call to
-        //:   'allocateBytes' and that a pointer to the allocated block is
-        //:   returned by 'allocateBytes'.  (C-1)
-        //: 2 Given the block pointer returned in step one, call
-        //:   'deallocateBytes' and verify that the pointer, size, and
-        //:   alignment are correctly passed to the allocator.  (C-2)
-        //: 3 Repeat the above steps with a representative sample of sizes and
-        //:   alignments, including alignments greater than the largest native
-        //:   platform alignment.  (C-3, C-4)
-        //: 4 Repeat the above steps and with a wide variety of allocators
-        //:   instantiated with at least two value types.  For allocators that
-        //:   use fancy pointers, verify that the returned pointer type is the
-        //:   appropriate void pointer type.  (C-5, C-6)
+        // 1. Using a special test resource (`CheckedResource`), to initialize
+        //    an allocator, test that the specified byte count and alignment
+        //    are correctly passed to the allocator by a call to
+        //    `allocateBytes` and that a pointer to the allocated block is
+        //    returned by `allocateBytes`.  (C-1)
+        // 2. Given the block pointer returned in step one, call
+        //    `deallocateBytes` and verify that the pointer, size, and
+        //    alignment are correctly passed to the allocator.  (C-2)
+        // 3. Repeat the above steps with a representative sample of sizes and
+        //    alignments, including alignments greater than the largest native
+        //    platform alignment.  (C-3, C-4)
+        // 4. Repeat the above steps and with a wide variety of allocators
+        //    instantiated with at least two value types.  For allocators that
+        //    use fancy pointers, verify that the returned pointer type is the
+        //    appropriate void pointer type.  (C-5, C-6)
         //
         // Testing:
         //    void_pointer allocateBytes(const ALLOC&, size_t, size_t);
@@ -1697,7 +1700,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nTESTING 'allocateBytes' AND 'deallocateBytes'"
+            printf("\nTESTING `allocateBytes` AND `deallocateBytes`"
                    "\n=============================================\n");
 
         //             Allocator type                    Ptr type
@@ -1718,53 +1721,53 @@ int main(int argc, char *argv[])
 
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'adapt'
+        // TESTING `adapt`
         //
         // Concerns:
-        //: 1 For allocators of type 'bslma::Allocator *' or specializations of
-        //:   'bsl::allocator', the return value of 'adapt' is convertible to
-        //:   both 'bslma::Allocator *' and 'bsl::allocator<T>' (for arbitrary
-        //:   'T').
-        //: 2 For allocators of type 'bslma::Allocator *' or specializations of
-        //:   'bsl::allocator', the return value of 'adapt' can be passed as
-        //:   the allocator argument for direct initializing an object of
-        //:   bsl-AA or legacy-AA type.
-        //: 3 Concerns 1 and 2 apply equally to allocators of type derived from
-        //:   'bsl::allocator' or pointer to a type derived from
-        //:   'bslma::Allocator'.
-        //: 4 For all other allocator types, the return value of 'adapt' can be
-        //:   used to initialize a an object in the same allocator family and
-        //:   used to initialize an AA object having a compatible
-        //:   'allocator_type'.
+        // 1. For allocators of type `bslma::Allocator *` or specializations of
+        //    `bsl::allocator`, the return value of `adapt` is convertible to
+        //    both `bslma::Allocator *` and `bsl::allocator<T>` (for arbitrary
+        //    `T`).
+        // 2. For allocators of type `bslma::Allocator *` or specializations of
+        //    `bsl::allocator`, the return value of `adapt` can be passed as
+        //    the allocator argument for direct initializing an object of
+        //    bsl-AA or legacy-AA type.
+        // 3. Concerns 1 and 2 apply equally to allocators of type derived from
+        //    `bsl::allocator` or pointer to a type derived from
+        //    `bslma::Allocator`.
+        // 4. For all other allocator types, the return value of `adapt` can be
+        //    used to initialize a an object in the same allocator family and
+        //    used to initialize an AA object having a compatible
+        //    `allocator_type`.
         //
         // Plan:
-        //: 1 Using 'alloc' arguments of type 'bslma::Allocator *' and
-        //:   'bsl::allocator<short>', call 'adapt(alloc)' and use the return
-        //:   value to copy-initialize an object of type 'bslma::Allocator *'
-        //:   and an object of type 'bsl:allocator<int>'.  Verify that the
-        //:   constructed object represents the same allocator as 'alloc'.
-        //:   (C-1)
-        //: 2 With the same arguments as step 1, use the return value of
-        //:   'adapt' to direct-initialize an object of legacy-AA type and an
-        //:   object of bsl-AA type.  Verify that the allocator stored by the
-        //:   constructed object represents the same allocator as was passed to
-        //:   'adapt'.  (C-2)
-        //: 3 Repeat steps 1 and 2 with arguments of type 'bslma::TestAllocator
-        //:   *' and 'DerivedAllocator<float>', where 'DerivedAllocator<float>'
-        //:   is derived from 'bsl::allocator<float>'.  (C-3)
-        //: 4 Pass an object of a non-bsl allocator type to 'adapt' and use the
-        //:   return value to initialize an allocator object belonging to the
-        //:   allocator same family.  Verify that the input and output
-        //:   represent the same result.  Initialize an object of stl-AA type
-        //:   with the return value of 'adapt'.  Verify that the expected value
-        //:   was used as its allocator.  (C-4)
+        // 1. Using `alloc` arguments of type `bslma::Allocator *` and
+        //    `bsl::allocator<short>`, call `adapt(alloc)` and use the return
+        //    value to copy-initialize an object of type `bslma::Allocator *`
+        //    and an object of type `bsl:allocator<int>`.  Verify that the
+        //    constructed object represents the same allocator as `alloc`.
+        //    (C-1)
+        // 2. With the same arguments as step 1, use the return value of
+        //    `adapt` to direct-initialize an object of legacy-AA type and an
+        //    object of bsl-AA type.  Verify that the allocator stored by the
+        //    constructed object represents the same allocator as was passed to
+        //    `adapt`.  (C-2)
+        // 3. Repeat steps 1 and 2 with arguments of type 'bslma::TestAllocator
+        //    *` and `DerivedAllocator<float>`, where `DerivedAllocator<float>'
+        //    is derived from `bsl::allocator<float>`.  (C-3)
+        // 4. Pass an object of a non-bsl allocator type to `adapt` and use the
+        //    return value to initialize an allocator object belonging to the
+        //    allocator same family.  Verify that the input and output
+        //    represent the same result.  Initialize an object of stl-AA type
+        //    with the return value of `adapt`.  Verify that the expected value
+        //    was used as its allocator.  (C-4)
         //
         // TESTING
         //      bslma::Allocator *adapt(const bsl::allocator<TYPE>&);
         //      ALLOCATOR         adapt(const ALLOCATOR&);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'adapt'"
+        if (verbose) printf("\nTESTING `adapt`"
                             "\n===============\n");
 
         bslma::TestAllocator    ta1, ta2, ta3, ta4;
@@ -1832,11 +1835,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Execute each method to verify functionality for simple cases.
+        // 1. Execute each method to verify functionality for simple cases.
         //
         // Testing:
         //      BREATHING TEST
@@ -1848,7 +1851,7 @@ int main(int argc, char *argv[])
         const bsl::true_type  TRUE_V  = { };
         const bsl::false_type FALSE_V = { };
 
-        // Test 'adapt'
+        // Test `adapt`
         {
             bslma::TestAllocator ta;
             bsl::allocator<int>  alloc(&ta);
@@ -1860,7 +1863,7 @@ int main(int argc, char *argv[])
             ASSERT(alloc.mechanism() == a2p);
         }
 
-        // Test 'allocateBytes' and 'deallocateBytes'
+        // Test `allocateBytes` and `deallocateBytes`
         {
             bslma::TestAllocator ta;
             void *p = Util::allocateBytes(&ta, 12);
@@ -1881,7 +1884,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == ta.numBytesInUse());
         }
 
-        // Test 'allocateObject' and 'deallocateObject'
+        // Test `allocateObject` and `deallocateObject`
         {
             bslma::TestAllocator ta;
             int *p = Util::allocateObject<int>(&ta, 2);
@@ -1902,7 +1905,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == ta.numBytesInUse());
         }
 
-        // Test 'newObject' and 'deleteObject'
+        // Test `newObject` and `deleteObject`
         {
             bslma::TestAllocator ta;
             int *p = Util::newObject<int>(&ta);
@@ -1926,7 +1929,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == ta.numBytesInUse());
         }
 
-        // Test 'assign'
+        // Test `assign`
         {
             AssignableAllocator aa1(1), aa2(2);
             ASSERT(1 == aa1.id());
@@ -1945,7 +1948,7 @@ int main(int argc, char *argv[])
             ASSERT(&naret == &naa1);
         }
 
-        // Test 'swap'
+        // Test `swap`
         {
             AssignableAllocator aa1(1), aa2(2);
             ASSERT(1 == aa1.id());

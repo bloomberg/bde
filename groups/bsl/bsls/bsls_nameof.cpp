@@ -21,38 +21,30 @@ namespace u {
         std::strcpy(dstBuf, srcBuf);                                          \
     } while (false)
 
+/// Do a global substitution replacing all instances of the specified
+/// `pattern` with the specified `remainder` in the specified `buffer`.  The
+/// behavior is undefined unless the length of `replacement` is less than or
+/// equal to that of `pattern`.  Note that this function contains special
+/// logic so that it will only do substitutions at points where the
+/// appropriate pattern is likely to start.
+///
+/// Several types of patterns are to be matched:
+/// * namespace `BloombergLP::`
+/// * `std::...string<...`
+/// * `bsl::...string<...`
+/// * `std::...::pmr::string<...`
+/// * `std::...string_view<...`
+/// * `bsl::...string_view<...`
+/// * anonymous namespace (which may begin with `(`, `{`, or `<`
+/// * anonymous namespace ("::" on Solaris CC).  This is the only pattern
+///   that begins with `:`, and it is important that we be careful
+///   substituting them.
+/// * in C++03, templates sometimes end with "> >" so we substitute ">" for
+///   " >" and then all patterns after that assume nested templates end
+///   with ">>".
 void substitute(char       *buffer,
                 const char *pattern,
                 const char *replacement)
-    // Do a global substitution replacing all instances of the specified
-    // 'pattern' with the specified 'remainder' in the specified 'buffer'.  The
-    // behavior is undefined unless the length of 'replacement' is less than or
-    // equal to that of 'pattern'.  Note that this function contains special
-    // logic so that it will only do substitutions at points where the
-    // appropriate pattern is likely to start.
-    //
-    // Several types of patterns are to be matched:
-    //: o namespace 'BloombergLP::'
-    //:
-    //: o 'std::...string<...'
-    //:
-    //: o 'bsl::...string<...'
-    //:
-    //: o 'std::...::pmr::string<...'
-    //:
-    //: o 'std::...string_view<...'
-    //:
-    //: o 'bsl::...string_view<...'
-    //:
-    //: o anonymous namespace (which may begin with '(', '{', or '<'
-    //:
-    //: o anonymous namespace ("::" on Solaris CC).  This is the only pattern
-    //:   that begins with ':', and it is important that we be careful
-    //:   substituting them.
-    //:
-    //: o in C++03, templates sometimes end with "> >" so we substitute ">" for
-    //:   " >" and then all patterns after that assume nested templates end
-    //:   with ">>".
 {
     const std::size_t patternLen     = std::strlen(pattern);
     const std::size_t replacementLen = std::strlen(replacement);
@@ -89,11 +81,12 @@ namespace BloombergLP {
 namespace bsls {
 
 // CLASS METHOD
+
+/// Initialize the specified `*buffer` with the type name contained in the
+/// specified `functionName`, where `functionName` is the function name of
+/// the `NameOf` constructor.
 const char *NameOf_Base::initBuffer(char       *buffer,
                                     const char *functionName)
-    // Initialize the specified '*buffer' with the type name contained in the
-    // specified 'functionName', where 'functionName' is the function name of
-    // the 'NameOf' constructor.
 {
     // On all platforms, 'functionName' will start with 'uselessPreamble',
     // which will not make it into the final buffer, so we know that the final
@@ -112,12 +105,12 @@ const char *NameOf_Base::initBuffer(char       *buffer,
     const char uselessPreamble[] = {            "BloombergLP::bsls::NameOf<" };
 #endif
 
+    // This will fail to compile if expression in `[]` is not `true`.  We
+    // do our compile-time assert this way as `BSLMF_ASSERT` is not
+    // accessible from this component.
     static
     const char compileTimeAssertArray[
                 sizeof(uselessPreamble) == k_USELESS_PREAMBLE_LEN + 1] = { 0 };
-        // This will fail to compile if expression in '[]' is not 'true'.  We
-        // do our compile-time assert this way as 'BSLMF_ASSERT' is not
-        // accessible from this component.
 
     (void) compileTimeAssertArray;    // silence 'unused' warnings.
 

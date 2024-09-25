@@ -9,8 +9,8 @@
 #include <bsls_keyword.h>
 #include <bsls_platform.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 #include <new>
 
@@ -28,7 +28,7 @@ using namespace BloombergLP;
 //                                  Overview
 //                                  --------
 // This test driver tests helper functions provided by the
-// 'bslma::DeleterHelper' namespace.  We need to verify that the 'deleteObject'
+// `bslma::DeleterHelper` namespace.  We need to verify that the `deleteObject`
 // method destroys an object and calls the deallocate method of the supplied
 // allocator or pool.
 //-----------------------------------------------------------------------------
@@ -102,8 +102,8 @@ typedef bslma::DeleterHelper Obj;
 //                          HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Test class used to verify examples.
 class my_NewDeleteAllocator {
-    // Test class used to verify examples.
 
     int d_count;
 
@@ -137,7 +137,7 @@ class my_NewDeleteAllocator {
 };
 
 static int globalObjectStatus = 0;  // global flag set by test-object d'tors
-static int class3ObjectCount  = 0;  // count set by 'my_Class3' c'tor/d'tor
+static int class3ObjectCount  = 0;  // count set by `my_Class3` c'tor/d'tor
 
 class my_Class1 {
   public:
@@ -207,18 +207,19 @@ public:
 
 ///Usage
 ///-----
-// The following 'my_RawDeleterGuard' class defines a guard that
+// The following `my_RawDeleterGuard` class defines a guard that
 // unconditionally deletes a managed object upon destruction.  Via the
-// 'deleteObjectRaw' method supplied by this component, the guard's destructor
+// `deleteObjectRaw` method supplied by this component, the guard's destructor
 // first destroys the managed object, then deallocates the footprint of the
-// object.  The declaration of 'my_RawDeleterGuard' follows:
-//..
+// object.  The declaration of `my_RawDeleterGuard` follows:
+// ```
+
+    /// This class implements a guard that unconditionally deletes a managed
+    /// object upon destruction by first invoking the object's destructor,
+    /// and then invoking the `deallocate` method of an allocator (or pool)
+    /// of parameterized `ALLOCATOR` type supplied at construction.
     template <class TYPE, class ALLOCATOR>
     class my_RawDeleterGuard {
-        // This class implements a guard that unconditionally deletes a managed
-        // object upon destruction by first invoking the object's destructor,
-        // and then invoking the 'deallocate' method of an allocator (or pool)
-        // of parameterized 'ALLOCATOR' type supplied at construction.
 
         // DATA
         TYPE      *d_object_p;     // managed object
@@ -230,33 +231,34 @@ public:
 
       public:
         // CREATORS
-        my_RawDeleterGuard(TYPE *object, ALLOCATOR *allocator);
-            // Create a raw deleter guard that unconditionally manages the
-            // specified 'object', and that uses the specified 'allocator' to
-            // delete 'object' upon the destruction of this guard.  The
-            // behavior is undefined unless 'object' and 'allocator' are
-            // non-zero, and 'allocator' supplied the memory for 'object'.
-            // Note that 'allocator' must remain valid throughout the lifetime
-            // of this guard.
 
+        /// Create a raw deleter guard that unconditionally manages the
+        /// specified `object`, and that uses the specified `allocator` to
+        /// delete `object` upon the destruction of this guard.  The
+        /// behavior is undefined unless `object` and `allocator` are
+        /// non-zero, and `allocator` supplied the memory for `object`.
+        /// Note that `allocator` must remain valid throughout the lifetime
+        /// of this guard.
+        my_RawDeleterGuard(TYPE *object, ALLOCATOR *allocator);
+
+        /// Destroy this raw deleter guard and delete the object it manages
+        /// by first invoking the destructor of the (managed) object, and
+        /// then invoking the `deallocate` method of the allocator (or pool)
+        /// that was supplied with the object at construction.
         ~my_RawDeleterGuard();
-            // Destroy this raw deleter guard and delete the object it manages
-            // by first invoking the destructor of the (managed) object, and
-            // then invoking the 'deallocate' method of the allocator (or pool)
-            // that was supplied with the object at construction.
     };
-//..
-// The 'deleteObjectRaw' method is used in the destructor as follows:
-//..
+// ```
+// The `deleteObjectRaw` method is used in the destructor as follows:
+// ```
     template <class TYPE, class ALLOCATOR>
     inline
     my_RawDeleterGuard<TYPE, ALLOCATOR>::~my_RawDeleterGuard()
     {
         bslma::DeleterHelper::deleteObjectRaw(d_object_p, d_allocator_p);
     }
-//..
+// ```
 // Note that we've denoted our guard to be a "raw" guard in keeping with this
-// use of 'deleteObjectRaw' (as opposed to 'deleteObject').
+// use of `deleteObjectRaw` (as opposed to `deleteObject`).
 
 //=============================================================================
 //                                MAIN PROGRAM
@@ -287,7 +289,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -302,15 +304,15 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // MEMBER TEMPLATE METHOD 'deleteObject' TEST:
-        //   We want to make sure that when 'deleteObject' is used both
-        //   destructor and 'deallocate' are invoked.
+        // MEMBER TEMPLATE METHOD `deleteObject` TEST:
+        //   We want to make sure that when `deleteObject` is used both
+        //   destructor and `deallocate` are invoked.
         //
         // Plan:
         //   Using an allocator and placement new operator construct objects of
-        //   two different classes.  Invoke 'deleteObjectRaw' to delete
+        //   two different classes.  Invoke `deleteObjectRaw` to delete
         //   constructed objects and check that both destructor and
-        //   'deallocate' have been called.  Repeat tests with a derived-class
+        //   `deallocate` have been called.  Repeat tests with a derived-class
         //   object with a virtual destructor.  Test with null pointer.
         //
         // Testing:
@@ -320,7 +322,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n'deleteObjectRaw' TEST"
                             "\n======================\n");
 
-        if (verbose) printf("\nTesting 'deleteObject':\n");
+        if (verbose) printf("\nTesting `deleteObject`:\n");
         {
             my_NewDeleteAllocator a;
 
@@ -467,15 +469,15 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // MEMBER TEMPLATE METHOD 'deleteObjectRaw' TEST:
-        //   We want to make sure that when 'deleteObjRaw' is used both
-        //   destructor and 'deallocate' are invoked.
+        // MEMBER TEMPLATE METHOD `deleteObjectRaw` TEST:
+        //   We want to make sure that when `deleteObjRaw` is used both
+        //   destructor and `deallocate` are invoked.
         //
         // Plan:
         //   Using an allocator and placement new operator construct objects of
-        //   two different classes.  Invoke 'deleteObjectRaw' to delete
+        //   two different classes.  Invoke `deleteObjectRaw` to delete
         //   constructed objects and check that both destructor and
-        //   'deallocate' have been called.  Repeat tests with a derived-class
+        //   `deallocate` have been called.  Repeat tests with a derived-class
         //   object with a virtual destructor.  Test with null pointer.
         //
         // Testing:
@@ -485,7 +487,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n'deleteObjectRaw' TEST"
                             "\n======================\n");
 
-        if (verbose) printf("\nTesting 'deleteObjectRaw':\n");
+        if (verbose) printf("\nTesting `deleteObjectRaw`:\n");
         {
             my_NewDeleteAllocator a;
 

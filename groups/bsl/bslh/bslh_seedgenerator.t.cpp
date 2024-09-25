@@ -22,9 +22,9 @@ using namespace bslh;
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The component under test is a 'bslh' seed generator.  The component will
-// also be tested for conformance to the requirements on 'bslh' seed
-// generators, outlined in the 'bslh' package level documentation.
+// The component under test is a `bslh` seed generator.  The component will
+// also be tested for conformance to the requirements on `bslh` seed
+// generators, outlined in the `bslh` package level documentation.
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] SeedGenerator()
@@ -103,44 +103,48 @@ void aSsErT(bool condition, const char *message, int line)
 //         GLOBAL TYPEDEFS, HELPER FUNCTIONS, AND CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// This class provides a predictable mock random number generator for use
+/// in testing.
 class MockRNG {
-    // This class provides a predictable mock random number generator for use
-    // in testing.
 
   public:
     // PUBLIC TYPES
+
+    /// The type of the random data that `operator()` will return.
     typedef unsigned int result_type;
-        // The type of the random data that 'operator()' will return.
 
   private:
     // DATA
+
+    // Counter that provides some variance in the random numbers returned.
     result_type d_counter;
-        // Counter that provides some variance in the random numbers returned.
 
   public:
     // CREATORS
+
+    /// Create a `MockRNG` that will return predictable "random" values.
     MockRNG();
-        // Create a 'MockRNG' that will return predictable "random" values.
 
     //! MockRNG(const MockRNG& original) = default;
-        // Create a 'MockRNG' object with a copy of 'd_counter' from the
-        // specified 'original'.
+        // Create a `MockRNG` object with a copy of `d_counter` from the
+        // specified `original`.
 
     //! ~MockRNG() = default;
         // Destroy this object.
 
     // MANIPULATORS
     //! MockRNG& operator=(const MockRNG& rhs) = default;
-        // Assign to this object the value of 'd_counter' from the specified
-        // 'rhs' object, and return a reference providing modifiable access to
+        // Assign to this object the value of `d_counter` from the specified
+        // `rhs` object, and return a reference providing modifiable access to
         // this object.
 
+    /// Return a predictable "random" number of `result_type`.
     result_type operator()();
-        // Return a predictable "random" number of 'result_type'.
 
     // ACCESSORS
+
+    /// Return the number of times that `operator()` has been called
     result_type numberOfCalls() const;
-        // Return the number of times that 'operator()' has been called
 };
 
 // CREATORS
@@ -156,9 +160,9 @@ MockRNG::result_type MockRNG::numberOfCalls() const {
     return d_counter;
 }
 
+/// Compare the specified `length` bytes of `result` to the expected output
+/// of `MockRNG` using `ASSERT`s
 void verifyResultMatchesRNG(const char *result, size_t length)
-    // Compare the specified 'length' bytes of 'result' to the expected output
-    // of 'MockRNG' using 'ASSERT's
 {
     MockRNG rng = MockRNG();
     const size_t rngSize = sizeof(MockRNG::result_type);
@@ -173,10 +177,10 @@ void verifyResultMatchesRNG(const char *result, size_t length)
     }
 }
 
+/// Load the specified `repeatingElement` into each byte of the specified
+/// `length` bytes long `data`.  The behaviour is undefined if `data` does
+/// not point to at least `length` bytes of writable memory.
 void fill(char *data, size_t length, char repeatingElement)
-    // Load the specified 'repeatingElement' into each byte of the specified
-    // 'length' bytes long 'data'.  The behaviour is undefined if 'data' does
-    // not point to at least 'length' bytes of writable memory.
 {
     for(size_t i = 0; i != length; ++i) {
         data[i] = repeatingElement;
@@ -205,11 +209,11 @@ typedef bslh::SeedGenerator<MockRNG> Obj;
 //
 // First, we write our first hashing algorithm, which accepts a 32-bit seed and
 // returns a 32-bit unsigned int.
-//..
+// ```
 
+    /// This class is a functor that implements a hashing algorithm seeded
+    /// with 32 bits.
     class Seeded32BitHashingAlgorithm {
-        // This class is a functor that implements a hashing algorithm seeded
-        // with 32 bits.
 
       public:
         typedef unsigned result_type; // Type of the hash returned
@@ -219,22 +223,22 @@ typedef bslh::SeedGenerator<MockRNG> Obj;
         const char *d_seed; // Seed used in the generation of hashes
 
       public:
+        /// Construct a `Seeded32BitHashingAlgorithm` that will use the
+        /// first 4 bytes of the specified `seed` to seed the algorithm.
         explicit Seeded32BitHashingAlgorithm(const char *seed);
-            // Construct a 'Seeded32BitHashingAlgorithm' that will use the
-            // first 4 bytes of the specified 'seed' to seed the algorithm.
 
+        /// Return a hash of the specified `length` bytes of `data`.
         result_type operator()(const char *data, size_t length);
-            // Return a hash of the specified 'length' bytes of 'data'.
     };
 
-//..
+// ```
 // Then, we define another hashing algorithm, which accepts a 64-bit seed and
 // returns a 32-bit unsigned int
-//..
+// ```
 
+    /// This class is a functor that implements a hashing algorithm seeded
+    /// with 64 bits.
     class Seeded64BitHashingAlgorithm {
-        // This class is a functor that implements a hashing algorithm seeded
-        // with 64 bits.
 
       public:
         typedef unsigned result_type; // Type of the hash returned
@@ -244,22 +248,22 @@ typedef bslh::SeedGenerator<MockRNG> Obj;
         const char *d_seed; // Seed used in the generation of hashes
 
       public:
+        /// Construct a `Seeded64BitHashingAlgorithm` that will use the
+        /// first 8 bytes of the specified `seed` to seed the algorithm.
         explicit Seeded64BitHashingAlgorithm(const char *seed);
-            // Construct a 'Seeded64BitHashingAlgorithm' that will use the
-            // first 8 bytes of the specified 'seed' to seed the algorithm.
 
+        /// Return a hash of the specified `length` bytes of `data`.
         result_type operator()(const char *data, size_t length);
-            // Return a hash of the specified 'length' bytes of 'data'.
     };
 
-//..
+// ```
 // Next, we define a final hashing algorithm, which accepts a 1024-bit seed and
 // returns a 32-bit unsigned int
-//..
+// ```
 
+    /// This class is a functor that implements a hashing algorithm seeded
+    /// with 1024 bits.
     class Seeded1024BitHashingAlgorithm {
-        // This class is a functor that implements a hashing algorithm seeded
-        // with 1024 bits.
 
       public:
         typedef unsigned result_type; // Type of the hash returned
@@ -269,51 +273,51 @@ typedef bslh::SeedGenerator<MockRNG> Obj;
         const char *d_seed; // Seed used in the generation of hashes
 
       public:
+        /// Construct a `Seeded1024BitHashingAlgorithm` that will use the
+        /// first 128 bytes of the specified `seed` to seed the algorithm.
         explicit Seeded1024BitHashingAlgorithm(const char *seed);
-            // Construct a 'Seeded1024BitHashingAlgorithm' that will use the
-            // first 128 bytes of the specified 'seed' to seed the algorithm.
 
+        /// Return a hash of the specified `length` bytes of `data`.
         result_type operator()(const char *data, size_t length);
-            // Return a hash of the specified 'length' bytes of 'data'.
     };
 
-//..
-// Then, we declare our functor, 'SeededHash', which will take a seed
+// ```
+// Then, we declare our functor, `SeededHash`, which will take a seed
 // generator, and be able to run any of our hashing algorithms by generating
 // the correct size seed with the seed generator.
-//..
+// ```
 
+    /// This class template implements an interface similar to `std::hash`,
+    /// which will used the (template parameter) type `SEED_GENERATOR` and
+    /// `HASH_ALGORITHM` to compute hashes.
     template <class HASH_ALGORITHM>
     class SeededHash {
-        // This class template implements an interface similar to 'std::hash',
-        // which will used the (template parameter) type 'SEED_GENERATOR' and
-        // 'HASH_ALGORITHM' to compute hashes.
 
       public:
+        /// Type of the hash that will be returned.
         typedef typename HASH_ALGORITHM::result_type result_type;
-            // Type of the hash that will be returned.
 
       private:
+        // Stores the seed that will be used to run the (template
+        // parameter) type `HASH_ALGORITHM`
         char seed[HASH_ALGORITHM::k_SEED_LENGTH];
-            // Stores the seed that will be used to run the (template
-            // parameter) type 'HASH_ALGORITHM'
 
       public:
+        ///Create a `SeededHash` and generate a seed using the specified
+        ///`seedGenerator`.
         template<class SEED_GENERATOR>
         SeededHash(SEED_GENERATOR seedGenerator);
-            //Create a 'SeededHash' and generate a seed using the specified
-            //'seedGenerator'.
 
+        /// Returns a hash generated by the (template parameter) type
+        /// `HASH_ALGORITHM` for the specified `length` bytes of `data`.
         result_type operator()(const char *data, size_t length) const;
-            // Returns a hash generated by the (template parameter) type
-            // 'HASH_ALGORITHM' for the specified 'length' bytes of 'data'.
     };
 
-//..
-// Next, we define our constructor where we actually use 'bslh::SeedGenerator'.
-// 'bslh::SeedGenerator' allows us to create arbitrary length seeds to match
+// ```
+// Next, we define our constructor where we actually use `bslh::SeedGenerator`.
+// `bslh::SeedGenerator` allows us to create arbitrary length seeds to match
 // the requirements of the above declared algorithms.
-//..
+// ```
 
     template <class HASH_ALGORITHM>
     template<class SEED_GENERATOR>
@@ -333,13 +337,13 @@ typedef bslh::SeedGenerator<MockRNG> Obj;
 //                     ELIDED USAGE EXAMPLE IMPLEMENTATIONS
 //-----------------------------------------------------------------------------
 
+/// Hash the specified `length` bytes of `data` using the specified
+/// `seedLength` bytes of `seed` to seed the hash.  This is not a real hash
+/// function.  DO NOT USE FOR ACTUAL HASHING
 unsigned int someSeededHash(const char *seed,
                             size_t seedLength,
                             const char *data,
                             size_t length)
-    // Hash the specified 'length' bytes of 'data' using the specified
-    // 'seedLength' bytes of 'seed' to seed the hash.  This is not a real hash
-    // function.  DO NOT USE FOR ACTUAL HASHING
 {
     const unsigned int *castedSeed = reinterpret_cast<const unsigned int *>(
                                                                          seed);
@@ -404,11 +408,11 @@ int main(int argc, char *argv[])
         //   more complicated components such as hashing algorithms.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Run the usage example (C-1)
+        // 1. Run the usage example (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -417,9 +421,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 
-//..
+// ```
 // Now, we generate some data that we want to hash.
-//..
+// ```
 
         const char *data[] = { "asdf",
                                "qwer",
@@ -428,12 +432,12 @@ int main(int argc, char *argv[])
                                "rwwfwe", };
         enum { NUM_STRINGS = sizeof data / sizeof *data };
 
-//..
+// ```
 // Finally, we can hash the data the same way using all of the different
 // hashing algorithms.  The seed generator allows us to abstract away the
 // different requirements each algorithm has on seed size.  Each algorithm will
 // produce different output because it has been supplied with a different seed.
-//..
+// ```
 
         MockRNG                                   rng;
         SeedGenerator<MockRNG>                    seedGen(rng);
@@ -459,57 +463,57 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'generateSeed'
-        //   Ensure that the 'generateSeed' method is publicly callable,
+        // TESTING `generateSeed`
+        //   Ensure that the `generateSeed` method is publicly callable,
         //   returns the expected values.
         //
         // Concerns:
-        //: 1 The method is publicly callable with a pointer and a length.
-        //:
-        //: 2 The supplied RNG is used to fill memory.
-        //:
-        //: 3 The method writes to every byte specified.
-        //:
-        //: 4 The method does not write more memory than specified.
-        //:
-        //: 5 A size of zero results in no calls to the RNG and no writes to
-        //:   the supplied memory
-        //:
-        //: 6 The method behaves as expected when input length is not a
-        //:   multiple of the supplied RNG 'result_type'.
-        //:
-        //: 7 'generateSeed' does a BSLS_ASSERT to check for null pointers or
-        //:   zero length.
+        // 1. The method is publicly callable with a pointer and a length.
+        //
+        // 2. The supplied RNG is used to fill memory.
+        //
+        // 3. The method writes to every byte specified.
+        //
+        // 4. The method does not write more memory than specified.
+        //
+        // 5. A size of zero results in no calls to the RNG and no writes to
+        //    the supplied memory
+        //
+        // 6. The method behaves as expected when input length is not a
+        //    multiple of the supplied RNG `result_type`.
+        //
+        // 7. `generateSeed` does a BSLS_ASSERT to check for null pointers or
+        //    zero length.
         //
         // Plan:
-        //: 1 Create a 'SeedGenerator' with a predictable RNG and test that the
-        //:   values written to memory match the output of the RNG. (C-1,2)
-        //:
-        //: 2 Pre-load memory with known data, and test that it is all
-        //:   overwritten after a call to 'generateSeed'. (C-3)
-        //:
-        //: 3 Pre-load memory with known data, and test that memory beyond the
-        //:   end of the specified memory is not overwritten after a call to
-        //:  'generateSeed' (C-4)
-        //:
-        //: 4 Call 'generateSeed' with a length of zero and verify the RNG was
-        //:   not called, and the supplied memory was not written. (C-6)
-        //:
-        //: 5 Call 'generateSeed' with lengths that are not multiples of the
-        //:   size of 'MockRNG::result_type'. (C-6)
-        //:
-        //: 6 Call 'generateSeed' with combinations of a null pointer and a 0
-        //:   length. (C-7)
+        // 1. Create a `SeedGenerator` with a predictable RNG and test that the
+        //    values written to memory match the output of the RNG. (C-1,2)
+        //
+        // 2. Pre-load memory with known data, and test that it is all
+        //    overwritten after a call to `generateSeed`. (C-3)
+        //
+        // 3. Pre-load memory with known data, and test that memory beyond the
+        //    end of the specified memory is not overwritten after a call to
+        //   `generateSeed` (C-4)
+        //
+        // 4. Call `generateSeed` with a length of zero and verify the RNG was
+        //    not called, and the supplied memory was not written. (C-6)
+        //
+        // 5. Call `generateSeed` with lengths that are not multiples of the
+        //    size of `MockRNG::result_type`. (C-6)
+        //
+        // 6. Call `generateSeed` with combinations of a null pointer and a 0
+        //    length. (C-7)
         //
         // Testing:
         //   void generateSeed(char *seedLocation, size_t seedLength)
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nTESTING 'generateSeed'"
+            printf("\nTESTING `generateSeed`"
                    "\n======================\n");
 
-        if (verbose) printf("Create a 'SeedGenerator' with a predictable RNG"
+        if (verbose) printf("Create a `SeedGenerator` with a predictable RNG"
                             " and test that the values written to memory match"
                             " the output of the RNG. (C-1,2)\n");
         {
@@ -524,7 +528,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("Preload memory with known data, and test that it"
                             " is all overwritten after a call to"
-                            " 'generateSeed'. (C-3)\n");
+                            " `generateSeed`. (C-3)\n");
         {
             MockRNG rng;
             Obj generator(rng);
@@ -540,7 +544,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("Preload memory with known data, and test that"
                             " memory beyond the end of the specified memory is"
-                            " not overwritten after a call to 'generateSeed'"
+                            " not overwritten after a call to `generateSeed`"
                             " (C-4)\n");
         {
             MockRNG rng;
@@ -572,7 +576,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("Call 'generateSeed' with a length of zero and"
+        if (verbose) printf("Call `generateSeed` with a length of zero and"
                             " verify the RNG was not called, and the supplied"
                             " memory was not written. (C-6)\n");
         {
@@ -596,8 +600,8 @@ int main(int argc, char *argv[])
             ASSERT(rng.numberOfCalls() == 0);
         }
 
-        if (verbose) printf("Call 'generateSeed' with lengths that are not"
-                            " multiples of the size of 'MockRNG::result_type'."
+        if (verbose) printf("Call `generateSeed` with lengths that are not"
+                            " multiples of the size of `MockRNG::result_type`."
                             " (C-6)\n");
         {
             char seed[24];
@@ -611,7 +615,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("Call 'generateSeed' with combinations of a null"
+        if (verbose) printf("Call `generateSeed` with combinations of a null"
                             " pointer and a 0 length. (C-7)\n");
         {
             char data[5] = { };
@@ -635,32 +639,32 @@ int main(int argc, char *argv[])
         //   that the expected expressions all compile.
         //
         // Concerns:
-        //: 1 Objects can be created using the user defined default
-        //:   constructor.
-        //:
-        //: 2 Objects can be created using the user defined parameterized
-        //:   constructor.
-        //:
-        //: 3 Objects can be created using the copy constructor.
-        //:
-        //: 4 The copy constructor is not declared as explicit.
-        //:
-        //: 5 Objects can be copy constructed from constant objects.
-        //:
-        //: 6 Objects can be destroyed.
+        // 1. Objects can be created using the user defined default
+        //    constructor.
+        //
+        // 2. Objects can be created using the user defined parameterized
+        //    constructor.
+        //
+        // 3. Objects can be created using the copy constructor.
+        //
+        // 4. The copy constructor is not declared as explicit.
+        //
+        // 5. Objects can be copy constructed from constant objects.
+        //
+        // 6. Objects can be destroyed.
         //
         // Plan:
-        //: 1 Create a default constructed 'SeedGenerator' and allow it to
-        //:   leave scope to be destroyed. (C-1,6)
-        //:
-        //: 2 Create a 'SeedGenerator' with the user defined parameterized
-        //:   constructor. (C-2)
-        //:
-        //: 3 Use the copy-initialization syntax to create a new instance of
-        //:   'SeedGenerator' from an existing instance. (C-3,4)
-        //:
-        //: 4 Copy the value of the one (const) instance of 'SeedGenerator'
-        //:   to a second non-'const' one. (C-5)
+        // 1. Create a default constructed `SeedGenerator` and allow it to
+        //    leave scope to be destroyed. (C-1,6)
+        //
+        // 2. Create a `SeedGenerator` with the user defined parameterized
+        //    constructor. (C-2)
+        //
+        // 3. Use the copy-initialization syntax to create a new instance of
+        //    `SeedGenerator` from an existing instance. (C-3,4)
+        //
+        // 4. Copy the value of the one (const) instance of `SeedGenerator`
+        //    to a second non-`const` one. (C-5)
         //
         // Testing:
         //   SeedGenerator()
@@ -673,7 +677,7 @@ int main(int argc, char *argv[])
             printf("\nTESTING CREATORS"
                    "\n================\n");
 
-        if (verbose) printf("Create a default constructed 'SeedGenerator' and"
+        if (verbose) printf("Create a default constructed `SeedGenerator` and"
                             " allow it to leave scope to be destroyed."
                             " (C-1,6)\n");
         {
@@ -681,7 +685,7 @@ int main(int argc, char *argv[])
             (void)generator;
         }
 
-        if (verbose) printf("Create a 'SeedGenerator' with the user defined"
+        if (verbose) printf("Create a `SeedGenerator` with the user defined"
                             " parameterized constructor. (C-2)\n");
         {
             MockRNG rng;
@@ -689,7 +693,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Use the copy-initialization syntax to create a"
-                            " new instance of 'SeedGenerator' from an existing"
+                            " new instance of `SeedGenerator` from an existing"
                             " instance. (C-3,4)\n");
         {
             MockRNG rng;
@@ -701,7 +705,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Copy the value of the one (const) instance of"
-                            " 'SeedGenerator' to a second non-'const' one."
+                            " `SeedGenerator` to a second non-`const` one."
                             " (C-5)\n");
         {
             MockRNG rng;
@@ -719,13 +723,13 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an instance of 'bslh::SeedGenerator<>'. (C-1)
-        //:
-        //: 2 Verify 'generateSeed' returns a value. (C-1)
+        // 1. Create an instance of `bslh::SeedGenerator<>`. (C-1)
+        //
+        // 2. Verify `generateSeed` returns a value. (C-1)
         //
         // Testing:
         //   BREATHING TEST
@@ -734,14 +738,14 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        if (verbose) printf("Create an instance of 'bslh::SeedGenerator<>'."
+        if (verbose) printf("Create an instance of `bslh::SeedGenerator<>`."
                             " (C-1)\n");
         {
             MockRNG mockRNG;
             Obj seedGenerator(mockRNG);
         }
 
-        if (verbose) printf("Verify 'generateSeed' returns a value. (C-1)\n");
+        if (verbose) printf("Verify `generateSeed` returns a value. (C-1)\n");
         {
             MockRNG mockRNG;
             Obj seedGenerator(mockRNG);

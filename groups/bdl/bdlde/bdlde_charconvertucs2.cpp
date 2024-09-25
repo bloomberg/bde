@@ -149,16 +149,17 @@ enum {
 namespace {
 
 // LOCAL HELPER FUNCTION
+
+/// If `character` is non-0, insert the UCS-2 (16-bit) `character` into the
+/// location pointed to by the specified `**dstBufferPtr`, and bump
+/// `*dstBufferPtr` forward, increment the specified `*charsWrittenPtr`, and
+/// decrement the specified `*dstCapacityPtr`.  If `character` is 0, this
+/// function has no effect (in order to support the "skipping" behavior of
+/// utf8ToUcs2 for 0 `errorCharacter` arguments).
 void insertUcs2Character(unsigned short **dstBufferPtr,
                          bsl::size_t     *dstCapacityPtr,
                          bsl::size_t     *charsWrittenPtr,
                          unsigned short   character)
-    // If 'character' is non-0, insert the UCS-2 (16-bit) 'character' into the
-    // location pointed to by the specified '**dstBufferPtr', and bump
-    // '*dstBufferPtr' forward, increment the specified '*charsWrittenPtr', and
-    // decrement the specified '*dstCapacityPtr'.  If 'character' is 0, this
-    // function has no effect (in order to support the "skipping" behavior of
-    // utf8ToUcs2 for 0 'errorCharacter' arguments).
 {
     // If the invalid character placeholder is '\0', we "skip" bad characters.
     // This routine is not used for null termination.
@@ -174,6 +175,12 @@ void insertUcs2Character(unsigned short **dstBufferPtr,
 }
 
 // LOCAL HELPER FUNCTION
+
+/// Skip past the specified `octetsToSkip` invalid characters in the
+/// specified `*srcPtr`, setting the `k_INVALID_INPUT_CHARACTER` bit in the
+/// specified `*retCode`, and calling `insertUcs2Character` to update the
+/// specified `*dstBufferPtr` with the specified `errorCharacter`, and
+/// updating `*dstCapacityPtr` and the specified `charsWrittenPtr`.
 void skipBadUtf8Data(unsigned short      **dstBufferPtr,
                      bsl::size_t          *dstCapacityPtr,
                      const unsigned char **srcPtr,
@@ -181,11 +188,6 @@ void skipBadUtf8Data(unsigned short      **dstBufferPtr,
                      unsigned short        errorCharacter,
                      int                  *retCode,
                      int                   octetsToSkip)
-    // Skip past the specified 'octetsToSkip' invalid characters in the
-    // specified '*srcPtr', setting the 'k_INVALID_INPUT_CHARACTER' bit in the
-    // specified '*retCode', and calling 'insertUcs2Character' to update the
-    // specified '*dstBufferPtr' with the specified 'errorCharacter', and
-    // updating '*dstCapacityPtr' and the specified 'charsWrittenPtr'.
 {
     *srcPtr  += octetsToSkip;
 
@@ -198,16 +200,17 @@ void skipBadUtf8Data(unsigned short      **dstBufferPtr,
 }
 
 // LOCAL HELPER FUNCTION
+
+/// Convert one multi-octet UTF-8 character to one UCS-2 character, if the
+/// multi-octet sequence is valid.  If the sequence is invalid, insert
+/// the specified `errorCharacter` instead, and turn on the
+/// `k_INVALID_INPUT_CHARACTER` bit in the specified `*retCode`.
 void convertUtf8ToUcs2(unsigned short      **dstBufferPtr,
                        bsl::size_t          *dstCapacityPtr,
                        const unsigned char **srcPtr,
                        bsl::size_t          *charsWrittenPtr,
                        unsigned short        errorCharacter,
                        int                  *retCode)
-    // Convert one multi-octet UTF-8 character to one UCS-2 character, if the
-    // multi-octet sequence is valid.  If the sequence is invalid, insert
-    // the specified 'errorCharacter' instead, and turn on the
-    // 'k_INVALID_INPUT_CHARACTER' bit in the specified '*retCode'.
 {
     const unsigned char *src       = *srcPtr;
     unsigned char        firstByte = *src;
@@ -366,15 +369,16 @@ void convertUtf8ToUcs2(unsigned short      **dstBufferPtr,
 }
 
 // LOCAL HELPER FUNCTION
+
+/// Called when a multi-octet character would not allow enough space in the
+/// buffer for a null terminator.  We fill the remaining capacity with 0
+/// bytes to make sure the buffer will be correctly terminated.  If any
+/// space is available, increment `*bytesWrittenPtr` and `*charsWrittenPtr`
+/// by 1.
 void nullFillRemainingBuffer(unsigned char **dstBufferPtr,
                              bsl::size_t    *dstCapacityPtr,
                              bsl::size_t    *charsWrittenPtr,
                              bsl::size_t    *bytesWrittenPtr)
-    // Called when a multi-octet character would not allow enough space in the
-    // buffer for a null terminator.  We fill the remaining capacity with 0
-    // bytes to make sure the buffer will be correctly terminated.  If any
-    // space is available, increment '*bytesWrittenPtr' and '*charsWrittenPtr'
-    // by 1.
 {
     if (*dstCapacityPtr) {
         ++*bytesWrittenPtr;
@@ -389,23 +393,24 @@ void nullFillRemainingBuffer(unsigned char **dstBufferPtr,
 }
 
 // LOCAL HELPER FUNCTION
+
+/// Convert one 16-bit UCS-2 character `*srcString` to one multi-octet
+/// UTF-8 character at the location pointed to by `*dstBufferPtr`.  This
+/// routine is only called in the case where `*srcString` maps to a 2 or 3
+/// octet output sequence (the one octet case is handled in the parent
+/// "fast" loop).  This routine also updates bumps `*dstBufferPtr` forward,
+/// and updates `*bytesWrittenPtr`, `*charsWrittenPtr`, and
+/// `*dstCapacityPtr`.  This will always succeed as long as sufficient space
+/// is available for the multi-octet character AND a possible following 0
+/// byte to terminate the output string.  If there is not enough space, the
+/// remaining space in the output buffer is filled with 0 bytes.  Note that
+/// in an implementation of a `convertUtf16ToUtf8` routine, an additional
+/// `retCode` argument would be required.
 void convertUcs2ToUtf8(unsigned char        **dstBufferPtr,
                        bsl::size_t           *dstCapacityPtr,
                        const unsigned short  *srcString,
                        bsl::size_t           *charsWrittenPtr,
                        bsl::size_t           *bytesWrittenPtr)
-    // Convert one 16-bit UCS-2 character '*srcString' to one multi-octet
-    // UTF-8 character at the location pointed to by '*dstBufferPtr'.  This
-    // routine is only called in the case where '*srcString' maps to a 2 or 3
-    // octet output sequence (the one octet case is handled in the parent
-    // "fast" loop).  This routine also updates bumps '*dstBufferPtr' forward,
-    // and updates '*bytesWrittenPtr', '*charsWrittenPtr', and
-    // '*dstCapacityPtr'.  This will always succeed as long as sufficient space
-    // is available for the multi-octet character AND a possible following 0
-    // byte to terminate the output string.  If there is not enough space, the
-    // remaining space in the output buffer is filled with 0 bytes.  Note that
-    // in an implementation of a 'convertUtf16ToUtf8' routine, an additional
-    // 'retCode' argument would be required.
 {
     unsigned char *dstBuffer = *dstBufferPtr;
 

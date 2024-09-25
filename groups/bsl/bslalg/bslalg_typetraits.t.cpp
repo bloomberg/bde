@@ -11,8 +11,8 @@
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 #include <new>
 #include <utility>
@@ -103,13 +103,13 @@ const unsigned TRAIT_POD = (TRAIT_BITWISEMOVEABLE |
 const unsigned TRAIT_EQPOD = (TRAIT_POD |
                               TRAIT_BITWISEEQUALITYCOMPARABLE);
 
-// 'TRAIT_PAIR' is intentionally excluded from 'TRAIT_OTHER' (below) despite
-// the use of 'BSLALG_DECLARE_NESTED_TRAITS5' in 'my_Class3'.  This is because,
-// as written, 'bslmf::IsPair' cannot be detected by 'bslalg::HasTrait' if it
-// is ascribed to a type using 'BSLALG_DECLARE_NESTED_TRAITS*'.  To "fix"
-// 'bslmf::IsPair' for this, 'bslmf_ispair' would have to depend on
-// 'bslmf_detectnestedtrait', which is not desirable.  See the implementation
-// of 'bslalg::HasStlIterators' for an example of the "fix".
+// `TRAIT_PAIR` is intentionally excluded from `TRAIT_OTHER` (below) despite
+// the use of `BSLALG_DECLARE_NESTED_TRAITS5` in `my_Class3`.  This is because,
+// as written, `bslmf::IsPair` cannot be detected by `bslalg::HasTrait` if it
+// is ascribed to a type using `BSLALG_DECLARE_NESTED_TRAITS*`.  To "fix"
+// `bslmf::IsPair` for this, `bslmf_ispair` would have to depend on
+// `bslmf_detectnestedtrait`, which is not desirable.  See the implementation
+// of `bslalg::HasStlIterators` for an example of the "fix".
 
 const unsigned TRAIT_OTHER = (TRAIT_BITWISEEQUALITYCOMPARABLE |
 // *** exclude ***            TRAIT_PAIR                      |
@@ -157,19 +157,19 @@ unsigned traitBits()
     return result;
 }
 
+/// Use this struct to convert a cast-style type (e.g., `void (*)(int)`)
+/// into a named type (e.g., `void (*Type)(int)`).  For example:
+/// ```
+/// typedef Identity<void (*)(int)>::Type Type;
+/// ```
 template <class TYPE>
 struct Identity {
-    // Use this struct to convert a cast-style type (e.g., 'void (*)(int)')
-    // into a named type (e.g., 'void (*Type)(int)').  For example:
-    //..
-    //  typedef Identity<void (*)(int)>::Type Type;
-    //..
 
     typedef TYPE Type;
 };
 
-// Test that 'traitBits<TYPE>()' returns the value 'TRAIT_BITS' for every
-// combination of cv-qualified 'TYPE' and reference to 'TYPE'.
+// Test that `traitBits<TYPE>()` returns the value `TRAIT_BITS` for every
+// combination of cv-qualified `TYPE` and reference to `TYPE`.
 #define TRAIT_TEST(TYPE, TRAIT_BITS) do {                                \
     typedef Identity<TYPE >::Type Type;                                  \
     typedef Type const            cType;                                 \
@@ -191,21 +191,22 @@ struct my_Class0 {
     int d_nonEmptyData;
 
     // Class with no defined traits.
+
+    /// Explicitly supply constructors that do nothing, to ensure that this
+    /// class has no trivial traits detected with a conforming C++11 library
+    /// implementation.
     my_Class0(){}
     my_Class0(const my_Class0&){}
-        // Explicitly supply constructors that do nothing, to ensure that this
-        // class has no trivial traits detected with a conforming C++11 library
-        // implementation.
 };
 
+/// Class that uses explicitly-specialized type traits.
 struct my_Class1 : my_Class0 {
-    // Class that uses explicitly-specialized type traits.
 };
 
 namespace BloombergLP {
 namespace bslmf {
 
-// Being empty, 'my_Class1' would normally be implicitly bitwise moveable.
+// Being empty, `my_Class1` would normally be implicitly bitwise moveable.
 // Override, making it explicitly NOT bitwise moveable.
 template <>
 struct IsBitwiseMoveable<my_Class1> : bsl::false_type { };
@@ -219,9 +220,9 @@ template <> struct UsesBslmaAllocator<my_Class1> : bsl::true_type { };
 }  // close namespace bslma
 }  // close enterprise namespace
 
+/// Class template that has nested type traits.
 template <class T>
 struct my_Class2 {
-    // Class template that has nested type traits.
 
     BSLALG_DECLARE_NESTED_TRAITS3(my_Class2,
                                 bslalg::TypeTraitBitwiseCopyable,
@@ -229,9 +230,9 @@ struct my_Class2 {
                                 bslalg::TypeTraitHasTrivialDefaultConstructor);
 };
 
+/// Class template that has a different set of nested type traits.
 template <class TYPE>
 struct my_Class3 {
-    // Class template that has a different set of nested type traits.
 
     TYPE *d_first_p;
     TYPE *d_second_p;
@@ -247,14 +248,14 @@ struct my_Class3 {
     my_Class3(const my_Class3&, bslma::Allocator * = 0) {}
 };
 
+/// This `class` has no special traits, but supports (implicit) conversion
+/// from `void *`.  It will be used to check against false positives for
+/// `bslma::Allocator *` traits.
 struct my_Class4 : my_Class0 {
-    // This 'class' has no special traits, but supports (implicit) conversion
-    // from 'void *'.  It will be used to check against false positives for
-    // 'bslma::Allocator *' traits.
 
+    /// Construct a `my_Class4` object from any pointer, including a pointer
+    /// to `bslma::Allocator`, as an implicit conversion.
     my_Class4(void*);                                               // IMPLICIT
-        // Construct a 'my_Class4' object from any pointer, including a pointer
-        // to 'bslma::Allocator', as an implicit conversion.
 };
 
 enum my_Enum {
@@ -262,12 +263,12 @@ enum my_Enum {
     MY_ENUM_0
 };
 
+/// Type that can be converted to any type.  `DetectNestedTrait` shouldn't
+/// assign it any traits.  The concern is that since
+/// `BSLMF_NESTED_TRAIT_DECLARATION` defines its own conversion operator,
+/// the "convert to anything" operator shouldn't interfere with the nested
+/// trait logic.
 struct ConvertibleToAnyNoTraits : my_Class0 {
-    // Type that can be converted to any type.  'DetectNestedTrait' shouldn't
-    // assign it any traits.  The concern is that since
-    // 'BSLMF_NESTED_TRAIT_DECLARATION' defines its own conversion operator,
-    // the "convert to anything" operator shouldn't interfere with the nested
-    // trait logic.
 
     template <class T>
     operator T() const { return T(); }
@@ -281,11 +282,11 @@ struct ConvertibleToAnyWithTraits : my_Class0 {
 namespace BloombergLP {
 namespace bslma {
 
+/// Even though the nested trait logic is disabled by the template
+/// conversion operator, the out-of-class trait specialization should still
+/// work.
 template <>
 struct UsesBslmaAllocator<ConvertibleToAnyWithTraits> : bsl::true_type {
-    // Even though the nested trait logic is disabled by the template
-    // conversion operator, the out-of-class trait specialization should still
-    // work.
 };
 
 }  // close namespace bslma
@@ -298,83 +299,84 @@ namespace BSLALG_TYPETRAITS_USAGE_EXAMPLE {
 
 ///Usage
 ///-----
-// In this usage example, we show how to enable the 'bslma' allocator model for
+// In this usage example, we show how to enable the `bslma` allocator model for
 // generic containers, by implementing simplified versions of the
-// 'bslalg_constructorproxy' and 'bslalg_scalarprimitives' components.  The
+// `bslalg_constructorproxy` and `bslalg_scalarprimitives` components.  The
 // interested reader should refer to the documentation of those components.
 //
 ///A generic container
 ///- - - - - - - - - -
-// Suppose we want to implement a generic container of a parameterized 'TYPE',
-// which may or may not follow the 'bslma' allocator model.  If it does, our
-// container should pass an extra 'bslma::Allocator*' argument to copy
+// Suppose we want to implement a generic container of a parameterized `TYPE`,
+// which may or may not follow the `bslma` allocator model.  If it does, our
+// container should pass an extra `bslma::Allocator*` argument to copy
 // construct a value; but if it does not, then passing this extra argument is
 // going to generate a compile-time error.  It thus appears we need two
 // implementations of our container.  This can be done more succinctly by
 // encapsulating into the constructor some utilities that will, through a
-// single interface, determine whether 'TYPE' has the trait
-// 'bslalg::TypeTraitUsesBslmaAllocator' and copy-construct it accordingly.
+// single interface, determine whether `TYPE` has the trait
+// `bslalg::TypeTraitUsesBslmaAllocator` and copy-construct it accordingly.
 //
-// The container contains a single data member of the parameterized 'TYPE'.
+// The container contains a single data member of the parameterized `TYPE`.
 // Since we are going to initialize this data member manually, we do not want
 // it to be automatically constructed by the compiler.  For this reason, we
-// encapsulate it in a 'bsls::ObjectBuffer'.
-//..
+// encapsulate it in a `bsls::ObjectBuffer`.
+// ```
     // my_genericcontainer.hpp                                        -*-C++-*-
 
+    /// This generic container type contains a single object, always
+    /// initialized, which can be replaced and accessed.  This container
+    /// always takes an allocator argument and thus follows the
+    /// `bslalg::TypeTraitUsesBslmaAllocator` protocol.
     template <class TYPE>
     class MyGenericContainer {
-        // This generic container type contains a single object, always
-        // initialized, which can be replaced and accessed.  This container
-        // always takes an allocator argument and thus follows the
-        // 'bslalg::TypeTraitUsesBslmaAllocator' protocol.
 
         // PRIVATE DATA MEMBERS
         bsls::ObjectBuffer<TYPE> d_object;
-//..
+// ```
 // Since the container offers a uniform interface that always takes an extra
-// allocator argument, regardless of whether 'TYPE' does or not, we can declare
-// it to have the 'bslalg::TypeTraitUsesBslmaAllocator' trait:
-//..
+// allocator argument, regardless of whether `TYPE` does or not, we can declare
+// it to have the `bslalg::TypeTraitUsesBslmaAllocator` trait:
+// ```
       public:
         // TRAITS
         BSLALG_DECLARE_NESTED_TRAITS(MyGenericContainer,
                                      bslalg::TypeTraitUsesBslmaAllocator);
-//..
+// ```
 // For simplicity, we let the container contain only a single element, and
 // require that an element always be initialized.
-//..
+// ```
         // CREATORS
+
+        /// Create an container containing the specified `object`, using the
+        /// optionally specified `allocator` to allocate memory.  If
+        /// `allocator` is 0, the currently installed allocator is used.
         explicit MyGenericContainer(const TYPE&       object,
                                     bslma::Allocator *allocator = 0);
-            // Create an container containing the specified 'object', using the
-            // optionally specified 'allocator' to allocate memory.  If
-            // 'allocator' is 0, the currently installed allocator is used.
 
+        /// Create an container containing the same object as the specified
+        /// `container`, using the optionally specified `allocator` to
+        /// allocate memory.  If `allocator` is 0, the currently installed
+        /// allocator is used.
         MyGenericContainer(const MyGenericContainer&  container,
                            bslma::Allocator          *allocator = 0);
-            // Create an container containing the same object as the specified
-            // 'container', using the optionally specified 'allocator' to
-            // allocate memory.  If 'allocator' is 0, the currently installed
-            // allocator is used.
 
+        /// Destroy this container.
         ~MyGenericContainer();
-            // Destroy this container.
-//..
+// ```
 // We can also allow the container to change the object it contains, by
 // granting modifiable as well as non-modifiable access to this object:
-//..
+// ```
         // MANIPULATORS
         TYPE& object();
 
         // ACCESSORS
         const TYPE& object() const;
     };
-//..
+// ```
 ///Using the type traits
 ///- - - - - - - - - - -
 // The challenge in the implementation lays in using the traits of the
-// contained 'TYPE' to determine whether to pass the allocator argument to its
+// contained `TYPE` to determine whether to pass the allocator argument to its
 // copy constructor.  We rely here on a property of templates that
 // templates are not compiled (and thus will not generate compilation errors)
 // until they are instantiated.  Hence, we can use two function templates, and
@@ -383,51 +385,53 @@ namespace BSLALG_TYPETRAITS_USAGE_EXAMPLE {
 // arguments (value and allocator) is as follows.  For brevity and to avoid
 // breaking the flow of this example, we have embedded the function definition
 // into the class.
-//..
+// ```
     // my_genericcontainer.cpp                                        -*-C++-*-
 
+    /// This `struct` provides a namespace for utilities implementing the
+    /// allocator pass-through mechanism in a generic container.
     struct my_GenericContainerUtil {
-        // This 'struct' provides a namespace for utilities implementing the
-        // allocator pass-through mechanism in a generic container.
 
+        /// Create a copy of the specified `value` at the specified
+        /// `location`, using the specified `allocator` to allocate memory.
         template <class TYPE>
         static void copyConstruct(TYPE             *location,
                                   const TYPE&       value,
                                   bslma::Allocator *allocator,
                                   bslalg::TypeTraitUsesBslmaAllocator)
-            // Create a copy of the specified 'value' at the specified
-            // 'location', using the specified 'allocator' to allocate memory.
         {
             new (location) TYPE(value, allocator);
         }
-//..
+// ```
 // For types that don't use an allocator, we offer the following overload that
-// will be selected if the type trait of 'TYPE' cannot be converted to
-// 'bslalg::TypeTraitUsesBslmaAllocator'.  In that case, note that the type
-// traits always inherits from 'bslalg::TypeTraitNil'.
-//..
+// will be selected if the type trait of `TYPE` cannot be converted to
+// `bslalg::TypeTraitUsesBslmaAllocator`.  In that case, note that the type
+// traits always inherits from `bslalg::TypeTraitNil`.
+// ```
+
+        /// Create a copy of the specified `value` at the specified
+        /// `location`.  Note that the specified `allocator` is ignored.
         template <class TYPE>
         static void copyConstruct(TYPE             *location,
                                   const TYPE&       value,
                                   bslma::Allocator * /* allocator */,
                                   bslalg::TypeTraitNil)
-            // Create a copy of the specified 'value' at the specified
-            // 'location'.  Note that the specified 'allocator' is ignored.
         {
             new (location) TYPE(value);
         }
-//..
+// ```
 // And finally, this function will instantiate the type trait and pass it to
 // the appropriately (compiler-)chosen overload:
-//..
+// ```
+
+        /// Create a copy of the specified `value` at the specified
+        /// `location`, optionally using the specified `allocator` to supply
+        /// memory if the parameterized `TYPE` possesses the
+        /// `bslalg::TypeTraitUsesBslmaAllocator`.
         template <class TYPE>
         static void copyConstruct(TYPE             *location,
                                   const TYPE&       value,
                                   bslma::Allocator *allocator)
-            // Create a copy of the specified 'value' at the specified
-            // 'location', optionally using the specified 'allocator' to supply
-            // memory if the parameterized 'TYPE' possesses the
-            // 'bslalg::TypeTraitUsesBslmaAllocator'.
         {
             copyConstruct(
                 location, value, allocator,
@@ -438,11 +442,11 @@ namespace BSLALG_TYPETRAITS_USAGE_EXAMPLE {
                   bslalg::TypeTraitNil>::type());
         }
     };
-//..
+// ```
 ///Generic container implementation
 ///- - - - - - - - - - - - - - - -
-// With these utilities, we can now implement 'MyGenericContainer'.
-//..
+// With these utilities, we can now implement `MyGenericContainer`.
+// ```
     // CREATORS
     template <class TYPE>
     MyGenericContainer<TYPE>::MyGenericContainer(const TYPE&       object,
@@ -462,18 +466,18 @@ namespace BSLALG_TYPETRAITS_USAGE_EXAMPLE {
                                                container.object(),
                                                allocator);
     }
-//..
+// ```
 // Note that all this machinery only affects the constructors, and not the
-// destructor which only invokes the destructor of 'd_object'.
-//..
+// destructor which only invokes the destructor of `d_object`.
+// ```
     template <class TYPE>
     MyGenericContainer<TYPE>::~MyGenericContainer()
     {
         (&d_object.object())->~TYPE();
     }
-//..
+// ```
 // To finish, the accessors and manipulators are trivially implemented.
-//..
+// ```
     // MANIPULATORS
     template <class TYPE>
     TYPE& MyGenericContainer<TYPE>::object()
@@ -487,20 +491,20 @@ namespace BSLALG_TYPETRAITS_USAGE_EXAMPLE {
     {
         return d_object.object();
     }
-//..
+// ```
 ///Usage verification
 ///- - - - - - - - -
 // We can check that our container actually forwards the correct allocator to
 // its contained instance with a very simple test apparatus, consisting of two
 // classes that have exactly the same signature and implementation except that
-// one has the 'bslalg::TypeTraitUsesBslmaAllocator' trait and the other
+// one has the `bslalg::TypeTraitUsesBslmaAllocator` trait and the other
 // hasn't:
-//..
+// ```
     bslma::Allocator *allocSlot;
 
+    /// Class with declared traits.  Calling copy constructor without an
+    /// allocator will compile, but will not set `allocSlot`.
     struct MyTestTypeWithBslmaAllocatorTraits {
-        // Class with declared traits.  Calling copy constructor without an
-        // allocator will compile, but will not set 'allocSlot'.
 
         // TRAITS
         BSLALG_DECLARE_NESTED_TRAITS(
@@ -518,10 +522,10 @@ namespace BSLALG_TYPETRAITS_USAGE_EXAMPLE {
         }
     };
 
+    /// Class with no declared traits.  Calling copy constructor without an
+    /// allocator will not set the `allocSlot`, but passing it by mistake
+    /// will set it.
     struct MyTestTypeWithNoBslmaAllocatorTraits {
-        // Class with no declared traits.  Calling copy constructor without an
-        // allocator will not set the 'allocSlot', but passing it by mistake
-        // will set it.
 
         // CREATORS
         MyTestTypeWithNoBslmaAllocatorTraits() {}
@@ -533,18 +537,18 @@ namespace BSLALG_TYPETRAITS_USAGE_EXAMPLE {
             allocSlot = allocator;
         }
     };
-//..
-// Our verification program simply instantiate several 'MyGenericContainer'
+// ```
+// Our verification program simply instantiate several `MyGenericContainer`
 // templates with the two test types above, and checks that the allocator
 // slot is as expected:
-//..
+// ```
     int usageExample()
     {
         bslma::TestAllocator ta0;
         bslma::TestAllocator ta1;
-//..
-// With 'MyTestTypeWithNoBslmaAllocatorTraits', the slot should never be set.
-//..
+// ```
+// With `MyTestTypeWithNoBslmaAllocatorTraits`, the slot should never be set.
+// ```
         MyTestTypeWithNoBslmaAllocatorTraits x;
 
         allocSlot = &ta0;
@@ -554,10 +558,10 @@ namespace BSLALG_TYPETRAITS_USAGE_EXAMPLE {
         allocSlot = &ta0;
         MyGenericContainer<MyTestTypeWithNoBslmaAllocatorTraits> x1(x, &ta1);
         ASSERT(&ta0 == allocSlot);
-//..
-// With 'MyTestTypeWithBslmaAllocatorTraits', the slot should be set to the
+// ```
+// With `MyTestTypeWithBslmaAllocatorTraits`, the slot should be set to the
 // allocator argument, or to 0 if not specified:
-//..
+// ```
         MyTestTypeWithBslmaAllocatorTraits y;
 
         allocSlot = &ta0;
@@ -570,7 +574,7 @@ namespace BSLALG_TYPETRAITS_USAGE_EXAMPLE {
 
         return 0;
     }
-//..
+// ```
 
 }  // close namespace BSLALG_TYPETRAITS_USAGE_EXAMPLE
 //=============================================================================
@@ -600,13 +604,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -625,8 +629,8 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
         //

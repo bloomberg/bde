@@ -110,8 +110,8 @@ typedef bdlt::TimeUnitRatio Ratio;
 //                 USAGE EXAMPLE SUPPORT TYPES AND FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// Print the specified `timeSinceEpoch` in a human-readable format.
 void displayTime(const bdlt::DatetimeInterval& timeSinceEpoch)
-    // Print the specified 'timeSinceEpoch' in a human-readable format.
 {
     (void) timeSinceEpoch;  // Suppress compiler warning.
 }
@@ -123,56 +123,58 @@ void displayTime(const bdlt::DatetimeInterval& timeSinceEpoch)
 namespace {
 
 // The maximum number of random round-trip tests that will be done case 2 is
-// the number of possible 'bdlt::Datetime' values.  Note that 'INT_MAX' times
-// 'microseconds per day' is too big to fit in a 64-bit value.
+// the number of possible `bdlt::Datetime` values.  Note that `INT_MAX` times
+// `microseconds per day` is too big to fit in a 64-bit value.
 
 const bsls::Types::Uint64 maxTestCycles = (1ULL << 32) * 24 * 60 * 60 * 999;
 
+/// Return the pseudo-random unsigned number following the specified `seed`
+/// in a sequence of pseudo-random numbers that cycles through all values in
+/// the closed range `[ MIN_MS .. MAX_MS ]` where `MIN_MS` and `MAX_MS` are
+/// the minimum (negative) and maximum numbers of milliseconds that can be
+/// represented by a `DatetimeInterval`.
 bsls::Types::Uint64 random(bsls::Types::Uint64 seed)
-    // Return the pseudo-random unsigned number following the specified 'seed'
-    // in a sequence of pseudo-random numbers that cycles through all values in
-    // the closed range '[ MIN_MS .. MAX_MS ]' where 'MIN_MS' and 'MAX_MS' are
-    // the minimum (negative) and maximum numbers of milliseconds that can be
-    // represented by a 'DatetimeInterval'.
 {
+    // factors of m: 2, 3, 5, 37
     static const bsls::Types::Uint64 m = maxTestCycles;
-        // factors of m: 2, 3, 5, 37
+
+    // `c` is floor(sqrt(m))
+    // factors of c: 7, 11, 173, 45707
     static const bsls::Types::Uint64 c = 608862947LL;
-        // 'c' is floor(sqrt(m))
-        // factors of c: 7, 11, 173, 45707
+
+    // `a - 1` is chosen simply as the product of all factors of m and c.
+    // factors of a - 1: 2, 3, 5, 37, 7, 11, 173, 45707
     static const bsls::Types::Uint64 a = 675837871171LL;
-        // 'a - 1' is chosen simply as the product of all factors of m and c.
-        // factors of a - 1: 2, 3, 5, 37, 7, 11, 173, 45707
 
     // Since c and m are relatively prime, and a - 1 is divisible by all prime
-    // factors of m, this function will cycle only once every 'm' iterations.
+    // factors of m, this function will cycle only once every `m` iterations.
 
     return (a * seed + c) % m;
 }
 
+/// Create a visual display for a computation of the specified `length` and
+/// emit updates to `cerr` as appropriate for the specified `index`.
+/// Optionally specify the `size` of the display.  This function should be
+/// called immediately after the `for`-loop with `index` and `length`, and
+/// again at the end with `length` and `length`:
+/// ```
+/// for (int i = 0; i < n, ++i) {
+///
+///     loopMeter(i, n);  // <== HERE
+///
+///     // ... (body of loop)
+///
+/// }
+///
+/// loopMeter(n, n);      // <== HERE
+/// ```
+/// The behavior is undefined unless `0 < size`, and `index <= length`.
+/// Note that it is expected that indices will be presented in order from 0
+/// to `length`, inclusive, without intervening output to `stderr`; however,
+/// intervening output to `stdout` may be redirected productively.
 void loopMeter(bsls::Types::Uint64 index,
                bsls::Types::Uint64 length,
                int size = 50)
-    // Create a visual display for a computation of the specified 'length' and
-    // emit updates to 'cerr' as appropriate for the specified 'index'.
-    // Optionally specify the 'size' of the display.  This function should be
-    // called immediately after the 'for'-loop with 'index' and 'length', and
-    // again at the end with 'length' and 'length':
-    //..
-    //  for (int i = 0; i < n, ++i) {
-    //
-    //      loopMeter(i, n);  // <== HERE
-    //
-    //      // ... (body of loop)
-    //
-    //  }
-    //
-    //  loopMeter(n, n);      // <== HERE
-    //..
-    // The behavior is undefined unless '0 < size', and 'index <= length'.
-    // Note that it is expected that indices will be presented in order from 0
-    // to 'length', inclusive, without intervening output to 'stderr'; however,
-    // intervening output to 'stdout' may be redirected productively.
 {
     ASSERT(0 < size);
     ASSERT(index <= length);
@@ -202,17 +204,17 @@ void loopMeter(bsls::Types::Uint64 index,
     }
 }
 
+/// Provide a namespace for functions reading configuration values from a
+/// string.
 template <class INTEGER_TYPE = int>
 struct ConfigParser {
-    // Provide a namespace for functions reading configuration values from a
-    // string.
 
+    /// Load into the specified `*result` the comma- and/or
+    /// whitespace-separated integer values, if any, of (template parameter)
+    /// type `INTEGER_TYPE` found at the beginning of the specified `config`
+    /// string.  Any part of `config` that cannot be parsed as such a list
+    /// of integer values, and any following contents are ignored.
     static void parse(vector<INTEGER_TYPE> *result, const string& config);
-        // Load into the specified '*result' the comma- and/or
-        // whitespace-separated integer values, if any, of (template parameter)
-        // type 'INTEGER_TYPE' found at the beginning of the specified 'config'
-        // string.  Any part of 'config' that cannot be parsed as such a list
-        // of integer values, and any following contents are ignored.
 };
 
 template <class INTEGER_TYPE>
@@ -265,7 +267,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
@@ -275,13 +277,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -295,120 +297,120 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Interfacing With an API That Uses 'bsls::TimeInterval'
+///Example 1: Interfacing With an API That Uses `bsls::TimeInterval`
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Some APIs, such as 'bsls::SystemTime', use 'bsls::TimeInterval' in their
+// Some APIs, such as `bsls::SystemTime`, use `bsls::TimeInterval` in their
 // interface.  In order to use those APIs in components implemented in terms of
-// 'bdlt::DatetimeInterval', it is necessary to convert between the
-// 'bsls::TimeInterval' and 'bdlt::DatetimeInterval' representations for a time
+// `bdlt::DatetimeInterval`, it is necessary to convert between the
+// `bsls::TimeInterval` and `bdlt::DatetimeInterval` representations for a time
 // interval.  This conversion can be accomplished conveniently using
-// 'bdlt::IntervalConversionUtil'.
+// `bdlt::IntervalConversionUtil`.
 //
 // Suppose we wish to pass the system time -- as returned by
-// 'bsls::SystemTime::nowRealtimeClock' -- to a function that displays a time
-// that is represented as a 'bdlt::DatetimeInterval' since the UNIX epoch.
+// `bsls::SystemTime::nowRealtimeClock` -- to a function that displays a time
+// that is represented as a `bdlt::DatetimeInterval` since the UNIX epoch.
 //
 // First, we include the declaration of the function that displays a
-// 'bdlt::DatetimeInterval':
-//..
+// `bdlt::DatetimeInterval`:
+// ```
     void displayTime(const bdlt::DatetimeInterval& timeSinceEpoch);
-//..
-// Then, we obtain the current system time from 'bsls::SystemTime', and store
-// it in a 'bsls::TimeInterval':
-//..
+// ```
+// Then, we obtain the current system time from `bsls::SystemTime`, and store
+// it in a `bsls::TimeInterval`:
+// ```
     bsls::TimeInterval systemTime = bsls::SystemTime::nowRealtimeClock();
-//..
-// Now, we convert the 'bsls::TimeInterval' into a 'bdlt::DatetimeInterval'
-// using 'convertToDatetimeInterval':
-//..
+// ```
+// Now, we convert the `bsls::TimeInterval` into a `bdlt::DatetimeInterval`
+// using `convertToDatetimeInterval`:
+// ```
     bdlt::DatetimeInterval timeSinceEpoch =
            bdlt::IntervalConversionUtil::convertToDatetimeInterval(systemTime);
 
     ASSERT(timeSinceEpoch.totalMilliseconds() ==
                                                systemTime.totalMilliseconds());
-//..
+// ```
 // Finally, we display the time by passing the converted value to
-// 'displayTime':
-//..
+// `displayTime`:
+// ```
     displayTime(timeSinceEpoch);
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'convertToDatetimeInterval' METHOD
-        //   The 'convertToDatetimeInterval' function converts an input
-        //   'bsls::TimeInterval' into a 'bdlt::DatetimeInterval' by directly
-        //   setting the milliseconds field of the 'bdlt::DatetimeInterval' to
-        //   the total milliseconds of the source 'bsls::TimeInterval' value.
+        // TESTING `convertToDatetimeInterval` METHOD
+        //   The `convertToDatetimeInterval` function converts an input
+        //   `bsls::TimeInterval` into a `bdlt::DatetimeInterval` by directly
+        //   setting the milliseconds field of the `bdlt::DatetimeInterval` to
+        //   the total milliseconds of the source `bsls::TimeInterval` value.
         //   Since the underlying methods of both types have already been
         //   tested, we need only confirm that the methods are being correctly
         //   called, and verify that the correct checks for undefined behavior
         //   are being made.
         //
         //   This test case includes a pseudo-randomly generated test of
-        //   round-trip conversions from 'bdlt::DatetimeInterval' to
-        //   'bsls::TimeInterval' and back.  By default, the test only performs
+        //   round-trip conversions from `bdlt::DatetimeInterval` to
+        //   `bsls::TimeInterval` and back.  By default, the test only performs
         //   one trillionth of the 2^59 possible combinations, but the size of
         //   the test and the random seed can be configured by supplying a
         //   custom seed and an optional sample divisor as a comma-separated
         //   list in the second argument to the test driver.  Therefore, to run
-        //   the usual number of iterations with a custom random seed of '25',
+        //   the usual number of iterations with a custom random seed of `25`,
         //   the test would be invoked as:
-        //..
+        // ```
         //     $ test.t 2 25
-        //..
-        //   To run the test with a custom seed of '25' and do one billion
+        // ```
+        //   To run the test with a custom seed of `25` and do one billion
         //   combinations, the test would be invoked as:
-        //..
+        // ```
         //     $ test.t 2 25,1000000000
-        //..
+        // ```
         //   In no case will the test perform more than 2^59 combinations, so a
         //   full test (*NOT* recommended) can be conveniently performed by
         //   requesting 10^18 combinations:
-        //..
+        // ```
         //     $ test.t 2 25,1000000000000000000
-        //..
+        // ```
         //
         // Concerns:
-        //: 1 That the conversion is done correctly for all valid values of
-        //:   'bsls::TimeInterval'.
-        //:
-        //: 2 That the loss of precision is limited to losing the
-        //:   sub-millisecond portion of the original value.
-        //:
-        //: 3 That loss of precision (i.e., rounding of microseconds and
-        //:   nanoseconds toward 0) is consistent across millisecond +/- 1
-        //:   nanosecond boundaries.
-        //:
-        //: 4 That round-trip conversion to 'bsls::TimeInterval' and back is
-        //:   not lossy over the valid range common to both data types.
-        //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        // 1. That the conversion is done correctly for all valid values of
+        //    `bsls::TimeInterval`.
+        //
+        // 2. That the loss of precision is limited to losing the
+        //    sub-millisecond portion of the original value.
+        //
+        // 3. That loss of precision (i.e., rounding of microseconds and
+        //    nanoseconds toward 0) is consistent across millisecond +/- 1
+        //    nanosecond boundaries.
+        //
+        // 4. That round-trip conversion to `bsls::TimeInterval` and back is
+        //    not lossy over the valid range common to both data types.
+        //
+        // 5. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create several 'bsls::TimeInterval' objects with and without
-        //:   nanosecond remainders, and convert them into
-        //:   'bdlt::DatetimeInterval' objects using the
-        //:   'convertToDatetimeInterval' method.  Compare the output to
-        //:   expected values.  (C-1..3)
-        //:
-        //: 2 Create 'bsls::TimeInterval' objects having the maximum and
-        //:   minimum values supported by 'bdlt::DatetimeInterval', and check
-        //:   that they match the values of 'bdlt::DatetimeInterval' objects
-        //:   constructed with the maximum and minimum allowable values.
-        //:   (C-1-3)
-        //:
-        //: 3 Create several 'bdlt::DatetimeInterval' objects having values
-        //:   across the valid range for the type, and convert them in a round
-        //:   trip to 'bsls::TimeInterval' and back.  Confirm that the value at
-        //:   the end of the round trip is equal to the original value.  (C-4)
-        //:
-        //: 4 Repeat the test from step 3 with a user-controlled number of
-        //:   pseudo-random values.  (C-4)
-        //:
-        //: 5 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when an attempt is made to pass a null pointer as
-        //:   'result'.  (C-5)
+        // 1. Create several `bsls::TimeInterval` objects with and without
+        //    nanosecond remainders, and convert them into
+        //    `bdlt::DatetimeInterval` objects using the
+        //    `convertToDatetimeInterval` method.  Compare the output to
+        //    expected values.  (C-1..3)
+        //
+        // 2. Create `bsls::TimeInterval` objects having the maximum and
+        //    minimum values supported by `bdlt::DatetimeInterval`, and check
+        //    that they match the values of `bdlt::DatetimeInterval` objects
+        //    constructed with the maximum and minimum allowable values.
+        //    (C-1-3)
+        //
+        // 3. Create several `bdlt::DatetimeInterval` objects having values
+        //    across the valid range for the type, and convert them in a round
+        //    trip to `bsls::TimeInterval` and back.  Confirm that the value at
+        //    the end of the round trip is equal to the original value.  (C-4)
+        //
+        // 4. Repeat the test from step 3 with a user-controlled number of
+        //    pseudo-random values.  (C-4)
+        //
+        // 5. Verify that, in appropriate build modes, defensive checks are
+        //    triggered when an attempt is made to pass a null pointer as
+        //    `result`.  (C-5)
         //
         // Testing:
         //   void convertToDatetimeInterval(DatetimeInterval *, TimeInterval&);
@@ -416,7 +418,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "TESTING 'convertToDatetimeInterval' METHOD" << endl
+                 << "TESTING `convertToDatetimeInterval` METHOD" << endl
                  << "==========================================" << endl;
 
         if (verbose) cout <<
@@ -690,7 +692,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            // Run the test 'period' times.
+            // Run the test `period` times.
 
             for (bsls::Types::Uint64 i = 0; i < period; ++i) {
                 if (verbose && !veryVerbose) { loopMeter(i, period); }
@@ -794,31 +796,31 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'convertToTimeInterval' METHOD
-        //   The 'convertToTimeInterval' function converts a
-        //   'bdlt::DatetimeInterval' into a 'bsls::TimeInterval' representing
+        // TESTING `convertToTimeInterval` METHOD
+        //   The `convertToTimeInterval` function converts a
+        //   `bdlt::DatetimeInterval` into a `bsls::TimeInterval` representing
         //   the same number of total milliseconds.
         //
         // Concerns:
-        //: 1 That the conversion is done correctly.
+        // 1. That the conversion is done correctly.
         //
         // Plan:
-        //: 1  Create several distinct 'bdlt::DatetimeInterval' objects, then
-        //:   convert them to 'bsls::TimeInterval' objects.  Use the
-        //:   'totalMilliseconds' accessors of 'bdlt::DatetimeInterval' and
-        //:   'bsls::TimeInterval' as oracles to determine whether or not the
-        //:   conversion was done correctly.  (C-1)
+        // 1.  Create several distinct `bdlt::DatetimeInterval` objects, then
+        //    convert them to `bsls::TimeInterval` objects.  Use the
+        //    `totalMilliseconds` accessors of `bdlt::DatetimeInterval` and
+        //    `bsls::TimeInterval` as oracles to determine whether or not the
+        //    conversion was done correctly.  (C-1)
         //
         // Testing:
         //   void convertToTimeInterval(TimeInterval *, DatetimeInterval& );
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'convertToTimeInterval' METHOD" << endl
+                          << "TESTING `convertToTimeInterval` METHOD" << endl
                           << "======================================" << endl;
 
         if (verbose) cout <<
-           "\nUse a table of distinct inputs, and check 'totalMilliseconds'."
+           "\nUse a table of distinct inputs, and check `totalMilliseconds`."
                                                                        << endl;
         {
             static const struct {

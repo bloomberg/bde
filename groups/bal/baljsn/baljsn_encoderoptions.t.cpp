@@ -31,46 +31,46 @@ using namespace bsl;
 // (value-semantic) attribute class.  The Primary Manipulators and Basic
 // Accessors are therefore, respectively, the attribute setters and getters,
 // each of which follows our standard unconstrained attribute-type naming
-// conventions: 'setAttributeName' and 'attributeName'.
+// conventions: `setAttributeName` and `attributeName`.
 //
 // Primary Manipulators:
-//: o 'setInitialIndentLevel'
-//: o 'setSpacesPerLevel'
-//: o 'setEncodingStyle'
-//: o 'setEncodeEmptyArrays'
-//: o 'setEncodeNullElements'
-//: o 'setEncodeInfAndNaNAsStrings'
-//: o 'setEncodeQuotedDecimal64'
-//: o 'setDatetimeFractionalSecondPrecision'
-//: o 'setMaxFloatPrecision'
-//: o 'setMaxDoublePrecision'
+//  - `setInitialIndentLevel`
+//  - `setSpacesPerLevel`
+//  - `setEncodingStyle`
+//  - `setEncodeEmptyArrays`
+//  - `setEncodeNullElements`
+//  - `setEncodeInfAndNaNAsStrings`
+//  - `setEncodeQuotedDecimal64`
+//  - `setDatetimeFractionalSecondPrecision`
+//  - `setMaxFloatPrecision`
+//  - `setMaxDoublePrecision`
 //
 // Basic Accessors:
-//: o 'initialIndentLevel'
-//: o 'spacesPerLevel'
-//: o 'encodingStyle'
-//: o 'encodeEmptyArrays'
-//: o 'encodeNullElements'
-//: o 'encodeInfAndNaNAsStrings'
-//: o 'encodeQuotedDecimal64'
-//: o 'datetimeFractionalSecondPrecision'
-//: o 'maxFloatPrecision'
-//: o 'maxDoublePrecision'
+//  - `initialIndentLevel`
+//  - `spacesPerLevel`
+//  - `encodingStyle`
+//  - `encodeEmptyArrays`
+//  - `encodeNullElements`
+//  - `encodeInfAndNaNAsStrings`
+//  - `encodeQuotedDecimal64`
+//  - `datetimeFractionalSecondPrecision`
+//  - `maxFloatPrecision`
+//  - `maxDoublePrecision`
 //
 // Certain standard value-semantic-type test cases are omitted:
-//: o [ 8] -- 'swap' is not implemented for this class.
-//: o [10] -- BSLX streaming is not (yet) implemented for this class.
+//  - [ 8] -- `swap` is not implemented for this class.
+//  - [10] -- BSLX streaming is not (yet) implemented for this class.
 //
 // Global Concerns:
-//: o ACCESSOR methods are declared 'const'.
-//: o Precondition violations are detected in appropriate build modes.
-//: o No memory is allocated from any allocator.
+//  - ACCESSOR methods are declared `const`.
+//  - Precondition violations are detected in appropriate build modes.
+//  - No memory is allocated from any allocator.
 //
 // Global Assumptions:
-//: o ACCESSOR methods are 'const' thread-safe.
-//: o Individual attribute types are presumed to be *alias-safe*; hence, only
-//:   certain methods require the testing of this property:
-//:   o copy-assignment
+//  - ACCESSOR methods are `const` thread-safe.
+//  - Individual attribute types are presumed to be *alias-safe*; hence, only
+//    certain methods require the testing of this property:
+//    - copy-assignment
 // ----------------------------------------------------------------------------
 // CREATORS
 // [ 2] baljsn::EncoderOptions();
@@ -195,13 +195,13 @@ typedef baljsn::EncoderOptions::EncodingStyle Style;
                      // class EncodeQuotedDecimal64Accessor
                      //====================================
 
+/// This class implements accessor interface that attains the
+/// `d_encodeQoutedDecimal64` data member of the `baljsn::EncoderOptions`
+/// class.
 class EncodeQuotedDecimal64Accessor
-    // This class implements accessor interface that attains the
-    // 'd_encodeQoutedDecimal64' data member of the 'baljsn::EncoderOptions'
-    // class.
 {
     // DATA
-    bool d_value;  // copy of 'd_encodeQoutedDecimal64' value
+    bool d_value;  // copy of `d_encodeQoutedDecimal64` value
 
   public:
     // CREATORS
@@ -211,17 +211,18 @@ class EncodeQuotedDecimal64Accessor
     }
 
     // MANIPULATORS
+
+    /// Always return 0.  Dummy implementation of the access operator.
     template <class T>
     int operator()(T, const bdlat_AttributeInfo&)
-        // Always return 0.  Dummy implementation of the access operator.
     {
         return 0;
     }
 
+    /// Return the attribute's id and store the specified `value` if the
+    /// specified `info` indicates `d_encodeQoutedDecimal64` data member.
+    /// Return 0 otherwise.
     int operator()(bool value, const bdlat_AttributeInfo& info)
-        // Return the attribute's id and store the specified 'value' if the
-        // specified 'info' indicates 'd_encodeQoutedDecimal64' data member.
-        // Return 0 otherwise.
     {
         if (Obj::ATTRIBUTE_ID_ENCODE_QUOTED_DECIMAL64 == info.id()) {
             d_value = value;
@@ -241,10 +242,10 @@ class EncodeQuotedDecimal64Accessor
                    // class EncodeQuotedDecimal64Manipulator
                    //=======================================
 
+/// This class implements manipulator interface that updates the
+/// `d_encodeQoutedDecimal64` data member of the `baljsn::EncoderOptions`
+/// class.
 class EncodeQuotedDecimal64Manipulator
-    // This class implements manipulator interface that updates the
-    // 'd_encodeQoutedDecimal64' data member of the 'baljsn::EncoderOptions'
-    // class.
 {
     // DATA
     bool d_value;
@@ -257,18 +258,19 @@ class EncodeQuotedDecimal64Manipulator
     }
 
     // ACCESSORS
+
+    /// Always return 0.  Dummy implementation of the manipulator operator.
     template <class T>
     int operator()(T *, const bdlat_AttributeInfo&) const
-        // Always return 0.  Dummy implementation of the manipulator operator.
     {
         return 0;
     }
 
+    /// Return the attribute id and update the specified `value` with the
+    /// attribute's value initialized in this class constructor if the
+    /// specified `info` indicates `d_encodeQoutedDecimal64` data member.
+    /// Return 0 otherwise.
     int operator()(bool *value, const bdlat_AttributeInfo& info) const
-        // Return the attribute id and update the specified 'value' with the
-        // attribute's value initialized in this class constructor if the
-        // specified 'info' indicates 'd_encodeQoutedDecimal64' data member.
-        // Return 0 otherwise.
     {
         if (Obj::ATTRIBUTE_ID_ENCODE_QUOTED_DECIMAL64 == info.id()) {
             *value = d_value;
@@ -311,43 +313,43 @@ const DefaultDataRow DEFAULT_DATA[] =
 // default (must be first)
 { L_,       0,       0,    COMPACT,  false, false, false, 3, 0,  0, true  },
 
-// 'initialIndentLevel'
+// `initialIndentLevel`
 { L_,       1,       0,    PRETTY,   false, false, false, 3, 9, 17, true  },
 { L_, INT_MAX,       0,    COMPACT,  false, false, false, 3, 9, 17, true  },
 
-// 'spacesPerLevel'
+// `spacesPerLevel`
 { L_,       0,       1,    PRETTY,   false, false, false, 3, 9, 17, true  },
 { L_,       0, INT_MAX,    COMPACT,  false, false, false, 3, 9, 17, true  },
 
-// 'encodingStyle'
+// `encodingStyle`
 { L_, INT_MAX,       1,    PRETTY,   false, false, false, 3, 9, 17, true  },
 { L_,       1, INT_MAX,    COMPACT,  false, false, false, 3, 9, 17, true  },
 
-// 'encodeEmptyArrays'
+// `encodeEmptyArrays`
 { L_, INT_MAX,       1,    PRETTY,   true,  false, false, 3, 9, 17, true  },
 { L_,       1, INT_MAX,    COMPACT,  true,  false, false, 3, 9, 17, true  },
 
-// 'encodeNullElements'
+// `encodeNullElements`
 { L_, INT_MAX,       1,    PRETTY,   false, true,  false, 3, 9, 17, true  },
 { L_,       1, INT_MAX,    COMPACT,  false, true,  false, 3, 9, 17, true  },
 
-// 'encodeInfAndNaNAsStrings'
+// `encodeInfAndNaNAsStrings`
 { L_, INT_MAX,       1,    PRETTY,   false, false, true,  3, 9, 17, true  },
 { L_,       1, INT_MAX,    COMPACT,  false, false, true,  3, 9, 17, true  },
 
-// 'datetimeFractionalSecondPrecision'
+// `datetimeFractionalSecondPrecision`
 { L_, INT_MAX,       1,    PRETTY,   false, false, true,  4, 9, 17, true  },
 { L_,       1, INT_MAX,    COMPACT,  false, false, true,  6, 9, 17, true  },
 
-// 'maxFloatPrecision'
+// `maxFloatPrecision`
 { L_, INT_MAX,       1,    PRETTY,   false, false, true,  3, 3, 17, true  },
 { L_,       1, INT_MAX,    COMPACT,  false, false, true,  3, 6, 17, true  },
 
-// 'maxDoublePrecision'
+// `maxDoublePrecision`
 { L_, INT_MAX,       1,    PRETTY,   false, false, true,  3, 9,  9, true  },
 { L_,       1, INT_MAX,    COMPACT,  false, false, true,  3, 9, 15, true  },
 
-// 'encodeQuotedDecimal64'
+// `encodeQuotedDecimal64`
 { L_, INT_MAX,       1,    PRETTY,   false, false, false, 3, 9, 17, false },
 { L_,       1, INT_MAX,    COMPACT,  false, false, false, 3, 9, 17, false },
 };
@@ -370,7 +372,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
@@ -386,13 +388,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -411,8 +413,8 @@ int main(int argc, char *argv[])
 // for encoding objects in the JSON format.  This example shows how to create
 // and populate an options object.
 //
-// First, we default-construct a 'baljsn::EncoderOptions' object:
-//..
+// First, we default-construct a `baljsn::EncoderOptions` object:
+// ```
     const int  INITIAL_INDENT_LEVEL      = 1;
     const int  SPACES_PER_LEVEL          = 4;
     const bool ENCODE_EMPTY_ARRAYS       = true;
@@ -434,10 +436,10 @@ int main(int argc, char *argv[])
     ASSERT(0     == options.maxFloatPrecision());
     ASSERT(0     == options.maxDoublePrecision());
     ASSERT(true  == options.encodeQuotedDecimal64());
-//..
+// ```
 // Next, we populate that object to encode in a pretty format using a
 // pre-defined initial indent level and spaces per level:
-//..
+// ```
     options.setEncodingStyle(baljsn::EncodingStyle::e_PRETTY);
     ASSERT(baljsn::EncoderOptions::e_PRETTY == options.encodingStyle());
 
@@ -467,43 +469,43 @@ int main(int argc, char *argv[])
 
     options.setEncodeQuotedDecimal64(ENCODE_QUOTED_DECIMAL64);
     ASSERT(ENCODE_QUOTED_DECIMAL64 == options.encodeQuotedDecimal64());
-//..
+// ```
       } break;
       case 12: {
         // --------------------------------------------------------------------
         // TESTING ENCODE QUOTED DECIMAL64
-        //   The 'd_encodeQuotedDecimal64' attribute was added to the
-        //  'baljsn::EncoderOptions' class by hand unlike the other attributes
-        //  generated by 'bas_codegen.pl' tool.  Therefore we need to ensure
-        //  that the  'd_encodeQuotedDecimal64' attribute can be attained and
+        //   The `d_encodeQuotedDecimal64` attribute was added to the
+        //  `baljsn::EncoderOptions` class by hand unlike the other attributes
+        //  generated by `bas_codegen.pl` tool.  Therefore we need to ensure
+        //  that the  `d_encodeQuotedDecimal64` attribute can be attained and
         //  updated using the class' accessors and manipulators.
         //
         // Concerns:
-        //: 1 That the 'd_encodeQuotedDecimal64' attribute information is
-        //:   provided by the class' lookup attribute methods.
-        //:
-        //: 2 That the 'd_encodeQuotedDecimal64' attribute is attended by the
-        //:   class' access attribute methods;
-        //:
-        //: 3 That the 'd_encodeQuotedDecimal64' attribute is manipulated by
-        //:   the class' manipulate attribute methods.
-        //:
-        //: 4 That the 'd_encodeQuotedDecimal64' attribute is reset by
-        //:   'reset()' methods.
+        // 1. That the `d_encodeQuotedDecimal64` attribute information is
+        //    provided by the class' lookup attribute methods.
+        //
+        // 2. That the `d_encodeQuotedDecimal64` attribute is attended by the
+        //    class' access attribute methods;
+        //
+        // 3. That the `d_encodeQuotedDecimal64` attribute is manipulated by
+        //    the class' manipulate attribute methods.
+        //
+        // 4. That the `d_encodeQuotedDecimal64` attribute is reset by
+        //    `reset()` methods.
         //
         // Plan:
-        //: 1 Ensure that 'lookupAttributeInfo()' method returns
-        //:   'bdlat_AttributeInfo' describing the 'd_encodeQuotedDecimal64'
-        //:   attribute. (C-1)
-        //:
-        //: 2 Create a default 'baljsn::EncoderOptions' object and using the
-        //:   'accessAttribute()' method ensure that 'd_encodeQuotedDecimal64'
-        //:   has default-constructed value.  Using the 'manipulateAttribute()'
-        //:   method set a new value that differs from the default-constructed.
-        //:   Using 'accessAttribute()' method verify that the
-        //:   'd_encodeQuotedDecimal64' member has expected value.  Invoke
-        //:   'reset()' and verify that 'd_encodeQuotedDecimal64' is reset to
-        //:   default. (C-2..4)
+        // 1. Ensure that `lookupAttributeInfo()` method returns
+        //    `bdlat_AttributeInfo` describing the `d_encodeQuotedDecimal64`
+        //    attribute. (C-1)
+        //
+        // 2. Create a default `baljsn::EncoderOptions` object and using the
+        //    `accessAttribute()` method ensure that `d_encodeQuotedDecimal64`
+        //    has default-constructed value.  Using the `manipulateAttribute()`
+        //    method set a new value that differs from the default-constructed.
+        //    Using `accessAttribute()` method verify that the
+        //    `d_encodeQuotedDecimal64` member has expected value.  Invoke
+        //    `reset()` and verify that `d_encodeQuotedDecimal64` is reset to
+        //    default. (C-2..4)
         //
         // Testing:
         //   const bdlat_AttributeInfo *lookupAttributeInfo(int id);
@@ -636,23 +638,23 @@ int main(int argc, char *argv[])
         // TESTING THE TEST MACHINERY
         //   This test will test attribute accessor and manipulator supplied by
         //   the test driver prior of its use to prove the
-        //   'd_encodeQuotedDecimal64' attribute works as required.
+        //   `d_encodeQuotedDecimal64` attribute works as required.
         //
         // Concerns:
-        //: 1 That the accessor attains only an attribute of the 'bool' type
-        //:   having the specific attribute id.
-        //:
-        //: 1 That the manipulator modifies only an attribute of the 'bool'
-        //:   type having the specific attribute id.
+        // 1. That the accessor attains only an attribute of the `bool` type
+        //    having the specific attribute id.
+        //
+        // 1. That the manipulator modifies only an attribute of the `bool`
+        //    type having the specific attribute id.
         //
         // Plan:
-        //: 1 Using a loop-based technique create an accessor and ensure that
-        //:   it attains only boolean attribute having the specific attribute
-        //:   id. (C-1)
-        //:
-        //: 2 Using a loop-based technique create a manipulator and ensure that
-        //:   it modifies only boolean attribute having the specific attribute
-        //:   id. (C-2)
+        // 1. Using a loop-based technique create an accessor and ensure that
+        //    it attains only boolean attribute having the specific attribute
+        //    id. (C-1)
+        //
+        // 2. Using a loop-based technique create a manipulator and ensure that
+        //    it modifies only boolean attribute having the specific attribute
+        //    id. (C-2)
         //
         // Testing:
         //   EncodeQuotedDecimal64Accessor
@@ -665,7 +667,7 @@ int main(int argc, char *argv[])
 
         const int ATTRIBUTE_ID = Obj::ATTRIBUTE_ID_ENCODE_QUOTED_DECIMAL64;
 
-        { // Testing 'EncodeQuotedDecimal64Accessor'
+        { // Testing `EncodeQuotedDecimal64Accessor`
             for (int id = 0; id < Obj::NUM_ATTRIBUTES; ++id) {
                 EncodeQuotedDecimal64Accessor A;
                 const bdlat_AttributeInfo     INFO = {
@@ -700,7 +702,7 @@ int main(int argc, char *argv[])
                 ASSERTV(L_, false == A.value());
             }
         }
-        { // Testing 'EncodeQuotedDecimal64Manipulator'
+        { // Testing `EncodeQuotedDecimal64Manipulator`
             for (int id = 0; id < Obj::NUM_ATTRIBUTES; ++id) {
                 EncodeQuotedDecimal64Manipulator M(true);
                 const bdlat_AttributeInfo        INFO = {
@@ -740,7 +742,7 @@ int main(int argc, char *argv[])
         //   N/A
         //
         // Testing:
-        //  Reserved for 'swap' testing.
+        //  Reserved for `swap` testing.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING BDEX STREAMING"
@@ -754,74 +756,74 @@ int main(int argc, char *argv[])
         //   have the same value.
         //
         // Concerns:
-        //: 1 The assignment operator can change the value of any modifiable
-        //:   target object to that of any source object.
-        //:
-        //: 2 The signature and return type are standard.
-        //:
-        //: 3 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 4 The value of the source object is not modified.
-        //:
-        //: 5 Assigning an object to itself behaves as expected (alias-safety).
+        // 1. The assignment operator can change the value of any modifiable
+        //    target object to that of any source object.
+        //
+        // 2. The signature and return type are standard.
+        //
+        // 3. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 4. The value of the source object is not modified.
+        //
+        // 5. Assigning an object to itself behaves as expected (alias-safety).
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a member-function
-        //:   pointer having the appropriate signature and return type for the
-        //:   copy-assignment operator defined in this component.  (C-2)
-        //:
-        //: 2 Using the table-driven technique, specify a set of (unique) valid
-        //:   object values (one per row) in terms of their individual
-        //:   attributes, including (a) first, the default value, and (b)
-        //:   boundary values corresponding to every range of values that each
-        //:   individual attribute can independently attain.
-        //:
-        //: 3 For each row 'R1' (representing a distinct object value, 'V') in
-        //:   the table described in P-3:  (C-1, 3..4)
-        //:
-        //:   1 Create two 'const' 'Obj', 'Z' and 'ZZ', each having the value
-        //:     'V'.
-        //:
-        //:   2 Execute an inner loop that iterates over each row 'R2'
-        //:     (representing a distinct object value, 'W') in the table
-        //:     described in P-3:
-        //:
-        //:   3 For each of the iterations (P-3.2):  (C-1, 3..4)
-        //:
-        //:     1 Use the value constructor to create a modifiable 'Obj', 'mX',
-        //:       having the value 'W'.
-        //:
-        //:     2 Assign 'mX' from 'Z'.
-        //:
-        //:     3 Verify that the address of the return value is the same as
-        //:       that of 'mX'.  (C-3)
-        //:
-        //:     4 Use the equality-comparison operator to verify that: (C-1, 4)
-        //:
-        //:       1 The target object, 'mX', now has the same value as that of
-        //:         'Z'.  (C-1)
-        //:
-        //:       2 'Z' still has the same value as that of 'ZZ'.  (C-4)
-        //:
-        //: 4 Repeat steps similar to those described in P-2 except that, this
-        //:   time, the source object, 'Z', is a reference to the target
-        //:   object, 'mX', and both 'mX' and 'ZZ' are initialized to have the
-        //:   value 'V'.  For each row (representing a distinct object value,
-        //:   'V') in the table described in P-2:  (C-5)
-        //:
-        //:   1 Use the value constructor to create a modifiable 'Obj' 'mX';
-        //:     also use the value constructor to create a 'const' 'Obj' 'ZZ'.
-        //:
-        //:   2 Let 'Z' be a reference providing only 'const' access to 'mX'.
-        //:
-        //:   3 Assign 'mX' from 'Z'.
-        //:
-        //:   4 Verify that the address of the return value is the same as that
-        //:     of 'mX'.  (C-3)
-        //:
-        //:   5 Use the equality-comparison operator to verify that the
-        //:     target object, 'Z', still has the same value as that of 'ZZ'.
-        //:     (C-5)
+        // 1. Use the address of `operator=` to initialize a member-function
+        //    pointer having the appropriate signature and return type for the
+        //    copy-assignment operator defined in this component.  (C-2)
+        //
+        // 2. Using the table-driven technique, specify a set of (unique) valid
+        //    object values (one per row) in terms of their individual
+        //    attributes, including (a) first, the default value, and (b)
+        //    boundary values corresponding to every range of values that each
+        //    individual attribute can independently attain.
+        //
+        // 3. For each row `R1` (representing a distinct object value, `V`) in
+        //    the table described in P-3:  (C-1, 3..4)
+        //
+        //   1. Create two `const` `Obj`, `Z` and `ZZ`, each having the value
+        //      `V`.
+        //
+        //   2. Execute an inner loop that iterates over each row `R2`
+        //      (representing a distinct object value, `W`) in the table
+        //      described in P-3:
+        //
+        //   3. For each of the iterations (P-3.2):  (C-1, 3..4)
+        //
+        //     1. Use the value constructor to create a modifiable `Obj`, `mX`,
+        //        having the value `W`.
+        //
+        //     2. Assign `mX` from `Z`.
+        //
+        //     3. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-3)
+        //
+        //     4. Use the equality-comparison operator to verify that: (C-1, 4)
+        //
+        //       1. The target object, `mX`, now has the same value as that of
+        //          `Z`.  (C-1)
+        //
+        //       2. `Z` still has the same value as that of `ZZ`.  (C-4)
+        //
+        // 4. Repeat steps similar to those described in P-2 except that, this
+        //    time, the source object, `Z`, is a reference to the target
+        //    object, `mX`, and both `mX` and `ZZ` are initialized to have the
+        //    value `V`.  For each row (representing a distinct object value,
+        //    `V`) in the table described in P-2:  (C-5)
+        //
+        //   1. Use the value constructor to create a modifiable `Obj` `mX`;
+        //      also use the value constructor to create a `const` `Obj` `ZZ`.
+        //
+        //   2. Let `Z` be a reference providing only `const` access to `mX`.
+        //
+        //   3. Assign `mX` from `Z`.
+        //
+        //   4. Verify that the address of the return value is the same as that
+        //      of `mX`.  (C-3)
+        //
+        //   5. Use the equality-comparison operator to verify that the
+        //      target object, `Z`, still has the same value as that of `ZZ`.
+        //      (C-5)
         //
         // Testing:
         //   operator=(const baljsn::EncoderOptions& rhs);
@@ -982,7 +984,7 @@ int main(int argc, char *argv[])
         //   N/A
         //
         // Testing:
-        //  Reserved for 'swap' testing.
+        //  Reserved for `swap` testing.
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -996,37 +998,37 @@ int main(int argc, char *argv[])
         //   other one, such that the two objects have the same value.
         //
         // Concerns:
-        //: 1 The copy constructor creates an object having the same value as
-        //:   that of the supplied original object.
-        //:
-        //: 2 The original object is passed as a reference providing
-        //:   non-modifiable access to that object.
-        //:
-        //: 3 The value of the original object is unchanged.
+        // 1. The copy constructor creates an object having the same value as
+        //    that of the supplied original object.
+        //
+        // 2. The original object is passed as a reference providing
+        //    non-modifiable access to that object.
+        //
+        // 3. The value of the original object is unchanged.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   object values (one per row) in terms of their individual
-        //:   attributes, including (a) first, the default value, and (b)
-        //:   boundary values corresponding to every range of values that each
-        //:   individual attribute can independently attain.
-        //:
-        //: 2 For each row (representing a distinct object value, 'V') in the
-        //:   table described in P-1:  (C-1..3)
-        //:
-        //:   1 Use the value constructor to create two 'const' 'Obj', 'Z' and
-        //:     'ZZ', each having the value 'V'.
-        //:
-        //:   2 Use the copy constructor to create an object 'X',
-        //:     supplying it the 'const' object 'Z'.  (C-2)
-        //:
-        //:   3 Use the equality-comparison operator to verify that:
-        //:     (C-1, 3)
-        //:
-        //:     1 The newly constructed object, 'X', has the same value as 'Z'.
-        //:       (C-1)
-        //:
-        //:     2 'Z' still has the same value as 'ZZ'.  (C-3)
+        // 1. Using the table-driven technique, specify a set of (unique) valid
+        //    object values (one per row) in terms of their individual
+        //    attributes, including (a) first, the default value, and (b)
+        //    boundary values corresponding to every range of values that each
+        //    individual attribute can independently attain.
+        //
+        // 2. For each row (representing a distinct object value, `V`) in the
+        //    table described in P-1:  (C-1..3)
+        //
+        //   1. Use the value constructor to create two `const` `Obj`, `Z` and
+        //      `ZZ`, each having the value `V`.
+        //
+        //   2. Use the copy constructor to create an object `X`,
+        //      supplying it the `const` object `Z`.  (C-2)
+        //
+        //   3. Use the equality-comparison operator to verify that:
+        //      (C-1, 3)
+        //
+        //     1. The newly constructed object, `X`, has the same value as `Z`.
+        //        (C-1)
+        //
+        //     2. `Z` still has the same value as `ZZ`.  (C-3)
         //
         // Testing:
         //   baljsn::EncoderOptions(const baljsn::EncoderOptions& o);
@@ -1099,7 +1101,7 @@ int main(int argc, char *argv[])
 
             LOOP3_ASSERT(LINE,  Z, X,  Z == X);
 
-            // Verify that the value of 'Z' has not changed.
+            // Verify that the value of `Z` has not changed.
 
             LOOP3_ASSERT(LINE, ZZ, Z, ZZ == Z);
         }  // end foreach row
@@ -1107,68 +1109,68 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // TESTING EQUALITY-COMPARISON OPERATORS
-        //   Ensure that '==' and '!=' are the operational definition of value.
+        //   Ensure that `==` and `!=` are the operational definition of value.
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if each of
-        //:   their corresponding salient attributes respectively compares
-        //:   equal.
-        //:
-        //: 2 All salient attributes participate in the comparison.
-        //:
-        //: 3 No non-salient attributes (i.e., 'allocator') participate.
-        //:
-        //: 4 'true  == (X == X)'  (i.e., identity)
-        //:
-        //: 5 'false == (X != X)'  (i.e., identity)
-        //:
-        //: 6 'X == Y' if and only if 'Y == X'  (i.e., commutativity)
-        //:
-        //: 7 'X != Y' if and only if 'Y != X'  (i.e., commutativity)
-        //:
-        //: 8 'X != Y' if and only if '!(X == Y)'
-        //:
-        //: 9 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., both comparison operators are free functions).
-        //:
-        //:10 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //:11 The equality operator's signature and return type are standard.
-        //:
-        //:12 The inequality operator's signature and return type are standard.
+        // 1. Two objects, `X` and `Y`, compare equal if and only if each of
+        //    their corresponding salient attributes respectively compares
+        //    equal.
+        //
+        // 2. All salient attributes participate in the comparison.
+        //
+        // 3. No non-salient attributes (i.e., `allocator`) participate.
+        //
+        // 4. `true  == (X == X)`  (i.e., identity)
+        //
+        // 5. `false == (X != X)`  (i.e., identity)
+        //
+        // 6. `X == Y` if and only if `Y == X`  (i.e., commutativity)
+        //
+        // 7. `X != Y` if and only if `Y != X`  (i.e., commutativity)
+        //
+        // 8. `X != Y` if and only if `!(X == Y)`
+        //
+        // 9. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., both comparison operators are free functions).
+        //
+        // 10. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        // 11. The equality operator's signature and return type are standard.
+        //
+        // 12. The inequality operator's signature and return type are standard.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the two homogeneous, free equality-
-        //:   comparison operators defined in this component.
-        //:   (C-9..12)
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their individual salient
-        //:   attributes such that for each salient attribute, there exists a
-        //:   pair of rows that differ (slightly) in only the column
-        //:   corresponding to that attribute.
-        //:
-        //: 3 For each row 'R1' in the table of P-3:  (C-1..8)
-        //:
-        //:   1 Create a single object, and use it to verify the reflexive
-        //:     (anti-reflexive) property of equality (inequality) in the
-        //:     presence of aliasing.  (C-4..5)
-        //:
-        //:   2 For each row 'R2' in the table of P-3:  (C-1..3, 6..8)
-        //:
-        //:     1 Record, in 'EXP', whether or not distinct objects created
-        //:       from 'R1' and 'R2', respectively, are expected to have the
-        //:       same value.
-        //:
-        //:     2 Create an object 'X' having the value 'R1'.
-        //:
-        //:     3 Create an object 'Y' having the value 'R2'.
-        //:
-        //:     4 Verify the commutative property and expected return value for
-        //:       both '==' and '!='.  (C-1..3, 6..8)
+        // 1. Use the respective addresses of `operator==` and `operator!=` to
+        //    initialize function pointers having the appropriate signatures
+        //    and return types for the two homogeneous, free equality-
+        //    comparison operators defined in this component.
+        //    (C-9..12)
+        //
+        // 2. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their individual salient
+        //    attributes such that for each salient attribute, there exists a
+        //    pair of rows that differ (slightly) in only the column
+        //    corresponding to that attribute.
+        //
+        // 3. For each row `R1` in the table of P-3:  (C-1..8)
+        //
+        //   1. Create a single object, and use it to verify the reflexive
+        //      (anti-reflexive) property of equality (inequality) in the
+        //      presence of aliasing.  (C-4..5)
+        //
+        //   2. For each row `R2` in the table of P-3:  (C-1..3, 6..8)
+        //
+        //     1. Record, in `EXP`, whether or not distinct objects created
+        //        from `R1` and `R2`, respectively, are expected to have the
+        //        same value.
+        //
+        //     2. Create an object `X` having the value `R1`.
+        //
+        //     3. Create an object `Y` having the value `R2`.
+        //
+        //     4. Verify the commutative property and expected return value for
+        //        both `==` and `!=`.  (C-1..3, 6..8)
         //
         // Testing:
         //   bool operator==(const baljsn::EncoderOptions& lhs, rhs);
@@ -1194,88 +1196,88 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-            "\nDefine appropriate individual attribute values, 'Ai' and 'Bi'."
+            "\nDefine appropriate individual attribute values, `Ai` and `Bi`."
                                                                        << endl;
         // ---------------
         // Attribute Types
         // ---------------
 
-        typedef int   T1;        // 'initialIndentLevel'
-        typedef int   T2;        // 'spacesPerLevel'
-        typedef Style T3;        // 'encodingStyle'
-        typedef bool  T4;        // 'encodeEmptyArrays'
-        typedef bool  T5;        // 'encodeNullElements'
-        typedef bool  T6;        // 'encodeInfAndNaNAsStrings'
-        typedef int   T7;        // 'datetimeFractionalSecondPrecision'
-        typedef int   T8;        // 'maxFloatPrecision'
-        typedef int   T9;        // 'maxDoublePrecision'
-        typedef bool  T10;       // 'encodeQuotedDecimal64'
+        typedef int   T1;        // `initialIndentLevel`
+        typedef int   T2;        // `spacesPerLevel`
+        typedef Style T3;        // `encodingStyle`
+        typedef bool  T4;        // `encodeEmptyArrays`
+        typedef bool  T5;        // `encodeNullElements`
+        typedef bool  T6;        // `encodeInfAndNaNAsStrings`
+        typedef int   T7;        // `datetimeFractionalSecondPrecision`
+        typedef int   T8;        // `maxFloatPrecision`
+        typedef int   T9;        // `maxDoublePrecision`
+        typedef bool  T10;       // `encodeQuotedDecimal64`
 
                  // ----------------------------------------
-                 // Attribute 1 Values: 'initialIndentLevel'
+                 // Attribute 1 Values: `initialIndentLevel`
                  // ----------------------------------------
 
         const T1 A1 = 1;               // baseline
         const T1 B1 = INT_MAX;
 
                    // ------------------------------------
-                   // Attribute 2 Values: 'spacesPerLevel'
+                   // Attribute 2 Values: `spacesPerLevel`
                    // ------------------------------------
 
         const T2 A2 = INT_MAX;         // baseline
         const T2 B2 = 10;
 
                    // -----------------------------------
-                   // Attribute 3 Values: 'encodingStyle'
+                   // Attribute 3 Values: `encodingStyle`
                    // -----------------------------------
 
         const T3 A3 = Obj::e_COMPACT;         // baseline
         const T3 B3 = Obj::e_PRETTY;
 
                  // ---------------------------------------
-                 // Attribute 4 Values: 'encodeEmptyArrays'
+                 // Attribute 4 Values: `encodeEmptyArrays`
                  // ---------------------------------------
 
         const T4 A4 = false;           // baseline
         const T4 B4 = true;
 
                  // ----------------------------------------
-                 // Attribute 5 Values: 'encodeNullElements'
+                 // Attribute 5 Values: `encodeNullElements`
                  // ----------------------------------------
 
         const T5 A5 = false;           // baseline
         const T5 B5 = true;
 
         // ----------------------------------------------
-        // Attribute 6 Values: 'encodeInfAndNaNAsStrings'
+        // Attribute 6 Values: `encodeInfAndNaNAsStrings`
         // ----------------------------------------------
 
         const T6 A6 = false;           // baseline
         const T6 B6 = true;
 
         // -------------------------------------------------------
-        // Attribute 7 Values: 'datetimeFractionalSecondPrecision'
+        // Attribute 7 Values: `datetimeFractionalSecondPrecision`
         // -------------------------------------------------------
 
         const T7 A7 = 3;           // baseline
         const T7 B7 = 6;
 
         // ---------------------------------------
-        // Attribute 8 Values: 'maxFloatPrecision'
+        // Attribute 8 Values: `maxFloatPrecision`
         // ---------------------------------------
 
         const T8 A8 = 9;           // baseline
         const T8 B8 = 6;
 
         // ----------------------------------------
-        // Attribute 9 Values: 'maxDoublePrecision'
+        // Attribute 9 Values: `maxDoublePrecision`
         // ----------------------------------------
 
         const T9 A9 = 15;           // baseline
         const T9 B9 = 9;
 
         // -------------------------------------------
-        // Attribute 9 Values: 'encodeQuotedDecimal64'
+        // Attribute 9 Values: `encodeQuotedDecimal64`
         // -------------------------------------------
 
         const T10 A10 = true;          // baseline
@@ -1418,55 +1420,55 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING PRINT AND OUTPUT OPERATOR
         //   Ensure that the value of the object can be formatted appropriately
-        //   on an 'ostream' in some standard, human-readable form.
+        //   on an `ostream` in some standard, human-readable form.
         //
         // Concerns:
-        //: 1 The 'print' method writes the value to the specified 'ostream'.
-        //:
-        //: 2 The 'print' method writes the value in the intended format.
-        //:
-        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)',
-        //:   but with each "attributeName = " elided.
-        //:
-        //: 4 The 'print' method signature and return type are standard.
-        //:
-        //: 5 The 'print' method returns the supplied 'ostream'.
-        //:
-        //: 6 The output 'operator<<' signature and return type are standard.
-        //:
-        //: 7 The output 'operator<<' returns the supplied 'ostream'.
+        // 1. The `print` method writes the value to the specified `ostream`.
+        //
+        // 2. The `print` method writes the value in the intended format.
+        //
+        // 3. The output using `s << obj` is the same as `obj.print(s, 0, -1)`,
+        //    but with each "attributeName = " elided.
+        //
+        // 4. The `print` method signature and return type are standard.
+        //
+        // 5. The `print` method returns the supplied `ostream`.
+        //
+        // 6. The output `operator<<` signature and return type are standard.
+        //
+        // 7. The output `operator<<` returns the supplied `ostream`.
         //
         // Plan:
-        //: 1 Use the addresses of the 'print' member function and 'operator<<'
-        //:   free function defined in this component to initialize,
-        //:   respectively, member-function and free-function pointers having
-        //:   the appropriate signatures and return types.  (C-4, 6)
-        //:
-        //: 2 Using the table-driven technique, define twelve carefully
-        //:   selected combinations of (two) object values ('A' and 'B'),
-        //:   having distinct values for each corresponding salient attribute,
-        //:   and various values for the two formatting parameters, along with
-        //:   the expected output
-        //:     ( 'value' x  'level'   x 'spacesPerLevel' ):
-        //:     1 { A   } x {  0     } x {  0, 1, -1 }  -->  3 expected outputs
-        //:     2 { A   } x {  3, -3 } x {  0, 2, -2 }  -->  6 expected outputs
-        //:     3 { B   } x {  2     } x {  3        }  -->  1 expected output
-        //:     4 { A B } x { -9     } x { -9        }  -->  2 expected output
-        //:
-        //: 3 For each row in the table defined in P-2.1:  (C-1..3, 5, 7)
-        //:
-        //:   1 Using a 'const' 'Obj', supply each object value and pair of
-        //:     formatting parameters to 'print', unless the parameters are,
-        //:     arbitrarily, (-9, -9), in which case 'operator<<' will be
-        //:     invoked instead.
-        //:
-        //:   2 Use a standard 'ostringstream' to capture the actual output.
-        //:
-        //:   3 Verify the address of what is returned is that of the
-        //:     supplied stream.  (C-5, 7)
-        //:
-        //:   4 Compare the contents captured in P-2.2.2 with what is
-        //:     expected.  (C-1..3)
+        // 1. Use the addresses of the `print` member function and `operator<<`
+        //    free function defined in this component to initialize,
+        //    respectively, member-function and free-function pointers having
+        //    the appropriate signatures and return types.  (C-4, 6)
+        //
+        // 2. Using the table-driven technique, define twelve carefully
+        //    selected combinations of (two) object values (`A` and `B`),
+        //    having distinct values for each corresponding salient attribute,
+        //    and various values for the two formatting parameters, along with
+        //    the expected output
+        //      ( `value` x  `level`   x `spacesPerLevel` ):
+        //     1. { A   } x {  0     } x {  0, 1, -1 }  -->  3 expected outputs
+        //     2. { A   } x {  3, -3 } x {  0, 2, -2 }  -->  6 expected outputs
+        //     3. { B   } x {  2     } x {  3        }  -->  1 expected output
+        //     4. { A B } x { -9     } x { -9        }  -->  2 expected output
+        //
+        // 3. For each row in the table defined in P-2.1:  (C-1..3, 5, 7)
+        //
+        //   1. Using a `const` `Obj`, supply each object value and pair of
+        //      formatting parameters to `print`, unless the parameters are,
+        //      arbitrarily, (-9, -9), in which case `operator<<` will be
+        //      invoked instead.
+        //
+        //   2. Use a standard `ostringstream` to capture the actual output.
+        //
+        //   3. Verify the address of what is returned is that of the
+        //      supplied stream.  (C-5, 7)
+        //
+        //   4. Compare the contents captured in P-2.2.2 with what is
+        //      expected.  (C-1..3)
         //
         // Testing:
         //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
@@ -1479,8 +1481,8 @@ int main(int argc, char *argv[])
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);
 
-        if (verbose) cout << "\nAssign the addresses of 'print' and "
-                             "the output 'operator<<' to variables." << endl;
+        if (verbose) cout << "\nAssign the addresses of `print` and "
+                             "the output `operator<<` to variables." << endl;
         {
             using namespace baljsn;
             typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
@@ -1798,29 +1800,29 @@ int main(int argc, char *argv[])
         // TESTING ACCESSORS
         //
         // Concerns:
-        //: 1 Each accessor returns the value of the corresponding attribute
-        //:   of the object.
-        //:
-        //: 2 Each accessor method is declared 'const'.
+        // 1. Each accessor returns the value of the corresponding attribute
+        //    of the object.
+        //
+        // 2. Each accessor method is declared `const`.
         //
         // Plan:
         //   Here we use the default constructor and primary manipulators,
         //   which were fully tested in case 2, to further corroborate that
         //   these accessors are properly interpreting object state.
         //
-        //: 1 Use the default constructor to create an object (having default
-        //:   attribute values).
-        //:
-        //: 2 Verify that each basic accessor, invoked on a reference providing
-        //:   non-modifiable access to the object created in P2, returns the
-        //:   expected value.  (C-2)
-        //:
-        //: 3 For each salient attribute (contributing to value):  (C-1)
-        //:   1 Use the corresponding primary manipulator to set the attribute
-        //:     to a unique value.
-        //:
-        //:   2 Use the corresponding basic accessor to verify the new
-        //:     expected value.  (C-1)
+        // 1. Use the default constructor to create an object (having default
+        //    attribute values).
+        //
+        // 2. Verify that each basic accessor, invoked on a reference providing
+        //    non-modifiable access to the object created in P2, returns the
+        //    expected value.  (C-2)
+        //
+        // 3. For each salient attribute (contributing to value):  (C-1)
+        //   1. Use the corresponding primary manipulator to set the attribute
+        //      to a unique value.
+        //
+        //   2. Use the corresponding basic accessor to verify the new
+        //      expected value.  (C-1)
         //
         // Testing:
         //   int   initialIndentLevel() const;
@@ -1839,48 +1841,48 @@ int main(int argc, char *argv[])
 
         // Attribute Types
 
-        typedef int   T1;        // 'initialIndentLevel'
-        typedef int   T2;        // 'spacesPerLevel'
-        typedef Style T3;        // 'encodingStyle'
-        typedef bool  T4;        // 'encodeEmptyArrays'
-        typedef bool  T5;        // 'encodeNullElements'
-        typedef bool  T6;        // 'encodeInfAndNaNAsStrings'
-        typedef int   T7;        // 'datetimeFractionalSecondPrecision'
-        typedef int   T8;        // 'maxFloatPrecision'
-        typedef int   T9;        // 'maxDoublePrecision'
-        typedef bool  T10;       // 'encodeQuotedDecimal64'
+        typedef int   T1;        // `initialIndentLevel`
+        typedef int   T2;        // `spacesPerLevel`
+        typedef Style T3;        // `encodingStyle`
+        typedef bool  T4;        // `encodeEmptyArrays`
+        typedef bool  T5;        // `encodeNullElements`
+        typedef bool  T6;        // `encodeInfAndNaNAsStrings`
+        typedef int   T7;        // `datetimeFractionalSecondPrecision`
+        typedef int   T8;        // `maxFloatPrecision`
+        typedef int   T9;        // `maxDoublePrecision`
+        typedef bool  T10;       // `encodeQuotedDecimal64`
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
           // -----------------------------------------------------
-          // 'D' values: These are the default-constructed values.
+          // `D` values: These are the default-constructed values.
           // -----------------------------------------------------
 
-        const T1  D1  = 0;                    // 'initialIndentLevel'
-        const T2  D2  = 0;                    // 'spacesPerLevel'
-        const T3  D3  = Obj::e_COMPACT;       // 'encodingStyle'
-        const T4  D4  = false;                // 'encodeEmptyArrays'
-        const T5  D5  = false;                // 'encodeNullElements'
-        const T6  D6  = false;                // 'encodeInfAndNaNAsStrings'
-        const T7  D7  = 3;                    // 'datetimePrecision'
-        const T8  D8  = 0;                    // 'maxFloatPrecision'
-        const T9  D9  = 0;                    // 'maxDoublePrecision'
-        const T10 D10 = true;                 // 'encodeQuotedDecimal64'
+        const T1  D1  = 0;                    // `initialIndentLevel`
+        const T2  D2  = 0;                    // `spacesPerLevel`
+        const T3  D3  = Obj::e_COMPACT;       // `encodingStyle`
+        const T4  D4  = false;                // `encodeEmptyArrays`
+        const T5  D5  = false;                // `encodeNullElements`
+        const T6  D6  = false;                // `encodeInfAndNaNAsStrings`
+        const T7  D7  = 3;                    // `datetimePrecision`
+        const T8  D8  = 0;                    // `maxFloatPrecision`
+        const T9  D9  = 0;                    // `maxDoublePrecision`
+        const T10 D10 = true;                 // `encodeQuotedDecimal64`
 
                        // ----------------------------
-                       // 'A' values: Boundary values.
+                       // `A` values: Boundary values.
                        // ----------------------------
 
-        const int   A1   = INT_MAX;              // 'initialIndentLevel'
-        const int   A2   = 4;                    // 'spacesPerLevel'
-        const Style A3   = Obj::e_PRETTY;         // 'encodingStyle'
-        const bool  A4   = true;                 // 'encodeEmptyArrays'
-        const bool  A5   = true;                 // 'encodeNullElements'
-        const bool  A6   = true;                 // 'encodeInfAndNaNAsStrings'
-        const int   A7   = 6;                    // 'datetimePrecision'
-        const int   A8   = 6;                    // 'maxFloatPrecision'
-        const int   A9   = 15;                   // 'maxDoublePrecision'
-        const bool  A10  = false;                // 'encodeQuotedDecimal64'
+        const int   A1   = INT_MAX;              // `initialIndentLevel`
+        const int   A2   = 4;                    // `spacesPerLevel`
+        const Style A3   = Obj::e_PRETTY;         // `encodingStyle`
+        const bool  A4   = true;                 // `encodeEmptyArrays`
+        const bool  A5   = true;                 // `encodeNullElements`
+        const bool  A6   = true;                 // `encodeInfAndNaNAsStrings`
+        const int   A7   = 6;                    // `datetimePrecision`
+        const int   A8   = 6;                    // `maxFloatPrecision`
+        const int   A9   = 15;                   // `maxDoublePrecision`
+        const bool  A10  = false;                // `encodeQuotedDecimal64`
 
         if (verbose) cout << "\nCreate an object." << endl;
 
@@ -2012,41 +2014,41 @@ int main(int argc, char *argv[])
         // TESTING MANIPULATORS
         //
         // Concerns:
-        //: 1 Any argument can be 'const'.
-        //:
-        //: 2 Each attribute is modifiable independently.
-        //:
-        //: 3 Each attribute can be set to represent any value that does not
-        //:   violate that attribute's documented constraints.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Any argument can be `const`.
+        //
+        // 2. Each attribute is modifiable independently.
+        //
+        // 3. Each attribute can be set to represent any value that does not
+        //    violate that attribute's documented constraints.
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create three sets of attribute values for the object: 'D', 'A',
-        //:   and 'B'.  'D' values correspond to the attribute values, and 'A'
-        //:   and 'B' values are chosen to be distinct boundary values where
-        //:   possible.
-        //:
-        //: 2 Use the default constructor to create an object 'X'.
-        //:
-        //: 3 For each attribute 'i', in turn, create a local block.  Then
-        //:   inside the block, using brute force, set that attribute's
-        //:   value, passing a 'const' argument representing each of the
-        //:   three test values, in turn (see P-1), first to 'Ai', then to
-        //:   'Bi', and finally back to 'Di'.  After each transition, use the
-        //:   (as yet unproven) basic accessors to verify that only the
-        //:   intended attribute value changed.  (C-1, 3)
-        //:
-        //: 4 Corroborate that attributes are modifiable independently by
-        //:   first setting all of the attributes to their 'A' values.  Then
-        //:   incrementally set each attribute to its 'B' value and verify
-        //:   after each manipulation that only that attribute's value
-        //:   changed.  (C-2)
-        //:
-        //: 5 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-4)
+        // 1. Create three sets of attribute values for the object: `D`, `A`,
+        //    and `B`.  `D` values correspond to the attribute values, and `A`
+        //    and `B` values are chosen to be distinct boundary values where
+        //    possible.
+        //
+        // 2. Use the default constructor to create an object `X`.
+        //
+        // 3. For each attribute `i`, in turn, create a local block.  Then
+        //    inside the block, using brute force, set that attribute's
+        //    value, passing a `const` argument representing each of the
+        //    three test values, in turn (see P-1), first to `Ai`, then to
+        //    `Bi`, and finally back to `Di`.  After each transition, use the
+        //    (as yet unproven) basic accessors to verify that only the
+        //    intended attribute value changed.  (C-1, 3)
+        //
+        // 4. Corroborate that attributes are modifiable independently by
+        //    first setting all of the attributes to their `A` values.  Then
+        //    incrementally set each attribute to its `B` value and verify
+        //    after each manipulation that only that attribute's value
+        //    changed.  (C-2)
+        //
+        // 5. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-4)
         //
         // Testing:
         //   setInitialIndentLevel(int value);
@@ -2065,43 +2067,43 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
-        // 'D' values: These are the default-constructed values.
+        // `D` values: These are the default-constructed values.
 
-        const int   D1   = 0;                    // 'initialIndentLevel'
-        const int   D2   = 0;                    // 'spacesPerLevel'
-        const Style D3   = Obj::e_COMPACT;        // 'encodingStyle'
-        const bool  D4   = false;                // 'encodeEmptyArrays'
-        const bool  D5   = false;                // 'encodeNullElements'
-        const bool  D6   = false;                // 'encodeInfAndNaNAsStrings'
-        const int   D7   = 3;            // 'datetimeFractionalSecondPrecision'
-        const int   D8   = 0;                    // 'maxFloatPrecision'
-        const int   D9   = 0;                    // 'maxDoublePrecision'
-        const bool  D10  = true;                 // 'encodeQuotedDecimal64'
-        // 'A' values.
+        const int   D1   = 0;                    // `initialIndentLevel`
+        const int   D2   = 0;                    // `spacesPerLevel`
+        const Style D3   = Obj::e_COMPACT;        // `encodingStyle`
+        const bool  D4   = false;                // `encodeEmptyArrays`
+        const bool  D5   = false;                // `encodeNullElements`
+        const bool  D6   = false;                // `encodeInfAndNaNAsStrings`
+        const int   D7   = 3;            // `datetimeFractionalSecondPrecision`
+        const int   D8   = 0;                    // `maxFloatPrecision`
+        const int   D9   = 0;                    // `maxDoublePrecision`
+        const bool  D10  = true;                 // `encodeQuotedDecimal64`
+        // `A` values.
 
-        const int   A1   = 1;                    // 'initialIndentLevel'
-        const int   A2   = 4;                    // 'spacesPerLevel'
-        const Style A3   = Obj::e_PRETTY;         // 'encodingStyle'
-        const bool  A4   = true;                 // 'encodeEmptyArrays'
-        const bool  A5   = true;                 // 'encodeNullElements'
-        const bool  A6   = true;                 // 'encodeInfAndNaNAsStrings'
-        const int   A7   = 0;            // 'datetimeFractionalSecondPrecision'
-        const int   A8   = 6;                    // 'maxFloatPrecision'
-        const int   A9   = 15;                   // 'maxDoublePrecision'
-        const bool  A10  = false;                // 'encodeQuotedDecimal64'
+        const int   A1   = 1;                    // `initialIndentLevel`
+        const int   A2   = 4;                    // `spacesPerLevel`
+        const Style A3   = Obj::e_PRETTY;         // `encodingStyle`
+        const bool  A4   = true;                 // `encodeEmptyArrays`
+        const bool  A5   = true;                 // `encodeNullElements`
+        const bool  A6   = true;                 // `encodeInfAndNaNAsStrings`
+        const int   A7   = 0;            // `datetimeFractionalSecondPrecision`
+        const int   A8   = 6;                    // `maxFloatPrecision`
+        const int   A9   = 15;                   // `maxDoublePrecision`
+        const bool  A10  = false;                // `encodeQuotedDecimal64`
 
-        // 'B' values.
+        // `B` values.
 
-        const int   B1   = INT_MAX;               // 'initialIndentLevel'
-        const int   B2   = INT_MAX;               // 'spacesPerLevel'
-        const Style B3   = Obj::e_COMPACT;         // 'encodingStyle'
-        const bool  B4   = false;                 // 'encodeEmptyArrays'
-        const bool  B5   = false;                 // 'encodeNullElements'
-        const bool  B6   = false;                 // 'encodeInfAndNaNAsStrings'
-        const int   B7   = 6;            // 'datetimeFractionalSecondPrecision'
-        const int   B8   = 3;                    // 'maxFloatPrecision'
-        const int   B9   = 9;                    // 'maxDoublePrecision'
-        const bool  B10  = false;                // 'encodeQuotedDecimal64'
+        const int   B1   = INT_MAX;               // `initialIndentLevel`
+        const int   B2   = INT_MAX;               // `spacesPerLevel`
+        const Style B3   = Obj::e_COMPACT;         // `encodingStyle`
+        const bool  B4   = false;                 // `encodeEmptyArrays`
+        const bool  B5   = false;                 // `encodeNullElements`
+        const bool  B6   = false;                 // `encodeInfAndNaNAsStrings`
+        const int   B7   = 6;            // `datetimeFractionalSecondPrecision`
+        const int   B8   = 3;                    // `maxFloatPrecision`
+        const int   B9   = 9;                    // `maxDoublePrecision`
+        const bool  B10  = false;                // `encodeQuotedDecimal64`
 
         Obj mX;  const Obj& X = mX;
 
@@ -2109,7 +2111,7 @@ int main(int argc, char *argv[])
                "Verify that each attribute is independently settable." << endl;
 
         // --------------------
-        // 'initialIndentLevel'
+        // `initialIndentLevel`
         // --------------------
         {
             mX.setInitialIndentLevel(A1);
@@ -2150,7 +2152,7 @@ int main(int argc, char *argv[])
         }
 
         // ----------------
-        // 'spacesPerLevel'
+        // `spacesPerLevel`
         // ----------------
         {
             mX.setSpacesPerLevel(A2);
@@ -2191,7 +2193,7 @@ int main(int argc, char *argv[])
         }
 
         // ---------------
-        // 'encodingStyle'
+        // `encodingStyle`
         // ---------------
         {
             mX.setEncodingStyle(A3);
@@ -2232,7 +2234,7 @@ int main(int argc, char *argv[])
         }
 
         // -------------------
-        // 'encodeEmptyArrays'
+        // `encodeEmptyArrays`
         // -------------------
         {
             mX.setEncodeEmptyArrays(A4);
@@ -2273,7 +2275,7 @@ int main(int argc, char *argv[])
         }
 
         // --------------------
-        // 'encodeNullElements'
+        // `encodeNullElements`
         // --------------------
         {
             mX.setEncodeNullElements(A5);
@@ -2314,7 +2316,7 @@ int main(int argc, char *argv[])
         }
 
         // --------------------------
-        // 'encodeInfAndNaNAsStrings'
+        // `encodeInfAndNaNAsStrings`
         // --------------------------
         {
             mX.setEncodeInfAndNaNAsStrings(A6);
@@ -2355,7 +2357,7 @@ int main(int argc, char *argv[])
         }
 
         // -----------------------------------
-        // 'datetimeFractionalSecondPrecision'
+        // `datetimeFractionalSecondPrecision`
         // -----------------------------------
         {
             mX.setDatetimeFractionalSecondPrecision(A7);
@@ -2396,7 +2398,7 @@ int main(int argc, char *argv[])
         }
 
         // -------------------
-        // 'maxFloatPrecision'
+        // `maxFloatPrecision`
         // -------------------
         {
             mX.setMaxFloatPrecision(A8);
@@ -2437,7 +2439,7 @@ int main(int argc, char *argv[])
         }
 
         // -------------------
-        // 'maxDoublePrecision'
+        // `maxDoublePrecision`
         // -------------------
         {
             mX.setMaxDoublePrecision(A9);
@@ -2478,7 +2480,7 @@ int main(int argc, char *argv[])
         }
 
         // --------------------
-        // 'maxDoublePrecision'
+        // `maxDoublePrecision`
         // --------------------
         {
             mX.setEncodeQuotedDecimal64(A10);
@@ -2521,7 +2523,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Corroborate attribute independence." << endl;
         {
             // ---------------------------------------
-            // Set all attributes to their 'A' values.
+            // Set all attributes to their `A` values.
             // ---------------------------------------
 
             mX.setInitialIndentLevel(A1);
@@ -2547,7 +2549,7 @@ int main(int argc, char *argv[])
             ASSERT(A10 == X.encodeQuotedDecimal64());
 
                  // ---------------------------------------
-                 // Set all attributes to their 'B' values.
+                 // Set all attributes to their `B` values.
                  // ---------------------------------------
 
             mX.setInitialIndentLevel(B1);
@@ -2700,14 +2702,14 @@ int main(int argc, char *argv[])
         // TESTING CREATORS
         //
         // Concerns:
-        //: 1 An object created with the default constructor has the
-        //:   contractually specified default value.
+        // 1. An object created with the default constructor has the
+        //    contractually specified default value.
         //
         // Plan:
-        //: 1 Use the default constructor to create an object 'X'.
-        //:
-        //: 2 Use the individual (as yet unproven) salient attribute
-        //:   accessors to verify the default-constructed value.  (C-1)
+        // 1. Use the default constructor to create an object `X`.
+        //
+        // 2. Use the individual (as yet unproven) salient attribute
+        //    accessors to verify the default-constructed value.  (C-1)
         //
         // Testing:
         //   baljsn::EncoderOptions();
@@ -2719,18 +2721,18 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
-        // 'D' values: These are the default-constructed values.
+        // `D` values: These are the default-constructed values.
 
-        const int   D1   = 0;                    // 'initialIndentLevel'
-        const int   D2   = 0;                    // 'spacesPerLevel'
-        const Style D3   = Obj::e_COMPACT;        // 'encodingStyle'
-        const bool  D4   = false;                // 'encodeEmptyArrays'
-        const bool  D5   = false;                // 'encodeNullElements'
-        const bool  D6   = false;                // 'encodeInfAndNaNAsStrings'
-        const int   D7   = 3;            // 'datetimeFractionalSecondPrecision'
-        const int   D8   = 0;                    // 'maxFloatPrecision'
-        const int   D9   = 0;                    // 'maxDoublePrecision'
-        const bool  D10  = true;                 // 'encodeQuotedDecimal64'
+        const int   D1   = 0;                    // `initialIndentLevel`
+        const int   D2   = 0;                    // `spacesPerLevel`
+        const Style D3   = Obj::e_COMPACT;        // `encodingStyle`
+        const bool  D4   = false;                // `encodeEmptyArrays`
+        const bool  D5   = false;                // `encodeNullElements`
+        const bool  D6   = false;                // `encodeInfAndNaNAsStrings`
+        const int   D7   = 3;            // `datetimeFractionalSecondPrecision`
+        const int   D8   = 0;                    // `maxFloatPrecision`
+        const int   D9   = 0;                    // `maxDoublePrecision`
+        const bool  D10  = true;                 // `encodeQuotedDecimal64`
 
         if (verbose) cout <<
                      "Create an object using the default constructor." << endl;
@@ -2763,19 +2765,19 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an object 'w' (default ctor).       { w:D             }
-        //: 2 Create an object 'x' (copy from 'w').      { w:D x:D         }
-        //: 3 Set 'x' to 'A' (value distinct from 'D').  { w:D x:A         }
-        //: 4 Create an object 'y' (init. to 'A').       { w:D x:A y:A     }
-        //: 5 Create an object 'z' (copy from 'y').      { w:D x:A y:A z:A }
-        //: 6 Set 'z' to 'D' (the default value).        { w:D x:A y:A z:D }
-        //: 7 Assign 'w' from 'x'.                       { w:A x:A y:A z:D }
-        //: 8 Assign 'w' from 'z'.                       { w:D x:A y:A z:D }
-        //: 9 Assign 'x' from 'x' (aliasing).            { w:D x:A y:A z:D }
+        // 1. Create an object `w` (default ctor).       { w:D             }
+        // 2. Create an object `x` (copy from `w`).      { w:D x:D         }
+        // 3. Set `x` to `A` (value distinct from `D`).  { w:D x:A         }
+        // 4. Create an object `y` (init. to `A`).       { w:D x:A y:A     }
+        // 5. Create an object `z` (copy from `y`).      { w:D x:A y:A z:A }
+        // 6. Set `z` to `D` (the default value).        { w:D x:A y:A z:D }
+        // 7. Assign `w` from `x`.                       { w:A x:A y:A z:D }
+        // 8. Assign `w` from `z`.                       { w:D x:A y:A z:D }
+        // 9. Assign `x` from `x` (aliasing).            { w:D x:A y:A z:D }
         //
         // Testing:
         //   BREATHING TEST
@@ -2786,74 +2788,74 @@ int main(int argc, char *argv[])
 
         // Attribute Types
 
-        typedef int   T1;        // 'initialIndentLevel'
-        typedef int   T2;        // 'spacesPerLevel'
-        typedef Style T3;        // 'encodingStyle'
-        typedef bool  T4;        // 'encodeEmptyArrays'
-        typedef bool  T5;        // 'encodeNullElements'
-        typedef bool  T6;        // 'encodeInfAndNaNAsStrings'
-        typedef int   T7;        // 'datetimeFractionalSecondPrecision'
-        typedef int   T8;        // 'maxFloatPrecision'
-        typedef int   T9;        // 'maxDoublePrecision'
-        typedef bool  T10;       // 'encodeQuotedDecimal64'
+        typedef int   T1;        // `initialIndentLevel`
+        typedef int   T2;        // `spacesPerLevel`
+        typedef Style T3;        // `encodingStyle`
+        typedef bool  T4;        // `encodeEmptyArrays`
+        typedef bool  T5;        // `encodeNullElements`
+        typedef bool  T6;        // `encodeInfAndNaNAsStrings`
+        typedef int   T7;        // `datetimeFractionalSecondPrecision`
+        typedef int   T8;        // `maxFloatPrecision`
+        typedef int   T9;        // `maxDoublePrecision`
+        typedef bool  T10;       // `encodeQuotedDecimal64`
 
-        // Attribute 1 Values: 'initialIndentLevel'
+        // Attribute 1 Values: `initialIndentLevel`
 
         const T1 D1 = 0;        // default value
         const T1 A1 = 4;
 
-        // Attribute 2 Values: 'spacesPerLevel'
+        // Attribute 2 Values: `spacesPerLevel`
 
         const T2 D2 = 0;        // default value
         const T2 A2 = 10;
 
-        // Attribute 3 Values: 'encodingStyle'
+        // Attribute 3 Values: `encodingStyle`
 
         const T3 D3 = Obj::e_COMPACT;    // default value
         const T3 A3 = Obj::e_PRETTY;
 
-        // Attribute 4 Values: 'encodeEmptyArrays'
+        // Attribute 4 Values: `encodeEmptyArrays`
 
         const T4 D4 = false;    // default value
         const T4 A4 = true;
 
-        // Attribute 5 Values: 'encodeNullElements'
+        // Attribute 5 Values: `encodeNullElements`
 
         const T5 D5 = false;    // default value
         const T5 A5 = true;
 
-        // Attribute 6 Values: 'encodeInfAndNaNAsStrings'
+        // Attribute 6 Values: `encodeInfAndNaNAsStrings`
 
         const T6 D6 = false;    // default value
         const T6 A6 = true;
 
-        // Attribute 7 Values: 'datetimeFractionalSecondPrecision'
+        // Attribute 7 Values: `datetimeFractionalSecondPrecision`
 
         const T7 D7 = 3;    // default value
         const T7 A7 = 6;
 
-        // Attribute 8 Values: 'maxFloatPrecision'
+        // Attribute 8 Values: `maxFloatPrecision`
 
         const T8 D8 = 0;           // default value
         const T8 A8 = 6;
 
-        // Attribute 9 Values: 'maxDoublePrecision'
+        // Attribute 9 Values: `maxDoublePrecision`
 
         const T9 D9 = 0;          // default value
         const T9 A9 = 9;
 
-        // Attribute 10 Values: 'encodeQuotedDecimal64'
+        // Attribute 10 Values: `encodeQuotedDecimal64`
 
         const T10 D10 = true;     // default value
         const T10 A10 = false;
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 1. Create an object 'w' (default ctor)."
+        if (verbose) cout << "\n 1. Create an object `w` (default ctor)."
                              "\t\t{ w:D             }" << endl;
 
         Obj mW;  const Obj& W = mW;
 
-        if (veryVerbose) cout << "\ta. Check initial value of 'w'." << endl;
+        if (veryVerbose) cout << "\ta. Check initial value of `w`." << endl;
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         ASSERT(D1  == W.initialIndentLevel());
@@ -2868,18 +2870,18 @@ int main(int argc, char *argv[])
         ASSERT(D10 == W.encodeQuotedDecimal64());
 
         if (veryVerbose) cout <<
-                  "\tb. Try equality operators: 'w' <op> 'w'." << endl;
+                  "\tb. Try equality operators: `w` <op> `w`." << endl;
 
         ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 2. Create an object 'x' (copy from 'w')."
+        if (verbose) cout << "\n 2. Create an object `x` (copy from `w`)."
                              "\t\t{ w:D x:D         }" << endl;
 
         Obj mX(W);  const Obj& X = mX;
 
-        if (veryVerbose) cout << "\ta. Check initial value of 'x'." << endl;
+        if (veryVerbose) cout << "\ta. Check initial value of `x`." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(D1  == X.initialIndentLevel());
@@ -2894,14 +2896,14 @@ int main(int argc, char *argv[])
         ASSERT(D10 == X.encodeQuotedDecimal64());
 
         if (veryVerbose) cout <<
-                   "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
+                   "\tb. Try equality operators: `x` <op> `w`, `x`." << endl;
 
         ASSERT(1 == (X == W));        ASSERT(0 == (X != W));
         ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 3. Set 'x' to 'A' (value distinct from 'D')."
+        if (verbose) cout << "\n 3. Set `x` to `A` (value distinct from `D`)."
                              "\t\t{ w:D x:A         }" << endl;
 
         mX.setInitialIndentLevel(A1);
@@ -2915,7 +2917,7 @@ int main(int argc, char *argv[])
         mX.setMaxDoublePrecision(A9);
         mX.setEncodeQuotedDecimal64(A10);
 
-        if (veryVerbose) cout << "\ta. Check new value of 'x'." << endl;
+        if (veryVerbose) cout << "\ta. Check new value of `x`." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(A1  == X.initialIndentLevel());
@@ -2929,14 +2931,14 @@ int main(int argc, char *argv[])
         ASSERT(A9  == X.maxDoublePrecision());
         ASSERT(A10 == X.encodeQuotedDecimal64());
         if (veryVerbose) cout <<
-             "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
+             "\tb. Try equality operators: `x` <op> `w`, `x`." << endl;
 
         ASSERT(0 == (X == W));        ASSERT(1 == (X != W));
         ASSERT(1 == (X == X));        ASSERT(0 == (X != X));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 4. Create an object 'y' (init. to 'A')."
+        if (verbose) cout << "\n 4. Create an object `y` (init. to `A`)."
                              "\t\t{ w:D x:A y:A     }" << endl;
 
         Obj mY;  const Obj& Y = mY;
@@ -2951,7 +2953,7 @@ int main(int argc, char *argv[])
         mY.setMaxDoublePrecision(A9);
         mY.setEncodeQuotedDecimal64(A10);
 
-        if (veryVerbose) cout << "\ta. Check initial value of 'y'." << endl;
+        if (veryVerbose) cout << "\ta. Check initial value of `y`." << endl;
         if (veryVeryVerbose) { T_ T_ P(Y) }
 
         ASSERT(A1  == Y.initialIndentLevel());
@@ -2966,7 +2968,7 @@ int main(int argc, char *argv[])
         ASSERT(A10 == Y.encodeQuotedDecimal64());
 
         if (veryVerbose) cout <<
-             "\tb. Try equality operators: 'y' <op> 'w', 'x', 'y'" << endl;
+             "\tb. Try equality operators: `y` <op> `w`, `x`, `y`" << endl;
 
         ASSERT(0 == (Y == W));        ASSERT(1 == (Y != W));
         ASSERT(1 == (Y == X));        ASSERT(0 == (Y != X));
@@ -2974,12 +2976,12 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 5. Create an object 'z' (copy from 'y')."
+        if (verbose) cout << "\n 5. Create an object `z` (copy from `y`)."
                              "\t\t{ w:D x:A y:A z:A }" << endl;
 
         Obj mZ(Y);  const Obj& Z = mZ;
 
-        if (veryVerbose) cout << "\ta. Check initial value of 'z'." << endl;
+        if (veryVerbose) cout << "\ta. Check initial value of `z`." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
 
         ASSERT(A1  == Z.initialIndentLevel());
@@ -2994,7 +2996,7 @@ int main(int argc, char *argv[])
         ASSERT(A10 == Z.encodeQuotedDecimal64());
 
         if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `z` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(0 == (Z == W));        ASSERT(1 == (Z != W));
         ASSERT(1 == (Z == X));        ASSERT(0 == (Z != X));
@@ -3003,7 +3005,7 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 6. Set 'z' to 'D' (the default value)."
+        if (verbose) cout << "\n 6. Set `z` to `D` (the default value)."
                              "\t\t\t{ w:D x:A y:A z:D }" << endl;
 
         mZ.setInitialIndentLevel(D1);
@@ -3017,7 +3019,7 @@ int main(int argc, char *argv[])
         mZ.setMaxDoublePrecision(D9);
         mZ.setEncodeQuotedDecimal64(D10);
 
-        if (veryVerbose) cout << "\ta. Check new value of 'z'." << endl;
+        if (veryVerbose) cout << "\ta. Check new value of `z`." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
 
         ASSERT(D1  == Z.initialIndentLevel());
@@ -3032,7 +3034,7 @@ int main(int argc, char *argv[])
         ASSERT(D10 == Z.encodeQuotedDecimal64());
 
         if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `z` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(1 == (Z == W));        ASSERT(0 == (Z != W));
         ASSERT(0 == (Z == X));        ASSERT(1 == (Z != X));
@@ -3041,11 +3043,11 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 7. Assign 'w' from 'x'."
+        if (verbose) cout << "\n 7. Assign `w` from `x`."
                              "\t\t\t\t{ w:A x:A y:A z:D }" << endl;
         mW = X;
 
-        if (veryVerbose) cout << "\ta. Check new value of 'w'." << endl;
+        if (veryVerbose) cout << "\ta. Check new value of `w`." << endl;
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         ASSERT(A1  == W.initialIndentLevel());
@@ -3060,7 +3062,7 @@ int main(int argc, char *argv[])
         ASSERT(A10 == W.encodeQuotedDecimal64());
 
         if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `w` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
         ASSERT(1 == (W == X));        ASSERT(0 == (W != X));
@@ -3069,11 +3071,11 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 8. Assign 'w' from 'z'."
+        if (verbose) cout << "\n 8. Assign `w` from `z`."
                              "\t\t\t\t{ w:D x:A y:A z:D }" << endl;
         mW = Z;
 
-        if (veryVerbose) cout << "\ta. Check new value of 'w'." << endl;
+        if (veryVerbose) cout << "\ta. Check new value of `w`." << endl;
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         ASSERT(D1  == W.initialIndentLevel());
@@ -3088,7 +3090,7 @@ int main(int argc, char *argv[])
         ASSERT(D10 == W.encodeQuotedDecimal64());
 
         if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `x` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
         ASSERT(0 == (W == X));        ASSERT(1 == (W != X));
@@ -3097,11 +3099,11 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (verbose) cout << "\n 9. Assign 'x' from 'x' (aliasing)."
+        if (verbose) cout << "\n 9. Assign `x` from `x` (aliasing)."
                              "\t\t\t{ w:D x:A y:A z:D }" << endl;
         mX = X;
 
-        if (veryVerbose) cout << "\ta. Check (same) value of 'x'." << endl;
+        if (veryVerbose) cout << "\ta. Check (same) value of `x`." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(A1  == X.initialIndentLevel());
@@ -3116,7 +3118,7 @@ int main(int argc, char *argv[])
         ASSERT(A10 == X.encodeQuotedDecimal64());
 
         if (veryVerbose) cout <<
-           "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
+           "\tb. Try equality operators: `x` <op> `w`, `x`, `y`, `z`." << endl;
 
         ASSERT(0 == (X == W));        ASSERT(1 == (X != W));
         ASSERT(1 == (X == X));        ASSERT(0 == (X != X));

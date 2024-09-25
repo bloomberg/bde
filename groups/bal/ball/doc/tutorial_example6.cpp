@@ -19,25 +19,25 @@
 
   using namespace BloombergLP;
 
+  /// Log the specified `message` to the "Function 1" category at `e_INFO`
+  /// severity.
   void f1(const char *message)
-      // Log the specified 'message' to the "Function 1" category at 'e_INFO'
-      // severity.
   {
       BALL_LOG_SET_CATEGORY("Function 1");
       BALL_LOG_INFO << message;
   }
 
+  /// Log the specified `message` to the "Function 2" category at `e_WARN`
+  /// severity.
   void f2(const char *message)
-      // Log the specified 'message' to the "Function 2" category at 'e_WARN'
-      // severity.
   {
       BALL_LOG_SET_CATEGORY("Function 2");
       BALL_LOG_WARN << message;
   }
 
+  /// Log to the specified `logger` a sequence of messages to the "Function
+  /// 1" category at `e_INFO` severity.
   extern "C" void *threadFunction1(void *logger)
-      // Log to the specified 'logger' a sequence of messages to the "Function
-      // 1" category at 'e_INFO' severity.
   {
       ball::LoggerManager::singleton().setLogger((ball::Logger *)logger);
           // Install a local logger for this thread.
@@ -53,9 +53,9 @@
       return 0;
   }
 
+  /// Log to the default logger a sequence of messages to the "Function 2"
+  /// category at `e_WARN` severity.
   extern "C" void *threadFunction2(void *)
-      // Log to the default logger a sequence of messages to the "Function 2"
-      // category at 'e_WARN' severity.
   {
       char               buf[10] = "Message n";
       bsls::TimeInterval waitTime(2.0);
@@ -73,8 +73,8 @@
       int verbose = argc > 1; // allows user to control output from command
                               // line
 
+      // Get global allocator.
       bslma::Allocator *alloc_p = bslma::Default::globalAllocator();
-          // Get global allocator.
 
       ball::LoggerManagerConfiguration configuration;
       configuration.setDefaultThresholdLevelsIfValid(
@@ -83,16 +83,17 @@
                                    ball::Severity::e_ERROR,   // "Trigger"
                                    ball::Severity::e_FATAL);  // "Trigger-All"
 
+      // Instantiate the logger manager singleton.
       ball::LoggerManagerScopedGuard scopedGuard(configuration);
-          // Instantiate the logger manager singleton.
 
       ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
       bsl::ofstream outFile("outFile");
+
+      // Create simple observer; writes to 'outFile".
       bsl::shared_ptr<ball::StreamObserver> observer(
                                   new(*alloc_p) ball::StreamObserver(&outFile),
                                   alloc_p);
-          // Create simple observer; writes to 'outFile".
 
       manager.registerObserver(observer, "default");
           // Register the observer under (arbitrary) name "default".

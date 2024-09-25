@@ -101,22 +101,25 @@ class SimpleRep : public bslma::SharedPtrRep {
 
   public:
     // CREATORS
+
+    /// Construct a `SimpleRep` from the specified `ptr`
     explicit SimpleRep(void *ptr);
-        // Construct a 'SimpleRep' from the specified 'ptr'
 
     // MANIPULATORS
+
+    /// Does nothing
     void disposeObject() BSLS_KEYWORD_OVERRIDE;
-        // Does nothing
 
+    /// Does nothing
     void disposeRep() BSLS_KEYWORD_OVERRIDE;
-        // Does nothing
 
+    /// Return NULL
     void *getDeleter(const std::type_info&) BSLS_KEYWORD_OVERRIDE;
-        // Return NULL
 
     // ACCESSORS
+
+    /// Return a copy of the pointer passed to the constructor.
     void *originalPtr() const BSLS_KEYWORD_OVERRIDE;
-        // Return a copy of the pointer passed to the constructor.
 };
 
                                  // ==========
@@ -129,8 +132,9 @@ class Base {
     virtual ~Base();// = default;
 
     // MANIPULATORS
+
+    /// A pure virtual function to be overridden
     virtual int *get() = 0;
-        // A pure virtual function to be overridden
 };
 
                                // =============
@@ -142,12 +146,14 @@ class Derived : public Base {
 
   public:
     // CREATORS
+
+    /// Construct a `Derived` from the specified `i`
     explicit Derived(int i);
-        // Construct a 'Derived' from the specified 'i'
 
     // MANIPULATORS
+
+    /// return a pointer to the member variable `d_i`
     int *get() BSLS_KEYWORD_OVERRIDE;
-        // return a pointer to the member variable 'd_i'
 };
 
                               // ---------------
@@ -248,13 +254,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -266,7 +272,7 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'owner_equal'
+///Example 1: Basic Use of `owner_equal`
 ///- - - - - - - - - - - - - - - - - - -
 // Suppose we need an unordered map accepting shared pointers as keys.  We also
 // expect that this container will be accessible from multiple threads and some
@@ -274,7 +280,7 @@ int main(int argc, char *argv[])
 // cycles.
 //
 // First, we create a container and populate it:
-//..
+// ```
         typedef bsl::unordered_map<
             bsl::shared_ptr<int>,
             int,
@@ -288,10 +294,10 @@ int main(int argc, char *argv[])
 
         container[sharedPtr1] = 1;
         container[sharedPtr2] = 2;
-//..
+// ```
 // Then we make sure that shared pointers can be used to perform lookup, and
 // verify that the results are correct.
-//..
+// ```
         Map::const_iterator iter = container.find(sharedPtr1);
         ASSERT(container.end() != iter        );
         ASSERT(1               == iter->second);
@@ -299,10 +305,10 @@ int main(int argc, char *argv[])
         iter = container.find(sharedPtr2);
         ASSERT(container.end() != iter);
         ASSERT(2               == iter->second);
-//..
+// ```
 // Finally, we simulate the accessing the container from another thread and
 // perform lookup using weak pointers:
-//..
+// ```
         iter = container.find(weakPtr1);
         ASSERT(container.end() != iter        );
         ASSERT(1               == iter->second);
@@ -310,36 +316,36 @@ int main(int argc, char *argv[])
         bsl::weak_ptr<int> weakPtr3(bsl::make_shared<int>(3));
         iter = container.find(weakPtr3);
         ASSERT(container.end() == iter);
-//..
+// ```
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING QOI: 'owner_equal' IS AN EMPTY TYPE
+        // TESTING QOI: `owner_equal` IS AN EMPTY TYPE
         //   As a quality of implementation issue, the class has no state and
         //   should support the use of the empty base class optimization on
         //   compilers that support it.
         //
         // Concerns:
-        //: 1 Class 'bsl::owner_equal' does not increase the size of an object
-        //:   when used as a base class.
-        //:
-        //: 2 Object of 'bsl::owner_equal' class increases size of an object
-        //:   when used as a class member.
+        // 1. Class `bsl::owner_equal` does not increase the size of an object
+        //    when used as a base class.
+        //
+        // 2. Object of `bsl::owner_equal` class increases size of an object
+        //    when used as a class member.
         //
         // Plan:
-        //: 1 Define two identical non-empty classes with no padding, but
-        //:   derive one of them from 'bsl::owner_equal', then assert that both
-        //:   classes have the same size. (C-1)
-        //:
-        //: 2 Create a non-empty class with an 'bsl::owner_equal' additional
-        //:   member, assert that class size is larger than sum of other data
-        //:   member's sizes. (C-2)
+        // 1. Define two identical non-empty classes with no padding, but
+        //    derive one of them from `bsl::owner_equal`, then assert that both
+        //    classes have the same size. (C-1)
+        //
+        // 2. Create a non-empty class with an `bsl::owner_equal` additional
+        //    member, assert that class size is larger than sum of other data
+        //    member's sizes. (C-2)
         //
         // Testing:
         //   QoI: Support for empty base optimization
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING QOI: 'owner_equal' IS AN EMPTY TYPE"
+        if (verbose) printf("\nTESTING QOI: `owner_equal` IS AN EMPTY TYPE"
                             "\n===========================================\n");
 
         struct TwoInts {
@@ -366,16 +372,16 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING TYPEDEF
         //   Comparator's transparency is determined by the presence of the
-        //   'is_transparent' type.  We need to verify that the class offers
+        //   `is_transparent` type.  We need to verify that the class offers
         //   the required typedef.
         //
         // Concerns:
-        //: 1 The type 'is_transparent' is defined in 'bsl::owner_equal',
-        //:   publicly accessible and an alias for 'void'.
+        // 1. The type `is_transparent` is defined in `bsl::owner_equal`,
+        //    publicly accessible and an alias for `void`.
         //
         // Plan:
-        //: 1 ASSERT the typedef aliases the correct type using
-        //    'bsl::is_same'. (C-1)
+        // 1. ASSERT the typedef aliases the correct type using
+        //    `bsl::is_same`. (C-1)
         //
         // Testing:
         //  TESTING TYPEDEF
@@ -389,32 +395,32 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'owner_equal' FUNCTOR
-        //   'owner_equal' is an empty POD type with implicitly defined special
-        //   member functions and a 'const'-qualified function call operator.
+        // TESTING `owner_equal` FUNCTOR
+        //   `owner_equal` is an empty POD type with implicitly defined special
+        //   member functions and a `const`-qualified function call operator.
         //
         // Concerns:
-        //:  1 'owner_equal' can be value-initialized.
-        //:  2 'owner_equal' can be copy-initialized.
-        //:  3 'owner_equal' can be copy-assigned.
-        //:  4 'owner_equal' has overloads for the function call operator that
-        //:    can take two 'shared_ptr' objects by reference, or two
-        //:    'weak_ptr' objects by deference, or a 'shared_ptr' and a
-        //:    'weak_ptr', both by reference, and passed in either order.  The
-        //:    template type of the two parameters may differ, but need to be
-        //:    convertible.
-        //:  5 The overloaded function call operator for all 'owner_equal'
-        //:    templates returns 'true' if the 'rep' held by the first argument
-        //:    has an equal address than the 'rep' held by the second argument,
-        //:    and 'false' otherwise.
-        //:  6 QoI: No operations on 'owner_equal' objects allocate any memory.
+        //  1. `owner_equal` can be value-initialized.
+        //  2. `owner_equal` can be copy-initialized.
+        //  3. `owner_equal` can be copy-assigned.
+        //  4. `owner_equal` has overloads for the function call operator that
+        //     can take two `shared_ptr` objects by reference, or two
+        //     `weak_ptr` objects by deference, or a `shared_ptr` and a
+        //     `weak_ptr`, both by reference, and passed in either order.  The
+        //     template type of the two parameters may differ, but need to be
+        //     convertible.
+        //  5. The overloaded function call operator for all `owner_equal`
+        //     templates returns `true` if the `rep` held by the first argument
+        //     has an equal address than the `rep` held by the second argument,
+        //     and `false` otherwise.
+        //  6. QoI: No operations on `owner_equal` objects allocate any memory.
         //
         // Plan:
-        //:  1 Create two shared pointer representation objects, with a known
-        //:  relationship between their addresses.  Then create shared and weak
-        //:  ptr objects from these representations, and confirm the correct
-        //:  runtime behavior when invoking the function call operator of the
-        //:  'owner_equal' functor.
+        //  1. Create two shared pointer representation objects, with a known
+        //   relationship between their addresses.  Then create shared and weak
+        //   ptr objects from these representations, and confirm the correct
+        //   runtime behavior when invoking the function call operator of the
+        //   `owner_equal` functor.
         //
         // Testing:
         //   bool owner_equal::operator()(shared_ptr<T>&, shared_ptr<U>&) const
@@ -423,7 +429,7 @@ int main(int argc, char *argv[])
         //   bool owner_equal::operator()(weak_ptr<T>&,   weak_ptr<U>&)   const
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'owner_equal' FUNCTOR"
+        if (verbose) printf("\nTESTING `owner_equal` FUNCTOR"
                             "\n=============================\n");
 
         {

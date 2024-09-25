@@ -8,8 +8,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 #include <new>
 #include <string>  // For breathing test only - TBD rewrite without
@@ -25,7 +25,7 @@ using namespace BloombergLP;
 // objects if release is not called before the proctor object goes out of
 // scope.  We achieve this goal by creating objects of a user-defined type that
 // are each initialized with the address of a unique counter, using a
-// 'bslma::TestAllocator'.  As each object is destroyed, its destructor
+// `bslma::TestAllocator`.  As each object is destroyed, its destructor
 // increments the counter held by the object, indicating the number of times
 // the object's destructor is called.  After the proctor is destroyed, we
 // verify that the corresponding counters of the object managed by the proctor
@@ -37,7 +37,7 @@ using namespace BloombergLP;
 // [5] void reset(object);
 //-----------------------------------------------------------------------------
 // [1] Breathing Test
-// [2] Helper Class: 'my_Class'
+// [2] Helper Class: `my_Class`
 // [6] Usage Example
 //=============================================================================
 
@@ -103,28 +103,29 @@ void aSsErT(bool condition, const char *message, int line)
 //                          HELPER CLASS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// This object indicates that its destructor is called by incrementing the
+/// global counter (supplied at construction) that it holds.
 class my_Class {
-    // This object indicates that its destructor is called by incrementing the
-    // global counter (supplied at construction) that it holds.
 
     // DATA
     int *d_counter_p;  // (global) counter to be incremented at destruction
 
   public:
     // CREATORS
-    explicit my_Class(int *counter) : d_counter_p(counter) {}
-        // Create this object using the address of the specified 'counter' to
-        // be held.
 
+    /// Create this object using the address of the specified `counter` to
+    /// be held.
+    explicit my_Class(int *counter) : d_counter_p(counter) {}
+
+    /// Destroy this object and increment this object's (global) counter.
     ~my_Class() { ++*d_counter_p; }
-        // Destroy this object and increment this object's (global) counter.
 };
 
 
 //=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
-// The 'bslma::DestructorProctor' is normally used to manage objects that are
+// The `bslma::DestructorProctor` is normally used to manage objects that are
 // constructed sequentially in a block of provided memory.  This is often the
 // case when memory management and primitive helpers are implemented in
 // different components.  An example would be the construction of a pair object
@@ -132,18 +133,18 @@ class my_Class {
 // bslalg_scalarprimitives).  After the first object is constructed in the
 // provided memory, it should be protected in case the constructor of the
 // second object throws.  The following example illustrates a typical use of
-// the 'bslma::DestructorProctor'.
+// the `bslma::DestructorProctor`.
 //
 // First, suppose we have a pair class:
-//..
+// ```
 // MyPair.h
 // ...
 
+/// This class provides a pair container to pair two different objects,
+/// one of parameterized `TYPE1`, and the other of parameterized
+/// `TYPE2`.
 template <class TYPE1, class TYPE2>
 class MyPair {
-    // This class provides a pair container to pair two different objects,
-    // one of parameterized 'TYPE1', and the other of parameterized
-    // 'TYPE2'.
 
   public:
     // PUBLIC TYPES
@@ -157,20 +158,20 @@ class MyPair {
     // DATA
     bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
 
-    // Declare trait 'MyPairTrait'.
+    // Declare trait `MyPairTrait`.
     // ...
 
   public:
     // CREATORS
     // ...
 
+    /// Create a `MyPair` object that holds a copy of the specified
+    /// `iFirst` and `iSecond`.  Optionally specify `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is zero,  the global default
+    /// allocator will be used to supply memory.
     MyPair(const TYPE1&      iFirst,
            const TYPE2&      iSecond,
            bslma::Allocator *basic_Allocator = 0)
-        // Create a 'MyPair' object that holds a copy of the specified
-        // 'iFirst' and 'iSecond'.  Optionally specify 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is zero,  the global default
-        // allocator will be used to supply memory.
     : first(iFirst)
     , second(iSecond)
     , d_allocator_p(bslma::Default::allocator(basic_Allocator))
@@ -180,13 +181,13 @@ class MyPair {
     // ...
 
 };
-//..
-// Note that parts of the implementation, including the 'MyPairTrait'
-// declaration, are elided.  The 'MyPairTrait' will be used by the primitive
+// ```
+// Note that parts of the implementation, including the `MyPairTrait`
+// declaration, are elided.  The `MyPairTrait` will be used by the primitive
 // helper to customize implementations for objects that are pairs.
 //
 // We now implement the primitive helper:
-//..
+// ```
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //           Additional Functionality Needed to Complete Usage Test Case
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -198,10 +199,10 @@ struct my_HasPairTrait : bsl::false_type { };
 // MyPrimitives.h
 // ...
 
+/// This struct provides a namespace for pure procedure primitive
+/// functions used to construct, destroy, insert, append and remove
+/// objects.
 struct MyPrimitives {
-    // This struct provides a namespace for pure procedure primitive
-    // functions used to construct, destroy, insert, append and remove
-    // objects.
 
   private:
     // PRIVATE TYPES
@@ -209,33 +210,34 @@ struct MyPrimitives {
 
   public:
     // CLASS METHODS
+
+    /// Copy construct the specified `original` into the specified
+    /// `address` using the specified `basicAllocator` (if the
+    /// copy constructor of `TYPE` takes an allocator).
     template <class TYPE>
     static void copyConstruct(TYPE             *address,
                               const TYPE&       original,
                               bslma::Allocator *basicAllocator);
-        // Copy construct the specified 'original' into the specified
-        // 'address' using the specified 'basicAllocator' (if the
-        // copy constructor of 'TYPE' takes an allocator).
 
+    /// Copy construct the specified `original` into the specified
+    /// `address` using the specified `basicAllocator` (if the
+    /// copy constructor of `TYPE` takes an allocator).  Note that
+    /// the last parameter is only used for overload resolution.
     template <class TYPE>
     static void copyConstruct(TYPE                       *address,
                               const TYPE&                 original,
                               bslma::Allocator           *basicAllocator,
                               bsl::integral_constant<bool, PAIR_TRAIT> *);
-        // Copy construct the specified 'original' into the specified
-        // 'address' using the specified 'basicAllocator' (if the
-        // copy constructor of 'TYPE' takes an allocator).  Note that
-        // the last parameter is only used for overload resolution.
 
+    /// Copy construct the specified `original` into the specified
+    /// `address` using the specified `basicAllocator` (if the
+    /// copy constructor of `TYPE` takes an allocator).  Note that
+    /// the last parameter is only used for overload resolution.
     template <class TYPE>
     static void copyConstruct(TYPE                      *address,
                               const TYPE&                original,
                               bslma::Allocator          *basicAllocator,
                               bsl::integral_constant<bool, NIL_TRAIT> *);
-        // Copy construct the specified 'original' into the specified
-        // 'address' using the specified 'basicAllocator' (if the
-        // copy constructor of 'TYPE' takes an allocator).  Note that
-        // the last parameter is only used for overload resolution.
 };
 
 template <class TYPE>
@@ -284,27 +286,27 @@ void MyPrimitives::copyConstruct(TYPE                      *address,
 {
     new(address)TYPE(original, basicAllocator);
 }
-//..
+// ```
 // In the above implementation, if the copy construction of the second object
 // in the pair throws, all memory (and any other resources) acquired as a
 // result of copying the (not-yet-managed) object would be leaked.  Using the
-// 'bslma::DestructorProctor' prevents the leaks by invoking the destructor of
+// `bslma::DestructorProctor` prevents the leaks by invoking the destructor of
 // the proctored object automatically should the proctor go out of scope
-// before the 'release' method of the proctor is called (such as when the
+// before the `release` method of the proctor is called (such as when the
 // function exits prematurely due to an exception).
 //
-// Note that the 'copyConstruct' method assumes the copy constructor of
-// 'TYPE::firstType' and 'TYPE::secondType' takes an allocator as a second
+// Note that the `copyConstruct` method assumes the copy constructor of
+// `TYPE::firstType` and `TYPE::secondType` takes an allocator as a second
 // argument.  In production code, a constructor proxy that checks the traits
-// of 'TYPE::firstType' and 'TYPE::secondType' (to determine whether they uses
-// 'bslma::Allocator') should be used (see bslalg_constructorproxy).
+// of `TYPE::firstType` and `TYPE::secondType` (to determine whether they uses
+// `bslma::Allocator`) should be used (see bslalg_constructorproxy).
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //           Additional Functionality Needed to Complete Usage Test Case
 
+/// This object indicates that its destructor is called by incrementing the
+/// counter it *holds* (provided at construction) in the destructor.
 class my_AllocatingClass {
-    // This object indicates that its destructor is called by incrementing the
-    // counter it *holds* (provided at construction) in the destructor.
 
     // DATA
     int              *d_counter_p;   // counter to increment at destruction
@@ -313,33 +315,34 @@ class my_AllocatingClass {
 
   public:
     // CREATORS
+
+    /// Create a `my_AllocatingClass` using the (global) `counter`.
+    /// Optionally specified `basicAllocator`.  If `basicAllocator` is zero,
+    /// the global default allocator will be used to supply memory.  Create
+    /// this object and optionally specify `allocator` used for `counter` to
+    /// be held.
     explicit my_AllocatingClass(int              *counter,
                                 bslma::Allocator *basicAllocator = 0)
-        // Create a 'my_AllocatingClass' using the (global) 'counter'.
-        // Optionally specified 'basicAllocator'.  If 'basicAllocator' is zero,
-        // the global default allocator will be used to supply memory.  Create
-        // this object and optionally specify 'allocator' used for 'counter' to
-        // be held.
     : d_counter_p(counter)
     , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         d_memory_p = d_allocator_p->allocate(1);
     }
 
+    /// Create a `my_AllocatingClass` that as the same counter and allocator
+    /// as the specified `object`.
     my_AllocatingClass(const my_AllocatingClass&  object,
                        bslma::Allocator          *basicAllocator = 0)
-        // Create a 'my_AllocatingClass' that as the same counter and allocator
-        // as the specified 'object'.
     : d_counter_p(object.d_counter_p)
     , d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         d_memory_p = d_allocator_p->allocate(1);
     }
 
+    /// Destroy this object.  Also deallocate memory allocated at
+    /// construction and increment this object's counter if it is
+    /// not `null`.
     ~my_AllocatingClass()
-        // Destroy this object.  Also deallocate memory allocated at
-        // construction and increment this object's counter if it is
-        // not 'null'.
     {
         d_allocator_p->deallocate(d_memory_p);
         ++*d_counter_p;
@@ -377,7 +380,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Run the usage example and exercise the creators and manipulators
-        //   of 'MyPair' and 'MyPrimitives' using a 'bslma::TestAllocator' to
+        //   of `MyPair` and `MyPrimitives` using a `bslma::TestAllocator` to
         //   verify that memory is allocated and deallocated properly.
         //
         // Testing:
@@ -457,7 +460,7 @@ int main(int argc, char *argv[])
                     ASSERT(0);  // should never get here
                 }
                 catch(...) {
-                    // 'first' is copied, then destroyed.
+                    // `first` is copied, then destroyed.
                     ASSERT(2         == counter1);
                     ASSERT(1         == counter2);
                     ASSERT(NUM_BYTES == z.numBytesInUse());
@@ -479,18 +482,18 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // 'reset' TEST
+        // `reset` TEST
         //
         // Concerns:
-        //   Verify that when the 'reset' method is called, the proctor
+        //   Verify that when the `reset` method is called, the proctor
         //   object properly manages a different object.
         //
         // Plan:
-        //   Create a 'my_Class' object using a 'bslma::TestAllocator' and
-        //   initialize it with a counter.  Next create another 'my_Class'
+        //   Create a `my_Class` object using a `bslma::TestAllocator` and
+        //   initialize it with a counter.  Next create another `my_Class`
         //   object and initialize it with a different counter.  Finally
-        //   initialize a 'bslma::DestructorProctor' object with the first
-        //   object.  Call 'reset' on the proctor with the second object before
+        //   initialize a `bslma::DestructorProctor` object with the first
+        //   object.  Call `reset` on the proctor with the second object before
         //   it goes out of scope.  Once the proctor goes out of scope, verify
         //   that only the second counter is incremented, and no memory is
         //   deallocated.
@@ -508,7 +511,7 @@ int main(int argc, char *argv[])
         int counter1 = 0;  const int& COUNTER1 = counter1;
         int counter2 = 0;  const int& COUNTER2 = counter2;
         if (veryVerbose) {
-            printf("Testing the 'reset' method\n");
+            printf("Testing the `reset` method\n");
         }
         my_Class *pC1;
         my_Class *pC2;
@@ -543,18 +546,18 @@ int main(int argc, char *argv[])
       }break;
       case 4: {
         // --------------------------------------------------------------------
-        // 'release' TEST
+        // `release` TEST
         //
         // Concerns:
-        //   Verify that when the 'release' method is called, the proctor
+        //   Verify that when the `release` method is called, the proctor
         //   object properly releases from management the object currently
         //   managed by this proctor.
         //
         // Plan:
-        //   Create 'my_Class' objects using 'bslma::TestAllocator' and
+        //   Create `my_Class` objects using `bslma::TestAllocator` and
         //   initialize it with a counter.  Next initialize a
-        //   'bslma::DestructorProctor' object with the corresponding
-        //   'my_Class' object.  Call 'release' on the proctor before it goes
+        //   `bslma::DestructorProctor` object with the corresponding
+        //   `my_Class` object.  Call `release` on the proctor before it goes
         //   out of scope.  Verify that the counter is not incremented, and
         //   the memory allocated by the test allocator is not deallocated.
         //
@@ -570,7 +573,7 @@ int main(int argc, char *argv[])
 
         int counter = 0;  const int& COUNTER = counter;
         if (veryVerbose) {
-            printf("Testing the 'release' method\n");
+            printf("Testing the `release` method\n");
         }
         my_Class *pC;
         {
@@ -599,21 +602,21 @@ int main(int argc, char *argv[])
         // CTOR / DTOR TEST
         //
         // Concerns:
-        //   1) Verify that when the 'bslma::DestructorProctor' properly
+        //   1) Verify that when the `bslma::DestructorProctor` properly
         //      invokes the destructor of the proctored object when it goes
         //      out of scope.
-        //   2) Verify that the 'bslma::DestructorProctor' can be constructed
+        //   2) Verify that the `bslma::DestructorProctor` can be constructed
         //      with a null pointer.
         //
         // Plan:
-        //   For concern 1, create 'my_Class' objects using
-        //   'bslma::TestAllocator' and initialize it with a counter.  Next
-        //   initialize a 'bslma::DestructorProctor' object with the
-        //   corresponding 'my_Class' object.  Verify that when the proctor
+        //   For concern 1, create `my_Class` objects using
+        //   `bslma::TestAllocator` and initialize it with a counter.  Next
+        //   initialize a `bslma::DestructorProctor` object with the
+        //   corresponding `my_Class` object.  Verify that when the proctor
         //   goes out of scope, the counter is incremented, but memory is not
         //   deallocated.
         //
-        //   For concern 2, initialize a 'bslma::DestructorProctor' with a null
+        //   For concern 2, initialize a `bslma::DestructorProctor` with a null
         //   pointer and let it go out of scope.
         //
         // Testing:
@@ -659,22 +662,22 @@ int main(int argc, char *argv[])
         // HELPER CLASS TEST
         //
         // Concerns:
-        //   1) The helper class 'my_Class' properly increments its counter at
+        //   1) The helper class `my_Class` properly increments its counter at
         //      destruction.
         //
         // Plan:
-        //   Create 'my_Class' objects and assign to each object a counter
+        //   Create `my_Class` objects and assign to each object a counter
         //   variable initialized to 0.  Verify that the counter is incremented
-        //   after each 'my_Class' object is destroyed.
+        //   after each `my_Class` object is destroyed.
         //
         // Testing:
-        //   Helper Class: 'my_Class'
+        //   Helper Class: `my_Class`
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nHELPER CLASS TEST"
                             "\n=================\n");
 
-        if (verbose) printf("\nTesting 'my_Class'\n");
+        if (verbose) printf("\nTesting `my_Class`\n");
 
         if (verbose) printf("\tTesting default ctor and dtor\n");
         {
@@ -695,13 +698,13 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   1) The 'bslma::DestructorProctor' can be constructed and
+        //   1) The `bslma::DestructorProctor` can be constructed and
         //      destructed gracefully.
         //
         // Plan:
-        //   Allocate a block of memory with a 'bslma::TestAllocator' and
+        //   Allocate a block of memory with a `bslma::TestAllocator` and
         //   construct a string object on it.  Guard the array with
-        //   'bslma::DestructorProctor'.
+        //   `bslma::DestructorProctor`.
         //
         // Testing:
         //   Breathing Test

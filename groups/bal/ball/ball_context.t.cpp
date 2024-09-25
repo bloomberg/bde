@@ -15,7 +15,7 @@
 #include <bsl_cstdlib.h>      // atoi()
 #include <bsl_cstring.h>      // strlen(), memset(), memcpy(), memcmp()
 #include <bsl_iostream.h>
-#include <bsl_new.h>          // placement 'new' syntax
+#include <bsl_new.h>          // placement `new` syntax
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
@@ -43,7 +43,7 @@ using namespace bsl;
 // Note that places where test drivers in this family are likely to require
 // adjustment are indicated by the tag: "ADJ".
 //-----------------------------------------------------------------------------
-// 'ball::Context' public interface:
+// `ball::Context` public interface:
 // [ 2] static bool isValid(cause, index, length);
 // [ 1] ball::Context(bslma::Allocator *ba = 0);
 // [ 2] ball::Context(cause, index, length, *ba = 0);
@@ -181,7 +181,7 @@ void my_Logger::publish(const bsl::string&   message,
         d_os << "Single Pass-through Message: ";
       } break;
       case ball::Transmission::e_TRIGGER_ALL: {
-        d_os << "Remotely ";               // no 'break'; concatenated output
+        d_os << "Remotely ";               // no `break`; concatenated output
       } break;
       case ball::Transmission::e_TRIGGER: {
         d_os << "Triggered Publication Sequence: Message "
@@ -258,13 +258,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -621,7 +621,7 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (veryVerbose) cout << "Testing 'print'." << endl;
+        if (veryVerbose) cout << "Testing `print`." << endl;
 
         {
 #define NL "\n"

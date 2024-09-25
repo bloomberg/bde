@@ -5,8 +5,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 using namespace bsl;
 using namespace BloombergLP;
@@ -16,8 +16,8 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines meta-functions, 'bsl::remove_cv' and
-// 'bsl::remove_cv_t', that remove any top-level cv-qualifiers from a template
+// The component under test defines meta-functions, `bsl::remove_cv` and
+// `bsl::remove_cv_t`, that remove any top-level cv-qualifiers from a template
 // parameter type.  Thus, we need to ensure that the values returned by the
 // meta-function are correct for each possible category of types.
 //
@@ -84,14 +84,14 @@ void aSsErT(bool condition, const char *message, int line)
   ||(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900)
 // The xlC compiler matches function types with trailing cv-qualifiers as being
 // cv-qualified themselves.  However, in such cases the cv-qualifier applies to
-// the (hidden) 'this' pointer, as these function types exist only to be the
+// the (hidden) `this` pointer, as these function types exist only to be the
 // result-type of a pointer-to-member type.  By definition no function type can
 // ever be cv-qualified.  The Microsoft compiler cannot parse such types at
 // all.
 //
-// Note that we could obtain the correct answer by testing 'is_function', and
+// Note that we could obtain the correct answer by testing `is_function`, and
 // simply returning the original type in such cases.  However, that simply
-// exposes that our current implementation of 'is_function' does not detect
+// exposes that our current implementation of `is_function` does not detect
 // such types either.
 #   define BSLMF_REMOVECV_COMPILER_MISMATCHES_ABOMINABLE_FUNCTION_TYPES 1
 # endif
@@ -131,7 +131,7 @@ namespace {
 
 struct TestType {
    // This user-defined type is intended to be used during testing as an
-   // argument for the template parameter 'TYPE' of 'bsl::remove_cv'.
+   // argument for the template parameter `TYPE` of `bsl::remove_cv`.
 };
 
 typedef int TestType::* Pm;
@@ -164,13 +164,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -187,57 +187,57 @@ int main(int argc, char *argv[])
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to remove the cv-qualifiers from a particular type.
 //
-// First, we create two 'typedef's -- a 'const'-qualified and
-// 'volatile'-qualified type ('MyCvType') and the same type without the
-// cv-qualifiers ('MyType'):
-//..
+// First, we create two `typedef`s -- a `const`-qualified and
+// `volatile`-qualified type (`MyCvType`) and the same type without the
+// cv-qualifiers (`MyType`):
+// ```
         typedef int                MyType;
         typedef const volatile int MyCvType;
-//..
-// Now, we remove the cv-qualifiers from 'MyCvType' using 'bsl::remove_cv' and
-// verify that the resulting type is the same as 'MyType':
-//..
+// ```
+// Now, we remove the cv-qualifiers from `MyCvType` using `bsl::remove_cv` and
+// verify that the resulting type is the same as `MyType`:
+// ```
         ASSERT(true == (bsl::is_same<bsl::remove_cv<MyCvType>::type,
                                                               MyType>::value));
-//..
+// ```
 // Finally, if the current compiler supports alias templates C++11 feature, we
-// remove a 'const'-qualified and 'volatile'-qualifier from 'MyCvType' using
-//'bsl::remove_cv_t' and verify that the resulting type is the same as
-// 'MyType':
-//..
+// remove a `const`-qualified and `volatile`-qualifier from `MyCvType` using
+//`bsl::remove_cv_t` and verify that the resulting type is the same as
+// `MyType`:
+// ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
         ASSERT(true ==
                     (bsl::is_same<bsl::remove_cv_t<MyCvType>, MyType>::value));
 #endif
-//..
+// ```
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::remove_cv::type'
-        //   Ensure that the 'typedef' 'type' of 'bsl::remove_cv'
+        // `bsl::remove_cv::type`
+        //   Ensure that the `typedef` `type` of `bsl::remove_cv`
         //   instantiations has the same type as the template parameter type
         //   except that it has any top-level cv-qualifiers removed.
         //
         // Concerns:
-        //: 1 'bsl::remove_cv' leaves types that are not 'const'-qualified nor
-        //:   'volatile'-qualified as-is.
-        //:
-        //: 2 'bsl::remove_cv' removes any top-level cv-qualifiers.
-        //:
-        //: 3 'bsl::remove_cv' removes top-level cv-qualifiers from a
-        //:   pointer-to-member object type, and not from the qualifier in the
-        //:   pointed-to member.
-        //:
-        //: 5 'bsl::remove_cv_t' represents the return type of 'bsl::remove_cv'
-        //:   meta-function for a variety of template parameter types.
+        // 1. `bsl::remove_cv` leaves types that are not `const`-qualified nor
+        //    `volatile`-qualified as-is.
+        //
+        // 2. `bsl::remove_cv` removes any top-level cv-qualifiers.
+        //
+        // 3. `bsl::remove_cv` removes top-level cv-qualifiers from a
+        //    pointer-to-member object type, and not from the qualifier in the
+        //    pointed-to member.
+        //
+        // 5. `bsl::remove_cv_t` represents the return type of `bsl::remove_cv`
+        //    meta-function for a variety of template parameter types.
         //
         // Plan:
-        //  1 Verify that 'bsl::remove_cv::type' has the correct type for each
+        //  1 Verify that `bsl::remove_cv::type` has the correct type for each
         //    concern. (C1-4)
         //
-        //  2 Verify that 'bsl::remove_cv_t' has the same type as the return
-        //    type of 'bsl::remove_cv' for a variety of template parameter
+        //  2 Verify that `bsl::remove_cv_t` has the same type as the return
+        //    type of `bsl::remove_cv` for a variety of template parameter
         //    types. (C-5)
         //
         // Testing:

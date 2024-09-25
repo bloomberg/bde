@@ -33,15 +33,15 @@ namespace {
     // This code is below bslmf (and we cannot use BSLMF_ASSERT), so we have to
     // implement minimalistic compile time assert.
 
+/// Primary template for compile-time assertion that has no definition to
+/// cause a compile-time failure if instantiated.
 template <bool>
 struct CompileTimeAssert;
-    // Primary template for compile-time assertion that has no definition to
-    // cause a compile-time failure if instantiated.
 
+/// Explicit specialization with an empty definition for the compile-time
+/// assertion predicate being `true`.
 template<>
 struct CompileTimeAssert<true>
-    // Explicit specialization with an empty definition for the compile-time
-    // assertion predicate being 'true'.
 {
 };
 

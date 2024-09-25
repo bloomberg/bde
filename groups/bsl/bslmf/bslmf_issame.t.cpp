@@ -3,8 +3,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 
@@ -13,8 +13,8 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines two meta-functions, 'bsl::is_same' and
-// 'bslmf::IsSame' and a template variable 'bsl::is_same_v', that determine
+// The component under test defines two meta-functions, `bsl::is_same` and
+// `bslmf::IsSame` and a template variable `bsl::is_same_v`, that determine
 // whether two template parameter types are same.  Thus, we need to ensure that
 // the values returned by these meta-functions are correct for each possible
 // pair of types.  Since the two meta-functions are functionally equivalent, we
@@ -104,10 +104,10 @@ typedef void Fe(...);
 typedef void (*PFi)(int);
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+/// Test whether `bsl::is_same_v<TYPE>` value equals to
+/// `bsl::is_same<TYPE>::value`.
 #define ASSERT_V_EQ_VALUE(type1, type2)                                       \
     ASSERT((bsl::is_same<type1, type2>::value == bsl::is_same_v<type1, type2>))
-    // Test whether 'bsl::is_same_v<TYPE>' value equals to
-    // 'bsl::is_same<TYPE>::value'.
 #else
 #define ASSERT_V_EQ_VALUE(type1, type2)
 #endif
@@ -143,13 +143,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -167,57 +167,57 @@ int main(int argc, char *argv[])
 // Suppose that we have several pairs of types and want to assert whether the
 // types in each pair are the same.
 //
-// First, we define several 'typedef's:
-//..
+// First, we define several `typedef`s:
+// ```
     typedef       int    INT;
     typedef       double DOUBLE;
     typedef       short  SHORT;
     typedef const short  CONST_SHORT;
     typedef       int    INT;
     typedef       int&   INT_REF;
-//..
-// Now, we instantiate the 'bsl::is_same' template for certain pairs of the
-// 'typedef's and assert the 'value' static data member of each instantiation:
-//..
+// ```
+// Now, we instantiate the `bsl::is_same` template for certain pairs of the
+// `typedef`s and assert the `value` static data member of each instantiation:
+// ```
     ASSERT(true  == (bsl::is_same<INT, INT>::value));
     ASSERT(false == (bsl::is_same<INT, DOUBLE>::value));
-//..
-// Note that a 'const'-qualified type is considered distinct from the
-// non-'const' (but otherwise identical) type:
-//..
+// ```
+// Note that a `const`-qualified type is considered distinct from the
+// non-`const` (but otherwise identical) type:
+// ```
     ASSERT(false == (bsl::is_same<SHORT, CONST_SHORT>::value));
-//..
-// Similarly, a 'TYPE' and a reference to 'TYPE' ('TYPE&') are distinct:
-//..
+// ```
+// Similarly, a `TYPE` and a reference to `TYPE` (`TYPE&`) are distinct:
+// ```
     ASSERT(false == (bsl::is_same<INT, INT_REF>::value));
-//..
+// ```
 // Note that if the current compiler supports the variable templates C++14
 // feature then we can re-write the snippet of code above using the
-// 'bsl::is_same_v' variable as follows:
-//..
+// `bsl::is_same_v` variable as follows:
+// ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
     ASSERT(false == (bsl::is_same_v<SHORT, CONST_SHORT>));
     ASSERT(false == (bsl::is_same_v<INT, INT_REF>));
 #endif
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'bslmf::IsSame::value'
-        //   Ensure that the static data member 'value' of 'bslmf::IsSame'
-        //   instantiations having various (template parameter) 'TYPE1' and
-        //   'TYPE2' has the correct value.
+        // `bslmf::IsSame::value`
+        //   Ensure that the static data member `value` of `bslmf::IsSame`
+        //   instantiations having various (template parameter) `TYPE1` and
+        //   `TYPE2` has the correct value.
         //
         // Concerns:
-        //: 1 'IsSame::value' is 1 when the two template parameter types are
-        //:   the same.
-        //:
-        //: 2 'IsSame::value' is 0 when the two template parameter types are
-        //:   not the same.
+        // 1. `IsSame::value` is 1 when the two template parameter types are
+        //    the same.
+        //
+        // 2. `IsSame::value` is 0 when the two template parameter types are
+        //    not the same.
         //
         // Plan:
-        //   Instantiate 'bslmf::IsSame' with various combinations of types and
-        //   verify that the 'value' member is initialized properly.
+        //   Instantiate `bslmf::IsSame` with various combinations of types and
+        //   verify that the `value` member is initialized properly.
         //
         // Testing:
         //   bslmf::IsSame::value
@@ -299,24 +299,24 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::is_same::value'
-        //   Ensure that the static data member 'value' of 'bsl::is_same'
-        //   instantiations having various (template parameter) 'TYPE1' and
-        //   'TYPE2' has the correct value.
+        // `bsl::is_same::value`
+        //   Ensure that the static data member `value` of `bsl::is_same`
+        //   instantiations having various (template parameter) `TYPE1` and
+        //   `TYPE2` has the correct value.
         //
         // Concerns:
-        //: 1 'is_same::value' is 'true' when the two template parameter types
-        //:   are the same.
-        //:
-        //: 2 'is_same::value' is 'false' when the two template parameter types
-        //:   are not the same.
-        //:
-        //: 3 That 'is_same<T>::value' has the same value as 'is_same_v<T>'
-        //:   for a variety of template parameter types.
+        // 1. `is_same::value` is `true` when the two template parameter types
+        //    are the same.
+        //
+        // 2. `is_same::value` is `false` when the two template parameter types
+        //    are not the same.
+        //
+        // 3. That `is_same<T>::value` has the same value as `is_same_v<T>`
+        //    for a variety of template parameter types.
         //
         // Plan:
-        //   Instantiate 'bsl::is_same' with various combinations of types and
-        //   verify that the 'value' member is initialized properly.  (C-1,2)
+        //   Instantiate `bsl::is_same` with various combinations of types and
+        //   verify that the `value` member is initialized properly.  (C-1,2)
         //
         // Testing:
         //   bsl::is_same::value

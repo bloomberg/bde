@@ -10,8 +10,8 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_keyword.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 using namespace BloombergLP;
 
@@ -110,13 +110,13 @@ class MyDerivedObject;
 //                      HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// This test-class serves three purposes.  It provides a base class for the
+/// test classes in this test driver, so that derived -> base conversions
+/// can be tested.  It also signals when its destructor is run by
+/// incrementing an externally managed counter, supplied when each object is
+/// created.  Finally, it exposes an internal data structure that can be use
+/// to demonstrate the `ManagedPtr` aliasing facility.
 class MyTestObject {
-    // This test-class serves three purposes.  It provides a base class for the
-    // test classes in this test driver, so that derived -> base conversions
-    // can be tested.  It also signals when its destructor is run by
-    // incrementing an externally managed counter, supplied when each object is
-    // created.  Finally, it exposes an internal data structure that can be use
-    // to demonstrate the 'ManagedPtr' aliasing facility.
 
     // DATA
     int         *d_deleteCounter_p;
@@ -124,26 +124,28 @@ class MyTestObject {
 
   public:
     // CREATORS
+
+    /// Create a `MyTestObject` using the specified `counter` to record when
+    /// this object's destructor is run.
     explicit MyTestObject(int *counter);
-        // Create a 'MyTestObject' using the specified 'counter' to record when
-        // this object's destructor is run.
 
     // Use compiler-generated copy constructor and assignment operator
     //  MyTestObject(const MyTestObject& other) = default;
     //  MyTestObject operator=(const MyTestObject& other) = default;
 
+    /// Destroy this object.
     virtual ~MyTestObject();
-        // Destroy this object.
 
     // ACCESSORS
-    int *deleteCounter() const;
-        // Return the address of the counter used to track when this object's
-        // destructor is run.
 
+    /// Return the address of the counter used to track when this object's
+    /// destructor is run.
+    int *deleteCounter() const;
+
+    /// Return the address of the value associated with the optionally
+    /// specified `index`, and the address of the first such object if no
+    /// `index` is specified.
     int *valuePtr(int index = 0) const;
-        // Return the address of the value associated with the optionally
-        // specified 'index', and the address of the first such object if no
-        // 'index' is specified.
 };
 
 // CREATORS
@@ -174,25 +176,26 @@ int *MyTestObject::valuePtr(int index) const
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+/// This test-class has the same destructor-counting behavior as
+/// `MyTestObject`, but offers a derived class in order to test correct
+/// behavior when handling derived->base conversions.
 class MyDerivedObject : public MyTestObject
 {
-    // This test-class has the same destructor-counting behavior as
-    // 'MyTestObject', but offers a derived class in order to test correct
-    // behavior when handling derived->base conversions.
 
   public:
     // CREATORS
+
+    /// Create a `MyDerivedObject` using the specified `counter` to record
+    /// when this object's destructor is run.
     explicit MyDerivedObject(int *counter);
-        // Create a 'MyDerivedObject' using the specified 'counter' to record
-        // when this object's destructor is run.
 
     // Use compiler-generated copy constructor and assignment operator
     //  MyDerivedObject(const MyDerivedObject& other) = default;
     //  MyDerivedObject operator=(const MyDerivedObject& other) = default;
 
+    /// Increment the stored reference to a counter by 100, then destroy
+    /// this object.
     ~MyDerivedObject() BSLS_KEYWORD_OVERRIDE;
-        // Increment the stored reference to a counter by 100, then destroy
-        // this object.
 };
 
 inline
@@ -209,25 +212,26 @@ MyDerivedObject::~MyDerivedObject()
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+/// This test-class has the same destructor-counting behavior as
+/// `MyTestObject`, but offers a second, distinct, derived class in order to
+/// test correct behavior when handling derived->base conversions.
 class MySecondDerivedObject : public MyTestObject
 {
-    // This test-class has the same destructor-counting behavior as
-    // 'MyTestObject', but offers a second, distinct, derived class in order to
-    // test correct behavior when handling derived->base conversions.
 
   public:
     // CREATORS
+
+    /// Create a `MySecondDerivedObject` using the specified `counter` to
+    /// record when this object's destructor is run.
     explicit MySecondDerivedObject(int *counter);
-        // Create a 'MySecondDerivedObject' using the specified 'counter' to
-        // record when this object's destructor is run.
 
     // Use compiler-generated copy constructor and assignment operator
     // MySecondDerivedObject(const MySecondDerivedObject& orig);
     // MySecondDerivedObject operator=(const MySecondDerivedObject& orig);
 
+    /// Increment the stored reference to a counter by 10000, then destroy
+    /// this object.
     ~MySecondDerivedObject() BSLS_KEYWORD_OVERRIDE;
-        // Increment the stored reference to a counter by 10000, then destroy
-        // this object.
 };
 
 inline
@@ -256,21 +260,23 @@ class CountedStackDeleter
 
   public:
     // CREATORS
+
+    /// Create a `CountedStackDeleter` using the specified `counter` to
+    /// record when this object is invoked as a deleter.
     explicit CountedStackDeleter(int *counter) : d_deleteCounter_p(counter) {}
-        // Create a 'CountedStackDeleter' using the specified 'counter' to
-        // record when this object is invoked as a deleter.
 
     //! ~CountedStackDeleter();
         // Destroy this object.
 
     // ACCESSORS
-    int *deleteCounter() const { return d_deleteCounter_p; }
-        // Return the address of the counter used to track when this object is
-        // invoked as a deleter.
 
+    /// Return the address of the counter used to track when this object is
+    /// invoked as a deleter.
+    int *deleteCounter() const { return d_deleteCounter_p; }
+
+    /// Increment the stored reference to a counter to indicate that this
+    /// method has been called.
     void deleteObject(void *) const
-        // Increment the stored reference to a counter to indicate that this
-        // method has been called.
     {
         ++*d_deleteCounter_p;
     }
@@ -279,11 +285,11 @@ class CountedStackDeleter
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The two deleters defined below do not use the factory (or even object)
 // argument to perform their bookkeeping.  They are typically used to test
-// overloads taking 'NULL' factories.
+// overloads taking `NULL` factories.
 int g_deleteCount = 0;
 
+/// Increment the global delete counter, `g_deleteCount`.
 static void countedNilDelete(void *, void*)
-    // Increment the global delete counter, 'g_deleteCount'.
 {
 //    static int& deleteCount = g_deleteCount;
     ++g_deleteCount;
@@ -293,9 +299,9 @@ static void countedNilDelete(void *, void*)
 //                    FILE-STATIC FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// The behavior is undefined unless the specified `object` pointer is not
+/// null.  Otherwise, this function has no effect.
 static void doNothingDeleter(void *object, void *)
-    // The behavior is undefined unless the specified 'object' pointer is not
-    // null.  Otherwise, this function has no effect.
 {
     ASSERT(object);
 }
@@ -333,7 +339,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'ManagedPtr_Members'
+        // TESTING `ManagedPtr_Members`
         //  This class looks far too big to test in a single test case.
         //  Really ought to break out into the following test cases:
         //    basic ctor/dtor
@@ -349,10 +355,10 @@ int main(int argc, char *argv[])
         //  test tests out now
         //
         // Concerns:
-        //: 1 TBD Enumerate concerns
+        // 1. TBD Enumerate concerns
         //
         // Plan:
-        //: 1 TBD Describe the test plan
+        // 1. TBD Describe the test plan
         //
         // Testing:
         //    ManagedPtr_Members(void *obj, void *factory, DeleterFunc del);
@@ -366,7 +372,7 @@ int main(int argc, char *argv[])
         //    const ManagedPtrDeleter& deleter() const;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'ManagedPtr_Members'"
+        if (verbose) printf("\nTESTING `ManagedPtr_Members`"
                             "\n============================\n");
 
         bslma::TestAllocatorMonitor gam(&globalAllocator);
@@ -637,15 +643,16 @@ int main(int argc, char *argv[])
 
             struct Local {
                 int d_x;
+
+                /// `ASSERT` that the `d_x` data member of the `Local`
+                /// object pointed to by the specified `a` has the specified
+                /// `b` address, and currently has the value `13`, then
+                /// assign to that `d_x` the value 42,  Note that this
+                /// function provides a verifiable test condition that the
+                /// `deleter` function is executed when expected, without
+                /// actually destroying any objects nor reclaiming any
+                /// memory.
                 static void deleter(void *a, void *b)
-                    // 'ASSERT' that the 'd_x' data member of the 'Local'
-                    // object pointed to by the specified 'a' has the specified
-                    // 'b' address, and currently has the value '13', then
-                    // assign to that 'd_x' the value 42,  Note that this
-                    // function provides a verifiable test condition that the
-                    // 'deleter' function is executed when expected, without
-                    // actually destroying any objects nor reclaiming any
-                    // memory.
                 {
                     Local * pThis = static_cast<Local *>(a);
                     ASSERT(&pThis->d_x == b);
@@ -793,64 +800,64 @@ int main(int argc, char *argv[])
         // TESTING TEST MACHINERY
         //
         // Concerns:
-        //: 1 'MyTestObject', 'MyDerivedObject' and 'MySecondDerivedObject'
-        //:   objects do not allocate any memory from the default allocator nor
-        //:   from the global allocator for any of their operations.
-        //:
-        //: 2 'MyTestObject', 'MyDerivedObject' and 'MySecondDerivedObject'
-        //:   objects, created with a pointer to an integer, increment the
-        //:   referenced integer exactly once when they are destroyed.
-        //:
-        //: 3 'MyTestObject', 'MyDerivedObject' and 'MySecondDerivedObject'
-        //:   objects, created by copying another object of the same type,
-        //:   increment the integer referenced by the original object, exactly
-        //:   once, when they are destroyed.
-        //:
-        //: 4 'MyDerivedObject' is derived from 'MyTestObject'.
-        //:
-        //: 5 'MySecondDerivedObject' is derived from 'MyTestObject'.
-        //:
-        //: 6 'MyDerivedObject' is *not* derived from 'MySecondDerivedObject',
-        //:   nor is 'MySecondDerivedObject' derived from 'MyDerivedObject'.
+        // 1. `MyTestObject`, `MyDerivedObject` and `MySecondDerivedObject`
+        //    objects do not allocate any memory from the default allocator nor
+        //    from the global allocator for any of their operations.
+        //
+        // 2. `MyTestObject`, `MyDerivedObject` and `MySecondDerivedObject`
+        //    objects, created with a pointer to an integer, increment the
+        //    referenced integer exactly once when they are destroyed.
+        //
+        // 3. `MyTestObject`, `MyDerivedObject` and `MySecondDerivedObject`
+        //    objects, created by copying another object of the same type,
+        //    increment the integer referenced by the original object, exactly
+        //    once, when they are destroyed.
+        //
+        // 4. `MyDerivedObject` is derived from `MyTestObject`.
+        //
+        // 5. `MySecondDerivedObject` is derived from `MyTestObject`.
+        //
+        // 6. `MyDerivedObject` is *not* derived from `MySecondDerivedObject`,
+        //    nor is `MySecondDerivedObject` derived from `MyDerivedObject`.
         //
         // Plan:
-        //: 1 Install test allocator monitors to verify that neither the global
-        //:   nor default allocators allocate any memory executing this test
-        //:   case.
-        //:
-        //: 2 For each test-class type:
-        //:   1 Initialize an 'int' counter to zero
-        //:   2 Create a object of tested type, having the address of the 'int'
-        //:     counter.
-        //:   3 Confirm the test object 'deleterCounter' points to the 'int'
-        //:     counter.
-        //:   4 Confirm the 'int' counter value has not changed.
-        //:   5 Destroy the test object and confirm the 'int' counter value
-        //:     has incremented by exactly 1.
-        //:   6 Create a second object of tested type, having the address of
-        //:     the 'int' counter.
-        //:   7 Create a copy of the second test object, and confirm both test
-        //:     object's 'deleterCount' point to the same 'int' counter.
-        //:   8 Confirm the 'int' counter value has not changed.
-        //:   9 Destroy one test object, and confirm test 'int' counter is
-        //:     incremented exactly once.
-        //:  10 Destroy the other test object, and confirm test 'int' counter
-        //:     is incremented exactly once.
-        //:
-        //: 3 For each test-class type:
-        //:   1 Create a function overload set, where one function takes a
-        //:     pointer to the test-class type and returns 'true', while the
-        //:     other overload matches anything and returns 'false'.
-        //:   2 Call each of the overloaded function sets with a pointer to
-        //:     'int', and confirm each returns 'false'.
-        //:   3 Call each of the overloaded function sets with a pointer to
-        //:     an object of each of the test-class types, and confirm each
-        //:     call returns 'true' only when the pointer type matches the
-        //:     test-class type for that function, or points to a type publicly
-        //:     derived from that test-class type.
-        //:
-        //: 4 Verify that no unexpected memory was allocated by inspecting the
-        //:   allocator guards.
+        // 1. Install test allocator monitors to verify that neither the global
+        //    nor default allocators allocate any memory executing this test
+        //    case.
+        //
+        // 2. For each test-class type:
+        //   1. Initialize an `int` counter to zero
+        //   2. Create a object of tested type, having the address of the `int`
+        //      counter.
+        //   3. Confirm the test object `deleterCounter` points to the `int`
+        //      counter.
+        //   4. Confirm the `int` counter value has not changed.
+        //   5. Destroy the test object and confirm the `int` counter value
+        //      has incremented by exactly 1.
+        //   6. Create a second object of tested type, having the address of
+        //      the `int` counter.
+        //   7. Create a copy of the second test object, and confirm both test
+        //      object's `deleterCount` point to the same `int` counter.
+        //   8. Confirm the `int` counter value has not changed.
+        //   9. Destroy one test object, and confirm test `int` counter is
+        //      incremented exactly once.
+        //  10. Destroy the other test object, and confirm test `int` counter
+        //      is incremented exactly once.
+        //
+        // 3. For each test-class type:
+        //   1. Create a function overload set, where one function takes a
+        //      pointer to the test-class type and returns `true`, while the
+        //      other overload matches anything and returns `false`.
+        //   2. Call each of the overloaded function sets with a pointer to
+        //      `int`, and confirm each returns `false`.
+        //   3. Call each of the overloaded function sets with a pointer to
+        //      an object of each of the test-class types, and confirm each
+        //      call returns `true` only when the pointer type matches the
+        //      test-class type for that function, or points to a type publicly
+        //      derived from that test-class type.
+        //
+        // 4. Verify that no unexpected memory was allocated by inspecting the
+        //    allocator guards.
         //
         // Testing:
         //    class MyTestObject

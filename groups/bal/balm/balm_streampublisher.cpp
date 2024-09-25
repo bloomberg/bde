@@ -110,10 +110,10 @@ void formatValue(bsl::ostream&                 stream,
     }
 }
 
+/// Publish, to the specified `stream`, the specified `record`.
 void publishRecord(bsl::ostream&             stream,
                    const balm::MetricRecord& record,
                    double                    elapsedTime)
-    // Publish, to the specified 'stream', the specified 'record'.
 {
     balm::PublicationType::Value publicationType =
                    record.metricId().description()->preferredPublicationType();

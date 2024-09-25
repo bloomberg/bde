@@ -5,8 +5,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -16,8 +16,8 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines meta-functions, 'bsl::remove_const' and
-// 'bsl::remove_const_t', that removes any top-level 'const'-qualifier from a
+// The component under test defines meta-functions, `bsl::remove_const` and
+// `bsl::remove_const_t`, that removes any top-level `const`-qualifier from a
 // template parameter type.  Thus, we need to ensure that the values returned
 // by the meta-function is correct for each possible category of types.
 //
@@ -82,14 +82,14 @@ void aSsErT(bool condition, const char *message, int line)
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900
 // The xlC compiler matches function types with trailing cv-qualifiers as being
 // cv-qualified themselves.  However, in such cases the cv-qualifier applies to
-// the (hidden) 'this' pointer, as these function types exist only to be the
+// the (hidden) `this` pointer, as these function types exist only to be the
 // result-type of a pointer-to-member type.  By definition no function type can
 // ever be cv-qualified.  The Microsoft compiler cannot parse such types at
 // all.
 //
-// Note that we could obtain the correct answer by testing 'is_function', and
+// Note that we could obtain the correct answer by testing `is_function`, and
 // simply returning the original type in such cases.  However, that simply
-// exposes that our current implementation of 'is_function' does not detect
+// exposes that our current implementation of `is_function` does not detect
 // such types either.
 #   define BSLMF_REMOVECONST_COMPILER_CANNOT_PARSE_ABOMINABLE_FUNCTION_TYPES 1
 # endif
@@ -128,7 +128,7 @@ namespace {
 
 struct TestType {
    // This user-defined type is intended to be used during testing as an
-   // argument for the template parameter 'TYPE' of 'bsl::remove_const'.
+   // argument for the template parameter `TYPE` of `bsl::remove_const`.
 };
 
 typedef int TestType::* Pm;
@@ -161,13 +161,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -180,63 +180,63 @@ int main(int argc, char *argv[])
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Removing The 'const'-qualifier of A Type
+///Example 1: Removing The `const`-qualifier of A Type
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to remove any top-level 'const'-qualifier from a
+// Suppose that we want to remove any top-level `const`-qualifier from a
 // particular type.
 //
-// First, we create two 'typedef's -- a 'const'-qualified type ('MyConstType')
-// and the same type without the 'const'-qualifier ('MyType'):
-//..
+// First, we create two `typedef`s -- a `const`-qualified type (`MyConstType`)
+// and the same type without the `const`-qualifier (`MyType`):
+// ```
         typedef int       MyType;
         typedef const int MyConstType;
-//..
-// Now, we remove the 'const'-qualifier from 'MyConstType' using
-// 'bsl::remove_const' and verify that the resulting type is the same as
-// 'MyType':
-//..
+// ```
+// Now, we remove the `const`-qualifier from `MyConstType` using
+// `bsl::remove_const` and verify that the resulting type is the same as
+// `MyType`:
+// ```
         ASSERT(true == (bsl::is_same<bsl::remove_const<MyConstType>::type,
                                                               MyType>::value));
-//..
+// ```
 // Finally, if the current compiler supports alias templates C++11 feature, we
-// remove a 'const'-qualifier from 'MyConstType' using 'bsl::remove_const_t'
-// and verify that the resulting type is the same as 'MyType':
-//..
+// remove a `const`-qualifier from `MyConstType` using `bsl::remove_const_t`
+// and verify that the resulting type is the same as `MyType`:
+// ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
         ASSERT(true ==
               (bsl::is_same<bsl::remove_const_t<MyConstType>, MyType>::value));
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-//..
+// ```
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'bsl::remove_const<T>::type'
-        //   Ensure that the 'typedef' 'type' of 'bsl::remove_const' has the
+        // TESTING `bsl::remove_const<T>::type`
+        //   Ensure that the `typedef` `type` of `bsl::remove_const` has the
         //   correct type for a variety of template parameter types.
         //
         // Concerns:
-        //: 1 'bsl::remove_const' leaves types that are not 'const'-qualified
-        //:   at the top-level as-is.
-        //:
-        //: 2 'bsl::remove_const' remove any top-level 'const'-qualifier.
-        //:
-        //: 3 'bsl::remove_const' removes any top-level 'const'-qualifier from
-        //:   a pointer-to-member object type, and not from the qualifier in
-        //:   the pointed-to member.
-        //:
-        //: 5 'bsl::remove_const_t' represents the return type of
-        //:   'bsl::remove_const' meta-function for a variety of template
-        //:   parameter types.
+        // 1. `bsl::remove_const` leaves types that are not `const`-qualified
+        //    at the top-level as-is.
+        //
+        // 2. `bsl::remove_const` remove any top-level `const`-qualifier.
+        //
+        // 3. `bsl::remove_const` removes any top-level `const`-qualifier from
+        //    a pointer-to-member object type, and not from the qualifier in
+        //    the pointed-to member.
+        //
+        // 5. `bsl::remove_const_t` represents the return type of
+        //    `bsl::remove_const` meta-function for a variety of template
+        //    parameter types.
         //
         // Plan:
-        //  1 Verify that 'bsl::remove_const::type' has the correct type for
+        //  1 Verify that `bsl::remove_const::type` has the correct type for
         //    each concern.  Use typedefs to verify pointer-to-member types to
         //    be clear whether the pointed-to member, or the type itself, is
         //    cv-qualified. (C1-4)
         //
-        //  2 Verify that 'bsl::remove_const_t' has the same type as the return
-        //    type of 'bsl::remove_const' for a variety of template parameter
+        //  2 Verify that `bsl::remove_const_t` has the same type as the return
+        //    type of `bsl::remove_const` for a variety of template parameter
         //    types. (C-5)
         //
         // Testing:
@@ -244,7 +244,7 @@ int main(int argc, char *argv[])
         //   bsl::remove_const_t
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'bsl::remove_const<T>::type'"
+        if (verbose) printf("\nTESTING `bsl::remove_const<T>::type`"
                             "\n====================================\n");
 
         // C-1
@@ -371,7 +371,7 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
-        if (verbose) printf("\nTESTING 'bsl::remove_const_t'"
+        if (verbose) printf("\nTESTING `bsl::remove_const_t`"
                             "\n============================\n");
 
         // C-5

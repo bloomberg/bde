@@ -19,12 +19,12 @@
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 
-#include <utility>      // 'std::move'
-#include <cstring>      // 'std::strlen', 'std::strncpy'
+#include <utility>      // `std::move`
+#include <cstring>      // `std::strlen`, `std::strncpy`
 
-#include <stddef.h>     // 'size_t'
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stddef.h>     // `size_t`
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 // These bde_verify warning suppressions should be eliminated in due course.
 // BDE_VERIFY pragma: -BW01  // bdewrap recommendation
@@ -43,7 +43,7 @@
 #if defined(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND)
 # define BSL_DO_NOT_TEST_MOVE_FORWARDING 1
 // Some compilers produce ambiguities when trying to construct our test types
-// for 'emplace'-type functionality with the C++03 move-emulation.  This is a
+// for `emplace`-type functionality with the C++03 move-emulation.  This is a
 // compiler bug triggering in lower level components, so we simply disable
 // those aspects of testing, and rely on the extensive test coverage on other
 // platforms.
@@ -56,7 +56,7 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The 'bslma_managedptr' component provides a small number of classes that
+// The `bslma_managedptr` component provides a small number of classes that
 // combine to provide a common solution to the problem of managing and
 // transferring ownership of a dynamically allocated object.  It further
 // contains a number of private classes to supply important implementation
@@ -100,10 +100,10 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                         bslma::ManagedPtr
 //                         -----------------
-// We test 'bslma::ManagedPtr' incrementally, increasing the functionality that
+// We test `bslma::ManagedPtr` incrementally, increasing the functionality that
 // can be relied upon in later tests.  Starting with the default constructor,
 // we will demonstrate that any valid state can be attained with the methods
-// 'load' and 'loadAlias'.  In turn, this will be used to prove the correct
+// `load` and `loadAlias`.  In turn, this will be used to prove the correct
 // behavior of the basic accessors, which are assumed correct but minimally
 // relied up for the initial tests.  This allows us to test the remaining
 // constructors, the move-semantic operations, and finally any other operations
@@ -277,13 +277,13 @@ class MyDerivedObject;
                            // class MyTestObject
                            // ==================
 
+/// This test-class serves three purposes.  It provides a base class for the
+/// test classes in this test driver, so that derived -> base conversions
+/// can be tested.  It also signals when its destructor is run by
+/// incrementing an externally managed counter, supplied when each object is
+/// created.  Finally, it exposes an internal data structure that can be use
+/// to demonstrate the `bslma::ManagedPtr` aliasing facility.
 class MyTestObject {
-    // This test-class serves three purposes.  It provides a base class for the
-    // test classes in this test driver, so that derived -> base conversions
-    // can be tested.  It also signals when its destructor is run by
-    // incrementing an externally managed counter, supplied when each object is
-    // created.  Finally, it exposes an internal data structure that can be use
-    // to demonstrate the 'bslma::ManagedPtr' aliasing facility.
 
     // DATA
     int         *d_deleteCounter_p;
@@ -291,104 +291,109 @@ class MyTestObject {
 
   public:
     // CREATORS
+
+    /// Create a `MyTestObject` using the specified `counter` to record when
+    /// this object's destructor is run.
     explicit MyTestObject(int *counter);
-        // Create a 'MyTestObject' using the specified 'counter' to record when
-        // this object's destructor is run.
 
     // Use compiler-generated copy constructor and assignment operator
     // MyTestObject(const MyTestObject& other) = default;
     // MyTestObject operator=(const MyTestObject& rhs) = default;
 
+    /// Destroy this object.
     virtual ~MyTestObject();
-        // Destroy this object.
 
     // ACCESSORS
-    int *deleteCounter() const;
-        // Return the address of the counter used to track when this object's
-        // destructor is run.
 
+    /// Return the address of the counter used to track when this object's
+    /// destructor is run.
+    int *deleteCounter() const;
+
+    /// Return the address of the value associated with the optionally
+    /// specified `index`, and the address of the first such object if no
+    /// `index` is specified.
     int *valuePtr(int index = 0) const;
-        // Return the address of the value associated with the optionally
-        // specified 'index', and the address of the first such object if no
-        // 'index' is specified.
 };
 
                            // =====================
                            // class MyDerivedObject
                            // =====================
 
+/// This test-class has the same destructor-counting behavior as
+/// `MyTestObject`, but offers a derived class in order to test correct
+/// behavior when handling derived->base conversions.
 class MyDerivedObject : public MyTestObject {
-    // This test-class has the same destructor-counting behavior as
-    // 'MyTestObject', but offers a derived class in order to test correct
-    // behavior when handling derived->base conversions.
 
   public:
     // CREATORS
+
+    /// Create a `MyDerivedObject` using the specified `counter` to record
+    /// when this object's destructor is run.
     explicit MyDerivedObject(int *counter);
-        // Create a 'MyDerivedObject' using the specified 'counter' to record
-        // when this object's destructor is run.
 
     // Use compiler-generated copy constructor and assignment operator
     // MyDerivedObject(const MyDerivedObject& other);
     // MyDerivedObject operator=(const MyDerivedObject& rhs);
 
+    /// Increment the stored reference to a counter by 100, then destroy
+    /// this object.
     ~MyDerivedObject() BSLS_KEYWORD_OVERRIDE;
-        // Increment the stored reference to a counter by 100, then destroy
-        // this object.
 };
 
                            // ===========================
                            // class MySecondDerivedObject
                            // ===========================
 
+/// This test-class has the same destructor-counting behavior as
+/// `MyTestObject`, but offers a second, distinct, derived class in order to
+/// test correct behavior when handling derived->base conversions.
 class MySecondDerivedObject : public MyTestObject {
-    // This test-class has the same destructor-counting behavior as
-    // 'MyTestObject', but offers a second, distinct, derived class in order to
-    // test correct behavior when handling derived->base conversions.
 
   public:
     // CREATORS
+
+    /// Create a `MySecondDerivedObject` using the specified `counter` to
+    /// record when this object's destructor is run.
     explicit MySecondDerivedObject(int *counter);
-        // Create a 'MySecondDerivedObject' using the specified 'counter' to
-        // record when this object's destructor is run.
 
     // Use compiler-generated copy constructor and assignment operator
     // MySecondDerivedObject(const MySecondDerivedObject& other);
     // MySecondDerivedObject operator=(const MySecondDerivedObject& rhs);
 
+    /// Increment the stored reference to a counter by 10000, then destroy
+    /// this object.
     ~MySecondDerivedObject() BSLS_KEYWORD_OVERRIDE;
-        // Increment the stored reference to a counter by 10000, then destroy
-        // this object.
 };
 
                            // ============================
                            // class MyDerivedDerivedObject
                            // ============================
 
+/// This test-class has the same destructor-counting behavior as
+/// `MyTestObject`, but offers a second, distinct, derived class in order to
+/// test correct behavior when handling derived->base conversions.
 class MyDerivedDerivedObject : public MyDerivedObject {
-    // This test-class has the same destructor-counting behavior as
-    // 'MyTestObject', but offers a second, distinct, derived class in order to
-    // test correct behavior when handling derived->base conversions.
 
   public:
     // CREATORS
+
+    /// Create a `MyDerivedDerivedObject` using the specified `counter` to
+    /// record when this object's destructor is run.
     explicit MyDerivedDerivedObject(int *counter);
-        // Create a 'MyDerivedDerivedObject' using the specified 'counter' to
-        // record when this object's destructor is run.
 
     // Use compiler-generated copy constructor and assignment operator
     // MyDerivedDerivedObject(const MyDerivedDerivedObject& other);
     // MyDerivedDerivedObject operator=(const MyDerivedDerivedObject& rhs);
 
+    /// Increment the stored reference to a counter by 1000000, then destroy
+    /// this object.
     ~MyDerivedDerivedObject() BSLS_KEYWORD_OVERRIDE;
-        // Increment the stored reference to a counter by 1000000, then destroy
-        // this object.
 };
 
+/// A class that is convertible to `bsl::allocator<>`.
 template <class TYPE>
 class DerivedAllocator : public bsl::allocator<TYPE>
 {
-    // A class that is convertible to 'bsl::allocator<>'.
 
   public:
     template <class T2>
@@ -406,21 +411,22 @@ namespace USAGE_EXAMPLES {
 
 ///Example 1: Implementing a protocol
 /// - - - - - - - - - - - - - - - - -
-// We demonstrate using 'bslma::ManagedPtr' to configure and return a managed
+// We demonstrate using `bslma::ManagedPtr` to configure and return a managed
 // object implementing an abstract protocol.
 //
-// First we define our protocol, 'Shape', a type of object that knows how to
-// compute its 'area'.  Note that for expository reasons only, we do *not* give
-// 'Shape' a virtual destructor.
-//..
+// First we define our protocol, `Shape`, a type of object that knows how to
+// compute its `area`.  Note that for expository reasons only, we do *not* give
+// `Shape` a virtual destructor.
+// ```
+
+    /// Return the `area` of this shape.
     struct Shape {
         virtual double area() const = 0;
-            // Return the 'area' of this shape.
     };
-//..
-// Then we define a couple of classes that implement the 'Shape' protocol, a
-// 'Circle' and a 'Square'.
-//..
+// ```
+// Then we define a couple of classes that implement the `Shape` protocol, a
+// `Circle` and a `Square`.
+// ```
     class Circle : public Shape {
       private:
         // DATA
@@ -428,15 +434,17 @@ namespace USAGE_EXAMPLES {
 
       public:
         // CREATORS
-        explicit Circle(double radius);
-            // Create a 'Circle' object having the specified 'radius'.
 
+        /// Create a `Circle` object having the specified `radius`.
+        explicit Circle(double radius);
+
+        /// Destroy this object.
         virtual ~Circle();
-            // Destroy this object.
 
         // ACCESSORS
+
+        /// Return the area of this Circle, given by the formula pi*r*r.
         double area() const BSLS_KEYWORD_OVERRIDE;
-            // Return the area of this Circle, given by the formula pi*r*r.
     };
 
     class Square : public Shape {
@@ -446,20 +454,22 @@ namespace USAGE_EXAMPLES {
 
       public:
         // CREATORS
-        explicit Square(double side);
-            // Create a 'Square' having sides with length of the specified
-            // 'side'.
 
+        /// Create a `Square` having sides with length of the specified
+        /// `side`.
+        explicit Square(double side);
+
+        /// Destroy this object.
         virtual ~Square();
-            // Destroy this object.
 
         // ACCESSORS
+
+        /// Return the area of this Square, given by the formula side*side
         double area() const BSLS_KEYWORD_OVERRIDE;
-            // Return the area of this Square, given by the formula side*side
     };
-//..
-// Next we implement the methods for 'Circle' and 'Square'.
-//..
+// ```
+// Next we implement the methods for `Circle` and `Square`.
+// ```
     Circle::Circle(double radius)
     : d_radius(radius)
     {
@@ -487,18 +497,18 @@ namespace USAGE_EXAMPLES {
     {
         return d_sideLength * d_sideLength;
     }
-//..
-// Then we define an enumeration that lists each implementation of the 'Shape'
+// ```
+// Then we define an enumeration that lists each implementation of the `Shape`
 // protocol.
-//..
+// ```
     struct Shapes {
         enum VALUES { SHAPE_CIRCLE, SHAPE_SQUARE };
     };
-//..
-// Now we can define a function that will return a 'Circle' object or a
-// 'Square' object according to the specified 'kind' parameter, and having its
-// 'dimension' specified by the caller.
-//..
+// ```
+// Now we can define a function that will return a `Circle` object or a
+// `Square` object according to the specified `kind` parameter, and having its
+// `dimension` specified by the caller.
+// ```
     bslma::ManagedPtr<Shape> makeShape(Shapes::VALUES kind, double dimension)
     {
         bslma::Allocator *alloc = bslma::Default::defaultAllocator();
@@ -515,16 +525,16 @@ namespace USAGE_EXAMPLES {
         }
         return result;
     }
-//..
+// ```
 // Then, we can use our function to create shapes of different kinds, and check
-// that they report the correct area.  Note that we are using a radius of '1.0'
-// for the 'Circle' and integral side-length for the 'Square' to support an
-// accurate 'operator==' with floating-point quantities.  Also note that,
-// despite the destructor for 'Shape' being non-virtual, the correct destructor
-// for the appropriate concrete 'Shape' type is called.  This is because the
-// destructor is captured when the 'bslma::ManagedPtr' constructor is called,
+// that they report the correct area.  Note that we are using a radius of `1.0`
+// for the `Circle` and integral side-length for the `Square` to support an
+// accurate `operator==` with floating-point quantities.  Also note that,
+// despite the destructor for `Shape` being non-virtual, the correct destructor
+// for the appropriate concrete `Shape` type is called.  This is because the
+// destructor is captured when the `bslma::ManagedPtr` constructor is called,
 // and has access to the complete type of each shape object.
-//..
+// ```
     void testShapes()
     {
         bslma::ManagedPtr<Shape> shape = makeShape(Shapes::SHAPE_CIRCLE, 1.0);
@@ -535,12 +545,12 @@ namespace USAGE_EXAMPLES {
         ASSERT(0 != shape);
         ASSERT(4.0 == shape->area());
     }
-//..
+// ```
 // Next, we observe that as we are creating objects dynamically, we should pass
-// an allocator to the 'makeShape' function, rather than simply accepting the
+// an allocator to the `makeShape` function, rather than simply accepting the
 // default allocator each time.  Note that when we do this, we pass the user's
-// allocator to the 'bslma::ManagedPtr' object as the "factory".
-//..
+// allocator to the `bslma::ManagedPtr` object as the "factory".
+// ```
     bslma::ManagedPtr<Shape> makeShape(Shapes::VALUES    kind,
                                        double            dimension,
                                        bslma::Allocator *allocator)
@@ -559,9 +569,9 @@ namespace USAGE_EXAMPLES {
         }
         return result;
     }
-//..
+// ```
 // Finally we repeat the earlier test, additionally passing a test allocator:
-//..
+// ```
     void testShapesToo()
     {
         bslma::TestAllocator ta("object");
@@ -575,7 +585,7 @@ namespace USAGE_EXAMPLES {
         ASSERT(0 != shape);
         ASSERT(9.0 == shape->area());
     }
-//..
+// ```
 //
 ///Example 2: Aliasing
 ///- - - - - - - - - -
@@ -590,8 +600,8 @@ namespace USAGE_EXAMPLES {
 // deleter.
 //
 // First, let's say our array stores data acquired from a ticker plant
-// accessible by a global 'getQuote' function:
-//..
+// accessible by a global `getQuote` function:
+// ```
     struct Ticker {
 
         static double getQuote() // From ticker plant. Simulated here
@@ -607,35 +617,35 @@ namespace USAGE_EXAMPLES {
             return ret;
         }
     };
-//..
+// ```
 // Then, we want to find the first quote larger than a specified threshold, but
 // would also like to keep the earlier and later quotes for possible
-// examination.  Our 'getFirstQuoteLargerThan' function must allocate memory
+// examination.  Our `getFirstQuoteLargerThan` function must allocate memory
 // for an array of quotes (the threshold and its neighbors).  It thus returns a
 // managed pointer to the desired value:
-//..
+// ```
     const double END_QUOTE = -1;
 
     bslma::ManagedPtr<double>
     getFirstQuoteLargerThan(double threshold, bslma::Allocator *allocator)
     {
         ASSERT( END_QUOTE < 0 && 0 <= threshold );
-//..
+// ```
 // Next, we allocate our array with extra room to mark the beginning and end
-// with a special 'END_QUOTE' value:
-//..
+// with a special `END_QUOTE` value:
+// ```
         const int MAX_QUOTES = 100;
         int numBytes = (MAX_QUOTES + 2) * sizeof(double);
         double *quotes = (double*) allocator->allocate(numBytes);
         quotes[0] = quotes[MAX_QUOTES + 1] = END_QUOTE;
-//..
+// ```
 // Then, we create a managed pointer to the entire array:
-//..
+// ```
         bslma::ManagedPtr<double> managedQuotes(quotes, allocator);
-//..
+// ```
 // Next, we read quotes until the array is full, keeping track of the first
 // quote that exceeds the threshold.
-//..
+// ```
         double *finger = 0;
 
         for (int i = 1; i <= MAX_QUOTES; ++i) {
@@ -645,15 +655,15 @@ namespace USAGE_EXAMPLES {
                 finger = &quotes[i];
             }
         }
-//..
+// ```
 // Now, we use the alias constructor to create a managed pointer that points to
 // the desired value (the finger) but manages the entire array:
-//..
+// ```
         return bslma::ManagedPtr<double>(managedQuotes, finger);
     }
-//..
-// Then, our main program calls 'getFirstQuoteLargerThan' like this:
-//..
+// ```
+// Then, our main program calls `getFirstQuoteLargerThan` like this:
+// ```
     int aliasExample()
     {
         bslma::TestAllocator ta;
@@ -661,9 +671,9 @@ namespace USAGE_EXAMPLES {
         ASSERT(*result > 16.00);
         ASSERT(1 == ta.numBlocksInUse());
         if (g_verbose) printf("Found quote: %g\n", *result);
-//..
+// ```
 // Next, we also print the preceding 5 quotes in last-to-first order:
-//..
+// ```
         if (g_verbose) printf("Preceded by:");
         int i;
         for (i = -1; i >= -5; --i) {
@@ -675,36 +685,36 @@ namespace USAGE_EXAMPLES {
             if (g_verbose) printf(" %g", quote);
         }
         if (g_verbose) printf("\n");
-//..
+// ```
 // Then, to move the finger, e.g., to the last position printed, one must be
 // careful to retain the ownership of the entire array.  Using the statement
-// 'result.load(result.get()-i)' would be an error, because it would first
-// compute the pointer value 'result.get()-i' of the argument, then release the
+// `result.load(result.get()-i)` would be an error, because it would first
+// compute the pointer value `result.get()-i` of the argument, then release the
 // entire array before starting to manage what has now become an invalid
-// pointer.  Instead, 'result' must retain its ownership to the entire array,
+// pointer.  Instead, `result` must retain its ownership to the entire array,
 // which can be attained by:
-//..
+// ```
         result.loadAlias(result, result.get()-i);
-//..
+// ```
 // Finally, if we reset the result pointer, the entire array is deallocated:
-//..
+// ```
         result.clear();
         ASSERT(0 == ta.numBlocksInUse());
         ASSERT(0 == ta.numBytesInUse());
 
         return 0;
     }
-//..
+// ```
 //
 ///Example 3: Dynamic Objects and Factories
 /// - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to track the number of objects currently managed by
-// 'bslma::ManagedPtr' objects.
+// `bslma::ManagedPtr` objects.
 //
 // First we define a factory type that holds an allocator and a usage-counter.
-// Note that such a type cannot sensibly be copied, as the notion 'count'
+// Note that such a type cannot sensibly be copied, as the notion `count`
 // becomes confused.
-//..
+// ```
     class CountedFactory {
         // DATA
         int               d_count;
@@ -717,43 +727,46 @@ namespace USAGE_EXAMPLES {
 
       public:
         // CREATORS
-        explicit CountedFactory(bslma::Allocator *basicAllocator = 0);
-            // Create a 'CountedFactory' object which uses the optionally
-            // specified 'basicAllocator' to supply memory, and the default
-            // allocator otherwise.
 
+        /// Create a `CountedFactory` object which uses the optionally
+        /// specified `basicAllocator` to supply memory, and the default
+        /// allocator otherwise.
+        explicit CountedFactory(bslma::Allocator *basicAllocator = 0);
+
+        /// Destroy this object.
         ~CountedFactory();
-            // Destroy this object.
-//..
-// Next, we provide the 'createObject' and 'deleteObject' functions that are
-// standard for factory objects.  Note that the 'deleteObject' function
-// signature has the form required by 'bslma::ManagedPtr' for a factory.
-//..
+// ```
+// Next, we provide the `createObject` and `deleteObject` functions that are
+// standard for factory objects.  Note that the `deleteObject` function
+// signature has the form required by `bslma::ManagedPtr` for a factory.
+// ```
         // MANIPULATORS
+
+        /// Return a pointer to a newly allocated object of type `TYPE`
+        /// created using its default constructor.  Memory for the object is
+        /// supplied by the allocator supplied to this factory's
+        /// constructor, and the count of valid object is incremented.
         template <class TYPE>
         TYPE *createObject();
-            // Return a pointer to a newly allocated object of type 'TYPE'
-            // created using its default constructor.  Memory for the object is
-            // supplied by the allocator supplied to this factory's
-            // constructor, and the count of valid object is incremented.
 
+        /// Destroy the object pointed to by the specified `target` and
+        /// reclaim the memory.  Decrement the count of currently valid
+        /// objects.
         template <class TYPE>
         void deleteObject(const TYPE *target);
-            // Destroy the object pointed to by the specified 'target' and
-            // reclaim the memory.  Decrement the count of currently valid
-            // objects.
-//..
-// Then, we round out the class with the ability to query the 'count' of
+// ```
+// Then, we round out the class with the ability to query the `count` of
 // currently allocated objects.
-//..
+// ```
         // ACCESSORS
+
+        /// Return the number of currently valid objects allocated by this
+        /// factory.
         int count() const;
-            // Return the number of currently valid objects allocated by this
-            // factory.
     };
-//..
+// ```
 // Next, we define the operations declared by the class.
-//..
+// ```
     CountedFactory::CountedFactory(bslma::Allocator *basicAllocator)
     : d_count(0)
     , d_allocator(bslma::Default::allocator(basicAllocator))
@@ -785,74 +798,75 @@ namespace USAGE_EXAMPLES {
     {
         return d_count;
     }
-//..
+// ```
 // Then, we can create a test function to illustrate how such a factory would
-// be used with 'bslma::ManagedPtr'.
-//..
+// be used with `bslma::ManagedPtr`.
+// ```
     void testCountedFactory()
     {
-//..
-// Next, we declare a test allocator, and an object of our 'CountedFactory'
+// ```
+// Next, we declare a test allocator, and an object of our `CountedFactory`
 // type using that allocator.
-//..
+// ```
         bslma::TestAllocator ta;
         CountedFactory cf(&ta);
-//..
+// ```
 // Then, we open a new local scope and declare an array of managed pointers.
 // We need a local scope in order to observe the behavior of the destructors at
 // end of the scope, and use an array as an easy way to count more than one
 // object.
-//..
+// ```
         {
             bslma::ManagedPtr<int> pData[4];
-//..
-// Next, we load each managed pointer in the array with a new 'int' using our
-// factory 'cf' and assert that the factory 'count' is correct after each new
-// 'int' is created.
-//..
+// ```
+// Next, we load each managed pointer in the array with a new `int` using our
+// factory `cf` and assert that the factory `count` is correct after each new
+// `int` is created.
+// ```
             int i = 0;
             while (i != 4) {
                 pData[i++].load(cf.createObject<int>(), &cf);
                 ASSERT(cf.count() == i);
             }
-//..
-// Then, we 'clear' the contents of a single managed pointer in the array, and
-// assert that the factory 'count' is appropriately reduced.
-//..
+// ```
+// Then, we `clear` the contents of a single managed pointer in the array, and
+// assert that the factory `count` is appropriately reduced.
+// ```
             pData[1].clear();
             ASSERT(3 == cf.count());
-//..
-// Next, we 'load' a managed pointer with another new 'int' value, again using
-// 'cf' as the factory, and assert that the 'count' of valid objects remains
+// ```
+// Next, we `load` a managed pointer with another new `int` value, again using
+// `cf` as the factory, and assert that the `count` of valid objects remains
 // the same (destroy one object and add another).
-//..
+// ```
             pData[2].load(cf.createObject<int>(), &cf);
             ASSERT(3 == cf.count());
         }
-//..
+// ```
 // Finally, we allow the array of managed pointers to go out of scope and
-// confirm that when all managed objects are destroyed, the factory 'count'
+// confirm that when all managed objects are destroyed, the factory `count`
 // falls to zero, and does not overshoot.
-//..
+// ```
         ASSERT(0 == cf.count());
     }
-//..
+// ```
 //
 ///Example 5: Inplace Object Creation
 /// - - - - - - - - - - - - - - - - -
 // Suppose we want to allocate memory for an object, construct it in place, and
 // obtain a managed pointer referring to this object.  This can be done in one
-// step using two free functions provided in 'bslma::ManagedPtrUtil'.
+// step using two free functions provided in `bslma::ManagedPtrUtil`.
 //
 // First, we create a simple class clearly showing the features of these
 // functions.  Note that this class does not define the
-// 'bslma::UsesBslmaAllocator' trait.  It is done intentionally for
+// `bslma::UsesBslmaAllocator` trait.  It is done intentionally for
 // illustration purposes only, and definitely is *not* *recommended* in
 // production code.  The class has an elided interface (i.e., copy constructor
 // and copy-assignment operator are not included for brevity):
-//..
+// ```
+
+    /// Simple class that stores a copy of a null-terminated C-style string.
     class String {
-        // Simple class that stores a copy of a null-terminated C-style string.
 
       private:
         // DATA
@@ -862,9 +876,10 @@ namespace USAGE_EXAMPLES {
 
       public:
         // CREATORS
+
+        /// Create an object having the same value as the specified `str`
+        /// using the specified `alloc` to supply memory.
         String(const char *str, bslma::Allocator *alloc)
-            // Create an object having the same value as the specified 'str'
-            // using the specified 'alloc' to supply memory.
         : d_alloc_p(alloc)
         {
             ASSERT(str);
@@ -876,30 +891,31 @@ namespace USAGE_EXAMPLES {
             std::strncpy(d_str_p, str, length + 1);
         }
 
+        /// Destroy this object.
         ~String()
-            // Destroy this object.
         {
             d_alloc_p->deallocate(d_str_p);
         }
 
         // ACCESSORS
+
+        /// Return a pointer providing modifiable access to the allocator
+        /// associated with this `String`.
         bslma::Allocator *allocator() const
-            // Return a pointer providing modifiable access to the allocator
-            // associated with this 'String'.
         {
             return d_alloc_p;
         }
     };
-//..
-// Next, we create a code fragment that will construct a managed 'String'
+// ```
+// Next, we create a code fragment that will construct a managed `String`
 // object using the default allocator to supply memory:
-//..
+// ```
     void testInplaceCreation()
     {
-//..
+// ```
 // Suppose we want to have a different allocator supply memory allocated by the
 // object:
-//..
+// ```
         bslma::TestAllocator ta;
         bsls::Types::Int64   testBytesInUse = ta.numBytesInUse();
 
@@ -910,37 +926,37 @@ namespace USAGE_EXAMPLES {
         bsls::Types::Int64           defaultBytesInUse = da.numBytesInUse();
 
         ASSERT(0 == defaultBytesInUse);
-//..
+// ```
 // Then, create a string to copy:
-//..
+// ```
         const char *STR        = "Test string";
         const int   STR_LENGTH = static_cast<int>(std::strlen(STR));
-//..
+// ```
 // Next, dynamically create an object and obtain the managed pointer referring
-// to it using the 'bslma::ManagedPtrUtil::makeManaged' function:
-//..
+// to it using the `bslma::ManagedPtrUtil::makeManaged` function:
+// ```
         {
             bslma::ManagedPtr<String> stringManagedPtr =
                           bslma::ManagedPtrUtil::makeManaged<String>(STR, &ta);
-//..
+// ```
 // Note that memory for the object itself is supplied by the default allocator,
 // while memory for the copy of the passed string is supplied by another
 // allocator:
-//:
+//
             ASSERT(static_cast<int>(sizeof(String)) <= da.numBytesInUse());
             ASSERT(&ta == stringManagedPtr->allocator());
             ASSERT(STR_LENGTH + 1 == ta.numBytesInUse());
         }
-//..
+// ```
 // Then, make sure that all allocated memory is successfully released after
 // managed pointer destruction:
-//..
+// ```
         ASSERT(0 == da.numBytesInUse());
         ASSERT(0 == ta.numBytesInUse());
-//..
+// ```
 // If you want to use an allocator other than the default allocator, then the
-// 'allocateManaged' function should be used instead:
-//..
+// `allocateManaged` function should be used instead:
+// ```
         bslma::TestAllocator oa;
         bsls::Types::Int64   objectBytesInUse = oa.numBytesInUse();
         ASSERT(0 == objectBytesInUse);
@@ -959,18 +975,19 @@ namespace USAGE_EXAMPLES {
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == oa.numBytesInUse());
     }
-//..
+// ```
 // Next, let's look at a more common scenario where the object's type uses
-// 'bslma' allocators.  In that case 'allocateManaged' implicitly passes the
+// `bslma` allocators.  In that case `allocateManaged` implicitly passes the
 // supplied allocator to the object's constructor as an extra argument in the
 // final position.
 //
 // The second example class almost completely repeats the first one, except
-// that it explicitly defines the 'bslma::UsesBslmaAllocator' trait:
-//..
+// that it explicitly defines the `bslma::UsesBslmaAllocator` trait:
+// ```
+
+    /// Simple class that stores a copy of a null-terminated C-style string
+    /// and explicitly claims to use `bslma` allocators.
     class StringAlloc {
-        // Simple class that stores a copy of a null-terminated C-style string
-        // and explicitly claims to use 'bslma' allocators.
 
       private:
         // DATA
@@ -983,11 +1000,12 @@ namespace USAGE_EXAMPLES {
         BSLMF_NESTED_TRAIT_DECLARATION(StringAlloc, bslma::UsesBslmaAllocator);
 
         // CREATORS
+
+        /// Create an object having the same value as the specified `str`.
+        /// Optionally specify a `basicAllocator` used to supply memory.  If
+        /// `basicAllocator` is 0, the currently installed default allocator
+        /// is used.
         StringAlloc(const char *str, bslma::Allocator *basicAllocator = 0)
-            // Create an object having the same value as the specified 'str'.
-            // Optionally specify a 'basicAllocator' used to supply memory.  If
-            // 'basicAllocator' is 0, the currently installed default allocator
-            // is used.
         : d_alloc_p(bslma::Default::allocator(basicAllocator))
         {
             ASSERT(str);
@@ -998,24 +1016,25 @@ namespace USAGE_EXAMPLES {
             std::strncpy(d_str_p, str, length + 1);
         }
 
+        /// Destroy this object.
         ~StringAlloc()
-            // Destroy this object.
         {
             d_alloc_p->deallocate(d_str_p);
         }
 
         // ACCESSORS
+
+        /// Return a pointer providing modifiable access to the allocator
+        /// associated with this `StringAlloc`.
         bslma::Allocator *allocator() const
-            // Return a pointer providing modifiable access to the allocator
-            // associated with this 'StringAlloc'.
         {
             return d_alloc_p;
         }
     };
-//..
-// Then, let's create two managed objects using both 'makeManaged' and
-// 'allocateManaged':
-//..
+// ```
+// Then, let's create two managed objects using both `makeManaged` and
+// `allocateManaged`:
+// ```
     void testUsesAllocatorInplaceCreation()
     {
         bslma::TestAllocator ta;
@@ -1032,10 +1051,10 @@ namespace USAGE_EXAMPLES {
         const char *STR        = "Test string";
         const int   STR_LENGTH = static_cast<int>(std::strlen(STR));
 
-//..
+// ```
 // Note that we need to explicitly supply the allocator's address to
-// 'makeManaged' to be passed to the object's constructor:
-//..
+// `makeManaged` to be passed to the object's constructor:
+// ```
         {
             bslma::ManagedPtr<StringAlloc> stringManagedPtr =
                      bslma::ManagedPtrUtil::makeManaged<StringAlloc>(STR, &ta);
@@ -1045,9 +1064,9 @@ namespace USAGE_EXAMPLES {
             ASSERT(STR_LENGTH + 1 == ta.numBytesInUse());
         }
 
-//..
+// ```
 // But the supplied allocator is implicitly passed to the constructor by
-// 'allocateManaged':
+// `allocateManaged`:
 //
         {
             bslma::ManagedPtr<StringAlloc> stringManagedPtr =
@@ -1058,14 +1077,14 @@ namespace USAGE_EXAMPLES {
             ASSERT(&ta == stringManagedPtr->allocator());
             ASSERT(0 == da.numBytesInUse());
         }
-//..
+// ```
 // Finally, make sure that all allocated memory is successfully released after
 // the managed pointers (and the objects they manage) are destroyed:
-//..
+// ```
         ASSERT(0 == da.numBytesInUse());
         ASSERT(0 == ta.numBytesInUse());
     }
-//..
+// ```
 
 }  // close namespace USAGE_EXAMPLES
 
@@ -1079,21 +1098,21 @@ typedef MyDerivedObject B;
 
 ///Example 4: Type Casting
 ///- - - - - - - - - - - -
-// 'bslma::ManagedPtr' objects can be implicitly and explicitly cast to
+// `bslma::ManagedPtr` objects can be implicitly and explicitly cast to
 // different types in the same way that native pointers can.
 //
 ///Implicit Conversion
 /// -  -  -  -  -  - -
-// As with native pointers, a pointer of the type 'B' that is publicly derived
-// from the type 'A', can be directly assigned a 'bslma::ManagedPtr' of 'A'.
+// As with native pointers, a pointer of the type `B` that is publicly derived
+// from the type `A`, can be directly assigned a `bslma::ManagedPtr` of `A`.
 //
 // First, consider the following code snippets:
-//..
+// ```
     void implicitCastingExample()
     {
-//..
+// ```
 // If the statements:
-//..
+// ```
         bslma::TestAllocator localDefaultTa;
         bslma::TestAllocator localTa;
 
@@ -1104,9 +1123,9 @@ typedef MyDerivedObject B;
         {
             B *b_p = 0;
             A *a_p = b_p;   (void)a_p;
-//..
+// ```
 // are legal expressions, then the statements
-//..
+// ```
             bslma::ManagedPtr<A> a_mp1;
             bslma::ManagedPtr<B> b_mp1;
 
@@ -1171,7 +1190,7 @@ typedef MyDerivedObject B;
 
         ASSERT(400 == numdels);
     } // implicitCastingExample()
-//..
+// ```
 //
 ///Explicit Conversion
 /// -  -  -  -  -  - -
@@ -1179,23 +1198,23 @@ typedef MyDerivedObject B;
 // converted to a managed pointer of any other type using any legal cast
 // expression.  For example, to static-cast a managed pointer of type A to a
 // shared pointer of type B, one can simply do the following:
-//..
+// ```
     void explicitCastingExample()
     {
         bslma::ManagedPtr<A> a_mp;
         bslma::ManagedPtr<B> b_mp1(a_mp, static_cast<B*>(a_mp.get()));
-//..
+// ```
 // or even use the less safe "C"-style casts:
-//..
+// ```
         // bslma::ManagedPtr<A> a_mp;
         bslma::ManagedPtr<B> b_mp2(a_mp, (B*)(a_mp.get()));
 
     } // explicitCastingExample()
-//..
+// ```
 // Note that when using dynamic cast, if the cast fails, the target managed
 // pointer will be reset to an unset state, and the source will not be
 // modified.  Consider for example the following snippet of code:
-//..
+// ```
     void processPolymorphicObject(bslma::ManagedPtr<A>  aPtr,
                                   bool                 *castSucceeded)
     {
@@ -1209,9 +1228,9 @@ typedef MyDerivedObject B;
             *castSucceeded = false;
         }
     }
-//..
-// If the value of 'aPtr' can be dynamically cast to 'B*' then ownership is
-// transferred to 'bPtr', otherwise 'aPtr' is to be modified.  As previously
+// ```
+// If the value of `aPtr` can be dynamically cast to `B*` then ownership is
+// transferred to `bPtr`, otherwise `aPtr` is to be modified.  As previously
 // stated, the managed object will be destroyed correctly regardless of how it
 // is cast.
 
@@ -1244,8 +1263,8 @@ typedef bslma::ManagedPtr<void>                   VObj;
 //=============================================================================
 //                      HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
-// The 'bsls_IsPolymorphic' trait does not work correctly on the following two
-// platforms, which causes 'bslma::DeleterHelper' to dispatch to an
+// The `bsls_IsPolymorphic` trait does not work correctly on the following two
+// platforms, which causes `bslma::DeleterHelper` to dispatch to an
 // implementation that cannot compile.
 #if defined(BSLMF_ISPOLYMORPHIC_HAS_INTRINSIC) || \
     defined(BSLS_PLATFORM_CMP_IBM)
@@ -1258,8 +1277,8 @@ struct Base {
     {
     }
 
+    /// Increment the held counter, and destroy this object
     ~Base() { ++*d_count_p; }
-        // Increment the held counter, and destroy this object
 
     int *d_count_p;
 };
@@ -1272,8 +1291,8 @@ struct Base1 : virtual Base {
     {
     }
 
+    /// Increment the held counter by '9', and destroy this object
     ~Base1() { *d_count_p += 9; }
-        // Increment the held counter by '9', and destroy this object
 
     char d_padding;
 };
@@ -1285,8 +1304,8 @@ struct Base2 : virtual Base {
     {
     }
 
+    /// Increment the held counter by `99`, and destroy this object
     ~Base2() { *d_count_p += 99; }
-        // Increment the held counter by '99', and destroy this object
 
     char d_padding;
 };
@@ -1298,8 +1317,8 @@ struct Composite : Base1, Base2 {
     {
     }
 
+    /// Increment the held counter by `891`, and destroy this object
     ~Composite() { *d_count_p += 891; }
-        // Increment the held counter by '891', and destroy this object
 
     char d_padding;
 };
@@ -1325,7 +1344,7 @@ struct Base2 : Base {
     }
 
     ~Base2() { *d_count_p += 99; }
-        // Increment the held counter by '99', and destroy this object
+        // Increment the held counter by `99`, and destroy this object
 
     char d_padding;
 };
@@ -1339,7 +1358,7 @@ struct Composite : Base1, Base2 {
     }
 
     ~Composite() { *d_count_p += 890; }
-        // Increment the held counter by '890', and destroy this object
+        // Increment the held counter by `890`, and destroy this object
 
     int *d_count_p;
 };
@@ -1405,21 +1424,23 @@ class CountedStackDeleter
 
   public:
     // CREATORS
+
+    /// Create a `CountedStackDeleter` using the specified `counter` to
+    /// record when this object is invoked as a deleter.
     explicit CountedStackDeleter(int *counter) : d_deleteCounter_p(counter) {}
-        // Create a 'CountedStackDeleter' using the specified 'counter' to
-        // record when this object is invoked as a deleter.
 
     //! ~CountedStackDeleter();
         // Destroy this object.
 
     // ACCESSORS
-    int *deleteCounter() const { return d_deleteCounter_p; }
-        // Return the address of the counter used to track when this object is
-        // invoked as a deleter.
 
+    /// Return the address of the counter used to track when this object is
+    /// invoked as a deleter.
+    int *deleteCounter() const { return d_deleteCounter_p; }
+
+    /// Increment the stored reference to a counter to indicate that this
+    /// method has been called.
     void deleteObject(void *) const
-        // Increment the stored reference to a counter to indicate that this
-        // method has been called.
     {
         ++*d_deleteCounter_p;
     }
@@ -1446,7 +1467,7 @@ void incrementIntDeleter(int *ptr, IncrementIntFactory *factory)
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The two deleters defined below do not use the factory (or even object)
 // argument to perform their bookkeeping.  They are typically used to test
-// overloads taking 'NULL' factories.
+// overloads taking `NULL` factories.
 int g_deleteCount = 0;
 
 static void countedNilDelete(void *, void*)
@@ -1466,11 +1487,11 @@ static void templateNilDelete(TARGET_TYPE *, void*)
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+/// This class provides a `bslma::ManagedPtr` deleter that does *not* derive
+/// from `bslma::Allocator`.
 template<class ELEMENT_TYPE>
 class AllocatorDeleter
 {
-    // This class provides a 'bslma::ManagedPtr' deleter that does *not* derive
-    // from 'bslma::Allocator'.
 
   public:
     static void deleter(ELEMENT_TYPE *ptr, bslma::Allocator *alloc)
@@ -1484,15 +1505,15 @@ class AllocatorDeleter
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+/// This struct provides a small overload set taking managed pointer values
+/// with similar looking (potentially related) types, to be sure there are
+/// no unexpected ambiguities or conversions.
 struct OverloadTest {
-    // This struct provides a small overload set taking managed pointer values
-    // with similar looking (potentially related) types, to be sure there are
-    // no unexpected ambiguities or conversions.
 
+    /// Return an integer code reporting which specific overload was called.
     static int invoke(bslma::ManagedPtr<void>)     { return 0; }
     static int invoke(bslma::ManagedPtr<int>)      { return 1; }
     static int invoke(bslma::ManagedPtr<const int>){ return 2; }
-        // Return an integer code reporting which specific overload was called.
 };
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1597,8 +1618,8 @@ struct SS {
         d_numDeletes_p = numDeletes;
     }
 
+    /// Increment the held counter, and destroy this object.
     ~SS()
-        // Increment the held counter, and destroy this object.
     {
         ++*d_numDeletes_p;
     }
@@ -1627,11 +1648,11 @@ static void myTestDeleter(Test *object, bslma::TestAllocator *allocator)
     }
 }
 #else
+/// Destroy the specified `object` using the specified `allocator`.  The
+/// behavior is undefined unless `object` points to a `Test` and `allocator`
+/// points to a `bslma::TestAllocator`.  Note that the parameters are
+/// type-erased for use as a managed pointer deleter.
 static void myTestDeleter(void *object, void *allocator)
-    // Destroy the specified 'object' using the specified 'allocator'.  The
-    // behavior is undefined unless 'object' points to a 'Test' and 'allocator'
-    // points to a 'bslma::TestAllocator'.  Note that the parameters are
-    // type-erased for use as a managed pointer deleter.
 {
     static_cast<bslma::TestAllocator *>(allocator)->deleteObject(
                                                   static_cast<Test *>(object));
@@ -1692,7 +1713,7 @@ void validateManagedState(unsigned int                     LINE,
                           const void                      *ptr,
                           const bslma::ManagedPtrDeleter&  del)
 {
-    // Testing the following properties of the specified 'obj'
+    // Testing the following properties of the specified `obj`
     //   operator BoolType() const;
     //   TYPE& operator*() const;
     //   TYPE *operator->() const;
@@ -1705,7 +1726,7 @@ void validateManagedState(unsigned int                     LINE,
                                          (bslma::Default::defaultAllocator()));
 
     if (!ptr) {
-        // Different negative testing constraints when 'ptr' is null.
+        // Different negative testing constraints when `ptr` is null.
         ASSERTV(LINE, false == static_cast<bool>(obj));
         ASSERTV(LINE, !obj);
         ASSERTV(LINE, 0 == obj.operator->());
@@ -1724,7 +1745,7 @@ void validateManagedState(unsigned int                     LINE,
 #endif
     }
     else {
-        // Different negative testing constraints when 'ptr' is null.
+        // Different negative testing constraints when `ptr` is null.
         ASSERT(true  == static_cast<bool>(obj));
         ASSERT(false == !obj);
 
@@ -1756,7 +1777,7 @@ void validateManagedState(unsigned int                     LINE,
                           void                            *ptr,
                           const bslma::ManagedPtrDeleter&  del)
 {
-    // Testing the following properties of the specified 'obj'
+    // Testing the following properties of the specified `obj`
     //   operator BoolType() const;
     //   void operator*() const;
     //   void *operator->() const;
@@ -1769,7 +1790,7 @@ void validateManagedState(unsigned int                     LINE,
                                          (bslma::Default::defaultAllocator()));
 
     if (!ptr) {
-        // Different negative testing constraints when 'ptr' is null.
+        // Different negative testing constraints when `ptr` is null.
         ASSERTV(LINE, false == static_cast<bool>(obj));
         ASSERTV(LINE, !obj);
         ASSERTV(LINE, 0 == obj.operator->());
@@ -1786,7 +1807,7 @@ void validateManagedState(unsigned int                     LINE,
 #endif
     }
     else {
-        // Different negative testing constraints when 'ptr' is null.
+        // Different negative testing constraints when `ptr` is null.
         ASSERT(true  == static_cast<bool>(obj));
         ASSERT(false == !obj);
 
@@ -1819,7 +1840,7 @@ void validateManagedState(unsigned int                          LINE,
                           const void                           *ptr,
                           const bslma::ManagedPtrDeleter&       del)
 {
-    // Testing the following properties of the specified 'obj'
+    // Testing the following properties of the specified `obj`
     //   operator BoolType() const;
     //   void operator*() const;
     //   const void *operator->() const;
@@ -1832,7 +1853,7 @@ void validateManagedState(unsigned int                          LINE,
                                          (bslma::Default::defaultAllocator()));
 
     if (!ptr) {
-        // Different negative testing constraints when 'ptr' is null.
+        // Different negative testing constraints when `ptr` is null.
         ASSERTV(LINE, false == static_cast<bool>(obj));
         ASSERTV(LINE, !obj);
         ASSERTV(LINE, 0 == obj.operator->());
@@ -1849,7 +1870,7 @@ void validateManagedState(unsigned int                          LINE,
 #endif
     }
     else {
-        // Different negative testing constraints when 'ptr' is null.
+        // Different negative testing constraints when `ptr` is null.
         ASSERT(true  == static_cast<bool>(obj));
         ASSERT(false == !obj);
 
@@ -1878,7 +1899,7 @@ void validateManagedState(unsigned int                          LINE,
 }
 
 
-// 'debugprint' support for 'bsl' types
+// `debugprint` support for `bsl` types
 
 namespace BloombergLP {
 namespace bslma {
@@ -1901,25 +1922,25 @@ void debugprint(const ManagedPtrDeleter& obj)
 }  // close enterprise namespace
 
 //=============================================================================
-//                      'load' and constructor TESTING SUPPORT
+//                      `load` and constructor TESTING SUPPORT
 //-----------------------------------------------------------------------------
-// The following functions load a 'bslma::ManagedPtr' into a defined final
+// The following functions load a `bslma::ManagedPtr` into a defined final
 // state assuming that it is passed in with an initial state known to the
 // calling function.  None of the following functions have their own test case,
 // as they are vital implementation details of testing the constructors, and of
-// testing the 'load' functions that, in turn, are later used to test the basic
+// testing the `load` functions that, in turn, are later used to test the basic
 // accessors.  However, these functions are very thoroughly exercised in the
-// various 'load' and constructor test cases, in particular by taking an empty
-// 'bslma::ManagedPtr' and taking it to the known state expected of each of
+// various `load` and constructor test cases, in particular by taking an empty
+// `bslma::ManagedPtr` and taking it to the known state expected of each of
 // these functions.  Similarly, we will test each transition from every
 // possible initial state through each of these functions to validate all
-// 'load' state transitions.  Essentially, these are implementation details of
-// the 'load' test cases that may be deemed validated by that test case, and so
+// `load` state transitions.  Essentially, these are implementation details of
+// the `load` test cases that may be deemed validated by that test case, and so
 // safely relied on for all later test cases.
 //
 // Note that we are generating a very large test-space of test cases to ensure
 // that all valid type-deductions and conversions are syntax-checked through
-// the various overload sets for 'load' and 'bslma::ManagedPtr' constructors.
+// the various overload sets for `load` and `bslma::ManagedPtr` constructors.
 // Attempts to manually test the valid combinations demonstrated that the only
 // way to be truly confident with this complex set of constraints was to
 // exhaustively generate every testable combination.  These test tables are
@@ -1929,144 +1950,144 @@ void debugprint(const ManagedPtrDeleter& obj)
 // Each function below has the same signature so that they can be used to
 // populate a test table supporting table-driven testing techniques.  This will
 // enable exhaustive testing of the state space and transitions of holding
-// various kinds of 'bslma::ManagedPtr' objects.
+// various kinds of `bslma::ManagedPtr` objects.
 //
 // Each function performs the same set of operations in turn:
-//: 1 Copy the initial values stored in passed pointers to compute the side-
-//:   effects expected of calling 'load', typically observed as a consequence
-//:   of destroying any held managed object.
-//:
-//: 2 'load' the specified pointer 'o' into the new defined state.
-//:
-//: 3 Set the new value for 'deleteDelta' for when this new state of 'o' is
-//:   destroyed.
-//:
-//: 4 confirm the act of 'load'ing ran the expected deleters by comparing
-//:   new state of 'deleteCount' with the computed value in (1).
-//:
-//: 5 confirm that each (defined) attribute of 'o' is in the expected state.
+// 1. Copy the initial values stored in passed pointers to compute the side-
+//    effects expected of calling `load`, typically observed as a consequence
+//    of destroying any held managed object.
+//
+// 2. `load` the specified pointer `o` into the new defined state.
+//
+// 3. Set the new value for `deleteDelta` for when this new state of `o` is
+//    destroyed.
+//
+// 4. confirm the act of `load`ing ran the expected deleters by comparing
+//    new state of `deleteCount` with the computed value in (1).
+//
+// 5. confirm that each (defined) attribute of `o` is in the expected state.
 //
 // The state combinations that need testing are invoking load with 0, 1, 2 or 3
-// arguments.  Each combination should be tested for 'bslma::ManagedPtr'
+// arguments.  Each combination should be tested for `bslma::ManagedPtr`
 // parameterized with
-//: o 'MyTestObject'
-//: o 'const MyTestObject'
-//: o 'MyDerivedObject'
-//: o 'void'
-//: o 'const void'
+//  - `MyTestObject`
+//  - `const MyTestObject`
+//  - `MyDerivedObject`
+//  - `void`
+//  - `const void`
 //
 // Additionally, there are a small number of corner cases where the base class
 // does not have a virtual destructor, especially when the most derived object
 // is using multiple inheritance.  These additional states are tested with
-// smaller test tables for the 'Base', 'Base1', 'Base2' and 'Composite'
+// smaller test tables for the `Base`, `Base1`, `Base2` and `Composite`
 // hierarchy.  A basic set of these tests are also added to the test table for
-// 'bslma::ManagedPtr<const void>'.
+// `bslma::ManagedPtr<const void>`.
 //
 // The first pointer argument should be tested with a pointer of each of the
 // following types:
-//: o '0' literal
-//: o 'MyTestObject *'
-//: o 'const MyTestObject *'
-//: o 'MyDerivedObject *'
-//: o 'void *'
-//: o 'const void *'
+//  - `0` literal
+//  - `MyTestObject *`
+//  - `const MyTestObject *`
+//  - `MyDerivedObject *`
+//  - `void *`
+//  - `const void *`
 //
-// When no 'factory' argument is passed, each function should behave as if the
+// When no `factory` argument is passed, each function should behave as if the
 // default allocator were passing in that place.
 //
 // The second factory argument should be tested with:
-//: o '0' literal
-//: o 'bslma::Allocator *'
-//: o 'ta' to test the specific 'bslma::TestAllocator' derived factory type
-//: 0 SOME OTHER FACTORY TYPE NOT DERIVED FROM BSLMA_TESTALLOCATOR [NOT TESTED]
+//  - `0` literal
+//  - `bslma::Allocator *`
+//  - `ta` to test the specific `bslma::TestAllocator` derived factory type
+// 0. SOME OTHER FACTORY TYPE NOT DERIVED FROM BSLMA_TESTALLOCATOR [NOT TESTED]
 //
-// The 'deleter' argument will be tested with each of:
-//: o '0' literal
+// The `deleter` argument will be tested with each of:
+//  - `0` literal
 //
-// The 'line' and 'index' parameters describe the source line number at the
+// The `line` and `index` parameters describe the source line number at the
 // call site, and any index into a function table to identify the specific
-// invocation of this test function.  The 'useDefault' argument must be set to
-// 'true' if the function allocates memory from the default allocator.  This is
+// invocation of this test function.  The `useDefault` argument must be set to
+// `true` if the function allocates memory from the default allocator.  This is
 // then used by the calling harness to know if it can check the default
 // allocator's memory usage.
 //
 // The following chart describes the complete set of test scenarios, labeled
 // with their corresponding function:
-//:        Object  Code     Value
-//:        ------  ----     -----
-//:             -  (none)   use default (if any)
-//:             0  Onull    null pointer literal
-//:          base  Obase    pointer to allocated MyTestObject
-//:    const base  OCbase   pointer to allocated 'const MyTestObject'
-//:       derived  Oderiv   pointer to allocated 'MyDerivedObject'
-//: const derived  OCderiv  pointer to allocated 'const MyDerivedObject'
-//:
-//:       Factory  Code     Value
-//:       -------  ----     -----
-//:             -  (none)   use default (if any)
-//:             0  Fnull    null pointer literal
-//:         bslma  Fbsl     'bslma::TestAllocator' cast to 'bslma::Allocator *'
-//:          Test  Ftst     'bslma::TestAllocator' factory
-//:       default  Fdflt    default allocator, passed as 'bslma::Allocator *'
-//:
-//: [No const factory support by default, but can 'deleter' support this?]
-//: [Probably only through the deprecated interface, and no code can do this
-//: yet?]
-//:
-//: Scenarios to consider:
-//: "V(V*, V*)" can hide many casting opportunities inside the function body.
-//: This implies we may have many scenarios to test inside this one case, or
-//: we may want to pick the most representative single case.  In fact, two
-//: cases dominate our analysis, "V(bslma::Allocator, Base)", and "V(actual,
-//: actual)".  The former can be explicitly coded up as a non-template
-//: function.  The latter is already implemented as
-//: 'bslma::ManagedPtr_FactoryDeleter'.  Note that there is a third category of
-//: deleter, where the deleter function acts only on the 'object' parameter and
-//: ignores the 'factory'.  This is an important case, as we must support '0'
-//: literals and null pointers for factories based on existing code.  We can
-//: test this case with a deleter that assumes the object was allocated using
-//: the default allocator.  This gives us our 3 test scenarios for "V(V*,V*)".
-//: The "V(V*,B*)" and "V(V*,D*)" cases could be tricky if the first "V*"
-//: parameter is thought to be a type-erased factory that is cast back
-//: internally.  We believe there are such cases in existing code, so must be
-//: supported - we cannot assume the initial "V*" factory argument is ignored
-//: by the deleter.  Here we will test just two forms, 'D' ignoring the factory
-//: argument and using the default allocator to destroy the 'object', and 'B'
-//: which destroys the 'object' by casting the 'factory' to
-//: 'bslma::Allocator*'.
-//:
-//:      Deleter  Code   Value
-//:      -------  ----   -----
-//:            -  (none) use default (if any)
-//:            0  Dnull  [ALL SUCH OVERLOADS ARE COMPILE-FAIL TEST CASES]
-//:    V(V*, V*)  Dzero  a pointer variable with value '0'.
-//:    V(V*, V*)  DvvF
-//:    V(V*, V*)  DvvT
-//:    V(V*, V*)  DvvD
-//:    V(V*, B*)  DvbD
-//:    V(V*, B*)  DvbB
-//:    V(V*, D*)  DvdD
-//:    V(V*, D*)  DvdB
-//:    V(B*, V*)  Dbv
-//:    V(B*, B*)  Dbb
-//:    V(B*, D*)  Dbd
-//:    V(T*, V*)  Dtv
-//:    V(T*, B*)  Dtb
-//:    V(T*, D*)  Dtd
-//:
-//: Deleter codes used above:
-//:     V(X*, Y*) is a function type, returning 'void' taking arguments of type
-//:              'X*' and 'Y*'.
-//:
-//: Possible values of X:
-//: o V void
-//: o B bslma::Allocator
-//: o T bslma::TestAllocator
-//:
-//: Possible values of Y:
-//: o V void
-//: o B MyTestClass
-//: o D MyDerivedClass
+//         Object  Code     Value
+//         ------  ----     -----
+//              -  (none)   use default (if any)
+//             0.  Onull    null pointer literal
+//           base  Obase    pointer to allocated MyTestObject
+//     const base  OCbase   pointer to allocated `const MyTestObject`
+//        derived  Oderiv   pointer to allocated `MyDerivedObject`
+//  const derived  OCderiv  pointer to allocated `const MyDerivedObject`
+//
+//        Factory  Code     Value
+//        -------  ----     -----
+//              -  (none)   use default (if any)
+//             0.  Fnull    null pointer literal
+//          bslma  Fbsl     `bslma::TestAllocator` cast to `bslma::Allocator *`
+//           Test  Ftst     `bslma::TestAllocator` factory
+//        default  Fdflt    default allocator, passed as `bslma::Allocator *`
+//
+//  [No const factory support by default, but can `deleter` support this?]
+//  [Probably only through the deprecated interface, and no code can do this
+//  yet?]
+//
+//  Scenarios to consider:
+//  "V(V*, V*)" can hide many casting opportunities inside the function body.
+//  This implies we may have many scenarios to test inside this one case, or
+//  we may want to pick the most representative single case.  In fact, two
+//  cases dominate our analysis, "V(bslma::Allocator, Base)", and "V(actual,
+//  actual)".  The former can be explicitly coded up as a non-template
+//  function.  The latter is already implemented as
+//  `bslma::ManagedPtr_FactoryDeleter`.  Note that there is a third category of
+//  deleter, where the deleter function acts only on the `object` parameter and
+//  ignores the `factory`.  This is an important case, as we must support `0`
+//  literals and null pointers for factories based on existing code.  We can
+//  test this case with a deleter that assumes the object was allocated using
+//  the default allocator.  This gives us our 3 test scenarios for "V(V*,V*)".
+//  The "V(V*,B*)" and "V(V*,D*)" cases could be tricky if the first "V*"
+//  parameter is thought to be a type-erased factory that is cast back
+//  internally.  We believe there are such cases in existing code, so must be
+//  supported - we cannot assume the initial "V*" factory argument is ignored
+//  by the deleter.  Here we will test just two forms, `D` ignoring the factory
+//  argument and using the default allocator to destroy the `object`, and `B`
+//  which destroys the `object` by casting the `factory` to
+//  `bslma::Allocator*`.
+//
+//       Deleter  Code   Value
+//       -------  ----   -----
+//             -  (none) use default (if any)
+//            0.  Dnull  [ALL SUCH OVERLOADS ARE COMPILE-FAIL TEST CASES]
+//     V(V*, V*)  Dzero  a pointer variable with value `0`.
+//     V(V*, V*)  DvvF
+//     V(V*, V*)  DvvT
+//     V(V*, V*)  DvvD
+//     V(V*, B*)  DvbD
+//     V(V*, B*)  DvbB
+//     V(V*, D*)  DvdD
+//     V(V*, D*)  DvdB
+//     V(B*, V*)  Dbv
+//     V(B*, B*)  Dbb
+//     V(B*, D*)  Dbd
+//     V(T*, V*)  Dtv
+//     V(T*, B*)  Dtb
+//     V(T*, D*)  Dtd
+//
+//  Deleter codes used above:
+//      V(X*, Y*) is a function type, returning `void` taking arguments of type
+//               `X*` and `Y*`.
+//
+//  Possible values of X:
+//  - V void
+//  - B bslma::Allocator
+//  - T bslma::TestAllocator
+//
+//  Possible values of Y:
+//  - V void
+//  - B MyTestClass
+//  - D MyDerivedClass
 
 //X doLoad
 
@@ -2092,7 +2113,7 @@ void debugprint(const ManagedPtrDeleter& obj)
 //X doLoadOderivFbslDzero
 //X doLoadOderivFtstDzero
 
-// TBD Can we store a 'void *' object with a knowledgeable factory?
+// TBD Can we store a `void *` object with a knowledgeable factory?
 //     (I think we require a knowledgeable deleter to handle such type erasure)
 
 // WOULD THESE SERVE ANY PURPOSE, OR PURELY DELETER TESTS?
@@ -2106,41 +2127,41 @@ void debugprint(const ManagedPtrDeleter& obj)
 // These stems match the above pattern, but are interesting when testing
 // deleters
 
-//: doLoadOnullFdflt
-//: doLoadObaseFdflt
-//: doLoadOCbaseFdflt
-//: doLoadOderivFdflt
-//: doLoadOCderivFdflt
+//  doLoadOnullFdflt
+//  doLoadObaseFdflt
+//  doLoadOCbaseFdflt
+//  doLoadOderivFdflt
+//  doLoadOCderivFdflt
 
-//: doLoadOnullFnull
-//: doLoadObaseFnull
-//: doLoadOCbaseFnull
-//: doLoadOderivFnull
-//: doLoadOCderivFnull
+//  doLoadOnullFnull
+//  doLoadObaseFnull
+//  doLoadOCbaseFnull
+//  doLoadOderivFnull
+//  doLoadOCderivFnull
 
 // BDE_VERIFY pragma: push
 // BDE_VERIFY pragma: -FABC01 // Functions ordered logically, for easier audit.
 
 namespace {
 
+/// This struct holds the set of arguments that will be passed into a policy
+/// based test function.  It collects all information for the range of tests
+/// and expectations to be set up on entry, and reported on exit.
 template <class POINTER_TYPE>
 struct TestLoadArgs {
-    // This struct holds the set of arguments that will be passed into a policy
-    // based test function.  It collects all information for the range of tests
-    // and expectations to be set up on entry, and reported on exit.
 
     int d_deleteCount;          // Delete counter, whose address will be passed
                                 // to test object constructors.
     int d_deleteDelta;          // Expected change in delete counter when a new
-                                // value is 'load'ed or destructor run.
+                                // value is `load`ed or destructor run.
     bool d_useDefault;          // Set to true if the test uses the default
                                 // allocator.
     bslma::TestAllocator *d_ta; // pointer to a test allocator whose lifetime
                                 // will outlast the function call.
     unsigned int d_config;      // Valid values are 0-3.
                                 // The low-bit represents whether to pass a
-                                // null for 'object', the second bit whether to
-                                // pass a null for 'factory'
+                                // null for `object`, the second bit whether to
+                                // pass a null for `factory`
     bslma::ManagedPtr<POINTER_TYPE> *d_p; // pointer to the long-lived managed
                                          // pointer on which to execute tests
 };
@@ -2150,7 +2171,7 @@ void validateTestLoadArgs(int                               callLine,
                           int                               testLine,
                           const TestLoadArgs<POINTER_TYPE> *args)
 {
-    // Assert pre-conditions that are appropriate for every call using 'args'.
+    // Assert pre-conditions that are appropriate for every call using `args`.
     ASSERTV(callLine, testLine, args->d_deleteCount, 0 == args->d_deleteCount);
     ASSERTV(callLine, testLine, args->d_p,           0 != args->d_p);
     ASSERTV(callLine, testLine, args->d_ta,          0 != args->d_ta);
@@ -2158,7 +2179,7 @@ void validateTestLoadArgs(int                               callLine,
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                             ToVoid metafunction
-// The 'ToVoid' metafunction supports tests that need to use a 'void' pointer
+// The `ToVoid` metafunction supports tests that need to use a `void` pointer
 // representing a pointer to the test object, while also retaining the correct
 // cv-qualification.
 template <class TYPE>
@@ -2184,17 +2205,17 @@ struct ToVoid<const volatile TYPE> {
 //=============================================================================
 //                          Target Object policies
 // A Target Object policy consist of two members:
-//: 1 A typedef, 'ObjectType', that reports the type of object to create
-//: 2 An enum value 'DELETE_DELTA' reporting the expected change in
-//:   'deleteCount' when the created object is destroyed.
+// 1. A typedef, `ObjectType`, that reports the type of object to create
+// 2. An enum value `DELETE_DELTA` reporting the expected change in
+//    `deleteCount` when the created object is destroyed.
 //
 // Note that the dynamic type of the object used in the test might be quite
 // different to the static type of the created object described by this policy,
-// notably for tests of 'bslma::ManagedPtr<void>'.
+// notably for tests of `bslma::ManagedPtr<void>`.
 //
 // List of available policies:
 struct Obase;   // construct a base-class object
-struct OCbase;  // construct a 'const' base object
+struct OCbase;  // construct a `const` base object
 struct Oderiv;  // Construct a derived-class object
 struct OCderiv; // Construct a const derived object
 struct Ob1;     // Construct a left-base class object
@@ -2248,21 +2269,21 @@ struct Ocomp {
 //                             Factory Policies
 // List of available policies:
 // ---------------------------
-// The factory policy has a type alias named 'FactoryType' that gives the
+// The factory policy has a type alias named `FactoryType` that gives the
 // static type of the factory supported by the policy - the dynamic type may
 // well be a class derived from the static type.
 //
-// The 'factory' function is supplied with a test allocator, and returns a
+// The `factory` function is supplied with a test allocator, and returns a
 // pointer to the preferred allocator to use, which may be the supplied
-// allocator cast to the 'FactoryType', or might substitute some other
+// allocator cast to the `FactoryType`, or might substitute some other
 // allocator entirely, such as the default allocator.
 //
-// Two constants further describe how policy might be applied: 'USE_DEFAULT'
+// Two constants further describe how policy might be applied: `USE_DEFAULT`
 // indicates that use of the factory will also imply use of the default
 // allocator.
 //
-// TBD 'DELETER_USES_FACTORY' is important and needs better doc!
-struct Fbsl;    // factory is a 'bsl' allocator'
+// TBD `DELETER_USES_FACTORY` is important and needs better doc!
+struct Fbsl;    // factory is a `bsl` allocator'
 struct Ftst;    // factory is a test allocator
 struct Fdflt;   // factory is the default allocator
 
@@ -2270,8 +2291,8 @@ struct Fdflt;   // factory is the default allocator
 struct Fbsl {
     typedef bslma::Allocator FactoryType;
 
+    /// Return the specified factory `f`.
     static FactoryType *factory(bslma::TestAllocator *f)
-        // Return the specified factory 'f'.
     {
         return f;
     }
@@ -2283,8 +2304,8 @@ struct Fbsl {
 struct Ftst {
     typedef bslma::TestAllocator FactoryType;
 
+    /// Return the specified factory `f`.
     static FactoryType *factory(bslma::TestAllocator *f)
-        // Return the specified factory 'f'.
     {
         return f;
     }
@@ -2296,8 +2317,8 @@ struct Ftst {
 struct Fdflt {
     typedef bslma::Allocator FactoryType;
 
+    /// Return the default allocator.
     static FactoryType *factory(bslma::TestAllocator *)
-        // Return the default allocator.
     {
         return bslma::Default::defaultAllocator();
     }
@@ -2314,39 +2335,39 @@ struct Fdflt {
 // A valid policy will have three type aliases, an enumerated constant, and two
 // static function members:
 //
-//: typedef ... ObjectType :  Object type of the OBJECT policy
-//: typedef ... FactoryType:  Factory type of the FACTORY policy
-//: typedef ... DeleterType:  type of the deleter function 'doDelete'
+//  typedef ... ObjectType :  Object type of the OBJECT policy
+//  typedef ... FactoryType:  Factory type of the FACTORY policy
+//  typedef ... DeleterType:  type of the deleter function `doDelete`
 //
-//: enum DELETER_USES_FACTORY : enumeration from the FACTORY policy
+//  enum DELETER_USES_FACTORY : enumeration from the FACTORY policy
 //
 // DeleterType *deleter()
-//    Return the address of the 'doDelete' function
+//    Return the address of the `doDelete` function
 //
 // void doDelete(...)
-//    The 'doDelete' function has a signature described by the type alias
-//    'DeleterType' and actually destroys the dynamically allocated object
+//    The `doDelete` function has a signature described by the type alias
+//    `DeleterType` and actually destroys the dynamically allocated object
 //    supplied in the first argument, using either the factory supplied as the
 //    second argument, or the default allocator, according to the value of the
-//    'DELETER_USES_FACTORY' constant.
+//    `DELETER_USES_FACTORY` constant.
 //
 //  The implementation of the policies is essentially identical, differing only
-//  in the type of the 'doDelete' function.  The intent of the policy is to
+//  in the type of the `doDelete` function.  The intent of the policy is to
 //  validate testing with different deleter function signatures as they plug
-//  into 'bslma::ManagedPtr' objects.
+//  into `bslma::ManagedPtr` objects.
 //
 //  There are 4 variations of policy that we must test:
 //    Passing the Object pointer, and the Factory pointer, with the correct
-//    type, passing each with the type erased as a 'void *', and all the
+//    type, passing each with the type erased as a `void *`, and all the
 //    permutations of such typing,
 //
 // The policy named are encoded as:
-//  'D' for Deleter po
-//  'Obj' or 'Void' to indicate if the object type is preserved in the deleter
-//  'Fac' or 'Void' to indicate if the factory type is preserved in the deleter
+//  `D` for Deleter po
+//  `Obj` or `Void` to indicate if the object type is preserved in the deleter
+//  `Fac` or `Void` to indicate if the factory type is preserved in the deleter
 //
 // Note that use of any policy other than that for passing all parameters to
-// the deleter function as 'void *' is deprecated.
+// the deleter function as `void *` is deprecated.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 template<class OBJECT_POLICY, class FACTORY_POLICY> struct DObjFac;
@@ -2357,11 +2378,11 @@ template<class OBJECT_POLICY, class FACTORY_POLICY> struct DVoidVoid;
 
 // Policy implementations
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+/// This class implements the deleter policy for a deleter function
+/// `doDelete` that explicitly passes both the object type and the factory
+/// type.
 template<class OBJECT_POLICY, class FACTORY_POLICY>
 struct DObjFac {
-    // This class implements the deleter policy for a deleter function
-    // 'doDelete' that explicitly passes both the object type and the factory
-    // type.
 
     typedef typename  OBJECT_POLICY::ObjectType  ObjectType;
     typedef typename FACTORY_POLICY::FactoryType FactoryType;
@@ -2370,24 +2391,24 @@ struct DObjFac {
 
     enum {DELETER_USES_FACTORY = FACTORY_POLICY::DELETER_USES_FACTORY};
 
+    /// Return the address of the `doDelete` static member of this class.
     static DeleterType *deleter()
-        // Return the address of the 'doDelete' static member of this class.
     {
         return &doDelete;
     }
 
+    /// Destroy the specified `object` and reclaim its memory.  If
+    /// `DELETER_USES_FACTORY` is `true`, destroy the `object` using the
+    /// specified `factory`, otherwise destroy the `object` using the
+    /// default allocator as the factory.
     static void doDelete(ObjectType *object, FactoryType *factory)
-        // Destroy the specified 'object' and reclaim its memory.  If
-        // 'DELETER_USES_FACTORY' is 'true', destroy the 'object' using the
-        // specified 'factory', otherwise destroy the 'object' using the
-        // default allocator as the factory.
     {
         if (DELETER_USES_FACTORY) {
             factory->deleteObject(object);
         }
         else {
             // Use the default allocator as the deleter, ignore the passed
-            // 'factory' pointer
+            // `factory` pointer
             bslma::Allocator *pDa = bslma::Default::defaultAllocator();
             pDa->deleteObject(object);
         }
@@ -2395,13 +2416,13 @@ struct DObjFac {
 
 };
 
+/// This class implements the deleter policy for a deleter function
+/// `doDelete` that explicitly passes both the object type, but requires
+/// explicitly casting the factory type back from `void *`, where the
+/// original factory type is known through the (template parameter)
+/// `FACTORY_POLICY`.
 template<class OBJECT_POLICY, class FACTORY_POLICY>
 struct DObjVoid {
-    // This class implements the deleter policy for a deleter function
-    // 'doDelete' that explicitly passes both the object type, but requires
-    // explicitly casting the factory type back from 'void *', where the
-    // original factory type is known through the (template parameter)
-    // 'FACTORY_POLICY'.
 
     typedef typename  OBJECT_POLICY::ObjectType  ObjectType;
     typedef typename FACTORY_POLICY::FactoryType FactoryType;
@@ -2410,18 +2431,18 @@ struct DObjVoid {
 
     enum {DELETER_USES_FACTORY = FACTORY_POLICY::DELETER_USES_FACTORY};
 
+    /// Return the address of the `doDelete` static member of this class.
     static DeleterType *deleter()
-        // Return the address of the 'doDelete' static member of this class.
     {
         return &doDelete;
     }
 
+    /// Destroy the specified `object` and reclaim its memory.  If
+    /// `DELETER_USES_FACTORY` is `true`, destroy the `object` using the
+    /// specified `factory`, otherwise destroy the `object` using the
+    /// default allocator as the factory.  The behavior is undefined unless
+    /// `factory` points to an object of type `FactoryType`.
     static void doDelete(ObjectType *object, void *factory)
-        // Destroy the specified 'object' and reclaim its memory.  If
-        // 'DELETER_USES_FACTORY' is 'true', destroy the 'object' using the
-        // specified 'factory', otherwise destroy the 'object' using the
-        // default allocator as the factory.  The behavior is undefined unless
-        // 'factory' points to an object of type 'FactoryType'.
     {
         if (DELETER_USES_FACTORY) {
             FactoryType *fac = reinterpret_cast<FactoryType *>(factory);
@@ -2429,20 +2450,20 @@ struct DObjVoid {
         }
         else {
             // Use the default allocator as the deleter, ignore the passed
-            // 'factory' pointer
+            // `factory` pointer
             bslma::Allocator *pDa = bslma::Default::defaultAllocator();
             pDa->deleteObject(object);
         }
     }
 };
 
+/// This class implements the deleter policy for a deleter function
+/// `doDelete` that explicitly passes both the factory type, but requires
+/// explicitly casting the object type back from `void *`, where the
+/// original object type is known through the (template parameter)
+/// `OBJECT_POLICY`.
 template<class OBJECT_POLICY, class FACTORY_POLICY>
 struct DVoidFac {
-    // This class implements the deleter policy for a deleter function
-    // 'doDelete' that explicitly passes both the factory type, but requires
-    // explicitly casting the object type back from 'void *', where the
-    // original object type is known through the (template parameter)
-    // 'OBJECT_POLICY'.
 
     typedef typename  OBJECT_POLICY::ObjectType  ObjectType;
     typedef typename FACTORY_POLICY::FactoryType FactoryType;
@@ -2453,18 +2474,18 @@ struct DVoidFac {
 
     enum {DELETER_USES_FACTORY = FACTORY_POLICY::DELETER_USES_FACTORY};
 
+    /// Return the address of the `doDelete` static member of this class.
     static DeleterType *deleter()
-        // Return the address of the 'doDelete' static member of this class.
     {
         return &doDelete;
     }
 
+    /// Destroy the specified `object` and reclaim its memory.  If
+    /// `DELETER_USES_FACTORY` is `true`, destroy the `object` using the
+    /// specified `factory`, otherwise destroy the `object` using the
+    /// default allocator as the factory.  The behavior is undefined unless
+    /// `object` points to an object of type `ObjectType`.
     static void doDelete(VoidType *object, FactoryType *factory)
-        // Destroy the specified 'object' and reclaim its memory.  If
-        // 'DELETER_USES_FACTORY' is 'true', destroy the 'object' using the
-        // specified 'factory', otherwise destroy the 'object' using the
-        // default allocator as the factory.  The behavior is undefined unless
-        // 'object' points to an object of type 'ObjectType'.
 
     {
         ObjectType *obj = reinterpret_cast<ObjectType *>(object);
@@ -2473,7 +2494,7 @@ struct DVoidFac {
         }
         else {
             // Use the default allocator as the deleter, ignore the passed
-            // 'factory' pointer
+            // `factory` pointer
             bslma::Allocator *pDa = bslma::Default::defaultAllocator();
             pDa->deleteObject(obj);
         }
@@ -2481,13 +2502,13 @@ struct DVoidFac {
 };
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
+/// This class implements the deleter policy for a deleter function
+/// `doDelete` that requires explicitly casting both the object type and
+/// factory type back from `void *`, where the original object type is known
+/// through the (template parameter) `OBJECT_POLICY` and the original
+/// factory type is known through the (template parameter) `FACTORY_POLICY`.
 template<class OBJECT_POLICY, class FACTORY_POLICY>
 struct DVoidVoid {
-    // This class implements the deleter policy for a deleter function
-    // 'doDelete' that requires explicitly casting both the object type and
-    // factory type back from 'void *', where the original object type is known
-    // through the (template parameter) 'OBJECT_POLICY' and the original
-    // factory type is known through the (template parameter) 'FACTORY_POLICY'.
 
     typedef typename  OBJECT_POLICY::ObjectType  ObjectType;
     typedef typename FACTORY_POLICY::FactoryType FactoryType;
@@ -2496,19 +2517,19 @@ struct DVoidVoid {
 
     enum {DELETER_USES_FACTORY = FACTORY_POLICY::DELETER_USES_FACTORY};
 
+    /// Return the address of the `doDelete` static member of this class.
     static DeleterType *deleter()
-        // Return the address of the 'doDelete' static member of this class.
     {
         return &doDelete;
     }
 
+    /// Destroy the specified `object` and reclaim its memory.  If
+    /// `DELETER_USES_FACTORY` is `true`, destroy the `object` using the
+    /// specified `factory`, otherwise destroy the `object` using the
+    /// default allocator as the factory.  The behavior is undefined unless
+    /// `object` points to an object of type `ObjectType` and `factory`
+    /// points to an object of type `FactoryType`.
     static void doDelete(void *object, void *factory)
-        // Destroy the specified 'object' and reclaim its memory.  If
-        // 'DELETER_USES_FACTORY' is 'true', destroy the 'object' using the
-        // specified 'factory', otherwise destroy the 'object' using the
-        // default allocator as the factory.  The behavior is undefined unless
-        // 'object' points to an object of type 'ObjectType' and 'factory'
-        // points to an object of type 'FactoryType'.
 
     {
         ObjectType *obj = reinterpret_cast<ObjectType *>(object);
@@ -2518,7 +2539,7 @@ struct DVoidVoid {
         }
         else {
             // Use the default allocator as the deleter, ignore the passed
-            // 'factory' pointer
+            // `factory` pointer
             bslma::Allocator *pDa = bslma::Default::defaultAllocator();
             pDa->deleteObject(obj);
         }
@@ -2531,15 +2552,15 @@ struct DVoidVoid {
 // The following set of functions use the policies defined in the previous
 // section to construct a set of tests that will exhaustively cover the
 // potential type-space of valid combinations of type for each set of arguments
-// to 'bslma::ManagedPtr::load'.  Each is a function template, taking at least
-// a single type parameter describing the type 'bslma::ManagedPtr' should be
+// to `bslma::ManagedPtr::load`.  Each is a function template, taking at least
+// a single type parameter describing the type `bslma::ManagedPtr` should be
 // instantiated for.  Most function templates will take additional type
 // arguments describing different policies that are used to define the
 // functionality of that test.
 //
 // This decomposition into 11 test policies and 10 test functions allows us to
 // generate over 200 distinct test functions that in turn may be specified for
-// each of the 5 types we instantiate 'bslma::ManagedPtr' with for testings.
+// each of the 5 types we instantiate `bslma::ManagedPtr` with for testings.
 // Note that not all 200 tests are valid for each of the 5 types, and indeed
 // many will not compile if instantiated.
 //
@@ -2550,24 +2571,24 @@ struct DVoidVoid {
 // of the 5 test types, and comment out only those we believe must be disabled.
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+/// This struct holds the set of arguments that will be passed into a policy
+/// based test function.  It collects all information for the range of tests
+/// and expectations to be set up on entry, and reported on exit.
 struct TestCtorArgs {
-    // This struct holds the set of arguments that will be passed into a policy
-    // based test function.  It collects all information for the range of tests
-    // and expectations to be set up on entry, and reported on exit.
 
     bool d_useDefault;  // Set to true if the test uses the default allocator
     unsigned int d_config; // Valid values are 0-3.  The low-bit represents
-                           // whether to pass a null for 'object', the second
-                           // bit whether to pass a null for 'factory'.
+                           // whether to pass a null for `object`, the second
+                           // bit whether to pass a null for `factory`.
 };
 
+/// Return the specified `ptr` safely cast to a `void *`.  Note that
+/// this function will cast away constness, which may yield undefined
+/// behavior in later code if an attempt is made to modify the original
+/// object that is being pointed to.
 struct TestUtil {
     template <class TARGET_TYPE>
     static void *stripPointerType(TARGET_TYPE *ptr);
-        // Return the specified 'ptr' safely cast to a 'void *'.  Note that
-        // this function will cast away constness, which may yield undefined
-        // behavior in later code if an attempt is made to modify the original
-        // object that is being pointed to.
 };
 
 template <class TARGET_TYPE>
@@ -2578,7 +2599,7 @@ void *TestUtil::stripPointerType(TARGET_TYPE *ptr)
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// No policies needed for 'load' of empty managed pointers
+// No policies needed for `load` of empty managed pointers
 
 template <class POINTER_TYPE>
 void doConstruct(int callLine, int testLine, int index, TestCtorArgs *args)
@@ -2673,7 +2694,7 @@ doConstructObject(int callLine, int testLine, int index, TestCtorArgs *args)
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// The following functions load a 'bslma::ManagedPtr' object using a factory.
+// The following functions load a `bslma::ManagedPtr` object using a factory.
 // We now require separate policies for Object and Factory types
 
 template<class POINTER_TYPE, class FACTORY_POLICY>
@@ -2684,9 +2705,9 @@ doConstructOnullFactory(int callLine, int testLine, int, TestCtorArgs *args)
 
     typedef typename FACTORY_POLICY::FactoryType FactoryType;
 
-    // We need two factory pointers, 'pAlloc' is used for all necessary
-    // allocations and destructions within this function, while 'pF' is the
-    // factory pointer passed to load, which is either the same as 'pAlloc' or
+    // We need two factory pointers, `pAlloc` is used for all necessary
+    // allocations and destructions within this function, while `pF` is the
+    // factory pointer passed to load, which is either the same as `pAlloc` or
     // null.
     bslma::TestAllocator ta("Test ConstructOnull", g_veryVeryVeryVerbose);
     FactoryType *pAlloc = FACTORY_POLICY::factory(&ta);
@@ -2708,29 +2729,29 @@ doConstructObjectFactory(int callLine, int testLine, int, TestCtorArgs *args)
     const bool nullObject  = args->d_config & 1;
     const bool nullFactory = args->d_config & 2;
 
-    // Given a two-argument call to 'load', there is a problem only if
-    // 'factory' is null while 'object' has a non-null value, as there is no
+    // Given a two-argument call to `load`, there is a problem only if
+    // `factory` is null while `object` has a non-null value, as there is no
     // way to destroy the target object.  Pass a null deleter if that is the
     // goal.
     bool negativeTesting = !nullObject && nullFactory;
 
     // If we are negative-testing, we will create and destroy any target object
     // entirely within this function, so must track with a local counter
-    // instead of the 'args' counter.
+    // instead of the `args` counter.
 
     typedef typename  OBJECT_POLICY::ObjectType  ObjectType;
     typedef typename FACTORY_POLICY::FactoryType FactoryType;
 
-    // We need two factory pointers, 'pAlloc' is used for all necessary
-    // allocations and destructions within this function, while 'pF' is the
-    // factory pointer passed to load, which is either the same as 'pAlloc' or
+    // We need two factory pointers, `pAlloc` is used for all necessary
+    // allocations and destructions within this function, while `pF` is the
+    // factory pointer passed to load, which is either the same as `pAlloc` or
     // null.
     bslma::TestAllocator ta("Test ConstructObject", g_veryVeryVeryVerbose);
 
     FactoryType *pAlloc = FACTORY_POLICY::factory(&ta);
     FactoryType *pF = nullFactory ? 0 : pAlloc;
 
-    // Load the 'bslma::ManagedPtr' and check that the previous state is
+    // Load the `bslma::ManagedPtr` and check that the previous state is
     // correctly cleared.
     if (!negativeTesting) {
         const bslma::ManagedPtrDeleter del;
@@ -2769,10 +2790,10 @@ doConstructObjectFactory(int callLine, int testLine, int, TestCtorArgs *args)
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// The following functions load a 'bslma::ManagedPtr' object using both a
+// The following functions load a `bslma::ManagedPtr` object using both a
 // factory and a deleter.
 //
-// First we perform negative testing when the 'deleter' argument is equal to a
+// First we perform negative testing when the `deleter` argument is equal to a
 // null pointer.  Note that passing a null pointer literal will produce a
 // compile time error in this case, so we store the null in a variable of the
 // desired function-pointer type.
@@ -2790,21 +2811,21 @@ void doConstructObjectFactoryDzero(int           callLine,
 
     void (*nullFn)(void *, void*) = 0;
 
-    // given a two-argument call to 'load', there is a problem only if
-    // 'factory' is null while 'object' has a non-null value, as there is no
+    // given a two-argument call to `load`, there is a problem only if
+    // `factory` is null while `object` has a non-null value, as there is no
     // way to destroy the target object.  Pass a null deleter if that is the
     // goal.
     bool negativeTesting = !nullObject;
 
     // If we are negative-testing, we will create and destroy any target object
     // entirely within this function, so must track with a local counter
-    // instead of the 'args' counter.
+    // instead of the `args` counter.
     typedef typename  OBJECT_POLICY::ObjectType  ObjectType;
     typedef typename FACTORY_POLICY::FactoryType FactoryType;
 
-    // We need two factory pointers, 'pAlloc' is used for all necessary
-    // allocations and destructions within this function, while 'pF' is the
-    // factory pointer passed to load, which is either the same as 'pAlloc' or
+    // We need two factory pointers, `pAlloc` is used for all necessary
+    // allocations and destructions within this function, while `pF` is the
+    // factory pointer passed to load, which is either the same as `pAlloc` or
     // null.
     bslma::TestAllocator ta("Test ConstructObjectDzero",
                             g_veryVeryVeryVerbose);
@@ -2849,9 +2870,9 @@ void doConstructObjectFactoryDzero(int           callLine,
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Next we supply the actual deleter argument, which now requires three
-// separate policies.  Note that the 'deleter' policy is in turn parameterized
+// separate policies.  Note that the `deleter` policy is in turn parameterized
 // on the types it expects to see, which may be different to (but compatible
-// with) the actual 'object' and 'factory' policies used in a given test.
+// with) the actual `object` and `factory` policies used in a given test.
 
 template<class POINTER_TYPE,
          class OBJECT_POLICY, class FACTORY_POLICY, class DELETER_POLICY>
@@ -2868,7 +2889,7 @@ void doConstructObjectFactoryDeleter(int           callLine,
     if (nullFactory && FACTORY_POLICY::DELETER_USES_FACTORY) {
         // It is perfectly well defined to pass a null pointer as the factory
         // if it is not going to be used by the deleter.  We cannot assert this
-        // condition in the 'bslma::ManagedPtr' component, so simply exit from
+        // condition in the `bslma::ManagedPtr` component, so simply exit from
         // this test case, rather than try negative testing strategies.  Note
         // that some factory/deleter policies do not actually use the factory
         // argument when running the deleter.  These must be allowed to
@@ -2880,9 +2901,9 @@ void doConstructObjectFactoryDeleter(int           callLine,
     typedef typename FACTORY_POLICY::FactoryType FactoryType;
     typedef typename DELETER_POLICY::DeleterType DeleterType;
 
-    // We need two factory pointers, 'pAlloc' is used for all necessary
-    // allocations and destructions within this function, while 'pF' is the
-    // factory pointer passed to load, which is either the same as 'pAlloc' or
+    // We need two factory pointers, `pAlloc` is used for all necessary
+    // allocations and destructions within this function, while `pF` is the
+    // factory pointer passed to load, which is either the same as `pAlloc` or
     // null.
     bslma::TestAllocator ta("Test ConstructObjectDeleter",
                             g_veryVeryVeryVerbose);
@@ -2921,9 +2942,9 @@ void doConstructObjectFactoryDeleter(int           callLine,
 }
 
 // Next we supply the actual deleter argument, which now requires three
-// separate policies.  Note that the 'deleter' policy is in turn parameterized
+// separate policies.  Note that the `deleter` policy is in turn parameterized
 // on the types it expects to see, which may be different to (but compatible
-// with) the actual 'object' and 'factory' policies used in a given test.
+// with) the actual `object` and `factory` policies used in a given test.
 
 template<class POINTER_TYPE,
          class OBJECT_POLICY, class FACTORY_POLICY, class DELETER_POLICY>
@@ -2941,7 +2962,7 @@ void doConstructObjectFactoryDeleter2(int           callLine,
     if (nullFactory && FACTORY_POLICY::DELETER_USES_FACTORY) {
         // It is perfectly well defined to pass a null pointer as the factory
         // if it is not going to be used by the deleter.  We cannot assert this
-        // condition in the 'bslma::ManagedPtr' component, so simply exit from
+        // condition in the `bslma::ManagedPtr` component, so simply exit from
         // this test case, rather than try negative testing strategies.  Note
         // that some factory/deleter policies do not actually use the factory
         // argument when running the deleter.  These must be allowed to
@@ -2953,9 +2974,9 @@ void doConstructObjectFactoryDeleter2(int           callLine,
     typedef typename FACTORY_POLICY::FactoryType FactoryType;
     typedef typename DELETER_POLICY::DeleterType DeleterType;
 
-    // We need two factory pointers, 'pAlloc' is used for all necessary
-    // allocations and destructions within this function, while 'pF' is the
-    // factory pointer passed to load, which is either the same as 'pAlloc' or
+    // We need two factory pointers, `pAlloc` is used for all necessary
+    // allocations and destructions within this function, while `pF` is the
+    // factory pointer passed to load, which is either the same as `pAlloc` or
     // null.
     bslma::TestAllocator ta("Test ConstructObjectDeleter2",
                             g_veryVeryVeryVerbose);
@@ -3054,7 +3075,7 @@ void doConstructObjectFnullDeleter(int           callLine,
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// No policies needed for 'load' of empty managed pointers
+// No policies needed for `load` of empty managed pointers
 
 template <class POINTER_TYPE>
 void doLoad(int                         callLine,
@@ -3075,7 +3096,7 @@ void doLoad(int                         callLine,
     POINTER_TYPE *ptr = args->d_p->ptr();
     ASSERTV(callLine, testLine, index, ptr, 0 == ptr);
 
-    // As 'd_p' is empty, none of its other properties have a defined state.
+    // As `d_p` is empty, none of its other properties have a defined state.
 }
 
 template <class POINTER_TYPE>
@@ -3097,7 +3118,7 @@ void doLoadOnull(int                         callLine,
     POINTER_TYPE *ptr = args->d_p->ptr();
     ASSERTV(callLine, testLine, index, ptr, 0 == ptr);
 
-    // As 'd_p' is empty, none of its other properties have a defined state.
+    // As `d_p` is empty, none of its other properties have a defined state.
 }
 
 template <class POINTER_TYPE>
@@ -3119,7 +3140,7 @@ void doLoadOnullFnull(int                         callLine,
     POINTER_TYPE *ptr = args->d_p->ptr();
     ASSERTV(callLine, testLine, index, ptr, 0 == ptr);
 
-    // As 'd_p' is empty, none of its other properties have a defined state.
+    // As `d_p` is empty, none of its other properties have a defined state.
 }
 
 template <class POINTER_TYPE>
@@ -3141,7 +3162,7 @@ void doLoadOnullFnullDnull(int                         callLine,
     POINTER_TYPE *ptr = args->d_p->ptr();
     ASSERTV(callLine, testLine, index, ptr, 0 == ptr);
 
-    // As 'd_p' is empty, none of its other properties have a defined state.
+    // As `d_p` is empty, none of its other properties have a defined state.
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -3181,12 +3202,12 @@ void doLoadObject(int                         callLine,
     POINTER_TYPE *ptr = args->d_p->ptr();
     ASSERTV(callLine, testLine, index, pO, ptr, pO == ptr);
 
-    // If we are feeling brave, verify that 'd_p.deleter' has the expected
-    // 'object', 'factory' and 'deleter'
+    // If we are feeling brave, verify that `d_p.deleter` has the expected
+    // `object`, `factory` and `deleter`
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// The following functions load a 'bslma::ManagedPtr' object using a factory.
+// The following functions load a `bslma::ManagedPtr` object using a factory.
 // We now require separate policies for Object and Factory types
 
 template<class POINTER_TYPE, class FACTORY_POLICY>
@@ -3201,9 +3222,9 @@ void doLoadOnullFactory(int                         callLine,
 
     typedef typename FACTORY_POLICY::FactoryType FactoryType;
 
-    // We need two factory pointers, 'pAlloc' is used for all necessary
-    // allocations and destructions within this function, while 'pF' is the
-    // factory pointer passed to load, which is either the same as 'pAlloc' or
+    // We need two factory pointers, `pAlloc` is used for all necessary
+    // allocations and destructions within this function, while `pF` is the
+    // factory pointer passed to load, which is either the same as `pAlloc` or
     // null.
     FactoryType *pAlloc = FACTORY_POLICY::factory(args->d_ta);
 
@@ -3220,7 +3241,7 @@ void doLoadOnullFactory(int                         callLine,
     POINTER_TYPE *ptr = args->d_p->ptr();
     ASSERTV(callLine, testLine, index, ptr, 0 == ptr);
 
-    // As 'd_p' is empty, none of its other properties have a defined state.
+    // As `d_p` is empty, none of its other properties have a defined state.
 }
 
 template<class POINTER_TYPE, class OBJECT_POLICY, class FACTORY_POLICY>
@@ -3238,8 +3259,8 @@ void doLoadObjectFactory(int                         callLine,
 
     const int expectedCount = args->d_deleteDelta;
 
-    // Given a two-argument call to 'load', there is a problem only if
-    // 'factory' is null while 'object' has a non-null value, as there is no
+    // Given a two-argument call to `load`, there is a problem only if
+    // `factory` is null while `object` has a non-null value, as there is no
     // way to destroy the target object.  Pass a null deleter if that is the
     // goal.
     bool negativeTesting = !nullObject && nullFactory;
@@ -3262,7 +3283,7 @@ void doLoadObjectFactory(int                         callLine,
 
     // If we are negative-testing, we will create and destroy any target object
     // entirely within this function, so must track with a local counter
-    // instead of the 'args' counter.
+    // instead of the `args` counter.
     int deleteCount = 0;
 
     int *counter = negativeTesting ? &deleteCount : &args->d_deleteCount;
@@ -3270,9 +3291,9 @@ void doLoadObjectFactory(int                         callLine,
     typedef typename  OBJECT_POLICY::ObjectType  ObjectType;
     typedef typename FACTORY_POLICY::FactoryType FactoryType;
 
-    // We need two factory pointers, 'pAlloc' is used for all necessary
-    // allocations and destructions within this function, while 'pF' is the
-    // factory pointer passed to load, which is either the same as 'pAlloc' or
+    // We need two factory pointers, `pAlloc` is used for all necessary
+    // allocations and destructions within this function, while `pF` is the
+    // factory pointer passed to load, which is either the same as `pAlloc` or
     // null.
     FactoryType *pAlloc = FACTORY_POLICY::factory(args->d_ta);
     FactoryType *pF = nullFactory ? 0 : pAlloc;
@@ -3283,7 +3304,7 @@ void doLoadObjectFactory(int                         callLine,
         args->d_useDefault = true;
     }
 
-    // Load the 'bslma::ManagedPtr' and check that the previous state is
+    // Load the `bslma::ManagedPtr` and check that the previous state is
     // correctly cleared.
     if (!negativeTesting) {
         args->d_p->load(pO, pF);
@@ -3305,15 +3326,15 @@ void doLoadObjectFactory(int                         callLine,
         ASSERTV(deleteCount, OBJECT_POLICY::DELETE_DELTA == deleteCount);
     }
 
-    // If we are feeling brave, verify that 'p.deleter' has the expected
-    // 'object', 'factory' and 'deleter'
+    // If we are feeling brave, verify that `p.deleter` has the expected
+    // `object`, `factory` and `deleter`
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// The following functions load a 'bslma::ManagedPtr' object using both a
+// The following functions load a `bslma::ManagedPtr` object using both a
 // factory and a deleter.
 //
-// First we perform negative testing when the 'deleter' argument is equal to a
+// First we perform negative testing when the `deleter` argument is equal to a
 // null pointer.  Note that passing a null pointer literal will produce a
 // compile time error in this case, so we store the null in a variable of the
 // desired function-pointer type.
@@ -3333,8 +3354,8 @@ void doLoadObjectFactoryDzero(int                         callLine,
 
     const int expectedCount = args->d_deleteDelta;
 
-    // Given a two-argument call to 'load', there is a problem only if
-    // 'factory' is null while 'object' has a non-null value, as there is no
+    // Given a two-argument call to `load`, there is a problem only if
+    // `factory` is null while `object` has a non-null value, as there is no
     // way to destroy the target object.  Pass a null deleter if that is the
     // goal.
     bool negativeTesting = !nullObject;
@@ -3358,15 +3379,15 @@ void doLoadObjectFactoryDzero(int                         callLine,
 
     // If we are negative-testing, we will create and destroy any target object
     // entirely within this function, so must track with a local counter
-    // instead of the 'args' counter.
+    // instead of the `args` counter.
     int deleteCount = 0;
 
     typedef typename  OBJECT_POLICY::ObjectType  ObjectType;
     typedef typename FACTORY_POLICY::FactoryType FactoryType;
 
-    // We need two factory pointers, 'pAlloc' is used for all necessary
-    // allocations and destructions within this function, while 'pF' is the
-    // factory pointer passed to load, which is either the same as 'pAlloc' or
+    // We need two factory pointers, `pAlloc` is used for all necessary
+    // allocations and destructions within this function, while `pF` is the
+    // factory pointer passed to load, which is either the same as `pAlloc` or
     // null.
     FactoryType *pAlloc = FACTORY_POLICY::factory(args->d_ta);
     FactoryType *pF = nullFactory ? 0 : pAlloc;
@@ -3402,9 +3423,9 @@ void doLoadObjectFactoryDzero(int                         callLine,
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Next we supply the actual deleter argument, which now requires three
-// separate policies.  Note that the 'deleter' policy is in turn parameterized
+// separate policies.  Note that the `deleter` policy is in turn parameterized
 // on the types it expects to see, which may be different to (but compatible
-// with) the actual 'object' and 'factory' policies used in a given test.
+// with) the actual `object` and `factory` policies used in a given test.
 
 template<class POINTER_TYPE,
          class OBJECT_POLICY, class FACTORY_POLICY, class DELETER_POLICY>
@@ -3421,7 +3442,7 @@ void doLoadObjectFactoryDeleter(int                         callLine,
     if (nullFactory && FACTORY_POLICY::DELETER_USES_FACTORY) {
         // It is perfectly well defined to pass a null pointer as the factory
         // if it is not going to be used by the deleter.  We cannot assert this
-        // condition in the 'bslma::ManagedPtr' component, so simply exit from
+        // condition in the `bslma::ManagedPtr` component, so simply exit from
         // this test case, rather than try negative testing strategies.  Note
         // that some factory/deleter policies do not actually use the factory
         // argument when running the deleter.  These must be allowed to
@@ -3435,9 +3456,9 @@ void doLoadObjectFactoryDeleter(int                         callLine,
     typedef typename FACTORY_POLICY::FactoryType FactoryType;
     typedef typename DELETER_POLICY::DeleterType DeleterType;
 
-    // We need two factory pointers, 'pAlloc' is used for all necessary
-    // allocations and destructions within this function, while 'pF' is the
-    // factory pointer passed to load, which is either the same as 'pAlloc' or
+    // We need two factory pointers, `pAlloc` is used for all necessary
+    // allocations and destructions within this function, while `pF` is the
+    // factory pointer passed to load, which is either the same as `pAlloc` or
     // null.
     FactoryType *pAlloc = FACTORY_POLICY::factory(args->d_ta);
     FactoryType *pF = nullFactory ? 0 : pAlloc;
@@ -3463,9 +3484,9 @@ void doLoadObjectFactoryDeleter(int                         callLine,
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Next we supply the actual deleter argument, which now requires three
-// separate policies.  Note that the 'deleter' policy is in turn parameterized
+// separate policies.  Note that the `deleter` policy is in turn parameterized
 // on the types it expects to see, which may be different to (but compatible
-// with) the actual 'object' and 'factory' policies used in a given test.
+// with) the actual `object` and `factory` policies used in a given test.
 
 template<class POINTER_TYPE,
          class OBJECT_POLICY, class FACTORY_POLICY, class DELETER_POLICY>
@@ -3483,7 +3504,7 @@ void doLoadObjectFactoryDeleter2(int                         callLine,
     if (nullFactory && FACTORY_POLICY::DELETER_USES_FACTORY) {
         // It is perfectly well defined to pass a null pointer as the factory
         // if it is not going to be used by the deleter.  We cannot assert this
-        // condition in the 'bslma::ManagedPtr' component, so simply exit from
+        // condition in the `bslma::ManagedPtr` component, so simply exit from
         // this test case, rather than try negative testing strategies.  Note
         // that some factory/deleter policies do not actually use the factory
         // argument when running the deleter.  These must be allowed to
@@ -3497,9 +3518,9 @@ void doLoadObjectFactoryDeleter2(int                         callLine,
     typedef typename FACTORY_POLICY::FactoryType FactoryType;
     typedef typename DELETER_POLICY::DeleterType DeleterType;
 
-    // We need two factory pointers, 'pAlloc' is used for all necessary
-    // allocations and destructions within this function, while 'pF' is the
-    // factory pointer passed to load, which is either the same as 'pAlloc' or
+    // We need two factory pointers, `pAlloc` is used for all necessary
+    // allocations and destructions within this function, while `pF` is the
+    // factory pointer passed to load, which is either the same as `pAlloc` or
     // null.
     FactoryType *pAlloc = FACTORY_POLICY::factory(args->d_ta);
     FactoryType *pF = nullFactory ? 0 : pAlloc;
@@ -3572,10 +3593,11 @@ void doLoadObjectFnullDeleter(int                         callLine,
 // need some driver functions to iterate over each valid combination (stored in
 // separate test tables) and check that the behavior transitions correctly in
 // each case.
+
+/// This class is a tag-type that represents passing a null pointer value as
+/// an argument, whose position is determined relative to other policies
+/// supplied to a `TestPolicy` constructor,
 struct NullPolicy {
-    // This class is a tag-type that represents passing a null pointer value as
-    // an argument, whose position is determined relative to other policies
-    // supplied to a 'TestPolicy' constructor,
 };
 
 template<class TARGET>
@@ -3624,33 +3646,33 @@ struct TestPolicy {
     TestPolicy(OBJECT_POLICY, NullPolicy, DVoidVoid<DELETER_OBJECT_POLICY,
                                                     DELETER_FACTORY_POLICY>);
 
+    /// Create a `TestPolicy` object configured to run tests according to
+    /// the passed policy parameters.  Note that policy parameters are all
+    /// stateless tag-types, and the configuration is entirely a matter of
+    /// tag-dispatch used to encode type information.
     template<class OBJECT_POLICY, class FACTORY_POLICY>
     TestPolicy(OBJECT_POLICY, FACTORY_POLICY, NullPolicy);
-        // Create a 'TestPolicy' object configured to run tests according to
-        // the passed policy parameters.  Note that policy parameters are all
-        // stateless tag-types, and the configuration is entirely a matter of
-        // tag-dispatch used to encode type information.
 
     // ACCESSORS
     unsigned int configs() const { return d_configs; }
 
+    /// Run the test of the `bslma::ManagedPtr` constructor indicated by the
+    /// specified `config`, called from the specified `LINE_1` (which was,
+    /// in turn, called from the specified `LINE_2`) by the specified
+    /// `loopIndex`th iteration of the test loop.
     void testCtor(int           LINE_1,
                   int           LINE_2,
                   int           loopIndex,
                   TestCtorArgs *config) const;
-        // Run the test of the 'bslma::ManagedPtr' constructor indicated by the
-        // specified 'config', called from the specified 'LINE_1' (which was,
-        // in turn, called from the specified 'LINE_2') by the specified
-        // 'loopIndex'th iteration of the test loop.
 
+    /// Run the test of `bslma::ManagedPtr::load` indicated by the specified
+    /// `config`, called from the specified `LINE_1` (which was, in turn,
+    /// called from the specified `LINE_2`) by the specified `loopIndex`th
+    /// iteration of the test loop.
     void testLoad(int                   LINE_1,
                   int                   LINE_2,
                   int                   loopIndex,
                   TestLoadArgs<TARGET> *config) const;
-        // Run the test of 'bslma::ManagedPtr::load' indicated by the specified
-        // 'config', called from the specified 'LINE_1' (which was, in turn,
-        // called from the specified 'LINE_2') by the specified 'loopIndex'th
-        // iteration of the test loop.
 };
 
 // CREATORS
@@ -3838,8 +3860,8 @@ void testConstructors(
                    const TestPolicy<TEST_TARGET>(&TEST_ARRAY)[TEST_ARRAY_SIZE])
 {
     // This function iterates all viable variations of test functions composed
-    // of the policies above, to verify that all 'bslma::ManagedPtr::load'
-    // behave according to contract.  First, we call 'load' on an empty managed
+    // of the policies above, to verify that all `bslma::ManagedPtr::load`
+    // behave according to contract.  First, we call `load` on an empty managed
     // pointer using a test function from the passed array, confirming that the
     // managed pointer takes up the correct state.  Then we allow that pointer
     // to go out of scope, and confirm that any managed object is destroyed
@@ -3892,8 +3914,8 @@ void testLoadOps(int                             callLine,
                  const TestPolicy<TEST_TARGET> (&TEST_ARRAY)[TEST_ARRAY_SIZE])
 {
     // This function iterates all viable variations of test functions composed
-    // of the policies above, to verify that all 'bslma::ManagedPtr::load'
-    // behave according to contract.  First, we call 'load' on an empty managed
+    // of the policies above, to verify that all `bslma::ManagedPtr::load`
+    // behave according to contract.  First, we call `load` on an empty managed
     // pointer using a test function from the passed array, confirming that the
     // managed pointer takes up the correct state.  Then we allow that pointer
     // to go out of scope, and confirm that any managed object is destroyed
@@ -3927,7 +3949,7 @@ void testLoadOps(int                             callLine,
 
     for (int i = 0; i != TEST_ARRAY_SIZE; ++i) {
         if (g_veryVerbose) printf(
-               "\tTesting 'load' into object constructed by function no. %d\n",
+               "\tTesting `load` into object constructed by function no. %d\n",
                                                                             i);
 
         for (unsigned configI = 0; configI != TEST_ARRAY[i].configs();
@@ -3995,7 +4017,7 @@ void testLoadOps(int                             callLine,
                     args.d_deleteCount = 0;
                     TEST_ARRAY[j].testLoad(callLine, L_, j, &args);
 
-                    // Clear 'deleteCount' before 'p' is destroyed.
+                    // Clear `deleteCount` before `p` is destroyed.
                     args.d_deleteCount = 0;
 
                     ASSERTV(i, gam.isInUseSame());
@@ -4008,7 +4030,7 @@ void testLoadOps(int                             callLine,
                 }
             }
 
-            // Validate the final deleter run when 'p' is destroyed.
+            // Validate the final deleter run when `p` is destroyed.
             ASSERTV(args.d_deleteCount,   args.d_deleteDelta,
                     args.d_deleteCount == args.d_deleteDelta);
 
@@ -4020,9 +4042,9 @@ void testLoadOps(int                             callLine,
 }
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-// The 'AliasTestTypeN' metafunctions suggest a type to use when testing the
+// The `AliasTestTypeN` metafunctions suggest a type to use when testing the
 // ManagedPtr alias facility, given a managed pointer owning an object of the
-// parameterized 'TYPE'.
+// parameterized `TYPE`.
 
 template <class TYPE>
 struct AliasTestType1 {
@@ -4062,7 +4084,7 @@ void testLoadAliasOps1(
                   int                             callLine,
                   const TestPolicy<TEST_TARGET> (&TEST_ARRAY)[TEST_ARRAY_SIZE])
 {
-    // This function validates the simple scenario of calling 'loadAlias' to
+    // This function validates the simple scenario of calling `loadAlias` to
     // create a simple aliased managed pointer, and confirming that pointer
     // destroyed its managed object with the correct deleter and reclaims all
     // memory when destroyed by leaving scope.
@@ -4105,7 +4127,7 @@ void testLoadAliasOps1(
                 args.d_deleteDelta = 0;
                 TEST_ARRAY[i].testLoad(callLine, L_, i, &args);
 
-                // All operations from here are effectively 'move' operations.
+                // All operations from here are effectively `move` operations.
                 // Check that no more memory is allocated or freed.
                 bslma::TestAllocatorMonitor gam2(&ga);
                 bslma::TestAllocatorMonitor dam2(&da);
@@ -4153,7 +4175,7 @@ void testLoadAliasOps1(
                 ASSERTV(i, gam2.isMaxSame());
             }
 
-            // Validate the final deleter run when 'p' is destroyed.
+            // Validate the final deleter run when `p` is destroyed.
             ASSERTV(args.d_deleteCount,   args.d_deleteDelta,
                     args.d_deleteCount == args.d_deleteDelta);
 
@@ -4173,19 +4195,19 @@ void testLoadAliasOps2(
                    int                            callLine,
                    const TestPolicy<TEST_TARGET>(&TEST_ARRAY)[TEST_ARRAY_SIZE])
 {
-    // This scenario tests the correct state change for following a 'loadAlias'
-    // call with another 'loadAlias' call.  It will also test derived* -> base*
-    // conversions for the aliased pointer, and non-'const *' -> 'const *'.
-    // The test process is to take an empty 'bslma::ManagedPtr' object and
-    // 'load' a known state into it using a well-known test function.  Then we
-    // "alias" this pointer by calling 'loadAlias' on another (empty) managed
+    // This scenario tests the correct state change for following a `loadAlias`
+    // call with another `loadAlias` call.  It will also test derived* -> base*
+    // conversions for the aliased pointer, and non-`const *` -> `const *`.
+    // The test process is to take an empty `bslma::ManagedPtr` object and
+    // `load` a known state into it using a well-known test function.  Then we
+    // "alias" this pointer by calling `loadAlias` on another (empty) managed
     // pointer object, and check that the new aliased state has been created
     // correctly, without allocating any memory, and that the original managed
     // pointer object is now empty.  Next we establish another well-known
-    // managed pointer value, and call 'loadAlias' again on the pointer in the
+    // managed pointer value, and call `loadAlias` again on the pointer in the
     // existing aliased state.  We again confirm that the aliased state is
     // transferred without allocating any memory, but also that the object
-    // managed by the original 'bslma::ManagedPtr' object has now been
+    // managed by the original `bslma::ManagedPtr` object has now been
     // destroyed as expected.  Finally we let this final managed pointer object
     // leave scope and confirm that all managed objects have been destroyed, as
     // expected, and that all memory has been reclaimed.  At each step, we
@@ -4235,7 +4257,7 @@ void testLoadAliasOps2(
                 args.d_deleteDelta = 0;
                 TEST_ARRAY[i].testLoad(callLine, L_, i, &args);
 
-                // All operations from here are effectively 'mode' operations.
+                // All operations from here are effectively `mode` operations.
                 // Check that no more memory is allocated or freed.
                 bslma::TestAllocatorMonitor gam2(&ga);
                 bslma::TestAllocatorMonitor dam2(&da);
@@ -4246,8 +4268,8 @@ void testLoadAliasOps2(
                                          "\tNegative testing null pointers\n");
 
                 // Declare variables so that the lifetime extends to the end of
-                // the loop.  Otherwise, the 'ta' monitor tests will flag the
-                // 'pAlias2' destructor for freeing the original object.
+                // the loop.  Otherwise, the `ta` monitor tests will flag the
+                // `pAlias2` destructor for freeing the original object.
                 TestPointer pAlias1;
                 TestPointer pAlias2;
 
@@ -4294,7 +4316,7 @@ void testLoadAliasOps2(
                 ASSERTV(i, gam2.isMaxSame());
             }
 
-            // Validate the final deleter run when 'p' is destroyed.
+            // Validate the final deleter run when `p` is destroyed.
             ASSERTV(args.d_deleteCount,   args.d_deleteDelta,
                     args.d_deleteCount == args.d_deleteDelta);
 
@@ -4314,13 +4336,13 @@ void testLoadAliasOps3(
                    int                            callLine,
                    const TestPolicy<TEST_TARGET>(&TEST_ARRAY)[TEST_ARRAY_SIZE])
 {
-    // This function tests the correct interaction of 'load' and 'loadAlias'.
-    // Initially, an empty 'bslma::ManagedPtr' object is loaded into a well
+    // This function tests the correct interaction of `load` and `loadAlias`.
+    // Initially, an empty `bslma::ManagedPtr` object is loaded into a well
     // defined non-empty state using a well-known test loader.  This state is
-    // then transferred to a second empty pointer through a 'loadAlias' call,
+    // then transferred to a second empty pointer through a `loadAlias` call,
     // and we validate that no memory is allocated for this operation, and the
     // state is correctly transferred.  Next we replace this aliased state with
-    // another well-known state using 'load' again.  We test that the initial
+    // another well-known state using `load` again.  We test that the initial
     // state is correctly destroyed, and the new state is in place without any
     // aliasing.  Then we allow this final state to be destroyed, and confirm
     // that all managed objects have been correctly disposed of.
@@ -4367,7 +4389,7 @@ void testLoadAliasOps3(
                     continue;
                 }
 
-                // All operations from here are effectively 'move' operations.
+                // All operations from here are effectively `move` operations.
                 // Check that no more memory is allocated or freed.
                 bslma::TestAllocatorMonitor gam2(&ga);
                 bslma::TestAllocatorMonitor dam2(&da);
@@ -4388,12 +4410,12 @@ void testLoadAliasOps3(
                 ASSERTV(i, gam2.isMaxSame());
 
                 // Next we load a fresh state into the pointer to verify the
-                // final concern for 'load'; that it correctly destroys an
+                // final concern for `load`; that it correctly destroys an
                 // aliased state while acquire the new value.
                 args.d_p  = &pAlias;
 
                 // The test function itself asserts correct destructor count
-                // for this transition, and that the 'pAlias' has the correct
+                // for this transition, and that the `pAlias` has the correct
                 // final state.
                 TEST_ARRAY[j].testLoad(callLine, L_, j, &args);
 
@@ -4405,12 +4427,12 @@ void testLoadAliasOps3(
                     ASSERTV(i, dam.isMaxSame());
                 }
 
-                // Nothing further to assert, but reset 'deleteCount' to verify
+                // Nothing further to assert, but reset `deleteCount` to verify
                 // destroying final objects outside the loop.
                 args.d_deleteCount = 0;
             }
 
-            // Validate the final deleter run when 'p' is destroyed.
+            // Validate the final deleter run when `p` is destroyed.
             ASSERTV(args.d_deleteCount,   args.d_deleteDelta,
                     args.d_deleteCount == args.d_deleteDelta);
 
@@ -4431,8 +4453,8 @@ void testConstructors(int callLine,
                       const TestCtorFn(&TEST_ARRAY)[TEST_ARRAY_SIZE])
 {
     // This function iterates all viable variations of test functions composed
-    // of the policies above, to verify that all 'bslma::ManagedPtr::load'
-    // behave according to contract.  First, we call 'load' on an empty managed
+    // of the policies above, to verify that all `bslma::ManagedPtr::load`
+    // behave according to contract.  First, we call `load` on an empty managed
     // pointer using a test function from the passed array, confirming that the
     // managed pointer takes up the correct state.  Then we allow that pointer
     // to go out of scope, and confirm that any managed object is destroyed
@@ -4487,7 +4509,7 @@ template<class  TEST_TARGET,
 void testLoadAliasOps1(int                        callLine,
                        const TEST_FUNCTION_TYPE (&TEST_ARRAY)[TEST_ARRAY_SIZE])
 {
-    // This function validates the simple scenario of calling 'loadAlias' to
+    // This function validates the simple scenario of calling `loadAlias` to
     // create a simple aliased managed pointer, and confirming that pointer
     // destroyed its managed object with the correct deleter and reclaims all
     // memory when destroyed by leaving scope.
@@ -4524,7 +4546,7 @@ void testLoadAliasOps1(int                        callLine,
                 args.d_deleteDelta = 0;
                 TEST_ARRAY[i](callLine, L_, i, &args);
 
-                // All operations from here are effectively 'mode' operations.
+                // All operations from here are effectively `mode` operations.
                 // Check that no more memory is allocated or freed.
                 bslma::TestAllocatorMonitor gam2(&ga);
                 bslma::TestAllocatorMonitor dam2(&da);
@@ -4572,7 +4594,7 @@ void testLoadAliasOps1(int                        callLine,
                 ASSERTV(i, gam2.isMaxSame());
             }
 
-            // Validate the final deleter run when 'p' is destroyed.
+            // Validate the final deleter run when `p` is destroyed.
             ASSERTV(args.d_deleteCount,   args.d_deleteDelta,
                     args.d_deleteCount == args.d_deleteDelta);
 
@@ -4593,19 +4615,19 @@ template<class  TEST_TARGET,
 void testLoadAliasOps2(int                        callLine,
                        const TEST_FUNCTION_TYPE (&TEST_ARRAY)[TEST_ARRAY_SIZE])
 {
-    // This scenario tests the correct state change for following a 'loadAlias'
-    // call with another 'loadAlias' call.  It will also test derived* -> base*
-    // conversions for the aliased pointer, and non-'const *' -> 'const *'.
-    // The test process is to take an empty 'bslma::ManagedPtr' object and
-    // 'load' a known state into it using a well-known test function.  Then we
-    // "alias" this pointer by calling 'loadAlias' on another (empty) managed
+    // This scenario tests the correct state change for following a `loadAlias`
+    // call with another `loadAlias` call.  It will also test derived* -> base*
+    // conversions for the aliased pointer, and non-`const *` -> `const *`.
+    // The test process is to take an empty `bslma::ManagedPtr` object and
+    // `load` a known state into it using a well-known test function.  Then we
+    // "alias" this pointer by calling `loadAlias` on another (empty) managed
     // pointer object, and check that the new aliased state has been created
     // correctly, without allocating any memory, and that the original managed
     // pointer object is now empty.  Next we establish another well-known
-    // managed pointer value, and call 'loadAlias' again on the pointer in the
+    // managed pointer value, and call `loadAlias` again on the pointer in the
     // existing aliased state.  We again confirm that the aliased state is
     // transferred without allocating any memory, but also that the object
-    // managed by the original 'bslma::ManagedPtr' object has now been
+    // managed by the original `bslma::ManagedPtr` object has now been
     // destroyed as expected.  Finally we let this final managed pointer object
     // leave scope and confirm that all managed objects have been destroyed, as
     // expected, and that all memory has been reclaimed.  At each step, we
@@ -4649,7 +4671,7 @@ void testLoadAliasOps2(int                        callLine,
                 args.d_deleteDelta = 0;
                 TEST_ARRAY[i](callLine, L_, i, &args);
 
-                // All operations from here are effectively 'mode' operations.
+                // All operations from here are effectively `mode` operations.
                 // Check that no more memory is allocated or freed.
                 bslma::TestAllocatorMonitor gam2(&ga);
                 bslma::TestAllocatorMonitor dam2(&da);
@@ -4660,8 +4682,8 @@ void testLoadAliasOps2(int                        callLine,
                                   printf("\tNegative testing null pointers\n");
 
                 // Declare variables so that the lifetime extends to the end
-                // of the loop.  Otherwise, the 'ta' monitor tests will flag
-                // the 'pAlias2' destructor for freeing the original object.
+                // of the loop.  Otherwise, the `ta` monitor tests will flag
+                // the `pAlias2` destructor for freeing the original object.
                 TestPointer pAlias1;
                 TestPointer pAlias2;
 
@@ -4708,7 +4730,7 @@ void testLoadAliasOps2(int                        callLine,
                 ASSERTV(i, gam2.isMaxSame());
             }
 
-            // Validate the final deleter run when 'p' is destroyed.
+            // Validate the final deleter run when `p` is destroyed.
             ASSERTV(args.d_deleteCount,   args.d_deleteDelta,
                     args.d_deleteCount == args.d_deleteDelta);
 
@@ -4729,13 +4751,13 @@ template<class  TEST_TARGET,
 void testLoadAliasOps3(int                        callLine,
                        const TEST_FUNCTION_TYPE (&TEST_ARRAY)[TEST_ARRAY_SIZE])
 {
-    // This function tests the correct interaction of 'load' and 'loadAlias'.
-    // Initially, an empty 'bslma::ManagedPtr' object is loaded into a well
+    // This function tests the correct interaction of `load` and `loadAlias`.
+    // Initially, an empty `bslma::ManagedPtr` object is loaded into a well
     // defined non-empty state using a well-known test loader.  This state is
-    // then transferred to a second empty pointer through a 'loadAlias' call,
+    // then transferred to a second empty pointer through a `loadAlias` call,
     // and we validate that no memory is allocated for this operation, and the
     // state is correctly transferred.  Next we replace this aliased state with
-    // another well-known state using 'load' again.  We test that the initial
+    // another well-known state using `load` again.  We test that the initial
     // state is correctly destroyed, and the new state is in place without any
     // aliasing.  Then we allow this final state to be destroyed, and confirm
     // that all managed objects have been correctly disposed of.
@@ -4773,11 +4795,11 @@ void testLoadAliasOps3(int                        callLine,
                 TEST_ARRAY[i](callLine, L_, i, &args);
                 if (0 == p.get()) {
                     // We have no interest in tests that create a null pointer;
-                    // this scenario is negative-tested in 'testLoadAliasOps1'.
+                    // this scenario is negative-tested in `testLoadAliasOps1`.
                     continue;
                 }
 
-                // All operations from here are effectively 'move' operations.
+                // All operations from here are effectively `move` operations.
                 // Check that no more memory is allocated or freed.
                 bslma::TestAllocatorMonitor gam2(&ga);
                 bslma::TestAllocatorMonitor dam2(&da);
@@ -4798,12 +4820,12 @@ void testLoadAliasOps3(int                        callLine,
                 ASSERTV(i, gam2.isMaxSame());
 
                 // Next we load a fresh state into the pointer to verify the
-                // final concern for 'load'; that it correctly destroys an
+                // final concern for `load`; that it correctly destroys an
                 // aliased state while acquire the new value.
                 args.d_p  = &pAlias;
 
                 // The test function itself asserts correct destructor count
-                // for this transition, and that the 'pAlias' has the correct
+                // for this transition, and that the `pAlias` has the correct
                 // final state.
                 TEST_ARRAY[j](callLine, L_, j, &args);
 
@@ -4815,12 +4837,12 @@ void testLoadAliasOps3(int                        callLine,
                     ASSERTV(i, dam.isMaxSame());
                 }
 
-                // Nothing further to assert, but reset 'deleteCount' to
+                // Nothing further to assert, but reset `deleteCount` to
                 // verify destroying final objects outside the loop.
                 args.d_deleteCount = 0;
             }
 
-            // Validate the final deleter run when 'p' is destroyed.
+            // Validate the final deleter run when `p` is destroyed.
             ASSERTV(args.d_deleteCount,   args.d_deleteDelta,
                     args.d_deleteCount == args.d_deleteDelta);
 
@@ -4842,14 +4864,14 @@ void testLoadAliasOps3(int                        callLine,
 
 //=============================================================================
 // This is the test table for iterating constructor and load functions for
-// 'bslma::ManagedPtr<MyTestObject>'.  The same test table is created for each
+// `bslma::ManagedPtr<MyTestObject>`.  The same test table is created for each
 // of the main 5 tested pointer types, and then the invalid functions are
 // commented out, to audit that they have intentionally been reviewed and
 // rejected.  This allows us to compare the different test tables if a
 // discrepancy occurs in the future.
 //
 // In particular, this case does not support construction from pointers to
-// 'const' objects.
+// `const` objects.
 
 static const TestPolicy<MyTestObject> TEST_POLICY_BASE_ARRAY[] = {
     // default test
@@ -4879,7 +4901,7 @@ static const TestPolicy<MyTestObject> TEST_POLICY_BASE_ARRAY[] = {
     //TestPolicy<MyTestObject>( OCderiv(),  Fbsl() ),
     // deleter tests
 
-    // First test the non-deprecated interface, using the policy 'DVoidVoid'.
+    // First test the non-deprecated interface, using the policy `DVoidVoid`.
 
     // MyTestObject
     TestPolicy<MyTestObject>( Obase(), Ftst(), DVoidVoid< Obase,   Ftst >() ),
@@ -4928,8 +4950,8 @@ static const TestPolicy<MyTestObject> TEST_POLICY_BASE_ARRAY[] = {
     //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DVoidVoid< OCderiv, Fbsl >() ),
     //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
-    // Also test a deleter that does not use the 'factory' argument.  These
-    // tests must also validate passing a null pointer lvalue as the 'factory'
+    // Also test a deleter that does not use the `factory` argument.  These
+    // tests must also validate passing a null pointer lvalue as the `factory`
     // argument.
     TestPolicy<MyTestObject>( Obase(),  Fdflt(), DVoidVoid<Obase,   Fdflt>() ),
     TestPolicy<MyTestObject>( Obase(),  Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
@@ -4963,9 +4985,9 @@ static const TestPolicy<MyTestObject> TEST_POLICY_BASE_ARRAY[] = {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Next we test the deprecated support for deleters other than
-    // 'void (*)(void *, void *)', starting with deleters that type-erase the
-    // 'object' type, but have a strongly typed 'factory' argument.  Such
-    // deleters are generated by the 'DVoidFac' policy..
+    // `void (*)(void *, void *)`, starting with deleters that type-erase the
+    // `object` type, but have a strongly typed `factory` argument.  Such
+    // deleters are generated by the `DVoidFac` policy..
 
     // MyTestObject
     TestPolicy<MyTestObject>( Obase(),   Ftst(), DVoidFac< Obase,   Ftst >() ),
@@ -5015,8 +5037,8 @@ static const TestPolicy<MyTestObject> TEST_POLICY_BASE_ARRAY[] = {
     //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DVoidFac< OCderiv, Fbsl >() ),
     //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
-    // Also test a deleter that does not use the 'factory' argument.  These
-    // tests must also validate passing a null pointer lvalue as the 'factory'
+    // Also test a deleter that does not use the `factory` argument.  These
+    // tests must also validate passing a null pointer lvalue as the `factory`
     // argument.
     TestPolicy<MyTestObject>( Obase(),   Fdflt(), DVoidFac<Obase,   Fdflt>() ),
     TestPolicy<MyTestObject>( Obase(),   Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
@@ -5053,8 +5075,8 @@ static const TestPolicy<MyTestObject> TEST_POLICY_BASE_ARRAY[] = {
     //TestPolicy<MyTestObject>( OCderiv(), NullPolicy(), DVoidFac<OCderiv, Fdflt>() ),
     //TestPolicy<MyTestObject>( OCderiv(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
 
-    // Now we test deleters that are strongly typed for the 'object' parameter,
-    // but type-erase the 'factory'.
+    // Now we test deleters that are strongly typed for the `object` parameter,
+    // but type-erase the `factory`.
 
     // MyTestObject
     TestPolicy<MyTestObject>( Obase(),   Ftst(), DObjVoid< Obase,   Ftst >() ),
@@ -5104,8 +5126,8 @@ static const TestPolicy<MyTestObject> TEST_POLICY_BASE_ARRAY[] = {
     //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DObjVoid< OCderiv, Fbsl >() ),
     //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DObjVoid< OCbase,  Fbsl >() ),
 
-    // Also test a deleter that does not use the 'factory' argument.  These
-    // tests must also validate passing a null pointer lvalue as the 'factory'
+    // Also test a deleter that does not use the `factory` argument.  These
+    // tests must also validate passing a null pointer lvalue as the `factory`
     // argument.
     TestPolicy<MyTestObject>( Obase(),   Fdflt(), DObjVoid<Obase,   Fdflt>() ),
     TestPolicy<MyTestObject>( Obase(),   Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
@@ -5139,7 +5161,7 @@ static const TestPolicy<MyTestObject> TEST_POLICY_BASE_ARRAY[] = {
 
     // Finally we test the most generic combination of generic object type, a
     // factory, and a deleter taking two arguments compatible with pointers to
-    // the invoking 'object' and 'factory' types.
+    // the invoking `object` and `factory` types.
 
     // MyTestObject
     TestPolicy<MyTestObject>( Obase(),   Ftst(), DObjFac< Obase,   Ftst >() ),
@@ -5189,8 +5211,8 @@ static const TestPolicy<MyTestObject> TEST_POLICY_BASE_ARRAY[] = {
     //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DObjFac< OCderiv, Fbsl >() ),
     //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DObjFac< OCbase,  Fbsl >() ),
 
-    // Also test a deleter that does not use the 'factory' argument.  These
-    // tests must also validate passing a null pointer lvalue as the 'factory'
+    // Also test a deleter that does not use the `factory` argument.  These
+    // tests must also validate passing a null pointer lvalue as the `factory`
     // argument.
     TestPolicy<MyTestObject>( Obase(),   Fdflt(), DObjFac<Obase,   Fdflt>() ),
     TestPolicy<MyTestObject>( Obase(),   Fdflt(), DObjFac<OCbase,  Fdflt>() ),
@@ -5240,7 +5262,7 @@ static const TestPolicy<MyTestObject> TEST_POLICY_BASE_ARRAY[] = {
 
 //-----------------------------------------------------------------------------
 // This is the test table for iterating constructor and load functions for
-// 'bslma::ManagedPtr<MyTestObject>'.  The same test table is created for each
+// `bslma::ManagedPtr<MyTestObject>`.  The same test table is created for each
 // of the main 5 tested pointer types, and then the invalid functions are
 // commented out, to audit that they have intentionally been reviewed and
 // rejected.  This allows us to compare the different test tables if a
@@ -5274,7 +5296,7 @@ static const TestPolicy<const MyTestObject> TEST_POLICY_CONST_BASE_ARRAY[] = {
     // deleter tests
     TestPolicy<const MyTestObject>( NullPolicy(), NullPolicy(), NullPolicy() ),
 
-    // First test the non-deprecated interface, using the policy 'DVoidVoid'.
+    // First test the non-deprecated interface, using the policy `DVoidVoid`.
 
     // MyTestObject
     TestPolicy<const MyTestObject>( Obase(), Ftst(), DVoidVoid< Obase,   Ftst >() ),
@@ -5324,8 +5346,8 @@ static const TestPolicy<const MyTestObject> TEST_POLICY_CONST_BASE_ARRAY[] = {
     TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DVoidVoid< OCderiv, Fbsl >() ),
     TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
-    // Also test a deleter that does not use the 'factory' argument.  These
-    // tests must also validate passing a null pointer lvalue as the 'factory'
+    // Also test a deleter that does not use the `factory` argument.  These
+    // tests must also validate passing a null pointer lvalue as the `factory`
     // argument.
     TestPolicy<const MyTestObject>( Obase(),  Fdflt(), DVoidVoid<Obase,   Fdflt>() ),
     TestPolicy<const MyTestObject>( Obase(),  Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
@@ -5359,9 +5381,9 @@ static const TestPolicy<const MyTestObject> TEST_POLICY_CONST_BASE_ARRAY[] = {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Next we test the deprecated support for deleters other than
-    // 'void (*)(void *, void *)', starting with deleters that type-erase the
-    // 'object' type, but have a strongly typed 'factory' argument.  Such
-    // deleters are generated by the 'DVoidFac' policy..
+    // `void (*)(void *, void *)`, starting with deleters that type-erase the
+    // `object` type, but have a strongly typed `factory` argument.  Such
+    // deleters are generated by the `DVoidFac` policy..
 
     // MyTestObject
     TestPolicy<const MyTestObject>( Obase(),   Ftst(), DVoidFac< Obase,   Ftst >() ),
@@ -5411,8 +5433,8 @@ static const TestPolicy<const MyTestObject> TEST_POLICY_CONST_BASE_ARRAY[] = {
     TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DVoidFac< OCderiv, Fbsl >() ),
     TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
-    // Also test a deleter that does not use the 'factory' argument.  These
-    // tests must also validate passing a null pointer lvalue as the 'factory'
+    // Also test a deleter that does not use the `factory` argument.  These
+    // tests must also validate passing a null pointer lvalue as the `factory`
     // argument.
     TestPolicy<const MyTestObject>( Obase(),   Fdflt(), DVoidFac<Obase,   Fdflt>() ),
     TestPolicy<const MyTestObject>( Obase(),   Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
@@ -5449,8 +5471,8 @@ static const TestPolicy<const MyTestObject> TEST_POLICY_CONST_BASE_ARRAY[] = {
     //TestPolicy<const MyTestObject>( OCderiv(), NullPolicy(), DVoidFac<OCderiv, Fdflt>() ),
     //TestPolicy<const MyTestObject>( OCderiv(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
 
-    // Now we test deleters that are strongly typed for the 'object' parameter,
-    // but type-erase the 'factory'.
+    // Now we test deleters that are strongly typed for the `object` parameter,
+    // but type-erase the `factory`.
 
     // MyTestObject
     TestPolicy<const MyTestObject>( Obase(),   Ftst(), DObjVoid< Obase,   Ftst >() ),
@@ -5500,8 +5522,8 @@ static const TestPolicy<const MyTestObject> TEST_POLICY_CONST_BASE_ARRAY[] = {
     TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DObjVoid< OCderiv, Fbsl >() ),
     TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DObjVoid< OCbase,  Fbsl >() ),
 
-    // Also test a deleter that does not use the 'factory' argument.  These
-    // tests must also validate passing a null pointer lvalue as the 'factory'
+    // Also test a deleter that does not use the `factory` argument.  These
+    // tests must also validate passing a null pointer lvalue as the `factory`
     // argument.
     TestPolicy<const MyTestObject>( Obase(),   Fdflt(), DObjVoid<Obase,   Fdflt>() ),
     TestPolicy<const MyTestObject>( Obase(),   Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
@@ -5535,7 +5557,7 @@ static const TestPolicy<const MyTestObject> TEST_POLICY_CONST_BASE_ARRAY[] = {
 
     // Finally we test the most generic combination of generic object type, a
     // factory, and a deleter taking two arguments compatible with pointers to
-    // the invoking 'object' and 'factory' types.
+    // the invoking `object` and `factory` types.
 
     // MyTestObject
     TestPolicy<const MyTestObject>( Obase(),   Ftst(), DObjFac< Obase,   Ftst >() ),
@@ -5585,8 +5607,8 @@ static const TestPolicy<const MyTestObject> TEST_POLICY_CONST_BASE_ARRAY[] = {
     TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DObjFac< OCderiv, Fbsl >() ),
     TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DObjFac< OCbase,  Fbsl >() ),
 
-    // Also test a deleter that does not use the 'factory' argument.  These
-    // tests must also validate passing a null pointer lvalue as the 'factory'
+    // Also test a deleter that does not use the `factory` argument.  These
+    // tests must also validate passing a null pointer lvalue as the `factory`
     // argument.
     TestPolicy<const MyTestObject>( Obase(),   Fdflt(), DObjFac<Obase,   Fdflt>() ),
     TestPolicy<const MyTestObject>( Obase(),   Fdflt(), DObjFac<OCbase,  Fdflt>() ),
@@ -5636,14 +5658,14 @@ static const TestPolicy<const MyTestObject> TEST_POLICY_CONST_BASE_ARRAY[] = {
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This is the test table for iterating constructor and load functions for
-// 'bslma::ManagedPtr<MyTestObject>'.  The same test table is created for each
+// `bslma::ManagedPtr<MyTestObject>`.  The same test table is created for each
 // of the main 5 tested pointer types, and then the invalid functions are
 // commented out, to audit that they have intentionally been reviewed and
 // rejected.  This allows us to compare the different test tables if a
 // discrepancy occurs in the future.
 //
 // In particular, this case does not support construction from pointers to
-// 'const' objects, or from pointers to base objects.
+// `const` objects, or from pointers to base objects.
 static const TestPolicy<MyDerivedObject> TEST_POLICY_DERIVED_ARRAY[] = {
     // default test
     TestPolicy<MyDerivedObject>(),
@@ -5670,7 +5692,7 @@ static const TestPolicy<MyDerivedObject> TEST_POLICY_DERIVED_ARRAY[] = {
     //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl() ),
     // deleter tests
 
-    // First test the non-deprecated interface, using the policy 'DVoidVoid'.
+    // First test the non-deprecated interface, using the policy `DVoidVoid`.
 
     // MyDerivedObject
     //TestPolicy<MyDerivedObject>( Obase(), Ftst(), DVoidVoid< Obase,   Ftst >() ),
@@ -5720,8 +5742,8 @@ static const TestPolicy<MyDerivedObject> TEST_POLICY_DERIVED_ARRAY[] = {
     //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidVoid< OCderiv, Fbsl >() ),
     //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
-    // Also test a deleter that does not use the 'factory' argument.  These
-    // tests must also validate passing a null pointer lvalue as the 'factory'
+    // Also test a deleter that does not use the `factory` argument.  These
+    // tests must also validate passing a null pointer lvalue as the `factory`
     // argument.
     //TestPolicy<MyDerivedObject>( Obase(),  Fdflt(), DVoidVoid<Obase,   Fdflt>() ),
     //TestPolicy<MyDerivedObject>( Obase(),  Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
@@ -5755,9 +5777,9 @@ static const TestPolicy<MyDerivedObject> TEST_POLICY_DERIVED_ARRAY[] = {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Next we test the deprecated support for deleters other than
-    // 'void (*)(void *, void *)', starting with deleters that type-erase the
-    // 'object' type, but have a strongly typed 'factory' argument.  Such
-    // deleters are generated by the 'DVoidFac' policy..
+    // `void (*)(void *, void *)`, starting with deleters that type-erase the
+    // `object` type, but have a strongly typed `factory` argument.  Such
+    // deleters are generated by the `DVoidFac` policy..
 
     // MyDerivedObject
     //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DVoidFac< Obase,   Ftst >() ),
@@ -5807,8 +5829,8 @@ static const TestPolicy<MyDerivedObject> TEST_POLICY_DERIVED_ARRAY[] = {
     //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidFac< OCderiv, Fbsl >() ),
     //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
-    // Also test a deleter that does not use the 'factory' argument.  These
-    // tests must also validate passing a null pointer lvalue as the 'factory'
+    // Also test a deleter that does not use the `factory` argument.  These
+    // tests must also validate passing a null pointer lvalue as the `factory`
     // argument.
     //TestPolicy<MyDerivedObject>( Obase(),   Fdflt(), DVoidFac<Obase,   Fdflt>() ),
     //TestPolicy<MyDerivedObject>( Obase(),   Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
@@ -5845,8 +5867,8 @@ static const TestPolicy<MyDerivedObject> TEST_POLICY_DERIVED_ARRAY[] = {
     //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DVoidFac<OCderiv, Fdflt>() ),
     //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
 
-    // Now we test deleters that are strongly typed for the 'object' parameter,
-    // but type-erase the 'factory'.
+    // Now we test deleters that are strongly typed for the `object` parameter,
+    // but type-erase the `factory`.
 
     // MyDerivedObject
     //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DObjVoid< Obase,   Ftst >() ),
@@ -5896,8 +5918,8 @@ static const TestPolicy<MyDerivedObject> TEST_POLICY_DERIVED_ARRAY[] = {
     //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjVoid< OCderiv, Fbsl >() ),
     //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjVoid< OCbase,  Fbsl >() ),
 
-    // Also test a deleter that does not use the 'factory' argument.  These
-    // tests must also validate passing a null pointer lvalue as the 'factory'
+    // Also test a deleter that does not use the `factory` argument.  These
+    // tests must also validate passing a null pointer lvalue as the `factory`
     // argument.
     //TestPolicy<MyDerivedObject>( Obase(),   Fdflt(), DObjVoid<Obase,   Fdflt>() ),
     //TestPolicy<MyDerivedObject>( Obase(),   Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
@@ -5932,7 +5954,7 @@ static const TestPolicy<MyDerivedObject> TEST_POLICY_DERIVED_ARRAY[] = {
 
     // Finally we test the most generic combination of generic object type, a
     // factory, and a deleter taking two arguments compatible with pointers to
-    // the invoking 'object' and 'factory' types.
+    // the invoking `object` and `factory` types.
 
     // MyDerivedObject
     //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DObjFac< Obase,   Ftst >() ),
@@ -5983,8 +6005,8 @@ static const TestPolicy<MyDerivedObject> TEST_POLICY_DERIVED_ARRAY[] = {
     //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjFac< OCbase,  Fbsl >() ),
 
 
-    // Also test a deleter that does not use the 'factory' argument.  These
-    // tests must also validate passing a null pointer lvalue as the 'factory'
+    // Also test a deleter that does not use the `factory` argument.  These
+    // tests must also validate passing a null pointer lvalue as the `factory`
     // argument.
     //TestPolicy<MyDerivedObject>( Obase(),   Fdflt(), DObjFac<Obase,   Fdflt>() ),
     //TestPolicy<MyDerivedObject>( Obase(),   Fdflt(), DObjFac<OCbase,  Fdflt>() ),
@@ -6034,14 +6056,14 @@ static const TestPolicy<MyDerivedObject> TEST_POLICY_DERIVED_ARRAY[] = {
 
 //=============================================================================
 // This is the test table for iterating constructor and load functions for
-// 'bslma::ManagedPtr<MyTestObject>'.  The same test table is created for each
+// `bslma::ManagedPtr<MyTestObject>`.  The same test table is created for each
 // of the main 5 tested pointer types, and then the invalid functions are
 // commented out, to audit that they have intentionally been reviewed and
 // rejected.  This allows us to compare the different test tables if a
 // discrepancy occurs in the future.
 //
 // In particular, this case does not support construction from pointers to
-// 'const' objects.
+// `const` objects.
 static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
     // default test
     TestPolicy<void>(),
@@ -6088,7 +6110,7 @@ static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
     // deleter tests
     TestPolicy<void>( NullPolicy(), NullPolicy(), NullPolicy() ),
 
-    // First test the non-deprecated interface, using the policy 'DVoidVoid'.
+    // First test the non-deprecated interface, using the policy `DVoidVoid`.
 
     // void
     TestPolicy<void>( Obase(), Ftst(), DVoidVoid< Obase,   Ftst >() ),
@@ -6138,8 +6160,8 @@ static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
     //TestPolicy<void>( OCderiv(), Ftst(), DVoidVoid< OCderiv, Fbsl >() ),
     //TestPolicy<void>( OCderiv(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
-    // Also test a deleter that does not use the 'factory' argument.  These
-    // tests must also validate passing a null pointer lvalue as the 'factory'
+    // Also test a deleter that does not use the `factory` argument.  These
+    // tests must also validate passing a null pointer lvalue as the `factory`
     // argument.
     TestPolicy<void>( Obase(),  Fdflt(), DVoidVoid<Obase,   Fdflt>() ),
     TestPolicy<void>( Obase(),  Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
@@ -6173,9 +6195,9 @@ static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Next we test the deprecated support for deleters other than
-    // 'void (*)(void *, void *)', starting with deleters that type-erase the
-    // 'object' type, but have a strongly typed 'factory' argument.  Such
-    // deleters are generated by the 'DVoidFac' policy..
+    // `void (*)(void *, void *)`, starting with deleters that type-erase the
+    // `object` type, but have a strongly typed `factory` argument.  Such
+    // deleters are generated by the `DVoidFac` policy..
 
     // void
     TestPolicy<void>( Obase(),   Ftst(), DVoidFac< Obase,   Ftst >() ),
@@ -6225,8 +6247,8 @@ static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
     //TestPolicy<void>( OCderiv(), Ftst(), DVoidFac< OCderiv, Fbsl >() ),
     //TestPolicy<void>( OCderiv(), Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
-    // Also test a deleter that does not use the 'factory' argument.  These
-    // tests must also validate passing a null pointer lvalue as the 'factory'
+    // Also test a deleter that does not use the `factory` argument.  These
+    // tests must also validate passing a null pointer lvalue as the `factory`
     // argument.
     TestPolicy<void>( Obase(),   Fdflt(), DVoidFac<Obase,   Fdflt>() ),
     TestPolicy<void>( Obase(),   Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
@@ -6263,8 +6285,8 @@ static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
     //TestPolicy<void>( OCderiv(), NullPolicy(), DVoidFac<OCderiv, Fdflt>() ),
     //TestPolicy<void>( OCderiv(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
 
-    // Now we test deleters that are strongly typed for the 'object' parameter,
-    // but type-erase the 'factory'.
+    // Now we test deleters that are strongly typed for the `object` parameter,
+    // but type-erase the `factory`.
 
     // void
     TestPolicy<void>( Obase(),   Ftst(), DObjVoid< Obase,   Ftst >() ),
@@ -6314,8 +6336,8 @@ static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
     //TestPolicy<void>( OCderiv(), Ftst(), DObjVoid< OCderiv, Fbsl >() ),
     //TestPolicy<void>( OCderiv(), Ftst(), DObjVoid< OCbase,  Fbsl >() ),
 
-    // Also test a deleter that does not use the 'factory' argument.  These
-    // tests must also validate passing a null pointer lvalue as the 'factory'
+    // Also test a deleter that does not use the `factory` argument.  These
+    // tests must also validate passing a null pointer lvalue as the `factory`
     // argument.
     TestPolicy<void>( Obase(),   Fdflt(), DObjVoid<Obase,   Fdflt>() ),
     TestPolicy<void>( Obase(),   Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
@@ -6349,7 +6371,7 @@ static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
 
     // Finally we test the most generic combination of generic object type, a
     // factory, and a deleter taking two arguments compatible with pointers to
-    // the invoking 'object' and 'factory' types.
+    // the invoking `object` and `factory` types.
 
     // void
     TestPolicy<void>( Obase(),   Ftst(), DObjFac< Obase,   Ftst >() ),
@@ -6399,8 +6421,8 @@ static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
     //TestPolicy<void>( OCderiv(), Ftst(), DObjFac< OCderiv, Fbsl >() ),
     //TestPolicy<void>( OCderiv(), Ftst(), DObjFac< OCbase,  Fbsl >() ),
 
-    // Also test a deleter that does not use the 'factory' argument.  These
-    // tests must also validate passing a null pointer lvalue as the 'factory'
+    // Also test a deleter that does not use the `factory` argument.  These
+    // tests must also validate passing a null pointer lvalue as the `factory`
     // argument.
     TestPolicy<void>( Obase(),   Fdflt(), DObjFac<Obase,   Fdflt>() ),
     TestPolicy<void>( Obase(),   Fdflt(), DObjFac<OCbase,  Fdflt>() ),
@@ -6450,7 +6472,7 @@ static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
 
 //-----------------------------------------------------------------------------
 // This is the test table for iterating constructor and load functions for
-// 'bslma::ManagedPtr<MyTestObject>'.  The same test table is created for each
+// `bslma::ManagedPtr<MyTestObject>`.  The same test table is created for each
 // of the main 5 tested pointer types, and then the invalid functions are
 // commented out, to audit that they have intentionally been reviewed and
 // rejected.  This allows us to compare the different test tables if a
@@ -6507,7 +6529,7 @@ static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
     // deleter tests
     TestPolicy<const void>( NullPolicy(), NullPolicy(), NullPolicy() ),
 
-    // First test the non-deprecated interface, using the policy 'DVoidVoid'.
+    // First test the non-deprecated interface, using the policy `DVoidVoid`.
 
     // void
     TestPolicy<const void>( Obase(), Ftst(), DVoidVoid< Obase,   Ftst >() ),
@@ -6557,8 +6579,8 @@ static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
     TestPolicy<const void>( OCderiv(), Ftst(), DVoidVoid< OCderiv, Fbsl >() ),
     TestPolicy<const void>( OCderiv(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
-    // Also test a deleter that does not use the 'factory' argument.  These
-    // tests must also validate passing a null pointer lvalue as the 'factory'
+    // Also test a deleter that does not use the `factory` argument.  These
+    // tests must also validate passing a null pointer lvalue as the `factory`
     // argument.
     TestPolicy<const void>( Obase(),  Fdflt(), DVoidVoid<Obase,   Fdflt>() ),
     TestPolicy<const void>( Obase(),  Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
@@ -6592,9 +6614,9 @@ static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Next we test the deprecated support for deleters other than
-    // 'void (*)(void *, void *)', starting with deleters that type-erase the
-    // 'object' type, but have a strongly typed 'factory' argument.  Such
-    // deleters are generated by the 'DVoidFac' policy..
+    // `void (*)(void *, void *)`, starting with deleters that type-erase the
+    // `object` type, but have a strongly typed `factory` argument.  Such
+    // deleters are generated by the `DVoidFac` policy..
 
     // void
     TestPolicy<const void>( Obase(),   Ftst(), DVoidFac< Obase,   Ftst >() ),
@@ -6644,8 +6666,8 @@ static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
     TestPolicy<const void>( OCderiv(), Ftst(), DVoidFac< OCderiv, Fbsl >() ),
     TestPolicy<const void>( OCderiv(), Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
-    // Also test a deleter that does not use the 'factory' argument.  These
-    // tests must also validate passing a null pointer lvalue as the 'factory'
+    // Also test a deleter that does not use the `factory` argument.  These
+    // tests must also validate passing a null pointer lvalue as the `factory`
     // argument.
     TestPolicy<const void>( Obase(),   Fdflt(), DVoidFac<Obase,   Fdflt>() ),
     TestPolicy<const void>( Obase(),   Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
@@ -6682,8 +6704,8 @@ static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
     //TestPolicy<const void>( OCderiv(), NullPolicy(), DVoidFac<OCderiv, Fdflt>() ),
     //TestPolicy<const void>( OCderiv(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
 
-    // Now we test deleters that are strongly typed for the 'object' parameter,
-    // but type-erase the 'factory'.
+    // Now we test deleters that are strongly typed for the `object` parameter,
+    // but type-erase the `factory`.
 
     // void
     TestPolicy<const void>( Obase(),   Ftst(), DObjVoid< Obase,   Ftst >() ),
@@ -6733,8 +6755,8 @@ static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
     TestPolicy<const void>( OCderiv(), Ftst(), DObjVoid< OCderiv, Fbsl >() ),
     TestPolicy<const void>( OCderiv(), Ftst(), DObjVoid< OCbase,  Fbsl >() ),
 
-    // Also test a deleter that does not use the 'factory' argument.  These
-    // tests must also validate passing a null pointer lvalue as the 'factory'
+    // Also test a deleter that does not use the `factory` argument.  These
+    // tests must also validate passing a null pointer lvalue as the `factory`
     // argument.
     TestPolicy<const void>( Obase(),   Fdflt(), DObjVoid<Obase,   Fdflt>() ),
     TestPolicy<const void>( Obase(),   Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
@@ -6768,7 +6790,7 @@ static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
 
     // Finally we test the most generic combination of generic object type, a
     // factory, and a deleter taking two arguments compatible with pointers to
-    // the invoking 'object' and 'factory' types.
+    // the invoking `object` and `factory` types.
 
     // void
     TestPolicy<const void>( Obase(),   Ftst(), DObjFac< Obase,   Ftst >() ),
@@ -6818,8 +6840,8 @@ static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
     TestPolicy<const void>( OCderiv(), Ftst(), DObjFac< OCderiv, Fbsl >() ),
     TestPolicy<const void>( OCderiv(), Ftst(), DObjFac< OCbase,  Fbsl >() ),
 
-    // Also test a deleter that does not use the 'factory' argument.  These
-    // tests must also validate passing a null pointer lvalue as the 'factory'
+    // Also test a deleter that does not use the `factory` argument.  These
+    // tests must also validate passing a null pointer lvalue as the `factory`
     // argument.
     TestPolicy<const void>( Obase(),   Fdflt(), DObjFac<Obase,   Fdflt>() ),
     TestPolicy<const void>( Obase(),   Fdflt(), DObjFac<OCbase,  Fdflt>() ),
@@ -6870,10 +6892,10 @@ static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
 // BDE_VERIFY pragma: pop  // end of test tables
 
 //=============================================================================
-// Here we add additional test cases for the deliberately awkward 'composite'
+// Here we add additional test cases for the deliberately awkward `composite`
 // case, which does not use a virtual destructor.  Note that we cannot test
 // this on the couple of platforms where we get the wrong answer from the
-// 'bslmf::IsPolymorphic' type trait, as the workaround makes the 'Base' class
+// `bslmf::IsPolymorphic` type trait, as the workaround makes the `Base` class
 // ambiguous.
 #if defined(BSLMA_MANAGEDPTR_TESTVIRTUALINHERITANCE)
 static const TestPolicy<Base> TEST_POLICY_BASE0_ARRAY[] = {
@@ -6907,11 +6929,11 @@ static const TestPolicy<Base> TEST_POLICY_BASE0_ARRAY[] = {
 };
 #endif
 
-// This is the important test case for composites, where 'Base2' is the
-// *second* base class from 'Composite', which uses multiple inheritance.  Note
+// This is the important test case for composites, where `Base2` is the
+// *second* base class from `Composite`, which uses multiple inheritance.  Note
 // that this test is equally important for platforms where
-// 'bslmf::IsPolymorphic' is giving the wrong answer - that is why we have a
-// second workaround version of 'Composite' available for this test.
+// `bslmf::IsPolymorphic` is giving the wrong answer - that is why we have a
+// second workaround version of `Composite` available for this test.
 static const TestPolicy<Base2> TEST_POLICY_BASE2_ARRAY[] = {
     // default test
     TestPolicy<Base2>(),
@@ -6957,18 +6979,18 @@ struct MoveState {
                          // class AllocArgumentType<int>
                          // ============================
 
+/// This class template declares a separate type for each template parameter
+/// value `N`, `AllocArgumentType<N>`, that wraps an integer value
+/// and provides implicit conversion to and from `int`.  The wrapped integer
+/// will be dynamically allocated using the supplied allocator, or the
+/// default allocator if none is supplied.  Its main purpose is that having
+/// separate types for testing enables distinguishing them when calling
+/// through a function template interface, thereby avoiding ambiguities or
+/// accidental switching of arguments in the implementation of in-place
+/// constructors.  It further tests that allocators are propagated
+/// correctly, or not, as required.
 template <int N>
 class AllocArgumentType {
-    // This class template declares a separate type for each template parameter
-    // value 'N', 'AllocArgumentType<N>', that wraps an integer value
-    // and provides implicit conversion to and from 'int'.  The wrapped integer
-    // will be dynamically allocated using the supplied allocator, or the
-    // default allocator if none is supplied.  Its main purpose is that having
-    // separate types for testing enables distinguishing them when calling
-    // through a function template interface, thereby avoiding ambiguities or
-    // accidental switching of arguments in the implementation of in-place
-    // constructors.  It further tests that allocators are propagated
-    // correctly, or not, as required.
 
     // PRIVATE TYPES
     typedef bslmf::MovableRefUtil MoveUtil;
@@ -6985,74 +7007,78 @@ class AllocArgumentType {
 
   public:
     // CREATORS
-    explicit AllocArgumentType(bslma::Allocator *basicAllocator =  0);
-        // Create an 'AllocArgumentType' object having the (default) attribute
-        // value -1.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.  Note that the default constructor does not
-        // allocate memory.
 
+    /// Create an `AllocArgumentType` object having the (default) attribute
+    /// value -1.  Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  Note that the default constructor does not
+    /// allocate memory.
+    explicit AllocArgumentType(bslma::Allocator *basicAllocator =  0);
+
+    /// Create an `AllocArgumentType` object having the specified `value`.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used. The behavior is undefined unless `value >= 0`.
     explicit AllocArgumentType(int               value,
                                bslma::Allocator *basicAllocator =  0);
-        // Create an 'AllocArgumentType' object having the specified 'value'.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used. The behavior is undefined unless 'value >= 0'.
 
+    /// Create an `AllocArgumentType` object having the same value as the
+    /// specified `original`.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.  Note that no memory is allocated if
+    /// `original` refers to a default-constructed object.
     AllocArgumentType(const AllocArgumentType&  original,
                       bslma::Allocator         *basicAllocator = 0);
-        // Create an 'AllocArgumentType' object having the same value as the
-        // specified 'original'.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  Note that no memory is allocated if
-        // 'original' refers to a default-constructed object.
 
+    /// Create an `AllocArgumentType` object having the same value as the
+    /// specified `original`.  Note that no memory is allocated if
+    /// `original` refers to a default-constructed object.
     AllocArgumentType(bslmf::MovableRef<AllocArgumentType> original);
-        // Create an 'AllocArgumentType' object having the same value as the
-        // specified 'original'.  Note that no memory is allocated if
-        // 'original' refers to a default-constructed object.
 
+    /// Create an `AllocArgumentType` object having the same value as the
+    /// specified `original` using the specified `basicAllocator` to supply
+    /// memory.  Note that no memory is allocated if `original` refers to a
+    /// default-constructed object.
     AllocArgumentType(bslmf::MovableRef<AllocArgumentType>  original,
                       bslma::Allocator                     *basicAllocator);
-        // Create an 'AllocArgumentType' object having the same value as the
-        // specified 'original' using the specified 'basicAllocator' to supply
-        // memory.  Note that no memory is allocated if 'original' refers to a
-        // default-constructed object.
 
+    /// Destroy this object.
     ~AllocArgumentType();
-        // Destroy this object.
 
     // MANIPULATORS
-    AllocArgumentType& operator=(const AllocArgumentType& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
+    /// Assign to this object the value of the specified `rhs` object.
+    AllocArgumentType& operator=(const AllocArgumentType& rhs);
+
+    /// Assign to this object the value of the specified `rhs` object.  Note
+    /// that `rhs` is left in a valid but unspecified state.
     AllocArgumentType&
     operator=(BloombergLP::bslmf::MovableRef<AllocArgumentType> rhs);
-        // Assign to this object the value of the specified 'rhs' object.  Note
-        // that 'rhs' is left in a valid but unspecified state.
 
     // ACCESSORS
+
+    /// Return the allocator used by this object to supply memory.
     bslma::Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.
 
+    /// Return the value of this test argument object.
     operator int() const;
-        // Return the value of this test argument object.
 
+    /// Return the move state of this object as target of a move operation.
     MoveState::Enum movedInto() const;
-        // Return the move state of this object as target of a move operation.
 
+    /// Return the move state of this object as source of a move operation.
     MoveState::Enum movedFrom() const;
-        // Return the move state of this object as source of a move operation.
 };
 
 // FREE FUNCTIONS
+
+/// Return the move-from state of the specified `object`.
 template <int N>
 MoveState::Enum getMovedFrom(const AllocArgumentType<N>& object);
-    // Return the move-from state of the specified 'object'.
 
+/// Return the move-into state of the specified `object`.
 template <int N>
 MoveState::Enum getMovedInto(const AllocArgumentType<N>& object);
-    // Return the move-into state of the specified 'object'.
 
                         // --------------------------
                         // class AllocArgumentType<N>
@@ -7274,13 +7300,13 @@ MoveState::Enum getMovedInto(const AllocArgumentType<N>& object)
                          // class AllocEmplacableTestType
                          // =============================
 
+/// This class provides a test object used to check that the arguments
+/// passed for creating an object with an in-place representation are of the
+/// correct types and values.  Note that this class declares the
+/// `UsesBslmaAllocator` trait if the template parameter `USES_BSLMA_ALLOC`
+/// is `true`, and does not declare the trait otherwise.
 template <bool USES_BSLMA_ALLOC>
 class AllocEmplacableTestType {
-    // This class provides a test object used to check that the arguments
-    // passed for creating an object with an in-place representation are of the
-    // correct types and values.  Note that this class declares the
-    // 'UsesBslmaAllocator' trait if the template parameter 'USES_BSLMA_ALLOC'
-    // is 'true', and does not declare the trait otherwise.
 
   public:
     // TYPEDEFS
@@ -7321,6 +7347,13 @@ class AllocEmplacableTestType {
 
   public:
     // CREATORS
+
+    /// Create an `AllocEmplacableTestType` by initializing corresponding
+    /// attributes with the specified `arg01`..`arg14`, and initializing any
+    /// remaining attributes with their default value (-1).  Optionally
+    /// specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     AllocEmplacableTestType(bslma::Allocator *basicAllocator = 0);
     AllocEmplacableTestType(ArgType01         arg01,
                             bslma::Allocator *basicAllocator = 0);
@@ -7441,33 +7474,28 @@ class AllocEmplacableTestType {
                             ArgType13         arg13,
                             ArgType14         arg14,
                             bslma::Allocator *basicAllocator = 0);
-        // Create an 'AllocEmplacableTestType' by initializing corresponding
-        // attributes with the specified 'arg01'..'arg14', and initializing any
-        // remaining attributes with their default value (-1).  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Create an allocating, in-place test object having the same value as
+    /// the specified `original`.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
     AllocEmplacableTestType(
                            const AllocEmplacableTestType&  original,
                            bslma::Allocator               *basicAllocator = 0);
-        // Create an allocating, in-place test object having the same value as
-        // the specified 'original'.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
 
+    /// Destroy this object.
     ~AllocEmplacableTestType();
-        // Destroy this object.
 
     // MANIPULATORS
     //! AllocEmplacableTestType& operator=(
     //                           const AllocEmplacableTestType& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
+        // Assign to this object the value of the specified `rhs` object, and
         // return a reference providing modifiable access to this object.
 
     // ACCESSORS
+
+    /// Return the allocator used to supply memory for this object.
     bslma::Allocator *allocator() const;
-        // Return the allocator used to supply memory for this object.
 
     const ArgType01& arg01() const;
     const ArgType02& arg02() const;
@@ -7482,33 +7510,35 @@ class AllocEmplacableTestType {
     const ArgType11& arg11() const;
     const ArgType12& arg12() const;
     const ArgType13& arg13() const;
-    const ArgType14& arg14() const;
-        // Return the value of the correspondingly numbered argument that was
-        // passed to the constructor of this object.
 
+    /// Return the value of the correspondingly numbered argument that was
+    /// passed to the constructor of this object.
+    const ArgType14& arg14() const;
+
+    /// Return `true` if the specified `rhs` has the same value as this
+    /// object, and `false` otherwise.  Two `AllocEmplacableTestType`
+    /// objects have the same value if each of their corresponding
+    /// attributes have the same value.
     bool isEqual(const AllocEmplacableTestType& rhs) const;
-        // Return 'true' if the specified 'rhs' has the same value as this
-        // object, and 'false' otherwise.  Two 'AllocEmplacableTestType'
-        // objects have the same value if each of their corresponding
-        // attributes have the same value.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `AllocEmplacableTestType` objects
+/// have the same value if each of their corresponding attributes have the
+/// same value.
 template <bool USES_BSLMA_ALLOC>
 bool operator==(const AllocEmplacableTestType<USES_BSLMA_ALLOC>& lhs,
                 const AllocEmplacableTestType<USES_BSLMA_ALLOC>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'AllocEmplacableTestType' objects
-    // have the same value if each of their corresponding attributes have the
-    // same value.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `AllocEmplacableTestType`
+/// objects do not have the same value if any of their corresponding
+/// attributes do not have the same value.
 template <bool USES_BSLMA_ALLOC>
 bool operator!=(const AllocEmplacableTestType<USES_BSLMA_ALLOC>& lhs,
                 const AllocEmplacableTestType<USES_BSLMA_ALLOC>& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'AllocEmplacableTestType'
-    // objects do not have the same value if any of their corresponding
-    // attributes do not have the same value.
 
                         // -----------------------------
                         // class AllocEmplacableTestType
@@ -8139,8 +8169,8 @@ bool operator!=(const AllocEmplacableTestType<USES_BSLMA_ALLOC>& lhs,
 namespace BloombergLP {
 namespace bslma {
 
-// We need to test 'makeManaged' and 'allocateManaged' functions for classes
-// that define 'bslma::UsesBslmaAllocator' trait and for those that do not.  To
+// We need to test `makeManaged` and `allocateManaged` functions for classes
+// that define `bslma::UsesBslmaAllocator` trait and for those that do not.  To
 // avoid code duplication test class is created as a template and different
 // specializations have different trait values.
 
@@ -8160,9 +8190,9 @@ namespace {
                          // class NoAllocTestType
                          // =====================
 
+/// This class provides a simple test object that does not use allocators.
+/// It is used for testing `makeManaged` and `allocateManaged`.
 class NoAllocTestType {
-    // This class provides a simple test object that does not use allocators.
-    // It is used for testing 'makeManaged' and 'allocateManaged'.
 
   private:
     // DATA
@@ -8172,31 +8202,33 @@ class NoAllocTestType {
 
   public:
     // CREATORS
+
+    /// Create a `NoAllocTestType` object by initializing corresponding
+    /// attributes with the specified `c`, `i`, and `f` and initializing any
+    /// remaining attributes with their default value (0).
     NoAllocTestType();
     NoAllocTestType(char c);
     NoAllocTestType(char c, int i);
     NoAllocTestType(char c, int i, float f);
-        // Create a 'NoAllocTestType' object by initializing corresponding
-        // attributes with the specified 'c', 'i', and 'f' and initializing any
-        // remaining attributes with their default value (0).
 
+    /// Create an object having the same value as the specified `original`.
     NoAllocTestType(const NoAllocTestType& original);
-        // Create an object having the same value as the specified 'original'.
 
+    /// Destroy this object.
     ~NoAllocTestType();
-        // Destroy this object.
 
     // MANIPULATORS
     //! NoAllocTestType& operator=(const NoAllocTestType& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
+        // Assign to this object the value of the specified `rhs` object, and
         // return a reference providing modifiable access to this object.
 
     // ACCESSORS
     char  getChar()  const;
     int   getInt()   const;
+
+    /// Return the value of the respective argument that was passed to the
+    /// constructor of this object.
     float getFloat() const;
-        // Return the value of the respective argument that was passed to the
-        // constructor of this object.
 };
 
 
@@ -8260,10 +8292,10 @@ float NoAllocTestType::getFloat() const
                          // class AllocOnlyTestType
                          // =======================
 
+/// This class provides a simple test object that accepts only allocator
+/// pointers in its constructor.  It is used for testing `makeManaged` and
+/// `allocateManaged`.
 class AllocOnlyTestType {
-    // This class provides a simple test object that accepts only allocator
-    // pointers in its constructor.  It is used for testing 'makeManaged' and
-    // 'allocateManaged'.
 
   private:
     // DATA
@@ -8277,33 +8309,35 @@ class AllocOnlyTestType {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create an `AllocOnlyTestType` by initializing corresponding
+    /// attributes with the specified `alloc1`, `alloc2`, `alloc3`, and
+    /// initializing any remaining attributes with their default value (0).
     AllocOnlyTestType();
     explicit AllocOnlyTestType(bslma::Allocator *alloc1);
     AllocOnlyTestType(bslma::Allocator *alloc1, bslma::Allocator *alloc2);
     AllocOnlyTestType(bslma::Allocator *alloc1,
                       bslma::Allocator *alloc2,
                       bslma::Allocator *alloc3);
-        // Create an 'AllocOnlyTestType' by initializing corresponding
-        // attributes with the specified 'alloc1', 'alloc2', 'alloc3', and
-        // initializing any remaining attributes with their default value (0).
 
+    /// Create an object having the same value as the specified `original`.
     AllocOnlyTestType(const AllocOnlyTestType& original);
-        // Create an object having the same value as the specified 'original'.
 
+    /// Destroy this object.
     ~AllocOnlyTestType();
-        // Destroy this object.
 
     // MANIPULATORS
     //! AllocOnlyTestType& operator=(const AllocOnlyTestType& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
+        // Assign to this object the value of the specified `rhs` object, and
         // return a reference providing modifiable access to this object.
 
     // ACCESSORS
     bslma::Allocator *alloc1() const;
     bslma::Allocator *alloc2() const;
+
+    /// Return the value of the correspondingly numbered argument that was
+    /// passed to the constructor of this object.
     bslma::Allocator *alloc3() const;
-        // Return the value of the correspondingly numbered argument that was
-        // passed to the constructor of this object.
 };
 
                         // -----------------------
@@ -8366,31 +8400,31 @@ bslma::Allocator *AllocOnlyTestType::alloc3() const
 }
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
+/// This leading branch is the preferred version for C++17, but the feature
+/// test macro is (currently) for documentation purposes only, and never
+/// defined.  This is the ideal (simplest) form for such declarations:
 # define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
     const BSLS_KEYWORD_CONSTEXPR bsl::bool_constant<EXPRESSION> NAME{}
-    // This leading branch is the preferred version for C++17, but the feature
-    // test macro is (currently) for documentation purposes only, and never
-    // defined.  This is the ideal (simplest) form for such declarations:
 #elif defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
 # define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
     constexpr bsl::integral_constant<bool, EXPRESSION> NAME{}
     // This is the preferred C++11 form for the definition of integral constant
-    // variables.  It assumes the presence of 'constexpr' in the compiler as an
+    // variables.  It assumes the presence of `constexpr` in the compiler as an
     // indication that brace-initialization and traits are available, as it has
     // historically been one of the last C++11 features to ship.
 #else
 # define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
     static const bsl::integral_constant<bool, EXPRESSION> NAME =              \
                  bsl::integral_constant<bool, EXPRESSION>()
-    // 'bsl::integral_constant' is not an aggregate prior to C++17 extending
+    // `bsl::integral_constant` is not an aggregate prior to C++17 extending
     // the rules, so a C++03 compiler must explicitly initialize integral
     // constant variables in a way that is unambiguously not a vexing parse
     // that declares a function instead.
 #endif
 
+/// This `struct` provides a namespace for utility functions that test
+/// `makeManaged` and `allocateManaged`.
 struct Harness {
-    // This 'struct' provides a namespace for utility functions that test
-    // 'makeManaged' and 'allocateManaged'.
 
     // TYPES
     typedef AllocArgumentType< 1> Arg01;
@@ -8413,6 +8447,9 @@ struct Harness {
     typedef AllocEmplacableTestType<false> NotUsingType;
 
     // CLASS METHODS
+
+    /// Prepare control object to compare with the results of `makeManaged`
+    /// and `allocateManaged`.
     template <class TYPE, int N_ARGS,
               int N01, int N02, int N03, int N04, int N05, int N06, int N07,
               int N08, int N09, int N10, int N11, int N12, int N13, int N14>
@@ -8431,47 +8468,45 @@ struct Harness {
                               Arg12&  A12,
                               Arg13&  A13,
                               Arg14&  A14);
-        // Prepare control object to compare with the results of 'makeManaged'
-        // and 'allocateManaged'.
 
+    /// Verify that `makeManaged` and `allocateManaged` pass arguments to
+    /// the (template parameter) TYPE constructor correctly.
     template <class TYPE, int N_ARGS,
               int N01, int N02, int N03, int N04, int N05, int N06, int N07,
               int N08, int N09, int N10, int N11, int N12, int N13, int N14>
     static void testCase18_ConcreteTypeRun();
-        // Verify that 'makeManaged' and 'allocateManaged' pass arguments to
-        // the (template parameter) TYPE constructor correctly.
 
+    /// Verify that `makeManaged` and `allocateManaged` pass arguments
+    /// to the constructor correctly.
     template <int N_ARGS, int N01, int N02, int N03, int N04, int N05, int N06,
               int N07,    int N08, int N09, int N10, int N11, int N12, int N13,
               int N14>
     static void testCase18_ArgumentsTest();
-        // Verify that 'makeManaged' and 'allocateManaged' pass arguments
-        // to the constructor correctly.
 
+    /// Verify the behavior of `makeManaged` and `allocateManaged` accepting
+    /// the specified `numParameters` (the specified `c`, `i`, and `f`
+    /// accordingly) for the type that does not accept an allocator.
     static void testCase18_NoAllocTestSingleCheck(int   numParameters,
                                                   char  c,
                                                   int   i,
                                                   float f);
-        // Verify the behavior of 'makeManaged' and 'allocateManaged' accepting
-        // the specified 'numParameters' (the specified 'c', 'i', and 'f'
-        // accordingly) for the type that does not accept an allocator.
 
+    /// Verify the behavior of `makeManaged` and `allocateManaged` for the
+    /// type that does not accept an allocator.
     static void testCase18_NoAllocTest();
-        // Verify the behavior of 'makeManaged' and 'allocateManaged' for the
-        // type that does not accept an allocator.
 
+    /// Verify the behavior of `makeManaged` for the type whose constructors
+    /// accept only allocator pointers.
     static void testCase18_AllocOnlyTest();
-        // Verify the behavior of 'makeManaged' for the type whose constructors
-        // accept only allocator pointers.
 
+    /// Return the specified `t` moved.
     template <class T>
     static bslmf::MovableRef<T> testArg(T& t, bsl::true_type);
-        // Return the specified 't' moved.
 
+    /// Return a reference providing non-modifiable access to the specified
+    /// `t`.
     template <class T>
     static const T&             testArg(T& t, bsl::false_type);
-        // Return a reference providing non-modifiable access to the specified
-        // 't'.
 };
 
 static bslma::TestAllocator g_argAlloc("test arguments allocator",
@@ -8508,7 +8543,7 @@ const T& Harness::testArg(T& t, bsl::false_type)
     return  t;
 }
 
-// Remaining class methods for 'Harness'.
+// Remaining class methods for `Harness`.
 
 template <class TYPE, int N_ARGS,
           int N01, int N02, int N03, int N04, int N05, int N06, int N07,
@@ -8748,7 +8783,7 @@ void Harness::testCase18_ConcreteTypeRun()
     DECLARE_BOOL_CONSTANT(MOVE_14, 1 == N14);
 
     // First prepare a test object to compare against the managed objects
-    // constructed by 'makeManaged' and 'allocateManaged'.  In particular, we
+    // constructed by `makeManaged` and `allocateManaged`.  In particular, we
     // want to pay attention to the moved-from state of each argument, and the
     // final value of the whole test object.
 
@@ -8858,7 +8893,7 @@ void Harness::testCase18_ConcreteTypeRun()
         bsls::Types::Int64 EXPECTED_DA_NUM_ALLOCATIONS   = 0;
         bsls::Types::Int64 EXPECTED_DA_NUM_DEALLOCATIONS = 0;
 
-        // Testing 'makeManaged'.
+        // Testing `makeManaged`.
         {
             bslma::ManagedPtr<TYPE> mX;
 
@@ -9052,7 +9087,7 @@ void Harness::testCase18_ConcreteTypeRun()
         ASSERTV(EXPECTED_DA_NUM_DEALLOCATIONS,   da->numDeallocations(),
                 EXPECTED_DA_NUM_DEALLOCATIONS == da->numDeallocations());
 
-        // Testing 'allocateManaged(&sa, ...)'.
+        // Testing `allocateManaged(&sa, ...)`.
 
         // Renew the current values.
 
@@ -9229,14 +9264,14 @@ void Harness::testCase18_ConcreteTypeRun()
             // Verify memory allocation and deallocation.
 
             if (bslma::UsesBslmaAllocator<TYPE>::value) {
-                // The supplied allocator ('sa') is used by the managed object
-                // in this case.  Since 'sa != da', a temporary object is
+                // The supplied allocator (`sa`) is used by the managed object
+                // in this case.  Since `sa != da`, a temporary object is
                 // created for each argument, whether copied or moved.  This
-                // incurs an allocation from 'sa' for each argument, but an
-                // allocation from 'da' on only those arguments that are copied
-                // because the allocation for the moved arguments ('B01[1]',
-                // 'B02[1]', etc.) occurred when they were constructed (just
-                // above the test block for 'makeManaged').
+                // incurs an allocation from `sa` for each argument, but an
+                // allocation from `da` on only those arguments that are copied
+                // because the allocation for the moved arguments (`B01[1]`,
+                // `B02[1]`, etc.) occurred when they were constructed (just
+                // above the test block for `makeManaged`).
 
                 EXPECTED_DA_NUM_ALLOCATIONS =
                               numAllocationsDA  // previous value
@@ -9337,7 +9372,7 @@ void Harness::testCase18_ConcreteTypeRun()
         ASSERTV(EXPECTED_SA_NUM_DEALLOCATIONS,   sa.numDeallocations(),
                 EXPECTED_SA_NUM_DEALLOCATIONS == sa.numDeallocations());
 
-        // Testing 'allocateManaged(0, ...)'.
+        // Testing `allocateManaged(0, ...)`.
 
         // Renew the current values.
 
@@ -9602,7 +9637,7 @@ void Harness::testCase18_NoAllocTestSingleCheck(int   numParameters,
         dynamic_cast<bslma::TestAllocator *>(bslma::Default::allocator());
     BSLS_ASSERT_OPT(da);
 
-    // Testing 'makeManaged'.
+    // Testing `makeManaged`.
 
     {
         bsls::Types::Int64 numAllocationsDA   = da->numAllocations();
@@ -9654,7 +9689,7 @@ void Harness::testCase18_NoAllocTestSingleCheck(int   numParameters,
                 EXP_NUM_DEALLOCATIONS_DA == da->numAllocations());
     }
 
-    // Testing 'allocateManaged(&sa, ...)'.
+    // Testing `allocateManaged(&sa, ...)`.
 
     {
         bslma::TestAllocator sa("supplied", g_veryVeryVeryVerbose);
@@ -9726,7 +9761,7 @@ void Harness::testCase18_NoAllocTestSingleCheck(int   numParameters,
                 EXP_NUM_DEALLOCATIONS_SA == sa.numAllocations());
     }
 
-    // Testing 'allocateManaged(alloc, ...)'.
+    // Testing `allocateManaged(alloc, ...)`.
 
     {
         bslma::TestAllocator  sa("supplied", g_veryVeryVeryVerbose);
@@ -9799,7 +9834,7 @@ void Harness::testCase18_NoAllocTestSingleCheck(int   numParameters,
                 EXP_NUM_DEALLOCATIONS_SA == sa.numAllocations());
     }
 
-    // Testing 'allocateManaged(0, ...)'.
+    // Testing `allocateManaged(0, ...)`.
 
     {
         bsls::Types::Int64 numAllocationsDA   = da->numAllocations();
@@ -9883,7 +9918,7 @@ void Harness::testCase18_AllocOnlyTest()
     bslma::TestAllocator aa2("arg2", g_veryVeryVeryVerbose);
     bslma::TestAllocator aa3("arg3", g_veryVeryVeryVerbose);
 
-    // Testing 'makeManaged'.
+    // Testing `makeManaged`.
 
     for (int i = 0; i < 4; ++i) {
         bsls::Types::Int64 numDeallocationsDA = da->numDeallocations();
@@ -9943,11 +9978,11 @@ void Harness::testCase18_AllocOnlyTest()
                    EXP_NUM_DEALLOCATIONS_DA == da->numAllocations());
     }
 
-    // Testing 'allocateManaged(&sa, ...)'.
+    // Testing `allocateManaged(&sa, ...)`.
 
-    // Since 'true == bslma::UsesBslmaAllocator<AllocOnlyTestType>::value', the
-    // first argument passed to 'allocateManaged' (i.e., the allocator) is
-    // passed as the *last* argument to the 'AllocOnlyTestType' constructor.
+    // Since `true == bslma::UsesBslmaAllocator<AllocOnlyTestType>::value`, the
+    // first argument passed to `allocateManaged` (i.e., the allocator) is
+    // passed as the *last* argument to the `AllocOnlyTestType` constructor.
 
     {
         bslma::TestAllocator sa("supplied", g_veryVeryVeryVerbose);
@@ -10028,11 +10063,11 @@ void Harness::testCase18_AllocOnlyTest()
         }
     }
 
-    // Testing 'allocateManaged(alloc, ...)'.
+    // Testing `allocateManaged(alloc, ...)`.
 
-    // Since 'true == bslma::UsesBslmaAllocator<AllocOnlyTestType>::value', the
-    // first argument passed to 'allocateManaged' (i.e., the allocator) is
-    // passed as the *last* argument to the 'AllocOnlyTestType' constructor.
+    // Since `true == bslma::UsesBslmaAllocator<AllocOnlyTestType>::value`, the
+    // first argument passed to `allocateManaged` (i.e., the allocator) is
+    // passed as the *last* argument to the `AllocOnlyTestType` constructor.
 
     {
         bslma::TestAllocator    sa("supplied", g_veryVeryVeryVerbose);
@@ -10115,7 +10150,7 @@ void Harness::testCase18_AllocOnlyTest()
         }
     }
 
-    // Testing 'allocateManaged(0, ...)'.
+    // Testing `allocateManaged(0, ...)`.
 
     {
         for (int i = 0; i < 3; ++i) {
@@ -10231,7 +10266,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   CASTING EXAMPLES
@@ -10277,12 +10312,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into driver, remove leading
-        //:   comment characters, and replace 'assert' with 'ASSERT'.  (C-1)
+        // 1. Incorporate usage example from header into driver, remove leading
+        //    comment characters, and replace `assert` with `ASSERT`.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -10300,77 +10335,77 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING 'makeManaged' and 'allocateManaged'
+        // TESTING `makeManaged` and `allocateManaged`
         //
         // Concerns:
-        //: 1 'makeManaged' and 'allocateManaged' return a 'ManagedPtr'
-        //:   pointing to a new object of the specified 'T' type, where 'T'
-        //:   must be a complete type.
-        //:
-        //: 2 There is only one allocation to create the managed object (for
-        //:   the object's footprint), unless the managed object performs
-        //:   additional allocations.
-        //:
-        //: 3 The appropriate constructor for 'T' is called, forwarding all
-        //:   of the supplied arguments to that constructor, in the supplied
-        //:   order.
-        //:
-        //: 4 'makeManaged' unconditionally passes only supplied arguments to
-        //:   the constructor of the specified 'T' type without propagating the
-        //:   default allocator regardless of whether 'T' uses 'bslma'
-        //:   allocators.
-        //:
-        //: 5 'allocateManaged' passes the supplied allocator as an extra
-        //:   argument in the final position if 'T' uses 'bslma' allocators.
-        //:   If the supplied allocator has class type, it's 'mechanism()'
-        //:   pointer is used to allocate, deallocate, and construct the 'T'
-        //:   object.
-        //:
-        //: 6 If 0 is supplied to 'allocateManaged' as the allocator then the
-        //:   default allocator is used.
-        //:
-        //: 7 The allocator used by 'makeManaged' and 'allocateManaged' to
-        //:   allocate the object is used by the returned 'ManagedPtr' to
-        //:   delete the object when it goes out of scope.
+        // 1. `makeManaged` and `allocateManaged` return a `ManagedPtr`
+        //    pointing to a new object of the specified `T` type, where `T`
+        //    must be a complete type.
+        //
+        // 2. There is only one allocation to create the managed object (for
+        //    the object's footprint), unless the managed object performs
+        //    additional allocations.
+        //
+        // 3. The appropriate constructor for `T` is called, forwarding all
+        //    of the supplied arguments to that constructor, in the supplied
+        //    order.
+        //
+        // 4. `makeManaged` unconditionally passes only supplied arguments to
+        //    the constructor of the specified `T` type without propagating the
+        //    default allocator regardless of whether `T` uses `bslma`
+        //    allocators.
+        //
+        // 5. `allocateManaged` passes the supplied allocator as an extra
+        //    argument in the final position if `T` uses `bslma` allocators.
+        //    If the supplied allocator has class type, it's `mechanism()`
+        //    pointer is used to allocate, deallocate, and construct the `T`
+        //    object.
+        //
+        // 6. If 0 is supplied to `allocateManaged` as the allocator then the
+        //    default allocator is used.
+        //
+        // 7. The allocator used by `makeManaged` and `allocateManaged` to
+        //    allocate the object is used by the returned `ManagedPtr` to
+        //    delete the object when it goes out of scope.
         //
         // Plan:
-        //: 1 Use 'makeManaged' and 'allocateManaged' to call 15 different
-        //:   constructors of the special test type 'AllocEmplacableTestType'
-        //:   and supply them with the appropriate arguments.
-        //:
-        //: 2 Verify that the obtained managed object is initialized using the
-        //:   arguments supplied, comparing it with the control object created
-        //:   via an explicit constructor call.
-        //:
-        //: 3 Verify that the memory for the managed object is allocated from
-        //:   the appropriate allocator (default for 'makeManaged' and supplied
-        //:   for 'allocateManaged').
-        //:
-        //: 4 Verify the number of memory allocations.  (C-2..3)
-        //:
-        //: 5 Verify that the default allocator is not propagated by
-        //:   'makeManaged' to the constructor of the managed object under any
-        //:   circumstances.  (C-4)
-        //:
-        //: 6 Verify that the supplied allocator is propagated by
-        //:   'allocateManaged' to the constructor of the managed object if its
-        //:   type uses 'bslma' allocators and is not propagated otherwise.
-        //:   Perform this step using both a test allocator pointer (derived
-        //:   from 'bslma::Allocator') and an allocator class object (of type
-        //:   derived from 'bsl::allocator').  (C-5)
-        //:
-        //: 7 Verify that the default allocator is used if 0 is supplied
-        //:   as the allocator to 'allocateManaged'.  (C-6)
-        //:
-        //: 8 Let the managed pointer go out of scope and verify that all
-        //:   allocated memory is successfully released.  (C-7)
+        // 1. Use `makeManaged` and `allocateManaged` to call 15 different
+        //    constructors of the special test type `AllocEmplacableTestType`
+        //    and supply them with the appropriate arguments.
+        //
+        // 2. Verify that the obtained managed object is initialized using the
+        //    arguments supplied, comparing it with the control object created
+        //    via an explicit constructor call.
+        //
+        // 3. Verify that the memory for the managed object is allocated from
+        //    the appropriate allocator (default for `makeManaged` and supplied
+        //    for `allocateManaged`).
+        //
+        // 4. Verify the number of memory allocations.  (C-2..3)
+        //
+        // 5. Verify that the default allocator is not propagated by
+        //    `makeManaged` to the constructor of the managed object under any
+        //    circumstances.  (C-4)
+        //
+        // 6. Verify that the supplied allocator is propagated by
+        //    `allocateManaged` to the constructor of the managed object if its
+        //    type uses `bslma` allocators and is not propagated otherwise.
+        //    Perform this step using both a test allocator pointer (derived
+        //    from `bslma::Allocator`) and an allocator class object (of type
+        //    derived from `bsl::allocator`).  (C-5)
+        //
+        // 7. Verify that the default allocator is used if 0 is supplied
+        //    as the allocator to `allocateManaged`.  (C-6)
+        //
+        // 8. Let the managed pointer go out of scope and verify that all
+        //    allocated memory is successfully released.  (C-7)
         //
         // Testing:
         //   ManagedPtr makeManaged(ARGS&&... args);
         //   ManagedPtr allocateManaged(Allocator *alloc, ARGS&&... args);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'makeManaged' and 'allocateManaged'"
+        if (verbose) printf("\nTESTING `makeManaged` and `allocateManaged`"
                             "\n===========================================\n");
 
         // Verifying arguments forwarding.
@@ -10658,8 +10693,8 @@ int main(int argc, char *argv[])
         // DRQS 30670366
         //
         // Concerns
-        //   Swapping a cookie of type 'void *' and a deletion functor of type
-        //   'void deleter(DERIVED_TYPE *, void *)' supplies the correct cookie
+        //   Swapping a cookie of type `void *` and a deletion functor of type
+        //   `void deleter(DERIVED_TYPE *, void *)` supplies the correct cookie
         //   to the deletion functor.  Note that this test for deprecated
         //   functionality will become redundant and ultimately vanish, as the
         //   deprecated functionality is removed.
@@ -10690,25 +10725,25 @@ int main(int argc, char *argv[])
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // TESTING 'ManagedPtrNilDeleter<TYPE>'
+        // TESTING `ManagedPtrNilDeleter<TYPE>`
         //
         // Concerns:
-        //: 1 The 'deleter' method can be used as a deleter policy by
-        //:   'bslma::ManagedPtr'.
-        //:
-        //: 2 When invoked, 'bslma::ManagedPtrNilDeleter<T>::deleter' has no
-        //:   effect.
-        //:
-        //: 3 No memory is allocated from the global or default allocators.
+        // 1. The `deleter` method can be used as a deleter policy by
+        //    `bslma::ManagedPtr`.
+        //
+        // 2. When invoked, `bslma::ManagedPtrNilDeleter<T>::deleter` has no
+        //    effect.
+        //
+        // 3. No memory is allocated from the global or default allocators.
         //
         // Plan:
-        //: 1 blah ...
+        // 1. blah ...
         //
         // Testing:
         //   void deleter(void *, void *);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'ManagedPtrNilDeleter<TYPE>'"
+        if (verbose) printf("\nTESTING `ManagedPtrNilDeleter<TYPE>`"
                             "\n====================================\n");
 
         if (verbose) printf("\tConfirm the deleter does not destroy the "
@@ -10744,24 +10779,24 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING 'ManagedPtrUtil'
+        // TESTING `ManagedPtrUtil`
         //
         // Concerns:
-        //: 1 The 'noOpDeleter' method can be used as a deleter policy by
-        //:   'bslma::ManagedPtr'.
-        //:
-        //: 2 When invoked, 'bslma::ManagedPtrUtil::noOpDeleter' has no effect.
-        //:
-        //: 3 No memory is allocated from the global or default allocators.
+        // 1. The `noOpDeleter` method can be used as a deleter policy by
+        //    `bslma::ManagedPtr`.
+        //
+        // 2. When invoked, `bslma::ManagedPtrUtil::noOpDeleter` has no effect.
+        //
+        // 3. No memory is allocated from the global or default allocators.
         //
         // Plan:
-        //: 1 blah ...
+        // 1. blah ...
         //
         // Testing:
         //   void noOpDeleter(void *, void *);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'ManagedPtrUtil'"
+        if (verbose) printf("\nTESTING `ManagedPtrUtil`"
                             "\n========================\n");
 
         if (verbose) printf("\tConfirm the deleter does not destroy the "
@@ -10796,15 +10831,15 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'clear', 'reset', AND 'release'
+        // TESTING `clear`, `reset`, AND `release`
         //
         // Concerns:
-        //: 1 'reset' destroys the managed object (if any) and re-initializes
-        //:   the managed pointer to an unset state.
-        //:
-        //: 2 'reset' destroys any managed object using the stored 'deleter'.
-        //:
-        //: 3 same concerns as 1 and 2 but with 'clear'.
+        // 1. `reset` destroys the managed object (if any) and re-initializes
+        //    the managed pointer to an unset state.
+        //
+        // 2. `reset` destroys any managed object using the stored `deleter`.
+        //
+        // 3. same concerns as 1 and 2 but with `clear`.
         //
         //   That release works properly.
         //   Release gives up ownership of resources without running deleters
@@ -10827,7 +10862,7 @@ int main(int argc, char *argv[])
         //   bsl::pair<TYPE *, ManagedPtrDeleter> release();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'clear', 'reset', AND 'release'"
+        if (verbose) printf("\nTESTING `clear`, `reset`, AND `release`"
                             "\n=======================================\n");
 
         using namespace CREATORS_TEST_NAMESPACE;
@@ -10876,7 +10911,7 @@ int main(int argc, char *argv[])
         }
         ASSERTV(numDeletes, 1 == numDeletes);
 
-        // testing 'release().second'
+        // testing `release().second`
         numDeletes = 0;
         {
             Test *p;
@@ -10899,7 +10934,7 @@ int main(int argc, char *argv[])
         ASSERTV(numDeletes, 1 == numDeletes);
 
 #if 0
-        // testing 'deleter' accessor and 'release().second'
+        // testing `deleter` accessor and `release().second`
         numDeletes = 0;
         {
             Test *p;
@@ -10957,7 +10992,7 @@ int main(int argc, char *argv[])
         //   assign to pointer with factory/deleter/aliased-pointer
         //   assign from a compatible managed pointer type
         //      (e.g., ptr-to-derived, to ptr-to-base, ptr to ptr-to-const)
-        //   any managed pointer can be assigned to 'bslma::ManagedPtr<void>'
+        //   any managed pointer can be assigned to `bslma::ManagedPtr<void>`
         //   assign to/from an empty managed pointer, each of the cases above
         //   assigning incompatible pointers should fail to compile (hand test)
         //
@@ -10975,12 +11010,12 @@ int main(int argc, char *argv[])
         //     aliased (original created with factory)
         //     aliased (original created with factory and deleter)
         //
-        //  In addition, assignment supports the following that 'swap' does not
+        //  In addition, assignment supports the following that `swap` does not
         //  assignment from temporary/rvalue must be supported
-        //  assignment from 'compatible' managed pointer must be supported
+        //  assignment from `compatible` managed pointer must be supported
         //    i.e., where raw pointers would be convertible under assignment
         //
-        //: X No 'bslma::ManagedPtr' method should allocate any memory.
+        //  X No `bslma::ManagedPtr` method should allocate any memory.
         // Plan:
         //   TBD...
         //
@@ -11292,7 +11327,7 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-            // Explicitly test move assignment from the same 'ManagedPtr'.
+            // Explicitly test move assignment from the same `ManagedPtr`.
 
             {
                 Test *p = new MyTestObject(&numDeletes);
@@ -11307,8 +11342,8 @@ int main(int argc, char *argv[])
 
         numDeletes = 0;
         {
-            // Test creation of a ref from the same type of 'ManagedPtr', then
-            // assignment to another 'ManagedPtr'.
+            // Test creation of a ref from the same type of `ManagedPtr`, then
+            // assignment to another `ManagedPtr`.
 
             Obj o2;
             {
@@ -11476,7 +11511,7 @@ int main(int argc, char *argv[])
         //   assign to pointer with factory/deleter/aliased-pointer
         //   assign from a compatible managed pointer type
         //      (e.g., ptr-to-derived, to ptr-to-base, ptr to ptr-to-const)
-        //   any managed pointer can be assigned to 'bslma::ManagedPtr<void>'
+        //   any managed pointer can be assigned to `bslma::ManagedPtr<void>`
         //   assign to/from an empty managed pointer, each of the cases above
         //   assigning incompatible pointers should fail to compile (hand test)
         //
@@ -11501,7 +11536,7 @@ int main(int argc, char *argv[])
         //     aliased (original created with factory)
         //     aliased (original created with factory and deleter)
         //
-        //: X No 'bslma::ManagedPtr' method should allocate any memory.
+        //  X No `bslma::ManagedPtr` method should allocate any memory.
         // Plan:
         //   TBD...
         //
@@ -11618,7 +11653,7 @@ int main(int argc, char *argv[])
 #if defined(BSLMA_MANAGEDPTR_COMPILE_FAIL_SWAP_FOR_DIFFERENT_TYPES)
             {
                 // confirm that the various implicit conversions in this
-                // component do not accidentally introduce a dangerous 'swap'.
+                // component do not accidentally introduce a dangerous `swap`.
                 bslma::ManagedPtr<int> x;
                 bslma::ManagedPtr<double> y;
                 x.swap(y);  // should not compile
@@ -11658,39 +11693,39 @@ int main(int argc, char *argv[])
         // TESTING MOVE-CONSTRUCTION
         //
         // Concerns:
-        //: 1 No constructor nor conversion operator allocates any memory from
-        //:   the default or global allocators.
-        //:
-        //: 2 Each constructor takes ownership of the passed managed object.
-        //:
-        //: 3 Move construction for lvalues directly invokes the copy/move-
-        //:   constructor (or constructor template) to take ownership away from
-        //:   the source managed pointer object.
-        //:
-        //: 4 Move semantics for temporary objects (rvalues) are supported
-        //:   through an implicit conversion to 'bslma::ManagedPtr_Ref', and
-        //:   the single argument (implicit) constructor taking ownership from
-        //:   such a managed reference.
-        //:
-        //: 5 const-qualified objects cannot be moved from (compile-fail test).
-        //:
-        //: 6 Both lvalue and rvalue objects of 'bslma::ManagedPtr' types can
-        //:   implicitly convert to a 'bslma::ManagedPtr_Ref' of any compatible
-        //:   type, i.e., where a pointer to the specified '_Ref' type may be
-        //:   converted from a pointer to the specified 'Managed' type.
-        //:
-        //: 7 A 'bslma::ManagedPtr' object is left in an empty state after
-        //:   being supplied as the source to a move operation.
-        //:
-        //: 8 A 'bslma::ManagedPtr' object holding an object of a most-derived
-        //:   class can correctly move to a 'bslma::ManagedPtr' holding one of
-        //:   its non-leftmost base classes.
+        // 1. No constructor nor conversion operator allocates any memory from
+        //    the default or global allocators.
+        //
+        // 2. Each constructor takes ownership of the passed managed object.
+        //
+        // 3. Move construction for lvalues directly invokes the copy/move-
+        //    constructor (or constructor template) to take ownership away from
+        //    the source managed pointer object.
+        //
+        // 4. Move semantics for temporary objects (rvalues) are supported
+        //    through an implicit conversion to `bslma::ManagedPtr_Ref`, and
+        //    the single argument (implicit) constructor taking ownership from
+        //    such a managed reference.
+        //
+        // 5. const-qualified objects cannot be moved from (compile-fail test).
+        //
+        // 6. Both lvalue and rvalue objects of `bslma::ManagedPtr` types can
+        //    implicitly convert to a `bslma::ManagedPtr_Ref` of any compatible
+        //    type, i.e., where a pointer to the specified `_Ref` type may be
+        //    converted from a pointer to the specified `Managed` type.
+        //
+        // 7. A `bslma::ManagedPtr` object is left in an empty state after
+        //    being supplied as the source to a move operation.
+        //
+        // 8. A `bslma::ManagedPtr` object holding an object of a most-derived
+        //    class can correctly move to a `bslma::ManagedPtr` holding one of
+        //    its non-leftmost base classes.
         //
         // Plan:
         //   First we test the conversion operator, including compile-fail test
         //   for incompatible types
         //
-        //   Next we test construction from a 'bslma::ManagedPtr_Ref' object
+        //   Next we test construction from a `bslma::ManagedPtr_Ref` object
         //
         //   Finally we test the tricky combinations of invoking the (lvalue)
         //   move constructor, including with rvalues, and values of different
@@ -11739,7 +11774,7 @@ int main(int argc, char *argv[])
                 ASSERT(&countedNilDelete == r.base()->deleter().deleter());
 
                 // finally, check the address of the pointed-to object lies
-                // within 'o', as we cannot directly query the address of the
+                // within `o`, as we cannot directly query the address of the
                 // private member
                 const void *p1 = &o;
                 const void *p2 = reinterpret_cast<const unsigned char *>(p1) +
@@ -11760,8 +11795,8 @@ int main(int argc, char *argv[])
                 // To test conversion from an rvalue, we must bind the
                 // temporary to a function argument in order to prolong the
                 // lifetime of the temporary until after testing is complete.
-                // We must bind the temporary to a 'bslma::ManagedPtr_Ref' and
-                // not a whole 'bslma::ManagedPtr' because we are testing an
+                // We must bind the temporary to a `bslma::ManagedPtr_Ref` and
+                // not a whole `bslma::ManagedPtr` because we are testing an
                 // implementation detail of that move-constructor that would be
                 // invoked.
                 struct Local {
@@ -12210,8 +12245,8 @@ int main(int argc, char *argv[])
 // examples to demonstrate:
         // Moving from lvalues:
         //   derived->base
-        //   no-cv -> 'const'
-        //   anything -> 'void'
+        //   no-cv -> `const`
+        //   anything -> `void`
         //
         // Moving from rvalues:
         //   as above, plus...
@@ -12236,8 +12271,8 @@ int main(int argc, char *argv[])
 
         // Additional failures to demonstrate
         //   base -> derived type (a likely user error)
-        //   'const' -> non-'const'
-        //   'void' -> anything but 'void'
+        //   `const` -> non-`const`
+        //   `void` -> anything but `void`
 #endif
       } break;
       case 8: {
@@ -12245,26 +12280,26 @@ int main(int argc, char *argv[])
         // TESTING CREATORS WITH FACTORY OR DELETER
         //
         // Concerns:
-        //: 1 No constructor allocates any memory from the default or global
-        //:   allocators.
-        //:
-        //: 2 Each constructor takes ownership of the passed managed object.
-        //:
-        //: 3 Each constructor establishes the supplied 'deleter', unless the
-        //:   specified managed object has a null pointer value.
-        //:
-        //: 4 Each constructor ASSERTs in appropriate build modes when passed
-        //:   a null pointer for the deleter, but a non-null pointer to the
-        //:   managed object.
-        //:
-        //: 5 It must be possible to pass a null-pointer constant for the
-        //:   'factory' argument when the specified 'deleter' will use only the
-        //:   managed pointer value.
+        // 1. No constructor allocates any memory from the default or global
+        //    allocators.
+        //
+        // 2. Each constructor takes ownership of the passed managed object.
+        //
+        // 3. Each constructor establishes the supplied `deleter`, unless the
+        //    specified managed object has a null pointer value.
+        //
+        // 4. Each constructor ASSERTs in appropriate build modes when passed
+        //    a null pointer for the deleter, but a non-null pointer to the
+        //    managed object.
+        //
+        // 5. It must be possible to pass a null-pointer constant for the
+        //    `factory` argument when the specified `deleter` will use only the
+        //    managed pointer value.
         //
         //   Exercise each declared constructors of ManagedPtr (other than
         //   those already tested in an earlier test case; those constructors
         //   that implement move semantics; and the constructor that enables
-        //   aliasing).  Note that the primary accessor, 'ptr', cannot be
+        //   aliasing).  Note that the primary accessor, `ptr`, cannot be
         //   considered to be validated until after testing the alias support,
         //   see test case 11.
         //
@@ -12274,7 +12309,7 @@ int main(int argc, char *argv[])
         //   Go through the constructors in the order in which they are
         //   declared in the ManagedPtr class and exercise all of them.
         //
-        //   Remember to pass '0' as a null-pointer literal to all arguments
+        //   Remember to pass `0` as a null-pointer literal to all arguments
         //   that accept pointers (with negative testing if that is out of
         //   contract).
         //
@@ -12421,7 +12456,7 @@ int main(int argc, char *argv[])
 //#define BSLMA_MANAGEDPTR_COMPILE_FAIL_CONSTRUCT_FROM_INCOMPATIBLE_POINTER
 #if defined BSLMA_MANAGEDPTR_COMPILE_FAIL_CONSTRUCT_FROM_INCOMPATIBLE_POINTER
         // This segment of the test case examines the quality of compiler
-        // diagnostics when trying to create a 'bslma::ManagedPtr' object with
+        // diagnostics when trying to create a `bslma::ManagedPtr` object with
         // a pointer that it not convertible to a pointer of the type that the
         // smart pointer is managing.
 
@@ -12501,20 +12536,20 @@ int main(int argc, char *argv[])
         // TESTING ACCESSORS
         //
         // Concerns:
-        //   That all accessors work properly.  The 'ptr' and 'get' accessors
+        //   That all accessors work properly.  The `ptr` and `get` accessors
         //   have already been substantially tested in previous tests.
         //   The unspecified bool conversion evaluates as expected in all
         //     circumstances: if/while/for, (implied) operator!
-        //   All accessors work on 'const'- qualified objects
-        //   All accessors can be called for 'bslma::ManagedPtr<void>'
-        //   All accessors return expected values when a 'bslma::ManagedPtr'
+        //   All accessors work on `const`- qualified objects
+        //   All accessors can be called for `bslma::ManagedPtr<void>`
+        //   All accessors return expected values when a `bslma::ManagedPtr`
         //     has been aliased
-        //   'operator*' should assert in SAFE builds for empty pointers
-        //   'deleter' should assert in SAFE builds for empty pointers
-        //   'operator*' should be well-formed, but not callable for
-        //     'bslma::ManagedPtr<void>'.
+        //   `operator*` should assert in SAFE builds for empty pointers
+        //   `deleter` should assert in SAFE builds for empty pointers
+        //   `operator*` should be well-formed, but not callable for
+        //     `bslma::ManagedPtr<void>`.
         //
-        //: X No 'bslma::ManagedPtr' method should allocate any memory.
+        //  X No `bslma::ManagedPtr` method should allocate any memory.
         //
         // Plan:
         //   Test each accessor for the expected value on each of the following
@@ -12528,11 +12563,11 @@ int main(int argc, char *argv[])
         //     aliased (original created with factory)
         //     aliased (original created with factory and deleter)
         //
-        //  For 'bslma::ManagedPtr<void>', test syntax of 'operator*' in an
-        //    unevaluated context, such as a 'typeid' expression.
+        //  For `bslma::ManagedPtr<void>`, test syntax of `operator*` in an
+        //    unevaluated context, such as a `typeid` expression.
         //
         //  Test that illegal expressions cannot compile in compile-fail tests,
-        //  guarded by '#ifdef's, where necessary.
+        //  guarded by `#ifdef`s, where necessary.
         //
         // Testing:
         //   operator BoolType() const;
@@ -12565,7 +12600,7 @@ int main(int argc, char *argv[])
             const bslma::ManagedPtrDeleter del;
 
             validateManagedState(L_, o, 0, del);
-            // The following 'typeid' fails on Unix compilers, but should be an
+            // The following `typeid` fails on Unix compilers, but should be an
             // unevaluated operand, and so safely invokable.
             //typeid(*o); // should parse, even if it cannot be called
         }
@@ -12576,7 +12611,7 @@ int main(int argc, char *argv[])
             const bslma::ManagedPtrDeleter del;
 
             validateManagedState(L_, o, 0, del);
-            // The following 'typeid' fails on Unix compilers, but should be an
+            // The following `typeid` fails on Unix compilers, but should be an
             // unevaluated operand, and so safely invokable.
             //typeid(*o); // should parse, even if it cannot be called
         }
@@ -12827,7 +12862,7 @@ int main(int argc, char *argv[])
        "\tTest accessors on simple object using both a factory and deleter\n");
 
         // Declare a local variable of the correct deleter type to avoid
-        // repeated casting when trying to pass 'incrementIntDeleter' as a
+        // repeated casting when trying to pass `incrementIntDeleter` as a
         // deleter.
 
         bslma::ManagedPtrDeleter::Deleter fn_incrementIntDeleter_p =
@@ -12918,7 +12953,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //   managed pointer can hold an alias
         //
-        //   'ptr' returns the alias pointer, and not the managed pointer
+        //   `ptr` returns the alias pointer, and not the managed pointer
         //
         //   correct deleter is run when an aliased pointer is destroyed
         //
@@ -12932,14 +12967,14 @@ int main(int argc, char *argv[])
         //   aliasing a null pointer clears the managed pointer, releasing any
         //   previously held object
         //
-        //: X No 'bslma::ManagedPtr' method should allocate any memory.
+        //  X No `bslma::ManagedPtr` method should allocate any memory.
         //
         // Plan:
         //   Alias an existing state:
-        //     Run through the function table for test case 'load'
+        //     Run through the function table for test case `load`
         //     Test 1:
         //       Load a known state into an empty managed pointer
-        //       call 'loadAlias' on a second empty managed pointer
+        //       call `loadAlias` on a second empty managed pointer
         //       Check aliased state, and original managed pointer
         //         negative test alias with a null pointer value
         //         negative test if aliased managed pointer is empty
@@ -12947,17 +12982,17 @@ int main(int argc, char *argv[])
         //       Run destructor and validate
         //     Test 2:
         //       Load a known state into an empty managed pointer
-        //       call 'loadAlias' on a second empty managed pointer
+        //       call `loadAlias` on a second empty managed pointer
         //       Check aliased state, and original managed pointer
-        //       call 'loadAlias' again on a third empty managed pointer
+        //       call `loadAlias` again on a third empty managed pointer
         //       Check new aliased state, and first aliased managed pointer
         //       Check no memory allocated by aliasing
         //       Run destructor and validate
         //     Test 3: (to be written)
         //       Create an alias
         //       Check aliased state, and original managed pointer
-        //       run another 'load' function and check alias destroys correctly
-        //       destroy 'load'ed managed pointer, validating results
+        //       run another `load` function and check alias destroys correctly
+        //       destroy `load`ed managed pointer, validating results
         //
         // Testing:
         //   ManagedPtr(ManagedPtr<OTHER>& alias, TYPE *ptr);
@@ -13108,69 +13143,69 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'load' OVERLOADS
+        // TESTING `load` OVERLOADS
         //
         // Concerns:
-        //: 1 Calling 'load' on an empty managed pointer assigns ownership of
-        //:   the pointer passed as the argument.
-        //:
-        //: 2 Calling 'load' on a 'bslma::ManagedPtr' that owns a non-null
-        //:   pointer destroys the referenced object, and takes ownership of
-        //:   the new one.
-        //:
-        //: 3 Calling load with a null pointer, or no argument, causes a
-        //:   'bslma::ManagedPtr' object to destroy any managed object, without
-        //:   owning a new one.
-        //:
-        //: 4 'bslma::ManagedPtr<void>' can load a pointer to any other type,
-        //:   owning the pointer and deducing a deleter that will correctly
-        //:   destroy the pointed-to object.
-        //:
-        //: 5 'bslma::ManagedPtr<void>' can load a true 'void *' pointer only
-        //:   if an appropriate factory or deleter function is also passed.
-        //:   The single argument 'load(void *) should fail to compile.
-        //:
-        //: 6 'bslma::ManagedPtr<const T>' can be loaded with a 'T *' pointer
-        //:   (cv-qualification conversion).
-        //:
-        //: 7 'bslma::ManagedPtr<base>' can be loaded with a 'derived *'
-        //:   pointer and the deleter will destroy the 'derived' type, even if
-        //:   the 'base' destructor is not virtual.
-        //:
-        //: 8 When 'bslma::ManagedPtr' is passed a single 'FACTORY *' argument,
-        //:   the implicit deleter-function will destroy the pointed-to object
-        //:   using the FACTORY::deleteObject (non-static) method.
-        //:
-        //: 9 'bslma::Allocator' serves as a valid FACTORY type.
-        //:
-        //:10 A custom type offering just the 'deleteObject' (non-virtual)
-        //:   member function serves as a valid FACTORY type.
-        //:
-        //:11 A 'bslma::ManagedPtr' points to the same object as the pointer
-        //:   passed to 'load'.  Note that this includes null pointers.
-        //:
-        //:12 Destroying a 'bslma::ManagedPtr' destroys any owned object using
-        //:   the deleter mechanism supplied by 'load'.
-        //:
-        //:13 Destroying a bslma::ManagedPtr that does not own a pointer has
-        //:   no observable effect.
-        //:
-        //:14 No 'bslma::ManagedPtr' method should allocate any memory.
-        //:
-        //:15 Defensive checks assert in safe build modes when passing null
-        //:   pointers as arguments for factory or deleters, unless target
-        //:   pointer is also null.
+        // 1. Calling `load` on an empty managed pointer assigns ownership of
+        //    the pointer passed as the argument.
+        //
+        // 2. Calling `load` on a `bslma::ManagedPtr` that owns a non-null
+        //    pointer destroys the referenced object, and takes ownership of
+        //    the new one.
+        //
+        // 3. Calling load with a null pointer, or no argument, causes a
+        //    `bslma::ManagedPtr` object to destroy any managed object, without
+        //    owning a new one.
+        //
+        // 4. `bslma::ManagedPtr<void>` can load a pointer to any other type,
+        //    owning the pointer and deducing a deleter that will correctly
+        //    destroy the pointed-to object.
+        //
+        // 5. `bslma::ManagedPtr<void>` can load a true `void *` pointer only
+        //    if an appropriate factory or deleter function is also passed.
+        //    The single argument 'load(void *) should fail to compile.
+        //
+        // 6. `bslma::ManagedPtr<const T>` can be loaded with a `T *` pointer
+        //    (cv-qualification conversion).
+        //
+        // 7. `bslma::ManagedPtr<base>` can be loaded with a `derived *`
+        //    pointer and the deleter will destroy the `derived` type, even if
+        //    the `base` destructor is not virtual.
+        //
+        // 8. When `bslma::ManagedPtr` is passed a single `FACTORY *` argument,
+        //    the implicit deleter-function will destroy the pointed-to object
+        //    using the FACTORY::deleteObject (non-static) method.
+        //
+        // 9. `bslma::Allocator` serves as a valid FACTORY type.
+        //
+        // 10. A custom type offering just the `deleteObject` (non-virtual)
+        //    member function serves as a valid FACTORY type.
+        //
+        // 11. A `bslma::ManagedPtr` points to the same object as the pointer
+        //    passed to `load`.  Note that this includes null pointers.
+        //
+        // 12. Destroying a `bslma::ManagedPtr` destroys any owned object using
+        //    the deleter mechanism supplied by `load`.
+        //
+        // 13. Destroying a bslma::ManagedPtr that does not own a pointer has
+        //    no observable effect.
+        //
+        // 14. No `bslma::ManagedPtr` method should allocate any memory.
+        //
+        // 15. Defensive checks assert in safe build modes when passing null
+        //    pointers as arguments for factory or deleters, unless target
+        //    pointer is also null.
         //
         // Plan:
         //   take an empty pointer, and call each overload of load.
         //      confirm pointer is initially null
-        //      confirm new pointer value is stored by 'ptr'
+        //      confirm new pointer value is stored by `ptr`
         //      confirm destructor destroys target object
-        //      be sure to pass both '0' and valid pointer values to each
+        //      be sure to pass both `0` and valid pointer values to each
         //          potential overload
         //   Write a pair of nested loops
         //     For each iteration, first create a default-constructed
-        //         'bslma::ManagedPtr'
+        //         `bslma::ManagedPtr`
         //     Then call a load function (testing each overload by the first
         //         loop)
         //     Then, in inner loop, load a second pointer and verify first
@@ -13187,36 +13222,36 @@ int main(int argc, char *argv[])
         //      const void
         //
         //   For each, create a table of test-functions that use encoded names:
-        //      Object  - function supplies an object to 'load'
-        //      Factory - function supplies a factory to 'load'
+        //      Object  - function supplies an object to `load`
+        //      Factory - function supplies a factory to `load`
         //      Fnull   - function passes a null pointer literal as factory
-        //      Deleter - function supplies a deleter to 'load'
-        //      Dzero   - function calls 'load' with a 0-value pointer variable
+        //      Deleter - function supplies a deleter to `load`
+        //      Dzero   - function calls `load` with a 0-value pointer variable
         //                and *not* a null-pointer literal.
         //
-        //   Codes that may be passed as 'Object' policies are:
+        //   Codes that may be passed as `Object` policies are:
         //      Obase
         //      OCbase
         //      Oderiv
         //      OCDeriv
         //
         //   Codes for specific factories are:
-        //      Fbsl   factory is cast to base 'bslma::Allocator'
-        //      Ftst   factory is cast to specific 'bslma::TestAllocator' type
+        //      Fbsl   factory is cast to base `bslma::Allocator`
+        //      Ftst   factory is cast to specific `bslma::TestAllocator` type
         //      Fdflt  factory argument is ignored and default allocator used
         //
-        //   Each test-function taking an 'Object' parameter will call 'load'
+        //   Each test-function taking an `Object` parameter will call `load`
         //   with both an allocate object, and a pointer variable holding a
         //   null-pointer value.
         //
-        //   Each test-function taking a 'Factory' parameter will call 'load'
+        //   Each test-function taking a `Factory` parameter will call `load`
         //   with both an allocate object, and a pointer variable holding a
         //   null-pointer value.
         //
         //   Each of the four combinations of valid/null pointer for the
         //   factory/object arguments will be tested for test-functions taking
         //   both parameters.  The combination will be negatively tested using
-        //   the 'bsls_asserttest' facility if that is appropriate.
+        //   the `bsls_asserttest` facility if that is appropriate.
         //
         //   These functions are assembled using further policy-functions that
         //   will create and supply objects, deleters and factories of types
@@ -13225,14 +13260,14 @@ int main(int argc, char *argv[])
         //   may be needed.
         //
         //   The test function will take a default-constructed managed pointer
-        //   object, call the 'load' test function, establish that the expected
-        //   results of 'load' are evident, and then let the managed pointer
+        //   object, call the `load` test function, establish that the expected
+        //   results of `load` are evident, and then let the managed pointer
         //   fall out of scope, and check that the destructor destroys any
         //   managed object appropriately.
         //
         //   Then an inner-loop will again create an empty managed pointer
-        //   object and 'load' it using the test function.  It will then call
-        //   'load' again with the next function in the test table, and verify
+        //   object and `load` it using the test function.  It will then call
+        //   `load` again with the next function in the test table, and verify
         //   that the original managed object (if any) is destroyed correctly
         //   and that the new managed object is held as expected.  Then this
         //   managed pointer will fall out of scope, and we test again that any
@@ -13257,7 +13292,7 @@ int main(int argc, char *argv[])
         //   ~ManagedPtr();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'load' OVERLOADS"
+        if (verbose) printf("\nTESTING `load` OVERLOADS"
                             "\n========================\n");
 
         {
@@ -13376,33 +13411,33 @@ int main(int argc, char *argv[])
         // TESTING PRIMARY CREATORS
         //   Note that we will not deem the destructor to be completely tested
         //   until the next test case, which tests the range of management
-        //   strategies a 'bslma::ManagedPtr' may hold.
+        //   strategies a `bslma::ManagedPtr` may hold.
         //
         // Concerns:
-        //: 1 A default constructed 'bslma::ManagedPtr' does not own a pointer.
-        //:
-        //: 2 A default constructed 'bslma::ManagedPtr' does not allocate any
-        //:   memory.
-        //:
-        //: 3 A 'bslma::ManagedPtr' takes ownership of a pointer passed as a
-        //:   single argument to its constructor, and destroys the pointed-to
-        //:   object in its destructor using the default allocator.  It does
-        //:   not allocate any memory.
-        //:
-        //: 4 A 'bslma::ManagedPtr<base>' object created by passing a
-        //:   'derived *' pointer calls the 'derived' destructor when
-        //:   destroying the managed object, regardless of whether the 'base'
-        //:   destructor is declared as 'virtual'.  No memory is allocated by
-        //:   'bslma::ManagedPtr'.
-        //:
-        //: 5 A 'bslma::ManagedPtr<void>' object created by passing a
-        //:   'derived*' pointer calls the 'derived' destructor when destroying
-        //:   the managed object.  No memory is allocated by
-        //:   'bslma::ManagedPtr'.
-        //:
-        //: 6 A 'bslma::ManagedPtr' taking ownership of a null pointer passed
-        //:   as a single argument is equivalent to default construction; it
-        //:   does not allocate any memory.
+        // 1. A default constructed `bslma::ManagedPtr` does not own a pointer.
+        //
+        // 2. A default constructed `bslma::ManagedPtr` does not allocate any
+        //    memory.
+        //
+        // 3. A `bslma::ManagedPtr` takes ownership of a pointer passed as a
+        //    single argument to its constructor, and destroys the pointed-to
+        //    object in its destructor using the default allocator.  It does
+        //    not allocate any memory.
+        //
+        // 4. A `bslma::ManagedPtr<base>` object created by passing a
+        //    `derived *` pointer calls the `derived` destructor when
+        //    destroying the managed object, regardless of whether the `base`
+        //    destructor is declared as `virtual`.  No memory is allocated by
+        //    `bslma::ManagedPtr`.
+        //
+        // 5. A `bslma::ManagedPtr<void>` object created by passing a
+        //    `derived*` pointer calls the `derived` destructor when destroying
+        //    the managed object.  No memory is allocated by
+        //    `bslma::ManagedPtr`.
+        //
+        // 6. A `bslma::ManagedPtr` taking ownership of a null pointer passed
+        //    as a single argument is equivalent to default construction; it
+        //    does not allocate any memory.
         //
         // Plan:
         //    TBD
@@ -13578,19 +13613,19 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'ManagedPtr_Ref'
+        // TESTING `ManagedPtr_Ref`
         //
-        // 'bslma::ManagedPtr_Ref' is similar to an in-core value-semantic type
+        // `bslma::ManagedPtr_Ref` is similar to an in-core value-semantic type
         // having a single pointer as its only attribute; it does not offer the
         // traditional range of value-semantic operations such as equality
         // comparison and printing.  Its test concerns and plan are closely
         // modeled after such a value-semantic type.
         //
         // Concerns:
-        //: 1 TBD Enumerate concerns
+        // 1. TBD Enumerate concerns
         //
         // Plan:
-        //: 1 blah ...
+        // 1. blah ...
         //
         // Testing:
         //   ManagedPtr_Ref(ManagedPtr_Members *base, TARGET_TYPE *target);
@@ -13601,7 +13636,7 @@ int main(int argc, char *argv[])
         // * TARGET_TYPE *target() const;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'ManagedPtr_Ref'"
+        if (verbose) printf("\nTESTING `ManagedPtr_Ref`"
                             "\n========================\n");
 
         bslma::TestAllocatorMonitor gam(&globalAllocator);
@@ -13670,72 +13705,72 @@ int main(int argc, char *argv[])
         // TESTING TEST MACHINERY
         //
         // Concerns:
-        //: 1 'MyTestObject', 'MyDerivedObject' and 'MySecondDerivedObject'
-        //    and 'MyDerivedDerivedObject'
-        //:   objects do not allocate any memory from the default allocator nor
-        //:   from the global allocator for any of their operations.
-        //:
-        //: 2 'MyTestObject', 'MyDerivedObject' and 'MySecondDerivedObject'
-        //    and 'MyDerivedDerivedObject'
-        //:   objects, created with a pointer to an integer, increment the
-        //:   referenced integer exactly once when they are destroyed.
-        //:
-        //: 3 'MyTestObject', 'MyDerivedObject' and 'MySecondDerivedObject'
-        //    and 'MyDerivedDerivedObject'
-        //:   objects, created by copying another object of the same type,
-        //:   increment the integer referenced by the original object, exactly
-        //:   once, when they are destroyed.
-        //:
-        //: 4 'MyDerivedObject' is derived from 'MyTestObject'.
-        //:
-        //: 5 'MySecondDerivedObject' is derived from 'MyTestObject'.
-        //:
-        //: 6 'MyDerivedObject' is *not* derived from 'MySecondDerivedObject',
-        //:   nor is 'MySecondDerivedObject' derived from 'MyDerivedObject'.
-        //:
-        //: 7 'MyDerivedDerivedObject' is derived from 'MyDerivedObject'.
-        //:
-        //: 8 'MyDerivedDerivedObject' is *not* derived from
-        //    'MySecondDerivedObject'.
+        // 1. `MyTestObject`, `MyDerivedObject` and `MySecondDerivedObject`
+        //    and `MyDerivedDerivedObject`
+        //    objects do not allocate any memory from the default allocator nor
+        //    from the global allocator for any of their operations.
+        //
+        // 2. `MyTestObject`, `MyDerivedObject` and `MySecondDerivedObject`
+        //    and `MyDerivedDerivedObject`
+        //    objects, created with a pointer to an integer, increment the
+        //    referenced integer exactly once when they are destroyed.
+        //
+        // 3. `MyTestObject`, `MyDerivedObject` and `MySecondDerivedObject`
+        //    and `MyDerivedDerivedObject`
+        //    objects, created by copying another object of the same type,
+        //    increment the integer referenced by the original object, exactly
+        //    once, when they are destroyed.
+        //
+        // 4. `MyDerivedObject` is derived from `MyTestObject`.
+        //
+        // 5. `MySecondDerivedObject` is derived from `MyTestObject`.
+        //
+        // 6. `MyDerivedObject` is *not* derived from `MySecondDerivedObject`,
+        //    nor is `MySecondDerivedObject` derived from `MyDerivedObject`.
+        //
+        // 7. `MyDerivedDerivedObject` is derived from `MyDerivedObject`.
+        //
+        // 8. `MyDerivedDerivedObject` is *not* derived from
+        //    `MySecondDerivedObject`.
         //
         // Plan:
-        //: 1 Install test allocator monitors to verify that neither the global
-        //:   nor default allocators allocate any memory executing this test
-        //:   case.
-        //:
-        //: 2 For each test-class type:
-        //:   1 Initialize an 'int' counter to zero
-        //:   2 Create a object of tested type, having the address of the 'int'
-        //:     counter.
-        //:   3 Confirm the test object 'deleterCounter' points to the 'int'
-        //:     counter.
-        //:   4 Confirm the 'int' counter value has not changed.
-        //:   5 Destroy the test object and confirm the 'int' counter value
-        //:     has incremented by exactly 1.
-        //:   6 Create a second object of tested type, having the address of
-        //:     the 'int' counter.
-        //:   7 Create a copy of the second test object, and confirm both test
-        //:     object's 'deleterCount' point to the same 'int' counter.
-        //:   8 Confirm the 'int' counter value has not changed.
-        //:   9 Destroy one test object, and confirm test 'int' counter is
-        //:     incremented exactly once.
-        //:  10 Destroy the other test object, and confirm test 'int' counter
-        //:     is incremented exactly once.
-        //:
-        //: 3 For each test-class type:
-        //:   1 Create a function overload set, where one function takes a
-        //:     pointer to the test-class type and returns 'true', while the
-        //:     other overload matches anything and returns 'false'.
-        //:   2 Call each of the overloaded function sets with a pointer to
-        //:     'int', and confirm each returns 'false'.
-        //:   3 Call each of the overloaded function sets with a pointer to
-        //:     an object of each of the test-class types, and confirm each
-        //:     call returns 'true' only when the pointer type matches the
-        //:     test-class type for that function, or points to a type publicly
-        //:     derived from that test-class type.
-        //:
-        //: 4 Verify that no unexpected memory was allocated by inspecting the
-        //:   allocator guards.
+        // 1. Install test allocator monitors to verify that neither the global
+        //    nor default allocators allocate any memory executing this test
+        //    case.
+        //
+        // 2. For each test-class type:
+        //   1. Initialize an `int` counter to zero
+        //   2. Create a object of tested type, having the address of the `int`
+        //      counter.
+        //   3. Confirm the test object `deleterCounter` points to the `int`
+        //      counter.
+        //   4. Confirm the `int` counter value has not changed.
+        //   5. Destroy the test object and confirm the `int` counter value
+        //      has incremented by exactly 1.
+        //   6. Create a second object of tested type, having the address of
+        //      the `int` counter.
+        //   7. Create a copy of the second test object, and confirm both test
+        //      object's `deleterCount` point to the same `int` counter.
+        //   8. Confirm the `int` counter value has not changed.
+        //   9. Destroy one test object, and confirm test `int` counter is
+        //      incremented exactly once.
+        //  10. Destroy the other test object, and confirm test `int` counter
+        //      is incremented exactly once.
+        //
+        // 3. For each test-class type:
+        //   1. Create a function overload set, where one function takes a
+        //      pointer to the test-class type and returns `true`, while the
+        //      other overload matches anything and returns `false`.
+        //   2. Call each of the overloaded function sets with a pointer to
+        //      `int`, and confirm each returns `false`.
+        //   3. Call each of the overloaded function sets with a pointer to
+        //      an object of each of the test-class types, and confirm each
+        //      call returns `true` only when the pointer type matches the
+        //      test-class type for that function, or points to a type publicly
+        //      derived from that test-class type.
+        //
+        // 4. Verify that no unexpected memory was allocated by inspecting the
+        //    allocator guards.
         //
         // Testing:
         //    TEST MACHINERY
@@ -14104,7 +14139,7 @@ int main(int argc, char *argv[])
         }
         ASSERTV(numDeletes, 100 == numDeletes);
 
-        if (verbose) printf("\tTest 'load' method.\n");
+        if (verbose) printf("\tTest `load` method.\n");
 
         numDeletes = 0;
         {
@@ -14125,7 +14160,7 @@ int main(int argc, char *argv[])
         }
         ASSERTV(numDeletes, 1 == numDeletes);
 
-        if (verbose) printf("\tTest 'load' method with allocator.\n");
+        if (verbose) printf("\tTest `load` method with allocator.\n");
 
         numDeletes = 0;
         {
@@ -14145,7 +14180,7 @@ int main(int argc, char *argv[])
         }
         ASSERTV(numDeletes, 1 == numDeletes);
 
-        if (verbose) printf("\tTest 'loadAlias'.\n");
+        if (verbose) printf("\tTest `loadAlias`.\n");
 
         numDeletes = 0;
         {
@@ -14171,7 +14206,7 @@ int main(int argc, char *argv[])
         }
         ASSERTV(numDeletes, 1 == numDeletes);
 
-        if (verbose) printf("\tTest 'swap'.\n");
+        if (verbose) printf("\tTest `swap`.\n");
 
         numDeletes = 0;
         {
@@ -14191,7 +14226,7 @@ int main(int argc, char *argv[])
         }
         ASSERTV(numDeletes, 1 == numDeletes);
 
-        if (verbose) printf("\tTest 'swap' with custom deleter.\n");
+        if (verbose) printf("\tTest `swap` with custom deleter.\n");
 
         numDeletes = 0;
         {
@@ -14276,20 +14311,20 @@ int main(int argc, char *argv[])
         // VERIFYING FAILURES TO COMPILE
         //
         //   This test is checking for the *absence* of the following operators
-        //: o 'operator=='.
-        //: o 'operator!='.
-        //: o 'operator<'.
-        //: o 'operator<='.
-        //: o 'operator>='.
-        //: o 'operator>'.
+        //  - `operator==`.
+        //  - `operator!=`.
+        //  - `operator<`.
+        //  - `operator<=`.
+        //  - `operator>=`.
+        //  - `operator>`.
         //
         // Concerns:
-        //: 1 Two 'bslma::ManagedPtr<T>' objects should not be comparable with
-        //:   the equality operator.
-        //:
-        //: 2 Two objects of different instantiations of the
-        //:   'bslma::ManagedPtr' class template should not be comparable with
-        //:   the equality operator.
+        // 1. Two `bslma::ManagedPtr<T>` objects should not be comparable with
+        //    the equality operator.
+        //
+        // 2. Two objects of different instantiations of the
+        //    `bslma::ManagedPtr` class template should not be comparable with
+        //    the equality operator.
         //
         // Plan:
         //   The absence of a specific operator will be tested by failing to

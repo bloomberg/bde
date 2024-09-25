@@ -25,12 +25,12 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // The component under test is a value-semantic component.  For the standard
-// 10-step test procedure, we choose the default constructor, 'addAttribute',
-// and 'removeAttribute' as the primary manipulator, and 'isMember' and
-// 'numAttributes' as the basic accessors.  Our concerns regarding the
+// 10-step test procedure, we choose the default constructor, `addAttribute`,
+// and `removeAttribute` as the primary manipulator, and `isMember` and
+// `numAttributes` as the basic accessors.  Our concerns regarding the
 // implementation of this component are that (1) all supported value-semantic
 // methods are implemented correctly; (2) the hash values must be calculated
-// correctly; and (3) the 'evaluate' method must return the correct value.
+// correctly; and (3) the `evaluate` method must return the correct value.
 //-----------------------------------------------------------------------------
 // [13] static int hash(const ball::ManagedAttributeSet&, int size);
 // [ 2] ball::ManagedAttributeSet();
@@ -143,15 +143,15 @@ int NUM_NAMES = sizeof NAMES / sizeof *NAMES;
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Return `true` if the specified `lhs` has the same value as the
+/// specified' rhs' and `false` otherwise.  Optionally specify a
+/// `errorStream`, on which, if `lhs` and `rhs` are not the same', a
+/// description of how the two strings differ will be written.  If
+/// `errorStream` is not supplied, `stdout` will be used to report an error
+/// description.
 bool compareText(const bsl::string_view& lhs,
                  const bsl::string_view& rhs,
                  bsl::ostream&           errorStream = bsl::cout)
-    // Return 'true' if the specified 'lhs' has the same value as the
-    // specified' rhs' and 'false' otherwise.  Optionally specify a
-    // 'errorStream', on which, if 'lhs' and 'rhs' are not the same', a
-    // description of how the two strings differ will be written.  If
-    // 'errorStream' is not supplied, 'stdout' will be used to report an error
-    // description.
 {
     for (unsigned int i = 0; i < lhs.length() && i < rhs.length(); ++i) {
         if (lhs[i] != rhs[i]) {
@@ -191,10 +191,10 @@ bool compareText(const bsl::string_view& lhs,
 }
 
 //=============================================================================
-//       GENERATOR FUNCTIONS 'g', 'gg', AND 'ggg' FOR TESTING
+//       GENERATOR FUNCTIONS `g`, `gg`, AND `ggg` FOR TESTING
 //-----------------------------------------------------------------------------
-// The 'g' family of functions generate a 'ball::ManagedAttributeSet' object
-// for testing.  They interpret a given 'spec' (from left to right) to
+// The `g` family of functions generate a `ball::ManagedAttributeSet` object
+// for testing.  They interpret a given `spec` (from left to right) to
 // configure the managed attribute set according to a custom language.
 //
 // To simplify these generator functions, an attribute is presented by two or
@@ -269,7 +269,7 @@ static Obj& gg(Obj *obj, const char *spec)
     return *obj;
 }
 
-// 'gg' function for 'AttributeSet'; used for testing 'evaluate' method.
+// `gg` function for `AttributeSet`; used for testing `evaluate` method.
 
 static AttributeSet& hh(AttributeSet *obj, const char *spec)
 {
@@ -338,8 +338,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.  Suppress
-        //   all 'cout' statements in non-verbose mode, and add streaming to
+        //   comment characters, and replace `assert` with `ASSERT`.  Suppress
+        //   all `cout` statements in non-verbose mode, and add streaming to
         //   a buffer to test programmatically the printing examples.
         //
         // Testing:
@@ -353,36 +353,36 @@ int main(int argc, char *argv[])
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: Basic Properties of 'ball::ManagedAttributeSet'
+///Example 1: Basic Properties of `ball::ManagedAttributeSet`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example shows basic operations on the managed attribute set.
 //
 // First, we create an empty attribute set:
-//..
+// ```
     ball::ManagedAttributeSet attributeSet;
-//..
+// ```
 // Then, we add two attributes to the attribute set:
-//..
+// ```
     ball::ManagedAttribute p1("uuid", 4044457);
     ASSERT(attributeSet.addAttribute(p1));
     ASSERT(attributeSet.addAttribute(ball::ManagedAttribute("uuid", 3133246)));
-//..
-// Next, we look up (by value) via the 'isMember' method:
-//..
+// ```
+// Next, we look up (by value) via the `isMember` method:
+// ```
     ASSERT(attributeSet.isMember(p1));
     ASSERT(attributeSet.isMember(ball::ManagedAttribute("uuid", 3133246)));
-//..
+// ```
 // Then, we add duplicated value and observe the status of the operation:
-//..
+// ```
     ASSERT(!attributeSet.addAttribute(ball::ManagedAttribute("uuid",
                                                              3133246)));
-//..
+// ```
 // Finally, we remove an attribute and check that it is not a member of the
 // attribute set:
-//..
+// ```
     ASSERT(attributeSet.removeAttribute(p1));
     ASSERT(!attributeSet.isMember(p1));
-//..
+// ```
 
       } break;
       case 13: {
@@ -521,21 +521,21 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING 'evaluate':
-        //   The 'evaluate' method must return correct results as to whether
+        // TESTING `evaluate`:
+        //   The `evaluate` method must return correct results as to whether
         //   every attribute in the set has an exact counterpart in the
         //   specified attribute set.
         //
         // Plan:
-        //   Specify a set of pairs of a 'ball::ManagedAttributeSet' object and
-        //   a 'DefaultAttributeContainer' object.  For each pair, verify that
-        //   the 'evaluate' method returns the expected value.
+        //   Specify a set of pairs of a `ball::ManagedAttributeSet` object and
+        //   a `DefaultAttributeContainer` object.  For each pair, verify that
+        //   the `evaluate` method returns the expected value.
         //
         // Testing:
         //   bool evaluate(const AttributeContainerList& containerList) const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'evaluate'"
+        if (verbose) cout << "\nTesting `evaluate`"
                           << "\n==================" << endl;
 
         static const struct {
@@ -589,23 +589,23 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'removeAll'
-        //   The 'removeAll' should effectively empty the
-        //   'ball::ManagedAttributeSet' object.
+        // TESTING `removeAll`
+        //   The `removeAll` should effectively empty the
+        //   `ball::ManagedAttributeSet` object.
         //
         // Plan:
         //   Specify a set S of test vectors.  For each element in S, construct
-        //   the corresponding 'ball::ManagedAttributeSet' object x using the
-        //   'gg' function.  Copy x into another object y.  After calling
-        //   'removeAll' on x, verify that the length of x is zero, none of
+        //   the corresponding `ball::ManagedAttributeSet` object x using the
+        //   `gg` function.  Copy x into another object y.  After calling
+        //   `removeAll` on x, verify that the length of x is zero, none of
         //   attributes in y can be found in x.  Then reconstruct x using the
-        //   'gg' function again, and verify that x == y.
+        //   `gg` function again, and verify that x == y.
         //
         // Testing:
         //  void removeAll();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'removeAll'"
+        if (verbose) cout << "\nTesting `removeAll`"
                           << "\n===================" << endl;
 
         static const char* SPECS[] = {
@@ -659,18 +659,18 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'begin' and 'end'
-        //   This will test the 'begin' and 'end' methods.
+        // TESTING `begin` and `end`
+        //   This will test the `begin` and `end` methods.
         //
         // Concerns:
-        //   The 'begin and 'end' methods should return a range where each
+        //   The `begin and `end' methods should return a range where each
         //   attribute in the attribute set appears exactly once.
         //
         // Plan:
-        //   Construct an array consisting of 'ball::ManagedAttribute' objects
+        //   Construct an array consisting of `ball::ManagedAttribute` objects
         //   having distinct values.  For each n in [0 .. N] where N is the
         //   maximum number of attributes tested, create an empty
-        //   'ball::ManagedAttributeSet' object object and add the first n
+        //   `ball::ManagedAttributeSet` object object and add the first n
         //   attributes to the set.  Verify that every added attribute appear
         //   in the set exactly once.
         //
@@ -678,7 +678,7 @@ int main(int argc, char *argv[])
         //   const_iterator begin() const;
         //   const_iterator end() const;
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTesting 'begin' and 'end' methods"
+        if (verbose) cout << "\nTesting `begin` and `end` methods"
                           << "\n=================================" << endl;
 
         const ball::ManagedAttribute PREDS[] = { A0, A1, A2, A3, A4, A5, A6,
@@ -741,7 +741,7 @@ int main(int argc, char *argv[])
 
         static const struct {
             int         d_line;   // source line number
-            const char *d_spec;      // input 'spec' string for 'gg'
+            const char *d_spec;      // input `spec` string for `gg`
         } DATA[] = {
             // line    spec
             // ----    ----
@@ -821,7 +821,7 @@ int main(int argc, char *argv[])
       case 8: {
         // --------------------------------------------------------------------
         // TESTING SECONDARY TEST APPARATUS:
-        //   Void for 'ball::ManagedAttributeSet'.
+        //   Void for `ball::ManagedAttributeSet`.
         // --------------------------------------------------------------------
 
       } break;
@@ -834,7 +834,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Specify a set S whose elements have substantial and varied
         //   differences in value.  For each element in S, construct and
-        //   initialize identically valued objects w and x using 'gg'.  Then
+        //   initialize identically valued objects w and x using `gg`.  Then
         //   copy construct an object y from x, and use the equality operator
         //   to assert that both x and y have the same value as w.
         //
@@ -846,7 +846,7 @@ int main(int argc, char *argv[])
 
         static const struct {
             int         d_line;      // source line number
-            const char *d_spec;      // input 'spec' string for 'gg'
+            const char *d_spec;      // input `spec` string for `gg`
         } DATA[] = {
             // line    spec
             // ----    ----
@@ -930,13 +930,13 @@ int main(int argc, char *argv[])
         // Plan:
         //   First, specify a set S of unique object values that may have
         //   various minor or subtle differences.  Verify the correctness of
-        //   'operator==' and 'operator!=' using all elements (u, v) of the
+        //   `operator==` and `operator!=` using all elements (u, v) of the
         //   cross product S X S.
         //
         //   Next, specify another set T where each element is a pair of
         //   different specifications having the same value (the same
         //   attributes were added in different orders).  For each element (u,
-        //   v) in T, verify that 'operator==' and 'operator!=' return the
+        //   v) in T, verify that `operator==` and `operator!=` return the
         //   correct value.
 
         // Testing:
@@ -946,7 +946,7 @@ int main(int argc, char *argv[])
 
         static const struct {
             int         d_line;      // source line number
-            const char *d_spec;      // input 'spec' string for 'gg'
+            const char *d_spec;      // input `spec` string for `gg`
         } DATA[] = {
             // line   spec
             // ----   ----
@@ -1048,8 +1048,8 @@ int main(int argc, char *argv[])
 
         static const struct {
             int         d_line;       // source line number
-            const char *d_spec1;      // input 'spec' string for 'gg'
-            const char *d_spec2;      // input 'spec' string for 'gg'
+            const char *d_spec1;      // input `spec` string for `gg`
+            const char *d_spec2;      // input `spec` string for `gg`
         } TDATA[] = {
             // line    spec1              spec2
             // ----    -----              -----
@@ -1128,13 +1128,13 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'operator<<' AND 'print':
-        //   The output operator and 'print' method should print out the value
+        // TESTING `operator<<` AND `print`:
+        //   The output operator and `print` method should print out the value
         //   of objects in the expected format.
         //
         // Plan:
         //   For each of a small representative set of object values, use
-        //   'ostrstream' to write that object's value to a character buffer
+        //   `ostrstream` to write that object's value to a character buffer
         //   and then compare the contents of that buffer with the expected
         //   output format.
         //
@@ -1144,10 +1144,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing 'operator<<' and 'print'" << endl
+                          << "Testing `operator<<` and `print`" << endl
                           << "================================" << endl;
 
-        if (verbose) cout << "\nTesting 'operator<<' (ostream)." << endl;
+        if (verbose) cout << "\nTesting `operator<<` (ostream)." << endl;
 
         static const struct {
             int         d_line;            // line number
@@ -1182,7 +1182,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'print'." << endl;
+        if (verbose) cout << "\nTesting `print`." << endl;
 
         static const struct {
             int         d_line;            // line number
@@ -1223,7 +1223,7 @@ int main(int argc, char *argv[])
       case 4: {
         // --------------------------------------------------------------------
         // TESTING BASIC ACCESSORS
-        //   Every attribute added must be verified by 'isMember'.
+        //   Every attribute added must be verified by `isMember`.
         //
         // Plan:
         //   Mechanically generate a series of specifications that contain
@@ -1295,7 +1295,7 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TESTING GENERATOR FUNCTIONS
-        //   The 'gg' function must create objects having the expected values.
+        //   The `gg` function must create objects having the expected values.
         //
         // Plan:
         //   Mechanically generate a series of specifications that contain
@@ -1311,10 +1311,10 @@ int main(int argc, char *argv[])
         //   AttributeSet& hh(AttributeSet *obj, const char *spec);
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-            << "Testing 'gg' and 'hh' generator functions" << endl
+            << "Testing `gg` and `hh` generator functions" << endl
             << "=========================================" << endl;
 
-        if (veryVerbose) cout << "\n\tTesting 'gg'." << endl;
+        if (veryVerbose) cout << "\n\tTesting `gg`." << endl;
 
         for (int n = 0; n < NUM_NAMES; ++n) {
             bsl::string spec;
@@ -1365,7 +1365,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\n\tTesting 'hh'." << endl;
+        if (verbose) cout << "\n\tTesting `hh`." << endl;
 
         for (int n = 0; n < NUM_NAMES; ++n) {
             bsl::string spec;
@@ -1628,9 +1628,9 @@ int main(int argc, char *argv[])
         //   manipulator [3, 6], copy constructor [2, 8], and assignment
         //   operator without [9, 10] and with [11, 12] aliasing.  Use the
         //   direct accessors to verify the expected results.  Display object
-        //   values frequently in verbose mode.  Note that 'VA', 'VB', and
-        //   'VC' denote unique, but otherwise arbitrary, object values, while
-        //   '0' denotes the default object value.
+        //   values frequently in verbose mode.  Note that `VA`, `VB`, and
+        //   `VC` denote unique, but otherwise arbitrary, object values, while
+        //   `0` denotes the default object value.
         //
         // 1.  Create an default object x1.         { x1:0 }
         // 2.  Create an object x2 (copy from x1).  { x1:0  x2:0 }

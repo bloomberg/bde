@@ -71,15 +71,15 @@ static void aSsErT(int c, const char *s, int i)
 #define INT64_FMT_STR  "0x%llX"
 #endif
 
+/// Convert the specified 64-bit `value` to a hexadecimal string.
 char *hex64(char *buffer, bsls_Int64::Uint64 value)
-    // Convert the specified 64-bit 'value' to a hexadecimal string.
 {
     sprintf(buffer, INT64_FMT_STR, value);
     return buffer;
 }
 
+/// Print the individual bits of the specified 64-bit `value`.
 void printBits(bsls_Int64::Uint64 value)
-    // Print the individual bits of the specified 64-bit 'value'.
 {
     char *bytes = reinterpret_cast<char *>(&value);
     for (int i = 0; i < 8; ++i) {

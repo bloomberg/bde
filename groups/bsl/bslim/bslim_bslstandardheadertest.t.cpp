@@ -41,7 +41,7 @@
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
     #include <bslh_hashtuple.h>
-    #include <tuple>     // 'std::tuple', 'std::make_tuple'
+    #include <tuple>     // `std::tuple`, `std::make_tuple`
 #endif //  BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 
 // #include all of the headers defined in bsl+bslhdrs.
@@ -210,10 +210,10 @@
     #include <bsl_execution.h>
 #endif
 
-#include <utility>     // 'std::pair'
+#include <utility>     // `std::pair`
 
-#include <stdio.h>     // 'printf'
-#include <stdlib.h>    // 'atoi'
+#include <stdio.h>     // `printf`
+#include <stdlib.h>    // `atoi`
 
 // Finished including potentially deprecated headers, rest of deprecations
 // should be reported.
@@ -235,12 +235,12 @@ using namespace BloombergLP;
 //                                 Overview
 //                                 --------
 // The component implements high level tests for standard library containers
-// defined in 'bslstl'.
+// defined in `bslstl`.
 //
 //-----------------------------------------------------------------------------
-// [38] CONCERN: 'copy_n' function is usable from 'bsl'.
-// [37] C++20 'bsl_type_traits.h' ADDITIONS
-// [36] C++20 'std::ranges' interop with 'bsl::array'
+// [38] CONCERN: `copy_n` function is usable from `bsl`.
+// [37] C++20 `bsl_type_traits.h` ADDITIONS
+// [36] C++20 `std::ranges` interop with `bsl::array`
 // [35] bsl::coroutine_traits<>
 // [35] bsl::coroutine_handle<>
 // [35] bsl::noop_coroutine()
@@ -248,8 +248,8 @@ using namespace BloombergLP;
 // [35] bsl::noop_coroutine_handle
 // [35] bsl::suspend_never
 // [35] bsl::suspend_always
-// [34] C++20 'bsl_concepts.h' ADDITIONS
-// [33] C++20 'bsl_iterator.h' ADDITIONS
+// [34] C++20 `bsl_concepts.h` ADDITIONS
+// [33] C++20 `bsl_iterator.h` ADDITIONS
 // [32] bsl::cmp_equal();
 // [32] bsl::cmp_not_equal();
 // [32] bsl::cmp_less();
@@ -258,27 +258,27 @@ using namespace BloombergLP;
 // [32] bsl::cmp_greater_equal();
 // [32] bsl::in_range();
 // [31] MISC C++20 ADDITIONS TO HEADERS
-// [30] C++20 'bsl_atomic.h' ADDITIONS
-// [29] C++20 'bsl_memory.h' ADDITIONS
-// [28] CONCERN: Entities from 'std::ranges' are available and usable.
-// [27] CONCERN: The type 'bsl::stop_token' is available and usable.
-// [27] CONCERN: The type 'bsl::stop_source' is available and usable.
-// [27] CONCERN: The type 'bsl::nostopstate_t' is available and usable.
-// [27] CONCERN: The type 'bsl::stop_callback' is available and usable.
-// [27] CONCERN: 'bsl::nostopstate' is available and usable.
-// [26] C++20 'bsl_source_location.h'
-// [25] C++20 'bsl_bit.h'
-// [24] C++20 'bsl_numbers.h'
-// [23] CONCERN: 'bsl::barrier' is available and usable.
-// [23] CONCERN: 'bsl::latch' is available and usable.
-// [23] CONCERN: 'bsl::counting_semaphore' is available and usable.
-// [23] CONCERN: 'bsl::binary_semaphore' is available and usable.
+// [30] C++20 `bsl_atomic.h` ADDITIONS
+// [29] C++20 `bsl_memory.h` ADDITIONS
+// [28] CONCERN: Entities from `std::ranges` are available and usable.
+// [27] CONCERN: The type `bsl::stop_token` is available and usable.
+// [27] CONCERN: The type `bsl::stop_source` is available and usable.
+// [27] CONCERN: The type `bsl::nostopstate_t` is available and usable.
+// [27] CONCERN: The type `bsl::stop_callback` is available and usable.
+// [27] CONCERN: `bsl::nostopstate` is available and usable.
+// [26] C++20 `bsl_source_location.h`
+// [25] C++20 `bsl_bit.h`
+// [24] C++20 `bsl_numbers.h`
+// [23] CONCERN: `bsl::barrier` is available and usable.
+// [23] CONCERN: `bsl::latch` is available and usable.
+// [23] CONCERN: `bsl::counting_semaphore` is available and usable.
+// [23] CONCERN: `bsl::binary_semaphore` is available and usable.
 // [22] CONCERN: feature-test macros are available and usable.
-// [21] CONCERN: 'bsl::span' is available and usable
-// [20] CONCERN: 'bsl::invoke' is usable when available.
-// [20] CONCERN: 'bsl::not_fn' is usable when available.
-// [19] C++17 'bsl_filesystem.h'
-// [19] CONCERN: 'hashAppend' of 'std::filesystem::path' is usable.
+// [21] CONCERN: `bsl::span` is available and usable
+// [20] CONCERN: `bsl::invoke` is usable when available.
+// [20] CONCERN: `bsl::not_fn` is usable when available.
+// [19] C++17 `bsl_filesystem.h`
+// [19] CONCERN: `hashAppend` of `std::filesystem::path` is usable.
 // [18] bsl::byte;
 // [18] bsl::apply();
 // [18] bsl::make_from_tuple();
@@ -374,17 +374,17 @@ using namespace BloombergLP;
 // [11] bsl::in_place
 // [11] bsl::add_const<TYPE>::type& as_const(TYPE& value);
 // [10] C++17 TYPE ALIASES
-// [ 9] CONCERN: 'bslh::hashAppend' of 'std::pair'  is usable from 'bsl'.
-// [ 9] CONCERN: 'bslh::hashAppend' of 'std::tuple' is usable from 'bsl'.
-// [ 8] CONCERN: 'default_searcher'/'boyer_moore_horspool_searcher usable.
-// [ 8] CONCERN: 'boyer_moore_searcher' usable when available.
-// [ 8] CONCERN: 'bsl::search' function is usable.
-// [ 5] CONCERN: Range functions are not ambiguous with 'std' under ADL
-// [ 7] CONCERN: 'forward_list' is available in C++11 builds
+// [ 9] CONCERN: `bslh::hashAppend` of `std::pair`  is usable from `bsl`.
+// [ 9] CONCERN: `bslh::hashAppend` of `std::tuple` is usable from `bsl`.
+// [ 8] CONCERN: `default_searcher`/'boyer_moore_horspool_searcher usable.
+// [ 8] CONCERN: `boyer_moore_searcher` usable when available.
+// [ 8] CONCERN: `bsl::search` function is usable.
+// [ 5] CONCERN: Range functions are not ambiguous with `std` under ADL
+// [ 7] CONCERN: `forward_list` is available in C++11 builds
 // [ 4] maps of smart pointers
 // [ 3] string vector resize
 // [ 2] CONCERN: REGRESSION TEST FOR C99 FEATURES
-// [ 1] CONCERN: Support references as 'mapped_type' in map-like containers.
+// [ 1] CONCERN: Support references as `mapped_type` in map-like containers.
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -444,11 +444,11 @@ static bool veryVeryVeryVerbose;
                             // class MapTestDriver
                             // ===================
 
+/// This parameterized class provides a namespace for testing the high level
+/// functionality of bsl map-like containers.  Each "testCase*" method test
+/// a specific aspect of such containers.
 template <class CONTAINER>
 class MapTestDriver {
-    // This parameterized class provides a namespace for testing the high level
-    // functionality of bsl map-like containers.  Each "testCase*" method test
-    // a specific aspect of such containers.
 
   private:
     // TYPES
@@ -466,8 +466,8 @@ class MapTestDriver {
     typedef bsltf::TemplateTestFacility          TTF;
 
   public:
+    /// Testing reference as `mapped_type`.
     static void testCase1();
-        // Testing reference as 'mapped_type'.
 };
 
                          // -------------------
@@ -478,45 +478,45 @@ template <class CONTAINER>
 void MapTestDriver<CONTAINER>::testCase1()
 {
     // ------------------------------------------------------------------------
-    // SUPPORT REFERENCES AS 'mapped_type'
+    // SUPPORT REFERENCES AS `mapped_type`
     //
     // Concerns:
-    //: 1 All bsl map-like containers (map, multimap, unordered_map,
-    //:   unordered_multimap) accept references as 'mapped_type'.
-    //:
-    //: 2 Container does not make a copy of the referenced object on insertion.
-    //:
-    //: 3 The mapped value copy-assignment operator assigns to the original
-    //:   object and does not rebind the reference.
-    //:
-    //: 4 The container copy-assignment operator does not copy mapped values.
-    //:
-    //: 5 The container copy constructor does not copy mapped values.
-    //:
-    //: 6 The erase operation does not destroy the referenced object.
+    // 1. All bsl map-like containers (map, multimap, unordered_map,
+    //    unordered_multimap) accept references as `mapped_type`.
+    //
+    // 2. Container does not make a copy of the referenced object on insertion.
+    //
+    // 3. The mapped value copy-assignment operator assigns to the original
+    //    object and does not rebind the reference.
+    //
+    // 4. The container copy-assignment operator does not copy mapped values.
+    //
+    // 5. The container copy constructor does not copy mapped values.
+    //
+    // 6. The erase operation does not destroy the referenced object.
     //
     // Plan:
-    //: 1 Create the value type containing a reference as a 'mapped_type' and
-    //:   insert it into the container.  (C-1)
-    //:
-    //: 2 Verify that the container inserts the reference and does not make a
-    //:   copy of the referenced object.  (C-2)
-    //:
-    //: 3 Assign different value to the mapped value and verify that the
-    //:   referenced object is changed.  (C-3)
-    //:
-    //: 4 Copy-construct new container and verify that the mapped value in the
-    //:   new container references original object.  (C-4)
-    //:
-    //: 5 Assign the original container to a different container and verify
-    //:   that the mapped value in the new container references original
-    //:   object.  (C-4)
-    //:
-    //: 5 Erase the container entry and verify that the original object is not
-    //:   destroyed.  (C-4)
+    // 1. Create the value type containing a reference as a `mapped_type` and
+    //    insert it into the container.  (C-1)
+    //
+    // 2. Verify that the container inserts the reference and does not make a
+    //    copy of the referenced object.  (C-2)
+    //
+    // 3. Assign different value to the mapped value and verify that the
+    //    referenced object is changed.  (C-3)
+    //
+    // 4. Copy-construct new container and verify that the mapped value in the
+    //    new container references original object.  (C-4)
+    //
+    // 5. Assign the original container to a different container and verify
+    //    that the mapped value in the new container references original
+    //    object.  (C-4)
+    //
+    // 5. Erase the container entry and verify that the original object is not
+    //    destroyed.  (C-4)
     //
     // Testing:
-    //   CONCERN: Support references as 'mapped_type' in map-like containers.
+    //   CONCERN: Support references as `mapped_type` in map-like containers.
     // ------------------------------------------------------------------------
     if (verbose) {
         printf("\tTesting with: %s\n", bsls::NameOf<ValueType>().name());
@@ -609,47 +609,47 @@ namespace TestCpp17TypeAliases {
     // values from the platform library.
 
 namespace SW {
+    /// A type that can't be copied or assigned, so the default
+    /// implementation of `swap` will not work.
     struct SwapA {
-        // A type that can't be copied or assigned, so the default
-        // implementation of 'swap' will not work.
 
         SwapA           (SwapA const&) = delete;
         SwapA& operator=(SwapA const&) = delete;
     };
 
+    /// A type that can't be copied or assigned, so the default
+    /// implementation of `swap` will not work.
     struct SwapB {
-        // A type that can't be copied or assigned, so the default
-        // implementation of 'swap' will not work.
         SwapB           (SwapB const&) = delete;
         SwapB& operator=(SwapB const&) = delete;
     };
 
     struct SwapC {};
 
+    /// Exchange two variables of type `SwapA`.
     void swap(SwapA&, SwapA&)
-        // Exchange two variables of type 'SwapA'.
     {}
 
+    /// Exchange the contents of a `SwapA` and `SwapB`, w/o throwing.
     void swap(SwapA&, SwapB&) noexcept
-        // Exchange the contents of a 'SwapA' and 'SwapB', w/o throwing.
     {}
 
+    /// Exchange the contents of a `SwapB` and `SwapA`, w/o throwing.
     void swap(SwapB&, SwapA&) noexcept
-        // Exchange the contents of a 'SwapB' and 'SwapA', w/o throwing.
     {}
 
+    /// Exchange the contents of a `SwapB` and `SwapA`, w/o throwing.
     void swap(SwapA&, SwapC&) noexcept
-        // Exchange the contents of a 'SwapB' and 'SwapA', w/o throwing.
     {}
 
+    /// Exchange the contents of a `SwapA` and `SwapC`.
     void swap(SwapC&, SwapA&)
-        // Exchange the contents of a 'SwapA' and 'SwapC'.
     {}
 }  // close namespace SW
 
+/// Test that `bsl::has_unique_object_representations_v<TYPE>` returns the
+/// same value as `bsl::has_unique_object_representations<TYPE>::value`.
 void HasUniqueObjectReps ()
-    // Test that 'bsl::has_unique_object_representations_v<TYPE>' returns the
-    // same value as 'bsl::has_unique_object_representations<TYPE>::value'.
 {
     struct S { int d_i; };
 
@@ -665,9 +665,9 @@ void HasUniqueObjectReps ()
 
 }
 
+/// Test that `bsl::is_aggregate_v<TYPE>` returns the same value as
+/// `bsl::is_aggregate<TYPE>::value`.
 void IsAggregate ()
-    // Test that 'bsl::is_aggregate_v<TYPE>' returns the same value as
-    // 'bsl::is_aggregate<TYPE>::value'.
 {
     struct S { int d_i; };
 
@@ -680,9 +680,9 @@ void IsAggregate ()
     static_assert(bsl::is_aggregate<S>::value == bsl::is_aggregate_v<S>);
 }
 
+/// Test that `bsl::is_base_of_v<TYPE1, TYPE2>` returns the same value as
+/// `bsl::is_base_of<TYPE1, TYPE2>::value`.
 void IsBaseOf ()
-    // Test that 'bsl::is_base_of_v<TYPE1, TYPE2>' returns the same value as
-    // 'bsl::is_base_of<TYPE1, TYPE2>::value'.
 {
     class B { int d_i; };
     class D : public B {};
@@ -697,9 +697,9 @@ void IsBaseOf ()
     static_assert(bsl::is_base_of<B, ND>::value == bsl::is_base_of_v<B, ND>);
 }
 
+/// Test that `bsl::is_invocable_v<FN, Args...>` returns the same value as
+/// `bsl::is_invocable<FN, Args...>::value`.
 void IsInvocable ()
-    // Test that 'bsl::is_invocable_v<FN, Args...>' returns the same value as
-    // 'bsl::is_invocable<FN, Args...>::value'.
 {
     static_assert(bsl::is_same<const bool,
                            decltype(bsl::is_invocable_v<int>)>::value);
@@ -711,9 +711,9 @@ void IsInvocable ()
                   bsl::is_invocable_v<int(), long>);
 }
 
+/// Test that `bsl::is_invocable_r_v<RET, FN, Args...>` returns the same
+/// value as `bsl::is_invocable_r<RET, FN, Args...>::value`.
 void IsInvocableR ()
-    // Test that 'bsl::is_invocable_r_v<RET, FN, Args...>' returns the same
-    // value as 'bsl::is_invocable_r<RET, FN, Args...>::value'.
 {
     static_assert(bsl::is_same<const bool,
               decltype(bsl::is_invocable_r_v<void, int>)>::value);
@@ -726,9 +726,9 @@ void IsInvocableR ()
                   bsl::is_invocable_r_v<float, float(int), int>);
 }
 
+/// Test that `bsl::is_nothrow_invocable_v<RET, FN, Args...>` returns the
+/// asme value as `bsl::is_nothrow_invocable<RET, FN, Args...>::value`.
 void IsNothrowInvokable ()
-    // Test that 'bsl::is_nothrow_invocable_v<RET, FN, Args...>' returns the
-    // asme value as 'bsl::is_nothrow_invocable<RET, FN, Args...>::value'.
 {
     static_assert(bsl::is_same<const bool,
         decltype(bsl::is_nothrow_invocable_v<void, int>)>::value);
@@ -741,9 +741,9 @@ void IsNothrowInvokable ()
                   bsl::is_nothrow_invocable_v<float, float(int), int>);
 }
 
+/// Test that `bsl::is_nothrow_invocable_r_v<RET, FN, Args...>` returns the
+/// asme value as `bsl::is_nothrow_invocable_r<RET, FN, Args...>::value`.
 void IsNothrowInvokableR ()
-    // Test that 'bsl::is_nothrow_invocable_r_v<RET, FN, Args...>' returns the
-    // asme value as 'bsl::is_nothrow_invocable_r<RET, FN, Args...>::value'.
 {
     static_assert(bsl::is_same<const bool,
       decltype(bsl::is_nothrow_invocable_r_v<void, int>)>::value);
@@ -756,11 +756,11 @@ void IsNothrowInvokableR ()
                == bsl::is_nothrow_invocable_r_v<float, float(int), int>);
 }
 
+/// Test that `bsl::is_swappable_v<TYPE>` and
+/// `bsl::is_nothrow_swappable_v<TYPE>` return the same values as
+/// `bsl::is_swappable<TYPE>::value` and
+/// `bsl::is_nothrow_swappable<TYPE>::value`, respectively.
 void IsSwappable ()
-    // Test that 'bsl::is_swappable_v<TYPE>' and
-    // 'bsl::is_nothrow_swappable_v<TYPE>' return the same values as
-    // 'bsl::is_swappable<TYPE>::value' and
-    // 'bsl::is_nothrow_swappable<TYPE>::value', respectively.
 {
     static_assert(bsl::is_same<const bool,
                              decltype(bsl::is_swappable_v<SW::SwapA>)>::value);
@@ -777,11 +777,11 @@ void IsSwappable ()
                   bsl::is_nothrow_swappable_v<char>);
 }
 
+/// Test that `bsl::is_swappable_with_v<TYPE>` and
+/// `bsl::is_nothrow_swappable_with_v<TYPE>` return the same values as
+/// `bsl::is_swappable_with<TYPE>::value` and
+/// `bsl::is_nothrow_swappable_with<TYPE>::value`, respectively.
 void IsSwappableWith ()
-    // Test that 'bsl::is_swappable_with_v<TYPE>' and
-    // 'bsl::is_nothrow_swappable_with_v<TYPE>' return the same values as
-    // 'bsl::is_swappable_with<TYPE>::value' and
-    // 'bsl::is_nothrow_swappable_with<TYPE>::value', respectively.
 {
     static_assert(bsl::is_same<const bool,
              decltype(bsl::is_swappable_with_v<SW::SwapA, SW::SwapB>)>::value);
@@ -803,10 +803,10 @@ void IsSwappableWith ()
 }  // close namespace TestCxx17TypeAliases
 
 
+/// return the specified `x` + 1
 struct addOne {
     template <class TYPE>
     constexpr auto operator()(TYPE x) const noexcept
-        // return the specified 'x' + 1
     {
         return static_cast<TYPE>(x + 1);
     }
@@ -818,15 +818,15 @@ struct TwoArgumentCtor {
     double d_val;
 };
 
+/// Return the sum of the specified `d` and `i`.
 double TwoArgumentFunction(double d, int i)
-    // Return the sum of the specified 'd' and 'i'.
 {
     return d + i;
 }
 
+/// return `true` if the specified `x` is even, and `false` otherwise.
 struct IsEven {
     bool operator()(int x) const noexcept
-        // return 'true' if the specified 'x' is even, and 'false' otherwise.
     {
         return 0 == (x & 1);
     }
@@ -838,9 +838,9 @@ struct CountingFunctor {
     static size_t s_count;
     // A functor that does nothing but call how many times it is called.
 
+    /// update the count of times that this has been called
     template <class TYPE>
     void operator () (const TYPE &) const
-        // update the count of times that this has been called
     {
         ++s_count;
     }
@@ -852,9 +852,9 @@ size_t CountingFunctor::s_count = 0;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+/// This class minimally satisfies the requirements of the `bsl::barrier`
+/// template parameter.
 class CompletionFunction {
-    // This class minimally satisfies the requirements of the 'bsl::barrier'
-    // template parameter.
 
   public:
     // MANIPULATORS
@@ -868,15 +868,16 @@ class CompletionFunction {
                             // class RangesDummyView
                             // =====================
 
+/// This class is inherited from `bsl::ranges::view_interface` and its only
+/// purpose is to prove that `bsl::ranges::view_interface` exists and is
+/// usable.
 class RangesDummyView : public bsl::ranges::view_interface<RangesDummyView> {
-    // This class is inherited from 'bsl::ranges::view_interface' and its only
-    // purpose is to prove that 'bsl::ranges::view_interface' exists and is
-    // usable.
 
   public:
     // ACCESSORS
+
+    /// Unconditionally return `true`.
     constexpr bool empty() const
-        // Unconditionally return 'true'.
     {
         return true;
     }
@@ -891,21 +892,23 @@ class RangesDummyRandomGenerator{
     using result_type = unsigned int;
 
     // CLASS METHODS
+
+    /// Unconditionally return `1u`.
     static constexpr result_type min()
-        // Unconditionally return '1u'.
     {
         return 1u;
     }
 
+    /// Unconditionally return `5u`.
     static constexpr result_type max()
-        // Unconditionally return '5u'.
     {
         return 5u;
     }
 
     // MANIPULATORS
+
+    /// Unconditionally return `1u`.
     result_type operator()()
-        // Unconditionally return '1u'.
     {
         return 1u;
     }
@@ -914,7 +917,7 @@ class RangesDummyRandomGenerator{
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 
-// case 34: 'basic_common_reference'
+// case 34: `basic_common_reference`
 
 template <class X> struct TQual { };
 template <class X> struct UQual { };
@@ -947,18 +950,18 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 38: {
         // --------------------------------------------------------------------
-        // 'bsl::copy_n'
+        // `bsl::copy_n`
         //
         // Concerns:
-        //: 1 The 'copy_n' function is available in 'bsl' to users who include
-        //:   'bsl_algorithm.h'.
+        // 1. The `copy_n` function is available in `bsl` to users who include
+        //    `bsl_algorithm.h`.
         //
         // Plan:
-        //: 1 Create a simple example that uses the function.  Compilation of
-        //:   the example demonstrates that the function can be found in 'bsl'.
+        // 1. Create a simple example that uses the function.  Compilation of
+        //    the example demonstrates that the function can be found in `bsl`.
         //
         // Testing
-        //   CONCERN: 'copy_n' function is usable from 'bsl'.
+        //   CONCERN: `copy_n` function is usable from `bsl`.
         // --------------------------------------------------------------------
 
         if (verbose) puts("\n'bsl::copy_n'"
@@ -994,44 +997,44 @@ int main(int argc, char *argv[])
       } break;
       case 37: {
         // --------------------------------------------------------------------
-        // C++20 'bsl_type_traits.h' ADDITIONS
+        // C++20 `bsl_type_traits.h` ADDITIONS
         //
         // Concerns:
-        //: 1 The following names are available in 'bsl' to users who include
-        //:   'bsl_type_traits.h':
-        //:   o 'bsl::is_bounded_array'
-        //:   o 'bsl::is_unbounded_array'
-        //:   o 'bsl::is_nothrow_convertible'
-        //:   o 'bsl::is_layout_compatible'
-        //:   o 'bsl::is_pointer_interconvertible_base_of'
-        //:   o 'bsl::common_reference'
-        //:   o 'bsl::basic_common_reference
-        //:   o 'bsl::is_pointer_interconvertible_with_class'
-        //:   o 'bsl::is_corresponding_member'
-        //:
-        //: 2 When the trait has a '*_v' form, that trait has the same value
-        //:  as the  non-'*_v' form.
-        //:
-        //: 3 The feature test macros defined in '<version>' for the imported
-        //:   features are available and have appropriate values.
+        // 1. The following names are available in `bsl` to users who include
+        //    `bsl_type_traits.h`:
+        //    - `bsl::is_bounded_array`
+        //    - `bsl::is_unbounded_array`
+        //    - `bsl::is_nothrow_convertible`
+        //    - `bsl::is_layout_compatible`
+        //    - `bsl::is_pointer_interconvertible_base_of`
+        //    - `bsl::common_reference`
+        //    - 'bsl::basic_common_reference
+        //    - `bsl::is_pointer_interconvertible_with_class`
+        //    - `bsl::is_corresponding_member`
+        //
+        // 2. When the trait has a `*_v` form, that trait has the same value
+        //   as the  non-`*_v` form.
+        //
+        // 3. The feature test macros defined in `<version>` for the imported
+        //    features are available and have appropriate values.
         //
         // Plan:
-        //: 1 Verify that:
-        //:    o '__cpp_lib_is_layout_compatible        >= 201907L'
-        //:    o '__cpp_lib_is_pointer_interconvertible >= 201907L'
-        //:
-        //: 2 Verify that '__cpp_lib_is_layout_compatible' also also determines
-        //:   the availability of
-        //:   'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER', per the
-        //:   final sentence of 'p0466r5.pdf'.
-        //:
-        //: 2 Form some syntactically valid expressions for each added trait.
+        // 1. Verify that:
+        //     o `__cpp_lib_is_layout_compatible        >= 201907L`
+        //     o `__cpp_lib_is_pointer_interconvertible >= 201907L`
+        //
+        // 2. Verify that `__cpp_lib_is_layout_compatible` also also determines
+        //    the availability of
+        //    `BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER`, per the
+        //    final sentence of `p0466r5.pdf`.
+        //
+        // 2. Form some syntactically valid expressions for each added trait.
         //
         // Testing
-        //   C++20 'bsl_type_traits.h' ADDITIONS
+        //   C++20 `bsl_type_traits.h` ADDITIONS
         // --------------------------------------------------------------------
 
-        if (verbose) puts("\nC++20 'bsl_type_traits.h' ADDITIONS"
+        if (verbose) puts("\nC++20 `bsl_type_traits.h` ADDITIONS"
                           "\n===================================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
@@ -1087,7 +1090,7 @@ int main(int argc, char *argv[])
 #else
         if (veryVerbose) {
             puts("SKIPPED: "
-                 "'BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY' is not "
+                 "`BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY` is not "
                  "defined.");
         }
 #endif
@@ -1121,7 +1124,7 @@ int main(int argc, char *argv[])
 #else
         if (veryVerbose) {
             puts("SKIPPED: "
-                 "'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE' is "
+                 "`BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE` is "
                  "not defined.");
         }
 #endif
@@ -1131,8 +1134,8 @@ int main(int argc, char *argv[])
             Q('bsl::is_corresponding_member');
         }
         {
-            // Note that the '_cpp_lib_is_layout' flag *also* controls
-            // 'bsl::is_corresponding_member'.
+            // Note that the `_cpp_lib_is_layout` flag *also* controls
+            // `bsl::is_corresponding_member`.
 
             ASSERTV("__cpp_lib_is_layout_compatible >= 201907L check",
                      __cpp_lib_is_layout_compatible,
@@ -1147,7 +1150,7 @@ int main(int argc, char *argv[])
 #else
         if (veryVerbose) {
             puts("SKIPPED: "
-                 "'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER' is "
+                 "`BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER` is "
                  "not defined.");
         }
 #endif
@@ -1196,42 +1199,42 @@ int main(int argc, char *argv[])
 #else
         if (veryVerbose) {
             puts("SKIPPED: "
-                "'BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE'"
+                "`BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE`"
                 " is not defined.");
         }
 #endif
       } break;
       case 36: {
         // --------------------------------------------------------------------
-        // C++20 'std::ranges' INTEROP WITH 'bsl::array'
+        // C++20 `std::ranges` INTEROP WITH `bsl::array`
         //
         // Concerns:
-        //: 1 The definitions from '<ranges>' defined by the C++20 Standard are
-        //:   available in C++20 mode in the 'bsl' namespace to users who
-        //:   include 'bsl_ranges.h'.
-        //:
-        //: 2 Constrained versions of algorithms defined by the C++20 Standard
-        //:   are available in C++20 mode in the 'bsl' namespace to users who
-        //:   include 'bsl_algorithm.h' for bsl::array container
+        // 1. The definitions from `<ranges>` defined by the C++20 Standard are
+        //    available in C++20 mode in the `bsl` namespace to users who
+        //    include `bsl_ranges.h`.
+        //
+        // 2. Constrained versions of algorithms defined by the C++20 Standard
+        //    are available in C++20 mode in the `bsl` namespace to users who
+        //    include `bsl_algorithm.h` for bsl::array container
         //
         // Plan:
-        //: 1 For every type from the 'std::ranges' namespace aliased in the
-        //:   <bsl_ranges.h>, verify that the type exists and is usable.  (C-1)
-        //:
-        //: 2 For every algorithm from the 'std::ranges' namespace aliased in
-        //:   the 'bslstl_algorithm.h', verify that the function exists and is
-        //:   usable by bsl::array.  (C-2)
+        // 1. For every type from the `std::ranges` namespace aliased in the
+        //    <bsl_ranges.h>, verify that the type exists and is usable.  (C-1)
+        //
+        // 2. For every algorithm from the `std::ranges` namespace aliased in
+        //    the `bslstl_algorithm.h`, verify that the function exists and is
+        //    usable by bsl::array.  (C-2)
         //
         // Testing:
-        //   C++20 'std::ranges' interop with 'bsl::array'
+        //   C++20 `std::ranges` interop with `bsl::array`
         // --------------------------------------------------------------------
-        if (verbose) puts("\nC++20 'std::ranges' INTEROP WITH 'bsl::array'"
+        if (verbose) puts("\nC++20 `std::ranges` INTEROP WITH `bsl::array`"
                           "\n=============================================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
         namespace ranges = bsl::ranges;
 
-        // Testing types aliased in the 'bsl_ranges.h'
+        // Testing types aliased in the `bsl_ranges.h`
 
         using Array     = bsl::array<int, 5>;
         using ArrayLong = bsl::array<int, 8>;
@@ -1313,7 +1316,7 @@ int main(int argc, char *argv[])
 
         // Views
 
-        // 'RangesDummyView' is inherited from 'bsl::ranges::view_interface'.
+        // `RangesDummyView` is inherited from `bsl::ranges::view_interface`.
 
         RangesDummyView dummy;
         ASSERTV(true == dummy.empty())
@@ -1464,7 +1467,7 @@ int main(int argc, char *argv[])
         ranges::subrange_kind subrangeKind;
         static_cast<void>(subrangeKind);
 
-        // Testing algorithms aliased in '<bsl_algorithm.h>'
+        // Testing algorithms aliased in `<bsl_algorithm.h>`
 
         auto greaterThanTwo = [](int i) {
             return i > 2;
@@ -1919,23 +1922,23 @@ int main(int argc, char *argv[])
       } break;
       case 35: {
         // --------------------------------------------------------------------
-        // C++20 '<bsl_coroutine.h>'
+        // C++20 `<bsl_coroutine.h>`
         //
         // Concerns:
-        //: 1 Templates 'bsl::coroutine_traits' and 'bsl::coroutine_handle' are
-        //:   aliases to their corresponding 'std' counterparts.
-        //:
-        //: 2 Function 'bsl::noop_coroutine()', and classes
-        //:   'bsl::noop_coroutine_promise' and 'bsl::noop_coroutine_handle'
-        //:   are aliases to their corresponding 'std' counterparts.
-        //:
-        //: 3 Types 'bsl::suspend_always' and 'bsl::suspend_never' are aliases
-        //:   to their corresponding 'std' counterparts.
+        // 1. Templates `bsl::coroutine_traits` and `bsl::coroutine_handle` are
+        //    aliases to their corresponding `std` counterparts.
+        //
+        // 2. Function `bsl::noop_coroutine()`, and classes
+        //    `bsl::noop_coroutine_promise` and `bsl::noop_coroutine_handle`
+        //    are aliases to their corresponding `std` counterparts.
+        //
+        // 3. Types `bsl::suspend_always` and `bsl::suspend_never` are aliases
+        //    to their corresponding `std` counterparts.
         //
         // Plan:
-        //: 1 Use 'bsl::is_same_v' in 'ASSERT' to ensure type identity.
-        //: 1 Create specific types from templates and compare those as above.
-        //: 2 Compare function addresses for 'noop_coroutine'.
+        // 1. Use `bsl::is_same_v` in `ASSERT` to ensure type identity.
+        // 1. Create specific types from templates and compare those as above.
+        // 2. Compare function addresses for `noop_coroutine`.
         //
         // Testing:
         //   bsl::coroutine_traits<>
@@ -1946,7 +1949,7 @@ int main(int argc, char *argv[])
         //   bsl::suspend_never
         //   bsl::suspend_always
         // --------------------------------------------------------------------
-        if (verbose) puts("\nC++20 '<bsl_coroutine.h>'"
+        if (verbose) puts("\nC++20 `<bsl_coroutine.h>`"
                           "\n=========================");
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_COROUTINE
@@ -1969,25 +1972,25 @@ int main(int argc, char *argv[])
         ASSERT(&bsl::noop_coroutine == &std::noop_coroutine);
 
 #else
-        if (verbose) puts("SKIP: '<bsl_coroutine.h>' is not supported.");
+        if (verbose) puts("SKIP: `<bsl_coroutine.h>` is not supported.");
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_COROUTINE
       } break;
       case 34: {
         // --------------------------------------------------------------------
-        // C++20 'bsl_concepts.h' ADDITIONS
+        // C++20 `bsl_concepts.h` ADDITIONS
         //
         // Concerns:
-        //: 1 The definitions from '<concepts>' defined by the C++20 Standard
-        //:   are available in C++20 mode in the 'bsl' namespace to users who
-        //:   include 'bsl_concepts.h'.
+        // 1. The definitions from `<concepts>` defined by the C++20 Standard
+        //    are available in C++20 mode in the `bsl` namespace to users who
+        //    include `bsl_concepts.h`.
         //
         // Plan:
-        //: 1 Form some valid expressions with every name with 'bsl' prefix.
+        // 1. Form some valid expressions with every name with `bsl` prefix.
         //
         // Testing
-        //   C++20 'bsl_concepts.h' ADDITIONS
+        //   C++20 `bsl_concepts.h` ADDITIONS
         // --------------------------------------------------------------------
-        if (verbose) puts("\nC++20 'bsl_concepts.h' ADDITIONS"
+        if (verbose) puts("\nC++20 `bsl_concepts.h` ADDITIONS"
                           "\n================================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
@@ -2071,26 +2074,26 @@ int main(int argc, char *argv[])
             BSLMF_ASSERT((!bsl::copy_constructible<C  >));
         }
 #else
-        if (verbose) puts("SKIP: '<bsl_concepts.h>' is not supported.");
+        if (verbose) puts("SKIP: `<bsl_concepts.h>` is not supported.");
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
       } break;
       case 33: {
         // --------------------------------------------------------------------
-        // C++20 'bsl_iterator.h' ADDITIONS
+        // C++20 `bsl_iterator.h` ADDITIONS
         //
         // Concerns:
-        //: 1 The C++20 special iterator traits, concepts, and tags all exist
-        //:   in namespace 'bsl'.
+        // 1. The C++20 special iterator traits, concepts, and tags all exist
+        //    in namespace `bsl`.
         //
         // Plan:
-        //: 2 Create simple examples that use these entities.  Compilation of
-        //:   the example demonstrates that the calls can be found in 'bsl'.
-        //:   (C-1)
+        // 2. Create simple examples that use these entities.  Compilation of
+        //    the example demonstrates that the calls can be found in `bsl`.
+        //    (C-1)
         //
         // Testing:
-        //   C++20 'bsl_iterator.h' ADDITIONS
+        //   C++20 `bsl_iterator.h` ADDITIONS
         // --------------------------------------------------------------------
-        if (verbose) puts("\nC++20 'bsl_iterator.h' ADDITIONS"
+        if (verbose) puts("\nC++20 `bsl_iterator.h` ADDITIONS"
                           "\n================================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
@@ -2303,22 +2306,22 @@ int main(int argc, char *argv[])
       } break;
       case 32: {
         // --------------------------------------------------------------------
-        // C++20 'bsl_utility.h' ADDITIONS
+        // C++20 `bsl_utility.h` ADDITIONS
         //
         // Concerns:
-        //: 1 The C++20 special integer comparison functions all exist in
-        //:   namespace 'bsl'.
-        //:
-        //: 2 The feature test macros defined in '<utility>' are available and
-        //:   have appropriate values.
+        // 1. The C++20 special integer comparison functions all exist in
+        //    namespace `bsl`.
+        //
+        // 2. The feature test macros defined in `<utility>` are available and
+        //    have appropriate values.
         //
         // Plan:
-        //: 1 Verify that '__cpp_lib_integer_comparison_functions >= 202002L'.
-        //:   (C-2)
-        //:
-        //: 2 Create simple examples that use these functions.  Compilation of
-        //:   the example demonstrates that the calls can be found in 'bsl'.
-        //:   (C-1)
+        // 1. Verify that `__cpp_lib_integer_comparison_functions >= 202002L`.
+        //    (C-2)
+        //
+        // 2. Create simple examples that use these functions.  Compilation of
+        //    the example demonstrates that the calls can be found in `bsl`.
+        //    (C-1)
         //
         // Testing:
         //   bsl::cmp_equal();
@@ -2329,7 +2332,7 @@ int main(int argc, char *argv[])
         //   bsl::cmp_greater_equal();
         //   bsl::in_range();
         // --------------------------------------------------------------------
-        if (verbose) puts("\nC++20 'bsl_utility.h' ADDITIONS"
+        if (verbose) puts("\nC++20 `bsl_utility.h` ADDITIONS"
                           "\n===============================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
@@ -2350,43 +2353,43 @@ int main(int argc, char *argv[])
         // MISC C++20 ADDITIONS TO HEADERS
         //
         // Concerns:
-        //: 1 'lerp' is available in C++20 mode in the 'bsl' namespace to users
-        //:   who include 'bsl_cmath.h'.
-        //:
-        //: 2 'midpoint' is available in C++20 mode in the 'bsl' namespace to
-        //:   users who include 'bsl_numeric.h'.
-        //:
-        //: 3 'mbrtoc8' and 'c8rtomb' are available in C++20 mode in the 'bsl'
-        //:   namespace to users who include 'bsl_cuchar.h' if
-        //:   'BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV' macro is defined.
-        //:
-        //: 4 'unsequenced_policy' and 'unseq' are available in C++20 mode in
-        //:   the 'bsl::execution' namespace to users who include
-        //:   'bsl_execution.h' if
-        //:   'BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS' macro is
-        //:   defined.  (Implementation of the "parallel algorithms" feature
-        //:   often depends on 3rd-party libraries like Intel TBB, so it isn't
-        //:   always available.  That's why we need an additional check.)
-        //:
-        //: 5 'bind_front' is available in C++20 mode in the 'bsl' namespace to
-        //:   users who include 'bsl_functional.h'.
-        //:
-        //: 6 In C++20 mode when 'BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD' is
-        //:   defined the 'jthread' class is available in the 'bsl'
-        //:   namespace to users who include `bsl_thread.h', and it is an alias
-        //:   to the standard library type.
+        // 1. `lerp` is available in C++20 mode in the `bsl` namespace to users
+        //    who include `bsl_cmath.h`.
         //
-        //: 7 The feature test macros defined for the imported features are
-        //:   available and have appropriate values.
-        //:
+        // 2. `midpoint` is available in C++20 mode in the `bsl` namespace to
+        //    users who include `bsl_numeric.h`.
+        //
+        // 3. `mbrtoc8` and `c8rtomb` are available in C++20 mode in the `bsl`
+        //    namespace to users who include `bsl_cuchar.h` if
+        //    `BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV` macro is defined.
+        //
+        // 4. `unsequenced_policy` and `unseq` are available in C++20 mode in
+        //    the `bsl::execution` namespace to users who include
+        //    `bsl_execution.h` if
+        //    `BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS` macro is
+        //    defined.  (Implementation of the "parallel algorithms" feature
+        //    often depends on 3rd-party libraries like Intel TBB, so it isn't
+        //    always available.  That's why we need an additional check.)
+        //
+        // 5. `bind_front` is available in C++20 mode in the `bsl` namespace to
+        //    users who include `bsl_functional.h`.
+        //
+        // 6. In C++20 mode when `BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD` is
+        //    defined the `jthread` class is available in the `bsl`
+        //    namespace to users who include `bsl_thread.h', and it is an alias
+        //    to the standard library type.
+        //
+        // 7. The feature test macros defined for the imported features are
+        //    available and have appropriate values.
+        //
         // Plan:
-        //: 1 Verify that
-        //:    o '__cpp_lib_interpolate >= 201902L',
-        //:    o '__cpp_lib_execution >= 201902L',
-        //:    o '__cpp_lib_bind_front >= 201907L',
-        //:    o '__cpp_lib_jthread >= 201911L'.
-        //:
-        //: 2 Form some valid expression with every name with 'bsl' prefix.
+        // 1. Verify that
+        //     o `__cpp_lib_interpolate >= 201902L`,
+        //     o `__cpp_lib_execution >= 201902L`,
+        //     o `__cpp_lib_bind_front >= 201907L`,
+        //     o `__cpp_lib_jthread >= 201911L`.
+        //
+        // 2. Form some valid expression with every name with `bsl` prefix.
         //
         // Testing
         //   MISC C++20 ADDITIONS TO HEADERS
@@ -2431,36 +2434,36 @@ int main(int argc, char *argv[])
       } break;
       case 30: {
         // --------------------------------------------------------------------
-        // C++20 'bsl_atomic.h' ADDITIONS
+        // C++20 `bsl_atomic.h` ADDITIONS
         //
         // Concerns:
-        //: 1 The following names are available in 'bsl' to users who include
-        //:   'bsl_atomic.h':
-        //:    o 'atomic_ref';
-        //:    o 'atomic_char8_t';
-        //:    o 'atomic_signed_lock_free', 'atomic_unsigned_lock_free';
-        //:    o 'atomic_wait', 'atomic_wait_explicit';
-        //:    o 'atomic_notify_one', 'atomic_notify_all';
-        //:    o 'atomic_flag_notify_one', 'atomic_flag_notify_all';
-        //:    o 'atomic_flag_test', 'atomic_flag_test_explicit'.
-        //:
-        //: 2 The feature test macros defined in '<atomic>' for the imported
-        //:   features are available and have appropriate values.
+        // 1. The following names are available in `bsl` to users who include
+        //    `bsl_atomic.h`:
+        //     o `atomic_ref`;
+        //     o `atomic_char8_t`;
+        //     o `atomic_signed_lock_free`, `atomic_unsigned_lock_free`;
+        //     o `atomic_wait`, `atomic_wait_explicit`;
+        //     o `atomic_notify_one`, `atomic_notify_all`;
+        //     o `atomic_flag_notify_one`, `atomic_flag_notify_all`;
+        //     o `atomic_flag_test`, `atomic_flag_test_explicit`.
+        //
+        // 2. The feature test macros defined in `<atomic>` for the imported
+        //    features are available and have appropriate values.
         //
         // Plan:
-        //: 1 Verify that
-        //:    o '__cpp_lib_atomic_ref >= 201806L',
-        //:    o '__cpp_lib_char8_t >= 201907L',
-        //:    o '__cpp_lib_atomic_lock_free_type_aliases >= 201907L',
-        //:    o '__cpp_lib_atomic_wait >= 201907L',
-        //:    o '__cpp_lib_atomic_flag_test >= 201907L'.
-        //:
-        //: 2 Form some valid expressions with every name with 'bsl' prefix.
+        // 1. Verify that
+        //     o `__cpp_lib_atomic_ref >= 201806L`,
+        //     o `__cpp_lib_char8_t >= 201907L`,
+        //     o `__cpp_lib_atomic_lock_free_type_aliases >= 201907L`,
+        //     o `__cpp_lib_atomic_wait >= 201907L`,
+        //     o `__cpp_lib_atomic_flag_test >= 201907L`.
+        //
+        // 2. Form some valid expressions with every name with `bsl` prefix.
         //
         // Testing
-        //   C++20 'bsl_atomic.h' ADDITIONS
+        //   C++20 `bsl_atomic.h` ADDITIONS
         // --------------------------------------------------------------------
-        if (verbose) puts("\nC++20 'bsl_atomic.h' ADDITIONS"
+        if (verbose) puts("\nC++20 `bsl_atomic.h` ADDITIONS"
                           "\n==============================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
@@ -2510,39 +2513,39 @@ int main(int argc, char *argv[])
       } break;
       case 29: {
         // --------------------------------------------------------------------
-        // C++20 'bsl_memory.h' ADDITIONS
+        // C++20 `bsl_memory.h` ADDITIONS
         //
         // Concerns:
-        //: 1 'to_address', 'assume_aligned', 'make_unique_for_overwrite' and
-        //:   'construct_at' are available in 'bsl' to users who include
-        //:   'bsl_memory.h'.
-        //:
-        //: 2 The feature test macros defined in '<memory>' for the imported
-        //:   features are available and have appropriate values.
+        // 1. `to_address`, `assume_aligned`, `make_unique_for_overwrite` and
+        //    `construct_at` are available in `bsl` to users who include
+        //    `bsl_memory.h`.
+        //
+        // 2. The feature test macros defined in `<memory>` for the imported
+        //    features are available and have appropriate values.
         //
         // Plan:
-        //: 1 Verify that
-        //:    o '__cpp_lib_to_address >= 201711L',
-        //:    o '__cpp_lib_assume_aligned >= 201811L',
-        //:    o '__cpp_lib_smart_ptr_for_overwrite >= 202002L',
-        //:    o '__cpp_lib_constexpr_memory >= 201811L'.
-        //:
-        //: 2 Verify that 'bsl::to_address' returns correct address.
-        //:
-        //: 3 Verify that 'bsl::assume_aligned' can be called.
-        //:
-        //: 4 Verify that 'bsl::construct_at' can be called.
-        //:
-        //: 5 Verify that 'bsl::make_unique_for_overwrite' can be called with
-        //:   single object template argument as well as with array template
-        //:   argument.
-        //:
-        //: 6 Verify that 'bsl::pointer_traits' is usable in constexpr context.
+        // 1. Verify that
+        //     o `__cpp_lib_to_address >= 201711L`,
+        //     o `__cpp_lib_assume_aligned >= 201811L`,
+        //     o `__cpp_lib_smart_ptr_for_overwrite >= 202002L`,
+        //     o `__cpp_lib_constexpr_memory >= 201811L`.
+        //
+        // 2. Verify that `bsl::to_address` returns correct address.
+        //
+        // 3. Verify that `bsl::assume_aligned` can be called.
+        //
+        // 4. Verify that `bsl::construct_at` can be called.
+        //
+        // 5. Verify that `bsl::make_unique_for_overwrite` can be called with
+        //    single object template argument as well as with array template
+        //    argument.
+        //
+        // 6. Verify that `bsl::pointer_traits` is usable in constexpr context.
         //
         // Testing
-        //   C++20 'bsl_memory.h' ADDITIONS
+        //   C++20 `bsl_memory.h` ADDITIONS
         // --------------------------------------------------------------------
-        if (verbose) puts("\nC++20 'bsl_memory.h' ADDITIONS"
+        if (verbose) puts("\nC++20 `bsl_memory.h` ADDITIONS"
                           "\n==============================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
@@ -2578,40 +2581,40 @@ int main(int argc, char *argv[])
         //bsl::atomic<bsl::shared_ptr> // not implemented
 
         //BSLMF_ASSERT(__cpp_lib_constexpr_dynamic_alloc >= 201907L);
-        // constexpr 'bsl::allocator' // not implemented
+        // constexpr `bsl::allocator` // not implemented
 #endif
       } break;
       case 28: {
         // --------------------------------------------------------------------
-        // C++20 'std::ranges' ADDITION
+        // C++20 `std::ranges` ADDITION
         //
         // Concerns:
-        //: 1 The definitions from '<ranges>' defined by the C++20 Standard are
-        //:   available in C++20 mode in the 'bsl' namespace to users who
-        //:   include 'bsl_ranges.h'.
-        //:
-        //: 2 Constrained versions of algorithms defined by the C++20 Standard
-        //:   are available in C++20 mode in the 'bsl' namespace to users who
-        //:   include 'bsl_algorithm.h'.
+        // 1. The definitions from `<ranges>` defined by the C++20 Standard are
+        //    available in C++20 mode in the `bsl` namespace to users who
+        //    include `bsl_ranges.h`.
+        //
+        // 2. Constrained versions of algorithms defined by the C++20 Standard
+        //    are available in C++20 mode in the `bsl` namespace to users who
+        //    include `bsl_algorithm.h`.
         //
         // Plan:
-        //: 1 For every type from the 'std::ranges' namespace aliased in the
-        //:   <bsl_ranges.h>, verify that the type exists and is usable.  (C-1)
-        //:
-        //: 2 For every algorithm from the 'std::ranges' namespace aliased in
-        //:   the 'bslstl_algorithm.h', verify that the function exists and is
-        //:   usable.  (C-2)
+        // 1. For every type from the `std::ranges` namespace aliased in the
+        //    <bsl_ranges.h>, verify that the type exists and is usable.  (C-1)
+        //
+        // 2. For every algorithm from the `std::ranges` namespace aliased in
+        //    the `bslstl_algorithm.h`, verify that the function exists and is
+        //    usable.  (C-2)
         //
         // Testing
-        //   CONCERN: Entities from 'std::ranges' are available and usable.
+        //   CONCERN: Entities from `std::ranges` are available and usable.
         // --------------------------------------------------------------------
-        if (verbose) puts("\nC++20 'std::ranges' ADDITION"
+        if (verbose) puts("\nC++20 `std::ranges` ADDITION"
                           "\n============================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
         namespace ranges = bsl::ranges;
 
-        // Testing types aliased in the 'bsl_ranges.h'
+        // Testing types aliased in the `bsl_ranges.h`
 
         using Vector = bsl::vector<int>;
         using Tuple  = bsl::tuple<int, int>;
@@ -2693,7 +2696,7 @@ int main(int argc, char *argv[])
 
         // Views
 
-        // 'RangesDummyView' is inherited from 'bsl::ranges::view_interface'.
+        // `RangesDummyView` is inherited from `bsl::ranges::view_interface`.
 
         RangesDummyView dummy;
         ASSERTV(true == dummy.empty())
@@ -2843,7 +2846,7 @@ int main(int argc, char *argv[])
         ASSERTV(elementsView.size(),  3 == elementsView.size());  // 2, 4, 6
         ASSERTV(elementsView.front(), 2 == elementsView.front());
 
-        // The types of 'keysView' and 'valuesView' in the following two tests
+        // The types of `keysView` and `valuesView` in the following two tests
         // look bulky.  But we have to declare template parameters implicitly
         // due to a defect in the standard.
         // See https://cplusplus.github.io/LWG/issue3563
@@ -2863,7 +2866,7 @@ int main(int argc, char *argv[])
         ranges::subrange_kind subrangeKind;
         (void) subrangeKind;
 
-        // Testing algorithms aliased in '<bsl_algorithm.h>'
+        // Testing algorithms aliased in `<bsl_algorithm.h>`
 
         auto greaterThanTwo = [](int  i)
                                {
@@ -3283,36 +3286,36 @@ int main(int argc, char *argv[])
       } break;
       case 27: {
         // --------------------------------------------------------------------
-        // C++20 'bsl_stop_token.h' ADDITIONS
+        // C++20 `bsl_stop_token.h` ADDITIONS
         //
         // Concerns:
-        //: 1 The types defined in 'bsl_stop_token.h' exist in the 'bsl'
-        //: namespace and, for C++20, are aliases to the standard library type.
+        // 1. The types defined in `bsl_stop_token.h` exist in the `bsl`
+        //  namespace and, for C++20, are aliases to the standard library type.
         //
-        //: 2 The variable 'nostopstate' exists in the 'bsl' namespace, and is
-        //: of the type 'bsl::nostopstate_t'.
+        // 2. The variable `nostopstate` exists in the `bsl` namespace, and is
+        //  of the type `bsl::nostopstate_t`.
         //
         // Plan:
-        //: 1 Attempt to declare a pointer to each of the types from the
-        //:   header file 'bsl_stop_token.h'.
+        // 1. Attempt to declare a pointer to each of the types from the
+        //    header file `bsl_stop_token.h`.
         //
-        //: 2 Attempt to form a pointer to 'bsl::nostopstate'.
+        // 2. Attempt to form a pointer to `bsl::nostopstate`.
         //
         // Testing
-        //   CONCERN: The type 'bsl::nostopstate_t' is available and usable.
-        //   CONCERN: The type 'bsl::stop_token' is available and usable.
-        //   CONCERN: The type 'bsl::stop_source' is available and usable.
-        //   CONCERN: The type 'bsl::stop_callback' is available and usable.
-        //   CONCERN: 'bsl::nostopstate' is available and usable.
+        //   CONCERN: The type `bsl::nostopstate_t` is available and usable.
+        //   CONCERN: The type `bsl::stop_token` is available and usable.
+        //   CONCERN: The type `bsl::stop_source` is available and usable.
+        //   CONCERN: The type `bsl::stop_callback` is available and usable.
+        //   CONCERN: `bsl::nostopstate` is available and usable.
         // --------------------------------------------------------------------
 
-        if (verbose) puts("\nC++20 'bsl_stop_token.h' ADDITIONS"
+        if (verbose) puts("\nC++20 `bsl_stop_token.h` ADDITIONS"
                           "\n==================================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+        /// This class is used as a mock template parameter for the
+        /// `bsl::stop_callback` instance.
         class DummyCallback {
-            // This class is used as a mock template parameter for the
-            // 'bsl::stop_callback' instance.
         };
 
         bsl::stop_token                   *s_token    = nullptr;
@@ -3328,26 +3331,26 @@ int main(int argc, char *argv[])
       } break;
       case 26: {
         // --------------------------------------------------------------------
-        // C++20 'bsl_source_location.h'
+        // C++20 `bsl_source_location.h`
         //
         // Concerns:
-        //: 1 The definitions from '<source_location>' defined by the C++20
-        //:   Standard are available in C++20 mode in the 'bsl' namespace to
-        //:   users who include 'bsl_source_location.h'.
-        //:
-        //: 2 The feature test macros defined in '<source_location>' are
-        //:   available and have appropriate values.
+        // 1. The definitions from `<source_location>` defined by the C++20
+        //    Standard are available in C++20 mode in the `bsl` namespace to
+        //    users who include `bsl_source_location.h`.
+        //
+        // 2. The feature test macros defined in `<source_location>` are
+        //    available and have appropriate values.
         //
         // Plan:
-        //: 1 Verify that '__cpp_lib_source_location >= 201907L'.
-        //:
-        //: 2 Verify that 'bsl::source_location::current()' can be successfully
-        //:   called and an object of type 'bsl::source_location' is returned.
+        // 1. Verify that `__cpp_lib_source_location >= 201907L`.
+        //
+        // 2. Verify that `bsl::source_location::current()` can be successfully
+        //    called and an object of type `bsl::source_location` is returned.
         //
         // Testing
-        //   C++20 'bsl_source_location.h'
+        //   C++20 `bsl_source_location.h`
         // --------------------------------------------------------------------
-        if (verbose) puts("\nC++20 'bsl_source_location.h'"
+        if (verbose) puts("\nC++20 `bsl_source_location.h`"
                           "\n=============================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION
@@ -3359,30 +3362,30 @@ int main(int argc, char *argv[])
       } break;
       case 25: {
         // --------------------------------------------------------------------
-        // C++20 'bsl_bit.h'
+        // C++20 `bsl_bit.h`
         //
         // Concerns:
-        //: 1 The definitions from '<bit>' defined by the C++20 Standard are
-        //:   available in C++20 mode in the 'bsl' namespace to users who
-        //:   include 'bsl_bit.h'.
-        //:
-        //: 2 The feature test macros defined in '<bit>' are available and have
-        //:   appropriate values.
+        // 1. The definitions from `<bit>` defined by the C++20 Standard are
+        //    available in C++20 mode in the `bsl` namespace to users who
+        //    include `bsl_bit.h`.
+        //
+        // 2. The feature test macros defined in `<bit>` are available and have
+        //    appropriate values.
         //
         // Plan:
-        //: 1 Verify that
-        //:    o '__cpp_lib_endian >= 201907L',
-        //:    o '__cpp_lib_bit_cast >= 201806L',
-        //:    o '__cpp_lib_bitops >= 201907L' (except on libc++),
-        //:    o '__cpp_lib_int_pow2 >= 202002L'.
-        //:
-        //: 2 Form some valid expressions with every name with 'bsl' prefix and
-        //:   perform couple of sanity tests.
+        // 1. Verify that
+        //     o `__cpp_lib_endian >= 201907L`,
+        //     o `__cpp_lib_bit_cast >= 201806L`,
+        //     o `__cpp_lib_bitops >= 201907L` (except on libc++),
+        //     o `__cpp_lib_int_pow2 >= 202002L`.
+        //
+        // 2. Form some valid expressions with every name with `bsl` prefix and
+        //    perform couple of sanity tests.
         //
         // Testing
-        //   C++20 'bsl_bit.h'
+        //   C++20 `bsl_bit.h`
         // --------------------------------------------------------------------
-        if (verbose) puts("\nC++20 'bsl_bit.h'"
+        if (verbose) puts("\nC++20 `bsl_bit.h`"
                           "\n=================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
@@ -3453,28 +3456,28 @@ int main(int argc, char *argv[])
       } break;
       case 24: {
         // --------------------------------------------------------------------
-        // C++20 'bsl_numbers.h'
+        // C++20 `bsl_numbers.h`
         //
         // Concerns:
-        //: 1 The definitions from '<numbers>' defined by the C++20 Standard
-        //:   are available in C++20 mode in the 'bsl' namespace to users who
-        //:   include 'bsl_numbers.h'.
-        //:
-        //: 2 The feature test macros defined in '<numbers>' are available and
-        //:   have appropriate values.
+        // 1. The definitions from `<numbers>` defined by the C++20 Standard
+        //    are available in C++20 mode in the `bsl` namespace to users who
+        //    include `bsl_numbers.h`.
+        //
+        // 2. The feature test macros defined in `<numbers>` are available and
+        //    have appropriate values.
         //
         // Plan:
-        //: 1 Verify that '__cpp_lib_math_constants >= 201907L'.
-        //:
-        //: 2 Verify that each 'bsl::numbers::foo' value is equal to
-        //:   'bsl::numbers::foo_v<double>' value.
-        //:
-        //: 3 Verify that each 'bsl::numbers::foo' has type 'const double'.
+        // 1. Verify that `__cpp_lib_math_constants >= 201907L`.
+        //
+        // 2. Verify that each `bsl::numbers::foo` value is equal to
+        //    `bsl::numbers::foo_v<double>` value.
+        //
+        // 3. Verify that each `bsl::numbers::foo` has type `const double`.
         //
         // Testing
-        //   C++20 'bsl_numbers.h'
+        //   C++20 `bsl_numbers.h`
         // --------------------------------------------------------------------
-        if (verbose) puts("\nC++20 'bsl_numbers.h'"
+        if (verbose) puts("\nC++20 `bsl_numbers.h`"
                           "\n=====================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
@@ -3544,34 +3547,34 @@ int main(int argc, char *argv[])
       case 23: {
         // --------------------------------------------------------------------
         // C++20 THREAD_COORDINATION CLASSES
-        //   The following classes have been added 'std::barrier',
-        //    'std::latch', 'std::counting_semaphore' and
-        //    'std::binary_semaphore'.  BDE aliases them in the following
+        //   The following classes have been added `std::barrier`,
+        //    `std::latch`, `std::counting_semaphore` and
+        //    `std::binary_semaphore`.  BDE aliases them in the following
         //    headers: <bsl_barrier.h>, <std_latch.h> and <bsl_semaphore.h>.
         //
         // Concerns:
-        //: 1 The 'latch' type exists in the 'bsl' namespace and is an alias to
-        //:   the standard library type.
-        //:
-        //: 2 The 'barrier' type exists in the 'bsl' namespace and is an alias
-        //:   to the standard library type.
-        //:
-        //: 3 The 'counting_semaphore' type exists in the 'bsl' namespace and
-        //:   is an alias to the standard library type.
-        //:
-        //: 4 The 'binary_semaphore' type exists in the 'bsl' namespace and is
-        //:   an alias to the standard library type.
+        // 1. The `latch` type exists in the `bsl` namespace and is an alias to
+        //    the standard library type.
+        //
+        // 2. The `barrier` type exists in the `bsl` namespace and is an alias
+        //    to the standard library type.
+        //
+        // 3. The `counting_semaphore` type exists in the `bsl` namespace and
+        //    is an alias to the standard library type.
+        //
+        // 4. The `binary_semaphore` type exists in the `bsl` namespace and is
+        //    an alias to the standard library type.
         //
         // Plan:
-        //: 1 Attempt to construct an object of each class.
-        //:
-        //: 2 Verify that corresponding BDE and STD classes have the same type.
+        // 1. Attempt to construct an object of each class.
+        //
+        // 2. Verify that corresponding BDE and STD classes have the same type.
         //
         // Testing
-        //   CONCERN: 'bsl::barrier' is available and usable.
-        //   CONCERN: 'bsl::latch' is available and usable.
-        //   CONCERN: 'bsl::counting_semaphore' is available and usable.
-        //   CONCERN: 'bsl::binary_semaphore' is available and usable.
+        //   CONCERN: `bsl::barrier` is available and usable.
+        //   CONCERN: `bsl::latch` is available and usable.
+        //   CONCERN: `bsl::counting_semaphore` is available and usable.
+        //   CONCERN: `bsl::binary_semaphore` is available and usable.
         // --------------------------------------------------------------------
 
         if (verbose) puts("\nC++20 THREAD_COORDINATION CLASSES"
@@ -3598,30 +3601,30 @@ int main(int argc, char *argv[])
       } break;
       case 22: {
         // --------------------------------------------------------------------
-        // C++20 'bsl_version.h'
+        // C++20 `bsl_version.h`
         //   The <version> header, added in C++20, defines numerous
         //   feature-test macros.  Since the same macros are available when
         //   including various standard headers, in order to check the
         //   inclusion of the <version> header exactly, we included it before
         //   other headers and made a check for the availability of
         //   feature-test macros (see the definition of the
-        //   'BSLIM_BSLSTANDARDHEADERTEST_VERSION_HEADER_WAS_INCLUDED' macro
+        //   `BSLIM_BSLSTANDARDHEADERTEST_VERSION_HEADER_WAS_INCLUDED` macro
         //   above).
         //
         // Concerns:
-        //: 1 Standard feature-test macros are available when <bsl_version.h>
-        //:   header is included.
+        // 1. Standard feature-test macros are available when <bsl_version.h>
+        //    header is included.
         //
         // Plan:
-        //: 1 Check if the '__cpp_lib_generic_associative_lookup',
-        //:   '__cpp_lib_string_udls' and '__cpp_lib_chrono_udls' macros are
-        //:   available after 'bsl_version.h' header inclusion.  (C-1)
+        // 1. Check if the `__cpp_lib_generic_associative_lookup`,
+        //    `__cpp_lib_string_udls` and `__cpp_lib_chrono_udls` macros are
+        //    available after `bsl_version.h` header inclusion.  (C-1)
         //
         // Testing
         //   CONCERN: feature-test macros are available and usable.
         // --------------------------------------------------------------------
 
-        if (verbose) puts("\nC++20 'bsl_version.h'"
+        if (verbose) puts("\nC++20 `bsl_version.h`"
                           "\n=====================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
@@ -3634,32 +3637,32 @@ int main(int argc, char *argv[])
       } break;
       case 21: {
         // --------------------------------------------------------------------
-        // C++20 'bsl_span.h'
+        // C++20 `bsl_span.h`
         //
         // Concerns:
-        //: 1 The 'span' type exists in the 'bsl' namespace and, for C++20, is
-        //:   an alias to the standard library type.
-        //:
-        //: 2 'dynamic_extent' is defined in the 'bsl' namespace and, for
-        //:   C++20, is an alias to the standard library type.
+        // 1. The `span` type exists in the `bsl` namespace and, for C++20, is
+        //    an alias to the standard library type.
+        //
+        // 2. `dynamic_extent` is defined in the `bsl` namespace and, for
+        //    C++20, is an alias to the standard library type.
         //
         // Plan:
-        //: 1 Attempt to construct both static extent and dynamic extent 'span'
-        //:   types.
-        //:
-        //: 2 Check the integer value of 'dynamic_extent' is as expected.
-        //:
-        //: 3 For C++20, check that 'span' and 'dynamic_extent' have the same
-        //:   types whether accessed via the 'bsl' or the 'std' namespaces.
-        //:
-        //: 4 For C++20 check that 'bsl::dynamic_extent' and
-        //:   'std::dynamic_extent' have the same value.
+        // 1. Attempt to construct both static extent and dynamic extent `span`
+        //    types.
+        //
+        // 2. Check the integer value of `dynamic_extent` is as expected.
+        //
+        // 3. For C++20, check that `span` and `dynamic_extent` have the same
+        //    types whether accessed via the `bsl` or the `std` namespaces.
+        //
+        // 4. For C++20 check that `bsl::dynamic_extent` and
+        //    `std::dynamic_extent` have the same value.
         //
         // Testing
-        //   CONCERN: 'bsl::span' is available and usable.
+        //   CONCERN: `bsl::span` is available and usable.
         // --------------------------------------------------------------------
 
-        if (verbose) puts("\nC++20 'bsl_span.h'"
+        if (verbose) puts("\nC++20 `bsl_span.h`"
                           "\n==================");
 
         int               arr[5] = {0, 1, 2, 3, 4};
@@ -3680,22 +3683,22 @@ int main(int argc, char *argv[])
       } break;
       case 20: {
         // --------------------------------------------------------------------
-        // C++17 'bsl_functional.h' ADDITIONS
+        // C++17 `bsl_functional.h` ADDITIONS
         //
         // Concerns:
-        //: 1 'invoke' and 'not_fn' are available in 'bsl' to users who include
-        //:   'bsl_functional.h'.
+        // 1. `invoke` and `not_fn` are available in `bsl` to users who include
+        //    `bsl_functional.h`.
         //
         // Plan:
-        //: 1 Create a simple example that uses both classes.  Compilation of
-        //:   the example demonstrates that the classes can be found in 'bsl'.
+        // 1. Create a simple example that uses both classes.  Compilation of
+        //    the example demonstrates that the classes can be found in `bsl`.
         //
         // Testing
-        //   CONCERN: 'bsl::invoke' is usable when available.
-        //   CONCERN: 'bsl::not_fn' is usable when available.
+        //   CONCERN: `bsl::invoke` is usable when available.
+        //   CONCERN: `bsl::not_fn` is usable when available.
         // --------------------------------------------------------------------
 
-        if (verbose) puts("\nC++17 'bsl_functional.h' ADDITIONS"
+        if (verbose) puts("\nC++17 `bsl_functional.h` ADDITIONS"
                           "\n==================================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
@@ -3713,33 +3716,33 @@ int main(int argc, char *argv[])
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // C++17 'bsl_filesystem.h'
+        // C++17 `bsl_filesystem.h`
         //
         // Concerns:
-        //: 1 The types defined in the filesystem library exist in the 'bsl'
-        //:   namespace.
-        //:
-        //: 2 'bsl::hash' and 'bslh::hashAppend' are both defined for
-        //:   'bsl::filesystem::path'.
-        //:
-        //: 3 'std::filesystem::path' works correctly as the key for a
-        //:   'bsl::unordered_map<std::filesystem::path, int>'.
+        // 1. The types defined in the filesystem library exist in the `bsl`
+        //    namespace.
+        //
+        // 2. `bsl::hash` and `bslh::hashAppend` are both defined for
+        //    `bsl::filesystem::path`.
+        //
+        // 3. `std::filesystem::path` works correctly as the key for a
+        //    `bsl::unordered_map<std::filesystem::path, int>`.
         //
         // Plan:
-        //: 1 Attempt to declare a pointer to each of the types from the
-        //:   filesystem library.
-        //:
-        //: 2 Define such an 'unordered_map'.
-        //:
-        //: 3 Verify that 'insert', 'find', and an update via 'operator[]' work
-        //:   correctly.
+        // 1. Attempt to declare a pointer to each of the types from the
+        //    filesystem library.
+        //
+        // 2. Define such an `unordered_map`.
+        //
+        // 3. Verify that `insert`, `find`, and an update via `operator[]` work
+        //    correctly.
         //
         // Testing:
-        //   C++17 'bsl_filesystem.h'
-        //   CONCERN: 'hashAppend' of 'std::filesystem::path' is usable.
+        //   C++17 `bsl_filesystem.h`
+        //   CONCERN: `hashAppend` of `std::filesystem::path` is usable.
         // --------------------------------------------------------------------
 
-        if (verbose) puts("\nC++17 'bsl_filesystem.h'"
+        if (verbose) puts("\nC++17 `bsl_filesystem.h`"
                           "\n========================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM
@@ -3776,8 +3779,8 @@ int main(int argc, char *argv[])
         (void) hasher;
 
         bslh::DefaultHashAlgorithm hash;
-        // Note that the 'hashAppend' overload for 'path' is defined in
-        // namespace 'bslh', not namespace 'std', so it will not be found for
+        // Note that the `hashAppend` overload for `path` is defined in
+        // namespace `bslh`, not namespace `std`, so it will not be found for
         // hash algorithms in other namespaces.
         hashAppend(hash, bsl::filesystem::path());
 
@@ -3815,21 +3818,21 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // C++17 'bsl_cstddef/tuple/ctime/cstddef.h' ADDITIONS
+        // C++17 `bsl_cstddef/tuple/ctime/cstddef.h` ADDITIONS
         //
         // Concerns:
-        //: 1 The type 'bsl::byte' exists.
-        //: 2 The calls 'bsl::apply' and 'bls:make_from_tuple' exist and return
-        //:   expected values for simple cases.
-        //: 3 The calls 'bsl::aligned_alloc' and 'bls::timespec_get' are
-        //:   callable if they exist.
+        // 1. The type `bsl::byte` exists.
+        // 2. The calls `bsl::apply` and `bls:make_from_tuple` exist and return
+        //    expected values for simple cases.
+        // 3. The calls `bsl::aligned_alloc` and `bls::timespec_get` are
+        //    callable if they exist.
         //
         // Plan:
-        //: 1 Verify that 'bsl::byte' exists.
-        //: 2 Call each of 'bsl::apply' and 'bsl::make_from_tuple' with simple
-        //:   inputs and verify that the results are correct.
-        //: 3 If they exist, call each of 'bsl::aligned_alloc' and
-        //:   'bsl::timespec_get' with sample inputs.
+        // 1. Verify that `bsl::byte` exists.
+        // 2. Call each of `bsl::apply` and `bsl::make_from_tuple` with simple
+        //    inputs and verify that the results are correct.
+        // 3. If they exist, call each of `bsl::aligned_alloc` and
+        //    `bsl::timespec_get` with sample inputs.
         //
         // Testing:
         //   bsl::byte;
@@ -3840,7 +3843,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            puts("\nC++17 'bsl_cstddef/tuple/ctime/cstddef.h' ADDITIONS"
+            puts("\nC++17 `bsl_cstddef/tuple/ctime/cstddef.h` ADDITIONS"
                  "\n===================================================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
@@ -3871,17 +3874,17 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // C++17 'bsl_cmath.h' ADDITIONS
+        // C++17 `bsl_cmath.h` ADDITIONS
         //
         // Concerns:
-        //: 1 The C++17 special math functions all exist in namespace 'bsl'.
+        // 1. The C++17 special math functions all exist in namespace `bsl`.
         //
         // Plan:
-        //: 1 Create simple examples that use these algorithms.  Compilation of
-        //:   the example demonstrates that the calls can be found in 'bsl'.
-        //:
-        //: 2 Compare the results with the results of calling the native
-        //:   standard library.
+        // 1. Create simple examples that use these algorithms.  Compilation of
+        //    the example demonstrates that the calls can be found in `bsl`.
+        //
+        // 2. Compare the results with the results of calling the native
+        //    standard library.
         //
         // Testing:
         //   bsl::assoc_laguerre();
@@ -3949,7 +3952,7 @@ int main(int argc, char *argv[])
         //   bsl::sph_neumannl();
         // --------------------------------------------------------------------
 
-        if (verbose) puts("\nC++17 'bsl_cmath.h' ADDITIONS"
+        if (verbose) puts("\nC++17 `bsl_cmath.h` ADDITIONS"
                           "\n=============================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS
@@ -4137,15 +4140,15 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // C++17 'bsl_memory.h' ADDITIONS
+        // C++17 `bsl_memory.h` ADDITIONS
         //
         // Concerns:
-        //: 1 The C++17 memory algorithms are available in 'bsl' to users who
-        //:   include 'bsl_memory.h'.
+        // 1. The C++17 memory algorithms are available in `bsl` to users who
+        //    include `bsl_memory.h`.
         //
         // Plan:
-        //: 1 Create a simple example that uses these algorithms.  Compilation
-        //:   of the example demonstrates that the calls can be found in 'bsl'.
+        // 1. Create a simple example that uses these algorithms.  Compilation
+        //    of the example demonstrates that the calls can be found in `bsl`.
         //
         // Testing:
         //   bsl::destroy()
@@ -4159,7 +4162,7 @@ int main(int argc, char *argv[])
         //   bsl::uninitialized_value_construct_n()
         // --------------------------------------------------------------------
 
-        if (verbose) puts("\nC++17 'bsl_memory.h' ADDITIONS"
+        if (verbose) puts("\nC++17 `bsl_memory.h` ADDITIONS"
                           "\n==============================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
@@ -4180,21 +4183,21 @@ int main(int argc, char *argv[])
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // C++17 'bsl_mutex.h' ADDITIONS
+        // C++17 `bsl_mutex.h` ADDITIONS
         //
         // Concerns:
-        //: 1 The C++17 mutex primitives are available in 'bsl' to users who
-        //:   include 'bsl_mutex.h'.
+        // 1. The C++17 mutex primitives are available in `bsl` to users who
+        //    include `bsl_mutex.h`.
         //
         // Plan:
-        //: 1 Attempt to use these routines in a simple example.  Compilation
-        //:   of the example demonstrates that the types can be found in 'bsl'.
+        // 1. Attempt to use these routines in a simple example.  Compilation
+        //    of the example demonstrates that the types can be found in `bsl`.
         //
         // Testing:
         //   bsl::scoped_lock;
         // --------------------------------------------------------------------
 
-        if (verbose) puts("\nC++17 'bsl_mutex.h' ADDITIONS"
+        if (verbose) puts("\nC++17 `bsl_mutex.h` ADDITIONS"
                           "\n=============================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
@@ -4208,23 +4211,23 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // C++17 'bsl_new.h' ADDITIONS
+        // C++17 `bsl_new.h` ADDITIONS
         //
         // Concerns:
-        //: 1 The C++17 memory algorithms are available in 'bsl' to users who
-        //:   include 'bsl_new.h'.
+        // 1. The C++17 memory algorithms are available in `bsl` to users who
+        //    include `bsl_new.h`.
         //
         // Plan:
-        //: 1 Create a simple example that uses these algorithms.  Compilation
-        //:   of the example demonstrates that the classes can be found in
-        //:   'bsl'.
+        // 1. Create a simple example that uses these algorithms.  Compilation
+        //    of the example demonstrates that the classes can be found in
+        //    `bsl`.
         //
         // Testing:
         //   bsl::align_val_t
         //   bsl::launder()
         // --------------------------------------------------------------------
 
-        if (verbose) puts("\nC++17 'bsl_new.h' ADDITIONS"
+        if (verbose) puts("\nC++17 `bsl_new.h` ADDITIONS"
                           "\n===========================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
@@ -4235,15 +4238,15 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // C++17 'bsl_algorithm.h' ADDITIONS
+        // C++17 `bsl_algorithm.h` ADDITIONS
         //
         // Concerns:
-        //: 1 The calls 'bsl::clamp', 'bls:for_each_n', and 'bsl::sample' all
-        //:   exist and return expected values for simple cases.
+        // 1. The calls `bsl::clamp`, `bls:for_each_n`, and `bsl::sample` all
+        //    exist and return expected values for simple cases.
         //
         // Plan:
-        //: 1 Call each of the three algorithms with simple inputs and verify
-        //:   that the result is correct.
+        // 1. Call each of the three algorithms with simple inputs and verify
+        //    that the result is correct.
         //
         // Testing:
         //   bsl::clamp();
@@ -4251,7 +4254,7 @@ int main(int argc, char *argv[])
         //   bsl::sample();
         // --------------------------------------------------------------------
 
-        if (verbose) puts("\nC++17 'bsl_algorithm.h' ADDITIONS"
+        if (verbose) puts("\nC++17 `bsl_algorithm.h` ADDITIONS"
                           "\n=================================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
@@ -4275,16 +4278,16 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // C++17 'bsl_numeric.h' ADDITIONS
+        // C++17 `bsl_numeric.h` ADDITIONS
         //
         // Concerns:
-        //: 1 The C++17 numeric algorithms are available in 'bsl' to users who
-        //:   include 'bsl_numeric.h'.
+        // 1. The C++17 numeric algorithms are available in `bsl` to users who
+        //    include `bsl_numeric.h`.
         //
         // Plan:
-        //: 1 Create a simple example that uses these algorithms.  Compilation
-        //:   of the example demonstrates that the classes can be found in
-        //:   'bsl'.
+        // 1. Create a simple example that uses these algorithms.  Compilation
+        //    of the example demonstrates that the classes can be found in
+        //    `bsl`.
         //
         // Testing:
         //   bsl::exclusive_scan()
@@ -4297,7 +4300,7 @@ int main(int argc, char *argv[])
         //   bsl::transform_reduce()
         // --------------------------------------------------------------------
 
-        if (verbose) puts("\nC++17 'bsl_numeric.h' ADDITIONS"
+        if (verbose) puts("\nC++17 `bsl_numeric.h` ADDITIONS"
                           "\n===============================");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
@@ -4390,14 +4393,14 @@ int main(int argc, char *argv[])
         // TESTING C++17 <BSL_UTILITY.H> ADDITIONS
         //
         // Concerns:
-        //: 1 The call 'bsl::as_const' returns it's parameter as a const &.
+        // 1. The call `bsl::as_const` returns it's parameter as a const &.
         //
         // Plan:
-        //: 1 Statically check that the return type of 'bsl::as_const' is
-        //:   correct.
-        //: 2 Dynamically check that the return value of 'bsl::as_const' is
-        //:   correct.
-        //: 3 Check that 'bsl::in_place' and 'in_place_t' are accessible here.
+        // 1. Statically check that the return type of `bsl::as_const` is
+        //    correct.
+        // 2. Dynamically check that the return value of `bsl::as_const` is
+        //    correct.
+        // 3. Check that `bsl::in_place` and `in_place_t` are accessible here.
         //
         //
         // Testing:
@@ -4406,7 +4409,7 @@ int main(int argc, char *argv[])
         //   bsl::in_place
         // --------------------------------------------------------------------
 
-        if (verbose) puts("\nC++17 'bsl_utility.h' ADDITIONS"
+        if (verbose) puts("\nC++17 `bsl_utility.h` ADDITIONS"
                           "\n===============================");
 
         typedef bsl::pair<int, double> Obj;
@@ -4429,12 +4432,12 @@ int main(int argc, char *argv[])
         // C++17 TYPE ALIASES
         //
         // Concerns:
-        //: 1 The *_v inline variable definitions added for C++17 type alias
-        //:   features are available and return the correct answers.
+        // 1. The *_v inline variable definitions added for C++17 type alias
+        //    features are available and return the correct answers.
         //
         // Plan:
-        //: 1 Ensure that 'bsl::xxx_v<values>' (which we implement) is equal to
-        //:   'bsl::xxx<values>::value' (which we import).
+        // 1. Ensure that `bsl::xxx_v<values>` (which we implement) is equal to
+        //    `bsl::xxx<values>::value` (which we import).
         //
         // Testing:
         //   C++17 TYPE ALIASES
@@ -4445,7 +4448,7 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
         // We don't really need to call these routines, because all they do is
-        // 'static_assert', but this keeps the compiler from warning about
+        // `static_assert`, but this keeps the compiler from warning about
         // "unused functions".
         TestCpp17TypeAliases::HasUniqueObjectReps();
         TestCpp17TypeAliases::IsAggregate();
@@ -4460,28 +4463,28 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // 'bslh::hashAppend' OF 'std::pair' AND 'std::tuple'
+        // `bslh::hashAppend` OF `std::pair` AND `std::tuple`
         //
         // Concerns:
-        //: 1 The 'bslh::hashAppend' functions defined for 'std::pair' and
-        //:   'std::tuple' are found and usable by 'bsl' container classes that
-        //:   have a 'HASH' template parameter.
+        // 1. The `bslh::hashAppend` functions defined for `std::pair` and
+        //    `std::tuple` are found and usable by `bsl` container classes that
+        //    have a `HASH` template parameter.
         //
         // Plan:
-        //: 1 Create an 'bsl::unordered_set' objects keyed on instances of
-        //:   'std::pair' and 'std::tuple'.  Confirm that keys of the
-        //:   appropriate type can be inserted and later found.
+        // 1. Create an `bsl::unordered_set` objects keyed on instances of
+        //    `std::pair` and `std::tuple`.  Confirm that keys of the
+        //    appropriate type can be inserted and later found.
         //
         // Testing:
-        //   CONCERN: 'bslh::hashAppend' of 'std::pair'  is usable from 'bsl'.
-        //   CONCERN: 'bslh::hashAppend' of 'std::tuple' is usable from 'bsl'.
+        //   CONCERN: `bslh::hashAppend` of `std::pair`  is usable from `bsl`.
+        //   CONCERN: `bslh::hashAppend` of `std::tuple` is usable from `bsl`.
         // --------------------------------------------------------------------
 
         if (verbose)
-            puts("\n'bslh::hashAppend' OF 'std::pair' AND 'std::tuple'"
+            puts("\n'bslh::hashAppend' OF `std::pair` AND `std::tuple`"
                  "\n==================================================");
 
-        if (verbose) puts("Testing 'hashAppend' of 'std::pair'");
+        if (verbose) puts("Testing `hashAppend` of `std::pair`");
 
         typedef std::pair<int, int> StdKeyPair;
         typedef bsl::pair<int, int> BslKeyPair;
@@ -4529,7 +4532,7 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 
-        if (verbose) puts("Testing 'hashAppend' of 'std::tuple'");
+        if (verbose) puts("Testing `hashAppend` of `std::tuple`");
 
         using StdKeyTuple = std::tuple<int, int, int>;
         using BslKeyTuple = bsl::tuple<int, int, int>;
@@ -4575,7 +4578,7 @@ int main(int argc, char *argv[])
         ASSERT(itemTuple1 == *itrTuple1);
         ASSERT(itemTuple2 == *itrTuple2);
 #else
-        if (verbose) puts("SKIP: 'std::tuple' not available");
+        if (verbose) puts("SKIP: `std::tuple` not available");
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
       } break;
       case 8: {
@@ -4583,17 +4586,17 @@ int main(int argc, char *argv[])
         // SEARCHERS
         //
         // Concerns:
-        //: 1 'default_searcher' and 'boyer_moore_horspool_seacher' are
-        //:   available in 'bsl' to users who include 'bsl_functional.h'.
+        // 1. `default_searcher` and `boyer_moore_horspool_seacher` are
+        //    available in `bsl` to users who include `bsl_functional.h`.
         //
         // Plan:
-        //: 1 Create a simple example that uses both classes.  Compilation of
-        //:   the example demonstrates that the classes can be found in 'bsl'.
+        // 1. Create a simple example that uses both classes.  Compilation of
+        //    the example demonstrates that the classes can be found in `bsl`.
         //
         // Testing
-        //   CONCERN: 'default_searcher'/'boyer_moore_horspool_searcher usable.
-        //   CONCERN: 'boyer_moore_searcher' usable when available.
-        //   CONCERN: 'bsl::search' function is usable.
+        //   CONCERN: `default_searcher`/'boyer_moore_horspool_searcher usable.
+        //   CONCERN: `boyer_moore_searcher` usable when available.
+        //   CONCERN: `bsl::search` function is usable.
         // --------------------------------------------------------------------
 
         if (verbose) puts("\nSEARCHERS"
@@ -4640,23 +4643,23 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // 'forward_list'
+        // `forward_list`
         //
         // Concerns:
-        //: 1 'bsl::forward_list' is available in baseline C++11 builds.
-        //: 2 'bsl::forward_list' correctly uses 'bslma' allocators
-        //: 3 Including 'bsl_forward_list.h' gives access to 'bsl::begin'
+        // 1. `bsl::forward_list` is available in baseline C++11 builds.
+        // 2. `bsl::forward_list` correctly uses `bslma` allocators
+        // 3. Including `bsl_forward_list.h` gives access to `bsl::begin`
         //
         // Plan:
-        //: 1 Create a 'bsl::forward_list<bsl::string>' using a test allocator,
-        //:   emplace a string into the container, and verify that the emplaced
-        //:   string is using the correct allocator.
-        //: 2 Call 'bsl::begin' on both const and non-const versions of the
-        //:   container, and ensure that the calls return the first element
-        //:   in the container.
+        // 1. Create a `bsl::forward_list<bsl::string>` using a test allocator,
+        //    emplace a string into the container, and verify that the emplaced
+        //    string is using the correct allocator.
+        // 2. Call `bsl::begin` on both const and non-const versions of the
+        //    container, and ensure that the calls return the first element
+        //    in the container.
         //
         // Testing
-        //   CONCERN: 'forward_list' is available in C++11 builds
+        //   CONCERN: `forward_list` is available in C++11 builds
         // --------------------------------------------------------------------
 
         if (verbose) puts("\n'forward_list'"
@@ -4664,7 +4667,7 @@ int main(int argc, char *argv[])
 
 #if !defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
 
-        if (verbose) puts("\nSKIPPED: 'bsl::forward_list' is not supported");
+        if (verbose) puts("\nSKIPPED: `bsl::forward_list` is not supported");
 #else
         using Obj = bsl::forward_list<bsl::string>;
 
@@ -4708,21 +4711,21 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // SUPPORT FOR MOVE-ONLY TYPES
-        //   This tests a general concern for C++11 compilers that the 'bsl'
+        //   This tests a general concern for C++11 compilers that the `bsl`
         //   implementation of standard components support move-only types.
         //   Motivated by DRQS 126478885.
         //
         // Concerns:
-        //: 1 Containers like 'vector', and 'bsl::pair', support move-only
-        //:   types like 'unique_ptr'..
+        // 1. Containers like `vector`, and `bsl::pair`, support move-only
+        //    types like `unique_ptr`..
         //
         // Plan:
-        //: 1 Call all 8 range functions (unqualified) for a 'bsl::set<int>',
-        //:   as this will be associated with both namespace 'bsl' and native
-        //:   'std' (for 'std::less' as a template parameter).
+        // 1. Call all 8 range functions (unqualified) for a `bsl::set<int>`,
+        //    as this will be associated with both namespace `bsl` and native
+        //    `std` (for `std::less` as a template parameter).
         //
         // Testing
-        //   CONCERN: Range functions are not ambiguous with 'std' under ADL
+        //   CONCERN: Range functions are not ambiguous with `std` under ADL
         // --------------------------------------------------------------------
 
         if (verbose) puts("\nSUPPORT FOR MOVE-ONLY TYPES"
@@ -4747,9 +4750,9 @@ int main(int argc, char *argv[])
         static_assert(std::is_copy_constructible<Item>::value,
             "Failed to detect the no-deleted-ctor bug, reconsider workaround");
         // These checks are mostly provided as documentation of the exact issue
-        // that needs the workaround.  The 'static_assert' tests verify that
+        // that needs the workaround.  The `static_assert` tests verify that
         // the MSVC 2013 compiler bug is in effect.  If these tests were ever
-        // to fail, that would indicate that the '#ifdef' check above can be
+        // to fail, that would indicate that the `#ifdef` check above can be
         // safely removed.
 # endif
 #endif
@@ -4759,16 +4762,16 @@ int main(int argc, char *argv[])
         // ITERATOR RANGE FUNCTIONS
         //
         // Concerns:
-        //: 1 Iterator range functions can be used with 'std' containers under
-        //:   ADL.
+        // 1. Iterator range functions can be used with `std` containers under
+        //    ADL.
         //
         // Plan:
-        //: 1 Call all 8 range functions (unqualified) for a 'bsl::set<int>',
-        //:   as this will be associated with both namespace 'bsl' and native
-        //:   'std' (for 'std::less' as a template parameter).
+        // 1. Call all 8 range functions (unqualified) for a `bsl::set<int>`,
+        //    as this will be associated with both namespace `bsl` and native
+        //    `std` (for `std::less` as a template parameter).
         //
         // Testing
-        //   CONCERN: Range functions are not ambiguous with 'std' under ADL
+        //   CONCERN: Range functions are not ambiguous with `std` under ADL
         // --------------------------------------------------------------------
 
         if (verbose) puts("\nITERATOR RANGE FUNCTIONS"
@@ -4791,11 +4794,11 @@ int main(int argc, char *argv[])
         // CONCERN: MAPS CONTAINING SMART POINTERS
         //
         // Concerns:
-        //: 1 Insertion into maps of unique_ptr should work.
-        //: 2 Insertion into maps of shared_ptr should work.
+        // 1. Insertion into maps of unique_ptr should work.
+        // 2. Insertion into maps of shared_ptr should work.
         //
         // Plan:
-        //: 1 Do such operations.
+        // 1. Do such operations.
         //
         // Testing:
         //   maps of smart pointers
@@ -4835,11 +4838,11 @@ int main(int argc, char *argv[])
         // CONCERN: RESIZE OF EMPTY VECTOR OF STRINGS
         //
         // Concerns:
-        //: 1 {DRQS 99966534} reports an assertion failure on resizing an empty
-        //:   vector of strings in opt/safe mode with gcc >= 5.
+        // 1. {DRQS 99966534} reports an assertion failure on resizing an empty
+        //    vector of strings in opt/safe mode with gcc >= 5.
         //
         // Plan:
-        //: 1 Do such an operation.
+        // 1. Do such an operation.
         //
         // Testing:
         //   string vector resize
@@ -4856,14 +4859,14 @@ int main(int argc, char *argv[])
         // CONCERN: REGRESSION TEST FOR C99 FEATURES
         //
         // Concerns:
-        //: 1 Ensure that some C99 functions are available on some Bloomberg
-        //:   production platforms (to avoid any regressions from the
-        //:   introduction of bsls_libraryfeatures).
+        // 1. Ensure that some C99 functions are available on some Bloomberg
+        //    production platforms (to avoid any regressions from the
+        //    introduction of bsls_libraryfeatures).
         //
         // Plan:
-        //: 1 Verify 'BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY' is 'true', and
-        //:   important '<cmath>' functions are available on Bloomberg
-        //:   production platforms.
+        // 1. Verify `BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY` is `true`, and
+        //    important `<cmath>` functions are available on Bloomberg
+        //    production platforms.
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
@@ -4884,10 +4887,10 @@ int main(int argc, char *argv[])
         }
       } break;
       case 1: {
-        if (verbose) puts("\nTESTING REFERENCES AS 'mapped_type'."
+        if (verbose) puts("\nTESTING REFERENCES AS `mapped_type`."
                           "\n====================================");
 
-        if (verbose) puts("\tin 'map'");
+        if (verbose) puts("\tin `map`");
         {
             typedef bsl::map<int, bsltf::SimpleTestType&>  MapType1;
             typedef bsl::map<int, bsltf::AllocTestType&>   MapType2;
@@ -4898,7 +4901,7 @@ int main(int argc, char *argv[])
                           MapType1, MapType2, MapType3);
         }
 
-        if (verbose) puts("\tin 'multimap'");
+        if (verbose) puts("\tin `multimap`");
         {
             typedef bsl::multimap<int, bsltf::SimpleTestType&>  MapType1;
             typedef bsl::multimap<int, bsltf::AllocTestType&>   MapType2;
@@ -4909,7 +4912,7 @@ int main(int argc, char *argv[])
                           MapType1, MapType2, MapType3);
         }
 
-        if (verbose) puts("\tin 'unordered_map'");
+        if (verbose) puts("\tin `unordered_map`");
         {
             typedef bsl::unordered_map<int, bsltf::SimpleTestType&>  MapType1;
             typedef bsl::unordered_map<int, bsltf::AllocTestType&>   MapType2;
@@ -4920,7 +4923,7 @@ int main(int argc, char *argv[])
                           MapType1, MapType2, MapType3);
         }
 
-        if (verbose) puts("\tin 'unordered_multimap'");
+        if (verbose) puts("\tin `unordered_multimap`");
         {
             typedef bsl::unordered_multimap<int, bsltf::SimpleTestType&>
                                                                       MapType1;

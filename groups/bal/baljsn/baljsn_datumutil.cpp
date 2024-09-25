@@ -38,34 +38,35 @@ namespace u {
 using namespace BloombergLP;
 
 // LOCAL METHODS
+
+/// Decode into the specified `*result` the JSON object in the specified
+/// `*tokenizer`, updating the specified `*errorStream` if any errors are
+/// detected, including if the specified `maxNestedDepth` is exceeded.
 int decodeValue(bdld::ManagedDatum *result,
                 bsl::ostream       *errorStream,
                 baljsn::Tokenizer  *tokenizer,
                 int                 maxNestedDepth);
-    // Decode into the specified '*result' the JSON object in the specified
-    // '*tokenizer', updating the specified '*errorStream' if any errors are
-    // detected, including if the specified 'maxNestedDepth' is exceeded.
 
+/// Encode the specified `datum` as JSON, and output it to the specified
+/// `formatter`.  Update `*strictTypesCheckStatus` to the appropriate
+/// positve integer value if any types or singular double values that aren't
+/// fully supported are found, allowing further encoding to proceed.
+/// `*strictTypesCheckStatus` remains unchanged if no unsupported types or
+/// values are encountered.  Optionally specify the `name` to be used for
+/// this value.  Return 0 on success, and a negative value if `datum` cannot
+/// be encoded', which should stop further encoding.
 int encodeValue(baljsn::SimpleFormatter    *formatter,
                 const bdld::Datum&          datum,
                 int                        *strictTypesCheckStatus,
                 bsl::string_view           *name = 0);
-    // Encode the specified 'datum' as JSON, and output it to the specified
-    // 'formatter'.  Update '*strictTypesCheckStatus' to the appropriate
-    // positve integer value if any types or singular double values that aren't
-    // fully supported are found, allowing further encoding to proceed.
-    // '*strictTypesCheckStatus' remains unchanged if no unsupported types or
-    // values are encountered.  Optionally specify the 'name' to be used for
-    // this value.  Return 0 on success, and a negative value if 'datum' cannot
-    // be encoded', which should stop further encoding.
 
+/// Decode into the specified `*result` the JSON object in the specified
+/// `*tokenizer`, updating the specified `*errorStream` if any errors are
+/// detected, including if the specified `maxNestedDepth` is exceeded.
 int decodeObject(bdld::ManagedDatum *result,
                  bsl::ostream       *errorStream,
                  baljsn::Tokenizer  *tokenizer,
                  int                 maxNestedDepth)
-    // Decode into the specified '*result' the JSON object in the specified
-    // '*tokenizer', updating the specified '*errorStream' if any errors are
-    // detected, including if the specified 'maxNestedDepth' is exceeded.
 {
     if (maxNestedDepth < 0) {
         if (errorStream) {
@@ -138,13 +139,13 @@ int decodeObject(bdld::ManagedDatum *result,
     return 0;
 }
 
+/// Decode into the specified `*result` the JSON array in the specified
+/// `*tokenizer`, updating the specified `*errorStream` if any errors are
+/// detected, including if the specified `maxNestedDepth` is exceeded.
 int decodeArray(bdld::ManagedDatum *result,
                 bsl::ostream       *errorStream,
                 baljsn::Tokenizer  *tokenizer,
                 int                 maxNestedDepth)
-    // Decode into the specified '*result' the JSON array in the specified
-    // '*tokenizer', updating the specified '*errorStream' if any errors are
-    // detected, including if the specified 'maxNestedDepth' is exceeded.
 {
     if (maxNestedDepth < 0) {
         if (errorStream) {
@@ -211,10 +212,10 @@ int encodeImp(STRING                             *result,
     return rc;
 }
 
+/// Extract into the specified `*result` the current value in the specified
+/// `*tokenizer`.
 int extractValue(bdld::ManagedDatum *result,
                  baljsn::Tokenizer  *tokenizer)
-    // Extract into the specified '*result' the current value in the specified
-    // '*tokenizer'.
 {
     bsl::string_view value;
     tokenizer->value(&value);
@@ -296,18 +297,18 @@ int decodeValue(bdld::ManagedDatum *result,
     return 0;
 }
 
+/// Encode the specified `datum` as a JSON array representation, and output
+/// it to the specified `formatter`.  Update `*strictTypesCheckStatus` to
+/// the appropriate positve integer value if any types or singular double
+/// values that aren't fully supported are found, allowing further encoding
+/// to proceed.  `*strictTypesCheckStatus` remains unchanged if no
+/// unsupported types or values are encountered.  Optionally specify the
+/// `name` to be used for this array.  Return 0 on success, and a negative
+/// value if `datum` cannot be encoded, which should stop further encoding.
 int encodeArray(baljsn::SimpleFormatter    *formatter,
                 const bdld::DatumArrayRef&  datum,
                 int                        *strictTypesCheckStatus,
                 bsl::string_view           *name = 0)
-    // Encode the specified 'datum' as a JSON array representation, and output
-    // it to the specified 'formatter'.  Update '*strictTypesCheckStatus' to
-    // the appropriate positve integer value if any types or singular double
-    // values that aren't fully supported are found, allowing further encoding
-    // to proceed.  '*strictTypesCheckStatus' remains unchanged if no
-    // unsupported types or values are encountered.  Optionally specify the
-    // 'name' to be used for this array.  Return 0 on success, and a negative
-    // value if 'datum' cannot be encoded, which should stop further encoding.
 {
     if (name) {
         formatter->addMemberName(*name);
@@ -331,18 +332,18 @@ int encodeArray(baljsn::SimpleFormatter    *formatter,
     return result;
 }
 
+/// Encode the specified `datum` as a JSON object representation, and output
+/// it to the specified `formatter`.  Update `*strictTypesCheckStatus` to
+/// the appropriate positve integer value if any types or singular double
+/// values that aren't fully supported are found, allowing further encoding
+/// to proceed.  `*strictTypesCheckStatus` remains unchanged if no
+/// unsupported types or values are encountered.Optionally specify the
+/// `name` to be used for this object.  Return 0 on success, and a negative
+/// value if `datum` cannot be encoded, which should stop further encoding.
 int encodeObject(baljsn::SimpleFormatter  *formatter,
                  const bdld::DatumMapRef&  datum,
                  int                      *strictTypesCheckStatus,
                  bsl::string_view         *name = 0)
-    // Encode the specified 'datum' as a JSON object representation, and output
-    // it to the specified 'formatter'.  Update '*strictTypesCheckStatus' to
-    // the appropriate positve integer value if any types or singular double
-    // values that aren't fully supported are found, allowing further encoding
-    // to proceed.  '*strictTypesCheckStatus' remains unchanged if no
-    // unsupported types or values are encountered.Optionally specify the
-    // 'name' to be used for this object.  Return 0 on success, and a negative
-    // value if 'datum' cannot be encoded, which should stop further encoding.
 {
     if (name) {
         formatter->addMemberName(*name);

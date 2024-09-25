@@ -834,15 +834,15 @@ const int NUM_BAD_ZONE_DATA =
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Return, by reference, the specified `*object` with its value adjusted
+/// according to the specified `omitColonInZoneDesignatorFlag`,
+/// `useCommaForDecimalSignFlag`, and `useZAbbreviationForUtcFlag`.
 static
 Config& gg(Config *object,
            int     fractionalSecondPrecision,
            bool    omitColonInZoneDesignatorFlag,
            bool    useCommaForDecimalSignFlag,
            bool    useZAbbreviationForUtcFlag)
-    // Return, by reference, the specified '*object' with its value adjusted
-    // according to the specified 'omitColonInZoneDesignatorFlag',
-    // 'useCommaForDecimalSignFlag', and 'useZAbbreviationForUtcFlag'.
 {
     if (fractionalSecondPrecision > 6) {
         fractionalSecondPrecision = 6;
@@ -856,14 +856,14 @@ Config& gg(Config *object,
     return *object;
 }
 
+/// Update the specified `expected` ISO 8601 string as if it were generated
+/// using the specified `configuration`.  The behavior is undefined unless
+/// the zone designator within `expected` (if any) is of the form
+/// "(+|-)dd:dd".
 static
 void updateExpectedPerConfig(bsl::string   *expected,
                              const Config&  configuration,
                              int            maxPrecision)
-    // Update the specified 'expected' ISO 8601 string as if it were generated
-    // using the specified 'configuration'.  The behavior is undefined unless
-    // the zone designator within 'expected' (if any) is of the form
-    // "(+|-)dd:dd".
 {
     ASSERT(expected);
 
@@ -941,10 +941,10 @@ void updateExpectedPerConfig(bsl::string   *expected,
     }
 }
 
+/// Return `true` if the specified `string` contains nothing but digits, and
+/// `false` otherwise.
 static
 bool containsOnlyDigits(const char *string)
-    // Return 'true' if the specified 'string' contains nothing but digits, and
-    // 'false' otherwise.
 {
     while (*string) {
         if (!bdlb::CharType::isDigit(*string)) {
@@ -958,10 +958,11 @@ bool containsOnlyDigits(const char *string)
 }
 
 //@bdetdsplit FOR 11, 17 BEGIN
+
+/// Return copy of the specified string with all `T` & `t` characters
+/// replaced with a SPACE character.
 static
 bsl::string replaceTWithSpace(const char *buffer, ptrdiff_t length)
-    // Return copy of the specified string with all 'T' & 't' characters
-    // replaced with a SPACE character.
 {
     bsl::string s(buffer, length);
     for (bsl::string::iterator it = s.begin(); it != s.end(); ++it) {

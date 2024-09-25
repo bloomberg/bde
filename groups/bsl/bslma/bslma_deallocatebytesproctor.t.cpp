@@ -16,8 +16,8 @@
 #include <bsls_nullptr.h>
 #include <bsls_objectbuffer.h>
 
-#include <cstdio>      // 'printf'
-#include <cstdlib>     // 'atoi'
+#include <cstdio>      // `printf`
+#include <cstdlib>     // `atoi`
 
 using namespace BloombergLP;
 
@@ -27,11 +27,11 @@ using namespace BloombergLP;
 //                                  Overview
 //                                  --------
 // We are testing a proctor object to ensure that it dealloctes memory for the
-// managed objects if 'release' is not called before the proctor object goes
+// managed objects if `release` is not called before the proctor object goes
 // out of scope.  We achieve this goal by using a test allocator that tracks
 // allocations and deallocations.  After the proctor is destroyed, we verify
 // that any memory blocks allocated for the object are deallocated.  The
-// proctor is instantiated with 'bsl::allocator', 'bslma::TestAllocator *', and
+// proctor is instantiated with `bsl::allocator`, `bslma::TestAllocator *`, and
 // a custom pool class pointer to test that it correctly calls the correct
 // interface for the memory supplier.
 //-----------------------------------------------------------------------------
@@ -43,8 +43,8 @@ using namespace BloombergLP;
 // [5] void reset(void *ptr, std::size_t n, std::size_t alignment);
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
-// [2] Helper Class: 'my_Pool'
-// [2] Helper Class: 'EnhancedTestAllocator'
+// [2] Helper Class: `my_Pool`
+// [2] Helper Class: `EnhancedTestAllocator`
 // [7] USAGE EXAMPLES
 //=============================================================================
 
@@ -100,7 +100,7 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bslma::AllocatorUtil  AllocUtil;
 typedef bslmf::MovableRefUtil MoveUtil;
 
-// Test allocations with these values of 'n':
+// Test allocations with these values of `n`:
 const std::size_t k_SIZES[]   = { 1, 2, 3, 4, 8, 12, 32, 63, 64 };
 const std::size_t k_NUM_SIZES = sizeof(k_SIZES) / sizeof(k_SIZES[0]);
 
@@ -108,10 +108,10 @@ const std::size_t k_NUM_SIZES = sizeof(k_SIZES) / sizeof(k_SIZES[0]);
 //                          HELPER CLASS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// A version of `bslma::TestAllocator` that records the size and alignment
+/// of the last four allocations and matches them against their
+/// correpsonding deallocations.
 class EnhancedTestAllocator : public bslma::TestAllocator {
-    // A version of 'bslma::TestAllocator' that records the size and alignment
-    // of the last four allocations and matches them against their
-    // correpsonding deallocations.
 
     enum { k_NUM_CACHE_SLOTS = 4 };
 
@@ -194,10 +194,10 @@ void EnhancedTestAllocator::do_deallocate(void        *p,
 template <class TYPE>
 class FancyPointer;
 
+/// Void pointer specialization
 template <>
 class FancyPointer<void>
 {
-    // Void pointer specialization
 
     // DATA
     void *m_pointer;
@@ -215,10 +215,10 @@ class FancyPointer<void>
     bool operator!() const { return 0 == m_pointer; }
 };
 
+/// A pointer-like class for testing allocators with non-raw pointers.
 template <class TYPE>
 class FancyPointer
 {
-    // A pointer-like class for testing allocators with non-raw pointers.
 
     // DATA
     TYPE *m_pointer;
@@ -250,10 +250,10 @@ inline bool operator!=(FancyPointer<TYPE> a, FancyPointer<TYPE> b)
     return a.get() != b.get();
 }
 
+/// Allocator with non-raw pointer type
 template <class TYPE>
 class FancyAllocator
 {
-    // Allocator with non-raw pointer type
 
     // DATA
     bsl::memory_resource *m_resource;
@@ -312,24 +312,26 @@ bool operator!=(const FancyAllocator<T1>& a, const FancyAllocator<T2>& b)
     return *a.resource() != *b.resource();
 }
 
+/// This class provides a `deallocate` method, used to exercise the contract
+/// promised by the destructor of the `bslma::DeallocateBytesProctor`.
+/// This object indicates that its `deallocate` method is called by
+/// incrementing the global counter (supplied at construction) that it
+/// *holds*.
 class my_Pool {
-    // This class provides a 'deallocate' method, used to exercise the contract
-    // promised by the destructor of the 'bslma::DeallocateBytesProctor'.
-    // This object indicates that its 'deallocate' method is called by
-    // incrementing the global counter (supplied at construction) that it
-    // *holds*.
 
     // DATA
-    int *d_counter_p;  // (non-owned) counter incremented on 'deallocate'
+    int *d_counter_p;  // (non-owned) counter incremented on `deallocate`
 
   public:
     // CREATORS
+
+    /// Create this object holding the specified (global) counter.
     explicit my_Pool(int *counter) : d_counter_p(counter) {}
-        // Create this object holding the specified (global) counter.
 
     // MANIPULATORS
+
+    /// Increment this object's counter.
     void deallocate(void *) { ++*d_counter_p; }
-        // Increment this object's counter.
 };
 
 //=============================================================================
@@ -340,16 +342,16 @@ class my_Pool {
 
 //Example 1: Class having an owning pointer
 //- - - - - - - - - - - - - - - - - - - - -
-// In this example, we create a class, 'my_Manager', having an owning pointer
-// to an object of another class, 'my_Data'.  Because it owns the 'my_Data'
-// object, 'my_Manager' is responsible for allocating, constructing,
+// In this example, we create a class, `my_Manager`, having an owning pointer
+// to an object of another class, `my_Data`.  Because it owns the `my_Data`
+// object, `my_Manager` is responsible for allocating, constructing,
 // deallocating, and destroying it.
 //
-// First, we define the 'my_Data' class, which holds an integer value and
+// First, we define the `my_Data` class, which holds an integer value and
 // counts how many times its constructor and destructor have been called. Its
 // constructor will throw an exception if its integer argument equals the
 // number of constructor calls before construction:
-//..
+// ```
 //  #include <bslma_allocatorutil.h>
 //  #include <bslma_bslallocator.h>
 //  #include <bslma_testallocator.h>
@@ -380,10 +382,10 @@ class my_Pool {
 
     int my_Data::s_numConstructed = 0;
     int my_Data::s_numDestroyed   = 0;
-//..
-// Next, we define 'my_Manager' as an allocator-aware class holding a pointer
-// to 'my_Data' and maintaining its own count of constructor invocations:
-//..
+// ```
+// Next, we define `my_Manager` as an allocator-aware class holding a pointer
+// to `my_Data` and maintaining its own count of constructor invocations:
+// ```
     class my_Manager {
 
         // DATA
@@ -410,48 +412,48 @@ class my_Pool {
     };
 
     int my_Manager::s_numConstructed = 0;
-//..
-// Next, we define the constructor for 'my_Manager', which begins by allocating
-// a 'my_Data' object:
-//..
+// ```
+// Next, we define the constructor for `my_Manager`, which begins by allocating
+// a `my_Data` object:
+// ```
     my_Manager::my_Manager(int v, const allocator_type& allocator)
         : d_allocator(allocator), d_data_p(0)
     {
         d_data_p = static_cast<my_Data*>(
             bslma::AllocatorUtil::allocateBytes(allocator, sizeof(my_Data)));
-//..
-// Then, the 'my_Manager' constructor constructs the 'my_Data' object in the
+// ```
+// Then, the `my_Manager` constructor constructs the `my_Data` object in the
 // allocated memory.  However, as the constructor might throw, it first
-// protects the data object with a 'bslma::DeallocateBytesProctor':
-//..
+// protects the data object with a `bslma::DeallocateBytesProctor`:
+// ```
         bslma::DeallocateBytesProctor<allocator_type>
                                proctor(d_allocator, d_data_p, sizeof(my_Data));
         bslma::ConstructionUtil::construct(d_data_p, d_allocator, v);
-//..
-// Then, once the 'construct' operation completes successfully, we can release
+// ```
+// Then, once the `construct` operation completes successfully, we can release
 // the data object from the proctor.  Only then do we increment the
 // construction count, as the constructor is now complete:
-//..
+// ```
         proctor.release();
         ++s_numConstructed;
     }
-//..
-// Next, we define the 'my_Manager' destructor, which destroys and deallocates
-// its data object.  Note that the arguments to 'deallocateBytes' is identical
-// to the constructor arguments to the 'DeallocateBytesProctor', above:
-//..
+// ```
+// Next, we define the `my_Manager` destructor, which destroys and deallocates
+// its data object.  Note that the arguments to `deallocateBytes` is identical
+// to the constructor arguments to the `DeallocateBytesProctor`, above:
+// ```
     my_Manager::~my_Manager()
     {
         d_data_p->~my_Data();
         bslma::AllocatorUtil::deallocateBytes(d_allocator, d_data_p,
                                               sizeof(my_Data));
     }
-//..
-// Now, we use a 'bslma::TestAllocator' to verify that, under normal (non
-// exceptional) circumstances, constructing a 'my_Manager' object will result
-// in one block of memory being allocated and one invocation of the 'my_Data'
+// ```
+// Now, we use a `bslma::TestAllocator` to verify that, under normal (non
+// exceptional) circumstances, constructing a `my_Manager` object will result
+// in one block of memory being allocated and one invocation of the `my_Data`
 // constructor:
-//..
+// ```
     void usageExample1()
     {
         bslma::TestAllocator ta;
@@ -465,11 +467,11 @@ class my_Pool {
         ASSERT(0 == ta.numBlocksInUse());
         ASSERT(1 == ta.numBlocksTotal());
         ASSERT(1 == my_Manager::numConstructed());
-//..
-// Finally, when the 'my_Data' constructor does throw, a block is allocated but
-// we verify that the 'my_Manager' constructor did not complete and that the
+// ```
+// Finally, when the `my_Data` constructor does throw, a block is allocated but
+// we verify that the `my_Manager` constructor did not complete and that the
 // block is automatically deallocated, resulting in no leaks:
-//..
+// ```
         try {
             my_Manager obj2(1, &ta);  // Will throw an exception
             ASSERT(false && "Can't get here");
@@ -482,7 +484,7 @@ class my_Pool {
         }
         ASSERT(1 == my_Manager::numConstructed());
     }
-//..
+// ```
 #endif // defined(BDE_BUILD_TARGET_EXC)
 
 //=============================================================================
@@ -508,12 +510,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLES
         //
         // Concerns:
-        //: 1 That the usage examples shown in the component-level
-        //:   documentation compile and run as described.
+        // 1. That the usage examples shown in the component-level
+        //    documentation compile and run as described.
         //
         // Plan:
-        //: 1 Copy the usage examples from the component header, changing
-        //    'assert' to 'ASSERT' and execute them.
+        // 1. Copy the usage examples from the component header, changing
+        //    `assert` to `ASSERT` and execute them.
         //
         // Testing:
         //     USAGE EXAMPLES
@@ -533,34 +535,34 @@ int main(int argc, char *argv[])
         // MOVE CONSTRUCTOR TEST
         //
         // Concerns:
-        //: 1 Move-constructing one 'bslma::DeallocateBytesProctor' from
-        //:   another results in the new proctor engaging the same object with
-        //:   the same allocator as the original.
-        //: 2 After the move, the original object is disengaged, but retains
-        //:   its allocator.
-        //: 3 Move-constructing a disengaged proctor yields a second disengaged
-        //:   proctor using the same allocator.
-        //: 4 The above concerns apply for all allocator/pool categories
-        //:   supported by this component.
+        // 1. Move-constructing one `bslma::DeallocateBytesProctor` from
+        //    another results in the new proctor engaging the same object with
+        //    the same allocator as the original.
+        // 2. After the move, the original object is disengaged, but retains
+        //    its allocator.
+        // 3. Move-constructing a disengaged proctor yields a second disengaged
+        //    proctor using the same allocator.
+        // 4. The above concerns apply for all allocator/pool categories
+        //    supported by this component.
         //
         // Plan:
-        //: 1 Construct a 'bslma::DeallocateBytesProctor' managing a class
-        //:   object.  Copy-construct a second
-        //:   'bslma::DeallocateBytesProctor'.  Verify that 'ptr()' returns
-        //:   the original class object and that no deallocations occured.
-        //:   Verify that when the second proctor goes out of scope, the
-        //:   original object is deallocated.  (C-1)
-        //: 2 Verify that the original (first) proctor from step 1 is
-        //:   disengaged ('ptr()' returns null).  Reset it to manage a new
-        //:   object.  When the first proctor goes out of scope, verify that it
-        //:   deallocates the new object.  (C-2)
-        //: 3 Create a third, disengaged 'bslma::DeallocateBytesProctor', then
-        //:   move-construct it, creating a fourth proctor.  Verify that the
-        //:   third and fourth proctors are both disengaged.  Reset the fourth
-        //:   proctor to manage a new object.  When the fourth proctor goes out
-        //:   of scope, verify that it deallocates the new object.  (C-3)
-        //: 4 Repeat the preceding steps using 'bsl::allocator',
-        //:   'bslma::Allocator *', and 'my_Pool *' for the allocator type.
+        // 1. Construct a `bslma::DeallocateBytesProctor` managing a class
+        //    object.  Copy-construct a second
+        //    `bslma::DeallocateBytesProctor`.  Verify that `ptr()` returns
+        //    the original class object and that no deallocations occured.
+        //    Verify that when the second proctor goes out of scope, the
+        //    original object is deallocated.  (C-1)
+        // 2. Verify that the original (first) proctor from step 1 is
+        //    disengaged (`ptr()` returns null).  Reset it to manage a new
+        //    object.  When the first proctor goes out of scope, verify that it
+        //    deallocates the new object.  (C-2)
+        // 3. Create a third, disengaged `bslma::DeallocateBytesProctor`, then
+        //    move-construct it, creating a fourth proctor.  Verify that the
+        //    third and fourth proctors are both disengaged.  Reset the fourth
+        //    proctor to manage a new object.  When the fourth proctor goes out
+        //    of scope, verify that it deallocates the new object.  (C-3)
+        // 4. Repeat the preceding steps using `bsl::allocator`,
+        //    `bslma::Allocator *`, and `my_Pool *` for the allocator type.
         //
         // Testing:
         //     DeallocateBytesProctor(DeallocateBytesProctor&& original);
@@ -682,28 +684,28 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // 'reset' TEST
+        // `reset` TEST
         //
         // Concerns:
-        //: 1 When the 'reset' method is called, the proctor object properly
-        //:   manages a different block of memory.
-        //: 2 The 'reset' method does not deallocate the previously managed
-        //:   block of memory.
+        // 1. When the `reset` method is called, the proctor object properly
+        //    manages a different block of memory.
+        // 2. The `reset` method does not deallocate the previously managed
+        //    block of memory.
         //
         // Plan:
-        //: 1 Allocate two blocks of memory from a test allocator, the
-        //:   first being 1-byte in size and the second being 2-bytes in size.
-        //:   Initialize a 'bslma::DeallocateBytesProctor' object with the
-        //:   first block.
-        //: 2 Call 'reset' on the proctor before it goes out of scope, passing
-        //:   it the second block of memory.  Verify that the 'ptr' method
-        //:   returns the second pointer and that no memory was deallocated.
-        //:   (C-1, C-2)
-        //: 3 Once the proctor goes out of scope, verify that two bytes were
-        //:   deallocated.  Deallocate the first block and verify that the test
-        //:   allocator did not complain of a double deletion, thereby
-        //:   verifying that the proctor deallocated the second block, as
-        //:   expected, and did not touch the first block.  (C-1)
+        // 1. Allocate two blocks of memory from a test allocator, the
+        //    first being 1-byte in size and the second being 2-bytes in size.
+        //    Initialize a `bslma::DeallocateBytesProctor` object with the
+        //    first block.
+        // 2. Call `reset` on the proctor before it goes out of scope, passing
+        //    it the second block of memory.  Verify that the `ptr` method
+        //    returns the second pointer and that no memory was deallocated.
+        //    (C-1, C-2)
+        // 3. Once the proctor goes out of scope, verify that two bytes were
+        //    deallocated.  Deallocate the first block and verify that the test
+        //    allocator did not complain of a double deletion, thereby
+        //    verifying that the proctor deallocated the second block, as
+        //    expected, and did not touch the first block.  (C-1)
         //
         // Testing:
         //   void reset(void *ptr, std::size_t n, std::size_t alignment);
@@ -741,32 +743,32 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // 'release' TEST
+        // `release` TEST
         //
         // Concerns:
-        //: 1 Calling 'release' on a proctor returns a pointer to the managed
-        //:   object.
-        //: 2 After calling 'release', 'ptr()' returns a null pointer.
-        //:   'release' is idempotent; calling 'release' on a proctor that has
-        //:   already been released returns a null pointer.
-        //: 3 Calling 'release' on a proctor does not deallocate the managed
-        //:   object.
-        //: 4 After calling 'release' on a proctor, its destructor becomes a
-        //:   no-op - no objects are deallocated.
+        // 1. Calling `release` on a proctor returns a pointer to the managed
+        //    object.
+        // 2. After calling `release`, `ptr()` returns a null pointer.
+        //    `release` is idempotent; calling `release` on a proctor that has
+        //    already been released returns a null pointer.
+        // 3. Calling `release` on a proctor does not deallocate the managed
+        //    object.
+        // 4. After calling `release` on a proctor, its destructor becomes a
+        //    no-op - no objects are deallocated.
         //
         // Plan:
-        //: 1 Allocate a block of memory using 'bslma::TestAllocator'.  Next,
-        //:   initialize a 'bslma::DeallocateBytesProctor' object with the test
-        //:   allocator and corresponding block pointer.
-        //: 2 Call 'release' on the proctor before it goes out of scope.
-        //:   Verify that the return value is the pointer that was used on
-        //:   construction.  Verify that 'ptr()' returns null.  Verify that the
-        //:   memory allocated from the test allocator was not deallocated.
-        //:   (C-1, C-2)
-        //: 3 Call 'release' on the proctor again.  Verify that the return
-        //:   value is null.  (C-3)
-        //: 4 Allow the proctor to go out of scope.  Verify that the memory
-        //:   allocated by the test allocator is not deallocated.  (C-4)
+        // 1. Allocate a block of memory using `bslma::TestAllocator`.  Next,
+        //    initialize a `bslma::DeallocateBytesProctor` object with the test
+        //    allocator and corresponding block pointer.
+        // 2. Call `release` on the proctor before it goes out of scope.
+        //    Verify that the return value is the pointer that was used on
+        //    construction.  Verify that `ptr()` returns null.  Verify that the
+        //    memory allocated from the test allocator was not deallocated.
+        //    (C-1, C-2)
+        // 3. Call `release` on the proctor again.  Verify that the return
+        //    value is null.  (C-3)
+        // 4. Allow the proctor to go out of scope.  Verify that the memory
+        //    allocated by the test allocator is not deallocated.  (C-4)
         //
         // Testing:
         //   void *release();
@@ -778,7 +780,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator        z(veryVeryVeryVerbose);
         const bslma::TestAllocator& Z = z;
 
-        if (veryVerbose) std::printf("Test with 'bslma::Allocator *'\n");
+        if (veryVerbose) std::printf("Test with `bslma::Allocator *`\n");
         {
             void *pC;
             {
@@ -806,7 +808,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == Z.numBytesInUse());
         }
 
-        if (veryVerbose) std::printf("Test with 'FancyAllocator'\n");
+        if (veryVerbose) std::printf("Test with `FancyAllocator`\n");
         {
             FancyAllocator<int> alloc(&z);
             FancyPointer<void>  pC;
@@ -841,45 +843,45 @@ int main(int argc, char *argv[])
         // CONSTRUCTOR / DESTRUCTOR TEST
         //
         // Concerns:
-        //: 1 The proctor constructor takes, as arguments, an allocator or
-        //:   pool, a pointer to an allocated block of memory, the size of the
-        //:   block in bytes, and an optional alignment.  The 'ptr()' accessor
-        //:   returns the memory pointer passed to the constructor.
-        //: 2 On destruction, the managed object is deallocated.  The number
-        //:   of bytes returned to the allocator matches the number provided
-        //:   on construction and the alignment passed to the deallocate
-        //:   function matches the alignment provided at construction.
-        //: 3 The above concerns apply to a variety of allocator-like types.
-        //:   If the allocator is an STL-style allocator, the destructor will
-        //:   call 'a.deallocate(p, n)', where 'a' is the allocator rebound to
-        //:   a type having the proper alignment, 'p' is a pointer-like object
-        //:   appropriate to the allocator type, and 'n' is a number computed
-        //:   so that the correct number of bytes are returned.  If the
-        //:   allocator 'a_p' is a pointer to a class derived from
-        //:   'bslma::Allocator' or a pointer to any class having a
-        //:   'deallocate(p)' member (e.g., a pool), then the destructor will
-        //:   call 'a_p->deallocate(p)'.
-        //: 4 If the object pointer is null, however, the destructor has no
-        //:   effect.
+        // 1. The proctor constructor takes, as arguments, an allocator or
+        //    pool, a pointer to an allocated block of memory, the size of the
+        //    block in bytes, and an optional alignment.  The `ptr()` accessor
+        //    returns the memory pointer passed to the constructor.
+        // 2. On destruction, the managed object is deallocated.  The number
+        //    of bytes returned to the allocator matches the number provided
+        //    on construction and the alignment passed to the deallocate
+        //    function matches the alignment provided at construction.
+        // 3. The above concerns apply to a variety of allocator-like types.
+        //    If the allocator is an STL-style allocator, the destructor will
+        //    call `a.deallocate(p, n)`, where `a` is the allocator rebound to
+        //    a type having the proper alignment, `p` is a pointer-like object
+        //    appropriate to the allocator type, and `n` is a number computed
+        //    so that the correct number of bytes are returned.  If the
+        //    allocator `a_p` is a pointer to a class derived from
+        //    `bslma::Allocator` or a pointer to any class having a
+        //    `deallocate(p)` member (e.g., a pool), then the destructor will
+        //    call `a_p->deallocate(p)`.
+        // 4. If the object pointer is null, however, the destructor has no
+        //    effect.
         //
         // Plan:
-        //: 1 Create an 'EnhancedTestAllocator' that matches the size and
-        //:   alignments of deallocations to the size and alignments of
-        //:   allocations.
-        //: 2 Create a 'bsl::allocator' object that gets memory from an
-        //:   'EnhancedTestAllocator'.  Allocate memory using that allocator.
-        //:   Create a proctor using that allocator and the allocated memory
-        //:   pointer.  (C-1)
-        //: 3 When the proctor is destroyed, verify that it deallocates the
-        //:   correct number of bytes, using the allocator's deallocation
-        //:   instrumentation.  (C-2)
-        //: 4 Repeat steps 1 and 2 with an 'EnhancedTestAllocator' pointer for
-        //:   the allocator.  Repeat steps 1 and 2 with a 'my_Pool' object
-        //:   except, since 'my_Pool' doesn't have an 'allocate' method, use
-        //:   the address of an 'int' on the stack, instead.  (C-3)
-        //: 5 Repeat step 2 for each allocator type, passing a null pointer as
-        //:   the second argument to the proctor constructor.  Verify that
-        //:   nothing is deallocated by that proctor.  (C-4)
+        // 1. Create an `EnhancedTestAllocator` that matches the size and
+        //    alignments of deallocations to the size and alignments of
+        //    allocations.
+        // 2. Create a `bsl::allocator` object that gets memory from an
+        //    `EnhancedTestAllocator`.  Allocate memory using that allocator.
+        //    Create a proctor using that allocator and the allocated memory
+        //    pointer.  (C-1)
+        // 3. When the proctor is destroyed, verify that it deallocates the
+        //    correct number of bytes, using the allocator's deallocation
+        //    instrumentation.  (C-2)
+        // 4. Repeat steps 1 and 2 with an `EnhancedTestAllocator` pointer for
+        //    the allocator.  Repeat steps 1 and 2 with a `my_Pool` object
+        //    except, since `my_Pool` doesn't have an `allocate` method, use
+        //    the address of an `int` on the stack, instead.  (C-3)
+        // 5. Repeat step 2 for each allocator type, passing a null pointer as
+        //    the second argument to the proctor constructor.  Verify that
+        //    nothing is deallocated by that proctor.  (C-4)
         //
         // Testing:
         //   DeallocateBytesProctor(const ALLOCATOR& a, size_t n, size_t align)
@@ -897,7 +899,7 @@ int main(int argc, char *argv[])
             bsl::allocator<>             alloc(&z);
 
             if (veryVerbose)
-                printf("\tWith various 'n' and 'alignment' values\n");
+                printf("\tWith various `n` and `alignment` values\n");
             for (std::size_t i = 0; i < k_NUM_SIZES; ++i) {
                 const std::size_t n     = k_SIZES[i];
                 const std::size_t align = 1U << (i % 3);
@@ -914,7 +916,7 @@ int main(int argc, char *argv[])
             }
             ASSERT(0 == Z.numBytesInUse());
 
-            if (veryVerbose) printf("\tWith null 'p'\n");
+            if (veryVerbose) printf("\tWith null `p`\n");
             {
                 bslma::DeallocateBytesProctor<bsl::allocator<> >
                                                             proctor(&z, 0, 99);
@@ -933,7 +935,7 @@ int main(int argc, char *argv[])
             FancyAllocator<int>          alloc(&z);
 
             if (veryVerbose)
-                printf("\tWith various 'n' and 'alignment' values\n");
+                printf("\tWith various `n` and `alignment` values\n");
             for (std::size_t i = 0; i < k_NUM_SIZES; ++i) {
                 const std::size_t n     = k_SIZES[i];
                 const std::size_t align = 1U << (i % 3);
@@ -953,7 +955,7 @@ int main(int argc, char *argv[])
             }
             ASSERT(0 == Z.numBytesInUse());
 
-            if (veryVerbose) printf("\tWith null 'p'\n");
+            if (veryVerbose) printf("\tWith null `p`\n");
             {
                 bslma::DeallocateBytesProctor<FancyAllocator<int> >
                                                 proctor(&z, bsl::nullptr_t(), 99);
@@ -971,7 +973,7 @@ int main(int argc, char *argv[])
             const EnhancedTestAllocator& Z       = z;
 
             if (veryVerbose)
-                printf("\tWith various 'n' and 'alignment' values\n");
+                printf("\tWith various `n` and `alignment` values\n");
             for (std::size_t i = 0; i < k_NUM_SIZES; ++i) {
                 const std::size_t n     = k_SIZES[i];
                 const std::size_t align = 1U << (i % 3);
@@ -987,7 +989,7 @@ int main(int argc, char *argv[])
             }
             ASSERT(0 == Z.numBytesInUse());
 
-            if (veryVerbose) printf("\tWith null 'p'\n");
+            if (veryVerbose) printf("\tWith null `p`\n");
             {
                 bslma::DeallocateBytesProctor<bslma::Allocator*>
                                                              proctor(&z, 0, 0);
@@ -1004,7 +1006,7 @@ int main(int argc, char *argv[])
             int     deallocCounter = 0;
             my_Pool pool(&deallocCounter);
 
-            if (veryVerbose) printf("\tWith 'n' set to 'sizeof(int)'\n");
+            if (veryVerbose) printf("\tWith `n` set to `sizeof(int)`\n");
             {
                 int   buf;
                 void *pC = &buf;
@@ -1019,7 +1021,7 @@ int main(int argc, char *argv[])
             }
             ASSERT(1 == deallocCounter);
 
-            if (veryVerbose) printf("\tWith null 'p'\n");
+            if (veryVerbose) printf("\tWith null `p`\n");
             {
                 bslma::DeallocateBytesProctor<my_Pool*> proctor(&pool, 0,
                                                                 sizeof(int));
@@ -1036,30 +1038,30 @@ int main(int argc, char *argv[])
         // HELPER CLASS TEST
         //
         // Concerns:
-        //: 1 The helper class 'my_Pool' properly increments its counter when
-        //:   its 'deallocate' method is called.
-        //: 2 The 'EnhancedTestAllocator' correctly tracks allocations and
-        //:   dealllocations of different sizes and capacities.
+        // 1. The helper class `my_Pool` properly increments its counter when
+        //    its `deallocate` method is called.
+        // 2. The `EnhancedTestAllocator` correctly tracks allocations and
+        //    dealllocations of different sizes and capacities.
         //
         // Plan:
-        //: 1 Create a 'my_Pool' object, passing to the constructor the address
-        //:   of a counter.  Invoke the 'deallocate' method several times and
-        //:   verify that the counter is incremented each time.  (C-1)
-        //: 2 Create an 'EnahcnedTestAllocator' and use its address to
-        //:   initialize a 'bsl::allocator<int>'.  Verify that matching
-        //:   allocations and deallocations cancel out.  (C-2)
+        // 1. Create a `my_Pool` object, passing to the constructor the address
+        //    of a counter.  Invoke the `deallocate` method several times and
+        //    verify that the counter is incremented each time.  (C-1)
+        // 2. Create an `EnahcnedTestAllocator` and use its address to
+        //    initialize a `bsl::allocator<int>`.  Verify that matching
+        //    allocations and deallocations cancel out.  (C-2)
         //
         // Testing:
-        //   Helper Class: 'my_Pool'
-        //   Helper Class: 'EnhancedTestAllocator'
+        //   Helper Class: `my_Pool`
+        //   Helper Class: `EnhancedTestAllocator`
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nHELPER CLASS TEST"
                             "\n=================\n");
 
-        if (veryVerbose) printf("\nTesting 'my_Pool'.\n");
+        if (veryVerbose) printf("\nTesting `my_Pool`.\n");
 
-        if (veryVerbose) printf("\tTesting default ctor and 'deallocate'.\n");
+        if (veryVerbose) printf("\tTesting default ctor and `deallocate`.\n");
 
         {
             int counter = 0;
@@ -1074,7 +1076,7 @@ int main(int argc, char *argv[])
             ASSERT(NUM_TEST == counter);
         }
 
-        if (veryVerbose) printf("\nTesting 'EnhancedTestAllocator'.\n");
+        if (veryVerbose) printf("\nTesting `EnhancedTestAllocator`.\n");
         {
             EnhancedTestAllocator eta;
             bsl::allocator<int>   alloc(&eta);
@@ -1102,11 +1104,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Execute each method to verify functionality for simple cases.
+        // 1. Execute each method to verify functionality for simple cases.
         //
         // Testing:
         //      BREATHING TEST

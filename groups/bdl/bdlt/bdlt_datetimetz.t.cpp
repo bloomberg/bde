@@ -27,8 +27,8 @@
 #include <bslx_testoutstream.h>
 #include <bslx_versionfunctions.h>
 
-#include <bsl_cstdlib.h>     // 'atoi'
-#include <bsl_cstring.h>     // 'strcmp'
+#include <bsl_cstdlib.h>     // `atoi`
+#include <bsl_cstring.h>     // `strcmp`
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -42,20 +42,20 @@ using namespace bsl;
 //                                   Overview
 //                                   --------
 // The component under test implements a single value-semantic class,
-// 'bdlt::DatetimeTz', that represents a datetime value with a local time
+// `bdlt::DatetimeTz`, that represents a datetime value with a local time
 // offset.
 //
 // Primary Manipulators:
-//: o VALUE CONSTRUCTOR
+//  - VALUE CONSTRUCTOR
 //
 // Basic Accessors:
-//: o 'localDatetime'
-//: o 'offset'
+//  - `localDatetime`
+//  - `offset`
 //
 // This particular class provides a value constructor capable of creating an
 // object in any state relevant for thorough testing.  The value constructor
 // serves as our primary manipulator and also obviates the primitive generator
-// function, 'gg', normally used for this purpose.
+// function, `gg`, normally used for this purpose.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
 // [12] static bool isValid(const Datetime& localDatetime, int offset);
@@ -96,7 +96,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [16] USAGE EXAMPLE
-// [ 8] Reserved for 'swap' testing.
+// [ 8] Reserved for `swap` testing.
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -169,20 +169,21 @@ typedef bslx::TestOutStream Out;
 // Let us suppose that we are implementing a delivery estimation system for a
 // shipping company.  The system provides estimated delivery dates and times of
 // client shipments.  This information is provided in the local time zone and
-// is represented as a 'bdlt::DatetimeTz' object.  Below is the definition for
+// is represented as a `bdlt::DatetimeTz` object.  Below is the definition for
 // a struct that returns the estimated delivery date.
-//..
+// ```
                          // =====================
                          // struct DeliverySystem
                          // =====================
 
+    /// This struct provides a function that returns the estimated delivery
+    /// date and time for a particular shipment.
     struct DeliverySystem {
-        // This struct provides a function that returns the estimated delivery
-        // date and time for a particular shipment.
 
         // PRIVATE CLASS METHODS
+
+        /// Return the current UTC date and time.
         static bdlt::Datetime getCurrentUTCDatetime();
-            // Return the current UTC date and time.
 
       public:
         // TYPES
@@ -197,14 +198,15 @@ typedef bslx::TestOutStream Out;
         };
 
         // CLASS METHODS
+
+        /// Return the estimated delivery date and time, in local time, for
+        /// a shipment being sent to the specified `city`.
         static bdlt::DatetimeTz getEstimatedDeliveryDatetime(City city);
-            // Return the estimated delivery date and time, in local time, for
-            // a shipment being sent to the specified 'city'.
     };
-//..
+// ```
 // All the relevant data used for delivery estimation is stored in a lookup
 // table as shown below:
-//..
+// ```
     const int k_MINUTES_PER_HOUR = 60;
 
     static const struct {
@@ -219,9 +221,9 @@ typedef bslx::TestOutStream Out;
      {          k_MINUTES_PER_HOUR, 36 * k_MINUTES_PER_HOUR  },  // London
      {     -8 * k_MINUTES_PER_HOUR, 24 * k_MINUTES_PER_HOUR  },  // Los Angeles
     };
-//..
+// ```
 // And here are the function definitions:
-//..
+// ```
                          // ---------------------
                          // struct DeliverySystem
                          // ---------------------
@@ -241,7 +243,7 @@ typedef bslx::TestOutStream Out;
                                + DATA[city].d_deliveryTime);
         return bdlt::DatetimeTz(localDatetime, DATA[city].d_offset);
     }
-//..
+// ```
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -257,7 +259,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -277,13 +279,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -297,22 +299,22 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic 'bdlt::DatetimeTz' Usage
+///Example 1: Basic `bdlt::DatetimeTz` Usage
 ///- - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to create and use a 'bdlt::DatetimeTz' object.
+// This example demonstrates how to create and use a `bdlt::DatetimeTz` object.
 //
-// First, create an object 'dt1' having the default value, and then verify that
+// First, create an object `dt1` having the default value, and then verify that
 // it contains an offset of 0, implying that the object represents a date and
 // time in the UTC time zone, and the value of the datetime is the same as that
-// of a default constructed 'bdlt::Datetime' object:
-//..
+// of a default constructed `bdlt::Datetime` object:
+// ```
     bdlt::DatetimeTz dt1;
     ASSERT(0                == dt1.offset());
     ASSERT(bdlt::Datetime() == dt1.localDatetime());
-//..
-// Then, set 'dt1' to the value 12:00 noon (12:00:00.000) on 12/31/2005 in the
+// ```
+// Then, set `dt1` to the value 12:00 noon (12:00:00.000) on 12/31/2005 in the
 // EST time zone (UTC-5):
-//..
+// ```
     bdlt::Datetime datetime1(2005, 12, 31, 12, 0, 0, 0);
     bdlt::Datetime datetime2(datetime1);
     int            offset1 = -5 * 60;
@@ -325,17 +327,17 @@ int main(int argc, char *argv[])
 
     datetime2.addMinutes(-offset1);
     ASSERT(datetime2 == dt1.utcDatetime());
-//..
-// Next, create 'dt2' as a copy of 'dt1':
-//..
+// ```
+// Next, create `dt2` as a copy of `dt1`:
+// ```
     bdlt::DatetimeTz dt2(dt1);
     ASSERT(offset1   == dt2.offset());
     ASSERT(datetime1 == dt2.localDatetime());
     ASSERT(datetime2 == dt2.utcDatetime());
-//..
-// Now, create a third object, 'dt3', representing the time 10:33:25.000 on
+// ```
+// Now, create a third object, `dt3`, representing the time 10:33:25.000 on
 // 01/01/2001 in the PST time zone (UTC-8):
-//..
+// ```
     bdlt::Datetime datetime3(2001, 1, 1, 10, 33, 25, 0);
     bdlt::Datetime datetime4(datetime3);
     int            offset2 = -8 * 60;
@@ -348,24 +350,24 @@ int main(int argc, char *argv[])
 
     datetime4.addMinutes(-offset2);
     ASSERT(datetime4 == dt3.utcDatetime());
-//..
-// Finally, stream the values of 'dt1', 'dt2', and 'dt3' to 'stdout':
-//..
+// ```
+// Finally, stream the values of `dt1`, `dt2`, and `dt3` to `stdout`:
+// ```
 if (verbose)
     bsl::cout << dt1 << bsl::endl
               << dt2 << bsl::endl
               << dt3 << bsl::endl;
-//..
-// The streaming operator produces the following output on 'stdout':
-//..
+// ```
+// The streaming operator produces the following output on `stdout`:
+// ```
 //  31DEC2005_12:00:00.000-0500
 //  31DEC2005_12:00:00.000-0500
 //  01JAN2001_10:33:25.000-0800
-//..
+// ```
 ///Example 2: Delivery Estimation System
 ///- - - - - - - - - - - - - - - - - - -
 // When we print out the delivery times:
-//..
+// ```
 if (verbose) {
     bsl::cout << "Estimated Delivery Time in Chicago:     "
               << DeliverySystem::getEstimatedDeliveryDatetime(
@@ -388,35 +390,35 @@ if (verbose) {
                                                  DeliverySystem::e_LOS_ANGELES)
               << bsl::endl;
 }
-//..
+// ```
 // We get the following results:
-//..
+// ```
 //  Estimated Delivery Time in Chicago:     17OCT2014_18:48:56.000-0600
 //  Estimated Delivery Time in Dubai:       20OCT2014_17:48:56.000+0300
 //  Estimated Delivery Time in New York:    17OCT2014_10:48:56.000-0500
 //  Estimated Delivery Time in London:      19OCT2014_03:48:56.000+0100
 //  Estimated Delivery Time in Los Angeles: 18OCT2014_06:48:56.000-0800
-//..
+// ```
       } break;
       case 15: {
         // --------------------------------------------------------------------
         // TESTING: hashAppend
         //
         // Concerns:
-        //: 1 Hope that different inputs hash differently
-        //: 2 Verify that equal inputs hash identically
-        //: 3 Works for 'const' and non-'const' values
+        // 1. Hope that different inputs hash differently
+        // 2. Verify that equal inputs hash identically
+        // 3. Works for `const` and non-`const` values
         //
         // Plan:
-        //: 1 Use a table specifying a set of distinct objects, verify that
-        //:   hashes of equivalent objects match and hashes on unequal objects
-        //:   do not.
+        // 1. Use a table specifying a set of distinct objects, verify that
+        //    hashes of equivalent objects match and hashes on unequal objects
+        //    do not.
         //
         // Testing:
         //    void hashAppend(HASHALG&, const DatetimeTz&);
         // --------------------------------------------------------------------
         if (verbose)
-            cout << "\nTESTING 'hashAppend'"
+            cout << "\nTESTING `hashAppend`"
                  << "\n====================\n";
 
         typedef ::BloombergLP::bslh::Hash<> Hasher;
@@ -525,16 +527,16 @@ if (verbose) {
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING 'dateTz' AND 'timeTz' METHODS
+        // TESTING `dateTz` AND `timeTz` METHODS
         //
         // Concerns:
-        //: 1 'dateTz' and 'timeTz' produce the correct values.
+        // 1. `dateTz` and `timeTz` produce the correct values.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of datetimes and
-        //:   their associated offsets.  Verify the methods produce the
-        //:   expected values by comparing the returned value to ones directly
-        //:   constructed.  (C-1)
+        // 1. Using the table-driven technique, specify a set of datetimes and
+        //    their associated offsets.  Verify the methods produce the
+        //    expected values by comparing the returned value to ones directly
+        //    constructed.  (C-1)
         //
         // Testing:
         //   DateTz dateTz() const;
@@ -542,10 +544,10 @@ if (verbose) {
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'dateTz' AND 'timeTz' METHODS" << endl
+                          << "TESTING `dateTz` AND `timeTz` METHODS" << endl
                           << "=====================================" << endl;
 
-        if (verbose) cout << "\nDirect test of 'dateTz' and 'timeTz'." << endl;
+        if (verbose) cout << "\nDirect test of `dateTz` and `timeTz`." << endl;
         {
             static const struct {
                 int d_year;    // year of datetime
@@ -612,17 +614,17 @@ if (verbose) {
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'utcDatetime' METHOD
+        // TESTING `utcDatetime` METHOD
         //
         // Concerns:
-        //: 1 'utcDatetime' computes the correct UTC datetime of the local
-        //:   datetime accordingly to its timezone.
+        // 1. `utcDatetime` computes the correct UTC datetime of the local
+        //    datetime accordingly to its timezone.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of datetimes and
-        //:   their associated offsets. Verify that 'utcDatetime' returns the
-        //:   expected value as per the invariant:
-        //:   'utcDatetime() == localDatetime() - offset()'.  (C-1)
+        // 1. Using the table-driven technique, specify a set of datetimes and
+        //    their associated offsets. Verify that `utcDatetime` returns the
+        //    expected value as per the invariant:
+        //    `utcDatetime() == localDatetime() - offset()`.  (C-1)
         //
         // Testing:
         //   Datetime utcDatetime() const;
@@ -632,10 +634,10 @@ if (verbose) {
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'utcDatetime' METHOD" << endl
+                          << "TESTING `utcDatetime` METHOD" << endl
                           << "============================" << endl;
 
-        if (verbose) cout << "\nDirect test of 'utcDatetime'." << endl;
+        if (verbose) cout << "\nDirect test of `utcDatetime`." << endl;
         {
             static const struct {
                 int d_year;    // year of datetime
@@ -702,20 +704,20 @@ if (verbose) {
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING 'isValid' AND 'setDatetimeTzIfValid' METHODS
+        // TESTING `isValid` AND `setDatetimeTzIfValid` METHODS
         //
         // Concerns:
-        //: 1 'isValid' correctly determines whether a datetime and an
-        //:   associated offset are valid attributes of a 'DatetimeTz' object.
-        //:
-        //: 2 'setDatetimeTzIfValid' sets the date and offset of a 'DatetimeTz'
-        //:   object to the specified values only if they are valid.
+        // 1. `isValid` correctly determines whether a datetime and an
+        //    associated offset are valid attributes of a `DatetimeTz` object.
+        //
+        // 2. `setDatetimeTzIfValid` sets the date and offset of a `DatetimeTz`
+        //    object to the specified values only if they are valid.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of valid and
-        //:   invalid object values. For each value verify that 'isValid'
-        //:   returns the correct result and 'setDatetimeTzIfValid' behaves
-        //:   correctly.  (C-1..2)
+        // 1. Using the table-driven technique, specify a set of valid and
+        //    invalid object values. For each value verify that `isValid`
+        //    returns the correct result and `setDatetimeTzIfValid` behaves
+        //    correctly.  (C-1..2)
         //
         // Testing:
         //   static bool isValid(const Datetime& localDatetime, int offset);
@@ -727,14 +729,14 @@ if (verbose) {
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'isValid' AND 'setDatetimeTzIfValid' METHODS"
+                 << "TESTING `isValid` AND `setDatetimeTzIfValid` METHODS"
                  << endl
                  << "===================================================="
                  << endl;
         }
 
         if (verbose) {
-            cout << "\nDirect test of 'isValid' & 'setDatetimeTzIfValid'."
+            cout << "\nDirect test of `isValid` & `setDatetimeTzIfValid`."
                  << endl;
         }
         {
@@ -922,32 +924,32 @@ if (verbose) {
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING DEFAULT CTOR AND 'setDatetimeTz' METHOD
+        // TESTING DEFAULT CTOR AND `setDatetimeTz` METHOD
         //
         // Concerns:
-        //: 1 An object created with the default constructor has the
-        //:   contractually specified default value.
-        //:
-        //: 2 The primary manipulator 'setDatetimeTz' sets the date and local
-        //:   offset of the object to the specified values.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. An object created with the default constructor has the
+        //    contractually specified default value.
+        //
+        // 2. The primary manipulator `setDatetimeTz` sets the date and local
+        //    offset of the object to the specified values.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Default construct an object and verify that the object has the
-        //:   expected value.  (C-1)
-        //:
-        //: 2 Using the table-driven technique, specify a set 'S' of datetimes
-        //:   and offsets as '(y, m, d, h, m, s, ms, o)' tuples having widely
-        //:   varying values.  For each '(y, m, d, h, m, s, ms, o)' in 'S',
-        //:   default construct a 'DatetimeTz' object 'X', use 'setDatetimeTz'
-        //:   to modify 'X', and verify the value of 'X' by comparing it to a
-        //:   value constructed object with the same parameters.  (C-2)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-3)
+        // 1. Default construct an object and verify that the object has the
+        //    expected value.  (C-1)
+        //
+        // 2. Using the table-driven technique, specify a set `S` of datetimes
+        //    and offsets as `(y, m, d, h, m, s, ms, o)` tuples having widely
+        //    varying values.  For each `(y, m, d, h, m, s, ms, o)` in `S`,
+        //    default construct a `DatetimeTz` object `X`, use `setDatetimeTz`
+        //    to modify `X`, and verify the value of `X` by comparing it to a
+        //    value constructed object with the same parameters.  (C-2)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-3)
         //
         // Testing:
         //   DatetimeTz();
@@ -956,7 +958,7 @@ if (verbose) {
 
         if (verbose) {
             cout << endl
-                 << "TESTING DEFAULT CTOR AND 'setDatetimeTz' METHOD" << endl
+                 << "TESTING DEFAULT CTOR AND `setDatetimeTz` METHOD" << endl
                  << "===============================================" << endl;
         }
 
@@ -968,7 +970,7 @@ if (verbose) {
             ASSERT(               0 == X.offset());
         }
 
-        if (verbose) cout << "\nTesting 'setDatetimeTz'." << endl;
+        if (verbose) cout << "\nTesting `setDatetimeTz`." << endl;
         {
             static const struct {
                 int d_year;    // year of datetime
@@ -1057,83 +1059,83 @@ if (verbose) {
         //   neutrality.
         //
         // Concerns:
-        //: 1 The class method 'maxSupportedBdexVersion' returns the correct
-        //:   version to be used for the specified 'versionSelector'.
-        //:
-        //: 2 The 'bdexStreamOut' method is callable on a reference providing
-        //:   only non-modifiable access.
-        //:
-        //: 3 For valid streams, externalization and unexternalization are
-        //:   inverse operations.
-        //:
-        //: 4 For invalid streams, externalization leaves the stream invalid
-        //:   and unexternalization does not alter the value of the object and
-        //:   leaves the stream invalid.
-        //:
-        //: 5 Unexternalizing of incomplete, invalid, or corrupted data results
-        //:   in a valid object of unspecified value and an invalidated stream.
-        //:
-        //: 6 The wire format of the object is as expected.
-        //:
-        //: 7 All methods are exception neutral.
-        //:
-        //: 8 The 'bdexStreamIn' and 'bdexStreamOut' methods return a reference
-        //:   to the provided stream in all situations.
-        //:
-        //: 9 The initial value of the object has no affect on
-        //:   unexternalization.
+        // 1. The class method `maxSupportedBdexVersion` returns the correct
+        //    version to be used for the specified `versionSelector`.
+        //
+        // 2. The `bdexStreamOut` method is callable on a reference providing
+        //    only non-modifiable access.
+        //
+        // 3. For valid streams, externalization and unexternalization are
+        //    inverse operations.
+        //
+        // 4. For invalid streams, externalization leaves the stream invalid
+        //    and unexternalization does not alter the value of the object and
+        //    leaves the stream invalid.
+        //
+        // 5. Unexternalizing of incomplete, invalid, or corrupted data results
+        //    in a valid object of unspecified value and an invalidated stream.
+        //
+        // 6. The wire format of the object is as expected.
+        //
+        // 7. All methods are exception neutral.
+        //
+        // 8. The `bdexStreamIn` and `bdexStreamOut` methods return a reference
+        //    to the provided stream in all situations.
+        //
+        // 9. The initial value of the object has no affect on
+        //    unexternalization.
         //
         // Plan:
-        //: 1 Test 'maxSupportedBdexVersion' explicitly.  (C-1)
-        //:
-        //: 2 All calls to the 'bdexStreamOut' accessor will be done from a
-        //:   'const' object or reference and all calls to the 'bdexStreamOut'
-        //:   free function (provided by 'bslx') will be supplied a 'const'
-        //:   object or reference.  (C-2)
-        //:
-        //: 3 Perform a direct test of the 'bdexStreamOut' and 'bdexStreamIn'
-        //:   methods (the rest of the testing will use the free functions
-        //:   'bslx::OutStreamFunctions::bdexStreamOut' and
-        //:   'bslx::InStreamFunctions::bdexStreamIn').
-        //:
-        //: 4 Define a set 'S' of test values to be used throughout the test
-        //:   case.
-        //:
-        //: 5 For all '(u, v)' in the cross product 'S X S', stream the value
-        //:   of 'u' into (a temporary copy of) 'v', 'T', and assert 'T == u'.
-        //:   (C-3, 9)
-        //:
-        //: 6 For all 'u' in 'S', create a copy of 'u' and attempt to stream
-        //:   into it from an invalid stream.  Verify after each attempt that
-        //:   the object is unchanged and that the stream is invalid.  (C-4)
-        //:
-        //: 7 Write 3 distinct objects to an output stream buffer of total
-        //:   length 'N'.  For each partial stream length from 0 to 'N - 1',
-        //:   construct an input stream and attempt to read into objects
-        //:   initialized with distinct values.  Verify values of objects
-        //:   that are either successfully modified or left entirely
-        //:   unmodified, and that the stream became invalid immediately after
-        //:   the first incomplete read.  Finally, ensure that each object
-        //:   streamed into is in some valid state.
-        //:
-        //: 8 Use the underlying stream package to simulate a typical valid
-        //:   (control) stream and verify that it can be streamed in
-        //:   successfully.  Then for each data field in the stream (beginning
-        //:   with the version number), provide one or more similar tests with
-        //:   that data field corrupted.  After each test, verify that the
-        //:   object is in some valid state after streaming, and that the
-        //:   input stream has become invalid.  (C-5)
-        //:
-        //: 9 Explicitly test the wire format.  (C-6)
-        //:
-        //:10 In all cases, confirm exception neutrality using the specially
-        //:   instrumented 'bslx::TestInStream' and a pair of standard macros,
-        //:   'BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN' and
-        //:   'BSLX_TESTINSTREAM_EXCEPTION_TEST_END', which configure the
-        //:   'bslx::TestInStream' object appropriately in a loop.  (C-7)
-        //:
-        //:11 In all cases, verify the return value of the tested method.
-        //:   (C-8)
+        // 1. Test `maxSupportedBdexVersion` explicitly.  (C-1)
+        //
+        // 2. All calls to the `bdexStreamOut` accessor will be done from a
+        //    `const` object or reference and all calls to the `bdexStreamOut`
+        //    free function (provided by `bslx`) will be supplied a `const`
+        //    object or reference.  (C-2)
+        //
+        // 3. Perform a direct test of the `bdexStreamOut` and `bdexStreamIn`
+        //    methods (the rest of the testing will use the free functions
+        //    `bslx::OutStreamFunctions::bdexStreamOut` and
+        //    `bslx::InStreamFunctions::bdexStreamIn`).
+        //
+        // 4. Define a set `S` of test values to be used throughout the test
+        //    case.
+        //
+        // 5. For all `(u, v)` in the cross product `S X S`, stream the value
+        //    of `u` into (a temporary copy of) `v`, `T`, and assert `T == u`.
+        //    (C-3, 9)
+        //
+        // 6. For all `u` in `S`, create a copy of `u` and attempt to stream
+        //    into it from an invalid stream.  Verify after each attempt that
+        //    the object is unchanged and that the stream is invalid.  (C-4)
+        //
+        // 7. Write 3 distinct objects to an output stream buffer of total
+        //    length `N`.  For each partial stream length from 0 to `N - 1`,
+        //    construct an input stream and attempt to read into objects
+        //    initialized with distinct values.  Verify values of objects
+        //    that are either successfully modified or left entirely
+        //    unmodified, and that the stream became invalid immediately after
+        //    the first incomplete read.  Finally, ensure that each object
+        //    streamed into is in some valid state.
+        //
+        // 8. Use the underlying stream package to simulate a typical valid
+        //    (control) stream and verify that it can be streamed in
+        //    successfully.  Then for each data field in the stream (beginning
+        //    with the version number), provide one or more similar tests with
+        //    that data field corrupted.  After each test, verify that the
+        //    object is in some valid state after streaming, and that the
+        //    input stream has become invalid.  (C-5)
+        //
+        // 9. Explicitly test the wire format.  (C-6)
+        //
+        // 10. In all cases, confirm exception neutrality using the specially
+        //    instrumented `bslx::TestInStream` and a pair of standard macros,
+        //    `BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN` and
+        //    `BSLX_TESTINSTREAM_EXCEPTION_TEST_END`, which configure the
+        //    `bslx::TestInStream` object appropriately in a loop.  (C-7)
+        //
+        // 11. In all cases, verify the return value of the tested method.
+        //    (C-8)
         //
         // Testing:
         //   static int maxSupportedBdexVersion(int versionSelector);
@@ -1178,7 +1180,7 @@ if (verbose) {
                                                 / sizeof *VALUES);
 
         if (verbose) {
-            cout << "\nTesting 'maxSupportedBdexVersion'." << endl;
+            cout << "\nTesting `maxSupportedBdexVersion`." << endl;
         }
         {
             ASSERT(1 == Obj::maxSupportedBdexVersion(0));
@@ -1209,8 +1211,8 @@ if (verbose) {
             }
 
             if (verbose) {
-                cout << "\tDirect initial trial of 'bdexStreamOut' and "
-                     << "(valid) 'bdexStreamIn'." << endl;
+                cout << "\tDirect initial trial of `bdexStreamOut` and "
+                     << "(valid) `bdexStreamIn`." << endl;
             }
 
             {
@@ -1238,13 +1240,13 @@ if (verbose) {
                 ASSERT(in.isEmpty());
             }
 
-            // We will use the stream free functions provided by 'bslx', as
-            // opposed to the class member functions, since the 'bslx'
+            // We will use the stream free functions provided by `bslx`, as
+            // opposed to the class member functions, since the `bslx`
             // implementation gives priority to the free function
             // implementations; we want to test what will be used.
             // Furthermore, toward making this test case more reusable in other
-            // components, from here on we generally use the 'bdexStreamIn' and
-            // 'bdexStreamOut' free functions that are defined in the 'bslx'
+            // components, from here on we generally use the `bdexStreamIn` and
+            // `bdexStreamOut` free functions that are defined in the `bslx`
             // package rather than call the like-named member functions
             // directly.
 
@@ -1490,7 +1492,7 @@ if (verbose) {
                             LOOP_ASSERT(i, !in);
                             LOOP_ASSERT(i, W3 == T3);
                         }
-                        else {  // 'LOD2 <= i < LOD3'
+                        else {  // `LOD2 <= i < LOD3`
                             In& rvIn1 = bdexStreamIn(in, mT1, VERSION);
                             LOOP_ASSERT(i, &in == &rvIn1);
                             LOOP_ASSERT(i,  in);
@@ -1543,7 +1545,7 @@ if (verbose) {
         ASSERT(W != Y);
         ASSERT(X != Y);
 
-        const int SERIAL_Y = 1;       // internal rep. of 'Y.offset()'
+        const int SERIAL_Y = 1;       // internal rep. of `Y.offset()`
 
         if (verbose) {
             cout << "\t\tGood stream (for control)." << endl;
@@ -1607,7 +1609,7 @@ if (verbose) {
             cout << "\t\tBad version." << endl;
         }
         {
-            const char version = 0; // too small ('version' must be >= 1)
+            const char version = 0; // too small (`version` must be >= 1)
 
             Out out(VERSION_SELECTOR, &allocator);
 
@@ -1881,27 +1883,27 @@ if (verbose) {
         //   have the same value.
         //
         // Concerns:
-        //: 1 The assignment operator can change the value of any modifiable
-        //:   target object to that of any source object.
-        //:
-        //: 2 The signature and return type are standard.
-        //:
-        //: 3 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 4 The value of the source object is not modified.
-        //:
-        //: 5 Assigning an object to itself behaves as expected (alias-safety).
+        // 1. The assignment operator can change the value of any modifiable
+        //    target object to that of any source object.
+        //
+        // 2. The signature and return type are standard.
+        //
+        // 3. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 4. The value of the source object is not modified.
+        //
+        // 5. Assigning an object to itself behaves as expected (alias-safety).
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a member-function
-        //:   pointer having the appropriate signature and return type for the
-        //:   copy-assignment operator defined in this component.  (C-2)
-        //:
-        //: 2 Using the table-driven technique, specify a set 'S' of (unique)
-        //:   objects with substantial and varied differences in value.
-        //:   Construct and initialize all combinations '(U, V)' in the cross
-        //:   product 'S x S', assign 'U' from 'V', and verify the remaining
-        //:   concerns.  (C-1, C-3..5)
+        // 1. Use the address of `operator=` to initialize a member-function
+        //    pointer having the appropriate signature and return type for the
+        //    copy-assignment operator defined in this component.  (C-2)
+        //
+        // 2. Using the table-driven technique, specify a set `S` of (unique)
+        //    objects with substantial and varied differences in value.
+        //    Construct and initialize all combinations `(U, V)` in the cross
+        //    product `S x S`, assign `U` from `V`, and verify the remaining
+        //    concerns.  (C-1, C-3..5)
         //
         // Testing:
         //   DatetimeTz& operator=(const DatetimeTz& rhs);
@@ -2064,7 +2066,7 @@ if (verbose) {
       case 8: {
         // --------------------------------------------------------------------
         // SWAP MEMBER AND FREE FUNCTIONS
-        //   Ensure that, when member and free 'swap' are implemented, we can
+        //   Ensure that, when member and free `swap` are implemented, we can
         //   exchange the values of any two objects.
         //
         // Concerns:
@@ -2074,14 +2076,14 @@ if (verbose) {
         //   N/A
         //
         // Testing:
-        //  Reserved for 'swap' testing.
+        //  Reserved for `swap` testing.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "SWAP MEMBER AND FREE FUNCTIONS" << endl
                           << "==============================" << endl;
 
-        if (verbose) cout << "Not implemented for 'bdlt::DatetimeTz'." << endl;
+        if (verbose) cout << "Not implemented for `bdlt::DatetimeTz`." << endl;
 
       } break;
       case 7: {
@@ -2091,20 +2093,20 @@ if (verbose) {
         //   other one, such that the two objects have the same value.
         //
         // Concerns:
-        //: 1 The copy constructor creates an object having the same value as
-        //:   that of the supplied original object.
-        //:
-        //: 2 The original object is passed as a reference providing
-        //:   non-modifiable access to that object.
-        //:
-        //: 3 The value of the original object is unchanged.
+        // 1. The copy constructor creates an object having the same value as
+        //    that of the supplied original object.
+        //
+        // 2. The original object is passed as a reference providing
+        //    non-modifiable access to that object.
+        //
+        // 3. The value of the original object is unchanged.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their attributes.
-        //:   Specify a set 'S' whose elements have substantial and varied
-        //:   differences in value.  For each element in 'S', copy construct a
-        //:   new object from 'S' and verify the concerns. (C-1..3)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their attributes.
+        //    Specify a set `S` whose elements have substantial and varied
+        //    differences in value.  For each element in `S`, copy construct a
+        //    new object from `S` and verify the concerns. (C-1..3)
         //
         // Testing:
         //   DatetimeTz(const DatetimeTz& original);
@@ -2178,44 +2180,44 @@ if (verbose) {
       case 6: {
         // --------------------------------------------------------------------
         // TESTING EQUALITY OPERATORS
-        //   Ensure that '==' and '!=' are the operational definition of value.
+        //   Ensure that `==` and `!=` are the operational definition of value.
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if each of
-        //:   their corresponding salient attributes respectively compares
-        //:   equal.
-        //:
-        //: 2 'true  == (X == X)'  (i.e., identity)
-        //:
-        //: 3 'false == (X != X)'  (i.e., identity)
-        //:
-        //: 4 'X == Y' if and only if 'Y == X'  (i.e., commutativity)
-        //:
-        //: 5 'X != Y' if and only if 'Y != X'  (i.e., commutativity)
-        //:
-        //: 6 'X != Y' if and only if '!(X == Y)'
-        //:
-        //: 7 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., both comparison operators are free functions).
-        //:
-        //: 8 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //: 9 The equality operator's signature and return type are standard.
-        //:
-        //:10 The inequality operator's signature and return type are standard.
+        // 1. Two objects, `X` and `Y`, compare equal if and only if each of
+        //    their corresponding salient attributes respectively compares
+        //    equal.
+        //
+        // 2. `true  == (X == X)`  (i.e., identity)
+        //
+        // 3. `false == (X != X)`  (i.e., identity)
+        //
+        // 4. `X == Y` if and only if `Y == X`  (i.e., commutativity)
+        //
+        // 5. `X != Y` if and only if `Y != X`  (i.e., commutativity)
+        //
+        // 6. `X != Y` if and only if `!(X == Y)`
+        //
+        // 7. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., both comparison operators are free functions).
+        //
+        // 8. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        // 9. The equality operator's signature and return type are standard.
+        //
+        // 10. The inequality operator's signature and return type are standard.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the two homogeneous, free equality-
-        //:   comparison operators defined in this component.
-        //:   (C-7..10)
-        //:
-        //: 2 Using the table-driven technique, specify a set 'S' of unique
-        //:   object values having various minor or subtle differences.  Verify
-        //:   the correctness of 'operator==' and 'operator!=' using all
-        //:   elements '(u, v)' of the cross product 'S X S'.  (C-1..6)
+        // 1. Use the respective addresses of `operator==` and `operator!=` to
+        //    initialize function pointers having the appropriate signatures
+        //    and return types for the two homogeneous, free equality-
+        //    comparison operators defined in this component.
+        //    (C-7..10)
+        //
+        // 2. Using the table-driven technique, specify a set `S` of unique
+        //    object values having various minor or subtle differences.  Verify
+        //    the correctness of `operator==` and `operator!=` using all
+        //    elements `(u, v)` of the cross product `S X S`.  (C-1..6)
         //
         // Testing:
         //   bool operator==(const DatetimeTz& lhs, const DatetimeTz& rhs);
@@ -2340,63 +2342,63 @@ if (verbose) {
         // --------------------------------------------------------------------
         // TESTING PRINT AND OUTPUT OPERATOR
         //   Ensure that the value of the object can be formatted appropriately
-        //   on an 'ostream' in some standard, human-readable form.
+        //   on an `ostream` in some standard, human-readable form.
         //
         // Concerns:
-        //: 1 The 'print' method writes the value to the specified 'ostream'.
-        //:
-        //: 2 The 'print' method writes the value in the intended format.
-        //:
-        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)',
-        //:   but with each "attributeName = " elided.
-        //:
-        //: 4 The 'print' method signature and return type are standard.
-        //:
-        //: 5 The 'print' method returns the supplied 'ostream'.
-        //:
-        //: 6 The optional 'level' and 'spacesPerLevel' parameters have the
-        //:   correct default values.
-        //:
-        //: 7 The output 'operator<<' signature and return type are standard.
-        //:
-        //: 8 The output 'operator<<' returns the supplied 'ostream'.
-        //:
-        //: 9 QoI: Neither the 'print' method nor 'operator<<' allocate from
-        //:   the default allocator.
+        // 1. The `print` method writes the value to the specified `ostream`.
+        //
+        // 2. The `print` method writes the value in the intended format.
+        //
+        // 3. The output using `s << obj` is the same as `obj.print(s, 0, -1)`,
+        //    but with each "attributeName = " elided.
+        //
+        // 4. The `print` method signature and return type are standard.
+        //
+        // 5. The `print` method returns the supplied `ostream`.
+        //
+        // 6. The optional `level` and `spacesPerLevel` parameters have the
+        //    correct default values.
+        //
+        // 7. The output `operator<<` signature and return type are standard.
+        //
+        // 8. The output `operator<<` returns the supplied `ostream`.
+        //
+        // 9. QoI: Neither the `print` method nor `operator<<` allocate from
+        //    the default allocator.
         //
         // Plan:
-        //: 1 Use the addresses of the 'print' member function and 'operator<<'
-        //:   free function defined in this component to initialize,
-        //:   respectively, member-function and free-function pointers having
-        //:   the appropriate signatures and return types.  (C-4, 7)
-        //:
-        //: 2 Using the table-driven technique, define set of distinct
-        //:   formatting parameters and the corresponding expected output
-        //:   string for the 'print' method.  If the value of the formatting
-        //:   parameters, 'level' or 'spacesPerLevel' is -8, then the
-        //:   parameters will be omitted in the method invocation.
-        //:
-        //:   1 Invoke the 'print' method passing the formatting parameters and
-        //:     a 'const' object.
-        //:
-        //:   2 Verify the address of what is returned is that of the supplied
-        //:     stream.  (C-5)
-        //:
-        //:   3 Verify that the output string has the expected value.
-        //:     (C-1..2, 6)
-        //:
-        //: 3 Using the table-driven technique, define a set of distinct object
-        //:   values and the expected string output of 'operator<<'.
-        //:
-        //:   1 Invoke 'operator<<' passing a 'const' object.
-        //:
-        //:   2 Verify the address of what is returned is that of the supplied
-        //:     stream.  (C-8)
-        //:
-        //:   3 Verify that the output string has the expected value.  (C-3)
-        //:
-        //: 4 Use a 'bslma::TestAllocatorMonitor' to verify that 'print' and
-        //:   'operator<<' do not allocate from the default allocator.  (C-9)
+        // 1. Use the addresses of the `print` member function and `operator<<`
+        //    free function defined in this component to initialize,
+        //    respectively, member-function and free-function pointers having
+        //    the appropriate signatures and return types.  (C-4, 7)
+        //
+        // 2. Using the table-driven technique, define set of distinct
+        //    formatting parameters and the corresponding expected output
+        //    string for the `print` method.  If the value of the formatting
+        //    parameters, `level` or `spacesPerLevel` is -8, then the
+        //    parameters will be omitted in the method invocation.
+        //
+        //   1. Invoke the `print` method passing the formatting parameters and
+        //      a `const` object.
+        //
+        //   2. Verify the address of what is returned is that of the supplied
+        //      stream.  (C-5)
+        //
+        //   3. Verify that the output string has the expected value.
+        //      (C-1..2, 6)
+        //
+        // 3. Using the table-driven technique, define a set of distinct object
+        //    values and the expected string output of `operator<<`.
+        //
+        //   1. Invoke `operator<<` passing a `const` object.
+        //
+        //   2. Verify the address of what is returned is that of the supplied
+        //      stream.  (C-8)
+        //
+        //   3. Verify that the output string has the expected value.  (C-3)
+        //
+        // 4. Use a `bslma::TestAllocatorMonitor` to verify that `print` and
+        //    `operator<<` do not allocate from the default allocator.  (C-9)
         //
         // Testing:
         //   bsl::ostream& print(bsl::ostream& stream, int l, int spl) const;
@@ -2407,8 +2409,8 @@ if (verbose) {
                           << "TESTING PRINT AND OUTPUT OPERATOR" << endl
                           << "=================================" << endl;
 
-        if (verbose) cout << "\nAssign the addresses of 'print' and "
-                             "the output 'operator<<' to variables." << endl;
+        if (verbose) cout << "\nAssign the addresses of `print` and "
+                             "the output `operator<<` to variables." << endl;
         {
             typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
 
@@ -2508,8 +2510,8 @@ if (verbose) {
                 ASSERT(oam.isTotalSame());
 
                 // Verify output is formatted as expected.  Note that each
-                // 'os.str()' below incurs an allocation from the default
-                // allocator, which is accounted for in the final 'ASSERTV' in
+                // `os.str()` below incurs an allocation from the default
+                // allocator, which is accounted for in the final `ASSERTV` in
                 // this test driver.
 
                 if (veryVeryVerbose) { P(os.str()) }
@@ -2524,20 +2526,20 @@ if (verbose) {
         //   Verify the basic accessors work as expected.
         //
         // Concerns:
-        //: 1 Each accessor returns the value of the corresponding attribute
-        //:   of the object.
-        //:
-        //: 2 Each accessor method is declared 'const'.
+        // 1. Each accessor returns the value of the corresponding attribute
+        //    of the object.
+        //
+        // 2. Each accessor method is declared `const`.
         //
         // Plan:
-        //: 1 Use the table-driven technique, specify a range of distinct
-        //:   object values. For each row 'R1' in the table:  (C-1..2)
-        //:
-        //:   1 Value construct an object to that of 'R1'.
-        //:
-        //:   2 Invoke each basic accessor from a reference providing
-        //:     non-modifiable access to the object created in P-1.1 and verify
-        //:     that the return value is correct.  (C-1..2)
+        // 1. Use the table-driven technique, specify a range of distinct
+        //    object values. For each row `R1` in the table:  (C-1..2)
+        //
+        //   1. Value construct an object to that of `R1`.
+        //
+        //   2. Invoke each basic accessor from a reference providing
+        //      non-modifiable access to the object created in P-1.1 and verify
+        //      that the return value is correct.  (C-1..2)
         //
         // Testing:
         //   Datetime localDatetime() const;
@@ -2547,7 +2549,7 @@ if (verbose) {
         if (verbose) cout << endl << "TESTING BASIC ACCESSORS" << endl
                                   << "=======================" << endl;
 
-        if (verbose) cout << "\n'localDatetime()', 'offset()'" << endl;
+        if (verbose) cout << "\n'localDatetime()`, `offset()'" << endl;
         {
             static const struct {
                 int d_year;    // year of datetime
@@ -2607,8 +2609,8 @@ if (verbose) {
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING GENERATOR FUNCTIONS 'gg' AND 'ggg'
-        //   Void for 'bdlt_datetimetz'.
+        // TESTING GENERATOR FUNCTIONS `gg` AND `ggg`
+        //   Void for `bdlt_datetimetz`.
         //
         // Concerns:
         //   N/A
@@ -2622,7 +2624,7 @@ if (verbose) {
 
         if (verbose) {
             cout << endl
-                 << "TESTING GENERATOR FUNCTIONS 'gg' AND 'ggg'" << endl
+                 << "TESTING GENERATOR FUNCTIONS `gg` AND `ggg`" << endl
                  << "==========================================" << endl;
         }
 
@@ -2633,22 +2635,22 @@ if (verbose) {
         //   Verify the primary manipulators work as expected.
         //
         // Concerns:
-        //: 1 The constructor must correctly set its value to the value
-        //:   indicated by its two parameters.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The constructor must correctly set its value to the value
+        //    indicated by its two parameters.
+        //
+        // 2. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set 'S' of datetimes
-        //:   and offsets as '(y, m, d, h, m, s, ms, o)' tuples having widely
-        //:   varying values.  For each '(y, m, d, h, m, s, ms, o)' in 'S',
-        //:   construct a 'DatetimeTz' object 'X' and verify that 'X' has the
-        //:   expected value.  (C-1)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-2)
+        // 1. Using the table-driven technique, specify a set `S` of datetimes
+        //    and offsets as `(y, m, d, h, m, s, ms, o)` tuples having widely
+        //    varying values.  For each `(y, m, d, h, m, s, ms, o)` in `S`,
+        //    construct a `DatetimeTz` object `X` and verify that `X` has the
+        //    expected value.  (C-1)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-2)
         //
         // Testing:
         //   DatetimeTz(const Datetime& localDatetime, int offset);
@@ -2739,11 +2741,11 @@ if (verbose) {
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Execute each methods to verify functionality for simple case.
+        // 1. Execute each methods to verify functionality for simple case.
         //
         // Testing:
         //   BREATHING TEST

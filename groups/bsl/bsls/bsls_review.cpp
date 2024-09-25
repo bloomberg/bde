@@ -28,9 +28,10 @@ namespace bsls {
 namespace {
 
 // STATIC HELPER FUNCTIONS
+
+/// Log a formatted message with the contents of the specified `violation`
+/// and a severity of `e_ERROR`.
 void printError(const bsls::ReviewViolation& violation)
-    // Log a formatted message with the contents of the specified 'violation'
-    // and a severity of 'e_ERROR'.
 {
     const char *comment = violation.comment();
     if (!comment) {
@@ -68,12 +69,13 @@ void printError(const bsls::ReviewViolation& violation)
 }
 
 // STATIC DATA
+
+/// review-failure handler function
 bsls::AtomicOperations::AtomicTypes::Pointer
     g_violationHandler = {(void *) &Review::failByLog};
-    // review-failure handler function
 
+/// lock to disable `setViolationHandler`
 bsls::AtomicOperations::AtomicTypes::Int g_lockedFlag = {0};
-    // lock to disable 'setViolationHandler'
 
 }  // close unnamed namespace
 

@@ -115,13 +115,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -137,62 +137,62 @@ int main(int argc, char *argv[])
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -
 // The following snippets of code provide a simple illustration of using
-// 'bsls::SystemClockType'.
+// `bsls::SystemClockType`.
 //
-// First, we create a variable 'value' of type 'bsls::SystemClockType::Enum'
+// First, we create a variable `value` of type `bsls::SystemClockType::Enum`
 // and initialize it with the enumerator value
-// 'bsls::SystemClockType::e_MONOTONIC':
-//..
+// `bsls::SystemClockType::e_MONOTONIC`:
+// ```
     bsls::SystemClockType::Enum value = bsls::SystemClockType::e_MONOTONIC;
-//..
+// ```
 // Now, we store the address of its ASCII representation in a pointer variable,
-// 'asciiValue', of type 'const char *':
-//..
+// `asciiValue`, of type `const char *`:
+// ```
     const char *asciiValue = bsls::SystemClockType::toAscii(value);
-//..
-// Finally, we verify the value of 'asciiValue':
-//..
+// ```
+// Finally, we verify the value of `asciiValue`:
+// ```
     ASSERT(0 == strcmp(asciiValue, "MONOTONIC"));
-//..
+// ```
 
       } break;
       case 1: {
         // -------------------------------------------------------------------
-        // TESTING 'enum' AND 'toAscii'
+        // TESTING `enum` AND `toAscii`
         //
         // Concerns:
-        //: 1 The enumerator values are sequential, starting from 0.
-        //:
-        //: 2 The 'toAscii' method returns the expected string representation
-        //:   for each enumerator.
-        //:
-        //: 3 The 'toAscii' method returns a distinguished string when passed
-        //:   an out-of-band value.
-        //:
-        //: 4 The string returned by 'toAscii' is non-modifiable.
-        //:
-        //: 5 The 'toAscii' method has the expected signature.
+        // 1. The enumerator values are sequential, starting from 0.
+        //
+        // 2. The `toAscii` method returns the expected string representation
+        //    for each enumerator.
+        //
+        // 3. The `toAscii` method returns a distinguished string when passed
+        //    an out-of-band value.
+        //
+        // 4. The string returned by `toAscii` is non-modifiable.
+        //
+        // 5. The `toAscii` method has the expected signature.
         //
         // Plan:
-        //: 1 Verify that the enumerator values are sequential, starting from
-        //:   0.  (C-1)
-        //:
-        //: 2 Verify that the 'toAscii' method returns the expected string
-        //:   representation for each enumerator.  (C-2)
-        //:
-        //: 3 Verify that the 'toAscii' method returns a distinguished string
-        //:   when passed an out-of-band value.  (C-3)
-        //:
-        //: 4 Take the address of the 'toAscii' (class) method and use the
-        //:   result to initialize a variable of the appropriate type.
-        //:   (C-4, C-5)
+        // 1. Verify that the enumerator values are sequential, starting from
+        //    0.  (C-1)
+        //
+        // 2. Verify that the `toAscii` method returns the expected string
+        //    representation for each enumerator.  (C-2)
+        //
+        // 3. Verify that the `toAscii` method returns a distinguished string
+        //    when passed an out-of-band value.  (C-3)
+        //
+        // 4. Take the address of the `toAscii` (class) method and use the
+        //    result to initialize a variable of the appropriate type.
+        //    (C-4, C-5)
         //
         // Testing:
         //   enum Enum { ... };
         //   const char *toAscii(SystemClockType::Enum val);
         // -------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'enum' AND 'toAscii'"
+        if (verbose) printf("\nTESTING `enum` AND `toAscii`"
                             "\n============================\n");
 
         static const struct {
@@ -222,7 +222,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(ti, VALUE, ti == VALUE);
         }
 
-        if (verbose) printf("\nTesting 'toAscii'.\n");
+        if (verbose) printf("\nTesting `toAscii`.\n");
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE  = DATA[ti].d_lineNum;
@@ -237,7 +237,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(LINE, ti,           0 == strcmp(EXP, result));
         }
 
-        if (verbose) printf("\nVerify 'toAscii' signature.\n");
+        if (verbose) printf("\nVerify `toAscii` signature.\n");
 
         {
             typedef const char *(*FuncPtr)(Enum);

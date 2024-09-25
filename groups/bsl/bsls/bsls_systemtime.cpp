@@ -106,9 +106,9 @@ TimeInterval SystemTime::nowMonotonicClock()
                             // Default Implementation
                             //- - - - - - - - - - - -
 
+/// Return the current time for the specified `clockId`.
 static inline
 TimeInterval getNowTime(clockid_t clockId)
-    // Return the current time for the specified 'clockId'.
 {
     timespec tp = { 0, 0 };
     int      rc = clock_gettime(clockId, &tp);

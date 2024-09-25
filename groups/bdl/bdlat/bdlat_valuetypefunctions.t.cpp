@@ -12,9 +12,9 @@
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
-#include <bsl_sstream.h> // 'bsl::ostringstream'
+#include <bsl_sstream.h> // `bsl::ostringstream`
 #include <bsl_string.h>
-#include <bsl_utility.h> // 'bsl::pair', 'bsl::make_pair'
+#include <bsl_utility.h> // `bsl::pair`, `bsl::make_pair`
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
@@ -227,7 +227,7 @@ class Choice_Point {
 ///Example 1: Implicit "Value Type"
 /// - - - - - - - - - - - - - - - -
 // Suppose you had a type that defines a "value".
-//..
+// ```
     namespace BloombergLP {
     namespace mine {
 
@@ -238,10 +238,10 @@ class Choice_Point {
 
     }  // close package namespace
     }  // close enterprise namespace
-//..
-// Although our definition of 'MyValueType' was rather terse, several methods
+// ```
+// Although our definition of `MyValueType` was rather terse, several methods
 // are implicitly defined by the compiler:
-//..
+// ```
     void f()
     {
         using namespace BloombergLP;
@@ -260,12 +260,12 @@ class Choice_Point {
         ASSERT(b.d_int    == a.d_int);
         ASSERT(b.d_double == a.d_double);
     }
-//..
+// ```
 // Notice that the implicitly defined methods include a copy constructor and a
-// copy assignment operator thereby implicitly making 'MyValueType' part of the
-// 'bdlat' "value" framework.  As such, it can be manipulated using the methods
-// of 'bdlat_ValueTypeFunctions':
-//..
+// copy assignment operator thereby implicitly making `MyValueType` part of the
+// `bdlat` "value" framework.  As such, it can be manipulated using the methods
+// of `bdlat_ValueTypeFunctions`:
+// ```
     void myUsageScenario()
     {
         using namespace BloombergLP;
@@ -290,15 +290,15 @@ class Choice_Point {
         ASSERT(int()    == y.d_int);
         ASSERT(double() == y.d_double);
     }
-//..
+// ```
 //
 ///Example 2: Interacting with Other Types
 ///- - - - - - - - - - - - - - - - - - - -
-// Suppose you want to enhance 'mine::MyValueType' to allow its value to be
-// assigned from a 'bsl::pair<int, float>' object?  Do do so, create
-// 'your::YourValueType' which has an implicit conversion from
-// 'bsl::pair<int, float>':
-//..
+// Suppose you want to enhance `mine::MyValueType` to allow its value to be
+// assigned from a `bsl::pair<int, float>` object?  Do do so, create
+// `your::YourValueType` which has an implicit conversion from
+// `bsl::pair<int, float>`:
+// ```
     namespace BloombergLP {
     namespace your {
 
@@ -332,14 +332,14 @@ class Choice_Point {
 
     }  // close package namespace
     }  // close enterprise namespace
-//..
+// ```
 // Notice that, having defined a constructor, the compiler no longer generates
 // the constructors that had been generated implicitly.  Accordingly, we have
 // added a default constructor, copy constructor and assignment operator.
 // Also, since aggregate initialization is no longer allowed, we have also
 // added a value constructor and slightly modified the syntax of initialization
-// in function 'g()' below:
-//..
+// in function `g()` below:
+// ```
     void g()
     {
         using namespace BloombergLP;
@@ -365,11 +365,11 @@ class Choice_Point {
         ASSERT(4   == a.d_int);
         ASSERT(5.0 == a.d_double);
     }
-//..
-// Since both copy construction and assignment are defined, 'YourValueType' can
-// be handled by the 'bdlat' "value" infrastructure in much the same way as we
-// did for 'MyValueType':
-//..
+// ```
+// Since both copy construction and assignment are defined, `YourValueType` can
+// be handled by the `bdlat` "value" infrastructure in much the same way as we
+// did for `MyValueType`:
+// ```
     void yourUsageScenario()
     {
         using namespace BloombergLP;
@@ -394,11 +394,11 @@ class Choice_Point {
 
         ASSERT(int()   == y.d_int);
         ASSERT(float() == y.d_double);
-//..
-// However, since conversion from another type, 'bsl::pair<int, double>', is
-// provided, the 'bdlat' "value" infrastructure can also use that type to set
+// ```
+// However, since conversion from another type, `bsl::pair<int, double>`, is
+// provided, the `bdlat` "value" infrastructure can also use that type to set
 // the value of objects.
-//..
+// ```
         bsl::pair<int, double> value(4, 5.0);
 
         rc = bdlat_ValueTypeFunctions::assign(&y, value);
@@ -406,22 +406,22 @@ class Choice_Point {
 
         ASSERT(value.first  == y.d_int);
         ASSERT(value.second == y.d_double);
-//..
+// ```
 // Unsurprisingly, such assignments do not work for arbitrary other types (for
 // which conversion is not defined).  What is notable, is that this code does
 // compile and fails at run-time.
-//..
+// ```
         // Assign an incompatible type.
         rc = bdlat_ValueTypeFunctions::assign(&y, bsl::string("4, 5.0"));
         ASSERT(0 != rc);
     }
-//..
+// ```
 //
 ///Installing an Atypical "Value" Type
 ///- - - - - - - - - - - - - - - - - -
-// Suppose someone defines a pernicious "value" type, 'their::TheirValueType',
+// Suppose someone defines a pernicious "value" type, `their::TheirValueType`,
 // having neither copy constructor nor copy assignment operator:
-//..
+// ```
     namespace BloombergLP {
     namespace their {
 
@@ -462,11 +462,11 @@ class Choice_Point {
 
     }  // close package namespace
     }  // close enterprise namespace
-//..
+// ```
 // Such a type can be used after a fashion (objects created, states changed,
 // state changes observed), albeit using syntax that is significantly different
-// than we used for 'MyValueType' and 'YourValueType':
-//..
+// than we used for `MyValueType` and `YourValueType`:
+// ```
     void h()
     {
         using namespace BloombergLP;
@@ -486,14 +486,14 @@ class Choice_Point {
         ASSERT(2    == a.   intValue());
         ASSERT(3.14 == a.doubleValue());
     }
-//..
-// Since 'TheirValueType' lacks both copy construction and assignment, that
-// type is not implicitly supported by the 'bdlat' "value" infrastructure.
+// ```
+// Since `TheirValueType` lacks both copy construction and assignment, that
+// type is not implicitly supported by the `bdlat` "value" infrastructure.
 //
-// However, the 'TheirValueType' can be made compatible with that
+// However, the `TheirValueType` can be made compatible with that
 // infrastructure if "they" define the required overloads of
-// 'bdlat_valueTypeAssign' and 'bdlat_valueTypeReset' in 'their' namespace:
-//..
+// `bdlat_valueTypeAssign` and `bdlat_valueTypeReset` in `their` namespace:
+// ```
     namespace BloombergLP {
     namespace their {
 
@@ -518,7 +518,7 @@ class Choice_Point {
         return 0;
     }
 
-    // Overload for any other 'RHS_TYPE' to return an error.
+    // Overload for any other `RHS_TYPE` to return an error.
     template <class RHS_TYPE>
     int bdlat_valueTypeAssign(TheirValueType  *lhs,
                               const RHS_TYPE&  rhs)
@@ -541,25 +541,25 @@ class Choice_Point {
 
     }  // close package namespace
     }  // close enterprise namespace
-//..
-// Notice that three overloads of 'bdlat_valueTypeAssign' are defined above:
+// ```
+// Notice that three overloads of `bdlat_valueTypeAssign` are defined above:
 //
-//: o The first, the overload that allows 'TheirValueType' to be "assigned" to
-//:   itself is required by the 'bdlat' "value" infrastructure.
-//:
-//: o The second, the overload that allows "assignment" from a 'bsl::string' is
-//:   not technically required by the infrastructure, but is a practical
-//:   requirement because 'bsl::string' is the only way 'TheirValueType' can be
-//:   changed from its default value.
-//:
-//: o Finally, we provide an overload templated on an arbitrary 'RHS_TYPE so
-//:   that, if any other types are passed, the code will compile (as required)
-//:   but also unconditionally fail (as required).
+//  - The first, the overload that allows `TheirValueType` to be "assigned" to
+//    itself is required by the `bdlat` "value" infrastructure.
 //
-// With these points of customization in place, 'TheirValueType' can now be
-// manipulated by the 'bdlat' "value" infrastructure in much the same manner as
-// was done for 'MyValueType' and 'YourValueType':
-//..
+//  - The second, the overload that allows "assignment" from a `bsl::string` is
+//    not technically required by the infrastructure, but is a practical
+//    requirement because `bsl::string` is the only way `TheirValueType` can be
+//    changed from its default value.
+//
+//  - Finally, we provide an overload templated on an arbitrary 'RHS_TYPE so
+//    that, if any other types are passed, the code will compile (as required)
+//    but also unconditionally fail (as required).
+//
+// With these points of customization in place, `TheirValueType` can now be
+// manipulated by the `bdlat` "value" infrastructure in much the same manner as
+// was done for `MyValueType` and `YourValueType`:
+// ```
     void theirUsageScenario()
     {
         using namespace BloombergLP;
@@ -596,7 +596,7 @@ class Choice_Point {
         ASSERT(   0 != rc);
         ASSERT(-999 == rc);
     }
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -640,7 +640,7 @@ int main(int argc, char *argv[])
         //   void bdlat_ValueTypeFunctions::reset(TYPE *object);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'reset'"
+        if (verbose) cout << "\nTesting `reset`"
                           << "\n===============" << endl;
 
         {

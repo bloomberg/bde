@@ -6,8 +6,8 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 
@@ -16,9 +16,9 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines meta-functions, 'bsl::conditional' and
-// 'bsl::conditional_t', that conditionally select to one of its two template
-// parameter types based on a 'bool' (template parameter) value.  Thus, we need
+// The component under test defines meta-functions, `bsl::conditional` and
+// `bsl::conditional_t`, that conditionally select to one of its two template
+// parameter types based on a `bool` (template parameter) value.  Thus, we need
 // to ensure that the values returned by this meta-function are correct for
 // each possible set of types.
 //
@@ -115,6 +115,10 @@ typedef void ( & RFRi)(int&);
 typedef char      A [5];
 typedef char ( & RA)[5];
 
+/// Test that the result type of `bsl::conditional` meta-function is defined
+/// as the specified `TYPE1` if the first template parameter of the
+/// meta-function is `true`, and one of cv-qualified combination on the
+/// specified `TYPE2` otherwise.
 #define ASSERT_SAME_CV2(TYPE1, TYPE2)                                         \
     ASSERT((bsl::is_same<bsl::conditional<true,                               \
                                           TYPE1,                              \
@@ -155,18 +159,16 @@ typedef char ( & RA)[5];
                                           const volatile TYPE2>::type,        \
                                           const volatile TYPE2                \
             >::value));
-    // Test that the result type of 'bsl::conditional' meta-function is defined
-    // as the specified 'TYPE1' if the first template parameter of the
-    // meta-function is 'true', and one of cv-qualified combination on the
-    // specified 'TYPE2' otherwise.
 
+/// Test all cv-qualified combination on the specified `TYPE1` and `TYPE2`.
 #define ASSERT_SAME_CV(TYPE1, TYPE2)                                          \
     ASSERT_SAME_CV2(               TYPE1, TYPE2)                              \
     ASSERT_SAME_CV2(const          TYPE1, TYPE2)                              \
     ASSERT_SAME_CV2(      volatile TYPE1, TYPE2)                              \
     ASSERT_SAME_CV2(const volatile TYPE1, TYPE2)
-    // Test all cv-qualified combination on the specified 'TYPE1' and 'TYPE2'.
 
+/// Test function types separately since function types cannot be
+/// cv-qaulified.
 #define ASSERT_SAME_FN_TYPE(TYPE1, TYPE2)                                     \
     ASSERT((bsl::is_same<bsl::conditional<true,                               \
                                           TYPE1,                              \
@@ -178,9 +180,9 @@ typedef char ( & RA)[5];
                                           TYPE2>::type,                       \
                                           TYPE2                               \
             >::value));
-    // Test function types separately since function types cannot be
-    // cv-qaulified.
 
+/// Test that the result types of the `bsl::conditional<COND, TYPE1, TYPE2>`
+/// and `bsl::conditional_t<COND, TYPE1, TYPE2` meta-functions are the same.
 #define ASSERT_CONDITIONAL_T(TYPE1, TYPE2)                                    \
     ASSERT((bsl::is_same<bsl::conditional  <true,                             \
                                             TYPE1,                            \
@@ -194,8 +196,6 @@ typedef char ( & RA)[5];
                          bsl::conditional_t<false,                            \
                                             TYPE1,                            \
                                             TYPE2> >::value));
-    // Test that the result types of the 'bsl::conditional<COND, TYPE1, TYPE2>'
-    // and 'bsl::conditional_t<COND, TYPE1, TYPE2' meta-functions are the same.
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -223,13 +223,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -243,55 +243,55 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Conditionally Select From Two Types
 /// - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to select between two types based on a 'bool' value.
+// Suppose that we want to select between two types based on a `bool` value.
 //
-// Now, we use 'bsl::conditional' to select between two types, 'int' and
-// 'char', with a 'bool' value.  When the 'bool' is 'true', we select 'int';
-// otherwise, we select 'char'.  We verify that our code behaves correctly by
-// asserting the result of 'bsl::conditional' with the expected type using
-// 'bsl::is_same':
-//..
+// Now, we use `bsl::conditional` to select between two types, `int` and
+// `char`, with a `bool` value.  When the `bool` is `true`, we select `int`;
+// otherwise, we select `char`.  We verify that our code behaves correctly by
+// asserting the result of `bsl::conditional` with the expected type using
+// `bsl::is_same`:
+// ```
     ASSERT(true ==
         (bsl::is_same<bsl::conditional<true,  int, char>::type, int >::value));
     ASSERT(true ==
         (bsl::is_same<bsl::conditional<false, int, char>::type, char>::value));
-//..
+// ```
 // Finally, if the current compiler supports alias templates C++11 feature, we
-// select between two types using 'bsl::conditional_t' and verify that our code
-// behaves correctly by asserting the result of 'bsl::conditional_t' with the
-// expected type using 'bsl::is_same':
-//..
+// select between two types using `bsl::conditional_t` and verify that our code
+// behaves correctly by asserting the result of `bsl::conditional_t` with the
+// expected type using `bsl::is_same`:
+// ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
     ASSERT(true ==
             (bsl::is_same<bsl::conditional_t<true,  int, char>, int >::value));
     ASSERT(true ==
             (bsl::is_same<bsl::conditional_t<false, int, char>, char>::value));
 #endif
-//..
+// ```
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::conditional::type'
-        //   Ensure that each 'typedef' 'type' of 'bsl::conditional'
+        // `bsl::conditional::type`
+        //   Ensure that each `typedef` `type` of `bsl::conditional`
         //   instantiations has the correct return value.
         //
         // Concerns:
-        //: 1 'bsl::conditional' selects the first of its two (template
-        //:   parameter) types when the (template parameter) value 'COND' is
-        //:   'true'.
-        //:
-        //: 2 'bsl::conditional' selects the second of its two (template
-        //:   parameter) types when the (template parameter) value 'COND' is
-        //:   'false'.
-        //:
-        //: 3 'bsl::conditional' represents the return type of
-        //:   'bsl::conditional' meta-function for a variety of template
-        //:   parameter types.
+        // 1. `bsl::conditional` selects the first of its two (template
+        //    parameter) types when the (template parameter) value `COND` is
+        //    `true`.
+        //
+        // 2. `bsl::conditional` selects the second of its two (template
+        //    parameter) types when the (template parameter) value `COND` is
+        //    `false`.
+        //
+        // 3. `bsl::conditional` represents the return type of
+        //    `bsl::conditional` meta-function for a variety of template
+        //    parameter types.
         //
         // Plan:
-        //   Instantiate 'bsl::conditional' with various types and verify that
-        //   the 'type' member is initialized properly.  (C-1..2)
+        //   Instantiate `bsl::conditional` with various types and verify that
+        //   the `type` member is initialized properly.  (C-1..2)
         //
         // Testing:
         //   bsl::conditional::type

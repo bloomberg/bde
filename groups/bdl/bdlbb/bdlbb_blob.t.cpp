@@ -24,9 +24,9 @@
 #include <bsls_review.h>
 
 #include <bsl_algorithm.h>
-#include <bsl_cctype.h>      // 'isdigit' 'isupper' 'islower'
+#include <bsl_cctype.h>      // `isdigit` `isupper` `islower`
 #include <bsl_climits.h>
-#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstdlib.h>     // `atoi`
 #include <bsl_cstring.h>
 #include <bsl_exception.h>
 #include <bsl_iostream.h>
@@ -44,19 +44,19 @@ using bsl::cerr;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// This test driver verifies many claims about 'bdlbb::Blob's that are made in
+// This test driver verifies many claims about `bdlbb::Blob`s that are made in
 // the component-level and class-level documentation, as well as the individual
 // contracts of each function, namely:
-// - that 'bdlbb::BlobBuffer' is an in-core value-semantic type containing a
+// - that `bdlbb::BlobBuffer` is an in-core value-semantic type containing a
 //   memory buffer and length with shared ownership.
-// - that 'bdlbb::Blob' is an in-core exception-neutral value-semantic type
+// - that `bdlbb::Blob` is an in-core exception-neutral value-semantic type
 //   representing a non-contiguous sequence of bytes stored in a sequence of
-//   'bdlbb::BlobBuffer's.
+//   `bdlbb::BlobBuffer`s.
 // We do not provide a full value-semantic type test driver, since it is more
-// appropriate here to focus on the way blobs can be created: using 'setLength'
+// appropriate here to focus on the way blobs can be created: using `setLength`
 // (which can be considered the primary manipulator) with a blob buffer factory
 // passed to the constructor, or by inserting/prepending/appending/removing
-// buffers.  The main concerns about 'bdlbb::Blob' have to do with the
+// buffers.  The main concerns about `bdlbb::Blob` have to do with the
 // automatic maintenance of the data length, number of buffers and of data
 // buffers, and length of the last data buffer (all of them could be considered
 // primary accessors) in a sequence of manipulators.  For this, we consider
@@ -209,9 +209,9 @@ void unknownFactoryHandler(const char *, const char *, int) {
 #endif
 }
 
+/// This function checks that all buffers are valid for write, and that no
+/// two buffers are aliased.
 void checkNoAliasedBlobBuffers(const bdlbb::Blob& blob)
-    // This function checks that all buffers are valid for write, and that no
-    // two buffers are aliased.
 {
     for (int jump = 0; jump < blob.numBuffers(); ++jump) {
         // Fill in forward order with increasing values, with jump in between
@@ -235,9 +235,9 @@ void checkNoAliasedBlobBuffers(const bdlbb::Blob& blob)
     }
 }
 
+/// This function checks that all buffers are valid for write.  Buffers can
+/// be aliased.
 void checkBlobBuffers(const bdlbb::Blob& blob)
-    // This function checks that all buffers are valid for write.  Buffers can
-    // be aliased.
 {
     char filler = 0;
     for (int i = 0; i < blob.numBuffers(); ++i, ++filler) {
@@ -249,8 +249,8 @@ void checkBlobBuffers(const bdlbb::Blob& blob)
     }
 }
 
+/// check d_totalSize is accurate and sane
 bool checkTotalSize(const bdlbb::Blob& blob)
-    // check d_totalSize is accurate and sane
 {
     int total = 0;
     for (int i = 0; i < blob.numBuffers(); ++i) {
@@ -301,7 +301,7 @@ void blobToStr(bsl::string *str, const bdlbb::Blob& blob) {
     const bdlbb::BlobBuffer& buffer = blob.buffer(bufferIdx);
 
     // This function is used for testing purposes and only on certain inputs.
-    // So we expect that 'str' is not long enough to overflow integer variable.
+    // So we expect that `str` is not long enough to overflow integer variable.
 
     ASSERT(INT_MAX >= str->length());
 
@@ -336,9 +336,9 @@ bool checkBlob(const bdlbb::Blob& blob, const bsl::string& dataString)
     return false;
 }
 
+/// Populate the specified `numBuffers` in the specified `blob` with the
+/// specified `value`.
 void populateBuffersWithData(bdlbb::Blob *blob, int numBuffers, char value)
-    // Populate the specified 'numBuffers' in the specified 'blob' with the
-    // specified 'value'.
 {
     if (0 == numBuffers) {
         return;                                                       // RETURN
@@ -348,9 +348,9 @@ void populateBuffersWithData(bdlbb::Blob *blob, int numBuffers, char value)
     }
 }
 
+/// Return `true` if each char in the specified `buffer` has the specified
+/// `value`, and `false` otherwise.
 bool compareBlobBufferData(const bdlbb::BlobBuffer& blobBuffer, char value)
-    // Return 'true' if each char in the specified 'buffer' has the specified
-    // 'value', and 'false' otherwise.
 {
     const int   bufSize = blobBuffer.size();
     const char *bufData = blobBuffer.data();
@@ -362,13 +362,13 @@ bool compareBlobBufferData(const bdlbb::BlobBuffer& blobBuffer, char value)
     return true;
 }
 
+/// Return `true` if the specified `numBuffers` in the specified `blob` all
+/// contain the specified `value` and `false` otherwise.  Optionally,
+/// specify `exceptIndex` of the a blob buffer to skip from comparison.
 bool compareBuffersData(const bdlbb::Blob& blob,
                         int               numBuffers,
                         char              value,
                         int               exceptIndex = -1)
-    // Return 'true' if the specified 'numBuffers' in the specified 'blob' all
-    // contain the specified 'value' and 'false' otherwise.  Optionally,
-    // specify 'exceptIndex' of the a blob buffer to skip from comparison.
 {
     ASSERT(-1 <= exceptIndex && exceptIndex < numBuffers);
 
@@ -390,10 +390,10 @@ bool compareBuffersData(const bdlbb::Blob& blob,
                        // class TestBlobBufferFactory
                        // ===========================
 
+/// This class constructs buffers with a size growing in a geometric series
+/// or ratio 2, starting with a size specified at construction.
 class TestBlobBufferFactory : public bdlbb::BlobBufferFactory
 {
-    // This class constructs buffers with a size growing in a geometric series
-    // or ratio 2, starting with a size specified at construction.
 
     bslma::Allocator *d_allocator_p;
     bsl::size_t       d_currentBufferSize;
@@ -484,12 +484,13 @@ class NullDeleter {
 //
 ///Example 1: A Simple Blob Buffer Factory
 ///- - - - - - - - - - - - - - - - - - - -
-// Classes that implement the 'bdlbb::BlobBufferFactory' protocol are used to
-// allocate 'bdlbb::BlobBuffer' objects.  A simple implementation follows:
-//..
+// Classes that implement the `bdlbb::BlobBufferFactory` protocol are used to
+// allocate `bdlbb::BlobBuffer` objects.  A simple implementation follows:
+// ```
+
+    /// This factory creates blob buffers of a fixed size specified at
+    /// construction.
     class SimpleBlobBufferFactory : public bdlbb::BlobBufferFactory {
-        // This factory creates blob buffers of a fixed size specified at
-        // construction.
 
         // DATA
         bsl::size_t       d_bufferSize;
@@ -530,30 +531,43 @@ class NullDeleter {
 
         buffer->reset(shptr, static_cast<int>(d_bufferSize));
     }
-//..
+// ```
 
 // Example 1 moved into Usage Test Case.
 
 ///Example 2: Data-Oriented Manipulation of a Blob
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // There are several typical ways of manipulating a blob: the simplest lets the
-// blob automatically manage the length, by using only 'prependBuffer',
-// 'appendBuffer', and 'insertBuffer'.  Consider the following typical
+// blob automatically manage the length, by using only `prependBuffer`,
+// `appendBuffer`, and `insertBuffer`.  Consider the following typical
 // utilities (these utilities are to illustrate usage, they are not meant to be
 // copy-pasted into application programs although they can provide a foundation
 // for application utilities):
-//..
+// ```
+
+    /// Prepend the specified `prolog` of the specified `length` to the
+    /// specified `blob`, using the optionally specified `allocator` to
+    /// supply any memory (or the currently installed default allocator if
+    /// `allocator` is 0).  The behavior is undefined unless
+    /// `blob->totalSize() <= INT_MAX - length - sizeof(int)` and
+    /// `blob->numBuffers() < INT_MAX`.
     void prependProlog(bdlbb::Blob        *blob,
                        const char         *prolog,
                        int                 length,
                        bslma::Allocator   *allocator = 0);
-        // Prepend the specified 'prolog' of the specified 'length' to the
-        // specified 'blob', using the optionally specified 'allocator' to
-        // supply any memory (or the currently installed default allocator if
-        // 'allocator' is 0).  The behavior is undefined unless
-        // 'blob->totalSize() <= INT_MAX - length - sizeof(int)' and
-        // 'blob->numBuffers() < INT_MAX'.
 
+    /// Load into the specified `blob` the data composed of the specified
+    /// `prolog` and of the payload in the `numVectors` buffers pointed to
+    /// by the specified `vectors` of the respective `vectorSizes`.
+    /// Ownership of the vectors is transferred to the `blob` which will use
+    /// the specified `deleter` to destroy them.  Use the optionally
+    /// specified `allocator` to supply memory, or the currently installed
+    /// default allocator if `allocator` is 0.  Note that any buffer
+    /// belonging to `blob` prior to composing the message is not longer in
+    /// `blob` after composing the message.  Note also that `blob` need not
+    /// have been created with a blob buffer factory.  The behavior is
+    /// undefined unless `blob` points to an initialized `bdlbb::Blob`
+    /// instance.
     template <class DELETER>
     void composeMessage(bdlbb::Blob        *blob,
                         const bsl::string&  prolog,
@@ -562,31 +576,19 @@ class NullDeleter {
                         int                 numVectors,
                         const DELETER&      deleter,
                         bslma::Allocator   *allocator = 0);
-        // Load into the specified 'blob' the data composed of the specified
-        // 'prolog' and of the payload in the 'numVectors' buffers pointed to
-        // by the specified 'vectors' of the respective 'vectorSizes'.
-        // Ownership of the vectors is transferred to the 'blob' which will use
-        // the specified 'deleter' to destroy them.  Use the optionally
-        // specified 'allocator' to supply memory, or the currently installed
-        // default allocator if 'allocator' is 0.  Note that any buffer
-        // belonging to 'blob' prior to composing the message is not longer in
-        // 'blob' after composing the message.  Note also that 'blob' need not
-        // have been created with a blob buffer factory.  The behavior is
-        // undefined unless 'blob' points to an initialized 'bdlbb::Blob'
-        // instance.
 
+    /// Insert a timestamp data buffer immediately after the prolog buffer
+    /// and prior to any payload buffer.  Return the number of bytes
+    /// inserted.  Use the optionally specified `allocator` to supply
+    /// memory, or the currently installed default allocator if `allocator`
+    /// is 0.  The behavior is undefined unless the specified `blob` points
+    /// to an initialized `bdlbb::Blob` instance with at least one data
+    /// buffer.
     int timestampMessage(bdlbb::Blob *blob, bslma::Allocator *allocator = 0);
-        // Insert a timestamp data buffer immediately after the prolog buffer
-        // and prior to any payload buffer.  Return the number of bytes
-        // inserted.  Use the optionally specified 'allocator' to supply
-        // memory, or the currently installed default allocator if 'allocator'
-        // is 0.  The behavior is undefined unless the specified 'blob' points
-        // to an initialized 'bdlbb::Blob' instance with at least one data
-        // buffer.
-//..
-// A possible implementation using only 'prependBuffer', 'appendBuffer', and
-// 'insertBuffer' could be as follows:
-//..
+// ```
+// A possible implementation using only `prependBuffer`, `appendBuffer`, and
+// `insertBuffer` could be as follows:
+// ```
     void prependProlog(bdlbb::Blob        *blob,
                        const char         *prolog,
                        int                 length,
@@ -613,22 +615,22 @@ class NullDeleter {
 
         blob->prependDataBuffer(prologBuffer);
     }
-//..
-// Note that the length of 'blob' in the above implementation is automatically
-// incremented by 'prologBuffer.size()'.  Consider instead:
-//..
+// ```
+// Note that the length of `blob` in the above implementation is automatically
+// incremented by `prologBuffer.size()`.  Consider instead:
+// ```
 //      blob->insertBuffer(0, prologBuffer);
-//..
-// which inserts the prologBuffer before the first buffer of 'blob'.  This call
+// ```
+// which inserts the prologBuffer before the first buffer of `blob`.  This call
 // will almost always adjust the length properly *except* if the length of
-// 'blob' is 0 before the insertion (i.e., the message has an empty payload).
-// In that case, the resulting 'blob' will still be empty after
-// 'prependProlog', which, depending on the intention of the programmer, could
+// `blob` is 0 before the insertion (i.e., the message has an empty payload).
+// In that case, the resulting `blob` will still be empty after
+// `prependProlog`, which, depending on the intention of the programmer, could
 // be intended (avoid sending empty messages) or could be (most likely) a
 // mistake.
 //
-// The 'composeMessage' implementation is simplified by using 'prependProlog':
-//..
+// The `composeMessage` implementation is simplified by using `prependProlog`:
+// ```
     template <class DELETER>
     void composeMessage(bdlbb::Blob        *blob,
                         const char         *prolog,
@@ -650,19 +652,19 @@ class NullDeleter {
             bsl::shared_ptr<char> shptr(vectors[i], deleter, allocator);
             bdlbb::BlobBuffer partialBuffer(shptr, vectorSizes[i]);
             blob->appendDataBuffer(partialBuffer);
-                // The last buffer of 'dest' contains only bytes 11-16 from
-                // 'blob.buffer(0)'.
+                // The last buffer of `dest` contains only bytes 11-16 from
+                // `blob.buffer(0)`.
         }
     }
-//..
-// Note that the 'deleter' is used to destroy the buffers transferred by
-// 'vectors', but not the prolog buffer.
+// ```
+// Note that the `deleter` is used to destroy the buffers transferred by
+// `vectors`, but not the prolog buffer.
 //
 // Timestamping a message is done by creating a buffer holding a timestamp, and
 // inserting it after the prolog and before the payload of the message.  Note
 // that in typical messages, timestamps would be part of the prolog itself, so
 // this is a somewhat contrived example for exposition only.
-//..
+// ```
     int timestampMessage(bdlbb::Blob *blob, bslma::Allocator *allocator)
     {
         BSLS_ASSERT(blob);
@@ -683,14 +685,14 @@ class NullDeleter {
                     bdexStream.data(),
                     bdexStream.length());
         timestampBuffer.setSize(static_cast<int>(bdexStream.length()));
-//..
+// ```
 // Now that we have fabricated the buffer holding the current data and time, we
 // must insert it into the blob after the first buffer (i.e., before the buffer
 // at index 1).  Note however that the payload could be empty, a condition
-// tested by the fact that there is only one data buffer in 'blob'.  In that
-// case, it would be a mistake to use 'insertBuffer' since it would not modify
+// tested by the fact that there is only one data buffer in `blob`.  In that
+// case, it would be a mistake to use `insertBuffer` since it would not modify
 // the length of the blob.
-//..
+// ```
         if (1 < blob->numDataBuffers()) {
             blob->insertBuffer(1, timestampBuffer);
         } else {
@@ -699,16 +701,16 @@ class NullDeleter {
 
         return static_cast<int>(bdexStream.length());
     }
-//..
-// Note that the call to 'appendDataBuffer' also takes care of the possibility
-// that the first buffer of 'blob' may not be full to capacity (if the length
+// ```
+// Note that the call to `appendDataBuffer` also takes care of the possibility
+// that the first buffer of `blob` may not be full to capacity (if the length
 // of the blob was smaller than the buffer size, only the first
-// 'blob->length()' bytes would contain prolog data).  In that case, that
-// buffer is trimmed before appending the 'timestampBuffer' so that the first
-// byte of the 'timestampBuffer' appears immediately next to the last prolog
+// `blob->length()` bytes would contain prolog data).  In that case, that
+// buffer is trimmed before appending the `timestampBuffer` so that the first
+// byte of the `timestampBuffer` appears immediately next to the last prolog
 // byte, and the blob length is automatically incremented by the size of the
-// 'timestampBuffer'.
-//..
+// `timestampBuffer`.
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -723,7 +725,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -747,14 +749,14 @@ int main(int argc, char *argv[])
 
 // Note that should the user desire a blob buffer factory for his/her
 // application, a better implementation that pools buffers is available in the
-// 'bdlbb_pooledblobbufferfactory' component.
+// `bdlbb_pooledblobbufferfactory` component.
 //
 ///Simple Blob Usage
 ///- - - - - - - - -
 // Blobs can be created just by passing a factory that is responsible to
-// allocate the 'bdlbb::BlobBuffer'.  The following simple program illustrates
+// allocate the `bdlbb::BlobBuffer`.  The following simple program illustrates
 // how.
-//..
+// ```
     {
         SimpleBlobBufferFactory myFactory(1024);
 
@@ -765,9 +767,9 @@ int main(int argc, char *argv[])
         blob.setLength(512);
         ASSERT( 512 == blob.length());
         ASSERT(1024 == blob.totalSize());
-//..
+// ```
 // Users need to access buffers directly in order to read/write data.
-//..
+// ```
         char data[] = "12345678901234567890"; // 20 bytes
         ASSERT(0 != blob.numBuffers());
         ASSERT(static_cast<int>(sizeof(data)) <= blob.buffer(0).size());
@@ -776,15 +778,15 @@ int main(int argc, char *argv[])
         blob.setLength(sizeof(data));
         ASSERT(sizeof data == blob.length());
         ASSERT(       1024 == blob.totalSize());
-//..
-// A 'bdlbb::BlobBuffer' can easily be re-assigned from one blob to another
+// ```
+// A `bdlbb::BlobBuffer` can easily be re-assigned from one blob to another
 // with no copy.  In that case, the memory held by the buffer will be returned
 // to its factory when the last blob referencing the buffer is destroyed.  For
 // the following example, a blob will be created using the default constructor.
-// In this case, the 'bdlbb::Blob' object will not able to grow on its own.
-// Calling 'setLength' for a number equal or greater than 'totalSize()' will
+// In this case, the `bdlbb::Blob` object will not able to grow on its own.
+// Calling `setLength` for a number equal or greater than `totalSize()` will
 // result in undefined behavior.
-//..
+// ```
         bdlbb::Blob dest;
         ASSERT(   0 == dest.length());
         ASSERT(   0 == dest.totalSize());
@@ -793,32 +795,32 @@ int main(int argc, char *argv[])
         dest.appendBuffer(blob.buffer(0));
         ASSERT(   0 == dest.length());
         ASSERT(1024 == dest.totalSize());
-//..
-// Note that at this point, the logical length (returned by 'length') of this
-// object has not changed.  'setLength' must be called explicitly by the user
-// if the logical length of the 'bdlbb::Blob' must be changed:
-//..
+// ```
+// Note that at this point, the logical length (returned by `length`) of this
+// object has not changed.  `setLength` must be called explicitly by the user
+// if the logical length of the `bdlbb::Blob` must be changed:
+// ```
         dest.setLength(dest.buffer(0).size());
         ASSERT(1024 == dest.length());
         ASSERT(1024 == dest.totalSize());
-//..
+// ```
 // Sharing only a part of a buffer is also possible through shared pointer
 // aliasing.  In the following example, a buffer that contains only bytes 11-16
-// from the first buffer of 'blob' will be appended to 'blob'.
-//..
+// from the first buffer of `blob` will be appended to `blob`.
+// ```
         ASSERT(0 != blob.numBuffers());
         ASSERT(16 <= blob.buffer(0).size());
 
+        // `shptr` is now an alias of `blob.buffer(0).buffer()`.
         bsl::shared_ptr<char> shptr(blob.buffer(0).buffer(),
                                     blob.buffer(0).data() + 10);
-            // 'shptr' is now an alias of 'blob.buffer(0).buffer()'.
 
         bdlbb::BlobBuffer partialBuffer(shptr, 6);
         dest.appendBuffer(partialBuffer);
-            // The last buffer of 'dest' contains only bytes 11-16 from
-            // 'blob.buffer(0)'.
+            // The last buffer of `dest` contains only bytes 11-16 from
+            // `blob.buffer(0)`.
     }
-//..
+// ```
 
     {
         bslma::TestAllocator    ta;
@@ -831,7 +833,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == blob.length());
         ASSERT(2 == blob.numBuffers());
 
-        // Testing 'prependProlog'
+        // Testing `prependProlog`
         const char *PROLOG("This is a prolog");
         const int   PROLOG_LENGTH      = static_cast<int>(bsl::strlen(PROLOG));
         const int   BLOB_PROLOG_LENGTH =
@@ -843,7 +845,7 @@ int main(int argc, char *argv[])
         ASSERT(1                         == blob.numDataBuffers());
         ASSERT(3                         == blob.numBuffers());
 
-        // Testing 'composeMessage'
+        // Testing `composeMessage`
         const char *const MSG[] = {
             "Here is the first piece",
             "A second piece",
@@ -871,7 +873,7 @@ int main(int argc, char *argv[])
         ASSERT(4                               == blob.numDataBuffers());
         ASSERT(4                               == blob.numBuffers());
 
-        // Testing 'timestampMessage'
+        // Testing `timestampMessage`
         const int TIMESTAMP_LENGTH = timestampMessage(&blob, &ta);
         ASSERT(
           BLOB_PROLOG_LENGTH + TIMESTAMP_LENGTH + MSG_LENGTH == blob.length());
@@ -883,24 +885,24 @@ int main(int argc, char *argv[])
       case 19: {
         // --------------------------------------------------------------------
         // DRQS 172996405
-        //   'moveAndAppendDataBuffers' assertion failure
+        //   `moveAndAppendDataBuffers` assertion failure
         //
         // Concerns:
-        //: 1 'moveAndAppendDataBuffers' works properly when the target 'Blob'
-        //:   has a zero-sized buffer as the last data buffer.
+        // 1. `moveAndAppendDataBuffers` works properly when the target `Blob`
+        //    has a zero-sized buffer as the last data buffer.
         //
         // Plan:
-        //: 1 Create a 'Blob' containing up to three data buffers, both zero-
-        //:   and non-zero sized.
-        //:
-        //: 2 Create a second 'Blob' containing a single non-zero sized data
-        //:   buffer.
-        //:
-        //: 3 Invoke 'moveAndAppendDataBuffers' on the first blob, supplying
-        //:   the second blob as the argument.
-        //:
-        //: 4 Verify that the result is of expected length and contains the
-        //:   expected number of data buffers.  (C-1)
+        // 1. Create a `Blob` containing up to three data buffers, both zero-
+        //    and non-zero sized.
+        //
+        // 2. Create a second `Blob` containing a single non-zero sized data
+        //    buffer.
+        //
+        // 3. Invoke `moveAndAppendDataBuffers` on the first blob, supplying
+        //    the second blob as the argument.
+        //
+        // 4. Verify that the result is of expected length and contains the
+        //    expected number of data buffers.  (C-1)
         //
         // Testing:
         //   CONCERN: DRQS 172996405
@@ -986,40 +988,40 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING 'BlobBuffer::reset'
-        //   The 'bdldd::BlobBuffer' should be separated into a full-fledged
+        // TESTING `BlobBuffer::reset`
+        //   The `bdldd::BlobBuffer` should be separated into a full-fledged
         //   component with its own test driver.
         //
         // Concerns:
-        //: 1 Any 'BlobBuffer' object can be reset.
-        //:
-        //: 2 'BlobBuffer' object can be reset using any 'shared_ptr'
-        //:   (including the default constructed) and any valid size.
-        //:
-        //: 3 'shared_ptr' is moved by the overload accepting rvalue reference.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Any `BlobBuffer` object can be reset.
+        //
+        // 2. `BlobBuffer` object can be reset using any `shared_ptr`
+        //    (including the default constructed) and any valid size.
+        //
+        // 3. `shared_ptr` is moved by the overload accepting rvalue reference.
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create a non-empty object and reset it using overload without
-        //:   parameters. Verify that the object has been set to the
-        //:   default-constructed state.
-        //:
-        //: 2 Create an empty object and reset it passing some non-empty buffer
-        //:   and non-zero size value to the 'copying' overload.  Verify that
-        //:   the object has been set to the expected state and the passed
-        //:   buffer has been copied, not moved.  Reset this object, passing
-        //:   an empty buffer and zero as size to the 'copying' overload.
-        //:   Verify that the object has been set to the default-constructed
-        //:   state.
-        //:
-        //: 3 Repeat steps from P-2 using the 'moving' overload and verifying
-        //:   that buffers passed as a parameters have been moved, not copied.
-        //:   (C-1..3)
-        //:
-        //: 4 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid values, but not triggered for adjacent
-        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-4)
+        // 1. Create a non-empty object and reset it using overload without
+        //    parameters. Verify that the object has been set to the
+        //    default-constructed state.
+        //
+        // 2. Create an empty object and reset it passing some non-empty buffer
+        //    and non-zero size value to the `copying` overload.  Verify that
+        //    the object has been set to the expected state and the passed
+        //    buffer has been copied, not moved.  Reset this object, passing
+        //    an empty buffer and zero as size to the `copying` overload.
+        //    Verify that the object has been set to the default-constructed
+        //    state.
+        //
+        // 3. Repeat steps from P-2 using the `moving` overload and verifying
+        //    that buffers passed as a parameters have been moved, not copied.
+        //    (C-1..3)
+        //
+        // 4. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid values, but not triggered for adjacent
+        //    valid ones (using the `BSLS_ASSERTTEST_*` macros).  (C-4)
         //
         // Testing:
         //   void BlobBuffer::reset();
@@ -1028,7 +1030,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'BlobBuffer::reset'" << endl
+                          << "TESTING `BlobBuffer::reset`" << endl
                           << "===========================" << endl;
 
         bslma::TestAllocator         da("default", veryVeryVerbose);
@@ -1149,34 +1151,34 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // PRIMARY MANIPULATORS OF 'BlobBuffer'
-        //   The 'bdldd::BlobBuffer' should be separated into a full-fledged
+        // PRIMARY MANIPULATORS OF `BlobBuffer`
+        //   The `bdldd::BlobBuffer` should be separated into a full-fledged
         //   component with its own test driver.
         //
         // Concerns:
-        //: 1 A 'BlobBuffer' object can be created using any 'shared_ptr'
-        //:   (including the default constructed) and any valid size.
-        //:
-        //: 2 'shared_ptr' is moved by the constructor accepting rvalue
-        //:   reference.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. A `BlobBuffer` object can be created using any `shared_ptr`
+        //    (including the default constructed) and any valid size.
+        //
+        // 2. `shared_ptr` is moved by the constructor accepting rvalue
+        //    reference.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create several objects passing copies of the different buffers
-        //:   (including an empty buffer) and size values as parameters.
-        //:   Verify that created objects have expected values.  Verify that
-        //:   the passed buffers have been copied, not moved.
-        //:
-        //: 2 Create several objects moving the different buffers (including an
-        //:   empty buffer) and passing different size values as parameters to
-        //:   the constructor.  Verify that created objects have expected
-        //:   values.  Verify that the buffers have been moved, not copied.
-        //:   (C-1..2)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid values, but not triggered for adjacent
-        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-3)
+        // 1. Create several objects passing copies of the different buffers
+        //    (including an empty buffer) and size values as parameters.
+        //    Verify that created objects have expected values.  Verify that
+        //    the passed buffers have been copied, not moved.
+        //
+        // 2. Create several objects moving the different buffers (including an
+        //    empty buffer) and passing different size values as parameters to
+        //    the constructor.  Verify that created objects have expected
+        //    values.  Verify that the buffers have been moved, not copied.
+        //    (C-1..2)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid values, but not triggered for adjacent
+        //    valid ones (using the `BSLS_ASSERTTEST_*` macros).  (C-3)
         //
         // Testing:
         //   BlobBuffer(const bsl::shared_ptr<char>& buffer, int size);
@@ -1184,7 +1186,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "PRIMARY MANIPULATORS OF 'BlobBuffer'" << endl
+                          << "PRIMARY MANIPULATORS OF `BlobBuffer`" << endl
                           << "====================================" << endl;
 
         bslma::TestAllocator         da("default", veryVeryVerbose);
@@ -1293,17 +1295,17 @@ int main(int argc, char *argv[])
         // TESTING SWAP
         //
         // Concerns:
-        //: 1 Swap swaps all members.
-        //: 2 'Blob' member swap asserts on differing allocators
-        //: 3 'Blob' non-member swap works with differing allocators
+        // 1. Swap swaps all members.
+        // 2. `Blob` member swap asserts on differing allocators
+        // 3. `Blob` non-member swap works with differing allocators
         //
         // Plan:
-        //:  1 Create two objects, swap them, verify members.  Do this for both
-        //:    'BlobBuffer' and 'Blob', with member and non-member swap.
-        //:
-        //:  2 Create two 'Blob' objects with differing allocators.
-        //:  3 Verify that member swap asserts.
-        //:  4 Verify that non-member swap swaps.
+        //  1. Create two objects, swap them, verify members.  Do this for both
+        //     `BlobBuffer` and `Blob`, with member and non-member swap.
+        //
+        //  2. Create two `Blob` objects with differing allocators.
+        //  3. Verify that member swap asserts.
+        //  4. Verify that non-member swap swaps.
         //
         // Testing:
         //   SWAP
@@ -1314,7 +1316,7 @@ int main(int argc, char *argv[])
                           << "TESTING SWAP" << endl
                           << "============" << endl;
 
-        if (verbose) cout << "Testing 'BlobBuffer' swap\n";
+        if (verbose) cout << "Testing `BlobBuffer` swap\n";
         {
             static const int      aSize = 256;
             bsl::shared_ptr<char> aBuffer(new char[aSize]);
@@ -1341,7 +1343,7 @@ int main(int argc, char *argv[])
             ASSERT(bBlobBuffer.size() == bSize);
         }
 
-        if (verbose) cout << "Testing 'Blob' swap\n";
+        if (verbose) cout << "Testing `Blob` swap\n";
         {
             bslma::TestAllocator ta("object", veryVeryVerbose);
             bslma::TestAllocator ta2("object2", veryVeryVerbose);
@@ -1445,38 +1447,38 @@ int main(int argc, char *argv[])
         // TESTING MOVE OPERATIONS
         //
         // Concerns:
-        //: 1 The move operations move the data from one object to another.
-        //:
-        //: 2 The moved-from object is in a usable state.
-        //:
-        //: 3 Move works if the allocators differ and it copies.
-        //:
-        //: 4 The 'bsl::is_nothrow_move_constructible' trait is set for 'Blob'
-        //:   and 'BlobBuffer' in C++11 or later.
+        // 1. The move operations move the data from one object to another.
+        //
+        // 2. The moved-from object is in a usable state.
+        //
+        // 3. Move works if the allocators differ and it copies.
+        //
+        // 4. The `bsl::is_nothrow_move_constructible` trait is set for `Blob`
+        //    and `BlobBuffer` in C++11 or later.
         //
         // Plan:
-        //: 1 Verify 'BlobBuffer' move constructor with explicit move.
-        //:
-        //: 2 If C++11 or later, verify automatic move from temporary.
-        //:
-        //: 3 Verify 'BlobBuffer' move assignment with explicit move.
-        //:
-        //: 4 If C++11 or later, verify automatic move from temporary.
-        //:
-        //: 5 Verify 'Blob' move constructor with explicit move.
-        //:
-        //: 6 If C++11 or later, verify automatic move from temporary.
-        //:
-        //: 7 Verify the previous two with differing allocators, too.
-        //:
-        //: 8 Verify 'Blob' move assignment with explicit move.
-        //:
-        //: 9 If C++11 or later, verify automatic move from temporary.
-        //:
-        //:10 Verify the previous two with differing allocators, too.
-        //:
-        //:11 Verify that the 'bsl::is_nothrow_move_constructible' trait is set
-        //:   when expected.
+        // 1. Verify `BlobBuffer` move constructor with explicit move.
+        //
+        // 2. If C++11 or later, verify automatic move from temporary.
+        //
+        // 3. Verify `BlobBuffer` move assignment with explicit move.
+        //
+        // 4. If C++11 or later, verify automatic move from temporary.
+        //
+        // 5. Verify `Blob` move constructor with explicit move.
+        //
+        // 6. If C++11 or later, verify automatic move from temporary.
+        //
+        // 7. Verify the previous two with differing allocators, too.
+        //
+        // 8. Verify `Blob` move assignment with explicit move.
+        //
+        // 9. If C++11 or later, verify automatic move from temporary.
+        //
+        // 10. Verify the previous two with differing allocators, too.
+        //
+        // 11. Verify that the `bsl::is_nothrow_move_constructible` trait is set
+        //    when expected.
         //
         // Testing:
         //   MOVE OPERATIONS
@@ -1496,7 +1498,7 @@ int main(int argc, char *argv[])
 #endif
         const int SIZE = 256;
 
-        if (verbose) cout << "Testing 'is_nothrow_move_constructible' trait\n";
+        if (verbose) cout << "Testing `is_nothrow_move_constructible` trait\n";
         {
             ASSERT(EXP_NOTHROW ==
                  bsl::is_nothrow_move_constructible<bdlbb::Blob>::value);
@@ -1505,7 +1507,7 @@ int main(int argc, char *argv[])
                  bsl::is_nothrow_move_constructible<bdlbb::BlobBuffer>::value);
         }
 
-        if (verbose) cout << "Testing 'BlobBuffer' move construction\n";
+        if (verbose) cout << "Testing `BlobBuffer` move construction\n";
         {
 
             BufT              aBuffer(new char[SIZE]);
@@ -1525,7 +1527,7 @@ int main(int argc, char *argv[])
 #endif
         }
 
-        if (verbose) cout << "Testing 'BlobBuffer' move assignment\n";
+        if (verbose) cout << "Testing `BlobBuffer` move assignment\n";
         {
             BufT              aBuffer(new char[SIZE]);
             bdlbb::BlobBuffer sourceBuffer(aBuffer, SIZE);
@@ -1546,7 +1548,7 @@ int main(int argc, char *argv[])
 #endif
         }
 
-        if (verbose) cout << "Testing 'Blob' move construction\n";
+        if (verbose) cout << "Testing `Blob` move construction\n";
         {
             bslma::TestAllocator sa("source", veryVeryVerbose);
 
@@ -1649,7 +1651,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == sourceDA.totalSize()           );
         }
 
-        if (verbose) cout << "Testing 'Blob' move assignment\n";
+        if (verbose) cout << "Testing `Blob` move assignment\n";
         {
             bslma::TestAllocator    sa("source");
 
@@ -1750,13 +1752,13 @@ int main(int argc, char *argv[])
         // TESTING IMPLICIT TRIM
         //
         // Concerns:
-        //   DRQS 30331343 found a serious bug where 'appendDataBuffer' failed
-        //   to trim 'd_totalSize', leading to corrupt datastructures and
+        //   DRQS 30331343 found a serious bug where `appendDataBuffer` failed
+        //   to trim `d_totalSize`, leading to corrupt datastructures and
         //   reads through invalid pointers.
         //
         // Plan:
         //   Repeat the test case from that DRQS, and also do some more
-        //   thorough testing of 'appendDataBuffer'.  Call the method on blobs
+        //   thorough testing of `appendDataBuffer`.  Call the method on blobs
         //   in a variety of different states, observing the state of the blob
         //   very closely.
         //
@@ -1995,8 +1997,8 @@ int main(int argc, char *argv[])
         // TESTING: moveDataBuffers
         //
         // Concerns:
-        //   That 'moveDataBuffers' moves the data buffers of the 'srcBlob'
-        //   blob to the 'dstBlob'.
+        //   That `moveDataBuffers` moves the data buffers of the `srcBlob`
+        //   blob to the `dstBlob`.
         //
         // Plan:
         //
@@ -2251,9 +2253,9 @@ int main(int argc, char *argv[])
                 ASSERT_FAIL(mX.moveAndAppendDataBuffers(&source));
             }
 
-            // In addition to "d_totalSize", return value of 'numBuffers()' can
+            // In addition to "d_totalSize", return value of `numBuffers()` can
             // also be overflowed.  To simulate such scenario we need to create
-            // a blob with 'INT_MAX' buffers.  But since it consumes a lot of
+            // a blob with `INT_MAX` buffers.  But since it consumes a lot of
             // resources, we comment out this test.  The manual test was
             // performed.
 
@@ -2278,7 +2280,7 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'swapBufferRaw'
+        // TESTING `swapBufferRaw`
         //
         // Concerns:
         //
@@ -2290,7 +2292,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "TESTING 'swapBufferRaw'" << endl
+                 << "TESTING `swapBufferRaw`" << endl
                  << "=======================" << endl;
 
         if (verbose) cout << "\nTesting all blobs with fixed buffer size.\n";
@@ -2363,7 +2365,7 @@ int main(int argc, char *argv[])
         // TESTING: moveBuffers
         //
         // Concerns:
-        //   That 'moveBuffers' assigns the value of the 'rhs' blob, and then
+        //   That `moveBuffers` assigns the value of the `rhs` blob, and then
         //   removes all of its buffers.
         //
         // Plan:
@@ -2435,7 +2437,7 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'replaceDataBuffer'
+        // TESTING `replaceDataBuffer`
         //
         // Concerns:
         //   - That replacing does not change either the number of data
@@ -2465,7 +2467,7 @@ int main(int argc, char *argv[])
         //   bdlbb::Blob::replaceDataBuffer(int index, bdlbb::BlobBuffer *buf);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'replaceDataBuffer'" << endl;
+        if (verbose) cout << "\nTesting `replaceDataBuffer`" << endl;
 
         for (int bufferSize = 1; bufferSize <= 5; ++bufferSize)
         for (int replacementBufferSize = 1; replacementBufferSize <= 5;
@@ -2576,7 +2578,7 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'prependDataBuffer' and 'appendDataBuffer'
+        // TESTING `prependDataBuffer` and `appendDataBuffer`
         //   Since overloads that accept const references just call overloads
         //   that accept rvalue references, passing there a copy of incoming
         //   parameter, we are going to test the first ones superficially.
@@ -2616,7 +2618,7 @@ int main(int argc, char *argv[])
                           << "===============================" << endl;
 
         if (verbose)
-            cout << "\nTesting moving overload of the 'prependDataBuffer'"
+            cout << "\nTesting moving overload of the `prependDataBuffer`"
                  << endl;
 
         for (int bufferSize = 1; bufferSize <= 5; ++bufferSize)
@@ -2678,7 +2680,7 @@ int main(int argc, char *argv[])
                 ASSERT(PREPEND_BUFFER_SIZE == prependedBuffer.size());
 
                 // The following two checks fail because of inconsistent
-                // behavior of 'bsl::vector<>::insert' method (see
+                // behavior of `bsl::vector<>::insert` method (see
                 // {DRQS 170573799}).  These checks should be uncommented
                 // after the issue is fixed.
                 //
@@ -2722,7 +2724,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\nTesting copy overload of the 'prependDataBuffer'"
+            cout << "\nTesting copy overload of the `prependDataBuffer`"
                  << endl;
 
         for (int prependSz = 0; prependSz <= 5; ++prependSz)
@@ -2766,7 +2768,7 @@ int main(int argc, char *argv[])
                 ASSERTV(2 == prependedBuffer.buffer().use_count());
                 ASSERTV(2 == buffer.buffer().use_count());
 
-                // Modifying the control object. We use 'move'-overload, since
+                // Modifying the control object. We use `move`-overload, since
                 // it has been tested already.
 
                 mZ.prependDataBuffer(MoveUtil::move(buffer));
@@ -2783,7 +2785,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\nTesting moving overload of the 'appendDataBuffer'"
+            cout << "\nTesting moving overload of the `appendDataBuffer`"
                  << endl;
 
         for (int bufferSize = 1; bufferSize <= 5; ++bufferSize)
@@ -2848,7 +2850,7 @@ int main(int argc, char *argv[])
                 ASSERT(APPEND_BUFFER_SIZE == appendedBuffer.size());
 
                 // The following two checks fail because of inconsistent
-                // behavior of 'bsl::vector<>::insert' method (see
+                // behavior of `bsl::vector<>::insert` method (see
                 // {DRQS 170573799}).  These checks should be uncommented
                 // after the issue is fixed.
                 //
@@ -2874,7 +2876,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\nTesting copying overload of the 'appendDataBuffer'"
+            cout << "\nTesting copying overload of the `appendDataBuffer`"
                  << endl;
 
         for (int appendSz   = 0; appendSz   <= 5; ++appendSz)
@@ -2916,7 +2918,7 @@ int main(int argc, char *argv[])
                 ASSERTV(2 == appendedBuffer.buffer().use_count());
                 ASSERTV(2 == buffer.buffer().use_count());
 
-                // Modifying the control object. We use 'move'-overload, since
+                // Modifying the control object. We use `move`-overload, since
                 // it has been tested already.
 
                 mZ.appendDataBuffer(MoveUtil::move(buffer));
@@ -2973,9 +2975,9 @@ int main(int argc, char *argv[])
                 ASSERT_FAIL(mX1.prependDataBuffer(MoveUtil::move(TINY_DUMMY)));
             }
 
-            // In addition to "d_totalSize", return value of 'numBuffers()' can
+            // In addition to "d_totalSize", return value of `numBuffers()` can
             // also be overflowed.  To simulate such scenario we need to create
-            // a blob with 'INT_MAX' buffers.  But since it consumes a lot of
+            // a blob with `INT_MAX` buffers.  But since it consumes a lot of
             // resources, we comment out this test.  The manual test was
             // performed.
 
@@ -3037,7 +3039,7 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'remove*' methods
+        // TESTING `remove*` methods
         //
         // Concerns:
         //   - That removing a non data buffer must not decrease the length of
@@ -3066,10 +3068,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'remove*'" << endl
+                          << "TESTING `remove*`" << endl
                           << "=================" << endl;
 
-        if (verbose) cout << "ntTesting 'removeBuffer'" << endl;
+        if (verbose) cout << "ntTesting `removeBuffer`" << endl;
 
         for (int bufferSize = 1; bufferSize <= 5; ++bufferSize)
         for (int numBuffers = 0; numBuffers <= 5; ++numBuffers)
@@ -3174,7 +3176,7 @@ int main(int argc, char *argv[])
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
-        if (verbose) cout << "ntTesting 'removeBuffers'" << endl;
+        if (verbose) cout << "ntTesting `removeBuffers`" << endl;
 
         for (int bufferSize = 1; bufferSize <= 5; ++bufferSize)
         for (int numBuffers = 0; numBuffers <= 5; ++numBuffers)
@@ -3281,7 +3283,7 @@ int main(int argc, char *argv[])
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
-        if (verbose) cout << "ntTesting 'removeUnusedBuffers'" << endl;
+        if (verbose) cout << "ntTesting `removeUnusedBuffers`" << endl;
 
         for (int bufferSize = 1; bufferSize <= 5; ++bufferSize)
         for (int numBuffers = 0; numBuffers <= 5; ++numBuffers)
@@ -3341,7 +3343,7 @@ int main(int argc, char *argv[])
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
-        if (verbose) cout << "\nTesting 'removeAll'" << endl;
+        if (verbose) cout << "\nTesting `removeAll`" << endl;
 
         for (int bufferSize = 1; bufferSize <= 5; ++bufferSize)
         for (int numBuffers = 0; numBuffers <= 5; ++numBuffers)
@@ -3432,7 +3434,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'appendBuffer'" << endl
+                          << "TESTING `appendBuffer`" << endl
                           << "======================" << endl;
 
         if (verbose) cout << "\tTesting moving overload." << endl;
@@ -3498,7 +3500,7 @@ int main(int argc, char *argv[])
                 ASSERT(APPEND_BUFFER_SIZE == appendedBuffer1.size());
 
                 // The following two checks fail because of inconsistent
-                // behavior of 'bsl::vector<>::insert' method (see
+                // behavior of `bsl::vector<>::insert` method (see
                 // {DRQS 170573799}).  These checks should be uncommented
                 // after the issue is fixed.
                 //
@@ -3521,7 +3523,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == appendedBuffer2.size());
 
                 // The following two checks fail because of inconsistent
-                // behavior of 'bsl::vector<>::insert' method (see
+                // behavior of `bsl::vector<>::insert` method (see
                 // {DRQS 170573799}).  These checks should be uncommented
                 // after the issue is fixed.
                 //
@@ -3594,7 +3596,7 @@ int main(int argc, char *argv[])
                 ASSERT(2 == appendedBuffer.buffer().use_count());
                 ASSERT(2 == buffer.buffer().use_count());
 
-                // Modifying the control object. We use 'move'-overload, since
+                // Modifying the control object. We use `move`-overload, since
                 // it has been tested already.
 
                 mZ.appendBuffer(MoveUtil::move(buffer));
@@ -3635,9 +3637,9 @@ int main(int argc, char *argv[])
                 ASSERT_FAIL(mX1.appendBuffer(MoveUtil::move(TINY_DUMMY)));
             }
 
-            // In addition to "d_totalSize", return value of 'numBuffers()' can
+            // In addition to "d_totalSize", return value of `numBuffers()` can
             // also be overflowed.  To simulate such scenario we need to create
-            // a blob with 'INT_MAX' buffers.  But since it consumes a lot of
+            // a blob with `INT_MAX` buffers.  But since it consumes a lot of
             // resources, we comment out this test.  The manual test was
             // performed.
 
@@ -3709,7 +3711,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'insertBuffer'" << endl
+                          << "TESTING `insertBuffer`" << endl
                           << "======================" << endl;
 
         if (verbose) cout << "\nTesting moving overload" << endl;
@@ -3781,7 +3783,7 @@ int main(int argc, char *argv[])
                 ASSERT(INSERT_BUFFER_SIZE == insertedBuffer1.size());
 
                 // The following two checks fail because of inconsistent
-                // behavior of 'bsl::vector<>::insert' method (see
+                // behavior of `bsl::vector<>::insert` method (see
                 // {DRQS 170573799}).  These checks should be uncommented
                 // after the issue is fixed.
                 //
@@ -3805,7 +3807,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == insertedBuffer2.size());
 
                 // The following two checks fail because of inconsistent
-                // behavior of 'bsl::vector<>::insert' method (see
+                // behavior of `bsl::vector<>::insert` method (see
                 // {DRQS 170573799}).  These checks should be uncommented
                 // after the issue is fixed.
                 //
@@ -3883,7 +3885,7 @@ int main(int argc, char *argv[])
                 ASSERTV(2 == insertedBuffer.buffer().use_count());
                 ASSERTV(2 == buffer.buffer().use_count());
 
-                // Modifying the control object. We use 'move'-overload, since
+                // Modifying the control object. We use `move`-overload, since
                 // it has been tested already.
 
                 mZ.insertBuffer(INSERT_POSITION, MoveUtil::move(buffer));
@@ -3930,9 +3932,9 @@ int main(int argc, char *argv[])
                 ASSERT_FAIL(mX1.insertBuffer(0,  MoveUtil::move(TINY_DUMMY)));
             }
 
-            // In addition to "d_totalSize", return value of 'numBuffers()' can
+            // In addition to "d_totalSize", return value of `numBuffers()` can
             // also be overflowed.  To simulate such scenario we need to create
-            // a blob with 'INT_MAX' buffers.  But since it consumes a lot of
+            // a blob with `INT_MAX` buffers.  But since it consumes a lot of
             // resources, we comment out this test.  The manual test was
             // performed.
 
@@ -3966,7 +3968,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING '*DataBuffer*'
+        // TESTING `*DataBuffer*`
         //
         // Concerns:
         //   - That the invariants governing the definition of the data buffers
@@ -3990,7 +3992,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING '*DataBuffer*'" << endl
+                          << "TESTING `*DataBuffer*`" << endl
                           << "======================" << endl;
 
         for (int bufferSize = 1; bufferSize <= 5; ++bufferSize)
@@ -4075,15 +4077,15 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'setLength' AND LENGTH ACCESSORS
+        // TESTING `setLength` AND LENGTH ACCESSORS
         //
         // Concerns:
-        //   - That 'setLength' increases the size of the blob properly if a
+        //   - That `setLength` increases the size of the blob properly if a
         //     blob buffer factory was supplied to the constructor.
-        //   - That 'setLength' does not decrease the number of buffers.
-        //   - That 'setLength' has the same behavior in the presence of
+        //   - That `setLength` does not decrease the number of buffers.
+        //   - That `setLength` has the same behavior in the presence of
         //     zero-size buffers.
-        //   - That 'length' and 'totalSize' return the value as expected.
+        //   - That `length` and `totalSize` return the value as expected.
         //   - That buffers are created and inserted in sequence by the buffer
         //     factory, in front-to-back order.
         //   - That there are no memory leaks, and that all memory is supplied
@@ -4100,7 +4102,7 @@ int main(int argc, char *argv[])
         //   value increases both.  In all cases, make sure that the buffers
         //   can be written into and that they are all distinct (no aliasing)
         //   and hold their value as expected.  Finally, set the length of an
-        //   empty buffer with a 'TestBlobBufferFactory' whose buffer size
+        //   empty buffer with a `TestBlobBufferFactory` whose buffer size
         //   increases at each call, to make sure the buffers are created in
         //   the proper order.  In all cases, run the test in a bdema exception
         //   test loop to test for exception neutrality (invariants are
@@ -4120,7 +4122,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "TESTING 'setLength' AND LENGTH ACCESSORS" << endl
+                 << "TESTING `setLength` AND LENGTH ACCESSORS" << endl
                  << "========================================" << endl;
 
         if (verbose) cout << "\nTesting all blobs with fixed buffer size.\n";
@@ -4283,10 +4285,10 @@ int main(int argc, char *argv[])
         const int BUFFER_SIZE = 4;
 
 #if defined(BDE_BUILD_TARGET_EXC) && defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-        // This component works for *all* targets, including 'opt_exc_mt'.
+        // This component works for *all* targets, including `opt_exc_mt`.
         // However, portions of this test case fail unless either safe-mode or
         // debug is in effect.  If neither safe-mode nor debug is in effect,
-        // then the 'bsls_assert' macros resolve to no-ops and the guard is
+        // then the `bsls_assert` macros resolve to no-ops and the guard is
         // ineffective at catching assertion failures.
 
         if (verbose) cout << "\nTesting creating blob without factory.\n";
@@ -4512,14 +4514,14 @@ int main(int argc, char *argv[])
         //   Developers' Sandbox.
         //
         // Concerns:
-        //   - That 'bdlbb::BlobBuffer' is an in-core value type.
-        //   - That 'bdlbb::Blob' basic manipulation does what is expected.
+        //   - That `bdlbb::BlobBuffer` is an in-core value type.
+        //   - That `bdlbb::Blob` basic manipulation does what is expected.
         //
         // Plan:
-        // Do a mini value-semantic 10 case driver for 'bdlbb::BlobBuffer'.
-        // Manipulate 'bdlbb::Blob' using a non-fixed size blob buffer
-        // factory with 'setLength', 'insertBuffer', 'removeBuffer', and
-        // 'appendBuffer'.  For each blob, assert the state is as expected and
+        // Do a mini value-semantic 10 case driver for `bdlbb::BlobBuffer`.
+        // Manipulate `bdlbb::Blob` using a non-fixed size blob buffer
+        // factory with `setLength`, `insertBuffer`, `removeBuffer`, and
+        // `appendBuffer`.  For each blob, assert the state is as expected and
         // check the validity of the buffers.
         //
         // Testing:

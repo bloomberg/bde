@@ -26,16 +26,16 @@ using namespace bdlb;
 //-----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// The component under test is a utility template with two flavor of 'sort'
+// The component under test is a utility template with two flavor of `sort`
 // functions that implement topological sorting of directed graphs with cycle
 // detection.  One version of the function has a signature with (input and
 // output) iterators while the other is templated on the type representing the
-// nodes and uses 'bsl::vector<bsl::pair<TYPE, TYPE>>' as input and
-// 'bsl::vector<TYPE>' as output.
+// nodes and uses `bsl::vector<bsl::pair<TYPE, TYPE>>` as input and
+// `bsl::vector<TYPE>` as output.
 //
 // Class Methods:
-//: o 'sort<INPUT_ITER, RESULT_ITER, UNORDERED_ITER>'
-//: o 'sort<VALUE_TYPE>'
+//  - `sort<INPUT_ITER, RESULT_ITER, UNORDERED_ITER>`
+//  - `sort<VALUE_TYPE>`
 //
 //-----------------------------------------------------------------------------
 //
@@ -109,33 +109,35 @@ void aSsErT(bool condition, const char *message, int line)
                             // class CustomNode
                             // ================
 
+/// `CustomNode` is an example attribute class used in demonstrating
+/// customizing `TopologicalSortUtil::sort` using
+/// `TopologicalSortUtilEdgeTraits`.
 class CustomNode {
-    // 'CustomNode' is an example attribute class used in demonstrating
-    // customizing 'TopologicalSortUtil::sort' using
-    // 'TopologicalSortUtilEdgeTraits'.
 
     // DATA
     int d_identifier;
 
   public:
     // CREATORS
+
+    /// Create a custom node object with the specified `identifier` value.
     explicit CustomNode(int identifier)
-        // Create a custom node object with the specified 'identifier' value.
     : d_identifier(identifier)
     {
     }
 
     // ACCESSORS
+
+    /// Return the `identifier` attribute of this object.
     int identifier() const
-        // Return the 'identifier' attribute of this object.
     {
         return d_identifier;
     }
 
+    /// Return `true` if the specified `lhs` has the same value as this
+    /// object.  Two `CustomNode` objects have the same value if their
+    /// `identifier` has the same value.
     bool operator==(const CustomNode& lhs) const
-        // Return 'true' if the specified 'lhs' has the same value as this
-        // object.  Two 'CustomNode' objects have the same value if their
-        // 'identifier' has the same value.
     {
         return d_identifier == lhs.d_identifier;
     }
@@ -143,28 +145,28 @@ class CustomNode {
 
                                 // Aspects
 
+/// Print the specified `node` to the specified `os` output stream and
+/// return `os`.
 bsl::ostream& operator<<(bsl::ostream& os, const CustomNode& node)
-    // Print the specified 'node' to the specified 'os' output stream and
-    // return 'os'.
 {
     return os << "CustomNode{" << node.identifier() << '}';
 }
 
+/// Append the hash input value of the specified `key` to the specified
+/// `algo`.
 template <class HASH_ALGORITHM>
 inline
 void hashAppend(HASH_ALGORITHM& algo, CustomNode const& key)
-    // Append the hash input value of the specified 'key' to the specified
-    // 'algo'.
 {
     hashAppend(algo, key.identifier());
 }
 
+/// To sort the unsorted output.
 struct CustomComparator {
-    // To sort the unsorted output.
 
+    /// Return `true` if the specified `lhs` should come before the
+    /// specified `rhs` in sorting.
     bool operator()(const CustomNode& lhs, const CustomNode& rhs)
-        // Return 'true' if the specified 'lhs' should come before the
-        // specified 'rhs' in sorting.
     {
         return lhs.identifier() < rhs.identifier();
     }
@@ -174,10 +176,10 @@ struct CustomComparator {
                             // class CustomEdge
                             // ================
 
+/// `CustomMapping` is an example attribute class used in demonstrating
+/// customizing `TopologicalSortUtil::sort` using
+/// `TopologicalSortUtilEdgeTraits`.
 class CustomEdge {
-    // 'CustomMapping' is an example attribute class used in demonstrating
-    // customizing 'TopologicalSortUtil::sort' using
-    // 'TopologicalSortUtilEdgeTraits'.
 
     // DATA
     CustomNode d_from;
@@ -185,31 +187,33 @@ class CustomEdge {
 
   public:
     // CREATORS
+
+    /// Create a custom mapping object with the specified `from` and `to`
+    /// attributes.
     CustomEdge(CustomNode from, CustomNode to)
-        // Create a custom mapping object with the specified 'from' and 'to'
-        // attributes.
     : d_from(from)
     , d_to(to)
     {
     }
 
+    /// Create a custom mapping object with node sof the specified `fromId`
+    /// and `toId`.
     CustomEdge(int fromId, int toId)
-        // Create a custom mapping object with node sof the specified 'fromId'
-        // and 'toId'.
     : d_from(fromId)
     , d_to(toId)
     {
     }
 
     // ACCESSORS
+
+    /// Return the `from` attribute of this object.
     CustomNode from() const
-        // Return the 'from' attribute of this object.
     {
         return d_from;
     }
 
+    /// Return the `to` attribute of this object.
     CustomNode to() const
-        // Return the 'to' attribute of this object.
     {
         return d_to;
     }
@@ -218,26 +222,27 @@ class CustomEdge {
 namespace BloombergLP {
 namespace bdlb {
 
+/// This `struct` `TopologicalSortUtilEdgeTraits<CustomEdge>` customizes
+/// `TopologicalSortUtil::sort` to "understand" the `CustomEdge` type.
 template <>
 struct TopologicalSortUtilEdgeTraits<CustomEdge> {
-    // This 'struct' 'TopologicalSortUtilEdgeTraits<CustomEdge>' customizes
-    // 'TopologicalSortUtil::sort' to "understand" the 'CustomEdge' type.
 
     // TYPES
+
+    /// The type that represents a connection in the graph.
     typedef CustomEdge EdgeType;
-        // The type that represents a connection in the graph.
 
+    /// The type that represents a node/vertex of the graph.
     typedef CustomNode NodeType;
-        // The type that represents a node/vertex of the graph.
 
+    /// Return the `from` attribute of the specified `edge` object.
     static NodeType from(const CustomEdge& edge)
-        // Return the 'from' attribute of the specified 'edge' object.
     {
         return edge.from();
     }
 
+    /// Return the `to` attribute of the specified `edge` object.
     static NodeType to(const CustomEdge& edge)
-        // Return the 'to' attribute of the specified 'edge' object.
     {
         return edge.to();
     }
@@ -250,55 +255,55 @@ struct TopologicalSortUtilEdgeTraits<CustomEdge> {
                               // NullOutputIterator
                               // ==================
 
+/// This `class` `NullOutputIterator` is an iterator of the
+/// `output_iterator` category that supports all output iterator methods and
+/// all methods do nothing.  It is also able to accept any type for output.
 class NullOutputIterator {
-    // This 'class' 'NullOutputIterator' is an iterator of the
-    // 'output_iterator' category that supports all output iterator methods and
-    // all methods do nothing.  It is also able to accept any type for output.
 
 public:
     // TYPES
     typedef void container_type;
     // This iterator type does not serve a specific container, hence the
-    // 'container_type' is 'void'.
+    // `container_type` is `void`.
 
     typedef void value_type;
     // This iterator type does not serve a specific value type, hence the
-    // 'value_type' is 'void'.
+    // `value_type` is `void`.
 
     typedef void difference_type;
-    // 'difference_type' for output iterators is 'void' by definition.
+    // `difference_type` for output iterators is `void` by definition.
 
     typedef void pointer;
-    // 'pointer_type' for output iterators is 'void' by definition.
+    // `pointer_type` for output iterators is `void` by definition.
 
     typedef void reference;
-    // 'reference' type for output iterators is 'void' by definition.
+    // `reference` type for output iterators is `void` by definition.
 
     typedef bsl::output_iterator_tag iterator_category;
-    // This iterator type is an output iterator, hence 'iterator_category' is
-    // 'bsl::output_iterator_tag'.
+    // This iterator type is an output iterator, hence `iterator_category` is
+    // `bsl::output_iterator_tag`.
 
+    /// Do nothing and return `*this`.
     template <class TYPE>
     NullOutputIterator& operator=(const TYPE&)
-        // Do nothing and return '*this'.
     {
         return *this;
     }
 
+    /// Do nothing and return `*this`.
     NullOutputIterator& operator*()
-        // Do nothing and return '*this'.
     {
         return *this;
     }
 
+    /// Do nothing and return `*this`.
     NullOutputIterator& operator++()
-        // Do nothing and return '*this'.
     {
         return *this;
     }
 
+    /// Do nothing and return `*this`.
     NullOutputIterator& operator++(int)
-        // Do nothing and return '*this'.
     {
         return *this;
     }
@@ -307,11 +312,11 @@ public:
                         // VerifyingOutputIterator
                         // =======================
 
+/// This `class` is an output-iterator that wraps another iterator type and
+/// verifies proper output iterator use.  It asserts if not incremented
+/// between assignments or incremented but not assigned.
 template <class WRAPPED_ITERATOR>
 class VerifyingOutputIterator {
-    // This 'class' is an output-iterator that wraps another iterator type and
-    // verifies proper output iterator use.  It asserts if not incremented
-    // between assignments or incremented but not assigned.
 
   public:
     // TYPES
@@ -325,11 +330,11 @@ public:
     typedef typename WrappedIterator::pointer         pointer;
     typedef typename WrappedIterator::reference       reference;
 
+    /// This type is an output iterator, hence `iterator_category` is
+    /// `bsl::output_iterator_tag`.  Since no other iterator functionality
+    /// is implemented even if the wrapped iterator could do more, the
+    /// wrapped one cannot.
     typedef bsl::output_iterator_tag iterator_category;
-        // This type is an output iterator, hence 'iterator_category' is
-        // 'bsl::output_iterator_tag'.  Since no other iterator functionality
-        // is implemented even if the wrapped iterator could do more, the
-        // wrapped one cannot.
 
   private:
     // DATA
@@ -340,32 +345,33 @@ public:
 
   public:
     // CREATORS
+
+    /// Create a `VerifyingOutputIterator` with the wrapped iterator
+    /// constructed from the specified `init` value and use the specified
+    /// `line` number in asserts.
     template <class ITER_INIT>
     explicit VerifyingOutputIterator(int line, ITER_INIT init)
-        // Create a 'VerifyingOutputIterator' with the wrapped iterator
-        // constructed from the specified 'init' value and use the specified
-        // 'line' number in asserts.
     : d_assigned(false)
     , d_incremented(false)
     , d_line(line)
     , d_iterator(init)
     {}
 
+    /// Create a `VerifyingOutputIterator` with a default constructed
+    /// wrapped iterator that uses the specified `line` number in asserts.
     explicit VerifyingOutputIterator(int line)
-        // Create a 'VerifyingOutputIterator' with a default constructed
-        // wrapped iterator that uses the specified 'line' number in asserts.
     : d_assigned(false)
     , d_incremented(false)
     , d_line(line)
     , d_iterator()
     {}
 
+    /// Set the iterator wrapped iterator to the specified `value`, set the
+    /// verification state such that an increment is required before the
+    /// next assignment, and return `*this`.  Report an error if the
+    /// iterator is not in the state where it is assignable.
     template <class TYPE>
     VerifyingOutputIterator& operator=(const TYPE& value)
-        // Set the iterator wrapped iterator to the specified 'value', set the
-        // verification state such that an increment is required before the
-        // next assignment, and return '*this'.  Report an error if the
-        // iterator is not in the state where it is assignable.
     {
         ASSERTV(d_line, d_assigned, d_incremented,
                  false == d_assigned || true == d_incremented);
@@ -378,16 +384,16 @@ public:
         return *this;
     }
 
+    /// Do nothing and return `*this`.
     VerifyingOutputIterator& operator*()
-        // Do nothing and return '*this'.
     {
         return *this;
     }
 
+    /// Increment the wrapped iterator, set this iterator to the state where
+    /// it is allowed to assign to it, and return `*this`.  Report an error
+    /// if the iterator has not been assigned yet in its current position.
     VerifyingOutputIterator& operator++()
-        // Increment the wrapped iterator, set this iterator to the state where
-        // it is allowed to assign to it, and return '*this'.  Report an error
-        // if the iterator has not been assigned yet in its current position.
     {
         ASSERTV(d_line, true == d_assigned && false == d_incremented);
 
@@ -399,11 +405,11 @@ public:
         return *this;
     }
 
+    /// Increment the wrapped iterator, set this iterator to the state where
+    /// it is allowed to assign to it, and return `*this`.  An error is
+    /// reported if the iterator has not been assigned-to yet in its current
+    /// position.
     VerifyingOutputIterator operator++(int)
-        // Increment the wrapped iterator, set this iterator to the state where
-        // it is allowed to assign to it, and return '*this'.  An error is
-        // reported if the iterator has not been assigned-to yet in its current
-        // position.
     {
         ASSERTV(d_line, false == d_incremented);
 
@@ -421,26 +427,26 @@ public:
                   // Verifying Inserter Factory Functions
                   // ====================================
 
+/// Return a `VerifyingOutputIterator` that reports issues using the
+/// specified `line` number, and wraps a `bsl::insert_iterator` for the
+/// specified `container` that inserts after the specified `position`.
 template <class Container>
 VerifyingOutputIterator<bsl::insert_iterator<Container> >
 verifyingInserter(int                          line,
                   Container&                   container,
                   typename Container::iterator position)
-    // Return a 'VerifyingOutputIterator' that reports issues using the
-    // specified 'line' number, and wraps a 'bsl::insert_iterator' for the
-    // specified 'container' that inserts after the specified 'position'.
 {
     typedef VerifyingOutputIterator<bsl::insert_iterator<Container> >
                                                        VerifyingInsertIterator;
     return VerifyingInsertIterator(line, bsl::inserter(container, position));
 }
 
+/// Return a `VerifyingOutputIterator` that reports issues using the
+/// specified `line` number, and wraps a `bsl::back_insert_iterator` for the
+/// specified `container`.
 template <class Container>
 VerifyingOutputIterator<bsl::back_insert_iterator<Container> >
 verifyingBackInserter(int line, Container& container)
-    // Return a 'VerifyingOutputIterator' that reports issues using the
-    // specified 'line' number, and wraps a 'bsl::back_insert_iterator' for the
-    // specified 'container'.
 {
     typedef VerifyingOutputIterator<bsl::back_insert_iterator<Container> >
                                                    VerifyingBackInsertIterator;
@@ -471,13 +477,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -499,7 +505,7 @@ int main(int argc, char *argv[])
 //
 // First, we create the relations showcasing the above mentioned dependencies
 // in the form of pairs (a,b) where b is dependent on a:
-//..
+// ```
     enum FieldIds {
         k_bbgDefinedVwap  = 0,
         k_vwapTurnover    = 1,
@@ -520,21 +526,21 @@ int main(int argc, char *argv[])
                                        static_cast<int>(k_vwapTurnover)));
     relations.push_back(bsl::make_pair(static_cast<int>(k_tradePrice),
                                        static_cast<int>(k_vwapTurnover)));
-//..
+// ```
 // Now, we call the topological sort to get a topological order for the fields
 // referenced in the relations:
-//..
+// ```
     bsl::vector<int> results;
     bsl::vector<int> unsorted;
     bool             sorted = TopologicalSortUtil::sort(&results,
                                                         &unsorted,
                                                         relations);
-//..
-// Finally, we verify that the call to 'sort' populates the supplied 'results'
-// with a sequence in sorted order (e.g.. 'k_tradeSize', 'k_tradePrice,
-// 'k_vwapTurnover', 'k_vwapVolume', 'k_bbgDefinedVwap') and 'unsorted' will be
+// ```
+// Finally, we verify that the call to `sort` populates the supplied `results`
+// with a sequence in sorted order (e.g.. `k_tradeSize`, 'k_tradePrice,
+// `k_vwapTurnover`, `k_vwapVolume`, `k_bbgDefinedVwap`) and `unsorted` will be
 // empty because the input relationships do not contain a cycle.
-//..
+// ```
     bool calculated[5] = { 0 };
     ASSERT(sorted == true);
     ASSERT(unsorted.empty());
@@ -585,13 +591,13 @@ int main(int argc, char *argv[])
     for (int i = 0; i < 5; ++i) {
         ASSERT(calculated[i] == true);
     }
-//..
+// ```
 ///Example 2: Using Topological Sort with Cycles in Input
 ///-  - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have a set of inputs which contain a cycle.
 //
 // First, we define a set of inputs which have a cycle:
-//..
+// ```
     enum FieldIds2 {
         k_FIELD1 = 0,
         k_FIELD2 = 1,
@@ -606,32 +612,32 @@ int main(int argc, char *argv[])
                                         static_cast<int>(k_FIELD2)));
     relations2.push_back(bsl::make_pair(static_cast<int>(k_FIELD1),
                                         static_cast<int>(k_FIELD3)));
-//..
+// ```
 // Now, we apply the topological sort routine on the input:
-//..
+// ```
     bsl::vector<int> results2;
     bsl::vector<int> unsorted2;
     bool             sorted2 = TopologicalSortUtil::sort(&results2,
                                                          &unsorted2,
                                                          relations2);
-//..
+// ```
 // Finally, we verify whether the routine recognizes that there is a cycle and
 // returns false:
-//..
+// ```
     ASSERT(sorted2           == false);
     ASSERT(unsorted2.size() == 3);
-//..
+// ```
 ///Example 3: Using Topological Sort with Self Relations
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have a set of inputs which have input relations where predecessor
 // and successor point to the same value. i.e. we have pairs of input like
-// (u,u).  Such input is considered a cycle by the 'sort' functions, and this
+// (u,u).  Such input is considered a cycle by the `sort` functions, and this
 // example demonstrates that behavior.  Some systems use such (u,u) pairs to
 // represent standalone nodes with no connection.  See Example 6 for a way
 // handle such data.
 //
 // First, we define the set of inputs:
-//..
+// ```
     enum FieldIds3 {
         k_FIELD4 = 3,
         k_FIELD5 = 4,
@@ -646,17 +652,17 @@ int main(int argc, char *argv[])
                                         static_cast<int>(k_FIELD4)));
     relations3.push_back(bsl::make_pair(static_cast<int>(k_FIELD4),
                                         static_cast<int>(k_FIELD4)));
-//..
+// ```
 // Now, we apply the topological sort routine on the input:
-//..
+// ```
     bsl::vector<int> results3;
     bsl::vector<int> unsorted3;
     bool             sorted3 = TopologicalSortUtil::sort(&results3,
                                                          &unsorted3,
                                                          relations3);
-//..
+// ```
 // Finally, we verify that the self relations causes the cycle:
-//..
+// ```
     ASSERT(sorted3           == false);
     ASSERT(results3.size()   == 1);
     ASSERT(unsorted3.size() == 2);
@@ -679,23 +685,23 @@ int main(int argc, char *argv[])
                 cout << "unsorted3[" << i << "] is " << unsorted3[i] << "\n";
         }
     }
-//..
+// ```
 ///Example 4: Using Topological Sort with Iterators as Input
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have a set of inputs which have input relations that conceptually
 // follow the input requirements (of a listing of pairs of nodes) but are not
-// physically stored in a 'bsl::vector' of 'bsl::pair' typed container.  Let's
-// suppose the input is in a 'bsl::list' instead.  First, we define such a set
+// physically stored in a `bsl::vector` of `bsl::pair` typed container.  Let's
+// suppose the input is in a `bsl::list` instead.  First, we define such a set
 // of inputs:
-//..
+// ```
     bsl::list<bsl::pair<int, int> > relations4;
 
     relations4.push_back(bsl::make_pair(1, 2));
     relations4.push_back(bsl::make_pair(1, 3));
     relations4.push_back(bsl::make_pair(2, 3));
-//..
+// ```
 // Now, we apply the topological sort routine on the input:
-//..
+// ```
     bsl::vector<int> results4;
     bsl::vector<int> unsorted4;
     typedef bsl::back_insert_iterator<bsl::vector<int> > OutIter;
@@ -703,11 +709,11 @@ int main(int argc, char *argv[])
                                              relations4.end(),
                                              OutIter(results4),
                                              OutIter(unsorted3));
-//..
+// ```
 // Finally, we verify that the sort is successful, there are no nodes in the
-// 'unsorted' output (there is no cycle) and the nodes are listed in the
-// proper order in 'results4':
-//..
+// `unsorted` output (there is no cycle) and the nodes are listed in the
+// proper order in `results4`:
+// ```
     ASSERT(sorted4           == true);
     ASSERT(unsorted4.size() == 0);
     ASSERT(results4.size() == 3);
@@ -715,27 +721,27 @@ int main(int argc, char *argv[])
     ASSERT(results4[0] == 1);
     ASSERT(results4[1] == 2);
     ASSERT(results4[2] == 3);
-//..
+// ```
 ///Example 5: Using Topological Sort with Iterators as Output
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we want our result in a 'bsl::list' instead of a 'bsl::vector' and
+// Suppose we want our result in a `bsl::list` instead of a `bsl::vector` and
 // we do not care about the unsorted elements so we do not want to pay for
 // storing them if they exist.  First, we would define a Null Output Iterator
-// that writes to nowhere.  See 'NullOutputIterator' before 'main' (local
+// that writes to nowhere.  See `NullOutputIterator` before `main` (local
 // classes cannot be templates and cannot have member templates in C++03).
 //
 // Now, we apply the topological sort routine on the input:
-//..
+// ```
     bsl::list<int> results5;
     typedef bsl::back_insert_iterator<bsl::list<int> > ListOutIter;
     bool sorted5 = TopologicalSortUtil::sort(relations4.begin(),
                                              relations4.end(),
                                              ListOutIter(results5),
                                              NullOutputIterator());
-//..
+// ```
 // Finally, we verify that the sort is successful, and the 3 nodes are listed
-// in the proper order in the 'results5' list:
-//..
+// in the proper order in the `results5` list:
+// ```
     ASSERT(sorted5           == true);
     ASSERT(results5.size()   == 3);
 
@@ -745,36 +751,36 @@ int main(int argc, char *argv[])
     results5.pop_front();
     ASSERT(*results5.begin() == 3);
     results5.pop_front();
-//..
+// ```
       } break;
       case 7: {
         // --------------------------------------------------------------------
         // CUSTOM EDGE CLASS TEST
         //   This case tests the usage of custom edge class instead of
-        //   'bsl::pair'.
+        //   `bsl::pair`.
         //
         // Concerns:
-        //: 1 The code compiles thanks to the specialization of the
-        //:   'TopologicalSortUtilEdgeTraits' template.  See the custom
-        //:   class and the specialization before 'main' (C++03 does not
-        //:   support local classes in templates.)
+        // 1. The code compiles thanks to the specialization of the
+        //    `TopologicalSortUtilEdgeTraits` template.  See the custom
+        //    class and the specialization before `main` (C++03 does not
+        //    support local classes in templates.)
         //
         // Plan:
-        //: 1 Create a set of input using a custom edge (edge) type instead
-        //:   of 'bsl::pair'.
-        //:
-        //: 2 Call the iterator version of the 'sort' function.  (We could call
-        //:   the simple (non-iterator) version as well.)
-        //:
-        //: 3 Verify that with the fully specialized
-        //:   'TopologicalSortUtilEdgeTraits' the code compiles and links.
-        //:
-        //: 4 Verify that 'sort' returned 'true', the resulting 'unsorted'
-        //:   'vector' is empty, and 'results' contains an acceptable
-        //:   topological ordering of the nodes.  Note that for brevity and
-        //:   simplicity of the testing code we verify the *exact* order of the
-        //:   elements.  As noted in the component documentation there may be
-        //:   other valid orders.
+        // 1. Create a set of input using a custom edge (edge) type instead
+        //    of `bsl::pair`.
+        //
+        // 2. Call the iterator version of the `sort` function.  (We could call
+        //    the simple (non-iterator) version as well.)
+        //
+        // 3. Verify that with the fully specialized
+        //    `TopologicalSortUtilEdgeTraits` the code compiles and links.
+        //
+        // 4. Verify that `sort` returned `true`, the resulting `unsorted`
+        //    `vector` is empty, and `results` contains an acceptable
+        //    topological ordering of the nodes.  Note that for brevity and
+        //    simplicity of the testing code we verify the *exact* order of the
+        //    elements.  As noted in the component documentation there may be
+        //    other valid orders.
         //
         // Testing:
         //   sort(relationsBegin, relationsEnd, resultOutIter, unsortedOutIter)
@@ -872,21 +878,21 @@ int main(int argc, char *argv[])
         //   This case test that a cycle in the graphs is detected.
         //
         // Concerns:
-        //: 1 A graph with a cycle does not sort successfully.
-        //:
-        //: 2 The cycle is reported in the 'unsorted' argument.
+        // 1. A graph with a cycle does not sort successfully.
+        //
+        // 2. The cycle is reported in the `unsorted` argument.
         //
         // Plan:
-        //: 1 Create a set of input edges that contains a cycle.
-        //:
-        //: 2 Call the simple (non-iterator) version of the 'sort' function.
-        //:
-        //: 3 Verify that 'sort' returned 'false', the resulting 'unsorted'
-        //:   'vector' contains the nodes in the cycle, and 'results' is empty.
-        //:   Note that for brevity and simplicity of the test driver we are
-        //:   testing the 'unsorted' nodes in a static order; however the
-        //:   algorithm contract does not make any promise about the order in
-        //:   which the offending nodes are reported.
+        // 1. Create a set of input edges that contains a cycle.
+        //
+        // 2. Call the simple (non-iterator) version of the `sort` function.
+        //
+        // 3. Verify that `sort` returned `false`, the resulting `unsorted`
+        //    `vector` contains the nodes in the cycle, and `results` is empty.
+        //    Note that for brevity and simplicity of the test driver we are
+        //    testing the `unsorted` nodes in a static order; however the
+        //    algorithm contract does not make any promise about the order in
+        //    which the offending nodes are reported.
         //
         // Testing:
         //   sort(result, unsortedOut, relations)
@@ -924,19 +930,19 @@ int main(int argc, char *argv[])
         //   cycle.
         //
         // Concerns:
-        //: 1 A graph with a self referencing node does not sort successfully.
-        //:
-        //: 2 A graph with a self referencing node reports a cycle.
+        // 1. A graph with a self referencing node does not sort successfully.
+        //
+        // 2. A graph with a self referencing node reports a cycle.
         //
         // Plan:
-        //: 1 Create a set of input edges that contains a single connection
-        //:   from the same node to the same node.  In other words: a
-        //:   self-referencing node.
-        //:
-        //: 2 Call the simple (non-iterator) version of the 'sort' function.
-        //:
-        //: 3 Verify that 'sort' returned 'false', the resulting 'unsorted'
-        //:   'vector' contains the single input node, and 'results' is empty.
+        // 1. Create a set of input edges that contains a single connection
+        //    from the same node to the same node.  In other words: a
+        //    self-referencing node.
+        //
+        // 2. Call the simple (non-iterator) version of the `sort` function.
+        //
+        // 3. Verify that `sort` returned `false`, the resulting `unsorted`
+        //    `vector` contains the single input node, and `results` is empty.
         //
         // Testing:
         //   sort(result, unsortedOut, relations)
@@ -969,23 +975,23 @@ int main(int argc, char *argv[])
         //   the input.
         //
         // Concerns:
-        //: 1 The graph is successfully topologically sorted.
-        //:
-        //: 2 No nodes are missing from the result.
-        //:
-        //: 3 No nodes are duplicated in the result.
+        // 1. The graph is successfully topologically sorted.
+        //
+        // 2. No nodes are missing from the result.
+        //
+        // 3. No nodes are duplicated in the result.
         //
         // Plan:
-        //: 1 Create a set of edges that comprise the graphs, duplicate some of
-        //:   the edges.
-        //:
-        //: 2 Call the simple (non-iterator) version of the 'sort' function.
-        //:
-        //: 3 Verify that 'sort' returned 'true', the resulting 'unsorted'
-        //:   'vector' is empty, and 'results' contains the nodes a proper
-        //:   order.  Note that for brevity and simplicity of the testing code
-        //:   we verify the *exact* order of the elements.  As noted in the
-        //:   component documentation there may be other valid orders.
+        // 1. Create a set of edges that comprise the graphs, duplicate some of
+        //    the edges.
+        //
+        // 2. Call the simple (non-iterator) version of the `sort` function.
+        //
+        // 3. Verify that `sort` returned `true`, the resulting `unsorted`
+        //    `vector` is empty, and `results` contains the nodes a proper
+        //    order.  Note that for brevity and simplicity of the testing code
+        //    we verify the *exact* order of the elements.  As noted in the
+        //    component documentation there may be other valid orders.
         //
         // Testing:
         //   sort(result, unsortedOut, relations)
@@ -1026,21 +1032,21 @@ int main(int argc, char *argv[])
         //   This case tests sorting of two disconnected graphs.
         //
         // Concerns:
-        //: 1 The two graphs are successfully topologically sorted.
-        //:
-        //: 2 No nodes are missing from the result.
+        // 1. The two graphs are successfully topologically sorted.
+        //
+        // 2. No nodes are missing from the result.
         //
         // Plan:
-        //: 1 Create a set of edges that comprise two graphs, two sets of nodes
-        //:   that have no connecting edge between them.
-        //:
-        //: 2 Call the simple (non-iterator) version of the 'sort' function.
-        //:
-        //: 3 Verify that 'sort' returned 'true', the resulting 'unsorted'
-        //:   'vector' is empty, and 'results' contains the nodes a proper
-        //:   order.  Note that for brevity and simplicity of the testing code
-        //:   we verify the *exact* order of the elements.  As noted in the
-        //:   component documentation there may be other valid orders.
+        // 1. Create a set of edges that comprise two graphs, two sets of nodes
+        //    that have no connecting edge between them.
+        //
+        // 2. Call the simple (non-iterator) version of the `sort` function.
+        //
+        // 3. Verify that `sort` returned `true`, the resulting `unsorted`
+        //    `vector` is empty, and `results` contains the nodes a proper
+        //    order.  Note that for brevity and simplicity of the testing code
+        //    we verify the *exact* order of the elements.  As noted in the
+        //    component documentation there may be other valid orders.
         //
         // Testing:
         //   sort(result, unsortedOut, relations)
@@ -1078,26 +1084,26 @@ int main(int argc, char *argv[])
         //   This case test sorting of zero and one relation graphs.
         //
         // Concerns:
-        //: 1 Zero edges result in successful sort and zero sorted nodes.
-        //:
-        //: 2 One edge results in successful sort and two sorted nodes.
+        // 1. Zero edges result in successful sort and zero sorted nodes.
+        //
+        // 2. One edge results in successful sort and two sorted nodes.
         //
         // Plan:
-        //: 1 Create empty input of 'vector' of 'pair's of 'string's.
-        //:
-        //: 2 Invoke the simple (non-iterator) version of 'sort'.
-        //:
-        //: 3 Verify that the function returns 'true' and both the 'result',
-        //:   and the 'unsorted' 'vector's are empty.
-        //:
-        //: 4 Add a single edge (edge as in graph theory, not to be confused
-        //:   with edge cases in software testing) to the input.
-        //:
-        //: 5 Invoke the simple (non-iterator) version of 'sort'.
-        //:
-        //: 6 Verify that the function returns 'true', the 'result' 'vector'
-        //:   contains the nodes in the same order as they were in the edge,
-        //:   and the 'unsorted' 'vector' is empty.
+        // 1. Create empty input of `vector` of `pair`s of `string`s.
+        //
+        // 2. Invoke the simple (non-iterator) version of `sort`.
+        //
+        // 3. Verify that the function returns `true` and both the `result`,
+        //    and the `unsorted` `vector`s are empty.
+        //
+        // 4. Add a single edge (edge as in graph theory, not to be confused
+        //    with edge cases in software testing) to the input.
+        //
+        // 5. Invoke the simple (non-iterator) version of `sort`.
+        //
+        // 6. Verify that the function returns `true`, the `result` `vector`
+        //    contains the nodes in the same order as they were in the edge,
+        //    and the `unsorted` `vector` is empty.
         //
         // Testing:
         //   sort(result, unsortedOut, relations)
@@ -1139,46 +1145,46 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //:  1 Create the input of 'vector' of 'pair's of 'int's that describes
-        //:    a directed acyclic graph.
-        //:
-        //:  2 Create two empty 'vectors' 'results', and 'unsorted' for the
-        //:    two output arguments of the 'sort' function.
-        //:
-        //:  3 Run the simple (non-iterator) variant of the 'sort' function.
-        //:
-        //:  4 Verify that the sort is successful ('sort' returns 'true')
-        //:
-        //:  5 verify that the 'unsorted' output is empty.
-        //:
-        //:  6 Verify the order of nodes/vertexes in the 'results' vector.
-        //:    Note that for brevity and simplicity of the testing code we
-        //:    verify the *exact* order of the elements.  As noted in the
-        //:    component documentation there may be other valid orders.
-        //:
-        //:  7 Create the input of 'list' of 'pair's of 'int's that describes a
-        //:    directed acyclic graph.
-        //:
-        //:  2 Create an empty 'vector' for 'results', and an empty 'set' for
-        //:    'unsorted' for the two output arguments of the 'sort' function.
-        //:
-        //:  3 Run the iterator variant of the 'sort' function using the input
-        //:    'bsl::list::begin' and 'bsl::list::end' for the input range, a
-        //:    back insert iterator for the 'results' 'vector' and an insert
-        //:    iterator for the 'unsorted' 'set'.
-        //:
-        //:  4 Verify that the sort is successful ('sort' returns 'true')
-        //:
-        //:  5 verify that the 'unsorted' output is empty.
-        //:
-        //:  6 Verify the order of nodes/vertexes in the 'results' vector.
-        //:    Note that for brevity and simplicity of the testing code we
-        //:    verify the *exact* order of the elements.  As noted in the
-        //:    component documentation there may be other valid orders.
+        //  1. Create the input of `vector` of `pair`s of `int`s that describes
+        //     a directed acyclic graph.
+        //
+        //  2. Create two empty `vectors` `results`, and `unsorted` for the
+        //     two output arguments of the `sort` function.
+        //
+        //  3. Run the simple (non-iterator) variant of the `sort` function.
+        //
+        //  4. Verify that the sort is successful (`sort` returns `true`)
+        //
+        //  5. verify that the `unsorted` output is empty.
+        //
+        //  6. Verify the order of nodes/vertexes in the `results` vector.
+        //     Note that for brevity and simplicity of the testing code we
+        //     verify the *exact* order of the elements.  As noted in the
+        //     component documentation there may be other valid orders.
+        //
+        //  7. Create the input of `list` of `pair`s of `int`s that describes a
+        //     directed acyclic graph.
+        //
+        //  2. Create an empty `vector` for `results`, and an empty `set` for
+        //     `unsorted` for the two output arguments of the `sort` function.
+        //
+        //  3. Run the iterator variant of the `sort` function using the input
+        //     `bsl::list::begin` and `bsl::list::end` for the input range, a
+        //     back insert iterator for the `results` `vector` and an insert
+        //     iterator for the `unsorted` `set`.
+        //
+        //  4. Verify that the sort is successful (`sort` returns `true`)
+        //
+        //  5. verify that the `unsorted` output is empty.
+        //
+        //  6. Verify the order of nodes/vertexes in the `results` vector.
+        //     Note that for brevity and simplicity of the testing code we
+        //     verify the *exact* order of the elements.  As noted in the
+        //     component documentation there may be other valid orders.
         // Testing:
         //   BREATHING TEST
         // --------------------------------------------------------------------

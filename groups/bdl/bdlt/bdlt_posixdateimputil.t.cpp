@@ -9,7 +9,7 @@
 #include <bsls_stopwatch.h>
 
 #include <bsl_climits.h>
-#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstdlib.h>     // `atoi`
 #include <bsl_cstring.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
@@ -29,7 +29,7 @@ using namespace bsl;
 // tested (at least against the un-cached version) to ensure an accurate cache
 // is present.  The general plan is that each method is tested against a set
 // of tabulated test vectors in all test modes, and additional, exhaustive
-// loop-based tests are performed in 'veryVerbose' mode only.
+// loop-based tests are performed in `veryVerbose` mode only.
 // ----------------------------------------------------------------------------
 // [ 1] static bool isLeapYear(int year);
 // [ 3] static int  lastDayOfMonth(int year, int month);
@@ -146,10 +146,11 @@ typedef bdlt::PosixDateImpUtil Util;
 // a few common operations on them.  The internal representation could be any
 // of the three supported by this component; in this example, we will choose to
 // represent the date value internally as a "serial date":
-//..
+// ```
+
+    /// This class represents a valid date in the range
+    /// `[ 0001/01/01 .. 9999/12/31 ]`.
     class MyDate {
-        // This class represents a valid date in the range
-        // '[ 0001/01/01 .. 9999/12/31 ]'.
 
         // DATA
         int d_serialDate;  // 1 = 0001JAN01, 2 = 0001JAN02, ...
@@ -163,11 +164,11 @@ typedef bdlt::PosixDateImpUtil Util;
       private:
         // PRIVATE CREATORS
         explicit MyDate(int serialDate);
-//..
+// ```
 // Next we define the public interface of the class, with function-level
 // documentation conspicuously omitted (note, however, that reference
 // implementations with preconditions asserted will follow):
-//..
+// ```
       public:
         // TYPES
         enum Day {
@@ -220,11 +221,11 @@ typedef bdlt::PosixDateImpUtil Util;
 
     MyDate operator++(MyDate& object, int);
     MyDate operator--(MyDate& object, int);
-//..
+// ```
 // We now provide a reference implementation of each of the methods and free
-// (operator) functions associated with the 'MyDate' class defined above (using
-// 'bsls_assert' to identify preconditions and invariants where appropriate):
-//..
+// (operator) functions associated with the `MyDate` class defined above (using
+// `bsls_assert` to identify preconditions and invariants where appropriate):
+// ```
     // PRIVATE CREATORS
     inline
     MyDate::MyDate(int serialDate)
@@ -407,10 +408,10 @@ typedef bdlt::PosixDateImpUtil Util;
         --object;
         return tmp;
     }
-//..
+// ```
 // The following definitions would appropriately appear in the implementation
-// ('.cpp') file:
-//..
+// (`.cpp`) file:
+// ```
     const char *const monthNames[] = {
         0, "JAN", "FEB", "MAR", "APR",
            "MAY", "JUN", "JUL", "AUG",
@@ -446,7 +447,7 @@ typedef bdlt::PosixDateImpUtil Util;
 
         return stream;
     }
-//..
+// ```
 
 // BDE_VERIFY pragma: pop
 
@@ -465,7 +466,7 @@ int main(int argc, char *argv[])
     (void)     veryVeryVerbose;
     (void) veryVeryVeryVerbose;
 
-    int shortTestFlag = !(argc > 3) ; // default: short test (see 'enum' below)
+    int shortTestFlag = !(argc > 3) ; // default: short test (see `enum` below)
 
     enum {
         SHORT_YEAR_START   = 1699,    // "Reasonable History"
@@ -479,7 +480,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
@@ -489,13 +490,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -518,91 +519,91 @@ int main(int argc, char *argv[])
 // three supported formats.
 //
 // What day of the week was January 3, 2010?
-//..
+// ```
     ASSERT(2 == bdlt::PosixDateImpUtil::ymdToDayOfWeek(2010, 3, 1));
                                                              // 2 means Monday.
-//..
+// ```
 // Was the year 2000 a leap year?
-//..
+// ```
     ASSERT(true == bdlt::PosixDateImpUtil::isLeapYear(2000));
                                                              // Yes, it was.
-//..
+// ```
 // Was February 29, 1900, a valid date in history?
-//..
+// ```
     ASSERT(false == bdlt::PosixDateImpUtil::isValidYearMonthDay(1900, 2, 29));
                                                              // No, it was not.
-//..
+// ```
 // What was the last day of February in 1600?
-//..
+// ```
     ASSERT(29 == bdlt::PosixDateImpUtil::lastDayOfMonth(1600, 2));
                                                              // The 29th.
-//..
+// ```
 // How many leap years occur from 1959 to 2012 inclusive?
-//..
+// ```
     ASSERT(14 == bdlt::PosixDateImpUtil::numLeapYears(1959, 2012));
                                                              // There are 14.
-//..
+// ```
 // On what day of the year does February 29, 2020 fall?
-//..
+// ```
     ASSERT(60 == bdlt::PosixDateImpUtil::ymdToDayOfYear(2020, 2, 29));
                                                              // The 60th one.
-//..
+// ```
 // In what month does the 120th day of 2011 fall?
-//..
+// ```
     ASSERT(4 == bdlt::PosixDateImpUtil::ydToMonth(2011, 120));
                                                              // 4 means April.
-//..
+// ```
 
-  // This excerpt of the Usage is rendered above (outside of 'main').
+  // This excerpt of the Usage is rendered above (outside of `main`).
 
-//..
-// The following snippets of code illustrate how to create and use a 'Mydate'
-// object.  First create a default object, 'd1':
-//..
+// ```
+// The following snippets of code illustrate how to create and use a `Mydate`
+// object.  First create a default object, `d1`:
+// ```
     MyDate d1;                        ASSERT(   1 == d1.year());
                                       ASSERT(   1 == d1.month());
                                       ASSERT(   1 == d1.day());
-//..
-// Next, set 'd1' to July 4, 1776:
-//..
+// ```
+// Next, set `d1` to July 4, 1776:
+// ```
     d1.setYearMonthDay(1776, 7, 4);   ASSERT(1776 == d1.year());
                                       ASSERT(   7 == d1.month());
                                       ASSERT(   4 == d1.day());
-//..
-// Then create 'd2' as a copy of 'd1':
-//..
+// ```
+// Then create `d2` as a copy of `d1`:
+// ```
     MyDate d2(d1);                    ASSERT(1776 == d2.year());
                                       ASSERT(   7 == d2.month());
                                       ASSERT(   4 == d2.day());
-//..
-// Now, add six days to the value of 'd2':
-//..
+// ```
+// Now, add six days to the value of `d2`:
+// ```
     d2 += 6;                          ASSERT(1776 == d2.year());
                                       ASSERT(   7 == d2.month());
                                       ASSERT(  10 == d2.day());
-//..
-// Next subtract 'd1' from 'd2', storing the difference (in days) in 'dDays':
-//..
+// ```
+// Next subtract `d1` from `d2`, storing the difference (in days) in `dDays`:
+// ```
     int dDays = d2 - d1;              ASSERT(6 == dDays);
-//..
-// Finally, stream the value of 'd2' to 'stdout':
-//..
+// ```
+// Finally, stream the value of `d2` to `stdout`:
+// ```
 if (veryVerbose)
     bsl::cout << d2 << bsl::endl;
-//..
-// The streaming operator produces the following output on 'stdout':
-//..
+// ```
+// The streaming operator produces the following output on `stdout`:
+// ```
 //  10JUL1776
-//..
+// ```
 
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING '{serial|yd|ymd}2weekday'
+        // TESTING `{serial|yd|ymd}2weekday`
         //
         // In this test we take advantage of the fact that all of the date
         // conversion functions have already been tested by tabulating the
-        // expected results for 'ymdToDayOfWeek' and then generating the
+        // expected results for `ymdToDayOfWeek` and then generating the
         // corresponding test vectors from the year/month/day representation.
         //
         // Testing:
@@ -612,7 +613,7 @@ if (veryVerbose)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING '{serial|yd|ymd}2weekday'" << endl
+                          << "TESTING `{serial|yd|ymd}2weekday`" << endl
                           << "=================================" << endl;
 
         enum { SUN = 1, MON, TUE, WED, THU, FRI, SAT };
@@ -680,7 +681,7 @@ if (veryVerbose)
 // BDE_VERIFY pragma: -TP21
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'serial2{ymd|year|month|day}[NoCache]'
+        // TESTING `serial2{ymd|year|month|day}[NoCache]`
         //
         // Testing:
         //   static int  serialToDay(int serialDay);
@@ -694,7 +695,7 @@ if (veryVerbose)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'serial2{ymd|year|month|day}[NoCache]'"
+                          << "TESTING `serial2{ymd|year|month|day}[NoCache]`"
                           << endl
                           << "=============================================="
                           << endl;
@@ -900,7 +901,7 @@ if (veryVerbose)
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'serial2{yd|dayOfYear}'
+        // TESTING `serial2{yd|dayOfYear}`
         //
         // Testing:
         //   static int  serialToDayOfYear(int serialDay);
@@ -908,7 +909,7 @@ if (veryVerbose)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'serial2{yd|dayOfYear}'"
+                          << "TESTING `serial2{yd|dayOfYear}`"
                           << endl
                           << "==============================="
                           << endl;
@@ -1046,14 +1047,14 @@ if (veryVerbose)
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'ydToSerial'
+        // TESTING `ydToSerial`
         //
         // Testing:
         //   static int  ydToSerial(int year, int dayOfYear);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'ydToSerial'" << endl
+                          << "TESTING `ydToSerial`" << endl
                           << "===================" << endl;
 
         if (verbose) cout << "\tDirect test vectors\n" << endl;
@@ -1152,7 +1153,7 @@ if (veryVerbose)
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'yd2{md|month|day}'
+        // TESTING `yd2{md|month|day}`
         //
         // Testing:
         //   static int  ydToDay(int year, int dayOfYear);
@@ -1161,10 +1162,10 @@ if (veryVerbose)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'yd2{md|month|day}'" << endl
+                          << "TESTING `yd2{md|month|day}`" << endl
                           << "===========================" << endl;
 
-        if (verbose) cout << "\nTesting: 'ydToMd'" << endl;
+        if (verbose) cout << "\nTesting: `ydToMd`" << endl;
 
         {
             static const struct {
@@ -1236,7 +1237,7 @@ if (veryVerbose)
             }
         }
 
-        if (verbose) cout << "\nTesting: 'ydToMonth' and 'ydToDay'" << endl;
+        if (verbose) cout << "\nTesting: `ydToMonth` and `ydToDay`" << endl;
 
         if (verbose) cout << "\n (y, m, d) -> (y, j) -> (y, m, d)" << endl;
 
@@ -1270,14 +1271,14 @@ if (veryVerbose)
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'ymdToDayOfYear'
+        // TESTING `ymdToDayOfYear`
         //
         // Testing:
         //   static int  ymdToDayOfYear(int year, int month, int day);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'ymdToDayOfYear'" << endl
+                          << "TESTING `ymdToDayOfYear`" << endl
                           << "=======================" << endl;
 
         {
@@ -1460,7 +1461,7 @@ if (veryVerbose)
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'ymdToSerial[NoCache]'
+        // TESTING `ymdToSerial[NoCache]`
         //
         // Testing:
         //   static int  ymdToSerial(int year, int month, int day);
@@ -1468,7 +1469,7 @@ if (veryVerbose)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'ymdToSerial[NoCache]'" << endl
+                          << "TESTING `ymdToSerial[NoCache]`" << endl
                           << "=============================" << endl;
 
         {
@@ -1705,7 +1706,7 @@ if (veryVerbose)
         }
 
         if (veryVerbose) {
-            cout << "\nTesting: 'ymdToSerial' vs 'ymdToSerialNoCache'" << endl;
+            cout << "\nTesting: `ymdToSerial` vs `ymdToSerialNoCache`" << endl;
 
             for (int year  = 1; year  <= 9999; ++year)
             for (int month = 1; month <= 12;   ++month)
@@ -1725,7 +1726,7 @@ if (veryVerbose)
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'isValid{Calendar|YearDay|Serial}Date[NoCache]'
+        // TESTING `isValid{Calendar|YearDay|Serial}Date[NoCache]`
         //
         // Testing:
         //   static bool isValidYearMonthDay(int year, int month, int day);
@@ -1736,14 +1737,14 @@ if (veryVerbose)
 
         if (verbose)
             cout << endl
-                 << "TESTING 'isValid{Calendar|YearDay|Serial}Date[NoCache]'"
+                 << "TESTING `isValid{Calendar|YearDay|Serial}Date[NoCache]`"
                  << endl
                  << "======================================================="
                  << endl;
 
         if (verbose)
-            cout << "\nTesting: 'isValidYearMonthDay' "
-                 << "and 'isValidYearMonthDayNoCache'"
+            cout << "\nTesting: `isValidYearMonthDay` "
+                 << "and `isValidYearMonthDayNoCache`"
                  << endl;
 
         {
@@ -1942,8 +1943,8 @@ if (veryVerbose)
         }
 
         if (veryVerbose) {
-            cout << "\nTesting: 'isValidYearMonthDay' "
-                 << "vs 'isValidYearMonthDayNoCache'"
+            cout << "\nTesting: `isValidYearMonthDay` "
+                 << "vs `isValidYearMonthDayNoCache`"
                  << endl;
 
             for (int year  = 0; year  <= 10000; ++year)
@@ -1958,7 +1959,7 @@ if (veryVerbose)
             }
         }
 
-        if (verbose) cout << "\nTesting: 'isValidYearDay'" << endl;
+        if (verbose) cout << "\nTesting: `isValidYearDay`" << endl;
 
         {
             static const struct {
@@ -2071,7 +2072,7 @@ if (veryVerbose)
             ASSERT(0 == Util::isValidYearDay(y, 367));
         }
 
-        if (verbose) cout << "\nTesting: 'isValidSerial'" << endl;
+        if (verbose) cout << "\nTesting: `isValidSerial`" << endl;
         {
             int s;
             for (s = -1500; s <= 0; ++s) {
@@ -2128,14 +2129,14 @@ if (veryVerbose)
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'lastDayOfMonth'
+        // TESTING `lastDayOfMonth`
         //
         // Testing:
         //   static int  lastDayOfMonth(int year, int month);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'lastDayOfMonth'" << endl
+                          << "TESTING `lastDayOfMonth`" << endl
                           << "========================" << endl;
 
         {
@@ -2225,14 +2226,14 @@ if (veryVerbose)
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'numLeapYears'
+        // TESTING `numLeapYears`
         //
         // Testing:
         //   static int  numLeapYears(int year1, int year2);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'numLeapYears'" << endl
+                          << "TESTING `numLeapYears`" << endl
                           << "======================" << endl;
 
         {
@@ -2335,14 +2336,14 @@ if (veryVerbose)
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'isLeapYear'
+        // TESTING `isLeapYear`
         //
         // Testing:
         //   static bool isLeapYear(int year);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'isLeapYear'" << endl
+                          << "TESTING `isLeapYear`" << endl
                           << "====================" << endl;
 
         {
@@ -2423,7 +2424,7 @@ if (veryVerbose)
       case -1: {
         // --------------------------------------------------------------------
         // CACHE GENERATOR
-        //   Generate the C++ code (to be inserted into the '.cpp' file) that
+        //   Generate the C++ code (to be inserted into the `.cpp` file) that
         //   implements the cache.
         //
         // Testing:
@@ -2515,7 +2516,7 @@ if (veryVerbose)
       } break;
       case -2: {
         // --------------------------------------------------------------------
-        // PERFORMANCE TEST: 'isValidYearMonthDay[NoCache]'
+        // PERFORMANCE TEST: `isValidYearMonthDay[NoCache]`
         //   Manually verify that the cache provides a performance advantage.
         //
         // Testing:
@@ -2524,7 +2525,7 @@ if (veryVerbose)
 
         if (verbose)
             cout << endl
-                 << "PERFORMANCE TEST: 'isValidYearMonthDay[NoCache]'" << endl
+                 << "PERFORMANCE TEST: `isValidYearMonthDay[NoCache]`" << endl
                  << "================================================" << endl;
 
         int year = 2000, month = 2, day = 16;  // *must* be within cache
@@ -2532,7 +2533,7 @@ if (veryVerbose)
         const int NUM_ITERATIONS = 10000000;
 
         if (verbose)
-            cout << "\nTesting 'isValidYearMonthDayNoCache(y, m, d)':" << endl;
+            cout << "\nTesting `isValidYearMonthDayNoCache(y, m, d)`:" << endl;
         {
             bsls::Stopwatch sw;
 
@@ -2557,7 +2558,7 @@ if (veryVerbose)
         }
 
         if (verbose)
-            cout << "\nTesting 'isValidYearMonthDay(y, m, d)':" << endl;
+            cout << "\nTesting `isValidYearMonthDay(y, m, d)`:" << endl;
         {
             bsls::Stopwatch sw;
 
@@ -2584,7 +2585,7 @@ if (veryVerbose)
       } break;
       case -3: {
         // --------------------------------------------------------------------
-        // PERFORMANCE TEST: 'ymdToSerial[NoCache]'
+        // PERFORMANCE TEST: `ymdToSerial[NoCache]`
         //   Manually verify that the cache provides a performance advantage.
         //
         // Testing:
@@ -2593,7 +2594,7 @@ if (veryVerbose)
 
         if (verbose)
             cout << endl
-                 << "PERFORMANCE TEST: 'ymdToSerial[NoCache]'" << endl
+                 << "PERFORMANCE TEST: `ymdToSerial[NoCache]`" << endl
                  << "=======================================" << endl;
 
         int year = 2000, month = 2, day = 16;  // *must* be within cache
@@ -2601,7 +2602,7 @@ if (veryVerbose)
         const int NUM_ITERATIONS = 10000000;
 
         if (verbose)
-            cout << "\nTesting 'ymdToSerialNoCache(y, m, d)':" << endl;
+            cout << "\nTesting `ymdToSerialNoCache(y, m, d)`:" << endl;
         {
             bsls::Stopwatch sw;
 
@@ -2626,7 +2627,7 @@ if (veryVerbose)
         }
 
         if (verbose)
-            cout << "\nTesting 'ymdToSerial(y, m, d)':" << endl;
+            cout << "\nTesting `ymdToSerial(y, m, d)`:" << endl;
         {
             bsls::Stopwatch sw;
 
@@ -2653,7 +2654,7 @@ if (veryVerbose)
       } break;
       case -4: {
         // --------------------------------------------------------------------
-        // PERFORMANCE TEST: 'serialToYmd[NoCache]'
+        // PERFORMANCE TEST: `serialToYmd[NoCache]`
         //   Manually verify that the cache provides a performance advantage.
         //
         // Testing:
@@ -2662,7 +2663,7 @@ if (veryVerbose)
 
         if (verbose)
             cout << endl
-                 << "PERFORMANCE TEST: 'serialToYmd[NoCache]'" << endl
+                 << "PERFORMANCE TEST: `serialToYmd[NoCache]`" << endl
                  << "=======================================" << endl;
 
         int year = 1900, month = 2, day = 16;  // arbitrary values
@@ -2672,7 +2673,7 @@ if (veryVerbose)
         const int NUM_ITERATIONS = 10000000;
 
         if (verbose)
-            cout << "\nTesting 'serialToYmdNoCache(&y, &m, &d, serialDay)':"
+            cout << "\nTesting `serialToYmdNoCache(&y, &m, &d, serialDay)`:"
                  << endl;
         {
             bsls::Stopwatch sw;
@@ -2698,7 +2699,7 @@ if (veryVerbose)
         }
 
         if (verbose)
-            cout << "\nTesting 'serialToYmd(&y, &m, &d, serialDay)':" << endl;
+            cout << "\nTesting `serialToYmd(&y, &m, &d, serialDay)`:" << endl;
         {
             bsls::Stopwatch sw;
 
@@ -2725,7 +2726,7 @@ if (veryVerbose)
       } break;
       case -5: {
         // --------------------------------------------------------------------
-        // PERFORMANCE TEST: 'serialToYear[NoCache]'
+        // PERFORMANCE TEST: `serialToYear[NoCache]`
         //   Manually verify that the cache provides a performance advantage.
         //
         // Testing:
@@ -2734,7 +2735,7 @@ if (veryVerbose)
 
         if (verbose)
             cout << endl
-                 << "PERFORMANCE TEST: 'serialToYear[NoCache]'" << endl
+                 << "PERFORMANCE TEST: `serialToYear[NoCache]`" << endl
                  << "========================================" << endl;
 
         int serial = Util::ymdToSerial(2002, 5, 13);  // *must* be within cache
@@ -2742,7 +2743,7 @@ if (veryVerbose)
         const int NUM_ITERATIONS = 10000000;
 
         if (verbose)
-            cout << "\nTesting 'serialToYearNoCache(serialDay)':" << endl;
+            cout << "\nTesting `serialToYearNoCache(serialDay)`:" << endl;
         {
             bsls::Stopwatch sw;
 
@@ -2767,7 +2768,7 @@ if (veryVerbose)
         }
 
         if (verbose)
-            cout << "\nTesting 'serialToYear(serialDay)':" << endl;
+            cout << "\nTesting `serialToYear(serialDay)`:" << endl;
         {
             bsls::Stopwatch sw;
 
@@ -2794,7 +2795,7 @@ if (veryVerbose)
       } break;
       case -6: {
         // --------------------------------------------------------------------
-        // PERFORMANCE TEST: 'serialToMonth[NoCache]'
+        // PERFORMANCE TEST: `serialToMonth[NoCache]`
         //   Manually verify that the cache provides a performance advantage.
         //
         // Testing:
@@ -2803,7 +2804,7 @@ if (veryVerbose)
 
         if (verbose)
             cout << endl
-                 << "PERFORMANCE TEST: 'serialToMonth[NoCache]'" << endl
+                 << "PERFORMANCE TEST: `serialToMonth[NoCache]`" << endl
                  << "=========================================" << endl;
 
         int serial = Util::ymdToSerial(2002, 5, 13);  // *must* be within cache
@@ -2811,7 +2812,7 @@ if (veryVerbose)
         const int NUM_ITERATIONS = 10000000;
 
         if (verbose)
-            cout << "\nTesting 'serialToMonthNoCache(serialDay)':" << endl;
+            cout << "\nTesting `serialToMonthNoCache(serialDay)`:" << endl;
         {
             bsls::Stopwatch sw;
 
@@ -2836,7 +2837,7 @@ if (veryVerbose)
         }
 
         if (verbose)
-            cout << "\nTesting 'serialToMonth(serialDay)':" << endl;
+            cout << "\nTesting `serialToMonth(serialDay)`:" << endl;
         {
             bsls::Stopwatch sw;
 
@@ -2863,7 +2864,7 @@ if (veryVerbose)
       } break;
       case -7: {
         // --------------------------------------------------------------------
-        // PERFORMANCE TEST: 'serialToDay[NoCache]'
+        // PERFORMANCE TEST: `serialToDay[NoCache]`
         //   Manually verify that the cache provides a performance advantage.
         //
         // Testing:
@@ -2872,7 +2873,7 @@ if (veryVerbose)
 
         if (verbose)
             cout << endl
-                 << "PERFORMANCE TEST: 'serialToDay[NoCache]'" << endl
+                 << "PERFORMANCE TEST: `serialToDay[NoCache]`" << endl
                  << "=======================================" << endl;
 
         int serial = Util::ymdToSerial(2002, 5, 13);  // *must* be within cache
@@ -2880,7 +2881,7 @@ if (veryVerbose)
         const int NUM_ITERATIONS = 10000000;
 
         if (verbose)
-            cout << "\nTesting 'serialToDayNoCache(serialDay)':" << endl;
+            cout << "\nTesting `serialToDayNoCache(serialDay)`:" << endl;
         {
             bsls::Stopwatch sw;
 
@@ -2905,7 +2906,7 @@ if (veryVerbose)
         }
 
         if (verbose)
-            cout << "\nTesting 'serialToDay(serialDay)':" << endl;
+            cout << "\nTesting `serialToDay(serialDay)`:" << endl;
         {
             bsls::Stopwatch sw;
 

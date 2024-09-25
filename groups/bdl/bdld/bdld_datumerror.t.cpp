@@ -11,7 +11,7 @@
 
 #include <bsl_string.h>
 
-#include <bsl_cstdlib.h>                  // 'bsl::atoi'
+#include <bsl_cstdlib.h>                  // `bsl::atoi`
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
@@ -24,15 +24,15 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-// The component under the test is an attribute class 'bdld::DatumError'.
+// The component under the test is an attribute class `bdld::DatumError`.
 //
-//: o Primary Manipulators:
-//:   - DatumError();
-//:   - DatumError(int code);
-//:   - DatumError(int code, const StringRef& message);
-//: o Basic Accessors:
-//:   - int code() const;
-//:   - StringRef message() const;
+//  - Primary Manipulators:
+//    - DatumError();
+//    - DatumError(int code);
+//    - DatumError(int code, const StringRef& message);
+//  - Basic Accessors:
+//    - int code() const;
+//    - StringRef message() const;
 //
 //-----------------------------------------------------------------------------
 // CREATORS
@@ -139,26 +139,27 @@ typedef bdld::DatumError Obj;
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic 'DatumError' usage
+///Example 1: Basic `DatumError` usage
 ///- - - - - - - - - - - - - - - - - -
 // Suppose we need a function to verify if newly created password meets basic
 // security requirements.  Password must contain at least one uppercase letter,
 // one lowercase letter, one numeral and one special symbol.  The following
-// code illustrates how to use 'bdld::DatumError' to notify user about
+// code illustrates how to use `bdld::DatumError` to notify user about
 // password weaknesses.
 //
 // First, we need to write a verification function:
-//..
+// ```
+
+    /// Verify if specified `password` meets basic security requirements.
     bdld::DatumError verifyNewPassword(const char *password)
-        // Verify if specified 'password' meets basic security requirements.
     {
         bool uppercasePresence     = false;
         bool lowercasePresence     = false;
         bool numeralPresence       = false;
         bool specialSymbolPresence = false;
-//..
+// ```
 // Passed string analysis:
-//..
+// ```
         while (*password) {
             if (*password >= 'A' && *password <= 'Z') {
                 uppercasePresence = true;
@@ -174,9 +175,9 @@ typedef bdld::DatumError Obj;
             }
             ++password;
         }
-//..
+// ```
 // Result compilation:
-//..
+// ```
         bdld::DatumError result;
 
         if (!uppercasePresence) {
@@ -191,7 +192,7 @@ typedef bdld::DatumError Obj;
 
         return result;
     }
-//..
+// ```
 
 // ============================================================================
 //                              MAIN PROGRAM
@@ -218,13 +219,13 @@ int main(int argc, char **argv)
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -233,19 +234,19 @@ int main(int argc, char **argv)
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 // Next, we need to create password for verification and call our function:
-//..
+// ```
     bdld::DatumError error = verifyNewPassword("Test");
-//..
+// ```
 // Then, check the results:
-//..
+// ```
     ASSERT(bdld::DatumError() != error);
     ASSERT(3                  == error.code());
-//..
+// ```
 // Finally, we can print the result to the output stream:
-//..
+// ```
     ostringstream out;
     error.print(out);
-//..
+// ```
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -254,10 +255,10 @@ int main(int argc, char **argv)
         //   type traits to reflect this.
         //
         // Concerns:
-        //: 1 The class has the bsl::is_trivially_copyable trait.
+        // 1. The class has the bsl::is_trivially_copyable trait.
         //
         // Plan:
-        //: 1 ASSERT the presence of each trait required by the type. (C-1)
+        // 1. ASSERT the presence of each trait required by the type. (C-1)
         //
         // Testing:
         //   TYPE TRAITS
@@ -274,25 +275,25 @@ int main(int argc, char **argv)
         // TESTING RELATIONAL-COMPARISON OPERATORS
         //
         // Concerns:
-        //: 1 Each relational operator function reports the intended logical
-        //:   relationship.
-        //:
-        //: 2 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., all relational-comparison operators are free functions).
-        //:
-        //: 3 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //: 4 The relational-comparison operators' signatures and return types
-        //:   are standard.
+        // 1. Each relational operator function reports the intended logical
+        //    relationship.
+        //
+        // 2. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., all relational-comparison operators are free functions).
+        //
+        // 3. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        // 4. The relational-comparison operators' signatures and return types
+        //    are standard.
         //
         // Plan:
-        //: 1 Create 'DatumError' objects with different values.  Verify the
-        //:   correctness of operators.  (C-1..3)
-        //:
-        //: 2 Use the respective addresses of operators to initialize function
-        //:   pointers having the appropriate signatures and return types for
-        //:   the operators defined in this component.  (C-4)
+        // 1. Create `DatumError` objects with different values.  Verify the
+        //    correctness of operators.  (C-1..3)
+        //
+        // 2. Use the respective addresses of operators to initialize function
+        //    pointers having the appropriate signatures and return types for
+        //    the operators defined in this component.  (C-4)
         //
         // Testing:
         //    bool operator<(const DatumError&, const DatumError&);
@@ -304,7 +305,7 @@ int main(int argc, char **argv)
                           << "TESTING RELATIONAL-COMPARISON OPERATORS" << endl
                           << "=======================================" << endl;
 
-        if (verbose) cout << "\nTesting operators '>=' and '<'." << endl;
+        if (verbose) cout << "\nTesting operators `>=` and '<'." << endl;
         {
             const Obj obj1(7);
             const Obj obj2(7);
@@ -329,7 +330,7 @@ int main(int argc, char **argv)
             ASSERT(!(obj4 < obj7));
         }
 
-        if (verbose) cout << "\nTesting operators '<=' and '>'." << endl;
+        if (verbose) cout << "\nTesting operators `<=` and '>'." << endl;
         {
             const Obj obj1(5);
             const Obj obj2(5);
@@ -377,16 +378,16 @@ int main(int argc, char **argv)
       case 5: {
         // --------------------------------------------------------------------
         // TESTING STREAM OUTPUT
-        //   Note that 'bdld::DatumError' object
+        //   Note that `bdld::DatumError` object
         //
         // Concerns:
-        //: 1 Stream output operator and 'print' method put object's value to
-        //:   the specified stream in expected format.
+        // 1. Stream output operator and `print` method put object's value to
+        //    the specified stream in expected format.
         //
         // Plan:
-        //: 1 Create several 'DatumError' objects with different values, put
-        //:   their values to the stream / print their values and verify that
-        //:   stream contains data in expected format.
+        // 1. Create several `DatumError` objects with different values, put
+        //    their values to the stream / print their values and verify that
+        //    stream contains data in expected format.
         //
         // Testing:
         //    ostream& print(ostream& s, int level, int spacesPerLevel) const;
@@ -396,7 +397,7 @@ int main(int argc, char **argv)
                           << "TESTING STREAM OUTPUT" << endl
                           << "=====================" << endl;
 
-        if (verbose) cout << "\nTesting 'operator<<'." << endl;
+        if (verbose) cout << "\nTesting `operator<<`." << endl;
         {
             {
                 const Obj     obj;
@@ -421,7 +422,7 @@ int main(int argc, char **argv)
             }
         }
 
-        if (verbose) cout << "\nTesting 'print'." << endl;
+        if (verbose) cout << "\nTesting `print`." << endl;
         {
             const Obj obj1(5);
             const Obj obj2(5, "generic error");
@@ -534,29 +535,29 @@ int main(int argc, char **argv)
         //   assignment work as expected.
         //
         // Concerns:
-        //: 1 The copy-constructor sets the same value as has original object
-        //:   to the newly created one.
-        //:
-        //: 2 The copy-constructor leaves the value of the original object
-        //:   unaffected.
-        //:
-        //: 3 The value represented by any instance can be assigned to any
-        //:   other instance.
-        //:
-        //: 4 The 'rhs' value must not be affected by the assignment operation.
-        //:
-        //: 5 Aliasing (x = x): The assignment operator must always work --
-        //:   even when the lhs and rhs are the same object.
+        // 1. The copy-constructor sets the same value as has original object
+        //    to the newly created one.
+        //
+        // 2. The copy-constructor leaves the value of the original object
+        //    unaffected.
+        //
+        // 3. The value represented by any instance can be assigned to any
+        //    other instance.
+        //
+        // 4. The `rhs` value must not be affected by the assignment operation.
+        //
+        // 5. Aliasing (x = x): The assignment operator must always work --
+        //    even when the lhs and rhs are the same object.
         //
         // Plan:
-        //: 1 Create 'DatumError' object and it's copy.  Verify sameness of two
-        //:   objects.  Verify that origin object is unaffected.  (C-1..2)
-        //:
-        //: 2 Create 'DatumError' object and assign it to another one.  Verify
-        //:   sameness of two objects.  Verify that assigned object is
-        //:   unaffected.  (C-3..4)
-        //:
-        //: 3 Assign object to itself.  Verify that object is unaffected.
+        // 1. Create `DatumError` object and it's copy.  Verify sameness of two
+        //    objects.  Verify that origin object is unaffected.  (C-1..2)
+        //
+        // 2. Create `DatumError` object and assign it to another one.  Verify
+        //    sameness of two objects.  Verify that assigned object is
+        //    unaffected.  (C-3..4)
+        //
+        // 3. Assign object to itself.  Verify that object is unaffected.
         //    (C-5)
         //
         // Testing:
@@ -587,7 +588,7 @@ int main(int argc, char **argv)
             ASSERT("error message" == E1.message());
         }
 
-        if (verbose) cout << "Testing 'operator='." << endl;
+        if (verbose) cout << "Testing `operator=`." << endl;
         {
 
             Obj        mE1(2, "error message");
@@ -619,26 +620,26 @@ int main(int argc, char **argv)
         // TESTING EQUALITY OPERATORS
         //
         // Concerns:
-        //: 1 Two objects compare equal if and only if their codes and messages
-        //:   objects compare equal.
-        //:
-        //: 2 Comparison is symmetric.
-        //:
-        //: 3 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //: 4 The equality-comparison operators' signatures and return types
-        //:   are standard.
+        // 1. Two objects compare equal if and only if their codes and messages
+        //    objects compare equal.
+        //
+        // 2. Comparison is symmetric.
+        //
+        // 3. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        // 4. The equality-comparison operators' signatures and return types
+        //    are standard.
         //
         // Plan:
-        //: 1 Create 'DatumError' objects with different values.  Verify the
-        //:   correctness of 'operator==' and 'operator!='.
-        //:   (C-1..3)
-        //:
-        //: 2 Use the respective addresses of 'operator==' and 'operator!=' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the two homogeneous, free equality-
-        //:   comparison operators defined in this component.  (C-4)
+        // 1. Create `DatumError` objects with different values.  Verify the
+        //    correctness of `operator==` and `operator!=`.
+        //    (C-1..3)
+        //
+        // 2. Use the respective addresses of `operator==` and `operator!=` to
+        //    initialize function pointers having the appropriate signatures
+        //    and return types for the two homogeneous, free equality-
+        //    comparison operators defined in this component.  (C-4)
         //
         // Testing:
         //    bool operator==(const DatumError&, const DatumError&);
@@ -716,17 +717,17 @@ int main(int argc, char **argv)
         //   accessors are working as expected also.
         //
         // Concerns:
-        //: 1 All (including internal) relevant states can be reached with
-        //:   primary manipulators.
-        //:
-        //: 2 Accessors return expected values.
-        //:
-        //: 3 'DatumError' object can be destroyed.
+        // 1. All (including internal) relevant states can be reached with
+        //    primary manipulators.
+        //
+        // 2. Accessors return expected values.
+        //
+        // 3. `DatumError` object can be destroyed.
         //
         // Plan:
-        //: 1 Create several 'DatumError' objects using the value constructors
-        //:   and verify that all data members are initialized correctly.  Let
-        //:   objects go out the scope to verify destructor behavior.  (C-1..3)
+        // 1. Create several `DatumError` objects using the value constructors
+        //    and verify that all data members are initialized correctly.  Let
+        //    objects go out the scope to verify destructor behavior.  (C-1..3)
         //
         // Testing:
         //    DatumError();
@@ -741,7 +742,7 @@ int main(int argc, char **argv)
                          << "PRIMARY MANIPULATORS AND BASIC ACCESSORS" << endl
                          << "========================================" << endl;
 
-        if (verbose) cout << "\nTesting 'DatumError()'." << endl;
+        if (verbose) cout << "\nTesting `DatumError()`." << endl;
         {
             Obj        mE;
             const Obj& E = mE;
@@ -750,7 +751,7 @@ int main(int argc, char **argv)
             ASSERT("" == E.message());
         }
 
-        if (verbose) cout << "\nTesting 'DatumError(int code)'." << endl;
+        if (verbose) cout << "\nTesting `DatumError(int code)`." << endl;
         {
             Obj        mE(3);
             const Obj& E = mE;
@@ -760,7 +761,7 @@ int main(int argc, char **argv)
         }
 
         if (verbose)
-            cout << "\nTesting 'DatumError(int, const StringRef&)'." << endl;
+            cout << "\nTesting `DatumError(int, const StringRef&)`." << endl;
         {
             Obj        mE(5, "error message");
             const Obj& E = mE;
@@ -776,11 +777,11 @@ int main(int argc, char **argv)
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Developer test sandbox. (C-1)
+        // 1. Developer test sandbox. (C-1)
         //
         // Testing:
         //   BREATHING TEST

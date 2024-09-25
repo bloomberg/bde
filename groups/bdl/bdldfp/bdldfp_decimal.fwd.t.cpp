@@ -85,10 +85,10 @@ namespace u {
                     // 'isIncomplete' function template
                     // ================================
 
+/// Return `true` when invoked with literal `0` argument if `T&` is
+/// incomplete, `false` if `T` is complete.
 template <class t_TYPE> bool isIncomplete(int(*)[sizeof(t_TYPE)]);
 template <class t_TYPE> bool isIncomplete(...);
-    // Return 'true' when invoked with literal '0' argument if 'T&' is
-    // incomplete, 'false' if 'T' is complete.
 
                     // --------------------------------
                     // 'isIncomplete' function template
@@ -106,11 +106,11 @@ bool isIncomplete(...)
     return true;
 }
 
+/// Verify that the names declared in this forwarding header are complete
+/// when the primary header is included.  Note that the definition of this
+/// function is at the end of this file after `main` and the inclusion of
+/// the primary header.
 void testTypeCompleteness();
-    // Verify that the names declared in this forwarding header are complete
-    // when the primary header is included.  Note that the definition of this
-    // function is at the end of this file after 'main' and the inclusion of
-    // the primary header.
 
 }  // close namespace u
 

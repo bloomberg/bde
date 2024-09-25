@@ -256,11 +256,11 @@ static int veryVeryVeryVerbose = 0;
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Using only primary manipulators, extend the capacity of the specified
+/// `object` to (at least) the specified `size`; then remove all elements
+/// leaving `object` empty.  The behavior is undefined unless `0 <= size`.
 static
 void stretchRemoveAll(Obj *object, size_t size)
-    // Using only primary manipulators, extend the capacity of the specified
-    // 'object' to (at least) the specified 'size'; then remove all elements
-    // leaving 'object' empty.  The behavior is undefined unless '0 <= size'.
 {
     ASSERT(object);
 
@@ -273,10 +273,10 @@ void stretchRemoveAll(Obj *object, size_t size)
     ASSERT(0 == object->length());
 }
 
+/// Output a string that is the binary spec corresponding to the state of
+/// the specified `object`.
 static
 bsl::string binSpec(const Obj& object)
-    // Output a string that is the binary spec corresponding to the state of
-    // the specified 'object'.
 {
     size_t len = object.length();
 
@@ -290,22 +290,22 @@ bsl::string binSpec(const Obj& object)
     return ret;
 }
 
+/// This function is used to avert an uncaught exception on Windows during
+/// `bslma` exception testing.  This can happen, e.g., in test cases with
+/// large DATA sets.  Print the specified `leader`, followed by the
+/// specified `X`.
 static
 void outerP(const char *leader, const Obj &X)
-    // This function is used to avert an uncaught exception on Windows during
-    // 'bslma' exception testing.  This can happen, e.g., in test cases with
-    // large DATA sets.  Print the specified 'leader', followed by the
-    // specified 'X'.
 {
     cout << leader; P(X);
 }
 
+/// This function is to be used to increment a specified loop counter `*x`
+/// with increasing rapidity as it grows, eventually setting it to EXACTLY
+/// the specified `maxVal`, after which it will be set to `maxVal + 1`,
+/// causing the loop to terminate.
 static inline
 void incInt(int *x, const int maxVal)
-    // This function is to be used to increment a specified loop counter '*x'
-    // with increasing rapidity as it grows, eventually setting it to EXACTLY
-    // the specified 'maxVal', after which it will be set to 'maxVal + 1',
-    // causing the loop to terminate.
 {
     if (maxVal <= *x) {
         ASSERT(maxVal == *x);
@@ -320,12 +320,12 @@ void incInt(int *x, const int maxVal)
     }
 }
 
+/// This function is to be used to increment a specified loop counter `*x`
+/// with increasing rapidity as it grows, eventually setting it to EXACTLY
+/// the specified `maxVal`, after which it will be set to `maxVal + 1`,
+/// causing the loop to terminate.
 static inline
 void incSizeT(size_t *x, const size_t maxVal)
-    // This function is to be used to increment a specified loop counter '*x'
-    // with increasing rapidity as it grows, eventually setting it to EXACTLY
-    // the specified 'maxVal', after which it will be set to 'maxVal + 1',
-    // causing the loop to terminate.
 {
     if (maxVal <= *x) {
         ASSERT(maxVal == *x);
@@ -340,11 +340,11 @@ void incSizeT(size_t *x, const size_t maxVal)
     }
 }
 
+/// Return the number of set bits in the specified `object` in the specified
+/// range `[begin .. end)`.  This function uses a much simpler and less
+/// efficient algorithm than that employed by `Obj::num1`.
 static
 size_t countOnesOracle(const Obj& object, size_t begin, size_t end)
-    // Return the number of set bits in the specified 'object' in the specified
-    // range '[begin .. end)'.  This function uses a much simpler and less
-    // efficient algorithm than that employed by 'Obj::num1'.
 {
     ASSERT(begin <= end);
     ASSERT(         end <= object.length());
@@ -363,10 +363,11 @@ size_t countOnesOracle(const Obj& object, size_t begin, size_t end)
 //-----------------------------------------------------------------------------
 
 //..
+
+    /// This class implements a sequential container of elements of the
+    /// template parameter `TYPE`.
     template <class TYPE>
     class NullableVector {
-        // This class implements a sequential container of elements of the
-        // template parameter 'TYPE'.
 
         // DATA
         bsl::vector<TYPE>  d_values;       // data elements
@@ -385,77 +386,80 @@ size_t countOnesOracle(const Obj& object, size_t begin, size_t end)
 
       public:
         // CREATORS
+
+        /// Construct a vector having the specified `initialLength` null
+        /// elements.  Optionally specify a `basicAllocator` used to supply
+        /// memory.  If `basicAllocator` is 0, the currently supplied
+        /// default allocator is used.
         explicit
         NullableVector(bsl::size_t       initialLength,
                        bslma::Allocator *basicAllocator = 0);
-            // Construct a vector having the specified 'initialLength' null
-            // elements.  Optionally specify a 'basicAllocator' used to supply
-            // memory.  If 'basicAllocator' is 0, the currently supplied
-            // default allocator is used.
 
         // ...
 
+        /// Destroy this vector.
         ~NullableVector();
-            // Destroy this vector.
 
         // MANIPULATORS
+
+        /// Append a null element to this vector.  Note that the appended
+        /// element will have the same value as a default constructed `TYPE`
+        /// object.
         void appendNullElement();
-            // Append a null element to this vector.  Note that the appended
-            // element will have the same value as a default constructed 'TYPE'
-            // object.
 
+        /// Append an element having the specified `value` to the end of
+        /// this vector.
         void appendElement(const TYPE& value);
-            // Append an element having the specified 'value' to the end of
-            // this vector.
 
+        /// Make the element at the specified `index` in this vector
+        /// non-null.  The behavior is undefined unless `index < length()`.
         void makeNonNull(bsl::size_t index);
-            // Make the element at the specified 'index' in this vector
-            // non-null.  The behavior is undefined unless 'index < length()'.
 
+        /// Make the element at the specified `index` in this vector null.
+        /// The behavior is undefined unless `index < length()`.  Note that
+        /// the new value of the element will be the default constructed
+        /// value for `TYPE`.
         void makeNull(bsl::size_t index);
-            // Make the element at the specified 'index' in this vector null.
-            // The behavior is undefined unless 'index < length()'.  Note that
-            // the new value of the element will be the default constructed
-            // value for 'TYPE'.
 
+        /// Return a reference providing modifiable access to the (valid)
+        /// element at the specified `index` in this vector.  The behavior
+        /// is undefined unless `index < length()`.  Note that if the
+        /// element at `index` is null then the nullness flag is reset and
+        /// the returned value is the default constructed value for `TYPE`.
         TYPE& modifiableElement(bsl::size_t index);
-            // Return a reference providing modifiable access to the (valid)
-            // element at the specified 'index' in this vector.  The behavior
-            // is undefined unless 'index < length()'.  Note that if the
-            // element at 'index' is null then the nullness flag is reset and
-            // the returned value is the default constructed value for 'TYPE'.
 
+        /// Remove the element at the specified `index` in this vector.  The
+        /// behavior is undefined unless `index < length()`.
         void removeElement(bsl::size_t index);
-            // Remove the element at the specified 'index' in this vector.  The
-            // behavior is undefined unless 'index < length()'.
 
         // ACCESSORS
+
+        /// Return a reference providing non-modifiable access to the
+        /// element at the specified `index` in this vector.  The behavior
+        /// is undefined unless `index < length()`.  Note that if the
+        /// element at `index` is null then the nullness flag is not reset
+        /// and the returned value is the default constructed value for
+        /// `TYPE`.
         const TYPE& constElement(bsl::size_t index) const;
-            // Return a reference providing non-modifiable access to the
-            // element at the specified 'index' in this vector.  The behavior
-            // is undefined unless 'index < length()'.  Note that if the
-            // element at 'index' is null then the nullness flag is not reset
-            // and the returned value is the default constructed value for
-            // 'TYPE'.
 
+        /// Return `true` if any element in this vector is non-null, and
+        /// `false` otherwise.
         bool isAnyElementNonNull() const;
-            // Return 'true' if any element in this vector is non-null, and
-            // 'false' otherwise.
 
+        /// Return `true` if any element in this vector is null, and `false`
+        /// otherwise.
         bool isAnyElementNull() const;
-            // Return 'true' if any element in this vector is null, and 'false'
-            // otherwise.
 
+        /// Return `true` if the element at the specified `index` in this
+        /// vector is null, and `false` otherwise.  The behavior is
+        /// undefined unless `index < length()`.
         bool isElementNull(bsl::size_t index) const;
-            // Return 'true' if the element at the specified 'index' in this
-            // vector is null, and 'false' otherwise.  The behavior is
-            // undefined unless 'index < length()'.
 
+        /// Return the number of elements in this vector.
         bsl::size_t length() const;
-            // Return the number of elements in this vector.
 
+        /// Return the number of null elements in this vector.
         bsl::size_t numNullElements() const;
-            // Return the number of null elements in this vector.
     };
 //..
 // Then, we implement, in turn, each of the methods declared above:
@@ -583,35 +587,35 @@ size_t countOnesOracle(const Obj& object, size_t begin, size_t end)
     }
 //..
 
+/// Configure the specified `bitArray` with the nibbles specified by the
+/// characters in the specified `spec`, which is in hex.  Return -1 on
+/// success, and the index of the problem otherwise.  Whitespace in `spec`
+/// is ignored.  Any previous contents of `bitArray` are discarded unless an
+/// error is detected, in which case `bitArray` is unmodified.  The behavior
+/// is undefined unless the characters in `spec` are either valid hex
+/// digits, white space, or `modifier` characters as defined below.
+///
+/// Unlike the `g`, `gg`, and `ggg` functions, the most significant nibbles
+/// come first.  The input string is case-insensitive.  In addition to valid
+/// hex characters, the following characters are also permitted, case-
+/// insensitive:
+///
+/// * `y` -- bYte -- 8-bits -- repeat following hex nibble twice.
+/// * `q` -- Quarter word -- 16 bits -- repeat following hex nibble 4 times
+/// * `h` -- Half word -- 32 bits -- repeat following hex nibble 8 times
+/// * `w` -- Word -- 64 bits -- repeat following hex nibble 16 times.
+///
+/// These modifiers can be repeated or combined.  Modifiers sum, they do not
+/// multiply.  So "ww9" means 128 bits of nibble 9, binary 1001, or
+/// "wwwhy3b" means `64 + 64 + 64 + 32 + 8 == 232` bits of nibble 3, binary
+/// 0011, followed by a `b` nibble, binary 1011.  It is an error for
+/// modifiers to occur if there is no following hex digit before the end of
+/// the string.
+///
+/// Note that it is impossible to build a bit array whose length is not a
+/// multiple of 4 using this function.
 static
 int gggHex(bdlc::BitArray *bitArray, const char *spec)
-    // Configure the specified 'bitArray' with the nibbles specified by the
-    // characters in the specified 'spec', which is in hex.  Return -1 on
-    // success, and the index of the problem otherwise.  Whitespace in 'spec'
-    // is ignored.  Any previous contents of 'bitArray' are discarded unless an
-    // error is detected, in which case 'bitArray' is unmodified.  The behavior
-    // is undefined unless the characters in 'spec' are either valid hex
-    // digits, white space, or 'modifier' characters as defined below.
-    //
-    // Unlike the 'g', 'gg', and 'ggg' functions, the most significant nibbles
-    // come first.  The input string is case-insensitive.  In addition to valid
-    // hex characters, the following characters are also permitted, case-
-    // insensitive:
-    //
-    //: o 'y' -- bYte -- 8-bits -- repeat following hex nibble twice.
-    //: o 'q' -- Quarter word -- 16 bits -- repeat following hex nibble 4 times
-    //: o 'h' -- Half word -- 32 bits -- repeat following hex nibble 8 times
-    //: o 'w' -- Word -- 64 bits -- repeat following hex nibble 16 times.
-    //
-    // These modifiers can be repeated or combined.  Modifiers sum, they do not
-    // multiply.  So "ww9" means 128 bits of nibble 9, binary 1001, or
-    // "wwwhy3b" means '64 + 64 + 64 + 32 + 8 == 232' bits of nibble 3, binary
-    // 0011, followed by a 'b' nibble, binary 1011.  It is an error for
-    // modifiers to occur if there is no following hex digit before the end of
-    // the string.
-    //
-    // Note that it is impossible to build a bit array whose length is not a
-    // multiple of 4 using this function.
 {
     enum { SUCCESS = -1 };
 
@@ -759,15 +763,15 @@ int gggHex(bdlc::BitArray *bitArray, const char *spec)
 //
 //-----------------------------------------------------------------------------
 
+/// Configure the specified `object` according to the specified `spec`,
+/// using only the primary manipulator function `append` and white-box
+/// manipulator `removeAll`.  Optionally specify a zero `verboseFlag` to
+/// suppress `spec` syntax error messages.  Return the index of the first
+/// invalid character, and a negative value otherwise.  Note that this
+/// function is used to implement `gg` as well as allow for verification of
+/// syntax error detection.
 static
 int ggg(bdlc::BitArray *object, const char *spec, int verboseFlag = 1)
-    // Configure the specified 'object' according to the specified 'spec',
-    // using only the primary manipulator function 'append' and white-box
-    // manipulator 'removeAll'.  Optionally specify a zero 'verboseFlag' to
-    // suppress 'spec' syntax error messages.  Return the index of the first
-    // invalid character, and a negative value otherwise.  Note that this
-    // function is used to implement 'gg' as well as allow for verification of
-    // syntax error detection.
 {
     enum { SUCCESS = -1 };
     for (int i = 0; spec[i]; ++i) {
@@ -793,24 +797,24 @@ int ggg(bdlc::BitArray *object, const char *spec, int verboseFlag = 1)
    return SUCCESS;
 }
 
+/// Return, by reference, the specified `object` with its value adjusted
+/// according to the specified `spec`.
 static
 bdlc::BitArray& gg(bdlc::BitArray *object, const char *spec)
-    // Return, by reference, the specified 'object' with its value adjusted
-    // according to the specified 'spec'.
 {
     ASSERT(ggg(object, spec) < 0);
     return *object;
 }
 
+/// If the first character of the specified `spec` is `x`, the rest of
+/// `spec` is to be interpreted by `gggHex`, otherwise, all of `spec` is to
+/// be interpreted by `ggg`.  If there's an error in `spec` and the
+/// optionally specified `verbose` is `true`, print a warning.  The
+/// specified `object` is to be configured according to `spec`.  Return a
+/// negative status on success and the index of the character where a
+/// problem occurred otherwise.
 static
 int gggDispatch(bdlc::BitArray *object, const char *spec, bool verbose = false)
-    // If the first character of the specified 'spec' is 'x', the rest of
-    // 'spec' is to be interpreted by 'gggHex', otherwise, all of 'spec' is to
-    // be interpreted by 'ggg'.  If there's an error in 'spec' and the
-    // optionally specified 'verbose' is 'true', print a warning.  The
-    // specified 'object' is to be configured according to 'spec'.  Return a
-    // negative status on success and the index of the character where a
-    // problem occurred otherwise.
 {
     if ('x' == *spec || 'X' == *spec) {
         int rc = gggHex(object, spec + 1);
@@ -820,26 +824,26 @@ int gggDispatch(bdlc::BitArray *object, const char *spec, bool verbose = false)
     return ggg(object, spec, verbose);
 }
 
+/// Return, by reference, the specified `object` with its value adjusted
+/// according to the specified `spec`.
 static
 bdlc::BitArray& ggDispatch(bdlc::BitArray *object, const char *spec)
-    // Return, by reference, the specified 'object' with its value adjusted
-    // according to the specified 'spec'.
 {
     ASSERT(gggDispatch(object, spec) < 0);
     return *object;
 }
 
+/// Return, by value, a new object corresponding to the specified `spec`.
 static
 bdlc::BitArray gDispatch(const char *spec)
-    // Return, by value, a new object corresponding to the specified 'spec'.
 {
     bdlc::BitArray object;
     return ggDispatch(&object, spec);
 }
 
+/// Return a random binary spec of the optionally specified `length`
+/// suitable for passing to `ggg` or `gggDispatch`.{
 bsl::string randSpec(size_t length)
-    // Return a random binary spec of the optionally specified 'length'
-    // suitable for passing to 'ggg' or 'gggDispatch'.{
 {
     bsl::string ret;
     ret.reserve(length);
@@ -862,11 +866,11 @@ bsl::string randSpec(size_t length)
     return ret;
 }
 
+/// Test the usage example (see call in main `switch`, test case 31).  This
+/// code had to be moved out of the main `switch`, which had grown too
+/// large, causing the AIX optimizing compiler to crash.
 static
 void testUsage()
-    // Test the usage example (see call in main 'switch', test case 31).  This
-    // code had to be moved out of the main 'switch', which had grown too
-    // large, causing the AIX optimizing compiler to crash.
 {
 ///Usage
 ///-----
@@ -980,10 +984,10 @@ void testUsage()
 //..
 }
 
+/// Test the `num0` and `num1` methods when applied to subranges.  The
+/// previous test of them only tested when passed default arguments.
 static
 void testNum0Num1()
-    // Test the 'num0' and 'num1' methods when applied to subranges.  The
-    // previous test of them only tested when passed default arguments.
 {
     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
@@ -1131,11 +1135,11 @@ void testNum0Num1()
     }
 }
 
+/// Test the `assignBits` method.  See documentation in main switch, test
+/// case 29.  This code had to be moved out of the main `switch`, which had
+/// grown too large, causing the AIX optimizing compiler to crash.
 static
 void testAssignBits()
-    // Test the 'assignBits' method.  See documentation in main switch, test
-    // case 29.  This code had to be moved out of the main 'switch', which had
-    // grown too large, causing the AIX optimizing compiler to crash.
 {
         bslma::TestAllocator testAllocator(veryVeryVerbose);
 
@@ -1241,12 +1245,12 @@ void testAssignBits()
         }
 }
 
+/// Test all overloads of the `find1AtMinIndex` methods.  See documentation
+/// in case 28 of the main `switch` statement.  This code had to be moved
+/// out of the main `switch`, which had grown too large, causing the AIX
+/// optimizing compiler to crash.
 static
 void testFind1AtMinIndex()
-    // Test all overloads of the 'find1AtMinIndex' methods.  See documentation
-    // in case 28 of the main 'switch' statement.  This code had to be moved
-    // out of the main 'switch', which had grown too large, causing the AIX
-    // optimizing compiler to crash.
 {
         bslma::TestAllocator testAllocator(veryVeryVerbose);
 

@@ -6,8 +6,8 @@
 #include <bsls_platform.h>
 
 #include <limits.h>
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 #ifdef BSLS_PLATFORM_CMP_IBM
 #pragma report(disable, "1540-0700")
@@ -87,38 +87,38 @@ void aSsErT(bool condition, const char *message, int line)
 
 namespace {
 
+/// Type convertible from any other type.
 struct AnyType
 {
-    // Type convertible from any other type.
     template <class TYPE>
     AnyType(const TYPE&) { }                                        // IMPLICIT
 };
 
+/// Return true when called with an `integral_constant` of the specified
+/// `VALUE`.  Does not participate in overload resolution for
+/// `integral_constant`s with a `value` other than `VALUE`.
 template <int VALUE>
 bool matchIntConstant(bsl::integral_constant<int, VALUE>)
-    // Return true when called with an 'integral_constant' of the specified
-    // 'VALUE'.  Does not participate in overload resolution for
-    // 'integral_constant's with a 'value' other than 'VALUE'.
 {
     return true;
 }
 
+/// Return true when called with an `integral_constant` of the specified
+/// `VALUE`.  Does not participate in overload resolution for
+/// `integral_constant`s with a `value` other than `VALUE`.
 template <bool VALUE>
 bool matchIntConstant(bsl::integral_constant<bool, VALUE>)
-    // Return true when called with an 'integral_constant' of the specified
-    // 'VALUE'.  Does not participate in overload resolution for
-    // 'integral_constant's with a 'value' other than 'VALUE'.
 {
     return true;
 }
 
+/// Return false.  Overload resolution will select this function only when
+/// the argument is other than `integral_constant<int, VALUE>`, e.g., when
+/// called with an argument of type integral_constant<int, OTHER_VALUE>',
+/// where `Other_VALUE` is different from the specified `VALUE` template
+/// parameter.
 template <int VALUE>
 bool matchIntConstant(AnyType)
-    // Return false.  Overload resolution will select this function only when
-    // the argument is other than 'integral_constant<int, VALUE>', e.g., when
-    // called with an argument of type integral_constant<int, OTHER_VALUE>',
-    // where 'Other_VALUE' is different from the specified 'VALUE' template
-    // parameter.
 {
     return false;
 }
@@ -159,11 +159,11 @@ int dispatchOnBoolConstant(float, bsl::true_type)
 // The most common use of this structure is to perform static function
 // dispatching based on a compile-time calculation.  Often the calculation is
 // nothing more than a simple predicate, allowing us to select one of two
-// functions.  The following function, 'doSomething', uses a fast
-// implementation (e.g., 'memcpy') if the parameterized type allows for such
+// functions.  The following function, `doSomething`, uses a fast
+// implementation (e.g., `memcpy`) if the parameterized type allows for such
 // operations, otherwise it will use a more generic and slower implementation
 // (e.g., copy constructor).
-//..
+// ```
     template <class T>
     void doSomethingImp(T *t, bslmf::MetaInt<0>)
     {
@@ -185,13 +185,13 @@ int dispatchOnBoolConstant(float, bsl::true_type)
     {
         doSomethingImp(t, bslmf::MetaInt<IsFast>());
     }
-//..
+// ```
 // The power of this approach is that the compiler will compile only the
-// implementation selected by the 'MetaInt' argument.  For some parameter
-// types, the fast version of 'doSomethingImp' would be ill-formed.  This kind
+// implementation selected by the `MetaInt` argument.  For some parameter
+// types, the fast version of `doSomethingImp` would be ill-formed.  This kind
 // of compile-time dispatch prevents the ill-formed version from ever being
 // instantiated.
-//..
+// ```
     int usageExample1()
     {
         int i;
@@ -202,13 +202,13 @@ int dispatchOnBoolConstant(float, bsl::true_type)
 
         return 0;
     }
-//..
-///Example 2: Reading the 'VALUE' member
+// ```
+///Example 2: Reading the `VALUE` member
 /// - - - - - - - - - - - - - - - - - -
 // In addition to forming new types, the value of the integral paramameter to
-// 'MetaInt' is "saved" in the enum member 'VALUE', and is accessible for use
+// `MetaInt` is "saved" in the enum member `VALUE`, and is accessible for use
 // in compile-time or run-time operations.
-//..
+// ```
     template <int V>
     unsigned g()
     {
@@ -224,7 +224,7 @@ int dispatchOnBoolConstant(float, bsl::true_type)
         ASSERT(1 == v);
         return 0;
     }
-//..
+// ```
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -254,7 +254,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -272,56 +272,56 @@ int main(int argc, char *argv[])
         // TESTING CONVERSION CONSTRUCTORS
         //
         // Concerns:
-        //: 1 'MetaInt<V>' is constructible from 'integral_constant<int, V>'.
-        //:
-        //: 2 Given several function overloads that take an argument of type
-        //:   'MetaInt<V>' for different values of 'V' and
-        //:   otherwise identical parameters, passing an argument of type
-        //:   'integral_constant<int, X>' will dispatch to overload that takes
-        //:   'MetaInt<X>'.
-        //:
-        //: 3 Given two function overloads with identical parameters such
-        //:   that the first takes an argument of type 'bsl::false_type' and
-        //:   the second takes an argument of type 'bsl::true_type', passing
-        //:   an argument of type 'MetaInt<0>' will dispatch to the first and
-        //:   passing an argument of type 'MetaInt<1>' will dispatch t the
-        //:   second.
+        // 1. `MetaInt<V>` is constructible from `integral_constant<int, V>`.
+        //
+        // 2. Given several function overloads that take an argument of type
+        //    `MetaInt<V>` for different values of `V` and
+        //    otherwise identical parameters, passing an argument of type
+        //    `integral_constant<int, X>` will dispatch to overload that takes
+        //    `MetaInt<X>`.
+        //
+        // 3. Given two function overloads with identical parameters such
+        //    that the first takes an argument of type `bsl::false_type` and
+        //    the second takes an argument of type `bsl::true_type`, passing
+        //    an argument of type `MetaInt<0>` will dispatch to the first and
+        //    passing an argument of type `MetaInt<1>` will dispatch t the
+        //    second.
         //
         // TBD: Incomplete specification and implementation of this test case
         // Plan:
-        //: 1 Create a function template, 'matchIntConstant<V>' having two
-        //:   overloads: one that takes an argument of type
-        //:   'integral_constant<int, V>' and returns 'true', and another which
-        //:   takes an argument of a type convertible from *any*
-        //:   'integral_constant' and returns 'false'.  For various values 'V',
-        //:   construct rvalues of type 'MetaInt<V>' and call
-        //:   'matchIntConstant<V>', verifying that it returns
-        //:   'true'. (C-1)
-        //:
-        //: 2 For various values 'V' and 'X' such that 'V != X', construct
-        //:   rvalues of type 'MetaInt<V>' and call 'matchIntConstant<X>',
-        //:   verifying that it returns 'false'. (C-2)
-        //:
-        //: 3 Create a set of overloaded functions,
-        //:   'dispatchOnIntConstant' taking identical arguments except
-        //:   that the last parameter is of type 'integral_constant<int, V>'
-        //:   for several values of 'V'.  The return value of
-        //:   'dispatchOnIntConstant' is an 'int' with value 'V'.  Call
-        //:   'dispatchOnIntConstant' several times, each time passing a
-        //:   different instantiation of 'integral_constant<int, V>' and
-        //:   verifying that the return value is as expected (i.e., that the
-        //:   call dispatched to the correct overload).  (C-3)
-        //:
-        //: 4 Create a pair of overloaded functions, 'dispatchOnBoolConstant'
-        //:   taking identical arguments except that the last parameter of the
-        //:   first overload is 'false_type' and the last parameter of the
-        //:   second overload is 'true_type'.  The return value of
-        //:   'dispatchOnBoolConstant' is an 'int' with value 1 for the first
-        //:   overload and 2 for the second overload.  Call
-        //:   'dispatchOnBoolConstant', passing it 'MetaInt<0>' as the last
-        //:   argument and verify that it returns 1.  Call
-        //:   'dispatchOnBoolConstant', passing it 'MetaInt<1>' as the last
-        //:   argument and verify that it returns 2. (C-4)
+        // 1. Create a function template, `matchIntConstant<V>` having two
+        //    overloads: one that takes an argument of type
+        //    `integral_constant<int, V>` and returns `true`, and another which
+        //    takes an argument of a type convertible from *any*
+        //    `integral_constant` and returns `false`.  For various values `V`,
+        //    construct rvalues of type `MetaInt<V>` and call
+        //    `matchIntConstant<V>`, verifying that it returns
+        //    `true`. (C-1)
+        //
+        // 2. For various values `V` and `X` such that `V != X`, construct
+        //    rvalues of type `MetaInt<V>` and call `matchIntConstant<X>`,
+        //    verifying that it returns `false`. (C-2)
+        //
+        // 3. Create a set of overloaded functions,
+        //    `dispatchOnIntConstant` taking identical arguments except
+        //    that the last parameter is of type `integral_constant<int, V>`
+        //    for several values of `V`.  The return value of
+        //    `dispatchOnIntConstant` is an `int` with value `V`.  Call
+        //    `dispatchOnIntConstant` several times, each time passing a
+        //    different instantiation of `integral_constant<int, V>` and
+        //    verifying that the return value is as expected (i.e., that the
+        //    call dispatched to the correct overload).  (C-3)
+        //
+        // 4. Create a pair of overloaded functions, `dispatchOnBoolConstant`
+        //    taking identical arguments except that the last parameter of the
+        //    first overload is `false_type` and the last parameter of the
+        //    second overload is `true_type`.  The return value of
+        //    `dispatchOnBoolConstant` is an `int` with value 1 for the first
+        //    overload and 2 for the second overload.  Call
+        //    `dispatchOnBoolConstant`, passing it `MetaInt<0>` as the last
+        //    argument and verify that it returns 1.  Call
+        //    `dispatchOnBoolConstant`, passing it `MetaInt<1>` as the last
+        //    argument and verify that it returns 2. (C-4)
         //
         // Testing:
         //      implicit upcast to bsl::integral_constant<int, INT_VALUE>
@@ -360,58 +360,58 @@ int main(int argc, char *argv[])
         // TESTING CONVERSION TO integral_constant
         //
         // Concerns:
-        //: 1 'MetaInt<V>' is convertible to 'integral_constant<int, V>'.
-        //:
-        //: 2 'MetaInt<V>' is NOT convertible to 'integral_constant<int, X>',
-        //:   'X != V'.
-        //:
-        //: 3 Given several function overloads that take an argument of type
-        //:   'integral_constant<int, V>' for different values of 'V' and
-        //:   otherwise identical parameters, passing an argument of type
-        //:   'MetaInt<X>' will dispatch to overload that takes
-        //:   'integral_constant<int, X>'.
-        //:
-        //: 4 Given two function overloads with identical parameters such
-        //:   that the first takes an argument of type 'bsl::false_type' and
-        //:   the second takes an argument of type 'bsl::true_type', passing
-        //:   an argument of type 'MetaInt<0>' will dispatch to the first and
-        //:   passing an argument of type 'MetaInt<1>' will dispatch t the
-        //:   second.
+        // 1. `MetaInt<V>` is convertible to `integral_constant<int, V>`.
+        //
+        // 2. `MetaInt<V>` is NOT convertible to `integral_constant<int, X>`,
+        //    `X != V`.
+        //
+        // 3. Given several function overloads that take an argument of type
+        //    `integral_constant<int, V>` for different values of `V` and
+        //    otherwise identical parameters, passing an argument of type
+        //    `MetaInt<X>` will dispatch to overload that takes
+        //    `integral_constant<int, X>`.
+        //
+        // 4. Given two function overloads with identical parameters such
+        //    that the first takes an argument of type `bsl::false_type` and
+        //    the second takes an argument of type `bsl::true_type`, passing
+        //    an argument of type `MetaInt<0>` will dispatch to the first and
+        //    passing an argument of type `MetaInt<1>` will dispatch t the
+        //    second.
         //
         // Plan:
-        //: 1 Create a function template, 'matchIntConstant<V>' having two
-        //:   overloads: one that takes an argument of type
-        //:   'integral_constant<int, V>' and returns 'true', and another which
-        //:   takes an argument of a type convertible from *any*
-        //:   'integral_constant' and returns 'false'.  For various values 'V',
-        //:   construct rvalues of type 'MetaInt<V>' and call
-        //:   'matchIntConstant<V>', verifying that it returns
-        //:   'true'. (C-1)
-        //:
-        //: 2 For various values 'V' and 'X' such that 'V != X', construct
-        //:   rvalues of type 'MetaInt<V>' and call 'matchIntConstant<X>',
-        //:   verifying that it returns 'false'. (C-2)
-        //:
-        //: 3 Create a set of overloaded functions,
-        //:   'dispatchOnIntConstant' taking identical arguments except
-        //:   that the last parameter is of type 'integral_constant<int, V>'
-        //:   for several values of 'V'.  The return value of
-        //:   'dispatchOnIntConstant' is an 'int' with value 'V'.  Call
-        //:   'dispatchOnIntConstant' several times, each time passing a
-        //:   different instantiation of 'integral_constant<int, V>' and
-        //:   verifying that the return value is as expected (i.e., that the
-        //:   call dispatched to the correct overload).  (C-3)
-        //:
-        //: 4 Create a pair of overloaded functions, 'dispatchOnBoolConstant'
-        //:   taking identical arguments except that the last parameter of the
-        //:   first overload is 'false_type' and the last parameter of the
-        //:   second overload is 'true_type'.  The return value of
-        //:   'dispatchOnBoolConstant' is an 'int' with value 1 for the first
-        //:   overload and 2 for the second overload.  Call
-        //:   'dispatchOnBoolConstant', passing it 'MetaInt<0>' as the last
-        //:   argument and verify that it returns 1.  Call
-        //:   'dispatchOnBoolConstant', passing it 'MetaInt<1>' as the last
-        //:   argument and verify that it returns 2. (C-4)
+        // 1. Create a function template, `matchIntConstant<V>` having two
+        //    overloads: one that takes an argument of type
+        //    `integral_constant<int, V>` and returns `true`, and another which
+        //    takes an argument of a type convertible from *any*
+        //    `integral_constant` and returns `false`.  For various values `V`,
+        //    construct rvalues of type `MetaInt<V>` and call
+        //    `matchIntConstant<V>`, verifying that it returns
+        //    `true`. (C-1)
+        //
+        // 2. For various values `V` and `X` such that `V != X`, construct
+        //    rvalues of type `MetaInt<V>` and call `matchIntConstant<X>`,
+        //    verifying that it returns `false`. (C-2)
+        //
+        // 3. Create a set of overloaded functions,
+        //    `dispatchOnIntConstant` taking identical arguments except
+        //    that the last parameter is of type `integral_constant<int, V>`
+        //    for several values of `V`.  The return value of
+        //    `dispatchOnIntConstant` is an `int` with value `V`.  Call
+        //    `dispatchOnIntConstant` several times, each time passing a
+        //    different instantiation of `integral_constant<int, V>` and
+        //    verifying that the return value is as expected (i.e., that the
+        //    call dispatched to the correct overload).  (C-3)
+        //
+        // 4. Create a pair of overloaded functions, `dispatchOnBoolConstant`
+        //    taking identical arguments except that the last parameter of the
+        //    first overload is `false_type` and the last parameter of the
+        //    second overload is `true_type`.  The return value of
+        //    `dispatchOnBoolConstant` is an `int` with value 1 for the first
+        //    overload and 2 for the second overload.  Call
+        //    `dispatchOnBoolConstant`, passing it `MetaInt<0>` as the last
+        //    argument and verify that it returns 1.  Call
+        //    `dispatchOnBoolConstant`, passing it `MetaInt<1>` as the last
+        //    argument and verify that it returns 2. (C-4)
         //
         // Testing:
         //      implicit upcast to bsl::integral_constant<int, INT_VALUE>
@@ -450,32 +450,32 @@ int main(int argc, char *argv[])
         // TESTING CONVERSION TO int
         //
         // Concerns:
-        //: 1 'MetaInt<V>' is convertible to 'int' with a resulting value of
-        //:   'V'.
-        //:
-        //: 2 'MetaInt<0>' is convertible to 'bool' with a resulting value of
-        //:   'false'.
-        //:
-        //: 3 'MetaInt<0>' is convertible to 'bool' with a resulting value of
-        //:   'true'.
+        // 1. `MetaInt<V>` is convertible to `int` with a resulting value of
+        //    `V`.
+        //
+        // 2. `MetaInt<0>` is convertible to `bool` with a resulting value of
+        //    `false`.
+        //
+        // 3. `MetaInt<0>` is convertible to `bool` with a resulting value of
+        //    `true`.
         //
         // Plan:
-        //: 1 Define several 'int' variables, initializing each one with a
-        //:   different 'MetaInt<V>' type.  Verify that the value of each
-        //:   'int' is the corresponding 'V'. (C1)
-        //:
-        //: 2 Define a 'bool' variable, initializing it with a 'MetaInt<0>'
-        //:   object. Verify that the resulting value is false. (C2)
-        //:
-        //: 3 Define a 'bool' variable, initializing it with a 'MetaInt<1>'
-        //:   object. Verify that the resulting value is true. (C3)
+        // 1. Define several `int` variables, initializing each one with a
+        //    different `MetaInt<V>` type.  Verify that the value of each
+        //    `int` is the corresponding `V`. (C1)
+        //
+        // 2. Define a `bool` variable, initializing it with a `MetaInt<0>`
+        //    object. Verify that the resulting value is false. (C2)
+        //
+        // 3. Define a `bool` variable, initializing it with a `MetaInt<1>`
+        //    object. Verify that the resulting value is true. (C3)
         //
         // Testing:
         //      operator int() const;
         //      operator bool() const; // MetaInt<0> and MetaInt<1> only
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING CONVERSION TO 'int'"
+        if (verbose) printf("\nTESTING CONVERSION TO `int`"
                             "\n===========================\n");
 
         int a = MetaInt<0>();
@@ -499,15 +499,15 @@ int main(int argc, char *argv[])
         // TESTING VALUE
         //
         // Test Plan:
-        //   Instantiate 'MetaInt' with various constant integral
-        //   values and verify that their 'VALUE' member is initialized
+        //   Instantiate `MetaInt` with various constant integral
+        //   values and verify that their `VALUE` member is initialized
         //   properly.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING VALUE"
                             "\n=============\n");
 
-        // verify that the 'VALUE' member is evaluated at compile-time
+        // verify that the `VALUE` member is evaluated at compile-time
         enum {
             C1 = bslmf::MetaInt<1>::VALUE,
             C2 = bslmf::MetaInt<2>::VALUE,
@@ -531,7 +531,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == i1.value);
         ASSERT(2 == i2.value);
 
-        // 'MetaInt' supports all non-negative integer values:
+        // `MetaInt` supports all non-negative integer values:
         ASSERT(0 == bslmf::MetaInt<0>::VALUE);
         ASSERT(1 == bslmf::MetaInt<1>::VALUE);
         ASSERT(INT_MAX == bslmf::MetaInt<INT_MAX>::VALUE);
@@ -546,7 +546,7 @@ int main(int argc, char *argv[])
 #pragma GCC diagnostic ignored "-Wenum-compare"
 #endif
 
-        // 'VALUE' is signed:
+        // `VALUE` is signed:
         ASSERT(bslmf::MetaInt<(unsigned) 5>::VALUE !=
                bslmf::MetaInt<(unsigned)-5>::VALUE);
 

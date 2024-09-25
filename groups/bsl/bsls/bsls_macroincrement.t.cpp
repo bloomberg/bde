@@ -79,12 +79,12 @@ int main(int argc, char *argv[])
         //   in this component.
         //
         // Concerns:
-        //:  The usage example provided in the component header file must
-        //:  compile, link, and run on all platforms as shown.
+        //   The usage example provided in the component header file must
+        //   compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //:  Incorporate usage example from header into driver, remove leading
-        //:  comment characters, and replace 'assert' with 'ASSERT'.
+        //   Incorporate usage example from header into driver, remove leading
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -100,31 +100,31 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // TEST BSLS_MACROINCREMENT
-        //   This test verifies correctness of 'BSLS_MACROINCREMENT' macro.
+        //   This test verifies correctness of `BSLS_MACROINCREMENT` macro.
         //
         // Concerns:
-        //:  1 The 'BSLS_MACROINCREMENT' correctly increments the given
-        //:    argument (either an integer literal or a macro that ultimately
-        //:    expands to an integer literal) in preprocessors.
+        //  1. The `BSLS_MACROINCREMENT` correctly increments the given
+        //     argument (either an integer literal or a macro that ultimately
+        //     expands to an integer literal) in preprocessors.
         //
         // Plan:
-        //:  1 For integer literal V in the range '[0, 19999]', set
-        //:    'BSLS_MACROINCREMENT(V)' as the first argument following '#line'
-        //:    directive.  Verify the line number is correctly incremented.
-        //:    (C-1)
-        //:
-        //:  2 For integer literal V in the range '[0, 19999]', set
-        //:    'BSLS_MACROINCREMENT(LINENO(V))' as the first argument following
-        //:    '#line' directive where 'LINENO' is a macro eventually expanding
-        //:     to an integer literal in the range '[0, 19999']'.  Verify the
-        //:     line number is correctly incremented.  (C-1)
+        //  1. For integer literal V in the range `[0, 19999]`, set
+        //     `BSLS_MACROINCREMENT(V)` as the first argument following `#line`
+        //     directive.  Verify the line number is correctly incremented.
+        //     (C-1)
+        //
+        //  2. For integer literal V in the range `[0, 19999]`, set
+        //     `BSLS_MACROINCREMENT(LINENO(V))` as the first argument following
+        //     `#line` directive where `LINENO` is a macro eventually expanding
+        //      to an integer literal in the range `[0, 19999`]'.  Verify the
+        //      line number is correctly incremented.  (C-1)
         //
         // Testing:
         //   BSLS_MACROINCREMENT
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing 'BSLS_MACROINCREMENT' on integer literal"
+                          << "Testing `BSLS_MACROINCREMENT` on integer literal"
                           << endl
                           << "================================================"
                           << endl;
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout << endl
-                          << "Testing 'BSLS_MACROINCREMENT' on macro" << endl
+                          << "Testing `BSLS_MACROINCREMENT` on macro" << endl
                           << "======================================" << endl;
         {
             #define TESTMACRO_1 BSLS_MACROINCREMENT(LINENO(0))

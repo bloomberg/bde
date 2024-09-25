@@ -73,9 +73,10 @@ void aSsErT(bool condition, const char *message, int line)
 // push integers to a queue, and later retrieve the integer values from the
 // queue in FIFO order.  It illustrates two potential uses of semaphores: to
 // enforce exclusive access, and to allow resource sharing.
-//..
+// ```
+
+    /// FIFO queue of integer values.
     class IntQueue {
-        // FIFO queue of integer values.
 
         // DATA
         bsl::deque<int>       d_queue;       // underlying queue
@@ -88,29 +89,31 @@ void aSsErT(bool condition, const char *message, int line)
 
       public:
         // CREATORS
-        explicit IntQueue(bslma::Allocator *basicAllocator = 0);
-            // Create an 'IntQueue' object.  Optionally specified a
-            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-            // 0, the currently installed default allocator is used.
 
+        /// Create an `IntQueue` object.  Optionally specified a
+        /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+        /// 0, the currently installed default allocator is used.
+        explicit IntQueue(bslma::Allocator *basicAllocator = 0);
+
+        /// Destroy this `IntQueue` object.
         ~IntQueue();
-            // Destroy this 'IntQueue' object.
 
         // MANIPULATORS
-        int getInt(int *result, int maxWaitSeconds = 0);
-            // Load the first integer in this queue into the specified 'result'
-            // and return 0 unless the operation takes more than the optionally
-            // specified 'maxWaitSeconds', in which case return a nonzero value
-            // and leave 'result' unmodified.
 
+        /// Load the first integer in this queue into the specified `result`
+        /// and return 0 unless the operation takes more than the optionally
+        /// specified `maxWaitSeconds`, in which case return a nonzero value
+        /// and leave `result` unmodified.
+        int getInt(int *result, int maxWaitSeconds = 0);
+
+        /// Push the specified `value` to this `IntQueue` object.
         void pushInt(int value);
-            // Push the specified 'value' to this 'IntQueue' object.
     };
-//..
-// Note that the 'IntQueue' constructor increments the count of the semaphore
+// ```
+// Note that the `IntQueue` constructor increments the count of the semaphore
 // to 1 so that values can be pushed into the queue immediately following
 // construction:
-//..
+// ```
     // CREATORS
     IntQueue::IntQueue(bslma::Allocator *basicAllocator)
     : d_queue(basicAllocator)
@@ -139,7 +142,7 @@ void aSsErT(bool condition, const char *message, int line)
             }
         }
 
-        // 'd_mutexSem' is used for exclusive access.
+        // `d_mutexSem` is used for exclusive access.
         d_mutexSem.wait();       // lock
         *result = d_queue.back();
         d_queue.pop_back();
@@ -156,7 +159,7 @@ void aSsErT(bool condition, const char *message, int line)
 
         d_resourceSem.post();  // Signal that we have resources available.
     }
-//..
+// ```
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 // BDE_VERIFY pragma: push
@@ -166,11 +169,11 @@ void aSsErT(bool condition, const char *message, int line)
             // class AnotherClock
             // ==================
 
+/// `AnotherClock` is a C++11-compatible clock that is very similar to
+/// `bsl::chrono::steady_clock`.  The only difference is that it uses a
+/// different epoch; it begins 10000 "ticks" after the beginning of
+/// `steady_clock`s epoch.
 class AnotherClock {
-    // 'AnotherClock' is a C++11-compatible clock that is very similar to
-    // 'bsl::chrono::steady_clock'.  The only difference is that it uses a
-    // different epoch; it begins 10000 "ticks" after the beginning of
-    // 'steady_clock's epoch.
 
   private:
     typedef bsl::chrono::steady_clock base_clock;
@@ -184,9 +187,10 @@ class AnotherClock {
     static const bool is_steady = base_clock::is_steady;
 
     // CLASS METHODS
+
+    /// Return a time point representing the time since the beginning of the
+    /// epoch.
     static time_point now();
-        // Return a time point representing the time since the beginning of the
-        // epoch.
 };
 
 // CLASS METHODS
@@ -200,10 +204,10 @@ AnotherClock::time_point AnotherClock::now()
             // class HalfClock
             // ===============
 
+/// `HalfClock` is a C++11-compatible clock that is very similar to
+/// `bsl::chrono::steady_clock`.  The difference is that it runs "half as
+/// fast" as `steady_clock`.
 class HalfClock {
-    // 'HalfClock' is a C++11-compatible clock that is very similar to
-    // 'bsl::chrono::steady_clock'.  The difference is that it runs "half as
-    // fast" as 'steady_clock'.
 
   private:
     typedef bsl::chrono::steady_clock base_clock;
@@ -217,9 +221,10 @@ class HalfClock {
     static const bool is_steady = base_clock::is_steady;
 
     // CLASS METHODS
+
+    /// Return a time point representing the time since the beginning of the
+    /// epoch.
     static time_point now();
-        // Return a time point representing the time since the beginning of the
-        // epoch.
 };
 
 // CLASS METHODS
@@ -231,20 +236,20 @@ HalfClock::time_point HalfClock::now()
 
 // BDE_VERIFY pragma: pop
 
+/// Wait on the specified `TimedSemaphore` `mX` for the specified
+/// `secondsToWait` seconds based on the specified `CLOCK`.  If the call to
+/// `timedWait` returns `e_TIMED_OUT`, indicating that a timeout has
+/// occurred, verify that at least that much time has elapsed (measured by
+/// the clock).
 template <class CLOCK>
 int WaitForTimeout(bslmt::TimedSemaphore& mX, int secondsToWait)
-    // Wait on the specified 'TimedSemaphore' 'mX' for the specified
-    // 'secondsToWait' seconds based on the specified 'CLOCK'.  If the call to
-    // 'timedWait' returns 'e_TIMED_OUT', indicating that a timeout has
-    // occurred, verify that at least that much time has elapsed (measured by
-    // the clock).
 {
     typename CLOCK::time_point tp = CLOCK::now() +
                                            bsl::chrono::seconds(secondsToWait);
     int                        ret = mX.timedWait(tp);
     if (bslmt::TimedSemaphore::e_TIMED_OUT == ret) {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-        // On Windows, 'timedWait' may return early due to rounding of the time
+        // On Windows, `timedWait` may return early due to rounding of the time
         // to "ticks".
 
         ASSERT(CLOCK::now() + bsl::chrono::microseconds(500) >= tp);
@@ -276,23 +281,23 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'clockType'
+        // TESTING `clockType`
         //
         // Concerns:
-        //: 1 'clockType' returns the clock type passed to the constructor.
-        //:
-        //: 2 'clockType' is declared 'const'.
+        // 1. `clockType` returns the clock type passed to the constructor.
+        //
+        // 2. `clockType` is declared `const`.
         //
         // Plan:
-        //: 1 Create a 'const' object, and then query it to make sure that the
-        //:   correct clock type is returned.
+        // 1. Create a `const` object, and then query it to make sure that the
+        //    correct clock type is returned.
         //
         // Testing:
         //   bsls::SystemClockType::Enum clockType() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'clockType'" << endl
+                          << "TESTING `clockType`" << endl
                           << "===================" << endl;
 
         const Obj def;
@@ -337,7 +342,7 @@ int main(int argc, char *argv[])
             ASSERT(0 != mX.timedWait(ti));
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-            // On Windows, 'timedWait' may return early due to rounding of the
+            // On Windows, `timedWait` may return early due to rounding of the
             // time to "ticks".
 
             ASSERT(bsls::SystemTime::nowRealtimeClock()

@@ -36,8 +36,8 @@
 // [ 2] BDLS_FILESYSTEMUTIL_UNIXPLATFORM_64_BIT_OFF
 // [ 2] BDLS_FILESYSTEMUTIL_UNIXPLATFORM_64_BIT_OFF64
 // ----------------------------------------------------------------------------
-// [ 2] CONCERN: Exactly one of the '*_OFF*' macros is defined on any Unix.
-// [ 2] CONCERN: None of the '*_OFF*' macros are defined on any non-Unix.
+// [ 2] CONCERN: Exactly one of the `*_OFF*` macros is defined on any Unix.
+// [ 2] CONCERN: None of the `*_OFF*` macros are defined on any non-Unix.
 // [ 1] CONCERN: The correct macro is enabled given the current platform.
 
 // ============================================================================
@@ -115,10 +115,10 @@ namespace u {
                                // struct CpuBits
                                // ==============
 
+/// This `struct` provides a namespace for enumerating the set of CPU word
+/// width values that contribute to the determination of which macros this
+/// component defines.
 struct CpuBits {
-    // This 'struct' provides a namespace for enumerating the set of CPU word
-    // width values that contribute to the determination of which macros this
-    // component defines.
 
     // TYPES
     enum Enum {
@@ -137,10 +137,10 @@ struct CpuBits {
                            // struct FileOffsetBits
                            // =====================
 
+/// This `struct` provides a namespace for enumerating the set of values for
+/// the `_FILE_OFFSET_BITS` macro that can contribute to the determination
+/// of which macros this component defines.
 struct FileOffsetBits {
-    // This 'struct' provides a namespace for enumerating the set of values for
-    // the '_FILE_OFFSET_BITS' macro that can contribute to the determination
-    // of which macros this component defines.
 
     // TYPES
     enum Enum {
@@ -159,10 +159,10 @@ struct FileOffsetBits {
                             // struct LargeFileMode
                             // ====================
 
+/// This `struct` provides a namespace for enumerating the set of values for
+/// the `_LARGE_FILE` or `_LARGEFILE64_SOURCE` macros that can contribute to
+/// the determination of which macros this component defines.
 struct LargeFileMode {
-    // This 'struct' provides a namespace for enumerating the set of values for
-    // the '_LARGE_FILE' or '_LARGEFILE64_SOURCE' macros that can contribute to
-    // the determination of which macros this component defines.
 
     // TYPES
     enum Enum {
@@ -181,10 +181,10 @@ struct LargeFileMode {
                            // struct OperatingSystem
                            // ======================
 
+/// This `struct` provides a namespace for enumerating the set of operating
+/// systems that this component supports in its determination of which
+/// macros it defines.
 struct OperatingSystem {
-    // This 'struct' provides a namespace for enumerating the set of operating
-    // systems that this component supports in its determination of which
-    // macros it defines.
 
     // TYPES
     enum Enum {
@@ -209,10 +209,10 @@ struct OperatingSystem {
                             // struct PlatformUtil
                             // ===================
 
+/// This utility `struct` provides a namespace for a suite of constants used
+/// to identify all criteria of the current platform configuration that this
+/// component uses to determine which macros to define.
 struct PlatformUtil {
-    // This utility 'struct' provides a namespace for a suite of constants used
-    // to identify all criteria of the current platform configuration that this
-    // component uses to determine which macros to define.
 
     // CLASS DATA
     static const CpuBits::Enum k_CPU_BITS =
@@ -221,7 +221,7 @@ struct PlatformUtil {
 #elif defined(BSLS_PLATFORM_CPU_64_BIT)
         CpuBits::e_64;
 #else
-# error "'bdls_filesystemutil_unixplatform' does not support this platform."
+# error "`bdls_filesystemutil_unixplatform` does not support this platform."
 #endif
 
     static const LargeFileMode::Enum k_LARGE_FILE_MODE =
@@ -251,7 +251,7 @@ struct PlatformUtil {
         LargeFileMode::e_NOT_DEFINED;
 #elif
 #else
-# error "'bdls_filesystemutil_unixplatform' does not support this platform."
+# error "`bdls_filesystemutil_unixplatform` does not support this platform."
 #endif
 
     static const FileOffsetBits::Enum k_FILE_OFFSET_BITS =
@@ -282,7 +282,7 @@ struct PlatformUtil {
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
         FileOffsetBits::e_NOT_DEFINED;
 #else
-# error "'bdls_filesystemutil_unixplatform' does not support this platform."
+# error "`bdls_filesystemutil_unixplatform` does not support this platform."
 #endif
 
     static const OperatingSystem::Enum k_OPERATING_SYSTEM =
@@ -303,7 +303,7 @@ struct PlatformUtil {
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
         OperatingSystem::e_WINDOWS;
 #else
-# error "'bdls_filesystemutil_unixplatform' does not support this platform."
+# error "`bdls_filesystemutil_unixplatform` does not support this platform."
 #endif
 };
 
@@ -332,7 +332,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch(test) { case 0:
@@ -345,39 +345,39 @@ int main(int argc, char *argv[])
         //   use and the number of bits in that type, is accurate.
         //
         // Concerns:
-        //: 1 Exactly one of the following macros is defined on Unix platforms:
-        //:   'BDLS_FILESYSTEMUTIL_UNIXPLATFORM_32_BIT_OFF',
-        //:   'BDLS_FILESYSTEMUTIL_UNIXPLATFORM_64_BIT_OFF', or
-        //:   'BDLS_FILESYSTEMUTIL_UNIXPLATFORM_64_BIT_OFF64'.
-        //:
-        //: 2 No macro is defined on Windows platforms.
-        //:
-        //: 3 if the '*_32_BIT_OFF' macro is defined, it expands to the literal
-        //:   '1', the size of '::off_t' is 4 and its numeric range is
-        //:   consistent with a 32-bit, 2's-complement, signed integral type.
-        //:
-        //: 4 If the '*_64_BIT_OFF' macro is defined, it expands to the literal
-        //:   '1', the size of '::off_t' is 8 and its numeric range is
-        //:   consistent with a 64-bit, 2's-complement, signed integral type.
-        //:
-        //: 5 If the '*_64_BIT_OFF64' macro is defined, it expands to the
-        //:   literal '1', an '::off64_t' type is defined, its size is 8, and
-        //:   its numeric range is consistent with a 64-bit, 2's-complement,
-        //:   signed integral type.
+        // 1. Exactly one of the following macros is defined on Unix platforms:
+        //    `BDLS_FILESYSTEMUTIL_UNIXPLATFORM_32_BIT_OFF`,
+        //    `BDLS_FILESYSTEMUTIL_UNIXPLATFORM_64_BIT_OFF`, or
+        //    `BDLS_FILESYSTEMUTIL_UNIXPLATFORM_64_BIT_OFF64`.
+        //
+        // 2. No macro is defined on Windows platforms.
+        //
+        // 3. if the `*_32_BIT_OFF` macro is defined, it expands to the literal
+        //    '1', the size of `::off_t` is 4 and its numeric range is
+        //    consistent with a 32-bit, 2's-complement, signed integral type.
+        //
+        // 4. If the `*_64_BIT_OFF` macro is defined, it expands to the literal
+        //    '1', the size of `::off_t` is 8 and its numeric range is
+        //    consistent with a 64-bit, 2's-complement, signed integral type.
+        //
+        // 5. If the `*_64_BIT_OFF64` macro is defined, it expands to the
+        //    literal '1', an `::off64_t` type is defined, its size is 8, and
+        //    its numeric range is consistent with a 64-bit, 2's-complement,
+        //    signed integral type.
         //
         // Plan:
-        //: 1 For each macro 'M' under consideration:
-        //:
-        //:   1 Verify that if 'M' is defined, that no other macro under
-        //:     consideration is defined, and that 'M' expands to '1'.
-        //:
-        //:   2 Verify that 'M's indicated offset type is an integral type.
-        //:
-        //:   3 Verify that 'M's indicated offset type has the exactly the
-        //:     numeric range described in the corresponding concern.
-        //:
-        //:   4 Verify that 'M' is not defined if the current platform is a
-        //:     Windows platform.
+        // 1. For each macro `M` under consideration:
+        //
+        //   1. Verify that if `M` is defined, that no other macro under
+        //      consideration is defined, and that `M` expands to '1'.
+        //
+        //   2. Verify that `M`s indicated offset type is an integral type.
+        //
+        //   3. Verify that `M`s indicated offset type has the exactly the
+        //      numeric range described in the corresponding concern.
+        //
+        //   4. Verify that `M` is not defined if the current platform is a
+        //      Windows platform.
         //
         // Testing:
         //   BDLS_FILESYSTEMUTIL_UNIXPLATFORM_32_BIT_OFF
@@ -452,7 +452,7 @@ int main(int argc, char *argv[])
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
         ASSERT(0 == U_32_BIT_OFF + U_64_BIT_OFF + U_64_BIT_OFF64);
 #else
-# error "'bdls_filesystemutil_unixplatform' does not support this platform."
+# error "`bdls_filesystemutil_unixplatform` does not support this platform."
 #endif
 
 #undef U_32_BIT_OFF
@@ -468,28 +468,28 @@ int main(int argc, char *argv[])
         //   documentation.
         //
         // Concerns:
-        //: t The decision procedure for which macro is defined for the current
-        //:   platform is equivalent to the procedure specified by the table in
-        //:   this component's documentation.
+        //  t The decision procedure for which macro is defined for the current
+        //    platform is equivalent to the procedure specified by the table in
+        //    this component's documentation.
         //
         // Plan:
-        //: 1 Construct a table 'T' that enumerates every supported combination
-        //:   of operating system, cpu word width, "file-offset bits" macro
-        //:   value, and "large file" macro value.
-        //:
-        //: 2 For each combination 'C' in 'T', also store booleans that
-        //:   designate whether the '*_32_BIT_OFF', '*_64_BIT_OFF', or the
-        //:   '*_64_BIT_OFF64' macros should be defined, according to the table
-        //:   in the component documentation.
-        //:
-        //: 3 Using the platform configuration 'C' that 'u::PlatformUtil'
-        //:   detects, look up the macro-definition booleans 'Bs' associated
-        //:   with configuration 'C' in 'T'.
-        //:
-        //: 4 For each macro 'M' in the list of macros 'L', verify that 'M' is
-        //:   defined if and only if its associated boolean in the set of
-        //:   booleans 'Bs' is true; where 'L' is the list of macros:
-        //:   '*_32_BIT_OFF', '*_64_BIT_OFF', and '*_64_BIT_OFF64'.
+        // 1. Construct a table `T` that enumerates every supported combination
+        //    of operating system, cpu word width, "file-offset bits" macro
+        //    value, and "large file" macro value.
+        //
+        // 2. For each combination `C` in `T`, also store booleans that
+        //    designate whether the `*_32_BIT_OFF`, `*_64_BIT_OFF`, or the
+        //    `*_64_BIT_OFF64` macros should be defined, according to the table
+        //    in the component documentation.
+        //
+        // 3. Using the platform configuration `C` that `u::PlatformUtil`
+        //    detects, look up the macro-definition booleans `Bs` associated
+        //    with configuration `C` in `T`.
+        //
+        // 4. For each macro `M` in the list of macros `L`, verify that `M` is
+        //    defined if and only if its associated boolean in the set of
+        //    booleans `Bs` is true; where `L` is the list of macros:
+        //    `*_32_BIT_OFF`, `*_64_BIT_OFF`, and `*_64_BIT_OFF64`.
         //
         // Testing:
         //   BDLS_FILESYSTEMUTIL_UNIXPLATFORM_32_BIT_OFF
@@ -535,11 +535,11 @@ int main(int argc, char *argv[])
             bool d_defined64BitOff64;
             bool d_defined32BitOff;
           } DATA[] = {
-              //                               '*_32_BIT_OFF'
+              //                               `*_32_BIT_OFF`
               //                               --------------.
-              //                            '*_64_BIT_OFF64'  \.
+              //                            `*_64_BIT_OFF64`  \.
               //                            ----------------.  \.
-              //                             '*_64_BIT_OFF'  \. \.
+              //                             `*_64_BIT_OFF`  \. \.
               //                             --------------.  \. \.
               // LINE  OS  CPU BITS OFFSET BITS LARGE FILES \. \. \.
               // ---- ---- -------- ----------- ----------- -- -- ---

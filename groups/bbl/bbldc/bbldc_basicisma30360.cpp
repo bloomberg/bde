@@ -12,12 +12,13 @@ namespace BloombergLP {
 namespace bbldc {
 
 // STATIC METHODS
+
+/// Return the number of days between the specified `beginDate` and
+/// `endDate` according to the ISMA 30/360 day-count convention.  If
+/// `beginDate <= endDate`, then the result is non-negative.  Note that
+/// reversing the order of `beginDate` and `endDate` negates the result.
 static int computeDaysDiff(const bdlt::Date& beginDate,
                            const bdlt::Date& endDate)
-    // Return the number of days between the specified 'beginDate' and
-    // 'endDate' according to the ISMA 30/360 day-count convention.  If
-    // 'beginDate <= endDate', then the result is non-negative.  Note that
-    // reversing the order of 'beginDate' and 'endDate' negates the result.
 {
     int yBegin, mBegin, dBegin, yEnd, mEnd, dEnd;
 

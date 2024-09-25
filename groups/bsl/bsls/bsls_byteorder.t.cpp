@@ -16,7 +16,7 @@
 #include <winsock2.h>
 #endif
 
-// Warning: the following 'using' declarations interfere with the testing of
+// Warning: the following `using` declarations interfere with the testing of
 // the macros defined in this component.  Please do not uncomment them.
 // using namespace BloombergLP;
 // using namespace std;
@@ -110,9 +110,9 @@ typedef BloombergLP::bsls::Types::Uint64 Uint64;
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Print the specified character array `c` with the specified `size` in
+/// hex.
 void printHex(const char * c, int size)
-    // Print the specified character array 'c' with the specified 'size' in
-    // hex.
 {
     const char *hex = "0123456789abcdef";
     for (int i = 0; i < size; ++i) {
@@ -122,9 +122,9 @@ void printHex(const char * c, int size)
     }
 }
 
+/// Print the specified object `x` of parameterized type `T` in hex.
 template <class T>
 void printHex(T x)
-    // Print the specified object 'x' of parameterized type 'T' in hex.
 {
     printHex((const char*)&x, sizeof x);
 }
@@ -165,14 +165,14 @@ int main(int argc, char *argv[])
                                << "\n=====================" << std::endl;
 
 // For example, to use the little-endian / big-endian to host-endian macros:
-//..
+// ```
     short x = static_cast<short>(0xabcd);
     int   y = 0xabcdef12;
     Int64 z = 0xabcdef1234567890LL;
 
     if (veryVerbose) {  // added to keep output of test driver clean
 
-    // Note the use of macros within the calls to 'printHex'.
+    // Note the use of macros within the calls to `printHex`.
 
     printf("\nLE to Host(x): ");
     printHex(BSLS_BYTEORDER_LE_U16_TO_HOST(x));
@@ -193,27 +193,27 @@ int main(int argc, char *argv[])
     printHex(BSLS_BYTEORDER_BE_U64_TO_HOST(z));
 
     }  // added to keep output of test driver clean
-//..
+// ```
 // On little-endian machines (e.g., x86, IA64), this will print the following
-// to 'stdout':
-//..
+// to `stdout`:
+// ```
 //  LE to Host(x): abcd
 //  LE to Host(y): abcdef12
 //  LE to Host(z): abcdef1234567890
 //  BE to Host(x): cdab
 //  BE to Host(y): 12efcdab
 //  BE to Host(z): 9078563412efcdab
-//..
+// ```
 // On big-endian machines (e.g., sparc, powerpc), the following will be printed
 // instead:
-//..
+// ```
 //  LE to Host(x): cdab
 //  LE to Host(y): 12efcdab
 //  LE to Host(z): 9078563412efcdab
 //  BE to Host(x): abcd
 //  BE to Host(y): abcdef12
 //  BE to Host(z): abcdef1234567890
-//..
+// ```
 // The other macros can be used in a similar manner.
 
       } break;
@@ -222,17 +222,17 @@ int main(int argc, char *argv[])
         // TESTING MACRO SAFETY
         //
         // Concerns:
-        //   1. The macros should be usable outside 'namespace' 'BloombergLP'
-        //      and 'namespace' 'std'.
+        //   1. The macros should be usable outside `namespace` `BloombergLP`
+        //      and `namespace` `std`.
         //
         //   2. The macros should be usable within conditional statements
-        //      that are not fully bracketed ('{}'-enclosed).
+        //      that are not fully bracketed (`{}`-enclosed).
         //
         // Plan:
-        //   The 'using' declarations at the top of the file are specifically
+        //   The `using` declarations at the top of the file are specifically
         //   commented out to test concern 1.  For concern 2, the macros are
-        //   used within an 'if' statement that is not fully bracketed,
-        //   followed by an 'else' statement.  If either concerns are violated,
+        //   used within an `if` statement that is not fully bracketed,
+        //   followed by an `else` statement.  If either concerns are violated,
         //   the test driver should fail to compile.
         //
         // Testing:
@@ -281,14 +281,14 @@ int main(int argc, char *argv[])
                                        << std::endl;
 
             short result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_LE_U16_TO_HOST(INPUT16);
             else
                 ++unbracketedLoggingFlag;
             ASSERT(LEEXP16 == result);
 
             result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_LE_TO_HOST(INPUT16);
             else
                 ++unbracketedLoggingFlag;
@@ -300,14 +300,14 @@ int main(int argc, char *argv[])
                                        << std::endl;
 
             int result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_LE_U32_TO_HOST(INPUT32);
             else
                 ++unbracketedLoggingFlag;
             ASSERT(LEEXP32 == result);
 
             result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_LE_TO_HOST(INPUT32);
             else
                 ++unbracketedLoggingFlag;
@@ -319,14 +319,14 @@ int main(int argc, char *argv[])
                                        << std::endl;
 
             Int64 result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_LE_U64_TO_HOST(INPUT64);
             else
                 ++unbracketedLoggingFlag;
             ASSERT(LEEXP64 == result);
 
             result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_LE_TO_HOST(INPUT64);
             else
                 ++unbracketedLoggingFlag;
@@ -338,14 +338,14 @@ int main(int argc, char *argv[])
                                        << std::endl;
 
             short result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_BE_U16_TO_HOST(INPUT16);
             else
                 ++unbracketedLoggingFlag;
             ASSERT(BEEXP16 == result);
 
             result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_BE_TO_HOST(INPUT16);
             else
                 ++unbracketedLoggingFlag;
@@ -357,14 +357,14 @@ int main(int argc, char *argv[])
                                        << std::endl;
 
             int result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_BE_U32_TO_HOST(INPUT32);
             else
                 ++unbracketedLoggingFlag;
             ASSERT(BEEXP32 == result);
 
             result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_BE_TO_HOST(INPUT32);
             else
                 ++unbracketedLoggingFlag;
@@ -376,14 +376,14 @@ int main(int argc, char *argv[])
                                        << std::endl;
 
             Int64 result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_BE_U64_TO_HOST(INPUT64);
             else
                 ++unbracketedLoggingFlag;
             ASSERT(BEEXP64 == result);
 
             result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_BE_TO_HOST(INPUT64);
             else
                 ++unbracketedLoggingFlag;
@@ -395,14 +395,14 @@ int main(int argc, char *argv[])
                                        << std::endl;
 
             short result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_HOST_U16_TO_LE(INPUT16);
             else
                 ++unbracketedLoggingFlag;
             ASSERT(LEEXP16 == result);
 
             result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_HOST_TO_LE(INPUT16);
             else
                 ++unbracketedLoggingFlag;
@@ -414,14 +414,14 @@ int main(int argc, char *argv[])
                                        << std::endl;
 
             int result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_HOST_U32_TO_LE(INPUT32);
             else
                 ++unbracketedLoggingFlag;
             ASSERT(LEEXP32 == result);
 
             result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_HOST_TO_LE(INPUT32);
             else
                 ++unbracketedLoggingFlag;
@@ -433,14 +433,14 @@ int main(int argc, char *argv[])
                                        << std::endl;
 
             Int64 result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_HOST_U64_TO_LE(INPUT64);
             else
                 ++unbracketedLoggingFlag;
             ASSERT(LEEXP64 == result);
 
             result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_HOST_TO_LE(INPUT64);
             else
                 ++unbracketedLoggingFlag;
@@ -452,14 +452,14 @@ int main(int argc, char *argv[])
                                        << std::endl;
 
             short result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_HOST_U16_TO_BE(INPUT16);
             else
                 ++unbracketedLoggingFlag;
             ASSERT(BEEXP16 == result);
 
             result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_HOST_TO_BE(INPUT16);
             else
                 ++unbracketedLoggingFlag;
@@ -471,14 +471,14 @@ int main(int argc, char *argv[])
                                        << std::endl;
 
             int result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_HOST_U32_TO_BE(INPUT32);
             else
                 ++unbracketedLoggingFlag;
             ASSERT(BEEXP32 == result);
 
             result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_HOST_TO_BE(INPUT32);
             else
                 ++unbracketedLoggingFlag;
@@ -490,14 +490,14 @@ int main(int argc, char *argv[])
                                        << std::endl;
 
             Int64 result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_HOST_U64_TO_BE(INPUT64);
             else
                 ++unbracketedLoggingFlag;
             ASSERT(BEEXP64 == result);
 
             result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_HOST_TO_BE(INPUT64);
             else
                 ++unbracketedLoggingFlag;
@@ -508,14 +508,14 @@ int main(int argc, char *argv[])
             if (veryVerbose) std::cout << "BSLS_BYTEORDER_HTONS" << std::endl;
 
             short result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_HTONS(INPUT16);
             else
                 ++unbracketedLoggingFlag;
             ASSERT(BEEXP16 == result);
 
             result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_HTON(INPUT16);
             else
                 ++unbracketedLoggingFlag;
@@ -526,14 +526,14 @@ int main(int argc, char *argv[])
             if (veryVerbose) std::cout << "BSLS_BYTEORDER_HTONL" << std::endl;
 
             int result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_HTONL(INPUT32);
             else
                 ++unbracketedLoggingFlag;
             ASSERT(BEEXP32 == result);
 
             result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_HTON(INPUT32);
             else
                 ++unbracketedLoggingFlag;
@@ -544,14 +544,14 @@ int main(int argc, char *argv[])
             if (veryVerbose) std::cout << "BSLS_BYTEORDER_HTONLL" << std::endl;
 
             Int64 result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_HTONLL(INPUT64);
             else
                 ++unbracketedLoggingFlag;
             ASSERT(BEEXP64 == result);
 
             result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_HTON(INPUT64);
             else
                 ++unbracketedLoggingFlag;
@@ -562,14 +562,14 @@ int main(int argc, char *argv[])
             if (veryVerbose) std::cout << "BSLS_BYTEORDER_NTOHS" << std::endl;
 
             short result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_NTOHS(INPUT16);
             else
                 ++unbracketedLoggingFlag;
             ASSERT(BEEXP16 == result);
 
             result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_NTOH(INPUT16);
             else
                 ++unbracketedLoggingFlag;
@@ -580,14 +580,14 @@ int main(int argc, char *argv[])
             if (veryVerbose) std::cout << "BSLS_BYTEORDER_NTOHL" << std::endl;
 
             int result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_NTOHL(INPUT32);
             else
                 ++unbracketedLoggingFlag;
             ASSERT(BEEXP32 == result);
 
             result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_NTOH(INPUT32);
             else
                 ++unbracketedLoggingFlag;
@@ -598,14 +598,14 @@ int main(int argc, char *argv[])
             if (veryVerbose) std::cout << "BSLS_BYTEORDER_NTOHLL" << std::endl;
 
             Int64 result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_NTOHLL(INPUT64);
             else
                 ++unbracketedLoggingFlag;
             ASSERT(BEEXP64 == result);
 
             result = 0;
-            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
+            if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* `{}`ed
                 result = BSLS_BYTEORDER_NTOH(INPUT64);
             else
                 ++unbracketedLoggingFlag;
@@ -938,7 +938,7 @@ int main(int argc, char *argv[])
         //     provided macros.
         //
         //  2. Verify that there is no compile error when initializing an
-        //     'enum' with the CONSTANT versions of the macros.
+        //     `enum` with the CONSTANT versions of the macros.
         //
         // Testing:
         //   BSLS_BYTEORDER_HTONS

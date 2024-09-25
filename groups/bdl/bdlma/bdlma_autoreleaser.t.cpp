@@ -18,12 +18,12 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // We are testing a proctor object to ensure that, when the proctor object goes
-// out of scope, it invokes the 'release' method of the managed allocator or
-// pool (if any).  We use a local 'TestAllocator' that has a 'release' method
+// out of scope, it invokes the `release` method of the managed allocator or
+// pool (if any).  We use a local `TestAllocator` that has a `release` method
 // instrumented to set an internal flag when it has been called; the flag is
-// accessible via a 'wasReleaseCalled' method.  We initialize the
-// 'bdlma::AutoReleaser' proctor object with this allocator and verify that
-// after the proctor object is destroyed, 'wasReleaseCalled' returns the
+// accessible via a `wasReleaseCalled` method.  We initialize the
+// `bdlma::AutoReleaser` proctor object with this allocator and verify that
+// after the proctor object is destroyed, `wasReleaseCalled` returns the
 // expected result.
 // ----------------------------------------------------------------------------
 // [ 2] bdlma::AutoReleaser<ALLOCATOR>(ALLOCATOR *originalAllocator);
@@ -89,38 +89,38 @@ void aSsErT(int c, const char *s, int i)
 //                               TEST APPARATUS
 // ----------------------------------------------------------------------------
 
+/// This test class maintains state indicating whether or not the `release`
+/// method has been called.
 class TestAllocator {
-    // This test class maintains state indicating whether or not the 'release'
-    // method has been called.
 
     // DATA
-    bool d_wasReleaseCalled;  // 'true' if 'release' has been called
+    bool d_wasReleaseCalled;  // `true` if `release` has been called
 
   public:
+    /// Create a test allocator object.
     TestAllocator() : d_wasReleaseCalled(false) {}
-        // Create a test allocator object.
 
+    /// Destroy this object.
     ~TestAllocator() {}
-        // Destroy this object.
 
+    /// Set an internal flag to indicate that this method has been called.
     void release() { d_wasReleaseCalled = true; }
-        // Set an internal flag to indicate that this method has been called.
 
+    /// Return `true` if `release` has been called on this object, and
+    /// `false` otherwise.
     bool wasReleaseCalled() const { return d_wasReleaseCalled; }
-        // Return 'true' if 'release' has been called on this object, and
-        // 'false' otherwise.
 };
 
 // ============================================================================
 //                                USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
+/// This class implements a memory manager that allocates and manages a
+/// sequence of memory blocks, each potentially of a different size as
+/// specified in the `allocate` method's invocation.  The `release` method
+/// deallocates the entire sequence of memory blocks, as does the
+/// destructor.
 class my_BlockList {
-    // This class implements a memory manager that allocates and manages a
-    // sequence of memory blocks, each potentially of a different size as
-    // specified in the 'allocate' method's invocation.  The 'release' method
-    // deallocates the entire sequence of memory blocks, as does the
-    // destructor.
 
     struct my_Block {
         my_Block *d_next_p;
@@ -171,14 +171,14 @@ void my_BlockList::release()
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // my_strpool.h
 
+/// This class implements a fast memory manager that allocates and manages
+/// *unaligned* memory of varying sizes.  This memory manager internally
+/// requests relatively large memory blocks, and distributes memory
+/// piecemeal from each memory block on demand.  The `release` method
+/// releases all memory managed by the memory manager, as does the
+/// destructor.  Note, however, that no facility is provided for
+/// deallocating individually allocated blocks of memory.
 class my_StrPool {
-    // This class implements a fast memory manager that allocates and manages
-    // *unaligned* memory of varying sizes.  This memory manager internally
-    // requests relatively large memory blocks, and distributes memory
-    // piecemeal from each memory block on demand.  The 'release' method
-    // releases all memory managed by the memory manager, as does the
-    // destructor.  Note, however, that no facility is provided for
-    // deallocating individually allocated blocks of memory.
 
     int           d_blockSize;
     char         *d_block_p;
@@ -268,29 +268,30 @@ my_StrPool::~my_StrPool()
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using a 'bdlma::AutoReleaser' to Preserve Exception Neutrality
+///Example 1: Using a `bdlma::AutoReleaser` to Preserve Exception Neutrality
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// A 'bdlma::AutoReleaser' proctor is often used to preserve exception
+// A `bdlma::AutoReleaser` proctor is often used to preserve exception
 // neutrality for containers that allocate their elements using a managed
 // allocator or pool.  For operations that may potentially throw an exception,
 // a proctor can be used to (temporarily) manage the container's allocator or
 // pool and its associated memory.  If an exception is thrown, the proctor's
-// destructor invokes the 'release' method of its held allocator or pool,
+// destructor invokes the `release` method of its held allocator or pool,
 // deallocating memory for all of the container's elements, thereby preventing
 // a memory leak and restoring the container to the empty state.
 //
-// In this example, we illustrate use of a 'bdlma::AutoReleaser' proctor within
-// the 'operator=' method of 'my_FastStrArray', a class that implements an
-// array of C string elements.  Note that a 'my_FastStrArray' object allocates
-// memory for its C string elements using a string pool, 'my_StrPool', the
+// In this example, we illustrate use of a `bdlma::AutoReleaser` proctor within
+// the `operator=` method of `my_FastStrArray`, a class that implements an
+// array of C string elements.  Note that a `my_FastStrArray` object allocates
+// memory for its C string elements using a string pool, `my_StrPool`, the
 // definition of which is elided.
 //
-// First, we define the interface of our 'my_FastStrArray' class:
-//..
+// First, we define the interface of our `my_FastStrArray` class:
+// ```
+
+    /// This class implements an array of C string elements.  Each C string
+    /// is allocated using the `my_StrPool` member for fast memory
+    /// allocation and deallocation.
     class my_FastCstrArray {
-        // This class implements an array of C string elements.  Each C string
-        // is allocated using the 'my_StrPool' member for fast memory
-        // allocation and deallocation.
 
         // DATA
         char             **d_array_p;      // dynamically allocated array
@@ -323,33 +324,33 @@ my_StrPool::~my_StrPool()
     // FREE OPERATORS
     ostream& operator<<(ostream& stream, const my_FastCstrArray& array);
 
-//..
+// ```
 // Then, we implement the methods:
-//..
+// ```
     enum {
         k_MY_INITIAL_SIZE = 1, // initial physical capacity
-        k_MY_GROW_FACTOR  = 2  // factor by which to grow 'd_capacity'
+        k_MY_GROW_FACTOR  = 2  // factor by which to grow `d_capacity`
     };
 
+    /// Return the specified `size` multiplied by `k_MY_GROW_FACTOR`.
     static inline
     int nextSize(int size)
-        // Return the specified 'size' multiplied by 'k_MY_GROW_FACTOR'.
     {
         return size * k_MY_GROW_FACTOR;
     }
 
+    /// Reallocate memory in the specified `array` and update the specified
+    /// `size` to the specified `newSize`, using the specified `allocator`
+    /// to supply memory.  The specified `length` number of leading elements
+    /// are preserved.  If `allocate` should throw an exception, this
+    /// function has no effect.  The behavior is undefined unless
+    /// `1 <= newSize`, `0 <= length`, and `length <= newSize`.
     static inline
     void reallocate(char             ***array,
                     int                *size,
                     int                 newSize,
                     int                 length,
                     bslma::Allocator   *allocator)
-        // Reallocate memory in the specified 'array' and update the specified
-        // 'size' to the specified 'newSize', using the specified 'allocator'
-        // to supply memory.  The specified 'length' number of leading elements
-        // are preserved.  If 'allocate' should throw an exception, this
-        // function has no effect.  The behavior is undefined unless
-        // '1 <= newSize', '0 <= length', and 'length <= newSize'.
     {
         ASSERT(array);
         ASSERT(*array);
@@ -396,10 +397,10 @@ my_StrPool::~my_StrPool()
 
         d_allocator_p->deallocate(d_array_p);
     }
-//..
-// Now, we implement 'my_FastCstrArray::operator=' using a
-// 'bdlma::AutoReleaser' proctor to preserve exception neutrality:
-//..
+// ```
+// Now, we implement `my_FastCstrArray::operator=` using a
+// `bdlma::AutoReleaser` proctor to preserve exception neutrality:
+// ```
     // MANIPULATORS
     my_FastCstrArray&
     my_FastCstrArray::operator=(const my_FastCstrArray& rhs)
@@ -431,15 +432,15 @@ my_StrPool::~my_StrPool()
 
         return *this;
     }
-//..
-// Note that a 'bdlma::AutoReleaser' proctor is used to manage the array's C
+// ```
+// Note that a `bdlma::AutoReleaser` proctor is used to manage the array's C
 // string memory pool while allocating memory for the individual elements.  If
-// an exception is thrown during the 'for' loop, the proctor's destructor
+// an exception is thrown during the `for` loop, the proctor's destructor
 // releases memory for all elements allocated through the pool, thus ensuring
 // that no memory is leaked.
 //
 // Finally, we complete the implementation:
-//..
+// ```
     void my_FastCstrArray::append(const char *item)
     {
         if (d_length >= d_capacity) {
@@ -461,7 +462,7 @@ my_StrPool::~my_StrPool()
         }
         return stream << ']' << flush;
     }
-//..
+// ```
 
 // ============================================================================
 //                                MAIN PROGRAM
@@ -482,13 +483,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -498,7 +499,7 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-        if (verbose) cout << "Testing 'my_FastCstrArray'." << endl;
+        if (verbose) cout << "Testing `my_FastCstrArray`." << endl;
         {
             const char *DATA[] = { "A", "B", "C", "D", "E" };
             const int NUM_ELEM = sizeof DATA / sizeof *DATA;
@@ -525,49 +526,49 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // BASIC TEST
-        //   Ensure that 'bdlma::AutoReleaser' works as expected.
+        //   Ensure that `bdlma::AutoReleaser` works as expected.
         //
         // Concerns:
-        //: 1 A proctor invokes the 'release' method on its managed allocator
-        //:   or pool upon destruction.
-        //:
-        //: 2 A proctor does *not* invoke the 'release' method on an
-        //:   allocator or pool that has been released from management prior
-        //:   to destruction.
-        //:
-        //: 3 A proctor may be reset to manage a different allocator or pool
-        //:   from that with which it was constructed by first explicitly
-        //:   calling 'release', then calling 'reset'.
-        //:
-        //: 4 A proctor may be reset to manage a different allocator or pool
-        //:   from that with which it was constructed *without* explicitly
-        //:   calling 'release' prior to a call to 'reset'.
+        // 1. A proctor invokes the `release` method on its managed allocator
+        //    or pool upon destruction.
+        //
+        // 2. A proctor does *not* invoke the `release` method on an
+        //    allocator or pool that has been released from management prior
+        //    to destruction.
+        //
+        // 3. A proctor may be reset to manage a different allocator or pool
+        //    from that with which it was constructed by first explicitly
+        //    calling `release`, then calling `reset`.
+        //
+        // 4. A proctor may be reset to manage a different allocator or pool
+        //    from that with which it was constructed *without* explicitly
+        //    calling `release` prior to a call to `reset`.
         //
         // Plan:
-        //: 1 Create a 'bdlma::AutoReleaser' proctor initialized with a
-        //:   'TestAllocator', 'a'.
-        //:
-        //: 2 Allow the proctor created in P-1 to go out of scope and verify
-        //:   that 'a' indicates its 'release' method has been invoked.  (C-1)
-        //:
-        //: 3 Repeat P-1..2, but invoke the proctor's 'release' method before
-        //:   the proctor goes out of scope.  Verify that 'a' indicates its
-        //:   'release' method has *not* been invoked.  (C-2)
-        //:
-        //: 4 Create a proctor initialized with test allocator 'a1'.
-        //:
-        //: 5 Invoke the 'release' method on the proctor created in P-4, and
-        //:   then invoke the proctor's 'reset' method with a second test
-        //:   allocator 'a2'.
-        //:
-        //: 6 Allow the proctor to go out of scope and verify that the
-        //:   'release' method has been invoked for 'a2', but *not* for 'a1'.
-        //:   (C-3)
-        //:
-        //: 7 Repeat P-4..6, but without invoking the 'release' method prior to
-        //:   calling 'reset'.  Again verify that the 'release' method has been
-        //:   invoked for 'a2', but not for 'a1', when the proctor goes out of
-        //:   scope.  (C-4)
+        // 1. Create a `bdlma::AutoReleaser` proctor initialized with a
+        //    `TestAllocator`, `a`.
+        //
+        // 2. Allow the proctor created in P-1 to go out of scope and verify
+        //    that `a` indicates its `release` method has been invoked.  (C-1)
+        //
+        // 3. Repeat P-1..2, but invoke the proctor's `release` method before
+        //    the proctor goes out of scope.  Verify that `a` indicates its
+        //    `release` method has *not* been invoked.  (C-2)
+        //
+        // 4. Create a proctor initialized with test allocator `a1`.
+        //
+        // 5. Invoke the `release` method on the proctor created in P-4, and
+        //    then invoke the proctor's `reset` method with a second test
+        //    allocator `a2`.
+        //
+        // 6. Allow the proctor to go out of scope and verify that the
+        //    `release` method has been invoked for `a2`, but *not* for `a1`.
+        //    (C-3)
+        //
+        // 7. Repeat P-4..6, but without invoking the `release` method prior to
+        //    calling `reset`.  Again verify that the `release` method has been
+        //    invoked for `a2`, but not for `a1`, when the proctor goes out of
+        //    scope.  (C-4)
         //
         // Testing:
         //   bdlma::AutoReleaser<ALLOCATOR>(ALLOCATOR *originalAllocator);
@@ -590,7 +591,7 @@ int main(int argc, char *argv[])
             ASSERT(A.wasReleaseCalled());
         }
 
-        if (verbose) cout << "Testing 'release'." << endl;
+        if (verbose) cout << "Testing `release`." << endl;
         {
             // C-2
 
@@ -602,7 +603,7 @@ int main(int argc, char *argv[])
             ASSERT(!A.wasReleaseCalled());
         }
 
-        if (verbose) cout << "Testing 'reset'." << endl;
+        if (verbose) cout << "Testing `reset`." << endl;
         {
             // C-3
 
@@ -633,28 +634,28 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // HELPER CLASS TEST
-        //   Ensure that the 'TestAllocator' works as expected.
+        //   Ensure that the `TestAllocator` works as expected.
         //
         // Concerns:
-        //: 1 The 'wasReleaseCalled' method indicates the proper state of the
-        //:  'TestAllocator' object *before* 'release' is called.
-        //:
-        //: 2 The 'wasReleaseCalled' method indicates the proper state of the
-        //:  'TestAllocator' object *after* 'release' is called.
-        //:
-        //: 3 The 'wasReleaseCalled' method indicates the proper state of the
-        //:  'TestAllocator' object after 'release' is called a *second* time.
+        // 1. The `wasReleaseCalled` method indicates the proper state of the
+        //   `TestAllocator` object *before* `release` is called.
+        //
+        // 2. The `wasReleaseCalled` method indicates the proper state of the
+        //   `TestAllocator` object *after* `release` is called.
+        //
+        // 3. The `wasReleaseCalled` method indicates the proper state of the
+        //   `TestAllocator` object after `release` is called a *second* time.
         //
         // Plan:
-        //: 1 Create a 'TestAllocator' object and verify that
-        //:   'wasReleaseCalled' returns the expected result ('false').  (C-1)
-        //:
-        //: 2 Invoke 'release' on the object created in P-1 and verify that
-        //:   'wasReleaseCalled' returns the expected result ('true').  (C-2)
-        //:
-        //: 3 Invoke 'release' on the object a second time and verify that
-        //:   'wasReleaseCalled' still returns the expected result ('true').
-        //:   (C-3)
+        // 1. Create a `TestAllocator` object and verify that
+        //    `wasReleaseCalled` returns the expected result (`false`).  (C-1)
+        //
+        // 2. Invoke `release` on the object created in P-1 and verify that
+        //    `wasReleaseCalled` returns the expected result (`true`).  (C-2)
+        //
+        // 3. Invoke `release` on the object a second time and verify that
+        //    `wasReleaseCalled` still returns the expected result (`true`).
+        //    (C-3)
         //
         // Testing:
         //   TestAllocator();
@@ -666,7 +667,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "HELPER CLASS TEST" << endl
                                   << "=================" << endl;
 
-        if (verbose) cout << "Testing 'TestAllocator'." << endl;
+        if (verbose) cout << "Testing `TestAllocator`." << endl;
 
         // C-1
 

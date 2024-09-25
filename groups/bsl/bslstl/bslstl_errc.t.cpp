@@ -17,7 +17,7 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // The component under test defines an enumeration defining longer and more
-// descriptive symbolic names for 'errno' error value and a type alias
+// descriptive symbolic names for `errno` error value and a type alias
 // designating the type of the enumeration.
 //
 // ----------------------------------------------------------------------------
@@ -91,13 +91,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -109,44 +109,44 @@ int main(int argc, char *argv[])
 ///Example 1: Descriptive System Error Value Names
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we would like to have more descriptive and non-macro names for
-// 'errno' system error values.  We can use the 'errc' from the 'system_error'
+// `errno` system error values.  We can use the `errc` from the `system_error`
 // facility of the C++ standard for this.
 //
 // First, we do something that will set an error value.
-//..
+// ```
     strtod("1e2000", 0);
-//..
+// ```
 // Finally, we check for that error using the descriptive name.
-//..
+// ```
     bsl::ErrcEnum expected = bsl::errc::result_out_of_range;
     ASSERT(static_cast<int>(expected) == errno);
-//..
+// ```
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'errc'
+        // TESTING `errc`
         //
         // Concerns:
-        //: 1 The 'bsl::ErrcEnum' type can be used to declare 'errc' objects.
-        //: 2 'bsl::errc' can qualify 'errc' enumeration literals.
-        //: 3 An 'errc' literal matches the 'POSIX' error code.
-        //: 4 The 'errc' type is registered as an error condition.
+        // 1. The `bsl::ErrcEnum` type can be used to declare `errc` objects.
+        // 2. `bsl::errc` can qualify `errc` enumeration literals.
+        // 3. An `errc` literal matches the `POSIX` error code.
+        // 4. The `errc` type is registered as an error condition.
         //
         // Plan:
-        //: 1 Declare a 'bsl::ErrcEnum' object and initialize it with a
-        //:   'bsl::errc' qualified value.  (C-1,2)
-        //:
-        //: 2 Compare the value of the object with the corresponding 'POSIX'
-        //:   'errno' value.  (C-3)
-        //:
-        //: 3 Verify that 'is_error_condition' is true for 'bsl::ErrcEnum'.
-        //:   (C-4)
+        // 1. Declare a `bsl::ErrcEnum` object and initialize it with a
+        //    `bsl::errc` qualified value.  (C-1,2)
+        //
+        // 2. Compare the value of the object with the corresponding `POSIX`
+        //    `errno` value.  (C-3)
+        //
+        // 3. Verify that `is_error_condition` is true for `bsl::ErrcEnum`.
+        //    (C-4)
         //
         // Testing:
         //   bsl::ErrcEnum
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'errc'"
+        if (verbose) printf("\nTESTING `errc`"
                             "\n==============\n");
 
         bsl::ErrcEnum value = bsl::errc::inappropriate_io_control_operation;

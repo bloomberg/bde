@@ -2,7 +2,7 @@
 
 #include <bsls_platform.h>
 
-// the following suppresses warnings from '#include' inlined functions
+// the following suppresses warnings from `#include` inlined functions
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic ignored "-Wconversion"
 #endif
@@ -36,9 +36,9 @@
 
 
 
-#include <stdio.h>     // 'sprintf', 'snprintf' [NOT '<cstdio>', which does not
-                       // include 'snprintf']
-#include <stdlib.h>    // 'atoi'
+#include <stdio.h>     // `sprintf`, `snprintf` [NOT `<cstdio>`, which does not
+                       // include `snprintf`]
+#include <stdlib.h>    // `atoi`
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf
@@ -60,12 +60,12 @@ using namespace bslim;
 // The component under test implements a mechanism class having accessor
 // methods and method templates, each of which is tested over a number of test
 // cases:
-//: 1 Test initial indentation for different values of 'level' and
-//:   'spacesPerLevel', and the output when a 'name' is supplied.
-//:
-//: 2 Test the output of each method and method template (and its
-//:   specializations, if any), for positive and negative values of
-//:   'spacesPerLevel'.
+// 1. Test initial indentation for different values of `level` and
+//    `spacesPerLevel`, and the output when a `name` is supplied.
+//
+// 2. Test the output of each method and method template (and its
+//    specializations, if any), for positive and negative values of
+//    `spacesPerLevel`.
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] Printer(bsl::ostream *stream, int level, int spacesPerLevel);
@@ -121,7 +121,7 @@ using namespace bslim;
 // [ 3] HasPrint::print(bsl::ostream&, int, int) const;
 // [ 3] NoPrintUtil::print(bsl::ostream&, const NoPrint&, int, int);
 // [14] EXCEPTION NEUTRALITY
-// [17] CONCERN: Printer(stream, 0, -1) can be formatted with 'setw'
+// [17] CONCERN: Printer(stream, 0, -1) can be formatted with `setw`
 // [21] USAGE EXAMPLE 1
 // [22] USAGE EXAMPLE 2
 // [23] USAGE EXAMPLE 3
@@ -176,8 +176,8 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef Printer Obj;
 
+/// A test enum with no streaming operator.
 struct TestEnumNoStreaming {
-    // A test enum with no streaming operator.
 
     enum Enum {
         VALUE_A,
@@ -185,8 +185,8 @@ struct TestEnumNoStreaming {
     };
 };
 
+/// A test enum with a streaming operator.
 struct TestEnumWithStreaming {
-    // A test enum with a streaming operator.
 
     enum Enum {
         VALUE_A,
@@ -194,10 +194,10 @@ struct TestEnumWithStreaming {
     };
 };
 
+/// Print a string representation of the specified `value` to the specified
+/// `stream`.
 bsl::ostream& operator<<(bsl::ostream&               stream,
                          TestEnumWithStreaming::Enum value)
-    // Print a string representation of the specified 'value' to the specified
-    // 'stream'.
 {
     const char *ascii;
     switch (value) {
@@ -218,8 +218,8 @@ bsl::ostream& operator<<(bsl::ostream&               stream,
 //                        GLOBAL CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Class having a `print` method
 struct HasPrint {
-    // Class having a 'print' method
 
     // DATA
     int         d_data;
@@ -227,18 +227,20 @@ struct HasPrint {
     mutable int d_spacesPerLevel;
 
     // CREATORS
+
+    /// Create a `HasPrint` object containing the specified `data`.
     explicit
     HasPrint(int data);
-        // Create a 'HasPrint' object containing the specified 'data'.
 
     // ACCESSORS
+
+    /// Use a `bslim::printer` to print this object to the specified
+    /// `stream` with indentation given by the optionally specified `level`
+    /// and `spacesPerLevel` and return a reference offering modifiable
+    /// access to `stream`.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level          = 0,
                         int           spacesPerLevel = 4) const;
-        // Use a 'bslim::printer' to print this object to the specified
-        // 'stream' with indentation given by the optionally specified 'level'
-        // and 'spacesPerLevel' and return a reference offering modifiable
-        // access to 'stream'.
 };
 
 inline
@@ -258,21 +260,23 @@ HasPrint::print(bsl::ostream& stream, int level, int spacesPerLevel) const
     return stream;
 }
 
+/// Class without a `print` method
 class NoPrint {
-    // Class without a 'print' method
 
     // DATA
     int d_data;
 
   public:
     // CREATORS
+
+    /// Create a `NoPrint` object containing the specified `data`.
     explicit
     NoPrint(int data);
-        // Create a 'NoPrint' object containing the specified 'data'.
 
     // ACCESSORS
+
+    /// Return the value with which this object was constructed.
     int get() const;
-        // Return the value with which this object was constructed.
 };
 
 inline
@@ -287,16 +291,16 @@ int NoPrint::get() const
     return d_data;
 }
 
+/// Utility class for class `NoPrint`
 struct NoPrintUtil {
-    // Utility class for class 'NoPrint'
 
+    /// Print the specified `obj` to the specified `stream` with indentation
+    /// given by the optionally specified `level` and `spacesPerLevel` and
+    /// return a reference offering modifiable access to `stream`.
     static bsl::ostream& print(bsl::ostream&  stream,
                                const NoPrint& obj,
                                int            level          = 0,
                                int            spacesPerLevel = 4);
-        // Print the specified 'obj' to the specified 'stream' with indentation
-        // given by the optionally specified 'level' and 'spacesPerLevel' and
-        // return a reference offering modifiable access to 'stream'.
 };
 
 bsl::ostream&NoPrintUtil::print(bsl::ostream&  stream,
@@ -309,22 +313,22 @@ bsl::ostream&NoPrintUtil::print(bsl::ostream&  stream,
     return stream;
 }
 
+/// Function existing to have its address taken.
 void testFunctionAddress(int)
-    // Function existing to have its address taken.
 {
 }
 
 
+/// Utility class to print negative numbers in parenthesis.
 struct ParenPrintUtil {
-    // Utility class to print negative numbers in parenthesis.
 
     static bsl::ostream& print(bsl::ostream& stream,
                                int           num,
                                int           level = 0,
                                int           spacesPerLevel = 4);
-    // Print the specified 'num' to the specified 'stream' with indentation
-    // given by the optionally specified 'level' and 'spacesPerLevel' and
-    // return a reference to the modifiable 'stream'.
+    // Print the specified `num` to the specified `stream` with indentation
+    // given by the optionally specified `level` and `spacesPerLevel` and
+    // return a reference to the modifiable `stream`.
 };
 
 bsl::ostream& ParenPrintUtil::print(bsl::ostream& stream,
@@ -351,17 +355,18 @@ bsl::ostream& ParenPrintUtil::print(bsl::ostream& stream,
     return stream;
 }
 
+/// Utility class to print integer values.
 struct CustomIntPrinter {
-    // Utility class to print integer values.
 
     // ACCESSORS
+
+    /// Print the specified `value` to the specified `stream` with
+    /// indentation given by the specified `level` and `spacesPerLevel` and
+    /// return a reference to the modifiable `stream`.
     bsl::ostream& operator()(bsl::ostream& stream,
                              int           value,
                              int           level,
                              int           spacesPerLevel) const
-        // Print the specified 'value' to the specified 'stream' with
-        // indentation given by the specified 'level' and 'spacesPerLevel' and
-        // return a reference to the modifiable 'stream'.
     {
         bslim::Printer printer(&stream, level, spacesPerLevel);
         printer.start();
@@ -389,8 +394,8 @@ struct CustomIntPrinter {
 
 // EXAMPLE 1
 
+/// Record representing a stock trade.
 class StockTrade {
-    // Record representing a stock trade.
 
     // DATA
     bsl::string                d_ticker;
@@ -434,16 +439,18 @@ class StockTrade {
 
 // EXAMPLE 2
 //
+
+/// This class implements a low-level memory manager that allocates and
+/// manages a sequence of memory blocks.
 class BlockList {
-    // This class implements a low-level memory manager that allocates and
-    // manages a sequence of memory blocks.
 
     // TYPES
+
+    /// This `struct` overlays the beginning of each managed block of
+    /// allocated memory, implementing a doubly-linked list of managed
+    /// blocks, and thereby enabling constant-time deletions from, as
+    /// well as additions to, the list of blocks.
     struct Block {
-        // This 'struct' overlays the beginning of each managed block of
-        // allocated memory, implementing a doubly-linked list of managed
-        // blocks, and thereby enabling constant-time deletions from, as
-        // well as additions to, the list of blocks.
 
         Block                                *d_next_p;       // next
                                                               // pointer
@@ -464,22 +471,25 @@ class BlockList {
 
   public:
     // CREATORS
+
+    /// Create an empty blocklist.
     explicit
     BlockList(bslma::Allocator *allocator);
-        // Create an empty blocklist.
 
+    /// Destroy this object and free its memory
     ~BlockList();
-        // Destroy this object and free its memory
 
     // MANIPULATORS
+
+    /// Add a block to the list
     void addBlock();
-        // Add a block to the list
 
     // ACCESSORS
+
+    /// Print out this object.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level          = 0,
                         int           spacesPerLevel = 4) const;
-        // Print out this object.
 };
 
 // CREATORS
@@ -529,9 +539,9 @@ bsl::ostream& BlockList::print(bsl::ostream& stream,
     return stream;
 }
 
+/// Suppose this struct is defined somewhere in /usr/include/foo.h, we have
+/// no control over it and hence cannot add a .print method to it.
 struct ThirdPartyStruct {
-    // Suppose this struct is defined somewhere in /usr/include/foo.h, we have
-    // no control over it and hence cannot add a .print method to it.
 
     enum { PRIVATE  = 1,
            WRITABLE = 2 };
@@ -543,14 +553,14 @@ struct ThirdPartyStruct {
 
 // in your own code
 
+/// You write this function in your own code to accommodate
+/// `ThirdPartyStruct`.
 struct MyThirdPartyStructPrintUtil {
     static
     bsl::ostream& print(bsl::ostream&           stream,
                         const ThirdPartyStruct& data,
                         int                     level = 0,
                         int                      spacesPerLevel = 4);
-        // You write this function in your own code to accommodate
-        // 'ThirdPartyStruct'.
 };
 
 bsl::ostream& MyThirdPartyStructPrintUtil::print(
@@ -611,8 +621,9 @@ class Customer {
 
 //  EXAMPLE 3
 //
+
+/// ...
 class ThirdPartyClass {
-    // ...
 
   public:
     // ACCESSORS
@@ -646,9 +657,9 @@ ThirdPartyClassUtil::print(bsl::ostream&          stream,
     return stream;
 }
 
+/// ...
+/// DATA
 class MyClass {
-    // ...
-    // DATA
     ThirdPartyClass d_attributeA;
     int             d_attributeB;
 
@@ -681,15 +692,16 @@ bsl::ostream& MyClass::print(bsl::ostream& stream,
 
 // EXAMPLE 4
 //
+
+/// This `class` represents a date value explicitly in a local time
+/// zone.  The offset of that time (in minutes) from UTC is also part of
+/// the value of this class.
 class DateTz {
-    // This 'class' represents a date value explicitly in a local time
-    // zone.  The offset of that time (in minutes) from UTC is also part of
-    // the value of this class.
 
   private:
     // DATA
     int d_localDate;  // date in YYYYMMDD format, local to the timezone
-                      // indicated by 'd_offset'
+                      // indicated by `d_offset`
 
     int d_offset;     // offset from UTC (in minutes)
 
@@ -721,7 +733,7 @@ bsl::ostream& DateTz::print(bsl::ostream& stream,
    const int SIZE = 1 + 2 + 2 + 1;
    char buf[SIZE];
 
-   // Use at most 2 digits for 'hours'
+   // Use at most 2 digits for `hours`
    if (hours < 100) {
        bsl::sprintf(buf, "%c%02d%02d", sign, hours, minutes % 60);
    }
@@ -749,24 +761,24 @@ bsl::ostream& DateTz::print(bsl::ostream& stream,
 // This test should be relocated.
 
 // The following tests are meant to ensure key C++11 standard library features
-// provided by the platform are exported as 'bsl::' types by the bsl+bslhdrs
+// provided by the platform are exported as `bsl::` types by the bsl+bslhdrs
 // (non-standard) package.  We are concerned that these types are available:
-//: 1 For linux C++11 production builds (Redhat DTS: gcc-4.8.2)
-//: 2 For relatively modern versions of Clang & MSVC
+// 1. For linux C++11 production builds (Redhat DTS: gcc-4.8.2)
+// 2. For relatively modern versions of Clang & MSVC
 //
 // The types we are explicitly testing:
-//: o bsl::nullptr_t        (bsl_cstddef.h)
-//: o bsl::initializer_list (bsl_initializer_list.h)
-//: o bsl::tuple            (bsl_tuple.h)
-//: o bsl::unique_ptr       (bsl_memory.h)
+//  - bsl::nullptr_t        (bsl_cstddef.h)
+//  - bsl::initializer_list (bsl_initializer_list.h)
+//  - bsl::tuple            (bsl_tuple.h)
+//  - bsl::unique_ptr       (bsl_memory.h)
 //
 // The compilers we are testing on:
-//: o gcc 4.7+, C++11 builds
-//: o clang, C++11 builds
-//:   Note that clang version numbers are inconsistent on OSX so we use
-//:   the availability of the <forward_list> header as a proxy to confirm
-//:   a "modern" clang compiler
-//: o MSVC 2013
+//  - gcc 4.7+, C++11 builds
+//  - clang, C++11 builds
+//    Note that clang version numbers are inconsistent on OSX so we use
+//    the availability of the <forward_list> header as a proxy to confirm
+//    a "modern" clang compiler
+//  - MSVC 2013
 
 #if defined(BSLS_PLATFORM_CMP_GNU) &&                                         \
                  __cplusplus >= 201103L && BSLS_PLATFORM_CMP_VERSION >= 40800
@@ -811,10 +823,10 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   Demonstrate to the user 3 things
-        //:   o Printing a fixed-length array of objects
-        //:   o Printing a pointer to a type
-        //:   o Printing a range of objects
-        //:   o Repeat printing an STL object
+        //    - Printing a fixed-length array of objects
+        //    - Printing a pointer to a type
+        //    - Printing a range of objects
+        //    - Repeat printing an STL object
         //
         // Plan:
         //
@@ -857,9 +869,9 @@ int main(int argc, char *argv[])
         //   foreign object that we can't tool with a .print function.
         //
         // Plan:
-        //   Create a 'Customer' type that contains a type 'ThirdPartyStruct'
-        //   that does not cooperate with being printed.  Tool 'Customer'
-        //   to print 'ThirdPartyStruct', and then put some 'Customer' objects
+        //   Create a `Customer` type that contains a type `ThirdPartyStruct`
+        //   that does not cooperate with being printed.  Tool `Customer`
+        //   to print `ThirdPartyStruct`, and then put some `Customer` objects
         //   into a map, and print the map.
         //
         // Testing:
@@ -1055,19 +1067,19 @@ int main(int argc, char *argv[])
         // PRINT METHODS WITH RANGE AND FUNCTOR
         //
         // Concerns:
-        //: 1 Supplied functor is used for printing objects.
-        //:
-        //: 2 All elements within the range are passed to the supplied functor
-        //:   one by one in the expected order.
-        //:
-        //: 3 The expected indentation level and supplied number of spaces are
-        //:   correctly passed to the user's functor.
+        // 1. Supplied functor is used for printing objects.
+        //
+        // 2. All elements within the range are passed to the supplied functor
+        //    one by one in the expected order.
+        //
+        // 3. The expected indentation level and supplied number of spaces are
+        //    correctly passed to the user's functor.
         //
         // Plan:
-        //: 1 Create an array and a set, populate both, print them out using
-        //:   the 'printAttribute' and 'printValue' methods, passing different
-        //:   level and spacePerLevel values.  Verify that the output is as
-        //:   expected.
+        // 1. Create an array and a set, populate both, print them out using
+        //    the `printAttribute` and `printValue` methods, passing different
+        //    level and spacePerLevel values.  Verify that the output is as
+        //    expected.
         //
         // Testing:
         //   void printAttribute(const char *,const I&,const I&,const F&)const;
@@ -1085,7 +1097,7 @@ int main(int argc, char *argv[])
             mySet.insert(array[i]);
         }
 
-        if (verbose) cout << "\tTesting 'printAttribute'\n";
+        if (verbose) cout << "\tTesting `printAttribute`\n";
         {
             bsl::ostringstream out;
             Obj                p(&out, 2, 4);
@@ -1233,7 +1245,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\tTesting 'printValue'\n";
+        if (verbose) cout << "\tTesting `printValue`\n";
         {
             bsl::ostringstream out;
             Obj                p(&out, 2, 4);
@@ -1379,19 +1391,19 @@ int main(int argc, char *argv[])
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // BSLTF OUTPUT ('<<') OPERATORS
+        // BSLTF OUTPUT (`<<`) OPERATORS
         //
         // Concerns:
-        //: 1 The output operators defined in 'bsltf_streamutil' work correctly
-        //:   with 'real' bsl ostreams (we could not test this in 'bsltf'
-        //:   because we did not have access to 'real' bsl ostreams at that
-        //:   level).
+        // 1. The output operators defined in `bsltf_streamutil` work correctly
+        //    with `real` bsl ostreams (we could not test this in `bsltf`
+        //    because we did not have access to `real` bsl ostreams at that
+        //    level).
         //
         // Plan:
-        //: 1 For each 'bsltf' test type, create an object of such a type
-        //:   having a unique value and stream its value to 'cout' and into a
-        //:   'bsl::ostringstream'.  Verify that the string output to the
-        //:   stream has the expected value.  (C-1)
+        // 1. For each `bsltf` test type, create an object of such a type
+        //    having a unique value and stream its value to `cout` and into a
+        //    `bsl::ostringstream`.  Verify that the string output to the
+        //    stream has the expected value.  (C-1)
         //
         // Testing:
         //   STR& operator<<(STR&, const AllocBitwiseMoveableTestType&);
@@ -1415,7 +1427,7 @@ int main(int argc, char *argv[])
         //   STR& operator<<(STR&, const UnionTestType&);
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cerr << "BSLTF OUTPUT ('<<') OPERATORS\n"
+        if (verbose) bsl::cerr << "BSLTF OUTPUT (`<<`) OPERATORS\n"
                                   "=============================\n";
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
@@ -1426,7 +1438,7 @@ int main(int argc, char *argv[])
                  TemplateTestFacility::create<AllocBitwiseMoveableTestType>(1);
 
 #if 0
-        // 'TTF::create<bt::AllocEmplacableTestType>' is commented out
+        // `TTF::create<bt::AllocEmplacableTestType>` is commented out
         // everywhere it is called in bsltf_templatetestfacility.t.cpp and
         // doesn't compile when I try to build it here.
 
@@ -1624,13 +1636,13 @@ int main(int argc, char *argv[])
         //   Test the indentation functions.
         //
         // Concerns:
-        //: 1 That printIndentation and printEndIndentation produce the correct
-        //:   number of spaces as specified in their documentation.
+        // 1. That printIndentation and printEndIndentation produce the correct
+        //    number of spaces as specified in their documentation.
         //
         // Plan:
-        //: 1 Vary absLevel() and spacesPerLevel() using a table of values,
-        //:   invoke the indentation methods on a string stream, and verify
-        //:   that the expected number of spaces are produced.
+        // 1. Vary absLevel() and spacesPerLevel() using a table of values,
+        //    invoke the indentation methods on a string stream, and verify
+        //    that the expected number of spaces are produced.
         //
         // Testing:
         //   void printEndIndentation() const;
@@ -1715,25 +1727,25 @@ int main(int argc, char *argv[])
       case 17: {
         // --------------------------------------------------------------------
         // INTERACTION WITH SETW
-        //   'operator<<' is commonly implemented for BDE types using a
-        //   'bslim::Printer' object constructed with the arguments
-        //   'Printer(stream, 0, -1)'.  The concern is that such
-        //   implementations of 'operator<<' correctly respect 'bsl::setw' on
-        //   'stream'.
+        //   `operator<<` is commonly implemented for BDE types using a
+        //   `bslim::Printer` object constructed with the arguments
+        //   `Printer(stream, 0, -1)`.  The concern is that such
+        //   implementations of `operator<<` correctly respect `bsl::setw` on
+        //   `stream`.
         //
         // Concerns:
-        //: 1 That an 'operator<<' implemented with 'bslim::Printer' will
-        //:   respect the use of 'setw' by the user.
+        // 1. That an `operator<<` implemented with `bslim::Printer` will
+        //    respect the use of `setw` by the user.
         //
         // Plan:
-        //: 1 Create a table of test data varying in the use of 'setw' and
-        //:   left/right, justification.  For each element, execute a
-        //:   simulated 'operator<<' implementation using
-        //:   'Printer(stream, 0 -1)', and verify the resulting output matches
-        //:   the expected output.
+        // 1. Create a table of test data varying in the use of `setw` and
+        //    left/right, justification.  For each element, execute a
+        //    simulated `operator<<` implementation using
+        //    `Printer(stream, 0 -1)`, and verify the resulting output matches
+        //    the expected output.
         //
         // Testing:
-        //   CONCERN: Printer(stream, 0, -1) can be formatted with 'setw'
+        //   CONCERN: Printer(stream, 0, -1) can be formatted with `setw`
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nINTERACTION WITH SETW"
@@ -1775,7 +1787,7 @@ int main(int argc, char *argv[])
                 stream << bsl::setw(SETW);
             }
 
-            // A simply hypothetical BDE 'print' implementation.
+            // A simply hypothetical BDE `print` implementation.
 
             Obj printer(&stream, 0, -1);
             printer.start(true);
@@ -1788,20 +1800,20 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // 'printValue' ALL STL SEQUENCE AND ASSOCIATIVE CONTAINERS
+        // `printValue` ALL STL SEQUENCE AND ASSOCIATIVE CONTAINERS
         //
         // Concerns:
-        //: 1 Printing a type defining 'bslalg::HasStlIterators' (i.e., STL
-        //:   container types) will print each of the elements in the range
-        //:   between 'begin' and 'end'.
-        //: 2 Printing a 'bsl::pair' will print the first and second element of
-        //:   the pair.
-        //: 3 Printing a 'bslstl::StringRef' will print the referenced string.
+        // 1. Printing a type defining `bslalg::HasStlIterators` (i.e., STL
+        //    container types) will print each of the elements in the range
+        //    between `begin` and `end`.
+        // 2. Printing a `bsl::pair` will print the first and second element of
+        //    the pair.
+        // 3. Printing a `bslstl::StringRef` will print the referenced string.
         //
         // Plan:
-        //: 1 Create and populate various 'bsl' objects, print using range
-        //:   'printValue', and verify that the string printed out is what is
-        //:   expected.
+        // 1. Create and populate various `bsl` objects, print using range
+        //    `printValue`, and verify that the string printed out is what is
+        //    expected.
         //
         // Testing:
         //   void printAttribute(const char *name, const TYPE& data) const;
@@ -1833,9 +1845,9 @@ int main(int argc, char *argv[])
         }
 
         // STL sequence & associative containers, in the order in which they
-        // are listed in 'http://www.sgi.com/tech/stl/table_of_contents.html'.
+        // are listed in `http://www.sgi.com/tech/stl/table_of_contents.html`.
 
-// BDE_VERIFY pragma: push   // Disable 'verbose print in loop'.
+// BDE_VERIFY pragma: push   // Disable `verbose print in loop`.
 // BDE_VERIFY pragma: -TP21
 
         if (veryVerbose) { printf("vector<int>\n"); }
@@ -2368,7 +2380,7 @@ int main(int argc, char *argv[])
             {
                 const char *match = "      multimap = [\n";
 
-                // find returning 0 means 'found at the beginning'
+                // find returning 0 means `found at the beginning`
 
                 ASSERT(0 == result.find(match));
             }
@@ -2400,7 +2412,7 @@ int main(int argc, char *argv[])
             {
                 const char *match = "      multimap = [\n";
 
-                // find returning 0 means 'found at the beginning'
+                // find returning 0 means `found at the beginning`
 
                 ASSERT(0 == range_result.find(match));
             }
@@ -2444,7 +2456,7 @@ int main(int argc, char *argv[])
             {
                 const char *match = "      [\n";
 
-                // find returning 0 means 'found at the beginning'
+                // find returning 0 means `found at the beginning`
 
                 ASSERT(0 == result.find(match));
             }
@@ -2476,7 +2488,7 @@ int main(int argc, char *argv[])
             {
                 const char *match = "      [\n";
 
-                // find returning 0 means 'found at the beginning'
+                // find returning 0 means `found at the beginning`
 
                 ASSERT(0 == range_result.find(match));
             }
@@ -2787,7 +2799,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(EXP.str(), out.str(), EXP.str() == out.str());
         }
 
-        // 'bsl::optional'
+        // `bsl::optional`
         {
             bsl::optional<int> v1(42);
             bsl::ostringstream v1Out;
@@ -2933,18 +2945,18 @@ int main(int argc, char *argv[])
             p.printValue(V.begin(), V.end(), &ParenPrintUtil::print);
             LOOP2_ASSERT(EXP2, out.str(), EXP2 == out.str());
         }
-// BDE_VERIFY pragma: pop    // Disable 'verbose print in loop'.
+// BDE_VERIFY pragma: pop    // Disable `verbose print in loop`.
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // 'printAttribute' WITH RANGE
+        // `printAttribute` WITH RANGE
         //
         // Concerns:
-        //   Need to exercise 'printAttribute' with a range.
+        //   Need to exercise `printAttribute` with a range.
         //
         // Plan:
         //   Create an array and a set, populate both, print them out with
-        //   range 'printAttribute', and verify that the output is as
+        //   range `printAttribute`, and verify that the output is as
         //   expected.
         //
         // Testing:
@@ -3043,33 +3055,33 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'printForeign'
+        // TESTING `printForeign`
         //
-        // Concerns: That 'printForeign'
-        //: 1 prints the correct indentation for different values of 'level'
-        //:   and 'spacesPerLevel'.
-        //: 2 prints the 'name' correctly when 'name' is supplied.
-        //: 3 prints the expected output when 'name' is not supplied.
-        //: 4 calls the foreign function with the values of '-(absLevel + 1)'
-        //    and 'spacesPerLevel'.
+        // Concerns: That `printForeign`
+        // 1. prints the correct indentation for different values of `level`
+        //    and `spacesPerLevel`.
+        // 2. prints the `name` correctly when `name` is supplied.
+        // 3. prints the expected output when `name` is not supplied.
+        // 4. calls the foreign function with the values of `-(absLevel + 1)`
+        //    and `spacesPerLevel`.
         //
         // Plan:
-        //: 1 Create a table having fields for line number, level, spaces per
-        //:   level, and expected output of 'printForeign' when called with a
-        //:   'NoPrint' object, and a 'name'.  For each set of values in the
-        //:   table, ensure that the actual output of 'printOrNull' is the same
-        //:   as the expected output.
-        //: 2 Create a table having fields for line number, level, spaces per
-        //:   level, and expected output of 'printForeign' when called with a
-        //:   'NoPrint' object, but 'name' is not supplied.  For each set of
-        //:   values in the table, ensure that the actual output of
-        //:   'printOrNull' is the same as the expected output.
+        // 1. Create a table having fields for line number, level, spaces per
+        //    level, and expected output of `printForeign` when called with a
+        //    `NoPrint` object, and a `name`.  For each set of values in the
+        //    table, ensure that the actual output of `printOrNull` is the same
+        //    as the expected output.
+        // 2. Create a table having fields for line number, level, spaces per
+        //    level, and expected output of `printForeign` when called with a
+        //    `NoPrint` object, but `name` is not supplied.  For each set of
+        //    values in the table, ensure that the actual output of
+        //    `printOrNull` is the same as the expected output.
         //
         // Testing:
         //   void printForeign(const TYPE&, const PF&, const char *) const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'printForeign'"
+        if (verbose) cout << "\nTESTING `printForeign`"
                              "\n======================\n";
 
         {
@@ -3158,30 +3170,30 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING 'printHexAddr'
+        // TESTING `printHexAddr`
         //
-        // Concerns: That 'printHexAddr'
-        //: 1 prints the input address in hexadecimal format when 'name' is not
-        //:   supplied.
-        //: 2 prints the string "NULL" when a null pointer is passed to it.
+        // Concerns: That `printHexAddr`
+        // 1. prints the input address in hexadecimal format when `name` is not
+        //    supplied.
+        // 2. prints the string "NULL" when a null pointer is passed to it.
         //
         // Plan:
-        //: 1 Create a table having fields for line number, level, spaces per
-        //:   level, and expected output of 'printHexAddr' when 'name' is not
-        //:   supplied.  For each set of values in the table, ensure that the
-        //:   actual output of 'printHexAddr' is the same as the expected
-        //:   output.
-        //: 2 Create a table having fields for line number, level, spaces per
-        //:   level, and expected output of 'printHexAddr' when a null pointer
-        //:   is passed to it.  For each set of values in the table, ensure
-        //:   that the actual output of 'printHexAddr' is the same as the
-        //:   expected output.
+        // 1. Create a table having fields for line number, level, spaces per
+        //    level, and expected output of `printHexAddr` when `name` is not
+        //    supplied.  For each set of values in the table, ensure that the
+        //    actual output of `printHexAddr` is the same as the expected
+        //    output.
+        // 2. Create a table having fields for line number, level, spaces per
+        //    level, and expected output of `printHexAddr` when a null pointer
+        //    is passed to it.  For each set of values in the table, ensure
+        //    that the actual output of `printHexAddr` is the same as the
+        //    expected output.
         //
         // Testing:
         //   void printHexAddr(const TYPE& data, const char *name) const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'printHexAddr'"
+        if (verbose) cout << "\nTESTING `printHexAddr`"
                              "\n======================\n";
 
         {
@@ -3267,26 +3279,26 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'printHexAddr' (INDENTATION AND NAME)
+        // TESTING `printHexAddr` (INDENTATION AND NAME)
         //
-        // Concerns: That 'printHexAddr'
-        //: 1 prints the correct indentation for different values of 'level'
-        //:   and 'spacesPerLevel'.
-        //: 2 prints the 'name' correctly when 'name' is supplied.
+        // Concerns: That `printHexAddr`
+        // 1. prints the correct indentation for different values of `level`
+        //    and `spacesPerLevel`.
+        // 2. prints the `name` correctly when `name` is supplied.
         //
         // Plan:
-        //: 1 Create a table having fields for line number, level, spaces per
-        //:   level, and expected output of 'printHexAddr' when a 'name' is
-        //:   supplied.  For each set of values in the table, ensure that the
-        //:   actual output of 'printHexAddr' is the same as the expected
-        //:   output.
+        // 1. Create a table having fields for line number, level, spaces per
+        //    level, and expected output of `printHexAddr` when a `name` is
+        //    supplied.  For each set of values in the table, ensure that the
+        //    actual output of `printHexAddr` is the same as the expected
+        //    output.
         //
         // Testing:
         //   void printHexAddr(const TYPE& data, const char *name) const;
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTESTING 'printHexAddr' (INDENTATION AND NAME)"
+            cout << "\nTESTING `printHexAddr` (INDENTATION AND NAME)"
                     "\n=============================================\n";
 
         static const struct {
@@ -3336,26 +3348,26 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'printOrNull' (NULL POINTERS)
+        // TESTING `printOrNull` (NULL POINTERS)
         //
         // Concerns:
-        //: 1 That 'printOrNull' prints the string "NULL" when a null pointer
-        //:   is passed to it.
+        // 1. That `printOrNull` prints the string "NULL" when a null pointer
+        //    is passed to it.
         //
         // Plan:
-        //: 1 Create a table having fields for line number, level, spaces per
-        //:   level, and expected output of 'printOrNull' when called with a
-        //:   null pointer.  For each set of values in the table, ensure that
-        //:   the actual output of 'printOrNull' when called with a null
-        //:   pointer of type 'void *', 'const void *', 'const char *',
-        //:   'const unsigned char *', 'int *', and 'HasPrint *' is the same as
-        //:   the expected output.
+        // 1. Create a table having fields for line number, level, spaces per
+        //    level, and expected output of `printOrNull` when called with a
+        //    null pointer.  For each set of values in the table, ensure that
+        //    the actual output of `printOrNull` when called with a null
+        //    pointer of type `void *`, `const void *`, `const char *`,
+        //    `const unsigned char *`, `int *`, and `HasPrint *` is the same as
+        //    the expected output.
         //
         // Testing:
         //   void printOrNull(const TYPE& data, const char *name) const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'printOrNull' (NULL POINTERS)"
+        if (verbose) cout << "\nTESTING `printOrNull` (NULL POINTERS)"
                              "\n=====================================\n";
 
         {
@@ -3480,56 +3492,56 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING CLASS METHODS: 'printOrNull' (NON-NULL POINTER TYPES)
+        // TESTING CLASS METHODS: `printOrNull` (NON-NULL POINTER TYPES)
         //
-        // Concerns: That 'printOrNull'
-        //: 1 prints the address held by the pointer in hexadecimal format, but
-        //:   does not attempt to dereference the pointer if the pointer type
-        //:   is 'void *', or  'const void *'.
-        //: 2 dereferences the pointer and prints a character if the
-        //:   pointer type is 'const char *'.
-        //: 3 dereferences the pointer and prints the held value if the
-        //:   pointer points to a fundamental type.
-        //: 4 calls the 'print' method of the held object with the values of
-        //:   '-(absLevel + 1)' and 'spacesPerLevel' if the pointer points to a
-        //:   user-defined type.
-        //: 5 prints a newline character after printing the data if
-        //:   'spacesPerLevel >= 0', and does not print a newline character
-        //:   otherwise.
+        // Concerns: That `printOrNull`
+        // 1. prints the address held by the pointer in hexadecimal format, but
+        //    does not attempt to dereference the pointer if the pointer type
+        //    is `void *`, or  `const void *`.
+        // 2. dereferences the pointer and prints a character if the
+        //    pointer type is `const char *`.
+        // 3. dereferences the pointer and prints the held value if the
+        //    pointer points to a fundamental type.
+        // 4. calls the `print` method of the held object with the values of
+        //    `-(absLevel + 1)` and `spacesPerLevel` if the pointer points to a
+        //    user-defined type.
+        // 5. prints a newline character after printing the data if
+        //    `spacesPerLevel >= 0`, and does not print a newline character
+        //    otherwise.
         //
         // Plan:
-        //: 1 Create a table having fields for line number, level, spaces per
-        //:   level, and expected output of 'printOrNull' when called with a
-        //:   'void *', or 'const void *'.  For each set of values in the
-        //:   table, ensure that the actual output of 'printOrNull' is the
-        //:   same as the expected output.
-        //: 2 Create a table having fields for line number, level, spaces per
-        //:   level, and expected output of 'printOrNull' when called with a
-        //:   'const char *'.  For each set of values in the table, ensure that
-        //:   the actual output of 'printOrNull' is the same as the expected
-        //:   output.
-        //: 3 Create a table having fields for line number, level, spaces per
-        //:   level, and expected output of 'printOrNull' when called with a
-        //:   'const unsigned char *'.  For each set of values in the table,
-        //:   ensure that the actual output of 'printOrNull' is the same as the
-        //:   expected output.
-        //: 4 Create a table having fields for line number, level, spaces per
-        //:   level, and expected output of 'printOrNull' when called with a
-        //:   'int *'.  For each set of values in the table, ensure that the
-        //:   actual output of 'printOrNull' is the same as the expected
-        //:   output.
-        //: 5 Create a table having fields for line number, level, spaces per
-        //:   level, and expected output of 'printOrNull' when called with a
-        //:   'HasPrint *'.  For each set of values in the table, ensure that
-        //:   the actual output of 'printOrNull' is the same as the expected
-        //:   output.
+        // 1. Create a table having fields for line number, level, spaces per
+        //    level, and expected output of `printOrNull` when called with a
+        //    `void *`, or `const void *`.  For each set of values in the
+        //    table, ensure that the actual output of `printOrNull` is the
+        //    same as the expected output.
+        // 2. Create a table having fields for line number, level, spaces per
+        //    level, and expected output of `printOrNull` when called with a
+        //    `const char *`.  For each set of values in the table, ensure that
+        //    the actual output of `printOrNull` is the same as the expected
+        //    output.
+        // 3. Create a table having fields for line number, level, spaces per
+        //    level, and expected output of `printOrNull` when called with a
+        //    `const unsigned char *`.  For each set of values in the table,
+        //    ensure that the actual output of `printOrNull` is the same as the
+        //    expected output.
+        // 4. Create a table having fields for line number, level, spaces per
+        //    level, and expected output of `printOrNull` when called with a
+        //    `int *`.  For each set of values in the table, ensure that the
+        //    actual output of `printOrNull` is the same as the expected
+        //    output.
+        // 5. Create a table having fields for line number, level, spaces per
+        //    level, and expected output of `printOrNull` when called with a
+        //    `HasPrint *`.  For each set of values in the table, ensure that
+        //    the actual output of `printOrNull` is the same as the expected
+        //    output.
         //
         // Testing:
         //   void printOrNull(const TYPE& data, const char *name) const;
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-           "\nTESTING CLASS METHODS: 'printOrNull' (NON-NULL POINTER TYPES)"
+           "\nTESTING CLASS METHODS: `printOrNull` (NON-NULL POINTER TYPES)"
            "\n=============================================================\n";
 
         {
@@ -3764,26 +3776,26 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'printOrNull' (INDENTATION AND NAME)
+        // TESTING `printOrNull` (INDENTATION AND NAME)
         //
-        // Concerns: That 'printOrNull'
-        //: 1 prints the correct indentation for different values of 'level'
-        //:   and 'spacesPerLevel'.
-        //: 2 prints the 'name' correctly when 'name' is supplied.
+        // Concerns: That `printOrNull`
+        // 1. prints the correct indentation for different values of `level`
+        //    and `spacesPerLevel`.
+        // 2. prints the `name` correctly when `name` is supplied.
         //
         // Plan:
-        //: 1 Create a table having fields for line number, level, spaces per
-        //:   level, and expected output of 'printOrNull' when a 'name' is
-        //:   supplied.  For each set of values in the table, ensure that the
-        //:   actual output of 'printOrNull' is the same as the expected
-        //:   output.
+        // 1. Create a table having fields for line number, level, spaces per
+        //    level, and expected output of `printOrNull` when a `name` is
+        //    supplied.  For each set of values in the table, ensure that the
+        //    actual output of `printOrNull` is the same as the expected
+        //    output.
         //
         // Testing:
         //   void printOrNull(const TYPE& data, const char *name) const;
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTESTING 'printOrNull' (INDENTATION AND NAME)"
+            cout << "\nTESTING `printOrNull` (INDENTATION AND NAME)"
                     "\n============================================\n";
 
         static const struct {
@@ -3831,17 +3843,17 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'printAttribute' AND 'printValue'
+        // TESTING `printAttribute` AND `printValue`
         //
         // Concerns:
-        //: 1 That 'printAttribute' and 'printValue' call 'print' correctly.
+        // 1. That `printAttribute` and `printValue` call `print` correctly.
         //
         // Plan:
-        //: 1 Create a table having fields for line number, level, spaces per
-        //:   level, and expected output when 'printAttribute' and
-        //:   'printValue' are called.  For each set of values in the table,
-        //:   ensure that the actual outputs are the same as the expected
-        //:   outputs.
+        // 1. Create a table having fields for line number, level, spaces per
+        //    level, and expected output when `printAttribute` and
+        //    `printValue` are called.  For each set of values in the table,
+        //    ensure that the actual outputs are the same as the expected
+        //    outputs.
         //
         // Testing:
         //   void printAttribute(const char *name, const TYPE& data) const;
@@ -3849,7 +3861,7 @@ int main(int argc, char *argv[])
         //   void print(const TYPE& data, const char *name) const;
         // --------------------------------------------------------------------
         if (verbose)
-            cout << "\nTESTING 'printAttribute' AND 'printValue'"
+            cout << "\nTESTING `printAttribute` AND `printValue`"
                     "\n=========================================\n";
         static const struct {
             int         d_lineNum;        // source line number
@@ -3912,24 +3924,24 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'end'
+        // TESTING `end`
         //
-        // Concerns: 'end' prints the correct indentation for different values
-        // of 'level' and 'spacesPerLevel' and ']' if 'suppressBracket' is
-        // 'false', and does not print the indentation and ']' otherwise.
-        // 'end' should also print a newline if 'spacesPerLevel' >= 0.
+        // Concerns: `end` prints the correct indentation for different values
+        // of `level` and `spacesPerLevel` and ']' if `suppressBracket` is
+        // `false`, and does not print the indentation and ']' otherwise.
+        // `end` should also print a newline if `spacesPerLevel` >= 0.
         //
         // Plan:
-        //: 1 Create a table having fields for line number, level, spaces per
-        //:   level, suppress bracket flag, and expected output of 'end'.  For
-        //:   each set of values in the table, ensure that the actual output of
-        //:   'end' is the same as the expected output.
+        // 1. Create a table having fields for line number, level, spaces per
+        //    level, suppress bracket flag, and expected output of `end`.  For
+        //    each set of values in the table, ensure that the actual output of
+        //    `end` is the same as the expected output.
         //
         // Testing:
         //   void end() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'end'"
+        if (verbose) cout << "\nTESTING `end`"
                              "\n=============\n";
 
         static const struct {
@@ -3982,23 +3994,23 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'start'
+        // TESTING `start`
         //
-        // Concerns: 'start' prints the correct indentation for different
-        // values of 'level' and 'spacesPerLevel', and then prints '[' if
-        // 'suppressBracket' is 'false', and does not print '[' otherwise.
+        // Concerns: `start` prints the correct indentation for different
+        // values of `level` and `spacesPerLevel`, and then prints '[' if
+        // `suppressBracket` is `false`, and does not print '[' otherwise.
         //
         // Plan:
-        //: 1 Create a table having fields for line number, level, spaces per
-        //:   level, suppress bracket flag, and expected output of 'start'.
-        //:   For each set of values in the table, ensure that the actual
-        //:   output of 'start' is the same as the expected output.
+        // 1. Create a table having fields for line number, level, spaces per
+        //    level, suppress bracket flag, and expected output of `start`.
+        //    For each set of values in the table, ensure that the actual
+        //    output of `start` is the same as the expected output.
         //
         // Testing:
         //   void start() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'start'"
+        if (verbose) cout << "\nTESTING `start`"
                              "\n===============\n";
 
         static const struct {
@@ -4054,20 +4066,20 @@ int main(int argc, char *argv[])
         // TESTING TEST APPARATUS
         //
         // Concerns:
-        //: 1 'HasPrint::print' prints the expected output for different values
-        //:    of level and spaces per level.
-        //: 2 'NoPrintUtil::print' prints the expected output for different
-        //:   values of level and spaces per level.
+        // 1. `HasPrint::print` prints the expected output for different values
+        //     of level and spaces per level.
+        // 2. `NoPrintUtil::print` prints the expected output for different
+        //    values of level and spaces per level.
         //
         // Plan:
-        //: 1 Create a table having fields for line number, level, spaces per
-        //:   level, and expected output of 'HasPrint::print'.  For each set of
-        //:   values in the table, ensure that the actual output of
-        //:   'HasPrint::print' is the same as the expected output.
-        //: 2 Create a table having fields for line number, level, spaces per
-        //:   level, and expected output of 'NoPrintUtil::print'.  For each set
-        //:   of values in the table,  ensure that the actual output of
-        //:   'NoPrintUtil::print' is the same as the expected output.
+        // 1. Create a table having fields for line number, level, spaces per
+        //    level, and expected output of `HasPrint::print`.  For each set of
+        //    values in the table, ensure that the actual output of
+        //    `HasPrint::print` is the same as the expected output.
+        // 2. Create a table having fields for line number, level, spaces per
+        //    level, and expected output of `NoPrintUtil::print`.  For each set
+        //    of values in the table,  ensure that the actual output of
+        //    `NoPrintUtil::print` is the same as the expected output.
         //
         // Testing:
         //   HasPrint::print(bsl::ostream&, int, int) const;
@@ -4164,16 +4176,16 @@ int main(int argc, char *argv[])
         // TESTING CONSTRUCTOR AND BASIC ACCESSORS
         //
         // Concerns:
-        //: 1 The constructor can create an object having any state required
-        //:   for thorough testing.
-        //: 2 Accessors return the corresponding state variable of the object.
-        //: 3 Accessors are declared 'const'.
+        // 1. The constructor can create an object having any state required
+        //    for thorough testing.
+        // 2. Accessors return the corresponding state variable of the object.
+        // 3. Accessors are declared `const`.
         //
         // Plan:
-        //: 1 Create a table having fields for line number, level, and spaces
-        //:   per level.  For each set of values in the table, create a 'const
-        //:   Printer' object, and then use the basic accessors to compare the
-        //:   values set in the object with the input values.
+        // 1. Create a table having fields for line number, level, and spaces
+        //    per level.  For each set of values in the table, create a 'const
+        //    Printer' object, and then use the basic accessors to compare the
+        //    values set in the object with the input values.
         //
         // Testing:
         //   Printer(bsl::ostream *stream, int level, int spacesPerLevel);
@@ -4228,10 +4240,10 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to support comprehensive
-        //:   testing.
+        // 1. The class is sufficiently functional to support comprehensive
+        //    testing.
         //
-        // Plan: Create a 'Printer' object, and call its 'print' method with an
+        // Plan: Create a `Printer` object, and call its `print` method with an
         // integer.  Ensure that the actual output is the same as the expected
         // output.
         //
@@ -4261,9 +4273,9 @@ int main(int argc, char *argv[])
         // BSL namespace import tests
         //
         // Concerns:
-        //: 1 (Ab)use this test driver to validate changes in
-        //:   bsl_initializer_list.h, bsl_memory.h and bsl_cstddef.h to include
-        //:   C++11 symbols in bsl for g++ versions 4.8 and above.
+        // 1. (Ab)use this test driver to validate changes in
+        //    bsl_initializer_list.h, bsl_memory.h and bsl_cstddef.h to include
+        //    C++11 symbols in bsl for g++ versions 4.8 and above.
         //
         // Plan: Declare a variable of each of the imported types, using the
         // bsl:: namespace.  This suffices to validate that they are correctly

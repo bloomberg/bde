@@ -3,14 +3,14 @@
 
 #if !defined(BSLS_DEPRECATE_T_DATA_COLLECTION)
 
-// BDE_VERIFY pragma: push    // Relax some 'bde_verify' rules.
-// BDE_VERIFY pragma: -TP19   // Component levelized below 'bsls_bsltestutil',
+// BDE_VERIFY pragma: push    // Relax some `bde_verify` rules.
+// BDE_VERIFY pragma: -TP19   // Component levelized below `bsls_bsltestutil`,
 //                            // therefore we cannot use usual boilerplate.
 
-#include <limits.h>  // 'INT_MIN'
+#include <limits.h>  // `INT_MIN`
 #include <stdio.h>
-#include <stdlib.h>  // 'atoi'
-#include <string.h>  // 'strcmp'
+#include <stdlib.h>  // `atoi`
+#include <string.h>  // `strcmp`
 
 // ============================================================================
 //                                 TEST PLAN
@@ -22,11 +22,11 @@
 // primary manipulator or basic accessor.  The macros will be tested in strict
 // dependency order.
 //
-// The 'BSLS_DEPRECATE' macro defined by the component expands either to some
+// The `BSLS_DEPRECATE` macro defined by the component expands either to some
 // platform-dependent deprecation attribute, or to nothing.  The test for this
-// macro therefore needs to observe the expansion of 'BSLS_DEPRECATE' of the
+// macro therefore needs to observe the expansion of `BSLS_DEPRECATE` of the
 // macros under various circumstances.  Special test apparatus is provided to
-// make this possible: a macro named 'MACRO_TO_STRING' that expands to a string
+// make this possible: a macro named `MACRO_TO_STRING` that expands to a string
 // literal having the expansion of the macro as its value.
 //
 ///Table-Based Tests of Compile-Time Behavior
@@ -40,38 +40,38 @@
 // There are two parts to the facility to convert compile-time (preprocessor)
 // state into data suitable for inclusion in a table:
 //
-//: o Data-collection sections in the test driver, in which some compile-time
-//:   state is encoded in a form that can be retrieved at run-time.  For cases
-//:   6, 7, and 8, states of control macros are assigned to cells in an array.
-//:   For case 11, functions are defined that can return a summary of the
-//:   states of control macros and deprecation macros when the functions were
-//:   defined.  These sections are separated from the rest of the test driver
-//:   by a '#if defined(BSLS_DEPRECATE_T_DATA_COLLECTION)' directive.  When the
-//:   compiler looks at the test driver, it will see *either* the body of the
-//:   test driver proper, *or* a data-collection section.  (See the various
-//:   sections titled "DATA COLLECTION: *")
-//:
-//: o Data-collection driver sections that define
-//:   'BSLS_DEPRECATE_T_DATA_COLLECTION' and then repeatedly '#include' the
-//:   test driver file with various values set for the control macros or other
-//:   preprocessor state used by the appropriate data-collection section.  Each
-//:   '#include' will make the data-collection section encode a set of
-//:   preprocessor state.  For cases 6, 7, and 8, the data-collection driver
-//:   designates a different combination of UOR, major version, and minor
-//:   version to inspect on each '#include'.  For case 11, the data-collection
-//:   driver designates a different combination of deprecation threshold and
-//:   legacy deprecation macro state to inspect on each '#include'.  (See the
-//:   various sections titled "DATA COLLECTION DRIVER FOR CASE *".)
+//  - Data-collection sections in the test driver, in which some compile-time
+//    state is encoded in a form that can be retrieved at run-time.  For cases
+//    6, 7, and 8, states of control macros are assigned to cells in an array.
+//    For case 11, functions are defined that can return a summary of the
+//    states of control macros and deprecation macros when the functions were
+//    defined.  These sections are separated from the rest of the test driver
+//    by a `#if defined(BSLS_DEPRECATE_T_DATA_COLLECTION)` directive.  When the
+//    compiler looks at the test driver, it will see *either* the body of the
+//    test driver proper, *or* a data-collection section.  (See the various
+//    sections titled "DATA COLLECTION: *")
+//
+//  - Data-collection driver sections that define
+//    `BSLS_DEPRECATE_T_DATA_COLLECTION` and then repeatedly `#include` the
+//    test driver file with various values set for the control macros or other
+//    preprocessor state used by the appropriate data-collection section.  Each
+//    `#include` will make the data-collection section encode a set of
+//    preprocessor state.  For cases 6, 7, and 8, the data-collection driver
+//    designates a different combination of UOR, major version, and minor
+//    version to inspect on each `#include`.  For case 11, the data-collection
+//    driver designates a different combination of deprecation threshold and
+//    legacy deprecation macro state to inspect on each `#include`.  (See the
+//    various sections titled "DATA COLLECTION DRIVER FOR CASE *".)
 //
 // Additionally, deprecation control macros are defined for a set of fictional
 // UORs, to be used in any test cases that need them.  (See "GLOBAL DEPRECATION
 // CONTROL MACRO SETTINGS").  The UOR configuration specifies:
-//:   * UOR version
-//:   * UOR deprecation threshold
-//:   * internal UOR build deprecation silencing by UOR authors
-//:     ('BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_<U>')
-//:   * version-specific deprecation silencing by UOR clients
-//:     ('BB_SILENCE_DEPRECATIONS_<UOR>_<M>_<N>')
+//    * UOR version
+//    * UOR deprecation threshold
+//    * internal UOR build deprecation silencing by UOR authors
+//      (`BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_<U>`)
+//    * version-specific deprecation silencing by UOR clients
+//      (`BB_SILENCE_DEPRECATIONS_<UOR>_<M>_<N>`)
 //
 // These UOR configurations are used primarily in cases 6, 7, and 8.
 //
@@ -167,11 +167,11 @@ void aSsErT(bool condition, const char *message, int line)
 #define MACRO_TO_STRING_A(T) MACRO_TO_STRING_B T
 #define MACRO_TO_STRING_B(M, ...) #M
 
+/// Poor-man's static assertion, rumored to not be guaranteed to fail on
+/// Sun, and therefore usable only for expressions that will have the same
+/// value on all configurations of all compilers, such as expressions of
+/// internal test logic, not compiler, library or process configuration.
 #define STATIC_ASSERT(N, X) do{ int N[1 - (2 * !(X))]; (void) N; }while(0)
-    // Poor-man's static assertion, rumored to not be guaranteed to fail on
-    // Sun, and therefore usable only for expressions that will have the same
-    // value on all configurations of all compilers, such as expressions of
-    // internal test logic, not compiler, library or process configuration.
 
 // ============================================================================
 //                       GLOBAL TYPES FOR TESTING
@@ -184,19 +184,19 @@ struct Case2 {
         e_CONST_C_STRING
     };
 
+    /// Return an integer identifying which of the following three type
+    /// categories matches the argument passed to this function:
+    /// ```
+    ///      Argument Type        Return Value
+    /// +---------------------+------------------+
+    /// | char const * const& | e_CONST_C_STRING |
+    /// | char       *        | e_C_STRING       |
+    /// | other               | e_DEFAULT        |
+    /// +---------------------+------------------+
+    /// ```
     static int test(...                );
     static int test(char       *       );
     static int test(char const * const&);
-        // Return an integer identifying which of the following three type
-        // categories matches the argument passed to this function:
-        //..
-        //       Argument Type        Return Value
-        //  +---------------------+------------------+
-        //  | char const * const& | e_CONST_C_STRING |
-        //  | char       *        | e_C_STRING       |
-        //  | other               | e_DEFAULT        |
-        //  +---------------------+------------------+
-        //..
 };
 
 int Case2::test(...)
@@ -222,19 +222,19 @@ struct Case5 {
         e_INTEGER
     };
 
+    /// Return an integer identifying which of the following three type
+    /// categories matches the argument passed to this function:
+    /// ```
+    ///      Argument Type        Return Value
+    /// +---------------------+------------------+
+    /// | const int&          | e_INTEGER        |
+    /// | double              | e_DOUBLE         |
+    /// | other               | e_DEFAULT        |
+    /// +---------------------+------------------+
+    /// ```
     static int test(...       );
     static int test(double    );
     static int test(const int&);
-        // Return an integer identifying which of the following three type
-        // categories matches the argument passed to this function:
-        //..
-        //       Argument Type        Return Value
-        //  +---------------------+------------------+
-        //  | const int&          | e_INTEGER        |
-        //  | double              | e_DOUBLE         |
-        //  | other               | e_DEFAULT        |
-        //  +---------------------+------------------+
-        //..
 };
 
 int Case5::test(...)
@@ -261,7 +261,7 @@ int Case5::test(const int&)
 //                 GLOBAL DEPRECATION CONTROL MACRO SETTINGS
 // ----------------------------------------------------------------------------
 
-// For 'defaultData'-based tables
+// For `defaultData`-based tables
 
 #define BBB_VERSION_DEPRECATION_THRESHOLD BSLS_DEPRECATE_MAKE_VER(4, 2)
 #define BBC_VERSION_DEPRECATION_THRESHOLD BSLS_DEPRECATE_MAKE_VER(4, 2)
@@ -501,24 +501,24 @@ static int threshold        [NUM_UORS][MAX_MAJ][20] = {};
 static int majorVersion     [NUM_UORS][MAX_MAJ][20] = {};
 static int minorVersion     [NUM_UORS][MAX_MAJ][20] = {};
 
+/// Populate the three-dimensional test result arrays used in cases 6,7, and
+/// 8 with the states of the deprecation macros and control macros
+/// corresponding to each of the fictional UORs configured in the "GLOBAL
+/// DEPRECATION CONTROL MACRO SETTINGS" section.  In order to avoid compiler
+/// warnings related to the sizes of the arrays, for UOR versions having a
+/// minor version number in the range `[0 .. 9]`, store each macro state in
+/// the cell at index `(uor_id, major_version, minor_version)`, and for UOR
+/// versions having a minor version number in the range `[990 .. 999]`,
+/// store each macro state in the cell at index
+/// `(uor_id, major_version, minor_version - 980)`.
 void collectData();
-    // Populate the three-dimensional test result arrays used in cases 6,7, and
-    // 8 with the states of the deprecation macros and control macros
-    // corresponding to each of the fictional UORs configured in the "GLOBAL
-    // DEPRECATION CONTROL MACRO SETTINGS" section.  In order to avoid compiler
-    // warnings related to the sizes of the arrays, for UOR versions having a
-    // minor version number in the range '[0 .. 9]', store each macro state in
-    // the cell at index '(uor_id, major_version, minor_version)', and for UOR
-    // versions having a minor version number in the range '[990 .. 999]',
-    // store each macro state in the cell at index
-    // '(uor_id, major_version, minor_version - 980)'.
 
 void collectData()
 {
     STATIC_ASSERT(minorVersionsAlignToTwenty, 0 == MAX_MIN % 20);
 
-    // For 'minorVersion' only, '0' is a valid test value.  Initialize all
-    // 'minorVersion' to 'INT_MIN' to expose unset data points.
+    // For `minorVersion` only, `0` is a valid test value.  Initialize all
+    // `minorVersion` to `INT_MIN` to expose unset data points.
 
     for (int i = 0; i < NUM_UORS; ++i) {
         for (int j = 0; j < MAX_MAJ; ++j) {
@@ -535,7 +535,7 @@ void collectData()
 #define BSLS_DEPRECATE_T_DATA_COLLECTION 1
 
 // BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -FD02  // re-inclusion confuses 'bde_verify'
+// BDE_VERIFY pragma: -FD02  // re-inclusion confuses `bde_verify`
 
 //                               UOR  MAJOR  MINOR
 //                               ---  -----  -----
@@ -843,27 +843,27 @@ struct DeletedTag {
     enum { value = e_DELETED };
 };
 
+/// Return a default-constructed `DeletedTag`.
 DeletedTag DEPRECATED_SYMBOL()
-    // Return a default-constructed 'DeletedTag'.
 {
     return DeletedTag();
 }
 
 typedef SupportedTag Tag;
 
+/// This `struct` encodes information about the deprecation configuration
+/// during the compilation of a particular code block.
 struct Results {
-    // This 'struct' encodes information about the deprecation configuration
-    // during the compilation of a particular code block.
 
-    int  d_deprecationStatus;     // The status of 'DEPRECATED_SYMBOL' in the
+    int  d_deprecationStatus;     // The status of `DEPRECATED_SYMBOL` in the
                                   // current scope, represented as a value
-                                  // supported by 'DeprecationStatus'.
+                                  // supported by `DeprecationStatus`.
 
-    bool d_isActive;              // Whether or not 'bsls_deprecate'
+    bool d_isActive;              // Whether or not `bsls_deprecate`
                                   // deprecations are active for version 4.3 of
-                                  // 'leg'.
+                                  // `leg`.
 
-    bool d_isLegacyMacroDefined;  // Whether or not 'BDE_OMIT_DEPRECATED' is
+    bool d_isLegacyMacroDefined;  // Whether or not `BDE_OMIT_DEPRECATED` is
                                   // defined.
 };
 
@@ -938,65 +938,65 @@ namespace tt {
 // remind users that they need to clean up existing uses of the old code, and
 // prevent new uses of that code makes it easier to get to the point where old
 // code actually reaches zero uses, and can be deleted.
-// 'BSLS_DEPRECATE_IS_ACTIVE' and its associated control macros can be used to
+// `BSLS_DEPRECATE_IS_ACTIVE` and its associated control macros can be used to
 // gradually reduce the number of users of deprecated code.
 //
-// Suppose we own package group 'xxx' that is currently at version 7.6.  One of
-// our components contains a function 'foo' that has been superseded by another
-// function 'bar'.
-//..
+// Suppose we own package group `xxx` that is currently at version 7.6.  One of
+// our components contains a function `foo` that has been superseded by another
+// function `bar`.
+// ```
 namespace example_xxx_7_6 {
+    /// Load into the specified `coefficient` the (positive) Winkelbaum
+    /// Coefficient of the specified `n`.  Return 0 on success, and a
+    /// Negative number if there is no coefficient corresponding to `n`.
+    /// Note that every integer divisible by the Winkelbaum Modulus (17),
+    /// has a corresponding Winkelbaum Coefficient.
     int foo(int *coefficient, int n);
-        // Load into the specified 'coefficient' the (positive) Winkelbaum
-        // Coefficient of the specified 'n'.  Return 0 on success, and a
-        // Negative number if there is no coefficient corresponding to 'n'.
-        // Note that every integer divisible by the Winkelbaum Modulus (17),
-        // has a corresponding Winkelbaum Coefficient.
 
     // ...
 
+    /// Return the (positive) Winkelbaum Coefficient of the specified `n`.
+    /// The behavior is undefined unless `n` is divisible by 17 (the
+    /// Winkelbaum Modulus).
     int bar(int n);
-        // Return the (positive) Winkelbaum Coefficient of the specified 'n'.
-        // The behavior is undefined unless 'n' is divisible by 17 (the
-        // Winkelbaum Modulus).
 }  // close namespace example_xxx_7_6
-//..
-// First, we add a deprecation tag to the declaration of 'foo', showing that it
+// ```
+// First, we add a deprecation tag to the declaration of `foo`, showing that it
 // will be deprecated starting with version 7.7, and update the documentation
 // accordingly:
-//..
+// ```
 namespace example_xxx_7_7 {
     #if BSLS_DEPRECATE_IS_ACTIVE(XXX, 7, 7)
     BSLS_DEPRECATE
     #endif
+    /// **DEPRECATED**: Use `bar` instead.
+    ///
+    /// Load into the specified `coefficient` the (positive) Winkelbaum
+    /// Coefficient of the specified `n`.  Return 0 on success, and a
+    /// Negative number if there is no coefficient corresponding to `n`.
+    /// Note that every integer divisible by the Winkelbaum Modulus (17),
+    /// has a corresponding Winkelbaum Coefficient.
     int foo(int *coefficient, int n);
-        // !DEPRECATED!: Use 'bar' instead.
-        //
-        // Load into the specified 'coefficient' the (positive) Winkelbaum
-        // Coefficient of the specified 'n'.  Return 0 on success, and a
-        // Negative number if there is no coefficient corresponding to 'n'.
-        // Note that every integer divisible by the Winkelbaum Modulus (17),
-        // has a corresponding Winkelbaum Coefficient.
 
     // ...
 
+    /// Return the (positive) Winkelbaum Coefficient of the specified `n`.
+    /// The behavior is undefined unless `n` is divisible by 17 (the
+    /// Winkelbaum Modulus).
     int bar(int n);
-        // Return the (positive) Winkelbaum Coefficient of the specified 'n'.
-        // The behavior is undefined unless 'n' is divisible by 17 (the
-        // Winkelbaum Modulus).
 }  // close namespace example_xxx_7_7
-//..
+// ```
 // When we release version 7.7, the added deprecation tag will not immediately
-// affect any of the users of 'foo'.  However if any of those users do a test
-// build of their code with '-DBB_WARN_ALL_DEPRECATIONS_FOR_TESTING_ONLY', they
-// will see a warning that 'foo' has been deprecated.
+// affect any of the users of `foo`.  However if any of those users do a test
+// build of their code with `-DBB_WARN_ALL_DEPRECATIONS_FOR_TESTING_ONLY`, they
+// will see a warning that `foo` has been deprecated.
 //
-// Finally, when enough time has passed to allow the users of 'foo' to switch
-// over to using 'bar', probably on or after the release of 'xxx' version 7.8,
-// we can enforce the deprecation of 'foo' by moving the deprecation threshold
-// for 'xxx' to version 7.7, to indicate that all interfaces deprecated for
+// Finally, when enough time has passed to allow the users of `foo` to switch
+// over to using `bar`, probably on or after the release of `xxx` version 7.8,
+// we can enforce the deprecation of `foo` by moving the deprecation threshold
+// for `xxx` to version 7.7, to indicate that all interfaces deprecated for
 // version 7.7 are disallowed by default:
-//..
+// ```
     // xxxscm_versiontag.h
 
     #define XXX_VERSION_MAJOR 7
@@ -1005,13 +1005,13 @@ namespace example_xxx_7_7 {
     // ...
 
     #define XXX_VERSION_DEPRECATION_THRESHOLD BSLS_DEPRECATE_MAKE_VER(7, 7)
-//..
+// ```
 
 #undef XXX_VERSION_MAJOR
 #undef XXX_VERSION_MINOR
 #undef XXX_VERSION_DEPRECATION_THRESHOLD
 
-// Define alternate overloads for 'foo' and 'bar' from the usage example, so
+// Define alternate overloads for `foo` and `bar` from the usage example, so
 // that we can confirm that the declarations in the example exist.  This was
 // Hyman's idea.
 
@@ -1038,9 +1038,9 @@ char bar(...);
 #if defined(BSLS_DEPRECATE)
 namespace staticconcerns {
 
+/// Do something that is no longer supported through this interface.
 BSLS_DEPRECATE
 void someDeprecatedFunction();
-    // Do something that is no longer supported through this interface.
 
 struct
 BSLS_DEPRECATE
@@ -1075,13 +1075,13 @@ int main(int argc, char *argv[])
         // TESTING USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Incorporate the usage example from the header into the test
-        //:   driver, remove leading comment characters, and replace 'assert'
-        //:   with 'ASSERT'.  (C-1)
+        // 1. Incorporate the usage example from the header into the test
+        //    driver, remove leading comment characters, and replace `assert`
+        //    with `ASSERT`.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -1108,9 +1108,9 @@ int main(int argc, char *argv[])
       case 11: {
         // --------------------------------------------------------------------
         // INTERACTIONS WITH LEGACY MACROS
-        //   Test the intended combinations of 'BSLS_DEPRECATE_IS_ACTIVE' and
-        //   'BDE_OMIT_(INTERNAL_)DEPRECATED' to ensure that migration to
-        //   'bsls_deprecate' of code currently deprecated via the legacy
+        //   Test the intended combinations of `BSLS_DEPRECATE_IS_ACTIVE` and
+        //   `BDE_OMIT_(INTERNAL_)DEPRECATED` to ensure that migration to
+        //   `bsls_deprecate` of code currently deprecated via the legacy
         //   macros will have the intended effects.
         //
         ///Notes
@@ -1125,72 +1125,72 @@ int main(int argc, char *argv[])
         // A legacy code block should go through the following progression:
         //
         // Initially, the block uses the legacy facility, and is removed from
-        // the codebase when 'BDE_OMIT_DEPRECATED' is defined:
-        //..
+        // the codebase when `BDE_OMIT_DEPRECATED` is defined:
+        // ```
         //  #ifndef BDE_OMIT_DEPRECATED
         //      int fieldX() const;
         //  #endif
-        //..
+        // ```
         // Then, we decide that we want to start enforcing that deprecation
         // through the new facility beginning with version 3.2.  For clients
         // who are depending on the legacy facility, we need to make sure that
         // the interface does not also suddenly become un-removed during the
         // opt-in phase.
-        //..
+        // ```
         //  #ifndef BDE_OMIT_DEPRECATED
         //  #if BSLS_DEPRECATE_IS_ACTIVE(BDE, 3, 2)
         //  BSLS_DEPRECATE
         //  #endif
         //      int fieldX() const;
         //  #endif
-        //..
+        // ```
         // Ugly, but it should work.  The nice thing is, the process is
         // entirely additive in the header.
         //
         // The cpp file requires no changes, since activation of the warning
         // does not make the function unavailable.
-        //..
+        // ```
         //  #ifndef BDE_OMIT_DEPRECATED
         //  int MyClass::fieldX() const
         //  {
         //      return d_x;
         //  }
         //  #endif
-        //..
-        // Now, consider what happens with 'BDE_OMIT_INTERNAL_DEPRECATED'.
+        // ```
+        // Now, consider what happens with `BDE_OMIT_INTERNAL_DEPRECATED`.
         // First, we have the same concerns that we had with
-        // 'BDE_OMIT_DEPRECATED', i.e., that users of the legacy facility
+        // `BDE_OMIT_DEPRECATED`, i.e., that users of the legacy facility
         // should not see any interfaces become un-removed.  Second, we have to
         // make sure that the code is not published to opensource.  This points
         // to a design flaw that has always been present in
-        // 'BDE_OMIT_INTERNAL_DEPRECATED': it is a conflation of two
+        // `BDE_OMIT_INTERNAL_DEPRECATED`: it is a conflation of two
         // conditions, do I want deprecated code, and do I want internal code.
-        // Really, '#ifndef BDE_OMIT_INTERNAL_DEPRECATED' should have been
+        // Really, `#ifndef BDE_OMIT_INTERNAL_DEPRECATED` should have been
         // written:
-        //..
+        // ```
         //  #if    !defined(BDE_OMIT_DEPRECATED)          \                   @
         //      && !defined(BDE_OPENSOURCE_PUBLICATION)
-        //..
-        // However, we can't ever build with 'BDE_OPENSOURCE_PUBLICATION'
+        // ```
+        // However, we can't ever build with `BDE_OPENSOURCE_PUBLICATION`
         // defined, because there is non-deprecated code governed by that
         // macro.  So, we retain the original macro:
-        //..
+        // ```
         //  #ifndef BDE_OMIT_INTERNAL_DEPRECATED
         //  #if BSLS_DEPRECATE_IS_ACTIVE(BDE, 3, 2)
         //  BSLS_DEPRECATE
         //  #endif
         //      int fieldX() const;
         //  #endif
-        //..
+        // ```
         // Similarly, the cpp file would look like this:
-        //..
+        // ```
         //  #ifndef BDE_OMIT_INTERNAL_DEPRECATED
         //  int MyClass::fieldX() const
         //  {
         //      return d_x;
         //  }
         //  #endif
-        //..
+        // ```
         // Well, that is one solution.  It involves the least change to our
         // code, and it keeps current deprecation macro users happy.  Is there
         // another way to go about this?
@@ -1198,7 +1198,7 @@ int main(int argc, char *argv[])
         ///An ABI-Compatible Approach
         /// - - - - - - - - - - - - -
         // How about this:
-        //..
+        // ```
         //  #ifndef BDE_OPENSOURCE_PUBLICATION
         //  #if    BSLS_DEPRECATE_IS_ACTIVE(BDE, 3, 2)    \                   @
         //      || defined(BDE_OMIT_INTERNAL_DEPRECATED)
@@ -1215,13 +1215,13 @@ int main(int argc, char *argv[])
         //      return d_x;
         //  }
         //  #endif
-        //..
+        // ```
         // Now the users of the legacy interface will get a warning instead of
         // missing code.  From an ABI-compatibility perspective, this is
         // important.  So, let's convert both the internal and regular
         // deprecation idioms to this pattern.  That way, the regular
         // deprecation pattern is simply:
-        //..
+        // ```
         //  #if    BSLS_DEPRECATE_IS_ACTIVE(BDE, 3, 2)  \                     @
         //      || defined(BDE_OMIT_DEPRECATED)
         //  BSLS_DEPRECATE
@@ -1234,59 +1234,59 @@ int main(int argc, char *argv[])
         //  {                            //
         //      return d_x;              //
         //  }                            //
-        //..
+        // ```
         // A test of this approach will demonstrate that removed code
         // (represented in the test driver through differences in overload
         // resolution) is converted into warnings.
         //
         // Concerns:
-        //: 1 In idioms 1 and 3, the function may be deprecated, but is never
-        //:   deleted.
-        //:
-        //: 2 In idioms 2 and 4, the function is deleted whenever
-        //:   'BDE_OMIT_DEPRECATED' is defined.
-        //:
-        //: 3 In all idioms, the function is present and not deprecated if and
-        //:   only if 'BSLS_DEPRECATE_IS_ACTIVE' evaluates to 0 and
-        //:   'BDE_OMIT_DEPRECATED' is not defined.
-        //:
-        //: 4 In all idioms, the function is present and deprecated if
-        //:   'BSLS_DEPRECATE_IS_ACTIVE' evaluates to 1 but
-        //:   'BDE_OMIT_DEPRECATED' is not defined.
-        //:
-        //: 5 In idioms 1 and 3, the function is present and deprecated
-        //:   whenever 'BDE_OMIT_DEPRECATED' is defined.
+        // 1. In idioms 1 and 3, the function may be deprecated, but is never
+        //    deleted.
+        //
+        // 2. In idioms 2 and 4, the function is deleted whenever
+        //    `BDE_OMIT_DEPRECATED` is defined.
+        //
+        // 3. In all idioms, the function is present and not deprecated if and
+        //    only if `BSLS_DEPRECATE_IS_ACTIVE` evaluates to 0 and
+        //    `BDE_OMIT_DEPRECATED` is not defined.
+        //
+        // 4. In all idioms, the function is present and deprecated if
+        //    `BSLS_DEPRECATE_IS_ACTIVE` evaluates to 1 but
+        //    `BDE_OMIT_DEPRECATED` is not defined.
+        //
+        // 5. In idioms 1 and 3, the function is present and deprecated
+        //    whenever `BDE_OMIT_DEPRECATED` is defined.
         //
         // Plan:
-        //: 1 Create a macro 'BSLS_DEPRECATE_STAND_IN' that can be placed
-        //:   syntactically in the same position relative to a function
-        //:   declaration as 'BSLS_DEPRECATE', and can change the meaning of
-        //:   the function in a way that can be detected at runtime.  The best
-        //:   technique we have found so far is to have
-        //:   'BSLS_DEPRECATE_STAND_IN' evaluate to a 'typedef' that redefines
-        //:   the return type of the marked function.
-        //:
-        //: 2 For each idiom, create a namespace in which a candidate function
-        //:   is deprecated using the idiom, except that
-        //:   'BSLS_DEPRECATE_STAND_IN' is used instead of 'BSLS_DEPRECATE'.
-        //:
-        //: 3 Within the idiom namespace, define a test function that reports
-        //:   whether or not deprecations were active for the idiom at compile
-        //:   time, whether or not 'BDE_OMIT_DEPRECATED' was defined at compile
-        //:   time, and whether or not the candidate function was affected by
-        //:   'BSLS_DEPRECATE_STAND_IN'.
-        //:
-        //: 4 Repeatedly include the code described in steps 2 and 3 four
-        //:   times, to cover the possible combinations of 'bsls_deprecate'
-        //:   deprecations being active and inactive, and 'BDE_OMIT_DEPRECATED'
-        //:   being defined and undefined.  Embed each inclusion in a namespace
-        //:   that reflects the status of 'bsls_deprecate' and
-        //:   'BDE_OMIT_DEPRECATED' during that inclusion.  This step will
-        //:   generate 16 cases: 4 idioms x 4 configurations.
-        //:
-        //: 5 Using the table-based approach, call the test function for each
-        //:   of the 16 cases generated in step 4, to and assert the states
-        //:   that should have been in effect in each case.  (C 1-5)
+        // 1. Create a macro `BSLS_DEPRECATE_STAND_IN` that can be placed
+        //    syntactically in the same position relative to a function
+        //    declaration as `BSLS_DEPRECATE`, and can change the meaning of
+        //    the function in a way that can be detected at runtime.  The best
+        //    technique we have found so far is to have
+        //    `BSLS_DEPRECATE_STAND_IN` evaluate to a `typedef` that redefines
+        //    the return type of the marked function.
+        //
+        // 2. For each idiom, create a namespace in which a candidate function
+        //    is deprecated using the idiom, except that
+        //    `BSLS_DEPRECATE_STAND_IN` is used instead of `BSLS_DEPRECATE`.
+        //
+        // 3. Within the idiom namespace, define a test function that reports
+        //    whether or not deprecations were active for the idiom at compile
+        //    time, whether or not `BDE_OMIT_DEPRECATED` was defined at compile
+        //    time, and whether or not the candidate function was affected by
+        //    `BSLS_DEPRECATE_STAND_IN`.
+        //
+        // 4. Repeatedly include the code described in steps 2 and 3 four
+        //    times, to cover the possible combinations of `bsls_deprecate`
+        //    deprecations being active and inactive, and `BDE_OMIT_DEPRECATED`
+        //    being defined and undefined.  Embed each inclusion in a namespace
+        //    that reflects the status of `bsls_deprecate` and
+        //    `BDE_OMIT_DEPRECATED` during that inclusion.  This step will
+        //    generate 16 cases: 4 idioms x 4 configurations.
+        //
+        // 5. Using the table-based approach, call the test function for each
+        //    of the 16 cases generated in step 4, to and assert the states
+        //    that should have been in effect in each case.  (C 1-5)
         //
         // Testing:
         //   INTERACTIONS WITH LEGACY MACROS
@@ -1368,23 +1368,23 @@ int main(int argc, char *argv[])
         // BSLS_DEPRECATE
         //
         // Concerns:
-        //: 1 'BSLS_DEPRECATE' expands to the appropriate deprecation attribute
-        //:   for the compiler if 'BSLS_DEPRECATE_COMPILER_SUPPORT' expands to
-        //:   '1'.
-        //:
-        //: 2 'BSLS_DEPRECATE' expands to nothing if
-        //:   'BSLS_DEPRECATE_COMPILER_SUPPORT' expands to '0'.
+        // 1. `BSLS_DEPRECATE` expands to the appropriate deprecation attribute
+        //    for the compiler if `BSLS_DEPRECATE_COMPILER_SUPPORT` expands to
+        //    '1'.
+        //
+        // 2. `BSLS_DEPRECATE` expands to nothing if
+        //    `BSLS_DEPRECATE_COMPILER_SUPPORT` expands to `0`.
         //
         // Plan:
-        //: 1 Using the brute force approach, check that the expansion of
-        //:   'BSLS_DEPRECATE' matches one of the expected values, depending on
-        //:   the expansion of 'BSLS_DEPRECATE_COMPILER_SUPPORT'.  Note that we
-        //:   can't check which exact value is appropriate without duplicating
-        //:   the logic used to define the macro in the first place.
-        //:
-        //: 2 If the current compiler and version are supported, define a
-        //:   function decorated with 'BSLS_DEPRECATE', to confirm that this
-        //:   compiler supports the expansion as a function attribute.
+        // 1. Using the brute force approach, check that the expansion of
+        //    `BSLS_DEPRECATE` matches one of the expected values, depending on
+        //    the expansion of `BSLS_DEPRECATE_COMPILER_SUPPORT`.  Note that we
+        //    can't check which exact value is appropriate without duplicating
+        //    the logic used to define the macro in the first place.
+        //
+        // 2. If the current compiler and version are supported, define a
+        //    function decorated with `BSLS_DEPRECATE`, to confirm that this
+        //    compiler supports the expansion as a function attribute.
         //
         // Testing:
         //   BSLS_DEPRECATE
@@ -1428,10 +1428,10 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nMacro is valid syntax for this compiler.\n");
         {
+            /// Return 0.
             struct LocalTestClass {
                 BSLS_DEPRECATE
                 int test()
-                    // Return 0.
                 {
                     return 0;
                 }
@@ -1447,19 +1447,19 @@ int main(int argc, char *argv[])
         // BSLS_DEPRECATE_COMPILER_SUPPORT
         //
         // Concerns:
-        //: 1 'BSLS_DEPRECATE_COMPILER_SUPPORT' expands to 1 for supported
-        //:   versions of supported compilers.
-        //:
-        //: 2 'BSLS_DEPRECATE_COMPILER_SUPPORT' expands to 0 for non-supported
-        //:   versions or non-supported compilers.
-        //:
-        //: 3 'BSLS_DEPRECATE_COMPILER_SUPPORT' is always defined and always
-        //:   numeric '[0 .. 1]'.
+        // 1. `BSLS_DEPRECATE_COMPILER_SUPPORT` expands to 1 for supported
+        //    versions of supported compilers.
+        //
+        // 2. `BSLS_DEPRECATE_COMPILER_SUPPORT` expands to 0 for non-supported
+        //    versions or non-supported compilers.
+        //
+        // 3. `BSLS_DEPRECATE_COMPILER_SUPPORT` is always defined and always
+        //    numeric `[0 .. 1]`.
         //
         // Plan:
-        //: 1 Using the brute force approach, compare the expansion of
-        //:   'BSLS_DEPRECATE_COMPILER_SUPPORT' with the expected value,
-        //:   depending on compiler and version.
+        // 1. Using the brute force approach, compare the expansion of
+        //    `BSLS_DEPRECATE_COMPILER_SUPPORT` with the expected value,
+        //    depending on compiler and version.
         //
         // Testing:
         //   BSLS_DEPRECATE_COMPILER_SUPPORT
@@ -1485,46 +1485,46 @@ int main(int argc, char *argv[])
         // BSLS_DEPRECATE_IS_ACTIVE
         //
         // Concerns:
-        //: 1 'BSLS_DEPRECATE_IS_ACTIVE(U, M, N)' (abbreviated as 'BSIA' below)
-        //:   expands to 0 or 1 according to the formula
-        //:   '(IPTumn || BWADFTO) && ! (BBUu || BSDumn)' where:
-        //:
-        //:   o 'IPTumn' is 1 if the deprecation threshold for the UOR has
-        //:     reached the current version of the UOR, and 0 otherwise.  The
-        //:     deprecation threshold can be set either explicitly by
-        //:     '#define'ing '<UOR>_VERSION_DEPRECATION_THRESHOLD', or
-        //:     implicitly by '#define'ing '<UOR>_VERSION_(MAJOR|MINOR)'.  If
-        //:     none of these macros have been '#defined', then there is no
-        //:     threshold, and 'IPTumn' is 0.
-        //:
-        //:   o 'BWADFTO' is 1 if 'BB_WARN_ALL_DEPRECATIONS_FOR_TESTING_ONLY'
-        //:     is '#define'd to nil, '0', or '1', and is 0 otherwise.
-        //:
-        //:   o 'BBUu' is 1 if 'BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_<UOR>'
-        //:     is '#define'd to nil, '0', or '1', and is 0 otherwise.
-        //:
-        //:   o 'BSDumn' is 1 if 'BB_SILENCE_DEPRECATIONS_<UOR>_<M>_<N>' is
-        //:     '#define'd to nil, '0', or '1', and is 0 otherwise.
-        //:
-        //: 2 The formula above holds when the 0 states of the control macros
-        //:   are, variously:
-        //:
-        //:   o 0: never defined at all
-        //:
-        //:   o 0: '#undef'ined
-        //:
-        //:   o 0: '#define'd as its own symbolic name
-        //:
-        //:   o 0: '#define'd as some other alphanumeric symbol that eventually
-        //:        fails to expand
-        //:
-        //: 3 The value of 'BSLS_DEPRECATE_IS_ACTIVE(U, M, N)' is not affected
-        //:   by whether or not 'BDE_OMIT_DEPRECATED' and/or
-        //:   'BDE_OMIT_INTERNAL_DEPRECATED' are defined.
+        // 1. `BSLS_DEPRECATE_IS_ACTIVE(U, M, N)` (abbreviated as `BSIA` below)
+        //    expands to 0 or 1 according to the formula
+        //    `(IPTumn || BWADFTO) && ! (BBUu || BSDumn)` where:
+        //
+        //    - `IPTumn` is 1 if the deprecation threshold for the UOR has
+        //      reached the current version of the UOR, and 0 otherwise.  The
+        //      deprecation threshold can be set either explicitly by
+        //      `#define`ing `<UOR>_VERSION_DEPRECATION_THRESHOLD`, or
+        //      implicitly by `#define`ing `<UOR>_VERSION_(MAJOR|MINOR)`.  If
+        //      none of these macros have been `#defined`, then there is no
+        //      threshold, and `IPTumn` is 0.
+        //
+        //    - `BWADFTO` is 1 if `BB_WARN_ALL_DEPRECATIONS_FOR_TESTING_ONLY`
+        //      is `#define`d to nil, `0`, or '1', and is 0 otherwise.
+        //
+        //    - `BBUu` is 1 if `BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_<UOR>`
+        //      is `#define`d to nil, `0`, or '1', and is 0 otherwise.
+        //
+        //    - `BSDumn` is 1 if `BB_SILENCE_DEPRECATIONS_<UOR>_<M>_<N>` is
+        //      `#define`d to nil, `0`, or '1', and is 0 otherwise.
+        //
+        // 2. The formula above holds when the 0 states of the control macros
+        //    are, variously:
+        //
+        //    - 0: never defined at all
+        //
+        //    - 0: `#undef`ined
+        //
+        //    - 0: `#define`d as its own symbolic name
+        //
+        //    - 0: `#define`d as some other alphanumeric symbol that eventually
+        //         fails to expand
+        //
+        // 3. The value of `BSLS_DEPRECATE_IS_ACTIVE(U, M, N)` is not affected
+        //    by whether or not `BDE_OMIT_DEPRECATED` and/or
+        //    `BDE_OMIT_INTERNAL_DEPRECATED` are defined.
         //
         // Plan:
-        //: 1 The formula in (C-1) can be expressed as the following table:
-        //..
+        // 1. The formula in (C-1) can be expressed as the following table:
+        // ```
         //           BBUu     BSDumn   IPTumn   BWADFTO    BSIAumn
         //         +========+========+========+=========++=========+
         //         |      0 |     0  |      0 |      0  ||      0  |
@@ -1559,10 +1559,10 @@ int main(int argc, char *argv[])
         //         +--------+--------+--------+---------++---------+
         //         |      1 |     1  |      1 |      1  ||      0  |
         //         +========+========+========+=========++=========+
-        //..
-        //:   where the 'IPTumn' column depends on setting the deprecation
-        //:   threshold in any of a number of ways:
-        //..
+        // ```
+        //    where the `IPTumn` column depends on setting the deprecation
+        //    threshold in any of a number of ways:
+        // ```
         //           uVDT            BDMV(uVm,uVn) - 1    IPTumn
         //         +==============+====================++========+
         //         | undef        | undef              ||      0 |
@@ -1585,36 +1585,36 @@ int main(int argc, char *argv[])
         //         +--------------+--------------------++--------+
         //         |  > BDMV(m,n) | <=>  BDMV(m,n)     ||      1 |
         //         +==============+====================++========+
-        //..
-        //: 2 Define control macros for a set of fictional UORs, covering all
-        //:   of the relationships described in the tables shown step 1.  (See
-        //:   the "GLOBAL DEPRECATION CONTROL MACRO SETTINGS" section of this
-        //:   test driver.)
-        //:
-        //: 3 Successively evaluate 'BSLS_DEPRECATE_IS_ACTIVE' for each UOR
-        //:   configured in step 2, with versions less than, equal to, and
-        //:   greater than the expected threshold for that UOR.
-        //:
-        //:   1 Store the observed value of 'BSLS_DEPRECATE_IS_ACTIVE' in an
-        //:     array.
-        //:
-        //:   2 For each evaluation of 'BSLS_DEPRECATE_IS_ACTIVE', store in
-        //:     arrays the value of each of the control macros at that point in
-        //:     the code.  An unset threshold value, UOR major version number
-        //:     or UOR minor version number is represented by '-1'.
-        //:
-        //:   (This step in the plan is performed by code generated by
-        //:   '#define'ing 'BSLS_DEPRECATE_T_DATA_COLLECTION' to be '1',
-        //:   setting an appropriate 'COLLECT_CODE', and repeatedly
-        //:   '#include'ing the test driver file to preprocess part 1 of the
-        //:   "DATA COLLECTION" section.)
-        //:
-        //: 3 Using the table-based approach, for each UOR configured in step
-        //:   2, compare the value of 'BSLS_DEPRECATE_IS_ACTIVE(U, M, N)' with
-        //:   the expected value, derived according to the tables described in
-        //:   (C-1). Also compare the values of each of the control macros with
-        //:   the expected value for that scenario, to check that the UOR is
-        //:   correctly configured.  (C-1)
+        // ```
+        // 2. Define control macros for a set of fictional UORs, covering all
+        //    of the relationships described in the tables shown step 1.  (See
+        //    the "GLOBAL DEPRECATION CONTROL MACRO SETTINGS" section of this
+        //    test driver.)
+        //
+        // 3. Successively evaluate `BSLS_DEPRECATE_IS_ACTIVE` for each UOR
+        //    configured in step 2, with versions less than, equal to, and
+        //    greater than the expected threshold for that UOR.
+        //
+        //   1. Store the observed value of `BSLS_DEPRECATE_IS_ACTIVE` in an
+        //      array.
+        //
+        //   2. For each evaluation of `BSLS_DEPRECATE_IS_ACTIVE`, store in
+        //      arrays the value of each of the control macros at that point in
+        //      the code.  An unset threshold value, UOR major version number
+        //      or UOR minor version number is represented by `-1`.
+        //
+        //    (This step in the plan is performed by code generated by
+        //    `#define`ing `BSLS_DEPRECATE_T_DATA_COLLECTION` to be '1',
+        //    setting an appropriate `COLLECT_CODE`, and repeatedly
+        //    `#include`ing the test driver file to preprocess part 1 of the
+        //    "DATA COLLECTION" section.)
+        //
+        // 3. Using the table-based approach, for each UOR configured in step
+        //    2, compare the value of `BSLS_DEPRECATE_IS_ACTIVE(U, M, N)` with
+        //    the expected value, derived according to the tables described in
+        //    (C-1). Also compare the values of each of the control macros with
+        //    the expected value for that scenario, to check that the UOR is
+        //    correctly configured.  (C-1)
         //
         // Testing:
         //   BSLS_DEPRECATE_IS_ACTIVE(U, M, N)
@@ -1942,31 +1942,31 @@ int main(int argc, char *argv[])
         // BSLS_DEPRECATE_ISPASTTHRESHOLD
         //
         // Concerns:
-        //: 1 'BSLS_DEPRECATE_ISPASTTHRESHOLD(U, M, N)' (abbreviated as
-        //:   'IPTumn' below) is 1 if the deprecation threshold for the UOR has
-        //:   reached the current version of the UOR, and 0 otherwise.  The
-        //:   deprecation threshold can be set either explicitly by
-        //:   '#define'ing '<UOR>_VERSION_DEPRECATION_THRESHOLD', or implicitly
-        //:   by '#define'ing '<UOR>_VERSION_(MAJOR|MINOR)'.  If none of these
-        //:   macros have been '#defined', then there is no threshold, and
-        //:   'IPTumn' is 0.
-        //:
-        //: 2 The formula above holds when the 0 states of the control macros
-        //:   are, variously:
-        //:
-        //:   o 0: never defined at all
-        //:
-        //:   o 0: '#undef'ined
-        //:
-        //:   o 0: '#define'd as its own symbolic name
-        //:
-        //:   o 0: '#define'd as some other alphanumeric symbol that eventually
-        //:        fails to expand
-        //:
+        // 1. `BSLS_DEPRECATE_ISPASTTHRESHOLD(U, M, N)` (abbreviated as
+        //    `IPTumn` below) is 1 if the deprecation threshold for the UOR has
+        //    reached the current version of the UOR, and 0 otherwise.  The
+        //    deprecation threshold can be set either explicitly by
+        //    `#define`ing `<UOR>_VERSION_DEPRECATION_THRESHOLD`, or implicitly
+        //    by `#define`ing `<UOR>_VERSION_(MAJOR|MINOR)`.  If none of these
+        //    macros have been `#defined`, then there is no threshold, and
+        //    `IPTumn` is 0.
+        //
+        // 2. The formula above holds when the 0 states of the control macros
+        //    are, variously:
+        //
+        //    - 0: never defined at all
+        //
+        //    - 0: `#undef`ined
+        //
+        //    - 0: `#define`d as its own symbolic name
+        //
+        //    - 0: `#define`d as some other alphanumeric symbol that eventually
+        //         fails to expand
+        //
         //
         // Plan:
-        //: 1 The formula in (C-1) can be expressed as the following table:
-        //..
+        // 1. The formula in (C-1) can be expressed as the following table:
+        // ```
         //           uVDT           BDMV(uVm,uVn) - 1     IPTumn
         //         +==============+====================++========+
         //         | undef        | undef              ||      0 |
@@ -1989,37 +1989,37 @@ int main(int argc, char *argv[])
         //         +--------------+--------------------++--------+
         //         |  > BDMV(m,n) | <=>  BDMV(m,n)     ||      1 |
         //         +==============+====================++========+
-        //..
-        //: 2 Define control macros for a set of fictional UORs, covering all
-        //:   of the relationships described in the table shown step 1.  (See
-        //:   the "GLOBAL DEPRECATION CONTROL MACRO SETTINGS" section of this
-        //:   test driver, which forms a superset of the relationships required
-        //:   by this test case.)
-        //:
-        //: 3 Successively evaluate 'BSLS_DEPRECATE_ISPASTTHRESHOLD' for each
-        //:   UOR configured in step 2, with versions less than, equal to, and
-        //:   greater than the expected threshold for that UOR.
-        //:
-        //:   1 Store the observed value of 'BSLS_DEPRECATE_ISPASTTHRESHOLD' in
-        //:     an array.
-        //:
-        //:   2 For each evaluation of 'BSLS_DEPRECATE_ISPASTTHRESHOLD', store
-        //:     in arrays the value of each of the control macros at that point
-        //:     in the code.  An unset threshold value, UOR major version
-        //:     number or UOR minor version number is represented by '-1'.
-        //:
-        //:   (This step in the plan is performed by code generated by
-        //:   '#define'ing 'BSLS_DEPRECATE_T_DATA_COLLECTION' to be '1',
-        //:   setting an appropriate 'COLLECT_CODE', and repeatedly
-        //:   '#include'ing the test driver file to preprocess part 1 of the
-        //:   "DATA COLLECTION" section.)
-        //:
-        //: 3 Using the table-based approach, for each UOR configured in step
-        //:   2, compare the value of 'BSLS_DEPRECATE_ISPASTTHRESHOLD(U, M, N)'
-        //:   with the expected value, derived according to the tables
-        //:   described in (C-1). Also compare the values of each of the
-        //:   control macros with the expected value for that scenario, to
-        //:   check that the UOR is correctly configured.  (C-1)
+        // ```
+        // 2. Define control macros for a set of fictional UORs, covering all
+        //    of the relationships described in the table shown step 1.  (See
+        //    the "GLOBAL DEPRECATION CONTROL MACRO SETTINGS" section of this
+        //    test driver, which forms a superset of the relationships required
+        //    by this test case.)
+        //
+        // 3. Successively evaluate `BSLS_DEPRECATE_ISPASTTHRESHOLD` for each
+        //    UOR configured in step 2, with versions less than, equal to, and
+        //    greater than the expected threshold for that UOR.
+        //
+        //   1. Store the observed value of `BSLS_DEPRECATE_ISPASTTHRESHOLD` in
+        //      an array.
+        //
+        //   2. For each evaluation of `BSLS_DEPRECATE_ISPASTTHRESHOLD`, store
+        //      in arrays the value of each of the control macros at that point
+        //      in the code.  An unset threshold value, UOR major version
+        //      number or UOR minor version number is represented by `-1`.
+        //
+        //    (This step in the plan is performed by code generated by
+        //    `#define`ing `BSLS_DEPRECATE_T_DATA_COLLECTION` to be '1',
+        //    setting an appropriate `COLLECT_CODE`, and repeatedly
+        //    `#include`ing the test driver file to preprocess part 1 of the
+        //    "DATA COLLECTION" section.)
+        //
+        // 3. Using the table-based approach, for each UOR configured in step
+        //    2, compare the value of `BSLS_DEPRECATE_ISPASTTHRESHOLD(U, M, N)`
+        //    with the expected value, derived according to the tables
+        //    described in (C-1). Also compare the values of each of the
+        //    control macros with the expected value for that scenario, to
+        //    check that the UOR is correctly configured.  (C-1)
         //
         // Testing:
         //   BSLS_DEPRECATE_ISPASTTHRESHOLD
@@ -2133,33 +2133,33 @@ int main(int argc, char *argv[])
         // BSLS_DEPRECATE_ISRETAINED
         //
         // Concerns:
-        //: 1 'BSLS_DEPRECATE_ISRETAINED(U, M, N)' (abbreviated as 'IRumn'
-        //:   below) expands to 0 or 1 according to the formula '(BBUu ||
-        //:   BSDumn)' where:
-        //:
-        //:   o 'BBUu' is 1 if 'BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_<UOR>'
-        //:     is '#define'd to nil, '0', or '1', and is 0 otherwise.
-        //:
-        //:   o 'BSDumn' is 1 if 'BB_SILENCE_DEPRECATIONS_<UOR>_<M>_<N>' is
-        //:     '#define'd to nil, '0', or '1', and is 0 otherwise.
-        //:
-        //:
-        //: 2 The formula above holds when the 0 states of the control macros
-        //:   are, variously:
-        //:
-        //:   o 0: never defined at all
-        //:
-        //:   o 0: '#undef'ined
-        //:
-        //:   o 0: '#define'd as its own symbolic name
-        //:
-        //:   o 0: '#define'd as some other alphanumeric symbol that eventually
-        //:        fails to expand
-        //:
+        // 1. `BSLS_DEPRECATE_ISRETAINED(U, M, N)` (abbreviated as `IRumn`
+        //    below) expands to 0 or 1 according to the formula '(BBUu ||
+        //    BSDumn)' where:
+        //
+        //    - `BBUu` is 1 if `BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_<UOR>`
+        //      is `#define`d to nil, `0`, or '1', and is 0 otherwise.
+        //
+        //    - `BSDumn` is 1 if `BB_SILENCE_DEPRECATIONS_<UOR>_<M>_<N>` is
+        //      `#define`d to nil, `0`, or '1', and is 0 otherwise.
+        //
+        //
+        // 2. The formula above holds when the 0 states of the control macros
+        //    are, variously:
+        //
+        //    - 0: never defined at all
+        //
+        //    - 0: `#undef`ined
+        //
+        //    - 0: `#define`d as its own symbolic name
+        //
+        //    - 0: `#define`d as some other alphanumeric symbol that eventually
+        //         fails to expand
+        //
         //
         // Plan:
-        //: 1 The formula in (C-1) can be expressed as the following table:
-        //..
+        // 1. The formula in (C-1) can be expressed as the following table:
+        // ```
         //           BBUu     BSDumn    IRumn
         //         +========+========++========+
         //         |      0 |     0  ||     0  |
@@ -2170,39 +2170,39 @@ int main(int argc, char *argv[])
         //         +--------+--------++--------+
         //         |      1 |     1  ||     1  |
         //         +========+========++========+
-        //..
-        //: 2 Define control macros for a set of fictional UORs, covering all
-        //:   of the relationships described in the table shown step 1.  For
-        //:   each value of 'BSDumn', also include UORs where that value
-        //:   appears for the previous or subsequent version instead.  (See the
-        //:   "GLOBAL DEPRECATION CONTROL MACRO SETTINGS" section of this test
-        //:   driver, which forms a superset of the relationships required by
-        //:   this test case.)
-        //:
-        //: 3 Successively evaluate 'BSLS_DEPRECATE_ISRETAINED' for each UOR
-        //:   configured in step 2, with versions less than, equal to, and
-        //:   greater than the deprecation threshold designated for the UOR.
-        //:
-        //:   1 Store the observed value of 'BSLS_DEPRECATE_ISRETAINED' in an
-        //:     array.
-        //:
-        //:   2 For each evaluation of 'BSLS_DEPRECATE_ISRETAINED', store in
-        //:     arrays the value of each of the control macros at that point in
-        //:     the code.  An unset threshold value, UOR major version number
-        //:     or UOR minor version number is represented by '-1'.
-        //:
-        //:   (This step in the plan is performed by code generated by
-        //:   '#define'ing 'BSLS_DEPRECATE_T_DATA_COLLECTION' to be '1',
-        //:   setting an appropriate 'COLLECT_CODE', and repeatedly
-        //:   '#include'ing the test driver file to preprocess part 1 of the
-        //:   "DATA COLLECTION" section.)
-        //:
-        //: 3 Using the table-based approach, for each UOR configured in step
-        //:   2, compare the value of 'BSLS_DEPRECATE_ISRETAINED(U, M, N)' with
-        //:   the expected value, derived according to the tables described in
-        //:   (C-1). Also compare the values of each of the control macros with
-        //:   the expected value for that scenario, to check that the UOR is
-        //:   correctly configured.  (C-1)
+        // ```
+        // 2. Define control macros for a set of fictional UORs, covering all
+        //    of the relationships described in the table shown step 1.  For
+        //    each value of `BSDumn`, also include UORs where that value
+        //    appears for the previous or subsequent version instead.  (See the
+        //    "GLOBAL DEPRECATION CONTROL MACRO SETTINGS" section of this test
+        //    driver, which forms a superset of the relationships required by
+        //    this test case.)
+        //
+        // 3. Successively evaluate `BSLS_DEPRECATE_ISRETAINED` for each UOR
+        //    configured in step 2, with versions less than, equal to, and
+        //    greater than the deprecation threshold designated for the UOR.
+        //
+        //   1. Store the observed value of `BSLS_DEPRECATE_ISRETAINED` in an
+        //      array.
+        //
+        //   2. For each evaluation of `BSLS_DEPRECATE_ISRETAINED`, store in
+        //      arrays the value of each of the control macros at that point in
+        //      the code.  An unset threshold value, UOR major version number
+        //      or UOR minor version number is represented by `-1`.
+        //
+        //    (This step in the plan is performed by code generated by
+        //    `#define`ing `BSLS_DEPRECATE_T_DATA_COLLECTION` to be '1',
+        //    setting an appropriate `COLLECT_CODE`, and repeatedly
+        //    `#include`ing the test driver file to preprocess part 1 of the
+        //    "DATA COLLECTION" section.)
+        //
+        // 3. Using the table-based approach, for each UOR configured in step
+        //    2, compare the value of `BSLS_DEPRECATE_ISRETAINED(U, M, N)` with
+        //    the expected value, derived according to the tables described in
+        //    (C-1). Also compare the values of each of the control macros with
+        //    the expected value for that scenario, to check that the UOR is
+        //    correctly configured.  (C-1)
         //
         // Testing:
         //   BSLS_DEPRECATE_ISRETAINED
@@ -2341,23 +2341,23 @@ int main(int argc, char *argv[])
         // BSLS_DEPRECATE_MAKE_VER
         //
         // Concerns:
-        //: 1 Expansion of 'BSLS_DEPRECATE_MAKE_VER' is a numeric expression.
-        //:
-        //: 2 'BSLS_DEPRECATE_MAKE_VER' supports major versions from 0 to
-        //:   'INT_MAX/1000'.
-        //:
-        //: 3 'BSLS_DEPRECATE_MAKE_VER' supports minor versions from 0 to 999.
-        //:
-        //: 4 'BSLS_DEPRECATE_MAKE_VER' puts the major version in the thousands
-        //:   place, and the minor version in the units place.
+        // 1. Expansion of `BSLS_DEPRECATE_MAKE_VER` is a numeric expression.
+        //
+        // 2. `BSLS_DEPRECATE_MAKE_VER` supports major versions from 0 to
+        //    `INT_MAX/1000`.
+        //
+        // 3. `BSLS_DEPRECATE_MAKE_VER` supports minor versions from 0 to 999.
+        //
+        // 4. `BSLS_DEPRECATE_MAKE_VER` puts the major version in the thousands
+        //    place, and the minor version in the units place.
         //
         // Plan:
-        //: 1 Confirm that when the expansion of 'BSLS_DEPRECATE_MAKE_VER' is
-        //:   passed to an overloaded function, the overload chosen is the one
-        //:   corresponding to an 'int' literal.
-        //:
-        //: 2 Using the brute force approach, compare expansions of
-        //:   'BSLS_DEPRECATE_MAKE_VER' to expected values.
+        // 1. Confirm that when the expansion of `BSLS_DEPRECATE_MAKE_VER` is
+        //    passed to an overloaded function, the overload chosen is the one
+        //    corresponding to an `int` literal.
+        //
+        // 2. Using the brute force approach, compare expansions of
+        //    `BSLS_DEPRECATE_MAKE_VER` to expected values.
         //
         // Testing:
         //   BSLS_DEPRECATE_MAKE_VER(M, N)
@@ -2418,43 +2418,43 @@ int main(int argc, char *argv[])
         // OTHER SUPPORT MACROS
         //
         // Concerns:
-        //: 1 'BSLS_DEPRECATE_ISDEFINED(S)' expands to 0 when 'S' is a single
-        //:   '#undef'ined preprocessor symbol.
-        //:
-        //: 2 'BSLS_DEPRECATE_ISDEFINED(S)' expands to 1 when 'S' is any other
-        //:   valid input, specifically:
-        //:   1 A single preprocessor symbol '#define'd as nil.
-        //:   2 A single preprocessor symbol '#define'd as 0.
-        //:   3 A single preprocessor symbol '#define'd as 1.
-        //:
-        //: 3 QoI: 'BSLS_DEPRECATE_ISDEFINED(S)' expands to 0 when 'S' is other
-        //:   invalid inputs, such as:
-        //:   1 A single preprocessor symbol '#define'd to a non-arithmetic
-        //:     value.
-        //:
-        //: 4 QoI: 'BSLS_DEPRECATE_ISDEFINED(S)' expands to 1 when 'S' is other
-        //:   invalid inputs, such as:
-        //:   1 Literal nil.
-        //:   2 Literal '0'.
-        //:   3 Literal non-zero value.
-        //:
-        //: 5 'BSLS_DEPRECATE_ISNONZERO(S)' expands to 0 when 'S' is a single
-        //:   '#undef'ined preprocessor symbol.
-        //:
-        //: 6 'BSLS_DEPRECATE_ISNONZERO(S)' expands to 0 when 'S' is a single
-        //:   preprocessor symbol '#define'd as an arithmetic expression
-        //:   evaluating to 0.
-        //:
-        //: 7 'BSLS_DEPRECATE_ISNONZERO(S)' expands to 1 when 'S' is a single
-        //:   preprocessor symbol '#define'd as an arithmetic expression
-        //:   that does not evaluate to 0.
-        //:
-        //: 8 QoI: 'BSLS_DEPRECATE_ISNONZERO(S)' expands to 0 for
-        //:   non-arithmetic inputs.
+        // 1. `BSLS_DEPRECATE_ISDEFINED(S)` expands to 0 when `S` is a single
+        //    `#undef`ined preprocessor symbol.
+        //
+        // 2. `BSLS_DEPRECATE_ISDEFINED(S)` expands to 1 when `S` is any other
+        //    valid input, specifically:
+        //   1. A single preprocessor symbol `#define`d as nil.
+        //   2. A single preprocessor symbol `#define`d as 0.
+        //   3. A single preprocessor symbol `#define`d as 1.
+        //
+        // 3. QoI: `BSLS_DEPRECATE_ISDEFINED(S)` expands to 0 when `S` is other
+        //    invalid inputs, such as:
+        //   1. A single preprocessor symbol `#define`d to a non-arithmetic
+        //      value.
+        //
+        // 4. QoI: `BSLS_DEPRECATE_ISDEFINED(S)` expands to 1 when `S` is other
+        //    invalid inputs, such as:
+        //   1. Literal nil.
+        //   2. Literal `0`.
+        //   3. Literal non-zero value.
+        //
+        // 5. `BSLS_DEPRECATE_ISNONZERO(S)` expands to 0 when `S` is a single
+        //    `#undef`ined preprocessor symbol.
+        //
+        // 6. `BSLS_DEPRECATE_ISNONZERO(S)` expands to 0 when `S` is a single
+        //    preprocessor symbol `#define`d as an arithmetic expression
+        //    evaluating to 0.
+        //
+        // 7. `BSLS_DEPRECATE_ISNONZERO(S)` expands to 1 when `S` is a single
+        //    preprocessor symbol `#define`d as an arithmetic expression
+        //    that does not evaluate to 0.
+        //
+        // 8. QoI: `BSLS_DEPRECATE_ISNONZERO(S)` expands to 0 for
+        //    non-arithmetic inputs.
         //
         // Plan:
-        //: 1 Using the brute-force approach, individually test each of the
-        //:   concerns.  (C-1..9)
+        // 1. Using the brute-force approach, individually test each of the
+        //    concerns.  (C-1..9)
         //
         // Testing:
         //   BSLS_DEPRECATE_ISDEFINED
@@ -2505,7 +2505,7 @@ int main(int argc, char *argv[])
 #endif
 
             // Canonical input: control macros assembled with
-            // 'BSLS_DEPRECATE_CAT'.
+            // `BSLS_DEPRECATE_CAT`.
 
 #undef BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_OMB
 #if 0 != BSLS_DEPRECATE_ISDEFINED(                                            \
@@ -2567,7 +2567,7 @@ int main(int argc, char *argv[])
 
             // Invalid input: expressions
             //
-            // Expansion of 'BSLS_DEPRECATE_ISDEFINED' varies depending on the
+            // Expansion of `BSLS_DEPRECATE_ISDEFINED` varies depending on the
             // structure of the expression, hence these inputs are excluded by
             // the contract.
 
@@ -2583,11 +2583,11 @@ int main(int argc, char *argv[])
             ASSERT(false);
 #endif
 
-            // Invalid input: control macro name + '1L'
+            // Invalid input: control macro name + `1L`
             //
-            // Expansion of 'BSLS_DEPRECATE_ISDEFINED' can be fooled by
+            // Expansion of `BSLS_DEPRECATE_ISDEFINED` can be fooled by
             // defining a macro consisting of a control macro name concatenated
-            // with '1L', hence these inputs are excluded by the contract.
+            // with `1L`, hence these inputs are excluded by the contract.
 
 #undef  BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_OMB1L
 #define BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_OMB1L 0
@@ -2682,7 +2682,7 @@ int main(int argc, char *argv[])
 
 
             // Canonical uses: control macros assembled with
-            // 'BSLS_DEPRECATE_CAT'.
+            // `BSLS_DEPRECATE_CAT`.
 
 #undef UOR_NAME
 #undef OMB_VERSION_DEPRECATION_THRESHOLD
@@ -2758,28 +2758,28 @@ int main(int argc, char *argv[])
         // BSLS_DEPRECATE_CAT
         //
         // Concerns:
-        //: 1 'BSLS_DEPRECATE_CAT(A, B)' expands to '' if both 'A' and 'B' are
-        //:   empty.
-        //:
-        //: 2 'BSLS_DEPRECATE_CAT(A, B)' expands to the expansion of 'A' if 'B'
-        //:   is empty, and the expansion of 'B' if 'A' is empty.
-        //:
-        //: 3 The 'A' and 'B' contributions to the result are the *expansions*
-        //:   of 'A' and 'B' if 'A' or 'B' are defined.
-        //:
-        //: 4 The 'A' and 'B' contributions to the result are the *names* of
-        //:   'A' and 'B' if 'A' or 'B' are not defined.
-        //:
-        //: 5 The 'A' and 'B' contributions to the result are the deepest
-        //:   *expansions* of 'A' and 'B' if 'A' or 'B' are defined in terms of
-        //:   other macros.
-        //:
-        //: 6 'BSLS_DEPRECATE_CAT' can concatenate expansions of itself.
+        // 1. `BSLS_DEPRECATE_CAT(A, B)` expands to `` if both `A` and `B` are
+        //    empty.
+        //
+        // 2. `BSLS_DEPRECATE_CAT(A, B)` expands to the expansion of `A` if `B`
+        //    is empty, and the expansion of `B` if `A` is empty.
+        //
+        // 3. The `A` and `B` contributions to the result are the *expansions*
+        //    of `A` and `B` if `A` or `B` are defined.
+        //
+        // 4. The `A` and `B` contributions to the result are the *names* of
+        //    `A` and `B` if `A` or `B` are not defined.
+        //
+        // 5. The `A` and `B` contributions to the result are the deepest
+        //    *expansions* of `A` and `B` if `A` or `B` are defined in terms of
+        //    other macros.
+        //
+        // 6. `BSLS_DEPRECATE_CAT` can concatenate expansions of itself.
         //
         // Plan:
-        //: 1 Using the brute force approach, compare the string value of
-        //:   'BSLS_DEPRECATE_CAT(A, B)' with a string representing the
-        //:   expected value.  (C-1..6)
+        // 1. Using the brute force approach, compare the string value of
+        //    `BSLS_DEPRECATE_CAT(A, B)` with a string representing the
+        //    expected value.  (C-1..6)
         //
         // Testing:
         //   BSLS_DEPRECATE_CAT(A, B)
@@ -2879,28 +2879,28 @@ int main(int argc, char *argv[])
         // TEST APPARATUS: MACRO_TO_STRING
         //
         // Concerns:
-        //: 1 'MACRO_TO_STRING(M)' renders to '""' when 'M' expands to nothing.
-        //:
-        //: 2 'MACRO_TO_STRING(M)' renders to something other than '""' when
-        //:   'M' expands to "".
-        //:
-        //: 3 'MACRO_TO_STRING(M)' renders to the expansion of 'M' in
-        //:   non-empty, non-literal-empty-string cases.
-        //:
-        //: 4 'MACRO_TO_STRING(M)' renders to the final expansion of 'M', when
-        //:   'M' is a macro that expands to other macros.
-        //:
-        //: 5 'MACRO_TO_STRING(M)' expands always to a literal string.
+        // 1. `MACRO_TO_STRING(M)` renders to `""` when `M` expands to nothing.
+        //
+        // 2. `MACRO_TO_STRING(M)` renders to something other than `""` when
+        //    `M` expands to "".
+        //
+        // 3. `MACRO_TO_STRING(M)` renders to the expansion of `M` in
+        //    non-empty, non-literal-empty-string cases.
+        //
+        // 4. `MACRO_TO_STRING(M)` renders to the final expansion of `M`, when
+        //    `M` is a macro that expands to other macros.
+        //
+        // 5. `MACRO_TO_STRING(M)` expands always to a literal string.
         //
         // Plan:
-        //: 1 Using the brute force approach, compare the string value of
-        //:   'MACRO_TO_STRING(M)' with a string representing the expected
-        //:   value.  (C-1..4)
-        //:
-        //: 2 In each case covered in section 1, confirm that when the
-        //:   expansion of 'MACRO_TO_STRING' is passed to an overloaded
-        //:   function, the overload chosen is the one corresponding to a
-        //:   'char const * const' literal.  (C-5)
+        // 1. Using the brute force approach, compare the string value of
+        //    `MACRO_TO_STRING(M)` with a string representing the expected
+        //    value.  (C-1..4)
+        //
+        // 2. In each case covered in section 1, confirm that when the
+        //    expansion of `MACRO_TO_STRING` is passed to an overloaded
+        //    function, the overload chosen is the one corresponding to a
+        //    `char const * const` literal.  (C-5)
         //
         // Testing:
         //   TEST APPARATUS: MACRO_TO_STRING
@@ -3069,14 +3069,14 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Examine the expansions of the 'BSLS_DEPRECATE_IS_ACTIVE' macro
-        //:   with combinations of the '*_VERSION_DEPRECATE_*_*',
-        //:   'BB_SILENCE_DEPRECATIONS_<UOR>_<M>_<N>', 'BB_WARN_ALL_...', and
-        //:   'BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_<UOR>' macros.
+        // 1. Examine the expansions of the `BSLS_DEPRECATE_IS_ACTIVE` macro
+        //    with combinations of the `*_VERSION_DEPRECATE_*_*`,
+        //    `BB_SILENCE_DEPRECATIONS_<UOR>_<M>_<N>`, `BB_WARN_ALL_...`, and
+        //    `BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_<UOR>` macros.
         //
         // Testing:
         //   BREATHING TEST
@@ -3497,7 +3497,7 @@ int main(int argc, char *argv[])
             printf("%d\n", UVW_VERSION_DEPRECATION_THRESHOLD);
         }
 
-        // 'PP_AUDIT' can be defined and the preprocessor invoked to allow
+        // `PP_AUDIT` can be defined and the preprocessor invoked to allow
         // direct inspection of macro expansions.
 
 #ifdef PP_AUDIT
@@ -3842,7 +3842,7 @@ Tag DEPRECATED_SYMBOL()
 }
 
 Results check()
-    // Return a 'Results' object encoding information about the environment
+    // Return a `Results` object encoding information about the environment
     // when this function was compiled.
 {
     Results result;
@@ -3884,7 +3884,7 @@ Tag DEPRECATED_SYMBOL()
 #endif
 
 Results check()
-    // Return a 'Results' object encoding information about the environment
+    // Return a `Results` object encoding information about the environment
     // when this function was compiled.
 {
     Results result;
@@ -3919,7 +3919,7 @@ DEPRECATED_SYMBOL : Tag {
 };
 
 Results check()
-    // Return a 'Results' object encoding information about the environment
+    // Return a `Results` object encoding information about the environment
     // when this function was compiled.
 {
     Results result;
@@ -3955,7 +3955,7 @@ DEPRECATED_SYMBOL : Tag {
 #endif
 
 Results check()
-    // Return a 'Results' object encoding information about the environment
+    // Return a `Results` object encoding information about the environment
     // when this function was compiled.
 {
     Results result;
@@ -3982,7 +3982,7 @@ Results check()
 
 #else
 
-#error "Unsupported value for 'BSLS_DEPRECATE_T_DATA_COLLECTION'"
+#error "Unsupported value for `BSLS_DEPRECATE_T_DATA_COLLECTION`"
 
 #endif  // BSLS_DEPRECATE_T_DATA_COLLECTION == N
 

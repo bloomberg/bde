@@ -19,7 +19,7 @@
 # include <unistd.h>
 #endif
 
-// *NO* 'using' directives, since we want to be sure that the macros under
+// *NO* `using` directives, since we want to be sure that the macros under
 // test work outside of any namespace.
 
 // ============================================================================
@@ -36,7 +36,7 @@
 //
 // The macros provided by the component under test mirror the standard test
 // macros normally used in test drivers.  The intention is that the standard
-// test macros should be implemented as aliases of the 'BSLS_BSLTESTUTIL_*'
+// test macros should be implemented as aliases of the `BSLS_BSLTESTUTIL_*`
 // macros, as illustrated in the usage example.  As a result, the identifiers
 // normally used in a test driver conflict with the identifiers used in the
 // usage example.  Therefore, this test driver avoids the standard test macros
@@ -44,45 +44,45 @@
 //
 //  STANDARD              BSLS_BSLTESTUTIL.T.CPP
 //  --------              ----------------------
-//  'LOOP_ASSERT'         'ANNOTATED_ASSERT'
-//  'LOOP2_ASSERT'        'ANNOTATED2_ASSERT'
-//  'LOOP3_ASSERT'        'ANNOTATED3_ASSERT'
-//  'LOOP4_ASSERT'        'ANNOTATED4_ASSERT'
-//  'LOOP5_ASSERT'        not used
-//  'LOOP6_ASSERT'        not used
-//  'LOOP7_ASSERT'        not used
-//  'LOOP8_ASSERT'        not used
-//  'Q'                   not used
-//  'P'                   'PRINT'
-//  'P_'                  'PRINT_'
-//  'T_'                  'TAB_'
-//  'L_'                  not used
-//  'void aSsErT()'       'void realaSsErT()'
-//  'int testStatus'      'int realTestStatus'
+//  `LOOP_ASSERT`         `ANNOTATED_ASSERT`
+//  `LOOP2_ASSERT`        `ANNOTATED2_ASSERT`
+//  `LOOP3_ASSERT`        `ANNOTATED3_ASSERT`
+//  `LOOP4_ASSERT`        `ANNOTATED4_ASSERT`
+//  `LOOP5_ASSERT`        not used
+//  `LOOP6_ASSERT`        not used
+//  `LOOP7_ASSERT`        not used
+//  `LOOP8_ASSERT`        not used
+//  `Q`                   not used
+//  `P`                   `PRINT`
+//  `P_`                  `PRINT_`
+//  `T_`                  `TAB_`
+//  `L_`                  not used
+//  `void aSsErT()`       `void realaSsErT()`
+//  `int testStatus`      `int realTestStatus`
 //
-// Note that the 'ANNOTATED*_ASSERT' macros are only rough equivalents of the
-// standard 'LOOP*_ASSERT' macros.  Because 'std::cout' is not available in
+// Note that the `ANNOTATED*_ASSERT` macros are only rough equivalents of the
+// standard `LOOP*_ASSERT` macros.  Because `std::cout` is not available in
 // this test driver, there is no way to automatically format values based on
 // type, at least not without re-implementing the component under test in the
-// test driver.  Therefore the 'ANNOTATED*_ASSERT' macros take as arguments
-// pairs of identifiers and 'printf'-style format strings.  This is the reason
+// test driver.  Therefore the `ANNOTATED*_ASSERT` macros take as arguments
+// pairs of identifiers and `printf`-style format strings.  This is the reason
 // why they have been given completely different names from the standard
 // macros.
 //
 // The main difficulty with writing the test driver is capturing the output of
 // the methods under test so that it can be checked for accuracy.  In addition,
 // error messages and other output produced by the test driver itself must
-// still appear on 'stdout' for compatibility with the standard build and
-// testing scripts.  For this purpose, a support class named 'OutputRedirector'
-// is provided.  'OutputRedirector' will redirect 'stdout' to a temporary file
+// still appear on `stdout` for compatibility with the standard build and
+// testing scripts.  For this purpose, a support class named `OutputRedirector`
+// is provided.  `OutputRedirector` will redirect `stdout` to a temporary file
 // and verify that the contents of the temporary file match the character
 // buffers provided by the user.
 //
 // Global Concerns:
-//: o The test driver can reliably capture 'stdout' and play back captured
-//:   output.
-//: o The test driver's own output is written to the calling environment's
-//:   'stdout'.
+//  - The test driver can reliably capture `stdout` and play back captured
+//    output.
+//  - The test driver's own output is written to the calling environment's
+//    `stdout`.
 //
 // ----------------------------------------------------------------------------
 // STANDARD LOOP ASSERT MACROS
@@ -132,23 +132,23 @@
 // [ 4] static void printTab();
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] TEST APPARATUS: class 'OutputRedirector'
+// [ 2] TEST APPARATUS: class `OutputRedirector`
 // [11] USAGE EXAMPLE
-// [-1] CONCERN: 'printf' stack corruption test works
-// [10] CONCERN: macros compile correctly when used with 'if'/'else'
+// [-1] CONCERN: `printf` stack corruption test works
+// [10] CONCERN: macros compile correctly when used with `if`/`else`
 // ----------------------------------------------------------------------------
 
 // ============================================================================
 //                VARIATIONS ON STANDARD BDE ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 //
-// In order to accommodate the use of the identifiers 'testStatus' and 'aSsErT'
+// In order to accommodate the use of the identifiers `testStatus` and `aSsErT`
 // in the usage example, the rest of the test driver uses the identifiers
-// 'realTestStatus' and 'realaSsErT' instead.
+// `realTestStatus` and `realaSsErT` instead.
 //
 // Additionally, in order to allow capturing the output of the
-// 'BSLS_BSLTESTUTIL_*' macros, the standard macros output to 'stderr' instead
-// of 'stdout'.
+// `BSLS_BSLTESTUTIL_*` macros, the standard macros output to `stderr` instead
+// of `stdout`.
 
 static int realTestStatus = 0;
 
@@ -160,7 +160,7 @@ static void realaSsErT(bool b, const char *s, int i)
     }
 }
 
-// The standard 'ASSERT' macro definition is deferred until after the usage
+// The standard `ASSERT` macro definition is deferred until after the usage
 // example code
 // #define ASSERT(X) { realaSsErT(!(X), #X, __LINE__); }
 
@@ -168,15 +168,15 @@ static void realaSsErT(bool b, const char *s, int i)
 //               VARIATIONS ON STANDARD BDE LOOP_ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 //
-// The standard BDE 'LOOP_ASSERT' test macros rely on overloads of 'operator<<'
+// The standard BDE `LOOP_ASSERT` test macros rely on overloads of `operator<<`
 // ostream to provide a uniform interface for all types.  The purpose of
-// 'bsls_bsltestutil' is precisely to provide a similar overloading mechanism
-// for 'printf'-based output.  In order to use the standard macros in this test
+// `bsls_bsltestutil` is precisely to provide a similar overloading mechanism
+// for `printf`-based output.  In order to use the standard macros in this test
 // driver, we would have to define a test apparatus of equivalent complexity to
 // the class we are testing.  Therefore, instead of the standard test macros we
-// define alternate macros that take pairs of variables and 'printf'-style
+// define alternate macros that take pairs of variables and `printf`-style
 // format strings instead of just variables alone.  For convenience, all of the
-// macros are defined in terms of a free function named 'printDatum' that
+// macros are defined in terms of a free function named `printDatum` that
 // prints a single variable's identifier and value separated by a user-supplied
 // string.
 
@@ -228,23 +228,23 @@ static void realaSsErT(bool b, const char *s, int i)
 //                             USAGE EXAMPLE CODE
 // ----------------------------------------------------------------------------
 //
-// Usage example code assumes that 'BSLS_BSLTESTUTIL_*' macros have been
+// Usage example code assumes that `BSLS_BSLTESTUTIL_*` macros have been
 // renamed to replace the standard test macros.  In order to simplify the rest
-// of the test driver, the standard macros are redefined after 'main', and the
-// usage example case just calls a function, 'executeUsageExample'.
+// of the test driver, the standard macros are redefined after `main`, and the
+// usage example case just calls a function, `executeUsageExample`.
 //
 ///Example 1: Writing a test driver
 /// - - - - - - - - - - - - - - - -
 // First, we write a component to test, which provides a utility class:
-//..
+// ```
     namespace bslabc {
 
+    /// This utility class provides sample functionality to demonstrate how
+    /// a test driver might be written validating its only method.
     struct BslExampleUtil {
-        // This utility class provides sample functionality to demonstrate how
-        // a test driver might be written validating its only method.
 
+        /// Return the integer value `42`.
         static int fortyTwo();
-            // Return the integer value '42'.
     };
 
     inline
@@ -254,10 +254,10 @@ static void realaSsErT(bool b, const char *s, int i)
     }
 
     }  // close namespace bslabc
-//..
+// ```
 // Then, we can write a test driver for this component.  We start by providing
 // the standard BDE assert test macro:
-//..
+// ```
     // ========================================================================
     //                       STANDARD BDE ASSERT TEST MACRO
     // ------------------------------------------------------------------------
@@ -272,10 +272,10 @@ static void realaSsErT(bool b, const char *s, int i)
     }
 
     # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//..
-// Next, we define the standard print and 'LOOP_ASSERT' macros, as aliases to
+// ```
+// Next, we define the standard print and `LOOP_ASSERT` macros, as aliases to
 // the macros defined by this component:
-//..
+// ```
     // ========================================================================
     //                       STANDARD BDE TEST DRIVER MACROS
     // ------------------------------------------------------------------------
@@ -290,36 +290,36 @@ static void realaSsErT(bool b, const char *s, int i)
 
     #define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
     #define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-    #define P_  BSLS_BSLTESTUTIL_P_  // 'P(X)' without '\n'.
+    #define P_  BSLS_BSLTESTUTIL_P_  // `P(X)` without '\n'.
     #define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
     #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
-//..
+// ```
 // Now, using the (standard) abbreviated macro names we have just defined, we
-// write a test function for the 'static' 'fortyTwo' method, to be called from
+// write a test function for the `static` `fortyTwo` method, to be called from
 // a test case in a test driver.
-//..
+// ```
     void testFortyTwo(bool verbose)
     {
         const int value = bslabc::BslExampleUtil::fortyTwo();
         if (verbose) P(value);
         LOOP_ASSERT(value, 42 == value);
     }
-//..
-// Finally, when 'testMyTypeSetValue' is called from a test case in verbose
+// ```
+// Finally, when `testMyTypeSetValue` is called from a test case in verbose
 // mode we observe the console output:
-//..
+// ```
 //  value = 42
-//..
+// ```
 ///Example 2: Adding Support For A New User-Defined Type
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
-// First, we define a new user-defined type, 'MyType':
-//..
+// First, we define a new user-defined type, `MyType`:
+// ```
     namespace xyza {
 
+    /// This elided class provides a type intended to show how the macros in
+    /// `bsls_bsltestutil` can be extended to support a new user-defined
+    /// type.
     class MyType {
-        // This elided class provides a type intended to show how the macros in
-        // 'bsls_bsltestutil' can be extended to support a new user-defined
-        // type.
 
       private:
         // DATA
@@ -332,16 +332,16 @@ static void realaSsErT(bool b, const char *s, int i)
 
         // ...
 
+        /// Create a `MyType` object with `d_value` set to the specified
+        /// `value`.
         explicit MyType(int value);
-            // Create a 'MyType' object with 'd_value' set to the specified
-            // 'value'.
 
         // ACCESSORS
 
         // ...
 
+        /// Return the value of `d_value`.
         int value() const;
-            // Return the value of 'd_value'.
 
         // ...
     };
@@ -359,57 +359,57 @@ static void realaSsErT(bool b, const char *s, int i)
     {
         return d_value;
     }
-//..
-// Then, in the same namespace in which 'MyType' is defined, we define a
-// function 'debugprint' that prints the value of a 'MyType' object to the
+// ```
+// Then, in the same namespace in which `MyType` is defined, we define a
+// function `debugprint` that prints the value of a `MyType` object to the
 // console.  (In this case, we will simply print a string literal for
 // simplicity):
-//..
+// ```
     void debugprint(const MyType& obj)
     {
         printf("MyType<%d>", obj.value());
     }
 
     }  // close namespace xyza
-//..
-// Notice that 'debugprint' is defined inside the namespace 'MyNamespace'.
+// ```
+// Notice that `debugprint` is defined inside the namespace `MyNamespace`.
 // This is required in order to allow the compiler to find this overload of
 // debugprint by argument-dependent lookup.
 //
 // Now, using the (standard) abbreviated macro names previously defined, we
-// write a test function for the 'MyType' constructor, to be called from a test
+// write a test function for the `MyType` constructor, to be called from a test
 // case in a test driver.
-//..
+// ```
     void testMyTypeSetValue(bool verbose)
     {
         xyza::MyType obj(9);
         if (verbose) P(obj);
         LOOP_ASSERT(obj.value(), obj.value() == 9);
     }
-//..
-// Finally, when 'testMyTypeSetValue' is called from a test case in verbose
+// ```
+// Finally, when `testMyTypeSetValue` is called from a test case in verbose
 // mode we observe the console output:
-//..
+// ```
 //  obj = MyType<9>
-//..
-///Example 3: Printing Unusual Types with 'printf'
+// ```
+///Example 3: Printing Unusual Types with `printf`
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we are writing a test driver that needs to print out the contents of
-// a complex data structure in 'veryVeryVerbose' mode.  The complex data
+// a complex data structure in `veryVeryVerbose` mode.  The complex data
 // structure contains, among other values, an array of block sizes, expressed
-// as 'size_t'.  It would be very cumbersome, and visually confusing, to print
-// each member of the array with either the 'P_' or 'Q_' standard output
+// as `size_t`.  It would be very cumbersome, and visually confusing, to print
+// each member of the array with either the `P_` or `Q_` standard output
 // macros, so we elect to print out the array as a single string, following the
-// pattern of '[ A, B, C, D, E, ... ]'.  This could be easily accomplished with
-// multiple calls to 'printf', except that 'printf' has no cross-platform
-// standard formatting string for 'size_t'.  We can use the
-// 'BSLS_BSLTESTUTIL_FORMAT_ZU' macro to resolve the appropriate format string
+// pattern of `[ A, B, C, D, E, ... ]`.  This could be easily accomplished with
+// multiple calls to `printf`, except that `printf` has no cross-platform
+// standard formatting string for `size_t`.  We can use the
+// `BSLS_BSLTESTUTIL_FORMAT_ZU` macro to resolve the appropriate format string
 // for us on each platform.
 //
 // First, we write a component to test, which provides an a utility that
 // operates on a list of memory blocks.  Each block is a structure containing a
 // base address, a block size, and a pointer to the next block in the list.
-//..
+// ```
     namespace xyza {
     struct Block {
         // DATA
@@ -420,8 +420,8 @@ static void realaSsErT(bool b, const char *s, int i)
         // ...
     };
 
+    /// ...
     class BlockList {
-        // ...
 
         // DATA
         Block *d_head;
@@ -430,32 +430,34 @@ static void realaSsErT(bool b, const char *s, int i)
 
       public:
         // CREATORS
-        BlockList();
-            // Create an empty 'BlockList'.
 
+        /// Create an empty `BlockList`.
+        BlockList();
+
+        /// Destroy this object.
         ~BlockList();
-            // Destroy this object.
 
         // MANIPULATORS
 
         Block *begin();
         Block *end();
 
+        /// Add a block of the specified `size` to is `BlockList`.
         void addBlock(size_t size);
-            // Add a block of the specified 'size' to is 'BlockList'.
         // ...
 
         // ACCESSORS
+
+        /// Return the number of blocks in this `BlockList`.
         int length();
-            // Return the number of blocks in this 'BlockList'.
 
         // ...
     };
 
     }  // close namespace xyza
-//..
+// ```
 // Then, we write a test driver for this component.
-//..
+// ```
     // ...
 
     // ========================================================================
@@ -463,33 +465,33 @@ static void realaSsErT(bool b, const char *s, int i)
     // ------------------------------------------------------------------------
 
     // ...
-//..
-// Here, after defining the standard BDE test macros, we define a macro, 'ZU'
-// for the platform-specific 'printf' format string for 'size_t':
-//..
+// ```
+// Here, after defining the standard BDE test macros, we define a macro, `ZU`
+// for the platform-specific `printf` format string for `size_t`:
+// ```
     // ========================================================================
     //                          PRINTF FORMAT MACROS
     // ------------------------------------------------------------------------
     #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
-//..
-// Note that, we could use 'BSLS_BSLTESTUTIL_FORMAT_ZU' as is, but it is more
-// convenient to define 'ZU' locally as an abbreviation.
+// ```
+// Note that, we could use `BSLS_BSLTESTUTIL_FORMAT_ZU` as is, but it is more
+// convenient to define `ZU` locally as an abbreviation.
 //
 // Next, we write the test apparatus for the test driver, which includes a
-// support function that prints the list of blocks in a 'BlockList' in a
+// support function that prints the list of blocks in a `BlockList` in a
 // visually succinct form:
-//..
+// ```
     void printBlockList(xyza::BlockList &list)
     {
         xyza::Block *blockPtr = list.begin();
 
         printf("{\n");
         while (blockPtr != list.end()) {
-//..
-// Here, we use 'ZU' as the format specifier for the 'size_t' in the 'printf'
-// invocation.  'ZU' is the appropriate format specifier for 'size_t' on each
+// ```
+// Here, we use `ZU` as the format specifier for the `size_t` in the `printf`
+// invocation.  `ZU` is the appropriate format specifier for `size_t` on each
 // supported platform.
-//..
+// ```
             printf("\t{ address: %p,\tsize: " ZU " }",
                    blockPtr->d_address,
                    blockPtr->d_size);
@@ -503,28 +505,28 @@ static void realaSsErT(bool b, const char *s, int i)
         }
         printf("}\n");
     }
-//..
+// ```
 // Note that because we are looping through a number of blocks, formatting the
-// output directly with 'printf' produces more readable output than we would
+// output directly with `printf` produces more readable output than we would
 // get from callling the standard output macros.
 //
-// Calling 'printf' directly will yield output similar to:
-//..
+// Calling `printf` directly will yield output similar to:
+// ```
 // {
 //     { address: 0x012345600,    size: 32 },
 //     ...
 // }
-//..
+// ```
 // while the standard output macros would have produced:
-//..
+// ```
 // {
 //     { blockPtr->d_address = 0x012345600,    blockPtr->d_size: 32 },
 //     ...
 // }
-//..
+// ```
 // Now, we write a test function for one of our test cases, which provides a
-// detailed trace of 'BlockList' contents:
-//..
+// detailed trace of `BlockList` contents:
+// ```
     void testBlockListConstruction(bool veryVeryVerbose)
     {
         // ...
@@ -547,16 +549,16 @@ static void realaSsErT(bool b, const char *s, int i)
 
         // ...
     }
-//..
-// Finally, when 'testBlockListConstruction' is called from a test case in
-// 'veryVeryVerbose' mode, we observe console output similar to:
-//..
+// ```
+// Finally, when `testBlockListConstruction` is called from a test case in
+// `veryVeryVerbose` mode, we observe console output similar to:
+// ```
 //  {
 //      { address: 0x012345600,    size: 42 },
 //      { address: 0x012345610,    size: 19 },
 //      { address: 0x012345620,    size: 1024 }
 //  }
-//..
+// ```
 
 namespace xyza {
     const int MAX_BLOCKS = 10;
@@ -677,6 +679,12 @@ static int verbose, veryVerbose, veryVeryVerbose;
 # define snprintf _snprintf
 #endif
 
+/// Print the specified `identifierI` identifier name and specified value
+/// `valueI` of (parameter template) type `ITYPE` to the specified
+/// `outStream`, and separated by the specified `connector` string and
+/// followed by the specified `suffix` string, using the specified `formatI`
+/// format string to format `valueI` according to the rules of `printf`.  As
+/// a special case, null `char` strings are output as `(null)`.
 template <class ITYPE>
 int printDatum(FILE        *outStream,
                const char  *identifierI,
@@ -684,19 +692,13 @@ int printDatum(FILE        *outStream,
                const char  *formatI,
                const char  *suffix,
                const ITYPE& valueI);
-    // Print the specified 'identifierI' identifier name and specified value
-    // 'valueI' of (parameter template) type 'ITYPE' to the specified
-    // 'outStream', and separated by the specified 'connector' string and
-    // followed by the specified 'suffix' string, using the specified 'formatI'
-    // format string to format 'valueI' according to the rules of 'printf'.  As
-    // a special case, null 'char' strings are output as '(null)'.
 
+/// Create a temporary file and store its name in the user-supplied buffer
+/// at the address pointed to by the specified `result`.  Return `true` if
+/// the temporary file was successfully created, and `false` otherwise.  The
+/// behavior is undefined unless the buffer pointed to by the specified
+/// `result` is at least `PATH_BUFFER_SIZE` bytes long.
 bool tempFileName(char *result);
-    // Create a temporary file and store its name in the user-supplied buffer
-    // at the address pointed to by the specified 'result'.  Return 'true' if
-    // the temporary file was successfully created, and 'false' otherwise.  The
-    // behavior is undefined unless the buffer pointed to by the specified
-    // 'result' is at least 'PATH_BUFFER_SIZE' bytes long.
 
 int printDatum(FILE        *outStream,
                const char  *identifierI,
@@ -818,7 +820,7 @@ bool tempFileName(char *result, int testCase)
     }
 #endif
 
-    if (veryVerbose) printf("\tUse '%s' as a base filename.\n", result);
+    if (veryVerbose) printf("\tUse `%s` as a base filename.\n", result);
 
     ASSERT('\0' != result[0]); // result not empty
 
@@ -859,24 +861,24 @@ inline int fstatFunc(int fd, StatType *buf)
 #endif
 }
 
+/// This class provides a facility for redirecting `stdout` to a temporary
+/// file, retrieving output from the temporary file and comparing the output
+/// to user-supplied character buffers.  An `OutputRedirector` object can
+/// exist in one of two states, un-redirected or redirected.  In the
+/// un-redirected state, the process' `stdout` and `stderr` are connected to
+/// their normal targets.  In the redirected state, the process' `stdout` is
+/// connected to a temporary file, and the process' `stderr` is connected to
+/// the original target of `stdout`.  The redirected state of an
+/// `OutputRedirector` object can be tested by calling `isRedirected`.  An
+/// `OutputRedirector` object has the concept of a scratch buffer, where
+/// output captured from the process' `stdout` stream is stored when the
+/// `OutputRedirector` object is in the redirected state.  Throughout this
+/// class, the term "captured output" refers to data that has been written
+/// to the `stdout` stream and is waiting to be loaded into the scratch
+/// buffer.  Each time the `load` method is called, the scratch buffer is
+/// truncated, and the captured output is moved into the scratch buffer.
+/// When this is done, there is no longer any captured output.
 class OutputRedirector {
-    // This class provides a facility for redirecting 'stdout' to a temporary
-    // file, retrieving output from the temporary file and comparing the output
-    // to user-supplied character buffers.  An 'OutputRedirector' object can
-    // exist in one of two states, un-redirected or redirected.  In the
-    // un-redirected state, the process' 'stdout' and 'stderr' are connected to
-    // their normal targets.  In the redirected state, the process' 'stdout' is
-    // connected to a temporary file, and the process' 'stderr' is connected to
-    // the original target of 'stdout'.  The redirected state of an
-    // 'OutputRedirector' object can be tested by calling 'isRedirected'.  An
-    // 'OutputRedirector' object has the concept of a scratch buffer, where
-    // output captured from the process' 'stdout' stream is stored when the
-    // 'OutputRedirector' object is in the redirected state.  Throughout this
-    // class, the term "captured output" refers to data that has been written
-    // to the 'stdout' stream and is waiting to be loaded into the scratch
-    // buffer.  Each time the 'load' method is called, the scratch buffer is
-    // truncated, and the captured output is moved into the scratch buffer.
-    // When this is done, there is no longer any captured output.
 
   private:
     // DATA
@@ -885,7 +887,7 @@ class OutputRedirector {
     char d_outputBuffer[OUTPUT_BUFFER_SIZE];  // Scratch buffer for holding
                                               // captured output
 
-    bool d_isRedirectedFlag;                  // Has 'stdout' been redirected
+    bool d_isRedirectedFlag;                  // Has `stdout` been redirected
 
     bool d_isFileCreatedFlag;                 // Has a temp file been created
 
@@ -893,19 +895,19 @@ class OutputRedirector {
                                               // temp file
 
     long d_outputSize;                        // Size of output loaded into
-                                              // 'd_outputBuffer'
+                                              // `d_outputBuffer`
 
     StatType d_originalStdoutStat;            // Status information for
-                                              // 'stdout' just before
+                                              // `stdout` just before
                                               // redirection.
 
+    /// Redirect the specified stream `from` to the specified stream `to`,
+    /// returning 0 for success and a negative value on failure.
     static int redirectStream(FILE *from, FILE *to);
-        // Redirect the specified stream 'from' to the specified stream 'to',
-        // returning 0 for success and a negative value on failure.
 
+    /// Close `stdout`, if redirected, and delete the temporary output
+    /// capture file.
     void cleanup();
-        // Close 'stdout', if redirected, and delete the temporary output
-        // capture file.
 
   private:
     // NOT IMPLEMENTED
@@ -914,78 +916,81 @@ class OutputRedirector {
 
   public:
     // CREATORS
-    explicit OutputRedirector();
-        // Create an 'OutputRedirector' in an un-redirected state, and an empty
-        // scratch buffer.
 
+    /// Create an `OutputRedirector` in an un-redirected state, and an empty
+    /// scratch buffer.
+    explicit OutputRedirector();
+
+    /// Destroy this `OutputRedirector` object.  If the object is in a
+    /// redirected state, `stdout` will be closed and the temporary file to
+    /// which `stdout` was redirected will be deleted.
     ~OutputRedirector();
-        // Destroy this 'OutputRedirector' object.  If the object is in a
-        // redirected state, 'stdout' will be closed and the temporary file to
-        // which 'stdout' was redirected will be deleted.
 
     // MANIPULATORS
+
+    /// Redirect `stdout` to a temp file, and stderr to the original
+    /// `stdout`, putting this `OutputRedirector` object into the
+    /// `redirected` state.  The temp file to which `stdout` is redirected
+    /// will be created the first time `redirect` is called, and will be
+    /// deleted when this object is destroyed.  Subsequent calls to
+    /// `redirect` will have no effect on `stdout` and `stderr`.  If
+    /// `redirect` fails to redirect either `stdout` or `stderr` it will end
+    /// the program by calling `std::abort`.  Use the specified `testCase`
+    /// part of the file name.
     void redirect(int testCase);
-        // Redirect 'stdout' to a temp file, and stderr to the original
-        // 'stdout', putting this 'OutputRedirector' object into the
-        // 'redirected' state.  The temp file to which 'stdout' is redirected
-        // will be created the first time 'redirect' is called, and will be
-        // deleted when this object is destroyed.  Subsequent calls to
-        // 'redirect' will have no effect on 'stdout' and 'stderr'.  If
-        // 'redirect' fails to redirect either 'stdout' or 'stderr' it will end
-        // the program by calling 'std::abort'.  Use the specified 'testCase'
-        // part of the file name.
 
+    /// Reset the scratch buffer to empty.  The behavior is undefined unless
+    /// `redirect` has been previously been called successfully.
     void reset();
-        // Reset the scratch buffer to empty.  The behavior is undefined unless
-        // 'redirect' has been previously been called successfully.
 
+    /// Read captured output into the scratch buffer.  Return `true` if all
+    /// captured output was successfully loaded, and `false` otherwise.
+    /// Note that captured output is allowed to have zero length.  The
+    /// behavior is undefined unless `redirect` has been previously been
+    /// called successfully.
     bool load();
-        // Read captured output into the scratch buffer.  Return 'true' if all
-        // captured output was successfully loaded, and 'false' otherwise.
-        // Note that captured output is allowed to have zero length.  The
-        // behavior is undefined unless 'redirect' has been previously been
-        // called successfully.
 
     // ACCESSORS
+
+    /// Return `true` if `stdout` and `stderr` have been successfully
+    /// redirected, and `false` otherwise.
     bool isRedirected();
-        // Return 'true' if 'stdout' and 'stderr' have been successfully
-        // redirected, and 'false' otherwise.
 
+    /// Return `true` if captured output been loaded into the scratch
+    /// buffer, and `false` otherwise.
     bool isOutputReady();
-        // Return 'true' if captured output been loaded into the scratch
-        // buffer, and 'false' otherwise.
 
+    /// Return the address of the scratch buffer.  This method is only used
+    /// for error reporting and to test the correctness of
+    /// `OutputRedirector`.
     char *getOutput();
-        // Return the address of the scratch buffer.  This method is only used
-        // for error reporting and to test the correctness of
-        // 'OutputRedirector'.
 
+    /// Return the number of bytes currently loaded into the scratch buffer.
     size_t outputSize();
-        // Return the number of bytes currently loaded into the scratch buffer.
 
+    /// Compare the character buffer pointed to by the specified pointer
+    /// `expected` with any output that has been loaded into the scratch
+    /// buffer.  The length of the `expected` buffer is supplied in the
+    /// specified `expectedLength`.  Return 0 if the `expected` buffer has
+    /// the same length and contents as the scratch buffer, and non-zero
+    /// otherwise.  Note that the `expected` buffer is allowed to contain
+    /// embedded nulls.  The behavior is undefined unless `redirect` has
+    /// been previously been called successfully.
     int compare(const char *expected, size_t expectedLength);
-        // Compare the character buffer pointed to by the specified pointer
-        // 'expected' with any output that has been loaded into the scratch
-        // buffer.  The length of the 'expected' buffer is supplied in the
-        // specified 'expectedLength'.  Return 0 if the 'expected' buffer has
-        // the same length and contents as the scratch buffer, and non-zero
-        // otherwise.  Note that the 'expected' buffer is allowed to contain
-        // embedded nulls.  The behavior is undefined unless 'redirect' has
-        // been previously been called successfully.
 
+    /// Compare the character buffer pointed to by the specified pointer
+    /// `expected` with any output that has been loaded into the scratch
+    /// buffer.  The `expected` buffer is assumed to be a NTBS, and and its
+    /// length is taken to be the string length of the NTBS.  Return 0 if
+    /// the `expected` buffer has the same length and contents as the
+    /// scratch buffer, and non-zero otherwise.  The behavior is undefined
+    /// unless `redirect` has been previously been called successfully.
     int compare(const char *expected);
-        // Compare the character buffer pointed to by the specified pointer
-        // 'expected' with any output that has been loaded into the scratch
-        // buffer.  The 'expected' buffer is assumed to be a NTBS, and and its
-        // length is taken to be the string length of the NTBS.  Return 0 if
-        // the 'expected' buffer has the same length and contents as the
-        // scratch buffer, and non-zero otherwise.  The behavior is undefined
-        // unless 'redirect' has been previously been called successfully.
 
+    /// Return a reference to the status information for `stdout` collected
+    /// just before redirection.  This method is used only to test the
+    /// correctness of `OutputRedirector`.
     const StatType& originalStdoutStat();
-        // Return a reference to the status information for 'stdout' collected
-        // just before redirection.  This method is used only to test the
-        // correctness of 'OutputRedirector'.
 };
 
 OutputRedirector::OutputRedirector()
@@ -1008,10 +1013,10 @@ int OutputRedirector::redirectStream(FILE *from, FILE *to)
     ASSERT(from);
     ASSERT(to);
 
-    // The canonical way to redirect 'stderr' to 'stdout' is
-    // 'ASSERT(freopen("/dev/stdout", "w", stderr));', but we use dup2 instead
-    // of 'freopen', because 'freopen' fails on AIX with errno
-    // 13 'Permission denied' when redirecting stderr.
+    // The canonical way to redirect `stderr` to `stdout` is
+    // `ASSERT(freopen("/dev/stdout", "w", stderr));`, but we use dup2 instead
+    // of `freopen`, because `freopen` fails on AIX with errno
+    // 13 `Permission denied` when redirecting stderr.
 
 #if defined(BSLS_PLATFORM_OS_AIX)
     int redirected = dup2(fileno(to), fileno(from));
@@ -1049,7 +1054,7 @@ void OutputRedirector::redirect(int testCase)
         return;                                                       // RETURN
     }
 
-    // Retain information about original 'stdout' file descriptor for use in
+    // Retain information about original `stdout` file descriptor for use in
     // later tests.
 
     int originalStdoutFD = fileno(stdout);
@@ -1057,15 +1062,15 @@ void OutputRedirector::redirect(int testCase)
     ASSERT(0 == fstatFunc(originalStdoutFD, &d_originalStdoutStat));
 
     if (0 != redirectStream(stderr, stdout)) {
-        // Redirect 'stderr' to 'stdout'.
+        // Redirect `stderr` to `stdout`.
 
-        // We want 'stderr' to point to 'stdout', so we have to redirect it
-        // before we change the meaning of 'stdout'.
+        // We want `stderr` to point to `stdout`, so we have to redirect it
+        // before we change the meaning of `stdout`.
 
         if (veryVerbose) {
 
-            // Note that we print this error message on 'stdout' instead of
-            // 'stderr', because 'stdout' has not been redirected.
+            // Note that we print this error message on `stdout` instead of
+            // `stderr`, because `stdout` has not been redirected.
 
             fprintf(stdout,
                     "Error " __FILE__ "(%d): Failed to redirect stderr\n",
@@ -1080,8 +1085,8 @@ void OutputRedirector::redirect(int testCase)
 
         if (veryVerbose) {
 
-            // Note that we print this error message on 'stdout' instead of
-            // 'stderr', because 'stdout' has not been redirected.
+            // Note that we print this error message on `stdout` instead of
+            // `stderr`, because `stdout` has not been redirected.
 
             fprintf(stdout,
                     "Error "
@@ -1094,12 +1099,12 @@ void OutputRedirector::redirect(int testCase)
 
     if (! freopen(d_fileName, "w+", stdout)) {
 
-        // Redirect 'stdout'
+        // Redirect `stdout`
 
         if (veryVerbose) {
 
-            // Note that we print this error message on 'stderr', because we
-            // have just redirected 'stdout' to the capture file.
+            // Note that we print this error message on `stderr`, because we
+            // have just redirected `stdout` to the capture file.
 
             PRINT(d_fileName, "%s");
             fprintf(stderr,
@@ -1110,7 +1115,7 @@ void OutputRedirector::redirect(int testCase)
         abort();
     }
 
-    // 'stderr' and 'stdout' have been successfully redirected.
+    // `stderr` and `stdout` have been successfully redirected.
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
     if (-1 == _setmode(_fileno(stdout), _O_BINARY)) {
@@ -1125,13 +1130,13 @@ void OutputRedirector::redirect(int testCase)
 
     if (EOF == fflush(stdout)) {
 
-        // Not flushing 'stdout' is not a fatal condition, so we print out a
+        // Not flushing `stdout` is not a fatal condition, so we print out a
         // warning, but do not abort.
 
         if (veryVerbose) {
 
-            // Note that we print this error message on 'stderr', because we
-            // have just redirected 'stdout' to the capture file.
+            // Note that we print this error message on `stderr`, because we
+            // have just redirected `stdout` to the capture file.
 
             perror("Error message: ");
             fprintf(stderr,
@@ -1186,7 +1191,7 @@ bool OutputRedirector::load()
             PRINT_(d_outputSize, "%ld"); PRINT(charsRead, "%ld");
             if (ferror(stdout)) {
 
-                // We encountered a file error, not 'EOF'.
+                // We encountered a file error, not `EOF`.
 
                 perror("\tError message: ");
                 clearerr(stdout);
@@ -1202,7 +1207,7 @@ bool OutputRedirector::load()
             d_outputBuffer[0] = '\0';
         } else if(charsRead >= d_outputSize) {
             // This case should never happen.  This assignment is safe because
-            // the total buffer size is enough to hold 'd_outputSize' + 1.
+            // the total buffer size is enough to hold `d_outputSize` + 1.
             d_outputBuffer[d_outputSize] = '\0';
         } else {
             d_outputBuffer[charsRead] = '\0';
@@ -1258,7 +1263,7 @@ int OutputRedirector::compare(const char *expected, size_t expectedLength)
 
     if (!d_isOutputReadyFlag) {
         if (veryVerbose) {
-            PRINT(expected, "'%s'");
+            PRINT(expected, "`%s`");
             fprintf(stderr,
                     "Error " __FILE__ "(%d): No captured output available\n",
                     __LINE__);
@@ -1266,8 +1271,8 @@ int OutputRedirector::compare(const char *expected, size_t expectedLength)
         return -1;                                                    // RETURN
     }
 
-    // Use 'memcmp' instead of 'strncmp' to compare 'd_outputBuffer' to
-    // 'expected', because 'expected' is allowed to contain embedded nulls.
+    // Use `memcmp` instead of `strncmp` to compare `d_outputBuffer` to
+    // `expected`, because `expected` is allowed to contain embedded nulls.
 
     return d_outputSize != static_cast<long>(expectedLength) ||
            memcmp(d_outputBuffer, expected, expectedLength);
@@ -1280,18 +1285,19 @@ const StatType& OutputRedirector::originalStdoutStat()
 
 namespace xyzb {
 
+/// Provide a user-defined type to use in testing `debugprint`.
 class TestType {
-    // Provide a user-defined type to use in testing 'debugprint'.
 
   private:
     // DATA
-    int d_value;  // the value of this 'TestType' object
+    int d_value;  // the value of this `TestType` object
 
   public:
     // CREATORS
+
+    /// Create a `TestType` object with `d_value` set to the specified
+    /// `value`.
     explicit TestType(int value);
-        // Create a 'TestType' object with 'd_value' set to the specified
-        // 'value'.
 
     // ACCESSORS
     int value() const;
@@ -1307,20 +1313,20 @@ int TestType::value() const
     return d_value;
 }
 
+/// Print the string representation of the specified `TestType` object to
+/// stdout.  The representation of a `TestType` object is the string
+/// "TestType<n>", where "n" is the value of the `TestType` object.
 void debugprint(const TestType& obj)
-    // Print the string representation of the specified 'TestType' object to
-    // stdout.  The representation of a 'TestType' object is the string
-    // "TestType<n>", where "n" is the value of the 'TestType' object.
 {
     printf("TestType<%d>", obj.value());
 }
 
 
+/// Provide a user-defined type to use in testing `debugprint`.  This class
+/// does not allow copying, assignment, or the address-of operator, so that
+/// it can be used to demonstrate that none of these are needed for the
+/// basic operation of `bsls_bsltestutil` on user-defined types.
 class BrokenTestType {
-    // Provide a user-defined type to use in testing 'debugprint'.  This class
-    // does not allow copying, assignment, or the address-of operator, so that
-    // it can be used to demonstrate that none of these are needed for the
-    // basic operation of 'bsls_bsltestutil' on user-defined types.
 
   private:
     // NOT IMPLEMENTED
@@ -1330,13 +1336,14 @@ class BrokenTestType {
     void operator,(const BrokenTestType&) const;
 
     // DATA
-    int d_value;  // the value of this 'BrokenTestType' object
+    int d_value;  // the value of this `BrokenTestType` object
 
   public:
     // CREATORS
+
+    /// Create a `BrokenTestType` object with `d_value` set to the specified
+    /// `value`.
     explicit BrokenTestType(int value);
-        // Create a 'BrokenTestType' object with 'd_value' set to the specified
-        // 'value'.
 
     // ACCESSORS
     int value() const;
@@ -1352,11 +1359,11 @@ int BrokenTestType::value() const
     return d_value;
 }
 
+/// Print the string representation of the specified `BrokenTestType` object
+/// to stdout.  The representation of a `BrokenTestType` object is the
+/// string "BrokenTestType<n>", where "n" is the value of the
+/// `BrokenTestType` object.
 void debugprint(const BrokenTestType& obj)
-    // Print the string representation of the specified 'BrokenTestType' object
-    // to stdout.  The representation of a 'BrokenTestType' object is the
-    // string "BrokenTestType<n>", where "n" is the value of the
-    // 'BrokenTestType' object.
 {
     printf("BrokenTestType<%d>", obj.value());
 }
@@ -1367,11 +1374,11 @@ template <class TEST_TYPE>
 struct DataRow {
     int         d_line;              // line number
 
-    TEST_TYPE   d_input;             // value that was printed to 'stdout'
+    TEST_TYPE   d_input;             // value that was printed to `stdout`
 
-    const char *d_expectedOutput_p;  // expected output string, or '0' if
+    const char *d_expectedOutput_p;  // expected output string, or `0` if
                                      // expected output should be generated
-                                     // with 'printf'
+                                     // with `printf`
 
     const char *d_description_p;     // description of this test case
 };
@@ -1392,18 +1399,18 @@ struct TestDriver {
     static char s_expectedOutput[BUFFER_SIZE];  // scratch area for assembling
                                                 // model output that will be
                                                 // compared to real output
-                                                // captured from 'stdout'
+                                                // captured from `stdout`
 
     // TEST CASES
 
+    /// Test `BSLS_BSLTESTUTIL_LOOP*_ASSERT` macros.
     static void testCase8(OutputRedirector *output);
-        // Test 'BSLS_BSLTESTUTIL_LOOP*_ASSERT' macros.
 
+    /// Test `debugprint`.
     template <class TEST_TYPE, size_t NUM_DATA>
     static void testCase3(OutputRedirector           *output,
                           const DataRow<TEST_TYPE>(&  DATA)[NUM_DATA],
                           const char                 *formatString);
-        // Test 'debugprint'.
 };
 
                              // --------------
@@ -1422,32 +1429,32 @@ void TestDriver::testCase8(OutputRedirector *output)
     // TESTING BSLS_BSLTESTUTIL_LOOP*_ASSERT MACROS
     //
     // Concerns:
-    //: 1 Macros do not call 'aSsErT' and emit no output when the assertion is
-    //:   'true'.
-    //:
-    //: 2 Macros call 'aSsErT' and emit output each time the assertion is
-    //:   'false'.
-    //:
-    //: 3 Macros emit properly formatted output for each loop variable
-    //:   supplied.
+    // 1. Macros do not call `aSsErT` and emit no output when the assertion is
+    //    `true`.
+    //
+    // 2. Macros call `aSsErT` and emit output each time the assertion is
+    //    `false`.
+    //
+    // 3. Macros emit properly formatted output for each loop variable
+    //    supplied.
     //
     // Plan:
-    //: 1 Loop through an arbitrary number of iterations, calling one of the
-    //:   loop assert macros with distinct values for each loop variable and an
-    //:   assertion that evaluates to 'true'.  Confirm that the value of
-    //:   'testStatus' does not change, and that no output is captured by the
-    //:   output redirection apparatus.  (C-1)
-    //: 2 Loop through an arbitrary number of iterations, calling one of the
-    //:   loop assert macros with distinct values for each loop variable and an
-    //:   assertion that evaluates to 'false'.  Confirm that 'testStatus'
-    //:   increments each time the loop assert macro is called, and that the
-    //:   expected error output is captured by the output redirection
-    //:   apparatus.  Note that using distinct values for each loop variable
-    //:   allows us to detect omissions, repetitions or mis-ordering of the
-    //:   loop assert macro's arguments.  Also note that we test the loop
-    //:   assert macro with only one set of variable types, since we test
-    //:   separately in test case 3 the ability of the underlying apparatus to
-    //:   identify and correctly format each primitive type.  (C-2,3)
+    // 1. Loop through an arbitrary number of iterations, calling one of the
+    //    loop assert macros with distinct values for each loop variable and an
+    //    assertion that evaluates to `true`.  Confirm that the value of
+    //    `testStatus` does not change, and that no output is captured by the
+    //    output redirection apparatus.  (C-1)
+    // 2. Loop through an arbitrary number of iterations, calling one of the
+    //    loop assert macros with distinct values for each loop variable and an
+    //    assertion that evaluates to `false`.  Confirm that `testStatus`
+    //    increments each time the loop assert macro is called, and that the
+    //    expected error output is captured by the output redirection
+    //    apparatus.  Note that using distinct values for each loop variable
+    //    allows us to detect omissions, repetitions or mis-ordering of the
+    //    loop assert macro's arguments.  Also note that we test the loop
+    //    assert macro with only one set of variable types, since we test
+    //    separately in test case 3 the ability of the underlying apparatus to
+    //    identify and correctly format each primitive type.  (C-2,3)
     //
     // Testing:
     //   BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X)
@@ -1870,12 +1877,12 @@ void TestDriver::testCase8(OutputRedirector *output)
 
             output->reset();
 #define LOOP7_ASSERT BSLS_BSLTESTUTIL_LOOP7_ASSERT
-                // The gcc 9 compiler preprocessor extends the '__LINE__' macro
-                // inserted in the 'BSLS_BSLTESTUTIL_LOOP7_ASSERT' macro to the
+                // The gcc 9 compiler preprocessor extends the `__LINE__` macro
+                // inserted in the `BSLS_BSLTESTUTIL_LOOP7_ASSERT` macro to the
                 // first line of the call statement, even if the statement is
                 // split over multiple lines.  To make all versions of gcc
-                // preprocessors expand '__LINE__' to the same value, we define
-                // a new macro with shorter name ('LOOP7_ASSERT') to fit a
+                // preprocessors expand `__LINE__` to the same value, we define
+                // a new macro with shorter name (`LOOP7_ASSERT`) to fit a
                 // single line.
 
             const int LINE = __LINE__ + 1;
@@ -1953,12 +1960,12 @@ void TestDriver::testCase8(OutputRedirector *output)
 
             output->reset();
 #define LOOP8_ASSERT BSLS_BSLTESTUTIL_LOOP8_ASSERT
-            // The gcc 9 compiler preprocessor extends the '__LINE__' macro
-            // inserted in the 'BSLS_BSLTESTUTIL_LOOP8_ASSERT' macro to the
+            // The gcc 9 compiler preprocessor extends the `__LINE__` macro
+            // inserted in the `BSLS_BSLTESTUTIL_LOOP8_ASSERT` macro to the
             // first line of the call statement, even if the statement is
             // split over multiple lines.  To make all versions of gcc
-            // preprocessors expand '__LINE__' to the same value, we define a
-            // new macro with shorter name ('LOOP8_ASSERT') to fit a single
+            // preprocessors expand `__LINE__` to the same value, we define a
+            // new macro with shorter name (`LOOP8_ASSERT`) to fit a single
             // line.
             const int LINE = __LINE__ + 1;
             LOOP8_ASSERT(I,J,K,L,M,N,O,V, idx > LOOP_ITERATIONS);
@@ -1995,27 +2002,27 @@ void TestDriver::testCase3(OutputRedirector                   *output,
 {
     // ------------------------------------------------------------------------
     // FORMATTED OUTPUT TEST
-    //   Ensure that the 'debugprint' formatted output methods write values to
-    //   'stdout' in the expected form
+    //   Ensure that the `debugprint` formatted output methods write values to
+    //   `stdout` in the expected form
     //
     // Concerns:
-    //: 1 The 'debugprint' method writes the value to 'stdout'.
-    //:
-    //: 2 The 'debugprint' method writes the value in the intended format.
-    //:
+    // 1. The `debugprint` method writes the value to `stdout`.
+    //
+    // 2. The `debugprint` method writes the value in the intended format.
+    //
     //
     // Plan:
-    //: 1 Using the table-driven technique: (C-1, 2)
-    //:
-    //:   For each data row in the supplied DATA table, reset the output
-    //:   redirector, invoke the method under test with the second parameter
-    //:   set to the 'd_input' member of the row, then compare the contents of
-    //:   the redirector with the expected form.  If the 'd_expectedOutput_p'
-    //:   member of the 'DATA' table is non-null, then the null-terminated byte
-    //:   string it points to is used as the expected form for that row.  If
-    //:   the 'd_expectedOutput_p' member is null, the expected form is
-    //:   generated by formatting the 'd_input' member with the specified
-    //:   'formatString'.
+    // 1. Using the table-driven technique: (C-1, 2)
+    //
+    //    For each data row in the supplied DATA table, reset the output
+    //    redirector, invoke the method under test with the second parameter
+    //    set to the `d_input` member of the row, then compare the contents of
+    //    the redirector with the expected form.  If the `d_expectedOutput_p`
+    //    member of the `DATA` table is non-null, then the null-terminated byte
+    //    string it points to is used as the expected form for that row.  If
+    //    the `d_expectedOutput_p` member is null, the expected form is
+    //    generated by formatting the `d_input` member with the specified
+    //    `formatString`.
     //
     // Testing:
     //   void debugprint(bool v)
@@ -2078,10 +2085,10 @@ void TestDriver::testCase3(OutputRedirector                   *output,
 }
 
 // Test case -1 checks the strategy used in test case 9 to detect stack
-// corruption by intentionally providing incorrect format strings to 'printf'.
+// corruption by intentionally providing incorrect format strings to `printf`.
 // This generates warnings that must be suppressed with a GCC pragma.  Some
 // versions of the gcc compiler do not allow pragmas inside function bodies
-// (i.e., inside 'main'), so the test has been factored out into a separate
+// (i.e., inside `main`), so the test has been factored out into a separate
 // function.  We do need the pragmas to disable warnings about the obviously
 // wrong format string we have to use to execute this verification.
 
@@ -2112,23 +2119,23 @@ void checkStackCorruptionTest()
 
     const char *INPUT = "0";
 
-    // Simulate test case 9, with a format specifier too small for 'int'.
+    // Simulate test case 9, with a format specifier too small for `int`.
 
     ASSERT(data.target   == TARGET_ONES);
     ASSERT(data.sentinel == SENTINEL_ONES);
 
     // The format specifier mismatches the actual variable type.  The warning
-    // of '-Wformat' type is caused by such attempt.  Suppressing the warning
+    // of `-Wformat` type is caused by such attempt.  Suppressing the warning
     // as the format mismatch is a part of the test logic.
 
     sscanf(INPUT, "%c", &data.target);
 
-    // Test case 9 asserts 'data.target == 0', so here we assert the opposite.
+    // Test case 9 asserts `data.target == 0`, so here we assert the opposite.
 
     ASSERT(data.target   != 0);
     ASSERT(data.sentinel == SENTINEL_ONES);
 
-    // Simulate test case 9, with a format specifier too large for 'int'.
+    // Simulate test case 9, with a format specifier too large for `int`.
 
     data.target       = TARGET_ONES;
     data.sentinel     = SENTINEL_ONES;
@@ -2137,12 +2144,12 @@ void checkStackCorruptionTest()
     ASSERT(data.sentinel == SENTINEL_ONES);
 
     // The format specifier mismatches the actual variable type.  The warning
-    // of '-Wformat' type is caused by such attempt.  Suppressing the warning
+    // of `-Wformat` type is caused by such attempt.  Suppressing the warning
     // as the format mismatch is a part of the test logic.
 
     sscanf(INPUT, "%lld", &data.target);
 
-    // Test case 9 asserts 'data.sentinel == SENTINEL_ONES', so here we assert
+    // Test case 9 asserts `data.sentinel == SENTINEL_ONES`, so here we assert
     // the opposite.
 
     ASSERT(data.target   == 0);
@@ -2168,7 +2175,7 @@ int main(int argc, char *argv[])
 
     fprintf(stderr, "TEST " __FILE__ " CASE %d\n", test);
 
-    // Capture 'stdout', and send 'stderr' to 'stdout', unless we are running
+    // Capture `stdout`, and send `stderr` to `stdout`, unless we are running
     // the usage example.
     OutputRedirector output;
     if (test != 10 && test != 0) {
@@ -2181,13 +2188,13 @@ int main(int argc, char *argv[])
         // TESTING USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Incorporate the usage example from the header into the test
-        //    driver, remove leading comment characters,E  and replace 'assert'
-        //    with 'ASSERT'.  (C-1)
+        // 1. Incorporate the usage example from the header into the test
+        //    driver, remove leading comment characters,E  and replace `assert`
+        //    with `ASSERT`.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -2197,8 +2204,8 @@ int main(int argc, char *argv[])
                             "\n--------------------\n");
 
         // The actual usage example code is encapsulated in three free
-        // functions, 'testFortyTwo', 'testMyType', and
-        // 'testBlockListConstruction' so that it can be relocated to the
+        // functions, `testFortyTwo`, `testMyType`, and
+        // `testBlockListConstruction` so that it can be relocated to the
         // section of the source file where the standard test macros have been
         // defined in terms of the macros supplied by the component under test.
 
@@ -2206,33 +2213,33 @@ int main(int argc, char *argv[])
         testMyTypeSetValue(verbose);
         testBlockListConstruction(veryVeryVerbose);
 
-        // None of the usage examples generates a failure, so 'testStatus',
+        // None of the usage examples generates a failure, so `testStatus`,
         // defined as part of Example 1, should still be 0.
 
         ASSERT(testStatus == 0);
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // CONCERN: macros compile correctly when used with 'if'/'else'
+        // CONCERN: macros compile correctly when used with `if`/`else`
         //
         // Concerns:
-        //: 1 Each of the test macros should be usable in an 'if'/'else' chain
-        //:   without requiring wrapping in {braces}.  It would be neceesary to
-        //:   terminate each statement with a semicolon.
+        // 1. Each of the test macros should be usable in an `if`/`else` chain
+        //    without requiring wrapping in {braces}.  It would be neceesary to
+        //    terminate each statement with a semicolon.
         //
         // Plan:
-        //: 1 Create a simple test of a local variable that can be trivially
-        //:   asserted with different semantics on 32/64 bit platforms.  Then
-        //:   assert appropriately down each branch of an 'if'/'else' condition
-        //:   that tests for platform integer sizes.
-        //: 2 Repeat the 'ASSERTV' form of that test up to the maximum number
-        //:   of arguments supported for display (5).
+        // 1. Create a simple test of a local variable that can be trivially
+        //    asserted with different semantics on 32/64 bit platforms.  Then
+        //    assert appropriately down each branch of an `if`/`else` condition
+        //    that tests for platform integer sizes.
+        // 2. Repeat the `ASSERTV` form of that test up to the maximum number
+        //    of arguments supported for display (5).
         //
         // Testing:
-        //   CONCERN: macros compile correctly when used with 'if'/'else'
+        //   CONCERN: macros compile correctly when used with `if`/`else`
         // --------------------------------------------------------------------
         if (verbose) fprintf(stderr,
-           "\tCONCERN: macros compile correctly when used with 'if'/'else'\n");
+           "\tCONCERN: macros compile correctly when used with `if`/`else`\n");
 
 
         long val = 0xffffffffL;
@@ -2276,21 +2283,21 @@ int main(int argc, char *argv[])
         // TESTING PRINTF SUPPORT
         //
         // Concerns:
-        //: 1 'printf' format strings constructed with the formatting macros
-        //:   produce output with the approriate sign.
-        //:
-        //: 2 'scanf' statements using the formatting macros consume the
-        //:   correct number of bytes when reading each optional argument.
+        // 1. `printf` format strings constructed with the formatting macros
+        //    produce output with the approriate sign.
+        //
+        // 2. `scanf` statements using the formatting macros consume the
+        //    correct number of bytes when reading each optional argument.
         //
         // Plan:
-        //: 1 Print out values that do and do not have the highest bit set, and
-        //:   confirm that the output presents those values with the correct
-        //:   signed-ness for the type being printed.  (C-1)
-        //:
-        //: 2 Use 'sscanf' to assign a value to a variable, using the format
-        //:   specifier under test, and confirm that all bytes in the variable
-        //:   are changed by the assignment, and that subsequent memory
-        //:   locations are not changed by the assignment.  (C-2)
+        // 1. Print out values that do and do not have the highest bit set, and
+        //    confirm that the output presents those values with the correct
+        //    signed-ness for the type being printed.  (C-1)
+        //
+        // 2. Use `sscanf` to assign a value to a variable, using the format
+        //    specifier under test, and confirm that all bytes in the variable
+        //    are changed by the assignment, and that subsequent memory
+        //    locations are not changed by the assignment.  (C-2)
         //
         // Testing:
         //   BSLS_BSLTESTUTIL_FORMAT_ZU
@@ -2320,7 +2327,7 @@ int main(int argc, char *argv[])
         const char *UNSIGNED_64_EXPECTED = "<0> <1> <9223372036854775808>";
         const char *PTR_EXPECTED = "<0> <64>";
 
-        if (verbose) fprintf(stderr, "\tTesting 'size_t'\n");
+        if (verbose) fprintf(stderr, "\tTesting `size_t`\n");
         {
             size_t zero = 0;
             size_t one = 1;
@@ -2335,7 +2342,7 @@ int main(int argc, char *argv[])
                               0 == output.compare(UNSIGNED_EXPECTED));
         }
 
-        if (verbose) fprintf(stderr, "\tTesting 'ptrdiff_t'\n");
+        if (verbose) fprintf(stderr, "\tTesting `ptrdiff_t`\n");
         {
             ptrdiff_t minusOne = -1;
             ptrdiff_t zero = 0;
@@ -2352,7 +2359,7 @@ int main(int argc, char *argv[])
                               0 == output.compare(SIGNED_EXPECTED));
         }
 
-        if (verbose) fprintf(stderr, "\tTesting 'Int64'\n");
+        if (verbose) fprintf(stderr, "\tTesting `Int64`\n");
         {
             long long minusOne = -1;
             long long zero = 0;
@@ -2369,7 +2376,7 @@ int main(int argc, char *argv[])
                               0 == output.compare(SIGNED_64_EXPECTED));
         }
 
-        if (verbose) fprintf(stderr, "\tTesting 'Uint64'\n");
+        if (verbose) fprintf(stderr, "\tTesting `Uint64`\n");
         {
             unsigned long long zero = 0;
             unsigned long long one = 1;
@@ -2384,7 +2391,7 @@ int main(int argc, char *argv[])
                               0 == output.compare(UNSIGNED_64_EXPECTED));
         }
 
-        if (verbose) fprintf(stderr, "\tTesting 'uintptr_t'\n");
+        if (verbose) fprintf(stderr, "\tTesting `uintptr_t`\n");
         {
             void *nptr = NULL;
             uintptr_t nvalue = reinterpret_cast<uintptr_t>(nptr);
@@ -2402,7 +2409,7 @@ int main(int argc, char *argv[])
 
         if (verbose) fprintf(stderr, "\nTesting for Stack Corruption\n");
 
-        if (verbose) fprintf(stderr, "\tTesting 'size_t'\n");
+        if (verbose) fprintf(stderr, "\tTesting `size_t`\n");
         {
             const size_t        TARGET_ONES   = ~((size_t) 0);
             const unsigned char SENTINEL_ONES = ~((unsigned char) 0);
@@ -2427,7 +2434,7 @@ int main(int argc, char *argv[])
             ASSERT(data.sentinel == SENTINEL_ONES);
         }
 
-        if (verbose) fprintf(stderr, "\tTesting 'ptrdiff_t'\n");
+        if (verbose) fprintf(stderr, "\tTesting `ptrdiff_t`\n");
         {
             const ptrdiff_t     TARGET_ONES   = ~((ptrdiff_t) 0);
             const unsigned char SENTINEL_ONES = ~((unsigned char) 0);
@@ -2452,7 +2459,7 @@ int main(int argc, char *argv[])
             ASSERT(data.sentinel == SENTINEL_ONES);
         }
 
-        if (verbose) fprintf(stderr, "\tTesting 'Int64' (equivalent)\n");
+        if (verbose) fprintf(stderr, "\tTesting `Int64` (equivalent)\n");
         {
             const long long     TARGET_ONES   = ~((long long) 0);
             const unsigned char SENTINEL_ONES = ~((unsigned char) 0);
@@ -2477,7 +2484,7 @@ int main(int argc, char *argv[])
             ASSERT(data.sentinel == SENTINEL_ONES);
         }
 
-        if (verbose) fprintf(stderr, "\tTesting 'Uint64' (equivalent)\n");
+        if (verbose) fprintf(stderr, "\tTesting `Uint64` (equivalent)\n");
         {
             const unsigned long long TARGET_ONES   = ~((unsigned long long) 0);
             const unsigned char      SENTINEL_ONES = ~((unsigned char) 0);
@@ -2502,7 +2509,7 @@ int main(int argc, char *argv[])
             ASSERT(data.sentinel == SENTINEL_ONES);
         }
 
-        if (verbose) fprintf(stderr, "\tTesting 'uintptr_t'\n");
+        if (verbose) fprintf(stderr, "\tTesting `uintptr_t`\n");
         {
             uintptr_t                TARGET_ONES   = ~((uintptr_t)0);
             const unsigned char      SENTINEL_ONES = ~((unsigned char) 0);
@@ -2553,20 +2560,20 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // IDENTIFIER OUTPUT MACRO TEST (standard 'Q' macro)
+        // IDENTIFIER OUTPUT MACRO TEST (standard `Q` macro)
         //
         // Concerns:
-        //: 1 Identifier output macro emits output.
-        //:
-        //: 2 Output emitted is in correct format for the standard Q() macro,
-        //:   i.e., '<| [macroargument] |>', where '[macroargument]' is the
-        //:   tokenization of the text supplied as argument to the macro.
+        // 1. Identifier output macro emits output.
+        //
+        // 2. Output emitted is in correct format for the standard Q() macro,
+        //    i.e., `<| [macroargument] |>`, where `[macroargument]` is the
+        //    tokenization of the text supplied as argument to the macro.
         //
         // Plan:
-        //: 1 Call 'BSLS_BSLTESTUTIL_Q' with a series of arbitrary identifiers
-        //:   containing single, and multiple tokens, with an without initial,
-        //:   final, and repeated whitespace and compare the captured output to
-        //:   a model string.  (C-1,2)
+        // 1. Call `BSLS_BSLTESTUTIL_Q` with a series of arbitrary identifiers
+        //    containing single, and multiple tokens, with an without initial,
+        //    final, and repeated whitespace and compare the captured output to
+        //    a model string.  (C-1,2)
 
         //
         // Testing:
@@ -2612,25 +2619,25 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // VALUE OUTPUT MACRO TEST (standard 'P' and 'P_' macros)
+        // VALUE OUTPUT MACRO TEST (standard `P` and `P_` macros)
         //
         // Concerns:
-        //: 1 Value output macros emit output.
-        //:
-        //: 2 Output emitted is in correct format for the standard 'P' and 'P_'
-        //:   macros, i.e., 'identifier = value' (with following newline in the
-        //:   case of 'BSLS_BSLTESTUTIL_P') where 'identifier' is the name of
-        //:   the argument supplied to the macro, and 'value' is the value of
-        //:   that argument.  Note that we are not concerned here with the
-        //:   exact formatting of the 'value' portion for all types, as that
-        //:   will be tested in test case 3.
+        // 1. Value output macros emit output.
+        //
+        // 2. Output emitted is in correct format for the standard `P` and `P_`
+        //    macros, i.e., `identifier = value` (with following newline in the
+        //    case of `BSLS_BSLTESTUTIL_P`) where `identifier` is the name of
+        //    the argument supplied to the macro, and `value` is the value of
+        //    that argument.  Note that we are not concerned here with the
+        //    exact formatting of the `value` portion for all types, as that
+        //    will be tested in test case 3.
         //
         // Plan:
-        //: 1 Call the value output macros on a variable of known value, and
-        //:   confirm that the captured output is in the correct format.  Note
-        //:   that it is only necessary to conduct this test once with a single
-        //:   variable type, because the underlying type-differentiation and
-        //:   formatting mechanisms are tested in test case 3.  (C-1,2)
+        // 1. Call the value output macros on a variable of known value, and
+        //    confirm that the captured output is in the correct format.  Note
+        //    that it is only necessary to conduct this test once with a single
+        //    variable type, because the underlying type-differentiation and
+        //    formatting mechanisms are tested in test case 3.  (C-1,2)
         //
         // Testing:
         //   BSLS_BSLTESTUTIL_P(X)
@@ -2680,20 +2687,20 @@ int main(int argc, char *argv[])
      } break;
       case 5: {
         // --------------------------------------------------------------------
-        // STATIC MACRO TEST (standard 'L_' and 'T_' macros)
+        // STATIC MACRO TEST (standard `L_` and `T_` macros)
         //
         // Concerns:
-        //: 1 Line number macro has the correct value.
-        //:
-        //: 2 Tab output macro emits output.
-        //:
-        //: 3 Tab output macro output emitted is in correct format, i.e., is a
-        //:   single tab character.
+        // 1. Line number macro has the correct value.
+        //
+        // 2. Tab output macro emits output.
+        //
+        // 3. Tab output macro output emitted is in correct format, i.e., is a
+        //    single tab character.
         //
         // Plan:
-        //: 1 Compare the value of the line number macro to '__LINE__'.  (C-1)
-        //: 2 Call the tab output macro, and confirm that the captured output
-        //:   is in the correct format.  (C-2,3)
+        // 1. Compare the value of the line number macro to `__LINE__`.  (C-1)
+        // 2. Call the tab output macro, and confirm that the captured output
+        //    is in the correct format.  (C-2,3)
         //
         // Testing:
         //   BSLS_BSLTESTUTIL_L_
@@ -2749,28 +2756,28 @@ int main(int argc, char *argv[])
         // UNFORMATTED OUTPUT TEST
         //
         // Concerns:
-        //: 1 Unformatted output methods emit output.
-        //:
-        //: 2 Output emitted is in correct format
-        //:
-        //:   For printStringNoFlush, the correct format is identical to the
-        //:   input string.
-        //:
-        //:   For printTab, the correct format is a single tab character.
-        //:
-        //: 3 'printStringNoFlush' does not flush output between calls
+        // 1. Unformatted output methods emit output.
+        //
+        // 2. Output emitted is in correct format
+        //
+        //    For printStringNoFlush, the correct format is identical to the
+        //    input string.
+        //
+        //    For printTab, the correct format is a single tab character.
+        //
+        // 3. `printStringNoFlush` does not flush output between calls
         //
         // Plan:
-        //: 1 Using the table-driven technique, call 'printStringNoFlush' with
-        //:   a variety of arguments, and check that the captured output is
-        //:   correct.  (C-1,2)
-        //:
-        //: 2 Call 'printStringNoFlush' twice in succession, and check that the
-        //:   captured output matches the concatenation of the input strings,
-        //:   with no embedded nulls or newlines.  (C-3)
-        //:
-        //: 3 Call 'printTab' and check that the captured output is correct.
-        //:   (C-1,2)
+        // 1. Using the table-driven technique, call `printStringNoFlush` with
+        //    a variety of arguments, and check that the captured output is
+        //    correct.  (C-1,2)
+        //
+        // 2. Call `printStringNoFlush` twice in succession, and check that the
+        //    captured output matches the concatenation of the input strings,
+        //    with no embedded nulls or newlines.  (C-3)
+        //
+        // 3. Call `printTab` and check that the captured output is correct.
+        //    (C-1,2)
         //
         // Testing:
         //   static void printStringNoFlush(const char *s);
@@ -2808,7 +2815,7 @@ int main(int argc, char *argv[])
                 const char *EXPECTED = DATA[ti].d_expectedOutput_p;
 
                 if (veryVerbose) {
-                    PRINT_(ti, "%d"); PRINT(INPUT, "'%s'");
+                    PRINT_(ti, "%d"); PRINT(INPUT, "`%s`");
                 }
 
                 output.reset();
@@ -2845,44 +2852,44 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // FORMATTED OUTPUT TEST
-        //   Ensure that the 'debugprint' formatted output methods write values
-        //   to 'stdout' in the expected form
+        //   Ensure that the `debugprint` formatted output methods write values
+        //   to `stdout` in the expected form
         //
         // Concerns:
-        //: 1 The 'debugprint' method writes the value to 'stdout'.
-        //:
-        //: 2 The 'debugprint' method writes the value in the intended format.
-        //:
-        //: 3 The appropriate overload is called unambiguously for each
-        //:   fundamental data type, and for any pointer type.
-        //:
-        //: 4 The appropriate overload is called unambiguously for
-        //:   const/volatile qualified arguments.
+        // 1. The `debugprint` method writes the value to `stdout`.
+        //
+        // 2. The `debugprint` method writes the value in the intended format.
+        //
+        // 3. The appropriate overload is called unambiguously for each
+        //    fundamental data type, and for any pointer type.
+        //
+        // 4. The appropriate overload is called unambiguously for
+        //    const/volatile qualified arguments.
         //
         // Plan:
-        //: 1 Using the table-driven technique: (C-1, 2)
-        //:
-        //:   For each overload of debugprint, choose a number of significant
-        //:   values for the second parameter, and check that each is written
-        //:   to 'stdout' in the intended format.  The actual checking is
-        //:   delegated to 'TestDriver::testCase3'.  Note that in the data
-        //:   table supplied to 'TestDriver::testCase3', the 'OUTPUT' column
-        //:   may be set to null, in which case the intended format is taken to
-        //:   be the 'INPUT' column formatted by 'printf' using the last
-        //:   argument to 'TestDriver::testCase3'.
-        //:
-        //: 2 For fundamental types, much coverage of concern 3 is covered by
-        //:   checking for correct output in plan 1.  Beyond this, concern 3
-        //:   devolves for fundamental types into testing the compiler.
-        //:   Continuing the same methodology as plan 1, there are a few corner
-        //:   cases that can additionally be checked: (C-3)
-        //:   o That decayed arrays devolve to pointers handled by the
-        //:     'const void *' overload.
-        //:   o That pointers to arbitrary types are handled by the
-        //:     'const void *' overload.
-        //:
-        //: 3 All of the tests from plan 1 are repeated with 'const',
-        //:   'volatile', and 'const volatile' input data.  (C-4)
+        // 1. Using the table-driven technique: (C-1, 2)
+        //
+        //    For each overload of debugprint, choose a number of significant
+        //    values for the second parameter, and check that each is written
+        //    to `stdout` in the intended format.  The actual checking is
+        //    delegated to `TestDriver::testCase3`.  Note that in the data
+        //    table supplied to `TestDriver::testCase3`, the `OUTPUT` column
+        //    may be set to null, in which case the intended format is taken to
+        //    be the `INPUT` column formatted by `printf` using the last
+        //    argument to `TestDriver::testCase3`.
+        //
+        // 2. For fundamental types, much coverage of concern 3 is covered by
+        //    checking for correct output in plan 1.  Beyond this, concern 3
+        //    devolves for fundamental types into testing the compiler.
+        //    Continuing the same methodology as plan 1, there are a few corner
+        //    cases that can additionally be checked: (C-3)
+        //    - That decayed arrays devolve to pointers handled by the
+        //      `const void *` overload.
+        //    - That pointers to arbitrary types are handled by the
+        //      `const void *` overload.
+        //
+        // 3. All of the tests from plan 1 are repeated with `const`,
+        //    `volatile`, and `const volatile` input data.  (C-4)
         //
         // Testing:
         //   void debugprint(bool v)
@@ -4131,87 +4138,87 @@ int main(int argc, char *argv[])
         // TEST APPARATUS TEST
         //
         // Concerns:
-        //:  1 Output is redirected
-        //:
-        //:  2 Captured output is readable
-        //:
-        //:  3 'load' works
-        //:
-        //:  4 'reset' works
-        //:
-        //:  5 'compare' works
-        //:
-        //:  6 Incorrect output is correctly diagnosed
-        //:
-        //:  7 Embedded newlines work
-        //:
-        //:  8 Empty output works
-        //:
-        //:  9 Embedded nulls work
-        //:
-        //: 10 Filesystem-dependent control sequences work
-        //:
-        //: 11 stderr points to original target of 'stdout'
+        //  1. Output is redirected
+        //
+        //  2. Captured output is readable
+        //
+        //  3. `load` works
+        //
+        //  4. `reset` works
+        //
+        //  5. `compare` works
+        //
+        //  6. Incorrect output is correctly diagnosed
+        //
+        //  7. Embedded newlines work
+        //
+        //  8. Empty output works
+        //
+        //  9. Embedded nulls work
+        //
+        // 10. Filesystem-dependent control sequences work
+        //
+        // 11. stderr points to original target of `stdout`
         //
         // Plan:
-        //:  1 Confirm that 'ftell(stdout)' succeeds.  This demonstrates that
-        //:    'stdout' is a seekable file. (C-1)
-        //:
-        //:  2 Write a string to 'stdout', confirm that 'stdout's seek position
-        //:    has changed, read back the contents of 'stdout' and compare them
-        //:    to the original string.  (C-2)
-        //:
-        //:  3 Write a string to 'stdout'.  Confirm that
-        //:    'OutputRedirector::load' changes the contents of the output
-        //:    buffer and that it changes the result of
-        //:    'OutputRedirector::isOutputReady' from 'false' to 'true'.
-        //:    Confirm that the contents of the output buffer match the
-        //:    original string.  (C-3)
-        //:
-        //:  4 Write a string to 'stdout' and load it with
-        //:    'OutputRedirector::load'.  Confirm that
-        //:    'OutputRedirector::reset' rewinds 'stdout', changes the output
-        //:    of 'OutputRedirector::isOutputReady' from 'true' to 'false' and
-        //:    sets the length of the output buffer to 0.  (C-4)
-        //:
-        //:  5 Write a string to 'stdout' and read it back with
-        //:    'OutputRedirector::load'.  Confirm that
-        //:    'OutputRedirector::compare' gives the correct results when the
-        //:    captured output is compared with the following data:  (C-5)
-        //:
-        //:        Data                           Comparison Result
-        //:    ------------                   -------------------------
-        //:    input string                           true
-        //:    input string with appended data        false
-        //:    input string truncated                 false
-        //:    string different from input:
-        //:    at beginning                           false
-        //:    at end                                 false
-        //:    elsewhere                              false
-        //:
-        //:  6 Confirm that 'load' fails when there is more data in 'stdout'
-        //:    than can be fit in the capture buffer.  Confirm that 'compare'
-        //:    fails if 'load' has not been first called to read data into the
-        //:    capture buffer.  (C-6)
-        //:
-        //:  7 Confirm that strings containing embedded newlines are correctly
-        //:    captured and correctly identified by 'compare'.  (C-7)
-        //:
-        //:  8 Write an empty string to 'stdout'.  Confirm that it can be
-        //:    correctly loaded and compared with the original.  (C-8)
-        //:
-        //:  9 Write a series of strings to 'stdout', containing '\0' at the
-        //:    beginning, end or interior of the string.  Confirm that the
-        //:    captured output can be correctly loaded and compared with the
-        //:    original input.  (C-9)
-        //:
-        //: 10 Write a series of strings to 'stdout' containing '^D' and
-        //:    '<CRLF>' and confirm that these strings are correctly captured
-        //:    and loaded.  (C-10)
-        //:
-        //: 11 Use 'fstat' to find out the device and inode of the current
-        //:    (post-redirection) 'stderr'.  Compare these values to the device
-        //:    and inode of 'stdout' before redirection.  (C-11)
+        //  1. Confirm that `ftell(stdout)` succeeds.  This demonstrates that
+        //     `stdout` is a seekable file. (C-1)
+        //
+        //  2. Write a string to `stdout`, confirm that `stdout`s seek position
+        //     has changed, read back the contents of `stdout` and compare them
+        //     to the original string.  (C-2)
+        //
+        //  3. Write a string to `stdout`.  Confirm that
+        //     `OutputRedirector::load` changes the contents of the output
+        //     buffer and that it changes the result of
+        //     `OutputRedirector::isOutputReady` from `false` to `true`.
+        //     Confirm that the contents of the output buffer match the
+        //     original string.  (C-3)
+        //
+        //  4. Write a string to `stdout` and load it with
+        //     `OutputRedirector::load`.  Confirm that
+        //     `OutputRedirector::reset` rewinds `stdout`, changes the output
+        //     of `OutputRedirector::isOutputReady` from `true` to `false` and
+        //     sets the length of the output buffer to 0.  (C-4)
+        //
+        //  5. Write a string to `stdout` and read it back with
+        //     `OutputRedirector::load`.  Confirm that
+        //     `OutputRedirector::compare` gives the correct results when the
+        //     captured output is compared with the following data:  (C-5)
+        //
+        //         Data                           Comparison Result
+        //     ------------                   -------------------------
+        //     input string                           true
+        //     input string with appended data        false
+        //     input string truncated                 false
+        //     string different from input:
+        //     at beginning                           false
+        //     at end                                 false
+        //     elsewhere                              false
+        //
+        //  6. Confirm that `load` fails when there is more data in `stdout`
+        //     than can be fit in the capture buffer.  Confirm that `compare`
+        //     fails if `load` has not been first called to read data into the
+        //     capture buffer.  (C-6)
+        //
+        //  7. Confirm that strings containing embedded newlines are correctly
+        //     captured and correctly identified by `compare`.  (C-7)
+        //
+        //  8. Write an empty string to `stdout`.  Confirm that it can be
+        //     correctly loaded and compared with the original.  (C-8)
+        //
+        //  9. Write a series of strings to `stdout`, containing '\0' at the
+        //     beginning, end or interior of the string.  Confirm that the
+        //     captured output can be correctly loaded and compared with the
+        //     original input.  (C-9)
+        //
+        // 10. Write a series of strings to `stdout` containing `^D` and
+        //     `<CRLF>` and confirm that these strings are correctly captured
+        //     and loaded.  (C-10)
+        //
+        // 11. Use `fstat` to find out the device and inode of the current
+        //     (post-redirection) `stderr`.  Compare these values to the device
+        //     and inode of `stdout` before redirection.  (C-11)
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -4263,7 +4270,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            // 3 'load' works
+            // 3 `load` works
             if (verbose) {
                 fprintf(stderr,
                         "\nTESTING OUTPUT CAPTURE LOAD"
@@ -4288,7 +4295,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            // 4 'reset' works
+            // 4 `reset` works
             if (verbose) {
                 fprintf(stderr,
                         "\nTESTING OUTPUT CAPTURE RESET"
@@ -4311,7 +4318,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            // 5 'compare' works
+            // 5 `compare` works
             if (verbose) {
                 fprintf(stderr,
                         "\nTESTING OUTPUT CAPTURE VERIFICATION"
@@ -4469,7 +4476,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            //: 11 stderr points to original target of stdout
+            // 11. stderr points to original target of stdout
             if (verbose) {
                 fprintf(stderr,
                         "\nTESTING STDERR REDIRECTION"
@@ -4500,11 +4507,11 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Invoke each of the "print" macros, protected by a check for
-        //   'verbose' mode, and manually inspect the output to the console.
-        //   Invoke each 'LOOPx_ASSERT' macro with a test that passes, and
+        //   `verbose` mode, and manually inspect the output to the console.
+        //   Invoke each `LOOPx_ASSERT` macro with a test that passes, and
         //   again with a test that fails only in verbose mode.  Then reset the
-        //   'testStatus' count to reflect the expected number of failed
-        //   'LOOPx_ASSERT's.
+        //   `testStatus` count to reflect the expected number of failed
+        //   `LOOPx_ASSERT`s.
         //
         // Testing:
         //   BREATHING TEST
@@ -4642,12 +4649,12 @@ int main(int argc, char *argv[])
       } break;
       case -1: {
         // --------------------------------------------------------------------
-        // CONCERN: 'printf' stack corruption test works
+        // CONCERN: `printf` stack corruption test works
         //
         // Concerns:
         //   That the data corruption strategy used in test case 9 would detect
         //   corruption if the format specifier string under test were
-        //   incorrect, i.e., that the 'data.target' and 'data.sentinel' values
+        //   incorrect, i.e., that the `data.target` and `data.sentinel` values
         //   tested in test case 9 would actually trigger asserts.
         //
         // Plan:
@@ -4656,10 +4663,10 @@ int main(int argc, char *argv[])
         //   than the type being printed.
         //
         // Testing:
-        //   CONCERN: 'printf' stack corruption test works
+        //   CONCERN: `printf` stack corruption test works
         // --------------------------------------------------------------------
         if (verbose) fprintf(stderr,
-                          "\tCONCERN: 'printf' stack corruption test works\n");
+                          "\tCONCERN: `printf` stack corruption test works\n");
 
             checkStackCorruptionTest();
       } break;

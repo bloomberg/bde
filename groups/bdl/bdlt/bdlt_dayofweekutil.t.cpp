@@ -5,9 +5,9 @@
 
 #include <bsls_asserttest.h>
 
-#include <bsl_climits.h>       // 'INT_MAX', 'INT_MIN'
-#include <bsl_cstdlib.h>       // 'atoi'
-#include <bsl_iostream.h>      // 'cout'
+#include <bsl_climits.h>       // `INT_MAX`, `INT_MIN`
+#include <bsl_cstdlib.h>       // `atoi`
+#include <bsl_iostream.h>      // `cout`
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -114,12 +114,12 @@ int main(int argc, char *argv[])
         //   file.
         //
         // Concerns:
-        //: 1 The usage examples provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage examples provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into driver, remove leading
-        //:   comment characters, and replace 'assert' with 'ASSERT'.
+        // 1. Incorporate usage example from header into driver, remove leading
+        //    comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -138,47 +138,47 @@ int main(int argc, char *argv[])
 // the performance, assumed to be a Friday, and we want to know when the
 // previous one took place and when the next one will be.
 //
-// First, we create a 'bdlt::DayOfWeek' variable for the current day:
-//..
+// First, we create a `bdlt::DayOfWeek` variable for the current day:
+// ```
     bdlt::DayOfWeek::Enum current = bdlt::DayOfWeek::e_FRI;
-//..
+// ```
 // Next, we calculate previous and following event days using the
-// 'bdlt::DayOfWeekUtil::add' function:
-//..
+// `bdlt::DayOfWeekUtil::add` function:
+// ```
     bdlt::DayOfWeek::Enum previous  = bdlt::DayOfWeekUtil::add(current, -10);
     bdlt::DayOfWeek::Enum following = bdlt::DayOfWeekUtil::add(current,  10);
-//..
+// ```
 // Finally, we verify the resultant day-of-week values:
-//..
+// ```
     ASSERT(bdlt::DayOfWeek::e_TUE == previous );
     ASSERT(bdlt::DayOfWeek::e_MON == following);
-//..
+// ```
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'add'
+        // TESTING `add`
         //
         // Concerns:
-        //: 1 The 'add' function correctly conducts
-        //:   'end of the week/beginning of the next week' rollover.
-        //:
-        //: 2 The 'add' function correctly conducts
-        //:   'beginning of the week/end of the previous week' rollover.
-        //:
-        //: 3 The 'add' function correctly handles any shift from the range of
-        //:   integer values (including zero value and integer limits).
+        // 1. The `add` function correctly conducts
+        //    `end of the week/beginning of the next week` rollover.
+        //
+        // 2. The `add` function correctly conducts
+        //    `beginning of the week/end of the previous week` rollover.
+        //
+        // 3. The `add` function correctly handles any shift from the range of
+        //    integer values (including zero value and integer limits).
         //
         // Plan:
-        //: 1 For each value from day-of-week enumeration call
-        //:   bdlt::DayOfWeekUtil::add' function with different shifts (both
-        //:   positive and negative, including zero and integer limits) and
-        //:   verify the correctness of the results.  (C-1..3)
+        // 1. For each value from day-of-week enumeration call
+        //    bdlt::DayOfWeekUtil::add' function with different shifts (both
+        //    positive and negative, including zero and integer limits) and
+        //    verify the correctness of the results.  (C-1..3)
         //
         // Testing:
         //   static DayOfWeek::Enum add(DayOfWeek::Enum dayOfWeek, int num);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'add'\n"
+        if (verbose) cout << "\nTESTING `add`\n"
                                "==============\n";
 
         const Enum SUN(bdlt::DayOfWeek::e_SUN);

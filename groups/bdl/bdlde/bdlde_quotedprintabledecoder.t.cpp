@@ -18,38 +18,38 @@ using namespace bsl;                // automatically added by script
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// This encoder is a kind of 'mechanism' that can be customized at
+// This encoder is a kind of `mechanism` that can be customized at
 // construction.  Since there is currently no prevision to change this
 // customization after construction, the choice for primary constructor must
 // permit permits this customization:
-//..
+// ```
 //  bdepu::Base64Encoder(int maxLineLength);
-//..
+// ```
 // The primary manipulators are those needed to reach every attainable state.
-// Clearly 'convert' is one, but 'endConvert' is also needed in order to reach
-// the 'DONE' state.  Hence, the primary manipulators are
-//..
+// Clearly `convert` is one, but `endConvert` is also needed in order to reach
+// the `DONE` state.  Hence, the primary manipulators are
+// ```
 //  int convert(char *out, int *numOut, int *ni, const char *b, const char *e);
 //  int endConvert(char *out, int *numOut);
-//..
-// Though not strictly primary, the 'reset' method resets the object under to
+// ```
+// Though not strictly primary, the `reset` method resets the object under to
 // its initial state (i.e., to that immediately following construction).  It
-// will turn out to be convenient to test 'reset' along with all the other
-// state transitions imposed by 'convert' and 'endConvert' early in the testing
+// will turn out to be convenient to test `reset` along with all the other
+// state transitions imposed by `convert` and `endConvert` early in the testing
 // process.
-//..
+// ```
 // The basic accessers for the encoder are all the functions that return
 // information about the customization and/or execution state:
-//..
+// ```
 //  bool isAccepting() const;
 //  bool isError() const;
 //  bool isInitialState() const;
 //  int maxLineLength() const;
 //  int outputLength() const;
-//..
+// ```
 // The following table illustrates major state transitions for all three of the
 // processing manipulators:
-//..
+// ```
 //                      convert (1)     endConvert      reset
 //                      -----------     ----------      -----
 //      INITIAL_STATE:  State 1         DONE_STATE      INITIAL_STATE
@@ -58,20 +58,20 @@ using namespace bsl;                // automatically added by script
 //      State 3:        State 1         DONE_STATE      INITIAL_STATE
 //      DONE_STATE:     ERROR_STATE     ERROR_STATE     INITIAL_STATE
 //      ERROR_STATE:    ERROR_STATE     ERROR_STATE     INITIAL_STATE
-//..
+// ```
 // Our first step will be to ensure that each of these states can be reached
-// ('::setState'), that an anticipated state can be verified ('::isState'), and
-// that each of the above state transitions (including 'reset') is verified.
+// (`::setState`), that an anticipated state can be verified (`::isState`), and
+// that each of the above state transitions (including `reset`) is verified.
 // Next, we will ensure that each internal table is correct.  Finally, using
 // category partitioning, we enumerate a representative collection of inputs
 // ordered by length (plus MaxLineLength) that will be sufficient to prove that
 // the logic associated with the state machine is performing as desired.
 //
-// Note that Because the 'convert' and 'endConvert' methods are parametrized
+// Note that Because the `convert` and `endConvert` methods are parametrized
 // based on iterator types, we will want to ensure (at compile time) that their
 // respective implementations do not depend on more than minimal iterator
 // functionality.  We will accomplish this goal by supplying, as template
-// arguments, 'bdeut::InputIterator' for 'convert' and 'bdeut::OutputIterator'
+// arguments, `bdeut::InputIterator` for `convert` and `bdeut::OutputIterator`
 // for both of these template methods.
 //-----------------------------------------------------------------------------
 // [ 7] static int encodedLength(int numInputBytes, int maxLineLength);
@@ -91,8 +91,8 @@ using namespace bsl;                // automatically added by script
 // [  ] USAGE EXAMPLE
 // [ ?] That the input iterator can have *minimal* functionality.
 // [ ?] That the output iterator can have *minimal* functionality.
-// [ 5] BOOTSTRAP: 'convert' - transitions
-// [ 4] BOOTSTRAP: 'endConvert'- transitions
+// [ 5] BOOTSTRAP: `convert` - transitions
+// [ 4] BOOTSTRAP: `endConvert`- transitions
 // [ 3] That we can reach each of the major processing states.
 // [ 1] ::myMin(const T& a, const T& b);
 // [ 1] ::printCharN(ostream& output, const char* sequence, int length)
@@ -215,8 +215,8 @@ BSLMF_ASSERT(ERROR_STATE + 1 == NUM_STATES);
                         // Equivalence-Class Related Data Types
                         // ====================================
 
+/// Range is made inclusive to support a point.
 struct Range {
-    // Range is made inclusive to support a point.
 
     unsigned char start;
     unsigned char end;
@@ -362,7 +362,7 @@ const EquivalenceClass carriageReturnRelaxed("Carriage Return (Relaxed Mode)",
                         // =============================
 
 const EquivalenceClass& findEquivalenceClass(char ch)
-    // Find the equivalence class to which the specified 'ch' belongs.
+    // Find the equivalence class to which the specified `ch` belongs.
 {
     if (ch == '=') {
         return equalSign;
@@ -405,22 +405,22 @@ T myMin(const T& a, const T& b)
                         // Function isHex
                         // ==============
 
+/// Return `true` is the specified `ch` is a hexadecimal digit.  Note that
+/// only uppercase letters are allowed since this function is only used to
+/// check output from the converter being tested.
 inline
 bool isHex(char ch)
-    // Return 'true' is the specified 'ch' is a hexadecimal digit.  Note that
-    // only uppercase letters are allowed since this function is only used to
-    // check output from the converter being tested.
 {
     return ('0' <= ch && ch <= '9') || ('A' <= ch && ch <= 'F');
 }
 
 
+/// Return the hexadecimal number converted from the hexadecimal digit the
+/// specified `hex` character represents, accepting lowercase 'a' - 'f' if
+/// the optionally specified `lowercase` is `true`; return -1 if hex is not
+/// within the hexadecimal range (conditioned by `lowercase`).
 inline
 int hexToChar(char hex, bool lowercase = false)
-    // Return the hexadecimal number converted from the hexadecimal digit the
-    // specified 'hex' character represents, accepting lowercase 'a' - 'f' if
-    // the optionally specified 'lowercase' is 'true'; return -1 if hex is not
-    // within the hexadecimal range (conditioned by 'lowercase').
 {
     if ('0' <= hex && hex <= '9') {
         return hex - '0';                                             // RETURN
@@ -436,13 +436,13 @@ int hexToChar(char hex, bool lowercase = false)
     }
 }
 
+/// Place into the specified `character` the ASCII value obtained by
+/// interpreting the 2 characters in the specified `string` as hexadecimal
+/// digits, including lowercase 'a' - 'f' if the optionally specified
+/// `lowercase` is `true`.  Return 0 if `string` contains characters within
+/// the hexadecimal range (conditioned by `lowercase`), and -1 otherwise.
 inline
 int hexStrToChar(char* character, char string[2], bool lowercase = false)
-    // Place into the specified 'character' the ASCII value obtained by
-    // interpreting the 2 characters in the specified 'string' as hexadecimal
-    // digits, including lowercase 'a' - 'f' if the optionally specified
-    // 'lowercase' is 'true'.  Return 0 if 'string' contains characters within
-    // the hexadecimal range (conditioned by 'lowercase'), and -1 otherwise.
 {
     int d1 = hexToChar(string[0], lowercase);
     if (d1 == -1)
@@ -460,19 +460,19 @@ int hexStrToChar(char* character, char string[2], bool lowercase = false)
                         // Function isWhite
                         // ================
 
+/// Return `true` is the specified `ch` is either a space or a tab.
 inline
 bool isWhite(char ch)
-    // Return 'true' is the specified 'ch' is either a space or a tab.
 {
     return ' ' == ch || '\t' == ch;
 }
 
+/// Print the specified character `sequence` of specified `length` to the
+/// specified `stream` and return a reference to the modifiable `stream`
+/// (if a character is not printable, its hexadecimal code is printed
+/// instead).  The behavior is undefined unless 0 <= `length` and sequence
+/// refers to a valid area of memory of size at least `length`.
 ostream& printCharN(ostream& output, const char* sequence, int length)
-    // Print the specified character 'sequence' of specified 'length' to the
-    // specified 'stream' and return a reference to the modifiable 'stream'
-    // (if a character is not printable, its hexadecimal code is printed
-    // instead).  The behavior is undefined unless 0 <= 'length' and sequence
-    // refers to a valid area of memory of size at least 'length'.
 {
     static char HEX[] = "0123456789ABCDEF";
 
@@ -494,23 +494,23 @@ ostream& printCharN(ostream& output, const char* sequence, int length)
                         // Function setState
                         // =================
 
+/// Move the specified `object` from its initial (i.e., newly constructed)
+/// state to the specified `state` using '\0' characters for input as
+/// needed.  The behavior is undefined if `object` is not in its
+/// newly-constructed initial state.  Note that when this function is
+/// invoked on a newly constructed object, it is presumed that
+/// `isInitialState` has been sufficiently tested to ensure that it returns
+/// `true`.
 void setState(bdlde::QuotedPrintableDecoder *object, int state)
-    // Move the specified 'object' from its initial (i.e., newly constructed)
-    // state to the specified 'state' using '\0' characters for input as
-    // needed.  The behavior is undefined if 'object' is not in its
-    // newly-constructed initial state.  Note that when this function is
-    // invoked on a newly constructed object, it is presumed that
-    // 'isInitialState' has been sufficiently tested to ensure that it returns
-    // 'true'.
 {
     ASSERT(object); ASSERT(0 <= state); ASSERT(state < NUM_STATES);
 
     if (!object->isInitialState()) { cout
-     << "You must not call 'setState' from other than 'INITIAL_STATE'!" << endl
-     << "\tNote that '::isState' *will* alter from the initial state." << endl;
+     << "You must not call `setState` from other than `INITIAL_STATE`!" << endl
+     << "\tNote that `::isState` *will* alter from the initial state." << endl;
     }
 
-    ASSERT(object->isInitialState()); // If 'object' is "just created" then
+    ASSERT(object->isInitialState()); // If `object` is "just created" then
                                       // this assertion should be true!
 
     char b[4];
@@ -643,21 +643,21 @@ void setState(bdlde::QuotedPrintableDecoder *object, int state)
                         // Function isState
                         // ================
 
+/// If set to true, will enable ASSERTs in `::isState` (for debugging).
 static bool globalAssertsEnabled = false;
-    // If set to true, will enable ASSERTs in '::isState' (for debugging).
 
+/// Enable/Disable `::isState` ASSERTs for current scope; restore status at
+/// end.  Note that guards can be nested.
 class EnabledGuard {
-    // Enable/Disable '::isState' ASSERTs for current scope; restore status at
-    // end.  Note that guards can be nested.
 
     bool d_state;
 
   public:
+    /// Create a guard to control the activation of individual assertions in
+    /// the `::isState` test helper function using the specified enable
+    /// `flag` value.  If `flag` is `true` individual false values we be
+    /// reported as assertion errors.
     EnabledGuard(bool flag)
-        // Create a guard to control the activation of individual assertions in
-        // the '::isState' test helper function using the specified enable
-        // 'flag' value.  If 'flag' is 'true' individual false values we be
-        // reported as assertion errors.
     : d_state(globalAssertsEnabled)
     {
         globalAssertsEnabled = flag;
@@ -666,14 +666,14 @@ class EnabledGuard {
     ~EnabledGuard() { globalAssertsEnabled = d_state; }
 };
 
+/// Return `true` if the specified `object` was initially in the specified
+/// `state`, and `false` otherwise.  Setting the global variable
+/// `globalAssertsEnabled` to `true` enables individual sub-conditions to
+/// be ASSERTed, which can be used to facilitate test driver debugging.
+/// Note that the final state of `object` may (and probably will) be
+/// modified arbitrarily from its initial state in order to distinguish
+/// similar states.
 bool isState(bdlde::QuotedPrintableDecoder *object, int state)
-    // Return 'true' if the specified 'object' was initially in the specified
-    // 'state', and 'false' otherwise.  Setting the global variable
-    // 'globalAssertsEnabled' to 'true' enables individual sub-conditions to
-    // be ASSERTed, which can be used to facilitate test driver debugging.
-    // Note that the final state of 'object' may (and probably will) be
-    // modified arbitrarily from its initial state in order to distinguish
-    // similar states.
 {
     ASSERT(object); ASSERT(0 <= state); ASSERT(state < NUM_STATES);
 
@@ -998,11 +998,11 @@ const char* getStateInText(bdlde::QuotedPrintableDecoder *object)
                             // class InputIterator
                             // ===================
 
+/// This class provides an minimal iterator-like interface that can be used
+/// to test encoding/decoding automata that cannot rely on input iterators
+/// having random-access semantics.  The postfix increment operator is
+/// deliberately omitted (but may be added locally where desired).
 class InputIterator {
-    // This class provides an minimal iterator-like interface that can be used
-    // to test encoding/decoding automata that cannot rely on input iterators
-    // having random-access semantics.  The postfix increment operator is
-    // deliberately omitted (but may be added locally where desired).
 
     const char *d_pointer_p;
 
@@ -1010,40 +1010,43 @@ class InputIterator {
 
   public:
     // CREATORS
-    InputIterator(const char *source);
-        // Create an iterator referring the specified 'source' character.
 
+    /// Create an iterator referring the specified `source` character.
+    InputIterator(const char *source);
+
+    /// Crate an iterator having the same value as that of the specified
+    /// `original` iterator.
     InputIterator(const InputIterator& original);
-        // Crate an iterator having the same value as that of the specified
-        // 'original' iterator.
 
     // MANIPULATORS
-    InputIterator& operator=(const InputIterator& rhs);
-        // Assign the value of the specified 'rhs' iterator to this one.
 
+    /// Assign the value of the specified `rhs` iterator to this one.
+    InputIterator& operator=(const InputIterator& rhs);
+
+    /// Advance this iterator to refer to the next position in the sequence;
+    /// the behavior is undefined if this iterator does not refer initially
+    /// to a valid element position.
     void operator++();
-        // Advance this iterator to refer to the next position in the sequence;
-        // the behavior is undefined if this iterator does not refer initially
-        // to a valid element position.
 
     // ACCESSORS
+
+    /// Return the character at the current position; the behavior is
+    /// undefined if this iterator does not refer initially to a valid
+    /// element position.
     char operator*() const;
-        // Return the character at the current position; the behavior is
-        // undefined if this iterator does not refer initially to a valid
-        // element position.
 };
 
 // FREE OPERATORS
 
+/// Return `true` if the specified `lhs` and `rhs` iterators refer to the
+/// same element, and `false` otherwise.
 inline
 bool operator==(const InputIterator& lhs, const InputIterator& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' iterators refer to the
-    // same element, and 'false' otherwise.
 
+/// Return `true` if the specified `lhs` and `rhs` iterators do note refer
+/// to same element, and `false` otherwise.
 inline
 bool operator!=(const InputIterator& lhs, const InputIterator& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' iterators do note refer
-    // to same element, and 'false' otherwise.
 
 InputIterator::InputIterator(const char *source)
 : d_pointer_p(source)
@@ -1084,11 +1087,11 @@ bool operator!=(const InputIterator& lhs, const InputIterator& rhs)
                             // class OutputIterator
                             // ====================
 
+/// This class provides an minimal iterator-like interface that can be used
+/// to test encoding/decoding automata that cannot rely on output iterators
+/// having random-access semantics.  The postfix increment operator is
+/// deliberately omitted (but may be added locally where desired).
 class OutputIterator {
-    // This class provides an minimal iterator-like interface that can be used
-    // to test encoding/decoding automata that cannot rely on output iterators
-    // having random-access semantics.  The postfix increment operator is
-    // deliberately omitted (but may be added locally where desired).
 
     char *d_pointer_p;
 
@@ -1096,40 +1099,43 @@ class OutputIterator {
 
   public:
     // CREATORS
-    OutputIterator(char *source);
-        // Create an iterator referring the specified 'source' character.
 
+    /// Create an iterator referring the specified `source` character.
+    OutputIterator(char *source);
+
+    /// Crate an iterator having the same value as that of the specified
+    /// `original` iterator.
     OutputIterator(const OutputIterator& original);
-        // Crate an iterator having the same value as that of the specified
-        // 'original' iterator.
 
     // MANIPULATORS
-    OutputIterator& operator=(const OutputIterator& rhs);
-        // Assign the value of the specified 'rhs' iterator to this one.
 
+    /// Assign the value of the specified `rhs` iterator to this one.
+    OutputIterator& operator=(const OutputIterator& rhs);
+
+    /// Advance this iterator to refer to the next position in the sequence;
+    /// the behavior is undefined if this iterator does not refer initially
+    /// to a valid element position.
     void operator++();
-        // Advance this iterator to refer to the next position in the sequence;
-        // the behavior is undefined if this iterator does not refer initially
-        // to a valid element position.
 
     // ACCESSORS
+
+    /// Return a reference to the modifiable character at the current i
+    /// position; the behavior is undefined if this iterator does not refer
+    /// initially to a valid element position.
     char& operator*() const;
-        // Return a reference to the modifiable character at the current i
-        // position; the behavior is undefined if this iterator does not refer
-        // initially to a valid element position.
 };
 
 // FREE OPERATORS
 
+/// Return `true` if the specified `lhs` and `rhs` iterators refer to the
+/// same element, and `false` otherwise.
 inline
 bool operator==(const OutputIterator& lhs, const OutputIterator& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' iterators refer to the
-    // same element, and 'false' otherwise.
 
+/// Return `true` if the specified `lhs` and `rhs` iterators do note refer
+/// to same element, and `false` otherwise.
 inline
 bool operator!=(const OutputIterator& lhs, const OutputIterator& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' iterators do note refer
-    // to same element, and 'false' otherwise.
 
 OutputIterator::OutputIterator(char *source)
 : d_pointer_p(source)
@@ -1187,21 +1193,21 @@ int main(int argc, char *argv[])
 #if 0 // TBD
         // --------------------------------------------------------------------
         // RESET
-        //   Verify the 'reset' method.
+        //   Verify the `reset` method.
         //
         // Concerns:
-        //   - That 'reset' method returns the object to its initial state
+        //   - That `reset` method returns the object to its initial state
         //     (i.e., the same as it was immediately after construction).
         //   - That the initial configuration is not altered.
         //
         // Plan:
         //   - Use put the object in each state and verify the expected
         //      state is not/is in the initial state before/after the call to
-        //      'reset'.
+        //      `reset`.
         //   - Verify that the initial configuration has not changed.
         //   - Repeat the above with a different configuration.
         //   - Verify that if there are characters specified to be encoded,
-        //     they have not changed after 'reset' until the 3-parameter
+        //     they have not changed after `reset` until the 3-parameter
         //     constructor is verified (in case 7).
         //
         // Tactics:
@@ -1216,7 +1222,7 @@ int main(int argc, char *argv[])
                           << "RESET" << endl
                           << "===========" << endl;
 
-        if (verbose) cout << "\nVerify 'reset'." << endl;
+        if (verbose) cout << "\nVerify `reset`." << endl;
 
         V("In CRLF_MODE and error-reporting mode");
         {
@@ -1463,7 +1469,7 @@ int main(int argc, char *argv[])
                     }
 
                     VVV("Verify error reporting of a hexadecimal following");
-                    VVV("an '=Y' sequence where Y is not a hexadecimal.");
+                    VVV("an `=Y` sequence where Y is not a hexadecimal.");
                     {
                         memset(output, -1, sizeof(output));
                         Obj obj(errorMode, Obj::e_CRLF_MODE);
@@ -1983,7 +1989,7 @@ int main(int argc, char *argv[])
                     if (veryVerbose) { T_ T_ P(i) }
                     input[0] = i;
 
-                    VVV("Verify a stand-alone '\\n' is decoded in CRLF_MODE.");
+                    VVV("Verify a stand-alone `\\n` is decoded in CRLF_MODE.");
                     {
                         memset(output, -1, sizeof(output));
                         Obj obj(errorMode, Obj::e_CRLF_MODE);
@@ -2006,7 +2012,7 @@ int main(int argc, char *argv[])
                         LOOP_ASSERT(i, -1   == b[2]);
                     }
 
-                    VVV("Verify a stand-alone '\\n' is output as '\n'");
+                    VVV("Verify a stand-alone `\\n` is output as '\n'");
                     VVV("in LF_MODE.");
                     {
                         memset(output, -1, sizeof(output));
@@ -2084,30 +2090,30 @@ int main(int argc, char *argv[])
       case 4: {
 #if 0 // TBD
         // --------------------------------------------------------------------
-        // BOOTSTRAP: 'endConvert' - transitions
-        //   Verify 'endConvert' transitions for all states.
+        // BOOTSTRAP: `endConvert` - transitions
+        //   Verify `endConvert` transitions for all states.
         //
         // Concerns:
         //   - That we reach the correct final state after calling
-        //     'endConvert'.
+        //     `endConvert`.
         //
         // Plan:
         //   Put the object in each state and verify the expected state is
-        //   correct after the call to 'endConvert'.
+        //   correct after the call to `endConvert`.
         //
         // Tactics:
         //   - Area Data Selection Method
         //   - Table-Based Implementation Technique
         //
         // Testing:
-        //  BOOTSTRAP: 'endConvert' - transitions
+        //  BOOTSTRAP: `endConvert` - transitions
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "BOOTSTRAP: 'endConvert' - transitions" << endl
+                          << "BOOTSTRAP: `endConvert` - transitions" << endl
                           << "=====================================" << endl;
 
-        V("Verify 'endConvert' transitions for decoder.");
+        V("Verify `endConvert` transitions for decoder.");
         {
             static const struct {
                 int d_lineNum;          // source line number
@@ -2140,8 +2146,8 @@ int main(int argc, char *argv[])
                 const int END   = DATA[ti].d_endState;
                 const int RTN = -(ERROR_STATE == END);
 
-                // Use non-error-reporting decoder as the 'endConvert' method
-                // is used within 'isState' and it will report an error if the
+                // Use non-error-reporting decoder as the `endConvert` method
+                // is used within `isState` and it will report an error if the
                 // decoder is already done or in error.
 
                 Obj obj(false, Obj::e_CRLF_MODE);
@@ -2182,20 +2188,20 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   First make sure that when we are in the initial (i.e., newly
-        //   constructed) state, 'isInitialState()' returns 'true' (so that
-        //   the assertion that 'isInitialState()' does not fail before we have
+        //   constructed) state, `isInitialState()` returns `true` (so that
+        //   the assertion that `isInitialState()` does not fail before we have
         //   had an opportunity to test it explicitly).
         //
         //   Second, using the Brute-Force approach, reach each of the major
         //   states from a newly constructed object as simply as possible
-        //   (i.e., by processing one character at a time) via the '::setState'
+        //   (i.e., by processing one character at a time) via the `::setState`
         //   test helper function.  Then use all of the (as yet untested)
         //   processing accessors to help verify the new state.  Additionally,
         //   call one or more manipulators to change the state (thereby
         //   creating a partial *Distinguishing* *Sequence*) in order to
         //   further verify that the targeted state was reached.
         //
-        //   Third, prove that the '::isState' helper function (implemented
+        //   Third, prove that the `::isState` helper function (implemented
         //   using the above strategy) correctly confirms the indicated state
         //   by showing that, for each state, only the corresponding state
         //   setting returns true.
@@ -2434,7 +2440,7 @@ int main(int argc, char *argv[])
                 // between '=' and "41" as an error and output it in the
                 // relaxed mode.
 
-                // Use 'convert' with zero output limit to obtain the buffer
+                // Use `convert` with zero output limit to obtain the buffer
                 // size needed to hold output.
 
                 char *b;
@@ -2619,7 +2625,7 @@ int main(int argc, char *argv[])
                     const bool SAME = i == j;
                     if (veryVeryVerbose) { T_ T_ T_ P(SAME) }
 
-                    EnabledGuard Guard(SAME); // Enable individual '::isState'
+                    EnabledGuard Guard(SAME); // Enable individual `::isState`
                                               // ASSERTs in order to facilitate
                                               // debugging.
 
@@ -2791,7 +2797,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, 1 == numOut);
             }
 
-            // Test that weird hex fuzz doesn't crash - '{DRQS 162367918}'
+            // Test that weird hex fuzz doesn't crash - `{DRQS 162367918}`
             for (int i = 0x00; i <= 0xFF; ++i) {
                 input[1] = char(i);
                 for (int j = 0x00; j <= 0xFF; ++j) {

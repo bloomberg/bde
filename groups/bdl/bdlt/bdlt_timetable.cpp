@@ -19,10 +19,10 @@ namespace bdlt {
                        // class Timetable_ResetProctor
                        // ============================
 
+/// This class implements a proctor that, unless its `release` method has
+/// previously been invoked, automatically invokes `reset` on a `Timetable`
+/// upon destruction.
 class Timetable_ResetProctor {
-    // This class implements a proctor that, unless its 'release' method has
-    // previously been invoked, automatically invokes 'reset' on a 'Timetable'
-    // upon destruction.
 
     // DATA
     Timetable *d_timetable_p;  // managed timetable
@@ -34,17 +34,18 @@ class Timetable_ResetProctor {
 
   public:
     // CREATORS
+
+    /// Create a `reset` proctor that conditionally manages the specified
+    /// `timetable`.
     Timetable_ResetProctor(Timetable *timetable)
-        // Create a 'reset' proctor that conditionally manages the specified
-        // 'timetable'.
     : d_timetable_p(timetable)
     {
         BSLS_ASSERT(timetable);
     }
 
+    /// Destroy this object and, if `release` has not been invoked, invoke
+    /// the managed timetable's `reset` method.
     ~Timetable_ResetProctor()
-        // Destroy this object and, if 'release' has not been invoked, invoke
-        // the managed timetable's 'reset' method.
     {
         if (d_timetable_p) {
             d_timetable_p->reset();
@@ -52,10 +53,11 @@ class Timetable_ResetProctor {
     }
 
     // MANIPULATORS
+
+    /// Release from management the timetable currently managed by this
+    /// proctor.  If there is no managed timetable, this method has no
+    /// effect.
     void release()
-        // Release from management the timetable currently managed by this
-        // proctor.  If there is no managed timetable, this method has no
-        // effect.
     {
         d_timetable_p = 0;
     }

@@ -26,10 +26,10 @@ using namespace bslh;
 //                                  --------
 // The component under test is a standards-conformant hashing algorithm
 // functor.  The component will be tested for conformance to the interface
-// requirements on 'std::hash', outlined in the C++ Standard.  The output of
+// requirements on `std::hash`, outlined in the C++ Standard.  The output of
 // the component will also be tested to check that it matches the expected
 // output of the underlying hashing algorithms.  This component also contains
-// 'hashAppend' free functions written for fundamental types.  These free
+// `hashAppend` free functions written for fundamental types.  These free
 // functions will be tested to ensure they properly pass data into the hashing
 // algorithms they are given.
 //-----------------------------------------------------------------------------
@@ -99,44 +99,44 @@ void aSsErT(bool condition, const char *message, int line)
 //          GLOBAL TYPEDEFS, HELPER FUNCTIONS, AND CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// This class implements a mock hashing algorithm that provides a way to
+/// accumulate and then examine data that is being passed into hashing
+/// algorithms by `hashAppend`.
 class MockAccumulatingHashingAlgorithm {
-    // This class implements a mock hashing algorithm that provides a way to
-    // accumulate and then examine data that is being passed into hashing
-    // algorithms by 'hashAppend'.
 
     void   *d_data_p;  // Data we were asked to hash
     size_t  d_length;  // Length of the data we were asked to hash
 
   public:
+    /// Create an object of this type.
     MockAccumulatingHashingAlgorithm()
     : d_data_p(0)
     , d_length(0)
-        // Create an object of this type.
     {
     }
 
+    /// Destroy this object
     ~MockAccumulatingHashingAlgorithm()
-        // Destroy this object
     {
         free(d_data_p);
     }
 
+    /// Append the data of the specified `length` at `voidPtr` for later
+    /// inspection.
     void operator()(const void *voidPtr, size_t length)
-        // Append the data of the specified 'length' at 'voidPtr' for later
-        // inspection.
     {
         d_data_p = realloc(d_data_p, d_length += length);
         memcpy(getData() + d_length - length, voidPtr, length);
     }
 
+    /// Return a pointer to the stored data.
     char *getData()
-        // Return a pointer to the stored data.
     {
         return static_cast<char *>(d_data_p);
     }
 
+    /// Return the length of the stored data.
     size_t getLength()
-        // Return the length of the stored data.
     {
         return d_length;
     }
@@ -165,11 +165,11 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Run the usage example (C-1)
+        // 1. Run the usage example (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -182,63 +182,63 @@ int main(int argc, char *argv[])
 ///- - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to maintain a boolean condition as either true, false, or
 // unspecified, and have it fit within the BDE hash framework.  We can use
-// 'std::optional<bool>' for this, and demonstrate that such a value can be
+// `std::optional<bool>` for this, and demonstrate that such a value can be
 // correctly hashed.
 //
 // First, we set up three such optional values to represent the three possible
 // states we wish to represent.
-//..
+// ```
     std::optional<bool> optionalTrue  = true;
     std::optional<bool> optionalFalse = false;
     std::optional<bool> optionalUnset;
-//..
+// ```
 // Then, we create a hashing object.
-//..
+// ```
     bslh::Hash<> hasher;
-//..
+// ```
 // Next, we hash each of our values.
-//..
+// ```
     size_t optionalTrueHash  = hasher(optionalTrue);
     size_t optionalFalseHash = hasher(optionalFalse);
     size_t optionalUnsetHash = hasher(optionalUnset);
-//..
+// ```
 // Then we hash the underlying values.
-//..
+// ```
     size_t expectedTrueHash  = hasher(true);
     size_t expectedFalseHash = hasher(false);
-//..
-// Finally, we verify that the 'std::optional' hasher produces the same results
+// ```
+// Finally, we verify that the `std::optional` hasher produces the same results
 // as the underlying hashers.  For the disengaged hash, we will just check that
 // the value differs from either engaged value.
-//..
+// ```
     ASSERT(expectedTrueHash  == optionalTrueHash);
     ASSERT(expectedFalseHash == optionalFalseHash);
     ASSERT(expectedTrueHash  != optionalUnsetHash);
     ASSERT(expectedFalseHash != optionalUnsetHash);
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'hashAppend'
-        //   Verify that the 'hashAppend' free functions have been implemented
+        // TESTING `hashAppend`
+        //   Verify that the `hashAppend` free functions have been implemented
         //   for all of the fundamental types and don't truncate or pass extra
         //   data into the algorithms.
         //
         // Concerns:
-        //: 1 'hashAppend' has been implemented for std::optional.
+        // 1. `hashAppend` has been implemented for std::optional.
         //
         // Plan:
-        //: 1 Use a mock hashing algorithm to test 'hashAppend'.
+        // 1. Use a mock hashing algorithm to test `hashAppend`.
         //
         // Testing:
         //   void hashAppend(HASHALG& algorithm, const std::optional<TYPE>&);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'hashAppend'"
+        if (verbose) printf("\nTESTING `hashAppend`"
                             "\n====================\n");
 
         if (verbose) printf("Use a mock hashing algorithm to test that"
-                            " 'hashAppend' inputs the underlying value or the"
+                            " `hashAppend` inputs the underlying value or the"
                             " disengaged value of an optional value.\n");
         {
             MockAccumulatingHashingAlgorithm forDisengaged;
@@ -272,17 +272,17 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an instance of 'bslh::Hash<>'. (C-1)
-        //:
-        //: 2 Verify different hashes are produced for different values. (C-1)
-        //:
-        //: 3 Verify the same hashes are produced for the same values. (C-1)
-        //:
-        //: 4 Verify that disengaged values hash not depending on type. (C-1)
+        // 1. Create an instance of `bslh::Hash<>`. (C-1)
+        //
+        // 2. Verify different hashes are produced for different values. (C-1)
+        //
+        // 3. Verify the same hashes are produced for the same values. (C-1)
+        //
+        // 4. Verify that disengaged values hash not depending on type. (C-1)
         //
         // Testing:
         //   BREATHING TEST

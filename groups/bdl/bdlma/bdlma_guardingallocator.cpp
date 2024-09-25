@@ -39,17 +39,17 @@ namespace {
 static const bsls::Types::size_type OFFSET =
                                        bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
+/// Helper struct storing the addresses we need for deallocation when the
+/// guard page location is `e_AFTER_USER_BLOCK`.
 struct AfterUserBlockDeallocationData
-    // Helper struct storing the addresses we need for deallocation when the
-    // guard page location is 'e_AFTER_USER_BLOCK'.
 {
     void *d_firstPage; // address we need to deallocate
     void *d_guardPage; // address of the page we need to unprotect
 };
 
+/// Utility function to compute the `AfterUserBlockDeallocationData*`
+/// corresponding to the specified `address`.
 AfterUserBlockDeallocationData *getDataBlockAddress(void *address)
-    // Utility function to compute the 'AfterUserBlockDeallocationData*'
-    // corresponding to the specified 'address'.
 {
     return static_cast<AfterUserBlockDeallocationData*>(
             static_cast<void*>(
@@ -61,8 +61,8 @@ BSLMF_ASSERT(sizeof(AfterUserBlockDeallocationData) <= OFFSET * 2);
 
 // HELPER FUNCTIONS
 
+/// Return the size (in bytes) of a system memory page.
 int getSystemPageSize()
-    // Return the size (in bytes) of a system memory page.
 {
     static bsls::AtomicInt pageSize(0);
 
@@ -85,10 +85,10 @@ int getSystemPageSize()
     return pageSize.loadRelaxed();
 }
 
+/// Allocate a page-aligned block of memory of the specified `size` (in
+/// bytes), and return the address of the allocated block.  The behavior is
+/// undefined unless `size > 0`.
 void *systemAlloc(bsl::size_t size)
-    // Allocate a page-aligned block of memory of the specified 'size' (in
-    // bytes), and return the address of the allocated block.  The behavior is
-    // undefined unless 'size > 0'.
 {
     BSLS_ASSERT(size > 0);
 
@@ -115,10 +115,10 @@ void *systemAlloc(bsl::size_t size)
 #endif
 }
 
+/// Return the memory block at the specified `address` back to its
+/// allocator.  The behavior is undefined unless `address` was returned by
+/// `systemAlloc` and has not already been freed.
 void systemFree(void *address, size_t size)
-    // Return the memory block at the specified 'address' back to its
-    // allocator.  The behavior is undefined unless 'address' was returned by
-    // 'systemAlloc' and has not already been freed.
 {
     BSLS_ASSERT(address);
 
@@ -138,10 +138,10 @@ void systemFree(void *address, size_t size)
 #endif
 }
 
+/// Protect from read/write access the page of memory at the specified
+/// `address` having the specified `pageSize` (in bytes).  The behavior is
+/// undefined unless `pageSize == getSystemPageSize()`.
 int systemProtect(void *address, int pageSize)
-    // Protect from read/write access the page of memory at the specified
-    // 'address' having the specified 'pageSize' (in bytes).  The behavior is
-    // undefined unless 'pageSize == getSystemPageSize()'.
 {
     BSLS_ASSERT(address);
     BSLS_ASSERT_SAFE(pageSize == getSystemPageSize());
@@ -161,10 +161,10 @@ int systemProtect(void *address, int pageSize)
 #endif
 }
 
+/// Unprotect from read/write access the page of memory at the specified
+/// `address` having the specified `pageSize` (in bytes).  The behavior is
+/// undefined unless `pageSize == getSystemPageSize()`.
 int systemUnprotect(void *address, int pageSize)
-    // Unprotect from read/write access the page of memory at the specified
-    // 'address' having the specified 'pageSize' (in bytes).  The behavior is
-    // undefined unless 'pageSize == getSystemPageSize()'.
 {
     BSLS_ASSERT(address);
     BSLS_ASSERT_SAFE(pageSize == getSystemPageSize());

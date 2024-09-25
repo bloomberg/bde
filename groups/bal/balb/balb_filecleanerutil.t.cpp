@@ -124,11 +124,11 @@ typedef balb::FileCleanerConfiguration ObjConfig;
 
 namespace {
 
+/// Change the modification time of the file with the specified `fileName`
+/// by the specified `delta` seconds.  Return `0` if the file exists and
+/// the modification time was changed and non-zero status otherwise.
 int changeModificationTime(const bsl::string& fileName,
                            int                delta)
-    // Change the modification time of the file with the specified 'fileName'
-    // by the specified 'delta' seconds.  Return '0' if the file exists and
-    // the modification time was changed and non-zero status otherwise.
 {
     if (false == bdls::FilesystemUtil::exists(fileName)) {
         return -1;                                                    // RETURN
@@ -194,8 +194,8 @@ int changeModificationTime(const bsl::string& fileName,
 #endif
 }
 
+/// Create a file with the specified `fileName` and writes some data to it.
 void createFile(const bsl::string& fileName)
-    // Create a file with the specified 'fileName' and writes some data to it.
 {
     bsl::ofstream fs(fileName.c_str());
     fs << "0xdeadbeef";
@@ -231,13 +231,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -253,49 +253,49 @@ int main(int argc, char *argv[])
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
 // The following snippets of code illustrate the basic usage of
-// 'balb::LogCleanerUtil'.
+// `balb::LogCleanerUtil`.
 //
 // Let's assume that the application was set up to log to files having the
 // following pattern:
-//..
+// ```
     const char *appLogFilePattern = "/var/log/myApp/log*";
-//..
+// ```
 // We want to clean up all the files older then a week, but leave at least 4
 // latest log files.  First, we create a cleanup configuration object that will
 // capture our parameters:
-//..
+// ```
     balb::FileCleanerConfiguration config(
                 appLogFilePattern,
                 bsls::TimeInterval(bdlt::TimeUnitRatio::k_SECONDS_PER_DAY * 7),
                 4);
-//..
+// ```
 // Then, we use this configuration to do a file cleanup:
-//..
+// ```
     balb::FileCleanerUtil::removeFiles(config);
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'removeFiles' METHOD
+        // TESTING `removeFiles` METHOD
         //
         // Concerns:
-        //:  1 Only files matching the pattern are subjects to removal.
-        //:
-        //:  2 The specified minimum number of files matching the pattern is
-        //:    preserved independent of their modification time.
+        //  1. Only files matching the pattern are subjects to removal.
+        //
+        //  2. The specified minimum number of files matching the pattern is
+        //     preserved independent of their modification time.
         //
         // Plan:
-        //:  1 Populate the temporary directory with a set of files with
-        //:    different modification times.
-        //:
-        //:  2 Execute the 'removeFiles' function with various set of input
-        //:    parameters and verify that only expected files are removed.
-        //:    (C-1..2)
+        //  1. Populate the temporary directory with a set of files with
+        //     different modification times.
+        //
+        //  2. Execute the `removeFiles` function with various set of input
+        //     parameters and verify that only expected files are removed.
+        //     (C-1..2)
         //
         // Testing:
         //   void removeFiles(const balb::FileCleanerConfiguration& config);
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTESTING 'removeFiles' METHOD"
+        if (verbose) cout << "\nTESTING `removeFiles` METHOD"
                           << "\n============================" << endl;
 
         if (veryVeryVerbose) {
@@ -450,12 +450,12 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Run each method with arbitrary inputs and verify the behavior is
-        //:   as expected.
+        // 1. Run each method with arbitrary inputs and verify the behavior is
+        //    as expected.
         //
         // Testing:
         //   BREATHING TEST
@@ -464,7 +464,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nBREATHING TEST"
                           << "\n==============" << endl;
 
-        // Using 'bsls' logging in this test.
+        // Using `bsls` logging in this test.
 
         if (veryVeryVerbose) {
             bsls::Log::setSeverityThreshold(bsls::LogSeverity::e_TRACE);

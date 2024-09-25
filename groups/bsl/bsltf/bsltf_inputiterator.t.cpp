@@ -96,21 +96,22 @@ void aSsErT(bool b, const char *s, int i)
 namespace {
 namespace u {
 
+/// A simple test class that can instantiated and copied to help test the
+/// instantiation of `bsltf::InputIterator` on a user-defined type.
 class MyClass {
-    // A simple test class that can instantiated and copied to help test the
-    // instantiation of 'bsltf::InputIterator' on a user-defined type.
 
     int d_value;
 
   public:
     // CREATORS
+
+    /// Create a `MyClass` object with value 0.
     MyClass() : d_value(0)
-        // Create a 'MyClass' object with value 0.
     {}
 
+    /// Construct a MyClass object from the specified `value`.
     explicit MyClass(int value)
     : d_value(value)
-        // Construct a MyClass object from the specified 'value'.
     {}
 
     // MyClass(const MyClass& original) = default;
@@ -121,24 +122,25 @@ class MyClass {
 
     // MANIPULATORS
     //  MyClass& operator=(const MyClass& rhs) = default;
-        // Assign the specified 'rhs' to this object and return a reference to
+        // Assign the specified `rhs` to this object and return a reference to
         // this object.
 
     // ACCESSORS
+
+    /// Member function, required for dereference operator test.
     int value() const { return d_value; }
-        // Member function, required for dereference operator test.
 };
 
+/// Return `true` if passed a `const` object and `false` otherwise.
 template <class TYPE>
 bool isConst(TYPE&)
-    // Return 'true' if passed a 'const' object and 'false' otherwise.
 {
     return false;
 }
 
+/// Return `true` if passed a `const` object and `false` otherwise.
 template <class TYPE>
 bool isConst(const TYPE&)
-    // Return 'true' if passed a 'const' object and 'false' otherwise.
 {
     return true;
 }
@@ -154,19 +156,20 @@ bool isConst(const TYPE&)
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'bsltf::InputIterator':
+///Example 1: Basic Use of `bsltf::InputIterator`:
 /// - - - - - - - - - - - - - - - - - - - - - - -
-// In the following example we use a 'bsltf::InputIterator' to test that an
+// In the following example we use a `bsltf::InputIterator` to test that an
 // aggregation function compiles and works when instantiated with a pure input
 // iterator.
 //
-// First, we define a function 'sum' that accepts two input iterators and
+// First, we define a function `sum` that accepts two input iterators and
 // returns the sum of all elements in range specified by them:
-//..
+// ```
+
+    /// Return the sum of the `double`s in the specified range
+    /// `[ first, last )`.
     template <class IN_ITER>
     double sum(IN_ITER first, IN_ITER last)
-        // Return the sum of the 'double's in the specified range
-        // '[ first, last )'.
     {
         double total = 0;
         while (first != last) {
@@ -174,7 +177,7 @@ bool isConst(const TYPE&)
         }
         return total;
     }
-//..
+// ```
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -195,13 +198,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -210,68 +213,68 @@ int main(int argc, char *argv[])
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 
-// Then, in 'main', we define an array of 'double's and define 'InputIterators'
+// Then, in `main`, we define an array of `double`s and define `InputIterators`
 // pointing to the beginning and ending of it, initializing the iterators with
 // pointers:
-//..
+// ```
     static const double myArray[] = { 2.5, 3, 5, 7, 11.5, 5 };
     enum { k_MY_ARRAY_LEN = sizeof myArray / sizeof *myArray };
 
     typedef bsltf::InputIterator<const double> Iter;
 
     Iter begin(myArray + 0), end(myArray + k_MY_ARRAY_LEN);
-//..
-// Next, we call 'sum' with the two iterators, and observe that its yields the
-// expected result, and because it compiles, we know that 'sum' did not attempt
+// ```
+// Next, we call `sum` with the two iterators, and observe that its yields the
+// expected result, and because it compiles, we know that `sum` did not attempt
 // any operations on the iterators other than those defined for the most basic
 // input iterator:
-//..
+// ```
     const double x = sum(begin, end);
     ASSERT(34.0 == x);
-//..
-// Then, we illustrate that we can just make 'begin' and 'end' iterators from
-// the array directly with the 'begin' and 'end' class methods of the
-// 'InputIteratorUtil' class.
-//..
+// ```
+// Then, we illustrate that we can just make `begin` and `end` iterators from
+// the array directly with the `begin` and `end` class methods of the
+// `InputIteratorUtil` class.
+// ```
     typedef bsltf::InputIteratorUtil Util;
 
     const double y = sum(Util::begin(myArray), Util::end(myArray));
     ASSERT(34.0 == y);
-//..
-// Now, we make an 'std::vector' containing the elements of 'myArray':
-//..
+// ```
+// Now, we make an `std::vector` containing the elements of `myArray`:
+// ```
     const std::vector<double> v(myArray + 0, myArray + k_MY_ARRAY_LEN);
-//..
-// Finally, we call 'sum' using, again, the 'begin' and 'end' class methods to
-// create iterators for it directly from our 'vector':
-//..
+// ```
+// Finally, we call `sum` using, again, the `begin` and `end` class methods to
+// create iterators for it directly from our `vector`:
+// ```
     const double z = sum(Util::begin(v), Util::end(v));
     ASSERT(34.0 == z);
-//..
+// ```
       } break;
       case 4: {
         // --------------------------------------------------------------------
         // EQUALITY-COMPARISON OPERATORS
         //
         // Concerns:
-        //: 1 Two objects of 'bsltf::InputIterator' class, 'X' and 'Y',
-        //:   compare equal if and only if they have the same value.
-        //:
-        //: 2 Two objects of 'bsltf::InputIterator' class, 'X' and 'Y',
-        //:   compare unequal if and only if they have different values.
-        //:
-        //: 3 Comparison is symmetric.
-        //:
-        //: 4 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
+        // 1. Two objects of `bsltf::InputIterator` class, `X` and `Y`,
+        //    compare equal if and only if they have the same value.
+        //
+        // 2. Two objects of `bsltf::InputIterator` class, `X` and `Y`,
+        //    compare unequal if and only if they have different values.
+        //
+        // 3. Comparison is symmetric.
+        //
+        // 4. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
         //
         // Plan:
-        //: 1 Create two different objects and verify the correctness of
-        //:   'operator==' and 'operator!=' using them.  (C-1..4)
-        //:
-        //: 2 Create modifiable object and const reference pointing to it.
-        //:   Verify the correctness of 'operator==' and 'operator!=' using
-        //:   them.  (C-1..4)
+        // 1. Create two different objects and verify the correctness of
+        //    `operator==` and `operator!=` using them.  (C-1..4)
+        //
+        // 2. Create modifiable object and const reference pointing to it.
+        //    Verify the correctness of `operator==` and `operator!=` using
+        //    them.  (C-1..4)
         //
         // Testing:
         //   bool operator==(InputIterator&, InputIterator&);
@@ -357,49 +360,49 @@ int main(int argc, char *argv[])
         // ITERATING OVER A RANGE
         //
         // Concerns:
-        //: 1 That the class under test can iterate over a contiguous range.
-        //:
-        //: 2 That the class under test can be initialized with a pointer, or
-        //:   with a contiguous iterator.
+        // 1. That the class under test can iterate over a contiguous range.
+        //
+        // 2. That the class under test can be initialized with a pointer, or
+        //    with a contiguous iterator.
         //
         // Plan:
-        //: 1 Use a 'vector' to create a range of 'int's.
-        //:   o Create an iterator pair to the start and end of the vector
-        //:     using the 'CONTIGUOUS_ITERATOR' c'tor.
-        //:
-        //:   o Traverse the range, examining the values with 'operator++()'
-        //:     and 'operator*()'.
-        //:
-        //:   o Traverse the range again, examining the values with
-        //:     'operator++(int)' and 'operator*()'.
-        //:
-        //:   o Create an iterator pair to the start and end of the vector
-        //:     using the pointer c'tor.
-        //:
-        //:   o Traverse the range, examining the values with 'operator++()'
-        //:     and 'operator*()'.
-        //:
-        //:   o Traverse the range again, examining the values with
-        //:     'operator++(int)' and 'operator*()'.
-        //:
-        //: 2 Use a 'vector' to create a range of 'u::MyClass' objects.
-        //:   o Create an iterator pair to the start and end of the vector
-        //:     using the 'CONTIGUOUS_ITERATOR' c'tor.
-        //:
-        //:   o Traverse the range, examining the values with 'operator++()'
-        //:     and 'operator->()'.
-        //:
-        //:   o Traverse the range again, examining the values with
-        //:     'operator++(int)' and 'operator->()'.
-        //:
-        //:   o Create an iterator pair to the start and end of the vector
-        //:     using the pointer c'tor.
-        //:
-        //:   o Traverse the range, examining the values with 'operator++()'
-        //:     and 'operator->()'.
-        //:
-        //:   o Traverse the range again, examining the values with
-        //:     'operator++(int)' and 'operator->()'.
+        // 1. Use a `vector` to create a range of `int`s.
+        //    - Create an iterator pair to the start and end of the vector
+        //      using the `CONTIGUOUS_ITERATOR` c'tor.
+        //
+        //    - Traverse the range, examining the values with `operator++()`
+        //      and `operator*()`.
+        //
+        //    - Traverse the range again, examining the values with
+        //      `operator++(int)` and `operator*()`.
+        //
+        //    - Create an iterator pair to the start and end of the vector
+        //      using the pointer c'tor.
+        //
+        //    - Traverse the range, examining the values with `operator++()`
+        //      and `operator*()`.
+        //
+        //    - Traverse the range again, examining the values with
+        //      `operator++(int)` and `operator*()`.
+        //
+        // 2. Use a `vector` to create a range of `u::MyClass` objects.
+        //    - Create an iterator pair to the start and end of the vector
+        //      using the `CONTIGUOUS_ITERATOR` c'tor.
+        //
+        //    - Traverse the range, examining the values with `operator++()`
+        //      and `operator->()`.
+        //
+        //    - Traverse the range again, examining the values with
+        //      `operator++(int)` and `operator->()`.
+        //
+        //    - Create an iterator pair to the start and end of the vector
+        //      using the pointer c'tor.
+        //
+        //    - Traverse the range, examining the values with `operator++()`
+        //      and `operator->()`.
+        //
+        //    - Traverse the range again, examining the values with
+        //      `operator++(int)` and `operator->()`.
         //
         // Testing:
         //   InputIterator(TYPE *);
@@ -416,7 +419,7 @@ int main(int argc, char *argv[])
 
         typedef bsltf::InputIteratorUtil Util;
 
-        if (verbose) printf("Iterating over a range of 'int'\n");
+        if (verbose) printf("Iterating over a range of `int`\n");
         {
             std::vector<int> v;
             for (int ii = 0; ii < 100; ++ii) {
@@ -473,7 +476,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("Iterating over a range of 'u::MyClass'\n");
+        if (verbose) printf("Iterating over a range of `u::MyClass`\n");
         {
             std::vector<u::MyClass> mv;
             for (int ii = 0; ii < 100; ++ii) {
@@ -540,37 +543,37 @@ int main(int argc, char *argv[])
         //   expressions all compile.
         //
         // Concerns:
-        //: 1 Objects can be created using the default constructor.
-        //:
-        //: 2 Objects can be created using the copy constructor.
-        //:
-        //: 3 The copy constructor is not declared as explicit.
-        //:
-        //: 4 Objects can be assigned to from constant objects.
-        //:
-        //: 5 Assignments operations can be chained.
-        //:
-        //: 6 Objects can be destroyed.
+        // 1. Objects can be created using the default constructor.
+        //
+        // 2. Objects can be created using the copy constructor.
+        //
+        // 3. The copy constructor is not declared as explicit.
+        //
+        // 4. Objects can be assigned to from constant objects.
+        //
+        // 5. Assignments operations can be chained.
+        //
+        // 6. Objects can be destroyed.
         //
         // Plan:
-        //: 1 Verify the default constructor exists and is publicly accessible
-        //:   by default-constructing a 'const bsltf::InputIterator' object.
-        //:   (C-1)
-        //:
-        //: 2 Verify the copy constructor is publicly accessible and not
-        //:   'explicit' by using the copy-initialization syntax to create a
-        //:   second 'bsltf::InputIterator' from the first.  (C-2..3)
-        //:
-        //: 3 Assign the value of the first ('const') object to the second.
-        //:   (C-4)
-        //:
-        //: 4 Chain the assignment of the value of the first ('const') object
-        //:   to the second, into a self-assignment of the second object to
-        //:   itself.  (C-5)
-        //:
-        //: 5 Verify the destructor is publicly accessible by allowing the two
-        //:   'bsltf::InputIterator' object to leave scope and be destroyed.
-        //:   (C-6)
+        // 1. Verify the default constructor exists and is publicly accessible
+        //    by default-constructing a `const bsltf::InputIterator` object.
+        //    (C-1)
+        //
+        // 2. Verify the copy constructor is publicly accessible and not
+        //    `explicit` by using the copy-initialization syntax to create a
+        //    second `bsltf::InputIterator` from the first.  (C-2..3)
+        //
+        // 3. Assign the value of the first (`const`) object to the second.
+        //    (C-4)
+        //
+        // 4. Chain the assignment of the value of the first (`const`) object
+        //    to the second, into a self-assignment of the second object to
+        //    itself.  (C-5)
+        //
+        // 5. Verify the destructor is publicly accessible by allowing the two
+        //    `bsltf::InputIterator` object to leave scope and be destroyed.
+        //    (C-6)
         //
         // Testing:
         //   InputIterator();
@@ -625,11 +628,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Developer test sandbox. (C-1)
+        // 1. Developer test sandbox. (C-1)
         //
         // Testing:
         //   BREATHING TEST

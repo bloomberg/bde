@@ -9,8 +9,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 #include <string.h>
 
 using namespace BloombergLP;
@@ -25,12 +25,12 @@ using namespace BloombergLP;
 // per block, the other for when there is a single element per block), and so
 // each test case must make sure to exercise both implementations.  We have
 // chosen as *primary* *manipulators* the constructor taking a pointer to block
-// and a pointer to a value within that block, 'operator++', and 'operator--',
-// to be used by the generator functions 'g' and 'gg'.   In order to have the
+// and a pointer to a value within that block, `operator++`, and `operator--`,
+// to be used by the generator functions `g` and `gg`.   In order to have the
 // iterators point to a range, additional helper functions are provided to
 // create a range of block pointers and blocks (taking care that the block are
 // not allocated sequentially in the block sequence).  The basic accessors are
-// 'blockPtr' and 'valuePtr', from which all the other accessors can be
+// `blockPtr` and `valuePtr`, from which all the other accessors can be
 // computed.  This test driver is for now TBD.
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -93,11 +93,12 @@ namespace BloombergLP {
 namespace bslalg {
 
 // Iterator-specific print function.
+
+/// Print to the console the values of the pointers denoting the element
+/// referred to by the specified `iter`.
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 void
 debugprint(const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& iter)
-    // Print to the console the values of the pointers denoting the element
-    // referred to by the specified 'iter'.
 {
     if (iter.blockPtr() && iter.valuePtr()) {
 #ifdef BSLS_PLATFORM_CPU_64_BIT
@@ -127,8 +128,8 @@ static bool verbose = false;
 #pragma GCC diagnostic ignored "-Wlarger-than="
 #endif
 
-char* globalArena1[65536];  // needed for 'blocks' in 'getValues' below
-char* globalArena2[1024];   // needed for 'blockPtrs' in 'getValues' below
+char* globalArena1[65536];  // needed for `blocks` in `getValues` below
+char* globalArena2[1024];   // needed for `blockPtrs` in `getValues` below
 
 #ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic pop
@@ -146,19 +147,21 @@ struct TestDriver {
     typedef typename DequeImpUtil::Block                          Block;
     typedef typename DequeImpUtil::BlockPtr                       BlockPtr;
 
+    /// Type of iterator object under test.
     typedef bslalg::DequeIterator<VALUE_TYPE, BLOCK_LENGTH>       Obj;
-        // Type of iterator object under test.
 
     // TEST APPARATUS
+
+    /// Load the specified `valuesPtr` with the address of an array
+    /// containing initialized values of the test object and return the
+    /// length of that array.
     static int getValues(const Obj **valuesPtr);
-        // Load the specified 'valuesPtr' with the address of an array
-        // containing initialized values of the test object and return the
-        // length of that array.
 
     // TEST CASES
+
+    /// Breathing test.  This test *exercises* basic functionality but
+    /// *test* nothing.
     static void testCase1();
-        // Breathing test.  This test *exercises* basic functionality but
-        // *test* nothing.
 };
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
@@ -168,7 +171,7 @@ TestDriver<VALUE_TYPE, BLOCK_LENGTH>::getValues(const Obj **valuesPtr)
     const int NUM_BLOCKS = 5;
     const int NUM_VALUES = NUM_BLOCKS * BLOCK_LENGTH;
 
-    // We use global arenas because static (non-'const') arrays don't play well
+    // We use global arenas because static (non-`const`) arrays don't play well
     // inside a function template.  For safety, we always fill the arenas with
     // junk and use padding at the boundaries.
 
@@ -208,9 +211,9 @@ void TestDriver<VALUE_TYPE, BLOCK_LENGTH>::testCase1()
     //   operation of the following methods and operators:
     //      - default and copy constructors (and also the destructor)
     //      - the assignment operator (including aliasing)
-    //      - equality operators: 'operator=='
-    //      - primary manipulators: 'Obj(blockPtr,valuePtr)' and 'operator++'
-    //      - basic accessors: 'blockPtr' and 'valuePtr'
+    //      - equality operators: `operator==`
+    //      - primary manipulators: `Obj(blockPtr,valuePtr)` and `operator++`
+    //      - basic accessors: `blockPtr` and `valuePtr`
     //   In addition we would like to exercise objects with potentially
     //   different internal organizations representing the same value.
     //
@@ -509,12 +512,12 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 See the definition of 'testCase1' in the 'TestDriver' template
-        //:   for further details.
+        // 1. See the definition of `testCase1` in the `TestDriver` template
+        //    for further details.
         //
         // Testing:
         //   BREATHING TEST
@@ -523,22 +526,22 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        if (verbose) printf("\nWith five 'char' per block.\n");
+        if (verbose) printf("\nWith five `char` per block.\n");
         TestDriver<char, 5>::testCase1();
 
-        if (verbose) printf("\nWith two 'char' per block.\n");
+        if (verbose) printf("\nWith two `char` per block.\n");
         TestDriver<char, 2>::testCase1();
 
-        if (verbose) printf("\nWith one 'char' per block.\n");
+        if (verbose) printf("\nWith one `char` per block.\n");
         TestDriver<char, 1>::testCase1();
 
-        if (verbose) printf("\nWith five 'int' per block.\n");
+        if (verbose) printf("\nWith five `int` per block.\n");
         TestDriver<int, 5>::testCase1();
 
-        if (verbose) printf("\nWith two 'int' per block.\n");
+        if (verbose) printf("\nWith two `int` per block.\n");
         TestDriver<int, 2>::testCase1();
 
-        if (verbose) printf("\nWith one 'int' per block.\n");
+        if (verbose) printf("\nWith one `int` per block.\n");
         TestDriver<int, 1>::testCase1();
 
       } break;

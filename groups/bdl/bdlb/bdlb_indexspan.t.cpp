@@ -23,7 +23,7 @@ using bsl::endl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'bdlb::IndexSpan' provides a value-semantic, unconstrained attribute type
+// `bdlb::IndexSpan` provides a value-semantic, unconstrained attribute type
 // for representing a position and a length.
 // ----------------------------------------------------------------------------
 // CREATORS
@@ -132,22 +132,22 @@ typedef bdlb::IndexSpan Obj;
 // make the example code work on POSIX-style paths so we do not need to deal
 // with the difference in path separators.)
 //
-// If we try the naive solution -- storing a 'bsl::string' of the full path and
-// 'bslstl::StringRef' for path, basename and extension -- the class
-// 'bslstl::StringRef' members will reference back into memory owned by the
+// If we try the naive solution -- storing a `bsl::string` of the full path and
+// `bslstl::StringRef` for path, basename and extension -- the class
+// `bslstl::StringRef` members will reference back into memory owned by the
 // object, and the result is the compiler-generated (and naively written) move
 // and copy operations will be broken.  In addition, explicitly implementing
 // move and copy operations is quite difficult and error prone.
 //
 // The simplest (most readable) solution to the problem is to store a position
 // and a length for the path, basename, and extension (rather than a
-// 'bslstl::StringRef') because that representation is independent of the
-// location of the memory for the string.  'IndexSpan' provides such a
+// `bslstl::StringRef`) because that representation is independent of the
+// location of the memory for the string.  `IndexSpan` provides such a
 // representation, and allow us to implement our class using a simple copy and
 // move operations (or in other contexts, compiler supplied operations).
 //
 // First, we define the members and interface of the class.
-//..
+// ```
     class ParsedPath {
       private:
         // DATA
@@ -158,52 +158,55 @@ typedef bdlb::IndexSpan Obj;
 
       public:
         // CREATE
+
+        /// Create a new `ParsedPath` object by storing and parsing the
+        /// specified `full` path.  Use the optionally specified
+        /// `basicAllocator` to allocate memory.  If `basicAllocator` is 0,
+        /// use the currently installed default allocator.
         explicit ParsedPath(const bslstl::StringRef&  full,
                             bslma::Allocator         *basicAllocator = 0);
-            // Create a new 'ParsedPath' object by storing and parsing the
-            // specified 'full' path.  Use the optionally specified
-            // 'basicAllocator' to allocate memory.  If 'basicAllocator' is 0,
-            // use the currently installed default allocator.
 
+        /// Create a new `ParsedPath` object that stores the same parsed
+        /// path as the specified `original`.  Use the optionally specified
+        /// `basicAllocator` to allocate memory.  Use the currently
+        /// installed default allocator if `basicAllocator` is zero.
         ParsedPath(const ParsedPath& original,
                    bslma::Allocator *basicAllocator = 0);
-            // Create a new 'ParsedPath' object that stores the same parsed
-            // path as the specified 'original'.  Use the optionally specified
-            // 'basicAllocator' to allocate memory.  Use the currently
-            // installed default allocator if 'basicAllocator' is zero.
 
         // ACCESSORS
+
+        /// Return a string reference to the base name part.  Note that it
+        /// may be an empty string reference.
         bslstl::StringRef base() const;
-            // Return a string reference to the base name part.  Note that it
-            // may be an empty string reference.
 
+        /// Return a string reference to the extension part.  Note that it
+        /// may be an empty string reference.
         bslstl::StringRef ext()  const;
-            // Return a string reference to the extension part.  Note that it
-            // may be an empty string reference.
 
+        /// Return a const reference to the full path parsed by this object.
         const bsl::string& full() const;
-            // Return a const reference to the full path parsed by this object.
 
+        /// Return a string reference to the path part.  Note that it may be
+        /// an empty string reference.
         bslstl::StringRef path() const;
-            // Return a string reference to the path part.  Note that it may be
-            // an empty string reference.
     };
-//..
+// ```
 //  Next, to make the parsing code short and readable, we implement a helper
-//  function to create 'IndexSpan' objects from two positions.  (In practice we
+//  function to create `IndexSpan` objects from two positions.  (In practice we
 //  would use the higher level utility function
-//  'IndexSpanStringUtil::createFromPosition')
-//..
+//  `IndexSpanStringUtil::createFromPosition`)
+// ```
+
+    /// Return an `IndexSpan` describing the specified `[startPos, endPos)`
+    /// positions.
     bdlb::IndexSpan createFromPositions(bdlb::IndexSpan::size_type startPos,
                                         bdlb::IndexSpan::size_type endPos)
-        // Return an 'IndexSpan' describing the specified '[startPos, endPos)'
-        // positions.
     {
         return bdlb::IndexSpan(startPos, endPos - startPos);
     }
-//..
-//  Then, we implement the parsing constructor using the 'create' function.
-//..
+// ```
+//  Then, we implement the parsing constructor using the `create` function.
+// ```
     // CREATORS
     ParsedPath::ParsedPath(const bslstl::StringRef&  full,
                            bslma::Allocator         *basicAllocator)
@@ -238,9 +241,9 @@ typedef bdlb::IndexSpan Obj;
             d_ext = createFromPositions(dotPos + 1, full.length());
         }
     }
-//..
+// ```
 // Next, we implement the (now) simple copy constructor:
-//..
+// ```
     ParsedPath::ParsedPath(const ParsedPath& original,
                            bslma::Allocator *basicAllocator)
     : d_full(original.d_full, basicAllocator)
@@ -249,25 +252,26 @@ typedef bdlb::IndexSpan Obj;
     , d_ext(original.d_ext)
     {
     }
-//..
+// ```
 //  Then, to make the accessors simple (and readable), we implement a helper
-//  function that creates a 'StringRef' from a 'StringRef' and an 'IndexSpan'.
+//  function that creates a `StringRef` from a `StringRef` and an `IndexSpan`.
 //  (In practice we would use the higher level utility function
-//  'IndexSpanStringUtil::bind'.)
-//..
+//  `IndexSpanStringUtil::bind`.)
+// ```
+
+    /// Return a string reference to the substring of the specified `full`
+    /// string defined by the specified `part`.
     bslstl::StringRef bindSpan(const bslstl::StringRef& full,
                                const bdlb::IndexSpan&   part)
-        // Return a string reference to the substring of the specified 'full'
-        // string defined by the specified 'part'.
     {
         BSLS_ASSERT(part.position() <= full.length());
         BSLS_ASSERT(part.position() + part.length() <= full.length());
 
         return bslstl::StringRef(full.data() + part.position(), part.length());
     }
-//..
+// ```
 //  Next, we implement the accessors:
-//..
+// ```
     // ACCESSORS
     bslstl::StringRef ParsedPath::base() const
     {
@@ -288,7 +292,7 @@ typedef bdlb::IndexSpan Obj;
     {
         return bindSpan(d_full, d_path);
     }
-//..
+// ```
 //  See top test case for the verification steps.
 
 //=============================================================================
@@ -311,13 +315,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, and replace 'assert' with
-        //:   'ASSERT'.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, and replace `assert` with
+        //    `ASSERT`.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -326,12 +330,12 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nUSAGE EXAMPLE"
                              "\n=============\n";
 
-// See the rest of the code just before the 'main' function.
+// See the rest of the code just before the `main` function.
 //
 // Finally, we verify that the resulting class is copied properly.  We do that
 // by determining that the original and the copy object has equal but distinct
 // strings and that the (other) accessors return references into those strings.
-//..
+// ```
     ParsedPath aPath("path/path/basename.extension");
     ParsedPath theCopy(aPath);
 
@@ -355,7 +359,7 @@ int main(int argc, char *argv[])
     ASSERT(aPath.ext().data() >= aPath.full().data());
     ASSERT(aPath.ext().data() + aPath.ext().length() <=
                                   aPath.full().data() + aPath.full().length());
-//..
+// ```
       } break;
 
       case 9: {
@@ -363,24 +367,24 @@ int main(int argc, char *argv[])
         // TESTING HASH FUNCTION
         //
         // Concerns:
-        //: 1 An index span object can be hashed by instances of
-        //:   'bsl::hash<bdlb::IndexSpan>'.
-        //:
-        //: 2 A small sample of different index span objects produce different
-        //:   hashes.
-        //:
-        //: 3 Invoking 'bsl::hash<bdlb::IndexSpan>' is identical to invoking
-        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the index
-        //:   span object.
+        // 1. An index span object can be hashed by instances of
+        //    `bsl::hash<bdlb::IndexSpan>`.
+        //
+        // 2. A small sample of different index span objects produce different
+        //    hashes.
+        //
+        // 3. Invoking `bsl::hash<bdlb::IndexSpan>` is identical to invoking
+        //    `bslh::DefaultHashAlgorithm` on the underlying data of the index
+        //    span object.
         //
         // Plan:
-        //: 1 Hash some different index span objects and verify that the result
-        //:   of using 'bsl::hash<bdlb::IndexSpan>' is identical to invoking
-        //:   'bslh::DefaultHashAlgorithm' on the underlying attributes of the
-        //:   index span object.
-        //:
-        //: 2 Hash a number of different index span objects and verify that
-        //:   they produce distinct hashes.
+        // 1. Hash some different index span objects and verify that the result
+        //    of using `bsl::hash<bdlb::IndexSpan>` is identical to invoking
+        //    `bslh::DefaultHashAlgorithm` on the underlying attributes of the
+        //    index span object.
+        //
+        // 2. Hash a number of different index span objects and verify that
+        //    they produce distinct hashes.
         //
         // Testing:
         //   bsl::hash<IndexSpan>
@@ -425,12 +429,12 @@ int main(int argc, char *argv[])
         // TESTING TRAITS
         //
         // Concerns:
-        //: 1 bslmf::IsBitwiseEqualityComparable is 'true' for 'IndexSpan'.
-        //: 2 bsl::is_trivially_copyable is 'true' for 'IndexSpan'.
-        //: 3 bdlb::HasPrintMethod is 'true' for 'IndexSpan'.
+        // 1. bslmf::IsBitwiseEqualityComparable is `true` for `IndexSpan`.
+        // 2. bsl::is_trivially_copyable is `true` for `IndexSpan`.
+        // 3. bdlb::HasPrintMethod is `true` for `IndexSpan`.
         //
         // Plan:
-        //: 1 Assert each trait.
+        // 1. Assert each trait.
         //
         // Testing:
         //   bslmf::IsBitwiseMoveable
@@ -452,16 +456,16 @@ int main(int argc, char *argv[])
         // TESTING THE PRINT METHOD
         //
         // Concerns:
-        //: 1 The print method formats the attributes of the object directly
-        //:   from the underlying state information according to supplied
-        //:   arguments.
+        // 1. The print method formats the attributes of the object directly
+        //    from the underlying state information according to supplied
+        //    arguments.
         //
         // Plan:
-        //: 1 For each of an enumerated set of object, 'level', and
-        //:   'spacesPerLevel' values, use 'ostringstream' to 'print' that
-        //:   object's value, using the tabulated parameters.  Verify that the
-        //:   contents of the 'ostringstream buffer matches the literal
-        //:   expected output.
+        // 1. For each of an enumerated set of object, `level`, and
+        //    `spacesPerLevel` values, use `ostringstream` to `print` that
+        //    object's value, using the tabulated parameters.  Verify that the
+        //    contents of the 'ostringstream buffer matches the literal
+        //    expected output.
         //
         // Testing:
         //   ostream& print(ostream& stream, int level, int sp) const;
@@ -543,29 +547,29 @@ int main(int argc, char *argv[])
         // TESTING ASSIGNMENT OPERATOR
         //
         // Concerns:
-        //:  1 The value represented by any instance can be assigned to any
-        //:    other instance.
-        //:
-        //:  2 The 'rhs' value must not be affected by the operation.
-        //:
-        //:  3 'rhs' going out of scope has no effect on the value of 'lhs'
-        //:    after the assignment.
-        //:
-        //:  4 Aliasing (x = x): The assignment operator must always work --
-        //:    even when the lhs and rhs are the same object.
+        //  1. The value represented by any instance can be assigned to any
+        //     other instance.
+        //
+        //  2. The `rhs` value must not be affected by the operation.
+        //
+        //  3. `rhs` going out of scope has no effect on the value of `lhs`
+        //     after the assignment.
+        //
+        //  4. Aliasing (x = x): The assignment operator must always work --
+        //     even when the lhs and rhs are the same object.
         //
         // Plan:
-        //:  1 Specify a set S of unique object values with substantial and
-        //:   varied differences.  To address concerns 1 - 3, construct tests
-        //:   u = v for all (u, v) in S X S.  Using canonical controls UU and
-        //:   VV, assert before the assignment that UU == u, VV == v, and
-        //:   v == u if and only if and only if VV == UU.  After the
-        //:   assignment, assert that VV == u, VV == v, and, for grins, that
-        //:   v == u.  Let v go out of scope and confirm that VV == u.
-        //:
-        //:  2 As a separate exercise, we address 4 by constructing tests
-        //:    y = y for all y in S.  Using a canonical control X, we will
-        //:    verify that X == y before and after the assignment.
+        //  1. Specify a set S of unique object values with substantial and
+        //    varied differences.  To address concerns 1 - 3, construct tests
+        //    u = v for all (u, v) in S X S.  Using canonical controls UU and
+        //    VV, assert before the assignment that UU == u, VV == v, and
+        //    v == u if and only if and only if VV == UU.  After the
+        //    assignment, assert that VV == u, VV == v, and, for grins, that
+        //    v == u.  Let v go out of scope and confirm that VV == u.
+        //
+        //  2. As a separate exercise, we address 4 by constructing tests
+        //     y = y for all y in S.  Using a canonical control X, we will
+        //     verify that X == y before and after the assignment.
         //
         // Testing:
         //   IndexSpan& operator=(const IndexSpan& rhs);
@@ -635,7 +639,7 @@ int main(int argc, char *argv[])
                         ASSERTV(k_LINE1, k_LINE2,  V == U);
                     }
 
-                    // 'mV' (and therefore 'V') now out of scope
+                    // `mV` (and therefore `V`) now out of scope
                     ASSERTV(k_LINE1, k_LINE2, VV == U);
                 }
             }
@@ -690,21 +694,21 @@ int main(int argc, char *argv[])
         // TESTING COPY CONSTRUCTOR
         //
         // Concerns:
-        //: 1 The new object's value is the same as that of the original
-        //:   object (relying on the previously tested equality operators).
-        //:
-        //: 2 The value of the original object is left unaffected.
-        //:
-        //: 3 Subsequent changes in or destruction of the source object have
-        //:   no effect on the copy-constructed object.
+        // 1. The new object's value is the same as that of the original
+        //    object (relying on the previously tested equality operators).
+        //
+        // 2. The value of the original object is left unaffected.
+        //
+        // 3. Subsequent changes in or destruction of the source object have
+        //    no effect on the copy-constructed object.
         //
         // Plan:
-        //: 1 To address concerns 1 and 2, specify a set S of object values
-        //:   with substantial and varied differences.  For each value in S,
-        //:   initialize objects w and x, copy construct y from x and use
-        //:   'operator==' to verify that both x and y subsequently have the
-        //:   same value as w.  Let x go out of scope and again verify that
-        //:   w == y.
+        // 1. To address concerns 1 and 2, specify a set S of object values
+        //    with substantial and varied differences.  For each value in S,
+        //    initialize objects w and x, copy construct y from x and use
+        //    `operator==` to verify that both x and y subsequently have the
+        //    same value as w.  Let x go out of scope and again verify that
+        //    w == y.
         //
         // Testing:
         //   IndexSpan(const IndexSpan& original);
@@ -768,15 +772,15 @@ int main(int argc, char *argv[])
         // TESTING EQUALITY OPERATORS
         //
         // Concerns:
-        //: 1 Since 'operators==' is implemented in terms of basic accessors,
-        //:   it is sufficient to verify only that a difference in value of any
-        //:   one basic accessor for any two given objects implies inequality.
+        // 1. Since `operators==` is implemented in terms of basic accessors,
+        //    it is sufficient to verify only that a difference in value of any
+        //    one basic accessor for any two given objects implies inequality.
         //
         // Plan:
-        //: 1 First specify a set S of unique object values having various
-        //:   differences.  Verify the correctness of 'operator==' and
-        //:   'operator!=' using all elements (u, v) of the cross product
-        //:   S X S.
+        // 1. First specify a set S of unique object values having various
+        //    differences.  Verify the correctness of `operator==` and
+        //    `operator!=` using all elements (u, v) of the cross product
+        //    S X S.
         //
         // Testing:
         //   bool operator==(const IndexSpan& lhs, const IndexSpan& rhs);
@@ -847,14 +851,14 @@ int main(int argc, char *argv[])
         // TESTING OUTPUT (<<) OPERATOR
         //
         // Concerns:
-        //: 1 Since the output operator is layered on basic accessors, it is
-        //:   sufficient to test only the output text.
+        // 1. Since the output operator is layered on basic accessors, it is
+        //    sufficient to test only the output text.
         //
         // Plan:
-        //: 1 For each of a small representative set of object values, use
-        //:   'ostringstream' to write that object's value.  Verify that the
-        //:   contents of the 'ostringstream' buffer is the same as the literal
-        //:   expected output text .
+        // 1. For each of a small representative set of object values, use
+        //    `ostringstream` to write that object's value.  Verify that the
+        //    contents of the `ostringstream` buffer is the same as the literal
+        //    expected output text .
         //
         // Testing:
         //   ostream& operator<<(ostream& stream, const IndexSpan& object);
@@ -863,7 +867,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING OUTPUT (<<) OPERATOR"
                              "\n============================\n";
 
-        if (verbose) cout << "\nTesting 'operator<<' (ostream).\n";
+        if (verbose) cout << "\nTesting `operator<<` (ostream).\n";
 
         {
             static const struct {
@@ -909,20 +913,20 @@ int main(int argc, char *argv[])
         // CONSTRUCTORS / ACCESSORS TEST
         //
         // Concerns:
-        //: 1 Default-constructed 'IndexSpan' attributes are both initialized
-        //: to 0.
-        //:
-        //: 2 A 'IndexSpan' attributes are properly initialized by the
-        //:   value-constructor.
-        //:
-        //: 3 'IndexSpan' accessors properly return the attribute values.
-        //:
-        //: 4 Accessors operate on a 'const' object.
+        // 1. Default-constructed `IndexSpan` attributes are both initialized
+        //  to 0.
+        //
+        // 2. A `IndexSpan` attributes are properly initialized by the
+        //    value-constructor.
+        //
+        // 3. `IndexSpan` accessors properly return the attribute values.
+        //
+        // 4. Accessors operate on a `const` object.
         //
         // Plan:
-        //: 1 Default construct an object, verify its attributes.
-        //:
-        //: 2 Value construct objects from a table, verify their attributes.
+        // 1. Default construct an object, verify its attributes.
+        //
+        // 2. Value construct objects from a table, verify their attributes.
         //
         // Testing:
         //   IndexSpan();
@@ -977,12 +981,12 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create a few objects, verify their attribute values.  Do some
-        //:   copy construction and assignment, verify the resulting values.
+        // 1. Create a few objects, verify their attribute values.  Do some
+        //    copy construction and assignment, verify the resulting values.
         //
         // Testing:
         //   BREATHING TEST

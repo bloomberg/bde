@@ -41,12 +41,12 @@ namespace {
 typedef BloombergLP::bsls::StackAddressUtil AddressUtil;
 
 enum {
+    /// On some platforms, gathering the stack pointers wastes one frame
+    /// gathering the address of `AddressUtil::getStackAddresses`, which is
+    /// reflected in whether `AddressUtil::k_IGNORE_FRAMES` is 0 or 1.  This
+    /// constant allows us to adjust for this and not display that frame as
+    /// it is of no interest to the user.
     k_IGNORE_FRAMES = AddressUtil::k_IGNORE_FRAMES,
-        // On some platforms, gathering the stack pointers wastes one frame
-        // gathering the address of 'AddressUtil::getStackAddresses', which is
-        // reflected in whether 'AddressUtil::k_IGNORE_FRAMES' is 0 or 1.  This
-        // constant allows us to adjust for this and not display that frame as
-        // it is of no interest to the user.
 
     k_MAX_ALIGNMENT = BloombergLP::bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT,
 
@@ -57,9 +57,9 @@ BSLMF_ASSERT(0 == k_MAX_ALIGNMENT % sizeof(void *));
 
 typedef BloombergLP::bsls::Types::UintPtr UintPtr;
 
+/// Calculate, at compile time, the maximum of two `int` values.
 template <int A, int B>
 struct Max {
-    // Calculate, at compile time, the maximum of two 'int' values.
 
     enum { VALUE = A > B ? A : B };
 };
@@ -84,13 +84,13 @@ static const UintPtr k_DEALLOCATED_BLOCK_MAGIC = 1999999991 + HIGH_ONES;
                             // static functions
                             // ----------------
 
+/// Return the size, in pointers, of buffer space that must be reserved for
+/// each block for storing frame pointers, given a specified
+/// `specifiedMaxRecordedFrames`.  The specify value may need to be
+/// adjusted upward to include room for ignored frames, and for the buffer
+/// size in bytes being a multiple of `k_MAX_ALIGNMENT`.
 static
 int getTraceBufferLength(int specifiedMaxRecordedFrames)
-    // Return the size, in pointers, of buffer space that must be reserved for
-    // each block for storing frame pointers, given a specified
-    // 'specifiedMaxRecordedFrames'.  The specify value may need to be
-    // adjusted upward to include room for ignored frames, and for the buffer
-    // size in bytes being a multiple of 'k_MAX_ALIGNMENT'.
 {
     enum { k_PTRS_PER_MAX = k_MAX_ALIGNMENT / sizeof(void *) };
 
@@ -113,18 +113,18 @@ namespace balst {
                  // class StackTraceTestAllocator::BlockHeader
                  // ==========================================
 
+/// A record of this type is stored in each block, after the stack pointers
+/// and immediately before the user area of memory in the block.  These
+/// `BlockHeader` objects form a doubly linked list consisting of all blocks
+/// which are unfreed.
+///
+/// Note that the `d_magic` and `d_allocator_p` fields are at the end of the
+/// `BlockHeader`, putting them adjacent to the client's area of memory,
+/// making them the most likely fields to be corrupted.  A corrupted
+/// `d_allocator_p` or especially a corrupted `d_magic` are much more likely
+/// to be properly diagnosed by the allocator with a meaningful error
+/// message and no segfault than a corrupted `d_next_p` or `d_prevNext_p`.
 struct StackTraceTestAllocator::BlockHeader {
-    // A record of this type is stored in each block, after the stack pointers
-    // and immediately before the user area of memory in the block.  These
-    // 'BlockHeader' objects form a doubly linked list consisting of all blocks
-    // which are unfreed.
-    //
-    // Note that the 'd_magic' and 'd_allocator_p' fields are at the end of the
-    // 'BlockHeader', putting them adjacent to the client's area of memory,
-    // making them the most likely fields to be corrupted.  A corrupted
-    // 'd_allocator_p' or especially a corrupted 'd_magic' are much more likely
-    // to be properly diagnosed by the allocator with a meaningful error
-    // message and no segfault than a corrupted 'd_next_p' or 'd_prevNext_p'.
 
     // DATA
     BlockHeader                   *d_next_p;      // next object in the
@@ -144,13 +144,14 @@ struct StackTraceTestAllocator::BlockHeader {
                                                   // block
 
     // CREATOR
+
+    /// Create a block here, populating the fields with the specified
+    /// `next`, `prevNext`, `stackTraceTestAllocator`, and `magic`
+    /// arguments.
     BlockHeader(BlockHeader                   *next,
                 BlockHeader                  **prevNext,
                 StackTraceTestAllocator *stackTraceTestAllocator,
                 UintPtr                        magic);
-        // Create a block here, populating the fields with the specified
-        // 'next', 'prevNext', 'stackTraceTestAllocator', and 'magic'
-        // arguments.
 };
 
 // CREATORS

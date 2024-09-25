@@ -9,9 +9,9 @@
 namespace BloombergLP {
 namespace bdlb {
 
+/// Return `true` is the specified `ch` is one of the ASCII whitespace
+/// characters in the "C" and "POSIX" locales, and `false` otherwise.
 static inline bool u_isWhitespace(unsigned char ch)
-    // Return 'true' is the specified 'ch' is one of the ASCII whitespace
-    // characters in the "C" and "POSIX" locales, and 'false' otherwise.
 {
     if (' ' == ch) {
         return true;                                                  // RETURN

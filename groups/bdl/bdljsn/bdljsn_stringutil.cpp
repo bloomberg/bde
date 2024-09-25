@@ -15,16 +15,16 @@ BSLS_IDENT_RCSID(bdljsn_stringutil_cpp, "$Id$ $CSID$")
 namespace {
 namespace u {
 
+/// Write the sequence of characters in the range specified by
+/// `[*currentStart, iter)` to the specified `stream` followed by the escape
+/// character ('\\') and the specified `value` character.  After that update
+/// `*currentStart` to point to the address following `iter`.
 inline
 static
 void writeEscapedChar(bsl::ostream&   stream,
                       const char    **currentStart,
                       const char     *iter,
                       const char      value)
-    // Write the sequence of characters in the range specified by
-    // '[*currentStart, iter)' to the specified 'stream' followed by the escape
-    // character ('\\') and the specified 'value' character.  After that update
-    // '*currentStart' to point to the address following 'iter'.
 {
     stream.write(*currentStart, iter - *currentStart);
     stream.put('\\');

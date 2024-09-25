@@ -60,13 +60,13 @@ unsigned int hash(const char *data, int length)
     return hash;
 }
 #else
+/// That the memory starting at the specified `data` of specified `length`
+/// bytes in length.  Do the bytes in the reverse of the order that `hash`
+/// would do them, so that this function, when called on a little-endian
+/// machine, will return the same value as `hash` called on a big-endian
+/// machine.
 static
 unsigned int reverse_hash(const char *data, int length)
-    // That the memory starting at the specified 'data' of specified 'length'
-    // bytes in length.  Do the bytes in the reverse of the order that 'hash'
-    // would do them, so that this function, when called on a little-endian
-    // machine, will return the same value as 'hash' called on a big-endian
-    // machine.
 {
     BSLS_ASSERT(0 <= length);
     BSLS_ASSERT(data || 0 == length);

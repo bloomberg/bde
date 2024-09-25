@@ -20,8 +20,8 @@ using namespace std;
 //                             Overview
 //                             --------
 // Most of what this component implements are compile-time computations that
-// differ among platforms.  The tests do assume that alignment of 'char' is 1,
-// 'short' is 2, 'int' is 4, and 'double' is at least 4.  In addition, it is
+// differ among platforms.  The tests do assume that alignment of `char` is 1,
+// `short` is 2, `int` is 4, and `double` is at least 4.  In addition, it is
 // tested that all alignment-to-type calculations result are reversible, so
 // that the alignment of the resulting type equals the original input.
 //
@@ -90,9 +90,9 @@ namespace testCase2 {
 
 template<class TYPE, int CAPACITY>
 class StaticVector {
-    // This 'class' template provides a container type holding a contiguous
-    // sequence of elements of parameterized 'TYPE' with fixed maximum
-    // 'CAPACITY'.
+    // This `class` template provides a container type holding a contiguous
+    // sequence of elements of parameterized `TYPE` with fixed maximum
+    // `CAPACITY`.
 
   private:
     // DATA
@@ -102,7 +102,7 @@ class StaticVector {
   public:
     // CREATORS
     StaticVector()
-        // Create a 'StaticVector' with size '0'.
+        // Create a `StaticVector` with size `0`.
     : d_size(0)
     {
     }
@@ -126,16 +126,16 @@ class StaticVector {
     }
 
     void push_back(const TYPE& value)
-        // Add the specified 'value' to the end of range of elements.  The
-        // behavior is undefined unless 'size() < CAPACITY'.
+        // Add the specified `value` to the end of range of elements.  The
+        // behavior is undefined unless `size() < CAPACITY`.
     {
         ASSERT(d_size < CAPACITY);
         d_data[d_size++] = value;
     }
 
     void resize(int size)
-        // Resize this vector to the specified 'size'.  The behavior is
-        // undefined unless '0 <= size < CAPACITY'.
+        // Resize this vector to the specified `size`.  The behavior is
+        // undefined unless `0 <= size < CAPACITY`.
     {
         ASSERT(0 <= size);
         ASSERT(size < CAPACITY);
@@ -144,7 +144,7 @@ class StaticVector {
 };
 
 class DestructionTestType {
-    // This empty 'class' ensures that the destructor is only called on
+    // This empty `class` ensures that the destructor is only called on
     // instances that were properly created with one of its constructors.
 
   private:
@@ -153,7 +153,7 @@ class DestructionTestType {
 
     static StaticVector<DestructionTestType *, k_MAX_NUM_INSTANCES>
                                 s_instances;
-        // set of known instances of this 'class'
+        // set of known instances of this `class`
 
   public:
     // CREATORS
@@ -190,7 +190,7 @@ struct ProblematicStruct {
 
 template<int ALIGNMENT>
 void byValueFunction(ProblematicStruct<ALIGNMENT>)
-    // Empty function accepting 'ProblematicStruct ' *by* *value* (required to
+    // Empty function accepting `ProblematicStruct ` *by* *value* (required to
     // reproduce DRQS 151904020).
 {
 }
@@ -205,19 +205,19 @@ namespace Usage {
 
 ///Usage
 ///-----
-// Consider a parameterized type, 'my_AlignedBuffer', that provides aligned
-// memory to store a user-defined type.  A 'my_AlignedBuffer' object is useful
+// Consider a parameterized type, `my_AlignedBuffer`, that provides aligned
+// memory to store a user-defined type.  A `my_AlignedBuffer` object is useful
 // in situations where efficient (e.g., stack-based) storage is required.
 //
-// The 'my_AlignedBuffer' 'union' (defined below) takes a 'TYPE' and the
-// 'ALIGNMENT' requirements for that type as template parameters, and provides
-// an appropriately sized and aligned block of memory via the 'buffer'
-// functions.  Note that 'my_AlignedBuffer' ensures that the returned memory is
+// The `my_AlignedBuffer` `union` (defined below) takes a `TYPE` and the
+// `ALIGNMENT` requirements for that type as template parameters, and provides
+// an appropriately sized and aligned block of memory via the `buffer`
+// functions.  Note that `my_AlignedBuffer` ensures that the returned memory is
 // aligned correctly for the specified size by using
-// 'bsls::AlignmentToType<ALIGNMENT>::Type', which provides a primitive type
-// having the 'ALIGNMENT' requirement.  The class definition of
-// 'my_AlignedBuffer' is as follows:
-//..
+// `bsls::AlignmentToType<ALIGNMENT>::Type`, which provides a primitive type
+// having the `ALIGNMENT` requirement.  The class definition of
+// `my_AlignedBuffer` is as follows:
+// ```
     template <class TYPE, int ALIGNMENT>
     union my_AlignedBuffer {
       private:
@@ -230,28 +230,28 @@ namespace Usage {
         // MANIPULATORS
         char *buffer();
             // Return the address of the modifiable first byte of memory
-            // contained by this object as a 'char *' pointer.
+            // contained by this object as a `char *` pointer.
 
         TYPE& object();
-            // Return a reference to the modifiable 'TYPE' object stored in
+            // Return a reference to the modifiable `TYPE` object stored in
             // this buffer.  The referenced object has an undefined state
-            // unless a valid 'TYPE' object has been constructed in this
+            // unless a valid `TYPE` object has been constructed in this
             // buffer.
 
         // ACCESSORS
         const char *buffer() const;
             // Return the address of the non-modifiable first byte of memory
-            // contained by this object as a 'const char *' pointer.
+            // contained by this object as a `const char *` pointer.
 
         const TYPE& object() const;
-            // Return a reference to the non-modifiable 'TYPE' object stored in
+            // Return a reference to the non-modifiable `TYPE` object stored in
             // this buffer.  The referenced object has an undefined state
-            // unless a valid 'TYPE' object has been constructed in this
+            // unless a valid `TYPE` object has been constructed in this
             // buffer.
     };
-//..
-// The function definitions of 'my_AlignedBuffer' are as follows:
-//..
+// ```
+// The function definitions of `my_AlignedBuffer` are as follows:
+// ```
     // MANIPULATORS
     template <class TYPE, int ALIGNMENT>
     inline
@@ -281,16 +281,16 @@ namespace Usage {
     {
         return *reinterpret_cast<const TYPE *>(this);
     }
-//..
-// 'my_AlignedBuffer' can be used to construct buffers for different types and
+// ```
+// `my_AlignedBuffer` can be used to construct buffers for different types and
 // with varied alignment requirements.  Consider that we want to construct an
 // object that stores the response of a floating-point operation.  If the
-// operation is successful, then the response object stores a 'double' result;
-// otherwise, it stores an error string of type 'string', which is based on the
-// standard type 'string' (see 'bslstl_string').  For the sake of brevity, the
-// implementation of 'string' is not explored here.  Here is the definition for
-// the 'Response' class:
-//..
+// operation is successful, then the response object stores a `double` result;
+// otherwise, it stores an error string of type `string`, which is based on the
+// standard type `string` (see `bslstl_string`).  For the sake of brevity, the
+// implementation of `string` is not explored here.  Here is the definition for
+// the `Response` class:
+// ```
 class string {
 
     // DATA
@@ -397,80 +397,80 @@ bool operator>(const string& lhs, const string& rhs)
 const char *string::EMPTY_STRING = "";
 
     class Response {
-//..
-// To create a 'my_AlignedBuffer' object we must specify the alignment value
+// ```
+// To create a `my_AlignedBuffer` object we must specify the alignment value
 // for our types.  For simplicity, we use a maximum alignment value for all
 // types (assumed to be 8 here):
-//..
+// ```
       enum { MAX_ALIGNMENT = 8 };
-//..
-// Note that we use 'my_AlignedBuffer' to allocate sufficient, aligned memory
+// ```
+// Note that we use `my_AlignedBuffer` to allocate sufficient, aligned memory
 // to store the result of the operation or an error message:
-//..
+// ```
       private:
         union {
             my_AlignedBuffer<double, MAX_ALIGNMENT>      d_result;
             my_AlignedBuffer<string, MAX_ALIGNMENT> d_errorMessage;
         };
-//..
-// The 'isError' flag indicates whether the response object stores valid data
+// ```
+// The `isError` flag indicates whether the response object stores valid data
 // or an error message:
-//..
+// ```
         bool d_isError;
-//..
+// ```
 // Below we provide a simple public interface suitable for illustration only:
-//..
+// ```
       public:
         // CREATORS
         Response(double result);
-            // Create a response object that stores the specified 'result'.
+            // Create a response object that stores the specified `result`.
 
         Response(const string& errorMessage);
             // Create a response object that stores the specified
-            // 'errorMessage'.
+            // `errorMessage`.
 
         ~Response();
             // Destroy this response object.
-//..
+// ```
 // The manipulator functions allow clients to update the response object to
-// store either a 'double' result or an error message:
-//..
+// store either a `double` result or an error message:
+// ```
         // MANIPULATORS
         void setResult(double result);
-            // Update this object to store the specified 'result'.  After this
-            // operation 'isError' returns 'false'.
+            // Update this object to store the specified `result`.  After this
+            // operation `isError` returns `false`.
 
         void setErrorMessage(const string& errorMessage);
-            // Update this object to store the specified 'errorMessage'.  After
-            // this operation 'isError' returns 'true'.
-//..
-// The 'isError' function informs clients whether a response object stores a
+            // Update this object to store the specified `errorMessage`.  After
+            // this operation `isError` returns `true`.
+// ```
+// The `isError` function informs clients whether a response object stores a
 // result value or an error message:
-//..
+// ```
         // ACCESSORS
         bool isError() const;
-            // Return 'true' if this object stores an error message, and
-            // 'false' otherwise.
+            // Return `true` if this object stores an error message, and
+            // `false` otherwise.
 
         double result() const;
             // Return the result value stored by this object.  The behavior is
-            // undefined unless 'false == isError()'.
+            // undefined unless `false == isError()`.
 
         const string& errorMessage() const;
             // Return a reference to the non-modifiable error message stored by
             // this object.  The behavior is undefined unless
-            // 'true == isError()'.
+            // `true == isError()`.
     };
-//..
+// ```
 // Below we provide the function definitions.  Note that we use the
-// 'my_AlignedBuffer::buffer' function to access correctly aligned memory.
-// Also note that 'my_AlignedBuffer' just provides the memory for an object;
-// therefore, the 'Response' class is responsible for the construction and
-// destruction of the specified objects.  Since our 'Response' class is for
+// `my_AlignedBuffer::buffer` function to access correctly aligned memory.
+// Also note that `my_AlignedBuffer` just provides the memory for an object;
+// therefore, the `Response` class is responsible for the construction and
+// destruction of the specified objects.  Since our `Response` class is for
 // illustration purposes only, we ignore exception-safety concerns; nor do we
 // supply an allocator to the string constructor, allowing the default
 // allocator to be used instead:
-//..
+// ```
     // creators
     Response::Response(double result)
     {
@@ -536,7 +536,7 @@ const char *string::EMPTY_STRING = "";
 
         return d_errorMessage.object();
     }
-//..
+// ```
 
 }  // close unnamed namespace
 
@@ -561,8 +561,8 @@ int main(int argc, char *argv[])
         //   Make sure main usage examples compile and work as advertized.
         //
         // Test plan:
-        //   Copy usage example verbatim into test driver then change 'assert'
-        //   to 'ASSERT'.  Since usage example code declares template classes
+        //   Copy usage example verbatim into test driver then change `assert`
+        //   to `ASSERT`.  Since usage example code declares template classes
         //   and functions, it must be placed outside of main().  Within this
         //   test case, therefore, we call the externally-declared functions
         //   defined above.
@@ -576,8 +576,8 @@ int main(int argc, char *argv[])
 
         using namespace Usage;
 
-// Clients of the 'Response' class can use it as follows:
-//..
+// Clients of the `Response` class can use it as follows:
+// ```
     double value1 = 111.2, value2 = 92.5;
 
     if (0 == value2) {
@@ -590,24 +590,24 @@ int main(int argc, char *argv[])
 
         // Process response object
     }
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
         // TESTING RESOLUTION OF DRQS 151904020
         //
         // CONCERNS
-        //   'AlignmentToType' does not trigger a MSVC compiler bug manifesting
-        //   in the destructor being called with incorrect 'this' pointer.
+        //   `AlignmentToType` does not trigger a MSVC compiler bug manifesting
+        //   in the destructor being called with incorrect `this` pointer.
         //
         // PLAN
         //   1. Pass by-value a struct containing pointer to member function of
         //      a class with at least two bases and a
-        //      'bsls::AlignmentToType<N>::Type' object.
+        //      `bsls::AlignmentToType<N>::Type` object.
         //
-        //   2. Verify that the destructors are called with correct 'this'
-        //      pointers by means of 'DestructorTestType' member of
-        //      'ProblematicStruct'.
+        //   2. Verify that the destructors are called with correct `this`
+        //      pointers by means of `DestructorTestType` member of
+        //      `ProblematicStruct`.
         //
         // TESTING
         //   bsls::AlignmentToType<N>::Type

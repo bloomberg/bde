@@ -12,8 +12,8 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 using namespace BloombergLP;
 
@@ -98,19 +98,19 @@ typedef bslalg::BidirectionalLink Link;
 //-----------------------------------------------------------------------------
 
 // Suppose we want to create a linked list template class, it will be called
-// 'MyList'.
+// `MyList`.
 //
 // First, we create the iterator helper class, which will eventually be
-// defined as a nested type within the 'MyList' class.
+// defined as a nested type within the `MyList` class.
 
                             // ===============
                             // MyList_Iterator
                             // ===============
 
+/// `Iterator` type for class `MyList`.  This class will be `typedef`ed to
+/// be a nested class within `MyList`.
 template <class PAYLOAD>
 class MyList_Iterator {
-    // 'Iterator' type for class 'MyList'.  This class will be 'typedef'ed to
-    // be a nested class within 'MyList'.
 
     // PRIVATE TYPES
     typedef bslalg::BidirectionalNode<PAYLOAD> Node;
@@ -140,9 +140,9 @@ class MyList_Iterator {
     PAYLOAD& operator*() const { return d_node->value(); }
 };
 
-// Then, we define our 'MyList' class, which will inherit from
-// 'bslalg::HashTableBucket'.  'MyList::Iterator' will be a public typedef of
-// 'MyList_Iterator'.  For brevity, we will omit a lot of functionality that a
+// Then, we define our `MyList` class, which will inherit from
+// `bslalg::HashTableBucket`.  `MyList::Iterator` will be a public typedef of
+// `MyList_Iterator`.  For brevity, we will omit a lot of functionality that a
 // full, general-purpose list class would have, implementing only what we will
 // need for this example.
 
@@ -150,10 +150,10 @@ class MyList_Iterator {
                                 // MyList
                                 // ======
 
+/// This class stores a doubly-linked list containing objects of type
+/// `PAYLOAD`.
 template <class PAYLOAD>
 class MyList : public bslalg::HashTableBucket {
-    // This class stores a doubly-linked list containing objects of type
-    // 'PAYLOAD'.
 
     // PRIVATE TYPES
     typedef bslalg::BidirectionalNode<PAYLOAD> Node;
@@ -213,7 +213,7 @@ bool operator!=(MyList_Iterator<PAYLOAD> lhs,
     return !(lhs == rhs);
 }
 
-// Then, we implement the functions for the 'MyList' class:
+// Then, we implement the functions for the `MyList` class:
 
                                 // ------
                                 // MyList
@@ -313,25 +313,25 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-//..
-// Next, in 'main', we use our 'MyList' class to store a list of ints:
-//..
+// ```
+// Next, in `main`, we use our `MyList` class to store a list of ints:
+// ```
         MyList<int> intList;
-//..
+// ```
 // Then, we declare an array of ints to populate it with:
-//..
+// ```
         int intArray[] = { 8, 2, 3, 5, 7, 2 };
         enum { NUM_INTS = sizeof intArray / sizeof *intArray };
-//..
+// ```
 // Now, we iterate, pushing ints to the list:
-//..
+// ```
         for (const int *pInt = intArray; pInt != intArray + NUM_INTS; ++pInt) {
             intList.pushBack(*pInt);
         }
-//..
-// Finally, we use our 'Iterator' type to traverse the list and observe its
+// ```
+// Finally, we use our `Iterator` type to traverse the list and observe its
 // values:
-//..
+// ```
         MyList<int>::Iterator it = intList.begin();
         ASSERT(8 == *it);
         ASSERT(2 == *++it);
@@ -516,10 +516,10 @@ int main(int argc, char *argv[])
         // Plan:
         //   Create an object with the default c'tor, verify that it represents
         //   a valid, empty list, then slowly build the list up the 3 elements
-        //   using the 'setFirstAndLast', 'setFirst', and 'setLast'
+        //   using the `setFirstAndLast`, `setFirst`, and `setLast`
         //   manipulators, verifying the state of the list all along.  Then
-        //   reset the bucket with the 'reset' manipulator and verify it
-        //   represents an empty list.  Call the 'checkInvariants' accessor
+        //   reset the bucket with the `reset` manipulator and verify it
+        //   represents an empty list.  Call the `checkInvariants` accessor
         //   after every manipulator to verify that invariants are preserved
         //   after all manipulator calls.
         // --------------------------------------------------------------------
@@ -578,11 +578,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
+        // 1. Perform and ad-hoc test of the primary modifiers and accessors.
         //
         // Testing:
         //   BREATHING TEST

@@ -39,18 +39,18 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'baltzo::ZoneinfoUtil' is a utility for performing operations using a
-// 'baltzo::Zoneinfo' value.  This test driver tests each implemented utility
+// `baltzo::ZoneinfoUtil` is a utility for performing operations using a
+// `baltzo::Zoneinfo` value.  This test driver tests each implemented utility
 // function independently.
 //
 // Global Concerns:
-//: o Pointer/reference parameters are declared 'const'.
-//: o No memory is ever allocated from the global allocator.
-//: o Precondition violations are detected in appropriate build modes.
+//  - Pointer/reference parameters are declared `const`.
+//  - No memory is ever allocated from the global allocator.
+//  - Precondition violations are detected in appropriate build modes.
 //
 // Global Assumptions:
-//: o All explicit memory allocations are presumed to use the global, default,
-//:   or object allocator.
+//  - All explicit memory allocations are presumed to use the global, default,
+//    or object allocator.
 //-----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 3] void convertUtcToLocalTime(DatetimeTz *, Transition *, UTC, Zone);
@@ -59,7 +59,7 @@ using namespace std;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 6] USAGE EXAMPLE
-// [ 4] CONCERN: parameters are declared 'const'.
+// [ 4] CONCERN: parameters are declared `const`.
 // [ 4] CONCERN: No memory is ever allocated from the global allocator.
 // [ 4] CONCERN: Precondition violations are detected.
 //-----------------------------------------------------------------------------
@@ -133,19 +133,19 @@ typedef baltzo::LocalTimeValidity                 Validity;
 //                              TEST FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// Return the interval in seconds from UNIX epoch time of the specified
+/// `value`.  Note that this method is shorthand for
+/// `bdlt::EpochUtil::convertToTimeT64`.
 bdlt::EpochUtil::TimeT64 toTimeT(const bdlt::Datetime& value)
-    // Return the interval in seconds from UNIX epoch time of the specified
-    // 'value'.  Note that this method is shorthand for
-    // 'bdlt::EpochUtil::convertToTimeT64'.
 {
     return bdlt::EpochUtil::convertToTimeT64(value);
 }
 
+/// Return the datetime value indicated by the specified
+/// `iso8601TimeString`.  The behavior is undefined unless
+/// `iso8601TimeString` is a null-terminated C-string containing a time
+/// description matching the iso8601 specification (see `bdlt_iso8601util`).
 bdlt::Datetime toDatetime(const char *iso8601TimeString)
-    // Return the datetime value indicated by the specified
-    // 'iso8601TimeString'.  The behavior is undefined unless
-    // 'iso8601TimeString' is a null-terminated C-string containing a time
-    // description matching the iso8601 specification (see 'bdlt_iso8601util').
 {
     bdlt::Datetime time;
     int len = static_cast<int>(bsl::strlen(iso8601TimeString));
@@ -156,11 +156,11 @@ bdlt::Datetime toDatetime(const char *iso8601TimeString)
     return time;
 }
 
+/// Return the number of milliseconds in the specified `iso8601Value`,
+/// where `iso8601Value` is a iso860 time, optionally prefixed by white
+/// space and a '-' character (for negative offsets) -- i.e.,
+/// " *-?HH:MM:SS.mmm".
 int toOffsetInMilliseconds(const char *iso8601Value)
-    // Return the number of milliseconds in the specified 'iso8601Value',
-    // where 'iso8601Value' is a iso860 time, optionally prefixed by white
-    // space and a '-' character (for negative offsets) -- i.e.,
-    // " *-?HH:MM:SS.mmm".
 {
     // Drop initial white space
     for (; *iso8601Value && *iso8601Value==' '; ++iso8601Value) {
@@ -190,9 +190,9 @@ int toOffsetInMilliseconds(const char *iso8601Value)
             time.millisecond());
 }
 
+/// A `struct` describing a transitions.  Note that this type is meant to
+/// be used to create data tables for use with `addTransitions`.
 struct TransitionDescription {
-    // A 'struct' describing a transitions.  Note that this type is meant to
-    // be used to create data tables for use with 'addTransitions'.
 
     int         d_line;
     const char *d_transitionTime;
@@ -201,11 +201,11 @@ struct TransitionDescription {
     bool        d_isDst;
 };
 
+/// Insert to the specified `result` the contiguous sequence of specified
+/// `descriptions`, of length `numDescriptions`.
 void addTransitions(baltzo::Zoneinfo            *result,
                     const TransitionDescription *descriptions,
                     int                          numDescriptions)
-    // Insert to the specified 'result' the contiguous sequence of specified
-    // 'descriptions', of length 'numDescriptions'.
 {
     BSLS_ASSERT(result);
 
@@ -222,12 +222,12 @@ void addTransitions(baltzo::Zoneinfo            *result,
 //                        GLOBAL CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// The Logger verbosity guard disables logging on construction, and
+/// re-enables logging, based on the prior default pass-through level, when
+/// it goes out of scope and is destroyed.  It is intended to suppress
+/// logged output for intentional errors when the test driver is run in
+/// non-verbose mode.
 struct LogVerbosityGuard {
-    // The Logger verbosity guard disables logging on construction, and
-    // re-enables logging, based on the prior default pass-through level, when
-    // it goes out of scope and is destroyed.  It is intended to suppress
-    // logged output for intentional errors when the test driver is run in
-    // non-verbose mode.
 
     bool                    d_verbose;             // verbose mode does not
                                                    // disable logging
@@ -235,9 +235,9 @@ struct LogVerbosityGuard {
     bsls::LogSeverity::Enum d_defaultPassthrough;  // default passthrough
                                                    // log level
 
+    /// If the optionally specified `verbose` is `false` disable logging
+    /// until this guard is destroyed.
     explicit LogVerbosityGuard(bool verbose = false)
-        // If the optionally specified 'verbose' is 'false' disable logging
-        // until this guard is destroyed.
     {
         d_verbose            = verbose;
         d_defaultPassthrough = bsls::Log::severityThreshold();
@@ -247,8 +247,8 @@ struct LogVerbosityGuard {
         }
     }
 
+    /// Set the logging verbosity back to its default state.
     ~LogVerbosityGuard()
-        // Set the logging verbosity back to its default state.
     {
         if (!d_verbose) {
             bsls::Log::setSeverityThreshold(d_defaultPassthrough);
@@ -269,7 +269,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator defaultAllocator;  // To be used to make sure the
@@ -300,7 +300,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'BSLS_ASSERT' with 'ASSERT'.
+        //   comment characters, and replace `BSLS_ASSERT` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -311,45 +311,45 @@ int main(int argc, char *argv[])
 
 ///Usage
 ///-----
-// The following examples demonstrate how to use a 'ZoneinfoUtil' to perform
+// The following examples demonstrate how to use a `ZoneinfoUtil` to perform
 // common operations on time values using a Zoneinfo description of a time
 // zone.
 //
-///Prologue: Initializing a 'baltzo::Zoneinfo' object.
+///Prologue: Initializing a `baltzo::Zoneinfo` object.
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
 // We start by creating a Zoneinfo time zone description for New York, which
 // we will use in subsequent examples.  Note that, in practice, clients should
 // obtain time zone information from a data source (see
-// 'baltzo_zoneinfocache').
+// `baltzo_zoneinfocache`).
 //
-// First we create a Zoneinfo object for New York, and populate 'newYork' with
+// First we create a Zoneinfo object for New York, and populate `newYork` with
 // the correct time zone identifier:
-//..
+// ```
     baltzo::Zoneinfo newYork;
     newYork.setIdentifier("America/New_York");
-//..
+// ```
 // Next we create two local-time descriptors, one for standard time and one
 // for daylight-saving time:
-//..
+// ```
     baltzo::LocalTimeDescriptor est(-18000, false, "EST");
     baltzo::LocalTimeDescriptor edt(-14400, true,  "EDT");
-//..
-// Then we set the initial descriptor for 'newYork' to Eastern Standard
+// ```
+// Then we set the initial descriptor for `newYork` to Eastern Standard
 // Time.  Note that such an initial transition is required for a
-// 'baltzo::Zoneinfo' object to be considered Well-Defined (see
-// 'isWellFormed'):
-//..
+// `baltzo::Zoneinfo` object to be considered Well-Defined (see
+// `isWellFormed`):
+// ```
     newYork.addTransition(bdlt::EpochUtil::convertToTimeT64(
                                                       bdlt::Datetime(1, 1, 1)),
                           est);
-//..
+// ```
 // Next we create a series of transitions between these local-time descriptors
 // for the years 2007-2011.  Note that the United States transitions to
 // daylight saving time on the second Sunday in March, at 2am local time
 // (07:00 UTC), and transitions back to standard time on the first Sunday in
 // November at 2am local time (06:00 UTC), resulting in an even number of
 // transitions:
-//..
+// ```
     static const bdlt::Datetime TRANSITION_TIMES[] = {
         bdlt::Datetime(2007,  3, 11, 7),
         bdlt::Datetime(2007, 11,  4, 6),
@@ -374,45 +374,45 @@ int main(int argc, char *argv[])
                                                      TRANSITION_TIMES[i + 1]),
                               est);
     }
-//..
+// ```
 // Finally we verify that the time zone information we've created is
 // considered well-defined (as discussed above):
-//..
+// ```
     ASSERT(true == baltzo::ZoneinfoUtil::isWellFormed(newYork));
-//..
+// ```
 //
 ///Example 1: Converting from a UTC time to a local time.
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we demonstrate how to convert a UTC time to the
-// corresponding local time using the 'convertUtcToLocalTime' class method.
+// corresponding local time using the `convertUtcToLocalTime` class method.
 //
-// We start by creating a 'bdlt::Datetime' representing the UTC time
+// We start by creating a `bdlt::Datetime` representing the UTC time
 // "Dec 12, 2010 15:00":
-//..
+// ```
     bdlt::Datetime utcTime(2010, 12, 12, 15, 0, 0);
-//..
-// Now, we call 'convertUtcToLocalTime' and supply as input both 'utcTime' and
-// the Zoneinfo description for 'newYork' (which we initialized in the prologue
+// ```
+// Now, we call `convertUtcToLocalTime` and supply as input both `utcTime` and
+// the Zoneinfo description for `newYork` (which we initialized in the prologue
 // above):
-//..
+// ```
     bdlt::DatetimeTz                          localNYTime;
     baltzo::Zoneinfo::TransitionConstIterator iterator;
     baltzo::ZoneinfoUtil::convertUtcToLocalTime(&localNYTime,
                                                &iterator,
                                                utcTime,
                                                newYork);
-//..
-// Then we verify that 'localNYTime' is "Dec 12, 2010 10:00+5:00", the time in
+// ```
+// Then we verify that `localNYTime` is "Dec 12, 2010 10:00+5:00", the time in
 // New York corresponding to the UTC time "Dec 12, 2010 15:00".
-//..
+// ```
     ASSERT(utcTime                         == localNYTime.utcDatetime());
     ASSERT(bdlt::Datetime(2010, 12, 12, 10) == localNYTime.localDatetime());
     ASSERT(-5 * 60                         == localNYTime.offset());
-//..
-// Finally, we verify that the returned 'iterator' refers to the local-time
-// transition immediately before 'utcTime', and that that transition refers to
+// ```
+// Finally, we verify that the returned `iterator` refers to the local-time
+// transition immediately before `utcTime`, and that that transition refers to
 // a local-time descriptor characterizing standard-time in New York:
-//..
+// ```
     baltzo::Zoneinfo::TransitionConstIterator transitionIter     = iterator;
     baltzo::Zoneinfo::TransitionConstIterator nextTransitionIter = ++iterator;
 //
@@ -424,23 +424,23 @@ int main(int argc, char *argv[])
     ASSERT(false        == transitionIter->descriptor().dstInEffectFlag());
     ASSERT(-5 * 60 * 60 == transitionIter->descriptor().utcOffsetInSeconds());
     ASSERT("EST"        == transitionIter->descriptor().description());
-//..
+// ```
 //
 ///Example 2: Determining the Type of a Local Time
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// In this next example we use 'loadRelevantTransitions' to determine the
-// local-time descriptor (see 'baltzo_localtimedescriptor') that applies to a
-// local time value, represented using a 'bdlt::Datetime' object.
+// In this next example we use `loadRelevantTransitions` to determine the
+// local-time descriptor (see `baltzo_localtimedescriptor`) that applies to a
+// local time value, represented using a `bdlt::Datetime` object.
 //
-// We start by defining a 'bdlt::Datetime' object for "Jan 1, 2011 12:00" in
+// We start by defining a `bdlt::Datetime` object for "Jan 1, 2011 12:00" in
 // New York:
-//..
+// ```
     bdlt::Datetime nyLocalTime(2011, 1, 1, 12);
-//..
-// Then, we call 'loadRelevantTransitions', and supply, as input, both
-// 'nyLocalTime' and the Zoneinfo description for 'newYork' (which we
+// ```
+// Then, we call `loadRelevantTransitions`, and supply, as input, both
+// `nyLocalTime` and the Zoneinfo description for `newYork` (which we
 // initialized in the prologue above):
-//..
+// ```
     baltzo::LocalTimeValidity::Enum           validity;
     baltzo::Zoneinfo::TransitionConstIterator firstTransition;
     baltzo::Zoneinfo::TransitionConstIterator secondTransition;
@@ -449,53 +449,53 @@ int main(int argc, char *argv[])
                                                   &validity,
                                                   nyLocalTime,
                                                   newYork);
-//..
+// ```
 // "Jan 1, 2011 12:00" in New York, is not near a daylight-saving time
 // transition, so it uniquely describes a valid time (in New York) which falls
 // during Eastern Standard Time, and whose local time offset from UTC is
 // -5:00.  Because "Jan 1, 2011 12:00" is both a valid and unique local time,
 // the returned validity will be
-// 'baltzo::LocalTimeValidity::e_VALID_UNIQUE' and the two returned transition
+// `baltzo::LocalTimeValidity::e_VALID_UNIQUE` and the two returned transition
 // iterators will be equal:
-//..
+// ```
     ASSERT(baltzo::LocalTimeValidity::e_VALID_UNIQUE == validity);
     ASSERT(firstTransition == secondTransition);
 //
     ASSERT(false    == firstTransition->descriptor().dstInEffectFlag());
     ASSERT(-5*60*60 == firstTransition->descriptor().utcOffsetInSeconds());
     ASSERT("EST"    == firstTransition->descriptor().description());
-//..
-// Next, we create a second 'bdlt::Datetime' object to represent
+// ```
+// Next, we create a second `bdlt::Datetime` object to represent
 // "Nov 7, 2010 1:30" in New York.  Note that the clock time
 // "Nov 7, 2010 1:30" occurred twice in New York, as clocks were set back by an
 // hour an instant before the local clock would have reached
 // "Nov 7, 2010 02:00 EDT", and it is therefore ambiguous which of those two
 // values that local time is meant to refer.
-//..
+// ```
     bdlt::Datetime ambiguousLocalTime(2010, 11, 7, 1, 30);
-//..
-// Now, we call 'loadRelevantTransitions', this time supplying
-// 'ambiguousLocalTime':
-//..
+// ```
+// Now, we call `loadRelevantTransitions`, this time supplying
+// `ambiguousLocalTime`:
+// ```
     baltzo::ZoneinfoUtil::loadRelevantTransitions(&firstTransition,
                                                  &secondTransition,
                                                  &validity,
                                                  ambiguousLocalTime,
                                                  newYork);
-//..
+// ```
 // Finally we observe that the local time was ambiguous and that the returned
 // transitions are distinct:
-//..
+// ```
     ASSERT(baltzo::LocalTimeValidity::e_VALID_AMBIGUOUS == validity);
     ASSERT(firstTransition != secondTransition);
-//..
-// Because 'ambiguousLocalTime' may refer to either the standard or the
+// ```
+// Because `ambiguousLocalTime` may refer to either the standard or the
 // daylight-saving time value "Nov 7, 2010 01:30", the returned validity will
-// be 'e_VALID_AMBIGUOUS', and the 'first' and 'second' iterators will differ.
-// 'first' will refer to a description of the local time before the transition
-// (daylight-saving time) and 'second' will refer to a description of local
+// be `e_VALID_AMBIGUOUS`, and the `first` and `second` iterators will differ.
+// `first` will refer to a description of the local time before the transition
+// (daylight-saving time) and `second` will refer to a description of local
 // time after the transition (standard-time):
-//..
+// ```
     ASSERT(true      == firstTransition->descriptor().dstInEffectFlag());
     ASSERT(-4*60*60  == firstTransition->descriptor().utcOffsetInSeconds());
     ASSERT("EDT"     == firstTransition->descriptor().description());
@@ -503,46 +503,46 @@ int main(int argc, char *argv[])
     ASSERT(false     == secondTransition->descriptor().dstInEffectFlag());
     ASSERT(-5*60*60  == secondTransition->descriptor().utcOffsetInSeconds());
     ASSERT("EST"     == secondTransition->descriptor().description());
-//..
+// ```
 // Note that the two transitions returned are adjacent:
-//..
+// ```
     ++firstTransition;
     ASSERT(firstTransition == secondTransition);
-//..
+// ```
 
     } break;
      case 5: {
         // --------------------------------------------------------------------
-        // TESTING: 'loadRelevantTransitions'
-        //   Ensure that 'loadRelevantTransitions' returns either one relevant
+        // TESTING: `loadRelevantTransitions`
+        //   Ensure that `loadRelevantTransitions` returns either one relevant
         //   transition, or two adjacent relevant transitions, and the correct
         //   validity status for the supplied local time.
         //
         // Concerns:
-        //  1 'loadRelevantTransitions' returns a single transition for
+        //  1 `loadRelevantTransitions` returns a single transition for
         //     unambiguous input times, whose UTC offset, when applied to the
         //     input time, results in a time within the interval over which
         //     that transition applies.
         //
-        //  2 'loadRelevantTransitions' returns a two transitions for
+        //  2 `loadRelevantTransitions` returns a two transitions for
         //     ambiguous input times, whose UTC offsets, when applied to the
         //     input time, both result in a time within the interval over which
         //     that transition applies.
         //
-        //  3 'loadRelevantTransitions' returns a two transitions for
+        //  3 `loadRelevantTransitions` returns a two transitions for
         //     invalid input times, the first UTC offset, when applied to the
         //     latter transition, falls before the supplied time, and the
         //     latter UTC offset, when applied to the latter transitions,
         //     falls after the supplied time.
         //
-        //  4 'loadRelevantTransitions' correctly accepts, as input, a time
-        //     zone with many transitions, and 'utcTimes' anywhere within the
+        //  4 `loadRelevantTransitions` correctly accepts, as input, a time
+        //     zone with many transitions, and `utcTimes` anywhere within the
         //     range of valid transitions.
         //
-        //  5 'loadRelevantTransitions' correctly accepts, as input, a time
+        //  5 `loadRelevantTransitions` correctly accepts, as input, a time
         //     zone with a single transition.
         //
-        //  6 'loadRelevantTransitions' returns the correct validity status
+        //  6 `loadRelevantTransitions` returns the correct validity status
         //     for times near a transition value where the UTC offset is
         //     increasing (creating an interval of invalid times), decreases
         //     (creating an interval of ambiguous times), or remains the
@@ -558,12 +558,12 @@ int main(int argc, char *argv[])
         //      with various UTC offsets.
         //
         //    2 Create a test table where each row indicates a UTC test value
-        //      to pass to 'loadRelevantTransitions' (for the test time zone),
+        //      to pass to `loadRelevantTransitions` (for the test time zone),
         //      and the expected result values for the validity and transition
         //      iterators.
         //
         //    3 For each element of the test table:
-        //      1 Call 'loadRelevantTransitions' with the test UTC value, and
+        //      1 Call `loadRelevantTransitions` with the test UTC value, and
         //        verify that the results match the expected results in the
         //        test table.
         //
@@ -574,41 +574,41 @@ int main(int argc, char *argv[])
         //    2 Create a varied set of epsilon values, representing
         //      test points in a range around a time that we will test.
         //
-        //    3 For each time-difference in the set of 'DIFFERENCES':
+        //    3 For each time-difference in the set of `DIFFERENCES`:
         //      1 Create a test time zone, with an initial transition with a
         //        UTC offset of 0, and a second transition whose UTC offset is
-        //        the current 'DIFFERENCE' (from 0)
+        //        the current `DIFFERENCE` (from 0)
         //
-        //      2 Create a 'PRE_TRANSITION' time value, representing the
+        //      2 Create a `PRE_TRANSITION` time value, representing the
         //        local-time an instant before the transition, and
-        //        'POST_TRANSITION', representing the local-time an instant
+        //        `POST_TRANSITION`, representing the local-time an instant
         //        after the transition.
         //
         //      3 For each possible epsilon in the set of test epsilons:
         //        Note that the following steps define an "Oracle" for testing
-        //        the results of 'loadRelevantTransitions':
-        //        1 For both 'PRE_TRANSITION' and 'POST_TRANSITION':
-        //          1 Apply the current epsilon (to either 'PRE_TRANSITION' or
-        //            'POST_TRANSITION') to create a test local time value.
+        //        the results of `loadRelevantTransitions`:
+        //        1 For both `PRE_TRANSITION` and `POST_TRANSITION`:
+        //          1 Apply the current epsilon (to either `PRE_TRANSITION` or
+        //            `POST_TRANSITION`) to create a test local time value.
         //
-        //          2 Call 'loadRelevantTransitions' on the test local time
+        //          2 Call `loadRelevantTransitions` on the test local time
         //            value.
         //
         //          3 If the test local time is outside the range defined by
-        //            'PRE_TRANSITION' and 'POST_TRANSITION' then verify the
+        //            `PRE_TRANSITION` and `POST_TRANSITION` then verify the
         //            result is unambiguous, and that the correct transition is
         //            returned.
         //
         //          4 If test local time is in the range defined by
-        //            'PRE_TRANSITION' and 'POST_TRANSITION' and
-        //            'PRE_TRANSITION > POST_TRANSITION', then verify the
+        //            `PRE_TRANSITION` and `POST_TRANSITION` and
+        //            `PRE_TRANSITION > POST_TRANSITION`, then verify the
         //            result is VALID_BUT_AMBIGUOUS, and that the correct two
         //            transitions are returned.
         //
         //          5 If test local time is in the range defined by
-        //            'PRE_TRANSITION' and 'POST_TRANSITION' and
-        //            'PRE_TRANSITION < POST_TRANSITION', then verify the
-        //            result is 'INVALID', and that the correct two
+        //            `PRE_TRANSITION` and `POST_TRANSITION` and
+        //            `PRE_TRANSITION < POST_TRANSITION`, then verify the
+        //            result is `INVALID`, and that the correct two
         //            transitions are returned.
         //
         //  3 Using a table-driven approach with an Oracle (C-4):
@@ -628,7 +628,7 @@ int main(int argc, char *argv[])
         //          current transition, (2) local-time immediately after the
         //          current transitions, (3) the current transition time.
         //
-        //      3 Call 'loadRelevantTransitions' for each element in the
+        //      3 Call `loadRelevantTransitions` for each element in the
         //        vector of test values.
         //
         //      4 Use the "Oracle" procedure described in the previous test
@@ -640,11 +640,11 @@ int main(int argc, char *argv[])
         //    2 Create a time zone with a single transition (at 1/1/1_00:00,
         //      as required for well-formed time zones).
         //
-        //    3 Call 'loadRelevantTransitions' for each test UTC time, and
+        //    3 Call `loadRelevantTransitions` for each test UTC time, and
         //      verify the correct (unique and valid) result is returned.
         //
         //  5 Verify that, in appropriate build modes, defensive checks are
-        //    triggered for argument values (using the 'BSLS_ASSERTTEST_*'
+        //    triggered for argument values (using the `BSLS_ASSERTTEST_*`
         //    macros).  (C-7)
         //
         // Testing:
@@ -652,7 +652,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING: 'loadRelevantTransitions'" << endl
+                          << "TESTING: `loadRelevantTransitions`" << endl
                           << "==================================" << endl;
 
         enum {
@@ -754,7 +754,7 @@ int main(int argc, char *argv[])
                      << endl;
             }
 
-            // Each value in the set of 'DIFFERENCES' represents the
+            // Each value in the set of `DIFFERENCES` represents the
             // *difference* between two adjacent local time periods.
             const char *DIFFERENCES[] = {
                 "-23:59:59",
@@ -784,7 +784,7 @@ int main(int argc, char *argv[])
             const int NUM_DIFFERENCES = sizeof DIFFERENCES /
                                         sizeof *DIFFERENCES;
 
-            // Each value in the set of 'EPSILONS' represents an offset from a
+            // Each value in the set of `EPSILONS` represents an offset from a
             // time value that we want to test.
             const char *EPSILONS[] = {
                 "-01:00:00.000",
@@ -820,11 +820,11 @@ int main(int argc, char *argv[])
                 Desc desc2(DIFF, false, "B");
                 tz.addTransition(TRANS_TIME_T, desc2);
 
-                // Create two local times, the first, 'PRE_TRANSITION',
+                // Create two local times, the first, `PRE_TRANSITION`,
                 // representing local time the instant before the transition,
-                // and the second, 'POST_TRANSITIONS', representing local time
+                // and the second, `POST_TRANSITIONS`, representing local time
                 // the instant after the transition.
-                //..
+                // ```
                 //
                 //                                            either ambiguous
                 //                                        ,-- or invalid times
@@ -843,14 +843,14 @@ int main(int argc, char *argv[])
                 //            |             |
                 //            Previous      Current
                 //            Transition    Transition
-                //..
+                // ```
 
                 bdlt::Datetime PRE_TRANSITION(TRANS_TIME);
                 bdlt::Datetime POST_TRANSITION(TRANS_TIME);
                 POST_TRANSITION.addSeconds(DIFF);
 
-                // Note that if 'PRE_TRANSITION > POST_TRANSITION' (i.e.,
-                // 'DIFF < 0') then the range of local times between
+                // Note that if `PRE_TRANSITION > POST_TRANSITION` (i.e.,
+                // `DIFF < 0`) then the range of local times between
                 // PRE_TRANSITION and POST_TRANSITIONS are ambiguous,
                 // otherwise they are invalid.
                 bdlt::Datetime minTime = PRE_TRANSITION < POST_TRANSITION
@@ -968,7 +968,7 @@ int main(int argc, char *argv[])
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            // Each value in the set of 'EPSILONS' represents an offset from a
+            // Each value in the set of `EPSILONS` represents an offset from a
             // time value that we want to test.
             const char *EPSILONS[] = {
                 "-01:00:00.000",
@@ -1163,88 +1163,88 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING: 'convertUtcToLocalTime'
-        //   Ensure that 'convertUtcToLocalTime' returns the correct
+        // TESTING: `convertUtcToLocalTime`
+        //   Ensure that `convertUtcToLocalTime` returns the correct
         //   local-time value for the provided UTC time value.
         //
         //   White-box note: these concerns assume that
-        //   'baltzo::Zoneinfo::findTransitionForUtcTime' correctly finds that
-        //   transition at or before the provided 'utcTime'.
+        //   `baltzo::Zoneinfo::findTransitionForUtcTime` correctly finds that
+        //   transition at or before the provided `utcTime`.
         //
         // Concerns:
-        //: 1 Sanity test: 'convertUtcToLocalTime' returns the correct
-        //:   transition for input times immediately before, at, and after, a
-        //:   transition.  Note that this is really re-testing
-        //:   'baltzo::Zoneinfo::findTransitionForUtcTime'
-        //:
-        //: 2 That the returned local-time is correctly adjusted from the
-        //:   input UTC time by the offset found in the returned transition,
-        //:   and that offset also matches that in the returned UTC offset.
-        //:
-        //: 3 That 'convertUtcToLocalTime' returns both a local time
-        //:   (adjusted from the provided UTC time) and a UTC offset that are
-        //:   rounded down to the nearest minute (even in instances where the
-        //:   Zoneinfo specifies an offset in seconds).
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
-        //:
-        //: 5 That the function returns 'ErrorCode::k_OUT_OF_RANGE' when
-        //:   'result' would be out of range.
+        // 1. Sanity test: `convertUtcToLocalTime` returns the correct
+        //    transition for input times immediately before, at, and after, a
+        //    transition.  Note that this is really re-testing
+        //    `baltzo::Zoneinfo::findTransitionForUtcTime`
+        //
+        // 2. That the returned local-time is correctly adjusted from the
+        //    input UTC time by the offset found in the returned transition,
+        //    and that offset also matches that in the returned UTC offset.
+        //
+        // 3. That `convertUtcToLocalTime` returns both a local time
+        //    (adjusted from the provided UTC time) and a UTC offset that are
+        //    rounded down to the nearest minute (even in instances where the
+        //    Zoneinfo specifies an offset in seconds).
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
+        //
+        // 5. That the function returns `ErrorCode::k_OUT_OF_RANGE` when
+        //    `result` would be out of range.
         //
         // Plan:
-        //: 1 Using a table-driven approach (C-1):
-        //:   1 Create a test time zone value with a varied set of transitions
-        //:
-        //:   2 For each transition in the test time zone:
-        //:     1 For a sequence of negative and positive adjustments:
-        //:       1 Adjust the current transition by the current adjustment to
-        //:         create a test time value
-        //:
-        //:       2 Generate an expected result, either based on the previous
-        //:         transition (if the adjustment is negative) or the current
-        //:         transition.
-        //:
-        //:       3 Call 'convertUtcToLocalTime' and test the result against
-        //:         the expected result.
-        //:
-        //: 2 Using a table-driven approach (C-2):
-        //:   1 Create a table of varying UTC offset values.
-        //:
-        //:   2 For each test UTC offset value:
-        //:     1 Create a well-defined test time zone value with a transition
-        //:       holding a descriptor with the test UTC offset value.
-        //:
-        //:     2 Search for the test time transition.
-        //:
-        //:     2 Verify that the returned result is adjusted correctly by the
-        //:       test offset value.
-        //:
-        //: 3 Using a table-driven approach (C-3):
-        //:   1 Create a table of UTC offset values in seconds and the rounded
-        //:     value in minutes, emphasizing the boundary cases for rounding
-        //:     seconds to minutes.
-        //:
-        //:   2 For each test UTC offset value:
-        //:     1 Create a well-defined test time zone value with a transition
-        //:       holding a descriptor with the test UTC offset value.
-        //:
-        //:     2 Search for the test time transition.
-        //:
-        //:     2 Verify that the returned result is adjusted correctly by the
-        //:       rounded test offset value.
-        //:
-        //: 4 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for argument values (using the 'BSLS_ASSERTTEST_*'
-        //:   macros).  (C-4)
-        //:
-        //: 5 Do a test that provokes a return code of 'k_OUT_OF_RANGE'.  (C-5)
+        // 1. Using a table-driven approach (C-1):
+        //   1. Create a test time zone value with a varied set of transitions
+        //
+        //   2. For each transition in the test time zone:
+        //     1. For a sequence of negative and positive adjustments:
+        //       1. Adjust the current transition by the current adjustment to
+        //          create a test time value
+        //
+        //       2. Generate an expected result, either based on the previous
+        //          transition (if the adjustment is negative) or the current
+        //          transition.
+        //
+        //       3. Call `convertUtcToLocalTime` and test the result against
+        //          the expected result.
+        //
+        // 2. Using a table-driven approach (C-2):
+        //   1. Create a table of varying UTC offset values.
+        //
+        //   2. For each test UTC offset value:
+        //     1. Create a well-defined test time zone value with a transition
+        //        holding a descriptor with the test UTC offset value.
+        //
+        //     2. Search for the test time transition.
+        //
+        //     2. Verify that the returned result is adjusted correctly by the
+        //        test offset value.
+        //
+        // 3. Using a table-driven approach (C-3):
+        //   1. Create a table of UTC offset values in seconds and the rounded
+        //      value in minutes, emphasizing the boundary cases for rounding
+        //      seconds to minutes.
+        //
+        //   2. For each test UTC offset value:
+        //     1. Create a well-defined test time zone value with a transition
+        //        holding a descriptor with the test UTC offset value.
+        //
+        //     2. Search for the test time transition.
+        //
+        //     2. Verify that the returned result is adjusted correctly by the
+        //        rounded test offset value.
+        //
+        // 4. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for argument values (using the `BSLS_ASSERTTEST_*`
+        //    macros).  (C-4)
+        //
+        // 5. Do a test that provokes a return code of `k_OUT_OF_RANGE`.  (C-5)
         //
         // Testing:
         //   void convertUtcToLocalTime(DatetimeTz *, Transition *, UTC, Zone);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING: 'convertUtcToLocalTime'" << endl
+                          << "TESTING: `convertUtcToLocalTime`" << endl
                           << "================================" << endl;
         {
             if (veryVerbose) {
@@ -1456,97 +1456,97 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING: 'isWellFormed'
-        //   Ensure that 'isWellFormed' correctly determines whether a
-        //   'baltzo::Zoneinfo' meets the definition of a "well-defined' value.
+        // TESTING: `isWellFormed`
+        //   Ensure that `isWellFormed` correctly determines whether a
+        //   `baltzo::Zoneinfo` meets the definition of a "well-defined' value.
         //
         // Concerns:
-        //: 1 A default constructed Zoneinfo is not well-defined
-        //:
-        //: 2 Any time zone which does not have an initial transition at
-        //:   1/1/1_00:00:00 is not well-defined.
-        //:
-        //: 3 For two transitions, if the local-time immediately before or
-        //:   after the latter transition is at an earlier representation to
-        //:   the local-time immediately before or after the former
-        //:   transition, then the Zoneinfo is not well-defined.
-        //:
-        //: 4 That Concern 3 is true for every consecutive pair of transitions
-        //:   in the sequence.
-        //:
-        //: 5 Zoneinfo objects that violate more than one constraint are
-        //:   considered not well-formed.
-        //:
-        //: 6 Zoneinfo objects that violate none of the constraints are
-        //:   considered well-formed.
+        // 1. A default constructed Zoneinfo is not well-defined
+        //
+        // 2. Any time zone which does not have an initial transition at
+        //    1/1/1_00:00:00 is not well-defined.
+        //
+        // 3. For two transitions, if the local-time immediately before or
+        //    after the latter transition is at an earlier representation to
+        //    the local-time immediately before or after the former
+        //    transition, then the Zoneinfo is not well-defined.
+        //
+        // 4. That Concern 3 is true for every consecutive pair of transitions
+        //    in the sequence.
+        //
+        // 5. Zoneinfo objects that violate more than one constraint are
+        //    considered not well-formed.
+        //
+        // 6. Zoneinfo objects that violate none of the constraints are
+        //    considered well-formed.
         //
         // Plan:
-        //: 1 Create a default constructed Zoneinfo and verify that
-        //:   'isWellFormed' returns false.  (C-1)
-        //:
-        //: 2 Using a table-driven approach (C-2):
-        //:   1 Create a set of varied time transition values including one at
-        //:     the minimum representable 'bdlt::Datetime' value.
-        //:
-        //:   2 Iterate over the number of test table elements selecting an
-        //:     initial index.  Creating a default (empty) Zoneinfo and mark it
-        //:     as invalid:
-        //:     1 For each initial index, iterate over the number of test
-        //:       table elements (modulo the length of the test table)
-        //:       inserting a transition into the table.
-        //:
-        //:     2 If the newly added transition is at 'bdlt::Datetime(1, 1, 1)'
-        //:       mark the Zoneinfo as valid.
-        //:
-        //:     3 Test whether 'isWellFormed' returns the expected result.
-        //:
-        //: 3 Using a table-driven approach (C-3)
-        //:   1 Create a table describing 3 consecutive transitions in a time
-        //:     zone.  In particular, define 3 UTC offsets ('utcOffsetT0',
-        //:     'utcOffsetT1', 'utcOffsetT2'), for the series of transitions
-        //:     (T0, T1, and T2), a time interval between T1 and T2
-        //:     ('interval'), and an indication of whether the resulting
-        //:     sequence of  transitions is well-formed.
-        //:
-        //:   2 For each test element in the test table:
-        //:     1 Create a Zoneinfo object holding 3 transitions:
-        //:       T0: At    1/1/1_00:00:00           UTC Offset: utcOffsetT0
-        //:       T1: At 1000/1/1_00:00:00           UTC Offset: utcOffsetT1
-        //:       T2: At 1000/1/1_00:00:00+interval  UTC Offset: utcOffsetT0
-        //:
-        //:   3 Call 'isWellFormed' and verify it returns the expected result.
-        //:
-        //: 4 Using a table-driven approach (C-4)
-        //:   1 Create a table describing a time zone with transitions
-        //:     occurring at various UTC times.  Configuration an initial time
-        //:     zone value using those transitions.
-        //:
-        //:   2 For transitions in the initial time zone value:
-        //:     1 Copy the initial time zone value and verify it is
-        //:       well-formed.
-        //:
-        //:     2 Add an additional transition 1 second after the current
-        //:       transition, with a UTC offset of -01:00.
-        //:
-        //:     3 Verify the resulting Zoneinfo is not well-formed.
-        //:
-        //: 4 Create a Zoneinfo without a transition at the 1/1/1_00:00:00 and
-        //:   two transitions within 24 hours of each other.  Verify
-        //:   'isWellFormed' returns 'false'.
+        // 1. Create a default constructed Zoneinfo and verify that
+        //    `isWellFormed` returns false.  (C-1)
+        //
+        // 2. Using a table-driven approach (C-2):
+        //   1. Create a set of varied time transition values including one at
+        //      the minimum representable `bdlt::Datetime` value.
+        //
+        //   2. Iterate over the number of test table elements selecting an
+        //      initial index.  Creating a default (empty) Zoneinfo and mark it
+        //      as invalid:
+        //     1. For each initial index, iterate over the number of test
+        //        table elements (modulo the length of the test table)
+        //        inserting a transition into the table.
+        //
+        //     2. If the newly added transition is at `bdlt::Datetime(1, 1, 1)`
+        //        mark the Zoneinfo as valid.
+        //
+        //     3. Test whether `isWellFormed` returns the expected result.
+        //
+        // 3. Using a table-driven approach (C-3)
+        //   1. Create a table describing 3 consecutive transitions in a time
+        //      zone.  In particular, define 3 UTC offsets (`utcOffsetT0`,
+        //      `utcOffsetT1`, `utcOffsetT2`), for the series of transitions
+        //      (T0, T1, and T2), a time interval between T1 and T2
+        //      (`interval`), and an indication of whether the resulting
+        //      sequence of  transitions is well-formed.
+        //
+        //   2. For each test element in the test table:
+        //     1. Create a Zoneinfo object holding 3 transitions:
+        //        T0: At    1/1/1_00:00:00           UTC Offset: utcOffsetT0
+        //        T1: At 1000/1/1_00:00:00           UTC Offset: utcOffsetT1
+        //        T2: At 1000/1/1_00:00:00+interval  UTC Offset: utcOffsetT0
+        //
+        //   3. Call `isWellFormed` and verify it returns the expected result.
+        //
+        // 4. Using a table-driven approach (C-4)
+        //   1. Create a table describing a time zone with transitions
+        //      occurring at various UTC times.  Configuration an initial time
+        //      zone value using those transitions.
+        //
+        //   2. For transitions in the initial time zone value:
+        //     1. Copy the initial time zone value and verify it is
+        //        well-formed.
+        //
+        //     2. Add an additional transition 1 second after the current
+        //        transition, with a UTC offset of -01:00.
+        //
+        //     3. Verify the resulting Zoneinfo is not well-formed.
+        //
+        // 4. Create a Zoneinfo without a transition at the 1/1/1_00:00:00 and
+        //    two transitions within 24 hours of each other.  Verify
+        //    `isWellFormed` returns `false`.
         //
         // Testing:
         //   bool isWellFormed(const baltzo::Zoneinfo& zoneinfo);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING: 'isWellFormed'" << endl
+                          << "TESTING: `isWellFormed`" << endl
                           << "========================" << endl;
 
         LogVerbosityGuard logGuard;
         baltzo::LocalTimeDescriptor desc(0, false, "junk", Z);
         {
             if (veryVerbose) {
-                cout << "\tTesting a default constructed 'Zoneinfo' "
+                cout << "\tTesting a default constructed `Zoneinfo` "
                      << "(constraint 1)." << endl;
             }
             Tz tz(Z); const Tz& TZ = tz;
@@ -1579,7 +1579,7 @@ int main(int argc, char *argv[])
                 Tz tz(Z); const Tz& TZ = tz;
 
                 // For the i'th iteration of the outer loop, start adding
-                // transitions at the i'th element of the 'DATA' array.
+                // transitions at the i'th element of the `DATA` array.
                 for (int j = 0; j < NUM_DATA; ++j) {
                     const int INDEX   = (INITIAL_INDEX + j) % NUM_DATA;
 
@@ -1601,14 +1601,14 @@ int main(int argc, char *argv[])
             }
 
             // For this test case, we create 3 transitions:
-            //   + T0: At    1/1/1_00:00:00                  and 'utcOffsetT0'
-            //   + T1: At 1000/1/1_00:00:00'                 and 'utcOffsetT1'
-            //   + T2: At 1000/1/1_00:00:00 + 'intervalMins' and 'utcOffsetT2'
+            //   + T0: At    1/1/1_00:00:00                  and `utcOffsetT0`
+            //   + T1: At 1000/1/1_00:00:00'                 and `utcOffsetT1`
+            //   + T2: At 1000/1/1_00:00:00 + `intervalMins` and `utcOffsetT2`
             //
             // There are 4 cases that are relevant:
             // 1) Valid transitions -- No overlaps in the ranges of ambiguous
             //    or invalid times.
-            //..
+            // ```
             // (1) Valid Transitions
             //
             //                                  ,-- range of ambiguous/invalid
@@ -1624,10 +1624,10 @@ int main(int argc, char *argv[])
             // UTC Time   +--------+----------------------+-------------------
             //            T0       T1 -- intervalMins --> T2
             //         (1/1/1)   (1000/1/1)
-            //..
+            // ```
             // 2) Invalid I -- T1 adjusts local time forward,
             //                 T2 adjusts local time back.
-            //..
+            // ```
             // Local Time               T1          T1'
             //                          O- - - - - >@
             //                          |      T2'  |            T2
@@ -1638,10 +1638,10 @@ int main(int argc, char *argv[])
             //                      /__/            \__/
             // UTC Time   +--------+-----------------+-------------------
             //            T0       T1                T2
-            //..
+            // ```
             // 2) Invalid II -- T1 adjusts local time backward,
             //                  T2 adjusts local time forward.
-            //..
+            // ```
             // Local Time   T1'                      T1
             //              @< - - - - - - - - - - -O
             //               \        T2            |       T2'
@@ -1652,10 +1652,10 @@ int main(int argc, char *argv[])
             //                    \ ___/   \___/
             // UTC Time   +--------+--------+----------------------------
             //            T0       T1       T2
-            //..
+            // ```
             // 3) Invalid III -- T1 adjusts local time backward,
             //                   T2 adjusts local time backward
-            //..
+            // ```
             // (3) Invalid Transitions Type III
             //
             // Local Time        T1'               T1
@@ -1668,7 +1668,7 @@ int main(int argc, char *argv[])
             //                         \_/  \__\                              .
             // UTC Time   +------------+--------+----------------------------
             //            T0           T1       T2
-            //..
+            // ```
 
             struct {
                 int         d_line;
@@ -1795,11 +1795,11 @@ int main(int argc, char *argv[])
         //   That the various test functions behave as described.
         //
         // Concerns:
-        //: 1 'toOffsetInSeconds' properly removes white space and returns the
-        //:    correct (potentially negative) value in milliseconds.
-        //:
-        //: 2 'addTransitions' adds the sequence of specified transitions to a
-        //:    time zone.
+        // 1. `toOffsetInSeconds` properly removes white space and returns the
+        //     correct (potentially negative) value in milliseconds.
+        //
+        // 2. `addTransitions` adds the sequence of specified transitions to a
+        //     time zone.
         //
         // Plan:
         //
@@ -1814,7 +1814,7 @@ int main(int argc, char *argv[])
                           << "======================" << endl;
         {
             if (veryVerbose) {
-                cout << "\tTest 'toOffsetInMilliseconds'." << endl;
+                cout << "\tTest `toOffsetInMilliseconds`." << endl;
             }
 
             struct {
@@ -1848,7 +1848,7 @@ int main(int argc, char *argv[])
         }
         {
             if (veryVerbose) {
-                cout << "\tTest 'addTransitions'." << endl;
+                cout << "\tTest `addTransitions`." << endl;
             }
             const TransitionDescription DATA[] = {
                 { L_, "0001-01-01T00:00:00.000",  0, "A", false},
@@ -1929,7 +1929,7 @@ int main(int argc, char *argv[])
             newYork.print(bsl::cout, 1, 3);
         }
 
-        if (verbose) cout << "\texercising 'convertUtcToLocalTime'" << endl;
+        if (verbose) cout << "\texercising `convertUtcToLocalTime`" << endl;
 
         static const struct {
             int d_lineNum;   // source line number
@@ -2055,9 +2055,9 @@ int main(int argc, char *argv[])
         }
         {
             LogVerbosityGuard logGuard;
-            if (verbose) cout << "\tTest 'isWellFormed'" << endl;
+            if (verbose) cout << "\tTest `isWellFormed`" << endl;
 
-            // Test that violating each constraint will return 'false'.
+            // Test that violating each constraint will return `false`.
             {
                 // Test time zone with no transitions
                 Tz mX(Z); const Tz& X = mX;

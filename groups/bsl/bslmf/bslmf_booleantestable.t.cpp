@@ -9,7 +9,7 @@
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>
-#include <stdlib.h>  // 'atoi'
+#include <stdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 
@@ -112,16 +112,16 @@ static bool veryVeryVeryVerbose;
 //
 // Example 1: Implementing a Concept for a Predicate (Boolean) Expression
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In the following example we use 'bslmf::BooleanTestable' to implement a
+// In the following example we use `bslmf::BooleanTestable` to implement a
 // concept to determine whether applying the '<' operator to a given type
-// produces an 'if'-testable result.
-//..
+// produces an `if`-testable result.
+// ```
 template <class t_TYPE>
 concept LessComparable =
     requires(t_TYPE v) {
         { v < v } -> bslmf::BooleanTestable;
     };
-//..
+// ```
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 
 //=============================================================================
@@ -148,11 +148,11 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate the usage example from header into test driver.
+        // 1. Incorporate the usage example from header into test driver.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -172,10 +172,10 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 The provided utilities are sufficiently functional.
+        // 1. The provided utilities are sufficiently functional.
         //
         // Plan:
-        //: 1 Write any code with 'bslmf::BooleanTestable' here.
+        // 1. Write any code with `bslmf::BooleanTestable` here.
         //
         // Testing:
         //   BREATHING TEST

@@ -246,7 +246,7 @@ using bsl::atoi;
 // [30] sameQuantum(ValueType128, ValueType128);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 4] TEST 'notEqual' FOR 'NaN' CORRECTNESS
+// [ 4] TEST `notEqual` FOR `NaN` CORRECTNESS
 // [32] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
@@ -961,182 +961,182 @@ const int NUM_TEST_EXPONENTS = static_cast<int>(
 //                      HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Return a string representing the specified `mantissa` and `exponent`, in
+/// the format `MeX`, where `M` is a string representation of `mantissa`,
+/// and `X` is a string representation of `exponent`.  Note that this
+/// function is intended to reduce the complexity of the `makeDecimalRawXX`
+/// test cases.
 template<class INTEGER>
 bsl::string makeParseString(INTEGER mantissa, int exponent)
-    // Return a string representing the specified 'mantissa' and 'exponent', in
-    // the format 'MeX', where 'M' is a string representation of 'mantissa',
-    // and 'X' is a string representation of 'exponent'.  Note that this
-    // function is intended to reduce the complexity of the 'makeDecimalRawXX'
-    // test cases.
 {
     bsl::ostringstream oss;
     oss << mantissa << "e" << exponent;
     return oss.str();
 }
 
+/// Return true if the specified `lhs` and `rhs` are the same value, even in
+/// the case of `NaN`.  Two `ValueType32` objects are considered equal if
+/// either `Util::equal` returns true, or both `lhs` and `rhs` are not equal
+/// to themselves (implying them both to be `NaN`).
 bool nanEqual(Util::ValueType32 lhs, Util::ValueType32 rhs)
-    // Return true if the specified 'lhs' and 'rhs' are the same value, even in
-    // the case of 'NaN'.  Two 'ValueType32' objects are considered equal if
-    // either 'Util::equal' returns true, or both 'lhs' and 'rhs' are not equal
-    // to themselves (implying them both to be 'NaN').
 {
     return  Util::equal(lhs, rhs)
         || (Util::notEqual(lhs, lhs) && Util::notEqual(rhs, rhs));
 }
 
+/// Return true if the specified `lhs` and `rhs` are the same value, even in
+/// the case of `NaN`.  Two `ValueType64` objects are considered equal if
+/// either `Util::equal` returns true, or both `lhs` and `rhs` are not equal
+/// to themselves (implying them both to be `NaN`).
 bool nanEqual(Util::ValueType64 lhs, Util::ValueType64 rhs)
-    // Return true if the specified 'lhs' and 'rhs' are the same value, even in
-    // the case of 'NaN'.  Two 'ValueType64' objects are considered equal if
-    // either 'Util::equal' returns true, or both 'lhs' and 'rhs' are not equal
-    // to themselves (implying them both to be 'NaN').
 {
     return  Util::equal(lhs, rhs)
         || (Util::notEqual(lhs, lhs) && Util::notEqual(rhs, rhs));
 }
 
+/// Return true if the specified `lhs` and `rhs` are the same value, even in
+/// the case of `NaN`.  Two `ValueType128` objects are considered equal if
+/// either `Util::equal` returns true, or both `lhs` and `rhs` are not equal
+/// to themselves (implying them both to be `NaN`).
 bool nanEqual(Util::ValueType128 lhs, Util::ValueType128 rhs)
-    // Return true if the specified 'lhs' and 'rhs' are the same value, even in
-    // the case of 'NaN'.  Two 'ValueType128' objects are considered equal if
-    // either 'Util::equal' returns true, or both 'lhs' and 'rhs' are not equal
-    // to themselves (implying them both to be 'NaN').
 {
     return  Util::equal(lhs, rhs)
         || (Util::notEqual(lhs, lhs) && Util::notEqual(rhs, rhs));
 }
 
+/// Return true if the specified `value` is NaN, and false otherwise.
 template <class DECIMAL>
 inline
 bool isNaN(DECIMAL value)
-    // Return true if the specified 'value' is NaN, and false otherwise.
 {
     return Util::notEqual(value, value);
 }
 
+/// Return `true` if binary representations of the specified `lhs` and `rhs`
+/// are equal and `false` otherwise.
 template <class TYPE>
 bool checkBitsEquality(TYPE lhs, TYPE rhs)
-    // Return 'true' if binary representations of the specified 'lhs' and 'rhs'
-    // are equal and 'false' otherwise.
 {
     return 0 == bsl::memcmp(&lhs, &rhs, sizeof(TYPE));
 }
 
+/// This `struct` template provides a mechanism to create an object of the
+/// template parameter type `DECIMAL` through a consistent interface.
 template <class DECIMAL>
 struct DecimalFactory;
-    // This 'struct' template provides a mechanism to create an object of the
-    // template parameter type 'DECIMAL' through a consistent interface.
 
+/// This template specialization of `DecimalFactory` provides functions to
+/// create `ValueType32` values.
 template <>
 struct DecimalFactory<Util::ValueType32>
-    // This template specialization of 'DecimalFactory' provides functions to
-    // create 'ValueType32' values.
 {
     typedef int Significand;
     typedef int Exponent;
 
+    /// Create a `ValueType32` object representing a decimal floating point
+    /// number consisting of the specified `significand` and `exponent`,
+    /// with the sign given by `significand`.
     static Util::ValueType32 makeDecimalRaw(Significand significand,
                                             Exponent    exponent)
-        // Create a 'ValueType32' object representing a decimal floating point
-        // number consisting of the specified 'significand' and 'exponent',
-        // with the sign given by 'significand'.
     {
         return Util::makeDecimalRaw32(significand, exponent);
     }
 
+    /// Return the value that represents positive infinity for the
+    /// `ValueType32` type.
     static Util::ValueType32 infinity()
-        // Return the value that represents positive infinity for the
-        // 'ValueType32' type.
     {
         return Util::infinity32();
     }
 
+    /// Return a value that represents non-signaling NaN for the
+    /// `ValueType32` type.
     static Util::ValueType32 quietNaN()
-        // Return a value that represents non-signaling NaN for the
-        // 'ValueType32' type.
     {
         return Util::quietNaN32();
     }
 
+    /// Return a value that represents signaling NaN for the
+    /// `ValueType32` type.
     static Util::ValueType32 signalingNaN()
-        // Return a value that represents signaling NaN for the
-        // 'ValueType32' type.
     {
         return Util::signalingNaN32();
     }
 };
 
+/// This template specialization of `DecimalFactory` provides functions to
+/// create `ValueType64` values.
 template <>
 struct DecimalFactory<Util::ValueType64>
-    // This template specialization of 'DecimalFactory' provides functions to
-    // create 'ValueType64' values.
 {
     typedef long long Significand;
     typedef int Exponent;
 
+    /// Create a `ValueType64` object representing a decimal floating point
+    /// number consisting of the specified `significand` and `exponent`,
+    /// with the sign given by `significand`.
     static Util::ValueType64 makeDecimalRaw(Significand significand,
                                             Exponent    exponent)
-        // Create a 'ValueType64' object representing a decimal floating point
-        // number consisting of the specified 'significand' and 'exponent',
-        // with the sign given by 'significand'.
     {
         return Util::makeDecimalRaw64(significand, exponent);
     }
 
+    /// Return the value that represents positive infinity for the
+    /// `ValueType64` type.
     static Util::ValueType64 infinity()
-        // Return the value that represents positive infinity for the
-        // 'ValueType64' type.
     {
         return Util::infinity64();
     }
 
+    /// Return a value that represents non-signaling NaN for the
+    /// `ValueType64` type.
     static Util::ValueType64 quietNaN()
-        // Return a value that represents non-signaling NaN for the
-        // 'ValueType64' type.
     {
         return Util::quietNaN64();
     }
 
+    /// Return a value that represents signaling NaN for the
+    /// `ValueType64` type.
     static Util::ValueType64 signalingNaN()
-        // Return a value that represents signaling NaN for the
-        // 'ValueType64' type.
     {
         return Util::signalingNaN64();
     }
 };
 
+/// This template specialization of `DecimalFactory` provides functions to
+/// create `ValueType128` values.
 template <>
 struct DecimalFactory<Util::ValueType128>
-    // This template specialization of 'DecimalFactory' provides functions to
-    // create 'ValueType128' values.
 {
     typedef long long Significand;
     typedef int Exponent;
 
+    /// Create a `ValueType128` object representing a decimal floating point
+    /// number consisting of the specified `significand` and `exponent`,
+    /// with the sign given by `significand`.
     static Util::ValueType128 makeDecimalRaw(Significand significand,
                                              Exponent    exponent)
-        // Create a 'ValueType128' object representing a decimal floating point
-        // number consisting of the specified 'significand' and 'exponent',
-        // with the sign given by 'significand'.
     {
         return Util::makeDecimalRaw128(significand, exponent);
     }
 
+    /// Return the value that represents positive infinity for the
+    /// `ValueType128` type.
     static Util::ValueType128 infinity()
-        // Return the value that represents positive infinity for the
-        // 'ValueType128' type.
     {
         return Util::infinity128();
     }
 
+    /// Return a value that represents non-signaling NaN for the
+    /// `ValueType128` type.
     static Util::ValueType128 quietNaN()
-        // Return a value that represents non-signaling NaN for the
-        // 'ValueType128' type.
     {
         return Util::quietNaN128();
     }
 
+    /// Return a value that represents signaling NaN for the
+    /// `ValueType128` type.
     static Util::ValueType128 signalingNaN()
-        // Return a value that represents signaling NaN for the
-        // 'ValueType128' type.
     {
         return Util::signalingNaN128();
     }
@@ -1149,32 +1149,32 @@ void testFma()
     // TESTING FMA
     //
     // Concerns:
-    //:  1 That 'fma(x, y, z)' to 'NaN' or 'Inf' should follow the IEEE rules
-    //:    for the cases listed in the following charts:
-    //:
-    //:                   x * y|-Inf|Normal|+Inf|NaN|
-    //:                  ------+----+------+----+---+
-    //:                   -Inf |+Inf|+/-Inf|-Inf|NaN|
-    //:                  ------+----+------+----+---+
-    //:                  Normal| Inf|Normal| Inf|NaN|
-    //:                  ------+----+------+----+---+
-    //:                   +Inf |-Inf|+/-Inf|+Inf|NaN|
-    //:                  ------+----+------+----+---+
-    //:                    NaN | NaN|  NaN | NaN|NaN|
-    //:
-    //:             (x * y) + z|-Inf|Normal|+Inf|NaN|
-    //:            ------------+----+------+----+---+
-    //:                -Inf    |-Inf| -Inf | NaN|NaN|
-    //:            ------------+----+------+----+---+
-    //:               Normal   |-Inf|Normal|+Inf|NaN|
-    //:            ------------+----+------+----+---+
-    //:                +Inf    | NaN| +Inf |+Inf|NaN|
-    //:            ------------+----+------+----+---+
-    //:                 NaN    | NaN|  NaN | NaN|NaN|
+    //  1. That `fma(x, y, z)` to `NaN` or `Inf` should follow the IEEE rules
+    //     for the cases listed in the following charts:
+    //
+    //                    x * y|-Inf|Normal|+Inf|NaN|
+    //                   ------+----+------+----+---+
+    //                    -Inf |+Inf|+/-Inf|-Inf|NaN|
+    //                   ------+----+------+----+---+
+    //                   Normal| Inf|Normal| Inf|NaN|
+    //                   ------+----+------+----+---+
+    //                    +Inf |-Inf|+/-Inf|+Inf|NaN|
+    //                   ------+----+------+----+---+
+    //                     NaN | NaN|  NaN | NaN|NaN|
+    //
+    //              (x * y) + z|-Inf|Normal|+Inf|NaN|
+    //             ------------+----+------+----+---+
+    //                 -Inf    |-Inf| -Inf | NaN|NaN|
+    //             ------------+----+------+----+---+
+    //                Normal   |-Inf|Normal|+Inf|NaN|
+    //             ------------+----+------+----+---+
+    //                 +Inf    | NaN| +Inf |+Inf|NaN|
+    //             ------------+----+------+----+---+
+    //                  NaN    | NaN|  NaN | NaN|NaN|
     //
     // Plan:
-    //:  1 Test all 64 special cases in the charts, which covers all
-    //:    combination of input decimal value types (C-1)
+    //  1. Test all 64 special cases in the charts, which covers all
+    //     combination of input decimal value types (C-1)
     //
     // Testing
     //   fabs(ValueType32,  ValueType32,  ValueType32);
@@ -1328,11 +1328,11 @@ void testFma()
 // array of security prices, and returns that sum as a decimal floating point
 // value:
 
+    /// Return a Decimal Floating Point number representing the arithmetic
+    /// total of the values specified by `prices` and `numPrices`.
     bdldfp::DecimalImpUtil::ValueType64
     totalSecurities(bdldfp::DecimalImpUtil::ValueType64 *prices,
                     int                                  numPrices)
-        // Return a Decimal Floating Point number representing the arithmetic
-        // total of the values specified by 'prices' and 'numPrices'.
     {
 
 // Then, we create a local variable to hold the intermediate sum, and set it to
@@ -1341,8 +1341,8 @@ void testFma()
         bdldfp::DecimalImpUtil::ValueType64 total;
         total = bdldfp::DecimalImpUtil::int32ToDecimal64(0);
 
-// Next, we loop over the array of 'prices' and add each price to the
-// intermediate 'total':
+// Next, we loop over the array of `prices` and add each price to the
+// intermediate `total`:
 
         for (int i = 0; i < numPrices; ++i) {
             total = bdldfp::DecimalImpUtil::add(total, prices[i]);
@@ -1404,11 +1404,11 @@ void TestDriver::testCase31()
     // TESTING USAGE EXAMPLE
     //
     // Concerns:
-    //:  1 Usage example compiles
+    //  1. Usage example compiles
     //
     // Plan:
-    //:  1 Copy-and-paste usage example into test driver.
-    //:  2 Replace 'assert' with 'ASSERT'.
+    //  1. Copy-and-paste usage example into test driver.
+    //  2. Replace `assert` with `ASSERT`.
     //
     // Testing:
     //   USAGE EXAMPLE
@@ -1426,18 +1426,18 @@ void TestDriver::testCase31()
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // A common requirement for decimal floating point types is to be able to
 // create a value from independent "coefficient" and "exponent" values, where
-// the resulting decimal has the value 'coefficient * 10 ^ exponent'.  In the
-// following example we use such a 'coffecicient' and 'exponent' to create
-// 'Decimal32', 'Decimal64', and 'Decimal128' values.
+// the resulting decimal has the value `coefficient * 10 ^ exponent`.  In the
+// following example we use such a `coffecicient` and `exponent` to create
+// `Decimal32`, `Decimal64`, and `Decimal128` values.
 //
-// First we define values representing the 'coefficient' and 'exponent' (note
+// First we define values representing the `coefficient` and `exponent` (note
 // the result should be the value 42.5):
 
     int coefficient = 425; // Yet another name for significand
     int exponent    =  -1;
 
-// Then we call 'makeDecimal32', 'makeDecimal64', and 'makeDecimal128' to
-// construct a 'Decimal32', 'Decimal64', and 'Decimal128' respectively.
+// Then we call `makeDecimal32`, `makeDecimal64`, and `makeDecimal128` to
+// construct a `Decimal32`, `Decimal64`, and `Decimal128` respectively.
 
     bdldfp::DecimalImpUtil::ValueType32  d32 =
               bdldfp::DecimalImpUtil::makeDecimalRaw32( coefficient, exponent);
@@ -1461,11 +1461,11 @@ void TestDriver::testCase31()
 // importance (for example, financial calculations, as currency is typically
 // denominated in base-10 decimal values).  In the following example we
 // demonstrate computing the sum of a sequence of security prices, where each
-// price is held in a 'DecimalImpUtil::ValueType64' value.
+// price is held in a `DecimalImpUtil::ValueType64` value.
 //
 
-// Notice that 'add' is called as a function, and is not an operator overload
-// for '+'; this is because the 'bdldfp::DecimalImpUtil' utility is intended to
+// Notice that `add` is called as a function, and is not an operator overload
+// for '+'; this is because the `bdldfp::DecimalImpUtil` utility is intended to
 // be used in the implementation of operator overloads on a more full fledged
 // type.
 //
@@ -1484,7 +1484,7 @@ void TestDriver::testCase31()
 //
     expected = bdldfp::DecimalImpUtil::int32ToDecimal64(16);
 //
-    // Totals of values from 1 to 'x' are '(x * x + x) / 2':
+    // Totals of values from 1 to `x` are `(x * x + x) / 2`:
 //
     expected = bdldfp::DecimalImpUtil::add(
                  bdldfp::DecimalImpUtil::multiply(expected, expected),
@@ -1506,16 +1506,16 @@ void TestDriver::testCase30()
     // TESTING SAMEQUANTUM
     //
     // Concerns:
-    //: 1 Forwarding to the right routines.
+    // 1. Forwarding to the right routines.
     //
     // Plan:
-    //:  1 Using table-driven technique:
-    //:
-    //:    1 Specify a set of arguments representing distinct decimal type
-    //:      values and expected result of 'sameQuantum()' method.
-    //:
-    //:    2 Exercise 'sameQuantum()' using the arguments from (P-1.1) and
-    //:      ensure that the result of execution equals the expected value.
+    //  1. Using table-driven technique:
+    //
+    //    1. Specify a set of arguments representing distinct decimal type
+    //       values and expected result of `sameQuantum()` method.
+    //
+    //    2. Exercise `sameQuantum()` using the arguments from (P-1.1) and
+    //       ensure that the result of execution equals the expected value.
     //
     // Testing:
     //   ValueType32  sameQuantum(ValueType32,  ValueType32);
@@ -1523,7 +1523,7 @@ void TestDriver::testCase30()
     //   ValueType128 sameQuantum(ValueType128, ValueType128);
     // ------------------------------------------------------------------------
 
-    if (verbose) bsl::cout << "\nTESTING 'sameQuantum' METHOD"
+    if (verbose) bsl::cout << "\nTESTING `sameQuantum` METHOD"
                            << "\n============================"
                            << bsl::endl;
 
@@ -1667,16 +1667,16 @@ void TestDriver::testCase29()
     // TESTING QUANTIZE
     //
     // Concerns:
-    //: 1 Forwarding to the right routines.
+    // 1. Forwarding to the right routines.
     //
     // Plan:
-    //:  1 Using table-driven technique:
-    //:
-    //:    1 Specify a set of arguments representing distinct decimal type
-    //:      values and expected result of 'quantize()' method.
-    //:
-    //:    2 Exercise 'quantize()' method using the arguments from (P-1.1) and
-    //:      ensure that the result of execution equals the expected value.
+    //  1. Using table-driven technique:
+    //
+    //    1. Specify a set of arguments representing distinct decimal type
+    //       values and expected result of `quantize()` method.
+    //
+    //    2. Exercise `quantize()` method using the arguments from (P-1.1) and
+    //       ensure that the result of execution equals the expected value.
     //
     // Testing:
     //   ValueType32  quantize(ValueType32,    ValueType32);
@@ -1690,7 +1690,7 @@ void TestDriver::testCase29()
     //   int          quantizeEqual(ValueType128 *, ValueType128, int);
     // ------------------------------------------------------------------------
 
-    if (verbose) bsl::cout << "\nTESTING 'quantize' METHOD"
+    if (verbose) bsl::cout << "\nTESTING `quantize` METHOD"
                            << "\n========================="
                            << bsl::endl;
 
@@ -1718,7 +1718,7 @@ void TestDriver::testCase29()
         // LINE | SIGNIFICAND | EXP | QUANTUM | EXPECTED      | RETVALUE
         //---------------------------------------------------------------
         //---------------------------------------------------------------
-        //                Test data for 'quantize()'
+        //                Test data for `quantize()`
             { L_,    1234567,    0,     -1,     NAN_P,             -1   },
             { L_,    1234567,    0,      0,     DEC(1234567e+0),    0   },
             { L_,    1234567,    0,      1,     DEC( 123457e+1),   -1   },
@@ -1729,7 +1729,7 @@ void TestDriver::testCase29()
             { L_,    1234567,    0,      6,     DEC(      1e+6),   -1   },
             { L_,    1234567,    0,      7,     DEC(      0e+7),   -1   },
         //---------------------------------------------------------------
-        //               Test data for 'quantizeEqual()'
+        //               Test data for `quantizeEqual()`
             { L_,    12340,      0,      -3,    NAN_P,             -1   },
             { L_,    12340,      0,      -2,    DEC(1234000e-2),    0   },
             { L_,    12340,      0,      -1,    DEC( 123400e-1),    0   },
@@ -1763,7 +1763,7 @@ void TestDriver::testCase29()
             const Obj  V = Util::makeDecimalRaw32(SIGNIFICAND, EXPONENT);
             const Obj  E = Util::makeDecimalRaw32(          1, QUANTUM);
 
-            {  //: o ValueType32 quantize(ValueType32, ValueType32);
+            {  //  - ValueType32 quantize(ValueType32, ValueType32);
 
                 const Obj& EXPECTED = DATA[ti].d_expected;
                 const Obj  RESULT   = Util::quantize(V, E);
@@ -1792,7 +1792,7 @@ void TestDriver::testCase29()
                 ASSERT(nanEqual(Util::quantize(INF_N,     E), NAN_N));
             }
 
-            {  //: o ValueType32 quantize(ValueType32, int);
+            {  //  - ValueType32 quantize(ValueType32, int);
 
                 const Obj& EXPECTED = DATA[ti].d_expected;
                 const Obj  RESULT   = Util::quantize(V, QUANTUM);
@@ -1832,7 +1832,7 @@ void TestDriver::testCase29()
                 }
             }
 
-            {  //: o int quantizeEqual(ValueType32 *, ValueType32, int);
+            {  //  - int quantizeEqual(ValueType32 *, ValueType32, int);
 
                 Obj X(V); Obj *X_P(&X);
                 Obj Y(V);
@@ -1907,7 +1907,7 @@ void TestDriver::testCase29()
 // LINE |  SIGNIFICAND  | EXP | QUANTUM |         EXPECTED             |  RV
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
-//                    Test data for 'quantize()'
+//                    Test data for `quantize()`
 { L_, 1234567890123456ll,    0,      -1,    NAN_P,                        -1 },
 { L_, 1234567890123456ll,    0,       0,    DEC("1234567890123456e+0"),    0 },
 { L_, 1234567890123456ll,    0,       1,    DEC( "123456789012346e+1"),   -1 },
@@ -1927,7 +1927,7 @@ void TestDriver::testCase29()
 { L_, 1234567890123456ll,    0,      15,    DEC(               "1e+15"),  -1 },
 { L_, 1234567890123456ll,    0,      16,    DEC(               "0e+16"),  -1 },
 //---------------------------------------------------------------------------
-//                    Test data for 'quantizeEqual()'
+//                    Test data for `quantizeEqual()`
 { L_,   12345678901230ll,    0,      -3,    NAN_P,                        -1 },
 { L_,   12345678901230ll,    0,      -2,    DEC("1234567890123000e-2"),    0 },
 { L_,   12345678901230ll,    0,      -1,    DEC( "123456789012300e-1"),    0 },
@@ -1965,7 +1965,7 @@ void TestDriver::testCase29()
             const Obj  V = Util::makeDecimalRaw64(SIGNIFICAND, EXPONENT);
             const Obj  E = Util::makeDecimalRaw64(          1, QUANTUM);
 
-            {  //: o ValueType64 quantize(ValueType64, ValueType64);
+            {  //  - ValueType64 quantize(ValueType64, ValueType64);
 
                 const Obj& EXPECTED = DATA[ti].d_expected;
                 const Obj  RESULT   = Util::quantize(V, E);
@@ -1994,7 +1994,7 @@ void TestDriver::testCase29()
                 ASSERT(nanEqual(Util::quantize(INF_N,     E), NAN_N));
             }
 
-            {  //: o ValueType64 quantize(ValueType64, int);
+            {  //  - ValueType64 quantize(ValueType64, int);
 
                 const Obj& EXPECTED = DATA[ti].d_expected;
                 const Obj  RESULT   = Util::quantize(V, QUANTUM);
@@ -2034,7 +2034,7 @@ void TestDriver::testCase29()
                 }
             }
 
-            {  //: o int quantize(ValueType64 *, ValueType64, int);
+            {  //  - int quantize(ValueType64 *, ValueType64, int);
 
                 Obj X(V); Obj *X_P(&X);
                 Obj Y(V);
@@ -2111,7 +2111,7 @@ void TestDriver::testCase29()
 // L  |   STR  | QUANTUM |                 EXPECTED                      | RV
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
-//                    Test data for 'quantize()'
+//                    Test data for `quantize()`
  { L_,  D128,         0, DEC("1234567890123456789012345678901234e+0"),     0 },
  { L_,  D128,         5, DEC(     "12345678901234567890123456789e+5"),    -1 },
  { L_,  D128,        10, DEC(          "123456789012345678901235e+10"),   -1 },
@@ -2122,7 +2122,7 @@ void TestDriver::testCase29()
  { L_,  D128,        33, DEC(                                 "1e+33"),   -1 },
  { L_,  D128,        34, DEC(                                 "0e+34"),   -1 },
 //----------------------------------------------------------------------------
-//                    Test data for 'quantizeEqual()'
+//                    Test data for `quantizeEqual()`
  { L_,  E128,        -3, NAN_P,                                           -1 },
  { L_,  E128,        -2, DEC("1234567890123456789012345678901000e-2"),     0 },
  { L_,  E128,        -1, DEC( "123456789012345678901234567890100e-1"),     0 },
@@ -2163,7 +2163,7 @@ void TestDriver::testCase29()
             const Obj  V = Util::parse128(STR);
             const Obj  E = Util::makeDecimalRaw128(1, QUANTUM);
 
-            {  //: o ValueType128 quantize(ValueType128, ValueType128);
+            {  //  - ValueType128 quantize(ValueType128, ValueType128);
 
                 const Obj& EXPECTED = DATA[ti].d_expected;
                 const Obj  RESULT   = Util::quantize(V, E);
@@ -2192,7 +2192,7 @@ void TestDriver::testCase29()
                 ASSERT(nanEqual(Util::quantize(INF_N,     E), NAN_N));
             }
 
-            {  //: o ValueType128 quantize(ValueType128, int);
+            {  //  - ValueType128 quantize(ValueType128, int);
 
                 const Obj& EXPECTED = DATA[ti].d_expected;
                 const Obj  RESULT   = Util::quantize(V, QUANTUM);
@@ -2232,7 +2232,7 @@ void TestDriver::testCase29()
                 }
             }
 
-            {  //: o int quantize(ValueType128 *, ValueType128, int);
+            {  //  - int quantize(ValueType128 *, ValueType128, int);
 
                 Obj X(V); Obj *X_P(&X);
                 Obj Y(V);
@@ -2287,7 +2287,7 @@ void TestDriver::testCase29()
 
 void TestDriver::testCase28()
 {
-    if (verbose) bsl::cout << "\nTESTING 'fma' METHOD"
+    if (verbose) bsl::cout << "\nTESTING `fma` METHOD"
                            << "\n===================="
                            << bsl::endl;
 
@@ -2307,27 +2307,27 @@ void TestDriver::testCase27()
     // TESTING MATH FUNCTIONS
     //
     // Concerns:
-    //:  1 Since each math function provided by 'IntelDfp' library have been
-    //:    thoroughly tested, we only need to make sure that math functions are
-    //:    used correctly and that math methods forward arguments to the
-    //:    appropriate math implementation function.
-    //:
-    //: 2 That decimal arguments with higher precision 'ValueType64/128' and
-    //:   are not rounded to fit into the decimal numbers with lower precision
-    //:   'ValueType32/64' when passed to underlying library's functions.
+    //  1. Since each math function provided by `IntelDfp` library have been
+    //     thoroughly tested, we only need to make sure that math functions are
+    //     used correctly and that math methods forward arguments to the
+    //     appropriate math implementation function.
+    //
+    // 2. That decimal arguments with higher precision `ValueType64/128` and
+    //    are not rounded to fit into the decimal numbers with lower precision
+    //    `ValueType32/64` when passed to underlying library's functions.
     //
     // Plan:
-    //:  1 Using table-driven technique:
-    //:
-    //:    1 Specify a set of arguments representing distinct decimal type
-    //:      values and expected result of math method execution.
-    //:
-    //:    2 For functions that accept decimal numbers with higher precision
-    //:      select arguments that precision exceeds the lower precision
-    //:      decimal types.  C-2.
-    //:
-    //:    3 Exercise math method using the arguments from (P-1.1-2) and ensure
-    //:      that the result of execution equals the expected value.
+    //  1. Using table-driven technique:
+    //
+    //    1. Specify a set of arguments representing distinct decimal type
+    //       values and expected result of math method execution.
+    //
+    //    2. For functions that accept decimal numbers with higher precision
+    //       select arguments that precision exceeds the lower precision
+    //       decimal types.  C-2.
+    //
+    //    3. Exercise math method using the arguments from (P-1.1-2) and ensure
+    //       that the result of execution equals the expected value.
     //
     // Testing:
     //   ValueType32   copySign  (ValueType32);
@@ -5157,35 +5157,35 @@ void TestDriver::testCase27()
 void TestDriver::testCase26()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'normalize'
+    // TESTING `normalize`
     //
     // Concerns:
-    //: 1 The 'normalize' function converts any representations of zero values
-    //:   to positive zero value with null significand and exponent.
-    //:
-    //: 2 The 'normalize' function converts any representations of NaN (either
-    //:    signaling or quiet) to quiet NaN.
-    //:
-    //: 3 The 'normalize' function converts any non-zero values preserving the
-    //:   sign.
-    //:
-    //: 4 The 'normalize' function retains values, that can not be normalized,
-    //:   unchanged.
+    // 1. The `normalize` function converts any representations of zero values
+    //    to positive zero value with null significand and exponent.
+    //
+    // 2. The `normalize` function converts any representations of NaN (either
+    //     signaling or quiet) to quiet NaN.
+    //
+    // 3. The `normalize` function converts any non-zero values preserving the
+    //    sign.
+    //
+    // 4. The `normalize` function retains values, that can not be normalized,
+    //    unchanged.
     //
     // Plan:
-    //: 1 Use a table-based approach with a) special values, b) boundary
-    //:   values,  and c) several hand picked values, to verify that they are
-    //:   normalized correctly or remained unchanged.  (C-1..2)
-    //:
-    //: 2 Separately test 128-bit values, which significands occupy more than
-    //:   64 bits.  (C-3..4)
+    // 1. Use a table-based approach with a) special values, b) boundary
+    //    values,  and c) several hand picked values, to verify that they are
+    //    normalized correctly or remained unchanged.  (C-1..2)
+    //
+    // 2. Separately test 128-bit values, which significands occupy more than
+    //   64. bits.  (C-3..4)
     //
     // Testing:
     //   static ValueType32 normalize(ValueType32 original);
     //   static ValueType64 normalize(ValueType64 original);
     //   static ValueType128 normalize(ValueType128 original);
     // --------------------------------------------------------------------
-    if (verbose) bsl::cout << "\nTESTING 'normalize'"
+    if (verbose) bsl::cout << "\nTESTING `normalize`"
                            << "\n=================="
                            << bsl::endl;
 
@@ -5575,8 +5575,8 @@ void TestDriver::testCase26()
                                Util::uint64ToDecimal128(0xFFFFFFFFFFFFFFFFull),
                                Util::uint64ToDecimal128( 1));
 
+            // multiplier divisible by powers of 10
             const Type     DIV_MULT   =   Util::makeDecimalRaw128(10, 0);
-                // multiplier divisible by powers of 10
 
             const Type NON_DIV_MULT[] = {
                                              Util::makeDecimalRaw128(11, 0),
@@ -5611,23 +5611,23 @@ void TestDriver::testCase26()
 void TestDriver::testCase25()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'classify'
+    // TESTING `classify`
     //
     // Concerns:
-    //: 1 The 'classify' function correctly determines type of any Decimal
-    //:   object.
+    // 1. The `classify` function correctly determines type of any Decimal
+    //    object.
     //
     // Plan:
-    //: 1 Use 'classify' to determine class of Decimal objects having different
-    //:   valid values including minimum and maximum values and special values
-    //:   such as 'NaN' and 'Inf'.  Verify returned results.  (C-1)
+    // 1. Use `classify` to determine class of Decimal objects having different
+    //    valid values including minimum and maximum values and special values
+    //    such as `NaN` and `Inf`.  Verify returned results.  (C-1)
     //
     // Testing:
     //   static int classify(ValueType32  x);
     //   static int classify(ValueType64  x);
     //   static int classify(ValueType128 x);
     // --------------------------------------------------------------------
-    if (verbose) bsl::cout << "\nTESTING 'classify'"
+    if (verbose) bsl::cout << "\nTESTING `classify`"
                            << "\n=================="
                            << bsl::endl;
 
@@ -5883,28 +5883,28 @@ void TestDriver::testCase24()
     // TESTING decompose
     //
     // Concerns:
-    //: 1 Finite decimal value decomposed using 'decompose' functions can be
-    //:   reconstructed to the value equal to the original one using
-    //:   'sign', 'significand' and 'exponent' values.
-    //:
-    //: 2 Special encoding values having the 2 bits after the sign set to '11'
-    //:   are decomposed either into finite value if at least one of the next
-    //:   two bits are set to '0' or decomposed into 'Inf' or 'NaN' type
-    //:   values otherwise.
-    //:
-    //: 3 QoI: asserted precondition violations are detected when enabled.
+    // 1. Finite decimal value decomposed using `decompose` functions can be
+    //    reconstructed to the value equal to the original one using
+    //    `sign`, `significand` and `exponent` values.
+    //
+    // 2. Special encoding values having the 2 bits after the sign set to `11`
+    //    are decomposed either into finite value if at least one of the next
+    //    two bits are set to `0` or decomposed into `Inf` or `NaN` type
+    //    values otherwise.
+    //
+    // 3. QoI: asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Try decomposing a variety of different valid values including minimum
-    //:   and maximum values and special values such as 'NaN' and 'Inf' into
-    //:   sign, significand and exponent compartments.  Verify returned values.
-    //:   Restore the value using 'sign', significand' and 'exponent' parts and
-    //:   check that if the value is not a special (infinity or NaNs), it is
-    //:   restored into the value equal to the original one.  (C-1..2)
-    //:
-    //: 2 Verify that, in appropriate build modes, defensive checks are
-    //:   triggered for invalid attribute values, but not triggered for
-    //:   adjacent valid ones.  (C-3)
+    // 1. Try decomposing a variety of different valid values including minimum
+    //    and maximum values and special values such as `NaN` and `Inf` into
+    //    sign, significand and exponent compartments.  Verify returned values.
+    //    Restore the value using `sign`, significand' and `exponent` parts and
+    //    check that if the value is not a special (infinity or NaNs), it is
+    //    restored into the value equal to the original one.  (C-1..2)
+    //
+    // 2. Verify that, in appropriate build modes, defensive checks are
+    //    triggered for invalid attribute values, but not triggered for
+    //    adjacent valid ones.  (C-3)
     //
     // Testing:
     //   int decompose(int *, unsigned int *, int *, ValueType32);
@@ -6399,16 +6399,16 @@ void TestDriver::testCase23()
     // TESTING BOUNDARY VALUES FUNCTIONS
     //
     // Concerns:
-    //: 1 All functions return expected values.
+    // 1. All functions return expected values.
     //
     // Plan:
-    //: 1 Use the 'parseXX' function to reate model objects, having special
-    //:   values excluding NaN.  Call appropriate function and compare returned
-    //:   result with model object.
-    //:
-    //: 2 As NaN can't be compared with any object, create a mask to verify
-    //:   representation of returned results for 'signalingNaN' and 'quietNaN'.
-    //:   (C-1)
+    // 1. Use the `parseXX` function to reate model objects, having special
+    //    values excluding NaN.  Call appropriate function and compare returned
+    //    result with model object.
+    //
+    // 2. As NaN can't be compared with any object, create a mask to verify
+    //    representation of returned results for `signalingNaN` and `quietNaN`.
+    //    (C-1)
     //
     // Testing:
     //   ValueType32 min32();
@@ -6623,28 +6623,28 @@ void TestDriver::testCase22()
     // TESTING CONVERSION FROM BINARY INTEGRAL
     //
     // Concerns:
-    //:  1 Values in the implementation format are created faithfully and
-    //:    correctly when converted from the BID format.
-    //:
-    //:  2 The value, after conversion, has the same cohort as the original
-    //:    value.
-    //:
-    //:  3 32, 64, and 128 bit variations all work correctly.
-    //:
-    //:  4 Special cases, such as Infinity and NaN are represented correctly as
-    //:    BID.
-    //:
-    //:  5 The implementation format values correctly survive round-trip
-    //:    encoding.
+    //  1. Values in the implementation format are created faithfully and
+    //     correctly when converted from the BID format.
+    //
+    //  2. The value, after conversion, has the same cohort as the original
+    //     value.
+    //
+    //  3. 32, 64, and 128 bit variations all work correctly.
+    //
+    //  4. Special cases, such as Infinity and NaN are represented correctly as
+    //     BID.
+    //
+    //  5. The implementation format values correctly survive round-trip
+    //     encoding.
     //
     // Plan:
-    //:  1 Iterate through a set of test mantissa and convert them to BID, then
-    //:    convert back to the implementation format, comparing the results.
-    //:    (C-1..3)
-    //:
-    //:  2 Test the special case values explicitly, by converting to BID, then
-    //:    using the conversion back.  Check that the properties of these
-    //:    special cases hold.  (C-2..5)
+    //  1. Iterate through a set of test mantissa and convert them to BID, then
+    //     convert back to the implementation format, comparing the results.
+    //     (C-1..3)
+    //
+    //  2. Test the special case values explicitly, by converting to BID, then
+    //     using the conversion back.  Check that the properties of these
+    //     special cases hold.  (C-2..5)
     //
     // Testing
     //   convertFromBID(ValueType32)
@@ -6660,8 +6660,8 @@ void TestDriver::testCase22()
     // values correctly to BID.
 
     // IMPLEMENTATION NOTE: This test case currently assumes that the
-    // underlying implementation of Decimal arithmetic is 'BID' not 'DPD'.
-    // This test driver will need to be updated to handle 'DPD'
+    // underlying implementation of Decimal arithmetic is `BID` not `DPD`.
+    // This test driver will need to be updated to handle `DPD`
     // implementations.
 
     {
@@ -6935,25 +6935,25 @@ void TestDriver::testCase21()
     // TESTING CONVERSION TO BINARY INTEGRAL
     //
     // Concerns:
-    //:  1 Values in the implementation format are represented faithfully and
-    //:    correctly in the BID format, when converted.
-    //:
-    //:  2 The value, after conversion, has the same cohort as the original
-    //:    value.
-    //:
-    //:  3 32, 64, and 128 bit variations all work correctly.
-    //:
-    //:  4 Special cases, such as Infinity and NaN are represented correctly as
-    //:    BID.
+    //  1. Values in the implementation format are represented faithfully and
+    //     correctly in the BID format, when converted.
+    //
+    //  2. The value, after conversion, has the same cohort as the original
+    //     value.
+    //
+    //  3. 32, 64, and 128 bit variations all work correctly.
+    //
+    //  4. Special cases, such as Infinity and NaN are represented correctly as
+    //     BID.
     //
     // Plan:
-    //:  1 Iterate through a set of test mantissa and convert them to BID,
-    //:    comparing the result to a canonically constructed value in BID.
-    //:    (C-1..3)
-    //:
-    //:  2 Test the special case values explicitly, by converting to BID, then
-    //:    using the conversion back.  Check that the properties of these
-    //:    special cases hold. (C-3,4)
+    //  1. Iterate through a set of test mantissa and convert them to BID,
+    //     comparing the result to a canonically constructed value in BID.
+    //     (C-1..3)
+    //
+    //  2. Test the special case values explicitly, by converting to BID, then
+    //     using the conversion back.  Check that the properties of these
+    //     special cases hold. (C-3,4)
     //
     // Testing
     //   convertToBID(ValueType32)
@@ -6969,8 +6969,8 @@ void TestDriver::testCase21()
     // values correctly to BID.
 
     // IMPLEMENTATION NOTE: This test case currently assumes that the
-    // underlying implementation of Decimal arithmetic is 'BID' not 'DPD'.
-    // This test driver will need to be updated to handle 'DPD'
+    // underlying implementation of Decimal arithmetic is `BID` not `DPD`.
+    // This test driver will need to be updated to handle `DPD`
     // implementations.
 
     {
@@ -7244,28 +7244,28 @@ void TestDriver::testCase20()
     // TESTING CONVERSION FROM DENSELY PACKED
     //
     // Concerns:
-    //:  1 Values in the implementation format are created faithfully and
-    //:    correctly when converted from  the DPD format.
-    //:
-    //:  2 The value, after conversion, has the same cohort as the original
-    //:    value.
-    //:
-    //:  3 32, 64, and 128 bit variations all work correctly.
-    //:
-    //:  4 Special cases, such as Infinity and NaN are represented correctly as
-    //:    DPD.
-    //:
-    //:  5 The implementation format values correctly survive round-trip
-    //:    encoding.
+    //  1. Values in the implementation format are created faithfully and
+    //     correctly when converted from  the DPD format.
+    //
+    //  2. The value, after conversion, has the same cohort as the original
+    //     value.
+    //
+    //  3. 32, 64, and 128 bit variations all work correctly.
+    //
+    //  4. Special cases, such as Infinity and NaN are represented correctly as
+    //     DPD.
+    //
+    //  5. The implementation format values correctly survive round-trip
+    //     encoding.
     //
     // Plan:
-    //:  1 Iterate through a set of test mantissa and convert them to DPD, then
-    //:    convert back to the implementation format, comparing the results.
-    //:    (C-1..3)
-    //:
-    //:  2 Test the special case values explicitly, by converting to DPD, then
-    //:    using the conversion back.  Check that the properties of these
-    //:    special cases hold.  (C-2..5)
+    //  1. Iterate through a set of test mantissa and convert them to DPD, then
+    //     convert back to the implementation format, comparing the results.
+    //     (C-1..3)
+    //
+    //  2. Test the special case values explicitly, by converting to DPD, then
+    //     using the conversion back.  Check that the properties of these
+    //     special cases hold.  (C-2..5)
     //
     // Testing
     //   convertDPDtoBID(ValueType32)
@@ -7551,25 +7551,25 @@ void TestDriver::testCase19()
     // TESTING CONVERSION TO DENSELY PACKED
     //
     // Concerns:
-    //:  1 Values in the implementation format are represented faithfully and
-    //:    correctly in the DPD format, when converted.
-    //:
-    //:  2 The value, after conversion, has the same cohort as the original
-    //:    value.
-    //:
-    //:  3 32, 64, and 128 bit variations all work correctly.
-    //:
-    //:  4 Special cases, such as Infinity and NaN are represented correctly as
-    //:    DPD.
+    //  1. Values in the implementation format are represented faithfully and
+    //     correctly in the DPD format, when converted.
+    //
+    //  2. The value, after conversion, has the same cohort as the original
+    //     value.
+    //
+    //  3. 32, 64, and 128 bit variations all work correctly.
+    //
+    //  4. Special cases, such as Infinity and NaN are represented correctly as
+    //     DPD.
     //
     // Plan:
-    //:  1 Iterate through a set of test mantissa and convert them to DPD,
-    //:    comparing the result to a canonically constructed value in DPD.
-    //:    (C-1..3)
-    //:
-    //:  2 Test the special case values explicitly, by converting to DPD, then
-    //:    using the conversion back.  Check that the properties of these
-    //:    special cases hold. (C-3,4)
+    //  1. Iterate through a set of test mantissa and convert them to DPD,
+    //     comparing the result to a canonically constructed value in DPD.
+    //     (C-1..3)
+    //
+    //  2. Test the special case values explicitly, by converting to DPD, then
+    //     using the conversion back.  Check that the properties of these
+    //     special cases hold. (C-3,4)
     //
     // Testing
     //   convertBIDtoDPD(ValueType32)
@@ -7869,123 +7869,123 @@ void TestDriver::testCase19()
 void TestDriver::testCase18()
 {
     // --------------------------------------------------------------------
-    // TESTING 'format'
+    // TESTING `format`
     //
     // Concerns:
-    //: 1 That for input decimal value including minimum, maximum and
-    //    special values 'format' functions output human readable string.
-    //:
-    //: 2 That 'format' returns the necessary size of a buffer with no
-    //:   effect on 'buffer' which is sufficient for coping resultant
-    //:   string if the string size exceeds the size of the 'buffer'.
-    //:
-    //: 3 That 'format' returns the necessary size of a buffer sufficient
-    //:   for storing the specified decimal 'value' formatted to human
-    //:   readable string with no effect on the 'buffer' if the 'length' is
-    //:   negative.
-    //:
-    //: 4 That 'format' outputs decimal value in fixed notation if
-    //:   format configuration attribute 'style' is 'e_FIXED'.
-    //:
-    //: 5 That 'format' outputs decimal value in scientific notation if
-    //:   format configuration attribute 'style' is 'e_SCIENTIFIC'.
-    //:
-    //: 6 That 'format' outputs decimal value in natural notation if
-    //:   format configuration attribute 'style' is 'e_NATURAL'.
-    //:
-    //: 7 That 'format' outputs decimal value to expected human readable
-    //:   string according to various combination of attributes specified
-    //:   in 'cfg' object.
-    //:
-    //: 9 That 'format' does not write terminating null character to the
-    //:   buffer.
-    //:
-    //: 10 That length of fraction part of the decimal value is output to
-    //:    the 'buffer' equals the precision value specified in 'cfg'
-    //:    object in fixed and scientific notations.
-    //:
-    //: 11 That if the number of digits after decimal point is less than
-    //:    the specified precision then the fraction part is expanded by
-    //:    by '0' on the right up to the precision length.
-    //:
-    //: 12 That if the number of digits after decimal pointis greater than
-    //:    the specified precision then the fraction part is cut off to
-    //:    fewer digits designated by the precision and rounded so that the
-    //:    resultant value to be as close as possible to initial value.
-    //:
-    //: 13 That a special decimal value is output correctly.
-    //:
-    //: 14 That if format configuration attribute 'style' is 'e_NATURAL' then
-    //:    'format' outputs all significant digits of the decimal value
-    //:    regardless of the 'precision' attribute of the format configuration.
-    //:
-    //: 15 QoI: Asserted precondition violations are detected when enabled.
+    // 1. That for input decimal value including minimum, maximum and
+    //    special values `format` functions output human readable string.
+    //
+    // 2. That `format` returns the necessary size of a buffer with no
+    //    effect on `buffer` which is sufficient for coping resultant
+    //    string if the string size exceeds the size of the `buffer`.
+    //
+    // 3. That `format` returns the necessary size of a buffer sufficient
+    //    for storing the specified decimal `value` formatted to human
+    //    readable string with no effect on the `buffer` if the `length` is
+    //    negative.
+    //
+    // 4. That `format` outputs decimal value in fixed notation if
+    //    format configuration attribute `style` is `e_FIXED`.
+    //
+    // 5. That `format` outputs decimal value in scientific notation if
+    //    format configuration attribute `style` is `e_SCIENTIFIC`.
+    //
+    // 6. That `format` outputs decimal value in natural notation if
+    //    format configuration attribute `style` is `e_NATURAL`.
+    //
+    // 7. That `format` outputs decimal value to expected human readable
+    //    string according to various combination of attributes specified
+    //    in `cfg` object.
+    //
+    // 9. That `format` does not write terminating null character to the
+    //    buffer.
+    //
+    // 10. That length of fraction part of the decimal value is output to
+    //     the `buffer` equals the precision value specified in `cfg`
+    //     object in fixed and scientific notations.
+    //
+    // 11. That if the number of digits after decimal point is less than
+    //     the specified precision then the fraction part is expanded by
+    //     by `0` on the right up to the precision length.
+    //
+    // 12. That if the number of digits after decimal pointis greater than
+    //     the specified precision then the fraction part is cut off to
+    //     fewer digits designated by the precision and rounded so that the
+    //     resultant value to be as close as possible to initial value.
+    //
+    // 13. That a special decimal value is output correctly.
+    //
+    // 14. That if format configuration attribute `style` is `e_NATURAL` then
+    //     `format` outputs all significant digits of the decimal value
+    //     regardless of the `precision` attribute of the format configuration.
+    //
+    // 15. QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //:
-    //: 1 Using a table driven technique test that 'format' returns the
-    //:   necessary size of a buffer with no effect on 'buffer' which is
-    //:   sufficient for coping resultant string if the string size exceeds
-    //:   the size of 'buffer'.  (C-2,3)
-    //:
-    //:  1 For each test element in the table specify decimal value,
-    //:    configuration, pointer to the buffer, size of the buffer and
-    //:    expected length.
-    //:
-    //:  2 For each test element create a 'Decimal32' object.
-    //:
-    //:  3 Fill in the buffer with 'x' character.
-    //:
-    //:  4 Call 'format' function for the decimal object created in P-1.2.
-    //:    Test that the buffer was not modified and resultant value
-    //:    equals to the expected value.
-    //:
-    //: 2 Using a loop-based technique test that 'format' function produces
-    //:   a human readable string for different valid decimal numbers
-    //:   designated by the significand value consisting of various number
-    //:   of digits and the exponent in the range of minimum to maximum
-    //:   exponent value defined by 'Decimal32' type.  For the test purpose
-    //:   use configuration object with precision value set to 100.  (C-1)
-    //:
-    //:  1 Create a 'Decimal32' object.
-    //:
-    //:  2 Call 'format' function for the value created in P-2.1.
-    //:
-    //:  3 Parse the string obtained in P-2.2 and ensure that the resultant
-    //:    value equals to the value created in P-2.1.
-    //:
-    //:  4 Repeat P-2.1..3 for 'e_FIXED', 'e_SCIENTIFIC' and 'e_NATURAL'
-    //:    format notations.
-    //:
-    //: 3 Using a table driven technique test that 'format' function
-    //:   produces a human readable string from a decimal number with the
-    //:   various combination of configuration attributes.
-    //:
-    //:  1 For each test element in the table specify decimal value,
-    //:    'precision', 'style', 'sign', 'decimalPoint' and expected
-    //:    resultant string.
-    //:
-    //:  2 For each test element create a 'Decimal32' object.
-    //:
-    //:  3 Fill in output 'buffer' with 'x' character.
-    //:
-    //:  4 Call 'format' function for the decimal object created in P-3.2.
-    //:    Test that the 'buffer' is filled in by a string that equals
-    //:    to the expected string and length of the resultant value equals
-    //:    to length of the expected string.
-    //:
-    //:  5 Test that if rounding is required the 'format' function rounds
-    //:    up the decimal value as "round-half-up".  (C-12)
-    //:
-    //:  6 Test that a character in the 'buffer' that follows by a
-    //:    character representing the less significant digit equals to 'x'.
-    //:    (C-9)
-    //:
-    //:  7 Test that for normal decimal values length of string
-    //:    representing fraction part of equals to the specified precision.
-    //:    (C-10)
-    //:
-    //: 4 Repeat P1-3 for Decimal64 and Decimal128 types.
+    //
+    // 1. Using a table driven technique test that `format` returns the
+    //    necessary size of a buffer with no effect on `buffer` which is
+    //    sufficient for coping resultant string if the string size exceeds
+    //    the size of `buffer`.  (C-2,3)
+    //
+    //  1. For each test element in the table specify decimal value,
+    //     configuration, pointer to the buffer, size of the buffer and
+    //     expected length.
+    //
+    //  2. For each test element create a `Decimal32` object.
+    //
+    //  3. Fill in the buffer with `x` character.
+    //
+    //  4. Call `format` function for the decimal object created in P-1.2.
+    //     Test that the buffer was not modified and resultant value
+    //     equals to the expected value.
+    //
+    // 2. Using a loop-based technique test that `format` function produces
+    //    a human readable string for different valid decimal numbers
+    //    designated by the significand value consisting of various number
+    //    of digits and the exponent in the range of minimum to maximum
+    //    exponent value defined by `Decimal32` type.  For the test purpose
+    //    use configuration object with precision value set to 100.  (C-1)
+    //
+    //  1. Create a `Decimal32` object.
+    //
+    //  2. Call `format` function for the value created in P-2.1.
+    //
+    //  3. Parse the string obtained in P-2.2 and ensure that the resultant
+    //     value equals to the value created in P-2.1.
+    //
+    //  4. Repeat P-2.1..3 for `e_FIXED`, `e_SCIENTIFIC` and `e_NATURAL`
+    //     format notations.
+    //
+    // 3. Using a table driven technique test that `format` function
+    //    produces a human readable string from a decimal number with the
+    //    various combination of configuration attributes.
+    //
+    //  1. For each test element in the table specify decimal value,
+    //     `precision`, `style`, `sign`, `decimalPoint` and expected
+    //     resultant string.
+    //
+    //  2. For each test element create a `Decimal32` object.
+    //
+    //  3. Fill in output `buffer` with `x` character.
+    //
+    //  4. Call `format` function for the decimal object created in P-3.2.
+    //     Test that the `buffer` is filled in by a string that equals
+    //     to the expected string and length of the resultant value equals
+    //     to length of the expected string.
+    //
+    //  5. Test that if rounding is required the `format` function rounds
+    //     up the decimal value as "round-half-up".  (C-12)
+    //
+    //  6. Test that a character in the `buffer` that follows by a
+    //     character representing the less significant digit equals to `x`.
+    //     (C-9)
+    //
+    //  7. Test that for normal decimal values length of string
+    //     representing fraction part of equals to the specified precision.
+    //     (C-10)
+    //
+    // 4. Repeat P1-3 for Decimal64 and Decimal128 types.
     //
     // Testing:
     //   int format(char *, int, ValueType32,  const DecimalFormatConfig&);
@@ -8256,7 +8256,7 @@ void TestDriver::testCase18()
             //-------------------------------------------------------------
             // C-7
             //-------------------------------------------------------------
-            // Test 'sign' attribute
+            // Test `sign` attribute
 #define CONFIG(SIGN) Config(0,                  \
                             Config::e_FIXED,    \
                             Config::SIGN)
@@ -8267,7 +8267,7 @@ void TestDriver::testCase18()
             {  L_,    DEC(-123.0),    CONFIG(e_ALWAYS),        "-123" },
 #undef CONFIG
             //-------------------------------------------------------------
-            // Test 'infinity' attribute
+            // Test `infinity` attribute
 #define CONFIG(INF) Config(0,                       \
                            Config::e_SCIENTIFIC,    \
                            Config::e_NEGATIVE_ONLY, \
@@ -8279,7 +8279,7 @@ void TestDriver::testCase18()
             {  L_,    INF_N,          CONFIG("INF"),     "-INF"       },
 #undef CONFIG
             //-------------------------------------------------------------
-            // Test 'nan' attribute
+            // Test `nan` attribute
 #define CONFIG(NAN) Config(0,                                   \
                            Config::e_SCIENTIFIC,                \
                            Config::e_NEGATIVE_ONLY,             \
@@ -8292,7 +8292,7 @@ void TestDriver::testCase18()
             {  L_,    NAN_Q_N,        CONFIG("NAN"),     "-NAN"       },
 #undef CONFIG
                 //-------------------------------------------------------------
-                // Test 'snan' attribute
+                // Test `snan` attribute
 #define CONFIG(SNAN) Config(0,                                          \
                             Config::e_SCIENTIFIC,                       \
                             Config::e_NEGATIVE_ONLY,                    \
@@ -8306,7 +8306,7 @@ void TestDriver::testCase18()
              {  L_,    NAN_S_N,       CONFIG("sNAN"),     "-sNAN"   },
 #undef CONFIG
                 //-------------------------------------------------------------
-                // Test 'point'
+                // Test `point`
 #define CONFIG(POINT) Config(2,                         \
                              Config::e_SCIENTIFIC,      \
                              Config::e_NEGATIVE_ONLY,   \
@@ -8320,7 +8320,7 @@ void TestDriver::testCase18()
             {  L_,    DEC( 123.0),    CONFIG('_'),     "1_23e+02"     },
 #undef CONFIG
                 //-------------------------------------------------------------
-                // Test 'exponent'
+                // Test `exponent`
 #define CONFIG(EXP) Config(2,                           \
                            Config::e_SCIENTIFIC,        \
                            Config::e_ALWAYS,            \
@@ -8714,7 +8714,7 @@ void TestDriver::testCase18()
             //-------------------------------------------------------------
             // C-7
             //-------------------------------------------------------------
-            // Test 'sign' attribute
+            // Test `sign` attribute
 #define CONFIG(SIGN) Config(0,                  \
                             Config::e_FIXED,    \
                             Config::SIGN)
@@ -8725,7 +8725,7 @@ void TestDriver::testCase18()
             {  L_,    DEC(-123.0),    CONFIG(e_ALWAYS),        "-123" },
 #undef CONFIG
             //-------------------------------------------------------------
-            // Test 'infinity' attribute
+            // Test `infinity` attribute
 #define CONFIG(INF) Config(0,                       \
                            Config::e_SCIENTIFIC,    \
                            Config::e_NEGATIVE_ONLY, \
@@ -8737,7 +8737,7 @@ void TestDriver::testCase18()
             {  L_,    INF_N,          CONFIG("INF"),     "-INF"       },
 #undef CONFIG
             //-------------------------------------------------------------
-            // Test 'nan' attribute
+            // Test `nan` attribute
 #define CONFIG(NAN) Config(0,                                   \
                            Config::e_SCIENTIFIC,                \
                            Config::e_NEGATIVE_ONLY,             \
@@ -8750,7 +8750,7 @@ void TestDriver::testCase18()
             {  L_,    NAN_Q_N,        CONFIG("NAN"),     "-NAN"       },
 #undef CONFIG
             //-------------------------------------------------------------
-            // Test 'snan' attribute
+            // Test `snan` attribute
 #define CONFIG(SNAN) Config(0,                                          \
                             Config::e_SCIENTIFIC,                       \
                             Config::e_NEGATIVE_ONLY,                    \
@@ -8764,7 +8764,7 @@ void TestDriver::testCase18()
              {  L_,    NAN_S_N,       CONFIG("sNAN"),     "-sNAN"   },
 #undef CONFIG
                 //-------------------------------------------------------------
-                // Test 'point'
+                // Test `point`
 #define CONFIG(POINT) Config(2,                         \
                              Config::e_SCIENTIFIC,      \
                              Config::e_NEGATIVE_ONLY,   \
@@ -8778,7 +8778,7 @@ void TestDriver::testCase18()
             {  L_,    DEC( 123.0),    CONFIG('_'),     "1_23e+02"     },
 #undef CONFIG
             //-------------------------------------------------------------
-            // Test 'exponent'
+            // Test `exponent`
 #define CONFIG(EXP) Config(2,                           \
                            Config::e_SCIENTIFIC,        \
                            Config::e_ALWAYS,            \
@@ -9205,7 +9205,7 @@ void TestDriver::testCase18()
             //-------------------------------------------------------------
             // C-7
             //-------------------------------------------------------------
-            // Test 'sign' attribute
+            // Test `sign` attribute
 #define CONFIG(SIGN) Config(0,                  \
                             Config::e_FIXED,    \
                             Config::SIGN)
@@ -9216,7 +9216,7 @@ void TestDriver::testCase18()
             {  L_,    DEC(-123.0),    CONFIG(e_ALWAYS),        "-123" },
 #undef CONFIG
                 //-------------------------------------------------------------
-                // Test 'infinity' attribute
+                // Test `infinity` attribute
 #define CONFIG(INF) Config(0,                       \
                            Config::e_SCIENTIFIC,    \
                            Config::e_NEGATIVE_ONLY, \
@@ -9228,7 +9228,7 @@ void TestDriver::testCase18()
             {  L_,    INF_N,          CONFIG("INF"),     "-INF"       },
 #undef CONFIG
                 //-------------------------------------------------------------
-                // Test 'nan' attribute
+                // Test `nan` attribute
 #define CONFIG(NAN) Config(0,                                   \
                            Config::e_SCIENTIFIC,                \
                            Config::e_NEGATIVE_ONLY,             \
@@ -9241,7 +9241,7 @@ void TestDriver::testCase18()
             {  L_,    NAN_Q_N,        CONFIG("NAN"),     "-NAN"       },
 #undef CONFIG
                 //-------------------------------------------------------------
-                // Test 'snan' attribute
+                // Test `snan` attribute
 #define CONFIG(SNAN) Config(0,                                          \
                             Config::e_SCIENTIFIC,                       \
                             Config::e_NEGATIVE_ONLY,                    \
@@ -9255,7 +9255,7 @@ void TestDriver::testCase18()
             {  L_,    NAN_S_N,        CONFIG("sNAN"),     "-sNAN"   },
 #undef CONFIG
                 //-------------------------------------------------------------
-                // Test 'point'
+                // Test `point`
 #define CONFIG(POINT) Config(2,                         \
                              Config::e_SCIENTIFIC,      \
                              Config::e_NEGATIVE_ONLY,   \
@@ -9269,7 +9269,7 @@ void TestDriver::testCase18()
             {  L_,    DEC( 123.0),    CONFIG('_'),     "1_23e+02"     },
 #undef CONFIG
                 //-------------------------------------------------------------
-                // Test 'exponent'
+                // Test `exponent`
 #define CONFIG(EXP) Config(2,                           \
                            Config::e_SCIENTIFIC,        \
                            Config::e_ALWAYS,            \
@@ -9420,57 +9420,57 @@ void TestDriver::testCase18()
 void TestDriver::testCase17()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'scaleB'
+    // TESTING `scaleB`
     //
     // Concerns:
-    //: 1 That if the sum of the specified 'exponent' and value's exponent is
-    //:   in the range of exponents supported by tested decimal type then the
-    //:   sum is assigned to resultant value's exponent with the value's
-    //:   significand remaining unchanged.
-    //:
-    //: 2 That if the sum of the specified 'exponent' and value's exponent
-    //:   exceeds the max exponent value supported by tested decimal type then
-    //:   the max exponent value is assigned to the resultant exponent and the
-    //:   significand value is 'normalized' by multiplying to 10 raised to the
-    //:   difference between the exponent and max exponent value.  If the
-    //:   resultant number of decimal places exceeds the number supported by
-    //:   the tested type then infinity is returned and 'errno' is set the
-    //:   value of 'ERANGE' macro.
-    //:
-    //: 3 That if the sum of the specified 'exponent' and value's exponent
-    //:   is less than the min exponent value supported by tested decimal type
-    //:   then the min exponent value is assigned to the resultant exponent and
-    //:   the significand value is 'normalized' by dividing by 10 raised to the
-    //:   difference between the max and the exponent value.  The significand
-    //:   value is rounded halfway cases away from zero.
-    //:
-    //: 4 That if the value is 0, infinity or quiet NaN then the value is
-    //:   retured.
-    //:
-    //: 5 That if the value is signaling NaN, then quiet NaN is returned and
-    //:   'errno' is set the value of 'EDOM' macro.
+    // 1. That if the sum of the specified `exponent` and value's exponent is
+    //    in the range of exponents supported by tested decimal type then the
+    //    sum is assigned to resultant value's exponent with the value's
+    //    significand remaining unchanged.
+    //
+    // 2. That if the sum of the specified `exponent` and value's exponent
+    //    exceeds the max exponent value supported by tested decimal type then
+    //    the max exponent value is assigned to the resultant exponent and the
+    //    significand value is `normalized` by multiplying to 10 raised to the
+    //    difference between the exponent and max exponent value.  If the
+    //    resultant number of decimal places exceeds the number supported by
+    //    the tested type then infinity is returned and `errno` is set the
+    //    value of `ERANGE` macro.
+    //
+    // 3. That if the sum of the specified `exponent` and value's exponent
+    //    is less than the min exponent value supported by tested decimal type
+    //    then the min exponent value is assigned to the resultant exponent and
+    //    the significand value is `normalized` by dividing by 10 raised to the
+    //    difference between the max and the exponent value.  The significand
+    //    value is rounded halfway cases away from zero.
+    //
+    // 4. That if the value is 0, infinity or quiet NaN then the value is
+    //    retured.
+    //
+    // 5. That if the value is signaling NaN, then quiet NaN is returned and
+    //    `errno` is set the value of `EDOM` macro.
     //
     // Plan:
-    //: 1 Using table-driven technique:
-    //:
-    //:   1 Specify a set of arguments representing distinct decimal type
-    //:     values and expected result of 'scaleB()' method.  (C-1)
-    //:
-    //:   2 Specify a set of decimal values which significand values have
-    //:     decimal places from 1 to max number of decimal places supported by
-    //:     the tested type.  Specify a set of exponent values so that
-    //:     resultant exponent values equal to the max exponent and ensure that
-    //:     the significand values are normalized correctly.  (C-2)
-    //:
-    //:   3 Specify a set of decimal values which significands values have
-    //:     decimal places from 1 to max number of decimal places supported by
-    //:     the tested type.  Specify a set of exponent values so that
-    //:     resultant exponent values equal to the min exponent and ensure that
-    //:     the significand values are normalized correctly.  (C-2)
-    //:
-    //:   4 Specify a set of special decimal values and ensure 'scaleB' returns
-    //:     correct values and writes appropriate error codes to 'errno'.
-    //:     (C-4,5)
+    // 1. Using table-driven technique:
+    //
+    //   1. Specify a set of arguments representing distinct decimal type
+    //      values and expected result of `scaleB()` method.  (C-1)
+    //
+    //   2. Specify a set of decimal values which significand values have
+    //      decimal places from 1 to max number of decimal places supported by
+    //      the tested type.  Specify a set of exponent values so that
+    //      resultant exponent values equal to the max exponent and ensure that
+    //      the significand values are normalized correctly.  (C-2)
+    //
+    //   3. Specify a set of decimal values which significands values have
+    //      decimal places from 1 to max number of decimal places supported by
+    //      the tested type.  Specify a set of exponent values so that
+    //      resultant exponent values equal to the min exponent and ensure that
+    //      the significand values are normalized correctly.  (C-2)
+    //
+    //   4. Specify a set of special decimal values and ensure `scaleB` returns
+    //      correct values and writes appropriate error codes to `errno`.
+    //      (C-4,5)
     //
     // Testing:
     //   scaleB(ValueType32,  int)
@@ -9479,7 +9479,7 @@ void TestDriver::testCase17()
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
-                      << "TESTING 'scaleB'" << endl
+                      << "TESTING `scaleB`" << endl
                       << "================" << endl;
 
     {
@@ -9827,26 +9827,26 @@ void TestDriver::testCase16()
     // TESTING COMPARISON FUNCTIONS
     //
     // Concerns:
-    //:  1 Infinities are at the ends of all ordered comparision arrangements.
-    //:
-    //:  2 Positive numbers are greater than negative numbers.
-    //:
-    //:  3 'NaN' is neither greater nor less than any value, including itself.
-    //:
-    //:  4 Zero compares neither less nor greater than itself.
-    //:
-    //:  5 Transitivity is preserved.
+    //  1. Infinities are at the ends of all ordered comparision arrangements.
+    //
+    //  2. Positive numbers are greater than negative numbers.
+    //
+    //  3. `NaN` is neither greater nor less than any value, including itself.
+    //
+    //  4. Zero compares neither less nor greater than itself.
+    //
+    //  5. Transitivity is preserved.
     //
     // Plan:
-    //:  1 A set of representative values for 32, 64, and 128-bit types will be
-    //:    created and each compared against each other, under assertion for
-    //:    the correct result. (C-2,5)
-    //:
-    //:  2 Zeros of both signs will be in the data set. (C-4)
-    //:
-    //:  3 Infinities will be among the values (C-1)
-    //:
-    //:  4 A 'NaN' will be among the data. (C-3)
+    //  1. A set of representative values for 32, 64, and 128-bit types will be
+    //     created and each compared against each other, under assertion for
+    //     the correct result. (C-2,5)
+    //
+    //  2. Zeros of both signs will be in the data set. (C-4)
+    //
+    //  3. Infinities will be among the values (C-1)
+    //
+    //  4. A `NaN` will be among the data. (C-3)
     //
     // Testing:
     //   less(ValueType32,  ValueType32)
@@ -9872,7 +9872,7 @@ void TestDriver::testCase16()
     Util::ValueType64  nan64  = Util::parse64( "NaN");
     Util::ValueType128 nan128 = Util::parse128("NaN");
 
-    // Check that all 'NaN' operations return false:
+    // Check that all `NaN` operations return false:
 
     ASSERT(!Util::less(nan32, nan32));
     ASSERT(!Util::greater(nan32, nan32));
@@ -9921,7 +9921,7 @@ void TestDriver::testCase16()
         Util::ValueType64  lhs64  = Util::parse64( lhsValue);
         Util::ValueType128 lhs128 = Util::parse128(lhsValue);
 
-        // Test 'NaN' against these values...
+        // Test `NaN` against these values...
 
         errno = 0;
         ASSERT(        !Util::less(snan32, snan32)); ASSERT(EDOM == errno);
@@ -10034,16 +10034,16 @@ void TestDriver::testCase16()
 void TestDriver::testCase15()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'binaryToDecimalXX'
+    // TESTING `binaryToDecimalXX`
     //
     // Concerns:
-    //:  1 Conversion to Decimal preserves precise value, where possible.  The
-    //:    bases of 10, and 2 are only able to cross convert when the actual
-    //:    value is proper sum of fractions of powers-of-two.
+    //  1. Conversion to Decimal preserves precise value, where possible.  The
+    //     bases of 10, and 2 are only able to cross convert when the actual
+    //     value is proper sum of fractions of powers-of-two.
     //
     // Plan:
-    //:  1 Convert several values that are 'integral' and sums of power-of-two
-    //:    fractions (which just counts as whole numbers).  (C-1)
+    //  1. Convert several values that are `integral` and sums of power-of-two
+    //     fractions (which just counts as whole numbers).  (C-1)
     //
     // Testing:
     //   binaryToDecimal32 (float)
@@ -10055,10 +10055,10 @@ void TestDriver::testCase15()
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
-                      << "TESTING 'binaryToDecimalXX'" << endl
+                      << "TESTING `binaryToDecimalXX`" << endl
                       << "===========================" << endl;
 
-    // 'binaryToDecimal32(float)'
+    // `binaryToDecimal32(float)`
 
     {
         Util::ValueType32 value32;
@@ -10205,7 +10205,7 @@ void TestDriver::testCase15()
     }
 
 
-    // 'binaryToDecimal64(float)'
+    // `binaryToDecimal64(float)`
 
     {
         Util::ValueType64 value64;
@@ -10307,7 +10307,7 @@ void TestDriver::testCase15()
         ASSERT(Util::equal(value64, test64));
     }
 
-    // 'binaryToDecimal128(float)'
+    // `binaryToDecimal128(float)`
 
     {
         Util::ValueType128 value128;
@@ -10413,20 +10413,20 @@ void TestDriver::testCase15()
 void TestDriver::testCase14()
 {
     // ------------------------------------------------------------------------
-    // TESTING '[u]intXXToDecimalXX'
+    // TESTING `[u]intXXToDecimalXX`
     //
     // Concerns:
-    //:  1 '[u]intXXToDecimalXX' must convert the value as expected.
-    //:
-    //:  2 Conversion may not be by forwarding.
-    //:
-    //:  3 There are 4 overloads for each size, which need testing.
-    //:
-    //:  4 Rounding is handled appropriately.
+    //  1. `[u]intXXToDecimalXX` must convert the value as expected.
+    //
+    //  2. Conversion may not be by forwarding.
+    //
+    //  3. There are 4 overloads for each size, which need testing.
+    //
+    //  4. Rounding is handled appropriately.
     //
     //Plan:
-    //:  1 Run numerous mantissas through the conversion functions and compare
-    //:    the results with 'parse(mantissaAsString)'.  (C-1..4)
+    //  1. Run numerous mantissas through the conversion functions and compare
+    //     the results with `parse(mantissaAsString)`.  (C-1..4)
     //
     // Testing:
     //    int32ToDecimal32 (                   int)
@@ -10444,7 +10444,7 @@ void TestDriver::testCase14()
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
-                      << "TESTING '[u]intXXToDecimalXX'" << endl
+                      << "TESTING `[u]intXXToDecimalXX`" << endl
                       << "=============================" << endl;
 
     for (int mi = 0; mi < NUM_TEST_NONZERO_MANTISSAS; ++mi) {
@@ -10507,7 +10507,7 @@ void TestDriver::testCase14()
                                    static_cast<unsigned int>(MANTISSA))));
         }
 
-        // For 'long long'
+        // For `long long`
 
         {
           LOOP2_ASSERT(MANTISSA, TEST_STRING, Util::equal(value32,
@@ -10526,45 +10526,45 @@ void TestDriver::testCase14()
 void TestDriver::testCase13()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'makeDecimal64'
+    // TESTING `makeDecimal64`
     //
     // Concerns:
-    //: 1 'makeDecimal64' passes its arguments to 'makeDecimal64Raw' and
-    //:   'makeDecimal128Raw' correctly.
-    //:
-    //: 2 The correct rounding behavior is performed when the specified
-    //:   mantissa has a magnitude too great to be represented by a 64-bit
-    //:   decimal floating point value.
-    //:
-    //: 3 The correct rounding behavior is performed when the magnitude of the
-    //:   specified number is too great to be represented by a 64-bit decimal
-    //:   floating point value.
-    //:
-    //: 4 The correct sign is preserved when rounding to zero or infinite
-    //:   values.
-    //:
-    //: 5 If the mantissa and exponent are in range for 64-bit decimal floating
-    //:   point numbers (i.e., 'abs(mantissa) <= 9,999,999,999,999,999' and
-    //:   '-398 <= exponent <= 369'), the 64-bit decimal floating number
-    //:   consisting of the mantissa and exponent is returned without rounding.
-    //:
-    //: 6 The four overloads of 'makeDecimal64' perform properly.
-    //:
-    //: 7 Note that this test is adapted from the original 'makeDecimal64' test
-    //:   in the old 'bdldfp::DecimalImplUtil' component.
+    // 1. `makeDecimal64` passes its arguments to `makeDecimal64Raw` and
+    //    `makeDecimal128Raw` correctly.
+    //
+    // 2. The correct rounding behavior is performed when the specified
+    //    mantissa has a magnitude too great to be represented by a 64-bit
+    //    decimal floating point value.
+    //
+    // 3. The correct rounding behavior is performed when the magnitude of the
+    //    specified number is too great to be represented by a 64-bit decimal
+    //    floating point value.
+    //
+    // 4. The correct sign is preserved when rounding to zero or infinite
+    //    values.
+    //
+    // 5. If the mantissa and exponent are in range for 64-bit decimal floating
+    //    point numbers (i.e., `abs(mantissa) <= 9,999,999,999,999,999` and
+    //    `-398 <= exponent <= 369`), the 64-bit decimal floating number
+    //    consisting of the mantissa and exponent is returned without rounding.
+    //
+    // 6. The four overloads of `makeDecimal64` perform properly.
+    //
+    // 7. Note that this test is adapted from the original `makeDecimal64` test
+    //    in the old `bdldfp::DecimalImplUtil` component.
     //
     // Plan:
-    //: 1 Test that 'makeDecimal64' returns a value that is 'equals' to the
-    //:   value given by 'parse64' called on a string containing the specified
-    //:   'mantissa' and 'exponent'.
-    //:
-    //: 2 Test 'makeDecimal64' on values for which both the mantissa and
-    //:   exponent are in the range of 64-bit decimal floating point. The value
-    //:   returned should be identical in bits to that returned by
-    //:   'makeDecimal64Raw' called on 'mantissa' and 'exponent'.
-    //:
-    //: 3 For each mantissa, exponent pair, test 'makeDecimal64' for all
-    //:   overloads for which the mantissa fits.
+    // 1. Test that `makeDecimal64` returns a value that is `equals` to the
+    //    value given by `parse64` called on a string containing the specified
+    //    `mantissa` and `exponent`.
+    //
+    // 2. Test `makeDecimal64` on values for which both the mantissa and
+    //    exponent are in the range of 64-bit decimal floating point. The value
+    //    returned should be identical in bits to that returned by
+    //    `makeDecimal64Raw` called on `mantissa` and `exponent`.
+    //
+    // 3. For each mantissa, exponent pair, test `makeDecimal64` for all
+    //    overloads for which the mantissa fits.
     //
     // Testing:
     //   makeDecimal64(                   int, int)
@@ -10574,7 +10574,7 @@ void TestDriver::testCase13()
     // ------------------------------------------------------------------------
 
     if (verbose) bsl::cout << bsl::endl
-                           << "TESTING 'makeDecimal64'" << bsl::endl
+                           << "TESTING `makeDecimal64`" << bsl::endl
                            << "=======================" << bsl::endl;
     {
         for (int mi = 0; mi < NUM_TEST_NONZERO_MANTISSAS; ++mi) {
@@ -10673,31 +10673,31 @@ void TestDriver::testCase13()
 void TestDriver::testCase12()
 {
     // ------------------------------------------------------------------------
-    // INFINITY CREATION 'makeInfinity64(bool)'
+    // INFINITY CREATION `makeInfinity64(bool)`
     //
     // Concerns:
-    //:  1 'makeInfinity64' should return an infinity value which is positive,
-    //:    when passed no arguments.
-    //:
-    //:  2 'makeInfinity64' should return an infinity value which is positive,
-    //:    when passed a 'false' argument.
-    //:
-    //:  2 'makeInfinity64' should return an infinity value which is negative,
-    //:    when passed a 'true' argument.
+    //  1. `makeInfinity64` should return an infinity value which is positive,
+    //     when passed no arguments.
+    //
+    //  2. `makeInfinity64` should return an infinity value which is positive,
+    //     when passed a `false` argument.
+    //
+    //  2. `makeInfinity64` should return an infinity value which is negative,
+    //     when passed a `true` argument.
     //
     // Plan:
-    //:  1 call 'makeInfinity' with no arguments.  (C-1)
-    //:
-    //:  2 call 'makeInfinity' with 'false' argument.  (C-2)
-    //:
-    //:  3 call 'makeInfinity' with 'true' argument.  (C-3)
+    //  1. call `makeInfinity` with no arguments.  (C-1)
+    //
+    //  2. call `makeInfinity` with `false` argument.  (C-2)
+    //
+    //  3. call `makeInfinity` with `true` argument.  (C-3)
     //
     // Testing:
     //   makeInfinity64(bool)
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
-                      << "INFINITY CREATION 'makeInfinity64(bool)'" << endl
+                      << "INFINITY CREATION `makeInfinity64(bool)`" << endl
                       << "========================================"
                       << endl;
 
@@ -10719,35 +10719,35 @@ void TestDriver::testCase12()
 void TestDriver::testCase11()
 {
     // ------------------------------------------------------------------------
-    // PARSING 'parse32', 'parse64', AND 'parse128'
+    // PARSING `parse32`, `parse64`, AND `parse128`
     //
     // Concerns:
-    //:  1 Numerical values are parsed and generated correctly.
-    //:
-    //:  2 Non-numerical state-values are parsed and generated correctly.
-    //:
-    //:  3 Alternate creation strings work correctly.
-    //:
-    //:  4 Signs are interpretted correctly.
-    //:
-    //:  5 That the quanta of the resultant value equals the number of decimal
-    //:    places in input string and does exceed the maximum digits necessary
-    //:    to differentiate all values of tested decimal type.
-    //:
-    //:  6 That if the value produced by parsing input string is not exactly
-    //:    representable using the maximum digits supported by tested type,
-    //:    then the resultant value is rounded according the rounding
-    //:    direction.
+    //  1. Numerical values are parsed and generated correctly.
+    //
+    //  2. Non-numerical state-values are parsed and generated correctly.
+    //
+    //  3. Alternate creation strings work correctly.
+    //
+    //  4. Signs are interpretted correctly.
+    //
+    //  5. That the quanta of the resultant value equals the number of decimal
+    //     places in input string and does exceed the maximum digits necessary
+    //     to differentiate all values of tested decimal type.
+    //
+    //  6. That if the value produced by parsing input string is not exactly
+    //     representable using the maximum digits supported by tested type,
+    //     then the resultant value is rounded according the rounding
+    //     direction.
     //
     // Plan:
-    //:  1 Test a series of strings versus their expected values.
-    //:
-    //:  2 Test the non-numerical state-values by alternate means of
-    //:    generation, such as '1.0/0.0' and '0.0/0.0'.
-    //:
-    //:  3 Using table technique test that tested functions produce the
-    //:    expected values having expected decimal class, sign, significand
-    //:    and exponent values.  (C5-6).
+    //  1. Test a series of strings versus their expected values.
+    //
+    //  2. Test the non-numerical state-values by alternate means of
+    //     generation, such as `1.0/0.0` and `0.0/0.0`.
+    //
+    //  3. Using table technique test that tested functions produce the
+    //     expected values having expected decimal class, sign, significand
+    //     and exponent values.  (C5-6).
     //
     // Testing:
     //   parse32 (const char *);
@@ -10756,11 +10756,11 @@ void TestDriver::testCase11()
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
-                      << "PARSING 'parse32', 'parse64', AND 'parse128'"
+                      << "PARSING `parse32`, `parse64`, AND `parse128`"
               << endl << "============================================"
               << endl;
 
-    // Testing 'parse32 (const char *)'
+    // Testing `parse32 (const char *)`
 
     {
         Util::ValueType32 value32;
@@ -10889,7 +10889,7 @@ void TestDriver::testCase11()
         ASSERT(Util::equal(test32, value32));
     }
 
-    // Testing 'parse64 (const char *)'
+    // Testing `parse64 (const char *)`
 
     {
         Util::ValueType64 value64;
@@ -11025,7 +11025,7 @@ void TestDriver::testCase11()
         ASSERT(Util::equal(test64, value64));
     }
 
-    // Testing 'parse128 (const char *)'
+    // Testing `parse128 (const char *)`
 
     {
         Util::ValueType128 value128;
@@ -11361,23 +11361,23 @@ void TestDriver::testCase11()
 void TestDriver::testCase10()
 {
     // ------------------------------------------------------------------------
-    // CROSS CONVERSION 'convertToDecimalXX'
+    // CROSS CONVERSION `convertToDecimalXX`
     //
     // Concerns:
-    //:  1 Post-conversion, the value should be as expected.
-    //:
-    //:  2 Rounded values should become infinity or 0 when truncating.
-    //:
-    //:  3 NaN value-states should convert correctly.
+    //  1. Post-conversion, the value should be as expected.
+    //
+    //  2. Rounded values should become infinity or 0 when truncating.
+    //
+    //  3. NaN value-states should convert correctly.
     //
     // Plan:
-    //:  1 Convert some values to wider types, and confirm the value is as
-    //:    expected.
-    //:
-    //:  2 Convert some values to narrower types, and confirm the value is
-    //:    preserved or truncated as appropriate.
-    //:
-    //:  3 Convert NaN states using all functions
+    //  1. Convert some values to wider types, and confirm the value is as
+    //     expected.
+    //
+    //  2. Convert some values to narrower types, and confirm the value is
+    //     preserved or truncated as appropriate.
+    //
+    //  3. Convert NaN states using all functions
     //
     // Testing:
     //   convertToDecimal32( const ValueType128&)
@@ -11389,10 +11389,10 @@ void TestDriver::testCase10()
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
-                      << "CROSS CONVERSION 'convertToDecimalXX'" << endl
+                      << "CROSS CONVERSION `convertToDecimalXX`" << endl
                       << "=====================================" << endl;
 
-    // Testing 'convertToDecimal32( const ValueType64&)'
+    // Testing `convertToDecimal32( const ValueType64&)`
 
     {
         Util::ValueType32  test32;
@@ -11472,7 +11472,7 @@ void TestDriver::testCase10()
         ASSERT(EDOM == errno);
     }
 
-    // Testing 'convertToDecimal32( const ValueType128&)'
+    // Testing `convertToDecimal32( const ValueType128&)`
 
     {
         Util::ValueType32  test32;
@@ -11548,7 +11548,7 @@ void TestDriver::testCase10()
         ASSERT(!Util::equal(test32, test32));
     }
 
-    // Testing 'convertToDecimal64( const ValueType32&)'
+    // Testing `convertToDecimal64( const ValueType32&)`
 
     {
         Util::ValueType64  test64;
@@ -11590,14 +11590,14 @@ void TestDriver::testCase10()
         ASSERT(Util::equal(test64, value64));
 
                     // Infinities and 0 rounding are not possible with
-                    // widening conversions, so we only test for 'NaN'
+                    // widening conversions, so we only test for `NaN`
                     // preservation.
 
          test64 = Util::convertToDecimal64(Util::parse32("NaN"));
         ASSERT(!Util::equal(test64, test64));
     }
 
-    // Testing 'convertToDecimal64( const ValueType128&)'
+    // Testing `convertToDecimal64( const ValueType128&)`
 
     {
         Util::ValueType64  test64;
@@ -11672,7 +11672,7 @@ void TestDriver::testCase10()
         ASSERT(!Util::equal(test64, test64));
     }
 
-    // Testing 'convertToDecimal128(const ValueType32&)'
+    // Testing `convertToDecimal128(const ValueType32&)`
 
     {
         Util::ValueType128  test128;
@@ -11714,14 +11714,14 @@ void TestDriver::testCase10()
         ASSERT(Util::equal(test128, value128));
 
                     // Infinities and 0 rounding are not possible with
-                    // widening conversions, so we only test for 'NaN'
+                    // widening conversions, so we only test for `NaN`
                     // preservation.
 
          test128 = Util::convertToDecimal128(Util::parse32("NaN"));
         ASSERT(!Util::equal(test128, test128));
     }
 
-    // Testing 'convertToDecimal128(const ValueType64&)'
+    // Testing `convertToDecimal128(const ValueType64&)`
 
     {
         Util::ValueType128  test128;
@@ -11763,7 +11763,7 @@ void TestDriver::testCase10()
         ASSERT(Util::equal(test128, value128));
 
                     // Infinities and 0 rounding are not possible with
-                    // widening conversions, so we only test for 'NaN'
+                    // widening conversions, so we only test for `NaN`
                     // preservation.
 
          test128 = Util::convertToDecimal128(Util::parse64("NaN"));
@@ -11774,18 +11774,18 @@ void TestDriver::testCase10()
 void TestDriver::testCase9()
 {
     // ------------------------------------------------------------------------
-    // ARITHMETIC FUNCTION 'negate'
+    // ARITHMETIC FUNCTION `negate`
     //
     // Concerns:
-    //:  1 'negate' returns the correct answer.
-    //:
-    //:  2 'negate' inverts signed 0 values.
-    //:
-    //:  3 'negate' inverts 'Inf' state-values.
-    //:
+    //  1. `negate` returns the correct answer.
+    //
+    //  2. `negate` inverts signed 0 values.
+    //
+    //  3. `negate` inverts `Inf` state-values.
+    //
     //
     // Plan:
-    //:  1 Test several example values for negation and equality. (C-1..3)
+    //  1. Test several example values for negation and equality. (C-1..3)
     //
     // Testing:
     //   negate(ValueType32)
@@ -11794,7 +11794,7 @@ void TestDriver::testCase9()
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
-                      << "ARITHMETIC FUNCTION 'negate'" << endl
+                      << "ARITHMETIC FUNCTION `negate`" << endl
                       << "============================" << endl;
 
     Util::ValueType32 nZero32 = Util::parse32("-0");
@@ -11885,45 +11885,45 @@ void TestDriver::testCase9()
 void TestDriver::testCase8()
 {
     // ------------------------------------------------------------------------
-    // ARITHMETIC FUNCTION 'divide'
+    // ARITHMETIC FUNCTION `divide`
     //
     // Concerns:
-    //:  1 'divide' should never (except in identity, 'NaN' and 'Inf' cases)
-    //:    cases) return the same value as at least one of the operands.
-    //:
-    //:  2 'divide' behaves correctly with identity operand (1).
-    //:
-    //:  3 'divide' will return a distinct value from both of its operands,
-    //:    when both are non-zero and value-states (not 'NaN' or 'Inf').
-    //:
-    //:  4 'divide' to 'NaN' or 'Inf' should follow the IEEE rules for the
-    //:    cases listed in this chart:
-    //:
-    //:             L / R|-Inf|Normal|+Inf|NaN|
-    //:            ------+----+------+----+---+
-    //:             -Inf | NaN|+/-Inf| NaN|NaN|
-    //:            ------+----+------+----+---+
-    //:            Normal|+/-0|Normal|+/-0|NaN|
-    //:            ------+----+------+----+---+
-    //:             +Inf | NaN|+/-Inf| NaN|NaN|
-    //:            ------+----+------+----+---+
-    //:              NaN | NaN|  NaN | NaN|NaN|
-    //:
-    //:  5 'divide' behaves reasonably when working with different quanta.
-    //:
-    //:  6 'divide' by 0 gives a 'NaN'.
+    //  1. `divide` should never (except in identity, `NaN` and `Inf` cases)
+    //     cases) return the same value as at least one of the operands.
+    //
+    //  2. `divide` behaves correctly with identity operand (1).
+    //
+    //  3. `divide` will return a distinct value from both of its operands,
+    //     when both are non-zero and value-states (not `NaN` or `Inf`).
+    //
+    //  4. `divide` to `NaN` or `Inf` should follow the IEEE rules for the
+    //     cases listed in this chart:
+    //
+    //              L / R|-Inf|Normal|+Inf|NaN|
+    //             ------+----+------+----+---+
+    //              -Inf | NaN|+/-Inf| NaN|NaN|
+    //             ------+----+------+----+---+
+    //             Normal|+/-0|Normal|+/-0|NaN|
+    //             ------+----+------+----+---+
+    //              +Inf | NaN|+/-Inf| NaN|NaN|
+    //             ------+----+------+----+---+
+    //               NaN | NaN|  NaN | NaN|NaN|
+    //
+    //  5. `divide` behaves reasonably when working with different quanta.
+    //
+    //  6. `divide` by 0 gives a `NaN`.
     //
     // Plan:
-    //:  1 Test a handful of expected values of different exponent and
-    //:    mantissa, with both possible orders. (C-1,5,6)
-    //:
-    //:  2 Test identity with '1' case. (C-2)
-    //:
-    //:  3 When not dealing with special cases (or rounding cases), make sure
-    //:    the result value does not compare equal to either source.  (C-3)
-    //:
-    //:  4 Test all 16 special cases in the chart, which covers both orders.
-    //:    (C-4,6)
+    //  1. Test a handful of expected values of different exponent and
+    //     mantissa, with both possible orders. (C-1,5,6)
+    //
+    //  2. Test identity with '1' case. (C-2)
+    //
+    //  3. When not dealing with special cases (or rounding cases), make sure
+    //     the result value does not compare equal to either source.  (C-3)
+    //
+    //  4. Test all 16 special cases in the chart, which covers both orders.
+    //     (C-4,6)
     //
     // Testing:
     //   divide(ValueType32,  ValueType32)
@@ -11932,7 +11932,7 @@ void TestDriver::testCase8()
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
-                      << "ARITHMETIC FUNCTION 'divide'" << endl
+                      << "ARITHMETIC FUNCTION `divide`" << endl
                       << "============================" << endl;
 
     Util::ValueType32     lhs32;
@@ -12045,19 +12045,19 @@ void TestDriver::testCase8()
     }
 
 
-                    // Testing for 'NaN'/'Inf' special cases:
+                    // Testing for `NaN`/`Inf` special cases:
     {
-        //:             L / R|-Inf|Normal|+Inf|NaN|Zero|
-        //:            ------+----+------+----+---+----+
-        //:             -Inf | NaN|+/-Inf| NaN|NaN|-Inf|
-        //:            ------+----+------+----+---+----+
-        //:            Normal|+/-0|Normal|+/-0|NaN| Inf|
-        //:            ------+----+------+----+---+----+
-        //:             +Inf | NaN|+/-Inf| NaN|NaN| Inf|
-        //:            ------+----+------+----+---+----+
-        //:              NaN | NaN|  NaN | NaN|NaN| NaN|
-        //:            ------+----+------+----+---+----+
-        //:             Zero |+/-0| +/-0 |+/-0|NaN| NaN|
+        //              L / R|-Inf|Normal|+Inf|NaN|Zero|
+        //             ------+----+------+----+---+----+
+        //              -Inf | NaN|+/-Inf| NaN|NaN|-Inf|
+        //             ------+----+------+----+---+----+
+        //             Normal|+/-0|Normal|+/-0|NaN| Inf|
+        //             ------+----+------+----+---+----+
+        //              +Inf | NaN|+/-Inf| NaN|NaN| Inf|
+        //             ------+----+------+----+---+----+
+        //               NaN | NaN|  NaN | NaN|NaN| NaN|
+        //             ------+----+------+----+---+----+
+        //              Zero |+/-0| +/-0 |+/-0|NaN| NaN|
 
         Util::ValueType32   ninf32 = Util::parse32("-Inf");
         Util::ValueType32   pinf32 = Util::parse32("+Inf");
@@ -12183,45 +12183,45 @@ void TestDriver::testCase8()
 void TestDriver::testCase7()
 {
     // ------------------------------------------------------------------------
-    // ARITHMETIC FUNCTION 'multiply'
+    // ARITHMETIC FUNCTION `multiply`
     //
     // Concerns:
-    //:  1 'multiply' should never (except in identity, 'NaN' and 'Inf' cases)
-    //:    return the same value as at least one of the operands.
-    //:
-    //:  2 'multiply' behaves correctly with identity operand (1).
-    //:
-    //:  3 'multiply' will return a distinct value from both of its operands,
-    //:    when both are non-zero and value-states (not 'NaN' or 'Inf').
-    //:
-    //:  4 'multiply' to 'NaN' or 'Inf' should follow the IEEE rules for the
-    //:    cases listed in this chart:
-    //:
-    //:             L * R|-Inf|Normal|+Inf|NaN|
-    //:            ------+----+------+----+---+
-    //:             -Inf |+Inf|+/-Inf|-Inf|NaN|
-    //:            ------+----+------+----+---+
-    //:            Normal| Inf|Normal| Inf|NaN|
-    //:            ------+----+------+----+---+
-    //:             +Inf |-Inf|+/-Inf|+Inf|NaN|
-    //:            ------+----+------+----+---+
-    //:              NaN | NaN|  NaN | NaN|NaN|
-    //:
-    //:  5 'multiply' behaves reasonably when working with different quanta.
-    //:
-    //:  6 'multiply' by 0 behaves as expected.
+    //  1. `multiply` should never (except in identity, `NaN` and `Inf` cases)
+    //     return the same value as at least one of the operands.
+    //
+    //  2. `multiply` behaves correctly with identity operand (1).
+    //
+    //  3. `multiply` will return a distinct value from both of its operands,
+    //     when both are non-zero and value-states (not `NaN` or `Inf`).
+    //
+    //  4. `multiply` to `NaN` or `Inf` should follow the IEEE rules for the
+    //     cases listed in this chart:
+    //
+    //              L * R|-Inf|Normal|+Inf|NaN|
+    //             ------+----+------+----+---+
+    //              -Inf |+Inf|+/-Inf|-Inf|NaN|
+    //             ------+----+------+----+---+
+    //             Normal| Inf|Normal| Inf|NaN|
+    //             ------+----+------+----+---+
+    //              +Inf |-Inf|+/-Inf|+Inf|NaN|
+    //             ------+----+------+----+---+
+    //               NaN | NaN|  NaN | NaN|NaN|
+    //
+    //  5. `multiply` behaves reasonably when working with different quanta.
+    //
+    //  6. `multiply` by 0 behaves as expected.
     //
     // Plan:
-    //:  1 Test a handful of expected values of different exponent and
-    //:    mantissa, with both possible orders. (C-1,5,6)
-    //:
-    //:  2 Test identity with '1' case. (C-2)
-    //:
-    //:  3 When not dealing with special cases (or rounding cases), make sure
-    //:    the result value does not compare equal to either source. (C-3)
-    //:
-    //:  4 Test all 16 special cases in the chart, which covers both
-    //:    orders. (C-4,6)
+    //  1. Test a handful of expected values of different exponent and
+    //     mantissa, with both possible orders. (C-1,5,6)
+    //
+    //  2. Test identity with '1' case. (C-2)
+    //
+    //  3. When not dealing with special cases (or rounding cases), make sure
+    //     the result value does not compare equal to either source. (C-3)
+    //
+    //  4. Test all 16 special cases in the chart, which covers both
+    //     orders. (C-4,6)
     //
     // Testing:
     //   multiply(ValueType32,  ValueType32)
@@ -12230,7 +12230,7 @@ void TestDriver::testCase7()
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
-                      << "ARITHMETIC FUNCTION 'multiply'" << endl
+                      << "ARITHMETIC FUNCTION `multiply`" << endl
                       << "==============================" << endl;
 
     Util::ValueType32     lhs32;
@@ -12346,19 +12346,19 @@ void TestDriver::testCase7()
     }
 
 
-                    // Testing for 'NaN'/'Inf' special cases:
+                    // Testing for `NaN`/`Inf` special cases:
     {
-        //:             L * R|-Inf|Normal|+Inf|NaN|Zero|
-        //:            ------+----+------+----+---+----+
-        //:             -Inf |+Inf|+/-Inf|-Inf|NaN| NaN|
-        //:            ------+----+------+----+---+----+
-        //:            Normal| Inf|Normal| Inf|NaN|+/-0|
-        //:            ------+----+------+----+---+----+
-        //:             +Inf |-Inf|+/-Inf|+Inf|NaN| NaN|
-        //:            ------+----+------+----+---+----+
-        //:              NaN | NaN|  NaN | NaN|NaN| NaN|
-        //:            ------+----+------+----+---+----+
-        //:             Zero | NaN| +/-0 | NaN|NaN|+/-0|
+        //              L * R|-Inf|Normal|+Inf|NaN|Zero|
+        //             ------+----+------+----+---+----+
+        //              -Inf |+Inf|+/-Inf|-Inf|NaN| NaN|
+        //             ------+----+------+----+---+----+
+        //             Normal| Inf|Normal| Inf|NaN|+/-0|
+        //             ------+----+------+----+---+----+
+        //              +Inf |-Inf|+/-Inf|+Inf|NaN| NaN|
+        //             ------+----+------+----+---+----+
+        //               NaN | NaN|  NaN | NaN|NaN| NaN|
+        //             ------+----+------+----+---+----+
+        //              Zero | NaN| +/-0 | NaN|NaN|+/-0|
 
 
         Util::ValueType32    max32 = Util::max32();
@@ -12507,44 +12507,44 @@ void TestDriver::testCase7()
 void TestDriver::testCase6()
 {
     // ------------------------------------------------------------------------
-    // ARITHMETIC FUNCTION 'subtract'
+    // ARITHMETIC FUNCTION `subtract`
     //
     // Concerns:
-    //:  1 'subtract' should never (except in identity, 'NaN' and 'Inf' cases)
-    //:    return the same value as at least one of the operands.
-    //:
-    //:  2 'subtract' behaves correctly with identity operands (0 and -0).
-    //:
-    //:  3 'subtract' will return a distinct value from both of its operands,
-    //:    when both are non-zero and value-states (not 'NaN' or 'Inf').
-    //:
-    //:  4 'subtract' to 'NaN' or 'Inf' should follow the IEEE rules for the
-    //:    cases listed in this chart:
-    //:
-    //:             L - R|-Inf|Normal|+Inf|NaN|
-    //:            ------+----+------+----+---+
-    //:             -Inf | NaN| -Inf |-Inf|NaN|
-    //:            ------+----+------+----+---+
-    //:            Normal|+Inf|Normal|-Inf|NaN|
-    //:            ------+----+------+----+---+
-    //:             +Inf |+Inf| +Inf | NaN|NaN|
-    //:            ------+----+------+----+---+
-    //:              NaN | NaN|  NaN | NaN|NaN|
-    //:
-    //:  5 'subtract' behaves reasonably when working with different
-    //:    quanta.
+    //  1. `subtract` should never (except in identity, `NaN` and `Inf` cases)
+    //     return the same value as at least one of the operands.
+    //
+    //  2. `subtract` behaves correctly with identity operands (0 and -0).
+    //
+    //  3. `subtract` will return a distinct value from both of its operands,
+    //     when both are non-zero and value-states (not `NaN` or `Inf`).
+    //
+    //  4. `subtract` to `NaN` or `Inf` should follow the IEEE rules for the
+    //     cases listed in this chart:
+    //
+    //              L - R|-Inf|Normal|+Inf|NaN|
+    //             ------+----+------+----+---+
+    //              -Inf | NaN| -Inf |-Inf|NaN|
+    //             ------+----+------+----+---+
+    //             Normal|+Inf|Normal|-Inf|NaN|
+    //             ------+----+------+----+---+
+    //              +Inf |+Inf| +Inf | NaN|NaN|
+    //             ------+----+------+----+---+
+    //               NaN | NaN|  NaN | NaN|NaN|
+    //
+    //  5. `subtract` behaves reasonably when working with different
+    //     quanta.
     //
     // Plan:
-    //:  1 Test a handful of expected values of different exponent and
-    //:    mantissa, with both possible orders. (C-1,5,6)
-    //:
-    //:  2 Test identity with both '-0' and '0' cases. (C-2)
-    //:
-    //:  3 When not dealing with special cases (or rounding cases), make sure
-    //:    the result value does not compare equal to either source. (C-3)
-    //:
-    //:  4 Test all 16 special cases in the chart, which covers both orders.
-    //:    (C-4,6)
+    //  1. Test a handful of expected values of different exponent and
+    //     mantissa, with both possible orders. (C-1,5,6)
+    //
+    //  2. Test identity with both `-0` and `0` cases. (C-2)
+    //
+    //  3. When not dealing with special cases (or rounding cases), make sure
+    //     the result value does not compare equal to either source. (C-3)
+    //
+    //  4. Test all 16 special cases in the chart, which covers both orders.
+    //     (C-4,6)
     //
     // Testing:
     //   subtract(ValueType32,  ValueType32)
@@ -12553,7 +12553,7 @@ void TestDriver::testCase6()
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
-                      << "ARITHMETIC FUNCTION 'subtract'" << endl
+                      << "ARITHMETIC FUNCTION `subtract`" << endl
                       << "==============================" << endl;
 
     Util::ValueType32     lhs32;
@@ -12674,17 +12674,17 @@ void TestDriver::testCase6()
     }
 
 
-                    // Testing for 'NaN'/'Inf' special cases:
+                    // Testing for `NaN`/`Inf` special cases:
     {
-        //:             L - R|-Inf|Normal|+Inf|NaN|
-        //:            ------+----+------+----+---+
-        //:             -Inf | NaN| -Inf |-Inf|NaN|
-        //:            ------+----+------+----+---+
-        //:            Normal|+Inf|Normal|-Inf|NaN|
-        //:            ------+----+------+----+---+
-        //:             +Inf |+Inf| +Inf | NaN|NaN|
-        //:            ------+----+------+----+---+
-        //:              NaN | NaN|  NaN | NaN|NaN|
+        //              L - R|-Inf|Normal|+Inf|NaN|
+        //             ------+----+------+----+---+
+        //              -Inf | NaN| -Inf |-Inf|NaN|
+        //             ------+----+------+----+---+
+        //             Normal|+Inf|Normal|-Inf|NaN|
+        //             ------+----+------+----+---+
+        //              +Inf |+Inf| +Inf | NaN|NaN|
+        //             ------+----+------+----+---+
+        //               NaN | NaN|  NaN | NaN|NaN|
 
         Util::ValueType32   ninf32 = Util::parse32("-Inf");
         Util::ValueType32   pinf32 = Util::parse32("+Inf");
@@ -12784,45 +12784,45 @@ void TestDriver::testCase6()
 void TestDriver::testCase5()
 {
     // ------------------------------------------------------------------------
-    // ARITHMETIC FUNCTION 'add'
+    // ARITHMETIC FUNCTION `add`
     //
     // Concerns:
-    //:  1 'add' should never (except in 'NaN' and 'Inf' cases) return the same
-    //:    value as at least one of the operands.
-    //:
-    //:  2 'add' behaves correctly with identity operands (0 and -0).
-    //:
-    //:  3 'add' will return a distinct value from both of its operands, when
-    //:    both are non-zero and value-states (not 'NaN' or 'Inf').
-    //:
-    //:  4 'add' to 'NaN' or 'Inf' should follow the IEEE rules for the cases
-    //:    listed in this chart:
-    //:
-    //:             L + R|-Inf|Normal|+Inf|NaN|
-    //:            ------+----+------+----+---+
-    //:             -Inf |-Inf| -Inf | NaN|NaN|
-    //:            ------+----+------+----+---+
-    //:            Normal|-Inf|Normal|+Inf|NaN|
-    //:            ------+----+------+----+---+
-    //:             +Inf | NaN| +Inf |+Inf|NaN|
-    //:            ------+----+------+----+---+
-    //:              NaN | NaN|  NaN | NaN|NaN|
-    //:
-    //:  5 'add' behaves reasonably when working with different quanta.
-    //:
-    //:  6 'add' must be a commutative operation (when avoiding corner cases).
+    //  1. `add` should never (except in `NaN` and `Inf` cases) return the same
+    //     value as at least one of the operands.
+    //
+    //  2. `add` behaves correctly with identity operands (0 and -0).
+    //
+    //  3. `add` will return a distinct value from both of its operands, when
+    //     both are non-zero and value-states (not `NaN` or `Inf`).
+    //
+    //  4. `add` to `NaN` or `Inf` should follow the IEEE rules for the cases
+    //     listed in this chart:
+    //
+    //              L + R|-Inf|Normal|+Inf|NaN|
+    //             ------+----+------+----+---+
+    //              -Inf |-Inf| -Inf | NaN|NaN|
+    //             ------+----+------+----+---+
+    //             Normal|-Inf|Normal|+Inf|NaN|
+    //             ------+----+------+----+---+
+    //              +Inf | NaN| +Inf |+Inf|NaN|
+    //             ------+----+------+----+---+
+    //               NaN | NaN|  NaN | NaN|NaN|
+    //
+    //  5. `add` behaves reasonably when working with different quanta.
+    //
+    //  6. `add` must be a commutative operation (when avoiding corner cases).
     //
     // Plan:
-    //:  1 Test a handful of expected values of different exponent and
-    //:    mantissa, with both possible orders. (C-1,5,6)
-    //:
-    //:  2 Test identity with both '-0' and '0' cases. (C-2)
-    //:
-    //:  3 When not dealing with special cases (or rounding cases), make sure
-    //:    the result value does not compare equal to either source.  (C-3)
-    //:
-    //:  4 Test all 16 special cases in the chart, which covers both orders.
-    //:    (C-4,6)
+    //  1. Test a handful of expected values of different exponent and
+    //     mantissa, with both possible orders. (C-1,5,6)
+    //
+    //  2. Test identity with both `-0` and `0` cases. (C-2)
+    //
+    //  3. When not dealing with special cases (or rounding cases), make sure
+    //     the result value does not compare equal to either source.  (C-3)
+    //
+    //  4. Test all 16 special cases in the chart, which covers both orders.
+    //     (C-4,6)
     //
     // Testing:
     //   add(ValueType32,  ValueType32)
@@ -12831,7 +12831,7 @@ void TestDriver::testCase5()
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
-                      << "ARITHMETIC FUNCTION 'add'" << endl
+                      << "ARITHMETIC FUNCTION `add`" << endl
                       << "=========================" << endl;
 
     Util::ValueType32     lhs32;
@@ -12950,18 +12950,18 @@ void TestDriver::testCase5()
                Util::equal(lhs128, Util::add(negativeZero128, lhs128)));
     }
 
-                    // Testing for 'NaN'/'Inf' special cases:
+                    // Testing for `NaN`/`Inf` special cases:
 
     {
-        //:             L + R|-Inf|Normal|+Inf|NaN|
-        //:            ------+----+------+----+---+
-        //:             -Inf |-Inf| -Inf | NaN|NaN|
-        //:            ------+----+------+----+---+
-        //:            Normal|-Inf|Normal|+Inf|NaN|
-        //:            ------+----+------+----+---+
-        //:             +Inf | NaN| +Inf |+Inf|NaN|
-        //:            ------+----+------+----+---+
-        //:              NaN | NaN|  NaN | NaN|NaN|
+        //              L + R|-Inf|Normal|+Inf|NaN|
+        //             ------+----+------+----+---+
+        //              -Inf |-Inf| -Inf | NaN|NaN|
+        //             ------+----+------+----+---+
+        //             Normal|-Inf|Normal|+Inf|NaN|
+        //             ------+----+------+----+---+
+        //              +Inf | NaN| +Inf |+Inf|NaN|
+        //             ------+----+------+----+---+
+        //               NaN | NaN|  NaN | NaN|NaN|
 
         Util::ValueType32   ninf32 = Util::parse32("-Inf");
         Util::ValueType32   pinf32 = Util::parse32("+Inf");
@@ -13071,88 +13071,88 @@ void TestDriver::testCase5()
 void TestDriver::testCase4()
 {
     // ------------------------------------------------------------------------
-    // INEQUALITY COMPARISON 'Util::notEqual'
+    // INEQUALITY COMPARISON `Util::notEqual`
     //
     // Concerns:
-    //:  1 'notEqual' should return false if the bit patterns are the same (and
-    //:    are not a bit pattern representing a 'NaN').
-    //:
-    //:  2 'notEqual' should return false if the bit patterns are different,
-    //:    but represent the same value.  I.e. '10e0' should be equal to '1e1'.
-    //:
-    //:  3 Values which differ by only one of sign, exponent, or mantissa
-    //:    should not be equal.
-    //:
-    //:  4 'NaN' values should never be equal.
-    //:
-    //:  5 The implementation of 'notEqual' normally would be a forwarding
-    //:    function (to the underlying implementation), but some
-    //:    implementations require a call to a helper function to determine
-    //:    value.  This means that we don't have to aggressively test this
-    //:    function, but should perform more than a cursory forwarding test.
-    //:    (This will result in more than a simple forwarding test.)
-    //:
-    //:  6 Equality is a "Commutative" operation.
-    //:       'A == B' implies 'B == A'
-    //:    (Commutative property.)
-    //:
-    //:  7 Equality is a "Commutative" operation in the negative.
-    //:       'A != B' implies 'B != A'
-    //:    (Commutative property.)
-    //:
-    //:  8 Any two things equal to a third are equal to each other:
-    //:       'A == B' and 'B == C' implies 'A == C'.
-    //:    (Transitive property.)
-    //:
-    //:  9 Any two things equal to each other are both inequal to an inequal
-    //:    third.
-    //:       'A == B' and 'B != C' implies 'A != C'
-    //:    (Transitive property.)
-    //:
-    //: 10 'NaN' and 'Inf' states are excluded from these rules and instead
-    //:    have the following properties:
-    //:
-    //:     1  'NaN' !=  'NaN'
-    //:     2  value !=  'NaN'
-    //:     3  'NaN' !=  value
-    //:     4 +'Inf' == +'Inf'
-    //:     5 -'Inf' == -'Inf'
-    //:     6 +'Inf' != -'Inf'
-    //:     7 -'Inf' != +'Inf'
-    //:     8  value != +'Inf'
-    //:     9  value != -'Inf'
-    //:    10 +'Inf' !=  value
-    //:    11 -'Inf' !=  value
-    //:    12  'NaN' != +'Inf'
-    //:    13  'NaN' != -'Inf'
-    //:    14 +'Inf' !=  'NaN'
-    //:    15 -'Inf' !=  'NaN'
-    //:
-    //: 11 Inequality tests more than identity (same 'this' pointer).
-    //:
-    //: 12 'notEqual' should return false when there are two NaN arguments.
+    //  1. `notEqual` should return false if the bit patterns are the same (and
+    //     are not a bit pattern representing a `NaN`).
+    //
+    //  2. `notEqual` should return false if the bit patterns are different,
+    //     but represent the same value.  I.e. `10e0` should be equal to `1e1`.
+    //
+    //  3. Values which differ by only one of sign, exponent, or mantissa
+    //     should not be equal.
+    //
+    //  4. `NaN` values should never be equal.
+    //
+    //  5. The implementation of `notEqual` normally would be a forwarding
+    //     function (to the underlying implementation), but some
+    //     implementations require a call to a helper function to determine
+    //     value.  This means that we don't have to aggressively test this
+    //     function, but should perform more than a cursory forwarding test.
+    //     (This will result in more than a simple forwarding test.)
+    //
+    //  6. Equality is a "Commutative" operation.
+    //        `A == B` implies `B == A`
+    //     (Commutative property.)
+    //
+    //  7. Equality is a "Commutative" operation in the negative.
+    //        `A != B` implies `B != A`
+    //     (Commutative property.)
+    //
+    //  8. Any two things equal to a third are equal to each other:
+    //        `A == B` and `B == C` implies `A == C`.
+    //     (Transitive property.)
+    //
+    //  9. Any two things equal to each other are both inequal to an inequal
+    //     third.
+    //        `A == B` and `B != C` implies `A != C`
+    //     (Transitive property.)
+    //
+    // 10. `NaN` and `Inf` states are excluded from these rules and instead
+    //     have the following properties:
+    //
+    //     1.  `NaN` !=  `NaN`
+    //     2.  value !=  `NaN`
+    //     3.  `NaN` !=  value
+    //     4. +`Inf` == +`Inf`
+    //     5. -`Inf` == -`Inf`
+    //     6. +`Inf` != -`Inf`
+    //     7. -`Inf` != +`Inf`
+    //     8.  value != +`Inf`
+    //     9.  value != -`Inf`
+    //    10. +`Inf` !=  value
+    //    11. -`Inf` !=  value
+    //    12.  `NaN` != +`Inf`
+    //    13.  `NaN` != -`Inf`
+    //    14. +`Inf` !=  `NaN`
+    //    15. -`Inf` !=  `NaN`
+    //
+    // 11. Inequality tests more than identity (same `this` pointer).
+    //
+    // 12. `notEqual` should return false when there are two NaN arguments.
     //
     // Plan:
-    //:  1 Myriad values will be tested for equality and inequality with
-    //:    slightly altered values.  ('A != A + 1', and 'A + 1 != A', for
-    //:    example)
-    //:
-    //:  2 All equality, and inequality tests will be tested with both
-    //:    possible orderings to check the Commutative property.
-    //:
-    //:  3 Values will be tested for equality with copies of themselves
-    //:
-    //:  4 Create 'NaN' values, and compare them as inequal.
+    //  1. Myriad values will be tested for equality and inequality with
+    //     slightly altered values.  (`A != A + 1`, and `A + 1 != A`, for
+    //     example)
+    //
+    //  2. All equality, and inequality tests will be tested with both
+    //     possible orderings to check the Commutative property.
+    //
+    //  3. Values will be tested for equality with copies of themselves
+    //
+    //  4. Create `NaN` values, and compare them as inequal.
     //
     // Testing:
     //   notEqual(ValueType32,  ValueType32)
     //   notEqual(ValueType64,  ValueType64)
     //   notEqual(ValueType128, ValueType128)
-    //   TEST 'notEqual' FOR 'NaN' CORRECTNESS
+    //   TEST `notEqual` FOR `NaN` CORRECTNESS
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
-                      << "INEQUALITY COMPARISON 'Util::notEqual'" << endl
+                      << "INEQUALITY COMPARISON `Util::notEqual`" << endl
                       << "======================================" << endl;
 
     // Basic value comparison testing
@@ -14006,7 +14006,7 @@ void TestDriver::testCase4()
         ASSERT( Util::notEqual(c128, a128));
     }
 
-    // 'NaN' and 'Inf' testing
+    // `NaN` and `Inf` testing
 
     // These tests should be in the same order as Concern #10.
 
@@ -14032,7 +14032,7 @@ void TestDriver::testCase4()
         Util::ValueType128 ninf128 = Util::parse128("-Inf");
         Util::ValueType128 test128 = Util::makeDecimalRaw128(42, 1);
 
-        // 'NaN' is not notEqual to itself, in any form.
+        // `NaN` is not notEqual to itself, in any form.
 
         ASSERT( Util::notEqual( nan32,   nan32));
         ASSERT( Util::notEqual(qnan32,  qnan32));
@@ -14052,7 +14052,7 @@ void TestDriver::testCase4()
         ASSERT( Util::notEqual(snan128, snan128));
         ASSERT(EDOM == errno);
 
-        // Cross 'NaN' comparisons should all be inequal.
+        // Cross `NaN` comparisons should all be inequal.
 
         ASSERT( Util::notEqual( nan32,  qnan32));
         ASSERT( Util::notEqual(qnan32,   nan32));
@@ -14075,7 +14075,7 @@ void TestDriver::testCase4()
         ASSERT( Util::notEqual(qnan128, snan128));
         ASSERT( Util::notEqual(snan128, qnan128));
 
-        // 'NaN' to value comparisons should be inequal too.
+        // `NaN` to value comparisons should be inequal too.
 
         ASSERT( Util::notEqual( nan32,  test32));
         ASSERT( Util::notEqual(test32,   nan32));
@@ -14098,7 +14098,7 @@ void TestDriver::testCase4()
         ASSERT( Util::notEqual(snan128, test128));
         ASSERT( Util::notEqual(test128, snan128));
 
-        // 'Inf's should compare notEqual only when they have different
+        // `Inf`s should compare notEqual only when they have different
         // signs
 
         ASSERT(!Util::notEqual(pinf32,  pinf32));
@@ -14116,7 +14116,7 @@ void TestDriver::testCase4()
         ASSERT( Util::notEqual(pinf128, ninf128));
         ASSERT( Util::notEqual(ninf128, pinf128));
 
-        // Value to 'Inf' comparisons should be inequal.
+        // Value to `Inf` comparisons should be inequal.
 
         ASSERT( Util::notEqual(test32,  pinf32));
         ASSERT( Util::notEqual(test32,  ninf32));
@@ -14133,7 +14133,7 @@ void TestDriver::testCase4()
         ASSERT( Util::notEqual(pinf128, test128));
         ASSERT( Util::notEqual(ninf128, test128));
 
-        // 'Inf' to 'NaN' comparisons should be inequal.
+        // `Inf` to `NaN` comparisons should be inequal.
 
         ASSERT( Util::notEqual( nan32,  pinf32));
         ASSERT( Util::notEqual( nan32,  ninf32));
@@ -14179,74 +14179,74 @@ void TestDriver::testCase4()
 void TestDriver::testCase3()
 {
     // ------------------------------------------------------------------------
-    // EQUALITY COMPARISON 'Util::equal'
+    // EQUALITY COMPARISON `Util::equal`
     //
     // Concerns:
-    //:  1 'equal' should return true if the bit patterns are the same (and are
-    //:    not a bit pattern representing a 'NaN').
-    //:
-    //:  2 'equal' should return true if the bit patterns are different, but
-    //:    represent the same value.  I.e. '10e0' should be equal to '1e1'.
-    //:
-    //:  3 Values which differ by only one of sign, exponent, or mantissa
-    //:    should not be equal.
-    //:
-    //:  4 'NaN' values should never be equal.
-    //:
-    //:  5 The implementation of 'equal' normally would be a forwarding
-    //:    function (to the underlying implementation), but some
-    //:    implementations require a call to a helper function to determine
-    //:    value.  This means that we don't have to aggressively test this
-    //:    function, but should perform more than a cursory forwarding test.
-    //:    (This will result in more than a simple forwarding test.)
-    //:
-    //:  6 Equality is a "Commutative" operation:
-    //:       'A == B' implies 'B == A'
-    //:    (Commutative property.)
-    //:
-    //:  7 Equality is a "Commutative" operation in the negative:
-    //:       'A != B' implies 'B != A'
-    //:    (Commutative property.)
-    //:
-    //:  8 Any two things equal to a third are equal to each other:
-    //:       'A == B' and 'B == C' implies 'A == C'.
-    //:    (Transitive property.)
-    //:
-    //:  9 Any two things equal to each other are both inequal to an inequal
-    //:    third:
-    //:       'A == B' and 'B != C' implies 'A != C'
-    //:    (Transitive property.)
-    //:
-    //: 10 'NaN' and 'Inf' states are excluded from these rules and instead
-    //:    have the following properties:
-    //:
-    //:     1  'NaN' !=  'NaN'
-    //:     2  value !=  'NaN'
-    //:     3  'NaN' !=  value
-    //:     4 +'Inf' == +'Inf'
-    //:     5 -'Inf' == -'Inf'
-    //:     6 +'Inf' != -'Inf'
-    //:     7 -'Inf' != +'Inf'
-    //:     8  value != +'Inf'
-    //:     9  value != -'Inf'
-    //:    10 +'Inf' !=  value
-    //:    11 -'Inf' !=  value
-    //:    12  'NaN' != +'Inf'
-    //:    13  'NaN' != -'Inf'
-    //:    14 +'Inf' !=  'NaN'
-    //:    15 -'Inf' !=  'NaN'
-    //:
-    //: 11 Equality tests more than identity (same 'this' pointer).
+    //  1. `equal` should return true if the bit patterns are the same (and are
+    //     not a bit pattern representing a `NaN`).
+    //
+    //  2. `equal` should return true if the bit patterns are different, but
+    //     represent the same value.  I.e. `10e0` should be equal to `1e1`.
+    //
+    //  3. Values which differ by only one of sign, exponent, or mantissa
+    //     should not be equal.
+    //
+    //  4. `NaN` values should never be equal.
+    //
+    //  5. The implementation of `equal` normally would be a forwarding
+    //     function (to the underlying implementation), but some
+    //     implementations require a call to a helper function to determine
+    //     value.  This means that we don't have to aggressively test this
+    //     function, but should perform more than a cursory forwarding test.
+    //     (This will result in more than a simple forwarding test.)
+    //
+    //  6. Equality is a "Commutative" operation:
+    //        `A == B` implies `B == A`
+    //     (Commutative property.)
+    //
+    //  7. Equality is a "Commutative" operation in the negative:
+    //        `A != B` implies `B != A`
+    //     (Commutative property.)
+    //
+    //  8. Any two things equal to a third are equal to each other:
+    //        `A == B` and `B == C` implies `A == C`.
+    //     (Transitive property.)
+    //
+    //  9. Any two things equal to each other are both inequal to an inequal
+    //     third:
+    //        `A == B` and `B != C` implies `A != C`
+    //     (Transitive property.)
+    //
+    // 10. `NaN` and `Inf` states are excluded from these rules and instead
+    //     have the following properties:
+    //
+    //     1.  `NaN` !=  `NaN`
+    //     2.  value !=  `NaN`
+    //     3.  `NaN` !=  value
+    //     4. +`Inf` == +`Inf`
+    //     5. -`Inf` == -`Inf`
+    //     6. +`Inf` != -`Inf`
+    //     7. -`Inf` != +`Inf`
+    //     8.  value != +`Inf`
+    //     9.  value != -`Inf`
+    //    10. +`Inf` !=  value
+    //    11. -`Inf` !=  value
+    //    12.  `NaN` != +`Inf`
+    //    13.  `NaN` != -`Inf`
+    //    14. +`Inf` !=  `NaN`
+    //    15. -`Inf` !=  `NaN`
+    //
+    // 11. Equality tests more than identity (same `this` pointer).
     //
     // Plan:
-    //:  1 Myriad values will be tested for equality and inequality with
-    //:    slightly altered values.  ('A != A + 1', and 'A + 1 != A', for
-    //:    example)
-    //:
-    //:  2 All equality, and inequality tests will be tested with both
-    //:    possible orderings to check the Commutative property.
-    //:
-    //:  3 Values will be tested for equality with copies of themselves
+    //  1. Myriad values will be tested for equality and inequality with
+    //     slightly altered values.  (`A != A + 1`, and `A + 1 != A`, for
+    //     example)
+    //
+    //  2. All equality, and inequality tests will be tested with both
+    //     possible orderings to check the Commutative property.
+    //
+    //  3. Values will be tested for equality with copies of themselves
     //
     // Testing:
     //   equal(ValueType32,  ValueType32)
@@ -14256,7 +14256,7 @@ void TestDriver::testCase3()
 
 
     if (verbose) cout << endl
-                      << "EQUALITY COMPARISON 'Util::equal'" << endl
+                      << "EQUALITY COMPARISON `Util::equal`" << endl
                       << "=================================" << endl;
 
     // Basic value comparison testing
@@ -15078,7 +15078,7 @@ void TestDriver::testCase3()
         ASSERT(!Util::equal(c128, a128));
     }
 
-    // 'NaN' and 'Inf' testing
+    // `NaN` and `Inf` testing
 
     // These tests should be in the same order as Concern #10.
 
@@ -15104,7 +15104,7 @@ void TestDriver::testCase3()
         Util::ValueType128 ninf128 = Util::parse128("-Inf");
         Util::ValueType128 test128 = Util::makeDecimalRaw128(42, 1);
 
-        // 'NaN' is not equal to itself, in any form.
+        // `NaN` is not equal to itself, in any form.
 
         ASSERT(!Util::equal( nan32,   nan32));
         ASSERT(!Util::equal(qnan32,  qnan32));
@@ -15124,7 +15124,7 @@ void TestDriver::testCase3()
         ASSERT(!Util::equal(snan128, snan128));
         ASSERT(EDOM == errno);
 
-        // Cross 'NaN' comparisons should all be false.
+        // Cross `NaN` comparisons should all be false.
 
         ASSERT(!Util::equal( nan32,  qnan32));
         ASSERT(!Util::equal(qnan32,   nan32));
@@ -15147,7 +15147,7 @@ void TestDriver::testCase3()
         ASSERT(!Util::equal(qnan128, snan128));
         ASSERT(!Util::equal(snan128, qnan128));
 
-        // 'NaN' to value comparisons should be false too.
+        // `NaN` to value comparisons should be false too.
 
         ASSERT(!Util::equal( nan32,  test32));
         ASSERT(!Util::equal(test32,   nan32));
@@ -15170,7 +15170,7 @@ void TestDriver::testCase3()
         ASSERT(!Util::equal(snan128, test128));
         ASSERT(!Util::equal(test128, snan128));
 
-        // 'Inf's should compare equal only when they have the same sign.
+        // `Inf`s should compare equal only when they have the same sign.
 
         ASSERT( Util::equal(pinf32,  pinf32));
         ASSERT( Util::equal(ninf32,  ninf32));
@@ -15187,7 +15187,7 @@ void TestDriver::testCase3()
         ASSERT(!Util::equal(pinf128, ninf128));
         ASSERT(!Util::equal(ninf128, pinf128));
 
-        // Value to 'Inf' comparisons should be false.
+        // Value to `Inf` comparisons should be false.
 
         ASSERT(!Util::equal(test32,  pinf32));
         ASSERT(!Util::equal(test32,  ninf32));
@@ -15204,7 +15204,7 @@ void TestDriver::testCase3()
         ASSERT(!Util::equal(pinf128, test128));
         ASSERT(!Util::equal(ninf128, test128));
 
-        // 'Inf' to 'NaN' comparisons should be false.
+        // `Inf` to `NaN` comparisons should be false.
 
         ASSERT(!Util::equal( nan32,  pinf32));
         ASSERT(!Util::equal( nan32,  ninf32));
@@ -15250,41 +15250,41 @@ void TestDriver::testCase3()
 void TestDriver::testCase2()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'makeDecimalRaw'
+    // TESTING `makeDecimalRaw`
     //
     // Concerns:
-    //: 1 'makeDecimalRawXX' constructs a decimal floating point value having
-    //:   the specified mantissa and exponent, with no rounding.
-    //:
-    //: 2 The correctness of the conversion of each 3-digit group (or declet)
-    //:   into a 10-bit binary-encoded declet.  Note that this is superfluous
-    //:   on BID architectures, but causes no significant slowdown.
-    //:
-    //: 3 The conversion of each 3-digit declet into a 10-bit binary-encoded
-    //:   declet does not intefere each other.
-    //:
-    //: 4 The combination field is correctly computed given the leading digit
-    //:   of the mantissa and the exponent.
-    //:
-    //: 5 'makeDecimalRawXX' asserts in the right build modes for undefined
-    //:   behavior.
-    //:
-    //: 6 'makeDecimalRawXX' generates expected values.
+    // 1. `makeDecimalRawXX` constructs a decimal floating point value having
+    //    the specified mantissa and exponent, with no rounding.
+    //
+    // 2. The correctness of the conversion of each 3-digit group (or declet)
+    //    into a 10-bit binary-encoded declet.  Note that this is superfluous
+    //    on BID architectures, but causes no significant slowdown.
+    //
+    // 3. The conversion of each 3-digit declet into a 10-bit binary-encoded
+    //    declet does not intefere each other.
+    //
+    // 4. The combination field is correctly computed given the leading digit
+    //    of the mantissa and the exponent.
+    //
+    // 5. `makeDecimalRawXX` asserts in the right build modes for undefined
+    //    behavior.
+    //
+    // 6. `makeDecimalRawXX` generates expected values.
     //
     // Plan:
-    //: 1 Test 'makeDecimalRawXX' contract using
-    //:   'AssertFailureHandlerGuard' and 'BSLS_ASSERTTEST_ASSERT_OPT_FAIL'
-    //:   (C-5)
-    //:
-    //: 2 Test each overload of each 'makeDecimalRawXX' by representing the
-    //:   mantissa in a string format and parsing in each intergral type.
-    //:   (C-1..4, 6)
-    //:
-    //: 3 Test a mantissa of each length in base 10.  (C-1..4, 6)
-    //:
-    //: 4 Test that 'makeDecimalRawXX' returns the same value as the decimal
-    //:   created by invoking the decNumber constructors using binary-coded
-    //:   decimals.  (C-1..4, 6)
+    // 1. Test `makeDecimalRawXX` contract using
+    //    `AssertFailureHandlerGuard` and `BSLS_ASSERTTEST_ASSERT_OPT_FAIL`
+    //    (C-5)
+    //
+    // 2. Test each overload of each `makeDecimalRawXX` by representing the
+    //    mantissa in a string format and parsing in each intergral type.
+    //    (C-1..4, 6)
+    //
+    // 3. Test a mantissa of each length in base 10.  (C-1..4, 6)
+    //
+    // 4. Test that `makeDecimalRawXX` returns the same value as the decimal
+    //    created by invoking the decNumber constructors using binary-coded
+    //    decimals.  (C-1..4, 6)
     //
     // Testing:
     //   makeDecimalRaw32 (                   int, int)
@@ -15299,7 +15299,7 @@ void TestDriver::testCase2()
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
-                      << "TESTING 'makeDecimalRaw'" << endl
+                      << "TESTING `makeDecimalRaw`" << endl
                       << "========================" << endl;
     // Test that with any of a set of exponents, we can create values with
     // mantissas from 1 to 16 digit for 32-bit Decimal values
@@ -15679,7 +15679,7 @@ void TestDriver::testCase2()
     }
 
 
-    // Test that 'makeDecimalRaw32' enforces undefined behavior in the
+    // Test that `makeDecimalRaw32` enforces undefined behavior in the
     // right build mode
     {
         bsls::AssertTestHandlerGuard g;
@@ -15709,12 +15709,12 @@ void TestDriver::testCase2()
                                   Util::makeDecimalRaw32( 10000000,   42));
     }
 
-    // Test that 'makeDecimalRaw64' variants enforce undefined behavior in
+    // Test that `makeDecimalRaw64` variants enforce undefined behavior in
     // the right build mode
     {
         bsls::AssertTestHandlerGuard g;
 
-        // Test 'makeDecimalRaw64(int, int)':
+        // Test `makeDecimalRaw64(int, int)`:
 
         // Check exponent lower bound
         BSLS_ASSERTTEST_ASSERT_FAIL(Util::makeDecimalRaw64(42, -399));
@@ -15724,10 +15724,10 @@ void TestDriver::testCase2()
         BSLS_ASSERTTEST_ASSERT_PASS(Util::makeDecimalRaw64(42,  369));
         BSLS_ASSERTTEST_ASSERT_FAIL(Util::makeDecimalRaw64(42,  370));
 
-        // 'makeDecimalRaw64(int, int)' needs no test for mantissa bounds
+        // `makeDecimalRaw64(int, int)` needs no test for mantissa bounds
         // because 9,999,999,999,999,999 is unrepresentable as an int.
 
-        // Test 'makeDecimalRaw64(unsigned int, int)':
+        // Test `makeDecimalRaw64(unsigned int, int)`:
 
         // Check exponent lower bound
         BSLS_ASSERTTEST_ASSERT_FAIL(Util::makeDecimalRaw64(42u, -399));
@@ -15737,11 +15737,11 @@ void TestDriver::testCase2()
         BSLS_ASSERTTEST_ASSERT_PASS(Util::makeDecimalRaw64(42u,  369));
         BSLS_ASSERTTEST_ASSERT_FAIL(Util::makeDecimalRaw64(42u,  370));
 
-        // 'makeDecimalRaw64(unsigned int, int)' needs no test for mantissa
+        // `makeDecimalRaw64(unsigned int, int)` needs no test for mantissa
         // bounds because 9,999,999,999,999,999 is unrepresentable as an
         // int.
 
-        // Test 'makeDecimalRaw64(long long, int)':
+        // Test `makeDecimalRaw64(long long, int)`:
 
         // Check exponent lower bound
         BSLS_ASSERTTEST_ASSERT_FAIL(
@@ -15767,7 +15767,7 @@ void TestDriver::testCase2()
         BSLS_ASSERTTEST_ASSERT_FAIL(
                        Util::makeDecimalRaw64( 10000000000000000ll,   42));
 
-        // Test 'makeDecimalRaw64(unsigned long long, int)':
+        // Test `makeDecimalRaw64(unsigned long long, int)`:
 
         // Check exponent lower bound
         BSLS_ASSERTTEST_ASSERT_FAIL(
@@ -15791,12 +15791,12 @@ void TestDriver::testCase2()
                        Util::makeDecimalRaw64(10000000000000000ull,   42));
     }
 
-    // Test that 'makeDecimalRaw128' variants enforce undefined behavior in
+    // Test that `makeDecimalRaw128` variants enforce undefined behavior in
     // the right build mode
     {
         bsls::AssertTestHandlerGuard g;
 
-        // Test 'makeDecimalRaw128(int, int)':
+        // Test `makeDecimalRaw128(int, int)`:
 
         // Check exponent lower bound
         BSLS_ASSERTTEST_ASSERT_FAIL(Util::makeDecimalRaw128(42, -6177));
@@ -15805,7 +15805,7 @@ void TestDriver::testCase2()
         BSLS_ASSERTTEST_ASSERT_PASS(Util::makeDecimalRaw128(42,  6111));
         BSLS_ASSERTTEST_ASSERT_FAIL(Util::makeDecimalRaw128(42,  6112));
 
-        // Test 'makeDecimalRaw128(unsigned, int)':
+        // Test `makeDecimalRaw128(unsigned, int)`:
 
         // Check exponent lower bound
         BSLS_ASSERTTEST_ASSERT_FAIL(Util::makeDecimalRaw128(42u, -6177));
@@ -15815,7 +15815,7 @@ void TestDriver::testCase2()
         BSLS_ASSERTTEST_ASSERT_PASS(Util::makeDecimalRaw128(42u,  6111));
         BSLS_ASSERTTEST_ASSERT_FAIL(Util::makeDecimalRaw128(42u,  6112));
 
-        // Test 'makeDecimalRaw128(long long, int)':
+        // Test `makeDecimalRaw128(long long, int)`:
 
         // Check exponent lower bound
         BSLS_ASSERTTEST_ASSERT_FAIL(Util::makeDecimalRaw128(42ll, -6177));
@@ -15825,7 +15825,7 @@ void TestDriver::testCase2()
         BSLS_ASSERTTEST_ASSERT_PASS(Util::makeDecimalRaw128(42ll,  6111));
         BSLS_ASSERTTEST_ASSERT_FAIL(Util::makeDecimalRaw128(42ll,  6112));
 
-        // Test 'makeDecimalRaw128(unsigned long long, int)':
+        // Test `makeDecimalRaw128(unsigned long long, int)`:
 
         // Check exponent lower bound
         BSLS_ASSERTTEST_ASSERT_FAIL(Util::makeDecimalRaw128(42ull, -6177));
@@ -15843,10 +15843,10 @@ void TestDriver::testCase1()
     // BREATHING TEST
     //
     // Concerns:
-    //:  1 N/A
+    //  1. N/A
     //
     // Plan:
-    //:  1 N/A
+    //  1. N/A
     //
     // Testing:
     //   BREATHING TEST
@@ -15855,7 +15855,7 @@ void TestDriver::testCase1()
     if (verbose) cout << endl << "BREATHING TEST"
                       << endl << "==============" << endl;
 
-    // 'checkLiteral' is called in this test case, to silence bde_verify.
+    // `checkLiteral` is called in this test case, to silence bde_verify.
     // This is not tested in its own test, because it is not a public
     // method.
 

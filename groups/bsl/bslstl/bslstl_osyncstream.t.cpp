@@ -13,9 +13,9 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
 
-#include <stddef.h>  // '::size_t'
+#include <stddef.h>  // `::size_t`
 #include <stdio.h>
-#include <stdlib.h>  // 'atoi'
+#include <stdlib.h>  // `atoi`
 #include <iostream>
 
 using namespace BloombergLP;
@@ -127,9 +127,9 @@ static bool veryVeryVeryVerbose;
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// "Type-parametrized namespace" for the tests.
 template <class CHAR>
 class SyncStreamTest {
-    // "Type-parametrized namespace" for the tests.
 
     typedef bsl::basic_osyncstream<CHAR> osyncstream;
     typedef bsl::basic_ostringstream<CHAR> ostringstream;
@@ -138,15 +138,16 @@ class SyncStreamTest {
     typedef osyncstream Obj;
 
     // PRIVATE CLASS FUNCTIONS
+
+    /// Create a `string` from the specified `chars`.
     template <size_t Len>
     static string make_string(const CHAR (&chars)[Len])
-        // Create a 'string' from the specified 'chars'.
     {
         return string(chars, Len);
     }
 
+    /// Create a `string` from the specified `ch`.
     static string make_string(CHAR ch)
-        // Create a 'string' from the specified 'ch'.
     {
         return string(size_t(1), ch);
     }
@@ -217,7 +218,7 @@ class SyncStreamTest {
                 os.put(chars[1]);
                 ASSERT(wrapped.str().empty());
 
-                // 'emit' is called by the destructor
+                // `emit` is called by the destructor
             }
             ASSERT(wrapped.str() == make_string(chars));
         }
@@ -316,7 +317,7 @@ class SyncStreamTest {
         lhs.put(chars[0]);
         ASSERTV(tmp_wrapped.str().empty());
 
-        lhs = std::move(rhs);  // 'lhs->rdbuf()->emit()' is implicitly called
+        lhs = std::move(rhs);  // `lhs->rdbuf()->emit()` is implicitly called
         ASSERT(lhs.get_wrapped() == &wrapped);
         ASSERT(rhs.get_allocator().mechanism() == &alloc);
         ASSERT(!rhs.get_wrapped());
@@ -353,20 +354,22 @@ class SyncStreamTest {
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L  // C++11
 namespace bsl {
 
+/// Fake `bsl::thread` for the "USAGE EXAMPLE" testing.
 struct thread {
-    // Fake 'bsl::thread' for the "USAGE EXAMPLE" testing.
 
     // CREATORS
+
+    /// Call the specified `callable`.
     template <class t_CALLABLE>
     explicit thread(t_CALLABLE callable)
-        // Call the specified 'callable'.
     {
         callable();
     }
 
     // MANIPULATORS
+
+    /// No-Op.
     void join()
-        // No-Op.
     {
     }
 };
@@ -377,12 +380,13 @@ struct thread {
 // container of values that can be "ostreamed".  The elements are separated by
 // comma and all the sequence is enclosed in curly brackets.  This example
 // requires C++11 at least.
-//..
+// ```
+
+/// Print elements of the specified `container` to the specified
+/// `stream` in a multi-threaded environment without interleaving with
+/// output from another threads.
 template <class t_CONTAINER>
 void printContainer(bsl::ostream& stream, const t_CONTAINER& container)
-    // Print elements of the specified 'container' to the specified
-    // 'stream' in a multi-threaded environment without interleaving with
-    // output from another threads.
 {
     bsl::osyncstream out(stream);
     out << '{';
@@ -397,8 +401,8 @@ void printContainer(bsl::ostream& stream, const t_CONTAINER& container)
         out << value;
     }
     out << '}';
-} // all output is atomically transferred to 'stream' on 'out' destruction
-//..
+} // all output is atomically transferred to `stream` on `out` destruction
+// ```
 #endif
 
 //=============================================================================
@@ -426,12 +430,12 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example 1 provided in the component header file
-        //:   compiles, links, and runs as shown.
+        // 1. The usage example 1 provided in the component header file
+        //    compiles, links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example 1 from header into test driver, remove
-        //:   leading comment characters. (C-1)
+        // 1. Incorporate usage example 1 from header into test driver, remove
+        //    leading comment characters. (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE 1
@@ -442,7 +446,7 @@ int main(int argc, char *argv[])
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L  // C++11
 // The following example demonstrates the use of a named variable within a
 // block statement for streaming.
-//..
+// ```
     const int    container1[] = {1, 2, 3};
     const double container2[] = {4.0, 5.0, 6.0, 7.0};
 
@@ -450,7 +454,7 @@ int main(int argc, char *argv[])
     bsl::thread thread2{[&]{ printContainer(std::cout, container2); }};
     thread1.join();
     thread2.join();
-//..
+// ```
 #endif
       } break;
       case 5: {
@@ -458,25 +462,25 @@ int main(int argc, char *argv[])
         // TESTING MOVE ASSIGNMENT
         //
         // Concerns:
-        //: 1 Move assignment moves all the state from 'original', including
-        //:   the accumulated and not flushed output.  'original' has no
-        //:   associated wrapped buffer after the call.
-        //:
-        //: 2 'rdbuf()->emit()' is called for '*this' before any assignments.
+        // 1. Move assignment moves all the state from `original`, including
+        //    the accumulated and not flushed output.  `original` has no
+        //    associated wrapped buffer after the call.
+        //
+        // 2. `rdbuf()->emit()` is called for `*this` before any assignments.
         //
         // Plan:
-        //: 1 Construct two 'osyncstream' object: 'lhs' and 'rhs'.  Write a
-        //:   char to each of the objects (different chars) but don't call
-        //    'emit'.  Move-assign - 'lhs = move(rhs)'.  Verify that:
-        //:     o 'lhs.get_wrapped()' and 'lhs.get_allocator()' return what
-        //:       'rhs.get_wrapped()' and 'rhs.get_allocator()' returned
-        //:       before;
-        //:     o 'rhs.get_wrapped()' returns 'nullptr';
-        //:     o a char written to 'lhs' is flushed to the wrapped
-        //:       'streambuf';
-        //:     o 'rhs.emit()' has no effect;
-        //:     o 'lhs.emit()' flushes a char written to 'rhs' before to the
-        //:       wrapped 'streambuf'.
+        // 1. Construct two `osyncstream` object: `lhs` and `rhs`.  Write a
+        //    char to each of the objects (different chars) but don't call
+        //    `emit`.  Move-assign - `lhs = move(rhs)`.  Verify that:
+        //      - `lhs.get_wrapped()` and `lhs.get_allocator()` return what
+        //        `rhs.get_wrapped()` and `rhs.get_allocator()` returned
+        //        before;
+        //      - `rhs.get_wrapped()` returns `nullptr`;
+        //      - a char written to `lhs` is flushed to the wrapped
+        //        `streambuf`;
+        //      - `rhs.emit()` has no effect;
+        //      - `lhs.emit()` flushes a char written to `rhs` before to the
+        //        wrapped `streambuf`.
         //
         // Testing:
         //   basic_osyncstream &operator=(basic_osyncstream&& original);
@@ -494,27 +498,27 @@ int main(int argc, char *argv[])
         // TESTING MOVE CONSTRUCTOR
         //
         // Concerns:
-        //: 1 The move constructor moves all the state from 'original',
-        //:   including the accumulated and not flushed output.  'original' has
-        //:   no associated wrapped buffer after the call.
-        //:
-        //: 2 An allocator can be passed as a second argument.  Otherwise it
-        //:   will be copied from 'original'.
+        // 1. The move constructor moves all the state from `original`,
+        //    including the accumulated and not flushed output.  `original` has
+        //    no associated wrapped buffer after the call.
+        //
+        // 2. An allocator can be passed as a second argument.  Otherwise it
+        //    will be copied from `original`.
         //
         // Plan:
-        //: 1 Construct an 'osyncstream' object ('rhs').  Write a char but
-        //:   don't call 'emit'.  Move-construct a new object ('lhs') from
-        //:   'rhs' (without explicit allocator).  Verify that
-        //:   'lhs.get_wrapped()' and 'lhs.get_allocator()' return what
-        //:   'rhs.get_wrapped()' and 'rhs.get_allocator()' returned before.
-        //:   Verify that 'rhs.get_wrapped()' returns 'nullptr'.  Verify that
-        //:   'rhs.emit()' has no effect while 'lhs.emit()' flushes the
-        //:   buffered content to the wrapped 'streambuf'.
-        //:
-        //: 2 Repeat the test but now pass an allocator explicitly to the
-        //:   move constructor.  Verify that 'lhs.get_allocator()' returns the
-        //:   specified allocator instead of 'rhs.get_allocator()'.  Repeat the
-        //:   other verification without changes.
+        // 1. Construct an `osyncstream` object (`rhs`).  Write a char but
+        //    don't call `emit`.  Move-construct a new object (`lhs`) from
+        //    `rhs` (without explicit allocator).  Verify that
+        //    `lhs.get_wrapped()` and `lhs.get_allocator()` return what
+        //    `rhs.get_wrapped()` and `rhs.get_allocator()` returned before.
+        //    Verify that `rhs.get_wrapped()` returns `nullptr`.  Verify that
+        //    `rhs.emit()` has no effect while `lhs.emit()` flushes the
+        //    buffered content to the wrapped `streambuf`.
+        //
+        // 2. Repeat the test but now pass an allocator explicitly to the
+        //    move constructor.  Verify that `lhs.get_allocator()` returns the
+        //    specified allocator instead of `rhs.get_allocator()`.  Repeat the
+        //    other verification without changes.
         //
         // Testing:
         //   basic_osyncstream(basic_osyncstream&& original);
@@ -533,17 +537,17 @@ int main(int argc, char *argv[])
         // TESTING BASIC ACCESSORS
         //
         // Concerns:
-        //: 1 The accessors are callable with 'const' object.
-        //:
-        //: 2 The accessors return the values specified at the construction
-        //:   time.
+        // 1. The accessors are callable with `const` object.
+        //
+        // 2. The accessors return the values specified at the construction
+        //    time.
         //
         // Plan:
-        //: 1 Construct an 'osyncstream' object.  Take a 'const' reference to
-        //:   it.  Call each of the accessors using the reference.  Compare the
-        //:   returned values with the values passed to the constructor.  For
-        //:   'rdbuf' just verify that it returns non-null because we have no
-        //:   original object to compare.
+        // 1. Construct an `osyncstream` object.  Take a `const` reference to
+        //    it.  Call each of the accessors using the reference.  Compare the
+        //    returned values with the values passed to the constructor.  For
+        //    `rdbuf` just verify that it returns non-null because we have no
+        //    original object to compare.
         //
         // Testing:
         //   allocator_type get_allocator() const;
@@ -561,25 +565,25 @@ int main(int argc, char *argv[])
         // TESTING PRIMARY MANIPULATORS
         //
         // Concerns:
-        //: 1 An object can be constructed using either a pointer to
-        //:   'streambuf' or a reference to 'ostream'.  Optionally  an
-        //:   allocator can be specified for each constructor.
-        //:
-        //: 2 'emit' flushes the buffered content to the wrapped 'streambuf'.
-        //:
-        //: 3 Destuctor calls 'emit'.
+        // 1. An object can be constructed using either a pointer to
+        //    `streambuf` or a reference to `ostream`.  Optionally  an
+        //    allocator can be specified for each constructor.
+        //
+        // 2. `emit` flushes the buffered content to the wrapped `streambuf`.
+        //
+        // 3. Destuctor calls `emit`.
         //
         // Plan:
-        //: 1 Try each of four variants of the constructor calls.  Verify that
-        //:   the getters return the passed values.
-        //:
-        //: 2 Create a 'stringbuf' and set it as a wrapped 'streambuf'.  Write
-        //:   chars to the 'osyncstream' and verify that nothing has been
-        //:   flushed to the 'stringbuf'.  Call 'emit' and verify that
-        //:   everything has been flushed.
-        //:
-        //: 3 Repeat the previous test but don't call 'emit', destroy the
-        //:   'osyncstream' instead.
+        // 1. Try each of four variants of the constructor calls.  Verify that
+        //    the getters return the passed values.
+        //
+        // 2. Create a `stringbuf` and set it as a wrapped `streambuf`.  Write
+        //    chars to the `osyncstream` and verify that nothing has been
+        //    flushed to the `stringbuf`.  Call `emit` and verify that
+        //    everything has been flushed.
+        //
+        // 3. Repeat the previous test but don't call `emit`, destroy the
+        //    `osyncstream` instead.
         //
         // Testing:
         //   basic_osyncstream(streambuf_type *wrapped, ALLOCATOR = {});
@@ -598,11 +602,11 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform simple sanity tests.
+        // 1. Perform simple sanity tests.
         //
         // Testing:
         //   BREATHING TEST

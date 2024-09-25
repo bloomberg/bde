@@ -94,15 +94,15 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] TESTING CONCERN: THE COMPONENT MAY BE RESTARTED
-// [ 3] TESTING CONCERN: 'shutdown' IS IDEMPOTENT
-// [ 4] TESTING CONCERN: THE DESTRUCTOR INVOKES 'shutdown'
+// [ 3] TESTING CONCERN: `shutdown` IS IDEMPOTENT
+// [ 4] TESTING CONCERN: THE DESTRUCTOR INVOKES `shutdown`
 // [ 5] TESTING CONCERN: DATA SENT BY A CLIENT IS READ FROM THE PIPE
 // [ 6] TESTING CONCERN: CONCURRENT WRITES
 // [ 7] TESTING USAGE EXAMPLE
 // [ 8] TESTING CRASH RECOVERY
 // [ 9] TESTING PIPE-IN-USE SAFETY
 // [10] EINTR HANDLING
-// [11] CONCERN: 'shutdown' does not deadlock on Windows.
+// [11] CONCERN: `shutdown` does not deadlock on Windows.
 // [12] int start(const bsl::string&, const bslmt::ThreadAttributes&);
 // [13] EAGAIN HANDLING
 // [14] TESTING CONCERN: STOP DOES NOT DEADLOCK WHEN WRITE END STILL OPEN
@@ -176,7 +176,7 @@ enum PipeNameForm { e_BEGIN
 bsl::ostream& operator<<(bsl::ostream& stream, PipeNameForm pnf)
 {
     const char *str = e_CONST_CHAR_STAR == pnf
-                    ? "'const char *'"
+                    ? "`const char *`"
                     : e_BSL_STRING == pnf
                     ? "bsl::string"
                     : e_STD_STRING == pnf
@@ -214,7 +214,7 @@ namespace {
 // point the channel is closed and the server stops.
 //
 // First, let's define the implementation of our server.
-//..
+// ```
                             // ===================
                             // class ControlServer
                             // ===================
@@ -278,7 +278,7 @@ namespace {
             return d_messages[index];
         }
     };
-//..
+// ```
 
 // ----------------------------------------------------------------------------
 
@@ -295,22 +295,22 @@ void noop(const bslstl::StringRef&)
 {
 }
 
+/// Verify that the specified `found` payload has the same value as the
+/// specified `expected` payload.
 void verifyPayload(const bsl::string&        expected,
                    const bslstl::StringRef&  found,
                    bslmt::Barrier           *barrier)
-    // Verify that the specified 'found' payload has the same value as the
-    // specified 'expected' payload.
 {
     ASSERT(expected == found);
     barrier->wait();
 }
 
+/// Verify that the specified `found` payload has the same value as the
+/// specified `expected` payload and decrements the specified `latch` by 1
+/// if its count is nonzero.
 void verifyPayloadCountDown(const bsl::string&        expected,
                             const bslstl::StringRef&  found,
                             bslmt::Latch             *latch)
-    // Verify that the specified 'found' payload has the same value as the
-    // specified 'expected' payload and decrements the specified 'latch' by 1
-    // if its count is nonzero.
 {
     ASSERT(expected == found);
 
@@ -357,12 +357,12 @@ void loadData(bsl::string *result, int length)
 }
 
 #ifdef BSLS_PLATFORM_OS_UNIX
+/// For use in the EAGAIN HANDLING test (test case 13)
+///
+/// This class is a mechanism for reading a single message from a named
+/// pipe and is used by test case 13 to trigger a time-of-check to
+/// time-of-use race in `balb::PipeControlChannel`.
 class IllegalReader {
-    // For use in the EAGAIN HANDLING test (test case 13)
-    //
-    // This class is a mechanism for reading a single message from a named
-    // pipe and is used by test case 13 to trigger a time-of-check to
-    // time-of-use race in 'balb::PipeControlChannel'.
 
     // DATA
     bslmt::ThreadUtil::Handle  d_thread;
@@ -394,10 +394,10 @@ class IllegalReader {
         return true;
     }
 
+    /// Wait for data to become available on either `d_readFd` or
+    /// `d_controlFd`. If data becomes available on `d_readFd`, attempt to
+    /// read `d_messageLength + 1` bytes from it.
     void readNamedPipe()
-        // Wait for data to become available on either 'd_readFd' or
-        // 'd_controlFd'. If data becomes available on 'd_readFd', attempt to
-        // read 'd_messageLength + 1' bytes from it.
     {
         pollfd fds[2];
         bsl::memset(fds, 0, sizeof(fds));
@@ -456,9 +456,10 @@ class IllegalReader {
     }
 
     // MANIPULATORS
+
+    /// Start a thread that reads from the specified `pipeName`.
+    /// Stops reading after receiving a message or when `stop` is called.
     bool start(const bsl::string& pipeName)
-        // Start a thread that reads from the specified 'pipeName'.
-        // Stops reading after receiving a message or when 'stop' is called.
     {
         if (!bdls::FilesystemUtil::exists(pipeName)) {
             return false;                                             // RETURN
@@ -473,7 +474,7 @@ class IllegalReader {
 
         if (-1 == d_readFd) {
             int savedErrno = errno;
-            printf("Unable to open pipe '%s' for reading. errno = %d (%s)",
+            printf("Unable to open pipe `%s` for reading. errno = %d (%s)",
                    pipeName.c_str(), savedErrno,
                    bsl::strerror(savedErrno));
 
@@ -494,8 +495,8 @@ class IllegalReader {
         return true;
     }
 
+    /// Stop the reading thread and close any open pipes.
     void stop()
-        // Stop the reading thread and close any open pipes.
     {
         if (-1 != d_controlWriteFd) {
             (void) write(d_controlWriteFd, "\n", 1);
@@ -513,11 +514,11 @@ class IllegalReader {
 };
 #endif
 
+/// Start a `ControlServer` on the specified UTF-8 `pipeName`, open a handle
+/// to the named pipe, write the message "EXIT\n" to it to ask it to shut
+/// down the `PipeControlChannel`, and then stop the server *before* closing
+/// the handle.  This used to hang on Windows (see {DRQS 170252895}).
 void testCase14(const string& pipeName);
-    // Start a 'ControlServer' on the specified UTF-8 'pipeName', open a handle
-    // to the named pipe, write the message "EXIT\n" to it to ask it to shut
-    // down the 'PipeControlChannel', and then stop the server *before* closing
-    // the handle.  This used to hang on Windows (see {DRQS 170252895}).
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 void testCase14(const string& pipeName)
@@ -606,27 +607,27 @@ void myCallback(bslmt::Condition         *condition,
     bslmt::ThreadUtil::sleep(bsls::TimeInterval(0, 200000000));  // 0.2 seconds
 }
 
+/// Store the specified `message` into the specified `messageStorage` and
+/// the current tread name into the specified `threadName` on invocation
+/// using the specified `barrier` for synchronisation.  This function is
+/// passed as a callback function to the pipe control mechanism on creation
+/// and used to test the ability of adjustment of background processing
+/// thread of `balb::PipeControlChannel` object.  The overload of the
+/// `balb::PipeControlChannel::start` method accepts the desired
+/// configuration of such thread.  But public interface of the
+/// `balb::PipeControlChannel` class does not grant access to appropriate
+/// private field.  However, the callback function passed to the pipe
+/// control mechanism on creation should be called in the context of this
+/// thread.  To check that attributes are passed correctly,
+/// `attributesTestCallback` stores the name of the current thread on
+/// invocation.  As all atributes are arranged in a single object we need to
+/// check just one field's value to be sure that the whole object is passed
+/// correctly.  Note that this approach may not work for Windows, since it's
+/// early versions don't support thread names.
 void attributesTestCallback(bsl::string              *threadName,
                             bsl::string              *messageStorage,
                             const bslstl::StringRef&  message,
                             bslmt::Barrier           *barrier)
-    // Store the specified 'message' into the specified 'messageStorage' and
-    // the current tread name into the specified 'threadName' on invocation
-    // using the specified 'barrier' for synchronisation.  This function is
-    // passed as a callback function to the pipe control mechanism on creation
-    // and used to test the ability of adjustment of background processing
-    // thread of 'balb::PipeControlChannel' object.  The overload of the
-    // 'balb::PipeControlChannel::start' method accepts the desired
-    // configuration of such thread.  But public interface of the
-    // 'balb::PipeControlChannel' class does not grant access to appropriate
-    // private field.  However, the callback function passed to the pipe
-    // control mechanism on creation should be called in the context of this
-    // thread.  To check that attributes are passed correctly,
-    // 'attributesTestCallback' stores the name of the current thread on
-    // invocation.  As all atributes are arranged in a single object we need to
-    // check just one field's value to be sure that the whole object is passed
-    // correctly.  Note that this approach may not work for Windows, since it's
-    // early versions don't support thread names.
 {
     bslmt::ThreadUtil::getThreadName(threadName);
     *messageStorage = message;
@@ -637,7 +638,7 @@ void attributesTestCallback(bsl::string              *threadName,
 
 void sendHello(const char *pipeName)
 {
-    // Allow time for the condition.wait() to be reached (see 'main')
+    // Allow time for the condition.wait() to be reached (see `main`)
     bslmt::ThreadUtil::sleep(bsls::TimeInterval(2, 0));
 
     bsl::ofstream pipe(pipeName);
@@ -671,7 +672,7 @@ int main(int argc, char *argv[])
     // Pipe names are global to the CPU, among all processes.  A matrix build
     // will often be running the same test driver multiple times at once, so
     // the pipe name has to contain the pid.  Just containing the test case #
-    // won't be enough.  'pipeName' is used in many test cases.
+    // won't be enough.  `pipeName` is used in many test cases.
 
     bsl::string pipeName;
     if (test >= 0) {
@@ -694,36 +695,36 @@ int main(int argc, char *argv[])
         // TESTING LINE BUFFERING
         //
         // Concerns:
-        //: 1 If multiple newlines are written to the pipe, then several
-        //:   separate messages are dispatched to the callback, one per
-        //:   newline.
-        //:
-        //: 2 As an exception to C-1, empty messages (i.e., newlines that are
-        //:   not preceded by any non-newline character) are not dispatched.
-        //:
-        //: 3 If a string is written to the pipe that contains no newline, it
-        //:   is not treated as a complete message, and is buffered until a
-        //:   newline is written.
-        //:
-        //: 4 After the callback has called 'shutdown', it is not invoked
-        //:   again, even if data is left in the 'PipeControlChannel' buffer.
+        // 1. If multiple newlines are written to the pipe, then several
+        //    separate messages are dispatched to the callback, one per
+        //    newline.
+        //
+        // 2. As an exception to C-1, empty messages (i.e., newlines that are
+        //    not preceded by any non-newline character) are not dispatched.
+        //
+        // 3. If a string is written to the pipe that contains no newline, it
+        //    is not treated as a complete message, and is buffered until a
+        //    newline is written.
+        //
+        // 4. After the callback has called `shutdown`, it is not invoked
+        //    again, even if data is left in the `PipeControlChannel` buffer.
         //
         // Plan:
-        //: 1 Start a 'PipeControlChannel'.
-        //:
-        //: 2 Using 'bdls::PipeUtil::send', write a string that contains no
-        //:   newline characters.
-        //:
-        //: 3 Using 'bdls::PipeUtil::send', write a string that contains
-        //:   multiple newline characters, including two in a row.
-        //:
-        //: 4 Shut down and stop the 'PipeControlChannel' by sending a message
-        //:   that starts with "EXIT\n" but also contains another line.
-        //:
-        //: 5 Verify that each nonempty maximal contiguous sequence of
-        //:   non-newline characters preceded by a newline has been dispatched
-        //:   to the callback as one message, but nothing following the string
-        //:   "EXIT\n".  (C-1..4)
+        // 1. Start a `PipeControlChannel`.
+        //
+        // 2. Using `bdls::PipeUtil::send`, write a string that contains no
+        //    newline characters.
+        //
+        // 3. Using `bdls::PipeUtil::send`, write a string that contains
+        //    multiple newline characters, including two in a row.
+        //
+        // 4. Shut down and stop the `PipeControlChannel` by sending a message
+        //    that starts with "EXIT\n" but also contains another line.
+        //
+        // 5. Verify that each nonempty maximal contiguous sequence of
+        //    non-newline characters preceded by a newline has been dispatched
+        //    to the callback as one message, but nothing following the string
+        //    "EXIT\n".  (C-1..4)
         //
         // Testing:
         //   TESTING CONCERN: MESSAGE BOUNDARIES ARE STRICTLY NEWLINES
@@ -754,7 +755,7 @@ int main(int argc, char *argv[])
 
         // Finally, let's ensure the server received all messages sent, where
         // a message is considered to end on a newline.  Note that
-        // 'ControlServer' does not store the "EXIT" message.
+        // `ControlServer` does not store the "EXIT" message.
         ASSERT(3 == server.numMessages());
         ASSERT(bsl::string("Hello,") == server.message(0));
         ASSERT(bsl::string("world")  == server.message(1));
@@ -762,25 +763,25 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // 'stop' DOES NOT DEADLOCK WHEN WRITE END STILL OPEN
+        // `stop` DOES NOT DEADLOCK WHEN WRITE END STILL OPEN
         //
         // Concerns:
-        //: 1 The 'stop' method closes the channel and returns after 'shutdown'
-        //:   has been called, even if the write end of the pipe has not been
-        //:   closed yet.  {DRQS 170252895}
+        // 1. The `stop` method closes the channel and returns after `shutdown`
+        //    has been called, even if the write end of the pipe has not been
+        //    closed yet.  {DRQS 170252895}
         //
         // Plan:
-        //: 1 Call the function 'testCase13' to open a channel, open the named
-        //:   pipe for writing, write a message to it, and then call 'stop'
-        //:   without first closing the write end.  Note that 'shutdown' will
-        //:   be called when 'ControlServer::onMessage' gets called back.
-        //:   (C-1)
+        // 1. Call the function `testCase13` to open a channel, open the named
+        //    pipe for writing, write a message to it, and then call `stop`
+        //    without first closing the write end.  Note that `shutdown` will
+        //    be called when `ControlServer::onMessage` gets called back.
+        //    (C-1)
         //
         // Testing:
         //   TESTING CONCERN: STOP DOES NOT DEADLOCK WHEN WRITE END STILL OPEN
         // --------------------------------------------------------------------
         if (verbose) {
-            cout << "'stop' DOES NOT DEADLOCK WHEN WRITE END STILL OPEN\n"
+            cout << "`stop` DOES NOT DEADLOCK WHEN WRITE END STILL OPEN\n"
                     "==================================================\n";
         }
         testCase14(pipeName);
@@ -790,20 +791,20 @@ int main(int argc, char *argv[])
         // EAGAIN HANDLING
         //
         // Concerns:
-        //: 1 'readNamedPipe' should not exit if it gets an EAGAIN error while
+        // 1. `readNamedPipe` should not exit if it gets an EAGAIN error while
         //    reading.  Instead, it should continue with the reading loop and
         //    be able to read data once any contention for the pipe has been
         //    resolved.
         //
         // Plan:
-        //: 1 Create 'balb::PipeControlChannel'.
-        //: 2 Independently try to read from the same pipe.
-        //: 3 Write to the pipe repeatedly.  For each write either the 2nd
-        //    reader from (P-2) or the 'balb::PipeControlChannel' may receive
+        // 1. Create `balb::PipeControlChannel`.
+        // 2. Independently try to read from the same pipe.
+        // 3. Write to the pipe repeatedly.  For each write either the 2nd
+        //    reader from (P-2) or the `balb::PipeControlChannel` may receive
         //    the message with the other receiving an EAGAIN error.  If the
-        //    'balb::PipeControlChannel' receives the EAGAIN it will not exit.
+        //    `balb::PipeControlChannel` receives the EAGAIN it will not exit.
         //    If the 2nd reader from (P-2) receives the message it will exit
-        //    allowing the 'balb::PipeControlChannel' to read subsequent
+        //    allowing the `balb::PipeControlChannel` to read subsequent
         //    messages indicating that it validates concern (C-1).
         //
         // Testing:
@@ -859,8 +860,8 @@ int main(int argc, char *argv[])
                 ASSERT(illegalReader.start(pipeName));
                 irBarrier.wait();
 
-                // send 'numMessages' messages, one should be lost to
-                // 'illegalReader' and the others should go through.
+                // send `numMessages` messages, one should be lost to
+                // `illegalReader` and the others should go through.
                 threadGroup.addThreads(
                                     bdlf::BindUtil::bind(&threadSend,
                                                          bsl::string(pipeName),
@@ -887,18 +888,18 @@ int main(int argc, char *argv[])
         // TESTING START, THREAD ATTRIBUTES PASSING
         //
         // Concerns:
-        //: 1 The 'start' method correctly passes required thread attributes to
-        //:   the appropriate thread creation function.
+        // 1. The `start` method correctly passes required thread attributes to
+        //    the appropriate thread creation function.
         //
         // Plan:
-        //: 1 Using the special callback function (see 'attributesTestCallback'
-        //:   documentation) create and start a pipe control mechanism, passing
-        //:   the desired thread configuration.  Pass some messages using that
-        //:   mechanism and verify, that created tread has the expected
-        //:   attributes.
-        //:
-        //: 2 Loop, testing all overloads of 'start', with and without the
-        //:   thread attributes passed, and with all 5 types of pipe name.
+        // 1. Using the special callback function (see `attributesTestCallback`
+        //    documentation) create and start a pipe control mechanism, passing
+        //    the desired thread configuration.  Pass some messages using that
+        //    mechanism and verify, that created tread has the expected
+        //    attributes.
+        //
+        // 2. Loop, testing all overloads of `start`, with and without the
+        //    thread attributes passed, and with all 5 types of pipe name.
         //
         // Testing
         //   int start(const bsl::string&, const bslmt::ThreadAttributes&);
@@ -911,7 +912,7 @@ int main(int argc, char *argv[])
 
 #if   defined(BSLS_PLATFORM_OS_LINUX)
         // If no threadname is specified, the thread name is up to the first 15
-        // bytes of the basename of 'argv[0]'.
+        // bytes of the basename of `argv[0]`.
 
         bsl::string dfltThreadName = argv[0];
         {
@@ -1061,45 +1062,45 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // 'shutdown' DOES NOT DEADLOCK ON WINDOWS
+        // `shutdown` DOES NOT DEADLOCK ON WINDOWS
         //
         // Concerns:
-        //   The 'sendEmptyMessage' function does not deadlock during shutdown.
+        //   The `sendEmptyMessage` function does not deadlock during shutdown.
         //
         // Plan:
-        //: Create a 'balb_PipeControlChannel' with a callback that triggers a
-        //: condition variable then waits 200 milliseconds.  Next create a
-        //: thread that (after a 2 seconds) wait will send data to the pipe.
-        //: Then wait on the condition variable.  Once the condition is
-        //: triggered the main thread is going to destroy the
-        //: 'balb_PipeControlChannel', which opens up a window of opportunity
-        //: to the tested (regression) race condition to occur.  The test case
-        //: has been tested using the unfixed code (on Windows) and the
-        //: deadlock occurs.
-        //:
-        //: The tested regression: The 'shutdown' function sets the
-        //: 'd_isRunningFlag' to 'false' while the background thread is still
-        //: (in our test case sleeping) in the user callback.  Once the
-        //: background thread returns from the user callback it can "see" that
-        //: that the 'd_isRunningFlag' is 'false' and stops reading from the
-        //: pipe.  This causes the send function to block forever, waiting for
-        //: a reader to show up.
-        //:
-        //: The fix: The code was fixed by introducing a critical section (in
-        //: the 'readNamedPipe' function) around the code that reads from the
-        //: pipe and runs the user callback, using the already existing
-        //: 'd_mutex' member.  A mutex lock is also introduced into the
-        //: 'backgroundProcessor' function to protect the reading of the
-        //: 'd_isRunningFlag', as it may be written to (from within 'shutdown')
-        //: from another thread, therefore reading it without synchronization
-        //: is undefined behavior.
+        //  Create a `balb_PipeControlChannel` with a callback that triggers a
+        //  condition variable then waits 200 milliseconds.  Next create a
+        //  thread that (after a 2 seconds) wait will send data to the pipe.
+        //  Then wait on the condition variable.  Once the condition is
+        //  triggered the main thread is going to destroy the
+        //  `balb_PipeControlChannel`, which opens up a window of opportunity
+        //  to the tested (regression) race condition to occur.  The test case
+        //  has been tested using the unfixed code (on Windows) and the
+        //  deadlock occurs.
+        //
+        //  The tested regression: The `shutdown` function sets the
+        //  `d_isRunningFlag` to `false` while the background thread is still
+        //  (in our test case sleeping) in the user callback.  Once the
+        //  background thread returns from the user callback it can "see" that
+        //  that the `d_isRunningFlag` is `false` and stops reading from the
+        //  pipe.  This causes the send function to block forever, waiting for
+        //  a reader to show up.
+        //
+        //  The fix: The code was fixed by introducing a critical section (in
+        //  the `readNamedPipe` function) around the code that reads from the
+        //  pipe and runs the user callback, using the already existing
+        //  `d_mutex` member.  A mutex lock is also introduced into the
+        //  `backgroundProcessor` function to protect the reading of the
+        //  `d_isRunningFlag`, as it may be written to (from within `shutdown`)
+        //  from another thread, therefore reading it without synchronization
+        //  is undefined behavior.
         //
         // Testing:
-        //   CONCERN: 'shutdown' does not deadlock on Windows.
+        //   CONCERN: `shutdown` does not deadlock on Windows.
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "'shutdown' DOES NOT DEADLOCK ON WINDOWS" << endl
+            cout << "`shutdown` DOES NOT DEADLOCK ON WINDOWS" << endl
                  << "=======================================" << endl;
         }
 
@@ -1481,8 +1482,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate the usage example from the header file into the test
-        //   driver.  Additionally, replace all calls to 'BSLS_ASSERT' in
-        //   the usage example with calls to 'ASSERT'.  This now becomes the
+        //   driver.  Additionally, replace all calls to `BSLS_ASSERT` in
+        //   the usage example with calls to `ASSERT`.  This now becomes the
         //   source, which is then "copied" back to the header file by
         //   reversing the above process.
         //
@@ -1501,9 +1502,9 @@ int main(int argc, char *argv[])
         }
 
 // Now, construct and run the server using a canonical name for the pipe:
-//..
-#if 0 // 'pipeName' in test driver (but not most situations) must contain pid
-      // and test case number.  See definiton of 'pipeName' under 'main'.
+// ```
+#if 0 // `pipeName` in test driver (but not most situations) must contain pid
+      // and test case number.  See definiton of `pipeName` under `main`.
     bsl::string pipeName;
     int         rc = bdls::PipeUtil::makeCanonicalName(&pipeName,
                                                        "ctrl.pcctest");
@@ -1518,9 +1519,9 @@ int main(int argc, char *argv[])
     if (0 != rc) {
         cout << "ERROR: Failed to start pipe control channel" << endl;
     }
-//..
+// ```
 // Once the server is started, clients can send messages to the server.
-//..
+// ```
     const char MSG0[]  = "this is the first message";
     const char MSG1[]  = "this is the second message";
 
@@ -1530,17 +1531,17 @@ int main(int argc, char *argv[])
     ASSERT(0 == rc);
     rc = bdls::PipeUtil::send(pipeName, "EXIT\n");
     ASSERT(0 == rc);
-//..
+// ```
 // The server shuts down once it processes the "EXIT" control message.
-//..
+// ```
     server.stop();  // block until shutdown
-//..
+// ```
 // Finally, let's ensure the server received each control message sent.
-//..
+// ```
     ASSERT(2 == server.numMessages());
     ASSERT(bsl::string(MSG0) == server.message(0));
     ASSERT(bsl::string(MSG1) == server.message(1));
-//..
+// ```
 
 #endif
       } break;
@@ -1684,7 +1685,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING CONCERN: THE DESTRUCTOR INVOKES 'shutdown'
+        // TESTING CONCERN: THE DESTRUCTOR INVOKES `shutdown`
         //
         // Concerns:
         //   Destroying the object shuts down the object and joins the
@@ -1700,7 +1701,7 @@ int main(int argc, char *argv[])
         //   ~PipeControlChannel()
         // --------------------------------------------------------------------
         if (verbose) {
-            cout << "TESTING CONCERN: DESTRUCTOR INVOKES 'shutdown'" << endl
+            cout << "TESTING CONCERN: DESTRUCTOR INVOKES `shutdown`" << endl
                  << "=============================================" << endl;
         }
 
@@ -1721,10 +1722,10 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING CONCERN: 'shutdown' IS IDEMPOTENT
+        // TESTING CONCERN: `shutdown` IS IDEMPOTENT
         //
         // Concerns:
-        //   The 'shutdown' function is idempotent.
+        //   The `shutdown` function is idempotent.
         //
         // Plan:
         //   Start the pipe control channel then explicitly call shutdown and
@@ -1735,7 +1736,7 @@ int main(int argc, char *argv[])
         //   shutdown
         // --------------------------------------------------------------------
         if (verbose) {
-            cout << "TESTING CONCERN: 'shutdown' IS IDEMPOTENT" << endl
+            cout << "TESTING CONCERN: `shutdown` IS IDEMPOTENT" << endl
                  << "=========================================" << endl;
         }
 

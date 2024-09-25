@@ -15,13 +15,13 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'bsls::AssertTestException' is a simple mechanism that communicates a set of
+// `bsls::AssertTestException` is a simple mechanism that communicates a set of
 // values from the point where is created to the place where it is consumed.
 // The intended use-case is for this CopyConstructible mechanism to be thrown
 // as an exception, so that the attributes can be queried in an exception-
 // handler.  We must validate that such an exception object can be created with
 // the desired set of attributes; that the attributes can be queried and have
-// the correct values; that the object can be copied, such as by a 'throw'
+// the correct values; that the object can be copied, such as by a `throw`
 // expression, and that such a copy will have attributes having the same values
 // as the original; that the objects can safely be destroyed without any other
 // effect on the system.
@@ -104,12 +104,12 @@ int main(int argc, char *argv[])
         // TEST USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into driver, remove leading
-        //:   comment characters, and replace 'assert' with 'ASSERT'.
+        // 1. Incorporate usage example from header into driver, remove leading
+        //    comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -118,35 +118,35 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTEST USAGE EXAMPLE"
                             "\n==================\n");
 
-// First we write a macro to act as an 'assert' facility that will throw an
-// exception of type 'bsls::AssertTestException' if the asserted expression
+// First we write a macro to act as an `assert` facility that will throw an
+// exception of type `bsls::AssertTestException` if the asserted expression
 // fails.  The thrown exception will capture the source-code of the expression,
 // the filename and line number of the failing expression.
-//..
+// ```
 #define TEST_ASSERT(EXPRESSION)                                               \
     if(!(EXPRESSION)) {                                                       \
         throw bsls::AssertTestException( #EXPRESSION, __FILE__, __LINE__,     \
                                          "LEVEL");                            \
     }
-//..
+// ```
 // Next we use the macro inside a try-block, so that we can catch the exception
 // thrown if the tested expression fails.
-//..
+// ```
     try {
         void *p = NULL;
         TEST_ASSERT(0 != p);
     }
-//..
+// ```
 // If the assertion fails, catch the exception and confirm that it correctly
 // recorded the context of where the assertion failed.
-//..
+// ```
     catch(const bsls::AssertTestException& ex) {
         ASSERT( 0 == strcmp("0 != p", ex.expression()));
         ASSERT( 0 == strcmp(__FILE__, ex.filename()));
         ASSERT( 9 == __LINE__ - ex.lineNumber());
         ASSERT( 0 == strcmp("LEVEL", ex.level()));
     }
-//..
+// ```
 #else
         if (verbose)
             printf("\nUsage example disabled without exception support.\n");
@@ -157,17 +157,17 @@ int main(int argc, char *argv[])
         // TEST COPY CONSTRUCTOR
         //
         // Concerns:
-        //: 1 That a copy of a 'bsls::AssertTestException' object might not
-        //:   have the same value for each attribute as the original object.
-        //:   That the source object might be altered by the act of making a
-        //:   copy.
+        // 1. That a copy of a `bsls::AssertTestException` object might not
+        //    have the same value for each attribute as the original object.
+        //    That the source object might be altered by the act of making a
+        //    copy.
         //
         // Plan:
-        //: 1 Create a test object 'x' with known attribute values.  Then
-        //:   create 'y', a copy of 'x', and verify that each corresponding
-        //:   attribute of 'x' and 'y' have the same value.  Finally, confirm
-        //:   that the attributes of 'x' still have the initially supplied
-        //:   values.
+        // 1. Create a test object `x` with known attribute values.  Then
+        //    create `y`, a copy of `x`, and verify that each corresponding
+        //    attribute of `x` and `y` have the same value.  Finally, confirm
+        //    that the attributes of `x` still have the initially supplied
+        //    values.
         //
         // Testing:
         //  bsls::AssertTestException(const bsls::AssertTestException& other);
@@ -183,14 +183,14 @@ int main(int argc, char *argv[])
         const char *filename = "filename string";
         const char *level = "level string";
 
-        if (verbose) printf("\nCreate test object 'x'.\n");
+        if (verbose) printf("\nCreate test object `x`.\n");
         const bsls::AssertTestException x(expression, filename, 42, level);
 
-        if (verbose) printf("\nCreate test object 'y', a copy of 'x'.\n");
+        if (verbose) printf("\nCreate test object `y`, a copy of `x`.\n");
         const bsls::AssertTestException y = x;
 
         if (veryVerbose)
-            printf("\nConfirm 'y' has the same attribute values as 'x'.\n");
+            printf("\nConfirm `y` has the same attribute values as `x`.\n");
 
         LOOP2_ASSERT(x.expression(), y.expression(),
                      x.expression() == y.expression());
@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
                      x.lineNumber() == y.lineNumber());
         LOOP2_ASSERT(x.level(), y.level(), x.level() == y.level());
 
-        if (verbose) printf("\nConfirm that 'x' has not changed.\n");
+        if (verbose) printf("\nConfirm that `x` has not changed.\n");
         LOOP2_ASSERT(expression, x.expression(), expression == x.expression());
         LOOP2_ASSERT(filename, x.filename(), filename == x.filename());
         LOOP_ASSERT(x.lineNumber(), 42 == x.lineNumber());
@@ -211,23 +211,23 @@ int main(int argc, char *argv[])
         // TEST VALUE CONSTRUCTOR AND PRIMARY INSPECTORS
         //
         // Concerns:
-        //: 1 That a 'bsls::AssertTestException' object can be created with
-        //:   attributes have in the same values passed to the constructor.
-        //:   That the object's attributes can be queried, whether the object
-        //:   is 'const' or not.  That the queried attributes have the values
-        //:   supplied to the constructor.  That the object can be cleanly
-        //:   destroyed without affecting the strings referenced by pointer.
+        // 1. That a `bsls::AssertTestException` object can be created with
+        //    attributes have in the same values passed to the constructor.
+        //    That the object's attributes can be queried, whether the object
+        //    is `const` or not.  That the queried attributes have the values
+        //    supplied to the constructor.  That the object can be cleanly
+        //    destroyed without affecting the strings referenced by pointer.
         //
         // Plan:
-        //: 1 Construct an object 'x' of type 'bsls::AssertTestException', and
-        //:   confirm each attribute has the respective value passed to the
-        //:   constructor.  Allow 'x' to be destroyed, and confirm the strings
-        //:   passed to the constructor can still be reached and have the same
-        //:   value.  Then construct a second object 'y' with different values
-        //:   for each attribute than were used constructing 'x'.  Confirm that
-        //:   the attributes for 'y' have the respective values passed to the
-        //:   constructor, and so distinctly different values than when
-        //:   constructing 'x'.
+        // 1. Construct an object `x` of type `bsls::AssertTestException`, and
+        //    confirm each attribute has the respective value passed to the
+        //    constructor.  Allow `x` to be destroyed, and confirm the strings
+        //    passed to the constructor can still be reached and have the same
+        //    value.  Then construct a second object `y` with different values
+        //    for each attribute than were used constructing `x`.  Confirm that
+        //    the attributes for `y` have the respective values passed to the
+        //    constructor, and so distinctly different values than when
+        //    constructing `x`.
         //
         // Testing:
         //   bsls::AssertTestException(const char*, ... ,const char*);
@@ -247,10 +247,10 @@ int main(int argc, char *argv[])
         const char *levelX = "LEVEL";
 
         {
-            if (verbose) printf("\nCreate test object 'x'.\n");
+            if (verbose) printf("\nCreate test object `x`.\n");
             bsls::AssertTestException x(exprX, fileX, 13, levelX);
 
-            if (verbose) printf("\nVerify attributes of 'x'.\n");
+            if (verbose) printf("\nVerify attributes of `x`.\n");
             LOOP2_ASSERT(exprX, x.expression(), exprX == x.expression());
             LOOP2_ASSERT(fileX, x.filename(), fileX == x.filename());
             LOOP_ASSERT(x.lineNumber(), 13 == x.lineNumber());
@@ -266,10 +266,10 @@ int main(int argc, char *argv[])
         const char *levelY = "second level";
 
         {
-            if (verbose) printf("\nCreate second test object 'y'.\n");
+            if (verbose) printf("\nCreate second test object `y`.\n");
             bsls::AssertTestException y(exprY, fileY, 8, levelY);
 
-            if (verbose) printf("\nVerify attributes of 'y'.\n");
+            if (verbose) printf("\nVerify attributes of `y`.\n");
             LOOP2_ASSERT(exprY, y.expression(), exprY == y.expression());
             LOOP2_ASSERT(fileY, y.filename(), fileY == y.filename());
             LOOP_ASSERT(y.lineNumber(), 8 == y.lineNumber());
@@ -290,16 +290,16 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 That basic functionality appears to work as advertised before
-        //:   beginning testing in earnest.  That an object of this type can be
-        //:   thrown as an exception and pass along the information from
-        //:   construction to the object caught in an exception-handler.
+        // 1. That basic functionality appears to work as advertised before
+        //    beginning testing in earnest.  That an object of this type can be
+        //    thrown as an exception and pass along the information from
+        //    construction to the object caught in an exception-handler.
         //
         // Plan:
-        //: 2 Create a test objects 'x' and throw a copy of this as an
-        //:   exception.  Catch a copy of the exception as 'y' in the
-        //:   exception-handler, and compare each attribute with the original
-        //:   'x'.
+        // 2. Create a test objects `x` and throw a copy of this as an
+        //    exception.  Catch a copy of the exception as `y` in the
+        //    exception-handler, and compare each attribute with the original
+        //    `x`.
         //
         // Testing:
         //   BREATHING TEST

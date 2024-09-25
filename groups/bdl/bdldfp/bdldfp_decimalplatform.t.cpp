@@ -103,23 +103,23 @@ namespace UsageExample {
 //              GLOBAL HELPER FUNCTIONS AND CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Return true if the two passed expressions have the same type, and false
+/// otherwise.  Two expressions have the same type only if the
+/// `bsl::is_same<L, R>` meta function evaluates to true.  Note that this
+/// function is an adaptor to allow for template deduction of expression
+/// types, since C++98 lacks decltype.
 template<class LHS_TYPE, class RHS_TYPE>
 bool differentTypes(const LHS_TYPE&, const RHS_TYPE&)
-    // Return true if the two passed expressions have the same type, and false
-    // otherwise.  Two expressions have the same type only if the
-    // 'bsl::is_same<L, R>' meta function evaluates to true.  Note that this
-    // function is an adaptor to allow for template deduction of expression
-    // types, since C++98 lacks decltype.
 {
     return !bsl::is_same<LHS_TYPE, RHS_TYPE>::value;
 }
 
+/// Return true if the two passed expressions, specified by `lhs` and `rhs`,
+/// (which will have the same type) have the same internal binary
+/// representation.  Note that this function adapts `memcmp` to facilitate
+/// comparing r-value temporaries.
 template<class TYPE>
 bool differentBits(const TYPE lhs, const TYPE rhs)
-    // Return true if the two passed expressions, specified by 'lhs' and 'rhs',
-    // (which will have the same type) have the same internal binary
-    // representation.  Note that this function adapts 'memcmp' to facilitate
-    // comparing r-value temporaries.
 {
     return bsl::memcmp(&lhs, &rhs, sizeof(TYPE));
 }
@@ -144,41 +144,41 @@ int main(int argc, char* argv[])
         //   Macro sanity test
         //
         // Concerns:
-        //: 1 Pairs of macros that promise mutally exclusive values (1 and 0)
-        //:   actually have mutually exclusive values
-        //:
-        //: 2 All promised macros are present.
-        //:
-        //: 3 Any macros which are optional are present as a full group.
-        //:
-        //: 4 Any macros which evaluate to an expression produce the correct
-        //:   expression.  (These are the NaN variants)
-        //:
-        //:   1 Any NaN expression should compare inequal to itself.
-        //:
-        //:   2 Any NaN expressions which are intended for different types
-        //:     should actually have distinct types at compile time.
-        //:
-        //:   3 Any NaN expressions which are intended for the same type should
-        //:     have the same compile-time type.
-        //:
-        //:   4 Any two NaN expressions for the same type with different
-        //:     semantics should have a different bit pattern (representation),
-        //:     thus implying different runtime semantics.
-        //:
-        //:   5 [Untestable at this time] Any NaN expressions evaluates to a
-        //:     value with the intended semantics (i.e.: signalling vs.
-        //:     quiet).
-        //:
-        //:   6 All implementation modes have correct and expected
-        //:     implementation detailed macros.
+        // 1. Pairs of macros that promise mutally exclusive values (1 and 0)
+        //    actually have mutually exclusive values
+        //
+        // 2. All promised macros are present.
+        //
+        // 3. Any macros which are optional are present as a full group.
+        //
+        // 4. Any macros which evaluate to an expression produce the correct
+        //    expression.  (These are the NaN variants)
+        //
+        //   1. Any NaN expression should compare inequal to itself.
+        //
+        //   2. Any NaN expressions which are intended for different types
+        //      should actually have distinct types at compile time.
+        //
+        //   3. Any NaN expressions which are intended for the same type should
+        //      have the same compile-time type.
+        //
+        //   4. Any two NaN expressions for the same type with different
+        //      semantics should have a different bit pattern (representation),
+        //      thus implying different runtime semantics.
+        //
+        //   5. [Untestable at this time] Any NaN expressions evaluates to a
+        //      value with the intended semantics (i.e.: signalling vs.
+        //      quiet).
+        //
+        //   6. All implementation modes have correct and expected
+        //      implementation detailed macros.
         //
         // Plan:
-        //: 1 Assert on unexpected combinations. (C1-2, C6)
-        //:
-        //: 2 (Optionally compiled) Enumerate all pairings of optional NaN
-        //:   expression variants for correct type and no identical bit
-        //:   patterns between different expressions. (C3, C4)
+        // 1. Assert on unexpected combinations. (C1-2, C6)
+        //
+        // 2. (Optionally compiled) Enumerate all pairings of optional NaN
+        //    expression variants for correct type and no identical bit
+        //    patterns between different expressions. (C3, C4)
         // --------------------------------------------------------------------
         if (verbose) bsl::cout << "\nTesting for Valid Configuration"
                                << "\n==============================="
@@ -302,31 +302,31 @@ int main(int argc, char* argv[])
         //      Testing Apparatus
         //
         // Concerns:
-        //: 1 Identical expressions (yielding identical bit patterns) should
-        //:   compare the same.
-        //:
-        //: 2 Differing expressions (yielding different bit patterns) should
-        //:   compare differently.
+        // 1. Identical expressions (yielding identical bit patterns) should
+        //    compare the same.
+        //
+        // 2. Differing expressions (yielding different bit patterns) should
+        //    compare differently.
         //
         // Plan:
-        //: 1 'int', 'float', and 'bool' expressions will be tested.  (The
-        //:   function is an adaptible template.)
-        //:
-        //: 2 Boolean conjunction will be used as the expression operator for
-        //:   'bool'.
-        //:
-        //: 3 Addition will be used as the expression operator for 'int' and
-        //:   'float'.
-        //:
-        //: 4 Types will only be tested against themselves.  (No other forms
-        //:   should compile.)
-        //:
-        //: 5 All permutations of 1 and 2 variable-combining expressions will
-        //:   be tested for correctness, among all 3 permutations of types.
-        //:
-        //: 6 Two representative values will be tested for each above case (two
-        //:   different expressions).  All permutations of these values will be
-        //:   tested.
+        // 1. `int`, `float`, and `bool` expressions will be tested.  (The
+        //    function is an adaptible template.)
+        //
+        // 2. Boolean conjunction will be used as the expression operator for
+        //    `bool`.
+        //
+        // 3. Addition will be used as the expression operator for `int` and
+        //    `float`.
+        //
+        // 4. Types will only be tested against themselves.  (No other forms
+        //    should compile.)
+        //
+        // 5. All permutations of 1 and 2 variable-combining expressions will
+        //    be tested for correctness, among all 3 permutations of types.
+        //
+        // 6. Two representative values will be tested for each above case (two
+        //    different expressions).  All permutations of these values will be
+        //    tested.
         // --------------------------------------------------------------------
 
         // int, int:
@@ -363,45 +363,45 @@ int main(int argc, char* argv[])
         //   Testing Apparatus
         //
         // Concerns:
-        //: 1 Same types should compare same.
-        //:
-        //: 2 Different types should compare different.
-        //:
-        //: 3 Convertible/compatible types should compare different.
-        //:
-        //: 4 Different types on lhs and rhs should compare different, in both
-        //:   permutations.
-        //:
-        //: 5 Complicated expressions should have correct type evaluation.
+        // 1. Same types should compare same.
+        //
+        // 2. Different types should compare different.
+        //
+        // 3. Convertible/compatible types should compare different.
+        //
+        // 4. Different types on lhs and rhs should compare different, in both
+        //    permutations.
+        //
+        // 5. Complicated expressions should have correct type evaluation.
         //
         // Plan:
-        //: 1 'int's, 'float's, and 'bool's will be tested as three distinct
-        //:   types.
-        //:
-        //: 2 Boolean conjunction will be used as the expression operator for
-        //:   'bool's.
-        //:
-        //: 3 Addition will be used as the expression operator for 'int's and
-        //:   'float's.
-        //:
-        //: 4 All permutation pairings of the three types will be tested for
-        //:   correctness with the contract:
-        //:   o int,   int
-        //:   o int,   bool
-        //:   o int,   float
-        //:   o bool,  int
-        //:   o bool,  bool
-        //:   o bool,  float
-        //:   o float, int
-        //:   o float, bool
-        //:   o float, float
-        //:
-        //: 5 All permutations of 1 and 2 variable-combining expressions will
-        //:   be tested for correctness, among all 9 permutations of types.
-        //:
-        //: 6 Two representative values will be tested for each above case (two
-        //:   different expressions).  All permutations of these values will be
-        //:   tested.
+        // 1. `int`s, `float`s, and `bool`s will be tested as three distinct
+        //    types.
+        //
+        // 2. Boolean conjunction will be used as the expression operator for
+        //    `bool`s.
+        //
+        // 3. Addition will be used as the expression operator for `int`s and
+        //    `float`s.
+        //
+        // 4. All permutation pairings of the three types will be tested for
+        //    correctness with the contract:
+        //    - int,   int
+        //    - int,   bool
+        //    - int,   float
+        //    - bool,  int
+        //    - bool,  bool
+        //    - bool,  float
+        //    - float, int
+        //    - float, bool
+        //    - float, float
+        //
+        // 5. All permutations of 1 and 2 variable-combining expressions will
+        //    be tested for correctness, among all 9 permutations of types.
+        //
+        // 6. Two representative values will be tested for each above case (two
+        //    different expressions).  All permutations of these values will be
+        //    tested.
         // --------------------------------------------------------------------
 
         // int, int:

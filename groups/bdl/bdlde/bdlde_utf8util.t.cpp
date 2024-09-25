@@ -1850,9 +1850,9 @@ const char * const charUtf8MultiLang = (const char *) utf8MultiLang;
 
 enum { NUM_UTF8_MULTI_LANG_CODE_POINTS = 11781 };
 
+/// Returns the specified `str` in a human-readable hex format.
 static
 bsl::string dumpStr(const bsl::string& str)
-    // Returns the specified 'str' in a human-readable hex format.
 {
     bsl::string ret;
 
@@ -1874,17 +1874,17 @@ bsl::string dumpStr(const bsl::string& str)
     return ret;
 }
 
+/// Return roughly the absolute value of the specified `x`.
 static inline
 int intAbs(int x)
-    // Return roughly the absolute value of the specified 'x'.
 {
     x = x < 0 ? -x : x;
     return x < 0 ? ~x : x;
 }
 
+/// Return a pseudo-random unsigned integer.
 static inline
 unsigned int randUnsigned()
-    // Return a pseudo-random unsigned integer.
 {
     static bsls::Types::Uint64 localAccum = 0;
 
@@ -1892,9 +1892,9 @@ unsigned int randUnsigned()
     return unsigned(localAccum >> 32);
 }
 
+/// Append a random 1-byte UTF-8 character to the specified `*dst`.
 static
 void appendRand1Byte(bsl::string *dst)
-    // Append a random 1-byte UTF-8 character to the specified '*dst'.
 {
     enum {
         k_LOW_BOUND  =    1,
@@ -1912,9 +1912,9 @@ void appendRand1Byte(bsl::string *dst)
     *dst += reinterpret_cast<const char *>(&buf[0]);
 }
 
+/// Append a random 2-byte UTF-8 character to the specified `*dst`.
 static
 void appendRand2Byte(bsl::string *dst)
-    // Append a random 2-byte UTF-8 character to the specified '*dst'.
 {
     enum {
         k_LOW_BOUND  =  0x80,
@@ -1933,9 +1933,9 @@ void appendRand2Byte(bsl::string *dst)
     *dst += reinterpret_cast<const char *>(&buf[0]);
 }
 
+/// Append a random 3-byte UTF-8 character to the specified `*dst`.
 static
 void appendRand3Byte(bsl::string *dst)
-    // Append a random 3-byte UTF-8 character to the specified '*dst'.
 {
     enum {
         k_LOW_BOUND  =  0x800,
@@ -1958,9 +1958,9 @@ void appendRand3Byte(bsl::string *dst)
     *dst += reinterpret_cast<const char *>(&buf[0]);
 }
 
+/// Append a random 4-byte UTF-8 character to the specified `*dst`.
 static
 void appendRand4Byte(bsl::string *dst)
-    // Append a random 4-byte UTF-8 character to the specified '*dst'.
 {
     enum {
         k_LOW_BOUND  =  0x10000,
@@ -1981,17 +1981,17 @@ void appendRand4Byte(bsl::string *dst)
     *dst += reinterpret_cast<const char *>(&buf[0]);
 }
 
+/// Append a random valid UTF-8 character to the specified `*dst`.  The '\0'
+/// byte is only possible if the specified `useZero` is `true`.  Optionally
+/// specify `numBytes`.  If `0 == numBytes` append a '\0', otherwise
+/// `numBytes` is the length in bytes of the random sequence to be appended.
+/// If `numBytes` is not specified, a random value in the range `[ 1 .. 4 ]`
+/// will be used.  The behavior is undefined if a value of `numBytes`
+/// outside the range `[ 1 .. 4 ]` is specified.
 static
 void appendRandCorrectCodePoint(bsl::string *dst,
                                 bool         useZero,
                                 int          numBytes = -1)
-    // Append a random valid UTF-8 character to the specified '*dst'.  The '\0'
-    // byte is only possible if the specified 'useZero' is 'true'.  Optionally
-    // specify 'numBytes'.  If '0 == numBytes' append a '\0', otherwise
-    // 'numBytes' is the length in bytes of the random sequence to be appended.
-    // If 'numBytes' is not specified, a random value in the range '[ 1 .. 4 ]'
-    // will be used.  The behavior is undefined if a value of 'numBytes'
-    // outside the range '[ 1 .. 4 ]' is specified.
 {
     unsigned r;
     if (-1 == numBytes) {
@@ -2028,9 +2028,9 @@ void appendRandCorrectCodePoint(bsl::string *dst,
     }
 }
 
+/// Return the encoded representation of the 7-bit Unicode code point
+/// specified by `b`.  Note that this is simply `b`.
 bsl::string code8(int b)
-    // Return the encoded representation of the 7-bit Unicode code point
-    // specified by 'b'.  Note that this is simply 'b'.
 {
     bsl::string ret;
 
@@ -2041,10 +2041,10 @@ bsl::string code8(int b)
     return ret;
 }
 
+/// Return the encoded representation of the 2-byte Unicode code point
+/// specified by `b`.
 static
 bsl::string code16(int b)
-    // Return the encoded representation of the 2-byte Unicode code point
-    // specified by 'b'.
 {
     ASSERT(0 == (b & ~0x7ff));
 
@@ -2056,10 +2056,10 @@ bsl::string code16(int b)
     return reinterpret_cast<char *>(buf);
 }
 
+/// Return the encoded representation of the 3-byte Unicode code point
+/// specified by `b`.
 static
 bsl::string code24(int b)
-    // Return the encoded representation of the 3-byte Unicode code point
-    // specified by 'b'.
 {
     ASSERT(0 == (b & ~0xffff));
 
@@ -2072,10 +2072,10 @@ bsl::string code24(int b)
     return reinterpret_cast<char *>(buf);
 }
 
+/// Return the encoded representation of the 4-byte Unicode code point
+/// specified by `b`.
 static
 bsl::string code32(int b)
-    // Return the encoded representation of the 4-byte Unicode code point
-    // specified by 'b'.
 {
     ASSERT(static_cast<unsigned>(b) <= 0x10ffff);
 
@@ -2089,10 +2089,10 @@ bsl::string code32(int b)
     return reinterpret_cast<char *>(buf);
 }
 
+/// Return the encoded representation of the specified Unicode code point
+/// `b`.
 static
 bsl::string utf8Encode(int b)
-    // Return the encoded representation of the specified Unicode code point
-    // 'b'.
 {
     ASSERT(static_cast<unsigned>(b) <= 0x10ffff);
 
@@ -2109,9 +2109,9 @@ bsl::string utf8Encode(int b)
     return u::code32(b);
 }
 
+/// Return the encoded representation of a UTF-8 Byte Order Mark.
 static
 bsl::string codeBOM()
-    // Return the encoded representation of a UTF-8 Byte Order Mark.
 {
     unsigned char buf[4];
     buf[0] = 0xef;
@@ -2125,30 +2125,30 @@ bsl::string codeBOM()
 // Note these decoders all assume they can look as far as they want down the
 // stream of bytes without provoking a segfault.
 
+/// Return the decoded value of the 1-byte UTF-8 code point pointed to by
+/// the specified `pc`.  Note that this is just `*pc`.
 static
 unsigned int decode8(const char *pc)
-    // Return the decoded value of the 1-byte UTF-8 code point pointed to by
-    // the specified 'pc'.  Note that this is just '*pc'.
 {
     ASSERT(!(~0x7f & *pc));
 
     return *pc;
 }
 
+/// Return the decoded value of the 2-byte UTF-8 code point pointed to by
+/// the specified `pc`.
 static
 unsigned int decode16(const char *pc)
-    // Return the decoded value of the 2-byte UTF-8 code point pointed to by
-    // the specified 'pc'.
 {
     ASSERT(0xc0 == (*pc & 0xe0) && 0x80 == (pc[1] & 0xc0));
 
     return ((0x1f & *pc) << 6) | (0x3f & pc[1]);
 }
 
+/// Return the decoded value of the 3-byte UTF-8 code point pointed to by
+/// the specified `pc`.
 static
 unsigned int decode24(const char *pc)
-    // Return the decoded value of the 3-byte UTF-8 code point pointed to by
-    // the specified 'pc'.
 {
     ASSERT(0xe0 == (*pc & 0xf0) && 0x80 == (pc[1] & 0xc0) &&
                                    0x80 == (pc[2] & 0xc0));
@@ -2156,10 +2156,10 @@ unsigned int decode24(const char *pc)
     return ((0xf & *pc) << 12) | ((0x3f & pc[1]) << 6) | (0x3f & pc[2]);
 }
 
+/// Return the decoded value of the 4-byte UTF-8 code point pointed to by
+/// the specified `pc`.
 static
 unsigned int decode32(const char *pc)
-    // Return the decoded value of the 4-byte UTF-8 code point pointed to by
-    // the specified 'pc'.
 {
     ASSERT(0xf0 == (*pc & 0xf8) && 0x80 == (pc[1] & 0xc0) &&
                              0x80 == (pc[2] & 0xc0) && 0x80 == (pc[3] & 0xc0));
@@ -2168,10 +2168,10 @@ unsigned int decode32(const char *pc)
            ((0x3f & pc[2]) <<  6) |  (0x3f & pc[3]);
 }
 
+/// Return the decoded value of the UTF-8 code point pointed to by the
+/// specified `*pc`, updating `*pc` to point to the next code point.
 static
 unsigned int decode(const char **pc)
-    // Return the decoded value of the UTF-8 code point pointed to by the
-    // specified '*pc', updating '*pc' to point to the next code point.
 {
     int ret;
 
@@ -2197,10 +2197,10 @@ unsigned int decode(const char **pc)
     return ret;
 }
 
+/// Return the decoded value of the UTF-8 code point pointed to by the
+/// specified `pc`.
 static
 unsigned int decode(const char *pc)
-    // Return the decoded value of the UTF-8 code point pointed to by the
-    // specified 'pc'.
 {
     return decode(&pc);
 }
@@ -2208,10 +2208,10 @@ unsigned int decode(const char *pc)
 static
 bsls::Types::Uint64 randAccum = 0;
 
+/// Return the length of a UTF-8 sequence that begins with the specified
+/// `firstChar`, or -1 if `firstChar` is a continuation character.
 static
 int intendedSequenceLength(char firstChar)
-    // Return the length of a UTF-8 sequence that begins with the specified
-    // 'firstChar', or -1 if 'firstChar' is a continuation character.
 {
     switch (static_cast<unsigned char>(firstChar) >> 4) {
       case 0x0:
@@ -2248,25 +2248,25 @@ int intendedSequenceLength(char firstChar)
     }
 }
 
+/// MMIX Linear Congruential Generator algorithm by Donald Knuth
 int randNum()
-    // MMIX Linear Congruential Generator algorithm by Donald Knuth
 {
     u::randAccum = u::randAccum * 6364136223846793005LL +
                                                          1442695040888963407LL;
     return int(u::randAccum >> 32);
 }
 
+/// Return a random integer in the `[0..0x1fffff]` range.
 static
 int randVal()
-    // Return a random integer in the '[0..0x1fffff]' range.
 {
     return (u::randNum() >> 9) & 0x1fffff;
 }
 
+/// Return a random integer in the `[1..0x7f]` range.  If the optionally
+/// specified `never0` is `true`, the range is `[0..0x7f]`.
 static
 int randVal8(bool never0 = false)
-    // Return a random integer in the '[1..0x7f]' range.  If the optionally
-    // specified 'never0' is 'true', the range is '[0..0x7f]'.
 {
     int ret;
     do {
@@ -2276,9 +2276,9 @@ int randVal8(bool never0 = false)
     return ret;
 }
 
+/// Return a random integer in the `[0x80..0x7ff]` range.
 static
 int randVal16()
-    // Return a random integer in the '[0x80..0x7ff]' range.
 {
     int ret;
     do {
@@ -2288,11 +2288,11 @@ int randVal16()
     return ret;
 }
 
+/// Return a random integer in the `[0x800..0xffff]` range.  If the
+/// optionally specified `neverSurrogates` is `true`, do not return values
+/// in the `[0xd800..0xdfff]` surrogates range.
 static
 int randVal24(bool neverSurrogates = false)
-    // Return a random integer in the '[0x800..0xffff]' range.  If the
-    // optionally specified 'neverSurrogates' is 'true', do not return values
-    // in the '[0xd800..0xdfff]' surrogates range.
 {
     int ret;
     do {
@@ -2303,9 +2303,9 @@ int randVal24(bool neverSurrogates = false)
     return ret;
 }
 
+/// Return a random integer in the `[0x10000..0x10ffff]` range.
 static
 int randVal32()
-    // Return a random integer in the '[0x10000..0x10ffff]' range.
 {
     int ret;
     do {
@@ -2315,12 +2315,12 @@ int randVal32()
     return ret;
 }
 
+/// Return a random integer in the `[0..0x10ffff]` range.  If the optionally
+/// specified `strict` is `true`, do not return values in the
+/// `[0xd800..0xdfff]` surrogates range.  If the optionally specified
+/// `never0` is true, the range is `[1..0x10ffff]`.
 static
 int randValue(bool strict = false, bool never0 = false)
-    // Return a random integer in the '[0..0x10ffff]' range.  If the optionally
-    // specified 'strict' is 'true', do not return values in the
-    // '[0xd800..0xdfff]' surrogates range.  If the optionally specified
-    // 'never0' is true, the range is '[1..0x10ffff]'.
 {
     int type = u::randVal();
     switch (type & 3) {
@@ -2342,10 +2342,10 @@ int randValue(bool strict = false, bool never0 = false)
     return 0;
 }
 
+/// Return `true` if all the UTF-8 code points in the specified `str` are
+/// valid and `false` otherwise.
 static
 bool allValid(const bsl::string& str)
-    // Return 'true' if all the UTF-8 code points in the specified 'str' are
-    // valid and 'false' otherwise.
 {
     const bool a = Obj::isValid(str.c_str());
     ASSERT(Obj::isValid(str.data(), str.length()) == a);
@@ -2364,9 +2364,9 @@ bool allValid(const bsl::string& str)
     return a;
 }
 
+/// Return the total number of code points in the specified UTF-8 `str`.
 static
 IntPtr allNumCodePoints(const bsl::string& str)
-    // Return the total number of code points in the specified UTF-8 'str'.
 {
     IntPtr len = Obj::numCharacters(str.data(), str.length());
     ASSERT(Obj::numCharacters(str.c_str())                 == len);
@@ -2376,13 +2376,13 @@ IntPtr allNumCodePoints(const bsl::string& str)
     return len;
 }
 
+/// Run both `numCodePointsIfValid` overloads on the specified `str` and
+/// check that they yield identical results, and return those results.
+/// Return the address of any invalid UTF-8 in the specified
+/// `invalidPointArg`
 static
 IntPtr allNumCodePointsIfValid(const char         **invalidPointArg,
                                const bsl::string&   str)
-    // Run both 'numCodePointsIfValid' overloads on the specified 'str' and
-    // check that they yield identical results, and return those results.
-    // Return the address of any invalid UTF-8 in the specified
-    // 'invalidPointArg'
 {
     *invalidPointArg = 0;
     const IntPtr ret = Obj::numCodePointsIfValid(invalidPointArg, str.c_str());
@@ -2407,15 +2407,15 @@ IntPtr allNumCodePointsIfValid(const char         **invalidPointArg,
     return ret;
 }
 
+/// Run both the 4 and 5 argument overloads of `advanceIfValid` on the
+/// specified `str`, check that they yield the same results.  Return the
+/// number of code points, and set the specified `statusArg` to the type of
+/// error encountered (or 0 if no error), and set the specified
+/// `invalidPointArg` to the address of the first UTF-8 error.
 static
 IntPtr allAdvanceIfValid(int                 *statusArg,
                          const char         **invalidPointArg,
                          const bsl::string&   str)
-    // Run both the 4 and 5 argument overloads of 'advanceIfValid' on the
-    // specified 'str', check that they yield the same results.  Return the
-    // number of code points, and set the specified 'statusArg' to the type of
-    // error encountered (or 0 if no error), and set the specified
-    // 'invalidPointArg' to the address of the first UTF-8 error.
 {
     const IntPtr infinity = bsl::numeric_limits<IntPtr>::max();
 
@@ -2437,10 +2437,10 @@ IntPtr allAdvanceIfValid(int                 *statusArg,
     return ret;
 }
 
+/// Return a `bsl::string` containing the specified `length` bytes from the
+/// specified `pc`.
 static
 bsl::string clone(const char *pc, int length)
-    // Return a 'bsl::string' containing the specified 'length' bytes from the
-    // specified 'pc'.
 {
     bsl::string ret;
 
@@ -2639,9 +2639,9 @@ enum {
         sizeof legalCodepointData / sizeof *legalCodepointData
 };
 
+/// Return the process id.  Having this be separate from `Obj::getProcessId`
+/// allows us to call it inline within the component.
 int getPid()
-    // Return the process id.  Having this be separate from 'Obj::getProcessId'
-    // allows us to call it inline within the component.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     return static_cast<int>(GetCurrentProcessId());
@@ -2650,9 +2650,9 @@ int getPid()
 #endif
 }
 
+/// Remove plain file `path`.  Return 0 on success and a non-zero value
+/// otherwise.
 int removeFile(const char *path)
-    // Remove plain file 'path'.  Return 0 on success and a non-zero value
-    // otherwise.
 {
     BSLS_ASSERT(path);
 
@@ -2720,14 +2720,15 @@ namespace USAGE_3 {
 // how long the input will be, so we don't know how long to make the string
 // before we start.  We will grow the string in small, 32-byte increments.
 //..
+
+    /// Read valid UTF-8 from the specified streambuf `sb` to the specified
+    /// `output`.  Return 0 if the input was exhausted without encountering
+    /// any invalid UTF-8, and a non-zero value otherwise.  If invalid UTF-8
+    /// is encountered, log a message describing the problem after loading
+    /// all the valid UTF-8 preceding it into `output`.  Note that after the
+    /// call, in no case will `output` contain any invalid UTF-8.
     int utf8StreambufToString(bsl::string    *output,
                               bsl::streambuf *sb)
-        // Read valid UTF-8 from the specified streambuf 'sb' to the specified
-        // 'output'.  Return 0 if the input was exhausted without encountering
-        // any invalid UTF-8, and a non-zero value otherwise.  If invalid UTF-8
-        // is encountered, log a message describing the problem after loading
-        // all the valid UTF-8 preceding it into 'output'.  Note that after the
-        // call, in no case will 'output' contain any invalid UTF-8.
     {
         enum { k_READ_LENGTH = 32 };
 
@@ -2806,8 +2807,8 @@ const int  surrogates[] = {0xd800,
 const int *loSgates     = surrogates;
 const int *hiSgates     = surrogates + 8;    // beginning of high surrogates
 
+/// Return a random surrogate.
 bsl::string codeRandSurrogate()
-    // Return a random surrogate.
 {
     int val = u::randNum();
     if (val & 0x1800) {
@@ -2820,8 +2821,8 @@ bsl::string codeRandSurrogate()
     return u::code24(val);
 }
 
+/// Return a pair of random surrogates.
 bsl::string codeRandSurrogatePair()
-    // Return a pair of random surrogates.
 {
     int val = u::randNum();
     int loSgate, hiSgate;
@@ -2837,8 +2838,8 @@ bsl::string codeRandSurrogatePair()
     return u::code24(loSgate) + u::code24(hiSgate);
 }
 
+/// Return a random UTF-8 code point with no zeroes or surrogates.
 bsl::string codeRandBenign()
-    // Return a random UTF-8 code point with no zeroes or surrogates.
 {
     int val;
     do {
@@ -2856,9 +2857,9 @@ bsl::string codeRandBenign()
 
 namespace BDLDE_UTF8UTIL_CASE_2 {
 
+/// Return a `bsl::string` containing the specified `len` bytes from the
+/// specified `pc`.
 bsl::string makeString(const char *pc, size_t len)
-    // Return a 'bsl::string' containing the specified 'len' bytes from the
-    // specified 'pc'.
 {
     bsl::string ret;
 
@@ -3103,9 +3104,9 @@ enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 #endif
 
 extern "C"
+/// Use the specified `data` array of `size` bytes as input to methods of
+/// this component and return zero.
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
-    // Use the specified 'data' array of 'size' bytes as input to methods of
-    // this component and return zero.
 {
     typedef bsl::size_t size_t;
 

@@ -5,8 +5,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 #include <functional>
 
@@ -136,17 +136,17 @@ void testFunction()
 // is a functor type with no data members.  Unfortunately, the binder cannot
 // directly inherit from the parameterized binary predicate type, because it
 // may be a function pointer type; instead, binder can inherit from
-// 'FunctorAdapter::Type', which adapts a function pointer type to a functor
+// `FunctorAdapter::Type`, which adapts a function pointer type to a functor
 // type that is a suitable base class.
 //
-// First, we define the class 'Bind2ndInteger', which inherits from
-// 'FunctorAdapter::Type' to take advantage of the empty-base optimization:
-//..
+// First, we define the class `Bind2ndInteger`, which inherits from
+// `FunctorAdapter::Type` to take advantage of the empty-base optimization:
+// ```
 
 template <class BINARY_PREDICATE>
 #ifdef BSLS_PLATFORM_CMP_MSVC
 // Visual studio compiler fails to resolve the conversion operator in
-// 'bslalg::FunctorAdapter_FunctionPointer' when using private inheritance.
+// `bslalg::FunctorAdapter_FunctionPointer` when using private inheritance.
 // Below is a workaround until a more suitable way the resolve this issue can
 // be found.
 class Bind2ndInteger : public FunctorAdapter<BINARY_PREDICATE>::Type {
@@ -154,7 +154,7 @@ class Bind2ndInteger : public FunctorAdapter<BINARY_PREDICATE>::Type {
 class Bind2ndInteger : private FunctorAdapter<BINARY_PREDICATE>::Type {
 #endif
     // This class provides a functor that delegate its function-call operator
-    // to the parameterized 'BINARY_PREDICATE', passing the user supplied
+    // to the parameterized `BINARY_PREDICATE`, passing the user supplied
     // parameter as the first argument and the integer value passed on
     // construction as the second argument.
 
@@ -167,47 +167,49 @@ class Bind2ndInteger : private FunctorAdapter<BINARY_PREDICATE>::Type {
 
   public:
     // CREATORS
+
+    /// Create a `Bind2ndInteger` object that will bind the second parameter
+    /// of the specified `predicate` with the specified integer `value`.
     Bind2ndInteger(int value, const BINARY_PREDICATE& predicate);
-        // Create a 'Bind2ndInteger' object that will bind the second parameter
-        // of the specified 'predicate' with the specified integer 'value'.
 
     // ~Bind2ndInteger() = default;
         // Destroy this object.
 
     // ACCESSORS
+
+    /// Return the result of calling the parameterized `BINARY_PREDICATE`
+    /// passing the specified `value` as the first argument and the integer
+    /// value passed on construction as the second argument.
     bool operator() (const int value) const;
-        // Return the result of calling the parameterized 'BINARY_PREDICATE'
-        // passing the specified 'value' as the first argument and the integer
-        // value passed on construction as the second argument.
 };
-//..
-//  Then, we implement the methods of the 'Bind2ndInteger' class:
-//..
+// ```
+//  Then, we implement the methods of the `Bind2ndInteger` class:
+// ```
 template <class BINARY_PREDICATE>
 Bind2ndInteger<BINARY_PREDICATE>::Bind2ndInteger(int value,
                                              const BINARY_PREDICATE& predicate)
 : FunctorAdapter<BINARY_PREDICATE>::Type(predicate), d_bondValue(value)
 {
 }
-//..
-// Here, we implement the 'operator()' member function that simply delegates to
-// 'BINARY_PREDICATE'
-//..
+// ```
+// Here, we implement the `operator()` member function that simply delegates to
+// `BINARY_PREDICATE`
+// ```
 template <class BINARY_PREDICATE>
 bool Bind2ndInteger<BINARY_PREDICATE>::operator() (const int value) const
 {
     const BINARY_PREDICATE& predicate = *this;
     return predicate(value, d_bondValue);
 }
-//..
-// Next, we define a function, 'intCompareFunction', that compares two
+// ```
+// Next, we define a function, `intCompareFunction`, that compares two
 // integers:
-//..
+// ```
 bool intCompareFunction(const int lhs, const int rhs)
 {
     return lhs < rhs;
 }
-//..
+// ```
 
 int main(int argc, char *argv[])
 {
@@ -235,59 +237,59 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
-// Now, we define a 'Bind2ndInteger' object 'functorLessThan10' using the
-// 'std::less<int>' functor as the parameterized 'BINARY_PREDICATE' and verify
+// Now, we define a `Bind2ndInteger` object `functorLessThan10` using the
+// `std::less<int>` functor as the parameterized `BINARY_PREDICATE` and verify
 // that the function call operator is working:
-//..
+// ```
         Bind2ndInteger<std::less<int> > functorLessThan10(10,
                                                           std::less<int>());
 
         ASSERT(functorLessThan10(1));
         ASSERT(!functorLessThan10(12));
-//..
-// Finally, we define a 'Bind2ndInteger' object 'functionLessThan10' passing
-// the address of 'intCompareFunction' on construction and verify that the
+// ```
+// Finally, we define a `Bind2ndInteger` object `functionLessThan10` passing
+// the address of `intCompareFunction` on construction and verify that the
 // function call operator is working:
-//..
+// ```
 
         Bind2ndInteger<bool (*)(const int, const int)>
             functionLessThan10(10, &intCompareFunction);
 
         ASSERT(functionLessThan10(1));
         ASSERT(!functionLessThan10(12));
-//..
+// ```
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // ALIAS
         // Concerns:
-        //: 1 If 'CALLABLE_OBJECT' is a functor type, 'Type' is an alias to
-        //:   'CALLABLE_OBJECT'
-        //: 2 If 'CALLABLE_OBJECT' is a function pointer type, 'Type' is a
-        //:   functor type that delegates its operations to a function of that
-        //:   type.
+        // 1. If `CALLABLE_OBJECT` is a functor type, `Type` is an alias to
+        //    `CALLABLE_OBJECT`
+        // 2. If `CALLABLE_OBJECT` is a function pointer type, `Type` is a
+        //    functor type that delegates its operations to a function of that
+        //    type.
         //
         // Plan:
-        //  1 Using a functor type as the parameterized 'CALLABLE_OBJECT',
-        //    verify that 'FunctorAdapter::Type' is an alias to that functor
+        //  1 Using a functor type as the parameterized `CALLABLE_OBJECT`,
+        //    verify that `FunctorAdapter::Type` is an alias to that functor
         //    type.
         //  2 Using a function pointer type as the parameterized
-        //    'CALLABLE_OBJECT', construct an object of 'FunctorAdapter::Type'
+        //    `CALLABLE_OBJECT`, construct an object of `FunctorAdapter::Type`
         //    and pass the address of a suitable function on
         //    construction.  Verify the object's function call operator
         //    delegates to the function pointer by calling the operator
-        //    checking the global counter 'numTestFunctionCalls'.
+        //    checking the global counter `numTestFunctionCalls`.
         //
         // Testing:
         //   Type
@@ -297,14 +299,14 @@ int main(int argc, char *argv[])
         typedef void (*FunctionType) ();
 
         if (verbose)
-            printf("\n\tTesting alias 'Type' for functors");
+            printf("\n\tTesting alias `Type` for functors");
         {
             ASSERT(1 == (bsl::is_same<FunctorType,
                        FunctorAdapter<FunctorType>::Type>::value));
         }
 
         if (verbose)
-            printf("\n\tTesting alias 'Type' for function pointers");
+            printf("\n\tTesting alias `Type` for function pointers");
         {
           FunctorAdapter<FunctionType>::Type functor(&testFunction);
           numTestFunctionCalls = 0;

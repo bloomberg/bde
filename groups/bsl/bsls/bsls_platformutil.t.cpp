@@ -9,7 +9,7 @@
 #include <cstring>     // memset(), memcmp(), strlen()
 #include <iostream>
 #include <stdio.h>     // sprintf(), snprintf() [NOT <cstdio>, which does not
-                       // include 'snprintf']
+                       // include `snprintf`]
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf
@@ -93,15 +93,15 @@ static void aSsErT(int c, const char *s, int i)
 #define INT64_FMT_STR  "0x%llX"
 #endif
 
+/// Convert the specified 64-bit `value` to a hexadecimal string.
 char *hex64(char *buffer, bsls::PlatformUtil::Uint64 value)
-    // Convert the specified 64-bit 'value' to a hexadecimal string.
 {
     sprintf(buffer, INT64_FMT_STR, value);
     return buffer;
 }
 
+/// Print the individual bits of the specified 64-bit `value`.
 void printBits(bsls::PlatformUtil::Uint64 value)
-    // Print the individual bits of the specified 64-bit 'value'.
 {
     char *bytes = reinterpret_cast<char *>(&value);
     for (int i = 0; i < 8; ++i) {
@@ -134,10 +134,10 @@ struct Test8BytesAlignedType {
 //                   SUPPORTING FUNCTIONS USED FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Return `true` if this machine is observed to be big endian, and `false`
+/// otherwise.  Internally, assert that this machine is observed to be
+/// either big endian or little endian.
 static bool isBigEndian()
-    // Return 'true' if this machine is observed to be big endian, and 'false'
-    // otherwise.  Internally, assert that this machine is observed to be
-    // either big endian or little endian.
 {
     union U {
         int d_int;
@@ -160,10 +160,10 @@ static bool isBigEndian()
 
 //-----------------------------------------------------------------------------
 
+/// Return `true` if this machine is observed to be little endian, and
+/// `false` otherwise.  Internally, assert that this machine is observed to
+/// be either big endian or little endian.
 static bool isLittleEndian()
-    // Return 'true' if this machine is observed to be little endian, and
-    // 'false' otherwise.  Internally, assert that this machine is observed to
-    // be either big endian or little endian.
 {
     union U {
         int d_int;
@@ -188,11 +188,11 @@ static bool isLittleEndian()
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-// 'bsls::PlatformUtil::size_type' identifies the preferred integral type
+// `bsls::PlatformUtil::size_type` identifies the preferred integral type
 // denoting the number of elements in a container, and the number of bytes in a
 // single block of memory supplied by an allocator.  For example, a typical use
-// is as a 'typedef' in an STL container:
-//..
+// is as a `typedef` in an STL container:
+// ```
     class vector {
 
         // ...
@@ -202,29 +202,30 @@ static bool isLittleEndian()
 
         // ...
     };
-//..
+// ```
 //
 ///Functions and Macros
 /// - - - - - - - - - -
 // The functions:
-//..
+// ```
 //  bool bsls::PlatformUtil::isLittleEndian();
 //  bool bsls::PlatformUtil::isBigEndian();
-//..
+// ```
 // encapsulate the capability of determining whether a machine is big- or
 // little-endian across all supported platforms.  In addition, certain
 // compile-time constants are also provided as preprocessor macros to
 // facilitate conditional compilation:
-//..
+// ```
 //  BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
 //  BSLS_PLATFORMUTIL_IS_LITTLE_ENDIAN
-//..
+// ```
 // These functions and macros are useful for writing platform-independent code,
-// such as a function that converts the bytes in a 'short' to network byte
+// such as a function that converts the bytes in a `short` to network byte
 // order (which is in big-endian):
-//..
+// ```
+
+    /// Return the specified `input` in network byte order.
     short convertToNetworkByteOrder(short input)
-        // Return the specified 'input' in network byte order.
     {
     #ifdef BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
         return input;
@@ -233,7 +234,7 @@ static bool isLittleEndian()
                                 ((input >> 8) & 0xFF) | ((input & 0xFF) << 8));
     #endif
     }
-//..
+// ```
 // Note that in the above usage example, either the macros or the functions can
 // be used to test whether a platform is big- or little-endian.
 
@@ -275,15 +276,15 @@ int main(int argc, char *argv[])
 //
 ///Types
 ///- - -
-// 'bsls::PlatformUtil::Int64' and 'bsls::PlatformUtil::Uint64' identify the
+// `bsls::PlatformUtil::Int64` and `bsls::PlatformUtil::Uint64` identify the
 // preferred fundamental types denoting signed and unsigned 64-bit integers,
 // respectively:
-//..
+// ```
     bsls::PlatformUtil::Uint64 stimulus = 787000000000ULL;
-//..
-// Clients can use these types in the same way as an 'int'.  Clients can also
+// ```
+// Clients can use these types in the same way as an `int`.  Clients can also
 // mix usage with other fundamental integral types:
-//..
+// ```
     bsls::PlatformUtil::Uint64 nationalDebt = 1000000000000ULL;
     nationalDebt += stimulus;
 
@@ -292,9 +293,9 @@ int main(int argc, char *argv[])
 
 if (verbose)
     std::cout << "National Debt Level: " << nationalDebt << std::endl;
-//..
+// ```
 
-        // use 'convertToNetworkByteOrder' from Usage example
+        // use `convertToNetworkByteOrder` from Usage example
 
         const short x      = 0x1001;
         const short xPrime = 0x0110;
@@ -313,7 +314,7 @@ if (verbose)
         //
         // Plan:
         //   For each of a small representative set of object values, ordered
-        //   by increasing length, use 'ostrstream' to write that object's
+        //   by increasing length, use `ostrstream` to write that object's
         //   value to two separate character buffers each with different
         //   initial values.  Compare the contents of these buffers with the
         //   literal expected output format and verify that the characters
@@ -324,7 +325,7 @@ if (verbose)
         //   those as well.
         //
         // Testing:
-        //   'operator<<' with const bsls::PlatformUtil::Uint64&
+        //   `operator<<` with const bsls::PlatformUtil::Uint64&
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -481,7 +482,7 @@ if (verbose)
         //
         // Plan:
         //   For each of a small representative set of object values, ordered
-        //   by increasing length, use 'ostrstream' to write that object's
+        //   by increasing length, use `ostrstream` to write that object's
         //   value to two separate character buffers each with different
         //   initial values.  Compare the contents of these buffers with the
         //   literal expected output format and verify that the characters
@@ -492,7 +493,7 @@ if (verbose)
         //   those as well.
         //
         // Testing:
-        //   'operator<<' with const bsls::PlatformUtil::Int64&
+        //   `operator<<` with const bsls::PlatformUtil::Int64&
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -658,13 +659,13 @@ if (verbose)
         //   well suited for a test driver.
         //
         // Plan:
-        //   First, ensure that 'MaxAlign' is the maximally aligned type.
+        //   First, ensure that `MaxAlign` is the maximally aligned type.
         //
         //   Next, ensure that the size of the maximally aligned type is
         //   equal to its alignment offset.
         //
-        //   Finally, ensure that 'roundUpToMaximalAlignment' rounds its
-        //   argument up to the nearest multiple of 'sizeof(MaxAlign)'.
+        //   Finally, ensure that `roundUpToMaximalAlignment` rounds its
+        //   argument up to the nearest multiple of `sizeof(MaxAlign)`.
         //
         // Testing:
         //   static int roundUpToMaximalAlignment(int size);
@@ -734,9 +735,9 @@ if (verbose)
         //     Since the size_type is generated, it is possible that the
         //     typedef statements concerned for those types were wrong.  We
         //     must ensure that:
-        //     - 'size_type' has the same signed-ness as
-        //       'bsls::Types::size_type'
-        //     - a size_type is the same size as 'bsls::Types::size_type'
+        //     - `size_type` has the same signed-ness as
+        //       `bsls::Types::size_type`
+        //     - a size_type is the same size as `bsls::Types::size_type`
         //
         // Plan:
         //   First measure the size of the size type, ensuring that it is at
@@ -753,7 +754,7 @@ if (verbose)
 
         typedef bsls::PlatformUtil Util;
 
-        // Must be the same size as 'bsls::Types::size_type'
+        // Must be the same size as `bsls::Types::size_type`
         LOOP2_ASSERT(
                     sizeof(Util::size_type),
                     sizeof(bsls::Types::size_type),
@@ -821,7 +822,7 @@ if (verbose)
         //        time based on the platform (see overview above).  If any
         //        one of the flags or inferences is wrong, the "endian-ness"
         //        of a given platform could be wrong.  Similarly, the
-        //        'isBigEndian' and 'isLittleEndian' member functions could
+        //        `isBigEndian` and `isLittleEndian` member functions could
         //        also be wrong since those functions do nothing more than
         //        return the value of the macros.  Fortunately it is possible
         //        to make run-time determination of a platform's "endian-ness"

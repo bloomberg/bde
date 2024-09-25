@@ -181,11 +181,11 @@ void parseDecimal(unsigned long long *mantissa,
                   int                *exponent,
                   const bsl::string&  input)
 {
-    // Load into the specified 'mantissa' and 'exponent' values corresponding
-    // to the decimal number represented by the specified 'input'. The
-    // behavior is undefined if 's' is not a valid decimal number. For
-    // example, 123.45 = 12345 * 10 ^ -2, and thus the string '123.45' would
-    // return a 'mantissa' of '12345' and an 'exponent' to '-2'.
+    // Load into the specified `mantissa` and `exponent` values corresponding
+    // to the decimal number represented by the specified `input`. The
+    // behavior is undefined if `s` is not a valid decimal number. For
+    // example, 123.45 = 12345 * 10 ^ -2, and thus the string `123.45` would
+    // return a `mantissa` of `12345` and an `exponent` to `-2`.
     bsl::string::const_iterator pos =
                                     bsl::find(input.begin(), input.end(), '.');
     *exponent = -static_cast<int>(bsl::distance(pos, input.end()));
@@ -200,9 +200,9 @@ unsigned int split(bsl::vector<bsl::string>& strs,
                    const bsl::string&        input,
                    char                      ch)
 {
-    // Split the specified 'input' by a separator character given by the
-    // specified 'ch', storing each section of 'input' in the order they
-    // appear into the specified 'strs'.
+    // Split the specified `input` by a separator character given by the
+    // specified `ch`, storing each section of `input` in the order they
+    // appear into the specified `strs`.
     bsl::string::const_iterator pos =
                                      bsl::find(input.begin(), input.end(), ch);
 
@@ -326,7 +326,7 @@ const int numExps = static_cast<int>(sizeof(exps) / sizeof(*exps));
 //              GLOBAL HELPER FUNCTIONS AND CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
-// String compare for decimal floating point numbers needs 'e'/'E' conversion
+// String compare for decimal floating point numbers needs `e`/`E` conversion
 
 bsl::string& decLower(bsl::string& s)
 {
@@ -472,25 +472,25 @@ int main(int argc, char* argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 15: {
         // --------------------------------------------------------------------
-        // TESTING 'format'
+        // TESTING `format`
         //
         // Concerns:
-        //: 1 That if 'cfg' is not defined then 'format' outputs decimal value
-        //:   in scientific notation with a precision sufficient to produce
-        //:   all available digits.
-        //:
-        //: 2 That if 'cfg' is not defined then precision provided by default
-        //:   configuration object is sufficient to produce all available
-        //:   digits.
+        // 1. That if `cfg` is not defined then `format` outputs decimal value
+        //    in scientific notation with a precision sufficient to produce
+        //    all available digits.
+        //
+        // 2. That if `cfg` is not defined then precision provided by default
+        //    configuration object is sufficient to produce all available
+        //    digits.
         //
         // Plan:
-        //: 1 Test that style is default to scientific notation  if 'cfg' is
-        //:   not defined.  (C-1)
-        //:
-        //: 2 Test that style is default to scientific notation  if 'cfg' is
-        //:   not defined.  (C-2)
-        //:
-        //: 3 Repeat P1-2 for Decimal64 and Decimal128 types.
+        // 1. Test that style is default to scientific notation  if `cfg` is
+        //    not defined.  (C-1)
+        //
+        // 2. Test that style is default to scientific notation  if `cfg` is
+        //    not defined.  (C-2)
+        //
+        // 3. Repeat P1-2 for Decimal64 and Decimal128 types.
         //
         // Testing:
         //   int format(char *, int, Decimal32,  const DecimalFormatConfig&);
@@ -522,8 +522,8 @@ int main(int argc, char* argv[])
             const bsl::string DEFAULT(buffer, len, pa);
 
             {
-                // Test that 'format' produces the same resultant string
-                // when invoked with 'MAX_DIGIT_CONFIG' configuration.
+                // Test that `format` produces the same resultant string
+                // when invoked with `MAX_DIGIT_CONFIG` configuration.
                 const bsl::string EXPECTED("1.234567", pa);
 
                 LOOP3_ASSERT(L_, DEFAULT, EXPECTED, DEFAULT == EXPECTED);
@@ -546,8 +546,8 @@ int main(int argc, char* argv[])
                              RESULT == DEFAULT);
             }
             {
-                // Test that 'format' output a decimal value in notation
-                // distinct from to 'DEFAULT' string when invoked with a style
+                // Test that `format` output a decimal value in notation
+                // distinct from to `DEFAULT` string when invoked with a style
                 // distinct from the one provided by default configuration
                 // object.
                 const bsl::string EXPECTED("1.234567e+00", pa);
@@ -587,8 +587,8 @@ int main(int argc, char* argv[])
 
             const bsl::string DEFAULT(buffer, len, pa);
             {
-                // Test that 'format' produces the same resultant string
-                // when invoked with 'MAX_DAGIT_CONFIG' configuration.
+                // Test that `format` produces the same resultant string
+                // when invoked with `MAX_DAGIT_CONFIG` configuration.
                 const bsl::string EXPECTED("1.234567890123456", pa);
 
                 LOOP3_ASSERT(L_, DEFAULT, EXPECTED, DEFAULT == EXPECTED);
@@ -611,8 +611,8 @@ int main(int argc, char* argv[])
                              RESULT == DEFAULT);
             }
             {
-                // Test that 'format' output a decimal value in notation
-                // distinct from 'DEFAULT' string when invoked with a style
+                // Test that `format` output a decimal value in notation
+                // distinct from `DEFAULT` string when invoked with a style
                 // distinct from the one provided by default configuration
                 // object.
                 const bsl::string EXPECTED("1.234567890123456e+00", pa);
@@ -655,8 +655,8 @@ int main(int argc, char* argv[])
             const bsl::string DEFAULT(buffer, len, pa);
 
             {
-                // Test that 'format' produces the same resultant string
-                // when invoked with 'MAX_DAGIT_CONFIG' configuration.
+                // Test that `format` produces the same resultant string
+                // when invoked with `MAX_DAGIT_CONFIG` configuration.
                 const bsl::string EXPECTED(
                                  "1.234567890123456789012345678901234", pa);
 
@@ -680,8 +680,8 @@ int main(int argc, char* argv[])
                              RESULT == DEFAULT);
             }
             {
-                // Test that 'format' output a decimal value in notation
-                // distinct from 'DEFAULT' string when invoked with a style
+                // Test that `format` output a decimal value in notation
+                // distinct from `DEFAULT` string when invoked with a style
                 // distinct from the one provided by default configuration
                 // object.
                 const bsl::string EXPECTED(
@@ -710,23 +710,23 @@ int main(int argc, char* argv[])
     // TESTING math functions
     //
     // Concerns:
-    //: 1 Forwarding to the right routines.
-    //:
-    //: 2 That decimal arguments with higher precision 'Decimal64/128' are
-    //:   not rounded to fit into the decimal numbers with lower precision
-    //:   'Decimal32'/64' when passed into underlying library's functions.
+    // 1. Forwarding to the right routines.
+    //
+    // 2. That decimal arguments with higher precision `Decimal64/128` are
+    //    not rounded to fit into the decimal numbers with lower precision
+    //    `Decimal32`/64' when passed into underlying library's functions.
     //
     // Plan:
-    //:  1 Using table-driven technique:
-    //:
-    //:    1 Try with several variations and combinations of decimal floats
-    //:      (different mantissas and exponents, both positive and negative).
-    //:      C-1.
-    //:
-    //:    2 For functions that accept decimal numbers with higher precision
-    //:      select arguments that precision exceeds the lower precision
-    //:      decimal types.  Ensure the result of function execution equals the
-    //:      expected value.  C-1,2.
+    //  1. Using table-driven technique:
+    //
+    //    1. Try with several variations and combinations of decimal floats
+    //       (different mantissas and exponents, both positive and negative).
+    //       C-1.
+    //
+    //    2. For functions that accept decimal numbers with higher precision
+    //       select arguments that precision exceeds the lower precision
+    //       decimal types.  Ensure the result of function execution equals the
+    //       expected value.  C-1,2.
     //
     // Testing:
     //   Decimal32     copySign  (Decimal32);
@@ -3011,22 +3011,22 @@ int main(int argc, char* argv[])
     // ------------------------------------------------------------------------
     // TESTING decompose
     // Concerns:
-    //: 1 Finite decimal value decomposed using 'decompose' functions can be
-    //:   reconstructed to the value equal to the original one using
-    //:   'sign', 'significand' and 'exponent' values.
-    //:
-    //: 2 Special encoding values having the 2 bits after the sign set to '11'
-    //:   are decomposed either into finite value if at least one of the next
-    //:   two bits are set to '0' or decomposed into 'Inf' or 'NaN' type
-    //:   values otherwise.
+    // 1. Finite decimal value decomposed using `decompose` functions can be
+    //    reconstructed to the value equal to the original one using
+    //    `sign`, `significand` and `exponent` values.
+    //
+    // 2. Special encoding values having the 2 bits after the sign set to `11`
+    //    are decomposed either into finite value if at least one of the next
+    //    two bits are set to `0` or decomposed into `Inf` or `NaN` type
+    //    values otherwise.
     //
     // Plan:
-    //: 1 Try decomposing a variety of different valid values into sign,
-    //:   significand and exponent compartments.  Including minimum and maximum
-    //:   values and special values such as 'NaN' and 'Inf'.  Restore the value
-    //:   using 'sign', significand' and 'exponent' parts and check that if the
-    //:   value is not a special (infinity or NaNs), it is restored into the
-    //:   value equal to the original one.
+    // 1. Try decomposing a variety of different valid values into sign,
+    //    significand and exponent compartments.  Including minimum and maximum
+    //    values and special values such as `NaN` and `Inf`.  Restore the value
+    //    using `sign`, significand' and `exponent` parts and check that if the
+    //    value is not a special (infinity or NaNs), it is restored into the
+    //    value equal to the original one.
     //
     // Testing:
     //   int decompose(int *, unsigned int *,        int *, Decimal32);
@@ -3435,11 +3435,11 @@ int main(int argc, char* argv[])
       // CONCURRENCY
       //
       // Concerns:
-      //:  1 Concurrent use of round and quantize is correct.
+      //  1. Concurrent use of round and quantize is correct.
       //
       // Plan:
-      //:  1 Create several threads that call either quantize or round in loops
-      //:    and verify that the correct values are always returned.
+      //  1. Create several threads that call either quantize or round in loops
+      //     and verify that the correct values are always returned.
       //
       // Testing:
       //   void DecimalUtil::quantize;
@@ -3760,7 +3760,7 @@ int main(int argc, char* argv[])
         if (verbose) bsl::cout << "multiplyByPowerOf10 tests..." << bsl::endl;
         {
             if (veryVerbose) bsl::cout << "multiplyByPowerOf10 "
-                                 "tests on 'int' powers..." << bsl::endl;
+                                 "tests on `int` powers..." << bsl::endl;
 
             for (int mi = 0; mi < numMantissas; ++mi) {
                 for (int ei = 0; ei < numExps; ++ei) {
@@ -3960,7 +3960,7 @@ int main(int argc, char* argv[])
                 const TYPE V = makeDecimal(SIGNIFICAND, EXPONENT);
                 const TYPE E = makeDecimal(          1, QUANTUM);
 
-                {  //: o TYPE quantize(TYPE, TYPE);
+                {  //  - TYPE quantize(TYPE, TYPE);
 
                     const TYPE EXPECTED = DATA[ti].d_expected;
                     const TYPE RESULT   = Util::quantize(V, E);
@@ -3982,7 +3982,7 @@ int main(int argc, char* argv[])
                     ASSERT(Util::isNan(Util::quantize(nInf,    E)));
                 }
 
-                {  //: o TYPE quantize(TYPE, int);
+                {  //  - TYPE quantize(TYPE, int);
 
                     const TYPE& EXPECTED = DATA[ti].d_expected;
                     const TYPE  RESULT   = Util::quantize(V, QUANTUM);
@@ -4000,7 +4000,7 @@ int main(int argc, char* argv[])
                     ASSERT(Util::isNan(Util::quantize(nInf, 0)));
                 }
 
-                {  //: o int quantizeEqual(TYPE *, TYPE, int);
+                {  //  - int quantizeEqual(TYPE *, TYPE, int);
 
                     TYPE X(V); TYPE *X_P(&X);
                     TYPE Y(V);
@@ -4100,7 +4100,7 @@ int main(int argc, char* argv[])
                 const TYPE V = makeDecimal(SIGNIFICAND, EXPONENT);
                 const TYPE E = makeDecimal(          1, QUANTUM);
 
-                {  //: o TYPE quantize(TYPE, TYPE);
+                {  //  - TYPE quantize(TYPE, TYPE);
 
                     const TYPE EXPECTED = DATA[ti].d_expected;
                     const TYPE RESULT   = Util::quantize(V, E);
@@ -4122,7 +4122,7 @@ int main(int argc, char* argv[])
                     ASSERT(Util::isNan(Util::quantize(nInf,    E)));
                 }
 
-                {  //: o TYPE quantize(TYPE, int);
+                {  //  - TYPE quantize(TYPE, int);
 
                     const TYPE& EXPECTED = DATA[ti].d_expected;
                     const TYPE  RESULT   = Util::quantize(V, QUANTUM);
@@ -4140,7 +4140,7 @@ int main(int argc, char* argv[])
                     ASSERT(Util::isNan(Util::quantize(nInf, 0)));
                 }
 
-                {  //: o int quantizeEqual(TYPE *, TYPE, int);
+                {  //  - int quantizeEqual(TYPE *, TYPE, int);
 
                     TYPE X(V); TYPE *X_P(&X);
                     TYPE Y(V);
@@ -4242,7 +4242,7 @@ int main(int argc, char* argv[])
                 const TYPE V = makeDecimal(SIGNIFICAND, EXPONENT);
                 const TYPE E = makeDecimal(          1, QUANTUM);
 
-                {  //: o TYPE quantize(TYPE, TYPE);
+                {  //  - TYPE quantize(TYPE, TYPE);
 
                     const TYPE EXPECTED = DATA[ti].d_expected;
                     const TYPE RESULT   = Util::quantize(V, E);
@@ -4264,7 +4264,7 @@ int main(int argc, char* argv[])
                     ASSERT(Util::isNan(Util::quantize(nInf,    E)));
                 }
 
-                {  //: o TYPE quantize(TYPE, int);
+                {  //  - TYPE quantize(TYPE, int);
 
                     const TYPE& EXPECTED = DATA[ti].d_expected;
                     const TYPE  RESULT   = Util::quantize(V, QUANTUM);
@@ -4282,7 +4282,7 @@ int main(int argc, char* argv[])
                     ASSERT(Util::isNan(Util::quantize(nInf, 0)));
                 }
 
-                {  //: o int quantizeEqual(TYPE *, TYPE, int);
+                {  //  - int quantizeEqual(TYPE *, TYPE, int);
 
                     TYPE X(V); TYPE *X_P(&X);
                     TYPE Y(V);
@@ -4398,19 +4398,19 @@ int main(int argc, char* argv[])
             // contract for makeDecimalRaw.
 
             // All special case values:
-            //: o signaling NaN     (sNaN)
+            //  - signaling NaN     (sNaN)
 
             const TYPE sNaN(NumLim::signaling_NaN());
 
-            //: o quiet NaN         (qNaN)
+            //  - quiet NaN         (qNaN)
 
             const TYPE qNaN(NumLim::quiet_NaN());
 
-            //: o positive Infinity (+Inf)
+            //  - positive Infinity (+Inf)
 
             const TYPE pInf(NumLim::infinity());
 
-            //: o negative Infinity (-Inf)
+            //  - negative Infinity (-Inf)
 
             const TYPE nInf(-pInf);
 
@@ -4418,19 +4418,19 @@ int main(int argc, char* argv[])
             {
                 bsls::AssertTestHandlerGuard g;
 
-                //: o sNaN
+                //  - sNaN
 
                 BSLS_ASSERTTEST_ASSERT_FAIL(Util::quantum(sNaN));
 
-                //: o qNaN
+                //  - qNaN
 
                 BSLS_ASSERTTEST_ASSERT_FAIL(Util::quantum(qNaN));
 
-                //: o +Inf
+                //  - +Inf
 
                 BSLS_ASSERTTEST_ASSERT_FAIL(Util::quantum(pInf));
 
-                //: o -Inf
+                //  - -Inf
 
                 BSLS_ASSERTTEST_ASSERT_FAIL(Util::quantum(nInf));
             }
@@ -4475,32 +4475,32 @@ int main(int argc, char* argv[])
 
 
             // All special case values:
-            //: o signaling NaN     (sNaN)
+            //  - signaling NaN     (sNaN)
 
             const TYPE sNaN(NumLim::signaling_NaN());
 
-            //: o quiet NaN         (qNaN)
+            //  - quiet NaN         (qNaN)
 
             const TYPE qNaN(NumLim::quiet_NaN());
 
-            //: o positive Infinity (+Inf)
+            //  - positive Infinity (+Inf)
 
             const TYPE pInf(NumLim::infinity());
 
-            //: o negative Infinity (-Inf)
+            //  - negative Infinity (-Inf)
 
             const TYPE nInf(-pInf);
 
             // Test all special cases with each other, organized by LHS.
 
-            //: o sNaN
+            //  - sNaN
 
             ASSERT( Util::sameQuantum(sNaN, sNaN));
             ASSERT( Util::sameQuantum(sNaN, qNaN));
             ASSERT(!Util::sameQuantum(sNaN, pInf));
             ASSERT(!Util::sameQuantum(sNaN, nInf));
 
-            //: o qNaN
+            //  - qNaN
 
             ASSERT( Util::sameQuantum(qNaN, sNaN));
             ASSERT( Util::sameQuantum(qNaN, qNaN));
@@ -4508,7 +4508,7 @@ int main(int argc, char* argv[])
             ASSERT(!Util::sameQuantum(qNaN, nInf));
 
             // Note that +Inf compares equal to all inf values
-            //: o +Inf
+            //  - +Inf
 
             ASSERT(!Util::sameQuantum(pInf, sNaN));
             ASSERT(!Util::sameQuantum(pInf, qNaN));
@@ -4516,7 +4516,7 @@ int main(int argc, char* argv[])
             ASSERT( Util::sameQuantum(pInf, nInf));
 
             // Note that -Inf compares equal to all inf values
-            //: o -Inf
+            //  - -Inf
 
             ASSERT(!Util::sameQuantum(nInf, sNaN));
             ASSERT(!Util::sameQuantum(nInf, qNaN));
@@ -4532,10 +4532,10 @@ int main(int argc, char* argv[])
                         makeNumber(mantissas[tiM], exps[tiE]);
 
                     // Test all special cases on both sides:
-                    //: o sNaN
-                    //: o qNaN
-                    //: o +Inf
-                    //: o -Inf
+                    //  - sNaN
+                    //  - qNaN
+                    //  - +Inf
+                    //  - -Inf
                     ASSERT(!Util::sameQuantum(value, sNaN));
                     ASSERT(!Util::sameQuantum(value, qNaN));
                     ASSERT(!Util::sameQuantum(value, pInf));
@@ -4662,7 +4662,7 @@ int main(int argc, char* argv[])
                             const TYPE rhs =
                                makeNumber(mantissas[tjM], exps[tjE]);
 
-                            // Quanta is unspecified if 'mantissa == 0'.
+                            // Quanta is unspecified if `mantissa == 0`.
                             LOOP4_ASSERT(mantissas[tiM], exps[tiE],
                                          mantissas[tjM], exps[tjE],
                                   (tiE == tjE) == Util::sameQuantum(lhs, rhs));
@@ -4739,37 +4739,37 @@ int main(int argc, char* argv[])
             // contract for makeDecimalRaw.
 
             // All special case values:
-            //: o signaling NaN     (sNaN)
+            //  - signaling NaN     (sNaN)
 
             const TYPE sNaN(NumLim::signaling_NaN());
 
-            //: o quiet NaN         (qNaN)
+            //  - quiet NaN         (qNaN)
 
             const TYPE qNaN(NumLim::quiet_NaN());
 
-            //: o positive Infinity (+Inf)
+            //  - positive Infinity (+Inf)
 
             const TYPE pInf(NumLim::infinity());
 
-            //: o negative Infinity (-Inf)
+            //  - negative Infinity (-Inf)
 
             const TYPE nInf(-pInf);
 
             // Test that all special cases fail.
             {
-                //: o sNaN
+                //  - sNaN
 
                 ASSERT(!Util::isFinite(sNaN));
 
-                //: o qNaN
+                //  - qNaN
 
                 ASSERT(!Util::isFinite(qNaN));
 
-                //: o +Inf
+                //  - +Inf
 
                 ASSERT(!Util::isFinite(pInf));
 
-                //: o -Inf
+                //  - -Inf
 
                 ASSERT(!Util::isFinite(nInf));
             }
@@ -4808,37 +4808,37 @@ int main(int argc, char* argv[])
             // contract for makeDecimalRaw.
 
             // All special case values:
-            //: o signaling NaN     (sNaN)
+            //  - signaling NaN     (sNaN)
 
             const TYPE sNaN(NumLim::signaling_NaN());
 
-            //: o quiet NaN         (qNaN)
+            //  - quiet NaN         (qNaN)
 
             const TYPE qNaN(NumLim::quiet_NaN());
 
-            //: o positive Infinity (+Inf)
+            //  - positive Infinity (+Inf)
 
             const TYPE pInf(NumLim::infinity());
 
-            //: o negative Infinity (-Inf)
+            //  - negative Infinity (-Inf)
 
             const TYPE nInf(-pInf);
 
             // Test that all special cases fail.
             {
-                //: o sNaN
+                //  - sNaN
 
                 ASSERT(!Util::isInf(sNaN));
 
-                //: o qNaN
+                //  - qNaN
 
                 ASSERT(!Util::isInf(qNaN));
 
-                //: o +Inf
+                //  - +Inf
 
                 ASSERT( Util::isInf(pInf));
 
-                //: o -Inf
+                //  - -Inf
 
                 ASSERT( Util::isInf(nInf));
             }
@@ -4867,19 +4867,19 @@ int main(int argc, char* argv[])
 
             // All special case values:
 
-            //: o signaling NaN     (sNaN)
+            //  - signaling NaN     (sNaN)
 
             const TYPE sNaN(NumLim::signaling_NaN());
 
-            //: o quiet NaN         (qNaN)
+            //  - quiet NaN         (qNaN)
 
             const TYPE qNaN(NumLim::quiet_NaN());
 
-            //: o positive Infinity (+Inf)
+            //  - positive Infinity (+Inf)
 
             const TYPE pInf(NumLim::infinity());
 
-            //: o negative Infinity (-Inf)
+            //  - negative Infinity (-Inf)
 
             const TYPE nInf(-pInf);
 
@@ -4933,19 +4933,19 @@ int main(int argc, char* argv[])
             // contract for makeDecimalRaw.
 
             // All special case values:
-            //: o signaling NaN     (sNaN)
+            //  - signaling NaN     (sNaN)
 
             const TYPE sNaN(NumLim::signaling_NaN());
 
-            //: o quiet NaN         (qNaN)
+            //  - quiet NaN         (qNaN)
 
             const TYPE qNaN(NumLim::quiet_NaN());
 
-            //: o positive Infinity (+Inf)
+            //  - positive Infinity (+Inf)
 
             const TYPE pInf(NumLim::infinity());
 
-            //: o negative Infinity (-Inf)
+            //  - negative Infinity (-Inf)
 
             const TYPE nInf(-pInf);
 
@@ -4953,14 +4953,14 @@ int main(int argc, char* argv[])
                 // Test all special cases with each other,
                 // organized by LHS.
 
-                //: o sNaN
+                //  - sNaN
 
                 ASSERT( Util::isUnordered(sNaN, sNaN));
                 ASSERT( Util::isUnordered(sNaN, qNaN));
                 ASSERT( Util::isUnordered(sNaN, pInf));
                 ASSERT( Util::isUnordered(sNaN, nInf));
 
-                //: o qNaN
+                //  - qNaN
 
                 ASSERT( Util::isUnordered(qNaN, sNaN));
                 ASSERT( Util::isUnordered(qNaN, qNaN));
@@ -4968,7 +4968,7 @@ int main(int argc, char* argv[])
                 ASSERT( Util::isUnordered(qNaN, nInf));
 
                 // Note that +Inf compares equal to all inf values
-                //: o +Inf
+                //  - +Inf
 
                 ASSERT( Util::isUnordered(pInf, sNaN));
                 ASSERT( Util::isUnordered(pInf, qNaN));
@@ -4977,7 +4977,7 @@ int main(int argc, char* argv[])
 
                 // Note that -Inf compares equal to all inf values
 
-                //: o -Inf
+                //  - -Inf
 
                 ASSERT( Util::isUnordered(nInf, sNaN));
                 ASSERT( Util::isUnordered(nInf, qNaN));
@@ -4995,10 +4995,10 @@ int main(int argc, char* argv[])
 
                     // Test all special cases on both sides:
                     //
-                    //: o sNaN
-                    //: o qNaN
-                    //: o +Inf
-                    //: o -Inf
+                    //  - sNaN
+                    //  - qNaN
+                    //  - +Inf
+                    //  - -Inf
 
                     ASSERT( Util::isUnordered(value, sNaN));
                     ASSERT( Util::isUnordered(value, qNaN));
@@ -6098,7 +6098,7 @@ int main(int argc, char* argv[])
         //
         // Test the performance of a real-world application of decimal
         // floating point values that is intense on calls to makeDecimal64 and
-        // binary arithmetic operations such as 'operator*' and 'operator/'.
+        // binary arithmetic operations such as `operator*` and `operator/`.
         // We test an example of aggregating data about tickers, such as the
         // lows and highs in a trading day, volume, and weighted averages.  We
         // wish to determine the number of tickers that may be processed per
@@ -6182,7 +6182,7 @@ int main(int argc, char* argv[])
         //
         // Test the performance of a real-world application of decimal
         // floating point values that is intense on calls to makeDecimal64 and
-        // binary arithmetic operations such as 'operator*' and 'operator/'.
+        // binary arithmetic operations such as `operator*` and `operator/`.
         // This test is performed with binary floating-point values (i.e.,
         // doubles) for comparison purposes.
         // --------------------------------------------------------------------
@@ -6265,7 +6265,7 @@ int main(int argc, char* argv[])
         //
         // Test the performance of a real-world application of decimal
         // floating point values that is intense on calls to makeDecimal64 and
-        // binary arithmetic operations such as 'operator*' and 'operator/'.
+        // binary arithmetic operations such as `operator*` and `operator/`.
         // We test an example of aggregating data about tickers, such as the
         // lows and highs in a trading day, volume, and weighted averages.  We
         // wish to determine the number of tickers that may be processed per
@@ -6368,7 +6368,7 @@ int main(int argc, char* argv[])
         //
         // Test the performance of a real-world application of decimal
         // floating point values that is intense on calls to makeDecimal64 and
-        // binary arithmetic operations such as 'operator*' and 'operator/'.
+        // binary arithmetic operations such as `operator*` and `operator/`.
         // We test an example of aggregating data about tickers, such as the
         // lows and highs in a trading day, volume, and weighted averages.  We
         // wish to determine the number of tickers that may be processed per
@@ -6468,11 +6468,11 @@ int main(int argc, char* argv[])
     } break;
     case -5: {
         // --------------------------------------------------------------------
-        // TESTING: Performance test of 'makeDecimal64'.
+        // TESTING: Performance test of `makeDecimal64`.
         //
-        // Test the performance of 'makeDecimal64' by doing a configurable
+        // Test the performance of `makeDecimal64` by doing a configurable
         // number of iterations of calls using a stopwatch to record the
-        // elapsed time and compute the number of operations 'makeDecimal64'
+        // elapsed time and compute the number of operations `makeDecimal64`
         // performs per second.  An array of mantissas and exponents are used.
         // --------------------------------------------------------------------
         int numIterations = 10000;
@@ -6501,12 +6501,12 @@ int main(int argc, char* argv[])
     } break;
     case -6: {
         // --------------------------------------------------------------------
-        // TESTING: Performance test of 'makeDecimalRaw128'.
+        // TESTING: Performance test of `makeDecimalRaw128`.
         //
-        // Test the performance of 'makeDecimalRaw128' by doing a configurable
+        // Test the performance of `makeDecimalRaw128` by doing a configurable
         // number of iterations of calls using a stopwatch to record the
         // elapsed time and compute the number of operations
-        // 'makeDecimalRaw128' performs per second.  An array of mantissas and
+        // `makeDecimalRaw128` performs per second.  An array of mantissas and
         // exponents are used.
         // --------------------------------------------------------------------
         int numIterations = 10000;
@@ -6541,12 +6541,12 @@ int main(int argc, char* argv[])
     } break;
     case -7: {
         // --------------------------------------------------------------------
-        // TESTING: Performance test of 'makeDecimalRaw64'.
+        // TESTING: Performance test of `makeDecimalRaw64`.
         //
-        // Test the performance of 'makeDecimalRaw64' by doing a configurable
+        // Test the performance of `makeDecimalRaw64` by doing a configurable
         // number of iterations of calls using a stopwatch to record the
         // elapsed time and compute the number of operations
-        // 'makeDecimalRaw64' performs per second.  An array of mantissas and
+        // `makeDecimalRaw64` performs per second.  An array of mantissas and
         // exponents are used.
         // --------------------------------------------------------------------
         int numIterations = 10000;
@@ -6586,12 +6586,12 @@ int main(int argc, char* argv[])
     } break;
     case -8: {
         // --------------------------------------------------------------------
-        // TESTING: Performance test of 'makeDecimalRaw32'.
+        // TESTING: Performance test of `makeDecimalRaw32`.
         //
-        // Test the performance of 'makeDecimalRaw32' by doing a configurable
+        // Test the performance of `makeDecimalRaw32` by doing a configurable
         // number of iterations of calls using a stopwatch to record the
         // elapsed time and compute the number of operations
-        // 'makeDecimalRaw32' performs per second.  An array of mantissas and
+        // `makeDecimalRaw32` performs per second.  An array of mantissas and
         // exponents are used.
         // --------------------------------------------------------------------
         int numIterations = 10000;
@@ -6631,15 +6631,15 @@ int main(int argc, char* argv[])
     } break;
     case -9: {
         // --------------------------------------------------------------------
-        // TESTING: Performance test of 'multiplyByPowerOf10'.
+        // TESTING: Performance test of `multiplyByPowerOf10`.
         //
-        // Test the performance of 'makeDecimal64' by doing a configurable
+        // Test the performance of `makeDecimal64` by doing a configurable
         // number of iterations of calls using a stopwatch to record the
-        // elapsed time and compute the number of operations 'makeDecimal64'
+        // elapsed time and compute the number of operations `makeDecimal64`
         // performs per second.  An array of mantissas and exponents are used.
         // --------------------------------------------------------------------
 
-        // Precompute some 'Decimal64's.
+        // Precompute some `Decimal64`s.
         const int numDecimals = numMantissas * numExps;
         BDEC::Decimal64 decimals[numDecimals];
 

@@ -36,7 +36,7 @@ using namespace BloombergLP;
 // - The usage example is also untested.
 // - Many test cases assume that the default allocator will be the NewDelete
 //   allocator, and fail if a TestAllocator is installed as the default in
-//   'main'.  This should be addressed as part of resolving DRQS 27411521.
+//   `main`.  This should be addressed as part of resolving DRQS 27411521.
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -47,7 +47,7 @@ using namespace BloombergLP;
 // validating these functors is that there are a valid, copy-constructible
 // functor that than can be invoked with the expected arguments, and produce
 // the expected observable result (if any).  In the trickier case of
-// 'SharedPtrNilDeleter', it is not reasonable to check that the entire world
+// `SharedPtrNilDeleter`, it is not reasonable to check that the entire world
 // has not changed, but it would be good to confirm that the object itself has
 // not altered, nor the memory on the other end of the passed pointer.  The
 // preferred way to do this would be to store the test object in a write-
@@ -138,15 +138,15 @@ void aSsErT(bool condition, const char *message, int line)
                         // class SimpleRep
                         // ===============
 
+/// Partially implemented shared pointer representation ("letter") protocol.
+/// This class provides a reference counter and a concrete implementation of
+/// the `bdlma::Deleter` protocol that decrements the number references and
+/// destroys itself if the number of references reaches zero.
 class SimpleRep : public bslma::SharedPtrRep {
-    // Partially implemented shared pointer representation ("letter") protocol.
-    // This class provides a reference counter and a concrete implementation of
-    // the 'bdlma::Deleter' protocol that decrements the number references and
-    // destroys itself if the number of references reaches zero.
 
     // DATA
-    int *d_int_p;   // address of an externally managed 'int' that will outlive
-                    // this 'SimpleRep' object.
+    int *d_int_p;   // address of an externally managed `int` that will outlive
+                    // this `SimpleRep` object.
 
   private:
     // NOT IMPLEMENTED
@@ -156,47 +156,49 @@ class SimpleRep : public bslma::SharedPtrRep {
   public:
     // CREATORS
 
+    /// Construct a shared ptr rep object holding the specified `address` of
+    /// an externally managed `int` that will outlive this `SimpleRep`
+    /// object.
     SimpleRep(int *address);  // IMPLICIT
-        // Construct a shared ptr rep object holding the specified 'address' of
-        // an externally managed 'int' that will outlive this 'SimpleRep'
-        // object.
 
+    /// Destroy this test shared ptr rep object.
     ~SimpleRep() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this test shared ptr rep object.
 
     // MANIPULATORS
+
+    /// This method has no effect.
     void disposeObject() BSLS_KEYWORD_OVERRIDE;
-        // This method has no effect.
 
+    /// This method has no effect.
     void disposeRep() BSLS_KEYWORD_OVERRIDE;
-        // This method has no effect.
 
+    /// Return a null pointer.
     void *getDeleter(const std::type_info&) BSLS_KEYWORD_OVERRIDE { return 0; }
-        // Return a null pointer.
 
     // ACCESSORS
-    void *originalPtr() const BSLS_KEYWORD_OVERRIDE;
-        // Return the address of the 'int' referred to by this object.
 
+    /// Return the address of the `int` referred to by this object.
+    void *originalPtr() const BSLS_KEYWORD_OVERRIDE;
+
+    /// Return the address of the `int` referred to by this object.
     int *ptr() const;
-        // Return the address of the 'int' referred to by this object.
 };
 
                         // ====================
                         // class SimpleRepArray
                         // ====================
 
+/// This `class` holds three `SimpleRep` objects that have an order in
+/// memory guaranteed by the C++ standard.  This class is necessary as
+/// `SimpleRep` objects cannot be stored in an array due to their lack of a
+/// copy constructor, which is a consquence of deriving from `SharedPtrRep`.
+/// To guarantee more thorough testing, we ensure that each `SimpleRep`
+/// object refers to a pointer that would sort in a different order than the
+/// order of `SimpleRep` members in memory, and the values held by those
+/// `int` objects forms a third sorted order.  This will allow confidence
+/// that subsequent testing is validating the correct property when testing
+/// for ordered behavior.
 class SimpleRepArray {
-    // This 'class' holds three 'SimpleRep' objects that have an order in
-    // memory guaranteed by the C++ standard.  This class is necessary as
-    // 'SimpleRep' objects cannot be stored in an array due to their lack of a
-    // copy constructor, which is a consquence of deriving from 'SharedPtrRep'.
-    // To guarantee more thorough testing, we ensure that each 'SimpleRep'
-    // object refers to a pointer that would sort in a different order than the
-    // order of 'SimpleRep' members in memory, and the values held by those
-    // 'int' objects forms a third sorted order.  This will allow confidence
-    // that subsequent testing is validating the correct property when testing
-    // for ordered behavior.
 
     // DATA
     int       d_a;
@@ -364,13 +366,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -382,17 +384,17 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'owner_less<void>'
+///Example 1: Basic Use of `owner_less<void>`
 /// - - - - - - - - - - - - - - - - - - - - -
 // Suppose we need a map accepting shared pointers as keys.  We also expect
 // that this container will be accessible from multiple threads and some of
 // them will store weak versions of smart pointers to break reference cycles.
 // To avoid excessive conversions we can use a transparent comparator to
-// enable heterogeneous lookup with 'bsl::weak_ptr' objects as parameters for
+// enable heterogeneous lookup with `bsl::weak_ptr` objects as parameters for
 // search functions.
 //
 // First, we create a container and populate it:
-//..
+// ```
         typedef bsl::map<bsl::shared_ptr<int>, int, bsl::owner_less<void> >
                                                                            Map;
         Map                  container;
@@ -403,9 +405,9 @@ int main(int argc, char *argv[])
 
         container[sharedPtr1] = 1;
         container[sharedPtr2] = 2;
-//..
+// ```
 // Now, we make sure, that shared pointers can be used to perform lookup:
-//..
+// ```
         Map::const_iterator iter = container.find(sharedPtr1);
         ASSERT(container.end() != iter        );
         ASSERT(1               == iter->second);
@@ -413,10 +415,10 @@ int main(int argc, char *argv[])
         iter = container.find(sharedPtr2);
         ASSERT(container.end() != iter);
         ASSERT(2               == iter->second);
-//..
+// ```
 // Finally, we simulate the situation of accessing the container from another
 // thread and perform lookup using weak pointers:
-//..
+// ```
         iter = container.find(weakPtr1);
         ASSERT(container.end() != iter        );
         ASSERT(1               == iter->second);
@@ -424,36 +426,36 @@ int main(int argc, char *argv[])
         bsl::weak_ptr<int> weakPtr3(bsl::make_shared<int>(3));
         iter = container.find(weakPtr3);
         ASSERT(container.end() == iter);
-//..
+// ```
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING QOI: 'owner_less' IS AN EMPTY TYPE
+        // TESTING QOI: `owner_less` IS AN EMPTY TYPE
         //   As a quality of implementation issue, the class has no state and
         //   should support the use of the empty base class optimization on
         //   compilers that support it.
         //
         // Concerns:
-        //: 1 Class 'bsl::owner_less' does not increase the size of an object
-        //:   when used as a base class.
-        //:
-        //: 2 Object of 'bsl::owner_less' class increases size of an object
-        //:   when used as a class member.
+        // 1. Class `bsl::owner_less` does not increase the size of an object
+        //    when used as a base class.
+        //
+        // 2. Object of `bsl::owner_less` class increases size of an object
+        //    when used as a class member.
         //
         // Plan:
-        //: 1 Define two identical non-empty classes with no padding, but
-        //:   derive one of them from 'bsl::owner_less', then assert that both
-        //:   classes have the same size. (C-1)
-        //:
-        //: 2 Create a non-empty class with an 'bsl::owner_less' additional
-        //:   member, assert that class size is larger than sum of other data
-        //:   member's sizes. (C-2)
+        // 1. Define two identical non-empty classes with no padding, but
+        //    derive one of them from `bsl::owner_less`, then assert that both
+        //    classes have the same size. (C-1)
+        //
+        // 2. Create a non-empty class with an `bsl::owner_less` additional
+        //    member, assert that class size is larger than sum of other data
+        //    member's sizes. (C-2)
         //
         // Testing:
         //   QoI: Support for empty base optimization
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING QOI: 'owner_less' IS AN EMPTY TYPE"
+        if (verbose) printf("\nTESTING QOI: `owner_less` IS AN EMPTY TYPE"
                             "\n==========================================\n");
 
         typedef bsl::owner_less<bsl::shared_ptr<int> > SharedObj;
@@ -508,16 +510,16 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING TYPEDEF
         //   Comparator's transparency is determined by the presence of the
-        //   'is_transparent' type.  We need to verify that the class offers
+        //   `is_transparent` type.  We need to verify that the class offers
         //   the required typedef.
         //
         // Concerns:
-        //: 1 The type 'is_transparent' is defined in 'bsl::owner_less<void>',
-        //:   publicly accessible and an alias for 'void'.
+        // 1. The type `is_transparent` is defined in `bsl::owner_less<void>`,
+        //    publicly accessible and an alias for `void`.
         //
         // Plan:
-        //: 1 ASSERT the typedef aliases the correct type using
-        //    'bsl::is_same'. (C-1)
+        // 1. ASSERT the typedef aliases the correct type using
+        //    `bsl::is_same`. (C-1)
         //
         // Testing:
         //  TESTING TYPEDEF
@@ -532,38 +534,38 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TEST 'owner_less' FUNCTOR
-        //   'owner_less' is an empty POD type with implicitly defined special
-        //   member functions and a 'const'-qualified function call operator.
+        // TEST `owner_less` FUNCTOR
+        //   `owner_less` is an empty POD type with implicitly defined special
+        //   member functions and a `const`-qualified function call operator.
         //
         // Concerns:
-        //:  1 'owner_less' can be value-initialized.
-        //:  2 'owner_less' can be copy-initialized.
-        //:  3 'owner_less' can be copy-assigned.
-        //:  4 'owner_less<>' is the same type as 'owner_less<void>'.
-        //:  5 'owner_less<shared_ptr<T> >' has overloads for the function
-        //:    call operator that can take two 'shared_ptr<T>' objects by
-        //:    reference, or a 'shared_ptr<T>' and a 'weak_ptr<T>', both by
-        //:    reference, and passed in either order.
-        //:  6 'owner_less<weak_ptr<T> >' has overloads for the function
-        //:    call operator that can take two 'weak_ptr<T>' objects by
-        //:    reference, or a 'shared_ptr<T>' and a 'weak_ptr<T>', both by
-        //:    reference, and passed in either order.
-        //:  7 'owner_less<>' has overloads for the function call operator that
-        //:    can take two any combination of 'shared_ptr' and 'weak_ptr'
-        //:    objects by reference, and passed in either order.
-        //:  8 The overloaded function call operator for all 'owner_less'
-        //:    templates returns 'true' if the 'rep' held by the first argument
-        //:    has a lower address thna the 'rep' held by the second argument,
-        //:    and 'false' otherwise.
-        //:  9 QoI: No operations on 'owner_less' objects allocate any memory.
+        //  1. `owner_less` can be value-initialized.
+        //  2. `owner_less` can be copy-initialized.
+        //  3. `owner_less` can be copy-assigned.
+        //  4. `owner_less<>` is the same type as `owner_less<void>`.
+        //  5. `owner_less<shared_ptr<T> >` has overloads for the function
+        //     call operator that can take two `shared_ptr<T>` objects by
+        //     reference, or a `shared_ptr<T>` and a `weak_ptr<T>`, both by
+        //     reference, and passed in either order.
+        //  6. `owner_less<weak_ptr<T> >` has overloads for the function
+        //     call operator that can take two `weak_ptr<T>` objects by
+        //     reference, or a `shared_ptr<T>` and a `weak_ptr<T>`, both by
+        //     reference, and passed in either order.
+        //  7. `owner_less<>` has overloads for the function call operator that
+        //     can take two any combination of `shared_ptr` and `weak_ptr`
+        //     objects by reference, and passed in either order.
+        //  8. The overloaded function call operator for all `owner_less`
+        //     templates returns `true` if the `rep` held by the first argument
+        //     has a lower address thna the `rep` held by the second argument,
+        //     and `false` otherwise.
+        //  9. QoI: No operations on `owner_less` objects allocate any memory.
         //
         // Plan:
         //   Create two shared pointer representation objects, with a known
         //   relationship between their addresses.  Then create shared and weak
         //   ptr objects from these representations, and confirm the correct
         //   runtime behavior when invoking the function call operator of the
-        //   'owner_less' functor.
+        //   `owner_less` functor.
         //
         // Testing:
         //  bsl::owner_less<shared_ptr<T> >::
@@ -583,7 +585,7 @@ int main(int argc, char *argv[])
         //   bool operator()(const weak_ptr<T>&,   const weak_ptr<U>&)   const;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'owner_less' FUNCTOR"
+        if (verbose) printf("\nTESTING `owner_less` FUNCTOR"
                             "\n============================\n");
 
         {
@@ -601,7 +603,7 @@ int main(int argc, char *argv[])
                 &reps[2]
             };
 
-            // Create tables of shared and weak pointers to 'int'
+            // Create tables of shared and weak pointers to `int`
             const bsl::shared_ptr<int> SHARED_PTRS[4] = {
                 bsl::shared_ptr<int>(),       // null pointers order before all
                 bsl::shared_ptr<int>(reps[0].ptr(), repPtrs[0]),
@@ -616,10 +618,10 @@ int main(int argc, char *argv[])
                 SHARED_PTRS[3]
             };
 
-            // Create tables of shared and weak pointers to 'void' for testing
+            // Create tables of shared and weak pointers to `void` for testing
             // heterogeneous comparison.
 
-            double a, b, c;  // dummy data for the 'void' pointers to point to.
+            double a, b, c;  // dummy data for the `void` pointers to point to.
 
             const bsl::shared_ptr<void> ALIAS_PTRS[4] = {
                 bsl::shared_ptr<void>(SHARED_PTRS[0],  0),
@@ -635,21 +637,21 @@ int main(int argc, char *argv[])
                 ALIAS_PTRS[3]
             };
 
-            // Use aggregate initialization as 'owner_less' is a POD type, so
+            // Use aggregate initialization as `owner_less` is a POD type, so
             // the default constructor is not called to initialize each object.
 
             OwnerShared  ownerShared  = {};
             OwnerWeak    ownerWeak    = {};
             OwnerDiamond ownerDiamond = {};
 
-            // Make a 'const' copy to validate the copy constructor, and that
-            // the function call operator tested below is 'const' qualified.
+            // Make a `const` copy to validate the copy constructor, and that
+            // the function call operator tested below is `const` qualified.
 
             const OwnerShared  OS = ownerShared;
             const OwnerWeak    OW = ownerWeak;
             const OwnerDiamond OD = ownerDiamond;
 
-            // Confirm that we can assign the 'const' copy back to the original
+            // Confirm that we can assign the `const` copy back to the original
             // object.  As this should be a null operation, rather is nothing
             // to test but the syntax.
 
@@ -658,7 +660,7 @@ int main(int argc, char *argv[])
             ownerDiamond = OD;
 
             // Nested loop through all ordering of values in the data tables,
-            // to confirm that 'owner_less' returns the correct ordering in
+            // to confirm that `owner_less` returns the correct ordering in
             // each case, which is designed to be the same as the ordering of
             // the loop indices.
 
@@ -685,7 +687,7 @@ int main(int argc, char *argv[])
                   ASSERTV(i, j, OD(WEAK_ALIAS[i],  ALIAS_PTRS[j])  == (i < j));
                   ASSERTV(i, j, OD(WEAK_ALIAS[i],  WEAK_ALIAS[j])  == (i < j));
 
-                  // Confirm heterogeneous support for 'owner_less<>'
+                  // Confirm heterogeneous support for `owner_less<>`
 
                   ASSERTV(i, j, OD(SHARED_PTRS[i], ALIAS_PTRS[j])  == (i < j));
                   ASSERTV(i, j, OD(SHARED_PTRS[i], WEAK_ALIAS[j])  == (i < j));

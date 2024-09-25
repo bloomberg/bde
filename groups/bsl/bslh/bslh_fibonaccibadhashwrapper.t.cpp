@@ -91,13 +91,13 @@ void aSsErT(bool condition, const char *message, int line)
                            // class IntValueIsHash
                            // ====================
 
+/// This class provides a hash algorithm that provides the "identity"
+/// mapping from key to hash.
 class IntValueIsHash {
-    // This class provides a hash algorithm that provides the "identity"
-    // mapping from key to hash.
 
   public:
+    /// Return the specified `key`.
     size_t operator()(const int key) const
-        // Return the specified 'key'.
     {
         return static_cast<size_t>(key);
     }
@@ -107,45 +107,48 @@ class IntValueIsHash {
                              // class SeedIsHash
                              // ================
 
+/// This class provides a hash algorithm that returns the specified seed
+/// value for all hash requests.
 class SeedIsHash {
-    // This class provides a hash algorithm that returns the specified seed
-    // value for all hash requests.
 
     size_t d_seed;  // value to return for all hash requests
 
   public:
     // CREATORS
+
+    /// Create a `SeedIsHash` object having 0 as the seed value.
     SeedIsHash()
-        // Create a 'SeedIsHash' object having 0 as the seed value.
     : d_seed(0)
     {
     }
 
+    /// Create a `SeedIsHash` object having the specified `seed`.
     explicit SeedIsHash(size_t seed)
-        // Create a 'SeedIsHash' object having the specified 'seed'.
     : d_seed(seed)
     {
     }
 
+    /// Create a `SeedIsHash` object having the value of the specified
+    /// `original` object.
     SeedIsHash(const SeedIsHash& original)
-        // Create a 'SeedIsHash' object having the value of the specified
-        // 'original' object.
     : d_seed(original.d_seed)
     {
     }
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs`, and return a
+    /// reference providing modifiable access to this object.
     SeedIsHash& operator=(const SeedIsHash& rhs)
-        // Assign to this object the value of the specified 'rhs', and return a
-        // reference providing modifiable access to this object.
     {
         d_seed = rhs.d_seed;
         return *this;
     }
 
     // ACCESSORS
+
+    /// Return the provided-at-constuction seed value.
     size_t operator()(const int&) const
-        // Return the provided-at-constuction seed value.
     {
         return d_seed;
     }
@@ -155,13 +158,13 @@ class SeedIsHash {
                             // class LengthIsHash
                             // ==================
 
+/// This class provides a hash algorithm that returns the length of the
+/// provided `const char *` as the hash value.
 class LengthIsHash {
-    // This class provides a hash algorithm that returns the length of the
-    // provided 'const char *' as the hash value.
 
   public:
+    /// Return the specified `key`.
     size_t operator()(const char *key) const
-        // Return the specified 'key'.
     {
         return strlen(key);
     }
@@ -183,22 +186,23 @@ class LengthIsHash {
 // values, and we would like to use the identity function as the hash functor
 // since it is efficient.  A simple and efficient method to obtain a hash
 // functor with the necessary qualities is to wrap the identity functor with
-// 'bslh::FibonaccaBadHashWrapper'.
+// `bslh::FibonaccaBadHashWrapper`.
 //
-// First, we define our 'IdentityHash' class.
-//..
+// First, we define our `IdentityHash` class.
+// ```
+
+    /// This class provides a hash algorithm that provides the "identity"
+    /// mapping from key to hash.
     class IdentityHash {
-        // This class provides a hash algorithm that provides the "identity"
-        // mapping from key to hash.
 
       public:
+        /// Return the specified `key`.
         size_t operator()(const int key) const
-            // Return the specified 'key'.
         {
             return static_cast<size_t>(key);
         }
     };
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -218,13 +222,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -235,12 +239,12 @@ int main(int argc, char *argv[])
 
 // Then, we instantiate an instance of the identity functor and the wrapped
 // functor.
-//..
+// ```
     IdentityHash                                identity;
     bslh::FibonacciBadHashWrapper<IdentityHash> wrapped;
-//..
+// ```
 // Finally, we examine the range of values obtained from small integer values:
-//..
+// ```
     if (8 == sizeof(size_t)) {
         ASSERT(18446744073709551614ull == identity(-2));
         ASSERT(18446744073709551615ull == identity(-1));
@@ -267,39 +271,39 @@ int main(int argc, char *argv[])
         ASSERT(2135587861u == wrapped( 1));
         ASSERT(4271175722u == wrapped( 2));
     }
-//..
+// ```
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // 'operator()'
+        // `operator()`
         //
-        // Ensure the 'FibonacciBadHashWrapper' hash computing operator works
+        // Ensure the `FibonacciBadHashWrapper` hash computing operator works
         // as expected.
         //
         // Concerns:
-        //: 1 The signature and return type are as expected.
-        //:
-        //: 2 The 'operator()' return value is as expected for the
-        //:   user-specified primary hash functor.
-        //:
-        //: 3 Various types can be supplied as the 'KEY'.
+        // 1. The signature and return type are as expected.
+        //
+        // 2. The `operator()` return value is as expected for the
+        //    user-specified primary hash functor.
+        //
+        // 3. Various types can be supplied as the `KEY`.
         //
         // Plan:
-        //: 1 Use the address of 'operator()' to initialize a function pointer
-        //:   having the appropriate structure for the operator defined in this
-        //:   component.  (C-1)
-        //:
-        //: 1 Using 'SeedIsHash' and 'IntValueIsHash', directly test
-        //:   'operator()'.  (C-2)
-        //:
-        //: 2 Use 'LengthIsHash' to verify other 'KEY' types can be used.
-        //:   (C-3)
+        // 1. Use the address of `operator()` to initialize a function pointer
+        //    having the appropriate structure for the operator defined in this
+        //    component.  (C-1)
+        //
+        // 1. Using `SeedIsHash` and `IntValueIsHash`, directly test
+        //    `operator()`.  (C-2)
+        //
+        // 2. Use `LengthIsHash` to verify other `KEY` types can be used.
+        //    (C-3)
         //
         // Testing:
         //   size_t operator()(const KEY& key) const;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("'operator()'\n"
+        if (verbose) printf("`operator()`\n"
                             "============\n");
 
         if (verbose) printf("Testing signature and return value.\n");
@@ -388,36 +392,36 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // COPY-ASSIGNMENT OPERATOR
         //
-        // Ensure the 'FibonacciBadHashWrapper' copy-assignment operator works
+        // Ensure the `FibonacciBadHashWrapper` copy-assignment operator works
         // as expected.
         //
         // Concerns:
-        //: 1 The signature and return type are as expected.
-        //:
-        //: 2 The copy-assignment operator can change the value of any
-        //:   modifiable target object to that of any source object.
-        //:
-        //: 3 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 4 The value of the source object is not modified.
-        //:
-        //: 5 Assigning an object to itself behaves as expected (alias-safety).
+        // 1. The signature and return type are as expected.
+        //
+        // 2. The copy-assignment operator can change the value of any
+        //    modifiable target object to that of any source object.
+        //
+        // 3. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 4. The value of the source object is not modified.
+        //
+        // 5. Assigning an object to itself behaves as expected (alias-safety).
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a member-function
-        //:   pointer having the appropriate signature and return type for the
-        //:   copy-assignment operator defined in this component.  (C-1)
-        //:
-        //: 2 Create three objects of distinct value: X, Y, and Z.  Copy-assign
-        //:   the value of Y to X.  Verify the change to object X, the lack of
-        //:   change to object Y, and the return value of the operation is a
-        //:   reference to X.  Copy-assign the value of Z to X.  Verify the
-        //:   change to object X, the lack of change to object Z, and the
-        //:   return value of the operation is a reference to X.  (C-2..4)
-        //:
-        //: 3 Create two objects of distinct value, X and Y.  Copy-assign X to
-        //:   itself and verify the value of X has not changed.  Copy-assign Y
-        //:   to itself and verify the value of Y has not changed.  (C-5)
+        // 1. Use the address of `operator=` to initialize a member-function
+        //    pointer having the appropriate signature and return type for the
+        //    copy-assignment operator defined in this component.  (C-1)
+        //
+        // 2. Create three objects of distinct value: X, Y, and Z.  Copy-assign
+        //    the value of Y to X.  Verify the change to object X, the lack of
+        //    change to object Y, and the return value of the operation is a
+        //    reference to X.  Copy-assign the value of Z to X.  Verify the
+        //    change to object X, the lack of change to object Z, and the
+        //    return value of the operation is a reference to X.  (C-2..4)
+        //
+        // 3. Create two objects of distinct value, X and Y.  Copy-assign X to
+        //    itself and verify the value of X has not changed.  Copy-assign Y
+        //    to itself and verify the value of Y has not changed.  (C-5)
         //
         // Testing:
         //   FibonacciBadHashWrapper& operator=(const FBHAW& rhs);
@@ -507,40 +511,40 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // CREATORS
-        //   Ensure the 'FibonacciBadHashWrapper' constructors and
+        //   Ensure the `FibonacciBadHashWrapper` constructors and
         //   destructor operate as expected.
         //
         // Concerns:
-        //: 1 A default constructed 'FibonacciBadHashWrapper' stores a
-        //:   default constructed hash functor.
-        //:
-        //: 2 The value constructor stores the supplied hash functor.
-        //:
-        //: 3 The copy constructor functions as expected.
-        //:
-        //: 4 The 'FibonacciBadHashWrapper' can wrap all compliant
-        //:   'HASH' types.
-        //:
-        //: 5 The destructor functions as expected.
+        // 1. A default constructed `FibonacciBadHashWrapper` stores a
+        //    default constructed hash functor.
+        //
+        // 2. The value constructor stores the supplied hash functor.
+        //
+        // 3. The copy constructor functions as expected.
+        //
+        // 4. The `FibonacciBadHashWrapper` can wrap all compliant
+        //    `HASH` types.
+        //
+        // 5. The destructor functions as expected.
         //
         // Plan:
-        //: 1 Default construct 'FibonacciBadHashWrapper<SeedIsHash>'
-        //:   objects and directly verify the return value of 'operator()' for
-        //:   a variety of key values.  (C-1)
-        //:
-        //: 2 Create 'FibonacciBadHashWrapper<SeedIsHash>' objects
-        //:   with 'SeedIsHash' objects and directly verify the return value of
-        //:   'operator()' for a variety of key values.  Note that the
-        //:   consistency between the return value of 'operator()' and the
-        //:   expected return value is a provisional test; 'operator()' is
-        //:   fully tested in TC 4.  (C-2)
-        //:
-        //: 3 Directly test the copy constructor.  (C-3)
-        //:
-        //: 4 Create and exercise a
-        //:   'FibonacciBadHashWrapper<IntValueIsHash>' object.  (C-4)
-        //:
-        //: 5 Allow all created objects to go out-of-scope.  (C-5)
+        // 1. Default construct `FibonacciBadHashWrapper<SeedIsHash>`
+        //    objects and directly verify the return value of `operator()` for
+        //    a variety of key values.  (C-1)
+        //
+        // 2. Create `FibonacciBadHashWrapper<SeedIsHash>` objects
+        //    with `SeedIsHash` objects and directly verify the return value of
+        //    `operator()` for a variety of key values.  Note that the
+        //    consistency between the return value of `operator()` and the
+        //    expected return value is a provisional test; `operator()` is
+        //    fully tested in TC 4.  (C-2)
+        //
+        // 3. Directly test the copy constructor.  (C-3)
+        //
+        // 4. Create and exercise a
+        //    `FibonacciBadHashWrapper<IntValueIsHash>` object.  (C-4)
+        //
+        // 5. Allow all created objects to go out-of-scope.  (C-5)
         //
         // Testing:
         //   FibonacciBadHashWrapper();
@@ -638,12 +642,12 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an object wrapping 'IntValueIsHash' and verify the results
-        //:   of 'operator()' for a few values.  (C-1)
+        // 1. Create an object wrapping `IntValueIsHash` and verify the results
+        //    of `operator()` for a few values.  (C-1)
         //
         // Testing:
         //   BREATHING TEST

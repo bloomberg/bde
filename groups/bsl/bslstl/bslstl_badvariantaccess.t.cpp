@@ -18,13 +18,13 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// The type under test is 'bsl::bad_variant_access', an exception type whose
+// The type under test is `bsl::bad_variant_access`, an exception type whose
 // interface and contract are dictated by the C++ standard.  If the
-// 'std::bad_variant_access' exception is available, we need to check that
-// 'bsl::bad_variant_access' is a typedef to the standard's exception type.  If
-// the 'std::bad_variant_access' exception isn't available, we need to check
-// that 'bsl::bad_variant_access' satisfies the interface and contract of
-// 'std::bad_variant_access'.
+// `std::bad_variant_access` exception is available, we need to check that
+// `bsl::bad_variant_access` is a typedef to the standard's exception type.  If
+// the `std::bad_variant_access` exception isn't available, we need to check
+// that `bsl::bad_variant_access` satisfies the interface and contract of
+// `std::bad_variant_access`.
 //
 // ----------------------------------------------------------------------------
 // CREATORS
@@ -37,7 +37,7 @@ using namespace BloombergLP;
 // [ 4] bsl::bad_variant_access
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] CONCERN: Methods qualified 'noexcept' in standard are so.
+// [ 2] CONCERN: Methods qualified `noexcept` in standard are so.
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -122,17 +122,17 @@ int main(int argc, char *argv[])
 #ifdef BDE_BUILD_TARGET_EXC
       case 4: {
         // --------------------------------------------------------------------
-        // 'bsl::bad_variant_access' TYPEDEF
+        // `bsl::bad_variant_access` TYPEDEF
         //
         // Concerns:
-        //: 1 The 'bsl::bad_variant_access' is a typedef for
-        //:   'std::bad_variant_access' if 'std::bad_variant_access' is
-        //:    available.
+        // 1. The `bsl::bad_variant_access` is a typedef for
+        //    `std::bad_variant_access` if `std::bad_variant_access` is
+        //     available.
         //
         // Plan:
-        //: 1 If we're using CPP17 library, check that
-        //: 'bsl::bad_variant_access' is the same type as
-        //: 'std::bad_variant_access' using 'bsl::is_same'.  (C-1)
+        // 1. If we're using CPP17 library, check that
+        //  `bsl::bad_variant_access` is the same type as
+        //  `std::bad_variant_access` using `bsl::is_same`.  (C-1)
         //
         // Testing:
         //   bsl::bad_variant_access
@@ -149,29 +149,29 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // DEFAULT CONSTRUCTION AND 'what' METHOD
+        // DEFAULT CONSTRUCTION AND `what` METHOD
         //
         // Concerns:
-        //: 1 A 'bad_variant_access' object can be default constructed.
-        //: 2 Invoking a 'what' method on a 'bad_variant_access' object
-        //:   returns a "bad_variant_access" string.
-        //: 3 'what' method can be invoked on a const 'bad_variant_access'
-        //:   object.
+        // 1. A `bad_variant_access` object can be default constructed.
+        // 2. Invoking a `what` method on a `bad_variant_access` object
+        //    returns a "bad_variant_access" string.
+        // 3. `what` method can be invoked on a const `bad_variant_access`
+        //    object.
         //
         // Plan:
-        //: 1 Default construct a 'const' 'bad_variant_access' object, then
-        //:   invoke the 'what' method on it and check that the returned string
-        //:   is "bad_variant_access".  (C-1..3)
+        // 1. Default construct a `const` `bad_variant_access` object, then
+        //    invoke the `what` method on it and check that the returned string
+        //    is "bad_variant_access".  (C-1..3)
         //
         // Testing:
         //   bad_variant_access();
         //   const char *what() const;
         // --------------------------------------------------------------------
         if (verbose)
-            printf("\nDEFAULT CONSTRUCTION AND 'what' METHOD"
+            printf("\nDEFAULT CONSTRUCTION AND `what` METHOD"
                    "\n======================================\n");
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-        // string returned by 'what()' method is implementation specific so we
+        // string returned by `what()` method is implementation specific so we
         // can only check our own implementation
         const bsl::bad_variant_access b;
         ASSERT(0 == strcmp("bad_variant_access", b.what()));
@@ -180,39 +180,39 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'noexcept' SPECIFICATION
+        // `noexcept` SPECIFICATION
         //
         // Concerns:
-        //: 1 The default constructor of 'bad_variant_access' is 'noexcept' as
-        //:   required by the standard.
-        //: 2 'bad_variant_access::what' is 'noexcept' as required by the
-        //:   standard.
+        // 1. The default constructor of `bad_variant_access` is `noexcept` as
+        //    required by the standard.
+        // 2. `bad_variant_access::what` is `noexcept` as required by the
+        //    standard.
         //
         // Plan:
-        //: 1 Apply the unary 'noexcept' operator to an expression that default
-        //:   constructs a 'bad_variant_access' object and confirm that the
-        //:   calculated boolean value matches the expected value.  (C-1)
-        //: 2 Apply the unary 'noexcept' operator to a call to
-        //:   'bad_variant_access::what' and confirm that the calculated
-        //:   boolean value matches the expected value.  (C-2)
+        // 1. Apply the unary `noexcept` operator to an expression that default
+        //    constructs a `bad_variant_access` object and confirm that the
+        //    calculated boolean value matches the expected value.  (C-1)
+        // 2. Apply the unary `noexcept` operator to a call to
+        //    `bad_variant_access::what` and confirm that the calculated
+        //    boolean value matches the expected value.  (C-2)
         //
         // Testing:
-        //   CONCERN: Methods qualified 'noexcept' in standard are so.
+        //   CONCERN: Methods qualified `noexcept` in standard are so.
         // --------------------------------------------------------------------
 
         if (verbose)
             printf("\n'noexcept' SPECIFICATION"
                    "\n========================\n");
 
-            // N4835: 20.6.5 Class 'bad_variant_access' [variant.bad.access]
-            //..
+            // N4835: 20.6.5 Class `bad_variant_access` [variant.bad.access]
+            // ```
             //     namespace std {
             //       class bad_variant_access: public std::exception {
             //       public:
             //         const char* what() const noexcept override;
             //       };
             //     } // namespace std
-            //..
+            // ```
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
         // While noexcept specification is a standard requirement, at least one
         // library implementation does not apply the noexcept specification
@@ -231,11 +231,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
+        // 1. Perform and ad-hoc test of the primary modifiers and accessors.
         //
         // Testing:
         //   BREATHING TEST

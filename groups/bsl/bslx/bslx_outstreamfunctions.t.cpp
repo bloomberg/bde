@@ -2,7 +2,7 @@
 
 #include <bsls_platform.h>
 
-// the following suppresses warnings from '#include' inlined functions
+// the following suppresses warnings from `#include` inlined functions
 #ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
@@ -33,8 +33,8 @@ using namespace bslx;
 //                              --------
 // This component provides two functions, each of which invokes a method of its
 // template parameter.  In addition, the component provides a number of
-// overloads of these methods for fundamental types, 'bsl::vector', and
-// 'bsl::string'.  A test type and a test stream are provided, each of which
+// overloads of these methods for fundamental types, `bsl::vector`, and
+// `bsl::string`.  A test type and a test stream are provided, each of which
 // responds in a simple, observable manner when its various methods are called.
 // The testing requirements are fairly straightforward and the provided test
 // type and test stream are used to verify the behavior of the two methods.
@@ -143,8 +143,8 @@ STREAM& bdexStreamOut(STREAM&                      stream,
 
 }  // close namespace ThirdParty
 
+/// This test class is used for testing the streaming functionality.
 class MyTestClass {
-    // This test class is used for testing the streaming functionality.
 
   public:
     // CLASS METHODS
@@ -182,8 +182,8 @@ STREAM& MyTestClass::bdexStreamOut(STREAM& stream, int version) const
     return stream;
 }
 
+/// Test class used to test streaming.
 class MyTestOutStream {
-    // Test class used to test streaming.
 
     int              d_versionSelector;
     bsl::vector<int> d_fun;
@@ -329,12 +329,12 @@ class MyTestOutStream {
     int lastVersion() const { return d_lastVersion; }
 };
 
+/// This class is a utility for verifying the results of
+/// `bdexStreamOut(stream, value, version)` applied to a (template
+/// parameter) type `TYPE`, `bsl::vector<TYPE>`, and
+/// `bsl::vector<bsl::vector<TYPE> >`.
 template <class TYPE>
 struct TestWithVersion {
-    // This class is a utility for verifying the results of
-    // 'bdexStreamOut(stream, value, version)' applied to a (template
-    // parameter) type 'TYPE', 'bsl::vector<TYPE>', and
-    // 'bsl::vector<bsl::vector<TYPE> >'.
 
     static void test(const int               line,
                      int                     version,
@@ -427,11 +427,11 @@ struct TestWithVersion {
     }
 };
 
+/// This class is a utility for verifying the results of
+/// `bdexStreamOut(stream, value)` applied to a (template parameter) type
+/// `TYPE`, `bsl::vector<TYPE>`, and `bsl::vector<bsl::vector<TYPE> >`.
 template <class TYPE>
 struct TestWithoutVersion {
-    // This class is a utility for verifying the results of
-    // 'bdexStreamOut(stream, value)' applied to a (template parameter) type
-    // 'TYPE', 'bsl::vector<TYPE>', and 'bsl::vector<bsl::vector<TYPE> >'.
 
     static void test(const int               line,
                      MyTestOutStream&        stream,
@@ -559,40 +559,40 @@ struct TestWithoutVersion {
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using 'bslx::OutStreamFunctions' to Externalize Data
+///Example 1: Using `bslx::OutStreamFunctions` to Externalize Data
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In this example we illustrate the primary intended use of the parameterized
 // methods of this component, as well as a few trivial invocations just to show
 // the syntax clearly.  To accomplish this, we exhibit two separate example
-// "components": a value-semantic point object, and an 'enum'.  In all cases,
+// "components": a value-semantic point object, and an `enum`.  In all cases,
 // the component designs are very simple, with much of the implied
 // functionality omitted, in order to focus attention on the key aspects of the
 // functionality of *this* component.
 //
-// First, consider an 'enum' 'Color' that enumerates a set of colors:
-//..
+// First, consider an `enum` `Color` that enumerates a set of colors:
+// ```
     enum Color {
         RED   = 0,
         GREEN = 1,
         BLUE  = 2
     };
-//..
+// ```
 // Next, we consider a very special-purpose point that has as a data member its
 // color.  Such a point provides an excellent opportunity for factoring, but
 // since we are interested in highlighting BDEX streaming of various types, we
 // will present a simple and unfactored design here.  In a real-world problem,
-// the 'mypoint' component would be implemented differently.
+// the `mypoint` component would be implemented differently.
 //
-// Note that the 'MyPoint' class in this example represents its coordinates as
-// 'short' integer values; this is done to make the BDEX stream output byte
+// Note that the `MyPoint` class in this example represents its coordinates as
+// `short` integer values; this is done to make the BDEX stream output byte
 // pattern somewhat easier for the reader of this example to recognize when the
 // output buffer is printed.
-//..
+// ```
     // mypoint.h
 
+    /// This class provides a geometric point having integer coordinates and
+    /// an enumerated color property.
     class MyPoint {
-        // This class provides a geometric point having integer coordinates and
-        // an enumerated color property.
 
         short d_x;      // x coordinate
         short d_y;      // y coordinate
@@ -600,62 +600,66 @@ struct TestWithoutVersion {
 
       public:
         // CLASS METHODS
+
+        /// Return the maximum valid BDEX format version, as indicated by
+        /// the specified `versionSelector`, to be passed to the
+        /// `bdexStreamOut` method.  Note that it is highly recommended that
+        /// versionSelector' be formatted as "YYYYMMDD", a date
+        /// representation.  Also note that `versionSelector` should be a
+        /// *compile*-time-chosen value that selects a format version
+        /// supported by both externalizer and unexternalizer.  See the
+        /// `bslx` package-level documentation for more information on BDEX
+        /// streaming of value-semantic types and containers.
         static int maxSupportedBdexVersion(int versionSelector);
-            // Return the maximum valid BDEX format version, as indicated by
-            // the specified 'versionSelector', to be passed to the
-            // 'bdexStreamOut' method.  Note that it is highly recommended that
-            // versionSelector' be formatted as "YYYYMMDD", a date
-            // representation.  Also note that 'versionSelector' should be a
-            // *compile*-time-chosen value that selects a format version
-            // supported by both externalizer and unexternalizer.  See the
-            // 'bslx' package-level documentation for more information on BDEX
-            // streaming of value-semantic types and containers.
 
         // CREATORS
+
+        /// Create a default point.
         MyPoint();
-            // Create a default point.
 
+        /// Create a point having the specified `x` and `y` coordinates and
+        /// the specified `color`.
         MyPoint(short x, short y, Color color);
-            // Create a point having the specified 'x' and 'y' coordinates and
-            // the specified 'color'.
 
+        /// Destroy this point.
         ~MyPoint();
-            // Destroy this point.
 
         // MANIPULATORS
         // ...
 
         // ACCESSORS
+
+        /// Return the x coordinate of this point.
         int x() const;
-            // Return the x coordinate of this point.
 
+        /// Return the y coordinate of this point.
         int y() const;
-            // Return the y coordinate of this point.
 
+        /// Return the enumerated color of this point.
         Color color() const;
-            // Return the enumerated color of this point.
 
+        /// Write the value of this object, using the specified `version`
+        /// format, to the specified output `stream`, and return a reference
+        /// to `stream`.  If `stream` is initially invalid, this operation
+        /// has no effect.  If `version` is not supported, `stream` is
+        /// invalidated, but otherwise unmodified.  Note that `version` is
+        /// not written to `stream`.  See the `bslx` package-level
+        /// documentation for more information on BDEX streaming of
+        /// value-semantic types and containers.
         template <class STREAM>
         STREAM& bdexStreamOut(STREAM& stream, int version) const;
-            // Write the value of this object, using the specified 'version'
-            // format, to the specified output 'stream', and return a reference
-            // to 'stream'.  If 'stream' is initially invalid, this operation
-            // has no effect.  If 'version' is not supported, 'stream' is
-            // invalidated, but otherwise unmodified.  Note that 'version' is
-            // not written to 'stream'.  See the 'bslx' package-level
-            // documentation for more information on BDEX streaming of
-            // value-semantic types and containers.
     };
 
     // FREE OPERATORS
+
+    /// Return `true` if the specified `lhs` and `rhs` points have the same
+    /// value, and `false` otherwise.  Two points have the same value if
+    /// they have the same x and y coordinates and the same color.
     inline
     bool operator==(const MyPoint& lhs, const MyPoint& rhs);
-        // Return 'true' if the specified 'lhs' and 'rhs' points have the same
-        // value, and 'false' otherwise.  Two points have the same value if
-        // they have the same x and y coordinates and the same color.
-//..
+// ```
 // Representative (inline) implementations of these methods are shown below:
-//..
+// ```
     // ========================================================================
     //                      INLINE FUNCTION DEFINITIONS
     // ========================================================================
@@ -723,94 +727,98 @@ struct TestWithoutVersion {
             && lhs.y()     == rhs.y()
             && lhs.color() == rhs.color();
     }
-//..
+// ```
 // Then, we will implement an extremely simple output stream that supports the
 // BDEX documentation-only protocol.  For simplicity, we will use a fixed-size
 // buffer (usually a bad idea in any event, and more so here since the
 // implementation knows the buffer size, but makes no effort to prevent
 // overwriting that buffer), and will only show a few methods needed for this
-// example.  See other 'bslx' stream components for examples of
+// example.  See other `bslx` stream components for examples of
 // properly-designed BDEX streams.
-//..
+// ```
     // myoutstream.h
     // ...
 
+    /// This class implements a limited-size fixed-buffer output stream that
+    /// partially conforms to the BDEX protocol for output streams.  This
+    /// class is suitable for demonstration purposes only.
     class MyOutStream {
-        // This class implements a limited-size fixed-buffer output stream that
-        // partially conforms to the BDEX protocol for output streams.  This
-        // class is suitable for demonstration purposes only.
 
         char d_buffer[1000]; // externalized values stored as contiguous bytes
 
-        int  d_length;       // length of data in 'd_buffer' (in bytes)
+        int  d_length;       // length of data in `d_buffer` (in bytes)
 
-        bool d_validFlag;    // stream validity flag; 'true' if stream is in
-                             // valid state, 'false' otherwise
+        bool d_validFlag;    // stream validity flag; `true` if stream is in
+                             // valid state, `false` otherwise
 
       public:
         // CREATORS
+
+        /// Create an empty output stream of limited, fixed capacity.  Note
+        /// that this object is suitable for demonstration purposes only.
         MyOutStream();
-            // Create an empty output stream of limited, fixed capacity.  Note
-            // that this object is suitable for demonstration purposes only.
 
         ~MyOutStream();
            // Destroy this output stream.
 
         // MANIPULATORS
+
+        /// Put this input stream in an invalid state.  This function has no
+        /// effect if this stream is already invalid.  Note that this
+        /// function should be called whenever a value extracted from this
+        /// stream is determined to be invalid, inconsistent, or otherwise
+        /// incorrect.
         void invalidate();
-            // Put this input stream in an invalid state.  This function has no
-            // effect if this stream is already invalid.  Note that this
-            // function should be called whenever a value extracted from this
-            // stream is determined to be invalid, inconsistent, or otherwise
-            // incorrect.
 
+        /// Write to this stream the one-byte, two's complement integer
+        /// comprised of the least-significant one byte of the specified
+        /// `version`, and return a reference to this stream.
         MyOutStream& putVersion(int version);
-            // Write to this stream the one-byte, two's complement integer
-            // comprised of the least-significant one byte of the specified
-            // 'version', and return a reference to this stream.
 
+        /// Write to this stream the four-byte, two's complement integer (in
+        /// network byte order) comprised of the least-significant four
+        /// bytes of the specified `value` (in host byte order), and return
+        /// a reference to this stream.
         MyOutStream& putInt32(int value);
-            // Write to this stream the four-byte, two's complement integer (in
-            // network byte order) comprised of the least-significant four
-            // bytes of the specified 'value' (in host byte order), and return
-            // a reference to this stream.
 
+        /// Write to this stream the two-byte, two's complement integer (in
+        /// network byte order) comprised of the least-significant two bytes
+        /// of the specified `value` (in host byte order), and return a
+        /// reference to this stream.
         MyOutStream& putInt16(int value);
-            // Write to this stream the two-byte, two's complement integer (in
-            // network byte order) comprised of the least-significant two bytes
-            // of the specified 'value' (in host byte order), and return a
-            // reference to this stream.
 
+        /// Write to this stream the one-byte, two's complement integer
+        /// comprised of the least-significant one byte of the specified
+        /// `value`, and return a reference to this stream.
         MyOutStream& putInt8(int value);
-            // Write to this stream the one-byte, two's complement integer
-            // comprised of the least-significant one byte of the specified
-            // 'value', and return a reference to this stream.
 
+        /// Remove all content in this stream.
         void removeAll();
-            // Remove all content in this stream.
 
         // ACCESSORS
-        const char *data() const;
-            // Return the address of the contiguous, non-modifiable internal
-            // memory buffer of this stream.  The address will remain valid as
-            // long as this stream is not destroyed or modified.  The behavior
-            // of accessing elements outside the range
-            // '[ data() .. data() + (length() - 1) ]' is undefined.
 
+        /// Return the address of the contiguous, non-modifiable internal
+        /// memory buffer of this stream.  The address will remain valid as
+        /// long as this stream is not destroyed or modified.  The behavior
+        /// of accessing elements outside the range
+        /// `[ data() .. data() + (length() - 1) ]` is undefined.
+        const char *data() const;
+
+        /// Return the number of bytes in this stream.
         int length() const;
-            // Return the number of bytes in this stream.
     };
 
     // FREE OPERATORS
+
+    /// Write the specified `object` to the specified output `stream` in
+    /// some reasonable (multi-line) format, and return a reference to
+    /// `stream`.
     inline
     bsl::ostream& operator<<(bsl::ostream&      stream,
                              const MyOutStream& object);
-        // Write the specified 'object' to the specified output 'stream' in
-        // some reasonable (multi-line) format, and return a reference to
-        // 'stream'.
-//..
+// ```
 // The relevant (inline) implementations are as follows.
-//..
+// ```
     // ========================================================================
     //                      INLINE FUNCTION DEFINITIONS
     // ========================================================================
@@ -889,7 +897,7 @@ struct TestWithoutVersion {
     {
         return d_length;
     }
-//..
+// ```
 
 // ============================================================================
 //                                 MAIN PROGRAM
@@ -915,14 +923,14 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -931,11 +939,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "Testing Usage Examples" << endl
                                   << "======================" << endl;
 
-// Finally, use the above 'enum', point class, and output stream to illustrate
-// 'bslx::OutStreamFunctions' functionality.  This test code does not attempt
+// Finally, use the above `enum`, point class, and output stream to illustrate
+// `bslx::OutStreamFunctions` functionality.  This test code does not attempt
 // to do anything more useful than writing known values to a stream and
 // confirming that the expected byte pattern was in fact written.
-//..
+// ```
     int             i     = 168496141;  // byte pattern 0a 0b 0c 0d
     Color           color = BLUE;       // byte pattern 02
     MyPoint         p(0, -1, color);    // byte pattern 00 00 ff ff 02
@@ -976,58 +984,58 @@ int main(int argc, char *argv[])
     bdexStreamOut(out, p, 1);
     ASSERT(5 == out.length());
     ASSERT(0 == bsl::memcmp(out.data(), "\x00\x00\xff\xff\x02", out.length()));
-//..
+// ```
 
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'bdexStreamOut(stream, value)'
-        //   Ensure the 'bdexStreamOut' methods forward to the correct stream
+        // TESTING `bdexStreamOut(stream, value)`
+        //   Ensure the `bdexStreamOut` methods forward to the correct stream
         //   methods and externalize the version where required.
         //
         // Concerns:
-        //: 1 The correct methods on 'stream' are invoked.
-        //:
-        //: 2 Testing covers all 'stream' methods.
-        //:
-        //: 3 Non-directly supported vectors are externalized correctly.
-        //:
-        //: 4 The version is forwarded correctly.
-        //:
-        //: 5 The version is externalized only where appropriate.
-        //:
-        //: 6 Vectors correctly externalize the version.
-        //:
-        //: 7 The version is indirectly obtained from the stream where
-        //:    appropriate.
+        // 1. The correct methods on `stream` are invoked.
+        //
+        // 2. Testing covers all `stream` methods.
+        //
+        // 3. Non-directly supported vectors are externalized correctly.
+        //
+        // 4. The version is forwarded correctly.
+        //
+        // 5. The version is externalized only where appropriate.
+        //
+        // 6. Vectors correctly externalize the version.
+        //
+        // 7. The version is indirectly obtained from the stream where
+        //     appropriate.
         //
         // Plan:
-        //: 1 Create a test stream object that will track invoked methods.
-        //:
-        //: 2 Create a test object which externalizes differently for different
-        //:   versions.
-        //:
-        //: 3 Externalize a set of objects which cover all directly supported
-        //:   BDEX types and verify correct method forwarding.  (C-1..2)
-        //:
-        //: 4 Externalize vectors of a test object and verify correct method
-        //:   forwarding.  (C-3)
-        //:
-        //: 5 Externalize a test object which externalizes differently for
-        //:   different versions and vectors of this type with different
-        //:   supplied versions; verify correct method forwarding.  (C-4)
-        //:
-        //: 6 Verify version is correctly externalized in all tests.  (C-5)
-        //:
-        //: 7 Repeat tests with different 'versionSelector' in the stream
-        //:   constructor and verify results.  (C-7)
+        // 1. Create a test stream object that will track invoked methods.
+        //
+        // 2. Create a test object which externalizes differently for different
+        //    versions.
+        //
+        // 3. Externalize a set of objects which cover all directly supported
+        //    BDEX types and verify correct method forwarding.  (C-1..2)
+        //
+        // 4. Externalize vectors of a test object and verify correct method
+        //    forwarding.  (C-3)
+        //
+        // 5. Externalize a test object which externalizes differently for
+        //    different versions and vectors of this type with different
+        //    supplied versions; verify correct method forwarding.  (C-4)
+        //
+        // 6. Verify version is correctly externalized in all tests.  (C-5)
+        //
+        // 7. Repeat tests with different `versionSelector` in the stream
+        //    constructor and verify results.  (C-7)
         //
         // Testing:
         //   bdexStreamOut(STREAM& stream, const TYPE& value)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'bdexStreamOut(stream, value)'" << endl
+                          << "TESTING `bdexStreamOut(stream, value)`" << endl
                           << "======================================" << endl;
 
         {  // first choice of versionSelector
@@ -1332,41 +1340,41 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'bdexStreamOut(stream, value, version)'
-        //   Ensure the 'bdexStreamOut' methods forward to the correct stream
+        // TESTING `bdexStreamOut(stream, value, version)`
+        //   Ensure the `bdexStreamOut` methods forward to the correct stream
         //   methods.
         //
         // Concerns:
-        //: 1 The correct methods on 'stream' are invoked.
-        //:
-        //: 2 Testing covers all 'stream' methods.
-        //:
-        //: 3 Non-directly supported vectors are externalized correctly.
-        //:
-        //: 4 The version is forwarded correctly.
+        // 1. The correct methods on `stream` are invoked.
+        //
+        // 2. Testing covers all `stream` methods.
+        //
+        // 3. Non-directly supported vectors are externalized correctly.
+        //
+        // 4. The version is forwarded correctly.
         //
         // Plan:
-        //: 1 Create a test stream object that will track invoked methods.
-        //:
-        //: 2 Create a test object which externalizes differently for different
-        //:   versions.
-        //:
-        //: 3 Externalize a set of objects which cover all directly supported
-        //:   BDEX types and verify correct method forwarding.  (C-1..2)
-        //:
-        //: 4 Externalize vectors of a test object and verify correct method
-        //:   forwarding.  (C-3)
-        //:
-        //: 5 Externalize a test object which externalizes differently for
-        //:   different versions and vectors of this type with different
-        //:   supplied versions; verify correct method forwarding.  (C-4)
+        // 1. Create a test stream object that will track invoked methods.
+        //
+        // 2. Create a test object which externalizes differently for different
+        //    versions.
+        //
+        // 3. Externalize a set of objects which cover all directly supported
+        //    BDEX types and verify correct method forwarding.  (C-1..2)
+        //
+        // 4. Externalize vectors of a test object and verify correct method
+        //    forwarding.  (C-3)
+        //
+        // 5. Externalize a test object which externalizes differently for
+        //    different versions and vectors of this type with different
+        //    supplied versions; verify correct method forwarding.  (C-4)
         //
         // Testing:
         //   bdexStreamOut(STREAM& stream, const TYPE& value, int version)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'bdexStreamOut(stream, value, version)'"
+                          << "TESTING `bdexStreamOut(stream, value, version)`"
                           << endl
                           << "==============================================="
                           << endl;

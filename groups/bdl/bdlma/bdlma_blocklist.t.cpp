@@ -23,13 +23,13 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// A 'bdlma::BlockList' is a mechanism (i.e., having state but no value) that
+// A `bdlma::BlockList` is a mechanism (i.e., having state but no value) that
 // is used as a memory manager to manage a doubly-linked list of dynamically
 // allocated blocks of arbitrary (non-zero) size.  The primary concerns are
-// that 'bdlma::BlockList' (1) returns maximally-aligned memory blocks of the
+// that `bdlma::BlockList` (1) returns maximally-aligned memory blocks of the
 // expected size from the object allocator, and (2) returns memory blocks back
-// to the object allocator via the 'deallocate' and 'release' methods, and upon
-// destruction.  We make heavy use of the 'bslma::TestAllocator' to ensure that
+// to the object allocator via the `deallocate` and `release` methods, and upon
+// destruction.  We make heavy use of the `bslma::TestAllocator` to ensure that
 // these concerns are satisfied.
 //-----------------------------------------------------------------------------
 // [ 2] bdlma::BlockList(bslma::Allocator *ba = 0);
@@ -106,7 +106,7 @@ typedef bdlma::BlockList Obj;
 //                   HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-// This type was copied from 'bdlma_blocklist.h' for testing purposes only.
+// This type was copied from `bdlma_blocklist.h` for testing purposes only.
 
 struct Block {
     Block                               *d_prev_p;
@@ -114,10 +114,10 @@ struct Block {
     bsls::AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
 };
 
+/// Round up the specified `x` to the nearest whole integer multiple of the
+/// specified `y`.  The behavior is undefined unless `0 <= x` and `0 < y`.
 static inline
 int roundUp(int x, int y)
-    // Round up the specified 'x' to the nearest whole integer multiple of the
-    // specified 'y'.  The behavior is undefined unless '0 <= x' and '0 < y'.
 {
     return (x + y - 1) / y * y;
 }
@@ -130,17 +130,17 @@ int roundUp(int x, int y)
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using a 'bdlma::BlockList' in a Memory Pool
+///Example 1: Using a `bdlma::BlockList` in a Memory Pool
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// A 'bdlma::BlockList' object is commonly used to supply memory to more
+// A `bdlma::BlockList` object is commonly used to supply memory to more
 // elaborate memory managers that distribute parts of each (larger) allocated
-// memory block supplied by the 'bdlma::BlockList' object.  The 'my_StrPool'
+// memory block supplied by the `bdlma::BlockList` object.  The `my_StrPool`
 // memory pool manager shown below requests relatively large blocks of memory
-// from its 'bdlma::BlockList' member object and distributes, via its
-// 'allocate' method, memory chunks of varying sizes from each block.
+// from its `bdlma::BlockList` member object and distributes, via its
+// `allocate` method, memory chunks of varying sizes from each block.
 //
-// First, we define the interface of our 'my_StrPool' class:
-//..
+// First, we define the interface of our `my_StrPool` class:
+// ```
     // my_strpool.h
 
     class my_StrPool {
@@ -157,11 +157,12 @@ int roundUp(int x, int y)
 
       private:
         // PRIVATE MANIPULATORS
+
+        /// Request a new memory block of at least the specified `numBytes`
+        /// size and allocate the initial `numBytes` from this block.
+        /// Return the address of the allocated memory.  The behavior is
+        /// undefined unless `0 < numBytes`.
         void *allocateBlock(bsls::Types::size_type numBytes);
-            // Request a new memory block of at least the specified 'numBytes'
-            // size and allocate the initial 'numBytes' from this block.
-            // Return the address of the allocated memory.  The behavior is
-            // undefined unless '0 < numBytes'.
 
       private:
         // NOT IMPLEMENTED
@@ -170,21 +171,23 @@ int roundUp(int x, int y)
 
       public:
         // CREATORS
-        my_StrPool(bslma::Allocator *basicAllocator = 0);
-            // Create a memory manager.  Optionally specify a 'basicAllocator'
-            // used to supply memory.  If 'basicAllocator' is 0, the currently
-            // installed default allocator is used.
 
+        /// Create a memory manager.  Optionally specify a `basicAllocator`
+        /// used to supply memory.  If `basicAllocator` is 0, the currently
+        /// installed default allocator is used.
+        my_StrPool(bslma::Allocator *basicAllocator = 0);
+
+        /// Destroy this object and release all associated memory.
         ~my_StrPool();
-            // Destroy this object and release all associated memory.
 
         // MANIPULATORS
-        void *allocate(bsls::Types::size_type numBytes);
-            // Allocate the specified 'numBytes' of memory and return its
-            // address.  If 'numBytes' is 0, return 0 with no other effect.
 
+        /// Allocate the specified `numBytes` of memory and return its
+        /// address.  If `numBytes` is 0, return 0 with no other effect.
+        void *allocate(bsls::Types::size_type numBytes);
+
+        /// Release all memory currently allocated through this object.
         void release();
-            // Release all memory currently allocated through this object.
     };
 
     // MANIPULATORS
@@ -194,9 +197,9 @@ int roundUp(int x, int y)
         d_blockList.release();
         d_block_p = 0;
     }
-//..
-// Finally, we provide the implementation of our 'my_StrPool' class:
-//..
+// ```
+// Finally, we provide the implementation of our `my_StrPool` class:
+// ```
     // my_strpool.cpp
 
     enum {
@@ -234,7 +237,7 @@ int roundUp(int x, int y)
     my_StrPool::my_StrPool(bslma::Allocator *basicAllocator)
     : d_blockSize(k_INITIAL_SIZE)
     , d_block_p(0)
-    , d_blockList(basicAllocator)  // the blocklist knows about 'bslma_default'
+    , d_blockList(basicAllocator)  // the blocklist knows about `bslma_default`
     {
     }
 
@@ -261,16 +264,16 @@ int roundUp(int x, int y)
             return allocateBlock(numBytes);                           // RETURN
         }
     }
-//..
-// In the code shown above, the 'my_StrPool' memory manager allocates from its
-// 'bdlma::BlockList' member object an initial memory block of size
-// 'k_INITIAL_SIZE'.  This size is multiplied by 'k_GROWTH_FACTOR' each time a
+// ```
+// In the code shown above, the `my_StrPool` memory manager allocates from its
+// `bdlma::BlockList` member object an initial memory block of size
+// `k_INITIAL_SIZE`.  This size is multiplied by `k_GROWTH_FACTOR` each time a
 // depleted memory block is replaced by a newly-allocated block.  The
-// 'allocate' method distributes memory from the current memory block
+// `allocate` method distributes memory from the current memory block
 // piecemeal, except when the requested size either (1) is not available in the
-// current block, or (2) exceeds the 'k_THRESHOLD_SIZE', in which case a
-// separate memory block is allocated and returned.  When the 'my_StrPool'
-// memory manager is destroyed, its 'bdlma::BlockList' member object is also
+// current block, or (2) exceeds the `k_THRESHOLD_SIZE`, in which case a
+// separate memory block is allocated and returned.  When the `my_StrPool`
+// memory manager is destroyed, its `bdlma::BlockList` member object is also
 // destroyed, which, in turn, automatically deallocates all of its managed
 // memory blocks.
 
@@ -303,13 +306,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -321,7 +324,7 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator oa("object", veryVeryVerbose);
 
-        if (verbose) cout << "Testing 'my_StrPool'." << endl;
+        if (verbose) cout << "Testing `my_StrPool`." << endl;
         {
             const int SIZE[] = { 0, 10, 127, 128, 129, 1000 };
             const int NUM_DATA = sizeof SIZE / sizeof *SIZE;
@@ -346,16 +349,16 @@ int main(int argc, char *argv[])
         // ALLOCATOR ACCESSOR TEST
         //
         // Concerns:
-        //: 1. 'allocator()' accessor returns the expected value.
-        //:
-        //: 2. 'allocator()' accessor is declared const.
+        //  1. `allocator()` accessor returns the expected value.
+        //
+        //  2. `allocator()` accessor is declared const.
         //
         // Plan:
-        //: 1 To test 'allocator', create object with various allocators and
-        //:   ensure the returned value matches the supplied allocator.  (C-1)
-        //:
-        //: 2 Directly test that 'allocator()', invoked on a 'const' object,
-        //:   returns the expected value.  (C-1..2)
+        // 1. To test `allocator`, create object with various allocators and
+        //    ensure the returned value matches the supplied allocator.  (C-1)
+        //
+        // 2. Directly test that `allocator()`, invoked on a `const` object,
+        //    returns the expected value.  (C-1..2)
         //
         // Testing:
         //   bslma::Allocator *allocator() const;
@@ -364,7 +367,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "ALLOCATOR ACCESSOR TEST" << endl
                                   << "=======================" << endl;
 
-        if (verbose) cout << "\nTesting 'allocator'." << endl;
+        if (verbose) cout << "\nTesting `allocator`." << endl;
         {
             Obj mX;  const Obj& X = mX;
             ASSERT(&defaultAllocator == X.allocator());
@@ -385,45 +388,45 @@ int main(int argc, char *argv[])
       case 4: {
         // --------------------------------------------------------------------
         // TESTING DEALLOCATE
-        //   Ensure that 'deallocate' releases the referenced memory block to
+        //   Ensure that `deallocate` releases the referenced memory block to
         //   the object allocator.
         //
         // Concerns:
-        //: 1 The memory block at (non-null) 'address' is released to the
-        //:   object allocator.
-        //:
-        //: 2 A memory block at any position in the block list can be
-        //:   deallocated.
-        //:
-        //: 3 Calling 'deallocate' with a null address has no effect.
+        // 1. The memory block at (non-null) `address` is released to the
+        //    object allocator.
+        //
+        // 2. A memory block at any position in the block list can be
+        //    deallocated.
+        //
+        // 3. Calling `deallocate` with a null address has no effect.
         //
         // Plan:
-        //: 1 Create a 'bslma::TestAllocator' object, and install it as the
-        //:   default allocator (note that a ubiquitous test allocator is
-        //:   already installed as the global allocator).
-        //:
-        //: 2 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of unique test pairs consisting of 'N', a
-        //:     positive number of allocations, and 'SEQ', the sequence in
-        //:     which the 'N' allocated blocks are to be deallocated.
-        //:
-        //: 3 For each row 'R' (representing a pair '(N, SEQ)') in the table
-        //:   described in P-2:  (C-1..2)
-        //:
-        //:   1 Create a 'bslma::TestAllocator' object 'oa'.
-        //:
-        //:   2 Use the default constructor and 'oa' to create a modifiable
-        //:     'Obj' 'mX'.
-        //:
-        //:   3 Allocate 'N' blocks from 'mX'.
-        //:
-        //:   4 Deallocate the 'N' blocks allocated in P-3 in the sequence
-        //:     specified by 'SEQ', and verify that each block is released to
-        //:     the object allocator.  (C-1..2)
-        //:
-        //: 4 Perform a separate test to verify that 'mX.deallocate(0)' has no
-        //:   effect.  (C-3)
+        // 1. Create a `bslma::TestAllocator` object, and install it as the
+        //    default allocator (note that a ubiquitous test allocator is
+        //    already installed as the global allocator).
+        //
+        // 2. Using the table-driven technique:
+        //
+        //   1. Specify a set of unique test pairs consisting of `N`, a
+        //      positive number of allocations, and `SEQ`, the sequence in
+        //      which the `N` allocated blocks are to be deallocated.
+        //
+        // 3. For each row `R` (representing a pair `(N, SEQ)`) in the table
+        //    described in P-2:  (C-1..2)
+        //
+        //   1. Create a `bslma::TestAllocator` object `oa`.
+        //
+        //   2. Use the default constructor and `oa` to create a modifiable
+        //      `Obj` `mX`.
+        //
+        //   3. Allocate `N` blocks from `mX`.
+        //
+        //   4. Deallocate the `N` blocks allocated in P-3 in the sequence
+        //      specified by `SEQ`, and verify that each block is released to
+        //      the object allocator.  (C-1..2)
+        //
+        // 4. Perform a separate test to verify that `mX.deallocate(0)` has no
+        //    effect.  (C-3)
         //
         // Testing:
         //   void deallocate(void *address);
@@ -432,7 +435,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "TESTING DEALLOCATE" << endl
                                   << "==================" << endl;
 
-        if (verbose) cout << "\nTesting 'deallocate'." << endl;
+        if (verbose) cout << "\nTesting `deallocate`." << endl;
 
         const int SIZE_DATA[]   = { 5, 12, 32, 256, 1000 };
         const int NUM_SIZE_DATA = sizeof SIZE_DATA / sizeof *SIZE_DATA;
@@ -518,42 +521,42 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // DTOR & RELEASE
-        //   Ensure that both the destructor and the 'release' method release
+        //   Ensure that both the destructor and the `release` method release
         //   all memory allocated from the object allocator.
         //
         // Concerns:
-        //: 1 All memory allocated from the object allocator is released at
-        //:   destruction.
-        //:
-        //: 2 All memory allocated from the object allocator is released by
-        //:   the 'release' method.
-        //:
-        //: 3 Additional allocations can be made from the object following
-        //:   a call to 'release'.
+        // 1. All memory allocated from the object allocator is released at
+        //    destruction.
+        //
+        // 2. All memory allocated from the object allocator is released by
+        //    the `release` method.
+        //
+        // 3. Additional allocations can be made from the object following
+        //    a call to `release`.
         //
         // Plan:
-        //: 1 Create a 'bslma::TestAllocator' object, and install it as the
-        //:   default allocator (note that a ubiquitous test allocator is
-        //:   already installed as the global allocator).
-        //:
-        //: 2 For 'N' in the range '[0 .. 4]':
-        //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
-        //:
-        //:   2 Use the default constructor and 'oa' to create a modifiable
-        //:     'Obj' 'mX'.
-        //:
-        //:   3 Allocate 'N' blocks from 'mX' and verify that the requested
-        //:     number of blocks were allocated from 'oa'.
-        //:
-        //:   4 Allow 'mX' to go out of scope and verify that the destructor
-        //:     released all memory back to 'oa'.  (C-1)
-        //:
-        //:  3 Repeat P-2 except invoke 'release' on 'mX' following P-2.3 and
-        //:    verify that 'release' released all memory back to 'oa'.  (C-2)
-        //:
-        //:  4 Following each call to 'release', allocate 'N' additional blocks
-        //:    from 'mX' and verify that the requested number of blocks were
-        //:    allocated from 'oa'.  (C-3)
+        // 1. Create a `bslma::TestAllocator` object, and install it as the
+        //    default allocator (note that a ubiquitous test allocator is
+        //    already installed as the global allocator).
+        //
+        // 2. For `N` in the range `[0 .. 4]`:
+        //   1. Create a `bslma::TestAllocator` object, `oa`.
+        //
+        //   2. Use the default constructor and `oa` to create a modifiable
+        //      `Obj` `mX`.
+        //
+        //   3. Allocate `N` blocks from `mX` and verify that the requested
+        //      number of blocks were allocated from `oa`.
+        //
+        //   4. Allow `mX` to go out of scope and verify that the destructor
+        //      released all memory back to `oa`.  (C-1)
+        //
+        //  3. Repeat P-2 except invoke `release` on `mX` following P-2.3 and
+        //     verify that `release` released all memory back to `oa`.  (C-2)
+        //
+        //  4. Following each call to `release`, allocate `N` additional blocks
+        //     from `mX` and verify that the requested number of blocks were
+        //     allocated from `oa`.  (C-3)
         //
         // Testing:
         //   ~bdlma::BlockList();
@@ -590,7 +593,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'release'." << endl;
+        if (verbose) cout << "\nTesting `release`." << endl;
         {
             for (int ti = 0; ti <= NUM_DATA; ++ti) {
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
@@ -626,98 +629,98 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // DEFAULT CTOR & ALLOCATE
         //   Ensure that we can use the default constructor to create an
-        //   object, and that we can 'allocate' memory from that object.
+        //   object, and that we can `allocate` memory from that object.
         //
         // Concerns:
-        //: 1 If an allocator is NOT supplied to the default constructor, the
-        //:   default allocator in effect at the time of construction becomes
-        //:   the object allocator for the resulting object.
-        //:
-        //: 2 If an allocator IS supplied to the default constructor, that
-        //:   allocator becomes the object allocator for the resulting object.
-        //:
-        //: 3 Supplying a null allocator address has the same effect as not
-        //:   supplying an allocator.
-        //:
-        //: 4 The default constructor allocates no memory.
-        //:
-        //: 5 Any memory allocation is from the object allocator.
-        //:
-        //: 6 Memory blocks returned by 'allocate' are of at least the
-        //:   requested size (in bytes).
-        //:
-        //: 7 Memory blocks returned by 'allocate' are maximally aligned.
-        //:
-        //: 8 Calling 'allocate' with 0 returns 0 and has no effect on any
-        //:   allocator.
-        //:
-        //: 9 There is no temporary allocation from any allocator.
-        //:
-        //:10 QoI: Asserted precondition violations are detected when enabled.
+        // 1. If an allocator is NOT supplied to the default constructor, the
+        //    default allocator in effect at the time of construction becomes
+        //    the object allocator for the resulting object.
+        //
+        // 2. If an allocator IS supplied to the default constructor, that
+        //    allocator becomes the object allocator for the resulting object.
+        //
+        // 3. Supplying a null allocator address has the same effect as not
+        //    supplying an allocator.
+        //
+        // 4. The default constructor allocates no memory.
+        //
+        // 5. Any memory allocation is from the object allocator.
+        //
+        // 6. Memory blocks returned by `allocate` are of at least the
+        //    requested size (in bytes).
+        //
+        // 7. Memory blocks returned by `allocate` are maximally aligned.
+        //
+        // 8. Calling `allocate` with 0 returns 0 and has no effect on any
+        //    allocator.
+        //
+        // 9. There is no temporary allocation from any allocator.
+        //
+        // 10. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using a loop-based approach, default-construct three distinct
-        //:   objects, in turn, but configured differently: (a) without passing
-        //:   an allocator, (b) passing a null allocator address explicitly,
-        //:   and (c) passing the address of a test allocator distinct from the
-        //:   default.  For each of these three iterations:  (C-1..5, 9)
-        //:
-        //:   1 Create three 'bslma::TestAllocator' objects, and install one as
-        //:     as the current default allocator (note that a ubiquitous test
-        //:     allocator is already installed as the global allocator).
-        //:
-        //:   2 Use the default constructor to dynamically create an object
-        //:     'mX', with its object allocator configured appropriately (see
-        //:     P-2); use a distinct test allocator for the object's footprint.
-        //:
-        //:   3 Use the appropriate test allocators to verify that no memory
-        //:     is allocated by the default constructor.  (C-4)
-        //:
-        //:   4 Allocate a couple of blocks from 'mX' and verify that all
-        //:     memory is allocated from the object allocator.  (C-1..3, 5)
-        //:
-        //:   5 Verify that no temporary memory is allocated from any
-        //:     allocator.  (C-9)
-        //:
-        //:   6 Verify that all object memory is released when the object is
-        //:     destroyed.  Note that the destructor is fully tested in case 3.
-        //:
-        //: 2 Create a 'bslma::TestAllocator' object and install it as the
-        //:   current default allocator.
-        //:
-        //: 3 Using the table-driven technique:
-        //:
-        //:   1 Specify a set of positive allocation request sizes.
-        //:
-        //: 4 For each row 'R' (representing an allocation request size, 'S')
-        //:   in the table described in P-3:  (C-5..7, 9)
-        //:
-        //:   1 Create a 'bslma::TestAllocator' object 'oa'.
-        //:
-        //:   2 Use the default constructor and 'oa' to create a modifiable
-        //:     'Obj' 'mX'.
-        //:
-        //:   3 Invoke 'mX.allocate(S)'.
-        //:
-        //:   4 Verify that the returned memory address is non-null and that
-        //:     the memory was allocated from the object allocator.  (C-5)
-        //:
-        //:   5 Verify that the actual size of the allocated block recorded by
-        //:     the allocator is equal to the expected size, and that the
-        //:     returned memory address is properly offset to reserve room for
-        //:     the memory block header.  (C-6)
-        //:
-        //:   6 Verify that the returned memory address is maximally aligned.
-        //:     (C-7)
-        //:
-        //:   7 Verify that no temporary memory is allocated from any
-        //:     allocator.  (C-9)
-        //:
-        //: 5 Perform a separate test to verify that 'mX.allocate(0)' returns 0
-        //:   and has no effect on any allocator.  (C-8)
-        //:
-        //: 6 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered.  (C-10)
+        // 1. Using a loop-based approach, default-construct three distinct
+        //    objects, in turn, but configured differently: (a) without passing
+        //    an allocator, (b) passing a null allocator address explicitly,
+        //    and (c) passing the address of a test allocator distinct from the
+        //    default.  For each of these three iterations:  (C-1..5, 9)
+        //
+        //   1. Create three `bslma::TestAllocator` objects, and install one as
+        //      as the current default allocator (note that a ubiquitous test
+        //      allocator is already installed as the global allocator).
+        //
+        //   2. Use the default constructor to dynamically create an object
+        //      `mX`, with its object allocator configured appropriately (see
+        //      P-2); use a distinct test allocator for the object's footprint.
+        //
+        //   3. Use the appropriate test allocators to verify that no memory
+        //      is allocated by the default constructor.  (C-4)
+        //
+        //   4. Allocate a couple of blocks from `mX` and verify that all
+        //      memory is allocated from the object allocator.  (C-1..3, 5)
+        //
+        //   5. Verify that no temporary memory is allocated from any
+        //      allocator.  (C-9)
+        //
+        //   6. Verify that all object memory is released when the object is
+        //      destroyed.  Note that the destructor is fully tested in case 3.
+        //
+        // 2. Create a `bslma::TestAllocator` object and install it as the
+        //    current default allocator.
+        //
+        // 3. Using the table-driven technique:
+        //
+        //   1. Specify a set of positive allocation request sizes.
+        //
+        // 4. For each row `R` (representing an allocation request size, `S`)
+        //    in the table described in P-3:  (C-5..7, 9)
+        //
+        //   1. Create a `bslma::TestAllocator` object `oa`.
+        //
+        //   2. Use the default constructor and `oa` to create a modifiable
+        //      `Obj` `mX`.
+        //
+        //   3. Invoke `mX.allocate(S)`.
+        //
+        //   4. Verify that the returned memory address is non-null and that
+        //      the memory was allocated from the object allocator.  (C-5)
+        //
+        //   5. Verify that the actual size of the allocated block recorded by
+        //      the allocator is equal to the expected size, and that the
+        //      returned memory address is properly offset to reserve room for
+        //      the memory block header.  (C-6)
+        //
+        //   6. Verify that the returned memory address is maximally aligned.
+        //      (C-7)
+        //
+        //   7. Verify that no temporary memory is allocated from any
+        //      allocator.  (C-9)
+        //
+        // 5. Perform a separate test to verify that `mX.allocate(0)` returns 0
+        //    and has no effect on any allocator.  (C-8)
+        //
+        // 6. Verify that, in appropriate build modes, defensive checks are
+        //    triggered.  (C-10)
         //
         // Testing:
         //   bdlma::BlockList(bslma::Allocator *ba = 0);
@@ -843,7 +846,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout << "\nTesting 'allocate'." << endl;
+        if (verbose) cout << "\nTesting `allocate`." << endl;
 
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);
@@ -877,7 +880,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(LINE, ti,      1 == oa.numBlocksTotal());
         }
 
-        if (verbose) cout << "\nTesting 'allocate(0)'." << endl;
+        if (verbose) cout << "\nTesting `allocate(0)`." << endl;
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -896,17 +899,17 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create a modifiable object 'mX'.
-        //: 2 Allocate a block 'b1' from 'mX'.
-        //: 3 Deallocate block 'b1'.
-        //: 4 Allocate blocks 'b2' and 'b3' from 'mX'.
-        //: 5 Invoke the release method on 'mX'.
-        //: 6 Allocate a block 'b4' from 'mX'.
-        //: 7 Allow 'mX' to go out of scope.
+        // 1. Create a modifiable object `mX`.
+        // 2. Allocate a block `b1` from `mX`.
+        // 3. Deallocate block `b1`.
+        // 4. Allocate blocks `b2` and `b3` from `mX`.
+        // 5. Invoke the release method on `mX`.
+        // 6. Allocate a block `b4` from `mX`.
+        // 7. Allow `mX` to go out of scope.
         //
         // Testing:
         //   BREATHING TEST

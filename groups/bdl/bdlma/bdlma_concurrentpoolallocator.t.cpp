@@ -18,9 +18,9 @@
 #include <bsls_types.h>
 
 #include <bsl_cassert.h>
-#include <bsl_cstdio.h>   // 'sprintf'
-#include <bsl_cstdlib.h>  // 'atoi'
-#include <bsl_cstring.h>  // 'strcmp'
+#include <bsl_cstdio.h>   // `sprintf`
+#include <bsl_cstdlib.h>  // `atoi`
+#include <bsl_cstring.h>  // `strcmp`
 #include <bsl_iostream.h>
 #include <bsl_list.h>
 #include <bsl_map.h>
@@ -122,10 +122,10 @@ typedef bdlma::ConcurrentPoolAllocator Obj;
 
 //-----------------------------------------------------------------------------
 
+/// This class implements the `Allocator` protocol to provide an allocator
+/// that dispenses memory up to a maximum size, verifies truncated
+/// allocations are not overrun, and tracks the allocations.
 class TrackingAllocator : public bslma::Allocator {
-    // This class implements the 'Allocator' protocol to provide an allocator
-    // that dispenses memory up to a maximum size, verifies truncated
-    // allocations are not overrun, and tracks the allocations.
 
     enum {
         k_LARGE = 0x100000
@@ -141,10 +141,11 @@ class TrackingAllocator : public bslma::Allocator {
     TrackingAllocator() : d_lastAllocationSize(0) {}
 
     // MANIPULATORS
+
+    /// Return a newly allocated block of memory of the lesser of `k_LARGE`
+    /// and the specified `size` bytes.  Track the address of the returned
+    /// memory and the `size`.
     void *allocate(bsls::Types::size_type size) BSLS_KEYWORD_OVERRIDE
-        // Return a newly allocated block of memory of the lesser of 'k_LARGE'
-        // and the specified 'size' bytes.  Track the address of the returned
-        // memory and the 'size'.
     {
         void *p = size < k_LARGE
                 ? bslma::Default::defaultAllocator()->allocate(size)
@@ -156,11 +157,11 @@ class TrackingAllocator : public bslma::Allocator {
         return p;
     }
 
+    /// Return the memory block at the specified `address` to this
+    /// allocator.  Remove the address from tracking.  The behavior is
+    /// undefined unless `address` was allocated using this allocator object
+    /// and has not already been deallocated.
     void deallocate(void *address) BSLS_KEYWORD_OVERRIDE
-        // Return the memory block at the specified 'address' to this
-        // allocator.  Remove the address from tracking.  The behavior is
-        // undefined unless 'address' was allocated using this allocator object
-        // and has not already been deallocated.
     {
         if (d_data[address] < k_LARGE) {
             bslma::Default::defaultAllocator()->deallocate(address);
@@ -172,14 +173,15 @@ class TrackingAllocator : public bslma::Allocator {
     }
 
     // ACCESSORS
+
+    /// Return the number of addresses being tracked.
     bsls::Types::size_type size() const
-        // Return the number of addresses being tracked.
     {
         return d_data.size();
     }
 
+    /// Return the size of the last allocation request.
     bsls::Types::size_type lastAllocationSize() const
-        // Return the size of the last allocation request.
     {
         return d_lastAllocationSize;
     }
@@ -191,12 +193,12 @@ class TrackingAllocator : public bslma::Allocator {
 // The following structure and function is copied from the implementation
 // directly.
 
+/// Leading header on each allocated memory block.  If the memory block was
+/// allocated from the pool, the `d_magicNumber` will be set to
+/// `MAGIC_NUMBER`.  Otherwise, memory was allocated by the external
+/// allocator supplied during construction, and `d_magicNumber` will be
+/// zero.
 union Header {
-    // Leading header on each allocated memory block.  If the memory block was
-    // allocated from the pool, the 'd_magicNumber' will be set to
-    // 'MAGIC_NUMBER'.  Otherwise, memory was allocated by the external
-    // allocator supplied during construction, and 'd_magicNumber' will be
-    // zero.
 
     int                                 d_magicNumber;  // allocation source
                                                         // and sanity check
@@ -280,10 +282,10 @@ extern "C" void *my3_down(void *arg)
     return 0;
 }
 
+/// Using only primary manipulators, extend the capacity of the specified
+/// `object` to (at least) the specified `numElements`.  The behavior is
+/// undefined unless `0 <= numElements` and `0 <= objSize`.
 void stretch(Obj *object, int numElements)
-    // Using only primary manipulators, extend the capacity of the specified
-    // 'object' to (at least) the specified 'numElements'.  The behavior is
-    // undefined unless '0 <= numElements' and '0 <= objSize'.
 {
     ASSERT(object);
     ASSERT(0 <= numElements);
@@ -293,11 +295,11 @@ void stretch(Obj *object, int numElements)
     }
 }
 
+/// Using only primary manipulators, extend the capacity of the specified
+/// `object` to (at least) the specified `numElements`, then remove all
+/// elements leaving `object` empty.  The behavior is undefined unless
+/// `0 <= numElements` and `0 <= objSize`.
 void stretchRemoveAll(Obj *object, int numElements)
-    // Using only primary manipulators, extend the capacity of the specified
-    // 'object' to (at least) the specified 'numElements', then remove all
-    // elements leaving 'object' empty.  The behavior is undefined unless
-    // '0 <= numElements' and '0 <= objSize'.
 {
     ASSERT(object);
     ASSERT(0 <= numElements);
@@ -311,47 +313,47 @@ void stretchRemoveAll(Obj *object, int numElements)
 //-----------------------------------------------------------------------------
 ///Usage
 ///-----
-// The 'bdlma::ConcurrentPoolAllocator' is intended to be used in either of the
+// The `bdlma::ConcurrentPoolAllocator` is intended to be used in either of the
 // following two cases.
 //
 // The first case is where frequent allocation and deallocation of memory
-// occurs through the 'bslma::Allocator' protocol and all of the allocated
+// occurs through the `bslma::Allocator` protocol and all of the allocated
 // blocks have the same size.  In this case, the size of blocks to pool is
-// determined the first time 'allocate' is called and need not be specified at
+// determined the first time `allocate` is called and need not be specified at
 // construction.
 //
 // The second case is where frequent allocation and deallocation of memory
-// occurs through the 'bslma::Allocator' protocol, most of the allocations have
+// occurs through the `bslma::Allocator` protocol, most of the allocations have
 // similar sizes, and a likely maximum for the largest allocation is known at
 // the time of construction.
 //
 ///Example 1 - Uniform Sized Allocations
 ///- - - - - - - - - - - - - - - - - - -
 // The following example illustrates the use of
-// 'bdlma::ConcurrentPoolAllocator' when all allocations are of uniform size.
-// A 'bdlma::ConcurrentPoolAllocator' is used in the implementation of a "work
+// `bdlma::ConcurrentPoolAllocator` when all allocations are of uniform size.
+// A `bdlma::ConcurrentPoolAllocator` is used in the implementation of a "work
 // queue" where each "item" enqueued by a producer thread is of identical size.
 // Concurrently, a consumer dequeues each work item when it becomes available,
 // verifies the content (a sequence number in ASCII), and deallocates the work
 // item.  The concurrent allocations and deallocations are valid because
-// 'bdlma::ConcurrentPoolAllocator' is thread-safe.
+// `bdlma::ConcurrentPoolAllocator` is thread-safe.
 //
 // First, an abstract of the example will be given with focus and commentary on
-// the relevant details of 'bdlma::ConcurrentPoolAllocator'.  Details
+// the relevant details of `bdlma::ConcurrentPoolAllocator`.  Details
 // pertaining to queue management, thread creation, thread synchronization,
 // etc., can be seen in the full listing at the end of this example.
 //
-// The parent thread creates the 'bdlma::ConcurrentPoolAllocator' and work
+// The parent thread creates the `bdlma::ConcurrentPoolAllocator` and work
 // queue by the statements:
-//..
+// ```
 //  bdlma::ConcurrentPoolAllocator poolAlloc;
 //  my1_WorkQueue queue(&poolAlloc);
-//..
-// Note that since the default constructor is used to create 'poolAlloc', the
+// ```
+// Note that since the default constructor is used to create `poolAlloc`, the
 // pooled size has not yet been fixed.
 //
 // The work queue is defined by the following data structures.
-//..
+// ```
 //  struct my1_WorkItem {
 //      // DATA
 //      char *d_item;  // represents work to perform
@@ -370,7 +372,7 @@ void stretchRemoveAll(Obj *object, int numElements)
 //      {
 //      }
 //  };
-//..
+// ```
 // The producer and consumer threads are given the address of the work queue as
 // their sole argument.  Here, the producer allocates a work item, initializes
 // it with a sequence number in ASCII, enqueues it, and signals its presence to
@@ -379,7 +381,7 @@ void stretchRemoveAll(Obj *object, int numElements)
 // first allocation of a work item (100 bytes) fixes the pooled size.  Each
 // subsequent allocation is that same size (100 bytes).  The producer's actions
 // are shown below:
-//..
+// ```
 //  extern "C"
 //  void *my1_producer(void *arg)
 //  {
@@ -407,14 +409,14 @@ void stretchRemoveAll(Obj *object, int numElements)
 //
 //      return queue;
 //  }
-//..
+// ```
 // When the consumer thread finds that the queue is not empty it dequeues the
 // item, verifies its content (a sequence number in ASCII), returns the work
 // item to the pool, and checks for the next item.  If the queue is empty, the
 // consumer blocks until signaled by the producer.  An empty work item
 // indicates that the producer will send no more items, so the consumer exits.
 // The consumer's actions are shown below:
-//..
+// ```
 //  extern "C"
 //  void *my1_consumer(void *arg)
 //  {
@@ -440,9 +442,9 @@ void stretchRemoveAll(Obj *object, int numElements)
 //
 //      return 0;
 //  }
-//..
+// ```
 // A complete listing of the example's structures and functions follows:
-//..
+// ```
     struct my1_WorkItem {
         // DATA
         char *d_item;  // represents work to perform
@@ -482,8 +484,8 @@ void stretchRemoveAll(Obj *object, int numElements)
             bsl::memcpy(request.d_item, b, len+1);
 
             if (veryVerbose) {
-                // Assume thread-safe implementations of 'cout' and 'endl'
-                // exist (named 'MTCOUT' and 'MTENDL', respectively).
+                // Assume thread-safe implementations of `cout` and `endl`
+                // exist (named `MTCOUT` and `MTENDL`, respectively).
 
                 MTCOUT << "Enqueuing " << request.d_item << MTENDL;
             }
@@ -526,8 +528,8 @@ void stretchRemoveAll(Obj *object, int numElements)
 
             // Process the work requests.
             if (veryVerbose) {
-                // Assume thread-safe implementations of 'cout' and 'endl'
-                // exist (named 'MTCOUT' and 'MTENDL', respectively).
+                // Assume thread-safe implementations of `cout` and `endl`
+                // exist (named `MTCOUT` and `MTENDL`, respectively).
 
                 MTCOUT << "Processing " << item.d_item << MTENDL;
             }
@@ -541,38 +543,38 @@ void stretchRemoveAll(Obj *object, int numElements)
 
         return 0;
     }
-//..
+// ```
 
 //
 ///Example 2 - Variable Allocation Size
 /// - - - - - - - - - - - - - - - - - -
 // The following example illustrates the use of
-// 'bdlma::ConcurrentPoolAllocator' when allocations are of varying size.  A
-// 'bdlma::ConcurrentPoolAllocator' is used in the implementation of a "work
+// `bdlma::ConcurrentPoolAllocator` when allocations are of varying size.  A
+// `bdlma::ConcurrentPoolAllocator` is used in the implementation of a "work
 // queue" where each "item" enqueued by a producer thread varies in size, but
 // all items are smaller than a known maximum.  Concurrently, a consumer thread
 // dequeues each work item when it is available, verifies its content (a
 // sequence number in ASCII), and deallocates the work item.  The concurrent
 // allocations and deallocations are valid because
-// 'bdlma::ConcurrentPoolAllocator' is thread-safe.
+// `bdlma::ConcurrentPoolAllocator` is thread-safe.
 //
 // First, an abstract of the example will be given with focus and commentary on
-// the relevant details of 'bdlma::ConcurrentPoolAllocator'.  Details
+// the relevant details of `bdlma::ConcurrentPoolAllocator`.  Details
 // pertaining to queue management, thread creation, thread synchronization,
 // etc., can be seen in the full listing at the end of this example.
 //
-// The parent thread creates the 'bdlma::ConcurrentPoolAllocator' and work
+// The parent thread creates the `bdlma::ConcurrentPoolAllocator` and work
 // queue by the statements:
-//..
+// ```
 //  bdlma::ConcurrentPoolAllocator poolAlloc(100);
 //  my1_WorkQueue queue(&poolAlloc);
-//..
+// ```
 // Note that the pooled size (100) is specified in the construction of
-// 'poolAlloc'.  Any requests in excess of that size will be satisfied by
+// `poolAlloc`.  Any requests in excess of that size will be satisfied by
 // implicit calls to the default allocator, not from the underlying pool.
 //
 // The work queue is defined by the following data structures.
-//..
+// ```
 //  struct my2_WorkItem {
 //      // DATA
 //      char *d_item;  // represents work to perform
@@ -592,10 +594,10 @@ void stretchRemoveAll(Obj *object, int numElements)
 //      {
 //      }
 //  };
-//..
+// ```
 // In this example (unlike Example 1), the given allocator is used not only for
-// the work items, but is also passed to the constructor of 'd_queue' so that
-// it also serves memory for the operations of 'bsl::list<my2_WorkItem>'.
+// the work items, but is also passed to the constructor of `d_queue` so that
+// it also serves memory for the operations of `bsl::list<my2_WorkItem>`.
 //
 // The producer and consumer threads are given the address of the work queue as
 // their sole argument.  Here, the producer allocates a work item, initializes
@@ -604,7 +606,7 @@ void stretchRemoveAll(Obj *object, int numElements)
 // work item is added to inform the consumer of the end of the queue.  In this
 // example, each work item is sized to match the length of its contents, the
 // sequence number in ASCII.  The producer's actions are shown below:
-//..
+// ```
 //  extern "C" void *my2_producer(void *arg)
 //  {
 //      my2_WorkQueue *queue = (my2_WorkQueue *)arg;
@@ -632,7 +634,7 @@ void stretchRemoveAll(Obj *object, int numElements)
 //
 //      return queue;
 //  }
-//..
+// ```
 // The actions of this consumer thread are essentially the same as those of the
 // consumer thread in Example 1.
 //
@@ -642,7 +644,7 @@ void stretchRemoveAll(Obj *object, int numElements)
 // consumer blocks until signaled by the producer.  An empty work item
 // indicates that the producer will send no more items, so the consumer exits.
 // The consumer's actions are shown below.
-//..
+// ```
 //  extern "C" void *my2_consumer(void *arg)
 //  {
 //      my2_WorkQueue *queue = (my2_WorkQueue *)arg;
@@ -667,9 +669,9 @@ void stretchRemoveAll(Obj *object, int numElements)
 //
 //      return 0;
 //  }
-//..
+// ```
 // A complete listing of the example's structures and functions follows:
-//..
+// ```
     struct my2_WorkItem {
         // DATA
         char *d_item;  // represents work to perform
@@ -710,8 +712,8 @@ void stretchRemoveAll(Obj *object, int numElements)
             bsl::memcpy(request.d_item, b, len+1);
 
             if (veryVerbose) {
-                // Assume thread-safe implementations of 'cout' and 'endl'
-                // exist (named 'MTCOUT' and 'MTENDL', respectively).
+                // Assume thread-safe implementations of `cout` and `endl`
+                // exist (named `MTCOUT` and `MTENDL`, respectively).
 
                 MTCOUT << "Enqueuing " << request.d_item << MTENDL;
             }
@@ -754,8 +756,8 @@ void stretchRemoveAll(Obj *object, int numElements)
 
             // Process the work requests.
             if (veryVerbose) {
-                // Assume thread-safe implementations of 'cout' and 'endl'
-                // exist (named 'MTCOUT' and 'MTENDL', respectively).
+                // Assume thread-safe implementations of `cout` and `endl`
+                // exist (named `MTCOUT` and `MTENDL`, respectively).
 
                 MTCOUT << "Processing " << item.d_item << MTENDL;
             }
@@ -769,7 +771,7 @@ void stretchRemoveAll(Obj *object, int numElements)
 
         return 0;
     }
-//..
+// ```
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -798,7 +800,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -806,8 +808,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsage example" << endl;
 
-// In the application 'main':
-//..
+// In the application `main`:
+// ```
     {
         bdlma::ConcurrentPoolAllocator poolAlloc;
         my1_WorkQueue queue(&poolAlloc);
@@ -832,10 +834,10 @@ int main(int argc, char *argv[])
         status = bslmt::ThreadUtil::join(producerHandle);
         ASSERT(0 == status);
     }
-//..
+// ```
 
-// In the application's 'main':
-//..
+// In the application's `main`:
+// ```
     {
         bdlma::ConcurrentPoolAllocator poolAlloc(100);
         my2_WorkQueue queue(&poolAlloc);
@@ -860,7 +862,7 @@ int main(int argc, char *argv[])
         status = bslmt::ThreadUtil::join(producerHandle);
         ASSERT(0 == status);
     }
-//..
+// ```
 
       } break;
       case 6: {
@@ -868,12 +870,12 @@ int main(int argc, char *argv[])
         // DRQS 143479677: LARGE ALLOCATION FAILURE
         //
         // Concerns:
-        //: 1 Large allocations are not correctly forwarded to underlying
-        //:   allocator.
+        // 1. Large allocations are not correctly forwarded to underlying
+        //    allocator.
         //
         // Plan:
-        //: 1 Directly test large allocations using a 'TrackingAllocator'.
-        //:   Failure is indicated by 'blockSize()' being zero.  (C-1)
+        // 1. Directly test large allocations using a `TrackingAllocator`.
+        //    Failure is indicated by `blockSize()` being zero.  (C-1)
         //
         // Testing:
         //   DRQS 143479677: LARGE ALLOCATION FAILURE
@@ -936,14 +938,14 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'reserveCapacity' AND 'release'
+        // TESTING `reserveCapacity` AND `release`
         //
         // Testing:
         //   void reserveCapacity(int numObjects);
         //   void release();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'reserveCapacity' AND 'release'"
+        if (verbose) cout << "\nTESTING `reserveCapacity` AND `release`"
                           << "\n=======================================\n";
 
         const int RESERVED[] = {
@@ -981,7 +983,7 @@ int main(int argc, char *argv[])
                         const bsls::BlockGrowth::Strategy STRATEGY =
                                                                 STRATEGIES[si];
 
-                        // Add 'EXTEND' elements to mX, and add 'EXTEND'
+                        // Add `EXTEND` elements to mX, and add `EXTEND`
                         // elements to mY and then remove those elements.
                         Obj mX(BLOCK_SIZE, STRATEGY, &a);
                         Obj mY(BLOCK_SIZE, STRATEGY, &a);
@@ -1219,7 +1221,7 @@ int main(int argc, char *argv[])
                 x.deallocate(b);
 
                 // Make sure growth strategy is passed into
-                // 'bdlma::ConcurrentPool' correctly.
+                // `bdlma::ConcurrentPool` correctly.
                 void *a1 = pool.allocate();
                 void *a2 = pool.allocate();
 
@@ -1276,7 +1278,7 @@ int main(int argc, char *argv[])
                 x.deallocate(b);
 
                 // Make sure growth strategy is passed into
-                // 'bdlma::ConcurrentPool' correctly.
+                // `bdlma::ConcurrentPool` correctly.
                 void *a1 = pool.allocate();
                 void *a2 = pool.allocate();
 
@@ -1333,7 +1335,7 @@ int main(int argc, char *argv[])
                 x.deallocate(b);
 
                 // Make sure growth strategy is passed into
-                // 'bdlma::ConcurrentPool' correctly.
+                // `bdlma::ConcurrentPool` correctly.
                 void *a1 = pool.allocate();
                 void *a2 = pool.allocate();
 
@@ -1399,7 +1401,7 @@ int main(int argc, char *argv[])
                     x.deallocate(b);
 
                     // Make sure growth strategy is passed into
-                    // 'bdlma::ConcurrentPool' correctly.
+                    // `bdlma::ConcurrentPool` correctly.
                     void *a1 = pool.allocate();
                     void *a2 = pool.allocate();
 
@@ -1467,7 +1469,7 @@ int main(int argc, char *argv[])
                     x.deallocate(b);
 
                     // Make sure growth strategy is passed into
-                    // 'bdlma::ConcurrentPool' correctly.
+                    // `bdlma::ConcurrentPool` correctly.
                     void *a1 = pool.allocate();
                     void *a2 = pool.allocate();
 
@@ -1535,7 +1537,7 @@ int main(int argc, char *argv[])
                     x.deallocate(b);
 
                     // Make sure growth strategy is passed into
-                    // 'bdlma::ConcurrentPool' correctly.
+                    // `bdlma::ConcurrentPool` correctly.
                     void *a1 = pool.allocate();
                     void *a2 = pool.allocate();
 
@@ -1557,11 +1559,11 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   Multiple, concurrent threads must be able to use the object
-        //   for the 'allocate' method (and others).
+        //   for the `allocate` method (and others).
         //
         // Plan:
-        //   Create 'NUM_ALLOCATOR' (200) objects and two threads.
-        //   Each thread will invoke the 'allocator' method of each object.
+        //   Create `NUM_ALLOCATOR` (200) objects and two threads.
+        //   Each thread will invoke the `allocator` method of each object.
         //
         // Testing:
         //   allocate(bsls::Types::size_type size);
@@ -1653,7 +1655,7 @@ int main(int argc, char *argv[])
                     }
                 }
                 else {
-                    // release and join the 'upHandle' thread
+                    // release and join the `upHandle` thread
 
                     context.d_action = Test3Context::e_EXIT;
                     barrier.arrive();

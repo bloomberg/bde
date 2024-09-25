@@ -4,7 +4,7 @@
 #include <bslmf_addconst.h>
 #include <bslmf_addcv.h>
 #include <bslmf_addvolatile.h>
-#include <bslmf_integralconstant.h> // for 'bsl::true_type', 'bsl::false_type'
+#include <bslmf_integralconstant.h> // for `bsl::true_type`, `bsl::false_type`
 
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
@@ -13,9 +13,9 @@
 #include <bsls_types.h>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-#include <type_traits>  // 'std::is_base_of',
-                        // 'std::is_integral', and
-                        // 'std::is_integral_v' (C++17)
+#include <type_traits>  // `std::is_base_of`,
+                        // `std::is_integral`, and
+                        // `std::is_integral_v` (C++17)
 #endif
 
 #include <stdio.h>
@@ -28,8 +28,8 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test implements a meta-function, 'bsl::is_integral' and
-// a template variable 'bsl::is_integral_v', that determines whether a template
+// The component under test implements a meta-function, `bsl::is_integral` and
+// a template variable `bsl::is_integral_v`, that determines whether a template
 // parameter type is an integral type.  Thus, we need to ensure that the value
 // returned by the meta-function is correct for each possible category of
 // types.
@@ -91,14 +91,21 @@ void aSsErT(bool condition, const char *message, int line)
 //-----------------------------------------------------------------------------
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+/// Test whether `bsl::is_integral_v<TYPE>` has the same value as
+/// `bsl::is_integral<TYPE>::value`.
 #define ASSERT_V_SAME(TYPE)                                                   \
     ASSERT(bsl::is_integral<TYPE>::value == bsl::is_integral_v<TYPE>)
-    // Test whether 'bsl::is_integral_v<TYPE>' has the same value as
-    // 'bsl::is_integral<TYPE>::value'.
 #else
 #define ASSERT_V_SAME(TYPE)
 #endif
 
+/// This macro allows for efficient testing of all cv-qualified combination
+/// of a type.  Note the `typename` is NOT missing from the invocations of
+/// the `add_qualifier` traits, as `TYPE` will be textually substituted as
+/// the exact type, rather than a type parameter, so this is NOT a dependant
+/// context.  Conforming C++03 compilers would be required to reject this
+/// code if the `typename` were present; C++11 compilers should quietly
+/// ignore it.
 #define TYPE_ASSERT_CVQ(METAFUNC, MEMBER, TYPE, RESULT)                       \
     ASSERT(RESULT == METAFUNC<                  TYPE>::MEMBER);               \
     ASSERT(RESULT == METAFUNC<   bsl::add_const<TYPE>::type>::MEMBER);        \
@@ -108,13 +115,6 @@ void aSsErT(bool condition, const char *message, int line)
     ASSERT_V_SAME(               bsl::add_const<TYPE>::type);                 \
     ASSERT_V_SAME(            bsl::add_volatile<TYPE>::type);                 \
     ASSERT_V_SAME(                  bsl::add_cv<TYPE>::type);
-    // This macro allows for efficient testing of all cv-qualified combination
-    // of a type.  Note the 'typename' is NOT missing from the invocations of
-    // the 'add_qualifier' traits, as 'TYPE' will be textually substituted as
-    // the exact type, rather than a type parameter, so this is NOT a dependant
-    // context.  Conforming C++03 compilers would be required to reject this
-    // code if the 'typename' were present; C++11 compilers should quietly
-    // ignore it.
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -122,28 +122,28 @@ void aSsErT(bool condition, const char *message, int line)
 
 namespace {
 
+/// This `struct` provides a user-defined type is for testing.
 struct TestType {
-    // This 'struct' provides a user-defined type is for testing.
 
+    /// Return 0.  This function provides an implicit conversion-to-integer
+    /// operator to confirm that the trait under test is not fooled.
     operator int() const { return 0; }
-        // Return 0.  This function provides an implicit conversion-to-integer
-        // operator to confirm that the trait under test is not fooled.
 };
 
 enum EnumTestType {
-    // This 'enum' type is used for testing.
+    // This `enum` type is used for testing.
     ENUM_TEST_VALUE0 = 0,
     ENUM_TEST_VALUE1
 };
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS)
 enum class EnumClassType {
-    // This 'enum' type is used for testing.
+    // This `enum` type is used for testing.
 };
 #endif
 
+/// This function type that returns an integral type is used for testing.
 typedef int RetIntegralFunctionType();
-    // This function type that returns an integral type is used for testing.
 
 }  // close unnamed namespace
 
@@ -173,13 +173,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -197,60 +197,60 @@ int main(int argc, char *argv[])
 // Suppose that we want to assert whether a particular type is an integral
 // type.
 //
-// First, we create two 'typedef's -- an integral type and a non-integral type:
-//..
+// First, we create two `typedef`s -- an integral type and a non-integral type:
+// ```
     typedef void MyType;
     typedef int  MyIntegralType;
-//..
-// Now, we instantiate the 'bsl::is_integral' template for each of the
-// 'typedef's and assert the 'value' static data member of each instantiation:
-//..
+// ```
+// Now, we instantiate the `bsl::is_integral` template for each of the
+// `typedef`s and assert the `value` static data member of each instantiation:
+// ```
     ASSERT(false == bsl::is_integral<MyType>::value);
     ASSERT(true  == bsl::is_integral<MyIntegralType>::value);
-//..
+// ```
 // Note that if the current compiler supports the variable templates C++14
 // feature then we can re-write the snippet of code above using the
-// 'bsl::is_function_v' variable as follows:
-//..
+// `bsl::is_function_v` variable as follows:
+// ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
     ASSERT(false == bsl::is_integral_v<MyType>);
     ASSERT(true  == bsl::is_integral_v<MyIntegralType>);
 #endif
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
         // TESTING IMPLEMENTATION
         //
         // Concerns:
-        //: 1 The 'bsl::is_integral' meta function is *never* implemented as an
-        //:   alias to the 'std::is_integral' Standard meta function.
-        //:
-        //: 2 The 'bsl::is_integral' meta function is *always* based on either
-        //:   'bsl::true_type' or 'bsl::false_type'.
-        //:
-        //: 3 The 'bsl::is_integral_v' variable template *is* implemented using
-        //:   the 'std::is_integral_v' Standard variable template.
+        // 1. The `bsl::is_integral` meta function is *never* implemented as an
+        //    alias to the `std::is_integral` Standard meta function.
+        //
+        // 2. The `bsl::is_integral` meta function is *always* based on either
+        //    `bsl::true_type` or `bsl::false_type`.
+        //
+        // 3. The `bsl::is_integral_v` variable template *is* implemented using
+        //    the `std::is_integral_v` Standard variable template.
         //
         // Plan:
-        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' is
-        //:   defined, use 'bsl::is_same' to compare 'bsl::is_integral' to
-        //:   'std::is_integral' using a representative type.  (C-1)
-        //:
-        //: 2 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' is
-        //:   defined, use 'std::is_base_of' to confirm that the
-        //:   'bsl::is_floating_point' meta function has 'bsl::true_type' or
-        //:   'bsl::false_type', as appropriate, as a base class.  (C-2)
-        //:
-        //:   o For all versions, explicitly access the 'value' member to
-        //:     confirm that the inheritance is neither 'private', 'protected',
-        //:     nor ambiguous.
-        //:
-        //: 3 When 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' and (for
-        //:   'std::is_integral_v')
-        //:   'BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY' are defined,
-        //:   compare for equality the addresses of 'bsl::is_integral_v' and
-        //:   'std::is_integral_v' using a representative type.  (C-3)
+        // 1. When `BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY` is
+        //    defined, use `bsl::is_same` to compare `bsl::is_integral` to
+        //    `std::is_integral` using a representative type.  (C-1)
+        //
+        // 2. When `BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY` is
+        //    defined, use `std::is_base_of` to confirm that the
+        //    `bsl::is_floating_point` meta function has `bsl::true_type` or
+        //    `bsl::false_type`, as appropriate, as a base class.  (C-2)
+        //
+        //    - For all versions, explicitly access the `value` member to
+        //      confirm that the inheritance is neither `private`, `protected`,
+        //      nor ambiguous.
+        //
+        // 3. When `BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES` and (for
+        //    `std::is_integral_v`)
+        //    `BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY` are defined,
+        //    compare for equality the addresses of `bsl::is_integral_v` and
+        //    `std::is_integral_v` using a representative type.  (C-3)
         //
         // Testing:
         //   CONCERN: Conforms to implementation constraints.
@@ -259,9 +259,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING IMPLEMENTATION"
                             "\n======================\n");
 
-        if (veryVerbose) printf("\nTesting 'is_integral' using 'int'.\n");
+        if (veryVerbose) printf("\nTesting `is_integral` using `int`.\n");
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY // 'std::is_integral'
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY // `std::is_integral`
         ASSERT((false == bsl::is_same<bsl::is_integral<int>,
                                       std::is_integral<int> >::value));
 
@@ -277,7 +277,7 @@ int main(int argc, char *argv[])
 
 #if defined BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES                  \
  && defined BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-        if (veryVerbose) printf("\nTesting 'is_integral_v' using 'int'.\n");
+        if (veryVerbose) printf("\nTesting `is_integral_v` using `int`.\n");
 
         typedef int T;
 
@@ -286,51 +286,51 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::is_integral::value'
-        //   Ensure that 'bsl::is_integral' returns the correct values for a
+        // `bsl::is_integral::value`
+        //   Ensure that `bsl::is_integral` returns the correct values for a
         //   variety of template parameter types.
         //
         // Concerns:
-        //:  1 'is_integral::value' is 'false' when 'TYPE' is a (possibly
-        //:    cv-qualified) non-integral primitive type.
-        //:
-        //:  2 'is_integral::value' is 'false' when 'TYPE' is a (possibly
-        //:    cv-qualified) user-defined type.
-        //:
-        //:  3 'is_integral::value' is 'false' when 'TYPE' is a (possibly
-        //:    cv-qualified) enum type.
-        //:
-        //:  4 'is_integral::value' is 'false' when 'TYPE' is a pointer to
-        //:    (possibly cv-qualified) integral type.
-        //:
-        //:  5 'is_integral::value' is 'false' when 'TYPE' is a reference to
-        //:    (possibly cv-qualified) integral type.
-        //:
-        //:  6 'is_integral::value' is 'false' when 'TYPE' is an array of an
-        //:    integral type.
-        //:
-        //:  7 'is_integral::value' is 'false' when 'TYPE' is a function type
-        //:    returning an integral type.
-        //:
-        //:  8 'is_integral::value' is 'false' when 'TYPE' is a
-        //:    pointer-to-data-member returning an integral type.
-        //:
-        //:  9 'is_integral::value' is 'true' when 'TYPE' is a (possibly
-        //:    cv-qualified) integral type.
-        //:
-        //: 10 The type names defined by 'bsls::Types' alias existing integral
-        //:    types.  (This test is deferred from 'bsls_types' to this
-        //:    component, as we need the machinery at this level for the test.)
-        //:
-        //: 11 That 'is_integral<T>::value' has the same value as
-        //:    'is_integral_v<T>' for a variety of template parameter types.
+        //  1. `is_integral::value` is `false` when `TYPE` is a (possibly
+        //     cv-qualified) non-integral primitive type.
+        //
+        //  2. `is_integral::value` is `false` when `TYPE` is a (possibly
+        //     cv-qualified) user-defined type.
+        //
+        //  3. `is_integral::value` is `false` when `TYPE` is a (possibly
+        //     cv-qualified) enum type.
+        //
+        //  4. `is_integral::value` is `false` when `TYPE` is a pointer to
+        //     (possibly cv-qualified) integral type.
+        //
+        //  5. `is_integral::value` is `false` when `TYPE` is a reference to
+        //     (possibly cv-qualified) integral type.
+        //
+        //  6. `is_integral::value` is `false` when `TYPE` is an array of an
+        //     integral type.
+        //
+        //  7. `is_integral::value` is `false` when `TYPE` is a function type
+        //     returning an integral type.
+        //
+        //  8. `is_integral::value` is `false` when `TYPE` is a
+        //     pointer-to-data-member returning an integral type.
+        //
+        //  9. `is_integral::value` is `true` when `TYPE` is a (possibly
+        //     cv-qualified) integral type.
+        //
+        // 10. The type names defined by `bsls::Types` alias existing integral
+        //     types.  (This test is deferred from `bsls_types` to this
+        //     component, as we need the machinery at this level for the test.)
+        //
+        // 11. That `is_integral<T>::value` has the same value as
+        //     `is_integral_v<T>` for a variety of template parameter types.
         //
         // Plan:
-        //: 1 Verify that 'bsl::is_integral<TYPE>::value' has the correct value
-        //:   for types representative of each negative concern.
-        //:
-        //: 2 Verify that 'bsl::is_integral<TYPE>::value' has the correct value
-        //:   for all the types which would produce a 'true' result.
+        // 1. Verify that `bsl::is_integral<TYPE>::value` has the correct value
+        //    for types representative of each negative concern.
+        //
+        // 2. Verify that `bsl::is_integral<TYPE>::value` has the correct value
+        //    for all the types which would produce a `true` result.
         //
         // Testing:
         //   bsl::is_integral::value

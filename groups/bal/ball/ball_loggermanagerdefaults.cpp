@@ -221,8 +221,8 @@ LoggerManagerDefaults::print(bsl::ostream& stream,
         return stream;                                                // RETURN
     }
 
+    // one-line format if negative
     const char NL = spacesPerLevel >=0 ? '\n' : ' ';
-        // one-line format if negative
 
     if (level >= 0) {
         bdlb::Print::indent(stream, level, spacesPerLevel);

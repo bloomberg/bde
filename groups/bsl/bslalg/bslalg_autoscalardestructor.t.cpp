@@ -10,10 +10,10 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_stopwatch.h>                      // for testing only
 
-#include <ctype.h>      // 'isalpha'
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
-#include <string.h>     // 'strlen'
+#include <ctype.h>      // `isalpha`
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
+#include <string.h>     // `strlen`
 #include <new>
 
 using namespace BloombergLP;
@@ -25,10 +25,10 @@ using namespace BloombergLP;
 //                              --------
 // The component to be tested provides a proctor to help with exception-safety
 // guarantees.  The test sequence is very simple: we only have to ascertain
-// that the proctor does destroy its guarded object unless 'release' has been
+// that the proctor does destroy its guarded object unless `release` has been
 // called.  We use a test type that monitors the number of constructions and
 // destructions, and that allocates in order to take advantage of the standard
-// 'bslma' exception test.
+// `bslma` exception test.
 //-----------------------------------------------------------------------------
 // [ 2] bslalg::AutoScalarDestructor(T *object);
 // [ 2] ~AutoScalarDestructor();
@@ -94,7 +94,7 @@ void aSsErT(bool condition, const char *message, int line)
 // TYPES
 class TestType;
 
-typedef TestType                      T;    // uses 'bslma' allocators
+typedef TestType                      T;    // uses `bslma` allocators
 
 // STATIC DATA
 static int numDefaultCtorCalls = 0;
@@ -109,12 +109,12 @@ bslma::TestAllocator *Z;  // initialized at the start of main()
                                // class TestType
                                // ==============
 
+/// This test type contains a `char` in some allocated storage.  It counts
+/// the number of default and copy constructions, assignments, and
+/// destructions.  It has no traits other than using a `bslma` allocator.
+/// It could have the bit-wise moveable traits but we defer that trait to
+/// the `MoveableTestType`.
 class TestType {
-    // This test type contains a 'char' in some allocated storage.  It counts
-    // the number of default and copy constructions, assignments, and
-    // destructions.  It has no traits other than using a 'bslma' allocator.
-    // It could have the bit-wise moveable traits but we defer that trait to
-    // the 'MoveableTestType'.
 
     char             *d_data_p;
     bslma::Allocator *d_allocator_p;
@@ -248,9 +248,9 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'release'
+        // TESTING `release`
         //
-        // Concerns:  That the guard does not free guarded memory if 'release'
+        // Concerns:  That the guard does not free guarded memory if `release`
         //    has been called.
         //
         // Plan:
@@ -259,7 +259,7 @@ int main(int argc, char *argv[])
         //   void release();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'release'."
+        if (verbose) printf("\nTESTING `release`."
                             "\n==================\n");
 
         const int MAX_SIZE = 1;
@@ -294,7 +294,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'class bslalg::AutoScalarDestructor'
+        // TESTING `class bslalg::AutoScalarDestructor`
         //
         // Concerns:  That the guard frees guarded memory properly upon
         //   exceptions.
@@ -310,7 +310,7 @@ int main(int argc, char *argv[])
         //   void reset(T *object);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'bslalg::AutoScalarDestructor'."
+        if (verbose) printf("\nTESTING `bslalg::AutoScalarDestructor`."
                             "\n======================================\n");
 
         static union {
@@ -380,7 +380,7 @@ int main(int argc, char *argv[])
 
             bslalg::AutoScalarDestructor<T> mG(buf);
 
-        }  // deallocates 'buf'
+        }  // deallocates `buf`
 
       } break;
       default: {

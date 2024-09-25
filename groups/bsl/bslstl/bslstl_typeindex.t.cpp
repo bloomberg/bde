@@ -28,16 +28,16 @@
 #include <bsls_outputredirector.h>
 #include <bsls_platform.h>
 
-#include <algorithm>    // 'swap' prior to C++11
-#include <utility>      // 'swap' in C++11 or later
+#include <algorithm>    // `swap` prior to C++11
+#include <utility>      // `swap` in C++11 or later
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
 # include <unordered_set>
 #endif
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
-#include <string.h>     // 'strcmp'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
+#include <string.h>     // `strcmp`
 
 using namespace BloombergLP;
 
@@ -47,12 +47,12 @@ using namespace BloombergLP;
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
 # if defined(BSLS_PLATFORM_CMP_GNU)
-    // gcc does not correctly encode the 'noexcept' part of a function type
-    // into its 'typeid', so disable testing of that feature.  Last tested with
+    // gcc does not correctly encode the `noexcept` part of a function type
+    // into its `typeid`, so disable testing of that feature.  Last tested with
     // gcc 9.1.0.  Bug report filed:
-    //..
+    // ```
     //  https://gcc.gnu.org/bugzilla/show_bug.cgi?id=83534
-    //..
+    // ```
 #   undef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
 # endif
 #endif
@@ -60,7 +60,7 @@ using namespace BloombergLP;
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS)
 # if defined(BSLS_PLATFORM_CMP_MSVC)
     // MSVC does not correctly parse pointer-to-rvalue-ref-qualified-member
-    // function types inside operators such as 'sizeof' and 'typeid'.  It has
+    // function types inside operators such as `sizeof` and `typeid`.  It has
     // no issues with these types outside of such operators, nor using a
     // typedef to such a type with the operator expression.  Likewise it
     // correctly parses pointer-to-lvalue-ref-qualified-member functions in all
@@ -74,7 +74,7 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'bsl::type_index' is an in-core value-semantic attribute type.  As such, the
+// `bsl::type_index` is an in-core value-semantic attribute type.  As such, the
 // test driver follows a pre-set formula consisting of a breathing test, then
 // tests of the value constructor (acting as basic manipulator), test
 // machinery, basic accessors (which double up for the comparison operators),
@@ -83,17 +83,17 @@ using namespace BloombergLP;
 // real-world usage example.
 //
 // Primary Manipulators:
-//: o value constructor 'type_index(const std::type_index &target)'
+//  - value constructor `type_index(const std::type_index &target)`
 //
 // Basic Accessors:
-//: o 'operator=='
-//: o 'operator!='
+//  - `operator==`
+//  - `operator!=`
 //
 // Global Concerns:
-//: o ACCESSOR methods are declared 'const'.
-//: o CREATOR/MANIPULATOR/OPERATOR ptr./ref. parameters are declared 'const'.
-//: o No memory is ever allocated from the global allocator.
-//: o No memory is ever allocated from the default allocator.
+//  - ACCESSOR methods are declared `const`.
+//  - CREATOR/MANIPULATOR/OPERATOR ptr./ref. parameters are declared `const`.
+//  - No memory is ever allocated from the global allocator.
+//  - No memory is ever allocated from the default allocator.
 //
 // As all of the contracts in this component are wide, there are no negative
 // testing concerns.
@@ -129,9 +129,9 @@ using namespace BloombergLP;
 // [ *] CONCERN: in no case does memory come from the global allocator.
 // [ *] CONCERN: in no case does memory come from the default allocator.
 // [ 6] REDUNDANT: test case for equality comparison
-// [ 8] CONCERN: supports standard use of 'swap'
+// [ 8] CONCERN: supports standard use of `swap`
 // [13] CONCERN: type detects as trivial for all relevant traits
-// [14] CONCERN: works with 'std::hash'
+// [14] CONCERN: works with `std::hash`
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -176,7 +176,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
-#define ZU           BSLS_BSLTESTUTIL_FORMAT_ZU  // 'printf' flag for 'size_t'
+#define ZU           BSLS_BSLTESTUTIL_FORMAT_ZU  // `printf` flag for `size_t`
 
 // ============================================================================
 //               CUSTOM TEST DRIVER MACROS FOR THIS TEST DRIVER
@@ -194,11 +194,11 @@ namespace usage {
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'bsl::type_index'
+///Example 1: Basic Use of `bsl::type_index`
 ///- - - - - - - - - - - - - - - - - - - - -
 // Assume you are implementing a graphics library, and need to represent a
 // variety of shapes.  You might have a simple hierarchy, such as:
-//..
+// ```
 //  +-----------------------------------------------------------------+
 //  |                                                                 |
 //  |                           .---------.                           |
@@ -213,31 +213,32 @@ namespace usage {
 //  |              `------'      `--------'     `-------'             |
 //  |                                                                 |
 //  +-----------------------------------------------------------------+
-//..
+// ```
 // In order to manage the creation of objects in our hierarchy, we might deploy
 // the Abstract Factory pattern:
 //     https://en.wikipedia.org/wiki/Abstract_factory_pattern
-// using objects of type 'bsl::function<shared_ptr<Shape> >' as factories.
+// using objects of type `bsl::function<shared_ptr<Shape> >` as factories.
 //
 // First, we define our basic class hierarchy.
-//..
+// ```
     class Shape {
       public:
+        /// Destroy this object.
         virtual ~Shape() = 0;
-            // Destroy this object.
 
         // Further details elided from example.
     };
-//..
+// ```
 // Then, we create a utility class containing a registry of factory functions
-// indexed by their corresponding 'std::type_info', using 'bsl::type_index' to
+// indexed by their corresponding `std::type_info`, using `bsl::type_index` to
 // provide the value-semantic wrapper needed for the key used in the container.
 // This registry will enable us to abstract away different constructors of the
 // concrete object types.
-//..
+// ```
+
+    /// This `struct` provides a namespace for utilities to manage the
+    /// creation of objects implementing the `Shape` protocol.
     struct ShapeUtil {
-        // This 'struct' provides a namespace for utilities to manage the
-        // creation of objects implementing the 'Shape' protocol.
 
         // PUBLIC TYPES
 
@@ -246,27 +247,27 @@ namespace usage {
                                                                AbstractFactory;
         // CLASS METHODS
 
+        /// Return a `shared_ptr` owning a newly created object of (template
+        /// parameter) `SHAPE_TYPE` at the specified position `(x, y)` if
+        /// `SHAPE_TYPE` has been registered with this utility, and an empty
+        /// `shared_ptr` otherwise.
         template <class SHAPE_TYPE>
         static bsl::shared_ptr<Shape> make(int x, int y);
-            // Return a 'shared_ptr' owning a newly created object of (template
-            // parameter) 'SHAPE_TYPE' at the specified position '(x, y)' if
-            // 'SHAPE_TYPE' has been registered with this utility, and an empty
-            // 'shared_ptr' otherwise.
 
+        /// Register the specified `factory` creating objects of (template
+        /// parameter) `SHAPE_TYPE`; return `true` if this is the first
+        /// successful attempt to register such a factory function, and
+        /// `false` otherwise.
         template <class SHAPE_TYPE, class FACTORY>
         static bool registerFactory(FACTORY factory);
-            // Register the specified 'factory' creating objects of (template
-            // parameter) 'SHAPE_TYPE'; return 'true' if this is the first
-            // successful attempt to register such a factory function, and
-            // 'false' otherwise.
 
       private:
         static AbstractFactory s_registry;      // registry for factories
     };
-//..
+// ```
 // Now, we can implement the register and make functions, using the standard
-// 'typeid' operator to create the key values as needed.
-//..
+// `typeid` operator to create the key values as needed.
+// ```
     template <class SHAPE_TYPE>
     bsl::shared_ptr<Shape> ShapeUtil::make(int x, int y) {
         AbstractFactory::iterator it = s_registry.find(typeid(SHAPE_TYPE));
@@ -281,82 +282,85 @@ namespace usage {
     bool ShapeUtil::registerFactory(FACTORY factory) {
         return s_registry.emplace(typeid(SHAPE_TYPE), factory).second;
     }
-//..
-// Next, we provide several concrete implementations of our 'Shape' class, to
+// ```
+// Next, we provide several concrete implementations of our `Shape` class, to
 // demonstrate use of this hierarchy.
-//..
+// ```
+
+    /// This class represents a circle, described by a position and radius.
     class Circle : public Shape {
-        // This class represents a circle, described by a position and radius.
 
       public:
         // CREATORS
 
+        /// Create a `Triangle` having the it center at the specified
+        /// position `(x, y)`, and having the specified `radius`.
         Circle(int x, int y, int radius);
-            // Create a 'Triangle' having the it center at the specified
-            // position '(x, y)', and having the specified 'radius'.
 
+        /// Destroy this object.
         ~Circle() BSLS_KEYWORD_OVERRIDE;
-            // Destroy this object.
 
         // Further details elided from example.
     };
 
+    /// This class represents a triangle.
     class Triangle : public Shape {
-        // This class represents a triangle.
 
       public:
         // CREATORS
 
+        /// Create a `Triangle` having the specified vertices, `(x1, y1)`,
+        /// `(x2, y2)`, and `(x3, y3)`.
         Triangle(int x1, int y1, int x2, int y2, int x3, int y3);
-            // Create a 'Triangle' having the specified vertices, '(x1, y1)',
-            // '(x2, y2)', and '(x3, y3)'.
 
+        /// Destroy this object.
         ~Triangle() BSLS_KEYWORD_OVERRIDE;
-            // Destroy this object.
 
         // Further details elided from example.
     };
 
+    /// This class represents a polygon having an arbitrary number of
+    /// vertices.
     class Polygon : public Shape {
-        // This class represents a polygon having an arbitrary number of
-        // vertices.
 
       public:
         // CREATORS
 
+        /// Create a Polygon having vertices given by the specified range
+        /// `[firstPoint, endPoint)`.
         template <class ITERATOR>
         Polygon(ITERATOR firstPoint, ITERATOR endPoint);
-            // Create a Polygon having vertices given by the specified range
-            // '[firstPoint, endPoint)'.
 
+        /// Destroy this object.
         ~Polygon() BSLS_KEYWORD_OVERRIDE;
-            // Destroy this object.
 
         // Further details elided from example.
     };
-//..
+// ```
 // Then, we provide some simple factory functions to create some shapes at the
 // specified coordinates.
-//..
+// ```
+
+   /// Return a `Circle` at the specified position `(x, y)`.
    bsl::shared_ptr<Shape> makeCircle(int x, int y)
-       // Return a 'Circle' at the specified position '(x, y)'.
    {
        return bsl::make_shared<Circle>(x, y, 5);
    }
 
+   /// Return a `Triangle` with its lower left vertex at the specified
+   /// position `(x, y)`.
    bsl::shared_ptr<Shape> makeTriangle(int x, int y)
-       // Return a 'Triangle' with its lower left vertex at the specified
-       // position '(x, y)'.
    {
        return bsl::make_shared<Triangle>(x, y, x+3, y+4, x+6, y);
    }
-//..
+// ```
 // Finally, we can exercise the whole system in a simple test driver.  Note
-// that as we do not register a factory function for the 'Polygon' class, the
-// attempt to create a 'Polygon' will fail.
-//..
+// that as we do not register a factory function for the `Polygon` class, the
+// attempt to create a `Polygon` will fail.
+// ```
+
+    /// Simulated test driver.
     int main()
-        // Simulated test driver.
     {
         // Install a test allocator to confirm there are no memory leaks.
         bslma::TestAllocator         ta("Usage example default allocator");
@@ -380,7 +384,7 @@ namespace usage {
 
         return 0;
     }
-//..
+// ```
 
 // ============================================================================
 //              IMPLEMENTATION DETAILS ELIDED TO SIMPLIFY THE EXAMPLE
@@ -463,9 +467,9 @@ typedef bsl::type_index Obj;
 
 namespace bsl {
 
+/// Print a human-readable representation of the specified `object` to the
+/// console, suitable to support debugging.
 void debugprint(const type_index& object)
-    // Print a human-readable representation of the specified 'object' to the
-    // console, suitable to support debugging.
 {
     using bsls::debugprint;
 
@@ -478,10 +482,10 @@ void debugprint(const type_index& object)
 
 namespace {
 
+/// This function swallows any scalar value without issuing a compiler
+/// warning.  It is intended to support testing that there is only one
+/// overload of a given function name within a class.
 void sink(...) {}
-    // This function swallows any scalar value without issuing a compiler
-    // warning.  It is intended to support testing that there is only one
-    // overload of a given function name within a class.
 
 }  // close unnamed namespace
 
@@ -495,7 +499,7 @@ void sink(...) {}
 // function types, function pointer types, and pointer-to-member types, so
 // exhaustively covering that space as most likely to uncover a collision.
 // There is no need to test cv-qualified types or reference types, as top-level
-// cv-qualifiers and references are stripped by the 'typeid' operator.
+// cv-qualifiers and references are stripped by the `typeid` operator.
 // Likewise, abominable function types are not supported.  However,
 // pointers-to-cv-qualified types should be distinct, and tested, as should
 // pointers-to-cv-qualified-member-function types, and types with non-throwing
@@ -746,13 +750,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -765,33 +769,33 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING 'std::hash'
-        //   Ensure that 'bsl::type_index' can be stored in native unordered
+        // TESTING `std::hash`
+        //   Ensure that `bsl::type_index` can be stored in native unordered
         //   containers on platforms that support hashing.
         //
         // Concerns:
-        //: 1 The native standard library containers can use 'bsl::type_index'
-        //:   as their key type.
+        // 1. The native standard library containers can use `bsl::type_index`
+        //    as their key type.
         //
         // Plan:
-        //: 1 Create an object of type 'std::set<bsl::type_index>'.
-        //:
-        //: 2 For each value in the global table of test values:
-        //:
-        //:   1 Create a 'const' object of type 'bsl::type_index' having that
-        //:     value.
-        //:
-        //:   2 Verify 'X' can be inserted into the 'unordered_set'. (C-1)
+        // 1. Create an object of type `std::set<bsl::type_index>`.
+        //
+        // 2. For each value in the global table of test values:
+        //
+        //   1. Create a `const` object of type `bsl::type_index` having that
+        //      value.
+        //
+        //   2. Verify `X` can be inserted into the `unordered_set`. (C-1)
         //
         // Testing:
-        //   CONCERN: works with 'std::hash'
+        //   CONCERN: works with `std::hash`
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'std::hash'"
+        if (verbose) printf("\nTESTING `std::hash`"
                             "\n==================\n");
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-        if (verbose) printf("\nTesting 'std::hash'\n");
+        if (verbose) printf("\nTesting `std::hash`\n");
         {
             std::unordered_set<bsl::type_index> container;
 
@@ -803,7 +807,7 @@ int main(int argc, char *argv[])
             }
         }
 #else
-        if (verbose) printf("'std::hash' is not supported on this platform\n");
+        if (verbose) printf("`std::hash` is not supported on this platform\n");
 #endif
 
       } break;
@@ -815,18 +819,18 @@ int main(int argc, char *argv[])
         //   interesting traits have the expected values.
         //
         // Concerns:
-        //: 1 'type_index' is trivially copyable.
-        //:
-        //: 2 'type_index' is no-throw move constructible.
-        //:
-        //: 3 'type_index' is bitwise movable.
-        //:
-        //: 4 'type_index' is NOT bitwise equality comparable.
-        //:
-        //: 5 'type_index' does NOT use 'bslma' allocators.
+        // 1. `type_index` is trivially copyable.
+        //
+        // 2. `type_index` is no-throw move constructible.
+        //
+        // 3. `type_index` is bitwise movable.
+        //
+        // 4. `type_index` is NOT bitwise equality comparable.
+        //
+        // 5. `type_index` does NOT use `bslma` allocators.
         //
         // Plan:
-        //: 1 Directly test each trait for the expected value. (C-1..5)
+        // 1. Directly test each trait for the expected value. (C-1..5)
         //
         // Testing:
         //   CONCERN: type detects as trivial for all relevant traits
@@ -846,94 +850,94 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING 'hashAppend'
-        //   ADL-discoverd 'hashAppend' is the key extension point for the
-        //   'bslh' hashing framework, so we will use 'bslh::Hash<>' as a proxy
-        //   for testing ADL-discoverability of the 'hashAppend' function.
+        // TESTING `hashAppend`
+        //   ADL-discoverd `hashAppend` is the key extension point for the
+        //   `bslh` hashing framework, so we will use `bslh::Hash<>` as a proxy
+        //   for testing ADL-discoverability of the `hashAppend` function.
         //
         // Concerns:
-        //: 1 'hashAppend' produces the same result when given the same input
-        //:   values.
-        //:
-        //: 2 'hashAppend' produces different results when given differing
-        //:   input values.
-        //:
-        //: 3 'hashAppend' combines the hash value into the accumulated state,
-        //:   i.e., does not simply replace the accumulated state.
-        //:
-        //: 4 Works for 'const' and non-'const' type-indices.
-        //:
-        //: 5 'hashAppend' for 'bsl::type_index' objects can be found via
-        //:   argument dependant lookup.
+        // 1. `hashAppend` produces the same result when given the same input
+        //    values.
+        //
+        // 2. `hashAppend` produces different results when given differing
+        //    input values.
+        //
+        // 3. `hashAppend` combines the hash value into the accumulated state,
+        //    i.e., does not simply replace the accumulated state.
+        //
+        // 4. Works for `const` and non-`const` type-indices.
+        //
+        // 5. `hashAppend` for `bsl::type_index` objects can be found via
+        //    argument dependant lookup.
         //
         // Plan:
-        //: 1 Create a 'bslh::Hash' object to provide hashing functionality
-        //:   that relies on ADL discovery.
-        //:
-        //: 2 For each combination of values obtained by a nested iteration of
-        //:   the global test table, confirm that for any two distinct values,
-        //:   'hashAppend' will produce distinct values (via the 'hasher'
-        //:   proxy) (C-1,2,5):
-        //:
-        //:   1 On each iteration of the outer loop, create an object 'x', a
-        //:     'const' reference to that object, 'X', and an immutable object
-        //:     'V', all having the value corresponding to the same index in
-        //:     the global table of test values.
-        //:
-        //:   2 Verify that 'hasher(x)' and 'hasher(V)' produce the same value.
-        //:
-        //:   3 Starting a nested loop at the next index, create a 'const'
-        //:     object 'Y' having the value corresponding to the same row of
-        //:     the global table of test values.
-        //:
-        //:   4 Verify that 'hasher(X)' and 'hasher(Y)' produce different
-        //:     values.
-        //:
-        //: 3 For each combination of values obtained by a nested iteration of
-        //:   the global test table, confirm that for any two distinct values,
-        //:   'hashAppend' will produce distinct values (C-3,4):
-        //:
-        //:   1 In the outer loop, create reference objects 'X' and 'V' having
-        //:     the value corresponding to the same index in the global table
-        //:     of test values, and where lower-case 'x' is a modifiable
-        //:     lvalue.
-        //:
-        //:   2 For each object, 'x' and 'V', create a separate hasher object
-        //:     to accumulate state.
-        //:
-        //:   3 Verify that calling 'hashAppend' for each object with its own
-        //:     hash algorithm object produces that same state.
-        //:
-        //:   4 Verify that the modifiable object 'x' still has the same value
-        //:     as 'V'. (C-4)
-        //:
-        //:   5 Create another more hash algorithm object, and verify that
-        //:     combining the hash of 'X' twice produces a distinct value to
-        //:     hashing 'X' just the once.
-        //:
-        //:   6 Starting a nested loop at the next index, create a 'const'
-        //:     object 'Y' having the value corresponding to the same row of
-        //:     the global table of test values.
-        //:
-        //:   7 Create another hash algorithm object for 'Y', and verify that
-        //:     it produces a different state than hashing 'X' or 'V'.
-        //:
-        //:   8 Create two more hash algorithm objects, and verify that
-        //:     combining the hashes of 'X' and 'Y' produces a distinct third
-        //:     hash value.
-        //:
-        //:   9 Create one more hash algorithm objects, and verify that
-        //:     combining the hashes of 'X' and 'Y' in the other order produces
-        //:     a distinct fourth hash value.
+        // 1. Create a `bslh::Hash` object to provide hashing functionality
+        //    that relies on ADL discovery.
+        //
+        // 2. For each combination of values obtained by a nested iteration of
+        //    the global test table, confirm that for any two distinct values,
+        //    `hashAppend` will produce distinct values (via the `hasher`
+        //    proxy) (C-1,2,5):
+        //
+        //   1. On each iteration of the outer loop, create an object `x`, a
+        //      `const` reference to that object, `X`, and an immutable object
+        //      `V`, all having the value corresponding to the same index in
+        //      the global table of test values.
+        //
+        //   2. Verify that `hasher(x)` and `hasher(V)` produce the same value.
+        //
+        //   3. Starting a nested loop at the next index, create a `const`
+        //      object `Y` having the value corresponding to the same row of
+        //      the global table of test values.
+        //
+        //   4. Verify that `hasher(X)` and `hasher(Y)` produce different
+        //      values.
+        //
+        // 3. For each combination of values obtained by a nested iteration of
+        //    the global test table, confirm that for any two distinct values,
+        //    `hashAppend` will produce distinct values (C-3,4):
+        //
+        //   1. In the outer loop, create reference objects `X` and `V` having
+        //      the value corresponding to the same index in the global table
+        //      of test values, and where lower-case `x` is a modifiable
+        //      lvalue.
+        //
+        //   2. For each object, `x` and `V`, create a separate hasher object
+        //      to accumulate state.
+        //
+        //   3. Verify that calling `hashAppend` for each object with its own
+        //      hash algorithm object produces that same state.
+        //
+        //   4. Verify that the modifiable object `x` still has the same value
+        //      as `V`. (C-4)
+        //
+        //   5. Create another more hash algorithm object, and verify that
+        //      combining the hash of `X` twice produces a distinct value to
+        //      hashing `X` just the once.
+        //
+        //   6. Starting a nested loop at the next index, create a `const`
+        //      object `Y` having the value corresponding to the same row of
+        //      the global table of test values.
+        //
+        //   7. Create another hash algorithm object for `Y`, and verify that
+        //      it produces a different state than hashing `X` or `V`.
+        //
+        //   8. Create two more hash algorithm objects, and verify that
+        //      combining the hashes of `X` and `Y` produces a distinct third
+        //      hash value.
+        //
+        //   9. Create one more hash algorithm objects, and verify that
+        //      combining the hashes of `X` and `Y` in the other order produces
+        //      a distinct fourth hash value.
         //
         // Testing:
         //   void hashAppend(HASHALG& alg, const type_index& object);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'hashAppend'"
+        if (verbose) printf("\nTESTING `hashAppend`"
                             "\n====================\n");
 
-        if (verbose) printf("\nTesting via 'bslh::Hash' as a proxy\n");
+        if (verbose) printf("\nTesting via `bslh::Hash` as a proxy\n");
         {
             typedef ::BloombergLP::bslh::Hash<> Hasher;
 
@@ -954,7 +958,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("\nTesting 'hashAppend' directly\n");
+        if (verbose) printf("\nTesting `hashAppend` directly\n");
         {
             typedef bslh::DefaultHashAlgorithm Hasher;
             typedef Hasher::result_type        HashValue;
@@ -1035,54 +1039,54 @@ int main(int argc, char *argv[])
         //   platforms that do not give this level of support.
         //
         // Concerns:
-        //: 1 QoI: Each distinct value has a unique 'name'.
-        //:
-        //: 2 QoI: Each distinct value has a unique 'hash_code'.
-        //:
-        //: 3 Two 'type_index' objects that have the same value return the same
-        //:   value for each accessor.
-        //:
-        //: 4 Accessors are declared 'const'.
-        //:
-        //: 5 There are no non-'const' overloads of any accessors.
-        //:
-        //: 6 Each accessor has a non-throwing exception specification on
-        //:   implementations that support the 'noexcept' operator.
+        // 1. QoI: Each distinct value has a unique `name`.
+        //
+        // 2. QoI: Each distinct value has a unique `hash_code`.
+        //
+        // 3. Two `type_index` objects that have the same value return the same
+        //    value for each accessor.
+        //
+        // 4. Accessors are declared `const`.
+        //
+        // 5. There are no non-`const` overloads of any accessors.
+        //
+        // 6. Each accessor has a non-throwing exception specification on
+        //    implementations that support the `noexcept` operator.
         //
         // Plan:
-        //: 1 For each combination of values obtained by a nested iteration of
-        //:   the global test table, confirm that for any two distinct values,
-        //:   the 'hash_code' and 'name' accessors produce distinct values:
-        //:
-        //:   1 In the outer loop, create reference objects 'X' and 'V' having
-        //:     the value corresponding to the same index in the global table
-        //:     of test values.
-        //:
-        //:   2 Verify that 'X.name()' produces the exact same string pointer
-        //:     as the corresponding 'std::type_info' object. (QoI: C-3)
-        //:
-        //:   3 Verify that 'X.hash_code()' produces the exact same hash value
-        //:     as the corresponding 'std::type_info' object on C++11, or that
-        //:     two 'type_index' objects having the same value produce the same
-        //:     hash value prior to C++11. (C-3)
-        //:
-        //:   4 Starting a nested loop at the next index, create a 'const'
-        //:     object 'Y' having the value corresponding to the same row of
-        //:     the global table of test values.
-        //:
-        //:   5 Compare the string values of the 'name' function of both 'X'
-        //:     and 'Y' to confirm that the strings have different values.
-        //:     (QoI: C-1) (C-4)
-        //:
-        //:   6 Compare the hash code values of both 'X' and 'Y' to confirm
-        //:     that they do not collide. (QoI: C-2) (C-4)
-        //:
-        //: 2 Using the 'sink' function, verify there are no additional
-        //:   overloads for each accessor, ensuring that 'const' and
-        //:   non-'const' lvalues call the same function. (C-5)
-        //:
-        //: 3 Using the 'ASSERT_NOEXCEPT' macro, verify each accessor has a
-        //:   non-throwing exception specification. (C-6)
+        // 1. For each combination of values obtained by a nested iteration of
+        //    the global test table, confirm that for any two distinct values,
+        //    the `hash_code` and `name` accessors produce distinct values:
+        //
+        //   1. In the outer loop, create reference objects `X` and `V` having
+        //      the value corresponding to the same index in the global table
+        //      of test values.
+        //
+        //   2. Verify that `X.name()` produces the exact same string pointer
+        //      as the corresponding `std::type_info` object. (QoI: C-3)
+        //
+        //   3. Verify that `X.hash_code()` produces the exact same hash value
+        //      as the corresponding `std::type_info` object on C++11, or that
+        //      two `type_index` objects having the same value produce the same
+        //      hash value prior to C++11. (C-3)
+        //
+        //   4. Starting a nested loop at the next index, create a `const`
+        //      object `Y` having the value corresponding to the same row of
+        //      the global table of test values.
+        //
+        //   5. Compare the string values of the `name` function of both `X`
+        //      and `Y` to confirm that the strings have different values.
+        //      (QoI: C-1) (C-4)
+        //
+        //   6. Compare the hash code values of both `X` and `Y` to confirm
+        //      that they do not collide. (QoI: C-2) (C-4)
+        //
+        // 2. Using the `sink` function, verify there are no additional
+        //    overloads for each accessor, ensuring that `const` and
+        //    non-`const` lvalues call the same function. (C-5)
+        //
+        // 3. Using the `ASSERT_NOEXCEPT` macro, verify each accessor has a
+        //    non-throwing exception specification. (C-6)
         //
         // Testing:
         //   size_t hash_code() const noexcept;
@@ -1098,7 +1102,7 @@ int main(int argc, char *argv[])
                 Obj       x = *DEFAULT_DATA[i]; const Obj& X = x;
                 const Obj V = X;
 
-                // QoI check: same pointer value is faster than 'strcmp'!
+                // QoI check: same pointer value is faster than `strcmp`!
                 ASSERTV(i, x, x.name() == DEFAULT_DATA[i]->name());
                 ASSERTV(i, X, V, V == X);
 
@@ -1118,7 +1122,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("\nVerify there are no non-'const' overloads\n");
+        if (verbose) printf("\nVerify there are no non-`const` overloads\n");
         {
             sink(&bsl::type_index::hash_code);
             sink(&bsl::type_index::name);
@@ -1135,74 +1139,74 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING RELATIONAL-COMPARISON OPERATORS (<, <=, >, >=, <=>)
         //   Ensure that each operator defines the correct relationship between
-        //   any two 'type_index' values.
+        //   any two `type_index` values.
         //
         // Concerns:
-        //:  1 An object 'X' is in relation to an object 'Y' according to an
-        //:    implementation specific ordering defined the member function
-        //:    'type_info::before'.
-        //:
-        //:  2 'false == (X <  X)' (i.e., irreflexivity).
-        //:
-        //:  3 'true  == (X <= X)' (i.e., reflexivity).
-        //:
-        //:  4 'false == (X >  X)' (i.e., irreflexivity).
-        //:
-        //:  5 'true  == (X >= X)' (i.e., reflexivity).
-        //:
-        //:  6 If 'X < Y', then '!(Y < X)' (i.e., asymmetry).
-        //:
-        //:  7 'X <= Y' if and only if 'X < Y' exclusive-or 'X == Y'.
-        //:
-        //:  8 If 'X > Y', then '!(Y > X)' (i.e., asymmetry).
-        //:
-        //:  9 'X >= Y' if and only if 'X > Y' exclusive-or 'X == Y'.
-        //:
-        //: 10 'operator<=>' is consistent with '<', '>', '<=', '>='.
-        //:
-        //: 11 Non-modifiable objects can be compared (i.e., objects or
-        //:    references providing only non-modifiable access).
-        //:
-        //: 12 Non-modifiable and modifiable objects produce the same result
-        //:    when compared.
-        //:
-        //: 13 All comparisons have non-throwing exception specifications on
-        //:    implementations that support the 'noexcept' operator.
-        //:
+        //  1. An object `X` is in relation to an object `Y` according to an
+        //     implementation specific ordering defined the member function
+        //     `type_info::before`.
+        //
+        //  2. `false == (X <  X)` (i.e., irreflexivity).
+        //
+        //  3. `true  == (X <= X)` (i.e., reflexivity).
+        //
+        //  4. `false == (X >  X)` (i.e., irreflexivity).
+        //
+        //  5. `true  == (X >= X)` (i.e., reflexivity).
+        //
+        //  6. If `X < Y`, then `!(Y < X)` (i.e., asymmetry).
+        //
+        //  7. `X <= Y` if and only if `X < Y` exclusive-or `X == Y`.
+        //
+        //  8. If `X > Y`, then `!(Y > X)` (i.e., asymmetry).
+        //
+        //  9. `X >= Y` if and only if `X > Y` exclusive-or `X == Y`.
+        //
+        // 10. `operator<=>` is consistent with `<`, `>`, `<=`, `>=`.
+        //
+        // 11. Non-modifiable objects can be compared (i.e., objects or
+        //     references providing only non-modifiable access).
+        //
+        // 12. Non-modifiable and modifiable objects produce the same result
+        //     when compared.
+        //
+        // 13. All comparisons have non-throwing exception specifications on
+        //     implementations that support the `noexcept` operator.
+        //
         //
         // Plan:
-        //: 1 For each combination of values obtained by a nested iteration of
-        //:   the global test table, confirm that the 4 relational operators
-        //:   report a consistent ordering that agrees with the ordering given
-        //:   by 'std::type_info':
-        //:
-        //:   1 Iterate over the whole test table.  On each iteration, create
-        //:     a constant reference object, 'X'.
-        //:
-        //:   2 Compare 'X' to itself using each of the 4 relational operators,
-        //:     and verify the expected value for each self-comparison.
-        //:     (C-2..5)
-        //:
-        //:   3 In a nested loop, iterate the whole table of test values again,
-        //:     creating another constand reference object, 'Y', having the
-        //:     corresponding value for each iteration.
-        //:
-        //:   4 Store a 'bool' value, 'XbeforeY', that reports the relative
-        //:     ordering of the corresponding 'std::type_info' objects using
-        //:     the 'type_info::before' member function.
-        //:
-        //:   5 Verify each of the 4 relational operators on object 'X' and 'Y'
-        //:     have the correct value according to the oracle, 'XbeforeY'.
-        //:     Note that both orderings are covered by performing a full
-        //:     iteration in both loops, rather than using a reduced set on
-        //:     each subsequent iteration. (C-6..11).
-        //:
-        //: 2 Using the 'sink' function, verify there are no additional member
-        //:   overloads for each relational operator, ensuring that 'const' and
-        //:   non-'const' lvalues call the same function. (C-12)
-        //:
-        //: 3 Using the 'ASSERT_NOEXCEPT' macro, verify each relational
-        //:   operator has a non-throwing exception specification. (C-13)
+        // 1. For each combination of values obtained by a nested iteration of
+        //    the global test table, confirm that the 4 relational operators
+        //    report a consistent ordering that agrees with the ordering given
+        //    by `std::type_info`:
+        //
+        //   1. Iterate over the whole test table.  On each iteration, create
+        //      a constant reference object, `X`.
+        //
+        //   2. Compare `X` to itself using each of the 4 relational operators,
+        //      and verify the expected value for each self-comparison.
+        //      (C-2..5)
+        //
+        //   3. In a nested loop, iterate the whole table of test values again,
+        //      creating another constand reference object, `Y`, having the
+        //      corresponding value for each iteration.
+        //
+        //   4. Store a `bool` value, `XbeforeY`, that reports the relative
+        //      ordering of the corresponding `std::type_info` objects using
+        //      the `type_info::before` member function.
+        //
+        //   5. Verify each of the 4 relational operators on object `X` and `Y`
+        //      have the correct value according to the oracle, `XbeforeY`.
+        //      Note that both orderings are covered by performing a full
+        //      iteration in both loops, rather than using a reduced set on
+        //      each subsequent iteration. (C-6..11).
+        //
+        // 2. Using the `sink` function, verify there are no additional member
+        //    overloads for each relational operator, ensuring that `const` and
+        //    non-`const` lvalues call the same function. (C-12)
+        //
+        // 3. Using the `ASSERT_NOEXCEPT` macro, verify each relational
+        //    operator has a non-throwing exception specification. (C-13)
         //
         // Testing:
         //   bool operator<(const type_index& other) const noexcept;
@@ -1250,7 +1254,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("\nVerify there are no non-'const' overloads\n");
+        if (verbose) printf("\nVerify there are no non-`const` overloads\n");
         {
             sink(&bsl::type_index::operator<);
             sink(&bsl::type_index::operator<=);
@@ -1281,62 +1285,62 @@ int main(int argc, char *argv[])
         //   operator has the same behavior.
         //
         // Concerns:
-        //: 1 The assignment operator can change the value of any modifiable
-        //:   target object to that of any source object.
-        //:
-        //: 2 The signature and return type are standard.
-        //:
-        //: 3 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 4 The value of the source object is not modified.
-        //:
-        //: 5 Assigning an object to itself has no observable effect.
-        //:   (alias-safety).
-        //:
-        //: 6 The move-assignment operator behaves identically to the copy-
-        //:   assignment operator.
-        //:
-        //: 7 Both assignment operators have non-throwing exception
-        //:   specifications on implementations that support 'noexcept'.
+        // 1. The assignment operator can change the value of any modifiable
+        //    target object to that of any source object.
+        //
+        // 2. The signature and return type are standard.
+        //
+        // 3. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 4. The value of the source object is not modified.
+        //
+        // 5. Assigning an object to itself has no observable effect.
+        //    (alias-safety).
+        //
+        // 6. The move-assignment operator behaves identically to the copy-
+        //    assignment operator.
+        //
+        // 7. Both assignment operators have non-throwing exception
+        //    specifications on implementations that support `noexcept`.
         //
         // Plan:
-        //: 1 Assign the address of each assignment operator to a
-        //:   pointer-to-member having the expected signature, including the
-        //:   presence of a 'noexcept' specification in C++17.  Note that the
-        //:   move-assignment operator will identically be the copy-assignment
-        //:   operator on C++03 and earlier. (C-2)
-        //:
-        //: 2 For each combination of values obtained by a nested iteration of
-        //:   the global test table, confirm that assigning a value to an
-        //:   existing object has the expected behavior:
-        //:
-        //:   1 Iterate over the whole test table.  On each iteration, create
-        //:     a constant reference object, 'X', and a modifiable object 'y'
-        //:     having the same value.
-        //:
-        //:   2 Assign 'y' to itself, and verify that the value is unchanged by
-        //:     comparing to 'X'. (c-5)
-        //:
-        //:   3 In a nested loop, iterate the whole table of test values again,
-        //:     creating a non-'const' object 'z' having the corresponding
-        //:     value for each iteration.
-        //:
-        //:   4 Assign 'y' to 'z', and verify that 'z' now has the same value
-        //:     as 'y'. (C-1)
-        //:
-        //:   5 Verify that the value of 'y' is unchanged, and has the same
-        //:     value as 'X'. (C-4)
-        //:
-        //:   6 Verify that the address of the returned reference is the same
-        //:     as the address of 'z'. (C-3)
-        //:
-        //: 3 Repeat the above steps for the move-assignment operator by using
-        //:   'bslmf::MovableRefUtil::move' to move from 'y'.  Note that the
-        //:   moved-from state of a 'type_index' object is unchanged.  (C-6)
-        //:
-        //: 4 Using the 'ASSERT_NOEXCEPT' macro, verify assignment to an lvalue
-        //:   from both an lvalue and rvalue has a non-throwing exception
-        //:   specification. (C-7)
+        // 1. Assign the address of each assignment operator to a
+        //    pointer-to-member having the expected signature, including the
+        //    presence of a `noexcept` specification in C++17.  Note that the
+        //    move-assignment operator will identically be the copy-assignment
+        //    operator on C++03 and earlier. (C-2)
+        //
+        // 2. For each combination of values obtained by a nested iteration of
+        //    the global test table, confirm that assigning a value to an
+        //    existing object has the expected behavior:
+        //
+        //   1. Iterate over the whole test table.  On each iteration, create
+        //      a constant reference object, `X`, and a modifiable object `y`
+        //      having the same value.
+        //
+        //   2. Assign `y` to itself, and verify that the value is unchanged by
+        //      comparing to `X`. (c-5)
+        //
+        //   3. In a nested loop, iterate the whole table of test values again,
+        //      creating a non-`const` object `z` having the corresponding
+        //      value for each iteration.
+        //
+        //   4. Assign `y` to `z`, and verify that `z` now has the same value
+        //      as `y`. (C-1)
+        //
+        //   5. Verify that the value of `y` is unchanged, and has the same
+        //      value as `X`. (C-4)
+        //
+        //   6. Verify that the address of the returned reference is the same
+        //      as the address of `z`. (C-3)
+        //
+        // 3. Repeat the above steps for the move-assignment operator by using
+        //    `bslmf::MovableRefUtil::move` to move from `y`.  Note that the
+        //    moved-from state of a `type_index` object is unchanged.  (C-6)
+        //
+        // 4. Using the `ASSERT_NOEXCEPT` macro, verify assignment to an lvalue
+        //    from both an lvalue and rvalue has a non-throwing exception
+        //    specification. (C-7)
         //
         // Testing:
         //   type_index& operator=(const type_index& rhs) noexcept;
@@ -1445,33 +1449,33 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'swap'
-        //   'type_index' does not implement an ADL-discoverable 'swap', so
-        //   verify the regular 'std::swap' function has the expected behavior.
+        // TESTING `swap`
+        //   `type_index` does not implement an ADL-discoverable `swap`, so
+        //   verify the regular `std::swap` function has the expected behavior.
         //
         // Concerns:
-        //: 1 Calling 'swap' unqualified with 'std::swap' available through
-        //:   ordinary name lookup exchanges the values of two 'type_index'
-        //:   objects.
-        //:
-        //: 2 The 'swap' function has a non-throwing exception specification on
-        //:   implementations that support 'noexcept'.
+        // 1. Calling `swap` unqualified with `std::swap` available through
+        //    ordinary name lookup exchanges the values of two `type_index`
+        //    objects.
+        //
+        // 2. The `swap` function has a non-throwing exception specification on
+        //    implementations that support `noexcept`.
         //
         // Plan:
-        //: 1 Using nested 'for' loops, verify that calling 'swap' for two
-        //:   'type_index' lvalues having all possible combinations of value
-        //:   from the global table of test values, exchanges those values.
-        //:   (C-1)
-        //:
-        //: 2 Using the 'ASSERT_NOEXCEPT' macro, verify the 'swap' function
-        //:   found by name-lookup has a non-throwing exception specification.
-        //:   (C-2)
+        // 1. Using nested `for` loops, verify that calling `swap` for two
+        //    `type_index` lvalues having all possible combinations of value
+        //    from the global table of test values, exchanges those values.
+        //    (C-1)
+        //
+        // 2. Using the `ASSERT_NOEXCEPT` macro, verify the `swap` function
+        //    found by name-lookup has a non-throwing exception specification.
+        //    (C-2)
         //
         // Testing:
-        //   CONCERN: supports standard use of 'swap'
+        //   CONCERN: supports standard use of `swap`
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'swap'"
+        if (verbose) printf("\nTESTING `swap`"
                             "\n==============\n");
 
         using std::swap;
@@ -1502,47 +1506,47 @@ int main(int argc, char *argv[])
         //   check that the move constructor has the same behavior.
         //
         // Concerns:
-        //: 1 The copy constructor creates an object having the same value as
-        //:   that of the supplied original object.
-        //:
-        //: 2 The original object is passed as a reference providing
-        //:   non-modifiable access to that object.
-        //:
-        //: 3 The value of the original object is unchanged.
-        //:
-        //: 4 The constructor is not explicit.
-        //:
-        //: 5 The move constructor behaves identically to the copy constructor.
-        //:
-        //: 6 Both constructors have non-throwing exception specifications on
-        //:   implementations that support 'noexcept'.
+        // 1. The copy constructor creates an object having the same value as
+        //    that of the supplied original object.
+        //
+        // 2. The original object is passed as a reference providing
+        //    non-modifiable access to that object.
+        //
+        // 3. The value of the original object is unchanged.
+        //
+        // 4. The constructor is not explicit.
+        //
+        // 5. The move constructor behaves identically to the copy constructor.
+        //
+        // 6. Both constructors have non-throwing exception specifications on
+        //    implementations that support `noexcept`.
         //
         // Plan:
-        //: 1 For each value in the global table of test values:
-        //:   1 Create a non-constant object 'x', to be copied, and a reference
-        //:     to 'const' X for use in testing expressions.
-        //:
-        //:   2 Create a constant object 'Y' from the same row of the test
-        //:     table, to act as a reference value after assignment.
-        //:
-        //:   3 Create another 'const' object, 'Z', that is a copy of 'x',
-        //:     using copy-initialization. (C-4)
-        //:
-        //:   4 Verify 'Z' has the same value as 'X'.  (C-1)
-        //:
-        //:   5 Verify 'X' still has the same value as 'Y'  (C-3)
-        //:
-        //:   6 Create a final test object, 'A', that is a copy of a 'const'
-        //:     lvalue.
-        //:
-        //:   7 Verify 'A' still has the same value as 'Z'  (C-2)
-        //:
-        //: 2 Repeat the previous steps using the move constructor instead of
-        //:   the copy constructor. (C-5)
-        //:
-        //: 3 Using the 'ASSERT_NOEXCEPT' macro, verify construction of a
-        //:   temporary from both an lvalue and rvalue has a non-throwing
-        //:   exception specification (C-6).
+        // 1. For each value in the global table of test values:
+        //   1. Create a non-constant object `x`, to be copied, and a reference
+        //      to `const` X for use in testing expressions.
+        //
+        //   2. Create a constant object `Y` from the same row of the test
+        //      table, to act as a reference value after assignment.
+        //
+        //   3. Create another `const` object, `Z`, that is a copy of `x`,
+        //      using copy-initialization. (C-4)
+        //
+        //   4. Verify `Z` has the same value as `X`.  (C-1)
+        //
+        //   5. Verify `X` still has the same value as `Y`  (C-3)
+        //
+        //   6. Create a final test object, `A`, that is a copy of a `const`
+        //      lvalue.
+        //
+        //   7. Verify `A` still has the same value as `Z`  (C-2)
+        //
+        // 2. Repeat the previous steps using the move constructor instead of
+        //    the copy constructor. (C-5)
+        //
+        // 3. Using the `ASSERT_NOEXCEPT` macro, verify construction of a
+        //    temporary from both an lvalue and rvalue has a non-throwing
+        //    exception specification (C-6).
         //
         // Testing:
         //   type_index(const type_index& original) noexcept;
@@ -1597,10 +1601,10 @@ int main(int argc, char *argv[])
         //  basic accessors in test case 4.
         //
         // Concerns:
-        //: 1 No new concerns
+        // 1. No new concerns
         //
         // Plan:
-        //: 1 No plan needed
+        // 1. No plan needed
         //
         // Testing:
         //   REDUNDANT: test case for equality comparison
@@ -1614,34 +1618,34 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'debugprint'
+        // TESTING `debugprint`
         //   Ensure that the value of the object can be formatted appropriately
         //   for printing through the test library macros in a human-readable
         //   form.
         //
         // Concerns:
-        //: 1 'debugprint' writes a human-readable representation of a
-        //:   'type_index' object.  That format is expected to be the string
-        //:   'type_index{"%s"}' with '%s' replaced by the string corresponding
-        //:   to the 'name()' of the wrapped 'type_info' object.
-        //:
-        //: 2 Writing a 'debugprint' string does not change the value of the
-        //:   supplied 'type_index' object.
+        // 1. `debugprint` writes a human-readable representation of a
+        //    `type_index` object.  That format is expected to be the string
+        //    `type_index{"%s"}` with `%s` replaced by the string corresponding
+        //    to the `name()` of the wrapped `type_info` object.
+        //
+        // 2. Writing a `debugprint` string does not change the value of the
+        //    supplied `type_index` object.
         //
         // Plan:
-        //: 1 Using a 'bsls::OutputRedirector' component to capture output,
-        //:   loop through the global test table of standard values, and verify
-        //:   that the 'debugprint' representation of each object has the
-        //:   expected form.  (C-1)
-        //:
-        //: 2 After each call to 'debugprint', verify that the original value
-        //:   has not changed, using the primary accessor ('operator=='). (C-2)
+        // 1. Using a `bsls::OutputRedirector` component to capture output,
+        //    loop through the global test table of standard values, and verify
+        //    that the `debugprint` representation of each object has the
+        //    expected form.  (C-1)
+        //
+        // 2. After each call to `debugprint`, verify that the original value
+        //    has not changed, using the primary accessor (`operator==`). (C-2)
         //
         // Testing:
         //   void debugprint(const type_info& object);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'debugprint'"
+        if (verbose) printf("\nTESTING `debugprint`"
                             "\n====================\n");
 
         bsls::OutputRedirector redirect(
@@ -1704,52 +1708,52 @@ int main(int argc, char *argv[])
       case 4: {
         // --------------------------------------------------------------------
         // TESTING BASIC ACCESSORS
-        //   The comparison operators, '==' and '!=', are the most basic
+        //   The comparison operators, `==` and `!=`, are the most basic
         //   accessors for this component.
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if they refer
-        //:   to the same type information..
-        //:
-        //: 2 'true  == (X == X)' (i.e., identity).
-        //:
-        //: 3 'false == (X != X)' (i.e., identity).
-        //:
-        //: 4 'X == Y' if and only if 'Y == X' (i.e., commutativity).
-        //:
-        //: 5 'X != Y' if and only if 'Y != X' (i.e., commutativity).
-        //:
-        //: 6 'X != Y' if and only if '!(X == Y)'.
-        //:
-        //: 7 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //: 8 Non-modifiable and modifiable objects produce the same result
-        //:   when compared.
-        //:
-        //: 9 All comparisons have non-throwing exception specifications on
-        //:   implementations that support 'noexcept'.
-        //:
+        // 1. Two objects, `X` and `Y`, compare equal if and only if they refer
+        //    to the same type information..
+        //
+        // 2. `true  == (X == X)` (i.e., identity).
+        //
+        // 3. `false == (X != X)` (i.e., identity).
+        //
+        // 4. `X == Y` if and only if `Y == X` (i.e., commutativity).
+        //
+        // 5. `X != Y` if and only if `Y != X` (i.e., commutativity).
+        //
+        // 6. `X != Y` if and only if `!(X == Y)`.
+        //
+        // 7. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        // 8. Non-modifiable and modifiable objects produce the same result
+        //    when compared.
+        //
+        // 9. All comparisons have non-throwing exception specifications on
+        //    implementations that support `noexcept`.
+        //
         // Plan:
-        //: 1 Perform a 2-dimensional iteration over the test data table,
-        //:   'DEFAULT_DATA', using nested 'for' loops.
-        //:
-        //: 2 In the outer loop, create a 'const' qualified object and verify
-        //:   that it compares equal to itself, and does not compare not-equal
-        //:   to itself (identity test) (C-2..3).
-        //:
-        //: 3 In the inner loop create a second 'const' object, and verify that
-        //:   both (distinct) object compare equal only if they are constructed
-        //:   from the same element of the test table.  Full coverage of the
-        //:   test matrix establishes commutativity, by testing each possible
-        //:   ordering of the two values. (C-1,4..7)
-        //:
-        //: 4 Using the 'sink' function, verify there are no additional member
-        //:   overloads for each relational operator, ensuring that 'const' and
-        //:   non-'const' lvalues call the same function. (C-8)
-        //:
-        //: 5 Using the 'ASSERT_NOEXCEPT' macro, comparison expressions using
-        //:   either operator have non-throwing exception specifications (C-9).
+        // 1. Perform a 2-dimensional iteration over the test data table,
+        //    `DEFAULT_DATA`, using nested `for` loops.
+        //
+        // 2. In the outer loop, create a `const` qualified object and verify
+        //    that it compares equal to itself, and does not compare not-equal
+        //    to itself (identity test) (C-2..3).
+        //
+        // 3. In the inner loop create a second `const` object, and verify that
+        //    both (distinct) object compare equal only if they are constructed
+        //    from the same element of the test table.  Full coverage of the
+        //    test matrix establishes commutativity, by testing each possible
+        //    ordering of the two values. (C-1,4..7)
+        //
+        // 4. Using the `sink` function, verify there are no additional member
+        //    overloads for each relational operator, ensuring that `const` and
+        //    non-`const` lvalues call the same function. (C-8)
+        //
+        // 5. Using the `ASSERT_NOEXCEPT` macro, comparison expressions using
+        //    either operator have non-throwing exception specifications (C-9).
         //
         // Testing:
         //   bool operator==(const type_index& other) const noexcept;
@@ -1775,7 +1779,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("\nVerify there are no non-'const' overloads\n");
+        if (verbose) printf("\nVerify there are no non-`const` overloads\n");
         {
             sink(&bsl::type_index::operator==);
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
@@ -1796,14 +1800,14 @@ int main(int argc, char *argv[])
         // TESTING THE TEST MACHINERY
         //
         // Concerns:
-        //: 1 Each type-id in the array 'DEFAULT_DATA' is distinct from each
-        //:   other type-id in that array.
+        // 1. Each type-id in the array `DEFAULT_DATA` is distinct from each
+        //    other type-id in that array.
         //
         // Plan:
-        //: 1 Loop through the 'DEFAULT_DATA' array ensuring that no stored
-        //:   'type_info' object has the same value as any other object in the
-        //:   array.  Optimize the nested loop to test only later values in the
-        //:   array, as earlier values are already tested.
+        // 1. Loop through the `DEFAULT_DATA` array ensuring that no stored
+        //    `type_info` object has the same value as any other object in the
+        //    array.  Optimize the nested loop to test only later values in the
+        //    array, as earlier values are already tested.
         //
         // Testing:
         //   CONCERN: test machinery functions as expected
@@ -1825,35 +1829,35 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // TESTING VALUE CONSTRUCTOR AND DESTRUCTOR
-        //   Ensure that we can implicitly create a 'type_index' object from a
-        //   'type_info', and so produce an object in any state needed for
+        //   Ensure that we can implicitly create a `type_index` object from a
+        //   `type_info`, and so produce an object in any state needed for
         //   further testing.
         //
         // Concerns:
-        //: 1 There is an implicit conversion constructor accepting a reference
-        //:   to a 'std::type_info' object.
-        //:
-        //: 2 After construction, the object has the value associated with the
-        //:   supplied 'std::type_info'.
-        //:
-        //: 3 An object can be safely destroyed.
-        //:
-        //: 4 Both constructor and destructor have non-throwing exception
-        //:   specifications on implementations that support 'noexcept'.
+        // 1. There is an implicit conversion constructor accepting a reference
+        //    to a `std::type_info` object.
+        //
+        // 2. After construction, the object has the value associated with the
+        //    supplied `std::type_info`.
+        //
+        // 3. An object can be safely destroyed.
+        //
+        // 4. Both constructor and destructor have non-throwing exception
+        //    specifications on implementations that support `noexcept`.
         //
         // Plan:
-        //: 1 Create a small sample of 'type_index' objects having distinct
-        //:   values. (C-1)
-        //:
-        //: 2 Verify that objects constructed from equivalent 'typeid'
-        //:   expressions have the same value, and object constructed from
-        //:   differing 'typeid' expressions have different values (C-2).
-        //:
-        //: 3 Let the objects created in P-1 go out of scope (C-3).
-        //:
-        //: 4 Using the 'ASSERT_NOEXCEPT' macro, verify construction and
-        //:   destruction of a temporary has a non-throwing exception
-        //:   specification (C-4).
+        // 1. Create a small sample of `type_index` objects having distinct
+        //    values. (C-1)
+        //
+        // 2. Verify that objects constructed from equivalent `typeid`
+        //    expressions have the same value, and object constructed from
+        //    differing `typeid` expressions have different values (C-2).
+        //
+        // 3. Let the objects created in P-1 go out of scope (C-3).
+        //
+        // 4. Using the `ASSERT_NOEXCEPT` macro, verify construction and
+        //    destruction of a temporary has a non-throwing exception
+        //    specification (C-4).
         //
         // Testing:
         //   type_index(const std::type_info& target) noexcept;
@@ -1916,18 +1920,18 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create a small sample of 'type_index' objects having distinct
-        //:   values.
-        //:
-        //: 2 Test each accessor can be called for a 'const type_index' object,
-        //:   including self-comparisons.
-        //:
-        //: 3 Assign to replace the value of the second 'type_index' object,
-        //:   and confirm that the comparison operators reflect the change.
+        // 1. Create a small sample of `type_index` objects having distinct
+        //    values.
+        //
+        // 2. Test each accessor can be called for a `const type_index` object,
+        //    including self-comparisons.
+        //
+        // 3. Assign to replace the value of the second `type_index` object,
+        //    and confirm that the comparison operators reflect the change.
         //
         // Testing:
         //   BREATHING TEST

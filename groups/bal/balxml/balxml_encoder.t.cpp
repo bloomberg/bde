@@ -6,8 +6,8 @@
 // This test driver requires much system memory to build on IBM/AIX using xlC.
 // If you get an out of memory error during the compilation of this file please
 // search for COMPILER_RESOURCE_LIMITATIONS in this source file, and uncomment
-// the '#define' you find, and remove the comment text right above it.  Then
-// search for the '#undef' for the same macro and uncomment that, too.  Finally
+// the `#define` you find, and remove the comment text right above it.  Then
+// search for the `#undef` for the same macro and uncomment that, too.  Finally
 // remove this comment block as well.
 // ----------------------------------------------------------------------------
 
@@ -105,7 +105,7 @@ namespace test = BloombergLP::s_baltst;
 // ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The component under test is an encoder that encodes a parameterized 'TYPE'
+// The component under test is an encoder that encodes a parameterized `TYPE`
 // to XML text.
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -116,9 +116,9 @@ namespace test = BloombergLP::s_baltst;
 // [16] TESTING FORMATTER OPTION CALCULATION
 // [15] Testing Decimal64
 // [14] TESTING NILLABLE ELEMENT ENCODING
-// [13] TESTING THE 'TestXmlElement' TEST FACILITY
-// [12] TESTING XML HEADER WITH 'outputXMLHeader' option (DRQS 22278116)
-// [11] TESTING NILLABLES WITH 'outputXSIAlias' option (DRQS 29523606)
+// [13] TESTING THE `TestXmlElement` TEST FACILITY
+// [12] TESTING XML HEADER WITH `outputXMLHeader` option (DRQS 22278116)
+// [11] TESTING NILLABLES WITH `outputXSIAlias` option (DRQS 29523606)
 // [10] TESTING ENCODING OF NILLABLES
 // [ 9] TESTING ENCODING OF SIMPLE CONTENT
 // [ 8] TESTING ENCODING OF XML ATTRIBUTES
@@ -444,9 +444,9 @@ static const char *printableCharacters[256]=
     "\\xff"   // 255  ff
 };
 
+/// Specialize for char*.  Need to expand \r, \n, \t and surround with
+/// DQUOTE characters.
 void printValue(bsl::ostream& out, const char* value)
-    // Specialize for char*.  Need to expand \r, \n, \t and surround with
-    // DQUOTE characters.
 {
     out << '"';
 
@@ -458,8 +458,8 @@ void printValue(bsl::ostream& out, const char* value)
     out << '"';
 }
 
+/// Need to expand \r, \n, \t and surround with DQUOTE characters.
 void printValue(bsl::ostream& out, const bsl::string& value)
-    // Need to expand \r, \n, \t and surround with DQUOTE characters.
 {
     printValue(out, value.c_str());
 }
@@ -511,7 +511,7 @@ int veryVeryVeryVerbose;
 //  MySequenceWithArrays: a sequence with arrays
 //
 //@DESCRIPTION:
-//  todo: provide annotation for 'MySequenceWithArrays'
+//  todo: provide annotation for `MySequenceWithArrays`
 
 namespace BloombergLP {
 namespace s_baltst {
@@ -534,237 +534,255 @@ class MySequenceWithArrays {
     };
 
     enum {
+        /// index for "Attribute1" attribute
         ATTRIBUTE_INDEX_ATTRIBUTE1 = 0,
-            // index for "Attribute1" attribute
+
+        /// index for "Attribute2" attribute
         ATTRIBUTE_INDEX_ATTRIBUTE2 = 1,
-            // index for "Attribute2" attribute
+
+        /// index for "Attribute3" attribute
         ATTRIBUTE_INDEX_ATTRIBUTE3 = 2,
-            // index for "Attribute3" attribute
+
+        /// index for "Attribute4" attribute
         ATTRIBUTE_INDEX_ATTRIBUTE4 = 3,
-            // index for "Attribute4" attribute
+
+        /// index for "Attribute5" attribute
         ATTRIBUTE_INDEX_ATTRIBUTE5 = 4,
-            // index for "Attribute5" attribute
+
+        /// index for "Attribute6" attribute
         ATTRIBUTE_INDEX_ATTRIBUTE6 = 5,
-            // index for "Attribute6" attribute
+
+        /// index for "Attribute7" attribute
         ATTRIBUTE_INDEX_ATTRIBUTE7 = 6
-            // index for "Attribute7" attribute
     };
 
     enum {
+        /// id for "Attribute1" attribute
         ATTRIBUTE_ID_ATTRIBUTE1 = 0,
-            // id for "Attribute1" attribute
+
+        /// id for "Attribute2" attribute
         ATTRIBUTE_ID_ATTRIBUTE2 = 1,
-            // id for "Attribute2" attribute
+
+        /// id for "Attribute3" attribute
         ATTRIBUTE_ID_ATTRIBUTE3 = 2,
-            // id for "Attribute3" attribute
+
+        /// id for "Attribute4" attribute
         ATTRIBUTE_ID_ATTRIBUTE4 = 3,
-            // id for "Attribute4" attribute
+
+        /// id for "Attribute5" attribute
         ATTRIBUTE_ID_ATTRIBUTE5 = 4,
-            // id for "Attribute5" attribute
+
+        /// id for "Attribute6" attribute
         ATTRIBUTE_ID_ATTRIBUTE6 = 5,
-            // id for "Attribute6" attribute
+
+        /// id for "Attribute7" attribute
         ATTRIBUTE_ID_ATTRIBUTE7 = 6
-            // id for "Attribute7" attribute
     };
 
   public:
     // CONSTANTS
-    static const char CLASS_NAME[];
-        // the name of this class (i.e., "MySequenceWithArrays")
 
+    /// the name of this class (i.e., "MySequenceWithArrays")
+    static const char CLASS_NAME[];
+
+    /// attribute information for each attribute
     static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
-        // attribute information for each attribute
 
   public:
     // CLASS METHODS
-    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
-        // Return attribute information for the attribute indicated by the
-        // specified 'id' if the attribute exists, and 0 otherwise.
 
+    /// Return attribute information for the attribute indicated by the
+    /// specified `id` if the attribute exists, and 0 otherwise.
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+
+    /// Return attribute information for the attribute indicated by the
+    /// specified `name` of the specified `nameLength` if the attribute
+    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
-        // Return attribute information for the attribute indicated by the
-        // specified 'name' of the specified 'nameLength' if the attribute
-        // exists, and 0 otherwise.
 
     // CREATORS
-    explicit MySequenceWithArrays(bslma::Allocator  *basicAllocator = 0);
-        // Create an object of type 'MySequenceWithArrays' having the default
-        // value.  Optionally specify a 'basicAllocator' used to supply memory.
-        // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.
 
+    /// Create an object of type `MySequenceWithArrays` having the default
+    /// value.  Optionally specify a `basicAllocator` used to supply memory.
+    /// If `basicAllocator` is 0, the currently installed default allocator
+    /// is used.
+    explicit MySequenceWithArrays(bslma::Allocator  *basicAllocator = 0);
+
+    /// Create an object of type `MySequenceWithArrays` having the value of
+    /// the specified `original` object.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.
     MySequenceWithArrays(const MySequenceWithArrays&  original,
                          bslma::Allocator            *basicAllocator = 0);
-        // Create an object of type 'MySequenceWithArrays' having the value of
-        // the specified 'original' object.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
 
+    /// Destroy this object.
     ~MySequenceWithArrays();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     MySequenceWithArrays& operator=(const MySequenceWithArrays& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
+    /// Reset this object to the default value (i.e., its value upon default
+    /// construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon default
-        // construction).
 
+    /// Invoke the specified `manipulator` sequentially on the address of
+    /// each (modifiable) attribute of this object, supplying `manipulator`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the last
+    /// invocation of `manipulator` (i.e., the invocation that terminated
+    /// the sequence).
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
-        // Invoke the specified 'manipulator' sequentially on the address of
-        // each (modifiable) attribute of this object, supplying 'manipulator'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the last
-        // invocation of 'manipulator' (i.e., the invocation that terminated
-        // the sequence).
 
+    /// Invoke the specified `manipulator` on the address of the
+    /// (modifiable) attribute indicated by the specified `id`, supplying
+    /// `manipulator` with the corresponding attribute information
+    /// structure.  Return the value returned from the invocation of
+    /// `manipulator` if `id` identifies an attribute of this class, and -1
+    /// otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of the
-        // (modifiable) attribute indicated by the specified 'id', supplying
-        // 'manipulator' with the corresponding attribute information
-        // structure.  Return the value returned from the invocation of
-        // 'manipulator' if 'id' identifies an attribute of this class, and -1
-        // otherwise.
 
+    /// Invoke the specified `manipulator` on the address of the
+    /// (modifiable) attribute indicated by the specified `name` of the
+    /// specified `nameLength`, supplying `manipulator` with the
+    /// corresponding attribute information structure.  Return the value
+    /// returned from the invocation of `manipulator` if `name` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of the
-        // (modifiable) attribute indicated by the specified 'name' of the
-        // specified 'nameLength', supplying 'manipulator' with the
-        // corresponding attribute information structure.  Return the value
-        // returned from the invocation of 'manipulator' if 'name' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Return a reference to the modifiable "Attribute1" attribute of this
+    /// object.
     bsl::vector<int>& attribute1();
-        // Return a reference to the modifiable "Attribute1" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Attribute2" attribute of this
+    /// object.
     bsl::vector<char>& attribute2();
-        // Return a reference to the modifiable "Attribute2" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Attribute3" attribute of this
+    /// object.
     bsl::vector<char>& attribute3();
-        // Return a reference to the modifiable "Attribute3" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Attribute4" attribute of this
+    /// object.
     bsl::vector<char>& attribute4();
-        // Return a reference to the modifiable "Attribute4" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Attribute5" attribute of this
+    /// object.
     bsl::vector<char>& attribute5();
-        // Return a reference to the modifiable "Attribute5" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Attribute6" attribute of this
+    /// object.
     bsl::vector<char>& attribute6();
-        // Return a reference to the modifiable "Attribute6" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Attribute7" attribute of this
+    /// object.
     bsl::vector<int>& attribute7();
-        // Return a reference to the modifiable "Attribute7" attribute of this
-        // object.
 
     // ACCESSORS
+
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.  Note that a trailing newline is provided
+    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
 
+    /// Invoke the specified `accessor` sequentially on each
+    /// (non-modifiable) attribute of this object, supplying `accessor`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `accessor` (i.e., the invocation that terminated
+    /// the sequence).
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
-        // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `id`, supplying `accessor`
+    /// with the corresponding attribute information structure.  Return the
+    /// value returned from the invocation of `accessor` if `id` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
-        // with the corresponding attribute information structure.  Return the
-        // value returned from the invocation of 'accessor' if 'id' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `name` of the specified
+    /// `nameLength`, supplying `accessor` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `accessor` if `name` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
-        // 'nameLength', supplying 'accessor' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'accessor' if 'name' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Return a reference to the non-modifiable "Attribute1" attribute of
+    /// this object.
     const bsl::vector<int>& attribute1() const;
-        // Return a reference to the non-modifiable "Attribute1" attribute of
-        // this object.
 
+    /// Return a reference to the non-modifiable "Attribute2" attribute of
+    /// this object.
     const bsl::vector<char>& attribute2() const;
-        // Return a reference to the non-modifiable "Attribute2" attribute of
-        // this object.
 
+    /// Return a reference to the non-modifiable "Attribute3" attribute of
+    /// this object.
     const bsl::vector<char>& attribute3() const;
-        // Return a reference to the non-modifiable "Attribute3" attribute of
-        // this object.
 
+    /// Return a reference to the non-modifiable "Attribute4" attribute of
+    /// this object.
     const bsl::vector<char>& attribute4() const;
-        // Return a reference to the non-modifiable "Attribute4" attribute of
-        // this object.
 
+    /// Return a reference to the non-modifiable "Attribute5" attribute of
+    /// this object.
     const bsl::vector<char>& attribute5() const;
-        // Return a reference to the non-modifiable "Attribute5" attribute of
-        // this object.
 
+    /// Return a reference to the non-modifiable "Attribute6" attribute of
+    /// this object.
     const bsl::vector<char>& attribute6() const;
-        // Return a reference to the non-modifiable "Attribute6" attribute of
-        // this object.
 
+    /// Return a reference to the non-modifiable "Attribute7" attribute of
+    /// this object.
     const bsl::vector<int>& attribute7() const;
-        // Return a reference to the non-modifiable "Attribute7" attribute of
-        // this object.
 
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have
+/// the same value, and `false` otherwise.  Two attribute objects have the
+/// same value if each respective attribute has the same value.
 inline
 bool operator==(const MySequenceWithArrays& lhs,
                 const MySequenceWithArrays& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
+/// have the same value, and `false` otherwise.  Two attribute objects do
+/// not have the same value if one or more respective attributes differ in
+/// values.
 inline
 bool operator!=(const MySequenceWithArrays& lhs,
                 const MySequenceWithArrays& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
 
+/// Format the specified `rhs` to the specified output `stream` and return a
+/// reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream&                stream,
                          const MySequenceWithArrays&  rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and return a
-    // reference to the modifiable 'stream'.
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -1205,8 +1223,8 @@ namespace s_baltst {
                                // CONSTANTS
                                // ---------
 
+/// the name of this class
 const char MySequenceWithArrays::CLASS_NAME[] = "MySequenceWithArrays";
-    // the name of this class
 
 const bdlat_AttributeInfo MySequenceWithArrays::ATTRIBUTE_INFO_ARRAY[] = {
     {
@@ -1481,186 +1499,196 @@ class Contractor {
     };
 
     enum {
+        /// index for "Name" attribute
         ATTRIBUTE_INDEX_NAME = 0,
-            // index for "Name" attribute
+
+        /// index for "HomeAddress" attribute
         ATTRIBUTE_INDEX_HOME_ADDRESS = 1,
-            // index for "HomeAddress" attribute
+
+        /// index for "HourlyRate" attribute
         ATTRIBUTE_INDEX_HOURLY_RATE = 2
-            // index for "HourlyRate" attribute
     };
 
     enum {
+        /// id for "Name" attribute
         ATTRIBUTE_ID_NAME = 0,
-            // id for "Name" attribute
+
+        /// id for "HomeAddress" attribute
         ATTRIBUTE_ID_HOME_ADDRESS = 1,
-            // id for "HomeAddress" attribute
+
+        /// id for "HourlyRate" attribute
         ATTRIBUTE_ID_HOURLY_RATE = 2
-            // id for "HourlyRate" attribute
     };
 
   public:
     // CONSTANTS
-    static const char CLASS_NAME[];
-        // the name of this class (i.e., "Contractor")
 
+    /// the name of this class (i.e., "Contractor")
+    static const char CLASS_NAME[];
+
+    /// attribute information for each attribute
     static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
-        // attribute information for each attribute
 
   public:
     // CLASS METHODS
-    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
-        // Return attribute information for the attribute indicated by the
-        // specified 'id' if the attribute exists, and 0 otherwise.
 
+    /// Return attribute information for the attribute indicated by the
+    /// specified `id` if the attribute exists, and 0 otherwise.
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+
+    /// Return attribute information for the attribute indicated by the
+    /// specified `name` of the specified `nameLength` if the attribute
+    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
-        // Return attribute information for the attribute indicated by the
-        // specified 'name' of the specified 'nameLength' if the attribute
-        // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Contractor(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'Contractor' having the default value.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Create an object of type `Contractor` having the default value.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
+    explicit Contractor(bslma::Allocator *basicAllocator = 0);
+
+    /// Create an object of type `Contractor` having the value of the
+    /// specified `original` object.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
     Contractor(const Contractor&  original,
                bslma::Allocator  *basicAllocator = 0);
-        // Create an object of type 'Contractor' having the value of the
-        // specified 'original' object.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
 
+    /// Destroy this object.
     ~Contractor();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     Contractor& operator=(const Contractor& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
+    /// Reset this object to the default value (i.e., its value upon
+    /// default construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
 
+    /// Invoke the specified `manipulator` sequentially on the address of
+    /// each (modifiable) attribute of this object, supplying `manipulator`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `manipulator` (i.e., the invocation that
+    /// terminated the sequence).
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
-        // Invoke the specified 'manipulator' sequentially on the address of
-        // each (modifiable) attribute of this object, supplying 'manipulator'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
 
+    /// Invoke the specified `manipulator` on the address of the
+    /// (modifiable) attribute indicated by the specified `id`, supplying
+    /// `manipulator` with the corresponding attribute information
+    /// structure.  Return the value returned from the invocation of
+    /// `manipulator` if `id` identifies an attribute of this class, and -1
+    /// otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of the
-        // (modifiable) attribute indicated by the specified 'id', supplying
-        // 'manipulator' with the corresponding attribute information
-        // structure.  Return the value returned from the invocation of
-        // 'manipulator' if 'id' identifies an attribute of this class, and -1
-        // otherwise.
 
+    /// Invoke the specified `manipulator` on the address of the
+    /// (modifiable) attribute indicated by the specified `name` of the
+    /// specified `nameLength`, supplying `manipulator` with the
+    /// corresponding attribute information structure.  Return the value
+    /// returned from the invocation of `manipulator` if `name` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of the
-        // (modifiable) attribute indicated by the specified 'name' of the
-        // specified 'nameLength', supplying 'manipulator' with the
-        // corresponding attribute information structure.  Return the value
-        // returned from the invocation of 'manipulator' if 'name' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Return a reference to the modifiable "Name" attribute of this
+    /// object.
     bsl::string& name();
-        // Return a reference to the modifiable "Name" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "HomeAddress" attribute of
+    /// this object.
     Address& homeAddress();
-        // Return a reference to the modifiable "HomeAddress" attribute of
-        // this object.
 
+    /// Return a reference to the modifiable "HourlyRate" attribute of this
+    /// object.
     bdldfp::Decimal64& hourlyRate();
-        // Return a reference to the modifiable "HourlyRate" attribute of this
-        // object.
 
     // ACCESSORS
+
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.  Note that a trailing newline is provided
+    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
 
+    /// Invoke the specified `accessor` sequentially on each
+    /// (non-modifiable) attribute of this object, supplying `accessor`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `accessor` (i.e., the invocation that terminated
+    /// the sequence).
     template<class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
-        // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `id`, supplying `accessor`
+    /// with the corresponding attribute information structure.  Return the
+    /// value returned from the invocation of `accessor` if `id` identifies
+    /// an attribute of this class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
-        // with the corresponding attribute information structure.  Return the
-        // value returned from the invocation of 'accessor' if 'id' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `name` of the specified
+    /// `nameLength`, supplying `accessor` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `accessor` if `name` identifies an attribute of this
+    /// class, and -1 otherwise.
     template<class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
-        // 'nameLength', supplying 'accessor' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'accessor' if 'name' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Return a reference to the non-modifiable "Name" attribute of this
+    /// object.
     const bsl::string& name() const;
-        // Return a reference to the non-modifiable "Name" attribute of this
-        // object.
 
+    /// Return a reference to the non-modifiable "HomeAddress" attribute of
+    /// this object.
     const Address& homeAddress() const;
-        // Return a reference to the non-modifiable "HomeAddress" attribute of
-        // this object.
 
+    /// Return a reference to the non-modifiable "HourlyRate" attribute of
+    /// this object.
     const bdldfp::Decimal64& hourlyRate() const;
-        // Return a reference to the non-modifiable "HourlyRate" attribute of
-        // this object.
 
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have
+/// the same value, and `false` otherwise.  Two attribute objects have the
+/// same value if each respective attribute has the same value.
 inline
 bool operator==(const Contractor& lhs, const Contractor& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
-    // the same value, and 'false' otherwise.  Two attribute objects have the
-    // same value if each respective attribute has the same value.
 
+/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
+/// have the same value, and `false` otherwise.  Two attribute objects do
+/// not have the same value if one or more respective attributes differ in
+/// values.
 inline
 bool operator!=(const Contractor& lhs, const Contractor& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
-    // have the same value, and 'false' otherwise.  Two attribute objects do
-    // not have the same value if one or more respective attributes differ in
-    // values.
 
+/// Format the specified `rhs` to the specified output `stream` and return a
+/// reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Contractor& rhs);
-    // Format the specified 'rhs' to the specified output 'stream' and return a
-    // reference to the modifiable 'stream'.
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -1893,8 +1921,8 @@ const bdldfp::Decimal64& Contractor::hourlyRate() const
                                // CONSTANTS
                                // ---------
 
+/// the name of this class
 const char Contractor::CLASS_NAME[] = "Contractor";
-    // the name of this class
 
 const bdlat_AttributeInfo Contractor::ATTRIBUTE_INFO_ARRAY[] = {
     {
@@ -2132,11 +2160,11 @@ ostream& operator<<(ostream& stream, const vector<int>& object)
                             // class TestXmlElement
                             // ====================
 
+/// This in-core value-semantic type provides a structural representation of
+/// a subset of valid XML.  This class is intended to be used as an
+/// intermediate representation for generating (potentially large) XML texts
+/// using a set of factory functions.
 class TestXmlElement {
-    // This in-core value-semantic type provides a structural representation of
-    // a subset of valid XML.  This class is intended to be used as an
-    // intermediate representation for generating (potentially large) XML texts
-    // using a set of factory functions.
 
   public:
     // TYPES
@@ -2222,9 +2250,10 @@ class TestXmlElement {
     }
 
     // ACCESSORS
+
+    /// Write the value of this object to the specified output `stream` in
+    /// the XML format and return a reference to `stream`.
     bsl::ostream& print(bsl::ostream& stream) const
-        // Write the value of this object to the specified output 'stream' in
-        // the XML format and return a reference to 'stream'.
     {
         stream << "<" << d_name;
 
@@ -2273,9 +2302,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestXmlElement& object)
                              // struct TestXmlUtil
                              // ==================
 
+/// This utility `struct` provides a namespace for a suite of functions that
+/// construct `TestXmlElement` objects.
 struct TestXmlUtil {
-    // This utility 'struct' provides a namespace for a suite of functions that
-    // construct 'TestXmlElement' objects.
 
     // TYPES
     typedef TestXmlElement::Attribute Attribute;
@@ -2387,9 +2416,9 @@ struct TestXmlUtil {
                           // class GenerateXmlElement
                           // ========================
 
+/// This in-core value-semantic class provides a function object whose
+/// function call operator can be used to generate `TestXmlElement` objects.
 class GenerateXmlElement {
-    // This in-core value-semantic class provides a function object whose
-    // function call operator can be used to generate 'TestXmlElement' objects.
 
   public:
     // TYPES
@@ -2830,100 +2859,100 @@ void runTestCase17()
     // TEST CASE DOCUMENTATION IS REPEATED HERE SO IT IS WITH THE CODE.  It is
     // indented wrong so it does not have to be reformatted here if it needs a
     // change.  Make sure that anything you change here is also changed in
-    // 'main' and vice versa.
+    // `main` and vice versa.
     //---+
         // --------------------------------------------------------------------
         // TESTING DECIMAL ATTRIBUTE ENCODING
         //   This case tests that the "MaxDecimalTotalDigits" and
         //   "MaxDecimalFractionDigits" options apply when
         //   encoding attributes of sequence types that are represented by
-        //   'double's and have the 'bdlat_FormattingMode::e_DEC' formatting
+        //   `double`s and have the `bdlat_FormattingMode::e_DEC` formatting
         //   mode.
         //
         // Concerns:
-        //: 1 If neither option is set, decimal-formatted, 'double'-valued
-        //:   attributes are encoded in decimal notation with the minimum
-        //:   fractional digits necessary to read back the same binary 'double'
-        //:   value by a proper reader (round-trip property).
-        //:
-        //: 2 If neither option is set, decimal-formatted, 'double'-valued
-        //:   attributes are encoded as if the unset option
-        //:   "MaxDecimalTotalDigits" were 16 if "MaxDecimalFractionDigits" was
-        //:   set, *or* "MaxDecimalFractionDigits" were 15 if
-        //:   "MaxDecimalTotalDigits" was set.
-        //:
-        //: 3 Neither option affects the number of digits in the encoding of
-        //:   the non-fractional component of such an attribute (i.e. neither
-        //:   option affects the number of digits that can appear to the left
-        //:   of the decimal point.)
-        //:
-        //: 4 The encoding of such an attribute always includes at least 1
-        //:   fractional digit, even if the values of the options would
-        //:   otherwise prohibit it.
-        //:
-        //: 5 The total number of fractional digits in the encoding of
-        //:   such an attribute is exactly equal to the difference between
-        //:   "MaxDecimalTotalDigits" and "MaxDecimalFractionDigits", or 1,
-        //:   whichever is greater.
-        //:
-        //: 6 If the value of the fractional component of the attribute can be
-        //:   represented in fewer than the number of digits alloted, the
-        //:   remaining digits are filled with zeros.
-        //:
-        //: 7 Neither option affects the encoding of 'double'-valued attributes
-        //:   with the 'bdlat_FormattingMode::e_DEFAULT' formatting mode.
-        //:
-        //: 8 Neither option affects the encoding of 'bdldfp::Decimal64'-valued
-        //:   attributes with any formatting mode.
-        //:
+        // 1. If neither option is set, decimal-formatted, `double`-valued
+        //    attributes are encoded in decimal notation with the minimum
+        //    fractional digits necessary to read back the same binary `double`
+        //    value by a proper reader (round-trip property).
+        //
+        // 2. If neither option is set, decimal-formatted, `double`-valued
+        //    attributes are encoded as if the unset option
+        //    "MaxDecimalTotalDigits" were 16 if "MaxDecimalFractionDigits" was
+        //    set, *or* "MaxDecimalFractionDigits" were 15 if
+        //    "MaxDecimalTotalDigits" was set.
+        //
+        // 3. Neither option affects the number of digits in the encoding of
+        //    the non-fractional component of such an attribute (i.e. neither
+        //    option affects the number of digits that can appear to the left
+        //    of the decimal point.)
+        //
+        // 4. The encoding of such an attribute always includes at least 1
+        //    fractional digit, even if the values of the options would
+        //    otherwise prohibit it.
+        //
+        // 5. The total number of fractional digits in the encoding of
+        //    such an attribute is exactly equal to the difference between
+        //    "MaxDecimalTotalDigits" and "MaxDecimalFractionDigits", or 1,
+        //    whichever is greater.
+        //
+        // 6. If the value of the fractional component of the attribute can be
+        //    represented in fewer than the number of digits alloted, the
+        //    remaining digits are filled with zeros.
+        //
+        // 7. Neither option affects the encoding of `double`-valued attributes
+        //    with the `bdlat_FormattingMode::e_DEFAULT` formatting mode.
+        //
+        // 8. Neither option affects the encoding of `bdldfp::Decimal64`-valued
+        //    attributes with any formatting mode.
+        //
         // Plan:
-        //: 1 Define a set N of numbers that can be exactly represented by
-        //:   the IEEE 754-2008 64-bit binary floating-point format, and that
-        //:   have different numbers of digits in their decimal representation.
-        //:   (Selecting positive and negative powers of 2 works.)
-        //:
-        //: 2 For each number n in N, enumerate several permutations of values
-        //:   for "MaxDecimalTotalDigits" and "MaxDecimalFractionDigits" and
-        //:   perform the following:
-        //:
-        //:   1 Encode an object having a 'double'-valued, decimal-formatted
-        //:     attribute with the value n.
-        //:
-        //:   2 Verify that the encoding of the attribute satisfies the
-        //:     constraints defined in the concerns.
-        //:
-        //:   3 Encode an object having a 'double'-valued, default-formatted
-        //:     attribute with the value n.
-        //:
-        //:   4 Verify that the encoding of the attribute is not affected by
-        //:     the value of "MaxDecimalTotalDigits" or
-        //:     "MaxDecimalFractionDigits".  (Notice that the encoding of the
-        //:     attribute satisfies the constraints defined in the W3C XML
-        //:     specification for 'double' values.)
-        //:
-        //: 3 Define a set P of numbers that can be exactly represented by the
-        //:   IEEE 754-2008 64-bit *decimal* floating-point format, and that
-        //:   have different numbers of digits in their decimal representation.
-        //:   (Selecting positive and negative powers of 10 with different
-        //:   amounts of precision works.)
-        //:
-        //: 4 For each number p in P, enumerate several permutations of
-        //:   values for "MaxDecimalTotalDigits" and "MaxDecimalFractionDigits"
-        //:   and perform the following:
-        //:
-        //:   5 Encode an object having a 'bdldfp::Decimal64'-valued,
-        //:     default-formatted attribute with the value p.
-        //:
-        //:   6 Verify that the encoding of the attribute is not affected
-        //:     by the value of "MaxDecimalTotalDigits" or
-        //:     "MaxDecimalFractionDigits".  (Notice that the encoding of the
-        //:     attribute satisfies the constraints defined in the W3C XML
-        //:     specification for 'precisionDecimal' values.)
+        // 1. Define a set N of numbers that can be exactly represented by
+        //    the IEEE 754-2008 64-bit binary floating-point format, and that
+        //    have different numbers of digits in their decimal representation.
+        //    (Selecting positive and negative powers of 2 works.)
+        //
+        // 2. For each number n in N, enumerate several permutations of values
+        //    for "MaxDecimalTotalDigits" and "MaxDecimalFractionDigits" and
+        //    perform the following:
+        //
+        //   1. Encode an object having a `double`-valued, decimal-formatted
+        //      attribute with the value n.
+        //
+        //   2. Verify that the encoding of the attribute satisfies the
+        //      constraints defined in the concerns.
+        //
+        //   3. Encode an object having a `double`-valued, default-formatted
+        //      attribute with the value n.
+        //
+        //   4. Verify that the encoding of the attribute is not affected by
+        //      the value of "MaxDecimalTotalDigits" or
+        //      "MaxDecimalFractionDigits".  (Notice that the encoding of the
+        //      attribute satisfies the constraints defined in the W3C XML
+        //      specification for `double` values.)
+        //
+        // 3. Define a set P of numbers that can be exactly represented by the
+        //    IEEE 754-2008 64-bit *decimal* floating-point format, and that
+        //    have different numbers of digits in their decimal representation.
+        //    (Selecting positive and negative powers of 10 with different
+        //    amounts of precision works.)
+        //
+        // 4. For each number p in P, enumerate several permutations of
+        //    values for "MaxDecimalTotalDigits" and "MaxDecimalFractionDigits"
+        //    and perform the following:
+        //
+        //   5. Encode an object having a `bdldfp::Decimal64`-valued,
+        //      default-formatted attribute with the value p.
+        //
+        //   6. Verify that the encoding of the attribute is not affected
+        //      by the value of "MaxDecimalTotalDigits" or
+        //      "MaxDecimalFractionDigits".  (Notice that the encoding of the
+        //      attribute satisfies the constraints defined in the W3C XML
+        //      specification for `precisionDecimal` values.)
         // --------------------------------------------------------------------
 
-    const MakeMySequenceWithDecimalAttribute          de;  // 'double' DECIMAL
-    const MakeMySequenceWithDoubleAttribute           du;  // 'double' DEFAULT
-    const MakeMySequenceWithPrecisionDecimalAttribute pd;  // 'bdldfp' PRECDEC
+    const MakeMySequenceWithDecimalAttribute          de;  // `double` DECIMAL
+    const MakeMySequenceWithDoubleAttribute           du;  // `double` DEFAULT
+    const MakeMySequenceWithPrecisionDecimalAttribute pd;  // `bdldfp` PRECDEC
 
     const TestCase17Test t;
 
@@ -2934,25 +2963,25 @@ void runTestCase17()
 #define AS(X) "<tag attribute1=\"" X "\"/>"
 #define A(X) AS(#X)
 
+/// (T)est (L)i(N)e
 #define TLN(maxtotal, maxfractional, objtoencode, expected)                   \
     t(L_, maxtotal, maxfractional, objtoencode, A(expected))
-    // (T)est (L)i(N)e
 
+/// (T)est (L)ine (L)ong -- `expected` is already a string literal
 #define TLL(maxtotal, maxfractional, objtoencode, expected)                   \
     t(L_, maxtotal, maxfractional, objtoencode, AS(expected))
-    // (T)est (L)ine (L)ong -- 'expected' is already a string literal
 
+/// (T)est (L)ine with (A)lternative expected result
 #define TLA(maxtotal, maxfractional, objtoencode, expected, altexpected)      \
     t(L_, maxtotal, maxfractional, objtoencode, A(expected), A(altexpected))
-    // (T)est (L)ine with (A)lternative expected result
 
-//   MAX DECIMAL TOTAL DIGITS  --------.   If both are N we use the 'bslalg::'
-//  .------------------------           |-- 'NumericFormatterUtil::toChar' in
+//   MAX DECIMAL TOTAL DIGITS  --------.   If both are N we use the `bslalg::`
+//  .------------------------           |-- `NumericFormatterUtil::toChar` in
 //  |     MAX DECIMAL FRACTION DIGITS -'   minimal form (shortest round trip).
 //  |    .---------------------------
 //  |   /  -=: OBJECT TO ENCODE :=-      --==:: EXPECTED XML OUTPUT ::==--
 //- -- -- --------------------------- ---------------------------------------
-if (veryVerbose) cout << "Testing 'double' decimal format\n";
+if (veryVerbose) cout << "Testing `double` decimal format\n";
 TLN( N, N, de(1.52587890625e-05     ),                   0.0000152587890625);
 TLN( N, N, de(3.0517578125e-05      ),                   0.000030517578125 );
 TLN( N, N, de(6.103515625e-05       ),                   0.00006103515625  );
@@ -3044,7 +3073,7 @@ TLL( N, 0, de(Limits::max()),
     "332123348274797826204144723168738177180919299881250404026184"       // 300
     "124858368.0");                                                      // 311
 #else
-    // AIX 'sprintf' is "lazy"
+    // AIX `sprintf` is "lazy"
 TLL(N, 0, de(Limits::max()),
     "179769313486231570814527423731704356800000000000000000000000"       //  60
     "000000000000000000000000000000000000000000000000000000000000"       // 120
@@ -3063,7 +3092,7 @@ TLL(327, 17, de(Limits::max()),
     "332123348274797826204144723168738177180919299881250404026184"       // 300
     "124858368.00000000000000000");                                      // 327
 #else
-    // AIX 'sprintf' is "lazy"
+    // AIX `sprintf` is "lazy"
 TLL(327, 17, de(Limits::max()),
     "179769313486231570814527423731704356800000000000000000000000"       //  60
     "000000000000000000000000000000000000000000000000000000000000"       // 120
@@ -3108,7 +3137,7 @@ TLL(N, 0, de(-Limits::max()), "-"                                    //     + 1
     "332123348274797826204144723168738177180919299881250404026184"   // 300 + 1
     "124858368.0");                                                  // 311 + 1
 #else
-    // AIX 'sprintf' is "lazy"
+    // AIX `sprintf` is "lazy"
 TLL(N, 0, de(-Limits::max()), "-"                                    //     + 1
     "179769313486231570814527423731704356800000000000000000000000"   //  60 + 1
     "000000000000000000000000000000000000000000000000000000000000"   // 120 + 1
@@ -3127,7 +3156,7 @@ TLL(326, 17, de(-Limits::max()), "-"                                 //     + 1
     "332123348274797826204144723168738177180919299881250404026184"   // 300 + 1
     "124858368.00000000000000000");                                  // 327 + 1
 #else
-    // AIX 'sprintf' is "lazy"
+    // AIX `sprintf` is "lazy"
 TLL(326, 17, de(-Limits::max()), "-"                                 //     + 1
     "179769313486231570814527423731704356800000000000000000000000"   //  60 + 1
     "000000000000000000000000000000000000000000000000000000000000"   // 120 + 1
@@ -3227,7 +3256,7 @@ TLN(12, 8, de(    1125899906842624.0),    1125899906842624.0               );
 TLN(12, 8, de(   18014398509481984.0),   18014398509481984.0               );
 TLN(12, 8, de(  144115188075855870.0),  144115188075855872.0               );
 
-if (veryVerbose) cout << "Testing 'double' default format\n";
+if (veryVerbose) cout << "Testing `double` default format\n";
 {
 static bdlb::NullableValue<int> TOTAL_DIGITS_DATA[] = { N, 6, 12 };
 const int NUM_TOTAL_DIGITS =
@@ -3261,9 +3290,9 @@ for (int j = 0; j < NUM_TOTAL_DIGITS; ++j) {
         TLN( TOTAL, FRACT, du(   18014398509481984.0), 18014398509481984     );
         TLN( TOTAL, FRACT, du(  144115188075855870.0), 144115188075855872    );
     }
-}}  // end 'double' default format testing
+}}  // end `double` default format testing
 
-if (veryVerbose) cout << "Testing 'Decimal64' precision-decimal format\n";
+if (veryVerbose) cout << "Testing `Decimal64` precision-decimal format\n";
 {
 static bdlb::NullableValue<int> TOTAL_DIGITS_DATA[] = { N, 3 };
 const int NUM_TOTAL_DIGITS =
@@ -3280,7 +3309,7 @@ for (int j = 0; j < NUM_TOTAL_DIGITS; ++j) {
 
         // Verify that decimal format options are *ignored* by the precision-
         // decimal format printing, it always prints using the precision stored
-        // in the 'bdldfp::Decimal64'.  Passing decimal encoding options should
+        // in the `bdldfp::Decimal64`.  Passing decimal encoding options should
         // not change the resulting XML.
 
 #define DD BDLDFP_DECIMAL_DD
@@ -3293,7 +3322,7 @@ for (int j = 0; j < NUM_TOTAL_DIGITS; ++j) {
             TLN(TOTAL, FRACT, pd(DD(1.000)), 1.000);
 #undef DD
     }
-}}  // end 'Decmal64' precision-default format testing
+}}  // end `Decmal64` precision-default format testing
 
 #undef TLA
 #undef TLL
@@ -3314,63 +3343,63 @@ void runTestCase14()
     // TEST CASE DOCUMENTATION IS REPEATED HERE SO IT IS WITH THE CODE.  It is
     // indented wrong so it does not have to be reformatted here if it needs a
     // change.  Make sure that anything you change here is also changed in
-    // 'main' and vice versa.
+    // `main` and vice versa.
     //---+
         // --------------------------------------------------------------------
         // TESTING NILLABLE ELEMENT ENCODING
-        //   This case tests the 'balxml::Encoder::encode' operation when
+        //   This case tests the `balxml::Encoder::encode` operation when
         //   encoding objects that may or may not be "nullable", and may or may
         //   not have the "nillable" formatting mode applied.  In general, it
         //   is expected that null values encode to nothing in XML, without
         //   regard to the value of their "nillable" formatting mode.
         //
         // Concerns:
-        //: 1 Attributes of sequence types and selections of choice types
-        //:   that do not have the "nillable" formatting mode and are not null
-        //:   encode to XML representations of their value.
-        //:
-        //: 2 Attributes of sequence types and selections of choice types that
-        //:   do not have the "nillable" formatting mode and are null do not
-        //:   appear in the XML representations of their value.
-        //:
-        //: 3 Attributes of sequence types and selections of choice types
-        //:   that have the "nillable" formatting mode and are not null
-        //:   encode to XML representations of their value.
-        //:
-        //: 4 Attributes of sequence types and selections of choice types
-        //:   that have the "nillable" formatting mode and are null do not
-        //:   appear in the XML representations of their value.
-        //:
-        //: 5 Objects of nullable types that do not have the null value encode
-        //:   to XML representations of the underlying value.
-        //:
-        //: 6 Objects of nullable types that have the null value do not appear
-        //:   in the XML representations of their value.
-        //:
-        //: 7 The above 6 properties hold for arbitrary nesting and
-        //:   permutation of 'bdlat' concept implementations.  For example,
-        //:   these properties should not only hold for a sequence of two
-        //:   integers, but also a sequence of an enumeration and a choice
-        //:   between an integer and a string.
+        // 1. Attributes of sequence types and selections of choice types
+        //    that do not have the "nillable" formatting mode and are not null
+        //    encode to XML representations of their value.
+        //
+        // 2. Attributes of sequence types and selections of choice types that
+        //    do not have the "nillable" formatting mode and are null do not
+        //    appear in the XML representations of their value.
+        //
+        // 3. Attributes of sequence types and selections of choice types
+        //    that have the "nillable" formatting mode and are not null
+        //    encode to XML representations of their value.
+        //
+        // 4. Attributes of sequence types and selections of choice types
+        //    that have the "nillable" formatting mode and are null do not
+        //    appear in the XML representations of their value.
+        //
+        // 5. Objects of nullable types that do not have the null value encode
+        //    to XML representations of the underlying value.
+        //
+        // 6. Objects of nullable types that have the null value do not appear
+        //    in the XML representations of their value.
+        //
+        // 7. The above 6 properties hold for arbitrary nesting and
+        //    permutation of `bdlat` concept implementations.  For example,
+        //    these properties should not only hold for a sequence of two
+        //    integers, but also a sequence of an enumeration and a choice
+        //    between an integer and a string.
         //
         // Plan:
-        //: 1 Create objects enumerating all 8 'bdlat' attribute type concepts,
-        //:   and where applicable, recursively up to a depth of 2.
-        //:
-        //: 2 For each of the above objects, create a variant that is non-null
-        //:   but not nillable, a variant that is null but not nillable, a
-        //:   variant that is non-null and nillable, and a variant that is null
-        //:   and nillable.
-        //:
-        //: 3 For each of the above objects, verify that their XML encodings
-        //:   created by 'balxml::Encoder::encode' satisfy the 6 properties
-        //:   defined in the "Concerns".
+        // 1. Create objects enumerating all 8 `bdlat` attribute type concepts,
+        //    and where applicable, recursively up to a depth of 2.
+        //
+        // 2. For each of the above objects, create a variant that is non-null
+        //    but not nillable, a variant that is null but not nillable, a
+        //    variant that is non-null and nillable, and a variant that is null
+        //    and nillable.
+        //
+        // 3. For each of the above objects, verify that their XML encodings
+        //    created by `balxml::Encoder::encode` satisfy the 6 properties
+        //    defined in the "Concerns".
         //
         // Testing:
         //   int encode(bsl::streambuf *buffer, const TYPE& object);
         // --------------------------------------------------------------------
 
-    // Abbreviations for the names of 'bdlat' concept test implementations,
+    // Abbreviations for the names of `bdlat` concept test implementations,
     // which will become the tag names of the XML they generate.
     const string_view S  = "MySequence";
     const string_view C  = "MyChoice";
@@ -3397,7 +3426,7 @@ void runTestCase14()
     const string_view D0 = "1.5";
 
     // Abbreviations for function objects used to generate objects that
-    // implement various 'bdlat' attribute type concepts.
+    // implement various `bdlat` attribute type concepts.
     const s_baltst::GenerateTestArray          a;
     const s_baltst::GenerateTestChoice         c;
     const s_baltst::GenerateTestCustomizedType ct;
@@ -3500,14 +3529,14 @@ void runTestCase14()
 // Code restructuring made it possible to build this test driver on AIX/IBM xlC
 // again.  Should out of memory errors start happening again while compiling
 // this file on IBM/AIX using xlC please uncomment the following line, and the
-// '#undef' at the end of this function.
+// `#undef` at the end of this function.
 #define U_SKIP_DUE_TO_COMPILER_RESOURCE_LIMITATIONS
 #endif
 
     ///Implementation Note
     ///-------------------
     // The following test table shares its structure with the table in case 19
-    // of the 'balxml_decoder' component test driver.  These two test cases
+    // of the `balxml_decoder` component test driver.  These two test cases
     // share an identical test table structure in order to verify that,
     // abstractly, the encoding and decoding operations they perform are
     // "consistent".  Note that the "decoding result" is unused in this test
@@ -3519,7 +3548,7 @@ void runTestCase14()
     // lines with a "1" after the asterisk verify the nullness of decoded
     // values of omitted tags, lines with a "2" verify the nullness of decoded
     // values of self-closing tags, and lines with a "3" verify the nullness of
-    // decoded values of self-closing tags with an 'xsi:nil="true"' attribute.
+    // decoded values of self-closing tags with an `xsi:nil="true"` attribute.
 
     static const TestCase14Row DATA[] = {
 //v---------^                       ENCODING RESULT
@@ -3811,8 +3840,8 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
 // ----------------------------------------------------------------------------
 
 // The following snippets of code illustrate the usage of this component.
-// Suppose we have an XML schema inside a file named 'employee.xsd':
-//..
+// Suppose we have an XML schema inside a file named `employee.xsd`:
+// ```
 //  <?xml version='1.0' encoding='UTF-8'?>
 //  <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
 //             xmlns:test='http://bloomberg.com/schemas/test'
@@ -3835,19 +3864,19 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
 //          </xs:sequence>
 //      </xs:complexType>
 //  </xs:schema>
-//..
-// Using the 'bas_codegen.pl' tool, we generate C++ classes for this schema as
+// ```
+// Using the `bas_codegen.pl` tool, we generate C++ classes for this schema as
 // follows:
-//..
+// ```
 //  $ bas_codegen.pl -m msg -p test employee.xsd
-//..
+// ```
 // This tool will generate the header and implementation files for the
-// 'test_messages' components in the current directory.
+// `test_messages` components in the current directory.
 //
 // Now suppose we wanted to encode information about a particular employee
-// using XML encoding to the standard output, using the 'PRETTY' option for
+// using XML encoding to the standard output, using the `PRETTY` option for
 // formatting the output.  The following function will do this:
-//..
+// ```
 //  #include <test_messages.h>
 //
 //  #include <balxml_encoder.h>
@@ -3891,7 +3920,7 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
         ASSERT(0 == rc);
         ASSERT(EXPECTED_OUTPUT == os.str());
     }
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -3908,7 +3937,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -3934,26 +3963,26 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // ENCODING CUSTOMIZED HEX AND BASE64 BINARY DATA
         //   This case tests that the encoder can encode elements that are
-        //   restrictions of 'xs:hexBinary' and 'xs:base64Binary' types.  These
-        //   types are represented as 'bdlat' customized types having
-        //   'bsl::vector<char>' as a base type, and are distinguished by their
+        //   restrictions of `xs:hexBinary` and `xs:base64Binary` types.  These
+        //   types are represented as `bdlat` customized types having
+        //   `bsl::vector<char>` as a base type, and are distinguished by their
         //   formatting mode.  The former type has the "hex" mode, and the
         //   latter has the "base64" mode.
         //
         // Concerns:
-        //: 1 Customized types having a 'bsl::vector<char>' base types are
-        //:   encodable if they have the hex or base64 formatting mode.
+        // 1. Customized types having a `bsl::vector<char>` base types are
+        //    encodable if they have the hex or base64 formatting mode.
         //
         // Plan:
-        //: 1 Encode a test sequence type that contains an attribute having a
-        //:   customized 'bsl::vector<char>' type with the base64 formatting
-        //:   mode and verify that the output is valid according to the XSD
-        //:   specification for a restriction on a 'xs:base64Binary'. (C-1)
-        //:
-        //: 2 Encode a test sequence type that contains an attribute having a
-        //:   customized 'bsl::vector<char>' type with the hex formatting
-        //:   mode and verify that the output is valid according to the XSD
-        //:   specification for a restriction on a 'xs:hexBinary'. (C-1)
+        // 1. Encode a test sequence type that contains an attribute having a
+        //    customized `bsl::vector<char>` type with the base64 formatting
+        //    mode and verify that the output is valid according to the XSD
+        //    specification for a restriction on a `xs:base64Binary`. (C-1)
+        //
+        // 2. Encode a test sequence type that contains an attribute having a
+        //    customized `bsl::vector<char>` type with the hex formatting
+        //    mode and verify that the output is valid according to the XSD
+        //    specification for a restriction on a `xs:hexBinary`. (C-1)
         //
         // Testing:
         //   ENCODING CUSTOMIZED HEX AND BASE64 BINARY DATA
@@ -4075,18 +4104,18 @@ int main(int argc, char *argv[])
         // REPRODUCE SCENARIO FROM DRQS 169438741
         //
         // Concerns:
-        //: 1 'bdlb::Variant2<bdlt::Date, bdlt::DateTz>' value can be encoded
-        //:   to XML.
-        //:
-        //: 2 'bdlb::Variant2<bdlt::Time, bdlt::TimeTz>' value can be encoded
-        //:   to XML.
-        //:
-        //: 3 'bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>' value can be
-        //:   encoded to XML.
+        // 1. `bdlb::Variant2<bdlt::Date, bdlt::DateTz>` value can be encoded
+        //    to XML.
+        //
+        // 2. `bdlb::Variant2<bdlt::Time, bdlt::TimeTz>` value can be encoded
+        //    to XML.
+        //
+        // 3. `bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>` value can be
+        //    encoded to XML.
         //
         // Plan:
-        //: 1 Create several objects and encode them to XML using
-        //:   'balxml::Encoder'.  Verify obtained results.  (C-1..3)
+        // 1. Create several objects and encode them to XML using
+        //    `balxml::Encoder`.  Verify obtained results.  (C-1..3)
         //
         // Testing:
         //   DRQS 169438741
@@ -4104,7 +4133,7 @@ int main(int argc, char *argv[])
         balxml::EncoderOptions options;
         balxml::Encoder encoder(&options, 0, 0);
 
-        // Testing 'bdlt::Date' and 'bdltDateTz'.
+        // Testing `bdlt::Date` and `bdltDateTz`.
         {
             const DateOrDateTz DATE(bdlt::Date(2, 2, 2));
             const DateOrDateTz DATETZ(
@@ -4135,7 +4164,7 @@ int main(int argc, char *argv[])
                     EXP_DATETZ == resultDateTz.str());
         }
 
-        // Testing 'bdlt::Time' and 'bdltTimeTz'.
+        // Testing `bdlt::Time` and `bdltTimeTz`.
         {
             const TimeOrTimeTz TIME(bdlt::Time(1, 1, 1));
             const TimeOrTimeTz TIMETZ(
@@ -4166,7 +4195,7 @@ int main(int argc, char *argv[])
                     EXP_TIMETZ == resultTimeTz.str());
         }
 
-        // Testing 'bdlt::Datetime' and 'bdltDatetimeTz'.
+        // Testing `bdlt::Datetime` and `bdltDatetimeTz`.
         {
             const DatetimeOrDatetimeTz DATETIME(
                                        bdlt::Datetime(1, 1, 1, 0, 0, 0, 0, 0));
@@ -4202,90 +4231,90 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         //---------------------------------------------------------------------
-        // TEST CASE DOCUMENTATION IS REPEATED IN THE 'runTestCase17()'
+        // TEST CASE DOCUMENTATION IS REPEATED IN THE `runTestCase17()`
         // function so it is also near the actual test code.  Make sure that
-        // anything you change here, you also changed in 'runTestCase17()' and
+        // anything you change here, you also changed in `runTestCase17()` and
         // vice versa.
         // --------------------------------------------------------------------
         // TESTING DECIMAL ATTRIBUTE ENCODING
         //   This case tests that the "MaxDecimalTotalDigits" and
         //   "MaxDecimalFractionDigits" options apply when
         //   encoding attributes of sequence types that are represented by
-        //   'double's and have the 'bdlat_FormattingMode::e_DEC' formatting
+        //   `double`s and have the `bdlat_FormattingMode::e_DEC` formatting
         //   mode.
         //
         // Concerns:
-        //: 1 If neither option is set, decimal-formatted, 'double'-valued
-        //:   attributes are encoded as if "MaxDecimalTotalDigits" were 16
-        //:   and "MaxDecimalFractionDigits" were 12.
-        //:
-        //: 2 Neither option affects the number of digits in the encoding of
-        //:   the non-fractional component of such an attribute (i.e. neither
-        //:   option affects the number of digits that can appear to the left
-        //:   of the decimal point.)
-        //:
-        //: 3 The encoding of such an attribute always includes at least 1
-        //:   fractional digit, even if the values of the options would
-        //:   otherwise prohibit it.
-        //:
-        //: 4 The total number of fractional digits in the encoding of
-        //:   such an attribute is exactly equal to the difference between
-        //:   "MaxDecimalTotalDigits" and "MaxDecimalFractionDigits", or 1,
-        //:   whichever is greater.
-        //:
-        //: 5 If the value of the fractional component of the attribute can be
-        //:   represented in fewer than the number of digits alloted, the
-        //:   remaining digits are filled with zeros.
-        //:
-        //: 6 Neither option affects the encoding of 'double'-valued attributes
-        //:   with the 'bdlat_FormattingMode::e_DEFAULT' formatting mode.
-        //:
-        //: 7 Neither option affects the encoding of 'bdldfp::Decimal64'-valued
-        //:   attributes with any formatting mode.
-        //:
+        // 1. If neither option is set, decimal-formatted, `double`-valued
+        //    attributes are encoded as if "MaxDecimalTotalDigits" were 16
+        //    and "MaxDecimalFractionDigits" were 12.
+        //
+        // 2. Neither option affects the number of digits in the encoding of
+        //    the non-fractional component of such an attribute (i.e. neither
+        //    option affects the number of digits that can appear to the left
+        //    of the decimal point.)
+        //
+        // 3. The encoding of such an attribute always includes at least 1
+        //    fractional digit, even if the values of the options would
+        //    otherwise prohibit it.
+        //
+        // 4. The total number of fractional digits in the encoding of
+        //    such an attribute is exactly equal to the difference between
+        //    "MaxDecimalTotalDigits" and "MaxDecimalFractionDigits", or 1,
+        //    whichever is greater.
+        //
+        // 5. If the value of the fractional component of the attribute can be
+        //    represented in fewer than the number of digits alloted, the
+        //    remaining digits are filled with zeros.
+        //
+        // 6. Neither option affects the encoding of `double`-valued attributes
+        //    with the `bdlat_FormattingMode::e_DEFAULT` formatting mode.
+        //
+        // 7. Neither option affects the encoding of `bdldfp::Decimal64`-valued
+        //    attributes with any formatting mode.
+        //
         // Plan:
-        //: 1 Define a set N of numbers that can be exactly represented by
-        //:   the IEEE 754-2008 64-bit binary floating-point format, and that
-        //:   have different numbers of digits in their decimal representation.
-        //:   (Selecting positive and negative powers of 2 works.)
-        //:
-        //: 2 For each number n in N, enumerate several permutations of values
-        //:   for "MaxDecimalTotalDigits" and "MaxDecimalFractionDigits" and
-        //:   perform the following:
-        //:
-        //:   1 Encode an object having a 'double'-valued, decimal-formatted
-        //:     attribute with the value n.
-        //:
-        //:   2 Verify that the encoding of the attribute satisfies the
-        //:     constraints defined in the concerns.
-        //:
-        //:   3 Encode an object having a 'double'-valued, default-formatted
-        //:     attribute with the value n.
-        //:
-        //:   4 Verify that the encoding of the attribute is not affected by
-        //:     the value of "MaxDecimalTotalDigits" or
-        //:     "MaxDecimalFractionDigits".  (Notice that the encoding of the
-        //:     attribute satisfies the constraints defined in the W3C XML
-        //:     specification for 'double' values.)
-        //:
-        //: 3 Define a set P of numbers that can be exactly represented by the
-        //:   IEEE 754-2008 64-bit *decimal* floating-point format, and that
-        //:   have different numbers of digits in their decimal representation.
-        //:   (Selecting positive and negative powers of 10 with different
-        //:   amounts of precision works.)
-        //:
-        //: 4 For each number p in P, enumerate several permutations of
-        //:   values for "MaxDecimalTotalDigits" and "MaxDecimalFractionDigits"
-        //:   and perform the following:
-        //:
-        //:   5 Encode an object having a 'bdldfp::Decimal64'-valued,
-        //:     default-formatted attribute with the value p.
-        //:
-        //:   6 Verify that the encoding of the attribute is not affected
-        //:     by the value of "MaxDecimalTotalDigits" or
-        //:     "MaxDecimalFractionDigits".  (Notice that the encoding of the
-        //:     attribute satisfies the constraints defined in the W3C XML
-        //:     specification for 'precisionDecimal' values.)
+        // 1. Define a set N of numbers that can be exactly represented by
+        //    the IEEE 754-2008 64-bit binary floating-point format, and that
+        //    have different numbers of digits in their decimal representation.
+        //    (Selecting positive and negative powers of 2 works.)
+        //
+        // 2. For each number n in N, enumerate several permutations of values
+        //    for "MaxDecimalTotalDigits" and "MaxDecimalFractionDigits" and
+        //    perform the following:
+        //
+        //   1. Encode an object having a `double`-valued, decimal-formatted
+        //      attribute with the value n.
+        //
+        //   2. Verify that the encoding of the attribute satisfies the
+        //      constraints defined in the concerns.
+        //
+        //   3. Encode an object having a `double`-valued, default-formatted
+        //      attribute with the value n.
+        //
+        //   4. Verify that the encoding of the attribute is not affected by
+        //      the value of "MaxDecimalTotalDigits" or
+        //      "MaxDecimalFractionDigits".  (Notice that the encoding of the
+        //      attribute satisfies the constraints defined in the W3C XML
+        //      specification for `double` values.)
+        //
+        // 3. Define a set P of numbers that can be exactly represented by the
+        //    IEEE 754-2008 64-bit *decimal* floating-point format, and that
+        //    have different numbers of digits in their decimal representation.
+        //    (Selecting positive and negative powers of 10 with different
+        //    amounts of precision works.)
+        //
+        // 4. For each number p in P, enumerate several permutations of
+        //    values for "MaxDecimalTotalDigits" and "MaxDecimalFractionDigits"
+        //    and perform the following:
+        //
+        //   5. Encode an object having a `bdldfp::Decimal64`-valued,
+        //      default-formatted attribute with the value p.
+        //
+        //   6. Verify that the encoding of the attribute is not affected
+        //      by the value of "MaxDecimalTotalDigits" or
+        //      "MaxDecimalFractionDigits".  (Notice that the encoding of the
+        //      attribute satisfies the constraints defined in the W3C XML
+        //      specification for `precisionDecimal` values.)
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Decimal Attribute Encoding"
@@ -4297,54 +4326,54 @@ int main(int argc, char *argv[])
       case 16: {
         // --------------------------------------------------------------------
         // TESTING FORMATTER OPTION CALCULATION
-        //   This case tests that 'balxml::Encoder' correctly calculates the
+        //   This case tests that `balxml::Encoder` correctly calculates the
         //   options to use for its internal XML formatter.
         //
         // Concerns:
-        //: 1 If the encoding style is compact, the formatter's initial indent
-        //:   level, spaces per level, and wrap column are 0, 0, and -1,
-        //:   respectively, regardless of what the values for those fields are
-        //:   in the encoder's options.
-        //:
-        //: 2 If the encoding style is pretty, the formatter's initial indent
-        //:   level, spaces per level, and wrap column are equal to the
-        //:   respective values from the encoder's options.
-        //:
-        //: 3 The encoder forwards the values of all other options to the
-        //:   formatter except: "DatetimeFractionalSecondPrecision",
-        //:   "AllowControlCharacters", and "UseZAbbreviationForUtc".  Note
-        //:   that this is to maintain bug-compatibility with a prior version
-        //:   of this component that did not correctly forward the encoder's
-        //:   options to the formatter.
-        //:
+        // 1. If the encoding style is compact, the formatter's initial indent
+        //    level, spaces per level, and wrap column are 0, 0, and -1,
+        //    respectively, regardless of what the values for those fields are
+        //    in the encoder's options.
+        //
+        // 2. If the encoding style is pretty, the formatter's initial indent
+        //    level, spaces per level, and wrap column are equal to the
+        //    respective values from the encoder's options.
+        //
+        // 3. The encoder forwards the values of all other options to the
+        //    formatter except: "DatetimeFractionalSecondPrecision",
+        //    "AllowControlCharacters", and "UseZAbbreviationForUtc".  Note
+        //    that this is to maintain bug-compatibility with a prior version
+        //    of this component that did not correctly forward the encoder's
+        //    options to the formatter.
+        //
         // Plan:
-        //: 1 Calculate the formatter options from the default encoder options
-        //:   and verify that the formatter options' initial indent level is 0,
-        //:   its spaces per level is 0, and its wrap column is -1.
-        //:
-        //: 2 Calculate the formatter options from a set of encoder options
-        //:   with a compact encoding style, as well as an initial indent
-        //:   level, spaces per level, and a wrap column all set to 10.  Verify
-        //:   that the formatter options' initial indent level is 0, its spaces
-        //:   per level is 0, and its wrap column is -1.
-        //:
-        //: 3 Calculate the formatter options from a set of encoder options
-        //:   with pretty encoding style and all other options default. Verify
-        //:   that the formatter options' initial indent level is 0, its spaces
-        //:   per level if 4, and its wrap column is 80.
-        //:
-        //: 4 Calculate the formatter options from a set of encoder options
-        //:   with pretty encoding style, as well as an initial indent level,
-        //:   spaces per level, and wrap column all set to 10.  Verify that the
-        //:   formatter options' initial indent level, spaces per level, and
-        //:   wrap column are likewise all 10.
-        //:
-        //: 5 Calculate the formatter options from a set of encoder options
-        //:   having each option set to a non-default value.  Verify that all
-        //:   of the formatter's options have the corresponding non-default
-        //:   value, except for "DatetimeFractionalSecondPrecision",
-        //:   "AllowControlCharacters", and "UseZAbbreviationForUtc", which
-        //:   have their respective default values.
+        // 1. Calculate the formatter options from the default encoder options
+        //    and verify that the formatter options' initial indent level is 0,
+        //    its spaces per level is 0, and its wrap column is -1.
+        //
+        // 2. Calculate the formatter options from a set of encoder options
+        //    with a compact encoding style, as well as an initial indent
+        //    level, spaces per level, and a wrap column all set to 10.  Verify
+        //    that the formatter options' initial indent level is 0, its spaces
+        //    per level is 0, and its wrap column is -1.
+        //
+        // 3. Calculate the formatter options from a set of encoder options
+        //    with pretty encoding style and all other options default. Verify
+        //    that the formatter options' initial indent level is 0, its spaces
+        //    per level if 4, and its wrap column is 80.
+        //
+        // 4. Calculate the formatter options from a set of encoder options
+        //    with pretty encoding style, as well as an initial indent level,
+        //    spaces per level, and wrap column all set to 10.  Verify that the
+        //    formatter options' initial indent level, spaces per level, and
+        //    wrap column are likewise all 10.
+        //
+        // 5. Calculate the formatter options from a set of encoder options
+        //    having each option set to a non-default value.  Verify that all
+        //    of the formatter's options have the corresponding non-default
+        //    value, except for "DatetimeFractionalSecondPrecision",
+        //    "AllowControlCharacters", and "UseZAbbreviationForUtc", which
+        //    have their respective default values.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Formatter Option Calculation"
@@ -4558,17 +4587,17 @@ int main(int argc, char *argv[])
         // Testing Decimal64
         //
         // Concerns:
-        //: 1 That the encoder can encoder a field of type 'Decimal64'.
+        // 1. That the encoder can encoder a field of type `Decimal64`.
         //
         // Plan:
-        //: 1 Copy the 'Employee' type from the usage example, creating a
-        //:   'Contractor' type where the integer 'age' field is replaced by
-        //:   by a 'Decimal64' 'hourlyRate' field.
-        //:
-        //: 2 Create a table containing decimal values are the expected text
-        //:   output from encoding them.
-        //:
-        //: 3 Run the encoder and verify the results.
+        // 1. Copy the `Employee` type from the usage example, creating a
+        //    `Contractor` type where the integer `age` field is replaced by
+        //    by a `Decimal64` `hourlyRate` field.
+        //
+        // 2. Create a table containing decimal values are the expected text
+        //    output from encoding them.
+        //
+        // 3. Run the encoder and verify the results.
         //
         // Testing:
         //   Type Decimal64
@@ -4651,59 +4680,59 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         //---------------------------------------------------------------------
-        // TEST CASE DOCUMENTATION IS REPEATED IN THE 'runTestCase14()'
+        // TEST CASE DOCUMENTATION IS REPEATED IN THE `runTestCase14()`
         // function so it is also near the actual test code.  Make sure that
-        // anything you change here, you also changed in 'runTestCase14()' and
+        // anything you change here, you also changed in `runTestCase14()` and
         // vice versa.
         // --------------------------------------------------------------------
         // TESTING NILLABLE ELEMENT ENCODING
-        //   This case tests the 'balxml::Encoder::encode' operation when
+        //   This case tests the `balxml::Encoder::encode` operation when
         //   encoding objects that may or may not be "nullable", and may or may
         //   not have the "nillable" formatting mode applied.  In general, it
         //   is expected that null values encode to nothing in XML, without
         //   regard to the value of their "nillable" formatting mode.
         //
         // Concerns:
-        //: 1 Attributes of sequence types and selections of choice types
-        //:   that do not have the "nillable" formatting mode and are not null
-        //:   encode to XML representations of their value.
-        //:
-        //: 2 Attributes of sequence types and selections of choice types that
-        //:   do not have the "nillable" formatting mode and are null do not
-        //:   appear in the XML representations of their value.
-        //:
-        //: 3 Attributes of sequence types and selections of choice types
-        //:   that have the "nillable" formatting mode and are not null
-        //:   encode to XML representations of their value.
-        //:
-        //: 4 Attributes of sequence types and selections of choice types
-        //:   that have the "nillable" formatting mode and are null do not
-        //:   appear in the XML representations of their value.
-        //:
-        //: 5 Objects of nullable types that do not have the null value encode
-        //:   to XML representations of the underlying value.
-        //:
-        //: 6 Objects of nullable types that have the null value do not appear
-        //:   in the XML representations of their value.
-        //:
-        //: 7 The above 6 properties hold for arbitrary nesting and
-        //:   permutation of 'bdlat' concept implementations.  For example,
-        //:   these properties should not only hold for a sequence of two
-        //:   integers, but also a sequence of an enumeration and a choice
-        //:   between an integer and a string.
+        // 1. Attributes of sequence types and selections of choice types
+        //    that do not have the "nillable" formatting mode and are not null
+        //    encode to XML representations of their value.
+        //
+        // 2. Attributes of sequence types and selections of choice types that
+        //    do not have the "nillable" formatting mode and are null do not
+        //    appear in the XML representations of their value.
+        //
+        // 3. Attributes of sequence types and selections of choice types
+        //    that have the "nillable" formatting mode and are not null
+        //    encode to XML representations of their value.
+        //
+        // 4. Attributes of sequence types and selections of choice types
+        //    that have the "nillable" formatting mode and are null do not
+        //    appear in the XML representations of their value.
+        //
+        // 5. Objects of nullable types that do not have the null value encode
+        //    to XML representations of the underlying value.
+        //
+        // 6. Objects of nullable types that have the null value do not appear
+        //    in the XML representations of their value.
+        //
+        // 7. The above 6 properties hold for arbitrary nesting and
+        //    permutation of `bdlat` concept implementations.  For example,
+        //    these properties should not only hold for a sequence of two
+        //    integers, but also a sequence of an enumeration and a choice
+        //    between an integer and a string.
         //
         // Plan:
-        //: 1 Create objects enumerating all 8 'bdlat' attribute type concepts,
-        //:   and where applicable, recursively up to a depth of 2.
-        //:
-        //: 2 For each of the above objects, create a variant that is non-null
-        //:   but not nillable, a variant that is null but not nillable, a
-        //:   variant that is non-null and nillable, and a variant that is null
-        //:   and nillable.
-        //:
-        //: 3 For each of the above objects, verify that their XML encodings
-        //:   created by 'balxml::Encoder::encode' satisfy the 6 properties
-        //:   defined in the "Concerns".
+        // 1. Create objects enumerating all 8 `bdlat` attribute type concepts,
+        //    and where applicable, recursively up to a depth of 2.
+        //
+        // 2. For each of the above objects, create a variant that is non-null
+        //    but not nillable, a variant that is null but not nillable, a
+        //    variant that is non-null and nillable, and a variant that is null
+        //    and nillable.
+        //
+        // 3. For each of the above objects, verify that their XML encodings
+        //    created by `balxml::Encoder::encode` satisfy the 6 properties
+        //    defined in the "Concerns".
         //
         // Testing:
         //   int encode(bsl::streambuf *buffer, const TYPE& object);
@@ -4718,37 +4747,37 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING THE 'TestXmlElement' TEST FACILITY
-        //   The subsequent test case uses the 'TestXmlElement' class in order
+        // TESTING THE `TestXmlElement` TEST FACILITY
+        //   The subsequent test case uses the `TestXmlElement` class in order
         //   to provide a concise notation for describing XML documents.  This
-        //   case tests the printing operations of 'TestXmlElement'.
+        //   case tests the printing operations of `TestXmlElement`.
         //
         // Concerns:
-        //: 1 Elements having no attributes nor any content print as
-        //:   self-closing elements with no attributes.
-        //:
-        //: 2 Elements having content but no attributes print as an opening
-        //:   element, the content, and a closing element.
-        //:
-        //: 3 Content may be text or zero or more child elements.
-        //:
-        //: 4 When printed, each attribute is separated from the previous token
-        //:   by 1 space character.
-        //:
-        //: 5 Printing supports arbitrary levels of nesting of attributes,
-        //:   child elements, and content.
+        // 1. Elements having no attributes nor any content print as
+        //    self-closing elements with no attributes.
+        //
+        // 2. Elements having content but no attributes print as an opening
+        //    element, the content, and a closing element.
+        //
+        // 3. Content may be text or zero or more child elements.
+        //
+        // 4. When printed, each attribute is separated from the previous token
+        //    by 1 space character.
+        //
+        // 5. Printing supports arbitrary levels of nesting of attributes,
+        //    child elements, and content.
         //
         // Plan:
-        //: 1 Given a set of attribute sequences and a set of content, create
-        //:   a simple XML element object given each element of the cartesian
-        //:   product of those sets.
-        //:
-        //: 2 Print each of the resulting simple XML element objects, and
-        //:   verify that the resulting text is valid XML and that it
-        //:   represents the same value as the object.
-        //:
-        //: 3 Our test points explore the space of 0 to 3 attributes, elements,
-        //:   and nesting.  Deeper tests would not be qualitatively different.
+        // 1. Given a set of attribute sequences and a set of content, create
+        //    a simple XML element object given each element of the cartesian
+        //    product of those sets.
+        //
+        // 2. Print each of the resulting simple XML element objects, and
+        //    verify that the resulting text is valid XML and that it
+        //    represents the same value as the object.
+        //
+        // 3. Our test points explore the space of 0 to 3 attributes, elements,
+        //    and nesting.  Deeper tests would not be qualitatively different.
         //
         // Testing:
         //   TestXmlElement(*bA = 0);
@@ -4762,14 +4791,14 @@ int main(int argc, char *argv[])
         // abbreviation for the type under test
         typedef TestXmlElement X;
 
-        // abbreviation for a 'bsl::pair<bsl::string, bsl::string>', used as
+        // abbreviation for a `bsl::pair<bsl::string, bsl::string>`, used as
         // a key-value pair
         typedef X::Attribute  Attribute;
-        // abbreviation for a 'bsl::vector<Attribute>'
+        // abbreviation for a `bsl::vector<Attribute>`
         typedef X::Attributes Attributes;
-        // abbreviation for a 'bsl::vector<X>'
+        // abbreviation for a `bsl::vector<X>`
         typedef X::Elements   Elements;
-        // abbreviation for a 'bdlb::Variant<Elements, bsl::string>'
+        // abbreviation for a `bdlb::Variant<Elements, bsl::string>`
         typedef X::Content    Content;
 
         // attribute 0
@@ -4852,7 +4881,7 @@ int main(int argc, char *argv[])
         static const struct {
             int             d_line;    // line number
             TestXmlElement  d_xml;     // XML object representation
-            const char     *d_string;  // expected printout of 'd_xml'
+            const char     *d_string;  // expected printout of `d_xml`
         } DATA[] = {
             //  LINE
             // /      XML OBJECT         EXPECTED PRINTOUT OF XML OBJECT
@@ -5036,37 +5065,37 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING XML HEADER WITH 'outputXMLHeader' option (DRQS 22278116)
+        // TESTING XML HEADER WITH `outputXMLHeader` option (DRQS 22278116)
         //
         // Concerns:
-        //: 1 If the 'outputXMLHeader' is set to 'true' or not set at all then
-        //:   the xml header is always output.
-        //:
-        //: 2 If the 'outputXMLHeader' is set to 'false' then the xml header is
-        //:   not output.
+        // 1. If the `outputXMLHeader` is set to `true` or not set at all then
+        //    the xml header is always output.
+        //
+        // 2. If the `outputXMLHeader` is set to `false` then the xml header is
+        //    not output.
         //
         // Plan:
-        //: 1 Create three 'balxml::EncoderOptions' objects.  Set the
-        //:   'outputXMLHeader' option in one encoder options object to
-        //:   'true' and to 'false' in the another object.  Leave the third
-        //:   encoder options object unmodified.
-        //:
-        //: 2 Create three 'bsl::stringstream' objects.
-        //:
-        //: 3 Populate a 'MySequence' object.
-        //:
-        //: 4 Create three 'balxml::Encoder' objects passing the encoder
-        //:   options created above.
-        //:
-        //: 5 Encode the 'MySequence' object onto a 'bsl::stringstream' using
-        //:   one of the created 'balxml::Encoder' objects.
-        //:
-        //: 6 Ensure that the xml header is output only when 'outputXMLAlias'
-        //:   is not set to 'false'.
-        //:
-        //: 8 Repeat steps 1 - 7 for 'BAEXML_COMPACT' encoding style.
-        //:
-        //: 9 Repeat steps 1 - 8 for 'MyChoice' and 'MySimpleContent' objects.
+        // 1. Create three `balxml::EncoderOptions` objects.  Set the
+        //    `outputXMLHeader` option in one encoder options object to
+        //    `true` and to `false` in the another object.  Leave the third
+        //    encoder options object unmodified.
+        //
+        // 2. Create three `bsl::stringstream` objects.
+        //
+        // 3. Populate a `MySequence` object.
+        //
+        // 4. Create three `balxml::Encoder` objects passing the encoder
+        //    options created above.
+        //
+        // 5. Encode the `MySequence` object onto a `bsl::stringstream` using
+        //    one of the created `balxml::Encoder` objects.
+        //
+        // 6. Ensure that the xml header is output only when `outputXMLAlias`
+        //    is not set to `false`.
+        //
+        // 8. Repeat steps 1 - 7 for `BAEXML_COMPACT` encoding style.
+        //
+        // 9. Repeat steps 1 - 8 for `MyChoice` and `MySimpleContent` objects.
         //
         // Testing:
         //  Encoding of XML header
@@ -5405,51 +5434,51 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING NILLABLES WITH 'outputXSIAlias' option (DRQS 29523606)
+        // TESTING NILLABLES WITH `outputXSIAlias` option (DRQS 29523606)
         //
         // Concerns:
-        //: 1 If the 'outputXSIAlias' is set to 'true' or not set at all then
-        //:   the xsi prefix is always aliased to
-        //:   'xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"'.
-        //:
-        //: 2 If the 'outputXSIAlias' is set to 'false' then the xsi prefix is
-        //:   not aliased.
-        //:
-        //: 3 Nillable elements are encoded with 'xsi:nil=true' only if
-        //:   'outputXSIAlias' is not set to 'false'.
-        //:
-        //: 4 The specification of the 'objectNamespace' and 'schemaLocation'
-        //:   options interacts correctly with the 'outputXSIAlias' option.
+        // 1. If the `outputXSIAlias` is set to `true` or not set at all then
+        //    the xsi prefix is always aliased to
+        //    `xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"`.
+        //
+        // 2. If the `outputXSIAlias` is set to `false` then the xsi prefix is
+        //    not aliased.
+        //
+        // 3. Nillable elements are encoded with `xsi:nil=true` only if
+        //    `outputXSIAlias` is not set to `false`.
+        //
+        // 4. The specification of the `objectNamespace` and `schemaLocation`
+        //    options interacts correctly with the `outputXSIAlias` option.
         //
         // Plan:
-        //: 1 Create three 'balxml::EncoderOptions' objects.  Set the
-        //:   'outputXSIAlias' option in one encoder options object to
-        //:   'true' and to 'false' in the another object.  Leave the third
-        //:   encoder options object unmodified.
-        //:
-        //: 2 Create three 'bsl::stringstream' objects.
-        //:
-        //: 3 Populate a 'MySequenceWithNillables' object ensuring that one of
-        //:   its nillable elements is null.
-        //:
-        //: 4 Create three 'balxml::Encoder' objects passing the encoder
-        //:   options created above.
-        //:
-        //: 5 Encode the 'MySequenceWithNillables' object onto a
-        //:   'bsl::stringstream' using one of the created 'balxml::Encoder'
-        //:   objects.
-        //:
-        //: 6 Ensure that the xsi prefix is aliased only when 'outputXSIAlias'
-        //:   is not set to 'false'.
-        //:
-        //: 7 Also ensure that the 'xsi:nil' attribute is output only when
-        //:   'outputXSIAlias' is not set to 'false'.
-        //:
-        //: 8 Repeat steps 1 - 7 for 'BAEXML_COMPACT' encoding style.
-        //:
-        //: 9 Repeat steps 1 - 7 specifying an 'objectNamespace'.
-        //:
-        //:10 Repeat steps 1 - 7 specifying a 'schemaLocation'.
+        // 1. Create three `balxml::EncoderOptions` objects.  Set the
+        //    `outputXSIAlias` option in one encoder options object to
+        //    `true` and to `false` in the another object.  Leave the third
+        //    encoder options object unmodified.
+        //
+        // 2. Create three `bsl::stringstream` objects.
+        //
+        // 3. Populate a `MySequenceWithNillables` object ensuring that one of
+        //    its nillable elements is null.
+        //
+        // 4. Create three `balxml::Encoder` objects passing the encoder
+        //    options created above.
+        //
+        // 5. Encode the `MySequenceWithNillables` object onto a
+        //    `bsl::stringstream` using one of the created `balxml::Encoder`
+        //    objects.
+        //
+        // 6. Ensure that the xsi prefix is aliased only when `outputXSIAlias`
+        //    is not set to `false`.
+        //
+        // 7. Also ensure that the `xsi:nil` attribute is output only when
+        //    `outputXSIAlias` is not set to `false`.
+        //
+        // 8. Repeat steps 1 - 7 for `BAEXML_COMPACT` encoding style.
+        //
+        // 9. Repeat steps 1 - 7 specifying an `objectNamespace`.
+        //
+        // 10. Repeat steps 1 - 7 specifying a `schemaLocation`.
         //
         // Testing:
         //  Encoding of Nillables
@@ -5543,7 +5572,7 @@ int main(int argc, char *argv[])
 
             Type mX;  const Type& X = mX;
 
-            // Each attribute except attribute 'i' should be non-null:
+            // Each attribute except attribute `i` should be non-null:
             if (0 != i) {
                 mX.attribute1().makeValue(ATTRIBUTE1_VALUE);
             }
@@ -5566,7 +5595,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "PRETTY without object namespace" << endl;
 
             // Format expected result without object namespace and, therefore,
-            // without 'xmlns', 'xmlns:xsi', and 'xsi:nil':
+            // without `xmlns`, `xmlns:xsi`, and `xsi:nil`:
             bsl::sprintf(expResult1, PRETTY_RESULT_ABSENT_NULLS[i], "",
                          PRETTY_XSI_ATTR, "");
             bsl::sprintf(expResult2, PRETTY_RESULT_ABSENT_NULLS[i], "",
@@ -5603,7 +5632,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "PRETTY with object namespace" << endl;
 
             // Format expected result with object namespace and, therefore,
-            // with 'xmlns', 'xmlns:xsi', and 'xsi:nil':
+            // with `xmlns`, `xmlns:xsi`, and `xsi:nil`:
             bsl::sprintf(expResult1, PRETTY_RESULT[i],
                          PRETTY_NS_ATTR, PRETTY_XSI_ATTR, NIL_ATTR);
             bsl::sprintf(expResult2, PRETTY_RESULT_ABSENT_NULLS[i],
@@ -5697,7 +5726,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "COMPACT without object namespace" << endl;
 
             // Format expected result without object namespace and, therefore,
-            // without 'xmlns', 'xmlns:xsi', and 'xsi:nil':
+            // without `xmlns`, `xmlns:xsi`, and `xsi:nil`:
             bsl::sprintf(expResult1, COMPACT_RESULT_ABSENT_NULLS[i], "",
                          COMPACT_XSI_ATTR, "");
             bsl::sprintf(
@@ -5736,7 +5765,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "COMPACT with object namespace" << endl;
 
             // Format expected result with object namespace and, therefore,
-            // with 'xmlns', 'xmlns:xsi', and 'xsi:nil':
+            // with `xmlns`, `xmlns:xsi`, and `xsi:nil`:
             bsl::sprintf(expResult1, COMPACT_RESULT[i],
                          COMPACT_NS_ATTR, COMPACT_XSI_ATTR, NIL_ATTR);
             bsl::sprintf(expResult2, COMPACT_RESULT_ABSENT_NULLS[i],
@@ -5773,7 +5802,7 @@ int main(int argc, char *argv[])
                          EXPECTED_RESULT3 == result3.str());
         } // End for i
 
-        if (verbose) cout << "Testing with 'schemaLocation' specified" << endl;
+        if (verbose) cout << "Testing with `schemaLocation` specified" << endl;
         {
             Type mX; const Type& X = mX;
 
@@ -5921,7 +5950,7 @@ int main(int argc, char *argv[])
 
             Type mX;  const Type& X = mX;
 
-            // Each attribute except attribute 'i' should be non-null:
+            // Each attribute except attribute `i` should be non-null:
             if (0 != i) {
                 mX.attribute1().makeValue(ATTRIBUTE1_VALUE);
             }
@@ -5938,7 +5967,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "PRETTY without object namespace" << endl;
 
             // Format expected result without object namespace and, therefore,
-            // without 'xmlns', 'xmlns:xsi', and 'xsi:nil':
+            // without `xmlns`, `xmlns:xsi`, and `xsi:nil`:
             bsl::sprintf(expectedResult, PRETTY_RESULT_ABSENT_NULLS[i], "",
                          PRETTY_XSI_ATTR, "");
 
@@ -5959,7 +5988,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "PRETTY with object namespace" << endl;
 
             // Format expected result with object namespace and, therefore,
-            // with 'xmlns', 'xmlns:xsi', and 'xsi:nil':
+            // with `xmlns`, `xmlns:xsi`, and `xsi:nil`:
             bsl::sprintf(expectedResult, PRETTY_RESULT[i],
                          PRETTY_NS_ATTR, PRETTY_XSI_ATTR, NIL_ATTR);
 
@@ -6035,7 +6064,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "COMPACT without object namespace" << endl;
 
             // Format expected result without object namespace and, therefore,
-            // without 'xmlns', 'xmlns:xsi', and 'xsi:nil':
+            // without `xmlns`, `xmlns:xsi`, and `xsi:nil`:
             bsl::sprintf(expectedResult, COMPACT_RESULT_ABSENT_NULLS[i], "",
                          COMPACT_XSI_ATTR, "");
 
@@ -6055,7 +6084,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "COMPACT with object namespace" << endl;
 
             // Format expected result with object namespace and, therefore,
-            // with 'xmlns', 'xmlns:xsi', and 'xsi:nil':
+            // with `xmlns`, `xmlns:xsi`, and `xsi:nil`:
             bsl::sprintf(expectedResult, COMPACT_RESULT[i],
                          COMPACT_NS_ATTR, COMPACT_XSI_ATTR, NIL_ATTR);
 
@@ -6092,7 +6121,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Encoding of Simple Content"
                           << "\n==================================" << endl;
 
-        if (verbose) cout << "\nUsing 'MySimpleContent'." << endl;
+        if (verbose) cout << "\nUsing `MySimpleContent`." << endl;
         {
             typedef test::MySimpleContent Type;
 
@@ -6126,7 +6155,7 @@ int main(int argc, char *argv[])
                          EXPECTED_RESULT == result.str());
         }
 
-        if (verbose) cout << "\nUsing 'MySimpleContent' with COMPACT." << endl;
+        if (verbose) cout << "\nUsing `MySimpleContent` with COMPACT." << endl;
         {
             typedef test::MySimpleContent Type;
 
@@ -6160,7 +6189,7 @@ int main(int argc, char *argv[])
                          EXPECTED_RESULT == result.str());
         }
 
-        if (verbose) cout << "\nUsing 'MySimpleIntContent'." << endl;
+        if (verbose) cout << "\nUsing `MySimpleIntContent`." << endl;
         {
             typedef test::MySimpleIntContent Type;
 
@@ -6194,7 +6223,7 @@ int main(int argc, char *argv[])
                          EXPECTED_RESULT == result.str());
         }
 
-        if (verbose) cout << "\nUsing 'MySimpleIntContent' with COMPACT."
+        if (verbose) cout << "\nUsing `MySimpleIntContent` with COMPACT."
                           << endl;
         {
             typedef test::MySimpleIntContent Type;
@@ -6246,7 +6275,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Encoding of XML Attributes"
                           << "\n==================================" << endl;
 
-        if (verbose) cout << "\nUsing 'MySequenceWithAttributes' without "
+        if (verbose) cout << "\nUsing `MySequenceWithAttributes` without "
                           << "attribute2." << endl;
         {
             typedef test::MySequenceWithAttributes Type;
@@ -6282,7 +6311,7 @@ int main(int argc, char *argv[])
                          EXPECTED_RESULT == result.str());
         }
 
-        if (verbose) cout << "\nUsing 'MySequenceWithAttributes' with "
+        if (verbose) cout << "\nUsing `MySequenceWithAttributes` with "
                           << "attribute2." << endl;
         {
             typedef test::MySequenceWithAttributes Type;
@@ -6319,7 +6348,7 @@ int main(int argc, char *argv[])
                          EXPECTED_RESULT == result.str());
         }
 
-        if (verbose) cout << "\nUsing 'MySequenceWithAttributes' with "
+        if (verbose) cout << "\nUsing `MySequenceWithAttributes` with "
                           << "attribute2 with COMPACT." << endl;
         {
             typedef test::MySequenceWithAttributes Type;
@@ -6374,7 +6403,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Encoding of Anonymous Choice"
                           << "\n====================================" << endl;
 
-        if (verbose) cout << "\nUsing 'MySequenceWithAnonymousChoice' with "
+        if (verbose) cout << "\nUsing `MySequenceWithAnonymousChoice` with "
                           << "selection 1." << endl;
         {
             typedef test::MySequenceWithAnonymousChoice Type;
@@ -6410,7 +6439,7 @@ int main(int argc, char *argv[])
                          EXPECTED_RESULT == result.str());
         }
 
-        if (verbose) cout << "\nUsing 'MySequenceWithAnonymousChoice' with "
+        if (verbose) cout << "\nUsing `MySequenceWithAnonymousChoice` with "
                           << "selection 2." << endl;
         {
             typedef test::MySequenceWithAnonymousChoice Type;
@@ -6446,7 +6475,7 @@ int main(int argc, char *argv[])
                          EXPECTED_RESULT == result.str());
         }
 
-        if (verbose) cout << "\nUsing 'MySequenceWithAnonymousChoice' with "
+        if (verbose) cout << "\nUsing `MySequenceWithAnonymousChoice` with "
                           << "selection 2 with COMPACT." << endl;
         {
             typedef test::MySequenceWithAnonymousChoice Type;
@@ -6499,7 +6528,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Encoding of Nullables"
                           << "\n=============================" << endl;
 
-        if (verbose) cout << "\nUsing 'MySequenceWithNullables'." << endl;
+        if (verbose) cout << "\nUsing `MySequenceWithNullables`." << endl;
         {
             typedef test::MySequenceWithNullables Type;
 
@@ -6572,7 +6601,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'MySequenceWithNullables' with COMPACT."
+        if (verbose) cout << "\nUsing `MySequenceWithNullables` with COMPACT."
                           << endl;
         {
             typedef test::MySequenceWithNullables Type;
@@ -6663,7 +6692,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Encoding of Arrays"
                           << "\n==========================" << endl;
 
-        if (verbose) cout << "\nUsing 'MySequenceWithArrays'." << endl;
+        if (verbose) cout << "\nUsing `MySequenceWithArrays`." << endl;
         {
             typedef test::MySequenceWithArrays Type;
 
@@ -6741,7 +6770,7 @@ int main(int argc, char *argv[])
                          EXPECTED_RESULT == result.str());
         }
 
-        if (verbose) cout << "\nUsing 'MySequenceWithArrays' with COMPACT."
+        if (verbose) cout << "\nUsing `MySequenceWithArrays` with COMPACT."
                           << endl;
         {
             typedef test::MySequenceWithArrays Type;
@@ -6837,7 +6866,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Encoding of Choice"
                           << "\n==========================" << endl;
 
-        if (verbose) cout << "\nUsing 'MyChoice' with selection 1." << endl;
+        if (verbose) cout << "\nUsing `MyChoice` with selection 1." << endl;
         {
             typedef test::MyChoice Type;
 
@@ -6874,7 +6903,7 @@ int main(int argc, char *argv[])
                          EXPECTED_RESULT == result.str());
         }
 
-        if (verbose) cout << "\nUsing 'MyChoice' with selection 2." << endl;
+        if (verbose) cout << "\nUsing `MyChoice` with selection 2." << endl;
         {
             typedef test::MyChoice Type;
 
@@ -6928,7 +6957,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Encoding of Sequence"
                           << "\n============================" << endl;
 
-        if (verbose) cout << "\nUsing 'MySequence'." << endl;
+        if (verbose) cout << "\nUsing `MySequence`." << endl;
         {
             typedef test::MySequence Type;
 
@@ -6966,7 +6995,7 @@ int main(int argc, char *argv[])
                          EXPECTED_RESULT == result.str());
         }
 
-        if (verbose) cout << "\nUsing 'MySequence' with COMPACT." << endl;
+        if (verbose) cout << "\nUsing `MySequence` with COMPACT." << endl;
         {
             typedef test::MySequence Type;
 
@@ -7008,7 +7037,7 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // TESTING USAGE OF TypesPrinterUtil
-        //   This will test the usage of 'TypesPrinterUtil' for handling basic
+        //   This will test the usage of `TypesPrinterUtil` for handling basic
         //   XML types.
         //
         // Concerns:
@@ -7018,10 +7047,10 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Usage of 'TypesPrinterUtil'"
+        if (verbose) cout << "\nTesting Usage of `TypesPrinterUtil`"
                           << "\n===================================" << endl;
 
-        if (verbose) cout << "\nUsing 'int' as parameterized 'TYPE'." << endl;
+        if (verbose) cout << "\nUsing `int` as parameterized `TYPE`." << endl;
         {
             static const struct {
                 int         d_lineNum;  // source line number
@@ -7062,7 +7091,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsl::string' as parameterized 'TYPE'."
+        if (verbose) cout << "\nUsing `bsl::string` as parameterized `TYPE`."
                           << endl;
         {
             static const struct {
@@ -7110,8 +7139,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsl::vector<char>' as parameterized "
-                          << "'TYPE' using different formatting modes."
+        if (verbose) cout << "\nUsing `bsl::vector<char>` as parameterized "
+                          << "`TYPE` using different formatting modes."
                           << endl;
         {
             enum FormattingMode {
@@ -7191,8 +7220,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nUsing 'bsl::vector<char>' as parameterized "
-                          << "'TYPE' using different formatting modes."
+        if (verbose) cout << "\nUsing `bsl::vector<char>` as parameterized "
+                          << "`TYPE` using different formatting modes."
                           << endl;
         {
             enum FormattingMode {

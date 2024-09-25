@@ -22,7 +22,7 @@ using namespace BloombergLP;
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-// 'bsls::Util' is a utility class, where each function will be tested in a
+// `bsls::Util` is a utility class, where each function will be tested in a
 // separate test case.  Any significant test machinery will be tested before
 // any function whose test case relies upon it.
 //
@@ -96,16 +96,16 @@ void aSsErT(bool b, const char *s, int i)
 ///-----
 // This section illustrates intended usage of this component.
 //
-///Example 1: Obtain the address of a 'class' that defines 'operator&'.
+///Example 1: Obtain the address of a `class` that defines `operator&`.
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // There are times, especially within low-level library functions, where it is
 // necessary to obtain the address of an object even if that object's class
-// overloads 'operator&' to return something other than the object's address.
+// overloads `operator&` to return something other than the object's address.
 //
 // First, we create a special reference-like type that can refer to a single
 // bit within a byte (inline implementations are provided in class scope for
 // ease of exposition):
-//..
+// ```
     class BitReference {
 
         // DATA
@@ -126,9 +126,9 @@ void aSsErT(bool b, const char *s, int i)
         int bitpos() const { return d_bitpos; }
         char *byteptr() const { return d_byte_p; }
     };
-//..
+// ```
 // Then, we create a pointer-like type that can point to a single bit:
-//..
+// ```
     class BitPointer {
 
         // DATA
@@ -151,27 +151,27 @@ void aSsErT(bool b, const char *s, int i)
 
         // etc.
     };
-//..
-// Next, we overload 'operator&' for 'BitReference' to return a 'BitPointer'
+// ```
+// Next, we overload `operator&` for `BitReference` to return a `BitPointer`
 // instead of a raw pointer, completing the setup:
-//..
+// ```
     inline BitPointer operator&(const BitReference& ref)
     {
         return BitPointer(ref.byteptr(), ref.bitpos());
     }
-//..
+// ```
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// This `struct` supplies an overload for the unary `operator&` in order to
+/// test the correct behavior of the `bsls::Util::addressOf` function.  Each
+/// `EvilType` object will reports its address as that returned by the
+/// `bogusPtr` method, which points to some statically allocated memory
+/// outside the object itself.  The true address of such an object can be
+/// discovered by calling the `realAddress` method.
 struct EvilType {
-    // This 'struct' supplies an overload for the unary 'operator&' in order to
-    // test the correct behavior of the 'bsls::Util::addressOf' function.  Each
-    // 'EvilType' object will reports its address as that returned by the
-    // 'bogusPtr' method, which points to some statically allocated memory
-    // outside the object itself.  The true address of such an object can be
-    // discovered by calling the 'realAddress' method.
 
     // DATA
     int        d_dummy; // Some data to avoid empty-class optimizations
@@ -179,29 +179,32 @@ struct EvilType {
 
   public:
     // CLASS METHODS
+
+    /// Return the address of some valid memory that is not within the
+    /// footprint of any `EvilType` object.
     static EvilType *bogusPtr() {
-        // Return the address of some valid memory that is not within the
-        // footprint of any 'EvilType' object.
         return reinterpret_cast<EvilType*>(&d_bogus);
     }
 
     // CREATORS
+
+    /// Create a `EvilType` object.
     explicit EvilType(int val = 0) : d_dummy(val) { }
-        // Create a 'EvilType' object.
 
     // ACCESSORS
+
+    /// Overload operator& to return something other than the address of
+    /// this object.
     EvilType                *operator&()                { return bogusPtr(); }
     EvilType const          *operator&() const          { return bogusPtr(); }
     EvilType volatile       *operator&() volatile       { return bogusPtr(); }
     EvilType const volatile *operator&() const volatile { return bogusPtr(); }
-        // Overload operator& to return something other than the address of
-        // this object.
 
+    /// Return the actual address of this object.
     EvilType                *realAddress()                { return this; }
     EvilType const          *realAddress() const          { return this; }
     EvilType volatile       *realAddress() volatile       { return this; }
     EvilType const volatile *realAddress() const volatile { return this; }
-        // Return the actual address of this object.
 };
 
 int EvilType::d_bogus = 0;
@@ -275,13 +278,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -291,92 +294,92 @@ int main(int argc, char *argv[])
                             "\n=============\n");
 
 // Then, we note that there are times when it might be desirable to get the
-// true address of a 'BitReference'.  Since the above overload prevents the
-// obvious syntax from working, we use 'bsls::Util::addressOf' to accomplish
+// true address of a `BitReference`.  Since the above overload prevents the
+// obvious syntax from working, we use `bsls::Util::addressOf` to accomplish
 // this task.
 //
-// Next, we create a 'BitReference' object:
-//..
+// Next, we create a `BitReference` object:
+// ```
     char c[4];
     BitReference br(c, 3);
-//..
-// Now, we invoke 'bsls::Util::addressOf' to obtain and save the address of
-// 'br':
-//..
+// ```
+// Now, we invoke `bsls::Util::addressOf` to obtain and save the address of
+// `br`:
+// ```
     BitReference *p = bsls::Util::addressOf(br);  // OK
     // BitReference *p = &br;                     // Won't compile
-//..
-// Notice that the commented line illustrates canonical use of 'operator&' that
+// ```
+// Notice that the commented line illustrates canonical use of `operator&` that
 // would not compile in this example.
 //
 // Finally, we verify that address obtained is the correct one, running some
 // sanity checks:
-//..
+// ```
     ASSERT(0 != p);
     ASSERT(c == p->byteptr());
     ASSERT(3 == p->bitpos());
-//..
+// ```
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'forward'
+        // TESTING `forward`
         //
         // Concerns:
-        //: 1 Calling 'bsls::Util::forward' with an lvalue will return an
-        //:   lvalue reference to that object.
-        //:
-        //: 2 Calling 'bsls::Util::forward' with an rvalue will return an
-        //:   rvalue reference to that object.
-        //:
-        //: 3 'bsls::Util::forward' preserves cv-qualifiers of the forwarded
-        //:   type.
-        //:
-        //: 4 The 'bsls::Util::forward' methods are 'noexcept'.
-        //:
-        //: 5 The 'bsls::Util::forward' methods are 'constexpr'.
-        //:
-        //: 6 It is a compile time error to pass an rvalue to be forwarded as
-        //:   an lvalue.
+        // 1. Calling `bsls::Util::forward` with an lvalue will return an
+        //    lvalue reference to that object.
+        //
+        // 2. Calling `bsls::Util::forward` with an rvalue will return an
+        //    rvalue reference to that object.
+        //
+        // 3. `bsls::Util::forward` preserves cv-qualifiers of the forwarded
+        //    type.
+        //
+        // 4. The `bsls::Util::forward` methods are `noexcept`.
+        //
+        // 5. The `bsls::Util::forward` methods are `constexpr`.
+        //
+        // 6. It is a compile time error to pass an rvalue to be forwarded as
+        //    an lvalue.
         //
         // Plan:
-        //: 1 Call 'forward<int&>' with a non-cv-qualified lvalue and assign
-        //:   the result to an 'int&'.  Verify that the addresses of the lvalue
-        //:   argument and the return value match.  Repeat with cv-qualified
-        //:   lvalues. (C1, C3)
-        //:
-        //: 2 Call 'forward<int>' with a non-cv-qualified rvalue and assign
-        //:   the result to an 'int&&'.  Verify that the addresses of the
-        //:   rvalue argument and the return value match.  Repeat with
-        //:   cv-qualified rvalues. (C2, C3)
-        //:
-        //: 3 Call 'forward<int>' with a non-cv-qualified prvalue and assign
-        //:   the result to an 'int&&'.  Verify that the values of the prvalue
-        //:   argument and the return value match.  Repeat with cv-qualified
-        //:   prvalues. (C2, C3)
-        //:
-        //: 4 Try forwarding a prvalue as an lvalue ('forward<int&>(42)') and
-        //:   check that it does not compile.  Notice that this is a manual
-        //:   test that need to be enabled by defining the
-        //:   'BSLS_UTIL_COMPILE_FAIL_FORWARD_RVALUE_AS_LVALUE' macro. (C6)
-        //:
-        //: 5 If the compiler supports 'noexcept' use the 'noexcept' operator
-        //:   to test that both overloads of 'forward' are 'noexcept'.
-        //:
-        //: 6 If the compiler supports 'constexpr' use 'constexpr' input to
-        //:   'forward' and assign the return value to a 'constexpr' variable.
-        //:   The code will not compile if 'forward' is not declared
-        //:   'constexpr'.  Notice that rvalues cannot be 'constexpr' so we do
-        //:   not test for them.
+        // 1. Call `forward<int&>` with a non-cv-qualified lvalue and assign
+        //    the result to an `int&`.  Verify that the addresses of the lvalue
+        //    argument and the return value match.  Repeat with cv-qualified
+        //    lvalues. (C1, C3)
+        //
+        // 2. Call `forward<int>` with a non-cv-qualified rvalue and assign
+        //    the result to an `int&&`.  Verify that the addresses of the
+        //    rvalue argument and the return value match.  Repeat with
+        //    cv-qualified rvalues. (C2, C3)
+        //
+        // 3. Call `forward<int>` with a non-cv-qualified prvalue and assign
+        //    the result to an `int&&`.  Verify that the values of the prvalue
+        //    argument and the return value match.  Repeat with cv-qualified
+        //    prvalues. (C2, C3)
+        //
+        // 4. Try forwarding a prvalue as an lvalue (`forward<int&>(42)`) and
+        //    check that it does not compile.  Notice that this is a manual
+        //    test that need to be enabled by defining the
+        //    `BSLS_UTIL_COMPILE_FAIL_FORWARD_RVALUE_AS_LVALUE` macro. (C6)
+        //
+        // 5. If the compiler supports `noexcept` use the `noexcept` operator
+        //    to test that both overloads of `forward` are `noexcept`.
+        //
+        // 6. If the compiler supports `constexpr` use `constexpr` input to
+        //    `forward` and assign the return value to a `constexpr` variable.
+        //    The code will not compile if `forward` is not declared
+        //    `constexpr`.  Notice that rvalues cannot be `constexpr` so we do
+        //    not test for them.
         //
         // Testing:
         //   TYPE&& forward(typename Util_RemoveReference<TYPE>::type& t);
         // --------------------------------------------------------------------
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-        if (verbose) printf("\nSKIPPED TESTING 'forward'"
+        if (verbose) printf("\nSKIPPED TESTING `forward`"
                             "\n=========================\n");
 #else
-        if (verbose) printf("\nTESTING 'forward'"
+        if (verbose) printf("\nTESTING `forward`"
                             "\n=================\n");
 
         // Non-cv-qualified
@@ -393,7 +396,7 @@ int main(int argc, char *argv[])
         ASSERT((TestAreSame<int&&,
                          decltype(bsls::Util::forward<int>(rvalue))>::test()));
 
-        // 'const' values
+        // `const` values
 
         const int clvalue = 42;
         const int& clvalueResult = bsls::Util::forward<const int&>(clvalue);
@@ -407,7 +410,7 @@ int main(int argc, char *argv[])
         ASSERT((TestAreSame<const int&&,
                   decltype(bsls::Util::forward<const int>(crvalue))>::test()));
 
-        // 'volatile' values
+        // `volatile` values
 
         volatile int vlvalue = 42;
         volatile int& vlvalueResult =
@@ -423,7 +426,7 @@ int main(int argc, char *argv[])
         ASSERT((TestAreSame<volatile int&&,
                decltype(bsls::Util::forward<volatile int>(vrvalue))>::test()));
 
-        // 'const' 'volatile' values
+        // `const` `volatile` values
 
         typedef const volatile int cvint;
 
@@ -461,15 +464,15 @@ int main(int argc, char *argv[])
         // TESTING MACRO BSLS_UTIL_ADDRESSOF
         //
         // Concerns:
-        //: 1 The macro applies 'bsls::Util::addressOf' on Windows and
-        //:   'operator&' on every other platform.
+        // 1. The macro applies `bsls::Util::addressOf` on Windows and
+        //    `operator&` on every other platform.
         //
         // Plan:
-        //: 1 Create an object of type 'EvilType' (see GLOBAL
-        //:   TYPEDEFS/CONSTANTS FOR TESTING AND VARIABLES) with an overloaded
-        //:   'operator&' and verify that 'bsls::Util::addressOf' invokes
-        //:   'operator&' on UNIX, and that on Windows it returns the address
-        //:    of the created object instead. (C-1)
+        // 1. Create an object of type `EvilType` (see GLOBAL
+        //    TYPEDEFS/CONSTANTS FOR TESTING AND VARIABLES) with an overloaded
+        //    `operator&` and verify that `bsls::Util::addressOf` invokes
+        //    `operator&` on UNIX, and that on Windows it returns the address
+        //     of the created object instead. (C-1)
         //
         // Testing:
         //   BSLS_UTIL_ADDRESSOF macro
@@ -482,47 +485,47 @@ int main(int argc, char *argv[])
 
 #ifndef BDE_USE_ADDRESSOF
         if (verbose)
-            printf("\nTest that 'bsls::Util::addressOf' returns 'bogusPtr'\n");
+            printf("\nTest that `bsls::Util::addressOf` returns `bogusPtr`\n");
         ASSERT(X.bogusPtr() == BSLS_UTIL_ADDRESSOF(X));
 #else
         if (verbose)
-             printf("\nTest that 'bsls::Util::addressOf' returns '&X'\n");
+             printf("\nTest that `bsls::Util::addressOf` returns `&X`\n");
         ASSERT(X.realAddress() == BSLS_UTIL_ADDRESSOF(X));
 #endif
 
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'addressOf'
+        // TESTING `addressOf`
         //
         // Concerns:
-        //: 1 Calling 'bsls::Util::addressOf' on an object will return the
-        //:   address of the object whether or not the object's class has an
-        //:   overloaded 'operator&'.
-        //:
-        //: 2 The returned pointer has the same cv-qualification as the
-        //:   argument.
-        //:
-        //: 3 The result of calling addressof on a reference has the same
-        //:   effect as on an (lvalue) object.
+        // 1. Calling `bsls::Util::addressOf` on an object will return the
+        //    address of the object whether or not the object's class has an
+        //    overloaded `operator&`.
+        //
+        // 2. The returned pointer has the same cv-qualification as the
+        //    argument.
+        //
+        // 3. The result of calling addressof on a reference has the same
+        //    effect as on an (lvalue) object.
         //
         // Plan:
-        //: 1 Create a number of objects of types 'int' and 'EvilType', where
-        //:   'EvilType' has an overloaded 'operator&'.  Test that the pointer
-        //:   returned from calling 'addressOf' on each object points to that
-        //:   object.  (In the case of 'EvilType', the 'realAddress' method
-        //:   returns the true address of the object. (C-1, 3)
-        //:
-        //: 2 Using objects and references with all four different
-        //:   cv-qualifications, verify that the pointer returned by
-        //:   'addressOf' has the correct qualification (using the 'cvqOfPtr'
-        //:   function). (C-2)
+        // 1. Create a number of objects of types `int` and `EvilType`, where
+        //    `EvilType` has an overloaded `operator&`.  Test that the pointer
+        //    returned from calling `addressOf` on each object points to that
+        //    object.  (In the case of `EvilType`, the `realAddress` method
+        //    returns the true address of the object. (C-1, 3)
+        //
+        // 2. Using objects and references with all four different
+        //    cv-qualifications, verify that the pointer returned by
+        //    `addressOf` has the correct qualification (using the `cvqOfPtr`
+        //    function). (C-2)
         //
         // Testing:
         //   TYPE *bsls::Util::addressOf(TYPE&);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'addressOf'"
+        if (verbose) printf("\nTESTING `addressOf`"
                             "\n===================\n");
 
         if (verbose) printf("\nTESTING addressof objects\n");
@@ -612,27 +615,27 @@ int main(int argc, char *argv[])
         // TESTING TEST APPARATUS
         //
         // Concerns:
-        //: 1 That 'cvqOfPtr' returns the correct result for each
-        //:   pointer-to-cv-qualified type.
-        //:
-        //: 2 That 'realAddress' returns the true address of a 'EvilType'
-        //:   object.
-        //:
-        //: 3 That 'EvilType' overloads 'operator&' such that it returns
-        //:   something other than the address of the object.
+        // 1. That `cvqOfPtr` returns the correct result for each
+        //    pointer-to-cv-qualified type.
+        //
+        // 2. That `realAddress` returns the true address of a `EvilType`
+        //    object.
+        //
+        // 3. That `EvilType` overloads `operator&` such that it returns
+        //    something other than the address of the object.
         //
         // Test Plan:
-        //: 1 Call 'cvqOfPtr' with pointers of each of the four different
-        //:   cv-qualifications and verify the returned value. (C-1)
-        //:
-        //: 2 Construct a 'EvilType' object at a known address, by using an
-        //:   array of sufficient 'char's.  Initialize a reference of each
-        //:   cv-qualification type referring to this object, and verify that
-        //:   calling 'realAddress' returns the same address as the backing
-        //:   array. (C-2)
-        //:
-        //: 3 Call 'operator&' on each reference above and verify that they
-        //:   never return the same result as the 'realAddress' method. (C-3)
+        // 1. Call `cvqOfPtr` with pointers of each of the four different
+        //    cv-qualifications and verify the returned value. (C-1)
+        //
+        // 2. Construct a `EvilType` object at a known address, by using an
+        //    array of sufficient `char`s.  Initialize a reference of each
+        //    cv-qualification type referring to this object, and verify that
+        //    calling `realAddress` returns the same address as the backing
+        //    array. (C-2)
+        //
+        // 3. Call `operator&` on each reference above and verify that they
+        //    never return the same result as the `realAddress` method. (C-3)
         //
         // Testing:
         //   CvQualification cvqOfPtr(T *p);

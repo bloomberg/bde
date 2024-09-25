@@ -10,19 +10,20 @@ namespace BloombergLP {
 namespace bdlma {
 
 // HELPER FUNCTIONS
+
+/// Return the allocation size (in bytes) required to ensure proper
+/// alignment for a `bdlma::BlockList::Block` containing a maximally-aligned
+/// payload of the specified `size`, where the specified `sizeOfBlock` is
+/// presumed to be `sizeof(bdlma::BlockList::Block)`.  Note that, to ensure
+/// that both the payload and header portions of the allocated memory are
+/// each separately guaranteed to be maximally aligned in the presence of a
+/// supplied allocator returning naturally-aligned memory, the size of the
+/// overall allocation will be rounded up to an integral multiple of
+/// `bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT`.
 inline
 static bsls::Types::size_type alignedAllocationSize(
                                             bsls::Types::size_type size,
                                             bsls::Types::size_type sizeOfBlock)
-    // Return the allocation size (in bytes) required to ensure proper
-    // alignment for a 'bdlma::BlockList::Block' containing a maximally-aligned
-    // payload of the specified 'size', where the specified 'sizeOfBlock' is
-    // presumed to be 'sizeof(bdlma::BlockList::Block)'.  Note that, to ensure
-    // that both the payload and header portions of the allocated memory are
-    // each separately guaranteed to be maximally aligned in the presence of a
-    // supplied allocator returning naturally-aligned memory, the size of the
-    // overall allocation will be rounded up to an integral multiple of
-    // 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'.
 {
     ///IMPLEMENTATION NOTE
     ///-------------------

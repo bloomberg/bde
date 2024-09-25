@@ -102,9 +102,9 @@ namespace bsl {
                            // class Deque_Imp
                            // ---------------
 
+/// This `struct` must have the same layout as a `bsl::deque` minus the
+/// `ContainerBase` inherited portion.
 struct Deque_Imp {
-    // This 'struct' must have the same layout as a 'bsl::deque' minus the
-    // 'ContainerBase' inherited portion.
 
     // PUBLIC TYPES
     struct IteratorImp {

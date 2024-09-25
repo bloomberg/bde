@@ -25,9 +25,9 @@ using namespace BloombergLP;
 //                                  Overview
 //                                  --------
 // The goals of this test suite are to verify 1) that
-// 'bslma::SequentialAllocator' correctly proxies memory requests (except
-// deallocation) to its 'bslma::SequentialPool' member; and 2) that the
-// 'deallocate' method does *not* deallocate any memory.
+// `bslma::SequentialAllocator` correctly proxies memory requests (except
+// deallocation) to its `bslma::SequentialPool` member; and 2) that the
+// `deallocate` method does *not* deallocate any memory.
 //
 // To achieve goal 1, create a string allocator and a string pool, and supply
 // each with its own instance of test allocator.  Request memory of varying
@@ -38,7 +38,7 @@ using namespace BloombergLP;
 // To achieve goal 2, create a string allocator supplied with a test allocator.
 // Request memory of varying sizes and then deallocate each memory block.
 // Verify that the number of bytes in use indicated by the test allocator does
-// not decrease after each 'deallocate' method invocation.
+// not decrease after each `deallocate` method invocation.
 //-----------------------------------------------------------------------------
 // [ 2] bslma::SequentialAllocator(allocator);
 // [ 2] bslma::SequentialAllocator(strategy, allocator);
@@ -128,8 +128,8 @@ typedef BufferAllocator::AlignmentStrategy AlignStrategy;
 //-----------------------------------------------------------------------------
 // Allocators are often supplied to objects requiring dynamically-allocated
 // memory at construction.  For example, consider the following
-// 'my_DoubleStack' class, parameterized by a 'bslma::Allocator':
-//..
+// `my_DoubleStack` class, parameterized by a `bslma::Allocator`:
+// ```
 //    // my_doublestack.h
 //  // ...
 //
@@ -177,23 +177,23 @@ typedef BufferAllocator::AlignmentStrategy AlignStrategy;
     }
 
     // ...
-//..
-// The stack interface takes an optional 'basicAllocator' supplied only at
-// construction.  (We avoid use of the name 'allocator' so as not to conflict
+// ```
+// The stack interface takes an optional `basicAllocator` supplied only at
+// construction.  (We avoid use of the name `allocator` so as not to conflict
 // with the STL use of the word, which differs slightly.)  If non-zero, the
 // stack holds a pointer to this allocator, but does not own it.  If no
 // allocator is supplied, the implementation itself must either conditionally
-// invoke global 'new' and 'delete' explicitly whenever dynamic memory must be
+// invoke global `new` and `delete` explicitly whenever dynamic memory must be
 // managed (BAD IDEA) or (GOOD IDEA) install a default allocator that adapts
-// use of these global operators to the 'bslma_allocator' interface.  In actual
+// use of these global operators to the `bslma_allocator` interface.  In actual
 // practice, however, we might want the default to be run-time settable from a
-// central location (see 'bslma_default').
-//..
+// central location (see `bslma_default`).
+// ```
 //  // my_doublestack.cpp
 //  // ...
 //  #include <my_doublestack.h>
 //  #include <bslma_allocator.h>
-//  #include <bslma_default.h>  // adapter for 'new' and 'delete'
+//  #include <bslma_default.h>  // adapter for `new` and `delete`
 
     enum { INITIAL_SIZE = 1, GROW_FACTOR = 2 };
 
@@ -222,20 +222,21 @@ typedef BufferAllocator::AlignmentStrategy AlignStrategy;
 
         d_allocator_p->deallocate(d_stack_p);
     }
-//..
+// ```
 // Even in this simplified implementation, all use of the allocator protocol is
-// relegated to the '.cpp' file.  Subsequent use of the allocator is
+// relegated to the `.cpp` file.  Subsequent use of the allocator is
 // demonstrated by the following file-scope static reallocation function:
-//..
+// ```
+
+    /// Reallocate memory in the specified `array` to the specified
+    /// `newSize` using the specified `basicAllocator`.  The specified
+    /// `length` number of leading elements are preserved.  Since the class
+    /// invariant requires that the physical capacity of the container may
+    /// grow but never shrink; the behavior is undefined unless
+    /// `length <= newSize`.
     static
     void reallocate(double **array, int newSize, int length,
                     bslma::Allocator *basicAllocator)
-        // Reallocate memory in the specified 'array' to the specified
-        // 'newSize' using the specified 'basicAllocator'.  The specified
-        // 'length' number of leading elements are preserved.  Since the class
-        // invariant requires that the physical capacity of the container may
-        // grow but never shrink; the behavior is undefined unless
-        // 'length <= newSize'.
     {
         ASSERT(array);
         ASSERT(1 <= newSize);
@@ -431,7 +432,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nRESERVECAPACITY TEST"
                             "\n====================\n");
 
-        if (verbose) printf("Testing 'reserveCapacity'.\n");
+        if (verbose) printf("Testing `reserveCapacity`.\n");
 
         const int DATA[] = { 0, 5, 12, 24, 32, 64, 256, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -474,7 +475,7 @@ int main(int argc, char *argv[])
         //   Create a sequentialing allocator initialized with a test
         //   allocator.  Request memory of varying sizes and then deallocate
         //   each memory.  Verify that the number of bytes in use indicated by
-        //   the test allocator does not decrease after each 'deallocate'
+        //   the test allocator does not decrease after each `deallocate`
         //   method invocation.
         //
         // Testing:
@@ -484,7 +485,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nDEALLOCATE TEST"
                             "\n===============\n");
 
-        if (verbose) printf("Testing 'deallocate'.\n");
+        if (verbose) printf("Testing `deallocate`.\n");
 
         const int DATA[] = { 0, 5, 12, 24, 32, 64, 256, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -529,7 +530,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nCONSTRUCTOR TEST"
                             "\n================\n");
 
-        if (verbose) printf("Testing 'default constructor'.\n");
+        if (verbose) printf("Testing `default constructor`.\n");
 
         AlignStrategy MAX = BufferAllocator::MAXIMUM_ALIGNMENT;
         AlignStrategy NAT = BufferAllocator::NATURAL_ALIGNMENT;
@@ -758,7 +759,7 @@ int main(int argc, char *argv[])
                             "\n==========\n");
 
         if (verbose) printf(
-                          "Testing 'allocate', 'deallocate' and 'release'.\n");
+                          "Testing `allocate`, `deallocate` and `release`.\n");
 
         const int DATA[] = { 0, 5, 12, 24, 32, 64, 256, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;

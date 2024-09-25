@@ -15,7 +15,7 @@
 
 #include <bslx_testinstream.h>
 
-#include <bsl_cctype.h>      // 'isdigit'
+#include <bsl_cctype.h>      // `isdigit`
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
@@ -34,7 +34,7 @@ using namespace bsl;
 //                              --------
 // The component under test consists of a suite of static member functions
 // (pure functions) that perform conversions between the values of several
-// 'bdlt' vocabulary types and corresponding string representations, where the
+// `bdlt` vocabulary types and corresponding string representations, where the
 // latter are defined by the FIX standard.  The general plan is that each
 // function is to be independently tested using the table-driven technique.  A
 // set of test vectors is defined globally for use in testing all functions.
@@ -44,8 +44,8 @@ using namespace bsl;
 // defined locally to the test cases that verify parsing.
 //
 // Global Concerns:
-//: o No memory is ever allocated from the global allocator.
-//: o Precondition violations are detected in appropriate build modes.
+//  - No memory is ever allocated from the global allocator.
+//  - Precondition violations are detected in appropriate build modes.
 //-----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 1] int generate(char *, int, const Date&);
@@ -188,10 +188,10 @@ const int k_TIMETZ_MAX_PRECISION     = 0;  // ensures a fractional second is
 //                             GLOBAL TEST DATA
 // ----------------------------------------------------------------------------
 
-// Define DEFAULT DATA generally usable across 'generate' and 'parse' test
+// Define DEFAULT DATA generally usable across `generate` and `parse` test
 // cases.
 
-// *** 'Date' Data ***
+// *** `Date` Data ***
 
 struct DefaultDateDataRow {
     int         d_line;   // source line number
@@ -217,7 +217,7 @@ const DefaultDateDataRow DEFAULT_DATE_DATA[] =
 const int NUM_DEFAULT_DATE_DATA =
         static_cast<int>(sizeof DEFAULT_DATE_DATA / sizeof *DEFAULT_DATE_DATA);
 
-// *** 'Time' Data ***
+// *** `Time` Data ***
 
 struct DefaultTimeDataRow {
     int         d_line;  // source line number
@@ -287,14 +287,14 @@ const int NUM_EXTENDED_ZONE_DATA =
 
 struct DefaultCnfgDataRow {
     int  d_line;       // source line number
-    int  d_precision;  // 'precision'                     "
-    bool d_useZ;       // 'useZAbbreviationForUtc'        "
+    int  d_precision;  // `precision`                     "
+    bool d_useZ;       // `useZAbbreviationForUtc`        "
 };
 
 static
 const DefaultCnfgDataRow DEFAULT_CNFG_DATA[] =
 {
-    //LINE   precision   use 'Z'
+    //LINE   precision   use `Z`
     //----   ---------   -------
     { L_,            3,    false },
     { L_,            3,     true },
@@ -312,9 +312,9 @@ const DefaultCnfgDataRow DEFAULT_CNFG_DATA[] =
 const int NUM_DEFAULT_CNFG_DATA =
         static_cast<int>(sizeof DEFAULT_CNFG_DATA / sizeof *DEFAULT_CNFG_DATA);
 
-// Define BAD (invalid) DATA generally usable across 'parse' test cases.
+// Define BAD (invalid) DATA generally usable across `parse` test cases.
 
-// *** Bad 'Date' Data ***
+// *** Bad `Date` Data ***
 
 struct BadDateDataRow {
     int         d_line;     // source line number
@@ -385,7 +385,7 @@ const BadDateDataRow BAD_DATE_DATA[] =
 const int NUM_BAD_DATE_DATA =
                 static_cast<int>(sizeof BAD_DATE_DATA / sizeof *BAD_DATE_DATA);
 
-// *** Bad 'Time' Data ***
+// *** Bad `Time` Data ***
 
 struct BadTimeDataRow {
     int         d_line;     // source line number
@@ -537,13 +537,13 @@ const int NUM_BAD_ZONE_DATA =
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Return, by reference, the specified `*object` with its value adjusted
+/// according to the specified `fractionalSecondPrecision` and
+/// `useZAbbreviationForUtcFlag`.
 static
 Config& gg(Config *object,
            int     fractionalSecondPrecision,
            bool    useZAbbreviationForUtcFlag)
-    // Return, by reference, the specified '*object' with its value adjusted
-    // according to the specified 'fractionalSecondPrecision' and
-    // 'useZAbbreviationForUtcFlag'.
 {
     if (fractionalSecondPrecision > 6) {
         fractionalSecondPrecision = 6;
@@ -555,14 +555,14 @@ Config& gg(Config *object,
     return *object;
 }
 
+/// Update the specified `expected` FIX string as if it were generated using
+/// the specified `configuration` with the precision limited by the
+/// specified `maxPrecision`.  The behavior is undefined unless the timezone
+/// offset within `expected` (if any) is of the form "(+|-)dd:dd".
 static
 void updateExpectedPerConfig(bsl::string   *expected,
                              const Config&  configuration,
                              int            maxPrecision)
-    // Update the specified 'expected' FIX string as if it were generated using
-    // the specified 'configuration' with the precision limited by the
-    // specified 'maxPrecision'.  The behavior is undefined unless the timezone
-    // offset within 'expected' (if any) is of the form "(+|-)dd:dd".
 {
     ASSERT(expected);
 
@@ -589,7 +589,7 @@ void updateExpectedPerConfig(bsl::string   *expected,
         }
     }
 
-    // If there aren't enough characters in 'expected', don't bother with the
+    // If there aren't enough characters in `expected`, don't bother with the
     // other configuration options.
 
     const int ZONELEN = static_cast<int>(sizeof "+dd:dd") - 1;
@@ -599,7 +599,7 @@ void updateExpectedPerConfig(bsl::string   *expected,
         return;                                                       // RETURN
     }
 
-    // See if the tail of 'expected' has the pattern of a timezone offset.
+    // See if the tail of `expected` has the pattern of a timezone offset.
 
     const bsl::string::size_type zdx = expected->length() - ZONELEN;
 
@@ -625,10 +625,10 @@ void updateExpectedPerConfig(bsl::string   *expected,
     }
 }
 
+/// Return `true` if the specified `string` contains nothing but digits, and
+/// `false` otherwise.
 static
 bool containsOnlyDigits(const char *string)
-    // Return 'true' if the specified 'string' contains nothing but digits, and
-    // 'false' otherwise.
 {
     while (*string) {
         if (!isdigit(*string)) {
@@ -646,7 +646,7 @@ bool containsOnlyDigits(const char *string)
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The following function, 'LLVMFuzzerTestOneInput', is the entry point for the
+// The following function, `LLVMFuzzerTestOneInput`, is the entry point for the
 // clang fuzz testing facility.  See {http://bburl/BDEFuzzTesting} for details
 // on how to build and run with fuzz testing enabled.
 //-----------------------------------------------------------------------------
@@ -656,9 +656,9 @@ bool containsOnlyDigits(const char *string)
 #endif
 
 extern "C"
+/// Use the specified `data` array of `size` bytes as input to methods of
+/// this component and return zero.
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
-    // Use the specified 'data' array of 'size' bytes as input to methods of
-    // this component and return zero.
 {
     const char *FUZZ   = reinterpret_cast<const char *>(data);
     int         LENGTH = static_cast<int>(size);
@@ -676,7 +676,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         // PARSE: DATETIME & DATETIMETZ
         //
         // Plan:
-        //   Parse a 'Datetime' object and a 'DatetimeTz' object from the fuzz
+        //   Parse a `Datetime` object and a `DatetimeTz` object from the fuzz
         //   data directly and from the fuzz represented as a string reference.
         //   The correctness of the parsing is not verified.
         //
@@ -700,7 +700,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         // PARSE: TIME & TIMETZ
         //
         // Plan:
-        //   Parse a 'Time' object and a 'TimeTz' object from the fuzz data
+        //   Parse a `Time` object and a `TimeTz` object from the fuzz data
         //   directly and from the fuzz represented as a string reference.  The
         //   correctness of the parsing is not verified.
         //
@@ -724,7 +724,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         // PARSE: DATE & DATETZ
         //
         // Plan:
-        //   Parse a 'Date' object and a 'DateTz' object from the fuzz data
+        //   Parse a `Date` object and a `DateTz` object from the fuzz data
         //   directly and from the fuzz represented as a string reference.  The
         //   correctness of the parsing is not verified.
         //
@@ -745,13 +745,13 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // GENERATE 'DatetimeTz'
+        // GENERATE `DatetimeTz`
         //
         // Plan:
-        //   Create a 'TestInStream' using the fuzz data as a source, create a
+        //   Create a `TestInStream` using the fuzz data as a source, create a
         //   configuration object using the first byte of the stream, attempt
-        //   to stream in a 'DatetimeTz' object from the stream, and if
-        //   successful, call a variety of 'generate' methods on the object.
+        //   to stream in a `DatetimeTz` object from the stream, and if
+        //   successful, call a variety of `generate` methods on the object.
         //   The correctness of the generation is not verified.
         //
         // Testing:
@@ -816,7 +816,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         }
       } break;
       case 5: {
-        // GENERATE 'TimeTz'
+        // GENERATE `TimeTz`
         bslx::TestInStream in(FUZZ, LENGTH);
         in.setQuiet(true);
 
@@ -869,13 +869,13 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // GENERATE 'DateTz'
+        // GENERATE `DateTz`
         //
         // Plan:
-        //   Create a 'TestInStream' using the fuzz data as a source, create a
+        //   Create a `TestInStream` using the fuzz data as a source, create a
         //   configuration object using the first byte of the stream, attempt
-        //   to stream in a 'DateTz' object from the stream, and if successful,
-        //   call a variety of 'generate' methods on the object.  The
+        //   to stream in a `DateTz` object from the stream, and if successful,
+        //   call a variety of `generate` methods on the object.  The
         //   correctness of the generation is not verified.
         //
         // Testing:
@@ -941,13 +941,13 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // GENERATE 'Datetime'
+        // GENERATE `Datetime`
         //
         // Plan:
-        //   Create a 'TestInStream' using the fuzz data as a source, create a
+        //   Create a `TestInStream` using the fuzz data as a source, create a
         //   configuration object using the first byte of the stream, attempt
-        //   to stream in a 'Datetime' object from the stream, and if
-        //   successful, call a variety of 'generate' methods on the object.
+        //   to stream in a `Datetime` object from the stream, and if
+        //   successful, call a variety of `generate` methods on the object.
         //   The correctness of the generation is not verified.
         //
         // Testing:
@@ -1013,13 +1013,13 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // GENERATE 'Time'
+        // GENERATE `Time`
         //
         // Plan:
-        //   Create a 'TestInStream' using the fuzz data as a source, create a
+        //   Create a `TestInStream` using the fuzz data as a source, create a
         //   configuration object using the first byte of the stream, attempt
-        //   to stream in a 'Time' object from the stream, and if successful
-        //   call a variety of 'generate' methods on the object.  The
+        //   to stream in a `Time` object from the stream, and if successful
+        //   call a variety of `generate` methods on the object.  The
         //   correctness of the generation is not verified.
         //
         // Testing:
@@ -1085,13 +1085,13 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // GENERATE 'Date'
+        // GENERATE `Date`
         //
         // Plan:
-        //   Create a 'TestInStream' using the fuzz data as a source, create a
+        //   Create a `TestInStream` using the fuzz data as a source, create a
         //   configuration object using the first byte of the stream, attempt
-        //   to stream in a 'Date' object from the stream, and if successful,
-        //   call a variety of 'generate' methods on the object.  The
+        //   to stream in a `Date` object from the stream, and if successful,
+        //   call a variety of `generate` methods on the object.  The
         //   correctness of the generation is not verified.
         //
         // Testing:
@@ -1183,7 +1183,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
@@ -1197,13 +1197,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -1217,54 +1217,54 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic 'bdlt::FixUtil' Usage
+///Example 1: Basic `bdlt::FixUtil` Usage
 /// - - - - - - - - - - - - - - - - - - -
-// This example demonstrates basic use of one 'generate' function and two
-// 'parse' functions.
+// This example demonstrates basic use of one `generate` function and two
+// `parse` functions.
 //
 // First, we construct a few objects that are prerequisites for this and the
 // following example:
-//..
+// ```
     const bdlt::Date date(2005, 1, 31);     // 2005/01/31
     const bdlt::Time time(8, 59, 59, 123);  // 08:59:59.123
     const int        tzOffset = 240;        // +04:00 (four hours west of UTC)
-//..
-// Then, we construct a 'bdlt::DatetimeTz' object for which a corresponding
+// ```
+// Then, we construct a `bdlt::DatetimeTz` object for which a corresponding
 // FIX-compliant string will be generated shortly:
-//..
+// ```
     const bdlt::DatetimeTz sourceDatetimeTz(bdlt::Datetime(date, time),
                                             tzOffset);
-//..
+// ```
 // For comparison with the FIX string generated below, note that streaming the
-// value of 'sourceDatetimeTz' to 'stdout':
-//..
+// value of `sourceDatetimeTz` to `stdout`:
+// ```
 if (veryVerbose) {
     bsl::cout << sourceDatetimeTz << bsl::endl;
 }
-//..
+// ```
 // produces:
-//..
+// ```
 //  31JAN2005_08:59:59.123000+0400
-//..
-// Next, we use a 'generate' function to produce a FIX-compliant string for
-// 'sourceDatetimeTz', writing the output to a 'bsl::ostringstream', and assert
+// ```
+// Next, we use a `generate` function to produce a FIX-compliant string for
+// `sourceDatetimeTz`, writing the output to a `bsl::ostringstream`, and assert
 // that both the return value and the string that is produced are as expected:
-//..
+// ```
     bsl::ostringstream  oss;
     const bsl::ostream& ret = bdlt::FixUtil::generate(oss, sourceDatetimeTz);
     ASSERT(&oss == &ret);
 
     const bsl::string fix = oss.str();
     ASSERT(fix == "20050131-08:59:59.123+04:00");
-//..
+// ```
 // For comparison, see the output that was produced by the streaming operator
 // above.
 //
 // Now, we parse the string that was just produced, loading the result of the
-// parse into a second 'bdlt::DatetimeTz' object, and assert that the parse was
+// parse into a second `bdlt::DatetimeTz` object, and assert that the parse was
 // successful and that the target object has the same value as that of the
-// original (i.e., 'sourceDatetimeTz'):
-//..
+// original (i.e., `sourceDatetimeTz`):
+// ```
     bdlt::DatetimeTz targetDatetimeTz;
 
     int rc = bdlt::FixUtil::parse(&targetDatetimeTz,
@@ -1272,10 +1272,10 @@ if (veryVerbose) {
                                   static_cast<int>(fix.length()));
     ASSERT(               0 == rc);
     ASSERT(sourceDatetimeTz == targetDatetimeTz);
-//..
-// Finally, we parse the 'fix' string a second time, this time loading the
-// result into a 'bdlt::Datetime' object (instead of a 'bdlt::DatetimeTz'):
-//..
+// ```
+// Finally, we parse the `fix` string a second time, this time loading the
+// result into a `bdlt::Datetime` object (instead of a `bdlt::DatetimeTz`):
+// ```
     bdlt::Datetime targetDatetime;
 
     rc = bdlt::FixUtil::parse(&targetDatetime,
@@ -1283,44 +1283,44 @@ if (veryVerbose) {
                               static_cast<int>(fix.length()));
     ASSERT(                             0 == rc);
     ASSERT(sourceDatetimeTz.utcDatetime() == targetDatetime);
-//..
+// ```
 // Note that this time the value of the target object has been converted to
 // UTC.
 //
 ///Example 2: Configuring FIX String Generation
 ///- - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates use of a 'bdlt::FixUtilConfiguration' object to
+// This example demonstrates use of a `bdlt::FixUtilConfiguration` object to
 // influence the format of the FIX strings that are generated by this component
-// by passing that configuration object to 'generate'.  We also take this
-// opportunity to illustrate the flavor of the 'generate' functions that
-// outputs to a 'char *' buffer of a specified length.
+// by passing that configuration object to `generate`.  We also take this
+// opportunity to illustrate the flavor of the `generate` functions that
+// outputs to a `char *` buffer of a specified length.
 //
-// First, we construct the 'bdlt::FixUtilConfiguration' object that indicates
+// First, we construct the `bdlt::FixUtilConfiguration` object that indicates
 // how we would like to affect the generated output FIX string.  In this case,
 // we want to have microsecond precision displayed:
-//..
+// ```
     bdlt::FixUtilConfiguration configuration;
 
     configuration.setFractionalSecondPrecision(6);
-//..
-// Then, we define the 'char *' buffer that will be used to stored the
-// generated string.  A buffer of size 'bdlt::FixUtil::k_DATETIMETZ_STRLEN + 1'
+// ```
+// Then, we define the `char *` buffer that will be used to stored the
+// generated string.  A buffer of size `bdlt::FixUtil::k_DATETIMETZ_STRLEN + 1`
 // is large enough to hold any string generated by this component for a
-// 'bdlt::DatetimeTz' object, including a null terminator:
-//..
+// `bdlt::DatetimeTz` object, including a null terminator:
+// ```
     const int BUFLEN = bdlt::FixUtil::k_DATETIMETZ_STRLEN + 1;
     char      buffer[BUFLEN];
-//..
-// Next, we use a 'generate' function that accepts our 'configuration' to
-// produce a FIX-compliant string for 'sourceDatetimeTz', this time writing the
-// output to a 'char *' buffer, and assert that both the return value and the
+// ```
+// Next, we use a `generate` function that accepts our `configuration` to
+// produce a FIX-compliant string for `sourceDatetimeTz`, this time writing the
+// output to a `char *` buffer, and assert that both the return value and the
 // string that is produced are as expected.  Note that in comparing the return
-// value against 'BUFLEN - 1' we account for the fact that, although a null
+// value against `BUFLEN - 1` we account for the fact that, although a null
 // terminator was generated, it is not included in the character count returned
-// by 'generate'.  Also note that we use 'bsl::strcmp' to compare the resulting
+// by `generate`.  Also note that we use `bsl::strcmp` to compare the resulting
 // string knowing that we supplied a buffer having sufficient capacity to
 // accommodate a null terminator:
-//..
+// ```
     rc = bdlt::FixUtil::generate(buffer,
                                  BUFLEN,
                                  sourceDatetimeTz,
@@ -1328,36 +1328,36 @@ if (veryVerbose) {
     ASSERT(BUFLEN - 1 == rc);
     ASSERT(         0 == bsl::strcmp(buffer,
                                      "20050131-08:59:59.123000+04:00"));
-//..
+// ```
 // For comparison, see the output that was produced by the streaming operator
 // above.
 //
 // Next, we parse the string that was just produced, loading the result of the
-// parse into a second 'bdlt::DatetimeTz' object, and assert that the parse was
+// parse into a second `bdlt::DatetimeTz` object, and assert that the parse was
 // successful and that the target object has the same value as that of the
-// original (i.e., 'sourceDatetimeTz').  Note that 'BUFLEN - 1' is passed and
-// *not* 'BUFLEN' because the former indicates the correct number of characters
-// in 'buffer' that we wish to parse:
-//..
+// original (i.e., `sourceDatetimeTz`).  Note that `BUFLEN - 1` is passed and
+// *not* `BUFLEN` because the former indicates the correct number of characters
+// in `buffer` that we wish to parse:
+// ```
     rc = bdlt::FixUtil::parse(&targetDatetimeTz, buffer, BUFLEN - 1);
 
     ASSERT(               0 == rc);
     ASSERT(sourceDatetimeTz == targetDatetimeTz);
-//..
-// Then, we parse the string in 'buffer' a second time, this time loading the
-// result into a 'bdlt::Datetime' object (instead of a 'bdlt::DatetimeTz'):
-//..
+// ```
+// Then, we parse the string in `buffer` a second time, this time loading the
+// result into a `bdlt::Datetime` object (instead of a `bdlt::DatetimeTz`):
+// ```
     rc = bdlt::FixUtil::parse(&targetDatetime, buffer, BUFLEN - 1);
 
     ASSERT(                             0 == rc);
     ASSERT(sourceDatetimeTz.utcDatetime() == targetDatetime);
-//..
+// ```
 // Note that this time the value of the target object has been converted to
 // UTC.
 //
-// Finally, we modify the 'configuration' to display the 'bdlt::DatetimeTz'
+// Finally, we modify the `configuration` to display the `bdlt::DatetimeTz`
 // without fractional seconds:
-//..
+// ```
     configuration.setFractionalSecondPrecision(0);
     rc = bdlt::FixUtil::generate(buffer,
                                  BUFLEN,
@@ -1365,76 +1365,76 @@ if (veryVerbose) {
                                  configuration);
     ASSERT(BUFLEN - 8 == rc);
     ASSERT(         0 == bsl::strcmp(buffer, "20050131-08:59:59+04:00"));
-//..
+// ```
       } break;
       case 9: {
         // --------------------------------------------------------------------
         // PARSE: DATETIME & DATETIMETZ
         //
         // Concerns:
-        //: 1 All FIX string representations supported by this component
-        //:   (as documented in the header file) for 'Datetime' and
-        //:   'DatetimeTz' values are parsed successfully.
-        //:
-        //: 2 If parsing succeeds, the result 'Datetime' or 'DatetimeTz' object
-        //:   has the expected value.
-        //:
-        //: 3 If the optional timezone offset is present in the input string
-        //:   when parsing into a 'Datetime' object, the resulting value is
-        //:   converted to the equivalent UTC datetime.
-        //:
-        //: 4 If the optional timezone offset is *not* present in the input
-        //:   string when parsing into a 'DatetimeTz' object, it is assumed to
-        //:   be UTC.
-        //:
-        //: 5 If parsing succeeds, 0 is returned.
-        //:
-        //: 6 All strings that are not FIX representations supported by
-        //:   this component for 'Datetime' and 'DatetimeTz' values are
-        //:   rejected (i.e., parsing fails).
-        //:
-        //: 7 If parsing fails, the result object is unaffected and a non-zero
-        //:   value is returned.
-        //:
-        //: 8 The entire extent of the input string is parsed.
-        //:
-        //: 9 Leap seconds, fractional seconds containing more than three
-        //:   digits, and extremal values (those that can overflow a
-        //:   'Datetime') are handled correctly.
-        //:
-        //:10 QoI: Asserted precondition violations are detected when enabled.
+        // 1. All FIX string representations supported by this component
+        //    (as documented in the header file) for `Datetime` and
+        //    `DatetimeTz` values are parsed successfully.
+        //
+        // 2. If parsing succeeds, the result `Datetime` or `DatetimeTz` object
+        //    has the expected value.
+        //
+        // 3. If the optional timezone offset is present in the input string
+        //    when parsing into a `Datetime` object, the resulting value is
+        //    converted to the equivalent UTC datetime.
+        //
+        // 4. If the optional timezone offset is *not* present in the input
+        //    string when parsing into a `DatetimeTz` object, it is assumed to
+        //    be UTC.
+        //
+        // 5. If parsing succeeds, 0 is returned.
+        //
+        // 6. All strings that are not FIX representations supported by
+        //    this component for `Datetime` and `DatetimeTz` values are
+        //    rejected (i.e., parsing fails).
+        //
+        // 7. If parsing fails, the result object is unaffected and a non-zero
+        //    value is returned.
+        //
+        // 8. The entire extent of the input string is parsed.
+        //
+        // 9. Leap seconds, fractional seconds containing more than three
+        //    digits, and extremal values (those that can overflow a
+        //    `Datetime`) are handled correctly.
+        //
+        // 10. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   'Date' values ('D'), 'Time' values ('T'), timezone offsets ('Z'),
-        //:   and configurations ('C').
-        //:
-        //: 2 Apply the (fully-tested) 'generateRaw' functions to each element
-        //:   in the cross product, 'D x T x Z x C', of the test data from P-1.
-        //:
-        //: 3 Invoke the 'parse' functions on the strings generated in P-2 and
-        //:   verify that parsing succeeds, i.e., that 0 is returned and the
-        //:   result objects have the expected values.  (C-1..5)
-        //:
-        //: 4 Using the table-driven technique, specify a set of distinct
-        //:   strings that are not FIX representations supported by this
-        //:   component for 'Datetime' and 'DatetimeTz' values.
-        //:
-        //: 5 Invoke the 'parse' functions on the strings from P-4 and verify
-        //:   that parsing fails, i.e., that a non-zero value is returned and
-        //:   the result objects are unchanged.  (C-6..8)
-        //:
-        //: 6 Using the table-driven technique, specify a set of distinct FIX
-        //:   strings that specifically cover cases involving leap
-        //:   seconds, fractional seconds containing more than three digits,
-        //:   and extremal values.
-        //:
-        //: 7 Invoke the 'parse' functions on the strings from P-6 and verify
-        //:   the results are as expected.  (C-9)
-        //:
-        //: 8 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid arguments, but not triggered for adjacent
-        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-10)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    `Date` values (`D`), `Time` values (`T`), timezone offsets (`Z`),
+        //    and configurations (`C`).
+        //
+        // 2. Apply the (fully-tested) `generateRaw` functions to each element
+        //    in the cross product, `D x T x Z x C`, of the test data from P-1.
+        //
+        // 3. Invoke the `parse` functions on the strings generated in P-2 and
+        //    verify that parsing succeeds, i.e., that 0 is returned and the
+        //    result objects have the expected values.  (C-1..5)
+        //
+        // 4. Using the table-driven technique, specify a set of distinct
+        //    strings that are not FIX representations supported by this
+        //    component for `Datetime` and `DatetimeTz` values.
+        //
+        // 5. Invoke the `parse` functions on the strings from P-4 and verify
+        //    that parsing fails, i.e., that a non-zero value is returned and
+        //    the result objects are unchanged.  (C-6..8)
+        //
+        // 6. Using the table-driven technique, specify a set of distinct FIX
+        //    strings that specifically cover cases involving leap
+        //    seconds, fractional seconds containing more than three digits,
+        //    and extremal values.
+        //
+        // 7. Invoke the `parse` functions on the strings from P-6 and verify
+        //    the results are as expected.  (C-9)
+        //
+        // 8. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid arguments, but not triggered for adjacent
+        //    valid ones (using the `BSLS_ASSERTTEST_*` macros).  (C-10)
         //
         // Testing:
         //   int parse(Datetime *, const char *, int);
@@ -1452,7 +1452,7 @@ if (veryVerbose) {
         const bdlt::Date       DD(246, 8, 10);
         const bdlt::Time       TT(2, 4, 6, 8);
 
-        const bdlt::Datetime   XX(DD, TT);  // 'XX' and 'ZZ' are controls,
+        const bdlt::Datetime   XX(DD, TT);  // `XX` and `ZZ` are controls,
         const bdlt::DatetimeTz ZZ(XX, -7);  // distinct from any test data
 
         const int                  NUM_DATE_DATA =       NUM_DEFAULT_DATE_DATA;
@@ -1652,8 +1652,8 @@ if (veryVerbose) {
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                     DATETIMETZ               == Z);
                         }
-                    }  // loop over 'CNFG_DATA'
-                }  // loop over 'ZONE_DATA'
+                    }  // loop over `CNFG_DATA`
+                }  // loop over `ZONE_DATA`
 
                 for (int tk = 0; tk < NUM_EXT_ZONE_DATA; ++tk) {
                     const int KLINE  = EXT_ZONE_DATA[tk].d_line;
@@ -1767,10 +1767,10 @@ if (veryVerbose) {
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                     DATETIMETZ               == Z);
                         }
-                    }  // loop over 'CNFG_DATA'
-                }  // loop over 'ZONE_DATA'
-            }  // loop over 'TIME_DATA'
-        }  // loop over 'DATE_DATA'
+                    }  // loop over `CNFG_DATA`
+                }  // loop over `ZONE_DATA`
+            }  // loop over `TIME_DATA`
+        }  // loop over `DATE_DATA`
 
         if (verbose) cout << "\nInvalid strings." << endl;
         {
@@ -1820,7 +1820,7 @@ if (veryVerbose) {
 
                 bsl::string bad("20100817");
 
-                // Ensure that 'bad' is initially valid.
+                // Ensure that `bad` is initially valid.
 
                 static bool firstFlag = true;
                 if (firstFlag) {
@@ -1872,7 +1872,7 @@ if (veryVerbose) {
 
                 bsl::string bad("20100817-12:26:52.726");
 
-                // Ensure that 'bad' is initially valid.
+                // Ensure that `bad` is initially valid.
 
                 static bool firstFlag = true;
                 if (firstFlag) {
@@ -1890,9 +1890,9 @@ if (veryVerbose) {
                     ASSERT(XX != D);
                 }
 
-                // If 'ZONE_DATA[tk].d_invalid' contains nothing but digits,
-                // appending it to 'bad' simply extends the fractional second
-                // (so 'bad' remains valid).
+                // If `ZONE_DATA[tk].d_invalid` contains nothing but digits,
+                // appending it to `bad` simply extends the fractional second
+                // (so `bad` remains valid).
 
                 if (containsOnlyDigits(ZONE_DATA[tk].d_invalid)) {
                     continue;
@@ -2062,7 +2062,7 @@ if (veryVerbose) {
         }
 
         if (verbose)
-            cout << "\nTesting timezone offsets that overflow a 'Datetime'."
+            cout << "\nTesting timezone offsets that overflow a `Datetime`."
                  << endl;
         {
             struct {
@@ -2210,67 +2210,67 @@ if (veryVerbose) {
         // PARSE: TIME & TIMETZ
         //
         // Concerns:
-        //: 1 All FIX string representations supported by this component
-        //:   (as documented in the header file) for 'Time' and 'TimeTz' values
-        //:   are parsed successfully.
-        //:
-        //: 2 If parsing succeeds, the result 'Time' or 'TimeTz' object has the
-        //:   expected value.
-        //:
-        //: 3 If the optional timezone offset is present in the input string
-        //:   when parsing into a 'Time' object, the resulting value is
-        //:   converted to the equivalent UTC time.
-        //:
-        //: 4 If the optional timezone offset is *not* present in the input
-        //:   string when parsing into a 'TimeTz' object, it is assumed to be
-        //:   UTC.
-        //:
-        //: 5 If parsing succeeds, 0 is returned.
-        //:
-        //: 6 All strings that are not FIX representations supported by
-        //:   this component for 'Time' and 'TimeTz' values are rejected (i.e.,
-        //:   parsing fails).
-        //:
-        //: 7 If parsing fails, the result object is unaffected and a non-zero
-        //:   value is returned.
-        //:
-        //: 8 The entire extent of the input string is parsed.
-        //:
-        //: 9 Leap seconds and fractional seconds containing more than three
-        //:   digits are handled correctly.
-        //:
-        //:10 QoI: Asserted precondition violations are detected when enabled.
+        // 1. All FIX string representations supported by this component
+        //    (as documented in the header file) for `Time` and `TimeTz` values
+        //    are parsed successfully.
+        //
+        // 2. If parsing succeeds, the result `Time` or `TimeTz` object has the
+        //    expected value.
+        //
+        // 3. If the optional timezone offset is present in the input string
+        //    when parsing into a `Time` object, the resulting value is
+        //    converted to the equivalent UTC time.
+        //
+        // 4. If the optional timezone offset is *not* present in the input
+        //    string when parsing into a `TimeTz` object, it is assumed to be
+        //    UTC.
+        //
+        // 5. If parsing succeeds, 0 is returned.
+        //
+        // 6. All strings that are not FIX representations supported by
+        //    this component for `Time` and `TimeTz` values are rejected (i.e.,
+        //    parsing fails).
+        //
+        // 7. If parsing fails, the result object is unaffected and a non-zero
+        //    value is returned.
+        //
+        // 8. The entire extent of the input string is parsed.
+        //
+        // 9. Leap seconds and fractional seconds containing more than three
+        //    digits are handled correctly.
+        //
+        // 10. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   'Time' values ('T'), timezone offsets ('Z'), and configurations
-        //:   ('C').
-        //:
-        //: 2 Apply the (fully-tested) 'generateRaw' functions to each element
-        //:   in the cross product, 'T x Z x C', of the test data from P-1.
-        //:
-        //: 3 Invoke the 'parse' functions on the strings generated in P-2 and
-        //:   verify that parsing succeeds, i.e., that 0 is returned and the
-        //:   result objects have the expected values.  (C-1..5)
-        //:
-        //: 4 Using the table-driven technique, specify a set of distinct
-        //:   strings that are not FIX representations supported by this
-        //:   component for 'Time' and 'TimeTz' values.
-        //:
-        //: 5 Invoke the 'parse' functions on the strings from P-4 and verify
-        //:   that parsing fails, i.e., that a non-zero value is returned and
-        //:   the result objects are unchanged.  (C-6..8)
-        //:
-        //: 6 Using the table-driven technique, specify a set of distinct
-        //:   FIX strings that specifically cover cases involving leap
-        //:   seconds and fractional seconds containing more than three digits.
-        //:
-        //: 7 Invoke the 'parse' functions on the strings from P-6 and verify
-        //:   the results are as expected.  (C-9)
-        //:
-        //: 8 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid arguments, but not triggered for adjacent
-        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-10)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    `Time` values (`T`), timezone offsets (`Z`), and configurations
+        //    (`C`).
+        //
+        // 2. Apply the (fully-tested) `generateRaw` functions to each element
+        //    in the cross product, `T x Z x C`, of the test data from P-1.
+        //
+        // 3. Invoke the `parse` functions on the strings generated in P-2 and
+        //    verify that parsing succeeds, i.e., that 0 is returned and the
+        //    result objects have the expected values.  (C-1..5)
+        //
+        // 4. Using the table-driven technique, specify a set of distinct
+        //    strings that are not FIX representations supported by this
+        //    component for `Time` and `TimeTz` values.
+        //
+        // 5. Invoke the `parse` functions on the strings from P-4 and verify
+        //    that parsing fails, i.e., that a non-zero value is returned and
+        //    the result objects are unchanged.  (C-6..8)
+        //
+        // 6. Using the table-driven technique, specify a set of distinct
+        //    FIX strings that specifically cover cases involving leap
+        //    seconds and fractional seconds containing more than three digits.
+        //
+        // 7. Invoke the `parse` functions on the strings from P-6 and verify
+        //    the results are as expected.  (C-9)
+        //
+        // 8. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid arguments, but not triggered for adjacent
+        //    valid ones (using the `BSLS_ASSERTTEST_*` macros).  (C-10)
         //
         // Testing:
         //   int parse(Time *, const char *, int);
@@ -2285,7 +2285,7 @@ if (veryVerbose) {
 
         char buffer[Util::k_MAX_STRLEN];
 
-        const bdlt::Time   XX(2, 4, 6, 8);  // 'XX' and 'ZZ' are controls,
+        const bdlt::Time   XX(2, 4, 6, 8);  // `XX` and `ZZ` are controls,
         const bdlt::TimeTz ZZ(XX, -7);      // distinct from any test data
 
         const int                  NUM_TIME_DATA =       NUM_DEFAULT_TIME_DATA;
@@ -2405,7 +2405,7 @@ if (veryVerbose) {
                         bdlt::Time   mX(XX);  const bdlt::Time&   X = mX;
                         bdlt::TimeTz mZ(ZZ);  const bdlt::TimeTz& Z = mZ;
 
-                        // 'TimeTz' uses the FIX "TZTimeOnly" format during
+                        // `TimeTz` uses the FIX "TZTimeOnly" format during
                         // generation so there are no milliseconds.
 
                         const bdlt::TimeTz EXPTIMETZ(
@@ -2431,8 +2431,8 @@ if (veryVerbose) {
                                0 == Util::parse(&mZ, StrView(buffer, LENGTH)));
                         ASSERTV(ILINE, JLINE, CLINE, EXPTIMETZ           == Z);
                     }
-                }  // loop over 'CNFG_DATA'
-            }  // loop over 'ZONE_DATA'
+                }  // loop over `CNFG_DATA`
+            }  // loop over `ZONE_DATA`
 
             for (int tj = 0; tj < NUM_EXT_ZONE_DATA; ++tj) {
                 const int JLINE  = EXT_ZONE_DATA[tj].d_line;
@@ -2490,7 +2490,7 @@ if (veryVerbose) {
                         bdlt::Time   mX(XX);  const bdlt::Time&   X = mX;
                         bdlt::TimeTz mZ(ZZ);  const bdlt::TimeTz& Z = mZ;
 
-                        // 'TimeTz' uses the FIX "TZTimeOnly" format during
+                        // `TimeTz` uses the FIX "TZTimeOnly" format during
                         // generation so there are no milliseconds.
 
                         const bdlt::TimeTz EXPTIMETZ(
@@ -2516,9 +2516,9 @@ if (veryVerbose) {
                                0 == Util::parse(&mZ, StrView(buffer, LENGTH)));
                         ASSERTV(ILINE, JLINE, CLINE, EXPTIMETZ           == Z);
                     }
-                }  // loop over 'CNFG_DATA'
-            }  // loop over 'ZONE_DATA'
-        }  // loop over 'TIME_DATA'
+                }  // loop over `CNFG_DATA`
+            }  // loop over `ZONE_DATA`
+        }  // loop over `TIME_DATA`
 
         if (verbose) cout << "\nInvalid strings." << endl;
         {
@@ -2562,7 +2562,7 @@ if (veryVerbose) {
 
                 bsl::string bad("12:26:52.726");
 
-                // Ensure that 'bad' is initially valid.
+                // Ensure that `bad` is initially valid.
 
                 static bool firstFlag = true;
                 if (firstFlag) {
@@ -2580,9 +2580,9 @@ if (veryVerbose) {
                     ASSERT(XX != T);
                 }
 
-                // If 'ZONE_DATA[ti].d_invalid' contains nothing but digits,
-                // appending it to 'bad' simply extends the fractional second
-                // (so 'bad' remains valid).
+                // If `ZONE_DATA[ti].d_invalid` contains nothing but digits,
+                // appending it to `bad` simply extends the fractional second
+                // (so `bad` remains valid).
 
                 if (containsOnlyDigits(ZONE_DATA[ti].d_invalid)) {
                     continue;
@@ -2789,57 +2789,57 @@ if (veryVerbose) {
         // PARSE: DATE & DATETZ
         //
         // Concerns:
-        //: 1 All FIX string representations supported by this component
-        //:   (as documented in the header file) for 'Date' and 'DateTz' values
-        //:   are parsed successfully.
-        //:
-        //: 2 If parsing succeeds, the result 'Date' or 'DateTz' object has the
-        //:   expected value.
-        //:
-        //: 3 If the optional timezone offset is present in the input string
-        //:   when parsing into a 'Date' object, it is parsed for validity but
-        //:   is otherwise ignored.
-        //:
-        //: 4 If the optional timezone offset is *not* present in the input
-        //:   string when parsing into a 'DateTz' object, it is assumed to be
-        //:   UTC.
-        //:
-        //: 5 If parsing succeeds, 0 is returned.
-        //:
-        //: 6 All strings that are not FIX representations supported by
-        //:   this component for 'Date' and 'DateTz' values are rejected (i.e.,
-        //:   parsing fails).
-        //:
-        //: 7 If parsing fails, the result object is unaffected and a non-zero
-        //:   value is returned.
-        //:
-        //: 8 The entire extent of the input string is parsed.
-        //:
-        //: 9 QoI: Asserted precondition violations are detected when enabled.
+        // 1. All FIX string representations supported by this component
+        //    (as documented in the header file) for `Date` and `DateTz` values
+        //    are parsed successfully.
+        //
+        // 2. If parsing succeeds, the result `Date` or `DateTz` object has the
+        //    expected value.
+        //
+        // 3. If the optional timezone offset is present in the input string
+        //    when parsing into a `Date` object, it is parsed for validity but
+        //    is otherwise ignored.
+        //
+        // 4. If the optional timezone offset is *not* present in the input
+        //    string when parsing into a `DateTz` object, it is assumed to be
+        //    UTC.
+        //
+        // 5. If parsing succeeds, 0 is returned.
+        //
+        // 6. All strings that are not FIX representations supported by
+        //    this component for `Date` and `DateTz` values are rejected (i.e.,
+        //    parsing fails).
+        //
+        // 7. If parsing fails, the result object is unaffected and a non-zero
+        //    value is returned.
+        //
+        // 8. The entire extent of the input string is parsed.
+        //
+        // 9. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   'Date' values ('D'), timezone offsets ('Z'), and configurations
-        //:   ('C').
-        //:
-        //: 2 Apply the (fully-tested) 'generateRaw' functions to each element
-        //:   in the cross product, 'D x Z x C', of the test data from P-1.
-        //:
-        //: 3 Invoke the 'parse' functions on the strings generated in P-2 and
-        //:   verify that parsing succeeds, i.e., that 0 is returned and the
-        //:   result objects have the expected values.  (C-1..5)
-        //:
-        //: 4 Using the table-driven technique, specify a set of distinct
-        //:   strings that are not FIX representations supported by this
-        //:   component for 'Date' and 'DateTz' values.
-        //:
-        //: 5 Invoke the 'parse' functions on the strings from P-4 and verify
-        //:   that parsing fails, i.e., that a non-zero value is returned and
-        //:   the result objects are unchanged.  (C-6..8)
-        //:
-        //: 6 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid arguments, but not triggered for adjacent
-        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-9)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    `Date` values (`D`), timezone offsets (`Z`), and configurations
+        //    (`C`).
+        //
+        // 2. Apply the (fully-tested) `generateRaw` functions to each element
+        //    in the cross product, `D x Z x C`, of the test data from P-1.
+        //
+        // 3. Invoke the `parse` functions on the strings generated in P-2 and
+        //    verify that parsing succeeds, i.e., that 0 is returned and the
+        //    result objects have the expected values.  (C-1..5)
+        //
+        // 4. Using the table-driven technique, specify a set of distinct
+        //    strings that are not FIX representations supported by this
+        //    component for `Date` and `DateTz` values.
+        //
+        // 5. Invoke the `parse` functions on the strings from P-4 and verify
+        //    that parsing fails, i.e., that a non-zero value is returned and
+        //    the result objects are unchanged.  (C-6..8)
+        //
+        // 6. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid arguments, but not triggered for adjacent
+        //    valid ones (using the `BSLS_ASSERTTEST_*` macros).  (C-9)
         //
         // Testing:
         //   int parse(Date *, const char *, int);
@@ -2854,7 +2854,7 @@ if (veryVerbose) {
 
         char buffer[Util::k_MAX_STRLEN];
 
-        const bdlt::Date   XX(246, 8, 10);  // 'XX' and 'ZZ' are controls,
+        const bdlt::Date   XX(246, 8, 10);  // `XX` and `ZZ` are controls,
         const bdlt::DateTz ZZ(XX, -7);      // distinct from any test data
 
         const int                  NUM_DATE_DATA =       NUM_DEFAULT_DATE_DATA;
@@ -2970,8 +2970,8 @@ if (veryVerbose) {
                                0 == Util::parse(&mZ, StrView(buffer, LENGTH)));
                         ASSERTV(ILINE, JLINE, CLINE, DATETZ == Z);
                     }
-                }  // loop over 'CNFG_DATA'
-            }  // loop over 'ZONE_DATA'
+                }  // loop over `CNFG_DATA`
+            }  // loop over `ZONE_DATA`
 
             for (int tj = 0; tj < NUM_EXT_ZONE_DATA; ++tj) {
                 const int JLINE  = EXT_ZONE_DATA[tj].d_line;
@@ -3026,9 +3026,9 @@ if (veryVerbose) {
                                0 == Util::parse(&mZ, StrView(buffer, LENGTH)));
                         ASSERTV(ILINE, JLINE, CLINE, DATETZ == Z);
                     }
-                }  // loop over 'CNFG_DATA'
-            }  // loop over 'ZONE_DATA'
-        }  // loop over 'DATE_DATA'
+                }  // loop over `CNFG_DATA`
+            }  // loop over `ZONE_DATA`
+        }  // loop over `DATE_DATA`
 
         if (verbose) cout << "\nInvalid strings." << endl;
         {
@@ -3072,7 +3072,7 @@ if (veryVerbose) {
 
                 bsl::string bad("20100817");
 
-                // Ensure that 'bad' is initially valid.
+                // Ensure that `bad` is initially valid.
 
                 static bool firstFlag = true;
                 if (firstFlag) {
@@ -3174,53 +3174,53 @@ if (veryVerbose) {
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // GENERATE 'DatetimeTz'
+        // GENERATE `DatetimeTz`
         //
         // Concerns:
-        //: 1 The output generated by each method has the expected format and
-        //:   contents.
-        //:
-        //: 2 When sufficient capacity is indicated, the method taking
-        //:   'bufferLength' generates a null terminator.
-        //:
-        //: 3 Each method returns the expected value (the correct character
-        //:   count or the supplied 'ostream', depending on the return type).
-        //:
-        //: 4 The value of the supplied object is unchanged.
-        //:
-        //: 5 The configuration that is in effect, whether user-supplied or the
-        //:   process-wide default, has the desired affect on the output.
-        //:
-        //: 6 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The output generated by each method has the expected format and
+        //    contents.
+        //
+        // 2. When sufficient capacity is indicated, the method taking
+        //    `bufferLength` generates a null terminator.
+        //
+        // 3. Each method returns the expected value (the correct character
+        //    count or the supplied `ostream`, depending on the return type).
+        //
+        // 4. The value of the supplied object is unchanged.
+        //
+        // 5. The configuration that is in effect, whether user-supplied or the
+        //    process-wide default, has the desired affect on the output.
+        //
+        // 6. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   'Date' values (one per row) and their corresponding FIX
-        //:   string representations.
-        //:
-        //: 2 In a second table, specify a set of distinct 'Time' values (one
-        //:   per row) and their corresponding FIX string representations.
-        //:
-        //: 3 In a third table, specify a set of distinct timezone values (one
-        //:   per row) and their corresponding FIX string representations.
-        //:
-        //: 4 For each element 'R' in the cross product of the tables from P-1,
-        //:   P-2, and P-3:  (C-1..5)
-        //:
-        //:   1 Create a 'const' 'DatetimeTz' object, 'X', from 'R'.
-        //:
-        //:   2 Invoke the six methods under test on 'X' for all possible
-        //:     configurations.  Also exercise the method taking 'bufferLength'
-        //:     for all buffer lengths in the range '[0 .. L]', where 'L'
-        //:     provides sufficient capacity for a null terminator and a few
-        //:     extra characters.  For each call, verify that the generated
-        //:     output matches the string from 'R' (taking the affect of the
-        //:     configuration into account), a null terminator is appended when
-        //:     expected, and the return value is correct.  (C-1..5)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid arguments, but not triggered for adjacent
-        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    `Date` values (one per row) and their corresponding FIX
+        //    string representations.
+        //
+        // 2. In a second table, specify a set of distinct `Time` values (one
+        //    per row) and their corresponding FIX string representations.
+        //
+        // 3. In a third table, specify a set of distinct timezone values (one
+        //    per row) and their corresponding FIX string representations.
+        //
+        // 4. For each element `R` in the cross product of the tables from P-1,
+        //    P-2, and P-3:  (C-1..5)
+        //
+        //   1. Create a `const` `DatetimeTz` object, `X`, from `R`.
+        //
+        //   2. Invoke the six methods under test on `X` for all possible
+        //      configurations.  Also exercise the method taking `bufferLength`
+        //      for all buffer lengths in the range `[0 .. L]`, where `L`
+        //      provides sufficient capacity for a null terminator and a few
+        //      extra characters.  For each call, verify that the generated
+        //      output matches the string from `R` (taking the affect of the
+        //      configuration into account), a null terminator is appended when
+        //      expected, and the return value is correct.  (C-1..5)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid arguments, but not triggered for adjacent
+        //    valid ones (using the `BSLS_ASSERTTEST_*` macros).  (C-6)
         //
         // Testing:
         //   int generate(char *, int, const DatetimeTz&);
@@ -3234,7 +3234,7 @@ if (veryVerbose) {
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "GENERATE 'DatetimeTz'" << endl
+                          << "GENERATE `DatetimeTz`" << endl
                           << "=====================" << endl;
 
         typedef bdlt::DatetimeTz TYPE;
@@ -3331,7 +3331,7 @@ if (veryVerbose) {
 
                         const int OUTLEN = static_cast<int>(EXPECTED.length());
 
-                        // 'generate' taking 'bufferLength'
+                        // `generate` taking `bufferLength`
 
                         for (int k = 0; k < BUFLEN; ++k) {
                             bsl::memset(buffer, '?', BUFLEN);
@@ -3365,7 +3365,7 @@ if (veryVerbose) {
                             }
                         }
 
-                        // 'generate' to a 'string'
+                        // `generate` to a `string`
                         {
                             bsl::string mS("qwerty");
 
@@ -3402,7 +3402,7 @@ if (veryVerbose) {
                         }
 #endif
 
-                        // 'generate' to an 'ostream'
+                        // `generate` to an `ostream`
                         {
                             bsl::ostringstream os;
 
@@ -3415,7 +3415,7 @@ if (veryVerbose) {
                             if (veryVerbose) { P_(EXPECTED) P(os.str()); }
                         }
 
-                        // 'generateRaw'
+                        // `generateRaw`
                         {
                             bsl::memset(buffer, '?', BUFLEN);
 
@@ -3432,7 +3432,7 @@ if (veryVerbose) {
                                                      buffer + OUTLEN,
                                                      BUFLEN - OUTLEN));
                         }
-                    }  // loop over 'CNFG_DATA'
+                    }  // loop over `CNFG_DATA`
 
                     for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                         const int  CLINE     = CNFG_DATA[tc].d_line;
@@ -3447,7 +3447,7 @@ if (veryVerbose) {
                         gg(&mC, PRECISION, USEZ);
 
                         // Set the default configuration to the complement of
-                        // 'C'.
+                        // `C`.
 
                         Config mDFLT;  const Config& DFLT = mDFLT;
                         gg(&mDFLT,
@@ -3462,7 +3462,7 @@ if (veryVerbose) {
 
                         const int OUTLEN = static_cast<int>(EXPECTED.length());
 
-                        // 'generate' taking 'bufferLength'
+                        // `generate` taking `bufferLength`
 
                         for (int k = 0; k < BUFLEN; ++k) {
                             bsl::memset(buffer, '?', BUFLEN);
@@ -3496,7 +3496,7 @@ if (veryVerbose) {
                             }
                         }
 
-                        // 'generate' to a 'string'
+                        // `generate` to a `string`
                         {
                             bsl::string mS("qwerty");
 
@@ -3530,7 +3530,7 @@ if (veryVerbose) {
                         }
 #endif
 
-                        // 'generate' to an 'ostream'
+                        // `generate` to an `ostream`
                         {
                             bsl::ostringstream os;
 
@@ -3542,7 +3542,7 @@ if (veryVerbose) {
                             if (veryVerbose) { P_(EXPECTED) P(os.str()); }
                         }
 
-                        // 'generateRaw'
+                        // `generateRaw`
                         {
                             bsl::memset(buffer, '?', BUFLEN);
 
@@ -3559,10 +3559,10 @@ if (veryVerbose) {
                                                      buffer + OUTLEN,
                                                      BUFLEN - OUTLEN));
                         }
-                    }  // loop over 'CNFG_DATA'
-                }  // loop over 'ZONE_DATA'
-            }  // loop over 'TIME_DATA'
-        }  // loop over 'DATE_DATA'
+                    }  // loop over `CNFG_DATA`
+                }  // loop over `ZONE_DATA`
+            }  // loop over `TIME_DATA`
+        }  // loop over `DATE_DATA`
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
@@ -3632,50 +3632,50 @@ if (veryVerbose) {
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // GENERATE 'TimeTz'
+        // GENERATE `TimeTz`
         //
         // Concerns:
-        //: 1 The output generated by each method has the expected format and
-        //:   contents.
-        //:
-        //: 2 When sufficient capacity is indicated, the method taking
-        //:   'bufferLength' generates a null terminator.
-        //:
-        //: 3 Each method returns the expected value (the correct character
-        //:   count or the supplied 'ostream', depending on the return type).
-        //:
-        //: 4 The value of the supplied object is unchanged.
-        //:
-        //: 5 The configuration that is in effect, whether user-supplied or the
-        //:   process-wide default, has the desired affect on the output.
-        //:
-        //: 6 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The output generated by each method has the expected format and
+        //    contents.
+        //
+        // 2. When sufficient capacity is indicated, the method taking
+        //    `bufferLength` generates a null terminator.
+        //
+        // 3. Each method returns the expected value (the correct character
+        //    count or the supplied `ostream`, depending on the return type).
+        //
+        // 4. The value of the supplied object is unchanged.
+        //
+        // 5. The configuration that is in effect, whether user-supplied or the
+        //    process-wide default, has the desired affect on the output.
+        //
+        // 6. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   'Time' values (one per row) and their corresponding FIX
-        //:   string representations.
-        //:
-        //: 2 In a second table, specify a set of distinct timezone values (one
-        //:   per row) and their corresponding FIX string representations.
-        //:
-        //: 3 For each element 'R' in the cross product of the tables from P-1
-        //:   and P-2:  (C-1..5)
-        //:
-        //:   1 Create a 'const' 'TimeTz' object, 'X', from 'R'.
-        //:
-        //:   2 Invoke the six methods under test on 'X' for all possible
-        //:     configurations.  Also exercise the method taking 'bufferLength'
-        //:     for all buffer lengths in the range '[0 .. L]', where 'L'
-        //:     provides sufficient capacity for a null terminator and a few
-        //:     extra characters.  For each call, verify that the generated
-        //:     output matches the string from 'R' (taking the affect of the
-        //:     configuration into account), a null terminator is appended when
-        //:     expected, and the return value is correct.  (C-1..5)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid arguments, but not triggered for adjacent
-        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    `Time` values (one per row) and their corresponding FIX
+        //    string representations.
+        //
+        // 2. In a second table, specify a set of distinct timezone values (one
+        //    per row) and their corresponding FIX string representations.
+        //
+        // 3. For each element `R` in the cross product of the tables from P-1
+        //    and P-2:  (C-1..5)
+        //
+        //   1. Create a `const` `TimeTz` object, `X`, from `R`.
+        //
+        //   2. Invoke the six methods under test on `X` for all possible
+        //      configurations.  Also exercise the method taking `bufferLength`
+        //      for all buffer lengths in the range `[0 .. L]`, where `L`
+        //      provides sufficient capacity for a null terminator and a few
+        //      extra characters.  For each call, verify that the generated
+        //      output matches the string from `R` (taking the affect of the
+        //      configuration into account), a null terminator is appended when
+        //      expected, and the return value is correct.  (C-1..5)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid arguments, but not triggered for adjacent
+        //    valid ones (using the `BSLS_ASSERTTEST_*` macros).  (C-6)
         //
         // Testing:
         //   int generate(char *, int, const TimeTz&);
@@ -3689,7 +3689,7 @@ if (veryVerbose) {
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "GENERATE 'TimeTz'" << endl
+                          << "GENERATE `TimeTz`" << endl
                           << "=================" << endl;
 
         typedef bdlt::TimeTz TYPE;
@@ -3756,7 +3756,7 @@ if (veryVerbose) {
 
                     Config::setDefaultConfiguration(C);
 
-                    // 'k_TIMETZ_MAX_PRECISION' ensures no fractional seconds.
+                    // `k_TIMETZ_MAX_PRECISION` ensures no fractional seconds.
 
                     bsl::string EXPECTED(BASE_EXPECTED);
                     updateExpectedPerConfig(&EXPECTED,
@@ -3765,7 +3765,7 @@ if (veryVerbose) {
 
                     const int OUTLEN = static_cast<int>(EXPECTED.length());
 
-                    // 'generate' taking 'bufferLength'
+                    // `generate` taking `bufferLength`
 
                     for (int k = 0; k < BUFLEN; ++k) {
                         bsl::memset(buffer, '?', BUFLEN);
@@ -3799,7 +3799,7 @@ if (veryVerbose) {
                         }
                     }
 
-                    // 'generate' to a 'string'
+                    // `generate` to a `string`
                     {
                         bsl::string mS("qwerty");
 
@@ -3833,7 +3833,7 @@ if (veryVerbose) {
                     }
 #endif
 
-                    // 'generate' to an 'ostream'
+                    // `generate` to an `ostream`
                     {
                         bsl::ostringstream os;
 
@@ -3845,7 +3845,7 @@ if (veryVerbose) {
                         if (veryVerbose) { P_(EXPECTED) P(os.str()); }
                     }
 
-                    // 'generateRaw'
+                    // `generateRaw`
                     {
                         bsl::memset(buffer, '?', BUFLEN);
 
@@ -3862,7 +3862,7 @@ if (veryVerbose) {
                                                  buffer + OUTLEN,
                                                  BUFLEN - OUTLEN));
                     }
-                }  // loop over 'CNFG_DATA'
+                }  // loop over `CNFG_DATA`
 
                 for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                     const int  CLINE     = CNFG_DATA[tc].d_line;
@@ -3876,13 +3876,13 @@ if (veryVerbose) {
                     Config mC;  const Config& C = mC;
                     gg(&mC, PRECISION, USEZ);
 
-                    // Set the default configuration to the complement of 'C'.
+                    // Set the default configuration to the complement of `C`.
 
                     Config mDFLT;  const Config& DFLT = mDFLT;
                     gg(&mDFLT, 9 - PRECISION, !USEZ);
                     Config::setDefaultConfiguration(DFLT);
 
-                    // 'k_TIMETZ_MAX_PRECISION' ensures no fractional seconds.
+                    // `k_TIMETZ_MAX_PRECISION` ensures no fractional seconds.
 
                     bsl::string EXPECTED(BASE_EXPECTED);
                     updateExpectedPerConfig(&EXPECTED,
@@ -3891,7 +3891,7 @@ if (veryVerbose) {
 
                     const int OUTLEN = static_cast<int>(EXPECTED.length());
 
-                    // 'generate' taking 'bufferLength'
+                    // `generate` taking `bufferLength`
 
                     for (int k = 0; k < BUFLEN; ++k) {
                         bsl::memset(buffer, '?', BUFLEN);
@@ -3924,7 +3924,7 @@ if (veryVerbose) {
                         }
                     }
 
-                    // 'generate' to a 'string'
+                    // `generate` to a `string`
                     {
                         bsl::string mS("qwerty");
 
@@ -3958,7 +3958,7 @@ if (veryVerbose) {
                     }
 #endif
 
-                    // 'generate' to an 'ostream'
+                    // `generate` to an `ostream`
                     {
                         bsl::ostringstream os;
 
@@ -3970,7 +3970,7 @@ if (veryVerbose) {
                         if (veryVerbose) { P_(EXPECTED) P(os.str()); }
                     }
 
-                    // 'generateRaw'
+                    // `generateRaw`
                     {
                         bsl::memset(buffer, '?', BUFLEN);
 
@@ -3987,9 +3987,9 @@ if (veryVerbose) {
                                                  buffer + OUTLEN,
                                                  BUFLEN - OUTLEN));
                     }
-                }  // loop over 'CNFG_DATA'
-            }  // loop over 'ZONE_DATA'
-        }  // loop over 'TIME_DATA'
+                }  // loop over `CNFG_DATA`
+            }  // loop over `ZONE_DATA`
+        }  // loop over `TIME_DATA`
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
@@ -4059,50 +4059,50 @@ if (veryVerbose) {
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // GENERATE 'DateTz'
+        // GENERATE `DateTz`
         //
         // Concerns:
-        //: 1 The output generated by each method has the expected format and
-        //:   contents.
-        //:
-        //: 2 When sufficient capacity is indicated, the method taking
-        //:   'bufferLength' generates a null terminator.
-        //:
-        //: 3 Each method returns the expected value (the correct character
-        //:   count or the supplied 'ostream', depending on the return type).
-        //:
-        //: 4 The value of the supplied object is unchanged.
-        //:
-        //: 5 The configuration that is in effect, whether user-supplied or the
-        //:   process-wide default, has the desired affect on the output.
-        //:
-        //: 6 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The output generated by each method has the expected format and
+        //    contents.
+        //
+        // 2. When sufficient capacity is indicated, the method taking
+        //    `bufferLength` generates a null terminator.
+        //
+        // 3. Each method returns the expected value (the correct character
+        //    count or the supplied `ostream`, depending on the return type).
+        //
+        // 4. The value of the supplied object is unchanged.
+        //
+        // 5. The configuration that is in effect, whether user-supplied or the
+        //    process-wide default, has the desired affect on the output.
+        //
+        // 6. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   'Date' values (one per row) and their corresponding FIX
-        //:   string representations.
-        //:
-        //: 2 In a second table, specify a set of distinct timezone values (one
-        //:   per row) and their corresponding FIX string representations.
-        //:
-        //: 3 For each element 'R' in the cross product of the tables from P-1
-        //:   and P-2:  (C-1..5)
-        //:
-        //:   1 Create a 'const' 'DateTz' object, 'X', from 'R'.
-        //:
-        //:   2 Invoke the six methods under test on 'X' for all possible
-        //:     configurations.  Also exercise the method taking 'bufferLength'
-        //:     for all buffer lengths in the range '[0 .. L]', where 'L'
-        //:     provides sufficient capacity for a null terminator and a few
-        //:     extra characters.  For each call, verify that the generated
-        //:     output matches the string from 'R' (taking the affect of the
-        //:     configuration into account), a null terminator is appended when
-        //:     expected, and the return value is correct.  (C-1..5)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid arguments, but not triggered for adjacent
-        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    `Date` values (one per row) and their corresponding FIX
+        //    string representations.
+        //
+        // 2. In a second table, specify a set of distinct timezone values (one
+        //    per row) and their corresponding FIX string representations.
+        //
+        // 3. For each element `R` in the cross product of the tables from P-1
+        //    and P-2:  (C-1..5)
+        //
+        //   1. Create a `const` `DateTz` object, `X`, from `R`.
+        //
+        //   2. Invoke the six methods under test on `X` for all possible
+        //      configurations.  Also exercise the method taking `bufferLength`
+        //      for all buffer lengths in the range `[0 .. L]`, where `L`
+        //      provides sufficient capacity for a null terminator and a few
+        //      extra characters.  For each call, verify that the generated
+        //      output matches the string from `R` (taking the affect of the
+        //      configuration into account), a null terminator is appended when
+        //      expected, and the return value is correct.  (C-1..5)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid arguments, but not triggered for adjacent
+        //    valid ones (using the `BSLS_ASSERTTEST_*` macros).  (C-6)
         //
         // Testing:
         //   int generate(char *, int, const DateTz&);
@@ -4116,7 +4116,7 @@ if (veryVerbose) {
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "GENERATE 'DateTz'" << endl
+                          << "GENERATE `DateTz`" << endl
                           << "=================" << endl;
 
         typedef bdlt::DateTz TYPE;
@@ -4184,7 +4184,7 @@ if (veryVerbose) {
 
                     const int OUTLEN = static_cast<int>(EXPECTED.length());
 
-                    // 'generate' taking 'bufferLength'
+                    // `generate` taking `bufferLength`
 
                     for (int k = 0; k < BUFLEN; ++k) {
                         bsl::memset(buffer, '?', BUFLEN);
@@ -4218,7 +4218,7 @@ if (veryVerbose) {
                         }
                     }
 
-                    // 'generate' to a 'string'
+                    // `generate` to a `string`
                     {
                         bsl::string mS("qwerty");
 
@@ -4252,7 +4252,7 @@ if (veryVerbose) {
                     }
 #endif
 
-                    // 'generate' to an 'ostream'
+                    // `generate` to an `ostream`
                     {
                         bsl::ostringstream os;
 
@@ -4264,7 +4264,7 @@ if (veryVerbose) {
                         if (veryVerbose) { P_(EXPECTED) P(os.str()); }
                     }
 
-                    // 'generateRaw'
+                    // `generateRaw`
                     {
                         bsl::memset(buffer, '?', BUFLEN);
 
@@ -4281,7 +4281,7 @@ if (veryVerbose) {
                                                  buffer + OUTLEN,
                                                  BUFLEN - OUTLEN));
                     }
-                }  // loop over 'CNFG_DATA'
+                }  // loop over `CNFG_DATA`
 
                 for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                     const int  CLINE     = CNFG_DATA[tc].d_line;
@@ -4295,7 +4295,7 @@ if (veryVerbose) {
                     Config mC;  const Config& C = mC;
                     gg(&mC, PRECISION, USEZ);
 
-                    // Set the default configuration to the complement of 'C'.
+                    // Set the default configuration to the complement of `C`.
 
                     Config mDFLT;  const Config& DFLT = mDFLT;
                     gg(&mDFLT, 9 - PRECISION, !USEZ);
@@ -4308,7 +4308,7 @@ if (veryVerbose) {
 
                     const int OUTLEN = static_cast<int>(EXPECTED.length());
 
-                    // 'generate' taking 'bufferLength'
+                    // `generate` taking `bufferLength`
 
                     for (int k = 0; k < BUFLEN; ++k) {
                         bsl::memset(buffer, '?', BUFLEN);
@@ -4341,7 +4341,7 @@ if (veryVerbose) {
                         }
                     }
 
-                    // 'generate' to a 'string'
+                    // `generate` to a `string`
                     {
                         bsl::string mS("qwerty");
 
@@ -4375,7 +4375,7 @@ if (veryVerbose) {
                     }
 #endif
 
-                    // 'generate' to an 'ostream'
+                    // `generate` to an `ostream`
                     {
                         bsl::ostringstream os;
 
@@ -4387,7 +4387,7 @@ if (veryVerbose) {
                         if (veryVerbose) { P_(EXPECTED) P(os.str()); }
                     }
 
-                    // 'generateRaw'
+                    // `generateRaw`
                     {
                         bsl::memset(buffer, '?', BUFLEN);
 
@@ -4404,9 +4404,9 @@ if (veryVerbose) {
                                                  buffer + OUTLEN,
                                                  BUFLEN - OUTLEN));
                     }
-                }  // loop over 'CNFG_DATA'
-            }  // loop over 'ZONE_DATA'
-        }  // loop over 'DATE_DATA'
+                }  // loop over `CNFG_DATA`
+            }  // loop over `ZONE_DATA`
+        }  // loop over `DATE_DATA`
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
@@ -4476,50 +4476,50 @@ if (veryVerbose) {
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // GENERATE 'Datetime'
+        // GENERATE `Datetime`
         //
         // Concerns:
-        //: 1 The output generated by each method has the expected format and
-        //:   contents.
-        //:
-        //: 2 When sufficient capacity is indicated, the method taking
-        //:   'bufferLength' generates a null terminator.
-        //:
-        //: 3 Each method returns the expected value (the correct character
-        //:   count or the supplied 'ostream', depending on the return type).
-        //:
-        //: 4 The value of the supplied object is unchanged.
-        //:
-        //: 5 The configuration that is in effect, whether user-supplied or the
-        //:   process-wide default, has the desired affect on the output.
-        //:
-        //: 6 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The output generated by each method has the expected format and
+        //    contents.
+        //
+        // 2. When sufficient capacity is indicated, the method taking
+        //    `bufferLength` generates a null terminator.
+        //
+        // 3. Each method returns the expected value (the correct character
+        //    count or the supplied `ostream`, depending on the return type).
+        //
+        // 4. The value of the supplied object is unchanged.
+        //
+        // 5. The configuration that is in effect, whether user-supplied or the
+        //    process-wide default, has the desired affect on the output.
+        //
+        // 6. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   'Date' values (one per row) and their corresponding FIX
-        //:   string representations.
-        //:
-        //: 2 In a second table, specify a set of distinct 'Time' values (one
-        //:   per row) and their corresponding FIX string representations.
-        //:
-        //: 3 For each element 'R' in the cross product of the tables from P-1
-        //:   and P-2:  (C-1..5)
-        //:
-        //:   1 Create a 'const' 'Datetime' object, 'X', from 'R'.
-        //:
-        //:   2 Invoke the six methods under test on 'X' for all possible
-        //:     configurations.  Also exercise the method taking 'bufferLength'
-        //:     for all buffer lengths in the range '[0 .. L]', where 'L'
-        //:     provides sufficient capacity for a null terminator and a few
-        //:     extra characters.  For each call, verify that the generated
-        //:     output matches the string from 'R' (taking the affect of the
-        //:     configuration into account), a null terminator is appended when
-        //:     expected, and the return value is correct.  (C-1..5)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid arguments, but not triggered for adjacent
-        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    `Date` values (one per row) and their corresponding FIX
+        //    string representations.
+        //
+        // 2. In a second table, specify a set of distinct `Time` values (one
+        //    per row) and their corresponding FIX string representations.
+        //
+        // 3. For each element `R` in the cross product of the tables from P-1
+        //    and P-2:  (C-1..5)
+        //
+        //   1. Create a `const` `Datetime` object, `X`, from `R`.
+        //
+        //   2. Invoke the six methods under test on `X` for all possible
+        //      configurations.  Also exercise the method taking `bufferLength`
+        //      for all buffer lengths in the range `[0 .. L]`, where `L`
+        //      provides sufficient capacity for a null terminator and a few
+        //      extra characters.  For each call, verify that the generated
+        //      output matches the string from `R` (taking the affect of the
+        //      configuration into account), a null terminator is appended when
+        //      expected, and the return value is correct.  (C-1..5)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid arguments, but not triggered for adjacent
+        //    valid ones (using the `BSLS_ASSERTTEST_*` macros).  (C-6)
         //
         // Testing:
         //   int generate(char *, int, const Datetime&);
@@ -4533,7 +4533,7 @@ if (veryVerbose) {
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "GENERATE 'Datetime'" << endl
+                          << "GENERATE `Datetime`" << endl
                           << "===================" << endl;
 
         typedef bdlt::Datetime TYPE;
@@ -4613,7 +4613,7 @@ if (veryVerbose) {
 
                     const int OUTLEN = static_cast<int>(EXPECTED.length());
 
-                    // 'generate' taking 'bufferLength'
+                    // `generate` taking `bufferLength`
 
                     for (int k = 0; k < BUFLEN; ++k) {
                         bsl::memset(buffer, '?', BUFLEN);
@@ -4647,7 +4647,7 @@ if (veryVerbose) {
                         }
                     }
 
-                    // 'generate' to a 'string'
+                    // `generate` to a `string`
                     {
                         bsl::string mS("qwerty");
 
@@ -4681,7 +4681,7 @@ if (veryVerbose) {
                     }
 #endif
 
-                    // 'generate' to an 'ostream'
+                    // `generate` to an `ostream`
                     {
                         bsl::ostringstream os;
 
@@ -4693,7 +4693,7 @@ if (veryVerbose) {
                         if (veryVerbose) { P_(EXPECTED) P(os.str()); }
                     }
 
-                    // 'generateRaw'
+                    // `generateRaw`
                     {
                         bsl::memset(buffer, '?', BUFLEN);
 
@@ -4710,7 +4710,7 @@ if (veryVerbose) {
                                                  buffer + OUTLEN,
                                                  BUFLEN - OUTLEN));
                     }
-                }  // loop over 'CNFG_DATA'
+                }  // loop over `CNFG_DATA`
 
                 for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                     const int  CLINE     = CNFG_DATA[tc].d_line;
@@ -4724,7 +4724,7 @@ if (veryVerbose) {
                     Config mC;  const Config& C = mC;
                     gg(&mC, PRECISION, USEZ);
 
-                    // Set the default configuration to the complement of 'C'.
+                    // Set the default configuration to the complement of `C`.
 
                     Config mDFLT;  const Config& DFLT = mDFLT;
                     gg(&mDFLT, 9 - PRECISION, !USEZ);
@@ -4737,7 +4737,7 @@ if (veryVerbose) {
 
                     const int OUTLEN = static_cast<int>(EXPECTED.length());
 
-                    // 'generate' taking 'bufferLength'
+                    // `generate` taking `bufferLength`
 
                     for (int k = 0; k < BUFLEN; ++k) {
                         bsl::memset(buffer, '?', BUFLEN);
@@ -4770,7 +4770,7 @@ if (veryVerbose) {
                         }
                     }
 
-                    // 'generate' to a 'string'
+                    // `generate` to a `string`
                     {
                         bsl::string mS("qwerty");
 
@@ -4804,7 +4804,7 @@ if (veryVerbose) {
                     }
 #endif
 
-                    // 'generate' to an 'ostream'
+                    // `generate` to an `ostream`
                     {
                         bsl::ostringstream os;
 
@@ -4816,7 +4816,7 @@ if (veryVerbose) {
                         if (veryVerbose) { P_(EXPECTED) P(os.str()); }
                     }
 
-                    // 'generateRaw'
+                    // `generateRaw`
                     {
                         bsl::memset(buffer, '?', BUFLEN);
 
@@ -4833,9 +4833,9 @@ if (veryVerbose) {
                                                  buffer + OUTLEN,
                                                  BUFLEN - OUTLEN));
                     }
-                }  // loop over 'CNFG_DATA'
-            }  // loop over 'TIME_DATA'
-        }  // loop over 'DATE_DATA'
+                }  // loop over `CNFG_DATA`
+            }  // loop over `TIME_DATA`
+        }  // loop over `DATE_DATA`
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
@@ -4905,46 +4905,46 @@ if (veryVerbose) {
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // GENERATE 'Time'
+        // GENERATE `Time`
         //
         // Concerns:
-        //: 1 The output generated by each method has the expected format and
-        //:   contents.
-        //:
-        //: 2 When sufficient capacity is indicated, the method taking
-        //:   'bufferLength' generates a null terminator.
-        //:
-        //: 3 Each method returns the expected value (the correct character
-        //:   count or the supplied 'ostream', depending on the return type).
-        //:
-        //: 4 The value of the supplied object is unchanged.
-        //:
-        //: 5 The configuration that is in effect, whether user-supplied or the
-        //:   process-wide default, has the desired affect on the output.
-        //:
-        //: 6 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The output generated by each method has the expected format and
+        //    contents.
+        //
+        // 2. When sufficient capacity is indicated, the method taking
+        //    `bufferLength` generates a null terminator.
+        //
+        // 3. Each method returns the expected value (the correct character
+        //    count or the supplied `ostream`, depending on the return type).
+        //
+        // 4. The value of the supplied object is unchanged.
+        //
+        // 5. The configuration that is in effect, whether user-supplied or the
+        //    process-wide default, has the desired affect on the output.
+        //
+        // 6. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   'Time' values (one per row) and their corresponding FIX
-        //:   string representations.
-        //:
-        //: 2 For each row 'R' in the table from P-1:  (C-1..5)
-        //:
-        //:   1 Create a 'const' 'Time' object, 'X', from 'R'.
-        //:
-        //:   2 Invoke the six methods under test on 'X' for all possible
-        //:     configurations.  Also exercise the method taking 'bufferLength'
-        //:     for all buffer lengths in the range '[0 .. L]', where 'L'
-        //:     provides sufficient capacity for a null terminator and a few
-        //:     extra characters.  For each call, verify that the generated
-        //:     output matches the string from 'R' (taking the affect of the
-        //:     configuration into account), a null terminator is appended when
-        //:     expected, and the return value is correct.  (C-1..5)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid arguments, but not triggered for adjacent
-        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    `Time` values (one per row) and their corresponding FIX
+        //    string representations.
+        //
+        // 2. For each row `R` in the table from P-1:  (C-1..5)
+        //
+        //   1. Create a `const` `Time` object, `X`, from `R`.
+        //
+        //   2. Invoke the six methods under test on `X` for all possible
+        //      configurations.  Also exercise the method taking `bufferLength`
+        //      for all buffer lengths in the range `[0 .. L]`, where `L`
+        //      provides sufficient capacity for a null terminator and a few
+        //      extra characters.  For each call, verify that the generated
+        //      output matches the string from `R` (taking the affect of the
+        //      configuration into account), a null terminator is appended when
+        //      expected, and the return value is correct.  (C-1..5)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid arguments, but not triggered for adjacent
+        //    valid ones (using the `BSLS_ASSERTTEST_*` macros).  (C-6)
         //
         // Testing:
         //   int generate(char *, int, const Time&);
@@ -4958,7 +4958,7 @@ if (veryVerbose) {
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "GENERATE 'Time'" << endl
+                          << "GENERATE `Time`" << endl
                           << "===============" << endl;
 
         typedef bdlt::Time TYPE;
@@ -5012,7 +5012,7 @@ if (veryVerbose) {
 
                 const int OUTLEN = static_cast<int>(EXPECTED.length());
 
-                // 'generate' taking 'bufferLength'
+                // `generate` taking `bufferLength`
 
                 for (int k = 0; k < BUFLEN; ++k) {
                     bsl::memset(buffer, '?', BUFLEN);
@@ -5045,7 +5045,7 @@ if (veryVerbose) {
                     }
                 }
 
-                // 'generate' to a 'string'
+                // `generate` to a `string`
                 {
                     bsl::string mS("qwerty");
 
@@ -5076,7 +5076,7 @@ if (veryVerbose) {
                 }
 #endif
 
-                // 'generate' to an 'ostream'
+                // `generate` to an `ostream`
                 {
                     bsl::ostringstream os;
 
@@ -5087,7 +5087,7 @@ if (veryVerbose) {
                     if (veryVerbose) { P_(EXPECTED) P(os.str()); }
                 }
 
-                // 'generateRaw'
+                // `generateRaw`
                 {
                     bsl::memset(buffer, '?', BUFLEN);
 
@@ -5104,7 +5104,7 @@ if (veryVerbose) {
                                              buffer + OUTLEN,
                                              BUFLEN - OUTLEN));
                 }
-            }  // loop over 'CNFG_DATA'
+            }  // loop over `CNFG_DATA`
 
             for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                 const int  CLINE     = CNFG_DATA[tc].d_line;
@@ -5118,7 +5118,7 @@ if (veryVerbose) {
                 Config mC;  const Config& C = mC;
                 gg(&mC, PRECISION, USEZ);
 
-                // Set the default configuration to the complement of 'C'.
+                // Set the default configuration to the complement of `C`.
 
                 Config mDFLT;  const Config& DFLT = mDFLT;
                 gg(&mDFLT, 9 - PRECISION, !USEZ);
@@ -5131,7 +5131,7 @@ if (veryVerbose) {
 
                 const int OUTLEN = static_cast<int>(EXPECTED.length());
 
-                // 'generate' taking 'bufferLength'
+                // `generate` taking `bufferLength`
 
                 for (int k = 0; k < BUFLEN; ++k) {
                     bsl::memset(buffer, '?', BUFLEN);
@@ -5164,7 +5164,7 @@ if (veryVerbose) {
                     }
                 }
 
-                // 'generate' to a 'string'
+                // `generate` to a `string`
                 {
                     bsl::string mS("qwerty");
 
@@ -5198,7 +5198,7 @@ if (veryVerbose) {
                 }
 #endif
 
-                // 'generate' to an 'ostream'
+                // `generate` to an `ostream`
                 {
                     bsl::ostringstream os;
 
@@ -5209,7 +5209,7 @@ if (veryVerbose) {
                     if (veryVerbose) { P_(EXPECTED) P(os.str()); }
                 }
 
-                // 'generateRaw'
+                // `generateRaw`
                 {
                     bsl::memset(buffer, '?', BUFLEN);
 
@@ -5226,8 +5226,8 @@ if (veryVerbose) {
                                              buffer + OUTLEN,
                                              BUFLEN - OUTLEN));
                 }
-            }  // loop over 'CNFG_DATA'
-        }  // loop over 'TIME_DATA'
+            }  // loop over `CNFG_DATA`
+        }  // loop over `TIME_DATA`
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
@@ -5297,46 +5297,46 @@ if (veryVerbose) {
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // GENERATE 'Date'
+        // GENERATE `Date`
         //
         // Concerns:
-        //: 1 The output generated by each method has the expected format and
-        //:   contents.
-        //:
-        //: 2 When sufficient capacity is indicated, the method taking
-        //:   'bufferLength' generates a null terminator.
-        //:
-        //: 3 Each method returns the expected value (the correct character
-        //:   count or the supplied 'ostream', depending on the return type).
-        //:
-        //: 4 The value of the supplied object is unchanged.
-        //:
-        //: 5 The configuration that is in effect, whether user-supplied or the
-        //:   process-wide default, has the desired affect on the output.
-        //:
-        //: 6 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The output generated by each method has the expected format and
+        //    contents.
+        //
+        // 2. When sufficient capacity is indicated, the method taking
+        //    `bufferLength` generates a null terminator.
+        //
+        // 3. Each method returns the expected value (the correct character
+        //    count or the supplied `ostream`, depending on the return type).
+        //
+        // 4. The value of the supplied object is unchanged.
+        //
+        // 5. The configuration that is in effect, whether user-supplied or the
+        //    process-wide default, has the desired affect on the output.
+        //
+        // 6. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   'Date' values (one per row) and their corresponding FIX
-        //:   string representations.
-        //:
-        //: 2 For each row 'R' in the table from P-1:  (C-1..5)
-        //:
-        //:   1 Create a 'const' 'Date' object, 'X', from 'R'.
-        //:
-        //:   2 Invoke the six methods under test on 'X' for all possible
-        //:     configurations.  Also exercise the method taking 'bufferLength'
-        //:     for all buffer lengths in the range '[0 .. L]', where 'L'
-        //:     provides sufficient capacity for a null terminator and a few
-        //:     extra characters.  For each call, verify that the generated
-        //:     output matches the string from 'R' (taking the affect of the
-        //:     configuration into account), a null terminator is appended when
-        //:     expected, and the return value is correct.  (C-1..5)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid arguments, but not triggered for adjacent
-        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    `Date` values (one per row) and their corresponding FIX
+        //    string representations.
+        //
+        // 2. For each row `R` in the table from P-1:  (C-1..5)
+        //
+        //   1. Create a `const` `Date` object, `X`, from `R`.
+        //
+        //   2. Invoke the six methods under test on `X` for all possible
+        //      configurations.  Also exercise the method taking `bufferLength`
+        //      for all buffer lengths in the range `[0 .. L]`, where `L`
+        //      provides sufficient capacity for a null terminator and a few
+        //      extra characters.  For each call, verify that the generated
+        //      output matches the string from `R` (taking the affect of the
+        //      configuration into account), a null terminator is appended when
+        //      expected, and the return value is correct.  (C-1..5)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid arguments, but not triggered for adjacent
+        //    valid ones (using the `BSLS_ASSERTTEST_*` macros).  (C-6)
         //
         // Testing:
         //   int generate(char *, int, const Date&);
@@ -5350,7 +5350,7 @@ if (veryVerbose) {
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "GENERATE 'Date'" << endl
+                          << "GENERATE `Date`" << endl
                           << "===============" << endl;
 
         typedef bdlt::Date TYPE;
@@ -5402,7 +5402,7 @@ if (veryVerbose) {
 
                 const int OUTLEN = static_cast<int>(EXPECTED.length());
 
-                // 'generate' taking 'bufferLength'
+                // `generate` taking `bufferLength`
 
                 for (int k = 0; k < BUFLEN; ++k) {
                     bsl::memset(buffer, '?', BUFLEN);
@@ -5435,7 +5435,7 @@ if (veryVerbose) {
                     }
                 }
 
-                // 'generate' to a 'string'
+                // `generate` to a `string`
                 {
                     bsl::string mS("qwerty");
 
@@ -5466,7 +5466,7 @@ if (veryVerbose) {
                 }
 #endif
 
-                // 'generate' to an 'ostream'
+                // `generate` to an `ostream`
                 {
                     bsl::ostringstream os;
 
@@ -5477,7 +5477,7 @@ if (veryVerbose) {
                     if (veryVerbose) { P_(EXPECTED) P(os.str()); }
                 }
 
-                // 'generateRaw'
+                // `generateRaw`
                 {
                     bsl::memset(buffer, '?', BUFLEN);
 
@@ -5494,7 +5494,7 @@ if (veryVerbose) {
                                              buffer + OUTLEN,
                                              BUFLEN - OUTLEN));
                 }
-            }  // loop over 'CNFG_DATA'
+            }  // loop over `CNFG_DATA`
 
             for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
                 const int  CLINE     = CNFG_DATA[tc].d_line;
@@ -5508,7 +5508,7 @@ if (veryVerbose) {
                 Config mC;  const Config& C = mC;
                 gg(&mC, PRECISION, USEZ);
 
-                // Set the default configuration to the complement of 'C'.
+                // Set the default configuration to the complement of `C`.
 
                 Config mDFLT;  const Config& DFLT = mDFLT;
                 gg(&mDFLT, 9 - PRECISION, !USEZ);
@@ -5521,7 +5521,7 @@ if (veryVerbose) {
 
                 const int OUTLEN = static_cast<int>(EXPECTED.length());
 
-                // 'generate' taking 'bufferLength'
+                // `generate` taking `bufferLength`
 
                 for (int k = 0; k < BUFLEN; ++k) {
                     bsl::memset(buffer, '?', BUFLEN);
@@ -5554,7 +5554,7 @@ if (veryVerbose) {
                     }
                 }
 
-                // 'generate' to a 'string'
+                // `generate` to a `string`
                 {
                     bsl::string mS("qwerty");
 
@@ -5588,7 +5588,7 @@ if (veryVerbose) {
                 }
 #endif
 
-                // 'generate' to an 'ostream'
+                // `generate` to an `ostream`
                 {
                     bsl::ostringstream os;
 
@@ -5599,7 +5599,7 @@ if (veryVerbose) {
                     if (veryVerbose) { P_(EXPECTED) P(os.str()); }
                 }
 
-                // 'generateRaw'
+                // `generateRaw`
                 {
                     bsl::memset(buffer, '?', BUFLEN);
 
@@ -5616,8 +5616,8 @@ if (veryVerbose) {
                                              buffer + OUTLEN,
                                              BUFLEN - OUTLEN));
                 }
-            }  // loop over 'CNFG_DATA'
-        }  // loop over 'DATE_DATA'
+            }  // loop over `CNFG_DATA`
+        }  // loop over `DATE_DATA`
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {

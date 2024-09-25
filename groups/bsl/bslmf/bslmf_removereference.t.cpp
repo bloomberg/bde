@@ -8,11 +8,11 @@
 #include <bsls_platform.h>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-#include <type_traits>  // 'std::remove_reference', 'std::remove_reference_t'
+#include <type_traits>  // `std::remove_reference`, `std::remove_reference_t`
 #endif
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 
@@ -21,15 +21,15 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines two meta-functions, 'bsl::remove_reference'
-// and 'bslmf::RemoveReference', both of which remove the reference-ness of the
-// (template parameter) 'TYPE'.   Also the component defines an alias to the
-// result type of the 'bsl::remove_reference' meta-function.  Thus, we need to
+// The component under test defines two meta-functions, `bsl::remove_reference`
+// and `bslmf::RemoveReference`, both of which remove the reference-ness of the
+// (template parameter) `TYPE`.   Also the component defines an alias to the
+// result type of the `bsl::remove_reference` meta-function.  Thus, we need to
 // ensure that the values returned by these meta-functions are correct for each
 // possible category of types.
 //
-// 'bsl::remove_reference' and 'bsl::remove_reference_t' should be aliased to
-// 'std::remove_reference' and 'std::remove_reference_t', respectively when the
+// `bsl::remove_reference` and `bsl::remove_reference_t` should be aliased to
+// `std::remove_reference` and `std::remove_reference_t`, respectively when the
 // standard meta functions are available from the native library.
 //
 // ----------------------------------------------------------------------------
@@ -170,13 +170,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -194,8 +194,8 @@ int main(int argc, char *argv[])
 // Suppose that we want to remove reference-ness on a set of types.
 //
 // Now, for a set of types, we remove the reference-ness of each type using
-// 'bsl::remove_reference' and verify the result:
-//..
+// `bsl::remove_reference` and verify the result:
+// ```
     ASSERT(true  ==
                (bsl::is_same<bsl::remove_reference<int&>::type, int >::value));
     ASSERT(false ==
@@ -206,14 +206,14 @@ int main(int argc, char *argv[])
     ASSERT(true ==
               (bsl::is_same<bsl::remove_reference<int&&>::type, int >::value));
   #endif
-//..
+// ```
 // Note that rvalue reference is a feature introduced in the C++11 standard and
 // may not be supported by all compilers.
 //
 // Finally, if the current compiler supports alias templates C++11 feature, we
-// remove reference-ness from a set of types using 'bsl::remove_reference_t'
+// remove reference-ness from a set of types using `bsl::remove_reference_t`
 // and verify that the resulting type has any reference-ness removed:
-//..
+// ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
     ASSERT(true  ==
                   (bsl::is_same<bsl::remove_reference_t<int& >, int >::value));
@@ -226,7 +226,7 @@ int main(int argc, char *argv[])
                   (bsl::is_same<bsl::remove_reference_t<int&&>, int >::value));
 #endif
 #endif
-//..
+// ```
 
       } break;
       case 3: {
@@ -234,19 +234,19 @@ int main(int argc, char *argv[])
         // ALIASED TO STANDARD META FUNCTIONS
         //
         // Concerns:
-        //: 1 The meta functions 'bsl::remove_reference' and
-        //:   'bsl::remove_reference_v' should be aliased to their standard
-        //:   library analogs when the latter is available from the native
-        //:   library.
+        // 1. The meta functions `bsl::remove_reference` and
+        //    `bsl::remove_reference_v` should be aliased to their standard
+        //    library analogs when the latter is available from the native
+        //    library.
         //
         // Plan:
-        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' is
-        //:   defined, use 'bsl::is_same' to compare 'bsl::remove_reference' to
-        //:   'std::remove_reference' using a representative type.
-        //:
-        //: 2 When 'BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY' is
-        //:   defined, use 'bsl::is_same' to compare 'bsl::remove_reference_t'
-        //:   to 'std::remove_reference_t' using a representative type.
+        // 1. When `BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY` is
+        //    defined, use `bsl::is_same` to compare `bsl::remove_reference` to
+        //    `std::remove_reference` using a representative type.
+        //
+        // 2. When `BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY` is
+        //    defined, use `bsl::is_same` to compare `bsl::remove_reference_t`
+        //    to `std::remove_reference_t` using a representative type.
         //
         // Testing:
         //   CONCERN: Aliased to standard types when available.
@@ -259,14 +259,14 @@ int main(int argc, char *argv[])
         typedef int T;
 
         if (veryVerbose) printf(
-                          "\nTesting 'remove_reference' alias using 'int'.\n");
+                          "\nTesting `remove_reference` alias using `int`.\n");
 
         ASSERT((bsl::is_same<bsl::remove_reference<T>,
                              std::remove_reference<T> >::value));
 #endif
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
         if (veryVerbose) printf(
-                        "\nTesting 'remove_reference_t' alias using 'int'.\n");
+                        "\nTesting `remove_reference_t` alias using `int`.\n");
 
         ASSERT((bsl::is_same<bsl::remove_reference_t<T>,
                              std::remove_reference_t<T> >::value));
@@ -279,27 +279,27 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'bslmf::RemoveReference::Type'
-        //   Ensure that the 'typedef' 'Type' of 'bslmf::RemoveReference'
-        //   instantiations having various (template parameter) 'TYPE's has the
+        // TESTING `bslmf::RemoveReference::Type`
+        //   Ensure that the `typedef` `Type` of `bslmf::RemoveReference`
+        //   instantiations having various (template parameter) `TYPE`s has the
         //   correct value.
         //
         // Concerns:
-        //: 1 'RemoveReference' correctly removes reference-ness from 'TYPE' if
-        //:   'TYPE' is an (lvalue or rvalue) reference type.
-        //:
-        //: 2 'RemoveReference' does not transform 'TYPE' when 'TYPE' is not a
-        //:   reference type.
+        // 1. `RemoveReference` correctly removes reference-ness from `TYPE` if
+        //    `TYPE` is an (lvalue or rvalue) reference type.
+        //
+        // 2. `RemoveReference` does not transform `TYPE` when `TYPE` is not a
+        //    reference type.
         //
         // Plan:
-        //: 1 Instantiate 'bslmf::RemoveReference' with various types and
-        //:   verify that the 'Type' member is initialized properly.  (C-1)
+        // 1. Instantiate `bslmf::RemoveReference` with various types and
+        //    verify that the `Type` member is initialized properly.  (C-1)
         //
         // Testing:
         //   bslmf::RemoveReference::Type
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING 'bslmf::RemoveReference::Type'\n"
+        if (verbose) printf("TESTING `bslmf::RemoveReference::Type`\n"
                             "======================================\n");
 
         // C-1
@@ -363,36 +363,36 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'bsl::remove_reference::type'
-        //   Ensure that the 'typedef' 'type' of 'bsl::remove_reference'
-        //   instantiations having various (template parameter) 'TYPE's has the
+        // TESTING `bsl::remove_reference::type`
+        //   Ensure that the `typedef` `type` of `bsl::remove_reference`
+        //   instantiations having various (template parameter) `TYPE`s has the
         //   correct value.
         //
         // Concerns:
-        //: 1 'remove_reference' correctly removes reference-ness from 'TYPE'
-        //:   if 'TYPE' is an (lvalue or rvalue) reference type.
-        //:
-        //: 2 'remove_reference' does not transform 'TYPE' when 'TYPE' is not a
-        //:   reference type.
-        //:
-        //: 3 'remove_reference_t' represents the return type of
-        //:   'remove_reference' meta-function for a variety of template
-        //:   parameter types.
+        // 1. `remove_reference` correctly removes reference-ness from `TYPE`
+        //    if `TYPE` is an (lvalue or rvalue) reference type.
+        //
+        // 2. `remove_reference` does not transform `TYPE` when `TYPE` is not a
+        //    reference type.
+        //
+        // 3. `remove_reference_t` represents the return type of
+        //    `remove_reference` meta-function for a variety of template
+        //    parameter types.
         //
         // Plan:
-        //: 1 Instantiate 'bsl::remove_reference' with various types and
-        //:   verify that the 'type' member is initialized properly.  (C-1,2)
-        //:
-        //: 2 Verify that 'bsl::remove_reference_t' has the same type as the
-        //:   return type of 'bsl::remove_reference' for a variety of template
-        //:   parameter types. (C-3)
+        // 1. Instantiate `bsl::remove_reference` with various types and
+        //    verify that the `type` member is initialized properly.  (C-1,2)
+        //
+        // 2. Verify that `bsl::remove_reference_t` has the same type as the
+        //    return type of `bsl::remove_reference` for a variety of template
+        //    parameter types. (C-3)
         //
         // Testing:
         //   bsl::remove_reference::type
         //   bsl::remove_reference_t
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING 'bsl::remove_reference::type'\n"
+        if (verbose) printf("TESTING `bsl::remove_reference::type`\n"
                             "=====================================\n");
 
         // C-1
@@ -452,7 +452,7 @@ int main(int argc, char *argv[])
   #endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-        if (verbose) printf("TESTING 'bsl::remove_reference_t'\n"
+        if (verbose) printf("TESTING `bsl::remove_reference_t`\n"
                             "================================\n");
 
         // C-3

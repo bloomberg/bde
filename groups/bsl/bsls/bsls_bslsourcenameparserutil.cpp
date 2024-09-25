@@ -18,26 +18,26 @@ namespace {
 
                             // Text Comparison
 
+/// Return `true` if the `CLEN - 1` characters leading up to the specified
+/// `end`, `end` not included, are equal to the specified null-terminated
+/// `suffix` without its null terminator.  The behavior is undefined unless
+/// `end` points after a buffer of at least `CLEN - 1` characters.
 template <size_t CLEN>
 inline
 bool endsWith(const char *end, const char (&suffix)[CLEN])
-    // Return 'true' if the 'CLEN - 1' characters leading up to the specified
-    // 'end', 'end' not included, are equal to the specified null-terminated
-    // 'suffix' without its null terminator.  The behavior is undefined unless
-    // 'end' points after a buffer of at least 'CLEN - 1' characters.
 {
     const size_t k_LEN = CLEN - 1;
 
     return 0 == memcmp(end - k_LEN, suffix, k_LEN);
 }
 
+/// Return `true` if the first `CLEN - 1` characters from the specified
+/// `begin`, `begin` included, are equal to the specified null-terminated
+/// `prefix` without its null terminator.  The behavior is undefined unless
+/// `begin` points to a buffer of at least `CLEN - 1` characters.
 template <size_t CLEN>
 inline
 bool startsWith(const char *begin, const char (&prefix)[CLEN])
-    // Return 'true' if the first 'CLEN - 1' characters from the specified
-    // 'begin', 'begin' included, are equal to the specified null-terminated
-    // 'prefix' without its null terminator.  The behavior is undefined unless
-    // 'begin' points to a buffer of at least 'CLEN - 1' characters.
 {
     const size_t k_LEN = CLEN - 1;
 
@@ -46,15 +46,15 @@ bool startsWith(const char *begin, const char (&prefix)[CLEN])
 
                     // Delimiter Counting in Text
 
+/// Return `true` if the specified character `ch` occurs at least the
+/// specified `count` times within the specified [`begin` .. `end`) range.
+/// The behavior is undefined unless `begin` is not less than `end`.
 static
 inline
 bool hasAtLeastCountChar(const char *       begin,
                          const char * const end,
                          size_t             count,
                          char               ch)
-    // Return 'true' if the specified character 'ch' occurs at least the
-    // specified 'count' times within the specified ['begin' .. 'end') range.
-    // The behavior is undefined unless 'begin' is not less than 'end'.
 {
     for (; begin != end && 0 != count; ++begin) {
         if (*begin == ch) {
@@ -66,14 +66,14 @@ bool hasAtLeastCountChar(const char *       begin,
 
                       // Conditional "Movement" in Text
 
+/// Find the last occurrence of the specified character `ch`, within the
+/// specified [`begin` .. `end`) range and return a pointer to the character
+/// right after it, or `end` if it is the last character.  If `ch` is not
+/// found return `begin`.  The behavior is undefined if `begin` is greater
+/// than `end`.
 static
 inline
 const char *onePastLastChr(const char *const begin, const char *end, char ch)
-    // Find the last occurrence of the specified character 'ch', within the
-    // specified ['begin' .. 'end') range and return a pointer to the character
-    // right after it, or 'end' if it is the last character.  If 'ch' is not
-    // found return 'begin'.  The behavior is undefined if 'begin' is greater
-    // than 'end'.
 {
     while (end != begin) {
         --end;
@@ -86,11 +86,12 @@ const char *onePastLastChr(const char *const begin, const char *end, char ch)
 }
 
                // BDE-Style File Name Specific Helper Functions
+
+/// Return `true` if the specified `tag` is a lowercase US alphabetic/letter
+/// character or return `false` if it is some other character.
 static
 inline
 bool isAlphaTag(char tag)
-    // Return 'true' if the specified 'tag' is a lowercase US alphabetic/letter
-    // character or return 'false' if it is some other character.
 {
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 # pragma GCC diagnostic push
@@ -109,29 +110,29 @@ bool isAlphaTag(char tag)
     return tag >= 'a' && tag <= 'z';
 }
 
+/// Return `true` if the specified `tag` is a valid test driver tag
+/// character from a source name (`t` or `g`).
 static
 inline
 bool isTestDriverTag(char tag)
-    // Return 'true' if the specified 'tag' is a valid test driver tag
-    // character from a source name ('t' or 'g').
 {
     return 't' == tag || 'g' == tag;
 }
 
+/// Return `true` if the specified `sourceType` is a test driver type
+/// according to `SourceTypes`.
 static
 inline
 bool isTestDriverType(unsigned sourceType)
-    // Return 'true' if the specified 'sourceType' is a test driver type
-    // according to 'SourceTypes'.
 {
     using BloombergLP::bsls::BslSourceNameParserUtil;
     return 0 != (sourceType & BslSourceNameParserUtil::k_MASK_TEST);
 }
 
+/// Return a pointer to the first character of the specified `filename`
+/// after the last path delimiter.
 static
 const char *skipPath(const char *filename)
-    // Return a pointer to the first character of the specified 'filename'
-    // after the last path delimiter.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     static const char pathSeparators[] = ":/\\";

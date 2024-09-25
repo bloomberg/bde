@@ -18,7 +18,7 @@ using namespace bsl;
 //
 //                              Overview
 //                              --------
-// The component under test defines single function 'bsl::uncaught_exceptions'
+// The component under test defines single function `bsl::uncaught_exceptions`
 // that returns the number of uncaught exceptions on the current thread.
 //
 // ----------------------------------------------------------------------------
@@ -152,13 +152,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -189,15 +189,15 @@ int main(int argc, char *argv[])
         // NESTED EXCEPTIONS
         //
         // Concerns:
-        //: 1 While an exception is "in-flight", throwing and catching another
-        //:   exception does not call terminate, and the fact that two
-        //:   exceptions are active is reflected in the return value of
-        //:   'bsl::uncaught_exceptions'.
+        // 1. While an exception is "in-flight", throwing and catching another
+        //    exception does not call terminate, and the fact that two
+        //    exceptions are active is reflected in the return value of
+        //    `bsl::uncaught_exceptions`.
         //
         // Plan:
-        //: 1 Throw and catch an exception in the destructor of a class.  Throw
-        //:   an exception so that the class will be destroyed during stack
-        //:   unwinding.  Verify the value of 'bsl::uncaught_exceptions' (C-1)
+        // 1. Throw and catch an exception in the destructor of a class.  Throw
+        //    an exception so that the class will be destroyed during stack
+        //    unwinding.  Verify the value of `bsl::uncaught_exceptions` (C-1)
         //
         // Testing:
         //   NESTED EXCEPTIONS
@@ -224,20 +224,20 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 'bsl::uncaught_exceptions' returns an 'int'.
-        //: 2 'bsl::uncaught_exceptions' does not throw exceptions.
-        //: 3 The 'bsl::uncaught_exceptions' returns 0 when no exceptions are
-        //:   active.
-        //: 4 The 'bsl::uncaught_exceptions' returns 1 when a single exception
+        // 1. `bsl::uncaught_exceptions` returns an `int`.
+        // 2. `bsl::uncaught_exceptions` does not throw exceptions.
+        // 3. The `bsl::uncaught_exceptions` returns 0 when no exceptions are
+        //    active.
+        // 4. The `bsl::uncaught_exceptions` returns 1 when a single exception
         //    is active.
         //
         // Plan:
-        //: 1 Check the return type and noexcept status of
-        //:   'bsl::uncaught_exceptions' if possible.  (C-1,2)
-        //:
-        //: 2 Verify the return value of 'bsl::uncaught_exceptions' during
-        //:   normal operation and while processing an exception.  (C-3,4)
-        //:
+        // 1. Check the return type and noexcept status of
+        //    `bsl::uncaught_exceptions` if possible.  (C-1,2)
+        //
+        // 2. Verify the return value of `bsl::uncaught_exceptions` during
+        //    normal operation and while processing an exception.  (C-3,4)
+        //
         // Testing:
         //   BREATHING TEST
         // --------------------------------------------------------------------

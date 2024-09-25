@@ -111,22 +111,22 @@ struct IsSameType {
 //
 ///Example 1: Using Multiple Extractors to Sort an Array on Different Keys
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we want to define a 'sort' function which will work on a variety
-// of different object types.  The object has to have a 'key' within it,
-// possibly the whole object, which will compare with the 'key' of other
+// Suppose we want to define a `sort` function which will work on a variety
+// of different object types.  The object has to have a `key` within it,
+// possibly the whole object, which will compare with the `key` of other
 // objects with a transitive '<' operator.
 //
-// First, we define our function 'mySort', which takes two template args:
-// 'VALUE_TYPE', the type of object being sorted, and 'KEY_EXTRACTOR', the
+// First, we define our function `mySort`, which takes two template args:
+// `VALUE_TYPE`, the type of object being sorted, and `KEY_EXTRACTOR`, the
 // utility class that will extra which part of the objects to be sorted is the
 // key which will drive the sort:
 
+/// This function provides an order-preserving sort of the items in the
+/// range `[ begin, end )`, where `KEY_EXTRACTOR::extractKey` yields the
+/// key being sorted over.  We require that `VALUE_TYPE` support copy
+/// construction and assignment.
 template <class VALUE_TYPE, class KEY_EXTRACTOR>
 void mySort(VALUE_TYPE *begin, VALUE_TYPE *end, const KEY_EXTRACTOR&)
-    // This function provides an order-preserving sort of the items in the
-    // range '[ begin, end )', where 'KEY_EXTRACTOR::extractKey' yields the
-    // key being sorted over.  We require that 'VALUE_TYPE' support copy
-    // construction and assignment.
 {
     if (begin == end) return;                                         // RETURN
 
@@ -142,12 +142,12 @@ void mySort(VALUE_TYPE *begin, VALUE_TYPE *end, const KEY_EXTRACTOR&)
             }
         }
 
-        // '*end' is now the highest element in the range '[ begin, end ]', so
+        // `*end` is now the highest element in the range `[ begin, end ]`, so
         // we only have to sort the elements before it in the next pass.
     }
 }
 
-// Then, we define 'StudentRecord', which keeps some vital statistics on
+// Then, we define `StudentRecord`, which keeps some vital statistics on
 // students:
 
 struct StudentRecord {
@@ -156,8 +156,8 @@ struct StudentRecord {
     int         d_age;
 };
 
-// Next, we define two extractors for 'StudentRecord', which will yield the
-// 'GPA' or 'Age' fields:
+// Next, we define two extractors for `StudentRecord`, which will yield the
+// `GPA` or `Age` fields:
 
 struct StudentRecordGPAExtractor {
     static
@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
         //   Demonstrate the potential usage of the component.
         //
         // Plan:
-        //   Demonstrate a situation where the 'key' being sought may not be
+        //   Demonstrate a situation where the `key` being sought may not be
         //   the whole object, and how the component fits in with that
         //   framework.
         // --------------------------------------------------------------------
@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 
-// Then, we create an array of 'StudentRecord's describing a set of students,
+// Then, we create an array of `StudentRecord`s describing a set of students,
 // with their names, GPA's, and ages.
 
         StudentRecord studentArray[] = {
@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
             { "Julie", 2.3, 20 } };
         const int NUM_STUDENTS = sizeof studentArray / sizeof *studentArray;
 
-// Next, using our GPA extractor and our 'mySort' function, we sort the
+// Next, using our GPA extractor and our `mySort` function, we sort the
 // students by GPA:
 
         StudentRecordGPAExtractor gpaExtractor;
@@ -245,7 +245,7 @@ int main(int argc, char *argv[])
         }
 
 // The output produced is:
-//..
+// ```
 //  List of students, lowest GPA first:
 //  ===================================
 //                              Name   GPA  AGE
@@ -256,9 +256,9 @@ int main(int argc, char *argv[])
 //  Bob    2.7   20
 //  Phil   3.4   19
 //  Bill   4.2   21
-//..
+// ```
 // Note that Ann and Julie, who have the same GPA, are still in the same order
-// as they were before the sort, as 'mySort' was an order-preserving sort:
+// as they were before the sort, as `mySort` was an order-preserving sort:
 //
 // Next, we sort by age with our age extractor, and print out the results:
 
@@ -284,7 +284,7 @@ int main(int argc, char *argv[])
         }
 
 // The output is:
-//..
+// ```
 //  List of students, youngest first:
 //  ================================
 //                              Name   GPA  AGE
@@ -295,7 +295,7 @@ int main(int argc, char *argv[])
 //  Bob    2.7   20
 //  Ann    2.3   21
 //  Bill   4.2   21
-//..
+// ```
 // Note again, the ordering of students with identical ages is preserved.
 //
 // Then, we define an array full of integers to be sorted.
@@ -304,12 +304,12 @@ int main(int argc, char *argv[])
         const int NUM_INTS = sizeof intArray / sizeof *intArray;
 
 // Next, we want to sort the integers.  In this case, the key being sorted on
-// is the whole 'int', so we use 'bslstl::UnorderedSetKeyConfiguration<int>' as
+// is the whole `int`, so we use `bslstl::UnorderedSetKeyConfiguration<int>` as
 // our extractor:
 
         bslstl::UnorderedSetKeyConfiguration<int> intExtractor;
 
-// Now, we sort the array using our 'sort' function and the extractor, and
+// Now, we sort the array using our `sort` function and the extractor, and
 // printout out the sorted array:
 
         mySort(intArray + 0, intArray + NUM_INTS, intExtractor);
@@ -325,22 +325,22 @@ int main(int argc, char *argv[])
         }
 
 // Finally, we observe that the output produced is:
-//..
+// ```
 //  Sorted integer array:
 //  ====================
 //  -2837, -3, 8, 34, 2919, 3728, 18282, 27438
-//..
+// ```
       } break;
       case 3: {
         // --------------------------------------------------------------------
         // TESTING RESULT HAS EXPECTED TYPE
         //
         // Concern:
-        //   That the result of 'extractKey' is always the same type (except
+        //   That the result of `extractKey` is always the same type (except
         //   for cv qualifiers) as passed type:
         //
         // Plan:
-        //   Use the 'isSameType' method defined above to verify this.
+        //   Use the `isSameType` method defined above to verify this.
         // --------------------------------------------------------------------
 
         if (verbose) printf("TESTING RESULT IS CONST\n"
@@ -383,17 +383,17 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'KeyType, 'ValueType', RESULT IS CONST
+        // TESTING `KeyType, `ValueType', RESULT IS CONST
         //
         // Concern:
-        //   That the result of 'extractKey' is always a const value.
+        //   That the result of `extractKey` is always a const value.
         //
         // Plan:
-        //   Use the 'isConstObject' method defined above to verify this.
+        //   Use the `isConstObject` method defined above to verify this.
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                           "TESTING 'KeyType, 'ValueType', RESULT IS CONST\n"
+                           "TESTING `KeyType, `ValueType', RESULT IS CONST\n"
                            "==============================================\n");
 
         typedef bslstl::UnorderedSetKeyConfiguration<int>::KeyType    IKT;
@@ -401,7 +401,7 @@ int main(int argc, char *argv[])
         typedef bslstl::UnorderedSetKeyConfiguration<FILE>::KeyType   FKT;
         typedef bslstl::UnorderedSetKeyConfiguration<FILE>::ValueType FVT;
 
-        // TBD: Should 'KeyType' & 'ValueType' be const?  They're not.
+        // TBD: Should `KeyType` & `ValueType` be const?  They're not.
 
         ASSERT(0 == bsl::is_const<IKT>::value);
         ASSERT(0 == bsl::is_const<IVT>::value);
@@ -444,11 +444,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
+        // 1. Perform and ad-hoc test of the primary modifiers and accessors.
         //
         // Testing:
         //   BREATHING TEST

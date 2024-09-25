@@ -40,8 +40,8 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-// A 'balm::MetricDescription' is a simple mechanism containing the address of
-// a (non-modifiable) 'balm::Category' and the address of a null-terminated
+// A `balm::MetricDescription` is a simple mechanism containing the address of
+// a (non-modifiable) `balm::Category` and the address of a null-terminated
 // string.
 // ----------------------------------------------------------------------------
 // CREATORS
@@ -115,8 +115,8 @@ typedef balm::MetricFormat       Format;
 //                      GLOBAL STUB CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Invoke a set of operations operations synchronously.
 class ConcurrencyTest {
-    // Invoke a set of operations operations synchronously.
 
     // DATA
     bdlmt::FixedThreadPool   d_pool;
@@ -125,8 +125,9 @@ class ConcurrencyTest {
     bslma::Allocator        *d_allocator_p;
 
     // PRIVATE MANIPULATORS
+
+    /// Execute a single test.
     void execute();
-        // Execute a single test.
 
   public:
 
@@ -145,8 +146,9 @@ class ConcurrencyTest {
     ~ConcurrencyTest() {}
 
     //  MANIPULATORS
+
+    /// Run the test.
     void runTest();
-        // Run the test.
 };
 
 bslmt::Mutex m;
@@ -192,7 +194,7 @@ void ConcurrencyTest::execute()
 
         d_barrier.wait();
 
-        // Note that '&F' may not equal 'MX->format()'.
+        // Note that `&F` may not equal `MX->format()`.
         ASSERT(F == *MX->format());
 
         // Prevent the shared pointers from other threads being destroyed
@@ -228,7 +230,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator testAlloc; bslma::TestAllocator *Z = &testAlloc;
@@ -250,7 +252,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -262,19 +264,19 @@ int main(int argc, char *argv[])
 ///Usage
 ///-----
 // The following example demonstrates how to create and access a
-// 'balm::MetricDescription' object.  We start by creating a category.
-//..
+// `balm::MetricDescription` object.  We start by creating a category.
+// ```
     balm::Category myCategory("MyCategory");
-//..
+// ```
 // Then we use that category to create three metric description objects with
 // different names:
-//..
+// ```
     balm::MetricDescription metricA(&myCategory, "A");
     balm::MetricDescription metricB(&myCategory, "B");
     balm::MetricDescription metricC(&myCategory, "C");
-//..
-// We can use the 'category' and 'name' methods to access their value.
-//..
+// ```
+// We can use the `category` and `name` methods to access their value.
+// ```
     ASSERT(&myCategory == metricA.category());
     ASSERT(&myCategory == metricB.category());
     ASSERT(&myCategory == metricC.category());
@@ -282,19 +284,19 @@ int main(int argc, char *argv[])
     ASSERT(0 == bsl::strcmp("A", metricA.name()));
     ASSERT(0 == bsl::strcmp("B", metricB.name()));
     ASSERT(0 == bsl::strcmp("C", metricC.name()));
-//..
+// ```
 // Finally, we write all three metric descriptions to the console.
-//..
+// ```
     bsl::cout << "metricA: " << metricA << bsl::endl
               << "metricB: " << metricB << bsl::endl
               << "metricC: " << metricC << bsl::endl;
-//..
+// ```
 // The console output will look like:
-//..
+// ```
 // metricA: MyCategory.A
 // metricB: MyCategory.B
 // metricC: MyCategory.C
-//..
+// ```
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -323,10 +325,10 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        //  TESTING: 'setUserData' and 'userData'
+        //  TESTING: `setUserData` and `userData`
         //
         // Concerns:
-        //    That 'setUserData' sets the indicated key, and 'userData'
+        //    That `setUserData` sets the indicated key, and `userData`
         //    returns the assigned value for the indicated key, or 0 if the
         //    key has not been assigned a value.
         //
@@ -342,7 +344,7 @@ int main(int argc, char *argv[])
         //   const void *userData(UserDataKey key) const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'setUserData' and 'userData'."
+        if (verbose) cout << "\nTesting `setUserData` and `userData`."
                           << endl;
 
         balm::Category c("category");
@@ -386,23 +388,23 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        //  TESTING: 'setFormat' and 'format'
+        //  TESTING: `setFormat` and `format`
         //
         // Concerns:
-        //   That 'setFormat' sets the format of the supplied metric, and
-        //   'format' returns that format.
+        //   That `setFormat` sets the format of the supplied metric, and
+        //   `format` returns that format.
         //
         // Plan:
-        //   For a set 'S' of possible format shared pointers, call
-        //   'setFormat' and verify that the format has been set using
-        //   'format'.  Note that this tests the *address* of the format.
+        //   For a set `S` of possible format shared pointers, call
+        //   `setFormat` and verify that the format has been set using
+        //   `format`.  Note that this tests the *address* of the format.
         //
         // Testing:
         //    void setFormat(bsl::shared_ptr<const balm::MetricFormat>&);
         //    bsl::shared_ptr<const balm::MetricFormat> format() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'setPreferredPublicationType'."
+        if (verbose) cout << "\nTesting `setPreferredPublicationType`."
                           << endl;
 
         Format A(Z), B(Z), C(Z), D(Z), E(Z), F(Z);
@@ -424,12 +426,12 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        //  TESTING: 'setPreferredPublicationType' and
-        //           'preferredPublicationType'
+        //  TESTING: `setPreferredPublicationType` and
+        //           `preferredPublicationType`
         //
         // Concerns:
-        //   That 'setPreferredPublicationType' sets the preferred publication
-        //   type of the supplied metric, and 'preferredPublicationType'
+        //   That `setPreferredPublicationType` sets the preferred publication
+        //   type of the supplied metric, and `preferredPublicationType`
         //   returns the publication type.
         //
         // Plan:
@@ -443,7 +445,7 @@ int main(int argc, char *argv[])
         //   balm::PublicationType::Value preferredPublicationType() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'setPreferredPublicationType'."
+        if (verbose) cout << "\nTesting `setPreferredPublicationType`."
                           << endl;
 
         Type::Value TYPES[] = { Type::e_TOTAL,
@@ -474,7 +476,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   For each of a small representative set of object values, use
-        //   'ostrstream' to write that object's value to a character buffer
+        //   `ostrstream` to write that object's value to a character buffer
         //   and then compare the contents of that buffer with the expected
         //   output format.
         //
@@ -547,7 +549,7 @@ int main(int argc, char *argv[])
         //   Specify a set S of (unique) values with substantial and varied
         //   differences in value.  Construct a set of objects from a default
         //   value and then use the manipulator methods to set the value to a
-        //   value in the set 'S'.
+        //   value in the set `S`.
         //
         // Testing:
         // void setName(const char *);
@@ -729,7 +731,7 @@ int main(int argc, char *argv[])
         mX.setPreferredPublicationType(Type::e_AVG);
         ASSERT(Type::e_AVG == MX.preferredPublicationType());
 
-        // Test 'setUserData' and 'userData'.
+        // Test `setUserData` and `userData`.
         for (int i = 0; i < 3; ++i) {
             ASSERT(0 == MX.userData(i));
         }

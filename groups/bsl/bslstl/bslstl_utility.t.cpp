@@ -4,9 +4,9 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
-#include <stdlib.h>    // 'atoi'
-#include <stdio.h>     // 'sprintf', 'snprintf' [NOT '<cstdio>', which does not
-                       // include 'snprintf']
+#include <stdlib.h>    // `atoi`
+#include <stdio.h>     // `sprintf`, `snprintf` [NOT `<cstdio>`, which does not
+                       // include `snprintf`]
 
 // ============================================================================
 //                             TEST PLAN
@@ -97,9 +97,9 @@ static bool veryVeryVeryVerbose;
 //                              TEST FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// An aggregate for holding two values. Used to test `bsl_as_const`.
 template <class T1, class T2>
 struct MyPair
-    // An aggregate for holding two values. Used to test 'bsl_as_const'.
 {
     T1 d_first;
     T2 d_second;
@@ -125,15 +125,15 @@ int main(int argc, char *argv[])
         // FUNCTIONALITY TEST
         //
         // Concerns:
-        //: 1 The return type of 'bsl::as_const' is a reference offering
-        //:   non-modifiable access to the type of the parameter passed to the
-        //:   function.
-        //: 2 The return value of 'bsl::as_const' is the same object that is
-        //:   passed to the function.
+        // 1. The return type of `bsl::as_const` is a reference offering
+        //    non-modifiable access to the type of the parameter passed to the
+        //    function.
+        // 2. The return value of `bsl::as_const` is the same object that is
+        //    passed to the function.
         //
         // Plan:
-        //: 1 Call 'as_const' with different types and values.
-        //: 2 Ensure that the type and value of the return is correct.
+        // 1. Call `as_const` with different types and values.
+        // 2. Ensure that the type and value of the return is correct.
         //
         // Testing:
         //   const T& as_const (T &t);

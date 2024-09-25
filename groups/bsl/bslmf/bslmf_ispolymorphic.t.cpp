@@ -23,8 +23,8 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines two meta-functions, 'bsl::is_polymorphic'
-// and 'bslmf::IsPolymorphic' and a template variable 'bsl::is_polymorphic_v',
+// The component under test defines two meta-functions, `bsl::is_polymorphic`
+// and `bslmf::IsPolymorphic` and a template variable `bsl::is_polymorphic_v`,
 // that determine whether a template parameter type is a polymorphic type.
 // Thus, we need to ensure that the values returned by these meta-functions are
 // correct for each possible category of types.  Since the two meta-functions
@@ -35,8 +35,8 @@ using namespace BloombergLP;
 // [ 3] bsl::is_polymorphic::value
 //
 //-----------------------------------------------------------------------------
-// [ 2] 'bslmf::IsPolymorphic' Corner Cases
-// [ 4] 'bsl::is_polymorphic' Corner Cases
+// [ 2] `bslmf::IsPolymorphic` Corner Cases
+// [ 4] `bsl::is_polymorphic` Corner Cases
 // [ 5] USAGE EXAMPLE
 
 // ============================================================================
@@ -86,14 +86,14 @@ void aSsErT(bool condition, const char *message, int line)
 //              MACROS TO SUPPORT TESTING DIFFERENT BUILD CONFIGURATIONS
 // ----------------------------------------------------------------------------
 
-// When 'noexcept' is available, the default exception specification is non-
+// When `noexcept` is available, the default exception specification is non-
 // throwing, so we need to declare a throwing exception specification.
 // Conversely, for a C++03 compiler, the default exception specification
 // potentially throws anything, so we want to set up the most restrictive
 // exception specification for the alternative test path.  However, if we are
 // building with exceptions entirely disabled, then we should remove any notion
 // of testing with an exception specification.  The macro
-// 'EXCEPTION_SPECIFICATION' is defined appropriately within this test driver
+// `EXCEPTION_SPECIFICATION` is defined appropriately within this test driver
 // to serve that purpose.
 
 #if defined(BDE_BUILD_TARGET_EXC)
@@ -107,36 +107,36 @@ void aSsErT(bool condition, const char *message, int line)
 #endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+/// Test whether `bsl::is_polymorphic_v<type>` value equals to
+/// `bsl::is_polymorphic<type>::value`.
 #define ASSERT_V_EQ_VALUE(type)                                               \
     ASSERT(bsl::is_polymorphic  <type>::value ==                              \
            bsl::is_polymorphic_v<type>)
-    // Test whether 'bsl::is_polymorphic_v<type>' value equals to
-    // 'bsl::is_polymorphic<type>::value'.
 #else
 #define ASSERT_V_EQ_VALUE(type)
 #endif
 
+/// Test that the result of `bsl::is_polymorphic<type>` has the same value
+/// as the expected `result`.  Confirm that the result value of the
+/// `bsl::is_polymorphic` and the value of the `bsl::is_polymorphic_v`
+/// variable are the same.
 #define TYPE_ASSERT(type, result)                                             \
     ASSERT(result == bsl::is_polymorphic<type>::value);                       \
     ASSERT_V_EQ_VALUE(type)
-    // Test that the result of 'bsl::is_polymorphic<type>' has the same value
-    // as the expected 'result'.  Confirm that the result value of the
-    // 'bsl::is_polymorphic' and the value of the 'bsl::is_polymorphic_v'
-    // variable are the same.
 
+/// Test cv-qualified combinations on the specified `type`.
 #define TYPE_ASSERT_CVQ_REF(type, result);                                    \
     TYPE_ASSERT(type&,                result);                                \
     TYPE_ASSERT(type const& ,         result);                                \
     TYPE_ASSERT(type volatile&,       result);                                \
     TYPE_ASSERT(type const volatile&, result);
-    // Test cv-qualified combinations on the specified 'type'.
 
+/// Test references to cv-qualified combinations on the specified `type`.
 #define TYPE_ASSERT_CVQ(type, result);                                        \
     TYPE_ASSERT(type,                 result);                                \
     TYPE_ASSERT(type const ,          result);                                \
     TYPE_ASSERT(type volatile,        result);                                \
     TYPE_ASSERT(type const volatile,  result);
-    // Test references to cv-qualified combinations on the specified 'type'.
 
 //=============================================================================
 //                      GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -237,22 +237,22 @@ class MultiplyDerived : public Multi1, public Multi2 {
 // Suppose that we want to assert whether a particular type is a polymorphic
 // type.
 //
-// First, we define two types in a non-polymorphic hierarchy, 'MyStruct' and
-// 'MyDerivedStruct':
-//..
+// First, we define two types in a non-polymorphic hierarchy, `MyStruct` and
+// `MyDerivedStruct`:
+// ```
 struct MyStruct {
     void nonvirtualMethod();
 };
 struct MyDerivedStruct : public MyStruct {
 };
-//..
-// Then, we define two types in a polymorphic hierarchy, 'MyClass' and
-// 'MyDerivedClass':
-//..
+// ```
+// Then, we define two types in a polymorphic hierarchy, `MyClass` and
+// `MyDerivedClass`:
+// ```
 class MyClass {
   public:
     MyClass();
-    virtual ~MyClass();  // makes 'MyClass' polymorphic
+    virtual ~MyClass();  // makes `MyClass` polymorphic
 };
 
 class MyDerivedClass : public MyClass {
@@ -260,7 +260,7 @@ class MyDerivedClass : public MyClass {
     MyDerivedClass();
     ~MyDerivedClass() BSLS_KEYWORD_OVERRIDE;
 };
-//..
+// ```
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -288,13 +288,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -302,11 +302,11 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nUSAGE EXAMPLE\n"
                             "\n=============\n");
-//..
+// ```
 // Now, assert that the two types in the non-polymorphic hierarchy are not
 // polymorphic, and that the two types in the polymorphic hierarchy are
-// polymorphic using 'bsl::is_polymorphic':
-//..
+// polymorphic using `bsl::is_polymorphic`:
+// ```
         ASSERT(false == bsl::is_polymorphic<MyStruct          >::value);
         ASSERT(false == bsl::is_polymorphic<MyStruct         *>::value);
         ASSERT(false == bsl::is_polymorphic<MyDerivedStruct&  >::value);
@@ -318,11 +318,11 @@ int main(int argc, char *argv[])
         ASSERT(true  == bsl::is_polymorphic<MyDerivedClass   >::value);
         ASSERT(false == bsl::is_polymorphic<MyDerivedClass&  >::value);
         ASSERT(false == bsl::is_polymorphic<MyDerivedClass  *>::value);
-//..
+// ```
 // Note that if the current compiler supports the variable templates C++14
 // feature then we can re-write the snippet of code above using the
-// 'bsl::is_polymorphic_v' variable as follows:
-//..
+// `bsl::is_polymorphic_v` variable as follows:
+// ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
         ASSERT(false == bsl::is_polymorphic_v<MyStruct          >);
         ASSERT(false == bsl::is_polymorphic_v<MyStruct         *>);
@@ -336,11 +336,11 @@ int main(int argc, char *argv[])
         ASSERT(false == bsl::is_polymorphic_v<MyDerivedClass&  >);
         ASSERT(false == bsl::is_polymorphic_v<MyDerivedClass  *>);
 #endif
-//..
+// ```
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // 'bsl::is_polymorphic' Corner Cases
+        // `bsl::is_polymorphic` Corner Cases
         //   There are some dark corners of the type system that in principle
         //   we should not care about as their use is unlikely to pass a code
         //   review.  However, it is important to record the limits of this
@@ -348,22 +348,22 @@ int main(int argc, char *argv[])
         //   they arise.
         //
         // Concerns:
-        //: 1 'bsl::is_polymorphic' returns 'false' (correctly) for
-        //:   non-polymorphic types using virtual inheritance on AIX only; on
-        //:   other platforms, the meta-function returns 'true' (incorrectly).
-        //:
-        //: 2 'bsl::is_polymorphic' returns 'false' for non-polymorphic types
-        //:   using multiple inheritance.
-        //:
-        //: 3 'bsl::is_polymorphic' returns 'true' for polymorphic types using
-        //:   virtual inheritance.
-        //:
-        //: 4 'bsl::is_polymorphic' returns 'true' for polymorphic types that
-        //:   multiply inherit from (possibly a combination of) base types
-        //:   that use virtual inheritance and/or regular inheritance.
+        // 1. `bsl::is_polymorphic` returns `false` (correctly) for
+        //    non-polymorphic types using virtual inheritance on AIX only; on
+        //    other platforms, the meta-function returns `true` (incorrectly).
+        //
+        // 2. `bsl::is_polymorphic` returns `false` for non-polymorphic types
+        //    using multiple inheritance.
+        //
+        // 3. `bsl::is_polymorphic` returns `true` for polymorphic types using
+        //    virtual inheritance.
+        //
+        // 4. `bsl::is_polymorphic` returns `true` for polymorphic types that
+        //    multiply inherit from (possibly a combination of) base types
+        //    that use virtual inheritance and/or regular inheritance.
         //
         // Plan:
-        //   Verify that 'bslmf::IsPolymorphic' returns the correct values
+        //   Verify that `bslmf::IsPolymorphic` returns the correct values
         //   for each concern.
         //
         // Tactics:
@@ -612,32 +612,32 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // 'bsl::is_polymorphic::value'
-        //   Ensure that 'bsl::is_polymorphic' returns the correct values for a
+        // `bsl::is_polymorphic::value`
+        //   Ensure that `bsl::is_polymorphic` returns the correct values for a
         //   variety of template parameter types.
         //
         // Concerns:
-        //:  1 'is_polymorphic' returns 0 for primitive types.
-        //:
-        //:  2 'is_polymorphic' returns 0 for pointer or reference types.
-        //:
-        //:  3 'is_polymorphic' returns 0 for Enum types.
-        //:
-        //:  4 'is_polymorphic' returns 0 for Union types.
-        //:
-        //:  5 'is_polymorphic' returns 0 for non-polymorphic class type.
-        //:
-        //:  6 'is_polymorphic' returns 0 for polymorphic class types.
-        //:
-        //:  7 'is_polymorphic' returns the same value if the argument type is
-        //:    cv-qualified.
-        //:
-        //:  8 That 'is_polymorphic<T>::value' has the same value as
-        //:    'is_polymorphic_v<T>' for a variety of template parameter
-        //:    types.
+        //  1. `is_polymorphic` returns 0 for primitive types.
+        //
+        //  2. `is_polymorphic` returns 0 for pointer or reference types.
+        //
+        //  3. `is_polymorphic` returns 0 for Enum types.
+        //
+        //  4. `is_polymorphic` returns 0 for Union types.
+        //
+        //  5. `is_polymorphic` returns 0 for non-polymorphic class type.
+        //
+        //  6. `is_polymorphic` returns 0 for polymorphic class types.
+        //
+        //  7. `is_polymorphic` returns the same value if the argument type is
+        //     cv-qualified.
+        //
+        //  8. That `is_polymorphic<T>::value` has the same value as
+        //     `is_polymorphic_v<T>` for a variety of template parameter
+        //     types.
         //
         // Test Plan:
-        //   Verify that 'bsl::is_polymorphic' returns the correct values
+        //   Verify that `bsl::is_polymorphic` returns the correct values
         //   for each concern.
         //
         // Testing:
@@ -666,7 +666,7 @@ int main(int argc, char *argv[])
 
 // The following cases fail to compile on platforms that do not support an
 // intrinsic operation to check this trait.  It may be possible to detect
-// 'union' types in C++11 with extended SFINAE, but all compilers known to
+// `union` types in C++11 with extended SFINAE, but all compilers known to
 // implement extended SFINAE also provide an appropriate traits intrinsic.
 #if defined(BSLMF_ISPOLYMORPHIC_HAS_INTRINSIC)
         TYPE_ASSERT_CVQ(    Union,   0);
@@ -716,7 +716,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'bslmf::IsPolymorphic' Corner Cases
+        // `bslmf::IsPolymorphic` Corner Cases
         //   There are some dark corners of the type system that in principle
         //   we should not care about as their use is unlikely to pass a code
         //   review.  However, it is important to record the limits of this
@@ -724,22 +724,22 @@ int main(int argc, char *argv[])
         //   they arise.
         //
         // Concerns:
-        //: 1 'bslmf::IsPolymorphic' returns 'false' (correctly) for
-        //:   non-polymorphic types using virtual inheritance on AIX only; on
-        //:   other platforms, the meta-function returns 'true' (incorrectly).
-        //:
-        //: 2 'bslmf::IsPolymorphic' returns 'false' for non-polymorphic types
-        //:   using multiple inheritance.
-        //:
-        //: 3 'bslmf::IsPolymorphic' returns 'true' for polymorphic types using
-        //:   virtual inheritance.
-        //:
-        //: 4 'bslmf::IsPolymorphic' returns 'true' for polymorphic types that
-        //:   multiply inherit from (possibly a combination of) base types
-        //:   that use virtual inheritance and/or regular inheritance.
+        // 1. `bslmf::IsPolymorphic` returns `false` (correctly) for
+        //    non-polymorphic types using virtual inheritance on AIX only; on
+        //    other platforms, the meta-function returns `true` (incorrectly).
+        //
+        // 2. `bslmf::IsPolymorphic` returns `false` for non-polymorphic types
+        //    using multiple inheritance.
+        //
+        // 3. `bslmf::IsPolymorphic` returns `true` for polymorphic types using
+        //    virtual inheritance.
+        //
+        // 4. `bslmf::IsPolymorphic` returns `true` for polymorphic types that
+        //    multiply inherit from (possibly a combination of) base types
+        //    that use virtual inheritance and/or regular inheritance.
         //
         // Plan:
-        //   Verify that 'bslmf::IsPolymorphic' returns the correct values
+        //   Verify that `bslmf::IsPolymorphic` returns the correct values
         //   for each concern.
         //
         // Tactics:
@@ -989,28 +989,28 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bslmf::IsPolymorphic::value'
-        //   Ensure that 'bslmf::IsPolymorphic' returns the correct values for
+        // `bslmf::IsPolymorphic::value`
+        //   Ensure that `bslmf::IsPolymorphic` returns the correct values for
         //   a variety of template parameter types.
         //
         // Concerns:
-        //:  1 'IsPolymorphic' returns 0 for primitive types.
-        //:
-        //:  2 'IsPolymorphic' returns 0 for pointer or reference types.
-        //:
-        //:  3 'IsPolymorphic' returns 0 for Enum types.
-        //:
-        //:  4 'IsPolymorphic' returns 0 for Union types.
-        //:
-        //:  5 'IsPolymorphic' returns 0 for non-polymorphic class type.
-        //:
-        //:  6 'IsPolymorphic' returns 0 for polymorphic class types.
-        //:
-        //:  7 'IsPolymorphic' returns the same value if the argument type is
-        //:    cv-qualified.
+        //  1. `IsPolymorphic` returns 0 for primitive types.
+        //
+        //  2. `IsPolymorphic` returns 0 for pointer or reference types.
+        //
+        //  3. `IsPolymorphic` returns 0 for Enum types.
+        //
+        //  4. `IsPolymorphic` returns 0 for Union types.
+        //
+        //  5. `IsPolymorphic` returns 0 for non-polymorphic class type.
+        //
+        //  6. `IsPolymorphic` returns 0 for polymorphic class types.
+        //
+        //  7. `IsPolymorphic` returns the same value if the argument type is
+        //     cv-qualified.
         //
         // Test Plan:
-        //   Verify that 'bslmf::IsPolymorphic' returns the correct values
+        //   Verify that `bslmf::IsPolymorphic` returns the correct values
         //   for each concern.
         //
         // Testing:
@@ -1087,7 +1087,7 @@ int main(int argc, char *argv[])
 
 // The following cases fail to compile on platforms that do not support an
 // intrinsic operation to check this trait.  It may be possible to detect
-// 'union' types in C++11 with extended SFINAE, but all compilers known to
+// `union` types in C++11 with extended SFINAE, but all compilers known to
 // implement extended SFINAE also provide an appropriate traits intrinsic.
 #if defined(BSLMF_ISPOLYMORPHIC_HAS_INTRINSIC)
         ASSERT(0 == bslmf::IsPolymorphic<Union               >::value);

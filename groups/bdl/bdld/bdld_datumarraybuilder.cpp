@@ -20,11 +20,11 @@ namespace {
 
 typedef DatumArrayBuilder::allocator_type allocator_type;
 
+/// Calculate the new capacity needed to accommodate data having the
+/// specified `length` for the datum array having the specified `capacity`.
 static DatumArrayBuilder::SizeType getNewCapacity(
                                           DatumArrayBuilder::SizeType capacity,
                                           DatumArrayBuilder::SizeType length)
-    // Calculate the new capacity needed to accommodate data having the
-    // specified 'length' for the datum array having the specified 'capacity'.
 {
     // Maximum allowed length (theoretical limit)
     static const DatumArrayBuilder::SizeType MAX_BYTES =
@@ -44,12 +44,12 @@ static DatumArrayBuilder::SizeType getNewCapacity(
     return capacity;
 }
 
+/// Load the specified `array` with a reference to a newly created datum
+/// array having the specified `capacity`, using the specified
+/// `allocator`.
 static void createArrayStorage(DatumMutableArrayRef        *array,
                                DatumArrayBuilder::SizeType  capacity,
                                const allocator_type&        allocator)
-    // Load the specified 'array' with a reference to a newly created datum
-    // array having the specified 'capacity', using the specified
-    // 'allocator'.
 {
     Datum::createUninitializedArray(array, capacity, allocator.mechanism());
     // Initialize the memory.

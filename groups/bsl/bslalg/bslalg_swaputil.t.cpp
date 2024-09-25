@@ -4,8 +4,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 //=============================================================================
 //                             TEST PLAN
@@ -122,17 +122,17 @@ using namespace BloombergLP;
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: using 'bslalg::SwapUtil::swap'
+///Example 1: using `bslalg::SwapUtil::swap`
 /// - - - - - - - - - - - - - - - - - - - -
-// In this example we define a type 'Container' and use 'bslalg::SwapUtil' to
-// both implement a user-defined 'swap' for 'Container', and swap two container
+// In this example we define a type `Container` and use `bslalg::SwapUtil` to
+// both implement a user-defined `swap` for `Container`, and swap two container
 // objects.
 //
-// We start by defining a class 'Container' in the 'xyz' namespace.  Further we
-// assume that 'Container' has some expensive-to-copy data, so we provide a
-// custom 'swap' algorithm to efficiently swap the data between a two objects
-// this class by defining a 'swap' method and a 'swap' free function.
-//..
+// We start by defining a class `Container` in the `xyz` namespace.  Further we
+// assume that `Container` has some expensive-to-copy data, so we provide a
+// custom `swap` algorithm to efficiently swap the data between a two objects
+// this class by defining a `swap` method and a `swap` free function.
+// ```
 namespace xyz {
 
 class Container {
@@ -140,22 +140,22 @@ class Container {
     int d_expensiveData;
 
   public:
+    /// Swap the value of `this` object with the value of the specified
+    /// `other` object.  This method provides the no-throw
+    /// exception-safety guarantee.
     void swap(Container& other);
-        // Swap the value of 'this' object with the value of the specified
-        // 'other' object.  This method provides the no-throw
-        // exception-safety guarantee.
 };
 
+/// Swap the values of the specified `a` and `b` objects.  This function
+/// provides the no-throw exception-safety guarantee.
 void swap(Container& a, Container& b);
-    // Swap the values of the specified 'a' and 'b' objects.  This function
-    // provides the no-throw exception-safety guarantee.
-//..
-// Note that the free function 'swap' is overloaded in the namespace of the
-// class 'Container', which is 'xyz'.
+// ```
+// Note that the free function `swap` is overloaded in the namespace of the
+// class `Container`, which is `xyz`.
 //
-// Next, we implemente the 'swap' method using the 'bslalg::SwapUtil::swap' to
+// Next, we implemente the `swap` method using the `bslalg::SwapUtil::swap` to
 // swap the individual data elements:
-//..
+// ```
 inline
 void Container::swap(Container& other)
 {
@@ -165,13 +165,13 @@ void Container::swap(Container& other)
     // using bsl::swap;
     // bsl::swap(d_expensiveData, other.d_expensiveData);
 }
-//..
-// Notice that calling 'bslalg::SwapUtil::swap' is equivalent to making the
-// 'bsl::swap' available in the current scope by doing 'using bsl::swap' and
-// making a subsequent call to an unqualified 'swap' function.
+// ```
+// Notice that calling `bslalg::SwapUtil::swap` is equivalent to making the
+// `bsl::swap` available in the current scope by doing `using bsl::swap` and
+// making a subsequent call to an unqualified `swap` function.
 //
-// Then, we implement the 'swap' free function:
-//..
+// Then, we implement the `swap` free function:
+// ```
 inline
 void swap(Container& a, Container& b)
 {
@@ -179,7 +179,7 @@ void swap(Container& a, Container& b)
 }
 
 }  // close namespace xyz
-//..
+// ```
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -210,40 +210,40 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-// Finally we can use 'bslalg::SwapUtil::swap' to swap two objects of class
-// 'xyz::Container':
-//..
+// Finally we can use `bslalg::SwapUtil::swap` to swap two objects of class
+// `xyz::Container`:
+// ```
 xyz::Container c1, c2;
 
 bslalg::SwapUtil::swap(&c1, &c2);
-//..
-// The above code correctly calls the 'xyz::swap' overload for the 'Container'
+// ```
+// The above code correctly calls the `xyz::swap` overload for the `Container`
 // class.
 
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'swap'
+        // TESTING `swap`
         //
         // Concerns:
-        //: 1 'bslalg::SwapUtil::swap' calls the 'swap' found by ADL in the
-        //:   namespace of a class for the class that provides its own 'swap'
-        //:   overload.
-        //: 2 'bslald_SwapUtil::swap' calls the generic 'bsl::swap' for a class
-        //:   that doesn't provide its own 'swap' overload.
+        // 1. `bslalg::SwapUtil::swap` calls the `swap` found by ADL in the
+        //    namespace of a class for the class that provides its own `swap`
+        //    overload.
+        // 2. `bslald_SwapUtil::swap` calls the generic `bsl::swap` for a class
+        //    that doesn't provide its own `swap` overload.
         //
         // Plan:
-        //: 1 Create two objects of type 'SwapTester' which provides its own
-        //:   overload of 'swap'.  Call the 'bslalg::SwapUtil::swap' on them
-        //:   and verify that the overloaded 'swap' has been called.
-        //: 2 Call 'bslalg::SwapUtil::swap' on two 'int's.  Since 'int' doesn't
-        //:   have its own 'swap' overload, the generic 'swap' has to be found.
+        // 1. Create two objects of type `SwapTester` which provides its own
+        //    overload of `swap`.  Call the `bslalg::SwapUtil::swap` on them
+        //    and verify that the overloaded `swap` has been called.
+        // 2. Call `bslalg::SwapUtil::swap` on two `int`s.  Since `int` doesn't
+        //    have its own `swap` overload, the generic `swap` has to be found.
         //
         // Testing:
         //   void swap(T *a, T *b);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'swap'\n");
+        if (verbose) printf("\nTESTING `swap`\n");
 
         SwapTester a;
         SwapTester b;
@@ -264,7 +264,7 @@ bslalg::SwapUtil::swap(&c1, &c2);
         ASSERT(c == 20);
         ASSERT(d == 10);
 
-        if (verbose) printf("\nTesting 'swap' for a 'container' class\n");
+        if (verbose) printf("\nTesting `swap` for a `container` class\n");
 
         SwapContainer ca;
         SwapContainer cb;
@@ -281,7 +281,7 @@ bslalg::SwapUtil::swap(&c1, &c2);
         // BREATHING TEST
         //
         // Concerns:
-        //   The 'swap' utility function works as intended.
+        //   The `swap` utility function works as intended.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"

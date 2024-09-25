@@ -29,8 +29,8 @@
 #include <bsls_timeutil.h>
 
 #include <bsl_algorithm.h>
-#include <bsl_cstddef.h>                        // 'size_t'
-#include <bsl_cstdlib.h>                        // 'atoi'
+#include <bsl_cstddef.h>                        // `size_t`
+#include <bsl_cstdlib.h>                        // `atoi`
 #include <bsl_ctime.h>                          // Stopwatch: CLOCK_PROCESS_...
 #include <bsl_iostream.h>
 #include <bsl_iomanip.h>
@@ -73,81 +73,81 @@ using bdldfp::Decimal64;
 // ----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-// The component under the test is a mechanism, 'Datum', that provides a
+// The component under the test is a mechanism, `Datum`, that provides a
 // space-efficient discriminated union (i.e., a variant) that holds the value
 // of one of the supported data types.
 //
-// First, we test internal utility struct, 'Datum_Helpers32', that simplifies
+// First, we test internal utility struct, `Datum_Helpers32`, that simplifies
 // some manipulation of 64-bit integers on 32-bit platforms.  Then, we test
-// portion of class 'Datum' that create/validate/compare non-aggregate value.
-// Then, we test class 'DatumMapEntry', that implements a single element in a
-// datum maps.  Then, we test classes 'DatumMutableArrayRef',
-// 'DatumMutableMapRef' and 'DatumMutableMapOwningKeysRef' that are uses to
-// build 'Datum' objects that contain the arrays and maps respectively and owns
+// portion of class `Datum` that create/validate/compare non-aggregate value.
+// Then, we test class `DatumMapEntry`, that implements a single element in a
+// datum maps.  Then, we test classes `DatumMutableArrayRef`,
+// `DatumMutableMapRef` and `DatumMutableMapOwningKeysRef` that are uses to
+// build `Datum` objects that contain the arrays and maps respectively and owns
 // all memory occupied by array and map elements.  Then, we test classes
-// 'DatumArrayRef' and 'DatumMapRef', that provide a read-only view to the
-// array and map held by a 'Datum' object and act as a return values for
-// corresponding 'Datum' accessors.  Finally, we complete testing of the class
-// 'Datum' for aggregate values (arrays and maps) and remaining methods.
-// Because the 'Datum' is implemented as a POD-type, our primary testing
-// concerns will be limited to creating 'Datum' object with different types,
-// retrieving the type and value from constructed 'Datum' objects, validating
+// `DatumArrayRef` and `DatumMapRef`, that provide a read-only view to the
+// array and map held by a `Datum` object and act as a return values for
+// corresponding `Datum` accessors.  Finally, we complete testing of the class
+// `Datum` for aggregate values (arrays and maps) and remaining methods.
+// Because the `Datum` is implemented as a POD-type, our primary testing
+// concerns will be limited to creating `Datum` object with different types,
+// retrieving the type and value from constructed `Datum` objects, validating
 // the compiler generated copy construction and assignment operator and
-// finally verifying that all the memory allocated by 'Datum' objects is
-// deallocated when the 'Datum' object is destroyed (except references to
+// finally verifying that all the memory allocated by `Datum` objects is
+// deallocated when the `Datum` object is destroyed (except references to
 // external data).
 //
 ///Concerns
 ///--------
-//:  1 All primary manipulator use the supplied allocator to allocate memory or
-//:    do not allocate memory (when the allocator is not required).
-//:
-//:  2 Copy constructor and assignment operators do not copy any of the storage
-//:    an original 'Datum' is pointing to, and only copy the address to which
-//:    the original 'Datum' is pointing or the value it contains.
-//:
-//:  3 Destroying the 'Datum' that contains aggregate types -- i.e. arrays and
-//:    maps -- will recursively destroy the 'Datum' objects that compose the
-//:    aggregate, except cases where the aggregate references external memory
-//:    ( see 'References to External Strings and Arrays' section in bdld_datum
-//:    component documentation ).  For all non-aggregated type, all memory is
-//:    released then the 'Datum' object is destroyed.
-//:
-//:  4 Comparison operators compare two 'Datum' objects by values they refer
-//:    to.
+//  1. All primary manipulator use the supplied allocator to allocate memory or
+//     do not allocate memory (when the allocator is not required).
 //
-//: o Primary Manipulators for non-aggregate data types:
-//:   - createBoolean(bool);
-//:   - createDate(const bdlt::Date&);
-//:   - createDatetime(const bdlt::Datetime&, bslma::Allocator *);
-//:   - createDatetimeInterval(const DatetimeInterval&, bslma::Allocator *);
-//:   - createDecimal64(Decimal);
-//:   - createDouble(double);
-//:   - createError(int);
-//:   - createError(int, const bslstl::StringRef&, bslma::Allocator *);
-//:   - createInteger(int);
-//:   - createInteger64(bsls::Types::Int64, bslma::Allocator *);
-//:   - createNull();
-//:   - createStringRef(const char *, bslma::Allocator *);
-//:   - createStringRef(const char *, SizeType, bslma::Allocator *);
-//:   - createStringRef(const bslstl::StringRef&, bslma::Allocator *);
-//:   - createTime(const bdlt::Time&);
-//:   - createUdt(void *data, int type);
-//:   - copyBinary(void *, int);
-//:   - copyString(const char *, bslma::Allocator *);
-//:   - copyString(const char *, SizeType, bslma::Allocator *);
-//:   - copyString(const bslstl::StringRef&, bslma::Allocator *);
+//  2. Copy constructor and assignment operators do not copy any of the storage
+//     an original `Datum` is pointing to, and only copy the address to which
+//     the original `Datum` is pointing or the value it contains.
 //
-//: o Primary Manipulators for aggregate data types:
-//:   - createArrayReference(const Datum *, SizeType, bslma::Allocator *);
-//:   - adoptArray(const DatumMutableArrayRef&);
-//:   - adoptIntMap(const DatumMutableMapRef&);
-//:   - adoptMap(const DatumMutableMapRef&);
-//:   - adoptMap(const DatumMutableMapOwningKeysRef&);
+//  3. Destroying the `Datum` that contains aggregate types -- i.e. arrays and
+//     maps -- will recursively destroy the `Datum` objects that compose the
+//     aggregate, except cases where the aggregate references external memory
+//     ( see `References to External Strings and Arrays` section in bdld_datum
+//     component documentation ).  For all non-aggregated type, all memory is
+//     released then the `Datum` object is destroyed.
 //
-//: o Basic Accessors:
-//:   - isTYPE();
-//:   - theTYPE();
+//  4. Comparison operators compare two `Datum` objects by values they refer
+//     to.
+//
+//  - Primary Manipulators for non-aggregate data types:
+//    - createBoolean(bool);
+//    - createDate(const bdlt::Date&);
+//    - createDatetime(const bdlt::Datetime&, bslma::Allocator *);
+//    - createDatetimeInterval(const DatetimeInterval&, bslma::Allocator *);
+//    - createDecimal64(Decimal);
+//    - createDouble(double);
+//    - createError(int);
+//    - createError(int, const bslstl::StringRef&, bslma::Allocator *);
+//    - createInteger(int);
+//    - createInteger64(bsls::Types::Int64, bslma::Allocator *);
+//    - createNull();
+//    - createStringRef(const char *, bslma::Allocator *);
+//    - createStringRef(const char *, SizeType, bslma::Allocator *);
+//    - createStringRef(const bslstl::StringRef&, bslma::Allocator *);
+//    - createTime(const bdlt::Time&);
+//    - createUdt(void *data, int type);
+//    - copyBinary(void *, int);
+//    - copyString(const char *, bslma::Allocator *);
+//    - copyString(const char *, SizeType, bslma::Allocator *);
+//    - copyString(const bslstl::StringRef&, bslma::Allocator *);
+//
+//  - Primary Manipulators for aggregate data types:
+//    - createArrayReference(const Datum *, SizeType, bslma::Allocator *);
+//    - adoptArray(const DatumMutableArrayRef&);
+//    - adoptIntMap(const DatumMutableMapRef&);
+//    - adoptMap(const DatumMutableMapRef&);
+//    - adoptMap(const DatumMutableMapOwningKeysRef&);
+//
+//  - Basic Accessors:
+//    - isTYPE();
+//    - theTYPE();
 //-----------------------------------------------------------------------------
 //                         // ----------------------
 //                         // struct Datum_Helpers32
@@ -583,7 +583,7 @@ const double k_DOUBLE_SNAN         = numeric_limits<double>::signaling_NaN();
 const double k_DOUBLE_LOADED_NAN   = -sqrt(-1.0);  // A NaN with random bits.
                                                   // These kinds of NaN values
                                                  // are used in the 32bit
-                                                // 'Datum' implementation to
+                                                // `Datum` implementation to
                                                // store values of other types.
                                               // We do not distinguish between
                                              // NaN values when compiling for
@@ -642,18 +642,18 @@ const char *UNKNOWN_FORMAT = "(* UNKNOWN *)";
 //                   GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Populates the specified vector `elements` with distinct non-aggregate
+/// Datum objects using the specified `allocator` to allocate memory.
+/// Optionally specify `withNaNs` to include double and Decimal64 NaN
+/// values.  The resulting vector is used to test equality operators for
+/// Datum holding non-aggregate data types.  Note, that the caller is
+/// responsible for destroying all `Datum`s in the populated vector.  Also
+/// note, that every value generated by this function compare equal with
+/// itself and not compare equal with any other values from the vector
+/// (except optionally included NaN values).
 void populateWithNonAggregateValues(vector<Datum>    *elements,
                                     bslma::Allocator *allocator,
                                     bool              withNaNs = true)
-    // Populates the specified vector 'elements' with distinct non-aggregate
-    // Datum objects using the specified 'allocator' to allocate memory.
-    // Optionally specify 'withNaNs' to include double and Decimal64 NaN
-    // values.  The resulting vector is used to test equality operators for
-    // Datum holding non-aggregate data types.  Note, that the caller is
-    // responsible for destroying all 'Datum's in the populated vector.  Also
-    // note, that every value generated by this function compare equal with
-    // itself and not compare equal with any other values from the vector
-    // (except optionally included NaN values).
 {
     elements->push_back(Datum::createBoolean(true));
     elements->push_back(Datum::createBoolean(false));
@@ -778,10 +778,10 @@ void populateWithNonAggregateValues(vector<Datum>    *elements,
     elements->push_back(Datum::copyString("abcdef0123456789", allocator));
 };
 
+/// Fill the specified `result` with a random string of the specified
+/// `length`.  Note that this function employs weak random number
+/// generation that is not suitable for cryptographic purposes.
 void loadRandomString(bsl::string *result, bsls::Types::size_type length)
-    // Fill the specified 'result' with a random string of the specified
-    // 'length'.  Note that this function employs weak random number
-    // generation that is not suitable for cryptographic purposes.
 {
     static const char charSet[] = "abcdefghijklmnopqrstuvwxyz"
                                   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -793,11 +793,11 @@ void loadRandomString(bsl::string *result, bsls::Types::size_type length)
     }
 }
 
+/// Fill the specified `result` with random bytes of the specified
+/// `length`.  Note that this function employs weak random number
+/// generation that is not suitable for cryptographic purposes.
 void loadRandomBinary(bsl::vector<unsigned char> *result,
                       bsls::Types::size_type      length)
-    // Fill the specified 'result' with random bytes of the specified
-    // 'length'.  Note that this function employs weak random number
-    // generation that is not suitable for cryptographic purposes.
 {
     result->resize(length);
 
@@ -809,82 +809,86 @@ void loadRandomBinary(bsl::vector<unsigned char> *result,
                            // ===========
                            // TestVisitor
                            // ===========
+
+/// This class provides a visitor to visit and store the type of `Datum`
+/// object with which it was called.
 class TestVisitor {
-    // This class provides a visitor to visit and store the type of 'Datum'
-    // object with which it was called.
 
   private:
     // DATA
-    Datum::DataType d_type;         // type of the invoking 'Datum' object
-    bool            d_visitedFlag;  // whether 'Datum' object has been visited
+    Datum::DataType d_type;         // type of the invoking `Datum` object
+    bool            d_visitedFlag;  // whether `Datum` object has been visited
 
   public:
     // CREATORS
+
+    /// Create a `TestVisitor` object.
     TestVisitor();
-        // Create a 'TestVisitor' object.
 
     // MANIPULATORS
+
+    /// Store the specified `v` of `Datum::e_NIL` type in `d_type`.
     void operator()(bslmf::Nil v);
-        // Store the specified 'v' of 'Datum::e_NIL' type in 'd_type'.
 
+    /// Store the specified `v` of `Datum::e_DATE` type in `d_type`.
     void operator()(const bdlt::Date& v);
-        // Store the specified 'v' of 'Datum::e_DATE' type in 'd_type'.
 
+    /// Store the specified `v` of `Datum::e_DATETIME` type in `d_type`.
     void operator()(const bdlt::Datetime& v);
-        // Store the specified 'v' of 'Datum::e_DATETIME' type in 'd_type'.
 
+    /// Store the specified `v` of `Datum::e_DATETIME_INTERVAL` type in
+    /// `d_type`.
     void operator()(const bdlt::DatetimeInterval& v);
-        // Store the specified 'v' of 'Datum::e_DATETIME_INTERVAL' type in
-        // 'd_type'.
 
+    /// Store the specified `v` of `Datum::e_TIME` type in `d_type`.
     void operator()(const bdlt::Time& v);
-        // Store the specified 'v' of 'Datum::e_TIME' type in 'd_type'.
 
+    /// Store the specified `v` of `Datum::e_STRING` type in `d_type`.
     void operator()(bslstl::StringRef v);
-        // Store the specified 'v' of 'Datum::e_STRING' type in 'd_type'.
 
+    /// Store the specified `v` of `Datum::e_BOOLEAN` type in `d_type`.
     void operator()(bool v);
-        // Store the specified 'v' of 'Datum::e_BOOLEAN' type in 'd_type'.
 
+    /// Store the specified `v` of `Datum::e_INTEGER64` type in `d_type`.
     void operator()(bsls::Types::Int64 v);
-        // Store the specified 'v' of 'Datum::e_INTEGER64' type in 'd_type'.
 
+    /// Store the specified `v` of `Datum::e_DOUBLE` type in `d_type`.
     void operator()(double v);
-        // Store the specified 'v' of 'Datum::e_DOUBLE' type in 'd_type'.
 
+    /// Store the specified `v` of `Datum::e_ERROR` type in `d_type`.
     void operator()(DatumError v);
-        // Store the specified 'v' of 'Datum::e_ERROR' type in 'd_type'.
 
+    /// Store the specified `v` of `Datum::e_INTEGER` type in `d_type`.
     void operator()(int v);
-        // Store the specified 'v' of 'Datum::e_INTEGER' type in 'd_type'.
 
+    /// Store the specified `v` of `Datum::e_USERDEFINED` type in
+    /// `d_type`.
     void operator()(DatumUdt v);
-        // Store the specified 'v' of 'Datum::e_USERDEFINED' type in
-        // 'd_type'.
 
+    /// Store the specified `v` of `Datum::e_ARRAY` type in `d_type`.
     void operator()(DatumArrayRef v);
-        // Store the specified 'v' of 'Datum::e_ARRAY' type in 'd_type'.
 
+    /// Store the specified `v` of `Datum::e_INT_MAP` type in `d_type`.
     void operator()(DatumIntMapRef v);
-        // Store the specified 'v' of 'Datum::e_INT_MAP' type in 'd_type'.
 
+    /// Store the specified `v` of `Datum::e_MAP` type in `d_type`.
     void operator()(DatumMapRef v);
-        // Store the specified 'v' of 'Datum::e_MAP' type in 'd_type'.
 
+    /// Store the specified `v` of `Datum::e_BINARY` type in `d_type`.
     void operator()(DatumBinaryRef v);
-        // Store the specified 'v' of 'Datum::e_BINARY' type in 'd_type'.
 
+    /// Store the specified `v` of `Datum::e_DECIMAL64` type in `d_type`.
     void operator()(Decimal64 v);
-        // Store the specified 'v' of 'Datum::e_DECIMAL64' type in 'd_type'.
 
     // ACCESSORS
-    Datum::DataType type() const;
-        // Return the type of 'Datum' object with which this visitor was
-        // called.
 
+    /// Return the type of `Datum` object with which this visitor was
+    /// called.
+    Datum::DataType type() const;
+
+    /// Return `true` if this visitor has been called for some `Datum`
+    /// object and `false` otherwise.
     bool objectVisited() const;
-        // Return 'true' if this visitor has been called for some 'Datum'
-        // object and 'false' otherwise.
 };
 
                            // -----------
@@ -1028,17 +1032,18 @@ bool TestVisitor::objectVisited() const
                               // class Stopwatch
                               // ===============
 
+/// Temporary replacement for bsls::Stopwatch that delivers very unstable
+/// user times.  Only a subset of the interface is implemented.
 class Stopwatch {
-    // Temporary replacement for bsls::Stopwatch that delivers very unstable
-    // user times.  Only a subset of the interface is implemented.
 
   private:
     // PRIVATE CLASS METHODS
+
+    /// From http://nadeausoftware.com/articles/2012/03
+    ///                           /c_c_tip_how_measure_cpu_time_benchmarking
+    /// Returns the amount of CPU time used by the current process, in
+    /// seconds, or -1.0 if an error occurred.
     static double getCPUTime();
-        // From http://nadeausoftware.com/articles/2012/03
-        //                           /c_c_tip_how_measure_cpu_time_benchmarking
-        // Returns the amount of CPU time used by the current process, in
-        // seconds, or -1.0 if an error occurred.
 
     // DATA
     double d_userTime;
@@ -1046,34 +1051,37 @@ class Stopwatch {
 
   public:
     // CREATORS
+
+    /// See bsls::Stopwatch.
     Stopwatch()
-        // See bsls::Stopwatch.
     {
         reset();
     }
 
     // MANIPULATORS
+
+    /// See bsls::Stopwatch.
     void reset()
-        // See bsls::Stopwatch.
     {
         d_accumulatedUserTime = 0;
     }
 
+    /// See bsls::Stopwatch.
     void start(bool)
-        // See bsls::Stopwatch.
     {
         d_userTime = getCPUTime();
     }
 
+    /// See bsls::Stopwatch.
     void stop()
-        // See bsls::Stopwatch.
     {
         d_accumulatedUserTime += getCPUTime() - d_userTime;
     }
 
     // ACCESSORS
+
+    /// See bsls::Stopwatch.
     double accumulatedUserTime() const
-        // See bsls::Stopwatch.
     {
         return d_accumulatedUserTime;
     }
@@ -1169,9 +1177,9 @@ double Stopwatch::getCPUTime()
                              // class Benchmark_Visitor
                              // =======================
 
+/// This component-local class provides a visitor to perform a simple, cheap
+/// operation on a Datum for benchmarking purpose.
 class Benchmark_Visitor {
-    // This component-local class provides a visitor to perform a simple, cheap
-    // operation on a Datum for benchmarking purpose.
 
   private:
     // DATA
@@ -1179,54 +1187,56 @@ class Benchmark_Visitor {
 
   public:
     // CREATORS
+
+    /// Create a `Benchmark_Visitor` object.
     Benchmark_Visitor();
-        // Create a 'Benchmark_Visitor' object.
 
     // MANIPULATORS
+
+    /// Overloaded function call operator accepting the specified `v` to
+    /// store it's data.  Does nothing.
     template<class VISITOR>
     void operator()(const VISITOR& v);
-        // Overloaded function call operator accepting the specified 'v' to
-        // store it's data.  Does nothing.
 
+    /// Overloaded function call operator accepting the specified `v` to
+    /// store it's data.
     void operator()(const bdlt::Date& v);
-        // Overloaded function call operator accepting the specified 'v' to
-        // store it's data.
 
+    /// Overloaded function call operator accepting the specified `v` to
+    /// store it's data.
     void operator()(const bdlt::Datetime& v);
-        // Overloaded function call operator accepting the specified 'v' to
-        // store it's data.
 
+    /// Overloaded function call operator accepting the specified `v` to
+    /// store it's data.
     void operator()(const bdlt::DatetimeInterval& v);
-        // Overloaded function call operator accepting the specified 'v' to
-        // store it's data.
 
+    /// Overloaded function call operator accepting the specified `v` to
+    /// store it's data.
     void operator()(const bdlt::Time& v);
-        // Overloaded function call operator accepting the specified 'v' to
-        // store it's data.
 
+    /// Overloaded function call operator accepting the specified `v` to
+    /// store it's data.
     void operator()(const bslstl::StringRef& v);
-        // Overloaded function call operator accepting the specified 'v' to
-        // store it's data.
 
+    /// Overloaded function call operator accepting the specified `v` to
+    /// store it's data.
     void operator()(bool v);
-        // Overloaded function call operator accepting the specified 'v' to
-        // store it's data.
 
+    /// Overloaded function call operator accepting the specified `v` to
+    /// store it's data.
     void operator()(bsls::Types::Int64 v);
-        // Overloaded function call operator accepting the specified 'v' to
-        // store it's data.
 
+    /// Overloaded function call operator accepting the specified `v` to
+    /// store it's data.
     void operator()(double v);
-        // Overloaded function call operator accepting the specified 'v' to
-        // store it's data.
 
+    /// Overloaded function call operator accepting the specified `v` to
+    /// store it's data.
     void operator()(const DatumError& v);
-        // Overloaded function call operator accepting the specified 'v' to
-        // store it's data.
 
+    /// Overloaded function call operator accepting the specified `v` to
+    /// store it's data.
     void operator()(int v);
-        // Overloaded function call operator accepting the specified 'v' to
-        // store it's data.
 };
 
                              // -----------------------
@@ -1298,16 +1308,18 @@ void Benchmark_Visitor::operator()(int v)
                              // class Udt_Def
                              // =============
 
+/// A DatumUdt with a default constructor.
 struct Udt_Def : DatumUdt {
-    // A DatumUdt with a default constructor.
 
     // CREATORS
+
+    /// Create a `Udt_Def` object.
     Udt_Def();
-        // Create a 'Udt_Def' object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     DatumUdt& operator=(const DatumUdt& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 };
                              // -------------
                              // class Udt_Def
@@ -1329,9 +1341,9 @@ DatumUdt& Udt_Def::operator=(const DatumUdt& rhs)
                               // BenchmarkSuite
                               // ==============
 
+/// This class provides a visitor to visit and store the type of `Datum`
+/// object with which it was called.
 class BenchmarkSuite {
-    // This class provides a visitor to visit and store the type of 'Datum'
-    // object with which it was called.
 
   private:
     // INSTANCE DATA
@@ -1345,31 +1357,33 @@ class BenchmarkSuite {
     static const int k_DATUMS     = 1000;
     static const int k_ALLOC_SIZE = k_DATUMS * 100;
 
+    /// Move to the next benchmark. Return true if it should be run.
     bool next();
-        // Move to the next benchmark. Return true if it should be run.
 
+    /// Run the visit benchmarks.
     void runVisit();
-        // Run the visit benchmarks.
 
+    /// Write the specified `label and the specified `value' to standard
+    /// output.
     void write(const char *label, double value) const;
-        // Write the specified 'label and the specified 'value' to standard
-        // output.
 
+    /// Write the specified `index`, the specified 'label and the specified
+    /// `value` to standard output.
     void write(int index, const char *label, double value) const;
-        // Write the specified 'index', the specified 'label and the specified
-        // 'value' to standard output.
 
   public:
     // CREATORS
+
+    /// Create a `BenchmarkSuite` object having the default value.  Note
+    /// that this method's definition is compiler generated.
     BenchmarkSuite();
-        // Create a 'BenchmarkSuite' object having the default value.  Note
-        // that this method's definition is compiler generated.
 
     // MANIPULATORS
+
+    /// Run suite with the specified `iterations` number. The specified
+    /// `activeCount` defines number of active benchmarks and the specified
+    /// `activeArg` contains their numbers.
     void run(int iterations, int activeCount, char *activeArg[]);
-        // Run suite with the specified 'iterations' number. The specified
-        // 'activeCount' defines number of active benchmarks and the specified
-        // 'activeArg' contains their numbers.
 };
 
                               // --------------
@@ -1766,9 +1780,9 @@ void BenchmarkSuite::write(int index, const char *label, double value) const
          << "\n";
 }
 
+/// Return `true` regardless of the specified `lhs` and the specified  `rhs`
+/// equality.
 bool operator==(bslmf::Nil lhs, bslmf::Nil rhs)
-    // Return 'true' regardless of the specified 'lhs' and the specified  'rhs'
-    // equality.
 {
     (void)lhs;
     (void)rhs;
@@ -1787,32 +1801,33 @@ class RegionHexPrinter {
 
   public:
     // CREATORS
+
+    /// Create a `RegionHexPrinter` object that prints the text
+    /// "<**MISSING**>".
     RegionHexPrinter()
-        // Create a 'RegionHexPrinter' object that prints the text
-        // "<**MISSING**>".
     : d_data_p(0), d_length(0) {}
 
+    /// Create a `RegionHexPrinter` object that prints the specified `data`
+    /// of the specified as `length` as bytes in hexadecimal or prints the
+    /// text "<**MISSING**>" if `data` is 0, in which case `length` is
+    /// ignored.
     RegionHexPrinter(const unsigned char *data, bsl::size_t length)
-        // Create a 'RegionHexPrinter' object that prints the specified 'data'
-        // of the specified as 'length' as bytes in hexadecimal or prints the
-        // text "<**MISSING**>" if 'data' is 0, in which case 'length' is
-        // ignored.
     : d_data_p(data), d_length(length) {}
 
+    /// Create a `RegionHexPrinter` object that prints the bytes in
+    /// hexadecimal notation that make up the specified `object`.
     template <class T>
     RegionHexPrinter(const T& object)
-        // Create a 'RegionHexPrinter' object that prints the bytes in
-        // hexadecimal notation that make up the specified 'object'.
     : d_data_p(static_cast<const unsigned char*>(
                                             static_cast<const void*>(&object)))
     , d_length(sizeof object)
     {}
 
+    /// Create a `RegionHexPrinter` object that prints the specified `data`
+    /// of the specified as `length` as bytes in hexadecimal or prints the
+    /// text "<**MISSING**>" if `data` is 0, in which case `length` is
+    /// ignored.
     RegionHexPrinter(const char *data, bsl::size_t length)
-        // Create a 'RegionHexPrinter' object that prints the specified 'data'
-        // of the specified as 'length' as bytes in hexadecimal or prints the
-        // text "<**MISSING**>" if 'data' is 0, in which case 'length' is
-        // ignored.
     : d_data_p(static_cast<const unsigned char*>(
                                                static_cast<const void*>(data)))
     , d_length(length) {}
@@ -1834,36 +1849,36 @@ class RegionHexPrinter {
     }
 };
 
+/// Return a `RegionHexPrinter` object that prints the text "<**MISSING**>".
 inline
 RegionHexPrinter hexPrintMissing()
-    // Return a 'RegionHexPrinter' object that prints the text "<**MISSING**>".
 {
     return RegionHexPrinter();
 }
 
+/// Return a `RegionHexPrinter` object that prints the specified `data` of
+/// the specified as `length` as bytes in hexadecimal or prints the text
+/// "<**MISSING**>" if `data` is 0, in which case `length` is ignored.
 inline
 RegionHexPrinter hexPrintRegion(const unsigned char *data, bsl::size_t length)
-    // Return a 'RegionHexPrinter' object that prints the specified 'data' of
-    // the specified as 'length' as bytes in hexadecimal or prints the text
-    // "<**MISSING**>" if 'data' is 0, in which case 'length' is ignored.
 {
     return RegionHexPrinter(data, length);
 }
 
+/// Return a `RegionHexPrinter` object that prints the bytes in hexadecimal
+/// notation that make up the specified `object`.
 template <class T>
 inline
 RegionHexPrinter hexPrintObject(const T& object)
-    // Return a 'RegionHexPrinter' object that prints the bytes in hexadecimal
-    // notation that make up the specified 'object'.
 {
     return RegionHexPrinter(object);
 }
 
+/// Return a `RegionHexPrinter` object that prints the specified `data` of
+/// the specified as `length` as bytes in hexadecimal or prints the text
+/// "<**MISSING**>" if `data` is 0, in which case `length` is ignored.
 inline
 RegionHexPrinter hexPrintChars(const char *data, bsl::size_t length)
-    // Return a 'RegionHexPrinter' object that prints the specified 'data' of
-    // the specified as 'length' as bytes in hexadecimal or prints the text
-    // "<**MISSING**>" if 'data' is 0, in which case 'length' is ignored.
 {
     return RegionHexPrinter(data, length);
 }
@@ -1872,10 +1887,10 @@ RegionHexPrinter hexPrintChars(const char *data, bsl::size_t length)
                     // class MockAccumulatingHashingAlgorithm
                     // ======================================
 
+/// This class implements a mock hashing algorithm that provides a way to
+/// accumulate and then examine data that is being passed into hashing
+/// algorithms by `hashAppend`.
 class MockAccumulatingHashingAlgorithm {
-    // This class implements a mock hashing algorithm that provides a way to
-    // accumulate and then examine data that is being passed into hashing
-    // algorithms by 'hashAppend'.
 
   public:
     // PUBLIC TYPES
@@ -1886,44 +1901,52 @@ class MockAccumulatingHashingAlgorithm {
     Regions d_data;  // saved hashed data
 
     // PRIVATE ACCESSORS
+
+    /// Return `true` if the next hashed regions starting at the specified
+    /// `idx` contain the hashed segments of the specified `value`.  Return
+    /// `false` if there aren't enough hashed regions or if those regions
+    /// differ in value; that includes if `idx >= numOfHashedRegions()`.
     template <class T>
     bool regionsAtIdxImp(bsl::size_t idx,
                          const T&    value) const;
-        // Return 'true' if the next hashed regions starting at the specified
-        // 'idx' contain the hashed segments of the specified 'value'.  Return
-        // 'false' if there aren't enough hashed regions or if those regions
-        // differ in value; that includes if 'idx >= numOfHashedRegions()'.
 
   public:
     // CREATORS
-    MockAccumulatingHashingAlgorithm(bslma::Allocator *allocator);
-        // Create an object of this type.
 
+    /// Create an object of this type.
+    MockAccumulatingHashingAlgorithm(bslma::Allocator *allocator);
+
+    /// Destroy this object
     ~MockAccumulatingHashingAlgorithm();
-        // Destroy this object
 
     // MANIPULATORS
-    void operator()(const void *voidPtr, bsl::size_t length);
-        // Append the data of the specified 'length' at 'voidPtr' for later
-        // inspection.
 
+    /// Append the data of the specified `length` at `voidPtr` for later
+    /// inspection.
+    void operator()(const void *voidPtr, bsl::size_t length);
+
+    /// Remove all collected data.
     void reset();
-        // Remove all collected data.
 
     // ACCESSORS
+
+    /// Return an object that when inserted into a `bsl::ostream` will print
+    /// the region with the specified `index` as bytes using hexadecimal
+    /// base or the text "<**MISSING**>" if `index >= numOfHashedRegions()`.
+    /// The behavior is undefined if the returned object or a copy of it is
+    /// retained beyond a modifying operation on this algorithm object,
+    /// including destruction.
     RegionHexPrinter regionAsHex(bsl::size_t index) const;
-        // Return an object that when inserted into a 'bsl::ostream' will print
-        // the region with the specified 'index' as bytes using hexadecimal
-        // base or the text "<**MISSING**>" if 'index >= numOfHashedRegions()'.
-        // The behavior is undefined if the returned object or a copy of it is
-        // retained beyond a modifying operation on this algorithm object,
-        // including destruction.
 
+    /// Return `true` if the hashed region indicated by the specified `idx`
+    /// equals to the specified `value`.  Return `false` if the hashed
+    /// region is different or if `idx >= numOfHashedRegions()`.
     bool regionAtIndexIs(bsl::size_t idx, const Region& region) const;
-        // Return 'true' if the hashed region indicated by the specified 'idx'
-        // equals to the specified 'value'.  Return 'false' if the hashed
-        // region is different or if 'idx >= numOfHashedRegions()'.
 
+    /// Return `true` if the next hashed regions starting at the specified
+    /// `idx` contain the hashed segments of the specified `value`.  Return
+    /// `false` if there aren't enough hashed regions or if those regions
+    /// differ in value; that includes if `idx >= numOfHashedRegions()`.
     bool regionsAtIndexAre(bsl::size_t idx, bool                  value) const;
     bool regionsAtIndexAre(bsl::size_t idx, int                   value) const;
     bool regionsAtIndexAre(bsl::size_t idx, const bdlt::Date&     value) const;
@@ -1938,16 +1961,12 @@ class MockAccumulatingHashingAlgorithm {
     bool regionsAtIndexAre(bsl::size_t idx, bsls::Types::Int64    value) const;
     bool regionsAtIndexAre(bsl::size_t idx, const bdlt::Time&     value) const;
     bool regionsAtIndexAre(bsl::size_t idx, const void *          value) const;
-        // Return 'true' if the next hashed regions starting at the specified
-        // 'idx' contain the hashed segments of the specified 'value'.  Return
-        // 'false' if there aren't enough hashed regions or if those regions
-        // differ in value; that includes if 'idx >= numOfHashedRegions()'.
 
+    /// Return a `const` reference to the collected data.
     const Regions& getData() const;
-        // Return a 'const' reference to the collected data.
 
+    /// Return the number of memory regions hashed.
     bsl::size_t numOfHashedRegions() const;
-        // Return the number of memory regions hashed.
 };
 
                     // --------------------------------------
@@ -2150,21 +2169,22 @@ class HashHexPrinter {
 
   public:
     // CREATORS
+
+    /// Create a `HashHexPrinter` object that prints all the hashed regions
+    /// stored in the specified `hasher`.
     explicit
     HashHexPrinter(const MockAccumulatingHashingAlgorithm *hasher)
-        // Create a 'HashHexPrinter' object that prints all the hashed regions
-        // stored in the specified 'hasher'.
     : d_hasher_p(hasher)
     , d_startIndex(0)
     , d_endIndex(hasher->numOfHashedRegions())
     {}
 
+    /// Create a `HashHexPrinter` object that prints all the hashed regions
+    /// stored in the specified `hasher`.
     explicit
     HashHexPrinter(const MockAccumulatingHashingAlgorithm *hasher,
                    bsl::size_t                             startIndex,
                    bsl::size_t                             length)
-        // Create a 'HashHexPrinter' object that prints all the hashed regions
-        // stored in the specified 'hasher'.
     : d_hasher_p(hasher)
     , d_startIndex(startIndex)
     , d_endIndex(startIndex + length)
@@ -2191,21 +2211,21 @@ class HashHexPrinter {
     }
 };
 
+/// Return a `HashHexPrinter` object that prints all the currently
+/// accumulated regions of the specified `hasher` in hexadecimal format.
 HashHexPrinter hexPrint(const MockAccumulatingHashingAlgorithm& hasher)
-    // Return a 'HashHexPrinter' object that prints all the currently
-    // accumulated regions of the specified 'hasher' in hexadecimal format.
 {
     return HashHexPrinter(&hasher);
 }
 
+/// Return a `HashHexPrinter` object that prints in hexadecimal format, from
+/// the currently accumulated regions of the specified `hasher` the
+/// specified `numRegions` regions starting from the specified
+/// `startIndex`.  If there aren't enough accumulated regions the missing
+/// regions are printed using the standard "<**MISSING**>" text.
 HashHexPrinter hexPrint(const MockAccumulatingHashingAlgorithm& hasher,
                         bsl::size_t                             startIndex,
                         bsl::size_t                             numRegions)
-    // Return a 'HashHexPrinter' object that prints in hexadecimal format, from
-    // the currently accumulated regions of the specified 'hasher' the
-    // specified 'numRegions' regions starting from the specified
-    // 'startIndex'.  If there aren't enough accumulated regions the missing
-    // regions are printed using the standard "<**MISSING**>" text.
 {
     return HashHexPrinter(&hasher, startIndex, numRegions);
 }
@@ -2220,61 +2240,61 @@ HashHexPrinter hexPrint(const MockAccumulatingHashingAlgorithm& hasher,
 
 // This section of code is testing if a clang-specific issue template
 // compilation still exist, and so we still need the workaround in the header
-// 'bdld_datum.h'.
+// `bdld_datum.h`.
 //
 ///The Background
 ///--------------
-// We have been requested to replace the inclusion of '<bdldfp_decimal.h>' (for
-// 'bdldfp::Decimal64') with just forward declarations, because it made the
-// compilation of '<bdld_datum.h>' very expensive in a certain key library.
+// We have been requested to replace the inclusion of `<bdldfp_decimal.h>` (for
+// `bdldfp::Decimal64`) with just forward declarations, because it made the
+// compilation of `<bdld_datum.h>` very expensive in a certain key library.
 //
-// We have created '<bdldfp_decimal.fwd.h>' to forward declare the decimal
+// We have created `<bdldfp_decimal.fwd.h>` to forward declare the decimal
 // floating point types.  Including only the forward declaration header makes
-// 'bdldfp::Decimal64' an incomplete type while '<bdld_datum.h>' is being
-// compiled.  Those who need to use 'bdld::Datum' with 'bdldfp::Decimal64' need
-// just to include '<bdldfp_decimal.h>' in their .cpp file, or so we thought.
+// `bdldfp::Decimal64` an incomplete type while `<bdld_datum.h>` is being
+// compiled.  Those who need to use `bdld::Datum` with `bdldfp::Decimal64` need
+// just to include `<bdldfp_decimal.h>` in their .cpp file, or so we thought.
 //
 ///What is the Issue?
 ///------------------
-// For historical reasons '<bdld_datum.h>' defines two function templates, the
-// member template 'apply' for the Visitor Pattern, and the 'bdld::hashAppend'
+// For historical reasons `<bdld_datum.h>` defines two function templates, the
+// member template `apply` for the Visitor Pattern, and the `bdld::hashAppend`
 // free function for the BDE-style chained hash-calculation implementation.
 // Both of these functions implement the Visitor Pattern so they suffer from
 // the same consequences: generally, using a Visitor makes code dependent on
-// *all* possible visitable types, and in this specific case 'bdld::Datum'
+// *all* possible visitable types, and in this specific case `bdld::Datum`
 // offers by-value accessors only.
 //
-// The 'bdldfp::Decimal64 theDecimal() const' accessor uses 'bdldfp::Decimal64'
-// by value in its signature.  But in the header 'bdldfp::Decimal64' is an
+// The `bdldfp::Decimal64 theDecimal() const` accessor uses `bdldfp::Decimal64`
+// by value in its signature.  But in the header `bdldfp::Decimal64` is an
 // incomplete type, so calling that function is not possible until we include
-// '<bdldfp_decimal.h>'.  But the function templates we define (in the
-// '<bdld_datum.h>') header actually directly call 'theDecimal64()'.
+// `<bdldfp_decimal.h>`.  But the function templates we define (in the
+// `<bdld_datum.h>`) header actually directly call `theDecimal64()`.
 //
 // Two-phase name lookup rules in C++ declares that all names that are not
 // dependent on a template argument must be resolved during the first phase of
 // template compilation, and only during that first phase.  Whatever is found
 // while compiling our header is what must be used as the meaning of
 // non-dependent names during the second phase, the instantiation of the
-// function template.  'bdldfp::Decimal64' is not a dependent name so clang++,
+// function template.  `bdldfp::Decimal64` is not a dependent name so clang++,
 // that takes the lookup rules to the letter "remembers" the incomplete type,
 // and we end up with the error message:
-//..
-// error: calling 'theDecimal64' with incomplete return type
-//        'bdldfp::Decimal64' (aka 'BloombergLP::bdldfp::Decimal_Type64')
+// ```
+// error: calling `theDecimal64` with incomplete return type
+//        `bdldfp::Decimal64` (aka `BloombergLP::bdldfp::Decimal_Type64`)
 //    visitor(theDecimal64());
 //    ^ ~~~~~~~~~~~~~
-// note: 'theDecimal64' declared here
+// note: `theDecimal64` declared here
 //    bdldfp::Decimal64 theDecimal64() const;
-// note : forward declaration of 'BloombergLP::bdldfp::Decimal_Type64'
+// note : forward declaration of `BloombergLP::bdldfp::Decimal_Type64`
 //    class Decimal_Type64;
 //          ^
-//..
+// ```
 //
 ///Why Testing Here?
 ///-----------------
 // Due to large amounts of code depending on transitive includes we are unable
-// to remove the inclusion of '<bdldfp_decimal.h>' from '<bdld_datum.h>'.  The
-// design decision was taken to keep the header '<bdld_datum.h>' itself to have
+// to remove the inclusion of `<bdldfp_decimal.h>` from `<bdld_datum.h>`.  The
+// design decision was taken to keep the header `<bdld_datum.h>` itself to have
 // minimal conditional compilation, and that we recreate the error-situation
 // for clang within the test driver to detect starts behaving like the other
 // compilers do.
@@ -2283,7 +2303,7 @@ HashHexPrinter hexPrint(const MockAccumulatingHashingAlgorithm& hasher,
 ///--------------
 // The workaround use is that we make the function being called "dependent" of
 // a (function) template argument (using a little utility class template, or
-// metafunction) so the 'theDecimal64()' will be bound in the second phase
+// metafunction) so the `theDecimal64()` will be bound in the second phase
 // (instantiation phase) name lookup.
 
 namespace {
@@ -2298,12 +2318,12 @@ ForwardDeclared returnByValue();
 template <class t_VISITOR>
 void callerTemplate(const t_VISITOR& v) {
     v.call(returnByValue());
-// error: calling 'returnByValue' with incomplete return type 'ForwardDeclared'
+// error: calling `returnByValue` with incomplete return type `ForwardDeclared`
 // If you see the above error during compilation with clang please increase the
-// major version number in the '#if' around this code.  If you see a similar
+// major version number in the `#if` around this code.  If you see a similar
 // error from a compiler that is not clang it means that the function-pointer
-// workaround code will have to remain in '<bdld_datum.h>'.  See the large
-// comment section right after the '#if' above for an explanation of what is
+// workaround code will have to remain in `<bdld_datum.h>`.  See the large
+// comment section right after the `#if` above for an explanation of what is
 // tested here, and why.
 }
 
@@ -2338,7 +2358,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: Unexpected 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: Unexpected `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
 #if defined(BSLS_PLATFORM_CMP_CLANG) &&                                       \
@@ -2356,13 +2376,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -2374,147 +2394,147 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic Use of 'bdld::Datum'
+///Example 1: Basic Use of `bdld::Datum`
 ///- - - - - - - - - - - - - - - - - - -
 // This example illustrates the construction, manipulation and lifecycle of
-// datums.  Datums are created via a set of static methods called 'createTYPE',
-// 'copyTYPE' or 'adoptTYPE' where TYPE is one of the supported types.  The
+// datums.  Datums are created via a set of static methods called `createTYPE`,
+// `copyTYPE` or `adoptTYPE` where TYPE is one of the supported types.  The
 // creation methods take a value and sometimes an allocator.
 //
 // First, we create an allocator that will supply dynamic memory needed for the
-// 'Datum' objects being created:
-//..
+// `Datum` objects being created:
+// ```
     bslma::TestAllocator oa("object");
-//..
-// Then, we create a 'Datum', 'number', having an integer value of '3':
-//..
+// ```
+// Then, we create a `Datum`, `number`, having an integer value of '3':
+// ```
     Datum number = Datum::createInteger(3);
-//..
+// ```
 // Next, we verify that the created object actually represents an integer value
 // and verify that the value was set correctly:
-//..
+// ```
     ASSERT(true == number.isInteger());
     ASSERT(3    == number.theInteger());
-//..
+// ```
 // Note that this object does not allocate any dynamic memory on any supported
 // platforms and thus we do not need to explicitly destroy this object to
 // release any dynamic memory.
 //
-// Then, we create a 'Datum', 'cityName', having the string value "Boston":
-//..
+// Then, we create a `Datum`, `cityName`, having the string value "Boston":
+// ```
     Datum cityName = Datum::copyString("Boston", strlen("Boston"), &oa);
-//..
-// Note, that the 'copyString' makes a copy of the specified string and will
+// ```
+// Note, that the `copyString` makes a copy of the specified string and will
 // allocate memory to hold the copy.  Whether the copy is stored in the object
 // internal storage buffer or in memory obtained from the allocator depends on
 // the length of the string and the platform.
 //
 // Next, we verify that the created object actually represents a string value
 // and verify that the value was set correctly:
-//..
+// ```
     ASSERT(true     == cityName.isString());
     ASSERT("Boston" == cityName.theString());
-//..
-// Finally, we destroy the 'cityName' object to deallocate memory used to hold
+// ```
+// Finally, we destroy the `cityName` object to deallocate memory used to hold
 // string value:
-//..
+// ```
     Datum::destroy(cityName, &oa);
-//..
+// ```
 ///
-///Example 2: Creating 'Datum' Referring to the Array of 'Datum' objects
+///Example 2: Creating `Datum` Referring to the Array of `Datum` objects
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates the construction of the 'Datum' object referring
-// to an existing array of 'Datum' object.
+// This example demonstrates the construction of the `Datum` object referring
+// to an existing array of `Datum` object.
 //
-// First, we create array of the 'Datum' object:
-//..
+// First, we create array of the `Datum` object:
+// ```
     const char theDay[] = "Birthday";
     const Datum array[2] = { Datum::createDate(bdlt::Date(2015, 10, 15)),
                              Datum::createStringRef(StringRef(theDay), &oa) };
-//..
+// ```
 // Note, that in this case, the second element of the array does not make a
 // copy of the string, but represents a string reference.
 //
-// Then, we create a 'Datum' that refers to the array of Datums:
-//..
+// Then, we create a `Datum` that refers to the array of Datums:
+// ```
     const Datum arrayRef = Datum::createArrayReference(array, 2, &oa);
-//..
-// Next, we verify that the created 'Datum' represents the array value and that
+// ```
+// Next, we verify that the created `Datum` represents the array value and that
 // elements of this array can be accessed.  We also verify that the object
 // refers to external data:
-//..
+// ```
     ASSERT(true == arrayRef.isArray());
     ASSERT(true == arrayRef.isExternalReference());
     ASSERT(2    == arrayRef.theArray().length());
     ASSERT(array[0] == arrayRef.theArray().data()[0]);
     ASSERT(array[1] == arrayRef.theArray().data()[1]);
-//..
-// Then, we call 'destroy' on 'arrayRef', releasing any memory it may have
+// ```
+// Then, we call `destroy` on `arrayRef`, releasing any memory it may have
 // allocated, and verify that the external array is intact:
-//..
+// ```
     Datum::destroy(arrayRef, &oa);
 
     ASSERT(bdlt::Date(2015, 10, 15) == array[0].theDate());
     ASSERT("Birthday"               == array[1].theString());
-//..
+// ```
 // Finally, we need to deallocate memory that was potentially allocated for the
-// (external) 'Datum' string in the external 'array':
-//..
+// (external) `Datum` string in the external `array`:
+// ```
     Datum::destroy(array[1], &oa);
-//..
+// ```
 //
-///Example 3: Creating the 'Datum' having the array value.
+///Example 3: Creating the `Datum` having the array value.
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following example illustrates the construction of an owned array of
 // datums.
 //
 // *WARNING*: Using corresponding builder components is a preferred way of
-// constructing 'Datum' array objects.  This example shows how a user-facing
-// builder component might use the primitives provided in 'bdld_datum'.
+// constructing `Datum` array objects.  This example shows how a user-facing
+// builder component might use the primitives provided in `bdld_datum`.
 //
 // First we create an array of datums:
-//..
+// ```
     DatumMutableArrayRef bartArray;
     Datum::createUninitializedArray(&bartArray, 3, &oa);
     bartArray.data()[0] = Datum::createStringRef("Bart", &oa);
     bartArray.data()[1] = Datum::createStringRef("Simpson", &oa);
     bartArray.data()[2] = Datum::createInteger(10);
     *bartArray.length() = 3;
-//..
+// ```
 // Then, we construct the Datum that holds the array itself:
-//..
+// ```
     Datum bart = Datum::adoptArray(bartArray);
-//..
-// Note that after the 'bartArray' has been adopted, the 'bartArray' object can
+// ```
+// Note that after the `bartArray` has been adopted, the `bartArray` object can
 // be destroyed without invalidating the array contained in the datum.
 //
 // A DatumArray may be adopted by only one datum. If the DatumArray is not
-// adopted, it must be destroyed via 'disposeUnitializedArray'.
+// adopted, it must be destroyed via `disposeUnitializedArray`.
 //
 // Now, we can access the contents of the array through the datum:
-//..
+// ```
     ASSERT(3      == bart.theArray().length());
     ASSERT("Bart" == bart.theArray()[0].theString());
-//..
+// ```
 // Finally, we destroy the datum, which releases all memory associated with the
 // array:
-//..
+// ```
     Datum::destroy(bart, &oa);
-//..
+// ```
 // Note that the same allocator must be used to create the array, the
 // elements, and to destroy the datum.
 //
-///Example 4: Creating the 'Datum' having the map value
+///Example 4: Creating the `Datum` having the map value
 /// - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following example illustrates the construction of a map of datums
 // indexed by string keys.
 //
 // *WARNING*: Using corresponding builder components is a preferred way of
-// constructing 'Datum' map objects.  This example shows how a user-facing
-// builder component might use the primitives provided in 'bdld_datum'.
+// constructing `Datum` map objects.  This example shows how a user-facing
+// builder component might use the primitives provided in `bdld_datum`.
 //
 // First we create a map of datums:
-//..
+// ```
     DatumMutableMapRef lisaMap;
     Datum::createUninitializedMap(&lisaMap, 3, &oa);
     lisaMap.data()[0] = DatumMapEntry(StringRef("firstName"),
@@ -2524,28 +2544,28 @@ int main(int argc, char *argv[])
     lisaMap.data()[2] = DatumMapEntry(StringRef("age"),
                                       Datum::createInteger(8));
     *lisaMap.size() = 3;
-//..
+// ```
 // Then, we construct the Datum that holds the map itself:
-//..
+// ```
     Datum lisa = Datum::adoptMap(lisaMap);
-//..
-// Note that after the 'lisaMap' has been adopted, the 'lisaMap' object can be
+// ```
+// Note that after the `lisaMap` has been adopted, the `lisaMap` object can be
 // destroyed without invalidating the map contained in the datum.
 //
-// A 'DatumMutableMapRef' may be adopted by only one datum. If the
-// 'DatumMutableMapRef' is not adopted, it must be destroyed via
-// 'disposeUninitializedMap'.
+// A `DatumMutableMapRef` may be adopted by only one datum. If the
+// `DatumMutableMapRef` is not adopted, it must be destroyed via
+// `disposeUninitializedMap`.
 //
 // Now, we can access the contents of the map through the datum:
-//..
+// ```
     ASSERT(3      == lisa.theMap().size());
     ASSERT("Lisa" == lisa.theMap().find("firstName")->theString());
-//..
+// ```
 // Finally, we destroy the datum, which releases all memory associated with the
 // array:
-//..
+// ```
     Datum::destroy(lisa, &oa);
-//..
+// ```
 // Note that the same allocator must be used to create the map, the elements,
 // and to destroy the datum.
 ///
@@ -2553,7 +2573,7 @@ int main(int argc, char *argv[])
 ///- - - - - - - - - - - - - -
 // The following example illustrates an important idiom: the en masse
 // destruction of a series of datums allocated in an arena.
-//..
+// ```
     {
         // scope
         bsls::AlignedBuffer<200> bufferStorage;
@@ -2577,20 +2597,20 @@ int main(int argc, char *argv[])
         (void)selma;
         (void)maggie;
     } // end of scope
-//..
-// Here all the allocated memory is lodged in the 'arena' allocator. At the end
-// of the scope the memory is freed in a single step. Calling 'destroy' for
+// ```
+// Here all the allocated memory is lodged in the `arena` allocator. At the end
+// of the scope the memory is freed in a single step. Calling `destroy` for
 // each datum individually is neither necessary nor permitted.
 //
 ///Example 6: User-defined, error and binary types
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// Imagine we are using 'Datum' within an expression evaluation subsystem.
+// Imagine we are using `Datum` within an expression evaluation subsystem.
 // Within that subsystem, along with the set of types defined by
-// 'Datum::DataType' we also need to hold 'Sequence' and 'Choice' types within
-// 'Datum' values (which are not natively represented by 'Datum').  First, we
+// `Datum::DataType` we also need to hold `Sequence` and `Choice` types within
+// `Datum` values (which are not natively represented by `Datum`).  First, we
 // define the set of types used by our subsystem that are an extension to the
-// types in 'DatumType':
-//..
+// types in `DatumType`:
+// ```
     struct Sequence {
         struct Sequence *d_next_p;
         int              d_value;
@@ -2600,26 +2620,26 @@ int main(int argc, char *argv[])
         e_SEQUENCE = 5,
         e_CHOICE = 6
     };
-//..
-// Notice that the numeric values will be provided as the 'type' attribute when
-// constructing 'Datum' object.
+// ```
+// Notice that the numeric values will be provided as the `type` attribute when
+// constructing `Datum` object.
 //
-// Then we create a 'Sequence' object, and create a 'Datum' to hold it (note
+// Then we create a `Sequence` object, and create a `Datum` to hold it (note
 // that we've created the object on the stack for clarity):
-//..
+// ```
     Sequence sequence;
     const Datum datumS0 = Datum::createUdt(&sequence, e_SEQUENCE);
     ASSERT(true == datumS0.isUdt());
-//..
-// Next, we verify that the 'datumS0' refers to the external 'Sequence' object:
-//..
+// ```
+// Next, we verify that the `datumS0` refers to the external `Sequence` object:
+// ```
     bdld::DatumUdt udt = datumS0.theUdt();
     ASSERT(e_SEQUENCE == udt.type());
     ASSERT(&sequence  == udt.data());
-//..
-// Then, we create a 'Datum' to hold a 'DatumError', consisting of an error
+// ```
+// Then, we create a `Datum` to hold a `DatumError`, consisting of an error
 // code and an error description message:
-//..
+// ```
     enum { e_FATAL_ERROR = 100 };
     Datum datumError = Datum::createError(e_FATAL_ERROR, "Fatal error.", &oa);
     ASSERT(true == datumError.isError());
@@ -2627,9 +2647,9 @@ int main(int argc, char *argv[])
     ASSERT(e_FATAL_ERROR == error.code());
     ASSERT("Fatal error." == error.message());
     Datum::destroy(datumError, &oa);
-//..
-// Finally, we create a 'Datum' that holds an arbitrary binary data:
-//..
+// ```
+// Finally, we create a `Datum` that holds an arbitrary binary data:
+// ```
     int buffer[] = { 1, 2, 3 };
     Datum datumBlob = Datum::copyBinary(buffer, sizeof(buffer), &oa);
     buffer[2] = 666;
@@ -2638,7 +2658,7 @@ int main(int argc, char *argv[])
     ASSERT(blob.size() == 3 * sizeof(int));
     ASSERT(reinterpret_cast<const int*>(blob.data())[2] == 3);
     Datum::destroy(datumBlob, &oa);
-//..
+// ```
 // Note, that the bytes have been copied.
       } break;
       case 35: {
@@ -2647,28 +2667,28 @@ int main(int argc, char *argv[])
         //  This test became necessary as of December 2022, when someone
         //  discovered that the Clang 13 (and later) started taking advantage
         //  of the dormant UB in the
-        //  'bslalg::ArrayPrimitive::uninitializedFillN' caused by
-        //  uninitialized anonymous union member of the 'd_as' 'TypedAccess'
+        //  `bslalg::ArrayPrimitive::uninitializedFillN` caused by
+        //  uninitialized anonymous union member of the `d_as` `TypedAccess`
         //  field when in optimized build modes.  The utility function was
-        //  accessing uninitialized portion of the  'Datum' for internal
+        //  accessing uninitialized portion of the  `Datum` for internal
         //  optimization, resulting in UB.  Compiler optimizations reliably
-        //  caused 'bsl::vector<bdld::Datum>'s constructor taking a 'count'
-        //  number of copies of a 'value' to produce vectors of datums having
+        //  caused `bsl::vector<bdld::Datum>`s constructor taking a `count`
+        //  number of copies of a `value` to produce vectors of datums having
         //  erroneous values.  See {DRQS 170994605} for details.
         //
         //Concerns:
-        //: 1 Creating a vector of null datums using the count-and-value
-        //:   constructor, and supplying a null datum value created with
-        //:   'bdld::Datum::createNull', produces a vector with the appropriate
-        //:   number of null-valued datums (i.e., datums that do not have an
-        //:   erroneous or corrupt value.)
+        // 1. Creating a vector of null datums using the count-and-value
+        //    constructor, and supplying a null datum value created with
+        //    `bdld::Datum::createNull`, produces a vector with the appropriate
+        //    number of null-valued datums (i.e., datums that do not have an
+        //    erroneous or corrupt value.)
         //
         //Plan:
-        //: 1 Create 3 vectors having 1, 2, and 3 null datum objects,
-        //:   respectively, using the count-and-value constructor and an
-        //:   initial datum value created with 'bdld::Datum::createNull'.
-        //:   Verify that the resulting datum elements have the null value, and
-        //:   not an erroneous or corrupt value.
+        // 1. Create 3 vectors having 1, 2, and 3 null datum objects,
+        //    respectively, using the count-and-value constructor and an
+        //    initial datum value created with `bdld::Datum::createNull`.
+        //    Verify that the resulting datum elements have the null value, and
+        //    not an erroneous or corrupt value.
         //
         // Testing:
         //   VECTOR OF NULLS TEST
@@ -2695,21 +2715,21 @@ int main(int argc, char *argv[])
         // BSLH HASHING TESTS
         //
         // Concerns:
-        //: 1 All data stored in the 'Datum' is hashed, including the data
-        //:   type, and miscellaneous data like size of a collection/string.
-        //:
-        //: 2 No extra information (not forming the value of a 'Datum') is
-        //:   hashed.
-        //:
-        //: 3 No memory is allocated during hashing other than by the hash
-        //:   functor itself.
-        //:
-        //: 4 The 'Datum' parameter of 'hashAppend' is 'const'.
+        // 1. All data stored in the `Datum` is hashed, including the data
+        //    type, and miscellaneous data like size of a collection/string.
+        //
+        // 2. No extra information (not forming the value of a `Datum`) is
+        //    hashed.
+        //
+        // 3. No memory is allocated during hashing other than by the hash
+        //    functor itself.
+        //
+        // 4. The `Datum` parameter of `hashAppend` is `const`.
         //
         // Plan:
-        //:   Hash 'const' values of each possible 'Datum' type and verify
-        //:   using a 'MockAccumulatingHashingAlgorithm' that the type
-        //:   identifier and all the data, and nothing but the data is hashed.
+        //    Hash `const` values of each possible `Datum` type and verify
+        //    using a `MockAccumulatingHashingAlgorithm` that the type
+        //    identifier and all the data, and nothing but the data is hashed.
         //
         // Testing:
         //   void hashAppend(hashAlgorithm, datum);
@@ -2717,13 +2737,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nBSLH HASHING TESTS"
                              "\n===================\n";
 
-        if (verbose) cout << "\nTesting 'hashAppend' for datums having "
+        if (verbose) cout << "\nTesting `hashAppend` for datums having "
                                                      "non-aggregate values.\n";
         {
             bslma::TestAllocator         da("default", veryVeryVeryVerbose);
             bslma::DefaultAllocatorGuard guard(&da);
 
-            if (verbose) cout << "\tTesting 'hashAppend' for boolean.\n";
+            if (verbose) cout << "\tTesting `hashAppend` for boolean.\n";
             {
                 const static bool  DATA[] = { true, false };
                 const size_t       DATA_LEN = sizeof DATA / sizeof *DATA;
@@ -2761,11 +2781,11 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) cout << "\tTesting 'hashAppend' for 'Date'.\n";
+            if (verbose) cout << "\tTesting `hashAppend` for `Date`.\n";
             {
                 const static struct {
                     int        d_line;    // line number
-                    bdlt::Date d_value;   // 'Date' value
+                    bdlt::Date d_value;   // `Date` value
                 } DATA[] = {
                     //LINE VALUE
                     //---- -------------------
@@ -2810,11 +2830,11 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) cout << "\tTesting 'hashAppend' for 'Datetime'.\n";
+            if (verbose) cout << "\tTesting `hashAppend` for `Datetime`.\n";
             {
                 const static struct {
                     int            d_line;    // line number
-                    bdlt::Datetime d_value;   // 'Datetime' value
+                    bdlt::Datetime d_value;   // `Datetime` value
                 } DATA[] = {
                     //LINE VALUE
                     //---- ---------------------------------------------
@@ -2866,8 +2886,8 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) cout << "\tTesting 'hashAppend' for "
-                                                       "'DatetimeInterval'.\n";
+            if (verbose) cout << "\tTesting `hashAppend` for "
+                                                       "`DatetimeInterval`.\n";
             {
                 const static struct {
                     int                    d_line;    // line number
@@ -2931,11 +2951,11 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) cout << "\tTesting 'hashAppend' for 'Decimal64'.\n";
+            if (verbose) cout << "\tTesting `hashAppend` for `Decimal64`.\n";
             {
                 const static struct {
                     int               d_line;   // line number
-                    bdldfp::Decimal64 d_value;  // 'Decimal64' value
+                    bdldfp::Decimal64 d_value;  // `Decimal64` value
                 } DATA[] = {
                     //LINE VALUE
                     //---- ---------------------
@@ -2991,7 +3011,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) cout << "\tTesting 'hashAppend' for 'double'.\n";
+            if (verbose) cout << "\tTesting `hashAppend` for `double`.\n";
             {
                 const static struct {
                     int      d_line;          // line number
@@ -3044,7 +3064,7 @@ int main(int argc, char *argv[])
                                                      bdld::Datum::e_DOUBLE));
 
                     const double HASHED_VALUE =
-                        // 'Datum' may not preserve the extra bits of a NaN
+                        // `Datum` may not preserve the extra bits of a NaN
                                 (VALUE != VALUE) && k_DOUBLE_NAN_BITS_PRESERVED
                                 ? VALUE
                                 : D.theDouble();
@@ -3057,7 +3077,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) cout << "\tTesting 'hashAppend' for 'Error'.\n";
+            if (verbose) cout << "\tTesting `hashAppend` for `Error`.\n";
             {
                 const static struct {
                     int d_line;   // line number
@@ -3158,7 +3178,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) cout << "\tTesting 'hashAppend' for 'int'.\n";
+            if (verbose) cout << "\tTesting `hashAppend` for `int`.\n";
             {
                 const static struct {
                     int d_line;   // line number
@@ -3214,7 +3234,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) cout << "\tTesting 'hashAppend' for 'int64'.\n";
+            if (verbose) cout << "\tTesting `hashAppend` for `int64`.\n";
             {
                 const static struct {
                     int   d_line;   // line number
@@ -3275,7 +3295,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) cout << "\tTesting 'hashAppend' for 'null'.\n";
+            if (verbose) cout << "\tTesting `hashAppend` for `null`.\n";
             {
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
                 bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
@@ -3299,7 +3319,7 @@ int main(int argc, char *argv[])
                 Datum::destroy(D, &oa);
             }
 
-            if (verbose) cout << "\tTesting 'hashAppend' for strings.\n";
+            if (verbose) cout << "\tTesting `hashAppend` for strings.\n";
             {
                 const static struct {
                     int         d_line;    // line number
@@ -3344,7 +3364,7 @@ int main(int argc, char *argv[])
                     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
                     bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
 
-                    // We could use here 'copyString', makes no difference for
+                    // We could use here `copyString`, makes no difference for
                     // the hash, all hash the string value using the same code.
                     const Datum D = Datum::createStringRef(buffer, &oa);
 
@@ -3373,11 +3393,11 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) cout << "\tTesting 'hashAppend' for 'Time'.\n";
+            if (verbose) cout << "\tTesting `hashAppend` for `Time`.\n";
             {
                 const static struct {
                     int        d_line;   // line number
-                    bdlt::Time d_value;  // 'Time' value
+                    bdlt::Time d_value;  // `Time` value
                 } DATA[] = {
                     //LINE VALUE
                     //---- --------------
@@ -3422,7 +3442,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) cout << "\tTesting 'hashAppend' for 'Udt'.\n";
+            if (verbose) cout << "\tTesting `hashAppend` for `Udt`.\n";
             {
                 static char dummy[]="";
                 const static struct {
@@ -3485,7 +3505,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) cout << "\tTesting 'hashAppend' for 'Binary'.\n";
+            if (verbose) cout << "\tTesting `hashAppend` for `Binary`.\n";
             {
                 const static struct {
                     int         d_line;  // line number
@@ -3567,12 +3587,12 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'hashAppend' for datums having "
+        if (verbose) cout << "\nTesting `hashAppend` for datums having "
                                                          "aggregate values.\n";
 
-        if (verbose) cout << "\tTesting 'hashAppend' for array.\n";
+        if (verbose) cout << "\tTesting `hashAppend` for array.\n";
         {
-            // Testing 'hashAppend' of an empty array
+            // Testing `hashAppend` of an empty array
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
             bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
 
@@ -3598,7 +3618,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            // Testing 'hashAppend' of a non-empty array
+            // Testing `hashAppend` of a non-empty array
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
             bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
 
@@ -3678,9 +3698,9 @@ int main(int argc, char *argv[])
             Datum::destroy(D, &oa);
         }
 
-        if (verbose) cout << "\tTesting 'hashAppend' for map.\n";
+        if (verbose) cout << "\tTesting `hashAppend` for map.\n";
         {
-            // Testing 'hashAppend' of an empty map
+            // Testing `hashAppend` of an empty map
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
             bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
 
@@ -3705,7 +3725,7 @@ int main(int argc, char *argv[])
             Datum::destroy(D, &oa);
         }
         {
-            // Testing 'hashAppend' of a non-empty map
+            // Testing `hashAppend` of a non-empty map
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
             bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
 
@@ -3827,9 +3847,9 @@ int main(int argc, char *argv[])
             Datum::destroy(D, &oa);
         }
 
-        if (verbose) cout << "\tTesting 'hashAppend' for int-map.\n";
+        if (verbose) cout << "\tTesting `hashAppend` for int-map.\n";
         {
-            // Testing 'hashAppend' of an empty map
+            // Testing `hashAppend` of an empty map
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
             bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
 
@@ -3854,7 +3874,7 @@ int main(int argc, char *argv[])
             Datum::destroy(D, &oa);
         }
         {
-            // Testing 'hashAppend' of a non-empty map
+            // Testing `hashAppend` of a non-empty map
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
             bslma::TestAllocator ha("hash", veryVeryVeryVerbose);
 
@@ -3974,7 +3994,7 @@ int main(int argc, char *argv[])
         // DATETIME ALLOCATION TESTS
         //
         // Concerns:
-        //: 1 Creating 'Datum' objects that store 'bdlt::Datetime' objects
+        // 1. Creating `Datum` objects that store `bdlt::Datetime` objects
         //    allocate memory only when outside of the date-time range between
         //    1930 Apr 15 00:00:00.000 and 2109 Sept 18 24:00:00.000.
         //
@@ -3982,7 +4002,7 @@ int main(int argc, char *argv[])
         //    A manual, brute-force test creating values on both side on the
         //    boundary and check if allocation has occurred or not.  Note that
         //    we expect allocation to occur if the (day) difference between the
-        //    stored date-time does not fit into a 'signed short' integer.
+        //    stored date-time does not fit into a `signed short` integer.
         //
         // Testing:
         //   Datum createDatetime(const bdlt::Datetime&, bslma::Allocator *);
@@ -4061,15 +4081,15 @@ int main(int argc, char *argv[])
         // MISALIGNED MEMORY ACCESS TEST
         //
         // Concerns:
-        //: 1 Creating 'Datum' objects that store long string values using an
-        //:   allocator that does not allocate aligned memory, should not cause
-        //:   misaligned memory access error.
+        // 1. Creating `Datum` objects that store long string values using an
+        //    allocator that does not allocate aligned memory, should not cause
+        //    misaligned memory access error.
         //
         // Plan:
-        //: 1 Create 'Datum' objects storing long string values using a
-        //:   'bdlma::BufferedSequentialAllocator'.  Compile with
-        //:   '-xmemalign=8s' option on any SUN machine.  Confirm there is no
-        //:   bus error.  (C-1)
+        // 1. Create `Datum` objects storing long string values using a
+        //    `bdlma::BufferedSequentialAllocator`.  Compile with
+        //    `-xmemalign=8s` option on any SUN machine.  Confirm there is no
+        //    bus error.  (C-1)
         //
         // Testing:
         //   MISALIGNED MEMORY ACCESS TEST (only on SUN machines)
@@ -4097,15 +4117,15 @@ int main(int argc, char *argv[])
       case 31: {
         // --------------------------------------------------------------------
         // TESTING COMPRESSIBILITY OF DECIMAL64
-        //    Check that 'Decimal64' fit in 6 bytes or not (as expected).
+        //    Check that `Decimal64` fit in 6 bytes or not (as expected).
         //
         // Concerns:
-        //: 1 Different values of Decimal64 can occupy different space.
+        // 1. Different values of Decimal64 can occupy different space.
         //
         // Plan:
-        //: 1 Store two different Decimal64 values in the 'variable-width
-        //:   encoding' format.  Verify number of bytes written to the buffer.
-        //:   (C-1)
+        // 1. Store two different Decimal64 values in the 'variable-width
+        //    encoding' format.  Verify number of bytes written to the buffer.
+        //    (C-1)
         //
         // Testing:
         //   COMPRESSIBILITY OF DECIMAL64
@@ -4115,14 +4135,14 @@ int main(int argc, char *argv[])
 
         unsigned char buffer[9];
 
-        if (verbose) cout << "\n\tVerify that '1.2345' fits in 6 bytes.\n";
+        if (verbose) cout << "\n\tVerify that `1.2345` fits in 6 bytes.\n";
         const unsigned char *variable1 =
             bdldfp::DecimalConvertUtil::decimal64ToVariableWidthEncoding(
                                                     buffer,
                                                     BDLDFP_DECIMAL_DD(1.2345));
         ASSERT(variable1 < buffer + 6);
 
-        if (verbose) cout << "\tVerify that '12.3456789' won't fit in "
+        if (verbose) cout << "\tVerify that `12.3456789` won't fit in "
                                                                   "6 bytes.\n";
         const unsigned char *variable2 =
             bdldfp::DecimalConvertUtil::decimal64ToVariableWidthEncoding(
@@ -4132,43 +4152,43 @@ int main(int argc, char *argv[])
       } break;
       case 30: {
         // --------------------------------------------------------------------
-        // TESTING OUTPUT ('<<') OPERATOR
+        // TESTING OUTPUT (`<<`) OPERATOR
         //
         // Concerns:
-        //: 1 The '<<' operator writes the output to the specified stream.
-        //:
-        //: 2 The '<<' operator writes the string representation of each
-        //:   enumerator in the intended format.
-        //:
-        //: 3 The '<<' operator writes a distinguished string when passed an
-        //:   out-of-band value.
-        //:
-        //: 4 There is no output when the stream is invalid.
-        //:
-        //: 5 The '<<' operator has the expected signature.
-        //:
-        //: 6 The '<<' operator returns the supplied 'ostream'.
+        // 1. The `<<` operator writes the output to the specified stream.
+        //
+        // 2. The `<<` operator writes the string representation of each
+        //    enumerator in the intended format.
+        //
+        // 3. The `<<` operator writes a distinguished string when passed an
+        //    out-of-band value.
+        //
+        // 4. There is no output when the stream is invalid.
+        //
+        // 5. The `<<` operator has the expected signature.
+        //
+        // 6. The `<<` operator returns the supplied `ostream`.
         //
         // Plan:
-        //: 1 Verify that the '<<' operator produces the expected results for
-        //:   each enumerator.  (C-1..2)
-        //:
-        //: 2 Verify that the '<<' operator writes a distinguished string when
-        //:   passed an out-of-band value.  (C-3)
-        //:
-        //: 3 Verify that the address of the returned 'stream' is the same as
-        //:   the supplied 'stream'.  (C-7)
-        //:
-        //: 4 Verify that there is no output when the stream is invalid.  (C-5)
-        //:
-        //: 5 Take the address of the '<<' (free) operator and use the result
-        //:   to initialize a variable of the appropriate type.  (C-6)
+        // 1. Verify that the `<<` operator produces the expected results for
+        //    each enumerator.  (C-1..2)
+        //
+        // 2. Verify that the `<<` operator writes a distinguished string when
+        //    passed an out-of-band value.  (C-3)
+        //
+        // 3. Verify that the address of the returned `stream` is the same as
+        //    the supplied `stream`.  (C-7)
+        //
+        // 4. Verify that there is no output when the stream is invalid.  (C-5)
+        //
+        // 5. Take the address of the `<<` (free) operator and use the result
+        //    to initialize a variable of the appropriate type.  (C-6)
         //
         // Testing:
         //   operator<<(ostream& s, Datum::DataType val);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING OUTPUT ('<<') OPERATOR"
+        if (verbose) cout << "\nTESTING OUTPUT (`<<`) OPERATOR"
                              "\n==============================\n";
 
         static const struct {
@@ -4198,7 +4218,7 @@ int main(int argc, char *argv[])
 
         const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout << "\nTesting 'operator<<' for 'Datum::DataType'.\n";
+        if (verbose) cout << "\nTesting `operator<<` for `Datum::DataType`.\n";
         for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int             LINE  = DATA[ti].d_lineNum;
             const Datum::DataType VALUE = DATA[ti].d_value;
@@ -4238,7 +4258,7 @@ int main(int argc, char *argv[])
             ASSERTV(LINE, ti, os.str(), os.str().empty());
         }
 
-        if (verbose) cout << "\nVerify '<<' operator signature.\n";
+        if (verbose) cout << "\nVerify `<<` operator signature.\n";
         {
             using namespace bdld;
 
@@ -4249,42 +4269,42 @@ int main(int argc, char *argv[])
       } break;
       case 29: {
         // -------------------------------------------------------------------
-        // TESTING ENUMERATIONS AND 'dataTypeToAscii'
+        // TESTING ENUMERATIONS AND `dataTypeToAscii`
         //
         // Concerns:
-        //: 1 The enumerator values are sequential, starting from 0.
-        //:
-        //: 2 The 'dataTypeTooAscii' method returns the expected string
-        //:   representation for each enumerator.
-        //:
-        //: 3 The 'dataTypeToAscii' method returns a distinguished string when
-        //:   passed an out-of-band value.
-        //:
-        //: 4 The string returned by 'dataTypeToAscii' is non-modifiable.
-        //:
-        //: 5 The 'dataTypeToAscii' method has the expected signature.
-        //:
-        //: 6 The 'k_NUM_TYPES' enumerator's value equals the number of types
-        //:   of values that can be stored inside 'Datum'.
+        // 1. The enumerator values are sequential, starting from 0.
+        //
+        // 2. The `dataTypeTooAscii` method returns the expected string
+        //    representation for each enumerator.
+        //
+        // 3. The `dataTypeToAscii` method returns a distinguished string when
+        //    passed an out-of-band value.
+        //
+        // 4. The string returned by `dataTypeToAscii` is non-modifiable.
+        //
+        // 5. The `dataTypeToAscii` method has the expected signature.
+        //
+        // 6. The `k_NUM_TYPES` enumerator's value equals the number of types
+        //    of values that can be stored inside `Datum`.
         //
         // Plan:
-        //: 1 Confirm that the 'k_NUM_TYPES' enumerator's value equals the
-        //:   number of types of values that can be stored inside 'Datum'.
-        //:   (C-6)
-        //:
-        //: 2 Verify that the enumerator values are sequential, starting from
-        //:   1.  (C-1)
-        //:
-        //: 3 Verify that the 'dataTypeToAscii' method returns the expected
-        //:   string representation for each enumerator.  (C-2)
-        //:
-        //: 4 Verify that the 'dataTypeToAascii' method returns a distinguished
-        //:   string when passed an out-of-band value.  (C-3)
-        //:
-        //: 5 Take the address of the 'dataTypeToAscii' (class) method and use
-        //:   the result to initialize a variable of the appropriate type.
-        //:   (C-4..5)
-        //:
+        // 1. Confirm that the `k_NUM_TYPES` enumerator's value equals the
+        //    number of types of values that can be stored inside `Datum`.
+        //    (C-6)
+        //
+        // 2. Verify that the enumerator values are sequential, starting from
+        //    1.  (C-1)
+        //
+        // 3. Verify that the `dataTypeToAscii` method returns the expected
+        //    string representation for each enumerator.  (C-2)
+        //
+        // 4. Verify that the `dataTypeToAascii` method returns a distinguished
+        //    string when passed an out-of-band value.  (C-3)
+        //
+        // 5. Take the address of the `dataTypeToAscii` (class) method and use
+        //    the result to initialize a variable of the appropriate type.
+        //    (C-4..5)
+        //
         //
         // Testing:
         //   enum DataType { ... };
@@ -4292,7 +4312,7 @@ int main(int argc, char *argv[])
         //   const char *dataTypeToAscii(Datum::DataType val);
         // -------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING ENUMERATIONS AND 'dataTypeToAscii'"
+        if (verbose) cout << "\nTESTING ENUMERATIONS AND `dataTypeToAscii`"
                              "\n==========================================\n";
 
         static const struct {
@@ -4323,7 +4343,7 @@ int main(int argc, char *argv[])
 
         const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout << "\nVerify 'k_NUM_TYPES' enumerator's value.\n";
+        if (verbose) cout << "\nVerify `k_NUM_TYPES` enumerator's value.\n";
         {
             const int NUM_TYPES = 17;  // expected number of types
 
@@ -4341,7 +4361,7 @@ int main(int argc, char *argv[])
             ASSERTV(i, VALUE, i == VALUE);
         }
 
-        if (verbose) cout << "\nTesting 'dataTypeToAscii'.\n";
+        if (verbose) cout << "\nTesting `dataTypeToAscii`.\n";
 
         for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int              LINE  = DATA[ti].d_lineNum;
@@ -4356,7 +4376,7 @@ int main(int argc, char *argv[])
             ASSERTV(LINE, ti,           0 == strcmp(EXP, result));
         }
 
-        if (verbose) cout << "\nVerify 'dataTypeToAscii' signature.\n";
+        if (verbose) cout << "\nVerify `dataTypeToAscii` signature.\n";
 
         {
             typedef const char *(*FuncPtr)(Datum::DataType);
@@ -4366,33 +4386,33 @@ int main(int argc, char *argv[])
       } break;
       case 28: {
         // --------------------------------------------------------------------
-        // TESTING 'disposeUninitializedMap'
+        // TESTING `disposeUninitializedMap`
         //
         // Concerns:
-        //: 1 The 'disposeUninitializedMap' method disposes off uninitialized
-        //:   map (both owning keys and not) properly.
-        //:
-        //: 2 Asserted precondition violations are detected when enabled.
+        // 1. The `disposeUninitializedMap` method disposes off uninitialized
+        //    map (both owning keys and not) properly.
+        //
+        // 2. Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create uninitialized map.  Verify that memory was allocated.
+        // 1. Create uninitialized map.  Verify that memory was allocated.
         //
-        //: 2 Dispose the map.  Verify that the allocated memory was released.
-        //:   (C-1)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones.  (C-2)
+        // 2. Dispose the map.  Verify that the allocated memory was released.
+        //    (C-1)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones.  (C-2)
         //
         // Testing:
         //   void disposeUninitializedMap(DatumMutableMapRef *, ...);
         //   void disposeUninitializedMap(DatumMutableMapOwningKeysRef *, ...);
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTESTING 'disposeUninitializedMap'"
+        if (verbose) cout << "\nTESTING `disposeUninitializedMap`"
                              "\n=================================\n";
 
-        if (verbose) cout << "\nTesting 'dispose' of a "
-                                                     "'DatumMutableMapRef'.\n";
+        if (verbose) cout << "\nTesting `dispose` of a "
+                                                     "`DatumMutableMapRef`.\n";
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
             DatumMutableMapRef   map;
@@ -4405,8 +4425,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == oa.numBytesInUse());
         }
 
-        if (verbose) cout << "\nTesting 'dispose' of a "
-                                           "'DatumMutableMapOwningKeysRef'.\n";
+        if (verbose) cout << "\nTesting `dispose` of a "
+                                           "`DatumMutableMapOwningKeysRef`.\n";
         {
             bslma::TestAllocator         oa("object", veryVeryVeryVerbose);
             DatumMutableMapOwningKeysRef map;
@@ -4422,32 +4442,32 @@ int main(int argc, char *argv[])
       } break;
       case 27: {
         // --------------------------------------------------------------------
-        // TESTING 'disposeUninitializedArray'
+        // TESTING `disposeUninitializedArray`
         //
         // Concerns:
-        //: 1 The 'disposeUninitializedArray' method disposes off uninitialized
-        //:   array properly.
-        //:
-        //: 2 Asserted precondition violations are detected when enabled.
+        // 1. The `disposeUninitializedArray` method disposes off uninitialized
+        //    array properly.
+        //
+        // 2. Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create uninitialized array.  Verify that memory was allocated.
+        // 1. Create uninitialized array.  Verify that memory was allocated.
         //
-        //: 2 Dispose the array.  Verify that the allocated memory was
-        //:   released.  (C-1)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones.  (C-2)
+        // 2. Dispose the array.  Verify that the allocated memory was
+        //    released.  (C-1)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones.  (C-2)
         //
         // Testing:
         //   void disposeUninitializedArray(Datum *, AllocatorType);
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTESTING 'disposeUninitializedArray'"
+        if (verbose) cout << "\nTESTING `disposeUninitializedArray`"
                              "\n===================================\n";
 
-        if (verbose) cout << "\nTesting 'dispose' of a "
-                                                   "'DatumMutableArrayRef'.\n";
+        if (verbose) cout << "\nTesting `dispose` of a "
+                                                   "`DatumMutableArrayRef`.\n";
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
             DatumMutableArrayRef array;
@@ -4463,69 +4483,69 @@ int main(int argc, char *argv[])
       case 26: {
         // --------------------------------------------------------------------
         // EQUALITY-COMPARISON OPERATORS
-        //   Ensure that '==' and '!=' are the operational definition of value.
-        //   The definition of the equality of two 'Datum' objects depends on
+        //   Ensure that `==` and `!=` are the operational definition of value.
+        //   The definition of the equality of two `Datum` objects depends on
         //   the type and the value of the data held by the objects.  Note,
-        //   that for 'double' and 'Decimal64' values of 'NaN', the identity
-        //   property of the quality is violated ( i.e. two 'NaN' objects never
-        //   compare equal). Also note, that this test covers 'Datum's holding
+        //   that for `double` and `Decimal64` values of `NaN`, the identity
+        //   property of the quality is violated ( i.e. two `NaN` objects never
+        //   compare equal). Also note, that this test covers `Datum`s holding
         //   all possible data type ( including aggregated data types)
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if their
-        //:   corresponding type and values compare equal (except 'NaN')
-        //:
-        //: 2 'true  == (X == X)' (i.e., identity).
-        //:
-        //: 3 'false == (X != X)' (i.e., identity).
-        //:
-        //: 4 'X == Y' if and only if 'Y == X' (i.e., commutativity).
-        //:
-        //: 5 'X != Y' if and only if 'Y != X' (i.e., commutativity).
-        //:
-        //: 6 'X != Y' if and only if '!(X == Y)'.
-        //:
-        //: 7 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., both comparison operators are free functions).
-        //:
-        //: 8 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //: 9 The equality-comparison operators' signatures and return types
-        //:   are standard.
-        //:
-        //:10 Two Datums holding 'NaN' values are not equal.
+        // 1. Two objects, `X` and `Y`, compare equal if and only if their
+        //    corresponding type and values compare equal (except `NaN`)
+        //
+        // 2. `true  == (X == X)` (i.e., identity).
+        //
+        // 3. `false == (X != X)` (i.e., identity).
+        //
+        // 4. `X == Y` if and only if `Y == X` (i.e., commutativity).
+        //
+        // 5. `X != Y` if and only if `Y != X` (i.e., commutativity).
+        //
+        // 6. `X != Y` if and only if `!(X == Y)`.
+        //
+        // 7. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., both comparison operators are free functions).
+        //
+        // 8. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        // 9. The equality-comparison operators' signatures and return types
+        //    are standard.
+        //
+        // 10. Two Datums holding `NaN` values are not equal.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the two homogeneous, free
-        //:   equality-comparison operators defined in this component.
-        //:   (C-7..9)
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their type and value
-        //:   representation.
-        //:
-        //: 3 For each row 'R1' in the table of P-2:  (C-1..6)
-        //:
-        //:   1 Create a 'const' reference to an object, 'X', having the value
-        //:     from 'R1'.
-        //:
-        //:   2 Using 'X', verify the reflexive (anti-reflexive) property of
-        //:     equality (inequality) in the presence of aliasing.  (C-2..3)
-        //:
-        //:   3 For each row 'R2' in the table of P-2:  (C-1, 4..6)
-        //:
-        //:     1 Record, in 'EXP', whether or not distinct objects set to
-        //:       values from 'R1' and 'R2', respectively, are expected to have
-        //:       the same value.
-        //:
-        //:     2 Create a 'const' reference to an object, 'Y', having the
-        //:       value from 'R2'.
-        //:
-        //:     3 Using 'X' and 'Y', verify the commutativity property and
-        //:       expected return value for both '==' and '!='.  (C-1, 4..6)
+        // 1. Use the respective addresses of `operator==` and `operator!=` to
+        //    initialize function pointers having the appropriate signatures
+        //    and return types for the two homogeneous, free
+        //    equality-comparison operators defined in this component.
+        //    (C-7..9)
+        //
+        // 2. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their type and value
+        //    representation.
+        //
+        // 3. For each row `R1` in the table of P-2:  (C-1..6)
+        //
+        //   1. Create a `const` reference to an object, `X`, having the value
+        //      from `R1`.
+        //
+        //   2. Using `X`, verify the reflexive (anti-reflexive) property of
+        //      equality (inequality) in the presence of aliasing.  (C-2..3)
+        //
+        //   3. For each row `R2` in the table of P-2:  (C-1, 4..6)
+        //
+        //     1. Record, in `EXP`, whether or not distinct objects set to
+        //        values from `R1` and `R2`, respectively, are expected to have
+        //        the same value.
+        //
+        //     2. Create a `const` reference to an object, `Y`, having the
+        //        value from `R2`.
+        //
+        //     3. Using `X` and `Y`, verify the commutativity property and
+        //        expected return value for both `==` and `!=`.  (C-1, 4..6)
         //
         // Testing:
         //   bool operator==(const Datum&, const Datum&);  // aggregate
@@ -4708,39 +4728,39 @@ int main(int argc, char *argv[])
         // TESTING PROCTOR
         //
         // Concerns:
-        //: 1 Proctor destructor destroys managed objects and releases
-        //:   allocated memory when exception is thrown.
-        //:
-        //: 2 Proctor destructor doesn't affect managed objects if proctor's
-        //:   'release' method is called before destruction.
+        // 1. Proctor destructor destroys managed objects and releases
+        //    allocated memory when exception is thrown.
+        //
+        // 2. Proctor destructor doesn't affect managed objects if proctor's
+        //    `release` method is called before destruction.
         //
         // Plan:
-        //: 1 Create 'Datum' object, holding an array.
-        //:
-        //: 2 Throw an exception (using BSLMA_TESTALLOCATOR_EXCEPTION_TEST)
-        //:   mechanism while copying and verify that there are no memory
-        //:   leaks.  (C-1)
-        //:
-        //: 3 Create a copy and verify that proctor doesn't affect the cloned
-        //:   object if no exception occurs.  (C-2)
-        //:
-        //: 4 Create 'Datum' object, holding a map owning keys.
-        //:
-        //: 5 Throw an exception (using BSLMA_TESTALLOCATOR_EXCEPTION_TEST)
-        //:   mechanism during it's copying and verify that no memory leaks.
-        //:   (C-1)
-        //:
-        //: 6 Create a copy and verify that proctor doesn't affect clone
-        //:   object if no exception occurs.  (C-2)
-        //:
-        //: 7 Create 'Datum' object, holding a map with external keys.
-        //:
-        //: 8 Throw an exception (using BSLMA_TESTALLOCATOR_EXCEPTION_TEST)
-        //:   mechanism during it's copying and verify that no memory leaks.
-        //:   (C-1)
-        //:
-        //: 9 Create a copy and verify that proctor doesn't affect clone
-        //:   object if no exception occurs.  (C-2)
+        // 1. Create `Datum` object, holding an array.
+        //
+        // 2. Throw an exception (using BSLMA_TESTALLOCATOR_EXCEPTION_TEST)
+        //    mechanism while copying and verify that there are no memory
+        //    leaks.  (C-1)
+        //
+        // 3. Create a copy and verify that proctor doesn't affect the cloned
+        //    object if no exception occurs.  (C-2)
+        //
+        // 4. Create `Datum` object, holding a map owning keys.
+        //
+        // 5. Throw an exception (using BSLMA_TESTALLOCATOR_EXCEPTION_TEST)
+        //    mechanism during it's copying and verify that no memory leaks.
+        //    (C-1)
+        //
+        // 6. Create a copy and verify that proctor doesn't affect clone
+        //    object if no exception occurs.  (C-2)
+        //
+        // 7. Create `Datum` object, holding a map with external keys.
+        //
+        // 8. Throw an exception (using BSLMA_TESTALLOCATOR_EXCEPTION_TEST)
+        //    mechanism during it's copying and verify that no memory leaks.
+        //    (C-1)
+        //
+        // 9. Create a copy and verify that proctor doesn't affect clone
+        //    object if no exception occurs.  (C-2)
         //
         // Testing:
         //   Datum_ArrayProctor
@@ -4751,7 +4771,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta("test", veryVeryVerbose);
         const SizeType       SIZE = 5;
 
-        if (verbose) cout << "\nTesting 'Datum_ArrayProctor for arrays'.\n";
+        if (verbose) cout << "\nTesting `Datum_ArrayProctor for arrays`.\n";
         {
             // Original array creation.
 
@@ -4790,11 +4810,11 @@ int main(int argc, char *argv[])
 
             ASSERTV(numBytesInUse == ta.numBytesInUse());
 
-            // Destroy the 'Datum' object.
+            // Destroy the `Datum` object.
             Datum::destroy(D, &ta);
         }
 
-        if (verbose) cout << "\nTesting 'Datum_ArrayProctor for maps'.\n";
+        if (verbose) cout << "\nTesting `Datum_ArrayProctor for maps`.\n";
         {
             if (verbose) cout << "\tTesting cloning of a map with "
                                                             "external keys.\n";
@@ -4843,7 +4863,7 @@ int main(int argc, char *argv[])
 
             ASSERTV(numBytesInUse == ta.numBytesInUse());
 
-            // Destroy the 'Datum' object.
+            // Destroy the `Datum` object.
             Datum::destroy(mD, &ta);
         }
 
@@ -4901,47 +4921,47 @@ int main(int argc, char *argv[])
 
             ASSERTV(numBytesInUse == ta.numBytesInUse());
 
-            // Destroy the 'Datum' object.
+            // Destroy the `Datum` object.
             Datum::destroy(D, &ta);
         }
       } break;
       case 24: {
         // --------------------------------------------------------------------
-        // TESTING 'clone' METHOD
+        // TESTING `clone` METHOD
         //
         // Concerns:
-        //: 1 'Datum::clone' makes a deep copy of the 'Datum' object.
-        //:
-        //: 2 Memory should not be allocated when values are stored inline.
-        //:
-        //: 3 When the Datum references external data, the 'clone' method makes
-        //:   a full copy of this externally referenced data.
+        // 1. `Datum::clone` makes a deep copy of the `Datum` object.
+        //
+        // 2. Memory should not be allocated when values are stored inline.
+        //
+        // 3. When the Datum references external data, the `clone` method makes
+        //    a full copy of this externally referenced data.
         //
         // Plan:
-        //: 1 Create 'Datum' objects by cloning the original objects holding
-        //:   different value types.
-        //:
-        //: 2 Verify that both objects have the same type and value.  (C-1)
-        //:
-        //: 3 Verify that no memory was allocated when the copied value uses
-        //:   inline object storage.  (C-2)
-        //:
-        //: 4 Verify that for externally referenced data the clone creates a
-        //:   deep copy of the referenced data.  (C-3)
+        // 1. Create `Datum` objects by cloning the original objects holding
+        //    different value types.
+        //
+        // 2. Verify that both objects have the same type and value.  (C-1)
+        //
+        // 3. Verify that no memory was allocated when the copied value uses
+        //    inline object storage.  (C-2)
+        //
+        // 4. Verify that for externally referenced data the clone creates a
+        //    deep copy of the referenced data.  (C-3)
         //
         // Testing:
         //   Datum clone(AllocatorType) const;
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTESTING 'clone' METHOD"
+        if (verbose) cout << "\nTESTING `clone` METHOD"
                              "\n======================\n";
 
-        if (verbose) cout << "\nTesting 'clone' for datums having "
+        if (verbose) cout << "\nTesting `clone` for datums having "
                                                      "non-aggregate values.\n";
         {
             bslma::TestAllocator         da("default", veryVeryVeryVerbose);
             bslma::DefaultAllocatorGuard guard(&da);
 
-            if (verbose) cout << "\tTesting 'clone' for boolean.\n";
+            if (verbose) cout << "\tTesting `clone` for boolean.\n";
             {
                 const static bool DATA[] = { true, false };
                 const size_t      DATA_LEN = sizeof DATA / sizeof *DATA;
@@ -4978,7 +4998,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) cout << "\tTesting 'clone' for 'Date'.\n";
+            if (verbose) cout << "\tTesting `clone` for `Date`.\n";
             {
                 const static bdlt::Date DATA[] = {
                     Date(),
@@ -5020,7 +5040,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) cout << "\tTesting 'clone' for 'Datetime'.\n";
+            if (verbose) cout << "\tTesting `clone` for `Datetime`.\n";
             {
                 const static bdlt::Datetime DATA[] = {
                     Datetime(),
@@ -5067,7 +5087,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) cout << "\tTesting 'clone' for 'DatetimeInterval'.\n";
+            if (verbose) cout << "\tTesting `clone` for `DatetimeInterval`.\n";
             {
                 const static bdlt::DatetimeInterval DATA[] = {
                     DatetimeInterval(),
@@ -5121,11 +5141,11 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) cout << "\nTesting 'clone' for 'Decimal64'.\n";
+            if (verbose) cout << "\nTesting `clone` for `Decimal64`.\n";
             {
                 const static struct {
                     int               d_line;          // line number
-                    bdldfp::Decimal64 d_value;         // 'Decimal64' value
+                    bdldfp::Decimal64 d_value;         // `Decimal64` value
                     bool              d_compareEqual;  // compare equal itself
                 } DATA[] = {
                     //LINE VALUE                           EQUAL
@@ -5189,7 +5209,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) cout << "\nTesting 'clone' for 'double'.\n";
+            if (verbose) cout << "\nTesting `clone` for `double`.\n";
             {
                 const static struct {
                     int      d_line;          // line number
@@ -5239,7 +5259,7 @@ int main(int argc, char *argv[])
                         ASSERT(VALUE != D.theDouble());
 
                         if (k_DOUBLE_NAN_BITS_PRESERVED) {
-                            // In 64bit 'Datum' we currently store 'NaN' values
+                            // In 64bit `Datum` we currently store `NaN` values
                             // unchanged.
                             const double THE_DOUBLE = D.theDouble();
                             ASSERT(bsl::memcmp(&VALUE,
@@ -5262,7 +5282,7 @@ int main(int argc, char *argv[])
 
                         // Cloning a NaN must result in the exact same value
                         // bit-by-bit, regardless that we do not guarantee
-                        // preserving all the bits of a NaN in 'createDouble'.
+                        // preserving all the bits of a NaN in `createDouble`.
                         const double ORIGINAL_DOUBLE = D.theDouble();
                         const double CLONED_DOUBLE   = DC.theDouble();
                         ASSERT(bsl::memcmp(&ORIGINAL_DOUBLE,
@@ -5278,7 +5298,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) cout << "\nTesting 'clone' for 'Error'.\n";
+            if (verbose) cout << "\nTesting `clone` for `Error`.\n";
             {
                 const static int DATA [] = {
                     0,
@@ -5364,7 +5384,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) cout << "\nTesting 'clone' for 'int'.\n";
+            if (verbose) cout << "\nTesting `clone` for `int`.\n";
             {
                 const static int DATA[] = {
                     0,
@@ -5413,7 +5433,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) cout << "\nTesting 'clone' for 'int64'.\n";
+            if (verbose) cout << "\nTesting `clone` for `int64`.\n";
             {
                 const static Int64 DATA[] = {
                     0,
@@ -5470,7 +5490,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) cout << "\nTesting 'clone' for 'null'.\n";
+            if (verbose) cout << "\nTesting `clone` for `null`.\n";
             {
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
                 bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
@@ -5495,7 +5515,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == ca.status());
             }
 
-            if (verbose) cout << "\nTesting 'clone' for 'StringRef'.\n";
+            if (verbose) cout << "\nTesting `clone` for `StringRef`.\n";
             {
                 const static Datum::SizeType DATA[] = {
                     0,
@@ -5570,7 +5590,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) cout << "\nTesting 'clone' for 'Time'.\n";
+            if (verbose) cout << "\nTesting `clone` for `Time`.\n";
             {
                 const static bdlt::Time DATA[] = {
                     Time(),
@@ -5612,7 +5632,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) cout << "\nTesting 'clone' for 'Udt'.\n";
+            if (verbose) cout << "\nTesting `clone` for `Udt`.\n";
             {
                 char           BUFFER[] = "This is UDT placeholder";
                 const DatumUdt VALUE(BUFFER, 0);
@@ -5645,7 +5665,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == ca.status());
             }
 
-            if (verbose) cout << "\nTesting 'clone' for 'Binary'.\n";
+            if (verbose) cout << "\nTesting `clone` for `Binary`.\n";
             {
                 for (size_t i = 0; i < 258; ++i) {
                     bslma::TestAllocator     ba("buffer", veryVeryVeryVerbose);
@@ -5693,7 +5713,7 @@ int main(int argc, char *argv[])
             }
 
             if (verbose)
-                cout << "\nTesting 'clone' for internal 'String'.\n";
+                cout << "\nTesting `clone` for internal `String`.\n";
             {
                 for (size_t i = 0; i < 258; ++i) {
                     bslma::TestAllocator ba("buffer", veryVeryVeryVerbose);
@@ -5742,10 +5762,10 @@ int main(int argc, char *argv[])
                 }
             }
         }
-        if (verbose) cout << "\nTesting 'clone' for Datums having "
+        if (verbose) cout << "\nTesting `clone` for Datums having "
                           << "aggregate values.\n";
 
-        if (verbose) cout << "\nTesting 'clone' for an array.\n";
+        if (verbose) cout << "\nTesting `clone` for an array.\n";
         {
             // Testing cloning of an empty array
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
@@ -5816,7 +5836,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == ca.status());
         }
 
-        if (verbose) cout << "\nTesting 'clone' for a map.\n";
+        if (verbose) cout << "\nTesting `clone` for a map.\n";
         {
             // Testing cloning of an empty map
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
@@ -5892,7 +5912,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\nTesting 'clone' for a map owning keys.\n";
+            cout << "\nTesting `clone` for a map owning keys.\n";
         {
             // Testing cloning of an empty map
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
@@ -5991,7 +6011,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-                  "\nTesting 'clone' for an array having map element.\n";
+                  "\nTesting `clone` for an array having map element.\n";
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
             bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
@@ -6044,7 +6064,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-                   "\nTesting 'clone' for a map having array element.\n";
+                   "\nTesting `clone` for a map having array element.\n";
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
             bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
@@ -6096,28 +6116,28 @@ int main(int argc, char *argv[])
       } break;
       case 23: {
         // --------------------------------------------------------------------
-        // TESTING 'apply' METHOD
+        // TESTING `apply` METHOD
         //
         // Concerns:
-        //: 1 The 'apply' function should call the appropriate overload of
-        //:   'operator()' on the specified 'visitor'.
+        // 1. The `apply` function should call the appropriate overload of
+        //    `operator()` on the specified `visitor`.
         //
         // Plan:
-        //: 1 Call 'apply' function with a visitor that just stores the type
-        //:   of the object with which it is called into a member variable.
-        //:   Call this on all the different types of 'Datum' objects.
-        //:   Retrieve the integer value and verify that the appropriate
-        //:   overload of 'operator()' was called on the visitor.
+        // 1. Call `apply` function with a visitor that just stores the type
+        //    of the object with which it is called into a member variable.
+        //    Call this on all the different types of `Datum` objects.
+        //    Retrieve the integer value and verify that the appropriate
+        //    overload of `operator()` was called on the visitor.
         //
         // Testing:
         //   template <class BDLD_VISITOR> void apply(BDLD_VISITOR&) const;
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTESTING 'apply' METHOD"
+        if (verbose) cout << "\nTESTING `apply` METHOD"
                              "\n======================\n";
 
         bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
-        if (verbose) cout << "\nTesting 'apply' for Datums having "
+        if (verbose) cout << "\nTesting `apply` for Datums having "
                                                      "non-aggregate values.\n";
         {
             const static struct {
@@ -6178,10 +6198,10 @@ int main(int argc, char *argv[])
             ASSERT(0 == oa.status());
         }
 
-        if (verbose) cout << "\nTesting 'apply' for datums having "
+        if (verbose) cout << "\nTesting `apply` for datums having "
                                                          "aggregate values.\n";
 
-        if (verbose) cout << "\tTesting 'apply' with a 'Datum' having "
+        if (verbose) cout << "\tTesting `apply` with a `Datum` having "
                                                        "an array ref value.\n";
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
@@ -6198,10 +6218,10 @@ int main(int argc, char *argv[])
 
             Datum::destroy(D, &oa);
         }
-        if (verbose) cout << "\nTesting 'apply' with datums "
+        if (verbose) cout << "\nTesting `apply` with datums "
                                                       "having array values.\n";
 
-        if (verbose) cout << "\tTesting 'apply' with a 'Datum' having "
+        if (verbose) cout << "\tTesting `apply` with a `Datum` having "
                                                      "an empty array value.\n";
         {
             DatumMutableArrayRef array;
@@ -6216,7 +6236,7 @@ int main(int argc, char *argv[])
             Datum::destroy(D, &oa);
         }
 
-        if (verbose) cout << "\tTesting 'apply' with a 'Datum' having "
+        if (verbose) cout << "\tTesting `apply` with a `Datum` having "
                                                   "a non-empty array value.\n";
 
         {
@@ -6235,10 +6255,10 @@ int main(int argc, char *argv[])
             Datum::destroy(D, &oa);
         }
 
-        if (verbose) cout << "\nTesting 'apply' with datums having "
+        if (verbose) cout << "\nTesting `apply` with datums having "
                                                                "map values.\n";
 
-        if (verbose) cout << "\tTesting 'apply' with a 'Datum' having "
+        if (verbose) cout << "\tTesting `apply` with a `Datum` having "
                                                        "an empty map value.\n";
         {
             DatumMutableMapRef map;
@@ -6253,7 +6273,7 @@ int main(int argc, char *argv[])
             Datum::destroy(D, &oa);
             ASSERT( 0 == oa.status());
         }
-        if (verbose) cout << "\tTesting 'apply' with a 'Datum' having "
+        if (verbose) cout << "\tTesting `apply` with a `Datum` having "
                                                     "a non-empty map value.\n";
         {
             DatumMutableMapRef map;
@@ -6273,10 +6293,10 @@ int main(int argc, char *argv[])
             ASSERT( 0 == oa.status());
         }
 
-        if (verbose) cout << "\nTesting 'apply' with datums having "
+        if (verbose) cout << "\nTesting `apply` with datums having "
                                                  "map (owning keys) values.\n";
 
-        if (verbose) cout << "\tTesting 'apply' with a 'Datum' having "
+        if (verbose) cout << "\tTesting `apply` with a `Datum` having "
                                             "empty map (owning keys) value.\n";
         {
             DatumMutableMapOwningKeysRef map;
@@ -6292,7 +6312,7 @@ int main(int argc, char *argv[])
             ASSERT( 0 == oa.status());
         }
 
-        if (verbose) cout << "\tTesting 'apply' with a 'Datum' having a "
+        if (verbose) cout << "\tTesting `apply` with a `Datum` having a "
                                         "non-empty map (owning keys) value.\n";
         {
             DatumMutableMapOwningKeysRef map;
@@ -6315,7 +6335,7 @@ int main(int argc, char *argv[])
             ASSERT( 0 == oa.status());
         }
 
-        if (verbose) cout << "\tTesting 'apply' with a Datum having "
+        if (verbose) cout << "\tTesting `apply` with a Datum having "
                                                    "an empty int-map value.\n";
         {
             DatumMutableIntMapRef map;
@@ -6330,7 +6350,7 @@ int main(int argc, char *argv[])
             Datum::destroy(D, &oa);
             ASSERT( 0 == oa.status());
         }
-        if (verbose) cout << "\tTesting 'apply' with a 'Datum' having "
+        if (verbose) cout << "\tTesting `apply` with a `Datum` having "
                                                 "a non-empty int-map value.\n";
         {
             DatumMutableIntMapRef map;
@@ -6351,23 +6371,23 @@ int main(int argc, char *argv[])
       } break;
       case 22: {
         // --------------------------------------------------------------------
-        // TESTING 'type' METHOD
+        // TESTING `type` METHOD
         //
         // Concerns:
-        //: 1 The 'type' method should return the correct data type held by the
+        // 1. The `type` method should return the correct data type held by the
         //    Datum object.
         //
         // Plan:
-        //: 1 Call 'type' method on all the different types of 'Datum' objects
-        //:   and verify that correct value is returned.  (C-1)
+        // 1. Call `type` method on all the different types of `Datum` objects
+        //    and verify that correct value is returned.  (C-1)
         //
         // Testing:
         //   DataType::Enum type() const;
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTESTING 'type' METHOD"
+        if (verbose) cout << "\nTESTING `type` METHOD"
                              "\n=====================\n";
 
-        if (verbose) cout << "\nTesting 'type' for datums having "
+        if (verbose) cout << "\nTesting `type` for datums having "
                                                      "non-aggregate values.\n";
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
@@ -6441,10 +6461,10 @@ int main(int argc, char *argv[])
             ASSERT(0 == oa.status());
         }
 
-        if (verbose) cout << "\nTesting 'type' for datums having "
+        if (verbose) cout << "\nTesting `type` for datums having "
                                                          "aggregate values.\n";
 
-        if (verbose) cout << "\tTesting 'type' with a 'Datum' having "
+        if (verbose) cout << "\tTesting `type` with a `Datum` having "
                                                  "an array reference value.\n";
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
@@ -6457,7 +6477,7 @@ int main(int argc, char *argv[])
 
             Datum::destroy(D, &oa);
         }
-        if (verbose) cout << "\tTesting 'type' with a 'Datum' having "
+        if (verbose) cout << "\tTesting `type` with a `Datum` having "
                                                            "an array value.\n";
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
@@ -6483,7 +6503,7 @@ int main(int argc, char *argv[])
             Datum::destroy(D, &oa);
         }
 
-        if (verbose) cout << "\tTesting 'type' with a 'Datum' having "
+        if (verbose) cout << "\tTesting `type` with a `Datum` having "
                                                               "a map value.\n";
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
@@ -6512,7 +6532,7 @@ int main(int argc, char *argv[])
             ASSERT( 0 == oa.status());
         }
 
-        if (verbose) cout << "\tTesting 'type' with a 'Datum' having "
+        if (verbose) cout << "\tTesting `type` with a `Datum` having "
                                                 "a map (owning keys) value.\n";
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
@@ -6546,25 +6566,25 @@ int main(int argc, char *argv[])
       } break;
       case 21: {
         // --------------------------------------------------------------------
-        // TESTING 'isExternalReference' METHOD
+        // TESTING `isExternalReference` METHOD
         //
         // Concerns:
-        //: 1 The 'isExternalReference' method return 'true' when the 'Datum'
+        // 1. The `isExternalReference` method return `true` when the `Datum`
         //    object holds a reference to an externally managed data.
         //
         // Plan:
-        //: 1 Call 'isExternalReference' method on all the different types of
-        //:   'Datum' objects and verify that correct value is returned.  (C-1)
+        // 1. Call `isExternalReference` method on all the different types of
+        //    `Datum` objects and verify that correct value is returned.  (C-1)
         //
         // Testing:
         //   bool isExternalReference() const;
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTESTING 'isExternalReference' METHOD"
+        if (verbose) cout << "\nTESTING `isExternalReference` METHOD"
                              "\n====================================\n";
 
         bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
-        if (verbose) cout << "\nTesting 'isExternalReference' for datums "
+        if (verbose) cout << "\nTesting `isExternalReference` for datums "
                                               "having non-aggregate values.\n";
         {
             const static struct {
@@ -6619,10 +6639,10 @@ int main(int argc, char *argv[])
             ASSERT(0 == oa.status());
         }
 
-        if (verbose) cout << "\nTesting 'isExternalReference' for datums "
+        if (verbose) cout << "\nTesting `isExternalReference` for datums "
                                                   "having aggregate values.\n";
 
-        if (verbose) cout << "\tTesting with a 'Datum' having "
+        if (verbose) cout << "\tTesting with a `Datum` having "
                                                  "an array reference value.\n";
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
@@ -6636,10 +6656,10 @@ int main(int argc, char *argv[])
             Datum::destroy(D, &oa);
         }
 
-        if (verbose) cout << "\tTesting with a 'Datum' having "
+        if (verbose) cout << "\tTesting with a `Datum` having "
                                                            "an array value.\n";
 
-        if (verbose) cout << "\tTesting with a 'Datum' having "
+        if (verbose) cout << "\tTesting with a `Datum` having "
                                                      "an empty array value.\n";
         {
             DatumMutableArrayRef array;
@@ -6650,7 +6670,7 @@ int main(int argc, char *argv[])
             Datum::destroy(D, &oa);
         }
 
-        if (verbose) cout << "\tTesting with a 'Datum' having "
+        if (verbose) cout << "\tTesting with a `Datum` having "
                                                   "a non-empty array value.\n";
 
         {
@@ -6667,7 +6687,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting with datums having a map values:\n";
 
-        if (verbose) cout << "\tTesting with a 'Datum' having "
+        if (verbose) cout << "\tTesting with a `Datum` having "
                                                        "an empty map value.\n";
         {
             DatumMutableMapRef map;
@@ -6678,7 +6698,7 @@ int main(int argc, char *argv[])
             Datum::destroy(D, &oa);
             ASSERT( 0 == oa.status());
         }
-        if (verbose) cout << "\tTesting with a 'Datum' having "
+        if (verbose) cout << "\tTesting with a `Datum` having "
                                                     "a non-empty map value.\n";
         {
             DatumMutableMapRef map;
@@ -6697,7 +6717,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting with datums having "
                                                  "maps (owning keys) value.\n";
 
-        if (verbose) cout << "\tTesting with a 'Datum' having "
+        if (verbose) cout << "\tTesting with a `Datum` having "
                                          "an empty map (owning keys) value.\n";
         {
             DatumMutableMapOwningKeysRef map;
@@ -6709,7 +6729,7 @@ int main(int argc, char *argv[])
             ASSERT( 0 == oa.status());
         }
 
-        if (verbose) cout << "\tTesting with a 'Datum' having "
+        if (verbose) cout << "\tTesting with a `Datum` having "
                                       "a non-empty map (owning keys) value.\n";
         {
             DatumMutableMapOwningKeysRef map;
@@ -6731,62 +6751,62 @@ int main(int argc, char *argv[])
       case 20: {
         // --------------------------------------------------------------------
         // TESTING PRINT AND OPERATOR<<
-        //   Ensure that the value of the 'Datum' holding an aggregate value
-        //   can be formatted appropriately on an 'ostream' in some standard,
+        //   Ensure that the value of the `Datum` holding an aggregate value
+        //   can be formatted appropriately on an `ostream` in some standard,
         //   human-readable form.
         //
         // Concerns:
-        //: 1 The 'print' method writes the value to the specified 'ostream'.
-        //:
-        //: 2 The 'print' method writes the value in the intended format.
-        //:
-        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)'.
-        //:
-        //: 4 The 'print' method's signature and return type are standard.
-        //:
-        //: 5 The 'print' method returns the supplied 'ostream'.
-        //:
-        //: 6 The optional 'level' and 'spacesPerLevel' parameters have the
-        //:   correct default values (0 and 4, respectively).
-        //:
-        //: 7 The output 'operator<<'s signature and return type are standard.
-        //:
-        //: 8 The output 'operator<<' returns the destination 'ostream'.
+        // 1. The `print` method writes the value to the specified `ostream`.
+        //
+        // 2. The `print` method writes the value in the intended format.
+        //
+        // 3. The output using `s << obj` is the same as `obj.print(s, 0, -1)`.
+        //
+        // 4. The `print` method's signature and return type are standard.
+        //
+        // 5. The `print` method returns the supplied `ostream`.
+        //
+        // 6. The optional `level` and `spacesPerLevel` parameters have the
+        //    correct default values (0 and 4, respectively).
+        //
+        // 7. The output `operator<<`s signature and return type are standard.
+        //
+        // 8. The output `operator<<` returns the destination `ostream`.
         //
         // Plan:
-        //: 1 Use the addresses of the 'print' member function and 'operator<<'
-        //:   free function defined in this component to initialize,
-        //:   respectively, member-function and free-function pointers having
-        //:   the appropriate signatures and return types.  (C-4, 7)
-        //:
-        //: 2 Using the table-driven technique:  (C-1..3, 5..6, 8)
-        //:
-        //:   1 Define combinations of object values, having distinct values
+        // 1. Use the addresses of the `print` member function and `operator<<`
+        //    free function defined in this component to initialize,
+        //    respectively, member-function and free-function pointers having
+        //    the appropriate signatures and return types.  (C-4, 7)
+        //
+        // 2. Using the table-driven technique:  (C-1..3, 5..6, 8)
+        //
+        //   1. Define combinations of object values, having distinct values
         //      and various values for the two formatting parameters, along
         //      with the expected output.
-        //:
-        //:     ( 'value' x  'level'   x 'spacesPerLevel' ):
-        //:     1 { A   } x {  0     } x {  0, 1, -1, -8 } --> 4 expected o/ps
-        //:     2 { A   } x {  3, -3 } x {  0, 2, -2, -8 } --> 8 expected o/ps
-        //:     3 { A   } x {  2     } x {  3            } --> 1 expected o/ps
-        //:     4 { A, B} x { -8     } x { -8            } --> 2 expected o/ps
-        //:     5 { A, B} x { -9     } x { -9            } --> 2 expected o/ps
-        //:
-        //:   2 For each row in the table defined in P-2.1:  (C-1..3, 5..6, 8)
-        //:
-        //:     1 Using a 'const' 'Datum', supply each object value and pair of
-        //:       formatting parameters to 'print', omitting the 'level' or
-        //:       'spacesPerLevel' parameter if the value of that argument is
-        //:       '-8'.  If the parameters are, arbitrarily, '(-9, -9)', then
-        //:       invoke the 'operator<<' instead.
-        //:
-        //:     2 Use a standard 'ostringstream' to capture the actual output.
-        //:
-        //:     3 Verify the address of what is returned is that of the
-        //:       supplied stream.  (C-5, 8)
-        //:
-        //:     4 Compare the contents captured in P-2.2.2 with what is
-        //:       expected.  (C-1..3, 6)
+        //
+        //      ( `value` x  `level`   x `spacesPerLevel` ):
+        //     1. { A   } x {  0     } x {  0, 1, -1, -8 } --> 4 expected o/ps
+        //     2. { A   } x {  3, -3 } x {  0, 2, -2, -8 } --> 8 expected o/ps
+        //     3. { A   } x {  2     } x {  3            } --> 1 expected o/ps
+        //     4. { A, B} x { -8     } x { -8            } --> 2 expected o/ps
+        //     5. { A, B} x { -9     } x { -9            } --> 2 expected o/ps
+        //
+        //   2. For each row in the table defined in P-2.1:  (C-1..3, 5..6, 8)
+        //
+        //     1. Using a `const` `Datum`, supply each object value and pair of
+        //        formatting parameters to `print`, omitting the `level` or
+        //        `spacesPerLevel` parameter if the value of that argument is
+        //        `-8`.  If the parameters are, arbitrarily, `(-9, -9)`, then
+        //        invoke the `operator<<` instead.
+        //
+        //     2. Use a standard `ostringstream` to capture the actual output.
+        //
+        //     3. Verify the address of what is returned is that of the
+        //        supplied stream.  (C-5, 8)
+        //
+        //     4. Compare the contents captured in P-2.2.2 with what is
+        //        expected.  (C-1..3, 6)
         //
         // Testing:
         //   bsl::ostream& print(ostream&, int, int) const; // aggregate
@@ -7271,25 +7291,25 @@ int main(int argc, char *argv[])
       case 19: {
         // --------------------------------------------------------------------
         // TESTING STRING CONSTRUCTION
-        //    Verify that user can construct 'Datum' holding uninitialized
-        //    string and fill the string buffer pointed by the created 'Datum'
+        //    Verify that user can construct `Datum` holding uninitialized
+        //    string and fill the string buffer pointed by the created `Datum`
         //    object later.
         //
         // Concerns:
-        //: 1 Can create 'Datum' object holding an uninitialized string buffer.
-        //:
-        //: 2 All object memory comes from the supplied allocator.
-        //:
-        //: 3 All allocated memory is released when the 'Datum' object is
-        //:   destroyed.
+        // 1. Can create `Datum` object holding an uninitialized string buffer.
+        //
+        // 2. All object memory comes from the supplied allocator.
+        //
+        // 3. All allocated memory is released when the `Datum` object is
+        //    destroyed.
         //
         // Plan:
-        //: 1 Create 'Datum' object holding uninitialized string buffer.
-        //:   Verify the type and the value of the created 'Datum' object.
-        //:   (C-1..3)
-        //:
-        //: 2 Verify that all object memory is released when the object is
-        //:   destroyed.  (C-4)
+        // 1. Create `Datum` object holding uninitialized string buffer.
+        //    Verify the type and the value of the created `Datum` object.
+        //    (C-1..3)
+        //
+        // 2. Verify that all object memory is released when the object is
+        //    destroyed.  (C-4)
         //
         // Testing:
         //   char *createUninitializedString(Datum&, SizeType, Allocator *);
@@ -7301,7 +7321,7 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard guard(&da);
 
         if (verbose)
-            cout << "\nTesting 'createUninitializedString()'.\n";
+            cout << "\nTesting `createUninitializedString()`.\n";
         {
             const char BUFFER[] = "0123456789abcdef";
 
@@ -7382,30 +7402,30 @@ int main(int argc, char *argv[])
         // TESTING MAP CONSTRUCTION
         //
         // Concerns:
-        //: 1 'Datum' object holding a map of 'Datum's can be created.
-        //:
-        //: 2 Destroying adopted map releases all memory allocated by Datums in
-        //:   that map.
+        // 1. `Datum` object holding a map of `Datum`s can be created.
         //
-        //: 3 All object memory comes from the supplied allocator.
-        //:
-        //: 4 All allocated memory is released when the 'Datum' object is
-        //:   destroyed.
-        //:
-        //: 5 'theMap' accessor is the constant method.
-        //:
-        //: 6 QoI: asserted precondition violations are detected when enabled.
+        // 2. Destroying adopted map releases all memory allocated by Datums in
+        //    that map.
+        //
+        // 3. All object memory comes from the supplied allocator.
+        //
+        // 4. All allocated memory is released when the `Datum` object is
+        //    destroyed.
+        //
+        // 5. `theMap` accessor is the constant method.
+        //
+        // 6. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create 'Datum' object holding a map.  Verify the type and the
-        //:   value of the created 'Datum' object.  (C-1..3)
-        //:
-        //: 2 Verify that all object memory is released when the object is
-        //:   destroyed.  (C-4)
-        //:
-        //: 3 Invoke 'theMap' via a reference providing non-modifiable
-        //:   access to the object.  Compilation of this test driver confirms
-        //:   that accessor is 'const'-qualified.  (C-5)
+        // 1. Create `Datum` object holding a map.  Verify the type and the
+        //    value of the created `Datum` object.  (C-1..3)
+        //
+        // 2. Verify that all object memory is released when the object is
+        //    destroyed.  (C-4)
+        //
+        // 3. Invoke `theMap` via a reference providing non-modifiable
+        //    access to the object.  Compilation of this test driver confirms
+        //    that accessor is `const`-qualified.  (C-5)
         //
         // Testing:
         //   void createUninitializedMap(DatumMutableMapRef*, SizeType, ...);
@@ -7906,7 +7926,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator         oa("object", veryVeryVeryVerbose);
             bsls::AssertTestHandlerGuard hG;
 
-            if (verbose) cout << "\tTesting 'createUninitializedMap' with a "
+            if (verbose) cout << "\tTesting `createUninitializedMap` with a "
                                                     "map with external keys\n";
             {
                 DatumMutableMapRef  map;
@@ -7924,7 +7944,7 @@ int main(int argc, char *argv[])
                 Datum::destroy(mD, &oa);
             }
 
-            if (verbose) cout << "\tTesting 'createUninitializedMap' with "
+            if (verbose) cout << "\tTesting `createUninitializedMap` with "
                                                       "a map (owning keys).\n";
             {
                 DatumMutableMapOwningKeysRef  map;
@@ -7944,7 +7964,7 @@ int main(int argc, char *argv[])
                 Datum::destroy(mD, &oa);
             }
 
-            if (verbose) cout << "\tTesting 'theMap'\n";
+            if (verbose) cout << "\tTesting `theMap`\n";
             {
                 DatumMutableMapRef map;
 
@@ -7965,30 +7985,30 @@ int main(int argc, char *argv[])
         // TESTING INTEGER MAP CONSTRUCTION
         //
         // Concerns:
-        //: 1 'Datum' object holding a integer map of 'Datum's can be created.
-        //:
-        //: 2 Destroying adopted map releases all memory allocated by Datums in
-        //:   that map.
+        // 1. `Datum` object holding a integer map of `Datum`s can be created.
         //
-        //: 3 All object memory comes from the supplied allocator.
-        //:
-        //: 4 All allocated memory is released when the 'Datum' object is
-        //:   destroyed.
-        //:
-        //: 5 'theIntMap' accessor is a constant method.
-        //:
-        //: 6 QoI: asserted precondition violations are detected when enabled.
+        // 2. Destroying adopted map releases all memory allocated by Datums in
+        //    that map.
+        //
+        // 3. All object memory comes from the supplied allocator.
+        //
+        // 4. All allocated memory is released when the `Datum` object is
+        //    destroyed.
+        //
+        // 5. `theIntMap` accessor is a constant method.
+        //
+        // 6. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create 'Datum' object holding an integer map.  Verify the type
-        //:   and the value of the created 'Datum' object.  (C-1..3)
-        //:
-        //: 2 Verify that all object memory is released when the object is
-        //:   destroyed.  (C-4)
-        //:
-        //: 3 Invoke 'theIntMap' via a reference providing non-modifiable
-        //:   access to the object.  Compilation of this test driver confirms
-        //:   that accessor is 'const'-qualified.  (C-5)
+        // 1. Create `Datum` object holding an integer map.  Verify the type
+        //    and the value of the created `Datum` object.  (C-1..3)
+        //
+        // 2. Verify that all object memory is released when the object is
+        //    destroyed.  (C-4)
+        //
+        // 3. Invoke `theIntMap` via a reference providing non-modifiable
+        //    access to the object.  Compilation of this test driver confirms
+        //    that accessor is `const`-qualified.  (C-5)
         //
         // Testing:
         //   void createUninitializedIntMap(DatumMutableIntMapRef*, size, ...);
@@ -8090,7 +8110,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == oa.status());
             }
 
-            if (veryVerbose) cout << "\tCreating a 'Datum' holding "
+            if (veryVerbose) cout << "\tCreating a `Datum` holding "
                                                              "a sorted map.\n";
             {
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
@@ -8201,7 +8221,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator         oa("object", veryVeryVeryVerbose);
             bsls::AssertTestHandlerGuard hG;
 
-            if (verbose) cout << "\tTesting 'createUninitializedIntMap' with "
+            if (verbose) cout << "\tTesting `createUninitializedIntMap` with "
                                                   "a map with external keys\n";
             {
                 DatumMutableIntMapRef  map;
@@ -8219,7 +8239,7 @@ int main(int argc, char *argv[])
                 Datum::destroy(mD, &oa);
             }
 
-            if (verbose) cout << "\tTesting 'theIntMap'\n";
+            if (verbose) cout << "\tTesting `theIntMap`\n";
             {
                 DatumMutableIntMapRef map;
 
@@ -8240,30 +8260,30 @@ int main(int argc, char *argv[])
         // TESTING ARRAY CONSTRUCTION
         //
         // Concerns:
-        //: 1 Can create 'Datum' object holding an array of 'Datum's.
-        //:
-        //: 2 Destroying adopted array releases all memory allocated by Datums
-        //:   in that array.
+        // 1. Can create `Datum` object holding an array of `Datum`s.
         //
-        //: 3 All object memory comes from the supplied allocator.
-        //:
-        //: 4 All allocated memory is released when the 'Datum' object is
-        //:   destroyed.
-        //:
-        //: 5 All ACCESSORS methods are declared 'const'.
-        //:
-        //: 6 QoI: asserted precondition violations are detected when enabled.
+        // 2. Destroying adopted array releases all memory allocated by Datums
+        //    in that array.
+        //
+        // 3. All object memory comes from the supplied allocator.
+        //
+        // 4. All allocated memory is released when the `Datum` object is
+        //    destroyed.
+        //
+        // 5. All ACCESSORS methods are declared `const`.
+        //
+        // 6. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create 'Datum' object holding an array.  Verify the type and the
-        //:   value of the created 'Datum' object.  (C-1..3)
-        //:
-        //: 2 Verify that all object memory is released when the object is
-        //:   destroyed.  (C-4)
-        //:
-        //: 3 Invoke each ACCESSOR via a reference providing non-modifiable
-        //:   access to the object.  Compilation of this test driver confirms
-        //:   that ACCESSORS are 'const'-qualified.  (C-5)
+        // 1. Create `Datum` object holding an array.  Verify the type and the
+        //    value of the created `Datum` object.  (C-1..3)
+        //
+        // 2. Verify that all object memory is released when the object is
+        //    destroyed.  (C-4)
+        //
+        // 3. Invoke each ACCESSOR via a reference providing non-modifiable
+        //    access to the object.  Compilation of this test driver confirms
+        //    that ACCESSORS are `const`-qualified.  (C-5)
         //
         // Testing:
         //   Datum createArrayReference(const Datum *, SizeType, Allocator *);
@@ -8322,7 +8342,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) cout << "\tTaking 'DatumArrayRef' as a parameter.\n";
+            if (verbose) cout << "\tTaking `DatumArrayRef` as a parameter.\n";
             {
                 // Testing overload with const DatumArrayRef&
                 for (size_t i = 0; i < DATA_LEN; ++i) {
@@ -8372,8 +8392,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'createUninitializedArray()' and "
-                                                           "'adoptArray()'.\n";
+        if (verbose) cout << "\nTesting `createUninitializedArray()` and "
+                                                           "`adoptArray()`.\n";
 
         {
             if (veryVerbose) cout << "\tCreating empty array.\n";
@@ -8509,7 +8529,7 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(Datum::createArrayReference(&D, 1, &oa));
             }
 
-            if (verbose) cout << "\tTesting 'createUninitializedArray'\n";
+            if (verbose) cout << "\tTesting `createUninitializedArray`\n";
             {
                 DatumMutableArrayRef  array;
                 DatumMutableArrayRef *nullRefPtr =
@@ -8526,7 +8546,7 @@ int main(int argc, char *argv[])
                 Datum::destroy(mD, &oa);
             }
 
-            if (verbose) cout << "\tTesting 'theArray'\n";
+            if (verbose) cout << "\tTesting `theArray`\n";
             {
                 DatumMutableArrayRef array;
 
@@ -8544,20 +8564,20 @@ int main(int argc, char *argv[])
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // TESTING 'DatumMapRef'
+        // TESTING `DatumMapRef`
         //
         // Concerns:
-        //: 1 Exercise a broad cross-section of value-semantic functionality.
+        // 1. Exercise a broad cross-section of value-semantic functionality.
         //
         // Plan:
-        //: 1 Create a 'DatumMapRef' object and verify that values
-        //:   were correctly passed down to the 'd_data_p' and 'd_size' data
-        //:   members. Also exercise the copy construction functionality and
-        //:   verify using the equality operators that these objects have the
-        //:   same value. Verify that streaming operator outputs the correctly
-        //:   formatted value. Also verify that accessors return the correct
-        //:   value.  Verify that 'find' returns the expected result for both
-        //:   sorted and unsorted maps.
+        // 1. Create a `DatumMapRef` object and verify that values
+        //    were correctly passed down to the `d_data_p` and `d_size` data
+        //    members. Also exercise the copy construction functionality and
+        //    verify using the equality operators that these objects have the
+        //    same value. Verify that streaming operator outputs the correctly
+        //    formatted value. Also verify that accessors return the correct
+        //    value.  Verify that `find` returns the expected result for both
+        //    sorted and unsorted maps.
         //
         // Testing:
         //   element_type
@@ -8594,7 +8614,7 @@ int main(int argc, char *argv[])
         //   bool operator!=(const DatumMapRef& lhs, const DatumMapRef& rhs);
         //   bsl::ostream& operator<<(bsl::ostream&, const DatumMapRef&);
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTESTING 'DatumMapRef'"
+        if (verbose) cout << "\nTESTING `DatumMapRef`"
                              "\n=====================\n";
 
         if (verbose) cout << "\nTesting public types.\n";
@@ -8624,7 +8644,7 @@ int main(int argc, char *argv[])
         ASSERT_SAME_TYPE(DatumMapRef::SizeType, Datum::SizeType);
 #undef ASSERT_SAME_TYPE
 
-        if (verbose) cout << "\nTesting 'size()'.\n";
+        if (verbose) cout << "\nTesting `size()`.\n";
         {
             DatumMapEntry data[3];
             {
@@ -8645,7 +8665,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting const '[c]rbegin()', '[c]rend()'.\n";
+        if (verbose) cout << "\nTesting const `[c]rbegin()`, `[c]rend()`.\n";
         {
             DatumMapEntry data[3];
             DatumMapRef   obj(data, 3, false, false);
@@ -8657,7 +8677,7 @@ int main(int argc, char *argv[])
             ASSERT(data - 1 == obj.crend().operator->());
         }
 
-        if (verbose) cout << "\nTesting const 'front()', 'back()'.\n";
+        if (verbose) cout << "\nTesting const `front()`, `back()`.\n";
         {
             DatumMapEntry     data[3];
             const DatumMapRef obj(data, 3, false, false);
@@ -8666,7 +8686,7 @@ int main(int argc, char *argv[])
             ASSERT(&data[2] == &obj.back());
         }
 
-        if (verbose) cout << "\nTesting 'empty()'.\n";
+        if (verbose) cout << "\nTesting `empty()`.\n";
         {
             DatumMapEntry data[3];
             {
@@ -8688,7 +8708,7 @@ int main(int argc, char *argv[])
         }
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
-        if (verbose) cout << "\nTesting range-based 'for' loop.\n";
+        if (verbose) cout << "\nTesting range-based `for` loop.\n";
         {
             DatumMapEntry     data[3];
             const DatumMapRef obj(data, 3, false, false);
@@ -8752,7 +8772,7 @@ int main(int argc, char *argv[])
             }
         }
         {
-            // Note that ownKeys is set to 'true' only to test 'ownsKey'
+            // Note that ownKeys is set to `true` only to test `ownsKey`
             // accessor.
             const DatumMapRef obj(map, size, true, true);
             ASSERT(bytesInUse == oa.numBytesInUse());
@@ -8827,7 +8847,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'print'.\n";
+        if (verbose) cout << "\nTesting `print`.\n";
         {
             const DatumMapRef obj(map, size, false, false);
 
@@ -8938,7 +8958,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'operator<<'.\n";
+        if (verbose) cout << "\nTesting `operator<<`.\n";
         {
             const DatumMapRef obj(map, size, false, false);
 
@@ -9012,8 +9032,8 @@ int main(int argc, char *argv[])
             {
                 const static struct {
                     int          d_line;    // line number
-                    DatumMapRef  d_value1;  // 'DatumMapRef' value1
-                    DatumMapRef  d_value2;  // 'DatumMapRef' value2
+                    DatumMapRef  d_value1;  // `DatumMapRef` value1
+                    DatumMapRef  d_value2;  // `DatumMapRef` value2
                 } DATA[] = {
      //LINE VALUE
      //---- -------------------
@@ -9084,9 +9104,9 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'find'.\n";
+        if (verbose) cout << "\nTesting `find`.\n";
         {
-            // 'loadRandomString' does not use special characters
+            // `loadRandomString` does not use special characters
             const bsl::string notInMapLess = "$%;*&^"; // less than alpha-num
             const bsl::string notInMapGreater = "{}~"; // more than alpha-num
 
@@ -9163,7 +9183,7 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(DatumMapRef(&TEMP,        1, false, false));
             }
 
-            if (verbose) cout << "\tTesting 'operator[]'.\n";
+            if (verbose) cout << "\tTesting `operator[]`.\n";
             {
                 const int           SIZE = 3;
                 const DatumMapEntry MAP[SIZE] = {
@@ -9179,7 +9199,7 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(obj[0       ]);
             }
 
-            if (verbose) cout << "\tTesting 'front' & 'back'.\n";
+            if (verbose) cout << "\tTesting `front` & `back`.\n";
             {
                 DatumMapEntry data[3];
                 {
@@ -9199,20 +9219,20 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING 'DatumIntMapRef'
+        // TESTING `DatumIntMapRef`
         //
         // Concerns:
-        //: 1 Exercise a broad cross-section of value-semantic functionality.
+        // 1. Exercise a broad cross-section of value-semantic functionality.
         //
         // Plan:
-        //: 1 Create a 'DatumIntMapRef' object and verify that values
-        //:   were correctly passed down to the 'd_data_p' and 'd_size' data
-        //:   members. Also exercise the copy construction functionality and
-        //:   verify using the equality operators that these objects have the
-        //:   same value. Verify that streaming operator outputs the correctly
-        //:   formatted value. Also verify that accessors return the correct
-        //:   value.  Verify that 'find' returns the expected result for both
-        //:   sorted and unsorted maps.
+        // 1. Create a `DatumIntMapRef` object and verify that values
+        //    were correctly passed down to the `d_data_p` and `d_size` data
+        //    members. Also exercise the copy construction functionality and
+        //    verify using the equality operators that these objects have the
+        //    same value. Verify that streaming operator outputs the correctly
+        //    formatted value. Also verify that accessors return the correct
+        //    value.  Verify that `find` returns the expected result for both
+        //    sorted and unsorted maps.
         //
         // Testing:
         //   element_type
@@ -9247,7 +9267,7 @@ int main(int argc, char *argv[])
         //   bool operator!=(const DatumIntMapRef&, const DatumIntMapRef&);
         //   bsl::ostream& operator<<(bsl::ostream&, const DatumIntMapRef&);
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTESTING 'DatumIntMapRef'"
+        if (verbose) cout << "\nTESTING `DatumIntMapRef`"
                              "\n========================\n";
 
         if (verbose) cout << "\nTesting public types.\n";
@@ -9285,7 +9305,7 @@ int main(int argc, char *argv[])
         ASSERT_SAME_TYPE(DatumIntMapRef::SizeType, Datum::SizeType);
 #undef ASSERT_SAME_TYPE
 
-        if (verbose) cout << "\nTesting 'size()'.\n";
+        if (verbose) cout << "\nTesting `size()`.\n";
         {
             DatumIntMapEntry data[3];
             {
@@ -9306,7 +9326,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting const '[c]rbegin()', '[c]rend()'.\n";
+        if (verbose) cout << "\nTesting const `[c]rbegin()`, `[c]rend()`.\n";
         {
             DatumIntMapEntry data[3];
             DatumIntMapRef   obj(data, 3, false);
@@ -9318,7 +9338,7 @@ int main(int argc, char *argv[])
             ASSERT(data - 1 == obj.crend().operator->());
         }
 
-        if (verbose) cout << "\nTesting const 'front()', 'back()'.\n";
+        if (verbose) cout << "\nTesting const `front()`, `back()`.\n";
         {
             DatumIntMapEntry     data[3];
             const DatumIntMapRef obj(data, 3, false);
@@ -9327,7 +9347,7 @@ int main(int argc, char *argv[])
             ASSERT(&data[2] == &obj.back());
         }
 
-        if (verbose) cout << "\nTesting 'empty()'.\n";
+        if (verbose) cout << "\nTesting `empty()`.\n";
         {
             DatumIntMapEntry data[3];
             {
@@ -9349,7 +9369,7 @@ int main(int argc, char *argv[])
         }
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
-        if (verbose) cout << "\nTesting range-based 'for' loop.\n";
+        if (verbose) cout << "\nTesting range-based `for` loop.\n";
         {
             DatumIntMapEntry     data[3];
             const DatumIntMapRef obj(data, 3, false);
@@ -9463,7 +9483,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'print'.\n";
+        if (verbose) cout << "\nTesting `print`.\n";
         {
             const DatumIntMapRef obj(map, SIZE, false);
 
@@ -9575,7 +9595,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'operator<<'.\n";
+        if (verbose) cout << "\nTesting `operator<<`.\n";
         {
             const DatumIntMapRef obj(map, SIZE, false);
 
@@ -9649,8 +9669,8 @@ int main(int argc, char *argv[])
             {
                 const static struct {
                     int             d_line;    // line number
-                    DatumIntMapRef  d_value1;  // 'DatumMapRef' value1
-                    DatumIntMapRef  d_value2;  // 'DatumMapRef' value2
+                    DatumIntMapRef  d_value1;  // `DatumMapRef` value1
+                    DatumIntMapRef  d_value2;  // `DatumMapRef` value2
                 } DATA[] = {
      //LINE VALUE
      //---- -------------------
@@ -9721,7 +9741,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'find'.\n";
+        if (verbose) cout << "\nTesting `find`.\n";
         {
             // Create a unique set of key
 
@@ -9802,7 +9822,7 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(DatumIntMapRef(&TEMP,        1, false));
             }
 
-            if (verbose) cout << "\tTesting 'operator[]'.\n";
+            if (verbose) cout << "\tTesting `operator[]`.\n";
             {
                 const int              SIZE = 3;
                 const DatumIntMapEntry MAP[SIZE] = {
@@ -9818,7 +9838,7 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(obj[0      ]);
             }
 
-            if (verbose) cout << "\tTesting 'front' & 'back'.\n";
+            if (verbose) cout << "\tTesting `front` & `back`.\n";
             {
                 DatumIntMapEntry data[3];
                 {
@@ -9838,19 +9858,19 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'DatumArrayRef'
+        // TESTING `DatumArrayRef`
         //
         // Concerns:
-        //: 1 Exercise a broad cross-section of value-semantic functionality.
+        // 1. Exercise a broad cross-section of value-semantic functionality.
         //
         // Plan:
-        //: 1 Create a 'DatumArrayRef' object and verify that values were
-        //:   correctly passed down to the 'd_data_p' and 'd_size' data
-        //:   members.  Also exercise the copy construction and assignment
-        //:   operator functionality and verify using the equality operators
-        //:   that these objects have the same value. Verify that streaming
-        //:   operator outputs the correctly formatted value. Also verify that
-        //:   accessors return the correct value.
+        // 1. Create a `DatumArrayRef` object and verify that values were
+        //    correctly passed down to the `d_data_p` and `d_size` data
+        //    members.  Also exercise the copy construction and assignment
+        //    operator functionality and verify using the equality operators
+        //    that these objects have the same value. Verify that streaming
+        //    operator outputs the correctly formatted value. Also verify that
+        //    accessors return the correct value.
         //
         // Testing:
         //   element_type
@@ -9884,7 +9904,7 @@ int main(int argc, char *argv[])
         //   bool operator!=(const DatumArrayRef&, const DatumArrayRef&);
         //   bsl::ostream& operator<<(bsl::ostream&, const DatumArrayRef&);
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTESTING 'DatumArrayRef'"
+        if (verbose) cout << "\nTESTING `DatumArrayRef`"
                              "\n=======================\n";
 
         if (verbose) cout << "\nTesting public types.\n";
@@ -9949,7 +9969,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == oa.status());
         }
 
-        if (verbose) cout << "\nTesting 'size()'.\n";
+        if (verbose) cout << "\nTesting `size()`.\n";
         {
             const DatumArrayRef unfilled;
             ASSERT(0 == unfilled.size());
@@ -9960,7 +9980,7 @@ int main(int argc, char *argv[])
             ASSERT(3 == obj.size());
         }
 
-        if (verbose) cout << "\nTesting const '[c]begin()', '[c]end()'.\n";
+        if (verbose) cout << "\nTesting const `[c]begin()`, `[c]end()`.\n";
         {
             Datum               data[3];
             const DatumArrayRef obj(data, 3);
@@ -9971,7 +9991,7 @@ int main(int argc, char *argv[])
             ASSERT(data + 3 == obj.cend());
         }
 
-        if (verbose) cout << "\nTesting const '[c]rbegin()', '[c]rend()'.\n";
+        if (verbose) cout << "\nTesting const `[c]rbegin()`, `[c]rend()`.\n";
         {
             Datum         data[3];
             DatumArrayRef obj(data, 3);
@@ -9983,7 +10003,7 @@ int main(int argc, char *argv[])
             ASSERT(data - 1 == obj.crend().operator->());
         }
 
-        if (verbose) cout << "\nTesting const 'front()', 'back()'.\n";
+        if (verbose) cout << "\nTesting const `front()`, `back()`.\n";
         {
             Datum               data[3];
             const DatumArrayRef obj(data, 3);
@@ -9992,7 +10012,7 @@ int main(int argc, char *argv[])
             ASSERT(&data[2] == &obj.back());
         }
 
-        if (verbose) cout << "\nTesting 'empty()'.\n";
+        if (verbose) cout << "\nTesting `empty()`.\n";
         {
             Datum data[3];
             {
@@ -10014,7 +10034,7 @@ int main(int argc, char *argv[])
         }
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
-        if (verbose) cout << "\nTesting range-based 'for' loop.\n";
+        if (verbose) cout << "\nTesting range-based `for` loop.\n";
         {
             Datum               data[3];
             const DatumArrayRef obj(data, 3);
@@ -10058,7 +10078,7 @@ int main(int argc, char *argv[])
 
             const static struct {
                 int            d_line;   // line number
-                DatumArrayRef  d_value;  // 'DatumArrayRef' value
+                DatumArrayRef  d_value;  // `DatumArrayRef` value
             } DATA[] = {
                 //LINE VALUE
                 //---- -------------------
@@ -10093,7 +10113,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == oa.status());
         }
 
-        if (verbose) cout << "\nTesting 'print'.\n";
+        if (verbose) cout << "\nTesting `print`.\n";
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -10229,7 +10249,7 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(DatumArrayRef(&TEMP,          1));
             }
 
-            if (verbose) cout << "\tTesting 'operator[]'.\n";
+            if (verbose) cout << "\tTesting `operator[]`.\n";
             {
                 const size_t SIZE = 3;
                 const Datum  ARRAY[SIZE] = { Datum::createNull(),
@@ -10243,7 +10263,7 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(obj[0       ]);
             }
 
-            if (verbose) cout << "\tTesting 'front' & 'back'.\n";
+            if (verbose) cout << "\tTesting `front` & `back`.\n";
             {
                 Datum data[3];
                 {
@@ -10265,20 +10285,20 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING 'DatumMutableMapOwningKeysRef'
+        // TESTING `DatumMutableMapOwningKeysRef`
         //
         // Concerns:
-        //: 1 Value constructor can create 'DatumMutableMapOwningKeysRef'
-        //:   object.
-        //:
-        //: 2 Values supplied at construction is correctly passed down to the
-        //:   data member and correctly reported by accessors.
+        // 1. Value constructor can create `DatumMutableMapOwningKeysRef`
+        //    object.
+        //
+        // 2. Values supplied at construction is correctly passed down to the
+        //    data member and correctly reported by accessors.
         //
         // Plan:
-        //: 1 Create a 'DatumMutableMapOwningKeysRef' object and verify using
-        //:   accessors that values were correctly passed down to the
-        //:   'd_data_p', 'd_size_p', 'd_keys_p' and 'd_sorted_p' data members.
-        //:   (C-1,2)
+        // 1. Create a `DatumMutableMapOwningKeysRef` object and verify using
+        //    accessors that values were correctly passed down to the
+        //    `d_data_p`, `d_size_p`, `d_keys_p` and `d_sorted_p` data members.
+        //    (C-1,2)
         //
         // Testing:
         //   DatumMutableMapOwningKeysRef();
@@ -10288,7 +10308,7 @@ int main(int argc, char *argv[])
         //   char *keys() const;
         //   bool *sorted() const;
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTESTING 'DatumMutableMapOwningKeysRef'"
+        if (verbose) cout << "\nTESTING `DatumMutableMapOwningKeysRef`"
                              "\n======================================\n";
 
         if (verbose) cout << "\nTesting default constructor.\n";
@@ -10321,25 +10341,25 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'DatumMutableIntMapRef'
+        // TESTING `DatumMutableIntMapRef`
         //
         // Concerns:
-        //: 1 Value constructor can create 'DatumMutableIntMapRef' object.
-        //:
-        //: 2 Values supplied at construction is correctly passed down to the
-        //:   data member and correctly reported by accessors.
+        // 1. Value constructor can create `DatumMutableIntMapRef` object.
+        //
+        // 2. Values supplied at construction is correctly passed down to the
+        //    data member and correctly reported by accessors.
         //
         // Plan:
-        //: 1 Create a 'DatumMutableIntMapRef' object and verify using
-        //:   accessors that values were correctly passed down to the
-        //:   'd_data_p', 'd_size_p', and 'd_sorted_p' data members.  (C-1,2)
+        // 1. Create a `DatumMutableIntMapRef` object and verify using
+        //    accessors that values were correctly passed down to the
+        //    `d_data_p`, `d_size_p`, and `d_sorted_p` data members.  (C-1,2)
         //
         // Testing:
         //   DatumMutableIntMapRef();
         //   DatumMutableIntMapRef(DatumMapEntry *, SizeType *, bool *);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'DatumMutableIntMapRef'"
+        if (verbose) cout << "\nTESTING `DatumMutableIntMapRef`"
                              "\n===============================\n";
 
         if (verbose) cout << "\nTesting default constructor.\n";
@@ -10364,25 +10384,25 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'DatumMutableMapRef'
+        // TESTING `DatumMutableMapRef`
         //
         // Concerns:
-        //: 1 Value constructor can create 'DatumMutableMapRef' object.
-        //:
-        //: 2 Values supplied at construction is correctly passed down to the
-        //:   data member and correctly reported by accessors.
+        // 1. Value constructor can create `DatumMutableMapRef` object.
+        //
+        // 2. Values supplied at construction is correctly passed down to the
+        //    data member and correctly reported by accessors.
         //
         // Plan:
-        //: 1 Create a 'DatumMutableMapRef' object and verify using accessors
-        //:   that values were correctly passed down to the 'd_data_p',
-        //:   'd_size_p', and 'd_sorted_p' data members.  (C-1,2)
+        // 1. Create a `DatumMutableMapRef` object and verify using accessors
+        //    that values were correctly passed down to the `d_data_p`,
+        //    `d_size_p`, and `d_sorted_p` data members.  (C-1,2)
         //
         // Testing:
         //   DatumMutableMapRef();
         //   DatumMutableMapRef(DatumMapEntry *, SizeType *, bool *);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'DatumMutableMapRef'"
+        if (verbose) cout << "\nTESTING `DatumMutableMapRef`"
                              "\n============================\n";
 
         if (verbose) cout << "\nTesting default constructor.\n";
@@ -10407,24 +10427,24 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'DatumMutableArrayRef'
+        // TESTING `DatumMutableArrayRef`
         //
         // Concerns:
-        //: 1 Value constructor can create 'DatumMutableArrayRef' object.
-        //:
-        //: 2 Values supplied at construction is correctly passed down to the
-        //:   data member and correctly reported by accessors.
+        // 1. Value constructor can create `DatumMutableArrayRef` object.
+        //
+        // 2. Values supplied at construction is correctly passed down to the
+        //    data member and correctly reported by accessors.
         //
         // Plan:
-        //: 1 Create a 'DatumMutableArrayRef' object and verify using accessors
-        //:   that values were correctly passed down to the 'd_data_p' and
-        //:   'd_length_p' data members.  (C-1,2)
+        // 1. Create a `DatumMutableArrayRef` object and verify using accessors
+        //    that values were correctly passed down to the `d_data_p` and
+        //    `d_length_p` data members.  (C-1,2)
         //
         // Testing:
         //   DatumMutableArrayRef();
         //   DatumMutableArrayRef(Datum *data, SizeType *length);
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTESTING 'DatumMutableArrayRef'"
+        if (verbose) cout << "\nTESTING `DatumMutableArrayRef`"
                              "\n==============================\n";
 
         if (verbose) cout << "\nTesting default constructor.\n";
@@ -10445,32 +10465,32 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'DatumMapEntry'
+        // TESTING `DatumMapEntry`
         //
         // Concerns:
-        //: 1 Can create a 'DatumMapEntry' object using value constructor.
-        //:
-        //: 2 Verify that the key and value is correctly passed to the
-        //:   corresponding class member.
-        //:
-        //: 3 The key and value of the 'DatumMapEntry' can be changed by
-        //:   manipulators.
-        //:
-        //: 4 Two 'DatumMapEntry's object can be compared for equality.
-        //:
-        //: 5 The 'DatumMapEntry' object can be streamed with 'operator<<'.
+        // 1. Can create a `DatumMapEntry` object using value constructor.
+        //
+        // 2. Verify that the key and value is correctly passed to the
+        //    corresponding class member.
+        //
+        // 3. The key and value of the `DatumMapEntry` can be changed by
+        //    manipulators.
+        //
+        // 4. Two `DatumMapEntry`s object can be compared for equality.
+        //
+        // 5. The `DatumMapEntry` object can be streamed with `operator<<`.
         //
         // Plan:
-        //: 1 Create a 'DatumMapEntry' object and verify that the values were
-        //:   correctly passed down to the data members using accessors.
-        //:
-        //: 2 Change the existing 'DatumMapEntry" object using manipulators and
-        //:   verify that the values were correctly passed down to the data
-        //:   members.
-        //:
-        //: 3 Test equality operators for 'DatumMapEntry' objects.
-        //:
-        //: 4 Test streaming operator.
+        // 1. Create a `DatumMapEntry` object and verify that the values were
+        //    correctly passed down to the data members using accessors.
+        //
+        // 2. Change the existing 'DatumMapEntry" object using manipulators and
+        //    verify that the values were correctly passed down to the data
+        //    members.
+        //
+        // 3. Test equality operators for `DatumMapEntry` objects.
+        //
+        // 4. Test streaming operator.
         //
         // Testing:
         //   DatumMapEntry();
@@ -10484,7 +10504,7 @@ int main(int argc, char *argv[])
         //   bsl::ostream& print(bsl::ostream&, int, int) const;
         //   bsl::ostream& operator<<(bsl::ostream&, const DatumMapEntry&);
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTESTING 'DatumMapEntry'"
+        if (verbose) cout << "\nTESTING `DatumMapEntry`"
                              "\n=======================\n";
 
         if (verbose) cout << "\nTesting default constructor.\n";
@@ -10521,7 +10541,7 @@ int main(int argc, char *argv[])
             ASSERT(Datum::createDouble(2.25) == obj.value());
         }
 
-        if (verbose) cout << "\nTesting 'print'.\n";
+        if (verbose) cout << "\nTesting `print`.\n";
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -10602,7 +10622,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == oa.status());
         }
 
-        if (verbose) cout << "\nTesting 'operator<<'\n";
+        if (verbose) cout << "\nTesting `operator<<`\n";
         {
             if (verbose) cout << "\nTesting operator correctness.\n";
             {
@@ -10626,7 +10646,7 @@ int main(int argc, char *argv[])
             {
                 const static struct {
                     int           d_line;   // line number
-                    DatumMapEntry d_value;  // 'DatumMapEntry' value
+                    DatumMapEntry d_value;  // `DatumMapEntry` value
                 } DATA[] = {
                     //LINE VALUE
                     //---- -----------------------------------------------
@@ -10683,26 +10703,26 @@ int main(int argc, char *argv[])
         //   Verify the assignment operator works as expected.
         //
         // Concerns:
-        //: 1 Any value is assignable to an object having any initial value.
-        //:
-        //: 2 The original object is passed as a reference providing
-        //:   non-modifiable access to that object.
-        //:
-        //: 3 Any object must be assignable to itself.
-        //:
-        //: 4 No memory is allocated by an assignment operator.
+        // 1. Any value is assignable to an object having any initial value.
+        //
+        // 2. The original object is passed as a reference providing
+        //    non-modifiable access to that object.
+        //
+        // 3. Any object must be assignable to itself.
+        //
+        // 4. No memory is allocated by an assignment operator.
         //
         // Plan:
-        //: 1 Construct and initialize a set S of (unique) objects with
-        //:   substantial and varied differences in value.  Using all
-        //:   combinations (u, v) in the cross product S x S, assign v to u and
-        //:   assert that u == v and v is unchanged.  (C-1,2)
-        //:
-        //: 2 Test aliasing by assigning (a temporary copy of) each u to itself
-        //:   and verifying that its value remains unchanged.  (C-3)
-        //:
-        //: 3 Verify that no additional memory was allocated by an assignment
-        //:   operator.  (C-4)
+        // 1. Construct and initialize a set S of (unique) objects with
+        //    substantial and varied differences in value.  Using all
+        //    combinations (u, v) in the cross product S x S, assign v to u and
+        //    assert that u == v and v is unchanged.  (C-1,2)
+        //
+        // 2. Test aliasing by assigning (a temporary copy of) each u to itself
+        //    and verifying that its value remains unchanged.  (C-3)
+        //
+        // 3. Verify that no additional memory was allocated by an assignment
+        //    operator.  (C-4)
         //
         // Testing:
         //   Datum& operator=(const Datum& rhs) = default;
@@ -10771,69 +10791,69 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // EQUALITY-COMPARISON OPERATORS
-        //   Ensure that '==' and '!=' are the operational definition of value.
-        //   The definition of the equality of two 'Datum' objects depends on
+        //   Ensure that `==` and `!=` are the operational definition of value.
+        //   The definition of the equality of two `Datum` objects depends on
         //   the type and the value of the data held by the objects.  Note,
-        //   that for 'double' and 'Decimal64' values of 'NaN', the identity
-        //   property of the quality is violated ( i.e. two 'NaN' objects never
-        //   compare equal). Also note, that this test covers only 'Datum's
+        //   that for `double` and `Decimal64` values of `NaN`, the identity
+        //   property of the quality is violated ( i.e. two `NaN` objects never
+        //   compare equal). Also note, that this test covers only `Datum`s
         //   holding non-aggregate data type.
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if their
-        //:   corresponding type and values compare equal (except 'NaN')
-        //:
-        //: 2 'true  == (X == X)' (i.e., identity).
-        //:
-        //: 3 'false == (X != X)' (i.e., identity).
-        //:
-        //: 4 'X == Y' if and only if 'Y == X' (i.e., commutativity).
-        //:
-        //: 5 'X != Y' if and only if 'Y != X' (i.e., commutativity).
-        //:
-        //: 6 'X != Y' if and only if '!(X == Y)'.
-        //:
-        //: 7 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., both comparison operators are free functions).
-        //:
-        //: 8 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //: 9 The equality-comparison operators' signatures and return types
-        //:   are standard.
-        //:
-        //:10 Two Datums holding 'NaN' values are not equal.
+        // 1. Two objects, `X` and `Y`, compare equal if and only if their
+        //    corresponding type and values compare equal (except `NaN`)
+        //
+        // 2. `true  == (X == X)` (i.e., identity).
+        //
+        // 3. `false == (X != X)` (i.e., identity).
+        //
+        // 4. `X == Y` if and only if `Y == X` (i.e., commutativity).
+        //
+        // 5. `X != Y` if and only if `Y != X` (i.e., commutativity).
+        //
+        // 6. `X != Y` if and only if `!(X == Y)`.
+        //
+        // 7. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., both comparison operators are free functions).
+        //
+        // 8. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        // 9. The equality-comparison operators' signatures and return types
+        //    are standard.
+        //
+        // 10. Two Datums holding `NaN` values are not equal.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the two homogeneous, free
-        //:   equality-comparison operators defined in this component.
-        //:   (C-7..9)
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their type and value
-        //:   representation.
-        //:
-        //: 3 For each row 'R1' in the table of P-2:  (C-1..6)
-        //:
-        //:   1 Create a 'const' reference to an object, 'X', having the value
-        //:     from 'R1'.
-        //:
-        //:   2 Using 'X', verify the reflexive (anti-reflexive) property of
-        //:     equality (inequality) in the presence of aliasing.  (C-2..3)
-        //:
-        //:   3 For each row 'R2' in the table of P-2:  (C-1, 4..6)
-        //:
-        //:     1 Record, in 'EXP', whether or not distinct objects set to
-        //:       values from 'R1' and 'R2', respectively, are expected to have
-        //:       the same value.
-        //:
-        //:     2 Create a 'const' reference to an object, 'Y', having the
-        //:       value from 'R2'.
-        //:
-        //:     3 Using 'X' and 'Y', verify the commutativity property and
-        //:       expected return value for both '==' and '!='.  (C-1, 4..6)
+        // 1. Use the respective addresses of `operator==` and `operator!=` to
+        //    initialize function pointers having the appropriate signatures
+        //    and return types for the two homogeneous, free
+        //    equality-comparison operators defined in this component.
+        //    (C-7..9)
+        //
+        // 2. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their type and value
+        //    representation.
+        //
+        // 3. For each row `R1` in the table of P-2:  (C-1..6)
+        //
+        //   1. Create a `const` reference to an object, `X`, having the value
+        //      from `R1`.
+        //
+        //   2. Using `X`, verify the reflexive (anti-reflexive) property of
+        //      equality (inequality) in the presence of aliasing.  (C-2..3)
+        //
+        //   3. For each row `R2` in the table of P-2:  (C-1, 4..6)
+        //
+        //     1. Record, in `EXP`, whether or not distinct objects set to
+        //        values from `R1` and `R2`, respectively, are expected to have
+        //        the same value.
+        //
+        //     2. Create a `const` reference to an object, `Y`, having the
+        //        value from `R2`.
+        //
+        //     3. Using `X` and `Y`, verify the commutativity property and
+        //        expected return value for both `==` and `!=`.  (C-1, 4..6)
         //
         // Testing:
         //   bool operator==(const Datum&, const Datum&);  // non-aggregate
@@ -10938,40 +10958,40 @@ int main(int argc, char *argv[])
         // TESTING COPY CONSTRUCTOR
         //   Ensure that we can create a distinct object of the class from any
         //   other one, such that the two objects have the same value.  Note,
-        //   that this test covers only 'Datum's holding non-aggregate data
+        //   that this test covers only `Datum`s holding non-aggregate data
         //   type.
         //
         // Concerns:
-        //: 1 The copy constructor creates an object having the same type and
-        //:   value as that of the supplied original object.
-        //:
-        //: 2 The original object is passed as a reference providing
-        //:   non-modifiable access to that object.
-        //:
-        //: 3 The value of the original object is unchanged.
-        //:
-        //: 4 No memory is allocated by the copy constructor.
+        // 1. The copy constructor creates an object having the same type and
+        //    value as that of the supplied original object.
+        //
+        // 2. The original object is passed as a reference providing
+        //    non-modifiable access to that object.
+        //
+        // 3. The value of the original object is unchanged.
+        //
+        // 4. No memory is allocated by the copy constructor.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their type and value.
-        //:
-        //: 2 For each row 'R' in the table of P-1:  (C-1..3)
-        //:
-        //:   1 Use the corresponding 'Datum' creator to create a 'const'
-        //:     object 'Z', having the value from 'R'.
-        //:
-        //:   2 Use the copy constructor to create an object 'X' from 'Z'.
-        //:     (C-2)
-        //:
-        //:   3 Use the basic accessors to verify that:  (C-1, 3)
-        //:
-        //:     1 'X' has the same type and value as that of 'Z'.  (C-1)
-        //:
-        //:     2 'Z' still has the same type and value.  (C-3)
-        //:
-        //:   4 Verify that no additional memory was allocated by the copy
-        //:     constructor.  (C-4)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their type and value.
+        //
+        // 2. For each row `R` in the table of P-1:  (C-1..3)
+        //
+        //   1. Use the corresponding `Datum` creator to create a `const`
+        //      object `Z`, having the value from `R`.
+        //
+        //   2. Use the copy constructor to create an object `X` from `Z`.
+        //      (C-2)
+        //
+        //   3. Use the basic accessors to verify that:  (C-1, 3)
+        //
+        //     1. `X` has the same type and value as that of `Z`.  (C-1)
+        //
+        //     2. `Z` still has the same type and value.  (C-3)
+        //
+        //   4. Verify that no additional memory was allocated by the copy
+        //      constructor.  (C-4)
         //
         // Testing:
         //   Datum(const Datum& original) = default;;
@@ -10983,7 +11003,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard guard(&da);
 
-        if (verbose) cout << "\nTesting 'boolean' data type\n";
+        if (verbose) cout << "\nTesting `boolean` data type\n";
         {
             const static bool DATA[] = { true, false };
             const size_t      DATA_LEN = sizeof DATA / sizeof *DATA;
@@ -11010,7 +11030,7 @@ int main(int argc, char *argv[])
                 ASSERT(true == X.isBoolean());
                 ASSERTV(VALUE, VALUE == X.theBoolean());
 
-                // Verify that the value of 'Z' has not changed.
+                // Verify that the value of `Z` has not changed.
                 ASSERT(true  == Z.isBoolean());
                 ASSERT(VALUE == Z.theBoolean());
 
@@ -11020,7 +11040,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'Date' data type\n";
+        if (verbose) cout << "\nTesting `Date` data type\n";
         {
             const static bdlt::Date DATA[] = {
                 Date(),
@@ -11054,7 +11074,7 @@ int main(int argc, char *argv[])
                 ASSERT(true == X.isDate());
                 ASSERTV(VALUE, VALUE == X.theDate());
 
-                // Verify that the value of 'Z' has not changed.
+                // Verify that the value of `Z` has not changed.
                 ASSERT(true  == Z.isDate());
                 ASSERT(VALUE == Z.theDate());
 
@@ -11064,7 +11084,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'Datetime' data type.\n";
+        if (verbose) cout << "\nTesting `Datetime` data type.\n";
         {
             const static bdlt::Datetime DATA[] = {
                 Datetime(),
@@ -11102,7 +11122,7 @@ int main(int argc, char *argv[])
                 ASSERT(true == X.isDatetime());
                 ASSERTV(VALUE, VALUE == X.theDatetime());
 
-                // Verify that the value of 'Z' has not changed.
+                // Verify that the value of `Z` has not changed.
                 ASSERT(true  == Z.isDatetime());
                 ASSERT(VALUE == Z.theDatetime());
 
@@ -11112,7 +11132,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'DatetimeInterval' data type.\n";
+        if (verbose) cout << "\nTesting `DatetimeInterval` data type.\n";
         {
             const static bdlt::DatetimeInterval DATA[] = {
                 DatetimeInterval(),
@@ -11157,7 +11177,7 @@ int main(int argc, char *argv[])
                 ASSERT(true == X.isDatetimeInterval());
                 ASSERTV(VALUE, VALUE == X.theDatetimeInterval());
 
-                // Verify that the value of 'Z' has not changed.
+                // Verify that the value of `Z` has not changed.
                 ASSERT(true  == Z.isDatetimeInterval());
                 ASSERT(VALUE == Z.theDatetimeInterval());
 
@@ -11167,11 +11187,11 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'Decimal64' data type.\n";
+        if (verbose) cout << "\nTesting `Decimal64` data type.\n";
         {
             const static struct {
                 int                d_line;          // line number
-                bdldfp::Decimal64  d_value;         // 'Decimal64' value
+                bdldfp::Decimal64  d_value;         // `Decimal64` value
                 bool               d_compareEqual;  // does compare equal with
                                                     // itself
             } DATA[] = {
@@ -11226,7 +11246,7 @@ int main(int argc, char *argv[])
                     ASSERT(VALUE != X.theDecimal64());
                 }
 
-                // Verify that the value of 'Z' has not changed.
+                // Verify that the value of `Z` has not changed.
                 ASSERT(true == Z.isDecimal64());
                 if (EQUAL) {
                     ASSERT(VALUE == Z.theDecimal64());
@@ -11240,7 +11260,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'double' data type.\n";
+        if (verbose) cout << "\nTesting `double` data type.\n";
         {
             const static struct {
                 int    d_line;          // line number
@@ -11287,7 +11307,7 @@ int main(int argc, char *argv[])
                 } else {
                     ASSERT(VALUE != Z.theDouble());
                     if (k_DOUBLE_NAN_BITS_PRESERVED) {
-                        // In 64bit 'Datum' we currently store 'NaN' values
+                        // In 64bit `Datum` we currently store `NaN` values
                         // unchanged.
                         const double THE_DOUBLE = Z.theDouble();
                         ASSERT(bsl::memcmp(&VALUE,
@@ -11308,7 +11328,7 @@ int main(int argc, char *argv[])
                     ASSERT(VALUE != X.theDouble());
                 }
 
-                // Verify that the value of 'Z' has not changed.
+                // Verify that the value of `Z` has not changed.
                 ASSERT(true == Z.isDouble());
                 if (EQUAL) {
                     ASSERT(VALUE == Z.theDouble());
@@ -11322,7 +11342,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'DatumError' data type.\n";
+        if (verbose) cout << "\nTesting `DatumError` data type.\n";
         {
             const static int DATA [] = {
                 0,
@@ -11340,7 +11360,7 @@ int main(int argc, char *argv[])
 
             const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
-            if (veryVerbose) cout << "\tTesting 'createError(int)'.\n";
+            if (veryVerbose) cout << "\tTesting `createError(int)`.\n";
             for (size_t i = 0; i< DATA_LEN; ++i) {
                 const int  ERROR = DATA[i];
 
@@ -11363,7 +11383,7 @@ int main(int argc, char *argv[])
                 ASSERT(true == X.isError());
                 ASSERTV(ERROR, DatumError(ERROR) == X.theError());
 
-                // Verify that the value of 'Z' has not changed.
+                // Verify that the value of `Z` has not changed.
                 ASSERT(true == Z.isError());
                 ASSERTV(ERROR, DatumError(ERROR) == Z.theError());
 
@@ -11373,7 +11393,7 @@ int main(int argc, char *argv[])
             }
 
             if (veryVerbose)
-                cout << "\tTesting 'createError(int, StringRef&)'.\n";
+                cout << "\tTesting `createError(int, StringRef&)`.\n";
 
             const char *errorMessage = "This is an error#$%\".";
             for (size_t i = 0; i< DATA_LEN; ++i) {
@@ -11400,7 +11420,7 @@ int main(int argc, char *argv[])
                     ASSERT(true == X.isError());
                     ASSERTV(ERROR, DatumError(ERROR, MESSAGE) == X.theError());
 
-                    // Verify that the value of 'Z' has not changed.
+                    // Verify that the value of `Z` has not changed.
                     ASSERT(true == Z.isError());
                     ASSERTV(ERROR, DatumError(ERROR, MESSAGE) == Z.theError());
 
@@ -11411,7 +11431,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'Integer' data type.\n";
+        if (verbose) cout << "\nTesting `Integer` data type.\n";
         {
             const static int DATA[] = {
                 0,
@@ -11450,7 +11470,7 @@ int main(int argc, char *argv[])
                 ASSERT(true == X.isInteger());
                 ASSERTV(VALUE, VALUE == X.theInteger());
 
-                // Verify that the value of 'Z' has not changed.
+                // Verify that the value of `Z` has not changed.
                 ASSERT(true == Z.isInteger());
                 ASSERTV(VALUE, VALUE == Z.theInteger());
 
@@ -11460,7 +11480,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'Integer64' data type.\n";
+        if (verbose) cout << "\nTesting `Integer64` data type.\n";
         {
             const static Int64 DATA[] = {
                 0,
@@ -11510,7 +11530,7 @@ int main(int argc, char *argv[])
                 ASSERT(true == X.isInteger64());
                 ASSERTV(VALUE, VALUE == X.theInteger64());
 
-                // Verify that the value of 'Z' has not changed.
+                // Verify that the value of `Z` has not changed.
                 ASSERT(true == Z.isInteger64());
                 ASSERTV(VALUE, VALUE == Z.theInteger64());
 
@@ -11520,7 +11540,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'Null' data type.\n";
+        if (verbose) cout << "\nTesting `Null` data type.\n";
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -11537,7 +11557,7 @@ int main(int argc, char *argv[])
             // Verify the type and the value of the object.
             ASSERT(true == X.isNull());
 
-            // Verify that the value of 'Z' has not changed.
+            // Verify that the value of `Z` has not changed.
             ASSERT(true == Z.isNull());
 
             Datum::destroy(Z, &oa);
@@ -11545,7 +11565,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == oa.status());
         }
 
-        if (verbose) cout << "\nTesting 'String' data type.\n";
+        if (verbose) cout << "\nTesting `String` data type.\n";
         {
             const static Datum::SizeType DATA[] = {
                 0,
@@ -11591,7 +11611,7 @@ int main(int argc, char *argv[])
                     ASSERT(true    == X.isString());
                     ASSERTV(STRING == X.theString());
 
-                    // Verify that the value of 'Z' has not changed.
+                    // Verify that the value of `Z` has not changed.
                     ASSERT(true   == Z.isString());
                     ASSERT(STRING == Z.theString());
 
@@ -11602,7 +11622,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'Time' data type.\n";
+        if (verbose) cout << "\nTesting `Time` data type.\n";
         {
             const static bdlt::Time DATA[] = {
                 Time(),
@@ -11635,7 +11655,7 @@ int main(int argc, char *argv[])
                 ASSERT(true  == X.isTime());
                 ASSERT(VALUE == X.theTime());
 
-                // Verify that the value of 'Z' has not changed.
+                // Verify that the value of `Z` has not changed.
                 ASSERT(true  == Z.isTime());
                 ASSERT(VALUE == Z.theTime());
 
@@ -11645,7 +11665,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'DatumUdt' data type.\n";
+        if (verbose) cout << "\nTesting `DatumUdt` data type.\n";
         {
             char           BUFFER[] = "This is UDT placeholder";
             const DatumUdt VALUE(BUFFER, 0);
@@ -11669,7 +11689,7 @@ int main(int argc, char *argv[])
             ASSERT(true  == X.isUdt());
             ASSERT(VALUE == X.theUdt());
 
-            // Verify that the value of 'Z' has not changed.
+            // Verify that the value of `Z` has not changed.
             ASSERT(true  == Z.isUdt());
             ASSERT(VALUE == Z.theUdt());
 
@@ -11678,7 +11698,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == oa.status());
         }
 
-        if (verbose) cout << "\nTesting 'DatumBinaryRef' data type.\n";
+        if (verbose) cout << "\nTesting `DatumBinaryRef` data type.\n";
         {
             for (size_t i = 0; i < 258; ++i) {
                 bslma::TestAllocator       ba("buffer", veryVeryVeryVerbose);
@@ -11714,7 +11734,7 @@ int main(int argc, char *argv[])
                 ASSERT(true == X.isBinary());
                 ASSERT(REF  == X.theBinary());
 
-                // Verify that the value of 'Z' has not changed.
+                // Verify that the value of `Z` has not changed.
                 ASSERT(true == Z.isBinary());
                 ASSERT(REF  == Z.theBinary());
 
@@ -11724,7 +11744,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'String' data type.\n";
+        if (verbose) cout << "\nTesting `String` data type.\n";
         {
             for (size_t i = 0; i < 258; ++i) {
                 bslma::TestAllocator ba("buffer", veryVeryVeryVerbose);
@@ -11768,7 +11788,7 @@ int main(int argc, char *argv[])
                 ASSERT(true == X.isString());
                 ASSERT(REF  == X.theString());
 
-                // Verify that the value of 'Z' has not changed.
+                // Verify that the value of `Z` has not changed.
                 ASSERT(true == Z.isString());
                 ASSERT(REF  == Z.theString());
 
@@ -11781,9 +11801,9 @@ int main(int argc, char *argv[])
       case 4: {
         // --------------------------------------------------------------------
         // TESTING PRINT AND OPERATOR<<
-        //   Ensure that the value of the 'Datum' holding non-aggregate value
-        //   can be formatted appropriately on an 'ostream' in some standard,
-        //   human-readable form. Note, that 'Datum' implements custom printing
+        //   Ensure that the value of the `Datum` holding non-aggregate value
+        //   can be formatted appropriately on an `ostream` in some standard,
+        //   human-readable form. Note, that `Datum` implements custom printing
         //   only for the following non-aggregate types:
         //   o boolean
         //   o null
@@ -11792,57 +11812,57 @@ int main(int argc, char *argv[])
         //   the right overload at the internal print visitor.
         //
         // Concerns:
-        //: 1 The 'print' method writes the value to the specified 'ostream'.
-        //:
-        //: 2 The 'print' method writes the value in the intended format.
-        //:
-        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)'.
-        //:
-        //: 4 The 'print' method's signature and return type are standard.
-        //:
-        //: 5 The 'print' method returns the supplied 'ostream'.
-        //:
-        //: 6 The optional 'level' and 'spacesPerLevel' parameters have the
-        //:   correct default values (0 and 4, respectively).
-        //:
-        //: 7 The output 'operator<<'s signature and return type are standard.
-        //:
-        //: 8 The output 'operator<<' returns the destination 'ostream'.
+        // 1. The `print` method writes the value to the specified `ostream`.
+        //
+        // 2. The `print` method writes the value in the intended format.
+        //
+        // 3. The output using `s << obj` is the same as `obj.print(s, 0, -1)`.
+        //
+        // 4. The `print` method's signature and return type are standard.
+        //
+        // 5. The `print` method returns the supplied `ostream`.
+        //
+        // 6. The optional `level` and `spacesPerLevel` parameters have the
+        //    correct default values (0 and 4, respectively).
+        //
+        // 7. The output `operator<<`s signature and return type are standard.
+        //
+        // 8. The output `operator<<` returns the destination `ostream`.
         //
         // Plan:
-        //: 1 Use the addresses of the 'print' member function and 'operator<<'
-        //:   free function defined in this component to initialize,
-        //:   respectively, member-function and free-function pointers having
-        //:   the appropriate signatures and return types.  (C-4, 7)
-        //:
-        //: 2 Using the table-driven technique:  (C-1..3, 5..6, 8)
-        //:
-        //:   1 Define combinations of object values, having distinct values
+        // 1. Use the addresses of the `print` member function and `operator<<`
+        //    free function defined in this component to initialize,
+        //    respectively, member-function and free-function pointers having
+        //    the appropriate signatures and return types.  (C-4, 7)
+        //
+        // 2. Using the table-driven technique:  (C-1..3, 5..6, 8)
+        //
+        //   1. Define combinations of object values, having distinct values
         //      and various values for the two formatting parameters, along
         //      with the expected output.
-        //:
-        //:     ( 'value' x  'level'   x 'spacesPerLevel' ):
-        //:     1 { A   } x {  0     } x {  0, 1, -1, -8 } --> 4 expected o/ps
-        //:     2 { A   } x {  3, -3 } x {  0, 2, -2, -8 } --> 8 expected o/ps
-        //:     3 { A   } x {  2     } x {  3            } --> 1 expected o/ps
-        //:     4 { A, B} x { -8     } x { -8            } --> 2 expected o/ps
-        //:     5 { A, B} x { -9     } x { -9            } --> 2 expected o/ps
-        //:
-        //:   2 For each row in the table defined in P-2.1:  (C-1..3, 5..6, 8)
-        //:
-        //:     1 Using a 'const' 'Datum', supply each object value and pair of
-        //:       formatting parameters to 'print', omitting the 'level' or
-        //:       'spacesPerLevel' parameter if the value of that argument is
-        //:       '-8'.  If the parameters are, arbitrarily, '(-9, -9)', then
-        //:       invoke the 'operator<<' instead.
-        //:
-        //:     2 Use a standard 'ostringstream' to capture the actual output.
-        //:
-        //:     3 Verify the address of what is returned is that of the
-        //:       supplied stream.  (C-5, 8)
-        //:
-        //:     4 Compare the contents captured in P-2.2.2 with what is
-        //:       expected.  (C-1..3, 6)
+        //
+        //      ( `value` x  `level`   x `spacesPerLevel` ):
+        //     1. { A   } x {  0     } x {  0, 1, -1, -8 } --> 4 expected o/ps
+        //     2. { A   } x {  3, -3 } x {  0, 2, -2, -8 } --> 8 expected o/ps
+        //     3. { A   } x {  2     } x {  3            } --> 1 expected o/ps
+        //     4. { A, B} x { -8     } x { -8            } --> 2 expected o/ps
+        //     5. { A, B} x { -9     } x { -9            } --> 2 expected o/ps
+        //
+        //   2. For each row in the table defined in P-2.1:  (C-1..3, 5..6, 8)
+        //
+        //     1. Using a `const` `Datum`, supply each object value and pair of
+        //        formatting parameters to `print`, omitting the `level` or
+        //        `spacesPerLevel` parameter if the value of that argument is
+        //        `-8`.  If the parameters are, arbitrarily, `(-9, -9)`, then
+        //        invoke the `operator<<` instead.
+        //
+        //     2. Use a standard `ostringstream` to capture the actual output.
+        //
+        //     3. Verify the address of what is returned is that of the
+        //        supplied stream.  (C-5, 8)
+        //
+        //     4. Compare the contents captured in P-2.2.2 with what is
+        //        expected.  (C-1..3, 6)
         //
         // Testing:
         //   bsl::ostream& print(ostream&, int, int) const; // non-aggregate
@@ -11853,8 +11873,8 @@ int main(int argc, char *argv[])
                              "\n============================\n";
 
         if (verbose)
-            cout << "\nAssign the addresses of 'print' and "
-                 << "the output 'operator<<' to variables.\n";
+            cout << "\nAssign the addresses of `print` and "
+                 << "the output `operator<<` to variables.\n";
         {
             typedef ostream& (Datum::*funcPtr)(ostream&, int, int) const;
             typedef ostream& (*operatorPtr)(ostream&, const Datum&);
@@ -12095,7 +12115,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-                  "\nTesting 'binary' data type print specifications.\n";
+                  "\nTesting `binary` data type print specifications.\n";
         {
             const unsigned char buffer[] = "12345";
             const size_t        binarySize = sizeof(buffer);
@@ -12130,40 +12150,40 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // PRIMARY MANIPULATOR AND BASIC ACCESSORS
         //   This test will verify that the primary manipulators are working as
-        //   expected for 'Datum' holding non-aggregate data types. As basic
+        //   expected for `Datum` holding non-aggregate data types. As basic
         //   accessors should be tested exactly the same way, these two tests
         //   have been united.
         //
         // Concerns:
-        //: 1 All creators create 'Datum' object of the correct type and value.
-        //:
-        //: 2 The 'Datum' object can hold any value valid for a given type.
-        //:
-        //: 3 All object memory comes from the supplied allocator.
-        //:
-        //: 4 All allocated memory is released when the 'Datum' object is
-        //:   destroyed.
-        //:
-        //: 5 All ACCESSORS methods are declared 'const'.
-        //:
-        //: 6 QoI: asserted precondition violations are detected when enabled.
+        // 1. All creators create `Datum` object of the correct type and value.
+        //
+        // 2. The `Datum` object can hold any value valid for a given type.
+        //
+        // 3. All object memory comes from the supplied allocator.
+        //
+        // 4. All allocated memory is released when the `Datum` object is
+        //    destroyed.
+        //
+        // 5. All ACCESSORS methods are declared `const`.
+        //
+        // 6. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create 'Datum' objects for each supported non-aggregate data
-        //:   type.  Using table-based technique, iterate through the set of
-        //:   representative values for a given data type.  Verify the type and
-        //:   value of the created 'Datum' object.  (C-1,2)
-        //:
-        //: 2 Verify that all object memory is released when the object is
-        //:   destroyed.  (C-4)
-        //:
-        //: 3 Invoke each ACCESSOR via a reference providing non-modifiable
-        //:   access to the object.  Compilation of this test driver confirms
-        //:   that ACCESSORS are 'const'-qualified.  (C-5)
-        //:
-        //: 4 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones.  (C-6)
+        // 1. Create `Datum` objects for each supported non-aggregate data
+        //    type.  Using table-based technique, iterate through the set of
+        //    representative values for a given data type.  Verify the type and
+        //    value of the created `Datum` object.  (C-1,2)
+        //
+        // 2. Verify that all object memory is released when the object is
+        //    destroyed.  (C-4)
+        //
+        // 3. Invoke each ACCESSOR via a reference providing non-modifiable
+        //    access to the object.  Compilation of this test driver confirms
+        //    that ACCESSORS are `const`-qualified.  (C-5)
+        //
+        // 4. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones.  (C-6)
         //
         // Testing:
         //   Datum() = default;
@@ -12225,7 +12245,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard guard(&da);
 
-        if (verbose) cout << "\nTesting 'createBoolean'.\n";
+        if (verbose) cout << "\nTesting `createBoolean`.\n";
         {
             const static bool DATA[]   = { true, false };
             const size_t      DATA_LEN = sizeof DATA / sizeof *DATA;
@@ -12267,7 +12287,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'createDate'.\n";
+        if (verbose) cout << "\nTesting `createDate`.\n";
         {
             const static bdlt::Date DATA[] = {
                 Date(),
@@ -12316,7 +12336,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'createDatetime'.\n";
+        if (verbose) cout << "\nTesting `createDatetime`.\n";
         {
             const static bdlt::Datetime DATA[] = {
                 Datetime(),
@@ -12367,7 +12387,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'createDatetimeInterval'.\n";
+        if (verbose) cout << "\nTesting `createDatetimeInterval`.\n";
         {
             const static bdlt::DatetimeInterval DATA[] = {
                 DatetimeInterval(),
@@ -12425,11 +12445,11 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'createDecimal64'.\n";
+        if (verbose) cout << "\nTesting `createDecimal64`.\n";
         {
             const static struct {
                 int                d_line;          // line number
-                bdldfp::Decimal64  d_value;         // 'Decimal64' value
+                bdldfp::Decimal64  d_value;         // `Decimal64` value
                 bool               d_compareEqual;  // does compare equal with
                                                     // itself
             } DATA[] = {
@@ -12492,7 +12512,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'createDouble'.\n";
+        if (verbose) cout << "\nTesting `createDouble`.\n";
         {
             const static struct {
                 int      d_line;          // line number
@@ -12555,7 +12575,7 @@ int main(int argc, char *argv[])
                     ASSERT(VALUE != D.theDouble());
                     // In 32 bit mode we guarantee just "some NaN value".
                     if (k_DOUBLE_NAN_BITS_PRESERVED) {
-                        // In 64 bit mode 'Datum' we currently store 'NaN'
+                        // In 64 bit mode `Datum` we currently store `NaN`
                         // values unchanged.
                         const double THE_DOUBLE = D.theDouble();
                         ASSERT(bsl::memcmp(&VALUE,
@@ -12570,7 +12590,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'createError'.\n";
+        if (verbose) cout << "\nTesting `createError`.\n";
         {
             const static int DATA [] = {
                 0,
@@ -12588,7 +12608,7 @@ int main(int argc, char *argv[])
 
             const size_t DATA_LEN = sizeof DATA / sizeof *DATA;
 
-            if (veryVerbose) cout << "\tTesting 'createError(int)'.\n";
+            if (veryVerbose) cout << "\tTesting `createError(int)`.\n";
             for (size_t i = 0; i< DATA_LEN; ++i) {
                 const int  ERROR = DATA[i];
 
@@ -12626,7 +12646,7 @@ int main(int argc, char *argv[])
             }
 
             if (veryVerbose)
-                cout << "\tTesting 'createError(int, StringRef&)'.\n";
+                cout << "\tTesting `createError(int, StringRef&)`.\n";
 
             const char *errorMessage = "This is an error#$%\".";
             for (size_t i = 0; i< DATA_LEN; ++i) {
@@ -12667,7 +12687,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'createInteger'.\n";
+        if (verbose) cout << "\nTesting `createInteger`.\n";
         {
             const static int DATA[] = {
                 0,
@@ -12721,7 +12741,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'createInteger64'.\n";
+        if (verbose) cout << "\nTesting `createInteger64`.\n";
         {
             const static Int64 DATA[] = {
                 0,
@@ -12780,7 +12800,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'createNull'.\n";
+        if (verbose) cout << "\nTesting `createNull`.\n";
         {
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -12812,7 +12832,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == oa.status());
         }
 
-        if (verbose) cout << "\nTesting 'createStringRef'.\n";
+        if (verbose) cout << "\nTesting `createStringRef`.\n";
         {
             const static Datum::SizeType DATA[] = {
                 0,
@@ -12949,11 +12969,11 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'createTime'.\n";
+        if (verbose) cout << "\nTesting `createTime`.\n";
         {
 #ifdef BSLS_PLATFORM_CPU_32_BIT
             {
-                // Testing assumption that 'Time' fits into 48 bits
+                // Testing assumption that `Time` fits into 48 bits
                 bdlt::Time         time(24);
                 short              s = 0;
                 int                i = 0;
@@ -13025,7 +13045,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'createUdt'.\n";
+        if (verbose) cout << "\nTesting `createUdt`.\n";
         {
             char           BUFFER[] = "This is UDT placeholder";
             const DatumUdt VALUE(BUFFER, 0);
@@ -13063,7 +13083,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == oa.status());
         }
 
-        if (verbose) cout << "\nTesting 'copyBinary'.\n";
+        if (verbose) cout << "\nTesting `copyBinary`.\n";
         {
             for (size_t i = 0; i < 258; ++i) {
                 bslma::TestAllocator ba("buffer", veryVeryVeryVerbose);
@@ -13115,7 +13135,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'copyString'.\n";
+        if (verbose) cout << "\nTesting `copyString`.\n";
         {
             for (size_t i = 0; i < 258; ++i) {
                 bslma::TestAllocator ba("buffer", veryVeryVeryVerbose);
@@ -13211,7 +13231,7 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(Datum::createStringRef(temp,        &ta));
             }
 
-            if (verbose) cout << "\tTesting 'createUdt'.\n";
+            if (verbose) cout << "\tTesting `createUdt`.\n";
             {
                 void *temp = static_cast<void *>(0);
 
@@ -13223,7 +13243,7 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(Datum::createUdt(temp, 65535));
             }
 
-            if (verbose) cout << "\tTesting 'copyBinary'.\n";
+            if (verbose) cout << "\tTesting `copyBinary`.\n";
             {
                 char            temp;
                 const void     *VALUE   = static_cast<void *>(&temp);
@@ -13241,7 +13261,7 @@ int main(int argc, char *argv[])
                                            &ta));
             }
 
-            if (verbose) cout << "\tTesting 'copyString'.\n";
+            if (verbose) cout << "\tTesting `copyString`.\n";
             {
                 const char     *temp        = "temp";
                 const SizeType  LEN         = 1;
@@ -13255,7 +13275,7 @@ int main(int argc, char *argv[])
                 ASSERT_PASS(Datum::copyString(temp,        LEN, &ta));
             }
 
-            if (verbose) cout << "\tTesting 'theBinary'.\n";
+            if (verbose) cout << "\tTesting `theBinary`.\n";
             {
                 void        *temp = static_cast<void *>(0);
                 const Datum  fakeBinary = Datum::createNull();
@@ -13268,7 +13288,7 @@ int main(int argc, char *argv[])
                 Datum::destroy(realBinary, &ta);
             }
 
-            if (verbose) cout << "\tTesting 'theBoolean'.\n";
+            if (verbose) cout << "\tTesting `theBoolean`.\n";
             {
                 const Datum fakeBoolean = Datum::createNull();
                 const Datum realBoolean = Datum::createBoolean(true);
@@ -13280,7 +13300,7 @@ int main(int argc, char *argv[])
                 Datum::destroy(realBoolean, &ta);
             }
 
-            if (verbose) cout << "\tTesting 'theDate'.\n";
+            if (verbose) cout << "\tTesting `theDate`.\n";
             {
                 const Datum fakeDate = Datum::createNull();
                 const Datum realDate = Datum::createDate(Date());
@@ -13292,7 +13312,7 @@ int main(int argc, char *argv[])
                 Datum::destroy(realDate, &ta);
             }
 
-            if (verbose) cout << "\tTesting 'theDatetime'.\n";
+            if (verbose) cout << "\tTesting `theDatetime`.\n";
             {
                 const Datum fakeDatetime = Datum::createNull();
                 const Datum realDatetime = Datum::createDatetime(Datetime(),
@@ -13305,7 +13325,7 @@ int main(int argc, char *argv[])
                 Datum::destroy(realDatetime, &ta);
             }
 
-            if (verbose) cout << "\tTesting 'theDatetimInterval'.\n";
+            if (verbose) cout << "\tTesting `theDatetimInterval`.\n";
             {
                 const Datum fakeDatetimeInterval = Datum::createNull();
                 const Datum realDatetimeInterval =
@@ -13318,7 +13338,7 @@ int main(int argc, char *argv[])
                 Datum::destroy(realDatetimeInterval, &ta);
             }
 
-            if (verbose) cout << "\tTesting 'theDecimal64'.\n";
+            if (verbose) cout << "\tTesting `theDecimal64`.\n";
             {
                 const Datum fakeDecimal64 = Datum::createNull();
                 const Datum realDecimal64 = Datum::createDecimal64(
@@ -13332,7 +13352,7 @@ int main(int argc, char *argv[])
                 Datum::destroy(realDecimal64, &ta);
             }
 
-            if (verbose) cout << "\tTesting 'theDouble'.\n";
+            if (verbose) cout << "\tTesting `theDouble`.\n";
             {
                 const Datum fakeDouble = Datum::createNull();
                 const Datum realDouble = Datum::createDouble(0.0);
@@ -13344,7 +13364,7 @@ int main(int argc, char *argv[])
                 Datum::destroy(realDouble, &ta);
             }
 
-            if (verbose) cout << "\tTesting 'theError'.\n";
+            if (verbose) cout << "\tTesting `theError`.\n";
             {
                 const Datum fakeError = Datum::createNull();
                 const Datum realError = Datum::createError(0);
@@ -13356,7 +13376,7 @@ int main(int argc, char *argv[])
                 Datum::destroy(realError, &ta);
             }
 
-            if (verbose) cout << "\tTesting 'theInteger'.\n";
+            if (verbose) cout << "\tTesting `theInteger`.\n";
             {
                 const Datum fakeInteger = Datum::createNull();
                 const Datum realInteger = Datum::createInteger(0);
@@ -13368,7 +13388,7 @@ int main(int argc, char *argv[])
                 Datum::destroy(realInteger, &ta);
             }
 
-            if (verbose) cout << "\tTesting 'theInteger64'.\n";
+            if (verbose) cout << "\tTesting `theInteger64`.\n";
             {
                 const Datum fakeInteger64 = Datum::createNull();
                 const Datum realInteger64 = Datum::createInteger64(0, &ta);
@@ -13380,7 +13400,7 @@ int main(int argc, char *argv[])
                 Datum::destroy(realInteger64, &ta);
             }
 
-            if (verbose) cout << "\tTesting 'theString'.\n";
+            if (verbose) cout << "\tTesting `theString`.\n";
             {
                 const Datum fakeStringRef = Datum::createNull();
                 const Datum realStringRef = Datum::createStringRef("temp",
@@ -13394,7 +13414,7 @@ int main(int argc, char *argv[])
                 Datum::destroy(realStringRef, &ta);
             }
 
-            if (verbose) cout << "\tTesting 'theTime'.\n";
+            if (verbose) cout << "\tTesting `theTime`.\n";
             {
                 const Datum fakeTime = Datum::createNull();
                 const Datum realTime = Datum::createTime(Time());
@@ -13406,7 +13426,7 @@ int main(int argc, char *argv[])
                 Datum::destroy(realTime, &ta);
             }
 
-            if (verbose) cout << "\tTesting 'theUdt'.\n";
+            if (verbose) cout << "\tTesting `theUdt`.\n";
             {
                 void        *temp = static_cast<void *>(0);
                 const Datum  fakeUdt = Datum::createNull();
@@ -13418,7 +13438,7 @@ int main(int argc, char *argv[])
                 Datum::destroy(fakeUdt, &ta);
                 Datum::destroy(realUdt, &ta);
             }
-            if (verbose) cout << "\tTesting zero-filled 'Datum'.\n";
+            if (verbose) cout << "\tTesting zero-filled `Datum`.\n";
             {
                 Datum temp;
 
@@ -13439,33 +13459,33 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'Datum_Helpers32'
+        // TESTING `Datum_Helpers32`
         //   Ensure that helper functions defined in this structure correctly
         //   store and load low 48 bits of 64-bit number to/from a pair of
-        //   32-bit 'int' and 16-bit 'short' on 32-bit platforms.  Note that
+        //   32-bit `int` and 16-bit `short` on 32-bit platforms.  Note that
         //   the upper (48th) bit of the 64-bit number is treated as a
         //   sign-bit.
         //
         // Concerns:
-        //: 1 Any 64-bit number in the range -2^47..2^47-1 can be stored and
-        //:   loaded back by the helper functions.
-        //:
-        //: 2 No 64-bit number more than 48 least significant bits cannot be
-        //:   stored and l
+        // 1. Any 64-bit number in the range -2^47..2^47-1 can be stored and
+        //    loaded back by the helper functions.
+        //
+        // 2. No 64-bit number more than 48 least significant bits cannot be
+        //    stored and l
         //
         // Plan:
-        //: 1 Using a table-driven technique, iterate through the set of
-        //:   representative 64-bit values.  For each value in the set, store
-        //:   and load back the value using 'storeSmallInt64' and
-        //:   'loadSmallInt64' functions.  Verify that all values from valid
-        //:   range can be stored and loaded back.  Verify that for all values
-        //:   not in valid range the 'storeSmallInt64' return 'false'.  (C-1,2)
+        // 1. Using a table-driven technique, iterate through the set of
+        //    representative 64-bit values.  For each value in the set, store
+        //    and load back the value using `storeSmallInt64` and
+        //    `loadSmallInt64` functions.  Verify that all values from valid
+        //    range can be stored and loaded back.  Verify that for all values
+        //    not in valid range the `storeSmallInt64` return `false`.  (C-1,2)
         //
         // Testing:
         //   Int64 loadSmallInt64(short hight16, int low32);
         //   bool storeSmallInt64(Int64 value, short *phigh16, int *plow32);
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTESTING 'Datum_Helpers32'"
+        if (verbose) cout << "\nTESTING `Datum_Helpers32`"
                              "\n=========================\n";
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
@@ -13544,11 +13564,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Developer test sandbox. (C-1)
+        // 1. Developer test sandbox. (C-1)
         //
         // Testing:
         //   BREATHING TEST
@@ -13597,10 +13617,10 @@ int main(int argc, char *argv[])
         // TESTING EFFICIENCY
         //
         // Concerns:
-        //: 1 Efficiency of components satisfies performance requirements.
+        // 1. Efficiency of components satisfies performance requirements.
         //
         // Plan:
-        //: 1 Run benchmark suite and verify results.
+        // 1. Run benchmark suite and verify results.
         //
         // Testing:
         //   EFFICIENCY TEST

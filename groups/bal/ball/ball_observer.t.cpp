@@ -25,7 +25,7 @@
 #include <bsl_cstring.h>     // strlen(), memset(), memcpy(), memcmp()
 #include <bsl_ctime.h>       // time()
 #include <bsl_iostream.h>
-#include <bsl_new.h>         // placement 'new' syntax
+#include <bsl_new.h>         // placement `new` syntax
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -145,7 +145,7 @@ void my_OstreamObserver::publish(const ball::Record&  record,
         d_stream << "Single Pass-through Message:" << endl;
       } break;
       case ball::Transmission::e_TRIGGER_ALL: {
-        d_stream << "Remotely ";      // no 'break'; concatenated output
+        d_stream << "Remotely ";      // no `break`; concatenated output
       } BSLS_ANNOTATION_FALLTHROUGH;
       case ball::Transmission::e_TRIGGER: {
         d_stream << "Triggered Publication Sequence: Message "
@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -260,7 +260,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) cout << buf << endl;
             }
             if (verbose)
-                cout << "Invoke 'releaseRecords' method." << endl;
+                cout << "Invoke `releaseRecords` method." << endl;
             {
                 observer.releaseRecords();
             }
@@ -271,14 +271,14 @@ int main(int argc, char *argv[])
         // PROTOCOL TEST:
         //
         // Concerns:
-        //   We must ensure that (1) a subclass of the 'ball::Observer' class
+        //   We must ensure that (1) a subclass of the `ball::Observer` class
         //   compiles and links when all virtual functions are defined, and
         //   (2) the functions are in fact virtual.
         //
         // Plan:
-        //   Construct an object of a class derived from 'ball::Observer' and
-        //   bind a 'ball::Observer' reference to the object.  Using the base
-        //   class reference, invoke the 'publish' method and destructor.
+        //   Construct an object of a class derived from `ball::Observer` and
+        //   bind a `ball::Observer` reference to the object.  Using the base
+        //   class reference, invoke the `publish` method and destructor.
         //   Verify that the correct implementations of the methods are called.
         //
         // Testing:

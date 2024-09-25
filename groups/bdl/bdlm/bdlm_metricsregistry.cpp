@@ -23,9 +23,9 @@ namespace bdlm {
                        // class MetricsRegistry_Data
                        // ==========================
 
+/// This is a *component* *private* type used to describe the data
+/// associated with a metrics registration.  DO NOT USE.
 class MetricsRegistry_Data {
-    // This is a *component* *private* type used to describe the data
-    // associated with a metrics registration.  DO NOT USE.
 
   public:
     // PUBLIC DATA
@@ -38,50 +38,52 @@ class MetricsRegistry_Data {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
+
+    /// Create a `MetricsRegistry_Data` object that uses the default
+    /// allocator to supply memory.
     MetricsRegistry_Data();
-        // Create a 'MetricsRegistry_Data' object that uses the default
-        // allocator to supply memory.
 
+    /// Create a `MetricsRegistry_Data` object that uses the specified
+    /// `basicAllocator` to supply memory.
     explicit MetricsRegistry_Data(bslma::Allocator *basicAllocator);
-        // Create a 'MetricsRegistry_Data' object that uses the specified
-        // 'basicAllocator' to supply memory.
 
+    /// Create a `MetricsRegistry_Data` object having the same value as the
+    /// specified `original` object.  Optionally specify a `basicAllocator`
+    /// to supply memory; otherwise, the default allocator is used.
     MetricsRegistry_Data(const MetricsRegistry_Data& original,
                          bslma::Allocator           *basicAllocator = 0);
-        // Create a 'MetricsRegistry_Data' object having the same value as the
-        // specified 'original' object.  Optionally specify a 'basicAllocator'
-        // to supply memory; otherwise, the default allocator is used.
 
+    /// Create a `MetricsRegistry_Data` object having the same value and the
+    /// same allocator as the specified `original` object.  The value of
+    /// `original` becomes unspecified but valid, and its allocator remains
+    /// unchanged.
     MetricsRegistry_Data(bslmf::MovableRef<MetricsRegistry_Data> original)
                                                          BSLS_KEYWORD_NOEXCEPT;
-        // Create a 'MetricsRegistry_Data' object having the same value and the
-        // same allocator as the specified 'original' object.  The value of
-        // 'original' becomes unspecified but valid, and its allocator remains
-        // unchanged.
 
+    /// Create a `MetricsRegistry_Data` object having the same value as the
+    /// specified `original` object, using the specified `basicAllocator` to
+    /// supply memory.  The allocator of `original` remains unchanged.  If
+    /// `original` and the newly created object have the same allocator,
+    /// then the value of `original` becomes unspecified but valid, and no
+    /// exceptions will be thrown; otherwise `original` is unchanged and an
+    /// exception may be thrown.
     MetricsRegistry_Data(
                       bslmf::MovableRef<MetricsRegistry_Data>  original,
                       bslma::Allocator                        *basicAllocator);
-        // Create a 'MetricsRegistry_Data' object having the same value as the
-        // specified 'original' object, using the specified 'basicAllocator' to
-        // supply memory.  The allocator of 'original' remains unchanged.  If
-        // 'original' and the newly created object have the same allocator,
-        // then the value of 'original' becomes unspecified but valid, and no
-        // exceptions will be thrown; otherwise 'original' is unchanged and an
-        // exception may be thrown.
 
     // ACCESSORS
+
+    /// Return the allocator used by this object to supply memory.
     bslma::Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.
 };
 
                           // ==========================
                           // class MetricsRegistry_Impl
                           // ==========================
 
+/// This class is a mechanism that implements the `MetricsRegistry` class
+/// (which uses a "pimpl" design idiom).
 class MetricsRegistry_Impl {
-    // This class is a mechanism that implements the 'MetricsRegistry' class
-    // (which uses a "pimpl" design idiom).
 
     // PRIVATE TYPES
     typedef MetricsAdapter::Callback       Callback;
@@ -118,74 +120,76 @@ class MetricsRegistry_Impl {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
-    explicit MetricsRegistry_Impl(bslma::Allocator *basicAllocator = 0);
-        // Create a 'MetricsRegistry' object that stores the information
-        // necessary to forward the register and unregister of metrics to a
-        // metrics registry supplied with 'setMetricsRegistry'.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
+    /// Create a `MetricsRegistry` object that stores the information
+    /// necessary to forward the register and unregister of metrics to a
+    /// metrics registry supplied with `setMetricsRegistry`.  Optionally
+    /// specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
+    explicit MetricsRegistry_Impl(bslma::Allocator *basicAllocator = 0);
+
+    /// Unregister all registered metrics and destroy this `MetricsRegistry`
+    /// object.
     ~MetricsRegistry_Impl();
-        // Unregister all registered metrics and destroy this 'MetricsRegistry'
-        // object.
 
     // MANIPULATORS
+
+    /// Register the metric described by the specified `descriptor` and
+    /// associate it with the specified `callback` to collect data from the
+    /// metric.  Return a handle for the registered callback.  The metric
+    /// and associated callback remain registered with this registry until
+    /// either the handle is unregistered or destroyed.  When a
+    /// `MetricsAdapter` is associated with this registry using
+    /// `setMetricsAdapter`, this objects registers all the registered
+    /// metrics and callbacks with that adapter, and similarly unregisters
+    /// them if the `MetricAdapter` is later disassociated with this
+    /// registry (either on this objects destruction, or due to a call to
+    /// `removeMetricsAdapter` or `setMetricsAdapter`).  In this way, a
+    /// `MetricsRegistry` serves as an intermediary between users of `bdlm`
+    /// that register metrics and the subsystem for collecting and
+    /// publishing metrics being adapted by a concrete instance of
+    /// `bdlm::MetricAdapter`.
     CallbackHandle registerCollectionCallback(
                                       const bdlm::MetricDescriptor& descriptor,
                                       const Callback&               callback);
-        // Register the metric described by the specified 'descriptor' and
-        // associate it with the specified 'callback' to collect data from the
-        // metric.  Return a handle for the registered callback.  The metric
-        // and associated callback remain registered with this registry until
-        // either the handle is unregistered or destroyed.  When a
-        // 'MetricsAdapter' is associated with this registry using
-        // 'setMetricsAdapter', this objects registers all the registered
-        // metrics and callbacks with that adapter, and similarly unregisters
-        // them if the 'MetricAdapter' is later disassociated with this
-        // registry (either on this objects destruction, or due to a call to
-        // 'removeMetricsAdapter' or 'setMetricsAdapter').  In this way, a
-        // 'MetricsRegistry' serves as an intermediary between users of 'bdlm'
-        // that register metrics and the subsystem for collecting and
-        // publishing metrics being adapted by a concrete instance of
-        // 'bdlm::MetricAdapter'.
 
+    /// Remove the callback associated with the specified `handle` from the
+    /// associated adapter, if provided, and from this registry.  Return 0
+    /// on success, or a non-zero value if `handle` cannot be found.
     int removeCollectionCallback(const CallbackHandle& handle);
-        // Remove the callback associated with the specified 'handle' from the
-        // associated adapter, if provided, and from this registry.  Return 0
-        // on success, or a non-zero value if 'handle' cannot be found.
 
+    /// If the specified `adapter` is the currently associated registrar,
+    /// remove all registered metrics from it and disassociate the registry.
+    /// Note that this operation takes an `adapter` to disambiguate
+    /// multiple, potentially concurrent, calls to this method and
+    /// `setMetricsAdapter`.
     void removeMetricsAdapter(MetricsAdapter *adapter);
-        // If the specified 'adapter' is the currently associated registrar,
-        // remove all registered metrics from it and disassociate the registry.
-        // Note that this operation takes an 'adapter' to disambiguate
-        // multiple, potentially concurrent, calls to this method and
-        // 'setMetricsAdapter'.
 
+    /// Configure this metrics registry to register all metrics collection
+    /// callbacks with the specified `adapter`.  This operation first, if
+    /// there is already an associated metrics adapter, unregisters all the
+    /// collection callbacks from that adapter, then registers the
+    /// collection callbacks with the new `adapter`.
     void setMetricsAdapter(MetricsAdapter *adapter);
-        // Configure this metrics registry to register all metrics collection
-        // callbacks with the specified 'adapter'.  This operation first, if
-        // there is already an associated metrics adapter, unregisters all the
-        // collection callbacks from that adapter, then registers the
-        // collection callbacks with the new 'adapter'.
 
     // ACCESSORS
 
+    /// Return the number of registered metrics collection callbacks.
     int numRegisteredCollectionCallbacks() const;
-        // Return the number of registered metrics collection callbacks.
 
                                   // Aspects
 
+    /// Return the allocator used by this object to supply memory.
     bslma::Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.
 };
 
                           // ====================================
                           // class MetricsRegistry_ElementProctor
                           // ====================================
 
+/// `MetricDataMap` element proctor.
 class MetricsRegistry_ElementProctor {
-    // 'MetricDataMap' element proctor.
 
     // PRIVATE TYPES
     typedef MetricsRegistry_Impl::MetricDataMap MetricDataMap;
@@ -201,20 +205,22 @@ class MetricsRegistry_ElementProctor {
                    const MetricsRegistry_ElementProctor&) BSLS_KEYWORD_DELETED;
   public:
     // CREATORS
+
+    /// Create a proctor that conditionally manages an element in the
+    /// specified `map` pointed by the specified `iter` by erasing it (if
+    /// not released -- see `release`) upon destruction.
     MetricsRegistry_ElementProctor(MetricDataMap&          map,
                                    MetricDataMap::iterator iter);
-        // Create a proctor that conditionally manages an element in the
-        // specified 'map' pointed by the specified 'iter' by erasing it (if
-        // not released -- see 'release') upon destruction.
 
+    /// Destroy this proctor, and erase the element it manages if the
+    /// `release` member function wasn't called.
     ~MetricsRegistry_ElementProctor();
-        // Destroy this proctor, and erase the element it manages if the
-        // 'release' member function wasn't called.
 
     // MANIPULATORS
+
+    /// Release from management the element currently managed by this
+    /// proctor.
     void release();
-        // Release from management the element currently managed by this
-        // proctor.
 };
                        // --------------------------
                        // class MetricsRegistry_Data

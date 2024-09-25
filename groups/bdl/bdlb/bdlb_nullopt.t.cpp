@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -115,23 +115,23 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 There is a constant value of type 'bdlb::NullOptType' named
-        //:   'bdlb::nullOpt'.
-        //:
-        //: 2 Values of type 'NullOptType' can be copied and assigned to.
+        // 1. There is a constant value of type `bdlb::NullOptType` named
+        //    `bdlb::nullOpt`.
+        //
+        // 2. Values of type `NullOptType` can be copied and assigned to.
         //
         // Plan:
-        //: 1 Pass the address of the 'nullOpt' value to a function overload
-        //:   set that can determine that it has the proper cv-qualification.
-        //:   (C-1)
-        //:
-        //: 2 Declare a local object of type 'NullOptType' that is a copy of
-        //:   'nullOpt', relying on the copy constructor as the only user
-        //:   accessible constructor for this type. (C-2)
-        //:
-        //: 3 Assign a second copy of 'nullOpt' to the local object, showing
-        //:   that the implicitly declare copy operation is available (and
-        //:   useless). (C-2)
+        // 1. Pass the address of the `nullOpt` value to a function overload
+        //    set that can determine that it has the proper cv-qualification.
+        //    (C-1)
+        //
+        // 2. Declare a local object of type `NullOptType` that is a copy of
+        //    `nullOpt`, relying on the copy constructor as the only user
+        //    accessible constructor for this type. (C-2)
+        //
+        // 3. Assign a second copy of `nullOpt` to the local object, showing
+        //    that the implicitly declare copy operation is available (and
+        //    useless). (C-2)
         //
         // Testing:
         //   nullOpt value

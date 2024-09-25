@@ -146,14 +146,14 @@ using bsls::NameOf;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [17] CONCERN: Open in append-mode behavior (particularly on windows)
-// [18] CONCERN: Unix File Permissions for 'open'
-// [19] CONCERN: Unix File Permissions for 'createDirectories' et al
+// [18] CONCERN: Unix File Permissions for `open`
+// [19] CONCERN: Unix File Permissions for `createDirectories` et al
 // [20] CONCERN: UTF-8 Filename handling
 // [18] CONCERN: entropy in temp file name generation
 // [19] CONCERN: file permissions
 // [20] CONCERN: directory permissions
-// [21] CONCERN: error codes for 'createDirectories'
-// [21] CONCERN: error codes for 'createPrivateDirectory'
+// [21] CONCERN: error codes for `createDirectories`
+// [21] CONCERN: error codes for `createPrivateDirectory`
 // [33] TESTING REMOVE UNIX SOCKET
 // [35] TESTING USAGE EXAMPLE 2
 // [34] TESTING USAGE EXAMPLE 1
@@ -216,9 +216,9 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
-// 'ASSERT_FOR_CERTAIN' is necessary because there is no type of assert in
-// 'bsls_assert.h' that is present in all built modes.  In the test of
-// 'Obj::remove' it is important to abort the test under some circumstances,
+// `ASSERT_FOR_CERTAIN` is necessary because there is no type of assert in
+// `bsls_assert.h` that is present in all built modes.  In the test of
+// `Obj::remove` it is important to abort the test under some circumstances,
 // particularly if we have trouble changing the working directory as desired,
 // as we may wind up deleting massive source trees by accident if a failed
 // assert does not bomb out the program.
@@ -264,7 +264,7 @@ static const char *const NAMES[] = {
     "name",                                      // ASCII
     "\x24\xc2\xa2\xe2\x82\xac\xf0\xa4\xad\xa2",  // utf-8
 #ifndef BSLS_PLATFORM_OS_DARWIN
-// 'NAME_ANSI' is not utf8, and the filesystem translates the name to
+// `NAME_ANSI` is not utf8, and the filesystem translates the name to
 // "%F1%E5m%EA".
     "\xf1\xe5m\xea",                             // not utf-8
 #endif
@@ -272,7 +272,7 @@ static const char *const NAMES[] = {
 static const size_t NUM_NAMES  = sizeof NAMES / sizeof *NAMES;
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-// 'NAME_ANSI' is not utf8, therefore the Windows implementation will refuse to
+// `NAME_ANSI` is not utf8, therefore the Windows implementation will refuse to
 // create a file with that name.
 
 static const size_t NUM_VALID_NAMES = NUM_NAMES - 1;
@@ -297,11 +297,11 @@ typedef bsls::Types::UintPtr UintPtr;
 
 #define INT_SIZEOF(x)    static_cast<int>(sizeof(x))
 
+/// Cast the specified `x`, which must be a scalar, to a `void *` so that
+/// it will show up in hex when streamed.
 template <class TYPE>
 inline
 void *castToHex(TYPE x)
-    // Cast the specified 'x', which must be a scalar, to a 'void *' so that
-    // it will show up in hex when streamed.
 {
     return reinterpret_cast<void *>(static_cast<UintPtr>(x));
 }
@@ -309,23 +309,23 @@ void *castToHex(TYPE x)
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 inline
 bool isBackslash (char t)
-    // Return 'true' if 't' is '\\' and 'false' otherwise.
+    // Return `true` if `t` is '\\' and `false` otherwise.
 {
     return t == '\\';
 }
 
 inline
 bool isForwardSlash (char t)
-    // Return 'true' if 't' is '/' and 'false' otherwise.
+    // Return `true` if `t` is '/' and `false` otherwise.
 {
     return t == '/';
 }
 
 #endif
 
+/// Open and close the file specified by `fileName`, creating it if it
+/// doesn't exist.
 void localTouch(const bsl::string& fileName)
-    // Open and close the file specified by 'fileName', creating it if it
-    // doesn't exist.
 {
     Obj::FileDescriptor fd = Obj::open(fileName,
                                        Obj::e_OPEN_OR_CREATE,
@@ -335,8 +335,8 @@ void localTouch(const bsl::string& fileName)
     Obj::close(fd);
 }
 
+/// Sleep for the specified `seconds` seconds.
 void localSleep(int seconds)
-    // Sleep for the specified 'seconds' seconds.
 {
 #ifdef BSLS_PLATFORM_OS_UNIX
     sleep(seconds);
@@ -439,10 +439,10 @@ void makeArbitraryFile(const char *path)
     ASSERT(0 == Obj::close(fd));
 }
 
+/// Create a symbolic link, referring to the specified `oldPath`, at the
+/// specified `newPath` path.
 static bool createSymlink(const bsl::string& oldPath,
                           const bsl::string& newPath)
-    // Create a symbolic link, referring to the specified 'oldPath', at the
-    // specified 'newPath' path.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     bsl::wstring wideOld, wideNew;
@@ -473,10 +473,10 @@ struct VisitTreeTestVisitor {
     }
 };
 
+/// Return a temporary file name, with the specified `testCase` being part
+/// of the file name, and with the optionally specified `fnTemplate`, if
+/// specified, also being part of the file name.
 static bsl::string tempFileName(int testCase, const char *fnTemplate = 0)
-    // Return a temporary file name, with the specified 'testCase' being part
-    // of the file name, and with the optionally specified 'fnTemplate', if
-    // specified, also being part of the file name.
 {
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
@@ -490,16 +490,16 @@ static bsl::string tempFileName(int testCase, const char *fnTemplate = 0)
     result += "_XXXXXX";
     close(mkstemp(&result[0]));
 #else
-    // We can't make proper use of 'fnTemplate' on Windows.  We have created
+    // We can't make proper use of `fnTemplate` on Windows.  We have created
     // a local directory to put our files in and chdir'ed to it, so
-    // 'tmpPathBuf' should just be ".".  'GetTempFileName' is a really lame
+    // `tmpPathBuf` should just be ".".  `GetTempFileName` is a really lame
     // utility, other than the path, it allows us to specify only 3 chars of
     // file name (!????!!!!!).
-    //: o The first will be 'T' (for 'tmp').
-    //: o The next will be 'A' + test case #, accomodating up to 25 test cases.
-    //: o The third will be 'A' - 1 + '# of calls' allowing this function to
-    //:   be called 26 times in any one process (each test case is run in a
-    //:   separate process).
+    //  - The first will be `T` (for `tmp`).
+    //  - The next will be `A` + test case #, accomodating up to 25 test cases.
+    //  - The third will be `A` - 1 + `# of calls` allowing this function to
+    //    be called 26 times in any one process (each test case is run in a
+    //    separate process).
 
     (void) fnTemplate;    // We have to ignore this -- can't use it.
 
@@ -519,8 +519,8 @@ static bsl::string tempFileName(int testCase, const char *fnTemplate = 0)
     return result;
 }
 
+/// Pseudo-Random number generator based on Donald Knuth's `MMIX`
 class MMIXRand {
-    // Pseudo-Random number generator based on Donald Knuth's 'MMIX'
 
     static const bsls::Types::Uint64 A = 6364136223846793005ULL;
     static const bsls::Types::Uint64 C = 1442695040888963407ULL;
@@ -539,20 +539,21 @@ class MMIXRand {
     }
 
     // MANIPULATORS
+
+    /// Iterate `d_reg` through one cycle
     void munge()
-        // Iterate 'd_reg' through one cycle
     {
         d_reg = d_reg * A + C;
     }
 
+    /// Reset `d_reg`
     void reset()
-        // Reset 'd_reg'
     {
         d_reg = 0;
     }
 
+    /// Display the current state of d_reg in hex
     const char *display()
-        // Display the current state of d_reg in hex
     {
         d_ss.str("");
         memset(d_outBuffer, ' ', 16);
@@ -592,51 +593,53 @@ namespace u {
                               // struct TestUtil
                               // ===============
 
+/// This testing-only utility `struct` provides a suite of platform-agnostic
+/// file operations that this test driver uses in its implementation.  These
+/// functions are candidates for promotion to the public interface of
+/// `bdls::FilesystemUtil`.
 struct TestUtil {
-    // This testing-only utility 'struct' provides a suite of platform-agnostic
-    // file operations that this test driver uses in its implementation.  These
-    // functions are candidates for promotion to the public interface of
-    // 'bdls::FilesystemUtil'.
 
     // TYPES
-    typedef bdls::FilesystemUtil::FileDescriptor FileDescriptor;
-        // 'FileDescriptor' is an alias for the operating system's native file
-        // descriptor / file handle type.
 
+    /// `FileDescriptor` is an alias for the operating system's native file
+    /// descriptor / file handle type.
+    typedef bdls::FilesystemUtil::FileDescriptor FileDescriptor;
+
+    /// `Offset` is an alias for a signed value, representing the offset of
+    /// a location within a file.
     typedef bdls::FilesystemUtil::Offset Offset;
-        // 'Offset' is an alias for a signed value, representing the offset of
-        // a location within a file.
 
     // CLASS METHODS
+
+    /// Create an ephemeral file in a temporary directory.  Return a file
+    /// descriptor to this file on success, and an invalid file descriptor
+    /// otherwise.  An ephemeral file has all of the characteristics of a
+    /// temporary file, but is guaranteed to be removed when the current
+    /// process exits, even abnormally, and may not by accessible by any
+    /// path.
     static FileDescriptor createEphemeralFile();
-        // Create an ephemeral file in a temporary directory.  Return a file
-        // descriptor to this file on success, and an invalid file descriptor
-        // otherwise.  An ephemeral file has all of the characteristics of a
-        // temporary file, but is guaranteed to be removed when the current
-        // process exits, even abnormally, and may not by accessible by any
-        // path.
 
+    /// Create a temporary file in a temporary directory.  On success, load
+    /// the path to the temporary file to the specified `path` and return a
+    /// file descriptor to this file.  Otherwise, return an invalid file
+    /// descriptor and load a valid but unspecified value to the `path`.  A
+    /// temporary file is a file that resides in a temporary directory,
+    /// which the operating system reserves the right to delete the next
+    /// time the computer reboots.
     static FileDescriptor createTemporaryFile(bsl::string *path);
-        // Create a temporary file in a temporary directory.  On success, load
-        // the path to the temporary file to the specified 'path' and return a
-        // file descriptor to this file.  Otherwise, return an invalid file
-        // descriptor and load a valid but unspecified value to the 'path'.  A
-        // temporary file is a file that resides in a temporary directory,
-        // which the operating system reserves the right to delete the next
-        // time the computer reboots.
 
+    /// Return an estimate of the number of physical blocks (sectors on the
+    /// storage media) that the file system uses to represent the file at
+    /// the specified `path`.  Return a non-negative number on success, and
+    /// a negative number otherwise.  If the `path` identifies anything
+    /// other than a regular file, the return value is unspecified.  Note
+    /// that the operating system, file system, storage media, and storage
+    /// configuration all affect the estimate this function returns.  The
+    /// estimate is usually accurate for Unix and Windows platforms with
+    /// non-esoteric, non-networked file systems backed by disk or
+    /// solid-state drives.
     static Offset estimateNumBlocks(const char *path);
     static Offset estimateNumBlocks(const bsl::string& path);
-        // Return an estimate of the number of physical blocks (sectors on the
-        // storage media) that the file system uses to represent the file at
-        // the specified 'path'.  Return a non-negative number on success, and
-        // a negative number otherwise.  If the 'path' identifies anything
-        // other than a regular file, the return value is unspecified.  Note
-        // that the operating system, file system, storage media, and storage
-        // configuration all affect the estimate this function returns.  The
-        // estimate is usually accurate for Unix and Windows platforms with
-        // non-esoteric, non-networked file systems backed by disk or
-        // solid-state drives.
 
 #if !(defined(BSLS_PLATFORM_OS_WINDOWS) && BSLS_PLATFORM_OS_VER_MAJOR < 6)
     ///Implementation Note
@@ -644,95 +647,95 @@ struct TestUtil {
     // The Windows implementation of this function requires system functions
     // available in Windows Server 2003, Windows Server 2008, Vista, or later.
 
+    /// Return an estimate of the number of physical blocks (sectors on the
+    /// storage media) that the file system uses to represent the file that
+    /// the specified `descriptor` identifies.  Return a non-negative number
+    /// on success, and a negative number otherwise.  If `descriptor`
+    /// identifies anything other than a regular file, the return value is
+    /// unspecified.  Note that the operating system, file system, storage
+    /// media, and storage configuration all affect the estimate this
+    /// function returns.  The estimate is usually accurate for Unix and
+    /// Windows platforms with non-esoteric, non-networked file systems
+    /// backed by disk or solid-state drives.
     BSLA_MAYBE_UNUSED
     static Offset estimateNumBlocks(FileDescriptor descriptor);
-        // Return an estimate of the number of physical blocks (sectors on the
-        // storage media) that the file system uses to represent the file that
-        // the specified 'descriptor' identifies.  Return a non-negative number
-        // on success, and a negative number otherwise.  If 'descriptor'
-        // identifies anything other than a regular file, the return value is
-        // unspecified.  Note that the operating system, file system, storage
-        // media, and storage configuration all affect the estimate this
-        // function returns.  The estimate is usually accurate for Unix and
-        // Windows platforms with non-esoteric, non-networked file systems
-        // backed by disk or solid-state drives.
 #endif
 
+    /// Return the maximum date and time, in UTC, that the platform can
+    /// *represent*.  Note that the range and precision of date and time
+    /// values that a platform can *represent* is a superset of the range
+    /// and precision that it can actually *store* and *retrieve*.  Just
+    /// because a file time is less than or equal to the value reported by
+    /// this function, does not mean that the underlying file system can
+    /// store the value precisely nor accurately.
     static bdlt::Datetime getMaxFileTime();
-        // Return the maximum date and time, in UTC, that the platform can
-        // *represent*.  Note that the range and precision of date and time
-        // values that a platform can *represent* is a superset of the range
-        // and precision that it can actually *store* and *retrieve*.  Just
-        // because a file time is less than or equal to the value reported by
-        // this function, does not mean that the underlying file system can
-        // store the value precisely nor accurately.
 
+    /// Return the minimum date and time, in UTC, that the platform can
+    /// *represent*.  Note that the range and precision of date and time
+    /// values that a platform can *represent* is a superset of the range
+    /// and precision that it can actually *store* and *retrieve*.  Just
+    /// because a file time is greater than or equal to the value reported
+    /// by this function, does not mean that the underlying file system can
+    /// store the value precisely nor accurately.
     static bdlt::Datetime getMinFileTime();
-        // Return the minimum date and time, in UTC, that the platform can
-        // *represent*.  Note that the range and precision of date and time
-        // values that a platform can *represent* is a superset of the range
-        // and precision that it can actually *store* and *retrieve*.  Just
-        // because a file time is greater than or equal to the value reported
-        // by this function, does not mean that the underlying file system can
-        // store the value precisely nor accurately.
 
+    /// Load a valid path to a likely non-existent file in a temporary
+    /// directory to the specified `path`.  Return 0 on success, and a
+    /// non-zero value otherwise.  The `path` is not guaranteed to be
+    /// unique, nor is it guaranteed that a file at the `path` will not
+    /// exist by the time this or any other process attempts to create a
+    /// file at the `path`.
     BSLA_MAYBE_UNUSED
     static int getTemporaryFilePath(bsl::string *path);
-        // Load a valid path to a likely non-existent file in a temporary
-        // directory to the specified 'path'.  Return 0 on success, and a
-        // non-zero value otherwise.  The 'path' is not guaranteed to be
-        // unique, nor is it guaranteed that a file at the 'path' will not
-        // exist by the time this or any other process attempts to create a
-        // file at the 'path'.
 
+    /// Determine whether the filsystem used for the specified `fd` has
+    /// support for timestamps beyond that representable by a 32-bit
+    /// timestamp field (ie beyond the year 2038).  Return `true` if
+    /// timestamps beyond 32 bits are supported and `false` otherwise.  If
+    /// an error occurs, `true` is returned.  This is a destructive test in
+    /// that the modification time of the file referred to by `fd` may be
+    /// updated by this function.  Note that unix filesystems typically used
+    /// to store timestamps in a 32-bit integer representing seconds since
+    /// 1970, resulting in an upper limit in the year 2038.  Various
+    /// approaches have been adopted to extend this limit, such as "bigtime"
+    /// (also referred to elsewhere as "big timestamps") on XFS which
+    /// extends the limit to 2486: https://lwn.net/Articles/829314/
+    /// and ext4 which extends the limit to 2446:
+    /// https://www.kernel.org/doc/html/v5.7/filesystems/ext4/dynamic.html#inode-timestamps
     BSLA_MAYBE_UNUSED
     static bool isBigtimeSupportAvailable(FileDescriptor fd);
-        // Determine whether the filsystem used for the specified 'fd' has
-        // support for timestamps beyond that representable by a 32-bit
-        // timestamp field (ie beyond the year 2038).  Return 'true' if
-        // timestamps beyond 32 bits are supported and 'false' otherwise.  If
-        // an error occurs, 'true' is returned.  This is a destructive test in
-        // that the modification time of the file referred to by 'fd' may be
-        // updated by this function.  Note that unix filesystems typically used
-        // to store timestamps in a 32-bit integer representing seconds since
-        // 1970, resulting in an upper limit in the year 2038.  Various
-        // approaches have been adopted to extend this limit, such as "bigtime"
-        // (also referred to elsewhere as "big timestamps") on XFS which
-        // extends the limit to 2486: https://lwn.net/Articles/829314/
-        // and ext4 which extends the limit to 2446:
-        // https://www.kernel.org/doc/html/v5.7/filesystems/ext4/dynamic.html#inode-timestamps
 
+    /// Return `true` if the specified `utcTime` is neither greater than
+    /// `getMaxFileTime()` nor less than `getMinFileTime()`, and return
+    /// `false` otherwise.  If this function returns `true` for a given
+    /// `utcTime`, that `utcTime` is said to be a "valid modification time".
     static bool isValidModificationTime(const bdlt::Datetime& utcTime);
-        // Return 'true' if the specified 'utcTime' is neither greater than
-        // 'getMaxFileTime()' nor less than 'getMinFileTime()', and return
-        // 'false' otherwise.  If this function returns 'true' for a given
-        // 'utcTime', that 'utcTime' is said to be a "valid modification time".
 
+    /// Write and flush sample data to the specified `fd`.  Return 0 on
+    /// success, and a non-zero value otherwise.
     static int modifyTemporaryFile(FileDescriptor fd);
-        // Write and flush sample data to the specified 'fd'.  Return 0 on
-        // success, and a non-zero value otherwise.
 
+    /// Set the size of the file the specified `descriptor` identifies to
+    /// the specified `numBytes` number of bytes.  Return 0 on success, and
+    /// a non-zero value otherwise.  In the event of failure, the size and
+    /// content of the file are unspecified.  The behavior is undefined if
+    /// `numBytes` is less than 0.
     static int setFileSize(FileDescriptor descriptor, Offset numBytes);
-        // Set the size of the file the specified 'descriptor' identifies to
-        // the specified 'numBytes' number of bytes.  Return 0 on success, and
-        // a non-zero value otherwise.  In the event of failure, the size and
-        // content of the file are unspecified.  The behavior is undefined if
-        // 'numBytes' is less than 0.
 
+    /// Set the last modification time of the file indicated by the
+    /// specified `descriptor` to the specified `utcTime`.  Return 0 on
+    /// success, and a non-zero value otherwise.  The behavior is undefined
+    /// unless the `utcTime` is a valid modification time.
     static int setLastModificationTime(FileDescriptor        descriptor,
                                        const bdlt::Datetime& utcTime);
-        // Set the last modification time of the file indicated by the
-        // specified 'descriptor' to the specified 'utcTime'.  Return 0 on
-        // success, and a non-zero value otherwise.  The behavior is undefined
-        // unless the 'utcTime' is a valid modification time.
 
+    /// Set the last modification time of the file indicated by the
+    /// specified `descriptor` to the specified `utcTime` if `utcTime` is a
+    /// valid modification time.  Return 0 on success, and a non-zero value
+    /// otherwise.
     BSLA_MAYBE_UNUSED
     static int setLastModificationTimeIfValid(FileDescriptor        descriptor,
                                               const bdlt::Datetime& utcTime);
-        // Set the last modification time of the file indicated by the
-        // specified 'descriptor' to the specified 'utcTime' if 'utcTime' is a
-        // valid modification time.  Return 0 on success, and a non-zero value
-        // otherwise.
 };
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
@@ -741,109 +744,111 @@ struct TestUtil {
                         // struct TestUtil_UnixImpUtil
                         // ===========================
 
+/// This testing-only utility `struct` provides a suite of file operations
+/// that this test driver uses in its implementation of tests for Unix
+/// platforms.
 struct TestUtil_UnixImpUtil {
-    // This testing-only utility 'struct' provides a suite of file operations
-    // that this test driver uses in its implementation of tests for Unix
-    // platforms.
 
     // TYPES
+
+    /// `FileDescriptor` is an alias for the operating system's native file
+    /// descriptor / file handle type.
     typedef bdls::FilesystemUtil::FileDescriptor FileDescriptor;
-        // 'FileDescriptor' is an alias for the operating system's native file
-        // descriptor / file handle type.
 
+    /// `Offset` is an alias for a signed value, representing the offset of
+    /// a location within a file.
     typedef bdls::FilesystemUtil::Offset Offset;
-        // 'Offset' is an alias for a signed value, representing the offset of
-        // a location within a file.
 
+    /// `k_INVALID_FD` is a `FileDescriptor` value representing no file,
+    /// which operations that return file descriptors use to indicate error
+    /// conditions.
     static const FileDescriptor k_INVALID_FD = -1;
-        // 'k_INVALID_FD' is a 'FileDescriptor' value representing no file,
-        // which operations that return file descriptors use to indicate error
-        // conditions.
 
     // CLASS METHODS
+
+    /// Create an ephemeral file in a temporary directory.  Return a file
+    /// descriptor to this file on success, and an invalid file descriptor
+    /// otherwise.  An ephemeral file has all of the characteristics of a
+    /// temporary file, but is guaranteed to be removed when the current
+    /// process exits, even abnormally, and may not by accessible by any
+    /// path.
     static FileDescriptor createEphemeralFile();
-        // Create an ephemeral file in a temporary directory.  Return a file
-        // descriptor to this file on success, and an invalid file descriptor
-        // otherwise.  An ephemeral file has all of the characteristics of a
-        // temporary file, but is guaranteed to be removed when the current
-        // process exits, even abnormally, and may not by accessible by any
-        // path.
 
+    /// Create a temporary file in a temporary directory.  On success, load
+    /// the path to the temporary file to the specified `path` and return a
+    /// file descriptor to this file.  Otherwise, return an invalid file
+    /// descriptor and load a valid but unspecified value to the `path`.  A
+    /// temporary file is a file that resides in a temporary directory,
+    /// which the operating system reserves the right to delete the next
+    /// time the computer reboots.
     static FileDescriptor createTemporaryFile(bsl::string *path);
-        // Create a temporary file in a temporary directory.  On success, load
-        // the path to the temporary file to the specified 'path' and return a
-        // file descriptor to this file.  Otherwise, return an invalid file
-        // descriptor and load a valid but unspecified value to the 'path'.  A
-        // temporary file is a file that resides in a temporary directory,
-        // which the operating system reserves the right to delete the next
-        // time the computer reboots.
 
+    /// Return the time point defined by the specified `seconds` and
+    /// (sub-second) `nanoseconds` since the Unix epoch in Coordinated
+    /// Universal Time, as a `bdlt::Datetime`.
     static bdlt::Datetime convertEpochOffsetToDatetime(time_t seconds,
                                                        long   nanoseconds);
-        // Return the time point defined by the specified 'seconds' and
-        // (sub-second) 'nanoseconds' since the Unix epoch in Coordinated
-        // Universal Time, as a 'bdlt::Datetime'.
 
+    /// Return `true` if the time point defined by the specified `seconds`
+    /// and (sub-second) `nanoseconds` since the Unix epoch in Coordinated
+    /// Universal Time is within the representable date-and-time range of
+    /// `bdlt::Datetime`, and return `false` otherwise.
     static bool epochOffsetIsConvertibleToDatetime(
                                      time_t seconds,
                                      long   nanoseconds) BSLS_KEYWORD_NOEXCEPT;
-        // Return 'true' if the time point defined by the specified 'seconds'
-        // and (sub-second) 'nanoseconds' since the Unix epoch in Coordinated
-        // Universal Time is within the representable date-and-time range of
-        // 'bdlt::Datetime', and return 'false' otherwise.
 
+    /// Return the maximum date and time, in UTC, that the platform can
+    /// *represent*.  Note that the range and precision of date and time
+    /// values that a platform can *represent* is a superset of the range
+    /// and precision that it can actually *store* and *retrieve*.  Just
+    /// because a file time is less than or equal to the value reported by
+    /// this function, does not mean that the underlying file system can
+    /// store the value precisely nor accurately.
     static bdlt::Datetime getMaxFileTime();
-        // Return the maximum date and time, in UTC, that the platform can
-        // *represent*.  Note that the range and precision of date and time
-        // values that a platform can *represent* is a superset of the range
-        // and precision that it can actually *store* and *retrieve*.  Just
-        // because a file time is less than or equal to the value reported by
-        // this function, does not mean that the underlying file system can
-        // store the value precisely nor accurately.
 
+    /// Return the minimum date and time, in UTC, that the platform can
+    /// *represent*.  Note that the range and precision of date and time
+    /// values that a platform can *represent* is a superset of the range
+    /// and precision that it can actually *store* and *retrieve*.  Just
+    /// because a file time is greater than or equal to the value reported
+    /// by this function, does not mean that the underlying file system can
+    /// store the value precisely nor accurately.
     static bdlt::Datetime getMinFileTime();
-        // Return the minimum date and time, in UTC, that the platform can
-        // *represent*.  Note that the range and precision of date and time
-        // values that a platform can *represent* is a superset of the range
-        // and precision that it can actually *store* and *retrieve*.  Just
-        // because a file time is greater than or equal to the value reported
-        // by this function, does not mean that the underlying file system can
-        // store the value precisely nor accurately.
 
+    /// Load a valid path to a likely non-existent file in a temporary
+    /// directory to the specified `path`.  Return 0 on success, and a
+    /// non-zero value otherwise.  The `path` is not guaranteed to be
+    /// unique, nor is it guaranteed that a file at the `path` will not
+    /// exist by the time this or any other process attempts to create a
+    /// file at the `path`.
     static int getTemporaryFilePath(bsl::string *path);
-        // Load a valid path to a likely non-existent file in a temporary
-        // directory to the specified 'path'.  Return 0 on success, and a
-        // non-zero value otherwise.  The 'path' is not guaranteed to be
-        // unique, nor is it guaranteed that a file at the 'path' will not
-        // exist by the time this or any other process attempts to create a
-        // file at the 'path'.
 
+    /// Determine whether the filsystem used for the specified `fd` has
+    /// support for timestamps beyond that representable by a 32-bit
+    /// timestamp field (ie beyond the year 2038).  Return `true` if
+    /// timestamps beyond 32 bits are supported and `false` otherwise.  If
+    /// an error occurs, `true` is returned.  This is a destructive test in
+    /// that the modification time of the file referred to by `fd` may be
+    /// updated by this function.  Note that unix filesystems typically used
+    /// to store timestamps in a 32-bit integer representing seconds since
+    /// 1970, resulting in an upper limit in the year 2038.  Various
+    /// approaches have been adopted to extend this limit, such as "bigtime"
+    /// (also referred to elsewhere as "big timestamps") on XFS which
+    /// extends the limit to 2486: https://lwn.net/Articles/829314/
+    /// and ext4 which extends the limit to 2446:
+    /// https://www.kernel.org/doc/html/v5.7/filesystems/ext4/dynamic.html#inode-timestamps
     static bool isBigtimeSupportAvailable(FileDescriptor fd);
-        // Determine whether the filsystem used for the specified 'fd' has
-        // support for timestamps beyond that representable by a 32-bit
-        // timestamp field (ie beyond the year 2038).  Return 'true' if
-        // timestamps beyond 32 bits are supported and 'false' otherwise.  If
-        // an error occurs, 'true' is returned.  This is a destructive test in
-        // that the modification time of the file referred to by 'fd' may be
-        // updated by this function.  Note that unix filesystems typically used
-        // to store timestamps in a 32-bit integer representing seconds since
-        // 1970, resulting in an upper limit in the year 2038.  Various
-        // approaches have been adopted to extend this limit, such as "bigtime"
-        // (also referred to elsewhere as "big timestamps") on XFS which
-        // extends the limit to 2486: https://lwn.net/Articles/829314/
-        // and ext4 which extends the limit to 2446:
-        // https://www.kernel.org/doc/html/v5.7/filesystems/ext4/dynamic.html#inode-timestamps
 
+    /// Write and flush sample data to the specified `fd`.  Return 0 on
+    /// success, and a non-zero value otherwise.
     static int modifyTemporaryFile(FileDescriptor fd);
-        // Write and flush sample data to the specified 'fd'.  Return 0 on
-        // success, and a non-zero value otherwise.
 
+    /// Set the last modification time of the file indicated by the
+    /// specified `descriptor` to the specified `utcTime`.  Return 0 on
+    /// success, and a non-zero value otherwise.  The behavior is undefined
+    /// unless the `utcTime` is a valid modification time.
     static int setLastModificationTime(int                   fileDescriptor,
                                        const bdlt::Datetime& utcTime);
-        // Set the last modification time of the file indicated by the
-        // specified 'descriptor' to the specified 'utcTime'.  Return 0 on
-        // success, and a non-zero value otherwise.  The behavior is undefined
-        // unless the 'utcTime' is a valid modification time.
 };
 
 #endif
@@ -855,7 +860,7 @@ struct TestUtil_UnixImpUtil {
                 // ============================================
 
 struct TestUtil_WindowsTempFileCloseBehavior {
-    // This 'struct' provides a namespace for enumerating a set of options for
+    // This `struct` provides a namespace for enumerating a set of options for
     // controlling the behavior of a file when open handles to it are closed.
 
     // TYPES
@@ -875,28 +880,28 @@ struct TestUtil_WindowsTempFileCloseBehavior {
                        // ==============================
 
 struct TestUtil_WindowsImpUtil {
-    // This testing-only utility 'struct' provides a suite of file operations
+    // This testing-only utility `struct` provides a suite of file operations
     // that this test driver uses in its implementation of tests for Windows
     // platforms.
 
     // TYPES
     typedef bdls::FilesystemUtil::FileDescriptor FileDescriptor;
-        // 'FileDescriptor' is an alias for the operating system's native file
+        // `FileDescriptor` is an alias for the operating system's native file
         // descriptor / file handle type.
 
     typedef bdls::FilesystemUtil::Offset Offset;
-        // 'Offset' is an alias for a signed value, representing the offset of
+        // `Offset` is an alias for a signed value, representing the offset of
         // a location within a file.
 
     static const FileDescriptor k_INVALID_FD;
-        // 'k_INVALID_FD' is a 'FileDescriptor' value representing no file,
+        // `k_INVALID_FD` is a `FileDescriptor` value representing no file,
         // which operations that return file descriptors use to indicate error
         // conditions.
 
   private:
     // PRIVATE TYPES
     typedef TestUtil_WindowsTempFileCloseBehavior TempFileCloseBehavior;
-        // 'TempFileCloseBehavior' is an alias to a namespace for enumerating a
+        // `TempFileCloseBehavior` is an alias to a namespace for enumerating a
         // set of options for controlling the behavior of a file when open
         // handles to it are closed.
 
@@ -905,14 +910,14 @@ struct TestUtil_WindowsImpUtil {
                                    bsl::string                 *path,
                                    TempFileCloseBehavior::Enum  closeBehavior);
         // Create a temporary file in a temporary directory.  If the specified
-        // 'closeBehavior' is 'TempFileCloseBehavior::e_REMOVE_ON_CLOSE',
+        // `closeBehavior` is `TempFileCloseBehavior::e_REMOVE_ON_CLOSE`,
         // guarantee that the file will be removed when all descriptors to the
         // file are closed or this process exits, even abnormally, whichever
-        // happens first.  If 'closeBehavior' is any other value, do not
+        // happens first.  If `closeBehavior` is any other value, do not
         // automatically remove the file.  On success, load the path to the
-        // temporary file to the specified 'path' and return a file descriptor
+        // temporary file to the specified `path` and return a file descriptor
         // to this file.  Otherwise, return an invalid file descriptor and load
-        // a valid but unspecified value to the 'path'.  A temporary file is a
+        // a valid but unspecified value to the `path`.  A temporary file is a
         // file that resides in a temporary directory, which the operating
         // system reserves the right to delete the next time the computer
         // reboots.
@@ -936,28 +941,28 @@ struct TestUtil_WindowsImpUtil {
 
     static FileDescriptor createTemporaryFile(bsl::string *path);
         // Create a temporary file in a temporary directory.  On success, load
-        // the path to the temporary file to the specified 'path' and return a
+        // the path to the temporary file to the specified `path` and return a
         // file descriptor to this file.  Otherwise, return an invalid file
-        // descriptor and load a valid but unspecified value to the 'path'.  A
+        // descriptor and load a valid but unspecified value to the `path`.  A
         // temporary file is a file that resides in a temporary directory,
         // which the operating system reserves the right to delete the next
         // time the computer reboots.
 
     static int getTemporaryFilePath(bsl::string *path);
         // Load a valid path to a likely non-existent file in a temporary
-        // directory to the specified 'path'.  Return 0 on success, and a
-        // non-zero value otherwise.  The 'path' is not guaranteed to be
-        // unique, nor is it guaranteed that a file at the 'path' will not
+        // directory to the specified `path`.  Return 0 on success, and a
+        // non-zero value otherwise.  The `path` is not guaranteed to be
+        // unique, nor is it guaranteed that a file at the `path` will not
         // exist by the time this or any other process attempts to create a
-        // file at the 'path'.
+        // file at the `path`.
 
     static bool isBigtimeSupportAvailable(FileDescriptor fd);
-        // Determine whether the filsystem used for the specified 'fd' has
+        // Determine whether the filsystem used for the specified `fd` has
         // support for timestamps beyond that representable by a 32-bit
-        // timestamp field (ie beyond the year 2038).  Return 'true' if
-        // timestamps beyond 32 bits are supported and 'false' otherwise.  If
-        // an error occurs, 'true' is returned.  This is a destructive test in
-        // that the modification time of the file referred to by 'fd' may be
+        // timestamp field (ie beyond the year 2038).  Return `true` if
+        // timestamps beyond 32 bits are supported and `false` otherwise.  If
+        // an error occurs, `true` is returned.  This is a destructive test in
+        // that the modification time of the file referred to by `fd` may be
         // updated by this function.  Note that unix filesystems typically used
         // to store timestamps in a 32-bit integer representing seconds since
         // 1970, resulting in an upper limit in the year 2038.  Various
@@ -968,7 +973,7 @@ struct TestUtil_WindowsImpUtil {
         // https://www.kernel.org/doc/html/v5.7/filesystems/ext4/dynamic.html#inode-timestamps
 
     static int modifyTemporaryFile(FileDescriptor fd);
-        // Write and flush sample data to the specified 'fd'.  Return 0 on
+        // Write and flush sample data to the specified `fd`.  Return 0 on
         // success, and a non-zero value otherwise.
 };
 
@@ -978,20 +983,22 @@ struct TestUtil_WindowsImpUtil {
                        // class FileDescriptorCloseGuard
                        // ==============================
 
+/// This class provides a guard that closes a file descriptor on
+/// destruction.
 class FileDescriptorCloseGuard {
-    // This class provides a guard that closes a file descriptor on
-    // destruction.
 
   public:
     // TYPES
+
+    /// `FileDescriptor` is an alias for the operating system's native file
+    /// descriptor / file handle type.
     typedef bdls::FilesystemUtil::FileDescriptor FileDescriptor;
-        // 'FileDescriptor' is an alias for the operating system's native file
-        // descriptor / file handle type.
 
   private:
     // DATA
+
+    // file descriptor to close on destruction
     FileDescriptor d_fileDescriptor;
-        // file descriptor to close on destruction
 
   private:
     // NOT IMPLEMENTED
@@ -1000,38 +1007,42 @@ class FileDescriptorCloseGuard {
 
   public:
     // CREATORS
-    explicit FileDescriptorCloseGuard(FileDescriptor descriptor);
-        // Create a 'FileDescriptorCloseGuard' object that closes the specified
-        // 'descriptor' on destruction, which it is said to "guard".
 
+    /// Create a `FileDescriptorCloseGuard` object that closes the specified
+    /// `descriptor` on destruction, which it is said to "guard".
+    explicit FileDescriptorCloseGuard(FileDescriptor descriptor);
+
+    /// Close the `descriptor` supplied to this object on construction, if
+    /// this object is guarding it, and destroy this object.
     ~FileDescriptorCloseGuard();
-        // Close the 'descriptor' supplied to this object on construction, if
-        // this object is guarding it, and destroy this object.
 
     // MANIPULATORS
+
+    /// Close the `descriptor` supplied to this object on construction and
+    /// no longer guard it.  Return 0 on success, and non-zero otherwise.
     int closeAndRelease();
-        // Close the 'descriptor' supplied to this object on construction and
-        // no longer guard it.  Return 0 on success, and non-zero otherwise.
 };
 
                              // =================
                              // class RemoveGuard
                              // =================
 
+/// This class provides a guard that removes a named file from the file
+/// system on destruction.
 class RemoveGuard {
-    // This class provides a guard that removes a named file from the file
-    // system on destruction.
 
   public:
     // TYPES
+
+    /// `allocator_type` is an alias to the type of allocator that supplies
+    /// memory to `RemoveGuard` objects.
     typedef bsl::allocator<char> allocator_type;
-        // 'allocator_type' is an alias to the type of allocator that supplies
-        // memory to 'RemoveGuard' objects.
 
   private:
     // DATA
+
+    // path to the regular file to remove on destruction
     bsl::string d_path;
-        // path to the regular file to remove on destruction
 
   private:
     // NOT IMPLEMENTED
@@ -1040,15 +1051,16 @@ class RemoveGuard {
 
   public:
     // CREATORS
+
+    /// Create a `RemoveGuard` object that removes the file at the specified
+    /// `path` on destruction.  Optionally specify an `allocator` used to
+    /// supply memory; otherwise, the default allocator is used.
     explicit RemoveGuard(const bsl::string_view& path,
                          const allocator_type&   allocator = allocator_type());
-        // Create a 'RemoveGuard' object that removes the file at the specified
-        // 'path' on destruction.  Optionally specify an 'allocator' used to
-        // supply memory; otherwise, the default allocator is used.
 
+    /// Remove the file at the `path` supplied to this object on
+    /// construction, and destroy this object.
     ~RemoveGuard();
-        // Remove the file at the 'path' supplied to this object on
-        // construction, and destroy this object.
 };
 
 // ============================================================================
@@ -1479,8 +1491,8 @@ int TestUtil::setLastModificationTime(FileDescriptor        descriptor,
 ///--------------------
 // The following function implementations are valid on Unix systems in both
 // 32-bit and 64-bit compilation modes.  In addition, they handle both 32-bit
-// and 64-bit 'time_t' representations, as well as all possible numeric ranges
-// of 'long' on the ILP32, LLP64, and LP64 data models.
+// and 64-bit `time_t` representations, as well as all possible numeric ranges
+// of `long` on the ILP32, LLP64, and LP64 data models.
 
 // CLASS METHODS
 bdlt::Datetime TestUtil_UnixImpUtil::convertEpochOffsetToDatetime(
@@ -1522,11 +1534,11 @@ TestUtil_UnixImpUtil::createTemporaryFile(bsl::string *path)
         return k_INVALID_FD;                                          // RETURN
     }
 
-    // IEEE Std 1003.1 (POSIX) specifies 'mkstemp' requires the last 6
-    // characters of a path-name passed to 'mkstemp' be "X", which it
+    // IEEE Std 1003.1 (POSIX) specifies `mkstemp` requires the last 6
+    // characters of a path-name passed to `mkstemp` be "X", which it
     // overwrites with characters that guarantee a unique name for the
     // to-be-created file in the directory of the path-name.  Note that
-    // unique-name generation can fail, in which case 'mkstemp' returns an
+    // unique-name generation can fail, in which case `mkstemp` returns an
     // invalid file descriptor.
 
     pathValue += "-XXXXXX";
@@ -1614,7 +1626,7 @@ int TestUtil_UnixImpUtil::getTemporaryFilePath(bsl::string *path)
 bool TestUtil_UnixImpUtil::isBigtimeSupportAvailable(
                                TestUtil_UnixImpUtil::FileDescriptor fd)
 {
-    // 'tm32' and 'smallModTime' will hold the maximum possible date and time
+    // `tm32` and `smallModTime` will hold the maximum possible date and time
     // that can be stored in a 32-bit timestamp.
     bsl::tm tm32 = bsl::tm();     // zero initialise
     tm32.tm_year  = 2038 - 1900;  // 2038
@@ -1627,7 +1639,7 @@ bool TestUtil_UnixImpUtil::isBigtimeSupportAvailable(
 
     bsl::time_t smallModTime = bsl::mktime(&tm32);
 
-    // 'tmw' and 'writeModTime' represent a date and time that is too large to
+    // `tmw` and `writeModTime` represent a date and time that is too large to
     // store in a 32-bit filesystem timestamp, but can be stored if "big
     // timestamp" support is available.
     bsl::tm tmw = bsl::tm();     // zero initialise
@@ -1640,7 +1652,7 @@ bool TestUtil_UnixImpUtil::isBigtimeSupportAvailable(
 
     bsl::time_t writeModTime = bsl::mktime(&tmw);
 
-    // Update the file modification time to 'writeModTime'.
+    // Update the file modification time to `writeModTime`.
     struct timespec times[2] = {};
 
     struct timespec& lastAccessTime = times[0];
@@ -1899,15 +1911,15 @@ RemoveGuard::~RemoveGuard()
 
 namespace UsageExample2 {
 
-///Example 2: Using 'bdls::FilesystemUtil::visitPaths'
+///Example 2: Using `bdls::FilesystemUtil::visitPaths`
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
-// 'bdls::FilesystemUtil::visitPaths' enables clients to define a functor to
+// `bdls::FilesystemUtil::visitPaths` enables clients to define a functor to
 // operate on file paths that match a specified pattern.  In this example, we
 // create a function that can be used to filter out files that have a last
 // modified time within a particular time frame.
 //
 // First we define our filtering function:
-//..
+// ```
     void getFilesWithinTimeframe(bsl::vector<bsl::string> *vector,
                                  const char               *item,
                                  const bdlt::Datetime&     start,
@@ -1927,12 +1939,12 @@ namespace UsageExample2 {
 
         vector->push_back(item);
     }
-//..
-// Then, with the help of 'bdls::FilesystemUtil::visitPaths' and
-// 'bdlf::BindUtil::bind', we create a function for finding all file paths that
+// ```
+// Then, with the help of `bdls::FilesystemUtil::visitPaths` and
+// `bdlf::BindUtil::bind`, we create a function for finding all file paths that
 // match a specified pattern and have a last modified time within a specified
-// start and end time (both specified as a 'bdlt::Datetime'):
-//..
+// start and end time (both specified as a `bdlt::Datetime`):
+// ```
     void findMatchingFilesInTimeframe(bsl::vector<bsl::string> *result,
                                       const char               *pattern,
                                       const bdlt::Datetime&     start,
@@ -1947,7 +1959,7 @@ namespace UsageExample2 {
                                                       start,
                                                       end));
     }
-//..
+// ```
 
 }  // close namespace UsageExample2
 
@@ -1963,150 +1975,150 @@ namespace TC = TestCase30_Remove;
 // TESTING REMOVE
 //
 // Concerns:
-//: 1 If called on a plain file, symlink, named pipe, or empty directory,
-//:   'remove' results in the target being removed, regardless of the value of
-//:   'recursiveFlag'.
-//:
-//: 2 If "/" or "/." is appended to the path, it results in 'remove' failing,
-//:   unless the target is a directory, in which case it has no effect.
-//:
-//: 3 If called on a non-empty directory, 'remove' fails unless 'recursiveFlag'
-//:   is 'true', in which case it succeeds.
-//:
-//: 4 If called on a symlink, the symlink itself is always deleted, never the
-//:   destination of the symlink.  The type of file the symlink is pointing to,
-//:   or whether it is a dangling symlink, makes no difference.
-//:
-//: 5 It makes no difference whether an absolute or relative path is passed.
-//:
-//: 6 Unused.
-//:
-//: 7 If the parent of the leaf of the path (or any other directory in the path
-//:   other than the leaf) passed to 'remove' is a symlink, the leaf is still
-//:   deleted.
-//:
-//: 8 Remove "" fails with no effect.
-//:
-//: 9 Unused.
-//:
-//: 10 Removing a non-existent file fails with no effect.
-//:
-//: 11 Remove of a path ending with "/.."
-//:
-//: 12 Remove a plain file or directory whose parent is a symlink
-//:
-//: 13 Remove of path beginning with "./" prefixed to it (the "./" should have
-//:    no effect.
-//:
-//: 14 Remove of a path with random '/'s in the path transformed to "//", the
-//:    transformation having no effect.
-//:
-//: 15 Remove of a path with "/../" in the middle of the path
-//:
-//: 16 Remove of a plain file and directory where path begins with "../"
+// 1. If called on a plain file, symlink, named pipe, or empty directory,
+//    `remove` results in the target being removed, regardless of the value of
+//    `recursiveFlag`.
+//
+// 2. If "/" or "/." is appended to the path, it results in `remove` failing,
+//    unless the target is a directory, in which case it has no effect.
+//
+// 3. If called on a non-empty directory, `remove` fails unless `recursiveFlag`
+//    is `true`, in which case it succeeds.
+//
+// 4. If called on a symlink, the symlink itself is always deleted, never the
+//    destination of the symlink.  The type of file the symlink is pointing to,
+//    or whether it is a dangling symlink, makes no difference.
+//
+// 5. It makes no difference whether an absolute or relative path is passed.
+//
+// 6. Unused.
+//
+// 7. If the parent of the leaf of the path (or any other directory in the path
+//    other than the leaf) passed to `remove` is a symlink, the leaf is still
+//    deleted.
+//
+// 8. Remove "" fails with no effect.
+//
+// 9. Unused.
+//
+// 10. Removing a non-existent file fails with no effect.
+//
+// 11. Remove of a path ending with "/.."
+//
+// 12. Remove a plain file or directory whose parent is a symlink
+//
+// 13. Remove of path beginning with "./" prefixed to it (the "./" should have
+//     no effect.
+//
+// 14. Remove of a path with random '/'s in the path transformed to "//", the
+//     transformation having no effect.
+//
+// 15. Remove of a path with "/../" in the middle of the path
+//
+// 16. Remove of a plain file and directory where path begins with "../"
 //
 // Plan:
-//: 1 Framework:
-//:   o Create a template mechanism, 'TestObject<STRING_TYPE>', where the main
-//:     test is the 'operator()' function, and 'STRING_TYPE' is one of
-//:     'const char *', 'bsl::string', 'std::string', and 'bsl::string_view',
-//:     'bslstl::StringRef', or 'std::pmr::string'.  This way we can run the
-//:     test with each type of possible 'STRING_TYPE' being passed to
-//:     'Obj::remove'.
-//:
-//:   o Create a function 'TC::translate' that will translate any path from
-//:     unix-style path to a host-style path.  This way, all the paths in the
-//:     'operator()' function are unix-style paths, translated to host-style
-//:     paths before being passed to 'Obj::remove'.
-//:
-//:   o Create a function 'TestObject::kill' which is passed a unix-style
-//:     relative path, which is converted to a host-style path, transformed as
-//:     listed blow, on Windows randomly change some of the back slashes to
-//:     forward slashes, then assigns it to a 'STRING_TYPE' object, then passes
-//:     it, along with 'd_recurse', to 'Obj::remove'. variable
-//:     'TestObject::d_exp' is compared to the return value of 'remove', if
-//:     success is expected, 'd_exp == 0', otherwise, 'd_exp != 0'.  The
-//:     transformations that take place before the string is passed to
-//:     'Obj::remove' are:
-//:     1 sometimes is converted from a relative path to an absolute path
-//:       according to 'TestObject::d_abs'.  (C-5)
-//:
-//:     2 sometimes has "./" prepended to it (only in the case of relative
-//:       path) according to 'TestObject::d_prefix'.  (C-12)
-//:
-//:     3 sometimes has "/." appended to it (meaning that 'Obj::remove' will
-//:       fail if the file being deleted is not a directory), possibly multiple
-//:       times, according to 'TestObject::d_dots'.  (C-2)
-//:
-//:     4 sometimes has '/' appended to it (meaning that 'Obj::remove' will
-//:       fail if the file being deleted is not a directory) according to
-//:       'TestObject::d_endSlash'.  (C-2)
-//:
-//:     5 sometimes has random '/'s in the path translated to "//"s or "/./"s
-//:       if 'TestObject::d_extraSlashes' is set.  (C-14)
-//:
-//:     6 removing files is extremely slow on Windows, so on that platform,
-//:       only do transformations 2-5 on the first string type ('const char *'
-//:       -- 'bdls::FilesystemUtil::flatten' will translate all other string
-//:       types to that type anyway, so testing all transformations on each
-//:       string type is a waste of cpu time).
-//:
-//:   o Create a c'tor of 'TestObject' that creates a subdirectory, 'cd's into
-//:     it, and builds a test framework of directories, plain files, named
-//:     pipes, and symlinks to test 'Obj::remove' on.  The d'tor 'cd's back to
-//:     the original directory and deletes the subdirectory that the c'tor
-//:     created.
-//:
-//:   o Create a function 'TC::exists' which, passed a unix-style relative
-//:     path, translates it to a host-style relative path, and checks for the
-//:     existence of the file, with an additional 'followLinks' argument which
-//:     determines whether symbolic links are to be followed.  If 'followLinks'
-//:     is 'false' and the file is a dangling link, 'TC::exists' returns
-//:     'true'.  Symbolic links that are not the leaf of the path are always
-//:     followed, regardless of the state of 'followLinks'.
-//:
-//: 2 Define a function 'TestObject::operator()' which serves as the main body
-//:   of the test, outside of the c'tor and d'tor.  It verifies that removing
-//:   "" fails (C-8) then goes into a loop varying the values of 'd_prefix',
-//:   'd_abs', 'd_dots', 'd_endSlash', and 'd_recurse', and calls 'kill' on
-//:   various unix-style relative paths.  Within the body of the loop, 'd_exp'
-//:   is constantly updated to match the expected return value of 'Obj::remove'
-//:   on the next call(s), and 'TC::exists' is called to check existence of
-//:   files that are expected to have either been deleted or survived.  To save
-//:   test time, 'TestObject::operator()' does not iterate through all possible
-//:   combinations of 'd_abs', 'd_dots', 'd_endSlash', and 'd_recurse', just
-//:   interesting combinations of them.  Every time we delete a file or files,
-//:   afterward we reconstruct the removed part of the file tree, and call
-//:   'TC::assertAllThere', which tests that the entire tree of directories
-//:   and files is intact.
-//:
-//: 3 Test 'remove' called on paths with the following qualities, in all cases
-//:   resulting in the removal of the file or directory unless otherwise
-//:   stated.
-//:   o a non-existent file (results in error) (C-10)
-//:
-//:   o a plain file in the current directory (C-1)
-//:
-//:   o a plain file in a subdirectory (C-1)
-//:
-//:   o an empty directory in a subdirectory (always succeeds) (C-1)
-//:
-//:   o a non-empty directory (succeeds only if 'recursiveFlag == true')  (C-3)
-//:
-//:   o a path ending with "/.." (C-11)
-//:
-//:   o a path ending with "<symlink>/.."  (C-11)
-//:
-//:   o various symlinks (should always delete the symlink, never what it
-//:     points to)  (C-4)
-//:
-//:   o a plain file where the parent in the path is a symlink  (C-12)
-//:
-//:   o a directory where the parent in the path is a symlink  (C-12)
-//:
-//:   o a path containing "/../" in the middle  (C-15)
-//:
-//:   o plain file and non-empty directory where path begins with "../"  (C-16)
+// 1. Framework:
+//    - Create a template mechanism, `TestObject<STRING_TYPE>`, where the main
+//      test is the `operator()` function, and `STRING_TYPE` is one of
+//      `const char *`, `bsl::string`, `std::string`, and `bsl::string_view`,
+//      `bslstl::StringRef`, or `std::pmr::string`.  This way we can run the
+//      test with each type of possible `STRING_TYPE` being passed to
+//      `Obj::remove`.
+//
+//    - Create a function `TC::translate` that will translate any path from
+//      unix-style path to a host-style path.  This way, all the paths in the
+//      `operator()` function are unix-style paths, translated to host-style
+//      paths before being passed to `Obj::remove`.
+//
+//    - Create a function `TestObject::kill` which is passed a unix-style
+//      relative path, which is converted to a host-style path, transformed as
+//      listed blow, on Windows randomly change some of the back slashes to
+//      forward slashes, then assigns it to a `STRING_TYPE` object, then passes
+//      it, along with `d_recurse`, to `Obj::remove`. variable
+//      `TestObject::d_exp` is compared to the return value of `remove`, if
+//      success is expected, `d_exp == 0`, otherwise, `d_exp != 0`.  The
+//      transformations that take place before the string is passed to
+//      `Obj::remove` are:
+//     1. sometimes is converted from a relative path to an absolute path
+//        according to `TestObject::d_abs`.  (C-5)
+//
+//     2. sometimes has "./" prepended to it (only in the case of relative
+//        path) according to `TestObject::d_prefix`.  (C-12)
+//
+//     3. sometimes has "/." appended to it (meaning that `Obj::remove` will
+//        fail if the file being deleted is not a directory), possibly multiple
+//        times, according to `TestObject::d_dots`.  (C-2)
+//
+//     4. sometimes has '/' appended to it (meaning that `Obj::remove` will
+//        fail if the file being deleted is not a directory) according to
+//        `TestObject::d_endSlash`.  (C-2)
+//
+//     5. sometimes has random '/'s in the path translated to "//"s or "/./"s
+//        if `TestObject::d_extraSlashes` is set.  (C-14)
+//
+//     6. removing files is extremely slow on Windows, so on that platform,
+//        only do transformations 2-5 on the first string type (`const char *`
+//        -- `bdls::FilesystemUtil::flatten` will translate all other string
+//        types to that type anyway, so testing all transformations on each
+//        string type is a waste of cpu time).
+//
+//    - Create a c'tor of `TestObject` that creates a subdirectory, `cd`s into
+//      it, and builds a test framework of directories, plain files, named
+//      pipes, and symlinks to test `Obj::remove` on.  The d'tor `cd`s back to
+//      the original directory and deletes the subdirectory that the c'tor
+//      created.
+//
+//    - Create a function `TC::exists` which, passed a unix-style relative
+//      path, translates it to a host-style relative path, and checks for the
+//      existence of the file, with an additional `followLinks` argument which
+//      determines whether symbolic links are to be followed.  If `followLinks`
+//      is `false` and the file is a dangling link, `TC::exists` returns
+//      `true`.  Symbolic links that are not the leaf of the path are always
+//      followed, regardless of the state of `followLinks`.
+//
+// 2. Define a function `TestObject::operator()` which serves as the main body
+//    of the test, outside of the c'tor and d'tor.  It verifies that removing
+//    "" fails (C-8) then goes into a loop varying the values of `d_prefix`,
+//    `d_abs`, `d_dots`, `d_endSlash`, and `d_recurse`, and calls `kill` on
+//    various unix-style relative paths.  Within the body of the loop, `d_exp`
+//    is constantly updated to match the expected return value of `Obj::remove`
+//    on the next call(s), and `TC::exists` is called to check existence of
+//    files that are expected to have either been deleted or survived.  To save
+//    test time, `TestObject::operator()` does not iterate through all possible
+//    combinations of `d_abs`, `d_dots`, `d_endSlash`, and `d_recurse`, just
+//    interesting combinations of them.  Every time we delete a file or files,
+//    afterward we reconstruct the removed part of the file tree, and call
+//    `TC::assertAllThere`, which tests that the entire tree of directories
+//    and files is intact.
+//
+// 3. Test `remove` called on paths with the following qualities, in all cases
+//    resulting in the removal of the file or directory unless otherwise
+//    stated.
+//    - a non-existent file (results in error) (C-10)
+//
+//    - a plain file in the current directory (C-1)
+//
+//    - a plain file in a subdirectory (C-1)
+//
+//    - an empty directory in a subdirectory (always succeeds) (C-1)
+//
+//    - a non-empty directory (succeeds only if `recursiveFlag == true`)  (C-3)
+//
+//    - a path ending with "/.." (C-11)
+//
+//    - a path ending with "<symlink>/.."  (C-11)
+//
+//    - various symlinks (should always delete the symlink, never what it
+//      points to)  (C-4)
+//
+//    - a plain file where the parent in the path is a symlink  (C-12)
+//
+//    - a directory where the parent in the path is a symlink  (C-12)
+//
+//    - a path containing "/../" in the middle  (C-15)
+//
+//    - plain file and non-empty directory where path begins with "../"  (C-16)
 //
 // Testing:
 //   int remove(const char *);
@@ -2135,8 +2147,8 @@ const char longFullName[] = {
 #else
 // Windows has a documented 260 char limit on path length, and on relative
 // paths, this limit applies after the relative path has been transformed to an
-// absolute path.  On a Windows matrix build, 'd_homeDir' is about 205 chars
-// long, so we have to make sure that the absolute path to 'longFullName' is
+// absolute path.  On a Windows matrix build, `d_homeDir` is about 205 chars
+// long, so we have to make sure that the absolute path to `longFullName` is
 // less than 260 characters long.
 
 const char longBaseName[] = {
@@ -2150,25 +2162,25 @@ BSLMF_ASSERT(sizeof(longFullName) + 205 < 260);
 #endif
 BSLMF_ASSERT(sizeof(longBaseName) + 9 == sizeof(longFullName));
 
+/// Determine if the file specified by `unixRelPath` exists.  `unixRelPath`
+/// must be relative and not absolute.  If the optionally specified
+/// `followLinks` is `false` and the file is a symlink, it is not
+/// dereferenced and the query is interpreted as determining whether the
+/// symlink exists or not.
 bool exists(bsl::string_view unixRelPath, bool followLinks = false);
-    // Determine if the file specified by 'unixRelPath' exists.  'unixRelPath'
-    // must be relative and not absolute.  If the optionally specified
-    // 'followLinks' is 'false' and the file is a symlink, it is not
-    // dereferenced and the query is interpreted as determining whether the
-    // symlink exists or not.
 
+/// Return the specified `mostlyUnixPath` translated to the path format of
+/// the current platform.
+///
+/// On Unix, this simply means return `mostlyUnixPath` cast to a `string`.
+///
+/// On Windows, this means translate '/'s to '\\'s.  Note that on Windows,
+/// if the path is absolute, the beginning of the path will be in Windows
+/// format while the end will be in Unix format.  This is not problematic.
 bsl::string translate(bsl::string_view mostlyUnixPath);
-    // Return the specified 'mostlyUnixPath' translated to the path format of
-    // the current platform.
-    //
-    // On Unix, this simply means return 'mostlyUnixPath' cast to a 'string'.
-    //
-    // On Windows, this means translate '/'s to '\\'s.  Note that on Windows,
-    // if the path is absolute, the beginning of the path will be in Windows
-    // format while the end will be in Unix format.  This is not problematic.
 
 struct NonLinkRecord {
-    const char *d_relName_p;      // path to target from 'd_homeDir'
+    const char *d_relName_p;      // path to target from `d_homeDir`
     bool        d_isDirectory;    // whether it's a directory
     bool        d_isUnixOnly;     // whether file exists only on Unix
 } nonLinkRecords[] = {
@@ -2187,10 +2199,10 @@ enum { k_NUM_NON_LINK_RECORDS = sizeof nonLinkRecords /
                                                       sizeof *nonLinkRecords };
 
 const struct LinkRecord {
-    const char *d_linkRelName_p;  // path to link from 'd_homeDir'.
+    const char *d_linkRelName_p;  // path to link from `d_homeDir`.
     const char *d_linkTarget_p;   // target of link
     bool        d_isAbsolute;     // whether target is relative or absolute
-                                  // (absolute targets should have 'd_homeDir'
+                                  // (absolute targets should have `d_homeDir`
                                   // prepended).  Note that always
                                   // "d_isAbsolute == ('/' == *d_linkTarget_p)"
     bool        d_isDangling;     // whether the link is dangling
@@ -2209,14 +2221,14 @@ const struct LinkRecord {
     { "b/cc/ccc/myRelDangLink",     "../../bb/arf",      0, 1, 0, 0 } };
 enum { k_NUM_LINK_RECORDS = sizeof linkRecords / sizeof *linkRecords };
 
+/// Check that the whole test tree of directories, plain files, and symlinks
+/// exists as expected.  Since this function is frequently called during the
+/// test and if it fails we expect an avalanche of errors to follow, we bomb
+/// out if anything is wrong.  The specified `stringTypeName` is a
+/// description of the `STRING_TYPE` argument of `TestObject` below, and the
+/// specified `line` is the source line number from which this function was
+/// called.  Both parameters are used only in error messages if we bomb out.
 void assertAllThere(const char *stringTypeName, int line)
-    // Check that the whole test tree of directories, plain files, and symlinks
-    // exists as expected.  Since this function is frequently called during the
-    // test and if it fails we expect an avalanche of errors to follow, we bomb
-    // out if anything is wrong.  The specified 'stringTypeName' is a
-    // description of the 'STRING_TYPE' argument of 'TestObject' below, and the
-    // specified 'line' is the source line number from which this function was
-    // called.  Both parameters are used only in error messages if we bomb out.
 {
     const int saveTestStatus = testStatus;
 
@@ -2254,17 +2266,17 @@ void assertAllThere(const char *stringTypeName, int line)
     ASSERT_FOR_CERTAIN(saveTestStatus == testStatus);
 }
 
+/// Create directories of the specified `unixRelPath` where the leaf is
+/// always a directory, and `unixRelPath` is first translated to a
+/// host-style path.
 int createDirectories(bsl::string_view unixRelPath)
-    // Create directories of the specified 'unixRelPath' where the leaf is
-    // always a directory, and 'unixRelPath' is first translated to a
-    // host-style path.
 {
     const bsl::string& hostPath = TC::translate(unixRelPath);
     return Obj::createDirectories(hostPath, true);
 }
 
+/// (forward declared)
 bool exists(bsl::string_view unixRelPath, bool followLinks)
-    // (forward declared)
 {
     const bsl::string& hostRelPath = TC::translate(unixRelPath);
     ASSERT_FOR_CERTAIN(bdls::PathUtil::isRelative(hostRelPath));
@@ -2273,11 +2285,11 @@ bool exists(bsl::string_view unixRelPath, bool followLinks)
                             (!followLinks && Obj::isSymbolicLink(hostRelPath));
 }
 
+/// Test if the specified `unixRelLink` exists, and if not, create a symlink
+/// from `unixRelLink` to the specified `unixDest`, translating both paths
+/// to host-style first.
 void linkIfNeeded(bsl::string_view unixDest,
                   bsl::string_view unixRelLink)
-    // Test if the specified 'unixRelLink' exists, and if not, create a symlink
-    // from 'unixRelLink' to the specified 'unixDest', translating both paths
-    // to host-style first.
 {
     if (e_WINDOWS || TC::exists(unixRelLink, false)) {
         return;                                                       // RETURN
@@ -2289,8 +2301,8 @@ void linkIfNeeded(bsl::string_view unixDest,
     ASSERTV(u_errno(), hostDest, hostLink, createSymlink(hostDest, hostLink));
 }
 
+/// Create a pipe with the specified `pipeName`.
 void makePipe(const char *pipeName)
-    // Create a pipe with the specified 'pipeName'.
 {
 #ifdef BSLS_PLATFORM_OS_UNIX
     ASSERT(0 == ::mkfifo(pipeName, 0777));
@@ -2299,9 +2311,9 @@ void makePipe(const char *pipeName)
 #endif
 }
 
+/// Create the file at the specified `unixRelPath` if it doesn't exist,
+/// translating the path to host-style first.
 void touch(bsl::string_view unixRelPath)
-    // Create the file at the specified 'unixRelPath' if it doesn't exist,
-    // translating the path to host-style first.
 {
     const bsl::string& hostRelPath = translate(unixRelPath);
     ASSERT_FOR_CERTAIN(bdls::PathUtil::isRelative(hostRelPath));
@@ -2315,9 +2327,9 @@ void touch(bsl::string_view unixRelPath)
 }
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
+/// (forward declared)
 inline
 bsl::string translate(bsl::string_view unixPath)
-    // (forward declared)
 {
     return bsl::string(unixPath);
 }
@@ -2334,9 +2346,9 @@ bsl::string translate(bsl::string_view mostlyUnixPath)
 template <class STRING_TYPE>
 class TestObject {
     // DATA
-    bool         d_abs;         // whether the relative path passed to 'kill'
+    bool         d_abs;         // whether the relative path passed to `kill`
                                 // is to be converted to an absolute path
-                                // before calling 'Obj::remove'
+                                // before calling `Obj::remove`
 
     bool         d_prefix;      // prefix path with "./" (only done on
                                 // relative paths)
@@ -2345,10 +2357,10 @@ class TestObject {
                                 // appended to file name
 
     bool         d_endSlash;    // whether '/' is to be appended to file name
-                                // (after the 'd_dots' appended)
+                                // (after the `d_dots` appended)
 
-    bool         d_recurse;     // to be passed to the 'recursiveFlag' argument
-                                // of 'Obj::remove' by 'kill'
+    bool         d_recurse;     // to be passed to the `recursiveFlag` argument
+                                // of `Obj::remove` by `kill`
 
     bool         d_extraSlashes;// Add a random number of extra "/"s and/or
                                 // "/."s to the path adjacent to other slashes.
@@ -2359,64 +2371,67 @@ class TestObject {
                                 // host path)
 
     bsl::string  d_homeDir;     // The current directory at the end of the call
-                                // to the c'tor (a subdirectory of 'd_startDir'
+                                // to the c'tor (a subdirectory of `d_startDir`
                                 // created by the c'tor and erased by the
                                 // d'tor) (absolute host path).  Note that this
                                 // never ends with '/'.
 
     int          d_randomSeed;  // Random number seed.
 
-    int          d_exp;         // Expected return value of 'Obj::remove' and
-                                // 'kill' on the next test, always 0 or -1.
+    int          d_exp;         // Expected return value of `Obj::remove` and
+                                // `kill` on the next test, always 0 or -1.
 
     // PRIVATE MANIPULATORS
+
+    /// Create all the symlinks in our tree for our test.  On windows, do
+    /// nothing.
     void buildLinks();
-        // Create all the symlinks in our tree for our test.  On windows, do
-        // nothing.
 
+    /// Build the whole tree of directories, plain files, and symlinks for
+    /// our test, using the specified `line`, which is the line number of
+    /// the call to this function, in error messages if anything goes wrong.
     void buildFiles(int line);
-        // Build the whole tree of directories, plain files, and symlinks for
-        // our test, using the specified 'line', which is the line number of
-        // the call to this function, in error messages if anything goes wrong.
 
+    /// Take the specified `path` as a string view, modify it according to
+    /// `d_abs`, `d_dots`, `d_endSlash`, and translate it to host format
+    /// (Windows or Unix), then, on Windows, randomly change some of the
+    /// '\\'s to '/'s, assign it to type `STRING_TYPE` (some form of
+    /// `string` or `const char *`), and then call `Obj::remove` with it,
+    /// along with the value of `d_recurse`.  If `d_exp == 0`, it is an
+    /// error if `remove` returns non-negative, if `d_exp != 0`, it is an
+    /// error if `remove` returns 0.  The behavior is undefined if `path` is
+    /// not relative.
     void kill(bsl::string_view path);
-        // Take the specified 'path' as a string view, modify it according to
-        // 'd_abs', 'd_dots', 'd_endSlash', and translate it to host format
-        // (Windows or Unix), then, on Windows, randomly change some of the
-        // '\\'s to '/'s, assign it to type 'STRING_TYPE' (some form of
-        // 'string' or 'const char *'), and then call 'Obj::remove' with it,
-        // along with the value of 'd_recurse'.  If 'd_exp == 0', it is an
-        // error if 'remove' returns non-negative, if 'd_exp != 0', it is an
-        // error if 'remove' returns 0.  The behavior is undefined if 'path' is
-        // not relative.
 
+    /// Return a 15-bit random number based on `d_randomSeed`.
     unsigned rand();
-        // Return a 15-bit random number based on 'd_randomSeed'.
 
     // PRIVATE ACCESSORS
+
+    /// Return the value of `d_exp`.  This is a way of examining the
+    /// variable `d_exp` on the LHS of a comparison with no risk of
+    /// accidentally assigning to it.
     int exp() const;
-        // Return the value of 'd_exp'.  This is a way of examining the
-        // variable 'd_exp' on the LHS of a comparison with no risk of
-        // accidentally assigning to it.
 
   public:
     // CREATORS
+
+    /// Save the cwd, create a subdirectory whose name is specified by
+    /// `subDir`, cd into the subdirectory, save the absolute path to that
+    /// subdirectory, and create the tree of directories, plain files and
+    /// symlinks for our test.
     explicit
     TestObject(const char *subDir);
-        // Save the cwd, create a subdirectory whose name is specified by
-        // 'subDir', cd into the subdirectory, save the absolute path to that
-        // subdirectory, and create the tree of directories, plain files and
-        // symlinks for our test.
 
+    /// cd back to the directory we were in when the c'tor began and remove
+    /// the subdirectory created by the c'tor.
     ~TestObject();
-        // cd back to the directory we were in when the c'tor began and remove
-        // the subdirectory created by the c'tor.
 
+    /// Iterate through different values of `d_abs`, `d_dots`, `d_endSlash`,
+    /// `d_extraSlashes`, `d_prefix` and `d_recurse`, calling `kill` in
+    /// different instances, described in detail in the test doc at the
+    /// beginning of this namespace.
     void operator()();
-        // Iterate through different values of 'd_abs', 'd_dots', 'd_endSlash',
-        // 'd_extraSlashes', 'd_prefix' and 'd_recurse', calling 'kill' in
-        // different instances, described in detail in the test doc at the
-        // beginning of this namespace.
 };
 
 template <class STRING_TYPE>
@@ -2438,9 +2453,9 @@ void TestObject<STRING_TYPE>::buildLinks()
 
         const bsl::string& prefix = rec.d_isAbsolute ? d_homeDir : nullString;
 
-        // the path 'prefix + target' always works, because if it's an absolute
-        // path, prefix never ends with '/' and 'target' always begins with
-        // '/', and otherwise 'prefix == ""' and target is a relative path.
+        // the path `prefix + target` always works, because if it's an absolute
+        // path, prefix never ends with '/' and `target` always begins with
+        // '/', and otherwise `prefix == ""` and target is a relative path.
 
         TC::linkIfNeeded(prefix + target, rec.d_linkRelName_p);
 
@@ -2450,37 +2465,37 @@ void TestObject<STRING_TYPE>::buildLinks()
     }
 }
 
+/// Build directory / file / link tree.  Assumes `d_homeDir` is the current
+/// directory.
+/// ```
+/// - a
+/// - b/
+///   - bb/
+///     - bbb/
+///       - bbbb/ (empty dir)
+///       - ccLink -> ../../cc/
+///       - <TC::longBaseName>
+///       - myPipe.1 (pipe)
+///       - myPipe.2 (pipe)
+///   - cc/
+///     - ccc/
+///       - f
+///       - ff
+///       - myAbsPlainLink -> d_homeDir + /b/cc/ddd
+///       - myRelPlainLink -> ../ddd
+///       - myAbsDirLink -> d_homeDir + /b/bb/bbb/bbbb/
+///       - myRelDirLink -> ../../bb/bbb/bbbb/
+///       - myAbsBbbLink -> d_homeDir + /b/bb/bbb/
+///       - myRelBbbLink ->  ../../bb/bbb/
+///       - myAbsDangLink -> d_homeDir + /b/bb/arf (dangling)
+///       - myRelDangLink -> ../../bb/arf (dangling)
+///     - ddd
+/// - c
+/// - d
+/// - myPipe.3 (pipe)
+/// ```
 template <class STRING_TYPE>
 void TestObject<STRING_TYPE>::buildFiles(int line)
-    // Build directory / file / link tree.  Assumes 'd_homeDir' is the current
-    // directory.
-    //..
-    // - a
-    // - b/
-    //   - bb/
-    //     - bbb/
-    //       - bbbb/ (empty dir)
-    //       - ccLink -> ../../cc/
-    //       - <TC::longBaseName>
-    //       - myPipe.1 (pipe)
-    //       - myPipe.2 (pipe)
-    //   - cc/
-    //     - ccc/
-    //       - f
-    //       - ff
-    //       - myAbsPlainLink -> d_homeDir + /b/cc/ddd
-    //       - myRelPlainLink -> ../ddd
-    //       - myAbsDirLink -> d_homeDir + /b/bb/bbb/bbbb/
-    //       - myRelDirLink -> ../../bb/bbb/bbbb/
-    //       - myAbsBbbLink -> d_homeDir + /b/bb/bbb/
-    //       - myRelBbbLink ->  ../../bb/bbb/
-    //       - myAbsDangLink -> d_homeDir + /b/bb/arf (dangling)
-    //       - myRelDangLink -> ../../bb/arf (dangling)
-    //     - ddd
-    // - c
-    // - d
-    // - myPipe.3 (pipe)
-    //..
 {
     const char *name = bsls::NameOf<STRING_TYPE>();
 
@@ -2514,7 +2529,7 @@ void TestObject<STRING_TYPE>::kill(bsl::string_view path)
 
     bsl::string mixedPath;
     if (d_abs) {
-        mixedPath = d_homeDir;              // Note that 'd_homeDir' is a host
+        mixedPath = d_homeDir;              // Note that `d_homeDir` is a host
                                             // absolute path to cwd.
         mixedPath += '/';
     }
@@ -2532,7 +2547,7 @@ void TestObject<STRING_TYPE>::kill(bsl::string_view path)
         mixedPath += '/';
     }
     if (d_extraSlashes) {
-        // Randomly turn some of the existing slashes in 'mixedPath' to "//" or
+        // Randomly turn some of the existing slashes in `mixedPath` to "//" or
         // "/./".
 
         IntPtr existingSlashes = bsl::count(mixedPath.begin(),
@@ -2541,9 +2556,9 @@ void TestObject<STRING_TYPE>::kill(bsl::string_view path)
         if (0 < existingSlashes) {
             const IntPtr numNewSlashes = 1 + this->rand() % existingSlashes;
             for (int ii = 0; ii < numNewSlashes; ++ii, ++existingSlashes) {
-                // 'whichSlash' is the 1-based index of the slash among the
+                // `whichSlash` is the 1-based index of the slash among the
                 // existing slashes in the path to be changed, which can
-                // otherwise be thought of as the number of 'find('/', ...)'s
+                // otherwise be thought of as the number of `find(`/`, ...)`s
                 // proceeding along the path required to locate the character
                 // index of that '/'.
 
@@ -2575,13 +2590,13 @@ void TestObject<STRING_TYPE>::kill(bsl::string_view path)
     if (veryVeryVerbose) cout << "Obj::remove(" << hostPath <<
                                            (d_recurse ? ", true);\n" : ");\n");
 
-    // Note that 'STRING_TYPE' may be 'const char *' or
-    // '{bsl, std, std::pmr}::string'.
+    // Note that `STRING_TYPE` may be `const char *` or
+    // `{bsl, std, std::pmr}::string`.
 
     STRING_TYPE stringTypePath = hostPath.c_str();
     int rc = d_recurse ? Obj::remove(stringTypePath, true)
-                       : Obj::remove(stringTypePath);    // 'recursiveFlag'
-                                                         // defaults to 'false'
+                       : Obj::remove(stringTypePath);    // `recursiveFlag`
+                                                         // defaults to `false`
     ASSERTV(hostPath, exp(), rc, d_recurse, errno,
                                                   ((0 == exp()) == (0 == rc)));
 }
@@ -2633,8 +2648,8 @@ template <class STRING_TYPE>
 TestObject<STRING_TYPE>::~TestObject()
 {
     // On some operating systems, being in a directory constitutes an open file
-    // descriptor in that directory, so we cannot 'remove(d_homeDir)' before we
-    // have changed the working directory out of 'd_homeDir'.
+    // descriptor in that directory, so we cannot `remove(d_homeDir)` before we
+    // have changed the working directory out of `d_homeDir`.
 
     ASSERT_FOR_CERTAIN(0 == Obj::setWorkingDirectory(d_startDir));
     ASSERT(0 == Obj::remove(d_homeDir, true));    // absolute host path
@@ -2677,7 +2692,7 @@ void TestObject<STRING_TYPE>::operator()()
         { 0, 0, 0, 0, 1 } };
     enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
 
-    // 'remove' on Windows is multiple orders of magnitude slower than on Unix,
+    // `remove` on Windows is multiple orders of magnitude slower than on Unix,
     // so we skip the testing to a bare minimum on that platform.
 
     const bool isConstChar = bsl::is_same<STRING_TYPE, const char *>::value;
@@ -2802,7 +2817,7 @@ void TestObject<STRING_TYPE>::operator()()
             }
             TC::assertAllThere(name, __LINE__);
 
-            // kill file with '/../' in path
+            // kill file with `/../` in path
 
             d_exp = (0 == d_dots && !d_endSlash) ? 0 : -1;
 
@@ -2954,7 +2969,7 @@ void TestObject<STRING_TYPE>::operator()()
                 TC::assertAllThere(name, __LINE__);
             }
 
-            // removing files where the directory 'bbb' is linked to
+            // removing files where the directory `bbb` is linked to
 
             for (int tl = 0; tl < TC::k_NUM_LINK_RECORDS; ++tl) {
                 const TC::LinkRecord& rec = TC::linkRecords[tl];
@@ -3369,7 +3384,7 @@ void testCase21_makeUnsafeTemporaryFilename(
                              prefix.length()));
         ASSERT(prefix.length() + 6 <= name.length());
 
-        // 'jj' is the index of a name in 'names' made prior to 'name'.
+        // `jj` is the index of a name in `names` made prior to `name`.
 
         for (unsigned jj = 0; jj < ii; ++jj) {
             const STRING_TYPE& otherName = names[jj];
@@ -3379,21 +3394,21 @@ void testCase21_makeUnsafeTemporaryFilename(
             const bsl::size_t minLen = bsl::min(name.length(),
                                                 otherName.length());
 
-            // 'numRandChars' is the number of random characters that both
+            // `numRandChars` is the number of random characters that both
             // names have.
 
             const int numRandChars = static_cast<int>(
                                                  minLen - prefix.length());
 
             // Names created adjacently in sequence must differ in at least
-            // 'numRandChars / 2' characters, all names must differ in at
+            // `numRandChars / 2` characters, all names must differ in at
             // least 2 characters.
 
             const int minNumCharDiffs = otherNameWasPrevious
                                       ? numRandChars / 2
                                       : 2;
 
-            // Iterate 'kk', an index into 'name' and 'otherName', through
+            // Iterate `kk`, an index into `name` and `otherName`, through
             // the random parts of the names.
 
             bool charDiffEnough = false;    // Did at least one pair of
@@ -3491,7 +3506,7 @@ void testCase10_getFileSize(const char         *typeName,
         int ret = Obj::createDirectories(dirName, true);
         ASSERT(0 == ret);
 
-        // On UNIX use 'stat64' ('stat' on cygwin) as an oracle: the file
+        // On UNIX use `stat64` (`stat` on cygwin) as an oracle: the file
         // size of a directory depends on the file system.
 
 # if defined(BDLS_FILESYSTEMUTIL_UNIXPLATFORM_64_BIT_OFF) \
@@ -3531,7 +3546,7 @@ void testCase10_getFileSize(const char         *typeName,
     // Windows.  However, Windows began supporting symbolic links if the
     // host uses the NTFS file system as of the release of Vista.
     //
-    // Still, this test verifies the behavior of 'getFileSize' on a
+    // Still, this test verifies the behavior of `getFileSize` on a
     // symbolic link only for non-Windows (which, for BDE, means Unix)
     // systems.
 
@@ -3614,18 +3629,18 @@ void testCase10_getFileSize(const char         *typeName,
         ASSERT(0 == Obj::setWorkingDirectory(tmpWorkingDir));
     }
 
-    // Note that the file having the 'fileName' is removed in the following
+    // Note that the file having the `fileName` is removed in the following
     // blocks of this test case because it is no longer needed.
 
     Obj::remove(fileName);
 
     // Concern 2
 
-    // The following blocks test the overload of 'getFileSize' that has a
-    // 'Obj::FileDescriptor' parameter.
+    // The following blocks test the overload of `getFileSize` that has a
+    // `Obj::FileDescriptor` parameter.
 
     {
-        // This block tests that 'getFileSize' unconditionally returns a
+        // This block tests that `getFileSize` unconditionally returns a
         // negative value if one gives it an invalid file handle.
 
         const Obj::Offset fileSize = Obj::getFileSize(Obj::k_INVALID_FD);
@@ -3728,22 +3743,22 @@ void testCase10_getFileSize(const char         *typeName,
     // Concern 3
 
     {
-        // This block tests that 'FilesystemUtil' measures the sizes of
+        // This block tests that `FilesystemUtil` measures the sizes of
         // real files correctly, using sparse files from 0 gigabytes to 8
-        // gigabytes.  Unfortunately, 'FilesystemUtil::getFileSizeLimit'
+        // gigabytes.  Unfortunately, `FilesystemUtil::getFileSizeLimit`
         // does not guarantee the file system allows one to create a file
         // as large as it may suggest.  Empirically, our supported
         // operating and file systems permit files at least 8 gigabytes in
-        // size.  The test drivers for 'bdls_filesystemutil's subordinate
-        // components test 'FilesystemUtil's measurement of files larger
+        // size.  The test drivers for `bdls_filesystemutil`s subordinate
+        // components test `FilesystemUtil`s measurement of files larger
         // than 8 gigabytes using mock operating-system interfaces.
 
+        /// the line number
         const struct {
             int d_line;
-                // the line number
 
+            /// the size of file to make and then measure
             Obj::Offset d_fileSize;
-                // the size of file to make and then measure
         } DATA[] = {
             // LINE   FILE SIZE
             // ---- ---------------
@@ -4090,8 +4105,8 @@ void testCase5_isRegularFile_isDirectory(const char         *typeName,
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS  // (unix domain socket)
     {
-        // Unix domain sockets should return 'false' for 'isRegularFile'
-        // and 'isDirectory' (DRQS 2071065).
+        // Unix domain sockets should return `false` for `isRegularFile`
+        // and `isDirectory` (DRQS 2071065).
 
         if (veryVerbose) {
             cout << "...unix domain socket..." << endl;
@@ -4380,13 +4395,13 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bsl::string origWorkingDirectory;
     ASSERT(0 == Obj::getWorkingDirectory(&origWorkingDirectory));
 
-    // Make 'taskAbsolutePath' be a absolute path to the executable, for when
+    // Make `taskAbsolutePath` be a absolute path to the executable, for when
     // we fork / exec from different directories.
 
     const bsl::string taskAbsolutePath = PS[0] == argv[0][0] ||
@@ -4398,11 +4413,11 @@ int main(int argc, char *argv[])
 
     bsl::string tmpWorkingDir;
     {
-        // Must not call 'tempFileName' here, because 'tempFileName' would
+        // Must not call `tempFileName` here, because `tempFileName` would
         // create a plain file with the result name, and the attempt to create
         // the directory would fail.
 
-        // On nfs, 'gremlin' files beginning with '.nfs...' sometimes appear
+        // On nfs, `gremlin` files beginning with `.nfs...` sometimes appear
         // in the created directory, and they won't allow themselves to be
         // removed until some period of time after creation.  So it is possible
         // that there will be leftover directories here with the same hostname
@@ -4413,7 +4428,7 @@ int main(int argc, char *argv[])
         char host[80];
         ASSERT(0 == ::gethostname(host, sizeof(host)));
 #else
-        const char *host = "win";     // 'gethostname' is difficult on
+        const char *host = "win";     // `gethostname` is difficult on
                                       // Windows, and we usually aren't using
                                       // nfs there anyway.
 #endif
@@ -4433,7 +4448,7 @@ int main(int argc, char *argv[])
         // these can usually be deleted if sufficient time has elapsed.  If
         // we're not able to clean it up now, old files may prevent the test
         // case we're running this time from working.  So we want this assert
-        // to fail to give the tester a 'heads-up' as to what went wrong.
+        // to fail to give the tester a `heads-up` as to what went wrong.
 
         LOOP_ASSERT(tmpWorkingDir, 0 == Obj::remove(tmpWorkingDir, true));
     }
@@ -4455,7 +4470,7 @@ int main(int argc, char *argv[])
         //
         //   1) Create a series of file in 1 second intervals, and record the
         //      time of creation.
-        //   2) Call the 'findMatchingFilesInTimeframe' function on the list of
+        //   2) Call the `findMatchingFilesInTimeframe` function on the list of
         //      files created with the timeframe specified as an interval
         //      in between all file creations.
         //
@@ -4531,11 +4546,11 @@ int main(int argc, char *argv[])
         // TESTING USAGE EXAMPLE 1
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run on all platforms as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Run usage example 1 and observe that none of the asserts fail.
+        // 1. Run usage example 1 and observe that none of the asserts fail.
         //
         // Testing:
         //   TESTING USAGE EXAMPLE 1
@@ -4552,17 +4567,17 @@ int main(int argc, char *argv[])
 /// - - - - - - - - - - - -
 // In this example, we start with a (relative) native path to a directory
 // containing log files:
-//..
+// ```
     #ifdef BSLS_PLATFORM_OS_WINDOWS
       bsl::string logPath = "bdls_filesystemutil.temp.temp.1\\logs";
     #else
       bsl::string logPath = "bdls_filesystemutil.temp.temp.1/logs";
     #endif
-//..
+// ```
 // Suppose that we want to separate files into "old" and "new" subdirectories
 // on the basis of modification time.  We will provide paths representing these
 // locations, and create the directories if they do not exist:
-//..
+// ```
     bsl::string oldPath(logPath), newPath(logPath);
     bdls::PathUtil::appendRaw(&oldPath, "old");
     bdls::PathUtil::appendRaw(&newPath, "new");
@@ -4570,18 +4585,18 @@ int main(int argc, char *argv[])
     ASSERT(0 == rc);
     rc = bdls::FilesystemUtil::createDirectories(newPath, true);
     ASSERT(0 == rc);
-//..
+// ```
 // We know that all of our log files match the pattern "*.log", so let's search
 // for all such files in the log directory:
-//..
+// ```
     bdls::PathUtil::appendRaw(&logPath, "*.log");
     bsl::vector<bsl::string> logFiles;
     Obj::findMatchingPaths(&logFiles, logPath.c_str());
-//..
+// ```
 // Now for each of these files, we will get the modification time.  Files that
 // are older than 2 days will be moved to "old", and the rest will be moved to
 // "new":
-//..
+// ```
     bdlt::Datetime modTime;
     bsl::string   fileName;
     for (bsl::vector<bsl::string>::iterator it = logFiles.begin();
@@ -4598,7 +4613,7 @@ int main(int argc, char *argv[])
                                              whichDirectory->c_str()));
       bdls::PathUtil::popLeaf(whichDirectory);
     }
-//..
+// ```
 
 #if 0
         // file i/o
@@ -4650,15 +4665,15 @@ int main(int argc, char *argv[])
         // TESTING REMOVE UNIX SOCKET (DRQS 176123156)
         //
         // Concern:
-        //: 1 That 'Obj::remove' can remove an open socket.
+        // 1. That `Obj::remove` can remove an open socket.
         //
         // Plan:
-        //: 1 Open a socket between and bind it to the file system.
-        //:
-        //: 2 Remove the file manifestation of the socket.
-        //:
-        //: 3 Iterate twice, in the second iteration close the socket file
-        //:   descriptor before removing the file.
+        // 1. Open a socket between and bind it to the file system.
+        //
+        // 2. Remove the file manifestation of the socket.
+        //
+        // 3. Iterate twice, in the second iteration close the socket file
+        //    descriptor before removing the file.
         //
         // Testing:
         //   TESTING REMOVE UNIX SOCKET
@@ -4716,27 +4731,27 @@ int main(int argc, char *argv[])
         // TESTING SYMLINKS
         //
         // Concerns:
-        //: 1 'isSymbolicLink' returns 'true' for file and directory symlinks
-        //:   and 'false' for other FS objects.
-        //:
-        //: 2 'getSymbolicLinkTarget' correctly returns the symlink target.
-        //:
-        //: 3 Windows directory junctions are treated as directory symlinks.
+        // 1. `isSymbolicLink` returns `true` for file and directory symlinks
+        //    and `false` for other FS objects.
+        //
+        // 2. `getSymbolicLinkTarget` correctly returns the symlink target.
+        //
+        // 3. Windows directory junctions are treated as directory symlinks.
         //
         // Plan:
-        //: 1 Create a file and a directory.
-        //:
-        //: 2 Create a symlink for the file and for the directory.
-        //:
-        //: 3 Verify that 'isSymbolicLink' returns 'true' for the both symlinks
-        //:   and 'false' for the file and the directory. (C1)
-        //:
-        //: 4 Verify that 'getSymbolicLinkTarget' returns the directory name
-        //:   for the directory symlink and the file name for the file symlink.
-        //:   (C2)
-        //:
-        //: 6 If running on Windows, create a directory junction for the
-        //:   directory and verify the functions work correctly with it. (C3)
+        // 1. Create a file and a directory.
+        //
+        // 2. Create a symlink for the file and for the directory.
+        //
+        // 3. Verify that `isSymbolicLink` returns `true` for the both symlinks
+        //    and `false` for the file and the directory. (C1)
+        //
+        // 4. Verify that `getSymbolicLinkTarget` returns the directory name
+        //    for the directory symlink and the file name for the file symlink.
+        //    (C2)
+        //
+        // 6. If running on Windows, create a directory junction for the
+        //    directory and verify the functions work correctly with it. (C3)
         //
         // TESTING
         //   bool isSymbolicLink(STRING_TYPE);
@@ -4828,49 +4843,49 @@ int main(int argc, char *argv[])
       } break;
       case 29: {
         // --------------------------------------------------------------------
-        // TESTING 'createTemporarySubdirectory' METHOD
+        // TESTING `createTemporarySubdirectory` METHOD
         //
         // Concerns:
-        //: 1 The 'createTemporarySubdirectory' creates a new nested directory.
-        //:
-        //: 2 The directory has a randomly generated suffix in its name.
-        //:
-        //: 3 The created directory has the correct permissions.
-        //:
-        //: 4 The directory is fully functional (e.g. additional nested
-        //:   directories can be created within it).
-        //:
-        //: 5 Composite root paths are correctly handled.
-        //:
-        //: 6 Trailing separator symbol in the passed root path is omitted.
-        //:
-        //: 7 Absolute and relative root paths are correctly handled.
+        // 1. The `createTemporarySubdirectory` creates a new nested directory.
+        //
+        // 2. The directory has a randomly generated suffix in its name.
+        //
+        // 3. The created directory has the correct permissions.
+        //
+        // 4. The directory is fully functional (e.g. additional nested
+        //    directories can be created within it).
+        //
+        // 5. Composite root paths are correctly handled.
+        //
+        // 6. Trailing separator symbol in the passed root path is omitted.
+        //
+        // 7. Absolute and relative root paths are correctly handled.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   root paths (including empty, composite, relative, absolute and
-        //:   non-existent ones).
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct
-        //:   directory name prefixes.
-        //:
-        //: 3 For each row 'R1' in the table of P-1
-        //:
-        //:   1 For each row 'R2' in the table of P-2
-        //:
-        //:     1 Create a directory using the 'createTemporarySubdirectory'.
-        //:
-        //:     2 Verify that the name of created directory contains generated
-        //:       suffix.  (C-2)
-        //:
-        //:     3 Verify that the created directory exists and has expected
-        //:       permissions.  (C-1, 3, 5..7)
-        //:
-        //:     4 Create a subdirectory of the directory using the
-        //:       'createTemporarySubdirectory' and verify its presence.
-        //:
-        //:     5 Verify that the subdirectory and directory can be
-        //:       successfully deleted.  (C-4)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    root paths (including empty, composite, relative, absolute and
+        //    non-existent ones).
+        //
+        // 2. Using the table-driven technique, specify a set of distinct
+        //    directory name prefixes.
+        //
+        // 3. For each row `R1` in the table of P-1
+        //
+        //   1. For each row `R2` in the table of P-2
+        //
+        //     1. Create a directory using the `createTemporarySubdirectory`.
+        //
+        //     2. Verify that the name of created directory contains generated
+        //        suffix.  (C-2)
+        //
+        //     3. Verify that the created directory exists and has expected
+        //        permissions.  (C-1, 3, 5..7)
+        //
+        //     4. Create a subdirectory of the directory using the
+        //        `createTemporarySubdirectory` and verify its presence.
+        //
+        //     5. Verify that the subdirectory and directory can be
+        //        successfully deleted.  (C-4)
         //
         // Testing:
         //   createTemporarySubdirectory(bsl::string*, const bsl::string_view&)
@@ -4879,7 +4894,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "\nTESTING 'createTemporarySubdirectory' METHOD"
+            cout << "\nTESTING `createTemporarySubdirectory` METHOD"
                     "\n============================================\n";
         }
 
@@ -4897,41 +4912,41 @@ int main(int argc, char *argv[])
         // TESTING GET LAST MODIFICATION TIME FOR FILE DESCRIPTORS
         //
         // Concerns:
-        //: o Attempting to get the last modification time of an invalid file
-        //:   descriptor returns a non-zero status.
-        //:
-        //: o Attempting to get the last modification time of a closed file
-        //:   descriptor returns a non-zero status.
-        //:
-        //: o The last modification time of a newly-created file is close to
-        //:   the time at which the file was created.  Additionally, that time
-        //:   is no earlier than when the file was created.
-        //:
-        //: o The last modification time is reported correctly according to the
-        //:   underlying file-systems interface, with a precision of 1 second.
+        //  - Attempting to get the last modification time of an invalid file
+        //    descriptor returns a non-zero status.
+        //
+        //  - Attempting to get the last modification time of a closed file
+        //    descriptor returns a non-zero status.
+        //
+        //  - The last modification time of a newly-created file is close to
+        //    the time at which the file was created.  Additionally, that time
+        //    is no earlier than when the file was created.
+        //
+        //  - The last modification time is reported correctly according to the
+        //    underlying file-systems interface, with a precision of 1 second.
         //
         // Plan:
-        //: 1 Get the last modification time of an invalid file descriptor and
-        //:   verify the return code indicates an error occurred.
-        //:
-        //: 2 Get the last modification time of closed file descriptor
-        //:   and verify that the return code indicates an error occurred.
-        //:
-        //: 3 Get the last modification time of a newly-created file and verify
-        //:   that the time is within 1 minute of when the file was created
-        //:   according to the system's real-time clock.
-        //:
-        //: 4 Create a table of many times known to be acceptable file
-        //:   timestamps across the majority of file-systems, and for each time
-        //:   'T', do the following:
-        //:
-        //:   1 Create a new file 'F'.
-        //:
-        //:   2 Set the last modification time of 'F' to 'T'.
-        //:
-        //:   3 Get the last modification time of 'T' as 'U'.
-        //:
-        //:   4 Verify that 'U' is equal to 'T' up to 1 second precision.
+        // 1. Get the last modification time of an invalid file descriptor and
+        //    verify the return code indicates an error occurred.
+        //
+        // 2. Get the last modification time of closed file descriptor
+        //    and verify that the return code indicates an error occurred.
+        //
+        // 3. Get the last modification time of a newly-created file and verify
+        //    that the time is within 1 minute of when the file was created
+        //    according to the system's real-time clock.
+        //
+        // 4. Create a table of many times known to be acceptable file
+        //    timestamps across the majority of file-systems, and for each time
+        //    `T`, do the following:
+        //
+        //   1. Create a new file `F`.
+        //
+        //   2. Set the last modification time of `F` to `T`.
+        //
+        //   3. Get the last modification time of `T` as `U`.
+        //
+        //   4. Verify that `U` is equal to `T` up to 1 second precision.
         //
         // TESTING
         //   int getLastModificationTime(bdlt::Datetime *, FileDescriptor);
@@ -5037,20 +5052,23 @@ int main(int argc, char *argv[])
                 // The maximum permitted difference between the timestamps of
                 // created files.
 #else
+            // How long to wait between reading the realtime clock and
+            // creating the first file.
             static const int clockFileDelay =
                             bdlt::TimeUnitRatio::k_MICROSECONDS_PER_SECOND / 2;
-                // How long to wait between reading the realtime clock and
-                // creating the first file.
+
+            // How long to wait between creating files.
             static const int fileFileDelay = 10001;
-                // How long to wait between creating files.
+
+            // The maximum permitted difference between the queried
+            // realtime clock and the timestamp of the first created file.
             static const int clockFileCheck =
                             bdlt::TimeUnitRatio::k_MICROSECONDS_PER_SECOND - 1;
-                // The maximum permitted difference between the queried
-                // realtime clock and the timestamp of the first created file.
+
+            // The maximum permitted difference between the timestamps of
+            // created files.
             static const int fileFileCheck =
                         bdlt::TimeUnitRatio::k_MICROSECONDS_PER_SECOND / 2 - 1;
-                // The maximum permitted difference between the timestamps of
-                // created files.
 #endif
 
             // The first time we write to a file on a filesystem there can be
@@ -5156,12 +5174,12 @@ int main(int argc, char *argv[])
         // an unsigned 64-bit number of nanoseconds since the Unix epoch (such
         // as APFS on some Darwin platforms.)
 
+        /// the line number
         const struct {
             int                 d_line;
-                // the line number
 
+            /// the modification time to set
             bdlt::Datetime      d_modTime;
-                // the modification time to set
 
         } DATA[] = {
             // LINE  MODIFICATION TIME
@@ -5287,9 +5305,9 @@ int main(int argc, char *argv[])
             LOOP_ASSERT_EQ(LINE, 0, setModTimeStatus);
             LOOP_ASSERT_EQ(LINE, 0, getModTimeStatus);
 
-            // The behavior of comparing two 'bdlt::Datetime' values is
+            // The behavior of comparing two `bdlt::Datetime` values is
             // undefined if either of them have a default time value of 24
-            // hours.  Adding 0 hours to the value of a 'bdlt::Datetime'
+            // hours.  Adding 0 hours to the value of a `bdlt::Datetime`
             // "normalizes" the time value by converting any 24-hour time value
             // to the 0-hour time value.
 
@@ -5378,83 +5396,83 @@ int main(int argc, char *argv[])
         // TESTING GETFILESIZE(FD), MAP/MAPCHECKED/UNMAP
         //
         // Concerns:
-        //: 1 That 'getFileSize' returns the offset of the end of the file,
-        //:   even if there are blocks between the start and the end that
-        //:   have been seeked past and have never been written to.
-        //:
-        //: 2 That when mapping succeeds, it has no impact on the current
-        //:   file read/write offset.
-        //:
-        //: 3 That we can map a page, then write to it, and read back the
-        //:   same values that were written.  If we read from the mapped memory
-        //:   before writing to it, it will contain the values that were in the
-        //:   file, or zero if that section of the file was never written to.
-        //:
-        //: 4 After the memory is unmapped and the file is closed, if we read
-        //:   the sections of the file that we wrote to while mapped, we will
-        //:   see the values most recently written to the memory.
-        //:
-        //: 7 That page size is a power of two (the internal implementations of
-        //:   the checks in this component make that assumption).
+        // 1. That `getFileSize` returns the offset of the end of the file,
+        //    even if there are blocks between the start and the end that
+        //    have been seeked past and have never been written to.
+        //
+        // 2. That when mapping succeeds, it has no impact on the current
+        //    file read/write offset.
+        //
+        // 3. That we can map a page, then write to it, and read back the
+        //    same values that were written.  If we read from the mapped memory
+        //    before writing to it, it will contain the values that were in the
+        //    file, or zero if that section of the file was never written to.
+        //
+        // 4. After the memory is unmapped and the file is closed, if we read
+        //    the sections of the file that we wrote to while mapped, we will
+        //    see the values most recently written to the memory.
+        //
+        // 7. That page size is a power of two (the internal implementations of
+        //    the checks in this component make that assumption).
         //
         // Plan:
-        //: 1 Get the page size from 'MemoryUtil::pageSize()' and verify that
-        //:   it is a positive power of 2.
-        //:
-        //: 2 Loop twice with two different file names, in the first pass map
-        //:   with 'map', in the second, with 'mapChecked'.
-        //:
-        //: 3 Write a block to the beginning of the file, map it, access the
-        //:   mapping with a read, a write, and a read.
-        //:
-        //: 4 Seek several blocks forward and write another block.
-        //:
-        //: 6 Seek to a point between the two blocks and map it.  It has not
-        //:   been written to.  Access the mapping and verify it's all zeroes.
-        //:   Write to the mapping and read from it.
-        //:
-        //: 7 Observe the file read/write offset before and after each call to
-        //:   'map' and verify that it's unaffected.
-        //:
-        //: 8 Unmap both mapped blocks, verifying in each case that the file's
-        //:   read/write offset is unaffected.
-        //:
-        //: 9 Map another segment whose 'size' is a small fragment of a page
-        //:   size and observe that it works and that memory can be accessed.
-        //:   'man mmap' kind of sounds like this shouldn't work, but it does
-        //:   work on all platorms.  Under 'ERRORS', 'man mmap' says:
-        //..
-        //:   EINVAL We don't like addr, length, or offset (e.g., they are too
-        //:          large, or not aligned on a page boundary).
-        //..
-        //:   which sounds like a 'length' value less than a page long will be
-        //:   a problem; empirically, however, we don't find this to be the
-        //:   case.
-        //:
-        //: 10 Attempt to make with an offset not on a page boundary and
-        //:    observe that both 'map' and 'mapChecked' fail, returning the
-        //:    appropriate enum.
-        //:
-        //: 11 In the 'map' pass, map a segment that overlaps past the end of
-        //:    file, observe it succeeds and that the portion of the segment
-        //:    that was before the end of file can be accessed.
-        //:
-        //: 12 In the 'mapChecked' pass, attempt to map past the end of file
-        //:    and observe that it fails returning the appropriate enum.
-        //:
-        //: 13 Negative testing in the 'mapChecked' pass: Attempt to map with a
-        //:    negative offset, with a zero size, or with invalid bits in
-        //:    'mode' set.
-        //:
-        //: 14 Close the file and open it readonly, read through it, and
-        //:    observe that the contents are as expected.  Note that the
-        //:    segments that we 'seek'ed past without writing to them will, if
-        //:    read by 'read', appear to contain garbage.
-        //:
-        //: 15 Using the readonly file descriptor, map the whole file readonly,
-        //:    and read every byte of the mapped memory, observing that the
-        //:    segments that were written to contain the expected information,
-        //:    and that the segments seeked past constain zeroes.
+        // 1. Get the page size from `MemoryUtil::pageSize()` and verify that
+        //    it is a positive power of 2.
+        //
+        // 2. Loop twice with two different file names, in the first pass map
+        //    with `map`, in the second, with `mapChecked`.
+        //
+        // 3. Write a block to the beginning of the file, map it, access the
+        //    mapping with a read, a write, and a read.
+        //
+        // 4. Seek several blocks forward and write another block.
+        //
+        // 6. Seek to a point between the two blocks and map it.  It has not
+        //    been written to.  Access the mapping and verify it's all zeroes.
+        //    Write to the mapping and read from it.
+        //
+        // 7. Observe the file read/write offset before and after each call to
+        //    `map` and verify that it's unaffected.
+        //
+        // 8. Unmap both mapped blocks, verifying in each case that the file's
+        //    read/write offset is unaffected.
+        //
+        // 9. Map another segment whose `size` is a small fragment of a page
+        //    size and observe that it works and that memory can be accessed.
+        //    `man mmap` kind of sounds like this shouldn't work, but it does
+        //    work on all platorms.  Under `ERRORS`, `man mmap` says:
+        // ```
+        //    EINVAL We don't like addr, length, or offset (e.g., they are too
+        //           large, or not aligned on a page boundary).
+        // ```
+        //    which sounds like a `length` value less than a page long will be
+        //    a problem; empirically, however, we don't find this to be the
+        //    case.
+        //
+        // 10. Attempt to make with an offset not on a page boundary and
+        //     observe that both `map` and `mapChecked` fail, returning the
+        //     appropriate enum.
+        //
+        // 11. In the `map` pass, map a segment that overlaps past the end of
+        //     file, observe it succeeds and that the portion of the segment
+        //     that was before the end of file can be accessed.
+        //
+        // 12. In the `mapChecked` pass, attempt to map past the end of file
+        //     and observe that it fails returning the appropriate enum.
+        //
+        // 13. Negative testing in the `mapChecked` pass: Attempt to map with a
+        //     negative offset, with a zero size, or with invalid bits in
+        //     `mode` set.
+        //
+        // 14. Close the file and open it readonly, read through it, and
+        //     observe that the contents are as expected.  Note that the
+        //     segments that we `seek`ed past without writing to them will, if
+        //     read by `read`, appear to contain garbage.
+        //
+        // 15. Using the readonly file descriptor, map the whole file readonly,
+        //     and read every byte of the mapped memory, observing that the
+        //     segments that were written to contain the expected information,
+        //     and that the segments seeked past constain zeroes.
         //
         // Tesing:
         //   Offset getFileSize(FileDescriptor);
@@ -5481,7 +5499,7 @@ int main(int argc, char *argv[])
         int rc;
 
         // It is important to verify that page size is a power of two, since
-        // the logic of the checking in the imp of 'map' depends on it.
+        // the logic of the checking in the imp of `map` depends on it.
 
         if (verbose) cout << "Testing page size\n";
         const int k_PAGE_SIZE = bdls::MemoryUtil::pageSize();
@@ -5558,7 +5576,7 @@ int main(int argc, char *argv[])
                                     Obj::seek(fd, 0, Obj::e_SEEK_FROM_CURRENT);
             ASSERT(9 * k_PAGE_SIZE == endOff);
 
-            // Seek to a random place, and call 'getFileSize' and observe that
+            // Seek to a random place, and call `getFileSize` and observe that
             // returns a value other than the current offset, and that it's the
             // offset of end of file, even though there are a bunch of blocks
             // that weren't written to in the middle, so it's not necessarily
@@ -5620,7 +5638,7 @@ int main(int argc, char *argv[])
             off = Obj::seek(fd, 0, Obj::e_SEEK_FROM_CURRENT);
             ASSERTV(preMapOff, off, preMapOff == off);
 
-            // Mapping with 'size' not page aligned.  Some of the doc suggests
+            // Mapping with `size` not page aligned.  Some of the doc suggests
             // this is not allowed, but empirically, it works both on Unix and
             // Windows, so we allow it.
 
@@ -5675,9 +5693,9 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == (-k_PAGE_SIZE & (k_PAGE_SIZE - 1)));
 
-                // depending on relative sizes of 'size' & 'offset', either
-                // 'size' is interpreted as ridiculously large, or
-                // 'offset + size' wraps.
+                // depending on relative sizes of `size` & `offset`, either
+                // `size` is interpreted as ridiculously large, or
+                // `offset + size` wraps.
 
                 rc = Obj::mapChecked(fd,
                                      &addressC,
@@ -5726,7 +5744,7 @@ int main(int argc, char *argv[])
                 ASSERT(57 == rc);
                 rc = 57;
 
-                // illegal bit set in 'mapMode'
+                // illegal bit set in `mapMode`
 
                 ASSERT_FAIL(rc = Obj::mapChecked(fd,
                                                  &addressC,
@@ -5738,11 +5756,11 @@ int main(int argc, char *argv[])
                 ASSERT(57 == rc);
             }
             else {
-                // Checking in 'map' is disabled.  Attempt to map past end of
+                // Checking in `map` is disabled.  Attempt to map past end of
                 // file will "succeed", but we would segfault if we accessed
                 // the section of mapped memory that is past end of file.
 
-                // Note that on Unix, this will create a '.nfs*' gremlin file
+                // Note that on Unix, this will create a `.nfs*` gremlin file
                 // that will persist for the life of the process, then
                 // disappear.
 
@@ -5942,30 +5960,30 @@ int main(int argc, char *argv[])
         // TESTING VISITTREE AND VISITPATHS
         //
         // Concerns:
-        //: 1 That 'visitTree' will visit every matching node in a directory
-        //:   tree.
-        //: 2 That if 'sortFlag' is specified, nodes will be visited in sorted
-        //:   order, with directories visited before their contents.
-        //: 3 That 'visitPaths' and 'visitTree' respond approriately to
-        //:   non-readable directories on Unix (it did not seem to be possible
-        //:   to make a directory non-readable on Windows).
+        // 1. That `visitTree` will visit every matching node in a directory
+        //    tree.
+        // 2. That if `sortFlag` is specified, nodes will be visited in sorted
+        //    order, with directories visited before their contents.
+        // 3. That `visitPaths` and `visitTree` respond approriately to
+        //    non-readable directories on Unix (it did not seem to be possible
+        //    to make a directory non-readable on Windows).
         //
         // Plan:
-        //: 1 Create a tree with two types of nodes, 'woof*' nodes and 'meow*'
-        //:   nodes.  'woof*' nodes include both plain files and directories,
-        //:   'meow*' nodes include only plain files.
-        //: 2 Create a function object type, 'VisitTreeTestVisitor', that will
-        //:   append file names to the end of a vector.
-        //: 3 Apply 'visitTree' with the sort flag clear, doing 2 separate
-        //:   searches, one for 'woof*' nodes and one for 'meow*' nodes.  Sort
-        //:   the vector afterward and verify it matches the sorted expected
-        //:   value vector.
-        //: 4 Apply 'visitTree' with the sort flag set, doing 2 separate
-        //:   searches, one for 'woof*' nodes and one for 'meow*' nodes.
-        //:   Verify after that the vector matches the sorted expected value
-        //:   vector without itself having had to be sorted.
-        //: 5 Make one of the directories temporarily non-readable on Unix,
-        //:   and observe that the functions perform appropriately.
+        // 1. Create a tree with two types of nodes, `woof*` nodes and `meow*`
+        //    nodes.  `woof*` nodes include both plain files and directories,
+        //    `meow*` nodes include only plain files.
+        // 2. Create a function object type, `VisitTreeTestVisitor`, that will
+        //    append file names to the end of a vector.
+        // 3. Apply `visitTree` with the sort flag clear, doing 2 separate
+        //    searches, one for `woof*` nodes and one for `meow*` nodes.  Sort
+        //    the vector afterward and verify it matches the sorted expected
+        //    value vector.
+        // 4. Apply `visitTree` with the sort flag set, doing 2 separate
+        //    searches, one for `woof*` nodes and one for `meow*` nodes.
+        //    Verify after that the vector matches the sorted expected value
+        //    vector without itself having had to be sorted.
+        // 5. Make one of the directories temporarily non-readable on Unix,
+        //    and observe that the functions perform appropriately.
         //
         // TESTING
         //   typedef bsl::function<void (const char *path)> Func;
@@ -5976,7 +5994,7 @@ int main(int argc, char *argv[])
         //   int visitPaths(const char *, const Func&);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Testing 'visitTree'\n"
+        if (verbose) cout << "Testing `visitTree`\n"
                              "===================\n";
 
         typedef bsl::vector<bsl::string> FileNameVec;
@@ -5986,7 +6004,7 @@ int main(int argc, char *argv[])
 
         FileNameVec woofExpVec, woofPathsExpVec, meowExpVec;
 
-        // Note that we don't put 'root' into 'woofExpVec', even though
+        // Note that we don't put `root` into `woofExpVec`, even though
         // it would match the root pattern, because pattern matching is
         // not performed on the root.
 
@@ -6135,8 +6153,8 @@ int main(int argc, char *argv[])
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
         // Windows remove has some strange problem here.  Everything will be
-        // cleaned up at the end of 'main' anyway, and this code is just
-        // intended to test some changes made to Unix 'remove'.
+        // cleaned up at the end of `main` anyway, and this code is just
+        // intended to test some changes made to Unix `remove`.
 
         int rc = Obj::remove(root, true);
         ASSERT(0 == rc);
@@ -6145,30 +6163,30 @@ int main(int argc, char *argv[])
       } break;
       case 24: {
         // --------------------------------------------------------------------
-        // TESTING: Specific error codes for 'createDirectories' and
-        // 'createPrivateDirectory'
+        // TESTING: Specific error codes for `createDirectories` and
+        // `createPrivateDirectory`
         //
         // Concerns:
-        //:  That 'createDirectories' and 'createPrivateDirectory' return
-        //:  proper status on failure, depending upon the type of failure (see
-        //:  DRQS 123561805).
+        //   That `createDirectories` and `createPrivateDirectory` return
+        //   proper status on failure, depending upon the type of failure (see
+        //   DRQS 123561805).
         //
         // Plan:
-        //:  1 Verify that 'createDirectories' call with a path indicating an
-        //:    existing file fails with 'k_ERROR_PATH_NOT_FOUND'.
-        //:  2 Verify that 'createDirectories' call with the path that would
-        //:    indicate child directory of an existing file fails with
-        //:    'k_ERROR_PATH_NOT_FOUND'.
-        //:  3 Verify that 'createPrivateDirectory' call with a path indicating
-        //:    an existing file fails with 'k_ERROR_ALREADY_EXISTS'.
-        //:  4 Verify that 'createPrivateDirectory' call with a path indicating
-        //:     an existing directory fails with 'k_ERROR_ALREADY_EXISTS'.
-        //:  5 Verify that 'createPrivateDirectory' call with the path that
-        //:    would indicate child directory of an existing file fails with
-        //:    'k_ERROR_PATH_NOT_FOUND'.
-        //:  6 Verify that 'createPrivateDirectory' call with the path that
-        //:    would indicate child directory of an non-existent directory
-        //:    fails with 'k_ERROR_PATH_NOT_FOUND'.
+        //  1. Verify that `createDirectories` call with a path indicating an
+        //     existing file fails with `k_ERROR_PATH_NOT_FOUND`.
+        //  2. Verify that `createDirectories` call with the path that would
+        //     indicate child directory of an existing file fails with
+        //     `k_ERROR_PATH_NOT_FOUND`.
+        //  3. Verify that `createPrivateDirectory` call with a path indicating
+        //     an existing file fails with `k_ERROR_ALREADY_EXISTS`.
+        //  4. Verify that `createPrivateDirectory` call with a path indicating
+        //      an existing directory fails with `k_ERROR_ALREADY_EXISTS`.
+        //  5. Verify that `createPrivateDirectory` call with the path that
+        //     would indicate child directory of an existing file fails with
+        //     `k_ERROR_PATH_NOT_FOUND`.
+        //  6. Verify that `createPrivateDirectory` call with the path that
+        //     would indicate child directory of an non-existent directory
+        //     fails with `k_ERROR_PATH_NOT_FOUND`.
         //
         // Testing:
         //   int createDirectories(const string&, bool);
@@ -6176,10 +6194,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-            "TESTING: Specific error codes for 'createDirectories' et al.\n"
+            "TESTING: Specific error codes for `createDirectories` et al.\n"
             "============================================================\n";
 
-        if (verbose) cout << "Testing 'createDirectories'\n";
+        if (verbose) cout << "Testing `createDirectories`\n";
         {
             const bsl::string& testBaseDir = "tmpDir";
 
@@ -6208,7 +6226,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == Obj::remove(testBaseDir, true));
         }
 
-        if (verbose) cout << "Testing 'createPrivateDirectory'\n";
+        if (verbose) cout << "Testing `createPrivateDirectory`\n";
         {
             const bsl::string& testBaseDir = "tmpDir";
 
@@ -6250,17 +6268,17 @@ int main(int argc, char *argv[])
       } break;
       case 23: {
         // --------------------------------------------------------------------
-        // TESTING 'createTemporaryDirectory' METHOD
+        // TESTING `createTemporaryDirectory` METHOD
         //
         // Concerns:
-        //: 1 It actually creates a new directory.
-        //: 2 A directory created has a different name than a previous one.
-        //: 3 Files can be created in the directory.
-        //: 4 The created directory has the correct permissions.
+        // 1. It actually creates a new directory.
+        // 2. A directory created has a different name than a previous one.
+        // 3. Files can be created in the directory.
+        // 4. The created directory has the correct permissions.
         //
         // Plan:
-        //: 1 Create directories and a subdirectory. (C-1,3)
-        //: 2 Check names, types, and permission. (C-2,4)
+        // 1. Create directories and a subdirectory. (C-1,3)
+        // 2. Check names, types, and permission. (C-2,4)
         //
         // Testing:
         //   createTemporaryDirectory(bsl::string *, const string_view&)
@@ -6269,7 +6287,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "\nTesting 'createTemporaryDirectory' METHOD"
+            cout << "\nTesting `createTemporaryDirectory` METHOD"
                     "\n=========================================\n";
         }
 
@@ -6297,17 +6315,17 @@ int main(int argc, char *argv[])
       } break;
       case 22: {
         // --------------------------------------------------------------------
-        // TESTING 'createTemporaryFile' METHOD
+        // TESTING `createTemporaryFile` METHOD
         //
         // Concerns:
-        //: 1 It actually creates a new file.
-        //: 2 A file created has a different name than a previous one.
-        //: 3 The created file has the correct permissions.
-        //: 4 The created file is open for writing.
+        // 1. It actually creates a new file.
+        // 2. A file created has a different name than a previous one.
+        // 3. The created file has the correct permissions.
+        // 4. The created file is open for writing.
         //
         // Plan:
-        //: 1 Create files. (C-1)
-        //: 2 Check names, types, and permissions. (C-2,3,4)
+        // 1. Create files. (C-1)
+        // 2. Check names, types, and permissions. (C-2,3,4)
         //
         // Testing:
         //   createTemporaryFile(bsl::string *, const bsl::string_view&)
@@ -6316,7 +6334,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "\nTesting 'createTemporaryFile' METHOD"
+            cout << "\nTesting `createTemporaryFile` METHOD"
                     "\n====================================\n";
         }
 
@@ -6343,45 +6361,45 @@ int main(int argc, char *argv[])
       } break;
       case 21: {
         // --------------------------------------------------------------------
-        // TESTING 'makeUnsafeTemporaryFilename' METHOD
+        // TESTING `makeUnsafeTemporaryFilename` METHOD
         //
         // Concerns:
-        //: 1 Prefix is copied to output with stuff appended.
-        //:
-        //: 2 Stuff appended is enough to make it unique.
-        //:
-        //: 3 Stuff appended is different from previous calls.
+        // 1. Prefix is copied to output with stuff appended.
+        //
+        // 2. Stuff appended is enough to make it unique.
+        //
+        // 3. Stuff appended is different from previous calls.
         //
         // Plan:
-        //: 1 Create names. (C-1)
-        //:
-        //: 2 Check invariant and variant parts. (C-1,2)
-        //:   o The first 'prefix.length()' characters will all be the same and
-        //:     match the string 'prefix'.  Everything after that will be
-        //:     randomly generated.
-        //:
-        //: 3 Sample entropy.  Use the function under test to create
-        //:   'k_NUM_NAMES' temporary file names, and then compare them against
-        //:   each other and verify not only that they all differ, but that
-        //:   they differ by at least a certain number of characters.
-        //:   o Keep all the names created so far in a random-access container,
-        //:     and after each name is created, analyze how many characters it
-        //:     differs from all the previously created names.
-        //:
-        //:   o Go through all previous names:
-        //:     1 For each previous name, calculate 'minNumDiffs', the minimum
-        //:       number characters that must differ between the two names.
-        //:       For the most recently created previous name, at least half of
-        //:       the randomly generated characters must differ; for other
-        //:       names, at least 2 characters must differ.
-        //:
-        //:     2 Compare corresponding characters in the random parts of the
-        //:       the two names, keeping a tally, 'numDiffs', of the number of
-        //:       times they differ, and then verify that
-        //:       'minNumDiffs <= numDiff's.
-        //:
-        //:     3 While comparing corresponding chars of the two strings, make
-        //:       sure that at least one such pair differs by at least 3.
+        // 1. Create names. (C-1)
+        //
+        // 2. Check invariant and variant parts. (C-1,2)
+        //    - The first `prefix.length()` characters will all be the same and
+        //      match the string `prefix`.  Everything after that will be
+        //      randomly generated.
+        //
+        // 3. Sample entropy.  Use the function under test to create
+        //    `k_NUM_NAMES` temporary file names, and then compare them against
+        //    each other and verify not only that they all differ, but that
+        //    they differ by at least a certain number of characters.
+        //    - Keep all the names created so far in a random-access container,
+        //      and after each name is created, analyze how many characters it
+        //      differs from all the previously created names.
+        //
+        //    - Go through all previous names:
+        //     1. For each previous name, calculate `minNumDiffs`, the minimum
+        //        number characters that must differ between the two names.
+        //        For the most recently created previous name, at least half of
+        //        the randomly generated characters must differ; for other
+        //        names, at least 2 characters must differ.
+        //
+        //     2. Compare corresponding characters in the random parts of the
+        //        the two names, keeping a tally, `numDiffs`, of the number of
+        //        times they differ, and then verify that
+        //        `minNumDiffs <= numDiff`s.
+        //
+        //     3. While comparing corresponding chars of the two strings, make
+        //        sure that at least one such pair differs by at least 3.
         //
         // Testing:
         //   makeUnsafeTemporaryFilename(bsl::string *,const bsl::string_view&)
@@ -6390,7 +6408,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "\nTesting 'makeUnsafeTemporaryFilename' METHOD"
+            cout << "\nTesting `makeUnsafeTemporaryFilename` METHOD"
                     "\n============================================\n";
         }
 
@@ -6427,30 +6445,30 @@ int main(int argc, char *argv[])
         // conversion does not succeed.
         //
         // Concerns:
-        //: 1 We can convert from wchar_t to utf-8 filenames and then back
-        //:   again, getting back the original wchar_t name.  Note that this
-        //:   does not test 'Obj' functionality, but is
-        //:   necessary for further testing.
-        //:
-        //: 2 We can create files using the utf-8 names.
-        //:
-        //: 3 We can retrieve these names using path searching.
-        //:
-        //: 4 In Windows, the names should be the wchar_t names.
+        // 1. We can convert from wchar_t to utf-8 filenames and then back
+        //    again, getting back the original wchar_t name.  Note that this
+        //    does not test `Obj` functionality, but is
+        //    necessary for further testing.
+        //
+        // 2. We can create files using the utf-8 names.
+        //
+        // 3. We can retrieve these names using path searching.
+        //
+        // 4. In Windows, the names should be the wchar_t names.
         //
         // Plan:
-        //: 1 Create a set of wchar_t filenames, convert them to utf-8 and back
-        //:   again, and verify that the original names are recovered. (C-1)
-        //:
-        //: 2 Create each of the files using its utf-8 name, write to it, and
-        //:   close it, checking for failures.  (C-2)
-        //:
-        //: 3 Use 'Obj::findMatchingPaths' to look up the
-        //:   names we just created and verify that the returned names are the
-        //:   full set of utf-8 names we created.  (C-3)
-        //:
-        //: 4 In Windows, use the wchar_t path lookup function to look up each
-        //:   wchar_t name and verify that it is the correct name. (C-4)
+        // 1. Create a set of wchar_t filenames, convert them to utf-8 and back
+        //    again, and verify that the original names are recovered. (C-1)
+        //
+        // 2. Create each of the files using its utf-8 name, write to it, and
+        //    close it, checking for failures.  (C-2)
+        //
+        // 3. Use `Obj::findMatchingPaths` to look up the
+        //    names we just created and verify that the returned names are the
+        //    full set of utf-8 names we created.  (C-3)
+        //
+        // 4. In Windows, use the wchar_t path lookup function to look up each
+        //    wchar_t name and verify that it is the correct name. (C-4)
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING: UTF-8 Filenames\n"
@@ -6498,7 +6516,7 @@ int main(int argc, char *argv[])
             // Verify that converting the filenames from wchar_t to utf-8 and
             // back again leaves them unchanged.
 
-#ifdef BSLS_PLATFORM_OS_WINDOWS  // Posix 'wcout' is too chancy to try.
+#ifdef BSLS_PLATFORM_OS_WINDOWS  // Posix `wcout` is too chancy to try.
             if (veryVerbose) {
                 int mode = _setmode(_fileno(stdout), _O_U16TEXT);
 
@@ -6572,7 +6590,7 @@ int main(int argc, char *argv[])
         ASSERT(NUM_FILES + NUM_VALID_NAMES == rc);
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-        // Use the Windows 'wchar_t' interface to find the files, showing that
+        // Use the Windows `wchar_t` interface to find the files, showing that
         // they have the correct 16-bit filenames.
 
         for (size_t i = 0; i < NUM_FILES; ++i) {
@@ -6596,7 +6614,7 @@ int main(int argc, char *argv[])
             FindClose(handle);
         }
 
-        // Use the Windows 'A' interface to find the files, showing that they
+        // Use the Windows `A` interface to find the files, showing that they
         // have the correct 8-bit filenames.
 
         for (size_t i = 0; i < NUM_NAMES; ++i) {
@@ -6609,8 +6627,8 @@ int main(int argc, char *argv[])
 
             const HANDLE handle = FindFirstFileA(path.c_str(), &findDataA);
 
-            // 'NAME_UTF8' will fail to match a file through the 'A' interface.
-            // 'NAME_ANSI' will have failed on the 'open' call above, so the
+            // `NAME_UTF8` will fail to match a file through the `A` interface.
+            // `NAME_ANSI` will have failed on the `open` call above, so the
             // file will not exist at all.
 
             LOOP2_ASSERT(handle, i,
@@ -6734,22 +6752,22 @@ int main(int argc, char *argv[])
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // TESTING: Unix File Permissions for 'createDirectories' et al
+        // TESTING: Unix File Permissions for `createDirectories` et al
         //
         // Concerns:
-        //: 1 The permissions of a file created with 'createDirectories' on
-        //:   unix are chmod 0777.  Although not (currently) contractually
-        //:   guaranteed, this matches the behavior for std::fstream and is
-        //:   consistent with the use of a umask (see DRQS 40563234).
+        // 1. The permissions of a file created with `createDirectories` on
+        //    unix are chmod 0777.  Although not (currently) contractually
+        //    guaranteed, this matches the behavior for std::fstream and is
+        //    consistent with the use of a umask (see DRQS 40563234).
         //
         // Plan:
-        //: 1 Create a directory
-        //: 2 Read its permissions via 'stat64' or 'stat'.
-        //: 3 Observe that the permission are chmod 0777 (C-1).
+        // 1. Create a directory
+        // 2. Read its permissions via `stat64` or `stat`.
+        // 3. Observe that the permission are chmod 0777 (C-1).
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-            "TESTING: Unix File Permissions for 'createDirectories' et al\n"
+            "TESTING: Unix File Permissions for `createDirectories` et al\n"
             "===========================================================\n";
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -6757,7 +6775,7 @@ int main(int argc, char *argv[])
 #else
         umask(0);
 
-        if (verbose) cout << "Testing 'createDirectories'\n";
+        if (verbose) cout << "Testing `createDirectories`\n";
         {
             const bsl::string& testBaseDir = ::tempFileName(test,
                                          "tmp.bdls_filesystemutil_17.mkdir1");
@@ -6819,7 +6837,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == Obj::remove(testBaseDir, true));
         }
 
-        if (verbose) cout << "Testing 'createPrivateDirectory'\n";
+        if (verbose) cout << "Testing `createPrivateDirectory`\n";
         {
             const bsl::string& fullPath = ::tempFileName(test,
                                          "tmp.bdls_filesystemutil_17.mkdir1");
@@ -6858,21 +6876,21 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING: Unix File Permissions for 'open'
+        // TESTING: Unix File Permissions for `open`
         //
         // Concerns:
-        //: 1 The permissions of a file created with 'open' on unix are chmod
-        //:   0666.  Although not (currently) contractually guaranteed, this
-        //:   matches the behavior for std::fstream and is consistent with the
-        //:   use of a umask (see DRQS 40563234).
+        // 1. The permissions of a file created with `open` on unix are chmod
+        //    0666.  Although not (currently) contractually guaranteed, this
+        //    matches the behavior for std::fstream and is consistent with the
+        //    use of a umask (see DRQS 40563234).
         //
         // Plan:
-        //: 1 Open a file, write some data to it, and close it.
-        //: 2 Read its permissions via 'stat64' or 'stat'.
-        //: 3 Observe that the permission are chmod 0666 (C-1).
+        // 1. Open a file, write some data to it, and close it.
+        // 2. Read its permissions via `stat64` or `stat`.
+        // 3. Observe that the permission are chmod 0666 (C-1).
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING: Unix File Permissions for 'open'\n"
+        if (verbose) cout << "TESTING: Unix File Permissions for `open`\n"
                              "=========================================\n";
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -6880,7 +6898,7 @@ int main(int argc, char *argv[])
 #else
         umask(0);
 
-        if (verbose) cout << "Testing 'open'\n";
+        if (verbose) cout << "Testing `open`\n";
         {
             typedef Obj::FileDescriptor FD;
 
@@ -6925,7 +6943,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == Obj::remove(testFile, false));
         }
 
-        if (verbose) cout << "Testing private 'open'\n";
+        if (verbose) cout << "Testing private `open`\n";
         {
             typedef Obj::FileDescriptor FD;
 
@@ -7124,7 +7142,7 @@ int main(int argc, char *argv[])
 
             if (verbose) Q(Child finished);
 
-            // Exit main to avoid doing cleanup at end of 'main' twice.
+            // Exit main to avoid doing cleanup at end of `main` twice.
 
             return testStatus;                                        // RETURN
         }
@@ -7138,35 +7156,35 @@ int main(int argc, char *argv[])
         // is not a test of the operating system behavior).
         //
         // Concerns:
-        //: 1 On success the supplied file descriptor is closed for further
-        //:   reads.
-        //:
-        //: 2 'close' returns 0 on success, and a non-zero value on error.
-        //:
-        //: 3 'close' returns 'k_BAD_FILE_DESCRIPTOR' if supplied an invalid
-        //:   file descriptor.
-        //:
+        // 1. On success the supplied file descriptor is closed for further
+        //    reads.
         //
-        //:Plan:
-        //: 1 Call open, write to a file, then call 'close'.  Verify that
-        //:   'close' returns 0, and that attempts to subsequently write to
-        //:   the file fail.
-        //:
-        //: 2 Call open with an invalid file descriptor, ensure it returns
-        //:   'k_BAD_FILE_DESCRIPTOR'
-        //:
+        // 2. `close` returns 0 on success, and a non-zero value on error.
+        //
+        // 3. `close` returns `k_BAD_FILE_DESCRIPTOR` if supplied an invalid
+        //    file descriptor.
+        //
+        //
+        //Plan:
+        // 1. Call open, write to a file, then call `close`.  Verify that
+        //    `close` returns 0, and that attempts to subsequently write to
+        //    the file fail.
+        //
+        // 2. Call open with an invalid file descriptor, ensure it returns
+        //    `k_BAD_FILE_DESCRIPTOR`
+        //
         //
         // Testing:
         //   int close(FileDescriptor )
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING: 'close'\n"
+        if (verbose) cout << "TESTING: `close`\n"
                              "================\n";
 
         typedef Obj::FileDescriptor FD;
 
         if (verbose) {
-            cout << "\tTesting successful 'close'" << endl;
+            cout << "\tTesting successful `close`" << endl;
         }
         {
             const char *filename = "tmp.filesystemutil.close.success";
@@ -7183,7 +7201,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\tTesting 'close' on invalid handle" << endl;
+            cout << "\tTesting `close` on invalid handle" << endl;
         }
         {
             int rc = Obj::close(Obj::k_INVALID_FD);
@@ -7205,41 +7223,41 @@ int main(int argc, char *argv[])
         // synchronized to disk.
         //
         // Concerns:
-        //: 1 On success the mapped bytes are synchronized with their values
-        //:   in the file.
-        //:
-        //: 2 That only the region of memory at the specified location
-        //:   is synchronized.
-        //:
-        //: 3 That only the indicated number of bytes are synchronized.
-        //:
-        //: 4 That on failure an error status is returned.
-        //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        // 1. On success the mapped bytes are synchronized with their values
+        //    in the file.
+        //
+        // 2. That only the region of memory at the specified location
+        //    is synchronized.
+        //
+        // 3. That only the indicated number of bytes are synchronized.
+        //
+        // 4. That on failure an error status is returned.
+        //
+        // 5. QoI: Asserted precondition violations are detected when enabled.
         //
         //
-        //:Plan:
-        //: 1 Call 'sync' with valid arguments and verify it returns
-        //:   successfully. (C-1..3)
-        //:
-        //: 2 Call 'sync' with an invalid set of arguments (having disabled
-        //:   assertions that would prevent the arguments being supplied to the
-        //:   underlying system call)  (C-4)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for argument values (using the 'BSLS_ASSERTTEST_*'
-        //:   macros).  (C-5)
+        //Plan:
+        // 1. Call `sync` with valid arguments and verify it returns
+        //    successfully. (C-1..3)
+        //
+        // 2. Call `sync` with an invalid set of arguments (having disabled
+        //    assertions that would prevent the arguments being supplied to the
+        //    underlying system call)  (C-4)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for argument values (using the `BSLS_ASSERTTEST_*`
+        //    macros).  (C-5)
         //
         // Testing:
         //   int sync(char *, int , bool)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING: 'sync'\n"
+        if (verbose) cout << "TESTING: `sync`\n"
                              "===============\n";
 
         typedef Obj::FileDescriptor FD;
 
-        // Note that there appear to be '#define' for PAGESIZE and PAGE_SIZE
+        // Note that there appear to be `#define` for PAGESIZE and PAGE_SIZE
         // on AIX.
 
         const int MYPAGESIZE = bdls::MemoryUtil::pageSize();
@@ -7291,18 +7309,18 @@ int main(int argc, char *argv[])
             rc = Obj::sync(writeBuffer, SIZE, true);
             ASSERT(0 == rc);
 
-            // I have not been able to fashion an effective test for 'sync'
+            // I have not been able to fashion an effective test for `sync`
             // because I've been unable to observe unsynchronized memory
-            // mapped pages (so it cannot be determined whether 'sync' is
+            // mapped pages (so it cannot be determined whether `sync` is
             // actually performing synchronization).  For reference, you can
             // find some experiments writing to mapped-memory, and read from a
             // different file descriptor to the same file, in
-            // 'devgit:bde/bde-core' commit:
-            //..
+            // `devgit:bde/bde-core` commit:
+            // ```
             //  commit a93a90d9c567d7a24994811f79c65b38c2cb9791
             //  Author: (Henry) Mike Verschell <hverschell@bloomberg.net>
             //  Date:   Fri Apr 19 16:28:50 2013 -0400
-            //..
+            // ```
         }
         {
 #ifndef BSLS_ASSERT_IS_ACTIVE
@@ -7320,7 +7338,7 @@ int main(int argc, char *argv[])
             rc = Obj::sync((char *)&address, MYPAGESIZE, true);
             ASSERT(0 != rc);
 #ifdef BSLS_PLATFORM_OS_UNIX
-            // Note that this is a white-box test that we return 'errno' on
+            // Note that this is a white-box test that we return `errno` on
             // error, which is not required by the method contract.
             ASSERT(EINVAL == rc);
             if (veryVeryVerbose) {
@@ -7356,32 +7374,32 @@ int main(int argc, char *argv[])
         // TRYLOCK TEST
         //
         // Concerns:
-        //   That 'tryLock' returns proper status on failure, depending upon
+        //   That `tryLock` returns proper status on failure, depending upon
         //   the type of failure.
         //
         // Plan:
         //   This test tracks 5 files, 3 files which are for testing locking,
-        //   and 2 'touch' files which the child process touches to communicate
+        //   and 2 `touch` files which the child process touches to communicate
         //   with the parent process.
         //
-        //   The 'unlocked' file is not locked by the parent, and the child
+        //   The `unlocked` file is not locked by the parent, and the child
         //   verifies that it can lock it for read or write.
         //
-        //   The 'writeLocked' file is locked for write by the parent, and
+        //   The `writeLocked` file is locked for write by the parent, and
         //   the child verifies that it can't lock it in any way.
         //
-        //   The 'readLocked' file is locked for read by the parent, and the
+        //   The `readLocked` file is locked for read by the parent, and the
         //   child verifies that it can't lock it for write, but it can lock
         //   it for read.
         //
-        //   The 'touchOnSuccess' file is touched by the child only if the
+        //   The `touchOnSuccess` file is touched by the child only if the
         //   child succeeds at all the locking tests.
         //
-        //   The 'touchWhenDone' file is touched by the child only after tests
+        //   The `touchWhenDone` file is touched by the child only after tests
         //   are completed and the child has either touched the
-        //   'touchOnSuccess' file or decided not to touch it because some
+        //   `touchOnSuccess` file or decided not to touch it because some
         //   failure has occurred.  While the child is executing, the parent is
-        //   in a wait loop waiting for the 'touchWhenDone' file to come into
+        //   in a wait loop waiting for the `touchWhenDone` file to come into
         //   existence.
         //
         // Testing:
@@ -7391,16 +7409,16 @@ int main(int argc, char *argv[])
         typedef Obj::FileDescriptor FD;
 
         // Note if we are the parent process, we are in a directory
-        // 'tmpWorkingDirectory' that was set up at the start of 'main' that
+        // `tmpWorkingDirectory` that was set up at the start of `main` that
         // contains the process id in the path so we don't have to create veiry
         // creative file names to avoid collisions.  We can just create all our
         // temp files in the current working dir.
 
-        // The child process will 'chdir' to 'origWorkingDirectory', which is
+        // The child process will `chdir` to `origWorkingDirectory`, which is
         // the current directory it inherited from the parent process, so if it
         // refers to the same local file names, they will match.
 
-        // It is important not to use '::tempFileName' here because otherwise
+        // It is important not to use `::tempFileName` here because otherwise
         // the parent and child will have different file names.
 
         bsl::string unlockedFn     = "tmp.filesystemutil.case_12.unlock.txt";
@@ -7459,7 +7477,7 @@ int main(int argc, char *argv[])
             ::localForkExec(cmd);
 
             // Wait until the child process signals it is finished by touching
-            // the 'done' file.
+            // the `done` file.
 
             for (int i = 0; ! Obj::exists(touchWhenDone) && i < 120; ++i) {
                 ::localSleep(1);
@@ -7495,7 +7513,7 @@ int main(int argc, char *argv[])
                                  "===============================\n";
 
             // No need to clean up tmp files, the directory they're in will be
-            // cleaned up at the end of 'main'.
+            // cleaned up at the end of `main`.
         }
         else {
             // child process
@@ -7507,7 +7525,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "TRYLOCK TEST -- CHILD STARTING\n"
                                  "==============================\n";
 
-            // chdir to 'origWorkingDirectory' which is the working directory
+            // chdir to `origWorkingDirectory` which is the working directory
             // we inherited from the parent process, and the directory where
             // the tmp files are.
 
@@ -7535,7 +7553,7 @@ int main(int argc, char *argv[])
                                 Obj::e_READ_WRITE);
             ASSERT(Obj::k_INVALID_FD != fdWrite);
 
-            // Open the read file.  Note we open fdRead for 'write' so we can
+            // Open the read file.  Note we open fdRead for `write` so we can
             // try to lock it for write later
 
             fdRead  = Obj::open(readLockedFn,
@@ -7578,7 +7596,7 @@ int main(int argc, char *argv[])
 
             if (0 == testStatus) {
                 // No ASSERT's have failed in the child process.  Touch the
-                // 'success' file to tell the parent process we succeeded.
+                // `success` file to tell the parent process we succeeded.
 
                 ::localTouch(touchOnSuccess);
             }
@@ -7586,11 +7604,11 @@ int main(int argc, char *argv[])
             if (verbose) cout << "TRYLOCK TEST -- CHILD FINISHED\n"
                                  "==============================\n";
 
-            // Touch the 'done' file to tell the parent process we're finished.
+            // Touch the `done` file to tell the parent process we're finished.
 
             ::localTouch(touchWhenDone);
 
-            // Exit 'main' to avoid doing the cleanup at the end of 'main'
+            // Exit `main` to avoid doing the cleanup at the end of `main`
             // twice.
 
             return 0;                                                 // RETURN
@@ -7619,11 +7637,11 @@ int main(int argc, char *argv[])
         // APPEND TEST -- SINGLE PROCESS
         //
         // Concerns:
-        //  1. A 'write' puts data at the end of the file when open in append
+        //  1. A `write` puts data at the end of the file when open in append
         //     mode.
-        //  2. A 'write' puts data at the end of the file when open in append
+        //  2. A `write` puts data at the end of the file when open in append
         //     mode even after a seek.
-        //  3. 'isAppend' is default to 'false'.
+        //  3. `isAppend` is default to `false`.
         //
         // Plan:
         //  1. Create a file in append mode, write a character, use seek to
@@ -7689,25 +7707,25 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //
-        //: 1 Unix "glob()", which is called by 'Obj::visitPaths', which is
-        //:   called by 'Obj::findMatchingPaths', is failing on IBM 64 bit,
-        //:   unfortunately the test driver has not detected or reproduced this
-        //:   error.  This test case is an attempt to get this test driver
-        //:   reproducing the problem.
-        //:
-        //: 2 Unix "glob()", which is called by 'Obj::visitPaths', which is
-        //:   called by 'Obj::findMatchingPaths', on Solaris, may try to use
-        //:   files as directories and fail when cannot.  On Solaris we should
-        //:   ignore such errors.
+        // 1. Unix "glob()", which is called by `Obj::visitPaths`, which is
+        //    called by `Obj::findMatchingPaths`, is failing on IBM 64 bit,
+        //    unfortunately the test driver has not detected or reproduced this
+        //    error.  This test case is an attempt to get this test driver
+        //    reproducing the problem.
+        //
+        // 2. Unix "glob()", which is called by `Obj::visitPaths`, which is
+        //    called by `Obj::findMatchingPaths`, on Solaris, may try to use
+        //    files as directories and fail when cannot.  On Solaris we should
+        //    ignore such errors.
         //
         // Plan:
-        //: 1 Create files with the pattern "woof.a.n".  Use
-        //:   'Obj::findMatchingPaths' with the pattern "woof.a.?" to find
-        //:   them.  Verify that they are found.  (C-1)
-        //:
-        //: 2 Create a directory structure that has a file that matches a
-        //:   pattern that is for a directory in the search pattern.  Verify
-        //:   that the 'Obj::findMatchingPaths' call succeeds anyway.
+        // 1. Create files with the pattern "woof.a.n".  Use
+        //    `Obj::findMatchingPaths` with the pattern "woof.a.?" to find
+        //    them.  Verify that they are found.  (C-1)
+        //
+        // 2. Create a directory structure that has a file that matches a
+        //    pattern that is for a directory in the search pattern.  Verify
+        //    that the `Obj::findMatchingPaths` call succeeds anyway.
         //
         // Testing:
         //   int findMatchingPaths(vector<string> *, const char *)
@@ -7716,7 +7734,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "MATCHING TESTS\n"
                              "==============n";
 
-        if (veryVerbose) cout << "Simple 'findMatchingPaths' test.\n";
+        if (veryVerbose) cout << "Simple `findMatchingPaths` test.\n";
         {
             for (int i = 0; i < 4; ++i) {
                 char name[16];
@@ -7744,7 +7762,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == Obj::remove("woof.a.3"));
         }
 
-        if (veryVerbose) cout << "Test 'ENOTDIR' failure mode.\n";
+        if (veryVerbose) cout << "Test `ENOTDIR` failure mode.\n";
         {
             // Create directories and files of this tree:
             //   tmp
@@ -7780,7 +7798,7 @@ int main(int argc, char *argv[])
             fd = Obj::open(name3, Obj::e_OPEN_OR_CREATE, Obj::e_READ_WRITE);
             Obj::close(fd);
 
-            // Verify that "px_not_a_dir" does not kill our 'glob' traversal
+            // Verify that "px_not_a_dir" does not kill our `glob` traversal
 
             vector<string> paths;
             int rc = Obj::findMatchingPaths(&paths,
@@ -7800,42 +7818,42 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'getFileSize'
+        // TESTING `getFileSize`
         //
         // Concerns:
-        //: 1 'getFileSize' returns the number of bytes stored any of the
-        //:   following file system constructs:
-        //:   1 a normal file,
-        //:   2 a normal directory (for which it uses an empty directory),
-        //:   3 a symbolic link (on Unix systems only),
-        //:   4 a non-existent file, and
-        //:   5 a normal file accessed through a relative path
-        //:
-        //: 2 The overload of 'getFileSize' that accepts a file descriptor
-        //:   returns the number of bytes stored in the described file.
+        // 1. `getFileSize` returns the number of bytes stored any of the
+        //    following file system constructs:
+        //   1. a normal file,
+        //   2. a normal directory (for which it uses an empty directory),
+        //   3. a symbolic link (on Unix systems only),
+        //   4. a non-existent file, and
+        //   5. a normal file accessed through a relative path
+        //
+        // 2. The overload of `getFileSize` that accepts a file descriptor
+        //    returns the number of bytes stored in the described file.
         //
         // Plan:
-        //: 1 For each file system construct 'C' in the list of constructs in
-        //:   Concern 1, do the following:
-        //:
-        //:   1 Create an instance of 'C' on the file system having a known
-        //:     size 'S'.
-        //:
-        //:   2 Invoke 'getFileSize' with the name of 'C'.
-        //:
-        //:   3 Observe that 'getFileSize' returns 'S'.
-        //:
-        //: 2 Create a set of temporary files having different sizes on the
-        //:   file system, and for each file 'F' with size 'S', open a file
-        //:   descriptor 'FD' to 'F' and observe that 'getFileSize(FD)' returns
-        //:   'S'.
-        //:
-        //: 3 Verify that all control flow paths of the overload of
-        //:   'getFileSize' that accepts a file descriptor are correct on each
-        //:   platform by using a mock system interface to check the behavior
-        //:   of 'getFileSize' for all possible system responses, for
-        //:   extreme input and output values, and for input values that affect
-        //:   the control flow of the function.
+        // 1. For each file system construct `C` in the list of constructs in
+        //    Concern 1, do the following:
+        //
+        //   1. Create an instance of `C` on the file system having a known
+        //      size `S`.
+        //
+        //   2. Invoke `getFileSize` with the name of `C`.
+        //
+        //   3. Observe that `getFileSize` returns `S`.
+        //
+        // 2. Create a set of temporary files having different sizes on the
+        //    file system, and for each file `F` with size `S`, open a file
+        //    descriptor `FD` to `F` and observe that `getFileSize(FD)` returns
+        //    `S`.
+        //
+        // 3. Verify that all control flow paths of the overload of
+        //    `getFileSize` that accepts a file descriptor are correct on each
+        //    platform by using a mock system interface to check the behavior
+        //    of `getFileSize` for all possible system responses, for
+        //    extreme input and output values, and for input values that affect
+        //    the control flow of the function.
         //
         // Testing:
         //   Offset getFileSize(const bsl::string&)
@@ -7843,10 +7861,10 @@ int main(int argc, char *argv[])
         //   Offset getFileSize(FileDescriptor)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Testing 'getFileSize'\n"
+        if (verbose) cout << "Testing `getFileSize`\n"
                              "=====================\n";
 
-        // const char * is tested with each 'string' type
+        // const char * is tested with each `string` type
         testCase10_getFileSize<bsl::string>("bsl::string",
                                             tmpWorkingDir,
                                             test,
@@ -7870,7 +7888,7 @@ int main(int argc, char *argv[])
       } break;
      case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'getSystemTemporaryDirectory'
+        // TESTING `getSystemTemporaryDirectory`
         //   The only possible ways to obtain the required data (for Unix and
         //   Windows respectively) are already used in the method.  And it
         //   would be pointless to repeat these approaches in the test.
@@ -7879,23 +7897,23 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //
-        //: 1 The returned value indicates the path to an existing directory
-        //:
-        //: 2 User can create files in the specified directory and delete files
-        //:   from it.
+        // 1. The returned value indicates the path to an existing directory
+        //
+        // 2. User can create files in the specified directory and delete files
+        //    from it.
         //
         // Plan:
-        //: 1 Using 'getSystemTemporaryDirectory' obtain path to the directory
-        //:   and verify it exists.  (C-1)
-        //:
-        //: 2 Create file in the specified directory, verify it shown up and
-        //:   delete it.  (C-2)
+        // 1. Using `getSystemTemporaryDirectory` obtain path to the directory
+        //    and verify it exists.  (C-1)
+        //
+        // 2. Create file in the specified directory, verify it shown up and
+        //    delete it.  (C-2)
         //
         // Testing
         //    int getSystemTemporaryDirectory(bsl::string *path);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Testing 'getSystemTemporaryDirectory'\n"
+        if (verbose) cout << "Testing `getSystemTemporaryDirectory`\n"
                              "=====================================\n";
 
         testCase9_createSystemTemporaryDirectory<bsl::string>("bsl::string",
@@ -7919,9 +7937,9 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'getAvailableSpace'
+        // TESTING `getAvailableSpace`
         //
-        // Concern: 'getAvailableSpace' works.
+        // Concern: `getAvailableSpace` works.
         //
         // Plan:
         //   Just call the function and check it returns a non-negative result.
@@ -7933,7 +7951,7 @@ int main(int argc, char *argv[])
         //   Offset getAvailableSpace(FileDescriptor)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Testing 'getAvailableSpace'\n"
+        if (verbose) cout << "Testing `getAvailableSpace`\n"
                              "===========================\n";
 
         Obj::Offset avail = Obj::getAvailableSpace(".");
@@ -7948,7 +7966,7 @@ int main(int argc, char *argv[])
         }
 
         // This is total available space on the device.  With multiple users it
-        // can easily fluctuate a little -- make sure 'avail' and 'avail2' are
+        // can easily fluctuate a little -- make sure `avail` and `avail2` are
         // rougly equal.
 
         ASSERTV(avail, avail2, avail  < avail2 + avail2 / 16);
@@ -7971,7 +7989,7 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'rollFileChain'
+        // TESTING `rollFileChain`
         //
         // Concern: Files are rolled.
         //
@@ -7984,7 +8002,7 @@ int main(int argc, char *argv[])
         //    int rollFileChain(const char *, int)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Testing 'rollFileChain' (files)\n"
+        if (verbose) cout << "Testing `rollFileChain` (files)\n"
                              "===============================\n";
 
         enum { MAXSUFFIX=3 };
@@ -8130,7 +8148,7 @@ int main(int argc, char *argv[])
         //    bool move(STR_TYPE, STR_TYPE)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Testing 'move'\n"
+        if (verbose) cout << "Testing `move`\n"
                              "==============\n";
 
         // Test NAME_ASCII and NAME_UTF8 on both platforms, and NAME_ANSI on
@@ -8237,7 +8255,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'isRegularFile' & 'isDirectory'
+        // TESTING `isRegularFile` & `isDirectory`
         //
         // Concern: These functions work, including on filenames which do not
         //          exist at all.
@@ -8253,7 +8271,7 @@ int main(int argc, char *argv[])
         //    bool isDirectory(const char *, bool)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Testing 'isRegularFile' & 'isDirectory'\n"
+        if (verbose) cout << "Testing `isRegularFile` & `isDirectory`\n"
                              "=======================================\n";
 
         testCase5_isRegularFile_isDirectory<bsl::string>("bsl::string",
@@ -8407,8 +8425,8 @@ int main(int argc, char *argv[])
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS  // (unix domain socket)
         {
-            // Unix domain sockets should return 'false' for 'isRegularFile'
-            // and 'isDirectory' (DRQS 2071065).
+            // Unix domain sockets should return `false` for `isRegularFile`
+            // and `isDirectory` (DRQS 2071065).
 
             if (veryVerbose) {
                 cout << "...unix domain socket..." << endl;
@@ -8453,23 +8471,23 @@ int main(int argc, char *argv[])
         // TESTING pattern matching
         //
         // Concerns:
-        //: 1 Both '*' and '?' characters are supported, and can appear in
-        //:   multiple directories in the path.
-        //:
-        //: 2 Paths can be specified either as a 'const char *' or a
-        //:   'bsl::string'.
-        //:
-        //: 3 The return value properly returns the number of files matched,
-        //:   including 0 in the case where no files are matched.
+        // 1. Both '*' and '?' characters are supported, and can appear in
+        //    multiple directories in the path.
+        //
+        // 2. Paths can be specified either as a `const char *` or a
+        //    `bsl::string`.
+        //
+        // 3. The return value properly returns the number of files matched,
+        //    including 0 in the case where no files are matched.
         //
         // Plan:
-        //: 1 Make sure both '*' and '?' characters are supported with
-        //:   'findMatchingPath'.
-        //:
-        //: 2 Always loop to test both the 'bsl::string' and 'const char *'
-        //:   pattern cases.
-        //:
-        //: 3 Test with a pattern that matches nothing.
+        // 1. Make sure both '*' and '?' characters are supported with
+        //    `findMatchingPath`.
+        //
+        // 2. Always loop to test both the `bsl::string` and `const char *`
+        //    pattern cases.
+        //
+        // 3. Test with a pattern that matches nothing.
         //
         // Testing:
         //   int findMatchingPaths(vector<string>*, const char *)
@@ -8512,63 +8530,63 @@ int main(int argc, char *argv[])
         // OPEN TEST
         //
         // Concerns:
-        //: 1 (For deprecated overload) A 'write' puts data at the end of the
-        //:   file when open in append mode.
-        //:
-        //: 2 (For deprecated overload) A 'write' puts data at the end of the
-        //:   file when open in append mode even after a seek.
-        //:
-        //: 3 (For deprecated overload) 'isAppend' is default to 'false'.
-        //:
-        //: 4 An existing file can be opened when 'OPEN' is specified, and a
-        //:   non-existent file causes an error when 'OPEN' is specified.
-        //:
-        //: 5 An existing file causes an error when 'CREATE' is specified, and
-        //:   a non-existent file can be opened when 'CREATE' is specified.
-        //:
-        //: 6 An existing file can be opened when 'OPEN_OR_CREATE' is
-        //:   specified, and a non-existent file can be opened when
-        //:   'OPEN_OR_CREATE' is specified.
-        //:
-        //: 7 Reading is possible when 'READ_ONLY' is specified, and writing is
-        //:   impossible when 'READ_ONLY' is specified.
-        //:
-        //: 8 Reading is impossible when 'WRITE_ONLY' is specified, and writing
-        //:   is possible when 'WRITE_ONLY' is specified.
-        //:
-        //: 9 Reading is impossible when 'APPEND_ONLY' is specified, and
-        //:   writing is possible when 'APPEND_ONLY' is specified.
-        //:
-        //:10 Reading is possible when 'READ_WRITE' is specified, and writing
-        //:   is possible when 'READ_WRITE' is specified.
-        //:
-        //:11 Reading is possible when 'READ_APPEND' is specified, and writing
-        //:   is possible when 'READ_APPEND' is specified.
-        //:
-        //:12 When either 'APPEND_ONLY' or 'READ_APPEND' is specified, all
-        //:   writes are made at the end of file.
-        //:
-        //:13 When 'TRUNCATE' is specified, the previous contents of the file,
-        //:   if any, are discarded.
-        //:
-        //:14 When 'KEEP' is specified, the previous contents of the file, if
-        //:   any, are preserved.
+        // 1. (For deprecated overload) A `write` puts data at the end of the
+        //    file when open in append mode.
+        //
+        // 2. (For deprecated overload) A `write` puts data at the end of the
+        //    file when open in append mode even after a seek.
+        //
+        // 3. (For deprecated overload) `isAppend` is default to `false`.
+        //
+        // 4. An existing file can be opened when `OPEN` is specified, and a
+        //    non-existent file causes an error when `OPEN` is specified.
+        //
+        // 5. An existing file causes an error when `CREATE` is specified, and
+        //    a non-existent file can be opened when `CREATE` is specified.
+        //
+        // 6. An existing file can be opened when `OPEN_OR_CREATE` is
+        //    specified, and a non-existent file can be opened when
+        //    `OPEN_OR_CREATE` is specified.
+        //
+        // 7. Reading is possible when `READ_ONLY` is specified, and writing is
+        //    impossible when `READ_ONLY` is specified.
+        //
+        // 8. Reading is impossible when `WRITE_ONLY` is specified, and writing
+        //    is possible when `WRITE_ONLY` is specified.
+        //
+        // 9. Reading is impossible when `APPEND_ONLY` is specified, and
+        //    writing is possible when `APPEND_ONLY` is specified.
+        //
+        // 10. Reading is possible when `READ_WRITE` is specified, and writing
+        //    is possible when `READ_WRITE` is specified.
+        //
+        // 11. Reading is possible when `READ_APPEND` is specified, and writing
+        //    is possible when `READ_APPEND` is specified.
+        //
+        // 12. When either `APPEND_ONLY` or `READ_APPEND` is specified, all
+        //    writes are made at the end of file.
+        //
+        // 13. When `TRUNCATE` is specified, the previous contents of the file,
+        //    if any, are discarded.
+        //
+        // 14. When `KEEP` is specified, the previous contents of the file, if
+        //    any, are preserved.
         //
         // Plan:
-        //: 1 Create a file in append mode, write a character, use seek to
-        //:   change the position of output, write another character, and
-        //:   verify that the new character is added after the original
-        //:   character.
-        //:
-        //: 2 Reopen the file in append mode, write a character and ensure that
-        //:   it is added to the end of the file.
-        //:
-        //: 3 Reopen the file in normal mode, write a character and ensure that
-        //:   it overwrites the data in the file instead of appending to it.
-        //:
-        //: 4  Note that the !EXISTS case should be tested before the EXISTS
-        //: cases, so that we can establish that 'open' is capable of creating
-        //: files before we create files to prepare for subsequent tests.
+        // 1. Create a file in append mode, write a character, use seek to
+        //    change the position of output, write another character, and
+        //    verify that the new character is added after the original
+        //    character.
+        //
+        // 2. Reopen the file in append mode, write a character and ensure that
+        //    it is added to the end of the file.
+        //
+        // 3. Reopen the file in normal mode, write a character and ensure that
+        //    it overwrites the data in the file instead of appending to it.
+        //
+        // 4.  Note that the !EXISTS case should be tested before the EXISTS
+        //  cases, so that we can establish that `open` is capable of creating
+        //  files before we create files to prepare for subsequent tests.
         //
         // Testing:
         //   FD open(const char *path, openPolicy, ioPolicy, truncatePolicy)
@@ -8582,7 +8600,7 @@ int main(int argc, char *argv[])
             k_READ_BUFFER_SIZE = 64
         };
 
-        if (verbose) cout << "\nBootstrap, phase 1: 'open' file mode."
+        if (verbose) cout << "\nBootstrap, phase 1: `open` file mode."
                           << endl;
         {
             const Obj::FileOpenPolicy OP = Obj::e_OPEN;
@@ -8704,7 +8722,7 @@ int main(int argc, char *argv[])
                     P_(OPEN_POLICY); P_(IO_POLICY); P_(INIT_POLICY); P(EXISTS);
                 }
 
-                // Establish a consistent baseline: 'fileName' does not exist.
+                // Establish a consistent baseline: `fileName` does not exist.
 
                 if (Obj::exists(fileName)) {
                     ASSERT(0 == Obj::remove(fileName));
@@ -8712,12 +8730,12 @@ int main(int argc, char *argv[])
 
                 LOOP2_ASSERT(LINE, fileName, !Obj::exists(fileName));
 
-                // If this test expects 'fileName' to exist, it must be created
-                // using the (already-tested) 'e_CREATE' open mode.
+                // If this test expects `fileName` to exist, it must be created
+                // using the (already-tested) `e_CREATE` open mode.
 
                 if (EXISTS) {
-                    // We cannot use the combination of 'e_CREATE' with
-                    // 'e_WRITE_ONLY' until it has been tested.
+                    // We cannot use the combination of `e_CREATE` with
+                    // `e_WRITE_ONLY` until it has been tested.
 
                     LOOP_ASSERT(LINE, isCreateFileTested);
 
@@ -8887,7 +8905,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-                            "\nBootstrap, phase 3: 'read' and 'write'."
+                            "\nBootstrap, phase 3: `read` and `write`."
                           << endl;
         {
             const char blockA[]   = { 'a', 'b', 'c', 'd', 'e', 'f', 'g' };
@@ -9010,7 +9028,7 @@ int main(int argc, char *argv[])
             Obj::remove(fileName);
 
             if (veryVerbose) {
-                cout << "\tPositional properties of 'write'"
+                cout << "\tPositional properties of `write`"
                      << endl;
             }
 
@@ -9109,7 +9127,7 @@ int main(int argc, char *argv[])
             }
 
             if (veryVerbose) {
-                cout << "\tPositional properties of 'read'"
+                cout << "\tPositional properties of `read`"
                      << endl;
             }
 
@@ -9330,7 +9348,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nBootstrap, phase 4: 'seek'."
+        if (verbose) cout << "\nBootstrap, phase 4: `seek`."
                           << endl;
         {
             const char blockA[]   = { 'a', 'b', 'c', 'd', 'e', 'f', 'g' };
@@ -9441,7 +9459,7 @@ int main(int argc, char *argv[])
                         position = Obj::seek(fd, j, Obj::e_SEEK_FROM_CURRENT);
                         LOOP_ASSERT(position, origin + j == position);
 
-                        // Reset to 'lengths[i]'.
+                        // Reset to `lengths[i]`.
 
                         position = Obj::seek(fd, lengths[i],
                                                    Obj::e_SEEK_FROM_BEGINNING);
@@ -9452,7 +9470,7 @@ int main(int argc, char *argv[])
                         position = Obj::seek(fd, -j, Obj::e_SEEK_FROM_CURRENT);
                         LOOP_ASSERT(position, origin - j == position);
 
-                        // Reset to 'lengths[i]'.
+                        // Reset to `lengths[i]`.
 
                         position = Obj::seek(fd, lengths[i],
                                                    Obj::e_SEEK_FROM_BEGINNING);
@@ -9620,7 +9638,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-                        "\nBootstrap, phase 5: 'open' with truncation."
+                        "\nBootstrap, phase 5: `open` with truncation."
                           << endl;
         {
             const Obj::FileOpenPolicy OP = Obj::e_OPEN;
@@ -9718,7 +9736,7 @@ int main(int argc, char *argv[])
                     P_(OPEN_POLICY); P_(IO_POLICY); P_(INIT_POLICY); P(EXISTS);
                 }
 
-                // Establish a consistent baseline: 'fileName' does not exist.
+                // Establish a consistent baseline: `fileName` does not exist.
 
                 if (Obj::exists(fileName)) {
                     Obj::remove(fileName);
@@ -9726,8 +9744,8 @@ int main(int argc, char *argv[])
 
                 LOOP2_ASSERT(LINE, fileName, !Obj::exists(fileName));
 
-                // If this test expects 'fileName' to exist, it must be created
-                // using the (already-tested) 'e_CREATE' open mode.
+                // If this test expects `fileName` to exist, it must be created
+                // using the (already-tested) `e_CREATE` open mode.
 
                 if (EXISTS) {
                     Obj::FileDescriptor fd = Obj::open(
@@ -9772,7 +9790,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-                            "\nBootstrap, phase 6: 'open' with append."
+                            "\nBootstrap, phase 6: `open` with append."
                           << endl;
         {
             const Obj::FileOpenPolicy OP = Obj::e_OPEN;
@@ -9875,7 +9893,7 @@ int main(int argc, char *argv[])
                     P_(OPEN_POLICY); P_(IO_POLICY); P_(INIT_POLICY); P(EXISTS);
                 }
 
-                // Establish a consistent baseline: 'fileName' does not exist.
+                // Establish a consistent baseline: `fileName` does not exist.
 
                 if (Obj::exists(fileName)) {
                     Obj::remove(fileName);
@@ -9883,8 +9901,8 @@ int main(int argc, char *argv[])
 
                 LOOP2_ASSERT(LINE, fileName, !Obj::exists(fileName));
 
-                // If this test expects 'fileName' to exist, it must be created
-                // using the (already-tested) 'e_CREATE' open mode.
+                // If this test expects `fileName` to exist, it must be created
+                // using the (already-tested) `e_CREATE` open mode.
 
                 if (EXISTS) {
                     Obj::FileDescriptor fd = Obj::open(
@@ -10081,7 +10099,7 @@ int main(int argc, char *argv[])
                     P_(OPEN_POLICY); P_(IO_POLICY); P_(INIT_POLICY); P(EXISTS);
                 }
 
-                // Establish a consistent baseline: 'fileName' does not exist.
+                // Establish a consistent baseline: `fileName` does not exist.
 
                 if (Obj::exists(fileName)) {
                     Obj::remove(fileName);
@@ -10089,12 +10107,12 @@ int main(int argc, char *argv[])
 
                 LOOP2_ASSERT(LINE, fileName, !Obj::exists(fileName));
 
-                // If this test expects 'fileName' to exist, it must be created
-                // using the (already-tested) 'e_CREATE' open mode.
+                // If this test expects `fileName` to exist, it must be created
+                // using the (already-tested) `e_CREATE` open mode.
 
                 if (EXISTS) {
-                    // We cannot use the combination of 'e_CREATE' with
-                    // 'e_WRITE_ONLY' until it has been tested.
+                    // We cannot use the combination of `e_CREATE` with
+                    // `e_WRITE_ONLY` until it has been tested.
 
                     LOOP_ASSERT(LINE, isCreateFileTested);
 
@@ -10255,26 +10273,26 @@ int main(int argc, char *argv[])
         // FilesystemUtil_CStringUtil
         //
         // Concerns:
-        //: 1 FilesystemUtil_CStringUtil::flatten correctly proxies the
-        //:   null-terminated strings corresponding to 'const char *',
-        //:   'bsl::string', :   'std::string', and, if available,
-        //:   'std::pmr::string' arguments, without additional allocations.
-        //:
-        //: 2 FilesystemUtil_CStringUtil::flatten correctly proxies the
-        //:   null-terminated string corresponding the 'bslstl::StringRef'
-        //:   arguments, possibly allocating memory to do so.
-        //:
-        //: 3 FilesystemUtil_CStringUtil::flatten is not convertible from
-        //:   'bsl::string_view'.
-        //:
+        // 1. FilesystemUtil_CStringUtil::flatten correctly proxies the
+        //    null-terminated strings corresponding to `const char *`,
+        //    `bsl::string`, :   `std::string`, and, if available,
+        //    `std::pmr::string` arguments, without additional allocations.
+        //
+        // 2. FilesystemUtil_CStringUtil::flatten correctly proxies the
+        //    null-terminated string corresponding the `bslstl::StringRef`
+        //    arguments, possibly allocating memory to do so.
+        //
+        // 3. FilesystemUtil_CStringUtil::flatten is not convertible from
+        //    `bsl::string_view`.
+        //
         //
         // Plan:
-        //: 1 Invoke 'FilesystemUtil_CStringUtil::flatten' for each supported
-        //:   type and ensure no memory is allocated (except possibly in the
-        //:   'bslstl::StringRef' case).
-        //:
-        //: 2 Make sure 'bsl::string_view' is not convertible to
-        //:   FilesystemUtil_CStringUtil.
+        // 1. Invoke `FilesystemUtil_CStringUtil::flatten` for each supported
+        //    type and ensure no memory is allocated (except possibly in the
+        //    `bslstl::StringRef` case).
+        //
+        // 2. Make sure `bsl::string_view` is not convertible to
+        //    FilesystemUtil_CStringUtil.
         //
         // Testing:
         //   FilesystemUtil_CStringUtil
@@ -10600,7 +10618,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING detection of large files
         //
-        // Concern: Whether 'getFileSize' can detect a large file (> 4GB) since
+        // Concern: Whether `getFileSize` can detect a large file (> 4GB) since
         //          the file size becomes a 64-bit number.
         //
         // Plan: Create a large file in "/tmp" and check the file size.
@@ -10849,7 +10867,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == Obj::setWorkingDirectory(origWorkingDirectory));
     LOOP_ASSERT(tmpWorkingDir, Obj::isDirectory(tmpWorkingDir));
 
-    // Sometimes this delete won't work because of '.nfs*' gremlin files that
+    // Sometimes this delete won't work because of `.nfs*` gremlin files that
     // mysteriously get created in the directory.  Seems to especially happen
     // in TC 4 for some reason.  Check if the directory has been removed, and
     // attempt again to removing it, pausing longer and longer in between tries

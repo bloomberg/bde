@@ -5,8 +5,8 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 
@@ -67,7 +67,7 @@ void aSsErT(bool condition, const char *message, int line)
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION != 0x5140
 # define SUN_HAS_PROBLEM_WITH_LITERALS
     // The 5.14 compiler has an odd problem where literals, passed as rvalues
-    // to functions, match 'const volatile' references during argument type
+    // to functions, match `const volatile` references during argument type
     // deduction, but cannot actually match that signature so fail to compile
     // when called.  Even more oddly, this does not affect all types, so tests
     // may be selectively disabled waiting for a compiler patch.
@@ -90,17 +90,17 @@ namespace USAGE_TYPEREP_NAMESPACE {
 struct X {};
 struct Y {};
 
+/// It is inconvenient to actually create an instance of this type
+/// because the constructor takes so many arguments.  It is also
+/// impossible because the constructor is undefined.
 struct HasHorridCtorX : public X {
     HasHorridCtorX(int, double, X, char, char *, void *) {}
-        // It is inconvenient to actually create an instance of this type
-        // because the constructor takes so many arguments.  It is also
-        // impossible because the constructor is undefined.
 };
+/// It is inconvenient to actually create an instance of this type
+/// because the constructor takes so many arguments.  It is also
+/// impossible because the constructor is undefined.
 struct HasHorridCtorY : public Y {
     HasHorridCtorY(int, double, X, char, char *, void *) {}
-        // It is inconvenient to actually create an instance of this type
-        // because the constructor takes so many arguments.  It is also
-        // impossible because the constructor is undefined.
 };
 
 template <int i>
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
         // --------------------------------------------------------------------
-        // 'TypeRep' USAGE EXAMPLE
+        // `TypeRep` USAGE EXAMPLE
         //
         // Concerns:
         //   Demonstrate a use for bslmf::TypeRep
@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Create a situation where we have a type with a difficult to use
         //   c'tor, and we just want an instance of it within an expression
-        //   that won't run.  We create the types 'HasHorridCtor*' which
+        //   that won't run.  We create the types `HasHorridCtor*` which
         //   have inconvenient constructors and use bslmf::TypeRep to avoid
         //   using them.
         // --------------------------------------------------------------------
@@ -201,16 +201,16 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'MathAnyType' USAGE EXAMPLE
+        // `MathAnyType` USAGE EXAMPLE
         //
         // Concerns:
-        //   Demonstrate a use for 'bslmf::MatchAnyType'.
+        //   Demonstrate a use for `bslmf::MatchAnyType`.
         //
         // Plan:
         //   Overload a function such that one version of it take an argument
-        //   of type 'Y' and the other takes an argument of type
-        //   'bslmf::MatchAnyType', and the combination produces a function
-        //   that can evaluate whether a type is 'Y' or not.
+        //   of type `Y` and the other takes an argument of type
+        //   `bslmf::MatchAnyType`, and the combination produces a function
+        //   that can evaluate whether a type is `Y` or not.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\n'MathAnyType' USAGE EXAMPLE"

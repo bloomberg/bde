@@ -33,12 +33,12 @@ typedef bsls::AtomicOperations          Atomics;
 typedef Atomics::AtomicTypes::Pointer   AtomicPtr;
 typedef bsls::PointerCastUtil           CastUtil;
 
+/// This template `class` enables us to store the exception name and the pre
+/// throw hook for each supported exception type, and have a template
+/// function `doThrow` which does the work of examining the pre throw hook,
+/// calling it if set, and throwing the exception.
 template <class t_EXCEPTION>
 class ExceptionSource {
-    // This template 'class' enables us to store the exception name and the pre
-    // throw hook for each supported exception type, and have a template
-    // function 'doThrow' which does the work of examining the pre throw hook,
-    // calling it if set, and throwing the exception.
 
     // DATA
     static const char   *s_exceptionName;
@@ -46,15 +46,16 @@ class ExceptionSource {
 
   public:
     // CLASS METHODS
+
+    /// Throw the template parameter `t_EXCEPTION` with the specified
+    /// `message`.  If the pre throw hook has been set, call it with the
+    /// exception name and `message`.
     BSLA_NORETURN
     static void doThrow(const char *message);
-        // Throw the template parameter 't_EXCEPTION' with the specified
-        // 'message'.  If the pre throw hook has been set, call it with the
-        // exception name and 'message'.
 
+    /// Set the pre throw hook for the template parameter `t_EXCEPTION` to
+    /// the specified `hook`.
     static void setPreThrowHook(StdExceptUtil::PreThrowHook hook);
-        // Set the pre throw hook for the template parameter 't_EXCEPTION' to
-        // the specified 'hook'.
 };
 
 template <class t_EXCEPTION>
@@ -105,17 +106,18 @@ U_INIT_EXCEPTION_NAME(underflow_error);
 
 #undef U_INIT_EXCEPTION_NAME
 
+/// This `struct` is created at the beginning of every
+/// `StdExceptUtil::throw*` method.  Its non-trivial destructor will have to
+/// be called by those functions after the call to `doThrow`, preventing
+/// those methods from optimizing the `doThrow` call into a jump.  Note that
+/// the destructor will be called as the stack unwinds due to the throw.
 struct TailCallGuard {
-    // This 'struct' is created at the beginning of every
-    // 'StdExceptUtil::throw*' method.  Its non-trivial destructor will have to
-    // be called by those functions after the call to 'doThrow', preventing
-    // those methods from optimizing the 'doThrow' call into a jump.  Note that
-    // the destructor will be called as the stack unwinds due to the throw.
 
     // CREATORS
+
+    /// This non-trivial destructor appears to the optimizer to do something
+    /// when in fact it does nothing.
     ~TailCallGuard();
-        // This non-trivial destructor appears to the optimizer to do something
-        // when in fact it does nothing.
 };
 
 TailCallGuard::~TailCallGuard()

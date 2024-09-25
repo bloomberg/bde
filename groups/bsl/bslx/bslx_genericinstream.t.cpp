@@ -26,11 +26,11 @@ using namespace bslx;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// For all input methods in 'GenericInStream', the primary concern is the
+// For all input methods in `GenericInStream`, the primary concern is the
 // parsing of the byte representation to its correct output value.
 //
-// We have chosen the primary black-box manipulator for 'GenericInStream' to be
-// 'getInt8'.
+// We have chosen the primary black-box manipulator for `GenericInStream` to be
+// `getInt8`.
 // ----------------------------------------------------------------------------
 // [ 2] GenericInStream(STREAMBUF *streamBuf);
 // [ 2] ~GenericInStream();
@@ -139,9 +139,9 @@ static void aSsErT(int c, const char *s, int i)
 //                      HELPER CLASSES AND FUNCTIONS
 // ----------------------------------------------------------------------------
 
+/// This class implements a very basic stream buffer suitable for use in
+/// `bslx::GenericOutStream` and `bslx::GenericInStream`.
 class TestStreamBuf {
-    // This class implements a very basic stream buffer suitable for use in
-    // 'bslx::GenericOutStream' and 'bslx::GenericInStream'.
 
     // DATA
     bsl::stringbuf d_buffer;  // buffer
@@ -159,44 +159,47 @@ class TestStreamBuf {
     };
 
     // CREATORS
-    TestStreamBuf();
-        // Create an empty stream buffer.
 
+    /// Create an empty stream buffer.
+    TestStreamBuf();
+
+    /// Destroy this stream buffer.
     ~TestStreamBuf();
-        // Destroy this stream buffer.
 
     // MANIPULATORS
+
+    /// Increments the flush count.
     int pubsync();
-        // Increments the flush count.
 
+    /// Read the next character in this buffer.  Return the value of the
+    /// character on success, and `traits_type::eof()` otherwise.
     int sbumpc();
-        // Read the next character in this buffer.  Return the value of the
-        // character on success, and 'traits_type::eof()' otherwise.
 
+    /// Set the input limit to the specified `limit`.
     void setLimit(int limit);
-        // Set the input limit to the specified 'limit'.
 
+    /// Peek at the next character in this buffer.  Return the value of
+    /// the character on success, and `traits_type::eof()` otherwise.
     int sgetc();
-        // Peek at the next character in this buffer.  Return the value of
-        // the character on success, and 'traits_type::eof()' otherwise.
 
+    /// Load the specified `length` characters into the specified address
+    /// `s`, and return the number of characters read.
     bsl::streamsize sgetn(char *s, bsl::streamsize length);
-        // Load the specified 'length' characters into the specified address
-        // 's', and return the number of characters read.
 
+    /// Write the specified character `c` to this buffer.  Return `c` on
+    /// success, and `traits_type::eof()` otherwise.
     int sputc(char c);
-        // Write the specified character 'c' to this buffer.  Return 'c' on
-        // success, and 'traits_type::eof()' otherwise.
 
+    /// Write the specified `length` characters at the specified address `s`
+    /// to this buffer, and return the number of characters written.
     bsl::streamsize sputn(const char *s, bsl::streamsize length);
-        // Write the specified 'length' characters at the specified address 's'
-        // to this buffer, and return the number of characters written.
 };
 
 // FREE OPERATORS
+
+/// Write the specified `object` to the specified output `stream` in some
+/// reasonable (multi-line) format, and return a reference to `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const TestStreamBuf& object);
-    // Write the specified 'object' to the specified output 'stream' in some
-    // reasonable (multi-line) format, and return a reference to 'stream'.
 
 // CREATORS
 TestStreamBuf::TestStreamBuf()
@@ -331,19 +334,19 @@ struct MyStruct {
     };
 };
 
+/// Assign to the specified `variable` the value read from the specified
+/// input `stream` using the specified `version` format, and return a
+/// reference to `stream`.  If `stream` is initially invalid, this operation
+/// has no effect.  If `version` is not supported, `variable` is unaltered
+/// and `stream` is invalidated, but otherwise unmodified.  If `version` is
+/// supported but `stream` becomes invalid during this operation, `variable`
+/// has an undefined, but valid, state.  Note that no version is read from
+/// `stream`.  See the `bslx` package-level documentation for more
+/// information on BDEX streaming of value-semantic types and containers.
 template <class STREAM>
 STREAM& bdexStreamIn(STREAM&              stream,
                      MyStruct::EnumValue& variable,
                      int                  version)
-    // Assign to the specified 'variable' the value read from the specified
-    // input 'stream' using the specified 'version' format, and return a
-    // reference to 'stream'.  If 'stream' is initially invalid, this operation
-    // has no effect.  If 'version' is not supported, 'variable' is unaltered
-    // and 'stream' is invalidated, but otherwise unmodified.  If 'version' is
-    // supported but 'stream' becomes invalid during this operation, 'variable'
-    // has an undefined, but valid, state.  Note that no version is read from
-    // 'stream'.  See the 'bslx' package-level documentation for more
-    // information on BDEX streaming of value-semantic types and containers.
 {
     using bslx::InStreamFunctions::bdexStreamIn;
 
@@ -371,17 +374,17 @@ STREAM& bdexStreamIn(STREAM&              stream,
     return stream;
 }
 
+/// Write the value of this object, using the specified `version` format, to
+/// the specified output `stream`, and return a reference to `stream`.  If
+/// `stream` is initially invalid, this operation has no effect.  If
+/// `version` is not supported, `stream` is invalidated, but otherwise
+/// unmodified.  Note that `version` is not written to `stream`.  See the
+/// `bslx` package-level documentation for more information on BDEX
+/// streaming of value-semantic types and containers.
 template <class STREAM>
 STREAM& bdexStreamOut(STREAM&                    stream,
                       const MyStruct::EnumValue& value,
                       int                        version)
-    // Write the value of this object, using the specified 'version' format, to
-    // the specified output 'stream', and return a reference to 'stream'.  If
-    // 'stream' is initially invalid, this operation has no effect.  If
-    // 'version' is not supported, 'stream' is invalidated, but otherwise
-    // unmodified.  Note that 'version' is not written to 'stream'.  See the
-    // 'bslx' package-level documentation for more information on BDEX
-    // streaming of value-semantic types and containers.
 {
     using bslx::OutStreamFunctions::bdexStreamOut;
 
@@ -401,17 +404,17 @@ STREAM& bdexStreamOut(STREAM&                    stream,
     return stream;
 }
 
+/// Return the maximum valid BDEX format version, as indicated by the
+/// specified `versionSelector`, to be passed to the `bdexStreamOut` method.
+/// Note that it is highly recommended that `versionSelector` be formatted
+/// as "YYYYMMDD", a date representation.  Also note that `versionSelector`
+/// should be a *compile*-time-chosen value that selects a format version
+/// supported by both externalizer and unexternalizer.  See the `bslx`
+/// package-level documentation for more information on BDEX streaming of
+/// value-semantic types and containers.
 inline
 int maxSupportedBdexVersion(const MyStruct::EnumValue *,
                             int                        versionSelector)
-    // Return the maximum valid BDEX format version, as indicated by the
-    // specified 'versionSelector', to be passed to the 'bdexStreamOut' method.
-    // Note that it is highly recommended that 'versionSelector' be formatted
-    // as "YYYYMMDD", a date representation.  Also note that 'versionSelector'
-    // should be a *compile*-time-chosen value that selects a format version
-    // supported by both externalizer and unexternalizer.  See the 'bslx'
-    // package-level documentation for more information on BDEX streaming of
-    // value-semantic types and containers.
 {
     using bslx::VersionFunctions::maxSupportedBdexVersion;
 
@@ -431,23 +434,23 @@ int maxSupportedBdexVersion(const MyStruct::EnumValue *,
 //
 ///Example 1: Basic Unexternalization
 ///- - - - - - - - - - - - - - - - -
-// Suppose we wish to implement a (deliberately simple) 'MyPerson' class as a
+// Suppose we wish to implement a (deliberately simple) `MyPerson` class as a
 // value-semantic object that supports BDEX externalization and
 // unexternalization.  In addition to whatever data and methods that we choose
 // to put into our design, we must supply three methods having specific names
 // and signatures in order to comply with the BDEX protocol: a class method
-// 'maxSupportedBdexVersion', an accessor (i.e., a 'const' method)
-// 'bdexStreamOut', and a manipulator (i.e., a non-'const' method)
-// 'bdexStreamIn'.  This example shows how to implement those three methods.
+// `maxSupportedBdexVersion`, an accessor (i.e., a `const` method)
+// `bdexStreamOut`, and a manipulator (i.e., a non-`const` method)
+// `bdexStreamIn`.  This example shows how to implement those three methods.
 //
 // In this example we will not worry overly about "good design" of the
-// 'MyPerson' component, and we will declare but not implement illustrative
+// `MyPerson` component, and we will declare but not implement illustrative
 // methods and free operators, except for the three required BDEX methods,
 // which are implemented in full.  In particular, we will not make explicit use
-// of 'bslma' allocators; a more complete design would do so:
+// of `bslma` allocators; a more complete design would do so:
 //
-// First, we implement 'MyPerson':
-//..
+// First, we implement `MyPerson`:
+// ```
     class MyPerson {
         bsl::string d_firstName;
         bsl::string d_lastName;
@@ -457,87 +460,92 @@ int maxSupportedBdexVersion(const MyStruct::EnumValue *,
 
       public:
         // CLASS METHODS
+
+        /// Return the maximum valid BDEX format version, as indicated by
+        /// the specified `versionSelector`, to be passed to the
+        /// `bdexStreamOut` method.  Note that it is highly recommended that
+        /// `versionSelector` be formatted as "YYYYMMDD", a date
+        /// representation.  Also note that `versionSelector` should be a
+        /// *compile*-time-chosen value that selects a format version
+        /// supported by both externalizer and unexternalizer.  See the
+        /// `bslx` package-level documentation for more information on BDEX
+        /// streaming of value-semantic types and containers.
         static int maxSupportedBdexVersion(int versionSelector);
-            // Return the maximum valid BDEX format version, as indicated by
-            // the specified 'versionSelector', to be passed to the
-            // 'bdexStreamOut' method.  Note that it is highly recommended that
-            // 'versionSelector' be formatted as "YYYYMMDD", a date
-            // representation.  Also note that 'versionSelector' should be a
-            // *compile*-time-chosen value that selects a format version
-            // supported by both externalizer and unexternalizer.  See the
-            // 'bslx' package-level documentation for more information on BDEX
-            // streaming of value-semantic types and containers.
 
         // CREATORS
+
+        /// Create a default person.
         MyPerson();
-            // Create a default person.
 
+        /// Create a person having the specified `firstName`, `lastName`,
+        /// and `age`.
         MyPerson(const char *firstName, const char *lastName, int age);
-            // Create a person having the specified 'firstName', 'lastName',
-            // and 'age'.
 
+        /// Create a person having the value of the specified `original`
+        /// person.
         MyPerson(const MyPerson& original);
-            // Create a person having the value of the specified 'original'
-            // person.
 
+        /// Destroy this object.
         ~MyPerson();
-            // Destroy this object.
 
         // MANIPULATORS
-        MyPerson& operator=(const MyPerson& rhs);
-            // Assign to this person the value of the specified 'rhs' person,
-            // and return a reference to this person.
 
+        /// Assign to this person the value of the specified `rhs` person,
+        /// and return a reference to this person.
+        MyPerson& operator=(const MyPerson& rhs);
+
+        /// Assign to this object the value read from the specified input
+        /// `stream` using the specified `version` format, and return a
+        /// reference to `stream`.  If `stream` is initially invalid, this
+        /// operation has no effect.  If `version` is not supported, this
+        /// object is unaltered and `stream` is invalidated, but otherwise
+        /// unmodified.  If `version` is supported but `stream` becomes
+        /// invalid during this operation, this object has an undefined, but
+        /// valid, state.  Note that no version is read from `stream`.  See
+        /// the `bslx` package-level documentation for more information on
+        /// BDEX streaming of value-semantic types and containers.
         template <class STREAM>
         STREAM& bdexStreamIn(STREAM& stream, int version);
-            // Assign to this object the value read from the specified input
-            // 'stream' using the specified 'version' format, and return a
-            // reference to 'stream'.  If 'stream' is initially invalid, this
-            // operation has no effect.  If 'version' is not supported, this
-            // object is unaltered and 'stream' is invalidated, but otherwise
-            // unmodified.  If 'version' is supported but 'stream' becomes
-            // invalid during this operation, this object has an undefined, but
-            // valid, state.  Note that no version is read from 'stream'.  See
-            // the 'bslx' package-level documentation for more information on
-            // BDEX streaming of value-semantic types and containers.
 
         //...
 
         // ACCESSORS
-        int age() const;
-            // Return the age of this person.
 
+        /// Return the age of this person.
+        int age() const;
+
+        /// Write the value of this object, using the specified `version`
+        /// format, to the specified output `stream`, and return a reference
+        /// to `stream`.  If `stream` is initially invalid, this operation
+        /// has no effect.  If `version` is not supported, `stream` is
+        /// invalidated, but otherwise unmodified.  Note that `version` is
+        /// not written to `stream`.  See the `bslx` package-level
+        /// documentation for more information on BDEX streaming of
+        /// value-semantic types and containers.
         template <class STREAM>
         STREAM& bdexStreamOut(STREAM& stream, int version) const;
-            // Write the value of this object, using the specified 'version'
-            // format, to the specified output 'stream', and return a reference
-            // to 'stream'.  If 'stream' is initially invalid, this operation
-            // has no effect.  If 'version' is not supported, 'stream' is
-            // invalidated, but otherwise unmodified.  Note that 'version' is
-            // not written to 'stream'.  See the 'bslx' package-level
-            // documentation for more information on BDEX streaming of
-            // value-semantic types and containers.
 
+        /// Return the first name of this person.
         const bsl::string& firstName() const;
-            // Return the first name of this person.
 
+        /// Return the last name of this person.
         const bsl::string& lastName() const;
-            // Return the last name of this person.
 
         //...
 
     };
 
     // FREE OPERATORS
-    bool operator==(const MyPerson& lhs, const MyPerson& rhs);
-        // Return 'true' if the specified 'lhs' and 'rhs' person objects have
-        // the same value, and 'false' otherwise.  Two person objects have the
-        // same value if they have the same first name, last name, and age.
 
+    /// Return `true` if the specified `lhs` and `rhs` person objects have
+    /// the same value, and `false` otherwise.  Two person objects have the
+    /// same value if they have the same first name, last name, and age.
+    bool operator==(const MyPerson& lhs, const MyPerson& rhs);
+
+    /// Return `true` if the specified `lhs` and `rhs` person objects do not
+    /// have the same value, and `false` otherwise.  Two person objects
+    /// differ in value if they differ in first name, last name, or age.
     bool operator!=(const MyPerson& lhs, const MyPerson& rhs);
-        // Return 'true' if the specified 'lhs' and 'rhs' person objects do not
-        // have the same value, and 'false' otherwise.  Two person objects
-        // differ in value if they differ in first name, last name, or age.
 
     // ========================================================================
     //                  INLINE FUNCTION DEFINITIONS
@@ -575,7 +583,7 @@ int maxSupportedBdexVersion(const MyStruct::EnumValue *,
     STREAM& MyPerson::bdexStreamIn(STREAM& stream, int version)
     {
         if (stream) {
-            switch (version) {  // switch on the 'bslx' version
+            switch (version) {  // switch on the `bslx` version
               case 1: {
                 stream.getString(d_firstName);
                 if (!stream) {
@@ -653,9 +661,9 @@ int maxSupportedBdexVersion(const MyStruct::EnumValue *,
         return !(lhs == rhs);
     }
 
+    /// This class implements a very basic stream buffer suitable for use in
+    /// `bslx::GenericOutStream` and `bslx::GenericInStream`.
     class MyStreamBuf {
-        // This class implements a very basic stream buffer suitable for use in
-        // 'bslx::GenericOutStream' and 'bslx::GenericInStream'.
 
         // DATA
         bsl::deque<char> d_buffer;  // the input and output buffer
@@ -672,35 +680,37 @@ int maxSupportedBdexVersion(const MyStruct::EnumValue *,
         };
 
         // CREATORS
-        MyStreamBuf();
-            // Create an empty stream buffer.
 
+        /// Create an empty stream buffer.
+        MyStreamBuf();
+
+        /// Destroy this stream buffer.
         ~MyStreamBuf();
-            // Destroy this stream buffer.
 
         // MANIPULATORS
+
+        /// Return 0.
         int pubsync();
-            // Return 0.
 
+        /// Read the next character in this buffer.  Return the value of the
+        /// character on success, and `traits_type::eof()` otherwise.
         int sbumpc();
-            // Read the next character in this buffer.  Return the value of the
-            // character on success, and 'traits_type::eof()' otherwise.
 
+        /// Peek at the next character in this buffer.  Return the value of
+        /// the character on success, and `traits_type::eof()` otherwise.
         int sgetc();
-            // Peek at the next character in this buffer.  Return the value of
-            // the character on success, and 'traits_type::eof()' otherwise.
 
+        /// Load the specified `length` characters into the specified
+        /// address `s`, and return the number of characters read.
         bsl::streamsize sgetn(char *s, bsl::streamsize length);
-            // Load the specified 'length' characters into the specified
-            // address 's', and return the number of characters read.
 
+        /// Write the specified character `c` to this buffer.  Return `c` on
+        /// success, and `traits_type::eof()` otherwise.
         int sputc(char c);
-            // Write the specified character 'c' to this buffer.  Return 'c' on
-            // success, and 'traits_type::eof()' otherwise.
 
+        /// Write the specified `length` characters at the specified address
+        /// `s` to this buffer, and return the number of characters written.
         bsl::streamsize sputn(const char *s, bsl::streamsize length);
-            // Write the specified 'length' characters at the specified address
-            // 's' to this buffer, and return the number of characters written.
     };
 
     // ========================================================================
@@ -789,14 +799,14 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -805,10 +815,10 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "USAGE EXAMPLE" << endl
                                   << "=============" << endl;
 
-// Then, we can exercise the new 'MyPerson' value-semantic class by
-// externalizing and reconstituting an object.  First, create a 'MyPerson'
-// 'janeSmith1' and a 'bslx::GenericOutStream' 'outStream1':
-//..
+// Then, we can exercise the new `MyPerson` value-semantic class by
+// externalizing and reconstituting an object.  First, create a `MyPerson`
+// `janeSmith1` and a `bslx::GenericOutStream` `outStream1`:
+// ```
     MyPerson                               janeSmith1("Jane", "Smith", 42);
     bsl::stringbuf                         buffer1;
     bslx::GenericOutStream<bsl::stringbuf> outStream1(&buffer1, 20131127);
@@ -816,26 +826,26 @@ int main(int argc, char *argv[])
     outStream1.putVersion(VERSION1);
     janeSmith1.bdexStreamOut(outStream1, VERSION1);
     ASSERT(outStream1.isValid());
-//..
-// Next, create a 'MyPerson' 'janeCopy1' initialized to the default value, and
-// assert that 'janeCopy1' is different from 'janeSmith1':
-//..
+// ```
+// Next, create a `MyPerson` `janeCopy1` initialized to the default value, and
+// assert that `janeCopy1` is different from `janeSmith1`:
+// ```
     MyPerson janeCopy1;
     ASSERT(janeCopy1 != janeSmith1);
-//..
-// Then, create a 'bslx::GenericInStream' 'inStream1' initialized with the
-// buffer from the 'bslx::GenericOutStream' object 'outStream1' and
-// unexternalize this data into 'janeCopy1':
-//..
+// ```
+// Then, create a `bslx::GenericInStream` `inStream1` initialized with the
+// buffer from the `bslx::GenericOutStream` object `outStream1` and
+// unexternalize this data into `janeCopy1`:
+// ```
     bslx::GenericInStream<bsl::stringbuf> inStream1(&buffer1);
     int                                   version1;
     inStream1.getVersion(version1);
     janeCopy1.bdexStreamIn(inStream1, version1);
     ASSERT(inStream1.isValid());
-//..
-// Finally, 'assert' the obtained values are as expected and display the
-// results to 'bsl::stdout':
-//..
+// ```
+// Finally, `assert` the obtained values are as expected and display the
+// results to `bsl::stdout`:
+// ```
     ASSERT(version1  == VERSION1);
     ASSERT(janeCopy1 == janeSmith1);
 
@@ -847,29 +857,29 @@ if (veryVerbose) {
                   << "\n\tAge      : " << janeCopy1.age() << bsl::endl;
     }
     else {
-        bsl::cout << "Serialization unsuccessful.  'janeCopy1' holds:"
+        bsl::cout << "Serialization unsuccessful.  `janeCopy1` holds:"
                   << "\n\tFirstName: " << janeCopy1.firstName()
                   << "\n\tLastName : " << janeCopy1.lastName()
                   << "\n\tAge      : " << janeCopy1.age() << bsl::endl;
     }
 } // if (veryVerbose)
-//..
+// ```
 //
-///Example 2: Sample 'STREAMBUF' Implementation
+///Example 2: Sample `STREAMBUF` Implementation
 ///- - - - - - - - - - - - - - - - - - - - - -
-// For this example, we will implement 'MyStreamBuf', a minimal 'STREAMBUF' to
-// to be used with 'bslx::GenericInStream' and 'bslx::GenericOutStream'.  The
+// For this example, we will implement `MyStreamBuf`, a minimal `STREAMBUF` to
+// to be used with `bslx::GenericInStream` and `bslx::GenericOutStream`.  The
 // implementation will consist of only what is required of the type.  For
-// comparison, we will reuse 'MyPerson' and repeat part of {Example 1} to
-// demonstrate how to use 'bslx::GenericInStream'.
+// comparison, we will reuse `MyPerson` and repeat part of {Example 1} to
+// demonstrate how to use `bslx::GenericInStream`.
 //
-// First, we implement 'MyStreamBuf' (which, for brevity, simply uses the
+// First, we implement `MyStreamBuf` (which, for brevity, simply uses the
 // default allocator):
-//..
-//..
-// Then, we create a 'MyPerson' 'janeSmith2' and a 'bslx::GenericOutStream'
-// 'outStream2':
-//..
+// ```
+// ```
+// Then, we create a `MyPerson` `janeSmith2` and a `bslx::GenericOutStream`
+// `outStream2`:
+// ```
     MyPerson                               janeSmith2("Jane", "Smith", 42);
     MyStreamBuf                            buffer2;
     bslx::GenericOutStream<MyStreamBuf>    outStream2(&buffer2, 20131127);
@@ -877,56 +887,56 @@ if (veryVerbose) {
     outStream2.putVersion(VERSION2);
     janeSmith2.bdexStreamOut(outStream2, VERSION2);
     ASSERT(outStream2.isValid());
-//..
-// Next, create a 'MyPerson' 'janeCopy2' initialized to the default value, and
-// assert that 'janeCopy2' is different from 'janeSmith2':
-//..
+// ```
+// Next, create a `MyPerson` `janeCopy2` initialized to the default value, and
+// assert that `janeCopy2` is different from `janeSmith2`:
+// ```
     MyPerson janeCopy2;
     ASSERT(janeCopy2 != janeSmith2);
-//..
-// Then, create a 'bslx::GenericInStream' 'inStream2' initialized with the
-// buffer from the 'bslx::GenericOutStream' object 'outStream2' and
-// unexternalize this data into 'janeCopy2':
-//..
+// ```
+// Then, create a `bslx::GenericInStream` `inStream2` initialized with the
+// buffer from the `bslx::GenericOutStream` object `outStream2` and
+// unexternalize this data into `janeCopy2`:
+// ```
     bslx::GenericInStream<MyStreamBuf>    inStream2(&buffer2);
     int                                   version2;
     inStream2.getVersion(version2);
     janeCopy2.bdexStreamIn(inStream2, version2);
     ASSERT(inStream2.isValid());
-//..
-// Finally, 'assert' the obtained values are as expected:
-//..
+// ```
+// Finally, `assert` the obtained values are as expected:
+// ```
     ASSERT(version2  == VERSION2);
     ASSERT(janeCopy2 == janeSmith2);
-//..
+// ```
 
       } break;
       case 27: {
         // --------------------------------------------------------------------
         // THIRD-PARTY EXTERNALIZATION
-        //   Verify the technique described for overloading 'bdexStreamOut',
-        //   'bdexStreamIn', and 'maxSupportedBdexVersion' functions is valid.
+        //   Verify the technique described for overloading `bdexStreamOut`,
+        //   `bdexStreamIn`, and `maxSupportedBdexVersion` functions is valid.
         //
         // Concerns:
-        //: 1 Overloading the methods in the component's namespace will
-        //:   allow access to these methods as expected (i.e., a 'using' clause
-        //:   followed by unqualified access to the method).
-        //:
-        //: 2 'maxSupportedBdexVersion' provides the expected value.
-        //:
-        //: 3 'operator<<' externalizes the expected bytes.
-        //:
-        //: 4 'operator>>' unexternalizes the expected value.
+        // 1. Overloading the methods in the component's namespace will
+        //    allow access to these methods as expected (i.e., a `using` clause
+        //    followed by unqualified access to the method).
+        //
+        // 2. `maxSupportedBdexVersion` provides the expected value.
+        //
+        // 3. `operator<<` externalizes the expected bytes.
+        //
+        // 4. `operator>>` unexternalizes the expected value.
         //
         // Plan:
-        //: 1 Define an 'enum' wrapped in a 'struct' that externalizes
-        //:   differently based upon version.
-        //:
-        //: 2 Directly verify the return value of 'maxSupportedBdexVersion' for
-        //:   this 'enum'.  (C-2)
-        //:
-        //: 3 Verify the results of 'operator<<' and 'operator>>' against the
-        //:   expected values.  (C-1, C-3..4)
+        // 1. Define an `enum` wrapped in a `struct` that externalizes
+        //    differently based upon version.
+        //
+        // 2. Directly verify the return value of `maxSupportedBdexVersion` for
+        //    this `enum`.  (C-2)
+        //
+        // 3. Verify the results of `operator<<` and `operator>>` against the
+        //    expected values.  (C-1, C-3..4)
         //
         // Testing:
         //   THIRD-PARTY EXTERNALIZATION
@@ -977,21 +987,21 @@ if (veryVerbose) {
       case 26: {
         // --------------------------------------------------------------------
         // UNEXTERNALIZATION FREE OPERATOR
-        //   Verify 'operator>>' works correctly.
+        //   Verify `operator>>` works correctly.
         //
         // Concerns:
-        //: 1 The method inline-forwards to the implementation correctly.
-        //:
-        //: 2 Invocations of the method can be chained.
+        // 1. The method inline-forwards to the implementation correctly.
+        //
+        // 2. Invocations of the method can be chained.
         //
         // Plan:
-        //: 1 Externalize a set of values to an out stream.
-        //:
-        //: 2 Unexternalize the values and verify the values match the initial
-        //:   values.  (C-1)
-        //:
-        //: 3 Unexternalize a set of values from the stream in one code line.
-        //:   (C-2)
+        // 1. Externalize a set of values to an out stream.
+        //
+        // 2. Unexternalize the values and verify the values match the initial
+        //    values.  (C-1)
+        //
+        // 3. Unexternalize a set of values from the stream in one code line.
+        //    (C-2)
         //
         // Testing:
         //   GenericInStream& operator>>(GenericInStream&, TYPE&);
@@ -1099,17 +1109,17 @@ if (veryVerbose) {
       } break;
       case 25: {
         // --------------------------------------------------------------------
-        // TESTING 'getString'
+        // TESTING `getString`
         //   Verify this method unexternalizes the expected values.
         //
         // Concerns:
-        //: 1 The method unexternalizes the expected values.
-        //:
-        //: 2 The unexternalization position does not effect output.
+        // 1. The method unexternalizes the expected values.
+        //
+        // 2. The unexternalization position does not effect output.
         //
         // Plan:
-        //: 1 Unexternalize at different offsets and verify the values.
-        //:   (C-1..2)
+        // 1. Unexternalize at different offsets and verify the values.
+        //    (C-1..2)
         //
         // Testing:
         //   getString(bsl::string& variable);
@@ -1117,12 +1127,12 @@ if (veryVerbose) {
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'getString'" << endl
+                 << "TESTING `getString`" << endl
                  << "===================" << endl;
         }
 
         if (verbose) {
-            cout << "\nTesting 'getString(bsl::string&)'." << endl;
+            cout << "\nTesting `getString(bsl::string&)`." << endl;
         }
         {
             Buf b;
@@ -1200,13 +1210,13 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The unexternalization position does not effect output.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The unexternalization position does not effect output.
         //
         // Plan:
-        //: 1 Unexternalize at different offsets and verify the values.  (C-1,
-        //:   C-2)
+        // 1. Unexternalize at different offsets and verify the values.  (C-1,
+        //    C-2)
         //
         // Testing:
         //   getLength(int& variable);
@@ -1412,17 +1422,17 @@ if (veryVerbose) {
         //   Verify this method unexternalizes the expected values.
         //
         // Concerns:
-        //: 1 The method unexternalizes the expected values.
-        //:
-        //: 2 The unexternalization position does not effect output.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The method unexternalizes the expected values.
+        //
+        // 2. The unexternalization position does not effect output.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Unexternalize at different offsets and verify the values.  (C-1,
-        //:   C-2)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Unexternalize at different offsets and verify the values.  (C-1,
+        //    C-2)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   getArrayFloat64(double *variables, int numVariables);
@@ -1564,17 +1574,17 @@ if (veryVerbose) {
         //   Verify this method unexternalizes the expected values.
         //
         // Concerns:
-        //: 1 The method unexternalizes the expected values.
-        //:
-        //: 2 The unexternalization position does not effect output.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The method unexternalizes the expected values.
+        //
+        // 2. The unexternalization position does not effect output.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Unexternalize at different offsets and verify the values.  (C-1,
-        //:   C-2)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Unexternalize at different offsets and verify the values.  (C-1,
+        //    C-2)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   getArrayFloat32(float *variables, int numVariables);
@@ -1717,17 +1727,17 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The unexternalization position does not effect output.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The unexternalization position does not effect output.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Unexternalize at different offsets and verify the values.  (C-1,
-        //:   C-2)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Unexternalize at different offsets and verify the values.  (C-1,
+        //    C-2)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   getArrayInt64(bsls::Types::Int64 *variables, int numVariables);
@@ -1997,17 +2007,17 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The unexternalization position does not effect output.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The unexternalization position does not effect output.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Unexternalize at different offsets and verify the values.  (C-1,
-        //:   C-2)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Unexternalize at different offsets and verify the values.  (C-1,
+        //    C-2)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   getArrayInt56(bsls::Types::Int64 *variables, int numVariables);
@@ -2275,17 +2285,17 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The unexternalization position does not effect output.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The unexternalization position does not effect output.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Unexternalize at different offsets and verify the values.  (C-1,
-        //:   C-2)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Unexternalize at different offsets and verify the values.  (C-1,
+        //    C-2)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   getArrayInt48(bsls::Types::Int64 *variables, int numVariables);
@@ -2554,17 +2564,17 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The unexternalization position does not effect output.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The unexternalization position does not effect output.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Unexternalize at different offsets and verify the values.  (C-1,
-        //:   C-2)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Unexternalize at different offsets and verify the values.  (C-1,
+        //    C-2)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   getArrayInt40(bsls::Types::Int64 *variables, int numVariables);
@@ -2833,17 +2843,17 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The unexternalization position does not effect output.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The unexternalization position does not effect output.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Unexternalize at different offsets and verify the values.  (C-1,
-        //:   C-2)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Unexternalize at different offsets and verify the values.  (C-1,
+        //    C-2)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   getArrayInt32(int *variables, int numVariables);
@@ -3110,17 +3120,17 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The unexternalization position does not effect output.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The unexternalization position does not effect output.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Unexternalize at different offsets and verify the values.  (C-1,
-        //:   C-2)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Unexternalize at different offsets and verify the values.  (C-1,
+        //    C-2)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   getArrayInt24(int *variables, int numVariables);
@@ -3388,17 +3398,17 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The unexternalization position does not effect output.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The unexternalization position does not effect output.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Unexternalize at different offsets and verify the values.  (C-1,
-        //:   C-2)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Unexternalize at different offsets and verify the values.  (C-1,
+        //    C-2)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //   getArrayInt16(short *variables, int numVariables);
@@ -3666,17 +3676,17 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The unexternalization position does not effect output.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The unexternalization position does not effect output.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Unexternalize at different offsets and verify the values.  (C-1,
-        //:   C-2)
-        //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-3)
+        // 1. Unexternalize at different offsets and verify the values.  (C-1,
+        //    C-2)
+        //
+        // 2. Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
         //    getArrayInt8(char *variables, int numVariables);
@@ -4192,13 +4202,13 @@ if (veryVerbose) {
         //   Verify this method unexternalizes the expected values.
         //
         // Concerns:
-        //: 1 The method unexternalize the expected values.
-        //:
-        //: 2 The unexternalization position does not effect output.
+        // 1. The method unexternalize the expected values.
+        //
+        // 2. The unexternalization position does not effect output.
         //
         // Plan:
-        //: 1 Unexternalize at different offsets and verify the values.  (C-1,
-        //:   C-2)
+        // 1. Unexternalize at different offsets and verify the values.  (C-1,
+        //    C-2)
         //
         // Testing:
         //   getFloat64(double& variable);
@@ -4285,13 +4295,13 @@ if (veryVerbose) {
         //   Verify this method unexternalizes the expected values.
         //
         // Concerns:
-        //: 1 The method unexternalizes the expected values.
-        //:
-        //: 2 The unexternalization position does not effect output.
+        // 1. The method unexternalizes the expected values.
+        //
+        // 2. The unexternalization position does not effect output.
         //
         // Plan:
-        //: 1 Unexternalize at different offsets and verify the values.  (C-1,
-        //:   C-2)
+        // 1. Unexternalize at different offsets and verify the values.  (C-1,
+        //    C-2)
         //
         // Testing:
         //   getFloat32(float& variable);
@@ -4378,13 +4388,13 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The unexternalization position does not effect output.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The unexternalization position does not effect output.
         //
         // Plan:
-        //: 1 Unexternalize at different offsets and verify the values.  (C-1,
-        //:   C-2)
+        // 1. Unexternalize at different offsets and verify the values.  (C-1,
+        //    C-2)
         //
         // Testing:
         //   getInt64(bsls::Types::Int64& variable);
@@ -4544,13 +4554,13 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The unexternalization position does not effect output.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The unexternalization position does not effect output.
         //
         // Plan:
-        //: 1 Unexternalize at different offsets and verify the values.  (C-1,
-        //:   C-2)
+        // 1. Unexternalize at different offsets and verify the values.  (C-1,
+        //    C-2)
         //
         // Testing:
         //   getInt56(bsls::Types::Int64& variable);
@@ -4710,13 +4720,13 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The unexternalization position does not effect output.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The unexternalization position does not effect output.
         //
         // Plan:
-        //: 1 Unexternalize at different offsets and verify the values.  (C-1,
-        //:   C-2)
+        // 1. Unexternalize at different offsets and verify the values.  (C-1,
+        //    C-2)
         //
         // Testing:
         //   getInt48(bsls::Types::Int64& variable);
@@ -4877,13 +4887,13 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The unexternalization position does not effect output.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The unexternalization position does not effect output.
         //
         // Plan:
-        //: 1 Unexternalize at different offsets and verify the values.  (C-1,
-        //:   C-2)
+        // 1. Unexternalize at different offsets and verify the values.  (C-1,
+        //    C-2)
         //
         // Testing:
         //   getInt40(bsls::Types::Int64& variable);
@@ -5043,13 +5053,13 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The unexternalization position does not effect output.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The unexternalization position does not effect output.
         //
         // Plan:
-        //: 1 Unexternalize at different offsets and verify the values.  (C-1,
-        //:   C-2)
+        // 1. Unexternalize at different offsets and verify the values.  (C-1,
+        //    C-2)
         //
         // Testing:
         //   getInt32(int& variable);
@@ -5211,13 +5221,13 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The unexternalization position does not effect output.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The unexternalization position does not effect output.
         //
         // Plan:
-        //: 1 Unexternalize at different offsets and verify the values.  (C-1,
-        //:   C-2)
+        // 1. Unexternalize at different offsets and verify the values.  (C-1,
+        //    C-2)
         //
         // Testing:
         //   getInt24(int& variable);
@@ -5378,13 +5388,13 @@ if (veryVerbose) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The unexternalization position does not effect output.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The unexternalization position does not effect output.
         //
         // Plan:
-        //: 1 Unexternalize at different offsets and verify the values.  (C-1,
-        //:   C-2)
+        // 1. Unexternalize at different offsets and verify the values.  (C-1,
+        //    C-2)
         //
         // Testing:
         //   getInt16(short& variable);
@@ -5546,13 +5556,13 @@ if (veryVerbose) {
         //   getInt8(char&) is tested in the PRIMARY MANIPULATORS test.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The unexternalization position does not effect output.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The unexternalization position does not effect output.
         //
         // Plan:
-        //: 1 Unexternalize at different offsets and verify the values.  (C-1,
-        //:   C-2)
+        // 1. Unexternalize at different offsets and verify the values.  (C-1,
+        //    C-2)
         //
         // Testing:
         //   getInt8(signed char& variable);
@@ -5780,11 +5790,11 @@ if (veryVerbose) {
         //   Verify functionality of the basic accessors.
         //
         // Concerns:
-        //: 1 The methods return correct values.
+        // 1. The methods return correct values.
         //
         // Plan:
-        //: 1 Create an empty object, use 'invalidate' to modify state, and
-        //:   verify the expected values for the methods.  (C-1)
+        // 1. Create an empty object, use `invalidate` to modify state, and
+        //    verify the expected values for the methods.  (C-1)
         //
         // Testing:
         //   operator const void *() const;
@@ -5819,7 +5829,7 @@ if (veryVerbose) {
             LOOP_ASSERT(i, !X && X2);
             LOOP_ASSERT(i, !X.isValid() && X2.isValid());
 
-            // invalidate stream x2 by making excessive 'get' calls
+            // invalidate stream x2 by making excessive `get` calls
             char c;
             for (j = 0; j < i + 1; j++) {
                 if (veryVerbose) { P(j); }
@@ -5835,27 +5845,27 @@ if (veryVerbose) {
         //   Verify functionality of primary manipulators.
         //
         // Concerns:
-        //: 1 Constructor works appropriately.
-        //:
-        //: 2 'getInt8' produces the expected results.
-        //:
-        //: 3 'invalidate' produces the expected results.
-        //:
-        //: 4 The destructor functions properly.
-        //:
-        //: 5 QoI: asserted precondition violations are detected when enabled.
+        // 1. Constructor works appropriately.
+        //
+        // 2. `getInt8` produces the expected results.
+        //
+        // 3. `invalidate` produces the expected results.
+        //
+        // 4. The destructor functions properly.
+        //
+        // 5. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Create objects containing various data.
-        //:
-        //: 2 Modify state using 'getInt8' and 'invalidate'.
-        //:
-        //: 3 Verify state using basic accessors.  (C-1, C-2, C-3)
-        //:
-        //: 4 Since the destructor for this object is empty, the concern
-        //:   regarding the destructor is trivially satisfied.  (C-4)
-        //:
-        //: 5 Verify defensive checks are triggered for invalid values.  (C-5)
+        // 1. Create objects containing various data.
+        //
+        // 2. Modify state using `getInt8` and `invalidate`.
+        //
+        // 3. Verify state using basic accessors.  (C-1, C-2, C-3)
+        //
+        // 4. Since the destructor for this object is empty, the concern
+        //    regarding the destructor is trivially satisfied.  (C-4)
+        //
+        // 5. Verify defensive checks are triggered for invalid values.  (C-5)
         //
         // Testing:
         //   GenericInStream(STREAMBUF *streamBuf);
@@ -5981,16 +5991,16 @@ if (veryVerbose) {
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create 'GenericInStream' objects using default and buffer
-        //:   constructors.
-        //:
-        //: 2 Exercise these objects using various methods.
-        //:
-        //: 3 Verify expected values throughout.  (C-1)
+        // 1. Create `GenericInStream` objects using default and buffer
+        //    constructors.
+        //
+        // 2. Exercise these objects using various methods.
+        //
+        // 3. Verify expected values throughout.  (C-1)
         //
         // Testing:
         //   BREATHING TEST

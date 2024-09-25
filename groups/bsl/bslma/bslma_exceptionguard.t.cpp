@@ -8,8 +8,8 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_objectbuffer.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 using namespace BloombergLP;
 

@@ -19,37 +19,37 @@ class PrintVisitor {
     const int           d_spacesPerLevel;  // spaces per level of indentation
 
   public:
+    /// Create a `PrintVisitor` object configured to print to the specified
+    /// `stream`, indented to the specified `level`, using the specified
+    /// `spacesPerLevel`.
     PrintVisitor(bsl::ostream *stream, int level, int spacesPerLevel);
-        // Create a 'PrintVisitor' object configured to print to the specified
-        // 'stream', indented to the specified 'level', using the specified
-        // 'spacesPerLevel'.
 
+    /// Stream the specified `value` to the `bsl::ostream` provided at
+    /// construction.
     void operator()(const JsonNumber& value) const;
-        // Stream the specified 'value' to the 'bsl::ostream' provided at
-        // construction.
 
+    /// Stream the specified `value` to the `bsl::ostream` provided at
+    /// construction.
     void operator()(const bsl::string& value) const;
-        // Stream the specified 'value' to the 'bsl::ostream' provided at
-        // construction.
 
+    /// Stream the specified `value` to the `bsl::ostream` provided at
+    /// construction.
     void operator()(bool value) const;
-        // Stream the specified 'value' to the 'bsl::ostream' provided at
-        // construction.
 
+    /// Stream the specified `value` to the `bsl::ostream` provided at
+    /// construction.
     void operator()(const JsonNull&) const;
-        // Stream the specified 'value' to the 'bsl::ostream' provided at
-        // construction.
 
+    /// Stream the specified `value` to the `bsl::ostream` provided at
+    /// construction.
     void operator()(const JsonObject& value) const;
-        // Stream the specified 'value' to the 'bsl::ostream' provided at
-        // construction.
 
+    /// Stream the specified `value` to the `bsl::ostream` provided at
+    /// construction.
     void operator()(const JsonArray& value) const;
-        // Stream the specified 'value' to the 'bsl::ostream' provided at
-        // construction.
 
+    /// The behavior is undefined when this method is called.
     void operator()(bslmf::Nil) const;
-        // The behavior is undefined when this method is called.
 };
 
 PrintVisitor::PrintVisitor(bsl::ostream *stream, int level, int spacesPerLevel)

@@ -32,7 +32,7 @@ using namespace BloombergLP::bsltf;
 #if defined(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND)
 # define BSL_DO_NOT_TEST_MOVE_FORWARDING 1
 // Some compilers produce ambiguities when trying to construct our test types
-// for 'emplace'-type functionality with the C++03 move-emulation.  This is a
+// for `emplace`-type functionality with the C++03 move-emulation.  This is a
 // compiler bug triggering in lower level components, so we simply disable
 // those aspects of testing, and rely on the extensive test coverage on other
 // platforms.
@@ -49,7 +49,7 @@ using namespace BloombergLP::bsltf;
 // Logically, this single test type represents 15 different test types (each
 // having a single value constructor with 0..14 arguments, respectively).  For
 // this reason, all constructors (except the copy constructor) are tested in
-// 'case 2' (Primary Manipulators).
+// `case 2` (Primary Manipulators).
 
 // In a possible (alternative) implementation, the attributes should have
 // "nullable" behavior (i.e., if an argument is not passed to a constructor,
@@ -60,7 +60,7 @@ using namespace BloombergLP::bsltf;
 // test upper-level components.
 //
 // Global Concerns:
-//: o No memory is ever allocated.
+//  - No memory is ever allocated.
 //-----------------------------------------------------------------------------
 // CLASS METHODS
 // [12] static int getNumDeletes();
@@ -173,23 +173,23 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
+/// This leading branch is the preferred version for C++17, but the feature
+/// test macro is (currently) for documentation purposes only, and never
+/// defined.  This is the ideal (simplest) form for such declarations:
 # define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
     const BSLS_KEYWORD_CONSTEXPR bsl::bool_constant<EXPRESSION> NAME{}
-    // This leading branch is the preferred version for C++17, but the feature
-    // test macro is (currently) for documentation purposes only, and never
-    // defined.  This is the ideal (simplest) form for such declarations:
 #elif defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
 # define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
     constexpr bsl::integral_constant<bool, EXPRESSION> NAME{}
     // This is the preferred C++11 form for the definition of integral constant
-    // variables.  It assumes the presence of 'constexpr' in the compiler as an
+    // variables.  It assumes the presence of `constexpr` in the compiler as an
     // indication that brace-initialization and traits are available, as it has
     // historically been one of the last C++11 features to ship.
 #else
 # define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
     static const bsl::integral_constant<bool, EXPRESSION> NAME =              \
                  bsl::integral_constant<bool, EXPRESSION>()
-    // 'bsl::integral_constant' is not an aggregate prior to C++17 extending
+    // `bsl::integral_constant` is not an aggregate prior to C++17 extending
     // the rules, so a C++03 compiler must explicitly initialize integral
     // constant variables in a way that is unambiguously not a vexing parse
     // that declares a function instead.
@@ -229,7 +229,7 @@ static const EmplacableTestType::ArgType14 V14(1414);
 struct DefaultDataRow {
     int         d_line;     // source line number
     int         d_group;    // equality group
-    const char *d_spec;     // specification string, for input to 'gg' function
+    const char *d_spec;     // specification string, for input to `gg` function
 };
 
 static
@@ -288,9 +288,9 @@ static const size_t DEFAULT_NUM_DATA =
                        // class TestDriver
                        // ================
 
+/// This class provide a namespace for testing the `EmplacableTestType`.
+/// Each "testCase*" method tests a specific aspect of `EmplacableTestType`.
 class TestDriver {
-    // This class provide a namespace for testing the 'EmplacableTestType'.
-    // Each "testCase*" method tests a specific aspect of 'EmplacableTestType'.
 
   private:
     // PRIVATE TYPES
@@ -316,7 +316,7 @@ class TestDriver {
   private:
     // TEST APPARATUS
     //-------------------------------------------------------------------------
-    // The generating functions interpret the given 'spec' in order from left
+    // The generating functions interpret the given `spec` in order from left
     // to right to create the object according to a custom language.
     // Uppercase letters [A..Z] correspond to arbitrary (but unique) char
     // values to be used as the constructor arguments at the same position.
@@ -340,8 +340,8 @@ class TestDriver {
     // <DEFAULT>    ::= ' ' (space)
     //                  // Default-constructed value
     //
-    // For specification string of length 'N' use object constructor taking
-    // exactly 'N' arguments with values corresponding to the character at the
+    // For specification string of length `N` use object constructor taking
+    // exactly `N` arguments with values corresponding to the character at the
     // character's position.
     //
     // Spec String  Description
@@ -353,17 +353,17 @@ class TestDriver {
     //              A, B, and C, respectively.
     //-------------------------------------------------------------------------
 
+    /// Construct the specified `object` according to the specified `spec`,
+    /// using the object constructor.  Optionally specify a zero `verbose`
+    /// to suppress `spec` syntax error messages.  Return the index of the
+    /// first invalid character, and a negative value otherwise.  Note that
+    /// this function is used to implement `gg` as well as allow for
+    /// verification of syntax error detection.
     static int ggg(Obj *object, const char *spec, int verbose = 1);
-        // Construct the specified 'object' according to the specified 'spec',
-        // using the object constructor.  Optionally specify a zero 'verbose'
-        // to suppress 'spec' syntax error messages.  Return the index of the
-        // first invalid character, and a negative value otherwise.  Note that
-        // this function is used to implement 'gg' as well as allow for
-        // verification of syntax error detection.
 
+    /// Return, by reference, the specified `object` with its value
+    /// constructed according to the specified `spec`.
     static Obj& gg(Obj *object, const char *spec);
-        // Return, by reference, the specified 'object' with its value
-        // constructed according to the specified 'spec'.
 
     template <class T>
     static bslmf::MovableRef<T> testArg(T& t, bsl::true_type)
@@ -379,27 +379,31 @@ class TestDriver {
 
   public:
     // TEST CASES
+
+    /// Test `getNumDeletes` class method.
     static void testCase12();
-        // Test 'getNumDeletes' class method.
 
+    /// Test `isEqual` method.
     static void testCase11();
-        // Test 'isEqual' method.
 
+    /// Test copy-assignment operator.
     static void testCase9();
-        // Test copy-assignment operator.
 
+    /// Test copy constructor.
     static void testCase7();
-        // Test copy constructor.
 
+    /// Test equality and inequality operators (`operator==`, `operator!=`).
     static void testCase6();
-        // Test equality and inequality operators ('operator==', 'operator!=').
 
+    /// Test basic accessors.
     static void testCase4();
-        // Test basic accessors.
 
+    /// Test generator functions `ggg`, and `gg`.
     static void testCase3();
-        // Test generator functions 'ggg', and 'gg'.
 
+    /// Test value constructors for the specified (template parameter)
+    /// number of arguments.  See the test case function for documented
+    /// concerns and test plan.
     template <int N_ARGS,
               int N01,
               int N02,
@@ -416,9 +420,6 @@ class TestDriver {
               int N13,
               int N14>
     static void testCase2();
-        // Test value constructors for the specified (template parameter)
-        // number of arguments.  See the test case function for documented
-        // concerns and test plan.
 };
 
                                // --------------
@@ -537,14 +538,14 @@ Obj& TestDriver::gg(Obj *object, const char *spec)
 void TestDriver::testCase12()
 {
     // -----------------------------------------------------------------------
-    // TESTING 'getNumDeletes' CLASS METHOD.
+    // TESTING `getNumDeletes` CLASS METHOD.
     //
     // Concerns:
-    //: 1 The class correctly counts the number of destructor calls.
+    // 1. The class correctly counts the number of destructor calls.
     //
     // Plan:
-    //: 1 Create and destroy a set of test objects.  Verify that after every
-    //:   destructor call 'getNumDeletes' returns the correct value.  (C-1)
+    // 1. Create and destroy a set of test objects.  Verify that after every
+    //    destructor call `getNumDeletes` returns the correct value.  (C-1)
     //
     // Testing:
     //   static in getNumDeletes();
@@ -680,50 +681,50 @@ void TestDriver::testCase12()
 void TestDriver::testCase11()
 {
     // ---------------------------------------------------------------------
-    // TESTING 'isEqual' METHOD
+    // TESTING `isEqual` METHOD
     //
     // Concerns:
-    //: 1 Two objects, 'X' and 'Y', are equal if and only if they contain
-    //:   the same values.
-    //:
-    //: 2 'true == (X.isEqual(X))' (i.e., identity)
-    //:
-    //: 3 'true == X.isEqual(Y)' if and only if 'true == Y.isEqual(X)'
-    //:   (i.e., commutativity)
-    //:
-    //: 4 'false == X.isEqual(Y)' if and only if 'false == Y.isEqual(X)'
-    //:   (i.e., commutativity)
-    //:
-    //: 5 Method can be called for non-modifiable objects(i.e., objects or
-    //:   references providing only non-modifiable access).
+    // 1. Two objects, `X` and `Y`, are equal if and only if they contain
+    //    the same values.
+    //
+    // 2. `true == (X.isEqual(X))` (i.e., identity)
+    //
+    // 3. `true == X.isEqual(Y)` if and only if `true == Y.isEqual(X)`
+    //    (i.e., commutativity)
+    //
+    // 4. `false == X.isEqual(Y)` if and only if `false == Y.isEqual(X)`
+    //    (i.e., commutativity)
+    //
+    // 5. Method can be called for non-modifiable objects(i.e., objects or
+    //    references providing only non-modifiable access).
     //
     // Plan:
-    //: 1 Using the table-driven technique, specify a set of distinct
-    //:   specifications for the 'gg' function.
-    //:
-    //: 2 For each row 'R1' in the table of P-2: (C-1..5)
-    //:
-    //:   1 Create a single object, and use it to verify the reflexive
-    //:     (anti-reflexive) property of 'isEqual' in the presence of
-    //:     aliasing.  (C-2)
-    //:
-    //:   2 For each row 'R2' in the table of P-2: (C-1..5)
-    //:
-    //:     1 Record, in 'EXP', whether or not distinct objects created from
-    //:       'R1' and 'R2', respectively, are expected to have the same value.
-    //:
-    //:     2 Create an object 'X', having the value 'R1'.
-    //:
-    //:     3 Create an object 'Y', having the value 'R2'.
-    //:
-    //:     4 Verify the commutativity property and expected return value for
-    //:       'isEqual'.  (C-1..5)
+    // 1. Using the table-driven technique, specify a set of distinct
+    //    specifications for the `gg` function.
+    //
+    // 2. For each row `R1` in the table of P-2: (C-1..5)
+    //
+    //   1. Create a single object, and use it to verify the reflexive
+    //      (anti-reflexive) property of `isEqual` in the presence of
+    //      aliasing.  (C-2)
+    //
+    //   2. For each row `R2` in the table of P-2: (C-1..5)
+    //
+    //     1. Record, in `EXP`, whether or not distinct objects created from
+    //        `R1` and `R2`, respectively, are expected to have the same value.
+    //
+    //     2. Create an object `X`, having the value `R1`.
+    //
+    //     3. Create an object `Y`, having the value `R2`.
+    //
+    //     4. Verify the commutativity property and expected return value for
+    //        `isEqual`.  (C-1..5)
     //
     // Testing:
     //   bool isEqual(const EmplacableTestType& other) const;
     // ------------------------------------------------------------------------
 
-    if (verbose) printf("\nAssign the address of 'isEqual' to a variable.\n");
+    if (verbose) printf("\nAssign the address of `isEqual` to a variable.\n");
     {
         typedef bool (Obj::*methodPtr)(const Obj&) const;
 
@@ -789,60 +790,60 @@ void TestDriver::testCase9()
     //   same value.
     //
     // Concerns:
-    //: 1 The assignment operator can change the value of any modifiable target
-    //:   object to that of any source object.
-    //:
-    //: 2 The signature and return type are standard.
-    //:
-    //: 3 The reference returned is to the target object (i.e., '*this').
-    //:
-    //: 4 The value of the source object is not modified.
-    //:
-    //: 5 Assigning an object to itself behaves as expected (alias-safety).
+    // 1. The assignment operator can change the value of any modifiable target
+    //    object to that of any source object.
+    //
+    // 2. The signature and return type are standard.
+    //
+    // 3. The reference returned is to the target object (i.e., `*this`).
+    //
+    // 4. The value of the source object is not modified.
+    //
+    // 5. Assigning an object to itself behaves as expected (alias-safety).
     //
     // Plan:
-    //: 1 Use the address of 'operator=' to initialize a member-function
-    //:   pointer having the appropriate signature and return type for the
-    //:   copy-assignment operator defined in this component.  (C-2)
-    //:
-    //: 2 Using the table-driven technique, specify a set of distinct
-    //:   object values (one per row) in terms of their attributes.
-    //:
-    //: 3 For each row 'R1' in the table of P-2:  (C-1, 3..4)
-    //:
-    //:   1 Create two 'const' 'Obj', 'Z' and 'ZZ', having the value of 'R1'.
-    //:
-    //:   2 For each row 'R2 in the table of P-2:  (C-1, 3..4)
-    //:
-    //:     1 Create a modifiable 'Obj', 'mX', having the value of 'R2'.
-    //:
-    //:     2 Assign 'mX' from 'Z'.  (C-1)
-    //:
-    //:     3 Verify that the address of the return value is the same as that
-    //:       of 'mX'.  (C-3)
-    //:
-    //:     4 Use the equality-comparison operator to verify that:
-    //:
-    //:       1 The target object, 'mX', now has the same value as that of 'Z'.
-    //:         (C-1)
-    //:
-    //:       2 'Z' still has the same value as that of 'ZZ'.  (C-4)
-    //:
-    //: 4 For each row 'N1' in table of P-2:  (C-3, 5)
-    //:
-    //:   1 Create a modifiable 'Obj', 'mX', pointing to 'N1'.
-    //:
-    //:   1 Create a 'const' 'Obj', 'ZZ', pointing to 'N1'.
-    //:
-    //:   2 Let 'Z' be a reference providing only 'const' access to 'mX'.
-    //:
-    //:   3 Assign 'mX' from 'Z'.
-    //:
-    //:   4 Verify that the address of the return value is the same as that of
-    //:     'mX'.  (C-3)
-    //:
-    //:   5 Use the equal-comparison operator to verify that 'mX' has the
-    //:     same value as 'ZZ'.  (C-5)
+    // 1. Use the address of `operator=` to initialize a member-function
+    //    pointer having the appropriate signature and return type for the
+    //    copy-assignment operator defined in this component.  (C-2)
+    //
+    // 2. Using the table-driven technique, specify a set of distinct
+    //    object values (one per row) in terms of their attributes.
+    //
+    // 3. For each row `R1` in the table of P-2:  (C-1, 3..4)
+    //
+    //   1. Create two `const` `Obj`, `Z` and `ZZ`, having the value of `R1`.
+    //
+    //   2. For each row 'R2 in the table of P-2:  (C-1, 3..4)
+    //
+    //     1. Create a modifiable `Obj`, `mX`, having the value of `R2`.
+    //
+    //     2. Assign `mX` from `Z`.  (C-1)
+    //
+    //     3. Verify that the address of the return value is the same as that
+    //        of `mX`.  (C-3)
+    //
+    //     4. Use the equality-comparison operator to verify that:
+    //
+    //       1. The target object, `mX`, now has the same value as that of `Z`.
+    //          (C-1)
+    //
+    //       2. `Z` still has the same value as that of `ZZ`.  (C-4)
+    //
+    // 4. For each row `N1` in table of P-2:  (C-3, 5)
+    //
+    //   1. Create a modifiable `Obj`, `mX`, pointing to `N1`.
+    //
+    //   1. Create a `const` `Obj`, `ZZ`, pointing to `N1`.
+    //
+    //   2. Let `Z` be a reference providing only `const` access to `mX`.
+    //
+    //   3. Assign `mX` from `Z`.
+    //
+    //   4. Verify that the address of the return value is the same as that of
+    //      `mX`.  (C-3)
+    //
+    //   5. Use the equal-comparison operator to verify that `mX` has the
+    //      same value as `ZZ`.  (C-5)
     //
     // Testing:
     //   EmplacableTestType& operator=(const EmplacableTestType& rhs);
@@ -927,26 +928,26 @@ void TestDriver::testCase7()
     // TESTING COPY CONSTRUCTOR
     //
     // Concerns:
-    //: 1 The new object's value is the same as that of the original object
-    //:   (relying on the equality operator).
-    //:
-    //: 2 All internal representations of a given value can be used to create a
-    //:   new object of equivalent value.
-    //:
-    //: 3 The value of the original object is left unaffected.
-    //:
-    //: 4 Subsequent changes in or destruction of the source object have no
-    //:   effect on the copy-constructed object.
+    // 1. The new object's value is the same as that of the original object
+    //    (relying on the equality operator).
+    //
+    // 2. All internal representations of a given value can be used to create a
+    //    new object of equivalent value.
+    //
+    // 3. The value of the original object is left unaffected.
+    //
+    // 4. Subsequent changes in or destruction of the source object have no
+    //    effect on the copy-constructed object.
     //
     // Plan:
-    //: 1 Specify a set S of object values with substantial and varied
-    //:   differences, ordered by increasing length, to be used in the
-    //:   following tests.
-    //:
-    //: 2 For each value in S, initialize objects w and x, copy construct y
-    //:   from x and use 'operator==' to verify that both x and y subsequently
-    //:   have the same value as w.  Let x go out of scope and again verify
-    //:   that w == y.  (C-1..4)
+    // 1. Specify a set S of object values with substantial and varied
+    //    differences, ordered by increasing length, to be used in the
+    //    following tests.
+    //
+    // 2. For each value in S, initialize objects w and x, copy construct y
+    //    from x and use `operator==` to verify that both x and y subsequently
+    //    have the same value as w.  Let x go out of scope and again verify
+    //    that w == y.  (C-1..4)
     //
     // Testing:
     //   EmplacableTestType(const EmplacableTestType& original);
@@ -1001,55 +1002,55 @@ void TestDriver::testCase6()
     // TESTING EQUALITY OPERATORS
     //
     // Concerns:
-    //: 1 Two objects, 'X' and 'Y', compare equal if and only if they contain
-    //:   the same values.
-    //:
-    //: 2 'true  == (X == X)' (i.e., identity)
-    //:
-    //: 3 'false == (X != X)' (i.e., identity)
-    //:
-    //: 4 'X == Y' if and only if 'Y == X' (i.e., commutativity)
-    //:
-    //: 5 'X != Y' if and only if 'Y != X' (i.e., commutativity)
-    //:
-    //: 6 'X != Y' if and only if '!(X == Y)'
-    //:
-    //: 7 Comparison is symmetric with respect to user-defined conversion
-    //:   (i.e., both comparison operators are free functions).
-    //:
-    //: 8 Non-modifiable objects can be compared (i.e., objects or references
-    //:   providing only non-modifiable access).
-    //:
-    //: 9 The equality operator's signature and return type are standard.
-    //:
-    //:10 The inequality operator's signature and return type are standard.
+    // 1. Two objects, `X` and `Y`, compare equal if and only if they contain
+    //    the same values.
+    //
+    // 2. `true  == (X == X)` (i.e., identity)
+    //
+    // 3. `false == (X != X)` (i.e., identity)
+    //
+    // 4. `X == Y` if and only if `Y == X` (i.e., commutativity)
+    //
+    // 5. `X != Y` if and only if `Y != X` (i.e., commutativity)
+    //
+    // 6. `X != Y` if and only if `!(X == Y)`
+    //
+    // 7. Comparison is symmetric with respect to user-defined conversion
+    //    (i.e., both comparison operators are free functions).
+    //
+    // 8. Non-modifiable objects can be compared (i.e., objects or references
+    //    providing only non-modifiable access).
+    //
+    // 9. The equality operator's signature and return type are standard.
+    //
+    // 10. The inequality operator's signature and return type are standard.
     //
     // Plan:
-    //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-    //:   initialize function pointers having the appropriate signatures and
-    //:   return types for the two homogeneous, free equality-comparison
-    //:   operators defined in this component.  (C-7..10)
-    //:
-    //: 2 Using the table-driven technique, specify a set of distinct
-    //:   specifications for the 'gg' function.
-    //:
-    //: 3 For each row 'R1' in the table of P-2: (C-1..7)
-    //:
-    //:   1 Create a single object, and use it to verify the reflexive
-    //:     (anti-reflexive) property of equality (inequality) in the presence
-    //:     of aliasing.  (C-2..3)
-    //:
-    //:   2 For each row 'R2' in the table of P-2: (C-1..7)
-    //:
-    //:     1 Record, in 'EXP', whether or not distinct objects created from
-    //:       'R1' and 'R2', respectively, are expected to have the same value.
-    //:
-    //:     2 Create an object 'X', having the value 'R1'.
-    //:
-    //:     3 Create an object 'Y', having the value 'R2'.
-    //:
-    //:     4 Verify the commutativity property and expected return value for
-    //:       both '==' and '!='.  (C-1..7)
+    // 1. Use the respective addresses of `operator==` and `operator!=` to
+    //    initialize function pointers having the appropriate signatures and
+    //    return types for the two homogeneous, free equality-comparison
+    //    operators defined in this component.  (C-7..10)
+    //
+    // 2. Using the table-driven technique, specify a set of distinct
+    //    specifications for the `gg` function.
+    //
+    // 3. For each row `R1` in the table of P-2: (C-1..7)
+    //
+    //   1. Create a single object, and use it to verify the reflexive
+    //      (anti-reflexive) property of equality (inequality) in the presence
+    //      of aliasing.  (C-2..3)
+    //
+    //   2. For each row `R2` in the table of P-2: (C-1..7)
+    //
+    //     1. Record, in `EXP`, whether or not distinct objects created from
+    //        `R1` and `R2`, respectively, are expected to have the same value.
+    //
+    //     2. Create an object `X`, having the value `R1`.
+    //
+    //     3. Create an object `Y`, having the value `R2`.
+    //
+    //     4. Verify the commutativity property and expected return value for
+    //        both `==` and `!=`.  (C-1..7)
     //
     // Testing:
     //   bool operator==(Obj& lhs, Obj& rhs);
@@ -1128,19 +1129,19 @@ void TestDriver::testCase4()
     //   Ensure each basic accessor properly interprets object state.
     //
     // Concerns:
-    //: 1 Each accessor returns the value of the corresponding attribute
-    //:   of the object.
-    //:
-    //: 2 Each accessor method is declared 'const'.
+    // 1. Each accessor returns the value of the corresponding attribute
+    //    of the object.
+    //
+    // 2. Each accessor method is declared `const`.
     //
     // Plan:
-    //: 1 Use the value constructors to create objects having different
-    //:   attribute values.  Verify that the accessors for the corresponding
-    //:   attributes invoked on a reference providing non-modifiable access
-    //:   to the object return the expected value.  (C-2)
-    //:
-    //: 2 Verify that the accessors for the attributes not supplied to the
-    //:   value constructor return the default attribute value.  (C-1)
+    // 1. Use the value constructors to create objects having different
+    //    attribute values.  Verify that the accessors for the corresponding
+    //    attributes invoked on a reference providing non-modifiable access
+    //    to the object return the expected value.  (C-2)
+    //
+    // 2. Verify that the accessors for the attributes not supplied to the
+    //    value constructor return the default attribute value.  (C-1)
     //
     // Testing:
     //   ArgType01 arg01() const;
@@ -1305,29 +1306,29 @@ void TestDriver::testCase3()
     //   reported.
     //
     // Concerns:
-    //: 1 Valid generator syntax produces expected results.
-    //:
-    //: 2 Invalid syntax is detected and reported.
+    // 1. Valid generator syntax produces expected results.
+    //
+    // 2. Invalid syntax is detected and reported.
     //
     // Plan:
-    //: 1 For each of an enumerated sequence of 'spec' values, ordered by
-    //:   increasing 'spec' length:
-    //:
-    //:   1 Use the primitive generator function 'gg' to set the state of a
-    //:     newly created object.
-    //:
-    //:   2 Verify that 'gg' returns a valid reference to the modified argument
-    //:     object.
-    //:
-    //:   3 Use the basic accessors to verify that the value of the object is
-    //:     as expected.  (C-1)
-    //:
-    //: 2 For each of an enumerated sequence of 'spec' values, ordered by
-    //:   increasing 'spec' length, use the primitive generator function 'ggg'
-    //:   to set the state of a newly created object.
-    //:
-    //:   1 Verify that 'ggg' returns the expected value corresponding to the
-    //:     location of the first invalid value of the 'spec'.  (C-2)
+    // 1. For each of an enumerated sequence of `spec` values, ordered by
+    //    increasing `spec` length:
+    //
+    //   1. Use the primitive generator function `gg` to set the state of a
+    //      newly created object.
+    //
+    //   2. Verify that `gg` returns a valid reference to the modified argument
+    //      object.
+    //
+    //   3. Use the basic accessors to verify that the value of the object is
+    //      as expected.  (C-1)
+    //
+    // 2. For each of an enumerated sequence of `spec` values, ordered by
+    //    increasing `spec` length, use the primitive generator function `ggg`
+    //    to set the state of a newly created object.
+    //
+    //   1. Verify that `ggg` returns the expected value corresponding to the
+    //      location of the first invalid value of the `spec`.  (C-2)
     //
     // Testing:
     //   Obj& gg(Obj *object, const char *spec);
@@ -1437,21 +1438,21 @@ void TestDriver::testCase2()
     //   This helper exercises value constructors that take 0..14 arguments.
     //
     // Concerns:
-    //: 1 Constructor arguments are correcty passed to the corresponding
-    //:   attributes of the object.
+    // 1. Constructor arguments are correcty passed to the corresponding
+    //    attributes of the object.
     //
     // Plan:
-    //: 1 Create 14 argument values.
-    //:
-    //: 2 Based on the (first) template parameter indicating the number of
-    //:   arguments to pass in, call the value constructor with the
-    //:   corresponding number of arguments, performing an explicit move
-    //:   of the argument if so indicated by the template parameter
-    //:   corresponding to the argument.
-    //:
-    //: 3 Verify that the argument values were passed correctly.
-    //:
-    //: 4 Verify that the move-state for each argument is as expected.
+    // 1. Create 14 argument values.
+    //
+    // 2. Based on the (first) template parameter indicating the number of
+    //    arguments to pass in, call the value constructor with the
+    //    corresponding number of arguments, performing an explicit move
+    //    of the argument if so indicated by the template parameter
+    //    corresponding to the argument.
+    //
+    // 3. Verify that the argument values were passed correctly.
+    //
+    // 4. Verify that the move-state for each argument is as expected.
     // ------------------------------------------------------------------------
 
     DECLARE_BOOL_CONSTANT(MOVE_01, N01 == 1);
@@ -1701,20 +1702,20 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING 'getNumDeletes' CLASS METHOD
+        // TESTING `getNumDeletes` CLASS METHOD
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting 'getNumDeletes' class method"
+        if (verbose) printf("\nTesting `getNumDeletes` class method"
                             "\n====================================\n");
 
         TestDriver::testCase12();
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'isEqual' METHOD
+        // TESTING `isEqual` METHOD
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting 'isEqual' method"
+        if (verbose) printf("\nTesting `isEqual` method"
                             "\n========================\n");
 
         TestDriver::testCase11();
@@ -1778,10 +1779,10 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // GENERATOR FUNCTIONS 'gg' and 'ggg'
+        // GENERATOR FUNCTIONS `gg` and `ggg`
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting 'gg' and 'ggg'"
+        if (verbose) printf("\nTesting `gg` and `ggg`"
                             "\n======================\n");
 
         TestDriver::testCase3();
@@ -1793,29 +1794,29 @@ int main(int argc, char *argv[])
         //   for thorough testing.
         //
         // Concerns:
-        //: 1 The value constructors can create an object having any value that
-        //:   does not violate the documented constraints.
+        // 1. The value constructors can create an object having any value that
+        //    does not violate the documented constraints.
         //
         // Plan:
-        //: 1 This test makes material use of template method 'testCase2'
-        //:   with the first integer template parameter indicating the number
-        //:   of arguments to use, the next 14 integer template parameters
-        //:   indicating '0' for copy, '1' for move, and '2' for not-applicable
-        //:   (i.e., beyond the number of arguments).
+        // 1. This test makes material use of template method `testCase2`
+        //    with the first integer template parameter indicating the number
+        //    of arguments to use, the next 14 integer template parameters
+        //    indicating '0' for copy, `1` for move, and `2` for not-applicable
+        //    (i.e., beyond the number of arguments).
         //
-        //:   1 Based on the (first) template parameter indicating the number
-        //:     of arguments to pass in, call the value constructor with the
-        //:     corresponding number of arguments, performing an explicit move
-        //:     of the argument if so indicated by the template parameter
-        //:     corresponding to the argument.
-        //:
-        //: 2 Call 'testCase2' in various configurations:
-        //:   1 For 0..14 arguments, call with the move flag set to '0' and
-        //:     then with the move flag set to '1' for every positional
-        //:     argument.
-        //:
-        //:   2 For 0..14 arguments, call with move flags set to '0' and '1'
-        //:     for all positional arguments.
+        //   1. Based on the (first) template parameter indicating the number
+        //      of arguments to pass in, call the value constructor with the
+        //      corresponding number of arguments, performing an explicit move
+        //      of the argument if so indicated by the template parameter
+        //      corresponding to the argument.
+        //
+        // 2. Call `testCase2` in various configurations:
+        //   1. For 0..14 arguments, call with the move flag set to `0` and
+        //      then with the move flag set to `1` for every positional
+        //      argument.
+        //
+        //   2. For 0..14 arguments, call with move flags set to `0` and `1`
+        //      for all positional arguments.
         //
         // Testing:
         //   EmplacableTestType();
@@ -2040,11 +2041,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform an ad-hoc test of the primary modifiers and accessors.
+        // 1. Perform an ad-hoc test of the primary modifiers and accessors.
         //
         // Testing:
         //   BREATHING TEST

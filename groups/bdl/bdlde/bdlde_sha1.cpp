@@ -15,18 +15,18 @@ namespace BloombergLP {
 namespace bdlde {
 namespace {
 
+/// Alias for the word type of the SHA-1 algorithm.  Note that this must
+/// match `Sha1::Word`.
 typedef bsl::uint32_t Sha1Word;
-    // Alias for the word type of the SHA-1 algorithm.  Note that this must
-    // match 'Sha1::Word'.
 
+/// Alias for the internal state type of the SHA-1 algorithm.  Note that
+/// this must match `Sha1::State`.
 typedef Sha1Word      Sha1State[5];
-    // Alias for the internal state type of the SHA-1 algorithm.  Note that
-    // this must match 'Sha1::State'.
 
+/// Size (in bytes) of the blocks into which messages are divided before
+/// being ingested into the SHA-1 state.  Note that this must match
+/// `Sha1::k_BLOCK_SIZE`.
 const bsl::size_t k_SHA1_BLOCK_SIZE = 512 / 8;
-    // Size (in bytes) of the blocks into which messages are divided before
-    // being ingested into the SHA-1 state.  Note that this must match
-    // 'Sha1::k_BLOCK_SIZE'.
 
 const Sha1Word k_SHA1_CONSTANTS[80] = {
     // The SHA-1 constants defined in section 4.2.1 of FIPS 180-4.
@@ -48,19 +48,19 @@ const Sha1Word k_SHA1_CONSTANTS[80] = {
     0xca62c1d6, 0xca62c1d6, 0xca62c1d6, 0xca62c1d6, 0xca62c1d6,
 };
 
+/// Return the result of a bitwise rotation on the specified `value` by the
+/// specified `shift` number of bits.  The behavior is undefined unless
+/// `shift` is positive and strictly less than 32.
 static Sha1Word rotateLeft(Sha1Word value, int shift)
-    // Return the result of a bitwise rotation on the specified 'value' by the
-    // specified 'shift' number of bits.  The behavior is undefined unless
-    // 'shift' is positive and strictly less than 32.
 {
     return (value << shift) | (value >> ((sizeof(value) * CHAR_BIT) - shift));
 }
 
+/// Return a value that for each bit set in the specified `condition` uses
+/// the corresponding bit from the specified `x`, otherwise uses the
+/// corresponding bit from the specified `y`.  This function is named `Ch`
+/// in FIPS 180-4.
 static Sha1Word bitwiseConditional(Sha1Word condition, Sha1Word x, Sha1Word y)
-    // Return a value that for each bit set in the specified 'condition' uses
-    // the corresponding bit from the specified 'x', otherwise uses the
-    // corresponding bit from the specified 'y'.  This function is named 'Ch'
-    // in FIPS 180-4.
 {
     // The following implementation, taken from bdlde_sha2.cpp, only uses 3
     // operations, compared with the more straightforward one, which uses 4:
@@ -70,19 +70,19 @@ static Sha1Word bitwiseConditional(Sha1Word condition, Sha1Word x, Sha1Word y)
     return (condition & (x ^ y)) ^ y;
 }
 
+/// Return a value that has each bit set if and only if the corresponding
+/// bit is set in at least two out of three of the specified `x`, `y`, and
+/// `z`.  This function is named `Maj` in FIPS 180-4.
 static Sha1Word bitwiseMajority(Sha1Word x, Sha1Word y, Sha1Word z)
-    // Return a value that has each bit set if and only if the corresponding
-    // bit is set in at least two out of three of the specified 'x', 'y', and
-    // 'z'.  This function is named 'Maj' in FIPS 180-4.
 {
     return (x & y) | ((x | y) & z);
 }
 
+/// The SHA-1 mixing function with the specified `index` having the
+/// specified `x`, `y`, and `z` as arguments, as defined in section 4.1.1 of
+/// FIPS 180-4.  The behavior is undefined unless `index` is nonnegative and
+/// less than or equal to 79.
 static Sha1Word f(Sha1Word x, Sha1Word y, Sha1Word z, int index)
-    // The SHA-1 mixing function with the specified 'index' having the
-    // specified 'x', 'y', and 'z' as arguments, as defined in section 4.1.1 of
-    // FIPS 180-4.  The behavior is undefined unless 'index' is nonnegative and
-    // less than or equal to 79.
 {
     if (index <= 19) {
         return bitwiseConditional(x, y, z);                           // RETURN
@@ -93,11 +93,11 @@ static Sha1Word f(Sha1Word x, Sha1Word y, Sha1Word z, int index)
     }
 }
 
+/// Return an integer that has the value that would be read from the address
+/// indicated by the specified `bytes` interpreted as a big-endian integer
+/// of type `Word`.  The behavior is undefined unless
+/// `[bytes, bytes + sizeof(INTEGER))` is a valid range.
 static Sha1Word pack(const unsigned char *bytes)
-    // Return an integer that has the value that would be read from the address
-    // indicated by the specified 'bytes' interpreted as a big-endian integer
-    // of type 'Word'.  The behavior is undefined unless
-    // '[bytes, bytes + sizeof(INTEGER))' is a valid range.
 {
     bsl::size_t shift = sizeof(Sha1Word) * CHAR_BIT;
     Sha1Word    x     = 0;
@@ -110,12 +110,12 @@ static Sha1Word pack(const unsigned char *bytes)
     return x;
 }
 
+/// Stores the integer representation of the specified `value` into the
+/// address indicated by the specified `bytes`, interpreting `value` as a
+/// big-endian integer.  The behavior is undefined unless
+/// `[bytes, bytes + sizeof(INTEGER))` is a valid range.
 template <class INTEGER>
 static void unpack(unsigned char *bytes, INTEGER value)
-    // Stores the integer representation of the specified 'value' into the
-    // address indicated by the specified 'bytes', interpreting 'value' as a
-    // big-endian integer.  The behavior is undefined unless
-    // '[bytes, bytes + sizeof(INTEGER))' is a valid range.
 {
     bsl::size_t shift = sizeof(INTEGER) * CHAR_BIT;
     for (bsl::size_t index = 0; index != sizeof(INTEGER); ++index) {
@@ -124,9 +124,9 @@ static void unpack(unsigned char *bytes, INTEGER value)
     }
 }
 
+/// Store into the specified `result` the 20 bytes whose values are the
+/// big-endian representation of the specified `state`.
 void unpackArray(unsigned char *result, const Sha1State& state)
-    // Store into the specified 'result' the 20 bytes whose values are the
-    // big-endian representation of the specified 'state'.
 {
     for (bsl::size_t index = 0; index < bsl::size(state); ++index)
     {
@@ -134,9 +134,9 @@ void unpackArray(unsigned char *result, const Sha1State& state)
     }
 }
 
+/// Store into the specified `output` the hex representation of the bytes in
+/// the specified `input`.
 void toHex(char *output, const unsigned char (&input)[Sha1::k_DIGEST_SIZE])
-    // Store into the specified 'output' the hex representation of the bytes in
-    // the specified 'input'.
 {
     const char *hexTable = "0123456789abcdef";
     for (bsl::size_t index = 0; index != Sha1::k_DIGEST_SIZE; ++index) {
@@ -146,12 +146,12 @@ void toHex(char *output, const unsigned char (&input)[Sha1::k_DIGEST_SIZE])
     }
 }
 
+/// Update the specified `state` with the hashed contents of the specified
+/// `message` having a length equal to the specified `numMessageBlocks`
+/// times `k_SHA1_BLOCK_SIZE`.
 void transform(Sha1State           *state,
                const unsigned char *message,
                bsl::uint64_t        numMessageBlocks)
-    // Update the specified 'state' with the hashed contents of the specified
-    // 'message' having a length equal to the specified 'numMessageBlocks'
-    // times 'k_SHA1_BLOCK_SIZE'.
 {
     const unsigned char *messageEnd =
         message + k_SHA1_BLOCK_SIZE * numMessageBlocks;
@@ -191,19 +191,19 @@ void transform(Sha1State           *state,
     }
 }
 
+/// Update the specified `state` with the contents of the specified `buffer`
+/// followed by the contents of the specified `message` having the specified
+/// `messageSize` in bytes.  Update the specified `totalSize` to have the
+/// size, in bytes, of all messages passed in so far.  Populate 'buffer
+/// with all bytes left over that did not fit into a multiple of
+/// `k_BLOCK_SIZE`, and store into the specified `bufferSize` the count of
+/// the bytes in `buffer` that are currently in use.
 void updateImpl(Sha1State           *state,
                 bsl::uint64_t       *totalSize,
                 bsl::uint64_t       *bufferSize,
                 unsigned char      (*buffer)[k_SHA1_BLOCK_SIZE],
                 const unsigned char *message,
                 bsl::size_t          messageSize)
-    // Update the specified 'state' with the contents of the specified 'buffer'
-    // followed by the contents of the specified 'message' having the specified
-    // 'messageSize' in bytes.  Update the specified 'totalSize' to have the
-    // size, in bytes, of all messages passed in so far.  Populate 'buffer
-    // with all bytes left over that did not fit into a multiple of
-    // 'k_BLOCK_SIZE', and store into the specified 'bufferSize' the count of
-    // the bytes in 'buffer' that are currently in use.
 {
     const bsl::uint64_t prologueSize =
         bsl::min(static_cast<bsl::uint64_t>(messageSize),
@@ -232,14 +232,14 @@ void updateImpl(Sha1State           *state,
     bsl::copy(epilogue, epilogue + *bufferSize, *buffer);
 }
 
+/// Mix into the specified `state` the remaining contents of the specified
+/// `buffer` as indicated by the specified `bufferSize` followed by a
+/// sequence of padding bytes computed from the specified `totalSize` using
+/// the formula specified by section 5.1.1 of FIPS 180-4.
 void finalize(Sha1State            *state,
               bsl::uint64_t         totalSize,
               bsl::uint64_t         bufferSize,
               const unsigned char (&buffer)[k_SHA1_BLOCK_SIZE])
-    // Mix into the specified 'state' the remaining contents of the specified
-    // 'buffer' as indicated by the specified 'bufferSize' followed by a
-    // sequence of padding bytes computed from the specified 'totalSize' using
-    // the formula specified by section 5.1.1 of FIPS 180-4.
 {
     const bsl::uint64_t totalSizeInBits = totalSize * 8;
     const bsl::uint64_t unpaddedSize = bufferSize + 1 + sizeof(bsl::uint64_t);

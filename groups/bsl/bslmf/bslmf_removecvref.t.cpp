@@ -6,11 +6,11 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_nameof.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
-#include <type_traits> // 'std::remove_cvref', 'std::remove_cvref_t'
+#include <type_traits> // `std::remove_cvref`, `std::remove_cvref_t`
 #endif
 
 using namespace bsl;
@@ -21,12 +21,12 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines meta-functions, 'bsl::remove_cvref' and
-// 'bsl::remove_cvref_t', that strip reference-ness and remove any top-level
+// The component under test defines meta-functions, `bsl::remove_cvref` and
+// `bsl::remove_cvref_t`, that strip reference-ness and remove any top-level
 // cv-qualifiers from a template parameter type.  Thus, we need to ensure that
 // the values returned by the meta-function are correct for each possible
-// category of types.  When 'std::remove_cvref' is available in the native
-// standard library, 'bsl::remove_cvref' and 'bsl::remove_cvref_t' must be
+// category of types.  When `std::remove_cvref` is available in the native
+// standard library, `bsl::remove_cvref` and `bsl::remove_cvref_t` must be
 // aliases to the native meta functions.
 //
 // ----------------------------------------------------------------------------
@@ -111,7 +111,7 @@ class  Class  {};
 
 struct TestType {
    // This user-defined type is intended to be used during testing as an
-   // argument for the template parameter 'TYPE' of 'bsl::remove_cvref'.
+   // argument for the template parameter `TYPE` of `bsl::remove_cvref`.
 };
 
 typedef int TestType::* Pm;
@@ -185,13 +185,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -208,31 +208,31 @@ int main(int argc, char *argv[])
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose that we want to remove the cv-qualifiers from a particular type.
 //
-// First, we create two 'typedef's -- a 'const'-qualified and
-// 'volatile'-qualified reference type ('MyCvRefType') and the same type
-// without the cv-qualifiers and reference-ness ('MyType'):
-//..
+// First, we create two `typedef`s -- a `const`-qualified and
+// `volatile`-qualified reference type (`MyCvRefType`) and the same type
+// without the cv-qualifiers and reference-ness (`MyType`):
+// ```
         typedef const volatile int& MyCvRefType;
         typedef                int  MyType;
-//..
-// Now, we remove the cv-qualifiers from 'MyCvRefType' and its reference-ness
-// using 'bsl::remove_cvref' and verify that the resulting type is the same as
-// 'MyType':
-//..
+// ```
+// Now, we remove the cv-qualifiers from `MyCvRefType` and its reference-ness
+// using `bsl::remove_cvref` and verify that the resulting type is the same as
+// `MyType`:
+// ```
         ASSERT(true == (bsl::is_same<bsl::remove_cvref<MyCvRefType>::type,
                                      MyType>::value));
-//..
+// ```
 // Finally, if the current compiler supports alias templates C++11 feature, we
-// remove a 'const'-qualifier, 'volatile'-qualifier and its reference-ness from
-// 'MyCvRefType' using 'bsl::remove_cvref_t' and verify that the resulting type
-// is the same as 'MyType':
-//..
+// remove a `const`-qualifier, `volatile`-qualifier and its reference-ness from
+// `MyCvRefType` using `bsl::remove_cvref_t` and verify that the resulting type
+// is the same as `MyType`:
+// ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
         ASSERT(
             true ==
             (bsl::is_same<bsl::remove_cvref_t<MyCvRefType>, MyType>::value));
 #endif
-//..
+// ```
 
       } break;
       case 2: {
@@ -240,14 +240,14 @@ int main(int argc, char *argv[])
         // ALIASED TO STANDARD META FUNCTIONS
         //
         // Concerns:
-        //: 1 The meta functions 'bsl::remove_cvref' and 'bsl::remove_cvref_v'
-        //:   should be aliased to their standard library analogs when the
-        //:   latter is available from the native library.
+        // 1. The meta functions `bsl::remove_cvref` and `bsl::remove_cvref_v`
+        //    should be aliased to their standard library analogs when the
+        //    latter is available from the native library.
         //
         // Plan:
-        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY' is
-        //:   defined, use 'bsl::is_same' to compare the two meta functions
-        //:   using a representative type.
+        // 1. When `BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY` is
+        //    defined, use `bsl::is_same` to compare the two meta functions
+        //    using a representative type.
         //
         // Testing:
         //   CONCERN: Aliased to standard types when available.
@@ -260,13 +260,13 @@ int main(int argc, char *argv[])
         typedef int T;
 
         if (veryVerbose) printf(
-                              "\nTesting 'remove_cvref' alias using 'int'.\n");
+                              "\nTesting `remove_cvref` alias using `int`.\n");
 
         ASSERT((bsl::is_same<bsl::remove_cvref<T>,
                              std::remove_cvref<T> >::value));
 
         if (veryVerbose) printf(
-                            "\nTesting 'remove_cvref_t' alias using 'int'.\n");
+                            "\nTesting `remove_cvref_t` alias using `int`.\n");
 
         ASSERT((bsl::is_same<bsl::remove_cvref_t<T>,
                              std::remove_cvref_t<T> >::value));
@@ -277,36 +277,36 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::remove_cvref::type'
-        //   Ensure that the 'typedef' 'type' of 'bsl::remove_cvref'
+        // `bsl::remove_cvref::type`
+        //   Ensure that the `typedef` `type` of `bsl::remove_cvref`
         //   instantiations has the same type as the template parameter type
         //   except that it has any top-level cv-qualifiers and its
         //   reference-ness removed.
         //
         // Concerns:
-        //: 1 'bsl::remove_cvref' leaves types that are not 'const'-qualified
-        //:    nor 'volatile'-qualified as-is.
-        //:
-        //: 2 'bsl::remove_cvref' leaves types that are not references as-is.
-        //:
-        //: 3 'bsl::remove_cvref' removes any top-level cv-qualifiers.
-        //:
-        //: 4 'bsl::remove_cvref' removes any reference-ness.
+        // 1. `bsl::remove_cvref` leaves types that are not `const`-qualified
+        //     nor `volatile`-qualified as-is.
+        //
+        // 2. `bsl::remove_cvref` leaves types that are not references as-is.
+        //
+        // 3. `bsl::remove_cvref` removes any top-level cv-qualifiers.
+        //
+        // 4. `bsl::remove_cvref` removes any reference-ness.
         // :
-        //: 5 'bsl::remove_cvref' removes top-level cv-qualifiers from a
-        //:   pointer-to-member object type, and not from the qualifier in the
-        //:   pointed-to member.
-        //:
-        //: 5 'bsl::remove_cvref_t' represents the return type of
-        //:   'bsl::remove_cvref' meta-function for a variety of template
-        //:   parameter types.
+        // 5. `bsl::remove_cvref` removes top-level cv-qualifiers from a
+        //    pointer-to-member object type, and not from the qualifier in the
+        //    pointed-to member.
+        //
+        // 5. `bsl::remove_cvref_t` represents the return type of
+        //    `bsl::remove_cvref` meta-function for a variety of template
+        //    parameter types.
         //
         // Plan:
-        //  1 Verify that 'bsl::remove_cvref::type' has the correct type for
+        //  1 Verify that `bsl::remove_cvref::type` has the correct type for
         //    each concern. (C 1-5)
         //
-        //  2 Verify that 'bsl::remove_cvref_t' has the same type as the return
-        //    type of 'bsl::remove_cvref' for a variety of template parameter
+        //  2 Verify that `bsl::remove_cvref_t` has the same type as the return
+        //    type of `bsl::remove_cvref` for a variety of template parameter
         //    types. (C-6)
         //
         // Testing:
@@ -326,7 +326,7 @@ int main(int argc, char *argv[])
         ASSERT_REMOVE_CVREF(Union );
         ASSERT_REMOVE_CVREF(Class );
 
-        // 'void'
+        // `void`
 
         ASSERT_SAME(void,                                void                );
         ASSERT_SAME(const          void,                 void                );

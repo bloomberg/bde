@@ -70,12 +70,13 @@ enum ZoneinfoReadMode {
 };
 
 // HELPER FUNCTIONS
+
+/// Load, into the specified `result`, the system independent path of the
+/// specified `timeZoneId` appended to the specified `rootPath`.
 template <class STRING>
 void concatenatePath(STRING             *result,
                      const bsl::string&  rootPath,
                      const char         *timeZoneId)
-    // Load, into the specified 'result', the system independent path of the
-    // specified 'timeZoneId' appended to the specified 'rootPath'.
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(timeZoneId);
@@ -91,9 +92,9 @@ void concatenatePath(STRING             *result,
     }
 }
 
+/// Returns 0 if the specified `timeZoneId` contains only valid characters
+/// and does not start with `/`, and a non-zero value otherwise.
 int validateTimeZoneId(const char *timeZoneId)
-    // Returns 0 if the specified 'timeZoneId' contains only valid characters
-    // and does not start with '/', and a non-zero value otherwise.
 {
     BSLS_ASSERT(timeZoneId);
 
@@ -114,19 +115,19 @@ int validateTimeZoneId(const char *timeZoneId)
     return 0;
 }
 
+/// Load into the specified `result` the file-system path to the Zoneinfo
+/// binary data file corresponding to the specified `timeZoneId` relative to
+/// the configured `rootPath`.  Return 0 on success, and a non-zero value
+/// otherwise.  On error, `result` is left in a valid, but unspecified
+/// state.  The behavior is undefined unless either `configureRootPath` or
+/// `configureRootPathIfValid` has been called successfully.  Note that this
+/// operation does not verify `result` refers to a valid file on the file
+/// system, or whether the file (if it exists) contains valid Zoneinfo data.
 template <class STRING>
 inline
 int loadTimeZoneFilePath_Impl(STRING             *result,
                               const char         *timeZoneId,
                               const bsl::string&  rootPath)
-    // Load into the specified 'result' the file-system path to the Zoneinfo
-    // binary data file corresponding to the specified 'timeZoneId' relative to
-    // the configured 'rootPath'.  Return 0 on success, and a non-zero value
-    // otherwise.  On error, 'result' is left in a valid, but unspecified
-    // state.  The behavior is undefined unless either 'configureRootPath' or
-    // 'configureRootPathIfValid' has been called successfully.  Note that this
-    // operation does not verify 'result' refers to a valid file on the file
-    // system, or whether the file (if it exists) contains valid Zoneinfo data.
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(timeZoneId);
@@ -144,16 +145,16 @@ int loadTimeZoneFilePath_Impl(STRING             *result,
     return 0;
 }
 
+/// Load into the specified `result` the time-zone information for the time
+/// zone identified by the specified `timeZoneId` in accordance with the
+/// specified `mode`.  Return 0 on success, and a non-zero value otherwise.
+/// A return status of `ErrorCode::k_UNSUPPORTED_ID` indicates that
+/// `timeZoneId` is not recognized.  If an error occurs during this
+/// operation, `result` will be left in a valid, but unspecified state.
 int loadTimeZoneImpl(baltzo::Zoneinfo              *result,
                      const baltzo::DataFileLoader&  loader,
                      const char                    *timeZoneId,
                      ZoneinfoReadMode               mode)
-    // Load into the specified 'result' the time-zone information for the time
-    // zone identified by the specified 'timeZoneId' in accordance with the
-    // specified 'mode'.  Return 0 on success, and a non-zero value otherwise.
-    // A return status of 'ErrorCode::k_UNSUPPORTED_ID' indicates that
-    // 'timeZoneId' is not recognized.  If an error occurs during this
-    // operation, 'result' will be left in a valid, but unspecified state.
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(timeZoneId);

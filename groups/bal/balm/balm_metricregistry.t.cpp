@@ -42,7 +42,7 @@ using bsl::flush;
 // ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The 'balm::MetricRegistry' is a mechanism for registering category and
+// The `balm::MetricRegistry` is a mechanism for registering category and
 // metric identifiers.  This test must ensure that values can be added and
 // found and that the container is thread safe.  Finally, this container
 // guarantees a single address is provided for each unique string value
@@ -128,12 +128,12 @@ typedef balm::MetricFormatSpec Spec;
 //                        GLOBAL CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Populate the specified `resultId` with a null-terminated string
+/// identifier containing the specified `heading` concatenated with the
+/// specified `value`.  The behavior is undefined if the resulting
+/// identifier would be larger than 100 (including the null terminating
+/// character).
 void stringId(bsl::string *resultId, const char *heading, int value)
-    // Populate the specified 'resultId' with a null-terminated string
-    // identifier containing the specified 'heading' concatenated with the
-    // specified 'value'.  The behavior is undefined if the resulting
-    // identifier would be larger than 100 (including the null terminating
-    // character).
 {
     char buffer[100];
     int rc = snprintf(buffer, 100, "%s-%d", heading, value);
@@ -143,15 +143,15 @@ void stringId(bsl::string *resultId, const char *heading, int value)
     *resultId = buffer;
 }
 
+/// Populate the specified `resultId` with a null-terminated string
+/// identifier containing the specified `heading` concatenated with the
+/// specified `value1` and `value2`.  The behavior is undefined if the
+/// resulting identifier would be larger than 100 (including the null
+/// terminating character).
 void stringId(bsl::string *resultId,
               const char  *heading,
               int          value1,
               int          value2)
-    // Populate the specified 'resultId' with a null-terminated string
-    // identifier containing the specified 'heading' concatenated with the
-    // specified 'value1' and 'value2'.  The behavior is undefined if the
-    // resulting identifier would be larger than 100 (including the null
-    // terminating character).
 {
     char buffer[100];
     int rc = snprintf(buffer, 100, "%s-%d-%d", heading, value1, value2);
@@ -161,8 +161,8 @@ void stringId(bsl::string *resultId,
     *resultId = buffer;
 }
 
+/// Invoke a set of operations operations synchronously.
 class ConcurrencyTest {
-    // Invoke a set of operations operations synchronously.
 
     // DATA
     bdlmt::FixedThreadPool  d_pool;
@@ -171,8 +171,9 @@ class ConcurrencyTest {
     bslma::Allocator       *d_allocator_p;
 
     // PRIVATE MANIPULATORS
+
+    /// Execute a single test.
     void execute();
-        // Execute a single test.
 
   public:
 
@@ -191,8 +192,9 @@ class ConcurrencyTest {
     ~ConcurrencyTest() {}
 
     //  MANIPULATORS
+
+    /// Run the test.
     void runTest();
-        // Run the test.
 };
 
 void ConcurrencyTest::execute()
@@ -200,10 +202,10 @@ void ConcurrencyTest::execute()
     // On each iteration of this test, a group of identifiers unique to the
     // iteration are created.  4 of those identifiers are shared by all threads
     // (but are unique to the test iteration), while 2 are unique across all
-    // threads and iterations.  Then 'getId', 'addId', 'findId', 'getCategory',
-    // 'addCategory', and 'findCategory' are all invoked using the created
+    // threads and iterations.  Then `getId`, `addId`, `findId`, `getCategory`,
+    // `addCategory`, and `findCategory` are all invoked using the created
     // identifiers, and the returned values are verified.  Finally,
-    // 'getAllCategories' is invoked.  Note that the unique identifiers are
+    // `getAllCategories` is invoked.  Note that the unique identifiers are
     // used to ensure a mixture of modifications and accesses occur
     // simultaneously on each iteration, and that some of those simultaneous
     // modifications and accesses are for the same identifier.
@@ -281,7 +283,7 @@ void ConcurrencyTest::execute()
         // Begin Test Iteration
         d_barrier.wait();
 
-        // create new category with 'addCategory'.
+        // create new category with `addCategory`.
         mX->addCategory(A_VAL);
         const Cat *CAT_A_1 = mX->findCategory(A_VAL);
         const Cat *CAT_A_2 = mX->getCategory(A_VAL);
@@ -290,7 +292,7 @@ void ConcurrencyTest::execute()
         ASSERT(0 == bsl::strcmp(CAT_A_1->name(), A_VAL));
         ASSERT(CAT_A_1 == CAT_A_2);
 
-        // create new category with 'getCategory'.
+        // create new category with `getCategory`.
         const Cat *CAT_B_1 = mX->getCategory(B_VAL);
         const Cat *CAT_B_2 = mX->getCategory(B_VAL);
         ASSERT(0 != CAT_B_1);
@@ -298,7 +300,7 @@ void ConcurrencyTest::execute()
         ASSERT(0 == bsl::strcmp(CAT_B_1->name(), B_VAL));
         ASSERT(CAT_B_1 == CAT_B_2);
 
-        // Create new metric description with 'addId'.
+        // Create new metric description with `addId`.
         mX->addId(A_VAL, A_VAL);
         Id METRIC_AA_1 = mX->findId(A_VAL, A_VAL);
         Id METRIC_AA_2 = mX->getId(A_VAL, A_VAL);
@@ -306,14 +308,14 @@ void ConcurrencyTest::execute()
         ASSERT(CAT_A_1     == METRIC_AA_1.category());
         ASSERT(0           == bsl::strcmp(METRIC_AA_1.metricName(), A_VAL));
 
-        // Create new metric description with 'getId'.
+        // Create new metric description with `getId`.
         Id METRIC_AB_1 = mX->getId(A_VAL, B_VAL);
         Id METRIC_AB_2 = mX->getId(A_VAL, B_VAL);
         ASSERT(METRIC_AB_1 == METRIC_AB_2);
         ASSERT(CAT_A_1     == METRIC_AB_1.category());
         ASSERT(0           == bsl::strcmp(METRIC_AB_1.metricName(), B_VAL));
 
-        // Create new metric description & category with 'addId'.
+        // Create new metric description & category with `addId`.
         mX->addId(C_VAL, A_VAL);
         Id METRIC_CA_1 = mX->getId(C_VAL, A_VAL);
         Id METRIC_CA_2 = mX->getId(C_VAL, A_VAL);
@@ -321,7 +323,7 @@ void ConcurrencyTest::execute()
         ASSERT(METRIC_CA_1.category() == MX->findCategory(C_VAL));
         ASSERT(0 == bsl::strcmp(METRIC_CA_1.metricName(), A_VAL));
 
-        // Create new metric description & category with 'getId'.
+        // Create new metric description & category with `getId`.
         Id METRIC_DA_1 = mX->getId(D_VAL, A_VAL);
         Id METRIC_DA_2 = mX->getId(D_VAL, A_VAL);
         ASSERT(METRIC_DA_1 == METRIC_DA_2);
@@ -372,7 +374,7 @@ void ConcurrencyTest::execute()
             mX->setFormat(METRIC_CA_1, *FORMATS[j]);
         }
 
-        // Run 'getAllCategories' while other threads are actively adding
+        // Run `getAllCategories` while other threads are actively adding
         // categories and metric ids.
         bsl::vector<const balm::Category *> categories(d_allocator_p);
         MX->getAllCategories(&categories);
@@ -472,7 +474,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -484,20 +486,20 @@ int main(int argc, char *argv[])
 ///Usage
 ///-----
 // The following example illustrates how to create and use a
-// 'balm::MetricRegistry'.  We start by creating a 'balm::MetricRegistry'
-// object, 'registry', and then using this registry to create a
-// 'balm::MetricId' for a metric "MetricA" belonging to the category
+// `balm::MetricRegistry`.  We start by creating a `balm::MetricRegistry`
+// object, `registry`, and then using this registry to create a
+// `balm::MetricId` for a metric "MetricA" belonging to the category
 // "MyCategory" (i.e., "MyCategory.MetricA").
-//..
+// ```
     bslma::Allocator    *allocator = bslma::Default::allocator(0);
     balm::MetricRegistry  registry(allocator);
 
     balm::MetricId idA = registry.addId("MyCategory", "MetricA");
-//..
+// ```
 // Now that we have created a metric, "MyCategory.MetricA", attempting to add
 // the metric again will return an invalid id.  We retrieve the same
-// identifier we have created using either 'getId' or 'findId'.
-//..
+// identifier we have created using either `getId` or `findId`.
+// ```
     balm::MetricId invalidId = registry.addId("MyCategory", "MetricA");
           ASSERT(!invalidId.isValid());
 
@@ -508,30 +510,30 @@ int main(int argc, char *argv[])
     balm::MetricId idA_copy2 = registry.findId("MyCategory", "MetricA");
           ASSERT(idA_copy2.isValid());
           ASSERT(idA_copy2 == idA);
-//..
-// We use the 'getId' method to add a new metric to the registry, then verify
+// ```
+// We use the `getId` method to add a new metric to the registry, then verify
 // we can lookup the metric.
-//..
+// ```
     balm::MetricId idB = registry.getId("MyCategory", "MetricB");
           ASSERT(idB.isValid());
           ASSERT(idB == registry.getId("MyCategory", "MetricB"));
           ASSERT(idB == registry.findId("MyCategory", "MetricB"));
           ASSERT(!registry.addId("MyCategory", "MetricB").isValid());
-//..
-// Next we use 'getCategory' to find the address of the 'balm::Category'
+// ```
+// Next we use `getCategory` to find the address of the `balm::Category`
 // corresponding to "MyCategory".
-//..
+// ```
     const balm::Category *myCategory = registry.getCategory("MyCategory");
           ASSERT(myCategory == idA.category());
           ASSERT(myCategory == idB.category());
           ASSERT(myCategory->enabled());
-//..
-// Finally we use the 'setCategoryEnabled' method to disable the category
+// ```
+// Finally we use the `setCategoryEnabled` method to disable the category
 // "MyCategory":
-//..
+// ```
     registry.setCategoryEnabled(myCategory, false);
           ASSERT(!myCategory->enabled());
-//..
+// ```
       if (veryVerbose) {
           registry.print(bsl::cout, 1, 3);
       }
@@ -542,9 +544,9 @@ int main(int argc, char *argv[])
         // CONCURRENCY TEST
         //
         // Testing:
-        //     Thread-safety of 'getId', 'addId', 'getCategory',
-        //     'addCategory', 'findCategory', 'findId', and
-        //     'getAllCategories' methods.
+        //     Thread-safety of `getId`, `addId`, `getCategory`,
+        //     `addCategory`, `findCategory`, `findId`, and
+        //     `getAllCategories` methods.
         //
         // --------------------------------------------------------------------
 
@@ -563,7 +565,7 @@ int main(int argc, char *argv[])
     } break;
       case 14:{
         // --------------------------------------------------------------------
-        //  TESTING: 'setUserData'
+        //  TESTING: `setUserData`
         //
         // Concerns:
         //
@@ -736,7 +738,7 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        //  TESTING: 'setUserData'
+        //  TESTING: `setUserData`
         //
         // Concerns:
         //
@@ -813,14 +815,14 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        //  TESTING: 'createUserDataKey'
+        //  TESTING: `createUserDataKey`
         //
         // Concerns:
-        //    That 'createUserDataKey' returns a new unique key.
+        //    That `createUserDataKey` returns a new unique key.
         //
         // Plan:
         //    Black box test: using a set, verify the keys returned by
-        //       'createUserDataKey' are unique values >= 0.
+        //       `createUserDataKey` are unique values >= 0.
         //    White box test: verify that the unique keys are sequential
         //      indices starting at 0.
         // Testing:
@@ -857,13 +859,13 @@ int main(int argc, char *argv[])
     } break;
       case 11: {
         // --------------------------------------------------------------------
-        //  TESTING: 'setFormat'
+        //  TESTING: `setFormat`
         //
         // Concerns:
-        //   That 'setFormat' sets the format for the indicated metric.
+        //   That `setFormat` sets the format for the indicated metric.
         //
         // Plan:
-        //   For a sequence of independent test values use 'addId'.  Verify
+        //   For a sequence of independent test values use `addId`.  Verify
         //   the format() is null, then set the format and verify the change.
         //
         // Testing:
@@ -871,7 +873,7 @@ int main(int argc, char *argv[])
         //                  const balm::MetricFormat& format);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'setFormat'." << endl;
+        if (verbose) cout << "\nTesting `setFormat`." << endl;
 
         struct {
             const char *d_category;
@@ -950,15 +952,15 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        //  TESTING: 'setPreferredPublicationType'
+        //  TESTING: `setPreferredPublicationType`
         //
         // Concerns:
-        //   That 'setPreferredPublicationType' sets the preferred publication
+        //   That `setPreferredPublicationType` sets the preferred publication
         //   type of the supplied metric.
         //
         // Plan:
-        //   For a sequence of independent test values use 'addId'.  Verify
-        //   the publicationType() is 'UNSPECIFIED', then set the publication
+        //   For a sequence of independent test values use `addId`.  Verify
+        //   the publicationType() is `UNSPECIFIED`, then set the publication
         //   type and verify the updated value.
         //
         // Testing:
@@ -966,7 +968,7 @@ int main(int argc, char *argv[])
         //                                  balm::PublicationType::Value );
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'setPreferredPublicationType'."
+        if (verbose) cout << "\nTesting `setPreferredPublicationType`."
                           << endl;
 
         struct {
@@ -1016,11 +1018,11 @@ int main(int argc, char *argv[])
         // BSLMA ALLOCATION EXCEPTION TEST
         //
         // Concerns:
-        //   That 'addId', 'getId', 'addCategory', and 'getCategory' are
+        //   That `addId`, `getId`, `addCategory`, and `getCategory` are
         //   exception safe with respect to allocation.
         //
         // Plan:
-        //   Use the 'BSLMA_EXCEPTION_TEST' to verify the manipulator methods
+        //   Use the `BSLMA_EXCEPTION_TEST` to verify the manipulator methods
         //   of this object are exception neutral.
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting exception neutrality" << endl;
@@ -1042,7 +1044,7 @@ int main(int argc, char *argv[])
 
         {
             if (veryVerbose) {
-                cout << "\tVerify 'getId ' is exception neutral"
+                cout << "\tVerify `getId ` is exception neutral"
                      << endl;
             }
             bsl::set<Id>         metrics;
@@ -1075,7 +1077,7 @@ int main(int argc, char *argv[])
         }
         {
             if (veryVerbose) {
-                cout << "\tVerify 'addId' is exception neutral"
+                cout << "\tVerify `addId` is exception neutral"
                      << endl;
             }
             bsl::set<Id>         metrics;
@@ -1111,7 +1113,7 @@ int main(int argc, char *argv[])
         const int NUM_CATEGORIES = sizeof CATEGORIES / sizeof *CATEGORIES;
         {
             if (veryVerbose) {
-                cout << "\tVerify 'getCategory' is exception neutral"
+                cout << "\tVerify `getCategory` is exception neutral"
                      << endl;
             }
             bsl::set<bsl::string> categories;
@@ -1143,7 +1145,7 @@ int main(int argc, char *argv[])
         }
         {
             if (veryVerbose) {
-                cout << "\tVerify 'addCategory' is exception neutral"
+                cout << "\tVerify `addCategory` is exception neutral"
                      << endl;
             }
             bsl::set<bsl::string> categories;
@@ -1177,14 +1179,14 @@ int main(int argc, char *argv[])
         // TESTING UNIQUE ADDRESSES FOR EQUAL STRING VALUES
         //
         // Concerns:
-        //   That 'addId', 'getId', 'addCategory', and 'getCategory' create
-        //   'balm::MetricDescription' and 'balm::Category' objects that
+        //   That `addId`, `getId`, `addCategory`, and `getCategory` create
+        //   `balm::MetricDescription` and `balm::Category` objects that
         //   contain a unique address for each unique string value
         //
         // Plan:
-        //   Perform a combination of 'addCategory', 'getCategory', 'addId',
-        //   and 'getId' operations such that 'addCategory' & 'getCategory'
-        //   reuse an identifier used for a metric, and 'addId' & 'getId'
+        //   Perform a combination of `addCategory`, `getCategory`, `addId`,
+        //   and `getId` operations such that `addCategory` & `getCategory`
+        //   reuse an identifier used for a metric, and `addId` & `getId`
         //   reuse an identifier used for a category.  Verify that the
         //   returned objects re-use the previously created null terminated
         //   string.
@@ -1206,43 +1208,43 @@ int main(int argc, char *argv[])
         Id METRIC_EE = mX.addId("E", "E");
         Id METRIC_FF = mX.getId("F", "F");
 
-        // Verify 'addId' reuses string addresses created by 'addCategory'.
+        // Verify `addId` reuses string addresses created by `addCategory`.
         ASSERT(CAT_A->name() == METRIC_AA.metricName());
 
-        // Verify 'addId' reuses string addresses created by getCategory'.
+        // Verify `addId` reuses string addresses created by getCategory'.
         ASSERT(CAT_B->name() == METRIC_AB.metricName());
 
-        // Verify 'getId' reuses string addresses created by 'addCategory'.
+        // Verify `getId` reuses string addresses created by `addCategory`.
         ASSERT(CAT_A->name() == METRIC_BA.metricName());
 
-        // Verify 'getId' reuses string addresses created by getCategory'.
+        // Verify `getId` reuses string addresses created by getCategory'.
         ASSERT(CAT_B->name() == METRIC_BB.metricName());
 
-        // Verify 'addCategory' reuses string addresses create by 'addId'.
+        // Verify `addCategory` reuses string addresses create by `addId`.
         ASSERT(CAT_C->name() == METRIC_AC.metricName());
 
-        // Verify 'getCategory' reuses string addresses create by 'addId'.
+        // Verify `getCategory` reuses string addresses create by `addId`.
         ASSERT(CAT_D->name() == METRIC_BD.metricName());
 
-        // Verify 'addId' with equal category and name returns the same string
+        // Verify `addId` with equal category and name returns the same string
         // address.
         ASSERT(METRIC_EE.metricName() == METRIC_EE.categoryName())
 
-        // Verify 'getId' with equal category and name returns the same string
+        // Verify `getId` with equal category and name returns the same string
         // address.
         ASSERT(METRIC_FF.metricName() == METRIC_FF.categoryName())
 
     } break;
     case 7: {
         // --------------------------------------------------------------------
-        // TESTING: 'print'
+        // TESTING: `print`
         //
         // Concerns:
         //   The output operator properly writes formatted information
         //
         // Plan:
         //   For each of a small representative set of object values, use
-        //   'ostrstream' to write that object's value to a character buffer
+        //   `ostrstream` to write that object's value to a character buffer
         //   and then compare the contents of that buffer with the expected
         //   output format.
         //
@@ -1311,15 +1313,15 @@ int main(int argc, char *argv[])
     } break;
     case 6: {
         // --------------------------------------------------------------------
-        //  TESTING: 'setCategoryEnabled', 'setAllCategoriesEnabled'
+        //  TESTING: `setCategoryEnabled`, `setAllCategoriesEnabled`
         //
         // Concerns:
-        //   That 'setCategoryEnabled' sets the boolean 'enabled' property of
+        //   That `setCategoryEnabled` sets the boolean `enabled` property of
         //   the supplied category with no side effects.
         //
         // Plan:
-        //   For a sequence of independent test values use 'addCategory' and
-        //   'addId' to add metric categories.  For each added category,
+        //   For a sequence of independent test values use `addCategory` and
+        //   `addId` to add metric categories.  For each added category,
         //   disable the category, verify the category is disabled and no
         //   other categories were affected, then re-enabled the category, and
         //   verify no other categories are affected.
@@ -1329,7 +1331,7 @@ int main(int argc, char *argv[])
         //   void setAllCategoriesEnabled(bool );
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'setCategoryEnabled'."
+        if (verbose) cout << "\nTesting `setCategoryEnabled`."
                           << endl;
 
         const char *CATEGORIES[] = { "", "A", "B", "CAT_A", "CAT_B", "name" };
@@ -1396,25 +1398,25 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        //  TESTING: 'getAllCategories'
+        //  TESTING: `getAllCategories`
         //
         // Concerns:
-        //   That 'getAllCategories' returns all the categories added to the
+        //   That `getAllCategories` returns all the categories added to the
         //   metric registry (either by adding a category, or by adding a
         //   metric id).
         //
-        //   That 'getAllCategories' appends to the supplied vector, and
+        //   That `getAllCategories` appends to the supplied vector, and
         //   performs 1 (or fewer) memory allocations.
         //
         // Plan:
-        //   For a sequence of independent test values use 'addCategory' and
-        //   'addId' to add metric categories.  Use 'getAllCategories' and
+        //   For a sequence of independent test values use `addCategory` and
+        //   `addId` to add metric categories.  Use `getAllCategories` and
         //   verify the returned vector contains the set of expected category
         //   addresses.
         //
-        //   Then, for a sequence of independent test values use 'addCategory'
-        //   and 'addId' to add metric categories.  Create a vector containing
-        //   an initial sequence of elements and Use 'getAllCategories' and
+        //   Then, for a sequence of independent test values use `addCategory`
+        //   and `addId` to add metric categories.  Create a vector containing
+        //   an initial sequence of elements and Use `getAllCategories` and
         //   verify that only one (or fewer) allocations were made and that
         //   the categories were appended to the end of the supplied vector.
         //
@@ -1422,14 +1424,14 @@ int main(int argc, char *argv[])
         //   void getAllCategories(bsl::vector<const balm::Category *>*) const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'getAllCategories'."
+        if (verbose) cout << "\nTesting `getAllCategories`."
                           << endl;
 
         const char *CATEGORIES[] = { "", "A", "B", "CAT_A", "CAT_B", "name" };
         const int NUM_CATEGORIES = sizeof CATEGORIES / sizeof *CATEGORIES;
         {
             if (veryVerbose) {
-                cout << "\tVerify 'getAllCategories' will return all created "
+                cout << "\tVerify `getAllCategories` will return all created "
                      << " categories." << endl;
             }
 
@@ -1466,7 +1468,7 @@ int main(int argc, char *argv[])
         }
         {
             if (veryVerbose) {
-                cout << "\tVerify 'getAllCategories' appends to the existing "
+                cout << "\tVerify `getAllCategories` appends to the existing "
                      << " vector and only performs a single allocation."
                      << endl;
             }
@@ -1511,11 +1513,11 @@ int main(int argc, char *argv[])
                 ASSERT(initialVector.size() + MX.numCategories() ==
                        categories.size());
 
-                // Verify that 'categories' starts with 'initialVector'.
+                // Verify that `categories` starts with `initialVector`.
                 for (bsl::size_t i = 0; i < INITIAL_SIZE; ++i) {
                     ASSERT(initialVector[i] == categories[i]);
                 }
-                // Verify that 'categories' ends with 'exp_categories'.
+                // Verify that `categories` ends with `exp_categories`.
                 for (bsl::size_t i = INITIAL_SIZE;
                      i < categories.size();
                      ++i) {
@@ -1529,32 +1531,32 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        //  TESTING: 'getCategory'
+        //  TESTING: `getCategory`
         //
         // Concerns:
-        //   That 'getId' always returns a valid category address.  That if an
+        //   That `getId` always returns a valid category address.  That if an
         //   category does not already exist, a new category is created.
         //
         // Plan:
-        //   For a sequence of independent test values use 'addCategory' to
-        //   add a metric category, then use 'getCategory' to retrieve that
+        //   For a sequence of independent test values use `addCategory` to
+        //   add a metric category, then use `getCategory` to retrieve that
         //   value.
         //
-        //   Next, for a sequence of independent test values use 'getCategory'
+        //   Next, for a sequence of independent test values use `getCategory`
         //   to add a category.
         //
         // Testing:
         //   const balm::Category *getCategory(const StringRef& category);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'getCategory'."
+        if (verbose) cout << "\nTesting `getCategory`."
                           << endl;
 
         const char *CATEGORIES[] = { "", "A", "B", "CAT_A", "CAT_B", "name" };
         const int NUM_CATEGORIES = sizeof CATEGORIES / sizeof *CATEGORIES;
         {
             if (veryVerbose) {
-                cout << "\tVerify 'getCategory 'will return a previously "
+                cout << "\tVerify `getCategory `will return a previously "
                      << " created category." << endl;
             }
             Obj mX(Z); const Obj& MX = mX;
@@ -1575,7 +1577,7 @@ int main(int argc, char *argv[])
         }
         {
             if (veryVerbose) {
-                cout << "\tVerify 'getCategory ' will create new categories."
+                cout << "\tVerify `getCategory ` will create new categories."
                      << endl;
             }
             Obj mX(Z); const Obj& MX = mX;
@@ -1601,12 +1603,12 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        //  TESTING: 'getId'
+        //  TESTING: `getId`
         //
         // Concerns:
-        //   That 'getId' always returns a valid identifier.  That if an
+        //   That `getId` always returns a valid identifier.  That if an
         //   identifier does not already exist, a new id is created.  That a
-        //   created id's 'category()' holds the unique category address for
+        //   created id's `category()` holds the unique category address for
         //   that category.
         //
         // Plan:
@@ -1617,16 +1619,16 @@ int main(int argc, char *argv[])
         //   metric id.
         //
         //   Finally, for a sequence of independent test values use
-        //   the 'addCategory' manipulator to add a category, then use
-        //   the 'getId' manipulator to add a metric id, the verify the
+        //   the `addCategory` manipulator to add a category, then use
+        //   the `getId` manipulator to add a metric id, the verify the
         //   returned metric id's category address equals the one returned from
-        //   'addCategory'.
+        //   `addCategory`.
         //
         // Testing:
         //   balm::MetricId getId(const StringRef& , const StringRef& );
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'getId'."
+        if (verbose) cout << "\nTesting `getId`."
                           << endl;
 
         struct {
@@ -1643,7 +1645,7 @@ int main(int argc, char *argv[])
 
         {
             if (veryVerbose) {
-                cout << "\tVerify 'getId 'will return a previously created id."
+                cout << "\tVerify `getId `will return a previously created id."
                      << endl;
             }
             bsl::set<bsl::string> categoryNames(Z);
@@ -1668,7 +1670,7 @@ int main(int argc, char *argv[])
         }
         {
             if (veryVerbose) {
-                cout << "\tVerify 'getId 'will create new ids."
+                cout << "\tVerify `getId `will create new ids."
                      << endl;
             }
             bsl::set<bsl::string> categoryNames(Z);
@@ -1696,7 +1698,7 @@ int main(int argc, char *argv[])
         }
         {
             if (veryVerbose) {
-                cout << "\tVerify 'getId' will return ids with the correct "
+                cout << "\tVerify `getId` will return ids with the correct "
                      << "category address" << endl;
             }
             bsl::set<bsl::string> categoryNames(Z);
@@ -1729,18 +1731,18 @@ int main(int argc, char *argv[])
         // Concerns:
         //   The primary fields must be correctly modifiable and accessible.
         //
-        //   That 'addId' will return a valid id for a new metric, and an
-        //   invalid id for previously registered metric.  That 'findId' will
-        //   return the correct added id.  That 'findCategory' for the
+        //   That `addId` will return a valid id for a new metric, and an
+        //   invalid id for previously registered metric.  That `findId` will
+        //   return the correct added id.  That `findCategory` for the
         //   metric's category will return an address equal to the id's
-        //   'category()'.  That 'numMetrics' and 'numCategories' reflects the
+        //   `category()`.  That `numMetrics` and `numCategories` reflects the
         //   number of unique metrics and categories added to the registry.
         //
-        //   That 'addCategory' will return a valid address for a new
+        //   That `addCategory` will return a valid address for a new
         //   category and 0 if the category was previously registered.  That
-        //   'findCategory' will return the correct address for an added
+        //   `findCategory` will return the correct address for an added
         //   category.  That a metric added to registry belonging to that
-        //   category has the correct 'category' address.
+        //   category has the correct `category` address.
         //
         //   That modifying the registry does not allocate memory from the
         //   default allocator.
@@ -1887,7 +1889,7 @@ int main(int argc, char *argv[])
         {
             Obj mX;
 
-            if (veryVerbose) cout << "\tAdd and categories 'CA' and 'CB' and "
+            if (veryVerbose) cout << "\tAdd and categories `CA` and `CB` and "
                                   << "verify initial state.\n";
 
             const Cat *CA = mX.addCategory("A");
@@ -1904,7 +1906,7 @@ int main(int argc, char *argv[])
             ASSERT(CA->enabled());
             ASSERT(CB->enabled());
 
-            if (veryVerbose) cout << "\tget categories 'CC' and 'CD' and "
+            if (veryVerbose) cout << "\tget categories `CC` and `CD` and "
                                   << "verify initial state.\n";
 
             const Cat *CC = mX.getCategory("C");
@@ -1918,8 +1920,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == bsl::strcmp(CC->name(), "C"));
             ASSERT(0 == bsl::strcmp(CD->name(), "D"));
 
-            if (veryVerbose) cout << "\tAdd and get ids 'MAA', 'MAB', "
-                                  << "'MEA', 'MEB' and verify initial "
+            if (veryVerbose) cout << "\tAdd and get ids `MAA`, `MAB`, "
+                                  << "`MEA`, `MEB` and verify initial "
                                   << "state.\n";
 
             Id MAA = mX.addId("A", "A");
@@ -1950,8 +1952,8 @@ int main(int argc, char *argv[])
             ASSERT(CA == MAA.category());
             ASSERT(CA == MAB.category());
 
-            if (veryVerbose) cout << "\tAdd and get ids 'MAA', 'MAB', 'MEA', "
-                                  << "'MEB' and verify initial state.\n";
+            if (veryVerbose) cout << "\tAdd and get ids `MAA`, `MAB`, `MEA`, "
+                                  << "`MEB` and verify initial state.\n";
 
             ASSERT(!mX.addId("A", "A").isValid());
             ASSERT(!mX.addId("A", "B").isValid());

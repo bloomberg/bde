@@ -91,21 +91,22 @@ int integerConstTypeToInt(bsl::integral_constant<int, V>) { return V; }
 //-----------------------------------------------------------------------------
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-// We wish to implement a 'tuple'-like class that holds a heterogenous
+// We wish to implement a `tuple`-like class that holds a heterogenous
 // collection of elements, each of which might have a different type.  The
-// metafunction, 'my_tuple_element<I, my_tuple<ELEMS...>>::Type' would be type
-// of the 'I'th element in the tuple (where 'I' is zero-based).
+// metafunction, `my_tuple_element<I, my_tuple<ELEMS...>>::Type` would be type
+// of the `I`th element in the tuple (where `I` is zero-based).
 //
-// First, we define our 'my_tuple' class template.  The body of the class is
+// First, we define our `my_tuple` class template.  The body of the class is
 // unimportant for this usage examples:
-//..
+// ```
+
+   /// ...
    template <class... ELEMS>
    class my_tuple {
-       // ...
    };
-//..
-// Then, we use 'bslmf::NthParameter' to implement 'my_tuple_element':
-//..
+// ```
+// Then, we use `bslmf::NthParameter` to implement `my_tuple_element`:
+// ```
 // #include <bslmf_nthparameter.h>
 
    template <std::size_t I, class TUPLE>
@@ -115,9 +116,9 @@ int integerConstTypeToInt(bsl::integral_constant<int, V>) { return V; }
    struct my_tuple_element<I, my_tuple<ELEMS...> > {
        typedef typename bslmf::NthParameter<I, ELEMS...>::Type Type;
    };
-//..
-// Finally, we test this implementation using 'bsl::is_same':
-//..
+// ```
+// Finally, we test this implementation using `bsl::is_same`:
+// ```
 // #include <bslmf_issame.h>
 
    int usageExample1()
@@ -179,18 +180,18 @@ int main(int argc, char *argv[])
         // FULL TEST
         //
         // Concerns
-        //  o 'bslmf::NthParameter' can handle from 1 to 10 type arguments.
-        //  o 'bslmf::NthParameter' produces the correct 'Type' for 'N' in
+        //  o `bslmf::NthParameter` can handle from 1 to 10 type arguments.
+        //  o `bslmf::NthParameter` produces the correct `Type` for `N` in
         //    range 0 to 9.
         //
         // Plan:
-        //  o Use 'integral_constant' to create 10 different types 'T0' to 'T9'
-        //    as aliases for 'integral_constant<int, 0>' to
-        //    'integral_constant<int, 9>', respectively.
-        //  o Instantiate 'bslmf::NthParameter<0, T0>' and verify that the
-        //    resulting 'Type' is 'T0'.
+        //  o Use `integral_constant` to create 10 different types `T0` to `T9`
+        //    as aliases for `integral_constant<int, 0>` to
+        //    `integral_constant<int, 9>`, respectively.
+        //  o Instantiate `bslmf::NthParameter<0, T0>` and verify that the
+        //    resulting `Type` is `T0`.
         //  o Repeat the test with an ever longer list of type arguments and
-        //    with every valid value of 'N' until we've tested
+        //    with every valid value of `N` until we've tested
         //    bslmf::NthParameter<9, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>'.
         //
         // Testing:
@@ -281,9 +282,9 @@ int main(int argc, char *argv[])
         //
         // Concerns: Exercise basic functionality of component
         //
-        // Plan: Invoke 'NthParameter' metafunction with a few different
+        // Plan: Invoke `NthParameter` metafunction with a few different
         //   combinations of parameters and confirm that it yields the
-        //   expected 'Type' data member.
+        //   expected `Type` data member.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"

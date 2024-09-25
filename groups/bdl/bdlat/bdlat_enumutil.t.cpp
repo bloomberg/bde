@@ -101,7 +101,7 @@ typedef bdlat::EnumUtil Util;
 
 namespace test {
 
-// A simple enumeration type that will expose 'bdlat' enumeration
+// A simple enumeration type that will expose `bdlat` enumeration
 // functionality, copied from bdlat_enumfunctions.t.cpp.
 
 enum PolygonType {
@@ -111,10 +111,11 @@ enum PolygonType {
 };
 
 // MANIPULATORS
+
+/// Load into the specified `result` the enumerator matching the specified
+/// `number`.  Return 0 on success, and a non-zero value with no effect on
+/// `result` if `number` does not match any enumerator.
 int bdlat_enumFromInt(PolygonType *result, int number)
-    // Load into the specified 'result' the enumerator matching the specified
-    // 'number'.  Return 0 on success, and a non-zero value with no effect on
-    // 'result' if 'number' does not match any enumerator.
 {
     switch (number) {
       case 5: {
@@ -135,13 +136,13 @@ int bdlat_enumFromInt(PolygonType *result, int number)
     }
 }
 
+/// Load into the specified `result` the enumerator matching the specified
+/// `string` of the specified `stringLength`.  Return 0 on success, and a
+/// non-zero value with no effect on `result` if `string` and `stringLength`
+/// do not match any enumerator.
 int bdlat_enumFromString(PolygonType *result,
                          const char  *string,
                          int          stringLength)
-    // Load into the specified 'result' the enumerator matching the specified
-    // 'string' of the specified 'stringLength'.  Return 0 on success, and a
-    // non-zero value with no effect on 'result' if 'string' and 'stringLength'
-    // do not match any enumerator.
 {
     const bsl::string s(string, stringLength);
     if ("RHOMBUS" == s) {
@@ -160,9 +161,10 @@ int bdlat_enumFromString(PolygonType *result,
 }
 
 // ACCESSORS
+
+/// Load into the specified `result` the integer representation of the
+/// enumerator value held by the specified `value`.
 void bdlat_enumToInt(int *result, const PolygonType& value)
-    // Load into the specified 'result' the integer representation of the
-    // enumerator value held by the specified 'value'.
 {
     switch (value) {
       case e_RHOMBUS: {
@@ -181,9 +183,9 @@ void bdlat_enumToInt(int *result, const PolygonType& value)
     ASSERT(0 == "invalid enumerator");
 }
 
+/// Load into the specified `result` the string representation of the
+/// enumerator value held by the specified `value`.
 void bdlat_enumToString(bsl::string *result, const PolygonType& value)
-    // Load into the specified 'result' the string representation of the
-    // enumerator value held by the specified 'value'.
 {
     switch (value) {
       case e_RHOMBUS: {
@@ -219,10 +221,10 @@ struct IsEnumeration<test::PolygonType> : public bsl::true_type {
 ///-----
 // This section illustrates intended use of this component.
 //
-// Suppose you have a C++ 'enum' type called 'ImageType' whose enumerators
+// Suppose you have a C++ `enum` type called `ImageType` whose enumerators
 // represent supported formats for image files, and it exposes "enumeration"
-// behavior as described in 'bdlat_enumfunctions.h':
-//..
+// behavior as described in `bdlat_enumfunctions.h`:
+// ```
 namespace BloombergLP {
 namespace mine {
 
@@ -250,10 +252,10 @@ bool bdlat_enumHasFallback(const ImageType&);
 bool bdlat_enumIsFallback(const ImageType& value);
 
 }  // close namespace mine
-//..
-// Next, we provide definitions for the 'bdlat_enum*' customization
+// ```
+// Next, we provide definitions for the `bdlat_enum*` customization
 // point function overloads:
-//..
+// ```
 // MANIPULATORS
 
 inline
@@ -366,11 +368,11 @@ bool mine::bdlat_enumIsFallback(const ImageType& value)
 {
     return value == UNKNOWN;
 }
-//..
-// To complete the implementation of 'mine::ImageType' as an
+// ```
+// To complete the implementation of `mine::ImageType` as an
 // "enumeration" type with fallback enumerator recognized by the
-// 'bdlat' framework, we specialize the necessary traits:
-//..
+// `bdlat` framework, we specialize the necessary traits:
+// ```
 namespace bdlat_EnumFunctions {
 template <>
 struct IsEnumeration<mine::ImageType> : public bsl::true_type {
@@ -380,12 +382,12 @@ struct HasFallbackEnumerator<mine::ImageType> : public bsl::true_type {
 };
 }  // close namespace bdlat_EnumFunctions
 }  // close enterprise namespace
-//..
-// We can now use the methods in 'EnumUtil' to decode integral and
-// string values into 'mine::ImageType' values, falling back to the
-// 'mine::UNKNOWN' enumerator value when the integral or string
+// ```
+// We can now use the methods in `EnumUtil` to decode integral and
+// string values into `mine::ImageType` values, falling back to the
+// `mine::UNKNOWN` enumerator value when the integral or string
 // value does not correspond to any enumerator:
-//..
+// ```
 void usageExample()
 {
     using namespace BloombergLP;
@@ -428,7 +430,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test
               << bsl::endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(
         &bsls::Review::failByAbort);
 
@@ -447,13 +449,13 @@ int main(int argc, char *argv[])
         //   file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -473,22 +475,22 @@ int main(int argc, char *argv[])
         //   enumeration, possibly with fallback behavior.
         //
         // Concerns:
-        //: 1 When 'E' is a 'bdlat' enumeration type with a fallback
-        //:   enumerator, the two functions below always succeed and store
-        //:   either the enumerator value corresponding to the input, or (if
-        //:   none exists) the fallback enumerator value.
-        //: 2 When 'E' is a 'bdlat' enumeration type without a fallback
-        //:   enumerator, the two functions below succeed and store the
-        //:   enumerator value corresponding to the input if one exists, and
-        //:   otherwise fail and leave the result unchanged.
+        // 1. When `E` is a `bdlat` enumeration type with a fallback
+        //    enumerator, the two functions below always succeed and store
+        //    either the enumerator value corresponding to the input, or (if
+        //    none exists) the fallback enumerator value.
+        // 2. When `E` is a `bdlat` enumeration type without a fallback
+        //    enumerator, the two functions below succeed and store the
+        //    enumerator value corresponding to the input if one exists, and
+        //    otherwise fail and leave the result unchanged.
         //
         // Plan:
-        //: 1 For a 'bdlat' enumeration type that has a fallback enumerator,
-        //:   call the 2 functions below with inputs that do and do not
-        //:   correspond to enumerators and verify that they behave as
-        //:   documented.  (C-1)
-        //: 2 Repeat step 1 with a 'bdlat' enumeration type that does *not*
-        //:   have a fallback enumerator.  (C-2)
+        // 1. For a `bdlat` enumeration type that has a fallback enumerator,
+        //    call the 2 functions below with inputs that do and do not
+        //    correspond to enumerators and verify that they behave as
+        //    documented.  (C-1)
+        // 2. Repeat step 1 with a `bdlat` enumeration type that does *not*
+        //    have a fallback enumerator.  (C-2)
         //
         // Testing:
         //   template <class E> int fromIntOrFallbackIfEnabled(*)
@@ -526,7 +528,7 @@ int main(int argc, char *argv[])
             ASSERT(0         == rc);
             ASSERT(mine::PNG == X);
 
-            // Repeat with the 'fromString...' function
+            // Repeat with the `fromString...` function
             rc = Util::fromStringOrFallbackIfEnabled(&mX, "GIF", 3);
             ASSERT(0         == rc);
             ASSERT(mine::GIF == X);
@@ -562,7 +564,7 @@ int main(int argc, char *argv[])
             ASSERT(0                 != rc);
             ASSERT(test::e_RECTANGLE == X);
 
-            // Repeat with the 'fromString...' function
+            // Repeat with the `fromString...` function
             rc = Util::fromStringOrFallbackIfEnabled(&mX, "TRIANGLE", 8);
             ASSERT(0                == rc);
             ASSERT(test::e_TRIANGLE == X);

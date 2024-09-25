@@ -24,9 +24,9 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test implements a value-semantic class 'ball::RuleSet'.
-// We choose the default constructor as well as 'addRule' and 'removeRule' as
-// the primary manipulators, 'ruleId' and 'getRuleById' as the basic accessors.
+// The component under test implements a value-semantic class `ball::RuleSet`.
+// We choose the default constructor as well as `addRule` and `removeRule` as
+// the primary manipulators, `ruleId` and `getRuleById` as the basic accessors.
 // We then apply the standard 10-step test procedure as well as a few test
 // cases methods that are specific for this component.
 //-----------------------------------------------------------------------------
@@ -50,7 +50,7 @@ using namespace bsl;
 // [ 5] bsl::ostream& operator<<(bsl::ostream&, const ball::PS&) const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 3] PRIMITIVE TEST APPARATUS: 'gg'
+// [ 3] PRIMITIVE TEST APPARATUS: `gg`
 // [ 8] UNUSED
 // [11] USAGE EXAMPLE
 
@@ -162,10 +162,10 @@ const int NUM_RULES = sizeof RULES / sizeof *RULES;
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Return `true` if, for every rule in the set, `ruleId` retrieves the
+/// correct id and if the number of rules in the set is consistent with
+/// that returned by `numRules`, and `false` otherwise.
 bool verifyRuleSet(const ball::RuleSet& ruleSet)
-    // Return 'true' if, for every rule in the set, 'ruleId' retrieves the
-    // correct id and if the number of rules in the set is consistent with
-    // that returned by 'numRules', and 'false' otherwise.
 {
     int count = 0;
     for (int i = 0; i < ruleSet.maxNumRules(); i++) {
@@ -181,15 +181,15 @@ bool verifyRuleSet(const ball::RuleSet& ruleSet)
     return count == ruleSet.numRules();
 }
 
+/// Return `true` if the specified `lhs` has the same value as the
+/// specified' rhs' and `false` otherwise.  Optionally specify a
+/// `errorStream`, on which, if `lhs` and `rhs` are not the same', a
+/// description of how the two strings differ will be written.  If
+/// `errorStream` is not supplied, `stdout` will be used to report an error
+/// description.
 bool compareText(const bsl::string_view& lhs,
                  const bsl::string_view& rhs,
                  bsl::ostream&     errorStream = bsl::cout)
-    // Return 'true' if the specified 'lhs' has the same value as the
-    // specified' rhs' and 'false' otherwise.  Optionally specify a
-    // 'errorStream', on which, if 'lhs' and 'rhs' are not the same', a
-    // description of how the two strings differ will be written.  If
-    // 'errorStream' is not supplied, 'stdout' will be used to report an error
-    // description.
 {
     for (unsigned int i = 0; i < lhs.length() && i < rhs.length(); ++i) {
         if (lhs[i] != rhs[i]) {
@@ -229,16 +229,16 @@ bool compareText(const bsl::string_view& lhs,
 }
 
 //=============================================================================
-//       GENERATOR FUNCTIONS 'g', 'gg', AND 'ggg' FOR TESTING LISTS
+//       GENERATOR FUNCTIONS `g`, `gg`, AND `ggg` FOR TESTING LISTS
 //-----------------------------------------------------------------------------
-// The 'g' family of functions generate a 'ball::Rule' object for testing.
-// They interpret a given 'spec' (from left to right) to configure the
+// The `g` family of functions generate a `ball::Rule` object for testing.
+// They interpret a given `spec` (from left to right) to configure the
 // attribute set according to a custom language.
 //
-// The specification for a rule set specifies a number of 'ball::Rule' objects
-// that will be added to the rule set sequentially.  Each 'ball::Rule' object
+// The specification for a rule set specifies a number of `ball::Rule` objects
+// that will be added to the rule set sequentially.  Each `ball::Rule` object
 // is indicated by the character 'R' followed by another character that
-// denotes the position of the rule in the global rule array 'RULES' defined
+// denotes the position of the rule in the global rule array `RULES` defined
 // above (i.e., 'R0' is the first rule in the array, 'R1' is the second, and
 // so on).
 //
@@ -274,7 +274,7 @@ static Obj& gg(Obj *obj, const char *spec)
             for (int i = start; i < end; i++) {
                 ball::Rule rule("", 0, 0, 0, 0);
 
-                // add a subset of attribute to 'rule' so that each 'j'
+                // add a subset of attribute to `rule` so that each `j`
                 // corresponds to a unique rule.
                 for (int j = 0; j < NUM_PREDICATES; ++j) {
                     if ( i & (1 << j)) {
@@ -347,8 +347,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.  Suppress
-        //   all 'cout' statements in non-verbose mode, and add streaming to
+        //   comment characters, and replace `assert` with `ASSERT`.  Suppress
+        //   all `cout` statements in non-verbose mode, and add streaming to
         //   a buffer to test programmatically the printing examples.
         //
         // Testing:
@@ -362,63 +362,63 @@ int main(int argc, char *argv[])
 ///-----
 // The following code fragments illustrate how to use a rule set.
 //
-// We first create a rule whose pattern is 'WEEKEND*' and whose threshold
-// levels are all 'ball::Severity::e_OFF' except the 'pass-through' level.  A
-// 'pass-through' level of 'ball::Severity::e_INFO' indicates that whenever the
-// rule is active and the severity equals or exceeds 'ball::Severity::e_INFO',
+// We first create a rule whose pattern is `WEEKEND*` and whose threshold
+// levels are all `ball::Severity::e_OFF` except the `pass-through` level.  A
+// `pass-through` level of `ball::Severity::e_INFO` indicates that whenever the
+// rule is active and the severity equals or exceeds `ball::Severity::e_INFO`,
 // log records will be passed to the observer:
-//..
+// ```
     ball::Rule rule1("WEEKEND*",               // pattern
                     ball::Severity::e_OFF,     // record level
                     ball::Severity::e_INFO,    // pass-through level
                     ball::Severity::e_OFF,     // trigger level
                     ball::Severity::e_OFF);    // triggerAll level
-//..
+// ```
 // Next, we create another rule having a different pattern, but the same
 // threshold levels:
-//..
+// ```
     ball::Rule rule2("WEEKDAY*",               // pattern
                     ball::Severity::e_OFF,     // record level
                     ball::Severity::e_INFO,    // pass-through level
                     ball::Severity::e_OFF,     // trigger level
                     ball::Severity::e_OFF);    // triggerAll level
-//..
-// We then create a 'ball::RuleSet' object, add the two rules, and verify that
+// ```
+// We then create a `ball::RuleSet` object, add the two rules, and verify that
 // rules were added correctly:
-//..
+// ```
     ball::RuleSet ruleSet;
     ASSERT(0 <= ruleSet.addRule(rule1));
     ASSERT(0 <= ruleSet.addRule(rule2));
     ASSERT(2 == ruleSet.numRules());
-//..
+// ```
 // Duplicate rules cannot be added:
-//..
+// ```
     ASSERT(-1 == ruleSet.addRule(rule1));
     ASSERT(-1 == ruleSet.addRule(rule2));
     ASSERT( 2 == ruleSet.numRules());
-//..
-// Rules in a rule set can be looked up by the 'ruleId' method:
-//..
+// ```
+// Rules in a rule set can be looked up by the `ruleId` method:
+// ```
     int i1 = ruleSet.ruleId(rule1);
     int i2 = ruleSet.ruleId(rule2);
     ASSERT(0 <= i1); ASSERT(i1 < ruleSet.maxNumRules());
     ASSERT(0 <= i2); ASSERT(i2 < ruleSet.maxNumRules());
     ASSERT(i1 != i2);
-//..
-// The 'removeRule' method can be used to remove rules from a rule set.
-//..
+// ```
+// The `removeRule` method can be used to remove rules from a rule set.
+// ```
     ASSERT(ruleSet.removeRule(rule1));
     ASSERT(1 == ruleSet.numRules());
     ASSERT(ruleSet.ruleId(rule1) < 0);
     ASSERT(ruleSet.ruleId(rule2) == i2);
-//..
+// ```
 
       } break;
       case 10: {
         // --------------------------------------------------------------------
         // TESTING NON-PRIMARY MANIPULATORS
-        //   Non-primary manipulators such as 'addRules', 'deleteRules', and
-        //   'removeRuleById' should work as expected.
+        //   Non-primary manipulators such as `addRules`, `deleteRules`, and
+        //   `removeRuleById` should work as expected.
         //
         // Plan:
         //   For each method to be tested, specify a table each entry of which
@@ -543,7 +543,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, r == ADATA[i].d_result);
         }
 
-        if (verbose) cout << "\nTesting 'removeRules'." << endl;
+        if (verbose) cout << "\nTesting `removeRules`." << endl;
 
         static const struct {
             int         d_line;       // source line number
@@ -701,7 +701,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, Y == X);
             LOOP_ASSERT(LINE, r == IDATA[i].d_result);
         }
-        if (verbose) cout << "\nTesting 'removeAllRules'." << endl;
+        if (verbose) cout << "\nTesting `removeAllRules`." << endl;
 
         static const char* SPECS[] = {
             "",
@@ -805,7 +805,7 @@ int main(int argc, char *argv[])
 
         static const struct {
             int         d_line;   // source line number
-            const char *d_spec;      // input 'spec' string for 'gg'
+            const char *d_spec;      // input `spec` string for `gg`
         } DATA[] = {
             // line    spec
             // ----    ----
@@ -895,7 +895,7 @@ int main(int argc, char *argv[])
       case 8: {
         // --------------------------------------------------------------------
         // TESTING SECONDARY TEST APPARATUS:
-        //   Void for 'ball::RuleSet'.
+        //   Void for `ball::RuleSet`.
         // --------------------------------------------------------------------
 
       } break;
@@ -908,7 +908,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Specify a set S whose elements have substantial and varied
         //   differences in value.  For each element in S, construct and
-        //   initialize identically valued objects w and x using 'gg'.  Then
+        //   initialize identically valued objects w and x using `gg`.  Then
         //   copy construct an object y from x, and use the equality operator
         //   to assert that both x and y have the same value as w.
         //
@@ -920,7 +920,7 @@ int main(int argc, char *argv[])
 
         static const struct {
             int         d_line;      // source line number
-            const char *d_spec;      // input 'spec' string for 'gg'
+            const char *d_spec;      // input `spec` string for `gg`
         } DATA[] = {
             // line    spec
             // ----    ----
@@ -1014,13 +1014,13 @@ int main(int argc, char *argv[])
         // Plan:
         //   First, specify a set S of unique object values that may have
         //   various minor or subtle differences.  Verify the correctness of
-        //   'operator==' and 'operator!=' using all elements (u, v) of the
+        //   `operator==` and `operator!=` using all elements (u, v) of the
         //   cross product S X S.
         //
         //   Next, specify another set T where each element is a pair of
         //   different specifications having the same value (the same
         //   attributes were added in different orders).  For each element (u,
-        //   v) in T, verify that 'operator==' and 'operator!=' return the
+        //   v) in T, verify that `operator==` and `operator!=` return the
         //   correct value.
 
         // Testing:
@@ -1030,7 +1030,7 @@ int main(int argc, char *argv[])
 
         static const struct {
             int         d_line;      // source line number
-            const char *d_spec;      // input 'spec' string for 'gg'
+            const char *d_spec;      // input `spec` string for `gg`
         } DATA[] = {
             // line   spec
             // ----   ----
@@ -1101,8 +1101,8 @@ int main(int argc, char *argv[])
 
         static const struct {
             int         d_line;       // source line number
-            const char *d_spec1;      // input 'spec' string for 'gg'
-            const char *d_spec2;      // input 'spec' string for 'gg'
+            const char *d_spec1;      // input `spec` string for `gg`
+            const char *d_spec2;      // input `spec` string for `gg`
         } TDATA[] = {
             // line spec1                      spec2
             // ---- -----                      -----
@@ -1155,13 +1155,13 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'operator<<' AND 'print':
-        //   The output operator and 'print' method should print out the value
+        // TESTING `operator<<` AND `print`:
+        //   The output operator and `print` method should print out the value
         //   of objects in the expected format.
         //
         // Plan:
         //   For each of a small representative set of object values, use
-        //   'ostrstream' to write that object's value to a character buffer
+        //   `ostrstream` to write that object's value to a character buffer
         //   and then compare the contents of that buffer with the expected
         //   output format.
         //
@@ -1171,10 +1171,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing 'operator<<' and 'print'" << endl
+                          << "Testing `operator<<` and `print`" << endl
                           << "================================" << endl;
 
-        if (verbose) cout << "\nTesting 'operator<<' (ostream)." << endl;
+        if (verbose) cout << "\nTesting `operator<<` (ostream)." << endl;
 
         static const struct {
             int         d_line;            // line number
@@ -1220,7 +1220,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting 'print'." << endl;
+        if (verbose) cout << "\nTesting `print`." << endl;
 
         static const struct {
             int         d_line;            // line number
@@ -1310,20 +1310,20 @@ int main(int argc, char *argv[])
       case 4: {
         // --------------------------------------------------------------------
         // TESTING BASIC ACCESSORS
-        //   Rules added to a 'bal_RuleSet' object must be verifiable by the
+        //   Rules added to a `bal_RuleSet` object must be verifiable by the
         //   basic accessors.
         //
         // Plan:
-        //   Specify a set P of unique 'ball::Predicate' objects.  Construct a
-        //   set of R of 'ball::Rule' objects using the superset of P.  Then
+        //   Specify a set P of unique `ball::Predicate` objects.  Construct a
+        //   set of R of `ball::Rule` objects using the superset of P.  Then
         //   add elements of R to a rule set one by one, and verify that
-        //   'addRule' returns 1 if the number of existing rules is less than
-        //   'maxNumRules'.  After having adding each rule, for every existing
-        //   rule check that the same rule cannot be added, 'getRuleById'
-        //   returns the same rule, and 'ruleId' returns the correct id.
-        //   Repeat the verification with another 'ball::RuleSet' object
+        //   `addRule` returns 1 if the number of existing rules is less than
+        //   `maxNumRules`.  After having adding each rule, for every existing
+        //   rule check that the same rule cannot be added, `getRuleById`
+        //   returns the same rule, and `ruleId` returns the correct id.
+        //   Repeat the verification with another `ball::RuleSet` object
         //   copy-constructed from the original and with yet another
-        //   'ball::RuleSet' object assigned from the original.
+        //   `ball::RuleSet` object assigned from the original.
         //
         // Testing:
         //   static int maxNumRules();
@@ -1348,7 +1348,7 @@ int main(int argc, char *argv[])
 
             ball::Rule rule1("", 0, 0, 0, 0);
 
-            // add a subset of attributes to 'rule1' so that each 'j'
+            // add a subset of attributes to `rule1` so that each `j`
             // corresponds to a unique rule.
             for (int j = 0; j < NUM_PREDICATES; ++j) {
                 if ( i & (1 << j)) {
@@ -1407,19 +1407,19 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING GENERATOR FUNCTIONS 'GG'
+        // TESTING GENERATOR FUNCTIONS `GG`
         //
         // Plan:
-        //   Test the behavior of 'gg'.
+        //   Test the behavior of `gg`.
         //   * Verify that all test values are distinct.
-        //   * Show 'gg' returns a correct reference to its first argument.
+        //   * Show `gg` returns a correct reference to its first argument.
         //   * Verify length
         //
         // Testing:
         //   Obj& gg(Obj *address, const char *spec);
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-            << "Testing 'gg' generator function" << endl
+            << "Testing `gg` generator function" << endl
             << "===============================" << endl;
 
         if (verbose) cout << "\tTesting 'R'-form specification." << endl;
@@ -1691,7 +1691,7 @@ int main(int argc, char *argv[])
         //   manipulator [3, 6], copy constructor [2, 8], and assignment
         //   operator without [9, 10] and with [11] aliasing.  Use the direct
         //   accessors to verify the expected results.  Display object values
-        //   frequently in verbose mode.  Note that 'VA', 'VB', and 'VC'
+        //   frequently in verbose mode.  Note that `VA`, `VB`, and `VC`
         //   denote unique, but otherwise arbitrary, object values.
         //
         // 1.  Create an default object x1.         { x1:0 }

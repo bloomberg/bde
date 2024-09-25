@@ -220,7 +220,7 @@ const float          VK[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 const double         VL[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
 // The following constants are added to match the optimized methods for integer
-// types, such as 'putInt24', 'putInt56', etc.
+// types, such as `putInt24`, `putInt56`, etc.
 const int            VM[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 const unsigned int   VN[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 const bsls::Types::Int64
@@ -237,7 +237,7 @@ const bsls::Types::Uint64
                      VT[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
 // Data structure that contains data to test array input methods using the
-// function 'testGetArray' (defined below).
+// function `testGetArray` (defined below).
 struct ArrayTestTable {
     int         d_line;          // line number
     const char *d_spec;          // spec to create test stream
@@ -248,7 +248,7 @@ struct ArrayTestTable {
 };
 
 // Data structure that contains data to test scalar input methods using the
-// function 'testGetScalar' (defined below).
+// function `testGetScalar` (defined below).
 template <class ElemType>
 struct ScalarTestTable {
     int         d_line;          // line number
@@ -269,10 +269,10 @@ struct InputLimitTestTable {
 static int globalVeryVerbose;
 
 // ============================================================================
-//                    GENERATOR FUNCTION 'g' FOR TESTING
+//                    GENERATOR FUNCTION `g` FOR TESTING
 // ----------------------------------------------------------------------------
-// The following function interprets the given 'spec' in order from left to
-// right to configure a 'bslx::TestOutStream' object according to a custom
+// The following function interprets the given `spec` in order from left to
+// right to configure a `bslx::TestOutStream` object according to a custom
 // language.  The language consists of letters in the ranges [A-T] and [a-t],
 // and digits in the range [0-9].  A letter must be followed by one or more
 // digits.  Each letter is associated with a unique output method to be invoked
@@ -307,12 +307,12 @@ static int globalVeryVerbose;
 // the range [A-T].
 //
 // For each uppercase letter (corresponding to a scalar output method), each
-// digit N serves as an index into VX.  Thus, the spec 'G2' invokes 'putInt32'
+// digit N serves as an index into VX.  Thus, the spec `G2` invokes `putInt32`
 // with the value VG[2].
 //
 // For each lowercase letter (corresponding to an array output method), each
-// digit N indicates the first N elements of VX.  Thus, the spec 'l3' invokes
-// 'putArrayFloat64' with the array VL, and length 3.
+// digit N indicates the first N elements of VX.  Thus, the spec `l3` invokes
+// `putArrayFloat64` with the array VL, and length 3.
 //
 //
 // LANGUAGE SPECIFICATION:
@@ -339,26 +339,26 @@ static int globalVeryVerbose;
 // Sample Spec  Description
 // -----------  ---------------------------------------------------------------
 // ""           Has no effect; leaves the object empty.
-// "A0"         Externalize 'VA[0]' by calling 'putInt8(VA[0])'.
-// "A123"       Externalize 'VA[1]', 'VA[2]', and 'VA[3]' by calling 'putInt8'
-//              with 'VA[1]', 'VA[2]', and 'VA[3]' as arguments, respectively.
-// "a2"         Externalize the first two elements of 'VA' by calling
-//              'putArrayInt8(VA, 2)'.
-// "a25"        Externalize the first two elements of 'VA' by calling
-//              'putArrayInt8(VA, 2)', then the first five elements of 'VA' by
-//              calling 'putArrayInt8(VA, 5)'.
+// "A0"         Externalize `VA[0]` by calling `putInt8(VA[0])`.
+// "A123"       Externalize `VA[1]`, `VA[2]`, and `VA[3]` by calling `putInt8`
+//              with `VA[1]`, `VA[2]`, and `VA[3]` as arguments, respectively.
+// "a2"         Externalize the first two elements of `VA` by calling
+//              `putArrayInt8(VA, 2)`.
+// "a25"        Externalize the first two elements of `VA` by calling
+//              `putArrayInt8(VA, 2)`, then the first five elements of `VA` by
+//              calling `putArrayInt8(VA, 5)`.
 // "A01 B234 E5 f6 g23 H1"
-//              Externalize 'VA[0]' and 'VA[1]' with 'putInt8'; 'VB[2]',
-//              'VB[3]', and 'VB[4]' with 'putUint8'; 'VE[5]' with 'putInt16';
-//              the first six elements of 'VF' with 'putArrayUint16(VF, 6)';
-//              the first two elements of 'VG' with 'putArrayInt32(VG, 2)'; the
-//              first three elements of 'VG' with 'putArrayInt32(VG, 3)', and
-//              'VH[1]' with 'putUint32'
+//              Externalize `VA[0]` and `VA[1]` with `putInt8`; `VB[2]`,
+//              `VB[3]`, and `VB[4]` with `putUint8`; `VE[5]` with `putInt16`;
+//              the first six elements of `VF` with `putArrayUint16(VF, 6)`;
+//              the first two elements of `VG` with `putArrayInt32(VG, 2)`; the
+//              first three elements of `VG` with `putArrayInt32(VG, 3)`, and
+//              `VH[1]` with `putUint32`
 //
 // ----------------------------------------------------------------------------
 
+/// int verbose = globalVerbose;
 int g(Out *o, const char *spec) {
-    // int verbose = globalVerbose;
     int veryVerbose = globalVeryVerbose;
 
     // read spec from left to right
@@ -369,7 +369,7 @@ int g(Out *o, const char *spec) {
            ('a' <= spec[i] && spec[i] <= 't' ) ) {
             // found a letter
 
-            bool haveDigit = false; // set to 'true' if digits found following
+            bool haveDigit = false; // set to `true` if digits found following
                                     // letter
 
             for (int j = i + 1; spec[j]; ++j) {
@@ -425,13 +425,13 @@ int g(Out *o, const char *spec) {
                     ; // skip spaces
                 } else {
                     // spec[j] is not in [0-9] and is not a space.  Break.
-                    // assign 'i' to j - 1 b/c 'i' will be incremented later.
+                    // assign `i` to j - 1 b/c `i` will be incremented later.
                     i = j - 1;
                     break;
                 }
 
                 if ('\0' == spec[j + 1]) {
-                    // next char is null, assign 'i' and break.
+                    // next char is null, assign `i` and break.
                     i = j;
                     break;
                 }
@@ -453,24 +453,24 @@ int g(Out *o, const char *spec) {
 }
 
 // ============================================================================
-//                    FUNCTION 'testGetArray' FOR TESTING
+//                    FUNCTION `testGetArray` FOR TESTING
 // ----------------------------------------------------------------------------
-// The function 'testGetArray' is a generic, parameterized function to test
+// The function `testGetArray` is a generic, parameterized function to test
 // array input methods of various data types.  The function accepts an array of
-// vectors having the structure defined by 'ArrayTestTable' (see above) as its
+// vectors having the structure defined by `ArrayTestTable` (see above) as its
 // test data.  It iterates over the vectors in the array and performs an
 // independent test for each vector.  In each test, it first generates a test
-// stream using the generator function 'g' with spec 'd_spec', then attempts to
-// read 'd_numArr' number of arrays from the stream with consecutive array
+// stream using the generator function `g` with spec `d_spec`, then attempts to
+// read `d_numArr` number of arrays from the stream with consecutive array
 // input method calls.  For the Nth array input method call, it attempts to
 // read an array having a length equal to the value of the Nth element of
-// 'd_arrLen' array.  For example, if N is 5 and 'getArrayInt8' is being
-// tested, then 'getArrayInt8(input_array, d_arrLen[5])' will be called (where
-// 'input_array' is an array that will contain the values read from the stream
+// `d_arrLen` array.  For example, if N is 5 and `getArrayInt8` is being
+// tested, then `getArrayInt8(input_array, d_arrLen[5])` will be called (where
+// `input_array` is an array that will contain the values read from the stream
 // if the call returns successfully).  The resulting length of the input array
-// is verified against the value of the Nth element of 'd_expArrLen' array.
+// is verified against the value of the Nth element of `d_expArrLen` array.
 // The value of each element in the input array is also verified against the
-// value of the respective element in the 'origVal' array.  If a test stream
+// value of the respective element in the `origVal` array.  If a test stream
 // contains all valid data, then the stream is verified to be empty and valid
 // after all input operations.  If a test stream is intentionally configured
 // with invalid data, then after the attempt to read the invalid data, the
@@ -479,17 +479,17 @@ int g(Out *o, const char *spec) {
 // displayed only in "veryVerbose" mode.
 // ----------------------------------------------------------------------------
 
+/// Iterate over the vectors in the specified `data` by the specified
+/// `numTest` times.  Generate a test stream in each iteration, invoke the
+/// array input method pointed to by the specified `getArrayFunc` member
+/// pointer, and then verify the result by comparing the values in the
+/// extracted array to the values in the specified `origVal` array.
+/// Also verify defensive checks are triggered for invalid values.
 template <class ElemType, class FuncPtr>
 void testGetArray(const ArrayTestTable *data,
                   int                   numTest,
                   const ElemType       *origVal,
                   FuncPtr               getArrayFunc)
-    // Iterate over the vectors in the specified 'data' by the specified
-    // 'numTest' times.  Generate a test stream in each iteration, invoke the
-    // array input method pointed to by the specified 'getArrayFunc' member
-    // pointer, and then verify the result by comparing the values in the
-    // extracted array to the values in the specified 'origVal' array.
-    // Also verify defensive checks are triggered for invalid values.
 {
     // int verbose = globalVerbose;
     int veryVerbose = globalVeryVerbose;
@@ -593,19 +593,19 @@ void testGetArray(const ArrayTestTable *data,
 }
 
 // ============================================================================
-//                    FUNCTION 'testGetScalar' FOR TESTING
+//                    FUNCTION `testGetScalar` FOR TESTING
 // ----------------------------------------------------------------------------
-// The function 'testGetScalar' is a generic, parameterized function to test
+// The function `testGetScalar` is a generic, parameterized function to test
 // scalar input methods of various data types.  The function accepts an array
-// of vectors having the structure defined by 'ScalarTestTable' (see above) as
+// of vectors having the structure defined by `ScalarTestTable` (see above) as
 // its test data.  It iterates over the vectors in the array and performs an
 // independent test for each vector.  In each test, it first generates a test
-// stream using the generator function 'g' with spec 'd_spec', then attempts to
-// read 'd_numVals' number of scalar values from the stream with consecutive
+// stream using the generator function `g` with spec `d_spec`, then attempts to
+// read `d_numVals` number of scalar values from the stream with consecutive
 // input method calls.  For the Nth input method call, the value read is
-// verified against the value of the Nth element of array 'd_exp'.  For
-// example, if N is 5 and 'getInt8' is being tested, then 'getInt8(val)' is
-// called, and the resulting value of 'val' is verified against 'd_exp[5]'.  If
+// verified against the value of the Nth element of array `d_exp`.  For
+// example, if N is 5 and `getInt8` is being tested, then `getInt8(val)` is
+// called, and the resulting value of `val` is verified against `d_exp[5]`.  If
 // a test stream contains all valid data, then the stream is verified to be
 // empty and valid after all input operations.  If a test stream is
 // intentionally configured with invalid data, then after the attempt to read
@@ -614,15 +614,15 @@ void testGetArray(const ArrayTestTable *data,
 // from the stream object is displayed only in "veryVerbose" mode.
 // ----------------------------------------------------------------------------
 
+/// Iterate over the vectors in the specified `data` by the specified
+/// `numTest` times.  Generate a test stream in each iteration, invoke the
+/// input method pointed to by the specified `getFunc` member pointer, and
+/// then verify the result by comparing the extracted values to the values
+/// specified in the test vector.
 template <class ElemType, class FuncPtr>
 void testGetScalar(const ScalarTestTable<ElemType> *data,
                    int                              numTest,
                    FuncPtr                          getFunc)
-    // Iterate over the vectors in the specified 'data' by the specified
-    // 'numTest' times.  Generate a test stream in each iteration, invoke the
-    // input method pointed to by the specified 'getFunc' member pointer, and
-    // then verify the result by comparing the extracted values to the values
-    // specified in the test vector.
 {
     // int verbose = globalVerbose;
     int veryVerbose = globalVeryVerbose;
@@ -691,27 +691,37 @@ void testGetScalar(const ScalarTestTable<ElemType> *data,
 }
 
 // ============================================================================
-//                FUNCTION 'testGetArrayInputLimit' FOR TESTING
+//                FUNCTION `testGetArrayInputLimit` FOR TESTING
 // ----------------------------------------------------------------------------
-// The function 'testGetArrayInputLimit' is a generic, parameterized function
+// The function `testGetArrayInputLimit` is a generic, parameterized function
 // to test the behavior of array input methods with varying stream input limit
 // values.  The function accepts as its test data an array of vectors having
-// the structure defined by 'InputLimitTestTable' (see above) and performs an
+// the structure defined by `InputLimitTestTable` (see above) and performs an
 // independent test for each vector.  In each test, a test input stream is
-// created and initialized with the output of the generator function 'g' using
-// 'spec'.  The stream's input limit is set to 'd_inputLimit', and the stream's
-// input method referred to by the 'getFunc' function pointer is invoked
-// repeatedly within a loop up to 'd_numInput' times.  Depending on the
+// created and initialized with the output of the generator function `g` using
+// `spec`.  The stream's input limit is set to `d_inputLimit`, and the stream's
+// input method referred to by the `getFunc` function pointer is invoked
+// repeatedly within a loop up to `d_numInput` times.  Depending on the
 // stream's input limit, the input method may throw an exception and exit the
-// 'loop'.  When the loop exits, the number of times that the input method was
-// executed is verified against 'd_numSuccessInput', and the flag that
-// indicates whether an exception was thrown is verified against 'd_willThrow'.
-// The input method is again executed 'd_numInput' times to ensure that after a
+// `loop`.  When the loop exits, the number of times that the input method was
+// executed is verified against `d_numSuccessInput`, and the flag that
+// indicates whether an exception was thrown is verified against `d_willThrow`.
+// The input method is again executed `d_numInput` times to ensure that after a
 // non-negative input limit has been exceeded and an exception has been thrown,
 // subsequent input method invocations do not throw unless the input limit is
 // updated with a non-negative value.
 // ----------------------------------------------------------------------------
 
+/// Iterate over the specified `data` test vectors `numData` times.  In each
+/// iteration, create a test input stream object initialized with the output
+/// of the generator function `g` using the specified `spec`.  Invoke some
+/// number of times (specified in the test vector) the array input method
+/// referred to by the specified `getFunc` member function pointer to input
+/// an array containing the specified `numArrayElements`.  Verify that the
+/// number of times the input method was invoked is equal to the expected
+/// value specified in the test vector, and that an exception was thrown and
+/// caught when expected.  If an exception was thrown, verified that the
+/// exception object contains the specified `dataType`.
 template <class ElemType, class FuncPtr>
 void testGetArrayInputLimit(const InputLimitTestTable *data,
                             int                        numData,
@@ -719,16 +729,6 @@ void testGetArrayInputLimit(const InputLimitTestTable *data,
                             int                        numArrayElements,
                             FuncPtr                    getFunc,
                             TypeCode::Enum             dataType)
-    // Iterate over the specified 'data' test vectors 'numData' times.  In each
-    // iteration, create a test input stream object initialized with the output
-    // of the generator function 'g' using the specified 'spec'.  Invoke some
-    // number of times (specified in the test vector) the array input method
-    // referred to by the specified 'getFunc' member function pointer to input
-    // an array containing the specified 'numArrayElements'.  Verify that the
-    // number of times the input method was invoked is equal to the expected
-    // value specified in the test vector, and that an exception was thrown and
-    // caught when expected.  If an exception was thrown, verified that the
-    // exception object contains the specified 'dataType'.
 {
 #ifdef BDE_BUILD_TARGET_EXC
     // int verbose = globalVerbose;
@@ -804,42 +804,42 @@ void testGetArrayInputLimit(const InputLimitTestTable *data,
 }
 
 // ============================================================================
-//               FUNCTION 'testGetScalarInputLimit' FOR TESTING
+//               FUNCTION `testGetScalarInputLimit` FOR TESTING
 // ----------------------------------------------------------------------------
-// The function 'testGetScalarInputLimit' is a generic, parameterized function
+// The function `testGetScalarInputLimit` is a generic, parameterized function
 // to test the behavior of scalar input methods with varying stream input limit
 // values.  The function accepts as its test data an array of vectors having
-// the structure defined by 'InputLimitTestTable' (see above) and performs an
+// the structure defined by `InputLimitTestTable` (see above) and performs an
 // independent test for each vector.  In each test, a test input stream is
-// created and initialized with the output of the generator function 'g' using
-// 'spec'.  The stream's input limit is set to 'd_inputLimit', and the stream's
-// input method referred to by the 'getFunc' function pointer is invoked
-// repeatedly within a loop up to 'd_numInput' times.  Depending on the
+// created and initialized with the output of the generator function `g` using
+// `spec`.  The stream's input limit is set to `d_inputLimit`, and the stream's
+// input method referred to by the `getFunc` function pointer is invoked
+// repeatedly within a loop up to `d_numInput` times.  Depending on the
 // stream's input limit, the input method may throw an exception and exit the
-// 'loop'.  When the loop exits, the number of times that the input method was
-// executed is verified against 'd_numSuccessInput', and the flag that
-// indicates whether an exception was thrown is verified against 'd_willThrow'.
-// The input method is again executed 'd_numInput' times to ensure that after a
+// `loop`.  When the loop exits, the number of times that the input method was
+// executed is verified against `d_numSuccessInput`, and the flag that
+// indicates whether an exception was thrown is verified against `d_willThrow`.
+// The input method is again executed `d_numInput` times to ensure that after a
 // non-negative input limit has been exceeded and an exception has been thrown,
 // subsequent input method invocations do not throw unless the input limit is
 // updated with a non-negative value.
 // ----------------------------------------------------------------------------
 
+/// Iterate over the specified `data` test vectors `numData` times.  In each
+/// iteration, create a test input stream object initialized with the output
+/// of the generator function `g` using the specified `spec`.  Invoke some
+/// number of times (specified in the test vector) the scalar input method
+/// referred to by the specified `getFunc` member function pointer.  Verify
+/// that the number of times the input method was invoked is equal to the
+/// expected value specified in the test vector, and that an exception was
+/// thrown and caught when expected.  If an exception was thrown, verified
+/// that the exception object contains the specified `dataType`.
 template <class ElemType>
 void testGetScalarInputLimit(const InputLimitTestTable        *data,
                              int                              numData,
                              const char                      *spec,
                              Obj& (Obj::*getFunc)(ElemType&),
                              TypeCode::Enum                  dataType)
-    // Iterate over the specified 'data' test vectors 'numData' times.  In each
-    // iteration, create a test input stream object initialized with the output
-    // of the generator function 'g' using the specified 'spec'.  Invoke some
-    // number of times (specified in the test vector) the scalar input method
-    // referred to by the specified 'getFunc' member function pointer.  Verify
-    // that the number of times the input method was invoked is equal to the
-    // expected value specified in the test vector, and that an exception was
-    // thrown and caught when expected.  If an exception was thrown, verified
-    // that the exception object contains the specified 'dataType'.
 {
 #ifdef BDE_BUILD_TARGET_EXC
     // int verbose = globalVerbose;
@@ -912,27 +912,28 @@ void testGetScalarInputLimit(const InputLimitTestTable        *data,
 }
 
 // ============================================================================
-//               STRUCT 'ForEachIn<LIST, N>' FOR TESTING
+//               STRUCT `ForEachIn<LIST, N>` FOR TESTING
 // ----------------------------------------------------------------------------
+
+/// The struct `ForEachIn` is a generic, parameterized structure that
+/// implements meta-function `testInputLimit`.  The function
+/// recursively instantiates `ForEachIn<LIST, N-1>` unless N=0.
+/// For the i-th instantiation, the function calls the `test` method of
+/// the i-th item of the `LIST`.
 template <class LIST, int N = LIST::LENGTH>
 struct ForEachIn {
-    // The struct 'ForEachIn' is a generic, parameterized structure that
-    // implements meta-function 'testInputLimit'.  The function
-    // recursively instantiates 'ForEachIn<LIST, N-1>' unless N=0.
-    // For the i-th instantiation, the function calls the 'test' method of
-    // the i-th item of the 'LIST'.
 
+    /// The function extracts N-th element from the `LIST` and
+    /// invokes its static method `test` with the specified `data`,
+    /// `numData`, (N-1)-th item of the specified `specs` array.  After that
+    /// the function instantiates struct `ForEachIn<LIST, N-1>` and
+    /// invokes its static method `testInputLimit`.  The process
+    /// recursively continues unless N=0, in this case partial
+    /// specialization for `ForEachIn<LIST, 0>` is instantiated (see
+    /// below) and recursion is stopped.
     static void testInputLimit(const InputLimitTestTable *data,
                                int                        numData,
                                const char                *specs[])
-        // The function extracts N-th element from the 'LIST' and
-        // invokes its static method 'test' with the specified 'data',
-        // 'numData', (N-1)-th item of the specified 'specs' array.  After that
-        // the function instantiates struct 'ForEachIn<LIST, N-1>' and
-        // invokes its static method 'testInputLimit'.  The process
-        // recursively continues unless N=0, in this case partial
-        // specialization for 'ForEachIn<LIST, 0>' is instantiated (see
-        // below) and recursion is stopped.
     {
         ASSERT(specs[N - 1]);
 
@@ -944,60 +945,66 @@ struct ForEachIn {
 };
 
 // ============================================================================
-//               STRUCT 'ForEachIn<LIST, 0>' FOR TESTING
+//               STRUCT `ForEachIn<LIST, 0>` FOR TESTING
 // ----------------------------------------------------------------------------
+
+/// Partial specialization of struct `ForEachIn` for N = 0
 template <class LIST>
 struct ForEachIn<LIST, 0> {
-    // Partial specialization of struct 'ForEachIn' for N = 0
+
+    /// Empty implementation
     static void testInputLimit(const InputLimitTestTable *,
                                int,
                                const char *[])
-        // Empty implementation
     {
     }
 };
 
 // ============================================================================
-//               STRUCT 'GetScalar' FOR TESTING
+//               STRUCT `GetScalar` FOR TESTING
 // ----------------------------------------------------------------------------
+
+/// The struct `GetScalar` is a generic, parameterized structure that
+/// helps to store an address of `TestInStream` access function for
+/// the specified type `ElemType` and corresponding type code type
+/// `tc`.  The struct serves as an item of a type list in INPUT
+/// LIMIT EXCEPTION TEST (case 27).
 template <class ElemType,
           Obj& (Obj::*getFunc)(ElemType&),
           TypeCode::Enum tc>
 struct GetScalar {
-    // The struct 'GetScalar' is a generic, parameterized structure that
-    // helps to store an address of 'TestInStream' access function for
-    // the specified type 'ElemType' and corresponding type code type
-    // 'tc'.  The struct serves as an item of a type list in INPUT
-    // LIMIT EXCEPTION TEST (case 27).
+
+    /// invokes `testGetScalarInputLimit` template function with the
+    /// specified `data`, `numData`, `spec` function parameters and
+    /// `getFunc`, `tc` template parameters.
     static void test(const InputLimitTestTable *data,
                      int                        numData,
                      const char                *spec) {
-        // invokes 'testGetScalarInputLimit' template function with the
-        // specified 'data', 'numData', 'spec' function parameters and
-        // 'getFunc', 'tc' template parameters.
         testGetScalarInputLimit<ElemType>(data, numData, spec, getFunc, tc);
     }
 };
 
 // ============================================================================
-//               STRUCT 'GetArray' FOR TESTING
+//               STRUCT `GetArray` FOR TESTING
 // ----------------------------------------------------------------------------
+
+/// The struct `GetArray` is a generic, parameterized structure that
+/// helps to store an address of `TestInStream` access function for
+/// the specified type `ElemType`, corresponding type code type
+/// `tc` and `numArrayElements` value.  The struct serves as an item
+/// of a type list in INPUT LIMIT EXCEPTION TEST (case 27).
 template <class ElemType,
           Obj& (Obj::*getFunc)(ElemType*, int),
           TypeCode::Enum tc,
           int numArrayElements>
 struct GetArray {
-    // The struct 'GetArray' is a generic, parameterized structure that
-    // helps to store an address of 'TestInStream' access function for
-    // the specified type 'ElemType', corresponding type code type
-    // 'tc' and 'numArrayElements' value.  The struct serves as an item
-    // of a type list in INPUT LIMIT EXCEPTION TEST (case 27).
+
+    /// invokes `testGetArrayInputLimit` template function with the
+    /// specified `data`, `numData`, `spec` function parameters and
+    /// `numArrayElements`, `getFunc`, `tc` template parameters.
     static void test(const InputLimitTestTable *data,
                      int                        numData,
                      const char                *spec) {
-        // invokes 'testGetArrayInputLimit' template function with the
-        // specified 'data', 'numData', 'spec' function parameters and
-        // 'numArrayElements', 'getFunc', 'tc' template parameters.
         testGetArrayInputLimit<ElemType>(
             data,
             numData,
@@ -1018,23 +1025,23 @@ struct GetArray {
 //
 ///Example 1: Basic Unexternalization
 ///- - - - - - - - - - - - - - - - -
-// Suppose we wish to implement a (deliberately simple) 'MyPerson' class as a
+// Suppose we wish to implement a (deliberately simple) `MyPerson` class as a
 // value-semantic object that supports BDEX externalization and
 // unexternalization.  In addition to whatever data and methods that we choose
 // to put into our design, we must supply three methods having specific names
 // and signatures in order to comply with the BDEX protocol: a class method
-// 'maxSupportedBdexVersion', an accessor (i.e., a 'const' method)
-// 'bdexStreamOut', and a manipulator (i.e., a non-'const' method)
-// 'bdexStreamIn'.  This example shows how to implement those three methods.
+// `maxSupportedBdexVersion`, an accessor (i.e., a `const` method)
+// `bdexStreamOut`, and a manipulator (i.e., a non-`const` method)
+// `bdexStreamIn`.  This example shows how to implement those three methods.
 //
 // In this example we will not worry overly about "good design" of the
-// 'MyPerson' component, and we will declare but not implement illustrative
+// `MyPerson` component, and we will declare but not implement illustrative
 // methods and free operators, except for the three required BDEX methods,
 // which are implemented in full.  In particular, we will not make explicit use
-// of 'bslma' allocators; a more complete design would do so:
+// of `bslma` allocators; a more complete design would do so:
 //
-// First, we implement 'MyPerson':
-//..
+// First, we implement `MyPerson`:
+// ```
     class MyPerson {
         bsl::string d_firstName;
         bsl::string d_lastName;
@@ -1044,91 +1051,96 @@ struct GetArray {
 
       public:
         // CLASS METHODS
+
+        /// Return the maximum valid BDEX format version, as indicated by
+        /// the specified `versionSelector`, to be passed to the
+        /// `bdexStreamOut` method.  Note that it is highly recommended that
+        /// `versionSelector` be formatted as "YYYYMMDD", a date
+        /// representation.  Also note that `versionSelector` should be a
+        /// *compile*-time-chosen value that selects a format version
+        /// supported by both externalizer and unexternalizer.  See the
+        /// `bslx` package-level documentation for more information on BDEX
+        /// streaming of value-semantic types and containers.
         static int maxSupportedBdexVersion(int versionSelector);
-            // Return the maximum valid BDEX format version, as indicated by
-            // the specified 'versionSelector', to be passed to the
-            // 'bdexStreamOut' method.  Note that it is highly recommended that
-            // 'versionSelector' be formatted as "YYYYMMDD", a date
-            // representation.  Also note that 'versionSelector' should be a
-            // *compile*-time-chosen value that selects a format version
-            // supported by both externalizer and unexternalizer.  See the
-            // 'bslx' package-level documentation for more information on BDEX
-            // streaming of value-semantic types and containers.
 
         // CREATORS
+
+        /// Create a default person.
         MyPerson();
-            // Create a default person.
 
+        /// Create a person having the specified `firstName`, `lastName`,
+        /// and `age`.
         MyPerson(const char *firstName, const char *lastName, int age);
-            // Create a person having the specified 'firstName', 'lastName',
-            // and 'age'.
 
+        /// Create a person having the value of the specified `original`
+        /// person.
         MyPerson(const MyPerson& original);
-            // Create a person having the value of the specified 'original'
-            // person.
 
+        /// Destroy this object.
         ~MyPerson();
-            // Destroy this object.
 
         // MANIPULATORS
-        MyPerson& operator=(const MyPerson& rhs);
-            // Assign to this person the value of the specified 'rhs' person,
-            // and return a reference to this person.
 
+        /// Assign to this person the value of the specified `rhs` person,
+        /// and return a reference to this person.
+        MyPerson& operator=(const MyPerson& rhs);
+
+        /// Assign to this object the value read from the specified input
+        /// `stream` using the specified `version` format, and return a
+        /// reference to `stream`.  If `stream` is initially invalid, this
+        /// operation has no effect.  If `version` is not supported, this
+        /// object is unaltered and `stream` is invalidated, but otherwise
+        /// unmodified.  If `version` is supported but `stream` becomes
+        /// invalid during this operation, this object has an undefined, but
+        /// valid, state.  Note that no version is read from `stream`.  See
+        /// the `bslx` package-level documentation for more information on
+        /// BDEX streaming of value-semantic types and containers.
         template <class STREAM>
         STREAM& bdexStreamIn(STREAM& stream, int version);
-            // Assign to this object the value read from the specified input
-            // 'stream' using the specified 'version' format, and return a
-            // reference to 'stream'.  If 'stream' is initially invalid, this
-            // operation has no effect.  If 'version' is not supported, this
-            // object is unaltered and 'stream' is invalidated, but otherwise
-            // unmodified.  If 'version' is supported but 'stream' becomes
-            // invalid during this operation, this object has an undefined, but
-            // valid, state.  Note that no version is read from 'stream'.  See
-            // the 'bslx' package-level documentation for more information on
-            // BDEX streaming of value-semantic types and containers.
 
         //...
 
         // ACCESSORS
+
+        /// Return the first name of this person.
         const bsl::string& firstName() const;
-            // Return the first name of this person.
 
+        /// Return the last name of this person.
         const bsl::string& lastName() const;
-            // Return the last name of this person.
 
+        /// Return the age of this person.
         int age() const;
-            // Return the age of this person.
 
+        /// Write the value of this object, using the specified `version`
+        /// format, to the specified output `stream`, and return a reference
+        /// to `stream`.  If `stream` is initially invalid, this operation
+        /// has no effect.  If `version` is not supported, `stream` is
+        /// invalidated, but otherwise unmodified.  Note that `version` is
+        /// not written to `stream`.  See the `bslx` package-level
+        /// documentation for more information on BDEX streaming of
+        /// value-semantic types and containers.
         template <class STREAM>
         STREAM& bdexStreamOut(STREAM& stream, int version) const;
-            // Write the value of this object, using the specified 'version'
-            // format, to the specified output 'stream', and return a reference
-            // to 'stream'.  If 'stream' is initially invalid, this operation
-            // has no effect.  If 'version' is not supported, 'stream' is
-            // invalidated, but otherwise unmodified.  Note that 'version' is
-            // not written to 'stream'.  See the 'bslx' package-level
-            // documentation for more information on BDEX streaming of
-            // value-semantic types and containers.
 
         //...
 
     };
 
     // FREE OPERATORS
+
+    /// Return `true` if the specified `lhs` and `rhs` person objects have
+    /// the same value and, `false` otherwise.  Two person objects have the
+    /// same value if they have the same first name, last name, and age.
     bool operator==(const MyPerson& lhs, const MyPerson& rhs);
-        // Return 'true' if the specified 'lhs' and 'rhs' person objects have
-        // the same value and, 'false' otherwise.  Two person objects have the
-        // same value if they have the same first name, last name, and age.
 
+    /// Return `true` if the specified `lhs` and `rhs` person objects do not
+    /// have the same value, and `false` otherwise.  Two person objects
+    /// differ in value if they differ in first name, last name, or age.
     bool operator!=(const MyPerson& lhs, const MyPerson& rhs);
-        // Return 'true' if the specified 'lhs' and 'rhs' person objects do not
-        // have the same value, and 'false' otherwise.  Two person objects
-        // differ in value if they differ in first name, last name, or age.
 
+    /// Write the specified `person` value to the specified output `stream`
+    /// in some reasonable format, and return a reference to `stream`.
     bsl::ostream& operator<<(bsl::ostream& stream, const MyPerson& person);
-        // Write the specified 'person' value to the specified output 'stream'
-        // in some reasonable format, and return a reference to 'stream'.
 
     // ========================================================================
     //                  INLINE FUNCTION DEFINITIONS
@@ -1166,7 +1178,7 @@ struct GetArray {
     STREAM& MyPerson::bdexStreamIn(STREAM& stream, int version)
     {
         if (stream) {
-            switch (version) {  // switch on the 'bslx' version
+            switch (version) {  // switch on the `bslx` version
               case 1: {
                 stream.getString(d_firstName);
                 if (!stream) {
@@ -1210,7 +1222,7 @@ struct GetArray {
         }
         return stream;
     }
-//..
+// ```
 
    // ACCESSORS
    const bsl::string& MyPerson::firstName() const
@@ -1263,14 +1275,14 @@ int main(int argc, char *argv[]) {
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -1279,36 +1291,36 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << endl << "USAGE EXAMPLE" << endl
                                   << "=============" << endl;
 
-// Then, we can exercise the new 'MyPerson' value-semantic class by
-// externalizing and reconstituting an object.  First, create a 'MyPerson'
-// 'janeSmith' and a 'bslx::TestOutStream' 'outStream':
-//..
+// Then, we can exercise the new `MyPerson` value-semantic class by
+// externalizing and reconstituting an object.  First, create a `MyPerson`
+// `janeSmith` and a `bslx::TestOutStream` `outStream`:
+// ```
     MyPerson janeSmith("Jane", "Smith", 42);
     bslx::TestOutStream outStream(20131127);
     const int VERSION = 1;
     outStream.putVersion(VERSION);
     janeSmith.bdexStreamOut(outStream, VERSION);
     ASSERT(outStream.isValid());
-//..
-// Next, create a 'MyPerson' 'janeCopy' initialized to the default value, and
-// assert that 'janeCopy' is different from 'janeSmith':
-//..
+// ```
+// Next, create a `MyPerson` `janeCopy` initialized to the default value, and
+// assert that `janeCopy` is different from `janeSmith`:
+// ```
     MyPerson janeCopy;
     ASSERT(janeCopy != janeSmith);
-//..
-// Then, create a 'bslx::TestInStream' 'inStream' initialized with the buffer
-// from the 'bslx::TestOutStream' object 'outStream' and unexternalize this
-// data into 'janeCopy':
-//..
+// ```
+// Then, create a `bslx::TestInStream` `inStream` initialized with the buffer
+// from the `bslx::TestOutStream` object `outStream` and unexternalize this
+// data into `janeCopy`:
+// ```
     bslx::TestInStream inStream(outStream.data(), outStream.length());
     int version;
     inStream.getVersion(version);
     janeCopy.bdexStreamIn(inStream, version);
     ASSERT(inStream.isValid());
-//..
-// Finally, 'assert' the obtained values are as expected and display the
-// results to 'bsl::stdout':
-//..
+// ```
+// Finally, `assert` the obtained values are as expected and display the
+// results to `bsl::stdout`:
+// ```
     ASSERT(version  == VERSION);
     ASSERT(janeCopy == janeSmith);
 
@@ -1320,13 +1332,13 @@ int main(int argc, char *argv[]) {
                   << "\n\tAge      : " << janeCopy.age() << bsl::endl;
     }
     else {
-        bsl::cout << "Serialization unsuccessful.  'janeCopy' holds:"
+        bsl::cout << "Serialization unsuccessful.  `janeCopy` holds:"
                   << "\n\tFirstName: " << janeCopy.firstName()
                   << "\n\tLastName : " << janeCopy.lastName()
                   << "\n\tAge      : " << janeCopy.age() << bsl::endl;
     }
     } // if (veryVerbose)
-//..
+// ```
 
       } break;
       case 32: {
@@ -1335,20 +1347,20 @@ int main(int argc, char *argv[]) {
         //   Verify the exception macros work as expected.
         //
         // Concerns:
-        //: 1 The macros will iterate until the required number of inputs
-        //:   are performed.
+        // 1. The macros will iterate until the required number of inputs
+        //    are performed.
         //
         // Plan:
-        //: 1 Populate a buffer by using a 'TestOutStream' to 'putInt32' a
-        //:   specified number of times 'N' (for some range of 'N').
-        //:
-        //: 2 Within the macros, attempt to 'getInt32' 'N' times and, before
-        //:   every 'getInt32' invocation, increment the total number of
-        //:   input operations performed.
-        //:
-        //: 3 Verify T == N + N * (N + 1) / 2 (or T == N * (N + 3) / 2), which
-        //:   corresponds to a successful input of all data and all the
-        //:   required "failed" reads due to exceptions.  (C-1)
+        // 1. Populate a buffer by using a `TestOutStream` to `putInt32` a
+        //    specified number of times `N` (for some range of `N`).
+        //
+        // 2. Within the macros, attempt to `getInt32` `N` times and, before
+        //    every `getInt32` invocation, increment the total number of
+        //    input operations performed.
+        //
+        // 3. Verify T == N + N * (N + 1) / 2 (or T == N * (N + 3) / 2), which
+        //    corresponds to a successful input of all data and all the
+        //    required "failed" reads due to exceptions.  (C-1)
         //
         // Testing:
         //   BSLX_TESTINSTREAM_EXCEPTIONTEST_BEGIN(BSLX_TESTINSTREAM)
@@ -1394,21 +1406,21 @@ int main(int argc, char *argv[]) {
       case 31: {
         // --------------------------------------------------------------------
         // UNEXTERNALIZATION FREE OPERATOR
-        //   Verify 'operator>>' works correctly.
+        //   Verify `operator>>` works correctly.
         //
         // Concerns:
-        //: 1 The method inline-forwards to implementation correctly.
-        //:
-        //: 2 Invocations of the method can be chained.
+        // 1. The method inline-forwards to implementation correctly.
+        //
+        // 2. Invocations of the method can be chained.
         //
         // Plan:
-        //: 1 Externalize a set of values to an out stream.
-        //:
-        //: 2 Unexternalize the values and verify the values match the initial
-        //:   values.  (C-1)
-        //:
-        //: 3 Unexternalize a set of values from the stream in one code line.
-        //:   (C-2)
+        // 1. Externalize a set of values to an out stream.
+        //
+        // 2. Unexternalize the values and verify the values match the initial
+        //    values.  (C-1)
+        //
+        // 3. Unexternalize a set of values from the stream in one code line.
+        //    (C-2)
         //
         // Testing:
         //   TestInStream& operator>>(TestInStream&, TYPE& value);
@@ -1472,13 +1484,13 @@ int main(int argc, char *argv[]) {
         //   Verify this method unexternalizes the expected values.
         //
         // Concerns:
-        //: 1 The method unexternalizes the expected values.
-        //:
-        //: 2 Unexternalization position does not effect output.
+        // 1. The method unexternalizes the expected values.
+        //
+        // 2. Unexternalization position does not effect output.
         //
         // Plan:
-        //: 1 Unexternalize at different offsets and verify the values.  (C-1,
-        //:   C-2)
+        // 1. Unexternalize at different offsets and verify the values.  (C-1,
+        //    C-2)
         //
         // Testing:
         //   getString(bsl::string& variable);
@@ -1491,7 +1503,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (verbose) {
-            cout << "\nTesting 'getString(bsl::string&)'." << endl;
+            cout << "\nTesting `getString(bsl::string&)`." << endl;
         }
         {
             Out o(VERSION_SELECTOR);
@@ -1539,19 +1551,19 @@ int main(int argc, char *argv[]) {
         //   Verify these methods unexternalize the expected values.
         //
         // Concerns:
-        //: 1 'getLength' correctly inverts 'putLength'.
-        //:
-        //: 2 The methods unexternalize the expected values.
-        //:
-        //: 3 The methods implement the type check correctly.
+        // 1. `getLength` correctly inverts `putLength`.
+        //
+        // 2. The methods unexternalize the expected values.
+        //
+        // 3. The methods implement the type check correctly.
         //
         // Plan:
-        //: 1 Iterate through a set of length values and verify 'getLength'
-        //:   inverts 'putLength'.  (C-1)
-        //:
-        //: 2 Iterate through a set of test vectors that verify correct
-        //:   behavior with valid data and correct error detection with invalid
-        //:   data.  (C-2, C-3)
+        // 1. Iterate through a set of length values and verify `getLength`
+        //    inverts `putLength`.  (C-1)
+        //
+        // 2. Iterate through a set of test vectors that verify correct
+        //    behavior with valid data and correct error detection with invalid
+        //    data.  (C-2, C-3)
         //
         // Testing:
         //   getLength(int &variable);
@@ -1565,7 +1577,7 @@ int main(int argc, char *argv[]) {
             << "Note:" << endl
             << "  Error messages can be viewed in veryVerbose mode" << endl;
 
-        if (verbose) cout << "\nTesting 'getLength'." << endl;
+        if (verbose) cout << "\nTesting `getLength`." << endl;
         {
             for (int len = 0; len <= 512; ++len) {
                 TestOutStream out(VERSION_SELECTOR);
@@ -1579,7 +1591,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'getVersion'." << endl;
+        if (verbose) cout << "\nTesting `getVersion`." << endl;
         {
             typedef int ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType&);
@@ -1621,27 +1633,27 @@ int main(int argc, char *argv[]) {
       } break;
       case 28: {
         // --------------------------------------------------------------------
-        // TESTING 'reset'
-        //   Verify the 'reset' methods work correctly.
+        // TESTING `reset`
+        //   Verify the `reset` methods work correctly.
         //
         // Concerns:
-        //: 1 Every method sets the buffer and length correctly.
-        //:
-        //: 2 Every method sets the cursor to zero.
-        //:
-        //: 3 Every method marks the stream valid.
-        //:
-        //: 4 QoI: asserted precondition violations are detected when enabled.
+        // 1. Every method sets the buffer and length correctly.
+        //
+        // 2. Every method sets the cursor to zero.
+        //
+        // 3. Every method marks the stream valid.
+        //
+        // 4. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Initialize an input stream, read some data to ensure the cursor
-        //:   is not zero, and invalidate the stream.
-        //:
-        //: 2 Call the 'reset' method and verify the buffer and length are
-        //:   correctly assigned, the cursor is zero, and the stream is valid.
-        //:   (C-1..3)
-        //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
+        // 1. Initialize an input stream, read some data to ensure the cursor
+        //    is not zero, and invalidate the stream.
+        //
+        // 2. Call the `reset` method and verify the buffer and length are
+        //    correctly assigned, the cursor is zero, and the stream is valid.
+        //    (C-1..3)
+        //
+        // 3. Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   void reset(const char *buffer, bsl::size_t numBytes);
@@ -1649,7 +1661,7 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'reset'" << endl
+                          << "TESTING `reset`" << endl
                           << "===============" << endl;
 
         {
@@ -1733,20 +1745,20 @@ int main(int argc, char *argv[]) {
       case 27: {
         // --------------------------------------------------------------------
         // INPUT LIMIT EXCEPTION TEST:
-        //   Verify the 'setInputLimit' and 'inputLimit' methods work
+        //   Verify the `setInputLimit` and `inputLimit` methods work
         //   correctly.  Of particular concern is the verification that an
         //   exception is thrown when the input limit is exhausted.  See the
-        //   descriptions of the testing mechanisms 'testGetArrayInputLimit'
-        //   (for array input methods) and 'testGetScalarInputLimit' (for
+        //   descriptions of the testing mechanisms `testGetArrayInputLimit`
+        //   (for array input methods) and `testGetScalarInputLimit` (for
         //   scalar input methods) for more detailed information.
         //
         // Concerns:
-        //: 1 'setInputLimit' works correctly.
-        //:
-        //: 2 'inputLimit' works correctly.
+        // 1. `setInputLimit` works correctly.
+        //
+        // 2. `inputLimit` works correctly.
         //
         // Plan:
-        //: 1 Ensure every input method correctly modifies the input limit and
+        // 1. Ensure every input method correctly modifies the input limit and
         //    throws an exception when the input limit is exceeded.  (C-1..2)
         //
         // Testing:
@@ -1861,11 +1873,11 @@ int main(int argc, char *argv[]) {
             ForEachIn<List>::testInputLimit(DATA, NUM_DATA, SPECS);
         }
 
-        // Test the residual methods: 'getLength', 'getVersion', and
-        // 'getString'.
+        // Test the residual methods: `getLength`, `getVersion`, and
+        // `getString`.
 
 #ifdef BDE_BUILD_TARGET_EXC
-        { // 'getLength'
+        { // `getLength`
             Out o(VERSION_SELECTOR);
             o.putLength(1);
             o.putLength(2);
@@ -1907,7 +1919,7 @@ int main(int argc, char *argv[]) {
                 }
             }
         }
-        { // 'getVersion'
+        { // `getVersion`
             Out o(VERSION_SELECTOR);
             o.putVersion(1);
             o.putVersion(2);
@@ -1949,7 +1961,7 @@ int main(int argc, char *argv[]) {
                 }
             }
         }
-        { // 'getString'
+        { // `getString`
             Out o(VERSION_SELECTOR);
             o.putString(bsl::string("aaa"));
             o.putString(bsl::string("ababa"));
@@ -1997,7 +2009,7 @@ int main(int argc, char *argv[]) {
                                   << "========================" << endl;
 
         if (verbose)
-            cout << "\nTesting 'setInputLimit' and 'inputLimit'." << endl;
+            cout << "\nTesting `setInputLimit` and `inputLimit`." << endl;
         {
             Obj mX;  const Obj& X = mX;
             ASSERT(  0 >  X.inputLimit());
@@ -2015,26 +2027,26 @@ int main(int argc, char *argv[]) {
         //   Verify the methods work correctly.
         //
         // Concerns:
-        //: 1 'seek' works correctly.
-        //:
-        //: 2 'reset' works correctly.
+        // 1. `seek` works correctly.
+        //
+        // 2. `reset` works correctly.
         //
         // Plan:
-        //: 1 Create a 'TestInStream' object initialized with arbitrary data.
-        //:
-        //: 2 Invalidate the stream.
-        //:
-        //: 3 Invoke its 'seek' method with varying values.
-        //:
-        //: 4 Verify that the resulting stream is valid and its cursor is
-        //:   correctly modified.  (C-1)
-        //:
-        //: 5 Use 'seek' to modify the stream's cursor to varying values.
-        //:
-        //: 6 Invalidate the stream and then invoke its 'reset' method.
-        //:
-        //: 7 Verify that the resulting stream is valid and its cursor is 0.
-        //:   (C-2)
+        // 1. Create a `TestInStream` object initialized with arbitrary data.
+        //
+        // 2. Invalidate the stream.
+        //
+        // 3. Invoke its `seek` method with varying values.
+        //
+        // 4. Verify that the resulting stream is valid and its cursor is
+        //    correctly modified.  (C-1)
+        //
+        // 5. Use `seek` to modify the stream's cursor to varying values.
+        //
+        // 6. Invalidate the stream and then invoke its `reset` method.
+        //
+        // 7. Verify that the resulting stream is valid and its cursor is 0.
+        //    (C-2)
         //
         // Testing:
         //   void seek(bsl::size_t offset);
@@ -2044,7 +2056,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << endl << "SEEK/RESET TEST" << endl
                                   << "===============" << endl;
 
-        if (verbose) cout << "\nTesting 'seek' and 'reset'." << endl;
+        if (verbose) cout << "\nTesting `seek` and `reset`." << endl;
         {
             const char *SPEC = "k10 k10 k10 k10"; // fairly long stream
             Out o(VERSION_SELECTOR);
@@ -2083,21 +2095,21 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // GET 64-BIT FLOAT ARRAY TEST:
         //   Verify this method unexternalizes the expected values and verify
-        //   the type check implicit to the 'bslx::TestInStream'.  See
+        //   the type check implicit to the `bslx::TestInStream`.  See
         //   description of the testing mechanism in the above function
-        //   description of 'testGetArray'.
+        //   description of `testGetArray`.
         //
         // Concerns:
-        //: 1 The method unexternalizes the expected values.
-        //:
-        //: 2 The method implements the type check correctly.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The method unexternalizes the expected values.
+        //
+        // 2. The method implements the type check correctly.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Iterate through a set of test vectors that verify correct
-        //:   behavior with valid data and correct error detection with invalid
-        //:   data.  (C-1..3)
+        // 1. Iterate through a set of test vectors that verify correct
+        //    behavior with valid data and correct error detection with invalid
+        //    data.  (C-1..3)
         //
         // Testing:
         //   getArrayFloat64(double *variables, int numVariables);
@@ -2110,7 +2122,7 @@ int main(int argc, char *argv[]) {
             << "Note:" << endl
             << "  Error messages can be viewed in veryVerbose mode" << endl;
 
-        if (verbose) cout << "\nTesting 'getArrayFloat64'." << endl;
+        if (verbose) cout << "\nTesting `getArrayFloat64`." << endl;
         {
             typedef double ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType*, int);
@@ -2158,21 +2170,21 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // GET 32-BIT FLOAT ARRAY TEST:
         //   Verify this method unexternalizes the expected values and verify
-        //   the type check implicit to the 'bslx::TestInStream'.  See
+        //   the type check implicit to the `bslx::TestInStream`.  See
         //   description of the testing mechanism in the above function
-        //   description of 'testGetArray'.
+        //   description of `testGetArray`.
         //
         // Concerns:
-        //: 1 The method unexternalizes the expected values.
-        //:
-        //: 2 The method implements the type check correctly.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The method unexternalizes the expected values.
+        //
+        // 2. The method implements the type check correctly.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Iterate through a set of test vectors that verify correct
-        //:   behavior with valid data and correct error detection with invalid
-        //:   data.  (C-1..3)
+        // 1. Iterate through a set of test vectors that verify correct
+        //    behavior with valid data and correct error detection with invalid
+        //    data.  (C-1..3)
         //
         // Testing:
         //   getArrayFloat32(float *variables, int numVariables);
@@ -2185,7 +2197,7 @@ int main(int argc, char *argv[]) {
             << "Note:" << endl
             << "  Error messages can be viewed in veryVerbose mode" << endl;
 
-        if (verbose) cout << "\nTesting 'getArrayFloat32'." << endl;
+        if (verbose) cout << "\nTesting `getArrayFloat32`." << endl;
         {
             typedef float ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType*, int);
@@ -2233,21 +2245,21 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // GET 64-BIT INTEGER ARRAYS TEST:
         //   Verify these methods unexternalize the expected values and verify
-        //   the type check implicit to the 'bslx::TestInStream'.  See
+        //   the type check implicit to the `bslx::TestInStream`.  See
         //   description of the testing mechanism in the above function
-        //   description of 'testGetArray'.
+        //   description of `testGetArray`.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The methods implement the type check correctly.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The methods implement the type check correctly.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Iterate through a set of test vectors that verify correct
-        //:   behavior with valid data and correct error detection with invalid
-        //:   data.  (C-1..3)
+        // 1. Iterate through a set of test vectors that verify correct
+        //    behavior with valid data and correct error detection with invalid
+        //    data.  (C-1..3)
         //
         // Testing:
         //   getArrayInt64(bsls::Types::Int64 *variables, int numVariables);
@@ -2261,7 +2273,7 @@ int main(int argc, char *argv[]) {
             << "Note:" << endl
             << "  Error messages can be viewed in veryVerbose mode" << endl;
 
-        if (verbose) cout << "\nTesting 'getArrayInt64'." << endl;
+        if (verbose) cout << "\nTesting `getArrayInt64`." << endl;
         {
             typedef bsls::Types::Int64 ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType*, int);
@@ -2307,7 +2319,7 @@ int main(int argc, char *argv[]) {
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'getArrayUint64'." << endl;
+        if (verbose) cout << "\nTesting `getArrayUint64`." << endl;
         {
             typedef bsls::Types::Uint64 ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType*, int);
@@ -2356,21 +2368,21 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // GET 56-BIT INTEGER ARRAYS TEST:
         //   Verify these methods unexternalize the expected values and verify
-        //   the type check implicit to the 'bslx::TestInStream'.  See
+        //   the type check implicit to the `bslx::TestInStream`.  See
         //   description of the testing mechanism in the above function
-        //   description of 'testGetArray'.
+        //   description of `testGetArray`.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The methods implement the type check correctly.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The methods implement the type check correctly.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Iterate through a set of test vectors that verify correct
-        //:   behavior with valid data and correct error detection with invalid
-        //:   data.  (C-1..3)
+        // 1. Iterate through a set of test vectors that verify correct
+        //    behavior with valid data and correct error detection with invalid
+        //    data.  (C-1..3)
         //
         // Testing:
         //   getArrayInt56(bsls::Types::Int64 *variables, int numVariables);
@@ -2384,7 +2396,7 @@ int main(int argc, char *argv[]) {
             << "Note:" << endl
             << "  Error messages can be viewed in veryVerbose mode" << endl;
 
-        if (verbose) cout << "\nTesting 'getArrayInt56'." << endl;
+        if (verbose) cout << "\nTesting `getArrayInt56`." << endl;
         {
             typedef bsls::Types::Int64 ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType*, int);
@@ -2430,7 +2442,7 @@ int main(int argc, char *argv[]) {
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'getArrayUint56'." << endl;
+        if (verbose) cout << "\nTesting `getArrayUint56`." << endl;
         {
             typedef bsls::Types::Uint64 ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType*, int);
@@ -2479,21 +2491,21 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // GET 48-BIT INTEGER ARRAYS TEST:
         //   Verify these methods unexternalize the expected values and verify
-        //   the type check implicit to the 'bslx::TestInStream'.  See
+        //   the type check implicit to the `bslx::TestInStream`.  See
         //   description of the testing mechanism in the above function
-        //   description of 'testGetArray'.
+        //   description of `testGetArray`.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The methods implement the type check correctly.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The methods implement the type check correctly.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Iterate through a set of test vectors that verify correct
-        //:   behavior with valid data and correct error detection with invalid
-        //:   data.  (C-1..3)
+        // 1. Iterate through a set of test vectors that verify correct
+        //    behavior with valid data and correct error detection with invalid
+        //    data.  (C-1..3)
         //
         // Testing:
         //   getArrayInt48(bsls::Types::Int64 *variables, int numVariables);
@@ -2507,7 +2519,7 @@ int main(int argc, char *argv[]) {
             << "Note:" << endl
             << "  Error messages can be viewed in veryVerbose mode" << endl;
 
-        if (verbose) cout << "\nTesting 'getArrayInt48'." << endl;
+        if (verbose) cout << "\nTesting `getArrayInt48`." << endl;
         {
             typedef bsls::Types::Int64 ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType*, int);
@@ -2553,7 +2565,7 @@ int main(int argc, char *argv[]) {
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'getArrayUint48'." << endl;
+        if (verbose) cout << "\nTesting `getArrayUint48`." << endl;
         {
             typedef bsls::Types::Uint64 ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType*, int);
@@ -2602,21 +2614,21 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // GET 40-BIT INTEGER ARRAYS TEST:
         //   Verify these methods unexternalize the expected values and verify
-        //   the type check implicit to the 'bslx::TestInStream'.  See
+        //   the type check implicit to the `bslx::TestInStream`.  See
         //   description of the testing mechanism in the above function
-        //   description of 'testGetArray'.
+        //   description of `testGetArray`.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The methods implement the type check correctly.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The methods implement the type check correctly.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Iterate through a set of test vectors that verify correct
-        //:   behavior with valid data and correct error detection with invalid
-        //:   data.  (C-1..3)
+        // 1. Iterate through a set of test vectors that verify correct
+        //    behavior with valid data and correct error detection with invalid
+        //    data.  (C-1..3)
         //
         // Testing:
         //   getArrayInt40(bsls::Types::Int64 *variables, int numVariables);
@@ -2630,7 +2642,7 @@ int main(int argc, char *argv[]) {
             << "Note:" << endl
             << "  Error messages can be viewed in veryVerbose mode" << endl;
 
-        if (verbose) cout << "\nTesting 'getArrayInt40'." << endl;
+        if (verbose) cout << "\nTesting `getArrayInt40`." << endl;
         {
             typedef bsls::Types::Int64 ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType*, int);
@@ -2676,7 +2688,7 @@ int main(int argc, char *argv[]) {
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'getArrayUint40'." << endl;
+        if (verbose) cout << "\nTesting `getArrayUint40`." << endl;
         {
             typedef bsls::Types::Uint64 ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType*, int);
@@ -2725,21 +2737,21 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // GET 32-BIT INTEGER ARRAYS TEST:
         //   Verify these methods unexternalize the expected values and verify
-        //   the type check implicit to the 'bslx::TestInStream'.  See
+        //   the type check implicit to the `bslx::TestInStream`.  See
         //   description of the testing mechanism in the above function
-        //   description of 'testGetArray'.
+        //   description of `testGetArray`.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The methods implement the type check correctly.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The methods implement the type check correctly.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Iterate through a set of test vectors that verify correct
-        //:   behavior with valid data and correct error detection with invalid
-        //:   data.  (C-1..3)
+        // 1. Iterate through a set of test vectors that verify correct
+        //    behavior with valid data and correct error detection with invalid
+        //    data.  (C-1..3)
         //
         // Testing:
         //   getArrayInt32(int *variables, int numVariables);
@@ -2753,7 +2765,7 @@ int main(int argc, char *argv[]) {
             << "Note:" << endl
             << "  Error messages can be viewed in veryVerbose mode" << endl;
 
-        if (verbose) cout << "\nTesting 'getArrayInt32'." << endl;
+        if (verbose) cout << "\nTesting `getArrayInt32`." << endl;
         {
             typedef int ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType*, int);
@@ -2799,7 +2811,7 @@ int main(int argc, char *argv[]) {
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'getArrayUint32'." << endl;
+        if (verbose) cout << "\nTesting `getArrayUint32`." << endl;
         {
             typedef unsigned int ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType*, int);
@@ -2847,21 +2859,21 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // GET 24-BIT INTEGER ARRAYS TEST:
         //   Verify these methods unexternalize the expected values and verify
-        //   the type check implicit to the 'bslx::TestInStream'.  See
+        //   the type check implicit to the `bslx::TestInStream`.  See
         //   description of the testing mechanism in the above function
-        //   description of 'testGetArray'.
+        //   description of `testGetArray`.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The methods implement the type check correctly.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The methods implement the type check correctly.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Iterate through a set of test vectors that verify correct
-        //:   behavior with valid data and correct error detection with invalid
-        //:   data.  (C-1..3)
+        // 1. Iterate through a set of test vectors that verify correct
+        //    behavior with valid data and correct error detection with invalid
+        //    data.  (C-1..3)
         //
         // Testing:
         //   getArrayInt24(int *variables, int numVariables);
@@ -2875,7 +2887,7 @@ int main(int argc, char *argv[]) {
             << "Note:" << endl
             << "  Error messages can be viewed in veryVerbose mode" << endl;
 
-        if (verbose) cout << "\nTesting 'getArrayInt24'." << endl;
+        if (verbose) cout << "\nTesting `getArrayInt24`." << endl;
         {
             typedef int ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType*, int);
@@ -2921,7 +2933,7 @@ int main(int argc, char *argv[]) {
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'getArrayUint24'." << endl;
+        if (verbose) cout << "\nTesting `getArrayUint24`." << endl;
         {
             typedef unsigned int ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType*, int);
@@ -2969,21 +2981,21 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // GET 16-BIT INTEGER ARRAYS TEST:
         //   Verify these methods unexternalize the expected values and verify
-        //   the type check implicit to the 'bslx::TestInStream'.  See
+        //   the type check implicit to the `bslx::TestInStream`.  See
         //   description of the testing mechanism in the above function
-        //   description of 'testGetArray'.
+        //   description of `testGetArray`.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The methods implement the type check correctly.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The methods implement the type check correctly.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Iterate through a set of test vectors that verify correct
-        //:   behavior with valid data and correct error detection with invalid
-        //:   data.  (C-1..3)
+        // 1. Iterate through a set of test vectors that verify correct
+        //    behavior with valid data and correct error detection with invalid
+        //    data.  (C-1..3)
         //
         // Testing:
         //   getArrayInt16(short *variables, int numVariables);
@@ -2997,7 +3009,7 @@ int main(int argc, char *argv[]) {
             << "Note:" << endl
             << "  Error messages can be viewed in veryVerbose mode" << endl;
 
-        if (verbose) cout << "\nTesting 'getArrayInt16'." << endl;
+        if (verbose) cout << "\nTesting `getArrayInt16`." << endl;
         {
             typedef short ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType*, int);
@@ -3043,7 +3055,7 @@ int main(int argc, char *argv[]) {
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'getArrayUint16'." << endl;
+        if (verbose) cout << "\nTesting `getArrayUint16`." << endl;
         {
             typedef unsigned short ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType*, int);
@@ -3091,21 +3103,21 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // GET 8-BIT INTEGER ARRAYS TEST:
         //   Verify these methods unexternalize the expected values and verify
-        //   the type check implicit to the 'bslx::TestInStream'.  See
+        //   the type check implicit to the `bslx::TestInStream`.  See
         //   description of the testing mechanism in the above function
-        //   description of 'testGetArray'.
+        //   description of `testGetArray`.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The methods implement the type check correctly.
-        //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The methods implement the type check correctly.
+        //
+        // 3. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Iterate through a set of test vectors that verify correct
-        //:   behavior with valid data and correct error detection with invalid
-        //:   data.  (C-1..3)
+        // 1. Iterate through a set of test vectors that verify correct
+        //    behavior with valid data and correct error detection with invalid
+        //    data.  (C-1..3)
         //
         // Testing:
         //    getArrayInt8(char *variables, int numVariables);
@@ -3121,7 +3133,7 @@ int main(int argc, char *argv[]) {
             << "Note:" << endl
             << "  Error messages can be viewed in veryVerbose mode" << endl;
 
-        if (verbose) cout << "\nTesting 'getArrayInt8' w/ 'char*'." << endl;
+        if (verbose) cout << "\nTesting `getArrayInt8` w/ `char*`." << endl;
         {
             typedef char ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType*, int);
@@ -3167,7 +3179,7 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTesting 'getArrayInt8' w/ 'signed char*'." << endl;
+            cout << "\nTesting `getArrayInt8` w/ `signed char*`." << endl;
         {
             typedef signed char ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType*, int);
@@ -3212,7 +3224,7 @@ int main(int argc, char *argv[]) {
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'getArrayUint8' w/ 'char*'." << endl;
+        if (verbose) cout << "\nTesting `getArrayUint8` w/ `char*`." << endl;
         {
             typedef char ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType*, int);
@@ -3258,7 +3270,7 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTesting 'getArrayUint8' w/ 'unsigned char*'." << endl;
+            cout << "\nTesting `getArrayUint8` w/ `unsigned char*`." << endl;
         {
             typedef unsigned char ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType*, int);
@@ -3305,19 +3317,19 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // GET 64-BIT FLOAT TEST:
         //   Verify this method unexternalizes the expected values and verify
-        //   the type check implicit to the 'bslx::TestInStream'.  See
+        //   the type check implicit to the `bslx::TestInStream`.  See
         //   description of the testing mechanism in the above function
-        //   description of 'testGetScalar'.
+        //   description of `testGetScalar`.
         //
         // Concerns:
-        //: 1 The method unexternalizes the expected values.
-        //:
-        //: 2 The method implements the type check correctly.
+        // 1. The method unexternalizes the expected values.
+        //
+        // 2. The method implements the type check correctly.
         //
         // Plan:
-        //: 1 Iterate through a set of test vectors that verify correct
-        //:   behavior with valid data and correct error detection with invalid
-        //:   data.  (C-1..2)
+        // 1. Iterate through a set of test vectors that verify correct
+        //    behavior with valid data and correct error detection with invalid
+        //    data.  (C-1..2)
         //
         // Testing:
         //   getFloat64(double &variable);
@@ -3330,7 +3342,7 @@ int main(int argc, char *argv[]) {
             << "Note:" << endl
             << "  Error messages can be viewed in veryVerbose mode" << endl;
 
-        if (verbose) cout << "\nTesting 'getFloat64'." << endl;
+        if (verbose) cout << "\nTesting `getFloat64`." << endl;
         {
             typedef double ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType&);
@@ -3375,19 +3387,19 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // GET 32-BIT FLOAT TEST:
         //   Verify this method unexternalizes the expected values and verify
-        //   the type check implicit to the 'bslx::TestInStream'.  See
+        //   the type check implicit to the `bslx::TestInStream`.  See
         //   description of the testing mechanism in the above function
-        //   description of 'testGetScalar'.
+        //   description of `testGetScalar`.
         //
         // Concerns:
-        //: 1 The method unexternalizes the expected values.
-        //:
-        //: 2 The method implements the type check correctly.
+        // 1. The method unexternalizes the expected values.
+        //
+        // 2. The method implements the type check correctly.
         //
         // Plan:
-        //: 1 Iterate through a set of test vectors that verify correct
-        //:   behavior with valid data and correct error detection with invalid
-        //:   data.  (C-1..2)
+        // 1. Iterate through a set of test vectors that verify correct
+        //    behavior with valid data and correct error detection with invalid
+        //    data.  (C-1..2)
         //
         // Testing:
         //   getFloat32(float &variable);
@@ -3400,7 +3412,7 @@ int main(int argc, char *argv[]) {
             << "Note:" << endl
             << "  Error messages can be viewed in veryVerbose mode" << endl;
 
-        if (verbose) cout << "\nTesting 'getFloat32'." << endl;
+        if (verbose) cout << "\nTesting `getFloat32`." << endl;
         {
             typedef float ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType&);
@@ -3445,19 +3457,19 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // GET 64-BIT INTEGERS TEST:
         //   Verify these methods unexternalize the expected values and verify
-        //   the type check implicit to the 'bslx::TestInStream'.  See
+        //   the type check implicit to the `bslx::TestInStream`.  See
         //   description of the testing mechanism in the above function
-        //   description of 'testGetScalar'.
+        //   description of `testGetScalar`.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The methods implement the type check correctly.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The methods implement the type check correctly.
         //
         // Plan:
-        //: 1 Iterate through a set of test vectors that verify correct
-        //:   behavior with valid data and correct error detection with invalid
-        //:   data.  (C-1..2)
+        // 1. Iterate through a set of test vectors that verify correct
+        //    behavior with valid data and correct error detection with invalid
+        //    data.  (C-1..2)
         //
         // Testing:
         //   getInt64(bsls::Types::Int64 val &variable);
@@ -3471,7 +3483,7 @@ int main(int argc, char *argv[]) {
             << "Note:" << endl
             << "  Error messages can be viewed in veryVerbose mode" << endl;
 
-        if (verbose) cout << "\nTesting 'getInt64'." << endl;
+        if (verbose) cout << "\nTesting `getInt64`." << endl;
         {
             typedef bsls::Types::Int64 ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType&);
@@ -3514,7 +3526,7 @@ int main(int argc, char *argv[]) {
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'getUint64'." << endl;
+        if (verbose) cout << "\nTesting `getUint64`." << endl;
         {
             typedef bsls::Types::Uint64 ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType&);
@@ -3559,19 +3571,19 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // GET 56-BIT INTEGERS TEST:
         //   Verify these methods unexternalize the expected values and verify
-        //   the type check implicit to the 'bslx::TestInStream'.  See
+        //   the type check implicit to the `bslx::TestInStream`.  See
         //   description of the testing mechanism in the above function
-        //   description of 'testGetScalar'.
+        //   description of `testGetScalar`.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The methods implement the type check correctly.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The methods implement the type check correctly.
         //
         // Plan:
-        //: 1 Iterate through a set of test vectors that verify correct
-        //:   behavior with valid data and correct error detection with invalid
-        //:   data.  (C-1..2)
+        // 1. Iterate through a set of test vectors that verify correct
+        //    behavior with valid data and correct error detection with invalid
+        //    data.  (C-1..2)
         //
         // Testing:
         //   getInt56(bsls::Types::Int64 val &variable);
@@ -3585,7 +3597,7 @@ int main(int argc, char *argv[]) {
             << "Note:" << endl
             << "  Error messages can be viewed in veryVerbose mode" << endl;
 
-        if (verbose) cout << "\nTesting 'getInt56'." << endl;
+        if (verbose) cout << "\nTesting `getInt56`." << endl;
         {
             typedef bsls::Types::Int64 ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType&);
@@ -3628,7 +3640,7 @@ int main(int argc, char *argv[]) {
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'getUint56'." << endl;
+        if (verbose) cout << "\nTesting `getUint56`." << endl;
         {
             typedef bsls::Types::Uint64 ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType&);
@@ -3673,19 +3685,19 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // GET 48-BIT INTEGERS TEST:
         //   Verify these methods unexternalize the expected values and verify
-        //   the type check implicit to the 'bslx::TestInStream'.  See
+        //   the type check implicit to the `bslx::TestInStream`.  See
         //   description of the testing mechanism in the above function
-        //   description of 'testGetScalar'.
+        //   description of `testGetScalar`.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The methods implement the type check correctly.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The methods implement the type check correctly.
         //
         // Plan:
-        //: 1 Iterate through a set of test vectors that verify correct
-        //:   behavior with valid data and correct error detection with invalid
-        //:   data.  (C-1..2)
+        // 1. Iterate through a set of test vectors that verify correct
+        //    behavior with valid data and correct error detection with invalid
+        //    data.  (C-1..2)
         //
         // Testing:
         //   getInt48(bsls::Types::Int64 val &variable);
@@ -3699,7 +3711,7 @@ int main(int argc, char *argv[]) {
             << "Note:" << endl
             << "  Error messages can be viewed in veryVerbose mode" << endl;
 
-        if (verbose) cout << "\nTesting 'getInt48'." << endl;
+        if (verbose) cout << "\nTesting `getInt48`." << endl;
         {
             typedef bsls::Types::Int64 ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType&);
@@ -3742,7 +3754,7 @@ int main(int argc, char *argv[]) {
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'getUint48'." << endl;
+        if (verbose) cout << "\nTesting `getUint48`." << endl;
         {
             typedef bsls::Types::Uint64 ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType&);
@@ -3787,19 +3799,19 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // GET 40-BIT INTEGERS TEST:
         //   Verify these methods unexternalize the expected values and verify
-        //   the type check implicit to the 'bslx::TestInStream'.  See
+        //   the type check implicit to the `bslx::TestInStream`.  See
         //   description of the testing mechanism in the above function
-        //   description of 'testGetScalar'.
+        //   description of `testGetScalar`.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The methods implement the type check correctly.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The methods implement the type check correctly.
         //
         // Plan:
-        //: 1 Iterate through a set of test vectors that verify correct
-        //:   behavior with valid data and correct error detection with invalid
-        //:   data.  (C-1..2)
+        // 1. Iterate through a set of test vectors that verify correct
+        //    behavior with valid data and correct error detection with invalid
+        //    data.  (C-1..2)
         //
         // Testing:
         //   getInt40(bsls::Types::Int64 val &variable);
@@ -3813,7 +3825,7 @@ int main(int argc, char *argv[]) {
             << "Note:" << endl
             << "  Error messages can be viewed in veryVerbose mode" << endl;
 
-        if (verbose) cout << "\nTesting 'getInt40'." << endl;
+        if (verbose) cout << "\nTesting `getInt40`." << endl;
         {
             typedef bsls::Types::Int64 ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType&);
@@ -3856,7 +3868,7 @@ int main(int argc, char *argv[]) {
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'getUint40'." << endl;
+        if (verbose) cout << "\nTesting `getUint40`." << endl;
         {
             typedef bsls::Types::Uint64 ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType&);
@@ -3902,19 +3914,19 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // GET 32-BIT INTEGERS TEST:
         //   Verify these methods unexternalize the expected values and verify
-        //   the type check implicit to the 'bslx::TestInStream'.  See
+        //   the type check implicit to the `bslx::TestInStream`.  See
         //   description of the testing mechanism in the above function
-        //   description of 'testGetScalar'.
+        //   description of `testGetScalar`.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The methods implement the type check correctly.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The methods implement the type check correctly.
         //
         // Plan:
-        //: 1 Iterate through a set of test vectors that verify correct
-        //:   behavior with valid data and correct error detection with invalid
-        //:   data.  (C-1..2)
+        // 1. Iterate through a set of test vectors that verify correct
+        //    behavior with valid data and correct error detection with invalid
+        //    data.  (C-1..2)
         //
         // Testing:
         //   getInt32(int &variable);
@@ -3928,7 +3940,7 @@ int main(int argc, char *argv[]) {
             << "Note:" << endl
             << "  Error messages can be viewed in veryVerbose mode" << endl;
 
-        if (verbose) cout << "\nTesting 'getInt32'." << endl;
+        if (verbose) cout << "\nTesting `getInt32`." << endl;
         {
             typedef int ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType&);
@@ -3971,7 +3983,7 @@ int main(int argc, char *argv[]) {
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'getUint32'." << endl;
+        if (verbose) cout << "\nTesting `getUint32`." << endl;
         {
             typedef unsigned int ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType&);
@@ -4016,19 +4028,19 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // GET 24-BIT INTEGERS TEST:
         //   Verify these methods unexternalize the expected values and verify
-        //   the type check implicit to the 'bslx::TestInStream'.  See
+        //   the type check implicit to the `bslx::TestInStream`.  See
         //   description of the testing mechanism in the above function
-        //   description of 'testGetScalar'.
+        //   description of `testGetScalar`.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The methods implement the type check correctly.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The methods implement the type check correctly.
         //
         // Plan:
-        //: 1 Iterate through a set of test vectors that verify correct
-        //:   behavior with valid data and correct error detection with invalid
-        //:   data.  (C-1..2)
+        // 1. Iterate through a set of test vectors that verify correct
+        //    behavior with valid data and correct error detection with invalid
+        //    data.  (C-1..2)
         //
         // Testing:
         //   getInt24(int &variable);
@@ -4042,7 +4054,7 @@ int main(int argc, char *argv[]) {
             << "Note:" << endl
             << "  Error messages can be viewed in veryVerbose mode" << endl;
 
-        if (verbose) cout << "\nTesting 'getInt24'." << endl;
+        if (verbose) cout << "\nTesting `getInt24`." << endl;
         {
             typedef int ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType&);
@@ -4085,7 +4097,7 @@ int main(int argc, char *argv[]) {
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'getUint24'." << endl;
+        if (verbose) cout << "\nTesting `getUint24`." << endl;
         {
             typedef unsigned int ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType&);
@@ -4130,19 +4142,19 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // GET 16-BIT INTEGERS TEST:
         //   Verify these methods unexternalize the expected values and verify
-        //   the type check implicit to the 'bslx::TestInStream'.  See
+        //   the type check implicit to the `bslx::TestInStream`.  See
         //   description of the testing mechanism in the above function
-        //   description of 'testGetScalar'.
+        //   description of `testGetScalar`.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The methods implement the type check correctly.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The methods implement the type check correctly.
         //
         // Plan:
-        //: 1 Iterate through a set of test vectors that verify correct
-        //:   behavior with valid data and correct error detection with invalid
-        //:   data.  (C-1..2)
+        // 1. Iterate through a set of test vectors that verify correct
+        //    behavior with valid data and correct error detection with invalid
+        //    data.  (C-1..2)
         //
         // Testing:
         //   getInt16(short &variable);
@@ -4156,7 +4168,7 @@ int main(int argc, char *argv[]) {
             << "Note:" << endl
             << "  Error messages can be viewed in veryVerbose mode" << endl;
 
-        if (verbose) cout << "\nTesting 'getInt16'." << endl;
+        if (verbose) cout << "\nTesting `getInt16`." << endl;
         {
             typedef short ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType&);
@@ -4199,7 +4211,7 @@ int main(int argc, char *argv[]) {
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'getUint16'." << endl;
+        if (verbose) cout << "\nTesting `getUint16`." << endl;
         {
             typedef unsigned short ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType&);
@@ -4244,20 +4256,20 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // GET 8-BIT INTEGERS TEST:
         //   Verify these methods unexternalize the expected values and verify
-        //   the type check implicit to the 'bslx::TestInStream'.  See
+        //   the type check implicit to the `bslx::TestInStream`.  See
         //   description of the testing mechanism in the above function
-        //   description of 'testGetScalar'.  Note that getInt8(char&) is
+        //   description of `testGetScalar`.  Note that getInt8(char&) is
         //   tested in the PRIMARY MANIPULATORS test.
         //
         // Concerns:
-        //: 1 The methods unexternalize the expected values.
-        //:
-        //: 2 The methods implement the type check correctly.
+        // 1. The methods unexternalize the expected values.
+        //
+        // 2. The methods implement the type check correctly.
         //
         // Plan:
-        //: 1 Iterate through a set of test vectors that verify correct
-        //:   behavior with valid data and correct error detection with invalid
-        //:   data.  (C-1..2)
+        // 1. Iterate through a set of test vectors that verify correct
+        //    behavior with valid data and correct error detection with invalid
+        //    data.  (C-1..2)
         //
         // Testing:
         //   getInt8(signed char& variable);
@@ -4272,7 +4284,7 @@ int main(int argc, char *argv[]) {
             << "Note:" << endl
             << "  Error messages can be viewed in veryVerbose mode" << endl;
 
-        if (verbose) cout << "\nTesting 'getInt8' w/ 'signed char'." << endl;
+        if (verbose) cout << "\nTesting `getInt8` w/ `signed char`." << endl;
         {
             typedef signed char ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType&);
@@ -4314,7 +4326,7 @@ int main(int argc, char *argv[]) {
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'getUint8' w/ 'char'." << endl;
+        if (verbose) cout << "\nTesting `getUint8` w/ `char`." << endl;
         {
             typedef char ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType&);
@@ -4356,7 +4368,7 @@ int main(int argc, char *argv[]) {
 
         // --------------------------------------------------------------------
 
-        if (verbose)cout << "\nTesting 'getUint8' w/ 'unsigned char'." << endl;
+        if (verbose)cout << "\nTesting `getUint8` w/ `unsigned char`." << endl;
         {
             typedef unsigned char ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType&);
@@ -4402,12 +4414,12 @@ int main(int argc, char *argv[]) {
         //   Verify the method produces the expected output format.
         //
         // Concerns:
-        //: 1 Method produces expected output format.
+        // 1. Method produces expected output format.
         //
         // Plan:
-        //: 1 For a small set of objects, use 'ostringstream' to write the
-        //:   object's value to a string buffer and then compare to expected
-        //:   output format.  (C-1)
+        // 1. For a small set of objects, use `ostringstream` to write the
+        //    object's value to a string buffer and then compare to expected
+        //    output format.  (C-1)
         //
         // Testing:
         //   ostream& operator<<(ostream&, const TestInStream&);
@@ -4528,11 +4540,11 @@ int main(int argc, char *argv[]) {
         //   Verify functionality of the basic accessors.
         //
         // Concerns:
-        //: 1 The methods return correct values.
+        // 1. The methods return correct values.
         //
         // Plan:
-        //: 1 Create an empty object, use 'getInt8' and 'invalidate' to modify
-        //:   state, and verify the expected values for the methods.  (C-1)
+        // 1. Create an empty object, use `getInt8` and `invalidate` to modify
+        //    state, and verify the expected values for the methods.  (C-1)
         //
         // Testing
         //   operator const void *() const;
@@ -4545,7 +4557,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << endl << "BASIC ACCESSORS TEST" << endl
                                   << "====================" << endl;
 
-        if (verbose) cout << "\nTesting 'operator const void *'." << endl;
+        if (verbose) cout << "\nTesting `operator const void *`." << endl;
 
         int i;
 
@@ -4569,7 +4581,7 @@ int main(int argc, char *argv[]) {
             LOOP_ASSERT(i, !X && X2);
             LOOP_ASSERT(i, !X.isValid() && X2.isValid());
 
-            // invalidate stream x2 by making excessive 'get' calls
+            // invalidate stream x2 by making excessive `get` calls
             char c;
             mX2.setQuiet(1);
             for (j = 0; j < i + 10; ++j) mX2.getInt8(c);
@@ -4580,7 +4592,7 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTesting 'isEmpty', 'length' and 'cursor'." << endl;
+            cout << "\nTesting `isEmpty`, `length` and `cursor`." << endl;
 
         for (i = 0; i < 5; ++i) {
             // test default empty objects
@@ -4619,30 +4631,30 @@ int main(int argc, char *argv[]) {
         //   Verify functionality of primary manipulators.
         //
         // Concerns:
-        //: 1 Constructors work appropriately.
-        //:
-        //: 2 'getInt8' produces the expected results.
-        //:
-        //: 3 'invalidate' produces the expected results.
-        //:
-        //: 4 Destructor functions properly.
-        //:
-        //: 5 QoI: asserted precondition violations are detected when enabled.
+        // 1. Constructors work appropriately.
+        //
+        // 2. `getInt8` produces the expected results.
+        //
+        // 3. `invalidate` produces the expected results.
+        //
+        // 4. Destructor functions properly.
+        //
+        // 5. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For 'getInt8', see documentation of the testing mechanism
-        //:   'testGetScalar' for detailed information.  (C-1)
-        //:
-        //: 2 Create objects containing various data.
-        //:
-        //: 3 Modify state using 'getInt8' and 'invalidate'.
-        //:
-        //: 4 Verify state using basic accessors.  (C-2, C-3)
-        //:
-        //: 5 Since the destructor for this object is empty, the concern
-        //:   regarding the destructor is trivially satisfied.  (C-4)
-        //:
-        //: 6 Verify defensive checks are triggered for invalid values.  (C-5)
+        // 1. For `getInt8`, see documentation of the testing mechanism
+        //    `testGetScalar` for detailed information.  (C-1)
+        //
+        // 2. Create objects containing various data.
+        //
+        // 3. Modify state using `getInt8` and `invalidate`.
+        //
+        // 4. Verify state using basic accessors.  (C-2, C-3)
+        //
+        // 5. Since the destructor for this object is empty, the concern
+        //    regarding the destructor is trivially satisfied.  (C-4)
+        //
+        // 6. Verify defensive checks are triggered for invalid values.  (C-5)
         //
         // Testing
         //   TestInStream();
@@ -4662,7 +4674,7 @@ int main(int argc, char *argv[]) {
             << "Note:" << endl
             << "  Error messages can be viewed in veryVerbose mode" << endl;
 
-        if (verbose)cout << "\nTesting 'getInt8' w/ 'char' and ctors." << endl;
+        if (verbose)cout << "\nTesting `getInt8` w/ `char` and ctors." << endl;
         {
             typedef char ElemType;
             typedef TestInStream& (Obj::*FuncPtr)(ElemType&);
@@ -4703,7 +4715,7 @@ int main(int argc, char *argv[]) {
             ASSERT(0 == x0.length());
         }
         {
-            // Test constructor initialized with a 'char *'.
+            // Test constructor initialized with a `char *`.
 
             Out o(VERSION_SELECTOR);
             o.putInt8(1);
@@ -4725,7 +4737,7 @@ int main(int argc, char *argv[]) {
             ASSERT(X.cursor() == X.length());
         }
         {
-            // Test constructor initialized with a 'bslstl::StringRef'.
+            // Test constructor initialized with a `bslstl::StringRef`.
 
             Out o(VERSION_SELECTOR);
             o.putInt8(5);
@@ -4751,7 +4763,7 @@ int main(int argc, char *argv[]) {
 
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'invalidate'." << endl;
+        if (verbose) cout << "\nTesting `invalidate`." << endl;
         for (int i = 0; i < 5; ++i) {
             // test default objects
             Obj mX;  const Obj& X = mX;
@@ -4797,24 +4809,24 @@ int main(int argc, char *argv[]) {
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // GENERATOR FUNCTION 'g' TEST:
-        //   Verify behavior of the 'g' function.
+        // GENERATOR FUNCTION `g` TEST:
+        //   Verify behavior of the `g` function.
         //
         // Concerns:
-        //: 1 Generator function works correctly.
+        // 1. Generator function works correctly.
         //
         // Plan:
-        //: 1 Perform independent tests with spec strings representative of the
-        //    different possible formats for the 'g' function: generate
+        // 1. Perform independent tests with spec strings representative of the
+        //    different possible formats for the `g` function: generate
         //    "control" objects manually configured with the same sequence of
         //    operations as specified in the spec string and verify the
-        //    resulting output stream object configured by the 'g' function
+        //    resulting output stream object configured by the `g` function
         //    contains the same content as the "control" object.  (C-1)
         //
         // Testing:
         //   int g(Out* o, const char* spec)
         // --------------------------------------------------------------------
-        if (verbose) cout << endl << "Generator Function 'g' TEST" << endl
+        if (verbose) cout << endl << "Generator Function `g` TEST" << endl
                                   << "===========================" << endl;
 
         if (verbose) cout << endl
@@ -5003,16 +5015,16 @@ int main(int argc, char *argv[]) {
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create 'TestInStream' objects using default and buffer
-        //:   constructors.
-        //:
-        //: 2 Exercise these objects using various methods.
-        //:
-        //: 3 Verify expected values throughout.  (C-1)
+        // 1. Create `TestInStream` objects using default and buffer
+        //    constructors.
+        //
+        // 2. Exercise these objects using various methods.
+        //
+        // 3. Verify expected values throughout.  (C-1)
         //
         // Testing:
         //   BREATHING TEST

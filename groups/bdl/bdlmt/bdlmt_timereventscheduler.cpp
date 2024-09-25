@@ -31,12 +31,12 @@ BSLS_IDENT_RCSID(bdlmt_timereventscheduler_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace {
 
+/// Default number of bits used to represent each `bdlcc::TimeQueue` handle.
 const int NUM_INDEX_BITS_DEFAULT = 17;
-    // Default number of bits used to represent each 'bdlcc::TimeQueue' handle.
 
+/// Minimum number of bits required to represent a `bdlcc::TimeQueue`
+/// handle.
 const int NUM_INDEX_BITS_MIN = 8;
-    // Minimum number of bits required to represent a 'bdlcc::TimeQueue'
-    // handle.
 
 int numBitsRequired(int value)
 {
@@ -84,9 +84,9 @@ namespace bdlmt {
                    // struct TimerEventSchedulerDispatcher
                    // ====================================
 
+/// This class just contains the method called to run the dispatcher thread.
+/// Once started, it infinite loops, either waiting for or executing events.
 struct TimerEventSchedulerDispatcher {
-    // This class just contains the method called to run the dispatcher thread.
-    // Once started, it infinite loops, either waiting for or executing events.
 
     // CLASS METHODS
     static void dispatchEvents(TimerEventScheduler *scheduler);
@@ -294,9 +294,9 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
                // class TimerEventSchedulerTestTimeSource_Data
                // ============================================
 
+/// This `class` provides storage for the current time and a mutex to
+/// protect access to the current time.
 class TimerEventSchedulerTestTimeSource_Data {
-    // This 'class' provides storage for the current time and a mutex to
-    // protect access to the current time.
 
     // DATA
     bsls::TimeInterval   d_currentTime;       // the current time
@@ -313,24 +313,27 @@ class TimerEventSchedulerTestTimeSource_Data {
 
   public:
     // CREATORS
+
+    /// Construct a test time-source data object that will store the
+    /// "system-time", initialized to the specified `currentTime`.
     explicit
     TimerEventSchedulerTestTimeSource_Data(bsls::TimeInterval currentTime);
-        // Construct a test time-source data object that will store the
-        // "system-time", initialized to the specified 'currentTime'.
 
     //! ~TimerEventSchedulerTestTimeSource_Data() = default;
         // Destroy this object.
 
     // MANIPULATORS
+
+    /// Advance this object's current-time value by the specified `amount`
+    /// of time.  Return the updated current-time value.  The behavior is
+    /// undefined unless `amount` is positive, and `now + amount` is within
+    /// the range that can be represented with a `bsls::TimeInterval`.
     bsls::TimeInterval advanceTime(bsls::TimeInterval amount);
-        // Advance this object's current-time value by the specified 'amount'
-        // of time.  Return the updated current-time value.  The behavior is
-        // undefined unless 'amount' is positive, and 'now + amount' is within
-        // the range that can be represented with a 'bsls::TimeInterval'.
 
     // ACCESSORS
+
+    /// Return this object's current-time value.
     bsls::TimeInterval currentTime() const;
-        // Return this object's current-time value.
 };
 
 // CREATORS

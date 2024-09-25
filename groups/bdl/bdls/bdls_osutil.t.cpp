@@ -193,13 +193,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -209,20 +209,20 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-// The following example demonstrates using 'getOsInfo' to obtain information
+// The following example demonstrates using `getOsInfo` to obtain information
 // about the operating system at runtime and writing it to the console.
 //
-// First, we create strings for the operating system name ('osName'), version
-// ('osVersion'), and patch ('osPatch'), and then call 'getOsInfo' to load
+// First, we create strings for the operating system name (`osName`), version
+// (`osVersion`), and patch (`osPatch`), and then call `getOsInfo` to load
 // these strings with values for the operating system the task is executing in:
-//..
+// ```
     bsl::string name;
     bsl::string version;
     bsl::string patch;
-//..
+// ```
 // Then, we use the standard streams to write the operating system version
 // information to the console, or an error message of failure:
-//..
+// ```
     const int rc = bdls::OsUtil::getOsInfo(&name, &version, &patch);
     if (rc == 0) {
         bsl::cout << "OS Name: " << name << "\n"
@@ -231,50 +231,50 @@ int main(int argc, char *argv[])
     } else {
         bsl::cout << "Cannot determine OS name and version\n";
     }
-//..
+// ```
 // Finally, the resulting console output on the Red Hat Enterprise Linux Server
 // 5.5 would be
-//..
+// ```
 //  OS Name: Linux
 //  Version: 2.6.18-194.32.1.el5
 //  Patch:   #1 SMP Mon Dec 20 10:52:42 EST 2010
-//..
+// ```
 // On Windows 7 SP1, the display would be
-//..
+// ```
 //  OS Name: Windows
 //  Version: 6.1
 //  Patch:   Service Pack 1
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'getOsInfo'
+        // TESTING `getOsInfo`
         //   Ensure that the operating system is identified correctly.
         //
         // Concerns:
-        //: 1 The operating system is identified as defined in the contract.
-        //: 2 The result is always zero, as there is no clear way to force an
-        //:   OS to fail to report the expected data.
-        //: 3 All overloads work identically.
+        // 1. The operating system is identified as defined in the contract.
+        // 2. The result is always zero, as there is no clear way to force an
+        //    OS to fail to report the expected data.
+        // 3. All overloads work identically.
         //
         // Plan:
-        //: 1 For each available 'string' overload type:
-        //: 2   Verify the function returns zero
-        //: 3   Verify OS Name is 'Windows' when built on MS Windows, and the
-        //:     loaded version and patch match values returned by
-        //:     GetVersionEx().
-        //: 4   On Posix systems verify that loaded 'name', 'version' and
-        //:     'patch' match sysname, release and version, respectively, as
-        //:     returned by uname(2).
-        //: 5   Negative testing: verify that passing a null pointer for any
-        //:     argument is detected by a 'BSLS_ASSERT'.
+        // 1. For each available `string` overload type:
+        // 2.   Verify the function returns zero
+        // 3.   Verify OS Name is `Windows` when built on MS Windows, and the
+        //      loaded version and patch match values returned by
+        //      GetVersionEx().
+        // 4.   On Posix systems verify that loaded `name`, `version` and
+        //      `patch` match sysname, release and version, respectively, as
+        //      returned by uname(2).
+        // 5.   Negative testing: verify that passing a null pointer for any
+        //      argument is detected by a `BSLS_ASSERT`.
         //
         // Testing:
         //   int getOsInfo(bsl::string *os, bsl::string *v, bsl::string *ptch);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'getOsInfo'" << endl
+                          << "TESTING `getOsInfo`" << endl
                           << "===================" << endl;
 
         testCase2_getOsInfo<bsl::string>(
@@ -294,11 +294,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
+        // 1. Perform and ad-hoc test of the primary modifiers and accessors.
         //
         // Testing:
         //   BREATHING TEST

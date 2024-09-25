@@ -8,7 +8,7 @@
 #include <stdio.h>           // printf(), puts()
 #include <stdlib.h>          // atoi()
 
-// The following OS-dependent includes are for the 'osSystemCall' helper
+// The following OS-dependent includes are for the `osSystemCall` helper
 // function below.
 
 #if defined BSLS_PLATFORM_OS_UNIX
@@ -28,7 +28,7 @@ using namespace BloombergLP;
 //                                  --------
 // The component under test has state, but not value.  State transitions must
 // be confirmed explicitly.  The timing functions can be verified to a
-// reasonable degree using the 'bsls::TimeUtil::get<...>Timer' functions
+// reasonable degree using the `bsls::TimeUtil::get<...>Timer` functions
 // (with which the stopwatch class is implemented) to confirm "reasonable"
 // behavior.
 //-----------------------------------------------------------------------------
@@ -57,14 +57,14 @@ using namespace BloombergLP;
 
 namespace {
 
+/// Return `true` if the specified `a` equals the specified `b`, and `false`
+/// otherwise.  Note that comparing two floating-point values on GCC x86
+/// platforms due to extended precision of x87 unit may lead to some strange
+/// result when two the same floating-point values are not equal.  We can
+/// workaround this problem by always explicitly storing the values to
+/// memory to force the round-down using `volatile` intermediate variables.
+/// See https://gcc.gnu.org/wiki/x87note for details.
 bool isEqual(double a, double b)
-    // Return 'true' if the specified 'a' equals the specified 'b', and 'false'
-    // otherwise.  Note that comparing two floating-point values on GCC x86
-    // platforms due to extended precision of x87 unit may lead to some strange
-    // result when two the same floating-point values are not equal.  We can
-    // workaround this problem by always explicitly storing the values to
-    // memory to force the round-down using 'volatile' intermediate variables.
-    // See https://gcc.gnu.org/wiki/x87note for details.
 {
     volatile double va = a;
     volatile double vb = b;
@@ -108,25 +108,25 @@ void aSsErT(bool b, const char *s, int i)
 //                     LOCAL HELPER MACROS FOR READABLE CODE
 //-----------------------------------------------------------------------------
 
+/// Print the specified `expr` value with the specified `lead` string
+/// literal as prefix, and the specified `trail` string literal with an
+/// appended newline character as postfix using
+/// `bsls::BslTestUtil::callDebugprint`.
 #define u_DBGPRINT(lead, expr, trail)                                         \
     bsls::BslTestUtil::callDebugprint(expr, lead, trail "\n")
-    // Print the specified 'expr' value with the specified 'lead' string
-    // literal as prefix, and the specified 'trail' string literal with an
-    // appended newline character as postfix using
-    // 'bsls::BslTestUtil::callDebugprint'.
 
+/// If `verbose` print the specified `expr` value with the specified `lead`
+/// string literal as prefix, and the specified `trail` string literal with
+/// an appended newline character as postfix using
+/// `bsls::BslTestUtil::callDebugprint`.
 #define u_VDBGPRINT(lead, expr, trail)                                        \
     do { if (verbose) { u_DBGPRINT(lead, expr, trail); } } while (false)
-    // If 'verbose' print the specified 'expr' value with the specified 'lead'
-    // string literal as prefix, and the specified 'trail' string literal with
-    // an appended newline character as postfix using
-    // 'bsls::BslTestUtil::callDebugprint'.
 
+/// If `veryVerbose` print the specified `expr` value with the specified
+/// `lead` string literal as prefix, and a newline character as postfix
+/// using `bsls::BslTestUtil::callDebugprint`.
 #define u_VVDBGPREFPRINT(lead, expr) do { if (veryVerbose) {                  \
     bsls::BslTestUtil::callDebugprint(expr, lead, "\n"); } } while (false)
-    // If 'veryVerbose' print the specified 'expr' value with the specified
-    // 'lead' string literal as prefix, and a newline character as postfix
-    // using 'bsls::BslTestUtil::callDebugprint'.
 
 //=============================================================================
 //                     GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -147,11 +147,11 @@ typedef Int64 (*LoopBodyFunction)(RawTimerFunction timerFn);
 //            VOLATILE GLOBALS AGAINST OPTIMIZATION OF BENCHMARKS
 //-----------------------------------------------------------------------------
 
+/// See `busyFunction()` below.
 static volatile unsigned busyFunctionSink = 0;
-    // See 'busyFunction()' below.
 
+/// Used in `main` benchmark cases.
 static volatile double dblSink = 0.0;
-    // Used in 'main' benchmark cases.
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
 static volatile pid_t   pidSink;
@@ -177,10 +177,10 @@ void busyFunction()
     }
 }
 
+/// Exchange the value of the `int`s stored in the specified addresses `a`
+/// and 'b, in a manner that minimizes the chance of the operation being
+/// optimized away by a smart compiler.
 void exchangeInts(int *a, int *b)
-    // Exchange the value of the 'int's stored in the specified addresses 'a'
-    // and 'b, in a manner that minimizes the chance of the operation being
-    // optimized away by a smart compiler.
 {
     volatile int temp = *a;
     *a = *b;
@@ -224,20 +224,20 @@ Int64 osSystemCall(RawTimerFunction timerFn)
     return timerFn();
 }
 
+/// Repeatedly call the specified `burnFunction` until the specified
+/// `delayTime` nanoseconds of the resource measured by the specified
+/// `rawTimerFunction` have been consumed, and print the sum of the return
+/// values of `burnFunction` if the specified `veryVeryVeryVerbose` flag
+/// evaluates to `true`.  Note that `burnFunction` should burn only a tiny
+/// bit of the same resource measured by `rawTimerFunction`, so that
+/// `shortDelay` can exit as soon as possible after the `delayTime` target
+/// has been achieved.  When choosing or designing `burnFunction`, clients
+/// should keep in mind that some system time will be consumed just by
+/// calling `rawTimerFunction` to measure the time resource consumption.
 static void shortDelay(double                  delayTime,
                        RawTimerFunction        rawTimerFunction,
                        ResourceBurningFunction burnFunction,
                        bool                    veryVeryVeryVerbose)
-    // Repeatedly call the specified 'burnFunction' until the specified
-    // 'delayTime' nanoseconds of the resource measured by the specified
-    // 'rawTimerFunction' have been consumed, and print the sum of the return
-    // values of 'burnFunction' if the specified 'veryVeryVeryVerbose' flag
-    // evaluates to 'true'.  Note that 'burnFunction' should burn only a tiny
-    // bit of the same resource measured by 'rawTimerFunction', so that
-    // 'shortDelay' can exit as soon as possible after the 'delayTime' target
-    // has been achieved.  When choosing or designing 'burnFunction', clients
-    // should keep in mind that some system time will be consumed just by
-    // calling 'rawTimerFunction' to measure the time resource consumption.
 {
     const Int64 t0 = rawTimerFunction();
     const Int64 tEnd = t0 + static_cast<Int64>(delayTime * 1e9);
@@ -245,17 +245,17 @@ static void shortDelay(double                  delayTime,
     volatile double x = 0;
 
     while ((*rawTimerFunction)() < tEnd) {
-        // Not using 'x += ...;' because:
+        // Not using `x += ...;` because:
         // WARNING: compound assignment to object of volatile-qualified type
-        // 'volatile double' is deprecated
+        // `volatile double` is deprecated
         x = x + (*burnFunction)(delayTime);
     }
 
     if (veryVeryVeryVerbose) {
         // Optionally print out the cumulative result of all calls to
-        // 'burnFunction'.  The value of 'veryVeryVeryVerbose' depends on the
+        // `burnFunction`.  The value of `veryVeryVeryVerbose` depends on the
         // command line with which the test driver is invoked, and therefore
-        // the optimizer cannot assume that 'shortDelay' and 'burnFunction'
+        // the optimizer cannot assume that `shortDelay` and `burnFunction`
         // have no side effects.  In practice, we will never enter this branch
         // on actual test driver runs.
 
@@ -263,31 +263,31 @@ static void shortDelay(double                  delayTime,
     }
 }
 
+/// Do nothing.  Note that this function is designed to be used with
+/// `shortDelay`, and need only use enough system time to ensure that system
+/// time is not completely dominated by user time during a call to
+/// `shortDelay`.  Since `shortDelay` already uses a small amount of system
+/// time to measure a time resource, this function does not need to do
+/// anything at all.
 static double burnMinimalSystemTime(double)
-    // Do nothing.  Note that this function is designed to be used with
-    // 'shortDelay', and need only use enough system time to ensure that system
-    // time is not completely dominated by user time during a call to
-    // 'shortDelay'.  Since 'shortDelay' already uses a small amount of system
-    // time to measure a time resource, this function does not need to do
-    // anything at all.
 {
     return 0.0;
 }
 
+/// Perform some calculations that use an arbitrary, but small amount of
+/// user time.  Note that this function is designed to be used with
+/// `shortDelay`, and need only use up enough user time to ensure that user
+/// time is not completely dominated by system time during a call to
+/// `shortDelay`.
 static double burnMinimalUserTime(double delayTime)
-    // Perform some calculations that use an arbitrary, but small amount of
-    // user time.  Note that this function is designed to be used with
-    // 'shortDelay', and need only use up enough user time to ensure that user
-    // time is not completely dominated by system time during a call to
-    // 'shortDelay'.
 {
     const double frac = delayTime * 4.7;
     volatile double x = delayTime;
 
     for (int i = 0; i < 100000; ++i) {
-        // Not using 'x += ...;' because:
+        // Not using `x += ...;` because:
         // WARNING: compound assignment to object of volatile-qualified type
-        // 'volatile double' is deprecated
+        // `volatile double` is deprecated
         x = x + delayTime / frac;    // expensive operation
     }
 
@@ -336,29 +336,30 @@ struct TimeMethods {
     const char             *d_timeMethodName_p;
 
     // PUBLIC ACCESSORS
+
+    /// Return the type of accumulated time of this object from the
+    /// specified `stopWatch`.
     double accumulated(const Obj& stopWatch) const
-        // Return the type of accumulated time of this object from the
-        // specified 'stopWatch'.
     {
         return (stopWatch.*(d_timeMethod))();
     }
 
+    /// Call the delay function of this object with the specified
+    /// `delayTime` and return its result.
     Int64 delay(double delayTime) const
-        // Call the delay function of this object with the specified
-        // 'delayTime' and return its result.
     {
         return (*d_delayFunction_p)(delayTime);
     }
 
+    /// Return `true` if this object's time method collects wall time,
+    /// otherwise, if it collects CPU time, return `false`.
     bool isWallTime() const
-        // Return 'true' if this object's time method collects wall time,
-        // otherwise, if it collects CPU time, return 'false'.
     {
         return (d_timeMethod == &Obj::accumulatedWallTime);
     }
 
+    /// Return the name of the accumulated time method of this object.
     const char *timeMethodName() const
-        // Return the name of the accumulated time method of this object.
     {
         return d_timeMethodName_p;
     }
@@ -403,7 +404,7 @@ int main(int argc, char *argv[])
         //   compile, link, and run on all platforms.
         //
         // Plan:
-        //   Copy the usage example exactly, substituting 'ASSERT' for 'assert'
+        //   Copy the usage example exactly, substituting `ASSERT` for `assert`
         //   and confirm that the build does not break and that the test case
         //   runs and exits normally.
         //
@@ -534,8 +535,8 @@ int main(int argc, char *argv[])
         //   void accumulatedTimes(double*, double*, double*) const;
         //
         //   Values loaded by the method should be close to those returned by
-        //   the corresponding single-value method ('accumulatedSystemTime',
-        //   'accumulatedUserTime' or 'accumulatedWallTime').
+        //   the corresponding single-value method (`accumulatedSystemTime`,
+        //   `accumulatedUserTime` or `accumulatedWallTime`).
         //
         // Plan:
         //   Check everything is zero, start the timer, do some delay, check
@@ -547,29 +548,29 @@ int main(int argc, char *argv[])
         //   void accumulatedTimes(double*, double*, double*) const;
         // --------------------------------------------------------------------
 
-        if (verbose) puts("\nTESTING 'accumulatedTimes'"
+        if (verbose) puts("\nTESTING `accumulatedTimes`"
                           "\n==========================");
 
         double const delayTime     = 2;    //  2 seconds
         double const precision     = 1e-3; //  1 milliseconds
         double const finePrecision = 1e-5; // 10 microseconds
 
-        // Note that the 'finePrecision' value is a heuristic meant to be
-        // greater than the expected cumulative cost of: 'Stopwatch::start',
-        // 'delayWall', and (notably) 'Stopwatch::accumulatedTimes'.  On some
+        // Note that the `finePrecision` value is a heuristic meant to be
+        // greater than the expected cumulative cost of: `Stopwatch::start`,
+        // `delayWall`, and (notably) `Stopwatch::accumulatedTimes`.  On some
         // older, heavily loaded systems the cost can be well over 1us (I'm
         // looking at you, SunOS).
         //
-        // If the value of 'finePrecision' is less than the finest *practical*
-        // resolution of the timers provided by 'bsls::TimeUtil', then the test
+        // If the value of `finePrecision` is less than the finest *practical*
+        // resolution of the timers provided by `bsls::TimeUtil`, then the test
         // below effectively asserts that the cumulative cost of those
         // operations is too small to be observed.  Such an assertion is
-        // vulnerable to improvements in the resolution of 'bsls::TimeUtil'.
+        // vulnerable to improvements in the resolution of `bsls::TimeUtil`.
         //
-        // Earlier versions of this test driver used a 'finePrecision' that was
-        // far too small, but the low resolution of 'bsls::TimeUtil' masked
-        // that defect.  Now that 'bsls::TimeUtil' can actually detect
-        // microsecond-level resource usages, 'finePrecision' has been
+        // Earlier versions of this test driver used a `finePrecision` that was
+        // far too small, but the low resolution of `bsls::TimeUtil` masked
+        // that defect.  Now that `bsls::TimeUtil` can actually detect
+        // microsecond-level resource usages, `finePrecision` has been
         // increased to express the expected cost of the operations.  Even so,
         // this test is fundamentally brittle.
 
@@ -630,9 +631,9 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   For a sequence of programmatically-generated delays (using timers
-        //   from the tested 'bsls::TimeUtil' class), confirm that each of the
+        //   from the tested `bsls::TimeUtil` class), confirm that each of the
         //   above methods returns an expected value when invoked after the
-        //   'start', 'stop', and' reset' methods.
+        //   `start`, `stop`, and' reset' methods.
         //
         // Testing:
         //   double accumulatedSystemTime() const;
@@ -681,7 +682,7 @@ int main(int argc, char *argv[])
                     // conditions.
                 }
 
-                if (veryVerbose) puts("\tAfter 'reset':");
+                if (veryVerbose) puts("\tAfter `reset`:");
                 x.reset();
                 if (veryVerbose) { T_  T_  P(METHODS.accumulated(X)); }
                 ASSERT(0.0 == METHODS.accumulated(X));
@@ -715,19 +716,19 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'start', 'stop', and 'reset':
-        //   Each of the 'accumulatedSystemTime', 'accumulatedUserTime',
-        //   and 'accumulatedWallTime' methods should return increasing
+        // TESTING `start`, `stop`, and `reset`:
+        //   Each of the `accumulatedSystemTime`, `accumulatedUserTime`,
+        //   and `accumulatedWallTime` methods should return increasing
         //   values when called repeatedly in the RUNNING state, constant
         //   values when called repeatedly in the STOPPED state, and 0.0 when
-        //   called repeatedly after 'reset'.  Note that this tests the
-        //   correct functioning of the 'start', 'stop', and 'reset'
+        //   called repeatedly after `reset`.  Note that this tests the
+        //   correct functioning of the `start`, `stop`, and `reset`
         //   methods.
         //
         // Plan:
-        //   For each of the manipulators 'start', 'stop', and 'reset',
-        //   and for each of the accessors 'accumulatedSystemTime',
-        //   'accumulatedUserTime', and 'accumulatedWallTime', call
+        //   For each of the manipulators `start`, `stop`, and `reset`,
+        //   and for each of the accessors `accumulatedSystemTime`,
+        //   `accumulatedUserTime`, and `accumulatedWallTime`, call
         //   a manipulator, then, with a fixed delay before each call, call an
         //   accessor and confirm that the return value is consistent with the
         //   expected behavior of the manipulator under test.
@@ -738,12 +739,12 @@ int main(int argc, char *argv[])
         //   void reset();
         // --------------------------------------------------------------------
 
-        if (verbose) puts("\nTesting 'start', 'stop', and 'reset'"
+        if (verbose) puts("\nTesting `start`, `stop`, and `reset`"
                           "\n====================================");
 
         static const double DELAY_TIME = 0.05;
 
-        if (verbose) puts("\nConfirm the behavior of the 'start' method");
+        if (verbose) puts("\nConfirm the behavior of the `start` method");
         {
             for (size_t t = 0; t < NUM_TIME_METHODS; ++t) {
                 const TimeMethods& METHODS     = TIME_METHODS[t];
@@ -767,16 +768,16 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) puts("\nConfirm behavior of the 'start(bool)' argument");
+        if (verbose) puts("\nConfirm behavior of the `start(bool)` argument");
         {
 
-            // Default does not collect user & system, 'false' is the default
+            // Default does not collect user & system, `false` is the default
             for (size_t t = 0; t < NUM_TIME_METHODS; ++t) {
                 const TimeMethods& METHODS     = TIME_METHODS[t];
                 const char * const METHOD_NAME = METHODS.timeMethodName();
 
-                Obj x;  const Obj& X = x;  // 'start()'
-                Obj y;  const Obj& Y = y;  // 'start(false)'
+                Obj x;  const Obj& X = x;  // `start()`
+                Obj y;  const Obj& Y = y;  // `start(false)`
 
                 if (veryVerbose) { T_;  P(METHOD_NAME); }
 
@@ -811,16 +812,16 @@ int main(int argc, char *argv[])
                 }
             }
 
-            // 'k_COLLECT_WALL_TIME_ONLY' is identical to 'false'.
+            // `k_COLLECT_WALL_TIME_ONLY` is identical to `false`.
             ASSERT(false == Obj::k_COLLECT_WALL_TIME_ONLY);
 
-            // 'start(true)' has been tested here earlier to collect all times.
+            // `start(true)` has been tested here earlier to collect all times.
 
-            // 'k_COLLECT_WALL_AND_CPU_TIMES ' is identical to 'true'.
+            // `k_COLLECT_WALL_AND_CPU_TIMES ` is identical to `true`.
             ASSERT(true == Obj::k_COLLECT_WALL_AND_CPU_TIMES);
         }
 
-        if (verbose) puts("\nConfirm the behavior of the 'stop' method");
+        if (verbose) puts("\nConfirm the behavior of the `stop` method");
         {
             for (size_t t = 0; t < NUM_TIME_METHODS; ++t) {
                 const TimeMethods& METHODS     = TIME_METHODS[t];
@@ -845,7 +846,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) puts("\nConfirm the behavior of the 'reset' method");
+        if (verbose) puts("\nConfirm the behavior of the `reset` method");
         {
             for (size_t t = 0; t < NUM_TIME_METHODS; ++t) {
                 const TimeMethods& METHODS     = TIME_METHODS[t];
@@ -872,14 +873,14 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // STATE TRANSITION TESTS FOR 'start', 'stop', and 'reset':
+        // STATE TRANSITION TESTS FOR `start`, `stop`, and `reset`:
         //   The object should report the correct state after every possible
-        //   transition as induced by 'start', 'stop', and 'reset'.
+        //   transition as induced by `start`, `stop`, and `reset`.
         //
         // Plan:
         //   Create a sequence of objects and systematically invoke the
-        //   'start', 'stop', and 'reset' methods in all possible one-
-        //   and two-step sequences, confirming the state with 'isRunning'.
+        //   `start`, `stop`, and `reset` methods in all possible one-
+        //   and two-step sequences, confirming the state with `isRunning`.
         //
         // Testing:
         //   state transitions of:
@@ -893,7 +894,7 @@ int main(int argc, char *argv[])
                           "\n======================");
 
         if (verbose) puts("\nConfirm the object state after"
-                           " 'start', 'stop', and 'reset'.");
+                           " `start`, `stop`, and `reset`.");
 
         {
             Obj x;  const Obj& X = x;  ASSERT(false == X.isRunning());
@@ -1040,25 +1041,25 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // PERFORMANCE TEST I: USING WALL TIME TO MEASURE PERFORMANCE
         //
-        // Concerns: The various system calls used by 'bsls::Stopwatch' can be
+        // Concerns: The various system calls used by `bsls::Stopwatch` can be
         //           expensive, so their costs should be measured.
         //
         // Plan:
-        //   1)  Use a 'bsls::Stopwatch' (in wall time mode) to time a
+        //   1)  Use a `bsls::Stopwatch` (in wall time mode) to time a
         //       reference loop that calls a non-trivial function
-        //       'busyFunction'.  The number of loop iterations is governed by
-        //       'verbose'.
+        //       `busyFunction`.  The number of loop iterations is governed by
+        //       `verbose`.
         //
-        //   2a) Use a 'bsls::Stopwatch' to time the reference loop
-        //       instrumented with a separate 'bsls::Stopwatch' instance
-        //       started with the (less expensive) 'start' method and calling
-        //       'elapsedTime'.
+        //   2a) Use a `bsls::Stopwatch` to time the reference loop
+        //       instrumented with a separate `bsls::Stopwatch` instance
+        //       started with the (less expensive) `start` method and calling
+        //       `elapsedTime`.
         //
         //
-        //   2b) Use a 'bsls::Stopwatch' to time the reference loop
-        //       instrumented with a separate 'bsls::Stopwatch' instance
-        //       started with the (more expensive) 'start(true)' method and
-        //       calling 'accumulatedTimes(double *, double *, double *)'.
+        //   2b) Use a `bsls::Stopwatch` to time the reference loop
+        //       instrumented with a separate `bsls::Stopwatch` instance
+        //       started with the (more expensive) `start(true)` method and
+        //       calling `accumulatedTimes(double *, double *, double *)`.
         //
         //   3)  Subtract the result obtained in (1) from each of the results
         //       obtained in (2a) and (2b), and normalize by the number of
@@ -1071,12 +1072,12 @@ int main(int argc, char *argv[])
         //         value than does the "correct" cpu-time mode.
         //
         // Testing:
-        //   Performance of the two main usage modes of 'bsls::Stopwatch',
+        //   Performance of the two main usage modes of `bsls::Stopwatch`,
         //   using the wall-time mode to test.
         //
         // --------------------------------------------------------------------
 
-        if (verbose) puts("\nProfiling 'start(false)': wall time only mode");
+        if (verbose) puts("\nProfiling `start(false)`: wall time only mode");
 
         const int    numTrials     = verbose ? atoi(argv[2]) : 10000;
         const double toNanoseconds = 1.0e9 / (double)numTrials;
@@ -1092,10 +1093,10 @@ int main(int argc, char *argv[])
 
         {
             if (verbose) puts("\tProfiling the sequence\n"
-                              "\t  1. 'start(true)'\n"
+                              "\t  1. `start(true)`\n"
                               "\t  2. {delay}\n"
-                              "\t  3. 'stop()'\n"
-                              "\t  4. 'elapsedTime()'");
+                              "\t  3. `stop()`\n"
+                              "\t  4. `elapsedTime()`");
             bsls::Stopwatch watch;
             watch.start(Obj::k_COLLECT_WALL_TIME_ONLY);
             for (int i = 0; i < numTrials; ++i) {
@@ -1113,10 +1114,10 @@ int main(int argc, char *argv[])
 
         {
             if (verbose) puts("\tProfiling the sequence\n"
-                              "\t  1. 'start(true)'\n"
+                              "\t  1. `start(true)`\n"
                               "\t  2. {delay}\n"
-                              "\t  3. 'stop()'\n"
-                              "\t  4. 'accumulatedTimes()'");
+                              "\t  3. `stop()`\n"
+                              "\t  4. `accumulatedTimes()`");
             bsls::Stopwatch watch;
             watch.start(Obj::k_COLLECT_WALL_TIME_ONLY);
             bsls::Stopwatch w;
@@ -1141,19 +1142,19 @@ int main(int argc, char *argv[])
         //           expensive, so their costs should be measured.
         //
         // Plan:
-        //   1)  Use a 'bsls::Stopwatch' (in CPU time mode) to time a reference
-        //       loop that calls a non-trivial function 'busyFunction'.  The
-        //       number of loop iterations is governed by 'verbose'.
+        //   1)  Use a `bsls::Stopwatch` (in CPU time mode) to time a reference
+        //       loop that calls a non-trivial function `busyFunction`.  The
+        //       number of loop iterations is governed by `verbose`.
         //
-        //   2a) Use a 'bsls::Stopwatch' to time the reference loop
-        //       instrumented with a separate 'bsls::Stopwatch' instance
-        //       started with the (less expensive) 'start' method and calling
-        //       'elapsedTime'.
+        //   2a) Use a `bsls::Stopwatch` to time the reference loop
+        //       instrumented with a separate `bsls::Stopwatch` instance
+        //       started with the (less expensive) `start` method and calling
+        //       `elapsedTime`.
         //
-        //   2b) Use a 'bsls::Stopwatch' to time the reference loop
-        //       instrumented with a separate 'bsls::Stopwatch' instance
-        //       started with the (more expensive) 'start(true)' method and
-        //       calling 'accumulatedTimes(double *, double *, double *)'.
+        //   2b) Use a `bsls::Stopwatch` to time the reference loop
+        //       instrumented with a separate `bsls::Stopwatch` instance
+        //       started with the (more expensive) `start(true)` method and
+        //       calling `accumulatedTimes(double *, double *, double *)`.
         //
         //   3)  Subtract the result obtained in (1) from each of the results
         //       obtained in (2a) and (2b), and normalize by the number of
@@ -1166,12 +1167,12 @@ int main(int argc, char *argv[])
         //         mode.
         //
         // Testing:
-        //   Performance of the two main usage modes of 'bsls::Stopwatch',
+        //   Performance of the two main usage modes of `bsls::Stopwatch`,
         //   using the CPU-time mode to test.
         //
         // --------------------------------------------------------------------
 
-        if (verbose) puts("\nProfiling 'start(true)': wall & CPU time mode");
+        if (verbose) puts("\nProfiling `start(true)`: wall & CPU time mode");
 
         const int    numTrials     = verbose ? atoi(argv[2]) : 10000;
         const double toNanoseconds = 1.0e9 / (double)numTrials;
@@ -1191,10 +1192,10 @@ int main(int argc, char *argv[])
 
         {
             puts("\tProfiling the sequence\n"
-                 "\t  1. 'start(true)'\n"
+                 "\t  1. `start(true)`\n"
                  "\t  2. {delay}\n"
-                 "\t  3. 'stop()'\n"
-                 "\t  4. 'elapsedTime()'");
+                 "\t  3. `stop()`\n"
+                 "\t  4. `elapsedTime()`");
             bsls::Stopwatch testWatch;
             testWatch.start(Obj::k_COLLECT_WALL_AND_CPU_TIMES);
             for (int i = 0; i < numTrials; ++i) {
@@ -1215,10 +1216,10 @@ int main(int argc, char *argv[])
         }
         {
             puts("\tProfiling the sequence\n"
-                 "\t  1. 'start(true)'\n"
+                 "\t  1. `start(true)`\n"
                  "\t  2. {delay}\n"
-                 "\t  3. 'stop()'\n"
-                 "\t  4. 'accumulatedTimes()'");
+                 "\t  3. `stop()`\n"
+                 "\t  4. `accumulatedTimes()`");
             bsls::Stopwatch testWatch;
             testWatch.start(Obj::k_COLLECT_WALL_AND_CPU_TIMES);
             bsls::Stopwatch w;

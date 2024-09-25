@@ -40,37 +40,37 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test provides 'baltzo::TestLoader', a class with a
-// simple (easily verified) implementation of the of the 'baltzo::Loader',
+// The component under test provides `baltzo::TestLoader`, a class with a
+// simple (easily verified) implementation of the of the `baltzo::Loader`,
 // which is used to test components dependent on that protocol.  Once a the
-// test loader object is primed (via the overloaded 'setTimeZone' method) with
-// a set of known 'baltzo::Zoneinfo' objects, the 'loadTimeZone' method -- the
+// test loader object is primed (via the overloaded `setTimeZone` method) with
+// a set of known `baltzo::Zoneinfo` objects, the `loadTimeZone` method -- the
 // sole, non-CREATOR (virtual) method of the protocol -- can be used to obtain
 // those objects.  Note that this design is convenient for testing components
 // because the user can easily control the timezone information available from
 // the loader.
 //
-// There are two broad concerns in the testing of the 'baltzo::TestLoader'
+// There are two broad concerns in the testing of the `baltzo::TestLoader`
 // class:
-//: o Does it properly implement the 'baltzo::Loader' protocol (i.e., the
-//:   'loadTimeZone' method)?
-//: o Is it a proper (albeit simple) container of 'baltzo::Zoneinfo' objects?
-// Testing necessarily convolves these areas of concern since 'loadTimeZone'
+//  - Does it properly implement the `baltzo::Loader` protocol (i.e., the
+//    `loadTimeZone` method)?
+//  - Is it a proper (albeit simple) container of `baltzo::Zoneinfo` objects?
+// Testing necessarily convolves these areas of concern since `loadTimeZone`
 // is, in effect, the only ACCESSOR for the container.  (Formally,
-// 'loadTimeZone' is not an ACCESSOR because it is non-'const'.)
+// `loadTimeZone` is not an ACCESSOR because it is non-`const`.)
 //
-// Although 'baltzo::TestLoader' is a container, it is limited functionality,
+// Although `baltzo::TestLoader` is a container, it is limited functionality,
 // so many of the normal container concerns do not apply.
 //
 // Global Concerns:
-//: o No memory is ever allocated from the global allocator.
-//: o Any allocated memory is always from the object allocator.
-//: o Injected exceptions are safely propagated during memory allocation.
-//: o Precondition violations are detected in appropriate build modes.
+//  - No memory is ever allocated from the global allocator.
+//  - Any allocated memory is always from the object allocator.
+//  - Injected exceptions are safely propagated during memory allocation.
+//  - Precondition violations are detected in appropriate build modes.
 //
 // Global Assumptions:
-//: o All explicit memory allocations are presumed to use the global, default,
-//:   or object allocator.
+//  - All explicit memory allocations are presumed to use the global, default,
+//    or object allocator.
 // ----------------------------------------------------------------------------
 // CREATORS
 // [ 2] TestLoader();
@@ -735,12 +735,12 @@ static const unsigned char  ASIA_BANGKOK_DATA[] = {
 //                        GLOBAL CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// The Logger verbosity guard disables logging on construction, and
+/// re-enables logging, based on the prior default pass-through level, when
+/// it goes out of scope and is destroyed.  It is intended to suppress
+/// logged output for intentional errors when the test driver is run in
+/// non-verbose mode.
 struct LogVerbosityGuard {
-    // The Logger verbosity guard disables logging on construction, and
-    // re-enables logging, based on the prior default pass-through level, when
-    // it goes out of scope and is destroyed.  It is intended to suppress
-    // logged output for intentional errors when the test driver is run in
-    // non-verbose mode.
 
     bool                    d_verbose;             // verbose mode does not
                                                    // disable logging
@@ -748,9 +748,9 @@ struct LogVerbosityGuard {
     bsls::LogSeverity::Enum d_defaultPassthrough;  // default passthrough
                                                    // log level
 
+    /// If the optionally specified `verbose` is `false` disable logging
+    /// until this guard is destroyed.
     explicit LogVerbosityGuard(bool verbose = false)
-        // If the optionally specified 'verbose' is 'false' disable logging
-        // until this guard is destroyed.
     {
         d_verbose            = verbose;
         d_defaultPassthrough = bsls::Log::severityThreshold();
@@ -760,8 +760,8 @@ struct LogVerbosityGuard {
         }
     }
 
+    /// Set the logging verbosity back to its default state.
     ~LogVerbosityGuard()
-        // Set the logging verbosity back to its default state.
     {
         if (!d_verbose) {
             bsls::Log::setSeverityThreshold(d_defaultPassthrough);
@@ -773,16 +773,16 @@ struct LogVerbosityGuard {
 //                       GLOBAL FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Return the result of invoking the `print` method of the specified
+/// `zoneinfo` object at the specified `level` plus 1 at the specified
+/// `spacesPerLevel` and indentation of the first line suppressed.
+/// Optionally specify a `basicAllocator` used to supply memory.  If
+/// `basicAllocator` is 0, the currently installed default allocator is
+/// used.
 bsl::string fmtZoneinfoIdent1(const baltzo::Zoneinfo&  zoneinfo,
                               int                      level,
                               int                      spacesPerLevel,
                               bslma::Allocator        *basicAllocator = 0)
-    // Return the result of invoking the 'print' method of the specified
-    // 'zoneinfo' object at the specified 'level' plus 1 at the specified
-    // 'spacesPerLevel' and indentation of the first line suppressed.
-    // Optionally specify a 'basicAllocator' used to supply memory.  If
-    // 'basicAllocator' is 0, the currently installed default allocator is
-    // used.
 {
     level = level < 0 ? -level : level;
     ++level;
@@ -829,7 +829,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -839,26 +839,26 @@ int main(int argc, char *argv[])
                           << "\n=====================" << endl;
 ///Usage
 ///-----
-// The following examples demonstrate how to populate a 'baltzo::TestLoader'
+// The following examples demonstrate how to populate a `baltzo::TestLoader`
 // with time-zone information, and then access that information through the
-// 'baltzo::Loader' protocol.
+// `baltzo::Loader` protocol.
 //
-///Example 1: Populating a 'baltzo::TestLoader' with Time-Zone Information
+///Example 1: Populating a `baltzo::TestLoader` with Time-Zone Information
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// We start by creating a 'baltzo::Zoneinfo' object, which we will eventually
+// We start by creating a `baltzo::Zoneinfo` object, which we will eventually
 // populate with a subset of data for "America/New_York":
-//..
+// ```
     baltzo::Zoneinfo newYorkTimeZone;
-//..
-// Next, we populate 'newYorkTimeZone' with the correct time-zone identifier
+// ```
+// Next, we populate `newYorkTimeZone` with the correct time-zone identifier
 // and two types of local time (standard time, and daylight-saving time):
-//..
+// ```
     const char *NEW_YORK_ID = "America/New_York";
     newYorkTimeZone.setIdentifier(NEW_YORK_ID);
 
     baltzo::LocalTimeDescriptor est(-5 * 60 * 60, false, "EST");
     baltzo::LocalTimeDescriptor edt(-4 * 60 * 60, true,  "EDT");
-//..
+// ```
 // Then, we create a series of transitions between these local time
 // descriptors for the years 2007-2011.  Note that the United States
 // transitions to daylight saving time on the second Sunday in March, at 2am
@@ -866,7 +866,7 @@ int main(int argc, char *argv[])
 // Sunday in November at 2am local time (6am GMT).  Also note, that these rules
 // for generating transitions was different prior to 2007, and may be changed
 // at some point in the future.
-//..
+// ```
     bdlt::Time edtTime(7, 0, 0);  // UTC transition time
     bdlt::Time estTime(6, 0, 0);  // UTC transition time
     static const int edtDays[5] = { 11,  9,  8, 14, 13 };
@@ -883,103 +883,103 @@ int main(int argc, char *argv[])
 
         bsls::Types::Int64 estTransitionT =
                        bdlt::EpochUtil::convertToTimeT64(estTransition);
-//..
+// ```
 // Now, having created values representing the daylight saving time
-// transitions (in UTC), we insert the transitions into the 'baltzo::Zoneinfo'
-// object 'newYorkTimeZone':
-//..
+// transitions (in UTC), we insert the transitions into the `baltzo::Zoneinfo`
+// object `newYorkTimeZone`:
+// ```
         newYorkTimeZone.addTransition(edtTransitionT, edt);
         newYorkTimeZone.addTransition(estTransitionT, est);
     }
-//..
-// Now, we create a 'baltzo::TestLoader' object and configure it with
-// 'newYorkTimeZone', which the test loader will associate with the identifier
-// 'newYorkTimeZone.identifier()' (whose value is "America/New_York"):
-//..
+// ```
+// Now, we create a `baltzo::TestLoader` object and configure it with
+// `newYorkTimeZone`, which the test loader will associate with the identifier
+// `newYorkTimeZone.identifier()` (whose value is "America/New_York"):
+// ```
     baltzo::TestLoader testLoader;
     testLoader.setTimeZone(newYorkTimeZone);
-//..
+// ```
 //
-///Example 2: Accessing Time-Zone Information From a 'baltzo::TestLoader'
+///Example 2: Accessing Time-Zone Information From a `baltzo::TestLoader`
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In the next example, we will use the 'baltzo::TestLoader' we initialized in
+// In the next example, we will use the `baltzo::TestLoader` we initialized in
 // the preceding example, to load time-zone information for New York via the
-// 'baltzo::Loader' protocol.
+// `baltzo::Loader` protocol.
 //
-// We start by creating a 'baltzo::Loader' reference to 'testLoader':
-//..
+// We start by creating a `baltzo::Loader` reference to `testLoader`:
+// ```
     baltzo::Loader& loader = testLoader;
-//..
-// Now we used the protocol method 'loadTimeZone' to load time-zone
+// ```
+// Now we used the protocol method `loadTimeZone` to load time-zone
 // information for New York:
-//..
+// ```
     baltzo::Zoneinfo resultNewYork;
     int status = loader.loadTimeZone(&resultNewYork, "America/New_York");
     ASSERT(0 == status);
-//..
+// ```
 // Finally, we verify that the returned time-zone information,
-// 'resultNewYork', is equivalent to 'newYorkTimeZone', which we we used to
-// configure 'testLoader':
-//..
+// `resultNewYork`, is equivalent to `newYorkTimeZone`, which we we used to
+// configure `testLoader`:
+// ```
     ASSERT(newYorkTimeZone == resultNewYork);
-//..
+// ```
 
       } break;
       case 4: {
         // --------------------------------------------------------------------
         // PRINT AND OUTPUT OPERATOR
         //   Ensure that the values in the object can be formatted
-        //   appropriately on an 'ostream' in some standard, human-readable
+        //   appropriately on an `ostream` in some standard, human-readable
         //   form.
         //
         // Concerns:
-        //: 1 The 'print' method writes the value to the specified 'ostream'.
-        //:
-        //: 2 The 'print' method writes the value in the intended format.
-        //:
-        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)'.
-        //:
-        //: 4 The 'print' method signature and return value is standard.
-        //:
-        //: 5 The output 'operator<<' signature and return value is standard.
-        //:
-        //: 6 The 'print' method returns the address of supplied stream.
-        //:
-        //: 7 The output 'operator<<' returns the address of supplied stream.
+        // 1. The `print` method writes the value to the specified `ostream`.
+        //
+        // 2. The `print` method writes the value in the intended format.
+        //
+        // 3. The output using `s << obj` is the same as `obj.print(s, 0, -1)`.
+        //
+        // 4. The `print` method signature and return value is standard.
+        //
+        // 5. The output `operator<<` signature and return value is standard.
+        //
+        // 6. The `print` method returns the address of supplied stream.
+        //
+        // 7. The output `operator<<` returns the address of supplied stream.
         //
         // Plan:
-        //: 1 Use the addresses of the 'print' method and 'operator<<' defined
-        //:   in this component to initialize, respectively, pointers to member
-        //:   and free functions having the appropriate structure.  (C-4, 5)
-        //:
-        //: 2 Create several 'baltzo::TestLoader' objects, each set with a
-        //:   different number number, [ 0 .. 3 ], of 'baltzo::Zoneinfo'
-        //:   objects.  In turn, format each object into one of two
-        //:   'ostringstream' objects, using the object's 'print' method (with
-        //:   a 'level' of 0 and a 'spacesPerLevel' of -1) to one
-        //:   'ostringstream' and the 'operator<<' to the other
-        //:   'ostringstream'.  Compare the formatted strings from the two
-        //:   'ostringstream' objects.  Compare the address of the return value
-        //:   of the 'operator<<' with the address of the given 'ostringstream'
-        //:   object.  (C-3, 7)
-        //:
-        //: 2 Using the table-driven technique: (C-1, 2, 6)
-        //:   1 Prepare two 'baltzo::TestLoader' objects: one empty, the other
-        //:     set with a 'baltzo::Zoneinfo' object.
-        //:   2 Create a table of selected combinations of the two objects
-        //:     ('obj0' and 'obj1') for various values for the formatting
-        //:     parameters ('level' and 'spacesPerLevel'), along with the
-        //:     expected output.  Each of the formatting parameters has three
-        //:     qualitatively different regions of values so there are 9
-        //:     combinations for each of the two objects.
-        //:     o The expected results are computed at run-time as a
-        //:       combination of the formatting done explicitly in this
-        //:       component and the results (subject to change) from invoking
-        //:       the 'print' method of the 'baltzo::Zoneinfo' object (with
-        //:       appropriate parameters).
-        //:     o Note that table is atypically non-'static' to allow its
-        //:       destruction of allocated members before the destruction of
-        //:       the test allocators in 'main'.
+        // 1. Use the addresses of the `print` method and `operator<<` defined
+        //    in this component to initialize, respectively, pointers to member
+        //    and free functions having the appropriate structure.  (C-4, 5)
+        //
+        // 2. Create several `baltzo::TestLoader` objects, each set with a
+        //    different number number, [ 0 .. 3 ], of `baltzo::Zoneinfo`
+        //    objects.  In turn, format each object into one of two
+        //    `ostringstream` objects, using the object's `print` method (with
+        //    a `level` of 0 and a `spacesPerLevel` of -1) to one
+        //    `ostringstream` and the `operator<<` to the other
+        //    `ostringstream`.  Compare the formatted strings from the two
+        //    `ostringstream` objects.  Compare the address of the return value
+        //    of the `operator<<` with the address of the given `ostringstream`
+        //    object.  (C-3, 7)
+        //
+        // 2. Using the table-driven technique: (C-1, 2, 6)
+        //   1. Prepare two `baltzo::TestLoader` objects: one empty, the other
+        //      set with a `baltzo::Zoneinfo` object.
+        //   2. Create a table of selected combinations of the two objects
+        //      (`obj0` and `obj1`) for various values for the formatting
+        //      parameters (`level` and `spacesPerLevel`), along with the
+        //      expected output.  Each of the formatting parameters has three
+        //      qualitatively different regions of values so there are 9
+        //      combinations for each of the two objects.
+        //      - The expected results are computed at run-time as a
+        //        combination of the formatting done explicitly in this
+        //        component and the results (subject to change) from invoking
+        //        the `print` method of the `baltzo::Zoneinfo` object (with
+        //        appropriate parameters).
+        //      - Note that table is atypically non-`static` to allow its
+        //        destruction of allocated members before the destruction of
+        //        the test allocators in `main`.
         //
         // Testing:
         //   ostream& print(ostream& s, int level = 0, sPL = 4) const;
@@ -1004,7 +1004,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-                           "\nVerify 'operator<<'."
+                           "\nVerify `operator<<`."
                           << endl;
 
         {
@@ -1066,7 +1066,7 @@ int main(int argc, char *argv[])
             ASSERT(&osO      == &ret3);
         }
 
-        if (verbose) cout << "\nVerify 'print' method." <<endl;
+        if (verbose) cout << "\nVerify `print` method." <<endl;
 
         {
             if (verbose) cout <<
@@ -1084,7 +1084,7 @@ int main(int argc, char *argv[])
             Obj obj0(Z);
             Obj obj1(Z); obj1.setTimeZone(newYork);
 
-            const struct {  // non-'static'
+            const struct {  // non-`static`
                 int         d_line;           // source line number
                 const char *d_label;
                 int         d_level;
@@ -1232,44 +1232,44 @@ int main(int argc, char *argv[])
         // TESTING MANIPULATORS AND ACCESSORS
         //
         // Concerns:
-        //: 1 Objects installed by either of the overloaded 'setTimeZone'
-        //:   methods are treated identically.
-        //:
-        //: 2 Installing an object with a unique time-zone identifier does not
-        //:   affect any previously installed objects.
-        //:
-        //: 3 Installing an object with a time-zone identifier matching one
-        //:   previously installed changes only the previously installed
-        //:   object.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Objects installed by either of the overloaded `setTimeZone`
+        //    methods are treated identically.
+        //
+        // 2. Installing an object with a unique time-zone identifier does not
+        //    affect any previously installed objects.
+        //
+        // 3. Installing an object with a time-zone identifier matching one
+        //    previously installed changes only the previously installed
+        //    object.
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For each of several time-zone identifiers create a
-        //:   'baltzo::Zoneinfo' object; for one time-zone identifier create no
-        //:   corresponding 'baltzo::Zoneinfo' object.
-        //:   1 Create a default (empty) 'baltzo::TestLoader'.
-        //:   2 Using the 'setTimeZone' method, insert each of the
-        //:     'baltzo::Zoneinfo' objects into the 'baltzo::TestLoader'
-        //:     object.
-        //:   3 Confirm via the 'loadTimeZone' method that each insertion has
-        //:     made available the inserted object and that all other
-        //:     previously inserted objects are still accessible and unchanged.
-        //:     (C-2)
-        //:   4 Create an additional 'baltzo::Zoneinfo' object with a time-zone
-        //:     identifier matching one of the previously inserted object but
-        //:     differing in other attributes.  Insert this object and confirm
-        //:     that the object returned for that time-zone identifier now
-        //:     matches the new object and that no other object in the
-        //:     'baltzo::Zoneinfo' object has been changed.  (C-3)
-        //:
-        //: 2 Repeat P-1 (except P-1.4) using binary data as a source for the
-        //:   several objects.  (C-1)
-        //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-7)
+        // 1. For each of several time-zone identifiers create a
+        //    `baltzo::Zoneinfo` object; for one time-zone identifier create no
+        //    corresponding `baltzo::Zoneinfo` object.
+        //   1. Create a default (empty) `baltzo::TestLoader`.
+        //   2. Using the `setTimeZone` method, insert each of the
+        //      `baltzo::Zoneinfo` objects into the `baltzo::TestLoader`
+        //      object.
+        //   3. Confirm via the `loadTimeZone` method that each insertion has
+        //      made available the inserted object and that all other
+        //      previously inserted objects are still accessible and unchanged.
+        //      (C-2)
+        //   4. Create an additional `baltzo::Zoneinfo` object with a time-zone
+        //      identifier matching one of the previously inserted object but
+        //      differing in other attributes.  Insert this object and confirm
+        //      that the object returned for that time-zone identifier now
+        //      matches the new object and that no other object in the
+        //      `baltzo::Zoneinfo` object has been changed.  (C-3)
+        //
+        // 2. Repeat P-1 (except P-1.4) using binary data as a source for the
+        //    several objects.  (C-1)
+        //
+        // 3. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-7)
         //
         // Testing:
         //   void setTimeZone(const baltzo::Zoneinfo& tz);
@@ -1280,7 +1280,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING MANIPULATORS AND ACCESSOR"
                           << "\n=================================" << endl;
 
-        if (verbose) cout << "\nWith 'setTimezone' object interface" << endl;
+        if (verbose) cout << "\nWith `setTimezone` object interface" << endl;
 
         {
             const char *nyId     = "America/New_York";
@@ -1313,7 +1313,7 @@ int main(int argc, char *argv[])
             tokyo.addTransition(TOKYO_INT64,  tokyoType);
 
             // ---------------------------------------------------------
-            // Add a 'baltzo::Zoneinfo' objects via the object interface.
+            // Add a `baltzo::Zoneinfo` objects via the object interface.
             // ---------------------------------------------------------
 
             int             rc;
@@ -1369,8 +1369,8 @@ int main(int argc, char *argv[])
             ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
 
             // ---------------------------------------------------------------
-            // Create, 'newYorkPrime', a 'baltzo::Zoneinfo' object, an object
-            // with the same time-zone identifier as the 'newYork' object,
+            // Create, `newYorkPrime`, a `baltzo::Zoneinfo` object, an object
+            // with the same time-zone identifier as the `newYork` object,
             // but different attributes otherwise.
             // ---------------------------------------------------------------
 
@@ -1401,7 +1401,7 @@ int main(int argc, char *argv[])
             ASSERT(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
         }
 
-        if (verbose) cout << "\nWith 'setTimezone' raw interface" << endl;
+        if (verbose) cout << "\nWith `setTimezone` raw interface" << endl;
 
         {
             int                       rc;
@@ -1434,7 +1434,7 @@ int main(int argc, char *argv[])
             saigon.setIdentifier(ASIA_SAIGON_ID);
 
             // -------------------------------------------------------
-            // Add 'baltzo::Zoneinfo' objects via the binary interface.
+            // Add `baltzo::Zoneinfo` objects via the binary interface.
             // -------------------------------------------------------
 
             const char      *BAD_ID = "BAD";
@@ -1545,76 +1545,76 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // CTOR AND DTOR
         //   Ensure that we can use the constructor to create an
-        //   'baltzo::TestLoader' object, add 'baltzo::Zoneinfo' objects,
-        //   access added 'baltzo::Zoneinfo' objects, and use the
-        //   destructor to destroy the 'baltzo::TestLoader' object safely.
-        //   Although the 'setTimeZone' and 'loadTimeZone' methods are used
+        //   `baltzo::TestLoader` object, add `baltzo::Zoneinfo` objects,
+        //   access added `baltzo::Zoneinfo` objects, and use the
+        //   destructor to destroy the `baltzo::TestLoader` object safely.
+        //   Although the `setTimeZone` and `loadTimeZone` methods are used
         //   here, they are not thoroughly tested until case 3.
         //
         // Concerns:
-        //: 1 If an allocator is *not* supplied to the default constructor, the
-        //:   default allocator in effect at the time of construction becomes
-        //:   the object allocator for the resulting object.
-        //:
-        //: 2 If an allocator is supplied to the default constructor, that
-        //:   allocator becomes the object allocator for the resulting object.
-        //:
-        //: 3 Supplying a default-constructed allocator has the same effect as
-        //:   not supplying an allocator.
-        //:
-        //: 4 Any memory allocation is from the object allocator.
-        //:
-        //: 5 Every object releases any allocated memory at destruction.
-        //:
-        //: 6 Any memory allocation is exception neutral.
-        //:
-        //: 7 Verify that no temporary memory is allocated from the object
-        //:   allocator.
-        //:
-        //: 8 'get_allocator' returns an allocator equal to the one used to
-        //:   contruct the 'TestLoader'.
+        // 1. If an allocator is *not* supplied to the default constructor, the
+        //    default allocator in effect at the time of construction becomes
+        //    the object allocator for the resulting object.
+        //
+        // 2. If an allocator is supplied to the default constructor, that
+        //    allocator becomes the object allocator for the resulting object.
+        //
+        // 3. Supplying a default-constructed allocator has the same effect as
+        //    not supplying an allocator.
+        //
+        // 4. Any memory allocation is from the object allocator.
+        //
+        // 5. Every object releases any allocated memory at destruction.
+        //
+        // 6. Any memory allocation is exception neutral.
+        //
+        // 7. Verify that no temporary memory is allocated from the object
+        //    allocator.
+        //
+        // 8. `get_allocator` returns an allocator equal to the one used to
+        //    contruct the `TestLoader`.
         //
         // Plan:
-        //: 1 Create a 'baltzo::Zoneinfo' object.
-        //:
-        //: 2 Using a loop-based approach, default-construct three distinct
-        //:   objects in turn, each configured differently: (a) without passing
-        //:   an allocator, (b) passing a default-constructed allocator
-        //:   explicitly, and (c) passing in an allocator constructed from the
-        //:   address of a test allocator, and (d) passing in an allocator
-        //:   constructed from the address of a test allocator distinct from
-        //:   the default.  For each of these three iterations: (C-1,2,3)
-        //:
-        //:   1 Create three 'bslma::TestAllocator' objects, and install one as
-        //:     as the current default allocator (note that a ubiquitous test
-        //:     allocator is already installed as the global allocator).
-        //:
-        //:   2 Use the (default) constructor to dynamically create an object,
-        //:     configured appropriately (see P-2) using a distinct test
-        //:     allocator for the object's footprint.
-        //:
-        //:   3 Use the 'get_allocator' accessor of each underlying attribute
-        //:     capable of allocating memory to ensure that its object
-        //:     allocator is properly installed; also apply the (as yet
-        //:     unproven) 'allocator' accessor of the object under test.
-        //:
-        //:   4 Verify that memory is allocated from the proper allocators.
-        //:     (C-4)
-        //:
-        //:   5 Use the 'setTimeZone' (as yet unproven) method to install the
-        //:     previously created 'baltzo::Zoneinfo' object.  Use the (as yet
-        //:     unproven) 'loadTimeZone' method to confirm that the object was
-        //:     successfully inserted.
-        //:
-        //:   6 Verify that memory is allocated from the non-object allocator
-        //:     only when the object is configured to use a non-default
-        //:     allocator.  (C-4, 7)
-        //:
-        //:   7 Destroy the 'baltzo::TestLoader' object and verify that all
-        //:     allocated memory is recovered.  (C-5)
-        //:
-        //:   8 In a separate block, test for exception-neutrality using the
-        //:     standard 'BSLMA_TESTALLOCATOR_EXCEPTION*' macros.  (C-6)
+        // 1. Create a `baltzo::Zoneinfo` object.
+        //
+        // 2. Using a loop-based approach, default-construct three distinct
+        //    objects in turn, each configured differently: (a) without passing
+        //    an allocator, (b) passing a default-constructed allocator
+        //    explicitly, and (c) passing in an allocator constructed from the
+        //    address of a test allocator, and (d) passing in an allocator
+        //    constructed from the address of a test allocator distinct from
+        //    the default.  For each of these three iterations: (C-1,2,3)
+        //
+        //   1. Create three `bslma::TestAllocator` objects, and install one as
+        //      as the current default allocator (note that a ubiquitous test
+        //      allocator is already installed as the global allocator).
+        //
+        //   2. Use the (default) constructor to dynamically create an object,
+        //      configured appropriately (see P-2) using a distinct test
+        //      allocator for the object's footprint.
+        //
+        //   3. Use the `get_allocator` accessor of each underlying attribute
+        //      capable of allocating memory to ensure that its object
+        //      allocator is properly installed; also apply the (as yet
+        //      unproven) `allocator` accessor of the object under test.
+        //
+        //   4. Verify that memory is allocated from the proper allocators.
+        //      (C-4)
+        //
+        //   5. Use the `setTimeZone` (as yet unproven) method to install the
+        //      previously created `baltzo::Zoneinfo` object.  Use the (as yet
+        //      unproven) `loadTimeZone` method to confirm that the object was
+        //      successfully inserted.
+        //
+        //   6. Verify that memory is allocated from the non-object allocator
+        //      only when the object is configured to use a non-default
+        //      allocator.  (C-4, 7)
+        //
+        //   7. Destroy the `baltzo::TestLoader` object and verify that all
+        //      allocated memory is recovered.  (C-5)
+        //
+        //   8. In a separate block, test for exception-neutrality using the
+        //      standard `BSLMA_TESTALLOCATOR_EXCEPTION*` macros.  (C-6)
         //
         // Testing:
         //   TestLoader();
@@ -1693,7 +1693,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator& noa = (&da == &oa) ? sa : da;
 
             // -----------------------------------------------------
-            // QOA: Default allocated 'TestLoaders' do not allocate.
+            // QOA: Default allocated `TestLoaders` do not allocate.
             // -----------------------------------------------------
 
             ASSERTV(CONFIG,
@@ -1705,7 +1705,7 @@ int main(int argc, char *argv[])
                     0 == noa.numBlocksTotal());
 
             // -------------------------------
-            // Add a 'baltzo::Zoneinfo' object.
+            // Add a `baltzo::Zoneinfo` object.
             // -------------------------------
             mX.setTimeZone(newYork);
 
@@ -1853,7 +1853,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == x.loadTimeZone(&value, ASIA_BANGKOK_ID));
 
         // Bangkok data file has 1 transition, +1 for the first
-        // 'bdlt::Datetime'
+        // `bdlt::Datetime`
 
         LOOP_ASSERT(value.numTransitions(), 3 == value.numTransitions());
 

@@ -9,20 +9,21 @@ namespace BloombergLP {
 namespace bslim {
 namespace {
 // LOCAL METHODS
+
+/// Load into the specified `output` a sequence of characters of length from
+/// 0 to the specified `maxLength`.  If the specified `fuzzDataView` has
+/// fewer bytes than `maxLength`, load at most `fuzzDataView->length()`
+/// bytes into `output`.  If the buffer in `fuzzDataView` contains two
+/// successive backslash characters, then in `output` they will be converted
+/// to a single backslash ('\\') character; if the buffer contains a single
+/// backslash character, the construction is terminated, and the following
+/// byte, if one is present, will be consumed.  Note that more than
+/// `maxLength` bytes may be consumed from the buffer to produce the
+/// `output`.
 template <class CONTAINER>
 void consumeRandomLengthCharSequence(CONTAINER    *output,
                                      FuzzDataView *fuzzDataView,
                                      bsl::size_t   maxLength)
-    // Load into the specified 'output' a sequence of characters of length from
-    // 0 to the specified 'maxLength'.  If the specified 'fuzzDataView' has
-    // fewer bytes than 'maxLength', load at most 'fuzzDataView->length()'
-    // bytes into 'output'.  If the buffer in 'fuzzDataView' contains two
-    // successive backslash characters, then in 'output' they will be converted
-    // to a single backslash ('\\') character; if the buffer contains a single
-    // backslash character, the construction is terminated, and the following
-    // byte, if one is present, will be consumed.  Note that more than
-    // 'maxLength' bytes may be consumed from the buffer to produce the
-    // 'output'.
 {
     bsl::size_t length = bsl::min(maxLength, fuzzDataView->length());
 

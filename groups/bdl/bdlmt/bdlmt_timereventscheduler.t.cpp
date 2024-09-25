@@ -37,7 +37,7 @@
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
-#include <bsl_climits.h>        // for 'CHAR_BIT'
+#include <bsl_climits.h>        // for `CHAR_BIT`
 #include <bsl_cmath.h>
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
@@ -64,7 +64,7 @@ using bsl::ptrdiff_t;
 // ----------------------------------------------------------------------------
 //                                   Overview
 //                                   --------
-// Testing 'bdlmt::TimerEventScheduler' is divided into 2 parts (apart from
+// Testing `bdlmt::TimerEventScheduler` is divided into 2 parts (apart from
 // breathing test and usage example).  The first part tests the functions in
 // isolation, the second is more integrated in that it tests a particular
 // situation in context, with a combination of functions.
@@ -72,23 +72,23 @@ using bsl::ptrdiff_t;
 // [2] Verify that callbacks are invoked as expected when multiple clocks and
 // multiple events are scheduled.
 //
-// [3] Verify that 'cancelEvent' works correctly in various white box states.
+// [3] Verify that `cancelEvent` works correctly in various white box states.
 //
-// [4] Verify that 'cancelAllEvents' works correctly in various white box
+// [4] Verify that `cancelAllEvents` works correctly in various white box
 // states.
 //
-// [5] Verify that 'cancelClock' works correctly in various white box states.
+// [5] Verify that `cancelClock` works correctly in various white box states.
 //
-// [6] Verify that 'cancelAllClocks' works correctly in various white box
+// [6] Verify that `cancelAllClocks` works correctly in various white box
 // states.
 //
-// [7] Test 'scheduleEvent', 'cancelEvent', 'cancelAllEvents',
-// 'startClock', 'cancelClock' and 'cancelAllClocks' when they are invoked from
+// [7] Test `scheduleEvent`, `cancelEvent`, `cancelAllEvents`,
+// `startClock`, `cancelClock` and `cancelAllClocks` when they are invoked from
 // dispatcher thread.
 //
 // [8] Test the scheduler with a user-defined dispatcher.
 //
-// [9] Verify that 'start' and 'stop' work correctly in various white box
+// [9] Verify that `start` and `stop` work correctly in various white box
 // states.
 //
 // [10] Verify the concurrent scheduling and cancelling of clocks and events.
@@ -96,9 +96,9 @@ using bsl::ptrdiff_t;
 // [11] Verify the concurrent scheduling and cancelling-all of clocks and
 // events.
 //
-// [14] Given 'numEvents' and 'numClocks' (where 'numEvents <= 2**24 - 1' and
-// 'numClocks <= 2**24 - 1'), ensure that *at least* 'numEvents' and
-// 'numClocks' may be concurrently scheduled.
+// [14] Given `numEvents` and `numClocks` (where `numEvents <= 2**24 - 1` and
+// `numClocks <= 2**24 - 1`), ensure that *at least* `numEvents` and
+// `numClocks` may be concurrently scheduled.
 // ----------------------------------------------------------------------------
 // CREATORS
 // [ 1] bdlmt::TimerEventScheduler(allocator = 0);
@@ -246,59 +246,59 @@ static const bsls::TimeInterval UNACCEPTABLE_DIFFERENCE(0, 500000000); // 500ms
 static const bsls::TimeInterval ALLOWABLE_DIFFERENCE   (0,  75000000); //  75ms
 static const bsls::TimeInterval APPRECIABLE_DIFFERENCE (0,  20000000); //  20ms
 
+/// Return true if the specified `t1` and `t2` are unacceptably not (the
+/// definition of *unacceptable* is implementation-defined) equal, otherwise
+/// return false.
 static inline bool isUnacceptable(const bsls::TimeInterval& t1,
                                   const bsls::TimeInterval& t2)
-    // Return true if the specified 't1' and 't2' are unacceptably not (the
-    // definition of *unacceptable* is implementation-defined) equal, otherwise
-    // return false.
 {
     (void) UNACCEPTABLE_DIFFERENCE;
     bsls::TimeInterval absDifference = (t1 > t2) ? (t1 - t2) : (t2 - t1);
     return (ALLOWABLE_DIFFERENCE > absDifference)? true : false;
 }
 
+/// Return true if the specified `t1` and `t2` are approximately (the
+/// definition of *approximate* is implementation-defined) equal, otherwise
+/// return false.
 static inline bool isApproxEqual(const bsls::TimeInterval& t1,
                                  const bsls::TimeInterval& t2)
-    // Return true if the specified 't1' and 't2' are approximately (the
-    // definition of *approximate* is implementation-defined) equal, otherwise
-    // return false.
 {
     bsls::TimeInterval absDifference = (t1 > t2) ? (t1 - t2) : (t2 - t1);
     return (ALLOWABLE_DIFFERENCE > absDifference)? true : false;
 }
 
+/// Return true if the specified `t1` is approximately (the definition of
+/// *approximate* is implementation-defined) greater than the specified
+/// `t2`, otherwise return false.
 static inline bool isApproxGreaterThan(const bsls::TimeInterval& t1,
                                        const bsls::TimeInterval& t2)
-    // Return true if the specified 't1' is approximately (the definition of
-    // *approximate* is implementation-defined) greater than the specified
-    // 't2', otherwise return false.
 {
     return ((t1 - t2) > APPRECIABLE_DIFFERENCE)? true : false;
 }
 
+/// Sleep for *at* *least* the specified `seconds` and `microseconds`.  This
+/// function is used for testing only.  It uses the function
+/// `bslmt::ThreadUtil::microSleep` but interleaves calls to `yield` to give
+/// a chance to the event scheduler to process its dispatching thread.
+/// Without this, there have been a large number of unpredictable
+/// intermittent failures by this test driver, especially on AIX with
+/// xlc-8.0, in the nightly builds (i.e., when the load is higher than
+/// running the test driver by hand).  It was noticed that calls to `yield`
+/// helped, and this routine centralizes this as a mechanism.
 void myMicroSleep(int microSeconds, int seconds)
-    // Sleep for *at* *least* the specified 'seconds' and 'microseconds'.  This
-    // function is used for testing only.  It uses the function
-    // 'bslmt::ThreadUtil::microSleep' but interleaves calls to 'yield' to give
-    // a chance to the event scheduler to process its dispatching thread.
-    // Without this, there have been a large number of unpredictable
-    // intermittent failures by this test driver, especially on AIX with
-    // xlc-8.0, in the nightly builds (i.e., when the load is higher than
-    // running the test driver by hand).  It was noticed that calls to 'yield'
-    // helped, and this routine centralizes this as a mechanism.
 {
     sleepUntilMs(microSeconds / 1000 + seconds * 1000);
 }
 
+/// Check that the specified `testObject` has been executed one more time in
+/// addition to the optionally specified `numExecuted` times, for the
+/// specified `numAttempts` separated by the specified `microSeconds`, and
+/// return as soon as that is true or when the `numAttempts` all fail.
 template <class TESTCLASS>
 void makeSureTestObjectIsExecuted(TESTCLASS& testObject,
                                   const int  microSeconds,
                                   int        numAttempts,
                                   int        numExecuted = 0)
-    // Check that the specified 'testObject' has been executed one more time in
-    // addition to the optionally specified 'numExecuted' times, for the
-    // specified 'numAttempts' separated by the specified 'microSeconds', and
-    // return as soon as that is true or when the 'numAttempts' all fail.
 {
     for (int i = 0; i < numAttempts; ++i) {
         if (numExecuted + 1 <= testObject.numExecuted()) {
@@ -316,8 +316,8 @@ static inline double dnow()
     return bsls::SystemTime::nowRealtimeClock().totalSecondsAsDouble();
 }
 
+/// Do nothing.
 void noop()
-    // Do nothing.
 {
 }
 
@@ -334,11 +334,11 @@ static const bool k_threadNameCanBeEmpty = false;
                         // function executeInParallel
                         // ==========================
 
+/// Create the specified `numThreads`, each executing the specified `func`.
+/// Number each thread (sequentially from 0 to `numThreads-1`) by passing i
+/// to i'th thread.  Finally join all the threads.
 static void executeInParallel(int                               numThreads,
                               bslmt::ThreadUtil::ThreadFunction func)
-    // Create the specified 'numThreads', each executing the specified 'func'.
-    // Number each thread (sequentially from 0 to 'numThreads-1') by passing i
-    // to i'th thread.  Finally join all the threads.
 {
     bslma::Allocator *alloc = &bslma::NewDeleteAllocator::singleton();
 
@@ -363,8 +363,8 @@ static void executeInParallel(int                               numThreads,
                              // class TestClass
                              // ===============
 
+/// This class encapsulates the data associated with a clock or an event.
 class TestClass {
-    // This class encapsulates the data associated with a clock or an event.
 
     bool                d_isClock;                 // true if this is a clock,
                                                    // false when this is an
@@ -463,10 +463,11 @@ class TestClass {
     }
 
     // MANIPULATORS
+
+    /// This function is the callback associated with this clock or event.
+    /// On execution, it print an error if it has not been executed at
+    /// expected time.  It also updates any relevant class data.
     void callback()
-        // This function is the callback associated with this clock or event.
-        // On execution, it print an error if it has not been executed at
-        // expected time.  It also updates any relevant class data.
     {
         bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
         if (veryVerbose) {
@@ -551,10 +552,10 @@ bsl::ostream& operator << (bsl::ostream& os, const TestClass& testObject)
                              // class TestClass1
                              // ================
 
+/// This class define a function `callback` that is used as a callback for a
+/// clock or an event.  The class keeps track of number of times the
+/// callback has been executed.
 struct TestClass1 {
-    // This class define a function 'callback' that is used as a callback for a
-    // clock or an event.  The class keeps track of number of times the
-    // callback has been executed.
 
     bsls::AtomicInt  d_numStarted;
     bsls::AtomicInt  d_numExecuted;
@@ -611,21 +612,22 @@ struct TestClass1 {
                              // class TestClass2
                              // ================
 
+/// This class define a function `callback` that is used as a callback for a
+/// clock or an event.  The class keeps track of number of times the
+/// callback has been executed.  Unlike `TestClass1`, it does not support a
+/// delay, but instead supports synchronization using up to 2 barriers.
 struct TestClass2 {
-    // This class define a function 'callback' that is used as a callback for a
-    // clock or an event.  The class keeps track of number of times the
-    // callback has been executed.  Unlike 'TestClass1', it does not support a
-    // delay, but instead supports synchronization using up to 2 barriers.
 
     bsls::AtomicInt  d_numExecuted;
     bslmt::Barrier  *d_startBarrier_p;
     bslmt::Barrier  *d_finishBarrier_p;
 
     // CREATORS
+
+    /// Create a `TestClass2` object that uses the specified `startBarrier`
+    /// (if non-null) and the specified `finishBarrier` (if non-null) for
+    /// synchronization.
     TestClass2(bslmt::Barrier *startBarrier, bslmt::Barrier *finishBarrier)
-        // Create a 'TestClass2' object that uses the specified 'startBarrier'
-        // (if non-null) and the specified 'finishBarrier' (if non-null) for
-        // synchronization.
     : d_numExecuted(0)
     , d_startBarrier_p(startBarrier)
     , d_finishBarrier_p(finishBarrier)
@@ -633,10 +635,11 @@ struct TestClass2 {
     }
 
     // MANIPULATORS
+
+    /// Arrive and wait at `d_startBarrier_p` (if non-null), then increment
+    /// `d_numExecuted`, and finally arrive and wait at `d_finishBarrier_p`
+    /// (if non-null).
     void callback()
-        // Arrive and wait at 'd_startBarrier_p' (if non-null), then increment
-        // 'd_numExecuted', and finally arrive and wait at 'd_finishBarrier_p'
-        // (if non-null).
     {
         bsl::string threadName;
         bslmt::ThreadUtil::getThreadName(&threadName);
@@ -667,10 +670,10 @@ struct TestClass2 {
                            // class TestPrintClass
                            // ====================
 
+/// This class define a function `callback` that prints a message.  This
+/// class is intended for use to verify changes to the system clock do or do
+/// not affect the behavior of the scheduler (see Test Case -1).
 struct TestPrintClass {
-    // This class define a function 'callback' that prints a message.  This
-    // class is intended for use to verify changes to the system clock do or do
-    // not affect the behavior of the scheduler (see Test Case -1).
 
     bsls::AtomicInt d_numExecuted;
 
@@ -694,49 +697,49 @@ struct TestPrintClass {
     }
 };
 
+/// Invoke `cancelEvent` on the specified `scheduler` passing the specified
+/// `*handlePtr` and `wait` and assert that the result equals the specified
+/// `expectedStatus`.
 void cancelEventCallback(Obj *scheduler,
                          int *handlePtr,
                          int  wait,
                          int  expectedStatus)
-    // Invoke 'cancelEvent' on the specified 'scheduler' passing the specified
-    // '*handlePtr' and 'wait' and assert that the result equals the specified
-    // 'expectedStatus'.
 {
     int ret = scheduler->cancelEvent(*handlePtr, wait);
     ASSERTV(ret, expectedStatus == ret);
 }
 
+/// Invoke `cancelEvent` on the specified `scheduler` passing `*handlePtr`
+/// and assert that the specified `state` remains valid.
 void cancelEventCallbackWithState(Obj                         *scheduler,
                                   int                         *handlePtr,
                                   const bsl::shared_ptr<int>&  state)
-    // Invoke 'cancelEvent' on the specified 'scheduler' passing '*handlePtr'
-    // and assert that the specified 'state' remains valid.
 {
     const int s = *state;
     int ret = scheduler->cancelEvent(*handlePtr);
     ASSERTV(ret, s == *state);
 }
 
+/// Invoke `cancelClocks` on the specified `scheduler` passing the specified
+/// `*handlePtr` and `wait` and assert that the result equals the specified
+/// `expectedStatus`.
 static void cancelClockCallback(Obj *scheduler,
                                 int *handlePtr,
                                 int  wait,
                                 int  expectedStatus)
-    // Invoke 'cancelClocks' on the specified 'scheduler' passing the specified
-    // '*handlePtr' and 'wait' and assert that the result equals the specified
-    // 'expectedStatus'.
 {
     int ret = scheduler->cancelClock(*handlePtr, wait);
     ASSERTV(ret, expectedStatus == ret);
 }
 
+/// Invoke `cancelAllEvents` on the specified `scheduler` passing `wait`.
 static void cancelAllEventsCallback(Obj *scheduler, int wait)
-    // Invoke 'cancelAllEvents' on the specified 'scheduler' passing 'wait'.
 {
     scheduler->cancelAllEvents(wait);
 }
 
+/// Invoke `cancelAllClocks` on the specified `scheduler` passing `wait`.
 static void cancelAllClocksCallback(Obj *scheduler, int wait)
-    // Invoke 'cancelAllClocks' on the specified 'scheduler' passing 'wait'.
 {
     scheduler->cancelAllClocks(wait);
 }
@@ -776,7 +779,7 @@ void threadNameCheckJob(const char     *expectedThreadName,
     barrier->arrive();
 }
 
-// For the specified event scheduler 'x', ensure the created thread name is the
+// For the specified event scheduler `x`, ensure the created thread name is the
 // specified `expectedName` when `x.start()` is invoked, and the name from the
 // thread attributes `attr` when `x.start(attr)` is invoked.
 void testThreadName(Obj&               x,
@@ -812,11 +815,11 @@ static bdlm::InstanceCount::Value s_count = 0;
                          // class TestMetricsAdapter
                          // ========================
 
+/// This class implements a pure abstract interface for clients and
+/// suppliers of metrics adapters.  The implemtation does not register
+/// callbacks with any monitoring system, but does track registrations to
+/// enable testing of thread-enabled objects metric registration.
 class TestMetricsAdapter : public bdlm::MetricsAdapter {
-    // This class implements a pure abstract interface for clients and
-    // suppliers of metrics adapters.  The implemtation does not register
-    // callbacks with any monitoring system, but does track registrations to
-    // enable testing of thread-enabled objects metric registration.
 
     // DATA
     bsl::vector<bdlm::MetricDescriptor> d_descriptors;
@@ -825,34 +828,37 @@ class TestMetricsAdapter : public bdlm::MetricsAdapter {
 
   public:
     // CREATORS
-    TestMetricsAdapter();
-        // Create a 'TestMetricsAdapter'.
 
+    /// Create a `TestMetricsAdapter`.
+    TestMetricsAdapter();
+
+    /// Destroy this object.
     ~TestMetricsAdapter() BSLS_KEYWORD_OVERRIDE;
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Do nothing with the specified `metricsDescriptor` and `callback`.
+    /// Return a callback handle that will be verified in
+    /// `removeCollectionCallback`.
     CallbackHandle registerCollectionCallback(
                  const bdlm::MetricDescriptor& metricDescriptor,
                  const Callback&               callback) BSLS_KEYWORD_OVERRIDE;
-        // Do nothing with the specified 'metricsDescriptor' and 'callback'.
-        // Return a callback handle that will be verified in
-        // 'removeCollectionCallback'.
 
     int removeCollectionCallback(const CallbackHandle& handle)
                                                          BSLS_KEYWORD_OVERRIDE;
-        // Do nothing with the specified 'handle'.  Assert the supplied
-        // 'handle' matches what was provided by 'registerCollectionCallback'.
+        // Do nothing with the specified `handle`.  Assert the supplied
+        // `handle` matches what was provided by `registerCollectionCallback`.
         // Return 0.
 
+    /// Return this object to its constructed state.
     void reset();
-        // Return this object to its constructed state.
 
     // ACCESSORS
+
+    /// Return `true` if the registered descriptors match the ones expected
+    /// for the supplied `name` and the provided callback handles were
+    /// removed, and `false` otherwise.
     bool verify(const bsl::string& name) const;
-        // Return 'true' if the registered descriptors match the ones expected
-        // for the supplied 'name' and the provided callback handles were
-        // removed, and 'false' otherwise.
 };
 
                          // ------------------------
@@ -1037,13 +1043,29 @@ void My_Server::dataAvailable(My_Server::Connection *connection,
 //                         CASE 20 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_24
+
+{
+
+/// This is a dispatcher function that simply execute the specified
+/// `functor`.
+void dispatcherFunction(bsl::function<void()> functor)
+{
+    functor();
+}
+
+}  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_24
+// ============================================================================
+//                         CASE 20 RELATED ENTITIES
+// ----------------------------------------------------------------------------
+
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_23
 
 {
 
+/// This is a dispatcher function that simply execute the specified
+/// `functor`.
 void dispatcherFunction(bsl::function<void()> functor)
-    // This is a dispatcher function that simply execute the specified
-    // 'functor'.
 {
     functor();
 }
@@ -1067,7 +1089,22 @@ namespace TIMER_EVENT_SCHEDULER_TEST_CASE_21
 {
 
 }  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_21
+// ============================================================================
+//                         CASE 20 RELATED ENTITIES
+// ----------------------------------------------------------------------------
 
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_20
+
+{
+
+/// This is a dispatcher function that simply execute the specified
+/// `functor`.
+void dispatcherFunction(bsl::function<void()> functor)
+{
+    functor();
+}
+
+}  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_20
 // ============================================================================
 //                         CASE 19 RELATED ENTITIES
 // ----------------------------------------------------------------------------
@@ -1084,21 +1121,26 @@ namespace TIMER_EVENT_SCHEDULER_TEST_CASE_19
 namespace TIMER_EVENT_SCHEDULER_TEST_CASE_18
 
 {
+/// each event is marked by a unique index
 struct Func {
     const int                       d_eventIndex;
-        // each event is marked by a unique index
     static Obj*                     s_scheduler;
+
+    /// `s_handles[i]` is the handle of event with index `i`
     static bsl::vector<Obj::Handle> s_handles;
-        // 's_handles[i]' is the handle of event with index 'i'
+
+    /// each event, when run, pushes its index to this vector
     static bsl::vector<int>         s_indexes;
-        // each event, when run, pushes its index to this vector
+
+    /// index of the event that is to kill itself
     static int                      s_kamikaze;
-        // index of the event that is to kill itself
+
+    /// index of the event that takes place last and sets `s_finished` to
+    /// `true`
     static int                      s_final;
-        // index of the event that takes place last and sets 's_finished' to
-        // 'true'
+
+    /// indicates all events have run
     static bsls::AtomicBool         s_finished;
-        // indicates all events have run
 
     explicit
     Func(int index) : d_eventIndex(index) {}
@@ -1182,9 +1224,9 @@ struct Recurser {
     {
         char buffer[k_BUF_SIZE];
         char * const buf_p = &buffer[0];    // Avoid compiler nitpicking
-                                            // warnings because 'buffer' is
-                                            // 'char (*)[...]' and not
-                                            // 'char *'.
+                                            // warnings because `buffer` is
+                                            // `char (*)[...]` and not
+                                            // `char *`.
 
         if (k_MAX_ITERATIONS < ++s_iterations) {
             // if the above fails, the optimizer has turned the recursion into
@@ -1209,10 +1251,10 @@ struct Recurser {
         if (curDepth < k_RECURSE_DEPTH_IN_BYTES) {
             // There was a problem in optimized builds on Linux gcc-11
             // implemented this recursion as a loop, which resulted in an
-            // infinite loop.  Corrected by using 'makeFunctionCallNonInline'
+            // infinite loop.  Corrected by using `makeFunctionCallNonInline`
             // an increasing checks that will abort if there's an infinite
             // loop, even in a build with asserts other than
-            // 'BSLS_ASSERT_INVOKE' disabled.
+            // `BSLS_ASSERT_INVOKE` disabled.
 
             // recurse
 
@@ -1378,7 +1420,7 @@ void startClock(Obj             *scheduler,
 }
 
 // Calculate the number of bits required to store an index with the specified
-// 'maxValue'.
+// `maxValue`.
 int numBitsRequired(int maxValue)
 {
     ASSERT(0 <= maxValue);
@@ -1388,7 +1430,7 @@ int numBitsRequired(int maxValue)
                                          static_cast<bsl::uint32_t>(maxValue));
 }
 
-// Calculate the largest integer identifiable using the specified 'numBits'.
+// Calculate the largest integer identifiable using the specified `numBits`.
 int maxNodeIndex(int numBits)
 {
     return (1 << numBits) - 2;
@@ -1435,7 +1477,7 @@ void *workerThread11(void *arg)
     barrier.wait();
     switch(id % 2) {
 
-      // even numbered threads run 'case 0:'
+      // even numbered threads run `case 0:`
       case 0: {
           for (int i = 0; i< NUM_ITERATIONS; ++i) {
               bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
@@ -1457,7 +1499,7 @@ void *workerThread11(void *arg)
       }
       break;
 
-      // odd numbered threads run 'case 1:'
+      // odd numbered threads run `case 1:`
       case 1: {
           for (int i = 0; i< NUM_ITERATIONS; ++i) {
               bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
@@ -1516,7 +1558,7 @@ void *workerThread10(void *arg)
     barrier.wait();
     switch(id % 2) {
 
-      // even numbered threads run 'case 0:'
+      // even numbered threads run `case 0:`
       case 0: {
           if (veryVerbose) {
               printMutex.lock();
@@ -1538,9 +1580,9 @@ void *workerThread10(void *arg)
                   printMutex.unlock();
               }
               if (0 != pX->cancelEvent(h) && !testTimingFailure) {
-                  // We tried and the 'cancelEvent' failed, but we do not want
+                  // We tried and the `cancelEvent` failed, but we do not want
                   // to generate an error unless we can *guarantee* that the
-                  // 'cancelEvent' should have succeeded.
+                  // `cancelEvent` should have succeeded.
 
                   bsls::TimeInterval elapsed =
                                     bsls::SystemTime::nowRealtimeClock() - now;
@@ -1551,7 +1593,7 @@ void *workerThread10(void *arg)
       }
       break;
 
-      // odd numbered threads run 'case 1:'
+      // odd numbered threads run `case 1:`
       case 1: {
           if (veryVerbose) {
               printMutex.lock();
@@ -1572,9 +1614,9 @@ void *workerThread10(void *arg)
                   printMutex.unlock();
               }
               if (0 != pX->cancelClock(h) && !testTimingFailure) {
-                  // We tried and the 'cancelClock' failed, but we do not want
+                  // We tried and the `cancelClock` failed, but we do not want
                   // to generate an error unless we can *guarantee* that the
-                  // 'cancelClock' should have succeeded.
+                  // `cancelClock` should have succeeded.
 
                   bsls::TimeInterval elapsed =
                                     bsls::SystemTime::nowRealtimeClock() - now;
@@ -1604,7 +1646,7 @@ namespace TIMER_EVENT_SCHEDULER_TEST_CASE_9
 {
 
 void postSema(bslmt::TimedSemaphore *sema)
-  // Invoke 'sema->post()'.  This method is necessary because 'post' is
+  // Invoke `sema->post()`.  This method is necessary because `post` is
   // overloaded and thus cannot be bound directly
 {
     sema->post();
@@ -1613,8 +1655,8 @@ void postSema(bslmt::TimedSemaphore *sema)
 void waitStopAndSignal(bslmt::Barrier        *barrier,
                        Obj                   *mX,
                        bslmt::TimedSemaphore *sema)
-  // Wait on the specified 'barrier', invoke 'stop' on the specified 'mX'
-  // scheduler, and finally 'post' on the specified 'sema'.
+  // Wait on the specified `barrier`, invoke `stop` on the specified `mX`
+  // scheduler, and finally `post` on the specified `sema`.
 {
     barrier->wait();
     mX->stop();
@@ -1622,7 +1664,7 @@ void waitStopAndSignal(bslmt::Barrier        *barrier,
 }
 
 void startScheduler(Obj *mX)
-  // Invoke 'mX->start()'.  This method is necessary because 'start' is
+  // Invoke `mX->start()`.  This method is necessary because `start` is
   // overloaded and thus cannot be bound directly
 {
     mX->start();
@@ -1631,8 +1673,8 @@ void startScheduler(Obj *mX)
 void startStopConcurrencyTest()
 {
     // This test tries to expose a vulnerability in a particular implementation
-    // of 'stop' and 'start' (white-box testing).  Specifically, if 'start' is
-    // executed while 'stop' is trying to join (and shut down) a dispatcher
+    // of `stop` and `start` (white-box testing).  Specifically, if `start` is
+    // executed while `stop` is trying to join (and shut down) a dispatcher
     // thread that's busy executing an event, it will start a second dispatcher
     // thread with the result that there can be two dispatcher threads running.
     //
@@ -1675,10 +1717,10 @@ void startStopConcurrencyTest()
     // Release the scheduled event so that the dispatcher thread can complete
     sema.post();
 
-    // Finish 'start'ing
+    // Finish `start`ing
     bslmt::ThreadUtil::join(startThread);
 
-    // 'stop' should be able to finish without any problem now.  If it takes
+    // `stop` should be able to finish without any problem now.  If it takes
     // anything approaching a second, it's deadlocked.
 
     int rc = stopSema.timedWait(
@@ -1691,7 +1733,7 @@ void startStopConcurrencyTest()
                     bdlf::BindUtil::bind(&postSema, &jobSema));
 
     // Depending on just how the threads above are interleaved, the scheduler
-    // may be either stopped or started at this point.  Invoke 'start' again
+    // may be either stopped or started at this point.  Invoke `start` again
     // (harmlessly) to make sure.
     ASSERT(0 == x.start());
 
@@ -1706,7 +1748,22 @@ void startStopConcurrencyTest()
 }
 
 }  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_9
+// ============================================================================
+//                          CASE 8 RELATED ENTITIES
+// ----------------------------------------------------------------------------
 
+namespace TIMER_EVENT_SCHEDULER_TEST_CASE_8
+
+{
+
+/// This is a dispatcher function that simply execute the specified
+/// `functor`.
+void dispatcherFunction(bsl::function<void()> functor)
+{
+    functor();
+}
+
+}  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_8
 // ============================================================================
 //                          CASE 7 RELATED ENTITIES
 // ----------------------------------------------------------------------------
@@ -1715,10 +1772,10 @@ namespace TIMER_EVENT_SCHEDULER_TEST_CASE_7
 
 {
 
+/// Schedule the specified `event` and the specified `clock` on the
+/// specified `scheduler`.  Schedule the clock first to ensure that it will
+/// get executed before the event does.
 void schedulingCallback(Obj *scheduler, TestClass1 *event, TestClass1 *clock)
-    // Schedule the specified 'event' and the specified 'clock' on the
-    // specified 'scheduler'.  Schedule the clock first to ensure that it will
-    // get executed before the event does.
 {
     const bsls::TimeInterval T2(2 * DECI_SEC);
     const bsls::TimeInterval T4(4 * DECI_SEC);
@@ -1799,7 +1856,7 @@ void test7_b()
 
 void test7_c()
 {
-      // Schedule an event e1 at time T such that it invokes 'cancelAllEvents'
+      // Schedule an event e1 at time T such that it invokes `cancelAllEvents`
       // with wait argument, and another event e2 at time T2 that will be
       // pending when e1 will execute (this is done by waiting long enough
       // before starting the scheduler).  Make sure no deadlock results of e1
@@ -1875,7 +1932,7 @@ void test7_d()
 
 void test7_e()
 {
-    // Schedule a clock c1 such that it invokes 'cancelAllClocks' with wait
+    // Schedule a clock c1 such that it invokes `cancelAllClocks` with wait
     // argument, and an event e2 that will be pending when c1 will execute
     // (this is done by waiting long enough before starting the scheduler).
     // Make sure no deadlock results.
@@ -1960,7 +2017,7 @@ namespace TIMER_EVENT_SCHEDULER_TEST_CASE_6
 
 void test6_a()
 {
-      // Schedule clocks starting at T3 and T5, invoke 'cancelAllClocks' at
+      // Schedule clocks starting at T3 and T5, invoke `cancelAllClocks` at
       // time T and make sure that both are cancelled successfully.
 
     const int T = 1 * DECI_SEC_IN_MICRO_SEC;
@@ -1998,7 +2055,7 @@ void test6_b()
       // at T3.  Let all clocks be simultaneously put onto the pending list
       // (this is done by sleeping enough time before starting the scheduler).
       // Let c1's first execution be started (by sleeping enough time), invoke
-      // 'cancelAllClocks' without wait argument, verify that c1's first
+      // `cancelAllClocks` without wait argument, verify that c1's first
       // execution has not yet completed and verify that c2 and c3 are
       // cancelled without any executions.
 
@@ -2032,7 +2089,7 @@ void test6_b()
 
     double start = dnow();
     x.start();
-    myMicroSleep(TM4, 0); // let the callback of 'testObj1' be started
+    myMicroSleep(TM4, 0); // let the callback of `testObj1` be started
     x.cancelAllClocks();
 
     if (testObj1.numStarted() > 0 && dnow() - start < 0.9) {
@@ -2056,7 +2113,7 @@ void test6_c()
     // at T3.  Let all clocks be simultaneously put onto the pending list (this
     // is done by sleeping enough time before starting the scheduler).  Let
     // c1's first execution be started (by sleeping enough time), invoke
-    // 'cancelAllClocks' with wait argument, verify that c1's first execution
+    // `cancelAllClocks` with wait argument, verify that c1's first execution
     // has completed and verify that c2 and c3 are cancelled without any
     // executions.
 
@@ -2095,7 +2152,7 @@ void test6_c()
 
     double start = dnow();
     x.start();
-    myMicroSleep(T4, 0); // let the callback of 'testObj1' be started
+    myMicroSleep(T4, 0); // let the callback of `testObj1` be started
     double endSleep = dnow();
     int wait = 1;
     x.cancelAllClocks(wait);
@@ -2139,10 +2196,10 @@ struct Unblock {
     {
     }
 
+    /// Arrive and wait at `*d_startBarrier_p`.  Wait until `*d_scheduler_p`
+    /// no longer has any scheduled clocks, then arrive at
+    /// `*d_finishBarrier_p` in order to unblock the main thread.
     void operator()()
-        // Arrive and wait at '*d_startBarrier_p'.  Wait until '*d_scheduler_p'
-        // no longer has any scheduled clocks, then arrive at
-        // '*d_finishBarrier_p' in order to unblock the main thread.
     {
         d_startBarrier_p->wait();
         while (d_scheduler_p->numClocks()) {
@@ -2203,7 +2260,7 @@ void test3_b()
     if (verbose) ET_("\tCancel pending event (should fail).\n");
       // Schedule 2 events at T and T2.  Let both be simultaneously put onto
       // the pending list (this is done by sleeping enough time before starting
-      // the scheduler), invoke 'cancelEvent(handle)' on the second event while
+      // the scheduler), invoke `cancelEvent(handle)` on the second event while
       // it is still on pending list and verify that cancel fails.
 
     bsls::TimeInterval  T(1 * DECI_SEC);
@@ -2242,7 +2299,7 @@ void test3_c()
     if (verbose) ET_("\tCancel pending event (should fail again).\n");
       // Schedule 2 events at T and T2.  Let both be simultaneously put onto
       // the pending list (this is done by sleeping enough time before starting
-      // the scheduler), invoke 'cancelEvent(handle, wait)' on the second event
+      // the scheduler), invoke `cancelEvent(handle, wait)` on the second event
       // while it is still on pending list and verify that cancel fails.
 
     bsls::TimeInterval  T(1 * DECI_SEC);
@@ -2367,7 +2424,7 @@ void test3_f()
                                              -1));
 
     myMicroSleep(T3, 0);
-    // The assert is performed by 'cancelEventCallback'.
+    // The assert is performed by `cancelEventCallback`.
 }
 
 void test3_g()
@@ -2483,8 +2540,8 @@ bool testCallbacks(int                  *failures,
     x.stop();
     double finishTime = dnow();
     finishTime = (finishTime - now.totalSecondsAsDouble()) * 10 - delta;
-    // if the 'microSleep' function slept for exactly how long we asked it to,
-    // 'finishTime' should equal totalTime, but myMicroSleep often lags.  By a
+    // if the `microSleep` function slept for exactly how long we asked it to,
+    // `finishTime` should equal totalTime, but myMicroSleep often lags.  By a
     // lot.
 
     bool result = true;
@@ -2512,9 +2569,9 @@ bool testCallbacks(int                  *failures,
         }
         if (ISCLOCK) {
             if (!testObjects[i]->delayed()) {
+                // this formula is bogus in general but works for the data
+                // and relies on totalTime being a float
                 int n1 = (int) ((finishTime-STARTTIME) / PERIODICINTERVAL) + 1;
-                    // this formula is bogus in general but works for the data
-                    // and relies on totalTime being a float
                 int n2 = testObjects[i]->numExecuted();
                 if (assertOnFailure) {
                     ASSERTV(LINE, n1, n2, n1 == n2);
@@ -2548,8 +2605,8 @@ namespace TIMER_EVENT_SCHEDULER_TEST_CASE_1
 void test1_a()
 {
     // Create and start a scheduler object, schedule a clock of T3 interval,
-    // schedule an event at T6, invoke 'stop' at T4 and then verify the state.
-    // Invoke 'start' and then verify the state.
+    // schedule an event at T6, invoke `stop` at T4 and then verify the state.
+    // Invoke `start` and then verify the state.
 
     const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
     const int T4 = 4 * DECI_SEC_IN_MICRO_SEC;
@@ -2601,7 +2658,7 @@ void test1_a()
     else {
         // However, if testObj2 has already executed its event, we should make
         // sure it do so legally, i.e., after the requisite period of time.
-        // Note that 'elapsed' was measure *after* the 'x.stop()'.
+        // Note that `elapsed` was measure *after* the `x.stop()`.
 
         ASSERTV(NEXEC2, elapsed, T6 < elapsed);
     }
@@ -2610,7 +2667,7 @@ void test1_a()
 void test1_b()
 {
     // Create and start a scheduler object, schedule two clocks of T3 interval,
-    // invoke 'cancelAllClocks' and verify the result.
+    // invoke `cancelAllClocks` and verify the result.
 
     const bsls::TimeInterval T3(3 * DECI_SEC);
     const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
@@ -2685,7 +2742,7 @@ void test1_c()
 void test1_d()
 {
     // Create and start a scheduler object, schedule 3 events at T, T2, T3.
-    // Invoke 'cancelAllEvents' and verify it.
+    // Invoke `cancelAllEvents` and verify it.
 
     const bsls::TimeInterval T(1 * DECI_SEC);
     const bsls::TimeInterval T2(2 * DECI_SEC);
@@ -3126,7 +3183,7 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
@@ -3168,12 +3225,12 @@ int main(int argc, char *argv[])
         // TESTING THREAD NAME
         //
         // Concerns:
-        //: 1 The created thread has the expected name.
+        // 1. The created thread has the expected name.
         //
         // Plan:
-        //: 1 Use all constructors to create an object, start the event
-        //:   scheduler with and without thread attibutes, and verify the
-        //:   thread name.
+        // 1. Use all constructors to create an object, start the event
+        //    scheduler with and without thread attibutes, and verify the
+        //    thread name.
         //
         // Testing:
         //   CONCERN: THREAD NAME
@@ -3308,11 +3365,11 @@ int main(int argc, char *argv[])
         // DRQS 150475152: AFTER TEST TIME SOURCE DESTRUCTION
         //
         // Concerns:
-        //: 1 When the test time source is destroyed, the current time functor
-        //:   in the associated scheduler remains valid.
+        // 1. When the test time source is destroyed, the current time functor
+        //    in the associated scheduler remains valid.
         //
         // Plan:
-        //: 1 Directly test the scenario.  (C-1)
+        // 1. Directly test the scenario.  (C-1)
         //
         // Testing:
         //   DRQS 150475152: AFTER TEST TIME SOURCE DESTRUCTION
@@ -3333,8 +3390,8 @@ int main(int argc, char *argv[])
         ASSERT(bsls::TimeInterval(100) < t2 - t1);
 
         // If the functor stored in the scheduler is no longer valid, in safe
-        // mode builds the resultant access to 'd_currentTimeFunctor' results
-        // in an assert due to 'd_currentTimeMutex' attempting to be locked
+        // mode builds the resultant access to `d_currentTimeFunctor` results
+        // in an assert due to `d_currentTimeMutex` attempting to be locked
         // after being destroyed.
 
         scheduler.startClock(bsls::TimeInterval(1), noop);
@@ -3348,14 +3405,14 @@ int main(int argc, char *argv[])
         // TESTING NOW ACCESSOR
         //
         // Concern:
-        //   That the 'now' accessor correctly returns the current time
+        //   That the `now` accessor correctly returns the current time
         //   according to the clock the object was constructed with, or a test
         //   time source.
         //
         // Plan:
-        //   Create objects with all values of 'clockType', and verify that the
-        //   value returned by the 'now' accessor is as expected.  Then create
-        //   a test time source and verify that the value returned by the 'now'
+        //   Create objects with all values of `clockType`, and verify that the
+        //   value returned by the `now` accessor is as expected.  Then create
+        //   a test time source and verify that the value returned by the `now`
         //   accessor matches that of the test time source.
         //
         // Testing:
@@ -3425,34 +3482,34 @@ int main(int argc, char *argv[])
         //   mechanism.
         //
         // Concerns:
-        //: 1 The clock replacement mechanism exhibits a basic ability to
-        //:   alter the clock used for scheduling and dispatching events.
+        // 1. The clock replacement mechanism exhibits a basic ability to
+        //    alter the clock used for scheduling and dispatching events.
         //
         // Plan:
-        //: 1 Default-construct a scheduler.
-        //:
-        //: 2 Create a 'bdlmt::TimerEventSchedulerTestTimeSource' object,
-        //:   passing the constructor a pointer to the scheduler.
-        //:
-        //: 3 Call 'now' on the 'bdlmt::TimerEventSchedulerTestTimeSource'
-        //:   object, and store the result in a variable 'basisTime'.
-        //:
-        //: 4 Schedule a one-time event in the scheduler, using the retrieved
-        //:   basis time.
-        //:
-        //: 5 Schedule a recurring event in the scheduler, using no absolute
-        //:   time.
-        //:
-        //: 6 Start the scheduler.
-        //:
-        //: 7 Adjust the time so that the first event will run.  Ensure that
-        //:   the first event has run, and not the second.
-        //:
-        //: 8 Adjust the time so that the recurring event will run.  Ensure
-        //:   that this event has run once.
-        //:
-        //: 9 Adjust the time so that the recurring event will run a second
-        //:    time.  Ensure that this event has run again.
+        // 1. Default-construct a scheduler.
+        //
+        // 2. Create a `bdlmt::TimerEventSchedulerTestTimeSource` object,
+        //    passing the constructor a pointer to the scheduler.
+        //
+        // 3. Call `now` on the `bdlmt::TimerEventSchedulerTestTimeSource`
+        //    object, and store the result in a variable `basisTime`.
+        //
+        // 4. Schedule a one-time event in the scheduler, using the retrieved
+        //    basis time.
+        //
+        // 5. Schedule a recurring event in the scheduler, using no absolute
+        //    time.
+        //
+        // 6. Start the scheduler.
+        //
+        // 7. Adjust the time so that the first event will run.  Ensure that
+        //    the first event has run, and not the second.
+        //
+        // 8. Adjust the time so that the recurring event will run.  Ensure
+        //    that this event has run once.
+        //
+        // 9. Adjust the time so that the recurring event will run a second
+        //     time.  Ensure that this event has run again.
         //
         // Testing:
         //   Basic clock-replacement functionality.
@@ -3519,12 +3576,12 @@ int main(int argc, char *argv[])
         // TESTING CLOCKTYPE ACCESSOR
         //
         // Concern:
-        //   That the 'clockType' accessor correctly return the clock type the
+        //   That the `clockType` accessor correctly return the clock type the
         //   object was constructed with.
         //
         // Plan:
-        //   Run all c'tors with all values of 'clockType', and verify that
-        //   the value returned by the 'clockType' accessor is as expected.
+        //   Run all c'tors with all values of `clockType`, and verify that
+        //   the value returned by the `clockType` accessor is as expected.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING CLOCKTYPE ACCESSOR\n"
@@ -3613,17 +3670,17 @@ int main(int argc, char *argv[])
       } break;
       case 24: {
         // -----------------------------------------------------------------
-        // TESTING 'bdlmt::TimerEventScheduler(nE, nC, disp, cT, bA = 0)':
-        //   Verify this 'bdlmt::TimerEventScheduler' creator, which uses the
+        // TESTING `bdlmt::TimerEventScheduler(nE, nC, disp, cT, bA = 0)`:
+        //   Verify this `bdlmt::TimerEventScheduler` creator, which uses the
         //   specified dispatcher, specified clock, and provides capacity
         //   guarantees, correctly schedules events.
         //
         // Concerns:
-        //: 1 The creator with the specified dispatcher, specified clock, and
-        //:   capacity guarantees correctly initializes the object.
+        // 1. The creator with the specified dispatcher, specified clock, and
+        //    capacity guarantees correctly initializes the object.
         //
         // Plan:
-        //: 1 Define a dispatcher that simply executes the specified
+        // 1. Define a dispatcher that simply executes the specified
         //    functor.  Create a scheduler using this dispatcher and the
         //    monotonic clock, schedule an event and make sure that it is
         //    executed by the specified dispatcher.
@@ -3719,17 +3776,17 @@ int main(int argc, char *argv[])
       } break;
       case 23: {
         // -----------------------------------------------------------------
-        // TESTING 'bdlmt::TimerEventScheduler(nE, nC, disp, bA = 0)':
-        //   Verify this 'bdlmt::TimerEventScheduler' creator, which uses the
+        // TESTING `bdlmt::TimerEventScheduler(nE, nC, disp, bA = 0)`:
+        //   Verify this `bdlmt::TimerEventScheduler` creator, which uses the
         //   specified dispatcher, realtime clock, and provides capacity
         //   guarantees, correctly schedules events.
         //
         // Concerns:
-        //: 1 The creator with the specified dispatcher, realtime clock, and
-        //:   capacity guarantees correctly initializes the object.
+        // 1. The creator with the specified dispatcher, realtime clock, and
+        //    capacity guarantees correctly initializes the object.
         //
         // Plan:
-        //: 1 Define a dispatcher that simply executes the specified
+        // 1. Define a dispatcher that simply executes the specified
         //    functor.  Create a scheduler using this dispatcher and the
         //    realtime clock, schedule an event and make sure that it is
         //    executed by the specified dispatcher.
@@ -3809,17 +3866,17 @@ int main(int argc, char *argv[])
       } break;
       case 22: {
         // -----------------------------------------------------------------
-        // TESTING 'bdlmt::TimerEventScheduler(nE, nC, cT, bA = 0)':
-        //   Verify this 'bdlmt::TimerEventScheduler' creator, which uses the
+        // TESTING `bdlmt::TimerEventScheduler(nE, nC, cT, bA = 0)`:
+        //   Verify this `bdlmt::TimerEventScheduler` creator, which uses the
         //   default dispatcher, specified clock, and provides capacity
         //   guarantees, correctly schedules events.
         //
         // Concerns:
-        //: 1 The creator with the default dispatcher, specified clock, and
-        //:   capacity guarantees correctly initializes the object.
+        // 1. The creator with the default dispatcher, specified clock, and
+        //    capacity guarantees correctly initializes the object.
         //
         // Plan:
-        //: 1 Create a scheduler using the default dispatcher and the specified
+        // 1. Create a scheduler using the default dispatcher and the specified
         //    clock, schedule an event and make sure that it is executed by the
         //    default dispatcher.
         //
@@ -3900,17 +3957,17 @@ int main(int argc, char *argv[])
       } break;
       case 21: {
         // -----------------------------------------------------------------
-        // TESTING 'bdlmt::TimerEventScheduler(nE, nC, bA = 0)':
-        //   Verify this 'bdlmt::TimerEventScheduler' creator, which uses the
+        // TESTING `bdlmt::TimerEventScheduler(nE, nC, bA = 0)`:
+        //   Verify this `bdlmt::TimerEventScheduler` creator, which uses the
         //   default dispatcher, realtime clock, and provides capacity
         //   guarantees, correctly schedules events.
         //
         // Concerns:
-        //: 1 The creator with the default dispatcher and realtime clock
-        //:   correctly initializes the object.
+        // 1. The creator with the default dispatcher and realtime clock
+        //    correctly initializes the object.
         //
         // Plan:
-        //: 1 Create a scheduler using the default dispatcher and the realtime
+        // 1. Create a scheduler using the default dispatcher and the realtime
         //    clock, schedule an event and make sure that it is executed by the
         //    default dispatcher.
         //
@@ -3987,17 +4044,17 @@ int main(int argc, char *argv[])
       } break;
       case 20: {
         // -----------------------------------------------------------------
-        // TESTING 'bdlmt::TimerEventScheduler(disp, clockType, alloc = 0)':
-        //   Verify this 'bdlmt::TimerEventScheduler' creator, which uses the
+        // TESTING `bdlmt::TimerEventScheduler(disp, clockType, alloc = 0)`:
+        //   Verify this `bdlmt::TimerEventScheduler` creator, which uses the
         //   specified dispatcher and specified clock, correctly schedules
         //   events.
         //
         // Concerns:
-        //: 1 The creator with a user-defined dispatcher and clock correctly
-        //:   initializes the object.
+        // 1. The creator with a user-defined dispatcher and clock correctly
+        //    initializes the object.
         //
         // Plan:
-        //: 1 Define a dispatcher that simply executes the specified
+        // 1. Define a dispatcher that simply executes the specified
         //    functor.  Create a scheduler using this dispatcher and the
         //    monotonic clock, schedule an event and make sure that it is
         //    executed by the specified dispatcher.
@@ -4081,17 +4138,17 @@ int main(int argc, char *argv[])
       } break;
       case 19: {
         // -----------------------------------------------------------------
-        // TESTING 'bdlmt::TimerEventScheduler(clockType, allocator = 0)':
-        //   Verify this 'bdlmt::TimerEventScheduler' creator, which uses the
+        // TESTING `bdlmt::TimerEventScheduler(clockType, allocator = 0)`:
+        //   Verify this `bdlmt::TimerEventScheduler` creator, which uses the
         //   default dispatcher and specified clock, correctly schedules
         //   events.
         //
         // Concerns:
-        //: 1 The creator with the default dispatcher and specified clock
-        //:   correctly initializes the object.
+        // 1. The creator with the default dispatcher and specified clock
+        //    correctly initializes the object.
         //
         // Plan:
-        //: 1 Create a scheduler using the default dispatcher and the monotonic
+        // 1. Create a scheduler using the default dispatcher and the monotonic
         //    clock, schedule an event and make sure that it is executed by the
         //    default dispatcher.
         //
@@ -4171,7 +4228,7 @@ int main(int argc, char *argv[])
         // Testing cancelEvent
         //
         // Concerns:
-        //   Verify that 'cancelEvent' does the right thing when an event
+        //   Verify that `cancelEvent` does the right thing when an event
         //   tries to cancel itself, and that pending events after the
         //   event being canceled are unaffected.
         //
@@ -4225,12 +4282,12 @@ int main(int argc, char *argv[])
         // Testing cancelAllEvents
         //
         // Concerns:
-        //   There is a bug in 'cancelAllEvents' regarding the updating of
-        //   'd_numEvents' that previous testing was not exposing.
+        //   There is a bug in `cancelAllEvents` regarding the updating of
+        //   `d_numEvents` that previous testing was not exposing.
         //
         // Plan:
         //   Get several events on the pending events vector, then
-        //   call 'cancelAllEvents()', keeping track of the # of outstanding
+        //   call `cancelAllEvents()`, keeping track of the # of outstanding
         //   events, and expose the discrepancy.
         // -----------------------------------------------------------------
 
@@ -4265,7 +4322,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   That we are able to specify attributes of dispatcher thread by
-        //   passing them to 'start()'.
+        //   passing them to `start()`.
         //
         // Plan:
         //   Configure the stack size to be much bigger than the default,
@@ -4275,7 +4332,7 @@ int main(int argc, char *argv[])
         //   shows 0 if you let stack size default on Solaris).
         //
         //   Also verify that DETACHED attribute is ignored by setting the
-        //   attributes passed to be DETACHED and then doing a 'stop()',
+        //   attributes passed to be DETACHED and then doing a `stop()`,
         //   which will join with the dispatcher thread.
         //
         // Testing:
@@ -4328,10 +4385,10 @@ int main(int argc, char *argv[])
         //   that scheduled events will still get to happen.
         //
         // Plan:
-        //   We have two functors, 'Slowfunctor' and 'Fastfunctor', the
+        //   We have two functors, `Slowfunctor` and `Fastfunctor`, the
         //   first of which takes 0.1 seconds, the second of which runs
-        //   instantaneously.  We schedule 'Slowfunctor' as a clock
-        //   occurring every 0.5 seconds, and schedule 'Fastfunctor' to
+        //   instantaneously.  We schedule `Slowfunctor` as a clock
+        //   occurring every 0.5 seconds, and schedule `Fastfunctor` to
         //   happen at 2 specific times.  We sleep 4 seconds, and then
         //   observe that both functors happened roughly when they were
         //   supposed to.
@@ -4423,11 +4480,11 @@ int main(int argc, char *argv[])
 
 #if 0
             // This has been commented out because it is really inappropriate
-            // to be testing the accuracy of the 'microSleep' method in this
+            // to be testing the accuracy of the `microSleep` method in this
             // component -- especially since it can be really unreasonably slow
             // on a heavily loaded machine (i.e., during the nighttime runs).
             // Testing of that routine has been moved to
-            // 'bslmt_threadutil.t.cpp'.
+            // `bslmt_threadutil.t.cpp`.
 
             // go through odd elements - they should be SLEEP_SECONDS later
             sfit = sf.timeList().begin();
@@ -4486,7 +4543,7 @@ int main(int argc, char *argv[])
         //   accumulated lag.
         //
         //   <<NOTE>> -- due to unreliability of
-        //   'bslmt::Condition::timedWait', this test is going to fail a
+        //   `bslmt::Condition::timedWait`, this test is going to fail a
         //   certain percentage of the time.
         // -----------------------------------------------------------------
 
@@ -4563,10 +4620,10 @@ int main(int argc, char *argv[])
 // TBD
 #if 0
         // This has been commented out because it is really inappropriate to be
-        // testing the accuracy of the 'microSleep' method in this component
+        // testing the accuracy of the `microSleep` method in this component
         // -- especially since it can be really unreasonably slow on a heavily
         // loaded machine (i.e., during the nighttime runs).  Testing of that
-        // routine has been moved to 'bslmt_threadutil.t.cpp'.
+        // routine has been moved to `bslmt_threadutil.t.cpp`.
 
         // go through odd elements - they should be SLEEP_SECONDS later
         it = sf.timeList().begin();
@@ -4585,17 +4642,17 @@ int main(int argc, char *argv[])
         // clocks.
         //
         // Concerns:
-        //   Given 'numEvents' and 'numClocks' (where
-        //   'numEvents <= 2**24 - 1' and 'numClocks <= 2**24 - 1'), ensure
-        //   that *at least* 'numEvents' and 'numClocks' may be concurrently
+        //   Given `numEvents` and `numClocks` (where
+        //   `numEvents <= 2**24 - 1` and `numClocks <= 2**24 - 1`), ensure
+        //   that *at least* `numEvents` and `numClocks` may be concurrently
         //   scheduled.
         //
         // Plan:
-        //   Define two values 'numEvents' and 'numClocks', then construct a
+        //   Define two values `numEvents` and `numClocks`, then construct a
         //   timer event scheduler using these values.  In order to prevent
         //   any scheduled events from firing, leave the scheduler in the
         //   "stopped" state.  Schedule events from multiple threads and
-        //   ensure *at least* 'numEvents' may be concurrently scheduled.
+        //   ensure *at least* `numEvents` may be concurrently scheduled.
         //   Cancel all events, then again schedule events from multiple
         //   threads and ensure the maximum number of events may again be
         //   scheduled.  Repeat for clocks.
@@ -4664,13 +4721,13 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // -----------------------------------------------------------------
-        // TESTING 'rescheduleEvent':
+        // TESTING `rescheduleEvent`:
         //
         // Concerns:
-        //   That 'rescheduleEvent' should be successful when it is possible
+        //   That `rescheduleEvent` should be successful when it is possible
         //   to reschedule it.
         //
-        //   That 'rescheduleEvent' should fail when it not is possible
+        //   That `rescheduleEvent` should fail when it not is possible
         //   to reschedule it.
         //
         // Plan:
@@ -4687,7 +4744,7 @@ int main(int argc, char *argv[])
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'rescheduleEvent'" << endl
+                          << "TESTING `rescheduleEvent`" << endl
                           << "=========================" << endl;
 
         using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_12;
@@ -4816,7 +4873,7 @@ int main(int argc, char *argv[])
             }
         } else {
             // In the highly unlikely event, that one thread could not invoke
-            // 'cancelAllEvents' or 'cancelAllClocks' in time to guarantee that
+            // `cancelAllEvents` or `cancelAllClocks` in time to guarantee that
             // the event it had scheduled earlier was cancelled, the test
             // fails.  This can be prevented by increasing the delay (initially
             // T, currently T4) with which the event is scheduled.  Note that
@@ -4887,7 +4944,7 @@ int main(int argc, char *argv[])
             }
         } else {
             // In the highly unlikely event, that one thread could not invoke
-            // 'cancelEvent' or 'cancelClock' in time to guarantee that the
+            // `cancelEvent` or `cancelClock` in time to guarantee that the
             // event it had scheduled earlier was cancelled, the test fails.
             // This can be prevented by increasing the delay (initially T,
             // currently T4) with which the event is scheduled.  Note that the
@@ -4915,39 +4972,39 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // -----------------------------------------------------------------
-        // TESTING 'start' and 'stop':
-        //   Verifying 'start' and 'stop'.
+        // TESTING `start` and `stop`:
+        //   Verifying `start` and `stop`.
         //
         // Concerns:
         //
-        //   That invoking 'start' multiple times is harmless.
+        //   That invoking `start` multiple times is harmless.
         //
-        //   That invoking 'stop' multiple times is harmless.
+        //   That invoking `stop` multiple times is harmless.
         //
         //   That it is possible to restart the scheduler after stopping
         //   it.
         //
-        //   That invoking 'start' concurrently with 'stop' does not adversely
+        //   That invoking `start` concurrently with `stop` does not adversely
         //   affect processing of events
         //
-        //   That invoking 'stop' work correctly even when the dispatcher
+        //   That invoking `stop` work correctly even when the dispatcher
         //   is blocked waiting for any callback to be scheduled.
         //
-        //   That invoking 'stop' work correctly even when the dispatcher
+        //   That invoking `stop` work correctly even when the dispatcher
         //   is blocked waiting for the expiration of any scheduled
         //   callback.
         //
         // Plan:
-        //   Invoke 'start' multiple times and verify that the scheduler
+        //   Invoke `start` multiple times and verify that the scheduler
         //   is still in good state (this is done by scheduling an event
         //   and verifying that it is executed as expected).
         //
-        //   Invoke 'stop' multiple times and verify that the scheduler is
+        //   Invoke `stop` multiple times and verify that the scheduler is
         //   still in good state (this is done by starting the scheduler,
         //   scheduling an event and verifying that it is executed as
         //   expected).
         //
-        //   Invoke 'startStopConcurrencyTest' (see function-level doc for
+        //   Invoke `startStopConcurrencyTest` (see function-level doc for
         //   plan). This tests for a race condition and doesn't catch it
         //   every time, so run it a few times.
         //
@@ -4957,11 +5014,11 @@ int main(int argc, char *argv[])
         //   executed as expected).  Repeat this several time.
         //
         //   Start the scheduler, sleep for a while to ensure that
-        //   scheduler gets blocked, invoke 'stop' and verify that scheduler
+        //   scheduler gets blocked, invoke `stop` and verify that scheduler
         //   is actually stopped.
         //
         //   Start the scheduler, schedule an event, sleep for a while to
-        //   ensure that scheduler gets blocked, invoke 'stop' before the
+        //   ensure that scheduler gets blocked, invoke `stop` before the
         //   event is expired and verify the state.
         //
         // Testing:
@@ -4970,12 +5027,12 @@ int main(int argc, char *argv[])
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'start' and 'stop'" << endl
+                          << "TESTING `start` and `stop`" << endl
                           << "==========================" << endl;
 
         using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_9;
         {
-            // Invoke 'start' multiple times and verify that the scheduler is
+            // Invoke `start` multiple times and verify that the scheduler is
             // still in good state (this is done by scheduling an event and
             // verifying that it is executed as expected).
 
@@ -4999,7 +5056,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            // Invoke 'stop' multiple times and verify that the scheduler is
+            // Invoke `stop` multiple times and verify that the scheduler is
             // still in good state (this is done by starting the scheduler,
             // scheduling an event and verifying that it is executed as
             // expected).
@@ -5082,7 +5139,7 @@ int main(int argc, char *argv[])
 
         {
             // Start the scheduler, sleep for a while to ensure that scheduler
-            // gets blocked, invoke 'stop' and verify that scheduler is
+            // gets blocked, invoke `stop` and verify that scheduler is
             // actually stopped.
 
             const bsls::TimeInterval T(1 * DECI_SEC);
@@ -5106,7 +5163,7 @@ int main(int argc, char *argv[])
 
         {
             // Start the scheduler, schedule an event, sleep for a while to
-            // ensure that scheduler gets blocked, invoke 'stop' before the
+            // ensure that scheduler gets blocked, invoke `stop` before the
             // event is expired and verify the state.
 
             const bsls::TimeInterval T(1 * DECI_SEC);
@@ -5148,8 +5205,8 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // -----------------------------------------------------------------
-        // TESTING 'bdlmt::TimerEventScheduler(dispatcher, allocator = 0)':
-        //   Verifying 'bdlmt::TimerEventScheduler(dispatcher, allocator = 0)'.
+        // TESTING `bdlmt::TimerEventScheduler(dispatcher, allocator = 0)`:
+        //   Verifying `bdlmt::TimerEventScheduler(dispatcher, allocator = 0)`.
         //
         // Concerns:
         //   To test the scheduler with a user-defined dispatcher.
@@ -5242,16 +5299,16 @@ int main(int argc, char *argv[])
         //   That it is possible to schedule events and clocks from the
         //   dispatcher thread.
         //
-        //   That when 'cancelEvent' is invoked from the dispatcher thread
+        //   That when `cancelEvent` is invoked from the dispatcher thread
         //   then the wait argument is ignored.
         //
-        //   That when 'cancelAllEvent' is invoked from the dispatcher
+        //   That when `cancelAllEvent` is invoked from the dispatcher
         //   thread then the wait argument is ignored.
         //
-        //   That when 'cancelClock' is invoked from the dispatcher thread
+        //   That when `cancelClock` is invoked from the dispatcher thread
         //   then the wait argument is ignored.
         //
-        //   That when 'cancelAllClocks' is invoked from the dispatcher
+        //   That when `cancelAllClocks` is invoked from the dispatcher
         //   thread then the wait argument is ignored.
         //
         //   That DRQS 7272737 is solved.
@@ -5271,7 +5328,7 @@ int main(int argc, char *argv[])
         //   results.
         //
         //   Schedule an event e1 at time T such that it invokes
-        //   'cancelAllEvents' with wait argument, and another event e2 at
+        //   `cancelAllEvents` with wait argument, and another event e2 at
         //   time T2 that will be pending when e1 will execute (this is done
         //   by waiting long enough before starting the scheduler).  Make
         //   sure no deadlock results of e1 waiting for e2 to complete (both
@@ -5282,7 +5339,7 @@ int main(int argc, char *argv[])
         //   when c1 will execute (this is done by waiting long enough
         //   before starting the scheduler).  Make sure no deadlock results.
         //
-        //   Schedule a clock c1 such that it invokes 'cancelAllClocks' with
+        //   Schedule a clock c1 such that it invokes `cancelAllClocks` with
         //   wait argument, and an event e2 that will be pending when c1
         //   will execute (this is done by waiting long enough before
         //   starting the scheduler).  Make sure no deadlock results.
@@ -5315,21 +5372,21 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // -----------------------------------------------------------------
-        // TESTING 'cancelAllClocks':
-        //   Verifying 'cancelAllClocks'.
+        // TESTING `cancelAllClocks`:
+        //   Verifying `cancelAllClocks`.
         //
         // Concerns:
         //   That if no clock has not yet been put onto the pending list
-        //   then invoking 'cancelAllClocks' should successfully cancel
+        //   then invoking `cancelAllClocks` should successfully cancel
         //   all clocks.
         //
         //   That once a clock callback has started its execution, invoking
-        //   'cancelAllClocks' without wait argument should not block for
+        //   `cancelAllClocks` without wait argument should not block for
         //   that execution to complete and should cancel its further
         //   executions.  It should also cancel other pending clocks.
         //
         //   That once a clock callback has started its execution, invoking
-        //   'cancelAllClocks' with wait argument should block for that
+        //   `cancelAllClocks` with wait argument should block for that
         //   execution to complete and should cancel its further
         //   executions.  It should also cancel other pending clocks.
         //
@@ -5338,14 +5395,14 @@ int main(int argc, char *argv[])
         //   T3 = T * 3,  T4 = T * 4,  and so on.
         //
         //   Schedule clocks starting at T2 and T3, invoke
-        //   'cancelAllClocks' at time T and make sure that both are
+        //   `cancelAllClocks` at time T and make sure that both are
         //   cancelled successfully.
         //
         //   Schedule clocks c1 at T(which executes for T10 time), c2 at
         //   T2 and c3 at T3.  Let all clocks be simultaneously put onto
         //   the pending list (this is done by sleeping enough time before
         //   starting the scheduler).  Let c1's first execution be started
-        //   (by sleeping enough time), invoke 'cancelAllClocks' without
+        //   (by sleeping enough time), invoke `cancelAllClocks` without
         //   wait argument, verify that c1's first execution has not yet
         //   completed and verify that c2 and c3 are cancelled without any
         //   executions.
@@ -5354,7 +5411,7 @@ int main(int argc, char *argv[])
         //   T2 and c3 at T3.  Let all clocks be simultaneously put onto
         //   the pending list (this is done by sleeping enough time before
         //   starting the scheduler).  Let c1's first execution be started
-        //   (by sleeping enough time), invoke 'cancelAllClocks' with wait
+        //   (by sleeping enough time), invoke `cancelAllClocks` with wait
         //   argument, verify that c1's first execution has completed and
         //   verify that c2 and c3 are cancelled without any executions.
         //
@@ -5363,7 +5420,7 @@ int main(int argc, char *argv[])
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'cancelAllClocks'" << endl
+                          << "TESTING `cancelAllClocks`" << endl
                           << "=========================" << endl;
 
         using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_6;
@@ -5383,8 +5440,8 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // -----------------------------------------------------------------
-        // TESTING 'cancelClock':
-        //   Verifying 'cancelClock'.
+        // TESTING `cancelClock`:
+        //   Verifying `cancelClock`.
         //
         // Concerns:
         //   That if a clock has not yet been put onto the pending list
@@ -5415,13 +5472,13 @@ int main(int argc, char *argv[])
         //   c2 before it's callback is dispatched and verify the result.
         //
         //   Schedule a clock starting at T and an event at 3T.  Wait for the
-        //   first execution of the clock to start, cancel it with 'wait'
+        //   first execution of the clock to start, cancel it with `wait`
         //   argument equal to false while it is running, and wait for the
         //   event to start.  Verify that the clock was only executed once (not
         //   a second time at 2T).
         //
         //   Schedule a clock starting at T.  Wait for the first execution of
-        //   the clock to start, and cancel it with 'wait' argument equal to
+        //   the clock to start, and cancel it with `wait` argument equal to
         //   true while it is running.  Because this will block the main
         //   thread, another thread is used to unblock the clock callback after
         //   the clock's cancellation has completed.  Verify that the clock has
@@ -5433,7 +5490,7 @@ int main(int argc, char *argv[])
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'cancelClock'" << endl
+                          << "TESTING `cancelClock`" << endl
                           << "=====================" << endl;
 
         using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_5;
@@ -5514,7 +5571,7 @@ int main(int argc, char *argv[])
                               << endl;
         {
             // Schedule a clock starting at T and an event at 3T.  Wait for the
-            // first execution of the clock to start, cancel it with 'wait'
+            // first execution of the clock to start, cancel it with `wait`
             // argument equal to false while it is running, and wait for the
             // event to start.  Verify that the clock was only executed once
             // (not a second time at 3T).
@@ -5555,14 +5612,14 @@ int main(int argc, char *argv[])
                               << endl;
         {
             // Schedule a clock starting at T.  Wait for the first execution of
-            // the clock to start, and cancel it with 'wait' argument equal to
+            // the clock to start, and cancel it with `wait` argument equal to
             // true while it is running.  Because this will block the main
             // thread, another thread is used to unblock the clock callback
             // after the clock's cancellation has completed.  Verify that the
             // clock has been executed once, and schedule an event at 3T.  Wait
             // for the event to start, and verify that the clock was not
             // executed again.  (Note that we have to be careful not to
-            // schedule the event until after the 'cancelClock' call returns.
+            // schedule the event until after the `cancelClock` call returns.
             // Otherwise, a deadlock can occur.)
 
             bsls::TimeInterval T(0.01);  // 10ms
@@ -5606,20 +5663,20 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'cancelAllEvents':
-        //   Verifying 'cancelAllEvents'.
+        // TESTING `cancelAllEvents`:
+        //   Verifying `cancelAllEvents`.
         //
         // Concerns:
         //   That if no event has yet been put onto the pending list, then
-        //   invoking 'cancelAllEvents' should be able to cancel all
+        //   invoking `cancelAllEvents` should be able to cancel all
         //   events.
         //
-        //   That 'cancelAllEvents' without wait argument should
+        //   That `cancelAllEvents` without wait argument should
         //   immediately cancel the events not yet put onto the pending
         //   list and should not wait for events on the pending list to be
         //   executed.
         //
-        //   That 'cancelAllEvents' with wait argument should cancel the
+        //   That `cancelAllEvents` with wait argument should cancel the
         //   events not yet put onto the pending list and should wait for
         //   events on the pending list to be executed.
         //
@@ -5627,20 +5684,20 @@ int main(int argc, char *argv[])
         //   Define T, T2, T3, T4 .. as time intervals such that T2 = T * 2,
         //   T3 = T * 3,  T4 = T * 4,  and so on.
         //
-        //   Schedule events at T, T2 and T3, invoke 'cancelAllEvents' and
+        //   Schedule events at T, T2 and T3, invoke `cancelAllEvents` and
         //   verify the result.
         //
         //   Schedule events e1, e2 and e3 at T, T2 and T8 respectively.
         //   Let both e1 and e2 be simultaneously put onto the pending
         //   list (this is done by sleeping enough time before starting
-        //   the scheduler).  Invoke 'cancelAllEvents' and ensure that it
+        //   the scheduler).  Invoke `cancelAllEvents` and ensure that it
         //   cancels e3 and does not wait for e1 and e2 to complete their
         //   execution.
         //
         //   Schedule events e1, e2 and e3 at T, T2 and T8 respectively.
         //   Let both e1 and e2 be simultaneously put onto the pending
         //   list (this is done by sleeping enough time before starting
-        //   the scheduler).  Invoke 'cancelAllEvents' with wait argument
+        //   the scheduler).  Invoke `cancelAllEvents` with wait argument
         //   and ensure that it cancels e3 and wait for e1 and e2 to
         //   complete their execution.
         //
@@ -5649,12 +5706,12 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'cancelAllEvents'" << endl
+                          << "TESTING `cancelAllEvents`" << endl
                           << "=========================" << endl;
 
         using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_4;
         {
-            // Schedule events at T, T2 and T3, invoke 'cancelAllEvents' and
+            // Schedule events at T, T2 and T3, invoke `cancelAllEvents` and
             // verify the result.
 
           const bsls::TimeInterval T(1 * DECI_SEC);
@@ -5691,15 +5748,16 @@ int main(int argc, char *argv[])
             // Schedule a few events in the past and one in the future.  The
             // second event will take a long time.  Sleep long enough to get
             // the events in the past pending, but not the one in the future.
-            // CancelAllEvents without 'wait' specified.  Verify that the
+            // CancelAllEvents without `wait` specified.  Verify that the
             // appropriate events got canceled.  So as not to be thrown off by
             // intermittent excessively long sleeps, be prepared to start this
             // test over a certain number of times before giving up.
 
           const bsls::TimeInterval  T(1 * DECI_SEC);
           const bsls::TimeInterval T2(2 * DECI_SEC);
+
+          // This will not be put onto the pending list.
           const bsls::TimeInterval T7(7 * DECI_SEC);
-              // This will not be put onto the pending list.
 
           const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
           const int T3  = 3 * DECI_SEC_IN_MICRO_SEC;
@@ -5773,7 +5831,7 @@ int main(int argc, char *argv[])
             // Schedule a few events in the past and one in the future.  The
             // second event will take a long time.  Sleep long enough to get
             // the events in the past pending, but not the one in the future.
-            // CancelAllEvents with 'wait' specified.  Verify that the
+            // CancelAllEvents with `wait` specified.  Verify that the
             // appropriate events got canceled.  So as not to be thrown off by
             // intermittent excessively long sleeps, be prepared to start this
             // test over a certain number of times before giving up.
@@ -5845,8 +5903,8 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'cancelEvent':
-        //   Verifying 'cancelEvent'.
+        // TESTING `cancelEvent`:
+        //   Verifying `cancelEvent`.
         //
         // Concerns:
         //   That if an event has not yet been put onto the pending list,
@@ -5879,7 +5937,7 @@ int main(int argc, char *argv[])
         //
         //   Schedule 2 events at T and T2.  Let both be simultaneously put
         //   onto the pending list (this is done by sleeping enough time
-        //   before starting the scheduler), invoke 'cancelEvent(handle)'
+        //   before starting the scheduler), invoke `cancelEvent(handle)`
         //   on the second event while it is still on pending list and
         //   verify that cancel fails.
         //
@@ -5914,7 +5972,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'cancelEvent'" << endl
+                          << "TESTING `cancelEvent`" << endl
                           << "=====================" << endl;
 
         using namespace TIMER_EVENT_SCHEDULER_TEST_CASE_3;
@@ -5935,8 +5993,8 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'scheduleEvent' and 'startClock':
-        //   Verifying 'scheduleEvent' and 'startClock'.
+        // TESTING `scheduleEvent` and `startClock`:
+        //   Verifying `scheduleEvent` and `startClock`.
         //
         // Concerns:
         //   That multiple clocks and multiple events can be scheduled.
@@ -5975,7 +6033,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                      << "TESTING 'scheduleEvent' and 'startClock'" << endl
+                      << "TESTING `scheduleEvent` and `startClock`" << endl
                       << "========================================" << endl;
 
         const int ATTEMPTS = 9;
@@ -6175,25 +6233,25 @@ int main(int argc, char *argv[])
         //   T2, cancelling it at T3 should result in failure.
         //
         //   Create and start a scheduler object, schedule 3 events at T,
-        //   T2, T3.  Invoke 'cancelAllEvents' and verify it.
+        //   T2, T3.  Invoke `cancelAllEvents` and verify it.
         //
         //   Create and start a scheduler object, schedule a clock of T3,
         //   let it execute once and then cancel it and then verify the
         //   expected result.
         //
         //   Create and start a scheduler object, schedule two clocks of
-        //   T3 interval, invoke 'cancelAllClocks' and verify the result.
+        //   T3 interval, invoke `cancelAllClocks` and verify the result.
         //
         //   Create and start a scheduler object, schedule a clock of T3
-        //   interval, schedule an event at T6, invoke 'stop' at T4 and
-        //   then verify the state.  Invoke 'start' and then verify the
+        //   interval, schedule an event at T6, invoke `stop` at T4 and
+        //   then verify the state.  Invoke `start` and then verify the
         //   state.
         //
         // Note:
         //   Defensive programming: myMicroSleep can (and does sometimes,
         //   especially when load is high during nightly builds) oversleep, so
         //   all assumptions have to be checked against the actual elapsed
-        //   time.  The function 'makeSureTestObjectIsExecuted' also helps in
+        //   time.  The function `makeSureTestObjectIsExecuted` also helps in
         //   making sure that the dispatcher thread has a good chance to
         //   process timers and clocks.
         //
@@ -6265,13 +6323,13 @@ int main(int argc, char *argv[])
         // SYSTEM CLOCK CHANGES CAUSE EXPECTED BEHAVIOR
         //
         // Concerns:
-        //: 1 Changes to the system clock must not affect the behavior of the
-        //:   component when the monotonic clock is used.
+        // 1. Changes to the system clock must not affect the behavior of the
+        //    component when the monotonic clock is used.
         //
         // Plan:
-        //: 1 Use the realtime clock first, verify changes to the system clock
-        //:   do affect the behavior, and then repeat the test with a monotonic
-        //:   clock and manually verify no effect on behavior.
+        // 1. Use the realtime clock first, verify changes to the system clock
+        //    do affect the behavior, and then repeat the test with a monotonic
+        //    clock and manually verify no effect on behavior.
         //
         // Testing:
         //   SYSTEM CLOCK CHANGES CAUSE EXPECTED BEHAVIOR

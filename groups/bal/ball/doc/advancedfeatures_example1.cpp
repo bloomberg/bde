@@ -29,12 +29,13 @@
 // thread's attribute context.  We will use these attributes later, to create a
 // logging rule that enables verbose logging only for a particular user.
 //..
+
+    /// Process the specified `data` associated with the specified Bloomberg
+    /// `uuid`, `luw`, and `terminalNumber`.
     void processData(int                      uuid,
                      int                      luw,
                      int                      terminalNumber,
                      const bsl::vector<char>& data)
-        // Process the specified 'data' associated with the specified Bloomberg
-        // 'uuid', 'luw', and 'terminalNumber'.
     {
         (void)data;  // suppress "unused" warning
 //..

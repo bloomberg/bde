@@ -31,7 +31,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// Testing of 'bdlt::CurrentTime' consists of verifying that the various time
+// Testing of `bdlt::CurrentTime` consists of verifying that the various time
 // methods return non-decreasing values, including when called many times in
 // tight loops.  Additionally, the tests verify that the current-time callback
 // can be set, retrieved, and invoked correctly.
@@ -105,9 +105,9 @@ typedef bdlt::CurrentTime Util;
 //                      HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Return a `bsls::TimeInterval` constructed from an internal value which
+/// is incremented on each call.
 bsls::TimeInterval IncrementInterval()
-    // Return a 'bsls::TimeInterval' constructed from an internal value which
-    // is incremented on each call.
 {
     static int value;
 
@@ -118,50 +118,50 @@ bsls::TimeInterval IncrementInterval()
     return result;
 }
 
+/// Return a fixed `bsls::TimeInterval` value.
 bsls::TimeInterval getClientTime()
-    // Return a fixed 'bsls::TimeInterval' value.
 {
     return bsls::TimeInterval(1, 1);
 }
 
+/// Return a fixed `bsls::TimeInterval` value.
 bsls::TimeInterval f1()
-    // Return a fixed 'bsls::TimeInterval' value.
 {
     return bsls::TimeInterval(1, 1);
 }
 
+/// Return a fixed `bsls::TimeInterval` value.
 bsls::TimeInterval f2()
-    // Return a fixed 'bsls::TimeInterval' value.
 {
     return bsls::TimeInterval(1, 1);
 }
 
 bsls::TimeInterval getClientOffset(const bdlt::Datetime&)
-     // Return a fixed 'bsls::TimeInterval' for a local time offset.
+     // Return a fixed `bsls::TimeInterval` for a local time offset.
 {
     return bsls::TimeInterval(60 * 60, 0);
 }
 
 
 bool within1Sec(bdlt::Datetime a, bdlt::Datetime b)
-   // Return 'true' if 'a' and 'b' are within one second of each other.
+   // Return `true` if `a` and `b` are within one second of each other.
 {
     return (a - b).totalSeconds() == 0;
 }
 
 
+/// Return 1, 0, -1 accordingly as the specified `lhs` is less than, equal
+/// to, or greater than, the specified `rhs`.
 template <class INTERVAL_L, class INTERVAL_R>
 static int inOrder(const INTERVAL_L& lhs, const INTERVAL_R& rhs)
-    // Return 1, 0, -1 accordingly as the specified 'lhs' is less than, equal
-    // to, or greater than, the specified 'rhs'.
 {
     bsls::Types::Int64 tml = lhs.totalMilliseconds();
     bsls::Types::Int64 tmr = rhs.totalMilliseconds();
     return tml < tmr ? 1 : tml == tmr ? 0 : -1;
 }
 
+/// Output an axis of the specified `width` for a progress bar.
 static void putAxis(unsigned width)
-    // Output an axis of the specified 'width' for a progress bar.
 {
     const char P1[] = "0%";
     const char P2[] = "50%";
@@ -189,8 +189,8 @@ extern "C" {
 typedef HANDLE ThreadId;
 
 static ThreadId createThread(ThreadFunction function, void *argument)
-    // Create a thread, invoking the specified 'function' with the specified
-    // 'argument' and return the id of the thread.
+    // Create a thread, invoking the specified `function` with the specified
+    // `argument` and return the id of the thread.
 {
   return CreateThread(0, 0,
                       reinterpret_cast<LPTHREAD_START_ROUTINE>(function),
@@ -199,7 +199,7 @@ static ThreadId createThread(ThreadFunction function, void *argument)
 }
 
 static void joinThread(ThreadId id)
-    // Wait until the thread with the specified 'id' is finished.
+    // Wait until the thread with the specified `id` is finished.
 {
     WaitForSingleObject(id, INFINITE);
     CloseHandle(id);
@@ -209,25 +209,25 @@ static void joinThread(ThreadId id)
 
 typedef pthread_t ThreadId;
 
+/// Create a thread, invoking the specified `function` with the specified
+/// `argument` and return the id of the thread.
 static ThreadId createThread(ThreadFunction function, void *argument)
-    // Create a thread, invoking the specified 'function' with the specified
-    // 'argument' and return the id of the thread.
 {
     ThreadId id;
     pthread_create(&id, 0, function, argument);
     return id;
 }
 
+/// Wait until the thread with the specified `id` is finished.
 static void joinThread(ThreadId id)
-    // Wait until the thread with the specified 'id' is finished.
 {
      pthread_join(id, 0);
 }
 
 #endif
 
+/// Data passed to thread function.
 struct ThreadInfo {
-    // Data passed to thread function.
     Util::CurrentTimeCallback set;      // Set this as the callback.
     Util::CurrentTimeCallback other;    // Expect this as the callback too.
     int                       count;    // Set callback this many times.
@@ -237,9 +237,9 @@ struct ThreadInfo {
 
 static bsls::AtomicOperations::AtomicTypes::Int go = { 0 };
 
+/// Using the `ThreadInfo` data specified by `argument`, invoke the set and
+/// get callback methods of `bdlt::CurrentTime`.
 extern "C" void *threadFunction(void *argument)
-    // Using the 'ThreadInfo' data specified by 'argument', invoke the set and
-    // get callback methods of 'bdlt::CurrentTime'.
 {
     while (!bsls::AtomicOperations::getInt(&go)) {
         // Wait for the starting gun.
@@ -273,31 +273,33 @@ extern "C" void *threadFunction(void *argument)
 // Suppose we are writing an application which involves dealing with the
 // current time (for example, a clock displaying it).  In order to test the
 // application, we would like to be able to control the time it sees.  We can
-// use 'bdlt::CurrentTime' for this purpose.
+// use `bdlt::CurrentTime` for this purpose.
 //
 // First, we create a sample application.  For this example, we simply have it
 // retrieve the current time in several formats:
-//..
+// ```
+
+/// Retrieve versions of the current time into the specified `local`,
+/// `utc`, and `now` parameters.
 void sampleApplication(bdlt::Datetime     *local,
                        bdlt::Datetime     *utc,
                        bsls::TimeInterval *now)
-    // Retrieve versions of the current time into the specified 'local',
-    // 'utc', and 'now' parameters.
 {
     *local = bdlt::CurrentTime::local();
     *utc   = bdlt::CurrentTime::utc();
     *now   = bdlt::CurrentTime::now();
 }
-//..
+// ```
 // Then, we create a method to test whether the application is producing the
 // expected results:
-//..
+// ```
+
+/// Return `true` if `sampleApplication` returns values matching the
+/// specified expected values `expectedLocal`, `expectedUtc`, and
+/// `expectedNow`.
 bool checkApplication(bdlt::Datetime     expectedLocal,
                       bdlt::Datetime     expectedUtc,
                       bsls::TimeInterval expectedNow)
-    // Return 'true' if 'sampleApplication' returns values matching the
-    // specified expected values 'expectedLocal', 'expectedUtc', and
-    // 'expectedNow'.
 {
     bdlt::Datetime     local;
     bdlt::Datetime     utc;
@@ -308,21 +310,23 @@ bool checkApplication(bdlt::Datetime     expectedLocal,
            expectedUtc   == utc   &&
            expectedNow   == now;
 }
-//..
+// ```
 // Next, we create a class allowing us to set the current time which will be
 // seen by the application:
-//..
+// ```
+
+/// Maintain and return a "current time" value.
+
+/// Create an object of this type, installing the handler.
 struct TestCurrentTimeGuard
-    // Maintain and return a "current time" value.
 {
     TestCurrentTimeGuard();
-        // Create an object of this type, installing the handler.
 
+    /// Destroy an object of this type, restoring the handler.
     ~TestCurrentTimeGuard();
-        // Destroy an object of this type, restoring the handler.
 
+    /// Return `s_time`.
     static bsls::TimeInterval time();
-        // Return 's_time'.
 
     bdlt::CurrentTime::CurrentTimeCallback d_prev;  // old callback
     static bsls::TimeInterval s_time;               // the "current time"
@@ -344,12 +348,13 @@ bsls::TimeInterval TestCurrentTimeGuard::time()
 {
     return s_time;
 }
-//..
+// ```
 // Finally, we write a method that tests that our application is functioning
 // correctly:
-//..
+// ```
+
+/// Test the application.
 void testApplication()
-    // Test the application.
 {
     TestCurrentTimeGuard tct;
     TestCurrentTimeGuard::s_time = bdlt::EpochUtil::convertToTimeInterval(
@@ -368,7 +373,7 @@ void testApplication()
 
     ASSERT(checkApplication(local, utc, now));
 }
-//..
+// ```
 
 // ============================================================================
 //                          MAIN PROGRAM
@@ -396,7 +401,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -410,15 +415,15 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'local' METHOD - STRESS TESTING FOR MONOTONICITY
+        // TESTING `local` METHOD - STRESS TESTING FOR MONOTONICITY
         //
         // Concerns:
-        //: 1 'local' returns non-decreasing values when run in a loop a large
-        //:   number of times.
+        // 1. `local` returns non-decreasing values when run in a loop a large
+        //    number of times.
         //
         // Plan:
-        //: 1 Run 'local' in a loop a large, configurable, number of times, and
-        //:   verify that its result is non-decreasing.
+        // 1. Run `local` in a loop a large, configurable, number of times, and
+        //    verify that its result is non-decreasing.
         //
         // Testing:
         //   Datetime local() stress test
@@ -426,7 +431,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "TESTING 'local' METHOD - STRESS TESTING FOR MONOTONICITY"
+                 << "TESTING `local` METHOD - STRESS TESTING FOR MONOTONICITY"
                  << endl
                  << "========================================================"
                  << endl;
@@ -475,22 +480,22 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'utc' METHOD - STRESS TESTING FOR MONOTONICITY
+        // TESTING `utc` METHOD - STRESS TESTING FOR MONOTONICITY
         //
         // Concerns:
-        //: 1 'utc' returns non-decreasing values when run in a loop a large
-        //:   number of times.
+        // 1. `utc` returns non-decreasing values when run in a loop a large
+        //    number of times.
         //
         // Plan:
-        //: 1 Run 'utc' in a loop a large, configurable, number of times, and
-        //:   verify that its result is non-decreasing.
+        // 1. Run `utc` in a loop a large, configurable, number of times, and
+        //    verify that its result is non-decreasing.
         //
         // Testing:
         //   Datetime utc() stress test
         // --------------------------------------------------------------------
         if (verbose)
             cout << endl
-                 << "TESTING 'utc' METHOD - STRESS TESTING FOR MONOTONICITY"
+                 << "TESTING `utc` METHOD - STRESS TESTING FOR MONOTONICITY"
                  << endl
                  << "======================================================"
                  << endl;
@@ -539,15 +544,15 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'now' METHOD - STRESS TESTING FOR MONOTONICITY
+        // TESTING `now` METHOD - STRESS TESTING FOR MONOTONICITY
         //
         // Concerns:
-        //: 1 'now' returns non-decreasing values when run in a loop a large
-        //:   number of times.
+        // 1. `now` returns non-decreasing values when run in a loop a large
+        //    number of times.
         //
         // Plan:
-        //: 1 Run 'now' in a loop a large, configurable, number of times, and
-        //:   verify that its result is non-decreasing.
+        // 1. Run `now` in a loop a large, configurable, number of times, and
+        //    verify that its result is non-decreasing.
         //
         // Testing:
         //   bsls::TimeInterval now() stress test
@@ -555,7 +560,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "TESTING 'now' METHOD - STRESS TESTING FOR MONOTONICITY"
+                 << "TESTING `now` METHOD - STRESS TESTING FOR MONOTONICITY"
                  << endl
                  << "======================================================"
                  << endl;
@@ -603,32 +608,32 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // -------------------------------------------------------------------
-        // TESTING 'asDatetimeTz' METHOD
-        //   Test the results of 'asDatetimeTz' correspond to the (already
-        //   tested) results for 'utc' and 'local'.
+        // TESTING `asDatetimeTz` METHOD
+        //   Test the results of `asDatetimeTz` correspond to the (already
+        //   tested) results for `utc` and `local`.
         //
         // Concerns:
-        //: 1 'asDatetimeTz' returns a value that corresponds to the current
-        //:   'utc' time.
-        //:
-        //: 2 'asDatetimeTz' returns a value that corresponds to the current
-        //:   'local' time.
+        // 1. `asDatetimeTz` returns a value that corresponds to the current
+        //    `utc` time.
+        //
+        // 2. `asDatetimeTz` returns a value that corresponds to the current
+        //    `local` time.
         //
         // Plan:
-        //: 1 Using the default real-time clock, verify 'asDatetimeTz'
-        //:   returns datetime value whose local time matches 'Util::local'
-        //:   and whose UTC time matches 'Util::now'
-        //:
-        //: 2 Install a callback which returns a specific value, and verify
-        //:   that 'asDatetimeTz' returns datetime value whose local time
-        //:   matches 'Util::local' and whose UTC time matches 'Util::now'
+        // 1. Using the default real-time clock, verify `asDatetimeTz`
+        //    returns datetime value whose local time matches `Util::local`
+        //    and whose UTC time matches `Util::now`
+        //
+        // 2. Install a callback which returns a specific value, and verify
+        //    that `asDatetimeTz` returns datetime value whose local time
+        //    matches `Util::local` and whose UTC time matches `Util::now`
         //
         // Testing:
         //   DatetimeTz asDatetimeTz()
         // -------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'asDatetimeTz' METHOD" << endl
+                          << "TESTING `asDatetimeTz` METHOD" << endl
                           << "=============================" << endl;
 
         if (verbose) { cout << "Test with a real-time clock value" << endl; }
@@ -656,27 +661,27 @@ int main(int argc, char *argv[])
 
       case 5: {
         // -------------------------------------------------------------------
-        // TESTING 'local' METHOD
+        // TESTING `local` METHOD
         //
         // Concerns:
-        //: 1 'local' returns a non-decreasing value.
-        //: 2 'local' is correct for a given 'utc'.
+        // 1. `local` returns a non-decreasing value.
+        // 2. `local` is correct for a given `utc`.
         //
         // Plan:
-        //: 1 First create two Datetime objects and then load the local time.
-        //:   Then verify that the local time is non-decreasing by invoking
-        //:   'local' several times.
-        //:
-        //: 2 Install a callback which returns a specific value, and verify
-        //:   that the difference between 'utc' and 'local' corresponds to the
-        //:   offset reported by 'LocalTimeOffset' for that date.
+        // 1. First create two Datetime objects and then load the local time.
+        //    Then verify that the local time is non-decreasing by invoking
+        //    `local` several times.
+        //
+        // 2. Install a callback which returns a specific value, and verify
+        //    that the difference between `utc` and `local` corresponds to the
+        //    offset reported by `LocalTimeOffset` for that date.
         //
         // Testing:
         //   Datetime local()
         // -------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'local' METHOD" << endl
+                          << "TESTING `local` METHOD" << endl
                           << "======================" << endl;
 
         if (verbose) { cout << "Testing monotonicity" << endl; }
@@ -691,7 +696,7 @@ int main(int argc, char *argv[])
             ASSERT (dt1 <= dt2);
         }
 
-        if (verbose) { cout << "Comparing 'utc' and 'local'" << endl; }
+        if (verbose) { cout << "Comparing `utc` and `local`" << endl; }
         Util::setCurrentTimeCallback(getClientTime);
         dt1 = Util::local();
         dt2 = Util::utc();
@@ -700,24 +705,24 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'now' AND 'utc' METHODS
+        // TESTING `now` AND `utc` METHODS
         //
         // Concerns:
-        //: 1 'now' and 'utc' return non-decreasing values, including with
-        //:   respect to each other.
-        //:
-        //: 2 'now' and 'utc' correctly return values from user-specified
-        //:   callback methods.
+        // 1. `now` and `utc` return non-decreasing values, including with
+        //    respect to each other.
+        //
+        // 2. `now` and `utc` correctly return values from user-specified
+        //    callback methods.
         //
         // Plan:
-        //: 1 Call 'now' and then call 'utc', recording its offset from the
-        //:   epoch, and verify that the results are properly ordered.
-        //:
-        //: 2 Call 'now' several times and verify that the results are
-        //:   non-decreasing.
-        //:
-        //: 3 Install a callback function returning known time values and
-        //:   verify that 'now' and 'utc' return the expected values.
+        // 1. Call `now` and then call `utc`, recording its offset from the
+        //    epoch, and verify that the results are properly ordered.
+        //
+        // 2. Call `now` several times and verify that the results are
+        //    non-decreasing.
+        //
+        // 3. Install a callback function returning known time values and
+        //    verify that `now` and `utc` return the expected values.
         //
         // Testing:
         //   bsls::TimeInterval now()
@@ -725,11 +730,11 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'now' AND 'utc' METHODS" << endl
+                          << "TESTING `now` AND `utc` METHODS" << endl
                           << "===============================" << endl;
 
         if (verbose) {
-            cout << "Testing 'now' and 'utc' (default implementation)" << endl;
+            cout << "Testing `now` and `utc` (default implementation)" << endl;
         }
         {
             bsls::TimeInterval i1 = Util::now();
@@ -757,7 +762,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "Testing 'now' and 'utc' with user defined functions"
+            cout << "Testing `now` and `utc` with user defined functions"
                  << endl;
         }
         {
@@ -778,7 +783,7 @@ int main(int argc, char *argv[])
 
             bdlt::DatetimeInterval dti = dt1 - bdlt::EpochUtil::epoch();
             ASSERT( 0 == inOrder(i1, dti));
-                                          // 'i1' == 'dti' == 1 second interval
+                                          // `i1` == `dti` == 1 second interval
 
             Util::setCurrentTimeCallback(IncrementInterval);
             ASSERT(IncrementInterval == Util::currentTimeCallback());
@@ -831,22 +836,22 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'inOrder(lhs, rhs)'
+        // TESTING `inOrder(lhs, rhs)`
         //
         // Concerns:
-        //: 1 The 'inOrder' helper method correctly determines the order of its
-        //:   parameters.
+        // 1. The `inOrder` helper method correctly determines the order of its
+        //    parameters.
         //
         // Plan:
-        //: 1 Apply the function to a set of carefully chosen challenge
-        //:   vectors, checking that the function returns the expected results.
+        // 1. Apply the function to a set of carefully chosen challenge
+        //    vectors, checking that the function returns the expected results.
         //
         // Testing:
         //   static int inOrder(INTERVAL_L lhs, INTERVAL_R rhs)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'inOrder(lhs, rhs)'" << endl
+                          << "TESTING `inOrder(lhs, rhs)`" << endl
                           << "===========================" << endl;
         {
             typedef bdlt::TimeUnitRatio R;
@@ -854,7 +859,7 @@ int main(int argc, char *argv[])
             static const struct DtiTi {
                 bdlt::DatetimeInterval dti;      // sample DatetimeInterval
                 bsls::TimeInterval     ti;       // sample TimeInterval
-                bsls::Types::Int64     diff;     // 'ti - dti' in milliseconds
+                bsls::Types::Int64     diff;     // `ti - dti` in milliseconds
                 int                    inorder;  // predicted value
             } dtDiff[] = {
                 {
@@ -937,26 +942,26 @@ int main(int argc, char *argv[])
         // TESTING CALLBACK RELATED FUNCTIONS
         //
         // Concerns:
-        //: 1 The callback function can be set through the
-        //:   'setCurrentTimeCallback' function.
-        //:
-        //: 2 The callback function can be retrieved through the
-        //:   'currentTimeCallback' function
-        //:
-        //: 3 The 'setCurrentTimeCallback' function returns the previous value
-        //:   with which it was called.
-        //:
-        //: 4 These methods are thread-safe.
+        // 1. The callback function can be set through the
+        //    `setCurrentTimeCallback` function.
+        //
+        // 2. The callback function can be retrieved through the
+        //    `currentTimeCallback` function
+        //
+        // 3. The `setCurrentTimeCallback` function returns the previous value
+        //    with which it was called.
+        //
+        // 4. These methods are thread-safe.
         //
         // Plan:
-        //: 1 Set and retrieve callback functions using the two methods.
-        //:   Verify that 'currentTimeCallback' returns the most recently set
-        //:   value.  Verify that 'setCurrentTimeCallback' returns the value
-        //:   with which it was called previously.
-        //:
-        //: 2 Start multiple threads which repeatedly install one of two
-        //:   callback functions and verify that the only those functions are
-        //:   ever returned by the methods.
+        // 1. Set and retrieve callback functions using the two methods.
+        //    Verify that `currentTimeCallback` returns the most recently set
+        //    value.  Verify that `setCurrentTimeCallback` returns the value
+        //    with which it was called previously.
+        //
+        // 2. Start multiple threads which repeatedly install one of two
+        //    callback functions and verify that the only those functions are
+        //    ever returned by the methods.
         //
         // Testing:
         //   CurrentTimeCallback currentTimeCallback()
@@ -983,7 +988,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-             cout << "Testing 'setCurrentTimeCallback' with some generic user "
+             cout << "Testing `setCurrentTimeCallback` with some generic user "
                      "defined functions"
                   << endl;
         }
@@ -1029,28 +1034,28 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'currentTimeDefault'
+        // TESTING `currentTimeDefault`
         //
         // Concerns:
-        //: 1 The default current-time callback function returns non-decreasing
-        //:   values.
-        //:
-        //: 2 The default current-time callback function returns values close
-        //:   to other current-time functions.
+        // 1. The default current-time callback function returns non-decreasing
+        //    values.
+        //
+        // 2. The default current-time callback function returns values close
+        //    to other current-time functions.
         //
         // Plan:
-        //: 1 Repeatedly invoke the method and verify that returned values are
-        //:   non-decreasing.
-        //:
-        //: 2 Compare the result of 'currentTimeDefault' against 'bsl::time'
-        //:   and 'bsls::SystemTime::now'.
+        // 1. Repeatedly invoke the method and verify that returned values are
+        //    non-decreasing.
+        //
+        // 2. Compare the result of `currentTimeDefault` against `bsl::time`
+        //    and `bsls::SystemTime::now`.
         //
         // Testing:
         //   bsls::TimeInterval currentTimeDefault()
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'currentTimeDefault'" << endl
+                          << "TESTING `currentTimeDefault`" << endl
                           << "============================" << endl;
 
         if (verbose) { cout << "Testing monotonicity" << endl; }
@@ -1085,11 +1090,11 @@ int main(int argc, char *argv[])
       } break;
       case -1: {
         // --------------------------------------------------------------------
-        // DETERMINE RESOLUTION OF 'now()'
+        // DETERMINE RESOLUTION OF `now()`
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "DETERMINE RESOLUTION OF 'now()'" << endl
+                          << "DETERMINE RESOLUTION OF `now()`" << endl
                           << "===============================" << endl;
 
         for (int i = 0; i < 10; ++i) {

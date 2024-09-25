@@ -22,10 +22,10 @@ using namespace bslh;
 //                                  --------
 // The component under test is a standards-conformant hashing algorithm
 // functor.  The component will be tested for conformance to the interface
-// requirements on 'std::hash', outlined in the C++ Standard.  The output of
+// requirements on `std::hash`, outlined in the C++ Standard.  The output of
 // the component will also be tested to check that it matches the expected
 // output of the underlying hashing algorithms.  This component also contains
-// 'hashAppend' free functions written for fundamental types.  These free
+// `hashAppend` free functions written for fundamental types.  These free
 // functions will be tested to ensure they properly pass data into the hashing
 // algorithms they are given.
 //-----------------------------------------------------------------------------
@@ -95,44 +95,44 @@ void aSsErT(bool condition, const char *message, int line)
 //          GLOBAL TYPEDEFS, HELPER FUNCTIONS, AND CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// This class implements a mock hashing algorithm that provides a way to
+/// accumulate and then examine data that is being passed into hashing
+/// algorithms by `hashAppend`.
 class MockAccumulatingHashingAlgorithm {
-    // This class implements a mock hashing algorithm that provides a way to
-    // accumulate and then examine data that is being passed into hashing
-    // algorithms by 'hashAppend'.
 
     void   *d_data_p;  // Data we were asked to hash
     size_t  d_length;  // Length of the data we were asked to hash
 
   public:
+    /// Create an object of this type.
     MockAccumulatingHashingAlgorithm()
     : d_data_p(0)
     , d_length(0)
-        // Create an object of this type.
     {
     }
 
+    /// Destroy this object
     ~MockAccumulatingHashingAlgorithm()
-        // Destroy this object
     {
         free(d_data_p);
     }
 
+    /// Append the data of the specified `length` at `voidPtr` for later
+    /// inspection.
     void operator()(const void *voidPtr, size_t length)
-        // Append the data of the specified 'length' at 'voidPtr' for later
-        // inspection.
     {
         d_data_p = realloc(d_data_p, d_length += length);
         memcpy(getData() + d_length - length, voidPtr, length);
     }
 
+    /// Return a pointer to the stored data.
     char *getData()
-        // Return a pointer to the stored data.
     {
         return static_cast<char *>(d_data_p);
     }
 
+    /// Return the length of the stored data.
     size_t getLength()
-        // Return the length of the stored data.
     {
         return d_length;
     }
@@ -161,11 +161,11 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Run the usage example (C-1)
+        // 1. Run the usage example (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -178,29 +178,29 @@ int main(int argc, char *argv[])
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to maintain a value as either an integer or a floating-point
 // number, and have it fit within the BDE hash framework.  We can use
-// 'std::variant<int, double>' for this, and demonstrate that such a value can
+// `std::variant<int, double>` for this, and demonstrate that such a value can
 // be correctly hashed.
 //
 // First, we set up a pair of such optional values to represent the two
 // potential states we wish to represent.
-//..
+// ```
     typedef std::variant<int, double> id;
     id variantInt    = 42;
     id variantDouble = 3.475;
-//..
+// ```
 // Then, we create a hashing object.
-//..
+// ```
     bslh::Hash<> hasher;
-//..
+// ```
 // Next, we hash each of our values.
-//..
+// ```
     size_t variantIntHash    = hasher(variantInt);
     size_t variantDoubleHash = hasher(variantDouble);
-//..
+// ```
 // Then we hash the underlying values.  A variant hashes as a pair of values,
-// first the 'size_t' index of the held type, then the contained value, so we
+// first the `size_t` index of the held type, then the contained value, so we
 // need to accumulate the hashes.
-//..
+// ```
     bslh::Hash<>::HashAlgorithm haInt;
     hashAppend(haInt, size_t(0));
     hashAppend(haInt, 42);
@@ -210,38 +210,38 @@ int main(int argc, char *argv[])
     hashAppend(haDouble, size_t(1));
     hashAppend(haDouble, 3.475);
     size_t expectedDoubleHash = size_t(haDouble.computeHash());
-//..
-// Finally, we verify that the 'std::variant' hasher produces the same results
+// ```
+// Finally, we verify that the `std::variant` hasher produces the same results
 // as the underlying hashers.
-//..
+// ```
     ASSERT(expectedIntHash    == variantIntHash);
     ASSERT(expectedDoubleHash == variantDoubleHash);
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'hashAppend'
-        //   Verify that the 'hashAppend' free functions have been implemented
+        // TESTING `hashAppend`
+        //   Verify that the `hashAppend` free functions have been implemented
         //   for all of the fundamental types and don't truncate or pass extra
         //   data into the algorithms.
         //
         // Concerns:
-        //: 1 'hashAppend' has been implemented for 'std::variant'.
-        //:
-        //: 2 'hashAppend' has been implemented for 'std::monostate'.
+        // 1. `hashAppend` has been implemented for `std::variant`.
+        //
+        // 2. `hashAppend` has been implemented for `std::monostate`.
         //
         // Plan:
-        //: 1 Use a mock hashing algorithm to test 'hashAppend'.
+        // 1. Use a mock hashing algorithm to test `hashAppend`.
         //
         // Testing:
         //   void hashAppend(HASHALG& algorithm, const std::variant<TYPE...>&);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'hashAppend'"
+        if (verbose) printf("\nTESTING `hashAppend`"
                             "\n====================\n");
 
         if (verbose) printf("Use a mock hashing algorithm to test that"
-                            " 'hashAppend' inputs the variant index"
+                            " `hashAppend` inputs the variant index"
                             " followed by the variant value.\n");
         {
             std::variant<int, double>        o;
@@ -274,8 +274,8 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Use a mock hashing algorithm to test that"
-                            " 'hashAppend' inputs the expected value"
-                            " for the 'std::monostate' type.\n");
+                            " `hashAppend` inputs the expected value"
+                            " for the `std::monostate` type.\n");
         {
             std::variant<std::monostate, int> var;
             MockAccumulatingHashingAlgorithm  forMonostate;
@@ -311,20 +311,20 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an instance of 'bslh::Hash<>'. (C-1)
-        //:
-        //: 2 Verify different hashes are produced for different variants.
-        //:   (C-1)
-        //:
-        //: 3 Verify the same hashes are produced for the same variants in the
-        //:   same positions. (C-1)
-        //:
-        //: 4 Verify different hashes are produced for the same variants in
-        //:   different positions. (C-1)
+        // 1. Create an instance of `bslh::Hash<>`. (C-1)
+        //
+        // 2. Verify different hashes are produced for different variants.
+        //    (C-1)
+        //
+        // 3. Verify the same hashes are produced for the same variants in the
+        //    same positions. (C-1)
+        //
+        // 4. Verify different hashes are produced for the same variants in
+        //    different positions. (C-1)
         //
         // Testing:
         //   BREATHING TEST

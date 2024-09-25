@@ -11,8 +11,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>      // 'printf'
-#include <stdlib.h>     // 'atoi'
+#include <stdio.h>      // `printf`
+#include <stdlib.h>     // `atoi`
 
 using namespace BloombergLP;
 
@@ -21,8 +21,8 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines two meta-functions, 'bsl::is_fundamental'
-// and 'bslmf::IsFundamental' and a template variable 'bsl::is_fundamental_v',
+// The component under test defines two meta-functions, `bsl::is_fundamental`
+// and `bslmf::IsFundamental` and a template variable `bsl::is_fundamental_v`,
 // that determine whether a template parameter type is a fundamental type.
 // Thus, we need to ensure that the values returned by these meta-functions are
 // correct for each possible category of types.  Since the two meta-functions
@@ -84,14 +84,14 @@ void aSsErT(bool condition, const char *message, int line)
 //                  COMPONENT SPECIFIC MACROS FOR TESTING
 //-----------------------------------------------------------------------------
 
-// Each of the macros below will test a 'METAFUNC' trait type with a set of
-// variations on a 'TYPE'.  There are several layers of macros, as object types
+// Each of the macros below will test a `METAFUNC` trait type with a set of
+// variations on a `TYPE`.  There are several layers of macros, as object types
 // support the full range of variation, but function types cannot form an
-// array, nor be cv-qualified.  Similarly, 'void' may be cv-qualified but still
+// array, nor be cv-qualified.  Similarly, `void` may be cv-qualified but still
 // cannot form an array.  As macros are strictly text-substitution we must use
-// the appropriate 'add_decoration' traits to transform types in a manner that
+// the appropriate `add_decoration` traits to transform types in a manner that
 // is guaranteed to be syntactically valid.  Note that these are not
-// type-dependent contexts, so there is no need to use 'typename' when fetching
+// type-dependent contexts, so there is no need to use `typename` when fetching
 // the result from any of the queried traits.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER) &&                   \
@@ -107,43 +107,43 @@ void aSsErT(bool condition, const char *message, int line)
 #endif
     // Lvalue-references are deemed to be fundamental, for purposes of a legacy
     // trait, as long as they refer to a fundamental types; this macro tests
-    // whether a given 'TYPE' is fundamental according to a legacy METAFUNC
+    // whether a given `TYPE` is fundamental according to a legacy METAFUNC
     // trait, and whether any kind of reference to that TYPE is fundamental.
 
+/// Test all cv-qualified combinations on a type, and references to those
+/// same cv-qualified types.
 # define LEGACY_ASSERT_CVQ(META_FUNC, TYPE, result)                          \
          LEGACY_ASSERT_REF(META_FUNC,                   TYPE,        result) \
          LEGACY_ASSERT_REF(META_FUNC, bsl::add_const<   TYPE>::type, result) \
          LEGACY_ASSERT_REF(META_FUNC, bsl::add_volatile<TYPE>::type, result) \
          LEGACY_ASSERT_REF(META_FUNC, bsl::add_cv<      TYPE>::type, result)
-    // Test all cv-qualified combinations on a type, and references to those
-    // same cv-qualified types.
 
+/// Test whether a type is fundamental, and confirm that pointers to such a
+/// type are never fundamental.
 # define LEGACY_ASSERT_CVQP(META_FUNC,                  TYPE,        result) \
          LEGACY_ASSERT_CVQ (META_FUNC,                  TYPE,        result) \
          LEGACY_ASSERT_CVQ (META_FUNC, bsl::add_pointer<TYPE>::type, false)
-    // Test whether a type is fundamental, and confirm that pointers to such a
-    // type are never fundamental.
 
+/// Test all cv-qualified combinations on a type, but not references to that
+/// type.
 # define LEGACY_ASSERT_CVQ_NO_REF(META_FUNC, TYPE, result)                 \
     ASSERT(result == META_FUNC<                  TYPE       >::value);     \
     ASSERT(result == META_FUNC<bsl::add_const<   TYPE>::type>::value);     \
     ASSERT(result == META_FUNC<bsl::add_volatile<TYPE>::type>::value);     \
     ASSERT(result == META_FUNC<bsl::add_cv<      TYPE>::type>::value);
-    // Test all cv-qualified combinations on a type, but not references to that
-    // type.
 
+/// Test whether a type is fundamental, and confirm that pointers to such a
+/// type are never fundamental.
 # define LEGACY_ASSERT_CVQP_NO_REF(META_FUNC,           TYPE,        result) \
          LEGACY_ASSERT_CVQ_NO_REF (META_FUNC,           TYPE,        result) \
          LEGACY_ASSERT_CVQ (META_FUNC, bsl::add_pointer<TYPE>::type, false)
-    // Test whether a type is fundamental, and confirm that pointers to such a
-    // type are never fundamental.
 
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+/// Test whether `bsl::is_fundamental_v<TYPE>` has the same value as
+/// `bsl::is_fundamental<TYPE>::value`.
 #define ASSERT_V_SAME(TYPE)                                                   \
     ASSERT(bsl::is_fundamental<TYPE>::value == bsl::is_fundamental_v<TYPE>)
-    // Test whether 'bsl::is_fundamental_v<TYPE>' has the same value as
-    // 'bsl::is_fundamental<TYPE>::value'.
 #else
 #define ASSERT_V_SAME(TYPE)
 #endif
@@ -163,22 +163,24 @@ void aSsErT(bool condition, const char *message, int line)
     ASSERT(false == META_FUNC<bsl::add_lvalue_reference<TYPE>::type>::value);
 #endif
     // References are never fundamental types, but must safely be parsed by the
-    // metafunction under test, and give the expected ('false') result.
+    // metafunction under test, and give the expected (`false`) result.
 
+/// Test all cv-qualified combinations on a type, and references to those
+/// same cv-qualified types.
 # define TYPE_ASSERT_CVQ(META_FUNC, TYPE, result)                          \
          TYPE_ASSERT_REF(META_FUNC,                   TYPE,        result) \
          TYPE_ASSERT_REF(META_FUNC, bsl::add_const<   TYPE>::type, result) \
          TYPE_ASSERT_REF(META_FUNC, bsl::add_volatile<TYPE>::type, result) \
          TYPE_ASSERT_REF(META_FUNC, bsl::add_cv<      TYPE>::type, result)
-    // Test all cv-qualified combinations on a type, and references to those
-    // same cv-qualified types.
 
+/// Test whether a type is fundamental, and confirm that pointers to such a
+/// type is never fundamental.
 # define TYPE_ASSERT_CVQP(META_FUNC,                  TYPE,        result) \
          TYPE_ASSERT_CVQ (META_FUNC,                  TYPE,        result) \
          TYPE_ASSERT_CVQ (META_FUNC, bsl::add_pointer<TYPE>::type, false)
-    // Test whether a type is fundamental, and confirm that pointers to such a
-    // type is never fundamental.
 
+/// Test all cv-qualified combinations on a type, but not references to that
+/// type.
 # define TYPE_ASSERT_CVQ_NO_REF(META_FUNC, TYPE, result)                   \
     ASSERT(result == META_FUNC<                  TYPE       >::value);     \
     ASSERT(result == META_FUNC<bsl::add_const<   TYPE>::type>::value);     \
@@ -188,14 +190,12 @@ void aSsErT(bool condition, const char *message, int line)
     ASSERT_V_SAME(             bsl::add_const<   TYPE>::type        );     \
     ASSERT_V_SAME(             bsl::add_volatile<TYPE>::type        );     \
     ASSERT_V_SAME(             bsl::add_cv<      TYPE>::type        );
-    // Test all cv-qualified combinations on a type, but not references to that
-    // type.
 
+/// Test whether a type is fundamental, and confirm that pointers to such a
+/// type is never fundamental, but do not test references to such a type.
 # define TYPE_ASSERT_CVQP_NO_REF(META_FUNC,           TYPE,        result) \
          TYPE_ASSERT_CVQ_NO_REF (META_FUNC,           TYPE,        result) \
          TYPE_ASSERT_CVQ (META_FUNC, bsl::add_pointer<TYPE>::type, false)
-    // Test whether a type is fundamental, and confirm that pointers to such a
-    // type is never fundamental, but do not test references to such a type.
 
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
@@ -228,45 +228,45 @@ void aSsErT(bool condition, const char *message, int line)
 namespace {
 
 enum EnumTestType {
-    // This user-defined 'enum' type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::is_fundamental'.
+    // This user-defined `enum` type is intended to be used for testing as the
+    // template parameter `TYPE` of `bsl::is_fundamental`.
 };
 
+/// This user-defined `struct` type is intended to be used for testing as
+/// the template parameter `TYPE` of `bsl::is_fundamental`.
 struct StructTestType {
-    // This user-defined 'struct' type is intended to be used for testing as
-    // the template parameter 'TYPE' of 'bsl::is_fundamental'.
 };
 
+/// This user-defined `union` type is intended to be used for testing as the
+/// template parameter `TYPE` of `bsl::is_fundamental`.
 union UnionTestType {
-    // This user-defined 'union' type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::is_fundamental'.
 };
 
+/// This user-defined base class type is intended to be used for testing as
+/// the template parameter `TYPE` of `bsl::is_fundamental`.
 class BaseClassTestType {
-    // This user-defined base class type is intended to be used for testing as
-    // the template parameter 'TYPE' of 'bsl::is_fundamental'.
 };
 
+/// This user-defined derived class type is intended to be used for testing
+/// as the template parameter `TYPE` of `bsl::is_fundamental`.
 class DerivedClassTestType : public BaseClassTestType {
-    // This user-defined derived class type is intended to be used for testing
-    // as the template parameter 'TYPE' of 'bsl::is_fundamental'.
 };
 
+/// This function pointer type is intended to be used for testing as the
+/// template parameter `TYPE` of `bsl::is_fundamental`.
 typedef void (*FunctionPtrTestType) ();
-    // This function pointer type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::is_fundamental'.
 
 struct Incomplete;
-    // This incomplete 'struct' type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::is_fundamental'.
+    // This incomplete `struct` type is intended to be used for testing as the
+    // template parameter `TYPE` of `bsl::is_fundamental`.
 
+/// This pointer to non-static member function type is intended to be used
+/// for testing as the template parameter `TYPE` of `bsl::is_fundamental`.
 typedef int (Incomplete::*MethodPtrTestType) ();
-    // This pointer to non-static member function type is intended to be used
-    // for testing as the template parameter 'TYPE' of 'bsl::is_fundamental'.
 
+/// This pointer to member object type is intended to be used for testing as
+/// the template parameter `TYPE` of `bsl::is_fundamental`.
 typedef int Incomplete::*PMD;
-    // This pointer to member object type is intended to be used for testing as
-    // the template parameter 'TYPE' of 'bsl::is_fundamental'.
 
 }  // close unnamed namespace
 
@@ -296,13 +296,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -319,61 +319,61 @@ int main(int argc, char *argv[])
 ///- - - - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a set of types are fundamental types.
 //
-// Now, we instantiate the 'bsl::is_fundamental' template for several
-// non-fundamental and fundamental types, and assert the 'value' static data
+// Now, we instantiate the `bsl::is_fundamental` template for several
+// non-fundamental and fundamental types, and assert the `value` static data
 // member of each instantiation:
-//..
+// ```
     ASSERT(true  == bsl::is_fundamental<int>::value);
     ASSERT(false == bsl::is_fundamental<int&>::value);
     ASSERT(true  == bsl::is_fundamental<long long  >::value);
     ASSERT(false == bsl::is_fundamental<long long *>::value);
-//..
+// ```
 // Note that if the current compiler supports the variable templates C++14
 // feature then we can re-write the snippet of code above using the
-// 'bsl::is_function_v' variable as follows:
-//..
+// `bsl::is_function_v` variable as follows:
+// ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
     ASSERT(true  == bsl::is_fundamental_v<int>);
     ASSERT(false == bsl::is_fundamental_v<int&>);
     ASSERT(true  == bsl::is_fundamental_v<long long  >);
     ASSERT(false == bsl::is_fundamental_v<long long *>);
 #endif
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'bslmf::IsFundamental::value'
-        //   Ensure that the static data member 'value' of
-        //   'bslmf::IsFundamental' instantiations having various (template
-        //   parameter) 'TYPE's has the correct value.
+        // `bslmf::IsFundamental::value`
+        //   Ensure that the static data member `value` of
+        //   `bslmf::IsFundamental` instantiations having various (template
+        //   parameter) `TYPE`s has the correct value.
         //
         // Concerns:
-        //: 1 'IsFundamental::value' is 1 when 'TYPE' is a (possibly
-        //:   cv-qualified) primitive type or reference to (possibly
-        //:   cv-qualified) primitive type.
-        //:
-        //: 2 'IsFundamental::value' is 0 when 'TYPE' is a (possibly
-        //:   cv-qualified) user-defined type.
-        //:
-        //: 3 'IsFundamental::value' is 0 when 'TYPE' is a (possibly
-        //:   cv-qualified) pointer to a (possibly cv-qualified) type.
-        //:
-        //: 4 'IsFundamental::value' is 0 when 'TYPE' is a (possibly
-        //:   cv-qualified) function type.
-        //:
-        //: 5 'is_fundamental::value' is '1' when 'TYPE' is a (possibly
-        //:   cv-qualified) 'bsl::nullptr_t' type if the 'nullptr' keyword is
-        //:   is supported, and '0' otherwise.
+        // 1. `IsFundamental::value` is 1 when `TYPE` is a (possibly
+        //    cv-qualified) primitive type or reference to (possibly
+        //    cv-qualified) primitive type.
+        //
+        // 2. `IsFundamental::value` is 0 when `TYPE` is a (possibly
+        //    cv-qualified) user-defined type.
+        //
+        // 3. `IsFundamental::value` is 0 when `TYPE` is a (possibly
+        //    cv-qualified) pointer to a (possibly cv-qualified) type.
+        //
+        // 4. `IsFundamental::value` is 0 when `TYPE` is a (possibly
+        //    cv-qualified) function type.
+        //
+        // 5. `is_fundamental::value` is '1' when `TYPE` is a (possibly
+        //    cv-qualified) `bsl::nullptr_t` type if the `nullptr` keyword is
+        //    is supported, and `0` otherwise.
         //
         // Plan:
-        //   Verify that 'bslmf::IsFundamental::value' has the correct value
-        //   for each (template parameter) 'TYPE' in the concerns.
+        //   Verify that `bslmf::IsFundamental::value` has the correct value
+        //   for each (template parameter) `TYPE` in the concerns.
         //
         // Testing:
         //   bslmf::IsFundamental::value
         // --------------------------------------------------------------------
 
-        if (verbose) printf("'bslmf::IsFundamental::value'\n"
+        if (verbose) printf("`bslmf::IsFundamental::value`\n"
                             "=============================\n");
         // C-1
         LEGACY_ASSERT_CVQP(bslmf::IsFundamental, char,                   1);
@@ -433,42 +433,42 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bsl::is_fundamental::value'
-        //   Ensure that the static data member 'value' of
-        //   'bsl::is_fundamental' instantiations having various (template
-        //   parameter) 'TYPE's has the correct value.
+        // `bsl::is_fundamental::value`
+        //   Ensure that the static data member `value` of
+        //   `bsl::is_fundamental` instantiations having various (template
+        //   parameter) `TYPE`s has the correct value.
         //
         // Concerns:
-        //: 1 'is_fundamental::value' is 'true' when 'TYPE' is a (possibly
-        //:   cv-qualified) primitive type, and 'false' when 'TYPE' is a
-        //:   reference to (possibly cv-qualified) primitive type.
-        //:
-        //: 2 'is_fundamental::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) user-defined type.
-        //:
-        //: 3 'is_fundamental::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) pointer to a (possibly cv-qualified) type.
-        //:
-        //: 4 'is_fundamental::value' is 'false' when 'TYPE' is a (possibly
-        //:   cv-qualified) function type.
-        //:
-        //: 5 'is_fundamental::value' is 'true' when 'TYPE' is a (possibly
-        //:   cv-qualified) 'bsl::nullptr_t' type if the 'nullptr' keyword is
-        //:   is supported, and 'false' otherwise.
-        //:
-        //: 6  That 'is_fundamental<T>::value' has the same value as
-        //:    'is_fudamental_v<T>' for a variety of template parameter types.
+        // 1. `is_fundamental::value` is `true` when `TYPE` is a (possibly
+        //    cv-qualified) primitive type, and `false` when `TYPE` is a
+        //    reference to (possibly cv-qualified) primitive type.
+        //
+        // 2. `is_fundamental::value` is `false` when `TYPE` is a (possibly
+        //    cv-qualified) user-defined type.
+        //
+        // 3. `is_fundamental::value` is `false` when `TYPE` is a (possibly
+        //    cv-qualified) pointer to a (possibly cv-qualified) type.
+        //
+        // 4. `is_fundamental::value` is `false` when `TYPE` is a (possibly
+        //    cv-qualified) function type.
+        //
+        // 5. `is_fundamental::value` is `true` when `TYPE` is a (possibly
+        //    cv-qualified) `bsl::nullptr_t` type if the `nullptr` keyword is
+        //    is supported, and `false` otherwise.
+        //
+        // 6.  That `is_fundamental<T>::value` has the same value as
+        //     `is_fudamental_v<T>` for a variety of template parameter types.
         //
         // Plan:
-        //   Verify that 'bsl::is_fundamental::value' has the correct value for
-        //   each (template parameter) 'TYPE' in the concerns.
+        //   Verify that `bsl::is_fundamental::value` has the correct value for
+        //   each (template parameter) `TYPE` in the concerns.
         //
         // Testing:
         //   bsl::is_fundamental::value
         //   bsl::is_fundamental_v
         // --------------------------------------------------------------------
 
-        if (verbose) printf("'bsl::is_fundamental::value'\n"
+        if (verbose) printf("`bsl::is_fundamental::value`\n"
                             "============================\n");
 
         // C-1

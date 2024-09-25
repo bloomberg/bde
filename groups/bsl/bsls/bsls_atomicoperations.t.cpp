@@ -238,9 +238,9 @@ const bsls::Types::Int64 OFFSET_64 = 0xA00000000LL;
 //-----------------------------------------------------------------------------
 
 
+/// This class implements a cross-platform mutual exclusion primitive
+/// similar to posix mutexes.
 class my_Mutex {
-    // This class implements a cross-platform mutual exclusion primitive
-    // similar to posix mutexes.
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     HANDLE d_mutex;
 #else
@@ -248,23 +248,24 @@ class my_Mutex {
 #endif
 
   public:
+    /// Construct an `my_Mutex` object.
     my_Mutex();
-        // Construct an 'my_Mutex' object.
+
+    /// Destroy an `my_Mutex` object.
     ~my_Mutex();
-        // Destroy an 'my_Mutex' object.
 
+    /// Lock this mutex.
     void lock();
-        // Lock this mutex.
 
+    /// Unlock this mutex;
     void unlock();
-        // Unlock this mutex;
 };
 
+/// This class implements a cross-platform waitable state indicator used for
+/// testing.  It has two states, signaled and non-signaled.  Once
+/// signaled(`signal`), the state will persist until explicitly `reset`.
+/// Calls to wait when the state is signaled, will succeed immediately.
 class my_Conditional {
-    // This class implements a cross-platform waitable state indicator used for
-    // testing.  It has two states, signaled and non-signaled.  Once
-    // signaled('signal'), the state will persist until explicitly 'reset'.
-    // Calls to wait when the state is signaled, will succeed immediately.
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     HANDLE d_cond;
 #else
@@ -277,22 +278,22 @@ class my_Conditional {
     my_Conditional();
     ~my_Conditional();
 
+    /// Reset the state of this indicator to non-signaled.
     void reset();
-        // Reset the state of this indicator to non-signaled.
 
+    /// Signal the state of the indicator and unblock any thread waiting
+    /// for the state to be signaled.
     void signal();
-        // Signal the state of the indicator and unblock any thread waiting
-        // for the state to be signaled.
 
+    /// Wait until the state of this indicator becomes signaled.  If the
+    /// state is already signaled then return immediately.
     void wait();
-        // Wait until the state of this indicator becomes signaled.  If the
-        // state is already signaled then return immediately.
 
+    /// Wait until the state of this indicator becomes signaled or until or
+    /// for the specified `timeout`(in milliseconds).  Return 0 if the state
+    /// is signaled, non-zero if the timeout has expired.  If the state is
+    /// already signaled then return immediately.
     int  timedWait(int timeout);
-        // Wait until the state of this indicator becomes signaled or until or
-        // for the specified 'timeout'(in milliseconds).  Return 0 if the state
-        // is signaled, non-zero if the timeout has expired.  If the state is
-        // already signaled then return immediately.
 };
 
 static my_Mutex aSsErT_mutex;
@@ -703,10 +704,10 @@ static void* case8ThreadU64(void* ptr)
 }
 
 
+/// This function is used to test the `incrementInt` and `incrementIntNv`
+/// functions.  It atomically increments the specified atomic integer object
+/// for the specified number of iterations.
 static void* incrementIntTestThread(void *ptr)
-    // This function is used to test the 'incrementInt' and 'incrementIntNv'
-    // functions.  It atomically increments the specified atomic integer object
-    // for the specified number of iterations.
 {
     IntTestThreadArgs *args=(IntTestThreadArgs*)ptr;
 
@@ -724,10 +725,10 @@ static void* incrementIntTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `incrementUint` and `incrementUintNv`
+/// functions.  It atomically increments the specified atomic unsigned
+/// integer object for the specified number of iterations.
 static void* incrementUintTestThread(void *ptr)
-    // This function is used to test the 'incrementUint' and 'incrementUintNv'
-    // functions.  It atomically increments the specified atomic unsigned
-    // integer object for the specified number of iterations.
 {
     UintTestThreadArgs *args=(UintTestThreadArgs*)ptr;
 
@@ -745,10 +746,10 @@ static void* incrementUintTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `decrementInt` and `decrementIntNv`
+/// functions.  It atomically decrements the specified atomic integer object
+/// for the specified number of iterations.
 static void* decrementIntTestThread(void *ptr)
-    // This function is used to test the 'decrementInt' and 'decrementIntNv'
-    // functions.  It atomically decrements the specified atomic integer object
-    // for the specified number of iterations.
 {
     IntTestThreadArgs *args=(IntTestThreadArgs*)ptr;
 
@@ -766,10 +767,10 @@ static void* decrementIntTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `decrementUint` and `decrementUintNv`
+/// functions.  It atomically decrements the specified atomic unsigned
+/// integer object for the specified number of iterations.
 static void* decrementUintTestThread(void *ptr)
-    // This function is used to test the 'decrementUint' and 'decrementUintNv'
-    // functions.  It atomically decrements the specified atomic unsigned
-    // integer object for the specified number of iterations.
 {
     UintTestThreadArgs *args=(UintTestThreadArgs*)ptr;
 
@@ -787,12 +788,12 @@ static void* decrementUintTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `incrementInt64` function.  It
+/// atomically increments the specified 64bit atomic integer object for the
+/// specified number of iterations.  When executed by multiple threads
+/// concurrently, final value of the specified int should have been
+/// incremented by exactly NTHREADS * NITERATIONS.
 static void* incrementInt64TestThread(void *ptr)
-    // This function is used to test the 'incrementInt64' function.  It
-    // atomically increments the specified 64bit atomic integer object for the
-    // specified number of iterations.  When executed by multiple threads
-    // concurrently, final value of the specified int should have been
-    // incremented by exactly NTHREADS * NITERATIONS.
 {
     Int64TestThreadArgs *args=(Int64TestThreadArgs*)ptr;
 
@@ -810,13 +811,13 @@ static void* incrementInt64TestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `incrementUint64` and
+/// `incrementUint64Nv` functions.  It atomically increments the specified
+/// 64-bit atomic unsigned integer object for the specified number of
+/// iterations.  When executed by multiple threads concurrently, final
+/// value of the specified int should have been incremented by exactly
+/// NTHREADS * NITERATIONS.
 static void* incrementUint64TestThread(void *ptr)
-    // This function is used to test the 'incrementUint64' and
-    // 'incrementUint64Nv' functions.  It atomically increments the specified
-    // 64-bit atomic unsigned integer object for the specified number of
-    // iterations.  When executed by multiple threads concurrently, final
-    // value of the specified int should have been incremented by exactly
-    // NTHREADS * NITERATIONS.
 {
     Uint64TestThreadArgs *args=(Uint64TestThreadArgs*)ptr;
 
@@ -834,12 +835,12 @@ static void* incrementUint64TestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `decrementInt64` function.  It
+/// atomically decrements the specified 64bit atomic integer object for the
+/// specified number of iterations.  When executed by multiple threads
+/// concurrently, final value of the specified int should have been
+/// decremented by exactly NTHREADS * NITERATIONS.
 static void* decrementInt64TestThread(void *ptr)
-    // This function is used to test the 'decrementInt64' function.  It
-    // atomically decrements the specified 64bit atomic integer object for the
-    // specified number of iterations.  When executed by multiple threads
-    // concurrently, final value of the specified int should have been
-    // decremented by exactly NTHREADS * NITERATIONS.
 {
     Int64TestThreadArgs *args=(Int64TestThreadArgs*)ptr;
 
@@ -857,13 +858,13 @@ static void* decrementInt64TestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `decrementUint64` and
+/// `decrementUint64Nv` functions.  It atomically decrements the specified
+/// 64-bit atomic unsigned integer object for the specified number of
+/// iterations.  When executed by multiple threads concurrently, final value
+/// of the specified unsigned int should have been decremented by exactly
+/// NTHREADS * NITERATIONS.
 static void* decrementUint64TestThread(void *ptr)
-    // This function is used to test the 'decrementUint64' and
-    // 'decrementUint64Nv' functions.  It atomically decrements the specified
-    // 64-bit atomic unsigned integer object for the specified number of
-    // iterations.  When executed by multiple threads concurrently, final value
-    // of the specified unsigned int should have been decremented by exactly
-    // NTHREADS * NITERATIONS.
 {
     Uint64TestThreadArgs *args=(Uint64TestThreadArgs*)ptr;
 
@@ -882,10 +883,10 @@ static void* decrementUint64TestThread(void *ptr)
 }
 
 
+/// This function is used to test the `incrementIntAcqRel` and
+/// `incrementIntNvAcqRel` functions.  It atomically increments the
+/// specified atomic integer object for the specified number of iterations.
 static void* incrementIntAcqRelTestThread(void *ptr)
-    // This function is used to test the 'incrementIntAcqRel' and
-    // 'incrementIntNvAcqRel' functions.  It atomically increments the
-    // specified atomic integer object for the specified number of iterations.
 {
     IntTestThreadArgs *args=(IntTestThreadArgs*)ptr;
 
@@ -903,11 +904,11 @@ static void* incrementIntAcqRelTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `incrementUintAcqRel` and
+/// `incrementUintNvAcqRel` functions.  It atomically increments the
+/// specified atomic unsigned integer object for the specified number of
+/// iterations.
 static void* incrementUintAcqRelTestThread(void *ptr)
-    // This function is used to test the 'incrementUintAcqRel' and
-    // 'incrementUintNvAcqRel' functions.  It atomically increments the
-    // specified atomic unsigned integer object for the specified number of
-    // iterations.
 {
     UintTestThreadArgs *args=(UintTestThreadArgs*)ptr;
 
@@ -925,10 +926,10 @@ static void* incrementUintAcqRelTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `decrementIntAcqRel` and
+/// `decrementIntNvAcqRel` functions.  It atomically decrements the
+/// specified atomic integer object for the specified number of iterations.
 static void* decrementIntAcqRelTestThread(void *ptr)
-    // This function is used to test the 'decrementIntAcqRel' and
-    // 'decrementIntNvAcqRel' functions.  It atomically decrements the
-    // specified atomic integer object for the specified number of iterations.
 {
     IntTestThreadArgs *args=(IntTestThreadArgs*)ptr;
 
@@ -946,11 +947,11 @@ static void* decrementIntAcqRelTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `decrementUintAcqRel` and
+/// `decrementUintNvAcqRel` functions.  It atomically decrements the
+/// specified atomic unsigned integer object for the specified number of
+/// iterations.
 static void* decrementUintAcqRelTestThread(void *ptr)
-    // This function is used to test the 'decrementUintAcqRel' and
-    // 'decrementUintNvAcqRel' functions.  It atomically decrements the
-    // specified atomic unsigned integer object for the specified number of
-    // iterations.
 {
     UintTestThreadArgs *args=(UintTestThreadArgs*)ptr;
 
@@ -968,12 +969,12 @@ static void* decrementUintAcqRelTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `incrementInt64AcqRel` function.  It
+/// atomically increments the specified 64bit atomic integer object for the
+/// specified number of iterations.  When executed by multiple threads
+/// concurrently, final value of the specified int should have been
+/// incremented by exactly NTHREADS * NITERATIONS.
 static void* incrementInt64AcqRelTestThread(void *ptr)
-    // This function is used to test the 'incrementInt64AcqRel' function.  It
-    // atomically increments the specified 64bit atomic integer object for the
-    // specified number of iterations.  When executed by multiple threads
-    // concurrently, final value of the specified int should have been
-    // incremented by exactly NTHREADS * NITERATIONS.
 {
     Int64TestThreadArgs *args=(Int64TestThreadArgs*)ptr;
 
@@ -991,13 +992,13 @@ static void* incrementInt64AcqRelTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `incrementUint64AcqRel` and
+/// `incrementUint64NvAcqRel` functions.  It atomically increments the
+/// specified 64bit atomic unsigned integer object for the
+/// specified number of iterations.  When executed by multiple threads
+/// concurrently, final value of the specified int should have been
+/// incremented by exactly NTHREADS * NITERATIONS.
 static void* incrementUint64AcqRelTestThread(void *ptr)
-    // This function is used to test the 'incrementUint64AcqRel' and
-    // 'incrementUint64NvAcqRel' functions.  It atomically increments the
-    // specified 64bit atomic unsigned integer object for the
-    // specified number of iterations.  When executed by multiple threads
-    // concurrently, final value of the specified int should have been
-    // incremented by exactly NTHREADS * NITERATIONS.
 {
     Uint64TestThreadArgs *args=(Uint64TestThreadArgs*)ptr;
 
@@ -1015,12 +1016,12 @@ static void* incrementUint64AcqRelTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `decrementInt64AcqRel` function.  It
+/// atomically decrements the specified 64bit atomic integer object for the
+/// specified number of iterations.  When executed by multiple threads
+/// concurrently, final value of the specified int should have been
+/// decremented by exactly NTHREADS * NITERATIONS.
 static void* decrementInt64AcqRelTestThread(void *ptr)
-    // This function is used to test the 'decrementInt64AcqRel' function.  It
-    // atomically decrements the specified 64bit atomic integer object for the
-    // specified number of iterations.  When executed by multiple threads
-    // concurrently, final value of the specified int should have been
-    // decremented by exactly NTHREADS * NITERATIONS.
 {
     Int64TestThreadArgs *args=(Int64TestThreadArgs*)ptr;
 
@@ -1038,13 +1039,13 @@ static void* decrementInt64AcqRelTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `decrementUint64AcqRel` and
+/// `decrementUint64NvAcqRel` functions.  It atomically decrements the
+/// specified 64bit atomic unsigned integer object for the
+/// specified number of iterations.  When executed by multiple threads
+/// concurrently, final value of the specified int should have been
+/// decremented by exactly NTHREADS * NITERATIONS.
 static void* decrementUint64AcqRelTestThread(void *ptr)
-    // This function is used to test the 'decrementUint64AcqRel' and
-    // 'decrementUint64NvAcqRel' functions.  It atomically decrements the
-    // specified 64bit atomic unsigned integer object for the
-    // specified number of iterations.  When executed by multiple threads
-    // concurrently, final value of the specified int should have been
-    // decremented by exactly NTHREADS * NITERATIONS.
 {
     Uint64TestThreadArgs *args=(Uint64TestThreadArgs*)ptr;
 
@@ -1063,10 +1064,10 @@ static void* decrementUint64AcqRelTestThread(void *ptr)
 }
 
 
+/// This function is used to test the `addInt` and `addIntNv` functions.
+/// It atomically adds the specified `d_addVal` to the specified atomic
+/// integer object for the specified number of iterations.
 static void* addIntTestThread(void *ptr)
-    // This function is used to test the 'addInt' and 'addIntNv' functions.
-    // It atomically adds the specified 'd_addVal' to the specified atomic
-    // integer object for the specified number of iterations.
 {
     IntTestThreadArgs *args=(IntTestThreadArgs*)ptr;
 
@@ -1087,10 +1088,10 @@ static void* addIntTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `addUint` and `addUintNv` functions.
+/// It atomically adds the specified `d_addVal` to the specified atomic
+/// unsigned integer object for the specified number of iterations.
 static void* addUintTestThread(void *ptr)
-    // This function is used to test the 'addUint' and 'addUintNv' functions.
-    // It atomically adds the specified 'd_addVal' to the specified atomic
-    // unsigned integer object for the specified number of iterations.
 {
     UintTestThreadArgs *args=(UintTestThreadArgs*)ptr;
 
@@ -1111,10 +1112,10 @@ static void* addUintTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `addInt64` and `addInt64Nv` functions.
+/// It atomically adds the specified `d_addVal` to the specified 64 bit
+/// atomic integer object.  for the specified number of iterations.
 static void* addInt64TestThread(void *ptr)
-    // This function is used to test the 'addInt64' and 'addInt64Nv' functions.
-    // It atomically adds the specified 'd_addVal' to the specified 64 bit
-    // atomic integer object.  for the specified number of iterations.
 {
     Int64TestThreadArgs *args=(Int64TestThreadArgs*)ptr;
 
@@ -1135,11 +1136,11 @@ static void* addInt64TestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `addUint64` and `addUint64Nv`
+/// functions.  It atomically adds the specified `d_addVal` to the specified
+/// 64 bit atomic unsigned integer object, for the specified number of
+/// iterations.
 static void* addUint64TestThread(void *ptr)
-    // This function is used to test the 'addUint64' and 'addUint64Nv'
-    // functions.  It atomically adds the specified 'd_addVal' to the specified
-    // 64 bit atomic unsigned integer object, for the specified number of
-    // iterations.
 {
     Uint64TestThreadArgs *args=(Uint64TestThreadArgs*)ptr;
 
@@ -1161,10 +1162,10 @@ static void* addUint64TestThread(void *ptr)
 }
 
 
+/// This function is used to test the `addInt` function.  It atomically
+/// adds the specified `d_addVal` to the specified atomic integer object
+/// for the specified number of iterations.
 static void* addIntAcqRelTestThread(void *ptr)
-    // This function is used to test the 'addInt' function.  It atomically
-    // adds the specified 'd_addVal' to the specified atomic integer object
-    // for the specified number of iterations.
 {
     IntTestThreadArgs *args=(IntTestThreadArgs*)ptr;
 
@@ -1185,10 +1186,10 @@ static void* addIntAcqRelTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `addUintAcqRel` and `addUintNvAcqRel`
+/// functions.  It atomically adds the specified `d_addVal` to the specified
+/// atomic unsigned integer object for the specified number of iterations.
 static void* addUintAcqRelTestThread(void *ptr)
-    // This function is used to test the 'addUintAcqRel' and 'addUintNvAcqRel'
-    // functions.  It atomically adds the specified 'd_addVal' to the specified
-    // atomic unsigned integer object for the specified number of iterations.
 {
     UintTestThreadArgs *args=(UintTestThreadArgs*)ptr;
 
@@ -1209,10 +1210,10 @@ static void* addUintAcqRelTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `addInt64` and `addInt64Nv` functions.
+/// It atomically adds the specified `d_addVal` to the specified 64 bit
+/// atomic integer object.  for the specified number of iterations.
 static void* addInt64AcqRelTestThread(void *ptr)
-    // This function is used to test the 'addInt64' and 'addInt64Nv' functions.
-    // It atomically adds the specified 'd_addVal' to the specified 64 bit
-    // atomic integer object.  for the specified number of iterations.
 {
     Int64TestThreadArgs *args=(Int64TestThreadArgs*)ptr;
 
@@ -1233,11 +1234,11 @@ static void* addInt64AcqRelTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `addUint64` and `addUint64Nv`
+/// functions.  It atomically adds the specified `d_addVal` to the specified
+/// 64 bit atomic unsigned integer object.  for the specified number of
+/// iterations.
 static void* addUint64AcqRelTestThread(void *ptr)
-    // This function is used to test the 'addUint64' and 'addUint64Nv'
-    // functions.  It atomically adds the specified 'd_addVal' to the specified
-    // 64 bit atomic unsigned integer object.  for the specified number of
-    // iterations.
 {
     Uint64TestThreadArgs *args=(Uint64TestThreadArgs*)ptr;
 
@@ -1259,8 +1260,8 @@ static void* addUint64AcqRelTestThread(void *ptr)
 }
 
 
+/// This function is used to test the `swapInt` function.  It atomically
 static void* swapIntTestThread(void *ptr)
-    // This function is used to test the 'swapInt' function.  It atomically
 {
     IntSwapTestThreadArgs *args=(IntSwapTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1290,8 +1291,8 @@ static void* swapIntTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `swapInt` function.  It atomically
 static void* swapInt64TestThread(void *ptr)
-    // This function is used to test the 'swapInt' function.  It atomically
 {
     Int64SwapTestThreadArgs *args=(Int64SwapTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1320,8 +1321,8 @@ static void* swapInt64TestThread(void *ptr)
 }
 
 
+/// This function is used to test the `swapUint` function.
 static void* swapUintTestThread(void *ptr)
-    // This function is used to test the 'swapUint' function.
 {
     UintSwapTestThreadArgs *args=(UintSwapTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1351,8 +1352,8 @@ static void* swapUintTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `swapUint64` function.
 static void* swapUint64TestThread(void *ptr)
-    // This function is used to test the 'swapUint64' function.
 {
     Uint64SwapTestThreadArgs *args=(Uint64SwapTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1381,8 +1382,8 @@ static void* swapUint64TestThread(void *ptr)
 }
 
 
+/// This function is used to test the `testAndSwapInt` function.
 static void* testAndSwapIntTestThread(void *ptr)
-    // This function is used to test the 'testAndSwapInt' function.
 {
     IntSwapTestThreadArgs *args=(IntSwapTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1413,8 +1414,8 @@ static void* testAndSwapIntTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `testAndSwapInt64` function.
 static void* testAndSwapInt64TestThread(void *ptr)
-    // This function is used to test the 'testAndSwapInt64' function.
 {
     Int64SwapTestThreadArgs *args=(Int64SwapTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1444,8 +1445,8 @@ static void* testAndSwapInt64TestThread(void *ptr)
 }
 
 
+/// This function is used to test the `testAndSwapUint` function.
 static void* testAndSwapUintTestThread(void *ptr)
-    // This function is used to test the 'testAndSwapUint' function.
 {
     UintSwapTestThreadArgs *args=(UintSwapTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1476,8 +1477,8 @@ static void* testAndSwapUintTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `testAndSwapUint64` function.
 static void* testAndSwapUint64TestThread(void *ptr)
-    // This function is used to test the 'testAndSwapUint64' function.
 {
     Uint64SwapTestThreadArgs *args=(Uint64SwapTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1507,8 +1508,8 @@ static void* testAndSwapUint64TestThread(void *ptr)
 }
 
 
+/// This function is used to test the `swapPtr` function.
 static void* swapPtrTestThread(void *ptr)
-    // This function is used to test the 'swapPtr' function.
 {
     PointerTestThreadArgs *args=(PointerTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1536,8 +1537,8 @@ static void* swapPtrTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `testAndSwap` function.
 static void* testAndSwapPtrTestThread(void *ptr)
-    // This function is used to test the 'testAndSwap' function.
 {
     PointerTestThreadArgs *args=(PointerTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1567,8 +1568,8 @@ static void* testAndSwapPtrTestThread(void *ptr)
 }
 
 
+/// This function is used to test the `swapIntAcqRel` function.
 static void* swapIntAcqRelTestThread(void *ptr)
-    // This function is used to test the 'swapIntAcqRel' function.
 {
     IntSwapTestThreadArgs *args=(IntSwapTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1598,8 +1599,8 @@ static void* swapIntAcqRelTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `swapUintAcqRel` function.
 static void* swapUintAcqRelTestThread(void *ptr)
-    // This function is used to test the 'swapUintAcqRel' function.
 {
     UintSwapTestThreadArgs *args=(UintSwapTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1629,8 +1630,8 @@ static void* swapUintAcqRelTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `swapInt64AcqRel` function.
 static void* swapInt64AcqRelTestThread(void *ptr)
-    // This function is used to test the 'swapInt64AcqRel' function.
 {
     Int64SwapTestThreadArgs *args=(Int64SwapTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1658,8 +1659,8 @@ static void* swapInt64AcqRelTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `swapUint64AcqRel` function.
 static void* swapUint64AcqRelTestThread(void *ptr)
-    // This function is used to test the 'swapUint64AcqRel' function.
 {
     Uint64SwapTestThreadArgs *args=(Uint64SwapTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1688,8 +1689,8 @@ static void* swapUint64AcqRelTestThread(void *ptr)
 }
 
 
+/// This function is used to test the `testAndSwapIntAcqRel` function.
 static void* testAndSwapIntAcqRelTestThread(void *ptr)
-    // This function is used to test the 'testAndSwapIntAcqRel' function.
 {
     IntSwapTestThreadArgs *args=(IntSwapTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1720,8 +1721,8 @@ static void* testAndSwapIntAcqRelTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `testAndSwapUintAcqRel` function.
 static void* testAndSwapUintAcqRelTestThread(void *ptr)
-    // This function is used to test the 'testAndSwapUintAcqRel' function.
 {
     UintSwapTestThreadArgs *args=(UintSwapTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1752,8 +1753,8 @@ static void* testAndSwapUintAcqRelTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `testAndSwapInt64AckRel` function.
 static void* testAndSwapInt64AcqRelTestThread(void *ptr)
-    // This function is used to test the 'testAndSwapInt64AckRel' function.
 {
     Int64SwapTestThreadArgs *args=(Int64SwapTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1782,8 +1783,8 @@ static void* testAndSwapInt64AcqRelTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `testAndSwapUint64AckRel` function.
 static void* testAndSwapUint64AcqRelTestThread(void *ptr)
-    // This function is used to test the 'testAndSwapUint64AckRel' function.
 {
     Uint64SwapTestThreadArgs *args=(Uint64SwapTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1813,8 +1814,8 @@ static void* testAndSwapUint64AcqRelTestThread(void *ptr)
 }
 
 
+/// This function is used to test the `swapPtrAckRel` function.
 static void* swapPtrAcqRelTestThread(void *ptr)
-    // This function is used to test the 'swapPtrAckRel' function.
 {
     PointerTestThreadArgs *args=(PointerTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1842,8 +1843,8 @@ static void* swapPtrAcqRelTestThread(void *ptr)
     return ptr;
 }
 
+/// This function is used to test the `testAndSwapPtrAckRel` function.
 static void* testAndSwapPtrAcqRelTestThread(void *ptr)
-    // This function is used to test the 'testAndSwapPtrAckRel' function.
 {
     PointerTestThreadArgs *args=(PointerTestThreadArgs*)ptr;
     int value1Count=0;
@@ -1879,19 +1880,19 @@ static void* testAndSwapPtrAcqRelTestThread(void *ptr)
 //-----------------------------------------------------------------------------
 // EXAMPLE 1
 
+/// Dummy implementation
 int processNextTransaction()
-    // Dummy implementation
 {
     return 0;
 }
 
+/// Dummy implementation
 void createWorkerThread()
-    // Dummy implementation
 {
 }
 
+/// Dummy implementation
 void waitAllThreads()
-    // Dummy implementation
 {
 }
 
@@ -1915,12 +1916,12 @@ void serverMain()
 ///- - - - - - - - - - - - - - - - - - -
 // The following example demonstrates the use of atomic integer operations to
 // implement a thread-safe ref-counted handle similar to a shared pointer.
-// Each handle (of type 'my_CountedHandle') maintains a pointer to a
-// representation object, 'my_CountedHandleRep', which in turn, stores both a
+// Each handle (of type `my_CountedHandle`) maintains a pointer to a
+// representation object, `my_CountedHandleRep`, which in turn, stores both a
 // pointer to the managed object and a reference counter.
 //
 // Both the handle class and the representation class are template classes with
-// two template parameters.  The template parameter, 'INSTANCE', represents the
+// two template parameters.  The template parameter, `INSTANCE`, represents the
 // type of the "instance", or managed object.
 //
 // A representation object can be shared by several handle objects.  When a
@@ -1930,21 +1931,21 @@ void serverMain()
 // reference to the representation, it atomically decrements the reference
 // count.  If the resulting reference count becomes 0 (and there are no more
 // references to the object), the handle deletes the representation object and
-// the representation object, in turn, deletes the managed object ('INSTANCE').
+// the representation object, in turn, deletes the managed object (`INSTANCE`).
 //
-///Class 'my_CountedHandleRep'
+///Class `my_CountedHandleRep`
 ///-  -  -  -  -  -  -  -  -
-// First, we define class 'my_CountedHandleRep'.  This class manages a single
-// 'INSTANCE' object on behalf of multiple "handle" objects; since different
+// First, we define class `my_CountedHandleRep`.  This class manages a single
+// `INSTANCE` object on behalf of multiple "handle" objects; since different
 // "handle" objects may be active in different threads, class
-// 'my_CountedHandleRep' must be (fully) thread-safe.  Specifically, methods
-// 'increment' and 'decrement' must work atomically.
+// `my_CountedHandleRep` must be (fully) thread-safe.  Specifically, methods
+// `increment` and `decrement` must work atomically.
 //
 // Note that, this rep class is intended to be used only by class
-// 'my_CountedHandle', and thus all methods of class 'my_CountedHandleRep' are
-// declared private, and 'friend' status is granted to class
-// 'my_CountedHandle':
-//..
+// `my_CountedHandle`, and thus all methods of class `my_CountedHandleRep` are
+// declared private, and `friend` status is granted to class
+// `my_CountedHandle`:
+// ```
                         // =========================
                         // class my_CountedHandleRep
                         // =========================
@@ -1980,20 +1981,20 @@ class my_CountedHandleRep {
     void increment();
     int decrement();
 };
-//..
-///Class 'my_CountedHandle'
+// ```
+///Class `my_CountedHandle`
 ///-  -  -  -  -  -  -  - -
-// Then, we create class 'my_CountedHandle' that provides an individual handle
-// to the shared, reference-counted object.  Each 'my_CountedHandle' object
-// acts as a smart pointer, supplying an overloaded 'operator->' that provides
-// access to the underlying 'INSTANCE' object via pointer semantics.
+// Then, we create class `my_CountedHandle` that provides an individual handle
+// to the shared, reference-counted object.  Each `my_CountedHandle` object
+// acts as a smart pointer, supplying an overloaded `operator->` that provides
+// access to the underlying `INSTANCE` object via pointer semantics.
 //
-// 'my_CountedHandle' can also be copied freely; the copy constructor will use
-// the 'increment' method from 'my_CountedHandleRep' to note the extra copy.
-// Similarly, the destructor will call 'my_CountedHandleRep::decrement' to note
-// that there is one fewer handle the underlying 'INSTANCE' has, and delete the
+// `my_CountedHandle` can also be copied freely; the copy constructor will use
+// the `increment` method from `my_CountedHandleRep` to note the extra copy.
+// Similarly, the destructor will call `my_CountedHandleRep::decrement` to note
+// that there is one fewer handle the underlying `INSTANCE` has, and delete the
 // "rep" object when its reference count is reduced to zero:
-//..
+// ```
                         // ======================
                         // class my_CountedHandle
                         // ======================
@@ -2016,13 +2017,13 @@ class my_CountedHandle {
     INSTANCE *operator->() const;
     int numReferences() const;
 };
-//..
-///Function Definitions for 'my_CountedHandleRep'
+// ```
+///Function Definitions for `my_CountedHandleRep`
 ///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-// Next, we provide a definition for the 'static' 'deleteObject' method, which
-// is called by the destructor for class 'my_CountedHandle' for the last
-// instance of 'my_CountedHandle' using the given "rep" object:
-//..
+// Next, we provide a definition for the `static` `deleteObject` method, which
+// is called by the destructor for class `my_CountedHandle` for the last
+// instance of `my_CountedHandle` using the given "rep" object:
+// ```
 template <class INSTANCE>
 inline
 void my_CountedHandleRep<INSTANCE>::deleteObject(
@@ -2030,13 +2031,13 @@ void my_CountedHandleRep<INSTANCE>::deleteObject(
 {
     delete object;
 }
-//..
-// Then, we write the constructor for the 'my_CountedHandleRep<INSTANCE>'
+// ```
+// Then, we write the constructor for the `my_CountedHandleRep<INSTANCE>`
 // class.  We initialize the atomic reference counter to one reference using
-// 'bsls::AtomicOperations::initInt'.  This reflects the fact that this
-// constructor will be called by a new instance of 'my_CountedHandle'.  That
+// `bsls::AtomicOperations::initInt`.  This reflects the fact that this
+// constructor will be called by a new instance of `my_CountedHandle`.  That
 // instance is our first and only handle when this constructor is called:
-//..
+// ```
 template <class INSTANCE>
 inline
 my_CountedHandleRep<INSTANCE>::
@@ -2045,22 +2046,22 @@ my_CountedHandleRep<INSTANCE>::
 {
     bsls::AtomicOperations::initInt(&d_count, 1);
 }
-//..
-// Then, we define the destructor, which just deletes 'my_CountedHandle'
-// 'd_instance_p':
-//..
+// ```
+// Then, we define the destructor, which just deletes `my_CountedHandle`
+// `d_instance_p`:
+// ```
 template <class INSTANCE>
 inline
 my_CountedHandleRep<INSTANCE>::~my_CountedHandleRep()
 {
     delete d_instance_p;
 }
-//..
-// Next, we define method 'increment', which atomically increments the number
-// of references to this 'my_CountedHandleRep'.  Since our caller is not
-// interested in the result (and our return type is thus 'void'), we use
-// 'incrementInt' instead of 'incrementIntNv'.
-//..
+// ```
+// Next, we define method `increment`, which atomically increments the number
+// of references to this `my_CountedHandleRep`.  Since our caller is not
+// interested in the result (and our return type is thus `void`), we use
+// `incrementInt` instead of `incrementIntNv`.
+// ```
 // MANIPULATORS
 template <class INSTANCE>
 inline
@@ -2068,26 +2069,26 @@ void my_CountedHandleRep<INSTANCE>::increment()
 {
     bsls::AtomicOperations::incrementInt(&d_count);
 }
-//..
-// Then, we implement method 'decrement', which atomically decrements the
+// ```
+// Then, we implement method `decrement`, which atomically decrements the
 // reference count; since our caller will need to check the resulting value to
-// determine whether the 'INSTANCE' should be deleted, we use 'decrementIntNv'
-// rather than 'decrementInt', and return the new number of references:
-//..
+// determine whether the `INSTANCE` should be deleted, we use `decrementIntNv`
+// rather than `decrementInt`, and return the new number of references:
+// ```
 template <class INSTANCE>
 inline
 int my_CountedHandleRep<INSTANCE>::decrement()
 {
     return bsls::AtomicOperations::decrementIntNv(&d_count);
 }
-//..
-///Function Definitions for 'my_CountedHandle'
+// ```
+///Function Definitions for `my_CountedHandle`
 ///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-// Next, we define the first constructor for 'my_CountedHandle', which is used
-// when creating a handle for a new 'INSTANCE'; note that the 'INSTANCE' is
+// Next, we define the first constructor for `my_CountedHandle`, which is used
+// when creating a handle for a new `INSTANCE`; note that the `INSTANCE` is
 // constructed separately, and a pointer to that object is passed as the first
-// argument ('object'):
-//..
+// argument (`object`):
+// ```
                         // ----------------------
                         // class my_CountedHandle
                         // ----------------------
@@ -2098,10 +2099,10 @@ my_CountedHandle<INSTANCE>::my_CountedHandle(INSTANCE *instance)
 {
     d_rep_p = new my_CountedHandleRep<INSTANCE>(instance);
 }
-//..
+// ```
 // Then, we define the copy constructor; the new object copies the underlying
-// 'my_CountedHandleRep' and then increments its counter:
-//..
+// `my_CountedHandleRep` and then increments its counter:
+// ```
 template <class INSTANCE>
 inline
 my_CountedHandle<INSTANCE>::my_CountedHandle(
@@ -2112,13 +2113,13 @@ my_CountedHandle<INSTANCE>::my_CountedHandle(
         d_rep_p->increment();
     }
 }
-//..
+// ```
 // Next, we define the destructor which decrements the "rep" object's reference
-// count using the 'decrement' method.  The 'decrement' method returns the
+// count using the `decrement` method.  The `decrement` method returns the
 // object's reference count after the decrement is completed, and
-// 'my_CountedHandle' uses this value to determine whether the "rep" object
+// `my_CountedHandle` uses this value to determine whether the "rep" object
 // should be deleted:
-//..
+// ```
 template <class INSTANCE>
 inline
 my_CountedHandle<INSTANCE>::~my_CountedHandle()
@@ -2127,49 +2128,49 @@ my_CountedHandle<INSTANCE>::~my_CountedHandle()
         my_CountedHandleRep<INSTANCE>::deleteObject(d_rep_p);
     }
 }
-//..
-// Now, we define member 'operator->()', which provides basic pointer semantics
-// for 'my_CountedHandle':
-//..
+// ```
+// Now, we define member `operator->()`, which provides basic pointer semantics
+// for `my_CountedHandle`:
+// ```
 template <class INSTANCE>
 inline
 INSTANCE *my_CountedHandle<INSTANCE>::operator->() const
 {
     return d_rep_p->d_instance_p;
 }
-//..
-// Finally, we define method 'numReferences', which returns the value of the
+// ```
+// Finally, we define method `numReferences`, which returns the value of the
 // reference counter:
-//..
+// ```
 template <class INSTANCE>
 inline
 int my_CountedHandle<INSTANCE>::numReferences() const
 {
     return d_rep_p ? bsls::AtomicOperations::getInt(d_rep_p->d_count) : 0;
 }
-//..
-// Note that, while class 'my_CountedHandleRep' is itself fully thread-safe, it
-// does not guarantee thread safety for the 'INSTANCE' object.  In order to
-// provide thread safety for the 'INSTANCE' in the general case, the "rep"
+// ```
+// Note that, while class `my_CountedHandleRep` is itself fully thread-safe, it
+// does not guarantee thread safety for the `INSTANCE` object.  In order to
+// provide thread safety for the `INSTANCE` in the general case, the "rep"
 // would need to use a more general concurrency mechanism such as a mutex.
 //
 ///Example 3: Thread-Safe Lock-Free Singly-Linked List
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates the use of atomic pointers to implement a fast and
 // thread-aware, yet fast single-linked list.  The example class,
-// 'my_PtrStack', is a templatized pointer stack, supporting 'push' and 'pop'
+// `my_PtrStack`, is a templatized pointer stack, supporting `push` and `pop`
 // methods.  The class is implemented using a single-linked list.  Nodes in the
 // list are linked together using atomic operations.  Instance of this
 // structure are allocated using the provided allocator.  When nodes are freed,
 // they are cached on a free list.  This free list is also implemented as a
 // single-linked list, using atomic pointer operations.
 //
-// First, we create class template, 'my_PtrStack', parameterized by 'TYPE'.
+// First, we create class template, `my_PtrStack`, parameterized by `TYPE`.
 // Instances of this template maintain a list of nodes and a free-node list.
-// Each node has a pointer to a data item, 'd_item_p', a link to the next node
-// in the list, 'd_next_p'.  The definition of the 'my_PtrStack' class is
+// Each node has a pointer to a data item, `d_item_p`, a link to the next node
+// in the list, `d_next_p`.  The definition of the `my_PtrStack` class is
 // provided below:
-//..
+// ```
 template <class TYPE>
 class my_PtrStack {
     // TYPES
@@ -2196,10 +2197,10 @@ class my_PtrStack {
     void push(TYPE *item);
     TYPE *pop();
 };
-//..
+// ```
 // Then, we write the constructor that initializes the pointers for the node
 // list and the free list:
-//..
+// ```
 // CREATORS
 template <class TYPE>
 inline my_PtrStack<TYPE>::my_PtrStack()
@@ -2207,12 +2208,12 @@ inline my_PtrStack<TYPE>::my_PtrStack()
     bsls::AtomicOperations::initPointer(&d_freeList_p, 0);
     bsls::AtomicOperations::initPointer(&d_list_p, 0);
 }
-//..
-// Next, we define the 'deleteNodes' and the destructor function to delete
-// nodes that the 'my_PtrStack' object owns.  Note that we don't need to worry
+// ```
+// Next, we define the `deleteNodes` and the destructor function to delete
+// nodes that the `my_PtrStack` object owns.  Note that we don't need to worry
 // about the concurrent access to node lists in the destructor, as destructor
 // can be executed in only a single thread:
-//..
+// ```
 template <class TYPE>
 inline void my_PtrStack<TYPE>::deleteNodes(const Node *node)
 {
@@ -2231,45 +2232,45 @@ inline my_PtrStack<TYPE>::~my_PtrStack()
     deleteNodes(
        (const Node *) bsls::AtomicOperations::getPtrRelaxed(&d_freeList_p));
 }
-//..
-// Then, we define method 'allocateNode' to get a node from the free list in
+// ```
+// Then, we define method `allocateNode` to get a node from the free list in
 // the thread-safe manner by leveraging atomic operations to ensure proper
 // thread synchronization:
-//..
+// ```
 // PRIVATE MANIPULATORS
 template <class TYPE>
 inline typename my_PtrStack<TYPE>::Node *my_PtrStack<TYPE>::allocateNode()
 {
     Node *node;
-//..
-// To remove an item from this list, get the current list head using 'getPtr'.
-// Then, test and swap it with the next node.  'testAndSwapPtr' compares
-// 'd_freeList_p' to 'node', replacing it with 'node->d_next_p' only if it
-// matches.  If 'd_freeList_p' did not match 'node', then the free list has
-// been changed on another thread, between the calls to 'getPtr' and
-// 'testAndSwapPtr'.  If the list head has changed, then try again:
-//..
+// ```
+// To remove an item from this list, get the current list head using `getPtr`.
+// Then, test and swap it with the next node.  `testAndSwapPtr` compares
+// `d_freeList_p` to `node`, replacing it with `node->d_next_p` only if it
+// matches.  If `d_freeList_p` did not match `node`, then the free list has
+// been changed on another thread, between the calls to `getPtr` and
+// `testAndSwapPtr`.  If the list head has changed, then try again:
+// ```
     do {
         node = (Node*) bsls::AtomicOperations::getPtr(&d_freeList_p);
         if (!node) break;
     } while (bsls::AtomicOperations::testAndSwapPtr(&d_freeList_p,
                                                     node,
                                                     node->d_next_p) != node);
-//..
+// ```
 // Next, we allocate a new node if there are no nodes in the free node list:
-//..
+// ```
     if (!node) {
         node = new Node();
     }
     return node;
 }
-//..
-// Then, we provide the 'freeNode' method to add a given 'node' to the free
+// ```
+// Then, we provide the `freeNode` method to add a given `node` to the free
 // list.  To add the node to the list, we set the next pointer of the new node
 // to the current value of the list head, and atomically test and swap the head
 // of the list with the new node.  If the list head has been changed (by
 // another thread), we try again:
-//..
+// ```
 template <class TYPE>
 inline void my_PtrStack<TYPE>::freeNode(Node *node)
 {
@@ -2279,12 +2280,12 @@ inline void my_PtrStack<TYPE>::freeNode(Node *node)
                                                     node->d_next_p,
                                                     node)!= node->d_next_p);
 }
-//..
-// Now, we begin to define the public "stack-like" interface for 'my_PtrStack'.
-// Note that the 'push' method is similar to 'freeNode', except that it assigns
-// an item value and operates on 'd_list_p', which maintains the list of active
+// ```
+// Now, we begin to define the public "stack-like" interface for `my_PtrStack`.
+// Note that the `push` method is similar to `freeNode`, except that it assigns
+// an item value and operates on `d_list_p`, which maintains the list of active
 // nodes:
-//..
+// ```
 template <class TYPE>
 inline void my_PtrStack<TYPE>::push(TYPE *item)
 {
@@ -2296,11 +2297,11 @@ inline void my_PtrStack<TYPE>::push(TYPE *item)
                                                     node->d_next_p,
                                                     node)!= node->d_next_p);
 }
-//..
-// Finally, we define the 'pop' method which removes the node from the top
-// of active node list, 'd_list_p', adds it to the free-node list, and returns
+// ```
+// Finally, we define the `pop` method which removes the node from the top
+// of active node list, `d_list_p`, adds it to the free-node list, and returns
 // the data item contained in the node to the caller:
-//..
+// ```
 template <class TYPE>
 inline TYPE *my_PtrStack<TYPE>::pop()
 {
@@ -2316,7 +2317,7 @@ inline TYPE *my_PtrStack<TYPE>::pop()
         freeNode(node);
     return item;
 }
-//..
+// ```
 // Notice that if the stack was empty, a NULL pointer is returned.
 
 
@@ -2347,17 +2348,17 @@ int main(int argc, char *argv[]) {
         // TEST UPCASTING OF ATOMIC INT OPERATION RESULTS TO INT64
         //
         // Concerns:
-        //: 1 For the 'Int' atomic type, all operations returning an 'int'
-        //    behave correctly when the result is static cast to an 'int64'.
+        // 1. For the `Int` atomic type, all operations returning an `int`
+        //    behave correctly when the result is static cast to an `int64`.
         //    This tests an issue identified in optimized Sun builds in DRQS
         //    167770817.
         //
         // Plan:
-        //: 1 For various input values, construct an 'AtomicTypes::Int'.
-        //: 2 Call each atomic operation which acts on an 'AtomicTypes::Int'
-        //    pointer and returns an 'int'.
-        //: 3 Cast the resulting 'int' to an 'Int64'.
-        //: 4 Check the resulting value is as expected.
+        // 1. For various input values, construct an `AtomicTypes::Int`.
+        // 2. Call each atomic operation which acts on an `AtomicTypes::Int`
+        //    pointer and returns an `int`.
+        // 3. Cast the resulting `int` to an `Int64`.
+        // 4. Check the resulting value is as expected.
         //
         // Testing:
         //   TEST UPCASTING OF ATOMIC INT OPERATION RESULTS TO INT64
@@ -2370,7 +2371,7 @@ int main(int argc, char *argv[]) {
 
         typedef bsls::Types::Int64 I64;
 
-        if (verbose) cout << "\nTesting 'bsls::AtomicInt' Primary Manipulators"
+        if (verbose) cout << "\nTesting `bsls::AtomicInt` Primary Manipulators"
                           << endl;
         {
             static const struct {
@@ -2406,7 +2407,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'bsls::AtomicInt' Inc and Dec"
+        if (verbose) cout << "\nTesting `bsls::AtomicInt` Inc and Dec"
                     << endl;
         {
             static const struct {
@@ -2451,7 +2452,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'bsls::AtomicInt' Add and Subtract"
+        if (verbose) cout << "\nTesting `bsls::AtomicInt` Add and Subtract"
             << endl;
         {
             static const struct {
@@ -2525,7 +2526,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'bsls::AtomicInt' Swap"
+        if (verbose) cout << "\nTesting `bsls::AtomicInt` Swap"
             << endl;
         {
             static const struct {
@@ -2639,10 +2640,10 @@ int main(int argc, char *argv[]) {
         //   For the Int,Int64, Uint, Uint64, and Pointer atomic types, for a
         //   sequence of independent test values, use the initialization
         //   functions to initialize each type and use the primary manipulator
-        //   (i.e., 'setInt', 'setInt64', 'setUint', 'setUint64', 'setPtr') to
+        //   (i.e., `setInt`, `setInt64`, `setUint`, `setUint64`, `setPtr`) to
         //   set its value.  Verify the value using the respective direct
-        //   accessor (i.e.,'getInt', 'getInt64', 'getUint', 'getUint64',
-        //   'getPtr').
+        //   accessor (i.e.,`getInt`, `getInt64`, `getUint`, `getUint64`,
+        //   `getPtr`).
         //
         // Testing:
         //   setIntRelease(Obj::Int *aInt, int value);
@@ -2662,7 +2663,7 @@ int main(int argc, char *argv[]) {
                           << "\n==========================================="
                           << endl;
 
-        if (verbose) cout << "\nTesting 'Int' Primary Manipulators" << endl;
+        if (verbose) cout << "\nTesting `Int` Primary Manipulators" << endl;
         {
             static const struct {
                 int  d_lineNum;     // Source line number
@@ -2694,7 +2695,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Int64' Primary Manipulators" << endl;
+        if (verbose) cout << "\nTesting `Int64` Primary Manipulators" << endl;
         {
             static const struct {
                 int       d_lineNum;     // Source line number
@@ -2727,7 +2728,7 @@ int main(int argc, char *argv[]) {
         }
 
 
-        if (verbose) cout << "\nTesting 'Uint' Primary Manipulators" << endl;
+        if (verbose) cout << "\nTesting `Uint` Primary Manipulators" << endl;
         {
             static const struct {
                 int          d_lineNum; // Source line number
@@ -2759,7 +2760,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint64' Primary Manipulators" << endl;
+        if (verbose) cout << "\nTesting `Uint64` Primary Manipulators" << endl;
         {
             static const struct {
                 int                 d_lineNum;     // Source line number
@@ -2792,7 +2793,7 @@ int main(int argc, char *argv[]) {
         }
 
 
-        if (verbose) cout << "\nTesting 'Pointer' Primary Manipulators"
+        if (verbose) cout << "\nTesting `Pointer` Primary Manipulators"
                            << endl;
         {
             static const struct {
@@ -2833,7 +2834,7 @@ int main(int argc, char *argv[]) {
         // TESTING ARITHMETIC ACQUIRE/RELEASE MANIPULATORS
         //   Test that the 32/64 bit integer add functions work as expected.
         // Plan:
-        //   For each atomic type('Int', 'Int64', 'Uint', and 'Uint64') using a
+        //   For each atomic type(`Int`, `Int64`, `Uint`, and `Uint64`) using a
         //   sequence of independent values, begin by initializing the value to
         //   0 and adding the test value.  Assert the resulting
         //   value is the expected value.  Repeat the operation using
@@ -2869,7 +2870,7 @@ int main(int argc, char *argv[]) {
                  << "\n==============================================="
                  << endl;
 
-        if (verbose) cout << "\nTesting 'Int' Arithmetic Manipulators" << endl;
+        if (verbose) cout << "\nTesting `Int` Arithmetic Manipulators" << endl;
         {
             static const struct {
                 int  d_lineNum;     // Source line number
@@ -2918,7 +2919,7 @@ int main(int argc, char *argv[]) {
 
         }
 
-        if (verbose) cout << "\n\tTesting 'Int' Arith(with base) Manip"
+        if (verbose) cout << "\n\tTesting `Int` Arith(with base) Manip"
                           << endl;
         {
             static const struct {
@@ -3004,7 +3005,7 @@ int main(int argc, char *argv[]) {
 
         }
 
-        if (verbose) cout << "\nTesting 'Int64' Arithmetic Manipulators"
+        if (verbose) cout << "\nTesting `Int64` Arithmetic Manipulators"
                           << endl;
         {
             static const struct {
@@ -3055,7 +3056,7 @@ int main(int argc, char *argv[]) {
 
         }
 
-        if (verbose) cout << "\n\tTesting 'Int64' Arith(with base) Manip"
+        if (verbose) cout << "\n\tTesting `Int64` Arith(with base) Manip"
                           << endl;
         {
             static const struct {
@@ -3141,7 +3142,7 @@ int main(int argc, char *argv[]) {
 
         }
 
-        if (verbose) cout << "\nTesting 'Uint' Arithmetic Manipulators" << endl;
+        if (verbose) cout << "\nTesting `Uint` Arithmetic Manipulators" << endl;
         {
             static const struct {
                 int          d_lineNum;     // Source line number
@@ -3190,7 +3191,7 @@ int main(int argc, char *argv[]) {
 
         }
 
-        if (verbose) cout << "\n\tTesting 'Uint' Arith(with base) Manip"
+        if (verbose) cout << "\n\tTesting `Uint` Arith(with base) Manip"
                           << endl;
         {
             static const struct {
@@ -3278,7 +3279,7 @@ int main(int argc, char *argv[]) {
 
         }
 
-        if (verbose) cout << "\nTesting 'Uint64' Arithmetic Manipulators"
+        if (verbose) cout << "\nTesting `Uint64` Arithmetic Manipulators"
                           << endl;
         {
             static const struct {
@@ -3329,7 +3330,7 @@ int main(int argc, char *argv[]) {
 
         }
 
-        if (verbose) cout << "\n\tTesting 'Uint64' Arith(with base) Manip"
+        if (verbose) cout << "\n\tTesting `Uint64` Arith(with base) Manip"
                           << endl;
         {
             static const struct {
@@ -3417,7 +3418,7 @@ int main(int argc, char *argv[]) {
 
         }
 
-        if (verbose) cout << "\nTesting 'Int' add Thread Safeness"
+        if (verbose) cout << "\nTesting `Int` add Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -3459,7 +3460,7 @@ int main(int argc, char *argv[]) {
                 T_(); P(STARTVALUE); NL();
             }
         }
-        if (verbose) cout << "\nTesting 'Int64' add Thread Safeness"
+        if (verbose) cout << "\nTesting `Int64` add Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -3501,7 +3502,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint' add Thread Safeness"
+        if (verbose) cout << "\nTesting `Uint` add Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -3543,7 +3544,7 @@ int main(int argc, char *argv[]) {
                 T_(); P(STARTVALUE); NL();
             }
         }
-        if (verbose) cout << "\nTesting 'Uint64' add Thread Safeness"
+        if (verbose) cout << "\nTesting `Uint64` add Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -3598,7 +3599,7 @@ int main(int argc, char *argv[]) {
         //   manipulators.
         //
         // 1 Using an independent sequence of values, initialize an object and
-        //   set its value to a base value.  Next 'swap' it with a second test
+        //   set its value to a base value.  Next `swap` it with a second test
         //   value and assert that the new value is the swapped value and that
         //   the return value is the base value.  Then create a series of
         //   threads, each of which will concurrently swap the same object
@@ -3610,7 +3611,7 @@ int main(int argc, char *argv[]) {
         //   number of times each value should have been seen.
         //
         // 2 Using an independent sequence of values, initialize an object and
-        //   set its value to a base value.  Next 'testAndSwap' it with a
+        //   set its value to a base value.  Next `testAndSwap` it with a
         //   second test value and assert that the new value is the expected
         //   value and that the return value is the expected return value.
         //   Then create a series of threads, each of which will concurrently
@@ -3638,7 +3639,7 @@ int main(int argc, char *argv[]) {
                           << "\n========================================="
                           << endl;
 
-        if (verbose) cout << "\nTesting 'Int' SWAP Manipulators" << endl;
+        if (verbose) cout << "\nTesting `Int` SWAP Manipulators" << endl;
         {
             static const struct {
                 int  d_lineNum;     // Source line number
@@ -3676,7 +3677,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << endl << "\tTesting 'testAndSwapInt'" << endl
+        if (verbose) cout << endl << "\tTesting `testAndSwapInt`" << endl
                                   << "\t------------------------" << endl;
         {
             static const struct {
@@ -3729,7 +3730,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Int64' SWAP Manipulators" << endl;
+        if (verbose) cout << "\nTesting `Int64` SWAP Manipulators" << endl;
         {
             static const struct {
                 int       d_lineNum;     // Source line number
@@ -3768,7 +3769,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << endl << "\tTesting 'testAndSwapInt64'" << endl
+        if (verbose) cout << endl << "\tTesting `testAndSwapInt64`" << endl
                                   << "\t--------------------------" << endl;
         {
             static const struct {
@@ -3816,7 +3817,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint' SWAP Manipulators" << endl;
+        if (verbose) cout << "\nTesting `Uint` SWAP Manipulators" << endl;
         {
             static const struct {
                 int          d_lineNum;   // Source line number
@@ -3854,7 +3855,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << endl << "\tTesting 'testAndSwapUint'" << endl
+        if (verbose) cout << endl << "\tTesting `testAndSwapUint`" << endl
                                   << "\t-------------------------" << endl;
         {
             static const struct {
@@ -3901,7 +3902,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint64' SWAP Manipulators" << endl;
+        if (verbose) cout << "\nTesting `Uint64` SWAP Manipulators" << endl;
         {
             static const struct {
                 int                 d_lineNum;   // Source line number
@@ -3940,7 +3941,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << endl << "\tTesting 'testAndSwapUint64'" << endl
+        if (verbose) cout << endl << "\tTesting `testAndSwapUint64`" << endl
                                   << "\t---------------------------" << endl;
         {
             static const struct {
@@ -3988,7 +3989,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Pointer' SWAP Manipulators" << endl;
+        if (verbose) cout << "\nTesting `Pointer` SWAP Manipulators" << endl;
         {
             static const struct {
                 int  d_lineNum;     // Source line number
@@ -4081,7 +4082,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Int' swap Thread Safeness"
+        if (verbose) cout << "\nTesting `Int` swap Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -4142,7 +4143,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Int64' swap Thread Safeness"
+        if (verbose) cout << "\nTesting `Int64` swap Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -4202,7 +4203,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Int' testAndSwap Thread Safeness"
+        if (verbose) cout << "\nTesting `Int` testAndSwap Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -4262,7 +4263,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Int64' testAndSwap Thread Safeness"
+        if (verbose) cout << "\nTesting `Int64` testAndSwap Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -4323,7 +4324,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint' swap Thread Safeness"
+        if (verbose) cout << "\nTesting `Uint` swap Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -4384,7 +4385,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint64' swap Thread Safeness"
+        if (verbose) cout << "\nTesting `Uint64` swap Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -4444,7 +4445,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint' testAndSwap Thread Safeness"
+        if (verbose) cout << "\nTesting `Uint` testAndSwap Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -4504,7 +4505,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint64' testAndSwap Thread Safeness"
+        if (verbose) cout << "\nTesting `Uint64` testAndSwap Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -4565,7 +4566,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Pointer' swap Thread Safeness"
+        if (verbose) cout << "\nTesting `Pointer` swap Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -4624,7 +4625,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Pointer' testAndSwap Thread Safeness"
+        if (verbose) cout << "\nTesting `Pointer` testAndSwap Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -4951,7 +4952,7 @@ int main(int argc, char *argv[]) {
                  << "\n================================================"
                  << endl;
 
-        if (verbose) cout << "\nTesting 'Int' Increment Manipulators"
+        if (verbose) cout << "\nTesting `Int` Increment Manipulators"
                           << endl;
         {
             static const struct {
@@ -5007,7 +5008,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Int' Decrement Manipulators"
+        if (verbose) cout << "\nTesting `Int` Decrement Manipulators"
                           << endl;
         {
             static const struct {
@@ -5063,7 +5064,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Int' Increment Thread Safeness"
+        if (verbose) cout << "\nTesting `Int` Increment Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -5103,7 +5104,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Int' decrement Thread Safeness"
+        if (verbose) cout << "\nTesting `Int` decrement Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -5144,7 +5145,7 @@ int main(int argc, char *argv[]) {
         }
 
 
-        if (verbose) cout << "\nTesting 'Int64' Increment Manipulators"
+        if (verbose) cout << "\nTesting `Int64` Increment Manipulators"
                           << endl;
         {
             static const struct {
@@ -5205,7 +5206,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Int64' Decrement Manipulators"
+        if (verbose) cout << "\nTesting `Int64` Decrement Manipulators"
                           << endl;
         {
             static const struct {
@@ -5266,7 +5267,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Int64' Increment Thread Safeness"
+        if (verbose) cout << "\nTesting `Int64` Increment Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -5306,7 +5307,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Int64' decrement Thread Safeness"
+        if (verbose) cout << "\nTesting `Int64` decrement Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -5347,7 +5348,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint' Increment Manipulators"
+        if (verbose) cout << "\nTesting `Uint` Increment Manipulators"
                           << endl;
         {
             static const struct {
@@ -5403,7 +5404,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint' Decrement Manipulators"
+        if (verbose) cout << "\nTesting `Uint` Decrement Manipulators"
                           << endl;
         {
             static const struct {
@@ -5459,7 +5460,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint' Increment Thread Safeness"
+        if (verbose) cout << "\nTesting `Uint` Increment Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -5499,7 +5500,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint' decrement Thread Safeness"
+        if (verbose) cout << "\nTesting `Uint` decrement Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -5540,7 +5541,7 @@ int main(int argc, char *argv[]) {
         }
 
 
-        if (verbose) cout << "\nTesting 'Uint64' Increment Manipulators"
+        if (verbose) cout << "\nTesting `Uint64` Increment Manipulators"
                           << endl;
         {
             static const struct {
@@ -5601,7 +5602,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint64' Decrement Manipulators"
+        if (verbose) cout << "\nTesting `Uint64` Decrement Manipulators"
                           << endl;
         {
             static const struct {
@@ -5662,7 +5663,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint64' Increment Thread Safeness"
+        if (verbose) cout << "\nTesting `Uint64` Increment Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -5702,7 +5703,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint64' decrement Thread Safeness"
+        if (verbose) cout << "\nTesting `Uint64` decrement Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -5786,7 +5787,7 @@ int main(int argc, char *argv[]) {
                           << "\n========================================="
                           << endl;
 
-        if (verbose) cout << "\nTesting 'Int' Increment Manipulators"
+        if (verbose) cout << "\nTesting `Int` Increment Manipulators"
                           << endl;
         {
             static const struct {
@@ -5842,7 +5843,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Int' Decrement Manipulators"
+        if (verbose) cout << "\nTesting `Int` Decrement Manipulators"
                           << endl;
         {
             static const struct {
@@ -5898,7 +5899,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Int' Increment Thread Safeness"
+        if (verbose) cout << "\nTesting `Int` Increment Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -5938,7 +5939,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Int' decrement Thread Safeness"
+        if (verbose) cout << "\nTesting `Int` decrement Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -5978,7 +5979,7 @@ int main(int argc, char *argv[]) {
         }
 
 
-        if (verbose) cout << "\nTesting 'Int64' Increment Manipulators"
+        if (verbose) cout << "\nTesting `Int64` Increment Manipulators"
                           << endl;
         {
             static const struct {
@@ -6039,7 +6040,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Int64' Dencrement Manipulators"
+        if (verbose) cout << "\nTesting `Int64` Dencrement Manipulators"
                           << endl;
         {
             static const struct {
@@ -6100,7 +6101,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Int64' Increment Thread Safeness"
+        if (verbose) cout << "\nTesting `Int64` Increment Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -6139,7 +6140,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Int64' decrement Thread Safeness"
+        if (verbose) cout << "\nTesting `Int64` decrement Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -6179,7 +6180,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint' Increment Manipulators"
+        if (verbose) cout << "\nTesting `Uint` Increment Manipulators"
                           << endl;
         {
             static const struct {
@@ -6235,7 +6236,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint' Decrement Manipulators"
+        if (verbose) cout << "\nTesting `Uint` Decrement Manipulators"
                           << endl;
         {
             static const struct {
@@ -6291,7 +6292,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint' Increment Thread Safeness"
+        if (verbose) cout << "\nTesting `Uint` Increment Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -6331,7 +6332,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint' decrement Thread Safeness"
+        if (verbose) cout << "\nTesting `Uint` decrement Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -6371,7 +6372,7 @@ int main(int argc, char *argv[]) {
         }
 
 
-        if (verbose) cout << "\nTesting 'Uint64' Increment Manipulators"
+        if (verbose) cout << "\nTesting `Uint64` Increment Manipulators"
                           << endl;
         {
             static const struct {
@@ -6432,7 +6433,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint64' Dencrement Manipulators"
+        if (verbose) cout << "\nTesting `Uint64` Dencrement Manipulators"
                           << endl;
         {
             static const struct {
@@ -6493,7 +6494,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint64' Increment Thread Safeness"
+        if (verbose) cout << "\nTesting `Uint64` Increment Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -6532,7 +6533,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint64' decrement Thread Safeness"
+        if (verbose) cout << "\nTesting `Uint64` decrement Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -6585,7 +6586,7 @@ int main(int argc, char *argv[]) {
         //   manipulators.
         //
         // 1 Using an independent sequence of values, initialize an object and
-        //   set its value to a base value.  Next 'swap' it with a second test
+        //   set its value to a base value.  Next `swap` it with a second test
         //   value and assert that the new value is the swapped value and that
         //   the return value is the base value.  Then create a series of
         //   threads, each of which will concurrently swap the same object
@@ -6597,7 +6598,7 @@ int main(int argc, char *argv[]) {
         //   number of times each value should have been seen.
         //
         // 2 Using an independent sequence of values, initialize an object and
-        //   set its value to a base value.  Next 'testAndSwap' it with a
+        //   set its value to a base value.  Next `testAndSwap` it with a
         //   second test value and assert that the new value is the expected
         //   value and that the return value is the expected return value.
         //   Then create a series of threads, each of which will concurrently
@@ -6625,7 +6626,7 @@ int main(int argc, char *argv[]) {
                           << "\n========================================="
                           << endl;
 
-        if (verbose) cout << "\nTesting 'Int' SWAP Manipulators" << endl;
+        if (verbose) cout << "\nTesting `Int` SWAP Manipulators" << endl;
         {
             static const struct {
                 int d_lineNum;     // Source line number
@@ -6664,7 +6665,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (verbose) cout << endl
-                          << "\tTesting 'testAndSwapInt'" << endl
+                          << "\tTesting `testAndSwapInt`" << endl
                           << "\t------------------------" << endl;
         {
             static const struct {
@@ -6717,7 +6718,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Int64' SWAP Manipulators" << endl;
+        if (verbose) cout << "\nTesting `Int64` SWAP Manipulators" << endl;
         {
             static const struct {
                 int                d_lineNum;     // Source line number
@@ -6757,7 +6758,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (verbose) cout << endl
-                          << "\tTesting 'testAndSwapInt64'" << endl
+                          << "\tTesting `testAndSwapInt64`" << endl
                           << "\t--------------------------" << endl;
         {
             static const struct {
@@ -6805,7 +6806,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint' SWAP Manipulators" << endl;
+        if (verbose) cout << "\nTesting `Uint` SWAP Manipulators" << endl;
         {
             static const struct {
                 int          d_lineNum;     // Source line number
@@ -6844,7 +6845,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (verbose) cout << endl
-                          << "\tTesting 'testAndSwapUint'" << endl
+                          << "\tTesting `testAndSwapUint`" << endl
                           << "\t-------------------------" << endl;
         {
             static const struct {
@@ -6897,7 +6898,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint64' SWAP Manipulators" << endl;
+        if (verbose) cout << "\nTesting `Uint64` SWAP Manipulators" << endl;
         {
             static const struct {
                 int                 d_lineNum;     // Source line number
@@ -6937,7 +6938,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (verbose) cout << endl
-                          << "\tTesting 'testAndSwapUint64'" << endl
+                          << "\tTesting `testAndSwapUint64`" << endl
                           << "\t--------------------------" << endl;
         {
             static const struct {
@@ -6985,7 +6986,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Pointer' SWAP Manipulators" << endl;
+        if (verbose) cout << "\nTesting `Pointer` SWAP Manipulators" << endl;
         {
             static const struct {
                 int  d_lineNum;     // Source line number
@@ -7027,7 +7028,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (verbose) cout << endl
-                          << "\tTesting 'testAndSwapPtr'" << endl
+                          << "\tTesting `testAndSwapPtr`" << endl
                           << "\t------------------------" << endl;
         {
             static const struct {
@@ -7081,7 +7082,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Int' swap Thread Safeness"
+        if (verbose) cout << "\nTesting `Int` swap Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -7142,7 +7143,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Int64' swap Thread Safeness"
+        if (verbose) cout << "\nTesting `Int64` swap Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -7202,7 +7203,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint' swap Thread Safeness"
+        if (verbose) cout << "\nTesting `Uint` swap Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -7263,7 +7264,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint64' swap Thread Safeness"
+        if (verbose) cout << "\nTesting `Uint64` swap Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -7322,7 +7323,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Int' testAndSwap Thread Safeness"
+        if (verbose) cout << "\nTesting `Int` testAndSwap Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -7381,7 +7382,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Int64' testAndSwap Thread Safeness"
+        if (verbose) cout << "\nTesting `Int64` testAndSwap Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -7441,7 +7442,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint' testAndSwap Thread Safeness"
+        if (verbose) cout << "\nTesting `Uint` testAndSwap Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -7500,7 +7501,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint64' testAndSwap Thread Safeness"
+        if (verbose) cout << "\nTesting `Uint64` testAndSwap Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -7559,7 +7560,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Pointer' swap Thread Safeness"
+        if (verbose) cout << "\nTesting `Pointer` swap Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -7618,7 +7619,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Pointer' testAndSwap Thread Safeness"
+        if (verbose) cout << "\nTesting `Pointer` testAndSwap Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -7684,7 +7685,7 @@ int main(int argc, char *argv[]) {
         //   Test that the 32/64 bit integer and unsigned interger add
         //   functions work as expected.
         // Plan:
-        //   For each atomic type('Int', and 'Int64') using a sequence of
+        //   For each atomic type(`Int`, and `Int64`) using a sequence of
         //   independent values, begin by initializing the value to 0
         //   and adding the test value.  Assert the resulting
         //   value is the expected value.  Repeat the operation using
@@ -7719,7 +7720,7 @@ int main(int argc, char *argv[]) {
                           << "\n========================================="
                           << endl;
 
-        if (verbose) cout << "\nTesting 'Int' Arithmetic Manipulators" << endl;
+        if (verbose) cout << "\nTesting `Int` Arithmetic Manipulators" << endl;
         {
             static const struct {
                 int  d_lineNum;     // Source line number
@@ -7751,7 +7752,7 @@ int main(int argc, char *argv[]) {
             }
 
             if (verbose) cout <<
-                "\n\tTesting 'Int' Arithmetic(and values) Manipulators\n" <<
+                "\n\tTesting `Int` Arithmetic(and values) Manipulators\n" <<
                 "\n\t-------------------------------------------------"
                               << endl;
 
@@ -7773,7 +7774,7 @@ int main(int argc, char *argv[]) {
 
         }
 
-        if (verbose) cout << "\n\tTesting 'Int' Arith(with base) Manip"
+        if (verbose) cout << "\n\tTesting `Int` Arith(with base) Manip"
                           << endl;
 
         {
@@ -7860,7 +7861,7 @@ int main(int argc, char *argv[]) {
 
         }
 
-        if (verbose) cout << "\nTesting 'Int64' Arithmetic Manipulators"
+        if (verbose) cout << "\nTesting `Int64` Arithmetic Manipulators"
                           << endl;
         {
             static const struct {
@@ -7994,7 +7995,7 @@ int main(int argc, char *argv[]) {
 
         }
 
-        if (verbose) cout << "\nTesting 'Int' add Thread Safeness"
+        if (verbose) cout << "\nTesting `Int` add Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -8034,7 +8035,7 @@ int main(int argc, char *argv[]) {
                 T_(); P(STARTVALUE); NL();
             }
         }
-        if (verbose) cout << "\nTesting 'Int64' add Thread Safeness"
+        if (verbose) cout << "\nTesting `Int64` add Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -8077,7 +8078,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (verbose)
-            cout << "\nTesting 'Uint' Arithmetic Manipulators" << endl;
+            cout << "\nTesting `Uint` Arithmetic Manipulators" << endl;
         {
             static const struct {
                 int          d_lineNum;     // Source line number
@@ -8109,7 +8110,7 @@ int main(int argc, char *argv[]) {
             }
 
             if (verbose) cout <<
-                "\n\tTesting 'Uint' Arithmetic(and values) Manipulators\n" <<
+                "\n\tTesting `Uint` Arithmetic(and values) Manipulators\n" <<
                 "\n\t-------------------------------------------------"
                               << endl;
 
@@ -8131,7 +8132,7 @@ int main(int argc, char *argv[]) {
 
         }
 
-        if (verbose) cout << "\n\tTesting 'Uint' Arith(with base) Manip"
+        if (verbose) cout << "\n\tTesting `Uint` Arith(with base) Manip"
                           << endl;
 
         {
@@ -8220,7 +8221,7 @@ int main(int argc, char *argv[]) {
 
         }
 
-        if (verbose) cout << "\nTesting 'Uint64' Arithmetic Manipulators"
+        if (verbose) cout << "\nTesting `Uint64` Arithmetic Manipulators"
                           << endl;
         {
             static const struct {
@@ -8356,7 +8357,7 @@ int main(int argc, char *argv[]) {
 
         }
 
-        if (verbose) cout << "\nTesting 'Uint' add Thread Safeness"
+        if (verbose) cout << "\nTesting `Uint` add Thread Safeness"
                           << endl;
         {
             const int          NTHREADS=4;
@@ -8396,7 +8397,7 @@ int main(int argc, char *argv[]) {
                 T_(); P(STARTVALUE); NL();
             }
         }
-        if (verbose) cout << "\nTesting 'Uint64' add Thread Safeness"
+        if (verbose) cout << "\nTesting `Uint64` add Thread Safeness"
                           << endl;
         {
             const int NTHREADS=4;
@@ -8450,10 +8451,10 @@ int main(int argc, char *argv[]) {
         //   Next, for the Int,Int64, Uint, Uint64, and Pointer atomic types,
         //   for a sequence of independent test values, use the initialization
         //   functions to initialize each type and use the primary manipulator
-        //   (i.e., 'setInt', 'setInt64', 'setUint', 'setUint64', 'setPtr') to
+        //   (i.e., `setInt`, `setInt64`, `setUint`, `setUint64`, `setPtr`) to
         //   set its value.  Verify the value using the respective direct
-        //   accessor (i.e.,'getInt', 'getInt64', 'getUint', 'getUint64',
-        //   'getPtr').
+        //   accessor (i.e.,`getInt`, `getInt64`, `getUint`, `getUint64`,
+        //   `getPtr`).
         //
         // Testing:
         //   initInt(Obj::Int *aInt, int initialValue);
@@ -8477,7 +8478,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\nTesting Primary Manipulators"
                           << "\n============================" << endl;
 
-        if (verbose) cout << "\nTesting 'Int' Primary Manipulators" << endl;
+        if (verbose) cout << "\nTesting `Int` Primary Manipulators" << endl;
         {
             static const struct {
                 int  d_lineNum;     // Source line number
@@ -8509,7 +8510,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Int64' Primary Manipulators" << endl;
+        if (verbose) cout << "\nTesting `Int64` Primary Manipulators" << endl;
         {
             static const struct {
                 int       d_lineNum;     // Source line number
@@ -8542,7 +8543,7 @@ int main(int argc, char *argv[]) {
         }
 
 
-        if (verbose) cout << "\nTesting 'Uint' Primary Manipulators" << endl;
+        if (verbose) cout << "\nTesting `Uint` Primary Manipulators" << endl;
         {
             static const struct {
                 int          d_lineNum;     // Source line number
@@ -8574,7 +8575,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\nTesting 'Uint64' Primary Manipulators" << endl;
+        if (verbose) cout << "\nTesting `Uint64` Primary Manipulators" << endl;
         {
             static const struct {
                 int                 d_lineNum;     // Source line number
@@ -8607,7 +8608,7 @@ int main(int argc, char *argv[]) {
         }
 
 
-        if (verbose) cout << "\nTesting 'Pointer' Primary Manipulators"
+        if (verbose) cout << "\nTesting `Pointer` Primary Manipulators"
                            << endl;
         {
             static const struct {

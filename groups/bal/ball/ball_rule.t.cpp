@@ -29,11 +29,11 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test implements a value-semantic 'Rule' class.  We
-// choose the default constructor, 'setPattern', 'setLevels', 'addAttribute',
-// and 'removeAttribute' as the primary manipulators.  We apply the standard
+// The component under test implements a value-semantic `Rule` class.  We
+// choose the default constructor, `setPattern`, `setLevels`, `addAttribute`,
+// and `removeAttribute` as the primary manipulators.  We apply the standard
 // 10 test procedure as well as a few test cases for additional methods such
-// as 'hash' and 'evaluate'.
+// as `hash` and `evaluate`.
 //-----------------------------------------------------------------------------
 // [14] static int hash(const Rule&, int size);
 // [ 2] Rule(bdema::Alct * = 0);
@@ -63,7 +63,7 @@ using namespace bsl;
 // [ 5] bsl::ostream& operator<<(bsl::ostream&, const PS&) const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 3] PRIMITIVE TEST APPARATUS: 'gg'
+// [ 3] PRIMITIVE TEST APPARATUS: `gg`
 // [ 8] UNUSED
 // [16] USAGE EXAMPLE
 
@@ -201,10 +201,10 @@ const ManagedAttribute PREDICATES[] =
 enum { NUM_PREDICATES = sizeof PREDICATES / sizeof *PREDICATES };
 
 //=============================================================================
-//       GENERATOR FUNCTIONS 'g', 'gg', AND 'ggg' FOR TESTING
+//       GENERATOR FUNCTIONS `g`, `gg`, AND `ggg` FOR TESTING
 //-----------------------------------------------------------------------------
-// The 'g' family of functions generate a 'Rule' object for testing.
-// They interpret a given 'spec' (from left to right) to configure the
+// The `g` family of functions generate a `Rule` object for testing.
+// They interpret a given `spec` (from left to right) to configure the
 // attribute set according to a custom language.
 //
 // To simplify these generator functions, patterns, threshold levels, and
@@ -265,14 +265,14 @@ static Obj& gg(Obj *obj, const char *spec)
     return *obj;
 }
 
+/// Return `true` if the specified `lhs` has the same value as the specified
+/// `rhs` and `false` otherwise.  Optionally specify a `errorStream`, on
+/// which, if `lhs` and `rhs` are not the same, a description of how the two
+/// strings differ will be written.  If `errorStream` is not supplied,
+/// `stdout` will be used to report an error description.
 bool compareText(const bsl::string_view& lhs,
                  const bsl::string_view& rhs,
                  bsl::ostream&           errorStream = bsl::cout)
-    // Return 'true' if the specified 'lhs' has the same value as the specified
-    // 'rhs' and 'false' otherwise.  Optionally specify a 'errorStream', on
-    // which, if 'lhs' and 'rhs' are not the same, a description of how the two
-    // strings differ will be written.  If 'errorStream' is not supplied,
-    // 'stdout' will be used to report an error description.
 {
     for (unsigned int i = 0; i < lhs.length() && i < rhs.length(); ++i) {
         if (lhs[i] != rhs[i]) {
@@ -337,8 +337,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.  Suppress
-        //   all 'cout' statements in non-verbose mode, and add streaming to
+        //   comment characters, and replace `assert` with `ASSERT`.  Suppress
+        //   all `cout` statements in non-verbose mode, and add streaming to
         //   a buffer to test programmatically the printing examples.
         //
         // Testing:
@@ -390,21 +390,21 @@ int main(int argc, char *argv[])
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // TESTING 'isMatch'
+        // TESTING `isMatch`
         //
         // Concerns:
-        //   Our concern is that 'isMatch' should match input strings
+        //   Our concern is that `isMatch` should match input strings
         //   correctly.
         //
         // Plan:
-        //   Specify a set of pairs each of which consists of a 'Rule'
+        //   Specify a set of pairs each of which consists of a `Rule`
         //   objects and an input string.  For each pair, verify that
-        //   'isMatch' returns the expected value.
+        //   `isMatch` returns the expected value.
         // Testing:
         //   bool isMatch(const char *inputString) const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'isMatch'"
+        if (verbose) cout << "\nTesting `isMatch`"
                           << "\n================="
                           << endl;
 
@@ -610,21 +610,21 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'evaluate':
-        //   The 'evaluate' method must return correct results as to whether
+        // TESTING `evaluate`:
+        //   The `evaluate` method must return correct results as to whether
         //   every attribute in the rule has an exact counterpart in the
         //   specified attribute set.
         //
         // Plan:
-        //   Specify a set of pairs of a 'Rule' object and a
-        //   'AttributeContainerList' object.  For each pair, verify that
-        //   the 'evaluate' method returns the expected value.
+        //   Specify a set of pairs of a `Rule` object and a
+        //   `AttributeContainerList` object.  For each pair, verify that
+        //   the `evaluate` method returns the expected value.
         //
         // Testing:
         //   bool evaluate(const DefaultAttributeContainer& context)const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'evaluate'"
+        if (verbose) cout << "\nTesting `evaluate`"
                           << "\n==================" << endl;
 
         const Attribute A1("A", "1");
@@ -703,17 +703,17 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING 'removeAll'
-        //   The 'removeAll' should effectively remove all attributes
-        //   maintained by a 'Rule' object.
+        // TESTING `removeAll`
+        //   The `removeAll` should effectively remove all attributes
+        //   maintained by a `Rule` object.
         //
         // Plan:
         //   Specify a set S of test vectors.  For each element in S,
-        //   construct the corresponding 'Rule' object x using
-        //   the 'gg' function.  Copy x into another object y.  After calling
-        //   'removeAll' on x, verify that the length of x is zero, none of
+        //   construct the corresponding `Rule` object x using
+        //   the `gg` function.  Copy x into another object y.  After calling
+        //   `removeAll` on x, verify that the length of x is zero, none of
         //   attributes in y can be found in x.  Then reconstruct x using the
-        //   'gg' function again, and verify that x == y.
+        //   `gg` function again, and verify that x == y.
         //
         // Testing:
         //   void removeAll();
@@ -769,17 +769,17 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'begin' and 'end' methods
-        //   This will test the 'begin' and 'end' methods.
+        // TESTING `begin` and `end` methods
+        //   This will test the `begin` and `end` methods.
         //
         // Concerns:
-        //   The 'begin' and 'end' methods should return a range where each
+        //   The `begin` and `end` methods should return a range where each
         //   attribute in the attribute set appears exactly once.
         //
         // Plan:
-        //   Construct an array consisting of 'ManagedAttribute' objects having
+        //   Construct an array consisting of `ManagedAttribute` objects having
         //   distinct values.  For each n in [0 .. N] where N is the maximum
-        //   number of attributes tested, create an empty 'Rule'
+        //   number of attributes tested, create an empty `Rule`
         //   object and add the first n attributes to the set.  Verify
         //   that every added attribute appears in the set exactly once.
         //
@@ -787,7 +787,7 @@ int main(int argc, char *argv[])
         //   ManagedAttributeSet::const_iterator begin() const;
         //   ManagedAttributeSet::const_iterator end() const;
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTesting 'begin' and 'end' methods"
+        if (verbose) cout << "\nTesting `begin` and `end` methods"
                           << "\n=================================" << endl;
 
         const ManagedAttribute PREDS[] = { P1, P2, P3, P4,
@@ -836,7 +836,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Specify a set S of patterns and a set T of threshold levels.  For
         //   each pair (x, y) in the cross product S X T, construct a
-        //   corresponding 'Rule' object.  Verify that the object has the
+        //   corresponding `Rule` object.  Verify that the object has the
         //   expected value.
         //
         // Testing:
@@ -900,7 +900,7 @@ int main(int argc, char *argv[])
 
         static const struct {
             int         d_line;   // source line number
-            const char *d_spec;      // input 'spec' string for 'gg'
+            const char *d_spec;      // input `spec` string for `gg`
         } DATA[] = {
             // line    spec
             // ----    ----
@@ -987,7 +987,7 @@ int main(int argc, char *argv[])
       case 8: {
         // --------------------------------------------------------------------
         // TESTING SECONDARY TEST APPARATUS:
-        //   Void for 'Rule'.
+        //   Void for `Rule`.
         // --------------------------------------------------------------------
 
       } break;
@@ -1000,7 +1000,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Specify a set S whose elements have substantial and varied
         //   differences in value.  For each element in S, construct and
-        //   initialize identically valued objects w and x using 'gg'.  Then
+        //   initialize identically valued objects w and x using `gg`.  Then
         //   copy construct an object y from x, and use the equality operator
         //   to assert that both x and y have the same value as w.
         //
@@ -1012,7 +1012,7 @@ int main(int argc, char *argv[])
 
         static const struct {
             int         d_line;      // source line number
-            const char *d_spec;      // input 'spec' string for 'gg'
+            const char *d_spec;      // input `spec` string for `gg`
         } DATA[] = {
             // line    spec
             // ----    ----
@@ -1103,13 +1103,13 @@ int main(int argc, char *argv[])
         // Plan:
         //   First, specify a set S of unique object values that may have
         //   various minor or subtle differences.  Verify the correctness of
-        //   'operator==' and 'operator!=' using all elements (u, v) of the
+        //   `operator==` and `operator!=` using all elements (u, v) of the
         //   cross product S X S.
         //
         //   Next, specify another set T where each element is a pair of
         //   different specifications having the same value (the same
         //   attributes were added in different orders).  For each element (u,
-        //   v) in T, verify that 'operator==' and 'operator!=' return the
+        //   v) in T, verify that `operator==` and `operator!=` return the
         //   correct value.
 
         // Testing:
@@ -1119,7 +1119,7 @@ int main(int argc, char *argv[])
 
         static const struct {
             int         d_line;      // source line number
-            const char *d_spec;      // input 'spec' string for 'gg'
+            const char *d_spec;      // input `spec` string for `gg`
         } DATA[] = {
             // line   spec
             // ----   ----
@@ -1189,8 +1189,8 @@ int main(int argc, char *argv[])
 
         static const struct {
             int         d_line;       // source line number
-            const char *d_spec1;      // input 'spec' string for 'gg'
-            const char *d_spec2;      // input 'spec' string for 'gg'
+            const char *d_spec1;      // input `spec` string for `gg`
+            const char *d_spec2;      // input `spec` string for `gg`
         } TDATA[] = {
             // line    spec1                 spec2
             // ----    -----                 -----
@@ -1239,13 +1239,13 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'operator<<' AND 'print'
-        //   The output operator and 'print' method should print out the value
+        // TESTING `operator<<` AND `print`
+        //   The output operator and `print` method should print out the value
         //   of objects in the expected format.
         //
         // Plan:
         //   For each of a small representative set of object values, use
-        //   'ostrstream' to write that object's value to a character buffer
+        //   `ostrstream` to write that object's value to a character buffer
         //   and then compare the contents of that buffer with the expected
         //   output format.
         //
@@ -1255,10 +1255,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing 'operator<<' and 'print'" << endl
+                          << "Testing `operator<<` and `print`" << endl
                           << "================================" << endl;
 
-        if (verbose) cout << "\nTesting 'operator<<' (ostream)." << endl;
+        if (verbose) cout << "\nTesting `operator<<` (ostream)." << endl;
 
         static const struct {
             int         d_line;    // line number
@@ -1320,7 +1320,7 @@ int main(int argc, char *argv[])
 
         enum { NUM_PDATA = sizeof PDATA / sizeof *PDATA };
 
-        if (verbose) cout << "\nTesting 'print'." << endl;
+        if (verbose) cout << "\nTesting `print`." << endl;
 
         for (int i = 0; i < NUM_PDATA; ++i) {
             int LINE = PDATA[i].d_line;
@@ -1344,16 +1344,16 @@ int main(int argc, char *argv[])
       case 4: {
         // --------------------------------------------------------------------
         // TESTING BASIC ACCESSORS
-        //   The pattern of the 'Rule' object must be verifiable by the
-        //   'pattern' accessor.  The threshold levels must be verifiable by
+        //   The pattern of the `Rule` object must be verifiable by the
+        //   `pattern` accessor.  The threshold levels must be verifiable by
         //   the threshold level accessors.  Every attribute added must be
-        //   verifiable by the 'hasPredicate' accessor.
+        //   verifiable by the `hasPredicate` accessor.
         //
         // Plan:
         //   Mechanically generate a series of specifications that are the
         //   cross product of the predefined pattern, level, and attribute
-        //   arrays.  For each specification, create a 'Rule' object from
-        //   the specification using the 'gg' function, and verify that each
+        //   arrays.  For each specification, create a `Rule` object from
+        //   the specification using the `gg` function, and verify that each
         //   accessor returns the expected result.
         //
         // Testing:
@@ -1406,15 +1406,15 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING GENERATOR FUNCTIONS 'gg'
-        //   The 'gg' function should create objects having the expected value
+        // TESTING GENERATOR FUNCTIONS `gg`
+        //   The `gg` function should create objects having the expected value
         //   and return a reference to its first argument.
         //
         // Plan:
         //   Mechanically generate a series of specifications that are the
         //   cross product of the predefined pattern, level, and attribute
-        //   arrays.  For each specification, create a 'Rule' object from
-        //   the specification using the 'gg' function, and verify that the
+        //   arrays.  For each specification, create a `Rule` object from
+        //   the specification using the `gg` function, and verify that the
         //   object has the expected value.
         //
         // Testing:
@@ -1422,7 +1422,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-            << "Testing 'gg' generator functions" << endl
+            << "Testing `gg` generator functions" << endl
             << "================================" << endl;
 
         for (int i = 0; i < NUM_PATTERNS; ++i) {
@@ -1701,7 +1701,7 @@ int main(int argc, char *argv[])
         //   manipulator [3, 6], copy constructor [2, 8], and assignment
         //   operator without [9, 10] and with [11] aliasing.  Use the direct
         //   accessors to verify the expected results.  Display object values
-        //   frequently in verbose mode.  Note that 'VA', 'VB', 'VC', and 'VD'
+        //   frequently in verbose mode.  Note that `VA`, `VB`, `VC`, and `VD`
         //   denote unique, but otherwise arbitrary, object values.
         //
         // 1.  Create an object x1 using VA.        { x1:VA }

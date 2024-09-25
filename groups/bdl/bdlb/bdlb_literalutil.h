@@ -68,7 +68,7 @@ struct LiteralUtil {
     /// as that of the specified `input` string.  When the C string literal
     /// equivalent is translated by a compiler having C-compatible string
     /// literals, it will result in a string identical to the `input`
-    /// string.  Note that this code uses the (ASCII) `\` character, rather
+    /// string.  Note that this code uses the (ASCII) '\' character, rather
     /// than Unicode code points for escapes.
     static void createQuotedEscapedCString(std::pmr::string         *result,
                                            const bsl::string_view&   input);

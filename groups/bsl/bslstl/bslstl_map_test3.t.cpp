@@ -75,8 +75,8 @@
 #include <ranges>
 #endif
 
-#include <ctype.h>   // 'isalpha', 'tolower', 'toupper'
-#include <limits.h>  // 'INT_MIN', 'INT_MAX'
+#include <ctype.h>   // `isalpha`, `tolower`, `toupper`
+#include <limits.h>  // `INT_MIN`, `INT_MAX`
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -92,11 +92,11 @@ using bsls::NameOf;
 // ----------------------------------------------------------------------------
 // NOTICE: To reduce the compilation time (as well as enable the tests to build
 // with certain compilers), this test driver has been broken into 4 parts:
-//:
-//: * 'bslstl_map.t.cpp' (cases 1-8, usage example, future test items (TBD))
-//: * 'bslstl_map_test1.cpp' (cases 9-27)
-//: * 'bslstl_map_test2.cpp' (case 28)
-//: * 'bslstl_map_test3.cpp' (cases 29 and higher).
+//
+//  * `bslstl_map.t.cpp` (cases 1-8, usage example, future test items (TBD))
+//  * `bslstl_map_test1.cpp` (cases 9-27)
+//  * `bslstl_map_test2.cpp` (case 28)
+//  * `bslstl_map_test3.cpp` (cases 29 and higher).
 //
 //                                  Overview
 //                                  --------
@@ -105,34 +105,34 @@ using bsls::NameOf;
 // exception safety, and proper dispatching (for member function templates such
 // as insert).  This container is implemented in the form of a class template,
 // and thus its proper instantiation for several types is a concern.  Regarding
-// the allocator template argument, we use mostly a 'bsl::allocator' together
-// with a 'bslma::TestAllocator' mechanism, but we also verify the C++
+// the allocator template argument, we use mostly a `bsl::allocator` together
+// with a `bslma::TestAllocator` mechanism, but we also verify the C++
 // standard.
 //
 // Primary Manipulators:
-//: o 'insert(value_type&&)'  (via helper function 'primaryManipulator')
-//: o 'clear'
+//  - `insert(value_type&&)`  (via helper function `primaryManipulator`)
+//  - `clear`
 //
 // Basic Accessors:
-//: o 'cbegin'
-//: o 'cend'
-//: o 'size'
-//: o 'get_allocator'
+//  - `cbegin`
+//  - `cend`
+//  - `size`
+//  - `get_allocator`
 //
 // This test plan follows the standard approach for components implementing
 // value-semantic containers.  We have chosen as *primary* *manipulators* the
-// 'insert(value_type&&)'[*] and 'clear' methods, where the former is used by
-// the generator function 'ggg'.  Note that some manipulators must support
+// `insert(value_type&&)`[*] and `clear` methods, where the former is used by
+// the generator function `ggg`.  Note that some manipulators must support
 // aliasing, and those that perform memory allocation must be tested for
-// exception neutrality via the 'bslma_testallocator' component.  After the
+// exception neutrality via the `bslma_testallocator` component.  After the
 // mandatory sequence of cases (1-10) for value-semantic types (cases 5 and 10
-// are not implemented as there is no output or BDEX streaming below 'bslstl'),
+// are not implemented as there is no output or BDEX streaming below `bslstl`),
 // we test each individual constructor, manipulator, and accessor in subsequent
 // cases.
 //
-// [*] 'insert(value_type&&)' was chosen as our primary manipulator rather than
-// 'emplace' with a single parameter since: 1) 'insert' is more primitive than
-// 'emplace' as the latter requires that a key object be constructed before
+// [*] `insert(value_type&&)` was chosen as our primary manipulator rather than
+// `emplace` with a single parameter since: 1) `insert` is more primitive than
+// `emplace` as the latter requires that a key object be constructed before
 // searching the tree, and 2) move-only objects cannot be emplaced.
 // ----------------------------------------------------------------------------
 // 23.4.6.2, construct/copy/destroy:
@@ -238,29 +238,29 @@ using bsls::NameOf;
 // TEST APPARATUS
 // [ 3] int ggg(map *object, const char *spec, bool verbose = true);
 // [ 3] map& gg(map *object, const char *spec);
-// [ 5] 'debugprint' functions (TBD not yet tested)
+// [ 5] `debugprint` functions (TBD not yet tested)
 //
-// [22] CONCERN: 'map' is compatible with standard allocators.
-// [23] CONCERN: 'map' has the necessary type traits.
+// [22] CONCERN: `map` is compatible with standard allocators.
+// [23] CONCERN: `map` has the necessary type traits.
 // [26] CONCERN: The type provides the full interface defined by the standard.
-// [35] CONCERN: 'map' supports incomplete types.
-// [  ] CONCERN: 'map' object size is commensurate with that of 'C' and 'A'.
-// [36] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
-// [37] CONCERN: 'bslmf::MovableRef<T>' does not escape (in C++03 mode).
-// [38] CONCERN: 'erase' overload is deduced correctly.
-// [39] CONCERN: 'find'        properly handles transparent comparators.
-// [39] CONCERN: 'count'       properly handles transparent comparators.
-// [39] CONCERN: 'lower_bound' properly handles transparent comparators.
-// [39] CONCERN: 'upper_bound' properly handles transparent comparators.
-// [39] CONCERN: 'equal_range' properly handles transparent comparators.
-// [40] CONCERN: 'count'       properly handles multi-value comparators.
-// [40] CONCERN: 'find'        properly handles multi-value comparators.
-// [40] CONCERN: 'lower_bound' properly handles multi-value comparators.
-// [40] CONCERN: 'upper_bound' properly handles multi-value comparators.
-// [40] CONCERN: 'equal_range' properly handles multi-value comparators.
+// [35] CONCERN: `map` supports incomplete types.
+// [  ] CONCERN: `map` object size is commensurate with that of `C` and `A`.
+// [36] CONCERN: Methods qualifed `noexcept` in standard are so implemented.
+// [37] CONCERN: `bslmf::MovableRef<T>` does not escape (in C++03 mode).
+// [38] CONCERN: `erase` overload is deduced correctly.
+// [39] CONCERN: `find`        properly handles transparent comparators.
+// [39] CONCERN: `count`       properly handles transparent comparators.
+// [39] CONCERN: `lower_bound` properly handles transparent comparators.
+// [39] CONCERN: `upper_bound` properly handles transparent comparators.
+// [39] CONCERN: `equal_range` properly handles transparent comparators.
+// [40] CONCERN: `count`       properly handles multi-value comparators.
+// [40] CONCERN: `find`        properly handles multi-value comparators.
+// [40] CONCERN: `lower_bound` properly handles multi-value comparators.
+// [40] CONCERN: `upper_bound` properly handles multi-value comparators.
+// [40] CONCERN: `equal_range` properly handles multi-value comparators.
 // [41] CLASS TEMPLATE DEDUCTION GUIDES
-// [44] CONCERN: 'map' IS A C++20 RANGE
-// [46] CONCERN: 'operator[]' with non-copyable type.
+// [44] CONCERN: `map` IS A C++20 RANGE
+// [46] CONCERN: `operator[]` with non-copyable type.
 //
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -328,7 +328,7 @@ void aSsErT(bool b, const char *s, int i)
      )
 # define BSL_DO_NOT_TEST_MOVE_FORWARDING 1
 // Some compilers produce ambiguities when trying to construct our test types
-// for 'emplace'-type functionality with the C++03 move-emulation.  This is a
+// for `emplace`-type functionality with the C++03 move-emulation.  This is a
 // compiler bug triggering in lower level components, so we simply disable
 // those aspects of testing, and rely on the extensive test coverage on other
 // platforms.
@@ -354,7 +354,7 @@ typedef bsls::Types::Int64 Int64;
 struct DefaultDataRow {
     int         d_line;       // source line number
     int         d_index;      // lexical order
-    const char *d_spec_p;     // specification string, for input to 'gg'
+    const char *d_spec_p;     // specification string, for input to `gg`
     const char *d_results_p;  // expected element values
 };
 
@@ -437,9 +437,9 @@ enum { DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA };
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
 // Define values used to initialize positional arguments for
-// 'bsltf::EmplacableTestType' and 'bsltf::AllocEmplacableTestType'
+// `bsltf::EmplacableTestType` and `bsltf::AllocEmplacableTestType`
 // constructors.  Note, that you cannot change those values as they are used by
-// 'TemplateTestFacility::getIdentifier' to map the constructed emplacable
+// `TemplateTestFacility::getIdentifier` to map the constructed emplacable
 // objects to their integer identifiers.
 static const int K01 = 1;
 static const int K02 = 20;
@@ -450,11 +450,11 @@ static const int V03 = 912;
 #endif
 
 // TBD There is a fundamental flaw when testing operations involving two maps,
-// such as operator== and operator<, that the 'DEFAULT_DATA' table does not
+// such as operator== and operator<, that the `DEFAULT_DATA` table does not
 // produce maps that have the same keys, but different values.  It is possible
-// that we are not comparing 'value' (as opposed to 'key') in the tests and we
+// that we are not comparing `value` (as opposed to `key`) in the tests and we
 // would never know.  This is a pretty serious omission.  In fact, it extends
-// to 'ggg', 'primaryManipulator', 'createInplace', etc.
+// to `ggg`, `primaryManipulator`, `createInplace`, etc.
 
 typedef bsltf::NonDefaultConstructibleTestType TestKeyType;
 typedef bsltf::NonTypicalOverloadsTestType     TestValueType;
@@ -497,24 +497,24 @@ void debugprint(const bsl::map<KEY, VALUE, COMP, ALLOC>& s)
 
 }  // close namespace bsl
 
+/// Return `true` if the container is expected to allocate memory on the
+/// specified `n`th element, and `false` otherwise.
 bool expectToAllocate(size_t n)
-    // Return 'true' if the container is expected to allocate memory on the
-    // specified 'n'th element, and 'false' otherwise.
 {
     if (n > 32) {
         return 0 == n % 32;                                           // RETURN
     }
-    return 0 == ((n - 1) & n);  // Allocate when 'n' is a power of 2.
+    return 0 == ((n - 1) & n);  // Allocate when `n` is a power of 2.
 }
 
+/// Verify the specified `container` has the specified `expectedSize` and
+/// contains the same values as the array in the specified `expectedValues`.
+/// Return 0 if `container` has the expected values, and a non-zero value
+/// otherwise.
 template <class CONTAINER, class VALUES>
 int verifyContainer(const CONTAINER& container,
                     const VALUES&    expectedValues,
                     size_t           expectedSize)
-    // Verify the specified 'container' has the specified 'expectedSize' and
-    // contains the same values as the array in the specified 'expectedValues'.
-    // Return 0 if 'container' has the expected values, and a non-zero value
-    // otherwise.
 {
     ASSERTV(expectedSize, container.size(), expectedSize == container.size());
 
@@ -540,15 +540,15 @@ int verifyContainer(const CONTAINER& container,
                             // class ExceptionProctor
                             // ======================
 
+/// This class provides a mechanism to verify the strong exception guarantee
+/// in exception-throwing code.  On construction, this class stores a copy
+/// of an object of the (template parameter) type `OBJECT` and the address
+/// of that object.  On destruction, if `release` was not invoked, it will
+/// verify the value of the object is the same as the value of the copy
+/// created on construction.  This class requires that the copy constructor
+/// and `operator ==` be tested before use.
 template <class OBJECT>
 struct ExceptionProctor {
-    // This class provides a mechanism to verify the strong exception guarantee
-    // in exception-throwing code.  On construction, this class stores a copy
-    // of an object of the (template parameter) type 'OBJECT' and the address
-    // of that object.  On destruction, if 'release' was not invoked, it will
-    // verify the value of the object is the same as the value of the copy
-    // created on construction.  This class requires that the copy constructor
-    // and 'operator ==' be tested before use.
 
     // DATA
     int           d_line;      // line number at construction
@@ -562,34 +562,35 @@ struct ExceptionProctor {
 
   public:
     // CREATORS
+
+    /// Create an exception proctor for the specified `object` at the
+    /// specified `line` number.  Optionally specify a `basicAllocator` used
+    /// to supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     ExceptionProctor(const OBJECT     *object,
                      int               line,
                      bslma::Allocator *basicAllocator = 0)
     : d_line(line)
     , d_control(*object, basicAllocator)
     , d_object_p(object)
-        // Create an exception proctor for the specified 'object' at the
-        // specified 'line' number.  Optionally specify a 'basicAllocator' used
-        // to supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
     {
     }
 
+    /// Create an exception proctor for the specified `object` at the
+    /// specified `line` number using the specified `control` object.
     ExceptionProctor(const OBJECT              *object,
                      int                        line,
                      bslmf::MovableRef<OBJECT>  control)
     : d_line(line)
     , d_control(bslmf::MovableRefUtil::move(control))
     , d_object_p(object)
-        // Create an exception proctor for the specified 'object' at the
-        // specified 'line' number using the specified 'control' object.
     {
     }
 
+    /// Destroy this exception proctor.  If the proctor was not released,
+    /// verify that the state of the object supplied at construction has not
+    /// changed.
     ~ExceptionProctor()
-        // Destroy this exception proctor.  If the proctor was not released,
-        // verify that the state of the object supplied at construction has not
-        // changed.
     {
         if (d_object_p) {
             const int LINE = d_line;
@@ -598,9 +599,10 @@ struct ExceptionProctor {
     }
 
     // MANIPULATORS
+
+    /// Release this proctor from verifying the state of the object
+    /// supplied at construction.
     void release()
-        // Release this proctor from verifying the state of the object
-        // supplied at construction.
     {
         d_object_p = 0;
     }
@@ -622,44 +624,45 @@ bool g_enableLessThanFunctorFlag = true;
                        // class TestComparator
                        // ====================
 
+/// This test class provides a mechanism that defines a function-call
+/// operator that compares two objects of the template parameter `TYPE`.
+/// The function-call operator is implemented with integer comparison using
+/// integers converted from objects of `TYPE` by the class method
+/// `TemplateTestFacility::getIdentifier`.  The function-call operator also
+/// increments a global counter used to keep track the method call count.
+/// Object of this class can be identified by an id passed on construction.
 template <class TYPE>
 class TestComparator {
-    // This test class provides a mechanism that defines a function-call
-    // operator that compares two objects of the template parameter 'TYPE'.
-    // The function-call operator is implemented with integer comparison using
-    // integers converted from objects of 'TYPE' by the class method
-    // 'TemplateTestFacility::getIdentifier'.  The function-call operator also
-    // increments a global counter used to keep track the method call count.
-    // Object of this class can be identified by an id passed on construction.
 
     // DATA
     int         d_id;           // identifier for the functor
     bool        d_compareLess;  // indicate whether this object use '<' or '>'
-    mutable int d_count;        // number of times 'operator()' is called
+    mutable int d_count;        // number of times `operator()` is called
 
   public:
     // CLASS METHOD
+
+    /// Disable all objects of `TestComparator` such that an `ASSERT` will
+    /// be triggered if `operator()` is invoked.
     static void disableFunctor()
-        // Disable all objects of 'TestComparator' such that an 'ASSERT' will
-        // be triggered if 'operator()' is invoked.
     {
         g_enableLessThanFunctorFlag = false;
     }
 
+    /// Enable all objects of `TestComparator` such that `operator()` may be
+    /// invoked.
     static void enableFunctor()
-        // Enable all objects of 'TestComparator' such that 'operator()' may be
-        // invoked.
     {
         g_enableLessThanFunctorFlag = true;
     }
 
     // CREATORS
     //! TestComparator(const TestComparator& original) = default;
-        // Create a copy of the specified 'original'.
+        // Create a copy of the specified `original`.
 
+    /// Create a `TestComparator`.  Optionally, specify `id` that can be
+    /// used to identify the object.
     explicit TestComparator(int id = 0, bool compareLess = true)
-        // Create a 'TestComparator'.  Optionally, specify 'id' that can be
-        // used to identify the object.
     : d_id(id)
     , d_compareLess(compareLess)
     , d_count(0)
@@ -667,14 +670,15 @@ class TestComparator {
     }
 
     // ACCESSORS
+
+    /// Increment a counter that records the number of times this method is
+    /// called.   Return `true` if the integer representation of the
+    /// specified `lhs` is less than integer representation of the specified
+    /// `rhs`.
     bool operator() (const TYPE& lhs, const TYPE& rhs) const
-        // Increment a counter that records the number of times this method is
-        // called.   Return 'true' if the integer representation of the
-        // specified 'lhs' is less than integer representation of the specified
-        // 'rhs'.
     {
         if (!g_enableLessThanFunctorFlag) {
-            ASSERTV("'TestComparator' was invoked when disabled", false);
+            ASSERTV("`TestComparator` was invoked when disabled", false);
         }
 
         ++d_count;
@@ -694,14 +698,14 @@ class TestComparator {
         return (id() == rhs.id() && d_compareLess == rhs.d_compareLess);
     }
 
+    /// Return the `id` of this object.
     int id() const
-        // Return the 'id' of this object.
     {
         return d_id;
     }
 
+    /// Return the number of times `operator()` is called.
     size_t count() const
-        // Return the number of times 'operator()' is called.
     {
         return d_count;
     }
@@ -711,18 +715,18 @@ class TestComparator {
                     // struct TransparentComparator
                     // ============================
 
+/// This class can be used as a comparator for containers.  It has a nested
+/// type `is_transparent`, so it is classified as transparent by the
+/// `bslmf::IsTransparentPredicate` metafunction and can be used for
+/// heterogeneous comparison.
 struct TransparentComparator
-    // This class can be used as a comparator for containers.  It has a nested
-    // type 'is_transparent', so it is classified as transparent by the
-    // 'bslmf::IsTransparentPredicate' metafunction and can be used for
-    // heterogeneous comparison.
  {
     typedef void is_transparent;
 
+    /// Return `true` if the specified `lhs` is less than the specified
+    /// `rhs` and `false` otherwise.
     template <class LHS, class RHS>
     bool operator()(const LHS& lhs, const RHS& rhs) const
-        // Return 'true' if the specified 'lhs' is less than the specified
-        // 'rhs' and 'false' otherwise.
     {
         return lhs < rhs;
     }
@@ -734,7 +738,7 @@ struct TransparentComparator
 
 class TransparentlyComparable {
     // DATA
-    int d_conversionCount;  // number of times 'operator int' has been called
+    int d_conversionCount;  // number of times `operator int` has been called
     int d_value;            // the value
 
   private:
@@ -743,8 +747,9 @@ class TransparentlyComparable {
 
   public:
     // CREATORS
+
+    /// Create an object having the specified `value`.
     explicit TransparentlyComparable(int value)
-        // Create an object having the specified 'value'.
 
     : d_conversionCount(0)
     , d_value(value)
@@ -752,52 +757,54 @@ class TransparentlyComparable {
     }
 
     // MANIPULATORS
+
+    /// Return the current value of this object.
     operator int()
-        // Return the current value of this object.
     {
         ++d_conversionCount;
         return d_value;
     }
 
     // ACCESSORS
+
+    /// Return the number of times `operator int` has been called.
     int conversionCount() const
-        // Return the number of times 'operator int' has been called.
     {
         return d_conversionCount;
     }
 
+    /// Return the current value of this object.
     int value() const
-        // Return the current value of this object.
     {
         return d_value;
     }
 
+    /// Return `true` if the value of the specified `lhs` is less than the
+    /// specified `rhs`, and `false` otherwise.
     friend bool operator<(const TransparentlyComparable& lhs, int rhs)
-        // Return 'true' if the value of the specified 'lhs' is less than the
-        // specified 'rhs', and 'false' otherwise.
     {
         return lhs.d_value < rhs;
     }
 
+    /// Return `true` if the specified `lhs` is less than the value of the
+    /// specified `rhs`, and `false` otherwise.
     friend bool operator<(int lhs, const TransparentlyComparable& rhs)
-        // Return 'true' if the specified 'lhs' is less than the value of the
-        // specified 'rhs', and 'false' otherwise.
     {
         return lhs < rhs.d_value;
     }
 };
 
+/// Search for a value equal to the specified `initKeyValue` in the
+/// specified `container`, and count the number of conversions expected
+/// based on the specified `isTransparent`.  Note that `Container` may
+/// resolve to a `const`-qualified type, we are using the "reference" here
+/// as a sort of universal reference.  Conceptually, the object remains
+/// constant, but we want to test `const`-qualified and
+/// non-`const`-qualified overloads.
 template <class Container>
 void testTransparentComparator(Container& container,
                                bool       isTransparent,
                                int        initKeyValue)
-    // Search for a value equal to the specified 'initKeyValue' in the
-    // specified 'container', and count the number of conversions expected
-    // based on the specified 'isTransparent'.  Note that 'Container' may
-    // resolve to a 'const'-qualified type, we are using the "reference" here
-    // as a sort of universal reference.  Conceptually, the object remains
-    // constant, but we want to test 'const'-qualified and
-    // non-'const'-qualified overloads.
 {
     typedef typename Container::const_iterator Iterator;
     typedef typename Container::size_type      Count;
@@ -810,7 +817,7 @@ void testTransparentComparator(Container& container,
 
     ASSERT(existingKey.conversionCount() == expectedConversionCount);
 
-    // Testing 'find'.
+    // Testing `find`.
 
     const Iterator EXISTING_F = container.find(existingKey);
     if (!isTransparent) {
@@ -825,7 +832,7 @@ void testTransparentComparator(Container& container,
     ASSERT(container.end()                  == NON_EXISTING_F);
     ASSERT(nonExistingKey.conversionCount() == expectedConversionCount);
 
-    // Testing 'contains'.
+    // Testing `contains`.
 
     const bool EXISTING_CONTAINS = container.contains(existingKey);
     if (!isTransparent) {
@@ -839,7 +846,7 @@ void testTransparentComparator(Container& container,
     ASSERT(false == NON_EXISTING_CONTAINS);
     ASSERT(nonExistingKey.conversionCount() == expectedConversionCount);
 
-    // Testing 'count'.
+    // Testing `count`.
 
     const Count EXISTING_C = container.count(existingKey);
     if (!isTransparent) {
@@ -853,7 +860,7 @@ void testTransparentComparator(Container& container,
     ASSERT(0                       == NON_EXISTING_C);
     ASSERT(expectedConversionCount == nonExistingKey.conversionCount());
 
-    // Testing 'lower_bound'.
+    // Testing `lower_bound`.
 
     const Iterator EXISTING_LB = container.lower_bound(existingKey);
     if (!isTransparent) {
@@ -868,7 +875,7 @@ void testTransparentComparator(Container& container,
     ASSERT(container.begin()       == NON_EXISTING_LB);
     ASSERT(expectedConversionCount == nonExistingKey.conversionCount());
 
-    // Testing 'upper_bound'.
+    // Testing `upper_bound`.
 
     TransparentlyComparable upperBoundValue(initKeyValue + 1);
     const Iterator          EXPECTED_UB = container.find(upperBoundValue);
@@ -885,7 +892,7 @@ void testTransparentComparator(Container& container,
     ASSERT(container.begin()       == NON_EXISTING_UB);
     ASSERT(expectedConversionCount == nonExistingKey.conversionCount());
 
-    // Testing 'equal_range'.
+    // Testing `equal_range`.
 
     const bsl::pair<Iterator, Iterator> EXISTING_ER =
                                             container.equal_range(existingKey);
@@ -909,37 +916,37 @@ void testTransparentComparator(Container& container,
               // struct TransparentComparatorWithMultiValueEqualRange
               // ====================================================
 
+/// This class can be used as a comparator for containers, having
+/// `bsl::string` type as a `KEY`.  It is classified as transparent by the
+/// `bslmf::IsTransparentPredicate` metafunction and can be used for
+/// heterogeneous comparison.  But note that additional operators accepting
+/// `char` objects behave differently than the main one accepting
+/// `bsl::string` objects only.  That leads to puzzling return values of
+/// such container methods as `count` and `equal_range` accepting `char`
+/// objects.  `count` can return a value greater than one and `equal_range`
+/// can return a range containing more than one element, while container is
+/// still has only unique values.
 struct TransparentComparatorWithMultiValueEqualRange {
-    // This class can be used as a comparator for containers, having
-    // 'bsl::string' type as a 'KEY'.  It is classified as transparent by the
-    // 'bslmf::IsTransparentPredicate' metafunction and can be used for
-    // heterogeneous comparison.  But note that additional operators accepting
-    // 'char' objects behave differently than the main one accepting
-    // 'bsl::string' objects only.  That leads to puzzling return values of
-    // such container methods as 'count' and 'equal_range' accepting 'char'
-    // objects.  'count' can return a value greater than one and 'equal_range'
-    // can return a range containing more than one element, while container is
-    // still has only unique values.
 
     typedef void is_transparent;
 
+    /// Return `true` if the specified `lhs` is less than the specified
+    /// `rhs`, and `false` otherwise.
     bool operator()(const bsl::string& lhs, const bsl::string& rhs) const
-        // Return 'true' if the specified 'lhs' is less than the specified
-        // 'rhs', and 'false' otherwise.
     {
         return lhs < rhs;
     }
 
+    /// Return `true` if the first symbol of the specified `s` is less than
+    /// the specified `c`, and `false` otherwise.
     bool operator()(const bsl::string& s, char c) const
-        // Return 'true' if the first symbol of the specified 's' is less than
-        // the specified 'c', and 'false' otherwise.
     {
         return s.length() == 0 || s[0] < c;
     }
 
+    /// Return `true` if the specified `c` is less than the first symbol of
+    /// the specified `s`, and `false` otherwise.
     bool operator()(char c, const bsl::string& s) const
-        // Return 'true' if the specified 'c' is less than the first symbol of
-        // the specified 's', and 'false' otherwise.
     {
         return s.length() != 0 && c < s[0];
     }
@@ -949,61 +956,64 @@ struct TransparentComparatorWithMultiValueEqualRange {
                           // class AmbiguousTestType03
                           // =========================
 
+/// This class is convertible from any type that has a `data` method
+/// returning a `int` value.  It is used to facilitate testing that the
+/// implementation of `bslstl::map` does not pass a `bslmf::MovableRef<T>`
+/// object to a class whose interface does not support it (in C++03 mode).
+/// For more details, see the test plan for case 37.
 class AmbiguousTestType03 {
-    // This class is convertible from any type that has a 'data' method
-    // returning a 'int' value.  It is used to facilitate testing that the
-    // implementation of 'bslstl::map' does not pass a 'bslmf::MovableRef<T>'
-    // object to a class whose interface does not support it (in C++03 mode).
-    // For more details, see the test plan for case 37.
 
     // DATA
     int d_data;  // value not meaningful
 
   public:
     // CREATORS
+
+    /// Create a `AmbiguousTestType03` object having the default value.
     AmbiguousTestType03()
-        // Create a 'AmbiguousTestType03' object having the default value.
     : d_data(0)
     {
     }
 
+    /// Create a `AmbiguousTestType03` object having the same value as the
+    /// specified `original` object.
     AmbiguousTestType03(const AmbiguousTestType03& original)
-        // Create a 'AmbiguousTestType03' object having the same value as the
-        // specified 'original' object.
     : d_data(original.d_data)
     {
     }
 
+    /// Create a `AmbiguousTestType03` object having the same value as the
+    /// specified `other` object of (template parameter) `TYPE`.
     template <class TYPE>
     AmbiguousTestType03(const TYPE& other)                          // IMPLICIT
-        // Create a 'AmbiguousTestType03' object having the same value as the
-        // specified 'other' object of (template parameter) 'TYPE'.
     : d_data(other.data())
     {
     }
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a non-`const` reference to this object.
     AmbiguousTestType03& operator=(const AmbiguousTestType03& rhs)
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a non-'const' reference to this object.
     {
         d_data = rhs.d_data;
         return *this;
     }
 
+    /// Assign to this object the value of the specified `rhs` object of
+    /// (template parameter) `TYPE`, and return a non-`const` reference to
+    /// this object.
     template <class TYPE>
     AmbiguousTestType03& operator=(const TYPE& rhs)
-        // Assign to this object the value of the specified 'rhs' object of
-        // (template parameter) 'TYPE', and return a non-'const' reference to
-        // this object.
     {
         d_data = rhs.data();
         return *this;
     }
 
     // ACCESSORS
+
+    /// Return the (meaningless) value held by this object.
     int data() const
-        // Return the (meaningless) value held by this object.
     {
         return d_data;
     }
@@ -1013,18 +1023,19 @@ class AmbiguousTestType03 {
                        // class IntToPairConverter
                        // ========================
 
+/// Convert an `int` identifier to a `bsl::pair` of the template parameter
+/// `KEY` and `VALUE` types.
 template <class KEY, class VALUE, class ALLOC>
 struct IntToPairConverter {
-    // Convert an 'int' identifier to a 'bsl::pair' of the template parameter
-    // 'KEY' and 'VALUE' types.
 
     // CLASS METHODS
+
+    /// Create a new `pair<KEY, VALUE>` object at the specified `address`,
+    /// passing values derived from the specified `id` to the `KEY` and
+    /// `VALUE` constructors and using the specified `allocator` to supply
+    /// memory.  The behavior is undefined unless `0 < id < 128`.
     static void
     createInplace(pair<KEY, VALUE> *address, int id, ALLOC allocator)
-        // Create a new 'pair<KEY, VALUE>' object at the specified 'address',
-        // passing values derived from the specified 'id' to the 'KEY' and
-        // 'VALUE' constructors and using the specified 'allocator' to supply
-        // memory.  The behavior is undefined unless '0 < id < 128'.
     {
         BSLS_ASSERT(address);
         BSLS_ASSERT( 0 < id);
@@ -1032,9 +1043,9 @@ struct IntToPairConverter {
 
         typedef typename bsl::remove_const<KEY>::type VarKey;
 
-        // Support generation of pairs '(K, V1)', '(K, V2)' where
-        // 'V1 != V2'.  E.g., 'A' and 'a' map to the same 'KEY' but
-        // distinct 'VALUE's.
+        // Support generation of pairs `(K, V1)`, `(K, V2)` where
+        // `V1 != V2`.  E.g., `A` and `a` map to the same `KEY` but
+        // distinct `VALUE`s.
 
         int key, value;
 
@@ -1049,7 +1060,7 @@ struct IntToPairConverter {
 
         // Tests have been written that exactly calculate the number of
         // expected allocations and we don't want to rewrite those tests.  This
-        // code was originally written only supporting the 'bsl::allocator'
+        // code was originally written only supporting the `bsl::allocator`
         // allocator type, but we want to expand it to support other allocator
         // types.  The tests were assuming the allocator used here was a
         // scratch allocator, so allocations in this routine weren't counted
@@ -1059,12 +1070,12 @@ struct IntToPairConverter {
         // used in that case.
 
         // Then we wanted to expand the range of this function to be able to
-        // handle other types for 'ALLOC', including std stateful allocators.
+        // handle other types for `ALLOC`, including std stateful allocators.
         // The problem then is that for that type of the allocator the move and
         // copy c'tors aren't passed an allocator, so in the case of movable
         // allocating types, the allocator we use here will be the allocator
         // the object has within the container.  So, in the case of movable
-        // allocating types, we use the 'allocator' passed in as an arg,
+        // allocating types, we use the `allocator` passed in as an arg,
         // otherwise we use the scratch singleton.
 
         bslma::TestAllocator *pss = scratchSingleton();
@@ -1075,11 +1086,11 @@ struct IntToPairConverter {
                                bsltf::WellBehavedMoveOnlyAllocTestType>::value;
 
 
-        // Note that 'allocator' and 'pss' are of different types, and
-        // sometimes this function is called with 'ALLOC' being a type that has
-        // no c'tor that takes an 'bslma::Allocator *' arg, so we can't use a
-        // ternary on 'useSingleton' to choose which allocator to pass to the
-        // 'emplace' methods.
+        // Note that `allocator` and `pss` are of different types, and
+        // sometimes this function is called with `ALLOC` being a type that has
+        // no c'tor that takes an `bslma::Allocator *` arg, so we can't use a
+        // ternary on `useSingleton` to choose which allocator to pass to the
+        // `emplace` methods.
 
         bsls::ObjectBuffer<VarKey> tempKey;
         if (useSingleton) {
@@ -1147,40 +1158,41 @@ namespace {
                        // =========================
 
 struct IncompleteType;
+
+/// This `struct` provides a simple compile-time test to verify that
+/// incomplete types can be used in container definitions.  Currently,
+/// definitions of `bsl::map` can contain incomplete types on all supported
+/// platforms.
+///
+/// The text below captures the original (now obsolete) rationale for
+/// creating this test:
+/// ```
+/// struct Recursive {
+///     bsl::map<int, Recursive> d_data;
+/// };
+/// ```
+/// This `struct` provides a simple compile-time test that exposes a bug in
+/// the Sun compiler when parsing member-function templates that make use of
+/// `enable_if` to trigger SFINAE effects.  While the `enable_if` template
+/// should not be instantiated until parsing client code calling that
+/// function, by which time any incomplete types must have become complete,
+/// the Sun CC compiler is parsing the whole `enable_if` metafunction as
+/// soon as it sees it, while instantiating any use of the `map`.  This
+/// causes a request to instantiate `is_convertible` with incomplete types,
+/// which is undefined behavior.  A recent update to the `is_convertible`
+/// trait added a static assertion precisely to catch such misuse.
+///
+/// To provide a simple example that will fail to compile (thanks to the
+/// static assertion above) unless the problem is worked around, we create a
+/// recursive data structure using a map, as the struct `Recursive` is an
+/// incomplete type within its own definition.  Note that there are no test
+/// cases exercising `Recursive`, it is sufficient just to define the class.
+///
+/// We decided to note the above, but allow the use of the `is_convertible`
+/// meta-function on Sun since it is so important to the new features added
+/// as part of the C++11 project.  Now the check is done on every platform
+/// *except* for Sun, where we know that a problem exists.
 struct TestIncompleteType {
-    // This 'struct' provides a simple compile-time test to verify that
-    // incomplete types can be used in container definitions.  Currently,
-    // definitions of 'bsl::map' can contain incomplete types on all supported
-    // platforms.
-    //
-    // The text below captures the original (now obsolete) rationale for
-    // creating this test:
-    //..
-    //  struct Recursive {
-    //      bsl::map<int, Recursive> d_data;
-    //  };
-    //..
-    // This 'struct' provides a simple compile-time test that exposes a bug in
-    // the Sun compiler when parsing member-function templates that make use of
-    // 'enable_if' to trigger SFINAE effects.  While the 'enable_if' template
-    // should not be instantiated until parsing client code calling that
-    // function, by which time any incomplete types must have become complete,
-    // the Sun CC compiler is parsing the whole 'enable_if' metafunction as
-    // soon as it sees it, while instantiating any use of the 'map'.  This
-    // causes a request to instantiate 'is_convertible' with incomplete types,
-    // which is undefined behavior.  A recent update to the 'is_convertible'
-    // trait added a static assertion precisely to catch such misuse.
-    //
-    // To provide a simple example that will fail to compile (thanks to the
-    // static assertion above) unless the problem is worked around, we create a
-    // recursive data structure using a map, as the struct 'Recursive' is an
-    // incomplete type within its own definition.  Note that there are no test
-    // cases exercising 'Recursive', it is sufficient just to define the class.
-    //
-    // We decided to note the above, but allow the use of the 'is_convertible'
-    // meta-function on Sun since it is so important to the new features added
-    // as part of the C++11 project.  Now the check is done on every platform
-    // *except* for Sun, where we know that a problem exists.
 
     // PUBLIC TYPES
     typedef bsl::map<int, IncompleteType>::iterator            Iter1;
@@ -1201,32 +1213,33 @@ struct IncompleteType {
                        // struct EraseAmbiguityTestType
                        // =============================
 
+/// This test type has a template constructor that can accept iterator.
 struct EraseAmbiguityTestType
-    // This test type has a template constructor that can accept iterator.
 {
     // CREATORS
+
+    /// Construct an object.
     template <class T>
     explicit
     EraseAmbiguityTestType(T&)
-        // Construct an object.
     {}
 };
 
+/// This operator is no-op and written only to satisfy requirements for
+/// `key_type` class.
 bool operator<(const EraseAmbiguityTestType& lhs,
                const EraseAmbiguityTestType& rhs)
-    // This operator is no-op and written only to satisfy requirements for
-    // 'key_type' class.
 {
     (void) lhs;    (void) rhs;
 
     return false;
 }
 
+/// Look for the specified `element` in the specified `container` and delete
+/// it if found.  Code is written in such a way as to reveal the ambiguity
+/// of the `erase` method call.
 void runErasure(bsl::map<EraseAmbiguityTestType, int>& container,
                 EraseAmbiguityTestType                 element)
-    // Look for the specified 'element' in the specified 'container' and delete
-    // it if found.  Code is written in such a way as to reveal the ambiguity
-    // of the 'erase' method call.
 {
     bsl::map<EraseAmbiguityTestType, int>::iterator it =
                                                        container.find(element);
@@ -1241,17 +1254,17 @@ void runErasure(bsl::map<EraseAmbiguityTestType, int>& container,
                        // struct EqKeyPred
                        // ================
 
+/// A predicate for testing `erase_if`; it takes a value at construction
+/// and uses it for comparisons later.
 template <class KEY, class VALUE>
 struct EqKeyPred {
-    // A predicate for testing 'erase_if'; it takes a value at construction
-    // and uses it for comparisons later.
 
     KEY d_key;
     EqKeyPred(KEY val) : d_key(val) {}
 
+    /// return `true` if the second member of the specified pair `p` is
+    /// equal to the stored value, and `false` otherwise.
     bool operator() (const bsl::pair<const KEY, VALUE> &p) const
-        // return 'true' if the second member of the specified pair 'p' is
-        // equal to the stored value, and 'false' otherwise.
     {
         return d_key == p.first;
     }
@@ -1261,21 +1274,21 @@ struct EqKeyPred {
                          // class IntValue
                          // ================
 
+/// A struct that holds an integer value, but has multiple constructors
+/// that add the different arguments.
 struct IntValue {
-    // A struct that holds an integer value, but has multiple constructors
-    // that add the different arguments.
 
+    /// Construct an IntValue, setting d_value to zero.
     IntValue ()                    : d_value(0) {}
-        // Construct an IntValue, setting d_value to zero.
 
+    /// Construct an IntValue from the specified `a`
     IntValue (int a)               : d_value(a) {}
-        // Construct an IntValue from the specified 'a'
 
+    /// Construct an IntValue from the specified `a` and `b`.
     IntValue (int a, int b)        : d_value(a + b) {}
-        // Construct an IntValue from the specified 'a' and 'b'.
 
+    /// Construct an IntValue from the specified `a`, `b`, and `c`.
     IntValue (int a, int b, int c) : d_value(a + b + c) {}
-        // Construct an IntValue from the specified 'a', 'b', and 'c'.
 
     int d_value;
 };
@@ -1284,54 +1297,54 @@ struct IntValue {
                          // class MoveHolder
                          // ================
 
+/// A simple class that holds a value, but records if the value has ever
+/// been moved from.
 template <class TYPE>
 struct MoveHolder {
-    // A simple class that holds a value, but records if the value has ever
-    // been moved from.
 
+    /// This typedef is a convenient alias for the utility associated with
+    /// movable references.
     typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
-        // This typedef is a convenient alias for the utility associated with
-        // movable references.
 
+    /// Default initialize the held value.
     MoveHolder()
     : d_value()
     , d_moved(false)
-        // Default initialize the held value.
     {}
 
+    /// Construct from the specified `value`
     explicit MoveHolder(const TYPE &value)
     : d_value(value)
     , d_moved(false)
-        // Construct from the specified 'value'
     {}
 
+    /// Copy-construct from the specified `rhs`
     MoveHolder(const MoveHolder& rhs)
     : d_value(rhs.d_value)
     , d_moved(false)
-        // Copy-construct from the specified 'rhs'
     {}
 
+    /// Move-construct from the specified `rhs`. Set the `rhs` moved-from
+    /// flag to `true`.
     MoveHolder(BloombergLP::bslmf::MovableRef<MoveHolder> rhs)
     : d_value(MoveUtil::move(MoveUtil::access(rhs).d_value))
     , d_moved(false)
-        // Move-construct from the specified 'rhs'. Set the 'rhs' moved-from
-        // flag to 'true'.
     {
         MoveHolder& lvalue = rhs;
         lvalue.d_moved = true;
     }
 
+    /// Copy-assign from the specified `rhs`.
     MoveHolder& operator=(const MoveHolder& rhs)
-        // Copy-assign from the specified 'rhs'.
     {
         d_value = rhs.d_value;
         d_moved = rhs.d_moved;
         return *this;
     }
 
+    /// Move-assign from the specified `rhs`. Set the `rhs` moved-from flag
+    /// to `true`.
     MoveHolder& operator=(BloombergLP::bslmf::MovableRef<MoveHolder> rhs)
-        // Move-assign from the specified 'rhs'. Set the 'rhs' moved-from flag
-        // to 'true'.
     {
         MoveHolder& lvalue = rhs;
 
@@ -1341,9 +1354,9 @@ struct MoveHolder {
         return *this;
     }
 
+    /// Return `true` if this object has been moved from, and `false`
+    /// otherwise.
     bool hasBeenMoved() const
-        // Return 'true' if this object has been moved from, and 'false'
-        // otherwise.
     {
         return d_moved;
     }
@@ -1352,21 +1365,21 @@ struct MoveHolder {
     bool d_moved;
 };
 
+/// Return `true` if both the held value and the moved-from flag of the
+/// specified `lhs` are equal to the corresponding fields in the specified
+/// `rhs`, and `false` otherwise.
 template <class TYPE>
 bool operator==(const MoveHolder<TYPE>& lhs, const MoveHolder<TYPE>& rhs)
-    // Return 'true' if both the held value and the moved-from flag of the
-    // specified 'lhs' are equal to the corresponding fields in the specified
-    // 'rhs', and 'false' otherwise.
 {
     return lhs.hasBeenMoved() == rhs.hasBeenMoved()
                                                  && lhs.d_value == rhs.d_value;
 }
 
+/// If the specified `lhs` has been moved from and the specified `rhs` has
+/// not, return `true`.  If `rhs` has been moved from and `lhs` has not,
+/// return `false`.  Otherwise, return `lhs.d_value < rhs.d_value`.
 template <class TYPE>
 bool operator<(const MoveHolder<TYPE>& lhs, const MoveHolder<TYPE>& rhs)
-    // If the specified 'lhs' has been moved from and the specified 'rhs' has
-    // not, return 'true'.  If 'rhs' has been moved from and 'lhs' has not,
-    // return 'false'.  Otherwise, return 'lhs.d_value < rhs.d_value'.
 {
     return lhs.hasBeenMoved() == rhs.hasBeenMoved()
         ? lhs.d_value < rhs.d_value
@@ -1374,20 +1387,20 @@ bool operator<(const MoveHolder<TYPE>& lhs, const MoveHolder<TYPE>& rhs)
 }
 
 
+/// Return `true` if the held value in the specified `lhs` is equal to the
+/// specified `rhs`, and `false` otherwise.  If `lhs` has been moved from,
+/// then return `false`.
 template <class TYPE>
 bool operator==(const MoveHolder<TYPE>& lhs, const TYPE& rhs)
-    // Return 'true' if the held value in the specified 'lhs' is equal to the
-    // specified 'rhs', and 'false' otherwise.  If 'lhs' has been moved from,
-    // then return 'false'.
 {
     return lhs.hasBeenMoved() ? false : lhs.d_value == rhs;
 }
 
+/// Return `true` if the held value in the specified `rhs` is equal to the
+/// specified `lhs`, and `false` otherwise.  If `rhs` has been moved from,
+/// then return `false`.
 template <class TYPE>
 bool operator==(const TYPE& lhs, const MoveHolder<TYPE>& rhs)
-    // Return 'true' if the held value in the specified 'rhs' is equal to the
-    // specified 'lhs', and 'false' otherwise.  If 'rhs' has been moved from,
-    // then return 'false'.
 {
     return rhs.hasBeenMoved() ? false : lhs == rhs.d_value;
 }
@@ -1396,24 +1409,25 @@ bool operator==(const TYPE& lhs, const MoveHolder<TYPE>& rhs)
 //                          TEST DRIVER TEMPLATE
 // ----------------------------------------------------------------------------
 
+/// This class template provides a namespace for testing the `map`
+/// container.  The template parameter types `KEY`/`VALUE`, `COMP`, and
+/// `ALLOC` specify the value type, comparator type, and allocator type,
+/// respectively.  Each "testCase*" method tests a specific aspect of
+/// `map<KEY, VALUE, COMP, ALLOC>`.  Every test case should be invoked with
+/// various type arguments to fully test the container.  Note that the
+/// (template parameter) `VALUE` type must be defaulted (to `KEY`) for the
+/// benefit of `RUN_EACH_TYPE`-style testing.
 template <class KEY,
           class VALUE = KEY,
           class COMP  = TestComparator<KEY>,
           class ALLOC = bsl::allocator<bsl::pair<const KEY, VALUE> > >
 class TestDriver {
-    // This class template provides a namespace for testing the 'map'
-    // container.  The template parameter types 'KEY'/'VALUE', 'COMP', and
-    // 'ALLOC' specify the value type, comparator type, and allocator type,
-    // respectively.  Each "testCase*" method tests a specific aspect of
-    // 'map<KEY, VALUE, COMP, ALLOC>'.  Every test case should be invoked with
-    // various type arguments to fully test the container.  Note that the
-    // (template parameter) 'VALUE' type must be defaulted (to 'KEY') for the
-    // benefit of 'RUN_EACH_TYPE'-style testing.
 
   private:
     // TYPES
+
+    /// Type under test.
     typedef bsl::map<KEY, VALUE, COMP, ALLOC>     Obj;
-        // Type under test.
 
     // Shorthands
 
@@ -1465,10 +1479,10 @@ class TestDriver {
   private:
     // TEST APPARATUS
     //-------------------------------------------------------------------------
-    // The generating functions interpret a given 'spec' in order from left to
+    // The generating functions interpret a given `spec` in order from left to
     // right to configure a given object according to a custom language.  ASCII
-    // letters [A..Za..z] correspond to arbitrary (but unique) 'pair' values to
-    // be appended to the 'map<KEY, VALUE, COMP, ALLOC>' object.
+    // letters [A..Za..z] correspond to arbitrary (but unique) `pair` values to
+    // be appended to the `map<KEY, VALUE, COMP, ALLOC>` object.
     //
     // LANGUAGE SPECIFICATION
     // ----------------------
@@ -1490,27 +1504,28 @@ class TestDriver {
     //-------------------------------------------------------------------------
 
     // CLASS METHODS
+
+    /// Configure the specified `object` according to the specified `spec`,
+    /// using only the primary manipulator function `insert`.  Optionally
+    /// specify a `false` `verbose` to suppress `spec` syntax error
+    /// messages.  Return the index of the first invalid character, and a
+    /// negative value otherwise.  Note that this function is used to
+    /// implement `gg` as well as allow for verification of syntax error
+    /// detection.
     static int ggg(Obj *object, const char *spec, bool verbose = true);
-        // Configure the specified 'object' according to the specified 'spec',
-        // using only the primary manipulator function 'insert'.  Optionally
-        // specify a 'false' 'verbose' to suppress 'spec' syntax error
-        // messages.  Return the index of the first invalid character, and a
-        // negative value otherwise.  Note that this function is used to
-        // implement 'gg' as well as allow for verification of syntax error
-        // detection.
 
+    /// Return, by reference, the specified `object` with its value adjusted
+    /// according to the specified `spec`.
     static Obj& gg(Obj *object, const char *spec);
-        // Return, by reference, the specified 'object' with its value adjusted
-        // according to the specified 'spec'.
 
+    /// Insert into the specified `container` the `pair` object indicated by
+    /// the specified `identifier`, ensuring that the overload of the
+    /// primary manipulator taking a modifiable rvalue is invoked (rather
+    /// than the one taking an lvalue).  Return the result of invoking the
+    /// primary manipulator.
     static pair<Iter, bool> primaryManipulator(Obj   *container,
                                                int    identifier,
                                                ALLOC  allocator);
-        // Insert into the specified 'container' the 'pair' object indicated by
-        // the specified 'identifier', ensuring that the overload of the
-        // primary manipulator taking a modifiable rvalue is invoked (rather
-        // than the one taking an lvalue).  Return the result of invoking the
-        // primary manipulator.
 
     template <class T>
     static bslmf::MovableRef<T> testArg(T& t, bsl::true_type)
@@ -1525,6 +1540,33 @@ class TestDriver {
     }
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+    /// Call `emplace` on the specified `target` container and verify that a
+    /// value was newly inserted if and only if the specified `inserted`
+    /// flag is `true`.  Forward `NUM_KEY_ARGS` arguments (for
+    /// `value_type.first`, the `KEY`) and `NUM_VALUE_ARGS` arguments (for
+    /// `value_type.second`, the `VALUE`) to the `emplace` method and
+    /// ensure: 1) that argument values are properly passed to the piecewise
+    /// constructor of `value_type`, 2) that the allocator is correctly
+    /// configured for each argument in the newly inserted element in
+    /// `target`, and 3) that the arguments are forwarded using copy or move
+    /// semantics based on the integer template parameters `[NK1 .. NK3]`
+    /// and `[NV1 .. NV3]`.  Interpret the values of `NKi` and `NVi` as
+    /// follows:
+    /// ```
+    /// NKi == 0 => forward the i'th `KEY` argument using copy semantics
+    /// NVi == 0 => forward the i'th `VALUE` argument using copy semantics
+    ///
+    /// NKi == 1 => forward the i'th `KEY` argument using move semantics
+    /// NVi == 1 => forward the i'th `VALUE` argument using move semantics
+    ///
+    /// NKi == 2 => don't forward a value for the i'th `KEY` argument
+    /// NVi == 2 => don't forward a value for the i'th `VALUE` argument
+    /// ```
+    /// The behavior is undefined unless `0 <= NUM_KEY_ARGS <= 3`,
+    /// `0 <= NUM_VALUE_ARGS <= 3`, all `[NK1 .. NK3]` and `[NV1 .. NV3]`
+    /// parameters are in the range `[0 .. 2]`, `2 == NK2` if `2 == NK1`,
+    /// `2 == NK3` if `2 == NK2`, `2 == NV2` if `2 == NV1`, and `2 == NV3`
+    /// if `2 == NV2`.
     template <int NUM_KEY_ARGS,
               int NK1,
               int NK2,
@@ -1534,34 +1576,34 @@ class TestDriver {
               int NV2,
               int NV3>
     static void testCase31a_RunTest(Obj *target, bool inserted);
-        // Call 'emplace' on the specified 'target' container and verify that a
-        // value was newly inserted if and only if the specified 'inserted'
-        // flag is 'true'.  Forward 'NUM_KEY_ARGS' arguments (for
-        // 'value_type.first', the 'KEY') and 'NUM_VALUE_ARGS' arguments (for
-        // 'value_type.second', the 'VALUE') to the 'emplace' method and
-        // ensure: 1) that argument values are properly passed to the piecewise
-        // constructor of 'value_type', 2) that the allocator is correctly
-        // configured for each argument in the newly inserted element in
-        // 'target', and 3) that the arguments are forwarded using copy or move
-        // semantics based on the integer template parameters '[NK1 .. NK3]'
-        // and '[NV1 .. NV3]'.  Interpret the values of 'NKi' and 'NVi' as
-        // follows:
-        //..
-        //  NKi == 0 => forward the i'th 'KEY' argument using copy semantics
-        //  NVi == 0 => forward the i'th 'VALUE' argument using copy semantics
-        //
-        //  NKi == 1 => forward the i'th 'KEY' argument using move semantics
-        //  NVi == 1 => forward the i'th 'VALUE' argument using move semantics
-        //
-        //  NKi == 2 => don't forward a value for the i'th 'KEY' argument
-        //  NVi == 2 => don't forward a value for the i'th 'VALUE' argument
-        //..
-        // The behavior is undefined unless '0 <= NUM_KEY_ARGS <= 3',
-        // '0 <= NUM_VALUE_ARGS <= 3', all '[NK1 .. NK3]' and '[NV1 .. NV3]'
-        // parameters are in the range '[0 .. 2]', '2 == NK2' if '2 == NK1',
-        // '2 == NK3' if '2 == NK2', '2 == NV2' if '2 == NV1', and '2 == NV3'
-        // if '2 == NV2'.
 
+    /// Call `emplace_hint` on the specified `target` container with the
+    /// specified `hint` and verify that a value was newly inserted if and
+    /// only if the specified `inserted` flag is `true`.  Forward
+    /// `NUM_KEY_ARGS` arguments (for `value_type.first`, the `KEY`) and
+    /// `NUM_VALUE_ARGS` arguments (for `value_type.second`, the `VALUE`) to
+    /// the `emplace_hint` method and ensure: 1) that argument values are
+    /// properly passed to the piecewise constructor of `value_type`, 2)
+    /// that the allocator is correctly configured for each argument in the
+    /// newly inserted element in `target`, and 3) that the arguments are
+    /// forwarded using copy or move semantics based on the integer template
+    /// parameters `[NK1 .. NK3]` and `[NV1 .. NV3]`.  Interpret the values
+    /// of `NKi` and `NVi` as follows:
+    /// ```
+    /// NKi == 0 => forward the i'th `KEY` argument using copy semantics
+    /// NVi == 0 => forward the i'th `VALUE` argument using copy semantics
+    ///
+    /// NKi == 1 => forward the i'th `KEY` argument using move semantics
+    /// NVi == 1 => forward the i'th `VALUE` argument using move semantics
+    ///
+    /// NKi == 2 => don't forward a value for the i'th `KEY` argument
+    /// NVi == 2 => don't forward a value for the i'th `VALUE` argument
+    /// ```
+    /// The behavior is undefined unless `0 <= NUM_KEY_ARGS <= 3`,
+    /// `0 <= NUM_VALUE_ARGS <= 3`, all `[NK1 .. NK3]` and `[NV1 .. NV3]`
+    /// parameters are in the range `[0 .. 2]`, `2 == NK2` if `2 == NK1`,
+    /// `2 == NK3` if `2 == NK2`, `2 == NV2` if `2 == NV1`, and `2 == NV3`
+    /// if `2 == NV2`.
     template <int NUM_KEY_ARGS,
               int NK1,
               int NK2,
@@ -1571,82 +1613,55 @@ class TestDriver {
               int NV2,
               int NV3>
     static Iter testCase32a_RunTest(Obj *target, CIter hint, bool inserted);
-        // Call 'emplace_hint' on the specified 'target' container with the
-        // specified 'hint' and verify that a value was newly inserted if and
-        // only if the specified 'inserted' flag is 'true'.  Forward
-        // 'NUM_KEY_ARGS' arguments (for 'value_type.first', the 'KEY') and
-        // 'NUM_VALUE_ARGS' arguments (for 'value_type.second', the 'VALUE') to
-        // the 'emplace_hint' method and ensure: 1) that argument values are
-        // properly passed to the piecewise constructor of 'value_type', 2)
-        // that the allocator is correctly configured for each argument in the
-        // newly inserted element in 'target', and 3) that the arguments are
-        // forwarded using copy or move semantics based on the integer template
-        // parameters '[NK1 .. NK3]' and '[NV1 .. NV3]'.  Interpret the values
-        // of 'NKi' and 'NVi' as follows:
-        //..
-        //  NKi == 0 => forward the i'th 'KEY' argument using copy semantics
-        //  NVi == 0 => forward the i'th 'VALUE' argument using copy semantics
-        //
-        //  NKi == 1 => forward the i'th 'KEY' argument using move semantics
-        //  NVi == 1 => forward the i'th 'VALUE' argument using move semantics
-        //
-        //  NKi == 2 => don't forward a value for the i'th 'KEY' argument
-        //  NVi == 2 => don't forward a value for the i'th 'VALUE' argument
-        //..
-        // The behavior is undefined unless '0 <= NUM_KEY_ARGS <= 3',
-        // '0 <= NUM_VALUE_ARGS <= 3', all '[NK1 .. NK3]' and '[NV1 .. NV3]'
-        // parameters are in the range '[0 .. 2]', '2 == NK2' if '2 == NK1',
-        // '2 == NK3' if '2 == NK2', '2 == NV2' if '2 == NV1', and '2 == NV3'
-        // if '2 == NV2'.
 #endif
 
   public:
     // TEST CASES
 
+    /// Test whether `map` is a C++20 range.
     static void testCase44_isRange();
-        // Test whether 'map' is a C++20 range.
 
+    /// Test `try_emplace` and `insert_or_assign`
     static void testCase43();
-        // Test 'try_emplace' and 'insert_or_assign'
 
+    /// Test free function `bsl::erase_if`.
     static void testCase42();
-        // Test free function 'bsl::erase_if'.
 
+    /// Test absence of `erase` method ambiguity.
     static void testCase38();
-        // Test absence of 'erase' method ambiguity.
 
+    /// Test `bslmf::MovableRef<T>` does not escape (in C++03 mode).
     static void testCase37();
-        // Test 'bslmf::MovableRef<T>' does not escape (in C++03 mode).
 
+    /// Test `noexcept` specifications
     static void testCase36();
-        // Test 'noexcept' specifications
 
+    /// Test element access with movable key.  `VALUE` must be default
+    /// constructible.
     static void testCase34();
-        // Test element access with movable key.  'VALUE' must be default
-        // constructible.
 
+    /// Test initializer list functions.
     static void testCase33();
-        // Test initializer list functions.
 
+    /// Test forwarding of arguments in `emplace_hint` method (adjunct to
+    /// `testCase32`).
     static void testCase32a();
-        // Test forwarding of arguments in 'emplace_hint' method (adjunct to
-        // 'testCase32').
 
+    /// Test `emplace_hint` method (except for forwarding of arguments).
     static void testCase32();
-        // Test 'emplace_hint' method (except for forwarding of arguments).
 
+    /// Test forwarding of arguments in `emplace` method (adjunct to
+    /// `testCase31`).
     static void testCase31a();
-        // Test forwarding of arguments in 'emplace' method (adjunct to
-        // 'testCase31').
 
+    /// Test `emplace` method (except for forwarding of arguments).
     static void testCase31();
-        // Test 'emplace' method (except for forwarding of arguments).
 
+    /// Test insert with hint of movable value.
     static void testCase30();
-        // Test insert with hint of movable value.
 
+    /// Test insert of movable value.
     static void testCase29();
-        // Test insert of movable value.
 };
 
                                // --------------
@@ -1703,10 +1718,10 @@ TestDriver<KEY, VALUE, COMP, ALLOC>::primaryManipulator(Obj   *container,
 {
     typedef pair<KEY, VALUE> TValueType;
 
-    // If the 'VALUE' type is a move-enabled allocating type, use the
+    // If the `VALUE` type is a move-enabled allocating type, use the
     // container allocator, in which case the memory the object allocates will
     // be moved into the object inserted into the container.  Otherwise, the
-    // 'move' will wind up doing a 'copy', in which case we will have done
+    // `move` will wind up doing a `copy`, in which case we will have done
     // extra allocations using the container's allocator, which would throw
     // off some test cases which are carefully counting allocations done by
     // that allocator in the ggg function.
@@ -1759,7 +1774,7 @@ TestDriver<KEY, VALUE, COMP, ALLOC>::testCase31a_RunTest(Obj  *target,
     BSLMF_ASSERT((0 <= NUM_KEY_ARGS   && NUM_KEY_ARGS   <= 3));
     BSLMF_ASSERT((0 <= NUM_VALUE_ARGS && NUM_VALUE_ARGS <= 3));
 
-    // In C++17, these become the simpler-to-name 'bool_constant'.
+    // In C++17, these become the simpler-to-name `bool_constant`.
 
     static const bsl::integral_constant<bool, NK1 == 1> MOVE_K1 = {};
     static const bsl::integral_constant<bool, NK2 == 1> MOVE_K2 = {};
@@ -1850,7 +1865,7 @@ TestDriver<KEY, VALUE, COMP, ALLOC>::testCase31a_RunTest(Obj  *target,
                                                        testArg(AV3, MOVE_V3)));
               } break;
               default: {
-                // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+                // Invalid number of arguments (`BSLMF_ASSERT`ed on entry).
               } return;                                               // RETURN
             }
           } break;
@@ -1884,7 +1899,7 @@ TestDriver<KEY, VALUE, COMP, ALLOC>::testCase31a_RunTest(Obj  *target,
                                                        testArg(AV3, MOVE_V3)));
               } break;
               default: {
-                // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+                // Invalid number of arguments (`BSLMF_ASSERT`ed on entry).
               } return;                                               // RETURN
             }
           } break;
@@ -1922,7 +1937,7 @@ TestDriver<KEY, VALUE, COMP, ALLOC>::testCase31a_RunTest(Obj  *target,
                                                        testArg(AV3, MOVE_V3)));
               } break;
               default: {
-                // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+                // Invalid number of arguments (`BSLMF_ASSERT`ed on entry).
               } return;                                               // RETURN
             }
           } break;
@@ -1964,12 +1979,12 @@ TestDriver<KEY, VALUE, COMP, ALLOC>::testCase31a_RunTest(Obj  *target,
                                                        testArg(AV3, MOVE_V3)));
               } break;
               default: {
-                // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+                // Invalid number of arguments (`BSLMF_ASSERT`ed on entry).
               } return;                                               // RETURN
             }
           } break;
           default: {
-            // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+            // Invalid number of arguments (`BSLMF_ASSERT`ed on entry).
           } return;                                                   // RETURN
         }
 
@@ -2026,7 +2041,7 @@ TestDriver<KEY, VALUE, COMP, ALLOC>::testCase32a_RunTest(Obj   *target,
     BSLMF_ASSERT((0 <= NUM_KEY_ARGS   && NUM_KEY_ARGS   <= 3));
     BSLMF_ASSERT((0 <= NUM_VALUE_ARGS && NUM_VALUE_ARGS <= 3));
 
-    // In C++17, these become the simpler-to-name 'bool_constant'.
+    // In C++17, these become the simpler-to-name `bool_constant`.
 
     static const bsl::integral_constant<bool, NK1 == 1> MOVE_K1 = {};
     static const bsl::integral_constant<bool, NK2 == 1> MOVE_K2 = {};
@@ -2121,7 +2136,7 @@ TestDriver<KEY, VALUE, COMP, ALLOC>::testCase32a_RunTest(Obj   *target,
                                                        testArg(AV3, MOVE_V3)));
               } break;
               default: {
-                // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+                // Invalid number of arguments (`BSLMF_ASSERT`ed on entry).
               } return mX.end();                                      // RETURN
             }
           } break;
@@ -2159,7 +2174,7 @@ TestDriver<KEY, VALUE, COMP, ALLOC>::testCase32a_RunTest(Obj   *target,
                                                        testArg(AV3, MOVE_V3)));
               } break;
               default: {
-                // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+                // Invalid number of arguments (`BSLMF_ASSERT`ed on entry).
               } return mX.end();                                      // RETURN
             }
           } break;
@@ -2201,7 +2216,7 @@ TestDriver<KEY, VALUE, COMP, ALLOC>::testCase32a_RunTest(Obj   *target,
                                                        testArg(AV3, MOVE_V3)));
               } break;
               default: {
-                // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+                // Invalid number of arguments (`BSLMF_ASSERT`ed on entry).
               } return mX.end();                                      // RETURN
             }
           } break;
@@ -2247,12 +2262,12 @@ TestDriver<KEY, VALUE, COMP, ALLOC>::testCase32a_RunTest(Obj   *target,
                                                        testArg(AV3, MOVE_V3)));
               } break;
               default: {
-                // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+                // Invalid number of arguments (`BSLMF_ASSERT`ed on entry).
               } return mX.end();                                      // RETURN
             }
           } break;
           default: {
-            // Invalid number of arguments ('BSLMF_ASSERT'ed on entry).
+            // Invalid number of arguments (`BSLMF_ASSERT`ed on entry).
           } return mX.end();                                          // RETURN
         }
 
@@ -2546,16 +2561,16 @@ template <class KEY, class VALUE, class COMP, class ALLOC>
 void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase42()
 {
     // --------------------------------------------------------------------
-    // TESTING FREE FUNCTION 'BSL::ERASE_IF'
+    // TESTING FREE FUNCTION `BSL::ERASE_IF`
     //
     // Concerns:
-    //: 1 The free function exists, and is callable with a map.
+    // 1. The free function exists, and is callable with a map.
     //
     // Plan:
-    //: 1 Fill a map with known values, then attempt to erase some of
-    //:   the values using 'bsl::erase_if'.  Verify that the resultant map
-    //:   is the right size, contains the correct values, and that the
-    //:   value returned from the functions is correct.
+    // 1. Fill a map with known values, then attempt to erase some of
+    //    the values using `bsl::erase_if`.  Verify that the resultant map
+    //    is the right size, contains the correct values, and that the
+    //    value returned from the functions is correct.
     //
     // Testing:
     //   size_t erase_if(map&, PREDICATE);
@@ -2619,27 +2634,27 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase38()
 {
     // ------------------------------------------------------------------------
     // TESTING ABSENCE OF ERASE AMBIGUITY
-    //  'std::map::erase' takes an iterator in C++03, but a const_iterator in
-    //  C++0x.  This breaks code where the map's 'key_type' has a constructor
+    //  `std::map::erase` takes an iterator in C++03, but a const_iterator in
+    //  C++0x.  This breaks code where the map's `key_type` has a constructor
     //  which accepts an iterator (for example a template constructor), as the
-    //  compiler cannot choose between 'erase(const key_type&)' and
-    //  'erase(const_iterator)'. As BDE library duplicates 'std' interfaces, it
+    //  compiler cannot choose between `erase(const key_type&)` and
+    //  `erase(const_iterator)`. As BDE library duplicates `std` interfaces, it
     //  has the same problem. The solution is to restore the iterator overload
     //  in addition to the const_iterator overload.
     //  See https://cplusplus.github.io/LWG/lwg-defects.html#2059
     //
     // Concerns:
-    //: 1 Adding the iterator overload takes away the ambiguity of 'erase'
-    //:   method.
+    // 1. Adding the iterator overload takes away the ambiguity of `erase`
+    //    method.
     //
     // Plan:
-    //: 1 Using brute force and a specially tailored test type,
-    //:   'EraseAmbiguityTestType', we verify that appropriate overload is
-    //:   deduced successfully.  Note that this is a compile-only test; runtime
-    //:   values are not checked.  (C-1)
+    // 1. Using brute force and a specially tailored test type,
+    //    `EraseAmbiguityTestType`, we verify that appropriate overload is
+    //    deduced successfully.  Note that this is a compile-only test; runtime
+    //    values are not checked.  (C-1)
     //
     // Testing:
-    //   CONCERN: 'erase' overload is deduced correctly.
+    //   CONCERN: `erase` overload is deduced correctly.
     // ------------------------------------------------------------------------
 
     VALUE                       value(5);
@@ -2657,33 +2672,33 @@ template <class KEY, class VALUE, class COMP, class ALLOC>
 void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase37()
 {
     // ------------------------------------------------------------------------
-    // 'bslmf::MovableRef<T>' DOES NOT ESCAPE
+    // `bslmf::MovableRef<T>` DOES NOT ESCAPE
     //
     // Concerns:
-    //: 1 That the implementation of 'bslstl::map' does not pass a
-    //:   'bslmf::MovableRef<T>' object to a class whose interface does not
-    //:   support it (in C++03 mode).
+    // 1. That the implementation of `bslstl::map` does not pass a
+    //    `bslmf::MovableRef<T>` object to a class whose interface does not
+    //    support it (in C++03 mode).
     //
     // Plan:
-    //: 1 In the absence of a trait, the 'bslstl::map' implementation cannot
-    //:   determine whether a 'T' type supports 'bslmf::MovableRef<T>' in its
-    //:   interface (important to C++03 mode only).  Consequently, the
-    //:   implementation cannot pass 'bslmf::MovableRef<T>' to any 'T' method
-    //:   or else a compilation error may result (for example, a converting
-    //:   constructor passed a 'bslmf::MovableRef<T>' may fail to compile).
-    //:   Using brute force and a specially tailored test type,
-    //:   'AmbiguousTestType03', we verify that such an argument is not passed
-    //:   to user-defined constructors.  Note that this is a compile-only test;
-    //:   runtime values are not checked.  (C-1)
+    // 1. In the absence of a trait, the `bslstl::map` implementation cannot
+    //    determine whether a `T` type supports `bslmf::MovableRef<T>` in its
+    //    interface (important to C++03 mode only).  Consequently, the
+    //    implementation cannot pass `bslmf::MovableRef<T>` to any `T` method
+    //    or else a compilation error may result (for example, a converting
+    //    constructor passed a `bslmf::MovableRef<T>` may fail to compile).
+    //    Using brute force and a specially tailored test type,
+    //    `AmbiguousTestType03`, we verify that such an argument is not passed
+    //    to user-defined constructors.  Note that this is a compile-only test;
+    //    runtime values are not checked.  (C-1)
     //
     // Testing:
-    //   CONCERN: 'bslmf::MovableRef<T>' does not escape (in C++03 mode).
+    //   CONCERN: `bslmf::MovableRef<T>` does not escape (in C++03 mode).
     // ------------------------------------------------------------------------
 
-    if (verbose) printf("'bslmf::MovableRef<T>' DOES NOT ESCAPE\n"
+    if (verbose) printf("`bslmf::MovableRef<T>` DOES NOT ESCAPE\n"
                         "======================================\n");
 
-    if (verbose) printf("\tTesting 'operator[]'\n");
+    if (verbose) printf("\tTesting `operator[]`\n");
     {
         Obj mX;
         VALUE z = mX[15];
@@ -2695,23 +2710,23 @@ template <class KEY, class VALUE, class COMP, class ALLOC>
 void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase36()
 {
     // ------------------------------------------------------------------------
-    // 'noexcept' SPECIFICATION
+    // `noexcept` SPECIFICATION
     //
     // Concerns:
-    //: 1 The 'noexcept' specification has been applied to all class interfaces
-    //:   required by the standard.
+    // 1. The `noexcept` specification has been applied to all class interfaces
+    //    required by the standard.
     //
     // Plan:
-    //: 1 Apply the uniary 'noexcept' operator to expressions that mimic those
-    //:   appearing in the standard and confirm that calculated boolean value
-    //:   matches the expected value.
-    //:
-    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
-    //:   of the container, we need test for just one general type and any
-    //:   'TYPE' specializations.
+    // 1. Apply the uniary `noexcept` operator to expressions that mimic those
+    //    appearing in the standard and confirm that calculated boolean value
+    //    matches the expected value.
+    //
+    // 2. Since the `noexcept` specification does not vary with the `TYPE`
+    //    of the container, we need test for just one general type and any
+    //    `TYPE` specializations.
     //
     // Testing:
-    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+    //   CONCERN: Methods qualifed `noexcept` in standard are so implemented.
     // ------------------------------------------------------------------------
 
     if (verbose) {
@@ -2722,16 +2737,16 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase36()
         P(bsls::NameOf<ALLOC>())
     }
 
-    // N4594: page 863: 23.4.4 Class template 'map' [map]
+    // N4594: page 863: 23.4.4 Class template `map` [map]
 
     // page 864
-    //..
+    // ```
     //  // 23.4.4.2, construct/copy/destroy:
     //  map& operator=(map&& x)
     //      noexcept(allocator_traits<Allocator>::is_always_equal::value &&
     //               is_nothrow_move_assignable<Compare>::value);
     //  allocator_type get_allocator() const noexcept;
-    //..
+    // ```
 
     {
         Obj mX;    const Obj& X = mX;
@@ -2748,7 +2763,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase36()
     }
 
     // page 864-865
-    //..
+    // ```
     //  // iterators:
     //  iterator begin() noexcept;
     //  const_iterator begin() const noexcept;
@@ -2762,7 +2777,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase36()
     //  const_iterator cend() const noexcept;
     //  const_reverse_iterator crbegin() const noexcept;
     //  const_reverse_iterator crend() const noexcept;
-    //..
+    // ```
 
     {
         Obj mX;    const Obj& X = mX;    (void) X;
@@ -2799,12 +2814,12 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase36()
     }
 
     // page 865
-    //..
+    // ```
     //  // capacity:
     //  bool empty() const noexcept;
     //  size_type size() const noexcept;
     //  size_type max_size() const noexcept;
-    //..
+    // ```
 
     {
         Obj mX;    const Obj& X = mX;    (void) X;
@@ -2818,13 +2833,13 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase36()
     }
 
     // page 866
-    //..
+    // ```
     //  // 23.4.4.4, modifiers:
     //  void swap(map&)
     //      noexcept(allocator_traits<Allocator>::is_always_equal::value &&
     //               is_nothrow_swappable_v<Compare>);
     //  void clear() noexcept;
-    //..
+    // ```
 
     {
         Obj x;    (void) x;
@@ -2838,13 +2853,13 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase36()
     }
 
     // page 866
-    //..
+    // ```
     //  // 23.4.4.5, specialized algorithms:
     //  template <class Key, class T, class Compare, class Allocator>
     //  void swap(map<Key, T, Compare, Allocator>& x,
     //  map<Key, T, Compare, Allocator>& y)
     //      noexcept(noexcept(x.swap(y)));
-    //..
+    // ```
 
     {
         Obj x;    (void) x;
@@ -2865,41 +2880,41 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase34()
     // TESTING ELEMENTAL ACCESS WITH MOVABLE KEY
     //
     // Concerns:
-    //: 1 'operator[]' returns the value associated with the key.
-    //:
-    //: 2 'operator[]' can be used to set the value.
-    //:
-    //: 3 'operator[]' creates a default constructed value if the key does not
-    //:   exist in the object.
-    //:
-    //: 4 New keys are move-inserted into the container.
-    //:
-    //: 5 Any memory allocations come from the object's allocator.
-    //:
-    //: 6 'operator[]' is exception neutral.
+    // 1. `operator[]` returns the value associated with the key.
+    //
+    // 2. `operator[]` can be used to set the value.
+    //
+    // 3. `operator[]` creates a default constructed value if the key does not
+    //    exist in the object.
+    //
+    // 4. New keys are move-inserted into the container.
+    //
+    // 5. Any memory allocations come from the object's allocator.
+    //
+    // 6. `operator[]` is exception neutral.
     //
     // Plan:
-    //: 1 Using the table-driven technique, for each set of key-value pairs:
-    //:
-    //:   1 For each key-value pair in the object:
-    //:
-    //:     1 Verify 'operator[]' returns the expected 'VALUE'.
-    //:
-    //:     2 Verify no memory is allocated.
-    //:
-    //:     3 Set the value to something different with 'operator[]' and verify
-    //:       the value is changed.  Set the value back to its original value.
-    //:
-    //:     4 Verify memory use did not increase.
-    //:
-    //:   2 Verify no memory is allocated from the default allocator.
-    //:
-    //:   3 Invoke 'operator[]' using an out-of-range key under the presence of
-    //:     exceptions.
-    //:
-    //:   4 Verify that a default 'VALUE' is created.
-    //:
-    //:   5 Verify memory usage is as expected.
+    // 1. Using the table-driven technique, for each set of key-value pairs:
+    //
+    //   1. For each key-value pair in the object:
+    //
+    //     1. Verify `operator[]` returns the expected `VALUE`.
+    //
+    //     2. Verify no memory is allocated.
+    //
+    //     3. Set the value to something different with `operator[]` and verify
+    //        the value is changed.  Set the value back to its original value.
+    //
+    //     4. Verify memory use did not increase.
+    //
+    //   2. Verify no memory is allocated from the default allocator.
+    //
+    //   3. Invoke `operator[]` using an out-of-range key under the presence of
+    //      exceptions.
+    //
+    //   4. Verify that a default `VALUE` is created.
+    //
+    //   5. Verify memory usage is as expected.
     //
     // Testing:
     //   VALUE& operator[](key_type&& key);
@@ -2976,7 +2991,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase34()
                     ASSERTV(LINE, tj, oam.isTotalSame());
                     ASSERTV(LINE, tj, oam.isInUseSame());
 
-                    // Verify 'operator[]' can be used to set the value.
+                    // Verify `operator[]` can be used to set the value.
 
                     MoveState::Enum mStateValue;
 
@@ -3042,12 +3057,12 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase34()
 
 #if defined(BDE_BUILD_TARGET_EXC)
                 if (veryVeryVerbose)
-                    printf("Test 'operator[]' on out-of-range "
+                    printf("Test `operator[]` on out-of-range "
                            "key with injected exceptions.\n");
 
-                // Constructing default 'VALUE' to compare with.  Note, that we
+                // Constructing default `VALUE` to compare with.  Note, that we
                 // construct default value this way to support some types that
-                // do not meet C++ requirement of 'default-insertable'.
+                // do not meet C++ requirement of `default-insertable`.
                 bslma::TestAllocator value("value", veryVeryVeryVerbose);
                 ALLOC                xvalue(&value);
 
@@ -3111,9 +3126,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase33()
     // TESTING FUNCTIONS TAKING INITIALIZER LISTS
     //
     // Concerns:
-    //: 1 The four functions that take an initializer list (two constructors,
-    //:   an assignment operator, and the 'insert' function) simply forward to
-    //:   another already tested function.
+    // 1. The four functions that take an initializer list (two constructors,
+    //    an assignment operator, and the `insert` function) simply forward to
+    //    another already tested function.
     //
     // TBD Missing concerns that the correct comparator is used.  We should be
     // testing with a stateful comparator (testing two states) and the default
@@ -3121,9 +3136,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase33()
     // good enough.  (also test cases 2 & 12).
     //
     // Plan:
-    //: 1 TBD Note that we are interested here only in ensuring that the
-    //:   forwarding is working -- not retesting already verified
-    //:   functionality.
+    // 1. TBD Note that we are interested here only in ensuring that the
+    //    forwarding is working -- not retesting already verified
+    //    functionality.
     //
     // Testing:
     //   map(initializer_list<value_type>, const C& comp, const A& allocator);
@@ -3310,7 +3325,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase33()
         ASSERT(dam.isInUseSame());
     }
 
-    if (verbose) printf("\nTesting 'operator=' with initializer lists.\n");
+    if (verbose) printf("\nTesting `operator=` with initializer lists.\n");
     {
         const struct {
             int                               d_line;      // source line #
@@ -3358,7 +3373,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase33()
         ASSERT(dam.isTotalSame());
     }
 
-    if (verbose) printf("\nTesting 'insert' with initializer lists.\n");
+    if (verbose) printf("\nTesting `insert` with initializer lists.\n");
     {
         const struct {
             int                               d_line;      // source line #
@@ -3411,62 +3426,62 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase32a()
     // TESTING FORWARDING OF ARGUMENTS WITH EMPLACE WITH HINT
     //
     // Concerns:
-    //: 1 'emplace_hint' correctly forwards arguments, including the object
-    //:   allocator, to the piecewise constructor of the ('pair') value type,
-    //:   up to 3 arguments each for the 'KEY' and 'VALUE' parts of the pair.
-    //:   Note that only the forwarding of arguments is tested in this
-    //:   function; all other functionality is tested in 'testCase32'.  Also
-    //:   note that at most 3 arguments are used for each part of the pair as
-    //:   we assume that 'bslstl_pair' tests piecewise construction with up to
-    //:   10 arguments for each part (10 being the maximum number of arguments
-    //:   supported for C++03 compatibility).
-    //:
-    //: 2 'emplace_hint' is exception neutral w.r.t. memory allocation.
+    // 1. `emplace_hint` correctly forwards arguments, including the object
+    //    allocator, to the piecewise constructor of the (`pair`) value type,
+    //    up to 3 arguments each for the `KEY` and `VALUE` parts of the pair.
+    //    Note that only the forwarding of arguments is tested in this
+    //    function; all other functionality is tested in `testCase32`.  Also
+    //    note that at most 3 arguments are used for each part of the pair as
+    //    we assume that `bslstl_pair` tests piecewise construction with up to
+    //   10. arguments for each part (10 being the maximum number of arguments
+    //    supported for C++03 compatibility).
+    //
+    // 2. `emplace_hint` is exception neutral w.r.t. memory allocation.
     //
     // Plan:
-    //: 1 This test makes material use of template method 'testCase32a_RunTest'
-    //:   where the first and fifth integer template parameters indicate the
-    //:   number of arguments to use for the 'KEY' and 'VALUE' parts,
-    //:   respectively, the other 6 integer template parameters (3 each for
-    //:   'KEY' and 'VALUE') indicating '0' for copy, '1' for move, and '2' for
-    //:   not-applicable (i.e., beyond the number of arguments being tested),
-    //:   and taking as arguments an address providing modifiable
-    //:   access to a container and a hint.
-    //:
-    //:   1 Create 3 argument values for the 'KEY' part and 3 argument values
-    //:     for the 'VALUE' part, each with their own argument-specific
-    //:     allocator.
-    //:
-    //:   2 Based on the first and fifth template parameters indicating the
-    //:     number of arguments to pass in for the 'KEY' and 'VALUE' parts,
-    //:     respectively, call 'emplace_hint' with the argument values
-    //:     corresponding to the other six template parameters, performing an
-    //:     explicit move of each argument, or copy, as indicated by the
-    //:     template parameter corresponding to the argument, all in the
-    //:     presence of injected exceptions.
-    //:
-    //:   3 Verify that the argument values were passed correctly.
-    //:
-    //:   4 Verify that any memory that is allocated is from the object
-    //:     allocator, indicating that the allocator was forwarded correctly.
-    //:
-    //:   5 Verify that the move-state for each argument is as expected.
-    //:
-    //:   6 If the object did not contain the emplaced value, verify it now
-    //:     exists.
-    //:
-    //:   7 Verify the return value is as expected.
-    //:
-    //:   8 Return the iterator returned by the call to 'emplace_hint'.
-    //:
-    //: 2 Create a container with its own object-specific allocator.
-    //:
-    //: 3 Call 'testCase32a_RunTest' in various configurations:
-    //:   1 For 1..3 arguments each for the 'KEY' and 'VALUE' parts, call with
-    //:     the move flag set to '1' and then with the move flag set to '0'.
-    //:
-    //:   2 For 1..3 arguments each for the 'KEY' and 'VALUE' parts, call with
-    //:     move flags set to '0', '1', and each move flag set independently.
+    // 1. This test makes material use of template method `testCase32a_RunTest`
+    //    where the first and fifth integer template parameters indicate the
+    //    number of arguments to use for the `KEY` and `VALUE` parts,
+    //    respectively, the other 6 integer template parameters (3 each for
+    //    `KEY` and `VALUE`) indicating '0' for copy, '1' for move, and '2' for
+    //    not-applicable (i.e., beyond the number of arguments being tested),
+    //    and taking as arguments an address providing modifiable
+    //    access to a container and a hint.
+    //
+    //   1. Create 3 argument values for the `KEY` part and 3 argument values
+    //      for the `VALUE` part, each with their own argument-specific
+    //      allocator.
+    //
+    //   2. Based on the first and fifth template parameters indicating the
+    //      number of arguments to pass in for the `KEY` and `VALUE` parts,
+    //      respectively, call `emplace_hint` with the argument values
+    //      corresponding to the other six template parameters, performing an
+    //      explicit move of each argument, or copy, as indicated by the
+    //      template parameter corresponding to the argument, all in the
+    //      presence of injected exceptions.
+    //
+    //   3. Verify that the argument values were passed correctly.
+    //
+    //   4. Verify that any memory that is allocated is from the object
+    //      allocator, indicating that the allocator was forwarded correctly.
+    //
+    //   5. Verify that the move-state for each argument is as expected.
+    //
+    //   6. If the object did not contain the emplaced value, verify it now
+    //      exists.
+    //
+    //   7. Verify the return value is as expected.
+    //
+    //   8. Return the iterator returned by the call to `emplace_hint`.
+    //
+    // 2. Create a container with its own object-specific allocator.
+    //
+    // 3. Call `testCase32a_RunTest` in various configurations:
+    //   1. For 1..3 arguments each for the `KEY` and `VALUE` parts, call with
+    //      the move flag set to `1` and then with the move flag set to `0`.
+    //
+    //   2. For 1..3 arguments each for the `KEY` and `VALUE` parts, call with
+    //      move flags set to `0`, `1`, and each move flag set independently.
     //
     // Testing:
     //   iterator emplace_hint(const_iterator hint, Args&&... args);
@@ -3478,7 +3493,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase32a()
 //
 // (1) I /think/ we start out by demonstrating that we can emplace multiple
 // items and grow the map - although I don't see duplicate keys being tested,
-// and certainly no 'ABAC' equivalent test.
+// and certainly no `ABAC` equivalent test.
 //
 // (2) That is followed by a more exhaustive test of forwarding each argument,
 // where each test scenario emplaces a single element into an empty map, and
@@ -3493,7 +3508,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase32a()
 // I don't see us testing that emplace after an erase or clear does not
 // allocate a new node (as it re-uses one from the pool).
 //
-// (This comment also applies to 'testCase31a'.)
+// (This comment also applies to `testCase31a`.)
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
 
@@ -3811,55 +3826,55 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase32()
     // TESTING EMPLACE WITH HINT
     //
     // Concerns:
-    //: 1 'emplace_hint' returns an iterator referring to the newly inserted
-    //:   element if it did not already exists, and to the existing element if
-    //:   it did.
-    //:
-    //: 2 A new element is added to the container if the element did not
-    //:   already exist, and the order of the container remains correct.
-    //:
-    //: 3 Inserting with the correct hint places the new element right before
-    //:   the hint.
-    //:
-    //: 4 Inserting with the correct hint requires no more than 2 comparisons.
-    //:
-    //: 5 Incorrect hint will be ignored and 'insert' will proceed as if the
-    //:   hint is not supplied.
-    //:
-    //: 6 Internal memory management system is hooked up properly
-    //:   so that *all* internally allocated memory draws from a
-    //:   user-supplied allocator whenever one is specified.
-    //:
-    //: 7 Insertion is exception neutral w.r.t. memory allocation.
+    // 1. `emplace_hint` returns an iterator referring to the newly inserted
+    //    element if it did not already exists, and to the existing element if
+    //    it did.
+    //
+    // 2. A new element is added to the container if the element did not
+    //    already exist, and the order of the container remains correct.
+    //
+    // 3. Inserting with the correct hint places the new element right before
+    //    the hint.
+    //
+    // 4. Inserting with the correct hint requires no more than 2 comparisons.
+    //
+    // 5. Incorrect hint will be ignored and `insert` will proceed as if the
+    //    hint is not supplied.
+    //
+    // 6. Internal memory management system is hooked up properly
+    //    so that *all* internally allocated memory draws from a
+    //    user-supplied allocator whenever one is specified.
+    //
+    // 7. Insertion is exception neutral w.r.t. memory allocation.
     //
     // Plan:
-    //: 1 We will use 'value' as the single argument to the 'emplace_hint'
-    //:   function and will test proper forwarding of constructor arguments in
-    //:   test 'testCase32a'.
-    //:
-    //: 2 For insertion we will create objects of varying sizes and capacities
-    //:   containing default values, and insert a 'value'.
-    //:
-    //:   1 For each set of values, set hint to be 'lower_bound', 'begin',
-    //:     'begin' + 1, 'end' - 1, 'end'
-    //:
-    //:     1 For each value in the set, 'insert' the value with hint.
-    //:
-    //:       1 Compute the number of allocations and verify it is as
-    //:         expected.
-    //:
-    //:       2 Verify the return value and the resulting data in the container
-    //:         is as expected.
-    //:
-    //:       3 Verify the new element is inserted right before the hint if
-    //:         the hint is valid.  (C-3)
-    //:
-    //:       4 Verify the number of comparisons is no more than 2 if the hint
-    //:         is valid.  (C-4)
-    //:
-    //:       5 Verify all allocations are from the object's allocator.  (C-6)
-    //:
-    //: 3 Repeat P-2 under the presence of injected exceptions.  (C-7)
+    // 1. We will use `value` as the single argument to the `emplace_hint`
+    //    function and will test proper forwarding of constructor arguments in
+    //    test `testCase32a`.
+    //
+    // 2. For insertion we will create objects of varying sizes and capacities
+    //    containing default values, and insert a `value`.
+    //
+    //   1. For each set of values, set hint to be `lower_bound`, `begin`,
+    //      `begin + 1`, `end - 1`, `end`
+    //
+    //     1. For each value in the set, `insert` the value with hint.
+    //
+    //       1. Compute the number of allocations and verify it is as
+    //          expected.
+    //
+    //       2. Verify the return value and the resulting data in the container
+    //          is as expected.
+    //
+    //       3. Verify the new element is inserted right before the hint if
+    //          the hint is valid.  (C-3)
+    //
+    //       4. Verify the number of comparisons is no more than 2 if the hint
+    //          is valid.  (C-4)
+    //
+    //       5. Verify all allocations are from the object's allocator.  (C-6)
+    //
+    // 3. Repeat P-2 under the presence of injected exceptions.  (C-7)
     //
     // Testing:
     //   iterator emplace_hint(const_iterator position, Args&&... args);
@@ -3890,7 +3905,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase32()
 
     const int MAX_LENGTH = 10;
 
-    if (verbose) printf("\nTesting 'emplace' with hint.\n");
+    if (verbose) printf("\nTesting `emplace` with hint.\n");
     {
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_line;
@@ -4035,7 +4050,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase32()
             }
         }
     }
-    if (verbose) printf("\nTesting 'emplace_hint' with exceptions.\n");
+    if (verbose) printf("\nTesting `emplace_hint` with exceptions.\n");
     {
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_line;
@@ -4139,60 +4154,60 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase31a()
     // TESTING FORWARDING OF ARGUMENTS WITH EMPLACE
     //
     // Concerns:
-    //: 1 'emplace' correctly forwards arguments, including the object
-    //:   allocator, to the piecewise constructor of the ('pair') value type,
-    //:   up to 3 arguments each for the 'KEY' and 'VALUE' parts of the pair.
-    //:   Note that only the forwarding of arguments is tested in this
-    //:   function; all other functionality is tested in 'testCase31'.  Also
-    //:   note that at most 3 arguments are used for each part of the pair as
-    //:   we assume that 'bslstl_pair' tests piecewise construction with up to
-    //:   10 arguments for each part (10 being the maximum number of arguments
-    //:   supported for C++03 compatibility).
-    //:
-    //: 2 'emplace' is exception neutral w.r.t. memory allocation.
+    // 1. `emplace` correctly forwards arguments, including the object
+    //    allocator, to the piecewise constructor of the (`pair`) value type,
+    //    up to 3 arguments each for the `KEY` and `VALUE` parts of the pair.
+    //    Note that only the forwarding of arguments is tested in this
+    //    function; all other functionality is tested in `testCase31`.  Also
+    //    note that at most 3 arguments are used for each part of the pair as
+    //    we assume that `bslstl_pair` tests piecewise construction with up to
+    //   10. arguments for each part (10 being the maximum number of arguments
+    //    supported for C++03 compatibility).
+    //
+    // 2. `emplace` is exception neutral w.r.t. memory allocation.
     //
     // Plan:
-    //: 1 This test makes material use of template method 'testCase31a_RunTest'
-    //:   where the first and fifth integer template parameters indicate the
-    //:   number of arguments to use for the 'KEY' and 'VALUE' parts,
-    //:   respectively, the other 6 integer template parameters (3 each for
-    //:   'KEY' and 'VALUE') indicating '0' for copy, '1' for move, and '2' for
-    //:   not-applicable (i.e., beyond the number of arguments being tested),
-    //:   and taking as the only argument an address providing modifiable
-    //:   access to a container.
-    //:
-    //:   1 Create 3 argument values for the 'KEY' part and 3 argument values
-    //:     for the 'VALUE' part, each with their own argument-specific
-    //:     allocator.
-    //:
-    //:   2 Based on the first and fifth template parameters indicating the
-    //:     number of arguments to pass in for the 'KEY' and 'VALUE' parts,
-    //:     respectively, call 'emplace' with the argument values corresponding
-    //:     to the other six template parameters, performing an explicit move
-    //:     of each argument, or copy, as indicated by the template parameter
-    //:     corresponding to the argument, all in the presence of injected
-    //:     exceptions.
-    //:
-    //:   3 Verify that the argument values were passed correctly.
-    //:
-    //:   4 Verify that any memory that is allocated is from the object
-    //:     allocator, indicating that the allocator was forwarded correctly.
-    //:
-    //:   5 Verify that the move-state for each argument is as expected.
-    //:
-    //:   6 If the object did not contain the emplaced value, verify it now
-    //:     exists.
-    //:
-    //:   7 Verify the return value is as expected.
-    //:
-    //: 2 Create a container with its own object-specific allocator.
-    //:
-    //: 3 Call 'testCase31a_RunTest' in various configurations:
-    //:   1 For 1..3 arguments each for the 'KEY' and 'VALUE' parts, call with
-    //:     the move flag set to '1' and then with the move flag set to '0'.
-    //:
-    //:   2 For 1..3 arguments each for the 'KEY' and 'VALUE' parts, call with
-    //:     move flags set to '0', '1', and each move flag set independently.
+    // 1. This test makes material use of template method `testCase31a_RunTest`
+    //    where the first and fifth integer template parameters indicate the
+    //    number of arguments to use for the `KEY` and `VALUE` parts,
+    //    respectively, the other 6 integer template parameters (3 each for
+    //    `KEY` and `VALUE`) indicating '0' for copy, '1' for move, and '2' for
+    //    not-applicable (i.e., beyond the number of arguments being tested),
+    //    and taking as the only argument an address providing modifiable
+    //    access to a container.
+    //
+    //   1. Create 3 argument values for the `KEY` part and 3 argument values
+    //      for the `VALUE` part, each with their own argument-specific
+    //      allocator.
+    //
+    //   2. Based on the first and fifth template parameters indicating the
+    //      number of arguments to pass in for the `KEY` and `VALUE` parts,
+    //      respectively, call `emplace` with the argument values corresponding
+    //      to the other six template parameters, performing an explicit move
+    //      of each argument, or copy, as indicated by the template parameter
+    //      corresponding to the argument, all in the presence of injected
+    //      exceptions.
+    //
+    //   3. Verify that the argument values were passed correctly.
+    //
+    //   4. Verify that any memory that is allocated is from the object
+    //      allocator, indicating that the allocator was forwarded correctly.
+    //
+    //   5. Verify that the move-state for each argument is as expected.
+    //
+    //   6. If the object did not contain the emplaced value, verify it now
+    //      exists.
+    //
+    //   7. Verify the return value is as expected.
+    //
+    // 2. Create a container with its own object-specific allocator.
+    //
+    // 3. Call `testCase31a_RunTest` in various configurations:
+    //   1. For 1..3 arguments each for the `KEY` and `VALUE` parts, call with
+    //      the move flag set to `1` and then with the move flag set to `0`.
+    //
+    //   2. For 1..3 arguments each for the `KEY` and `VALUE` parts, call with
+    //      move flags set to `0`, `1`, and each move flag set independently.
     //
     // Testing:
     //   iterator emplace(Args&&... args);
@@ -4512,39 +4527,39 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase31()
     // TESTING EMPLACE
     //
     // Concerns:
-    //: 1 'emplace' returns a pair containing an iterator and a 'bool'
-    //:
-    //: 2 The iterator returned refers to the newly inserted element if it did
-    //:   not already exists, and to the existing element if it did.
-    //:
-    //: 3 The 'bool' returned is 'true' if a new element is inserted, and
-    //:   'false' otherwise.
-    //:
-    //: 4 A new element is added to the container if the element did not
-    //:   already exist, and the order of the container remains correct.
-    //:
-    //: 5 Internal memory management system is hooked up properly
-    //:   so that *all* internally allocated memory draws from a
-    //:   user-supplied allocator whenever one is specified.
-    //:
-    //: 6 Insertion is exception neutral w.r.t. memory allocation.
+    // 1. `emplace` returns a pair containing an iterator and a `bool`
+    //
+    // 2. The iterator returned refers to the newly inserted element if it did
+    //    not already exists, and to the existing element if it did.
+    //
+    // 3. The `bool` returned is `true` if a new element is inserted, and
+    //    `false` otherwise.
+    //
+    // 4. A new element is added to the container if the element did not
+    //    already exist, and the order of the container remains correct.
+    //
+    // 5. Internal memory management system is hooked up properly
+    //    so that *all* internally allocated memory draws from a
+    //    user-supplied allocator whenever one is specified.
+    //
+    // 6. Insertion is exception neutral w.r.t. memory allocation.
     //
     // Plan:
-    //: 1 We will use 'value' as the single argument to the 'emplace' function
-    //:   and will test proper forwarding of constructor arguments in test
-    //:   'testCase31a'.
-    //:
-    //: 2 For emplace, we will create objects of varying sizes and capacities
-    //:   containing default values, and insert a 'value'.
-    //:
-    //:   1 Compute the number of allocations and verify it is as expected.
-    //:
-    //:   2 If the object did not contain 'value', verify it now exist.
-    //:     Otherwise, verify the return value is as expected.  (C-1..4)
-    //:
-    //:   3 Verify all allocations are from the object's allocator.  (C-5)
-    //:
-    //: 3 Repeat P-2 under the presence of injected exceptions.  (C-6)
+    // 1. We will use `value` as the single argument to the `emplace` function
+    //    and will test proper forwarding of constructor arguments in test
+    //    `testCase31a`.
+    //
+    // 2. For emplace, we will create objects of varying sizes and capacities
+    //    containing default values, and insert a `value`.
+    //
+    //   1. Compute the number of allocations and verify it is as expected.
+    //
+    //   2. If the object did not contain `value`, verify it now exist.
+    //      Otherwise, verify the return value is as expected.  (C-1..4)
+    //
+    //   3. Verify all allocations are from the object's allocator.  (C-5)
+    //
+    // 3. Repeat P-2 under the presence of injected exceptions.  (C-6)
     //
     // Testing:
     //   pair<iterator, bool> emplace(Args&&... arguments);
@@ -4575,7 +4590,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase31()
 
     const int MAX_LENGTH = 10;
 
-    if (verbose) printf("\nTesting 'emplace' without exceptions.\n");
+    if (verbose) printf("\nTesting `emplace` without exceptions.\n");
     {
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_line;
@@ -4651,7 +4666,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase31()
             }
         }
     }
-    if (verbose) printf("\nTesting 'emplace' with injected exceptions.\n");
+    if (verbose) printf("\nTesting `emplace` with injected exceptions.\n");
     {
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_line;
@@ -4716,61 +4731,61 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase30()
     // ------------------------------------------------------------------------
     // TESTING INSERTION-WITH-HINT OF MOVABLE VALUES
     //
-    // TBD Need to test with types that are convertible to 'value_type' (i.e.,
-    // the 'ALT_VALUE_TYPE&&' template method).
+    // TBD Need to test with types that are convertible to `value_type` (i.e.,
+    // the `ALT_VALUE_TYPE&&` template method).
     //
     // Concerns:
-    //: 1 'insert' returns an iterator referring to the newly inserted element
-    //:   if it did not already exists, and to the existing element if it did.
-    //:
-    //: 2 A new element is added to the container if the element did not
-    //:   already exist, and the order of the container remains correct.
-    //:
-    //: 3 Inserting with the correct hint places the new element right before
-    //:   the hint.
-    //:
-    //: 4 Inserting with the correct hint requires no more than 2 comparisons.
-    //:
-    //: 5 Incorrect hint will be ignored and 'insert' will proceed as if the
-    //:   hint is not supplied.
-    //:
-    //: 6 The new element is move-inserted into the container.
-    //:
-    //: 7 Internal memory management system is hooked up properly
-    //:   so that *all* internally allocated memory draws from a
-    //:   user-supplied allocator whenever one is specified.
-    //:
-    //: 8 Insertion is exception neutral w.r.t. memory allocation.
+    // 1. `insert` returns an iterator referring to the newly inserted element
+    //    if it did not already exists, and to the existing element if it did.
+    //
+    // 2. A new element is added to the container if the element did not
+    //    already exist, and the order of the container remains correct.
+    //
+    // 3. Inserting with the correct hint places the new element right before
+    //    the hint.
+    //
+    // 4. Inserting with the correct hint requires no more than 2 comparisons.
+    //
+    // 5. Incorrect hint will be ignored and `insert` will proceed as if the
+    //    hint is not supplied.
+    //
+    // 6. The new element is move-inserted into the container.
+    //
+    // 7. Internal memory management system is hooked up properly
+    //    so that *all* internally allocated memory draws from a
+    //    user-supplied allocator whenever one is specified.
+    //
+    // 8. Insertion is exception neutral w.r.t. memory allocation.
     //
     // Plan:
-    //: 1 For insertion we will create objects of varying sizes and capacities
-    //:   containing default values, and insert a 'value'.
-    //:
-    //:   1 For each set of values, set hint to be 'lower_bound', 'begin',
-    //:     'begin' + 1, 'end' - 1, 'end'
-    //:
-    //:     1 For each value in the set, 'insert' the value with hint.
-    //:
-    //:       1 Compute the number of allocations and verify it is as
-    //:         expected.
-    //:
-    //:       2 Verify the return value and the resulting data in the container
-    //:         is as expected.
-    //:
-    //:       3 Verify the new element is inserted right before the hint if
-    //:         the hint is valid.  (C-3)
-    //:
-    //:       4 Verify the number of comparisons is no more than 2 if the hint
-    //:         is valid.  (C-4)
-    //:
-    //:       5 Ensure that the move constructor was called on the value type
-    //:         (if that type has a mechanism to detect such) where the value
-    //:         has the same allocator as that of the container and a different
-    //:         allocator than that of the container.  (C-5)
-    //:
-    //:       5 Verify all allocations are from the object's allocator.  (C-7)
-    //:
-    //: 2 Repeat P-1 under the presence of injected exceptions.  (C-8)
+    // 1. For insertion we will create objects of varying sizes and capacities
+    //    containing default values, and insert a `value`.
+    //
+    //   1. For each set of values, set hint to be `lower_bound`, `begin`,
+    //      `begin + 1`, `end - 1`, `end`
+    //
+    //     1. For each value in the set, `insert` the value with hint.
+    //
+    //       1. Compute the number of allocations and verify it is as
+    //          expected.
+    //
+    //       2. Verify the return value and the resulting data in the container
+    //          is as expected.
+    //
+    //       3. Verify the new element is inserted right before the hint if
+    //          the hint is valid.  (C-3)
+    //
+    //       4. Verify the number of comparisons is no more than 2 if the hint
+    //          is valid.  (C-4)
+    //
+    //       5. Ensure that the move constructor was called on the value type
+    //          (if that type has a mechanism to detect such) where the value
+    //          has the same allocator as that of the container and a different
+    //          allocator than that of the container.  (C-5)
+    //
+    //       5. Verify all allocations are from the object's allocator.  (C-7)
+    //
+    // 2. Repeat P-1 under the presence of injected exceptions.  (C-8)
     //
     // Testing:
     //   iterator insert(const_iterator position, value_type&& value);
@@ -4801,7 +4816,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase30()
 
     const int MAX_LENGTH = 10;
 
-    if (verbose) printf("\nTesting 'insert' with hint.\n");
+    if (verbose) printf("\nTesting `insert` with hint.\n");
     {
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_line;
@@ -5032,7 +5047,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase30()
             }
         }
     }
-    if (verbose) printf("\nTesting 'insert' with exception.\n");
+    if (verbose) printf("\nTesting `insert` with exception.\n");
     {
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_line;
@@ -5184,46 +5199,46 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase29()
     // ------------------------------------------------------------------------
     // TESTING INSERTION OF MOVABLE VALUES
     //
-    // TBD Need to test with types that are convertible to 'value_type' (i.e.,
-    // the 'ALT_VALUE_TYPE&&' template method).
+    // TBD Need to test with types that are convertible to `value_type` (i.e.,
+    // the `ALT_VALUE_TYPE&&` template method).
     //
     // Concerns:
-    //: 1 'insert' returns a pair containing an iterator and a 'bool'
-    //:
-    //: 2 The iterator returned refers to the newly inserted element if it did
-    //:   not already exists, and to the existing element if it did.
-    //:
-    //: 3 The 'bool' returned is 'true' if a new element is inserted, and
-    //:   'false' otherwise.
-    //:
-    //: 4 A new element is added to the container if the element did not
-    //:   already exist, and the order of the container remains correct.
-    //:
-    //: 5 The new element is move-inserted into the container.
-    //:
-    //: 6 Internal memory management system is hooked up properly
-    //:   so that *all* internally allocated memory draws from a
-    //:   user-supplied allocator whenever one is specified.
-    //:
-    //: 7 Insertion is exception neutral w.r.t. memory allocation.
+    // 1. `insert` returns a pair containing an iterator and a `bool`
+    //
+    // 2. The iterator returned refers to the newly inserted element if it did
+    //    not already exists, and to the existing element if it did.
+    //
+    // 3. The `bool` returned is `true` if a new element is inserted, and
+    //    `false` otherwise.
+    //
+    // 4. A new element is added to the container if the element did not
+    //    already exist, and the order of the container remains correct.
+    //
+    // 5. The new element is move-inserted into the container.
+    //
+    // 6. Internal memory management system is hooked up properly
+    //    so that *all* internally allocated memory draws from a
+    //    user-supplied allocator whenever one is specified.
+    //
+    // 7. Insertion is exception neutral w.r.t. memory allocation.
     //
     // Plan:
-    //: 1 For insertion we will create objects of varying sizes and capacities
-    //:   containing default values, and insert a 'value'.
-    //:
-    //:   1 Compute the number of allocations and verify it is as expected.
-    //:
-    //:   2 If the object did not contain 'value', verify it now exist.
-    //:     Otherwise, verify the return value is as expected.  (C-1..4)
-    //:
-    //:   3 Ensure that the move constructor was called on the value type (if
-    //:     that type has a mechanism to detect such) where the value has the
-    //:     same allocator as that of the container and a different allocator
-    //:     than that of the container.  (C-5)
-    //:
-    //:   4 Verify all allocations are from the object's allocator.  (C-6)
-    //:
-    //: 2 Repeat P-1 under the presence of injected exceptions.  (C-7)
+    // 1. For insertion we will create objects of varying sizes and capacities
+    //    containing default values, and insert a `value`.
+    //
+    //   1. Compute the number of allocations and verify it is as expected.
+    //
+    //   2. If the object did not contain `value`, verify it now exist.
+    //      Otherwise, verify the return value is as expected.  (C-1..4)
+    //
+    //   3. Ensure that the move constructor was called on the value type (if
+    //      that type has a mechanism to detect such) where the value has the
+    //      same allocator as that of the container and a different allocator
+    //      than that of the container.  (C-5)
+    //
+    //   4. Verify all allocations are from the object's allocator.  (C-6)
+    //
+    // 2. Repeat P-1 under the presence of injected exceptions.  (C-7)
     //
     // Testing:
     //   pair<iterator, bool> insert(value_type&& value);
@@ -5255,7 +5270,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase29()
 
     const int MAX_LENGTH = 10;
 
-    if (verbose) printf("\nTesting 'insert' without exceptions.\n");
+    if (verbose) printf("\nTesting `insert` without exceptions.\n");
     {
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_line;
@@ -5429,7 +5444,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase29()
         }
     }
 
-    if (verbose) printf("\nTesting 'insert' with injected exceptions.\n");
+    if (verbose) printf("\nTesting `insert` with injected exceptions.\n");
     {
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_line;
@@ -5550,8 +5565,8 @@ namespace DRQS174010402 {
     };
 #endif
 
+/// A struct with an templated constructor that is not constrained.
 struct Unconstrained {
-    // A struct with an templated constructor that is not constrained.
     Unconstrained () : d_value(-1) {}
     template <typename T>
     Unconstrained (T   val) : d_value(val) {}
@@ -5596,37 +5611,37 @@ Unconstrained& Unconstrained::operator=(Unconstrained&& rhs) {
 }  // close namespace DRQS174010402
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+/// This struct provides a namespace for functions testing deduction guides.
+/// The tests are compile-time only; it is not necessary that these routines
+/// be called at run-time.  Note that the following constructors do not have
+/// associated deduction guides because the template parameters for
+/// `bsl::map` cannot be deduced from the constructor parameters.
+/// ```
+/// map()
+/// explicit map(COMPARATOR, ALLOCATOR = ALLOCATOR());
+/// map(ALLOCATOR)
+/// ```
 struct TestDeductionGuides {
-    // This struct provides a namespace for functions testing deduction guides.
-    // The tests are compile-time only; it is not necessary that these routines
-    // be called at run-time.  Note that the following constructors do not have
-    // associated deduction guides because the template parameters for
-    // 'bsl::map' cannot be deduced from the constructor parameters.
-    //..
-    // map()
-    // explicit map(COMPARATOR, ALLOCATOR = ALLOCATOR());
-    // map(ALLOCATOR)
-    //..
 
 #define ASSERT_SAME_TYPE(...) \
  static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
 
+    /// Test that constructing a `bsl::map` from various combinations of
+    /// arguments deduces the correct type.
+    /// ```
+    /// map(const map&  m)            -> decltype(m)
+    /// map(const map&  m, ALLOCATOR) -> decltype(m)
+    /// map(      map&& m)            -> decltype(m)
+    /// map(      map&& m, ALLOCATOR) -> decltype(m)
+    ///
+    /// map(Iter, Iter, COMPARATOR = COMPARATOR(), ALLOCATOR = ALLOCATOR())
+    /// map(Iter, Iter, ALLOCATOR)
+    ///
+    /// map(initializer_list, COMPARATOR = COMPARATOR(),
+    ///                                            ALLOCATOR = ALLOCATOR())
+    /// map(initializer_list, ALLOCATOR)
+    /// ```
     static void SimpleConstructors ()
-        // Test that constructing a 'bsl::map' from various combinations of
-        // arguments deduces the correct type.
-        //..
-        // map(const map&  m)            -> decltype(m)
-        // map(const map&  m, ALLOCATOR) -> decltype(m)
-        // map(      map&& m)            -> decltype(m)
-        // map(      map&& m, ALLOCATOR) -> decltype(m)
-        //
-        // map(Iter, Iter, COMPARATOR = COMPARATOR(), ALLOCATOR = ALLOCATOR())
-        // map(Iter, Iter, ALLOCATOR)
-        //
-        // map(initializer_list, COMPARATOR = COMPARATOR(),
-        //                                            ALLOCATOR = ALLOCATOR())
-        // map(initializer_list, ALLOCATOR)
-        //..
     {
         bslma::Allocator     *a1 = nullptr;
         bslma::TestAllocator *a2 = nullptr;
@@ -5787,17 +5802,17 @@ int main(int argc, char *argv[])
         // DRQS 174010402
         //
         // Concerns:
-        //: 1 In language versions where 'bsl::pair' supports
-        //:   'piecewise_construct', using 'operator[]' on a map with a
-        //:   non-copyable, non-movable mapped type compiles and behaves as
-        //:   expected.
+        // 1. In language versions where `bsl::pair` supports
+        //    `piecewise_construct`, using `operator[]` on a map with a
+        //    non-copyable, non-movable mapped type compiles and behaves as
+        //    expected.
         //
         // Plan:
-        //: 1 Declare a non-copyable, non-movable type and attempt to use it in
-        //:   a map.
+        // 1. Declare a non-copyable, non-movable type and attempt to use it in
+        //    a map.
         //
         // Testing:
-        //   CONCERN: 'operator[]' with non-copyable type.
+        //   CONCERN: `operator[]` with non-copyable type.
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -5834,30 +5849,30 @@ int main(int argc, char *argv[])
       } break;
       case 44: {
         // --------------------------------------------------------------------
-        // CONCERN: 'map' IS A C++20 RANGE
+        // CONCERN: `map` IS A C++20 RANGE
         //
         // Concerns:
-        //: 1 'map' models 'ranges::common_range' concept.
-        //:
-        //: 2 'map' models 'ranges::bidirectional_range' concept.
-        //:
-        //: 3 'map' models 'ranges::sized_range' concept.
-        //:
-        //: 4 'map' models 'ranges::viewable_range' concept.
-        //:
-        //: 5 'map' doesn't model 'ranges::view' concept.
-        //:
-        //: 6 'map' doesn't model 'ranges::borrowed_range' concept.
+        // 1. `map` models `ranges::common_range` concept.
+        //
+        // 2. `map` models `ranges::bidirectional_range` concept.
+        //
+        // 3. `map` models `ranges::sized_range` concept.
+        //
+        // 4. `map` models `ranges::viewable_range` concept.
+        //
+        // 5. `map` doesn't model `ranges::view` concept.
+        //
+        // 6. `map` doesn't model `ranges::borrowed_range` concept.
         //
         // Plan:
-        //: 1 'static_assert' every above-mentioned concept for different 'KEY'
-        //:   and 'VALUE'.
+        // 1. `static_assert` every above-mentioned concept for different `KEY`
+        //    and `VALUE`.
         //
         // Testing:
-        //   CONCERN: 'map' IS A C++20 RANGE
+        //   CONCERN: `map` IS A C++20 RANGE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nCONCERN: 'map' IS A C++20 RANGE"
+        if (verbose) printf("\nCONCERN: `map` IS A C++20 RANGE"
                             "\n===============================\n");
 
         RUN_EACH_TYPE(TestDriver,
@@ -5866,24 +5881,24 @@ int main(int argc, char *argv[])
       } break;
       case 43: {
         // --------------------------------------------------------------------
-        // TESTING 'TRY_EMPLACE' AND 'INSERT_OR_ASSIGN'
+        // TESTING `TRY_EMPLACE` AND `INSERT_OR_ASSIGN`
         //
         // Concerns:
-        //: 1 'try_emplace' only adds an entry to the map if the key does not
-        //:   already exist, otherwise it does nothing.  Specifically, it does
-        //:   not consume the arguments if the key already exists.
-        //:
-        //: 1 'insert_or_assign' only adds an entry to the map if the key does
-        //:   not already exist, and otherwise updates an existing entry.
+        // 1. `try_emplace` only adds an entry to the map if the key does not
+        //    already exist, otherwise it does nothing.  Specifically, it does
+        //    not consume the arguments if the key already exists.
+        //
+        // 1. `insert_or_assign` only adds an entry to the map if the key does
+        //    not already exist, and otherwise updates an existing entry.
         //
         // Plan:
-        //: 1 Construct a map and call 'try_emplace' with keys that both do
-        //:   and do not exist.  Examine the map and the parameters to confirm
-        //:   correct behavior. (C-1)
-        //:
-        //: 1 Construct a map and call 'insert_or_assign' with keys that both
-        //:   do and do not exist.  Examine the map to confirm correct
-        //:   behavior. (C-2)
+        // 1. Construct a map and call `try_emplace` with keys that both do
+        //    and do not exist.  Examine the map and the parameters to confirm
+        //    correct behavior. (C-1)
+        //
+        // 1. Construct a map and call `insert_or_assign` with keys that both
+        //    do and do not exist.  Examine the map to confirm correct
+        //    behavior. (C-2)
         //
         // Testing:
         //   pair<iterator, bool> try_emplace(const key&, Args&&...);
@@ -5897,13 +5912,13 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nTESTING 'TRY_EMPLACE' AND 'INSERT_OR_ASSIGN'\n"
+            printf("\nTESTING `TRY_EMPLACE` AND `INSERT_OR_ASSIGN`\n"
                      "============================================\n");
         TestDriver<char, size_t>::testCase43();
         TestDriver<int,  size_t>::testCase43();
         TestDriver<long, size_t>::testCase43();
 
-        // test 'try_emplace' with different numbers of arguments
+        // test `try_emplace` with different numbers of arguments
         {
             typedef bsl::map<int, IntValue> Map;
             typedef bsl::pair<Map::iterator, bool> PAIR;
@@ -5934,7 +5949,7 @@ int main(int argc, char *argv[])
             ASSERT(27 == p.first->second.d_value);
         }
 
-        // test 'try_emplace' with a different key type
+        // test `try_emplace` with a different key type
         {
             typedef bsl::map<bsl::string, IntValue, TransparentComparator> Map;
             typedef bsl::pair<Map::iterator, bool> PAIR;
@@ -5962,7 +5977,7 @@ int main(int argc, char *argv[])
         // TESTING ERASE_IF
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING FREE FUNCTION 'BSL::ERASE_IF'"
+        if (verbose) printf("\nTESTING FREE FUNCTION `BSL::ERASE_IF`"
                             "\n=====================================\n");
 
         TestDriver<char, size_t>::testCase42();
@@ -5977,17 +5992,17 @@ int main(int argc, char *argv[])
         //   constructors.
         //
         // Concerns:
-        //: 1 Construction from iterators deduces the value type from the value
-        //:   type of the iterator.
+        // 1. Construction from iterators deduces the value type from the value
+        //    type of the iterator.
         //
-        //: 2 Construction with a 'bslma::Allocator *' deduces the correct
-        //:   specialization of 'bsl::allocator' for the type of the allocator.
+        // 2. Construction with a `bslma::Allocator *` deduces the correct
+        //    specialization of `bsl::allocator` for the type of the allocator.
         //
         // Plan:
-        //: 1 Create a map by invoking the constructor without supplying the
-        //:   template arguments explicitly.
-        //:
-        //: 2 Verify that the deduced type is correct.
+        // 1. Create a map by invoking the constructor without supplying the
+        //    template arguments explicitly.
+        //
+        // 2. Verify that the deduced type is correct.
         //
         // Testing:
         //   CLASS TEMPLATE DEDUCTION GUIDES
@@ -6007,38 +6022,38 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING COMPARATORS WITH MULTI-VALUE EQUAL RANGES
         //   Although in most cases additional operators accepting reference
-        //   to the 'LOOKUP_KEY' value are in compliance with the main
-        //   comparator's operator, accepting two references to the 'KEY'
+        //   to the `LOOKUP_KEY` value are in compliance with the main
+        //   comparator's operator, accepting two references to the `KEY`
         //   value, user can provide a transparent comparator, whose operators
         //   change the equality ranges.  We need to check that our container
         //   handles such comparators correctly.
         //
         // Concerns:
-        //: 1 The following 'map' methods: 'find, 'count', 'lower_bound',
-        //:   'upper_bound' and 'equal_range' correctly handle additional
-        //:   operators (those that accept parameters other than map 'KEY') of
-        //:   supplied comparator, even if their behavior differs from the
-        //:   behavior of the main one.
-        //:
-        //: 2 'count' can return a value greater than one.
-        //:
-        //: 3 'equal_range' can return range, containing more than one element
+        // 1. The following `map` methods: `find, `count', `lower_bound`,
+        //    `upper_bound` and `equal_range` correctly handle additional
+        //    operators (those that accept parameters other than map `KEY`) of
+        //    supplied comparator, even if their behavior differs from the
+        //    behavior of the main one.
+        //
+        // 2. `count` can return a value greater than one.
+        //
+        // 3. `equal_range` can return range, containing more than one element
         //
         // Plan:
-        //: 1 Construct a map with a transparent comparator, that has
-        //:   additional operators, allowing multiple matches for the same
-        //:   parameter value.
-        //:
-        //: 2 Fill the map with unique values and call the lookup functions
-        //:   with a parameters that can be both unambiguously and ambiguously
-        //:   matched with the map elements.  Verify the results.  (C-1..3)
+        // 1. Construct a map with a transparent comparator, that has
+        //    additional operators, allowing multiple matches for the same
+        //    parameter value.
+        //
+        // 2. Fill the map with unique values and call the lookup functions
+        //    with a parameters that can be both unambiguously and ambiguously
+        //    matched with the map elements.  Verify the results.  (C-1..3)
         //
         // Testing:
-        //   CONCERN: 'count'       properly handles multi-value comparators.
-        //   CONCERN: 'find'        properly handles multi-value comparators.
-        //   CONCERN: 'lower_bound' properly handles multi-value comparators.
-        //   CONCERN: 'upper_bound' properly handles multi-value comparators.
-        //   CONCERN: 'equal_range' properly handles multi-value comparators.
+        //   CONCERN: `count`       properly handles multi-value comparators.
+        //   CONCERN: `find`        properly handles multi-value comparators.
+        //   CONCERN: `lower_bound` properly handles multi-value comparators.
+        //   CONCERN: `upper_bound` properly handles multi-value comparators.
+        //   CONCERN: `equal_range` properly handles multi-value comparators.
         // --------------------------------------------------------------------
 
         if (verbose) printf(
@@ -6086,7 +6101,7 @@ int main(int argc, char *argv[])
             symbolEntryNumMap[VALUE[0]] += 1;
 
             for (char c = 'a'; c < 'h'; ++c) {
-                // Testing 'find'.
+                // Testing `find`.
                 {
                     ConstIterator constResult = X.find(c);
                     Iterator      result      = mX.find(c);
@@ -6104,7 +6119,7 @@ int main(int argc, char *argv[])
                     }
                 }
 
-                // Testing 'lower_bound'.
+                // Testing `lower_bound`.
                 {
                     ConstIterator EXPECTED_CONST_LB =  X.begin();
                     Iterator      EXPECTED_LB       = mX.begin();
@@ -6124,7 +6139,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, c, EXPECTED_LB       == result     );
                 }
 
-                // Testing 'upper_bound'.
+                // Testing `upper_bound`.
                 {
                     ConstIterator EXPECTED_CONST_UB =  X.begin();
                     Iterator      EXPECTED_UB       = mX.begin();
@@ -6144,7 +6159,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, c, EXPECTED_UB       == result     );
                 }
 
-                // Testing 'count'.
+                // Testing `count`.
                 {
                     ConstIterator   EXPECTED_CONST_LB = X.lower_bound(c);
                     const size_type EXPECTED_COUNT =
@@ -6155,7 +6170,7 @@ int main(int argc, char *argv[])
                     ASSERTV(c, EXPECTED_COUNT, count ,EXPECTED_COUNT == count);
                 }
 
-                // Testing 'equal_range'.
+                // Testing `equal_range`.
                 {
                     ConstIterator   EXPECTED_CONST_LB = X.lower_bound(c);
                     ConstIterator   EXPECTED_CONST_UB = X.upper_bound(c);
@@ -6196,28 +6211,28 @@ int main(int argc, char *argv[])
         // TESTING TRANSPARENT COMPARATOR
         //
         // Concerns:
-        //: 1 'map' does not have a transparent set of lookup functions if the
-        //:   comparator is not transparent.
-        //:
-        //: 2 'map' has a transparent set of lookup functions if the comparator
-        //:   is transparent.
+        // 1. `map` does not have a transparent set of lookup functions if the
+        //    comparator is not transparent.
+        //
+        // 2. `map` has a transparent set of lookup functions if the comparator
+        //    is transparent.
         //
         // Plan:
-        //: 1 Construct a non-transparent map and call the lookup functions
-        //:   with a type that is convertible to the 'value_type'.  There
-        //:   should be exactly one conversion per call to a lookup function.
-        //:   (C-1)
-        //:
-        //: 2 Construct a transparent map and call the lookup functions with a
-        //:   type that is convertible to the 'value_type'.  There should be no
-        //:   conversions.  (C-2)
+        // 1. Construct a non-transparent map and call the lookup functions
+        //    with a type that is convertible to the `value_type`.  There
+        //    should be exactly one conversion per call to a lookup function.
+        //    (C-1)
+        //
+        // 2. Construct a transparent map and call the lookup functions with a
+        //    type that is convertible to the `value_type`.  There should be no
+        //    conversions.  (C-2)
         //
         // Testing:
-        //   CONCERN: 'find'        properly handles transparent comparators.
-        //   CONCERN: 'count'       properly handles transparent comparators.
-        //   CONCERN: 'lower_bound' properly handles transparent comparators.
-        //   CONCERN: 'upper_bound' properly handles transparent comparators.
-        //   CONCERN: 'equal_range' properly handles transparent comparators.
+        //   CONCERN: `find`        properly handles transparent comparators.
+        //   CONCERN: `count`       properly handles transparent comparators.
+        //   CONCERN: `lower_bound` properly handles transparent comparators.
+        //   CONCERN: `upper_bound` properly handles transparent comparators.
+        //   CONCERN: `equal_range` properly handles transparent comparators.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\n" "TESTING TRANSPARENT COMPARATOR" "\n"
@@ -6277,7 +6292,7 @@ int main(int argc, char *argv[])
       } break;
       case 38: {
         // --------------------------------------------------------------------
-        // 'erase' overload is deduced correctly
+        // `erase` overload is deduced correctly
         // --------------------------------------------------------------------
 
         if (verbose) printf("TESTING ABSENCE OF ERASE AMBIGUITY\n"
@@ -6287,16 +6302,16 @@ int main(int argc, char *argv[])
       } break;
       case 37: {
         // --------------------------------------------------------------------
-        // 'bslmf::MovableRef<T>' does not escape (in C+++03 mode)
+        // `bslmf::MovableRef<T>` does not escape (in C+++03 mode)
         // --------------------------------------------------------------------
         TestDriver<int, AmbiguousTestType03>::testCase37();
       } break;
       case 36: {
         // --------------------------------------------------------------------
-        // 'noexcept' SPECIFICATION
+        // `noexcept` SPECIFICATION
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+        if (verbose) printf("\n" "`noexcept` SPECIFICATION" "\n"
                                  "========================" "\n");
 
         TestDriver<int>::testCase36();
@@ -6307,14 +6322,14 @@ int main(int argc, char *argv[])
         // TESTING SUPPORT FOR INCOMPLETE TYPES
         //
         // Concerns:
-        //: 1 The type can be declared with incomplete types.
+        // 1. The type can be declared with incomplete types.
         //
         // Plan:
-        //: 1 Instantiate a test object that uses incomplete types in the class
-        //:   declaration.  (C-1)
+        // 1. Instantiate a test object that uses incomplete types in the class
+        //    declaration.  (C-1)
         //
         // Testing:
-        //   CONCERN: 'map' supports incomplete types.
+        //   CONCERN: `map` supports incomplete types.
         // --------------------------------------------------------------------
         TestIncompleteType x;
         (void) x;
@@ -6407,7 +6422,7 @@ int main(int argc, char *argv[])
       } break;
       case 28: {
         if (verbose) printf(
-                   "\nTEST CASE %d IS DELEGATED TO 'bslstl_map_test2.t.cpp'"
+                   "\nTEST CASE %d IS DELEGATED TO `bslstl_map_test2.t.cpp`"
                    "\n=====================================================\n",
                    test);
       } break;
@@ -6431,7 +6446,7 @@ int main(int argc, char *argv[])
       case 10: // falls through
       case  9: {
         if (verbose) printf(
-                   "\nTEST CASE %d IS DELEGATED TO 'bslstl_map_test1.t.cpp'"
+                   "\nTEST CASE %d IS DELEGATED TO `bslstl_map_test1.t.cpp`"
                    "\n=====================================================\n",
                    test);
       } break;

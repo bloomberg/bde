@@ -40,9 +40,9 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // The component under test is an in-core value-semantic component without the
-// support for 'bdex' stream-in operation.  We choose the constructor that
-// takes a literal name and a 'bdlb_variant' value as the primary manipulator,
-// and use the 'createValue' method as the primitive test apparatus.  The
+// support for `bdex` stream-in operation.  We choose the constructor that
+// takes a literal name and a `bdlb_variant` value as the primary manipulator,
+// and use the `createValue` method as the primitive test apparatus.  The
 // 10-step standard test procedure is then performed.  We will also verify that
 // the hash values must be calculated correctly and must be re-calculated after
 // the objects have been modified.
@@ -534,10 +534,10 @@ enum { NUM_PRINT_DATA = sizeof PRINT_DATA / sizeof *PRINT_DATA };
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+/// Return an attribute created from value at the specified location `i` in
+/// the specified `values` array of the specified `size`.
 template <class VALUE>
 Obj::Value createValue(const VALUE *values, int size, int i)
-    // Return an attribute created from value at the specified location 'i' in
-    // the specified 'values' array of the specified 'size'.
 {
     BSLS_ASSERT(0 <= i);
     BSLS_ASSERT(i <  size);  (void)size;
@@ -580,14 +580,14 @@ Obj::Value createValue(const VALUE *values, int size, int i)
     return variant;
 }
 
+/// Return `true` if the specified `lhs` has the same value as the specified
+/// `rhs` and `false` otherwise.  Optionally specify a `errorStream`, on
+/// which, if `lhs` and `rhs` are not the same', a description of how the
+/// two strings differ will be written.  If `errorStream` is not supplied,
+/// `cout` will be used to report an error description.
 bool compareText(const bsl::string_view& lhs,
                  const bsl::string_view& rhs,
                  bsl::ostream&           errorStream = bsl::cout)
-    // Return 'true' if the specified 'lhs' has the same value as the specified
-    // 'rhs' and 'false' otherwise.  Optionally specify a 'errorStream', on
-    // which, if 'lhs' and 'rhs' are not the same', a description of how the
-    // two strings differ will be written.  If 'errorStream' is not supplied,
-    // 'cout' will be used to report an error description.
 {
     for (unsigned int i = 0; i < lhs.length() && i < rhs.length(); ++i) {
         if (lhs[i] != rhs[i]) {
@@ -867,9 +867,9 @@ class MyAttributeValue {
     }
 };
 
+/// A `MyAttribute` object contains an attribute name which is not managed
+/// and an attribute value which is managed.
 class MyAttribute {
-    // A 'MyAttribute' object contains an attribute name which is not managed
-    // and an attribute value which is managed.
 
   public:
     // TYPES
@@ -899,140 +899,145 @@ class MyAttribute {
     BSLMF_NESTED_TRAIT_DECLARATION(MyAttribute, bslma::UsesBslmaAllocator);
 
     // CLASS METHODS
+
+    /// Return a hash value calculated from the specified `attribute` using
+    /// the specified `size` as the number of slots.  The hash value is
+    /// guaranteed to be in the range [0 ..size - 1].  The behavior is
+    /// undefined unless `0 <= size`.
     static int hash(const MyAttribute& attribute, int size);
-        // Return a hash value calculated from the specified 'attribute' using
-        // the specified 'size' as the number of slots.  The hash value is
-        // guaranteed to be in the range [0 ..size - 1].  The behavior is
-        // undefined unless '0 <= size'.
 
     // CREATORS
+
+    /// Create a `MyAttribute` object having the specified (literal) `name`
+    /// and (32-bit integer) `value`.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator will be used.  Note that `name` is not
+    /// managed by this object and therefore must remain valid while in use
+    /// by any `MyAttribute` object.
     MyAttribute(const char       *name,
                 int               value,
                 bslma::Allocator *basicAllocator = 0 );
-        // Create a 'MyAttribute' object having the specified (literal) 'name'
-        // and (32-bit integer) 'value'.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator will be used.  Note that 'name' is not
-        // managed by this object and therefore must remain valid while in use
-        // by any 'MyAttribute' object.
 
+    /// Create a `MyAttribute` object having the specified (literal) `name`
+    /// and (64-bit integer) `value`.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator will be used.  Note that `name` is not
+    /// managed by this object and therefore must remain valid while in use
+    /// by any `MyAttribute` object.
     MyAttribute(const char       *name,
                 long long         value,
                 bslma::Allocator *basicAllocator = 0 );
-        // Create a 'MyAttribute' object having the specified (literal) 'name'
-        // and (64-bit integer) 'value'.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator will be used.  Note that 'name' is not
-        // managed by this object and therefore must remain valid while in use
-        // by any 'MyAttribute' object.
 
+    /// Create a `MyAttribute` object having the specified (literal) `name`
+    /// and (unsigned 64-bit integer) `value`.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator will be used.  Note that
+    /// `name` is not managed by this object and therefore must remain valid
+    /// while in use by any `MyAttribute` object.
     MyAttribute(const char         *name,
                 unsigned long long  value,
                 bslma::Allocator   *basicAllocator = 0 );
-        // Create a 'MyAttribute' object having the specified (literal) 'name'
-        // and (unsigned 64-bit integer) 'value'.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator will be used.  Note that
-        // 'name' is not managed by this object and therefore must remain valid
-        // while in use by any 'MyAttribute' object.
 
+    /// Create a `MyAttribute` object having the specified (literal) `name`
+    /// and (Guid) `value`.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator will be used.  Note that `name` is not managed by
+    /// this object and therefore must remain valid while in use by any
+    /// `MyAttribute` object.
     MyAttribute(const char         *name,
                 bdlb::Guid          value,
                 bslma::Allocator   *basicAllocator = 0 );
-        // Create a 'MyAttribute' object having the specified (literal) 'name'
-        // and (Guid) 'value'.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator will be used.  Note that 'name' is not managed by
-        // this object and therefore must remain valid while in use by any
-        // 'MyAttribute' object.
 
+    /// Create a `MyAttribute` object having the specified (literal) `name`
+    /// and (character string)`value`.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator will be used.  Note that
+    /// `name` is not managed by this object and therefore must remain valid
+    /// while in use by any `MyAttribute` object.
     MyAttribute(const char       *name,
                 const char       *value,
                 bslma::Allocator *basicAllocator = 0 );
-        // Create a 'MyAttribute' object having the specified (literal) 'name'
-        // and (character string)'value'.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator will be used.  Note that
-        // 'name' is not managed by this object and therefore must remain valid
-        // while in use by any 'MyAttribute' object.
 
+    /// Create a `MyAttribute` object having the specified (literal) `name`
+    /// and `value`.  Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator will be used.  Note that `name` is not managed by this
+    /// object and therefore must remain valid while in use by any
+    /// `MyAttribute` object.
     MyAttribute(const char       *name,
                 const Value&      value,
                 bslma::Allocator *basicAllocator = 0 );
-        // Create a 'MyAttribute' object having the specified (literal) 'name'
-        // and 'value'.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator will be used.  Note that 'name' is not managed by this
-        // object and therefore must remain valid while in use by any
-        // 'MyAttribute' object.
 
+    /// Create a `MyAttribute` object having the same (literal) name and
+    /// attribute value as the specified `original` object.  Optionally
+    /// specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator
+    /// will be used.
     MyAttribute(const MyAttribute&  original,
                 bslma::Allocator   *basicAllocator = 0);
-        // Create a 'MyAttribute' object having the same (literal) name and
-        // attribute value as the specified 'original' object.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator
-        // will be used.
 
+    /// Destroy this attribute object.
     ~MyAttribute();
-        // Destroy this attribute object.
 
     // MANIPULATORS
+
+    /// Assign the value of the specified `rhs` object to this object.
     MyAttribute& operator=(const MyAttribute& rhs);
-        // Assign the value of the specified 'rhs' object to this object.
 
+    /// Set the attribute name of this object to the specified (literal)
+    /// `name`.  Note that `name` is not managed by this object and
+    /// therefore must remain valid while in use by any `MyAttribute`
+    /// object.
     void setName(const char *name);
-        // Set the attribute name of this object to the specified (literal)
-        // 'name'.  Note that 'name' is not managed by this object and
-        // therefore must remain valid while in use by any 'MyAttribute'
-        // object.
 
+    /// Set the attribute value of this object to the specified `value`.
     void setValue(const Value& value);
-        // Set the attribute value of this object to the specified 'value'.
 
     // ACCESSORS
+
+    /// Return the name of this object.
     const char *name() const;
-        // Return the name of this object.
 
+    /// Return a reference to the non-modifiable attribute value of this
+    /// object.
     const Value& value() const;
-        // Return a reference to the non-modifiable attribute value of this
-        // object.
 
+    /// Format this object to the specified output `stream` at the
+    /// (absolute value of) the optionally specified indentation `level`
+    /// and return a reference to `stream`.  If `level` is specified,
+    /// optionally specify `spacesPerLevel`, the number of spaces per
+    /// indentation level for this and all of its nested objects.  If
+    /// `level` is negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, format the entire output on one line,
+    /// suppressing all but the initial indentation (as governed by
+    /// `level`).  If `stream` is not valid on entry, this operation has no
+    /// effect.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // (absolute value of) the optionally specified indentation 'level'
-        // and return a reference to 'stream'.  If 'level' is specified,
-        // optionally specify 'spacesPerLevel', the number of spaces per
-        // indentation level for this and all of its nested objects.  If
-        // 'level' is negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, format the entire output on one line,
-        // suppressing all but the initial indentation (as governed by
-        // 'level').  If 'stream' is not valid on entry, this operation has no
-        // effect.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `MyAttribute` objects have the same
+/// value if they have the same name (but not necessarily the identical
+/// representation in memory), the same attribute value type, and the same
+/// attribute value.
 bool operator==(const MyAttribute& lhs,
                 const MyAttribute& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'MyAttribute' objects have the same
-    // value if they have the same name (but not necessarily the identical
-    // representation in memory), the same attribute value type, and the same
-    // attribute value.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two `MyAttribute` objects do not
+/// have the same value if any of their respective names (value, not
+/// address), attribute value types, or attribute values differ.
 bool operator!=(const MyAttribute& lhs,
                 const MyAttribute& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'MyAttribute' objects do not
-    // have the same value if any of their respective names (value, not
-    // address), attribute value types, or attribute values differ.
 
+/// Write the value of the specified `attribute` to the specified `output`
+/// stream.  Return the specified `output` stream.
 bsl::ostream& operator<<(bsl::ostream&      output,
                          const MyAttribute& attribute);
-    // Write the value of the specified 'attribute' to the specified 'output'
-    // stream.  Return the specified 'output' stream.
 
 // CREATORS
 inline
@@ -1234,8 +1239,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.  Suppress
-        //   all 'cout' statements in non-verbose mode, and add streaming to
+        //   comment characters, and replace `assert` with `ASSERT`.  Suppress
+        //   all `cout` statements in non-verbose mode, and add streaming to
         //   a buffer to test programmatically the printing examples.
         //
         // Testing:
@@ -1248,7 +1253,7 @@ int main(int argc, char *argv[])
 
 // This section illustrates intended use of this component.
 //
-///Example 1: Basic 'Attribute' usage
+///Example 1: Basic `Attribute` usage
 /// - - - - - - - - - - - - - - - - -
 // The following code creates four attributes having the same name, but
 // different attribute value types.
@@ -1258,7 +1263,7 @@ int main(int argc, char *argv[])
         ball::Attribute a3("day", 7LL);
         ball::Attribute a4("day", 7ULL);
 
-// The names of the attributes can be found by calling the 'name' method:
+// The names of the attributes can be found by calling the `name` method:
 
         ASSERT(0 == bsl::strcmp("day", a1.name()));
         ASSERT(0 == bsl::strcmp("day", a2.name()));
@@ -1278,45 +1283,45 @@ int main(int argc, char *argv[])
         ASSERT(7        == a4.value().the<unsigned long long>());
 
 // Note that the name string that is passed to the constructor of
-// 'ball::Attribute' *must* remain valid and unchanged after the
-// 'ball::Attribute' object is created.  In the next example, we create a
+// `ball::Attribute` *must* remain valid and unchanged after the
+// `ball::Attribute` object is created.  In the next example, we create a
 // temporary buffer to store the name string, and then use the buffer to
 // create an attribute.  Note that any subsequent changes to this temporary
 // buffer will also modify the name of the attribute:
-//..
+// ```
         char buffer[] = "Hello";
         ball::Attribute a5(buffer, 1);                   // BAD IDEA!!!
         bsl::strcpy(buffer, "World");
         ASSERT(0 == bsl::strcmp("World", a5.name()));
-//..
-// The 'ball::Attribute' class also provides a constructor that takes a value
-// of type 'ball::Attribute::Value':
-//..
+// ```
+// The `ball::Attribute` class also provides a constructor that takes a value
+// of type `ball::Attribute::Value`:
+// ```
         ball::Attribute::Value value;
         value.assign<bsl::string>("Sunday");
         ball::Attribute a6("day", value);
         ASSERT(a6 == a1);
-//..
-///Example 2: Using 'Attribute' to log pointers to opaque structure
+// ```
+///Example 2: Using `Attribute` to log pointers to opaque structure
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Consider we have an event scheduler that operates on events referred to by
 // event handle:
-//..
+// ```
         struct Event {
             int d_id;
         };
 
         typedef Event * EventHandle;
-//..
-// The event handler value can be logged using 'ball::Attribute' as follows:
-//..
+// ```
+// The event handler value can be logged using `ball::Attribute` as follows:
+// ```
         Event           event;
         EventHandle     handle = &event;
         ball::Attribute a7("event", handle);
 
         ASSERT(true   == a7.value().is<const void *>());
         ASSERT(handle == a7.value().the<const void *>());
-//..
+// ```
       } break;
       case 15: {
         // --------------------------------------------------------------------
@@ -1482,7 +1487,7 @@ int main(int argc, char *argv[])
       case 13: {
         // --------------------------------------------------------------------
         // TESTING NAME/VALUE MANIPULATORS
-        //   The 'setName' and 'setValue' methods should set the corresponding
+        //   The `setName` and `setValue` methods should set the corresponding
         //   fields correctly.
         //
         // Plan:
@@ -1651,7 +1656,7 @@ int main(int argc, char *argv[])
       case 12: {
         // --------------------------------------------------------------------
         // TESTING NAME/VALUE MANIPULATORS
-        //   The 'setName' and 'setValue' method should set the corresponding
+        //   The `setName` and `setValue` method should set the corresponding
         //   fields correctly.
         //
         // Plan:
@@ -1910,8 +1915,8 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'bdex' STREAMING FUNCTIONALITY:
-        //   Void for 'ball::Attribute'.
+        // TESTING `bdex` STREAMING FUNCTIONALITY:
+        //   Void for `ball::Attribute`.
         // --------------------------------------------------------------------
 
       } break;
@@ -1993,7 +1998,7 @@ int main(int argc, char *argv[])
       case 8: {
         // --------------------------------------------------------------------
         // TESTING SECONDARY TEST APPARATUS:
-        //   Void for 'ball::Attribute'.
+        //   Void for `ball::Attribute`.
         // --------------------------------------------------------------------
 
       } break;
@@ -2046,7 +2051,7 @@ int main(int argc, char *argv[])
         //   Specify a set S of unique names and a set T of unique value.
         //   Construct a set W of unique ball::Attribute objects using every
         //   element of the cross product S X T.  Verify the correctness of
-        //   'operator==' and 'operator!=' for all elements (u, v) of the
+        //   `operator==` and `operator!=` for all elements (u, v) of the
         //   cross product W X W.  Next for each element in W, make a copy of
         //   of the attribute, and then use that copy along with the same
         //   attribute value to create another ball::Attribute object to verify
@@ -2117,14 +2122,14 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING OUTPUT (<<) OPERATOR AND 'print':
+        // TESTING OUTPUT (<<) OPERATOR AND `print`:
         //   The output operator is trivially implemented using the
-        //   'bsl::ostream' output operators; a very few test vectors can
+        //   `bsl::ostream` output operators; a very few test vectors can
         //   sufficiently test wc this functionality.
         //
         // Plan:
         //   For each of a small representative set of object values, use
-        //   'ostrstream' to write that object's value to a character buffer
+        //   `ostrstream` to write that object's value to a character buffer
         //   and then compare the contents of that buffer with the expected
         //   output format.
         //
@@ -2133,10 +2138,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing 'operator<<' and 'print'" << endl
+                          << "Testing `operator<<` and `print`" << endl
                           << "================================" << endl;
 
-        if (verbose) cout << "\nTesting 'operator<<' (ostream)." << endl;
+        if (verbose) cout << "\nTesting `operator<<` (ostream)." << endl;
 
         for (int i = 0; i < NUM_PRINT_DATA; ++i) {
             int LINE = PRINT_DATA[i].d_line;
@@ -2159,7 +2164,7 @@ int main(int argc, char *argv[])
                     compareText(os.str(), PRINT_DATA[i].d_output));
         }
 
-        if (verbose) cout << "\nTesting 'const void *'." << endl;
+        if (verbose) cout << "\nTesting `const void *`." << endl;
 
         {
             const void *value = (void*)42;
@@ -2181,7 +2186,7 @@ int main(int argc, char *argv[])
             ASSERTV(EXPECTED, ACTUAL, EXPECTED == ACTUAL);
         }
 
-        if (verbose) cout << "\nTesting 'print'." << endl;
+        if (verbose) cout << "\nTesting `print`." << endl;
 
         static const struct {
             int         d_line;            // line number
@@ -2264,13 +2269,13 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TESTING PRIMITIVE TEST APPARATUS:
-        //   The 'createValue' method must correctly create a 'bdlb::Variant'
+        //   The `createValue` method must correctly create a `bdlb::Variant`
         //   object having the specified type and value.
         //
         // Plan:
         //   Specify a set S of (unique) objects with substantial and varied
         //   differences in type and value.  For each element in S, construct
-        //   a 'bdlb::Variant' object using the 'createValue' method, and
+        //   a `bdlb::Variant` object using the `createValue` method, and
         //   verify that the resultant has the specified type and value.
         //
         // Testing:
@@ -2280,7 +2285,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Primitive Test Apparatus"
                           << "\n================================" << endl;
 
-        if (verbose) cout << "\nTesting 'createValue'." << endl;
+        if (verbose) cout << "\nTesting `createValue`." << endl;
 
         for (int i = 0; i < NUM_VALUES; ++i) {
             int LINE = VALUES[i].d_line;
@@ -2511,7 +2516,7 @@ int main(int argc, char *argv[])
         //   manipulator [3, 6], copy constructor [2, 8], and assignment
         //   operator without [9, 10] and with [11] aliasing.  Use the direct
         //   accessors to verify the expected results.  Display object values
-        //   frequently in verbose mode.  Note that 'VA', 'VB', 'VC', and 'VD'
+        //   frequently in verbose mode.  Note that `VA`, `VB`, `VC`, and `VD`
         //   denote unique, but otherwise arbitrary, object values.
         //
         // 1.  Create an object x1 using VA.        { x1:VA }

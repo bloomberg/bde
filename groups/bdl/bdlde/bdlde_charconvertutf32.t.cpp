@@ -202,8 +202,8 @@ bdlde::ByteOrder::Enum oppositeEndian =
                      ? bdlde::ByteOrder::e_LITTLE_ENDIAN
                      : bdlde::ByteOrder::e_BIG_ENDIAN;
 
+/// Cast the specified `val` to `void *` so it will be printed in hex
 const void *hx(bsls::Types::UintPtr val)
-    // Cast the specified 'val' to 'void *' so it will be printed in hex
 {
     return (const void *) val;
 }
@@ -2095,11 +2095,11 @@ const char * const charUtf8MultiLang =
 // Encode a 4-byte UTF-8 value, print as a sequence of decimal 'int' values.
 // ----------------------------------------------------------------------------
 
+/// Translate the specified `val` to UTF-8 to be written to the specified
+/// `outBuf`.  The behavior is undefined unless 4 bytes are available in
+/// `outBuf`, and unless the value is appropriate to be encoded in 4 bytes
+/// of UTF-8.
 char *decodeFourByteUtf8String(char *outBuf, unsigned val)
-    // Translate the specified 'val' to UTF-8 to be written to the specified
-    // 'outBuf'.  The behavior is undefined unless 4 bytes are available in
-    // 'outBuf', and unless the value is appropriate to be encoded in 4 bytes
-    // of UTF-8.
 {
     ASSERT(0 == (val & ~((1 << 21) - 1)));
     ASSERT(0 != (val & ~((1 << 16) - 1)));
@@ -2112,11 +2112,11 @@ char *decodeFourByteUtf8String(char *outBuf, unsigned val)
     return outBuf + 4;
 }
 
+/// Translate the specified `val` to UTF-8 to be written to the specified
+/// `outBuf`.  The behavior is undefined unless 3 bytes are available in
+/// `outBuf`, and unless the value is appropriate to be encoded in 3 bytes
+/// of UTF-8.
 char *decodeThreeByteUtf8String(char *outBuf, unsigned val)
-    // Translate the specified 'val' to UTF-8 to be written to the specified
-    // 'outBuf'.  The behavior is undefined unless 3 bytes are available in
-    // 'outBuf', and unless the value is appropriate to be encoded in 3 bytes
-    // of UTF-8.
 {
     ASSERT(0 == (val & ~((1 << 16) - 1)));
     ASSERT(0 != (val & ~((1 << 11) - 1)));
@@ -2128,11 +2128,11 @@ char *decodeThreeByteUtf8String(char *outBuf, unsigned val)
     return outBuf + 3;
 }
 
+/// Translate the specified `val` to UTF-8 to be written to the specified
+/// `outBuf`.  The behavior is undefined unless 2 bytes are available in
+/// `outBuf`, and unless the value is appropriate to be encoded in 2 bytes
+/// of UTF-8.
 char *decodeTwoByteUtf8String(char *outBuf, unsigned val)
-    // Translate the specified 'val' to UTF-8 to be written to the specified
-    // 'outBuf'.  The behavior is undefined unless 2 bytes are available in
-    // 'outBuf', and unless the value is appropriate to be encoded in 2 bytes
-    // of UTF-8.
 {
     ASSERT(0 == (val & ~((1 << 11) - 1)));
     ASSERT(0 != (val & ~((1 <<  7) - 1)));
@@ -2143,11 +2143,11 @@ char *decodeTwoByteUtf8String(char *outBuf, unsigned val)
     return outBuf + 2;
 }
 
+/// Translate the specified `val` to UTF-8 to be written to the specified
+/// `outBuf`.  The behavior is undefined unless 1 byte is available in
+/// `outBuf`, and unless the value is appropriate to be encoded in 1 byte of
+/// UTF-8.
 char *decodeOneByteUtf8String(char *outBuf, unsigned val)
-    // Translate the specified 'val' to UTF-8 to be written to the specified
-    // 'outBuf'.  The behavior is undefined unless 1 byte is available in
-    // 'outBuf', and unless the value is appropriate to be encoded in 1 byte of
-    // UTF-8.
 {
     ASSERT(0 == (val & ~((1 << 7) - 1)));
     ASSERT(0 !=  val);
@@ -2177,9 +2177,9 @@ char *decodeUtf32(char *outBuf, unsigned val)
     }
 }
 
+/// Return a `bsl::string` representation of the contents of `vec` in
+/// human-readable form.
 bsl::string dumpVec(const bsl::vector<int>& vec)
-    // Return a 'bsl::string' representation of the contents of 'vec' in
-    // human-readable form.
 {
     bsl::ostringstream oss;
     for (unsigned u = 0; u < vec.size(); ++u) {
@@ -2188,18 +2188,18 @@ bsl::string dumpVec(const bsl::vector<int>& vec)
     return oss.str();
 }
 
+/// Return a `bsl::string` representation of the contents of `vec` in
+/// human-readable form.
 bsl::string dumpVec(const bsl::vector<unsigned int>& vec)
-    // Return a 'bsl::string' representation of the contents of 'vec' in
-    // human-readable form.
 {
     const bsl::vector<int> *p = reinterpret_cast<const bsl::vector<int> *>(
                                                                          &vec);
     return dumpVec(*p);
 }
 
+/// Return a `bsl::string` representation of the contents of `vec` in
+/// human-readable form.
 bsl::string dumpVec(const bsl::vector<char>& vec)
-    // Return a 'bsl::string' representation of the contents of 'vec' in
-    // human-readable form.
 {
     if (vec.empty()) {
         return "";                                                    // RETURN
@@ -2213,9 +2213,9 @@ bsl::string dumpVec(const bsl::vector<char>& vec)
     return ret;
 }
 
+/// Return a `bsl::string` representation of the contents of `vec` in
+/// human-readable form.
 bsl::string dumpVec(const std::vector<int>& vec)
-    // Return a 'bsl::string' representation of the contents of 'vec' in
-    // human-readable form.
 {
     bsl::ostringstream oss;
     for (unsigned u = 0; u < vec.size(); ++u) {
@@ -2224,18 +2224,18 @@ bsl::string dumpVec(const std::vector<int>& vec)
     return oss.str();
 }
 
+/// Return a `bsl::string` representation of the contents of `vec` in
+/// human-readable form.
 bsl::string dumpVec(const std::vector<unsigned int>& vec)
-    // Return a 'bsl::string' representation of the contents of 'vec' in
-    // human-readable form.
 {
     const bsl::vector<int> *p = reinterpret_cast<const bsl::vector<int> *>(
                                                                          &vec);
     return dumpVec(*p);
 }
 
+/// Return a `bsl::string` representation of the contents of `vec` in
+/// human-readable form.
 bsl::string dumpVec(const std::vector<char>& vec)
-    // Return a 'bsl::string' representation of the contents of 'vec' in
-    // human-readable form.
 {
     if (vec.empty()) {
         return "";                                                    // RETURN
@@ -2250,9 +2250,9 @@ bsl::string dumpVec(const std::vector<char>& vec)
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
+/// Return a `bsl::string` representation of the contents of `vec` in
+/// human-readable form.
 bsl::string dumpVec(const std::pmr::vector<int>& vec)
-    // Return a 'bsl::string' representation of the contents of 'vec' in
-    // human-readable form.
 {
     bsl::ostringstream oss;
     for (unsigned u = 0; u < vec.size(); ++u) {
@@ -2261,18 +2261,18 @@ bsl::string dumpVec(const std::pmr::vector<int>& vec)
     return oss.str();
 }
 
+/// Return a `bsl::string` representation of the contents of `vec` in
+/// human-readable form.
 bsl::string dumpVec(const std::pmr::vector<unsigned int>& vec)
-    // Return a 'bsl::string' representation of the contents of 'vec' in
-    // human-readable form.
 {
     const bsl::vector<int> *p = reinterpret_cast<const bsl::vector<int> *>(
                                                                          &vec);
     return dumpVec(*p);
 }
 
+/// Return a `bsl::string` representation of the contents of `vec` in
+/// human-readable form.
 bsl::string dumpVec(const std::pmr::vector<char>& vec)
-    // Return a 'bsl::string' representation of the contents of 'vec' in
-    // human-readable form.
 {
     if (vec.empty()) {
         return "";                                                    // RETURN
@@ -2522,9 +2522,9 @@ unsigned int myRandUtf32Word()
     }
 }
 
+/// For passing to `bsl::find_if`.
 template <class TYPE>
 struct NotEqual {
-    // For passing to 'bsl::find_if'.
 
     // DATA
     TYPE d_word;
@@ -2762,67 +2762,68 @@ enum { NUM_BETTER_UTF8_TABLE      =
 struct TestDriver
 {
     // TEST CASES
+
+    /// Test `utf-8 -> utf32` translation with embedded nulls using the
+    /// table-driven technique.
     template <class VECTOR_C, class VECTOR_UI, class STRING>
     static void testCase17();
-        // Test 'utf-8 -> utf32' translation with embedded nulls using the
-        // table-driven technique.
 
+    /// Test `utf-8 -> utf32` translation using randomly generated input.
     template <class VECTOR_C, class VECTOR_UI, class STRING>
     static void testCase16();
-        // Test 'utf-8 -> utf32' translation using randomly generated input.
 
+    /// Test `utf-8 -> utf32` translation using the table-driven technique
+    /// for randomly generated sequences.
     template <class VECTOR_C, class VECTOR_UI, class STRING>
     static void testCase15();
-        // Test 'utf-8 -> utf32' translation using the table-driven technique
-        // for randomly generated sequences.
 
+    /// Test `utf-32 -> utf8` translation using randomly generated input.
     template <class VECTOR_C, class VECTOR_UI, class STRING>
     static void testCase14();
-        // Test 'utf-32 -> utf8' translation using randomly generated input.
 
+    /// Test `utf-32 -> utf8` translation with zero error characters using
+    /// randomly generated sequences.
     template <class VECTOR_C, class VECTOR_UI>
     static void testCase13();
-        // Test 'utf-32 -> utf8' translation with zero error characters using
-        // randomly generated sequences.
 
+    /// Test `utf-32 -> utf8` translation using randomly generated
+    /// sequences.
     template <class VECTOR_C, class VECTOR_UI>
     static void testCase12();
-        // Test 'utf-32 -> utf8' translation using randomly generated
-        // sequences.
 
+    /// Test `utf-32 -> utf8` translation using real, human-generated,
+    /// multi-language prose.
     template <class VECTOR_C, class VECTOR_UI, class STRING>
     static void testCase11();
-        // Test 'utf-32 -> utf8' translation using real, human-generated,
-        // multi-language prose.
 
+    /// Negative testing.
     template <class VECTOR_C, class VECTOR_UI, class STRING>
     static void testCase10();
-        // Negative testing.
 
+    /// Test `utf-32 -> utf8` translation using explicit `errorByte`.
     template <class VECTOR>
     static void testCase9();
-        // Test 'utf-32 -> utf8' translation using explicit 'errorByte'.
 
+    /// Test `utf-32 -> utf8` translation with zero error characters.
     template <class VECTOR, class STRING>
     static void testCase8();
-        // Test 'utf-32 -> utf8' translation with zero error characters.
 
+    /// Test `utf-32 -> utf8` translation.
     template <class VECTOR, class STRING>
     static void testCase7();
-        // Test 'utf-32 -> utf8' translation.
 
+    /// Test `utf-32 -> utf8` translation with  error characters other than
+    /// `default` or 0.
     template <class VECTOR>
     static void testCase6();
-        // Test 'utf-32 -> utf8' translation with  error characters other than
-        // 'default' or 0.
 
+    /// Test `utf-8 -> utf32` translation with zero error characters.
     template <class VECTOR>
     static void testCase5();
-        // Test 'utf-8 -> utf32' translation with zero error characters.
 
+    /// Test `utf-8 -> utf32` translation.
     template <class VECTOR>
     static void testCase3();
-        // Test 'utf-8 -> utf32' translation.
 };
 
                                 // ----------

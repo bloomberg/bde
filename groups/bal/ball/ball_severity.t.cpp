@@ -27,10 +27,10 @@ using namespace bsl;  // automatically added by script
 // by { n << 5 : 1 <= n <= 7 }, so expressions similar to "n << 5" occur
 // regularly in the test cases.
 //-----------------------------------------------------------------------------
-// 'ball::Severity' private methods (tested indirectly):
+// `ball::Severity` private methods (tested indirectly):
 // [ 1] print(bsl::ostream& stream, ball::Severity::Level value);
 //
-// 'ball::Severity' public interface:
+// `ball::Severity` public interface:
 // [ 1] enum Level { ... };
 // [ 1] enum { e_LENGTH = ... };
 // [ 1] int fromAscii(ball::Severity::Level *value, const char *string, int);
@@ -126,8 +126,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.  Suppress
-        //   all 'cout' statements in non-verbose mode, and add streaming to
+        //   comment characters, and replace `assert` with `ASSERT`.  Suppress
+        //   all `cout` statements in non-verbose mode, and add streaming to
         //   a buffer to test programmatically the printing examples.
         //
         // Testing:
@@ -162,14 +162,14 @@ int main(int argc, char *argv[])
         // Plan:
         //   Ensure enumerator values are [ 1 << 5, 2 << 5, 3 << 5, 4 << 5,
         //   5 << 5, 6 << 5, 7 << 5 ] and that all names are unique.  Verify
-        //   that the 'toAscii' function produces strings that are identical to
-        //   their respective enumerator symbols.  Verify that the 'fromAscii'
+        //   that the `toAscii` function produces strings that are identical to
+        //   their respective enumerator symbols.  Verify that the `fromAscii`
         //   function produces values that are identical to the enumerators.
         //   Verify that the output operator produces the same respective
-        //   string values that would be produced by 'toAscii' (note that this
-        //   is testing streams convertible to standard 'ostream' streams and
-        //   the 'print' method).  Also verify the ascii representation and
-        //   'ostream' output for invalid enumerator values.
+        //   string values that would be produced by `toAscii` (note that this
+        //   is testing streams convertible to standard `ostream` streams and
+        //   the `print` method).  Also verify the ascii representation and
+        //   `ostream` output for invalid enumerator values.
         //
         // Testing:
         //   print(bsl::ostream& stream, ball::Severity::Level value);
@@ -280,7 +280,7 @@ int main(int argc, char *argv[])
 
         for (i = -1; i < DATA_LENGTH + 1; ++i) {  // also check UNKNOWN_FMT
             char buf[SIZE];
-            memcpy(buf, CTRL_BUF, SIZE);  // Preset buf to 'unset' char values.
+            memcpy(buf, CTRL_BUF, SIZE);  // Preset buf to `unset` char values.
 
             const char *const FMT = 0 <= i && i < DATA_LENGTH
                                     ? DATA[i].d_ascii : UNKNOWN_FMT;

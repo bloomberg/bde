@@ -7,7 +7,7 @@
 
 #include <bsls_asserttest.h>
 
-#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstdlib.h>     // `atoi`
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -98,13 +98,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -121,52 +121,52 @@ int main(int argc, char *argv[])
 ///Example 1: Computing Day Count and Year Fraction
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use
-// 'bbldc::BasicIsdaActualActual' methods.  First, create two 'bdlt::Date'
-// variables, 'd1' and 'd2':
-//..
+// `bbldc::BasicIsdaActualActual` methods.  First, create two `bdlt::Date`
+// variables, `d1` and `d2`:
+// ```
     const bdlt::Date d1(2003, 10, 19);
     const bdlt::Date d2(2003, 12, 31);
-//..
+// ```
 // Then, compute the day count between the two dates:
-//..
+// ```
     const int daysDiff = bbldc::BasicIsdaActualActual::daysDiff(d1, d2);
     ASSERT(73 == daysDiff);
-//..
+// ```
 // Finally, compute the year fraction between the two dates:
-//..
+// ```
     const double yearsDiff = bbldc::BasicIsdaActualActual::yearsDiff(d1, d2);
-    // Need fuzzy comparison since 'yearsDiff' is a 'double'.
+    // Need fuzzy comparison since `yearsDiff` is a `double`.
     ASSERT(yearsDiff > 0.1999 && yearsDiff < 0.2001);
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'yearsDiff'
+        // TESTING `yearsDiff`
         //   Verify the method correctly computes the number of years between
         //   two dates.
         //
         // Concerns:
-        //: 1 The 'yearsDiff' method produces the correct results.
-        //:
-        //: 2 Reversing the date parameters negates the returned value.
+        // 1. The `yearsDiff` method produces the correct results.
+        //
+        // 2. Reversing the date parameters negates the returned value.
         //
         // Plan:
-        //: 1 Specify a set S of {pairs of dates (d1, d2) and their difference
-        //:   in years D}.  For the method under test, in a loop over the
-        //:   elements of S, apply the method to dates having the values d1
-        //:   and d2 and confirm the result using the value D with a fuzzy
-        //:   comparison (since the return value is a floating-point number).
-        //:   (C-1)
-        //:
-        //: 2 Also verify the result is negated when the date parameters are
-        //:   reversed.  (C-2)
+        // 1. Specify a set S of {pairs of dates (d1, d2) and their difference
+        //    in years D}.  For the method under test, in a loop over the
+        //    elements of S, apply the method to dates having the values d1
+        //    and d2 and confirm the result using the value D with a fuzzy
+        //    comparison (since the return value is a floating-point number).
+        //    (C-1)
+        //
+        // 2. Also verify the result is negated when the date parameters are
+        //    reversed.  (C-2)
         //
         // Testing:
         //   double yearsDiff(const bdlt::Date& bD, const bdlt::Date& eD);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'yearsDiff'" << endl
+                          << "TESTING `yearsDiff`" << endl
                           << "===================" << endl;
 
         {
@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             if (verbose) cout <<
-                "\nTesting: 'yearsDiff(beginDate, endDate)'" << endl;
+                "\nTesting: `yearsDiff(beginDate, endDate)`" << endl;
 
             for (int di = 0; di < NUM_DATA ; ++di) {
                 const int    LINE      = DATA[di].d_lineNum;
@@ -247,7 +247,7 @@ int main(int argc, char *argv[])
         }
         {
             if (verbose) cout <<
-                "\nTesting: 'yearsDiff(date, date)'" << endl;
+                "\nTesting: `yearsDiff(date, date)`" << endl;
 
             const bdlt::Date startDate = bdlt::Date(1900,  1,  1);
             const bdlt::Date endDate   = bdlt::Date(2200, 12, 31);
@@ -260,33 +260,33 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'daysDiff'
+        // TESTING `daysDiff`
         //   Verify the method correctly computes the number of days between
         //   two dates.
         //
         // Concerns:
-        //: 1 The 'daysDiff' method produces the correct results.
-        //:
-        //: 2 Reversing the date parameters negates the returned value.
+        // 1. The `daysDiff` method produces the correct results.
+        //
+        // 2. Reversing the date parameters negates the returned value.
         //
         // Plan:
-        //: 1 Specify a set S of {pairs of dates (d1, d2) and their difference
-        //:   in days D}.  For the method under test, in a loop over the
-        //:   elements of S, apply the method to dates having the values d1
-        //:   and d2 and confirm the result using the value D.  (C-1)
-        //:
-        //: 2 Also verify the result is negated when the date parameters are
-        //:   reversed.  (C-2)
+        // 1. Specify a set S of {pairs of dates (d1, d2) and their difference
+        //    in days D}.  For the method under test, in a loop over the
+        //    elements of S, apply the method to dates having the values d1
+        //    and d2 and confirm the result using the value D.  (C-1)
+        //
+        // 2. Also verify the result is negated when the date parameters are
+        //    reversed.  (C-2)
         //
         // Testing:
         //   int daysDiff(const bdlt::Date& bD, const bdlt::Date& eD);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'daysDiff'" << endl
+                          << "TESTING `daysDiff`" << endl
                           << "==================" << endl;
 
-        if (verbose) cout << "\nTesting: 'daysDiff(beginDate, endDate)'"
+        if (verbose) cout << "\nTesting: `daysDiff(beginDate, endDate)`"
                           << "\n======================================="
                           << endl;
 
@@ -398,7 +398,7 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             if (verbose) cout <<
-                "\nTesting: 'daysDiff(beginDate, endDate)'" << endl;
+                "\nTesting: `daysDiff(beginDate, endDate)`" << endl;
 
             for (int di = 0; di < NUM_DATA ; ++di) {
                 const int LINE     = DATA[di].d_lineNum;

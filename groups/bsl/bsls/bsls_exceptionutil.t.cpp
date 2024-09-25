@@ -8,7 +8,7 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <exception> // For 'std::exception'
+#include <exception> // For `std::exception`
 
 #include <setjmp.h>
 #include <signal.h>
@@ -22,8 +22,8 @@ using namespace BloombergLP;
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-// 'bsls_exceptionutil' provides macros that define 'try', 'catch', and
-// 'throw' statements in exception enabled builds, but define, respectively,
+// `bsls_exceptionutil` provides macros that define `try`, `catch`, and
+// `throw` statements in exception enabled builds, but define, respectively,
 // unconditionally executed if-statements, calls to the assert handler, and
 // unconditionally non-executed else-statements, in non-exception enabled
 // builds.  Because this component defines many elements that depend on the
@@ -32,20 +32,20 @@ using namespace BloombergLP;
 // order to test the full range of functionality for the component.
 //
 // For exception enabled builds, we do not attempt to exhaustively test
-// language behavior, but simply verify 'BSLS_TRY', 'BSLS_CATCH',
-// 'BSLS_THROW', and 'BSLS_RETHROW' generally behave like their respective
+// language behavior, but simply verify `BSLS_TRY`, `BSLS_CATCH`,
+// `BSLS_THROW`, and `BSLS_RETHROW` generally behave like their respective
 // language constructs.  These macros can be tested independently by, e.g.,
-// testing 'BSLS_TRY', with direct use of 'throw' and 'catch'.
+// testing `BSLS_TRY`, with direct use of `throw` and `catch`.
 //
-// For non-exception builds, 'BSLS_TRY' and 'BSLS_CATCH' either define
+// For non-exception builds, `BSLS_TRY` and `BSLS_CATCH` either define
 // executed, or non-executed, blocks of code, and are fairly straightforward
-// to test.  'BSLS_THROW' and 'BSLS_RETHROW' invoke the 'bsls_assert'
+// to test.  `BSLS_THROW` and `BSLS_RETHROW` invoke the `bsls_assert`
 // assert-handler, unfortunately as this is in a non-exception build we cannot
 // throw an exception from the assert handler, and
-// 'bsls::Assert::invokeHandler' is marked 'noreturn' so we cannot simply
+// `bsls::Assert::invokeHandler` is marked `noreturn` so we cannot simply
 // define an assert-handler that returns.  Instead, this component defines an
 // assert-handler function that records its arguments and aborts, and also
-// defines 'BEGIN_ABORT_TEST' and 'END_ABORT_TEST_AND_ASSERT' macros that use
+// defines `BEGIN_ABORT_TEST` and `END_ABORT_TEST_AND_ASSERT` macros that use
 // set-jump and long-jump to recover from a potential abort, and then verify
 // whether an abort occurred.
 //-----------------------------------------------------------------------------
@@ -114,7 +114,7 @@ bool         verbose = false;
 bool     veryVerbose = false;
 bool veryVeryVerbose = false;
 
-// We define 'BDE_BUILD_TARGET_EXC_ACTUAL' to hold the original
+// We define `BDE_BUILD_TARGET_EXC_ACTUAL` to hold the original
 // exception-enable build mode flag to allow, to the extent possible, testing
 // multiple build configurations in a given test run.
 #define BDE_BUILD_TARGET_EXC_ACTUAL BDE_BUILD_TARGET_EXC
@@ -139,14 +139,14 @@ void resetAssertHandler()
     g_assertLine    = -1;
 }
 
+/// Call `abort` and record the specified `message` to `g_assertMessage`,
+/// the specified `file` to `g_assertFile`, and the specified `line` to
+/// `g_line`.  Note that `Assert::invokeHandler` (which will be configured
+/// by this test driver to call this function) is marked `noreturn`, so
+/// this function cannot return; throwing an exception is also not an
+/// option as this function is called by this test-driver in non-exception
+/// builds.
 void assertHandler(const char *message, const char *file, int line)
-    // Call 'abort' and record the specified 'message' to 'g_assertMessage',
-    // the specified 'file' to 'g_assertFile', and the specified 'line' to
-    // 'g_line'.  Note that 'Assert::invokeHandler' (which will be configured
-    // by this test driver to call this function) is marked 'noreturn', so
-    // this function cannot return; throwing an exception is also not an
-    // option as this function is called by this test-driver in non-exception
-    // builds.
 {
     g_assertMessage = message;
     g_assertFile    = file;
@@ -163,7 +163,7 @@ typedef sigjmp_buf JumpBuffer;
 #define setJump(X) sigsetjmp((X), 1)
 #endif
 
-// The following global variables are managed by the 'abortSignalHandler'
+// The following global variables are managed by the `abortSignalHandler`
 // defined below.
 
 static JumpBuffer    g_jumpBuffer;
@@ -171,14 +171,14 @@ static volatile bool g_inTest = false;
 
 extern "C" {
 
+/// If the global variable `g_inTest` is `true` then long jump to the global
+/// jump buffer `g_jumpBuffer`, otherwise this function has no effect (and,
+/// if the function were called to handle an abort signal, the task will
+/// terminate).  Note that this function is designed to be installed as a
+/// signal handler for the `SIGABRT` (abort) signal, and that the resulting
+/// set-jump return code can be used to determine whether this handler was
+/// called.
 void abortSignalHandler(int /* x */)
-    // If the global variable 'g_inTest' is 'true' then long jump to the global
-    // jump buffer 'g_jumpBuffer', otherwise this function has no effect (and,
-    // if the function were called to handle an abort signal, the task will
-    // terminate).  Note that this function is designed to be installed as a
-    // signal handler for the 'SIGABRT' (abort) signal, and that the resulting
-    // set-jump return code can be used to determine whether this handler was
-    // called.
 {
     if (g_inTest) {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -198,8 +198,8 @@ void abortSignalHandler(int /* x */)
 static volatile int g_abort_oldflags = 0;
 #endif
 
+/// Install a abort-signal handler and mark `g_inTest` as `true`.
 void installAbortHandler()
-    // Install a abort-signal handler and mark 'g_inTest' as 'true'.
 {
     // Set the abort signal handler to the test handler.
     signal(SIGABRT, abortSignalHandler);
@@ -269,34 +269,34 @@ const char *CustomException::what() const BSLS_EXCEPTION_VIRTUAL_NOTHROW
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
-///Example 1: Using 'bsls_exceptionutil' to Implement 'vector'
+///Example 1: Using `bsls_exceptionutil` to Implement `vector`
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we wanted to define an implementation of a standard-defined 'vector'
-// template.  Unfortunately, the C++ standard requires that 'vector' provide an
-// 'at' method that throws an 'out_of_range' exception if the supplied index is
+// Suppose we wanted to define an implementation of a standard-defined `vector`
+// template.  Unfortunately, the C++ standard requires that `vector` provide an
+// `at` method that throws an `out_of_range` exception if the supplied index is
 // not in the valid range of elements in the vector.  In this example we show
-// using 'BSLS_THROW' so that such an implementation will compile in both
+// using `BSLS_THROW` so that such an implementation will compile in both
 // exception enabled and non-exception enabled builds.  Note that apart from
 // memory allocation, and where required by the C++ standard, types defined in
 // the BDE libraries do not throw exceptions, and are typically
-// "exception-neutral" (see {'bsldoc_glossary'}), meaning they behave
+// "exception-neutral" (see {`bsldoc_glossary`}), meaning they behave
 // reasonably in the presence of injected exceptions, but do not themselves
 // throw any exceptions.
 //
-// First we open a namespace 'myStd' and define an 'out_of_range' exception
-// that the 'at' method will throw (note that in practice, 'out_of_range' would
-// inherit from 'logic_error')':
-//..
+// First we open a namespace `myStd` and define an `out_of_range` exception
+// that the `at` method will throw (note that in practice, `out_of_range` would
+// inherit from `logic_error`)':
+// ```
     namespace myStd {
 
     class out_of_range  // ...
     {
        // ...
     };
-//..
-// Next, we declare the 'vector' template and its template parameters (note
+// ```
+// Next, we declare the `vector` template and its template parameters (note
 // that the majority of the implementation is elided, for clarity):
-//..
+// ```
     template <class VALUE, class ALLOCATOR /* ... */>
     class vector {
         // DATA
@@ -308,24 +308,24 @@ const char *CustomException::what() const BSLS_EXCEPTION_VIRTUAL_NOTHROW
 
         typedef typename ALLOCATOR::size_type size_type;
 
-        //...
-//..
-// Then, we define the 'at' method, which is required to throw an
-// 'out_of_range' exception.
-//..
+        // ```.
+// ```
+// Then, we define the `at` method, which is required to throw an
+// `out_of_range` exception.
+// ```
         const VALUE& at(size_type index) const
         {
             if (d_begin_p + index < d_end_p) {
                 return d_begin_p[index];                              // RETURN
             }
-//..
-// Now, we use 'BSLS_THROW' to throw an 'out_of_range' exception:
-//..
+// ```
+// Now, we use `BSLS_THROW` to throw an `out_of_range` exception:
+// ```
             BSLS_THROW(out_of_range(/* ... */));
         }
-//..
-// Finally, we complete the (mostly elided) 'vector' implementation:
-//..
+// ```
+// Finally, we complete the (mostly elided) `vector` implementation:
+// ```
         // ...
 
     };
@@ -335,18 +335,18 @@ const char *CustomException::what() const BSLS_EXCEPTION_VIRTUAL_NOTHROW
     struct DummyAllocator {
         typedef int size_type;
     };
-//..
+// ```
 
-///Example 2: Using 'bsls_exceptionutil' to Throw and Catch Exceptions
+///Example 2: Using `bsls_exceptionutil` to Throw and Catch Exceptions
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following example demonstrates the macros defined in the
-// 'bsls_exceptionutil' component to both throw and catch exceptions in a way
+// `bsls_exceptionutil` component to both throw and catch exceptions in a way
 // that will allow the code to compile in non-exception enabled builds.
 //
 // First, we define a couple of example exception classes (note that we cannot
-// use 'bsl::exception' in this example, as this component is defined below
-//'bsl_exception.h'):
-//..
+// use `bsl::exception` in this example, as this component is defined below
+//`bsl_exception.h`):
+// ```
     class my_ExClass1
     {
     };
@@ -354,29 +354,30 @@ const char *CustomException::what() const BSLS_EXCEPTION_VIRTUAL_NOTHROW
     class my_ExClass2
     {
     };
-//..
+// ```
 // Then, we define a function that never throws an exception, and use the
-// 'BSLS_NOTHROW_SPEC' to ensure the no-throw exception specification will be
+// `BSLS_NOTHROW_SPEC` to ensure the no-throw exception specification will be
 // present in exception enabled builds, and elided in non-exception enabled
 // builds:
-//..
+// ```
     int noThrowFunc() BSLS_NOTHROW_SPEC
     {
         return -1;
     }
-//..
-// Next, we define a function that might throw 'my_ExClass1' or 'my_ExClass2',
+// ```
+// Next, we define a function that might throw `my_ExClass1` or `my_ExClass2`,
 // and docuemnt which exception types might be thrown.  Note that dynamic
 // exception specifications are deprecated in C++11 and removed from the
 // language in C++17, so should not be used as a substitute for documentation
 // in earlier language dialects:
-//..
+// ```
+
+    /// Return the specified integer `i`, unless `1 == 1` or `2 == i`.  If
+    /// `1 == i` throw an exception of type `my_ExcClass1`.  If `2 == i`
+    /// throw an exception of type `my_ExcClass2`.  Note that if exceptions
+    /// are not enabled in the current build mode, then the program will
+    /// `abort` rather than throw.
     int mightThrowFunc(int i)
-        // Return the specified integer 'i', unless '1 == 1' or '2 == i'.  If
-        // '1 == i' throw an exception of type 'my_ExcClass1'.  If '2 == i'
-        // throw an exception of type 'my_ExcClass2'.  Note that if exceptions
-        // are not enabled in the current build mode, then the program will
-        // 'abort' rather than throw.
     {
         switch (i) {
           case 0: break;
@@ -385,19 +386,19 @@ const char *CustomException::what() const BSLS_EXCEPTION_VIRTUAL_NOTHROW
         }
         return i;
     }
-//..
-// Then, we start the definition of a 'testMain' function:
-//..
+// ```
+// Then, we start the definition of a `testMain` function:
+// ```
     int testMain()
     {
-//..
-// Next, we use the 'BDE_BUILD_TARGET_EXC' exception build flag to determine,
-// at compile time, whether to initialize 'ITERATIONS' to 3 (for exception
+// ```
+// Next, we use the `BDE_BUILD_TARGET_EXC` exception build flag to determine,
+// at compile time, whether to initialize `ITERATIONS` to 3 (for exception
 // enabled builds) or 1 (for non-exception enabled builds).  The different
-// values of the 'ITERATOR' ensure the subsequent for-loop calls
-// 'mightThrowFunc' in a way that generates exceptions for only exception
+// values of the `ITERATOR` ensure the subsequent for-loop calls
+// `mightThrowFunc` in a way that generates exceptions for only exception
 // enabled builds:
-//..
+// ```
     #ifdef BDE_BUILD_TARGET_EXC
         const int ITERATIONS = 3;
     #else
@@ -405,40 +406,40 @@ const char *CustomException::what() const BSLS_EXCEPTION_VIRTUAL_NOTHROW
     #endif
 //
         for (int i = 0; i < ITERATIONS; ++i) {
-//..
-// Then, we use a pair of nested 'try' blocks constructed using
-// 'BSLS_TRY', so that the code will compile whether or not exceptions are
+// ```
+// Then, we use a pair of nested `try` blocks constructed using
+// `BSLS_TRY`, so that the code will compile whether or not exceptions are
 // enabled (note that the curly brace placement is identical to normal
-// 'try' and 'catch' constructs):
-//..
+// `try` and `catch` constructs):
+// ```
             int caught = -1;
             BSLS_TRY {
 //
                 BSLS_TRY {
                     noThrowFunc();
                     mightThrowFunc(i);
-//..
-// Notice that this example is careful to call 'mightThrowFunc' in such a way
+// ```
+// Notice that this example is careful to call `mightThrowFunc` in such a way
 // that it will not throw in non-exception builds.  Although the use of
-// 'BSLS_TRY', 'BSLS_THROW', and 'BSLS_CATCH' ensures the code *compiles* in
-// both exception, and non-exception enabled builds, attempting to 'BSLS_THROW'
+// `BSLS_TRY`, `BSLS_THROW`, and `BSLS_CATCH` ensures the code *compiles* in
+// both exception, and non-exception enabled builds, attempting to `BSLS_THROW`
 // an exception in a non-exception enabled build will invoke the assert handler
 // and will typically abort the task.
-//..
+// ```
                     caught = 0; // Got here if no throw
                 }
-//..
-// Next, we use 'BSLS_CATCH' to define blocks for handling exceptions that may
-// have been thrown from the preceding 'BSLS_TRY':
-//..
+// ```
+// Next, we use `BSLS_CATCH` to define blocks for handling exceptions that may
+// have been thrown from the preceding `BSLS_TRY`:
+// ```
                 BSLS_CATCH(my_ExClass1) {
                     caught = 1;
                 }
                 BSLS_CATCH(...) {
-//..
-// Here, within the catch-all handler, we use the 'BSLS_RETHROW' macro to
-// re-throw the exception to the outer 'try' block:
-//..
+// ```
+// Here, within the catch-all handler, we use the `BSLS_RETHROW` macro to
+// re-throw the exception to the outer `try` block:
+// ```
                     BSLS_RETHROW;
                 } // end inner try-catch
             }
@@ -463,7 +464,7 @@ const char *CustomException::what() const BSLS_EXCEPTION_VIRTUAL_NOTHROW
 //
         return 0;
     }
-//..
+// ```
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -487,13 +488,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -505,7 +506,7 @@ int main(int argc, char *argv[])
         testMain();
 
         // The following dummy declaration suppresses warnings about
-        // 'myStd::vector' being unused on some compilers.
+        // `myStd::vector` being unused on some compilers.
 
         myStd::vector<int, DummyAllocator> *pObj = 0;
         (void)pObj;
@@ -516,13 +517,13 @@ int main(int argc, char *argv[])
         //   Ensure BSLS_EXCEPTION_SPEC and BSLS_NOTHROW_SPEC build
         //
         // Concerns:
-        //:  1 'BSLS_NOTHROW_SPEC' and 'BSLS_EXCEPTION_SPEC' compile in
-        //:     multiple build modes.
+        //  1. `BSLS_NOTHROW_SPEC` and `BSLS_EXCEPTION_SPEC` compile in
+        //      multiple build modes.
         //
         // Plan:
-        //:  1 Define functions using the 'BSLS_NOTHROW_SPEC' and
-        //:    'BSLS_EXCEPTION_SEC' macros and verify the compile in both
-        //:    exception and non-exception enabled builds.
+        //  1. Define functions using the `BSLS_NOTHROW_SPEC` and
+        //     `BSLS_EXCEPTION_SEC` macros and verify the compile in both
+        //     exception and non-exception enabled builds.
         //
         // Testing:
         //   BSLS_EXCEPTION_SPEC
@@ -547,24 +548,24 @@ int main(int argc, char *argv[])
         //   Ensure basic properties of BSLS_RETHROW
         //
         // Concerns:
-        //: 1 In exception enabled builds BSLS_RETHROW will define a 'throw'
-        //:   statement.
+        // 1. In exception enabled builds BSLS_RETHROW will define a `throw`
+        //    statement.
         //
-        //: 2 In non-exception enabled builds BSLS_RETHROW will call the
-        //:   currently installed assertion handler.
+        // 2. In non-exception enabled builds BSLS_RETHROW will call the
+        //    currently installed assertion handler.
         //
         // Plan:
-        //:  1 In exception build modes, create a 'try' block and 'throw'
-        //:    an exception and verify it is caught by a corresponding
-        //:    'catch' block, the call 'BSLS_RETHROW', and verify the same
-        //:    exception is caught in a corresponding 'catch' block.  (C-1).
+        //  1. In exception build modes, create a `try` block and `throw`
+        //     an exception and verify it is caught by a corresponding
+        //     `catch` block, the call `BSLS_RETHROW`, and verify the same
+        //     exception is caught in a corresponding `catch` block.  (C-1).
         //
-        //:  2 In exception enabled builds, install the 'assertHandler'
-        //:    defined in this test driver (that records its arguments, and
-        //:    calls 'abort'), then call 'BSLS_RETHROW' using the
-        //:    'BEGIN_ABORT_TEST' and 'END_ABORT_TEST_AND_ASSERT'.  Verify an
-        //:    abort occurred, and that the assert-handler was invoked with the
-        //:    expected values. (C-2).
+        //  2. In exception enabled builds, install the `assertHandler`
+        //     defined in this test driver (that records its arguments, and
+        //     calls `abort`), then call `BSLS_RETHROW` using the
+        //     `BEGIN_ABORT_TEST` and `END_ABORT_TEST_AND_ASSERT`.  Verify an
+        //     abort occurred, and that the assert-handler was invoked with the
+        //     expected values. (C-2).
         //
         // Testing:
         //   BSLS_RETHROW
@@ -626,20 +627,20 @@ int main(int argc, char *argv[])
         //   Ensure basic properties of BSLS_CATCH
         //
         // Concerns:
-        //: 1 In exception enabled builds BSLS_CATCH will define a 'catch'
-        //:   statement.
+        // 1. In exception enabled builds BSLS_CATCH will define a `catch`
+        //    statement.
         //
-        //: 2 In non-exception enabled builds BSLS_CATCH will not generate a
-        //:   catch statement, and the subsequent block of code will not
-        //:   execute.
+        // 2. In non-exception enabled builds BSLS_CATCH will not generate a
+        //    catch statement, and the subsequent block of code will not
+        //    execute.
         //
         // Plan:
-        //:  1 In all build modes, create a 'catch' block and verify that it
-        //:    is not entered.  (C-1, C-2).
+        //  1. In all build modes, create a `catch` block and verify that it
+        //     is not entered.  (C-1, C-2).
         //
-        //:  2 In exception enabled builds, create a 'try' block and 'throw'
-        //:    and exception, verify it is caught in the corresponding
-        //:    'BSLS_CATCH' block.  (C-1)
+        //  2. In exception enabled builds, create a `try` block and `throw`
+        //     and exception, verify it is caught in the corresponding
+        //     `BSLS_CATCH` block.  (C-1)
         //
         // Testing:
         //   BSLS_CATCH
@@ -649,7 +650,7 @@ int main(int argc, char *argv[])
                             "\n==================\n");
 
         if (verbose) {
-            printf("Verify BSLS_CATCH does not execute without a 'throw'\n");
+            printf("Verify BSLS_CATCH does not execute without a `throw`\n");
         }
         {
             BSLS_TRY {
@@ -687,23 +688,23 @@ int main(int argc, char *argv[])
         //   Ensure basic properties of BSLS_THROW
         //
         // Concerns:
-        //: 1 In exception enabled builds BSLS_THROW will define a 'throw'
-        //:   statement.
+        // 1. In exception enabled builds BSLS_THROW will define a `throw`
+        //    statement.
         //
-        //: 2 In non-exception enabled builds BSLS_THROW will call the
-        //:   currently installed assertion handler.
+        // 2. In non-exception enabled builds BSLS_THROW will call the
+        //    currently installed assertion handler.
         //
         // Plan:
-        //:  1 In exception build modes, create a 'try' block and 'BSLS_THROW'
-        //:    an exception and verify it is caught by a corresponding
-        //:    'catch' block.  (C-1).
+        //  1. In exception build modes, create a `try` block and `BSLS_THROW`
+        //     an exception and verify it is caught by a corresponding
+        //     `catch` block.  (C-1).
         //
-        //:  2 In exception enabled builds, install the 'assertHandler'
-        //:    defined in this test driver (that records its arguments, and
-        //:    calls 'abort'), then call 'BSLS_THROW' using the
-        //:    'BEGIN_ABORT_TEST' and 'END_ABORT_TEST_AND_ASSERT'.  Verify an
-        //:    abort occurred, and that the assert-handler was invoked with the
-        //:    expected values. (C-2).
+        //  2. In exception enabled builds, install the `assertHandler`
+        //     defined in this test driver (that records its arguments, and
+        //     calls `abort`), then call `BSLS_THROW` using the
+        //     `BEGIN_ABORT_TEST` and `END_ABORT_TEST_AND_ASSERT`.  Verify an
+        //     abort occurred, and that the assert-handler was invoked with the
+        //     expected values. (C-2).
         //
         // Testing:
         //   BSLS_THROW
@@ -763,21 +764,21 @@ int main(int argc, char *argv[])
         //   Ensure basic properties of BSLS_TRY
         //
         // Concerns:
-        //: 1 In exception enabled builds, BSLS_TRY will define a 'try'
-        //:   statement.
+        // 1. In exception enabled builds, BSLS_TRY will define a `try`
+        //    statement.
         //
-        //: 2 In non-exception enabled builds BSLS_TRY will not generate a
-        //:   'try' statement, and the subsequent block of code will
-        //:    execute unconditionally.
+        // 2. In non-exception enabled builds BSLS_TRY will not generate a
+        //    `try` statement, and the subsequent block of code will
+        //     execute unconditionally.
         //
         // Plan:
-        //:  1 In all build modes, create a BSLS_TRY block and verify the code
-        //:    inside is executed. (C-1, C-2)
+        //  1. In all build modes, create a BSLS_TRY block and verify the code
+        //     inside is executed. (C-1, C-2)
         //
-        //:  2 In exception enabled builds, create a BSLS_TRY block in which
-        //:    a 'throw' is used to throw an exception, verify code after the
-        //:    'throw' is not executed, and that it is caught in a
-        //:    corresponding 'catch' block.
+        //  2. In exception enabled builds, create a BSLS_TRY block in which
+        //     a `throw` is used to throw an exception, verify code after the
+        //     `throw` is not executed, and that it is caught in a
+        //     corresponding `catch` block.
         //
         // Testing:
         //   BSLS_TRY
@@ -803,7 +804,7 @@ int main(int argc, char *argv[])
 
 #ifdef BDE_BUILD_TARGET_EXC
         if (verbose) {
-            printf("Verify BSLS_TRY is replaced by 'try' in exc builds\n");
+            printf("Verify BSLS_TRY is replaced by `try` in exc builds\n");
         }
         {
             bool executedTest    = false;
@@ -829,33 +830,33 @@ int main(int argc, char *argv[])
         // TESTING ABORT HANDLING MACROS
         //
         // Concerns:
-        //:  1 That 'BEGIN_ABORT_TEST' and 'END_ABORT_TEST_AND_ASSERT'
-        //:    will correctly indicate whether a 'abort' occurred in the
-        //:    lexical scope (without terminating the task).
+        //  1. That `BEGIN_ABORT_TEST` and `END_ABORT_TEST_AND_ASSERT`
+        //     will correctly indicate whether a `abort` occurred in the
+        //     lexical scope (without terminating the task).
         //
-        //:  2 Test that 'BEGIN_ABORT_TEST' and 'END_ABORT_TEST_AND_ASSERT'
-        //:    when called multiple times to recover from an abort do not have
-        //:    surprising side effects.
+        //  2. Test that `BEGIN_ABORT_TEST` and `END_ABORT_TEST_AND_ASSERT`
+        //     when called multiple times to recover from an abort do not have
+        //     surprising side effects.
         //
-        //:  3 That 'BEGIN_ABORT_TEST' and 'END_ABORT_TEST_AND_ASSERT'
-        //:    form a valid lexical scope.
+        //  3. That `BEGIN_ABORT_TEST` and `END_ABORT_TEST_AND_ASSERT`
+        //     form a valid lexical scope.
         //
         // Plan:
-        //:  1 Call 'BEGIN_ABORT_TEST' and 'END_ABORT_TEST_AND_ASSERT' without
-        //:    an 'abort' present, and verify the indicate no-abort occurred.
-        //:    (C-1)
+        //  1. Call `BEGIN_ABORT_TEST` and `END_ABORT_TEST_AND_ASSERT` without
+        //     an `abort` present, and verify the indicate no-abort occurred.
+        //     (C-1)
         //
-        //:  2 Call 'BEGIN_ABORT_TEST' and 'END_ABORT_TEST_AND_ASSERT' with
-        //:    an 'abort', and verify they indicate an abort occurred.
-        //:    (C-1)
+        //  2. Call `BEGIN_ABORT_TEST` and `END_ABORT_TEST_AND_ASSERT` with
+        //     an `abort`, and verify they indicate an abort occurred.
+        //     (C-1)
         //
-        //:  3 Call 'BEGIN_ABORT_TEST' and 'END_ABORT_TEST_AND_ASSERT' again
-        //:    with an 'abort', and verify they indicate an abort occurred
-        //:    (C-2)
+        //  3. Call `BEGIN_ABORT_TEST` and `END_ABORT_TEST_AND_ASSERT` again
+        //     with an `abort`, and verify they indicate an abort occurred
+        //     (C-2)
         //
-        //:  4 Define local variables and verify they're scoped correctly with
-        //:    'BEGIN_ABORT_TEST' and 'END_ABORT_TEST_AND_ASSERT' blocks.
-        //:    (C-3)
+        //  4. Define local variables and verify they're scoped correctly with
+        //     `BEGIN_ABORT_TEST` and `END_ABORT_TEST_AND_ASSERT` blocks.
+        //     (C-3)
         //
         // Testing:
         //   CONCERN: abort handling test machinery works correctly
@@ -890,8 +891,8 @@ int main(int argc, char *argv[])
             ASSERT(executedTest);
         }
 
-        // Note that the use of 'volatile' prevents (for the time being)
-        // reordering the assignment to 'executedTest' in ways that cause the
+        // Note that the use of `volatile` prevents (for the time being)
+        // reordering the assignment to `executedTest` in ways that cause the
         // test to fail on opt-AIX builds.
 
         if (verbose) {
@@ -927,8 +928,8 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
         //

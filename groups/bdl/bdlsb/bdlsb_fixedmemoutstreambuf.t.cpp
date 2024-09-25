@@ -29,9 +29,9 @@ using namespace bsl;  // automatically added by script
 //                              Overview
 //                              --------
 // This test driver exercises all the protected virtual methods from the
-// 'basic_streambuf' protocol that are overridden by the derived concrete class
-// 'bdlsb::FixedMemOutStreamBuf', as well as each new (non-protocol) public
-// method added in the 'bdlsb::FixedMemOutStreamBuf' class.
+// `basic_streambuf` protocol that are overridden by the derived concrete class
+// `bdlsb::FixedMemOutStreamBuf`, as well as each new (non-protocol) public
+// method added in the `bdlsb::FixedMemOutStreamBuf` class.
 //
 // Our goal here is to ensure that the implementations comply exactly with the
 // IOStreams portion of the C++ standard where the standard explicitly defines
@@ -52,13 +52,13 @@ using namespace bsl;  // automatically added by script
 // case 3.
 //
 // Primary Manipulators:
-//: o Value constructor 'FixedMemOutStreamBuf(char *, bsl::streamsize)'
-//: o 'sputc'
+//  - Value constructor `FixedMemOutStreamBuf(char *, bsl::streamsize)`
+//  - `sputc`
 //
 // Basic Accessors:
-//: o 'data'
-//: o 'length'
-//: o 'capacity'
+//  - `data`
+//  - `length`
+//  - `capacity`
 //
 //-----------------------------------------------------------------------------
 // CREATORS
@@ -160,11 +160,12 @@ const int INIT_BUFSIZE = 20;
                // ==========================================
 
 // FREE OPERATORS
+
+/// Write the contents of the specified `streamBuffer` (as well as a marker
+/// indicating eight bytes groupings) to the specified output `stream` in
+/// binary format, and return a reference to the modifiable `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream,
                          const Obj&    streamBuffer);
-    // Write the contents of the specified 'streamBuffer' (as well as a marker
-    // indicating eight bytes groupings) to the specified output 'stream' in
-    // binary format, and return a reference to the modifiable 'stream'.
 
 bsl::ostream& operator<<(bsl::ostream& stream,
                          const Obj&    streamBuffer)
@@ -206,7 +207,7 @@ int main(int argc, char *argv[])
     (void) veryVeryVeryVerbose;
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
@@ -216,13 +217,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, and replace 'assert' with
-        //:   'ASSERT'.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, and replace `assert` with
+        //    `ASSERT`.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -236,60 +237,60 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Directly Observing Stream Buffer Contents
 /// - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Unlike most implementations of the 'bsl::basic_streambuf' concept,
-// 'bdlsb::FixedMemOutStreamBuf' gives the user direct access to the stream's
-// storage, both through the 'data' accessor and through the buffer originally
+// Unlike most implementations of the `bsl::basic_streambuf` concept,
+// `bdlsb::FixedMemOutStreamBuf` gives the user direct access to the stream's
+// storage, both through the `data` accessor and through the buffer originally
 // supplied to the constructor.  Note that this can be useful in many contexts,
 // such as when we need to perform extra security validation on buffer during
 // the streaming process.
 //
 // First, we create an array to provide storage for the stream buffer, and
-// construct a 'bdlsb::FixedMemOutStreamBuf' on that array:
-//..
+// construct a `bdlsb::FixedMemOutStreamBuf` on that array:
+// ```
     const int                   STORAGE_SIZE = 64;
     char                        storage[STORAGE_SIZE];
     bdlsb::FixedMemOutStreamBuf buffer(storage, STORAGE_SIZE);
-//..
-// Notice that 'storage' is on the stack.  'bdlsb::FixedMemOutStreamBuf' can be
+// ```
+// Notice that `storage` is on the stack.  `bdlsb::FixedMemOutStreamBuf` can be
 // easily used without resorting to dynamic memory allocation.
 //
-// Then, we observe that 'buffer' already has a capacity of 64.  Note that this
+// Then, we observe that `buffer` already has a capacity of 64.  Note that this
 // capacity is fixed at construction:
-//..
+// ```
     ASSERT(STORAGE_SIZE == buffer.capacity());
     ASSERT( 0 == buffer.length());
     ASSERT(buffer.data() == storage);
-//..
-// Next, we use 'buffer' to construct a 'bsl::ostream':
-//..
+// ```
+// Next, we use `buffer` to construct a `bsl::ostream`:
+// ```
     bsl::ostream stream(&buffer);
-//..
-// Now, we output some data to the 'stream':
-//..
+// ```
+// Now, we output some data to the `stream`:
+// ```
     stream << "The answer is " << 42 << ".";
-//..
+// ```
 // Finally, we observe that the data is present in the storage array that we
-// supplied to 'buffer':
-//..
+// supplied to `buffer`:
+// ```
     ASSERT(17 == buffer.length());
     ASSERT(buffer.length() < STORAGE_SIZE);
     ASSERT(0 == strncmp("The answer is 42.", storage, 17));
-//..
+// ```
 //
 ///Example 2: Fixed Buffer Size
 /// - - - - - - - - - - - - - -
 
-// Unlike most implementations of the 'bsl::basic_streambuf' concept,
-// 'bdlsb::FixedMemOutStreamBuf' uses a buffer of limited size, provided to the
+// Unlike most implementations of the `bsl::basic_streambuf` concept,
+// `bdlsb::FixedMemOutStreamBuf` uses a buffer of limited size, provided to the
 // constructor together with the address of the storage buffer.  That limit
 // will not be exceeded even in case of superfluous data.  Symbols beyond this
 // limit will be ignored.  Note that this can be useful if memory allocation
 // should be strictly controlled.
 //
 // First, we create an array to provide storage for the stream buffer, fill it
-// with some data and construct a 'bdlsb::FixedMemOutStreamBuf' on the part of
+// with some data and construct a `bdlsb::FixedMemOutStreamBuf` on the part of
 // that array:
-//..
+// ```
     const unsigned int SMALL_STORAGE_SIZE = 16;
     const unsigned int SMALL_BUFFER_CAPACITY = SMALL_STORAGE_SIZE/2;
     char               smallStorage[SMALL_STORAGE_SIZE];
@@ -297,52 +298,52 @@ int main(int argc, char *argv[])
 
     bdlsb::FixedMemOutStreamBuf smallBuffer(smallStorage,
                                             SMALL_BUFFER_CAPACITY);
-//..
+// ```
 // Next, we write some characters to the buffer and check that it handles them
 // correctly and superfluous data is ignored:
-//..
+// ```
     bsl::streamsize returnedSize = smallBuffer.sputn("The answer is 42.", 17);
     ASSERT(SMALL_BUFFER_CAPACITY == returnedSize);
     ASSERT(SMALL_BUFFER_CAPACITY == smallBuffer.length());
     ASSERT('Z' == smallStorage[smallBuffer.length()]);
-//..
+// ```
 // Then, we reset position indicator to the beginning of storage:
-//..
+// ```
     smallBuffer.pubseekpos(0,bsl::ios_base::out);
     ASSERT(0 == smallBuffer.length());
-//..
+// ```
 // Now, we write another string, containing fewer characters than the storage
 // capacity:
-//..
+// ```
     returnedSize = smallBuffer.sputn("Truth.", 6);
-//..
+// ```
 // Finally, we observe that given string has been successfully placed to
 // buffer:
-//..
+// ```
     ASSERT(6 == returnedSize);
     ASSERT(6 == smallBuffer.length());
     ASSERT(0 == strncmp("Truth.", smallStorage, 6));
-//..
+// ```
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'setbuf' METHOD
+        // TESTING `setbuf` METHOD
         //   Ensure that we can reset put area to client-provided buffer for a
         //   constructed stream buffer object
         //
         // Concerns:
-        //: 1 The 'setbuf' method can reset internal buffer via base public
-        //:   interface.
+        // 1. The `setbuf` method can reset internal buffer via base public
+        //    interface.
         //
         // Plan:
-        //: 1 Manually call 'pubsetbuf' method and verify that the buffer has
-        //:   been reset to the new address and length. (C-1)
+        // 1. Manually call `pubsetbuf` method and verify that the buffer has
+        //    been reset to the new address and length. (C-1)
         //
         // Testing:
         //   FixedMemOutStreamBuf *setbuf(char_type *buf, streamsize length);
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'setbuf' METHOD" << endl
+                          << "TESTING `setbuf` METHOD" << endl
                           << "=======================" << endl;
 
         {
@@ -363,40 +364,40 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'seek' METHODS
-        //   As the only action performed in 'seekpos' is the call for
-        //   'seekoff' with predetermined second parameter, then we can test
-        //   'seekpos' superficially.
+        // TESTING `seek` METHODS
+        //   As the only action performed in `seekpos` is the call for
+        //   `seekoff` with predetermined second parameter, then we can test
+        //   `seekpos` superficially.
         //
         // Concerns:
-        //: 1 Seeking is correct for:
-        //:   - all relative positions.
-        //:   - positive, 0, and negative values.
-        //:   - out of buffer boundaries.
-        //:
-        //: 2 Seeking into the "get" area has no effect.
-        //:
-        //: 3 'seekpos' calls 'seekoff' with correctly predetermined second
-        //:   parameter (bsl::ios_base::beg)
+        // 1. Seeking is correct for:
+        //    - all relative positions.
+        //    - positive, 0, and negative values.
+        //    - out of buffer boundaries.
+        //
+        // 2. Seeking into the "get" area has no effect.
+        //
+        // 3. `seekpos` calls `seekoff` with correctly predetermined second
+        //    parameter (bsl::ios_base::beg)
         //
         // Plan:
-        //: 1 Perform a variety of seeks, using representative test vectors
-        //:   from the cross-product of offset categories beginning-pointer,
-        //:   current-pointer and end-pointer, with direction categories
-        //:   negative-forcing-past-beginning, negative-falling-within-bounds,
-        //:   0, positive-falling-within bounds, and positive-forcing-past-end.
-        //:   Note that seekoff method is called by base class method
-        //:   'pubseekoff'. (C-1..2)
-        //:
-        //: 2 Perform several seeks with different initial states of the
-        //:   tested object. (C-3)
+        // 1. Perform a variety of seeks, using representative test vectors
+        //    from the cross-product of offset categories beginning-pointer,
+        //    current-pointer and end-pointer, with direction categories
+        //    negative-forcing-past-beginning, negative-falling-within-bounds,
+        //    0, positive-falling-within bounds, and positive-forcing-past-end.
+        //    Note that seekoff method is called by base class method
+        //    `pubseekoff`. (C-1..2)
+        //
+        // 2. Perform several seeks with different initial states of the
+        //    tested object. (C-3)
         //
         // Testing:
         //   pos_type seekoff(off_type, seekdir, openmode);
         //   pos_type seekpos(pos_type, openmode);
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'seek' METHODS" << endl
+                          << "TESTING `seek` METHODS" << endl
                           << "======================" << endl;
 
         const io_openmode PUT = bsl::ios_base::out;
@@ -594,32 +595,32 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'sputn' METHOD
+        // TESTING `sputn` METHOD
         //
         // Concerns:
-        //: 1 Ensure that strings of varying length are written correctly.
-        //:
-        //: 2 Ensure that writing strings does not overwrite existing buffer
-        //:   content.
-        //:
-        //: 3 Ensure that no more than the specified number of characters are
-        //:   written.
-        //:
-        //: 4 Ensure that no writing happens beyond existing capacity.
+        // 1. Ensure that strings of varying length are written correctly.
+        //
+        // 2. Ensure that writing strings does not overwrite existing buffer
+        //    content.
+        //
+        // 3. Ensure that no more than the specified number of characters are
+        //    written.
+        //
+        // 4. Ensure that no writing happens beyond existing capacity.
         //
         // Plan:
-        //: 1 Write out representative strings from the categories 0
-        //:   characters, 1 character, and > 1 character, into streambufs with
-        //:   representative contents "empty", substantially less than
-        //:   capacity, and almost-full-so-that-next-write-exceeds-capacity.
-        //:   (C-1..4)
+        // 1. Write out representative strings from the categories 0
+        //    characters, 1 character, and > 1 character, into streambufs with
+        //    representative contents "empty", substantially less than
+        //    capacity, and almost-full-so-that-next-write-exceeds-capacity.
+        //    (C-1..4)
         //
         // Testing:
         //   streamsize sputn(const char_type, streamsize);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'sputn' METHOD" << endl
+                          << "TESTING `sputn` METHOD" << endl
                           << "======================" << endl;
 
         if (verbose) cout << "\nTesting sputn with no buffer." << endl;
@@ -639,9 +640,9 @@ int main(int argc, char *argv[])
                 const char *d_outStr;        // string to output
                 int         d_strCap;        // stream capacity
                 const char *d_initialCont;   // initial contents of stream
-                const char *d_result;        // expected contents after 'sputc'
+                const char *d_result;        // expected contents after `sputc`
                 int         d_length;        // number of put chars
-                int         d_returnVal;     // 'sputn' return val
+                int         d_returnVal;     // `sputn` return val
             } DATA[] = {
                //LINE OUT    STREAM  INIT   RESULT  STREAM  RET
                //     STRNG  CPCITY CONTNT  CONTNT  LENGTH  VAL
@@ -690,25 +691,25 @@ int main(int argc, char *argv[])
       case 4: {
         // --------------------------------------------------------------------
         // BASIC ACCESSORS
-        //   Verify the basic accessors of the 'bdlsb::FixedMemOutStreamBuf'
+        //   Verify the basic accessors of the `bdlsb::FixedMemOutStreamBuf`
         //   object.  Note that none of the accessors are strictly needed for
         //   followup tests, but simplify the overall test logic.
         //
         // Concerns:
-        //: 1 Accessors work off of a references to 'const' objects.
-        //:
-        //: 2 The address of the user provided buffer is correctly reported.
-        //:
-        //: 3 The capacity of the stream buffer is correctly reported.
-        //:
-        //: 4 The number of characters written to the stream buffer is
-        //:   correctly reported.
+        // 1. Accessors work off of a references to `const` objects.
+        //
+        // 2. The address of the user provided buffer is correctly reported.
+        //
+        // 3. The capacity of the stream buffer is correctly reported.
+        //
+        // 4. The number of characters written to the stream buffer is
+        //    correctly reported.
         //
         // Plan:
-        //: 1 Verify accessors for corner cases. (C 1..4)
-        //:
-        //: 2 Fill the stream buffer with data and verify that all accessors
-        //:   report expected values. (C 1..4)
+        // 1. Verify accessors for corner cases. (C 1..4)
+        //
+        // 2. Fill the stream buffer with data and verify that all accessors
+        //    report expected values. (C 1..4)
         //
         // Testing:
         //   const char* data() const;
@@ -755,9 +756,9 @@ int main(int argc, char *argv[])
                 char        d_outChar;       // character to output
                 int         d_strCap;        // stream capacity
                 const char *d_initialCont;   // initial contents of stream
-                const char *d_result;        // expected contents after 'sputc'
+                const char *d_result;        // expected contents after `sputc`
                 int         d_length;        // number of put chars
-                int         d_returnVal;     // 'sputc' return val
+                int         d_returnVal;     // `sputc` return val
             } DATA[] = {
                //LINE   OUT   STREAM  INIT    RESULT  STREAM  RET
                //       CHAR  CPCITY  CONTNT  CONTNT  LENGTH  VAL
@@ -806,17 +807,17 @@ int main(int argc, char *argv[])
         //   provide human readable test traces.
         //
         // Concerns:
-        //: 1 Output operator formats the stream buffer correctly.
-        //:
-        //: 2 Output operator does not produce any trailing characters.
-        //:
-        //: 3 Output operator works on references to 'const' object.
+        // 1. Output operator formats the stream buffer correctly.
+        //
+        // 2. Output operator does not produce any trailing characters.
+        //
+        // 3. Output operator works on references to `const` object.
         //
         // Plan:
-        //:  1 For each of a small representative set of object values use
-        //:    'stringstream' to write that object's value to two separate
-        //:    strings.  Compare the contents of these strings with the literal
-        //:    expected output format and verify that they are equal. (C-1..3)
+        //  1. For each of a small representative set of object values use
+        //     `stringstream` to write that object's value to two separate
+        //     strings.  Compare the contents of these strings with the literal
+        //     expected output format and verify that they are equal. (C-1..3)
         //
         // Testing:
         //   ostream& operator<<(ostream&, const FixedMemOutStreamBuf&);
@@ -923,46 +924,46 @@ int main(int argc, char *argv[])
         //   the destructor to destroy it safely.
         //   There are no public functions with which to cleanly observe the
         //   state of the object without manipulating it.  This test will rely
-        //   on using the base-class-implemented 'pbase' and 'sputc' to check
+        //   on using the base-class-implemented `pbase` and `sputc` to check
         //   that writing into the stream buffer in fact writes into the
         //   client-provided buffer.
         //
         // Concerns:
-        //: 1 The 2-argument value constructor can create an object to have any
-        //:   value that does not violate the method's documented
-        //:   preconditions.
-        //:
-        //: 2 The constructor sets up all streambuf machinery properly
-        //:   so that streambuf operations use the client-provided buffer.
-        //:
-        //: 3 The streambuf is capable of using the entirety of the available
-        //:   storage, i.e., the full amount specified by the client.
-        //:
-        //: 4 An object can be safely destroyed.
-        //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The 2-argument value constructor can create an object to have any
+        //    value that does not violate the method's documented
+        //    preconditions.
+        //
+        // 2. The constructor sets up all streambuf machinery properly
+        //    so that streambuf operations use the client-provided buffer.
+        //
+        // 3. The streambuf is capable of using the entirety of the available
+        //    storage, i.e., the full amount specified by the client.
+        //
+        // 4. An object can be safely destroyed.
+        //
+        // 5. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using 2-argument constructure, create and object with the
-        //:   specified buffer of the specified length. (C-1)
-        //:
-        //: 2 Let the object created in P-1 go out of scope. (C-4)
-        //:
-        //: 2 Use 'data' method (forwarded to the base class method 'pbase') to
-        //:   ensure that the buffer is set correctly. (C-2)
-        //:
-        //: 3 Modify the stream buffer content via base class method 'sputc'
-        //:   and verify that the data is landed into client-provided buffer.
-        //:   (C-2..3)
-        //:
-        //: 4 Write enough characters to verify that the length as specified is
-        //:   completely usable, and then write one more to ensure that the
-        //:   stream buffer is using the client-supplied length as an upper
-        //:   bound as well as a lower bound. (C-3)
-        //:
-        //: 5 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid attribute values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros). (C-5)
+        // 1. Using 2-argument constructure, create and object with the
+        //    specified buffer of the specified length. (C-1)
+        //
+        // 2. Let the object created in P-1 go out of scope. (C-4)
+        //
+        // 2. Use `data` method (forwarded to the base class method `pbase`) to
+        //    ensure that the buffer is set correctly. (C-2)
+        //
+        // 3. Modify the stream buffer content via base class method `sputc`
+        //    and verify that the data is landed into client-provided buffer.
+        //    (C-2..3)
+        //
+        // 4. Write enough characters to verify that the length as specified is
+        //    completely usable, and then write one more to ensure that the
+        //    stream buffer is using the client-supplied length as an upper
+        //    bound as well as a lower bound. (C-3)
+        //
+        // 5. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid attribute values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros). (C-5)
         //
         // Testing:
         //   FixedMemOutStreamBuf(char *buffer, bsl::streamsize length);
@@ -1024,11 +1025,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Developer test sandbox.  (C-1)
+        // 1. Developer test sandbox.  (C-1)
         //
         // Testing:
         //   BREATHING TEST
@@ -1039,7 +1040,7 @@ int main(int argc, char *argv[])
                           << "==============" << endl;
 
         if (verbose) cout <<
-          "\nMake sure we can create and use a 'bdlsb::FixedMemOutStreamBuf'."
+          "\nMake sure we can create and use a `bdlsb::FixedMemOutStreamBuf`."
                           << endl;
         {
             char buffer[INIT_BUFSIZE];

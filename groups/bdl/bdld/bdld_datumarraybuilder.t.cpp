@@ -29,8 +29,8 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test is an utility for building 'Datum' objects holding
-// arrays of 'Datum' objects.
+// The component under test is an utility for building `Datum` objects holding
+// arrays of `Datum` objects.
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] explicit DatumArrayBuilder(allocator_type);
@@ -130,26 +130,27 @@ namespace {
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using a 'DatumArrayBuilder' to Create a 'Datum' array.
+///Example 1: Using a `DatumArrayBuilder` to Create a `Datum` array.
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we receive a string that is constructed by streaming a bunch of
 // values together in the format shown below:
-//..
+// ```
 //  "2.34,4,hi there,true"
-//..
+// ```
 // Notice that the values are separated by a ','.  Also note that a ',' is not
 // allowed to be part of a string value to simplify the implementation of the
 // utility that parses this string.  The following code snippets illustrate how
-// to create a 'Datum' object that holds an array of 'Datum' objects
+// to create a `Datum` object that holds an array of `Datum` objects
 // constructed using the streamed values.
 //
-// First we define a function 'nextValue' that we will use to tokenize the
+// First we define a function `nextValue` that we will use to tokenize the
 // input string:
-//..
+// ```
+
+    /// Extract the next value from a list of comma separated values in the
+    /// specified `input` string and load it in the specified `value`.
+    /// Return the index of the next value within `input`.
     bsl::size_t nextValue(bsl::string *value, const bsl::string& input)
-        // Extract the next value from a list of comma separated values in the
-        // specified 'input' string and load it in the specified 'value'.
-        // Return the index of the next value within 'input'.
     {
         if (input.empty()) {
             return bsl::string::npos;
@@ -164,15 +165,16 @@ namespace {
         }
         return nextIndex;
     }
-//..
-// Next, we define a function 'convertToDatum' that will convert a string
-// token into a 'Datum' scalar value:
-//..
+// ```
+// Next, we define a function `convertToDatum` that will convert a string
+// token into a `Datum` scalar value:
+// ```
+
+    /// Convert the specified `token` into the appropriate type of scalar
+    /// value and then create and return a `Datum` object using that value.
+    /// Use the specified `basicAllocator` to allocate memory.
     bdld::Datum convertToDatum(const bsl::string&  token,
                                bslma::Allocator   *basicAllocator)
-        // Convert the specified 'token' into the appropriate type of scalar
-        // value and then create and return a 'Datum' object using that value.
-        // Use the specified 'basicAllocator' to allocate memory.
     {
         bool isInteger = true;
         bool isDouble = false;
@@ -209,19 +211,19 @@ namespace {
             return bdld::Datum::copyString(token, basicAllocator);
         }
     }
-//..
+// ```
 // Now, in our example main, we tokenize an input string "2.34,4,hi there,true"
-// to populate a 'Datum' array containing the values '[2.34, 4, "hi there",
+// to populate a `Datum` array containing the values '[2.34, 4, "hi there",
 // true]':
-//..
+// ```
     void exampleMain() {
         bslma::TestAllocator allocator;
         const bsl::string    input("2.34,4,hi there,true", &allocator);
-//..
-// Here, we create a 'DatumArrayBuilder', and iterate over the parsed tokens
-// from 'input', using 'pushBack' on the array builder to add the tokens to a
-// 'Datum' array value:
-//..
+// ```
+// Here, we create a `DatumArrayBuilder`, and iterate over the parsed tokens
+// from `input`, using `pushBack` on the array builder to add the tokens to a
+// `Datum` array value:
+// ```
         bdld::DatumArrayBuilder builder(0, &allocator);
 
         bsl::string str(input, &allocator);
@@ -238,14 +240,14 @@ namespace {
         } while (bsl::string::npos != nextIndex);
 
         bdld::Datum result = builder.commit();
-//..
-// Notice that calling 'commit' on the 'DatumArrayBuilder' adopts ownership
-// for the returned 'Datum' object, and that the behavior is undefined if
-// 'pushBack' is called after 'commit'.
+// ```
+// Notice that calling `commit` on the `DatumArrayBuilder` adopts ownership
+// for the returned `Datum` object, and that the behavior is undefined if
+// `pushBack` is called after `commit`.
 //
-// Finally, we verify that 'result' has the expected array value, and destroy
-// the created 'Datum' value:
-//..
+// Finally, we verify that `result` has the expected array value, and destroy
+// the created `Datum` value:
+// ```
         ASSERT(true       == result.isArray());
         ASSERT(4          == result.theArray().length());
         ASSERT(true       == result.theArray()[0].isDouble());
@@ -257,10 +259,10 @@ namespace {
         ASSERT(true       == result.theArray()[3].isBoolean());
         ASSERT(true       == result.theArray()[3].theBoolean());
 
-        // Destroy the 'Datum' object.
+        // Destroy the `Datum` object.
         bdld::Datum::destroy(result, &allocator);
     }
-//..
+// ```
 }  // close unnamed namespace
 
 // ============================================================================
@@ -294,13 +296,13 @@ int main(int argc, char *argv[]) {
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -319,10 +321,10 @@ int main(int argc, char *argv[]) {
         //   type traits to reflect this.
         //
         // Concerns:
-        //: 1 The class has the bslma::UsesBslmaAllocator trait.
+        // 1. The class has the bslma::UsesBslmaAllocator trait.
         //
         // Plan:
-        //: 1 ASSERT the presence of each trait required by the type. (C-1..2)
+        // 1. ASSERT the presence of each trait required by the type. (C-1..2)
         //
         // Testing:
         //   TYPE TRAITS
@@ -336,23 +338,23 @@ int main(int argc, char *argv[]) {
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'append' METHOD
-        //   Verify the functionality of the 'append' method.
+        // TESTING `append` METHOD
+        //   Verify the functionality of the `append` method.
         //
         // Concerns:
-        //: 1 Ensure that calling 'append' with an array of n 'Datum' objects
-        //:   is functionally equivalent to sequentially calling 'pushBack'
-        //:   with individual 'Datum' from the same array.
+        // 1. Ensure that calling `append` with an array of n `Datum` objects
+        //    is functionally equivalent to sequentially calling `pushBack`
+        //    with individual `Datum` from the same array.
         //
         // Plan:
-        //: 1 Build two different 'Datum' objects using 'append' and 'pushBack'
-        //:   methods and verify that they compare-equal.
+        // 1. Build two different `Datum` objects using `append` and `pushBack`
+        //    methods and verify that they compare-equal.
         //
         // Testing:
         //   void append(const Datum *, SizeType);
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'append' METHOD" << endl
+                          << "TESTING `append` METHOD" << endl
                           << "=======================" << endl;
         {
             bdld::Datum appendResult;
@@ -416,30 +418,30 @@ int main(int argc, char *argv[]) {
         //   Verify the basic accessors functionality.
         //
         // Concerns:
-        //: 1 The 'capacity' method returns the capacity of the datum-array
-        //:   builder.
-        //:
-        //: 2 The 'get_allocator' method returns the allocator specified at
-        //:   construction, and that is a default allocator if none was
-        //:   specified at construction.
-        //:
-        //: 3 The 'size' method returns the current size of the datum-array
-        //:   builder.
+        // 1. The `capacity` method returns the capacity of the datum-array
+        //    builder.
+        //
+        // 2. The `get_allocator` method returns the allocator specified at
+        //    construction, and that is a default allocator if none was
+        //    specified at construction.
+        //
+        // 3. The `size` method returns the current size of the datum-array
+        //    builder.
         //
         // Plan:
-        //: 1 Create a 'DatumArrayBuilder' object.  Append a few elements to
-        //:   the builder and verify that the 'capacity' and 'size' methods
-        //:   return expected values.  (C-1,2)
-        //:
-        //: 2 Execute a loop that creates an object but invokes the default
-        //:   constructor differently in each iteration: (a) without passing an
-        //:   allocator, (b) passing a default-constructed allocator explicitly
-        //:   (c) passing the address of a test allocator distinct from the
-        //:   default, and (d) passing in an allocator constructed from the
-        //:   address of a test allocator distinct from the default.  For each
-        //:   of these iterations verify that the correct allocator is returned
-        //:   by 'get_allocator()' and is used when memory is actually
-        //:   allocated.
+        // 1. Create a `DatumArrayBuilder` object.  Append a few elements to
+        //    the builder and verify that the `capacity` and `size` methods
+        //    return expected values.  (C-1,2)
+        //
+        // 2. Execute a loop that creates an object but invokes the default
+        //    constructor differently in each iteration: (a) without passing an
+        //    allocator, (b) passing a default-constructed allocator explicitly
+        //    (c) passing the address of a test allocator distinct from the
+        //    default, and (d) passing in an allocator constructed from the
+        //    address of a test allocator distinct from the default.  For each
+        //    of these iterations verify that the correct allocator is returned
+        //    by `get_allocator()` and is used when memory is actually
+        //    allocated.
         //
         // Testing:
         //    SizeType       capacity()      const;
@@ -451,12 +453,12 @@ int main(int argc, char *argv[]) {
                           << "BASIC ACCESSORS" << endl
                           << "===============" << endl;
 
-        if (verbose) cout << "\nTesting 'capacity' and 'size' method." << endl;
+        if (verbose) cout << "\nTesting `capacity` and `size` method." << endl;
         {
             static const struct {
                 int           d_line;               // line number
                 Obj::SizeType d_initialCapacity;    // capacity at construction
-                Obj::SizeType d_numElements;        // elements to 'pushBack'
+                Obj::SizeType d_numElements;        // elements to `pushBack`
                 Obj::SizeType d_expectedCapacity;   // expected capacity
             } DATA[] = {
                 // LINE  INITIAL   NUMBER ELEMS  EXPECTED
@@ -535,7 +537,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (verbose) cout << "\nTesting construction, allocation, and "
-                          << "'get_allocator'." << endl;
+                          << "`get_allocator`." << endl;
 
         for (char cfg = 'a'; cfg <= 'd'; ++cfg) {
 
@@ -577,7 +579,7 @@ int main(int argc, char *argv[]) {
             bslma::TestAllocator&  oa = *objAllocatorPtr;
             bslma::TestAllocator& noa = (&da == &oa) ? sa : da;
 
-            // Verify the object's 'get_allocator' accessor.
+            // Verify the object's `get_allocator` accessor.
 
             ASSERTV(CONFIG, &oa, X.get_allocator().mechanism(),
                     &oa == X.get_allocator());
@@ -627,75 +629,75 @@ int main(int argc, char *argv[]) {
         //   state for subsequent tests.
         //
         // Concerns:
-        //: 1 An object created with a constructor (with or without a supplied
-        //:   allocator) has expected state.
-        //:
-        //: 2 If an allocator is not supplied to the value constructor, the
-        //:   default allocator in effect at the time of construction becomes
-        //:   the object allocator for the resulting object.
-        //:
-        //: 3 If an allocator is supplied to the value constructor, that
-        //:   allocator becomes the object allocator for the resulting object.
-        //:
-        //: 4 Supplying a null allocator address has the same effect as not
-        //:   supplying an allocator.
-        //:
-        //: 5 Supplying an allocator to the value constructor has no effect
-        //:   on subsequent object values.
-        //:
-        //: 6 Any memory allocation is from the object allocator.
-        //:
-        //: 7 There is no temporary allocation from any allocator.
-        //:
-        //: 8 The destructor should not destroy the array once it is committed.
-        //:
-        //: 9 The destructor should deallocate all memory if 'commit' method
-        //:   was not called prior object destruction.
-        //:
-        //:10 An object is capable of creating valid 'Datum' object when
-        //:   'commit' method is invoked.
+        // 1. An object created with a constructor (with or without a supplied
+        //    allocator) has expected state.
+        //
+        // 2. If an allocator is not supplied to the value constructor, the
+        //    default allocator in effect at the time of construction becomes
+        //    the object allocator for the resulting object.
+        //
+        // 3. If an allocator is supplied to the value constructor, that
+        //    allocator becomes the object allocator for the resulting object.
+        //
+        // 4. Supplying a null allocator address has the same effect as not
+        //    supplying an allocator.
+        //
+        // 5. Supplying an allocator to the value constructor has no effect
+        //    on subsequent object values.
+        //
+        // 6. Any memory allocation is from the object allocator.
+        //
+        // 7. There is no temporary allocation from any allocator.
+        //
+        // 8. The destructor should not destroy the array once it is committed.
+        //
+        // 9. The destructor should deallocate all memory if `commit` method
+        //    was not called prior object destruction.
+        //
+        // 10. An object is capable of creating valid `Datum` object when
+        //    `commit` method is invoked.
         //
         // Plan:
-        //: 1 Construct three distinct objects, in turn, but configured
-        //:   differently: (a) without passing an allocator, (b) passing a null
-        //:   allocator address explicitly, and (c) passing the address of a
-        //:   test allocator distinct from the default.  Verify that right
-        //:   allocator is used to obtain memory in each case.  For each object
-        //:   instantiation: (C-1..8)
-        //:
-        //:   1 Create distinct 'bdsma::TestAllocator' objects and install
-        //:     one as the current default allocator (note that an unique
-        //:     test allocator is already installed as the global allocator).
-        //:
-        //:   2 Use value constructor to create an object "mB', with its
-        //:     object allocator configured appropriately. (C-1..5)
-        //:
-        //:   3 Use the appropriate test allocators to verify that no memory
-        //:     is allocated by the default constructor.  (C-7)
-        //:
-        //:   4 Use (yet untested) 'pushBack' method to trigger memory
-        //:     allocation and verify that memory comes from the correct
-        //:     allocator.  (C-6)
-        //:
-        //:   5 Verify that all object memory is released when the object is
-        //:     destroyed prior calling 'commit' method.  (C-8)
-        //:
-        //: 2 Use 'pushBack' to append datum objects into the
-        //:   'DatumArrayBuilder' object and verify that the capacity increases
-        //:   when the length of the array exceeds the capacity.
-        //:
-        //: 3 Use 'commit' to build a 'Datum' object containing the array and
-        //:   verify that the resulting 'Datum' instance has correct type and
-        //:   length.  (C-10)
-        //:
-        //: 4 Verify that the 'DatumArrayBuilder' releases all memory when
-        //:   destroyed prior calling 'commit'.  (C-9)
-        //:
-        //: 5 Verify that the 'DatumArrayBuilder' does not release any memory
-        //:   after the 'bdld::Datum' object holding an array was completely
-        //:   built by calling 'commit'.  Destroying 'DatumArrayBuilder' after
-        //:   'commit' does not destroy constructed 'bdld::Datum' object.
-        //:   (C-6,8)
+        // 1. Construct three distinct objects, in turn, but configured
+        //    differently: (a) without passing an allocator, (b) passing a null
+        //    allocator address explicitly, and (c) passing the address of a
+        //    test allocator distinct from the default.  Verify that right
+        //    allocator is used to obtain memory in each case.  For each object
+        //    instantiation: (C-1..8)
+        //
+        //   1. Create distinct `bdsma::TestAllocator` objects and install
+        //      one as the current default allocator (note that an unique
+        //      test allocator is already installed as the global allocator).
+        //
+        //   2. Use value constructor to create an object "mB', with its
+        //      object allocator configured appropriately. (C-1..5)
+        //
+        //   3. Use the appropriate test allocators to verify that no memory
+        //      is allocated by the default constructor.  (C-7)
+        //
+        //   4. Use (yet untested) `pushBack` method to trigger memory
+        //      allocation and verify that memory comes from the correct
+        //      allocator.  (C-6)
+        //
+        //   5. Verify that all object memory is released when the object is
+        //      destroyed prior calling `commit` method.  (C-8)
+        //
+        // 2. Use `pushBack` to append datum objects into the
+        //    `DatumArrayBuilder` object and verify that the capacity increases
+        //    when the length of the array exceeds the capacity.
+        //
+        // 3. Use `commit` to build a `Datum` object containing the array and
+        //    verify that the resulting `Datum` instance has correct type and
+        //    length.  (C-10)
+        //
+        // 4. Verify that the `DatumArrayBuilder` releases all memory when
+        //    destroyed prior calling `commit`.  (C-9)
+        //
+        // 5. Verify that the `DatumArrayBuilder` does not release any memory
+        //    after the `bdld::Datum` object holding an array was completely
+        //    built by calling `commit`.  Destroying `DatumArrayBuilder` after
+        //    `commit` does not destroy constructed `bdld::Datum` object.
+        //    (C-6,8)
         //
         // Testing:
         //    explicit DatumArrayBuilder(SizeType, allocator_type);
@@ -898,7 +900,7 @@ int main(int argc, char *argv[]) {
                     ASSERT(0 == da.numDeallocations());
                     ASSERT(0 <  B.capacity());
 
-                    // Not calling 'commit' to verify that destructor will
+                    // Not calling `commit` to verify that destructor will
                     // deallocate partially built array.
                 }
                 ASSERT(da.numAllocations() == da.numDeallocations());
@@ -906,7 +908,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (verbose) cout << "\tTesting 'Datum' types in array." << endl;
+        if (verbose) cout << "\tTesting `Datum` types in array." << endl;
         {
             bslma::TestAllocator         da("def", veryVeryVeryVerbose);
             bslma::DefaultAllocatorGuard guard(&da);
@@ -968,11 +970,11 @@ int main(int argc, char *argv[]) {
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Developer test sandbox.  (C-1)
+        // 1. Developer test sandbox.  (C-1)
         //
         // Testing:
         //   BREATHING TEST

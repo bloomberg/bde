@@ -8,8 +8,8 @@
 #include <bslma_testallocatorexception.h>       // for testing only
 
 #include <bsl_cstddef.h>
-#include <bsl_cstdlib.h>     // 'atoi'
-#include <bsl_cstring.h>     // 'memcpy', 'memset'
+#include <bsl_cstdlib.h>     // `atoi`
+#include <bsl_cstring.h>     // `memcpy`, `memset`
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
@@ -114,9 +114,9 @@ int main(int argc, char *argv[]) {
         // BREATHING TEST
         //
         // Plan: Due to the amount of work needed to build a test driver, for
-        //   now, I simply copy the breathing test of a 'bdlbb_blob' but this
-        //   time using the 'bdlbb::PooledBlobBufferFactory' instead of the
-        //   (local) testing class 'TestBlobBufferFactory' in that component.
+        //   now, I simply copy the breathing test of a `bdlbb_blob` but this
+        //   time using the `bdlbb::PooledBlobBufferFactory` instead of the
+        //   (local) testing class `TestBlobBufferFactory` in that component.
         //   In order to gain confidence against alignment and number of
         //   allocations, we try all buffer sizes in a reasonable range.
         //

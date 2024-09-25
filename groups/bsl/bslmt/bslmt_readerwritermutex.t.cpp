@@ -15,7 +15,7 @@
 
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
-#include <bsl_ostream.h>   // for 'operator<<'
+#include <bsl_ostream.h>   // for `operator<<`
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
@@ -26,7 +26,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// A 'bslmt::ReaderWriterMutex' uses an implementation class and hence testing
+// A `bslmt::ReaderWriterMutex` uses an implementation class and hence testing
 // the forwarding to the implementation is all that is required.
 // ----------------------------------------------------------------------------
 // CREATORS
@@ -115,12 +115,12 @@ struct ThreadData {
     Obj                       *d_mutex_p;
     bsls::Types::size_type     d_count;
 
+    /// Create a `ThreadData` object having no supplied `Obj`.
     ThreadData() : d_mutex_p(0), d_count(0) {}
-        // Create a 'ThreadData' object having no supplied 'Obj'.
 
+    /// Create a `ThreadData` object that uses the specified `pObj`.
     explicit
     ThreadData(Obj *pObj) : d_mutex_p(pObj), d_count(0) {}
-        // Create a 'ThreadData' object that uses the specified 'pObj'.
 };
 
 // ============================================================================
@@ -237,53 +237,57 @@ extern "C" void *starvationReadLockCount(void *arg)
 ///Example 1: Maintaining an Account Balance
 ///- - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate the use of
-// 'bslmt::ReaderWriterMutex' to write a thread-safe class, 'my_Account'.  Note
-// the typical use of 'mutable' for the lock:
-//..
+// `bslmt::ReaderWriterMutex` to write a thread-safe class, `my_Account`.  Note
+// the typical use of `mutable` for the lock:
+// ```
+
+    /// This `class` represents a bank account with a single balance.
     class my_Account {
-        // This 'class' represents a bank account with a single balance.
 
         // DATA
         bsls::Types::Uint64               d_pennies;  // amount of money in the
                                                       // account
 
         mutable bslmt::ReaderWriterMutex  d_lock;     // guard access to
-                                                      // 'd_account_p'
+                                                      // `d_account_p`
 
       public:
         // CREATORS
+
+        /// Create an account with zero balance.
         my_Account();
-            // Create an account with zero balance.
 
+        /// Create an account having the value of the specified `original`
+        /// account.
         my_Account(const my_Account& original);
-            // Create an account having the value of the specified 'original'
-            // account.
 
+        /// Destroy this account.
         ~my_Account();
-            // Destroy this account.
 
         // MANIPULATORS
+
+        /// Atomically assign to this account the value of the specified
+        /// `rhs` account, and return a reference to this modifiable
+        /// account.  Note that this operation is thread-safe; no `lock` is
+        /// needed.
         my_Account& operator=(const my_Account& rhs);
-            // Atomically assign to this account the value of the specified
-            // 'rhs' account, and return a reference to this modifiable
-            // account.  Note that this operation is thread-safe; no 'lock' is
-            // needed.
 
+        /// Atomically deposit the specified `pennies` into this account.
+        /// Note that this operation is thread-safe; no `lock` is needed.
         void deposit(bsls::Types::Uint64 pennies);
-            // Atomically deposit the specified 'pennies' into this account.
-            // Note that this operation is thread-safe; no 'lock' is needed.
 
+        /// Attempt to atomically withdraw the specified `pennies` from this
+        /// account.  Return 0 on success and update this account to reflect
+        /// the withdrawal.  Otherwise, return a non-zero value and do not
+        /// update the balance of this account.  Note that this operation is
+        /// thread-safe; no `lock` is needed.
         int withdraw(bsls::Types::Uint64 pennies);
-            // Attempt to atomically withdraw the specified 'pennies' from this
-            // account.  Return 0 on success and update this account to reflect
-            // the withdrawal.  Otherwise, return a non-zero value and do not
-            // update the balance of this account.  Note that this operation is
-            // thread-safe; no 'lock' is needed.
 
         // ACCESSORS
+
+        /// Atomically return the number of pennies that are available for
+        /// withdrawal from this account.
         bsls::Types::Uint64 balanceInPennies() const;
-            // Atomically return the number of pennies that are available for
-            // withdrawal from this account.
     };
 
     // CREATORS
@@ -304,10 +308,10 @@ extern "C" void *starvationReadLockCount(void *arg)
     // MANIPULATORS
     my_Account& my_Account::operator=(const my_Account& rhs)
     {
-//..
+// ```
 // Where appropriate, clients should use a lock-guard to ensure that an
 // acquired mutex is always properly released, even if an exception is thrown.
-//..
+// ```
         d_lock.lockWrite();
         d_pennies = rhs.balanceInPennies();
         d_lock.unlockWrite();
@@ -347,7 +351,7 @@ extern "C" void *starvationReadLockCount(void *arg)
         d_lock.unlockRead();
         return rv;
     }
-//..
+// ```
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -366,13 +370,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -382,8 +386,8 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-// The atomic 'my_Account' methods are used as expected:
-//..
+// The atomic `my_Account` methods are used as expected:
+// ```
     my_Account account;
 
     account.deposit(10050);
@@ -393,36 +397,36 @@ int main(int argc, char *argv[])
 
     account.deposit(paycheckInPennies);
     ASSERT(15075 == account.balanceInPennies());
-//..
+// ```
       } break;
       case 5: {
         // --------------------------------------------------------------------
         // COMPATIBILITY WITH GUARDS
         //
         // Concerns:
-        //: 1 That the component under test is compatible with
-        //:   'bslmt::ReadLockGuard'.
-        //:
-        //: 2 That the component under test is compatible with
-        //:   'bslmt::WriteLockGuard'.
+        // 1. That the component under test is compatible with
+        //    `bslmt::ReadLockGuard`.
+        //
+        // 2. That the component under test is compatible with
+        //    `bslmt::WriteLockGuard`.
         //
         // Plan:
-        //: 1 Create a 'bslmt::ReaderWriterMutex' object.
-        //:
-        //: 2 Confirm that it is unlocked by calling all the 'isLocked*'
-        //:   methods.
-        //:
-        //: 3 In a block, lock the object for read with a guard, then confirm
-        //:   its state with the accessors.
-        //:
-        //: 4 Leave the block, and confirm that it is unlocked by calling all
-        //:   the 'isLocked*' methods.
-        //:
-        //: 5 In a block, lock the object for write with a guard, then confirm
-        //:   its state with the accessors.
-        //:
-        //: 6 Leave the block, and confirm that it is unlocked by calling all
-        //:   the 'isLocked*' methods.
+        // 1. Create a `bslmt::ReaderWriterMutex` object.
+        //
+        // 2. Confirm that it is unlocked by calling all the `isLocked*`
+        //    methods.
+        //
+        // 3. In a block, lock the object for read with a guard, then confirm
+        //    its state with the accessors.
+        //
+        // 4. Leave the block, and confirm that it is unlocked by calling all
+        //    the `isLocked*` methods.
+        //
+        // 5. In a block, lock the object for write with a guard, then confirm
+        //    its state with the accessors.
+        //
+        // 6. Leave the block, and confirm that it is unlocked by calling all
+        //    the `isLocked*` methods.
         //
         // Testing:
         //   CONCERN: works with bslmt::ReadLockGuard<Obj>
@@ -469,18 +473,18 @@ int main(int argc, char *argv[])
         // ACCESSORS
         //
         // Concerns:
-        //: 1 Each accessor forwards to the corresponding accessor in that
-        //:   object's 'bslmt_ReaderWriterMutexImpl' member.
-        //:
-        //: 2 Each accessor is 'const' qualified.
+        // 1. Each accessor forwards to the corresponding accessor in that
+        //    object's `bslmt_ReaderWriterMutexImpl` member.
+        //
+        // 2. Each accessor is `const` qualified.
         //
         // Plan:
-        //: 1 An ad-hoc sequence of (previously tested) lock and unlock
-        //:   operations is used to put a test object into different states.
-        //:   The accessors are used to corroborate those states.  (C-1)
-        //:
-        //: 2 Each accessor invocation is done via a 'const'-reference to the
-        //:   object under test.  (C-2)
+        // 1. An ad-hoc sequence of (previously tested) lock and unlock
+        //    operations is used to put a test object into different states.
+        //    The accessors are used to corroborate those states.  (C-1)
+        //
+        // 2. Each accessor invocation is done via a `const`-reference to the
+        //    object under test.  (C-2)
         //
         // Testing:
         //   bool isLocked() const;
@@ -546,13 +550,13 @@ int main(int argc, char *argv[])
         //   This case verifies the lock is biased torwards writers.
         //
         // Concerns:
-        //: 1 The lock is writer biased.
+        // 1. The lock is writer biased.
         //
         // Plan:
-        //: 1 Create one writer and a number of reader threads that count the
-        //:   number of times they are able to obtain the lock.  Evaluate the
-        //:   resultant counts to ensure the lock exhibits a writer bias.
-        //:   (C-1)
+        // 1. Create one writer and a number of reader threads that count the
+        //    number of times they are able to obtain the lock.  Evaluate the
+        //    resultant counts to ensure the lock exhibits a writer bias.
+        //    (C-1)
         //
         // Testing:
         //   WRITER BIAS
@@ -593,7 +597,7 @@ int main(int argc, char *argv[])
         }
 
         // For a reader-prefering lock, the above test will result in,
-        // typically, 'writer.d_count < k_COMPLETION_COUNT / 10000'.  To avoid
+        // typically, `writer.d_count < k_COMPLETION_COUNT / 10000`.  To avoid
         // potential intermittent failures, the threshold will be set (only) a
         // hundred times higher than this measure.
 
@@ -605,11 +609,11 @@ int main(int argc, char *argv[])
         //   This case verifies the forwarding to the implementation class.
         //
         // Concerns:
-        //: 1 The methods function as expected.
+        // 1. The methods function as expected.
         //
         // Plan:
-        //: 1 Use multiple threads to distinguish the behavior of each method
-        //:   and hence validate the forwarding.  (C-1)
+        // 1. Use multiple threads to distinguish the behavior of each method
+        //    and hence validate the forwarding.  (C-1)
         //
         // Testing:
         //   ReaderWriterMutex();
@@ -692,7 +696,7 @@ int main(int argc, char *argv[])
             t.d_stepDone.wait();
 
             ASSERT(0 == obj.tryLockRead());
-            obj.unlock();  // NOTE: not 'unlockRead'
+            obj.unlock();  // NOTE: not `unlockRead`
 
             ASSERT(0 == obj.tryLockWrite());
             obj.unlockWrite();
@@ -710,15 +714,15 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create objects.
-        //:
-        //: 2 Exercise these objects using primary manipulators.
-        //:
-        //: 3 Verify expected values throughout.  (C-1)
+        // 1. Create objects.
+        //
+        // 2. Exercise these objects using primary manipulators.
+        //
+        // 3. Verify expected values throughout.  (C-1)
         //
         // Testing:
         //   BREATHING TEST

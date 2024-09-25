@@ -13,8 +13,8 @@
 #include <bsls_systemtime.h>
 #include <bsls_types.h>
 
-#include <bsl_cstdlib.h>     // 'atoi', 'getenv', 'putenv'
-#include <bsl_cstring.h>     // 'strncat'
+#include <bsl_cstdlib.h>     // `atoi`, `getenv`, `putenv`
+#include <bsl_cstring.h>     // `strncat`
 #include <bsl_iostream.h>
 #include <bsl_string.h>
 
@@ -32,7 +32,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// 'bdlt_localtimeoffset' defines functions for setting, retrieving, and using
+// `bdlt_localtimeoffset` defines functions for setting, retrieving, and using
 // a global callback for computing the local time offset as well as a default
 // implementation for this global callback.  The operations are verified by
 // directly invoking the methods and inspecting the results.
@@ -118,21 +118,22 @@ class MyLocalTimeOffset {
 
   public:
     // CLASS METHODS
+
+    /// Return a `bsls::TimeInterval` value representing the value at the
+    /// address specified by the `offset` argument of the last invocation of
+    /// the `setExternals` method and set to `true` the value at the address
+    /// specified by the `callbackInvoked` argument of last invocation of
+    /// the `setExternals` method.  The specified `utcDatetime` is ignored.
+    /// The behavior is undefined unless the value at `callbackInvoked` is
+    /// initially `false`.
     static bsls::TimeInterval localTimeOffset(
                                             const bdlt::Datetime& utcDatetime);
-        // Return a 'bsls::TimeInterval' value representing the value at the
-        // address specified by the 'offset' argument of the last invocation of
-        // the 'setExternals' method and set to 'true' the value at the address
-        // specified by the 'callbackInvoked' argument of last invocation of
-        // the 'setExternals' method.  The specified 'utcDatetime' is ignored.
-        // The behavior is undefined unless the value at 'callbackInvoked' is
-        // initially 'false'.
 
+    /// Set the specified address `offset` as the source of the value
+    /// returned by the `localLocalTimeOffset` method and set the specified
+    /// address `callbackInvoked` as the indicator of whether the callback
+    /// was invoked.
     static void setExternals(const int *offset, bool *callbackInvoked);
-        // Set the specified address 'offset' as the source of the value
-        // returned by the 'localLocalTimeOffset' method and set the specified
-        // address 'callbackInvoked' as the indicator of whether the callback
-        // was invoked.
 };
 
 const int *MyLocalTimeOffset::s_offset_p          = 0;
@@ -159,14 +160,14 @@ void MyLocalTimeOffset::setExternals(const int *offset, bool *callbackInvoked)
 //                      HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Return a fixed `bsls::TimeInterval` value.
 bsls::TimeInterval f1(const bdlt::Datetime& /* utcDatetime */)
-    // Return a fixed 'bsls::TimeInterval' value.
 {
     return bsls::TimeInterval(17, 1);
 }
 
+/// Return a fixed `bsls::TimeInterval` value.
 bsls::TimeInterval f2(const bdlt::Datetime& /* utcDatetime */)
-    // Return a fixed 'bsls::TimeInterval' value.
 {
     return bsls::TimeInterval(17, 2);
 }
@@ -180,8 +181,8 @@ extern "C" {
 typedef HANDLE ThreadId;
 
 static ThreadId createThread(ThreadFunction function, void *argument)
-    // Create a thread, invoking the specified 'function' with the specified
-    // 'argument' and return the id of the thread.
+    // Create a thread, invoking the specified `function` with the specified
+    // `argument` and return the id of the thread.
 {
   return CreateThread(0, 0,
                       reinterpret_cast<LPTHREAD_START_ROUTINE>(function),
@@ -190,7 +191,7 @@ static ThreadId createThread(ThreadFunction function, void *argument)
 }
 
 static void joinThread(ThreadId id)
-    // Wait until the thread with the specified 'id' is finished.
+    // Wait until the thread with the specified `id` is finished.
 {
     WaitForSingleObject(id, INFINITE);
     CloseHandle(id);
@@ -200,25 +201,25 @@ static void joinThread(ThreadId id)
 
 typedef pthread_t ThreadId;
 
+/// Create a thread, invoking the specified `function` with the specified
+/// `argument` and return the id of the thread.
 static ThreadId createThread(ThreadFunction function, void *argument)
-    // Create a thread, invoking the specified 'function' with the specified
-    // 'argument' and return the id of the thread.
 {
     ThreadId id;
     pthread_create(&id, 0, function, argument);
     return id;
 }
 
+/// Wait until the thread with the specified `id` is finished.
 static void joinThread(ThreadId id)
-    // Wait until the thread with the specified 'id' is finished.
 {
      pthread_join(id, 0);
 }
 
 #endif
 
+/// Data passed to thread function.
 struct ThreadInfo {
-    // Data passed to thread function.
     Obj::LocalTimeOffsetCallback set;      // Set this as the callback.
     Obj::LocalTimeOffsetCallback other;    // Expect this as the callback too.
     int                          count;    // Set callback this many times.
@@ -228,9 +229,9 @@ struct ThreadInfo {
 
 static bsls::AtomicOperations::AtomicTypes::Int threadStart = { 0 };
 
+/// Using the `ThreadInfo` data specified by `argument`, invoke the set and
+/// get callback methods of `bdlt::CurrentTime`.
 extern "C" void *threadFunction(void *argument)
-    // Using the 'ThreadInfo' data specified by 'argument', invoke the set and
-    // get callback methods of 'bdlt::CurrentTime'.
 {
     while (!bsls::AtomicOperations::getInt(&threadStart)) {
         // Wait for the starting gun.
@@ -262,7 +263,7 @@ extern "C" void *threadFunction(void *argument)
 //                             USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
-//..
+// ```
     struct MyLocalTimeOffsetUtilNewYork2013 {
 
       private:
@@ -273,16 +274,17 @@ extern "C" void *threadFunction(void *argument)
 
       public:
         // CLASS METHODS
+
+        /// Return a `bsls::TimeInterval` value representing the difference
+        /// between the local time for the "America/New_York" timezone and
+        /// UTC time at the specified `utcDatetime`.  The behavior is
+        /// undefined unless `2013 == utcDatetime.date().year()`.
         static bsls::TimeInterval localTimeOffset(
                                             const bdlt::Datetime& utcDatetime);
-            // Return a 'bsls::TimeInterval' value representing the difference
-            // between the local time for the "America/New_York" timezone and
-            // UTC time at the specified 'utcDatetime'.  The behavior is
-            // undefined unless '2013 == utcDatetime.date().year()'.
 
+        /// Return the number of invocations of the `localTimeOffset` since
+        /// the start of the process.
         static int useCount();
-            // Return the number of invocations of the 'localTimeOffset' since
-            // the start of the process.
     };
 
     // DATA
@@ -316,7 +318,7 @@ extern "C" void *threadFunction(void *argument)
     {
         return s_useCount;
     }
-//..
+// ```
 
 // ============================================================================
 //                          MAIN PROGRAM
@@ -335,7 +337,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
@@ -344,14 +346,14 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file must
-        //:   compile, link, and run as shown.
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, replace
-        //:   leading comment characters with spaces, replace 'assert' with
-        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
-        //:   operations.  (C-1)
+        // 1. Incorporate usage example from header into test driver, replace
+        //    leading comment characters with spaces, replace `assert` with
+        //    `ASSERT`, and insert `if (veryVerbose)` before all output
+        //    operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -360,39 +362,39 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "USAGE EXAMPLE" << endl
                                   << "=============" << endl;
 
-///Example 1: Basic 'bdlt::LocalTimeOffset' Usage
+///Example 1: Basic `bdlt::LocalTimeOffset` Usage
 ///- - - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates how to use 'bdlt::LocalTimeOffset'.
+// This example demonstrates how to use `bdlt::LocalTimeOffset`.
 //
 // First, obtain the current UTC time - ignoring milliseconds - using
-// 'bsls::SystemTime' and 'bdlt::EpochUtil' (note that clients may prefer
-// 'bdlt_currenttime', which is not shown here for dependency reasons):
-//..
+// `bsls::SystemTime` and `bdlt::EpochUtil` (note that clients may prefer
+// `bdlt_currenttime`, which is not shown here for dependency reasons):
+// ```
     bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
 
     bdlt::Datetime utc = bdlt::EpochUtil::epoch() +
                                 bdlt::DatetimeInterval(0, 0, 0, now.seconds());
-//..
+// ```
 // Then, obtain the local time offset:
-//..
+// ```
     bsls::TimeInterval localOffset =
                                    bdlt::LocalTimeOffset::localTimeOffset(utc);
-//..
+// ```
 // Next, add the offset to the UTC time to obtain the local time:
-//..
+// ```
     bdlt::Datetime local = utc;
     local.addSeconds(localOffset.seconds());
-//..
-// Finally, stream the two time values to 'stdout':
-//..
+// ```
+// Finally, stream the two time values to `stdout`:
+// ```
     bsl::cout << "utc   = " << utc << bsl::endl;
     bsl::cout << "local = " << local << bsl::endl;
-//..
-// The streaming operator produces output in the following format on 'stdout':
-//..
+// ```
+// The streaming operator produces output in the following format on `stdout`:
+// ```
 //  utc   = ddMONyyyy_hh:mm::ss.000
 //  local = ddMONyyyy_hh:mm::ss.000
-//..
+// ```
 //
 ///Example 2: Using the Local Time Offset Callback
 ///- - - - - - - - - - - - - - - - - - - - - - - -
@@ -405,17 +407,17 @@ int main(int argc, char *argv[])
 // offset allows one to solve this problem.
 //
 // First, create a utility class that provides a method of type
-// 'bdlt::LocalTimeOffset::LocalTimeOffsetCallback' that is valid for the
+// `bdlt::LocalTimeOffset::LocalTimeOffsetCallback` that is valid for the
 // location of interest (New York) for the period of interest (the year 2013).
-//..
-//..
+// ```
+// ```
 // Note that the transition times into and out of daylight saving for New York
 // are given in UTC.  Also notice that we do not attempt to make the
-// 'localTimeOffset' method 'inline', since we must take its address to install
+// `localTimeOffset` method `inline`, since we must take its address to install
 // it as the callback.
 //
-// Then, we install this 'localTimeOffset' as the local time offset callback.
-//..
+// Then, we install this `localTimeOffset` as the local time offset callback.
+// ```
     bdlt::LocalTimeOffset::LocalTimeOffsetCallback defaultCallback =
                              bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(
                                             &MyLocalTimeOffsetUtilNewYork2013::
@@ -424,12 +426,12 @@ int main(int argc, char *argv[])
     ASSERT(bdlt::LocalTimeOffset::localTimeOffsetDefault == defaultCallback);
     ASSERT(&MyLocalTimeOffsetUtilNewYork2013::localTimeOffset
                           == bdlt::LocalTimeOffset::localTimeOffsetCallback());
-//..
-// Now, we can use the 'bdlt::LocalTimeOffset::localTimeOffset' method to
+// ```
+// Now, we can use the `bdlt::LocalTimeOffset::localTimeOffset` method to
 // obtain the local time offsets in New York on several dates of interest.  The
-// increasing values from our 'useCount' method assures us that the callback we
+// increasing values from our `useCount` method assures us that the callback we
 // defined is indeed being used.
-//..
+// ```
     ASSERT(0 == MyLocalTimeOffsetUtilNewYork2013::useCount());
 
     bsls::Types::Int64 offset;
@@ -448,37 +450,37 @@ int main(int argc, char *argv[])
     offset = bdlt::LocalTimeOffset::localTimeOffset(newYearsEve).seconds();
     ASSERT(-5 * 3600 == offset);
     ASSERT(        3 == MyLocalTimeOffsetUtilNewYork2013::useCount());
-//..
+// ```
 // Finally, to be neat, we restore the local time offset callback to the
 // default callback:
-//..
+// ```
     bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(defaultCallback);
     ASSERT(&bdlt::LocalTimeOffset::localTimeOffsetDefault
                           == bdlt::LocalTimeOffset::localTimeOffsetCallback());
-//..
+// ```
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'localTimeOffsetDefault'
-        //  Verify the 'localTimeOffsetDefault' function returns the difference
+        // TESTING `localTimeOffsetDefault`
+        //  Verify the `localTimeOffsetDefault` function returns the difference
         //  between local time and UTC time by comparing to an oracle function.
         //
         // Concerns:
-        //: 1 'localTimeOffsetDefault' returns the correct value.
+        // 1. `localTimeOffsetDefault` returns the correct value.
         //
         // Plan:
-        //: 1 Compare the result of 'localTimeOffsetDefault' with an oracle
-        //:   function.  (C-1)
+        // 1. Compare the result of `localTimeOffsetDefault` with an oracle
+        //    function.  (C-1)
         //
         // Testing:
         //   bsls::TimeInterval localTimeOffsetDefault(const Datetime& utcDT);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'localTimeOffsetDefault'" << endl
+                          << "TESTING `localTimeOffsetDefault`" << endl
                           << "================================" << endl;
 
-        if (verbose) cout << "\nCompare 'localTimeOffsetDefault' "
+        if (verbose) cout << "\nCompare `localTimeOffsetDefault` "
                              "to Alternate Implementation" << endl;
         {
             static const char *INPUT[]   = {  "America/New_York",
@@ -490,7 +492,7 @@ int main(int argc, char *argv[])
 
             static const string TZ_EQUALS = "TZ=";
 
-            // On some systems, 'putenv' requires a mutable buffer that will be
+            // On some systems, `putenv` requires a mutable buffer that will be
             // incorporated into the environment *by* *address*, so it must
             // have static storage.
 
@@ -568,45 +570,45 @@ int main(int argc, char *argv[])
         //   global callback function.
         //
         // Concerns:
-        //: 1 The 'localTimeOffsetDefault' method is installed as the default
-        //:   callback.
-        //:
-        //: 2 The 'localTimeOffsetCallback' method shows the currently
-        //:   installed callback.
-        //:
-        //: 3 The 'setLocalTimeOffsetCallback' returns the previously installed
-        //:   callback, and sets the specified callback.
-        //:
-        //: 4 The installed callback is called by 'localTimeOffset' and that
-        //:   the value generated by the callback is reflected in the value
-        //:   returned by this method.
-        //:
-        //: 5 The user-defined callback used in this test operates correctly.
-        //:
-        //: 6 These methods are thread-safe.
-        //:
-        //: 7 QoI: asserted precondition violations are detected when enabled.
+        // 1. The `localTimeOffsetDefault` method is installed as the default
+        //    callback.
+        //
+        // 2. The `localTimeOffsetCallback` method shows the currently
+        //    installed callback.
+        //
+        // 3. The `setLocalTimeOffsetCallback` returns the previously installed
+        //    callback, and sets the specified callback.
+        //
+        // 4. The installed callback is called by `localTimeOffset` and that
+        //    the value generated by the callback is reflected in the value
+        //    returned by this method.
+        //
+        // 5. The user-defined callback used in this test operates correctly.
+        //
+        // 6. These methods are thread-safe.
+        //
+        // 7. QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use the 'setLocalTimeOffsetCallback' and
-        //:   'localTimeOffsetCallback' methods to check, change to a
-        //:   user-defined callback, and restore the initial callback.  Confirm
-        //:   that the expected values are returned by each method at each
-        //:   stage.  (C-1..3)
-        //:
-        //: 2 Create a user-defined callback that provides an external
-        //:   indication when called, and provides a user-specified offset to
-        //:   its caller.  Using an array-driven test, demonstrate that the
-        //:   callback works as designed for several offset values, and, when
-        //:   the user-defined callback is installed as the local time offset
-        //:   callback, demonstrate that the 'localTimeOffset' method passes
-        //:   through the offset value.  (C-4, C-5).
-        //:
-        //: 3 Start multiple threads which repeatedly install and use one of
-        //:   two callback functions and verify that only those functions are
-        //:   ever returned and used by the methods.  (C-6)
-        //:
-        //: 4 Verify defensive checks are triggered for invalid values.  (C-7)
+        // 1. Use the `setLocalTimeOffsetCallback` and
+        //    `localTimeOffsetCallback` methods to check, change to a
+        //    user-defined callback, and restore the initial callback.  Confirm
+        //    that the expected values are returned by each method at each
+        //    stage.  (C-1..3)
+        //
+        // 2. Create a user-defined callback that provides an external
+        //    indication when called, and provides a user-specified offset to
+        //    its caller.  Using an array-driven test, demonstrate that the
+        //    callback works as designed for several offset values, and, when
+        //    the user-defined callback is installed as the local time offset
+        //    callback, demonstrate that the `localTimeOffset` method passes
+        //    through the offset value.  (C-4, C-5).
+        //
+        // 3. Start multiple threads which repeatedly install and use one of
+        //    two callback functions and verify that only those functions are
+        //    ever returned and used by the methods.  (C-6)
+        //
+        // 4. Verify defensive checks are triggered for invalid values.  (C-7)
         //
         // Testing:
         //   bsls::TimeInterval localTimeOffset(const Datetime& utcDatetime);
@@ -619,7 +621,7 @@ int main(int argc, char *argv[])
                           << "===================================" << endl;
 
         if (verbose) cout << "\n'localTimeOffsetCallback' and "
-                             "'setLocalTimeOffsetCallback'" << endl;
+                             "`setLocalTimeOffsetCallback`" << endl;
         {
             if (veryVerbose) { T_; Q(Check for Default Initially) }
 
@@ -646,7 +648,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout << "\n'MyLocalTimeOffset' and"
-                             "'localTimeOffset'" << endl;
+                             "`localTimeOffset`" << endl;
         {
             const int INPUT[]   = { INT_MIN, -1, 0, 1, INT_MAX};
             const int NUM_INPUT = static_cast<int>(sizeof(INPUT)

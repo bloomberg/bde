@@ -28,7 +28,7 @@
 #include <bsl_sstream.h>
 #include <bsl_set.h>
 
-#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstdlib.h>     // `atoi`
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -344,13 +344,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -362,39 +362,40 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-/// Example 1: Basic Use of 'bdlb::BigEndian'
+/// Example 1: Basic Use of `bdlb::BigEndian`
 /// - - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates using 'bdlb::BigEndian' types to represent a
+// This example demonstrates using `bdlb::BigEndian` types to represent a
 // structure meant to be exchanged over the network ( which historically uses
 // big-endian byte order ) or stored in-core as big-endian integers.  First, we
 // define the structure:
-//..
+// ```
+
+    /// This structure represents the header of the protocol.  All integer
+    /// values are stored in the network byte-order (i.e., big-endian).
     struct ProtocolHeader {
-        // This structure represents the header of the protocol.  All integer
-        // values are stored in the network byte-order (i.e., big-endian).
 
         bdlb::BigEndianUint16 d_protocolVersion;
         bdlb::BigEndianUint16 d_messageType;
         bdlb::BigEndianUint32 d_messageLength;
     };
-//..
+// ```
 // Next, we prepare in-memory representation of the protocol header with
-// protocol version set to '0x1', message type set to '0x02' and message length
-// set to '0x1234' in the big-endian byte order ( most significant bytes first
+// protocol version set to `0x1`, message type set to `0x02` and message length
+// set to `0x1234` in the big-endian byte order ( most significant bytes first
 // ):
-//..
+// ```
     const char buffer[8] = { 0x00, 0x01, 0x00, 0x02, 0x00, 0x00, 0x12, 0x34 };
-//..
-// Now, we create an instance of the 'ProtocolHeader' structure and emulate
+// ```
+// Now, we create an instance of the `ProtocolHeader` structure and emulate
 // packet reception over the network:
-//..
+// ```
     struct ProtocolHeader header;
     ASSERT(8 == sizeof(header));
     memcpy(static_cast<void*>(&header), buffer, 8);
-//..
+// ```
 // Next, we verify that actual in-core values depend on the endianess of the
 // underlying platform:
-//..
+// ```
     #ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
     ASSERT(0x0100 ==
            static_cast<short>(*(reinterpret_cast<unsigned short*>(
@@ -420,56 +421,56 @@ int main(int argc, char *argv[])
     ASSERT(0x1234 == *(reinterpret_cast<unsigned int*>(
                                                  &header.d_messageLength)));
     #endif // BSLS_PLATFORM_IS_BIG_ENDIAN
-//..
+// ```
 // Finally, we verify that the received protocol header can be validated on
 // platforms of any endianess:
-//..
+// ```
     ASSERT(0x01   == header.d_protocolVersion);
     ASSERT(0x02   == header.d_messageType);
     ASSERT(0x1234 == header.d_messageLength);
-//..
+// ```
       } break;
       case 11: {
         // --------------------------------------------------------------------
         // TESTING HASH ENDIAN-NESS
         //
         // Concerns:
-        //: 1 A 'BigEndianInt16' object will have the same SipHash hash value
-        //:   for both small and big endian architecture.
-        //:
-        //: 2 A 'BigEndianUint16' object will have the same SipHash hash value
-        //:   for both small and big endian architecture.
-        //:
-        //: 3 A 'BigEndianInt32' object will have the same SipHash hash value
-        //:   for both small and big endian architecture.
-        //:
-        //: 4 A 'BigEndianUint32' object will have the same SipHash hash value
-        //:   for both small and big endian architecture.
-        //:
-        //: 5 A 'BigEndianInt64' object will have the same SipHash hash value
-        //:   for both small and big endian architecture.
-        //:
-        //: 6 A 'BigEndianUint64' object will have the same SipHash hash value
-        //:   for both small and big endian architecture.
+        // 1. A `BigEndianInt16` object will have the same SipHash hash value
+        //    for both small and big endian architecture.
+        //
+        // 2. A `BigEndianUint16` object will have the same SipHash hash value
+        //    for both small and big endian architecture.
+        //
+        // 3. A `BigEndianInt32` object will have the same SipHash hash value
+        //    for both small and big endian architecture.
+        //
+        // 4. A `BigEndianUint32` object will have the same SipHash hash value
+        //    for both small and big endian architecture.
+        //
+        // 5. A `BigEndianInt64` object will have the same SipHash hash value
+        //    for both small and big endian architecture.
+        //
+        // 6. A `BigEndianUint64` object will have the same SipHash hash value
+        //    for both small and big endian architecture.
         //
         // Plan:
-        //: 1 Hash some different 'BigEndianInt16' objects and verify that the
-        //:   result is the same for the various operating systems.  (C-1)
-        //:
-        //: 2 Hash some different 'BigEndianUint16' objects and verify that the
-        //:   result is the same for the various operating systems.  (C-2)
-        //:
-        //: 3 Hash some different 'BigEndianInt32' objects and verify that the
-        //:   result is the same for the various operating systems.  (C-3)
-        //:
-        //: 4 Hash some different 'BigEndianUint32' objects and verify that the
-        //:   result is the same for the various operating systems.  (C-4)
-        //:
-        //: 5 Hash some different 'BigEndianInt64' objects and verify that the
-        //:   result is the same for the various operating systems.  (C-5)
-        //:
-        //: 6 Hash some different 'BigEndianUint64' objects and verify that the
-        //:   result is the same for the various operating systems.  (C-6)
+        // 1. Hash some different `BigEndianInt16` objects and verify that the
+        //    result is the same for the various operating systems.  (C-1)
+        //
+        // 2. Hash some different `BigEndianUint16` objects and verify that the
+        //    result is the same for the various operating systems.  (C-2)
+        //
+        // 3. Hash some different `BigEndianInt32` objects and verify that the
+        //    result is the same for the various operating systems.  (C-3)
+        //
+        // 4. Hash some different `BigEndianUint32` objects and verify that the
+        //    result is the same for the various operating systems.  (C-4)
+        //
+        // 5. Hash some different `BigEndianInt64` objects and verify that the
+        //    result is the same for the various operating systems.  (C-5)
+        //
+        // 6. Hash some different `BigEndianUint64` objects and verify that the
+        //    result is the same for the various operating systems.  (C-6)
         //
         // Testing:
         //   TESTING HASH ENDIAN-NESS
@@ -591,114 +592,114 @@ int main(int argc, char *argv[])
         // TESTING HASH FUNCTION
         //
         // Concerns:
-        //: 1 A 'BigEndianInt16' object can be hashed by instances of
-        //:   'bsl::hash<bdlb::BigEndianInt16>'.
-        //:
-        //: 2 A small sample of different 'BigEndianInt16' objects produce
-        //:   different hashes.
-        //:
-        //: 3 Invoking 'bsl::hash<bdlb::BigEndianInt16>' is identical to invoking
-        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the
-        //:   'BigEndianInt16' object.
-        //:
-        //: 4 A 'BigEndianUint16' object can be hashed by instances of
-        //:   'bsl::hash<bdlb::BigEndianUint16>'.
-        //:
-        //: 5 A small sample of different 'BigEndianUint16' objects produce
-        //:   different hashes.
-        //:
-        //: 6 Invoking 'bsl::hash<bdlb::BigEndianUint16>' is identical to invoking
-        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the
-        //:   'BigEndianUint16' object.
-        //:
-        //: 7 A 'BigEndianInt32' object can be hashed by instances of
-        //:   'bsl::hash<bdlb::BigEndianInt32>'.
-        //:
-        //: 8 A small sample of different 'BigEndianInt32' objects produce
-        //:   different hashes.
-        //:
-        //: 9 Invoking 'bsl::hash<bdlb::BigEndianInt32>' is identical to invoking
-        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the
-        //:   'BigEndianInt32' object.
-        //:
-        //:10 A 'BigEndianUint32' object can be hashed by instances of
-        //:   'bsl::hash<bdlb::BigEndianUint32>'.
-        //:
-        //:11 A small sample of different 'BigEndianUint32' objects produce
-        //:   different hashes.
-        //:
-        //:12 Invoking 'bsl::hash<bdlb::BigEndianUint32>' is identical to invoking
-        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the
-        //:   'BigEndianUint32' object.
-        //:
-        //:13 A 'BigEndianInt64' object can be hashed by instances of
-        //:   'bsl::hash<bdlb::BigEndianInt6432>'.
-        //:
-        //:14 A small sample of different 'BigEndianInt64' objects produce
-        //:   different hashes.
-        //:
-        //:15 Invoking 'bsl::hash<bdlb::BigEndianInt64>' is identical to invoking
-        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the
-        //:   'BigEndianInt64' object.
-        //:
-        //:16 A 'BigEndianUint64' object can be hashed by instances of
-        //:   'bsl::hash<bdlb::BigEndianUint64>'.
-        //:
-        //:17 A small sample of different 'BigEndianUint64' objects produce
-        //:   different hashes.
-        //:
-        //:18 Invoking 'bsl::hash<bdlb::BigEndianUint64>' is identical to invoking
-        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the
-        //:   'BigEndianUint64' object.
+        // 1. A `BigEndianInt16` object can be hashed by instances of
+        //    `bsl::hash<bdlb::BigEndianInt16>`.
+        //
+        // 2. A small sample of different `BigEndianInt16` objects produce
+        //    different hashes.
+        //
+        // 3. Invoking `bsl::hash<bdlb::BigEndianInt16>` is identical to invoking
+        //    `bslh::DefaultHashAlgorithm` on the underlying data of the
+        //    `BigEndianInt16` object.
+        //
+        // 4. A `BigEndianUint16` object can be hashed by instances of
+        //    `bsl::hash<bdlb::BigEndianUint16>`.
+        //
+        // 5. A small sample of different `BigEndianUint16` objects produce
+        //    different hashes.
+        //
+        // 6. Invoking `bsl::hash<bdlb::BigEndianUint16>` is identical to invoking
+        //    `bslh::DefaultHashAlgorithm` on the underlying data of the
+        //    `BigEndianUint16` object.
+        //
+        // 7. A `BigEndianInt32` object can be hashed by instances of
+        //    `bsl::hash<bdlb::BigEndianInt32>`.
+        //
+        // 8. A small sample of different `BigEndianInt32` objects produce
+        //    different hashes.
+        //
+        // 9. Invoking `bsl::hash<bdlb::BigEndianInt32>` is identical to invoking
+        //    `bslh::DefaultHashAlgorithm` on the underlying data of the
+        //    `BigEndianInt32` object.
+        //
+        // 10. A `BigEndianUint32` object can be hashed by instances of
+        //    `bsl::hash<bdlb::BigEndianUint32>`.
+        //
+        // 11. A small sample of different `BigEndianUint32` objects produce
+        //    different hashes.
+        //
+        // 12. Invoking `bsl::hash<bdlb::BigEndianUint32>` is identical to invoking
+        //    `bslh::DefaultHashAlgorithm` on the underlying data of the
+        //    `BigEndianUint32` object.
+        //
+        // 13. A `BigEndianInt64` object can be hashed by instances of
+        //    `bsl::hash<bdlb::BigEndianInt6432>`.
+        //
+        // 14. A small sample of different `BigEndianInt64` objects produce
+        //    different hashes.
+        //
+        // 15. Invoking `bsl::hash<bdlb::BigEndianInt64>` is identical to invoking
+        //    `bslh::DefaultHashAlgorithm` on the underlying data of the
+        //    `BigEndianInt64` object.
+        //
+        // 16. A `BigEndianUint64` object can be hashed by instances of
+        //    `bsl::hash<bdlb::BigEndianUint64>`.
+        //
+        // 17. A small sample of different `BigEndianUint64` objects produce
+        //    different hashes.
+        //
+        // 18. Invoking `bsl::hash<bdlb::BigEndianUint64>` is identical to invoking
+        //    `bslh::DefaultHashAlgorithm` on the underlying data of the
+        //    `BigEndianUint64` object.
         //
         // Plan:
-        //: 1 Hash some different 'BigEndianInt16' objects and verify that the
-        //:   result of using 'bsl::hash<bdlb::BigEndianInt16>' is identical to
-        //:   invoking 'bslh::DefaultHashAlgorithm' on the underlying
-        //:   attributes of the 'BigEndianInt16' object.  (C-1,3)
-        //:
-        //: 2 Hash a number of different 'BigEndianInt16' objects and verify that
-        //:   they produce distinct hashes.  (C-2)
-        //:
-        //: 3 Hash some different 'BigEndianUint16' objects and verify that the
-        //:   result of using 'bsl::hash<bdlb::BigEndianUint16>' is identical to
-        //:   invoking 'bslh::DefaultHashAlgorithm' on the underlying
-        //:   attributes of the 'BigEndianUint16' object.  (C-4,7)
-        //:
-        //: 4 Hash a number of different 'BigEndianUint16' objects and verify that
-        //:   they produce distinct hashes.  (C-5)
-        //:
-        //: 5 Hash some different 'BigEndianInt32' objects and verify that the
-        //:   result of using 'bsl::hash<bdlb::BigEndianInt32>' is identical to
-        //:   invoking 'bslh::DefaultHashAlgorithm' on the underlying
-        //:   attributes of the 'BigEndianInt32' object.  (C-7,9)
-        //:
-        //: 6 Hash a number of different 'BigEndianInt32' objects and verify that
-        //:   they produce distinct hashes.  (C-8)
-        //:
-        //: 7 Hash some different 'BigEndianUint32' objects and verify that the
-        //:   result of using 'bsl::hash<bdlb::BigEndianUint32>' is identical to
-        //:   invoking 'bslh::DefaultHashAlgorithm' on the underlying
-        //:   attributes of the 'BigEndianUint32' object.  (C-10,12)
-        //:
-        //: 8 Hash a number of different 'BigEndianUint32' objects and verify that
-        //:   they produce distinct hashes.  (C-11)
-        //:
-        //: 9 Hash some different 'BigEndianInt64' objects and verify that the
-        //:   result of using 'bsl::hash<bdlb::BigEndianInt64>' is identical to
-        //:   invoking 'bslh::DefaultHashAlgorithm' on the underlying
-        //:   attributes of the 'BigEndianInt64' object.  (C-13,15)
-        //:
-        //:10 Hash a number of different 'BigEndianInt64' objects and verify that
-        //:   they produce distinct hashes.  (C-14)
-        //:
-        //:11 Hash some different 'BigEndianUint64' objects and verify that the
-        //:   result of using 'bsl::hash<bdlb::BigEndianUint64>' is identical to
-        //:   invoking 'bslh::DefaultHashAlgorithm' on the underlying
-        //:   attributes of the 'BigEndianUint64' object.  (C-16,18)
-        //:
-        //:12 Hash a number of different 'BigEndianUint64' objects and verify that
-        //:   they produce distinct hashes.  (C-17)
+        // 1. Hash some different `BigEndianInt16` objects and verify that the
+        //    result of using `bsl::hash<bdlb::BigEndianInt16>` is identical to
+        //    invoking `bslh::DefaultHashAlgorithm` on the underlying
+        //    attributes of the `BigEndianInt16` object.  (C-1,3)
+        //
+        // 2. Hash a number of different `BigEndianInt16` objects and verify that
+        //    they produce distinct hashes.  (C-2)
+        //
+        // 3. Hash some different `BigEndianUint16` objects and verify that the
+        //    result of using `bsl::hash<bdlb::BigEndianUint16>` is identical to
+        //    invoking `bslh::DefaultHashAlgorithm` on the underlying
+        //    attributes of the `BigEndianUint16` object.  (C-4,7)
+        //
+        // 4. Hash a number of different `BigEndianUint16` objects and verify that
+        //    they produce distinct hashes.  (C-5)
+        //
+        // 5. Hash some different `BigEndianInt32` objects and verify that the
+        //    result of using `bsl::hash<bdlb::BigEndianInt32>` is identical to
+        //    invoking `bslh::DefaultHashAlgorithm` on the underlying
+        //    attributes of the `BigEndianInt32` object.  (C-7,9)
+        //
+        // 6. Hash a number of different `BigEndianInt32` objects and verify that
+        //    they produce distinct hashes.  (C-8)
+        //
+        // 7. Hash some different `BigEndianUint32` objects and verify that the
+        //    result of using `bsl::hash<bdlb::BigEndianUint32>` is identical to
+        //    invoking `bslh::DefaultHashAlgorithm` on the underlying
+        //    attributes of the `BigEndianUint32` object.  (C-10,12)
+        //
+        // 8. Hash a number of different `BigEndianUint32` objects and verify that
+        //    they produce distinct hashes.  (C-11)
+        //
+        // 9. Hash some different `BigEndianInt64` objects and verify that the
+        //    result of using `bsl::hash<bdlb::BigEndianInt64>` is identical to
+        //    invoking `bslh::DefaultHashAlgorithm` on the underlying
+        //    attributes of the `BigEndianInt64` object.  (C-13,15)
+        //
+        // 10. Hash a number of different `BigEndianInt64` objects and verify that
+        //    they produce distinct hashes.  (C-14)
+        //
+        // 11. Hash some different `BigEndianUint64` objects and verify that the
+        //    result of using `bsl::hash<bdlb::BigEndianUint64>` is identical to
+        //    invoking `bslh::DefaultHashAlgorithm` on the underlying
+        //    attributes of the `BigEndianUint64` object.  (C-16,18)
+        //
+        // 12. Hash a number of different `BigEndianUint64` objects and verify that
+        //    they produce distinct hashes.  (C-17)
         //
         // Testing:
         //   hashAppend(hashAlg, BigEndianInt16)
@@ -787,10 +788,10 @@ int main(int argc, char *argv[])
         //   the expected traits declared.
         //
         // Plan:
-        //   Using the 'bslalg::HasTrait' meta-function, verify that the 6
+        //   Using the `bslalg::HasTrait` meta-function, verify that the 6
         //   classes defined in the component under test define the expected
-        //   traits, namely 'bslalg::TypeTraitBitwiseCopyable' and
-        //   'bdlb::TypeTraitHasPrintMethod'.
+        //   traits, namely `bslalg::TypeTraitBitwiseCopyable` and
+        //   `bdlb::TypeTraitHasPrintMethod`.
         //
         // Testing:
         //   bsl::is_trivially_copyable
@@ -854,9 +855,9 @@ int main(int argc, char *argv[])
         // TESTING STREAMING FUNCTIONALITY
         //
         // Concerns:
-        //   1. The (free) streaming operators '<<' and '>>' are implemented
-        //      using the respective member functions 'bdexStreamOut' and
-        //      'bdexStreamIn'.
+        //   1. The (free) streaming operators `<<` and `>>` are implemented
+        //      using the respective member functions `bdexStreamOut` and
+        //      `bdexStreamIn`.
         //   2. Ensure that streaming works under the following conditions:
         //       VALID - may contain any sequence of valid values.
         //       EMPTY - valid, but contains no data.
@@ -866,7 +867,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   To address concern 1, perform a trivial direct (breathing) test of
-        //   the 'bdexStreamOut' and 'bdexStreamIn' methods.  Note that the
+        //   the `bdexStreamOut` and `bdexStreamIn` methods.  Note that the
         //   rest of the testing will use the stream operators.
         //
         //   To address concern 2, specify a set S of unique object values with
@@ -923,7 +924,7 @@ int main(int argc, char *argv[])
         {
             typedef bdlb::BigEndianInt16 Obj;
 
-            if (verbose) cout << "\nTesting 'maxSupportedBdexVersion(int)'."
+            if (verbose) cout << "\nTesting `maxSupportedBdexVersion(int)`."
                               << endl;
             {
                 Obj mX = Obj::make(1); const Obj& X = mX;
@@ -934,7 +935,7 @@ int main(int argc, char *argv[])
             }
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
-            if (verbose) cout << "\nTesting 'maxSupportedBdexVersion()'."
+            if (verbose) cout << "\nTesting `maxSupportedBdexVersion()`."
                               << endl;
             {
                 Obj mX = Obj::make(1); const Obj& X = mX;
@@ -944,8 +945,8 @@ int main(int argc, char *argv[])
             }
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
 
-            if (verbose) cout << "\nDirect initial trial of 'bdexStreamOut'"
-                              << "and (valid) 'bdexStreamIn' functionality."
+            if (verbose) cout << "\nDirect initial trial of `bdexStreamOut`"
+                              << "and (valid) `bdexStreamIn` functionality."
                               << endl;
 
             {
@@ -1070,7 +1071,7 @@ int main(int argc, char *argv[])
         {
             typedef bdlb::BigEndianUint16 Obj;
 
-            if (verbose) cout << "\nTesting 'maxSupportedBdexVersion(int)'."
+            if (verbose) cout << "\nTesting `maxSupportedBdexVersion(int)`."
                               << endl;
             {
                 Obj mX = Obj::make(1); const Obj& X = mX;
@@ -1081,7 +1082,7 @@ int main(int argc, char *argv[])
             }
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
-            if (verbose) cout << "\nTesting 'maxSupportedBdexVersion()'."
+            if (verbose) cout << "\nTesting `maxSupportedBdexVersion()`."
                               << endl;
             {
                 Obj mX = Obj::make(1); const Obj& X = mX;
@@ -1091,8 +1092,8 @@ int main(int argc, char *argv[])
             }
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
 
-            if (verbose) cout << "\nDirect initial trial of 'bdexStreamOut'"
-                              << "and (valid) 'bdexStreamIn' functionality."
+            if (verbose) cout << "\nDirect initial trial of `bdexStreamOut`"
+                              << "and (valid) `bdexStreamIn` functionality."
                               << endl;
 
             {
@@ -1181,7 +1182,7 @@ int main(int argc, char *argv[])
         {
             typedef bdlb::BigEndianInt32 Obj;
 
-            if (verbose) cout << "\nTesting 'maxSupportedBdexVersion(int)'."
+            if (verbose) cout << "\nTesting `maxSupportedBdexVersion(int)`."
                               << endl;
             {
                 Obj mX = Obj::make(1); const Obj X = mX;
@@ -1192,7 +1193,7 @@ int main(int argc, char *argv[])
             }
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
-            if (verbose) cout << "\nTesting 'maxSupportedBdexVersion()'."
+            if (verbose) cout << "\nTesting `maxSupportedBdexVersion()`."
                               << endl;
             {
                 Obj mX = Obj::make(1); const Obj X = mX;
@@ -1202,8 +1203,8 @@ int main(int argc, char *argv[])
             }
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
 
-            if (verbose) cout << "\nDirect initial trial of 'bdexStreamOut'"
-                              << "and (valid) 'bdexStreamIn' functionality."
+            if (verbose) cout << "\nDirect initial trial of `bdexStreamOut`"
+                              << "and (valid) `bdexStreamIn` functionality."
                               << endl;
 
             {
@@ -1328,7 +1329,7 @@ int main(int argc, char *argv[])
         {
             typedef bdlb::BigEndianUint32 Obj;
 
-            if (verbose) cout << "\nTesting 'maxSupportedBdexVersion(int)'."
+            if (verbose) cout << "\nTesting `maxSupportedBdexVersion(int)`."
                               << endl;
             {
                 Obj mX = Obj::make(1); const Obj X = mX;
@@ -1339,7 +1340,7 @@ int main(int argc, char *argv[])
             }
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
-            if (verbose) cout << "\nTesting 'maxSupportedBdexVersion()'."
+            if (verbose) cout << "\nTesting `maxSupportedBdexVersion()`."
                               << endl;
             {
                 Obj mX = Obj::make(1); const Obj X = mX;
@@ -1349,8 +1350,8 @@ int main(int argc, char *argv[])
             }
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
 
-            if (verbose) cout << "\nDirect initial trial of 'bdexStreamOut'"
-                              << "and (valid) 'bdexStreamIn' functionality."
+            if (verbose) cout << "\nDirect initial trial of `bdexStreamOut`"
+                              << "and (valid) `bdexStreamIn` functionality."
                               << endl;
 
             {
@@ -1435,7 +1436,7 @@ int main(int argc, char *argv[])
         {
             typedef bdlb::BigEndianInt64 Obj;
 
-            if (verbose) cout << "\nTesting 'maxSupportedBdexVersion(int)'."
+            if (verbose) cout << "\nTesting `maxSupportedBdexVersion(int)`."
                               << endl;
             {
                 Obj mX = Obj::make(1); const Obj X = mX;
@@ -1446,7 +1447,7 @@ int main(int argc, char *argv[])
             }
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
-            if (verbose) cout << "\nTesting 'maxSupportedBdexVersion()'."
+            if (verbose) cout << "\nTesting `maxSupportedBdexVersion()`."
                               << endl;
             {
                 Obj mX = Obj::make(1); const Obj X = mX;
@@ -1456,8 +1457,8 @@ int main(int argc, char *argv[])
             }
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
 
-            if (verbose) cout << "\nDirect initial trial of 'bdexStreamOut'"
-                              << "and (valid) 'bdexStreamIn' functionality."
+            if (verbose) cout << "\nDirect initial trial of `bdexStreamOut`"
+                              << "and (valid) `bdexStreamIn` functionality."
                               << endl;
 
             {
@@ -1579,7 +1580,7 @@ int main(int argc, char *argv[])
         {
             typedef bdlb::BigEndianUint64 Obj;
 
-            if (verbose) cout << "\nTesting 'maxSupportedBdexVersion(int)'."
+            if (verbose) cout << "\nTesting `maxSupportedBdexVersion(int)`."
                               << endl;
             {
                 Obj mX = Obj::make(1); const Obj X = mX;
@@ -1590,7 +1591,7 @@ int main(int argc, char *argv[])
             }
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
-            if (verbose) cout << "\nTesting 'maxSupportedBdexVersion()'."
+            if (verbose) cout << "\nTesting `maxSupportedBdexVersion()`."
                               << endl;
             {
                 Obj mX = Obj::make(1); const Obj X = mX;
@@ -1600,8 +1601,8 @@ int main(int argc, char *argv[])
             }
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED  -- BDE2.22
 
-            if (verbose) cout << "\nDirect initial trial of 'bdexStreamOut'"
-                              << "and (valid) 'bdexStreamIn' functionality."
+            if (verbose) cout << "\nDirect initial trial of `bdexStreamOut`"
+                              << "and (valid) `bdexStreamIn` functionality."
                               << endl;
 
             {
@@ -1689,23 +1690,23 @@ int main(int argc, char *argv[])
         //
         // It does not need to be tested here.  This method is provided by the
         // compiler in this component.  Note that it is still indirectly tested
-        // by case 2 since 'make' relies on the copy constructor.
+        // by case 2 since `make` relies on the copy constructor.
         // --------------------------------------------------------------------
 
       } break;
 
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING EQUALITY OPERATORS: '==' and '!='
+        // TESTING EQUALITY OPERATORS: `==` and `!=`
         //
         // Concerns:
-        //   That 'operator==' and 'operator!=' produce the correct result
+        //   That `operator==` and `operator!=` produce the correct result
         //   for all values.
         //
         // Plan:
         //   Specify a set S of varied object values, including the usual
-        //   "edge" cases.  Verify the correctness of 'operator==' and
-        //   'operator!=' using all elements (u, v) of the cross product S X S.
+        //   "edge" cases.  Verify the correctness of `operator==` and
+        //   `operator!=` using all elements (u, v) of the cross product S X S.
         //
         // Testing:
         //   bool operator==(const bdlb::BigEndianInt16& lhs, rhs);
@@ -1723,7 +1724,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing 'operator==' and 'operator!='." << endl
+                          << "Testing `operator==` and `operator!=`." << endl
                           << "======================================" << endl;
 
         if (verbose) cout << "\nTesting BigEndianInt16." << endl;
@@ -1866,11 +1867,11 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING OUTPUT (<<) OPERATOR and 'print' method:
+        // TESTING OUTPUT (<<) OPERATOR and `print` method:
         //
         // Concerns:
-        //  We want to ensure that the 'print' method correctly formats
-        //  our objects output with any valid 'level' and 'spacesPerLevel'
+        //  We want to ensure that the `print` method correctly formats
+        //  our objects output with any valid `level` and `spacesPerLevel`
         //  values and returns the specified stream and does not use
         //  any memory.
         //
@@ -1911,7 +1912,7 @@ int main(int argc, char *argv[])
         const int NUM_DATA = static_cast<int>(sizeof(DATA) / sizeof(*DATA));
 
         if (verbose) cout << endl
-                          << "Testing 'print' and 'operator<<'." << endl
+                          << "Testing `print` and `operator<<`." << endl
                           << "=================================" << endl;
 
         if (verbose) cout << "\nTesting BigEndianInt16." << endl;
@@ -2307,7 +2308,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //  To address concerns for 1, create an object using the default
-        //  constructor.  Then use 'operator T()' and 'isInCoreValueCorrect' to
+        //  constructor.  Then use `operator T()` and `isInCoreValueCorrect` to
         //  check the value and a default allocator guard to verify that no
         //  memory was allocated.  Then we do a cross-test of all values and
         //  verify consistency.
@@ -2497,10 +2498,10 @@ int main(int argc, char *argv[])
         //   operation of the following methods and operators:
         //      - default and copy constructors (and also the destructor)
         //      - the assignment operator (including aliasing)
-        //      - equality operators: 'operator==()' and 'operator!=()'
-        //      - the (test-driver supplied) output operator: 'operator<<()'
-        //      - primary manipulators: 'push_back' and 'clear' methods
-        //      - basic accessors: 'size' and 'operator[]()'
+        //      - equality operators: `operator==()` and `operator!=()`
+        //      - the (test-driver supplied) output operator: `operator<<()`
+        //      - primary manipulators: `push_back` and `clear` methods
+        //      - basic accessors: `size` and `operator[]()`
         //   In addition we would like to exercise objects with potentially
         //   different internal organizations representing the same value.
         //

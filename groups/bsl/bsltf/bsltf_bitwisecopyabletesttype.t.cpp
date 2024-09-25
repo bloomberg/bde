@@ -34,24 +34,24 @@ using namespace BloombergLP::bsltf;
 // attribute class.  The Primary Manipulators and Basic Accessors are
 // therefore, respectively, the attribute setters and getters, each of which
 // follows our standard unconstrained attribute-type naming conventions:
-// 'setAttributeName' and 'attributeName'.
+// `setAttributeName` and `attributeName`.
 //
 // Primary Manipulators:
-//: o 'setData'
+//  - `setData`
 //
 // Basic Accessors:
-//: o 'data'
+//  - `data`
 //
 // This particular attribute class also provides a value constructor capable of
 // creating an object in any state relevant for thorough testing, obviating the
-// primitive generator function, 'gg', normally used for this purpose.  We will
+// primitive generator function, `gg`, normally used for this purpose.  We will
 // therefore follow our standard 10-case approach to testing value-semantic
 // types except that we will test the value constructor in case 3 (in lieu of
 // the generator function), with the default constructor and primary
 // manipulators tested fully in case 2.
 //
 // Global Concerns:
-//: o No memory is every allocated from this component.
+//  - No memory is every allocated from this component.
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] BitwiseCopyableTestType();
@@ -154,7 +154,7 @@ const DefaultValueRow DEFAULT_VALUES[] =
     // default (must be first)
     { L_,         0 },
 
-    // 'data'
+    // `data`
     { L_,   INT_MIN },
     { L_,        -1 },
     { L_,         1 },
@@ -175,12 +175,13 @@ const int DEFAULT_NUM_VALUES = sizeof DEFAULT_VALUES / sizeof *DEFAULT_VALUES;
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we wanted to print the supported traits of this test type.
 //
-// First, we create a function template 'printTypeTraits' with a parameterized
-// 'TYPE':
-//..
+// First, we create a function template `printTypeTraits` with a parameterized
+// `TYPE`:
+// ```
+
+/// Prints the traits of the parameterized `TYPE` to the console.
 template <class TYPE>
 void printTypeTraits()
-    // Prints the traits of the parameterized 'TYPE' to the console.
 {
     if (bslma::UsesBslmaAllocator<TYPE>::value) {
         printf("Type defines bslma::UsesBslmaAllocator.\n");
@@ -203,7 +204,7 @@ void printTypeTraits()
         printf("Type does not define bslmf::IsBitwiseCopyable.\n");
     }
 }
-//..
+// ```
 
 //=============================================================================
 //                                 MAIN PROGRAM
@@ -239,26 +240,26 @@ int main(int argc, char *argv[])
       case 12: {
           if (verbose) printf("\nUSAGE EXAMPLE"
                               "\n=============\n");
-// Now, we invoke the 'printTypeTraits' function template using
-// 'BitwiseCopyableTestType' as the parameterized 'TYPE':
-//..
+// Now, we invoke the `printTypeTraits` function template using
+// `BitwiseCopyableTestType` as the parameterized `TYPE`:
+// ```
           printTypeTraits<BitwiseCopyableTestType>();
-//..
+// ```
 // Finally, we observe the console output:
-//..
+// ```
 //  Type does not define bslma::UsesBslmaAllocator.
 //  Type defines bsl::is_trivially_copyable.
-//..
+// ```
       } break;
       case 11: {
         // --------------------------------------------------------------------
         // TESTING TYPE TRAITS
         //
         // Concerns:
-        //: 1 The object has the necessary type traits.
+        // 1. The object has the necessary type traits.
         //
         // Plan:
-        //: 1 Use 'BSLMF_ASSERT' to verify all the type traits exists.  (C-1)
+        // 1. Use `BSLMF_ASSERT` to verify all the type traits exists.  (C-1)
         //
         // Testing:
         //   CONCERN: The object has the necessary type traits
@@ -287,61 +288,61 @@ int main(int argc, char *argv[])
         //   have the same value.
         //
         // Concerns:
-        //: 1 The assignment operator can change the value of any modifiable
-        //:   target object to that of any source object.
-        //:
-        //: 2 The signature and return type are standard.
-        //:
-        //: 3 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 4 The value of the source object is not modified.
-        //:
-        //: 5 Assigning an object to itself behaves as expected (alias-safety).
+        // 1. The assignment operator can change the value of any modifiable
+        //    target object to that of any source object.
+        //
+        // 2. The signature and return type are standard.
+        //
+        // 3. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 4. The value of the source object is not modified.
+        //
+        // 5. Assigning an object to itself behaves as expected (alias-safety).
         //
         // Plan:
-        //: 1 Use the address of 'operator=' to initialize a member-function
-        //:   pointer having the appropriate signature and return type for the
-        //:   copy-assignment operator defined in this component.  (C-2)
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their attributes.
-        //:
-        //: 3 For each row 'R1' in the table of P-2:  (C-1, 3..4)
-        //:
-        //:   1 Create two 'const' 'Obj', 'Z' and 'ZZ', having the value of
-        //:     'R1'.
-        //:
-        //:   2 For each row 'R2 in the tree of P-2:  (C-1, 3..4)
-        //:
-        //:     1 Create a modifiable 'Obj', 'mX', having the value of 'R2'.
-        //:
-        //:     2 Assign 'mX' from 'Z'.  (C-1)
-        //:
-        //:     3 Verify that the address of the return value is the same as
-        //:       that of 'mX'.  (C-3)
-        //:
-        //:     4 Use the equality-comparison operator to verify that:
-        //:
-        //:       1 The target object, 'mX', now has the same value as that of
-        //:         'Z'.  (C-1)
-        //:
-        //:       2 'Z' still has the same value as that of 'ZZ'.  (C-4)
-        //:
-        //: 4 For each node 'N1' in tree of P-2:  (C-3, 5)
-        //:
-        //:   1 Create a modifiable 'Obj', 'mX', pointing to 'N1'.
-        //:
-        //:   1 Create a 'const' 'Obj', 'ZZ', pointing to 'N1'.
-        //:
-        //:   2 Let 'Z' be a reference providing only 'const' access to 'mX'.
-        //:
-        //:   3 Assign 'mX' from 'Z'.
-        //:
-        //:   4 Verify that the address of the return value is the same as
-        //:       that of 'mX'.  (C-3)
-        //:
-        //:   5 Use the equal-comparison operator to verify that 'mX' has the
-        //:     same value as 'ZZ'.  (C-5)
+        // 1. Use the address of `operator=` to initialize a member-function
+        //    pointer having the appropriate signature and return type for the
+        //    copy-assignment operator defined in this component.  (C-2)
+        //
+        // 2. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their attributes.
+        //
+        // 3. For each row `R1` in the table of P-2:  (C-1, 3..4)
+        //
+        //   1. Create two `const` `Obj`, `Z` and `ZZ`, having the value of
+        //      `R1`.
+        //
+        //   2. For each row 'R2 in the tree of P-2:  (C-1, 3..4)
+        //
+        //     1. Create a modifiable `Obj`, `mX`, having the value of `R2`.
+        //
+        //     2. Assign `mX` from `Z`.  (C-1)
+        //
+        //     3. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-3)
+        //
+        //     4. Use the equality-comparison operator to verify that:
+        //
+        //       1. The target object, `mX`, now has the same value as that of
+        //          `Z`.  (C-1)
+        //
+        //       2. `Z` still has the same value as that of `ZZ`.  (C-4)
+        //
+        // 4. For each node `N1` in tree of P-2:  (C-3, 5)
+        //
+        //   1. Create a modifiable `Obj`, `mX`, pointing to `N1`.
+        //
+        //   1. Create a `const` `Obj`, `ZZ`, pointing to `N1`.
+        //
+        //   2. Let `Z` be a reference providing only `const` access to `mX`.
+        //
+        //   3. Assign `mX` from `Z`.
+        //
+        //   4. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-3)
+        //
+        //   5. Use the equal-comparison operator to verify that `mX` has the
+        //      same value as `ZZ`.  (C-5)
         //
         // Testing:
         //  BitwiseCopyableTestType& operator=(const BitwiseCopyableTestType&);
@@ -421,31 +422,31 @@ int main(int argc, char *argv[])
         //   other one, such that the two objects have the same value.
         //
         // Concerns:
-        //: 1 The copy constructor creates an object having the same value as
-        //:   that of the supplied original object.
-        //:
-        //: 2 The original object is passed as a reference providing
-        //:   non-modifiable access to that object.
-        //:
-        //: 3 The value of the original object is unchanged.
+        // 1. The copy constructor creates an object having the same value as
+        //    that of the supplied original object.
+        //
+        // 2. The original object is passed as a reference providing
+        //    non-modifiable access to that object.
+        //
+        // 3. The value of the original object is unchanged.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their attributes.
-        //:
-        //: 2 For each row 'R1' in the table of P-1:  (C-1..3)
-        //:
-        //:   1 Create two 'const' 'Obj', 'Z' and 'ZZ', having the value of
-        //:     'R1'.
-        //:
-        //:   2 Use the copy constructor to create an object 'X', supplying it
-        //:     the 'const' object 'Z'.  (C-2)
-        //:
-        //:   3 Verify that the newly constructed object 'X', has the same
-        //:     value as that of 'Z'.  (C-1)
-        //:
-        //:   4 Verify that 'Z' still has the same value as that of 'ZZ'.
-        //:     (C-3)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their attributes.
+        //
+        // 2. For each row `R1` in the table of P-1:  (C-1..3)
+        //
+        //   1. Create two `const` `Obj`, `Z` and `ZZ`, having the value of
+        //      `R1`.
+        //
+        //   2. Use the copy constructor to create an object `X`, supplying it
+        //      the `const` object `Z`.  (C-2)
+        //
+        //   3. Verify that the newly constructed object `X`, has the same
+        //      value as that of `Z`.  (C-1)
+        //
+        //   4. Verify that `Z` still has the same value as that of `ZZ`.
+        //      (C-3)
         //
         // Testing:
         //   BitwiseCopyableTestType(const BitwiseCopyableTestType& original);
@@ -476,59 +477,59 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // EQUALITY-COMPARISON OPERATORS
-        //   Ensure that '==' and '!=' are the operational definition of value.
+        //   Ensure that `==` and `!=` are the operational definition of value.
         //
         // Concerns:
-        //: 1 Two objects, 'X' and 'Y', compare equal if and only if they point
-        //:   to the same node in the same tree.
-        //:
-        //: 2 'true  == (X == X)'  (i.e., identity)
-        //:
-        //: 3 'false == (X != X)'  (i.e., identity)
-        //:
-        //: 4 'X == Y' if and only if 'Y == X'  (i.e., commutativity)
-        //:
-        //: 5 'X != Y' if and only if 'Y != X'  (i.e., commutativity)
-        //:
-        //: 6 'X != Y' if and only if '!(X == Y)'
-        //:
-        //: 7 Comparison is symmetric with respect to user-defined conversion
-        //:   (i.e., both comparison operators are free functions).
-        //:
-        //: 8 Non-modifiable objects can be compared (i.e., objects or
-        //:   references providing only non-modifiable access).
-        //:
-        //; 9 The equality operator's signature and return type are standard.
-        //:
-        //:10 The inequality operator's signature and return type are standard.
+        // 1. Two objects, `X` and `Y`, compare equal if and only if they point
+        //    to the same node in the same tree.
+        //
+        // 2. `true  == (X == X)`  (i.e., identity)
+        //
+        // 3. `false == (X != X)`  (i.e., identity)
+        //
+        // 4. `X == Y` if and only if `Y == X`  (i.e., commutativity)
+        //
+        // 5. `X != Y` if and only if `Y != X`  (i.e., commutativity)
+        //
+        // 6. `X != Y` if and only if `!(X == Y)`
+        //
+        // 7. Comparison is symmetric with respect to user-defined conversion
+        //    (i.e., both comparison operators are free functions).
+        //
+        // 8. Non-modifiable objects can be compared (i.e., objects or
+        //    references providing only non-modifiable access).
+        //
+        // 9. The equality operator's signature and return type are standard.
+        //
+        // 10. The inequality operator's signature and return type are standard.
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the two homogeneous, free equality-
-        //:   comparison operators defined in this component.
-        //:   (C-7..10)
-        //:
-        //: 2 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their attributes.
-        //:
-        //: 3 For each row 'R1' in the table of P-2:  (C-1..6)
-        //:
-        //:   1 Create a single object, and use it to verify the reflexive
-        //:     (anti-reflexive) property of equality (inequality) in the
-        //:     presence of aliasing.  (C-2..3)
-        //:
-        //:   2 For each row 'R2' in the table of P-3:  (C-1, 4..6)
-        //:
-        //:     1 Record, in 'EXP', whether or not distinct objects created
-        //:       from 'R1' and 'R2', respectively, are expected to have the
-        //:       same value.
-        //:
-        //:     2 Create an object 'X' having the value of 'R1'.  Create
-        //:       another object 'Y' having the value of 'R2'.
-        //:
-        //:     3 Verify the commutativity property and the expected return
-        //:       value for both '==' and '!='.  (C-1, 4..6)
+        // 1. Use the respective addresses of `operator==` and `operator!=` to
+        //    initialize function pointers having the appropriate signatures
+        //    and return types for the two homogeneous, free equality-
+        //    comparison operators defined in this component.
+        //    (C-7..10)
+        //
+        // 2. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their attributes.
+        //
+        // 3. For each row `R1` in the table of P-2:  (C-1..6)
+        //
+        //   1. Create a single object, and use it to verify the reflexive
+        //      (anti-reflexive) property of equality (inequality) in the
+        //      presence of aliasing.  (C-2..3)
+        //
+        //   2. For each row `R2` in the table of P-3:  (C-1, 4..6)
+        //
+        //     1. Record, in `EXP`, whether or not distinct objects created
+        //        from `R1` and `R2`, respectively, are expected to have the
+        //        same value.
+        //
+        //     2. Create an object `X` having the value of `R1`.  Create
+        //        another object `Y` having the value of `R2`.
+        //
+        //     3. Verify the commutativity property and the expected return
+        //        value for both `==` and `!=`.  (C-1, 4..6)
         //
         // Testing:
         //   bool operator==(lhs, rhs);
@@ -600,21 +601,21 @@ int main(int argc, char *argv[])
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 Each accessor returns the value of the corresponding attribute
-        //:    of the object.
-        //:
-        //: 2 Each accessor method is declared 'const'.
+        // 1. Each accessor returns the value of the corresponding attribute
+        //     of the object.
+        //
+        // 2. Each accessor method is declared `const`.
         //
         // Plan:
-        //: 1 Use the default constructor, create an object having default
-        //:   attribute values.  Verify that the accessor for the 'data'
-        //:   attribute invoked on a reference providing non-modifiable access
-        //:   to the object return the expected value.  (C-1)
-        //:
-        //: 2 Set the 'data' attribute of the object to another value.  Verify
-        //:   that the accessor for the 'data' attribute invoked on a reference
-        //:   providing non-modifiable access to the object return the expected
-        //:   value.  (C-1, 2)
+        // 1. Use the default constructor, create an object having default
+        //    attribute values.  Verify that the accessor for the `data`
+        //    attribute invoked on a reference providing non-modifiable access
+        //    to the object return the expected value.  (C-1)
+        //
+        // 2. Set the `data` attribute of the object to another value.  Verify
+        //    that the accessor for the `data` attribute invoked on a reference
+        //    providing non-modifiable access to the object return the expected
+        //    value.  (C-1, 2)
         //
         // Testing:
         //   int data() const;
@@ -638,20 +639,20 @@ int main(int argc, char *argv[])
         //   for thorough testing.
         //
         // Concerns:
-        //: 1 The value constructor can create an object having any value that
-        //:   does not violate the documented constraints.
+        // 1. The value constructor can create an object having any value that
+        //    does not violate the documented constraints.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of distinct
-        //:   object values (one per row) in terms of their attributes.
-        //:
-        //: 2 For each row 'R1' in the table of P-1:  (C-1)
-        //:
-        //:   1 Use the value constructor to create an object 'X', having the
-        //:     value of 'R1'.
-        //:
-        //:   2 Use the (as yet unproven) salient attribute accessors to verify
-        //:     the attributes of the object have their expected value.  (C-1)
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    object values (one per row) in terms of their attributes.
+        //
+        // 2. For each row `R1` in the table of P-1:  (C-1)
+        //
+        //   1. Use the value constructor to create an object `X`, having the
+        //      value of `R1`.
+        //
+        //   2. Use the (as yet unproven) salient attribute accessors to verify
+        //      the attributes of the object have their expected value.  (C-1)
         //
         // Testing:
         //   BitwiseCopyableTestType(int data);
@@ -684,24 +685,24 @@ int main(int argc, char *argv[])
         //   relevant for thorough testing.
         //
         // Concerns:
-        //: 1 An object created with the default constructor has the
-        //:   contractually specified default value.
-        //:
-        //: 2 Each attribute can be set to represent any value that does not
-        //:   violate that attribute's documented constraints.
+        // 1. An object created with the default constructor has the
+        //    contractually specified default value.
+        //
+        // 2. Each attribute can be set to represent any value that does not
+        //    violate that attribute's documented constraints.
         //
         // Plan:
-        //: 1 Create three attribute values for the 'data' attribute 'D', 'A',
-        //:   and 'B'.  'D' should be the default value.  'A' and 'B' should be
-        //:   the boundary values.
-        //:
-        //: 2 Default-construct an object and use the individual (as yet
-        //:   unproven) salient attribute accessors to verify the
-        //:   default-constructed value.  (C-1)
-        //:
-        //: 3 Set and object's 'data' attribute to 'A' and 'B'.  Verify the
-        //:   state of object using the (as yet unproven) salient attribute
-        //:   accessors.  (C-2)
+        // 1. Create three attribute values for the `data` attribute `D`, `A`,
+        //    and `B`.  `D` should be the default value.  `A` and `B` should be
+        //    the boundary values.
+        //
+        // 2. Default-construct an object and use the individual (as yet
+        //    unproven) salient attribute accessors to verify the
+        //    default-constructed value.  (C-1)
+        //
+        // 3. Set and object's `data` attribute to `A` and `B`.  Verify the
+        //    state of object using the (as yet unproven) salient attribute
+        //    accessors.  (C-2)
         //
         // Testing:
         //   BitwiseCopyableTestType();
@@ -750,11 +751,11 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Perform and ad-hoc test of the primary modifiers and accessors.
+        // 1. Perform and ad-hoc test of the primary modifiers and accessors.
         //
         // Testing:
         //   BREATHING TEST

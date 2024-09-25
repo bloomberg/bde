@@ -66,7 +66,7 @@ namespace test = BloombergLP::s_baltst;
 //                             Overview
 //                             --------
 // The component under test implements a formatter for outputting
-// 'bdeat'-compatible objects in the JSON format.
+// `bdeat`-compatible objects in the JSON format.
 //
 // We use standard table-based approach to testing where we put both input and
 // expected output in the same table row and verify that the actual result
@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
@@ -249,13 +249,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -271,7 +271,7 @@ int main(int argc, char *argv[])
 // Let us say that we have to encode a JSON document with the following
 // information about stocks that we are interested in.  For brevity we just
 // show and encode a part of the complete document.
-//..
+// ```
 // {
 //   "Stocks" : [
 //     {
@@ -288,9 +288,9 @@ int main(int argc, char *argv[])
 //     }
 //   ]
 // }
-//..
+// ```
 // First, we specify the result that we are expecting to get:
-//..
+// ```
     const bsl::string EXPECTED =
         "{\n"
         "  \"Stocks\" : [\n"
@@ -308,36 +308,36 @@ int main(int argc, char *argv[])
         "    }\n"
         "  ]\n"
         "}";
-//..
-// Then, to encode this JSON document we create a 'baljsn::Formatter' object.
+// ```
+// Then, to encode this JSON document we create a `baljsn::Formatter` object.
 // Since we want the document to be written in a pretty, easy to understand
-// format we will specify the 'true' for the 'usePrettyStyle' option and
+// format we will specify the `true` for the `usePrettyStyle` option and
 // provide an appropriate initial indent level and spaces per level values:
-//..
+// ```
     bsl::ostringstream os;
     baljsn::Formatter formatter(os, true, 0, 2);
-//..
+// ```
 // Next, we start calling the sequence of methods requires to produce this
 // document.  We start with the top level object and add an element named
-// 'Stocks' to it:
-//..
+// `Stocks` to it:
+// ```
     formatter.openObject();
     formatter.openMember("Stocks");
-//..
-// Then, we see that 'Stocks' is an array element so we specify the start of
+// ```
+// Then, we see that `Stocks` is an array element so we specify the start of
 // the array:
-//..
+// ```
     formatter.openArray();
-//..
-// Next, each element within 'Stocks' is an object that contains the
+// ```
+// Next, each element within `Stocks` is an object that contains the
 // information for an individual stock.  So we have to output an object here:
-//..
+// ```
     formatter.openObject();
-//..
-// We now encode the other elements in the stock object.  The 'closeMember'
+// ```
+// We now encode the other elements in the stock object.  The `closeMember`
 // terminates the element by adding a ',' at the end.  For the last element in
-// an object do not call the 'closeMember' method.
-//..
+// an object do not call the `closeMember` method.
+// ```
     formatter.openMember("Name");
     formatter.putValue("International Business Machines Corp");
     formatter.closeMember();
@@ -352,17 +352,17 @@ int main(int argc, char *argv[])
 
     formatter.openMember("Dividend Yield");
     formatter.putValue(3.95);
-    // Note no call to 'closeMember' for the last element
-//..
+    // Note no call to `closeMember` for the last element
+// ```
 // Then, close the first stock object and separate it from the second one using
-// the 'addArrayElementSeparator' method.
-//..
+// the `addArrayElementSeparator` method.
+// ```
     formatter.closeObject();
     formatter.addArrayElementSeparator();
-//..
+// ```
 // Next, we add another stock object.  But we don't need to separate it as it
 // is the last one.
-//..
+// ```
     formatter.openObject();
 
     formatter.openMember("Name");
@@ -381,42 +381,42 @@ int main(int argc, char *argv[])
     formatter.putValue(1.4);
 
     formatter.closeObject();
-//..
+// ```
 // Similarly, we can continue to format the rest of the document.  For the
 // purpose of this usage example we will complete this document.
-//..
+// ```
     formatter.closeArray();
     formatter.closeObject();
-//..
+// ```
 // Once the formatting is complete the written data can be viewed from the
 // stream passed to the formatter at construction.
-//..
+// ```
     if (verbose)
         bsl::cout << os.str() << bsl::endl;
-//..
+// ```
 // Finally, verify the received result:
-//..
+// ```
     ASSERT(EXPECTED == os.str());
-//..
+// ```
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'addArrayElementSeparator' METHOD
+        // TESTING `addArrayElementSeparator` METHOD
         //
         // Concerns:
-        //: 1 The 'addArrayElementSeparator' method outputs a ','.
-        //:
-        //: 2 If pretty style is selected then 'addArrayElementSeparator'
-        //:   outputs a newline after the ','.
-        //:
+        // 1. The `addArrayElementSeparator` method outputs a ','.
+        //
+        // 2. If pretty style is selected then `addArrayElementSeparator`
+        //    outputs a newline after the ','.
+        //
         // Plan:
-        //: 1 Using a table-based approach specify the encoding style,
-        //:   indentation level, spaces per level, number of times
-        //:   'addArrayElementSeparator' must be called and the expected output
-        //:   after calling 'addArrayElementSeparator'.  Create a formatter
-        //:   object using the specified parameters and invoke
-        //:   'addArrayElementSeparator' on it.  Verify that the output written
-        //:   to the stream is as expected.
+        // 1. Using a table-based approach specify the encoding style,
+        //    indentation level, spaces per level, number of times
+        //    `addArrayElementSeparator` must be called and the expected output
+        //    after calling `addArrayElementSeparator`.  Create a formatter
+        //    object using the specified parameters and invoke
+        //    `addArrayElementSeparator` on it.  Verify that the output written
+        //    to the stream is as expected.
         //
         // Testing:
         //   void addArrayElementSeparator();
@@ -424,7 +424,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "TESTING 'addArrayElementSeparator' METHOD" << endl
+                 << "TESTING `addArrayElementSeparator` METHOD" << endl
                  << "=========================================" << endl;
 #define NL "\n"
 
@@ -500,17 +500,17 @@ int main(int argc, char *argv[])
         // TESTING INTERLEAVING OBJECT AND ARRAY CALLS
         //
         // Concerns:
-        //: 1 Interleaving the object and array method calls, 'openObject',
-        //:   'openArray', 'closeObject', and 'closeArray' result in the
-        //:   appropriate indentation being output.
-        //:
+        // 1. Interleaving the object and array method calls, `openObject`,
+        //    `openArray`, `closeObject`, and `closeArray` result in the
+        //    appropriate indentation being output.
+        //
         // Plan:
-        //: 1 Using a table-based approach specify the encoding style,
-        //:   indentation level, spaces per level, the sequence of method
-        //:   calls, and the expected output after calling these methods.
-        //:   Create a formatter object using the specified parameters and
-        //:   invoke the sequence of calls on it.  Verify that the output
-        //:   written to the stream is as expected.
+        // 1. Using a table-based approach specify the encoding style,
+        //    indentation level, spaces per level, the sequence of method
+        //    calls, and the expected output after calling these methods.
+        //    Create a formatter object using the specified parameters and
+        //    invoke the sequence of calls on it.  Verify that the output
+        //    written to the stream is as expected.
         //
         // Testing:
         // --------------------------------------------------------------------
@@ -523,7 +523,7 @@ int main(int argc, char *argv[])
 
 #define NL "\n"
 
-        // Interleave 'openObject' and 'openArray'
+        // Interleave `openObject` and `openArray`
         const struct Data {
             int         d_line;                // source line number
             int         d_encodingStyle;
@@ -532,10 +532,10 @@ int main(int argc, char *argv[])
             bsl::string d_methodCalls; // Represent the sequence of method
                                        // calls as a string with the following
                                        // notation:
-                                       // '{' - 'openObject'
-                                       // '[' - 'openArray'
-                                       // ']' - 'closeArray'
-                                       // '}' - 'closeObject'
+                                       // '{' - `openObject`
+                                       // '[' - `openArray`
+                                       // ']' - `closeArray`
+                                       // '}' - `closeObject`
             bsl::string d_expected;
         } DATA[] = {
 
@@ -634,28 +634,28 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'closeMember' METHOD
+        // TESTING `closeMember` METHOD
         //
         // Concerns:
-        //: 1 The 'closeMember' method outputs a ','.
-        //:
-        //: 2 If pretty style is selected then 'closeMember' outputs a newline
-        //:   after the ','.
-        //:
+        // 1. The `closeMember` method outputs a ','.
+        //
+        // 2. If pretty style is selected then `closeMember` outputs a newline
+        //    after the ','.
+        //
         // Plan:
-        //: 1 Using a table-based approach specify the encoding style,
-        //:   indentation level, spaces per level, number of times
-        //:   'closeMember' must be called and the expected output after
-        //:   calling 'closeMember'.  Create a formatter object using the
-        //:   specified parameters and invoke 'closeMember' on it.  Verify
-        //:   that the output written to the stream is as expected.
+        // 1. Using a table-based approach specify the encoding style,
+        //    indentation level, spaces per level, number of times
+        //    `closeMember` must be called and the expected output after
+        //    calling `closeMember`.  Create a formatter object using the
+        //    specified parameters and invoke `closeMember` on it.  Verify
+        //    that the output written to the stream is as expected.
         //
         // Testing:
         //   void closeMember();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'closeMember' METHOD" << endl
+                          << "TESTING `closeMember` METHOD" << endl
                           << "=============================" << endl;
 #define NL "\n"
 
@@ -726,31 +726,31 @@ int main(int argc, char *argv[])
       } break;
        case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' METHOD
+        // TESTING `putValue` METHOD
         //
         // Concerns:
-        //: 1 The 'putValue' method outputs the value of the element being
-        //:   encoded irrespective of the type of 'value'.
-        //:
-        //: 2 Errorneous values of 'value' cause 'putValue' to return an error.
-        //:
-        //: 3 The 'putNullValue' outputs a null value.
-        //:
-        //: 4 The 'putValue' and 'putNullValue' methods indent before
-        //:   outputting their value only if the value is part of an array.
-        //:   Otherwise no indentation is done.
-        //:
+        // 1. The `putValue` method outputs the value of the element being
+        //    encoded irrespective of the type of `value`.
+        //
+        // 2. Errorneous values of `value` cause `putValue` to return an error.
+        //
+        // 3. The `putNullValue` outputs a null value.
+        //
+        // 4. The `putValue` and `putNullValue` methods indent before
+        //    outputting their value only if the value is part of an array.
+        //    Otherwise no indentation is done.
+        //
         // Plan:
-        //: 1 For all the possible data types create atleast one valid value
-        //:   and an invalid value (if an invalid value exists) and invoke
-        //:   'putValue' on them.
-        //:
-        //: 2 Confirm that 'putValue' returns 0 and correctly encodes the valid
-        //:   values and returns a non-zero values for invalid values.
-        //:
-        //: 3 Confirm that 'putValue' indents only for values in an array.
-        //:
-        //: 4 Repeat steps 1-3 for 'putNullValue'.
+        // 1. For all the possible data types create atleast one valid value
+        //    and an invalid value (if an invalid value exists) and invoke
+        //    `putValue` on them.
+        //
+        // 2. Confirm that `putValue` returns 0 and correctly encodes the valid
+        //    values and returns a non-zero values for invalid values.
+        //
+        // 3. Confirm that `putValue` indents only for values in an array.
+        //
+        // 4. Repeat steps 1-3 for `putNullValue`.
         //
         // Testing:
         //   int putValue(const TYPE& value, const EncoderOptions *options);
@@ -758,7 +758,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'putValue' METHOD" << endl
+                          << "TESTING `putValue` METHOD" << endl
                           << "=========================" << endl;
 
         const bool                A = true;
@@ -919,33 +919,33 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'openMember' METHOD
+        // TESTING `openMember` METHOD
         //
         // Concerns:
-        //: 1 The 'openMember' method outputs the name of the element followed
-        //:   by ':'.
-        //:
-        //: 2 If pretty style is selected then 'openMember' indents before
-        //:   printing element name and outputs the ':' character with spaces
-        //:   around it.
-        //:
-        //: 3 Providing an invalid (non-UTF8) element name results in a
-        //:   non-zero value being returned.  Otherwise 0 is returned.
-        //:
+        // 1. The `openMember` method outputs the name of the element followed
+        //    by ':'.
+        //
+        // 2. If pretty style is selected then `openMember` indents before
+        //    printing element name and outputs the ':' character with spaces
+        //    around it.
+        //
+        // 3. Providing an invalid (non-UTF8) element name results in a
+        //    non-zero value being returned.  Otherwise 0 is returned.
+        //
         // Plan:
-        //: 1 Using a table-based approach specify the encoding style,
-        //:   indentation level, spaces per level, element name, expected
-        //:   return value, and the expected output after calling
-        //:   'openMember'.  Create a formatter object using the specified
-        //:   parameters and invoke 'openMember' on it.  Verify that the
-        //:   output written to the stream is as expected.
+        // 1. Using a table-based approach specify the encoding style,
+        //    indentation level, spaces per level, element name, expected
+        //    return value, and the expected output after calling
+        //    `openMember`.  Create a formatter object using the specified
+        //    parameters and invoke `openMember` on it.  Verify that the
+        //    output written to the stream is as expected.
         //
         // Testing:
         //   void openMember(const bsl::string& name);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'openMember' METHOD" << endl
+                          << "TESTING `openMember` METHOD" << endl
                           << "============================" << endl;
 #define NL "\n"
 
@@ -1012,30 +1012,30 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'closeArray' METHOD
+        // TESTING `closeArray` METHOD
         //
         // Concerns:
-        //: 1 The 'closeArray' method outputs a ']'.
-        //:
-        //: 2 If pretty style is selected then 'closeArray' indents before
-        //:   printing ']'.
-        //:
-        //: 3 Each invocation of 'closeArray' decreases the indent level.
-        //:
+        // 1. The `closeArray` method outputs a ']'.
+        //
+        // 2. If pretty style is selected then `closeArray` indents before
+        //    printing ']'.
+        //
+        // 3. Each invocation of `closeArray` decreases the indent level.
+        //
         // Plan:
-        //: 1 Using a table-based approach specify the encoding style,
-        //:   indentation level, spaces per level, element name, expected
-        //:   return value, and the expected output after calling 'closeArray'.
-        //:   Create a formatter object using the specified parameters and
-        //:   invoke 'closeArray' on it.  Verify that the output written to the
-        //:   stream is as expected.
+        // 1. Using a table-based approach specify the encoding style,
+        //    indentation level, spaces per level, element name, expected
+        //    return value, and the expected output after calling `closeArray`.
+        //    Create a formatter object using the specified parameters and
+        //    invoke `closeArray` on it.  Verify that the output written to the
+        //    stream is as expected.
         //
         // Testing:
         //   void closeArray();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'closeArray' METHOD" << endl
+                          << "TESTING `closeArray` METHOD" << endl
                           << "============================" << endl;
 #define NL "\n"
 
@@ -1121,30 +1121,30 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'openArray' METHOD
+        // TESTING `openArray` METHOD
         //
         // Concerns:
-        //: 1 The 'openArray' method outputs a '['.
-        //:
-        //: 2 If pretty style is selected then 'openArray' does not result in
-        //:   in indentation before printing '['.
-        //:
-        //: 3 Each invocation of 'openArray' increases the indent level.
-        //:
+        // 1. The `openArray` method outputs a '['.
+        //
+        // 2. If pretty style is selected then `openArray` does not result in
+        //    in indentation before printing '['.
+        //
+        // 3. Each invocation of `openArray` increases the indent level.
+        //
         // Plan:
-        //: 1 Using a table-based approach specify the encoding style,
-        //:   indentation level, spaces per level, element name, expected
-        //:   return value, and the expected output after calling 'openArray'.
-        //:   Create a formatter object using the specified parameters and
-        //:   invoke 'openArray' on it.  Verify that the output written to the
-        //:   stream is as expected.
+        // 1. Using a table-based approach specify the encoding style,
+        //    indentation level, spaces per level, element name, expected
+        //    return value, and the expected output after calling `openArray`.
+        //    Create a formatter object using the specified parameters and
+        //    invoke `openArray` on it.  Verify that the output written to the
+        //    stream is as expected.
         //
         // Testing:
         //   void openArray();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'openArray' METHOD" << endl
+                          << "TESTING `openArray` METHOD" << endl
                           << "===========================" << endl;
 #define NL "\n"
 
@@ -1218,30 +1218,30 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'closeObject' METHOD
+        // TESTING `closeObject` METHOD
         //
         // Concerns:
-        //: 1 The 'closeObject' method outputs a '}'.
-        //:
-        //: 2 If pretty style is selected then 'closeObject' indents before
-        //:   printing '}'.
-        //:
-        //: 3 Each invocation of 'closeObject' decreases the indent level.
-        //:
+        // 1. The `closeObject` method outputs a '}'.
+        //
+        // 2. If pretty style is selected then `closeObject` indents before
+        //    printing '}'.
+        //
+        // 3. Each invocation of `closeObject` decreases the indent level.
+        //
         // Plan:
-        //: 1 Using a table-based approach specify the encoding style,
-        //:   indentation level, spaces per level, element name, expected
-        //:   return value, and the expected output after calling
-        //:   'closeObject'.  Create a formatter object using the specified
-        //:   parameters and invoke 'closeObject' on it.  Verify that the
-        //:   output written to the stream is as expected.
+        // 1. Using a table-based approach specify the encoding style,
+        //    indentation level, spaces per level, element name, expected
+        //    return value, and the expected output after calling
+        //    `closeObject`.  Create a formatter object using the specified
+        //    parameters and invoke `closeObject` on it.  Verify that the
+        //    output written to the stream is as expected.
         //
         // Testing:
         //   void closeObject();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'closeObject' METHOD" << endl
+                          << "TESTING `closeObject` METHOD" << endl
                           << "============================" << endl;
 #define NL "\n"
 
@@ -1316,30 +1316,30 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'openObject' METHOD
+        // TESTING `openObject` METHOD
         //
         // Concerns:
-        //: 1 The 'openObject' method outputs a '{'.
-        //:
-        //: 2 If pretty style is selected then 'openObject' outputs a newline
-        //:   after printing '{'.
-        //:
-        //: 3 Each invocation of 'openObject' increases the indent level.
-        //:
+        // 1. The `openObject` method outputs a '{'.
+        //
+        // 2. If pretty style is selected then `openObject` outputs a newline
+        //    after printing '{'.
+        //
+        // 3. Each invocation of `openObject` increases the indent level.
+        //
         // Plan:
-        //: 1 Using a table-based approach specify the encoding style,
-        //:   indentation level, spaces per level, element name, expected
-        //:   return value, and the expected output after calling
-        //:   'openObject'.  Create a formatter object using the specified
-        //:   parameters and invoke 'openObject' on it.  Verify that the
-        //:   output written to the stream is as expected.
+        // 1. Using a table-based approach specify the encoding style,
+        //    indentation level, spaces per level, element name, expected
+        //    return value, and the expected output after calling
+        //    `openObject`.  Create a formatter object using the specified
+        //    parameters and invoke `openObject` on it.  Verify that the
+        //    output written to the stream is as expected.
         //
         // Testing:
         //   void openObject();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'openObject' METHOD" << endl
+                          << "TESTING `openObject` METHOD" << endl
                           << "===========================" << endl;
 #define NL "\n"
 
@@ -1407,14 +1407,14 @@ int main(int argc, char *argv[])
         // TESTING CREATORS
         //
         // Concerns:
-        //: 1 The specified stream is correctly initialized.
-        //:
-        //: 2 The specified encoder options are correctly initialized.
+        // 1. The specified stream is correctly initialized.
+        //
+        // 2. The specified encoder options are correctly initialized.
         //
         // Plan:
-        //: 1 Create multiple objects passing them different arguments for
-        //:   'stream' and the formatting options.  Invoke a manipulator method
-        //:   on each object and confirm that the output is as expected.
+        // 1. Create multiple objects passing them different arguments for
+        //    `stream` and the formatting options.  Invoke a manipulator method
+        //    on each object and confirm that the output is as expected.
         //
         // Testing:
         //   baljsn::Formatter(bsl::ostream& stream, style, indent, spl);
@@ -1524,8 +1524,8 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
         //

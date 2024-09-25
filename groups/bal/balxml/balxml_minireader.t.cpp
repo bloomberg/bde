@@ -296,10 +296,10 @@ XmlEl table81[] = {
 };
 
 // ----------------------------------------------------------------------------
-// Start of usage example, extract to the 'balxml::Reader' header file.
+// Start of usage example, extract to the `balxml::Reader` header file.
 //
 // Utility function to skip past white space.
-//..
+// ```
 int advancePastWhiteSpace(balxml::Reader& reader) {
     static const char whiteSpace[] = "\n\r\t ";
     const char *value = 0;
@@ -318,16 +318,16 @@ int advancePastWhiteSpace(balxml::Reader& reader) {
 
     return rc;
 }
-//..
+// ```
 // The main program parses an XML string using the TestReader
-//..
+// ```
 int usageExample()
 {
-//..
+// ```
 // The following string describes xml for a very simple user directory.
 // The top level element contains one xml namespace attribute, with one
 // embedded entry describing a user.
-//..
+// ```
     static const char TEST_XML_STRING[] =
        "<?xml version='1.0' encoding='UTF-8'?>\n"
        "<directory-entry xmlns:dir='http://bloomberg.com/schemas/directory'>\n"
@@ -335,32 +335,32 @@ int usageExample()
        "    <phone dir:phonetype='cell'>212-318-2000</phone>\n"
        "    <address/>\n"
        "</directory-entry>\n";
-//..
+// ```
 // In order to read the XML, we first need to construct a
-// 'balxml::NamespaceRegistry' object, a 'balxml::PrefixStack' object, and a
-// 'TestReader' object, where 'TestReader' is a derived implementation of
-// 'balxml_reader'.
-//..
+// `balxml::NamespaceRegistry` object, a `balxml::PrefixStack` object, and a
+// `TestReader` object, where `TestReader` is a derived implementation of
+// `balxml_reader`.
+// ```
     balxml::NamespaceRegistry namespaces;
     balxml::PrefixStack prefixStack(&namespaces);
     balxml::MiniReader miniReader; balxml::Reader& reader = miniReader;
 
     ASSERT(!reader.isOpen());
-//..
-// The reader uses a 'balxml::PrefixStack' to manage namespace prefixes so we
+// ```
+// The reader uses a `balxml::PrefixStack` to manage namespace prefixes so we
 // need to set it before we call open.
-//..
+// ```
     reader.setPrefixStack(&prefixStack);
     ASSERT(reader.prefixStack());
     ASSERT(reader.prefixStack() == &prefixStack);
-//..
-// Now we call the 'open' method to setup the reader for parsing using the data
+// ```
+// Now we call the `open` method to setup the reader for parsing using the data
 // contained in the in the XML string.
-//..
+// ```
     reader.open(TEST_XML_STRING, sizeof(TEST_XML_STRING) -1, 0, "UTF-8");
-//..
-// Confirm that the 'bdem::Reader' has opened properly
-//..
+// ```
+// Confirm that the `bdem::Reader` has opened properly
+// ```
     ASSERT( reader.isOpen());
     ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
     ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
@@ -370,12 +370,12 @@ int usageExample()
     ASSERT(!reader.nodeDepth());
     ASSERT(!reader.numAttributes());
     ASSERT(!reader.isEmptyElement());
-//..
+// ```
 // Advance through all the nodes and assert all information contained at each
 // node is correct.
 //
 // Assert the next node's document type is xml.
-//..
+// ```
     int rc = advancePastWhiteSpace(reader);
     ASSERT( 0 == rc);
     ASSERT( reader.nodeType() ==
@@ -388,11 +388,11 @@ int usageExample()
     ASSERT(!reader.isEmptyElement());
     ASSERT( 0 == rc);
     ASSERT( reader.nodeDepth() == 1);
-//..
+// ```
 // Advance to the top level element, which has one attribute, the xml
 // namespace.  Assert the namespace information has been added correctly to the
 // prefix stack.
-//..
+// ```
     rc = advancePastWhiteSpace(reader);
     ASSERT( 0 == rc);
     ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
@@ -406,10 +406,10 @@ int usageExample()
     ASSERT(prefixStack.lookupNamespaceId("dir") == 0);
     ASSERT(!bsl::strcmp(prefixStack.lookupNamespaceUri("dir"),
                         "http://bloomberg.com/schemas/directory"));
-//..
+// ```
 // The XML being read contains one entry describing a user, advance the users
 // name name and assert all information can be read correctly.
-//..
+// ```
     rc = advancePastWhiteSpace(reader);
     ASSERT( 0 == rc);
     ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
@@ -436,10 +436,10 @@ int usageExample()
     ASSERT( reader.nodeDepth() == 2);
     ASSERT( reader.numAttributes() == 0);
     ASSERT(!reader.isEmptyElement());
-//..
+// ```
 // Advance to the user's phone number and assert all information can be read
 // correctly.
-//..
+// ```
     rc = advancePastWhiteSpace(reader);
     ASSERT( 0 == rc);
     ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
@@ -448,11 +448,11 @@ int usageExample()
     ASSERT( reader.nodeDepth() == 2);
     ASSERT( reader.numAttributes() == 1);
     ASSERT(!reader.isEmptyElement());
-//..
+// ```
 // The phone node has one attribute, look it up and assert the
-// 'balxml::ElementAttribute' contains valid information and that the prefix
+// `balxml::ElementAttribute` contains valid information and that the prefix
 // returns the correct namespace URI from the prefix stack.
-//..
+// ```
     balxml::ElementAttribute elemAttr;
 
     rc = reader.lookupAttribute(&elemAttr, 0);
@@ -486,10 +486,10 @@ int usageExample()
     ASSERT( reader.nodeDepth() == 2);
     ASSERT( reader.numAttributes() == 0);
     ASSERT(!reader.isEmptyElement());
-//..
+// ```
 // Advance to the user's address and assert all information can be read
 // correctly.
-//..
+// ```
     rc = advancePastWhiteSpace(reader);
     ASSERT( 0 == rc);
     ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
@@ -498,9 +498,9 @@ int usageExample()
     ASSERT( reader.nodeDepth() == 2);
     ASSERT( reader.numAttributes() == 0);
     ASSERT( reader.isEmptyElement());
-//..
+// ```
 // Advance to the end element.
-//..
+// ```
     rc = advancePastWhiteSpace(reader);
     ASSERT( 0 == rc);
     ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_END_ELEMENT);
@@ -509,16 +509,16 @@ int usageExample()
     ASSERT( reader.nodeDepth() == 1);
     ASSERT( reader.numAttributes() == 0);
     ASSERT(!reader.isEmptyElement());
-//..
+// ```
 // Close the reader.
-//..
+// ```
     reader.close();
     ASSERT(!reader.isOpen());
 
     return 0;
 }
-//..
-// End of usage example, extract to the 'balxml::Reader' header file.
+// ```
+// End of usage example, extract to the `balxml::Reader` header file.
 
 // ============================================================================
 //  Let make numElements and numElements static
@@ -579,7 +579,7 @@ static int parseAndProcess(balxml::Reader *reader)
     return rc;
 }
 
-// XML header information used by ggg function.  'strXmlStart' + 'strXmlEnd' =
+// XML header information used by ggg function.  `strXmlStart` + `strXmlEnd` =
 // 256 bytes.
 const char strXmlStart[] =
     "<?xml version='1.0' encoding='UTF-8'?>\n"
@@ -613,7 +613,7 @@ void addCloseTag(bsl::string& xmlStr, int indent, const char* tag, int n) {
     xmlStr.append(ss.str());
 }
 
-// Recursively add nested nodes from 'currentDepth' to 'depth' to 'xmlStr'.
+// Recursively add nested nodes from `currentDepth` to `depth` to `xmlStr`.
 void addDepth(bsl::string& xmlStr, int currentDepth, int depth) {
     if (currentDepth == depth) {
         return;                                                       // RETURN
@@ -624,9 +624,9 @@ void addDepth(bsl::string& xmlStr, int currentDepth, int depth) {
     addCloseTag(xmlStr, indent, "Depth", currentDepth % 10);
 }
 
-// Recursively add nodes from 'currentNode' to 'numNodes' to 'xmlStr'.  For
-// each node added recursively add nested nodes from 'currentDepth' to
-// 'depth'.
+// Recursively add nodes from `currentNode` to `numNodes` to `xmlStr`.  For
+// each node added recursively add nested nodes from `currentDepth` to
+// `depth`.
 void addNodes(bsl::string& xmlStr,
               int          currentNode,
               int          numNodes,
@@ -642,7 +642,7 @@ void addNodes(bsl::string& xmlStr,
     addNodes(xmlStr, currentNode + 1, numNodes, currentDepth, depth);
 }
 
-// Add 'numNodes' each having nested nodes of 'depth' to 'xmlStr'.
+// Add `numNodes` each having nested nodes of `depth` to `xmlStr`.
 void ggg(bsl::string& xmlStr, int numNodes, int depth) {
     xmlStr.assign(strXmlStart);
     addNodes(xmlStr, 0, numNodes, 0, depth);
@@ -655,14 +655,14 @@ void checkNodeName(Obj& reader, const char* tag, int n) {
     ASSERT(!bsl::strcmp(reader.nodeName(), ss1.str().c_str()));
 }
 
-// Recursively read nested nodes from 'currentDepth' to 'depth' to 'xmlStr'.
+// Recursively read nested nodes from `currentDepth` to `depth` to `xmlStr`.
 void readDepth(Obj& reader, int currentDepth, int depth) {
     if (currentDepth == depth) {
         return;                                                       // RETURN
     }
 
-    // Note that 'currentDepth' does not equal 'reader.nodeDepth()', this is
-    // because 'currentDepth' does not account for the depth add by the header
+    // Note that `currentDepth` does not equal `reader.nodeDepth()`, this is
+    // because `currentDepth` does not account for the depth add by the header
     // information.
 
     int rc = advancePastWhiteSpace(reader);
@@ -712,9 +712,9 @@ void readDepth(Obj& reader, int currentDepth, int depth) {
     checkNodeName(reader, "Depth", currentDepth % 10);
 }
 
-// Recursively read nodes from 'currentNode' to 'numNodes' to 'xmlStr'.  For
-// each node read recursively read nested nodes from 'currentDepth' to
-// 'depth'.
+// Recursively read nodes from `currentNode` to `numNodes` to `xmlStr`.  For
+// each node read recursively read nested nodes from `currentDepth` to
+// `depth`.
 void readNodes(Obj& reader,
                int  currentNode,
                int  numNodes,
@@ -795,8 +795,8 @@ void readHeader(Obj& reader)
     ASSERT(!bsl::strcmp(reader.nodeName(), "xs:schema"));
 }
 
+/// Advance the specified `n` number of nodes in the specified `reader`.
 void advanceN(Obj& reader, bsl::size_t n)
-    // Advance the specified 'n' number of nodes in the specified 'reader'.
 {
     while (n--) {
         advancePastWhiteSpace(reader);
@@ -808,19 +808,19 @@ void advanceN(Obj& reader, bsl::size_t n)
                                 // class RandGen
                                 // =============
 
+/// Random number generator using the high-order 32 bits of Donald Knuth's
+/// MMIX algorithm.
 class RandGen {
-    // Random number generator using the high-order 32 bits of Donald Knuth's
-    // MMIX algorithm.
 
     bsls::Types::Uint64 d_seed;
 
   public:
+    /// Initialize the generator with the specified `startSeed`.
     explicit
     RandGen(int startSeed = 0);
-        // Initialize the generator with the specified 'startSeed'.
 
+    /// Return the next random number in the series;
     unsigned operator()();
-        // Return the next random number in the series;
 };
 
 // CREATOR
@@ -909,14 +909,14 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
-        // This is a implementation of the 'balxml::Reader' interface.
+        // This is a implementation of the `balxml::Reader` interface.
         //
         // Concerns:
         //   That the usage example compiles and runs correctly.
         //
         // Plan:
         //   Copy the usage example from the component-level documentation.
-        //   Replace 'assert' with 'ASSERT'.
+        //   Replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -954,12 +954,12 @@ int main(int argc, char *argv[])
         // FUZZ TEST
         //
         // Concerns:
-        //: 1 A large arbitrary XML input does not cause contract violations.
-        //:   See '{DRQS 154828363}'.
+        // 1. A large arbitrary XML input does not cause contract violations.
+        //    See `{DRQS 154828363}`.
         //
         // Plan:
-        //: 1 Generate XML input similar to the fuzz test data found to have
-        //:   caused a problem and verify no crashes.
+        // 1. Generate XML input similar to the fuzz test data found to have
+        //    caused a problem and verify no crashes.
         //
         // Testing:
         //   FUZZ TEST
@@ -990,16 +990,16 @@ int main(int argc, char *argv[])
         // UNEXPECTED EOF TEST
         //
         // Concern:
-        //: 1 If the reader encounters an unexpected EOF, the position, line#,
-        //:   and column# are correct.
+        // 1. If the reader encounters an unexpected EOF, the position, line#,
+        //    and column# are correct.
         //
         // Plan:
-        //: 1 Start out with a sequence of value xml, and traverse it with
-        //:   'advanceToNextNode', and observe that when 'advanceToNextNode'
-        //:   does not return 0, the position, line#, and column# correctly
-        //:   identify the position of the end of data.
-        //:
-        //: 2 Repeat the test for input from a string, file, and 'steambuf'.
+        // 1. Start out with a sequence of value xml, and traverse it with
+        //    `advanceToNextNode`, and observe that when `advanceToNextNode`
+        //    does not return 0, the position, line#, and column# correctly
+        //    identify the position of the end of data.
+        //
+        // 2. Repeat the test for input from a string, file, and `steambuf`.
         //
         // Testing:
         //   getCurrentPosition();
@@ -1096,8 +1096,8 @@ int main(int argc, char *argv[])
                   }
                 }
 
-                // Note that 'MiniReader::open' calls 'MiniReader::readInput'
-                // so 'open' will fail if '0 == badPos'.
+                // Note that `MiniReader::open` calls `MiniReader::readInput`
+                // so `open` will fail if `0 == badPos`.
 
                 ASSERTV(mode, rc, badPos, 0 == rc || 0 == badPos);
                 if (0 != rc) {
@@ -1139,32 +1139,32 @@ int main(int argc, char *argv[])
         // ADVANCE TO END NODE RAW BARE TEST
         //
         // Concerns:
-        //: 1 'advanceToEndNodeRawBare' function skips all (text, whitespace,
-        //:    start element, end element for skipped elements) node types
-        //:    (without XML validation) until it finds the end element for
-        //:   the element it was called for.
-        //:
-        //: 2 Calling 'advanceToEndNodeRawBare' in states 'ST_EOF', 'ST_CLOSE'
-        //:   or 'ST_ERROR' is a no-op and it returns an error.
-        //:
-        //: 3 Calling 'advanceToEndNodeRawBare' on an empty element is a no-op
-        //:   and returns success.
-        //:
-        //: 4 Node names crossing buffer boundaries are found properly.
+        // 1. `advanceToEndNodeRawBare` function skips all (text, whitespace,
+        //     start element, end element for skipped elements) node types
+        //     (without XML validation) until it finds the end element for
+        //    the element it was called for.
+        //
+        // 2. Calling `advanceToEndNodeRawBare` in states `ST_EOF`, `ST_CLOSE`
+        //    or `ST_ERROR` is a no-op and it returns an error.
+        //
+        // 3. Calling `advanceToEndNodeRawBare` on an empty element is a no-op
+        //    and returns success.
+        //
+        // 4. Node names crossing buffer boundaries are found properly.
         //
         // Plan:
-        //: 1 Create input XML strings and call 'advanceToEndNodeRawBare' in
-        //:   several states of them:
-        //:   1 Verify skipping the deepest element
-        //:   2 Verify skipping mid elements
-        //:   3 Verify skipping outer element
-        //:   4 Verify skipping in EOF and CLOSE state (error)
-        //:   5 Verify skipping in ERROR state (error)
-        //:   6 Verify skipping an empty element '<Node0/>'
-        //:   7 Verify skipping in larger XML, larger than the read buffer
-        //:   8 Verify skipping in ill-formed large XML (error)
-        //:   9 Verify skipping in partial large XML (error)
-        //:  10 Verify skipping nested elements with the same name
+        // 1. Create input XML strings and call `advanceToEndNodeRawBare` in
+        //    several states of them:
+        //   1. Verify skipping the deepest element
+        //   2. Verify skipping mid elements
+        //   3. Verify skipping outer element
+        //   4. Verify skipping in EOF and CLOSE state (error)
+        //   5. Verify skipping in ERROR state (error)
+        //   6. Verify skipping an empty element `<Node0/>`
+        //   7. Verify skipping in larger XML, larger than the read buffer
+        //   8. Verify skipping in ill-formed large XML (error)
+        //   9. Verify skipping in partial large XML (error)
+        //  10. Verify skipping nested elements with the same name
         //
         // Testing:
         //   advanceToEndNodeRawBare()
@@ -1340,13 +1340,13 @@ int main(int argc, char *argv[])
 
             rc = advancePastWhiteSpace(reader); // Hit EOF here
 
-            // Skip to end node fails, the parser is in the 'ST_EOF' state:
+            // Skip to end node fails, the parser is in the `ST_EOF` state:
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRaw()) == -1);
 
             reader.close();
 
-            // Skip to end node fails, the parser is in the 'ST_CLOSED' state:
+            // Skip to end node fails, the parser is in the `ST_CLOSED` state:
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRaw()) == -1);
         }
@@ -1375,7 +1375,7 @@ int main(int argc, char *argv[])
 
             LOOP_ASSERT(rc, (rc = advancePastWhiteSpace(reader)) < 0);
 
-            // Skip to end node fails, the parser is in the 'ST_ERROR' state:
+            // Skip to end node fails, the parser is in the `ST_ERROR` state:
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRawBare()) == -1);
 
@@ -1702,38 +1702,38 @@ int main(int argc, char *argv[])
         // ADVANCE TO END NODE RAW TEST
         //
         // Concerns:
-        //: 1 'advanceToEndNodeRaw' function skips all (text, CDATA, comment,
-        //:   whitespace, start element, end element for skipped elements) node
-        //:   types (without XML validation) until it finds the end element for
-        //:   the element it was called for.
-        //:
-        //: 2 Calling 'advanceToEndNodeRaw' in states 'ST_EOF', 'ST_CLOSE' or
-        //:   'ST_ERROR' is a no-op and it returns an error.
-        //:
-        //: 3 Calling 'advanceToEndNodeRaw' on an empty element is a no-op and
-        //:   returns success.
-        //:
-        //: 4 Attempt to skip unclosed comments returns an error and leaves the
-        //:   parser in an error state.
-        //:
-        //: 5 Attempt to skip unclosed CDATA section returns an error and
-        //:   leaves the parser in an error state.
-        //:
-        //: 6 Node names crosses buffer boundaries are found properly.
+        // 1. `advanceToEndNodeRaw` function skips all (text, CDATA, comment,
+        //    whitespace, start element, end element for skipped elements) node
+        //    types (without XML validation) until it finds the end element for
+        //    the element it was called for.
+        //
+        // 2. Calling `advanceToEndNodeRaw` in states `ST_EOF`, `ST_CLOSE` or
+        //    `ST_ERROR` is a no-op and it returns an error.
+        //
+        // 3. Calling `advanceToEndNodeRaw` on an empty element is a no-op and
+        //    returns success.
+        //
+        // 4. Attempt to skip unclosed comments returns an error and leaves the
+        //    parser in an error state.
+        //
+        // 5. Attempt to skip unclosed CDATA section returns an error and
+        //    leaves the parser in an error state.
+        //
+        // 6. Node names crosses buffer boundaries are found properly.
         //
         // Plan:
-        //: 1 Create input XML strings and call 'advanceToEndNodeRawBare' in
-        //:   several states of them:
-        //:   1 Verify skipping the deepest element
-        //:   2 Verify skipping mid elements
-        //:   3 Verify skipping outer element
-        //:   4 Verify skipping in EOF and CLOSE state (error)
-        //:   5 Verify skipping in ERROR state (error)
-        //:   6 Verify skipping an empty element '<Node0/>'
-        //:   7 Verify skipping in larger XML, larger than the read buffer
-        //:   8 Verify skipping in ill-formed large XML (error)
-        //:   9 Verify skipping in partial large XML (error)
-        //:  10 Verify skipping nested elements with the same name
+        // 1. Create input XML strings and call `advanceToEndNodeRawBare` in
+        //    several states of them:
+        //   1. Verify skipping the deepest element
+        //   2. Verify skipping mid elements
+        //   3. Verify skipping outer element
+        //   4. Verify skipping in EOF and CLOSE state (error)
+        //   5. Verify skipping in ERROR state (error)
+        //   6. Verify skipping an empty element `<Node0/>`
+        //   7. Verify skipping in larger XML, larger than the read buffer
+        //   8. Verify skipping in ill-formed large XML (error)
+        //   9. Verify skipping in partial large XML (error)
+        //  10. Verify skipping nested elements with the same name
         //
         // Testing:
         //   advanceToEndNodeRaw()
@@ -1909,13 +1909,13 @@ int main(int argc, char *argv[])
 
             rc = advancePastWhiteSpace(reader); // Hit EOF here
 
-            // Skip to end node fails, the parser is in the 'ST_EOF' state:
+            // Skip to end node fails, the parser is in the `ST_EOF` state:
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRaw()) == -1);
 
             reader.close();
 
-            // Skip to end node fails, the parser is in the 'ST_CLOSED' state:
+            // Skip to end node fails, the parser is in the `ST_CLOSED` state:
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRaw()) == -1);
         }
@@ -1943,7 +1943,7 @@ int main(int argc, char *argv[])
 
             LOOP_ASSERT(rc, (rc = advancePastWhiteSpace(reader)) < 0);
 
-            // Skip to end node fails, the parser is in the 'ST_ERROR' state:
+            // Skip to end node fails, the parser is in the `ST_ERROR` state:
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRaw()) == -1);
 
@@ -2525,34 +2525,34 @@ int main(int argc, char *argv[])
         // ADVANCE TO END NODE TEST
         //
         // Concerns:
-        //: 1 'advanceToEndNode' function skips all (text, CDATA, comment,
-        //:   whitespace, start element, end element for skipped elements) node
-        //:   types until it finds the end element for the element it was
-        //:   called for.
-        //:
-        //: 2 Calling 'advanceToEndNodeRaw' in states 'ST_EOF', 'ST_CLOSE' or
-        //:   'ST_ERROR' is a no-op and it returns an error.
-        //:
-        //: 3 Calling 'advanceToEndNodeRaw' on an empty element is a no-op and
-        //:   returns success.
-        //:
-        //: 4 Node names crosses buffer boundaries are found properly.
-        //:
-        //: 5 Function returns error for bad XML.
+        // 1. `advanceToEndNode` function skips all (text, CDATA, comment,
+        //    whitespace, start element, end element for skipped elements) node
+        //    types until it finds the end element for the element it was
+        //    called for.
+        //
+        // 2. Calling `advanceToEndNodeRaw` in states `ST_EOF`, `ST_CLOSE` or
+        //    `ST_ERROR` is a no-op and it returns an error.
+        //
+        // 3. Calling `advanceToEndNodeRaw` on an empty element is a no-op and
+        //    returns success.
+        //
+        // 4. Node names crosses buffer boundaries are found properly.
+        //
+        // 5. Function returns error for bad XML.
         //
         // Plan:
-        //: 1 Create input XML strings and call 'advanceToEndNodeRawBare' in
-        //:   several states of them:
-        //:   1 Verify skipping the deepest element
-        //:   2 Verify skipping mid elements
-        //:   3 Verify skipping outer element
-        //:   4 Verify skipping in EOF and CLOSE state (error)
-        //:   5 Verify skipping in ERROR state (error)
-        //:   6 Verify skipping an empty element '<Node0/>'
-        //:   7 Verify skipping in larger XML, larger than the read buffer
-        //:   8 Verify skipping in ill-formed large XML (error)
-        //:   9 Verify skipping in partial large XML (error)
-        //:  10 Verify skipping nested elements with the same name
+        // 1. Create input XML strings and call `advanceToEndNodeRawBare` in
+        //    several states of them:
+        //   1. Verify skipping the deepest element
+        //   2. Verify skipping mid elements
+        //   3. Verify skipping outer element
+        //   4. Verify skipping in EOF and CLOSE state (error)
+        //   5. Verify skipping in ERROR state (error)
+        //   6. Verify skipping an empty element `<Node0/>`
+        //   7. Verify skipping in larger XML, larger than the read buffer
+        //   8. Verify skipping in ill-formed large XML (error)
+        //   9. Verify skipping in partial large XML (error)
+        //  10. Verify skipping nested elements with the same name
         //
         // Testing:
         //   advanceToEndNode()
@@ -2723,13 +2723,13 @@ int main(int argc, char *argv[])
 
             rc = advancePastWhiteSpace(reader); // Hit EOF here
 
-            // Skip to end node fails, the parser is in the 'ST_EOF' state:
+            // Skip to end node fails, the parser is in the `ST_EOF` state:
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == -1);
 
             reader.close();
 
-            // Skip to end node fails, the parser is in the 'ST_CLOSED' state:
+            // Skip to end node fails, the parser is in the `ST_CLOSED` state:
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == -1);
         }
@@ -2757,7 +2757,7 @@ int main(int argc, char *argv[])
 
             LOOP_ASSERT(rc, (rc = advancePastWhiteSpace(reader)) < 0);
 
-            // Skip to end node fails, the parser is in the 'ST_ERROR' state:
+            // Skip to end node fails, the parser is in the `ST_ERROR` state:
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNode()) == -1);
 
@@ -2914,7 +2914,7 @@ int main(int argc, char *argv[])
 
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'xsi:nil' attribute
+        // TESTING `xsi:nil` attribute
         //
         // Plan:
         //
@@ -2924,7 +2924,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << bsl::endl
-                               << "Testing 'xsi:nil' attribute"   << bsl::endl
+                               << "Testing `xsi:nil` attribute"   << bsl::endl
                                << "===========================\n" << bsl::endl;
 
         {
@@ -2998,14 +2998,14 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING decoding 'CDATA'
+        // TESTING decoding `CDATA`
         //
         // Plan:
         //
         // Testing:
         // --------------------------------------------------------------------
         if (verbose) bsl::cout << bsl::endl
-                               << "Testing 'CDATA'"   << bsl::endl
+                               << "Testing `CDATA`"   << bsl::endl
                                << "===============\n" << bsl::endl;
 
         {
@@ -3132,19 +3132,19 @@ int main(int argc, char *argv[])
         //   attributes.
         //
         // Plan:
-        //   Construct a 'balxml::MiniReader' reader capable of buffering
-        //   'bufferSize' bytes of an XML document created with many
+        //   Construct a `balxml::MiniReader` reader capable of buffering
+        //   `bufferSize` bytes of an XML document created with many
         //   attributes.  For each test vector generate the XML input starting
-        //   with the 'strXmlStart' template, add attributes to a single node
+        //   with the `strXmlStart` template, add attributes to a single node
         //   to get the desired input size and then close the input with the
-        //   'strXmlEnd' template.  Use the reader to parse the input and
+        //   `strXmlEnd` template.  Use the reader to parse the input and
         //   verify that the node and all its attributes are intact.  The
-        //   'bufferSize' is used to perturb the testing with different
+        //   `bufferSize` is used to perturb the testing with different
         //   initial buffer sizes, this will force the reader to operate
         //   differently.  I.e., the reader will need to stop more frequently
         //   to read in input with smaller buffer size while using less
         //   memory, while the exact opposite will be true with larger
-        //   'bufferSize's'.
+        //   `bufferSize`s'.
         //
         // --------------------------------------------------------------------
 
@@ -3203,7 +3203,7 @@ int main(int argc, char *argv[])
           reader.setPrefixStack(&prefixStack);
 
           // Generate a XML input string with one element that contains
-          // 'ATTRIBUTES' attributes.  For example if 'ATTRIBUTES' == 2, then
+          // `ATTRIBUTES` attributes.  For example if `ATTRIBUTES` == 2, then
           // the XML input will look like this:
           //
           //  <?xml version='1.0' encoding='UTF-8'?>
@@ -3284,19 +3284,19 @@ int main(int argc, char *argv[])
         //   all contain a *single element* with a name of different lengths.
         //
         // Plan:
-        //   Construct a 'balxml::MiniReader' reader capable of buffering
-        //   'bufferSize' bytes of an XML document created with long node
+        //   Construct a `balxml::MiniReader` reader capable of buffering
+        //   `bufferSize` bytes of an XML document created with long node
         //   names.  For each test vector generate the XML input starting with
-        //   the 'strXmlStart' template, add a single node with a name of
-        //   'length' to get the desired input size and then close the input
-        //   with the 'strXmlEnd' template.  Use the reader to parse the input
+        //   the `strXmlStart` template, add a single node with a name of
+        //   `length` to get the desired input size and then close the input
+        //   with the `strXmlEnd` template.  Use the reader to parse the input
         //   and verify that the node and its name are intact.  The
-        //   'bufferSize' is used to perturb the testing with different
+        //   `bufferSize` is used to perturb the testing with different
         //   initial buffer sizes, this will force the reader to operate
         //   differently.  I.e., the reader will need to stop more frequently
         //   to read in input with smaller buffer size while using less
         //   memory, while the exact opposite will be true with larger
-        //   'bufferSize's'.
+        //   `bufferSize`s'.
         //
         // --------------------------------------------------------------------
 
@@ -3355,7 +3355,7 @@ int main(int argc, char *argv[])
           reader.setPrefixStack(&prefixStack);
 
           // Generate a XML input string with one element where the element's
-          // name has 'LENGTH' length.  For example if 'LENGTH' == 2, then the
+          // name has `LENGTH` length.  For example if `LENGTH` == 2, then the
           // XML input will look like this:
           //
           //  <?xml version='1.0' encoding='UTF-8'?>
@@ -3413,16 +3413,16 @@ int main(int argc, char *argv[])
         //   will contain elements of different breadth and depth.
         //
         // Plan:
-        //   Construct a 'balxml::MiniReader' reader capable of buffering
-        //   'bufferSize' bytes of an XML document created with the 'ggg'
-        //   function.  The XML documents created with the 'ggg' function will
-        //   be of lengths and depths that force 'pointer rebase' within the
-        //   'balxml::MiniReader'.  The 'bufferSize' is used to perturb the
+        //   Construct a `balxml::MiniReader` reader capable of buffering
+        //   `bufferSize` bytes of an XML document created with the `ggg`
+        //   function.  The XML documents created with the `ggg` function will
+        //   be of lengths and depths that force `pointer rebase` within the
+        //   `balxml::MiniReader`.  The `bufferSize` is used to perturb the
         //   testing with different initial buffer sizes, this will force the
         //   reader to operate differently.  I.e., the reader will need to stop
         //   more frequently to read in input with smaller buffer size while
         //   using less memory, while the exact opposite will be true with
-        //   larger 'bufferSize's'.
+        //   larger `bufferSize`s'.
         //
         // --------------------------------------------------------------------
 
@@ -3530,7 +3530,7 @@ int main(int argc, char *argv[])
           bsl::string xmlStr;
           ggg(xmlStr, NODES, DEPTH);
 
-          // Testing to see if the 'BYTES' from the test vector match the
+          // Testing to see if the `BYTES` from the test vector match the
           // calculation described on the comment above.
           int bytes = 0;
           for (int sumIndex = 1; sumIndex <= DEPTH; ++sumIndex) {
@@ -3579,7 +3579,7 @@ int main(int argc, char *argv[])
         // TESTING ADVANCETONEXTNODE WITH BAD INPUT
         //
         // Plan:
-        //  Create and open a 'balxml::MiniReader' with strings containing
+        //  Create and open a `balxml::MiniReader` with strings containing
         //  invalid inputs.  Assert that calls to advanceToNextNode fail with
         //  the proper errors.
         //
@@ -3591,7 +3591,7 @@ int main(int argc, char *argv[])
                                << "\n========================================"
                                << bsl::endl;
 
-        if (verbose) bsl::cout << "Testing 'advanceToNextNode'"   << bsl::endl
+        if (verbose) bsl::cout << "Testing `advanceToNextNode`"   << bsl::endl
                                << "- - - - - - - - - - - - - -\n" << bsl::endl;
 
         if (verbose) bsl::cout << "Bad closing tag."   << bsl::endl
@@ -4109,20 +4109,20 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING GENERATOR FUNCTION 'GGG'
+        // TESTING GENERATOR FUNCTION `GGG`
         //
         // Plan:
-        //   Test the behavior of 'ggg'.
+        //   Test the behavior of `ggg`.
         //   * Create local strings representing the expected xml "header" and
         //     "footer", assert that the local strings equal the global
-        //     'strXmlStart' and 'strXmlEnd'.
+        //     `strXmlStart` and `strXmlEnd`.
         //   * Verify that the string passed to the ggg function is filled in
         //     correctly (implicitly testing the addNodes and addDepth
         //     functions).  Append the local xml header, a "node" and the xml
         //     footer to a local string and compare it to the string passed
         //     into the ggg function.
-        //   * Open an 'balxml::MiniReader' with the xml string and pass the
-        //     reader to 'readHeader' and 'readNodes'.
+        //   * Open an `balxml::MiniReader` with the xml string and pass the
+        //     reader to `readHeader` and `readNodes`.
         //
         // Testing:
         //   void ggg(bsl::string& xmlStr, int numNodes, int depth);
@@ -4140,7 +4140,7 @@ int main(int argc, char *argv[])
         //                  int  depth);
         // --------------------------------------------------------------------
         if (verbose) bsl::cout << bsl::endl
-            << "Testing 'ggg' generator functions" << bsl::endl
+            << "Testing `ggg` generator functions" << bsl::endl
             << "=================================" << bsl::endl;
 
         const char *xmlStart =
@@ -4174,7 +4174,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { P(xmlStr);  P(xmlStrggg); }
 
-        // Assert that 'hard-coded' string and string produced by the ggg
+        // Assert that `hard-coded` string and string produced by the ggg
         // function are the same.
         ASSERT(xmlStr == xmlStrggg);
 
@@ -4205,7 +4205,7 @@ int main(int argc, char *argv[])
         // TESTING PRIMARY MANIPULATORS
         //
         // Concerns:
-        //   1. The 'balxml::MiniReader's' constructors work properly:
+        //   1. The `balxml::MiniReader`s' constructors work properly:
         //      a. The initial value is correct.
         //      b. The constructor is exception neutral w.r.t. memory
         //         allocation.
@@ -4218,7 +4218,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Create a test object using the constructors: 1) without
         //   exceptions and 2) in the presence of exceptions during memory
-        //   allocations using a 'bslma::TestAllocator' and varying its
+        //   allocations using a `bslma::TestAllocator` and varying its
         //   *allocation* *limit*.
         //
         // Testing:
@@ -4232,7 +4232,7 @@ int main(int argc, char *argv[])
                       << "TESTING PRIMARY MANIPULATORS" << bsl::endl
                       << "============================" << bsl::endl;
 
-        if (verbose) bsl::cout << "\nTesting 'balxml::MiniReader(*bA)' ctor"
+        if (verbose) bsl::cout << "\nTesting `balxml::MiniReader(*bA)` ctor"
                                << bsl::endl;
 
         if (verbose) bsl::cout << "\tPassing in an allocator." << bsl::endl;
@@ -4266,7 +4266,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            bsl::cout << "\nTesting 'balxml::MiniReader(bufSize, *bA)' ctor"
+            bsl::cout << "\nTesting `balxml::MiniReader(bufSize, *bA)` ctor"
                 << bsl::endl;
         }
 

@@ -108,10 +108,11 @@ BSLS_IDENT_RCSID(bdlde_charconvertutf32_cpp,"$Id$ $CSID$")
 namespace {
 
 // TYPES
+
+/// `char` often defaults to a signed type, which becomes problematic in
+/// widening to 32 bit values, so we use this unsigned type to store bytes
+/// of UTF-8.
 typedef unsigned char OctetType;
-    // 'char' often defaults to a signed type, which becomes problematic in
-    // widening to 32 bit values, so we use this unsigned type to store bytes
-    // of UTF-8.
 
 // Portability/sanity checks -- data type sizes.
 BSLMF_ASSERT(8 == CHAR_BIT);
@@ -158,34 +159,37 @@ enum Utf8Bits {
                            // local struct Capacity
                            // =====================
 
+/// Functor passed to `Utf8ToUtf32Translator` and `Utf32ToUtf8Translator` in
+/// cases where we monitor capacity available in output.  Initialize in
+/// c'tor with an integer `capacity`, then thereafter support operators
+/// `--`, `-=`, and `<` for that value.
 struct Capacity {
-    // Functor passed to 'Utf8ToUtf32Translator' and 'Utf32ToUtf8Translator' in
-    // cases where we monitor capacity available in output.  Initialize in
-    // c'tor with an integer 'capacity', then thereafter support operators
-    // '--', '-=', and '<' for that value.
 
     bsl::size_t d_capacity;
 
     // CREATORS
+
+    /// Create a `Capacity` object with the specified `capacity`.
     explicit
     Capacity(bsl::size_t capacity);
-        // Create a 'Capacity' object with the specified 'capacity'.
 
     // MANIPULATORS
-    void operator--();
-        // Decrement 'd_capacity'.
 
+    /// Decrement `d_capacity`.
+    void operator--();
+
+    /// Decrement `d_capacity` by the specified `delta`.
     void operator-=(int delta);
-        // Decrement 'd_capacity' by the specified 'delta'.
 
     // ACCESSORS
-    bool operator<( bsl::size_t rhs) const;
-        // Return 'true' if 'd_capacity' is less than the specified 'rhs', and
-        // 'false' otherwise.
 
+    /// Return `true` if `d_capacity` is less than the specified `rhs`, and
+    /// `false` otherwise.
+    bool operator<( bsl::size_t rhs) const;
+
+    /// Return `true` if `d_capacity` is greater than or equal to the
+    /// specified `rhs`, and `false` otherwise.
     bool operator>=(bsl::size_t rhs) const;
-        // Return 'true' if 'd_capacity' is greater than or equal to the
-        // specified 'rhs', and 'false' otherwise.
 };
 
                            // ---------------------
@@ -199,33 +203,35 @@ Capacity::Capacity(bsl::size_t capacity)
 {}
 
 // MANIPULATORS
+
+/// Decrement `d_capacity`.
 inline
 void Capacity::operator--()
-    // Decrement 'd_capacity'.
 {
     --d_capacity;
 }
 
+/// Decrement `d_capacity` by `delta`.
 inline
 void Capacity::operator-=(int delta)
-    // Decrement 'd_capacity' by 'delta'.
 {
     d_capacity -= delta;
 }
 
 // ACCESSORS
+
+/// Return `true` if `d_capacity` is less than the specified `rhs`, and
+/// `false` otherwise.
 inline
 bool Capacity::operator<( bsl::size_t rhs) const
-    // Return 'true' if 'd_capacity' is less than the specified 'rhs', and
-    // 'false' otherwise.
 {
     return d_capacity <  rhs;
 }
 
+/// Return `true` if `d_capacity` is greater than or equal to the specified
+/// `rhs`, and `false` otherwise.
 inline
 bool Capacity::operator>=(bsl::size_t rhs) const
-    // Return 'true' if 'd_capacity' is greater than or equal to the specified
-    // 'rhs', and 'false' otherwise.
 {
     return d_capacity >= rhs;
 }
@@ -234,31 +240,34 @@ bool Capacity::operator>=(bsl::size_t rhs) const
                          // local struct NoopCapacity
                          // =========================
 
+/// Functor passed to `Utf8ToUtf32Translator` and `Utf32ToUtf8Translator` in
+/// cases where we don't want to monitor capacity available in output, all
+/// operations on this object are to become no-ops, the `<` and `>=`
+/// operators return constant `bool` values to indicate that adequate
+/// capacity is available.
 struct NoopCapacity {
-    // Functor passed to 'Utf8ToUtf32Translator' and 'Utf32ToUtf8Translator' in
-    // cases where we don't want to monitor capacity available in output, all
-    // operations on this object are to become no-ops, the '<' and '>='
-    // operators return constant 'bool' values to indicate that adequate
-    // capacity is available.
 
     // CREATORS
+
+    /// Create empty object.
     explicit
     NoopCapacity(bsl::size_t);
-        // Create empty object.
 
     // MANIPULATORS
-    void operator--();
-        // No-op.
 
+    /// No-op.
+    void operator--();
+
+    /// No-op.
     void operator-=(int);
-        // No-op.
 
     // ACCESSORS
-    bool operator<( bsl::size_t) const;
-        // Return 'false'.
 
+    /// Return `false`.
+    bool operator<( bsl::size_t) const;
+
+    /// Return `true`.
     bool operator>=(bsl::size_t) const;
-        // Return 'true'.
 };
 
                          // -------------------------
@@ -266,33 +275,36 @@ struct NoopCapacity {
                          // -------------------------
 
 // CREATOR
+
+/// Create empty object.
 inline
 NoopCapacity::NoopCapacity(bsl::size_t)
-    // Create empty object.
 {}
 
 // MANIPULATORS
+
+/// No-op.
 inline
 void NoopCapacity::operator--()
-    // No-op.
 {}
 
+/// No-op.
 inline
 void NoopCapacity::operator-=(int)
-    // No-op.
 {}
 
 // ACCESSORS
+
+/// Return `false`.
 inline
 bool NoopCapacity::operator<( bsl::size_t) const
-    // Return 'false'.
 {
     return false;
 }
 
+/// Return `true`.
 inline
 bool NoopCapacity::operator>=(bsl::size_t) const
-    // Return 'true'.
 {
     return true;
 }
@@ -301,13 +313,14 @@ bool NoopCapacity::operator>=(bsl::size_t) const
                             // local struct Swapper
                             // ====================
 
+/// This `struct` serves as a template argument.  The type is used for
+/// reversing the byte order of `unsigned int` values passed to `swapBytes`.
 struct Swapper {
-    // This 'struct' serves as a template argument.  The type is used for
-    // reversing the byte order of 'unsigned int' values passed to 'swapBytes'.
 
     // CLASS METHODS
+
+    /// Return the specified `x` with its byte order reversed;
     static unsigned int swapBytes(unsigned int x);
-        // Return the specified 'x' with its byte order reversed;
 };
 
 inline
@@ -320,16 +333,17 @@ unsigned int Swapper::swapBytes(unsigned int x)
                           // local struct NoopSwapper
                           // ========================
 
+/// This `struct` serves as a template argument, to be substituted for
+/// `Swapper` when swapping is not desired.  The type is used for returning
+/// the value passed to `swapBytes` without modification.  Note that the
+/// function name and signature must match that of the function in
+/// `Swapper`.
 struct NoopSwapper {
-    // This 'struct' serves as a template argument, to be substituted for
-    // 'Swapper' when swapping is not desired.  The type is used for returning
-    // the value passed to 'swapBytes' without modification.  Note that the
-    // function name and signature must match that of the function in
-    // 'Swapper'.
 
     // CLASS METHODS
+
+    /// Return the specified `x` without modification.
     static unsigned int swapBytes(unsigned int x);
-        // Return the specified 'x' without modification.
 };
 
 inline
@@ -342,38 +356,40 @@ unsigned int NoopSwapper::swapBytes(unsigned int x)
                         // local class Utf8PtrBasedEnd
                         // ===========================
 
+/// This `class` is initialized with a pointer to the end of input.  The
+/// `isFinished` function just determines whether input has reached that
+/// end by comparing pointers.
 class Utf8PtrBasedEnd {
-    // This 'class' is initialized with a pointer to the end of input.  The
-    // 'isFinished' function just determines whether input has reached that
-    // end by comparing pointers.
 
     // DATA
     const OctetType * const d_end;
 
   public:
     // CREATORS
+
+    /// Create a `Utf8PtrBasedEnd` object with the end at the specified
+    /// `end`.
     explicit
     Utf8PtrBasedEnd(const char *end);
-        // Create a 'Utf8PtrBasedEnd' object with the end at the specified
-        // 'end'.
 
     // ACCESSORS
-    bool isFinished(const OctetType *position) const;
-        // Return 'true' if the specified 'position' is at the end of input and
-        // 'false' otherwise.  The behavior is undefined unless
-        // 'position <= d_end'.
 
+    /// Return `true` if the specified `position` is at the end of input and
+    /// `false` otherwise.  The behavior is undefined unless
+    /// `position <= d_end`.
+    bool isFinished(const OctetType *position) const;
+
+    /// Return a pointer to after the specified `skipBy` consecutive
+    /// continuation bytes following the specified `octets` that are prior
+    /// to `d_end`.  The behavior is undefined unless `octets <= d_end`.
     const OctetType *skipContinuations(const OctetType *octets,
                                        int              skipBy) const;
-        // Return a pointer to after the specified 'skipBy' consecutive
-        // continuation bytes following the specified 'octets' that are prior
-        // to 'd_end'.  The behavior is undefined unless 'octets <= d_end'.
 
+    /// Return `true` if there are at least the specified `n` continuation
+    /// bytes beginning at the specified `octets` and prior to `d_end`, and
+    /// `false` otherwise.  The behavior is undefined if `octets` is past
+    /// the end.  The behavior is undefined unless `octets <= d_end`.
     bool verifyContinuations(const OctetType *octets, int n) const;
-        // Return 'true' if there are at least the specified 'n' continuation
-        // bytes beginning at the specified 'octets' and prior to 'd_end', and
-        // 'false' otherwise.  The behavior is undefined if 'octets' is past
-        // the end.  The behavior is undefined unless 'octets <= d_end'.
 };
 
                         // ---------------------------
@@ -447,26 +463,28 @@ bool Utf8PtrBasedEnd::verifyContinuations(const OctetType *octets,
 
 struct Utf8ZeroBasedEnd {
     // CREATORS
+
+    /// Create a `Utf8ZeroBasedEnd` object.
     Utf8ZeroBasedEnd();
-        // Create a 'Utf8ZeroBasedEnd' object.
 
     // ACCESSORS
-    bool isFinished(const OctetType *position) const;
-        // Return 'true' if the specified 'position' is at the end of input,
-        // and 'false' otherwise.
 
+    /// Return `true` if the specified `position` is at the end of input,
+    /// and `false` otherwise.
+    bool isFinished(const OctetType *position) const;
+
+    /// Return a pointer to after up to the specified `skipBy` consecutive
+    /// continuation bytes following the specified `octets`.  The function
+    /// will skip over less than `skipBy` octets if it encounters end of
+    /// input, or any non-continuation octets.  The behavior is undefined
+    /// unless `octets` is before or at the end of input.
     const OctetType *skipContinuations(const OctetType *octets,
                                        int              skipBy) const;
-        // Return a pointer to after up to the specified 'skipBy' consecutive
-        // continuation bytes following the specified 'octets'.  The function
-        // will skip over less than 'skipBy' octets if it encounters end of
-        // input, or any non-continuation octets.  The behavior is undefined
-        // unless 'octets' is before or at the end of input.
 
+    /// Return `true` if there are at least the specified `n` continuation
+    /// bytes beginning at the specified `octets` and `false` otherwise.
+    /// The behavior is undefined unless `n >= 1`.
     bool verifyContinuations(const OctetType *octets, int n) const;
-        // Return 'true' if there are at least the specified 'n' continuation
-        // bytes beginning at the specified 'octets' and 'false' otherwise.
-        // The behavior is undefined unless 'n >= 1'.
 };
 
                        // -----------------------------
@@ -527,26 +545,28 @@ bool Utf8ZeroBasedEnd::verifyContinuations(const OctetType *octets,
                         // local class Utf32PtrBasedEnd
                         // ============================
 
+/// This `class` is initialized with a pointer to the end of input.  The
+/// `isFinished` function just determines whether input has reached that
+/// end by comparing pointers.
 class Utf32PtrBasedEnd {
-    // This 'class' is initialized with a pointer to the end of input.  The
-    // 'isFinished' function just determines whether input has reached that
-    // end by comparing pointers.
 
     // DATA
     const unsigned int * const d_end_p;
 
   public:
     // CREATORS
+
+    /// Create a `Utf8PtrBasedEnd` object with the end at the specified
+    /// `end`.
     explicit
     Utf32PtrBasedEnd(const unsigned int *end);
-        // Create a 'Utf8PtrBasedEnd' object with the end at the specified
-        // 'end'.
 
     // ACCESSORS
+
+    /// Return `true` if the specified `position` is at the end of input and
+    /// `false` otherwise.  The behavior is undefined unless
+    /// `position <= d_end`.
     bool isFinished(const unsigned int *position) const;
-        // Return 'true' if the specified 'position' is at the end of input and
-        // 'false' otherwise.  The behavior is undefined unless
-        // 'position <= d_end'.
 };
 
                         // ---------------------------
@@ -578,13 +598,15 @@ bool Utf32PtrBasedEnd::isFinished(const unsigned int *position) const
 
 struct Utf32ZeroBasedEnd {
     // CREATORS
+
+    /// Create a `Utf32ZeroBasedEnd` object.
     Utf32ZeroBasedEnd();
-        // Create a 'Utf32ZeroBasedEnd' object.
 
     // ACCESSORS
+
+    /// Return `true` if the specified `position` is at the end of input,
+    /// and `false` otherwise.
     bool isFinished(const unsigned int *position) const;
-        // Return 'true' if the specified 'position' is at the end of input,
-        // and 'false' otherwise.
 };
 
                        // ------------------------------
@@ -606,90 +628,90 @@ bool Utf32ZeroBasedEnd::isFinished(const unsigned int *position) const
 
 }  // close unnamed namespace
 
+/// Return the specified `ptr` cast to a `const OctetType *`.  Note that
+/// `static_cast` does not work here, and the idea is to be sure in these
+/// casts that one is never accidentally casting between pointers to `char`
+/// or `OctetType` and pointers to `unsigned int`.
 static inline
 const OctetType *constOctetCast(const char *ptr)
-    // Return the specified 'ptr' cast to a 'const OctetType *'.  Note that
-    // 'static_cast' does not work here, and the idea is to be sure in these
-    // casts that one is never accidentally casting between pointers to 'char'
-    // or 'OctetType' and pointers to 'unsigned int'.
 {
     BSLMF_ASSERT(sizeof(*ptr) == sizeof(OctetType));
     return reinterpret_cast<const OctetType *>(ptr);
 }
 
+/// Return the specified `ptr` cast to an `OctetType *`.  Note that
+/// `static_cast` does not work here, and the idea is to be sure in these
+/// casts that one is never accidentally casting between pointers to `char`
+/// or `OctetType` and pointers to `unsigned int`.
 static inline
 OctetType *octetCast(char *ptr)
-    // Return the specified 'ptr' cast to an 'OctetType *'.  Note that
-    // 'static_cast' does not work here, and the idea is to be sure in these
-    // casts that one is never accidentally casting between pointers to 'char'
-    // or 'OctetType' and pointers to 'unsigned int'.
 {
     BSLMF_ASSERT(sizeof(*ptr) == sizeof(OctetType));
     return reinterpret_cast<OctetType *>(ptr);
 }
 
+/// Return `true` if the specified `oct` is a single-octet UTF-8 sequence.
 static inline
 bool isSingleOctet(OctetType oct)
-    // Return 'true' if the specified 'oct' is a single-octet UTF-8 sequence.
 {
     return ! (oct & k_ONE_OCTET_MASK);
 }
 
+/// Return `true` if the specified `oct` is a continuation octet and `false`
+/// otherwise.
 static inline
 bool isContinuation(OctetType oct)
-    // Return 'true' if the specified 'oct' is a continuation octet and 'false'
-    // otherwise.
 {
     return (oct & k_CONTINUE_MASK) == k_CONTINUE_TAG;
 }
 
+/// Return `true` if the specified `oct` is the first octet of a two-octet
+/// UTF-8 sequence and `false` otherwise.
 static inline
 bool isTwoOctetHeader(OctetType oct)
-    // Return 'true' if the specified 'oct' is the first octet of a two-octet
-    // UTF-8 sequence and 'false' otherwise.
 {
     return (oct & k_TWO_OCTET_MASK) == k_TWO_OCTET_TAG;
 }
 
+/// Return `true` if the specified `oct` is the first octet of a three-octet
+/// UTF-8 sequence and `false` otherwise.
 static inline
 bool isThreeOctetHeader(OctetType oct)
-    // Return 'true' if the specified 'oct' is the first octet of a three-octet
-    // UTF-8 sequence and 'false' otherwise.
 {
     return (oct & k_THREE_OCTET_MASK) == k_THREE_OCTET_TAG;
 }
 
+/// Return `true` if the specified `oct` is the first octet of a four-octet
+/// UTF-8 sequence and `false` otherwise.
 static inline
 bool isFourOctetHeader(OctetType oct)
-    // Return 'true' if the specified 'oct' is the first octet of a four-octet
-    // UTF-8 sequence and 'false' otherwise.
 {
     return (oct & k_FOUR_OCTET_MASK) == k_FOUR_OCTET_TAG;
 }
 
+/// Return the value of the two-octet sequence that begins with the octet
+/// pointed to by the specified `octBuf`.
 static inline
 unsigned int decodeTwoOctets(const OctetType *octBuf)
-    // Return the value of the two-octet sequence that begins with the octet
-    // pointed to by the specified 'octBuf'.
 {
     return     (octBuf[1] & ~k_CONTINUE_MASK)
             | ((octBuf[0] & ~k_TWO_OCTET_MASK)   <<     k_CONTINUE_CONT_WID);
 }
 
+/// Return the value of the three-octet sequence that begins with the octet
+/// pointed to by the specified `octBuf`.
 static inline
 unsigned int decodeThreeOctets(const OctetType *octBuf)
-    // Return the value of the three-octet sequence that begins with the octet
-    // pointed to by the specified 'octBuf'.
 {
     return     (octBuf[2] & ~k_CONTINUE_MASK)
             | ((octBuf[1] & ~k_CONTINUE_MASK)    <<     k_CONTINUE_CONT_WID)
             | ((octBuf[0] & ~k_THREE_OCTET_MASK) << 2 * k_CONTINUE_CONT_WID);
 }
 
+/// Return the value of the four-octet sequence that begins with the octet
+/// pointed to by the specified `octBuf`.
 static inline
 unsigned int decodeFourOctets(const OctetType *octBuf)
-    // Return the value of the four-octet sequence that begins with the octet
-    // pointed to by the specified 'octBuf'.
 {
     return     (octBuf[3] & ~k_CONTINUE_MASK)
             | ((octBuf[2] & ~k_CONTINUE_MASK)   <<     k_CONTINUE_CONT_WID)
@@ -697,11 +719,11 @@ unsigned int decodeFourOctets(const OctetType *octBuf)
             | ((octBuf[0] & ~k_FOUR_OCTET_MASK) << 3 * k_CONTINUE_CONT_WID);
 }
 
+/// Return the number of continuation octets beginning at the specified
+/// `octBuf`, up to but not greater than the specified `n`.  Note that a
+/// null octet is not a continuation and is taken to end the scan.
 static inline
 bsl::size_t lookaheadContinuations(const OctetType * const octBuf, int n)
-    // Return the number of continuation octets beginning at the specified
-    // 'octBuf', up to but not greater than the specified 'n'.  Note that a
-    // null octet is not a continuation and is taken to end the scan.
 {
     const OctetType *       pc  = octBuf;
     const OctetType * const end = pc + n;
@@ -711,55 +733,55 @@ bsl::size_t lookaheadContinuations(const OctetType * const octBuf, int n)
     return pc - octBuf;
 }
 
+/// Return `true` if the specified Unicode value `uc` can be coded in a
+/// single UTF-8 octet and `false` otherwise.
 static inline
 bool fitsInSingleOctet(unsigned int uc)
-    // Return 'true' if the specified Unicode value 'uc' can be coded in a
-    // single UTF-8 octet and 'false' otherwise.
 {
     return 0 == (uc & (~ (unsigned int) 0 << k_ONE_OCT_CONT_WID));
 }
 
+/// Return `true` if the specified Unicode value `uc` can be coded in two
+/// UTF-8 octets or less and `false` otherwise.
 static inline
 bool fitsInTwoOctets(unsigned int uc)
-    // Return 'true' if the specified Unicode value 'uc' can be coded in two
-    // UTF-8 octets or less and 'false' otherwise.
 {
     return 0 == (uc & (~ (unsigned int) 0 << (k_TWO_OCT_CONT_WID +
                                                       k_CONTINUE_CONT_WID)));
 }
 
+/// Return `true` if the specified Unicode value `uc` can be coded in three
+/// UTF-8 octets or less and `false` otherwise.
 static inline
 bool fitsInThreeOctets(unsigned int uc)
-    // Return 'true' if the specified Unicode value 'uc' can be coded in three
-    // UTF-8 octets or less and 'false' otherwise.
 {
     return 0 == (uc & (~ (unsigned int) 0 << (k_THREE_OCT_CONT_WID +
                                                   2 * k_CONTINUE_CONT_WID)));
 }
 
+/// Return `true` if the specified Unicode value `uc` can be coded in four
+/// UTF-8 octets or less and `false` otherwise.
 static inline
 bool fitsInFourOctets(unsigned int uc)
-    // Return 'true' if the specified Unicode value 'uc' can be coded in four
-    // UTF-8 octets or less and 'false' otherwise.
 {
     return 0 == (uc & (~ (unsigned int) 0 << (k_FOUR_OCT_CONT_WID +
                                                   3 * k_CONTINUE_CONT_WID)));
 }
 
+/// Encode the specified Unicode value `isoBuf` into the two bytes pointed
+/// at by the specified `octBuf`.
 static inline
 void encodeTwoOctets(OctetType *octBuf, unsigned int isoBuf)
-    // Encode the specified Unicode value 'isoBuf' into the two bytes pointed
-    // at by the specified 'octBuf'.
 {
     octBuf[1] = (OctetType) (k_CONTINUE_TAG | (isoBuf & ~k_CONTINUE_MASK));
     octBuf[0] = (OctetType) (k_TWO_OCTET_TAG |
                  ((isoBuf >>     k_CONTINUE_CONT_WID) & ~k_TWO_OCTET_MASK));
 }
 
+/// Encode the specified Unicode value `isoBuf` into the three bytes pointed
+/// at by the specified `octBuf`.
 static inline
 void encodeThreeOctets(OctetType *octBuf, unsigned int isoBuf)
-    // Encode the specified Unicode value 'isoBuf' into the three bytes pointed
-    // at by the specified 'octBuf'.
 {
     octBuf[2] = (OctetType) (k_CONTINUE_TAG | (isoBuf & ~k_CONTINUE_MASK));
     octBuf[1] = (OctetType) (k_CONTINUE_TAG |
@@ -768,10 +790,10 @@ void encodeThreeOctets(OctetType *octBuf, unsigned int isoBuf)
                  ((isoBuf >> 2 * k_CONTINUE_CONT_WID) & ~k_THREE_OCTET_MASK));
 }
 
+/// Encode the specified Unicode value `isoBuf` into the four bytes pointed
+/// at by the specified `octBuf`.
 static inline
 void encodeFourOctets(OctetType *octBuf, unsigned int isoBuf)
-    // Encode the specified Unicode value 'isoBuf' into the four bytes pointed
-    // at by the specified 'octBuf'.
 {
     octBuf[3] = (OctetType) (k_CONTINUE_TAG | (isoBuf & ~k_CONTINUE_MASK));
     octBuf[2] = (OctetType) (k_CONTINUE_TAG |
@@ -782,19 +804,19 @@ void encodeFourOctets(OctetType *octBuf, unsigned int isoBuf)
                  ((isoBuf >> 3 * k_CONTINUE_CONT_WID) & ~k_FOUR_OCTET_MASK));
 }
 
+/// Return `true` if the specified Unicode value `uc` is a value reserved
+/// for the encoding of double-word planes in UTF-16 (such values are
+/// illegal in ANY Unicode format) and `false` otherwise.
 static inline
 bool isIllegal16BitValue(unsigned int uc)
-    // Return 'true' if the specified Unicode value 'uc' is a value reserved
-    // for the encoding of double-word planes in UTF-16 (such values are
-    // illegal in ANY Unicode format) and 'false' otherwise.
 {
     return uc >= 0xd800 && uc < 0xe000;
 }
 
+/// Return `true` if the specified 32-bit value `uc` is too high to be
+/// represented in Unicode and `false` otherwise.
 static inline
 bool isIllegalFourOctetValue(unsigned int uc)
-    // Return 'true' if the specified 32-bit value 'uc' is too high to be
-    // represented in Unicode and 'false' otherwise.
 {
     return uc > 0x10ffff;
 }
@@ -809,13 +831,13 @@ bool isLegalUtf32ErrorWord(unsigned int uc)
 }
 #endif
 
+/// Return a pointer to the next Unicode code point after the code point in
+/// the sequence beginning at the specified `input`.  Note that an
+/// incomplete sequence is skipped as a single char, and that any first byte
+/// that is neither a single byte nor a header of a valid UTF-8 sequence is
+/// interpreted as a 5-byte header.
 static inline
 const OctetType *skipUtf8CodePoint(const OctetType *input)
-    // Return a pointer to the next Unicode code point after the code point in
-    // the sequence beginning at the specified 'input'.  Note that an
-    // incomplete sequence is skipped as a single char, and that any first byte
-    // that is neither a single byte nor a header of a valid UTF-8 sequence is
-    // interpreted as a 5-byte header.
 {
     const OctetType uc = *input;
 
@@ -834,18 +856,18 @@ const OctetType *skipUtf8CodePoint(const OctetType *input)
     return input + lookaheadContinuations(input, expected);
 }
 
+/// Return the number of `unsigned int`s sufficient to store the UTF-8
+/// sequence beginning at the specified `input`, including the terminating 0
+/// word of the output.  Use the specified `endFunctor` to determine end of
+/// input.  Note that if the translation occurs with 0 specified as the
+/// error word and errors are present, this will be an over-estimate,
+/// otherwise the result will be exact.  Also note that the end of `input`
+/// is determined by `endFunctor`, which will treat the input as either
+/// null-terminated or fixed-length.
 template <class END_FUNCTOR>
 static
 bsl::size_t utf32BufferLengthNeeded(const char  *input,
                                     END_FUNCTOR  endFunctor)
-    // Return the number of 'unsigned int's sufficient to store the UTF-8
-    // sequence beginning at the specified 'input', including the terminating 0
-    // word of the output.  Use the specified 'endFunctor' to determine end of
-    // input.  Note that if the translation occurs with 0 specified as the
-    // error word and errors are present, this will be an over-estimate,
-    // otherwise the result will be exact.  Also note that the end of 'input'
-    // is determined by 'endFunctor', which will treat the input as either
-    // null-terminated or fixed-length.
 {
     // Note that to exactly calculate the size would require much more detailed
     // decoding and would hence be much slower.  Also, the default is for the
@@ -867,19 +889,19 @@ bsl::size_t utf32BufferLengthNeeded(const char  *input,
     return ret + 1;
 }
 
+/// Return the length, in bytes, of the UTF-8 sequence required to store the
+/// translation of the UTF-32 sequence pointed at by the specified `input`,
+/// including the terminating 0, when using the specified `errorByte`.  Use
+/// the specified `endFunctor` on `input` prior to dereferencing it to
+/// detect end for input.  Use the specified `SWAPPER` to perform swapping,
+/// or not perform swapping, as desired (see detailed doc in
+/// `Utf8ToUtf32Translator` and `Utf32ToUtf8Translator` below).  Note that
+/// this estimate will always be exact.
 template <class END_FUNCTOR, class SWAPPER>
 static
 bsl::size_t utf8BufferLengthNeeded(const unsigned int *input,
                                    END_FUNCTOR         endFunctor,
                                    const OctetType     errorByte)
-    // Return the length, in bytes, of the UTF-8 sequence required to store the
-    // translation of the UTF-32 sequence pointed at by the specified 'input',
-    // including the terminating 0, when using the specified 'errorByte'.  Use
-    // the specified 'endFunctor' on 'input' prior to dereferencing it to
-    // detect end for input.  Use the specified 'SWAPPER' to perform swapping,
-    // or not perform swapping, as desired (see detailed doc in
-    // 'Utf8ToUtf32Translator' and 'Utf32ToUtf8Translator' below).  Note that
-    // this estimate will always be exact.
 {
     BSLMF_ASSERT((bsl::is_same<END_FUNCTOR,  Utf32PtrBasedEnd>::value ||
                   bsl::is_same<END_FUNCTOR, Utf32ZeroBasedEnd>::value));
@@ -921,34 +943,34 @@ namespace {
                      // local class Utf8ToUtf32Translator
                      // =================================
 
+/// This `class` is used to create an instance of an object that will be
+/// used for translating a UTF-8 stream into UTF-32.  All functions in this
+/// `class` are private except for a single static method, `translate`,
+/// which creates an object of this type and calls manipulators on it.
+///
+/// The template argument `CAPACITY` is to be either of the `Capacity` or of
+/// the `NoopCapacity` type defined in the first unnamed namespace.  When
+/// the output is to a buffer of fixed length that may not be adequate, the
+/// `Capacity` type is used and calculations are made incrementally to
+/// constantly check if the end of the buffer has been reached.  If the
+/// destination buffer is known ahead of time to be long enough, the
+/// `NoopCapacity` type should be used, and then all the incremental
+/// capacity checking becomes inline calls to no-op functions that will
+/// generate no code and waste no CPU time.
+///
+/// The template argument `END_FUNCTOR` is used for determining the end of
+/// input.  If the input is null terminated, `Utf8ZeroBasedEnd` is used for
+/// `END_FUNCTOR`; if the input is of fixed length, an instance of
+/// `Utf8PtrBasedEnd`, which contains a pointer to the end of the string, is
+/// used.
+///
+/// The template argument `SWAPPER` is use for handling the byte order of
+/// the UTF-32 output.  If the output is in host byte order, the
+/// `NoopSwapper` type is used, which does no swapping.  If the output is in
+/// the opposite of host byte order, the `Swapper` type is used, which will
+/// swap the byte order of words as they are output.
 template <class CAPACITY, class END_FUNCTOR, class SWAPPER>
 class Utf8ToUtf32Translator {
-    // This 'class' is used to create an instance of an object that will be
-    // used for translating a UTF-8 stream into UTF-32.  All functions in this
-    // 'class' are private except for a single static method, 'translate',
-    // which creates an object of this type and calls manipulators on it.
-    //
-    // The template argument 'CAPACITY' is to be either of the 'Capacity' or of
-    // the 'NoopCapacity' type defined in the first unnamed namespace.  When
-    // the output is to a buffer of fixed length that may not be adequate, the
-    // 'Capacity' type is used and calculations are made incrementally to
-    // constantly check if the end of the buffer has been reached.  If the
-    // destination buffer is known ahead of time to be long enough, the
-    // 'NoopCapacity' type should be used, and then all the incremental
-    // capacity checking becomes inline calls to no-op functions that will
-    // generate no code and waste no CPU time.
-    //
-    // The template argument 'END_FUNCTOR' is used for determining the end of
-    // input.  If the input is null terminated, 'Utf8ZeroBasedEnd' is used for
-    // 'END_FUNCTOR'; if the input is of fixed length, an instance of
-    // 'Utf8PtrBasedEnd', which contains a pointer to the end of the string, is
-    // used.
-    //
-    // The template argument 'SWAPPER' is use for handling the byte order of
-    // the UTF-32 output.  If the output is in host byte order, the
-    // 'NoopSwapper' type is used, which does no swapping.  If the output is in
-    // the opposite of host byte order, the 'Swapper' type is used, which will
-    // swap the byte order of words as they are output.
 
     BSLMF_ASSERT((bsl::is_same<CAPACITY,            Capacity>::value ||
                   bsl::is_same<CAPACITY,        NoopCapacity>::value));
@@ -972,40 +994,59 @@ class Utf8ToUtf32Translator {
 
   private:
     // PRIVATE CREATORS
+
+    /// Create a `Utf8ToUtf32Translator` object to translate UTF-8 from the
+    /// specified `input` to be written as UTF-32 to the specified `output`,
+    /// that has the specified `capacity` `unsigned int`s of room in it.
+    /// Use the specified `endFunctor` for evaluating continuation octets
+    /// and determining end of input.  When an error is encountered in the
+    /// input, output the specified `errorWord` to the output unless
+    /// `errorWord` is 0, in which case no output corresponding to the error
+    /// sequence is generated.  Note that `errorWord` is assumed to be in
+    /// host byte order.
     Utf8ToUtf32Translator(unsigned int    *output,
                           bsl::size_t      capacity,
                           END_FUNCTOR      endFunctor,
                           const OctetType *input,
                           unsigned int     errorWord);
-        // Create a 'Utf8ToUtf32Translator' object to translate UTF-8 from the
-        // specified 'input' to be written as UTF-32 to the specified 'output',
-        // that has the specified 'capacity' 'unsigned int's of room in it.
-        // Use the specified 'endFunctor' for evaluating continuation octets
-        // and determining end of input.  When an error is encountered in the
-        // input, output the specified 'errorWord' to the output unless
-        // 'errorWord' is 0, in which case no output corresponding to the error
-        // sequence is generated.  Note that 'errorWord' is assumed to be in
-        // host byte order.
 
     // PRIVATE MANIPULATORS
+
+    /// Update the output pointer and the capacity of this object to reflect
+    /// the fact that a word of output has been written.
     void advanceOutput();
-        // Update the output pointer and the capacity of this object to reflect
-        // the fact that a word of output has been written.
 
+    /// Update the state of this object and possibly the output to reflect
+    /// that an error sequence was encountered in the input.  The behavior
+    /// is undefined unless `d_capacity >= 2`.
     void handleInvalidSequence();
-        // Update the state of this object and possibly the output to reflect
-        // that an error sequence was encountered in the input.  The behavior
-        // is undefined unless 'd_capacity >= 2'.
 
+    /// Read one Unicode code point of UTF-8 from the input stream
+    /// `d_input`, and update the output and the state of this object
+    /// accordingly.  Return a non-zero value if there was insufficient
+    /// capacity for the output, and 0 otherwise.  The behavior is undefined
+    /// unless at least 1 word of space is available in the output buffer.
     int decodeCodePoint();
-        // Read one Unicode code point of UTF-8 from the input stream
-        // 'd_input', and update the output and the state of this object
-        // accordingly.  Return a non-zero value if there was insufficient
-        // capacity for the output, and 0 otherwise.  The behavior is undefined
-        // unless at least 1 word of space is available in the output buffer.
 
   public:
     // CLASS METHODS
+
+    /// Translate a UTF-8 stream from the specified null-terminated `input`
+    /// to a UTF-32 stream written to the buffer at the specified `output`,
+    /// always null-terminating the result.  If the template argument is
+    /// type `Capacity`, the output buffer is the specified `capacity` words
+    /// long, and encode as many Unicode code points as will fit, including
+    /// the terminating null code point.  If the template argument is type
+    /// `NoopCapacity`, `capacity` is ignored, the output buffer is assumed
+    /// to be long enough, and the entire UTF-32 sequence is to be
+    /// translated.  Use the specified `endFunctor` to determine end of
+    /// input.  Write to the specified `*numWordsWritten` the number of
+    /// Unicode code points written, including the terminating null
+    /// code point.  If the specified `errorWord` is non-zero, write
+    /// `errorWord` to the output every time an error code point is
+    /// encountered in the input; otherwise write no output corresponding to
+    /// error code points in the input.  The behavior is undefined unless
+    /// `CAPACITY` is `NoopCapacity` or `capacity > 0`.
     static
     int translate(unsigned int      *output,
                   bsl::size_t        capacity,
@@ -1013,22 +1054,6 @@ class Utf8ToUtf32Translator {
                   const char        *input,
                   bsl::size_t       *numWordsWritten,
                   unsigned int       errorWord);
-        // Translate a UTF-8 stream from the specified null-terminated 'input'
-        // to a UTF-32 stream written to the buffer at the specified 'output',
-        // always null-terminating the result.  If the template argument is
-        // type 'Capacity', the output buffer is the specified 'capacity' words
-        // long, and encode as many Unicode code points as will fit, including
-        // the terminating null code point.  If the template argument is type
-        // 'NoopCapacity', 'capacity' is ignored, the output buffer is assumed
-        // to be long enough, and the entire UTF-32 sequence is to be
-        // translated.  Use the specified 'endFunctor' to determine end of
-        // input.  Write to the specified '*numWordsWritten' the number of
-        // Unicode code points written, including the terminating null
-        // code point.  If the specified 'errorWord' is non-zero, write
-        // 'errorWord' to the output every time an error code point is
-        // encountered in the input; otherwise write no output corresponding to
-        // error code points in the input.  The behavior is undefined unless
-        // 'CAPACITY' is 'NoopCapacity' or 'capacity > 0'.
 };
 
                      // ---------------------------------
@@ -1182,35 +1207,35 @@ int Utf8ToUtf32Translator<CAPACITY, END_FUNCTOR, SWAPPER>::translate(
                      // local class Utf32ToUtf8Translator
                      // =================================
 
+/// This `class` is used to create an instance of an object that will be
+/// used for translating a UTF-32 stream into UTF-8.  All functions in this
+/// `class` are private except for a single static method, `translate`,
+/// which creates an object of this type and calls manipulators on it.
+///
+/// The template argument `CAPACITY` is either `Capacity` or `NoopCapacity`
+/// defined in the first unnamed namespace (above).  When the output is to a
+/// buffer of fixed length that may not be of sufficient size, the
+/// `Capacity` type is used and calculations are made incrementally to
+/// constantly check if the end of the buffer has been reached.  If the
+/// destination buffer is known ahead of time to be long enough, the
+/// `NoopCapacity` type is used, and then all the incremental capacity
+/// checking becomes inline calls to no-op functions that will generate no
+/// code and waste no CPU time.
+///
+/// The template argument `END_FUNCTOR` is used for determining the end of
+/// input.  If the input is null terminated, `Utf32ZeroBasedEnd` is used for
+/// `END_FUNCTOR`; if the input is of fixed length, an instance of
+/// `Utf32PtrBasedEnd`, which contains a pointer to the end of the input, is
+/// used.
+///
+/// The template argument `SWAPPER` is used for dealing with the byte order
+/// of the UTF-32 input.  If the input is in host byte order, a template
+/// argument of `NoopSwapper` is used and the input is not swapped.  If the
+/// input is in the opposite of host byte order, a template argument of
+/// `Swapper` is used, which will swap the byte order of every 32-bit word
+/// input to host byte order during the translator's internal processing.
 template <class CAPACITY, class END_FUNCTOR, class SWAPPER>
 class Utf32ToUtf8Translator {
-    // This 'class' is used to create an instance of an object that will be
-    // used for translating a UTF-32 stream into UTF-8.  All functions in this
-    // 'class' are private except for a single static method, 'translate',
-    // which creates an object of this type and calls manipulators on it.
-    //
-    // The template argument 'CAPACITY' is either 'Capacity' or 'NoopCapacity'
-    // defined in the first unnamed namespace (above).  When the output is to a
-    // buffer of fixed length that may not be of sufficient size, the
-    // 'Capacity' type is used and calculations are made incrementally to
-    // constantly check if the end of the buffer has been reached.  If the
-    // destination buffer is known ahead of time to be long enough, the
-    // 'NoopCapacity' type is used, and then all the incremental capacity
-    // checking becomes inline calls to no-op functions that will generate no
-    // code and waste no CPU time.
-    //
-    // The template argument 'END_FUNCTOR' is used for determining the end of
-    // input.  If the input is null terminated, 'Utf32ZeroBasedEnd' is used for
-    // 'END_FUNCTOR'; if the input is of fixed length, an instance of
-    // 'Utf32PtrBasedEnd', which contains a pointer to the end of the input, is
-    // used.
-    //
-    // The template argument 'SWAPPER' is used for dealing with the byte order
-    // of the UTF-32 input.  If the input is in host byte order, a template
-    // argument of 'NoopSwapper' is used and the input is not swapped.  If the
-    // input is in the opposite of host byte order, a template argument of
-    // 'Swapper' is used, which will swap the byte order of every 32-bit word
-    // input to host byte order during the translator's internal processing.
 
     BSLMF_ASSERT((bsl::is_same<CAPACITY,        Capacity>::value ||
                   bsl::is_same<CAPACITY,    NoopCapacity>::value));
@@ -1231,40 +1256,62 @@ class Utf32ToUtf8Translator {
 
   private:
     // PRIVATE CREATOR
+
+    /// Create a `Utf32ToUtf8Translator` object to translate UTF-32 from the
+    /// specified `input` to be written as UTF-8 to the specified `output`
+    /// buffer that is the specified `capacity` length in `unsigned int`s,
+    /// or is guaranteed to have adequate room for the translation if
+    /// `CAPACITY` is `NoopCapacity`.  Initialize `d_errorByte` to the
+    /// specified `errorByte`.
     Utf32ToUtf8Translator(OctetType          *output,
                           bsl::size_t         capacity,
                           const unsigned int *input,
                           const OctetType     errorByte);
-        // Create a 'Utf32ToUtf8Translator' object to translate UTF-32 from the
-        // specified 'input' to be written as UTF-8 to the specified 'output'
-        // buffer that is the specified 'capacity' length in 'unsigned int's,
-        // or is guaranteed to have adequate room for the translation if
-        // 'CAPACITY' is 'NoopCapacity'.  Initialize 'd_errorByte' to the
-        // specified 'errorByte'.
 
     // PRIVATE MANIPULATORS
+
+    /// Update the state of this object to reflect the fact that a single
+    /// Unicode code point of the specified `delta` bytes of UTF-8 output
+    /// has been written.
     void advance(unsigned delta);
-        // Update the state of this object to reflect the fact that a single
-        // Unicode code point of the specified 'delta' bytes of UTF-8 output
-        // has been written.
 
+    /// Update this object and the output, if appropriate, to reflect the
+    /// fact that an error sequence has been encountered in the input.
+    /// Return a non-zero value if there was insufficient capacity for the
+    /// output, and 0 otherwise.
     int handleInvalidWord();
-        // Update this object and the output, if appropriate, to reflect the
-        // fact that an error sequence has been encountered in the input.
-        // Return a non-zero value if there was insufficient capacity for the
-        // output, and 0 otherwise.
 
+    /// Translate the specified UTF-32 code point `uc` to UTF-8 in the
+    /// output stream, updating this object appropriately.  If insufficient
+    /// space exists in the output buffer for the code point output plus a
+    /// terminating null code point, fail without doing any output.  Return
+    /// 0 if there was adequate space for the output, and a non-zero value
+    /// otherwise.  The behavior is undefined unless `uc` is non-zero, and
+    /// there are at least 2 bytes of room in the output buffer.
     int decodeCodePoint(const unsigned int uc);
-        // Translate the specified UTF-32 code point 'uc' to UTF-8 in the
-        // output stream, updating this object appropriately.  If insufficient
-        // space exists in the output buffer for the code point output plus a
-        // terminating null code point, fail without doing any output.  Return
-        // 0 if there was adequate space for the output, and a non-zero value
-        // otherwise.  The behavior is undefined unless 'uc' is non-zero, and
-        // there are at least 2 bytes of room in the output buffer.
 
   public:
     // PUBLIC CLASS METHOD
+
+    /// Translate a UTF-32 stream from the specified null-terminated `input`
+    /// to a UTF-8 stream written to the buffer at the specified `output`,
+    /// always null terminating the result.  If the template argument is
+    /// type `Capacity`, the output buffer is the specified `capacity` bytes
+    /// long, and encode as many Unicode code points as will fit, including
+    /// the terminating null byte.  If the template argument is type
+    /// `NoopCapacity`, `capacity` is ignored, the output buffer is assumed
+    /// to be long enough, and the entire UTF-8 sequence is to be
+    /// translated.  Call the specified `endFunctor` on the pointer to each
+    /// word of `input` to be read, prior to dereferencing the pointer, to
+    /// see if we've reached the end of input.  Write to the specified
+    /// `*numCodePointsWritten` the number of Unicode code points written,
+    /// including the terminating 0.  Write to the specified
+    /// `*numBytesWritten` the number of bytes of output written, including
+    /// the terminating null byte.  If the specified `errorByte` is
+    /// non-zero, write `errorByte` to the output every time an error
+    /// sequence is encountered in the input, otherwise write no output
+    /// corresponding to error sequences in the input.  The behavior is
+    /// undefined unless `CAPACITY` is `NoopCapacity` or `capacity > 0`.
     static
     int translate(char               *output,
                   bsl::size_t         capacity,
@@ -1273,25 +1320,6 @@ class Utf32ToUtf8Translator {
                   bsl::size_t        *numCodePointsWritten,
                   bsl::size_t        *numBytesWritten,
                   const char          errorByte);
-        // Translate a UTF-32 stream from the specified null-terminated 'input'
-        // to a UTF-8 stream written to the buffer at the specified 'output',
-        // always null terminating the result.  If the template argument is
-        // type 'Capacity', the output buffer is the specified 'capacity' bytes
-        // long, and encode as many Unicode code points as will fit, including
-        // the terminating null byte.  If the template argument is type
-        // 'NoopCapacity', 'capacity' is ignored, the output buffer is assumed
-        // to be long enough, and the entire UTF-8 sequence is to be
-        // translated.  Call the specified 'endFunctor' on the pointer to each
-        // word of 'input' to be read, prior to dereferencing the pointer, to
-        // see if we've reached the end of input.  Write to the specified
-        // '*numCodePointsWritten' the number of Unicode code points written,
-        // including the terminating 0.  Write to the specified
-        // '*numBytesWritten' the number of bytes of output written, including
-        // the terminating null byte.  If the specified 'errorByte' is
-        // non-zero, write 'errorByte' to the output every time an error
-        // sequence is encountered in the input, otherwise write no output
-        // corresponding to error sequences in the input.  The behavior is
-        // undefined unless 'CAPACITY' is 'NoopCapacity' or 'capacity > 0'.
 };
 
                      // ---------------------------------

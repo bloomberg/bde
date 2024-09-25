@@ -16,7 +16,7 @@
 #include <bsl_iostream.h>
 #include <bsl_limits.h>
 
-#include <string.h>  // for 'memcmp'
+#include <string.h>  // for `memcmp`
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -29,18 +29,18 @@ using namespace bsl;
 // TBD
 //
 // Primary Manipulators:
-//: o TBD
+//  - TBD
 //
 // Basic Accessors:
-//: o TBD
+//  - TBD
 //
 // Global Concerns:
-//: o No memory is allocated.
-//: o TBD
+//  - No memory is allocated.
+//  - TBD
 //
 // Global Assumptions:
-//: o ACCESSOR methods are 'const' thread-safe.
-//: o TBD
+//  - ACCESSOR methods are `const` thread-safe.
+//  - TBD
 // ----------------------------------------------------------------------------
 // CLASS METHODS
 // [  ] TBD
@@ -121,11 +121,11 @@ typedef bdld::DatumMaker Obj;
 
 ///Example 1: Testing of a function
 /// - - - - - - - - - - - - - - - -
-// Suppose we want to test a function, 'numCount', that returns the number of
-// numeric elements in a 'bdld::Datum' array.
+// Suppose we want to test a function, `numCount`, that returns the number of
+// numeric elements in a `bdld::Datum` array.
 //
 // First we implement the function:
-//..
+// ```
 bdld::Datum numCount(const bdld::Datum arrray)
 {
     bdld::DatumArrayRef aRef = arrray.theArray();
@@ -142,7 +142,7 @@ bdld::Datum numCount(const bdld::Datum arrray)
 
     return bdld::Datum::createInteger(count);
 }
-//..
+// ```
 
 // ============================================================================
 //                                 MAIN PROGRAM
@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: DOES NOT ALLOCATE MEMORY
@@ -179,12 +179,12 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -198,19 +198,19 @@ int main(int argc, char *argv[])
 
 ///Example 1: Testing of a function
 /// - - - - - - - - - - - - - - - -
-// Suppose we want to test a function, 'numCount', that returns the number of
-// numeric elements in a 'bdld::Datum' array.
+// Suppose we want to test a function, `numCount`, that returns the number of
+// numeric elements in a `bdld::Datum` array.
 //
-// First we implement the function.  See function implementation of 'numCount'
-// in the section 'USAGE EXAMPLE' above!
+// First we implement the function.  See function implementation of `numCount`
+// in the section `USAGE EXAMPLE` above!
 //
-// Then, within the test driver for 'numCount', we define a 'bdld::DatumMaker',
-// and use it to initialize an array to test 'numCount':
-//..
+// Then, within the test driver for `numCount`, we define a `bdld::DatumMaker`,
+// and use it to initialize an array to test `numCount`:
+// ```
     bdld::DatumMaker m(&sa);
-//..
-// Here, we create the array we want to use as an argument to 'numCount':
-//..
+// ```
+// Here, we create the array we want to use as an argument to `numCount`:
+// ```
     bdld::Datum array = m.a(
         m(),
         m(bdld::DatumError(-1)),
@@ -233,30 +233,30 @@ int main(int argc, char *argv[])
         m(bdlt::DatetimeInterval(280, 13, 41, 12, 321)),
         m("foobar")
     );
-//..
-// Next we call the function with the array-'Datum' as its first argument:
-//..
+// ```
+// Next we call the function with the array-`Datum` as its first argument:
+// ```
     bdld::Datum retVal = numCount(array);
-//..
+// ```
 // Finally we verify the return value:
-//..
+// ```
     ASSERT(retVal.theInteger() == 3);
-//..
+// ```
       } break;
       case 8: {
         // --------------------------------------------------------------------
         // BIN TEST
         //
         // Concerns:
-        //: 1 The 'bin' method creates binary 'Datum' content.
-        //: 2 The binary 'Datum' content is a *copy* of the original.
+        // 1. The `bin` method creates binary `Datum` content.
+        // 2. The binary `Datum` content is a *copy* of the original.
         //
         // Plan:
-        //: 1 Create a binary test pattern to store.
-        //: 2 Use 'bin' to create a 'Datum'.
-        //: 3 Verify that length is same as the original.
-        //: 4 Verify that the pointer differs from the original.
-        //: 5 Verify that the all bytes are the same as the original.
+        // 1. Create a binary test pattern to store.
+        // 2. Use `bin` to create a `Datum`.
+        // 3. Verify that length is same as the original.
+        // 4. Verify that the pointer differs from the original.
+        // 5. Verify that the all bytes are the same as the original.
         //
         // Testing:
         //   bdld::Datum bin(const void *ptr, size_t len) const;
@@ -285,30 +285,30 @@ int main(int argc, char *argv[])
         // REF TEST
         //
         // Concerns:
-        //: 1 The 'ref' method accepts different common types for representing
-        //:   string content and produces a 'Datum' that presents itself as a
-        //:   string, yet refers to the contents given as an argument.
-        //:   Therefore the method will not copy the string contents, but
-        //:   create a reference to them.
-        //:
-        //: 2 The 'ref' method will create a reference to a string of length
-        //:   greater than 64KiB where the length will not fit into a 16bit
-        //:   integer.  On 32bit platforms the 'Datum' will need to allocate a
-        //:   string reference to accommodate for a count with more than 16bit.
-        //:   Check that the allocator of the 'DatumMaker' is used for that.
+        // 1. The `ref` method accepts different common types for representing
+        //    string content and produces a `Datum` that presents itself as a
+        //    string, yet refers to the contents given as an argument.
+        //    Therefore the method will not copy the string contents, but
+        //    create a reference to them.
+        //
+        // 2. The `ref` method will create a reference to a string of length
+        //    greater than 64KiB where the length will not fit into a 16bit
+        //    integer.  On 32bit platforms the `Datum` will need to allocate a
+        //    string reference to accommodate for a count with more than 16bit.
+        //    Check that the allocator of the `DatumMaker` is used for that.
         //
         // Plan:
-        //: 1 Given a test string, present it as an argument to the function
-        //:   'ref' under test using different argument types.  For each one
-        //:   check that the 'StringRef' obtained from the result points to the
-        //:   original data.
-        //:
-        //: 2 Create a string with 70,000 characters and pass it to the 'ref()'
-        //:   method of a 'DatumMaker' equipped with a counting allocator.
-        //:   Check that directly deleting the 'Datum' obtained from the call
-        //:   with the allocator will end up with an in-use count of zero.
-        //:   That check should work regardless of whether an allocation was
-        //:   necessary or not.
+        // 1. Given a test string, present it as an argument to the function
+        //    `ref` under test using different argument types.  For each one
+        //    check that the `StringRef` obtained from the result points to the
+        //    original data.
+        //
+        // 2. Create a string with 70,000 characters and pass it to the `ref()`
+        //    method of a `DatumMaker` equipped with a counting allocator.
+        //    Check that directly deleting the `Datum` obtained from the call
+        //    with the allocator will end up with an in-use count of zero.
+        //    That check should work regardless of whether an allocation was
+        //    necessary or not.
         //
         // Testing:
         //   bdld::Datum ref(const bslstl::StringRef&) const;
@@ -378,27 +378,27 @@ int main(int argc, char *argv[])
       case 6: {
         //---------------------------------------------------------------------
         // INTEGER-MAP TESTS:
-        //   This case exercises the integer-map constructors, the 'im'
+        //   This case exercises the integer-map constructors, the `im`
         //   functions.
         //
         // Concerns:
-        //: 1 Integer-map constructors create 'bdld::Datum' integer-maps.
-        //:
-        //: 2 At least 16 entries are supported on compilers not providing
-        //:   variadic template support.
-        //:
-        //: 3 More than 16 entries are supported on compilers with variadic
-        //:   template support.
-        //:
-        //: 4 Entries of the map retain the values they are provided in the
-        //:   constructor.
+        // 1. Integer-map constructors create `bdld::Datum` integer-maps.
+        //
+        // 2. At least 16 entries are supported on compilers not providing
+        //    variadic template support.
+        //
+        // 3. More than 16 entries are supported on compilers with variadic
+        //    template support.
+        //
+        // 4. Entries of the map retain the values they are provided in the
+        //    constructor.
         //
         // Plan:
-        //: 1 Use 'DatumMaker' to create integer-maps.
-        //:
-        //: 2 Use 'bdld::Datum::create*' functions to create oracle maps.
-        //:
-        //: 3 Compare the 'DatumMaker' made and the oracle maps for equality.
+        // 1. Use `DatumMaker` to create integer-maps.
+        //
+        // 2. Use `bdld::Datum::create*` functions to create oracle maps.
+        //
+        // 3. Compare the `DatumMaker` made and the oracle maps for equality.
         //
         // Testing:
         //    bdld::Datum im(...) const;
@@ -617,16 +617,16 @@ int main(int argc, char *argv[])
         //   verifies that the keys are really copied.
         //
         // Concerns:
-        //: 1 The keys are copied into the 'Datum' map..
+        // 1. The keys are copied into the `Datum` map..
         //
         // Plan:
-        //: 1 Create destroyable strings for the keys.
-        //:
-        //: 2 Create a key-owning map with the 'DatumMaker'.
-        //:
-        //: 3 Destroy the original keys.
-        //:
-        //: 4 Verify that the map still contains the properties with the keys.
+        // 1. Create destroyable strings for the keys.
+        //
+        // 2. Create a key-owning map with the `DatumMaker`.
+        //
+        // 3. Destroy the original keys.
+        //
+        // 4. Verify that the map still contains the properties with the keys.
         //
         // Testing:
         //    bdld::Datum mok(...) const;
@@ -663,23 +663,23 @@ int main(int argc, char *argv[])
       case 4: {
         //---------------------------------------------------------------------
         // ALLOCATOR TESTS:
-        //   This case exercises all 'Datum' creating members and verifies that
+        //   This case exercises all `Datum` creating members and verifies that
         //   the allocator specified at construction time is used to allocate
-        //   memory for the 'Datum's created.
+        //   memory for the `Datum`s created.
         //
         // Concerns:
-        //: 1 The allocator specified at construction time is used to allocate
-        //:  memory for the 'Datum's created.
-        //:
-        //: 2 Non-allocating members do not allocate.
+        // 1. The allocator specified at construction time is used to allocate
+        //   memory for the `Datum`s created.
+        //
+        // 2. Non-allocating members do not allocate.
         //
         // Plan:
-        //: 1 Supply a 'TestAllocator' at creation to the 'DatumMaker'.
-        //:
-        //: 2 Use 'TestAllocatorMonitor' to determine the number of allocations
-        //:   made while creating all types of 'Datum's.
-        //:
-        //: 3 Use 'bdld::Datum::destroy' to release the memory allocated.
+        // 1. Supply a `TestAllocator` at creation to the `DatumMaker`.
+        //
+        // 2. Use `TestAllocatorMonitor` to determine the number of allocations
+        //    made while creating all types of `Datum`s.
+        //
+        // 3. Use `bdld::Datum::destroy` to release the memory allocated.
         //
         // Testing:
         //    operator()() const;
@@ -749,7 +749,7 @@ int main(int argc, char *argv[])
 #ifdef BSLS_PLATFORM_CPU_32_BIT
         ASSERT(tam.isInUseUp());
 #else
-        ASSERT(tam.isInUseSame()); // 64-bit 'Datum' does not allocate
+        ASSERT(tam.isInUseSame()); // 64-bit `Datum` does not allocate
 #endif
         bdld::Datum::destroy(d, &ta);
         ASSERT(dam.isInUseSame());
@@ -760,7 +760,7 @@ int main(int argc, char *argv[])
 #ifdef BSLS_PLATFORM_CPU_32_BIT
         ASSERT(tam.isInUseUp());
 #else
-        ASSERT(tam.isInUseSame()); // 64-bit 'Datum' does not allocate
+        ASSERT(tam.isInUseSame()); // 64-bit `Datum` does not allocate
 #endif
         bdld::Datum::destroy(d, &ta);
         ASSERT(dam.isInUseSame());
@@ -772,7 +772,7 @@ int main(int argc, char *argv[])
 #ifdef BSLS_PLATFORM_CPU_32_BIT
         ASSERT(tam.isInUseUp());
 #else
-        ASSERT(tam.isInUseSame()); // 64-bit 'Datum' does not allocate
+        ASSERT(tam.isInUseSame()); // 64-bit `Datum` does not allocate
 #endif
         bdld::Datum::destroy(d, &ta);
         ASSERT(dam.isInUseSame());
@@ -886,26 +886,26 @@ int main(int argc, char *argv[])
         //---------------------------------------------------------------------
         // MAP TESTS:
         //   This case exercises the map constructors, both with referenced and
-        //   owned keys ('m' and 'mok' functions respectively).
+        //   owned keys (`m` and `mok` functions respectively).
         //
         // Concerns:
-        //: 1 Map constructors create 'bdld::Datum' maps.
-        //:
-        //: 2 At least 16 entries are supported on compilers not providing
-        //:   variadic template support.
-        //:
-        //: 3 More than 16 entries are supported on compilers with variadic
-        //:   template support.
-        //:
-        //: 4 Entries of the map retain the values they are provided in the
-        //:   constructor.
+        // 1. Map constructors create `bdld::Datum` maps.
+        //
+        // 2. At least 16 entries are supported on compilers not providing
+        //    variadic template support.
+        //
+        // 3. More than 16 entries are supported on compilers with variadic
+        //    template support.
+        //
+        // 4. Entries of the map retain the values they are provided in the
+        //    constructor.
         //
         // Plan:
-        //: 1 Use 'DatumMaker' to create maps.
-        //:
-        //: 2 Use 'bdld::Datum::create*' functions to create oracle maps.
-        //:
-        //: 3 Compare the 'DatumMaker' made and the oracle maps for equality.
+        // 1. Use `DatumMaker` to create maps.
+        //
+        // 2. Use `bdld::Datum::create*` functions to create oracle maps.
+        //
+        // 3. Compare the `DatumMaker` made and the oracle maps for equality.
         //
         // Testing:
         //    bdld::Datum m(...) const;
@@ -1286,24 +1286,24 @@ int main(int argc, char *argv[])
         //   This case exercises the array constructors.
         //
         // Concerns:
-        //: 1 Array constructors create 'bdld::Datum' arrays.
-        //:
-        //: 2 At least 16 elements are supported on compilers not providing
-        //:   variadic template support.
-        //:
-        //: 3 More than 16 elements are supported on compilers with variadic
-        //:   template support.
-        //:
-        //: 4 Elements of the array retain the order they are provided to the
-        //:   constructor.
+        // 1. Array constructors create `bdld::Datum` arrays.
+        //
+        // 2. At least 16 elements are supported on compilers not providing
+        //    variadic template support.
+        //
+        // 3. More than 16 elements are supported on compilers with variadic
+        //    template support.
+        //
+        // 4. Elements of the array retain the order they are provided to the
+        //    constructor.
         //
         // Plan:
-        //: 1 Use 'DatumMaker' to create arrays.
-        //:
-        //: 2 Use 'bdld::Datum::create*' functions to create oracle arrays.
-        //:
-        //: 3 Compare the 'DatumMaker' made and the oracle arrays for
-        //:   equality.
+        // 1. Use `DatumMaker` to create arrays.
+        //
+        // 2. Use `bdld::Datum::create*` functions to create oracle arrays.
+        //
+        // 3. Compare the `DatumMaker` made and the oracle arrays for
+        //    equality.
         //
         // Testing:
         //    bdld::Datum a(...) const;
@@ -1380,15 +1380,15 @@ int main(int argc, char *argv[])
         //   This case exercises the scalar constructors.
         //
         // Concerns:
-        //: 1 Scalar constructors create the required type of 'bdld::Datum'.
+        // 1. Scalar constructors create the required type of `bdld::Datum`.
         //
         // Plan:
-        //: 1 Use 'DatumMaker' to create scalars.
-        //:
-        //: 2 Use 'bdld::Datum::create*' functions to create oracle scalars.
-        //:
-        //: 3 Compare the 'DatumMaker' made and the oracle scalars for
-        //:   equality.
+        // 1. Use `DatumMaker` to create scalars.
+        //
+        // 2. Use `bdld::Datum::create*` functions to create oracle scalars.
+        //
+        // 3. Compare the `DatumMaker` made and the oracle scalars for
+        //    equality.
         //
         // Testing:
         //    operator()() const;

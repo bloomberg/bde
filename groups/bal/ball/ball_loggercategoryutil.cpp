@@ -20,6 +20,12 @@ namespace BloombergLP {
 namespace ball {
 
 // STATIC HELPER FUNCTIONS
+
+/// If the specified `category` has a name that begins with the specified
+/// `prefix`, then set the category levels to the specified `recordLevel`,
+/// `passLevel`, `triggerLevel`, and `triggerAllLevel` (respectively) and
+/// increment `matchCount`.  This operation has no effect if the name of
+/// `category` does not being with `prefix`.
 static void setThesholdIfMatchingCategoryPrefix(
                                      Category                 *category,
                                      int                      *matchCount,
@@ -28,11 +34,6 @@ static void setThesholdIfMatchingCategoryPrefix(
                                      int                       passLevel,
                                      int                       triggerLevel,
                                      int                       triggerAllLevel)
-    // If the specified 'category' has a name that begins with the specified
-    // 'prefix', then set the category levels to the specified 'recordLevel',
-    // 'passLevel', 'triggerLevel', and 'triggerAllLevel' (respectively) and
-    // increment 'matchCount'.  This operation has no effect if the name of
-    // 'category' does not being with 'prefix'.
 {
     if (0 == bsl::strncmp(category->categoryName(),
                           prefix.data(),
@@ -46,16 +47,16 @@ static void setThesholdIfMatchingCategoryPrefix(
     }
 }
 
+/// If the specified `category` has a name that is a prefix of
+/// `categoryName` longer than `minPrefixLength`, then populate `result`
+/// with `category`, and populate `minPrefixLength` with the length of
+/// `category`.  This operation has no effect if the name of `category` is
+/// not a prefix of `categoryName` longer than the supplied
+/// `minPrefixLength`.
 static void accumulateLongerPrefixCategory(const Category **result,
                                            int             *minPrefixLength,
                                            const char      *categoryName,
                                            const Category  *category)
-    // If the specified 'category' has a name that is a prefix of
-    // 'categoryName' longer than 'minPrefixLength', then populate 'result'
-    // with 'category', and populate 'minPrefixLength' with the length of
-    // 'category'.  This operation has no effect if the name of 'category' is
-    // not a prefix of 'categoryName' longer than the supplied
-    // 'minPrefixLength'.
 {
     int length = static_cast<int>(bsl::strlen(category->categoryName()));
     if (*minPrefixLength < length &&

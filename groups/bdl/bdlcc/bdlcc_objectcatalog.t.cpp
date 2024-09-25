@@ -2,7 +2,7 @@
 
 #include <bsls_platform.h>
 
-// the following suppresses warnings from '#include' inlined functions
+// the following suppresses warnings from `#include` inlined functions
 #ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
@@ -70,19 +70,19 @@ using bsl::flush;
 //                              --------
 // Testing is divided into the following parts (apart from the breathing test):
 // An alternate implementation (named PseudoObjectCatalog) for
-// 'bdlcc::ObjectCatalog' is provided just for testing purpose.  It is tested
+// `bdlcc::ObjectCatalog` is provided just for testing purpose.  It is tested
 // in
 // [ 2].  It is used in the later test cases to verify the
-// 'bdlcc::ObjectCatalog'.
+// `bdlcc::ObjectCatalog`.
 //
-// We have chosen the primary manipulators for 'bdlcc::ObjectCatalog' as 'add'
-// and 'remove'.  They are tested in [3].  Test cases [4], [5], [6] and [7]
-// test the remaining manipulators of 'bdlcc::ObjectCatalog'.
+// We have chosen the primary manipulators for `bdlcc::ObjectCatalog` as `add`
+// and `remove`.  They are tested in [3].  Test cases [4], [5], [6] and [7]
+// test the remaining manipulators of `bdlcc::ObjectCatalog`.
 //
-// [9] tests all the accessors of 'bdlcc::ObjectCatalog' (including access
+// [9] tests all the accessors of `bdlcc::ObjectCatalog` (including access
 // through iterator).
 //
-// [8] tests the 'bdlcc::ObjectCatalogIter' class.
+// [8] tests the `bdlcc::ObjectCatalogIter` class.
 //
 // All the test cases above are for a single thread.  [12] verifies that the
 // catalog remain consistent in the presence of multiple threads accessing it
@@ -197,17 +197,17 @@ enum {
   , k_RECYCLE_COUNT    = 256
 };
 
+/// Return a non-`const` ptr to the specified `expression`.
 template <class TYPE>
 TYPE *ampersand(TYPE& expression)
-    // Return a non-'const' ptr to the specified 'expression'.
 {
     return bsls::Util::addressOf(expression);
 }
 
+/// This class provides an alternative implementation for
+/// `bdlcc::ObjectCatalog`.
 template<class TYPE>
 class PseudoObjectCatalog
-    // This class provides an alternative implementation for
-    // 'bdlcc::ObjectCatalog'.
 {
     enum { k_MAX = 100 };
     struct {
@@ -325,19 +325,19 @@ class PseudoObjectCatalog
 
 typedef PseudoObjectCatalog<int> my_Obj;
 
-// Each entry of this array specifies a state of 'bdlcc::ObjectCatalog' object
-// (say 'catalog').  When the 'catalog' is in the state specified by 'spec'
+// Each entry of this array specifies a state of `bdlcc::ObjectCatalog` object
+// (say `catalog`).  When the `catalog` is in the state specified by `spec`
 // then the following are true:
 //
-// 'catalog.d_nodes.size() == strlen(spec)'
+// `catalog.d_nodes.size() == strlen(spec)`
 //
-// 'catalog.d_nodes[i]->d_handle & k_BUSY_INDICATOR != 0'
-//               FOR   0 <= i < 'catalog.d_nodes.size()'
-//               AND   'spec[i]' = '1'
+// `catalog.d_nodes[i]->d_handle & k_BUSY_INDICATOR != 0`
+//               FOR   0 <= i < `catalog.d_nodes.size()`
+//               AND   `spec[i]` = '1'
 //
-// 'catalog.d_nodes[i]->d_handle & k_BUSY_INDICATOR == 0'
-//               FOR   0 <= i < 'catalog.d_nodes.size()'
-//               AND   'spec[i]' = '0'
+// `catalog.d_nodes[i]->d_handle & k_BUSY_INDICATOR == 0`
+//               FOR   0 <= i < `catalog.d_nodes.size()`
+//               AND   `spec[i]` = '0'
 //
 const char *SPECS[] = {
     "",
@@ -385,13 +385,13 @@ void printSpec(const char *spec)
     cout << "]" ;
 }
 
+/// Verify that the specified `o1` is correct by comparing it with the
+/// specified `o2`.
 void verifyMatch(Obj               *o1,
                  bsl::vector<int>&  handles1,
                  my_Obj            *o2,
                  bsl::vector<int>&  handles2,
                  int                maxHandles)
-    // Verify that the specified 'o1' is correct by comparing it with the
-    // specified 'o2'.
 {
     int v1 = 0, v2 = 0;
     ASSERT(o1->length() == o2->length());
@@ -415,6 +415,11 @@ void verifyMatch(Obj               *o1,
     }
 }
 
+/// Bring the specified object `o1` into the state specified by the
+/// specified `spec` by using primary manipulators `add` and `remove` only.
+/// Same sequence of method invocation is applied to the specified `o2`.
+/// Handles returned by `o1->add` are put into the specified `handles1` and
+/// handles returned by `o2->add` are put into the specified `handles2`.
 template <class TYPE>
 void ggInt(bdlcc::ObjectCatalog<TYPE> *o1,
            bsl::vector<int>&           handles1,
@@ -422,18 +427,13 @@ void ggInt(bdlcc::ObjectCatalog<TYPE> *o1,
            bsl::vector<int>&           handles2,
            const char                 *spec,
            const int                   gens = 0)
-    // Bring the specified object 'o1' into the state specified by the
-    // specified 'spec' by using primary manipulators 'add' and 'remove' only.
-    // Same sequence of method invocation is applied to the specified 'o2'.
-    // Handles returned by 'o1->add' are put into the specified 'handles1' and
-    // handles returned by 'o2->add' are put into the specified 'handles2'.
 {
-    // First invoke 'add' 'strlen(spec)' times, this will cause first
-    // 'strlen(spec)' entries of 'o1->d_nodes' to be busy.  Then invoke
-    // 'remove' for all the entries corresponding to char '0' of the 'spec',
+    // First invoke `add` `strlen(spec)` times, this will cause first
+    // `strlen(spec)` entries of `o1->d_nodes` to be busy.  Then invoke
+    // `remove` for all the entries corresponding to char '0' of the `spec`,
     // this will cause those entries to be freed.  Optionally, add and remove
-    // the entry 'gens' times to bring the generation numbers to 'gens' for the
-    // entries still present, and to 'gens + 1' for freed entries.
+    // the entry `gens` times to bring the generation numbers to `gens` for the
+    // entries still present, and to `gens + 1` for freed entries.
 
     int v1 = 0, v2 = 0;
     int len = static_cast<int>(strlen(spec));
@@ -631,14 +631,14 @@ DATA_init::DATA_init()
                     // class WellBehavedMoveOnlyAllocTestType
                     // ======================================
 
+/// This unconstrained (value-semantic) attribute class that uses a
+/// `bslma::Allocator` to supply memory and defines the type trait
+/// `bslma::UsesBslmaAllocator`.  This class is primarily provided to
+/// facilitate testing of templates by defining a simple type representative
+/// of user-defined types having an allocator.  This class does not have the
+/// `bsl::is_copy_constructible` trait, and it does have the
+/// `bslma::UsesBslmaAllocator` trait.
 class WellBehavedMoveOnlyAllocTestType {
-    // This unconstrained (value-semantic) attribute class that uses a
-    // 'bslma::Allocator' to supply memory and defines the type trait
-    // 'bslma::UsesBslmaAllocator'.  This class is primarily provided to
-    // facilitate testing of templates by defining a simple type representative
-    // of user-defined types having an allocator.  This class does not have the
-    // 'bsl::is_copy_constructible' trait, and it does have the
-    // 'bslma::UsesBslmaAllocator' trait.
 
     // DATA
     int                     *d_data_p;       // pointer to the data value
@@ -664,101 +664,104 @@ class WellBehavedMoveOnlyAllocTestType {
     explicit WellBehavedMoveOnlyAllocTestType(
                                           bslma::Allocator *basicAllocator = 0)
                                                                    BSLA_UNUSED;
-        // Create a 'WellBehavedMoveOnlyAllocTestType' object having the
+        // Create a `WellBehavedMoveOnlyAllocTestType` object having the
         // (default) attribute values:
-        //..
+        // ```
         //  data() == 0
-        //..
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
+        // ```
+        // Optionally specify a `basicAllocator` used to supply memory.  If
+        // `basicAllocator` is 0, the currently installed default allocator is
         // used.
 
+    /// Create a `WellBehavedMoveOnlyAllocTestType` object having the
+    /// specified `data` attribute value.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.
     explicit WellBehavedMoveOnlyAllocTestType(
                                          int               data,
                                          bslma::Allocator *basicAllocator = 0);
-        // Create a 'WellBehavedMoveOnlyAllocTestType' object having the
-        // specified 'data' attribute value.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
 
+    /// Create a `WellBehavedMoveAllocTestType` object having the same value
+    /// as the specified `original` object.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.  After
+    /// construction, this object will be in a `movedInto` state, and
+    /// `original` will be in a `movedFrom` state.  No allocations shall
+    /// occur (so no exception will be thrown) unless `basicAllocator` is
+    /// not the currently installed default allocator.
     WellBehavedMoveOnlyAllocTestType(
                  bslmf::MovableRef<WellBehavedMoveOnlyAllocTestType> original);
     WellBehavedMoveOnlyAllocTestType(
           bslmf::MovableRef<WellBehavedMoveOnlyAllocTestType>  original,
           bslma::Allocator                                    *basicAllocator);
-        // Create a 'WellBehavedMoveAllocTestType' object having the same value
-        // as the specified 'original' object.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  After
-        // construction, this object will be in a 'movedInto' state, and
-        // 'original' will be in a 'movedFrom' state.  No allocations shall
-        // occur (so no exception will be thrown) unless 'basicAllocator' is
-        // not the currently installed default allocator.
 
+    /// Destroy this object.
     ~WellBehavedMoveOnlyAllocTestType();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a reference providing modifiable access to this object.  If
+    /// `rhs` is a reference to this object, there are no other effects;
+    /// otherwise, the object referenced by `rhs` will be reset to a default
+    /// constructed state, `rhs` shall be in a `movedFrom` state, and this
+    /// object will be in a `movedTo` state.  No allocations shall occur
+    /// (so no exception will be thrown) unless this object and `rhs` have
+    /// different allocators.  Note that the moved-from state is specified,
+    /// rather than "valid but unspecified", as this type is intended for
+    /// verifying test drivers that want to ensure that moves occur
+    /// correctly where expected.
     WellBehavedMoveOnlyAllocTestType& operator=(
                       bslmf::MovableRef<WellBehavedMoveOnlyAllocTestType> rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.  If
-        // 'rhs' is a reference to this object, there are no other effects;
-        // otherwise, the object referenced by 'rhs' will be reset to a default
-        // constructed state, 'rhs' shall be in a 'movedFrom' state, and this
-        // object will be in a 'movedTo' state.  No allocations shall occur
-        // (so no exception will be thrown) unless this object and 'rhs' have
-        // different allocators.  Note that the moved-from state is specified,
-        // rather than "valid but unspecified", as this type is intended for
-        // verifying test drivers that want to ensure that moves occur
-        // correctly where expected.
 
+    /// Set the `data` attribute of this object to the specified `value`.
     void setData(int value);
-        // Set the 'data' attribute of this object to the specified 'value'.
 
+    /// Set the moved-into state of this object to the specified `value`.
     void setMovedInto(bsltf::MoveState::Enum value);
-        // Set the moved-into state of this object to the specified 'value'.
 
     // ACCESSORS
+
+    /// Return the value of the `data` attribute of this object.
     int data() const;
-        // Return the value of the 'data' attribute of this object.
 
                                   // Aspects
 
+    /// Return the allocator used by this object to supply memory.
     bslma::Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.
 
+    /// Return the move state of this object as target of a move operation.
     bsltf::MoveState::Enum movedInto() const;
-        // Return the move state of this object as target of a move operation.
 
+    /// Return the move state of this object as source of a move operation.
     bsltf::MoveState::Enum movedFrom() const;
-        // Return the move state of this object as source of a move operation.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` and `rhs` objects have the same
+/// value, and `false` otherwise.  Two `WellBehavedMoveOnlyAllocTestType`
+/// objects have the same if their `data` attributes are the same.
 bool operator==(const WellBehavedMoveOnlyAllocTestType& lhs,
                 const WellBehavedMoveOnlyAllocTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'WellBehavedMoveOnlyAllocTestType'
-    // objects have the same if their 'data' attributes are the same.
 
+/// Return `true` if the specified `lhs` and `rhs` objects do not have the
+/// same value, and `false` otherwise.  Two
+/// `WellBehavedMoveOnlyAllocTestType` objects do not have the same value if
+/// their `data` attributes are not the same.
 bool operator!=(const WellBehavedMoveOnlyAllocTestType& lhs,
                 const WellBehavedMoveOnlyAllocTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two
-    // 'WellBehavedMoveOnlyAllocTestType' objects do not have the same value if
-    // their 'data' attributes are not the same.
 
 // FREE FUNCTIONS
 void swap(WellBehavedMoveOnlyAllocTestType& a,
           WellBehavedMoveOnlyAllocTestType& b) BSLA_UNUSED;
 void swap(WellBehavedMoveOnlyAllocTestType& a,
           WellBehavedMoveOnlyAllocTestType& b);
-    // Exchange the states of the specified 'a' and 'b'.  If the allocators
-    // match, both 'a' and 'b' will be left in a moved-into state, otherwise,
-    // both will not.  If 'a' and 'b' are the same object, this function will
+    // Exchange the states of the specified `a` and `b`.  If the allocators
+    // match, both `a` and `b` will be left in a moved-into state, otherwise,
+    // both will not.  If `a` and `b` are the same object, this function will
     // have no effect.  No allocations shall occur (so no exceptions will be
-    // thrown) unless 'a' and 'b' have different allocators.
+    // thrown) unless `a` and `b` have different allocators.
 
 // ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
@@ -1069,79 +1072,80 @@ class TestDriver {
            k_IS_ALLOCATING = bslma::UsesBslmaAllocator<ELEMENT>::value
     };
 
+    // Compare this to a move state of an object that we expect to have
+    // been moved.
     static const MoveState::Enum s_expMoved = k_IS_MOVE_AWARE
                                             ? bsltf::MoveState::e_MOVED
                                             : bsltf::MoveState::e_UNKNOWN;
-        // Compare this to a move state of an object that we expect to have
-        // been moved.
 
+    // Compare this to a move state of an object that we expect to have not
+    // been moved.
     static const MoveState::Enum s_expNotMoved = k_IS_MOVE_AWARE
                                                ? bsltf::MoveState::e_NOT_MOVED
                                                : bsltf::MoveState::e_UNKNOWN;
-        // Compare this to a move state of an object that we expect to have not
-        // been moved.
 
     // PRIVATE CLASS METHODS
+
+    /// Set the value of the specified `*target` to the specified `value`.
     static void setData(ELEMENT *target, int value)
-        // Set the value of the specified '*target' to the specified 'value'.
     {
         u::AccessData<ELEMENT>::set(target, value);
     }
 
+    /// Get the value, as an `int` of the specified `value`.
     static int getData(const ELEMENT& value)
-        // Get the value, as an 'int' of the specified 'value'.
     {
         return u::AccessData<ELEMENT>::get(value);
     }
 
+    /// Return the address of the allocator used by the specified value.
+    /// Note that `bsl::true` type indicates that the `ELEMENT` type uses
+    /// `bslma` allocators.
     static bslma::Allocator *getAllocatorImpl(const ELEMENT& value,
                                               bsl::true_type)
-        // Return the address of the allocator used by the specified value.
-        // Note that 'bsl::true' type indicates that the 'ELEMENT' type uses
-        // 'bslma' allocators.
     {
         return value.allocator();
     }
 
+    /// Return 0.  Note that `bsl::false_type` indicates that the `ELEMENT`
+    /// type does not use `bslma` allocators.
     static bslma::Allocator *getAllocatorImpl(const ELEMENT&,
                                               bsl::false_type)
-        // Return 0.  Note that 'bsl::false_type' indicates that the 'ELEMENT'
-        // type does not use 'bslma' allocators.
     {
         return 0;
     }
 
+    /// Return `true` if the specified `value` is an allocating type and it
+    /// uses the specified `allocator` for memory allocator, or if `ELEMENT`
+    /// is not an allocating type, and `false` otherwise.
     static bool usesAllocatorOrNoAllocator(const ELEMENT&    value,
                                            bslma::Allocator *allocator)
-        // Return 'true' if the specified 'value' is an allocating type and it
-        // uses the specified 'allocator' for memory allocator, or if 'ELEMENT'
-        // is not an allocating type, and 'false' otherwise.
     {
         bslma::Allocator *valueAllocator =
                  getAllocatorImpl(value, bslma::UsesBslmaAllocator<ELEMENT>());
         return !valueAllocator || valueAllocator == allocator;
     }
 
+    /// Return `true` if the specified `container` contains elements
+    /// corresponding to those described by the specified `spec`, but not
+    /// necessarily in the same order, and `false` otherwise.
     static bool hasSpecElements(const Obj&  container,
                                 const char *spec);
-        // Return 'true' if the specified 'container' contains elements
-        // corresponding to those described by the specified 'spec', but not
-        // necessarily in the same order, and 'false' otherwise.
 
+    /// Return `true` if the specified `container` contains elements
+    /// corresponding to those described by the specified `spec`, but not
+    /// necessarily in the same order, and `false` otherwise.
     template <class VECTOR>
     static bool hasSpecElements(const VECTOR&  container,
                                 const char    *spec);
-        // Return 'true' if the specified 'container' contains elements
-        // corresponding to those described by the specified 'spec', but not
-        // necessarily in the same order, and 'false' otherwise.
 
+    /// Populate the specified `object` with elements set to values in the
+    /// specified `spec`, the values being equal to the ASCII values of
+    /// the characters in the string, and set `handles` to contain the
+    /// handles for the correspending characters of "spec'.
     static void gg(Obj              *object,
                    const char       *spec,
                    bsl::vector<int> *handles = 0);
-        // Populate the specified 'object' with elements set to values in the
-        // specified 'spec', the values being equal to the ASCII values of
-        // the characters in the string, and set 'handles' to contain the
-        // handles for the correspending characters of "spec'.
 
     static
     MoveState::Enum getMovedInto(const ELEMENT& object)
@@ -1156,23 +1160,23 @@ class TestDriver {
     }
 
   public:
+    /// Test all the manipulators and accessors assuming that the test type
+    /// is copyable.
     static void testCaseManipulatorsCopyable();
-        // Test all the manipulators and accessors assuming that the test type
-        // is copyable.
 
+    /// Test all the manipulators and accessors assuming that the test type
+    /// is copyable, copyable and movable, or move-only.
     static void testCaseManipulatorsCopyOrMovable();
-        // Test all the manipulators and accessors assuming that the test type
-        // is copyable, copyable and movable, or move-only.
 
+    /// Test the `gg` function and `u::isMember`.
     static void testCaseApparatus();
-        // Test the 'gg' function and 'u::isMember'.
 
+    /// Run test case 1 with types that are copyable, copyable and movable,
+    /// or move-only.
     static void testCaseBreathingCopyOrMovable();
-        // Run test case 1 with types that are copyable, copyable and movable,
-        // or move-only.
 
+    /// Run test case 1 with types that are copyable.
     static void testCaseBreathingCopyable();
-        // Run test case 1 with types that are copyable.
 };
 
 template <class ELEMENT>
@@ -1386,9 +1390,9 @@ void TestDriver<ELEMENT>::testCaseManipulatorsCopyOrMovable()
     mX.removeAll();
     ASSERT(hasSpecElements(X, ""));
 
-    // It's important not to 'removeAll' to 'std::vector' here, since on C++03
-    // platforms 'std::vector' does not support move semantics, and this
-    // function is sometimes called with 'ELEMENT' specified as a move-only
+    // It's important not to `removeAll` to `std::vector` here, since on C++03
+    // platforms `std::vector` does not support move semantics, and this
+    // function is sometimes called with `ELEMENT` specified as a move-only
     // type.
 
     spec = "ABCDEF";
@@ -1612,7 +1616,7 @@ void TestDriver<ELEMENT>::testCaseApparatus()
         ASSERT(0 == ti || 0 < LENGTH);
         ASSERT(0 == SPEC[LENGTH]);
 
-        // The logic here assumes '5' never occurs in the spec.  'DATA_init'
+        // The logic here assumes '5' never occurs in the spec.  `DATA_init`
         // has ensured all the specs consist of nothing but upper case alphas.
 
         ASSERT(SPEC + LENGTH == bsl::find(SPEC, SPEC + LENGTH, '5'));
@@ -1636,7 +1640,7 @@ void TestDriver<ELEMENT>::testCaseApparatus()
 
         gg(&mX, SPEC, &handles);
 
-        // Verify that 'gg' clears values previously in the catalog.
+        // Verify that `gg` clears values previously in the catalog.
 
         ASSERT(!X.isMember(V));
         ASSERT(!u::isMemberValue(X, '5'));
@@ -1644,7 +1648,7 @@ void TestDriver<ELEMENT>::testCaseApparatus()
         ASSERT(hasSpecElements(X, SPEC));
 
         {
-            // Verify that 'hasSpecElements' doesn't care about the order of
+            // Verify that `hasSpecElements` doesn't care about the order of
             // the items in the catalog.
 
             bsl::string permuteSpec(SPEC, &tb);
@@ -1697,7 +1701,7 @@ void TestDriver<ELEMENT>::testCaseApparatus()
 
         gg(&mX, SPEC);
 
-        // Verify that 'gg' clears values previously in the catalog.
+        // Verify that `gg` clears values previously in the catalog.
 
         ASSERT(!X.isMember(V));
         ASSERT(!u::isMemberValue(X, '5'));
@@ -1858,7 +1862,7 @@ void TestDriver<ELEMENT>::testCaseBreathingCopyOrMovable()
     ASSERT(vec[1] == VB);
     ASSERT(vec[2] == VC);
 
-    if (verbose) cout << "Testing iterator ++ and 'value'\n";
+    if (verbose) cout << "Testing iterator ++ and `value`\n";
 
     int sum = 0;
     int iterations = 0;
@@ -1995,7 +1999,7 @@ void TestDriver<ELEMENT>::testCaseBreathingCopyable()
     ASSERT(vec[1] == VB);
     ASSERT(vec[2] == VC);
 
-    if (verbose) cout << "Testing iterator ++ and 'operator()'\n";
+    if (verbose) cout << "Testing iterator ++ and `operator()`\n";
 
     int sum = 0;
     int iterations = 0;
@@ -2026,9 +2030,9 @@ void TestDriver<ELEMENT>::testCaseBreathingCopyable()
                                           intValues + k_NUM_INT_VALUES,
                                           0));
 
-    // Don't 'removeAll' -- leave it populated and make sure it destroys itself
-    // properly.  We call 'removeAll' at the end of
-    // 'testCaseBreathingCopyOrMovable'.
+    // Don't `removeAll` -- leave it populated and make sure it destroys itself
+    // properly.  We call `removeAll` at the end of
+    // `testCaseBreathingCopyOrMovable`.
 
     VA.~ELEMENT();
     VB.~ELEMENT();
@@ -2057,9 +2061,9 @@ const int CALLBACK_PROCESSING_TIME = 10;  // in microseconds
 
 class QueryResult;
 
+/// For testing only, we simulate a callback that takes a given time to
+/// process a query.
 void queryCallBack(const QueryResult& result)
-    // For testing only, we simulate a callback that takes a given time to
-    // process a query.
 {
     (void) &result;
 
@@ -2077,77 +2081,78 @@ void queryCallBack(const QueryResult& result)
 // invoked as quickly as possible.  One way to achieve this is as follows.  The
 // client creates a catalog for the functors associated with queries.  It sends
 // to the server the handle (obtained by passing the callback functor
-// associated with the query to the 'add' method of catalog), along with the
+// associated with the query to the `add` method of catalog), along with the
 // query.  The server does not interpret this handle in any way and sends it
 // back to the client along with the computed query result.  The client, upon
 // receiving the response, gets the functor (associated with the query) back by
-// passing the handle (contained in the response message) to the 'find' method
+// passing the handle (contained in the response message) to the `find` method
 // of catalog.
 //
 // Assume the following declarations (we leave the implementations as
 // undefined, as the definitions are largely irrelevant to this example):
-//..
+// ```
+
+    /// Class simulating the query.
     struct Query {
-        // Class simulating the query.
     };
 
+    /// Class simulating the result of a query.
     class QueryResult {
-        // Class simulating the result of a query.
     };
 
+    /// Class encapsulating the request message.  It encapsulates the
+    /// actual query and the handle associated with the callback for the
+    /// query.
     class RequestMsg
-        // Class encapsulating the request message.  It encapsulates the
-        // actual query and the handle associated with the callback for the
-        // query.
     {
         Query d_query;
         int   d_handle;
 
       public:
+        /// Create a request message with the specified `query` and
+        /// `handle`.
         RequestMsg(Query query, int handle)
-            // Create a request message with the specified 'query' and
-            // 'handle'.
         : d_query(query)
         , d_handle(handle)
         {
         }
 
+        /// Return the handle contained in this response message.
         int handle() const
-            // Return the handle contained in this response message.
         {
             return d_handle;
         }
     };
 
+    /// Class encapsulating the response message.  It encapsulates the query
+    /// result and the handle associated with the callback for the query.
     class ResponseMsg
-        // Class encapsulating the response message.  It encapsulates the query
-        // result and the handle associated with the callback for the query.
     {
         int d_handle;
 
       public:
+        /// Set the "handle" contained in this response message to the
+        /// specified `handle`.
         void setHandle(int handle)
-            // Set the "handle" contained in this response message to the
-            // specified 'handle'.
         {
             d_handle = handle;
         }
 
+        /// Return the query result contained in this response message.
         QueryResult queryResult() const
-            // Return the query result contained in this response message.
         {
             return QueryResult();
         }
 
+        /// Return the handle contained in this response message.
         int handle() const
-            // Return the handle contained in this response message.
         {
             return d_handle;
         }
     };
 
+    /// Send the specified `msg` to the specified `peer`.
     void sendMessage(RequestMsg msg, RemoteAddress peer)
-        // Send the specified 'msg' to the specified 'peer'.
     {
         serverMutex.lock();
         peer->push(msg.handle());
@@ -2155,8 +2160,8 @@ void queryCallBack(const QueryResult& result)
         serverMutex.unlock();
     }
 
+    /// Get the response from the specified `peer` into the specified `msg`.
     void recvMessage(ResponseMsg *msg, RemoteAddress peer)
-        // Get the response from the specified 'peer' into the specified 'msg'.
     {
         serverMutex.lock();
         while (peer->empty()) {
@@ -2167,29 +2172,29 @@ void queryCallBack(const QueryResult& result)
         serverMutex.unlock();
     }
 
+    /// Set the specified `query` and `callBack` to the next `Query` and its
+    /// associated functor (the functor to be called when the response to
+    /// this `Query` comes in).
     void getQueryAndCallback(Query                            *query,
                              bsl::function<void(QueryResult)> *callBack)
-        // Set the specified 'query' and 'callBack' to the next 'Query' and its
-        // associated functor (the functor to be called when the response to
-        // this 'Query' comes in).
     {
         (void)query;
         *callBack = &queryCallBack;
     }
-//..
+// ```
 // Furthermore, let also the following variables be declared:
-//..
+// ```
     RemoteAddress serverAddress;  // address of remote server
 
+    /// Catalog of query callbacks, used by the client internally to keep
+    /// track of callback functions across multiple queries.  The invariant
+    /// is that each element corresponds to a pending query (i.e., the
+    /// callback function has not yet been or is in the process of being
+    /// invoked).
     bdlcc::ObjectCatalog<bsl::function<void(QueryResult)> > catalog;
-        // Catalog of query callbacks, used by the client internally to keep
-        // track of callback functions across multiple queries.  The invariant
-        // is that each element corresponds to a pending query (i.e., the
-        // callback function has not yet been or is in the process of being
-        // invoked).
-//..
+// ```
 // Now we define functions that will be used in the thread entry functions:
-//..
+// ```
     void testClientProcessQueryCpp()
     {
         int queriesToBeProcessed = NUM_QUERIES_TO_PROCESS;
@@ -2200,11 +2205,11 @@ void queryCallBack(const QueryResult& result)
             // The following call blocks until a query becomes available.
             getQueryAndCallback(&query, &callBack);
 
-            // Register 'callBack' in the object catalog.
+            // Register `callBack` in the object catalog.
             int handle = catalog.add(callBack);
             ASSERT(handle);
 
-            // Send query to server in the form of a 'RequestMsg'.
+            // Send query to server in the form of a `RequestMsg`.
             RequestMsg msg(query, handle);
             sendMessage(msg, serverAddress);
         }
@@ -2215,41 +2220,41 @@ void queryCallBack(const QueryResult& result)
         int queriesToBeProcessed = NUM_QUERIES_TO_PROCESS;
         while (queriesToBeProcessed--) {
             // The following call blocks until some response is available in
-            // the form of a 'ResponseMsg'.
+            // the form of a `ResponseMsg`.
 
             ResponseMsg msg;
             recvMessage(&msg, serverAddress);
             int handle = msg.handle();
             QueryResult result = msg.queryResult();
 
-            // Process query 'result' by applying registered 'callBack' to it.
-            // The 'callBack' function is retrieved from the 'catalog' using
-            // the given 'handle'.
+            // Process query `result` by applying registered `callBack` to it.
+            // The `callBack` function is retrieved from the `catalog` using
+            // the given `handle`.
 
             bsl::function<void(QueryResult)> callBack;
             ASSERT(0 == catalog.find(handle, &callBack));
             callBack(result);
 
-            // Finally, remove the no-longer-needed 'callBack' from the
-            // 'catalog'.  Assert so that 'catalog' may not grow unbounded if
+            // Finally, remove the no-longer-needed `callBack` from the
+            // `catalog`.  Assert so that `catalog` may not grow unbounded if
             // remove fails.
 
             ASSERT(0 == catalog.remove(handle));
         }
     }
-//..
+// ```
 //
 ///Example 2: Iterator Usage
 ///- - - - - - - - - - - - -
 // The following code fragment shows how to use bdlcc::ObjectCatalogIter to
-// iterate through all the objects of 'catalog' (a catalog of objects of type
-// 'MyType').
-//..
+// iterate through all the objects of `catalog` (a catalog of objects of type
+// `MyType`).
+// ```
     void use(bsl::function<void(QueryResult)> object)
     {
         (void)object;
     }
-//..
+// ```
 
 }  // close namespace OBJECTCATALOG_TEST_USAGE_EXAMPLE
 
@@ -2278,9 +2283,9 @@ int getObjectFromPair(Iter &it)
     return it().second;
 }
 
+/// Verify the iteration.  This function is invoked from `testIteration`
+/// after it has iterated the `catalog`.
 void validateIter (int arr[], int len)
-    // Verify the iteration.  This function is invoked from 'testIteration'
-    // after it has iterated the 'catalog'.
 {
     ASSERT(len <= k_NUM_THREADS);
     for (int i=0; i<len; i++) {
@@ -2303,8 +2308,8 @@ void validateIter (int arr[], int len)
 
 extern "C" {
 
+/// Invoke `add`, `find`, `replace` and `remove` in a loop.
 void *testAddFindReplaceRemove(void *arg)
-    // Invoke 'add', 'find', 'replace' and 'remove' in a loop.
 {
     barrier.wait();
     int id = static_cast<int>(reinterpret_cast<bsls::Types::IntPtr>(arg));
@@ -2327,8 +2332,8 @@ void *testAddFindReplaceRemove(void *arg)
     return NULL;
 }
 
+/// Invoke `length` in a loop.
 void *testLength(void *arg)
-    // Invoke 'length' in a loop.
 {
     (void)arg;
     barrier.wait();
@@ -2340,8 +2345,8 @@ void *testLength(void *arg)
     return NULL;
 }
 
+/// Iterate the `catalog` in a loop.
 void *testIteration(void *arg)
-    // Iterate the 'catalog' in a loop.
 {
     (void)arg;
     barrier.wait();
@@ -2357,8 +2362,8 @@ void *testIteration(void *arg)
     return NULL;
 }
 
+/// Verify the `catalog` in a loop.
 void *verifyStateThread(void *arg)
-    // Verify the 'catalog' in a loop.
 {
     (void)arg;
     barrier.wait();
@@ -2389,10 +2394,10 @@ namespace OBJECTCATALOG_TEST_CASE_12
 
 {
 
+/// This class encapsulates an integer pattern.  It also has a static
+/// variable `objCount`, that holds the number of objects created for this
+/// class.  It uses memory allocation to store the pattern.
 class AllocPattern {
-    // This class encapsulates an integer pattern.  It also has a static
-    // variable 'objCount', that holds the number of objects created for this
-    // class.  It uses memory allocation to store the pattern.
 
     bslma::Allocator *d_alloc_p;
     int              *d_pattern_p;
@@ -2465,10 +2470,10 @@ namespace OBJECTCATALOG_TEST_CASE_11
 
 {
 
+/// This class encapsulates an integer pattern.  It also has a static
+/// variable `objCount`, that holds the number of objects created for this
+/// class.
 class Pattern {
-    // This class encapsulates an integer pattern.  It also has a static
-    // variable 'objCount', that holds the number of objects created for this
-    // class.
 
     int d_pattern;
 
@@ -2531,20 +2536,20 @@ namespace OBJECTCATALOG_TEST_CASE_10
 
 typedef bdlcc::ObjectCatalogIter<int> Iter;
 
+/// Verify the catalog accessors (including iterator) by comparing with
+/// alternate implementation.
 void verifyAccessors(Obj               *o1,
                      bsl::vector<int>&  handles1,
                      u::my_Obj         *o2,
                      bsl::vector<int>&  handles2,
                      int                maxHandles)
-    // Verify the catalog accessors (including iterator) by comparing with
-    // alternate implementation.
 {
     int v1 = 0, v2 = 0, v = 0;
 
-    if (veryVerbose) { cout << "\tverifying 'length'\n"; }
+    if (veryVerbose) { cout << "\tverifying `length`\n"; }
     ASSERT(o1->length() == o2->length());
 
-    if (veryVerbose) { cout << "\tverifying 'find(i, &v)'\n"; }
+    if (veryVerbose) { cout << "\tverifying `find(i, &v)`\n"; }
     ASSERT(o1->find(-1, &v1) != 0);
     ASSERT(o2->find(-1, &v2) != 0);
     ASSERT(o1->find(maxHandles, &v1) != 0);
@@ -2562,7 +2567,7 @@ void verifyAccessors(Obj               *o1,
         }
     }
 
-    if (veryVerbose) { cout << "\tverifying 'find(i)'\n"; }
+    if (veryVerbose) { cout << "\tverifying `find(i)`\n"; }
     ASSERT(o1->find(-1) != 0);
     ASSERT(o2->find(-1) != 0);
     ASSERT(o1->find(maxHandles) != 0);
@@ -2604,7 +2609,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -2616,7 +2621,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -2634,44 +2639,44 @@ int main(int argc, char *argv[])
                                    << "\n\t-------------" << bsl::endl;
 
 // In some thread, the client executes the following code.
-//..
+// ```
 //  extern "C" void *testClientProcessQuery(void *)
 //  {
 //      testClientProcessQueryCpp();
 //      return 0;
 //  }
-//..
+// ```
 // In some other thread, the client executes the following code.
-//..
+// ```
 //  extern "C" void *testClientProcessResponse(void *)
 //  {
 //      testClientProcessResponseCpp();
 //      return 0;
 //  }
-//..
+// ```
         }
 
         {
             if (verbose) bsl::cout << "\n\tIterator usage"
                                    << "\n\t--------------" << bsl::endl;
 
-// Now iterate through the 'catalog':
-//..
+// Now iterate through the `catalog`:
+// ```
 //  for (bdlcc::ObjectCatalogIter<MyType> it(catalog); it; ++it) {
 //      bsl::pair<int, MyType> p = it(); // p.first contains the handle and
 //                                       // p.second contains the object
-//      use(p.second);                   // the function 'use' uses the
+//      use(p.second);                   // the function `use` uses the
 //                                       // object in some way
 //  }
-//  // 'it' is now destroyed out of the scope, releasing the lock.
-//..
+//  // `it` is now destroyed out of the scope, releasing the lock.
+// ```
 // Note that the associated catalog is (read)locked when the iterator is
 // constructed and is unlocked only when the iterator is destroyed.  This means
 // that until the iterator is destroyed, all the threads trying to modify the
 // catalog will remain blocked (even though multiple threads can concurrently
 // read the object catalog).  So clients must make sure to destroy their
 // iterators after they are done using them.  One easy way is to use the
-// 'for (bdlcc::ObjectCatalogIter<MyType> it(catalog); ...' as above.
+// `for (bdlcc::ObjectCatalogIter<MyType> it(catalog); ...` as above.
 
         }
       } break;
@@ -2680,22 +2685,22 @@ int main(int argc, char *argv[])
         // MULTI-TYPE MANIPULATORS / ACCESSORS TEST
         //
         // Concerns:
-        //: 1 Test the manipulators and accessors with the catalog containing a
-        //:   wide variety of types.
-        //:
-        //: 2 For move-aware types, verify that they were moved when expected.
+        // 1. Test the manipulators and accessors with the catalog containing a
+        //    wide variety of types.
+        //
+        // 2. For move-aware types, verify that they were moved when expected.
         //
         // Plan:
-        //: 1 Use a templated test case configured with a wide variety of test
-        //:   types.
-        //:
-        //: 2 Have two test case template functions, one which requires
-        //:   'ELEMENT' to have a copy c'tor, and the other of which will work
-        //:   where 'ELEMENT' is a move only type.
-        //:
-        //: 3 After operations, if the type is a move-aware type, use the
-        //:   'value' accessors to access the object and see if it was moved
-        //:   into.
+        // 1. Use a templated test case configured with a wide variety of test
+        //    types.
+        //
+        // 2. Have two test case template functions, one which requires
+        //    `ELEMENT` to have a copy c'tor, and the other of which will work
+        //    where `ELEMENT` is a move only type.
+        //
+        // 3. After operations, if the type is a move-aware type, use the
+        //    `value` accessors to access the object and see if it was moved
+        //    into.
         //
         // Testing:
         //   int add(TYPE&&);
@@ -2738,11 +2743,11 @@ int main(int argc, char *argv[])
         //   iteration).
         //
         // Plan:
-        //   Create a catalog.  Create 'k_NUM_THREADS' threads and let each
-        //   thread invoke 'add', 'find', 'replace' and 'remove' in a loop.
-        //   Create a thread and let it invoke 'length' in a loop.  Create a
+        //   Create a catalog.  Create `k_NUM_THREADS` threads and let each
+        //   thread invoke `add`, `find`, `replace` and `remove` in a loop.
+        //   Create a thread and let it invoke `length` in a loop.  Create a
         //   thread and let it iterate the catalog in a loop.
-        //   Create a thread and let it invoke 'verifyState' in a loop.
+        //   Create a thread and let it invoke `verifyState` in a loop.
         //   Let all above (k_NUM_THREADS + 3) threads run concurrently.
         //
         // Testing:
@@ -2788,7 +2793,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Create a catalog, add an object and remove the added object thus
-        //   making the handle (returned by 'add') stale.  Verify that the
+        //   making the handle (returned by `add`) stale.  Verify that the
         //   catalog rejects this handle correctly.
         //
         // Testing:
@@ -2819,8 +2824,8 @@ int main(int argc, char *argv[])
         for (bsl::size_t j=0; j < k_NUM_ITERATIONS; ++j) {
             for (bsl::size_t i = 1; i < u::k_RECYCLE_COUNT; ++i) {
                 ASSERT(0 != x.find(HA)); // stale handle should be rejected
-                                         // until the corresponding 'd_nodes'
-                                         // entry is reused 'k_RECYCLE_COUNT'
+                                         // until the corresponding `d_nodes`
+                                         // entry is reused `k_RECYCLE_COUNT`
                                          // times.
 
                 HB = x.add(VB);
@@ -2845,24 +2850,24 @@ int main(int argc, char *argv[])
         //   with the catalog's allocator.
         //
         // Concerns:
-        //   That 'bdlcc::ObjectCatalog<TYPE>' properly passes the allocator
+        //   That `bdlcc::ObjectCatalog<TYPE>` properly passes the allocator
         //   to its object.
         //
         // Plan:
-        //   Create a catalog of 'AllocPattern' (a class that encapsulates an
+        //   Create a catalog of `AllocPattern` (a class that encapsulates an
         //   integer pattern with allocation) objects.  Create an allocated
-        //   pattern object 'a', set its pattern to 'PATTERN1', add it to the
-        //   catalog, invoke 'find' to get it back and verify that its pattern
-        //   is 'PATTERN1'.
+        //   pattern object `a`, set its pattern to `PATTERN1`, add it to the
+        //   catalog, invoke `find` to get it back and verify that its pattern
+        //   is `PATTERN1`.
         //
-        //   Create another pattern object 'b', set its pattern to be
-        //   'PATTERN2', invoke 'replace' to replace 'a' with 'b', invoke
-        //   'find' to get 'b' back and verify that its pattern is 'PATTERN2'.
-        //   Invoke 'remove' to remove 'b' and verify that pattern of the
-        //   removed object is 'PATTERN2'.
+        //   Create another pattern object `b`, set its pattern to be
+        //   `PATTERN2`, invoke `replace` to replace `a` with `b`, invoke
+        //   `find` to get `b` back and verify that its pattern is `PATTERN2`.
+        //   Invoke `remove` to remove `b` and verify that pattern of the
+        //   removed object is `PATTERN2`.
         //
-        //   Finally invoke 'removeAll' and verify that the number of created
-        //   objects (of class 'AllocPattern') is correct.
+        //   Finally invoke `removeAll` and verify that the number of created
+        //   objects (of class `AllocPattern`) is correct.
         //
         // Testing:
         //   TESTING OBJECT CONSTRUCTION/DESTRUCTION WITH ALLOCATION
@@ -2904,7 +2909,7 @@ int main(int argc, char *argv[])
             ASSERT((unsigned)vbuf.pattern() == k_PATTERN2);
 
             x.removeAll();
-        } // let 'a', 'b', and 'vbuf' be destroyed
+        } // let `a`, `b`, and `vbuf` be destroyed
 
         ASSERT(AllocPattern::objCount == 0);
 
@@ -2915,23 +2920,23 @@ int main(int argc, char *argv[])
         //   Verify that catalog properly constructs and destroys the objects.
         //
         // Concerns:
-        //   That 'bdlcc::ObjectCatalog<TYPE>' properly constructs and destroys
-        //   the objects (of type 'TYPE').
+        //   That `bdlcc::ObjectCatalog<TYPE>` properly constructs and destroys
+        //   the objects (of type `TYPE`).
         //
         // Plan:
-        //   Create a catalog of 'Pattern' (a class that encapsulates an
-        //   integer pattern) objects.  Create a pattern object 'a', set its
-        //   pattern to 'k_PATTERN1', add it to the catalog, invoke 'find' to
-        //   get it back and verify that its pattern is 'k_PATTERN1'.
+        //   Create a catalog of `Pattern` (a class that encapsulates an
+        //   integer pattern) objects.  Create a pattern object `a`, set its
+        //   pattern to `k_PATTERN1`, add it to the catalog, invoke `find` to
+        //   get it back and verify that its pattern is `k_PATTERN1`.
         //
-        //   Create another pattern object 'b', set its pattern to be
-        //   'k_PATTERN2', invoke 'replace' to replace 'a' with 'b', invoke
-        //   'find' to get 'b' back and verify that its pattern is
-        //   'k_PATTERN2'.  Invoke 'remove' to remove 'b' and verify that
-        //   pattern of the removed object is 'k_PATTERN2'.
+        //   Create another pattern object `b`, set its pattern to be
+        //   `k_PATTERN2`, invoke `replace` to replace `a` with `b`, invoke
+        //   `find` to get `b` back and verify that its pattern is
+        //   `k_PATTERN2`.  Invoke `remove` to remove `b` and verify that
+        //   pattern of the removed object is `k_PATTERN2`.
         //
-        //   Finally invoke 'removeAll' and verify that the number of created
-        //   objects (of class 'Pattern') is correct.
+        //   Finally invoke `removeAll` and verify that the number of created
+        //   objects (of class `Pattern`) is correct.
         //
         // Testing:
         //   TESTING OBJECT CONSTRUCTION/DESTRUCTION
@@ -2972,7 +2977,7 @@ int main(int argc, char *argv[])
             ASSERT((unsigned)vbuf.pattern() == k_PATTERN2);
 
             x1.removeAll();
-        } // let 'a', 'b', and 'vbuf' be destroyed
+        } // let `a`, `b`, and `vbuf` be destroyed
 
         ASSERT(Pattern::objCount == 0);
 
@@ -2983,7 +2988,7 @@ int main(int argc, char *argv[])
         //   Verify the accessors of catalog.
         //
         // Concerns:
-        //   That accessors of 'bdlcc::ObjectCatalog' (including access through
+        //   That accessors of `bdlcc::ObjectCatalog` (including access through
         //   iterator) work correctly in presence of one thread.
         //
         // Plan:
@@ -3003,8 +3008,8 @@ int main(int argc, char *argv[])
 
         for (int i=0; i < u::NUM_SPECS; ++i) {
             if (veryVerbose) {
-                cout  << "\n\ntesting 'length', 'find' and"
-                      << "'iteration' with catalog-state \"";
+                cout  << "\n\ntesting `length`, `find` and"
+                      << "`iteration` with catalog-state \"";
                 u::printSpec(u::SPECS[i]);
                 cout << "\""<< endl;
             }
@@ -3229,26 +3234,26 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'REMOVEALL':
-        //   Verify the 'removeAll'.
+        // TESTING `REMOVEALL`:
+        //   Verify the `removeAll`.
         //
         // Concerns:
-        //   That 'removeAll' works correctly in presence of one thread.
+        //   That `removeAll` works correctly in presence of one thread.
         //
         // Plan:
         //   Bring the catalog into various states.  For each state, invoke
-        //   'removeAll' and then verify the result.
+        //   `removeAll` and then verify the result.
         //
         // Testing:
         //   void removeAll();
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'REMOVEALL'" << endl
+                          << "TESTING `REMOVEALL`" << endl
                           << "=================" << endl;
 
         for (int i=0; i < u::NUM_SPECS; ++i) {
             if (veryVerbose) {
-                cout  << "\n\nTesting 'removeAll' with catalog-state \"";
+                cout  << "\n\nTesting `removeAll` with catalog-state \"";
                 u::printSpec(u::SPECS[i]);
                 cout << "\"" << endl;
             }
@@ -3285,28 +3290,28 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'REMOVE(handle, &valueBuf)':
-        //   Verify the 'remove(handle, &valueBuf)'.
+        // TESTING `REMOVE(handle, &valueBuf)`:
+        //   Verify the `remove(handle, &valueBuf)`.
         //
         // Concerns:
-        //   That 'remove(handle, valueBuffer)' works correctly in presence of
+        //   That `remove(handle, valueBuffer)` works correctly in presence of
         //   one thread.
         //
         // Plan:
         //   Bring the catalog into various states using primary manipulators.
-        //   For each state, invoke 'remove' (with various values of handle
+        //   For each state, invoke `remove` (with various values of handle
         //   argument) and then verify the result.
         //
         // Testing:
         //   int remove(int handle, TYPE* valueBuffer=0);
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "TESTING 'REMOVE(handle, &valueBuf)'\n"
+                          << "TESTING `REMOVE(handle, &valueBuf)`\n"
                           << "===================================" << endl;
 
         for (int i=0; i < u::NUM_SPECS; ++i) {
             if (veryVerbose) {
-                cout  << "\n\ntesting 'remove' with catalog-state \"";
+                cout  << "\n\ntesting `remove` with catalog-state \"";
                 u::printSpec(u::SPECS[i]);
                 cout << "\""<< endl;
             }
@@ -3362,15 +3367,15 @@ int main(int argc, char *argv[])
       }break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'REMOVE(handle)':
-        //   Verify the 'remove(handle)'.
+        // TESTING `REMOVE(handle)`:
+        //   Verify the `remove(handle)`.
         //
         // Concerns:
-        //   That 'remove(handle)' works correctly in presence of one thread.
+        //   That `remove(handle)` works correctly in presence of one thread.
         //
         // Plan:
         //   Bring the catalog into various states using primary manipulators.
-        //   For each state, invoke 'remove' (with various values of handle
+        //   For each state, invoke `remove` (with various values of handle
         //   argument) and then verify the result.
         //
         // Testing:
@@ -3378,12 +3383,12 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'REMOVE(handle)'" << endl
+                          << "TESTING `REMOVE(handle)`" << endl
                           << "========================" << endl;
 
         for (int i=0; i < u::NUM_SPECS; ++i) {
             if (veryVerbose) {
-                cout  << "\n\ntesting 'remove' with catalog-state \"";
+                cout  << "\n\ntesting `remove` with catalog-state \"";
                 u::printSpec(u::SPECS[i]);
                 cout << "\""<< endl;
             }
@@ -3439,15 +3444,15 @@ int main(int argc, char *argv[])
       }break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'REPLACE':
-        //   Verify the 'replace'.
+        // TESTING `REPLACE`:
+        //   Verify the `replace`.
         //
         // Concerns:
-        //   That 'replace' works correctly in presence of one thread.
+        //   That `replace` works correctly in presence of one thread.
         //
         // Plan:
         //   Bring the catalog into various states using primary manipulators.
-        //   For each state, invoke 'replace' (with various values of handle
+        //   For each state, invoke `replace` (with various values of handle
         //   argument) and then verify the result.
         //
         // Testing:
@@ -3455,12 +3460,12 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'REPLACE'" << endl
+                          << "TESTING `REPLACE`" << endl
                           << "=================" << endl;
 
         for (int i=0; i < u::NUM_SPECS; ++i) {
             if (veryVerbose) {
-                cout  << "\n\ntesting 'replace' with catalog-state \"";
+                cout  << "\n\ntesting `replace` with catalog-state \"";
                 u::printSpec(u::SPECS[i]);
                 cout << "\""<< endl;
             }
@@ -3523,22 +3528,22 @@ int main(int argc, char *argv[])
         //   Verify the primary manipulators of catalog.
         //
         // Concerns:
-        //   That the chosen primary manipulators 'add' and 'remove' work
+        //   That the chosen primary manipulators `add` and `remove` work
         //   correctly in presence of one thread.
         //
         // Plan:
-        //   Using generator function 'gg', bring the catalog into various
-        //   states (enumerated in 'SPECS' array, see the documentation for
-        //   'SPECS') by invoking only 'add' and 'remove'.  Verify the result
+        //   Using generator function `gg`, bring the catalog into various
+        //   states (enumerated in `SPECS` array, see the documentation for
+        //   `SPECS`) by invoking only `add` and `remove`.  Verify the result
         //   after each invocation.  Verification is done by the combination
         //   of following three.
         //     (1) Sanity checks using accessors.
         //
-        //     (2) Comparison between the behavior of 'bdlcc::ObjectCatalog'
+        //     (2) Comparison between the behavior of `bdlcc::ObjectCatalog`
         //     implementation and the alternate (PseudoObjectCatalog)
         //     implementation.
         //
-        //     (3) Invocation of 'catalog.verifyState'.
+        //     (3) Invocation of `catalog.verifyState`.
         //
         // Testing:
         //   int add(TYPE const& object);
@@ -3583,15 +3588,15 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   That the alternate implementation (named PseudoObjectCatalog)
-        //   for 'bdlcc::ObjectCatalog' is operational for one thread.
+        //   for `bdlcc::ObjectCatalog` is operational for one thread.
         //
         // Plan:
         //   Create a catalog.  Add 6 objects to it, verifying state after
         //   each addition.  Remove one of the objects and verify the state.
         //   Replace one of the object and verify the state.  Invoke
-        //   'removeAll' and verify the state.
+        //   `removeAll` and verify the state.
         //
-        //   Create a catalog, add five elements and verify that 'isMember'
+        //   Create a catalog, add five elements and verify that `isMember`
         //   works correctly.
         //
         // Testing:
@@ -3693,14 +3698,14 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TEST APPARATUS
         //
-        // Test the 'gg' function.
+        // Test the `gg` function.
         //
         // Concerns:
-        //: 1 That the 'u::gg' function properly populates an object and the
-        //:   handles vector, if any, passed to it.
-        //:
-        //: 2 That the 'u::isMember' and 'u::isMemberValue' correctly identiy
-        //:   whether an item is in the object catalog.
+        // 1. That the `u::gg` function properly populates an object and the
+        //    handles vector, if any, passed to it.
+        //
+        // 2. That the `u::isMember` and `u::isMemberValue` correctly identiy
+        //    whether an item is in the object catalog.
         //
         // Testing:
         //   TD::gg(Obj *, const char *, bsl::vector<int> * = 0);
@@ -3747,10 +3752,10 @@ int main(int argc, char *argv[])
         //   Create a catalog.  Add 6 objects to it, verifying state after
         //   each addition.  Remove one of the objects and verify the state.
         //   Replace one of the object and verify the state.  Invoke
-        //   'removeAll' and verify the state.
+        //   `removeAll` and verify the state.
         //
         //   Create a catalog.  Add 3 objects to it, invoke
-        //   'removeAll(buffer)' and verify the state.
+        //   `removeAll(buffer)` and verify the state.
         //
         //   Create a catalog and an iterator for it.  Add 5 objects to the
         //   catalog and then iterate through it and finally verify the state.

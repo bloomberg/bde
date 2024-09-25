@@ -2,7 +2,7 @@
 
 #include <bsls_platform.h>
 
-// the following suppresses warnings from '#include' inlined functions
+// the following suppresses warnings from `#include` inlined functions
 #if defined(BSLS_PLATFORM_CMP_SUN)
 #pragma error_messages(off, SEC_NULL_PTR_DEREF)
 #endif
@@ -43,8 +43,8 @@
 
 #include <bsls_libraryfeatures.h>
 
-#include <bsl_cstddef.h>    // 'bsl::size_t'
-#include <bsl_cstdlib.h>    // 'atoi'
+#include <bsl_cstddef.h>    // `bsl::size_t`
+#include <bsl_cstdlib.h>    // `atoi`
 #include <bsl_iostream.h>
 #include <bsl_map.h>
 #include <bsl_sstream.h>
@@ -67,8 +67,8 @@ using bsls::NameOf;
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
+/// This macro definition parallels that defined in the header file.
 #define BDLB_VARIANT_USING_VARIADIC_TEMPLATES
-    // This macro definition parallels that defined in the header file.
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_SUN)
@@ -89,13 +89,13 @@ using bsls::NameOf;
 // The component under test is a value-semantic "variant" type, whose state is
 // a type identifier (an index into an underlying type list) and a value of the
 // corresponding type.  In addition, there are several versions of the variant
-// type ('bdlb::VariantN') accepting different numbers of template arguments,
-// and a basic version that accepts a type list ('bdlb::VariantImp').  The
+// type (`bdlb::VariantN`) accepting different numbers of template arguments,
+// and a basic version that accepts a type list (`bdlb::VariantImp`).  The
 // latter actually contains the implementation (hence its name).
 //
-// We have chosen the primary manipulators for the 'bdlb::Variant' class to be
-// 'assign' and 'reset'.  The basic accessors are 'is<TYPE>', 'the<TYPE>', and
-// 'typeIndex'.
+// We have chosen the primary manipulators for the `bdlb::Variant` class to be
+// `assign` and `reset`.  The basic accessors are `is<TYPE>`, `the<TYPE>`, and
+// `typeIndex`.
 // ----------------------------------------------------------------------------
 //
 //                      // ----------------------
@@ -126,7 +126,7 @@ using bsls::NameOf;
 // [ 2] void reset();
 // [ 4] TYPE& the<TYPE>();
 //
-// // Testing return value aspect of 'apply'.
+// // Testing return value aspect of `apply`.
 //
 // [15] VISITOR::ResultType apply(VISITOR& visitor);
 // [15] VISITOR::ResultType apply(const VISITOR& visitor);
@@ -138,7 +138,7 @@ using bsls::NameOf;
 // [15] RET_TYPE apply<RET_TYPE>(const VISITOR& visitor);
 // [15] RET_TYPE applyRaw<RET_TYPE>(const VISITOR& visitor);
 //
-// // Testing handling of unset variant aspect of 'apply'.
+// // Testing handling of unset variant aspect of `apply`.
 //
 // [16] VISITOR::ResultType apply(VISITOR& visitor, const TYPE& dVal);
 // [16] void apply(VISITOR& visitor, const TYPE& dVal);
@@ -154,7 +154,7 @@ using bsls::NameOf;
 // [ 4] const TYPE& the<TYPE>() const;
 // [ 4] int typeIndex() const;
 //
-// // Testing return value aspect of 'apply'.
+// // Testing return value aspect of `apply`.
 //
 // [15] VISITOR::ResultType apply(VISITOR& visitor) const;
 // [15] VISITOR::ResultType apply(const VISITOR& visitor) const;
@@ -166,7 +166,7 @@ using bsls::NameOf;
 // [15] RET_TYPE apply<RET_TYPE>(const VISITOR& visitor) const;
 // [15] RET_TYPE applyRaw<RET_TYPE>(const VISITOR& visitor) const;
 //
-// // Testing handling of unset variant aspect of 'apply'.
+// // Testing handling of unset variant aspect of `apply`.
 //
 // [16] VISITOR::ResultType apply(VISITOR& visitor, const TYPE& dVal) const;
 // [16] void apply(VISITOR& visitor, const TYPE& dVal) const;
@@ -183,17 +183,17 @@ using bsls::NameOf;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [29] USAGE EXAMPLE
-// [18] CLASSES: 'bdlb::VariantN' and 'bdlb::Variant' (copy semantics)
+// [18] CLASSES: `bdlb::VariantN` and `bdlb::Variant` (copy semantics)
 // [ 3] int ggg(Variant *, const char *, bool = true);
 // [ 3] VariantImp& gg(VariantImp *, const char *);
 // [ 8] VariantImp   g(const char *spec);
 // [19] CONCERN: No allocator pointer in object if not necessary.
-// [19] CONCERN: No 'bslma::UsesBslmaAllocator' trait when no allocator.
-// [19] CONCERN: 'bslmf::IsBitwiseCopyable' trait
-// [19] CONCERN: 'bslmf::IsBitwiseMoveable' trait
-// [20] CONCERN: 'applyRaw' accepts VISITORs w/o a 'bslmf::Nil' overload.
-// [27] CONCERN: Moving an object containing a 'const' variant compiles.
-// [28] CONCERN: 'operator<<' handles 'std::optional' and 'std::variant'
+// [19] CONCERN: No `bslma::UsesBslmaAllocator` trait when no allocator.
+// [19] CONCERN: `bslmf::IsBitwiseCopyable` trait
+// [19] CONCERN: `bslmf::IsBitwiseMoveable` trait
+// [20] CONCERN: `applyRaw` accepts VISITORs w/o a `bslmf::Nil` overload.
+// [27] CONCERN: Moving an object containing a `const` variant compiles.
+// [28] CONCERN: `operator<<` handles `std::optional` and `std::variant`
 // [10] Reserved for BDEX streaming.
 
 // ============================================================================
@@ -294,29 +294,31 @@ typedef bsls::Types::Int64             Int64;
                                // class TestVoid
                                // ==============
 
+/// This class has no state, hence no value (all objects of this type
+/// compare equal), and supports the BDEX streaming protocol.  For brevity,
+/// and only because this is a test driver, we relax our rules and implement
+/// each method in the class body and do not provide documentation of these
+/// straightforward and BDE-standard methods.
 struct TestVoid {
-    // This class has no state, hence no value (all objects of this type
-    // compare equal), and supports the BDEX streaming protocol.  For brevity,
-    // and only because this is a test driver, we relax our rules and implement
-    // each method in the class body and do not provide documentation of these
-    // straightforward and BDE-standard methods.
 
     // CLASS METHODS
+
+    /// Return the max supported bdex version.
     static int maxSupportedBdexVersion()
-        // Return the max supported bdex version.
     {
         // Implementation note: in order to play nice with our variant wrapper
         // below, we *need* all the TestTypes to have the same version numbers
-        // (2, since 'TestInt' and 'TestString' below all have version 2).
+        // (2, since `TestInt` and `TestString` below all have version 2).
 
         return 2;
     }
 
     // MANIPULATORS
+
+    /// Stream bdex of the specified `version` in from the specified
+    /// 'stream.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version)
-        // Stream bdex of the specified 'version' in from the specified
-        // 'stream.
     {
         if (version != 1 && version != 2) {
             stream.invalidate();
@@ -325,9 +327,10 @@ struct TestVoid {
     }
 
     // ACCESSORS
+
+    /// Stream bdex out to the specified `stream`.
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int /* version */) const
-        // Stream bdex out to the specified 'stream'.
     {
         return stream;
     }
@@ -355,13 +358,13 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestVoid&)
                                // class TestAllocObj
                                // ==================
 
+/// This class has no state, hence no value (all objects of this type
+/// compare equal), and supports the BDEX streaming protocol.  The object
+/// allocates during construction and deallocates during destruction.  For
+/// brevity, and only because this is a test driver, we relax our rules and
+/// implement each method in the class body and do not provide documentation
+/// of these straightforward and BDE-standard methods.
 class TestAllocObj {
-    // This class has no state, hence no value (all objects of this type
-    // compare equal), and supports the BDEX streaming protocol.  The object
-    // allocates during construction and deallocates during destruction.  For
-    // brevity, and only because this is a test driver, we relax our rules and
-    // implement each method in the class body and do not provide documentation
-    // of these straightforward and BDE-standard methods.
 
     void             *d_data_p;       // holds the memory allocated on
                                       // construction
@@ -373,8 +376,9 @@ class TestAllocObj {
     BSLMF_NESTED_TRAIT_DECLARATION(TestAllocObj, bslma::UsesBslmaAllocator);
 
     // CLASS METHODS
+
+    /// Return the max supported bdex version.
     static int maxSupportedBdexVersion()
-        // Return the max supported bdex version.
     {
         // Implementation note: in order to play nice with our variant wrapper
         // below, we *need* all the TestTypes to have the same version numbers
@@ -384,24 +388,25 @@ class TestAllocObj {
     }
 
     // CREATORS
+
+    /// Create a `TestAllocObj` object using the specified `basicAllocator`
+    /// to allocate memory.
     explicit TestAllocObj(bslma::Allocator *basicAllocator = 0)
     : d_allocator_p(basicAllocator)
-        // Create a 'TestAllocObj' object using the specified 'basicAllocator'
-        // to allocate memory.
     {
         d_data_p = d_allocator_p->allocate(1);
     }
 
+    /// Create a `TestAllocObj` object using the specified `basicAllocator`
+    /// to allocate memory.
     TestAllocObj(const TestAllocObj&, bslma::Allocator *basicAllocator = 0)
     : d_allocator_p(basicAllocator)
-        // Create a 'TestAllocObj' object using the specified 'basicAllocator'
-        // to allocate memory.
     {
         d_data_p = d_allocator_p->allocate(1);
     }
 
+    /// Destroy this object.
     ~TestAllocObj()
-        // Destroy this object.
     {
         ASSERT(d_allocator_p);
 
@@ -409,16 +414,17 @@ class TestAllocObj {
     }
 
     // MANIPULATORS
+
+    /// Return a reference to this object.
     TestAllocObj& operator=(const TestAllocObj&)
-        // Return a reference to this object.
     {
         return *this;
     }
 
+    /// Stream bdex of the specified `version` in from the specified
+    /// 'stream.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version)
-        // Stream bdex of the specified 'version' in from the specified
-        // 'stream.
     {
         if (version != 1 && version != 2) {
             stream.invalidate();
@@ -427,9 +433,10 @@ class TestAllocObj {
     }
 
     // ACCESSORS
+
+    /// Stream bdex out to the specified `stream`.
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int /* version */) const
-        // Stream bdex out to the specified 'stream'.
     {
         return stream;
     }
@@ -457,10 +464,10 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestAllocObj&)
                                // class TestInt
                                // =============
 
+/// This class, similar to `TestString` (below), wraps an `int` value, a
+/// reference to which one can obtain using the `theInt` method.  This class
+/// also supports `bdlb` print methods.
 class TestInt {
-    // This class, similar to 'TestString' (below), wraps an 'int' value, a
-    // reference to which one can obtain using the 'theInt' method.  This class
-    // also supports 'bdlb' print methods.
 
     // DATA
     int d_value;
@@ -599,8 +606,8 @@ bool operator!=(const TestInt& lhs, const TestInt& rhs)
     return !(lhs == rhs);
 }
 
+/// Stream the specified `rhs` to the specified `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const TestInt& rhs)
-    // Stream the specified 'rhs' to the specified 'stream'.
 {
     rhs.print(stream, 0, -1);
     return stream;
@@ -612,13 +619,13 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestInt& rhs)
                                // class TestString
                                // ================
 
+/// This class, similar to `TestInt`, wraps class-level BDEX streaming
+/// around a `bsl::string` value, a reference to which one can obtain using
+/// `theString` method.  It also supports `bdlb` print methods.  For
+/// brevity, and only because this is a test driver, we relax our rules and
+/// implement each method in the class body and do not provide documentation
+/// of these straightforward and BDE-standard methods.
 class TestString {
-    // This class, similar to 'TestInt', wraps class-level BDEX streaming
-    // around a 'bsl::string' value, a reference to which one can obtain using
-    // 'theString' method.  It also supports 'bdlb' print methods.  For
-    // brevity, and only because this is a test driver, we relax our rules and
-    // implement each method in the class body and do not provide documentation
-    // of these straightforward and BDE-standard methods.
 
     // DATA
     bsl::string d_value;
@@ -659,9 +666,9 @@ class TestString {
     }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    /// Assign to this object the value of the specified `rhs`, and return
+    /// a reference providing modifiable access to this object.
     TestString& operator=(const TestString& rhs) = default;
-        // Assign to this object the value of the specified 'rhs', and return
-        // a reference providing modifiable access to this object.
 #endif
 
     template <class STREAM>
@@ -780,10 +787,10 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestString& rhs)
                                // class TestArg
                                // =============
 
+/// This class, identical to `TestInt` allows to have several distinct types
+/// (depending on the parameterized integral `N`).
 template <int N>
 class TestArg {
-    // This class, identical to 'TestInt' allows to have several distinct types
-    // (depending on the parameterized integral 'N').
 
     // DATA
     int d_value;
@@ -931,7 +938,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestArg<N>& rhs)
     return stream;
 }
 
-// Declare place-filler types for testing 'VariantN' and 'Variant'.
+// Declare place-filler types for testing `VariantN` and `Variant`.
 
 typedef TestArg< 1> TestArg1;
 typedef TestArg< 2> TestArg2;
@@ -962,18 +969,19 @@ typedef TestArg<20> TestArg20;
 
 enum { MAX_MOVABLETESTTYPE_PARAMETERS = 14 };
 
+/// This `struct` is a simple mechanism for accepting a number of
+/// `bsltf::MovableTestType` parameters in its constructor and forwarding
+/// them into a stored array.
 struct MovableTestTypeConsumer {
-    // This 'struct' is a simple mechanism for accepting a number of
-    // 'bsltf::MovableTestType' parameters in its constructor and forwarding
-    // them into a stored array.
 
     // PUBLIC CLASS DATA
     static bool s_copyConstructorCalled;  // flag indicating whether copy
                                           // constructor was called
 
     // PUBLIC DATA
+
+    /// the 14 arguments
     bsltf::MovableTestType d_arguments[MAX_MOVABLETESTTYPE_PARAMETERS];
-        // the 14 arguments
 
     // CREATORS
     MovableTestTypeConsumer() {}
@@ -1355,24 +1363,25 @@ struct MovableTestTypeConsumer {
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs`, and return a
+    /// reference providing modifiable access to this object.
     MovableTestTypeConsumer& operator=(
                                  const MovableTestTypeConsumer& rhs) = default;
-        // Assign to this object the value of the specified 'rhs', and return a
-        // reference providing modifiable access to this object.
 #endif
 };
 
 // PUBLIC CLASS DATA
 bool MovableTestTypeConsumer::s_copyConstructorCalled = false;
 
+/// Helper function that checks the specified `numMoved` number of
+/// `bslmf::MovableTestType` parameters (in increasing order of the argument
+/// list) have the specified `expectedState` and their data is equal to
+/// their index in the specified `MovableTestTypeConsumer` `object`, and the
+/// rest are in `e_NOT_MOVED` state with the data is equal to zero.
 void checkMoved(const MovableTestTypeConsumer& object,
                 int                            numMoved,
                 bsltf::MoveState::Enum         expectedState)
-    // Helper function that checks the specified 'numMoved' number of
-    // 'bslmf::MovableTestType' parameters (in increasing order of the argument
-    // list) have the specified 'expectedState' and their data is equal to
-    // their index in the specified 'MovableTestTypeConsumer' 'object', and the
-    // rest are in 'e_NOT_MOVED' state with the data is equal to zero.
 {
     for (int i = 0; i < MAX_MOVABLETESTTYPE_PARAMETERS; ++i) {
         ASSERTV(i,
@@ -1393,10 +1402,10 @@ void checkMoved(const MovableTestTypeConsumer& object,
                              // struct BitwiseCopyable
                              // ======================
 
+/// This struct has the bitwise-copyable trait declared and is used for
+/// testing traits in the variant.
 template <int index>
 struct BitwiseCopyable {
-    // This struct has the bitwise-copyable trait declared and is used for
-    // testing traits in the variant.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(BitwiseCopyable,
@@ -1412,10 +1421,10 @@ struct BitwiseCopyable {
                              // struct BitwiseMoveable
                              // ======================
 
+/// This struct has the bitwise-moveable trait declared and is used for
+/// testing traits in the variant.
 template <int index>
 struct BitwiseMoveable {
-    // This struct has the bitwise-moveable trait declared and is used for
-    // testing traits in the variant.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(BitwiseMoveable, bslmf::IsBitwiseMoveable);
@@ -1430,10 +1439,10 @@ struct BitwiseMoveable {
                                // struct UsesAllocator
                                // ====================
 
+/// This struct has the uses-allocator trait declared and is used for
+/// testing traits in the variant.
 template <int index>
 struct UsesAllocator {
-    // This struct has the uses-allocator trait declared and is used for
-    // testing traits in the variant.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(UsesAllocator, bslma::UsesBslmaAllocator);
@@ -1448,19 +1457,20 @@ struct UsesAllocator {
                                   // struct NilTraits
                                   // ================
 
+/// This struct has no traits declared and is used for testing traits in the
+/// variant.
 template <int index>
 struct NilTraits {
-    // This struct has no traits declared and is used for testing traits in the
-    // variant.
 
     // DATA
     int d_x;  // take up space
 
     // CREATORS
+
+    /// Note that this destructor declaration thwarts a C++11 compiler from
+    /// deducing that `NilTraits<N>` is either bitwise copyable or bitwise
+    /// movable.
     ~NilTraits();
-        // Note that this destructor declaration thwarts a C++11 compiler from
-        // deducing that 'NilTraits<N>' is either bitwise copyable or bitwise
-        // movable.
 };
 
 // ============================================================================
@@ -1479,7 +1489,7 @@ const TestInt     VH(789);
 const TestInt     VI(147);
 const TestInt     VJ(369);
 
-// Define 'bsl::string' value long enough to ensure dynamic memory allocation.
+// Define `bsl::string` value long enough to ensure dynamic memory allocation.
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
 #define SUFFICIENTLY_LONG_STRING "123456789012345678901234567890123"
@@ -1508,7 +1518,7 @@ const TestString  TEST_STRING_DATA[] = { VK, VL, VM, VN, VO };
 const bsl::string STRING_DATA[]      = { VS, VT, VU, VV, VW };
 
 // Define the expected move state for tests that involve "true" rvalue
-// references (i.e., 'bslmf::MovableRefUtil' is not used to explicitly impose
+// references (i.e., `bslmf::MovableRefUtil` is not used to explicitly impose
 // move semantics).
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
@@ -1525,10 +1535,10 @@ const bsl::string STRING_DATA[]      = { VS, VT, VU, VV, VW };
                           // struct Convertible
                           // ==================
 
+/// This struct is convertible from any type.  This is used to facilitate
+/// testing for explicit return type specification on the `apply` method of
+/// the variant.  For more details, see the test plan for case 15.
 struct Convertible {
-    // This struct is convertible from any type.  This is used to facilitate
-    // testing for explicit return type specification on the 'apply' method of
-    // the variant.  For more details, see the test plan for case 15.
 
     template <class TYPE>
     Convertible(const TYPE &)  // IMPLICIT
@@ -1551,19 +1561,20 @@ struct Convertible {
                           // class my_ModifyingVisitor
                           // =========================
 
+/// This class modifies the value of the variant according to the type of
+/// object being passed in.  This visitor only supports 4 types: `int`,
+/// `TestInt`, `bsl::string`, and `TestString`.
 class my_ModifyingVisitor {
-    // This class modifies the value of the variant according to the type of
-    // object being passed in.  This visitor only supports 4 types: 'int',
-    // 'TestInt', 'bsl::string', and 'TestString'.
 
     // DATA
     int d_valueIdx;  // value index
 
   public:
     // CREATORS
+
+    /// Modifies the value of the variant visited to the value at the
+    /// specified `valueIdx` in the test data.
     explicit my_ModifyingVisitor(int valueIdx)
-        // Modifies the value of the variant visited to the value at the
-        // specified 'valueIdx' in the test data.
     : d_valueIdx(valueIdx)
     {
     }
@@ -1601,20 +1612,21 @@ class my_ModifyingVisitor {
                           // class my_NonReturningVisitor
                           // ============================
 
+/// This class modifies the value of the variant according to the type of
+/// object being passed in and returns the type index of the type modified.
+/// This visitor only supports 4 types: `int`, `TestInt`, `bsl::string`, and
+/// `TestString`.
 class my_NonReturningVisitor {
-    // This class modifies the value of the variant according to the type of
-    // object being passed in and returns the type index of the type modified.
-    // This visitor only supports 4 types: 'int', 'TestInt', 'bsl::string', and
-    // 'TestString'.
 
     // DATA
     my_ModifyingVisitor d_visitor;  // implementation of visitor
 
   public:
     // CREATORS
+
+    /// Modifies the value of the variant visited to the value at the
+    /// specified `valueIdx` in the test data.
     explicit my_NonReturningVisitor(int valueIdx)
-        // Modifies the value of the variant visited to the value at the
-        // specified 'valueIdx' in the test data.
     : d_visitor(valueIdx)
     {
     }
@@ -1657,12 +1669,12 @@ class my_NonReturningVisitor {
                           // class my_ReturningVisitor
                           // =========================
 
+/// This class modifies the value of the variant according to the type of
+/// object being passed in and returns the type index of the type modified.
+/// Furthermore, this class specifies its `operator()`s return type with a
+/// `typedef` of `ResultType`.  This visitor only supports 4 types: `int`,
+/// `TestInt`, `bsl::string`, and `TestString`.
 class my_ReturningVisitor : public my_NonReturningVisitor {
-    // This class modifies the value of the variant according to the type of
-    // object being passed in and returns the type index of the type modified.
-    // Furthermore, this class specifies its 'operator()'s return type with a
-    // 'typedef' of 'ResultType'.  This visitor only supports 4 types: 'int',
-    // 'TestInt', 'bsl::string', and 'TestString'.
 
   public:
     // PUBLIC TYPES
@@ -1680,19 +1692,20 @@ class my_ReturningVisitor : public my_NonReturningVisitor {
                           // class my_ConstVisitor
                           // =====================
 
+/// This class simply verifies the values being passed to the visitor.  This
+/// visitor only supports 4 types: `int`, `TestInt`, `bsl::string`, and
+/// `TestString`.
 class my_ConstVisitor {
-    // This class simply verifies the values being passed to the visitor.  This
-    // visitor only supports 4 types: 'int', 'TestInt', 'bsl::string', and
-    // 'TestString'.
 
     // DATA
     int d_valueIdx;  // value index
 
   public:
     // CREATORS
+
+    /// Verifies the value of the variant visited corresponds to the value
+    /// at the specified `valueIdx` in the test data.
     explicit my_ConstVisitor(int valueIdx)
-        // Verifies the value of the variant visited corresponds to the value
-        // at the specified 'valueIdx' in the test data.
     : d_valueIdx(valueIdx)
     {
     }
@@ -1730,12 +1743,12 @@ class my_ConstVisitor {
                           // class my_ConstReturningVisitor
                           // ==============================
 
+/// This class simply verifies the values being passed to the visitor and
+/// returns the type of the value.  Furthermore, this class specifies its
+/// `operator()`s return type with a `typedef` of `ResultType`.  This
+/// visitor only supports 4 types: `int`, `TestInt`, `bsl::string`, and
+/// `TestString`.
 class my_ConstReturningVisitor {
-    // This class simply verifies the values being passed to the visitor and
-    // returns the type of the value.  Furthermore, this class specifies its
-    // 'operator()'s return type with a 'typedef' of 'ResultType'.  This
-    // visitor only supports 4 types: 'int', 'TestInt', 'bsl::string', and
-    // 'TestString'.
 
   public:
     // PUBLIC TYPES
@@ -1747,9 +1760,10 @@ class my_ConstReturningVisitor {
 
   public:
     // CREATORS
+
+    /// Verifies the value of the variant visited corresponds to the value
+    /// at the specified `valueIdx` in the test data.
     explicit my_ConstReturningVisitor(int valueIdx)
-        // Verifies the value of the variant visited corresponds to the value
-        // at the specified 'valueIdx' in the test data.
     : d_valueIdx(valueIdx)
     {
     }
@@ -1792,21 +1806,21 @@ class my_ConstReturningVisitor {
                           // class my_UnsetVariantVisitor
                           // ============================
 
+/// This class simply records the type of value passed to the visitor.
 class my_UnsetVariantVisitor {
-    // This class simply records the type of value passed to the visitor.
 
   public:
     // PUBLIC TYPES
     enum VisitType {
         BSLMF_NIL,  // variant is unset, no default value supplied
-        TEST_ARG,   // variant is unset, 'TestArg<1>' default value supplied
+        TEST_ARG,   // variant is unset, `TestArg<1>` default value supplied
         GENERIC,    // variant is set
         NOT_VISITED
     };
 
   private:
     // DATA
-    mutable VisitType d_lastType;  // records last type passed to 'operator()'
+    mutable VisitType d_lastType;  // records last type passed to `operator()`
 
   public:
     // CREATORS
@@ -1872,10 +1886,10 @@ class my_UnsetVariantVisitor {
                           // class my_UnsetVariantReturningVisitor
                           // =====================================
 
+/// This class simply records the type of value passed to the visitor.
+/// Furthermore, this class specifies its `operator()`s return type with a
+/// `typedef` of `ResultType`.
 class my_UnsetVariantReturningVisitor : public my_UnsetVariantVisitor {
-    // This class simply records the type of value passed to the visitor.
-    // Furthermore, this class specifies its 'operator()'s return type with a
-    // 'typedef' of 'ResultType'.
 
   public:
     // PUBLIC TYPES
@@ -1893,10 +1907,10 @@ class my_UnsetVariantReturningVisitor : public my_UnsetVariantVisitor {
                         // class my_NilAssertVisitor
                         // =========================
 
+/// This class is crafted to reproduce "The variable nil has not yet been
+/// assigned a value" warning on Solaris, where "nil" refers to an object in
+/// the `bdlb::VariantImp::apply` method.
 class my_NilAssertVisitor {
-    // This class is crafted to reproduce "The variable nil has not yet been
-    // assigned a value" warning on Solaris, where "nil" refers to an object in
-    // the 'bdlb::VariantImp::apply' method.
 
     void *d_result_p;
 
@@ -1928,9 +1942,9 @@ void dummyConvert(void *result, const bdlb::Variant<int>& value)
                           // struct ReturningVisitorBase
                           // ===========================
 
+/// This struct, containing necessary common data and accessors, is the
+/// basis for visitors, returning references.
 struct ReturningVisitorBase {
-    // This struct, containing necessary common data and accessors, is the
-    // basis for visitors, returning references.
 
   public:
     // TYPES
@@ -1940,28 +1954,29 @@ struct ReturningVisitorBase {
     int d_int;                          // value for reference initialization
 
     int d_intOperatorNumCalled;         // flag indicating that operator
-                                        // accepting 'int' reference has been
+                                        // accepting `int` reference has been
                                         // called
 
     int d_testIntOperatorNumCalled;     // number of times that operator
-                                        // accepting 'TestInt' reference has
+                                        // accepting `TestInt` reference has
                                         // been called
 
     int d_stringOperatorNumCalled;      // number of times that operator
-                                        // accepting 'bsl::string' reference
+                                        // accepting `bsl::string` reference
                                         // has been called
 
     int d_testStringOperatorNumCalled;  // number of times that operator
-                                        // accepting 'TestString' reference has
+                                        // accepting `TestString` reference has
                                         // been called
 
     int d_nilOperatorNumCalled;         // number of times that operator
-                                        // accepting 'bslmf::Nil' object has
+                                        // accepting `bslmf::Nil` object has
                                         // been called
 
     // CREATORS
+
+    /// Create a `ReturningVisitorBase` object, having default value.
     ReturningVisitorBase()
-        // Create a 'ReturningVisitorBase' object, having default value.
     : d_int(0)
     , d_intOperatorNumCalled(0)
     , d_testIntOperatorNumCalled(0)
@@ -1970,9 +1985,9 @@ struct ReturningVisitorBase {
     , d_nilOperatorNumCalled(0)
     {}
 
+    /// Create a `ReturningVisitorBase` object, having the specified
+    /// `value`.
     explicit ReturningVisitorBase(int value)
-        // Create a 'ReturningVisitorBase' object, having the specified
-        // 'value'.
     : d_int(value)
     , d_intOperatorNumCalled(0)
     , d_testIntOperatorNumCalled(0)
@@ -1982,37 +1997,38 @@ struct ReturningVisitorBase {
     {}
 
     // ACCESSORS
+
+    /// Return the number of times the operator accepting constant referense
+    /// to `int` object was called.
     int intOperatorNumCalled() const
-        // Return the number of times the operator accepting constant referense
-        // to 'int' object was called.
     {
         return d_intOperatorNumCalled;
     }
 
+    /// Return the number of times the operator accepting `bslmf::Nil`
+    /// object was called.
     int nilOperatorNumCalled() const
-        // Return the number of times the operator accepting 'bslmf::Nil'
-        // object was called.
     {
         return d_nilOperatorNumCalled;
     }
 
+    /// Return the number of times the operator accepting constant referense
+    /// to `bsl::string` object was called.
     int stringOperatorNumCalled() const
-        // Return the number of times the operator accepting constant referense
-        // to 'bsl::string' object was called.
     {
         return d_stringOperatorNumCalled;
     }
 
+    /// Return the number of times the operator accepting constant referense
+    /// to `TestInt` object was called.
     int testIntOperatorNumCalled() const
-        // Return the number of times the operator accepting constant referense
-        // to 'TestInt' object was called.
     {
         return d_testIntOperatorNumCalled;
     }
 
+    /// Return the number of times the operator accepting constant referense
+    /// to `TestString` object was called.
     int testStringOperatorNumCalled() const
-        // Return the number of times the operator accepting constant referense
-        // to 'TestString' object was called.
     {
         return d_testStringOperatorNumCalled;
     }
@@ -2030,62 +2046,64 @@ struct ReturningVisitorBase {
                           // class RefReturningVisitor
                           // =========================
 
+/// This class simply verifies that returning lvalue reference visitor can
+/// be applied to the `bdlb::Variant` object.  This visitor only supports 4
+/// types: `int`, `TestInt`, `bsl::string`, and `TestString`.
 class RefReturningVisitor : public ReturningVisitorBase {
-    // This class simply verifies that returning lvalue reference visitor can
-    // be applied to the 'bdlb::Variant' object.  This visitor only supports 4
-    // types: 'int', 'TestInt', 'bsl::string', and 'TestString'.
 
   public:
     // TYPES
     typedef int& VisitorResultType;
 
     // CREATORS
+
+    /// Create a `ReturningVisitorBase` object, having default value.
     explicit RefReturningVisitor()
-        // Create a 'ReturningVisitorBase' object, having default value.
     {}
 
+    /// Create a `RefReturningVisitor` object, having the specified `value`.
     explicit RefReturningVisitor(int value)
-        // Create a 'RefReturningVisitor' object, having the specified 'value'.
     : ReturningVisitorBase(value)
     {
     }
 
     // MANIPULATORS
+
+    /// Set appropriate boolean flag and return a reference providing
+    /// modifiable access to the value of this object.
     int& operator()(const int&)
-        // Set appropriate boolean flag and return a reference providing
-        // modifiable access to the value of this object.
     {
         ++d_intOperatorNumCalled;
         return d_int;
     }
 
+    /// Set appropriate boolean flag and return a reference providing
+    /// modifiable access to the value of this object.
     int& operator()(const TestInt&)
-        // Set appropriate boolean flag and return a reference providing
-        // modifiable access to the value of this object.
     {
         ++d_testIntOperatorNumCalled;
         return d_int;
     }
 
+    /// Set appropriate boolean flag and return a reference providing
+    /// modifiable access to the value of this object.
     int& operator()(const bsl::string&)
-        // Set appropriate boolean flag and return a reference providing
-        // modifiable access to the value of this object.
     {
         ++d_stringOperatorNumCalled;
         return d_int;
     }
 
+    /// Set appropriate boolean flag and return a reference providing
+    /// modifiable access to the value of this object.
     int& operator()(const TestString&)
-        // Set appropriate boolean flag and return a reference providing
-        // modifiable access to the value of this object.
     {
         ++d_testStringOperatorNumCalled;
         return d_int;
     }
 
+    /// Set appropriate boolean flag and return a reference providing
+    /// modifiable access to the value of this object.
     int& operator()(bslmf::Nil)
-        // Set appropriate boolean flag and return a reference providing
-        // modifiable access to the value of this object.
     {
         ++d_nilOperatorNumCalled;
         return d_int;
@@ -2098,62 +2116,64 @@ class RefReturningVisitor : public ReturningVisitorBase {
                           // class ConstRefReturningVisitor
                           // ==============================
 
+/// This class simply verifies that returning constant lvalue reference
+/// visitor can be applied to the `bdlb::Variant` object.  This visitor only
+/// supports 4 types: `int`, `TestInt`, `bsl::string`, and `TestString`.
 class ConstRefReturningVisitor : public ReturningVisitorBase {
-    // This class simply verifies that returning constant lvalue reference
-    // visitor can be applied to the 'bdlb::Variant' object.  This visitor only
-    // supports 4 types: 'int', 'TestInt', 'bsl::string', and 'TestString'.
 
   public:
     // TYPES
     typedef const int& VisitorResultType;
 
     // CREATORS
+
+    /// Create a `ReturningVisitorBase` object, having default value.
     ConstRefReturningVisitor()
-        // Create a 'ReturningVisitorBase' object, having default value.
     {}
 
+    /// Create a `ConstRefReturningVisitor` object, having the specified
+    /// `value`.
     explicit ConstRefReturningVisitor(int value)
-        // Create a 'ConstRefReturningVisitor' object, having the specified
-        // 'value'.
     : ReturningVisitorBase(value)
     {}
 
     // MANIPULATORS
+
+    /// Set appropriate boolean flag and return a reference providing
+    /// non-modifiable access to the value of this object.
     const int& operator()(const int&)
-        // Set appropriate boolean flag and return a reference providing
-        // non-modifiable access to the value of this object.
     {
         ++d_intOperatorNumCalled;
         return d_int;
     }
 
+    /// Set appropriate boolean flag and return a reference providing
+    /// non-modifiable access to the value of this object.
     const int& operator()(const TestInt&)
-        // Set appropriate boolean flag and return a reference providing
-        // non-modifiable access to the value of this object.
     {
         ++d_testIntOperatorNumCalled;
         return d_int;
     }
 
+    /// Set appropriate boolean flag and return a reference providing
+    /// non-modifiable access to the value of this object.
     const int& operator()(const bsl::string&)
-        // Set appropriate boolean flag and return a reference providing
-        // non-modifiable access to the value of this object.
     {
         ++d_stringOperatorNumCalled;
         return d_int;
     }
 
+    /// Set appropriate boolean flag and return a reference providing
+    /// non-modifiable access to the value of this object.
     const int& operator()(const TestString&)
-        // Set appropriate boolean flag and return a reference providing
-        // non-modifiable access to the value of this object.
     {
         ++d_testStringOperatorNumCalled;
         return d_int;
     }
 
+    /// Set appropriate boolean flag and return a reference providing
+    /// non-modifiable access to the value of this object.
     const int& operator()(bslmf::Nil)
-        // Set appropriate boolean flag and return a reference providing
-        // non-modifiable access to the value of this object.
     {
         ++d_nilOperatorNumCalled;
         return d_int;
@@ -2166,62 +2186,64 @@ class ConstRefReturningVisitor : public ReturningVisitorBase {
                         // class RvalueRefReturningVisitor
                         // ===============================
 
+/// This class simply verifies that returning rvalue reference visitor can
+/// be applied to the `bdlb::Variant` object.  This visitor only supports 4
+/// types: `int`, `TestInt`, `bsl::string`, and `TestString`.
 class RvalueRefReturningVisitor : public ReturningVisitorBase {
-    // This class simply verifies that returning rvalue reference visitor can
-    // be applied to the 'bdlb::Variant' object.  This visitor only supports 4
-    // types: 'int', 'TestInt', 'bsl::string', and 'TestString'.
 
   public:
     // TYPES
     typedef int&& VisitorResultType;
 
     // CREATORS
+
+    /// Create a `ReturningVisitorBase` object, having default value.
     RvalueRefReturningVisitor()
-        // Create a 'ReturningVisitorBase' object, having default value.
     {}
 
+    /// Create a `RvalueRefReturningVisitor` object, having the specified
+    /// `value`.
     explicit RvalueRefReturningVisitor(int value)
-        // Create a 'RvalueRefReturningVisitor' object, having the specified
-        // 'value'.
     : ReturningVisitorBase(value)
     {}
 
     // MANIPULATORS
+
+    /// Set appropriate boolean flag and return a rvalue reference providing
+    /// modifiable access to the value of this object.
     int&& operator()(const int&)
-        // Set appropriate boolean flag and return a rvalue reference providing
-        // modifiable access to the value of this object.
     {
         ++d_intOperatorNumCalled;
         return MoveUtil::move(d_int);
     }
 
+    /// Set appropriate boolean flag and return a rvalue reference providing
+    /// modifiable access to the value of this object.
     int&& operator()(const TestInt&)
-        // Set appropriate boolean flag and return a rvalue reference providing
-        // modifiable access to the value of this object.
     {
         ++d_testIntOperatorNumCalled;
         return MoveUtil::move(d_int);
     }
 
+    /// Set appropriate boolean flag and return a rvalue reference providing
+    /// modifiable access to the value of this object.
     int&& operator()(const bsl::string&)
-        // Set appropriate boolean flag and return a rvalue reference providing
-        // modifiable access to the value of this object.
     {
         ++d_stringOperatorNumCalled;
         return MoveUtil::move(d_int);
     }
 
+    /// Set appropriate boolean flag and return a rvalue reference providing
+    /// modifiable access to the value of this object.
     int&& operator()(const TestString&)
-        // Set appropriate boolean flag and return a rvalue reference providing
-        // modifiable access to the value of this object.
     {
         ++d_testStringOperatorNumCalled;
         return MoveUtil::move(d_int);
     }
 
+    /// Set appropriate boolean flag and return a rvalue reference providing
+    /// modifiable access to the value of this object.
     int&& operator()(bslmf::Nil)
-        // Set appropriate boolean flag and return a rvalue reference providing
-        // modifiable access to the value of this object.
     {
         ++d_nilOperatorNumCalled;
         return MoveUtil::move(d_int);
@@ -2234,62 +2256,64 @@ class RvalueRefReturningVisitor : public ReturningVisitorBase {
                        // class ConstRvalueRefReturningVisitor
                        // ====================================
 
+/// This class simply verifies that returning constant rvalue reference
+/// visitor can be applied to the `bdlb::Variant` object.  This visitor only
+/// supports 4 types: `int`, `TestInt`, `bsl::string`, and `TestString`.
 class ConstRvalueRefReturningVisitor : public ReturningVisitorBase {
-    // This class simply verifies that returning constant rvalue reference
-    // visitor can be applied to the 'bdlb::Variant' object.  This visitor only
-    // supports 4 types: 'int', 'TestInt', 'bsl::string', and 'TestString'.
 
   public:
     // TYPES
     typedef const int&& VisitorResultType;
 
     // CREATORS
+
+    /// Create a `ReturningVisitorBase` object, having default value.
     ConstRvalueRefReturningVisitor()
-        // Create a 'ReturningVisitorBase' object, having default value.
     {}
 
+    /// Create a `ConstRvalueRefReturningVisitor` object, having the
+    /// specified `value`.
     explicit ConstRvalueRefReturningVisitor(int value)
-        // Create a 'ConstRvalueRefReturningVisitor' object, having the
-        // specified 'value'.
     : ReturningVisitorBase(value)
     {}
 
     // MANIPULATORS
+
+    /// Set appropriate boolean flag and return a rvalue reference providing
+    /// non-modifiable access to the value of this object.
     const int&& operator()(const int&)
-        // Set appropriate boolean flag and return a rvalue reference providing
-        // non-modifiable access to the value of this object.
     {
         ++d_intOperatorNumCalled;
         return MoveUtil::move(d_int);
     }
 
+    /// Set appropriate boolean flag and return a rvalue reference providing
+    /// non-modifiable access to the value of this object.
     const int&& operator()(const TestInt&)
-        // Set appropriate boolean flag and return a rvalue reference providing
-        // non-modifiable access to the value of this object.
     {
         ++d_testIntOperatorNumCalled;
         return MoveUtil::move(d_int);
     }
 
+    /// Set appropriate boolean flag and return a rvalue reference providing
+    /// non-modifiable access to the value of this object.
     const int&& operator()(const bsl::string&)
-        // Set appropriate boolean flag and return a rvalue reference providing
-        // non-modifiable access to the value of this object.
     {
         ++d_stringOperatorNumCalled;
         return MoveUtil::move(d_int);
     }
 
+    /// Set appropriate boolean flag and return a rvalue reference providing
+    /// non-modifiable access to the value of this object.
     const int&& operator()(const TestString&)
-        // Set appropriate boolean flag and return a rvalue reference providing
-        // non-modifiable access to the value of this object.
     {
         ++d_testStringOperatorNumCalled;
         return MoveUtil::move(d_int);
     }
 
+    /// Set appropriate boolean flag and return a rvalue reference providing
+    /// non-modifiable access to the value of this object.
     const int&& operator()(bslmf::Nil)
-        // Set appropriate boolean flag and return a rvalue reference providing
-        // non-modifiable access to the value of this object.
     {
         ++d_nilOperatorNumCalled;
         return MoveUtil::move(d_int);
@@ -2302,23 +2326,24 @@ class ConstRvalueRefReturningVisitor : public ReturningVisitorBase {
                      // class ResultTypeRefReturningVisitor
                      // ===================================
 
+/// This class is completely identical to the `RefReturningVisitor`, except
+/// the additionally declared `ResultType`.
 class ResultTypeRefReturningVisitor : public RefReturningVisitor {
-    // This class is completely identical to the 'RefReturningVisitor', except
-    // the additionally declared 'ResultType'.
 
   public:
     //TYPES
     typedef int& ResultType;
 
     // CREATORS
+
+    /// Create a `ResultTypeRefReturningVisitor` object, having default
+    /// value.
     ResultTypeRefReturningVisitor()
-        // Create a 'ResultTypeRefReturningVisitor' object, having default
-        // value.
     {}
 
+    /// Create a `ResultTypeRefReturningVisitor` object, having the
+    /// specified `value`.
     explicit ResultTypeRefReturningVisitor(int value)
-        // Create a 'ResultTypeRefReturningVisitor' object, having the
-        // specified 'value'.
     : RefReturningVisitor(value)
     {}
 };
@@ -2328,23 +2353,24 @@ class ResultTypeRefReturningVisitor : public RefReturningVisitor {
                   // class ResultTypeConstRefReturningVisitor
                   // ========================================
 
+/// This class is completely identical to the `ConstRefReturningVisitor`,
+/// except the additionally declared `ResultType`.
 class ResultTypeConstRefReturningVisitor : public ConstRefReturningVisitor {
-    // This class is completely identical to the 'ConstRefReturningVisitor',
-    // except the additionally declared 'ResultType'.
 
   public:
     // TYPES
     typedef const int& ResultType;
 
     // CREATORS
+
+    /// Create a `ResultTypeConstRefReturningVisitor` object, having default
+    /// value.
     ResultTypeConstRefReturningVisitor()
-        // Create a 'ResultTypeConstRefReturningVisitor' object, having default
-        // value.
     {}
 
+    /// Create a `ResultTypeConstRefReturningVisitor` object, having the
+    /// specified `value`.
     explicit ResultTypeConstRefReturningVisitor(int value)
-        // Create a 'ResultTypeConstRefReturningVisitor' object, having the
-        // specified 'value'.
     : ConstRefReturningVisitor(value)
     {}
 };
@@ -2355,23 +2381,24 @@ class ResultTypeConstRefReturningVisitor : public ConstRefReturningVisitor {
                   // class ResultTypeRvalueRefReturningVisitor
                   // =========================================
 
+/// This class is completely identical to the `RvalueRefReturningVisitor`,
+/// except the additionally declared `ResultType`.
 class ResultTypeRvalueRefReturningVisitor : public RvalueRefReturningVisitor {
-    // This class is completely identical to the 'RvalueRefReturningVisitor',
-    // except the additionally declared 'ResultType'.
 
   public:
     // TYPES
     typedef int&& ResultType;
 
     // CREATORS
+
+    /// Create a `ResultTypeRvalueRefReturningVisitor` object, having
+    /// default value.
     ResultTypeRvalueRefReturningVisitor()
-        // Create a 'ResultTypeRvalueRefReturningVisitor' object, having
-        // default value.
     {}
 
+    /// Create a `ResultTypeRvalueRefReturningVisitor` object, having the
+    /// specified `value`.
     explicit ResultTypeRvalueRefReturningVisitor(int value)
-        // Create a 'ResultTypeRvalueRefReturningVisitor' object, having the
-        // specified 'value'.
     : RvalueRefReturningVisitor(value)
     {}
 };
@@ -2382,25 +2409,26 @@ class ResultTypeRvalueRefReturningVisitor : public RvalueRefReturningVisitor {
                 // class ResultTypeConstRvalueRefReturningVisitor
                 // ==============================================
 
+/// This class is completely identical to the
+/// `ConstRvalueRefReturningVisitor`, except the additionally declared
+/// `ResultType`.
 class ResultTypeConstRvalueRefReturningVisitor :
                                         public ConstRvalueRefReturningVisitor {
-    // This class is completely identical to the
-    // 'ConstRvalueRefReturningVisitor', except the additionally declared
-    // 'ResultType'.
 
   public:
     // TYPES
     typedef const int&& ResultType;
 
     // CREATORS
+
+    /// Create a `ResultTypeConstRvalueRefReturningVisitor` object, having
+    /// default value.
     ResultTypeConstRvalueRefReturningVisitor()
-        // Create a 'ResultTypeConstRvalueRefReturningVisitor' object, having
-        // default value.
     {}
 
+    /// Create a `ResultTypeConstRvalueRefReturningVisitor` object, having
+    /// the specified `value`.
     explicit ResultTypeConstRvalueRefReturningVisitor(int value)
-        // Create a 'ResultTypeConstRvalueRefReturningVisitor' object, having
-        // the specified 'value'.
     : ConstRvalueRefReturningVisitor(value)
     {}
 };
@@ -2411,12 +2439,12 @@ class ResultTypeConstRvalueRefReturningVisitor :
                           // class my_VariantWrapper
                           // =======================
 
+/// This class wraps a variant object.  It also implements a similar `apply`
+/// interface as `bdlb::VariantImp` that is used to keep track of which
+/// `apply` method is invoked.  A reference to the wrapped variant object is
+/// accessible through `theVariant` method.
 template <class VARIANT>
 class my_VariantWrapper {
-    // This class wraps a variant object.  It also implements a similar 'apply'
-    // interface as 'bdlb::VariantImp' that is used to keep track of which
-    // 'apply' method is invoked.  A reference to the wrapped variant object is
-    // accessible through 'theVariant' method.
 
   public:
     // PUBLIC TYPES
@@ -2440,29 +2468,32 @@ class my_VariantWrapper {
 
   public:
     // CLASS METHODS
+
+    /// Return the maximum supported version number of this type (currently
+    /// 2).
     static int maxSupportedBdexVersion();
-        // Return the maximum supported version number of this type (currently
-        // 2).
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(my_VariantWrapper,
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
-    explicit my_VariantWrapper(bslma::Allocator *basicAllocator = 0);
-        // Create a wrapper around an unset variant object.
 
+    /// Create a wrapper around an unset variant object.
+    explicit my_VariantWrapper(bslma::Allocator *basicAllocator = 0);
+
+    /// Create a wrapper around the specified `object`.
     explicit my_VariantWrapper(const VARIANT&    object,
                                bslma::Allocator *basicAllocator = 0);
-        // Create a wrapper around the specified 'object'.
 
+    /// Destroy this wrapper object.
     ~my_VariantWrapper();
-        // Destroy this wrapper object.
 
     // MANIPULATORS
+
+    /// Return a reference providing modifiable access to the variant object
+    /// held by this wrapper.
     VARIANT& variant();
-        // Return a reference providing modifiable access to the variant object
-        // held by this wrapper.
 
     template <class VISITOR>
     typename bsl::enable_if<
@@ -2528,18 +2559,20 @@ class my_VariantWrapper {
     RET_TYPE apply(VISITOR& visitor);
     template <class RET_TYPE, class VISITOR>
     RET_TYPE apply(const VISITOR& visitor);
+
+    /// Wrappers around the `apply` method of `bdlb::Variant`.  Records
+    /// which visit method is invoked.
     template <class RET_TYPE, class VISITOR>
     RET_TYPE applyRaw(const VISITOR& visitor);
-        // Wrappers around the 'apply' method of 'bdlb::Variant'.  Records
-        // which visit method is invoked.
 
     // ACCESSORS
-    VisitType lastVisited() const { return d_lastVisitCall; }
-        // Return the last visitor method invoked on this variant wrapper.
 
+    /// Return the last visitor method invoked on this variant wrapper.
+    VisitType lastVisited() const { return d_lastVisitCall; }
+
+    /// Return a reference providing non-modifiable access to the variant
+    /// object held by this wrapper.
     const VARIANT& variant() const;
-        // Return a reference providing non-modifiable access to the variant
-        // object held by this wrapper.
 
     template <class VISITOR>
     typename bsl::enable_if<
@@ -2605,36 +2638,41 @@ class my_VariantWrapper {
     RET_TYPE apply(VISITOR& visitor) const;
     template <class RET_TYPE, class VISITOR>
     RET_TYPE apply(const VISITOR& visitor) const;
+
+    /// Wrappers around the `apply` method of `bdlb::Variant`.  Records
+    /// which visit method is invoked.
     template <class RET_TYPE, class VISITOR>
     RET_TYPE applyRaw(const VISITOR& visitor) const;
-        // Wrappers around the 'apply' method of 'bdlb::Variant'.  Records
-        // which visit method is invoked.
 
+    /// Assign to this object the value read from the specified input
+    /// `stream` using the specified `version` format and return a reference
+    /// to the modifiable `stream`.  If `stream` is initially invalid, this
+    /// operation has no effect.  If `stream` becomes invalid during this
+    /// operation, this object is valid, but its value is undefined.  If
+    /// `version` is not supported, `stream` is marked invalid and this
+    /// object is unaltered.  Note that no version is read from `stream`.
+    /// See the `bslx` package-level documentation for more information on
+    /// BDEX streaming of value-semantic types and containers.
     template <class STREAM>
     STREAM& bdexStreamIn(STREAM& stream, int version);
-        // Assign to this object the value read from the specified input
-        // 'stream' using the specified 'version' format and return a reference
-        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'stream' becomes invalid during this
-        // operation, this object is valid, but its value is undefined.  If
-        // 'version' is not supported, 'stream' is marked invalid and this
-        // object is unaltered.  Note that no version is read from 'stream'.
-        // See the 'bslx' package-level documentation for more information on
-        // BDEX streaming of value-semantic types and containers.
 
+    /// Write this value to the specified output `stream` using the
+    /// specified `version` format and return a reference to the modifiable
+    /// `stream`.  Note that `version` is *not* used for the `bdlb::Variant`
+    /// object, but for the contained object, and thus has a different
+    /// meaning (and different value) depending on the variant type.  See
+    /// the `bslx` package-level documentation for more information on
+    /// BDEX streaming of value-semantic types and containers, and the
+    /// section "BDEX Streamability" in the component-level documentation.
     template <class STREAM>
     STREAM& bdexStreamOut(STREAM& stream, int version) const;
-        // Write this value to the specified output 'stream' using the
-        // specified 'version' format and return a reference to the modifiable
-        // 'stream'.  Note that 'version' is *not* used for the 'bdlb::Variant'
-        // object, but for the contained object, and thus has a different
-        // meaning (and different value) depending on the variant type.  See
-        // the 'bslx' package-level documentation for more information on
-        // BDEX streaming of value-semantic types and containers, and the
-        // section "BDEX Streamability" in the component-level documentation.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the (variant object wrapped by the) specified `lhs` has
+/// the same value as the (variant object wrapped by the) specified `rhs`,
+/// and `false` otherwise.
 template <class VARIANT>
 bool operator==(const my_VariantWrapper<VARIANT>& lhs,
                 const my_VariantWrapper<VARIANT>& rhs);
@@ -2644,10 +2682,10 @@ bool operator==(const VARIANT&                    lhs,
 template <class VARIANT>
 bool operator==(const my_VariantWrapper<VARIANT>& lhs,
                 const VARIANT&                    rhs);
-    // Return 'true' if the (variant object wrapped by the) specified 'lhs' has
-    // the same value as the (variant object wrapped by the) specified 'rhs',
-    // and 'false' otherwise.
 
+/// Return `true` if the (variant object wrapped by the) specified `lhs`
+/// does not have the same value as the (variant object wrapped by the)
+/// specified `rhs`, and `false` otherwise.
 template <class VARIANT>
 bool operator!=(const my_VariantWrapper<VARIANT>& lhs,
                 const my_VariantWrapper<VARIANT>& rhs);
@@ -2657,9 +2695,6 @@ bool operator!=(const VARIANT&                    lhs,
 template <class VARIANT>
 bool operator!=(const my_VariantWrapper<VARIANT>& lhs,
                 const VARIANT&                    rhs);
-    // Return 'true' if the (variant object wrapped by the) specified 'lhs'
-    // does not have the same value as the (variant object wrapped by the)
-    // specified 'rhs', and 'false' otherwise.
 
 // CLASS METHODS
 template <class VARIANT>
@@ -2847,21 +2882,21 @@ operator<<(bsl::ostream& stream, const my_VariantWrapper<VARIANT>& rhs)
 }
 
 // ============================================================================
-//              GENERATOR FUNCTIONS 'g' AND 'gg' FOR TESTING
+//              GENERATOR FUNCTIONS `g` AND `gg` FOR TESTING
 // ----------------------------------------------------------------------------
-// The following functions interpret the given 'spec' in order from left to
+// The following functions interpret the given `spec` in order from left to
 // right to configure the object according to a custom language.  Uppercase
-// letters '[A .. E]' correspond to arbitrary (but unique) 'int' values to be
-// assigned to the 'bdlb::Variant' object (thus of type 'INT_TYPE').  Uppercase
-// letters '[F .. J]' correspond to arbitrary (but unique) 'TestInt' values to
-// be assigned to the 'bdlb::Variant' object (thus of type 'TEST_INT_TYPE').
-// Uppercase letters '[S .. W]' correspond to arbitrary (but unique) 'string'
-// values to be assigned to the 'bdlb::Variant' object (thus of type
-// 'STRING_TYPE').  Uppercase letters '[K .. O]' correspond to arbitrary (but
-// unique) 'TestString' values to be assigned to the 'bdlb::Variant' object
-// (thus of type 'TEST_STRING_TYPE').  Uppercase letter 'Z' corresponds to an
-// object of type 'TestVoid'.  A tilde ('~') indicates that the value of the
-// object is to be set to its initial, unset state (via the 'reset' method).
+// letters `[A .. E]` correspond to arbitrary (but unique) `int` values to be
+// assigned to the `bdlb::Variant` object (thus of type `INT_TYPE`).  Uppercase
+// letters `[F .. J]` correspond to arbitrary (but unique) `TestInt` values to
+// be assigned to the `bdlb::Variant` object (thus of type `TEST_INT_TYPE`).
+// Uppercase letters `[S .. W]` correspond to arbitrary (but unique) `string`
+// values to be assigned to the `bdlb::Variant` object (thus of type
+// `STRING_TYPE`).  Uppercase letters `[K .. O]` correspond to arbitrary (but
+// unique) `TestString` values to be assigned to the `bdlb::Variant` object
+// (thus of type `TEST_STRING_TYPE`).  Uppercase letter `Z` corresponds to an
+// object of type `TestVoid`.  A tilde ('~') indicates that the value of the
+// object is to be set to its initial, unset state (via the `reset` method).
 //
 // LANGUAGE SPECIFICATION
 // ----------------------
@@ -2891,13 +2926,13 @@ operator<<(bsl::ostream& stream, const my_VariantWrapper<VARIANT>& rhs)
 //
 // ----------------------------------------------------------------------------
 
+/// Configure the specified `object` according to the specified `spec`,
+/// using only the primary manipulators `assign<>` and `reset`.  Optionally
+/// specify a `false` `verboseFlag` to suppress `spec` syntax error
+/// messages.  Return the index of the first invalid character, and a
+/// negative value otherwise.  Note that this function is used to implement
+/// `gg` as well as allow for verification of syntax error detection.
 int ggg(Obj *object, const char *spec, bool verboseFlag = true)
-    // Configure the specified 'object' according to the specified 'spec',
-    // using only the primary manipulators 'assign<>' and 'reset'.  Optionally
-    // specify a 'false' 'verboseFlag' to suppress 'spec' syntax error
-    // messages.  Return the index of the first invalid character, and a
-    // negative value otherwise.  Note that this function is used to implement
-    // 'gg' as well as allow for verification of syntax error detection.
 {
     ASSERT(object);
     ASSERT(spec);
@@ -2907,31 +2942,31 @@ int ggg(Obj *object, const char *spec, bool verboseFlag = true)
 
     for (; *input && continueParse; ++input) {
         switch (*input) {
-            // *** 'int' ***
+            // *** `int` ***
           case 'A': object->assign<int>(VA); break;
           case 'B': object->assign<int>(VB); break;
           case 'C': object->assign<int>(VC); break;
           case 'D': object->assign<int>(VD); break;
           case 'E': object->assign<int>(VE); break;
-            // *** 'TestInt' ***
+            // *** `TestInt` ***
           case 'F': object->assign<TestInt>(VF); break;
           case 'G': object->assign<TestInt>(VG); break;
           case 'H': object->assign<TestInt>(VH); break;
           case 'I': object->assign<TestInt>(VI); break;
           case 'J': object->assign<TestInt>(VJ); break;
-            // *** 'TestString' ***
+            // *** `TestString` ***
           case 'K': object->assign<TestString>(VK); break;
           case 'L': object->assign<TestString>(VL); break;
           case 'M': object->assign<TestString>(VM); break;
           case 'N': object->assign<TestString>(VN); break;
           case 'O': object->assign<TestString>(VO); break;
-            // *** 'bsl::string' ***
+            // *** `bsl::string` ***
           case 'S': object->assign<bsl::string>(VS); break;
           case 'T': object->assign<bsl::string>(VT); break;
           case 'U': object->assign<bsl::string>(VU); break;
           case 'V': object->assign<bsl::string>(VV); break;
           case 'W': object->assign<bsl::string>(VW); break;
-            // *** 'TestVoid' ***
+            // *** `TestVoid` ***
           case 'Z': object->assign<TestVoid>(TestVoid()); break;
             // *** reset ***
           case '~': object->reset(); break;
@@ -2953,10 +2988,10 @@ int ggg(Obj *object, const char *spec, bool verboseFlag = true)
     return -1;  // All input was consumed.
 }
 
+/// Return, by reference, the specified `object` with its value adjusted
+/// according to the specified `spec` according to the custom language
+/// described above.
 Obj& gg(Obj *object, const char *spec)
-    // Return, by reference, the specified 'object' with its value adjusted
-    // according to the specified 'spec' according to the custom language
-    // described above.
 {
     ASSERT(object);
     ASSERT(spec);
@@ -2965,9 +3000,9 @@ Obj& gg(Obj *object, const char *spec)
     return *object;
 }
 
+/// Return, by value, an object with its value adjusted according to the
+/// specified `spec` according to the custom language described above.
 Obj g(const char *spec)
-    // Return, by value, an object with its value adjusted according to the
-    // specified 'spec' according to the custom language described above.
 {
     ASSERT(spec);
 
@@ -2976,32 +3011,32 @@ Obj g(const char *spec)
 }
 
 // ============================================================================
-//             VISITORs Without a 'bslmf::Nil' Overload (case 20)
+//             VISITORs Without a `bslmf::Nil` Overload (case 20)
 // ----------------------------------------------------------------------------
 
 namespace visitorsWithoutNilOverload {
 
 const int EXPECTED_VISITOR_RETURN_VALUE = 7;
 
+/// This test visitor explicitly does not provide an overload for
+/// `bslmf::Nil`, and has a non-`void` `ResultType`.
 struct TestVisitorWithResultType {
-    // This test visitor explicitly does not provide an overload for
-    // 'bslmf::Nil', and has a non-'void' 'ResultType'.
 
     typedef int ResultType;
 
     ResultType operator()(int) const { return EXPECTED_VISITOR_RETURN_VALUE; }
 };
 
+/// This test visitor explicitly does not provide an overload for
+/// `bslmf::Nil`, returns `void`, and has no `ResultType`.
 struct TestVisitorWithoutResultType {
-    // This test visitor explicitly does not provide an overload for
-    // 'bslmf::Nil', returns 'void', and has no 'ResultType'.
 
     void operator()(int) const {}
 };
 
+/// This test visitor explicitly does not provide an overload for
+/// `bslmf::Nil`, returns `int`, and has no `ResultType`.
 struct TestVisitorWithUndeclaredResultType {
-    // This test visitor explicitly does not provide an overload for
-    // 'bslmf::Nil', returns 'int', and has no 'ResultType'.
 
      int operator()(int) const { return EXPECTED_VISITOR_RETURN_VALUE; }
 };
@@ -3009,12 +3044,12 @@ struct TestVisitorWithUndeclaredResultType {
 }  // close namespace visitorsWithoutNilOverload
 
 // ============================================================================
-//           Moving an Object Containing a 'const' Variant (case 27)
+//           Moving an Object Containing a `const` Variant (case 27)
 // ----------------------------------------------------------------------------
 
 namespace MOVING_OBJECT_CONTAINING_CONST_VARIANT {
 
-// types for testing 'VariantImp'
+// types for testing `VariantImp`
 
 namespace TYPES_FOR_TESTING_VARIANTIMP {
 
@@ -3023,12 +3058,12 @@ namespace TYPES_FOR_TESTING_VARIANTIMP {
     struct VariantHolder {
         typedef bdlb::VariantImp<bslmf::TypeList<TestArg1> > HeldVariant;
 
-        const HeldVariant d_variant;  // *must* be 'const'
+        const HeldVariant d_variant;  // *must* be `const`
         const int         d_id;
 
+        /// Create a `VariantHolder` object having the specified `arg1` and
+        /// `id`.
         VariantHolder(const TestArg1& arg1, int id)
-            // Create a 'VariantHolder' object having the specified 'arg1' and
-            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -3043,9 +3078,9 @@ namespace TYPES_FOR_TESTING_VARIANTIMP {
     typedef bdlb::VariantImp<bslmf::TypeList<bsl::string, TestArg2> >
                                                                   AllocVariant;
 
+    /// Return `true`.
     struct Comparator {
         bool operator()(const AllocVariant&, const AllocVariant&) const
-            // Return 'true'.
         {
             return true;
         }
@@ -3055,7 +3090,7 @@ namespace TYPES_FOR_TESTING_VARIANTIMP {
 
 }  // close namespace TYPES_FOR_TESTING_VARIANTIMP
 
-// types for testing 'Variant'
+// types for testing `Variant`
 
 namespace TYPES_FOR_TESTING_VARIANT {
 
@@ -3064,12 +3099,12 @@ namespace TYPES_FOR_TESTING_VARIANT {
     struct VariantHolder {
         typedef bdlb::Variant<TestArg1> HeldVariant;
 
-        const HeldVariant d_variant;  // *must* be 'const'
+        const HeldVariant d_variant;  // *must* be `const`
         const int         d_id;
 
+        /// Create a `VariantHolder` object having the specified `arg1` and
+        /// `id`.
         VariantHolder(const TestArg1& arg1, int id)
-            // Create a 'VariantHolder' object having the specified 'arg1' and
-            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -3082,9 +3117,9 @@ namespace TYPES_FOR_TESTING_VARIANT {
 
     typedef bdlb::Variant<bsl::string, TestArg2> AllocVariant;
 
+    /// Return `true`.
     struct Comparator {
         bool operator()(const AllocVariant&, const AllocVariant&) const
-            // Return 'true'.
         {
             return true;
         }
@@ -3094,7 +3129,7 @@ namespace TYPES_FOR_TESTING_VARIANT {
 
 }  // close namespace TYPES_FOR_TESTING_VARIANT
 
-// types for testing 'Variant2'
+// types for testing `Variant2`
 
 namespace TYPES_FOR_TESTING_VARIANT2 {
 
@@ -3103,12 +3138,12 @@ namespace TYPES_FOR_TESTING_VARIANT2 {
     struct VariantHolder {
         typedef bdlb::Variant2<TestArg1, TestArg2> HeldVariant;
 
-        const HeldVariant d_variant;  // *must* be 'const'
+        const HeldVariant d_variant;  // *must* be `const`
         const int         d_id;
 
+        /// Create a `VariantHolder` object having the specified `arg1` and
+        /// `id`.
         VariantHolder(const TestArg1& arg1, int id)
-            // Create a 'VariantHolder' object having the specified 'arg1' and
-            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -3121,9 +3156,9 @@ namespace TYPES_FOR_TESTING_VARIANT2 {
 
     typedef bdlb::Variant2<bsl::string, TestArg2> AllocVariant;
 
+    /// Return `true`.
     struct Comparator {
         bool operator()(const AllocVariant&, const AllocVariant&) const
-            // Return 'true'.
         {
             return true;
         }
@@ -3133,7 +3168,7 @@ namespace TYPES_FOR_TESTING_VARIANT2 {
 
 }  // close namespace TYPES_FOR_TESTING_VARIANT2
 
-// types for testing 'Variant3'
+// types for testing `Variant3`
 
 namespace TYPES_FOR_TESTING_VARIANT3 {
 
@@ -3142,12 +3177,12 @@ namespace TYPES_FOR_TESTING_VARIANT3 {
     struct VariantHolder {
         typedef bdlb::Variant3<TestArg1, TestArg2, TestArg3> HeldVariant;
 
-        const HeldVariant d_variant;  // *must* be 'const'
+        const HeldVariant d_variant;  // *must* be `const`
         const int         d_id;
 
+        /// Create a `VariantHolder` object having the specified `arg1` and
+        /// `id`.
         VariantHolder(const TestArg1& arg1, int id)
-            // Create a 'VariantHolder' object having the specified 'arg1' and
-            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -3160,9 +3195,9 @@ namespace TYPES_FOR_TESTING_VARIANT3 {
 
     typedef bdlb::Variant3<bsl::string, TestArg2, TestArg3> AllocVariant;
 
+    /// Return `true`.
     struct Comparator {
         bool operator()(const AllocVariant&, const AllocVariant&) const
-            // Return 'true'.
         {
             return true;
         }
@@ -3172,7 +3207,7 @@ namespace TYPES_FOR_TESTING_VARIANT3 {
 
 }  // close namespace TYPES_FOR_TESTING_VARIANT3
 
-// types for testing 'Variant4'
+// types for testing `Variant4`
 
 namespace TYPES_FOR_TESTING_VARIANT4 {
 
@@ -3182,12 +3217,12 @@ namespace TYPES_FOR_TESTING_VARIANT4 {
         typedef bdlb::Variant4<TestArg1, TestArg2, TestArg3, TestArg4>
                                                                    HeldVariant;
 
-        const HeldVariant d_variant;  // *must* be 'const'
+        const HeldVariant d_variant;  // *must* be `const`
         const int         d_id;
 
+        /// Create a `VariantHolder` object having the specified `arg1` and
+        /// `id`.
         VariantHolder(const TestArg1& arg1, int id)
-            // Create a 'VariantHolder' object having the specified 'arg1' and
-            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -3201,9 +3236,9 @@ namespace TYPES_FOR_TESTING_VARIANT4 {
     typedef bdlb::Variant4<bsl::string, TestArg2, TestArg3, TestArg4>
                                                                   AllocVariant;
 
+    /// Return `true`.
     struct Comparator {
         bool operator()(const AllocVariant&, const AllocVariant&) const
-            // Return 'true'.
         {
             return true;
         }
@@ -3213,7 +3248,7 @@ namespace TYPES_FOR_TESTING_VARIANT4 {
 
 }  // close namespace TYPES_FOR_TESTING_VARIANT4
 
-// types for testing 'Variant5'
+// types for testing `Variant5`
 
 namespace TYPES_FOR_TESTING_VARIANT5 {
 
@@ -3223,12 +3258,12 @@ namespace TYPES_FOR_TESTING_VARIANT5 {
         typedef bdlb::Variant5<TestArg1, TestArg2, TestArg3, TestArg4,
                                TestArg5> HeldVariant;
 
-        const HeldVariant d_variant;  // *must* be 'const'
+        const HeldVariant d_variant;  // *must* be `const`
         const int         d_id;
 
+        /// Create a `VariantHolder` object having the specified `arg1` and
+        /// `id`.
         VariantHolder(const TestArg1& arg1, int id)
-            // Create a 'VariantHolder' object having the specified 'arg1' and
-            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -3242,9 +3277,9 @@ namespace TYPES_FOR_TESTING_VARIANT5 {
     typedef bdlb::Variant5<bsl::string, TestArg2, TestArg3, TestArg4,
                            TestArg5> AllocVariant;
 
+    /// Return `true`.
     struct Comparator {
         bool operator()(const AllocVariant&, const AllocVariant&) const
-            // Return 'true'.
         {
             return true;
         }
@@ -3254,7 +3289,7 @@ namespace TYPES_FOR_TESTING_VARIANT5 {
 
 }  // close namespace TYPES_FOR_TESTING_VARIANT5
 
-// types for testing 'Variant6'
+// types for testing `Variant6`
 
 namespace TYPES_FOR_TESTING_VARIANT6 {
 
@@ -3264,12 +3299,12 @@ namespace TYPES_FOR_TESTING_VARIANT6 {
         typedef bdlb::Variant6<TestArg1, TestArg2, TestArg3, TestArg4,
                                TestArg5, TestArg6> HeldVariant;
 
-        const HeldVariant d_variant;  // *must* be 'const'
+        const HeldVariant d_variant;  // *must* be `const`
         const int         d_id;
 
+        /// Create a `VariantHolder` object having the specified `arg1` and
+        /// `id`.
         VariantHolder(const TestArg1& arg1, int id)
-            // Create a 'VariantHolder' object having the specified 'arg1' and
-            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -3283,9 +3318,9 @@ namespace TYPES_FOR_TESTING_VARIANT6 {
     typedef bdlb::Variant6<bsl::string, TestArg2, TestArg3, TestArg4,
                            TestArg5,    TestArg6> AllocVariant;
 
+    /// Return `true`.
     struct Comparator {
         bool operator()(const AllocVariant&, const AllocVariant&) const
-            // Return 'true'.
         {
             return true;
         }
@@ -3295,7 +3330,7 @@ namespace TYPES_FOR_TESTING_VARIANT6 {
 
 }  // close namespace TYPES_FOR_TESTING_VARIANT6
 
-// types for testing 'Variant7'
+// types for testing `Variant7`
 
 namespace TYPES_FOR_TESTING_VARIANT7 {
 
@@ -3305,12 +3340,12 @@ namespace TYPES_FOR_TESTING_VARIANT7 {
         typedef bdlb::Variant7<TestArg1, TestArg2, TestArg3, TestArg4,
                                TestArg5, TestArg6, TestArg7> HeldVariant;
 
-        const HeldVariant d_variant;  // *must* be 'const'
+        const HeldVariant d_variant;  // *must* be `const`
         const int         d_id;
 
+        /// Create a `VariantHolder` object having the specified `arg1` and
+        /// `id`.
         VariantHolder(const TestArg1& arg1, int id)
-            // Create a 'VariantHolder' object having the specified 'arg1' and
-            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -3324,9 +3359,9 @@ namespace TYPES_FOR_TESTING_VARIANT7 {
     typedef bdlb::Variant7<bsl::string, TestArg2, TestArg3, TestArg4,
                            TestArg5,    TestArg6, TestArg7> AllocVariant;
 
+    /// Return `true`.
     struct Comparator {
         bool operator()(const AllocVariant&, const AllocVariant&) const
-            // Return 'true'.
         {
             return true;
         }
@@ -3336,7 +3371,7 @@ namespace TYPES_FOR_TESTING_VARIANT7 {
 
 }  // close namespace TYPES_FOR_TESTING_VARIANT7
 
-// types for testing 'Variant8'
+// types for testing `Variant8`
 
 namespace TYPES_FOR_TESTING_VARIANT8 {
 
@@ -3347,12 +3382,12 @@ namespace TYPES_FOR_TESTING_VARIANT8 {
                                TestArg5, TestArg6, TestArg7, TestArg8>
                                                                    HeldVariant;
 
-        const HeldVariant d_variant;  // *must* be 'const'
+        const HeldVariant d_variant;  // *must* be `const`
         const int         d_id;
 
+        /// Create a `VariantHolder` object having the specified `arg1` and
+        /// `id`.
         VariantHolder(const TestArg1& arg1, int id)
-            // Create a 'VariantHolder' object having the specified 'arg1' and
-            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -3367,9 +3402,9 @@ namespace TYPES_FOR_TESTING_VARIANT8 {
                            TestArg5,    TestArg6, TestArg7, TestArg8>
                                                                   AllocVariant;
 
+    /// Return `true`.
     struct Comparator {
         bool operator()(const AllocVariant&, const AllocVariant&) const
-            // Return 'true'.
         {
             return true;
         }
@@ -3379,7 +3414,7 @@ namespace TYPES_FOR_TESTING_VARIANT8 {
 
 }  // close namespace TYPES_FOR_TESTING_VARIANT8
 
-// types for testing 'Variant9'
+// types for testing `Variant9`
 
 namespace TYPES_FOR_TESTING_VARIANT9 {
 
@@ -3390,12 +3425,12 @@ namespace TYPES_FOR_TESTING_VARIANT9 {
                                TestArg5, TestArg6, TestArg7, TestArg8,
                                TestArg9> HeldVariant;
 
-        const HeldVariant d_variant;  // *must* be 'const'
+        const HeldVariant d_variant;  // *must* be `const`
         const int         d_id;
 
+        /// Create a `VariantHolder` object having the specified `arg1` and
+        /// `id`.
         VariantHolder(const TestArg1& arg1, int id)
-            // Create a 'VariantHolder' object having the specified 'arg1' and
-            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -3410,9 +3445,9 @@ namespace TYPES_FOR_TESTING_VARIANT9 {
                            TestArg5,    TestArg6, TestArg7, TestArg8,
                            TestArg9> AllocVariant;
 
+    /// Return `true`.
     struct Comparator {
         bool operator()(const AllocVariant&, const AllocVariant&) const
-            // Return 'true'.
         {
             return true;
         }
@@ -3422,7 +3457,7 @@ namespace TYPES_FOR_TESTING_VARIANT9 {
 
 }  // close namespace TYPES_FOR_TESTING_VARIANT9
 
-// types for testing 'Variant10'
+// types for testing `Variant10`
 
 namespace TYPES_FOR_TESTING_VARIANT10 {
 
@@ -3433,12 +3468,12 @@ namespace TYPES_FOR_TESTING_VARIANT10 {
                                 TestArg5, TestArg6,  TestArg7,  TestArg8,
                                 TestArg9, TestArg10> HeldVariant;
 
-        const HeldVariant d_variant;  // *must* be 'const'
+        const HeldVariant d_variant;  // *must* be `const`
         const int         d_id;
 
+        /// Create a `VariantHolder` object having the specified `arg1` and
+        /// `id`.
         VariantHolder(const TestArg1& arg1, int id)
-            // Create a 'VariantHolder' object having the specified 'arg1' and
-            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -3453,9 +3488,9 @@ namespace TYPES_FOR_TESTING_VARIANT10 {
                             TestArg5,    TestArg6,  TestArg7,  TestArg8,
                             TestArg9,    TestArg10> AllocVariant;
 
+    /// Return `true`.
     struct Comparator {
         bool operator()(const AllocVariant&, const AllocVariant&) const
-            // Return 'true'.
         {
             return true;
         }
@@ -3465,7 +3500,7 @@ namespace TYPES_FOR_TESTING_VARIANT10 {
 
 }  // close namespace TYPES_FOR_TESTING_VARIANT10
 
-// types for testing 'Variant11'
+// types for testing `Variant11`
 
 namespace TYPES_FOR_TESTING_VARIANT11 {
 
@@ -3476,12 +3511,12 @@ namespace TYPES_FOR_TESTING_VARIANT11 {
                                 TestArg5, TestArg6,  TestArg7,  TestArg8,
                                 TestArg9, TestArg10, TestArg11> HeldVariant;
 
-        const HeldVariant d_variant;  // *must* be 'const'
+        const HeldVariant d_variant;  // *must* be `const`
         const int         d_id;
 
+        /// Create a `VariantHolder` object having the specified `arg1` and
+        /// `id`.
         VariantHolder(const TestArg1& arg1, int id)
-            // Create a 'VariantHolder' object having the specified 'arg1' and
-            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -3496,9 +3531,9 @@ namespace TYPES_FOR_TESTING_VARIANT11 {
                             TestArg5,    TestArg6,  TestArg7,  TestArg8,
                             TestArg9,    TestArg10, TestArg11> AllocVariant;
 
+    /// Return `true`.
     struct Comparator {
         bool operator()(const AllocVariant&, const AllocVariant&) const
-            // Return 'true'.
         {
             return true;
         }
@@ -3508,7 +3543,7 @@ namespace TYPES_FOR_TESTING_VARIANT11 {
 
 }  // close namespace TYPES_FOR_TESTING_VARIANT11
 
-// types for testing 'Variant12'
+// types for testing `Variant12`
 
 namespace TYPES_FOR_TESTING_VARIANT12 {
 
@@ -3520,12 +3555,12 @@ namespace TYPES_FOR_TESTING_VARIANT12 {
                                 TestArg9, TestArg10, TestArg11, TestArg12>
                                                                    HeldVariant;
 
-        const HeldVariant d_variant;  // *must* be 'const'
+        const HeldVariant d_variant;  // *must* be `const`
         const int         d_id;
 
+        /// Create a `VariantHolder` object having the specified `arg1` and
+        /// `id`.
         VariantHolder(const TestArg1& arg1, int id)
-            // Create a 'VariantHolder' object having the specified 'arg1' and
-            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -3541,9 +3576,9 @@ namespace TYPES_FOR_TESTING_VARIANT12 {
                             TestArg9,    TestArg10, TestArg11, TestArg12>
                                                                   AllocVariant;
 
+    /// Return `true`.
     struct Comparator {
         bool operator()(const AllocVariant&, const AllocVariant&) const
-            // Return 'true'.
         {
             return true;
         }
@@ -3553,7 +3588,7 @@ namespace TYPES_FOR_TESTING_VARIANT12 {
 
 }  // close namespace TYPES_FOR_TESTING_VARIANT12
 
-// types for testing 'Variant13'
+// types for testing `Variant13`
 
 namespace TYPES_FOR_TESTING_VARIANT13 {
 
@@ -3565,12 +3600,12 @@ namespace TYPES_FOR_TESTING_VARIANT13 {
                                 TestArg9,  TestArg10, TestArg11, TestArg12,
                                 TestArg13> HeldVariant;
 
-        const HeldVariant d_variant;  // *must* be 'const'
+        const HeldVariant d_variant;  // *must* be `const`
         const int         d_id;
 
+        /// Create a `VariantHolder` object having the specified `arg1` and
+        /// `id`.
         VariantHolder(const TestArg1& arg1, int id)
-            // Create a 'VariantHolder' object having the specified 'arg1' and
-            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -3586,9 +3621,9 @@ namespace TYPES_FOR_TESTING_VARIANT13 {
                             TestArg9,    TestArg10, TestArg11, TestArg12,
                             TestArg13> AllocVariant;
 
+    /// Return `true`.
     struct Comparator {
         bool operator()(const AllocVariant&, const AllocVariant&) const
-            // Return 'true'.
         {
             return true;
         }
@@ -3598,7 +3633,7 @@ namespace TYPES_FOR_TESTING_VARIANT13 {
 
 }  // close namespace TYPES_FOR_TESTING_VARIANT13
 
-// types for testing 'Variant14'
+// types for testing `Variant14`
 
 namespace TYPES_FOR_TESTING_VARIANT14 {
 
@@ -3610,12 +3645,12 @@ namespace TYPES_FOR_TESTING_VARIANT14 {
                                 TestArg9,  TestArg10, TestArg11, TestArg12,
                                 TestArg13, TestArg14> HeldVariant;
 
-        const HeldVariant d_variant;  // *must* be 'const'
+        const HeldVariant d_variant;  // *must* be `const`
         const int         d_id;
 
+        /// Create a `VariantHolder` object having the specified `arg1` and
+        /// `id`.
         VariantHolder(const TestArg1& arg1, int id)
-            // Create a 'VariantHolder' object having the specified 'arg1' and
-            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -3631,9 +3666,9 @@ namespace TYPES_FOR_TESTING_VARIANT14 {
                             TestArg9,    TestArg10, TestArg11, TestArg12,
                             TestArg13,   TestArg14> AllocVariant;
 
+    /// Return `true`.
     struct Comparator {
         bool operator()(const AllocVariant&, const AllocVariant&) const
-            // Return 'true'.
         {
             return true;
         }
@@ -3643,7 +3678,7 @@ namespace TYPES_FOR_TESTING_VARIANT14 {
 
 }  // close namespace TYPES_FOR_TESTING_VARIANT14
 
-// types for testing 'Variant15'
+// types for testing `Variant15`
 
 namespace TYPES_FOR_TESTING_VARIANT15 {
 
@@ -3655,12 +3690,12 @@ namespace TYPES_FOR_TESTING_VARIANT15 {
                                 TestArg9,  TestArg10, TestArg11, TestArg12,
                                 TestArg13, TestArg14, TestArg15> HeldVariant;
 
-        const HeldVariant d_variant;  // *must* be 'const'
+        const HeldVariant d_variant;  // *must* be `const`
         const int         d_id;
 
+        /// Create a `VariantHolder` object having the specified `arg1` and
+        /// `id`.
         VariantHolder(const TestArg1& arg1, int id)
-            // Create a 'VariantHolder' object having the specified 'arg1' and
-            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -3676,9 +3711,9 @@ namespace TYPES_FOR_TESTING_VARIANT15 {
                             TestArg9,    TestArg10, TestArg11, TestArg12,
                             TestArg13,   TestArg14, TestArg15> AllocVariant;
 
+    /// Return `true`.
     struct Comparator {
         bool operator()(const AllocVariant&, const AllocVariant&) const
-            // Return 'true'.
         {
             return true;
         }
@@ -3688,7 +3723,7 @@ namespace TYPES_FOR_TESTING_VARIANT15 {
 
 }  // close namespace TYPES_FOR_TESTING_VARIANT15
 
-// types for testing 'Variant16'
+// types for testing `Variant16`
 
 namespace TYPES_FOR_TESTING_VARIANT16 {
 
@@ -3701,12 +3736,12 @@ namespace TYPES_FOR_TESTING_VARIANT16 {
                                 TestArg13, TestArg14, TestArg15, TestArg16>
                                                                    HeldVariant;
 
-        const HeldVariant d_variant;  // *must* be 'const'
+        const HeldVariant d_variant;  // *must* be `const`
         const int         d_id;
 
+        /// Create a `VariantHolder` object having the specified `arg1` and
+        /// `id`.
         VariantHolder(const TestArg1& arg1, int id)
-            // Create a 'VariantHolder' object having the specified 'arg1' and
-            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -3723,9 +3758,9 @@ namespace TYPES_FOR_TESTING_VARIANT16 {
                             TestArg13,   TestArg14, TestArg15, TestArg16>
                                                                   AllocVariant;
 
+    /// Return `true`.
     struct Comparator {
         bool operator()(const AllocVariant&, const AllocVariant&) const
-            // Return 'true'.
         {
             return true;
         }
@@ -3735,7 +3770,7 @@ namespace TYPES_FOR_TESTING_VARIANT16 {
 
 }  // close namespace TYPES_FOR_TESTING_VARIANT16
 
-// types for testing 'Variant17'
+// types for testing `Variant17`
 
 namespace TYPES_FOR_TESTING_VARIANT17 {
 
@@ -3748,12 +3783,12 @@ namespace TYPES_FOR_TESTING_VARIANT17 {
                                 TestArg13, TestArg14, TestArg15, TestArg16,
                                 TestArg17> HeldVariant;
 
-        const HeldVariant d_variant;  // *must* be 'const'
+        const HeldVariant d_variant;  // *must* be `const`
         const int         d_id;
 
+        /// Create a `VariantHolder` object having the specified `arg1` and
+        /// `id`.
         VariantHolder(const TestArg1& arg1, int id)
-            // Create a 'VariantHolder' object having the specified 'arg1' and
-            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -3770,9 +3805,9 @@ namespace TYPES_FOR_TESTING_VARIANT17 {
                             TestArg13,   TestArg14, TestArg15, TestArg16,
                             TestArg17> AllocVariant;
 
+    /// Return `true`.
     struct Comparator {
         bool operator()(const AllocVariant&, const AllocVariant&) const
-            // Return 'true'.
         {
             return true;
         }
@@ -3782,7 +3817,7 @@ namespace TYPES_FOR_TESTING_VARIANT17 {
 
 }  // close namespace TYPES_FOR_TESTING_VARIANT17
 
-// types for testing 'Variant18'
+// types for testing `Variant18`
 
 namespace TYPES_FOR_TESTING_VARIANT18 {
 
@@ -3795,12 +3830,12 @@ namespace TYPES_FOR_TESTING_VARIANT18 {
                                 TestArg13, TestArg14, TestArg15, TestArg16,
                                 TestArg17, TestArg18> HeldVariant;
 
-        const HeldVariant d_variant;  // *must* be 'const'
+        const HeldVariant d_variant;  // *must* be `const`
         const int         d_id;
 
+        /// Create a `VariantHolder` object having the specified `arg1` and
+        /// `id`.
         VariantHolder(const TestArg1& arg1, int id)
-            // Create a 'VariantHolder' object having the specified 'arg1' and
-            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -3817,9 +3852,9 @@ namespace TYPES_FOR_TESTING_VARIANT18 {
                             TestArg13,   TestArg14, TestArg15, TestArg16,
                             TestArg17,   TestArg18> AllocVariant;
 
+    /// Return `true`.
     struct Comparator {
         bool operator()(const AllocVariant&, const AllocVariant&) const
-            // Return 'true'.
         {
             return true;
         }
@@ -3829,7 +3864,7 @@ namespace TYPES_FOR_TESTING_VARIANT18 {
 
 }  // close namespace TYPES_FOR_TESTING_VARIANT18
 
-// types for testing 'Variant19'
+// types for testing `Variant19`
 
 namespace TYPES_FOR_TESTING_VARIANT19 {
 
@@ -3842,12 +3877,12 @@ namespace TYPES_FOR_TESTING_VARIANT19 {
                                 TestArg13, TestArg14, TestArg15, TestArg16,
                                 TestArg17, TestArg18, TestArg19> HeldVariant;
 
-        const HeldVariant d_variant;  // *must* be 'const'
+        const HeldVariant d_variant;  // *must* be `const`
         const int         d_id;
 
+        /// Create a `VariantHolder` object having the specified `arg1` and
+        /// `id`.
         VariantHolder(const TestArg1& arg1, int id)
-            // Create a 'VariantHolder' object having the specified 'arg1' and
-            // 'id'.
         : d_variant(arg1)
         , d_id(id)
         {
@@ -3864,9 +3899,9 @@ namespace TYPES_FOR_TESTING_VARIANT19 {
                             TestArg13,   TestArg14, TestArg15, TestArg16,
                             TestArg17,   TestArg18, TestArg19> AllocVariant;
 
+    /// Return `true`.
     struct Comparator {
         bool operator()(const AllocVariant&, const AllocVariant&) const
-            // Return 'true'.
         {
             return true;
         }
@@ -3889,15 +3924,15 @@ struct DMPSourceData {
 struct AddListSubscription {
     typedef bdlb::Variant<DMPSourceData> Data;
 
-// This 'const' raised the issue.
+// This `const` raised the issue.
 //  vvvvv
     const Data          d_sourceData;
     const CorrelationId d_correlationId;
 
+    /// Create an `AddListSubscription` object having the specified `data`
+    /// and `correlationId`.
     explicit
     AddListSubscription(const DMPSourceData& data, CorrelationId correlationId)
-        // Create an 'AddListSubscription' object having the specified 'data'
-        // and 'correlationId'.
     : d_sourceData(data)
     , d_correlationId(correlationId)
     {
@@ -3907,9 +3942,9 @@ struct AddListSubscription {
 struct RemoveAllListSubscriptions {
     const CorrelationId d_correlationId;
 
+    /// Create a `RemoveAllListSubscriptions` object having the specified
+    /// `correlationId`.
     explicit RemoveAllListSubscriptions(CorrelationId correlationId)
-        // Create a 'RemoveAllListSubscriptions' object having the specified
-        // 'correlationId'.
     : d_correlationId(correlationId)
     {
     }
@@ -3918,7 +3953,7 @@ struct RemoveAllListSubscriptions {
 typedef bdlb::Variant<AddListSubscription,
                       RemoveAllListSubscriptions> ListSubscriptionMessage;
 
-// Another wrinkle related to 'const' that had failed on Windows.
+// Another wrinkle related to `const` that had failed on Windows.
 
 class Currency;
 class Security;
@@ -3927,8 +3962,8 @@ typedef bsl::vector<bdlb::Variant<Currency *, Security *> > MyVector;
 
 class Currency {
   public:
+    /// Append `this` to the specified `v`.
     void method(MyVector *v)
-        // Append 'this' to the specified 'v'.
     {
         v->emplace_back(this);
     }
@@ -3936,8 +3971,8 @@ class Currency {
 
 class Security {
   public:
+    /// Append `this` to the specified `v`.
     void method(MyVector *v)
-        // Append 'this' to the specified 'v'.
     {
         v->emplace_back(this);
     }
@@ -3947,6 +3982,10 @@ class Security {
 
 namespace FUNCTIONS_FOR_TESTING_APPLY {
 
+/// Check if object of (template parameter) `VISITOR` can be applied to the
+/// object of (template parameter) `VARIANT` (not specifying `ResultType`)
+/// with and without the specified `defaultValue` and verify the number of
+/// calls of visitor's operators.
 template <class VARIANT, class VISITOR, class VALUE_TYPE>
 void applyTestRTNS(const VALUE_TYPE& defaultValue,
                    int               intOpCalled,
@@ -3954,10 +3993,6 @@ void applyTestRTNS(const VALUE_TYPE& defaultValue,
                    int               stringOpCalled,
                    int               testStringOpCalled,
                    int               nilOpCalled)
-    // Check if object of (template parameter) 'VISITOR' can be applied to the
-    // object of (template parameter) 'VARIANT' (not specifying 'ResultType')
-    // with and without the specified 'defaultValue' and verify the number of
-    // calls of visitor's operators.
 {
     typedef typename VISITOR::VisitorResultType RetType;
 
@@ -3978,7 +4013,7 @@ void applyTestRTNS(const VALUE_TYPE& defaultValue,
     // 8.   unset variant  apply              ( visitor               )
     // 9.   unset variant  apply<RetType>     ( visitor               )
     //
-    // Note, that the last two combinations are tested outside of the 'switch'
+    // Note, that the last two combinations are tested outside of the `switch`
     // scope, because values to compare results with are different for them.
 
     for (int i = 0; i < 8; ++i) {
@@ -4108,6 +4143,10 @@ void applyTestRTNS(const VALUE_TYPE& defaultValue,
 
 }
 
+/// Check if object of (template parameter) `VISITOR` can be applied to the
+/// object of (template parameter) `VARIANT` (specifying `ResultType`) with
+/// and without the specified `defaultValue` and verify the number of calls
+/// of visitor's operators.
 template <class VARIANT, class VISITOR, class VALUE_TYPE>
 void applyTestRTS(const VALUE_TYPE& defaultValue,
                   int               intOpCalled,
@@ -4115,10 +4154,6 @@ void applyTestRTS(const VALUE_TYPE& defaultValue,
                   int               stringOpCalled,
                   int               testStringOpCalled,
                   int               nilOpCalled)
-    // Check if object of (template parameter) 'VISITOR' can be applied to the
-    // object of (template parameter) 'VARIANT' (specifying 'ResultType') with
-    // and without the specified 'defaultValue' and verify the number of calls
-    // of visitor's operators.
 {
     typedef typename VISITOR::ResultType RetType;
 
@@ -4139,7 +4174,7 @@ void applyTestRTS(const VALUE_TYPE& defaultValue,
     // 8.   unset variant  apply              ( visitor               )
     // 9.   unset variant  apply<RetType>     ( visitor               )
     //
-    // Note, that the last two combinations are tested outside of the 'switch'
+    // Note, that the last two combinations are tested outside of the `switch`
     // scope, because values to compare results with are different for them.
 
     for (int i = 0; i < 8; ++i) {
@@ -4286,10 +4321,10 @@ void applyTestRTS(const VALUE_TYPE& defaultValue,
 
 }
 
+/// Test `apply` and `applyRaw` functions with visitors returning references
+/// and not specifying `ResultType`.
 template <class VISITOR>
 void testReferenceResultTypeNotSpecified()
-    // Test 'apply' and 'applyRaw' functions with visitors returning references
-    // and not specifying 'ResultType'.
 {
     typedef bdlb::VariantImp<
                   bslmf::TypeList<int, TestInt, bsl::string, TestString> > Obj;
@@ -4315,10 +4350,10 @@ void testReferenceResultTypeNotSpecified()
     }
 }
 
+/// Test `apply` and `applyRaw` functions with visitors returning references
+/// and specifying `ResultType`.
 template <class VISITOR>
 void testReferenceResultTypeSpecified()
-    // Test 'apply' and 'applyRaw' functions with visitors returning references
-    // and specifying 'ResultType'.
 {
     typedef bdlb::VariantImp<
                   bslmf::TypeList<int, TestInt, bsl::string, TestString> > Obj;
@@ -4349,10 +4384,11 @@ namespace TYPES_FOR_TESTING_NON_COPYABLE_RETURN_VALUES {
                            // ===============================
                            // class DefaultReturnValueVisitor
                            // ===============================
+
+/// This class simply returns the default constructed object of the
+/// (template parameter) `RETURN_TYPE`.
 template <class RETURN_TYPE>
 class DefaultReturnValueVisitor {
-    // This class simply returns the default constructed object of the
-    // (template parameter) 'RETURN_TYPE'.
 
   public:
     // TYPES
@@ -4370,9 +4406,9 @@ class DefaultReturnValueVisitor {
                            // class CopyOnlyTestType
                            // ======================
 
+/// This class, that does not support move constructor or move assignment
+/// operator, provides copy mechanisms only.
 class CopyOnlyTestType {
-    // This class, that does not support move constructor or move assignment
-    // operator, provides copy mechanisms only.
 
     // DATA
     int d_value;  // object's value
@@ -4385,28 +4421,30 @@ class CopyOnlyTestType {
     {}
 
     explicit CopyOnlyTestType(int value)
-    // Create an object that has the specified 'value'.
+    // Create an object that has the specified `value`.
     : d_value(value)
     {}
 
     CopyOnlyTestType(const CopyOnlyTestType& original)
-    // Create an object having the value of the specified 'original'
+    // Create an object having the value of the specified `original`
     // object.
     : d_value(original.d_value)
     {}
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     CopyOnlyTestType& operator=(CopyOnlyTestType rhs)
-        // Assign to this object the value of the specified 'rhs' object.
     {
         d_value = rhs.d_value;
         return *this;
     }
 
     // ACCESSORS
+
+    /// Return the value of this object.  The method name is unified with
+    /// the `bsltf::MoveOnlyAllocTestType` accessor's name for consistency.
     int data() const
-        // Return the value of this object.  The method name is unified with
-        // the 'bsltf::MoveOnlyAllocTestType' accessor's name for consistency.
     {
         return d_value;
     }
@@ -4432,9 +4470,9 @@ const T asConst(const T& t)
                         // struct TestUtil
                         // ===============
 
+/// This `struct` defines several test cases outside of `main` to avoid
+/// out-of-memory errors with the xlC compiler.
 struct TestUtil {
-    // This 'struct' defines several test cases outside of 'main' to avoid
-    // out-of-memory errors with the xlC compiler.
 
     // TYPES
     typedef bslmf::MovableRefUtil       MoveUtil;
@@ -4442,53 +4480,54 @@ struct TestUtil {
     typedef bsltf::TemplateTestFacility TstFacility;
 
     // CLASS METHODS
+
+    /// CONCERN: Moving an object containing a `const` variant compiles.
     static void testCase27();
-        // CONCERN: Moving an object containing a 'const' variant compiles.
 
+    /// Test value move-assignment operator.
     static void testCase26();
-        // Test value move-assignment operator.
 
+    /// Test move-assignment operator.
     static void testCase25();
-        // Test move-assignment operator.
 
+    /// Test move `assign` method.
     static void testCase24();
-        // Test move 'assign' method.
 
+    /// Test value move constructor.
     static void testCase23();
-        // Test value move constructor.
 
+    /// Test move constructor.
     static void testCase22();
-        // Test move constructor.
 
+    /// Test `swap`.
     static void testCase21();
-        // Test 'swap'.
 
+    /// CONCERN: `applyRaw` & VISITOR w/o `Nil` overload.
     static void testCase20();
-        // CONCERN: 'applyRaw' & VISITOR w/o 'Nil' overload.
 
+    /// Test traits.
     static void testCase19();
-        // Test traits.
 
+    /// Test `bdlb::VariantN` and `bdlb::Variant` classes (copy semantics).
     static void testCase18();
-        // Test 'bdlb::VariantN' and 'bdlb::Variant' classes (copy semantics).
 
+    /// Test `isUnset`.
     static void testCase17();
-        // Test 'isUnset'.
 
+    /// Test VISITOR with unset variants.
     static void testCase16();
-        // Test VISITOR with unset variants.
 
+    /// Test VISITOR return values.
     static void testCase15();
-        // Test VISITOR return values.
 
+    /// Test `createInPlace`.
     static void testCase14();
-        // Test 'createInPlace'.
 
+    /// Test value assignment.
     static void testCase13();
-        // Test value assignment.
 
+    /// Test value constructor.
     static void testCase12();
-        // Test value constructor.
 
 };
 
@@ -4501,9 +4540,9 @@ void TestUtil::testCase27()
 {
     using namespace MOVING_OBJECT_CONTAINING_CONST_VARIANT;
 
-    // Test 'VariantImp'.
+    // Test `VariantImp`.
     {
-        using namespace TYPES_FOR_TESTING_VARIANTIMP;  // 'VariantImp'
+        using namespace TYPES_FOR_TESTING_VARIANTIMP;  // `VariantImp`
 
         // Without Allocator
         {
@@ -4519,9 +4558,9 @@ void TestUtil::testCase27()
         }
     }
 
-    // Test 'Variant'.
+    // Test `Variant`.
     {
-        using namespace TYPES_FOR_TESTING_VARIANT;  // 'Variant'
+        using namespace TYPES_FOR_TESTING_VARIANT;  // `Variant`
 
         // Without Allocator
         {
@@ -4537,9 +4576,9 @@ void TestUtil::testCase27()
         }
     }
 
-    // Test 'Variant2'.
+    // Test `Variant2`.
     {
-        using namespace TYPES_FOR_TESTING_VARIANT2;  // 'Variant2'
+        using namespace TYPES_FOR_TESTING_VARIANT2;  // `Variant2`
 
         // Without Allocator
         {
@@ -4555,9 +4594,9 @@ void TestUtil::testCase27()
         }
     }
 
-    // Test 'Variant3'.
+    // Test `Variant3`.
     {
-        using namespace TYPES_FOR_TESTING_VARIANT3;  // 'Variant3'
+        using namespace TYPES_FOR_TESTING_VARIANT3;  // `Variant3`
 
         // Without Allocator
         {
@@ -4573,9 +4612,9 @@ void TestUtil::testCase27()
         }
     }
 
-    // Test 'Variant4'.
+    // Test `Variant4`.
     {
-        using namespace TYPES_FOR_TESTING_VARIANT4;  // 'Variant4'
+        using namespace TYPES_FOR_TESTING_VARIANT4;  // `Variant4`
 
         // Without Allocator
         {
@@ -4591,9 +4630,9 @@ void TestUtil::testCase27()
         }
     }
 
-    // Test 'Variant5'.
+    // Test `Variant5`.
     {
-        using namespace TYPES_FOR_TESTING_VARIANT5;  // 'Variant5'
+        using namespace TYPES_FOR_TESTING_VARIANT5;  // `Variant5`
 
         // Without Allocator
         {
@@ -4609,9 +4648,9 @@ void TestUtil::testCase27()
         }
     }
 
-    // Test 'Variant6'.
+    // Test `Variant6`.
     {
-        using namespace TYPES_FOR_TESTING_VARIANT6;  // 'Variant6'
+        using namespace TYPES_FOR_TESTING_VARIANT6;  // `Variant6`
 
         // Without Allocator
         {
@@ -4627,9 +4666,9 @@ void TestUtil::testCase27()
         }
     }
 
-    // Test 'Variant7'.
+    // Test `Variant7`.
     {
-        using namespace TYPES_FOR_TESTING_VARIANT7;  // 'Variant7'
+        using namespace TYPES_FOR_TESTING_VARIANT7;  // `Variant7`
 
         // Without Allocator
         {
@@ -4645,9 +4684,9 @@ void TestUtil::testCase27()
         }
     }
 
-    // Test 'Variant8'.
+    // Test `Variant8`.
     {
-        using namespace TYPES_FOR_TESTING_VARIANT8;  // 'Variant8'
+        using namespace TYPES_FOR_TESTING_VARIANT8;  // `Variant8`
 
         // Without Allocator
         {
@@ -4663,9 +4702,9 @@ void TestUtil::testCase27()
         }
     }
 
-    // Test 'Variant9'.
+    // Test `Variant9`.
     {
-        using namespace TYPES_FOR_TESTING_VARIANT9;  // 'Variant9'
+        using namespace TYPES_FOR_TESTING_VARIANT9;  // `Variant9`
 
         // Without Allocator
         {
@@ -4681,9 +4720,9 @@ void TestUtil::testCase27()
         }
     }
 
-    // Test 'Variant10'.
+    // Test `Variant10`.
     {
-        using namespace TYPES_FOR_TESTING_VARIANT10;  // 'Variant10'
+        using namespace TYPES_FOR_TESTING_VARIANT10;  // `Variant10`
 
         // Without Allocator
         {
@@ -4699,9 +4738,9 @@ void TestUtil::testCase27()
         }
     }
 
-    // Test 'Variant11'.
+    // Test `Variant11`.
     {
-        using namespace TYPES_FOR_TESTING_VARIANT11;  // 'Variant11'
+        using namespace TYPES_FOR_TESTING_VARIANT11;  // `Variant11`
 
         // Without Allocator
         {
@@ -4717,9 +4756,9 @@ void TestUtil::testCase27()
         }
     }
 
-    // Test 'Variant12'.
+    // Test `Variant12`.
     {
-        using namespace TYPES_FOR_TESTING_VARIANT12;  // 'Variant12'
+        using namespace TYPES_FOR_TESTING_VARIANT12;  // `Variant12`
 
         // Without Allocator
         {
@@ -4735,9 +4774,9 @@ void TestUtil::testCase27()
         }
     }
 
-    // Test 'Variant13'.
+    // Test `Variant13`.
     {
-        using namespace TYPES_FOR_TESTING_VARIANT13;  // 'Variant13'
+        using namespace TYPES_FOR_TESTING_VARIANT13;  // `Variant13`
 
         // Without Allocator
         {
@@ -4753,9 +4792,9 @@ void TestUtil::testCase27()
         }
     }
 
-    // Test 'Variant14'.
+    // Test `Variant14`.
     {
-        using namespace TYPES_FOR_TESTING_VARIANT14;  // 'Variant14'
+        using namespace TYPES_FOR_TESTING_VARIANT14;  // `Variant14`
 
         // Without Allocator
         {
@@ -4771,9 +4810,9 @@ void TestUtil::testCase27()
         }
     }
 
-    // Test 'Variant15'.
+    // Test `Variant15`.
     {
-        using namespace TYPES_FOR_TESTING_VARIANT15;  // 'Variant15'
+        using namespace TYPES_FOR_TESTING_VARIANT15;  // `Variant15`
 
         // Without Allocator
         {
@@ -4789,9 +4828,9 @@ void TestUtil::testCase27()
         }
     }
 
-    // Test 'Variant16'.
+    // Test `Variant16`.
     {
-        using namespace TYPES_FOR_TESTING_VARIANT16;  // 'Variant16'
+        using namespace TYPES_FOR_TESTING_VARIANT16;  // `Variant16`
 
         // Without Allocator
         {
@@ -4807,9 +4846,9 @@ void TestUtil::testCase27()
         }
     }
 
-    // Test 'Variant17'.
+    // Test `Variant17`.
     {
-        using namespace TYPES_FOR_TESTING_VARIANT17;  // 'Variant17'
+        using namespace TYPES_FOR_TESTING_VARIANT17;  // `Variant17`
 
         // Without Allocator
         {
@@ -4825,9 +4864,9 @@ void TestUtil::testCase27()
         }
     }
 
-    // Test 'Variant18'.
+    // Test `Variant18`.
     {
-        using namespace TYPES_FOR_TESTING_VARIANT18;  // 'Variant18'
+        using namespace TYPES_FOR_TESTING_VARIANT18;  // `Variant18`
 
         // Without Allocator
         {
@@ -4843,9 +4882,9 @@ void TestUtil::testCase27()
         }
     }
 
-    // Test 'Variant19'.
+    // Test `Variant19`.
     {
-        using namespace TYPES_FOR_TESTING_VARIANT19;  // 'Variant19'
+        using namespace TYPES_FOR_TESTING_VARIANT19;  // `Variant19`
 
         // Without Allocator
         {
@@ -4872,7 +4911,7 @@ void TestUtil::testCase27()
                                                         cID));
     }
 
-    // Another wrinkle related to 'const' that had failed on Windows.
+    // Another wrinkle related to `const` that had failed on Windows.
     {
         int i;
         int *const p = &i;
@@ -4895,7 +4934,7 @@ void TestUtil::testCase26()
 
     bslma::TestAllocatorMonitor dam(&da), oam(&oa), zam(&za);
 
-    if (verbose) cout << "\nTesting 'bdlb::VariantImp'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::VariantImp`." << endl;
     {
         typedef bslmf::TypeList<bsltf::MovableTestType,
                                 bsltf::MovableAllocTestType,
@@ -4926,7 +4965,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -4963,7 +5002,7 @@ void TestUtil::testCase26()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -4996,7 +5035,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -5006,7 +5045,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -5041,7 +5080,7 @@ void TestUtil::testCase26()
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
 
-        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        if (verbose) cout << "\tWith `const` rvalue source." << endl;
         {
             // Using const rvalue as a parameter for assignment operator caused
             // incorrect overload resolution.  See DRQS 167585741 for more
@@ -5063,7 +5102,7 @@ void TestUtil::testCase26()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant2'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant2`." << endl;
     {
         typedef bdlb::Variant2<bsltf::MovableTestType,
                                bsltf::MovableAllocTestType> Obj;
@@ -5093,7 +5132,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -5130,7 +5169,7 @@ void TestUtil::testCase26()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -5163,7 +5202,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -5173,7 +5212,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -5208,7 +5247,7 @@ void TestUtil::testCase26()
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
 
-        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        if (verbose) cout << "\tWith `const` rvalue source." << endl;
         {
             // Using const rvalue as a parameter for assignment operator caused
             // incorrect overload resolution.  See DRQS 167585741 for more
@@ -5230,7 +5269,7 @@ void TestUtil::testCase26()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant3'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant3`." << endl;
     {
         typedef bdlb::Variant3<int,
                                bsltf::MovableTestType,
@@ -5261,7 +5300,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -5298,7 +5337,7 @@ void TestUtil::testCase26()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -5331,7 +5370,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -5341,7 +5380,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -5376,7 +5415,7 @@ void TestUtil::testCase26()
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
 
-        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        if (verbose) cout << "\tWith `const` rvalue source." << endl;
         {
             // Using const rvalue as a parameter for assignment operator caused
             // incorrect overload resolution.  See DRQS 167585741 for more
@@ -5398,7 +5437,7 @@ void TestUtil::testCase26()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant4'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant4`." << endl;
     {
         typedef bdlb::Variant4<TestArg1,
                                int,
@@ -5430,7 +5469,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -5467,7 +5506,7 @@ void TestUtil::testCase26()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -5500,7 +5539,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -5510,7 +5549,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -5545,7 +5584,7 @@ void TestUtil::testCase26()
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
 
-        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        if (verbose) cout << "\tWith `const` rvalue source." << endl;
         {
             // Using const rvalue as a parameter for assignment operator caused
             // incorrect overload resolution.  See DRQS 167585741 for more
@@ -5567,7 +5606,7 @@ void TestUtil::testCase26()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant5'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant5`." << endl;
     {
         typedef bdlb::Variant5<TestArg1,  TestArg2,
                                int,
@@ -5599,7 +5638,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -5636,7 +5675,7 @@ void TestUtil::testCase26()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -5669,7 +5708,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -5679,7 +5718,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -5714,7 +5753,7 @@ void TestUtil::testCase26()
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
 
-        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        if (verbose) cout << "\tWith `const` rvalue source." << endl;
         {
             // Using const rvalue as a parameter for assignment operator caused
             // incorrect overload resolution.  See DRQS 167585741 for more
@@ -5736,7 +5775,7 @@ void TestUtil::testCase26()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant6'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant6`." << endl;
     {
         typedef bdlb::Variant6<TestArg1,  TestArg2,  TestArg3,
                                int,
@@ -5768,7 +5807,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -5805,7 +5844,7 @@ void TestUtil::testCase26()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -5838,7 +5877,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -5848,7 +5887,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -5883,7 +5922,7 @@ void TestUtil::testCase26()
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
 
-        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        if (verbose) cout << "\tWith `const` rvalue source." << endl;
         {
             // Using const rvalue as a parameter for assignment operator caused
             // incorrect overload resolution.  See DRQS 167585741 for more
@@ -5905,7 +5944,7 @@ void TestUtil::testCase26()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant7'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant7`." << endl;
     {
         typedef bdlb::Variant7<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                int,
@@ -5937,7 +5976,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -5974,7 +6013,7 @@ void TestUtil::testCase26()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -6007,7 +6046,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -6017,7 +6056,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -6052,7 +6091,7 @@ void TestUtil::testCase26()
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
 
-        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        if (verbose) cout << "\tWith `const` rvalue source." << endl;
         {
             // Using const rvalue as a parameter for assignment operator caused
             // incorrect overload resolution.  See DRQS 167585741 for more
@@ -6074,7 +6113,7 @@ void TestUtil::testCase26()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant8'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant8`." << endl;
     {
         typedef bdlb::Variant8<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                TestArg5,
@@ -6107,7 +6146,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -6144,7 +6183,7 @@ void TestUtil::testCase26()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -6177,7 +6216,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -6187,7 +6226,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -6222,7 +6261,7 @@ void TestUtil::testCase26()
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
 
-        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        if (verbose) cout << "\tWith `const` rvalue source." << endl;
         {
             // Using const rvalue as a parameter for assignment operator caused
             // incorrect overload resolution.  See DRQS 167585741 for more
@@ -6244,7 +6283,7 @@ void TestUtil::testCase26()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant9'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant9`." << endl;
     {
         typedef bdlb::Variant9<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                TestArg5,  TestArg6,
@@ -6277,7 +6316,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -6314,7 +6353,7 @@ void TestUtil::testCase26()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -6347,7 +6386,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -6357,7 +6396,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -6392,7 +6431,7 @@ void TestUtil::testCase26()
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
 
-        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        if (verbose) cout << "\tWith `const` rvalue source." << endl;
         {
             // Using const rvalue as a parameter for assignment operator caused
             // incorrect overload resolution.  See DRQS 167585741 for more
@@ -6414,7 +6453,7 @@ void TestUtil::testCase26()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant10'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant10`." << endl;
     {
         typedef bdlb::Variant10<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,
@@ -6447,7 +6486,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -6484,7 +6523,7 @@ void TestUtil::testCase26()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -6517,7 +6556,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -6527,7 +6566,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -6562,7 +6601,7 @@ void TestUtil::testCase26()
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
 
-        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        if (verbose) cout << "\tWith `const` rvalue source." << endl;
         {
             // Using const rvalue as a parameter for assignment operator caused
             // incorrect overload resolution.  See DRQS 167585741 for more
@@ -6584,7 +6623,7 @@ void TestUtil::testCase26()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant11'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant11`." << endl;
     {
         typedef bdlb::Variant11<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -6617,7 +6656,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -6654,7 +6693,7 @@ void TestUtil::testCase26()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -6687,7 +6726,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -6697,7 +6736,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -6732,7 +6771,7 @@ void TestUtil::testCase26()
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
 
-        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        if (verbose) cout << "\tWith `const` rvalue source." << endl;
         {
             // Using const rvalue as a parameter for assignment operator caused
             // incorrect overload resolution.  See DRQS 167585741 for more
@@ -6754,7 +6793,7 @@ void TestUtil::testCase26()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant12'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant12`." << endl;
     {
         typedef bdlb::Variant12<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -6788,7 +6827,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -6825,7 +6864,7 @@ void TestUtil::testCase26()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -6858,7 +6897,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -6868,7 +6907,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -6903,7 +6942,7 @@ void TestUtil::testCase26()
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
 
-        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        if (verbose) cout << "\tWith `const` rvalue source." << endl;
         {
             // Using const rvalue as a parameter for assignment operator caused
             // incorrect overload resolution.  See DRQS 167585741 for more
@@ -6925,7 +6964,7 @@ void TestUtil::testCase26()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant13'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant13`." << endl;
     {
         typedef bdlb::Variant13<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -6959,7 +6998,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -6996,7 +7035,7 @@ void TestUtil::testCase26()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -7029,7 +7068,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -7039,7 +7078,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -7074,7 +7113,7 @@ void TestUtil::testCase26()
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
 
-        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        if (verbose) cout << "\tWith `const` rvalue source." << endl;
         {
             // Using const rvalue as a parameter for assignment operator caused
             // incorrect overload resolution.  See DRQS 167585741 for more
@@ -7096,7 +7135,7 @@ void TestUtil::testCase26()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant14'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant14`." << endl;
     {
         typedef bdlb::Variant14<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -7130,7 +7169,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -7167,7 +7206,7 @@ void TestUtil::testCase26()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -7200,7 +7239,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -7210,7 +7249,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -7245,7 +7284,7 @@ void TestUtil::testCase26()
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
 
-        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        if (verbose) cout << "\tWith `const` rvalue source." << endl;
         {
             // Using const rvalue as a parameter for assignment operator caused
             // incorrect overload resolution.  See DRQS 167585741 for more
@@ -7267,7 +7306,7 @@ void TestUtil::testCase26()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant15'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant15`." << endl;
     {
         typedef bdlb::Variant15<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -7301,7 +7340,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -7338,7 +7377,7 @@ void TestUtil::testCase26()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -7371,7 +7410,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -7381,7 +7420,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -7416,7 +7455,7 @@ void TestUtil::testCase26()
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
 
-        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        if (verbose) cout << "\tWith `const` rvalue source." << endl;
         {
             // Using const rvalue as a parameter for assignment operator caused
             // incorrect overload resolution.  See DRQS 167585741 for more
@@ -7438,7 +7477,7 @@ void TestUtil::testCase26()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant16'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant16`." << endl;
     {
         typedef bdlb::Variant16<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -7473,7 +7512,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -7510,7 +7549,7 @@ void TestUtil::testCase26()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -7543,7 +7582,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -7553,7 +7592,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -7588,7 +7627,7 @@ void TestUtil::testCase26()
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
 
-        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        if (verbose) cout << "\tWith `const` rvalue source." << endl;
         {
             // Using const rvalue as a parameter for assignment operator caused
             // incorrect overload resolution.  See DRQS 167585741 for more
@@ -7610,7 +7649,7 @@ void TestUtil::testCase26()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant17'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant17`." << endl;
     {
         typedef bdlb::Variant17<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -7645,7 +7684,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -7682,7 +7721,7 @@ void TestUtil::testCase26()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -7715,7 +7754,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -7725,7 +7764,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -7760,7 +7799,7 @@ void TestUtil::testCase26()
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
 
-        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        if (verbose) cout << "\tWith `const` rvalue source." << endl;
         {
             // Using const rvalue as a parameter for assignment operator caused
             // incorrect overload resolution.  See DRQS 167585741 for more
@@ -7782,7 +7821,7 @@ void TestUtil::testCase26()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant18'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant18`." << endl;
     {
         typedef bdlb::Variant18<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -7817,7 +7856,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -7854,7 +7893,7 @@ void TestUtil::testCase26()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -7887,7 +7926,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -7897,7 +7936,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -7932,7 +7971,7 @@ void TestUtil::testCase26()
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
 
-        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        if (verbose) cout << "\tWith `const` rvalue source." << endl;
         {
             // Using const rvalue as a parameter for assignment operator caused
             // incorrect overload resolution.  See DRQS 167585741 for more
@@ -7954,7 +7993,7 @@ void TestUtil::testCase26()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant19'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant19`." << endl;
     {
         typedef bdlb::Variant19<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -7989,7 +8028,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -8026,7 +8065,7 @@ void TestUtil::testCase26()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -8059,7 +8098,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -8069,7 +8108,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -8104,7 +8143,7 @@ void TestUtil::testCase26()
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
 
-        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        if (verbose) cout << "\tWith `const` rvalue source." << endl;
         {
             // Using const rvalue as a parameter for assignment operator caused
             // incorrect overload resolution.  See DRQS 167585741 for more
@@ -8126,7 +8165,7 @@ void TestUtil::testCase26()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant' (with 20 types)." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant` (with 20 types)." << endl;
     {
         typedef bdlb::Variant<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                               TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -8162,7 +8201,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -8199,7 +8238,7 @@ void TestUtil::testCase26()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -8232,7 +8271,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -8242,7 +8281,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -8277,7 +8316,7 @@ void TestUtil::testCase26()
             ASSERT(EXPECTED_MOVE_STATE == mStateW);
         }
 
-        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        if (verbose) cout << "\tWith `const` rvalue source." << endl;
         {
             // Using const rvalue as a parameter for assignment operator caused
             // incorrect overload resolution.  See DRQS 167585741 for more
@@ -8299,7 +8338,7 @@ void TestUtil::testCase26()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant' (with 1 type)." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant` (with 1 type)." << endl;
     {
         typedef bdlb::Variant<bsltf::MovableAllocTestType> Obj;
 
@@ -8333,7 +8372,7 @@ void TestUtil::testCase26()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -8366,7 +8405,7 @@ void TestUtil::testCase26()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -8376,7 +8415,7 @@ void TestUtil::testCase26()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith 'const' rvalue source." << endl;
+        if (verbose) cout << "\tWith `const` rvalue source." << endl;
         {
             // Using const rvalue as a parameter for assignment operator caused
             // incorrect overload resolution.  See DRQS 167585741 for more
@@ -8412,7 +8451,7 @@ void TestUtil::testCase25()
 
     bslma::TestAllocatorMonitor dam(&da), oam(&oa), zam(&za);
 
-    if (verbose) cout << "\nTesting 'bdlb::VariantImp'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::VariantImp`." << endl;
     {
         typedef bslmf::TypeList<bsltf::MovableTestType,
                                 bsltf::MovableAllocTestType,
@@ -8447,7 +8486,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -8487,7 +8526,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -8523,7 +8562,7 @@ void TestUtil::testCase25()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -8534,7 +8573,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -8570,7 +8609,7 @@ void TestUtil::testCase25()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant2'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant2`." << endl;
     {
         typedef bdlb::Variant2<bsltf::MovableTestType,
                                bsltf::MovableAllocTestType> Obj;
@@ -8604,7 +8643,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -8644,7 +8683,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -8680,7 +8719,7 @@ void TestUtil::testCase25()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -8691,7 +8730,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -8727,7 +8766,7 @@ void TestUtil::testCase25()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant3'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant3`." << endl;
     {
         typedef bdlb::Variant3<int,
                                bsltf::MovableTestType,
@@ -8762,7 +8801,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -8802,7 +8841,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -8838,7 +8877,7 @@ void TestUtil::testCase25()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -8849,7 +8888,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -8885,7 +8924,7 @@ void TestUtil::testCase25()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant4'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant4`." << endl;
     {
         typedef bdlb::Variant4<TestArg1,
                                int,
@@ -8921,7 +8960,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -8961,7 +9000,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -8997,7 +9036,7 @@ void TestUtil::testCase25()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -9008,7 +9047,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -9044,7 +9083,7 @@ void TestUtil::testCase25()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant5'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant5`." << endl;
     {
         typedef bdlb::Variant5<TestArg1,  TestArg2,
                                int,
@@ -9080,7 +9119,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -9120,7 +9159,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -9156,7 +9195,7 @@ void TestUtil::testCase25()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -9167,7 +9206,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -9203,7 +9242,7 @@ void TestUtil::testCase25()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant6'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant6`." << endl;
     {
         typedef bdlb::Variant6<TestArg1,  TestArg2,  TestArg3,
                                int,
@@ -9239,7 +9278,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -9279,7 +9318,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -9315,7 +9354,7 @@ void TestUtil::testCase25()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -9326,7 +9365,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -9362,7 +9401,7 @@ void TestUtil::testCase25()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant7'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant7`." << endl;
     {
         typedef bdlb::Variant7<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                int,
@@ -9398,7 +9437,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -9438,7 +9477,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -9474,7 +9513,7 @@ void TestUtil::testCase25()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -9485,7 +9524,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -9521,7 +9560,7 @@ void TestUtil::testCase25()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant8'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant8`." << endl;
     {
         typedef bdlb::Variant8<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                TestArg5,
@@ -9558,7 +9597,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -9598,7 +9637,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -9634,7 +9673,7 @@ void TestUtil::testCase25()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -9645,7 +9684,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -9681,7 +9720,7 @@ void TestUtil::testCase25()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant9'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant9`." << endl;
     {
         typedef bdlb::Variant9<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                TestArg5,  TestArg6,
@@ -9718,7 +9757,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -9758,7 +9797,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -9794,7 +9833,7 @@ void TestUtil::testCase25()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -9805,7 +9844,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -9841,7 +9880,7 @@ void TestUtil::testCase25()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant10'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant10`." << endl;
     {
         typedef bdlb::Variant10<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,
@@ -9878,7 +9917,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -9918,7 +9957,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -9954,7 +9993,7 @@ void TestUtil::testCase25()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -9965,7 +10004,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -10001,7 +10040,7 @@ void TestUtil::testCase25()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant11'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant11`." << endl;
     {
         typedef bdlb::Variant11<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -10038,7 +10077,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -10078,7 +10117,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -10114,7 +10153,7 @@ void TestUtil::testCase25()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -10125,7 +10164,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -10161,7 +10200,7 @@ void TestUtil::testCase25()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant12'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant12`." << endl;
     {
         typedef bdlb::Variant12<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -10199,7 +10238,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -10239,7 +10278,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -10275,7 +10314,7 @@ void TestUtil::testCase25()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -10286,7 +10325,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -10322,7 +10361,7 @@ void TestUtil::testCase25()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant13'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant13`." << endl;
     {
         typedef bdlb::Variant13<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -10360,7 +10399,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -10400,7 +10439,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -10436,7 +10475,7 @@ void TestUtil::testCase25()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -10447,7 +10486,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -10483,7 +10522,7 @@ void TestUtil::testCase25()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant14'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant14`." << endl;
     {
         typedef bdlb::Variant14<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -10521,7 +10560,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -10561,7 +10600,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -10597,7 +10636,7 @@ void TestUtil::testCase25()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -10608,7 +10647,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -10644,7 +10683,7 @@ void TestUtil::testCase25()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant15'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant15`." << endl;
     {
         typedef bdlb::Variant15<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -10682,7 +10721,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -10722,7 +10761,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -10758,7 +10797,7 @@ void TestUtil::testCase25()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -10769,7 +10808,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -10805,7 +10844,7 @@ void TestUtil::testCase25()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant16'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant16`." << endl;
     {
         typedef bdlb::Variant16<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -10844,7 +10883,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -10884,7 +10923,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -10920,7 +10959,7 @@ void TestUtil::testCase25()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -10931,7 +10970,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -10967,7 +11006,7 @@ void TestUtil::testCase25()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant17'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant17`." << endl;
     {
         typedef bdlb::Variant17<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -11006,7 +11045,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -11046,7 +11085,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -11082,7 +11121,7 @@ void TestUtil::testCase25()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -11093,7 +11132,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -11129,7 +11168,7 @@ void TestUtil::testCase25()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant18'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant18`." << endl;
     {
         typedef bdlb::Variant18<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -11168,7 +11207,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -11208,7 +11247,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -11244,7 +11283,7 @@ void TestUtil::testCase25()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -11255,7 +11294,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -11291,7 +11330,7 @@ void TestUtil::testCase25()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant19'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant19`." << endl;
     {
         typedef bdlb::Variant19<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -11330,7 +11369,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -11370,7 +11409,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -11406,7 +11445,7 @@ void TestUtil::testCase25()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -11417,7 +11456,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -11453,7 +11492,7 @@ void TestUtil::testCase25()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant' (with 20 types)." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant` (with 20 types)." << endl;
     {
         typedef bdlb::Variant<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                               TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -11493,7 +11532,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -11533,7 +11572,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -11569,7 +11608,7 @@ void TestUtil::testCase25()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -11580,7 +11619,7 @@ void TestUtil::testCase25()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -11616,7 +11655,7 @@ void TestUtil::testCase25()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant' (with 1 type)." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant` (with 1 type)." << endl;
     {
         typedef bdlb::Variant<bsltf::MovableAllocTestType> Obj;
 
@@ -11652,7 +11691,7 @@ void TestUtil::testCase25()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -11688,7 +11727,7 @@ void TestUtil::testCase25()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -11700,7 +11739,7 @@ void TestUtil::testCase25()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant' (with no types)." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant` (with no types)." << endl;
     {
         typedef bdlb::Variant<> Obj;
 
@@ -11735,7 +11774,7 @@ void TestUtil::testCase24()
 
     bslma::TestAllocatorMonitor dam(&da), oam(&oa), zam(&za);
 
-    if (verbose) cout << "\nTesting 'bdlb::VariantImp'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::VariantImp`." << endl;
     {
         typedef bslmf::TypeList<bsltf::MovableTestType,
                                 bsltf::MovableAllocTestType,
@@ -11766,7 +11805,7 @@ void TestUtil::testCase24()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -11803,7 +11842,7 @@ void TestUtil::testCase24()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -11836,7 +11875,7 @@ void TestUtil::testCase24()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -11846,7 +11885,7 @@ void TestUtil::testCase24()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
             typedef int                    OT;
@@ -11896,7 +11935,7 @@ void TestUtil::testCase23()
 
     bslma::TestAllocatorMonitor dam(&da), oam(&oa), zam(&za);
 
-    if (verbose) cout << "\nTesting 'bdlb::VariantImp'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::VariantImp`." << endl;
     {
         typedef bslmf::TypeList<bsltf::MovableTestType,
                                 bsltf::MovableAllocTestType,
@@ -11922,7 +11961,7 @@ void TestUtil::testCase23()
             ASSERT(dam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -11950,7 +11989,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -11980,7 +12019,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -12009,7 +12048,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -12037,7 +12076,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -12047,7 +12086,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -12103,7 +12142,7 @@ void TestUtil::testCase23()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant2'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant2`." << endl;
     {
         typedef bdlb::Variant2<bsltf::MovableTestType,
                                bsltf::MovableAllocTestType> Obj;
@@ -12128,7 +12167,7 @@ void TestUtil::testCase23()
             ASSERT(dam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -12156,7 +12195,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -12186,7 +12225,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -12215,7 +12254,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -12243,7 +12282,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -12253,7 +12292,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -12309,7 +12348,7 @@ void TestUtil::testCase23()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant3'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant3`." << endl;
     {
         typedef bdlb::Variant3<int,
                                bsltf::MovableTestType,
@@ -12335,7 +12374,7 @@ void TestUtil::testCase23()
             ASSERT(dam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -12363,7 +12402,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -12393,7 +12432,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -12422,7 +12461,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -12450,7 +12489,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -12460,7 +12499,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -12516,7 +12555,7 @@ void TestUtil::testCase23()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant4'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant4`." << endl;
     {
         typedef bdlb::Variant4<TestArg1,
                                int,
@@ -12543,7 +12582,7 @@ void TestUtil::testCase23()
             ASSERT(dam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -12571,7 +12610,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -12601,7 +12640,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -12630,7 +12669,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -12658,7 +12697,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -12668,7 +12707,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -12724,7 +12763,7 @@ void TestUtil::testCase23()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant5'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant5`." << endl;
     {
         typedef bdlb::Variant5<TestArg1,  TestArg2,
                                int,
@@ -12751,7 +12790,7 @@ void TestUtil::testCase23()
             ASSERT(dam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -12779,7 +12818,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -12809,7 +12848,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -12838,7 +12877,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -12866,7 +12905,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -12876,7 +12915,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -12932,7 +12971,7 @@ void TestUtil::testCase23()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant6'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant6`." << endl;
     {
         typedef bdlb::Variant6<TestArg1,  TestArg2,  TestArg3,
                                int,
@@ -12959,7 +12998,7 @@ void TestUtil::testCase23()
             ASSERT(dam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -12987,7 +13026,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -13017,7 +13056,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -13046,7 +13085,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -13074,7 +13113,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -13084,7 +13123,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -13140,7 +13179,7 @@ void TestUtil::testCase23()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant7'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant7`." << endl;
     {
         typedef bdlb::Variant7<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                int,
@@ -13167,7 +13206,7 @@ void TestUtil::testCase23()
             ASSERT(dam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -13195,7 +13234,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -13225,7 +13264,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -13254,7 +13293,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -13282,7 +13321,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -13292,7 +13331,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -13348,7 +13387,7 @@ void TestUtil::testCase23()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant8'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant8`." << endl;
     {
         typedef bdlb::Variant8<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                TestArg5,
@@ -13376,7 +13415,7 @@ void TestUtil::testCase23()
             ASSERT(dam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -13404,7 +13443,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -13434,7 +13473,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -13463,7 +13502,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -13491,7 +13530,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -13501,7 +13540,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -13557,7 +13596,7 @@ void TestUtil::testCase23()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant9'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant9`." << endl;
     {
         typedef bdlb::Variant9<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                TestArg5,  TestArg6,
@@ -13585,7 +13624,7 @@ void TestUtil::testCase23()
             ASSERT(dam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -13613,7 +13652,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -13643,7 +13682,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -13672,7 +13711,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -13700,7 +13739,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -13710,7 +13749,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -13766,7 +13805,7 @@ void TestUtil::testCase23()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant10'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant10`." << endl;
     {
         typedef bdlb::Variant10<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,
@@ -13794,7 +13833,7 @@ void TestUtil::testCase23()
             ASSERT(dam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -13822,7 +13861,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -13852,7 +13891,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -13881,7 +13920,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -13909,7 +13948,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -13919,7 +13958,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -13975,7 +14014,7 @@ void TestUtil::testCase23()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant11'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant11`." << endl;
     {
         typedef bdlb::Variant11<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -14003,7 +14042,7 @@ void TestUtil::testCase23()
             ASSERT(dam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -14031,7 +14070,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -14061,7 +14100,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -14090,7 +14129,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -14118,7 +14157,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -14128,7 +14167,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -14184,7 +14223,7 @@ void TestUtil::testCase23()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant12'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant12`." << endl;
     {
         typedef bdlb::Variant12<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -14213,7 +14252,7 @@ void TestUtil::testCase23()
             ASSERT(dam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -14241,7 +14280,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -14271,7 +14310,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -14300,7 +14339,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -14328,7 +14367,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -14338,7 +14377,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -14394,7 +14433,7 @@ void TestUtil::testCase23()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant13'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant13`." << endl;
     {
         typedef bdlb::Variant13<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -14423,7 +14462,7 @@ void TestUtil::testCase23()
             ASSERT(dam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -14451,7 +14490,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -14481,7 +14520,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -14510,7 +14549,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -14538,7 +14577,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -14548,7 +14587,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -14604,7 +14643,7 @@ void TestUtil::testCase23()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant14'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant14`." << endl;
     {
         typedef bdlb::Variant14<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -14633,7 +14672,7 @@ void TestUtil::testCase23()
             ASSERT(dam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -14661,7 +14700,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -14691,7 +14730,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -14720,7 +14759,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -14748,7 +14787,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -14758,7 +14797,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -14814,7 +14853,7 @@ void TestUtil::testCase23()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant15'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant15`." << endl;
     {
         typedef bdlb::Variant15<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -14843,7 +14882,7 @@ void TestUtil::testCase23()
             ASSERT(dam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -14871,7 +14910,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -14901,7 +14940,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -14930,7 +14969,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -14958,7 +14997,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -14968,7 +15007,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -15024,7 +15063,7 @@ void TestUtil::testCase23()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant16'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant16`." << endl;
     {
         typedef bdlb::Variant16<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -15054,7 +15093,7 @@ void TestUtil::testCase23()
             ASSERT(dam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -15082,7 +15121,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -15112,7 +15151,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -15141,7 +15180,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -15169,7 +15208,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -15179,7 +15218,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -15235,7 +15274,7 @@ void TestUtil::testCase23()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant17'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant17`." << endl;
     {
         typedef bdlb::Variant17<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -15265,7 +15304,7 @@ void TestUtil::testCase23()
             ASSERT(dam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -15293,7 +15332,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -15323,7 +15362,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -15352,7 +15391,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -15380,7 +15419,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -15390,7 +15429,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -15446,7 +15485,7 @@ void TestUtil::testCase23()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant18'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant18`." << endl;
     {
         typedef bdlb::Variant18<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -15476,7 +15515,7 @@ void TestUtil::testCase23()
             ASSERT(dam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -15504,7 +15543,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -15534,7 +15573,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -15563,7 +15602,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -15591,7 +15630,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -15601,7 +15640,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -15657,7 +15696,7 @@ void TestUtil::testCase23()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant19'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant19`." << endl;
     {
         typedef bdlb::Variant19<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -15687,7 +15726,7 @@ void TestUtil::testCase23()
             ASSERT(dam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -15715,7 +15754,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -15745,7 +15784,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -15774,7 +15813,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -15802,7 +15841,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -15812,7 +15851,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -15868,7 +15907,7 @@ void TestUtil::testCase23()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant' (with 20 types)." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant` (with 20 types)." << endl;
     {
         typedef bdlb::Variant<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                               TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -15899,7 +15938,7 @@ void TestUtil::testCase23()
             ASSERT(dam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -15927,7 +15966,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -15957,7 +15996,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -15986,7 +16025,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -16014,7 +16053,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -16024,7 +16063,7 @@ void TestUtil::testCase23()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -16080,7 +16119,7 @@ void TestUtil::testCase23()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant' (with 1 type)." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant` (with 1 type)." << endl;
     {
         typedef bdlb::Variant<bsltf::MovableAllocTestType> Obj;
 
@@ -16106,7 +16145,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -16135,7 +16174,7 @@ void TestUtil::testCase23()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -16163,7 +16202,7 @@ void TestUtil::testCase23()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y);            // 'Y' value is unspecified
+            ASSERT(TT()    == Y);            // `Y` value is unspecified
 
             MoveState::Enum mStateX = TstFacility::getMovedIntoState(
                                                                   X.the<TT>());
@@ -16188,7 +16227,7 @@ void TestUtil::testCase22()
 
     bslma::TestAllocatorMonitor dam(&da), oam(&oa), zam(&za);
 
-    if (verbose) cout << "\nTesting 'bdlb::VariantImp'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::VariantImp`." << endl;
     {
         typedef bslmf::TypeList<bsltf::MovableTestType,
                                 bsltf::MovableAllocTestType,
@@ -16231,7 +16270,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -16265,7 +16304,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -16299,7 +16338,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -16332,7 +16371,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -16364,7 +16403,7 @@ void TestUtil::testCase22()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -16375,7 +16414,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -16431,7 +16470,7 @@ void TestUtil::testCase22()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant2'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant2`." << endl;
     {
         typedef bdlb::Variant2<bsltf::MovableTestType,
                                bsltf::MovableAllocTestType> Obj;
@@ -16461,7 +16500,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -16495,7 +16534,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -16529,7 +16568,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -16562,7 +16601,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -16594,7 +16633,7 @@ void TestUtil::testCase22()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -16605,7 +16644,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -16661,7 +16700,7 @@ void TestUtil::testCase22()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant3'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant3`." << endl;
     {
         typedef bdlb::Variant3<int,
                                bsltf::MovableTestType,
@@ -16692,7 +16731,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -16726,7 +16765,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -16760,7 +16799,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -16793,7 +16832,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -16825,7 +16864,7 @@ void TestUtil::testCase22()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -16836,7 +16875,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -16892,7 +16931,7 @@ void TestUtil::testCase22()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant4'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant4`." << endl;
     {
         typedef bdlb::Variant4<TestArg1,
                                int,
@@ -16924,7 +16963,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -16958,7 +16997,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -16992,7 +17031,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -17025,7 +17064,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -17057,7 +17096,7 @@ void TestUtil::testCase22()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -17068,7 +17107,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -17124,7 +17163,7 @@ void TestUtil::testCase22()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant5'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant5`." << endl;
     {
         typedef bdlb::Variant5<TestArg1,  TestArg2,
                                int,
@@ -17156,7 +17195,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -17190,7 +17229,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -17224,7 +17263,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -17257,7 +17296,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -17289,7 +17328,7 @@ void TestUtil::testCase22()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -17300,7 +17339,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -17356,7 +17395,7 @@ void TestUtil::testCase22()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant6'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant6`." << endl;
     {
         typedef bdlb::Variant6<TestArg1,  TestArg2,  TestArg3,
                                int,
@@ -17388,7 +17427,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -17422,7 +17461,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -17456,7 +17495,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -17489,7 +17528,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -17521,7 +17560,7 @@ void TestUtil::testCase22()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -17532,7 +17571,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -17588,7 +17627,7 @@ void TestUtil::testCase22()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant7'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant7`." << endl;
     {
         typedef bdlb::Variant7<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                int,
@@ -17620,7 +17659,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -17654,7 +17693,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -17688,7 +17727,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -17721,7 +17760,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -17753,7 +17792,7 @@ void TestUtil::testCase22()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -17764,7 +17803,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -17820,7 +17859,7 @@ void TestUtil::testCase22()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant8'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant8`." << endl;
     {
         typedef bdlb::Variant8<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                TestArg5,
@@ -17853,7 +17892,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -17887,7 +17926,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -17921,7 +17960,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -17954,7 +17993,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -17986,7 +18025,7 @@ void TestUtil::testCase22()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -17997,7 +18036,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -18053,7 +18092,7 @@ void TestUtil::testCase22()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant9'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant9`." << endl;
     {
         typedef bdlb::Variant9<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                TestArg5,  TestArg6,
@@ -18086,7 +18125,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -18120,7 +18159,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -18154,7 +18193,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -18187,7 +18226,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -18219,7 +18258,7 @@ void TestUtil::testCase22()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -18230,7 +18269,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -18286,7 +18325,7 @@ void TestUtil::testCase22()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant10'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant10`." << endl;
     {
         typedef bdlb::Variant10<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,
@@ -18319,7 +18358,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -18353,7 +18392,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -18387,7 +18426,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -18420,7 +18459,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -18452,7 +18491,7 @@ void TestUtil::testCase22()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -18463,7 +18502,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -18519,7 +18558,7 @@ void TestUtil::testCase22()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant11'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant11`." << endl;
     {
         typedef bdlb::Variant11<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -18552,7 +18591,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -18586,7 +18625,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -18620,7 +18659,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -18653,7 +18692,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -18685,7 +18724,7 @@ void TestUtil::testCase22()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -18696,7 +18735,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -18752,7 +18791,7 @@ void TestUtil::testCase22()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant12'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant12`." << endl;
     {
         typedef bdlb::Variant12<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -18786,7 +18825,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -18820,7 +18859,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -18854,7 +18893,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -18887,7 +18926,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -18919,7 +18958,7 @@ void TestUtil::testCase22()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -18930,7 +18969,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -18986,7 +19025,7 @@ void TestUtil::testCase22()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant13'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant13`." << endl;
     {
         typedef bdlb::Variant13<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -19020,7 +19059,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -19054,7 +19093,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -19088,7 +19127,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -19121,7 +19160,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -19153,7 +19192,7 @@ void TestUtil::testCase22()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -19164,7 +19203,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -19220,7 +19259,7 @@ void TestUtil::testCase22()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant14'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant14`." << endl;
     {
         typedef bdlb::Variant14<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -19254,7 +19293,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -19288,7 +19327,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -19322,7 +19361,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -19355,7 +19394,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -19387,7 +19426,7 @@ void TestUtil::testCase22()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -19398,7 +19437,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -19454,7 +19493,7 @@ void TestUtil::testCase22()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant15'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant15`." << endl;
     {
         typedef bdlb::Variant15<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -19488,7 +19527,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -19522,7 +19561,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -19556,7 +19595,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -19589,7 +19628,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -19621,7 +19660,7 @@ void TestUtil::testCase22()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -19632,7 +19671,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -19688,7 +19727,7 @@ void TestUtil::testCase22()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant16'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant16`." << endl;
     {
         typedef bdlb::Variant16<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -19723,7 +19762,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -19757,7 +19796,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -19791,7 +19830,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -19824,7 +19863,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -19856,7 +19895,7 @@ void TestUtil::testCase22()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -19867,7 +19906,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -19923,7 +19962,7 @@ void TestUtil::testCase22()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant17'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant17`." << endl;
     {
         typedef bdlb::Variant17<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -19958,7 +19997,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -19992,7 +20031,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -20026,7 +20065,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -20059,7 +20098,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -20091,7 +20130,7 @@ void TestUtil::testCase22()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -20102,7 +20141,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -20158,7 +20197,7 @@ void TestUtil::testCase22()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant18'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant18`." << endl;
     {
         typedef bdlb::Variant18<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -20193,7 +20232,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -20227,7 +20266,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -20261,7 +20300,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -20294,7 +20333,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -20326,7 +20365,7 @@ void TestUtil::testCase22()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -20337,7 +20376,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -20393,7 +20432,7 @@ void TestUtil::testCase22()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant19'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant19`." << endl;
     {
         typedef bdlb::Variant19<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -20428,7 +20467,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -20462,7 +20501,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -20496,7 +20535,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -20529,7 +20568,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -20561,7 +20600,7 @@ void TestUtil::testCase22()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -20572,7 +20611,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -20628,7 +20667,7 @@ void TestUtil::testCase22()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant' (with 20 types)." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant` (with 20 types)." << endl;
     {
         typedef bdlb::Variant<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                               TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -20664,7 +20703,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -20698,7 +20737,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -20732,7 +20771,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -20765,7 +20804,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -20797,7 +20836,7 @@ void TestUtil::testCase22()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -20808,7 +20847,7 @@ void TestUtil::testCase22()
             ASSERT(MoveState::e_MOVED == mStateY);
         }
 
-        if (verbose) cout << "\tWith non-'const' source." << endl;
+        if (verbose) cout << "\tWith non-`const` source." << endl;
         {
             typedef bsltf::MovableTestType TT;
 
@@ -20864,7 +20903,7 @@ void TestUtil::testCase22()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant' (with 1 type)." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant` (with 1 type)." << endl;
     {
         typedef bdlb::Variant<bsltf::MovableAllocTestType> Obj;
 
@@ -20893,7 +20932,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -20926,7 +20965,7 @@ void TestUtil::testCase22()
             ASSERT(zam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -20958,7 +20997,7 @@ void TestUtil::testCase22()
             ASSERT(oam.isTotalSame());
 
             ASSERT(TT('A') == X.the<TT>());
-            ASSERT(TT()    == Y.the<TT>());  // 'Y' value is unspecified
+            ASSERT(TT()    == Y.the<TT>());  // `Y` value is unspecified
 
             MoveState::Enum mStateX =
                                    TstFacility::getMovedIntoState(X.the<TT>());
@@ -20970,7 +21009,7 @@ void TestUtil::testCase22()
         }
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant' (with no types)." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant` (with no types)." << endl;
     {
         typedef bdlb::Variant<> Obj;
 
@@ -20992,7 +21031,7 @@ void TestUtil::testCase22()
 void TestUtil::testCase21()
 {
     if (verbose) cout << endl
-                      << "TESTING 'swap'" << endl
+                      << "TESTING `swap`" << endl
                       << "==============" << endl;
 
     bslma::TestAllocator ta("object-a", veryVeryVeryVerbose);
@@ -21046,7 +21085,7 @@ void TestUtil::testCase21()
             retCode = ggg(&mY, INPUT2, false);
             ASSERT(-1 == retCode);
 
-            // Alternately test member and free 'swap'.  It isn't necessary to
+            // Alternately test member and free `swap`.  It isn't necessary to
             // test both functions on all combinations.
 
             if (0 == (ti + tj) % 2) {
@@ -21107,7 +21146,7 @@ void TestUtil::testCase20()
 
     if (verbose)
         cout << endl
-             << "CONCERN: 'applyRaw' & VISITOR w/o 'Nil' overload" << endl
+             << "CONCERN: `applyRaw` & VISITOR w/o `Nil` overload" << endl
              << "================================================" << endl;
 
     typedef bdlb::Variant<int> Variant;
@@ -21124,13 +21163,13 @@ void TestUtil::testCase20()
     const TestVisitorWithoutResultType&        VWORT = vwort;
     const TestVisitorWithUndeclaredResultType& VWURT = vwurt;
 
-    // We will test 'applyRaw' on the cross product of:
-    //: o 'const' and non-'const' variant.
-    //: o 'const' and non-'const' visitor.
-    //: o A visitor functor that:
-    //:   o Declares a result type.
-    //:   o Does not declare a result type and returns 'void'.
-    //:   o Does not declare a result type and returns non-'void'.
+    // We will test `applyRaw` on the cross product of:
+    //  - `const` and non-`const` variant.
+    //  - `const` and non-`const` visitor.
+    //  - A visitor functor that:
+    //    - Declares a result type.
+    //    - Does not declare a result type and returns `void`.
+    //    - Does not declare a result type and returns non-`void`.
 
     if (verbose) cout <<
         "\nCall applyRaw using template deduction for the return type."
@@ -21159,7 +21198,7 @@ void TestUtil::testCase20()
         "\nCall applyRaw using template w/o deduction for the return type."
                       << endl;
     {
-        // Note that 'applyRaw<TYPE>' cannot have 'void' as the result type.
+        // Note that `applyRaw<TYPE>` cannot have `void` as the result type.
 
         Variant mX(1);  const Variant& X = mX;
 
@@ -21318,7 +21357,7 @@ void TestUtil::testCase19()
 
     if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
 
-    if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tNone use `bslma::Allocator`." << endl;
     {
         typedef bdlb::VariantImp<bslmf::TypeList<NT1, NT2, NT3> > Obj;
 
@@ -21326,7 +21365,7 @@ void TestUtil::testCase19()
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tAll use `bslma::Allocator`." << endl;
     {
         typedef bdlb::VariantImp<
                  bslmf::TypeList<UA1,  UA2,  UA3,  UA4,  UA5,  UA6,  UA7,
@@ -21337,7 +21376,7 @@ void TestUtil::testCase19()
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tSome use `bslma::Allocator`." << endl;
     {
         typedef bdlb::VariantImp<bslmf::TypeList<UA1, NT2, NT3> > Obj1;
         typedef bdlb::VariantImp<bslmf::TypeList<NT1, UA2, NT3> > Obj2;
@@ -21498,7 +21537,7 @@ void TestUtil::testCase19()
 
     if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
 
-    if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tNone use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant<NT1, NT2, NT3> Obj;
 
@@ -21506,7 +21545,7 @@ void TestUtil::testCase19()
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tAll use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant<UA1,  UA2,  UA3,  UA4,  UA5,  UA6,  UA7,
                               UA8,  UA9,  UA10, UA11, UA12, UA13, UA14,
@@ -21516,7 +21555,7 @@ void TestUtil::testCase19()
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tSome use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant<UA1, NT2, NT3> Obj1;
         typedef bdlb::Variant<NT1, UA2, NT3> Obj2;
@@ -21666,7 +21705,7 @@ void TestUtil::testCase19()
 
     if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
 
-    if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tNone use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant2<NT1, NT2> Obj;
 
@@ -21674,7 +21713,7 @@ void TestUtil::testCase19()
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tAll use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant2<UA1, UA2> Obj;
 
@@ -21682,7 +21721,7 @@ void TestUtil::testCase19()
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tSome use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant2<UA1, NT2> Obj;
 
@@ -21747,7 +21786,7 @@ void TestUtil::testCase19()
 
     if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
 
-    if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tNone use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant3<NT1, NT2, NT3> Obj;
 
@@ -21755,7 +21794,7 @@ void TestUtil::testCase19()
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tAll use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant3<UA1, UA2, UA3> Obj;
 
@@ -21763,7 +21802,7 @@ void TestUtil::testCase19()
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tSome use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant3<NT1, UA2, NT3> Obj;
 
@@ -21828,7 +21867,7 @@ void TestUtil::testCase19()
 
     if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
 
-    if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tNone use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant4<NT1, NT2, NT3, NT4> Obj;
 
@@ -21836,7 +21875,7 @@ void TestUtil::testCase19()
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tAll use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant4<UA1, UA2, UA3, UA4> Obj;
 
@@ -21844,7 +21883,7 @@ void TestUtil::testCase19()
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tSome use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant4<NT1, NT2, UA3, NT4> Obj;
 
@@ -21909,7 +21948,7 @@ void TestUtil::testCase19()
 
     if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
 
-    if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tNone use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant5<NT1, NT2, NT3, NT4, NT5> Obj;
 
@@ -21917,7 +21956,7 @@ void TestUtil::testCase19()
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tAll use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant5<UA1, UA2, UA3, UA4, UA5> Obj;
 
@@ -21925,7 +21964,7 @@ void TestUtil::testCase19()
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tSome use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant5<NT1, NT2, NT3, UA4, NT5> Obj;
 
@@ -21990,7 +22029,7 @@ void TestUtil::testCase19()
 
     if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
 
-    if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tNone use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant6<NT1, NT2, NT3, NT4, NT5, NT6> Obj;
 
@@ -21998,7 +22037,7 @@ void TestUtil::testCase19()
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tAll use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant6<UA1, UA2, UA3, UA4, UA5, UA6> Obj;
 
@@ -22006,7 +22045,7 @@ void TestUtil::testCase19()
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tSome use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant6<NT1, NT2, NT3, NT4, UA5, NT6> Obj;
 
@@ -22071,7 +22110,7 @@ void TestUtil::testCase19()
 
     if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
 
-    if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tNone use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant7<NT1, NT2, NT3, NT4, NT5, NT6, NT7> Obj;
 
@@ -22079,7 +22118,7 @@ void TestUtil::testCase19()
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tAll use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant7<UA1, UA2, UA3, UA4, UA5, UA6, UA7> Obj;
 
@@ -22087,7 +22126,7 @@ void TestUtil::testCase19()
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tSome use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant7<NT1, NT2, NT3, NT4, NT5, UA6, NT7> Obj;
 
@@ -22152,7 +22191,7 @@ void TestUtil::testCase19()
 
     if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
 
-    if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tNone use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant8<NT1, NT2, NT3, NT4, NT5, NT6, NT7, NT8> Obj;
 
@@ -22160,7 +22199,7 @@ void TestUtil::testCase19()
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tAll use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant8<UA1, UA2, UA3, UA4, UA5, UA6, UA7, UA8> Obj;
 
@@ -22168,7 +22207,7 @@ void TestUtil::testCase19()
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tSome use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant8<NT1, NT2, NT3, NT4, NT5, NT6, UA7, NT8> Obj;
 
@@ -22233,7 +22272,7 @@ void TestUtil::testCase19()
 
     if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
 
-    if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tNone use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant9<NT1, NT2, NT3, NT4, NT5, NT6, NT7, NT8,
                                NT9> Obj;
@@ -22242,7 +22281,7 @@ void TestUtil::testCase19()
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tAll use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant9<UA1, UA2, UA3, UA4, UA5, UA6, UA7, UA8,
                                UA9> Obj;
@@ -22251,7 +22290,7 @@ void TestUtil::testCase19()
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tSome use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant9<NT1, NT2, NT3, NT4, NT5, NT6, NT7, UA8,
                                NT9> Obj;
@@ -22323,7 +22362,7 @@ void TestUtil::testCase19()
 
     if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
 
-    if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tNone use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant10<NT1,  NT2,  NT3,  NT4,
                                 NT5,  NT6,  NT7,  NT8,
@@ -22333,7 +22372,7 @@ void TestUtil::testCase19()
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tAll use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant10<UA1,  UA2,  UA3,  UA4,  UA5,  UA6,
                                 UA7,  UA8,  UA9,  UA10> Obj;
@@ -22342,7 +22381,7 @@ void TestUtil::testCase19()
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tSome use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant10<NT1,  NT2,  NT3,  NT4,
                                 NT5,  NT6,  NT7,  NT8,
@@ -22419,7 +22458,7 @@ void TestUtil::testCase19()
 
     if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
 
-    if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tNone use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant11<NT1,  NT2,  NT3,  NT4,
                                 NT5,  NT6,  NT7,  NT8,
@@ -22429,7 +22468,7 @@ void TestUtil::testCase19()
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tAll use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant11<UA1,  UA2,  UA3,  UA4,  UA5,  UA6,
                                 UA7,  UA8,  UA9,  UA10, UA11> Obj;
@@ -22438,7 +22477,7 @@ void TestUtil::testCase19()
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tSome use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant11<NT1,  NT2,  NT3,  NT4,
                                 NT5,  NT6,  NT7,  NT8,
@@ -22515,7 +22554,7 @@ void TestUtil::testCase19()
 
     if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
 
-    if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tNone use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant12<NT1,  NT2,  NT3,  NT4,
                                 NT5,  NT6,  NT7,  NT8,
@@ -22525,7 +22564,7 @@ void TestUtil::testCase19()
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tAll use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant12<UA1,  UA2,  UA3,  UA4,  UA5,  UA6,
                                 UA7,  UA8,  UA9,  UA10, UA11, UA12> Obj;
@@ -22534,7 +22573,7 @@ void TestUtil::testCase19()
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tSome use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant12<NT1,  NT2,  NT3,  NT4,
                                 NT5,  NT6,  NT7,  NT8,
@@ -22611,7 +22650,7 @@ void TestUtil::testCase19()
 
     if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
 
-    if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tNone use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant13<NT1,  NT2,  NT3,  NT4,
                                 NT5,  NT6,  NT7,  NT8,
@@ -22622,7 +22661,7 @@ void TestUtil::testCase19()
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tAll use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant13<UA1,  UA2,  UA3,  UA4,  UA5,  UA6,
                                 UA7,  UA8,  UA9,  UA10, UA11, UA12,
@@ -22632,7 +22671,7 @@ void TestUtil::testCase19()
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tSome use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant13<NT1,  NT2,  NT3,  NT4,
                                 NT5,  NT6,  NT7,  NT8,
@@ -22716,7 +22755,7 @@ void TestUtil::testCase19()
 
     if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
 
-    if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tNone use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant14<NT1,  NT2,  NT3,  NT4,
                                 NT5,  NT6,  NT7,  NT8,
@@ -22727,7 +22766,7 @@ void TestUtil::testCase19()
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tAll use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant14<UA1,  UA2,  UA3,  UA4,  UA5,  UA6,
                                 UA7,  UA8,  UA9,  UA10, UA11, UA12,
@@ -22737,7 +22776,7 @@ void TestUtil::testCase19()
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tSome use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant14<NT1,  NT2,  NT3,  NT4,
                                 NT5,  NT6,  NT7,  NT8,
@@ -22821,7 +22860,7 @@ void TestUtil::testCase19()
 
     if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
 
-    if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tNone use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant15<NT1,  NT2,  NT3,  NT4,
                                 NT5,  NT6,  NT7,  NT8,
@@ -22832,7 +22871,7 @@ void TestUtil::testCase19()
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tAll use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant15<UA1,  UA2,  UA3,  UA4,  UA5,  UA6,  UA7,
                                 UA8,  UA9,  UA10, UA11, UA12, UA13, UA14,
@@ -22842,7 +22881,7 @@ void TestUtil::testCase19()
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tSome use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant15<NT1,  NT2,  NT3,  NT4,
                                 NT5,  NT6,  NT7,  NT8,
@@ -22926,7 +22965,7 @@ void TestUtil::testCase19()
 
     if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
 
-    if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tNone use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant16<NT1,  NT2,  NT3,  NT4,
                                 NT5,  NT6,  NT7,  NT8,
@@ -22937,7 +22976,7 @@ void TestUtil::testCase19()
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tAll use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant16<UA1,  UA2,  UA3,  UA4,  UA5,  UA6,  UA7,
                                 UA8,  UA9,  UA10, UA11, UA12, UA13, UA14,
@@ -22947,7 +22986,7 @@ void TestUtil::testCase19()
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tSome use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant16<NT1,  NT2,  NT3,  NT4,
                                 NT5,  NT6,  NT7,  NT8,
@@ -23031,7 +23070,7 @@ void TestUtil::testCase19()
 
     if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
 
-    if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tNone use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant17<NT1,  NT2,  NT3,  NT4,
                                 NT5,  NT6,  NT7,  NT8,
@@ -23043,7 +23082,7 @@ void TestUtil::testCase19()
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tAll use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant17<UA1,  UA2,  UA3,  UA4,  UA5,  UA6,  UA7,
                                 UA8,  UA9,  UA10, UA11, UA12, UA13, UA14,
@@ -23053,7 +23092,7 @@ void TestUtil::testCase19()
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tSome use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant17<NT1,  NT2,  NT3,  NT4,
                                 NT5,  NT6,  NT7,  NT8,
@@ -23142,7 +23181,7 @@ void TestUtil::testCase19()
 
     if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
 
-    if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tNone use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant18<NT1,  NT2,  NT3,  NT4,
                                 NT5,  NT6,  NT7,  NT8,
@@ -23154,7 +23193,7 @@ void TestUtil::testCase19()
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tAll use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant18<UA1,  UA2,  UA3,  UA4,  UA5,  UA6,  UA7,
                                 UA8,  UA9,  UA10, UA11, UA12, UA13, UA14,
@@ -23164,7 +23203,7 @@ void TestUtil::testCase19()
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tSome use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant18<NT1,  NT2,  NT3,  NT4,
                                 NT5,  NT6,  NT7,  NT8,
@@ -23253,7 +23292,7 @@ void TestUtil::testCase19()
 
     if (verbose) cout << "\nTesting UsesBslmaAllocator trait." << endl;
 
-    if (verbose) cout << "\tNone use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tNone use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant19<NT1,  NT2,  NT3,  NT4,
                                 NT5,  NT6,  NT7,  NT8,
@@ -23265,7 +23304,7 @@ void TestUtil::testCase19()
         ASSERT(true  == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tAll use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tAll use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant19<UA1,  UA2,  UA3,  UA4,  UA5,  UA6,  UA7,
                                 UA8,  UA9,  UA10, UA11, UA12, UA13, UA14,
@@ -23275,7 +23314,7 @@ void TestUtil::testCase19()
         ASSERT(true == bdlb::HasPrintMethod<Obj>::value);
     }
 
-    if (verbose) cout << "\tSome use 'bslma::Allocator'." << endl;
+    if (verbose) cout << "\tSome use `bslma::Allocator`." << endl;
     {
         typedef bdlb::Variant19<NT1,  NT2,  NT3,  NT4,
                                 NT5,  NT6,  NT7,  NT8,
@@ -23363,7 +23402,7 @@ void TestUtil::testCase19()
 void TestUtil::testCase18()
 {
     if (verbose) cout << endl
-                      << "TESTING CLASSES 'bdlb::VariantN'"
+                      << "TESTING CLASSES `bdlb::VariantN`"
                       << "================================" << endl;
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
@@ -23398,7 +23437,7 @@ void TestUtil::testCase18()
     const TestArg19 V19(19);
     const TestArg20 V20(20);
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant2'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant2`." << endl;
     {
         typedef bdlb::Variant2<TestArg1, TestArg2> Obj;
 
@@ -23456,7 +23495,7 @@ void TestUtil::testCase18()
             ASSERT(dam.isTotalSame());
             ASSERT(oam.isTotalSame());
 
-            if (verbose) cout << "\tTesting 'assign'." << endl;
+            if (verbose) cout << "\tTesting `assign`." << endl;
 
             mX.assign<TestArg1>(V1);
             ASSERT( 1 == X.typeIndex());
@@ -23471,7 +23510,7 @@ void TestUtil::testCase18()
             ASSERT(      X.is<TestArg2>());
             ASSERT(V2 == X.the<TestArg2>());
 
-            if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+            if (verbose) cout << "\tTesting `operator=(value)`." << endl;
 
             Obj *mR = &(mX = V1);
             ASSERT( 1 == X.typeIndex());
@@ -23586,7 +23625,7 @@ void TestUtil::testCase18()
         ASSERT(0 == oa.numBlocksInUse());
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant3'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant3`." << endl;
     {
         typedef bdlb::Variant3<TestArg1, TestArg2, TestArg3> Obj;
 
@@ -23644,7 +23683,7 @@ void TestUtil::testCase18()
             ASSERT(dam.isTotalSame());
             ASSERT(oam.isTotalSame());
 
-            if (verbose) cout << "\tTesting 'assign'." << endl;
+            if (verbose) cout << "\tTesting `assign`." << endl;
 
             mX.assign<TestArg1>(V1);
             ASSERT( 1 == X.typeIndex());
@@ -23664,7 +23703,7 @@ void TestUtil::testCase18()
             ASSERT(      X.is<TestArg3>());
             ASSERT(V3 == X.the<TestArg3>());
 
-            if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+            if (verbose) cout << "\tTesting `operator=(value)`." << endl;
 
             Obj *mR = &(mX = V1);
             ASSERT( 1 == X.typeIndex());
@@ -23801,7 +23840,7 @@ void TestUtil::testCase18()
         ASSERT(0 == oa.numBlocksInUse());
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant4'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant4`." << endl;
     {
         typedef bdlb::Variant4<TestArg1, TestArg2, TestArg3, TestArg4> Obj;
 
@@ -23859,7 +23898,7 @@ void TestUtil::testCase18()
             ASSERT(dam.isTotalSame());
             ASSERT(oam.isTotalSame());
 
-            if (verbose) cout << "\tTesting 'assign'." << endl;
+            if (verbose) cout << "\tTesting `assign`." << endl;
 
             mX.assign<TestArg1>(V1);
             ASSERT( 1 == X.typeIndex());
@@ -23879,7 +23918,7 @@ void TestUtil::testCase18()
             ASSERT(      X.is<TestArg4>());
             ASSERT(V4 == X.the<TestArg4>());
 
-            if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+            if (verbose) cout << "\tTesting `operator=(value)`." << endl;
 
             Obj *mR = &(mX = V1);
             ASSERT( 1 == X.typeIndex());
@@ -24016,7 +24055,7 @@ void TestUtil::testCase18()
         ASSERT(0 == oa.numBlocksInUse());
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant5'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant5`." << endl;
     {
         typedef bdlb::Variant5<TestArg1, TestArg2, TestArg3, TestArg4,
                                TestArg5> Obj;
@@ -24075,7 +24114,7 @@ void TestUtil::testCase18()
             ASSERT(dam.isTotalSame());
             ASSERT(oam.isTotalSame());
 
-            if (verbose) cout << "\tTesting 'assign'." << endl;
+            if (verbose) cout << "\tTesting `assign`." << endl;
 
             mX.assign<TestArg1>(V1);
             ASSERT( 1 == X.typeIndex());
@@ -24095,7 +24134,7 @@ void TestUtil::testCase18()
             ASSERT(      X.is<TestArg5>());
             ASSERT(V5 == X.the<TestArg5>());
 
-            if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+            if (verbose) cout << "\tTesting `operator=(value)`." << endl;
 
             Obj *mR = &(mX = V1);
             ASSERT( 1 == X.typeIndex());
@@ -24231,7 +24270,7 @@ void TestUtil::testCase18()
         ASSERT(0 == oa.numBlocksInUse());
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant6'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant6`." << endl;
     {
         typedef bdlb::Variant6<TestArg1, TestArg2, TestArg3, TestArg4,
                                TestArg5, TestArg6> Obj;
@@ -24290,7 +24329,7 @@ void TestUtil::testCase18()
             ASSERT(dam.isTotalSame());
             ASSERT(oam.isTotalSame());
 
-            if (verbose) cout << "\tTesting 'assign'." << endl;
+            if (verbose) cout << "\tTesting `assign`." << endl;
 
             mX.assign<TestArg1>(V1);
             ASSERT( 1 == X.typeIndex());
@@ -24310,7 +24349,7 @@ void TestUtil::testCase18()
             ASSERT(      X.is<TestArg6>());
             ASSERT(V6 == X.the<TestArg6>());
 
-            if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+            if (verbose) cout << "\tTesting `operator=(value)`." << endl;
 
             Obj *mR = &(mX = V1);
             ASSERT( 1 == X.typeIndex());
@@ -24446,7 +24485,7 @@ void TestUtil::testCase18()
         ASSERT(0 == oa.numBlocksInUse());
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant7'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant7`." << endl;
     {
         typedef bdlb::Variant7<TestArg1, TestArg2, TestArg3, TestArg4,
                                TestArg5, TestArg6, TestArg7> Obj;
@@ -24505,7 +24544,7 @@ void TestUtil::testCase18()
             ASSERT(dam.isTotalSame());
             ASSERT(oam.isTotalSame());
 
-            if (verbose) cout << "\tTesting 'assign'." << endl;
+            if (verbose) cout << "\tTesting `assign`." << endl;
 
             mX.assign<TestArg1>(V1);
             ASSERT( 1 == X.typeIndex());
@@ -24525,7 +24564,7 @@ void TestUtil::testCase18()
             ASSERT(      X.is<TestArg7>());
             ASSERT(V7 == X.the<TestArg7>());
 
-            if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+            if (verbose) cout << "\tTesting `operator=(value)`." << endl;
 
             Obj *mR = &(mX = V1);
             ASSERT( 1 == X.typeIndex());
@@ -24661,7 +24700,7 @@ void TestUtil::testCase18()
         ASSERT(0 == oa.numBlocksInUse());
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant8'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant8`." << endl;
     {
         typedef bdlb::Variant8<TestArg1, TestArg2, TestArg3, TestArg4,
                                TestArg5, TestArg6, TestArg7, TestArg8> Obj;
@@ -24720,7 +24759,7 @@ void TestUtil::testCase18()
             ASSERT(dam.isTotalSame());
             ASSERT(oam.isTotalSame());
 
-            if (verbose) cout << "\tTesting 'assign'." << endl;
+            if (verbose) cout << "\tTesting `assign`." << endl;
 
             mX.assign<TestArg1>(V1);
             ASSERT( 1 == X.typeIndex());
@@ -24740,7 +24779,7 @@ void TestUtil::testCase18()
             ASSERT(      X.is<TestArg8>());
             ASSERT(V8 == X.the<TestArg8>());
 
-            if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+            if (verbose) cout << "\tTesting `operator=(value)`." << endl;
 
             Obj *mR = &(mX = V1);
             ASSERT( 1 == X.typeIndex());
@@ -24876,7 +24915,7 @@ void TestUtil::testCase18()
         ASSERT(0 == oa.numBlocksInUse());
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant9'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant9`." << endl;
     {
         typedef bdlb::Variant9<TestArg1, TestArg2, TestArg3, TestArg4,
                                TestArg5, TestArg6, TestArg7, TestArg8,
@@ -24936,7 +24975,7 @@ void TestUtil::testCase18()
             ASSERT(dam.isTotalSame());
             ASSERT(oam.isTotalSame());
 
-            if (verbose) cout << "\tTesting 'assign'." << endl;
+            if (verbose) cout << "\tTesting `assign`." << endl;
 
             mX.assign<TestArg1>(V1);
             ASSERT( 1 == X.typeIndex());
@@ -24956,7 +24995,7 @@ void TestUtil::testCase18()
             ASSERT(      X.is<TestArg9>());
             ASSERT(V9 == X.the<TestArg9>());
 
-            if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+            if (verbose) cout << "\tTesting `operator=(value)`." << endl;
 
             Obj *mR = &(mX = V1);
             ASSERT( 1 == X.typeIndex());
@@ -25092,7 +25131,7 @@ void TestUtil::testCase18()
         ASSERT(0 == oa.numBlocksInUse());
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant10'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant10`." << endl;
     {
         typedef bdlb::Variant10<TestArg1, TestArg2, TestArg3, TestArg4,
                                 TestArg5, TestArg6, TestArg7, TestArg8,
@@ -25152,7 +25191,7 @@ void TestUtil::testCase18()
             ASSERT(dam.isTotalSame());
             ASSERT(oam.isTotalSame());
 
-            if (verbose) cout << "\tTesting 'assign'." << endl;
+            if (verbose) cout << "\tTesting `assign`." << endl;
 
             mX.assign<TestArg1>(V1);
             ASSERT( 1 == X.typeIndex());
@@ -25172,7 +25211,7 @@ void TestUtil::testCase18()
             ASSERT(       X.is<TestArg10>());
             ASSERT(V10 == X.the<TestArg10>());
 
-            if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+            if (verbose) cout << "\tTesting `operator=(value)`." << endl;
 
             Obj *mR = &(mX = V1);
             ASSERT( 1 == X.typeIndex());
@@ -25308,7 +25347,7 @@ void TestUtil::testCase18()
         ASSERT(0 == oa.numBlocksInUse());
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant11'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant11`." << endl;
     {
         typedef bdlb::Variant11<TestArg1, TestArg2,  TestArg3, TestArg4,
                                 TestArg5, TestArg6,  TestArg7, TestArg8,
@@ -25368,7 +25407,7 @@ void TestUtil::testCase18()
             ASSERT(dam.isTotalSame());
             ASSERT(oam.isTotalSame());
 
-            if (verbose) cout << "\tTesting 'assign'." << endl;
+            if (verbose) cout << "\tTesting `assign`." << endl;
 
             mX.assign<TestArg1>(V1);
             ASSERT( 1 == X.typeIndex());
@@ -25388,7 +25427,7 @@ void TestUtil::testCase18()
             ASSERT(       X.is<TestArg11>());
             ASSERT(V11 == X.the<TestArg11>());
 
-            if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+            if (verbose) cout << "\tTesting `operator=(value)`." << endl;
 
             Obj *mR = &(mX = V1);
             ASSERT( 1 == X.typeIndex());
@@ -25524,7 +25563,7 @@ void TestUtil::testCase18()
         ASSERT(0 == oa.numBlocksInUse());
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant12'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant12`." << endl;
     {
         typedef bdlb::Variant12<TestArg1, TestArg2,  TestArg3, TestArg4,
                                 TestArg5, TestArg6,  TestArg7, TestArg8,
@@ -25585,7 +25624,7 @@ void TestUtil::testCase18()
             ASSERT(dam.isTotalSame());
             ASSERT(oam.isTotalSame());
 
-            if (verbose) cout << "\tTesting 'assign'." << endl;
+            if (verbose) cout << "\tTesting `assign`." << endl;
 
             mX.assign<TestArg1>(V1);
             ASSERT( 1 == X.typeIndex());
@@ -25605,7 +25644,7 @@ void TestUtil::testCase18()
             ASSERT(       X.is<TestArg12>());
             ASSERT(V12 == X.the<TestArg12>());
 
-            if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+            if (verbose) cout << "\tTesting `operator=(value)`." << endl;
 
             Obj *mR = &(mX = V1);
             ASSERT( 1 == X.typeIndex());
@@ -25741,7 +25780,7 @@ void TestUtil::testCase18()
         ASSERT(0 == oa.numBlocksInUse());
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant13'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant13`." << endl;
     {
         typedef bdlb::Variant13<TestArg1, TestArg2,  TestArg3,  TestArg4,
                                 TestArg5, TestArg6,  TestArg7,  TestArg8,
@@ -25802,7 +25841,7 @@ void TestUtil::testCase18()
             ASSERT(dam.isTotalSame());
             ASSERT(oam.isTotalSame());
 
-            if (verbose) cout << "\tTesting 'assign'." << endl;
+            if (verbose) cout << "\tTesting `assign`." << endl;
 
             mX.assign<TestArg1>(V1);
             ASSERT( 1 == X.typeIndex());
@@ -25822,7 +25861,7 @@ void TestUtil::testCase18()
             ASSERT(       X.is<TestArg13>());
             ASSERT(V13 == X.the<TestArg13>());
 
-            if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+            if (verbose) cout << "\tTesting `operator=(value)`." << endl;
 
             Obj *mR = &(mX = V1);
             ASSERT( 1 == X.typeIndex());
@@ -25958,7 +25997,7 @@ void TestUtil::testCase18()
         ASSERT(0 == oa.numBlocksInUse());
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant14'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant14`." << endl;
     {
         typedef bdlb::Variant14<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -26019,7 +26058,7 @@ void TestUtil::testCase18()
             ASSERT(dam.isTotalSame());
             ASSERT(oam.isTotalSame());
 
-            if (verbose) cout << "\tTesting 'assign'." << endl;
+            if (verbose) cout << "\tTesting `assign`." << endl;
 
             mX.assign<TestArg1>(V1);
             ASSERT( 1 == X.typeIndex());
@@ -26039,7 +26078,7 @@ void TestUtil::testCase18()
             ASSERT(       X.is<TestArg14>());
             ASSERT(V14 == X.the<TestArg14>());
 
-            if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+            if (verbose) cout << "\tTesting `operator=(value)`." << endl;
 
             Obj *mR = &(mX = V1);
             ASSERT( 1 == X.typeIndex());
@@ -26175,7 +26214,7 @@ void TestUtil::testCase18()
         ASSERT(0 == oa.numBlocksInUse());
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant15'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant15`." << endl;
     {
         typedef bdlb::Variant15<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -26236,7 +26275,7 @@ void TestUtil::testCase18()
             ASSERT(dam.isTotalSame());
             ASSERT(oam.isTotalSame());
 
-            if (verbose) cout << "\tTesting 'assign'." << endl;
+            if (verbose) cout << "\tTesting `assign`." << endl;
 
             mX.assign<TestArg1>(V1);
             ASSERT( 1 == X.typeIndex());
@@ -26256,7 +26295,7 @@ void TestUtil::testCase18()
             ASSERT(       X.is<TestArg15>());
             ASSERT(V15 == X.the<TestArg15>());
 
-            if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+            if (verbose) cout << "\tTesting `operator=(value)`." << endl;
 
             Obj *mR = &(mX = V1);
             ASSERT( 1 == X.typeIndex());
@@ -26392,7 +26431,7 @@ void TestUtil::testCase18()
         ASSERT(0 == oa.numBlocksInUse());
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant16'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant16`." << endl;
     {
         typedef bdlb::Variant16<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -26454,7 +26493,7 @@ void TestUtil::testCase18()
             ASSERT(dam.isTotalSame());
             ASSERT(oam.isTotalSame());
 
-            if (verbose) cout << "\tTesting 'assign'." << endl;
+            if (verbose) cout << "\tTesting `assign`." << endl;
 
             mX.assign<TestArg1>(V1);
             ASSERT( 1 == X.typeIndex());
@@ -26474,7 +26513,7 @@ void TestUtil::testCase18()
             ASSERT(       X.is<TestArg16>());
             ASSERT(V16 == X.the<TestArg16>());
 
-            if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+            if (verbose) cout << "\tTesting `operator=(value)`." << endl;
 
             Obj *mR = &(mX = V1);
             ASSERT( 1 == X.typeIndex());
@@ -26610,7 +26649,7 @@ void TestUtil::testCase18()
         ASSERT(0 == oa.numBlocksInUse());
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant17'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant17`." << endl;
     {
         typedef bdlb::Variant17<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -26675,7 +26714,7 @@ void TestUtil::testCase18()
             ASSERT(dam.isTotalSame());
             ASSERT(oam.isTotalSame());
 
-            if (verbose) cout << "\tTesting 'assign'." << endl;
+            if (verbose) cout << "\tTesting `assign`." << endl;
 
             mX.assign<TestArg1>(V1);
             ASSERT( 1 == X.typeIndex());
@@ -26695,7 +26734,7 @@ void TestUtil::testCase18()
             ASSERT(       X.is<TestArg17>());
             ASSERT(V17 == X.the<TestArg17>());
 
-            if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+            if (verbose) cout << "\tTesting `operator=(value)`." << endl;
 
             Obj *mR = &(mX = V1);
             ASSERT( 1 == X.typeIndex());
@@ -26831,7 +26870,7 @@ void TestUtil::testCase18()
         ASSERT(0 == oa.numBlocksInUse());
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant18'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant18`." << endl;
     {
         typedef bdlb::Variant18<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -26893,7 +26932,7 @@ void TestUtil::testCase18()
             ASSERT(dam.isTotalSame());
             ASSERT(oam.isTotalSame());
 
-            if (verbose) cout << "\tTesting 'assign'." << endl;
+            if (verbose) cout << "\tTesting `assign`." << endl;
 
             mX.assign<TestArg1>(V1);
             ASSERT( 1 == X.typeIndex());
@@ -26913,7 +26952,7 @@ void TestUtil::testCase18()
             ASSERT(       X.is<TestArg18>());
             ASSERT(V18 == X.the<TestArg18>());
 
-            if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+            if (verbose) cout << "\tTesting `operator=(value)`." << endl;
 
             Obj *mR = &(mX = V1);
             ASSERT( 1 == X.typeIndex());
@@ -27049,7 +27088,7 @@ void TestUtil::testCase18()
         ASSERT(0 == oa.numBlocksInUse());
     }
 
-    if (verbose) cout << "\nTesting 'bdlb::Variant19'." << endl;
+    if (verbose) cout << "\nTesting `bdlb::Variant19`." << endl;
     {
         typedef bdlb::Variant19<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                                 TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -27111,7 +27150,7 @@ void TestUtil::testCase18()
             ASSERT(dam.isTotalSame());
             ASSERT(oam.isTotalSame());
 
-            if (verbose) cout << "\tTesting 'assign'." << endl;
+            if (verbose) cout << "\tTesting `assign`." << endl;
 
             mX.assign<TestArg1>(V1);
             ASSERT( 1 == X.typeIndex());
@@ -27131,7 +27170,7 @@ void TestUtil::testCase18()
             ASSERT(       X.is<TestArg19>());
             ASSERT(V19 == X.the<TestArg19>());
 
-            if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+            if (verbose) cout << "\tTesting `operator=(value)`." << endl;
 
             Obj *mR = &(mX = V1);
             ASSERT( 1 == X.typeIndex());
@@ -27268,7 +27307,7 @@ void TestUtil::testCase18()
     }
 
     if (verbose)
-        cout << "\nTesting 'bdlb::Variant' (with no types)." << endl;
+        cout << "\nTesting `bdlb::Variant` (with no types)." << endl;
     {
         typedef bdlb::Variant<> Obj;
 
@@ -27341,7 +27380,7 @@ void TestUtil::testCase18()
     }
 
     if (verbose)
-        cout << "\nTesting 'bdlb::Variant' (with 1 type)." << endl;
+        cout << "\nTesting `bdlb::Variant` (with 1 type)." << endl;
     {
         typedef bdlb::Variant<TestArg1> Obj;
 
@@ -27399,7 +27438,7 @@ void TestUtil::testCase18()
             ASSERT(dam.isTotalSame());
             ASSERT(oam.isTotalSame());
 
-            if (verbose) cout << "\tTesting 'assign'." << endl;
+            if (verbose) cout << "\tTesting `assign`." << endl;
 
             mX.assign<TestArg1>(V1);
             ASSERT( 1 == X.typeIndex());
@@ -27409,7 +27448,7 @@ void TestUtil::testCase18()
             ASSERT(dam.isTotalSame());
             ASSERT(oam.isInUseUp());
 
-            if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+            if (verbose) cout << "\tTesting `operator=(value)`." << endl;
 
             mX.reset();
 
@@ -27504,7 +27543,7 @@ void TestUtil::testCase18()
     }
 
     if (verbose)
-        cout << "\nTesting 'bdlb::Variant' (with 20 types)." << endl;
+        cout << "\nTesting `bdlb::Variant` (with 20 types)." << endl;
     {
         typedef bdlb::Variant<TestArg1,  TestArg2,  TestArg3,  TestArg4,
                               TestArg5,  TestArg6,  TestArg7,  TestArg8,
@@ -27567,7 +27606,7 @@ void TestUtil::testCase18()
             ASSERT(dam.isTotalSame());
             ASSERT(oam.isTotalSame());
 
-            if (verbose) cout << "\tTesting 'assign'." << endl;
+            if (verbose) cout << "\tTesting `assign`." << endl;
 
             mX.assign<TestArg1>(V1);
             ASSERT( 1 == X.typeIndex());
@@ -27587,7 +27626,7 @@ void TestUtil::testCase18()
             ASSERT(       X.is<TestArg20>());
             ASSERT(V20 == X.the<TestArg20>());
 
-            if (verbose) cout << "\tTesting 'operator=(value)'." << endl;
+            if (verbose) cout << "\tTesting `operator=(value)`." << endl;
 
             Obj *mR = &(mX = V1);
             ASSERT( 1 == X.typeIndex());
@@ -27727,10 +27766,10 @@ void TestUtil::testCase18()
 void TestUtil::testCase17()
 {
     if (verbose) cout << endl
-                      << "TESTING 'isUnset'" << endl
+                      << "TESTING `isUnset`" << endl
                       << "=================" << endl;
 
-    if (verbose) cout << "\nTesting 'isUnset' with 'reset'." << endl;
+    if (verbose) cout << "\nTesting `isUnset` with `reset`." << endl;
     {
         typedef bdlb::Variant<int, char> Obj;
 
@@ -27753,7 +27792,7 @@ void TestUtil::testCase17()
         ASSERT(true  == Y.isUnset());
     }
 
-    if (verbose) cout << "\nTesting 'isUnset' with 'bslmf::Nil'." << endl;
+    if (verbose) cout << "\nTesting `isUnset` with `bslmf::Nil`." << endl;
     {
         typedef bdlb::Variant<bslmf::Nil, int> Obj;
 
@@ -27772,7 +27811,7 @@ void TestUtil::testCase17()
 #if defined(BDLB_VARIANT_USING_VARIADIC_TEMPLATES)
         ASSERT(2 == Obj::TypeList::LENGTH);
 #else
-        // See the definition of 'Variant_TypeIndex' in the '.h' file.
+        // See the definition of `Variant_TypeIndex` in the `.h` file.
 
         ASSERT(1 == Obj::TypeList::LENGTH);
 #endif
@@ -27798,7 +27837,7 @@ void TestUtil::testCase17()
 
 #if !defined(BDLB_VARIANT_USING_VARIADIC_TEMPLATES)
     // The following undesirable behavior cannot be easily prevented in C++03.
-    // See the definition of 'Variant_TypeIndex' in the '.h' file.
+    // See the definition of `Variant_TypeIndex` in the `.h` file.
 
     {
         typedef bdlb::Variant<int, double> Obj;
@@ -27834,9 +27873,9 @@ void TestUtil::testCase16()
 
     typedef bdlb::Variant<int, TestInt, bsl::string, TestString> Obj;
 
-    if (verbose) cout << "\nWithout a 'ResultType' available." << endl;
+    if (verbose) cout << "\nWithout a `ResultType` available." << endl;
 
-    if (verbose) cout << "\nTesting 'bslmf::Nil'." << endl;
+    if (verbose) cout << "\nTesting `bslmf::Nil`." << endl;
     {
         typedef my_UnsetVariantVisitor UVV;
 
@@ -27882,7 +27921,7 @@ void TestUtil::testCase16()
         ASSERTV(UVV::BSLMF_NIL == X.apply<int>(V));
     }
 
-    if (verbose) cout << "\nTesting user-specified 'defaultValue'." << endl;
+    if (verbose) cout << "\nTesting user-specified `defaultValue`." << endl;
     {
         typedef my_UnsetVariantVisitor UVV;
 
@@ -27928,7 +27967,7 @@ void TestUtil::testCase16()
         ASSERTV(UVV::TEST_ARG == X.apply<int>(V, TestArg<1>()));
     }
 
-    if (verbose) cout << "\nTesting set variant with 'defaultValue'." << endl;
+    if (verbose) cout << "\nTesting set variant with `defaultValue`." << endl;
     {
         typedef my_UnsetVariantVisitor UVV;
 
@@ -27974,9 +28013,9 @@ void TestUtil::testCase16()
         ASSERTV(UVV::GENERIC == X.apply<int>(V, TestArg<1>()));
     }
 
-    if (verbose) cout << "\nWith a 'ResultType' available." << endl;
+    if (verbose) cout << "\nWith a `ResultType` available." << endl;
 
-    if (verbose) cout << "\nTesting 'bslmf::Nil'." << endl;
+    if (verbose) cout << "\nTesting `bslmf::Nil`." << endl;
     {
         typedef my_UnsetVariantReturningVisitor UVRV;
 
@@ -28018,7 +28057,7 @@ void TestUtil::testCase16()
         ASSERTV(UVRV::BSLMF_NIL == X.apply<int>(V));
     }
 
-    if (verbose) cout << "\nTesting user-specified 'defaultValue'." << endl;
+    if (verbose) cout << "\nTesting user-specified `defaultValue`." << endl;
     {
         typedef my_UnsetVariantReturningVisitor UVRV;
 
@@ -28060,7 +28099,7 @@ void TestUtil::testCase16()
         ASSERTV(UVRV::TEST_ARG == X.apply<int>(V, TestArg<1>()));
     }
 
-    if (verbose) cout << "\nTesting set variant with 'defaultValue'." << endl;
+    if (verbose) cout << "\nTesting set variant with `defaultValue`." << endl;
     {
         typedef my_UnsetVariantReturningVisitor UVRV;
 
@@ -28109,7 +28148,7 @@ void TestUtil::testCase16()
         dummyConvert(0, v);
     }
 
-    if (verbose) cout << "\nNegative Testing 'applyRaw'." << endl;
+    if (verbose) cout << "\nNegative Testing `applyRaw`." << endl;
     {
         bsls::AssertTestHandlerGuard hG;
 
@@ -28303,7 +28342,7 @@ void TestUtil::testCase15()
                 VWrap::VOID_VISIT == wrappedVariant2.lastVisited());
     }
 
-    if (verbose) cout << "\t2. Using 'typedef' 'ResultType'." << endl;
+    if (verbose) cout << "\t2. Using `typedef` `ResultType`." << endl;
     {
         Obj tmp(1);  // dummy used to initialize the variant
         VWrap wrappedVariant(tmp, &oa);
@@ -28321,7 +28360,7 @@ void TestUtil::testCase15()
         ASSERT(RET2 == INT_TYPE);
     }
 
-    if (verbose) cout << "\t3. Explicitly specifying 'RET_TYPE'." << endl;
+    if (verbose) cout << "\t3. Explicitly specifying `RET_TYPE`." << endl;
     {
         Obj tmp(1);  // dummy used to initialize the variant
         VWrap wrappedVariant(tmp, &oa);
@@ -28339,7 +28378,7 @@ void TestUtil::testCase15()
                 VWrap::RET_TYPE_VISIT == wrappedVariant2.lastVisited());
     }
 
-    if (verbose) cout << "\nTesting 'const' 'apply' methods" << endl;
+    if (verbose) cout << "\nTesting `const` `apply` methods" << endl;
 
     if (verbose) cout << "\t1. No specified return value." << endl;
     {
@@ -28362,7 +28401,7 @@ void TestUtil::testCase15()
                 VWrap::VOID_VISIT_CONST == wrappedVariant2.lastVisited());
     }
 
-    if (verbose) cout << "\t2. Using 'typedef' 'ResultType'." << endl;
+    if (verbose) cout << "\t2. Using `typedef` `ResultType`." << endl;
     {
         Obj tmp(1);  // dummy used to initialize the variant
         VWrap wrappedVariant(tmp, &oa);
@@ -28388,7 +28427,7 @@ void TestUtil::testCase15()
         ASSERT(RET2 == INT_TYPE);
     }
 
-    if (verbose) cout << "\t3. Explicitly specifying 'RET_TYPE'." << endl;
+    if (verbose) cout << "\t3. Explicitly specifying `RET_TYPE`." << endl;
     {
         Obj tmp(1);  // dummy used to initialize the variant
         VWrap wrappedVariant(tmp, &oa);
@@ -28449,7 +28488,7 @@ void TestUtil::testCase15()
                       << endl;
     {
         // This test case has been added due to DRQS 166154377, where compiler
-        // failed to build a code with the visitor returning a 'ResultType' of
+        // failed to build a code with the visitor returning a `ResultType` of
         // a non-copyable type.
 
         using namespace TYPES_FOR_TESTING_NON_COPYABLE_RETURN_VALUES;
@@ -28499,7 +28538,7 @@ void TestUtil::testCase15()
 void TestUtil::testCase14()
 {
     if (verbose) cout << endl
-                      << "TESTING 'createInPlace'" << endl
+                      << "TESTING `createInPlace`" << endl
                       << "=======================" << endl;
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
@@ -28511,7 +28550,7 @@ void TestUtil::testCase14()
 
     typedef bsltf::MovableTestType TT;  // test type
 
-    if (verbose) cout << "\nTesting 'createInPlace' with no arg." << endl;
+    if (verbose) cout << "\nTesting `createInPlace` with no arg." << endl;
     {
         Obj mX;  const Obj& X = mX;
         MovableTestTypeConsumer& mR =
@@ -28531,7 +28570,7 @@ void TestUtil::testCase14()
         checkMoved(mX.the<MovableTestTypeConsumer>(), 0, MoveState::e_MOVED);
     }
 
-    if (verbose) cout << "\nTesting 'createInPlace' with 1 arg." << endl;
+    if (verbose) cout << "\nTesting `createInPlace` with 1 arg." << endl;
     {
         TT mA[1];
         for (int i = 0; i < bsl::ssize(mA); ++i) {
@@ -28566,7 +28605,7 @@ void TestUtil::testCase14()
         }
     }
 
-    if (verbose) cout << "\nTesting 'createInPlace' with 2 args." << endl;
+    if (verbose) cout << "\nTesting `createInPlace` with 2 args." << endl;
     {
         TT mA[2];
         for (int i = 0; i < bsl::ssize(mA); ++i) {
@@ -28602,7 +28641,7 @@ void TestUtil::testCase14()
         }
     }
 
-    if (verbose) cout << "\nTesting 'createInPlace' with 3 args." << endl;
+    if (verbose) cout << "\nTesting `createInPlace` with 3 args." << endl;
     {
         TT mA[3];
         for (int i = 0; i < bsl::ssize(mA); ++i) {
@@ -28639,7 +28678,7 @@ void TestUtil::testCase14()
         }
     }
 
-    if (verbose) cout << "\nTesting 'createInPlace' with 4 args." << endl;
+    if (verbose) cout << "\nTesting `createInPlace` with 4 args." << endl;
     {
         TT mA[4];
         for (int i = 0; i < bsl::ssize(mA); ++i) {
@@ -28680,7 +28719,7 @@ void TestUtil::testCase14()
         }
     }
 
-    if (verbose) cout << "\nTesting 'createInPlace' with 5 args." << endl;
+    if (verbose) cout << "\nTesting `createInPlace` with 5 args." << endl;
     {
         TT mA[5];
         for (int i = 0; i < bsl::ssize(mA); ++i) {
@@ -28723,7 +28762,7 @@ void TestUtil::testCase14()
         }
     }
 
-    if (verbose) cout << "\nTesting 'createInPlace' with 6 args." << endl;
+    if (verbose) cout << "\nTesting `createInPlace` with 6 args." << endl;
     {
         TT mA[6];
         for (int i = 0; i < bsl::ssize(mA); ++i) {
@@ -28768,7 +28807,7 @@ void TestUtil::testCase14()
         }
     }
 
-    if (verbose) cout << "\nTesting 'createInPlace' with 7 args." << endl;
+    if (verbose) cout << "\nTesting `createInPlace` with 7 args." << endl;
     {
         TT mA[7];
         for (int i = 0; i < bsl::ssize(mA); ++i) {
@@ -28815,7 +28854,7 @@ void TestUtil::testCase14()
         }
     }
 
-    if (verbose) cout << "\nTesting 'createInPlace' with 8 args." << endl;
+    if (verbose) cout << "\nTesting `createInPlace` with 8 args." << endl;
     {
         TT mA[8];
         for (int i = 0; i < bsl::ssize(mA); ++i) {
@@ -28864,7 +28903,7 @@ void TestUtil::testCase14()
         }
     }
 
-    if (verbose) cout << "\nTesting 'createInPlace' with 9 args." << endl;
+    if (verbose) cout << "\nTesting `createInPlace` with 9 args." << endl;
     {
         TT mA[9];
         for (int i = 0; i < bsl::ssize(mA); ++i) {
@@ -28915,7 +28954,7 @@ void TestUtil::testCase14()
         }
     }
 
-    if (verbose) cout << "\nTesting 'createInPlace' with 10 args." << endl;
+    if (verbose) cout << "\nTesting `createInPlace` with 10 args." << endl;
     {
         TT mA[10];
         for (int i = 0; i < bsl::ssize(mA); ++i) {
@@ -28968,7 +29007,7 @@ void TestUtil::testCase14()
         }
     }
 
-    if (verbose) cout << "\nTesting 'createInPlace' with 11 args." << endl;
+    if (verbose) cout << "\nTesting `createInPlace` with 11 args." << endl;
     {
         TT mA[11];
         for (int i = 0; i < bsl::ssize(mA); ++i) {
@@ -29023,7 +29062,7 @@ void TestUtil::testCase14()
         }
     }
 
-    if (verbose) cout << "\nTesting 'createInPlace' with 12 args." << endl;
+    if (verbose) cout << "\nTesting `createInPlace` with 12 args." << endl;
     {
         TT mA[12];
         for (int i = 0; i < bsl::ssize(mA); ++i) {
@@ -29080,7 +29119,7 @@ void TestUtil::testCase14()
         }
     }
 
-    if (verbose) cout << "\nTesting 'createInPlace' with 13 args." << endl;
+    if (verbose) cout << "\nTesting `createInPlace` with 13 args." << endl;
     {
         TT mA[13];
         for (int i = 0; i < bsl::ssize(mA); ++i) {
@@ -29139,7 +29178,7 @@ void TestUtil::testCase14()
         }
     }
 
-    if (verbose) cout << "\nTesting 'createInPlace' with 14 args." << endl;
+    if (verbose) cout << "\nTesting `createInPlace` with 14 args." << endl;
     {
         TT mA[14];
         for (int i = 0; i < bsl::ssize(mA); ++i) {
@@ -29271,17 +29310,17 @@ void TestUtil::testCase13()
 
                     int Y = INT_DATA[VALUE_IDX2];
 
-                    // Assign to 'X' the value 'Y' and check the returned
+                    // Assign to `X` the value `Y` and check the returned
                     // reference.
 
                     ASSERTV(LINE1, LINE2, INT_DATA[VALUE_IDX2] ==
                                                           (mX = Y).the<int>());
 
-                    // Check that 'Y' is not modified.
+                    // Check that `Y` is not modified.
 
                     ASSERTV(LINE1, LINE2, INT_DATA[VALUE_IDX2] == Y);
 
-                    // Check that 'X' is modified.
+                    // Check that `X` is modified.
 
                     ASSERTV(LINE1, LINE2, Y == X.the<int>());
 
@@ -29331,7 +29370,7 @@ void TestUtil::testCase13()
                   }
                 }
 
-                // Verify value after 'Y' goes out of scope.
+                // Verify value after `Y` goes out of scope.
 
                 switch (TYPE_IDX2) {
                   case INT_TYPE: {
@@ -29551,7 +29590,7 @@ void TestUtil::testCase12()
           } break;
           case STRING_TYPE: {
 
-            // '0 == VALUE_IDX' triggers allocation.
+            // `0 == VALUE_IDX` triggers allocation.
 
             Obj mX(STRING_DATA[VALUE_IDX]);       const Obj& X = mX;
 
@@ -29596,7 +29635,7 @@ void TestUtil::testCase12()
           } break;
           case TEST_STRING_TYPE: {
 
-            // '0 == VALUE_IDX' triggers allocation.
+            // `0 == VALUE_IDX` triggers allocation.
 
             Obj mX(TEST_STRING_DATA[VALUE_IDX]);       const Obj& X = mX;
 
@@ -29682,7 +29721,7 @@ void TestUtil::testCase12()
 //                                USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
-//..
+// ```
     class my_PrintVisitor {
       public:
         template <class TYPE>
@@ -29696,21 +29735,21 @@ void TestUtil::testCase12()
             bsl::cout << "null" << bsl::endl;
         }
     };
-//..
+// ```
 
-//..
+// ```
     class my_AddVisitor {
       public:
         typedef bool ResultType;
 
         //*************************************************************
-        // Note that the return type of 'operator()' is 'ResultType'. *
+        // Note that the return type of `operator()` is `ResultType`. *
         //*************************************************************
 
+        /// Return `true` when addition is performed successfully, and
+        /// `false` otherwise.
         template <class TYPE>
         ResultType operator()(TYPE& /* value */) const
-            // Return 'true' when addition is performed successfully, and
-            // 'false' otherwise.
         {
             if (bsl::is_convertible<TYPE, double>::value) {
 
@@ -29722,21 +29761,21 @@ void TestUtil::testCase12()
             return false;
         }
     };
-//..
+// ```
 
-//..
+// ```
     class ThirdPartyVisitor {
       public:
+        /// Return the name of the specified `value` as a `bsl::string`.
+        /// Note that the implementation of this class is deliberately not
+        /// shown since this class belongs to a third-party library.
         template <class TYPE>
         bsl::string operator()(const TYPE& /* value */) const /* ; */
-            // Return the name of the specified 'value' as a 'bsl::string'.
-            // Note that the implementation of this class is deliberately not
-            // shown since this class belongs to a third-party library.
         {
             return "dummy";
         }
     };
-//..
+// ```
 
 // ============================================================================
 //                                 MAIN PROGRAM
@@ -29762,13 +29801,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -29786,34 +29825,34 @@ int main(int argc, char *argv[])
 ///Example 1: Variant Construction
 ///- - - - - - - - - - - - - - - -
 // The following example illustrates the different ways of constructing a
-// 'bdlb::Variant':
-//..
+// `bdlb::Variant`:
+// ```
     typedef bdlb::Variant <int, double, bsl::string> List;
     typedef bdlb::Variant3<int, double, bsl::string> List3;  // equivalent
-//..
-// The contained types can be retrieved as a 'bslmf::TypeList' (using the
-// 'TypeList' nested type), or individually (using 'TypeN', for 'N' varying
-// from 1 to the length of the 'TypeList').  In the example below, we use the
-// 'List' variant, but this could be substituted with 'List3' with no change
+// ```
+// The contained types can be retrieved as a `bslmf::TypeList` (using the
+// `TypeList` nested type), or individually (using `TypeN`, for `N` varying
+// from 1 to the length of the `TypeList`).  In the example below, we use the
+// `List` variant, but this could be substituted with `List3` with no change
 // to the code:
-//..
+// ```
     ASSERT(3 == List::TypeList::LENGTH);
     ASSERT(3 == List3::TypeList::LENGTH);
-//..
+// ```
 // We can check that the variant defaults to the unset state by using the
-// 'is<TYPE>' and 'typeIndex' methods:
-//..
+// `is<TYPE>` and `typeIndex` methods:
+// ```
     List x;
 
     ASSERT(!x.is<int>());
     ASSERT(!x.is<double>());
     ASSERT(!x.is<bsl::string>());
     ASSERT(0 == x.typeIndex());
-//..
-// Single-argument construction from a type in the 'TypeList' of a variant is
+// ```
+// Single-argument construction from a type in the `TypeList` of a variant is
 // also supported.  This is more efficient than creating an unset variant and
 // assigning a value to it:
-//..
+// ```
     List3 y(bsl::string("Hello"));
 
     ASSERT(!y.is<int>());
@@ -29821,12 +29860,12 @@ int main(int argc, char *argv[])
     ASSERT( y.is<bsl::string>());
 
     ASSERT("Hello" == y.the<bsl::string>());
-//..
-// Furthermore, 'createInPlace' is provided to support direct in-place
+// ```
+// Furthermore, `createInPlace` is provided to support direct in-place
 // construction.  This method allows users to directly construct the target
 // type inside the variant, instead of first creating a temporary object, then
 // copy constructing the object to initialize the variant:
-//..
+// ```
     List z;
     z.createInPlace<bsl::string>("Hello", 5);
 
@@ -29835,13 +29874,13 @@ int main(int argc, char *argv[])
     ASSERT( z.is<bsl::string>());
 
     ASSERT("Hello" == z.the<bsl::string>());
-//..
+// ```
 // Up to 14 constructor arguments are supported for in-place construction of
 // an object.  Users can also safely create another object of the same or
 // different type in a variant that already holds a value using the
-// 'createInPlace' method.  No memory is leaked in all cases and the destructor
+// `createInPlace` method.  No memory is leaked in all cases and the destructor
 // for the currently held object is invoked:
-//..
+// ```
     z.createInPlace<bsl::string>("Hello", 5);
     ASSERT(z.is<bsl::string>());
     ASSERT("Hello" == z.the<bsl::string>());
@@ -29853,10 +29892,10 @@ int main(int argc, char *argv[])
     z.createInPlace<int>(10);
     ASSERT(z.is<int>());
     ASSERT(10 == z.the<int>());
-//..
-// 'createInPlace' returns a reference providing modifiable access to the
+// ```
+// `createInPlace` returns a reference providing modifiable access to the
 // created object:
-//..
+// ```
     bsl::string& ref = z.createInPlace<bsl::string>("Goodbye");
     ASSERT("Goodbye" == z.the<bsl::string>());
     ASSERT("Goodbye" == ref);
@@ -29864,36 +29903,36 @@ int main(int argc, char *argv[])
 
     ref = "Hello again!";
     ASSERT("Hello again!" == z.the<bsl::string>());
-//..
+// ```
         }
         {
 //
 ///Example 2: Variant Assignment
 ///- - - - - - - - - - - - - - -
 // A value of a given type can be stored in a variant in three different ways:
-//..
-//: o 'operator='
-//: o 'assignTo<TYPE>'
-//: o 'assign'
-//..
-// 'operator=' automatically deduces the type that the user is trying to assign
-// to the variant.  This should be used most of the time.  The 'assignTo<TYPE>'
+// ```
+//  - `operator=`
+//  - `assignTo<TYPE>`
+//  - `assign`
+// ```
+// `operator=` automatically deduces the type that the user is trying to assign
+// to the variant.  This should be used most of the time.  The `assignTo<TYPE>`
 // method should be used when conversion to the type that the user is assigning
 // to is necessary (see the first two examples below for more details).
-// Finally, 'assign' is equivalent to 'operator=' and exists simply for
+// Finally, `assign` is equivalent to `operator=` and exists simply for
 // backwards compatibility.
 //
-///'operator='
+///`operator=`
 /// -  -  -  -
-// The following example illustrates how to use 'operator=':
-//..
+// The following example illustrates how to use `operator=`:
+// ```
     typedef bdlb::Variant<int, double, bsl::string> List;
 
     List x;
 
-    List::Type1 v1 = 1;       // 'int'
-    List::Type2 v2 = 2.0;     // 'double'
-    List::Type3 v3("hello");  // 'bsl::string'
+    List::Type1 v1 = 1;       // `int`
+    List::Type2 v2 = 2.0;     // `double`
+    List::Type3 v3("hello");  // `bsl::string`
 
     x = v1;
     ASSERT( x.is<int>());
@@ -29912,29 +29951,29 @@ int main(int argc, char *argv[])
     ASSERT(!x.is<double>());
     ASSERT( x.is<bsl::string>());
     ASSERT(v3 == x.the<bsl::string>());
-//..
+// ```
 // Note that the type of the object is deduced automatically during assignment,
 // as in:
-//..
+// ```
 //  x = v1;
-//..
+// ```
 // This automatic deduction, however, cannot be extended to conversion
 // constructors, such as:
-//..
+// ```
 //  x = static_cast<const char *>("Bye");  // ERROR
-//..
-// The compiler will diagnose that 'const char *' is not a variant type
-// specified in the list of parameter types used in the definition of 'List',
+// ```
+// The compiler will diagnose that `const char *` is not a variant type
+// specified in the list of parameter types used in the definition of `List`,
 // and will trigger a compile-time assertion.  To overcome this problem, see
-// the next usage example of 'assignTo<TYPE>'.
+// the next usage example of `assignTo<TYPE>`.
 //
-///'assignTo<TYPE>'
+///`assignTo<TYPE>`
 ///-  -  -  -  -  -
-// In the previous example, 'const char *' was not part of the variant's type
+// In the previous example, `const char *` was not part of the variant's type
 // list, which resulted in a compilation diagnostic.  The use of
-// 'assignTo<TYPE>' explicitly informs the compiler of the intended type to
+// `assignTo<TYPE>` explicitly informs the compiler of the intended type to
 // assign to the variant:
-//..
+// ```
     x.assignTo<bsl::string>(static_cast<const char *>("Bye"));
 
     ASSERT(!x.is<int>());
@@ -29942,13 +29981,13 @@ int main(int argc, char *argv[])
     ASSERT( x.is<bsl::string>());
 
     ASSERT("Bye" == x.the<bsl::string>());
-//..
+// ```
 //
-///'assign'
+///`assign`
 /// -  -  -
-// Finally, for backwards compatibility, 'assign' can also be used in place of
-// 'operator=' (but not 'assignTo'):
-//..
+// Finally, for backwards compatibility, `assign` can also be used in place of
+// `operator=` (but not `assignTo`):
+// ```
     x.assign<int>(v1);
     ASSERT( x.is<int>());
     ASSERT(!x.is<double>());
@@ -29966,30 +30005,30 @@ int main(int argc, char *argv[])
     ASSERT(!x.is<double>());
     ASSERT( x.is<bsl::string>());
     ASSERT(v3 == x.the<bsl::string>());
-//..
+// ```
         }
         {
 //
-///Example 3: Visiting a Variant via 'apply'
+///Example 3: Visiting a Variant via `apply`
 ///- - - - - - - - - - - - - - - - - - - - -
 // As described in {Visitors} (above), there are different ways to invoke the
-// 'apply' method.  The first two examples below illustrate the different ways
-// to invoke 'apply' (with no return value) to control the behavior of visiting
+// `apply` method.  The first two examples below illustrate the different ways
+// to invoke `apply` (with no return value) to control the behavior of visiting
 // an unset variant:
-//: o 'bslmf::Nil' is passed to the visitor.
-//: o A user-specified default value is passed to the visitor.
+//  - `bslmf::Nil` is passed to the visitor.
+//  - A user-specified default value is passed to the visitor.
 //
-// A third example illustrates use of 'applyRaw', the behavior of which is
+// A third example illustrates use of `applyRaw`, the behavior of which is
 // undefined if the variant is unset.  Two final examples illustrate different
-// ways to specify the return value from 'apply':
-//: o The return value is specified in the visitor.
-//: o The return value is specified with the function call.
+// ways to specify the return value from `apply`:
+//  - The return value is specified in the visitor.
+//  - The return value is specified with the function call.
 //
-///'bslmf::Nil' Passed to Visitor
+///`bslmf::Nil` Passed to Visitor
 ///-  -  -  -  -  -  -  -  -  - -
 // A simple visitor that does not require any return value might be one that
-// prints the value of the variant to 'stdout':
-//..
+// prints the value of the variant to `stdout`:
+// ```
 //  class my_PrintVisitor {
 //    public:
 //      template <class TYPE>
@@ -30008,7 +30047,7 @@ int main(int argc, char *argv[])
 
     List x[4];
 
-    // Note that 'x[3]' is uninitialized.
+    // Note that `x[3]` is uninitialized.
 
     x[0].assign(1);
     x[1].assign(1.1);
@@ -30019,73 +30058,73 @@ int main(int argc, char *argv[])
     for (int i = 0; i < 4; ++i) {
         x[i].apply(printVisitor);
     }
-//..
-// The above prints the following on 'stdout':
-//..
+// ```
+// The above prints the following on `stdout`:
+// ```
 //  1
 //  1.1
 //  Hello
 //  null
-//..
-// Note that 'operator()' is overloaded with 'bslmf::Nil'.  A direct match has
+// ```
+// Note that `operator()` is overloaded with `bslmf::Nil`.  A direct match has
 // higher precedence than a template parameter match.  When the variant is
-// unset (such as 'x[3]'), a 'bslmf::Nil' is passed to the visitor.
+// unset (such as `x[3]`), a `bslmf::Nil` is passed to the visitor.
 //
 ///User-Specified Default Value Passed to Visitor
 ///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-// Instead of using 'bslmf::Nil', users can also specify a default value to
+// Instead of using `bslmf::Nil`, users can also specify a default value to
 // pass to the visitor when the variant is currently unset.  Using the same
-// 'my_PrintVisitor' class from the previous example:
-//..
+// `my_PrintVisitor` class from the previous example:
+// ```
     for (int i = 0; i < 4; ++i) {
         x[i].apply(printVisitor, "Print this when unset");
     }
-//..
-// Now, the above code prints the following on 'stdout':
-//..
+// ```
+// Now, the above code prints the following on `stdout`:
+// ```
 //  1
 //  1.1
 //  Hello
 //  Print this when unset
-//..
-// This variation of 'apply' is useful since the user can provide a default
+// ```
+// This variation of `apply` is useful since the user can provide a default
 // value to the visitor without incurring the cost of initializing the variant
 // itself.
 //
-///'applyRaw' Undefined If Variant Is Unset
+///`applyRaw` Undefined If Variant Is Unset
 ///-  -  -  -  -  -  -  -  -  -  -  -  -  -
-// If it is certain that a variant is not unset, then the 'applyRaw' method can
-// be used instead of 'apply'.  'applyRaw' is slightly more efficient than
-// 'apply', but the behavior of 'applyRaw' is undefined if the variant is
-// unset.  In the following application of 'applyRaw', we purposely circumvent
-// 'x[3]' from being visited because we know that it is unset:
-//..
-    for (int i = 0; i < 3; ++i) {     // NOT 'i < 4' as above.
+// If it is certain that a variant is not unset, then the `applyRaw` method can
+// be used instead of `apply`.  `applyRaw` is slightly more efficient than
+// `apply`, but the behavior of `applyRaw` is undefined if the variant is
+// unset.  In the following application of `applyRaw`, we purposely circumvent
+// `x[3]` from being visited because we know that it is unset:
+// ```
+    for (int i = 0; i < 3; ++i) {     // NOT `i < 4` as above.
         ASSERT(!x[i].isUnset());
-        x[i].applyRaw(printVisitor);  // undefined behavior for 'x[3]'
+        x[i].applyRaw(printVisitor);  // undefined behavior for `x[3]`
     }
     ASSERT(x[3].isUnset());
-//..
+// ```
 //
         }
         {
 ///Return Value Specified in Visitor
 ///  -  -  -  -  -  -  -  -  -  -  -
-// Users can also specify a return type that 'operator()' will return by
-// specifying a 'typedef' with the name 'ResultType' in their functor class.
-// This is necessary in order for the 'apply' method to know what type to
+// Users can also specify a return type that `operator()` will return by
+// specifying a `typedef` with the name `ResultType` in their functor class.
+// This is necessary in order for the `apply` method to know what type to
 // return at compile time:
-//..
+// ```
 //  class my_AddVisitor {
 //    public:
 //      typedef bool ResultType;
 //
-//      // Note that the return type of 'operator()' is 'ResultType'.
+//      // Note that the return type of `operator()` is `ResultType`.
 //
 //      template <class TYPE>
 //      ResultType operator()(TYPE& value) const
-//          // Return 'true' when addition is performed successfully, and
-//          // 'false' otherwise.
+//          // Return `true` when addition is performed successfully, and
+//          // `false` otherwise.
 //      {
 //          if (bsl::is_convertible<TYPE, double>::value) {
 //
@@ -30113,35 +30152,35 @@ int main(int argc, char *argv[])
     for (int i = 0; i < 3; ++i) {
         ret[i] = x[i].apply(addVisitor);
         if (!ret[i]) {
-            bsl::cout << "Cannot add to types not convertible to 'double'."
+            bsl::cout << "Cannot add to types not convertible to `double`."
                       << bsl::endl;
         }
     }
     ASSERT(true  == ret[0]);
     ASSERT(true  == ret[1]);
     ASSERT(false == ret[2]);
-//..
-// The above prints the following on 'stdout':
-//..
-//  Cannot add to types not convertible to 'double'.
-//..
-// Note that if no 'typedef' is provided (as in the 'my_PrintVisitor' class),
-// then the default return value is 'void'.
+// ```
+// The above prints the following on `stdout`:
+// ```
+//  Cannot add to types not convertible to `double`.
+// ```
+// Note that if no `typedef` is provided (as in the `my_PrintVisitor` class),
+// then the default return value is `void`.
         }
         {
 //
 ///Return Value Specified With Function Call
 /// -  -  -  -  -  -  -  -  -  -  -  -  -  -
 // There may be some cases when a visitor interface is not owned by a client
-// (hence the client cannot add a 'typedef' to the visitor), or the visitor
+// (hence the client cannot add a `typedef` to the visitor), or the visitor
 // could not determine the return type at design time.  In these scenarios,
-// users can explicitly specify the return type when invoking 'apply':
-//..
+// users can explicitly specify the return type when invoking `apply`:
+// ```
 //  class ThirdPartyVisitor {
 //    public:
 //      template <class TYPE>
 //      bsl::string operator()(const TYPE& value) const;
-//          // Return the name of the specified 'value' as a 'bsl::string'.
+//          // Return the name of the specified `value` as a `bsl::string`.
 //          // Note that the implementation of this class is deliberately not
 //          // shown since this class belongs to a third-party library.
 //  };
@@ -30163,30 +30202,30 @@ int main(int argc, char *argv[])
         bsl::string ret = x[i].apply<bsl::string>(visitor);
         bsl::cout << ret << bsl::endl;
     }
-//..
+// ```
         }
 
       } break;
       case 28: {
         // --------------------------------------------------------------------
-        // TEST 'operator<<' FOR 'std::optional' AND 'std::variant'
+        // TEST `operator<<` FOR `std::optional` AND `std::variant`
         //
         // Concerns:
-        //: 1 Support for 'std::optional' and 'std::variant' in
-        //:   'bdlb-printmethods' allows streaming of 'bdlb::Variant' objects
-        //:   using those Standard types.
+        // 1. Support for `std::optional` and `std::variant` in
+        //    `bdlb-printmethods` allows streaming of `bdlb::Variant` objects
+        //    using those Standard types.
         //
         // Plan:
-        //: 1 Ad-hoc tests that demonstrate that the 'operator<<' for the class
-        //:   under test finds the correct overload of 'bdlb::PrintMethods'.
-        //:   (C-1)
+        // 1. Ad-hoc tests that demonstrate that the `operator<<` for the class
+        //    under test finds the correct overload of `bdlb::PrintMethods`.
+        //    (C-1)
         //
         // Testing:
-        //   CONCERN: 'operator<<' handles 'std::optional' and 'std::variant'
+        //   CONCERN: `operator<<` handles `std::optional` and `std::variant`
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-         << "TEST 'operator<<' FOR 'std::optional' AND 'std::variant'" << endl
+         << "TEST `operator<<` FOR `std::optional` AND `std::variant`" << endl
          << "========================================================" << endl;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
@@ -30195,13 +30234,13 @@ int main(int argc, char *argv[])
 
         bsl::ostringstream oss;
 
-        if (verbose) cout << "'operator<<' AND std::optional'"  << endl;
+        if (verbose) cout << "`operator<<` AND std::optional'"  << endl;
         {
             bdlb::Variant<StdOptInt, std::string> var;
             ASSERT( var.isUnset());
             oss << var; ASSERT(""  == oss.str());                       // TEST
 
-            var.createInPlace<StdOptInt>();  // default 'StdOptInt'
+            var.createInPlace<StdOptInt>();  // default `StdOptInt`
             ASSERT(!var.isUnset());
             ASSERT( var.is<StdOptInt>());
             ASSERT(!var.the<StdOptInt>().has_value());
@@ -30237,14 +30276,14 @@ int main(int argc, char *argv[])
         const double         doubleValue5   =                    5.0;
         const std::string stdStringValueSix =                   "Six";
 
-        if (verbose) cout << "'operator<<' AND std::variant'"  << endl;
+        if (verbose) cout << "`operator<<` AND std::variant'"  << endl;
         {
             bdlb::Variant<StdVariant, std::string> var;
             ASSERT( var.isUnset());
             oss << var;  ASSERTV(oss.str(), "" == oss.str());           // TEST
             oss.str(""); ASSERTV(oss.str(), "" == oss.str());
 
-            var.createInPlace<StdVariant>();  // default 'StdVariant'
+            var.createInPlace<StdVariant>();  // default `StdVariant`
             ASSERT(!var.isUnset());
             ASSERT( var.typeIndex() == 1);
             ASSERT( var.is <StdVariant>());
@@ -30280,37 +30319,37 @@ int main(int argc, char *argv[])
         }
 #else
         if (verbose) cout << "SKIP: Not Available: "
-                             "'std::optional', 'std::variant'" << endl;
+                             "`std::optional`, `std::variant`" << endl;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
       } break;
       case 27: {
         // --------------------------------------------------------------------
-        // MOVING OBJECT CONTAINING 'const' VARIANT
+        // MOVING OBJECT CONTAINING `const` VARIANT
         //
         // Concerns:
-        //: 1 That when an object of a variant type 'VT' is move-constructed
-        //:   from a 'const VT', the value move constructor (i.e., the
-        //:   constructor taking 'TYPE&& value') does not participate in
-        //:   overload resolution.  In particular, the 'bsl::enable_if' on the
-        //:   value move constructor must correctly handle this situation.
+        // 1. That when an object of a variant type `VT` is move-constructed
+        //    from a `const VT`, the value move constructor (i.e., the
+        //    constructor taking `TYPE&& value`) does not participate in
+        //    overload resolution.  In particular, the `bsl::enable_if` on the
+        //    value move constructor must correctly handle this situation.
         //
         // Plan:
-        //: 1 The issue arose when a 'const VT' was a member of a type whose
-        //:   move and copy constructors were generated by the compiler, and an
-        //:   rvalue of such a type was being moved.  Test types are tailored
-        //:   for 'VariantImp', 'Variant', 'Variant2', etc., to ensure that
-        //:   compilation succeeds, verifying that the 'bsl::enable_if'
-        //:   conditions on the value move constructors are correct for this
-        //:   'const' issue.  Note that this issue is relevant to C++11 builds
-        //:   only.  (C-1)
+        // 1. The issue arose when a `const VT` was a member of a type whose
+        //    move and copy constructors were generated by the compiler, and an
+        //    rvalue of such a type was being moved.  Test types are tailored
+        //    for `VariantImp`, `Variant`, `Variant2`, etc., to ensure that
+        //    compilation succeeds, verifying that the `bsl::enable_if`
+        //    conditions on the value move constructors are correct for this
+        //    `const` issue.  Note that this issue is relevant to C++11 builds
+        //    only.  (C-1)
         //
         // Testing:
-        //   CONCERN: Moving an object containing a 'const' variant compiles.
+        //   CONCERN: Moving an object containing a `const` variant compiles.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "MOVING OBJECT CONTAINING 'const' VARIANT"
+                          << "MOVING OBJECT CONTAINING `const` VARIANT"
                           << endl
                           << "========================================"
                           << endl;
@@ -30323,53 +30362,53 @@ int main(int argc, char *argv[])
         // VALUE MOVE-ASSIGNMENT OPERATOR
         //
         // Concerns:
-        //: 1 The signature and return type are standard.
-        //:
-        //: 2 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 3 The value move-assignment operator can change the value and type
-        //:   held by a modifiable target object to that of any source object.
-        //:
-        //: 4 For variants that use an allocator: The object has its internal
-        //:   memory management system hooked up properly so that *all*
-        //:   internally allocated memory draws from a user-supplied allocator
-        //:   whenever one is specified.
-        //:
-        //: 5 The allocator address (if any) held by the target object is
-        //:   unchanged.
-        //:
-        //: 6 The move-assignment operator is called on the contained object if
-        //:   the types of the source object and that of the object held by the
-        //:   target are the same.
-        //:
-        //: 7 The move constructor is called on the source object if either:
-        //:   (a) the types of the source object and that of the object held by
-        //:   the target are not the same, in which case the object held by the
-        //:   target is first destroyed, or (b) the target object is unset.
-        //:
-        //: 8 The source object is left in a valid but unspecified state and
-        //:   the allocator address (if any) held by the source object is
-        //:   unchanged.
-        //:
-        //: 9 Subsequent changes to or destruction of the source object have no
-        //:   effect on the target object and vice versa.
-        //:
-        //:10 Every object releases any allocated memory at destruction.
-        //:
-        //:11 Any memory allocation is exception neutral.
-        //:
-        //:12 Assigning an object to itself behaves as expected (alias-safety).
-        //:
-        //:13 The 'bdlb::VariantN' and 'bdlb::Variant' value move-assignment
-        //:   operators correctly forward to the 'bdlb::VariantImp' value
-        //:   move-assignment operator.
+        // 1. The signature and return type are standard.
+        //
+        // 2. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 3. The value move-assignment operator can change the value and type
+        //    held by a modifiable target object to that of any source object.
+        //
+        // 4. For variants that use an allocator: The object has its internal
+        //    memory management system hooked up properly so that *all*
+        //    internally allocated memory draws from a user-supplied allocator
+        //    whenever one is specified.
+        //
+        // 5. The allocator address (if any) held by the target object is
+        //    unchanged.
+        //
+        // 6. The move-assignment operator is called on the contained object if
+        //    the types of the source object and that of the object held by the
+        //    target are the same.
+        //
+        // 7. The move constructor is called on the source object if either:
+        //    (a) the types of the source object and that of the object held by
+        //    the target are not the same, in which case the object held by the
+        //    target is first destroyed, or (b) the target object is unset.
+        //
+        // 8. The source object is left in a valid but unspecified state and
+        //    the allocator address (if any) held by the source object is
+        //    unchanged.
+        //
+        // 9. Subsequent changes to or destruction of the source object have no
+        //    effect on the target object and vice versa.
+        //
+        // 10. Every object releases any allocated memory at destruction.
+        //
+        // 11. Any memory allocation is exception neutral.
+        //
+        // 12. Assigning an object to itself behaves as expected (alias-safety).
+        //
+        // 13. The `bdlb::VariantN` and `bdlb::Variant` value move-assignment
+        //    operators correctly forward to the `bdlb::VariantImp` value
+        //    move-assignment operator.
         //
         // Plan:
-        //: 1 TBD
+        // 1. TBD
         //
         // Testing:
         //   VariantImp& operator=(TYPE&& value);
-        //   'bdlb::VariantN' and 'bdlb::Variant'
+        //   `bdlb::VariantN` and `bdlb::Variant`
         // --------------------------------------------------------------------
 
         TestUtil::testCase26();
@@ -30380,58 +30419,58 @@ int main(int argc, char *argv[])
         // MOVE-ASSIGNMENT OPERATOR
         //
         // Concerns:
-        //: 1 The signature and return type are standard.
-        //:
-        //: 2 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 3 The move-assignment operator can change the value of a modifiable
-        //:   target object to that of any source object.
-        //:
-        //: 4 For variants that use an allocator: The object has its internal
-        //:   memory management system hooked up properly so that *all*
-        //:   internally allocated memory draws from a user-supplied allocator
-        //:   whenever one is specified.
-        //:
-        //: 5 The allocator address (if any) held by the target object is
-        //:   unchanged.
-        //:
-        //: 6 The move-assignment operator is called on the contained object if
-        //:   the source and target objects are both set and hold objects of
-        //:   the same type.
-        //:
-        //: 7 The move constructor is called on the source object if either:
-        //:   (a) the source and target objects are both set and hold objects
-        //:   that are not of the same type, in which case the object held by
-        //:   the target is first destroyed, or (b) the source object is set
-        //:   and the target object is unset.
-        //:
-        //: 8 A set variant that is move-assigned to from an unset variant is
-        //:   made unset by first destroying the object held by the target
-        //:   object.
-        //:
-        //: 9 The source object is left in a valid but unspecified state and
-        //:   the allocator address (if any) held by the source object is
-        //:   unchanged.
-        //:
-        //:10 Subsequent changes to or destruction of the source object have no
-        //:   effect on the target object and vice versa.
-        //:
-        //:11 Every object releases any allocated memory at destruction.
-        //:
-        //:12 Any memory allocation is exception neutral.
-        //:
-        //:13 Assigning an object to itself behaves as expected (alias-safety).
-        //:
-        //:14 The 'bdlb::VariantN' and 'bdlb::Variant' move-assignment
-        //:   operators correctly forward to the 'bdlb::VariantImp'
-        //:   move-assignment operator.
+        // 1. The signature and return type are standard.
+        //
+        // 2. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 3. The move-assignment operator can change the value of a modifiable
+        //    target object to that of any source object.
+        //
+        // 4. For variants that use an allocator: The object has its internal
+        //    memory management system hooked up properly so that *all*
+        //    internally allocated memory draws from a user-supplied allocator
+        //    whenever one is specified.
+        //
+        // 5. The allocator address (if any) held by the target object is
+        //    unchanged.
+        //
+        // 6. The move-assignment operator is called on the contained object if
+        //    the source and target objects are both set and hold objects of
+        //    the same type.
+        //
+        // 7. The move constructor is called on the source object if either:
+        //    (a) the source and target objects are both set and hold objects
+        //    that are not of the same type, in which case the object held by
+        //    the target is first destroyed, or (b) the source object is set
+        //    and the target object is unset.
+        //
+        // 8. A set variant that is move-assigned to from an unset variant is
+        //    made unset by first destroying the object held by the target
+        //    object.
+        //
+        // 9. The source object is left in a valid but unspecified state and
+        //    the allocator address (if any) held by the source object is
+        //    unchanged.
+        //
+        // 10. Subsequent changes to or destruction of the source object have no
+        //    effect on the target object and vice versa.
+        //
+        // 11. Every object releases any allocated memory at destruction.
+        //
+        // 12. Any memory allocation is exception neutral.
+        //
+        // 13. Assigning an object to itself behaves as expected (alias-safety).
+        //
+        // 14. The `bdlb::VariantN` and `bdlb::Variant` move-assignment
+        //    operators correctly forward to the `bdlb::VariantImp`
+        //    move-assignment operator.
         //
         // Plan:
-        //: 1 TBD
+        // 1. TBD
         //
         // Testing:
         //   VariantImp& operator=(VariantImp&& rhs);
-        //   'bdlb::VariantN' and 'bdlb::Variant'
+        //   `bdlb::VariantN` and `bdlb::Variant`
         // --------------------------------------------------------------------
 
         TestUtil::testCase25();
@@ -30442,43 +30481,43 @@ int main(int argc, char *argv[])
         // MOVE ASSIGN
         //
         // Concerns:
-        //: 1 The reference returned is to the target object (i.e., '*this').
-        //:
-        //: 2 The move 'assign' method can change the value and type held by a
-        //:   modifiable target object to that of any source object.
-        //:
-        //: 3 For variants that use an allocator: The object has its internal
-        //:   memory management system hooked up properly so that *all*
-        //:   internally allocated memory draws from a user-supplied allocator
-        //:   whenever one is specified.
-        //:
-        //: 4 The allocator address (if any) held by the target object is
-        //:   unchanged.
-        //:
-        //: 5 The move-assignment operator is called on the contained object if
-        //:   the types of the source object and that of the object held by the
-        //:   target are the same.
-        //:
-        //: 6 The move constructor is called on the source object if either:
-        //:   (a) the types of the source object and that of the object held by
-        //:   the target are not the same, in which case the object held by the
-        //:   target is first destroyed, or (b) the target object is unset.
-        //:
-        //: 7 The source object is left in a valid but unspecified state and
-        //:   the allocator address (if any) held by the source object is
-        //:   unchanged.
-        //:
-        //: 8 Subsequent changes to or destruction of the source object have no
-        //:   effect on the target object and vice versa.
-        //:
-        //: 9 Every object releases any allocated memory at destruction.
-        //:
-        //:10 Any memory allocation is exception neutral.
-        //:
-        //:11 Assigning an object to itself behaves as expected (alias-safety).
+        // 1. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 2. The move `assign` method can change the value and type held by a
+        //    modifiable target object to that of any source object.
+        //
+        // 3. For variants that use an allocator: The object has its internal
+        //    memory management system hooked up properly so that *all*
+        //    internally allocated memory draws from a user-supplied allocator
+        //    whenever one is specified.
+        //
+        // 4. The allocator address (if any) held by the target object is
+        //    unchanged.
+        //
+        // 5. The move-assignment operator is called on the contained object if
+        //    the types of the source object and that of the object held by the
+        //    target are the same.
+        //
+        // 6. The move constructor is called on the source object if either:
+        //    (a) the types of the source object and that of the object held by
+        //    the target are not the same, in which case the object held by the
+        //    target is first destroyed, or (b) the target object is unset.
+        //
+        // 7. The source object is left in a valid but unspecified state and
+        //    the allocator address (if any) held by the source object is
+        //    unchanged.
+        //
+        // 8. Subsequent changes to or destruction of the source object have no
+        //    effect on the target object and vice versa.
+        //
+        // 9. Every object releases any allocated memory at destruction.
+        //
+        // 10. Any memory allocation is exception neutral.
+        //
+        // 11. Assigning an object to itself behaves as expected (alias-safety).
         //
         // Plan:
-        //: 1 TBD
+        // 1. TBD
         //
         // Testing:
         //   VariantImp& assign(TYPE&& value);
@@ -30492,49 +30531,49 @@ int main(int argc, char *argv[])
         // VALUE MOVE CONSTRUCTOR
         //
         // Concerns:
-        //: 1 The object contained by the newly created variant has the same
-        //:   value (using the equality operator) as that of the source object
-        //:   before the call.
-        //:
-        //: 2 All internal representations of a given value can be used to
-        //:   create a new object of equivalent value.
-        //:
-        //: 3 For variants that use an allocator:
-        //:
-        //:   1 If no allocator (or an explicit 0) is supplied, the default
-        //:     allocator is used by the newly created object to supply memory.
-        //:
-        //:   2 If an allocator is supplied, it is used by the newly created
-        //:     object to supply memory.
-        //:
-        //: 4 The move constructor is called on the source object.
-        //:
-        //: 5 The source object is left in a valid but unspecified state and
-        //:   the allocator address (if any) held by the source object is
-        //:   unchanged.
-        //:
-        //: 6 Subsequent changes to or destruction of the source object have
-        //:   no effect on the move-constructed object and vice versa.
-        //:
-        //: 7 The object has its internal memory management system hooked up
-        //:   properly so that *all* internally allocated memory draws from a
-        //:   user-supplied allocator whenever one is specified.
-        //:
-        //: 8 Every object releases any allocated memory at destruction.
-        //:
-        //: 9 Any memory allocation is exception neutral.
-        //:
-        //:10 The 'bdlb::VariantN' and 'bdlb::Variant' value move constructors
-        //:   correctly forward to the corresponding 'bdlb::VariantImp'
-        //:   constructors.
+        // 1. The object contained by the newly created variant has the same
+        //    value (using the equality operator) as that of the source object
+        //    before the call.
+        //
+        // 2. All internal representations of a given value can be used to
+        //    create a new object of equivalent value.
+        //
+        // 3. For variants that use an allocator:
+        //
+        //   1. If no allocator (or an explicit 0) is supplied, the default
+        //      allocator is used by the newly created object to supply memory.
+        //
+        //   2. If an allocator is supplied, it is used by the newly created
+        //      object to supply memory.
+        //
+        // 4. The move constructor is called on the source object.
+        //
+        // 5. The source object is left in a valid but unspecified state and
+        //    the allocator address (if any) held by the source object is
+        //    unchanged.
+        //
+        // 6. Subsequent changes to or destruction of the source object have
+        //    no effect on the move-constructed object and vice versa.
+        //
+        // 7. The object has its internal memory management system hooked up
+        //    properly so that *all* internally allocated memory draws from a
+        //    user-supplied allocator whenever one is specified.
+        //
+        // 8. Every object releases any allocated memory at destruction.
+        //
+        // 9. Any memory allocation is exception neutral.
+        //
+        // 10. The `bdlb::VariantN` and `bdlb::Variant` value move constructors
+        //    correctly forward to the corresponding `bdlb::VariantImp`
+        //    constructors.
         //
         // Plan:
-        //: 1 TBD
+        // 1. TBD
         //
         // Testing:
         //   VariantImp(TYPE&& value);
         //   VariantImp(TYPE&& value, bslma::Allocator *ba);
-        //   'bdlb::VariantN' and 'bdlb::Variant'
+        //   `bdlb::VariantN` and `bdlb::Variant`
         // --------------------------------------------------------------------
 
         TestUtil::testCase23();
@@ -30545,56 +30584,56 @@ int main(int argc, char *argv[])
         // MOVE CONSTRUCTOR
         //
         // Concerns:
-        //: 1 The newly created object has the same value (using the equality
-        //:   operator) as that of the original object before the call.
-        //:
-        //: 2 All internal representations of a given value can be used to
-        //:   create a new object of equivalent value.
-        //:
-        //: 3 For variants that use an allocator:
-        //:
-        //:   1 If neither an allocator nor an explicit 0 is specified in the
-        //:     call to the move constructor, the allocator of the source
-        //:     object is propagated to the newly created object.
-        //:
-        //:   2 If an allocator is supplied, it is used by the newly created
-        //:     object to supply memory.
-        //:
-        //:   3 If an explicit 0 is supplied, the default allocator is used by
-        //:     the newly created object to supply memory.
-        //:
-        //: 4 The move constructor is called on the source object if it is set
-        //:   (i.e., '!isUnset()').
-        //:
-        //: 5 A variant that is move-constructed from an unset variant is
-        //:   initially unset.
-        //:
-        //: 6 The original object is left in a valid but unspecified state and
-        //:   the allocator address (if any) held by the original object is
-        //:   unchanged.
-        //:
-        //: 7 Subsequent changes to, or destruction of, the original object
-        //:   have no effect on the move-constructed object and vice versa.
-        //:
-        //: 8 The object has its internal memory management system hooked up
-        //:   properly so that *all* internally allocated memory draws from a
-        //:   user-supplied allocator whenever one is specified.
-        //:
-        //: 9 Every object releases any allocated memory at destruction.
-        //:
-        //:10 Any memory allocation is exception neutral.
-        //:
-        //:11 The 'bdlb::VariantN' and 'bdlb::Variant' move constructors
-        //:   correctly forward to the corresponding 'bdlb::VariantImp'
-        //:   constructors.
+        // 1. The newly created object has the same value (using the equality
+        //    operator) as that of the original object before the call.
+        //
+        // 2. All internal representations of a given value can be used to
+        //    create a new object of equivalent value.
+        //
+        // 3. For variants that use an allocator:
+        //
+        //   1. If neither an allocator nor an explicit 0 is specified in the
+        //      call to the move constructor, the allocator of the source
+        //      object is propagated to the newly created object.
+        //
+        //   2. If an allocator is supplied, it is used by the newly created
+        //      object to supply memory.
+        //
+        //   3. If an explicit 0 is supplied, the default allocator is used by
+        //      the newly created object to supply memory.
+        //
+        // 4. The move constructor is called on the source object if it is set
+        //    (i.e., `!isUnset()`).
+        //
+        // 5. A variant that is move-constructed from an unset variant is
+        //    initially unset.
+        //
+        // 6. The original object is left in a valid but unspecified state and
+        //    the allocator address (if any) held by the original object is
+        //    unchanged.
+        //
+        // 7. Subsequent changes to, or destruction of, the original object
+        //    have no effect on the move-constructed object and vice versa.
+        //
+        // 8. The object has its internal memory management system hooked up
+        //    properly so that *all* internally allocated memory draws from a
+        //    user-supplied allocator whenever one is specified.
+        //
+        // 9. Every object releases any allocated memory at destruction.
+        //
+        // 10. Any memory allocation is exception neutral.
+        //
+        // 11. The `bdlb::VariantN` and `bdlb::Variant` move constructors
+        //    correctly forward to the corresponding `bdlb::VariantImp`
+        //    constructors.
         //
         // Plan:
-        //: 1 TBD
+        // 1. TBD
         //
         // Testing:
         //   VariantImp(VariantImp&& original);
         //   VariantImp(VariantImp&& original, bslma::Allocator *ba);
-        //   'bdlb::VariantN' and 'bdlb::Variant'
+        //   `bdlb::VariantN` and `bdlb::Variant`
         // --------------------------------------------------------------------
 
         TestUtil::testCase22();
@@ -30602,7 +30641,7 @@ int main(int argc, char *argv[])
       } break;
       case 21: {
         // --------------------------------------------------------------------
-        // TESTING 'swap'
+        // TESTING `swap`
         //
         // Concerns:
         //   1. That unset variants can be swapped successfully.
@@ -30617,7 +30656,7 @@ int main(int argc, char *argv[])
         //   void swap(VariantImp& rhs);
         // --------------------------------------------------------------------
 
-        // This test case is defined outside of 'main' to avoid out-of-memory
+        // This test case is defined outside of `main` to avoid out-of-memory
         // errors with the xlC compiler.
 
         TestUtil::testCase21();
@@ -30625,41 +30664,41 @@ int main(int argc, char *argv[])
       } break;
       case 20: {
         // --------------------------------------------------------------------
-        // CONCERN: 'applyRaw' accepts VISITORs without a 'bslmf::Nil' overload
+        // CONCERN: `applyRaw` accepts VISITORs without a `bslmf::Nil` overload
         //
         // Concerns:
-        //: 1 That 'applyRaw' can be called on a VISITOR functor that does not
-        //:   provide an overload for 'bslmf::Nil'.
-        //:
-        //: 2 That 'applyRaw' can be called on both 'const' and non-'const'
-        //:   VISITOR functors.
-        //:
-        //: 3 That 'applyRaw' can be called on both 'const' and non-'const'
-        //:   variants.
-        //:
-        //: 4 That 'applyRaw' can be called on functors that define and do not
-        //:   define a 'ResultType`.
+        // 1. That `applyRaw` can be called on a VISITOR functor that does not
+        //    provide an overload for `bslmf::Nil`.
+        //
+        // 2. That `applyRaw` can be called on both `const` and non-`const`
+        //    VISITOR functors.
+        //
+        // 3. That `applyRaw` can be called on both `const` and non-`const`
+        //    variants.
+        //
+        // 4. That `applyRaw` can be called on functors that define and do not
+        //    define a 'ResultType`.
         //
         // Plan:
-        //: 1 Call 'applyRaw' using a 'VISITOR' that does not have an overload
-        //:   for 'bslmf::Nil' on a cross product of:
-        //:   o 'const' and non-'const' variants.
-        //:   o 'const' and non-'const' visitors.
-        //:   o A visitor functor that:
-        //:     o Declares a result type.
-        //:     o Does not declare a result type and returns 'void'.
-        //:     o Does not declare a result type and doesn't return 'void'.
-        //:
-        //: 2 Call 'applyRaw<RESULT_TYPE>' (i.e., without using template
-        //:   argument deduction to determine the result type) using a visitor
-        //:   that does not have an overload of 'Nil' for the same cross
-        //:   product of situations as (1).
+        // 1. Call `applyRaw` using a `VISITOR` that does not have an overload
+        //    for `bslmf::Nil` on a cross product of:
+        //    - `const` and non-`const` variants.
+        //    - `const` and non-`const` visitors.
+        //    - A visitor functor that:
+        //      - Declares a result type.
+        //      - Does not declare a result type and returns `void`.
+        //      - Does not declare a result type and doesn't return `void`.
+        //
+        // 2. Call `applyRaw<RESULT_TYPE>` (i.e., without using template
+        //    argument deduction to determine the result type) using a visitor
+        //    that does not have an overload of `Nil` for the same cross
+        //    product of situations as (1).
         //
         // Testing:
-        //  CONCERN: 'applyRaw' accepts VISITORs w/o a 'bslmf::Nil' overload
+        //  CONCERN: `applyRaw` accepts VISITORs w/o a `bslmf::Nil` overload
         // --------------------------------------------------------------------
 
-        // This test case is defined outside of 'main' to avoid out-of-memory
+        // This test case is defined outside of `main` to avoid out-of-memory
         // errors with the xlC compiler.
 
         TestUtil::testCase20();
@@ -30671,25 +30710,25 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   1. If no allocator pointer is needed, it will not be a part of the
-        //      variant members, i.e., 'sizeof(bdlb::Variant)' should be
-        //      diminished by 'sizeof(bslma::Allocator *)'.
-        //   2. That the 'bslma::UsesBslmaAllocator' trait is declared for the
+        //      variant members, i.e., `sizeof(bdlb::Variant)` should be
+        //      diminished by `sizeof(bslma::Allocator *)`.
+        //   2. That the `bslma::UsesBslmaAllocator` trait is declared for the
         //      variant when any type it holds has the trait.  If none of the
         //      types has the trait, then the variant itself will not have the
         //      trait.
         //   3. When any type held by the variant does not have the
-        //      'bslmf::IsBitwiseCopyable' trait, then the variant itself
+        //      `bslmf::IsBitwiseCopyable` trait, then the variant itself
         //      will not have the bitwise copyable trait.
         //   4. When any type held by the variant does not have the
-        //      'bslmf::IsBitwiseMoveable' trait, then the variant itself will
+        //      `bslmf::IsBitwiseMoveable` trait, then the variant itself will
         //      not have the bitwise movable trait.
         //
         // Plan:
         //   To address all the concerns, create a variety of types that have
         //   the following traits:
-        //       o 'bslma::UsesBslmaAllocator'
-        //       o 'bslmf::IsBitwiseCopyable'
-        //       o 'bslmf::IsBitwiseMoveable'
+        //       o `bslma::UsesBslmaAllocator`
+        //       o `bslmf::IsBitwiseCopyable`
+        //       o `bslmf::IsBitwiseMoveable`
         //       o no traits
         //   Then populate the variant with different types and different
         //   scenarios outlined in the concerns section.  Finally, check
@@ -30697,12 +30736,12 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   CONCERN: No allocator pointer in object if not necessary.
-        //   CONCERN: No 'bslma::UsesBslmaAllocator' trait when no allocator.
-        //   CONCERN: 'bslmf::IsBitwiseCopyable' trait
-        //   CONCERN: 'bslmf::IsBitwiseMoveable' trait
+        //   CONCERN: No `bslma::UsesBslmaAllocator` trait when no allocator.
+        //   CONCERN: `bslmf::IsBitwiseCopyable` trait
+        //   CONCERN: `bslmf::IsBitwiseMoveable` trait
         // --------------------------------------------------------------------
 
-        // This test case is defined outside of 'main' to avoid out-of-memory
+        // This test case is defined outside of `main` to avoid out-of-memory
         // errors with the xlC compiler.
 
         TestUtil::testCase19();
@@ -30710,22 +30749,22 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING CLASSES 'bdlb::VariantN' and 'bdlb::Variant'
+        // TESTING CLASSES `bdlb::VariantN` and `bdlb::Variant`
         //   So far, we have tested the core functionality of the
-        //   'bdlb::VariantImp' class.  We have focused on the value-semantic
+        //   `bdlb::VariantImp` class.  We have focused on the value-semantic
         //   portion of the functionality offered by this component.  We now
         //   address the concerns related to the implementation of the core
-        //   'bdlb::VariantImp' and a multitude of thin wrappers (that derive
-        //   from 'bdlb::VariantImp') that offer extra constructors and traits.
+        //   `bdlb::VariantImp` and a multitude of thin wrappers (that derive
+        //   from `bdlb::VariantImp`) that offer extra constructors and traits.
         //
         // Concerns:
-        //   1. That the 'bdlb::VariantN' class templates take exactly 'N'
+        //   1. That the `bdlb::VariantN` class templates take exactly `N`
         //      template arguments.
-        //   2. That the 'bdlb::VariantN' value constructor takes a single
-        //      argument of one of the 'N' types specified in its type list.
-        //   3. That the 'bdlb::VariantN' copy 'operator=' takes a single
-        //      argument of one of the 'N' types specified in its type list.
-        //   4. That the 'bdlb::Variant' class template takes a variable
+        //   2. That the `bdlb::VariantN` value constructor takes a single
+        //      argument of one of the `N` types specified in its type list.
+        //   3. That the `bdlb::VariantN` copy `operator=` takes a single
+        //      argument of one of the `N` types specified in its type list.
+        //   4. That the `bdlb::Variant` class template takes a variable
         //      number of template arguments.
         //   5. That the traits are set properly for the thin wrappers.
         //   6. That the constructors propagate the allocator properly.
@@ -30733,28 +30772,28 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   To address concern 1, we instantiate each type with up to 20
-        //   parameters of distinct types 'TestArg<1>' to 'TestArg<20>'.
-        //   For Concern 2, we instantiate 'bdlb::Variant' with each
+        //   parameters of distinct types `TestArg<1>` to `TestArg<20>`.
+        //   For Concern 2, we instantiate `bdlb::Variant` with each
         //   combination of up to 20 parameters and verify that the remaining
-        //   ones default to 'bslmf::TypeListNil'.
+        //   ones default to `bslmf::TypeListNil`.
         //
         //   For concern 3, we manually check the traits of each class.
         //
         //   For concern 4, we verify that the allocator is correctly
-        //   propagated to a 'TestString' variant type.  Note that the
+        //   propagated to a `TestString` variant type.  Note that the
         //   treatment of allocators being done through an applicator is
         //   independent of the index of the type in the type list, and thus it
-        //   is enough to put 'TestString' as the first type.
+        //   is enough to put `TestString` as the first type.
         //
         //   For concern 5, we check the index of every type in the variant and
         //   verify that it is as expected.  We also check the nested
-        //   'TypeList' and 'TypeN' types.
+        //   `TypeList` and `TypeN` types.
         //
         // Testing:
-        //   CLASSES: 'bdlb::VariantN' and 'bdlb::Variant' (copy semantics)
+        //   CLASSES: `bdlb::VariantN` and `bdlb::Variant` (copy semantics)
         // --------------------------------------------------------------------
 
-        // This test case is defined outside of 'main' to avoid out-of-memory
+        // This test case is defined outside of `main` to avoid out-of-memory
         // errors with the xlC compiler.
 
         TestUtil::testCase18();
@@ -30762,32 +30801,32 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING 'isUnset'
+        // TESTING `isUnset`
         //
         // Concerns:
-        //   1. That 'isUnset' returns 'true' for an unset variant (default
-        //      constructed or after 'reset'), and 'false' otherwise.
-        //   2. That when 'bslmf::Nil' is used as one of the types in the
-        //      type list, 'isUnset' still returns 'false' even when the
-        //      variant is initialized to 'bslmf::Nil'.
+        //   1. That `isUnset` returns `true` for an unset variant (default
+        //      constructed or after `reset`), and `false` otherwise.
+        //   2. That when `bslmf::Nil` is used as one of the types in the
+        //      type list, `isUnset` still returns `false` even when the
+        //      variant is initialized to `bslmf::Nil`.
         //
         // Plan:
         //   To address concern 1, create two variants, both default
-        //   constructed, and verify that 'isUnset' returns 'true'.  Assign a
-        //   value to both the variants, and verify that 'isUnset' returns
-        //   'false'.  Finally, invoke 'reset' on the first variant, and verify
-        //   that 'isUnset' returns 'true' on the first variant and 'false' on
+        //   constructed, and verify that `isUnset` returns `true`.  Assign a
+        //   value to both the variants, and verify that `isUnset` returns
+        //   `false`.  Finally, invoke `reset` on the first variant, and verify
+        //   that `isUnset` returns `true` on the first variant and `false` on
         //   the second variant.
         //
-        //   For concern 2, create a variant with 'bslmf::Nil' in its type
-        //   list, then initialize it to a nil value.  Verify that 'isUnset'
-        //   returns 'false'.
+        //   For concern 2, create a variant with `bslmf::Nil` in its type
+        //   list, then initialize it to a nil value.  Verify that `isUnset`
+        //   returns `false`.
         //
         // Testing:
         //   bool isUnset() const;
         // --------------------------------------------------------------------
 
-        // This test case is defined outside of 'main' to avoid out-of-memory
+        // This test case is defined outside of `main` to avoid out-of-memory
         // errors with the xlC compiler.
 
         TestUtil::testCase17();
@@ -30797,22 +30836,22 @@ int main(int argc, char *argv[])
         // TESTING VISITORS (unset variant)
         //
         // Concerns:
-        //   1. That 'bslmf::Nil' is passed to the visitor if 'apply' is
+        //   1. That `bslmf::Nil` is passed to the visitor if `apply` is
         //      invoked on an unset variant.
-        //   2. That, if specified, 'defaultValue' is passed to the visitor if
-        //      'apply' is invoked on an unset variant.
-        //   3. That an assert is triggered when 'applyRaw' is invoked on an
+        //   2. That, if specified, `defaultValue` is passed to the visitor if
+        //      `apply` is invoked on an unset variant.
+        //   3. That an assert is triggered when `applyRaw` is invoked on an
         //      unset variant in debug mode.
         //
         // Plan:
         //   To address concerns 1 and 2, create a visitor that has three
-        //   'operator()' overloads.  The first one is a parameterized
-        //   'operator()' that takes any type.  The second one is one that
-        //   takes a 'bslmf::Nil'.  The last one is one that takes a
-        //   user-defined type, and in this test case, 'TestArg<1>'.  Verify
-        //   that the proper 'operator()' is invoked when the variant is unset.
+        //   `operator()` overloads.  The first one is a parameterized
+        //   `operator()` that takes any type.  The second one is one that
+        //   takes a `bslmf::Nil`.  The last one is one that takes a
+        //   user-defined type, and in this test case, `TestArg<1>`.  Verify
+        //   that the proper `operator()` is invoked when the variant is unset.
         //
-        //   To address concern 3, use a 'bsls::AssertFailureHandlerGuard' and
+        //   To address concern 3, use a `bsls::AssertFailureHandlerGuard` and
         //   provide an assertion handler.  In the assertion handler, record
         //   that an assert is fired in debug mode.
         //
@@ -30831,7 +30870,7 @@ int main(int argc, char *argv[])
         //   RET_TYPE applyRaw(VISITOR& visitor) const;
         // --------------------------------------------------------------------
 
-        // This test case is defined outside of 'main' to avoid out-of-memory
+        // This test case is defined outside of `main` to avoid out-of-memory
         // errors with the xlC compiler.
 
         TestUtil::testCase16();
@@ -30844,15 +30883,15 @@ int main(int argc, char *argv[])
         // Concerns:
         //   1. Visitors can modify the value currently held by the variant
         //      (meaning visitors are not read-only).
-        //   2. When no 'ResultType' is defined as a member type of the
-        //      visitor, the 'apply' method will return 'void'.
-        //   3. When 'ResultType' is defined as a member type of the visitor,
-        //      the 'apply' method returns 'ResultType'.
-        //   4. When 'RET_TYPE' is specified as an explicit function template
-        //      parameter, the 'apply' method returns 'RET_TYPE', overriding
-        //      any return type specified in 'ResultType'.
-        //   5. 'const' variants can be visited by visitors with an
-        //      'operator()' that takes a 'const' reference to the value held
+        //   2. When no `ResultType` is defined as a member type of the
+        //      visitor, the `apply` method will return `void`.
+        //   3. When `ResultType` is defined as a member type of the visitor,
+        //      the `apply` method returns `ResultType`.
+        //   4. When `RET_TYPE` is specified as an explicit function template
+        //      parameter, the `apply` method returns `RET_TYPE`, overriding
+        //      any return type specified in `ResultType`.
+        //   5. `const` variants can be visited by visitors with an
+        //      `operator()` that takes a `const` reference to the value held
         //      by the visitor.
         //   6. Unless explicitly modified by the visitor, visiting the
         //      variant does not modify the variant in any way.
@@ -30865,31 +30904,31 @@ int main(int argc, char *argv[])
         //   held by the variant.
         //
         //   To address concerns 2, 3, and 4, create a wrapper for
-        //   'bdlb::Variant' that records which 'apply' method is invoked.
+        //   `bdlb::Variant` that records which `apply` method is invoked.
         //   Verify that the correct method is invoked depending on the
         //   requirements listed in the concerns.  Furthermore, for visitors
         //   that return values, verify that the value returned is as expected.
         //   Finally, to verify that the return value is overridden when
-        //   explicitly specified in the 'apply' method, define a class
-        //   'Convertible' that is implicitly convertible from any class.
-        //   Specify 'Convertible' explicitly as the return type, and invoke
-        //   a member function 'memberFunc' of 'Convertible' directly on the
-        //   value returned by the 'apply' method:
+        //   explicitly specified in the `apply` method, define a class
+        //   `Convertible` that is implicitly convertible from any class.
+        //   Specify `Convertible` explicitly as the return type, and invoke
+        //   a member function `memberFunc` of `Convertible` directly on the
+        //   value returned by the `apply` method:
         //
         //      (myVariant.apply<Convertible>(visitor)).memberFunc();
         //
         //   The above is necessary because we cannot do a comparison (due to
-        //   implicit conversion of any type to class 'Convertible').  If the
+        //   implicit conversion of any type to class `Convertible`).  If the
         //   value returned is not the same as the explicitly specified type,
-        //   'memberFunc' will not be defined and the above will fail to
+        //   `memberFunc` will not be defined and the above will fail to
         //   compile.
         //
-        //   To address concern 5, create a 'const' variant and a visitor that
-        //   has a 'operator()' that takes a 'const' reference to the value
+        //   To address concern 5, create a `const` variant and a visitor that
+        //   has a `operator()` that takes a `const` reference to the value
         //   held by the visitor.  In the visitor, verify the value is properly
         //   passed.
         //
-        //   To address concern 6, create a (non-'const') variant and use the
+        //   To address concern 6, create a (non-`const`) variant and use the
         //   visitor of concern 5 to visit it.  After visiting, verify that the
         //   value held by the variant is not modified in any way.
         //
@@ -30918,7 +30957,7 @@ int main(int argc, char *argv[])
         //   RET_TYPE applyRaw<RET_TYPE>(const VISITOR& visitor) const;
         // --------------------------------------------------------------------
 
-        // This test case is defined outside of 'main' to avoid out-of-memory
+        // This test case is defined outside of `main` to avoid out-of-memory
         // errors with the xlC compiler.
 
         TestUtil::testCase15();
@@ -30926,27 +30965,27 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING 'createInPlace'
+        // TESTING `createInPlace`
         //
         // Concerns:
-        //   1. The 'createInPlace' method does not invoke the copy constructor
+        //   1. The `createInPlace` method does not invoke the copy constructor
         //      of the object being created.
         //   2. The variant holds the correct type and value of the object
         //      being created inside the variant (implying that all constructor
         //      arguments are forwarded properly).
         //
         // Plan:
-        //   Define a 'MovableTestTypeConsumer' class whose copy constructor is
+        //   Define a `MovableTestTypeConsumer` class whose copy constructor is
         //   monitored and has a constructor that takes up to 14 arguments.
         //   Also provide an accessor to the 14 arguments being passed in.
-        //   Then invoke all 15 versions of 'createInPlace' and verify the
+        //   Then invoke all 15 versions of `createInPlace` and verify the
         //   arguments are forwarded properly (including their value category).
         //   Also assert that the copy constructor is never invoked.
         //
         // Testing: TYPE& createInPlace<TYPE>(...);
         // --------------------------------------------------------------------
 
-        // This test case is defined outside of 'main' to avoid out-of-memory
+        // This test case is defined outside of `main` to avoid out-of-memory
         // errors with the xlC compiler.
 
         TestUtil::testCase14();
@@ -30962,9 +31001,9 @@ int main(int argc, char *argv[])
         //      variant's type list.
         //   2. The assignment operator returns a reference to the destination
         //      object.
-        //   3. The 'value' passed to 'operator=' must not be affected by the
+        //   3. The `value` passed to `operator=` must not be affected by the
         //      operation.
-        //   4. The 'value' going out of scope has no effect on the value of
+        //   4. The `value` going out of scope has no effect on the value of
         //      the variant after the assignment.
         //   5. The allocator currently held by the variant is used to allocate
         //      memory for the assignment.
@@ -30985,13 +31024,13 @@ int main(int argc, char *argv[])
         //   Then we verify that the memory of the new object is drawn from the
         //   default allocator.
         //
-        //   To address concern 6, we use a standard 'bslma' exception test.
+        //   To address concern 6, we use a standard `bslma` exception test.
         //
         // Testing:
         //   VariantImp& operator=(const TYPE& value);
         // --------------------------------------------------------------------
 
-        // This test case is defined outside of 'main' to avoid out-of-memory
+        // This test case is defined outside of `main` to avoid out-of-memory
         // errors with the xlC compiler.
 
         TestUtil::testCase13();
@@ -31002,7 +31041,7 @@ int main(int argc, char *argv[])
         // TESTING VALUE CONSTRUCTOR
         //
         // Concerns:
-        //   1. When a 'bslma::Allocator' pointer is passed to the one-argument
+        //   1. When a `bslma::Allocator` pointer is passed to the one-argument
         //      constructor, the allocator should be used to supply memory
         //      for construction.
         //   2. When an object of a type in the variant's type list is passed
@@ -31018,11 +31057,11 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   To address concern 1, we make use of both the default allocator
-        //   guard and the 'bslma::TestAllocator'.  First, create two test
+        //   guard and the `bslma::TestAllocator`.  First, create two test
         //   allocators, then hook one up with the default allocator guard.
         //   Next, construct a variant passing the second test allocator in.
         //   Verify that construction and subsequent allocations (using
-        //   'assign') uses the allocator that is passed in.  Also verify that
+        //   `assign`) uses the allocator that is passed in.  Also verify that
         //   no memory allocations come from the first (default) allocator.
         //
         //   For concern 2, using the table-driven technique, construct every
@@ -31043,7 +31082,7 @@ int main(int argc, char *argv[])
         //   VariantImp(const TYPE& value, bslma::Allocator *ba);
         // --------------------------------------------------------------------
 
-        // This test case is defined outside of 'main' to avoid out-of-memory
+        // This test case is defined outside of `main` to avoid out-of-memory
         // errors with the xlC compiler.
 
         TestUtil::testCase12();
@@ -31051,27 +31090,27 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'assignTo'
+        // TESTING `assignTo`
         //
         // Concerns:
-        //   A call to the 'assignTo' method that specifies the value type
+        //   A call to the `assignTo` method that specifies the value type
         //   should not invoke the copy constructor.
         //
         // Plan:
-        //   Define a 'MovableTestTypeConsumer' class whose copy constructor is
-        //   monitored.  Invoke the 'assign' method of a variant that wraps
-        //   this 'MovableTestTypeConsumer' class.  Verify that the copy
+        //   Define a `MovableTestTypeConsumer` class whose copy constructor is
+        //   monitored.  Invoke the `assign` method of a variant that wraps
+        //   this `MovableTestTypeConsumer` class.  Verify that the copy
         //   constructor has not been called.
         //
         // Testing: VariantImp& assignTo(const SOURCE& value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'assignTo'" << endl
+                          << "TESTING `assignTo`" << endl
                           << "==================" << endl;
 
         if (verbose)
-            cout << "\nWith custom 'MovableTestTypeConsumer' type." << endl;
+            cout << "\nWith custom `MovableTestTypeConsumer` type." << endl;
         {
             typedef bdlb::VariantImp<bslmf::TypeList<MovableTestTypeConsumer> >
                 Obj;
@@ -31145,14 +31184,14 @@ int main(int argc, char *argv[])
             dam.reset();
             oam.reset();
 
-            // Deliberately call 'assign' instead of 'assignTo'.
+            // Deliberately call `assign` instead of `assignTo`.
 
             mR = &mX.assign<bsl::string>(sls);
             ASSERT(      X.is<bsl::string>());
             ASSERT(VS == X.the<bsl::string>());
             ASSERT(mR == &mX);
             ASSERT(dam.isInUseSame());
-            ASSERT(dam.isTotalUp());    // 'assign' incurs a temporary
+            ASSERT(dam.isTotalUp());    // `assign` incurs a temporary
             ASSERT(oam.isInUseUp());
         }
         ASSERT(0 == da.numBlocksInUse());
@@ -31162,7 +31201,7 @@ int main(int argc, char *argv[])
       case 10: {
         // --------------------------------------------------------------------
         // BDEX STREAMING
-        //   'bdlb::Variant' does not support BDEX streaming.
+        //   `bdlb::Variant` does not support BDEX streaming.
         //
         // Concerns:
         //   N/A
@@ -31183,7 +31222,7 @@ int main(int argc, char *argv[])
 
         using bslx::VersionFunctions::k_NO_VERSION;
 
-        if (verbose) cout << "\nTesting 'maxSupportedBdexVersion()'." << endl;
+        if (verbose) cout << "\nTesting `maxSupportedBdexVersion()`." << endl;
         {
             if (verbose) cout << "\tusing object syntax:" << endl;
             {
@@ -31202,8 +31241,8 @@ int main(int argc, char *argv[])
                 "Z",
         0};
 
-        if (verbose) cout << "\nDirect initial trial of 'bdexStreamOut' and"
-                             " (valid) 'bdexStreamIn' functionality." << endl;
+        if (verbose) cout << "\nDirect initial trial of `bdexStreamOut` and"
+                             " (valid) `bdexStreamIn` functionality." << endl;
 
         if (verbose) cout << "\tusing version 1." << endl;
 
@@ -31272,7 +31311,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\nTesting stream operators ('<<' and '>>')." << endl;
+            cout << "\nTesting stream operators (`<<` and `>>`)." << endl;
 
         const int VERSION = TObj::maxSupportedBdexVersion();
         if (verbose) cout << "\tOn valid, non-empty stream data." << endl;
@@ -31301,7 +31340,7 @@ int main(int argc, char *argv[])
 
                     if (UU.variant().maxSupportedBdexVersion() > 0 &&
                         VV.variant().maxSupportedBdexVersion() <= 0) {
-                        // This will not work since 'operator<<' will not
+                        // This will not work since `operator<<` will not
                         // stream in the version for UU.  Must abort.  See
                         // "BDEX Streamability" in component-level doc.
 
@@ -31335,7 +31374,7 @@ int main(int argc, char *argv[])
 
                     } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
 
-                    // Redo the tests with 'bslma' exceptions instead; note
+                    // Redo the tests with `bslma` exceptions instead; note
                     // that it is *not* necessary to assert.
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
@@ -31547,11 +31586,11 @@ int main(int argc, char *argv[])
         //      assigned to by another object of the same variant type and that
         //      the copy-assignment operator returns a reference to the
         //      destination object.
-        //   2. The 'rhs' value must not be affected by the operation.
-        //   3. 'rhs' going out of scope has no effect on the value of 'lhs'
+        //   2. The `rhs` value must not be affected by the operation.
+        //   3. `rhs` going out of scope has no effect on the value of `lhs`
         //      after the assignment.
         //   4. Aliasing (x = x): The copy-assignment operator must always work
-        //      -- even when the 'lhs' and 'rhs' are identically the same
+        //      -- even when the `lhs` and `rhs` are identically the same
         //      object.
         //   5. The allocator value is not part of the assignment.
         //   6. The copy-assignment operator must be exception neutral with no
@@ -31561,7 +31600,7 @@ int main(int argc, char *argv[])
         //   To address concerns 1, 2, and 3, specify a set S of unique object
         //   values with substantial and varied differences.  Construct tests
         //   X = Y for all (X, Y) in S x S.  For each of these test, generate Y
-        //   and YY using the same 'SPEC'.  After the assignment, assert that
+        //   and YY using the same `SPEC`.  After the assignment, assert that
         //   X, Y, and the value returned by the copy-assignment operator all
         //   equal YY.  Let Y go out of scope and confirm that YY equals X.
         //
@@ -31573,7 +31612,7 @@ int main(int argc, char *argv[])
         //   we verify that the memory of the new object is drawn from the
         //   default allocator.
         //
-        //   To address concern 6, we use a standard 'bslma' exception test.
+        //   To address concern 6, we use a standard `bslma` exception test.
         //
         // Testing:
         //   VariantImp& operator=(const VariantImp& rhs);
@@ -31604,9 +31643,9 @@ int main(int argc, char *argv[])
                     T_ T_ P_(j) P_(SPECS[j]) P(YY)
                 }
 
-                // In the block below, objects 'mX' and 'mZ' are assigned the
-                // value of 'mY'.  After 'mY' goes out of scope, we verify that
-                // 'mX' still has the value of 'mY'.
+                // In the block below, objects `mX` and `mZ` are assigned the
+                // value of `mY`.  After `mY` goes out of scope, we verify that
+                // `mX` still has the value of `mY`.
 
                 {
                     Obj mX(&oa);  const Obj& X = mX;
@@ -31652,9 +31691,9 @@ int main(int argc, char *argv[])
                     mX = YY;
                     blocks = oa.numBlocksTotal() - blocks;
 
-                    // Assign 'YY' (which uses a test allocator) to 'mY' (which
+                    // Assign `YY` (which uses a test allocator) to `mY` (which
                     // uses the default allocator).  The allocator value of
-                    // 'mY' should not be affected.
+                    // `mY` should not be affected.
 
                     bslma::TestAllocator da("default", veryVeryVeryVerbose);
                     bslma::DefaultAllocatorGuard dag(&da);
@@ -31666,9 +31705,9 @@ int main(int argc, char *argv[])
                     mY = YY;
                     defaultBlocks = da.numBlocksTotal() - defaultBlocks;
 
-                    // Verify 'mY' still uses the default allocator to obtain
-                    // memory and the test allocator used by 'YY' is not used,
-                    // thus proving the allocator value of 'mY' is unaffected
+                    // Verify `mY` still uses the default allocator to obtain
+                    // memory and the test allocator used by `YY` is not used,
+                    // thus proving the allocator value of `mY` is unaffected
                     // by the assignment.
 
                     ASSERTV(i, blocks, defaultBlocks, blocks == defaultBlocks);
@@ -31698,20 +31737,20 @@ int main(int argc, char *argv[])
         // TESTING GENERATOR FUNCTION
         //
         // Concerns:
-        //   Since 'g' is implemented almost entirely using 'gg', we need to
-        //   verify only that the arguments are properly forwarded, that 'g'
-        //   does not affect the test allocator, and that 'g' returns an
+        //   Since `g` is implemented almost entirely using `gg`, we need to
+        //   verify only that the arguments are properly forwarded, that `g`
+        //   does not affect the test allocator, and that `g` returns an
         //   object by value.
         //
         // Plan:
         //   For each SPEC in a short list of specifications, compare the
-        //   object returned (by value) from the generator function, 'g(SPEC)',
+        //   object returned (by value) from the generator function, `g(SPEC)`,
         //   with the value of a newly constructed OBJECT configured using
-        //   'gg(&OBJECT, SPEC)'.  Compare the results of calling the
-        //   allocator's 'numBlocksTotal' and 'numBlocksInUse' methods before
-        //   and after calling 'g' in order to demonstrate that 'g' has no
+        //   `gg(&OBJECT, SPEC)`.  Compare the results of calling the
+        //   allocator's `numBlocksTotal` and `numBlocksInUse` methods before
+        //   and after calling `g` in order to demonstrate that `g` has no
         //   effect on the test allocator.  Finally, compare the address of the
-        //   temporary object returned by 'g' to show that 'g' returns an
+        //   temporary object returned by `g` to show that `g` returns an
         //   object by value.
         //
         // Testing:
@@ -31719,7 +31758,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING GENERATOR FUNCTION 'g'" << endl
+                          << "TESTING GENERATOR FUNCTION `g`" << endl
                           << "==============================" << endl;
 
         static const char *SPECS[] = {
@@ -31728,7 +31767,7 @@ int main(int argc, char *argv[])
         0}; // Null string required as last element.
 
         if (verbose) cout <<
-            "\nCompare values produced by 'g' and 'gg' for various inputs."
+            "\nCompare values produced by `g` and `gg` for various inputs."
                                                                        << endl;
         for (int ti = 0; SPECS[ti]; ++ti) {
             const char *spec = SPECS[ti];
@@ -31785,7 +31824,7 @@ int main(int argc, char *argv[])
         //  To address concern 1 - 3, specify a set S of object values with
         //  substantial and varied differences.  For each value in S,
         //  initialize objects W and X, copy construct Y from X, and use
-        //  'operator==' to verify that both X and Y subsequently have the same
+        //  `operator==` to verify that both X and Y subsequently have the same
         //  value as W.  Let X go out of scope and again verify that W == Y.
         //
         //  To address concern 4, we will install a test allocator as the
@@ -31918,24 +31957,24 @@ int main(int argc, char *argv[])
         // TESTING EQUALITY OPERATORS
         //
         // Concerns:
-        //   For 'operator==', we have the following concerns:
-        //   1. Return 'false' for two variants holding different types.
-        //   2. Return 'false' for two variants holding the same type but not
+        //   For `operator==`, we have the following concerns:
+        //   1. Return `false` for two variants holding different types.
+        //   2. Return `false` for two variants holding the same type but not
         //      holding the same value.
-        //   3. Return 'true' for two variants holding the same type and the
+        //   3. Return `true` for two variants holding the same type and the
         //      same value.
-        //   4. Return 'true' for two unset variants.
+        //   4. Return `true` for two unset variants.
         //
-        //   For 'operator!=', we have the same concerns, except the method
-        //   should return 'false' whenever 'operator==' returns 'true' and
-        //   'true' whenever 'operator==' returns 'false'.
+        //   For `operator!=`, we have the same concerns, except the method
+        //   should return `false` whenever `operator==` returns `true` and
+        //   `true` whenever `operator==` returns `false`.
         //
         // Plan:
         //   Using the table-driven technique, construct a set of specs
         //   containing similar but different data values.  Then loop through
         //   the cross product of the test data.  For each tuple, generate two
-        //   objects 'U' and 'V' using the previously tested 'gg' function.
-        //   Use the '==' and '!=' operators and check their return value for
+        //   objects `U` and `V` using the previously tested `gg` function.
+        //   Use the `==` and `!=` operators and check their return value for
         //   correctness.
         //
         // Testing:
@@ -32017,22 +32056,22 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING OUTPUT (<<) OPERATOR AND 'print'
+        // TESTING OUTPUT (<<) OPERATOR AND `print`
         //
         // Concerns:
-        //  We want to ensure that the 'print' method correctly formats a
-        //  'bdlb::Variant' object for output with any valid 'level' and
-        //  'spacesPerLevel' values and returns the specified stream.
+        //  We want to ensure that the `print` method correctly formats a
+        //  `bdlb::Variant` object for output with any valid `level` and
+        //  `spacesPerLevel` values and returns the specified stream.
         //
         // Plan:
-        //  We will verify that 'print' has been properly hooked up with the
-        //  'print' method of the variant object by using a small set of
-        //  variant objects combined with some 'level' and 'spacesPerLevel'
-        //  values as test vectors.  Since 'operator<<' is implemented based
-        //  upon the 'print' method, we will check its output against the
-        //  'print' method when the values of 'level' and 'spacesPerLevel'
-        //  match those used to implement 'operator<<'.  We will also verify
-        //  that 'operator<<' returns the specified stream.
+        //  We will verify that `print` has been properly hooked up with the
+        //  `print` method of the variant object by using a small set of
+        //  variant objects combined with some `level` and `spacesPerLevel`
+        //  values as test vectors.  Since `operator<<` is implemented based
+        //  upon the `print` method, we will check its output against the
+        //  `print` method when the values of `level` and `spacesPerLevel`
+        //  match those used to implement `operator<<`.  We will also verify
+        //  that `operator<<` returns the specified stream.
         //
         // Testing:
         //   bsl::ostream& print(bsl::ostream& stream, int, int) const;
@@ -32040,7 +32079,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Testing OUTPUT (<<) OPERATOR AND 'print'" <<endl
+                          << "Testing OUTPUT (<<) OPERATOR AND `print`" <<endl
                           << "========================================" <<endl;
 
         bslma::TestAllocator oa("object", veryVeryVeryVerbose);
@@ -32143,9 +32182,9 @@ int main(int argc, char *argv[])
         // TESTING BASIC ACCESSORS
         //
         // Concerns:
-        //: 1 'is<TYPE>()' and 'typeIndex()' reflect correct type information.
-        //:
-        //: 2 'the<TYPE>()' returns the proper value.
+        // 1. `is<TYPE>()` and `typeIndex()` reflect correct type information.
+        //
+        // 2. `the<TYPE>()` returns the proper value.
         //
         // Plan:
         //   Using the table-driven technique, create a table of test vectors
@@ -32304,7 +32343,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nNegative Testing 'the'." << endl;
+        if (verbose) cout << "\nNegative Testing `the`." << endl;
         {
             bsls::AssertTestHandlerGuard hG;
 
@@ -32336,16 +32375,16 @@ int main(int argc, char *argv[])
         //
         // We will also want to verify that simple typos are detected and
         // reported reliably.  In order to test that aspect, we will need to
-        // supply invalid syntax.  But supplying invalid syntax to 'gg' will,
+        // supply invalid syntax.  But supplying invalid syntax to `gg` will,
         // by design, result in a diagnostic message and a test failure.  To
         // address this testing issue, notice that the implementation of the
-        // primitive generator 'gg' has been broken into two functions, 'ggg'
-        // and 'gg', with the latter implemented trivially in terms of the
-        // former.  The primitive generator *implementation* 'ggg' exposes one
+        // primitive generator `gg` has been broken into two functions, `ggg`
+        // and `gg`, with the latter implemented trivially in terms of the
+        // former.  The primitive generator *implementation* `ggg` exposes one
         // additional parameter that can be used to suppress output during what
         // is sometimes called "negative testing" -- i.e., making sure that the
         // function "breaks" when it should.  Instead of returning a reference,
-        // the 'ggg' function returns the index of the character that caused
+        // the `ggg` function returns the index of the character that caused
         // the error and a negative value on success.  This extra information
         // (useful only when testing the generator itself) ensures that
         // spec-parsing failed at the expected location and not accidentally
@@ -32512,13 +32551,13 @@ int main(int argc, char *argv[])
         //     b. does not allocate and does not throw.
         //     c. properly wires the optionally-specified allocator.
         //
-        //  2. That 'assign<TYPE>':
-        //     a. properly assigns a value of the variant 'TYPE'.
+        //  2. That `assign<TYPE>`:
+        //     a. properly assigns a value of the variant `TYPE`.
         //     b. properly destroys the current value of the current type.
         //     c. uses assignment (not dtor+ctor) if assigning the same type.
         //     d. is exception-neutral with no guarantee of rollback.
         //
-        //  3. That 'reset':
+        //  3. That `reset`:
         //      a. Produces the expected state (unset).
         //      b. Properly destroys the current value of the current type.
         //      c. Leaves the object in a consistent state.
@@ -32535,25 +32574,25 @@ int main(int argc, char *argv[])
         //    - Repeat the above two points using a first type that allocates
         //      memory.
         //    - In the presence of exceptions during memory allocations using
-        //      a 'bslma::TestAllocator' and varying its allocation limit.
-        //  Use 'typeIndex' to verify that the newly-created variant has the
-        //  proper type.  Also use 'numBlocksTotal' of the default allocator
+        //      a `bslma::TestAllocator` and varying its allocation limit.
+        //  Use `typeIndex` to verify that the newly-created variant has the
+        //  proper type.  Also use `numBlocksTotal` of the default allocator
         //  and the specified allocator to verify that the object allocates
         //  memory from the correct source.
         //
-        //  To address concerns for 2, create an object, use 'assign' to change
+        //  To address concerns for 2, create an object, use `assign` to change
         //  the value, including a value of the same type and morphing
         //  between different types, and check if the variant type and value
-        //  have been properly changed with 'is<TYPE>' and 'the<TYPE>'.  Use
+        //  have been properly changed with `is<TYPE>` and `the<TYPE>`.  Use
         //  the exception-safety test macros to verify that when a memory
         //  exception is thrown, the variant object is left in a consistent
         //  state.  Finally, use the allocator to make sure that when assigning
         //  to a variant object that owns memory, the object is properly
         //  destroyed and its memory reclaimed by the allocator.
         //
-        //  To address concerns for 3, create an object, exercise 'assign', at
-        //  will, then call 'reset'; check the value and then exercise
-        //  'assign' again to check consistency.
+        //  To address concerns for 3, create an object, exercise `assign`, at
+        //  will, then call `reset`; check the value and then exercise
+        //  `assign` again to check consistency.
         //
         // Testing:
         //   VariantImp();
@@ -32599,9 +32638,9 @@ int main(int argc, char *argv[])
             ASSERTV(oa.numBlocksTotal(), 0 == oa.numBlocksTotal());
         }
 
-        if (verbose) cout << "\nTesting 'assign'." << endl;
+        if (verbose) cout << "\nTesting `assign`." << endl;
 
-        // 'VK' and 'VS' each always trigger an allocation except when there
+        // `VK` and `VS` each always trigger an allocation except when there
         // are two or more consecutive assignments of the same value.
 
         if (verbose) cout << "\twith default allocator" << endl;
@@ -32886,7 +32925,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 == oa.numBlocksInUse());
 
-        if (verbose) cout << "\tTesting 'reset'." << endl;
+        if (verbose) cout << "\tTesting `reset`." << endl;
         {
             dam.reset();
             oam.reset();
@@ -32947,9 +32986,9 @@ int main(int argc, char *argv[])
         //   operation of the following methods and operators:
         //      - default and copy constructors (and also the destructor)
         //      - the copy-assignment operator (including aliasing)
-        //      - equality operators: 'operator==' and 'operator!='
-        //      - primary manipulators: 'assign'
-        //      - basic accessors: 'is<TYPE>' and 'the<TYPE>' methods
+        //      - equality operators: `operator==` and `operator!=`
+        //      - primary manipulators: `assign`
+        //      - basic accessors: `is<TYPE>` and `the<TYPE>` methods
         //
         // Plan:
         //   Create four objects using both the default and copy constructors.

@@ -140,7 +140,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [17] USAGE EXAMPLE
-// [16] CONCERN: SFINAE for 'get' works on Solaris (DRQS 175366735)
+// [16] CONCERN: SFINAE for `get` works on Solaris (DRQS 175366735)
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -1009,12 +1009,12 @@ typedef bsl::variant<Throws, size_t> VARIANT_TYPE_TC3;
                               // class MyClassDef
                               // ================
 
+/// Data members that give MyClassX size and alignment.  This class is a
+/// simple aggregate, use to provide a common data layout to subsequent test
+/// types.  There are no semantics associated with any of the members, in
+/// particular the allocator pointer is not used directly by this aggregate
+/// to allocate storage owned by this class.
 struct MyClassDef {
-    // Data members that give MyClassX size and alignment.  This class is a
-    // simple aggregate, use to provide a common data layout to subsequent test
-    // types.  There are no semantics associated with any of the members, in
-    // particular the allocator pointer is not used directly by this aggregate
-    // to allocate storage owned by this class.
 
     // DATA (exceptionally public, only in test driver)
     int               d_value;
@@ -1025,7 +1025,7 @@ struct MyClassDef {
     // the destructors of the test classes defined below.  In order to force
     // the compiler to retain all of the code in the destructors, we provide
     // the following function that can be used to (conditionally) print out the
-    // state of a 'MyClassDef' data member.  If the destructor calls this
+    // state of a `MyClassDef` data member.  If the destructor calls this
     // function as its last operation, then all values set in the destructor
     // have visible side-effects, but non-verbose test runs do not have to be
     // burdened with additional output.
@@ -1051,14 +1051,14 @@ void MyClassDef::dumpState()
                                // class MyClass1
                                // ==============
 
+/// This `class` is a simple type that does not take allocators.  Its
+/// implementation owns a `MyClassDef` aggregate, but uses only the
+/// `d_value` data member, to support the `value` attribute.  The
+/// `d_allocator_p` pointer is always initialized to a null pointer, while
+/// the `d_data_p` pointer is never initialized.  This class supports move,
+/// copy, and destructor counters and can be used in tests that check for
+/// unnecessary copies.
 struct MyClass1 {
-    // This 'class' is a simple type that does not take allocators.  Its
-    // implementation owns a 'MyClassDef' aggregate, but uses only the
-    // 'd_value' data member, to support the 'value' attribute.  The
-    // 'd_allocator_p' pointer is always initialized to a null pointer, while
-    // the 'd_data_p' pointer is never initialized.  This class supports move,
-    // copy, and destructor counters and can be used in tests that check for
-    // unnecessary copies.
 
     // DATA
     MyClassDef d_def;
@@ -1140,10 +1140,10 @@ int MyClass1::s_destructorInvocations         = 0;
                               // class MyClass1a
                               // ===============
 
+/// This `class` is the same as MyClass1, except it also supports conversion
+/// from MyClass1. This allows for testing of converting constructors and
+/// assignment from a type convertible to value type.
 struct MyClass1a {
-    // This 'class' is the same as MyClass1, except it also supports conversion
-    // from MyClass1. This allows for testing of converting constructors and
-    // assignment from a type convertible to value type.
 
     MyClass1   d_data;
     static int s_defaultConstructorInvocations;
@@ -1261,16 +1261,17 @@ bool operator==(const MyClass1a& lhs, const MyClass1a& rhs)
                                // ==============
                                // class MyClass2
                                // ==============
+
+/// This `class` supports the `bslma::UsesBslmaAllocator` trait, providing
+/// an allocator-aware version of every constructor.  While it holds an
+/// allocator and has the expected allocator propagation properties of a
+/// `bslma::Allocator`-aware type, it does not actually allocate any memory.
+/// This class supports move, copy, and destructor counters and can be used
+/// in tests that check for unnecessary copies and correct destructor
+/// invocation.  This class is convertable and assignable from an object of
+/// type `MyClass1`, which allows testing of converting constructors and
+/// assignment from a type convertible to value type.
 struct MyClass2 {
-    // This 'class' supports the 'bslma::UsesBslmaAllocator' trait, providing
-    // an allocator-aware version of every constructor.  While it holds an
-    // allocator and has the expected allocator propagation properties of a
-    // 'bslma::Allocator'-aware type, it does not actually allocate any memory.
-    // This class supports move, copy, and destructor counters and can be used
-    // in tests that check for unnecessary copies and correct destructor
-    // invocation.  This class is convertable and assignable from an object of
-    // type 'MyClass1', which allows testing of converting constructors and
-    // assignment from a type convertible to value type.
 
     // DATA
     MyClassDef d_def;
@@ -1509,11 +1510,11 @@ bool operator>=(const MyClass2& lhs, const int& rhs)
                                  // MyClass2a
                                  // =========
 
+/// This `class` behaves the same as `MyClass2` (allocator-aware type that
+/// never actually allocates memory) except that it uses the
+/// `allocator_arg_t` idiom for passing an allocator to constructors.  This
+/// class is constructible and assignable from MyClass2
 struct MyClass2a {
-    // This 'class' behaves the same as 'MyClass2' (allocator-aware type that
-    // never actually allocates memory) except that it uses the
-    // 'allocator_arg_t' idiom for passing an allocator to constructors.  This
-    // class is constructible and assignable from MyClass2
 
     MyClass2   d_data;
 
@@ -1688,11 +1689,11 @@ int MyClass2a::s_destructorInvocations         = 0;
                                  // MyClass2b
                                  // =========
 
+/// This struct behaves the same as `MyClass2` (allocator-aware type that
+/// never actually allocates memory) except that it uses the
+/// `allocator_arg_t` idiom for passing an allocator to constructors.  This
+/// struct is assignable from MyClass2, but not constructible from MyClass2.
 struct MyClass2b {
-    // This struct behaves the same as 'MyClass2' (allocator-aware type that
-    // never actually allocates memory) except that it uses the
-    // 'allocator_arg_t' idiom for passing an allocator to constructors.  This
-    // struct is assignable from MyClass2, but not constructible from MyClass2.
 
     // DATA
     MyClass2 d_data;
@@ -1775,12 +1776,12 @@ bool operator==(const MyClass2b& lhs, const MyClass2b& rhs)
                                  // MyClass2c
                                  // =========
 
+/// This struct behaves the same as `MyClass2` (allocator-aware type that
+/// never actually allocates memory) except that it uses the
+/// `allocator_arg_t` idiom for passing an allocator to constructors.  This
+/// struct is constructable from `MyClass2`, but not assignable from
+/// `MyClass2`.
 struct MyClass2c {
-    // This struct behaves the same as 'MyClass2' (allocator-aware type that
-    // never actually allocates memory) except that it uses the
-    // 'allocator_arg_t' idiom for passing an allocator to constructors.  This
-    // struct is constructable from 'MyClass2', but not assignable from
-    // 'MyClass2'.
 
     // DATA
     MyClass2 d_data;
@@ -1879,22 +1880,24 @@ bool operator==(const MyClass2c& lhs, const MyClass2c& rhs)
                            // class ConstructTestArg
                            // ======================
 
+/// This very simple `struct` is used purely to disambiguate types in
+/// passing parameters to `construct` due to the fact that
+/// `ConstructTestArg<ID1>` is a different type than `ConstructTestArg<ID2>`
+/// if `ID1 != ID2`.
 template <int ID>
 struct ConstructTestArg {
-    // This very simple 'struct' is used purely to disambiguate types in
-    // passing parameters to 'construct' due to the fact that
-    // 'ConstructTestArg<ID1>' is a different type than 'ConstructTestArg<ID2>'
-    // if 'ID1 != ID2'.
 
     // PUBLIC DATA
     const int d_value;
+
+    /// A counter tracking the number of copy constructions leading to this
+    /// particular instance.
     int       d_copyCount;
-        // A counter tracking the number of copy constructions leading to this
-        // particular instance.
 
     // CREATORS
+
+    /// Create an object having the specified `value`.
     ConstructTestArg(int value = -1);  // IMPLICIT
-        // Create an object having the specified 'value'.
 
     ConstructTestArg(const ConstructTestArg& other);
     ConstructTestArg(bslmf::MovableRef<ConstructTestArg> other);
@@ -1924,18 +1927,18 @@ ConstructTestArg<ID>::ConstructTestArg(
                       // struct ConstructTestTypeNoAlloc
                       // ===============================
 
+/// This `struct` provides a test class capable of holding up to 14
+/// parameters of types `ConstructTestArg[1--14]`.  By default, a
+/// `ConstructTestTypeNoAlloc` is constructed with nil (`N1`) values, but
+/// instances can be constructed with actual values (e.g., for creating
+/// expected values).  A `ConstructTestTypeNoAlloc` can be invoked with up
+/// to 14 parameters, via member functions `testFunc[1--14]`.  These
+/// functions are also called by the overloaded member `operator()` of the
+/// same signatures, and similar global functions `testFunc[1--14]`.  All
+/// invocations support the above `ConstructTestSlotsNoAlloc` mechanism.
+///
+/// This `struct` intentionally does *not* take an allocator.
 struct ConstructTestTypeNoAlloc {
-    // This 'struct' provides a test class capable of holding up to 14
-    // parameters of types 'ConstructTestArg[1--14]'.  By default, a
-    // 'ConstructTestTypeNoAlloc' is constructed with nil ('N1') values, but
-    // instances can be constructed with actual values (e.g., for creating
-    // expected values).  A 'ConstructTestTypeNoAlloc' can be invoked with up
-    // to 14 parameters, via member functions 'testFunc[1--14]'.  These
-    // functions are also called by the overloaded member 'operator()' of the
-    // same signatures, and similar global functions 'testFunc[1--14]'.  All
-    // invocations support the above 'ConstructTestSlotsNoAlloc' mechanism.
-    //
-    // This 'struct' intentionally does *not* take an allocator.
 
     // TYPES
     typedef ConstructTestArg<1>  Arg1;
@@ -1951,8 +1954,9 @@ struct ConstructTestTypeNoAlloc {
     typedef ConstructTestArg<11> Arg11;
     typedef ConstructTestArg<12> Arg12;
     typedef ConstructTestArg<13> Arg13;
+
+    /// Argument types for shortcut.
     typedef ConstructTestArg<14> Arg14;
-        // Argument types for shortcut.
 
     enum {
         N1 = -1  // default value for all private data
@@ -2869,12 +2873,12 @@ bool createdAlike(const ConstructTestTypeNoAlloc& lhs,
                        // struct ConstructTestTypeAlloc
                        // =============================
 
+/// This struct provides a test class capable of holding up to 14 parameters
+/// of types `ConstructTestArg[1--14]`.  By default, a
+/// `ConstructTestTypeAlloc` is constructed with nil (`N1`) values, but
+/// instances can be constructed with actual values (e.g., for creating
+/// expected values).  This struct intentionally *does* take an allocator.
 struct ConstructTestTypeAlloc {
-    // This struct provides a test class capable of holding up to 14 parameters
-    // of types 'ConstructTestArg[1--14]'.  By default, a
-    // 'ConstructTestTypeAlloc' is constructed with nil ('N1') values, but
-    // instances can be constructed with actual values (e.g., for creating
-    // expected values).  This struct intentionally *does* take an allocator.
 
     // TYPES
     typedef ConstructTestArg<1>  Arg1;
@@ -2890,8 +2894,9 @@ struct ConstructTestTypeAlloc {
     typedef ConstructTestArg<11> Arg11;
     typedef ConstructTestArg<12> Arg12;
     typedef ConstructTestArg<13> Arg13;
+
+    /// Argument types for shortcut.
     typedef ConstructTestArg<14> Arg14;
-        // Argument types for shortcut.
 
     enum {
         N1 = -1  // default value for all private data
@@ -2977,7 +2982,7 @@ struct ConstructTestTypeAlloc {
     }
 
     // In order to distinguish between an variant allocator parameter and a
-    // non-variant 'Arg' parameter, we need to explicitly call out the type of
+    // non-variant `Arg` parameter, we need to explicitly call out the type of
     // the parameter before the variant allocator.
     explicit ConstructTestTypeAlloc(const Arg1&       a1,
                                     bslma::Allocator *allocator = 0)
@@ -4652,13 +4657,13 @@ bool createdAlike(const ConstructTestTypeAlloc& lhs,
                      // struct ConstructTestTypeAllocArgT
                      // =================================
 
+/// This struct provides a test class capable of holding up to 14 parameters
+/// of types `ConstructTestArg[1--14]`.  By default, a
+/// `ConstructTestTypeAllocArgT` is constructed with nil (`N1`) values, but
+/// instances can be constructed with actual values (e.g., for creating
+/// expected values).  This struct takes an allocator using the
+/// `allocator_arg_t` protocol.
 struct ConstructTestTypeAllocArgT {
-    // This struct provides a test class capable of holding up to 14 parameters
-    // of types 'ConstructTestArg[1--14]'.  By default, a
-    // 'ConstructTestTypeAllocArgT' is constructed with nil ('N1') values, but
-    // instances can be constructed with actual values (e.g., for creating
-    // expected values).  This struct takes an allocator using the
-    // 'allocator_arg_t' protocol.
 
     // TYPES
     typedef ConstructTestArg<1>  Arg1;
@@ -4674,8 +4679,9 @@ struct ConstructTestTypeAllocArgT {
     typedef ConstructTestArg<11> Arg11;
     typedef ConstructTestArg<12> Arg12;
     typedef ConstructTestArg<13> Arg13;
+
+    /// Argument types for shortcut.
     typedef ConstructTestArg<14> Arg14;
-        // Argument types for shortcut.
 
     enum {
         N1 = -1  // default value for all private data
@@ -4775,6 +4781,8 @@ struct ConstructTestTypeAllocArgT {
     }
 
 #ifdef U_VARIANT_FULL_IMPLEMENTATION
+    /// This constructor is not defined and exists solely to make a
+    /// corresponding `is_constructible` check succeed.
     template <class ARG2  = ConstructTestArg<2>,
               class ARG3  = ConstructTestArg<3>,
               class ARG4  = ConstructTestArg<4>,
@@ -4802,9 +4810,9 @@ struct ConstructTestTypeAllocArgT {
                                BSLS_COMPILERFEATURES_FORWARD_REF(ARG12) = 1,
                                BSLS_COMPILERFEATURES_FORWARD_REF(ARG13) = 1,
                                BSLS_COMPILERFEATURES_FORWARD_REF(ARG14) = 1);
-        // This constructor is not defined and exists solely to make a
-        // corresponding 'is_constructible' check succeed.
 
+    /// This constructor is not defined and exists solely to make a
+    /// corresponding `is_constructible` check succeed.
     template <class ARG2  = ConstructTestArg<2>,
               class ARG3  = ConstructTestArg<3>,
               class ARG4  = ConstructTestArg<4>,
@@ -4832,10 +4840,10 @@ struct ConstructTestTypeAllocArgT {
                                BSLS_COMPILERFEATURES_FORWARD_REF(ARG12) = 1,
                                BSLS_COMPILERFEATURES_FORWARD_REF(ARG13) = 1,
                                BSLS_COMPILERFEATURES_FORWARD_REF(ARG14) = 1);
-        // This constructor is not defined and exists solely to make a
-        // corresponding 'is_constructible' check succeed.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+    /// This constructor is not defined and exists solely to make a
+    /// corresponding `is_constructible` check succeed.
     template <class ARG1  = ConstructTestArg<1>,
               class ARG2  = ConstructTestArg<2>,
               class ARG3  = ConstructTestArg<3>,
@@ -4865,8 +4873,6 @@ struct ConstructTestTypeAllocArgT {
                                BSLS_COMPILERFEATURES_FORWARD_REF(ARG12) = 1,
                                BSLS_COMPILERFEATURES_FORWARD_REF(ARG13) = 1,
                                BSLS_COMPILERFEATURES_FORWARD_REF(ARG14) = 1);
-        // This constructor is not defined and exists solely to make a
-        // corresponding 'is_constructible' check succeed.
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 #endif  // U_VARIANT_FULL_IMPLEMENTATION
 
@@ -6466,36 +6472,36 @@ struct CallablePassByConstRRef {
 };
 
 #endif
+/// This class provides test utilities that have different behaviour
+/// depending on whether `TYPE` is allocator-aware or not.  The primary
+/// template is for allocator-aware types.
 template <class TYPE,
           bool  USES_BSLMA_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value>
 class Test_Util {
-    // This class provides test utilities that have different behaviour
-    // depending on whether 'TYPE' is allocator-aware or not.  The primary
-    // template is for allocator-aware types.
 
   public:
+    /// Check if, for the specified `obj`, `obj.get_allocator()` returns the
+    /// specified `expected` allocator.
     static bool checkAllocator(const TYPE&                 obj,
                                const bsl::allocator<char>& expected);
-        // Check if, for the specified 'obj', 'obj.get_allocator()' returns the
-        // specified 'expected' allocator.
 
+    /// Check if, for the specified `obj` and specified `other`,
+    /// `obj.get_allocator() == other.get_allocator()`;
     static bool hasSameAllocator(const TYPE& obj, const TYPE& other);
-        // Check if, for the specified 'obj' and specified 'other',
-        // 'obj.get_allocator() == other.get_allocator()';
 };
 
+/// This class provides test utilities that have different behaviour
+/// depending on whether `TYPE` is allocator-aware or not.  This
+/// specialization is for non allocator-aware types.
 template <class TYPE>
 class Test_Util<TYPE, false> {
-    // This class provides test utilities that have different behaviour
-    // depending on whether 'TYPE' is allocator-aware or not.  This
-    // specialization is for non allocator-aware types.
 
   public:
+    /// return `true`.
     static bool checkAllocator(const TYPE&, const bsl::allocator<char>&);
-        // return 'true'.
 
+    /// return `true`.
     static bool hasSameAllocator(const TYPE&, const TYPE&);
-        // return 'true'.
 };
 
 template <class TYPE, bool USES_BSLMA_ALLOC>
@@ -6643,11 +6649,11 @@ bool checkVariantNpos(t_TYPE&)
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 namespace {
+/// If the specified `t_VARIANT` is a specialization of `bsl::variant`,
+/// provide the member `type`, which is an alias to the corresponding
+/// specialization of `std::variant`.
 template <class t_VARIANT>
 struct BslVariantToStdVariant;
-    // If the specified 't_VARIANT' is a specialization of 'bsl::variant',
-    // provide the member 'type', which is an alias to the corresponding
-    // specialization of 'std::variant'.
 
 template <class t_HEAD, class... t_TAIL>
 struct BslVariantToStdVariant<bsl::variant<t_HEAD, t_TAIL...>> {
@@ -6658,7 +6664,7 @@ template <class t_TYPE>
 void tryCopyInitialize(t_TYPE)
 {
     // This function is only called in an unevaluated operand, but needs a
-    // definition in order to avoid the 'Wunused-function' warning.
+    // definition in order to avoid the `Wunused-function` warning.
 }
 
 template <class... t_ARGS,
@@ -6676,18 +6682,18 @@ constexpr bool canCopyListInitializeFrom(void*)
     return false;
 }
 
+/// This variable template is `true` if the specified object type `t_TYPE`
+/// is explicitly constructible from the specified `t_ARGS...` but not
+/// implicitly constructible from a braced-init-list of `t_ARGS...`.  Note
+/// that we can't put the braced-init-list argument directly in the
+/// definition of `isOnlyExplicitlyConstructible` because the explicit
+/// constructor can win and make the initialization ill formed here (see
+/// CWG2525); we have to push the braced-init-list into an SFINAE context,
+/// necessitating the `canCopyListInitializeFrom` helper.
 template <class t_TYPE, class... t_ARGS>
 constexpr bool isOnlyExplicitlyConstructible =
                       std::is_constructible_v<t_TYPE, t_ARGS...> &&
                       !canCopyListInitializeFrom<t_ARGS...>((t_TYPE*)nullptr);
-    // This variable template is 'true' if the specified object type 't_TYPE'
-    // is explicitly constructible from the specified 't_ARGS...' but not
-    // implicitly constructible from a braced-init-list of 't_ARGS...'.  Note
-    // that we can't put the braced-init-list argument directly in the
-    // definition of 'isOnlyExplicitlyConstructible' because the explicit
-    // constructor can win and make the initialization ill formed here (see
-    // CWG2525); we have to push the braced-init-list into an SFINAE context,
-    // necessitating the 'canCopyListInitializeFrom' helper.
 }  // close unnamed namespace
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
@@ -6725,65 +6731,73 @@ bool m(const t_TYPE& t) {
 //                          TEST DRIVER TEMPLATE
 // ----------------------------------------------------------------------------
 
+/// This class template provides a namespace for testing the `variant` type.
 template <class TYPE,
           bool  USES_BSLMA_ALLOC = bslma::UsesBslmaAllocator<TYPE>::value>
 class TestDriver {
-    // This class template provides a namespace for testing the 'variant' type.
 
   private:
     // PRIVATE TYPES
+
+    /// VariantType under test.
     typedef TYPE VariantType;
-        // VariantType under test.
 
   public:
+    /// TESTING `hashAppend`
     static void testCase13();
-        // TESTING 'hashAppend'
 
     static void testCase7Index();
+
+    /// TESTING `emplace` METHOD.  Note that this test can only be executed
+    /// with types that are constructible from an integer, have a `value()`
+    /// method, and which provide a `s_copyConstructorInvocations` and
+    /// `s_moveConstructorInvocations` static variable that counts the
+    /// number of times copy/move constructor has been invoked.
     static void testCase7Type();
-        // TESTING 'emplace' METHOD.  Note that this test can only be executed
-        // with types that are constructible from an integer, have a 'value()'
-        // method, and which provide a 's_copyConstructorInvocations' and
-        // 's_moveConstructorInvocations' static variable that counts the
-        // number of times copy/move constructor has been invoked.
 
+    /// TESTING operator=(alternative type)
     static void testCase11b();
-        // TESTING operator=(alternative type)
-    static void testCase11a();
-        // TESTING operator=(variant)
 
+    /// TESTING operator=(variant)
+    static void testCase11a();
+
+    /// TESTING swap
     static void testCase10();
-        // TESTING swap
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    /// TESTING ALLOCATOR-EXTENDED CONSTRUCTION FROM `std::variant`
     static void testCase9f();
-        // TESTING ALLOCATOR-EXTENDED CONSTRUCTION FROM 'std::variant'
+
+    /// TESTING CONSTRUCTION FROM `std::variant`
     static void testCase9e();
-        // TESTING CONSTRUCTION FROM 'std::variant'
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     static void testCase9b();
         // TESTING ALLOCATOR EXTENDED CONSTRUCTION FROM VARIANT
     static void testCase9a();
         // TESTING CONSTRUCTION FROM VARIANT
 
+    /// TESTING `holds_alternative` FREE FUNCTION
     static void testCase6c();
-        // TESTING 'holds_alternative' FREE FUNCTION
 
     static void testCase6bIndex();
+
+    /// TESTING `get_if` FREE FUNCTION
     static void testCase6bType();
-        // TESTING 'get_if' FREE FUNCTION
 
     static void testCase6aIndex();
+
+    /// TESTING `get` FREE FUNCTION
     static void testCase6aType();
-        // TESTING 'get' FREE FUNCTION
 
     static void testCase5dIndex();
+
+    /// TESTING ALLOCATOR EXTENDED `in_place_t` CONSTRUCTOR
     static void testCase5dType();
-        // TESTING ALLOCATOR EXTENDED 'in_place_t' CONSTRUCTOR
 
     static void testCase5cIndex();
+
+    /// TESTING `in_place_t` CONSTRUCTOR
     static void testCase5cType();
-        // TESTING 'in_place_t' CONSTRUCTOR
 
     static void testCase5b();
         // TESTING ALLOCATOR EXTENDED CONSTRUCTION FROM VALUE
@@ -6791,19 +6805,19 @@ class TestDriver {
     static void testCase5a();
         // TESTING CONSTRUCTION FROM VALUE
 
+    /// ALLOCATOR EXTENDED DEFAULT CONSTRUCTORS.  Note that this test
+    /// requires the designated alternative to be allocator-aware and to
+    /// provide static data members named `s_copyConstructorInvocations` and
+    /// `s_destructorInvocations` that count the number of times the default
+    /// constructor and the destructor have been invoked, respectively.
     static void testCase4b();
-        // ALLOCATOR EXTENDED DEFAULT CONSTRUCTORS.  Note that this test
-        // requires the designated alternative to be allocator-aware and to
-        // provide static data members named 's_copyConstructorInvocations' and
-        // 's_destructorInvocations' that count the number of times the default
-        // constructor and the destructor have been invoked, respectively.
 
+    /// DEFAULT CONSTRUCTOR AND DESTRUCTOR.  Note that this test requires
+    /// the designated alternative to provide static data members named
+    /// `s_copyConstructorInvocations` and `s_destructorInvocations` that
+    /// count the number of times the default constructor and the destructor
+    /// have been invoked, respectively.
     static void testCase4a();
-        // DEFAULT CONSTRUCTOR AND DESTRUCTOR.  Note that this test requires
-        // the designated alternative to provide static data members named
-        // 's_copyConstructorInvocations' and 's_destructorInvocations' that
-        // count the number of times the default constructor and the destructor
-        // have been invoked, respectively.
 
     static void testCase2();
         // TESTING TRAITS AND TYPEDEFS
@@ -6816,25 +6830,25 @@ class TestDriver {
 void testCase13a()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'hashAppend' of EMPTY VARIANT
+    // TESTING `hashAppend` of EMPTY VARIANT
     //
     // Concerns:
-    //: 1 Hashing a value of empty 'variant' object is equivalent to appending
-    //:   'false' to the hash.
-    //:
+    // 1. Hashing a value of empty `variant` object is equivalent to appending
+    //    `false` to the hash.
+    //
     //
     // Plan:
-    //: 1 Create an empty 'variant' object and verify that hashing it yields
+    // 1. Create an empty `variant` object and verify that hashing it yields
     // the
-    //:   same value as hashing 'false'. [C-1]
-    //:
+    //    same value as hashing `false`. [C-1]
+    //
     //
     // Testing:
     //   void hashAppend(HASHALG& hashAlg, const variant<TYPES...>& input);
     // ------------------------------------------------------------------------
 #ifdef BDE_BUILD_TARGET_EXC
     if (verbose)
-        printf("\nTESTING 'hashAppend' of EMPTY VARIANT"
+        printf("\nTESTING `hashAppend` of EMPTY VARIANT"
                "\n====================================\n");
 
     {
@@ -6867,34 +6881,35 @@ struct testCase13_imp : testCase13_imp<VARIANT, t_NUM - 1> {
     testCase13_imp()
     {
         // --------------------------------------------------------------------
-        // TESTING 'hashAppend'
+        // TESTING `hashAppend`
         //
         // Concerns:
-        //: 1 Hashing a non empty variant object is equivalent to appending the
-        //:   index of the currently active alternative type, followed by the
+        // 1. Hashing a non empty variant object is equivalent to appending the
+        //    index of the currently active alternative type, followed by the
         // value
-        //:   of the managed object.
+        //    of the managed object.
         //
         // Plan:
         //
-        //: 1 Create a 'variant' object and for a series of alternative types
+        // 1. Create a `variant` object and for a series of alternative types
         // and
-        //:   their test values verify that hashing it produces the same result
+        //    their test values verify that hashing it produces the same result
         // as
-        //:   hashing the index of the tested type and the test value. [C-1]
+        //    hashing the index of the tested type and the test value. [C-1]
         //
         // Testing:
         //   void hashAppend(HASHALG& hashAlg, const variant<TYPES...>& input);
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nTESTING 'hashAppend'"
+            printf("\nTESTING `hashAppend`"
                    "\n====================\n");
 
         const size_t INDEX = t_NUM - 1;
         typedef typename variant_alternative<INDEX, VARIANT>::type AltType;
+
+        /// Array of test values of `TYPE`.
         typedef bsltf::TestValuesArray<AltType>                    TestValues;
-            // Array of test values of 'TYPE'.
         const TestValues VALUES;
         const int        NUM_VALUES = static_cast<int>(VALUES.size());
 
@@ -6943,35 +6958,35 @@ void testCase12b()
     //   behaves correctly.
     //
     // Concerns:
-    //: 1 That visit invokes the specified visitor with the currently active
-    //:   alternative.
-    //:
-    //: 2 That value category of the variant is preserved, i.e. that invoking
-    //:   visit with an lvalue object invokes the visitor with  an lvalue, and
-    //:   that invoking visit with an rvalue object invokes the visitor with an
-    //:   rvalue.  Additionally, in n C++17, that the value category of the
-    //:   visitor is preserved.
-    //:
-    //: 3 That the constness of the variant is preserved, i.e. that invoking
-    //:   visit with an lvalue object invokes the visitor with a const
-    //:   qualified alternative.  Additionally, In C++17, that the constness of
-    //:   the visitor is preserved.
-    //:
-    //: 4 That the constness of the active alternative is preserved when
-    //:   invoking the visitor.  Additionally, that constness of the active
-    //:   alternative is preserved in presence of another alternative of same
-    //:   type, but different cv-qualification.
-    //:
-    //: 5 That visitation works in presence of identical alternatives,
-    //:
-    //: 7 That it is possible to specify void as the return type when the
-    //:   visitor returns a non-void type.
-    //:
+    // 1. That visit invokes the specified visitor with the currently active
+    //    alternative.
+    //
+    // 2. That value category of the variant is preserved, i.e. that invoking
+    //    visit with an lvalue object invokes the visitor with  an lvalue, and
+    //    that invoking visit with an rvalue object invokes the visitor with an
+    //    rvalue.  Additionally, in n C++17, that the value category of the
+    //    visitor is preserved.
+    //
+    // 3. That the constness of the variant is preserved, i.e. that invoking
+    //    visit with an lvalue object invokes the visitor with a const
+    //    qualified alternative.  Additionally, In C++17, that the constness of
+    //    the visitor is preserved.
+    //
+    // 4. That the constness of the active alternative is preserved when
+    //    invoking the visitor.  Additionally, that constness of the active
+    //    alternative is preserved in presence of another alternative of same
+    //    type, but different cv-qualification.
+    //
+    // 5. That visitation works in presence of identical alternatives,
+    //
+    // 7. That it is possible to specify void as the return type when the
+    //    visitor returns a non-void type.
+    //
     //
     // Plan:
-    //: 1 For the concerns above, using the helper visitors, check that 'visit'
-    //:   can be invoked and that it results in the correct value category and
-    //:   cv qualification of the alternative, and in C++17, the visitor.
+    // 1. For the concerns above, using the helper visitors, check that `visit`
+    //    can be invoked and that it results in the correct value category and
+    //    cv qualification of the alternative, and in C++17, the visitor.
     //
     // Testing:
     //
@@ -7093,41 +7108,41 @@ void testCase12a()
     //   behaves correctly.
     //
     // Concerns:
-    //: 1 That visit invokes the specified visitor with the currently active
-    //:   alternative.
-    //:
-    //: 2 That value category of the variant is preserved, i.e. that invoking
-    //:   visit with an lvalue object invokes the visitor with  an lvalue, and
-    //:   that invoking visit with an rvalue object invokes the visitor with an
-    //:   rvalue.  Additionally, in n C++17, that the value category of the
-    //:   visitor is preserved.
-    //:
-    //: 3 That the constness of the variant is preserved, i.e. that invoking
-    //:   visit with an lvalue object invokes the visitor with a const
-    //:   qualified alternative.  Additionally, In C++17, that the constness of
-    //:   the visitor is preserved.
-    //:
-    //: 4 That the constness of the active alternative is preserved when
-    //:   invoking the visitor.  Additionally, that constness of the active
-    //:   alternative is preserved in presence of another alternative of same
-    //:   type, but different cv-qualification.
-    //:
-    //: 5 That visitation works in presence of identical alternatives,
-    //:
-    //: 6 That it is possible to work with visitors returning void and
-    //:   reference types.
-    //:
-    //: 7 That visitation of an valueless variant throws a 'bad_variant_access'
-    //:   exception.
+    // 1. That visit invokes the specified visitor with the currently active
+    //    alternative.
+    //
+    // 2. That value category of the variant is preserved, i.e. that invoking
+    //    visit with an lvalue object invokes the visitor with  an lvalue, and
+    //    that invoking visit with an rvalue object invokes the visitor with an
+    //    rvalue.  Additionally, in n C++17, that the value category of the
+    //    visitor is preserved.
+    //
+    // 3. That the constness of the variant is preserved, i.e. that invoking
+    //    visit with an lvalue object invokes the visitor with a const
+    //    qualified alternative.  Additionally, In C++17, that the constness of
+    //    the visitor is preserved.
+    //
+    // 4. That the constness of the active alternative is preserved when
+    //    invoking the visitor.  Additionally, that constness of the active
+    //    alternative is preserved in presence of another alternative of same
+    //    type, but different cv-qualification.
+    //
+    // 5. That visitation works in presence of identical alternatives,
+    //
+    // 6. That it is possible to work with visitors returning void and
+    //    reference types.
+    //
+    // 7. That visitation of an valueless variant throws a `bad_variant_access`
+    //    exception.
     //
     // Plan:
-    //: 1 For the concerns above, using the helper visitors, check that 'visit'
-    //:   can be invoked, that the correct alternative is passed to the
-    //:   visitor, and that value category and cv qualification of the
-    //:   alternative, and in C++17, the visitor are preserved.
-    //:
-    //: 2 Using 'Throws' type, check that a visitation of the valueless
-    //:   variant throws a 'bad_variant_access' exception.
+    // 1. For the concerns above, using the helper visitors, check that `visit`
+    //    can be invoked, that the correct alternative is passed to the
+    //    visitor, and that value category and cv qualification of the
+    //    alternative, and in C++17, the visitor are preserved.
+    //
+    // 2. Using `Throws` type, check that a visitation of the valueless
+    //    variant throws a `bad_variant_access` exception.
     //
     // Testing:
     //
@@ -7263,42 +7278,42 @@ void testCase11e()
     //   under certain conditions.
     //
     // Concerns:
-    //: 1 That the variant with an alternative that is not copyable is also
-    //:   not asignable.  Similarly, if any alternative is moveable, but not
-    //:   copyable, the variant is move assignable, but not copy assignable.
-    //:
-    //: 1 That the variant with an alternative that is not copyable is also
-    //:   not asignable.  Similarly, if any alternative is move assignable, but
-    //:   not copy assignable, the variant is move assignable, but not copy
-    //:   assignable.
-    //:
-    //: 3 That the variant with non unique alternative TYPE can be copy/move
-    //:   assigned from another variant.
-    //:
-    //: 4 That the variant with two alternatives of same type, but different
-    //:   cv-qualification can be copy/move assigned from another variant.
-    //:
-    //: 5 If the type of 'rhs' does not exactly match any alternative type,
-    //:   and is not convertible to any alternative type, the assignment
-    //:   from 'rhs' is not possible.
-    //:
-    //: 6 If the type of 'rhs' does not exactly match any alternative type,
-    //:   and has an equally good conversion to more than one alternative type,
-    //:   the assignment from 'rhs' is not possible.
-    //:
-    //: 7 If the type of 'rhs' does not exactly match any alternative type,
-    //:   and has a deleted conversion to one alternative type, the
-    //:   assignment from 'rhs' is not possible.
-    //:
-    //: 8 If the type of 'rhs' does not exactly match any alternative type,
-    //:   and has a narrowing conversion to one alternative type, the
-    //:   assignment from 'rhs' is not possible.
-    //:
+    // 1. That the variant with an alternative that is not copyable is also
+    //    not asignable.  Similarly, if any alternative is moveable, but not
+    //    copyable, the variant is move assignable, but not copy assignable.
+    //
+    // 1. That the variant with an alternative that is not copyable is also
+    //    not asignable.  Similarly, if any alternative is move assignable, but
+    //    not copy assignable, the variant is move assignable, but not copy
+    //    assignable.
+    //
+    // 3. That the variant with non unique alternative TYPE can be copy/move
+    //    assigned from another variant.
+    //
+    // 4. That the variant with two alternatives of same type, but different
+    //    cv-qualification can be copy/move assigned from another variant.
+    //
+    // 5. If the type of `rhs` does not exactly match any alternative type,
+    //    and is not convertible to any alternative type, the assignment
+    //    from `rhs` is not possible.
+    //
+    // 6. If the type of `rhs` does not exactly match any alternative type,
+    //    and has an equally good conversion to more than one alternative type,
+    //    the assignment from `rhs` is not possible.
+    //
+    // 7. If the type of `rhs` does not exactly match any alternative type,
+    //    and has a deleted conversion to one alternative type, the
+    //    assignment from `rhs` is not possible.
+    //
+    // 8. If the type of `rhs` does not exactly match any alternative type,
+    //    and has a narrowing conversion to one alternative type, the
+    //    assignment from `rhs` is not possible.
+    //
     //
     // Plan:
-    //: 1 For the concerns above, check 'is_assignable' trait with the
-    //:   appropriate set of arguments.
-    //:
+    // 1. For the concerns above, check `is_assignable` trait with the
+    //    appropriate set of arguments.
+    //
     //
     // Testing:
     //
@@ -7401,53 +7416,53 @@ void testCase11e()
 void testCase11d()
 {
     // --------------------------------------------------------------------
-    // TESTING 'operator=(ANY_TYPE)'
-    //   This test will ensure that the 'operator=(rhs)', where either 'rhs'
-    //   or '*this' is a 'valueluess_by_exception' object, works as expected.
+    // TESTING `operator=(ANY_TYPE)`
+    //   This test will ensure that the `operator=(rhs)`, where either `rhs`
+    //   or `*this` is a `valueluess_by_exception` object, works as expected.
     //
     // Concerns:
-    //: 1 That 'operator=(rhs)', where 'rhs' is a 'valueluess_by_exception'
-    //:   'variant' object, results in a 'valueluess_by_exception' target
-    //:   'variant' object .
-    //:
-    //: 2 That 'operator=(rhs)', invoked on 'valueluess_by_exception' 'variant'
-    //:   object with a non 'valueluess_by_exception' 'rhs' object, constructs
-    //:   a managed object of the same type and value as the managed object of
-    //:   the 'rhs''variant' object.
-    //:
-    //: 3 The behaviour is the same for copy and move assignment.
-    //:
-    //: 4 If assignment to a non empty 'variant' object throws, the destination
-    //:   object is left in 'valueluess_by_exception' state only if the
-    //:   assignment would have resulted in a initialization of a new
-    //:   managed object.
-    //:
-    //: 5 Assignment to a const 'variant' object or a variant for which one
-    //:   of the alternative types is not assignable is not possible.
-    //:
+    // 1. That `operator=(rhs)`, where `rhs` is a `valueluess_by_exception`
+    //    `variant` object, results in a `valueluess_by_exception` target
+    //    `variant` object .
+    //
+    // 2. That `operator=(rhs)`, invoked on `valueluess_by_exception` `variant`
+    //    object with a non `valueluess_by_exception` `rhs` object, constructs
+    //    a managed object of the same type and value as the managed object of
+    //    the `rhs`'variant' object.
+    //
+    // 3. The behaviour is the same for copy and move assignment.
+    //
+    // 4. If assignment to a non empty `variant` object throws, the destination
+    //    object is left in `valueluess_by_exception` state only if the
+    //    assignment would have resulted in a initialization of a new
+    //    managed object.
+    //
+    // 5. Assignment to a const `variant` object or a variant for which one
+    //    of the alternative types is not assignable is not possible.
+    //
     //
     // Plan:
-    //: 1 Create a 'valueluess_by_exception' 'variant' object  and assign it
-    //:   to a 'variant' object with an active alternative 'TYPE'.  Verify the
-    //:   destination object is 'valueluess_by_exception'. [C-1]
-    //:
-    //: 2 Create a 'variant' object with an active alternative 'TYPE' and
-    //:   assign it to a 'valueluess_by_exception' 'variant' object.  Verify
-    //:   that the destination object's active type is TYPE' and that its
-    //:   value matches that of the 'rhs' managed object [C-2]
-    //:
-    //: 3 Repeat steps 1-3 using an lvalue and rvalue.
-    //:   [C-3]
-    //:
-    //: 4 Using 'Throws' helper class, check that an assignment that exits via
-    //:   an exception results in a valueless variant if the assignment
-    //:   requires a new managed object, and in a variant holding a value if
-    //:   the assignment calls the assigment operator of the managed type.
-    //:   [C-4]
-    //:
-    //: 5 Check that assignment to a const variant object and an assignment to
-    //:   a const alternative type is not possible.  Note that this test is
-    //:   disabled by default and needs to be manually run. [C-5]
+    // 1. Create a `valueluess_by_exception` `variant` object  and assign it
+    //    to a `variant` object with an active alternative `TYPE`.  Verify the
+    //    destination object is `valueluess_by_exception`. [C-1]
+    //
+    // 2. Create a `variant` object with an active alternative `TYPE` and
+    //    assign it to a `valueluess_by_exception` `variant` object.  Verify
+    //    that the destination object's active type is TYPE' and that its
+    //    value matches that of the `rhs` managed object [C-2]
+    //
+    // 3. Repeat steps 1-3 using an lvalue and rvalue.
+    //    [C-3]
+    //
+    // 4. Using `Throws` helper class, check that an assignment that exits via
+    //    an exception results in a valueless variant if the assignment
+    //    requires a new managed object, and in a variant holding a value if
+    //    the assignment calls the assigment operator of the managed type.
+    //    [C-4]
+    //
+    // 5. Check that assignment to a const variant object and an assignment to
+    //    a const alternative type is not possible.  Note that this test is
+    //    disabled by default and needs to be manually run. [C-5]
     //
     // Testing:
     //
@@ -7554,52 +7569,52 @@ void testCase11d()
 void testCase11c()
 {
     // --------------------------------------------------------------------
-    // TESTING 'operator=(variant_type)'
-    //   This test will ensure that the 'operator=(rhs)', where either 'rhs'
-    //   or '*this' is a 'valueluess_by_exception' object, works as expected.
+    // TESTING `operator=(variant_type)`
+    //   This test will ensure that the `operator=(rhs)`, where either `rhs`
+    //   or `*this` is a `valueluess_by_exception` object, works as expected.
     //
     // Concerns:
-    //: 1 That 'operator=(rhs)', where 'rhs' is a 'valueluess_by_exception'
-    //:   'variant' object, results in a 'valueluess_by_exception' target
-    //:   'variant' object .
-    //:
-    //: 2 That 'operator=(rhs)', invoked on 'valueluess_by_exception' 'variant'
-    //:   object with a non 'valueluess_by_exception' 'rhs' object, constructs
-    //:   a managed object of the same type and value as the managed object of
-    //:   the 'rhs''variant' object.
-    //:
-    //: 3 The behaviour is the same for copy and move construction.
-    //:
-    //: 4 If assignment to a non empty 'variant' object throws, the destination
-    //:   object is left in 'valueluess_by_exception' state only if the
-    //:   assignment would have resulted in a initialization of a new
-    //:   managed object.
-    //:
-    //: 5 Assignment to a const 'variant' object or a variant for which one
-    //:   of the alternative types is not assignable is not possible.
-    //:
+    // 1. That `operator=(rhs)`, where `rhs` is a `valueluess_by_exception`
+    //    `variant` object, results in a `valueluess_by_exception` target
+    //    `variant` object .
+    //
+    // 2. That `operator=(rhs)`, invoked on `valueluess_by_exception` `variant`
+    //    object with a non `valueluess_by_exception` `rhs` object, constructs
+    //    a managed object of the same type and value as the managed object of
+    //    the `rhs`'variant' object.
+    //
+    // 3. The behaviour is the same for copy and move construction.
+    //
+    // 4. If assignment to a non empty `variant` object throws, the destination
+    //    object is left in `valueluess_by_exception` state only if the
+    //    assignment would have resulted in a initialization of a new
+    //    managed object.
+    //
+    // 5. Assignment to a const `variant` object or a variant for which one
+    //    of the alternative types is not assignable is not possible.
+    //
     //
     // Plan:
-    //: 1 Create a 'valueluess_by_exception' 'variant' object  and assign it
-    //:   to a 'variant' object with an active alternative 'TYPE'.  Verify the
-    //:   destination object is 'valueluess_by_exception'. [C-1]
-    //:
-    //: 2 Create a 'variant' object with an active alternative 'TYPE' and
-    //:   assign it to a 'valueluess_by_exception' 'variant' object.  Verify
-    //:   that the destination object's active type is TYPE' and that its
-    //:   value matches that of the 'rhs' managed object [C-2]
-    //:
-    //: 3 Repeat steps 1-2 using an rvalue. [C-3]
-    //:
-    //: 5 Using 'Throws' helper class, check that an assignment that exits via
-    //:   an exception results in a valueless variant if the assignment
-    //:   requires a new managed object, and in a variant holding a value if
-    //:   the assignment calls the assigment operator of the managed type.
-    //:   [C-4]
-    //:
-    //: 6 Check that assignment to a const variant object and an assignment to
-    //:   a variant with a const alternative type is not possible.  Note that
-    //:   this test is disabled by default and needs to be manually run. [C-5]
+    // 1. Create a `valueluess_by_exception` `variant` object  and assign it
+    //    to a `variant` object with an active alternative `TYPE`.  Verify the
+    //    destination object is `valueluess_by_exception`. [C-1]
+    //
+    // 2. Create a `variant` object with an active alternative `TYPE` and
+    //    assign it to a `valueluess_by_exception` `variant` object.  Verify
+    //    that the destination object's active type is TYPE' and that its
+    //    value matches that of the `rhs` managed object [C-2]
+    //
+    // 3. Repeat steps 1-2 using an rvalue. [C-3]
+    //
+    // 5. Using `Throws` helper class, check that an assignment that exits via
+    //    an exception results in a valueless variant if the assignment
+    //    requires a new managed object, and in a variant holding a value if
+    //    the assignment calls the assigment operator of the managed type.
+    //    [C-4]
+    //
+    // 6. Check that assignment to a const variant object and an assignment to
+    //    a variant with a const alternative type is not possible.  Note that
+    //    this test is disabled by default and needs to be manually run. [C-5]
     //
     // Testing:
     //
@@ -7751,49 +7766,49 @@ template <class VARIANT, size_t t_NUM1, size_t t_NUM2>
 struct testCase11b_imp : testCase11b_imp<VARIANT, t_NUM1, t_NUM2 - 1> {
     testCase11b_imp()
         // --------------------------------------------------------------------
-        // TESTING 'operator=(ANY_TYPE)'
-        //   This test will ensure that the 'operator=(rhs)', where 'rhs' is
+        // TESTING `operator=(ANY_TYPE)`
+        //   This test will ensure that the `operator=(rhs)`, where `rhs` is
         //   one
         //   of the alternative types, works as expected.
         //
         // Concerns:
-        //: 1 Calling 'operator=(rhs)', where 'rhs' is of an alternative type
-        //:   'AltType', results in variant object whose active alternative is
-        //:   'AltType' and whose value matches 'rhs'.
-        //:
-        //: 2 If 'variant''s active alternative type changes, previous
-        //:   alternative object is destroyed.
-        //:
-        //: 3 For allocator-aware  variant types, the assignment does not
-        //:   change the allocator.
-        //:
-        //: 4 Assignment of rvalues uses move assignment/construction where
-        //:   available.
-        //:
+        // 1. Calling `operator=(rhs)`, where `rhs` is of an alternative type
+        //    `AltType`, results in variant object whose active alternative is
+        //    `AltType` and whose value matches `rhs`.
+        //
+        // 2. If `variant`'s active alternative type changes, previous
+        //    alternative object is destroyed.
+        //
+        // 3. For allocator-aware  variant types, the assignment does not
+        //    change the allocator.
+        //
+        // 4. Assignment of rvalues uses move assignment/construction where
+        //    available.
+        //
         //
         // Plan:
-        //: 1 Create a 'variant' object with the active alternative
-        //:   'DestAltType'. Verify that assignment from an object of
-        //:   alternative 'SrcAltType' and from 'const' qualified 'SrcAltType',
-        //:   results in a 'variant' object having an active alternative of
-        //:   'SrcAltType'. [C-1]
-        //:
-        //: 2 In step 1, if 'DestAltType' is the same as 'SrcAltType', verify
-        //:   that the relevant 'DestAltType' assignment operators have been
-        //:   called as indicated by the type's internal counters. [C-1]
-        //:
-        //: 3 In step 1, if 'DestAltType' is not the same as 'SrcAltType',
-        //:   verify that the 'SrcAltType' alternative object was destroyed and
-        //:   a new alternative object of type 'DestAltType' has been copy
-        //:   constructed as indicated by the internal counters of 'SrcAltType'
-        //:   and 'DestAltType'. [C-1][C-2]
-        //:
-        //: 4 If the 'variant' type is allocator aware, check that the
-        //:   allocator of the variant and its (possibly new) alternative has
-        //:   not changed.
-        //:
-        //: 3 Repeat steps 1-4 using rvalue 'rhs' and verify that 'rhs' was
-        //:   moved from. [C-4]
+        // 1. Create a `variant` object with the active alternative
+        //    `DestAltType`. Verify that assignment from an object of
+        //    alternative `SrcAltType` and from `const` qualified `SrcAltType`,
+        //    results in a `variant` object having an active alternative of
+        //    `SrcAltType`. [C-1]
+        //
+        // 2. In step 1, if `DestAltType` is the same as `SrcAltType`, verify
+        //    that the relevant `DestAltType` assignment operators have been
+        //    called as indicated by the type's internal counters. [C-1]
+        //
+        // 3. In step 1, if `DestAltType` is not the same as `SrcAltType`,
+        //    verify that the `SrcAltType` alternative object was destroyed and
+        //    a new alternative object of type `DestAltType` has been copy
+        //    constructed as indicated by the internal counters of `SrcAltType`
+        //    and `DestAltType`. [C-1][C-2]
+        //
+        // 4. If the `variant` type is allocator aware, check that the
+        //    allocator of the variant and its (possibly new) alternative has
+        //    not changed.
+        //
+        // 3. Repeat steps 1-4 using rvalue `rhs` and verify that `rhs` was
+        //    moved from. [C-4]
         //
         // Testing:
         //
@@ -7866,55 +7881,55 @@ template <class VARIANT, size_t t_NUM1, size_t t_NUM2>
 struct testCase11a_imp : testCase11a_imp<VARIANT, t_NUM1, t_NUM2 - 1> {
     testCase11a_imp()
         // --------------------------------------------------------------------
-        // TESTING 'operator=(variant_type)'
-        //   This test will ensure that the 'operator=(rhs)', where 'rhs' is a
-        //   non-empty 'variant' type, works as expected.
+        // TESTING `operator=(variant_type)`
+        //   This test will ensure that the `operator=(rhs)`, where `rhs` is a
+        //   non-empty `variant` type, works as expected.
         //
         // Concerns:
-        //: 1 That 'operator=(rhs)', where 'rhs' is a non-empty 'variant'
+        // 1. That `operator=(rhs)`, where `rhs` is a non-empty `variant`
         // object,
-        //:   results in the target 'variant' object holding the same
+        //    results in the target `variant` object holding the same
         // alternative
-        //:   type having the same value as that managed by the 'rhs' object.
-        //:
-        //: 2 That 'operator=(rhs)', invoked on 'variant' having the same
+        //    type having the same value as that managed by the `rhs` object.
+        //
+        // 2. That `operator=(rhs)`, invoked on `variant` having the same
         // active
-        //:   alternative type as 'rhs' object, assigns the value of the
-        //:   'rhs' managed object to the value of the target's managed object.
-        //:
-        //: 3 That 'operator=(rhs)', on 'variant' having a different
+        //    alternative type as `rhs` object, assigns the value of the
+        //    `rhs` managed object to the value of the target's managed object.
+        //
+        // 3. That `operator=(rhs)`, on `variant` having a different
         // alternative
-        //:   type to the 'rhs' object, constructs a managed object from the
-        //:   managed object of the 'rhs''variant' object.
-        //:
-        //: 4 For allocator-aware types, the assignment from a 'variant' object
-        //:   does not modify the allocator.
-        //:
-        //: 6 Assignment uses move assignment/construction where available.
-        //:
+        //    type to the `rhs` object, constructs a managed object from the
+        //    managed object of the `rhs`'variant' object.
+        //
+        // 4. For allocator-aware types, the assignment from a `variant` object
+        //    does not modify the allocator.
+        //
+        // 6. Assignment uses move assignment/construction where available.
+        //
         //
         // Plan:
-        //: 1 Create a 'variant' object with active alternative 'A' and assign
+        // 1. Create a `variant` object with active alternative `A` and assign
         // it
-        //:   to a 'variant' with active alternative B.  Verify the destination
-        //:   object has active alternative A of the same value as the source
-        //:   object.  [C-1];
-        //:
-        //: 2 If A and B are the same type, check the assignment operator of
-        //:   type A was called. [C-2]
-        //:
-        //: 3 If A and B are not the same type, check the destructor of B was
-        //:   called, and copy constructor operator of type A was called. [C-3]
-        //:
-        //: 4 In steps 1-3, if 'variant' is allocator-aware, verify that the
+        //    to a `variant` with active alternative B.  Verify the destination
+        //    object has active alternative A of the same value as the source
+        //    object.  [C-1];
+        //
+        // 2. If A and B are the same type, check the assignment operator of
+        //    type A was called. [C-2]
+        //
+        // 3. If A and B are not the same type, check the destructor of B was
+        //    called, and copy constructor operator of type A was called. [C-3]
+        //
+        // 4. In steps 1-3, if `variant` is allocator-aware, verify that the
         // test
-        //:   object's allocator has not been modified and that the resulting
-        //:   managed object uses the correct allocator. [C-5]
-        //:
-        //: 5 Repeat steps 1-4 using an const lvalue, rvalue, and const rvalue.
-        //:   Verify that move assignment/constructor was called as
+        //    object's allocator has not been modified and that the resulting
+        //    managed object uses the correct allocator. [C-5]
+        //
+        // 5. Repeat steps 1-4 using an const lvalue, rvalue, and const rvalue.
+        //    Verify that move assignment/constructor was called as
         // appropriate.
-        //:   [C-6]
+        //    [C-6]
         //
         // Testing:
         //
@@ -7974,36 +7989,36 @@ void TestDriver<VARIANT, USES_BSLMA_ALLOC>::testCase11a()
 void testCase10a()
 {
     // --------------------------------------------------------------------
-    // TESTING 'swap' METHOD
+    // TESTING `swap` METHOD
     //
-    //   This test will ensure that 'swap' of two variant object of which at
-    //   least one is 'valueless_by_exception' works as expected.
+    //   This test will ensure that `swap` of two variant object of which at
+    //   least one is `valueless_by_exception` works as expected.
     //
     // Concerns:
-    //:
-    //: 1 Swap of two variant objects where at least one is
-    //:   'valueless_by_exception' swaps the states of the variant objects.
-    //:
-    //: 2 Concerns 1 applies to member function and free function 'swap'.
-    //:
-    //: 3 Free function 'swap' allows for swapping AA objects that do not use
-    //:    the same allocator. Swap will preserve the allocators of each
-    //:    'variant' object.
-    //:
-    //: 4 Swap does not compile if a variant object is a constant object.
+    //
+    // 1. Swap of two variant objects where at least one is
+    //    `valueless_by_exception` swaps the states of the variant objects.
+    //
+    // 2. Concerns 1 applies to member function and free function `swap`.
+    //
+    // 3. Free function `swap` allows for swapping AA objects that do not use
+    //     the same allocator. Swap will preserve the allocators of each
+    //     `variant` object.
+    //
+    // 4. Swap does not compile if a variant object is a constant object.
     //
     // Plan:
-    //: 1 Call 'swap' free function with combinations of two 'variant' objects
-    //:   where at least one is 'valueless_by_exception'.  Verify the objects
-    //:   have swapped the states, and that values of any managed object has
-    //:   been preserved. [C-1]
-    //:
-    //: 2 Repeat step 1 using the 'swap' member function.  [C-2]
-    //:
-    //: 3 Repeat step 1 using two AA 'variant' types using different
-    //:   allocators. Check the allocators have not been swapped. [C-3]
-    //:
-    //: 4 Using 'SwapHelper' and 'SwapHelperFree' check concern 4.
+    // 1. Call `swap` free function with combinations of two `variant` objects
+    //    where at least one is `valueless_by_exception`.  Verify the objects
+    //    have swapped the states, and that values of any managed object has
+    //    been preserved. [C-1]
+    //
+    // 2. Repeat step 1 using the `swap` member function.  [C-2]
+    //
+    // 3. Repeat step 1 using two AA `variant` types using different
+    //    allocators. Check the allocators have not been swapped. [C-3]
+    //
+    // 4. Using `SwapHelper` and `SwapHelperFree` check concern 4.
     //
     //
     // Testing:
@@ -8019,7 +8034,7 @@ void testCase10a()
     bslma::TestAllocator ta("other", veryVeryVeryVerbose);
 
     if (veryVerbose)
-        printf("\tTesting member 'swap'.\n");
+        printf("\tTesting member `swap`.\n");
 
     {
         bsl::variant<int, Throws> lhs(45);
@@ -8057,7 +8072,7 @@ void testCase10a()
     }
 
     if (veryVerbose)
-        printf("\tTesting free 'swap' with same allocators .\n");
+        printf("\tTesting free `swap` with same allocators .\n");
     {
         bsl::variant<MyClass2, Throws> lhs(
             bsl::allocator_arg, &oa, MyClass2(45));
@@ -8094,7 +8109,7 @@ void testCase10a()
         ASSERT(rhs.index() == bsl::variant_npos);
     }
     if (veryVerbose)
-        printf("\tFree 'swap' with different allocators .\n");
+        printf("\tFree `swap` with different allocators .\n");
     {
         bsl::variant<MyClass2, Throws> lhs(
             bsl::allocator_arg, &oa, MyClass2(45));
@@ -8157,40 +8172,40 @@ void testCase10a()
 RUN_FOR_EACH_ALTERNATIVE_COMBINATION_START(10)
 {
     // --------------------------------------------------------------------
-    // TESTING 'swap' METHOD
+    // TESTING `swap` METHOD
     //
-    //   This test will ensure that 'swap' of two variant object that are not
-    //   'valueless_by_exception' works as expected.
+    //   This test will ensure that `swap` of two variant object that are not
+    //   `valueless_by_exception` works as expected.
     //
     // Concerns:
-    //:
-    //: 1 Swap of two variant objects with the same alternative type swaps the
-    //:   the values of the alternatives
-    //:
-    //: 2 Swap of two variant objects that do not have the same alternative
-    //:   swaps the alternative objects.
-    //:
-    //: 3 Concerns 1 and 2 apply to member function and free function 'swap'.
-    //:
-    //: 4 Free function 'swap' allows for swapping AA objects that do not use
-    //:   the same allocator. Swap will preserve the allocators of each
-    //:   'variant' object.
+    //
+    // 1. Swap of two variant objects with the same alternative type swaps the
+    //    the values of the alternatives
+    //
+    // 2. Swap of two variant objects that do not have the same alternative
+    //    swaps the alternative objects.
+    //
+    // 3. Concerns 1 and 2 apply to member function and free function `swap`.
+    //
+    // 4. Free function `swap` allows for swapping AA objects that do not use
+    //    the same allocator. Swap will preserve the allocators of each
+    //    `variant` object.
     //
     //
     // Plan:
-    //: 1 Call 'swap' free function with two identical alternative types and
-    //:   verify 'value_type' 'swap' has been called.  [C-1]
-    //:
-    //: 2 Call 'swap' free function with two 'variant' object having a
-    //:   different alternative type.  Verify the objects have swapped the
-    //:   active alternatives types, and that values of each object has been
-    //:   preserved. [C-2]
-    //:
-    //: 3 Repeat steps 1-2 using the 'swap' member function.  [C-3]
+    // 1. Call `swap` free function with two identical alternative types and
+    //    verify `value_type` `swap` has been called.  [C-1]
     //
-    //: 4 Repeat step 1-2 using two AA 'variant' objects using different
-    //:   allocators. Check the allocators have not been swapped. [C-4]
-    //:
+    // 2. Call `swap` free function with two `variant` object having a
+    //    different alternative type.  Verify the objects have swapped the
+    //    active alternatives types, and that values of each object has been
+    //    preserved. [C-2]
+    //
+    // 3. Repeat steps 1-2 using the `swap` member function.  [C-3]
+    //
+    // 4. Repeat step 1-2 using two AA `variant` objects using different
+    //    allocators. Check the allocators have not been swapped. [C-4]
+    //
     //
     //
     // Testing:
@@ -8211,7 +8226,7 @@ RUN_FOR_EACH_ALTERNATIVE_COMBINATION_START(10)
 
     typedef bslalg::ConstructorProxy<VARIANT> VariantWithAllocator;
     if (veryVerbose)
-        printf("\tTesting member 'swap'.\n");
+        printf("\tTesting member `swap`.\n");
 
     {
         LhsAltType lhsAlt(15);
@@ -8239,7 +8254,7 @@ RUN_FOR_EACH_ALTERNATIVE_COMBINATION_START(10)
         }
     }
     if (veryVerbose)
-        printf("\tTesting free 'swap' with same allocators .\n");
+        printf("\tTesting free `swap` with same allocators .\n");
     {
         LhsAltType lhsAlt(15);
         RhsAltType rhsAlt(34);
@@ -8265,7 +8280,7 @@ RUN_FOR_EACH_ALTERNATIVE_COMBINATION_START(10)
         }
     }
     if (veryVerbose)
-        printf("\tFree 'swap' with different allocators .\n");
+        printf("\tFree `swap` with different allocators .\n");
     {
         LhsAltType lhsAlt(15);
         RhsAltType rhsAlt(34);
@@ -8311,51 +8326,51 @@ struct testCase9f_imp
     testCase9f_imp()
     {
         // --------------------------------------------------------------------
-        // TESTING ALLOCATOR-EXTENDED CONSTRUCTION FROM 'std::variant'
+        // TESTING ALLOCATOR-EXTENDED CONSTRUCTION FROM `std::variant`
         //   This test will ensure that allocator-extended construction from an
-        //   lvalue or rvalue of 'std::variant' twith the same sequence of
-        //   alternatives that is not 'valueless_by_exception' works as
+        //   lvalue or rvalue of `std::variant` twith the same sequence of
+        //   alternatives that is not `valueless_by_exception` works as
         //   expected.
         //
         // Concerns:
-        //: 1 Constructing a 'variant' from a 'std::variant' object with the
-        //:   same sequence of alternatives that is not
-        //:   'valueluess_by_exception' creates a 'variant' where the active
-        //:   alternative type matches that of the source object, and whose
-        //:   managed object is constructed from the managed object of the
-        //:   source variant.
-        //:
-        //: 2 The supplied allocator is used as the allocator of the variant
-        //:   and of the constructed alternative type object.
-        //:
-        //: 3 The 'value_type' object in 'variant' is move constructed when the
-        //:   source 'std::variant' is an rvalue.
-        //:
-        //: 4 No unnecessary copies of the 'value_type' are created.
+        // 1. Constructing a `variant` from a `std::variant` object with the
+        //    same sequence of alternatives that is not
+        //    `valueluess_by_exception` creates a `variant` where the active
+        //    alternative type matches that of the source object, and whose
+        //    managed object is constructed from the managed object of the
+        //    source variant.
+        //
+        // 2. The supplied allocator is used as the allocator of the variant
+        //    and of the constructed alternative type object.
+        //
+        // 3. The `value_type` object in `variant` is move constructed when the
+        //    source `std::variant` is an rvalue.
+        //
+        // 4. No unnecessary copies of the `value_type` are created.
         //
         // Plan:
-        //: 1 Create a 'std::variant' holding alternative object of some type
-        //:   'TYPE' and construct a 'variant' object from an lvalue of the
-        //:   'std::variant' using the allocator-extended constructor.  Verify
-        //:   that the active alternative of the new object is 'TYPE', and that 
-        //:   the value of its managed object matches that of the source
-        //:   object. [C-1]
-        //:
-        //: 2 In step 1, verify that the supplied allocator is used for the
-        //:   variant object and for the managed object. [C-2]
-        //:
-        //: 3 Repeat steps 1-2 using an rvalue for source.  Verify that the
-        //:   move constructor is invoked for alternatives of class type.
-        //:   [C-3]
-        //:
-        //: 4 In steps 1-3, verify that no unnecessary copies of the
-        //:   'value_type' have been created. [C-4]
+        // 1. Create a `std::variant` holding alternative object of some type
+        //    `TYPE` and construct a `variant` object from an lvalue of the
+        //    `std::variant` using the allocator-extended constructor.  Verify
+        //    that the active alternative of the new object is `TYPE`, and that
+        //    the value of its managed object matches that of the source
+        //    object. [C-1]
+        //
+        // 2. In step 1, verify that the supplied allocator is used for the
+        //    variant object and for the managed object. [C-2]
+        //
+        // 3. Repeat steps 1-2 using an rvalue for source.  Verify that the
+        //    move constructor is invoked for alternatives of class type.
+        //    [C-3]
+        //
+        // 4. In steps 1-3, verify that no unnecessary copies of the
+        //    `value_type` have been created. [C-4]
         //
         // Testing:
         //   explicit variant(alloc_arg, alloc, t_STD_VARIANT&&);
         // --------------------------------------------------------------------
 
-        // These typedefs are needed by the 'TEST_' macros.
+        // These typedefs are needed by the `TEST_` macros.
         using DEST_TYPE = t_DEST_TYPE;
         using SRC_TYPE  = typename BslVariantToStdVariant<t_DEST_TYPE>::type;
 
@@ -8392,49 +8407,49 @@ struct testCase9e_imp
     testCase9e_imp()
     {
         // --------------------------------------------------------------------
-        // TESTING CONSTRUCTION FROM 'std::variant'
+        // TESTING CONSTRUCTION FROM `std::variant`
         //   This test will ensure that construction from an lvalue or rvalue
-        //   of 'std::variant' with the same sequence of alternatives that is
-        //   not 'valueluess_by_exception' works as expected.
+        //   of `std::variant` with the same sequence of alternatives that is
+        //   not `valueluess_by_exception` works as expected.
         //
         // Concerns:
-        //: 1 Constructing a 'variant' from a 'std::variant' object with the
-        //:   same sequence of alternatives that is not
-        //:   'valueluess_by_exception' creates a 'variant' where the active
-        //:   alternative type matches that of the source object, and whose
-        //:   managed object is constructed from the managed object of the
-        //:   source variant.
-        //:
-        //: 2 If 'variant' type is allocator-aware, the default allocator is
-        //:   used.
-        //:
-        //: 3 The 'value_type' object in 'variant' is move constructed when the
-        //:   source 'std::variant' is an rvalue.
-        //:
-        //: 4 No unnecessary copies of the 'value_type' are created.
+        // 1. Constructing a `variant` from a `std::variant` object with the
+        //    same sequence of alternatives that is not
+        //    `valueluess_by_exception` creates a `variant` where the active
+        //    alternative type matches that of the source object, and whose
+        //    managed object is constructed from the managed object of the
+        //    source variant.
+        //
+        // 2. If `variant` type is allocator-aware, the default allocator is
+        //    used.
+        //
+        // 3. The `value_type` object in `variant` is move constructed when the
+        //    source `std::variant` is an rvalue.
+        //
+        // 4. No unnecessary copies of the `value_type` are created.
         //
         // Plan:
-        //: 1 Create a 'std::variant' holding alternative object of some type
-        //:   'TYPE' and construct a 'variant' object from an lvalue of the
-        //:   'std::variant'.  Verify that the active alternative of the new
-        //:   object is 'TYPE', and that the value of its managed object
-        //:   matches that of the source object.  [C-1]
-        //:
-        //: 2 In step 1, if the 'variant' is allocator-aware, verify that the
-        //:   currently installed default allocator is used.  [C-2]
-        //:
-        //: 3 Repeat steps 1-2 using an rvalue for source.  Verify that the
-        //:   move constructor is invoked for alternatives of class type.
-        //:   [C-3]
-        //:
-        //: 4 In steps 1-3, verify that no unnecessary copies of the
-        //:   'value_type' have been created.  [C-4]
+        // 1. Create a `std::variant` holding alternative object of some type
+        //    `TYPE` and construct a `variant` object from an lvalue of the
+        //    `std::variant`.  Verify that the active alternative of the new
+        //    object is `TYPE`, and that the value of its managed object
+        //    matches that of the source object.  [C-1]
+        //
+        // 2. In step 1, if the `variant` is allocator-aware, verify that the
+        //    currently installed default allocator is used.  [C-2]
+        //
+        // 3. Repeat steps 1-2 using an rvalue for source.  Verify that the
+        //    move constructor is invoked for alternatives of class type.
+        //    [C-3]
+        //
+        // 4. In steps 1-3, verify that no unnecessary copies of the
+        //    `value_type` have been created.  [C-4]
         //
         // Testing:
         //   explicit variant(t_STD_VARIANT&&);
         // --------------------------------------------------------------------
 
-        // These typedefs are needed by the 'TEST_' macros.
+        // These typedefs are needed by the `TEST_` macros.
         using DEST_TYPE = t_DEST_TYPE;
         using SRC_TYPE  = typename BslVariantToStdVariant<t_DEST_TYPE>::type;
 
@@ -8446,9 +8461,9 @@ struct testCase9e_imp
         bslma::DefaultAllocatorGuard dag(&da);
         SRC_TYPE                     source(std::in_place_index<INDEX>);
 
-        // Modify the source 'std::variant' such that its active alternative
-        // has '&oa' as its allocator if allocator-aware (to ensure that the
-        // 'bsl::variant' doesn't get its allocator from the source
+        // Modify the source `std::variant` such that its active alternative
+        // has `&oa` as its allocator if allocator-aware (to ensure that the
+        // `bsl::variant` doesn't get its allocator from the source
         // alternative).
         AltType& sourceAlternative = std::get<INDEX>(source);
         sourceAlternative.~AltType();
@@ -8476,21 +8491,21 @@ void testCase9d()
     //   under certain conditions.
     //
     // Concerns:
-    //: 1 That the variant with an alternative that is not copyable is also
-    //:   not copyable.  Similarly, if any alternative is moveable, but not
-    //:   copyable, the variant is movable, but not copyable.
-    //:
-    //: 2 That the same rules apply to allocator extended constructors.
-    //:
-    //: 3 That the same rules apply to direct-initialization of 'bsl::variant'
-    //:   from 'std::variant'.
-    //:
-    //: 4 That 'bsl::variant' is not convertible from 'std::variant' (the
-    //:   constructor is explicit).
+    // 1. That the variant with an alternative that is not copyable is also
+    //    not copyable.  Similarly, if any alternative is moveable, but not
+    //    copyable, the variant is movable, but not copyable.
+    //
+    // 2. That the same rules apply to allocator extended constructors.
+    //
+    // 3. That the same rules apply to direct-initialization of `bsl::variant`
+    //    from `std::variant`.
+    //
+    // 4. That `bsl::variant` is not convertible from `std::variant` (the
+    //    constructor is explicit).
     //
     // Plan:
-    //: 1 For the concerns above, check 'is_constructible' and 'is_convertible'
-    //:   traits with the appropriate set of arguments.  (C-1..4)
+    // 1. For the concerns above, check `is_constructible` and `is_convertible`
+    //    traits with the appropriate set of arguments.  (C-1..4)
     //
     // Testing:
     //   variant(const variant&);
@@ -8550,7 +8565,7 @@ void testCase9d()
                                    CopyMove_Variant::allocator_type,
                                    CopyMove_Variant>::value));
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-    // copy/move from 'std::variant'
+    // copy/move from `std::variant`
     using NonCopy_StdVariant =
                              BslVariantToStdVariant<NonCopy_Variant>::type;
     using MoveOnly_StdVariant =
@@ -8599,7 +8614,7 @@ void testCase9d()
                                           allocator_arg_t,
                                           CopyMove_Variant::allocator_type,
                                           CopyMove_StdVariant>));
-    // allocator-extended copy/move from 'std::variant'
+    // allocator-extended copy/move from `std::variant`
 #endif
 #endif  // U_VARIANT_FULL_IMPLEMENTATION
 }
@@ -8610,46 +8625,46 @@ void testCase9c()
     // TESTING CONSTRUCTION FROM AN EMPTY VARIANT
     //
     //   This test will ensure that the construction from a
-    //   'valueless_by_exception' variant works as expected. This test only
+    //   `valueless_by_exception` variant works as expected. This test only
     //   makes sense if exceptions are enabled.  In C++17, this test also
-    //   includes a case where the source object is a 'std::variant' with the
+    //   includes a case where the source object is a `std::variant` with the
     //   same sequence of alternatives.
     //
     // Concerns:
-    //: 1 Constructing a 'variant' from a 'variant' object that is
-    //:   'valueluess_by_exception' creates a 'variant'  object that is
-    //:   'valueluess_by_exception'.
-    //:
-    //: 2 If 'variant' is allocator aware, and no allocator is provided, the
-    //:   allocator is propagated if the source is a non-const rvalue.
+    // 1. Constructing a `variant` from a `variant` object that is
+    //    `valueluess_by_exception` creates a `variant`  object that is
+    //    `valueluess_by_exception`.
+    //
+    // 2. If `variant` is allocator aware, and no allocator is provided, the
+    //    allocator is propagated if the source is a non-const rvalue.
     // Otherwise
-    //:   default allocator is used for the new 'variant' object.
-    //:
-    //: 3 If allocator extended constructor is used, the supplied allocator is
-    //:   used as the allocator for the new 'variant' object.
-    //:
-    //: 4 In C++17 and later, constructing a 'variant' from a 'std::variant'
-    //:   object with the same sequence of alternatives that is valueless by
-    //:   exception produces an object that is valueless by exception and uses
-    //:   the default allocator or the supplied allocator.
+    //    default allocator is used for the new `variant` object.
+    //
+    // 3. If allocator extended constructor is used, the supplied allocator is
+    //    used as the allocator for the new `variant` object.
+    //
+    // 4. In C++17 and later, constructing a `variant` from a `std::variant`
+    //    object with the same sequence of alternatives that is valueless by
+    //    exception produces an object that is valueless by exception and uses
+    //    the default allocator or the supplied allocator.
     //
     // Plan:
-    //: 1 Create a 'variant' source object, and using 'Throws'
-    //:   helper class put it in the 'valueless_by_exception' state.  Copy
-    //:   construct a new 'variant' object from the source object and verify
+    // 1. Create a `variant` source object, and using `Throws`
+    //    helper class put it in the `valueless_by_exception` state.  Copy
+    //    construct a new `variant` object from the source object and verify
     // that
-    //:   the new object is 'valueless_by_exception'. [C-1]
-    //:
-    //: 2 In step1, if the 'variant' is allocator aware, check the correct
-    //:   allocator is used for the new 'variant' object.  Repeat for rvalue
+    //    the new object is `valueless_by_exception`. [C-1]
+    //
+    // 2. In step1, if the `variant` is allocator aware, check the correct
+    //    allocator is used for the new `variant` object.  Repeat for rvalue
     // and
     //    const rvalue source object.  [C-2]
-    //:
-    //: 3 Repeat step 1 for an allocator aware variant using an allocator
-    //:   extended constructor.  Verify the supplied allocator is used for the
-    //:   new 'variant' object.  [C-3]
-    //:
-    //: 4 Repeat steps 1-3 with a 'std::variant' as the source object.  [C-4]
+    //
+    // 3. Repeat step 1 for an allocator aware variant using an allocator
+    //    extended constructor.  Verify the supplied allocator is used for the
+    //    new `variant` object.  [C-3]
+    //
+    // 4. Repeat steps 1-3 with a `std::variant` as the source object.  [C-4]
     //
     // Testing:
     //   variant(const variant&);
@@ -8777,45 +8792,45 @@ struct testCase9b_imp
         //
         //   This test will ensure that the allocator extended copy
         //   construction
-        //   from a 'variant' object that is not 'valueluess_by_exception'
+        //   from a `variant` object that is not `valueluess_by_exception`
         //   works as
         //   expected.
         //
         // Concerns:
-        //: 1 Constructing a 'variant' from a 'variant' object that is not
-        //:   'valueluess_by_exception' creates a 'variant' where the active
-        //:   alternative type matches that of the
-        //:   source object, and whose managed object is constructed from
-        //:   the managed object of the source variant.
-        //:
-        //: 2 The supplied allocator is used as the allocator of the variant
+        // 1. Constructing a `variant` from a `variant` object that is not
+        //    `valueluess_by_exception` creates a `variant` where the active
+        //    alternative type matches that of the
+        //    source object, and whose managed object is constructed from
+        //    the managed object of the source variant.
+        //
+        // 2. The supplied allocator is used as the allocator of the variant
         // and
-        //:   of the constructed alternative type object.
-        //:
-        //: 3 The 'value_type' object in 'variant' is move constructed when
-        //:   possible.
-        //:
-        //: 4 No unnecessary copies of the 'value_type' are created.
-        //:
+        //    of the constructed alternative type object.
+        //
+        // 3. The `value_type` object in `variant` is move constructed when
+        //    possible.
+        //
+        // 4. No unnecessary copies of the `value_type` are created.
+        //
         //
         // Plan:
-        //: 1 Create an 'variant' holding alternative object of some type
-        // 'TYPE'
-        //:   and use it to create a 'variant' object.  Verify that the active
-        //    alternative of the new object is 'TYPE', and that the value of
+        // 1. Create an `variant` holding alternative object of some type
+        // `TYPE`
+        //    and use it to create a `variant` object.  Verify that the active
+        //    alternative of the new object is `TYPE`, and that the value of
         //    its
-        //:   managed object matches that of the source object. [C-1]
-        //:
-        //: 2 In step 1, verify that the supplied allocator is used for the
-        //:   variant object and for the managed object. [C-2]
-        //:
-        //: 3 Repeat steps 1-2 using an rvalue for source. Verify that the move
-        //:   constructor is invoked where necessary.  [C-3]
-        //:
-        //: 4 In steps 1-3, verify that no unnecessary copies of the
-        // 'value_type'
-        //:   have been created. [C-4]
-        //:
+        //    managed object matches that of the source object. [C-1]
+        //
+        // 2. In step 1, verify that the supplied allocator is used for the
+        //    variant object and for the managed object. [C-2]
+        //
+        // 3. Repeat steps 1-2 using an rvalue for source. Verify that the move
+        //    constructor is invoked where necessary.  [C-3]
+        //
+        // 4. In steps 1-3, verify that no unnecessary copies of the
+        // `value_type`
+        //    have been created. [C-4]
+        //
         //
         // Testing:
         //
@@ -8883,45 +8898,45 @@ struct testCase9a_imp
         // --------------------------------------------------------------------
         // TESTING COPY/MOVE CONSTRUCTION
         //   This test will ensure that the copy construction from a
-        //   'variant' object that is not 'valueluess_by_exception' works as
+        //   `variant` object that is not `valueluess_by_exception` works as
         //   expected.
         //
         // Concerns:
-        //: 1 Constructing a 'variant' from a 'variant' object that is not
-        //:   'valueluess_by_exception' creates a 'variant' where the active
-        //:   alternative type matches that of the
-        //:   source object, and whose managed object is constructed from
-        //:   the managed object of the source variant.
-        //:
-        //: 2 If 'variant' type is allocator-aware, and the source is a
+        // 1. Constructing a `variant` from a `variant` object that is not
+        //    `valueluess_by_exception` creates a `variant` where the active
+        //    alternative type matches that of the
+        //    source object, and whose managed object is constructed from
+        //    the managed object of the source variant.
+        //
+        // 2. If `variant` type is allocator-aware, and the source is a
         // non-const
         //    rvalue, the allocator is propagated.  Otherwise, the default
-        //:   allocator is used.
-        //:
-        //: 3 The 'value_type' object in 'variant' is move constructed when
-        //:   possible.
-        //:
-        //: 4 No unnecessary copies of the 'value_type' are created.
-        //:
+        //    allocator is used.
+        //
+        // 3. The `value_type` object in `variant` is move constructed when
+        //    possible.
+        //
+        // 4. No unnecessary copies of the `value_type` are created.
+        //
         //
         // Plan:
-        //: 1 Create an 'variant' holding alternative object of some type
-        // 'TYPE'
-        //:   and use it to create a 'variant' object.  Verify that the active
-        //    alternative of the new object is 'TYPE', and that the value of
+        // 1. Create an `variant` holding alternative object of some type
+        // `TYPE`
+        //    and use it to create a `variant` object.  Verify that the active
+        //    alternative of the new object is `TYPE`, and that the value of
         //    its
-        //:   managed object matches that of the source object. [C-1]
-        //:
-        //: 2 In step 1, if the 'variant' is allocator-aware, verify that the
-        //:   allocator is propagated as needed. [C-2]
-        //:
-        //: 3 Repeat steps 1-2 using an rvalue for source. Verify that the move
-        //:   constructor is invoked where necessary.  [C-3]
-        //:
-        //: 4 In steps 1-3, verify that no unnecessary copies of the
-        // 'value_type'
-        //:   have been created. [C-4]
-        //:
+        //    managed object matches that of the source object. [C-1]
+        //
+        // 2. In step 1, if the `variant` is allocator-aware, verify that the
+        //    allocator is propagated as needed. [C-2]
+        //
+        // 3. Repeat steps 1-2 using an rvalue for source. Verify that the move
+        //    constructor is invoked where necessary.  [C-3]
+        //
+        // 4. In steps 1-3, verify that no unnecessary copies of the
+        // `value_type`
+        //    have been created. [C-4]
+        //
         //
         // Testing:
         //
@@ -8977,33 +8992,33 @@ void TestDriver<VARIANT, USES_BSLMA_ALLOC>::testCase9a()
 void testCase8()
 {
     // Concerns:
-    //: 1 Two 'variant' objects can be compared if every one of their
-    //:   alternative types is comparable. The result of two 'variant' objects
-    //:   having the same active alternative type is the result of comparing
-    //:   the alternative objects. Otherwise, the result of the comparison
-    //:   depends on the value of 'index()' of the two objects.
-    //:
-    //: 2 That each comparsion operation requires only that specific comparison
-    //:   to exist for each alternative type.
-    //:
+    // 1. Two `variant` objects can be compared if every one of their
+    //    alternative types is comparable. The result of two `variant` objects
+    //    having the same active alternative type is the result of comparing
+    //    the alternative objects. Otherwise, the result of the comparison
+    //    depends on the value of `index()` of the two objects.
+    //
+    // 2. That each comparsion operation requires only that specific comparison
+    //    to exist for each alternative type.
+    //
     //
     // Plan:
-    //: 1 For each relation operator, compare two 'variant' objects containing
-    //:   the same alternative type. [C-1]
-    //:
-    //: 2 For each relation operator, compare two 'variant' objects containing
-    //:   a different alternative type. [C-1]
-    //:
-    //: 3 For each relation operator, compare a 'variant' object containing
-    //:   an alternative type object and a 'valueless_by_exception' variant
-    //:   object. [C-1]
-    //:
-    //: 4 For each relation operator, compare two 'valueless_by_exception'
-    //:   'variant' objects. [C-1]
-    //:
-    //: 5 For each relation operator, check that the relevant comparison is
-    //:   possible for a variant containing an alternative that only supports
-    //:   that specific relation operator. [C-2]
+    // 1. For each relation operator, compare two `variant` objects containing
+    //    the same alternative type. [C-1]
+    //
+    // 2. For each relation operator, compare two `variant` objects containing
+    //    a different alternative type. [C-1]
+    //
+    // 3. For each relation operator, compare a `variant` object containing
+    //    an alternative type object and a `valueless_by_exception` variant
+    //    object. [C-1]
+    //
+    // 4. For each relation operator, compare two `valueless_by_exception`
+    //    `variant` objects. [C-1]
+    //
+    // 5. For each relation operator, check that the relevant comparison is
+    //    possible for a variant containing an alternative that only supports
+    //    that specific relation operator. [C-2]
     //
     // Testing:
     //
@@ -9207,27 +9222,27 @@ void testCase8()
 void testCase7d()
 {
     // --------------------------------------------------------------------
-    // TESTING 'emplace' CONSTRAINS
-    //   This test will ensure that the 'emplace' method is constrained as
+    // TESTING `emplace` CONSTRAINS
+    //   This test will ensure that the `emplace` method is constrained as
     //   expected.
     //
     // Concerns:
-    //: 1 That 'emplace' can not be called with an invalid alternative.
-    //:
-    //: 2 That 'emplace' can not be called with an alternative type if that
-    //:   type is not unique alternative type.
-    //:
-    //: 3 That 'emplace' can be called with an alternative type if that type is
-    //:   a unique alternative type, but there exists another alternative of
-    //:   same type with differentcv-qualifications.
-    //:
-    //: 4 That 'emplace' can not be called with arguments from which the
-    //:    specified alternative is not constructible.
+    // 1. That `emplace` can not be called with an invalid alternative.
+    //
+    // 2. That `emplace` can not be called with an alternative type if that
+    //    type is not unique alternative type.
+    //
+    // 3. That `emplace` can be called with an alternative type if that type is
+    //    a unique alternative type, but there exists another alternative of
+    //    same type with differentcv-qualifications.
+    //
+    // 4. That `emplace` can not be called with arguments from which the
+    //     specified alternative is not constructible.
     //
     // Plan:
-    //: 1 Create a 'variant' object and using the emplace helper class
-    //:   call 'emplace' method with a type and arguments to test the specified
-    //:   concerns
+    // 1. Create a `variant` object and using the emplace helper class
+    //    call `emplace` method with a type and arguments to test the specified
+    //    concerns
 
 #ifdef U_VARIANT_FULL_IMPLEMENTATION
     // invalid type or id
@@ -9279,26 +9294,26 @@ template <class TYPE>
 void testCase7c()
 {
     // --------------------------------------------------------------------
-    // TESTING 'emplace' METHOD
-    //   This test will ensure that the 'emplace' method works as expected.
+    // TESTING `emplace` METHOD
+    //   This test will ensure that the `emplace` method works as expected.
     //
     // Concerns:
-    //: 1 If the constructor called from any 'emplace' method throws, the
-    //:   'variant' object is left in a 'valueluess by exception' state.
+    // 1. If the constructor called from any `emplace` method throws, the
+    //    `variant` object is left in a `valueluess by exception` state.
     //
     // Plan:
-    //: 1 Create a 'variant' object and using the 'Throws' helper class
-    //:   call 'emplace' method specifying the type to create and no arguments.
-    //:   Verify the 'variant' object is left in a 'valueluess by exception'
-    //:   state after the exception is thrown. [C-1]
-    //:
-    //: 2 Repeat step 1 using varying number of arguments [C-1]
-    //:
-    //: 3 Repeat steps 1-2 with the additional 'initializer_list' argument.
+    // 1. Create a `variant` object and using the `Throws` helper class
+    //    call `emplace` method specifying the type to create and no arguments.
+    //    Verify the `variant` object is left in a `valueluess by exception`
+    //    state after the exception is thrown. [C-1]
+    //
+    // 2. Repeat step 1 using varying number of arguments [C-1]
+    //
+    // 3. Repeat steps 1-2 with the additional `initializer_list` argument.
     // [C-1]
-    //:
-    //: 4 Repeat steps 1-3 with index of the 'Throws' type as the
-    //:   first template argument to 'emplace'.
+    //
+    // 4. Repeat steps 1-3 with index of the `Throws` type as the
+    //    first template argument to `emplace`.
     //
     // Testing:
     //
@@ -9374,49 +9389,49 @@ struct testCase7aIndex_imp : testCase7aIndex_imp<VARIANT, t_NUM - 1> {
     testCase7aIndex_imp()
     {
         // --------------------------------------------------------------------
-        // TESTING 'emplace' METHOD
-        //   This test will ensure that the 'emplace' method works as expected.
+        // TESTING `emplace` METHOD
+        //   This test will ensure that the `emplace` method works as expected.
         //
         // Concerns:
-        //: 1 Calling 'emplace' creates an alternative type determined by the
-        //:   first template argument specifying the index of the alternative
-        //:   type.
-        //:
-        //: 2 Variadic arguments to 'emplace' method are correctly forwarded to
-        //:   the constructor of the alternative type.
-        //:
-        //: 3 If 'value_type' is allocator-aware, 'emplace' invokes the
-        //:   allocator extended constructor using the 'variant''s allocator.
-        //:
-        //: 4 There are no unnecessary argument type and 'value_type' copies
-        //:   created
-        //:
-        //: 5 'emplace' returns a reference offering modifiable access to the
-        //:   'variant''s value type object.
+        // 1. Calling `emplace` creates an alternative type determined by the
+        //    first template argument specifying the index of the alternative
+        //    type.
+        //
+        // 2. Variadic arguments to `emplace` method are correctly forwarded to
+        //    the constructor of the alternative type.
+        //
+        // 3. If `value_type` is allocator-aware, `emplace` invokes the
+        //    allocator extended constructor using the `variant`'s allocator.
+        //
+        // 4. There are no unnecessary argument type and `value_type` copies
+        //    created
+        //
+        // 5. `emplace` returns a reference offering modifiable access to the
+        //    `variant`'s value type object.
         //
         // Plan:
-        //: 1 Create a 'variant' object and call 'emplace' method specifying
-        //:   the index of the alternative type to create and providing no
-        //:   arguments.  Verify the 'variant' object contains the correct
-        //:   alternative type object [C-1]
-        //:
-        //: 2 In step 1, verify the alternative object was default constructed.
-        //:   [C-2]
-        //:
-        //: 3 Repeat step 1 using varying number of arguments and verify the
-        //:   arguments to the emplace method have been perfect forwarded to
-        //:   the constructor of the alternative type. [C-2]
-        //:
-        //: 4 Repeat steps 1-3 with an allocator-aware alternative type and
-        //:   verify the alternative object in variant was constructed using
-        //:   the correct allocator. [C-3]
-        //:
-        //: 5 In steps 1-4, verify no unnecessary copies of the arguments and
-        //:   the alternative type have been created. [C-4]
-        //:
-        //: 6 Verify that the returned reference refers to the alternative type
-        //:   object.  [C-5]
-        //:
+        // 1. Create a `variant` object and call `emplace` method specifying
+        //    the index of the alternative type to create and providing no
+        //    arguments.  Verify the `variant` object contains the correct
+        //    alternative type object [C-1]
+        //
+        // 2. In step 1, verify the alternative object was default constructed.
+        //    [C-2]
+        //
+        // 3. Repeat step 1 using varying number of arguments and verify the
+        //    arguments to the emplace method have been perfect forwarded to
+        //    the constructor of the alternative type. [C-2]
+        //
+        // 4. Repeat steps 1-3 with an allocator-aware alternative type and
+        //    verify the alternative object in variant was constructed using
+        //    the correct allocator. [C-3]
+        //
+        // 5. In steps 1-4, verify no unnecessary copies of the arguments and
+        //    the alternative type have been created. [C-4]
+        //
+        // 6. Verify that the returned reference refers to the alternative type
+        //    object.  [C-5]
+        //
         //
         // Testing:
         //
@@ -9429,7 +9444,7 @@ struct testCase7aIndex_imp : testCase7aIndex_imp<VARIANT, t_NUM - 1> {
         typedef bslalg::ConstructorProxy<VARIANT> VariantWithAllocator;
 
         if (verbose)
-            printf("\nTESTING 'emplace' METHOD"
+            printf("\nTESTING `emplace` METHOD"
                    "\n========================\n");
         {
             bslma::TestAllocator da("other", veryVeryVeryVerbose);
@@ -9698,48 +9713,48 @@ struct testCase7aType_imp : testCase7aType_imp<VARIANT, t_NUM - 1> {
     testCase7aType_imp()
     {
         // --------------------------------------------------------------------
-        // TESTING 'emplace' METHOD
-        //   This test will ensure that the 'emplace' method works as expected.
+        // TESTING `emplace` METHOD
+        //   This test will ensure that the `emplace` method works as expected.
         //
         // Concerns:
-        //: 1 Calling 'emplace' creates an alternative type determined by the
-        //:   first template argument specifying the type of the alternative.
-        //:
-        //: 2 Variadic arguments to 'emplace' method are correctly forwarded to
-        //:   the constructor of the alternative type.
-        //:
-        //: 3 If 'value_type' is allocator-aware, 'emplace' invokes the
-        //:   allocator extended constructor using the 'variant''s allocator.
-        //:
-        //: 4 There are no unnecessary argument type and 'value_type' copies
-        //:   created
-        //:
-        //: 5 'emplace' returns a reference offering modifiable access to the
-        //:   'variant''s value type object.
+        // 1. Calling `emplace` creates an alternative type determined by the
+        //    first template argument specifying the type of the alternative.
+        //
+        // 2. Variadic arguments to `emplace` method are correctly forwarded to
+        //    the constructor of the alternative type.
+        //
+        // 3. If `value_type` is allocator-aware, `emplace` invokes the
+        //    allocator extended constructor using the `variant`'s allocator.
+        //
+        // 4. There are no unnecessary argument type and `value_type` copies
+        //    created
+        //
+        // 5. `emplace` returns a reference offering modifiable access to the
+        //    `variant`'s value type object.
         //
         // Plan:
-        //: 1 Create a 'variant' object and call 'emplace' method specifying
-        //:   the type of the alternative to create and providing no arguments.
-        //:   Verify the 'variant' object contains the correct alternative type
-        //:   object [C-1]
-        //:
-        //: 2 In step 1, verify the alternative object was default constructed.
-        //:   [C-2]
-        //:
-        //: 3 Repeat step 1 using varying number of arguments and verify the
-        //:   arguments to the emplace method have been perfect forwarded to
-        //:   the constructor of the alternative type. [C-2]
-        //:
-        //: 4 Repeat steps 1-3 with an allocator-aware alternative type and
-        //:   verify the alternative object in variant was constructed using
-        //:   the correct allocator. [C-3]
-        //:
-        //: 5 In steps 1-4, verify no unnecessary copies of the arguments and
-        //:   the alternative type have been created. [C-4]
-        //:
-        //: 6 Verify that the returned reference refers to the alternative type
-        //:   object.  [C-5]
-        //:
+        // 1. Create a `variant` object and call `emplace` method specifying
+        //    the type of the alternative to create and providing no arguments.
+        //    Verify the `variant` object contains the correct alternative type
+        //    object [C-1]
+        //
+        // 2. In step 1, verify the alternative object was default constructed.
+        //    [C-2]
+        //
+        // 3. Repeat step 1 using varying number of arguments and verify the
+        //    arguments to the emplace method have been perfect forwarded to
+        //    the constructor of the alternative type. [C-2]
+        //
+        // 4. Repeat steps 1-3 with an allocator-aware alternative type and
+        //    verify the alternative object in variant was constructed using
+        //    the correct allocator. [C-3]
+        //
+        // 5. In steps 1-4, verify no unnecessary copies of the arguments and
+        //    the alternative type have been created. [C-4]
+        //
+        // 6. Verify that the returned reference refers to the alternative type
+        //    object.  [C-5]
+        //
         //
         // Testing:
         //
@@ -9752,7 +9767,7 @@ struct testCase7aType_imp : testCase7aType_imp<VARIANT, t_NUM - 1> {
         typedef bslalg::ConstructorProxy<VARIANT> VariantWithAllocator;
 
         if (verbose)
-            printf("\nTESTING 'emplace' METHOD"
+            printf("\nTESTING `emplace` METHOD"
                    "\n========================\n");
         {
             bslma::TestAllocator da("other", veryVeryVeryVerbose);
@@ -10022,48 +10037,48 @@ struct testCase7bIndex_imp : testCase7bIndex_imp<VARIANT, t_NUM - 1> {
     {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
         // --------------------------------------------------------------------
-        // TESTING TESTING INITIALIZER LIST 'emplace' METHOD
-        //   This test will ensure that the initializer list 'emplace' method
+        // TESTING TESTING INITIALIZER LIST `emplace` METHOD
+        //   This test will ensure that the initializer list `emplace` method
         //   works as expected.
         //
         // Concerns:
-        //: 1 Calling 'emplace' creates an alternative type determined by the
-        //:   first template argument specifying the index of the alternative
-        //:   type.
-        //:
-        //: 2 Variadic arguments to 'emplace' method are correctly forwarded to
-        //:   the  constructor arguments in the presence of an initializer list
-        //:   argument.
-        //:
-        //: 3 If 'value_type' is allocator-aware, 'emplace' invokes the
-        //:   allocator extended constructor using the 'variant''s allocator.
-        //:
-        //: 4 There are no unnecessary argument type and 'value_type' copies
-        //:   created
-        //:
-        //: 5 'emplace' returns a reference offering modifiable access to the
-        //:   'variant''s value type object.
+        // 1. Calling `emplace` creates an alternative type determined by the
+        //    first template argument specifying the index of the alternative
+        //    type.
+        //
+        // 2. Variadic arguments to `emplace` method are correctly forwarded to
+        //    the  constructor arguments in the presence of an initializer list
+        //    argument.
+        //
+        // 3. If `value_type` is allocator-aware, `emplace` invokes the
+        //    allocator extended constructor using the `variant`'s allocator.
+        //
+        // 4. There are no unnecessary argument type and `value_type` copies
+        //    created
+        //
+        // 5. `emplace` returns a reference offering modifiable access to the
+        //    `variant`'s value type object.
         //
         // Plan:
-        //: 1 Create a 'variant' object and call 'emplace' method specifying
-        //:   the index of the alternative type to create and providing an
-        //:   initializer list.  Verify the 'variant' object contains the
-        //:   correct alternative type object [C-1]
-        //:
-        //: 2 In step 1, verify the alternative object was created using the
-        //:   specified initializer list. [C-2]
-        //:
-        //: 3 Repeat step 1 using varying number of arguments. [C-2]
-        //:
-        //: 4 Repeat steps 1-3 with an allocator-aware alternative type and
-        //:   verify the alternative object in variant was constructed using
-        //:   the correct allocator. [C-3]
-        //:
-        //: 5 In steps 1-4, verify no unnecessary copies of the arguments and
-        //:   the alternative type have been created. [C-4]
-        //:
-        //: 6 Verify that the returned reference refers to the alternative type
-        //:   object.  [C-5]
+        // 1. Create a `variant` object and call `emplace` method specifying
+        //    the index of the alternative type to create and providing an
+        //    initializer list.  Verify the `variant` object contains the
+        //    correct alternative type object [C-1]
+        //
+        // 2. In step 1, verify the alternative object was created using the
+        //    specified initializer list. [C-2]
+        //
+        // 3. Repeat step 1 using varying number of arguments. [C-2]
+        //
+        // 4. Repeat steps 1-3 with an allocator-aware alternative type and
+        //    verify the alternative object in variant was constructed using
+        //    the correct allocator. [C-3]
+        //
+        // 5. In steps 1-4, verify no unnecessary copies of the arguments and
+        //    the alternative type have been created. [C-4]
+        //
+        // 6. Verify that the returned reference refers to the alternative type
+        //    object.  [C-5]
         //
         // Testing:
         //
@@ -10079,7 +10094,7 @@ struct testCase7bIndex_imp : testCase7bIndex_imp<VARIANT, t_NUM - 1> {
         typedef bslalg::ConstructorProxy<VARIANT> VariantWithAllocator;
 
         if (verbose)
-            printf("\nTESTING INITIALIZER LIST 'emplace' METHOD"
+            printf("\nTESTING INITIALIZER LIST `emplace` METHOD"
                    "\n=========================================\n");
         {
             bslma::TestAllocator da("other", veryVeryVeryVerbose);
@@ -10399,47 +10414,47 @@ struct testCase7bType_imp : testCase7bType_imp<VARIANT, t_NUM - 1> {
     {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
         // --------------------------------------------------------------------
-        // TESTING TESTING INITIALIZER LIST 'emplace' METHOD
-        //   This test will ensure that the initializer list 'emplace' method
+        // TESTING TESTING INITIALIZER LIST `emplace` METHOD
+        //   This test will ensure that the initializer list `emplace` method
         //   works as expected.
         //
         // Concerns:
-        //: 1 Calling 'emplace' creates an alternative type determined by the
-        //:   first template argument specifying the type of the alternative.
-        //:
-        //: 2 Variadic arguments to 'emplace' method are correctly forwarded to
-        //:   the  constructor arguments in the presence of an initializer list
-        //:   argument.
-        //:
-        //: 3 If 'value_type' is allocator-aware, 'emplace' invokes the
-        //:   allocator extended constructor using the 'variant''s allocator.
-        //:
-        //: 4 There are no unnecessary argument type and 'value_type' copies
-        //:   created
-        //:
-        //: 5 'emplace' returns a reference offering modifiable access to the
-        //:   'variant''s value type object.
+        // 1. Calling `emplace` creates an alternative type determined by the
+        //    first template argument specifying the type of the alternative.
+        //
+        // 2. Variadic arguments to `emplace` method are correctly forwarded to
+        //    the  constructor arguments in the presence of an initializer list
+        //    argument.
+        //
+        // 3. If `value_type` is allocator-aware, `emplace` invokes the
+        //    allocator extended constructor using the `variant`'s allocator.
+        //
+        // 4. There are no unnecessary argument type and `value_type` copies
+        //    created
+        //
+        // 5. `emplace` returns a reference offering modifiable access to the
+        //    `variant`'s value type object.
         //
         // Plan:
-        //: 1 Create a 'variant' object and call 'emplace' method specifying
-        //:   the alternative type to create and providing an initializer list.
-        //:   Verify the 'variant' object contains the correct alternative type
-        //:   object [C-1]
-        //:
-        //: 2 In step 1, verify the alternative object was created using the
-        //:   specified initializer list. [C-2]
-        //:
-        //: 3 Repeat step 1 using varying number of arguments. [C-2]
-        //:
-        //: 4 Repeat steps 1-3 with an allocator-aware alternative type and
-        //:   verify the alternative object in variant was constructed using
-        //:   the correct allocator. [C-3]
-        //:
-        //: 5 In steps 1-4, verify no unnecessary copies of the arguments and
-        //:   the alternative type have been created. [C-4]
-        //:
-        //: 6 Verify that the returned reference refers to the alternative type
-        //:   object.  [C-5]
+        // 1. Create a `variant` object and call `emplace` method specifying
+        //    the alternative type to create and providing an initializer list.
+        //    Verify the `variant` object contains the correct alternative type
+        //    object [C-1]
+        //
+        // 2. In step 1, verify the alternative object was created using the
+        //    specified initializer list. [C-2]
+        //
+        // 3. Repeat step 1 using varying number of arguments. [C-2]
+        //
+        // 4. Repeat steps 1-3 with an allocator-aware alternative type and
+        //    verify the alternative object in variant was constructed using
+        //    the correct allocator. [C-3]
+        //
+        // 5. In steps 1-4, verify no unnecessary copies of the arguments and
+        //    the alternative type have been created. [C-4]
+        //
+        // 6. Verify that the returned reference refers to the alternative type
+        //    object.  [C-5]
         //
         // Testing:
         //
@@ -10455,7 +10470,7 @@ struct testCase7bType_imp : testCase7bType_imp<VARIANT, t_NUM - 1> {
         typedef bslalg::ConstructorProxy<VARIANT> VariantWithAllocator;
 
         if (verbose)
-            printf("\nTESTING INITIALIZER LIST 'emplace' METHOD"
+            printf("\nTESTING INITIALIZER LIST `emplace` METHOD"
                    "\n=========================================\n");
         {
             bslma::TestAllocator da("other", veryVeryVeryVerbose);
@@ -10780,26 +10795,26 @@ void TestDriver<VARIANT, USES_BSLMA_ALLOC>::testCase7Type()
 void testCase6e()
 {
     //
-    // TESTING 'index' FREE FUNCTION
+    // TESTING `index` FREE FUNCTION
     //
-    //   This test will ensure that 'index' member function works as expected.
+    //   This test will ensure that `index` member function works as expected.
     //
     // Concerns:
-    //: 1 Calling 'index' returns the index of the current active alternative.
-    //:
-    //: 2 'index' can be invoked with a 'const' 'variant'
-    //:    object.
+    // 1. Calling `index` returns the index of the current active alternative.
+    //
+    // 2. `index` can be invoked with a `const` `variant`
+    //     object.
     //
     // Plan:
     //
-    //: 1 Create a variant object.  Check that 'index' returns the correct
-    //:   index for the current active altenative. [C-1]
-    //:
-    //: 2 Modify the currently active alternative type and verify 'index'
-    //:   returns the correct value each time. [C-1]
-    //:
-    //: 2 Repeat steps 1-2 with a const 'variant' object. [C-3]
-    //:
+    // 1. Create a variant object.  Check that `index` returns the correct
+    //    index for the current active altenative. [C-1]
+    //
+    // 2. Modify the currently active alternative type and verify `index`
+    //    returns the correct value each time. [C-1]
+    //
+    // 2. Repeat steps 1-2 with a const `variant` object. [C-3]
+    //
     //
     // Testing:
     //
@@ -10848,40 +10863,40 @@ void testCase6e()
 void testCase6d()
 {
     //
-    // TESTING 'valueless_by_exception' FREE FUNCTION
+    // TESTING `valueless_by_exception` FREE FUNCTION
     //
-    //   This test will ensure that 'valueless_by_exception' free function
+    //   This test will ensure that `valueless_by_exception` free function
     //   works as expected.  This test only makes sense when exceptions are
     //   enabled.
     //
     // Concerns:
-    //: 1 Calling 'valueless_by_exception' returns 'false' if the 'variant'
-    //:   object holds an active alternative object.
-    //:
-    //: 2 If 'variant' object is empty, 'valueless_by_exception' returns 'true'
-    //:   and 'index' returns 'bsl::variant_npos'.
-    //:
-    //: 3 'valueless_by_exception' can be invoked with a 'const' 'variant'
-    //:    object.
+    // 1. Calling `valueless_by_exception` returns `false` if the `variant`
+    //    object holds an active alternative object.
+    //
+    // 2. If `variant` object is empty, `valueless_by_exception` returns `true`
+    //    and `index` returns `bsl::variant_npos`.
+    //
+    // 3. `valueless_by_exception` can be invoked with a `const` `variant`
+    //     object.
     //
     // Plan:
     //
-    //: 1 Create a variant object.  Check that 'valueless_by_exception'
-    //:   returns 'false'. [C-1]
-    //:
-    //: 2 Using 'emplace' and a helper class that throws on construction,
-    //:   put the variant object in an empty state.  Check that
-    //:   'valueless_by_exception' returns 'true' and that 'index' returns
-    //:   'bsl::variant_npos'. [C-2]
-    //:
-    //: 3 Using 'emplace' and a helper class that doesn't throws on
+    // 1. Create a variant object.  Check that `valueless_by_exception`
+    //    returns `false`. [C-1]
+    //
+    // 2. Using `emplace` and a helper class that throws on construction,
+    //    put the variant object in an empty state.  Check that
+    //    `valueless_by_exception` returns `true` and that `index` returns
+    //    `bsl::variant_npos`. [C-2]
+    //
+    // 3. Using `emplace` and a helper class that doesn't throws on
     // construction,
-    //:   put the variant object in an engaged state.  Check that
-    //:   'valueless_by_exception' returns 'false' and that 'index' returns
-    //:   the corect alternative index. [C-2]
-    //:
-    //: 4 Repeat steps 1-2 with a const 'variant' object. [C-3]
-    //:
+    //    put the variant object in an engaged state.  Check that
+    //    `valueless_by_exception` returns `false` and that `index` returns
+    //    the corect alternative index. [C-2]
+    //
+    // 4. Repeat steps 1-2 with a const `variant` object. [C-3]
+    //
     //
     // Testing:
     //    bool valueless_by_exception() const;
@@ -10911,38 +10926,38 @@ void testCase6d()
 RUN_FOR_EACH_ALTERNATIVE_COMBINATION_START(6c)
 {
     //
-    // TESTING 'holds_alternative' FREE FUNCTION
+    // TESTING `holds_alternative` FREE FUNCTION
     //
-    //   This test will ensure that 'holds_alternative' free function works
+    //   This test will ensure that `holds_alternative` free function works
     //   as expected.
     //
     // Concerns:
-    //: 1 Calling 'holds_alternative' with type 'TYPE' as the template argument
-    //:   and a 'variant' object with 'TYPE ' as one of its alternative types
-    //:   returns 'true' if 'TYPE' is the currently active alternative, and
-    //:   'false' otherwise.
-    //:
-    //: 2 It's not possible to invoke 'holds_alternative' with type 'TYPE' as
-    //:   the template argument if the specified  'variant' object doesn't have
-    //:   'TYPE ' as one of its alternative types.
-    //:
-    //: 3 'holds_alternative' can be invoked with a 'const' 'variant' object.
+    // 1. Calling `holds_alternative` with type `TYPE` as the template argument
+    //    and a `variant` object with `TYPE ` as one of its alternative types
+    //    returns `true` if `TYPE` is the currently active alternative, and
+    //    `false` otherwise.
+    //
+    // 2. It's not possible to invoke `holds_alternative` with type `TYPE` as
+    //    the template argument if the specified  `variant` object doesn't have
+    //    `TYPE ` as one of its alternative types.
+    //
+    // 3. `holds_alternative` can be invoked with a `const` `variant` object.
     //
     // Plan:
     //
-    //: 1 Create an object of alternative type 'A' and use it to create a
-    //:   'variant' object holding alternative type 'A'.  Check that
-    //:  invoking 'holds_alternative' with type 'A' returns 'true'. [C-1]
-    //:
-    //: 2 In step1, invoke 'holds_alternative' with a different alternative
-    //:  type and check that the function returns 'false'. [C-1]
-    //:
-    //: 3 In step1, invoke 'holds_alternative' with a type that is not an
-    //:  alternative, and observe the compilation error.  This test is disabled
-    //:  by default and needs to be run manually. [C-2]
-    //:
-    //: 4 Repeat steps 1-2 with a const 'variant' object. [C-3]
-    //:
+    // 1. Create an object of alternative type `A` and use it to create a
+    //    `variant` object holding alternative type `A`.  Check that
+    //   invoking `holds_alternative` with type `A` returns `true`. [C-1]
+    //
+    // 2. In step1, invoke `holds_alternative` with a different alternative
+    //   type and check that the function returns `false`. [C-1]
+    //
+    // 3. In step1, invoke `holds_alternative` with a type that is not an
+    //   alternative, and observe the compilation error.  This test is disabled
+    //   by default and needs to be run manually. [C-2]
+    //
+    // 4. Repeat steps 1-2 with a const `variant` object. [C-3]
+    //
     //
     // Testing:
     //    bool holds_alternative(const variant&);
@@ -10977,49 +10992,49 @@ RUN_FOR_EACH_ALTERNATIVE_COMBINATION_END
 void testCase6b1()
 {
     //
-    // TESTING 'get_if' FREE FUNCTION
+    // TESTING `get_if` FREE FUNCTION
     //
-    //   This test will ensure that the 'get_if' function works as expected.
+    //   This test will ensure that the `get_if` function works as expected.
     //
     // Concerns:
-    //: 1 Calling 'get_if' free function with an alternative type as a template
-    //:   argument and a nullptr as the function argument
-    //:   returns a nullptr.
-    //:
-    //: 2 Calling 'get_if' free function with an alternative type as a template
-    //:   argument and a 'valueless_by_exception'
-    //:   variant object as the function argument returns a 'nullptr'.
-    //:
-    //: 3 The behaviour is the same when the template arguments specifies
-    //:   an index of an alternative type.
-    //:
-    //: 4 'get_if' free function only accepts type template argument
-    //:   that are valid alternative types.
-    //:
-    //: 5 get_if' free function only accepts 'size_t' template argument
-    //:   that are indeces of alternative types.
+    // 1. Calling `get_if` free function with an alternative type as a template
+    //    argument and a nullptr as the function argument
+    //    returns a nullptr.
+    //
+    // 2. Calling `get_if` free function with an alternative type as a template
+    //    argument and a `valueless_by_exception`
+    //    variant object as the function argument returns a `nullptr`.
+    //
+    // 3. The behaviour is the same when the template arguments specifies
+    //    an index of an alternative type.
+    //
+    // 4. `get_if` free function only accepts type template argument
+    //    that are valid alternative types.
+    //
+    // 5. get_if' free function only accepts `size_t` template argument
+    //    that are indeces of alternative types.
     //
     // Plan:
     //
-    //: 1 Invoke 'get_if' with a valid alternative type as the template
-    //:   argument and 'nullptr' as the function argument, and verify that it
-    //:   returns 'nullptr'. [C-1]
-    //:
-    //: 2 Create a variant object in a 'valueless_by_exceptions' state
-    //:   using the 'Throws' helper class and verify that invoking 'get_if'
-    //:   with 'Throws' as template argument and the pointer to the said
-    //:   variant object returns 'nullptr'. [C-2]
-    //:
-    //: 3 Repeat step 1-2 using an index of an alternative type
-    //:   as the template argumen. [C-3]
-    //:
-    //: 4 Verify that specifying an type that is not an alternative type as a
-    //:   template argument to 'get_if' function results in an error.  Note
-    //:   that this test is disabled by default and needs to be manually
-    //:   enabled. [C-4]
-    //:
-    //: 5 In step 4, use an invalid alternative type index as the template
-    //:   argument. [C-5]
+    // 1. Invoke `get_if` with a valid alternative type as the template
+    //    argument and `nullptr` as the function argument, and verify that it
+    //    returns `nullptr`. [C-1]
+    //
+    // 2. Create a variant object in a `valueless_by_exceptions` state
+    //    using the `Throws` helper class and verify that invoking `get_if`
+    //    with `Throws` as template argument and the pointer to the said
+    //    variant object returns `nullptr`. [C-2]
+    //
+    // 3. Repeat step 1-2 using an index of an alternative type
+    //    as the template argumen. [C-3]
+    //
+    // 4. Verify that specifying an type that is not an alternative type as a
+    //    template argument to `get_if` function results in an error.  Note
+    //    that this test is disabled by default and needs to be manually
+    //    enabled. [C-4]
+    //
+    // 5. In step 4, use an invalid alternative type index as the template
+    //    argument. [C-5]
     //
     // Testing:
     //      TYPE* get_if<INDEX>(variant *);
@@ -11058,44 +11073,44 @@ void testCase6b1()
 RUN_FOR_EACH_ALTERNATIVE_COMBINATION_START(6bIndex)
 {
     //
-    // TESTING 'get_if' FREE FUNCTION
+    // TESTING `get_if` FREE FUNCTION
     //
-    //   This test will ensure that the 'get_if' function works as expected.
+    //   This test will ensure that the `get_if` function works as expected.
     //
     // Concerns:
-    //: 1 Calling 'get_if' free function with an index as a template
-    //:   argument and a pointer to a variant object as the function argument
-    //:   returns a pointer to the object managed by the variant when the
-    //:   specified index is the index of the currently active alternative.
-    //:
-    //: 2 Calling 'get_if' free function with an index as a template
-    //:   argument and a pointer to a variant object as the function argument
-    //:   returns a 'nullptr' when the index is not the index of the currently
-    //:   active alternative.
-    //:
-    //: 3 'get_if' free function can be invoked with a pointer to a const
-    //:    variant object.
-    //:
-    //: 4  When invoked with a pointer to a 'const variant' object, 'get_if'
-    //:    function returns a pointer to a 'const' alternative type object.
+    // 1. Calling `get_if` free function with an index as a template
+    //    argument and a pointer to a variant object as the function argument
+    //    returns a pointer to the object managed by the variant when the
+    //    specified index is the index of the currently active alternative.
+    //
+    // 2. Calling `get_if` free function with an index as a template
+    //    argument and a pointer to a variant object as the function argument
+    //    returns a `nullptr` when the index is not the index of the currently
+    //    active alternative.
+    //
+    // 3. `get_if` free function can be invoked with a pointer to a const
+    //     variant object.
+    //
+    // 4.  When invoked with a pointer to a `const variant` object, `get_if`
+    //     function returns a pointer to a `const` alternative type object.
     //
     // Plan:
     //
-    //: 1 Create an object of alternative type 'A' and use it to create a
-    //:   'variant' object holding alternative type 'A'.  Using 'get_if' method
-    //:   with index of type 'A' as the template argument, verify that the
-    //:   returned object is identical to the source object.  If 'A' is
-    //:   allocator aware, verify that the object returned from the 'get_if'
-    //:   method uses the allocator of the 'variant' object. [C-1]
-    //:
-    //: 2 In step 1, call 'get_if' method using a different index as the
-    //:   template argument and verify that it returns 'nullptr'. [C-2]
-    //:
-    //: 3 Repeat steps 1-2 using a pointer to a const 'variant' object. [C-3]
-    //:
-    //: 4 In step 4, verify the return pointer is to a const alternative
-    //:   type object.  Note that this test results in a compilation error
-    //:   and needs to be manually enabled. [C-4]
+    // 1. Create an object of alternative type `A` and use it to create a
+    //    `variant` object holding alternative type `A`.  Using `get_if` method
+    //    with index of type `A` as the template argument, verify that the
+    //    returned object is identical to the source object.  If `A` is
+    //    allocator aware, verify that the object returned from the `get_if`
+    //    method uses the allocator of the `variant` object. [C-1]
+    //
+    // 2. In step 1, call `get_if` method using a different index as the
+    //    template argument and verify that it returns `nullptr`. [C-2]
+    //
+    // 3. Repeat steps 1-2 using a pointer to a const `variant` object. [C-3]
+    //
+    // 4. In step 4, verify the return pointer is to a const alternative
+    //    type object.  Note that this test results in a compilation error
+    //    and needs to be manually enabled. [C-4]
     //
     // Testing:
     //      TYPE* get_if<INDEX>(variant *);
@@ -11150,44 +11165,44 @@ RUN_FOR_EACH_ALTERNATIVE_COMBINATION_END
 RUN_FOR_EACH_ALTERNATIVE_COMBINATION_START(6bType)
 {
     //
-    // TESTING 'get_if' FREE FUNCTION
+    // TESTING `get_if` FREE FUNCTION
     //
-    //   This test will ensure that the 'get_if' function works as expected.
+    //   This test will ensure that the `get_if` function works as expected.
     //
     // Concerns:
-    //: 1 Calling 'get_if' free function with an alternative type as a template
-    //:   argument and a pointer to a variant object as the function argument
-    //:   returns a pointer to the object managed by the variant when the
-    //:   specified alternative type is the currently active type.
-    //:
-    //: 2 Calling 'get_if' free function with an alternative type as a template
-    //:   argument and a pointer to a variant object as the function argument
-    //:   returns a 'nullptr' when the specified alternative type is not the
-    //:  currently active type.
-    //:
-    //: 3 'get_if' free function can be invoked with a pointer to a const
-    //:    variant object.
-    //:
-    //: 4  When invoked with a pointer to a 'const variant' object, 'get_if'
-    //:    function returns a pointer to a 'const' alternative type object.
+    // 1. Calling `get_if` free function with an alternative type as a template
+    //    argument and a pointer to a variant object as the function argument
+    //    returns a pointer to the object managed by the variant when the
+    //    specified alternative type is the currently active type.
+    //
+    // 2. Calling `get_if` free function with an alternative type as a template
+    //    argument and a pointer to a variant object as the function argument
+    //    returns a `nullptr` when the specified alternative type is not the
+    //   currently active type.
+    //
+    // 3. `get_if` free function can be invoked with a pointer to a const
+    //     variant object.
+    //
+    // 4.  When invoked with a pointer to a `const variant` object, `get_if`
+    //     function returns a pointer to a `const` alternative type object.
     //
     // Plan:
     //
-    //: 1 Create an object of alternative type 'A' and use it to create a
-    //:   'variant' object holding alternative type 'A'.  Using 'get_if' method
-    //:   with type 'A' as the template argument, verify that the returned
-    //:   object is identical to the source object.  If 'A' is allocator aware,
-    //:   verify that the object returned from the 'get_if' method uses the
-    //:   allocator of the 'variant' object. [C-1]
-    //:
-    //: 2 In step 1, call 'get_if' method using an alternative type 'B' as the
-    //:   template argument and verify that it returns 'nullptr'. [C-2]
-    //:
-    //: 3 Repeat steps 1-2 using a pointer to a const 'variant' object. [C-3]
-    //:
-    //: 4 In step 3, verify the return pointer is to a const alternative
-    //:   type object.  Note that this test results in a compilation error
-    //:   and needs to be manually enabled. [C-4]
+    // 1. Create an object of alternative type `A` and use it to create a
+    //    `variant` object holding alternative type `A`.  Using `get_if` method
+    //    with type `A` as the template argument, verify that the returned
+    //    object is identical to the source object.  If `A` is allocator aware,
+    //    verify that the object returned from the `get_if` method uses the
+    //    allocator of the `variant` object. [C-1]
+    //
+    // 2. In step 1, call `get_if` method using an alternative type `B` as the
+    //    template argument and verify that it returns `nullptr`. [C-2]
+    //
+    // 3. Repeat steps 1-2 using a pointer to a const `variant` object. [C-3]
+    //
+    // 4. In step 3, verify the return pointer is to a const alternative
+    //    type object.  Note that this test results in a compilation error
+    //    and needs to be manually enabled. [C-4]
     //
     // Testing:
     //      TYPE*  get_if<TYPE>(variant *);
@@ -11239,49 +11254,49 @@ RUN_FOR_EACH_ALTERNATIVE_COMBINATION_END
 
 void testCase6a2()
 {
-    //   TESTING 'get' FREE FUNCTION
+    //   TESTING `get` FREE FUNCTION
     //
-    //   This test will ensure that the 'get' free function checks for
-    //   valid alternative type and index and handles 'valueless_by_exception'
-    //   'variant' object correctly
+    //   This test will ensure that the `get` free function checks for
+    //   valid alternative type and index and handles `valueless_by_exception`
+    //   `variant` object correctly
     //
     // Concerns:
-    //: 1 Calling 'get' free function with an alternative type as a template
-    //:   argument and 'valueless_by_exception' variant object
-    //:   results in 'bad_variant_access' exception.
-    //:
-    //: 2 Calling 'get' free function with an index of an alternative type as
-    //:   a template argument argument and 'valueless_by_exception' variant
+    // 1. Calling `get` free function with an alternative type as a template
+    //    argument and `valueless_by_exception` variant object
+    //    results in `bad_variant_access` exception.
+    //
+    // 2. Calling `get` free function with an index of an alternative type as
+    //    a template argument argument and `valueless_by_exception` variant
     // object
-    //:   results in 'bad_variant_access' exception.
-    //:
-    //: 3 The behaviour is the same regarldes of the const qualification or
-    //:   value category of the vraint function argument.
-    //:
-    //: 4 'get' free function requires the specified type template argument
-    //:   to be a valid alternative type, and for the specified 'size_t'
-    //:   template argument to be an index of an alterantive type.
-    //:
+    //    results in `bad_variant_access` exception.
+    //
+    // 3. The behaviour is the same regarldes of the const qualification or
+    //    value category of the vraint function argument.
+    //
+    // 4. `get` free function requires the specified type template argument
+    //    to be a valid alternative type, and for the specified `size_t`
+    //    template argument to be an index of an alterantive type.
+    //
     //
     // Plan:
     //
-    //: 1 Using 'Throws' helper class, create a 'valueless_by_exception'
-    //:   variant object.  Verify that 'get' function with 'Throws' as the
+    // 1. Using `Throws` helper class, create a `valueless_by_exception`
+    //    variant object.  Verify that `get` function with `Throws` as the
     // template
-    //:   argument throws 'bad_variant_access' exception. [C-1]
-    //:
-    //: 2 Repeat step 1 with '0' as the template argument. [C-2]
-    //:
-    //: 3 Repeat step 1-2 using a const lvalue, rvalue and const rvalue variant
-    //:  function argument. [C-3]
-    //:
-    //: 4 Verify that specifying an type that is not an alternative type as a
-    //:   template argument to 'get_if' function results in an error.  Note
-    //:   that this test is disabled by default and needs to be manually
-    //:   enabled. [C-4]
-    //:
-    //: 5 In step 4, use an invalid alternative type index as the template
-    //:   argument. [C-4]
+    //    argument throws `bad_variant_access` exception. [C-1]
+    //
+    // 2. Repeat step 1 with `0` as the template argument. [C-2]
+    //
+    // 3. Repeat step 1-2 using a const lvalue, rvalue and const rvalue variant
+    //   function argument. [C-3]
+    //
+    // 4. Verify that specifying an type that is not an alternative type as a
+    //    template argument to `get_if` function results in an error.  Note
+    //    that this test is disabled by default and needs to be manually
+    //    enabled. [C-4]
+    //
+    // 5. In step 4, use an invalid alternative type index as the template
+    //    argument. [C-4]
     //
     // Testing:
     //  TYPE& get<INDEX>(variant&);
@@ -11333,43 +11348,43 @@ void testCase6a2()
 
 void testCase6a1()
 {
-    //   TESTING 'get' FREE FUNCTION
+    //   TESTING `get` FREE FUNCTION
     //
-    //   This test will ensure that the 'get' free function returns a correctly
+    //   This test will ensure that the `get` free function returns a correctly
     //   const qualified object of appropriate value category.
     //
     // Concerns:
-    //: 1 Calling 'get' free function with an alternative type as a template
-    //:   argument and with a const qualified variant object
-    //:   returns a reference to a const qualified alternative object.
-    //:
-    //: 1 Calling 'get' free function  with an alternative type as a template
-    //:   argument and an lvalue returns an lvalue reference, and
-    //:   rvalue reference otherwise.
-    //:
-    //: 3 The behaviour is the same for 'get' free function invoked with an
-    //:   index as a template argument.
-    //:
+    // 1. Calling `get` free function with an alternative type as a template
+    //    argument and with a const qualified variant object
+    //    returns a reference to a const qualified alternative object.
+    //
+    // 1. Calling `get` free function  with an alternative type as a template
+    //    argument and an lvalue returns an lvalue reference, and
+    //    rvalue reference otherwise.
+    //
+    // 3. The behaviour is the same for `get` free function invoked with an
+    //    index as a template argument.
+    //
     //
     // Plan:
     //
-    //: 1 Using 'checkQualification' helper function,
-    //:   verify that invoking 'get' function with a currently active
+    // 1. Using `checkQualification` helper function,
+    //    verify that invoking `get` function with a currently active
     // alternative
-    //:   type as the type template argument and an lvalue of non const variant
-    //:   returns an lvalue reference to a non-const alternative object.
+    //    type as the type template argument and an lvalue of non const variant
+    //    returns an lvalue reference to a non-const alternative object.
     // [C-1][C-2]
-    //:
-    //: 2 In step 1, repeat the test using a const qualified lvalue and verify
-    //:   that the 'get' function returns a const qualified lvalue reference.
+    //
+    // 2. In step 1, repeat the test using a const qualified lvalue and verify
+    //    that the `get` function returns a const qualified lvalue reference.
     // [c-2][C-2]
-    //:
-    //: 3 Repeat step 1-2 using an rvalue of variant type and verify the
+    //
+    // 3. Repeat step 1-2 using an rvalue of variant type and verify the
     // returned
-    //:   reference is correctly const qualified rvalue reference [C-1][C-22]
-    //:
-    //: 4 Repeat steps 1-3 using athe index of the currently active alternative
-    //:   as the value of the size_t template argument.
+    //    reference is correctly const qualified rvalue reference [C-1][C-22]
+    //
+    // 4. Repeat steps 1-3 using athe index of the currently active alternative
+    //    as the value of the size_t template argument.
     //
     // Testing:
     //  TYPE& get<INDEX>(variant&);
@@ -11409,41 +11424,41 @@ void testCase6a1()
 RUN_FOR_EACH_ALTERNATIVE_COMBINATION_START(6aIndex)
 {
     //
-    // TESTING 'get' FREE FUNCTION
+    // TESTING `get` FREE FUNCTION
     //
-    //   This test will ensure that the 'get' free function works as expected.
+    //   This test will ensure that the `get` free function works as expected.
     //
     // Concerns:
-    //: 1 Calling get free function with an index as a template
-    //:   argument and a variant object as the function argument
-    //:   returns a reference to the object managed by the variant when the
-    //:   specified index is the index of the currently active alternative
-    //:   type.
-    //:
-    //: 2 Calling get free function with an index as a template
-    //:   argument and a variant object as the function argument
-    //:   throws a 'bad_variant_access' exception when the specified
-    //:   index is not the index of the currently active alternative type.
-    //:
-    //: 3 Get free function can be invoked on const 'variant' objects and on
-    //:   rvalues of 'variant' type.
+    // 1. Calling get free function with an index as a template
+    //    argument and a variant object as the function argument
+    //    returns a reference to the object managed by the variant when the
+    //    specified index is the index of the currently active alternative
+    //    type.
+    //
+    // 2. Calling get free function with an index as a template
+    //    argument and a variant object as the function argument
+    //    throws a `bad_variant_access` exception when the specified
+    //    index is not the index of the currently active alternative type.
+    //
+    // 3. Get free function can be invoked on const `variant` objects and on
+    //    rvalues of `variant` type.
     //
     // Plan:
     //
-    //: 1 Create an object of alternative type 'A' and use it to create a
-    //:   'variant' object holding alternative type 'A'.  Using get method with
-    //:   index of 'A' as the template argument, verify that the returned
+    // 1. Create an object of alternative type `A` and use it to create a
+    //    `variant` object holding alternative type `A`.  Using get method with
+    //    index of `A` as the template argument, verify that the returned
     // object
-    //:   is identical to the source object.  If 'A' is allocator aware, verify
-    //:   that the object returned from the get method uses the allocator of
-    //:   the 'variant' object. [C-1]
-    //:
-    //: 2 In step 1, call get method using an alternative type 'B' as the
-    //:   template argument and verify that an exception of type
-    //:   'bad_variant_access' is thrown. [C-2]
-    //:
-    //: 3 Repeat steps 1-3 using a reference to a const 'variant' object,
-    //:   rvalue of 'variant' type, and const rvalue of 'variant' type. [C-3]
+    //    is identical to the source object.  If `A` is allocator aware, verify
+    //    that the object returned from the get method uses the allocator of
+    //    the `variant` object. [C-1]
+    //
+    // 2. In step 1, call get method using an alternative type `B` as the
+    //    template argument and verify that an exception of type
+    //    `bad_variant_access` is thrown. [C-2]
+    //
+    // 3. Repeat steps 1-3 using a reference to a const `variant` object,
+    //    rvalue of `variant` type, and const rvalue of `variant` type. [C-3]
     //
     // Testing:
     //  TYPE& get<INDEX>(variant&);
@@ -11510,39 +11525,39 @@ RUN_FOR_EACH_ALTERNATIVE_COMBINATION_END
 RUN_FOR_EACH_ALTERNATIVE_COMBINATION_START(6aType)
 {
     //
-    // TESTING 'get' FREE FUNCTION
+    // TESTING `get` FREE FUNCTION
     //
-    //   This test will ensure that the 'get' free function works as expected.
+    //   This test will ensure that the `get` free function works as expected.
     //
     // Concerns:
-    //: 1 Calling get free function with an alternative type as a template
-    //:   argument and a variant object as the function argument
-    //:   returns a reference to the object managed by the variant when the
-    //:   specified alternative type is the currently active type.
-    //:
-    //: 2 Calling get free function with an alternative type as a template
-    //:   argument and a variant object as the function argument
-    //:   throws a 'bad_variant_access' exception when the
-    //:   specified alternative type is not the currently active type.
-    //:
-    //: 3 Get free function can be invoked on const 'variant' objects and on
-    //:   rvalues of 'variant' type.
+    // 1. Calling get free function with an alternative type as a template
+    //    argument and a variant object as the function argument
+    //    returns a reference to the object managed by the variant when the
+    //    specified alternative type is the currently active type.
+    //
+    // 2. Calling get free function with an alternative type as a template
+    //    argument and a variant object as the function argument
+    //    throws a `bad_variant_access` exception when the
+    //    specified alternative type is not the currently active type.
+    //
+    // 3. Get free function can be invoked on const `variant` objects and on
+    //    rvalues of `variant` type.
     //
     // Plan:
     //
-    //: 1 Create an object of alternative type 'A' and use it to create a
-    //:   'variant' object holding alternative type 'A'.  Using get method with
-    //:   type 'A' as the template argument, verify that the returned object
-    //:   is identical to the source object.  If 'A' is allocator aware, verify
-    //:   that the object returned from the get method uses the allocator of
-    //:   the 'variant' object. [C-1]
-    //:
-    //: 2 In step 1, call get method using an alternative type 'B' as the
-    //:   template argument and verify that an exception of type
-    //:   'bad_variant_access' is thrown. [C-2]
-    //:
-    //: 3 Repeat steps 1-2 using a reference to a const 'variant' object,
-    //:   rvalue of 'variant' type, and const rvalue of 'variant' type. [C-3]
+    // 1. Create an object of alternative type `A` and use it to create a
+    //    `variant` object holding alternative type `A`.  Using get method with
+    //    type `A` as the template argument, verify that the returned object
+    //    is identical to the source object.  If `A` is allocator aware, verify
+    //    that the object returned from the get method uses the allocator of
+    //    the `variant` object. [C-1]
+    //
+    // 2. In step 1, call get method using an alternative type `B` as the
+    //    template argument and verify that an exception of type
+    //    `bad_variant_access` is thrown. [C-2]
+    //
+    // 3. Repeat steps 1-2 using a reference to a const `variant` object,
+    //    rvalue of `variant` type, and const rvalue of `variant` type. [C-3]
     //
     // Testing:
     //  TYPE& get<TYPE>(variant&);
@@ -11613,44 +11628,44 @@ void testCase5e()
     //   implemented as specified in the standard.
     //
     // Concerns:
-    //: 1 That the variant with non unique alternative TYPE can not be
-    //:   constructed from the value of TYPE.  The same applies to
-    //:   a variant with two alternatives of the same type, but different
-    //:   cv qualification.
-    //:
-    //: 2 That the variant with non unique alternative TYPE can not be
-    //:   constructed with a constructor taking a 'in_place_type<TYPE>'.
-    //:
-    //: 3 That the variant with two alternatives of same type, but different
-    //:   cv-qualification can be constructed with a constructor taking an
-    //:   'in_place_type' tag
-    //:
-    //: 4 If the argument type does not exactly match any alternative type,
-    //:   and is not convertible to any alternative type, the construction
-    //:   from that argument is not possible.
-    //:
-    //: 5 If the argument type does not exactly match any alternative type,
-    //:   and has an equally good conversion to more than one alternative type,
-    //:   the construction from that argument is not possible.
-    //:
-    //: 6 If the argument type does not exactly match any alternative type,
-    //:   and has a deleted conversion to one alternative type, the
-    //:   construction from that argument is not possible.
-    //:
-    //: 7 If the argument type does not exactly match any alternative type,
-    //:   and has a narrowing conversion to one alternative type, the
-    //:   construction from that argument is not possible.
-    //:
-    //: 8 If the 'in_place_type' argument does not exactly match any
-    //:   alternative type, or the specified altenative is not constructible
-    //:   from the remaining arguments, the construction from specified
-    //:   argument set is not possible.
-    //:
-    //: 9 That the same rules apply to allocator extended default constructor.
+    // 1. That the variant with non unique alternative TYPE can not be
+    //    constructed from the value of TYPE.  The same applies to
+    //    a variant with two alternatives of the same type, but different
+    //    cv qualification.
+    //
+    // 2. That the variant with non unique alternative TYPE can not be
+    //    constructed with a constructor taking a `in_place_type<TYPE>`.
+    //
+    // 3. That the variant with two alternatives of same type, but different
+    //    cv-qualification can be constructed with a constructor taking an
+    //    `in_place_type` tag
+    //
+    // 4. If the argument type does not exactly match any alternative type,
+    //    and is not convertible to any alternative type, the construction
+    //    from that argument is not possible.
+    //
+    // 5. If the argument type does not exactly match any alternative type,
+    //    and has an equally good conversion to more than one alternative type,
+    //    the construction from that argument is not possible.
+    //
+    // 6. If the argument type does not exactly match any alternative type,
+    //    and has a deleted conversion to one alternative type, the
+    //    construction from that argument is not possible.
+    //
+    // 7. If the argument type does not exactly match any alternative type,
+    //    and has a narrowing conversion to one alternative type, the
+    //    construction from that argument is not possible.
+    //
+    // 8. If the `in_place_type` argument does not exactly match any
+    //    alternative type, or the specified altenative is not constructible
+    //    from the remaining arguments, the construction from specified
+    //    argument set is not possible.
+    //
+    // 9. That the same rules apply to allocator extended default constructor.
     //
     // Plan:
-    //: 1 For the concerns above, check 'is_constructible' trait with the
-    //:   appropriate set of arguments.
+    // 1. For the concerns above, check `is_constructible` trait with the
+    //    appropriate set of arguments.
     //
     // Testing:
     //    variant(TYPE&&);
@@ -11696,8 +11711,8 @@ void testCase5e()
                                Unique_Variant::allocator_type,
                                bsl::in_place_type_t<const MyClass2> >::value));
 
+    ///nonexisting alternative
     typedef bsl::variant<int, long> Variant_int_long;
-        //nonexisting alternative
     ASSERT(!(std::is_constructible<Variant_int_long,
                                    bsl::in_place_type_t<MyClass2> >::value));
     ASSERT(!(std::is_constructible<Variant_int_long,
@@ -11828,62 +11843,62 @@ void testCase5d_runTest()
     //   constructors work as expected.
     //
     // Concerns:
-    //: 1 Calling an allocator extended  in_place_type_t<TYPE> tagged
+    // 1. Calling an allocator extended  in_place_type_t<TYPE> tagged
     // constructor creates a
-    //:   'variant' with alternative type 'TYPE' whose alternative
-    //:   object is created using the constructors arguments.
-    //:
-    //: 2 Arguments to the tagged constructor are forwarded in correct
-    //:   order to the alternative object's constructor.
-    //:
-    //: 3 Arguments to the tagged constructor are perfect forwarded to
-    //:   the alternative object's constructor, that is, rvalue argument is
-    //:   forwarded as an rvalue, and lvalue argument is forwarded as an lvalue
-    //:   to the alternative object's constructor
-    //:
-    //: 4 If the alternative type uses an allocator, the 'variant' object and
-    //:   the contained alternative object will use the specified allocator.
-    //:
-    //: 5 If a braced init list is used for the first argument after the
-    //:   tag, 'variant' will deduce an initializer list and
-    //:   forward it to the 'value_type'.
-    //:
-    //: 6 No unnecessary copies of the 'value_type' are created.
-    //:
-    //: 7 The behaviour is the same when using bsl::in_place_index_t<INDEX>
-    //:   tagged constructor, except the alternative type is determined by
-    //:   the INDEX, representing the zero based index of the alternative
-    //:   type to create.
+    //    `variant` with alternative type `TYPE` whose alternative
+    //    object is created using the constructors arguments.
+    //
+    // 2. Arguments to the tagged constructor are forwarded in correct
+    //    order to the alternative object's constructor.
+    //
+    // 3. Arguments to the tagged constructor are perfect forwarded to
+    //    the alternative object's constructor, that is, rvalue argument is
+    //    forwarded as an rvalue, and lvalue argument is forwarded as an lvalue
+    //    to the alternative object's constructor
+    //
+    // 4. If the alternative type uses an allocator, the `variant` object and
+    //    the contained alternative object will use the specified allocator.
+    //
+    // 5. If a braced init list is used for the first argument after the
+    //    tag, `variant` will deduce an initializer list and
+    //    forward it to the `value_type`.
+    //
+    // 6. No unnecessary copies of the `value_type` are created.
+    //
+    // 7. The behaviour is the same when using bsl::in_place_index_t<INDEX>
+    //    tagged constructor, except the alternative type is determined by
+    //    the INDEX, representing the zero based index of the alternative
+    //    type to create.
     //
     // Plan:
-    //: 1 Create an object of 'TYPE' using a set of arguments 'ARGS'.  Create
-    //:   an 'variant' object containg 'TYPE' as one of the alternatives by
-    //:   invoking the allocator extnded 'in_place_type_t<TYPE>'
-    //:   constructor with the same arguments, but specifying a different
-    //:   allocator.  Verify that the resulting
-    //:   variant object has 'TYPE' as the active alternative by calling
-    //:   'index()', and check that the value of the managed alternative
-    //:   object matches the value of the reference 'TYPE' object.  [C-1]
-    //:
-    //: 2 Repeat step 1 using different number of constructor arguments
+    // 1. Create an object of `TYPE` using a set of arguments `ARGS`.  Create
+    //    an `variant` object containg `TYPE` as one of the alternatives by
+    //    invoking the allocator extnded `in_place_type_t<TYPE>`
+    //    constructor with the same arguments, but specifying a different
+    //    allocator.  Verify that the resulting
+    //    variant object has `TYPE` as the active alternative by calling
+    //    `index()`, and check that the value of the managed alternative
+    //    object matches the value of the reference `TYPE` object.  [C-1]
+    //
+    // 2. Repeat step 1 using different number of constructor arguments
     // [C-2].
-    //:
-    //: 3 Repeat steps 1 and 2 using a mixture of rvalue and lvalue arguments
+    //
+    // 3. Repeat steps 1 and 2 using a mixture of rvalue and lvalue arguments
     // such
-    //:   that each argument position is tested with an rvalue and an lvalue.
-    //:   Verify that the rvalue arguments have been moved from.  [C-3]
-    //:
-    //: 4 If 'TYPE' is allocator-aware, verify that the specified allocator
-    //:   was used to construct the 'variant' object and the managed
-    //:   alternative object.  [C-4]
-    //:
-    //: 5 Repeat steps 1-4 with an additional braced init list argument.
+    //    that each argument position is tested with an rvalue and an lvalue.
+    //    Verify that the rvalue arguments have been moved from.  [C-3]
+    //
+    // 4. If `TYPE` is allocator-aware, verify that the specified allocator
+    //    was used to construct the `variant` object and the managed
+    //    alternative object.  [C-4]
+    //
+    // 5. Repeat steps 1-4 with an additional braced init list argument.
     // [C-5]
-    //:
-    //: 6 In steps 1-5, verify that no unnecessary copies of the TYPE object
-    //:   have been created.  [C-6]
-    //:
-    //: 7 Repeat steps 1-6 using 'bsl::in_place_index_t<INDEX>' tag.
+    //
+    // 6. In steps 1-5, verify that no unnecessary copies of the TYPE object
+    //    have been created.  [C-6]
+    //
+    // 7. Repeat steps 1-6 using `bsl::in_place_index_t<INDEX>` tag.
     //
     // Testing:
     //
@@ -12211,7 +12226,7 @@ void testCase5d_runTest()
 #ifdef U_VARIANT_FULL_IMPLEMENTATION
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
     if (veryVerbose)
-        printf("\tUsing 'initializer_list' argument.\n");
+        printf("\tUsing `initializer_list` argument.\n");
 
     {
         TEST_TAGGED_CONSTRUCT((bsl::allocator_arg, &oa, TAG(), {1, 2, 3}),
@@ -12636,60 +12651,60 @@ void testCase5c_runTest()
     //   as expected.
     //
     // Concerns:
-    //: 1 Calling a in_place_type_t<TYPE> tagged constructor creates a
-    //:   'variant' with alternative type 'TYPE', and whose alternative
-    //:   object is created using the constructors arguments.
-    //:
-    //: 2 Arguments to the tagged constructor are forwarded in correct
-    //:   order to the alternative object's constructor.
-    //:
-    //: 3 Arguments to the tagged constructor are perfect forwarded to
-    //:   the alternative object's constructor, that is, rvalue argument is
-    //:   forwarded as an rvalue, and lvalue argument is forwarded as an lvalue
-    //:   to the alternative object's constructor
-    //:
-    //: 4 If the alternative type uses an allocator, the 'variant' object and
-    //:   the contained alternative object will use the default allocator.
-    //:
-    //: 5 If a braced init list is used for the first argument after the
-    //:   tag, 'variant' will deduce an initializer list and
-    //:   forward it to the 'value_type'.
-    //:
-    //: 6 No unnecessary copies of the 'value_type' are created.
-    //:
-    //: 7 The behaviour is the same when using bsl::in_place_index_t<INDEX>
-    //:   tagged constructor, except the alternative type is determined by
-    //:   the INDEX, representing the zero based index of the alternative
-    //:   type to create.
+    // 1. Calling a in_place_type_t<TYPE> tagged constructor creates a
+    //    `variant` with alternative type `TYPE`, and whose alternative
+    //    object is created using the constructors arguments.
+    //
+    // 2. Arguments to the tagged constructor are forwarded in correct
+    //    order to the alternative object's constructor.
+    //
+    // 3. Arguments to the tagged constructor are perfect forwarded to
+    //    the alternative object's constructor, that is, rvalue argument is
+    //    forwarded as an rvalue, and lvalue argument is forwarded as an lvalue
+    //    to the alternative object's constructor
+    //
+    // 4. If the alternative type uses an allocator, the `variant` object and
+    //    the contained alternative object will use the default allocator.
+    //
+    // 5. If a braced init list is used for the first argument after the
+    //    tag, `variant` will deduce an initializer list and
+    //    forward it to the `value_type`.
+    //
+    // 6. No unnecessary copies of the `value_type` are created.
+    //
+    // 7. The behaviour is the same when using bsl::in_place_index_t<INDEX>
+    //    tagged constructor, except the alternative type is determined by
+    //    the INDEX, representing the zero based index of the alternative
+    //    type to create.
     //
     // Plan:
-    //: 1 Create an object of 'TYPE' using a set of arguments 'ARGS'.  Create
-    //:   an 'variant' object containg 'TYPE' as one of the alternatives by
-    //:   invoking the 'in_place_type_t<TYPE>'
-    //:   constructor with the same arguments.  Verify that the resulting
-    //:   variant object has 'TYPE' as the active alternative by calling
-    //:   'index()', and check that the value of the managed alternative
-    //:   object matches the value of the reference 'TYPE' object.  [C-1]
-    //:
-    //: 2 Repeat step 1 using different number of constructor arguments
+    // 1. Create an object of `TYPE` using a set of arguments `ARGS`.  Create
+    //    an `variant` object containg `TYPE` as one of the alternatives by
+    //    invoking the `in_place_type_t<TYPE>`
+    //    constructor with the same arguments.  Verify that the resulting
+    //    variant object has `TYPE` as the active alternative by calling
+    //    `index()`, and check that the value of the managed alternative
+    //    object matches the value of the reference `TYPE` object.  [C-1]
+    //
+    // 2. Repeat step 1 using different number of constructor arguments
     // [C-2].
-    //:
-    //: 3 Repeat steps 1 and 2 using a mixture of rvalue and lvalue arguments
+    //
+    // 3. Repeat steps 1 and 2 using a mixture of rvalue and lvalue arguments
     // such
-    //:   that each argument position is tested with an rvalue and an lvalue.
-    //:   Verify that the rvalue arguments have been moved from.  [C-3]
-    //:
-    //: 4 If 'TYPE' is allocator-aware, verify that the default allocator
-    //:   was used to construct the 'variant' object and the managed
-    //:   alternative object.  [C-4]
-    //:
-    //: 5 Repeat steps 1-4 with an additional braced init list argument.
+    //    that each argument position is tested with an rvalue and an lvalue.
+    //    Verify that the rvalue arguments have been moved from.  [C-3]
+    //
+    // 4. If `TYPE` is allocator-aware, verify that the default allocator
+    //    was used to construct the `variant` object and the managed
+    //    alternative object.  [C-4]
+    //
+    // 5. Repeat steps 1-4 with an additional braced init list argument.
     // [C-5]
-    //:
-    //: 6 In steps 1-5, verify that no unnecessary copies of the TYPE object
-    //:   have been created.  [C-6]
-    //:
-    //: 7 Repeat steps 1-6 using 'bsl::in_place_index_t<INDEX>' tag.
+    //
+    // 6. In steps 1-5, verify that no unnecessary copies of the TYPE object
+    //    have been created.  [C-6]
+    //
+    // 7. Repeat steps 1-6 using `bsl::in_place_index_t<INDEX>` tag.
     //
     // Testing:
     //
@@ -12711,8 +12726,8 @@ void testCase5c_runTest()
 
     if (veryVerbose)
         printf("\tUsing variadic arguments.\n");
+    /// Wrapper for `AltType` whose constructor takes an allocator.
     typedef bslalg::ConstructorProxy<AltType> ValWithAllocator;
-        // Wrapper for 'AltType' whose constructor takes an allocator.
 
     {
         TEST_TAGGED_CONSTRUCT((TAG()), (&oa), &da);
@@ -12965,7 +12980,7 @@ void testCase5c_runTest()
 #ifdef U_VARIANT_FULL_IMPLEMENTATION
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
     if (veryVerbose)
-        printf("\tUsing 'initializer_list' argument.\n");
+        printf("\tUsing `initializer_list` argument.\n");
 
     {
         TEST_TAGGED_CONSTRUCT((TAG(), {1, 2, 3}),
@@ -13349,39 +13364,39 @@ struct testCase5b_imp : testCase5b_imp<VARIANT, t_NUM - 1> {
         //   value of alternative type works as expected.
         //
         // Concerns:
-        //: 1 Constructing a 'variant' from an object of alternative type
-        // 'AltType'
-        //:  creates a 'variant' with the 'AltType as an active alternative.
-        //:
-        //: 2 The alternative object has been copy constructed from the source
-        //:   object, move construction of the source object is used when
+        // 1. Constructing a `variant` from an object of alternative type
+        // `AltType`
+        //   creates a `variant` with the 'AltType as an active alternative.
+        //
+        // 2. The alternative object has been copy constructed from the source
+        //    object, move construction of the source object is used when
         // possible,
-        //:   and no unnecessary copies of the 'AltType' are created.
-        //:
-        //: 3 The newly created 'variant' object will use the allocator
-        //:   specified in the constructor call.
+        //    and no unnecessary copies of the `AltType` are created.
+        //
+        // 3. The newly created `variant` object will use the allocator
+        //    specified in the constructor call.
         //
         // Plan:
         //
-        //: 1 Create an 'AltType' object and use it as the source object for a
-        //:   'variant' containing 'AltType'.  Verify that the constructed
-        // 'variant'
-        //:   object has 'AltType' alternative active. [C-1]
-        //:
-        //: 2 Verify that the allocator specified in the constructor call was
+        // 1. Create an `AltType` object and use it as the source object for a
+        //    `variant` containing `AltType`.  Verify that the constructed
+        // `variant`
+        //    object has `AltType` alternative active. [C-1]
+        //
+        // 2. Verify that the allocator specified in the constructor call was
         // used
-        //:   to construct the 'variant' and its 'AltType' object. [C-3]
-        //:
-        //: 3 In steps 1-2, verify that the alternative object has been
+        //    to construct the `variant` and its `AltType` object. [C-3]
+        //
+        // 3. In steps 1-2, verify that the alternative object has been
         // copy/move
-        //:   constructed from the source object and that no unnecessary copies
+        //    constructed from the source object and that no unnecessary copies
         // of
-        //:   the 'AltType' are created by comparing the number of copy/move
-        //:   constructors invoked to creating an instance of 'AltType' object
-        //:   from the source object [C-2]
-        //:
-        //: 4 Repeat steps 1-3 using a const source object, an rvalue source
-        //:   object, and a const rvalue source object.  [C-2]
+        //    the `AltType` are created by comparing the number of copy/move
+        //    constructors invoked to creating an instance of `AltType` object
+        //    from the source object [C-2]
+        //
+        // 4. Repeat steps 1-3 using a const source object, an rvalue source
+        //    object, and a const rvalue source object.  [C-2]
         //
         // Testing:
         //
@@ -13445,40 +13460,40 @@ struct testCase5a_imp : testCase5a_imp<VARIANT, t_NUM - 1> {
         //   alternative type works as expected.
         //
         // Concerns:
-        //: 1 Constructing a 'variant' from an object of alternative type
-        // 'AltType'
-        //:   creates a 'variant' with the 'AltType as an active alternative.
-        //:
-        //: 2 The alternative object has been copy constructed from the source
-        //:   object, move construction of the source object is used when
+        // 1. Constructing a `variant` from an object of alternative type
+        // `AltType`
+        //    creates a `variant` with the 'AltType as an active alternative.
+        //
+        // 2. The alternative object has been copy constructed from the source
+        //    object, move construction of the source object is used when
         // possible,
-        //:   and no unnecessary copies of the 'AltType' are created..
-        //:
-        //: 3 If no allocator is provided and the variant type uses allocator,
+        //    and no unnecessary copies of the `AltType` are created..
+        //
+        // 3. If no allocator is provided and the variant type uses allocator,
         // the
-        //:   default allocator is used for the newly created 'variant'.
+        //    default allocator is used for the newly created `variant`.
         //
         // Plan:
         //
-        //: 1 Create an 'AltType' object and use it as the source object for a
-        //:   'variant' containing 'AltType'.  Verify that the constructed
-        // 'variant'
-        //:   object has 'AltType' alternative active. [C-1]
-        //:
-        //: 2 If 'value_type' is allocator-aware, verify that the allocator of
+        // 1. Create an `AltType` object and use it as the source object for a
+        //    `variant` containing `AltType`.  Verify that the constructed
+        // `variant`
+        //    object has `AltType` alternative active. [C-1]
+        //
+        // 2. If `value_type` is allocator-aware, verify that the allocator of
         // the new
-        //:   'variant' object is the default allocator [C-3]
-        //:
-        //: 3 In steps 1-2, verify that the alternative object has been
+        //    `variant` object is the default allocator [C-3]
+        //
+        // 3. In steps 1-2, verify that the alternative object has been
         // copy/move
-        //:   constructed from the source object and that no unnecessary copies
+        //    constructed from the source object and that no unnecessary copies
         // of
-        //:   the 'AltType' are created by comparing the number of copy/move
-        //:   constructors invoked to creating an instance of 'AltType' object
-        //:   from the source object [C-2]
-        //:
-        //: 4 Repeat steps 1-3 using a const source object, an rvalue source
-        //:   object, and a const rvalue source object.  [C-2]
+        //    the `AltType` are created by comparing the number of copy/move
+        //    constructors invoked to creating an instance of `AltType` object
+        //    from the source object [C-2]
+        //
+        // 4. Repeat steps 1-3 using a const source object, an rvalue source
+        //    object, and a const rvalue source object.  [C-2]
         //
         // Testing:
         //
@@ -13520,28 +13535,28 @@ void testCase4c()
     //   as specified in the standar.
     //
     // Concerns:
-    //: 1 That the variant with default constructible alternative at index 0
-    //:   is default constructible.
-    //:
-    //: 2 That the variant with an alternative at index 0 that is not default
-    //:   constructible alternative, is not default constructible.
+    // 1. That the variant with default constructible alternative at index 0
+    //    is default constructible.
     //
-    //: 3 That the same rules apply to allocator extended default constructor.
+    // 2. That the variant with an alternative at index 0 that is not default
+    //    constructible alternative, is not default constructible.
+    //
+    // 3. That the same rules apply to allocator extended default constructor.
     //
     // Plan:
-    //: 1 Check 'is_default_constructible' trait for a variant with a default
-    //:   constructible alternative at index 0. [C-1]
-    //:
-    //: 2 Check 'is_default_constructible' trait for a variant with a
-    //:   non default constructible alternative at index 0. [C-2]
-    //:
-    //: 3 Check that a variant with a default constructible alternative at
-    //:   index 0 can be constructed from 'allocator_arg_t' and an allocator
-    //:   type. [C-3]
-    //:
-    //: 4 Check that a variant with a non default constructible alternative at
-    //:   index 0 can not be constructed from 'allocator_arg_t' and an
-    //:   allocator type. [C-3]
+    // 1. Check `is_default_constructible` trait for a variant with a default
+    //    constructible alternative at index 0. [C-1]
+    //
+    // 2. Check `is_default_constructible` trait for a variant with a
+    //    non default constructible alternative at index 0. [C-2]
+    //
+    // 3. Check that a variant with a default constructible alternative at
+    //    index 0 can be constructed from `allocator_arg_t` and an allocator
+    //    type. [C-3]
+    //
+    // 4. Check that a variant with a non default constructible alternative at
+    //    index 0 can not be constructed from `allocator_arg_t` and an
+    //    allocator type. [C-3]
     //
     // Testing:
     //   variant();
@@ -13582,27 +13597,27 @@ void TestDriver<TYPE, USES_BSLMA_ALLOC>::testCase4b()
     // --------------------------------------------------------------------
     // ALLOCATOR EXTENDED DEFAULT CONSTRUCTORS AND DESTRUCTOR
     //   This test will ensure that the allocator extended default construction
-    //   of a 'variant' is working as expected.
+    //   of a `variant` is working as expected.
     //
     // Concerns:
-    //: 1 That the allocator extended  default constructor creates the
-    //:   alternative at index '0', as determined by 'index()' returning '0'.
-    //:
-    //: 2 That the 'get_allocator' method returns the allocator passed in to
-    //:   the constructors.
+    // 1. That the allocator extended  default constructor creates the
+    //    alternative at index `0`, as determined by `index()` returning `0`.
     //
-    //: 3 When the variant object is destroyed, the destructor of the active
-    //:   alternative type is invoked.
+    // 2. That the `get_allocator` method returns the allocator passed in to
+    //    the constructors.
+    //
+    // 3. When the variant object is destroyed, the destructor of the active
+    //    alternative type is invoked.
     //
     // Plan:
-    //: 1 Construct a 'variant' object using default construction and verify
-    //:   that the alternative at index '0' has been created. [C-1]
-    //:
-    //: 2 In step 1, verify that the 'get_allocator' method returns the
-    //:   allocator used in 'variant' construction. [C-2]
-    //:
-    //: 3 in steps 1 and 2, verify that the selected alternative type
-    //:   destructor is invoked when the variant object is destroyed. [C-3]
+    // 1. Construct a `variant` object using default construction and verify
+    //    that the alternative at index `0` has been created. [C-1]
+    //
+    // 2. In step 1, verify that the `get_allocator` method returns the
+    //    allocator used in `variant` construction. [C-2]
+    //
+    // 3. in steps 1 and 2, verify that the selected alternative type
+    //    destructor is invoked when the variant object is destroyed. [C-3]
     //
     // Testing:
     //   variant(bsl::allocator_arg_t, allocator_type);
@@ -13639,31 +13654,31 @@ void TestDriver<TYPE, USES_BSLMA_ALLOC>::testCase4a()
 {
     // --------------------------------------------------------------------
     // DEFAULT CONSTRUCTORS AND DESTRUCTOR
-    //   This test will ensure that the default construction of a 'variant'
+    //   This test will ensure that the default construction of a `variant`
     //   is working as expected.
     //
     // Concerns:
-    //: 1 That the default constructor creates the alternative at index '0', as
-    //:   determined by 'index()' returning '0'.
-    //:
-    //: 2 If the selected alternative type is allocator-aware (AA), then
-    //:   the 'get_allocator' method returns the default allocator when using
-    //:   these constructors.
-    //:
-    //: 3 When the variant object is destroyed, the destructor of the active
-    //:   alternative type is invoked.
+    // 1. That the default constructor creates the alternative at index `0`, as
+    //    determined by `index()` returning `0`.
+    //
+    // 2. If the selected alternative type is allocator-aware (AA), then
+    //    the `get_allocator` method returns the default allocator when using
+    //    these constructors.
+    //
+    // 3. When the variant object is destroyed, the destructor of the active
+    //    alternative type is invoked.
     //
     // Plan:
-    //: 1 Construct a 'variant' object using default construction and verify
-    //:   that the alternative at index '0' has been created. [C-1]
-    //:
-    //: 2 In steps 1, if the selected alternative type is allocator-aware,
-    //:   verify that the 'get_allocator' method returns the default allocator
+    // 1. Construct a `variant` object using default construction and verify
+    //    that the alternative at index `0` has been created. [C-1]
+    //
+    // 2. In steps 1, if the selected alternative type is allocator-aware,
+    //    verify that the `get_allocator` method returns the default allocator
     // [C-2]
-    //:
-    //: 3 in steps 1 and 2, verify that the selected alternative type
-    //:   destructor is invoked when the variant object is destroyed. [C-3]
-    //:
+    //
+    // 3. in steps 1 and 2, verify that the selected alternative type
+    //    destructor is invoked when the variant object is destroyed. [C-3]
+    //
     //
     // Testing:
     //   variant();
@@ -13701,33 +13716,33 @@ void testCase3()
     //
     //
     // Concerns:
-    //: 1 That 'variant_size<VARIANT>::value' and 'variant_size_v<VARIANT>'
-    //:   reflect the number of alternative types in a specified 'variant'
-    //:   type
-    //:
-    //: 2 That 'variant_alternative' and 'variant_alternative_t' give the
-    //:   alternative type of the specified 'variant' type at the specified
-    //:   index.
-    //:
-    //: 3 That all above metafunctions work for a const qualified variant, and
-    //:   that the returned alternative type is appropriately qualified for
-    //:   the given 'variant' type.
-    //:
-    //: 4 That the type 'bsl::variant_npos' is 'size_t' and the value is '-1'.
+    // 1. That `variant_size<VARIANT>::value` and `variant_size_v<VARIANT>`
+    //    reflect the number of alternative types in a specified `variant`
+    //    type
+    //
+    // 2. That `variant_alternative` and `variant_alternative_t` give the
+    //    alternative type of the specified `variant` type at the specified
+    //    index.
+    //
+    // 3. That all above metafunctions work for a const qualified variant, and
+    //    that the returned alternative type is appropriately qualified for
+    //    the given `variant` type.
+    //
+    // 4. That the type `bsl::variant_npos` is `size_t` and the value is `-1`.
     //
     // Plan:
-    //: 1 For various 'variant' types verify the 'variant_size<VARIANT>::value'
-    //:   and 'variant_size_v<VARIANT>' reflect the number of alternative
-    //:   types. [C-1]
-    //:
-    //: 2 For various combination of 'variant' types and indices verify that
-    //:   the  'variant_alternative' and 'variant_alternative_t' give the
-    //:   alternative type of the specified 'variant' type at the specified
-    //:   index. [C-2]
-    //:
-    //: 3 Repeat steps 1-2 with const qualified 'variant' type. [C-3]
-    //:
-    //: 4 Verify the type and value of 'bsl::variant_npos'. [C-4]
+    // 1. For various `variant` types verify the `variant_size<VARIANT>::value`
+    //    and `variant_size_v<VARIANT>` reflect the number of alternative
+    //    types. [C-1]
+    //
+    // 2. For various combination of `variant` types and indices verify that
+    //    the  `variant_alternative` and `variant_alternative_t` give the
+    //    alternative type of the specified `variant` type at the specified
+    //    index. [C-2]
+    //
+    // 3. Repeat steps 1-2 with const qualified `variant` type. [C-3]
+    //
+    // 4. Verify the type and value of `bsl::variant_npos`. [C-4]
     //
     // Testing:
     //
@@ -13854,28 +13869,28 @@ void TestDriver<TYPE, USES_BSLMA_ALLOC>::testCase2()
     //
     //
     // Concerns:
-    //: 1 That 'bslma::UsesBslmaAllocator<variant<TYPE>>' and
-    //:   'bslmf::UsesAllocatorArgT<variant<TYPE>>' are 'false'
-    //:   if all alternatives are non allocator-aware.
-    //:
-    //: 2 That 'bslma::UsesBslmaAllocator<variant<TYPE>>' and
-    //:   'bslmf::UsesAllocatorArgT<variant<TYPE>>' are 'true'
-    //:   if at least one alternative is an allocator-aware type.
-    //:
-    //: 3 That 'variant<ARGS...>::allocator_type' is 'bsl::allocator<char>' if
-    //:   if at least one alternative is an allocator-aware type.
+    // 1. That `bslma::UsesBslmaAllocator<variant<TYPE>>` and
+    //    `bslmf::UsesAllocatorArgT<variant<TYPE>>` are `false`
+    //    if all alternatives are non allocator-aware.
+    //
+    // 2. That `bslma::UsesBslmaAllocator<variant<TYPE>>` and
+    //    `bslmf::UsesAllocatorArgT<variant<TYPE>>` are `true`
+    //    if at least one alternative is an allocator-aware type.
+    //
+    // 3. That `variant<ARGS...>::allocator_type` is `bsl::allocator<char>` if
+    //    if at least one alternative is an allocator-aware type.
     //
     // Plan:
-    //: 1 Verify that both 'UsesBslmaAllocator' and
-    //:   'UsesAllocatorArgT' traits for 'TYPE' are true if 'USES_BSLMA_ALLOC'
-    //:   is 'true'. [C-1]
-    //:
-    //: 2 Verify that both 'UsesBslmaAllocator' and
-    //:   'UsesAllocatorArgT' traits for 'TYPE' are false if 'USES_BSLMA_ALLOC'
-    //:   is "false". [C-4]
-    //:
-    //: 3 Verify that 'variant<ARGS...>::allocator_type' is
-    //:   'bsl::allocator<char>' if 'USES_BSLMA_ALLOC' is "true". [C-3]
+    // 1. Verify that both `UsesBslmaAllocator` and
+    //    `UsesAllocatorArgT` traits for `TYPE` are true if `USES_BSLMA_ALLOC`
+    //    is `true`. [C-1]
+    //
+    // 2. Verify that both `UsesBslmaAllocator` and
+    //    `UsesAllocatorArgT` traits for `TYPE` are false if `USES_BSLMA_ALLOC`
+    //    is "false". [C-4]
+    //
+    // 3. Verify that `variant<ARGS...>::allocator_type` is
+    //    `bsl::allocator<char>` if `USES_BSLMA_ALLOC` is "true". [C-3]
     //
     // Testing:
     //
@@ -13902,13 +13917,13 @@ void testCase2a()
     //
     //
     // Concerns:
-    //: 1 That 'bslmf::IsBitwiseMoveable<variant<TYPE>>' is 'true'
-    //:   if all alternatives are bitwise moveable, and `false` otherwise.
+    // 1. That `bslmf::IsBitwiseMoveable<variant<TYPE>>` is `true`
+    //    if all alternatives are bitwise moveable, and `false` otherwise.
     //
     // Plan:
-    //: 1 For different combination of bitwise moveable and non bitwise
-    //:   moveableVerify alternatives, verify that
-    //:   'bslmf::IsBitwiseMoveable<variant<TYPE>>' is as expected. [C-1]
+    // 1. For different combination of bitwise moveable and non bitwise
+    //    moveableVerify alternatives, verify that
+    //    `bslmf::IsBitwiseMoveable<variant<TYPE>>` is as expected. [C-1]
     //
     // Testing:
     //
@@ -13964,7 +13979,7 @@ int main(int argc, char **argv)
 
     printf("TEST  %s CASE %d \n", __FILE__, test);
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
@@ -13973,13 +13988,13 @@ int main(int argc, char **argv)
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -13998,20 +14013,20 @@ int main(int argc, char **argv)
 //
 ///Example 1: Basic Variant Use
 /// - - - - - - - - - - - - - -
-// First, we create a 'variant' object that can hold an integer, a char, or
-// a string.  The default constructor of 'bsl::variant<TYPES...>' creates the
-// first alternative in 'TYPES...'; to create a different alternative, we can
+// First, we create a `variant` object that can hold an integer, a char, or
+// a string.  The default constructor of `bsl::variant<TYPES...>` creates the
+// first alternative in `TYPES...`; to create a different alternative, we can
 // provide the index or the type of the alternative to create:
-//..
+// ```
     bsl::variant<int, char> v1;
     bsl::variant<int, char> v2(bsl::in_place_type_t<char>(), 'c');
 
     ASSERT(bsl::holds_alternative<int>(v1));
     ASSERT(bsl::holds_alternative<char>(v2));
-//..
+// ```
 // Next, we create a visitor that can be called with a value of any of the
 // alternatives:
-//..
+// ```
 //  class MyVisitor {
 //    public:
 //      template <class t_TYPE>
@@ -14020,17 +14035,17 @@ int main(int argc, char **argv)
 //          bsl::cout << value << bsl::endl;
 //      }
 //  };
-//..
-//  We can now use 'bsl::visit' to apply the visitor to our variant objects:
-//..
+// ```
+//  We can now use `bsl::visit` to apply the visitor to our variant objects:
+// ```
     MyVisitor visitor;
     bsl::visit(visitor, v1);  // prints integer 0
     bsl::visit(visitor, v2);  // prints char 'c'
-//..
-//  To retrieve a contained value, we can use the 'get' free functions.  If the
+// ```
+//  To retrieve a contained value, we can use the `get` free functions.  If the
 //  requested alternative is not the currently active alternative, an exception
-//  of type 'bsl::bad_variant_access' will be thrown.
-//..
+//  of type `bsl::bad_variant_access` will be thrown.
+// ```
     ASSERT(0 == bsl::get<int>(v1));
     ASSERT('c' == bsl::get<1>(v2));
     try {
@@ -14039,15 +14054,15 @@ int main(int argc, char **argv)
         if (verbose)  // ADDED
         std::cout << "non-active alternative requested" << std::endl;
     }
-//..
+// ```
 //
 ///Example 2: Variant Default Construction
 ///- - - - - - - - - - - - - - - - - - - -
-// Suppose we want to default construct a 'bsl::variant' which can hold an
-// alternative of type 'S'.  Type 'S' is not default constructible so we use
-// 'bsl::monostate'as the first alternative to allow for default construction
+// Suppose we want to default construct a `bsl::variant` which can hold an
+// alternative of type `S`.  Type `S` is not default constructible so we use
+// `bsl::monostate`as the first alternative to allow for default construction
 // of the variant object.
-//..
+// ```
 //  struct S
 //  {
 //      S(int i) : d_i(i) {}
@@ -14055,55 +14070,55 @@ int main(int argc, char **argv)
 //  };
 //
     bsl::variant<bsl::monostate, S> v3;
-//..
-//  To create an alternative of type 'S'. we can use the emplace method.
-//..
+// ```
+//  To create an alternative of type `S`. we can use the emplace method.
+// ```
     v3.emplace<S>(3);
     ASSERT(bsl::holds_alternative<S>(v3));
-//..
+// ```
 
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // SFINAE FOR 'get'
+        // SFINAE FOR `get`
         //
         // Concerns:
-        //: 1 'bsl::get' for 'bsl::variant' does not participate in overload
-        //:   resolution unless the argument's type is (possibly cv-qualified)
-        //:   'bsl::variant' or derived therefrom.  In particular, SunCC has a
-        //:   bug in which the call 'get<N>(t)', where 't' has a dependent
-        //:   type, triggers argument-dependent lookup (ADL).  (Note that ADL
-        //:   should not take place in this call until C++20.)  This bug then
-        //:   triggers another bug in which certain invalid types are not
-        //:   treated as substitution failures, resulting in a hard error when
-        //:   'bsl::get' is in the overload set.
+        // 1. `bsl::get` for `bsl::variant` does not participate in overload
+        //    resolution unless the argument's type is (possibly cv-qualified)
+        //    `bsl::variant` or derived therefrom.  In particular, SunCC has a
+        //    bug in which the call `get<N>(t)`, where `t` has a dependent
+        //    type, triggers argument-dependent lookup (ADL).  (Note that ADL
+        //    should not take place in this call until C++20.)  This bug then
+        //    triggers another bug in which certain invalid types are not
+        //    treated as substitution failures, resulting in a hard error when
+        //    `bsl::get` is in the overload set.
         //
         // Plan:
-        //: 1 Define a class template, 'T', that can take a 'bsl::variant' type
-        //:   as a template argument.  (This is needed to trigger ADL that will
-        //:   look in the 'bsl' namespace.)
-        //:
-        //: 2 Define two function templates named 'get' that can accept a
-        //:   function argument of any specialization of 'T'.  One 'get'
-        //:   template takes a template argument of type 'size_t', and the
-        //:   other takes a type template argument.
-        //:
-        //: 3 Define another function template, 'm', that calls 'get<0>' and
-        //:   'get<int>' on its argument.
-        //:
-        //: 4 Create an object 't' of type 'T<bsl::variant<int> >'.  (This will
-        //:   make 'bsl' an associated namespace for ADL calls that have 't' as
-        //:   an argument.)
-        //:
-        //: 5 Call 'm(t)' and verify that the function templates defined in P-2
-        //:   were called.  (C-1)
+        // 1. Define a class template, `T`, that can take a `bsl::variant` type
+        //    as a template argument.  (This is needed to trigger ADL that will
+        //    look in the `bsl` namespace.)
+        //
+        // 2. Define two function templates named `get` that can accept a
+        //    function argument of any specialization of `T`.  One `get`
+        //    template takes a template argument of type `size_t`, and the
+        //    other takes a type template argument.
+        //
+        // 3. Define another function template, `m`, that calls `get<0>` and
+        //    `get<int>` on its argument.
+        //
+        // 4. Create an object `t` of type `T<bsl::variant<int> >`.  (This will
+        //    make `bsl` an associated namespace for ADL calls that have `t` as
+        //    an argument.)
+        //
+        // 5. Call `m(t)` and verify that the function templates defined in P-2
+        //    were called.  (C-1)
         //
         // Testing:
-        //   CONCERN: SFINAE for 'get' works on Solaris (DRQS 175366735)
+        //   CONCERN: SFINAE for `get` works on Solaris (DRQS 175366735)
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nSFINAE FOR 'get'"
+            printf("\nSFINAE FOR `get`"
                    "\n================\n");
 
         using namespace test_case_16;
@@ -14124,7 +14139,7 @@ int main(int argc, char **argv)
         //   N/A
         //
         // Testing:
-        //   Reserved for 'bslx' streaming.
+        //   Reserved for `bslx` streaming.
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -14138,7 +14153,7 @@ int main(int argc, char **argv)
         // --------------------------------------------------------------------
         // PRINT AND OUTPUT OPERATOR
         //   Ensure that the value of the object can be formatted appropriately
-        //   on an 'ostream' in some standard, human-readable form.
+        //   on an `ostream` in some standard, human-readable form.
         //
         // Concerns:
         //   N/A
@@ -14147,7 +14162,7 @@ int main(int argc, char **argv)
         //   N/A
         //
         // Testing:
-        //   Reserved for 'bslx' streaming.
+        //   Reserved for `bslx` streaming.
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -14162,7 +14177,7 @@ int main(int argc, char **argv)
         RUN_EACH_TYPE(TestDriver, testCase13, BSLSTL_VARIANT_TEST_TYPES_HASH);
 
         if (verbose)
-            printf("\nTESTING 'hashAppend' OF EMPTY VARIANT"
+            printf("\nTESTING `hashAppend` OF EMPTY VARIANT"
                    "\n=====================================\n");
         testCase13a();
       } break;
@@ -14184,7 +14199,7 @@ int main(int argc, char **argv)
       } break;
       case 11: {
         if (verbose)
-            printf("\nTESTING 'operator=(variant)'"
+            printf("\nTESTING `operator=(variant)`"
                    "\n============================\n");
         RUN_EACH_TYPE(TestDriver,
                       testCase11a,
@@ -14192,14 +14207,14 @@ int main(int argc, char **argv)
                       BSLSTL_VARIANT_TEST_TYPES_INSTANCE_COUNTING_NONUNIQUE);
 
         if (verbose)
-            printf("\nTESTING 'operator=(ANY_TYPE)'"
+            printf("\nTESTING `operator=(ANY_TYPE)`"
                    "\n==============================\n");
         RUN_EACH_TYPE(TestDriver,
                       testCase11b,
                       BSLSTL_VARIANT_TEST_TYPES_INSTANCE_COUNTING);
 
         if (verbose)
-            printf("\nTESTING 'operator=' with empty variant"
+            printf("\nTESTING `operator=` with empty variant"
                    "\n======================================\n");
         testCase11c();
         testCase11d();
@@ -14207,7 +14222,7 @@ int main(int argc, char **argv)
       } break;
       case 10: {
         if (verbose)
-            printf("\nTESTING 'swap'"
+            printf("\nTESTING `swap`"
                    "\n==============\n");
         RUN_EACH_TYPE(TestDriver,
                       testCase10,
@@ -14215,7 +14230,7 @@ int main(int argc, char **argv)
                       BSLSTL_VARIANT_TEST_TYPES_SWAP_NONUNIQUE);
 
         if (verbose)
-            printf("\nTESTING 'swap' OF EMPTY VARIANT"
+            printf("\nTESTING `swap` OF EMPTY VARIANT"
                    "\n================================\n");
         testCase10a();
       } break;
@@ -14250,7 +14265,7 @@ int main(int argc, char **argv)
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
         if (verbose)
-            printf("\nTESTING CONSTRUCTION FROM 'std::variant'"
+            printf("\nTESTING CONSTRUCTION FROM `std::variant`"
                    "\n========================================\n");
         RUN_EACH_TYPE(TestDriver,
                       testCase9e,
@@ -14259,7 +14274,7 @@ int main(int argc, char **argv)
                       BSLSTL_VARIANT_TEST_TYPES_INSTANCE_COUNTING_CVNONUNIQUE);
         if (verbose)
             printf(
-                "\nTESTING ALLOCATOR-EXTENDED CONSTRUCTION FROM 'std::variant'"
+                "\nTESTING ALLOCATOR-EXTENDED CONSTRUCTION FROM `std::variant`"
                 "\n==========================================================="
                 "\n");
         RUN_EACH_TYPE(
@@ -14278,7 +14293,7 @@ int main(int argc, char **argv)
       } break;
       case 7: {
         if (verbose)
-            printf("\nTESTING 'emplace' METHOD"
+            printf("\nTESTING `emplace` METHOD"
                    "\n========================\n");
         RUN_EACH_TYPE(TestDriver,
                       testCase7Index,
@@ -14291,13 +14306,13 @@ int main(int argc, char **argv)
                       BSLSTL_VARIANT_TEST_TYPES_VARIADIC_ARGS_CVNONUNIQUE);
 
         if (verbose)
-            printf("\nTESTING 'emplace' METHOD IN PRESENCE OF EXCEPTION"
+            printf("\nTESTING `emplace` METHOD IN PRESENCE OF EXCEPTION"
                    "\n================================================\n");
         testCase7c<MyClass1>();
         testCase7c<MyClass2>();
 
         if (verbose)
-            printf("\nTESTING 'emplace' CONSTRAINTS"
+            printf("\nTESTING `emplace` CONSTRAINTS"
                    "\n================================================\n");
 
         testCase7d();
@@ -14305,17 +14320,17 @@ int main(int argc, char **argv)
       } break;
       case 6: {
         if (verbose)
-            printf("\nTESTING 'index'"
+            printf("\nTESTING `index`"
                    "\n===============\n");
         testCase6e();
 
         if (verbose)
-            printf("\nTESTING 'valueless_by_exception'"
+            printf("\nTESTING `valueless_by_exception`"
                    "\n================================\n");
         testCase6d();
 
         if (verbose)
-            printf("\nTESTING 'holds_alternative' FREE FUNCTION"
+            printf("\nTESTING `holds_alternative` FREE FUNCTION"
                    "\n=========================================\n");
         {
             RUN_EACH_TYPE(
@@ -14325,7 +14340,7 @@ int main(int argc, char **argv)
                       BSLSTL_VARIANT_TEST_TYPES_INSTANCE_COUNTING_CVNONUNIQUE);
         }
         if (verbose)
-            printf("\nTESTING 'get_if' FREE FUNCTION"
+            printf("\nTESTING `get_if` FREE FUNCTION"
                    "\n==============================\n");
         {
             RUN_EACH_TYPE(
@@ -14344,7 +14359,7 @@ int main(int argc, char **argv)
         }
 
         if (verbose)
-            printf("\nTESTING 'get' FREE FUNCTION"
+            printf("\nTESTING `get` FREE FUNCTION"
                    "\n===========================\n");
         {
             RUN_EACH_TYPE(
@@ -14458,17 +14473,17 @@ int main(int argc, char **argv)
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create a 'bsl::variant<int, char>' object.
-        //:
-        //: 2 Verify that the alternative with index 0 has the value 0.
-        //:
-        //: 3 Assign the value 'x' to the variant object.
-        //:
-        //: 4 Verify that the alternative with index 1 has the value 'x'.
+        // 1. Create a `bsl::variant<int, char>` object.
+        //
+        // 2. Verify that the alternative with index 0 has the value 0.
+        //
+        // 3. Assign the value `x` to the variant object.
+        //
+        // 4. Verify that the alternative with index 1 has the value `x`.
         //
         // Testing:
         //   BREATHING TEST

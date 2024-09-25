@@ -297,12 +297,12 @@ void testCase##NUMBER(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 
 const int PARAMS = BBT_n;
 
+/// Object that is convertible from and to `int`.  Used to make sure that
+/// `bindR` can overwrite the return type of a bound object to an arbitrary
+/// type that is convertible from the actual return type of the bound
+/// object.  It is also convertible to `int` to enable comparison to an int
+/// for the verification of the return value of the binder invocation.
 class ConvertibleFromToInt {
-    // Object that is convertible from and to 'int'.  Used to make sure that
-    // 'bindR' can overwrite the return type of a bound object to an arbitrary
-    // type that is convertible from the actual return type of the bound
-    // object.  It is also convertible to 'int' to enable comparison to an int
-    // for the verification of the return value of the binder invocation.
 
     int d_value; // int value of this object
 
@@ -486,30 +486,30 @@ typedef bdlf::PlaceHolder<14> PH14;
                           // class TestUtil
                           // ==============
 
+/// Utility class for static functions useful in `bdlf_bind` testing.
 struct TestUtil {
-    // Utility class for static functions useful in 'bdlf_bind' testing.
 
+    /// Return true if the specified parameter type `T` has the
+    /// `bslmf::IsBitwiseMovable` trait and false otherwise.
     template <class T>
     static bool isBitwiseMoveableType(const T&);
-        // Return true if the specified parameter type 'T' has the
-        // 'bslmf::IsBitwiseMovable' trait and false otherwise.
 
+    /// Return true if the specified parameter type `T` has the
+    /// `bslmf::is_nothrow_move_constructible` trait and false otherwise.
     template <class T>
     static bool isNothrowMoveableType(const T&);
-        // Return true if the specified parameter type 'T' has the
-        // 'bslmf::is_nothrow_move_constructible' trait and false otherwise.
 };
 
                              // ===============
                              // class SlotsBase
                              // ===============
 
+/// This `struct` defines an array of `VALUE` to keep track (in conjunction
+/// with the `NoAllocTestType` or `AllocTestType` classes) of which value or
+/// allocator is being passed to which argument of the test function by a
+/// `bdlf_bind` object.
 template <class VALUE>
 struct SlotsBase {
-    // This 'struct' defines an array of 'VALUE' to keep track (in conjunction
-    // with the 'NoAllocTestType' or 'AllocTestType' classes) of which value or
-    // allocator is being passed to which argument of the test function by a
-    // 'bdlf_bind' object.
 
     // ENUMERATIONS
     enum {
@@ -522,15 +522,16 @@ struct SlotsBase {
 
   public:
     // CLASS METHODS
+
+    /// Get the value of the slot at the specified `index`.
     static VALUE getSlot(int index);
-        // Get the value of the slot at the specified 'index'.
 
+    /// Reset all the slots in this instance to the optionally specified
+    /// `value`.
     static void resetSlots(VALUE value = 0);
-        // Reset all the slots in this instance to the optionally specified
-        // 'value'.
 
+    /// Set the slot at the specified `index` to the specified `value`.
     static void setSlot(VALUE value, int index);
-        // Set the slot at the specified 'index' to the specified 'value'.
 
     static bool verifySlots(const VALUE *EXPECTED, bool verboseFlag = true)
 #ifndef BDLF_BIND_00T_AS_INCLUDE
@@ -547,21 +548,21 @@ struct SlotsBase {
                            // type SlotsNoAlloc
                            // =================
 
+/// When used within the methods of `NoAllocTestType`, the `VALUE` type
+/// will be `int` and will keep track of which arguments have been assigned
+/// a value (in case `bdlf_bind` accesses fields that it should not).
 typedef SlotsBase<int> SlotsNoAlloc;
-    // When used within the methods of 'NoAllocTestType', the 'VALUE' type
-    // will be 'int' and will keep track of which arguments have been assigned
-    // a value (in case 'bdlf_bind' accesses fields that it should not).
 
                          // ====================
                          // class NoAllocTestArg
                          // ====================
 
+/// This very simple `struct` is used purely to disambiguate types in
+/// passing parameters due to the fact that `NoAllocTestArg<ID1>` is a
+/// different type than `NoAllocTestArg<ID2>` is ID1 != ID2.  This class
+/// does not take an optional allocator.
 template <int ID>
 class NoAllocTestArg {
-    // This very simple 'struct' is used purely to disambiguate types in
-    // passing parameters due to the fact that 'NoAllocTestArg<ID1>' is a
-    // different type than 'NoAllocTestArg<ID2>' is ID1 != ID2.  This class
-    // does not take an optional allocator.
 
     // INSTANCE DATA
     int d_value; // value held by this object
@@ -574,8 +575,9 @@ class NoAllocTestArg {
                                    bsl::is_nothrow_move_constructible);
 
     // CREATORS
+
+    /// Create an object having the specified `value`.
     NoAllocTestArg(int value);                                 // IMPLICIT
-        // Create an object having the specified 'value'.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
     NoAllocTestArg(const NoAllocTestArg&) = default;
@@ -584,8 +586,9 @@ class NoAllocTestArg {
 #endif
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     NoAllocTestArg& operator=(const NoAllocTestArg &rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
     // ACCESSORS
     int value() const;
@@ -606,24 +609,25 @@ bool operator!=(NoAllocTestArg<ID> const& lhs,
                          // class NoAllocTestType
                          // =====================
 
+/// This `struct` provides a test class capable of holding up to 14 bound
+/// parameters of types `TestArgNoAlloc[1--14]`, with full (non-streamable)
+/// value semantics defined by the `operator==`.  By default, a
+/// `NoAllocTestType` is constructed with nil (`N1`) values, but instances
+/// can be constructed with actual values (e.g., for creating expected
+/// values).  A `NoAllocTestType` can be invoked with up to 14 parameters,
+/// via member functions `testFunc[1--14]`.  These functions are also called
+/// by the overloaded member `operator()` of the same signatures, and
+/// similar global functions `testFunc[1--14]`.  All invocations support the
+/// above `SlotsNoAlloc` mechanism.
+///
+/// This `struct` intentionally does *not* take an allocator.
 class NoAllocTestType {
-    // This 'struct' provides a test class capable of holding up to 14 bound
-    // parameters of types 'TestArgNoAlloc[1--14]', with full (non-streamable)
-    // value semantics defined by the 'operator=='.  By default, a
-    // 'NoAllocTestType' is constructed with nil ('N1') values, but instances
-    // can be constructed with actual values (e.g., for creating expected
-    // values).  A 'NoAllocTestType' can be invoked with up to 14 parameters,
-    // via member functions 'testFunc[1--14]'.  These functions are also called
-    // by the overloaded member 'operator()' of the same signatures, and
-    // similar global functions 'testFunc[1--14]'.  All invocations support the
-    // above 'SlotsNoAlloc' mechanism.
-    //
-    // This 'struct' intentionally does *not* take an allocator.
 
     // PRIVATE TYPES
+
+    /// This `typedef` is a convenient alias for the utility associated with
+    /// movable references.
     typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
-        // This 'typedef' is a convenient alias for the utility associated with
-        // movable references.
 
 #undef  FN
 #define FN(n) typedef NoAllocTestArg<n> Arg##n;
@@ -647,8 +651,9 @@ class NoAllocTestType {
                                    bsl::is_nothrow_move_constructible);
 
     // TYPES
+
+    /// Type returned by the function operator and test methods.
     typedef int ResultType;
-        // Type returned by the function operator and test methods.
 
     enum {
         k_N1 = -1   // default value for all private data
@@ -656,39 +661,41 @@ class NoAllocTestType {
 
     // CREATORS
 #undef  FN
+/// Create a test object having the same value as the specified
+/// `original`.
 #define FN(n) Arg##n a##n = k_N1
     explicit NoAllocTestType(C14(FN));
-        // Create a test object having the same value as the specified
-        // 'original'.
 
+    /// Create a test object having the same value as the specified
+    /// `original`.
     NoAllocTestType(const NoAllocTestType& original);
-        // Create a test object having the same value as the specified
-        // 'original'.
 
+    /// Create a test object having the same value as the specified
+    /// `original`.
     NoAllocTestType(BloombergLP::bslmf::MovableRef<NoAllocTestType> original)
         BSLS_KEYWORD_NOEXCEPT;
-        // Create a test object having the same value as the specified
-        // 'original'.
 
     // MANIPULATORS
-    NoAllocTestType& operator=(const NoAllocTestType &rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
+    /// Assign to this object the value of the specified `rhs` object.
+    NoAllocTestType& operator=(const NoAllocTestType &rhs);
+
+    /// Test operators invoking this test type with 0 up to 14 arguments.
     int operator()() const;
-        // Test operators invoking this test type with 0 up to 14 arguments.
 #undef  FN
 #define FN(n) int operator()(C##n(PN)) const;
     L14(FN)
 
+    /// Test methods invoking this test type with 0 up to 14 arguments.
     int testFunc0() const;
-        // Test methods invoking this test type with 0 up to 14 arguments.
 #undef  FN
 #define FN(n) int testFunc##n(C##n(PN)) const;
     L14(FN)
 
     // ACCESSORS
+
+    /// Output the value of this instance to the standard output.
     void print() const;
-        // Output the value of this instance to the standard output.
 };
 
 // FREE OPERATORS
@@ -708,19 +715,19 @@ bool operator!=(const NoAllocTestType& lhs,
                         // class NoAllocNETestType
                         // =======================
 
+/// This `struct` provides a test class capable of holding up to 14 bound
+/// parameters of types `TestArgNoAllocNE[1--14]`, with full
+/// (non-streamable) value semantics defined by the `operator==`.  By
+/// default, a `NoAllocNETestType` is constructed with nil (`N1`) values,
+/// but instances can be constructed with actual values (e.g., for creating
+/// expected values).  A `NoAllocNETestType` can be invoked with up to 14
+/// parameters, via member functions `testFunc[1--14]`.  These functions are
+/// also called by the overloaded member `operator()` of the same
+/// signatures, and similar global functions `testFunc[1--14]`.  All
+/// invocations support the above `SlotsNoAlloc` mechanism.
+///
+/// This `struct` intentionally does *not* take an allocator.
 class NoAllocNETestType {
-    // This 'struct' provides a test class capable of holding up to 14 bound
-    // parameters of types 'TestArgNoAllocNE[1--14]', with full
-    // (non-streamable) value semantics defined by the 'operator=='.  By
-    // default, a 'NoAllocNETestType' is constructed with nil ('N1') values,
-    // but instances can be constructed with actual values (e.g., for creating
-    // expected values).  A 'NoAllocNETestType' can be invoked with up to 14
-    // parameters, via member functions 'testFunc[1--14]'.  These functions are
-    // also called by the overloaded member 'operator()' of the same
-    // signatures, and similar global functions 'testFunc[1--14]'.  All
-    // invocations support the above 'SlotsNoAlloc' mechanism.
-    //
-    // This 'struct' intentionally does *not* take an allocator.
 
     // PRIVATE TYPES
 #undef  FN
@@ -743,8 +750,9 @@ class NoAllocNETestType {
                                    bslmf::IsBitwiseMoveable);
 
     // TYPES
+
+    /// Type returned by the function operator and test methods.
     typedef int ResultType;
-        // Type returned by the function operator and test methods.
 
     enum {
         k_N1 = -1   // default value for all private data
@@ -752,34 +760,36 @@ class NoAllocNETestType {
 
     // CREATORS
 #undef  FN
+/// Create a test object having the same value as the specified
+/// `original`.
 #define FN(n) Arg##n a##n = k_N1
     explicit NoAllocNETestType(C14(FN));
-        // Create a test object having the same value as the specified
-        // 'original'.
 
+    /// Create a test object having the same value as the specified
+    /// `original`.
     NoAllocNETestType(const NoAllocNETestType& original);
-        // Create a test object having the same value as the specified
-        // 'original'.
 
     // MANIPULATORS
-    NoAllocNETestType& operator=(const NoAllocNETestType &rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
+    /// Assign to this object the value of the specified `rhs` object.
+    NoAllocNETestType& operator=(const NoAllocNETestType &rhs);
+
+    /// Test operators invoking this test type with 0 up to 14 arguments.
     int operator()() const BSLS_KEYWORD_NOEXCEPT;
-        // Test operators invoking this test type with 0 up to 14 arguments.
 #undef  FN
 #define FN(n) int operator()(C##n(PN)) const BSLS_KEYWORD_NOEXCEPT;
     L14(FN)
 
+    /// Test methods invoking this test type with 0 up to 14 arguments.
     int testFunc0() const BSLS_KEYWORD_NOEXCEPT;
-        // Test methods invoking this test type with 0 up to 14 arguments.
 #undef  FN
 #define FN(n) int testFunc##n(C##n(PN)) const BSLS_KEYWORD_NOEXCEPT;
     L14(FN)
 
     // ACCESSORS
+
+    /// Output the value of this instance to the standard output.
     void print() const;
-        // Output the value of this instance to the standard output.
 };
 
 // FREE OPERATORS
@@ -799,8 +809,8 @@ bool operator!=(const NoAllocNETestType& lhs,
                       // class TestFunctionsNoAlloc
                       // ==========================
 
+/// Global versions of `NoAllocTestType` member functions.
 struct TestFunctionsNoAlloc {
-    // Global versions of 'NoAllocTestType' member functions.
 
     // TYPES
 #undef  FN
@@ -809,16 +819,17 @@ struct TestFunctionsNoAlloc {
         // Types for shortcut.
 
     // CLASS METHODS
+
+    /// Invoke the corresponding method `testFunc[0-14]` on the specified
+    /// `object` with the specified arguments `a[0-14]`.
     static int func0(NoAllocTestType *object);
-        // Invoke the corresponding method 'testFunc[0-14]' on the specified
-        // 'object' with the specified arguments 'a[0-14]'.
 #undef  FN
 #define FN(n) static int func##n(NoAllocTestType *object, C##n(PN));
     L14(FN)
 
+    /// Invoke the corresponding method `testFunc[0-14]` on the specified
+    /// `object` with the specified arguments `a[0-14]`.
     static int funcNE0(NoAllocNETestType *object) BSLS_KEYWORD_NOEXCEPT;
-        // Invoke the corresponding method 'testFunc[0-14]' on the specified
-        // 'object' with the specified arguments 'a[0-14]'.
 #undef  FN
 #define FN(n) static int funcNE##n(NoAllocNETestType *object, C##n(PN))    \
                                                          BSLS_KEYWORD_NOEXCEPT;
@@ -829,14 +840,14 @@ struct TestFunctionsNoAlloc {
                          // class SlotsAllocBase
                          // ====================
 
+/// The point of this base class is that we would like it to be a class
+/// template, so that the class data does not pollute the library object
+/// files.  Since there is no reason to make `SlotsAlloc` a template, we
+/// separate the static pointers into this base class.  These pointers are
+/// needed for the pretty printing in the `verifySlots` method.
 template <class AllocPtr>
 struct SlotsAllocBase
 {
-    // The point of this base class is that we would like it to be a class
-    // template, so that the class data does not pollute the library object
-    // files.  Since there is no reason to make 'SlotsAlloc' a template, we
-    // separate the static pointers into this base class.  These pointers are
-    // needed for the pretty printing in the 'verifySlots' method.
 
     // PRIVATE CLASS DATA
     static AllocPtr s_Z0;
@@ -857,15 +868,15 @@ struct SlotsAllocBase
                            // class SlotsAlloc
                            // ================
 
+/// When used within the methods of `AllocTestType`, the `VALUE` type will
+/// be `const bslma::Allocator*` and will keep track of which allocator is
+/// used with which argument of the `Bind` object.  The sole purpose of
+/// deriving a new class is to use pretty printing of the allocators in
+/// `verifySlots`.
 class SlotsAlloc
 : public SlotsBase<const bslma::Allocator*>
 , public SlotsAllocBase<const bslma::Allocator*>
 {
-    // When used within the methods of 'AllocTestType', the 'VALUE' type will
-    // be 'const bslma::Allocator*' and will keep track of which allocator is
-    // used with which argument of the 'Bind' object.  The sole purpose of
-    // deriving a new class is to use pretty printing of the allocators in
-    // 'verifySlots'.
 
   public:
     static bool verifySlots(const bslma::Allocator *const *EXPECTED,
@@ -884,17 +895,18 @@ class SlotsAlloc
                             // class AllocTestArg
                             // ==================
 
+/// This class is used to disambiguate types in passing parameters due to
+/// the fact that `AllocTestArg<ID1>` is a different type than
+/// `AllocTestArg<ID2>` is ID1 != ID2.  This class is used for testing
+/// memory allocator issues.
 template <int ID>
 class AllocTestArg {
-    // This class is used to disambiguate types in passing parameters due to
-    // the fact that 'AllocTestArg<ID1>' is a different type than
-    // 'AllocTestArg<ID2>' is ID1 != ID2.  This class is used for testing
-    // memory allocator issues.
 
     // PRIVATE DATA
     bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
+
+    // NOTE: *Must* be declared and initialized in that order.
     int              *d_value;        // value allocated from 'd_allocator_p'
-        // NOTE: *Must* be declared and initialized in that order.
 
   public:
     // TRAITS
@@ -903,30 +915,32 @@ class AllocTestArg {
 
     // CREATORS
 
+    /// Create an object having the specified `value`.  Use the specified
+    /// `allocator` to supply memory.  If `allocator` is 0, use the
+    /// currently installed default allocator.
     AllocTestArg(int value, bslma::Allocator *allocator = 0);  // IMPLICIT
-        // Create an object having the specified 'value'.  Use the specified
-        // 'allocator' to supply memory.  If 'allocator' is 0, use the
-        // currently installed default allocator.
 
+    /// Create a copy of the specified non-modifiable `original`.  Use the
+    /// specified `allocator` to supply memory.  If `allocator` is 0, use
+    /// the currently installed default allocator.
     AllocTestArg(const AllocTestArg&  original,
                  bslma::Allocator    *allocator = 0);
-        // Create a copy of the specified non-modifiable 'original'.  Use the
-        // specified 'allocator' to supply memory.  If 'allocator' is 0, use
-        // the currently installed default allocator.
 
+    /// Destroy this object.
     ~AllocTestArg();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     AllocTestArg& operator=(const AllocTestArg &rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
     // ACCESSORS
-    const bslma::Allocator *allocator() const;
-        // Return the allocator specified at construction of this object.
 
+    /// Return the allocator specified at construction of this object.
+    const bslma::Allocator *allocator() const;
+
+    /// Return the value of this object.
     int value() const;
-        // Return the value of this object.
 };
 
 // FREE OPERATORS
@@ -944,19 +958,19 @@ bool operator!=(const AllocTestArg<ID>& lhs,
                             // class AllocTestType
                             // ===================
 
+/// This class provides a test class capable of holding up to 14 bound
+/// parameters of types `AllocTestArg[1--14]`, with full (non-streamable)
+/// value semantics defined by the `operator==`.  By default, a
+/// `AllocTestType` is constructed with nil (`k_N1`) values, but objects can
+/// be constructed with actual values (e.g., for creating expected values).
+/// A `AllocTestType` can be invoked with up to 14 parameters, via member
+/// functions `testFunc[1--14]`.  These functions are also called by the
+/// overloaded member `operator()` of the same signatures, and similar
+/// global functions `testFunc1--14`.  All invocations support the above
+/// `SlotsAlloc` mechanism.
+///
+/// This class intentionally *does* take an allocator.
 class AllocTestType {
-    // This class provides a test class capable of holding up to 14 bound
-    // parameters of types 'AllocTestArg[1--14]', with full (non-streamable)
-    // value semantics defined by the 'operator=='.  By default, a
-    // 'AllocTestType' is constructed with nil ('k_N1') values, but objects can
-    // be constructed with actual values (e.g., for creating expected values).
-    // A 'AllocTestType' can be invoked with up to 14 parameters, via member
-    // functions 'testFunc[1--14]'.  These functions are also called by the
-    // overloaded member 'operator()' of the same signatures, and similar
-    // global functions 'testFunc1--14'.  All invocations support the above
-    // 'SlotsAlloc' mechanism.
-    //
-    // This class intentionally *does* take an allocator.
 
     // PRIVATE TYPES
 #undef  FN
@@ -983,18 +997,19 @@ class AllocTestType {
                                    bslma::UsesBslmaAllocator);
 
     // PUBLIC TYPES
+
+    /// Type returned by the function operator and test methods.
     typedef int ResultType;
-        // Type returned by the function operator and test methods.
 
     // CREATORS
 #undef  FN
+/// This constructor does *not* participate in the
+/// `UsesBdemaAllocatorTraits` contract, it is here simply to allow to
+/// construct expected values with a specified `allocator` as the first
+/// argument (otherwise there would need to be fourteen different
+/// constructors with `allocator` as the last argument).
 #define FN(n) Arg##n a##n = k_N1
     explicit AllocTestType(bslma::Allocator *allocator = 0, C14(FN));
-        // This constructor does *not* participate in the
-        // 'UsesBdemaAllocatorTraits' contract, it is here simply to allow to
-        // construct expected values with a specified 'allocator' as the first
-        // argument (otherwise there would need to be fourteen different
-        // constructors with 'allocator' as the last argument).
 
 #undef  FN
 #define FN(n) Arg##n a##n
@@ -1004,29 +1019,31 @@ class AllocTestType {
                   bslma::Allocator     *allocator = 0);
 
     // MANIPULATORS
-    AllocTestType& operator=(const AllocTestType &rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
+    /// Assign to this object the value of the specified `rhs` object.
+    AllocTestType& operator=(const AllocTestType &rhs);
+
+    /// Test operators invoking this test type with 0 up to 14 arguments.
     int operator()() const;
-        // Test operators invoking this test type with 0 up to 14 arguments.
 #undef  FN
 #define FN(n) int operator()(C##n(PN)) const;
     L14(FN)
 
+    /// Test methods invoking this test type with 0 up to 14 arguments.
     int testFunc0() const;
-        // Test methods invoking this test type with 0 up to 14 arguments.
 #undef  FN
 #define FN(n) int testFunc##n(C##n(PN)) const;
     L14(FN)
 
+    /// Set slots with allocator values of internal data members (as opposed
+    /// to with allocator value of invocation arguments as in the operators
+    /// and `testFunc*` functions above).
     void setSlots();
-        // Set slots with allocator values of internal data members (as opposed
-        // to with allocator value of invocation arguments as in the operators
-        // and 'testFunc*' functions above).
 
     // ACCESSORS
+
+    /// Output the value of this object to the standard output.
     void print() const;
-        // Output the value of this object to the standard output.
 };
 
 // FREE OPERATORS
@@ -1044,19 +1061,19 @@ bool operator!=(AllocTestType const& lhs, AllocTestType const& rhs)
                          // class AllocNETestType
                          // =====================
 
+/// This class provides a test class capable of holding up to 14 bound
+/// parameters of types `AllocTestArg[1--14]`, with full (non-streamable)
+/// value semantics defined by the `operator==`.  By default, a
+/// `AllocNETestType` is constructed with nil (`k_N1`) values, but objects
+/// can be constructed with actual values (e.g., for creating expected
+/// values).  A `AllocNETestType` can be invoked with up to 14 parameters,
+/// via member functions `testFunc[1--14]`.  These functions are also called
+/// by the overloaded member `operator()` of the same signatures, and
+/// similar global functions `testFunc1--14`.  All invocations support the
+/// above `SlotsAlloc` mechanism.
+///
+/// This class intentionally *does* take an allocator.
 class AllocNETestType {
-    // This class provides a test class capable of holding up to 14 bound
-    // parameters of types 'AllocTestArg[1--14]', with full (non-streamable)
-    // value semantics defined by the 'operator=='.  By default, a
-    // 'AllocNETestType' is constructed with nil ('k_N1') values, but objects
-    // can be constructed with actual values (e.g., for creating expected
-    // values).  A 'AllocNETestType' can be invoked with up to 14 parameters,
-    // via member functions 'testFunc[1--14]'.  These functions are also called
-    // by the overloaded member 'operator()' of the same signatures, and
-    // similar global functions 'testFunc1--14'.  All invocations support the
-    // above 'SlotsAlloc' mechanism.
-    //
-    // This class intentionally *does* take an allocator.
 
     // PRIVATE TYPES
 #undef  FN
@@ -1083,18 +1100,19 @@ class AllocNETestType {
                                    bslma::UsesBslmaAllocator);
 
     // PUBLIC TYPES
+
+    /// Type returned by the function operator and test methods.
     typedef int ResultType;
-        // Type returned by the function operator and test methods.
 
     // CREATORS
 #undef  FN
+/// This constructor does *not* participate in the
+/// `UsesBdemaAllocatorTraits` contract, it is here simply to allow to
+/// construct expected values with a specified `allocator` as the first
+/// argument (otherwise there would need to be fourteen different
+/// constructors with `allocator` as the last argument).
 #define FN(n) Arg##n a##n = k_N1
     explicit AllocNETestType(bslma::Allocator *allocator = 0, C14(FN));
-        // This constructor does *not* participate in the
-        // 'UsesBdemaAllocatorTraits' contract, it is here simply to allow to
-        // construct expected values with a specified 'allocator' as the first
-        // argument (otherwise there would need to be fourteen different
-        // constructors with 'allocator' as the last argument).
 
 #undef  FN
 #define FN(n) Arg##n a##n
@@ -1104,29 +1122,31 @@ class AllocNETestType {
                     bslma::Allocator       *allocator = 0);
 
     // MANIPULATORS
-    AllocNETestType& operator=(const AllocNETestType &rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
+    /// Assign to this object the value of the specified `rhs` object.
+    AllocNETestType& operator=(const AllocNETestType &rhs);
+
+    /// Test operators invoking this test type with 0 up to 14 arguments.
     int operator()() const BSLS_KEYWORD_NOEXCEPT;
-        // Test operators invoking this test type with 0 up to 14 arguments.
 #undef  FN
 #define FN(n) int operator()(C##n(PN)) const BSLS_KEYWORD_NOEXCEPT;
     L14(FN)
 
+    /// Test methods invoking this test type with 0 up to 14 arguments.
     int testFunc0() const BSLS_KEYWORD_NOEXCEPT;
-        // Test methods invoking this test type with 0 up to 14 arguments.
 #undef  FN
 #define FN(n) int testFunc##n(C##n(PN)) const BSLS_KEYWORD_NOEXCEPT;
     L14(FN)
 
+    /// Set slots with allocator values of internal data members (as opposed
+    /// to with allocator value of invocation arguments as in the operators
+    /// and `testFunc*` functions above).
     void setSlots();
-        // Set slots with allocator values of internal data members (as opposed
-        // to with allocator value of invocation arguments as in the operators
-        // and 'testFunc*' functions above).
 
     // ACCESSORS
+
+    /// Output the value of this object to the standard output.
     void print() const;
-        // Output the value of this object to the standard output.
 };
 
 // FREE OPERATORS
@@ -1146,8 +1166,8 @@ bool operator!=(AllocNETestType const& lhs,
                        // class TestFunctionsAlloc
                        // ========================
 
+/// Global versions of `AllocTestType` member functions.
 struct TestFunctionsAlloc {
-    // Global versions of 'AllocTestType' member functions.
 
     // TYPES
 #undef  FN
@@ -1155,16 +1175,17 @@ struct TestFunctionsAlloc {
     L14(FN)
 
     // CLASS METHODS
+
+    /// Invoke the corresponding method `testFunc[0-14]` on the specified
+    /// `object` with the specified arguments `a[0-14]`.
     static int func0(AllocTestType *o);
-        // Invoke the corresponding method 'testFunc[0-14]' on the specified
-        // 'object' with the specified arguments 'a[0-14]'.
 #undef  FN
 #define FN(n) static int func##n(AllocTestType *o, C##n(PN));
     L14(FN)
 
+    /// Invoke the corresponding method `testFunc[0-14]` on the specified
+    /// `object` with the specified arguments `a[0-14]`.
     static int funcNE0(AllocNETestType *o) BSLS_KEYWORD_NOEXCEPT;
-        // Invoke the corresponding method 'testFunc[0-14]' on the specified
-        // 'object' with the specified arguments 'a[0-14]'.
 #undef  FN
 #define FN(n) static int funcNE##n(AllocNETestType *o, C##n(PN))              \
                                                          BSLS_KEYWORD_NOEXCEPT;
@@ -1202,12 +1223,12 @@ namespace Testcase_19 {
                     // struct ParametrizedMovableAllocTestType<N>
                     // ==========================================
 
+/// This `struct`, by being parametrized by `N`, allows us to have 14
+/// mutually incompatible types of `MovableAllocTestType` for the different
+/// arguments of `operator()` in the test to ensure that `bind*` can handle
+/// 14 different, incompatible types of arguments.
 template <unsigned N>
 struct ParametrizedMovableAllocTestType : public bsltf::MovableAllocTestType {
-    // This 'struct', by being parametrized by 'N', allows us to have 14
-    // mutually incompatible types of 'MovableAllocTestType' for the different
-    // arguments of 'operator()' in the test to ensure that 'bind*' can handle
-    // 14 different, incompatible types of arguments.
 
     // CREATORS
     ParametrizedMovableAllocTestType(bslma::Allocator *alloc)
@@ -1247,10 +1268,10 @@ namespace Testcase_19 {
                         // class TestMoveFunctor
                         // =====================
 
+/// The `operator()` overloads in this `struct` take arguments that are
+/// homogenous, all of a single, movable, move-aware type to ensure that all
+/// arguments have been moved into a `Bind` object.
 struct TestHomogMoveFunctor {
-    // The 'operator()' overloads in this 'struct' take arguments that are
-    // homogenous, all of a single, movable, move-aware type to ensure that all
-    // arguments have been moved into a 'Bind' object.
 
     // TYPES
     typedef int ResultType;
@@ -1299,11 +1320,11 @@ struct TestHomogMoveFunctor {
 #undef  U_OPERATOR_FN
 };
 
+/// The arguments to the `operator()` overloads in this `struct` are
+/// heterogeneous, of varying types that are movable and move-aware and
+/// incompatible with one another, to ensure that the bind methods are not
+/// getting different arguments confused with one another.
 struct TestHeteroMoveFunctor {
-    // The arguments to the 'operator()' overloads in this 'struct' are
-    // heterogeneous, of varying types that are movable and move-aware and
-    // incompatible with one another, to ensure that the bind methods are not
-    // getting different arguments confused with one another.
 
     // TYPES
     typedef int ResultType;

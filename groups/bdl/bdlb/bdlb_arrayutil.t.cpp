@@ -81,28 +81,28 @@ struct UserDefined
 // ----------------------------------------------------------------------------
 namespace BDLB_ARRAYUTIL_USAGE_EXAMPLE {
 
+/// Demonstrate accessing a statically defined array using syntax similar to
+/// that of standard containers.  If the specified `verbose` is `true`,
+/// write a trace message to standard output.
 void usePrimes(bool verbose);
-    // Demonstrate accessing a statically defined array using syntax similar to
-    // that of standard containers.  If the specified 'verbose' is 'true',
-    // write a trace message to standard output.
 
+/// Load to the specified `result` the contents of the specified
+/// `numberOfColumns` table `columns`.
 void query(bsl::string       *result,
            const bsl::string *columns,
            int                numberOfColumns);
-    // Load to the specified 'result' the contents of the specified
-    // 'numberOfColumns' table 'columns'.
 
+/// Assert that the specified `data` equals the expected values.
 void checkData(const bsl::vector<bsl::string>& data);
-    // Assert that the specified 'data' equals the expected values.
 
+/// Load the specified `data` the results of querying an unspecified
+/// database table for certain columns.
 void loadData(bsl::vector<bsl::string> *data);
-    // Load the specified 'data' the results of querying an unspecified
-    // database table for certain columns.
 
+/// Assert that the values obtained from a certain database equal their
+/// expected values.  If the specified `verbose` is `true`, write a trace
+/// message to standard output.
 void getAndCheckData(bool verbose);
-    // Assert that the values obtained from a certain database equal their
-    // expected values.  If the specified 'verbose' is 'true', write a trace
-    // message to standard output.
 
 ///Usage
 ///-----
@@ -116,13 +116,13 @@ void getAndCheckData(bool verbose);
 // using the array should automatically determine the array's length or
 // automatically determine iterators to the beginning and the end of the array.
 //
-// For example, to initialize a 'bsl::vector<int>' with the first few prime
-// numbers stored in an array the following code uses the 'begin' and 'end'
-// methods of 'bdlb::ArrayUtil':
-//..
+// For example, to initialize a `bsl::vector<int>` with the first few prime
+// numbers stored in an array the following code uses the `begin` and `end`
+// methods of `bdlb::ArrayUtil`:
+// ```
     void usePrimes(bool verbose)
     {
-        if (verbose) cout << "\n" << "'usePrimes'" << "\n"
+        if (verbose) cout << "\n" << "`usePrimes`" << "\n"
                                   << "===========" << "\n";
 
         const int        primes[] = { 2, 3, 5, 7, 11, 13, 17 };
@@ -130,15 +130,15 @@ void getAndCheckData(bool verbose);
                                 bdlb::ArrayUtil::end(primes));
 
         ASSERT(values.size() == bdlb::ArrayUtil::size(primes));
-//..
-// Notice that, after constructing 'values' with the content of the array
-// 'primes' the assertion verifies that the correct number of values is stored
-// in 'values'.
+// ```
+// Notice that, after constructing `values` with the content of the array
+// `primes` the assertion verifies that the correct number of values is stored
+// in `values`.
 //
 // When the length is needed as a constant expression, e.g., to use it for the
-// length of another array, the macro 'BDLB_ARRAYUTIL_LENGTH(array)' can be
+// length of another array, the macro `BDLB_ARRAYUTIL_LENGTH(array)` can be
 // used:
-//..
+// ```
         int reversePrimes[BDLB_ARRAYUTIL_SIZE(primes)];
 
         bsl::copy(values.rbegin(),
@@ -150,24 +150,24 @@ void getAndCheckData(bool verbose);
                              bdlb::ArrayUtil::begin(reversePrimes)).second
                == bdlb::ArrayUtil::end(reversePrimes));
     }
-//..
-// After defining the array 'reversePrimes' with the same length as 'primes'
-// the elements of 'values' are copied in reverse order into this array.  The
-// assertion verifies that 'reversePrimes' contains the values from 'primes'
-// but in reverse order: 'bsl::mismatch' is used with a reverse sequence of
-// 'primes' by using the 'rbegin' and 'rend' methods for 'primes' and normal
-// sequence using the 'begin' and 'end' methods for 'reversePrimes'.
+// ```
+// After defining the array `reversePrimes` with the same length as `primes`
+// the elements of `values` are copied in reverse order into this array.  The
+// assertion verifies that `reversePrimes` contains the values from `primes`
+// but in reverse order: `bsl::mismatch` is used with a reverse sequence of
+// `primes` by using the `rbegin` and `rend` methods for `primes` and normal
+// sequence using the `begin` and `end` methods for `reversePrimes`.
 //
 ///Example 2: Use with Database Interfaces
 ///- - - - - - - - - - - - - - - - - - - -
-// The functions 'begin', 'end', and 'size' provided by this component are
+// The functions `begin`, `end`, and `size` provided by this component are
 // similar to functions provided by containers.  The main difference is that
 // they reside in a utility component rather than being member functions.
 //
-// A typical use case for the 'size' function is a function expecting a pointer
+// A typical use case for the `size` function is a function expecting a pointer
 // to a sequence of keys (e.g., columns in a database) and the number of the
 // keys in the sequence:
-//..
+// ```
     void query(bsl::string       *result,
                const bsl::string *columns,
                size_t             numberOfColumns)
@@ -189,37 +189,37 @@ void getAndCheckData(bool verbose);
         data->assign(bdlb::ArrayUtil::begin(result),
                      bdlb::ArrayUtil::end(result));
     }
-//..
-// The 'loadData' function shows how to use the different function templates.
-// The array 'columns' doesn't have a length specified.  It is determined from
+// ```
+// The `loadData` function shows how to use the different function templates.
+// The array `columns` doesn't have a length specified.  It is determined from
 // the number of elements it is initialized with.  In this case it is easy to
 // see that there are three elements but in real situations the number of
 // elements can be non-trivial to get right.  Also, changing the number of
 // elements would make it necessary to apply the corresponding change in
-// multiple places.  Thus, the length is determined using 'bdlb::ArrayUtil':
+// multiple places.  Thus, the length is determined using `bdlb::ArrayUtil`:
 //
-//: o The length of 'result' should match the length of 'columns'.  When
-//:   specifying the length of an array a constant expression is necessary.  In
-//:   C++ 2011 the function 'bdlb::ArrayUtil::size' could return a constant
-//:   expression but compilers not, yet, implementing the standard a trick must
-//:   be used (using 'sizeof' with a reference to suitably sized array of
-//:   'char').  This trick is packaged into the macro 'BDLB_ARRAYUTIL_SIZE()'.
-//:
-//: o When the length is needed in a context where a 'const' expression is not
-//:   required, e.g., when calling 'query', the `bdlb::ArrayUtil::size'
-//:   function can be used with the array.
-//:
-//: o The 'bdlb::ArrayUtil::begin' and 'bdlb::ArrayUtil::end' functions are
-//:   used to obtain 'begin' and 'end' iterators used with the vector's
-//:   'assign' function to put the 'result' obtained from the call to 'query'
-//:   into the 'vector' pointed to by 'data'.
+//  - The length of `result` should match the length of `columns`.  When
+//    specifying the length of an array a constant expression is necessary.  In
+//    C++ 2011 the function `bdlb::ArrayUtil::size` could return a constant
+//    expression but compilers not, yet, implementing the standard a trick must
+//    be used (using `sizeof` with a reference to suitably sized array of
+//    `char`).  This trick is packaged into the macro `BDLB_ARRAYUTIL_SIZE()`.
+//
+//  - When the length is needed in a context where a `const` expression is not
+//    required, e.g., when calling `query`, the `bdlb::ArrayUtil::size'
+//    function can be used with the array.
+//
+//  - The `bdlb::ArrayUtil::begin` and `bdlb::ArrayUtil::end` functions are
+//    used to obtain `begin` and `end` iterators used with the vector's
+//    `assign` function to put the `result` obtained from the call to `query`
+//    into the `vector` pointed to by `data`.
 //
 // Similar needs for an array of a sequence of values frequently arise when
 // using one of the database interfaces.
 //
 // Another common use case are test cases where the content of a computed
 // sequence must be compared with an expected result:
-//..
+// ```
     void checkData(const bsl::vector<bsl::string>& data)
     {
         const bsl::string expect[] = { "queried column1",
@@ -232,26 +232,26 @@ void getAndCheckData(bool verbose);
                              bdlb::ArrayUtil::end(expect),
                              data.begin()).first);
     }
-//..
-// In the code below the actual result in 'data' is compared to the values in
-// the array 'expect':
+// ```
+// In the code below the actual result in `data` is compared to the values in
+// the array `expect`:
 //
-//: 1 We make sure that the lengths of 'data' and 'expect' are identical using
-//:   'bdlb::ArrayUtil::size'.
-//:
-//: 2 The sequences are compared using the 'mismatch' algorithm: To get the
-//:   begin and of the 'expect' array 'bdlb::ArrayUtil::begin' and
-//:   'bdlb::ArrayUtil::end', respectively, are used.
-//..
+// 1. We make sure that the lengths of `data` and `expect` are identical using
+//    `bdlb::ArrayUtil::size`.
+//
+// 2. The sequences are compared using the `mismatch` algorithm: To get the
+//    begin and of the `expect` array `bdlb::ArrayUtil::begin` and
+//    `bdlb::ArrayUtil::end`, respectively, are used.
+// ```
     void getAndCheckData(bool verbose)
     {
-        if (verbose) cout << "\n" << "'getAndCheckData'" << "\n"
+        if (verbose) cout << "\n" << "`getAndCheckData`" << "\n"
                                   << "=================" << "\n";
         bsl::vector<bsl::string> data;
         loadData(&data);
         checkData(data);
     }
-//..
+// ```
 }  // close namespace BDLB_ARRAYUTIL_USAGE_EXAMPLE
 
 // ============================================================================
@@ -272,13 +272,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -297,15 +297,15 @@ int main(int argc, char *argv[])
         //   Verify all function templates produce the expected result.
         //
         // Concerns:
-        //: 1 Verify all function produce the expected results.
-        //: 2 Verify different qualifiers work.
-        //: 3 Verify different array sizes
+        // 1. Verify all function produce the expected results.
+        // 2. Verify different qualifiers work.
+        // 3. Verify different array sizes
         //
         // Plan:
-        //: 1 Try all functions.
-        //: 2 Try them with built-in and user-defined types.
-        //: 3 Try them with both 'const', 'volatile' and non-'const' versions
-        //: 4 Use different array sizes for the various types.
+        // 1. Try all functions.
+        // 2. Try them with built-in and user-defined types.
+        // 3. Try them with both `const`, `volatile` and non-`const` versions
+        // 4. Use different array sizes for the various types.
         //
         // Testing:
         //   BEHAVIOR TEST
@@ -407,15 +407,15 @@ int main(int argc, char *argv[])
         //   Verify all function templates are callable.
         //
         // Concerns:
-        //: 1 Both 'const' and non-'const' arrays should work.
-        //: 2 The functions should be callable with arbitrary types.
-        //: 3 The functions should be applicable to different array sizes.
+        // 1. Both `const` and non-`const` arrays should work.
+        // 2. The functions should be callable with arbitrary types.
+        // 3. The functions should be applicable to different array sizes.
         //
         // Plan:
-        //: 1 Try all functions.
-        //: 2 Try them with built-in and user-defined types.
-        //: 3 Try them with 'const', 'volatile' and non-'const' versions.
-        //: 4 Use different array sizes for the various types.
+        // 1. Try all functions.
+        // 2. Try them with built-in and user-defined types.
+        // 3. Try them with `const`, `volatile` and non-`const` versions.
+        // 4. Use different array sizes for the various types.
         //
         // Testing:
         //   BREATHING TEST

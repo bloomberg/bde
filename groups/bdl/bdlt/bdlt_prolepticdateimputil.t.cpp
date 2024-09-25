@@ -12,7 +12,7 @@
 #include <bsls_stopwatch.h>
 
 #include <bsl_climits.h>
-#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstdlib.h>     // `atoi`
 #include <bsl_cstring.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
@@ -37,14 +37,14 @@ using namespace bsl;
 // are performed on most of the methods over a range of years that is
 // determined by verbosity level.  The methods exhaustively tested are done so
 // over an abridged range of years by default, and over the entire range of
-// valid years in 'veryVerbose' mode (see 'yearRangeFlag').  The abridged range
+// valid years in `veryVerbose` mode (see `yearRangeFlag`).  The abridged range
 // of years is defined such that the entire cache is exercised (in any test
 // mode).
 //
 // Several negatively-numbered test cases are also provided, one of which
-// (test case -1) is used to generate the cache (for insertion into the '.cpp'
+// (test case -1) is used to generate the cache (for insertion into the `.cpp`
 // file).  The other negative tests (-2 through -7) compare the running times
-// of the 'NoCache' methods versus that of their cached counterparts.
+// of the `NoCache` methods versus that of their cached counterparts.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 2] static bool isLeapYear(int year);
@@ -190,13 +190,14 @@ enum {
 // three supported by this component.  In this example, we choose to represent
 // the date value internally as a "serial date".
 //
-// First, we define a partial interface of our date class, 'MyDate', omitting
-// many methods, free operators, and 'friend' declarations that do not
+// First, we define a partial interface of our date class, `MyDate`, omitting
+// many methods, free operators, and `friend` declarations that do not
 // contribute substantively to illustrating use of this component:
-//..
+// ```
+
+    /// This class represents a valid date, in the proleptic Gregorian
+    /// calendar, in the range `[0001/01/01 .. 9999/12/31]`.
     class MyDate {
-        // This class represents a valid date, in the proleptic Gregorian
-        // calendar, in the range '[0001/01/01 .. 9999/12/31]'.
 
         // DATA
         int d_serialDate;  // 1 = 0001/01/01, 2 = 0001/01/02, etc.
@@ -207,27 +208,30 @@ enum {
 
       private:
         // PRIVATE CREATORS
+
+        /// Create a `MyDate` object initialized with the value indicated by
+        /// the specified `serialDate`.  The behavior is undefined unless
+        /// `serialDate` represents a valid `MyDate` value.
         explicit MyDate(int serialDate);
-            // Create a 'MyDate' object initialized with the value indicated by
-            // the specified 'serialDate'.  The behavior is undefined unless
-            // 'serialDate' represents a valid 'MyDate' value.
 
       public:
         // CLASS METHODS
+
+        /// Return `true` if the specified `year`, `month`, and `day`
+        /// represent a valid value for a `MyDate` object, and `false`
+        /// otherwise.
         static bool isValid(int year, int month, int day);
-            // Return 'true' if the specified 'year', 'month', and 'day'
-            // represent a valid value for a 'MyDate' object, and 'false'
-            // otherwise.
 
         // CREATORS
-        MyDate();
-            // Create a 'MyDate' object having the earliest supported valid
-            // date value, i.e., "0001/01/01".
 
+        /// Create a `MyDate` object having the earliest supported valid
+        /// date value, i.e., "0001/01/01".
+        MyDate();
+
+        /// Create a `MyDate` object having the value represented by the
+        /// specified `year`, `month`, and `day`.  The behavior is undefined
+        /// unless `isValid(year, month, day)` returns `true`.
         MyDate(int year, int month, int day);
-            // Create a 'MyDate' object having the value represented by the
-            // specified 'year', 'month', and 'day'.  The behavior is undefined
-            // unless 'isValid(year, month, day)' returns 'true'.
 
         // ...
 
@@ -235,45 +239,47 @@ enum {
 
         // ...
 
+        /// Set this `MyDate` object to have the value represented by the
+        /// specified `year`, `month`, and `day`.  The behavior is undefined
+        /// unless `isValid(year, month, day)` returns `true`.
         void setYearMonthDay(int year, int month, int day);
-            // Set this 'MyDate' object to have the value represented by the
-            // specified 'year', 'month', and 'day'.  The behavior is undefined
-            // unless 'isValid(year, month, day)' returns 'true'.
 
         // ACCESSORS
+
+        /// Load, into the specified `year`, `month`, and `day`, the
+        /// individual attribute values of this `MyDate` object.
         void getYearMonthDay(int *year, int *month, int *day) const;
-            // Load, into the specified 'year', 'month', and 'day', the
-            // individual attribute values of this 'MyDate' object.
 
+        /// Return the day of the month in the range `[1 .. 31]` of this
+        /// `MyDate` object.
         int day() const;
-            // Return the day of the month in the range '[1 .. 31]' of this
-            // 'MyDate' object.
 
+        /// Return the month of the year in the range `[1 .. 12]` of this
+        /// `MyDate` object.
         int month() const;
-            // Return the month of the year in the range '[1 .. 12]' of this
-            // 'MyDate' object.
 
+        /// Return the year in the range `[1 .. 9999]` of this `MyDate`
+        /// object.
         int year() const;
-            // Return the year in the range '[1 .. 9999]' of this 'MyDate'
-            // object.
 
         // ...
     };
 
     // FREE OPERATORS
+
+    /// Return `true` if the specified `lhs` and `rhs` `MyDate` objects have
+    /// the same value, and `false` otherwise.  Two dates have the same
+    /// value if each of the corresponding `year`, `month`, and `day`
+    /// attributes respectively have the same value.
     bool operator==(const MyDate& lhs, const MyDate& rhs);
-        // Return 'true' if the specified 'lhs' and 'rhs' 'MyDate' objects have
-        // the same value, and 'false' otherwise.  Two dates have the same
-        // value if each of the corresponding 'year', 'month', and 'day'
-        // attributes respectively have the same value.
 
     // ...
-//..
-// Then, we provide an implementation of the 'MyDate' methods and associated
-// free operators declared above, using 'bsls_assert' to identify preconditions
+// ```
+// Then, we provide an implementation of the `MyDate` methods and associated
+// free operators declared above, using `bsls_assert` to identify preconditions
 // and invariants where appropriate.  Note the use of various
-// 'bdlt::ProlepticDateImpUtil' functions in the code:
-//..
+// `bdlt::ProlepticDateImpUtil` functions in the code:
+// ```
     // PRIVATE CREATORS
     inline
     MyDate::MyDate(int serialDate)
@@ -360,7 +366,7 @@ enum {
     {
         return lhs.d_serialDate == rhs.d_serialDate;
     }
-//..
+// ```
 
 // BDE_VERIFY pragma: pop
 
@@ -378,7 +384,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
@@ -391,9 +397,9 @@ int main(int argc, char *argv[])
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
-    // 'yearRangeFlag' determines the range of years over which exhaustive
-    // testing is performed.  By default, that range is abridged (see 'enum'
-    // above).  In 'veryVerbose' mode, the range includes '[1 .. 9999]'.  In
+    // `yearRangeFlag` determines the range of years over which exhaustive
+    // testing is performed.  By default, that range is abridged (see `enum`
+    // above).  In `veryVerbose` mode, the range includes `[1 .. 9999]`.  In
     // any case, the entire cache is always exercised.
 
     bool yearRangeFlag = !(argc > 3);
@@ -405,13 +411,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE 2
@@ -421,36 +427,36 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE 2" << endl
                           << "===============" << endl;
 
-// Next, we illustrate basic use of our 'MyDate' class, starting with the
-// creation of a default object, 'd1':
-//..
+// Next, we illustrate basic use of our `MyDate` class, starting with the
+// creation of a default object, `d1`:
+// ```
     MyDate d1;                        ASSERT(   1 == d1.year());
                                       ASSERT(   1 == d1.month());
                                       ASSERT(   1 == d1.day());
-//..
-// Now, we set 'd1' to July 4, 1776 via the 'setYearMonthDay' method, but we
-// first verify that it is a valid date using 'isValid':
-//..
+// ```
+// Now, we set `d1` to July 4, 1776 via the `setYearMonthDay` method, but we
+// first verify that it is a valid date using `isValid`:
+// ```
                                       ASSERT(MyDate::isValid(1776, 7, 4));
     d1.setYearMonthDay(1776, 7, 4);   ASSERT(1776 == d1.year());
                                       ASSERT(   7 == d1.month());
                                       ASSERT(   4 == d1.day());
-//..
-// Finally, using the value constructor, we create 'd2' to have the same value
-// as 'd1':
-//..
+// ```
+// Finally, using the value constructor, we create `d2` to have the same value
+// as `d1`:
+// ```
     MyDate d2(1776, 7, 4);            ASSERT(1776 == d2.year());
                                       ASSERT(   7 == d2.month());
                                       ASSERT(   4 == d2.day());
                                       ASSERT(  d1 == d2);
-//..
-// Note that equality comparison of 'MyDate' objects is very efficient, being
-// comprised of a comparison of two 'int' values.  Similarly, the 'MyDate'
+// ```
+// Note that equality comparison of `MyDate` objects is very efficient, being
+// comprised of a comparison of two `int` values.  Similarly, the `MyDate`
 // methods and free operators (not shown) that add a (signed) number of days to
 // a date are also very efficient.  However, one of the trade-offs of storing a
 // date internally as a serial value is that operations involving conversion
-// among the serial value and one or more of the 'year', 'month', and 'day'
-// attributes (e.g., 'setYearMonthDay', 'getYearMonthDay') entail considerably
+// among the serial value and one or more of the `year`, `month`, and `day`
+// attributes (e.g., `setYearMonthDay`, `getYearMonthDay`) entail considerably
 // more computation.
 
       } break;
@@ -460,13 +466,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE 1
@@ -486,80 +492,80 @@ int main(int argc, char *argv[])
 // supported formats.
 //
 // First, what day of the week was January 3, 2010?
-//..
+// ```
     ASSERT(2 == bdlt::ProlepticDateImpUtil::ymdToDayOfWeek(2010, 3, 1));
                                                              // 2 means Monday.
-//..
+// ```
 // Then, was the year 2000 a leap year?
-//..
+// ```
     ASSERT(true == bdlt::ProlepticDateImpUtil::isLeapYear(2000));
                                                              // Yes, it was.
-//..
+// ```
 // Next, was February 29, 1900 a valid date in history?
-//..
+// ```
     ASSERT(false == bdlt::ProlepticDateImpUtil::isValidYearMonthDay(1900,
                                                                        2,
                                                                       29));
                                                              // No, it was not.
-//..
+// ```
 // Then, what was the last day of February in 1600?
-//..
+// ```
     ASSERT(29 == bdlt::ProlepticDateImpUtil::lastDayOfMonth(1600, 2));
                                                              // The 29th.
-//..
+// ```
 // Next, how many leap years occurred from 1959 to 2012, inclusive?
-//..
+// ```
     ASSERT(14 == bdlt::ProlepticDateImpUtil::numLeapYears(1959, 2012));
                                                              // There were 14.
-//..
+// ```
 // Now, on what day of the year will February 29, 2020 fall?
-//..
+// ```
     ASSERT(60 == bdlt::ProlepticDateImpUtil::ymdToDayOfYear(2020, 2, 29));
                                                              // The 60th one.
-//..
+// ```
 // Finally, in what month did the 120th day of 2011 fall?
-//..
+// ```
     ASSERT(4 == bdlt::ProlepticDateImpUtil::ydToMonth(2011, 120));
                                                              // 4 means April.
-//..
+// ```
 
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING '{serial|yd|ymd}ToDayOfWeek'
+        // TESTING `{serial|yd|ymd}ToDayOfWeek`
         //   Ensure that the methods correctly map every date, in any of the
         //   three supported formats, to its corresponding day of the week.
         //
         // Concerns:
-        //: 1 The 'serialToDayOfWeek' method correctly maps every valid serial
-        //:   date to the corresponding day of the week.
-        //:
-        //: 2 The 'ydToDayOfWeek' method correctly maps every valid
-        //:   year/day-of-year date to the corresponding day of the week.
-        //:
-        //: 3 The 'ymdToDayOfWeek' method correctly maps every valid
-        //:   year/month/day date to the corresponding day of the week.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The `serialToDayOfWeek` method correctly maps every valid serial
+        //    date to the corresponding day of the week.
+        //
+        // 2. The `ydToDayOfWeek` method correctly maps every valid
+        //    year/day-of-year date to the corresponding day of the week.
+        //
+        // 3. The `ymdToDayOfWeek` method correctly maps every valid
+        //    year/month/day date to the corresponding day of the week.
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   year/month/day dates (one per row), and the (integral) day (of
-        //:   the week) results expected from 'ymdToDayOfWeek' when applied to
-        //:   those tabulated dates.
-        //:
-        //: 2 Use the table described in P-1, and the (previously tested)
-        //:   'ymdToDayOfYear' and 'ymdToSerial' methods, to verify,
-        //:   respectively, that the results from 'ydToDayOfWeek' and
-        //:   'serialToDayOfWeek' are as expected.
-        //:
-        //: 3 For further assurance, exhaustively test the three methods over a
-        //:   range of years that is governed by the 'yearRangeFlag'.  (C-1..3)
-        //:
-        //: 4 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-4)
+        // 1. Using the table-driven technique, specify a set of (unique) valid
+        //    year/month/day dates (one per row), and the (integral) day (of
+        //    the week) results expected from `ymdToDayOfWeek` when applied to
+        //    those tabulated dates.
+        //
+        // 2. Use the table described in P-1, and the (previously tested)
+        //    `ymdToDayOfYear` and `ymdToSerial` methods, to verify,
+        //    respectively, that the results from `ydToDayOfWeek` and
+        //    `serialToDayOfWeek` are as expected.
+        //
+        // 3. For further assurance, exhaustively test the three methods over a
+        //    range of years that is governed by the `yearRangeFlag`.  (C-1..3)
+        //
+        // 4. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-4)
         //
         // Testing:
         //   static int  serialToDayOfWeek(int serialDay);
@@ -568,7 +574,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING '{serial|yd|ymd}ToDayOfWeek'" << endl
+                          << "TESTING `{serial|yd|ymd}ToDayOfWeek`" << endl
                           << "====================================" << endl;
 
         enum { SUN = 1, MON, TUE, WED, THU, FRI, SAT };
@@ -733,34 +739,34 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'serialTo{Day|Month|Ymd}[NoCache]'
+        // TESTING `serialTo{Day|Month|Ymd}[NoCache]`
         //   Ensure that the methods correctly map every serial date to the
         //   corresponding year, month, and day (of the month).
         //
         // Concerns:
-        //: 1 The 'serialToYmd[NoCache]' methods correctly map every valid
-        //:   serial date to its corresponding year/month/day date.
-        //:
-        //: 2 The 'serialToMonth[NoCache]' methods correctly map every valid
-        //:   serial date to the corresponding month.
-        //:
-        //: 3 The 'serialToDay[NoCache]' methods correctly map every valid
-        //:   serial date to the corresponding day (of the month).
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The `serialToYmd[NoCache]` methods correctly map every valid
+        //    serial date to its corresponding year/month/day date.
+        //
+        // 2. The `serialToMonth[NoCache]` methods correctly map every valid
+        //    serial date to the corresponding month.
+        //
+        // 3. The `serialToDay[NoCache]` methods correctly map every valid
+        //    serial date to the corresponding day (of the month).
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   serial dates (one per row), and the (integral) year, month, and
-        //:   day (of the month) results expected from the four methods when
-        //:   applied to those tabulated dates.  For further assurance,
-        //:   exhaustively test the methods over a range of years that is
-        //:   governed by the 'yearRangeFlag'.  (C-1..3)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-4)
+        // 1. Using the table-driven technique, specify a set of (unique) valid
+        //    serial dates (one per row), and the (integral) year, month, and
+        //    day (of the month) results expected from the four methods when
+        //    applied to those tabulated dates.  For further assurance,
+        //    exhaustively test the methods over a range of years that is
+        //    governed by the `yearRangeFlag`.  (C-1..3)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-4)
         //
         // Testing:
         //   static int  serialToDay(int serialDay);
@@ -772,7 +778,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'serialTo{Day|Month|Ymd}[NoCache]'"
+                          << "TESTING `serialTo{Day|Month|Ymd}[NoCache]`"
                           << endl
                           << "=========================================="
                           << endl;
@@ -1071,34 +1077,34 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'serialTo{DayOfYear|Yd|Year[NoCache]}'
+        // TESTING `serialTo{DayOfYear|Yd|Year[NoCache]}`
         //   Ensure that the methods correctly map every serial date to the
         //   corresponding year and day (of the year).
         //
         // Concerns:
-        //: 1 The 'serialToYd' method correctly maps every valid serial date to
-        //:   the corresponding year and day of year.
-        //:
-        //: 2 The 'serialToDayOfYear' method correctly maps every valid serial
-        //:   date to the corresponding day of year.
-        //:
-        //: 3 The 'serialToYear[NoCache]' methods correctly map every valid
-        //:   serial date to the corresponding year.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The `serialToYd` method correctly maps every valid serial date to
+        //    the corresponding year and day of year.
+        //
+        // 2. The `serialToDayOfYear` method correctly maps every valid serial
+        //    date to the corresponding day of year.
+        //
+        // 3. The `serialToYear[NoCache]` methods correctly map every valid
+        //    serial date to the corresponding year.
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   serial dates (one per row), and the (integral) year and day of
-        //:   year results expected from the three methods when applied to
-        //:   those tabulated dates.  For further assurance, exhaustively test
-        //:   the methods over a range of years that is governed by the
-        //:   'yearRangeFlag'.  (C-1..3)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-4)
+        // 1. Using the table-driven technique, specify a set of (unique) valid
+        //    serial dates (one per row), and the (integral) year and day of
+        //    year results expected from the three methods when applied to
+        //    those tabulated dates.  For further assurance, exhaustively test
+        //    the methods over a range of years that is governed by the
+        //    `yearRangeFlag`.  (C-1..3)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-4)
         //
         // Testing:
         //   static int  serialToDayOfYear(int serialDay);
@@ -1108,7 +1114,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'serialTo{DayOfYear|Yd|Year[NoCache]}'"
+                          << "TESTING `serialTo{DayOfYear|Yd|Year[NoCache]}`"
                           << endl
                           << "=============================================="
                           << endl;
@@ -1349,34 +1355,34 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'ydToSerial'
+        // TESTING `ydToSerial`
         //   Ensure that the method correctly maps every year/day-of-year date
         //   to its corresponding serial date.
         //
         // Concerns:
-        //: 1 The method correctly maps every valid year/day-of-year date to
-        //:   its corresponding serial date.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The method correctly maps every valid year/day-of-year date to
+        //    its corresponding serial date.
+        //
+        // 2. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   year/day-of-year dates (one per row), and the (integral) results
-        //:   expected from 'ydToSerial' when applied to those tabulated dates.
-        //:   For further assurance, exhaustively test 'ydToSerial' over a
-        //:   range of years that is governed by the 'yearRangeFlag'.  (C-1)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-2)
+        // 1. Using the table-driven technique, specify a set of (unique) valid
+        //    year/day-of-year dates (one per row), and the (integral) results
+        //    expected from `ydToSerial` when applied to those tabulated dates.
+        //    For further assurance, exhaustively test `ydToSerial` over a
+        //    range of years that is governed by the `yearRangeFlag`.  (C-1)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-2)
         //
         // Testing:
         //   static int  ydToSerial(int year, int dayOfYear);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'ydToSerial'" << endl
+                          << "TESTING `ydToSerial`" << endl
                           << "====================" << endl;
 
         if (verbose) cout << "\tDirect test vectors." << endl;
@@ -1508,34 +1514,34 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'ydTo{Day|Md|Month}'
+        // TESTING `ydTo{Day|Md|Month}`
         //   Ensure that the methods correctly map every year/day-of-year date
         //   to the corresponding month and day of the month.
         //
         // Concerns:
-        //: 1 The 'ydToMd' method correctly maps every valid year/day-of-year
-        //:   date to the corresponding month and day of the month.
-        //:
-        //: 2 The 'ydToMonth' method correctly maps every valid
-        //:   year/day-of-year date to the corresponding month.
-        //:
-        //: 3 The 'ydToDay' method correctly maps every valid year/day-of-year
-        //:   date to the corresponding day of the month.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The `ydToMd` method correctly maps every valid year/day-of-year
+        //    date to the corresponding month and day of the month.
+        //
+        // 2. The `ydToMonth` method correctly maps every valid
+        //    year/day-of-year date to the corresponding month.
+        //
+        // 3. The `ydToDay` method correctly maps every valid year/day-of-year
+        //    date to the corresponding day of the month.
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   year/day-of-year dates (one per row), and the (integral) month
-        //:   and day (of the month) results expected from the three methods
-        //:   when applied to those tabulated dates.  For further assurance,
-        //:   exhaustively test the methods over a range of years that is
-        //:   governed by the 'yearRangeFlag'.  (C-1..3)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-4)
+        // 1. Using the table-driven technique, specify a set of (unique) valid
+        //    year/day-of-year dates (one per row), and the (integral) month
+        //    and day (of the month) results expected from the three methods
+        //    when applied to those tabulated dates.  For further assurance,
+        //    exhaustively test the methods over a range of years that is
+        //    governed by the `yearRangeFlag`.  (C-1..3)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-4)
         //
         // Testing:
         //   static int  ydToDay(int year, int dayOfYear);
@@ -1544,7 +1550,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'ydTo{Day|Md|Month}'" << endl
+                          << "TESTING `ydTo{Day|Md|Month}`" << endl
                           << "============================" << endl;
 
         if (verbose) cout << "\tDirect test vectors." << endl;
@@ -1744,35 +1750,35 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'ymdToDayOfYear'
+        // TESTING `ymdToDayOfYear`
         //   Ensure that the method correctly maps every year/month/day date to
         //   the corresponding day of the year.
         //
         // Concerns:
-        //: 1 The method correctly maps every valid year/month/day date to its
-        //:   corresponding day of the year.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The method correctly maps every valid year/month/day date to its
+        //    corresponding day of the year.
+        //
+        // 2. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   year/month/day dates (one per row), and the (integral) results
-        //:   expected from 'ymdToDayOfYear' when applied to those tabulated
-        //:   dates.  For further assurance, exhaustively test 'ymdToDayOfYear'
-        //:   over a range of years that is governed by the 'yearRangeFlag'.
-        //:   (C-1)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-2)
+        // 1. Using the table-driven technique, specify a set of (unique) valid
+        //    year/month/day dates (one per row), and the (integral) results
+        //    expected from `ymdToDayOfYear` when applied to those tabulated
+        //    dates.  For further assurance, exhaustively test `ymdToDayOfYear`
+        //    over a range of years that is governed by the `yearRangeFlag`.
+        //    (C-1)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-2)
         //
         // Testing:
         //   static int  ymdToDayOfYear(int year, int month, int day);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'ymdToDayOfYear'" << endl
+                          << "TESTING `ymdToDayOfYear`" << endl
                           << "========================" << endl;
 
         if (verbose) cout << "\tDirect test vectors." << endl;
@@ -2015,28 +2021,28 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'ymdToSerial[NoCache]'
+        // TESTING `ymdToSerial[NoCache]`
         //   Ensure that the methods correctly map every year/month/day date to
         //   its corresponding serial date.
         //
         // Concerns:
-        //: 1 Both methods correctly map every valid year/month/day date to its
-        //:   corresponding serial date.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Both methods correctly map every valid year/month/day date to its
+        //    corresponding serial date.
+        //
+        // 2. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   year/month/day dates (one per row), and the (integral) results
-        //:   expected from 'ymdToSerial[NoCache]' when applied to those
-        //:   tabulated dates.  For further assurance, exhaustively test
-        //:   'ymdToSerial[NoCache]' over a range of years that is governed by
-        //:   the 'yearRangeFlag'.  (C-1)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-2)
+        // 1. Using the table-driven technique, specify a set of (unique) valid
+        //    year/month/day dates (one per row), and the (integral) results
+        //    expected from `ymdToSerial[NoCache]` when applied to those
+        //    tabulated dates.  For further assurance, exhaustively test
+        //    `ymdToSerial[NoCache]` over a range of years that is governed by
+        //    the `yearRangeFlag`.  (C-1)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-2)
         //
         // Testing:
         //   static int  ymdToSerial(int year, int month, int day);
@@ -2044,7 +2050,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'ymdToSerial[NoCache]'" << endl
+                          << "TESTING `ymdToSerial[NoCache]`" << endl
                           << "==============================" << endl;
 
         if (verbose) cout << "\tDirect test vectors." << endl;
@@ -2295,48 +2301,48 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'isValid{Serial|YearDay|YearMonthDay}[NoCache]'
+        // TESTING `isValid{Serial|YearDay|YearMonthDay}[NoCache]`
         //   Ensure that the methods accept (reject) valid (invalid) dates in
         //   any of the three supported formats.
         //
         // Concerns:
-        //: 1 The 'isValidYearMonthDay[NoCache]' methods correctly categorize
-        //:   every (year, month, day) triple as either a valid or an invalid
-        //:   year/month/day date.
-        //:
-        //: 2 The 'isValidYearDay' method correctly categorizes every (year,
-        //:   dayOfYear) pair as either a valid or an invalid year/day-of-year
-        //:   date.
-        //:
-        //: 3 The 'isValidSerial' method correctly categorizes every 'int'
-        //:   value as either a valid or an invalid serial date.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The `isValidYearMonthDay[NoCache]` methods correctly categorize
+        //    every (year, month, day) triple as either a valid or an invalid
+        //    year/month/day date.
+        //
+        // 2. The `isValidYearDay` method correctly categorizes every (year,
+        //    dayOfYear) pair as either a valid or an invalid year/day-of-year
+        //    date.
+        //
+        // 3. The `isValidSerial` method correctly categorizes every `int`
+        //    value as either a valid or an invalid serial date.
+        //
+        // 4. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   (year, month, day) triples (one per row), and the (boolean)
-        //:   results expected from 'isValidYearMonthDay[NoCache]' when applied
-        //:   to those tabulated triples.  For further assurance, exhaustively
-        //:   test 'isValidYearMonthDay[NoCache]' over a range of years that is
-        //:   governed by the 'yearRangeFlag'.  (C-1)
-        //:
-        //: 2 Using the table-driven technique, specify a set of (unique) valid
-        //:   (year, dayOfYear) pairs (one per row), and the (boolean) results
-        //:   expected from 'isValidYearDay' when applied to those tabulated
-        //:   pairs.  For further assurance, exhaustively test 'isValidYearDay'
-        //:   over a range of years that is governed by the 'yearRangeFlag'.
-        //:   (C-2)
-        //:
-        //: 3 Using the table-driven technique, specify a set of (unique) valid
-        //:   'int' values (one per row), and the (boolean) results expected
-        //:   from 'isValidSerial' when applied to those tabulated values.
-        //:   (C-3)
-        //:
-        //: 4 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-4)
+        // 1. Using the table-driven technique, specify a set of (unique) valid
+        //    (year, month, day) triples (one per row), and the (boolean)
+        //    results expected from `isValidYearMonthDay[NoCache]` when applied
+        //    to those tabulated triples.  For further assurance, exhaustively
+        //    test `isValidYearMonthDay[NoCache]` over a range of years that is
+        //    governed by the `yearRangeFlag`.  (C-1)
+        //
+        // 2. Using the table-driven technique, specify a set of (unique) valid
+        //    (year, dayOfYear) pairs (one per row), and the (boolean) results
+        //    expected from `isValidYearDay` when applied to those tabulated
+        //    pairs.  For further assurance, exhaustively test `isValidYearDay`
+        //    over a range of years that is governed by the `yearRangeFlag`.
+        //    (C-2)
+        //
+        // 3. Using the table-driven technique, specify a set of (unique) valid
+        //    `int` values (one per row), and the (boolean) results expected
+        //    from `isValidSerial` when applied to those tabulated values.
+        //    (C-3)
+        //
+        // 4. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-4)
         //
         // Testing:
         //   static bool isValidSerial(int serialDay);
@@ -2347,12 +2353,12 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "TESTING 'isValid{Serial|YearDay|YearMonthDay}[NoCache]'"
+                 << "TESTING `isValid{Serial|YearDay|YearMonthDay}[NoCache]`"
                  << endl
                  << "======================================================="
                  << endl;
 
-        if (verbose) cout << "\nTesting: 'isValidYearMonthDay[NoCache]'"
+        if (verbose) cout << "\nTesting: `isValidYearMonthDay[NoCache]`"
                           << endl;
 
         if (verbose) cout << "\tDirect test vectors." << endl;
@@ -2615,7 +2621,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting: 'isValidYearDay'" << endl;
+        if (verbose) cout << "\nTesting: `isValidYearDay`" << endl;
 
         if (verbose) cout << "\tDirect test vectors." << endl;
         {
@@ -2748,7 +2754,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting: 'isValidSerial'" << endl;
+        if (verbose) cout << "\nTesting: `isValidSerial`" << endl;
         {
             const int k_MID_SERIAL = (k_MAX_SERIAL - k_MIN_SERIAL) / 2 + 1;
 
@@ -2802,35 +2808,35 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'lastDayOfMonth'
+        // TESTING `lastDayOfMonth`
         //   Ensure that the method correctly identifies the last day of the
         //   month.
         //
         // Concerns:
-        //: 1 The method correctly identifies the last day of the month for
-        //:   every valid (year, month) pair.
-        //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The method correctly identifies the last day of the month for
+        //    every valid (year, month) pair.
+        //
+        // 2. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   (year, month) pairs (one per row), and the (integral) results
-        //:   expected from 'lastDayOfMonth' when applied to those tabulated
-        //:   pairs.  For further assurance, exhaustively test 'lastDayOfMonth'
-        //:   over a range of years that is governed by the 'yearRangeFlag'.
-        //:   (C-1)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-2)
+        // 1. Using the table-driven technique, specify a set of (unique) valid
+        //    (year, month) pairs (one per row), and the (integral) results
+        //    expected from `lastDayOfMonth` when applied to those tabulated
+        //    pairs.  For further assurance, exhaustively test `lastDayOfMonth`
+        //    over a range of years that is governed by the `yearRangeFlag`.
+        //    (C-1)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-2)
         //
         // Testing:
         //   static int  lastDayOfMonth(int year, int month);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'lastDayOfMonth'" << endl
+                          << "TESTING `lastDayOfMonth`" << endl
                           << "========================" << endl;
 
         if (verbose) cout << "\tDirect test vectors." << endl;
@@ -3007,38 +3013,38 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'numLeapYears'
+        // TESTING `numLeapYears`
         //   Ensure that the method correctly calculates the number of leap
         //   years within any valid range of years.
         //
         // Concerns:
-        //: 1 The method correctly computes the number of leap years within any
-        //:   valid '[year1 .. year2]' range.
-        //:
-        //: 2 The rule regarding divisibility by { 4, 100, 400 } for
-        //:   determining leap years is correctly applied.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The method correctly computes the number of leap years within any
+        //    valid `[year1 .. year2]` range.
+        //
+        // 2. The rule regarding divisibility by { 4, 100, 400 } for
+        //    determining leap years is correctly applied.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   '[year1 .. year2]' range values (one per row), and the (integral)
-        //:   results expected from 'numLeapYears' when applied to those
-        //:   tabulated values.  For further assurance, use the (already
-        //:   proven) 'isLeapYear' function to verify the expected values.
-        //:   (C-1..2)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-3)
+        // 1. Using the table-driven technique, specify a set of (unique) valid
+        //    `[year1 .. year2]` range values (one per row), and the (integral)
+        //    results expected from `numLeapYears` when applied to those
+        //    tabulated values.  For further assurance, use the (already
+        //    proven) `isLeapYear` function to verify the expected values.
+        //    (C-1..2)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-3)
         //
         // Testing:
         //   static int  numLeapYears(int year1, int year2);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'numLeapYears'" << endl
+                          << "TESTING `numLeapYears`" << endl
                           << "======================" << endl;
 
         {
@@ -3193,36 +3199,36 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'isLeapYear'
+        // TESTING `isLeapYear`
         //   Ensure that the method correctly identifies leap years.
         //
         // Concerns:
-        //: 1 The method correctly identifies every year in the supported range
-        //:   ('[1 .. 9999]') as either a leap year or a non-leap year.
-        //:
-        //: 2 The rule regarding divisibility by { 4, 100, 400 } is implemented
-        //:   correctly.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The method correctly identifies every year in the supported range
+        //    (`[1 .. 9999]`) as either a leap year or a non-leap year.
+        //
+        // 2. The rule regarding divisibility by { 4, 100, 400 } is implemented
+        //    correctly.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Using the table-driven technique, specify a set of (unique) valid
-        //:   year values (one per row), and the (boolean) results expected
-        //:   from 'isLeapYear' when applied to those tabulated values.  For
-        //:   further assurance, exhaustively test 'isLeapYear' over the entire
-        //:   range of valid years.  (C-1..2)
-        //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for invalid argument values, but not triggered for
-        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-3)
+        // 1. Using the table-driven technique, specify a set of (unique) valid
+        //    year values (one per row), and the (boolean) results expected
+        //    from `isLeapYear` when applied to those tabulated values.  For
+        //    further assurance, exhaustively test `isLeapYear` over the entire
+        //    range of valid years.  (C-1..2)
+        //
+        // 2. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for invalid argument values, but not triggered for
+        //    adjacent valid ones (using the `BSLS_ASSERTTEST_*` macros).
+        //    (C-3)
         //
         // Testing:
         //   static bool isLeapYear(int year);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'isLeapYear'" << endl
+                          << "TESTING `isLeapYear`" << endl
                           << "====================" << endl;
 
         if (verbose) cout << "\tDirect test vectors." << endl;
@@ -3370,17 +3376,17 @@ int main(int argc, char *argv[])
         //   are correct.
         //
         // Concerns:
-        //: 1 The "magic" values of 'k_MAX_SERIAL', 'k_SHORT_RANGE_MIN_SERIAL',
-        //:   and 'k_SHORT_RANGE_MAX_SERIAL' are correct.
+        // 1. The "magic" values of `k_MAX_SERIAL`, `k_SHORT_RANGE_MIN_SERIAL`,
+        //    and `k_SHORT_RANGE_MAX_SERIAL` are correct.
         //
         // Plan:
-        //: 1 For completeness, assert axiomatic values and manifest
-        //:   relationships among the constants.
-        //:
-        //: 2 Use the (as yet unproven) 'isLeapYear' function to calculate the
-        //:   expected values of 'k_MAX_SERIAL', 'k_SHORT_RANGE_MIN_SERIAL',
-        //:   and 'k_SHORT_RANGE_MAX_SERIAL'.  (Note that 'isLeapYear' is
-        //:   thoroughly tested in case 2.)  (C-1)
+        // 1. For completeness, assert axiomatic values and manifest
+        //    relationships among the constants.
+        //
+        // 2. Use the (as yet unproven) `isLeapYear` function to calculate the
+        //    expected values of `k_MAX_SERIAL`, `k_SHORT_RANGE_MIN_SERIAL`,
+        //    and `k_SHORT_RANGE_MAX_SERIAL`.  (Note that `isLeapYear` is
+        //    thoroughly tested in case 2.)  (C-1)
         //
         // Testing:
         //   CONCERN: The global constants used for testing are correct.
@@ -3452,7 +3458,7 @@ int main(int argc, char *argv[])
       case -1: {
         // --------------------------------------------------------------------
         // CACHE GENERATOR
-        //   Generate the C++ code (to be inserted into the '.cpp' file) that
+        //   Generate the C++ code (to be inserted into the `.cpp` file) that
         //   implements the cache.
         //
         // Testing:
@@ -3544,7 +3550,7 @@ int main(int argc, char *argv[])
       } break;
       case -2: {
         // --------------------------------------------------------------------
-        // PERFORMANCE TEST: 'isValidYearMonthDay[NoCache]'
+        // PERFORMANCE TEST: `isValidYearMonthDay[NoCache]`
         //   Manually verify that the cache provides a performance advantage.
         //
         // Testing:
@@ -3553,7 +3559,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "PERFORMANCE TEST: 'isValidYearMonthDay[NoCache]'" << endl
+                 << "PERFORMANCE TEST: `isValidYearMonthDay[NoCache]`" << endl
                  << "================================================" << endl;
 
         int year = 2000, month = 2, day = 16;  // *must* be within cache
@@ -3561,7 +3567,7 @@ int main(int argc, char *argv[])
         const int NUM_ITERATIONS = 10000000;
 
         if (verbose)
-            cout << "\nTesting 'isValidYearMonthDayNoCache(y, m, d)':" << endl;
+            cout << "\nTesting `isValidYearMonthDayNoCache(y, m, d)`:" << endl;
         {
             bsls::Stopwatch sw;
 
@@ -3586,7 +3592,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\nTesting 'isValidYearMonthDay(y, m, d)':" << endl;
+            cout << "\nTesting `isValidYearMonthDay(y, m, d)`:" << endl;
         {
             bsls::Stopwatch sw;
 
@@ -3613,7 +3619,7 @@ int main(int argc, char *argv[])
       } break;
       case -3: {
         // --------------------------------------------------------------------
-        // PERFORMANCE TEST: 'ymdToSerial[NoCache]'
+        // PERFORMANCE TEST: `ymdToSerial[NoCache]`
         //   Manually verify that the cache provides a performance advantage.
         //
         // Testing:
@@ -3622,7 +3628,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "PERFORMANCE TEST: 'ymdToSerial[NoCache]'" << endl
+                 << "PERFORMANCE TEST: `ymdToSerial[NoCache]`" << endl
                  << "========================================" << endl;
 
         int year = 2000, month = 2, day = 16;  // *must* be within cache
@@ -3630,7 +3636,7 @@ int main(int argc, char *argv[])
         const int NUM_ITERATIONS = 10000000;
 
         if (verbose)
-            cout << "\nTesting 'ymdToSerialNoCache(y, m, d)':" << endl;
+            cout << "\nTesting `ymdToSerialNoCache(y, m, d)`:" << endl;
         {
             bsls::Stopwatch sw;
 
@@ -3655,7 +3661,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\nTesting 'ymdToSerial(y, m, d)':" << endl;
+            cout << "\nTesting `ymdToSerial(y, m, d)`:" << endl;
         {
             bsls::Stopwatch sw;
 
@@ -3682,7 +3688,7 @@ int main(int argc, char *argv[])
       } break;
       case -4: {
         // --------------------------------------------------------------------
-        // PERFORMANCE TEST: 'serialToYmd[NoCache]'
+        // PERFORMANCE TEST: `serialToYmd[NoCache]`
         //   Manually verify that the cache provides a performance advantage.
         //
         // Testing:
@@ -3691,7 +3697,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "PERFORMANCE TEST: 'serialToYmd[NoCache]'" << endl
+                 << "PERFORMANCE TEST: `serialToYmd[NoCache]`" << endl
                  << "========================================" << endl;
 
         int year = 1900, month = 2, day = 16;  // arbitrary values
@@ -3701,7 +3707,7 @@ int main(int argc, char *argv[])
         const int NUM_ITERATIONS = 10000000;
 
         if (verbose)
-            cout << "\nTesting 'serialToYmdNoCache(&y, &m, &d, serialDay)':"
+            cout << "\nTesting `serialToYmdNoCache(&y, &m, &d, serialDay)`:"
                  << endl;
         {
             bsls::Stopwatch sw;
@@ -3727,7 +3733,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\nTesting 'serialToYmd(&y, &m, &d, serialDay)':" << endl;
+            cout << "\nTesting `serialToYmd(&y, &m, &d, serialDay)`:" << endl;
         {
             bsls::Stopwatch sw;
 
@@ -3754,7 +3760,7 @@ int main(int argc, char *argv[])
       } break;
       case -5: {
         // --------------------------------------------------------------------
-        // PERFORMANCE TEST: 'serialToYear[NoCache]'
+        // PERFORMANCE TEST: `serialToYear[NoCache]`
         //   Manually verify that the cache provides a performance advantage.
         //
         // Testing:
@@ -3763,7 +3769,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "PERFORMANCE TEST: 'serialToYear[NoCache]'" << endl
+                 << "PERFORMANCE TEST: `serialToYear[NoCache]`" << endl
                  << "=========================================" << endl;
 
         int serial = Util::ymdToSerial(2002, 5, 13);  // *must* be within cache
@@ -3771,7 +3777,7 @@ int main(int argc, char *argv[])
         const int NUM_ITERATIONS = 10000000;
 
         if (verbose)
-            cout << "\nTesting 'serialToYearNoCache(serialDay)':" << endl;
+            cout << "\nTesting `serialToYearNoCache(serialDay)`:" << endl;
         {
             bsls::Stopwatch sw;
 
@@ -3796,7 +3802,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\nTesting 'serialToYear(serialDay)':" << endl;
+            cout << "\nTesting `serialToYear(serialDay)`:" << endl;
         {
             bsls::Stopwatch sw;
 
@@ -3823,7 +3829,7 @@ int main(int argc, char *argv[])
       } break;
       case -6: {
         // --------------------------------------------------------------------
-        // PERFORMANCE TEST: 'serialToMonth[NoCache]'
+        // PERFORMANCE TEST: `serialToMonth[NoCache]`
         //   Manually verify that the cache provides a performance advantage.
         //
         // Testing:
@@ -3832,7 +3838,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "PERFORMANCE TEST: 'serialToMonth[NoCache]'" << endl
+                 << "PERFORMANCE TEST: `serialToMonth[NoCache]`" << endl
                  << "==========================================" << endl;
 
         int serial = Util::ymdToSerial(2002, 5, 13);  // *must* be within cache
@@ -3840,7 +3846,7 @@ int main(int argc, char *argv[])
         const int NUM_ITERATIONS = 10000000;
 
         if (verbose)
-            cout << "\nTesting 'serialToMonthNoCache(serialDay)':" << endl;
+            cout << "\nTesting `serialToMonthNoCache(serialDay)`:" << endl;
         {
             bsls::Stopwatch sw;
 
@@ -3865,7 +3871,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\nTesting 'serialToMonth(serialDay)':" << endl;
+            cout << "\nTesting `serialToMonth(serialDay)`:" << endl;
         {
             bsls::Stopwatch sw;
 
@@ -3892,7 +3898,7 @@ int main(int argc, char *argv[])
       } break;
       case -7: {
         // --------------------------------------------------------------------
-        // PERFORMANCE TEST: 'serialToDay[NoCache]'
+        // PERFORMANCE TEST: `serialToDay[NoCache]`
         //   Manually verify that the cache provides a performance advantage.
         //
         // Testing:
@@ -3901,7 +3907,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "PERFORMANCE TEST: 'serialToDay[NoCache]'" << endl
+                 << "PERFORMANCE TEST: `serialToDay[NoCache]`" << endl
                  << "========================================" << endl;
 
         int serial = Util::ymdToSerial(2002, 5, 13);  // *must* be within cache
@@ -3909,7 +3915,7 @@ int main(int argc, char *argv[])
         const int NUM_ITERATIONS = 10000000;
 
         if (verbose)
-            cout << "\nTesting 'serialToDayNoCache(serialDay)':" << endl;
+            cout << "\nTesting `serialToDayNoCache(serialDay)`:" << endl;
         {
             bsls::Stopwatch sw;
 
@@ -3934,7 +3940,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\nTesting 'serialToDay(serialDay)':" << endl;
+            cout << "\nTesting `serialToDay(serialDay)`:" << endl;
         {
             bsls::Stopwatch sw;
 

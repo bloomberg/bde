@@ -22,24 +22,24 @@
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
 
-#include <bslmf_allocatorargt.h> // 'bsl::allocator_arg'
+#include <bslmf_allocatorargt.h> // `bsl::allocator_arg`
 #include <bslmf_assert.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_review.h>
-#include <bsls_types.h>     // 'bsls::Types::Int64'
+#include <bsls_types.h>     // `bsls::Types::Int64`
 
 #include <bsl_cstdlib.h>
-#include <bsl_cstring.h>    // 'bsl::strspn'
-#include <bsl_functional.h> // 'bsl::function'
+#include <bsl_cstring.h>    // `bsl::strspn`
+#include <bsl_functional.h> // `bsl::function`
 #include <bsl_iostream.h>
 #include <bsl_optional.h>
-#include <bsl_ostream.h>    // 'operator<<'
+#include <bsl_ostream.h>    // `operator<<`
 #include <bsl_sstream.h>
 #include <bsl_stdexcept.h>
-#include <bsl_string.h>     // 'bslstl::StringRef'
+#include <bsl_string.h>     // `bslstl::StringRef`
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
@@ -55,50 +55,50 @@ using bsl::ostream;
 // ----------------------------------------------------------------------------
 //                                   Overview
 //                                   --------
-// 'balcl::TypeInfo' is a (value-semantic) attribute class.  The three salient
+// `balcl::TypeInfo` is a (value-semantic) attribute class.  The three salient
 // attributes are:
-//..
+// ```
 //  Type                     Description
 //  ------------------------ --------------------
 //  balcl::OptionType::Enum  option types
 //  void *                   linked variable
 //  bsl::share_ptr<TypeInfo> constraint (functor)
-//..
+// ```
 // As some of these are (process-dependent) addresses, this is categorized as
 // an in-core VST.
 //
-// The 'constraint' attribute, managed via 'bsl::share_ptr', lends this class
+// The `constraint` attribute, managed via `bsl::share_ptr`, lends this class
 // some interesting behaviors that are not typically seen in attribute classes.
 //
-//: o Two objects created from the same constituent attributes do not compare
-//:   equal when a non-default constraint is specified.
-//:
-//: o Although the constructor allocates when there is a constraint, the copy
-//:   constructor and copy assignment never allocate.  Instead of creating a
-//:   new functor, the usage count on the shared pointer in the original (rhs)
-//:   object is merely incremented.
+//  - Two objects created from the same constituent attributes do not compare
+//    equal when a non-default constraint is specified.
 //
-// This component also defines two other classes, 'balcl::TypeInfoConstraint',
+//  - Although the constructor allocates when there is a constraint, the copy
+//    constructor and copy assignment never allocate.  Instead of creating a
+//    new functor, the usage count on the shared pointer in the original (rhs)
+//    object is merely incremented.
+//
+// This component also defines two other classes, `balcl::TypeInfoConstraint`,
 // a functor that is not visible outside of this component except as an opaque
-// type, and 'balcl::TypeInfoUtil', a utility 'struct' that must reside in this
-// component because of its dependency on 'balcl::TypeInfoConstraint'.
+// type, and `balcl::TypeInfoUtil`, a utility `struct` that must reside in this
+// component because of its dependency on `balcl::TypeInfoConstraint`.
 //
 // Testing follows the general pattern of a VST interspersed with tests of the
-// utility 'struct' and 'balcl::TypeInfoConstraint'.  Note that the latter
+// utility `struct` and `balcl::TypeInfoConstraint`.  Note that the latter
 // class cannot be directly tested because it has no methods visible to
 // clients.
 //
 // The VST's Primary Manipulators are:
-//: o void resetConstraint();
-//: o void resetLinkedVariableAndConstraint();
-//: o void setConstraint    (/* overloaded for  8 supported types */);
-//: o void setLinkedVariable(/ *overloaded for 17 supported types */);
+//  - void resetConstraint();
+//  - void resetLinkedVariableAndConstraint();
+//  - void setConstraint    (/* overloaded for  8 supported types */);
+//  - void setLinkedVariable(/ *overloaded for 17 supported types */);
 //
 // The Basic Accessors are:
-//: o shared_ptr<Constraint> constraint() const;
-//: o void *linkedVariable() const;
-//: o OptionType::Enum type() const;
-//: o bslma::Allocator *allocator() const;  // non-salient
+//  - shared_ptr<Constraint> constraint() const;
+//  - void *linkedVariable() const;
+//  - OptionType::Enum type() const;
+//  - bslma::Allocator *allocator() const;  // non-salient
 //
 // ----------------------------------------------------------------------------
 // balcl::TypeInfo
@@ -221,7 +221,7 @@ using bsl::ostream;
 // [ 4] bool satisfiesConstraint(const void *v, ostream& s, TypeInfo tf);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 3] CONCERN: HELPER 'u::shiftType'
+// [ 3] CONCERN: HELPER `u::shiftType`
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -341,7 +341,7 @@ enum { k_REVIEW_FAIL_IS_ENABLED = false };
 
 #define GA bslma::Default::globalAllocator()
 
-// ATTRIBUTES FOR 'balcl::TypeInfo'
+// ATTRIBUTES FOR `balcl::TypeInfo`
 bool                          linkedBool;
 char                          linkedChar;
 int                           linkedInt;
@@ -372,19 +372,20 @@ bsl::optional<bdlt::Time>     oLinkedTime;
                         // struct TestConstraint
                         // =====================
 
+/// This `struct` provides a namespace for functions, one for each
+/// constraint type, used to initialize `Constraint` objects for testing.
 struct TestConstraint {
-    // This 'struct' provides a namespace for functions, one for each
-    // constraint type, used to initialize 'Constraint' objects for testing.
 
   private:
+    /// Return `s_constraintValue` and if `false == s_contraintValue` output
+    /// an error message to the specified `stream`.
     static bool commonLogic(bsl::ostream& stream);
-        // Return 's_constraintValue' and if 'false == s_contraintValue' output
-        // an error message to the specified 'stream'.
 
   public:
     // PUBLIC CLASS DATA
+
+    /// Global return value (for easier control).
     static bool s_constraintValue;
-        // Global return value (for easier control).
 
     static bool     charFunc(const char           *, bsl::ostream& stream);
     static bool      intFunc(const int            *, bsl::ostream& stream);
@@ -393,10 +394,11 @@ struct TestConstraint {
     static bool   stringFunc(const bsl::string    *, bsl::ostream& stream);
     static bool datetimeFunc(const bdlt::Datetime *, bsl::ostream& stream);
     static bool     dateFunc(const bdlt::Date     *, bsl::ostream& stream);
+
+    /// Return `s_constraintValue` and if `false == s_contraintValue` output
+    /// an error message to the specified `stream`.  Note that the first
+    /// argument is ignored.
     static bool     timeFunc(const bdlt::Time     *, bsl::ostream& stream);
-        // Return 's_constraintValue' and if 'false == s_contraintValue' output
-        // an error message to the specified 'stream'.  Note that the first
-        // argument is ignored.
 };
 
                         // ---------------------
@@ -716,17 +718,17 @@ namespace u {
                         // function shiftType
                         // ==================
 
+/// Return the enumerated value that is the specified `offset` advanced from
+/// the specified `type` in the sequence `[Ot::e_BOOL .. Ot::e_TIME_ARRAY]`.
+/// Offsets that go past the end of the sequence wrap around to
+/// `Ot::e_BOOL`.  The behavior is undefined if `Ot::e_VOID == type`.  Note
+/// that `offset` can be negative.  Also note that `Ot::e_VOID` is *not*
+/// part of the sequence.
 Ot::Enum shiftType(Ot::Enum type, int offset)
-    // Return the enumerated value that is the specified 'offset' advanced from
-    // the specified 'type' in the sequence '[Ot::e_BOOL .. Ot::e_TIME_ARRAY]'.
-    // Offsets that go past the end of the sequence wrap around to
-    // 'Ot::e_BOOL'.  The behavior is undefined if 'Ot::e_VOID == type'.  Note
-    // that 'offset' can be negative.  Also note that 'Ot::e_VOID' is *not*
-    // part of the sequence.
 {
     ///Implementation Note
     ///-------------------
-    // Preconditions are checked using 'ASSERT' instead of 'BSLS_ASSERT*' to
+    // Preconditions are checked using `ASSERT` instead of `BSLS_ASSERT*` to
     // guarantee that there are no misleading exceptions thrown when this
     // function is used in negative tests.
 
@@ -759,15 +761,15 @@ Ot::Enum shiftType(Ot::Enum type, int offset)
                         // function skipRequiredToken
                         // ==========================
 
+/// Skip past the value of the specified `token` in the specified
+/// `inputString`.  Store in the specified `*endPos` the address of the
+/// non-modifiable character in `inputString` immediately following the
+/// successfully matched text, or the position at which the match failure
+/// was detected.  Return 0 if `token` is found, and a non-zero value
+/// otherwise.
 int skipRequiredToken(const char **endPos,
                       const char  *inputString,
                       const char  *token)
-    // Skip past the value of the specified 'token' in the specified
-    // 'inputString'.  Store in the specified '*endPos' the address of the
-    // non-modifiable character in 'inputString' immediately following the
-    // successfully matched text, or the position at which the match failure
-    // was detected.  Return 0 if 'token' is found, and a non-zero value
-    // otherwise.
 {
     BSLS_ASSERT(endPos);
     BSLS_ASSERT(inputString);
@@ -782,21 +784,21 @@ int skipRequiredToken(const char **endPos,
     return '\0' != *token;  // return "is null char"
 }
 
+/// Skip over any combination of C-style comments, C++-style comments, and
+/// characters for which `isspace` returns true in the specified
+/// `inputString`.  Store in the specified `*endPos` the address of the
+/// non-modifiable character in `inputString` immediately following the
+/// successfully matched text, or the position at which the match failure
+/// was detected.  Return 0 on success and a non-zero value otherwise.  If a
+/// C++-style comment terminates with '\0', `endPos` will point *at* the
+/// '\0' and not past it.  The behavior is undefined if either argument is
+/// 0.
+///
+/// A parse failure can occur for the following reason:
+/// ```
+///  '\0' is found before a C-style comment is terminated with `*/`.
+/// ```
 int skipWhiteSpace(const char **endPos, const char  *inputString)
-    // Skip over any combination of C-style comments, C++-style comments, and
-    // characters for which 'isspace' returns true in the specified
-    // 'inputString'.  Store in the specified '*endPos' the address of the
-    // non-modifiable character in 'inputString' immediately following the
-    // successfully matched text, or the position at which the match failure
-    // was detected.  Return 0 on success and a non-zero value otherwise.  If a
-    // C++-style comment terminates with '\0', 'endPos' will point *at* the
-    // '\0' and not past it.  The behavior is undefined if either argument is
-    // 0.
-    //
-    // A parse failure can occur for the following reason:
-    //..
-    //   '\0' is found before a C-style comment is terminated with '*/'.
-    //..
 {
     BSLS_ASSERT(endPos);
     BSLS_ASSERT(inputString);
@@ -855,11 +857,11 @@ int skipWhiteSpace(const char **endPos, const char  *inputString)
                         // function setConstraint
                         // ======================
 
+/// Set the constraint of the specified `typeInfo` to the function at the
+/// specified `address` of the signature corresponding to the specified
+/// `type`.  The behavior is undefined unless `Ot::e_VOID != type` and
+/// `Ot::e_BOOL != type`.
 void setConstraint(Obj *typeInfo, ElemType type, const void *address)
-    // Set the constraint of the specified 'typeInfo' to the function at the
-    // specified 'address' of the signature corresponding to the specified
-    // 'type'.  The behavior is undefined unless 'Ot::e_VOID != type' and
-    // 'Ot::e_BOOL != type'.
 {
     BSLS_ASSERT(typeInfo);
     BSLS_ASSERT(Ot::e_VOID != type);
@@ -903,19 +905,19 @@ void setConstraint(Obj *typeInfo, ElemType type, const void *address)
                         // function setLinkedVariable
                         // ==========================
 
+/// Invoke the `setLinkedVariable` overload of `balcl::TypeInfo` that
+/// accepts addresses of type `Ot::EnumToType<type>::type *` for the
+/// specified `type` with the specified `variable` (address).  If the
+/// specified `isOptionalLinkedVariable` is `true`, then invoke the overload
+/// that accepts addresses of type
+/// `bsl::optional<Ot::EnumToType<type>::type> *`.  The behavior is
+/// undefined unless `variable` can be legally cast to the target type.
+/// Note that `isOptionalLinkedVariable` is *disallowed* when `type` is an
+/// "array" option type or `type` is `Ot::e_BOOL`.
 void setLinkedVariable(Obj      *typeInfo,
                        ElemType  type,
                        void     *variable,
                        bool      isOptionalLinkedVariable)
-    // Invoke the 'setLinkedVariable' overload of 'balcl::TypeInfo' that
-    // accepts addresses of type 'Ot::EnumToType<type>::type *' for the
-    // specified 'type' with the specified 'variable' (address).  If the
-    // specified 'isOptionalLinkedVariable' is 'true', then invoke the overload
-    // that accepts addresses of type
-    // 'bsl::optional<Ot::EnumToType<type>::type> *'.  The behavior is
-    // undefined unless 'variable' can be legally cast to the target type.
-    // Note that 'isOptionalLinkedVariable' is *disallowed* when 'type' is an
-    // "array" option type or 'type' is 'Ot::e_BOOL'.
 {
     ASSERT(typeInfo);
 
@@ -943,7 +945,7 @@ void setLinkedVariable(Obj      *typeInfo,
 
     switch (type) {
       case Ot::e_VOID: {
-        BSLS_ASSERT_INVOKE_NORETURN("!Reached: 'e_VOID'");
+        BSLS_ASSERT_INVOKE_NORETURN("!Reached: `e_VOID`");
       } break;
 
       CASE                    (Ot::e_BOOL)
@@ -978,11 +980,11 @@ void setLinkedVariable(Obj      *typeInfo,
                         // function setType
                         // ================
 
+/// Set the `Ot::OptionType` element of the specified `typeInfo` to the
+/// specified `type`.  The behavior is undefined unless
+/// `Ot::e_VOID != type`.  Note that this resets both the linked variable
+/// and constraint of `typeInfo`.
 void setType(Obj *typeInfo, ElemType type)
-    // Set the 'Ot::OptionType' element of the specified 'typeInfo' to the
-    // specified 'type'.  The behavior is undefined unless
-    // 'Ot::e_VOID != type'.  Note that this resets both the linked variable
-    // and constraint of 'typeInfo'.
 {
     ASSERT(typeInfo);
 
@@ -1027,22 +1029,22 @@ void setType(Obj *typeInfo, ElemType type)
                         // function setTypeInfo
                         // ====================
 
+/// Set the specified `typeInfo` object to have the specified `type`, a link
+/// to the specified `variable` (possibly 0) that is used as a
+/// `bsl::optional` object if the specified `isOptionalLinkedVariable` is
+/// `true`, and containing a value subject to the specified `constraint`
+/// (possibly 0).  The behavior is undefined unless `Ot::e_VOID != type`,
+/// `variable` is 0 or can be cast to `Ot::EnumToType<type>::type *` if
+/// `isOptionalLinkedVariable` is `false` or cast to
+/// `bsl::optional<Ot::EnumToType<type>::type> *` if
+/// `isOptionalLinkedVariable` is `true`, `constraint` is 0 or can be cast
+/// to the type defined by `Constraint` for `type`, and if
+/// `Ot::e_BOOL == type` then `constraint` is 0.
 void setTypeInfo(Obj      *typeInfo,
                  ElemType  type,
                  void     *variable,
                  bool      isOptionalLinkedVariable,
                  void     *constraint)
-    // Set the specified 'typeInfo' object to have the specified 'type', a link
-    // to the specified 'variable' (possibly 0) that is used as a
-    // 'bsl::optional' object if the specified 'isOptionalLinkedVariable' is
-    // 'true', and containing a value subject to the specified 'constraint'
-    // (possibly 0).  The behavior is undefined unless 'Ot::e_VOID != type',
-    // 'variable' is 0 or can be cast to 'Ot::EnumToType<type>::type *' if
-    // 'isOptionalLinkedVariable' is 'false' or cast to
-    // 'bsl::optional<Ot::EnumToType<type>::type> *' if
-    // 'isOptionalLinkedVariable' is 'true', 'constraint' is 0 or can be cast
-    // to the type defined by 'Constraint' for 'type', and if
-    // 'Ot::e_BOOL == type' then 'constraint' is 0.
 {
     BSLS_ASSERT(typeInfo);
 
@@ -1064,22 +1066,22 @@ void setTypeInfo(Obj      *typeInfo,
                         // function constructTypeInfo
                         // ==========================
 
+/// Return the address of a `TypeInfo` object created in the specified
+/// `buffer` and having the specified `type`.  If the specified `variable`
+/// is not 0, that address is linked to the option.  Optionally specify
+/// `isOptionalLinkedVariable` (if `true`, then `variable` is the address of
+/// a `bsl::optional` object).  Impose no constraint on the option value.
+/// The created object will use the currently defined default allocator.
+/// The caller is required to explicitly invoke the destructor of the
+/// created object.  The behavior is undefined unless `Ot::e_VOID != type`,
+/// `variable` can be cast to `Ot::EnumToType<type>::type *` (or
+/// `bsl::optional<Ot::EnumToType<type>::type> *` if
+/// `isOptionalLinkedVariable`), and `isOptionalLinkedVariable` is `true`
+/// only if `type` allows `bsl::optional` objects as linked variables.
 Obj *constructTypeInfo(void     *buffer,
                        ElemType  type,
                        void     *variable,
                        bool      isOptionalLinkedVariable = false)
-    // Return the address of a 'TypeInfo' object created in the specified
-    // 'buffer' and having the specified 'type'.  If the specified 'variable'
-    // is not 0, that address is linked to the option.  Optionally specify
-    // 'isOptionalLinkedVariable' (if 'true', then 'variable' is the address of
-    // a 'bsl::optional' object).  Impose no constraint on the option value.
-    // The created object will use the currently defined default allocator.
-    // The caller is required to explicitly invoke the destructor of the
-    // created object.  The behavior is undefined unless 'Ot::e_VOID != type',
-    // 'variable' can be cast to 'Ot::EnumToType<type>::type *' (or
-    // 'bsl::optional<Ot::EnumToType<type>::type> *' if
-    // 'isOptionalLinkedVariable'), and 'isOptionalLinkedVariable' is 'true'
-    // only if 'type' allows 'bsl::optional' objects as linked variables.
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(Ot::e_VOID != type);
@@ -1142,23 +1144,23 @@ Obj *constructTypeInfo(void     *buffer,
     return ptr;
 }
 
+/// Return the address of a `TypeInfo` object created in the specified
+/// `buffer` and having the specified `type`.  If the specified `variable`
+/// is not 0, that address is linked to the option.  If the specified
+/// `isOptionalLinkedVariable` is `true`, then `variable` is the address of
+/// a `bsl::optional` object.  Impose no constraint on the option value.
+/// The created object will use the specified `basicAllocator`.  The caller
+/// is required to explicitly invoke the destructor of the returned object.
+/// The behavior is undefined unless `Ot::e_VOID != type`, `variable` can be
+/// cast to `Ot::EnumToType<type>::type *` (or
+/// `bsl::optional<Ot::EnumToType<type>::type: *` if
+/// `isOptionalLinkedVariable`), and `isOptionalLinkedVariable` is `true`
+/// only if `type` allows `bsl::optional` objects as linked variables.
 Obj *constructTypeInfo(void             *buffer,
                        ElemType          type,
                        void             *variable,
                        bool              isOptionalLinkedVariable,
                        bslma::Allocator *basicAllocator)
-    // Return the address of a 'TypeInfo' object created in the specified
-    // 'buffer' and having the specified 'type'.  If the specified 'variable'
-    // is not 0, that address is linked to the option.  If the specified
-    // 'isOptionalLinkedVariable' is 'true', then 'variable' is the address of
-    // a 'bsl::optional' object.  Impose no constraint on the option value.
-    // The created object will use the specified 'basicAllocator'.  The caller
-    // is required to explicitly invoke the destructor of the returned object.
-    // The behavior is undefined unless 'Ot::e_VOID != type', 'variable' can be
-    // cast to 'Ot::EnumToType<type>::type *' (or
-    // 'bsl::optional<Ot::EnumToType<type>::type: *' if
-    // 'isOptionalLinkedVariable'), and 'isOptionalLinkedVariable' is 'true'
-    // only if 'type' allows 'bsl::optional' objects as linked variables.
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(Ot::e_VOID != type);
@@ -1223,25 +1225,25 @@ Obj *constructTypeInfo(void             *buffer,
     return ptr;
 }
 
+/// Return the address of a `TypeInfo` object created in the specified
+/// `buffer` and having the specified `type` and `constraint` (on option
+/// value).  If the specified `variable` is not 0, that address is linked to
+/// the option.  If the specified `isOptionalLinkedVariable` is `true` then
+/// `variable` is the address of a `bsl::optional` object.  The created
+/// object uses the currently defined default allocator.  The caller is
+/// required to explicitly invoke the destructor of the created object.  The
+/// behavior is undefined unless `Ot::e_VOID != type`, `Ot::e_BOOL != type`,
+/// `variable` can be cast to `Ot::EnumToType<type>::type *` (or
+/// `bsl::optional<Ot::EnumToType<type>::type> *` if
+/// `isOptionalLinkedVariable`), `constraint` can be cast to the type
+/// defined by `Constraint` for `type`, and `isOptionalLinkedVariable` is
+/// `true` only if `type` allows `bsl::optional` objects as linked
+/// variables.
 Obj *constructTypeInfo(void     *buffer,
                        ElemType  type,
                        void     *variable,
                        bool      isOptionalLinkedVariable,
                        void     *constraint)
-    // Return the address of a 'TypeInfo' object created in the specified
-    // 'buffer' and having the specified 'type' and 'constraint' (on option
-    // value).  If the specified 'variable' is not 0, that address is linked to
-    // the option.  If the specified 'isOptionalLinkedVariable' is 'true' then
-    // 'variable' is the address of a 'bsl::optional' object.  The created
-    // object uses the currently defined default allocator.  The caller is
-    // required to explicitly invoke the destructor of the created object.  The
-    // behavior is undefined unless 'Ot::e_VOID != type', 'Ot::e_BOOL != type',
-    // 'variable' can be cast to 'Ot::EnumToType<type>::type *' (or
-    // 'bsl::optional<Ot::EnumToType<type>::type> *' if
-    // 'isOptionalLinkedVariable'), 'constraint' can be cast to the type
-    // defined by 'Constraint' for 'type', and 'isOptionalLinkedVariable' is
-    // 'true' only if 'type' allows 'bsl::optional' objects as linked
-    // variables.
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(Ot::e_VOID != type);
@@ -1278,10 +1280,10 @@ Obj *constructTypeInfo(void     *buffer,
 
     switch (type) {
       case Ot::e_VOID: {
-        BSLS_ASSERT_INVOKE_NORETURN("!Reached: 'e_VOID'");
+        BSLS_ASSERT_INVOKE_NORETURN("!Reached: `e_VOID`");
       } break;
       case Ot::e_BOOL: {
-        BSLS_ASSERT_INVOKE_NORETURN("!Reached: 'e_BOOL'");
+        BSLS_ASSERT_INVOKE_NORETURN("!Reached: `e_BOOL`");
       } break;
 
       CASE_MAYBE_OPTIONAL_LINK(Ot::e_CHAR,               CharConstraint)
@@ -1312,26 +1314,26 @@ Obj *constructTypeInfo(void     *buffer,
     return ptr;
 }
 
+/// Return the address of a `TypeInfo` object created in the specified
+/// `buffer` and having the specified `type` and `constraint` (on option
+/// value).  If the specified `variable` is not 0, that address is linked to
+/// the option.  If the specified `isOptionalLinkedVariable` is `true`, then
+/// `variable` is the address of a `bsl::optional` object.  The created
+/// object uses the specified `basicAllocator`.  The caller is required to
+/// explicitly invoke the destructor of the created object.  The behavior is
+/// undefined unless `Ot::e_VOID != type`, `Ot::e_BOOL != type`, `variable`
+/// can be cast to `Ot::EnumToType<type>::type *` (or
+/// `bsl::optional<Ot::EnumToType<type>::type> *`, if
+/// `isOptionalLinkedVariable`), `constraint` can be cast to the type
+/// defined by `Constraint` for `type`, and `isOptionalLinkedVariable` is
+/// `true` only if `type` allows `bsl::optional` objects as linked
+/// variables.
 Obj *constructTypeInfo(void             *buffer,
                        ElemType          type,
                        void             *variable,
                        bool              isOptionalLinkedVariable,
                        void             *constraint,
                        bslma::Allocator *basicAllocator)
-    // Return the address of a 'TypeInfo' object created in the specified
-    // 'buffer' and having the specified 'type' and 'constraint' (on option
-    // value).  If the specified 'variable' is not 0, that address is linked to
-    // the option.  If the specified 'isOptionalLinkedVariable' is 'true', then
-    // 'variable' is the address of a 'bsl::optional' object.  The created
-    // object uses the specified 'basicAllocator'.  The caller is required to
-    // explicitly invoke the destructor of the created object.  The behavior is
-    // undefined unless 'Ot::e_VOID != type', 'Ot::e_BOOL != type', 'variable'
-    // can be cast to 'Ot::EnumToType<type>::type *' (or
-    // 'bsl::optional<Ot::EnumToType<type>::type> *', if
-    // 'isOptionalLinkedVariable'), 'constraint' can be cast to the type
-    // defined by 'Constraint' for 'type', and 'isOptionalLinkedVariable' is
-    // 'true' only if 'type' allows 'bsl::optional' objects as linked
-    // variables.
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(Ot::e_VOID != type);
@@ -1371,10 +1373,10 @@ Obj *constructTypeInfo(void             *buffer,
 
     switch (type) {
       case Ot::e_VOID: {
-        BSLS_ASSERT_INVOKE_NORETURN("Reached: 'e_VOID'");
+        BSLS_ASSERT_INVOKE_NORETURN("Reached: `e_VOID`");
       } break;
       case Ot::e_BOOL: {
-        BSLS_ASSERT_INVOKE_NORETURN("!Reached: 'e_BOOL'");
+        BSLS_ASSERT_INVOKE_NORETURN("!Reached: `e_BOOL`");
       } break;
 
       CASE_MAYBE_OPTIONAL_LINK(Ot::e_CHAR,               CharConstraint)
@@ -1408,15 +1410,15 @@ Obj *constructTypeInfo(void             *buffer,
                         // function parseTypeInfo
                         // ======================
 
+/// Parse the specified `input` for a value and verify that this value
+/// matches the specified `typeInfo` (at least in `Ot::OptionType` type) and
+/// return 0 if parsing and verification succeed.  Return a non-zero value
+/// if parsing fails or if the value parsed does not match `typeInfo`, and
+/// return in the specified `endpos` the first unsuccessful parsing
+/// position.
 int parseTypeInfo(const char **endpos,
                   const Obj&   typeInfo,
                   const char  *input)
-    // Parse the specified 'input' for a value and verify that this value
-    // matches the specified 'typeInfo' (at least in 'Ot::OptionType' type) and
-    // return 0 if parsing and verification succeed.  Return a non-zero value
-    // if parsing fails or if the value parsed does not match 'typeInfo', and
-    // return in the specified 'endpos' the first unsuccessful parsing
-    // position.
 {
     enum { SUCCESS = 0, FAILURE = -1 };
 
@@ -1496,11 +1498,11 @@ int parseTypeInfo(const char **endpos,
                         // function setOptionValue
                         // =======================
 
+/// Set the value at the specified `dst` to the value found at the specified
+/// `src` that is of the specified `type`.  The behavior is undefined unless
+/// `src` can be cast to a pointer of `Ot::EnumToType<type>::type`,
+/// `Ot::e_VOID != type`, and `dst->type() == type`.
 void setOptionValue(OptionValue *dst, const void *src, ElemType type)
-    // Set the value at the specified 'dst' to the value found at the specified
-    // 'src' that is of the specified 'type'.  The behavior is undefined unless
-    // 'src' can be cast to a pointer of 'Ot::EnumToType<type>::type',
-    // 'Ot::e_VOID != type', and 'dst->type() == type'.
 {
     BSLS_ASSERT(dst);
     BSLS_ASSERT(src);
@@ -1569,17 +1571,17 @@ void setOptionValue(OptionValue *dst, const void *src, ElemType type)
                         // function normalizeIndentation
                         // =============================
 
+/// Load into the specified `output` a "normalized" version of the specified
+/// `input` where `input` is the output of the `TypeInfo` `print` method
+/// called with the specified `level` and the specified `spacesPerLevel`.
+/// The "normalized" version corresponds to calling `print` with `level` and
+/// `spacesPerLevel` having the values 0 and 4, respectively.  The behavior
+/// is undefined unless `level` and `spacesPerLevel` are both non-negative,
+/// and unless `output->empty()`.
 void normalizeIndentation(bsl::string        *output,
                           const bsl::string&  input,
                           int                 level,
                           int                 spacesPerLevel)
-    // Load into the specified 'output' a "normalized" version of the specified
-    // 'input' where 'input' is the output of the 'TypeInfo' 'print' method
-    // called with the specified 'level' and the specified 'spacesPerLevel'.
-    // The "normalized" version corresponds to calling 'print' with 'level' and
-    // 'spacesPerLevel' having the values 0 and 4, respectively.  The behavior
-    // is undefined unless 'level' and 'spacesPerLevel' are both non-negative,
-    // and unless 'output->empty()'.
 {
     BSLS_ASSERT(output);
     BSLS_ASSERT(output->empty());
@@ -1627,12 +1629,12 @@ void normalizeIndentation(bsl::string        *output,
     }
 }
 
+/// Return `true` if the value of the specified `element` is the same as
+/// that found at the specified `value`, and `false` otherwise.  The
+/// behavior is undefined unless `Ot::e_VOID != element.type()`,
+/// `Ot::e_BOOL != element.type()`, and `value` can be (validly) cast to
+/// `Ot::EnumToType<ENUM>::type *` where `ENUM` matches `element.type()`.
 bool areEqualValues(const OptionValue& element, const void *value)
-    // Return 'true' if the value of the specified 'element' is the same as
-    // that found at the specified 'value', and 'false' otherwise.  The
-    // behavior is undefined unless 'Ot::e_VOID != element.type()',
-    // 'Ot::e_BOOL != element.type()', and 'value' can be (validly) cast to
-    // 'Ot::EnumToType<ENUM>::type *' where 'ENUM' matches 'element.type()'.
 {
     BSLS_ASSERT(value);
 
@@ -1672,12 +1674,12 @@ bool areEqualValues(const OptionValue& element, const void *value)
     return false;
 }
 
+/// Print to the specified `stream` the value at the specified `value`.  The
+/// behavior is undefined unless `value` can be (validly) cast to
+/// `Ot::EnumToType<ENUM>::type *` where `ENUM` matches the specified
+/// `type`.  Each of the array types are assumed to contain a single
+/// element.
 void printValue(ostream& stream, Ot::Enum type, const void *value)
-    // Print to the specified 'stream' the value at the specified 'value'.  The
-    // behavior is undefined unless 'value' can be (validly) cast to
-    // 'Ot::EnumToType<ENUM>::type *' where 'ENUM' matches the specified
-    // 'type'.  Each of the array types are assumed to contain a single
-    // element.
 {
     BSLS_ASSERT(value);
 
@@ -1732,9 +1734,9 @@ void printValue(ostream& stream, Ot::Enum type, const void *value)
                          // function getSomeOptionValue
                          // ===========================
 
+/// Return the address of the element in `OPTION_VALUES` having the
+/// specified `type` and 0 if no such element is found.
 const void *getSomeOptionValue(ElemType type)
-    // Return the address of the element in 'OPTION_VALUES' having the
-    // specified 'type' and 0 if no such element is found.
 {
     for (bsl::size_t i = 0; i < NUM_OPTION_VALUES; ++i) {
         if (OPTION_VALUES[i].d_type == type) {
@@ -1748,11 +1750,11 @@ const void *getSomeOptionValue(ElemType type)
                          // function isOptionalLinkedVariableInTable
                          // ========================================
 
+/// Return `true` is the specified `variable`, possibly having a 0 value, is
+/// the address of one of the `bsl::optional` objects that are used as
+/// linked variables in some entries of the `OPTION_TYPEINFO` table, and
+/// `false` otherwise.
 bool isOptionalLinkedVariableInTable(void *variable)
-    // Return 'true' is the specified 'variable', possibly having a 0 value, is
-    // the address of one of the 'bsl::optional' objects that are used as
-    // linked variables in some entries of the 'OPTION_TYPEINFO' table, and
-    // 'false' otherwise.
 {
     if (variable == &oLinkedChar
      || variable == &oLinkedInt
@@ -1786,34 +1788,34 @@ int main(int argc, const char *argv[])  {
     switch (test) { case 0:  // Zero is always the leading case.
       case 11: {
         // -------------------------------------------------------------------
-        // 'balcl::TypeInfoUtil': 'tokenizeArrayEnvironmentVariable'
+        // `balcl::TypeInfoUtil`: `tokenizeArrayEnvironmentVariable`
         //
         // Concerns:
-        //: 1 That the function under test works properly given correcct input.
-        //:
-        //: 2 That the function under test works properly given incorrecct
-        //:   input.
-        //:
-        //: 3 That undefined behavior is caught with asserts.
+        // 1. That the function under test works properly given correcct input.
+        //
+        // 2. That the function under test works properly given incorrecct
+        //    input.
+        //
+        // 3. That undefined behavior is caught with asserts.
         //
         // Plan:
-        //: 1 C-1 correct input:
-        //:   o Create table 'DATA' where each line gives correct input and
-        //:     the contents of the expected array result.
-        //:
-        //:   o Traverse the table, calling the function under test, observing
-        //:     that 0 is returned and the result vector is as expected.
-        //:
-        //: 2 C-2 incorrect input:
-        //:   o Create table 'DATA' where each line gives incorrect input.
-        //:
-        //:   o Traverse the table, calling the function under test, observing
-        //:     that 0 is not returned.
-        //:
-        //: 3 C-3 Undefined behavior:
-        //:   o Use 'ASSERT_FAIL' to call the function under test with input
-        //:     that causes undefined behavior and observe that the undefined
-        //:     behavior is caught via asserts.
+        // 1. C-1 correct input:
+        //    - Create table `DATA` where each line gives correct input and
+        //      the contents of the expected array result.
+        //
+        //    - Traverse the table, calling the function under test, observing
+        //      that 0 is returned and the result vector is as expected.
+        //
+        // 2. C-2 incorrect input:
+        //    - Create table `DATA` where each line gives incorrect input.
+        //
+        //    - Traverse the table, calling the function under test, observing
+        //      that 0 is not returned.
+        //
+        // 3. C-3 Undefined behavior:
+        //    - Use `ASSERT_FAIL` to call the function under test with input
+        //      that causes undefined behavior and observe that the undefined
+        //      behavior is caught via asserts.
         //
         // Testing:
         //   int tokenizeArrayEnvironmentVariable(StringVec *, char *);
@@ -1897,33 +1899,33 @@ int main(int argc, const char *argv[])  {
       } break;
       case 10: {
         // -------------------------------------------------------------------
-        // 'balcl::TypeInfoUtil': 'parseAndValidate'
+        // `balcl::TypeInfoUtil`: `parseAndValidate`
         //
         // Concerns:
-        //: 1 The signature is implemented as expected.
-        //:   1 The return value is 'bool'.
-        //:   2 The second and third parameters are 'const'-qualified.
-        //:   3 The first and fourth parameters are not 'const'-qualified.
-        //:
-        //: 2 The function returns the expected value for the given object and
-        //:   constraint for all supported types.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. The signature is implemented as expected.
+        //   1. The return value is `bool`.
+        //   2. The second and third parameters are `const`-qualified.
+        //   3. The first and fourth parameters are not `const`-qualified.
+        //
+        // 2. The function returns the expected value for the given object and
+        //    constraint for all supported types.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use the "pointer-to-function" idiom for a compile-time check of
-        //:   the signature.  (C-1)
-        //:
-        //: 2 Using a table-drive approach, we iterate through the
-        //:   'PARSABLE_VALUES' table to find valid input strings for each
-        //:   supported option type.  We employ a test constraint object that
-        //:   can be set to pass or fail via a globally visible static data
-        //:   member.  We confirm that the function returns the result
-        //:   according to the current value of that static data member.  We
-        //:   also confirm that the output string, when provided, is set when
-        //:   there is a failure and is left empty otherwise.  (C-2)
-        //:
-        //: 3 Use 'BSLS_ASSERTTEST_*' facilities for negative testing.  (C-3)
+        // 1. Use the "pointer-to-function" idiom for a compile-time check of
+        //    the signature.  (C-1)
+        //
+        // 2. Using a table-drive approach, we iterate through the
+        //    `PARSABLE_VALUES` table to find valid input strings for each
+        //    supported option type.  We employ a test constraint object that
+        //    can be set to pass or fail via a globally visible static data
+        //    member.  We confirm that the function returns the result
+        //    according to the current value of that static data member.  We
+        //    also confirm that the output string, when provided, is set when
+        //    there is a failure and is left empty otherwise.  (C-2)
+        //
+        // 3. Use `BSLS_ASSERTTEST_*` facilities for negative testing.  (C-3)
         //
         // Testing:
         //   parseAndValidate(OV *e, string& i, TypeInfo& tf, ostream& s);
@@ -1931,7 +1933,7 @@ int main(int argc, const char *argv[])  {
 
         if (verbose) cout
                         << endl
-                        << "'balcl::TypeInfoUtil': 'parseAndValidate'" << endl
+                        << "`balcl::TypeInfoUtil`: `parseAndValidate`" << endl
                         << "-----------------------------------------" << endl;
 
         if (verbose) cout << "Verify the signature and return type ." << endl;
@@ -2125,40 +2127,40 @@ int main(int argc, const char *argv[])  {
         // TESTING ADDITIONAL CONSTRUCTORS
         //
         // Concerns:
-        //: 1 Each constructor creates a new object having the expected
-        //:   attributes: option type, linked variable (or not), constraint,
-        //:   and allocator.
-        //:
-        //: 2 Each constructor allocates from the intended allocator.
-        //:
-        //:   1 The supplied allocator is used when a user-defined constraint
-        //:     is given.
-        //:
-        //:   2 Otherwise, the default allocator is used.
-        //:
-        //: 3 Each constructor provides the basic exception-safety guarantee.
+        // 1. Each constructor creates a new object having the expected
+        //    attributes: option type, linked variable (or not), constraint,
+        //    and allocator.
+        //
+        // 2. Each constructor allocates from the intended allocator.
+        //
+        //   1. The supplied allocator is used when a user-defined constraint
+        //      is given.
+        //
+        //   2. Otherwise, the default allocator is used.
+        //
+        // 3. Each constructor provides the basic exception-safety guarantee.
         //
         // Plan:
-        //: 1 For each set of attributes appearing in the (representative)
-        //:   'OPTION_TYPEINFO' table create a 'TypeInfo' object using the
-        //:   (overloaded) 'u::constructTypeInfo' helper functions and then use
-        //:   the (proven) accessors to show that the created object has the
-        //:   expected attributes.  (C-1)
-        //:
-        //: 2 Perform these tests for scenarios in which no allocator is
-        //:   specified, in which the 0-allocator is specified, and in which an
-        //:   allocator is explicitly specified.
-        //:
-        //: 3 In the later case, use 'BSLMA_TESTALLOCATOR_EXCEPTION_*' macros
-        //:   to inject an exception for each allocation during construction.
-        //:   (C-3)
-        //:
-        //:   1 A pair of nested 'BSLMA_TESTALLOCATOR_EXCEPTION_*' macros is
-        //:     used because the management of a constraint can use both
-        //:     the default allocator and the supplied allocator.
-        //:
-        //: 4 Use 'bslma::TestAllocatorMonitor' objects to confirm allocations
-        //:   from the intended allocators.  (C-2).
+        // 1. For each set of attributes appearing in the (representative)
+        //    `OPTION_TYPEINFO` table create a `TypeInfo` object using the
+        //    (overloaded) `u::constructTypeInfo` helper functions and then use
+        //    the (proven) accessors to show that the created object has the
+        //    expected attributes.  (C-1)
+        //
+        // 2. Perform these tests for scenarios in which no allocator is
+        //    specified, in which the 0-allocator is specified, and in which an
+        //    allocator is explicitly specified.
+        //
+        // 3. In the later case, use `BSLMA_TESTALLOCATOR_EXCEPTION_*` macros
+        //    to inject an exception for each allocation during construction.
+        //    (C-3)
+        //
+        //   1. A pair of nested `BSLMA_TESTALLOCATOR_EXCEPTION_*` macros is
+        //      used because the management of a constraint can use both
+        //      the default allocator and the supplied allocator.
+        //
+        // 4. Use `bslma::TestAllocatorMonitor` objects to confirm allocations
+        //    from the intended allocators.  (C-2).
         //
         // Testing:
         //   TypeInfo(bool               *v, *bA = 0);
@@ -2332,11 +2334,11 @@ int main(int argc, const char *argv[])  {
                 ASSERTV(CONFIG, &sa == xOa || &da == xOa);
                 ASSERTV(CONFIG, 1 == completeExceptionCount);
 
+                // Supplied allocator used to wrap a user-supplied
+                // constraint.  Otherwise, the implementation uses the
+                // default allocator to create shared pointers the
+                // "always true" constraints.
                 const bool usesSuppliedAllocator = &sa == xOa;
-                    // Supplied allocator used to wrap a user-supplied
-                    // constraint.  Otherwise, the implementation uses the
-                    // default allocator to create shared pointers the
-                    // "always true" constraints.
 
                 if (veryVerbose) {
                     P_(CONFIG)
@@ -2377,48 +2379,48 @@ int main(int argc, const char *argv[])  {
         // COPY ASSIGNMENT
         //
         // Concerns:
-        //: 1 The operator has the expected signature.
-        //:
-        //: 2 One object can be assigned to another irrespective of the value
-        //:   of each of those objects.
-        //:
-        //: 3 Alias-safety: An object an be assigned to itself.
-        //:
-        //: 3 The allocator of the assigned-to object ('lhs') is preserved.
-        //:
-        //: 4 Assignment does not allocate memory.
-        //:
-        //: 5 The assignment operation returns a reference to the 'lhs' object.
-        //:
-        //: 6 The operation does not change the 'rhs'.
-        //:
-        //: 7 The non-salient attribute 'isOptionalLinkedVariable' has the
-        //:   expected value.
+        // 1. The operator has the expected signature.
+        //
+        // 2. One object can be assigned to another irrespective of the value
+        //    of each of those objects.
+        //
+        // 3. Alias-safety: An object an be assigned to itself.
+        //
+        // 3. The allocator of the assigned-to object (`lhs`) is preserved.
+        //
+        // 4. Assignment does not allocate memory.
+        //
+        // 5. The assignment operation returns a reference to the `lhs` object.
+        //
+        // 6. The operation does not change the `rhs`.
+        //
+        // 7. The non-salient attribute `isOptionalLinkedVariable` has the
+        //    expected value.
         //
         // Plan:
-        //: 1 Use the "pointer-to-method" idiom to have the compiler check the
-        //:   signature.  (C-1)
-        //:
-        //: 2 For a representative set of objects (see the 'OPTION_TYPEINFO'
-        //:   table), assign each object with itself and to every other object.
-        //:   Use equality comparison to confirm that each object is in the
-        //:   expected state afterward.  (C-2)
-        //:
-        //: 3 Use an ad hoc test to assign one object to another that is using
-        //:   a different allocator.  Confirm that the 'lhs' object retains its
-        //:   original allocator.  (C-3)
-        //:
-        //: 4 Use 'bslma::TestAllocatorMonitor' objects to confirm that no
-        //:   memory is allocated.  (C-4)
-        //:
-        //: 5 Compare the address of the returned value (a reference, as shown
-        //:   in P-1) to the address of the 'lhs'.  (C-5)
-        //:
-        //: 6 Create a duplicate of the 'rhs' object that is not used in the
-        //:   assignment operation.  Confirm that the 'rhs' compares equal to
-        //:   this spare object both before and after the assignment operation.
-        //:   Confirm that the non-salient 'isOptionalLinkedVariable' has the
-        //:   expected value.  (C-6..7)
+        // 1. Use the "pointer-to-method" idiom to have the compiler check the
+        //    signature.  (C-1)
+        //
+        // 2. For a representative set of objects (see the `OPTION_TYPEINFO`
+        //    table), assign each object with itself and to every other object.
+        //    Use equality comparison to confirm that each object is in the
+        //    expected state afterward.  (C-2)
+        //
+        // 3. Use an ad hoc test to assign one object to another that is using
+        //    a different allocator.  Confirm that the `lhs` object retains its
+        //    original allocator.  (C-3)
+        //
+        // 4. Use `bslma::TestAllocatorMonitor` objects to confirm that no
+        //    memory is allocated.  (C-4)
+        //
+        // 5. Compare the address of the returned value (a reference, as shown
+        //    in P-1) to the address of the `lhs`.  (C-5)
+        //
+        // 6. Create a duplicate of the `rhs` object that is not used in the
+        //    assignment operation.  Confirm that the `rhs` compares equal to
+        //    this spare object both before and after the assignment operation.
+        //    Confirm that the non-salient `isOptionalLinkedVariable` has the
+        //    expected value.  (C-6..7)
         //
         // Testing:
         //   TypeInfo& operator=(const TypeInfo& rhs);
@@ -2543,34 +2545,34 @@ int main(int argc, const char *argv[])  {
         // COPY CONSTRUCTOR
         //
         // Concerns:
-        //: 1 Equality: The copy constructor creates a new object that compares
-        //:   equal to the original object.
-        //:
-        //: 2 Allocators:
-        //:   1 The allocator of the created object depends on its constructor
-        //:     argument (not the allocator of the original object).
-        //:
-        //:   2 If the allocator argument of the object is 0 or not specified,
-        //:     the new object uses the default allocator.
-        //:
-        //:   3 The copy constructor does not allocate.  Note that this implies
-        //:     we need not do exception tests.
+        // 1. Equality: The copy constructor creates a new object that compares
+        //    equal to the original object.
+        //
+        // 2. Allocators:
+        //   1. The allocator of the created object depends on its constructor
+        //      argument (not the allocator of the original object).
+        //
+        //   2. If the allocator argument of the object is 0 or not specified,
+        //      the new object uses the default allocator.
+        //
+        //   3. The copy constructor does not allocate.  Note that this implies
+        //      we need not do exception tests.
         //
         // Plans:
-        //: 1 Do table-driven testing using the 'OPTION_TYPEINFO' array of
-        //:   representative values described in earlier tests.
-        //:
-        //: 2 Use 'operator==' to confirm the equality of the new object (C-1).
-        //:
-        //: 3 Use the "footprint" idiom to repeat each test for the cases of an
-        //:   unspecified allocator, a 0-allocator, and an explicitly supplied
-        //:   allocator.
-        //:
-        //:   1 Confirm the allocator of the new object using the 'allocator'
-        //:     accessor.  (C-2.1..2)
-        //:
-        //:   2 Use 'bslma::TestAllocatorMonitor' objects to confirm that no
-        //:     memory is allocated by any copy.  (C-2.3)
+        // 1. Do table-driven testing using the `OPTION_TYPEINFO` array of
+        //    representative values described in earlier tests.
+        //
+        // 2. Use `operator==` to confirm the equality of the new object (C-1).
+        //
+        // 3. Use the "footprint" idiom to repeat each test for the cases of an
+        //    unspecified allocator, a 0-allocator, and an explicitly supplied
+        //    allocator.
+        //
+        //   1. Confirm the allocator of the new object using the `allocator`
+        //      accessor.  (C-2.1..2)
+        //
+        //   2. Use `bslma::TestAllocatorMonitor` objects to confirm that no
+        //      memory is allocated by any copy.  (C-2.3)
         //
         // Testing:
         //   TypeInfo(const TypeInfo& original, *bA = 0);
@@ -2675,77 +2677,77 @@ int main(int argc, const char *argv[])  {
       case 6: {
         // --------------------------------------------------------------------
         // EQUALITY-COMPARISON OPERATORS
-        //   Ensure that '==' and '!=' are the operational definition of value.
+        //   Ensure that `==` and `!=` are the operational definition of value.
         //
         // Concerns:
-        //: 1 Salient Members:
-        //:
-        //:   1 Two objects, 'X' and 'Y', compare equal if and only if each of
-        //:     their corresponding salient attributes respectively compare
-        //:     equal.
-        //:
-        //:   2 All salient attributes participate in the comparison.
+        // 1. Salient Members:
         //
-        //:   3 The object's allocator is not salient.
-        //:
-        //: 2 Mathematical Properties:
-        //:
-        //:   1 The operators provide the property of identity:
-        //:     o 'true  == (X == X)'
-        //:     o 'false == (X != X)'
-        //:
-        //:   2 The operators provide the property of commutativity:
-        //:     o 'X == Y' if and only if 'Y == X'
-        //:     o 'X != Y' if and only if 'Y != X'
-        //:
-        //:   3 Each of these two operators is the inverse of the other:
-        //:     o 'X != Y' if and only if '!(X == Y)'
-        //:
-        //: 3 Non-modifiable objects can be compared (i.e., 'const' objects and
-        //:   'const' references).
-        //:
-        //: 4 The two operators have standard signatures and return types.
+        //   1. Two objects, `X` and `Y`, compare equal if and only if each of
+        //      their corresponding salient attributes respectively compare
+        //      equal.
         //
-        //: 5 No memory allocation occurs as a result of comparison (e.g., the
-        //:   arguments are not passed by value).
+        //   2. All salient attributes participate in the comparison.
+        //
+        //   3. The object's allocator is not salient.
+        //
+        // 2. Mathematical Properties:
+        //
+        //   1. The operators provide the property of identity:
+        //      - `true  == (X == X)`
+        //      - `false == (X != X)`
+        //
+        //   2. The operators provide the property of commutativity:
+        //      - `X == Y` if and only if `Y == X`
+        //      - `X != Y` if and only if `Y != X`
+        //
+        //   3. Each of these two operators is the inverse of the other:
+        //      - `X != Y` if and only if `!(X == Y)`
+        //
+        // 3. Non-modifiable objects can be compared (i.e., `const` objects and
+        //    `const` references).
+        //
+        // 4. The two operators have standard signatures and return types.
+        //
+        // 5. No memory allocation occurs as a result of comparison (e.g., the
+        //    arguments are not passed by value).
         //
         // Plan:
-        //: 1 Use the respective addresses of 'operator==' and 'operator!=' to
-        //:   initialize function pointers having the appropriate signatures
-        //:   and return types for the two homogeneous, free
-        //:   equality-comparison operators defined in this component.
-        //:   (C-3..4)
-        //:
-        //: 2 Using the table-driven technique, specify a set of unique object
-        //:   values (one per row) in terms of their individual salient
-        //:   attributes such that each row differs from the others with
-        //:   respect to *one* salient value where the salient attributes are:
-        //:   o type
-        //:   o linked variable (or not)
-        //:   o constraint (or not)
-        //:
-        //: 3 Objects created from different rows of salient values compare
-        //:   unequal.  By taking the cross product of these objects, we
-        //:   demonstrate that a difference in *any* individual salient value
-        //:   results in inequality, thus demonstrating that each salient value
-        //:   contributes to the equality comparison.  Note that objects
-        //:   compare equal for only those cases of the cross product when both
-        //:   rows are the same.  (C-1)
-        //:
-        //: 4 For each test of equality, create a parallel test that checks
-        //:   inequality (the inverse operator), and (when the two arguments
-        //:   are different) also create a test case where the two arguments
-        //:   are switched (showing commutativity).  (C-2)
-        //:
-        //: 5 Install a test allocator as the default allocator.  Create a test
-        //:   allocator monitor object before each group of operator tests and
-        //:   confirm afterwards that the 'isTotalSame' returns 'true' (showing
-        //:   that no allocations occurred when exercising the operators).
-        //:
-        //: 6 Repeat each test between two objects so that the objects use the
-        //:   same allocator in one test and use different allocators in the
-        //:   other.  Results should not change and thereby show that the
-        //:   object allocator is not salient to equality.  (C-1.3)
+        // 1. Use the respective addresses of `operator==` and `operator!=` to
+        //    initialize function pointers having the appropriate signatures
+        //    and return types for the two homogeneous, free
+        //    equality-comparison operators defined in this component.
+        //    (C-3..4)
+        //
+        // 2. Using the table-driven technique, specify a set of unique object
+        //    values (one per row) in terms of their individual salient
+        //    attributes such that each row differs from the others with
+        //    respect to *one* salient value where the salient attributes are:
+        //    - type
+        //    - linked variable (or not)
+        //    - constraint (or not)
+        //
+        // 3. Objects created from different rows of salient values compare
+        //    unequal.  By taking the cross product of these objects, we
+        //    demonstrate that a difference in *any* individual salient value
+        //    results in inequality, thus demonstrating that each salient value
+        //    contributes to the equality comparison.  Note that objects
+        //    compare equal for only those cases of the cross product when both
+        //    rows are the same.  (C-1)
+        //
+        // 4. For each test of equality, create a parallel test that checks
+        //    inequality (the inverse operator), and (when the two arguments
+        //    are different) also create a test case where the two arguments
+        //    are switched (showing commutativity).  (C-2)
+        //
+        // 5. Install a test allocator as the default allocator.  Create a test
+        //    allocator monitor object before each group of operator tests and
+        //    confirm afterwards that the `isTotalSame` returns `true` (showing
+        //    that no allocations occurred when exercising the operators).
+        //
+        // 6. Repeat each test between two objects so that the objects use the
+        //    same allocator in one test and use different allocators in the
+        //    other.  Results should not change and thereby show that the
+        //    object allocator is not salient to equality.  (C-1.3)
         //
         // Testing:
         //   bool operator==(const TypeInfo& lhs, rhs);
@@ -2819,8 +2821,8 @@ int main(int argc, const char *argv[])  {
                     if (veryVerbose) { T_ T_ T_  P(k) }
 
                     bslma::TestAllocator *saY = k % 2
-                                              ? &sa1  //     same as 'X'
-                                              : &sa2; // not same as 'X'
+                                              ? &sa1  //     same as `X`
+                                              : &sa2; // not same as `X`
 
                     Obj mY(saY);  const Obj& Y = mY;
 
@@ -2873,26 +2875,26 @@ int main(int argc, const char *argv[])  {
         // PRINT AND OUTPUT OPERATOR
         //
         // Concerns:
-        //: 1 The 'print' method writes to the specified 'ostream' in the
-        //:   expected format.
-        //:
-        //: 2 'operator<<' produces the same results as 'print' when level and
-        //:   spaces-per-level arguments have their default value.
-        //:
-        //: 3 The return values of 'print' and 'operator<<' reference the
-        //:   stream argument.
-        //:
-        //: 4 The signature and return types of 'print' and 'operator<<' are
-        //:   standard.
-        //:
-        //: 5 The 'level' and 'spacesPerLevel' parameters have the correct
-        //:   default values.
+        // 1. The `print` method writes to the specified `ostream` in the
+        //    expected format.
+        //
+        // 2. `operator<<` produces the same results as `print` when level and
+        //    spaces-per-level arguments have their default value.
+        //
+        // 3. The return values of `print` and `operator<<` reference the
+        //    stream argument.
+        //
+        // 4. The signature and return types of `print` and `operator<<` are
+        //    standard.
+        //
+        // 5. The `level` and `spacesPerLevel` parameters have the correct
+        //    default values.
         //
         // Plan:
-        //: 1 Use the "function address" idiom to confirm the signatures.
+        // 1. Use the "function address" idiom to confirm the signatures.
         //
-        //: 2 Confirm that 'bdlb::HasPrintMethod<TypeInfo>::value' is 'true'
-        //:   using a compile-time assertion at file scope.
+        // 2. Confirm that `bdlb::HasPrintMethod<TypeInfo>::value` is `true`
+        //    using a compile-time assertion at file scope.
         //
         // Testing:
         //   ostream& print(ostream& stream, int level = 0, int spl = 4) const;
@@ -3004,45 +3006,45 @@ int main(int argc, const char *argv[])  {
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // 'balcl::TypeInfoUtil': 'satisfiesConstraint'
+        // `balcl::TypeInfoUtil`: `satisfiesConstraint`
         //
         // Concerns:
-        //: 1 Each of the 'satisfiesConstraint' overloads returns the expected
-        //:   result for the given value and constraint.
-        //:
-        //: 2 'const'-qualification:
-        //:   1 The first two parameters are 'const' qualified.
-        //:   2 The third parameter (stream), if present, is not 'const'
-        //:     qualified.
-        //:
-        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        // 1. Each of the `satisfiesConstraint` overloads returns the expected
+        //    result for the given value and constraint.
+        //
+        // 2. `const`-qualification:
+        //   1. The first two parameters are `const` qualified.
+        //   2. The third parameter (stream), if present, is not `const`
+        //      qualified.
+        //
+        // 3. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Use 'OPTION_TYPEINFO', a table of representative inputs, that
-        //:   includes an entry for each supported type having a constraint.
-        //:
-        //:   o Note that constraints defined in the table can be set via a
-        //:     public static variable to unconditionally return 'true' or
-        //:     'false'.
+        // 1. Use `OPTION_TYPEINFO`, a table of representative inputs, that
+        //    includes an entry for each supported type having a constraint.
         //
-        //: 2 Also use 'OPTION_VALUES', a table of values for each supported
-        //:   option type.  Note that none of those values is the default value
-        //:   for the type.
-        //:
-        //: 3 For each entry in 'OPTION_TYPEINFO' that defines a constraint,
-        //:   create an object, create a value of the appropriate type from
-        //:   'OPTION_VALUES', call 'satisfiesConstraint', and confirm that the
-        //:   result matches that expected per the current value of the
-        //:   constraint's static variable.  Toggle the static variable and
-        //:   retest.  (C-1)
-        //:
-        //: 4 The first two arguments are always passed by 'const' reference.
-        //:   The 'stream' argument is shown to be non-'const' qualified by
-        //:   having the test constraint write an error message when it returns
-        //:   'false'.  (C-2)
-        //:
-        //: 5 Do negative tests of defensive checks using 'BSLS_ASSERTTEST_*'
-        //:   macros.  (C-3)
+        //    - Note that constraints defined in the table can be set via a
+        //      public static variable to unconditionally return `true` or
+        //      `false`.
+        //
+        // 2. Also use `OPTION_VALUES`, a table of values for each supported
+        //    option type.  Note that none of those values is the default value
+        //    for the type.
+        //
+        // 3. For each entry in `OPTION_TYPEINFO` that defines a constraint,
+        //    create an object, create a value of the appropriate type from
+        //    `OPTION_VALUES`, call `satisfiesConstraint`, and confirm that the
+        //    result matches that expected per the current value of the
+        //    constraint's static variable.  Toggle the static variable and
+        //    retest.  (C-1)
+        //
+        // 4. The first two arguments are always passed by `const` reference.
+        //    The `stream` argument is shown to be non-`const` qualified by
+        //    having the test constraint write an error message when it returns
+        //    `false`.  (C-2)
+        //
+        // 5. Do negative tests of defensive checks using `BSLS_ASSERTTEST_*`
+        //    macros.  (C-3)
         //
         // Testing:
         //   bool satisfiesConstraint(const Clov& e,             TypeInfo tf);
@@ -3053,7 +3055,7 @@ int main(int argc, const char *argv[])  {
 
         if (verbose) cout
                      << endl
-                     << "'balcl::TypeInfoUtil': 'satisfiesConstraint'" << endl
+                     << "`balcl::TypeInfoUtil`: `satisfiesConstraint`" << endl
                      << "--------------------------------------------" << endl;
 
         for (int i = 0; i < NUM_OPTION_TYPEINFO; ++i) {
@@ -3172,30 +3174,30 @@ int main(int argc, const char *argv[])  {
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // HELPER: 'u::shiftType'
+        // HELPER: `u::shiftType`
         //
         // Concerns:
-        //: 1 The returned (enumerator) value is offset by the given 'offset'
-        //:   from the given (enumerator) value when the enumerators are
-        //:   ordered in their sequence of definition.
+        // 1. The returned (enumerator) value is offset by the given `offset`
+        //    from the given (enumerator) value when the enumerators are
+        //    ordered in their sequence of definition.
         //
-        //: 2 An offset that extends past 'Ot::e_TIME_ARRAY' continues with
-        //:   'Ot::e_BOOL' (and vice versa).
-        //:
-        //: 3 The offset can be negative.
-        //:
-        //: 4 The value 'Ot::e_VOID' is ignored in the calculation.
+        // 2. An offset that extends past `Ot::e_TIME_ARRAY` continues with
+        //    `Ot::e_BOOL` (and vice versa).
+        //
+        // 3. The offset can be negative.
+        //
+        // 4. The value `Ot::e_VOID` is ignored in the calculation.
         //
         // Plan:
-        //: 1 Using a table-driven test, compare calculated results with
-        //:   expected results the extreme values of the sequence.
+        // 1. Using a table-driven test, compare calculated results with
+        //    expected results the extreme values of the sequence.
         //
         // Testing:
-        //   CONCERN: HELPER 'u::shiftType'
+        //   CONCERN: HELPER `u::shiftType`
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "HELPER: 'u::shiftType'" << endl
+                          << "HELPER: `u::shiftType`" << endl
                           << "======================" << endl;
 
         static const struct {
@@ -3251,57 +3253,57 @@ int main(int argc, const char *argv[])  {
         // DEFAULT CTOR, DTOR, PRIMARY MANIPULATORS, BASIC ACCESSORS
         //
         // Concerns:
-        //: 1 The default constructed object has the expected type, linked
-        //:   variable (none), and contract.
-        //:
-        //:   1 Note that the initial constraint is the address of a non-public
-        //:     type that should accept all possible values of the object's
-        //:     type; however, we have no way to check that directly.  Instead,
-        //:     we merely note the address of that object and confirm that the
-        //:     primary manipulators that should change that address actually
-        //:     do so.
-        //:
-        //: 2 The object allocates from the intended allocator, and no other.
-        //:
-        //:   1 Allocation is exception safe.
-        //:
-        //:   2 The 'bslma::UsesBslmaAllocator' trait is set for this class.
-        //:
-        //: 3 The basic accessors provide a view of the object state that is
-        //:   consistent with the state of the objects set by the constructor
-        //:   and the primary manipulators.
-        //:
-        //: 4 The basic accessors are 'const'-qualified.
+        // 1. The default constructed object has the expected type, linked
+        //    variable (none), and contract.
+        //
+        //   1. Note that the initial constraint is the address of a non-public
+        //      type that should accept all possible values of the object's
+        //      type; however, we have no way to check that directly.  Instead,
+        //      we merely note the address of that object and confirm that the
+        //      primary manipulators that should change that address actually
+        //      do so.
+        //
+        // 2. The object allocates from the intended allocator, and no other.
+        //
+        //   1. Allocation is exception safe.
+        //
+        //   2. The `bslma::UsesBslmaAllocator` trait is set for this class.
+        //
+        // 3. The basic accessors provide a view of the object state that is
+        //    consistent with the state of the objects set by the constructor
+        //    and the primary manipulators.
+        //
+        // 4. The basic accessors are `const`-qualified.
         //
         // Plan:
-        //: 1 Create 'OPTION_TYPEINFO', a table representing the space of
-        //:   object attributes consisting of every supported option type,
-        //:   having a linked variable, having a contract, having both a linked
-        //:   variable and contract, and having neither.
-        //:
-        //: 2 Use each default constructor (one specifying an object allocator
-        //:   and the other using the default allocator) to create an object.
-        //:   Using the basic accessors, confirm that the object is in its
-        //:   expected state.
-        //:
-        //:   1 Confirm that
-        //:     'bslma::UsesBslmaAllocator<balcl::TypeInfo>::value' is 'true'
-        //:     in a compile-time assertion at file scope.
-        //:
-        //:   2 Always invoke the basic accessors on a 'const'-reference to the
-        //:     object under test.  If the accessors are not 'const'-qualified,
-        //:     there is a compile failure.
-        //:
-        //: 3 Use 'u::setLinkedVariable' and 'u::setConstraint' to set each of
-        //:   those attributes, if available for the table entry.  Confirm that
-        //:   the accessors show the changed state.
-        //:
-        //: 4 Use methods 'resetLinkedVariableAndConstraint' and
-        //:   'resetConstraint' to undo the change in P-3.  Confirm using the
-        //:   basic accessors.
-        //:
-        //: 5 Use 'BSLMA_TESTALLOCATOR_EXCEPTION*' macros to check allocations
-        //:   in the presence of exceptions.
+        // 1. Create `OPTION_TYPEINFO`, a table representing the space of
+        //    object attributes consisting of every supported option type,
+        //    having a linked variable, having a contract, having both a linked
+        //    variable and contract, and having neither.
+        //
+        // 2. Use each default constructor (one specifying an object allocator
+        //    and the other using the default allocator) to create an object.
+        //    Using the basic accessors, confirm that the object is in its
+        //    expected state.
+        //
+        //   1. Confirm that
+        //      `bslma::UsesBslmaAllocator<balcl::TypeInfo>::value` is `true`
+        //      in a compile-time assertion at file scope.
+        //
+        //   2. Always invoke the basic accessors on a `const`-reference to the
+        //      object under test.  If the accessors are not `const`-qualified,
+        //      there is a compile failure.
+        //
+        // 3. Use `u::setLinkedVariable` and `u::setConstraint` to set each of
+        //    those attributes, if available for the table entry.  Confirm that
+        //    the accessors show the changed state.
+        //
+        // 4. Use methods `resetLinkedVariableAndConstraint` and
+        //    `resetConstraint` to undo the change in P-3.  Confirm using the
+        //    basic accessors.
+        //
+        // 5. Use `BSLMA_TESTALLOCATOR_EXCEPTION*` macros to check allocations
+        //    in the presence of exceptions.
         //
         // Testing:
         //   TypeInfo();
@@ -3545,8 +3547,8 @@ int main(int argc, const char *argv[])  {
             LOOP_ASSERT(LINE, IS_OPTIONAL_LINKED_VARIABLE
                                               == X.isOptionalLinkedVariable());
 
-            // Note that the test for 'satisfiesConstraint' (case 4)
-            // demonstrates that 'setConstraint' does install the intended
+            // Note that the test for `satisfiesConstraint` (case 4)
+            // demonstrates that `setConstraint` does install the intended
             // constraint.
         }
 
@@ -3601,11 +3603,11 @@ int main(int argc, const char *argv[])  {
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Ad-hoc testing.
+        // 1. Ad-hoc testing.
         //
         // Testing:
         //   BREATHING TEST

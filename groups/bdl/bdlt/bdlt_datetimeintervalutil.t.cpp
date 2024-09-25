@@ -104,13 +104,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -121,107 +121,107 @@ int main(int argc, char *argv[])
                  << "\n=============" << endl;
         }
 
-///Example 1: Simple Usage of the Various 'make*' Functions
+///Example 1: Simple Usage of the Various `make*` Functions
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example shows how we can create a 'bdlt::DatetimeInterval' objects
+// This example shows how we can create a `bdlt::DatetimeInterval` objects
 // having values of 1 day, 2 hours, 3 minutes, 4 seconds, 5 millisecond, and 6
-// microseconds by using the 'bdlt::DatetimeInterval' constructor and, more
-// readably, by using the 'make*' functions.
+// microseconds by using the `bdlt::DatetimeInterval` constructor and, more
+// readably, by using the `make*` functions.
 //
-// First, start with a default (0) 'bdlt::DatetimeInterval':
-//..
+// First, start with a default (0) `bdlt::DatetimeInterval`:
+// ```
     bdlt::DatetimeInterval m;
     bdlt::DatetimeInterval d;
-//..
+// ```
 // Next, add 1 day to it, and assert that both objects are equal:
-//..
+// ```
     m += bdlt::DatetimeIntervalUtil::makeDays(1);
     d += bdlt::DatetimeInterval(1, 0, 0, 0, 0, 0);
     ASSERT(m == d);
-//..
+// ```
 // Then, add 2 hours to it, and assert that both objects are equal:
-//..
+// ```
     m += bdlt::DatetimeIntervalUtil::makeHours(2);
     d += bdlt::DatetimeInterval(0, 2, 0, 0, 0, 0);
     ASSERT(m == d);
-//..
+// ```
 // Next, add 3 minutes to it, and assert that both objects are equal:
-//..
+// ```
     m += bdlt::DatetimeIntervalUtil::makeMinutes(3);
     d += bdlt::DatetimeInterval(0, 0, 3, 0, 0, 0);
     ASSERT(m == d);
-//..
+// ```
 // Then, add 4 seconds to it, and assert that both objects are equal:
-//..
+// ```
     m += bdlt::DatetimeIntervalUtil::makeSeconds(4);
     d += bdlt::DatetimeInterval(0, 0, 0, 4, 0, 0);
     ASSERT(m == d);
-//..
+// ```
 // Next, add 5 milliseconds to it, and assert that both objects are equal:
-//..
+// ```
     m += bdlt::DatetimeIntervalUtil::makeMilliseconds(5);
     d += bdlt::DatetimeInterval(0, 0, 0, 0, 5, 0);
     ASSERT(m == d);
-//..
+// ```
 // Then, add 6 microseconds to it, and assert that both objects are equal:
-//..
+// ```
     m += bdlt::DatetimeIntervalUtil::makeMicroseconds(6);
     d += bdlt::DatetimeInterval(0, 0, 0, 0, 0, 6);
     ASSERT(m == d);
-//..
-// Finally, we create an create a 'DatetimeInterval' with  the final value and
+// ```
+// Finally, we create an create a `DatetimeInterval` with  the final value and
 // compare to the objects built in steps.
-//..
+// ```
     bdlt::DatetimeInterval f(1, 2, 3, 4, 5, 6);
     ASSERT(f == m);
     ASSERT(f == d);
-//..
+// ```
 //
-///Example 2: How to Improve Readability Using the 'make*' Functions
+///Example 2: How to Improve Readability Using the `make*` Functions
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example shows how we can create a 'bdlt::Datetime' objects having a
-// value of now + 2 hours and 30 minutes by using the 'bdlt::DatetimeInterval'
-// constructor or, more readably by using the 'make*' functions.
+// This example shows how we can create a `bdlt::Datetime` objects having a
+// value of now + 2 hours and 30 minutes by using the `bdlt::DatetimeInterval`
+// constructor or, more readably by using the `make*` functions.
 //
-// First, create a 'bdlt::Datetime' object having the current time:
-//..
+// First, create a `bdlt::Datetime` object having the current time:
+// ```
     bdlt::Datetime now = bdlt::CurrentTime::utc();
-//..
-// Now, create the 'bdlt::DatetimeInterval' objects and assign the desired
-// values to them using the 'makeHours' and 'makeMinutes' functions, and using
-// the 'bdlt::DatetimeInterval' constructor:
-//..
+// ```
+// Now, create the `bdlt::DatetimeInterval` objects and assign the desired
+// values to them using the `makeHours` and `makeMinutes` functions, and using
+// the `bdlt::DatetimeInterval` constructor:
+// ```
     bdlt::Datetime nextEventTime = now
                                  + bdlt::DatetimeIntervalUtil::makeHours(2)
                                  + bdlt::DatetimeIntervalUtil::makeMinutes(30);
     bdlt::Datetime altEventTime  = now
                                  + bdlt::DatetimeInterval(0, 2, 30, 0, 0, 0);
-//..
+// ```
 // Finally, assert that both results are equal:
-//..
+// ```
     ASSERT(nextEventTime == altEventTime);
-//..
+// ```
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'make*' MANIPULATORS
-        //   Verify the 'make*' methods work as expected.  This testing
-        //   assumes that the 'DatetimeInterval' constructor, and equality
+        // TESTING `make*` MANIPULATORS
+        //   Verify the `make*` methods work as expected.  This testing
+        //   assumes that the `DatetimeInterval` constructor, and equality
         //   operator work correctly.
         //
         // Concerns:
-        //: 1 The "time" values are forwarded correctly to the
-        //:  'DatetimeInterval' object.
-        //:
-        //: 2 Each of the factory methods take parameters of their intended
-        //:   type.  That is 'int' for days and 'bsls::Types::Int64' for all of
-        //:    the others.
+        // 1. The "time" values are forwarded correctly to the
+        //   `DatetimeInterval` object.
+        //
+        // 2. Each of the factory methods take parameters of their intended
+        //    type.  That is `int` for days and `bsls::Types::Int64` for all of
+        //     the others.
         //
         // Plan:
-        //: 1 Using the array based test values, compare the
-        //:   'DatetimeInterval' objects resulting for the 'make*' methods
-        //:   with ones created by a call to 'DatetimeInterval' constructor.
-        //:   (C-1)
+        // 1. Using the array based test values, compare the
+        //    `DatetimeInterval` objects resulting for the `make*` methods
+        //    with ones created by a call to `DatetimeInterval` constructor.
+        //    (C-1)
         //
         // Testing:
         //   DatetimeInterval makeDays(int days);
@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
         const Int64 k_BIG = static_cast<Int64>(INT_MAX)+1;
 
         if (verbose) cout << endl
-                          << "TESTING 'make*' MANIPULATORS" << endl
+                          << "TESTING `make*` MANIPULATORS" << endl
                           << "============================" << endl;
 
         {

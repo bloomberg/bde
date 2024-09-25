@@ -31,7 +31,7 @@
 #include <bsl_cstring.h>
 #include <bsl_fstream.h>
 #include <bsl_iostream.h>
-#include <bsl_ostream.h> // for 'operator<<'
+#include <bsl_ostream.h> // for `operator<<`
 
 #if BSLS_PLATFORM_OS_UNIX
 # include <unistd.h>        // sleep
@@ -140,7 +140,7 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 typedef baltzo::DataFileLoader Obj;
-typedef Obj::allocator_type    AllocType; // Test 'allocator_type' exists
+typedef Obj::allocator_type    AllocType; // Test `allocator_type` exists
 typedef bdls::FilesystemUtil   FUtil;
 
 // ============================================================================
@@ -506,10 +506,10 @@ static void writeData(const char *fileName, const char *data, int numBytes)
         bdls::PathUtil::popLeaf(&path);
         ASSERT(bdls::FilesystemUtil::exists(path));
     }
-//..
+// ```
 // Then we create a file for Bangkok and write the binary time zone data to
 // that file.
-//..
+// ```
     bsl::ofstream outputFile(fileName, bsl::ofstream::binary);
     ASSERT(outputFile.is_open());
     outputFile.write(data, numBytes);
@@ -565,7 +565,7 @@ int main(int argc, char *argv[])
         char host[80];
         ASSERT(0 == ::gethostname(host, sizeof(host)));
 #else
-        const char *host = "win";     // 'gethostname' is difficult on
+        const char *host = "win";     // `gethostname` is difficult on
                                       // Windows, and we usually aren't using
                                       // nfs there anyway.
 #endif
@@ -584,7 +584,7 @@ int main(int argc, char *argv[])
         // these can usually be deleted if sufficient time has elapsed.  If
         // we're not able to clean it up now, old files may prevent the test
         // case we're running this time from working.  So we want this assert
-        // to fail to give the tester a 'heads-up' as to what went wrong.
+        // to fail to give the tester a `heads-up` as to what went wrong.
 
         ASSERTV(tmpWorkingDir, 0 == FUtil::remove(tmpWorkingDir, true));
     }
@@ -618,7 +618,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace `assert` with `ASSERT`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -629,22 +629,22 @@ int main(int argc, char *argv[])
 
 ///Usage
 ///-----
-// The following example illustrates how to use a 'baltzo::DataFileLoader' to
+// The following example illustrates how to use a `baltzo::DataFileLoader` to
 // load the Zoneinfo time zone data for a time zone.
 //
 ///Prologue: Create a Example Data File
 /// - - - - - - - - - - - - - - - - - -
 // We need to create one time zone data file on which to operate in the
 // remainder of the example.  In practice, clients should *not* generate data
-// files in this manner.  Data files are typically created using the 'zic'
+// files in this manner.  Data files are typically created using the `zic`
 // compiler -- a publicly available tool provided as part of the standard
-// Zoneinfo distribution (see 'http://www.twinsun.com/tz/tz-link.htm') -- and
+// Zoneinfo distribution (see `http://www.twinsun.com/tz/tz-link.htm`) -- and
 // deployed in a standard directory location (see
-// 'baltzo_defaultzoneinfocache').
+// `baltzo_defaultzoneinfocache`).
 //
 // First we define static binary data for "Asia/Bangkok" (chosen because it is
 // relatively small):
-//..
+// ```
     const unsigned char ASIA_BANGKOK_DATA[] = {
       0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02,
@@ -662,12 +662,12 @@ int main(int argc, char *argv[])
       0x00, 0x42, 0x4d, 0x54, 0x00, 0x49, 0x43, 0x54, 0x00, 0x00, 0x00, 0x00,
       0x00, 0x00, 0x00, 0x0a, 0x49, 0x43, 0x54, 0x2d, 0x37, 0x0a
     };
-//..
+// ```
 // Then we create a testing sub-directory "test/Asia" that will hold the
 // data file for Bangkok.  Note that "Asia/Bangkok" is the Olson time zone
 // identifier for Bangkok and "Asia/Bangkok" also serves as a path (relative
 // to our "./test" sub-directory) to that data file.
-//..
+// ```
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     const char *TIME_ZONE_DIRECTORY = "test\\Asia";
     const char *TIME_ZONE_FILE      = "test\\Asia\\Bangkok";
@@ -678,55 +678,55 @@ int main(int argc, char *argv[])
     int rc =
             bdls::FilesystemUtil::createDirectories(TIME_ZONE_DIRECTORY, true);
     ASSERT(0 == rc);
-//..
+// ```
 // Finally we create a file for Bangkok and write the binary time zone data to
 // that file.
-//..
+// ```
     bsl::ofstream outputFile(TIME_ZONE_FILE, bsl::ofstream::binary);
     ASSERT(outputFile.is_open());
     outputFile.write(reinterpret_cast<const char *>(ASIA_BANGKOK_DATA),
                      sizeof(ASIA_BANGKOK_DATA));
     outputFile.close();
-//..
+// ```
 //
-///Example 1: Using a 'baltzo::DataFileLoader' to Load a Zoneinfo File
+///Example 1: Using a `baltzo::DataFileLoader` to Load a Zoneinfo File
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example we demonstrate how to use a 'baltzo::DataFileLoader' to load
-// a time zone data file into a 'baltzo::Zoneinfo' object.  First we create
-// a 'baltzo::DataFileLoader' object, and configure it with the relative path
+// In this example we demonstrate how to use a `baltzo::DataFileLoader` to load
+// a time zone data file into a `baltzo::Zoneinfo` object.  First we create
+// a `baltzo::DataFileLoader` object, and configure it with the relative path
 // "test" which we created in the prologue example.
-//..
+// ```
     baltzo::DataFileLoader loader;
     loader.configureRootPath("test");
-//..
-// Note that 'isRootPathPlausible' will return 'false' for the relative path
+// ```
+// Note that `isRootPathPlausible` will return `false` for the relative path
 // "test" since it does not contain data for the time zone "GMT" so it is
 // (correctly) assumed that "test" does not contain a (reasonably complete)
 // set of time zone data:
-//..
+// ```
     ASSERT(!loader.isRootPathPlausible());
-//..
-// Next we use the 'dataFilePath' method to verify that 'loader' will
+// ```
+// Next we use the `dataFilePath` method to verify that `loader` will
 // correctly locate the test data file we've created:
-//..
+// ```
     const char *BANGKOK_ID = "Asia/Bangkok";
     bsl::string bangkokDataPath;
     rc = loader.loadTimeZoneFilePath(&bangkokDataPath, BANGKOK_ID);
 
     ASSERT(0              == rc);
     ASSERT(TIME_ZONE_FILE == bangkokDataPath);
-//..
-// Then we create a 'baltzo::Zoneinfo' and load it using 'loader':
-//..
+// ```
+// Then we create a `baltzo::Zoneinfo` and load it using `loader`:
+// ```
     baltzo::Zoneinfo timeZone;
     rc = loader.loadTimeZone(&timeZone, BANGKOK_ID);
     ASSERT(0 == rc);
-//..
+// ```
 // Finally we verify several properties of the timezone: (1) That its
 // identifier is "Asia/Bangkok", and (2) it contains two transitions referring
 // to three local time descriptors, "LMT" (Local Mean Time), "BMT" (Bangkok
 // Mean Time), and "ICT" (Indochina Time):
-//..
+// ```
     ASSERT(BANGKOK_ID == timeZone.identifier());
     baltzo::Zoneinfo::TransitionConstIterator iterator =
                                                    timeZone.beginTransitions();
@@ -737,7 +737,7 @@ int main(int argc, char *argv[])
     ASSERT("ICT" == iterator->descriptor().description());
     ++iterator;
     ASSERT(timeZone.endTransitions() == iterator);
-//..
+// ```
     if (verbose) {
         timeZone.print(bsl::cout, 1, 3);
     }
@@ -748,30 +748,30 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'loadTimeZone' and 'loadTimeZoneRaw'
+        // TESTING `loadTimeZone` and `loadTimeZoneRaw`
         //
         // Concerns:
-        //: 1 'loadTimeZone' and 'loadTimeZoneRaw' correctly load time-zone
-        //:   information when a valid time zone identifier is specified.
-        //:
-        //: 2 'loadTimeZone' and 'loadTimeZoneRaw' return 'k_UNSUPPORTED_ID' if
-        //:   the specified time zone identifier is invalid.
-        //:
-        //: 3 'loadTimeZone' and 'loadTimeZoneRaw' return a non-zero value
-        //:   different from 'k_UNSUPPORTED_ID' on error reading the specified
-        //:   time-zone file.
+        // 1. `loadTimeZone` and `loadTimeZoneRaw` correctly load time-zone
+        //    information when a valid time zone identifier is specified.
+        //
+        // 2. `loadTimeZone` and `loadTimeZoneRaw` return `k_UNSUPPORTED_ID` if
+        //    the specified time zone identifier is invalid.
+        //
+        // 3. `loadTimeZone` and `loadTimeZoneRaw` return a non-zero value
+        //    different from `k_UNSUPPORTED_ID` on error reading the specified
+        //    time-zone file.
         //
         // Plan:
-        //: 1 Test that 'loadTimeZone' and 'loadTimeZoneRaw' return time-zone
-        //:   information when give a valid time zone identifier.
-        //:
-        //: 2 Test that 'loadTimeZone' and 'loadTimeZoneRaw' return
-        //:   'k_UNSUPPORTED_ID' when 'rootPath' is a plausible directory, but
-        //:   the time zone identifier is invalid.
-        //:
-        //: 3 Test that 'loadTimeZone' and 'loadTimeZoneRaw' return a non-zero
-        //:   return code other than 'k_UNSUPPORTED_ID' if 'rootPath' is not
-        //:   plausible.
+        // 1. Test that `loadTimeZone` and `loadTimeZoneRaw` return time-zone
+        //    information when give a valid time zone identifier.
+        //
+        // 2. Test that `loadTimeZone` and `loadTimeZoneRaw` return
+        //    `k_UNSUPPORTED_ID` when `rootPath` is a plausible directory, but
+        //    the time zone identifier is invalid.
+        //
+        // 3. Test that `loadTimeZone` and `loadTimeZoneRaw` return a non-zero
+        //    return code other than `k_UNSUPPORTED_ID` if `rootPath` is not
+        //    plausible.
         //
         // Testing:
         //   int loadTimeZone(Zoneinfo *result, const char *timeZoneId);
@@ -780,7 +780,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout
                      << endl
-                     << "TESTING 'loadTimeZone' and 'loadTimeZoneRaw'" << endl
+                     << "TESTING `loadTimeZone` and `loadTimeZoneRaw`" << endl
                      << "============================================" << endl;
 
         if (verbose) cout << "\nSetup plausible directory" << endl;
@@ -840,10 +840,10 @@ int main(int argc, char *argv[])
 
                 ASSERT(AMERICA_NEW_YORK_ID == timeZone.identifier());
 
-                // 'ZoneinfoBinaryReader::read' adds sentinel transition dated
-                // to the the first representable 'bdlt::Datetime' value --
-                // 'bdlt::Datetime(1, 1, 1)'.
-                // 'ZoneinfoBinaryReader::readRaw()' does not add it.  So we
+                // `ZoneinfoBinaryReader::read` adds sentinel transition dated
+                // to the the first representable `bdlt::Datetime` value --
+                // `bdlt::Datetime(1, 1, 1)`.
+                // `ZoneinfoBinaryReader::readRaw()` does not add it.  So we
                 // expect a difference in results.
 
                 const bsl::size_t EXPECTED_NUM_TRANSITIONS = RAW_MODE
@@ -861,7 +861,7 @@ int main(int argc, char *argv[])
             baltzo::Zoneinfo *NULL_ZI_PTR = 0;
             const char       *NULL_TZ_PTR = 0;
 
-            // Testing 'loadTimeZone'
+            // Testing `loadTimeZone`
             {
                 Obj mX;
                 baltzo::Zoneinfo timeZone;
@@ -873,7 +873,7 @@ int main(int argc, char *argv[])
                 ASSERT_FAIL(mX.loadTimeZone(&timeZone,   NULL_TZ_PTR        ));
             }
 
-            // Testing 'loadTimeZoneRaw'
+            // Testing `loadTimeZoneRaw`
             {
                 Obj mX;
                 baltzo::Zoneinfo timeZone;
@@ -891,40 +891,40 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'loadTimeZoneFilePath'
+        // TESTING `loadTimeZoneFilePath`
         //
         // Concerns:
-        //: 1 All invalid characters cause 'loadTimeZoneFilePath' to return a
-        //:   non-zero value.
-        //:
-        //: 2 'loadTimeZoneFilePath' accepts all valid characters in the
-        //:   'timeZoneId'.
-        //:
-        //: 3 'loadTimeZoneFilePath' returns the expected result as specified
-        //:   in the contract.
-        //:
-        //: 4 'loadTimeZoneFilePath' accepts all current time zone identifiers.
+        // 1. All invalid characters cause `loadTimeZoneFilePath` to return a
+        //    non-zero value.
+        //
+        // 2. `loadTimeZoneFilePath` accepts all valid characters in the
+        //    `timeZoneId`.
+        //
+        // 3. `loadTimeZoneFilePath` returns the expected result as specified
+        //    in the contract.
+        //
+        // 4. `loadTimeZoneFilePath` accepts all current time zone identifiers.
         //
         // Plan:
-        //: 1 Create a list of invalid character and test that
-        //:   'loadTimeZoneFilePath' returns a non-zero value for each one of
-        //:   them.
-        //:
-        //: 2 Test that 'loadTimeZoneFilePath' succeed when given a time zone
-        //:   identifier that contains only valid character.
-        //:
-        //: 3 Test that 'loadTimeZoneFilePath' produce expected results at the
-        //:   documented boundaries.
-        //:
-        //: 4 Create a list of sample time zone identifiers and test that the
-        //:   the correct file path is returned.
+        // 1. Create a list of invalid character and test that
+        //    `loadTimeZoneFilePath` returns a non-zero value for each one of
+        //    them.
+        //
+        // 2. Test that `loadTimeZoneFilePath` succeed when given a time zone
+        //    identifier that contains only valid character.
+        //
+        // 3. Test that `loadTimeZoneFilePath` produce expected results at the
+        //    documented boundaries.
+        //
+        // 4. Create a list of sample time zone identifiers and test that the
+        //    the correct file path is returned.
         //
         // Testing:
         //   int loadTimeZoneFilePath(bsl::string *r, const char  *id) const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'loadTimeZoneFilePath'" << endl
+                          << "TESTING `loadTimeZoneFilePath`" << endl
                           << "==============================" << endl;
 
         if (verbose) cout << "\nTesting invalid characters." << endl;
@@ -1200,20 +1200,20 @@ int main(int argc, char *argv[])
         // BASIC ACCESSORS
         //
         // Concerns:
-        //: 1 'rootPath' returns the value of the root path stored in the
-        //:   object.
-        //:
-        //: 2 'isRootPathPlausible' returns 'true' if the specified root path
-        //:   is a valid directory and contains a file name 'GMT, and false
-        //:   otherwise.
-        //:
-        //: 3 Each accessor is declared 'const'.
+        // 1. `rootPath` returns the value of the root path stored in the
+        //    object.
+        //
+        // 2. `isRootPathPlausible` returns `true` if the specified root path
+        //    is a valid directory and contains a file name 'GMT, and false
+        //    otherwise.
+        //
+        // 3. Each accessor is declared `const`.
         //
         // Plan:
-        //: 1 Use primary manipulators to set the root path to various values.
-        //:
-        //: 2 Verify that each basic accessor, invoked on a reference to the
-        //:   non-modifiable object created in P1 returns the expected value.
+        // 1. Use primary manipulators to set the root path to various values.
+        //
+        // 2. Verify that each basic accessor, invoked on a reference to the
+        //    non-modifiable object created in P1 returns the expected value.
         //
         // Testing:
         //   const bsl::string& rootPath() const;
@@ -1267,22 +1267,22 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'isPlausibleZoneinfoRootPath'
+        // TESTING `isPlausibleZoneinfoRootPath`
         //
         // Concerns:
-        //: 1 'isPlausibleZoneinfoRootPath' returns value returns 'true' if
-        //:   the specified 'path' is a valid directory and contains a file
-        //:   name 'GMT, and false otherwise.
-        //:
-        //: 2 'configureRootPathIfPlausible' will only set the root path if the
-        //:   parameter is a plausible Zoneinfo data path.
+        // 1. `isPlausibleZoneinfoRootPath` returns value returns `true` if
+        //    the specified `path` is a valid directory and contains a file
+        //    name 'GMT, and false otherwise.
+        //
+        // 2. `configureRootPathIfPlausible` will only set the root path if the
+        //    parameter is a plausible Zoneinfo data path.
         //
         // Plan:
-        //: 1 Test that 'isPlausibleZoneinfoRootPath' produce expected results
-        //:   at the documented boundaries.
-        //:
-        //: 2 Test that 'configureRootPathIfPlausible' set the 'rootPath' and
-        //:   returns 0 for a plausible path, and returns false otherwise.
+        // 1. Test that `isPlausibleZoneinfoRootPath` produce expected results
+        //    at the documented boundaries.
+        //
+        // 2. Test that `configureRootPathIfPlausible` set the `rootPath` and
+        //    returns 0 for a plausible path, and returns false otherwise.
         //
         // Testing:
         //   bool isPlausibleZoneinfoRootPath(const char *path);
@@ -1290,7 +1290,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'isPlausibleZoneinfoRootPath'" << endl
+                          << "TESTING `isPlausibleZoneinfoRootPath`" << endl
                           << "=====================================" << endl;
 
         {
@@ -1325,43 +1325,43 @@ int main(int argc, char *argv[])
         // DEFAULT CTOR & PRIMARY MANIPULATORS
         //
         // Concerns:
-        //: 1 Default constructor creates an object with an invalid root path.
-        //:
-        //: 2 If an allocator is *not* supplied to the default constructor, the
-        //:   default allocator in effect at the time of construction becomes
-        //:   the object allocator for the resulting object.
-        //:
-        //: 3 If an allocator is supplied to the default constructor, that
-        //:   allocator becomes the object allocator for the resulting object.
-        //:
-        //: 4 Supplying a default-constructed allocator address has the same
-        //:   effect as not supplying an allocator.
-        //:
-        //: 5 Supplying an allocator to the default constructor has no effect
-        //:   on subsequent object values.
-        //:
-        //: 6 Any memory allocation is from the object allocator, which is
-        //:   returned by the 'get_allocator' accessor method.
-        //:
-        //: 7 Every object releases any allocated memory at destruction.
-        //:
-        //: 8 'configureRootPath' is able to set the root path to any string
-        //:   value.
+        // 1. Default constructor creates an object with an invalid root path.
+        //
+        // 2. If an allocator is *not* supplied to the default constructor, the
+        //    default allocator in effect at the time of construction becomes
+        //    the object allocator for the resulting object.
+        //
+        // 3. If an allocator is supplied to the default constructor, that
+        //    allocator becomes the object allocator for the resulting object.
+        //
+        // 4. Supplying a default-constructed allocator address has the same
+        //    effect as not supplying an allocator.
+        //
+        // 5. Supplying an allocator to the default constructor has no effect
+        //    on subsequent object values.
+        //
+        // 6. Any memory allocation is from the object allocator, which is
+        //    returned by the `get_allocator` accessor method.
+        //
+        // 7. Every object releases any allocated memory at destruction.
+        //
+        // 8. `configureRootPath` is able to set the root path to any string
+        //    value.
         //
         // Plan:
-        //: 1 Default construct four objects, in turn, with different allocator
-        //:   configurations:
-        //:   1 without passing an allocator,
-        //:   2 passing a default-constructed allocator explicitly,
-        //:   3 passing the address of a test allocator distinct from the
-        //:     default, and
-        //:   4 passing in an allocator constructed from the address of a test
-        //:     allocator distinct from the default.
-        //:
-        //: 2 Use the primary manipulators with boundary values and verify the
-        //:   object's value.
-        //:
-        //: 3 Verify the correct memory allocator is used.
+        // 1. Default construct four objects, in turn, with different allocator
+        //    configurations:
+        //   1. without passing an allocator,
+        //   2. passing a default-constructed allocator explicitly,
+        //   3. passing the address of a test allocator distinct from the
+        //      default, and
+        //   4. passing in an allocator constructed from the address of a test
+        //      allocator distinct from the default.
+        //
+        // 2. Use the primary manipulators with boundary values and verify the
+        //    object's value.
+        //
+        // 3. Verify the correct memory allocator is used.
         //
         // Testing:
         //   baltzo::DataFileLoader();
@@ -1498,7 +1498,7 @@ int main(int argc, char *argv[])
 
         {
             if (veryVerbose) {
-                cout << "\tTesting 'construction'." << endl;
+                cout << "\tTesting `construction`." << endl;
             }
 
             Obj mX(Z);
@@ -1510,7 +1510,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == defaultAllocator.numBytesInUse());
         {
             if (veryVerbose) {
-                cout << "\tTesting 'loadTimeZoneFilePath' & 'rootPath'."
+                cout << "\tTesting `loadTimeZoneFilePath` & `rootPath`."
                      << endl;
             }
             Obj mX(Z); const Obj& X = mX;
@@ -1536,7 +1536,7 @@ int main(int argc, char *argv[])
         }
         {
             if (veryVerbose) {
-                cout << "\tTesting 'loadTimeZone'." << endl;
+                cout << "\tTesting `loadTimeZone`." << endl;
             }
             Obj mX(Z);
             mX.configureRootPath(TEST_DIRECTORY);
@@ -1567,10 +1567,10 @@ int main(int argc, char *argv[])
     ASSERT(0 == FUtil::setWorkingDirectory(origWorkingDirectory));
     LOOP_ASSERT(tmpWorkingDir, FUtil::exists(tmpWorkingDir));
 
-    // Sometimes this delete won't work because of '.nfs*' gremlin files that
+    // Sometimes this delete won't work because of `.nfs*` gremlin files that
     // mysteriously get created in the directory.  Seems to especially happen
     // in TC 5 for some reason.  Leave the directory behind and move on.  Also
-    // remove twice, because sometimes the first 'remove' 'sorta' fails -- it
+    // remove twice, because sometimes the first `remove` `sorta` fails -- it
     // returns a negative status after successfully killing the gremlin file.
     // Worst case, leave the file there to be cleaned up in a sweep later.
 
@@ -1595,7 +1595,7 @@ int main(int argc, char *argv[])
         u::sleep(10);
     }
     ASSERTV(tmpWorkingDir, !FUtil::exists(tmpWorkingDir) &&
-                                            "unable to clean 'tmpWorkingDir'");
+                                            "unable to clean `tmpWorkingDir`");
 
     return testStatus;
 }

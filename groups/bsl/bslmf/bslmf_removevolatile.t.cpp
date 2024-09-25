@@ -6,8 +6,8 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 using namespace bsl;
 using namespace BloombergLP;
@@ -25,8 +25,8 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines meta-function, 'bsl::remove_volatile' and
-// 'bsl::remove_volatile', that remove any top-level 'volatile'-qualifier from
+// The component under test defines meta-function, `bsl::remove_volatile` and
+// `bsl::remove_volatile`, that remove any top-level `volatile`-qualifier from
 // a template parameter type.  Thus, we need to ensure that the values returned
 // by the meta-function are correct for each possible category of types.
 //
@@ -93,14 +93,14 @@ void aSsErT(bool condition, const char *message, int line)
   ||(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900)
 // The xlC compiler matches function types with trailing cv-qualifiers as being
 // cv-qualified themselves.  However, in such cases the cv-qualifier applies to
-// the (hidden) 'this' pointer, as these function types exist only to be the
+// the (hidden) `this` pointer, as these function types exist only to be the
 // result-type of a pointer-to-member type.  By definition no function type can
 // ever be cv-qualified.  The Microsoft compiler cannot parse such types at
 // all.
 //
-// Note that we could obtain the correct answer by testing 'is_function', and
+// Note that we could obtain the correct answer by testing `is_function`, and
 // simply returning the original type in such cases.  However, that simply
-// exposes that our current implementation of 'is_function' does not detect
+// exposes that our current implementation of `is_function` does not detect
 // such types either.
 # define BSLMF_REMOVEVOLATILE_COMPILER_MISMATCHES_ABOMINABLE_FUNCTION_TYPES 1
 #endif
@@ -140,7 +140,7 @@ namespace {
 
 struct TestType {
    // This user-defined type is intended to be used during testing as an
-   // argument for the template parameter 'TYPE' of 'bsl::remove_volatile'.
+   // argument for the template parameter `TYPE` of `bsl::remove_volatile`.
 };
 
 typedef int TestType::* Pm;
@@ -173,13 +173,13 @@ int main(int argc, char *argv[])
         // USAGE EXAMPLE
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -192,66 +192,66 @@ int main(int argc, char *argv[])
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Removing the 'volatile'-qualifier of a Type
+///Example 1: Removing the `volatile`-qualifier of a Type
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose that we want to remove any 'volatile'-qualifier from a particular
+// Suppose that we want to remove any `volatile`-qualifier from a particular
 // type.
 //
-// First, we create two 'typedef's -- a 'volatile'-qualified type
-// ('MyVolatileType') and the same type without the 'volatile'-qualifier
-// ('MyType'):
-//..
+// First, we create two `typedef`s -- a `volatile`-qualified type
+// (`MyVolatileType`) and the same type without the `volatile`-qualifier
+// (`MyType`):
+// ```
         typedef int          MyType;
         typedef volatile int MyVolatileType;
-//..
-// Now, we remove the 'volatile'-qualifier from 'MyVolatileType' using
-// 'bsl::remove_volatile' and verify that the resulting type is the same as
-// 'MyType':
-//..
+// ```
+// Now, we remove the `volatile`-qualifier from `MyVolatileType` using
+// `bsl::remove_volatile` and verify that the resulting type is the same as
+// `MyType`:
+// ```
         ASSERT(true ==
                (bsl::is_same<bsl::remove_volatile<MyVolatileType>::type,
                                                               MyType>::value));
-//..
+// ```
 // Finally, if the current compiler supports alias templates C++11 feature, we
-// remove a 'volatile'-qualifier from 'MyVolatileType' using
-//'bsl::remove_volatile_t' and verify that the resulting type is the same as
-// 'MyType':
-//..
+// remove a `volatile`-qualifier from `MyVolatileType` using
+//`bsl::remove_volatile_t` and verify that the resulting type is the same as
+// `MyType`:
+// ```
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
         ASSERT(true ==
                (bsl::is_same<bsl::remove_volatile_t<MyVolatileType>,
                                                               MyType>::value));
 #endif
-//..
+// ```
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'bsl::remove_volatile<T>::type'
-        //   Ensure that the 'typedef' 'type' of 'bsl::remove_volatile' has the
+        // TESTING `bsl::remove_volatile<T>::type`
+        //   Ensure that the `typedef` `type` of `bsl::remove_volatile` has the
         //   correct type for a variety of template parameter types.
         //
         // Concerns:
-        //: 1 'bsl::remove_volatile' leaves types that are not
-        //:   'volatile'-qualified at the top-level as-is.
-        //:
-        //: 2 'bsl::remove_volatile' removes any top-level
-        //:   'volatile'-qualifier.
-        //:
-        //: 3 'bsl::remove_volatile' removes any top-level 'volatile'-qualifier
-        //:   from a pointer-to-member object type, and not from the qualifier
-        //:   in the pointed-to member.
-        //:
-        //: 5 'bsl::remove_const_t' represents the return type of
-        //:   'bsl::remove_const' meta-function for a variety of template
-        //:   parameter types.
+        // 1. `bsl::remove_volatile` leaves types that are not
+        //    `volatile`-qualified at the top-level as-is.
+        //
+        // 2. `bsl::remove_volatile` removes any top-level
+        //    `volatile`-qualifier.
+        //
+        // 3. `bsl::remove_volatile` removes any top-level `volatile`-qualifier
+        //    from a pointer-to-member object type, and not from the qualifier
+        //    in the pointed-to member.
+        //
+        // 5. `bsl::remove_const_t` represents the return type of
+        //    `bsl::remove_const` meta-function for a variety of template
+        //    parameter types.
         //
         // Plan:
-        //  1 Verify that 'bsl::remove_volatile::type' has the correct type for
+        //  1 Verify that `bsl::remove_volatile::type` has the correct type for
         //    each concern. (C1-4)
         //
-        //  2 Verify that 'bsl::remove_const_t' has the same type as the return
-        //    type of 'bsl::remove_const' for a variety of template parameter
+        //  2 Verify that `bsl::remove_const_t` has the same type as the return
+        //    type of `bsl::remove_const` for a variety of template parameter
         //    types. (C-5)
         //
         // Testing:
@@ -259,7 +259,7 @@ int main(int argc, char *argv[])
         //   bsl::remove_volatile_t
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'bsl::remove_volatile<T>::type'"
+        if (verbose) printf("\nTESTING `bsl::remove_volatile<T>::type`"
                             "\n=======================================\n");
 
         // C-1
@@ -399,7 +399,7 @@ int main(int argc, char *argv[])
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
         // C-5
 
-        if (verbose) printf("\nTESTING 'bsl::remove_volatile_t'"
+        if (verbose) printf("\nTESTING `bsl::remove_volatile_t`"
                             "\n===============================\n");
 
         ASSERT((is_same<remove_volatile  <int           >::type,
